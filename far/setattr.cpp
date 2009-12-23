@@ -813,8 +813,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel)
 			{
 				AttrDlg[SA_TEXT_NAME].Flags|=DIF_HIDDEN;
 				AttrDlg[SA_COMBO_HARDLINK].Flags&=~DIF_HIDDEN;
-				NameList.Items=new FarListItem[NameList.ItemsNumber];
-				memset(NameList.Items,0,sizeof(FarListItem)*NameList.ItemsNumber);
+				NameList.Items=new FarListItem[NameList.ItemsNumber]();
 				strLinks=new string[NameList.ItemsNumber];
 				HANDLE hFind=apiFindFirstFileName(strSelName,0,strLinks[0]);
 				int Current=0;

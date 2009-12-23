@@ -4442,7 +4442,7 @@ int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
 			CurMacro.Description=xf_wcsdup(strDescription);
 		}
 
-		memcpy(MacroLIB+MacroLIBCount,&CurMacro,sizeof(CurMacro));
+		MacroLIB[MacroLIBCount]=CurMacro;
 		MacroLIBCount++;
 	}
 
@@ -5271,7 +5271,7 @@ int KeyMacro::PushState(bool CopyLocalVars)
 
 	++CurPCStack;
 	Work.UseInternalClipboard=GetUseInternalClipboardState();
-	memcpy(PCStack+CurPCStack,&Work,sizeof(MacroState));
+	PCStack[CurPCStack]=Work;
 	Work.Init(CopyLocalVars?PCStack[CurPCStack].locVarTable:NULL);
 	return TRUE;
 }
@@ -5281,7 +5281,7 @@ int KeyMacro::PopState()
 	if (CurPCStack < 0)
 		return FALSE;
 
-	memcpy(&Work,PCStack+CurPCStack,sizeof(MacroState));
+	Work=PCStack[CurPCStack];
 	SetUseInternalClipboardState(Work.UseInternalClipboard);
 	CurPCStack--;
 	return TRUE;
@@ -5677,7 +5677,7 @@ int KeyMacro::GetCurRecord(MacroRecord* RBuf,int *KeyPos)
 		{
 			if (Work.Executing)
 			{
-				memcpy(RBuf,MacroLIB+Work.MacroPC,sizeof(MacroRecord)); //????
+				*RBuf=MacroLIB[Work.MacroPC]; //????
 				return Work.Executing;
 			}
 

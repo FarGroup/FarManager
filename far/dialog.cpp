@@ -4174,7 +4174,7 @@ int Dialog::SelectFromComboBox(
 			EditX2=EditX1+20;
 
 		SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
-		SetComboBoxPos();
+		SetComboBoxPos(CurItem);
 		// Перед отрисовкой спросим об изменении цветовых атрибутов
 		BYTE RealColors[VMENU_COLOR_COUNT];
 		FarListColors ListColors={0};
@@ -6497,20 +6497,24 @@ BOOL Dialog::IsEditChanged(unsigned ID)
 	return Item[ID]->IFlags.Check(DLGIIF_EDITCHANGEPROCESSED);
 }
 
-void Dialog::SetComboBoxPos()
+void Dialog::SetComboBoxPos(DialogItemEx* Item)
 {
 	if (GetDropDownOpened())
 	{
+		if(!Item)
+		{
+			Item=&Item[FocusPos];
+		}
 		int EditX1,EditY1,EditX2,EditY2;
-		((DlgEdit*)(Item[FocusPos]->ObjPtr))->GetPosition(EditX1,EditY1,EditX2,EditY2);
+		((DlgEdit*)Item->ObjPtr)->GetPosition(EditX1,EditY1,EditX2,EditY2);
 
 		if (EditX2-EditX1<20)
 			EditX2=EditX1+20;
 
-		if (ScrY-EditY1<Min(Opt.Dialogs.CBoxMaxHeight,Item[FocusPos]->ListPtr->GetItemCount())+2 && EditY1>ScrY/2)
-			Item[FocusPos]->ListPtr->SetPosition(EditX1,Max(0,EditY1-1-Min(Opt.Dialogs.CBoxMaxHeight,Item[FocusPos]->ListPtr->GetItemCount())-1),EditX2,EditY1-1);
+		if (ScrY-EditY1<Min(Opt.Dialogs.CBoxMaxHeight,Item->ListPtr->GetItemCount())+2 && EditY1>ScrY/2)
+			Item->ListPtr->SetPosition(EditX1,Max(0,EditY1-1-Min(Opt.Dialogs.CBoxMaxHeight,Item->ListPtr->GetItemCount())-1),EditX2,EditY1-1);
 		else
-			Item[FocusPos]->ListPtr->SetPosition(EditX1,EditY1+1,EditX2,0);
+			Item->ListPtr->SetPosition(EditX1,EditY1+1,EditX2,0);
 	}
 }
 

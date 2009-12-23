@@ -271,12 +271,9 @@ void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW, int iC
 {
 	if (pnmA && ppnmW && (iCount>0))
 	{
-		PanelMode *pnmW = (PanelMode *) xf_malloc(iCount*sizeof(PanelMode));
-
+		PanelMode *pnmW = new PanelMode[iCount]();
 		if (pnmW)
 		{
-			memset(pnmW,0,iCount*sizeof(PanelMode));
-
 			for (int i=0; i<iCount; i++)
 			{
 				int iColumnCount = 0;
@@ -328,7 +325,7 @@ void FreeUnicodePanelModes(PanelMode *pnmW, int iCount)
 			if (pnmW[i].StatusColumnWidths) xf_free(pnmW[i].StatusColumnWidths);
 		}
 
-		xf_free((void*)pnmW);
+		delete[] pnmW;
 	}
 }
 
@@ -457,17 +454,6 @@ void ConvertPanelItemsArrayToAnsi(const PluginPanelItem *PanelItemW, oldfar::Plu
 	for (int i=0; i<ItemsNumber; i++)
 	{
 		ConvertPanelItemToAnsi(PanelItemW[i],PanelItemA[i]);
-	}
-}
-
-void ConvertPanelItemsPtrArrayToAnsi(PluginPanelItem **PanelItemW, oldfar::PluginPanelItem *&PanelItemA, int ItemsNumber)
-{
-	PanelItemA = (oldfar::PluginPanelItem *)xf_malloc(ItemsNumber*sizeof(oldfar::PluginPanelItem));
-	memset(PanelItemA,0,ItemsNumber*sizeof(oldfar::PluginPanelItem));
-
-	for (int i=0; i<ItemsNumber; i++)
-	{
-		ConvertPanelItemToAnsi(*PanelItemW[i],PanelItemA[i]);
 	}
 }
 
@@ -1906,7 +1892,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 					FarSendDlgMessage(hDlg, DM_GETDLGITEM, Param1, (LONG_PTR)di);
 					oldfar::FarDialogItem *FarDiA=UnicodeDialogItemToAnsi(*di,hDlg,Param1);
 					xf_free(di);
-					memcpy((oldfar::FarDialogItem *)Param2,FarDiA,sizeof(oldfar::FarDialogItem));
+					*reinterpret_cast<oldfar::FarDialogItem*>(Param2)=*FarDiA;
 					return TRUE;
 				}
 			}
@@ -2393,13 +2379,12 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 {
 	string strHT(HelpTopic);
 
-	if (!Item || !ItemsNumber) return -1;
+	if (!Item || !ItemsNumber)
+		return -1;
 
-	oldfar::FarDialogItem *diA=(oldfar::FarDialogItem *)xf_malloc(ItemsNumber*sizeof(oldfar::FarDialogItem));
-	memset(diA,0,ItemsNumber*sizeof(oldfar::FarDialogItem));
-	FarDialogItem *di = (FarDialogItem *)xf_malloc(ItemsNumber*sizeof(FarDialogItem));
-	FarList *l = (FarList *)xf_malloc(ItemsNumber*sizeof(FarList));
-	memset(l,0,ItemsNumber*sizeof(FarList));
+	oldfar::FarDialogItem* diA=new oldfar::FarDialogItem[ItemsNumber]();
+	FarDialogItem* di = new FarDialogItem[ItemsNumber]();
+	FarList* l = new FarList[ItemsNumber]();
 
 	for (int i=0; i<ItemsNumber; i++)
 	{
@@ -2475,14 +2460,9 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 	delete *DialogList.Last();
 	DialogList.Delete(DialogList.Last());
 
-	if (diA)
-		xf_free(diA);
-
-	if (di)
-		xf_free(di);
-
-	if (l)
-		xf_free(l);
+	delete[] diA;
+	delete[] di;
+	delete[] l;
 
 	return ret;
 }

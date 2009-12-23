@@ -72,7 +72,7 @@ struct TreeItem
 		if (this != &tiCopy)
 		{
 			strName=tiCopy.strName;
-			memcpy(Last,tiCopy.Last,sizeof(Last));
+			*Last=*tiCopy.Last;
 			Depth=tiCopy.Depth;
 		}
 

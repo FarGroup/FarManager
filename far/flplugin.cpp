@@ -411,11 +411,10 @@ void FileList::CreatePluginItemList(PluginPanelItem *(&ItemList),int &ItemNumber
 	string strSelName;
 	DWORD FileAttr;
 	ItemNumber=0;
-	ItemList=new PluginPanelItem[SelFileCount+1];
+	ItemList=new PluginPanelItem[SelFileCount+1]();
 
 	if (ItemList!=NULL)
 	{
-		memset(ItemList,0,sizeof(PluginPanelItem) *(SelFileCount+1));
 		GetSelName(NULL,FileAttr);
 
 		while (GetSelName(&strSelName,FileAttr))

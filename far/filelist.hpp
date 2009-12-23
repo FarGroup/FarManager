@@ -115,7 +115,7 @@ struct FileListItem
 			PrevSelected = fliCopy.PrevSelected;
 			ShowFolderSize = fliCopy.ShowFolderSize;
 			ShortNamePresent = fliCopy.ShortNamePresent;
-			memcpy(&Colors, &fliCopy.Colors, sizeof(HighlightDataColor));
+			Colors=fliCopy.Colors;
 			NumberOfLinks = fliCopy.NumberOfLinks;
 			NumberOfStreams = fliCopy.NumberOfStreams;
 			UserFlags = fliCopy.UserFlags;
@@ -129,9 +129,9 @@ struct FileListItem
 			CustomColumnNumber = fliCopy.CustomColumnNumber;
 			CRC32 = fliCopy.CRC32;
 			FileAttr = fliCopy.FileAttr;
-			memcpy(&CreationTime, &fliCopy.CreationTime, sizeof(CreationTime));
-			memcpy(&AccessTime, &fliCopy.AccessTime, sizeof(AccessTime));
-			memcpy(&WriteTime, &fliCopy.WriteTime, sizeof(WriteTime));
+			CreationTime=fliCopy.CreationTime;
+			AccessTime=fliCopy.AccessTime;
+			WriteTime=fliCopy.WriteTime;
 			UnpSize = fliCopy.UnpSize;
 			PackSize = fliCopy.PackSize;
 			strName = fliCopy.strName;

@@ -286,7 +286,7 @@ class Dialog: public Frame
 		int Do_ProcessNextCtrl(int Next,BOOL IsRedraw=TRUE);
 		int Do_ProcessFirstCtrl();
 		int Do_ProcessSpace();
-		void SetComboBoxPos();
+		void SetComboBoxPos(DialogItemEx* Item=NULL);
 
 		LONG_PTR CallDlgProc(int nMsg, int nParam1, LONG_PTR nParam2);
 

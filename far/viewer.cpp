@@ -76,12 +76,11 @@ Viewer::Viewer(bool bQuickView, UINT aCodePage)
 {
 	_OT(SysLog(L"[%p] Viewer::Viewer()", this));
 	m_bQuickView = bQuickView;
-	memcpy(&ViOpt, &Opt.ViOpt, sizeof(ViewerOptions));
+	ViOpt=Opt.ViOpt;
 
 	for (int i=0; i<=MAXSCRY; i++)
 	{
-		Strings[i] = new ViewerString;
-		memset(Strings[i], 0, sizeof(ViewerString));
+		Strings[i] = new ViewerString();
 		Strings[i]->lpData = new wchar_t[MAX_VIEWLINEB];
 	}
 

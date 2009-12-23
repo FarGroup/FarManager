@@ -71,9 +71,9 @@ const FileFilterParams &FileFilterParams::operator=(const FileFilterParams &FF)
 		const wchar_t *Mask;
 		FF.GetMask(&Mask);
 		SetMask(FF.GetMask(NULL),Mask);
-		memcpy(&FSize,&FF.FSize,sizeof(FSize));
-		memcpy(&FDate,&FF.FDate,sizeof(FDate));
-		memcpy(&FAttr,&FF.FAttr,sizeof(FAttr));
+		FSize=FF.FSize;
+		FDate=FF.FDate;
+		FAttr=FF.FAttr;
 		FF.GetColors(&FHighlight.Colors);
 		FHighlight.SortGroup=FF.GetSortGroup();
 		FHighlight.bContinueProcessing=FF.GetContinueProcessing();
@@ -207,7 +207,7 @@ void FileFilterParams::SetAttr(bool Used, DWORD AttrSet, DWORD AttrClear)
 
 void FileFilterParams::SetColors(HighlightDataColor *Colors)
 {
-	memcpy(&FHighlight.Colors,Colors,sizeof(FHighlight.Colors));
+	FHighlight.Colors=*Colors;
 }
 
 const wchar_t *FileFilterParams::GetTitle() const
@@ -270,7 +270,7 @@ bool FileFilterParams::GetAttr(DWORD *AttrSet, DWORD *AttrClear) const
 
 void FileFilterParams::GetColors(HighlightDataColor *Colors) const
 {
-	memcpy(Colors,&FHighlight.Colors,sizeof(*Colors));
+	*Colors=FHighlight.Colors;
 }
 
 int FileFilterParams::GetMarkChar() const

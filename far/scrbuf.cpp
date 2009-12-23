@@ -92,16 +92,8 @@ void ScreenBuf::AllocBuf(int X,int Y)
 	if (Shadow) delete[] Shadow;
 
 	unsigned Cnt=X*Y;
-	Buf=new CHAR_INFO[Cnt];
-	Shadow=new CHAR_INFO[Cnt];
-#if !defined(ALLOC)
-	/* а вот здесь самая интересность: при переопределенных функция запроса
-	   памяти - память уже проинициализированна нулями ;-)
-	   поэтому этот кусок пропустится...
-	*/
-	memset(Buf,0,Cnt*sizeof(CHAR_INFO));
-	memset(Shadow,0,Cnt*sizeof(CHAR_INFO));
-#endif
+	Buf=new CHAR_INFO[Cnt]();
+	Shadow=new CHAR_INFO[Cnt]();
 	BufX=X;
 	BufY=Y;
 }

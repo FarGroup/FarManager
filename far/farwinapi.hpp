@@ -75,9 +75,9 @@ struct FAR_FIND_DATA_EX
 		if (this != &ffdexCopy)
 		{
 			dwFileAttributes=ffdexCopy.dwFileAttributes;
-			memcpy(&ftCreationTime,&ffdexCopy.ftCreationTime,sizeof(ftCreationTime));
-			memcpy(&ftLastAccessTime,&ffdexCopy.ftLastAccessTime,sizeof(ftLastAccessTime));
-			memcpy(&ftLastWriteTime,&ffdexCopy.ftLastWriteTime,sizeof(ftLastWriteTime));
+			ftCreationTime=ffdexCopy.ftCreationTime;
+			ftLastAccessTime=ffdexCopy.ftLastAccessTime;
+			ftLastWriteTime=ffdexCopy.ftLastWriteTime;
 			nFileSize=ffdexCopy.nFileSize;
 			nPackSize=ffdexCopy.nPackSize;
 			dwReserved0=ffdexCopy.dwReserved0;

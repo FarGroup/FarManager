@@ -485,8 +485,8 @@ static void CreatePluginStartupInfoA(PluginA *pPlugin, oldfar::PluginStartupInfo
 		StartupInfo.InputBox=FarInputBoxA;
 	}
 
-	memcpy(PSI,&StartupInfo,sizeof(StartupInfo));
-	memcpy(FSF,&StandardFunctions,sizeof(StandardFunctions));
+	*PSI=StartupInfo;
+	*FSF=StandardFunctions;
 	PSI->ModuleNumber=(INT_PTR)pPlugin;
 	PSI->FSF=FSF;
 	pPlugin->GetModuleName().GetCharString(PSI->ModuleName,sizeof(PSI->ModuleName));
@@ -1309,7 +1309,7 @@ void PluginA::ConvertOpenPluginInfo(oldfar::OpenPluginInfo &Src, OpenPluginInfo 
 	if (Src.ShortcutData)
 		OPI.ShortcutData = AnsiToUnicode(Src.ShortcutData);
 
-	memcpy(Dest,&OPI,sizeof(OpenPluginInfo));
+	*Dest=OPI;
 }
 
 void PluginA::GetOpenPluginInfo(
@@ -1424,7 +1424,7 @@ void PluginA::ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest)
 	if (Src.CommandPrefix)
 		PI.CommandPrefix = AnsiToUnicode(Src.CommandPrefix);
 
-	memcpy(Dest,&PI,sizeof(*Dest));
+	*Dest=PI;
 }
 
 bool PluginA::GetPluginInfo(PluginInfo *pi)

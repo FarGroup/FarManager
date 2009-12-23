@@ -7084,7 +7084,7 @@ Edit *Editor::InsertString(const wchar_t *lpwszStr, int nLength, Edit *pAfter)
 
 void Editor::SetCacheParams(EditorCacheParams *pp)
 {
-	memcpy(&SavePos, &pp->SavePos, sizeof(InternalEditorBookMark));
+	SavePos=pp->SavePos;
 	//m_codepage = pp->Table; //BUGBUG!!!, LoadFile do it itself
 
 	if (StartLine == -2)  // from Viewer!
@@ -7163,7 +7163,9 @@ void Editor::GetCacheParams(EditorCacheParams *pp)
 	pp->CodePage = m_codepage;
 
 	if (Opt.EdOpt.SaveShortPos)
-		memcpy(&pp->SavePos, &SavePos, sizeof(InternalEditorBookMark));
+	{
+		pp->SavePos=SavePos;
+	}
 }
 
 

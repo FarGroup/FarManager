@@ -1225,13 +1225,11 @@ int FileList::ProcessKey(int Key)
 		{
 			_ALGO(CleverSysLog clv(L"Edit/View"));
 			_ALGO(SysLog(L"%s, FileCount=%d Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
-			OpenPluginInfo Info;
+			OpenPluginInfo Info={0};
 			BOOL RefreshedPanel=TRUE;
 
 			if (PanelMode==PLUGIN_PANEL)
 				CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
-			else
-				memset(&Info,0,sizeof(Info));
 
 			if (Key == KEY_NUMPAD5 || Key == KEY_SHIFTNUMPAD5)
 				Key=KEY_F3;

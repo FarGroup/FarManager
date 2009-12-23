@@ -513,8 +513,8 @@ void CreatePluginStartupInfo(Plugin *pPlugin, PluginStartupInfo *PSI, FarStandar
 		StartupInfo.RegExpControl=farRegExpControl;
 	}
 
-	memcpy(PSI,&StartupInfo,sizeof(StartupInfo));
-	memcpy(FSF,&StandardFunctions,sizeof(StandardFunctions));
+	*PSI=StartupInfo;
+	*FSF=StandardFunctions;
 	PSI->FSF=FSF;
 	PSI->RootKey=NULL;
 	PSI->ModuleNumber=(INT_PTR)pPlugin;
