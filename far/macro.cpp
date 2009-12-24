@@ -383,6 +383,7 @@ KeyMacro::KeyMacro()
 	RecSrc=NULL;
 	Mode=MACRO_SHELL;
 	LastOpCodeUF=KEY_MACRO_U_BASE;
+	Recording=MACROMODE_NOMACRO;
 	memset(&IndexMode,0,sizeof(IndexMode));
 }
 
