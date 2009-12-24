@@ -449,24 +449,23 @@ void KeyMacro::InitInternalVars(BOOL InitedRAM)
 // (динамически - значит в PlayMacros передали строку.
 void KeyMacro::ReleaseWORKBuffer(BOOL All)
 {
-	if (!Work.MacroWORK.Empty())
+	if (Work.MacroWORK)
 	{
-		if (All || Work.MacroWORK.Count() <= 1)
+		if (All || Work.MacroWORKCount <= 1)
 		{
-			for (MacroRecord** i=Work.MacroWORK.First();i;i=Work.MacroWORK.Next(i))
+			for (int I=0; I<Work.MacroWORKCount; I++)
 			{
-				if ((*i)->BufferSize > 1 && (*i)->Buffer)
-					xf_free((*i)->Buffer);
+				if (Work.MacroWORK[I].BufferSize > 1 && Work.MacroWORK[I].Buffer)
+					xf_free(Work.MacroWORK[I].Buffer);
 
-				if ((*i)->Src)
-					xf_free((*i)->Src);
+				if (Work.MacroWORK[I].Src)
+					xf_free(Work.MacroWORK[I].Src);
 
-				if ((*i)->Description)
-					xf_free((*i)->Description);
-				delete *i;
+				if (Work.MacroWORK[I].Description)
+					xf_free(Work.MacroWORK[I].Description);
 			}
 
-			Work.MacroWORK.Clear();
+			xf_free(Work.MacroWORK);
 
 			if (Work.AllocVarTable)
 			{
@@ -475,17 +474,20 @@ void KeyMacro::ReleaseWORKBuffer(BOOL All)
 				//Work.locVarTable=NULL;
 				//Work.AllocVarTable=false;
 			}
+
+			Work.MacroWORK=NULL;
+			Work.MacroWORKCount=0;
 		}
 		else
 		{
-			if ((*Work.MacroWORK.First())->BufferSize > 1 && (*Work.MacroWORK.First())->Buffer)
-				xf_free((*Work.MacroWORK.First())->Buffer);
+			if (Work.MacroWORK->BufferSize > 1 && Work.MacroWORK->Buffer)
+				xf_free(Work.MacroWORK->Buffer);
 
-			if ((*Work.MacroWORK.First())->Src)
-				xf_free((*Work.MacroWORK.First())->Src);
+			if (Work.MacroWORK->Src)
+				xf_free(Work.MacroWORK->Src);
 
-			if ((*Work.MacroWORK.First())->Description)
-				xf_free((*Work.MacroWORK.First())->Description);
+			if (Work.MacroWORK->Description)
+				xf_free(Work.MacroWORK->Description);
 
 			if (Work.AllocVarTable)
 			{
@@ -494,8 +496,10 @@ void KeyMacro::ReleaseWORKBuffer(BOOL All)
 				//Work.locVarTable=NULL;
 				//Work.AllocVarTable=false;
 			}
-			delete *Work.MacroWORK.First();
-			Work.MacroWORK.Delete(Work.MacroWORK.First());
+
+			Work.MacroWORKCount--;
+			memmove(Work.MacroWORK,((BYTE*)Work.MacroWORK)+sizeof(MacroRecord),sizeof(MacroRecord)*Work.MacroWORKCount);
+			Work.MacroWORK=(MacroRecord *)xf_realloc(Work.MacroWORK,sizeof(MacroRecord)*Work.MacroWORKCount);
 		}
 	}
 }
@@ -783,12 +787,10 @@ bool KeyMacro::GetPlainText(string& strDest)
 {
 	strDest.Clear();
 
-	if(Work.MacroWORK.Empty())
-	{
+	if (!Work.MacroWORK)
 		return false;
-	}
 
-	MacroRecord *MR=*Work.MacroWORK.First();
+	MacroRecord *MR=Work.MacroWORK;
 	int LenTextBuf=(int)(StrLength((wchar_t*)&MR->Buffer[Work.ExecLIBPos]))*sizeof(wchar_t);
 
 	if (LenTextBuf && MR->Buffer[Work.ExecLIBPos])
@@ -815,7 +817,11 @@ bool KeyMacro::GetPlainText(string& strDest)
 
 int KeyMacro::GetPlainTextSize()
 {
-	return Work.MacroWORK.Empty()?0:StrLength((wchar_t*)&(*Work.MacroWORK.First())->Buffer[Work.ExecLIBPos]);
+	if (!Work.MacroWORK)
+		return 0;
+
+	MacroRecord *MR=Work.MacroWORK;
+	return StrLength((wchar_t*)&MR->Buffer[Work.ExecLIBPos]);
 }
 
 TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
@@ -3159,7 +3165,7 @@ int KeyMacro::GetKey()
 
 	if (Work.Executing == MACROMODE_NOMACRO)
 	{
-		if(Work.MacroWORK.Empty())
+		if (!Work.MacroWORK)
 		{
 			if (CurPCStack >= 0)
 			{
@@ -3206,7 +3212,7 @@ int KeyMacro::GetKey()
 		*/
 		//if(Work.MacroWORK)
 		{
-			Work.Executing=(*Work.MacroWORK.First())->Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
+			Work.Executing=Work.MacroWORK->Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
 			Work.ExecLIBPos=0; //?????????????????????????????????
 		}
 		//else
@@ -3215,12 +3221,12 @@ int KeyMacro::GetKey()
 
 initial:
 
-	if(Work.MacroWORK.Empty() || !(*Work.MacroWORK.First())->Buffer)
+	if ((MR=Work.MacroWORK) == NULL || !MR->Buffer)
 	{
 		//_KEYMACRO(SysLog(L"[%d] return RetKey=%d",__LINE__,RetKey));
 		return 0; // RetKey; ?????
 	}
-	MR=*Work.MacroWORK.First();
+
 	//_SVS(SysLog(L"KeyMacro::GetKey() initial: Work.ExecLIBPos=%d (%d) %p",Work.ExecLIBPos,MR->BufferSize,Work.MacroWORK));
 
 	// ВНИМАНИЕ! Возможны глюки!
@@ -3254,7 +3260,7 @@ done:
 			CtrlObject->Plugins.CurEditor->Show();
 		}
 
-		if (CurPCStack < 0 && (Work.MacroWORK.Count()-1) <= 0) // mantis#351
+		if (CurPCStack < 0 && (Work.MacroWORKCount-1) <= 0) // mantis#351
 		{
 			if (LockScr) delete LockScr;
 
@@ -3266,7 +3272,7 @@ done:
 		ReleaseWORKBuffer();
 
 		// проверим - "а есть ли в временном стеке еще макрЫсы"?
-		if (!Work.MacroWORK.Empty())
+		if (Work.MacroWORKCount > 0)
 		{
 			// нашлось, запустим механизму по новой
 			Work.ExecLIBPos=0;
@@ -3279,7 +3285,7 @@ done:
 		//FrameManager->PluginCommit();
 		_KEYMACRO(SysLog(-1); SysLog(L"[%d] **** End Of Execute Macro ****",__LINE__));
 
-		if (Work.MacroWORK.Empty() && CurPCStack >= 0)
+		if (Work.MacroWORKCount <= 0 && CurPCStack >= 0)
 		{
 			PopState();
 			goto initial;
@@ -3289,7 +3295,7 @@ done:
 	}
 
 	if (Work.ExecLIBPos==0)
-		Work.Executing=(*Work.MacroWORK.First())->Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
+		Work.Executing=Work.MacroWORK->Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
 
 	// Mantis#0000581: Добавить возможность прервать выполнение макроса
 	{
@@ -3927,7 +3933,7 @@ return_func:
 
 #else
 
-	if (!Work.MacroWORK.Empty() && MR==*Work.MacroWORK.First() && Work.ExecLIBPos>=MR->BufferSize)
+	if (MR==Work.MacroWORK && Work.ExecLIBPos>=MR->BufferSize)
 	{
 		_KEYMACRO(SysLog(-1); SysLog(L"[%d] **** End Of Execute Macro ****",__LINE__));
 		ReleaseWORKBuffer();
@@ -3944,12 +3950,12 @@ return_func:
 // Проверить - есть ли еще клавиша?
 int KeyMacro::PeekKey()
 {
-	if (InternalInput || Work.MacroWORK.Empty())
+	if (InternalInput || !Work.MacroWORK)
 		return(0);
 
-	MacroRecord *MR=*Work.MacroWORK.First();
+	MacroRecord *MR=Work.MacroWORK;
 
-	if ((Work.Executing == MACROMODE_NOMACRO && Work.MacroWORK.Empty()) || Work.ExecLIBPos >= MR->BufferSize)
+	if ((Work.Executing == MACROMODE_NOMACRO && !Work.MacroWORK) || Work.ExecLIBPos >= MR->BufferSize)
 		return(FALSE);
 
 	DWORD OpCode=GetOpCode(MR,Work.ExecLIBPos);
@@ -5080,7 +5086,7 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 
 int KeyMacro::PostNewMacro(const wchar_t *PlainText,DWORD Flags,DWORD AKey,BOOL onlyCheck)
 {
-	MacroRecord* NewMacroWORK=new MacroRecord();
+	MacroRecord NewMacroWORK2={0};
 	wchar_t *Buffer=(wchar_t *)PlainText;
 	bool allocBuffer=false;
 
@@ -5120,42 +5126,52 @@ int KeyMacro::PostNewMacro(const wchar_t *PlainText,DWORD Flags,DWORD AKey,BOOL 
 			}
 		}
 		else
-		{
-			delete NewMacroWORK;
 			return FALSE;
-		}
 	}
 
 	// сначала смотрим на парсер
-	BOOL parsResult=ParseMacroString(NewMacroWORK,Buffer,onlyCheck);
+	BOOL parsResult=ParseMacroString(&NewMacroWORK2,Buffer,onlyCheck);
 
 	if (allocBuffer && Buffer)
 		xf_free(Buffer);
 
 	if (!parsResult)
 	{
-		if (NewMacroWORK->BufferSize > 1)
-			xf_free(NewMacroWORK->Buffer);
-		delete NewMacroWORK;
+		if (NewMacroWORK2.BufferSize > 1)
+			xf_free(NewMacroWORK2.Buffer);
+
 		return FALSE;
 	}
 
 	if (onlyCheck)
 	{
-		if (NewMacroWORK->BufferSize > 1)
-			xf_free(NewMacroWORK->Buffer);
-		delete NewMacroWORK;
+		if (NewMacroWORK2.BufferSize > 1)
+			xf_free(NewMacroWORK2.Buffer);
+
 		return TRUE;
 	}
 
-	NewMacroWORK->Flags=Flags;
-	NewMacroWORK->Key=AKey;
+	NewMacroWORK2.Flags=Flags;
+	NewMacroWORK2.Key=AKey;
+	// теперь попробуем выделить немного нужной памяти
+	MacroRecord *NewMacroWORK;
+
+	if ((NewMacroWORK=(MacroRecord *)xf_realloc(Work.MacroWORK,sizeof(MacroRecord)*(Work.MacroWORKCount+1))) == NULL)
+	{
+		if (NewMacroWORK2.BufferSize > 1)
+			xf_free(NewMacroWORK2.Buffer);
+
+		return FALSE;
+	}
 
 	// теперь добавим в нашу "очередь" новые данные
-	Work.MacroWORK.Push(&NewMacroWORK);
+	Work.MacroWORK=NewMacroWORK;
+	NewMacroWORK=Work.MacroWORK+Work.MacroWORKCount;
+	*NewMacroWORK=NewMacroWORK2;
+	Work.MacroWORKCount++;
 
-	//Work.Executing=(*Work.MacroWORK.First())->Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
-	if (Work.ExecLIBPos == (*Work.MacroWORK.First())->BufferSize)
+	//Work.Executing=Work.MacroWORK->Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
+	if (Work.ExecLIBPos == Work.MacroWORK->BufferSize)
 		Work.ExecLIBPos=0;
 
 	return TRUE;
@@ -5166,39 +5182,51 @@ int KeyMacro::PostNewMacro(MacroRecord *MRec,BOOL NeedAddSendFlag,BOOL IsPluginS
 	if (!MRec)
 		return FALSE;
 
-	MacroRecord* NewMacroWORK=new MacroRecord;
-	*NewMacroWORK=*MRec;
-	NewMacroWORK->Src=NULL;
-	NewMacroWORK->Description=NULL;
+	MacroRecord NewMacroWORK2={0};
+	NewMacroWORK2=*MRec;
+	NewMacroWORK2.Src=NULL;
+	NewMacroWORK2.Description=NULL;
 	//if(MRec->BufferSize > 1)
 	{
-		if ((NewMacroWORK->Buffer=(DWORD*)xf_malloc((MRec->BufferSize+3)*sizeof(DWORD))) == NULL)
+		if ((NewMacroWORK2.Buffer=(DWORD*)xf_malloc((MRec->BufferSize+3)*sizeof(DWORD))) == NULL)
 		{
 			return FALSE;
 		}
 	}
+	// теперь попробуем выделить немного нужной памяти
+	MacroRecord *NewMacroWORK;
+
+	if ((NewMacroWORK=(MacroRecord *)xf_realloc(Work.MacroWORK,sizeof(MacroRecord)*(Work.MacroWORKCount+1))) == NULL)
+	{
+		//if(MRec->BufferSize > 1)
+		xf_free(NewMacroWORK2.Buffer);
+		return FALSE;
+	}
 
 	// теперь добавим в нашу "очередь" новые данные
 	if (IsPluginSend)
-		NewMacroWORK->Buffer[0]=MCODE_OP_KEYS;
+		NewMacroWORK2.Buffer[0]=MCODE_OP_KEYS;
 
 	if ((MRec->BufferSize+1) > 2)
-		memcpy(&NewMacroWORK->Buffer[IsPluginSend?1:0],MRec->Buffer,sizeof(DWORD)*MRec->BufferSize);
+		memcpy(&NewMacroWORK2.Buffer[IsPluginSend?1:0],MRec->Buffer,sizeof(DWORD)*MRec->BufferSize);
 	else if (MRec->Buffer)
-		NewMacroWORK->Buffer[IsPluginSend?1:0]=(DWORD)(DWORD_PTR)MRec->Buffer;
+		NewMacroWORK2.Buffer[IsPluginSend?1:0]=(DWORD)(DWORD_PTR)MRec->Buffer;
 
 	if (IsPluginSend)
-		NewMacroWORK->Buffer[NewMacroWORK->BufferSize+1]=MCODE_OP_ENDKEYS;
+		NewMacroWORK2.Buffer[NewMacroWORK2.BufferSize+1]=MCODE_OP_ENDKEYS;
 
-	//NewMacroWORK->Buffer[NewMacroWORK->BufferSize]=MCODE_OP_NOP; // доп.клавиша/пустышка
+	//NewMacroWORK2.Buffer[NewMacroWORK2.BufferSize]=MCODE_OP_NOP; // доп.клавиша/пустышка
 
 	if (IsPluginSend)
-		NewMacroWORK->BufferSize+=2;
+		NewMacroWORK2.BufferSize+=2;
 
-	Work.MacroWORK.Push(&NewMacroWORK);
+	Work.MacroWORK=NewMacroWORK;
+	NewMacroWORK=Work.MacroWORK+Work.MacroWORKCount;
+	*NewMacroWORK=NewMacroWORK2;
+	Work.MacroWORKCount++;
 
 	//Work.Executing=Work.MacroWORK->Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
-	if (Work.ExecLIBPos == (*Work.MacroWORK.First())->BufferSize)
+	if (Work.ExecLIBPos == Work.MacroWORK->BufferSize)
 		Work.ExecLIBPos=0;
 
 	return TRUE;
@@ -5248,8 +5276,8 @@ int KeyMacro::ParseMacroString(MacroRecord *CurMacro,const wchar_t *BufPtr,BOOL 
 
 void MacroState::Init(TVarTable *tbl)
 {
-	KeyProcess=Executing=MacroPC=ExecLIBPos=0;
-	MacroWORK.Clear();
+	KeyProcess=Executing=MacroPC=ExecLIBPos=MacroWORKCount=0;
+	MacroWORK=NULL;
 
 	if (!tbl)
 	{
@@ -5654,9 +5682,9 @@ BOOL KeyMacro::CheckAll(int /*CheckMode*/,DWORD CurFlags)
 */
 BOOL KeyMacro::CheckCurMacroFlags(DWORD Flags)
 {
-	if (Work.Executing && !Work.MacroWORK.Empty())
+	if (Work.Executing && Work.MacroWORK)
 	{
-		return ((*Work.MacroWORK.First())->Flags&Flags)?TRUE:FALSE;
+		return (Work.MacroWORK->Flags&Flags)?TRUE:FALSE;
 	}
 
 	return(FALSE);
@@ -5761,9 +5789,9 @@ DWORD KeyMacro::SetOpCode(MacroRecord *MR,int PC,DWORD OpCode)
 // BugZ#873 - ACTL_POSTKEYSEQUENCE и заголовок окна
 int KeyMacro::IsExecutingLastKey()
 {
-	if (Work.Executing && !Work.MacroWORK.Empty())
+	if (Work.Executing && Work.MacroWORK)
 	{
-		return (Work.ExecLIBPos == (*Work.MacroWORK.First())->BufferSize-1);
+		return (Work.ExecLIBPos == Work.MacroWORK->BufferSize-1);
 	}
 
 	return FALSE;
