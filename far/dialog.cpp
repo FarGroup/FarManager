@@ -6497,24 +6497,24 @@ BOOL Dialog::IsEditChanged(unsigned ID)
 	return Item[ID]->IFlags.Check(DLGIIF_EDITCHANGEPROCESSED);
 }
 
-void Dialog::SetComboBoxPos(DialogItemEx* Item)
+void Dialog::SetComboBoxPos(DialogItemEx* CurItem)
 {
 	if (GetDropDownOpened())
 	{
-		if(!Item)
+		if(!CurItem)
 		{
-			Item=&Item[FocusPos];
+			CurItem=Item[FocusPos];
 		}
 		int EditX1,EditY1,EditX2,EditY2;
-		((DlgEdit*)Item->ObjPtr)->GetPosition(EditX1,EditY1,EditX2,EditY2);
+		((DlgEdit*)CurItem->ObjPtr)->GetPosition(EditX1,EditY1,EditX2,EditY2);
 
 		if (EditX2-EditX1<20)
 			EditX2=EditX1+20;
 
-		if (ScrY-EditY1<Min(Opt.Dialogs.CBoxMaxHeight,Item->ListPtr->GetItemCount())+2 && EditY1>ScrY/2)
-			Item->ListPtr->SetPosition(EditX1,Max(0,EditY1-1-Min(Opt.Dialogs.CBoxMaxHeight,Item->ListPtr->GetItemCount())-1),EditX2,EditY1-1);
+		if (ScrY-EditY1<Min(Opt.Dialogs.CBoxMaxHeight,CurItem->ListPtr->GetItemCount())+2 && EditY1>ScrY/2)
+			CurItem->ListPtr->SetPosition(EditX1,Max(0,EditY1-1-Min(Opt.Dialogs.CBoxMaxHeight,CurItem->ListPtr->GetItemCount())-1),EditX2,EditY1-1);
 		else
-			Item->ListPtr->SetPosition(EditX1,EditY1+1,EditX2,0);
+			CurItem->ListPtr->SetPosition(EditX1,EditY1+1,EditX2,0);
 	}
 }
 
