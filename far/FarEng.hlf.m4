@@ -614,8 +614,8 @@ Pressing #Shift-Enter# on "#..#" opens the current directory in the Explorer.
     If the cursor points to a directory, pressing #Ctrl-PgDn# changes to that
 directory. If the cursor points to a file, then, depending on the file type,
 an ~associated command~@FileAssoc@ is executed or the archive is opened.
-    #Ctrl-Shift-PgDn# всегда инициирует вход в архив, вне зависимости от
-файловых ассоциаций.
+    #Ctrl-Shift-PgDn# always opens the archive, regardless of the associated
+command configuration.
 
   Change to the parent folder                              #Ctrl-PgUp#
 
@@ -831,7 +831,7 @@ in filenames and in editor).
                   that owns the menu item.
     #F4#          - assign a hotkey for selected menu item. If #Space# is
                   entered, then Far sets the hotkey automatically.
-    #Shift-F9#    - параметры выбранного модуля.
+    #Shift-F9#    - settings of the selected plugin.
     #Alt-Shift-F9# - open ~"Plugins configuration"~@PluginsConfig@ menu.
 
     See also ~Plugins support~@Plugins@.
@@ -1595,7 +1595,7 @@ available:
 
   Clear the commands history                                      #Del#
 
-  Установить/снять пометку блокировки пункт истории               #Ins#
+  Lock/unlock a history item                                      #Ins#
 
   Delete the current history item                           #Shift-Del#
 
@@ -1611,7 +1611,7 @@ use the highlighted shortcut letters.
     If you want to save the commands history after exiting FAR, use the
 respective option in the ~system settings dialog~@SystemSettings@.
 
-    Заблокированные пункты не будут удаляться при очистке истории.
+    Locked history items will not be deleted when the history is cleared. 
 
 @HistoryViews
 $ #History: file view and edit#
