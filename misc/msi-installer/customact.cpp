@@ -409,6 +409,10 @@ void update_feature_state(MSIHANDLE h_install) {
   }
 }
 
+// Find all hidden features with names like F1.F2...FN and set their state to installed
+// when all the features F1, F2, ..., FN are installed.
+// Example: feature Docs.Russian (Russian documentation) is installed only when feature Docs (Documentation)
+// and feature Russian (Russian language support) are installed by user.
 UINT __stdcall UpdateFeatureState(MSIHANDLE h_install) {
   BEGIN_ERROR_HANDLER
   update_feature_state(h_install);
@@ -417,11 +421,14 @@ UINT __stdcall UpdateFeatureState(MSIHANDLE h_install) {
   return ERROR_INSTALL_FAILURE;
 }
 
+// Read console properties for all existing shortcuts and save them for later use by RestoreShortcutProps.
 UINT __stdcall SaveShortcutProps(MSIHANDLE h_install) {
   save_shortcut_props(h_install);
   return ERROR_SUCCESS;
 }
 
+// Restore console properties saved by SaveShortcutProps.
+// This action is run after shortcuts are recreated by upgrade/repair.
 UINT __stdcall RestoreShortcutProps(MSIHANDLE h_install) {
   restore_shortcut_props(h_install);
   return ERROR_SUCCESS;

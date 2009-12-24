@@ -273,7 +273,6 @@
           <Condition Action="show">WixUI_InstallMode = "Repair"</Condition>
           <Condition Action="enable">WixUI_InstallMode = "Repair"</Condition>
           <Condition Action="default">WixUI_InstallMode = "Repair"</Condition>
-          <Publish Event="ReinstallMode" Value="ecmus"><![CDATA[OutOfDiskSpace <> 1]]></Publish>
           <Publish Event="Reinstall" Value="All"><![CDATA[OutOfDiskSpace <> 1]]></Publish>
           <Publish Event="EndDialog" Value="Return"><![CDATA[OutOfDiskSpace <> 1]]></Publish>
           <Publish Event="SpawnDialog" Value="OutOfRbDiskDlg">OutOfDiskSpace = 1 AND OutOfNoRbDiskSpace = 0 AND (PROMPTROLLBACKCOST="P" OR NOT PROMPTROLLBACKCOST)</Publish>
