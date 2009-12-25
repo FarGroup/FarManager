@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "dirmix.hpp"
 #include "strmix.hpp"
+#include "keyboard.hpp"
 
 CommandLine::CommandLine()
 {
@@ -94,7 +95,7 @@ void CommandLine::DisplayObject()
 	GotoXY(X1,Y1);
 	SetColor(COL_COMMANDLINEPREFIX);
 	Text(strTruncDir);
-	CmdStr.SetObjectColor(COL_COMMANDLINE,COL_COMMANDLINESELECTED);
+	CmdStr.SetObjectColor(COL_COMMANDLINE,COL_COMMANDLINESELECTED,COL_COMMANDLINECOMPLETION);
 	//CmdStr.SetLeftPos(0);
 	CmdStr.SetPosition(X1+(int)strTruncDir.GetLength(),Y1,X2,Y2);
 	CmdStr.Show();
@@ -323,6 +324,7 @@ int CommandLine::ProcessKey(int Key)
 		case KEY_SHIFTENTER:
 		{
 			Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+			CmdStr.RemoveTransientSelection();
 			CmdStr.Select(-1,0);
 			CmdStr.Show();
 			CmdStr.GetString(strStr);
@@ -371,6 +373,12 @@ int CommandLine::ProcessKey(int Key)
 			//   —брасываем выделение на некоторых клавишах
 			if (!Opt.CmdLine.EditBlock)
 			{
+				// перемещение курсора влево очищает автодополненный фрагмент
+				if (IsLeftNavKey(Key))
+				{
+					CmdStr.RemoveTransientSelection();
+				}
+
 				static int UnmarkKeys[]=
 				{
 					KEY_LEFT,       KEY_NUMPAD4,
@@ -438,7 +446,7 @@ int CommandLine::ProcessKey(int Key)
 						if (CtrlObject->CmdHistory->GetSimilar(strStr,-1,true))
 						{
 							CmdStr.SetString(strStr);
-							CmdStr.Select(SelEnd,static_cast<int>(CmdStr.GetLength())); //select the appropriate text
+							CmdStr.SelectTransient(SelEnd,static_cast<int>(CmdStr.GetLength())); //select the appropriate text
 							CmdStr.SetCurPos(CurPos); // SelEnd
 						}
 					}

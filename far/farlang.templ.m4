@@ -11144,6 +11144,14 @@ MSetColorCommandLineUserScreen
 "Konzol háttere"
 "Ekran użytkownika"
 
+MSetColorCommandLineCompletion
+"Автодополнение"
+"Auto completion"              
+"Auto completion"
+"Auto completion"
+"Auto completion"
+"Auto completion"
+
 MSetColorClockNormal
 l:
 "Обычный текст (панели)"

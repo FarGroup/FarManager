@@ -157,6 +157,7 @@ class Edit:public ScreenObject
 		int    MSelStart;
 		int    SelStart;
 		int    SelEnd;
+		int    SelTransient;
 
 		int    EndType;
 
@@ -270,6 +271,8 @@ class Edit:public ScreenObject
 		int   RealPosToTab(int Pos);
 		int   TabPosToReal(int Pos);
 		void  Select(int Start,int End);
+		void  SelectTransient(int Start,int End);
+		void  RemoveTransientSelection();
 		void  AddSelect(int Start,int End);
 		void  GetSelection(int &Start,int &End);
 		BOOL  IsSelection() {return  SelStart==-1 && !SelEnd?FALSE:TRUE; };

@@ -473,7 +473,10 @@ void Edit::FastShow()
 		else
 		{
 			FS<<fmt::Precision(TabSelStart)<<OutStr;
-			SetColor(SelColor);
+			if (SelTransient)
+				SetColor(ColorUnChanged);
+			else
+				SetColor(SelColor);
 
 			if (!Flags.Check(FEDITLINE_DROPDOWNBOX))
 			{
@@ -724,6 +727,12 @@ int Edit::ProcessKey(int Key)
 	   )
 	{
 		Flags.Clear(FEDITLINE_MARKINGBLOCK); // хмм... а это здесь должно быть?
+
+		// перемещение курсора влево очищает автодополненный фрагмент
+		if (IsLeftNavKey(Key)) 
+		{
+			RemoveTransientSelection();
+		}
 
 		if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS) && !(Key==KEY_CTRLINS || Key==KEY_CTRLNUMPAD0) &&
 		        !(Key==KEY_SHIFTDEL||Key==KEY_SHIFTNUMDEL||Key==KEY_SHIFTDECIMAL) && !Flags.Check(FEDITLINE_EDITORMODE) && Key != KEY_CTRLQ &&
@@ -2441,6 +2450,7 @@ void Edit::Select(int Start,int End)
 {
 	SelStart=Start;
 	SelEnd=End;
+	SelTransient = FALSE;
 
 	/* $ 24.06.2002 SKV
 	   Если начало выделения за концом строки, надо выделение снять.
@@ -2460,6 +2470,23 @@ void Edit::Select(int Start,int End)
 
 //  if (SelEnd>StrSize)
 //    SelEnd=StrSize;
+}
+
+
+void Edit::SelectTransient(int Start, int End)
+{
+	Select(Start, End);
+	SelTransient = TRUE;
+}
+
+
+void Edit::RemoveTransientSelection()
+{
+	if (SelTransient)
+	{
+		DeleteBlock();
+		SelTransient = FALSE;
+	}
 }
 
 

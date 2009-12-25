@@ -1380,6 +1380,13 @@ void Dialog::GetDialogObjectsData()
 				{
 					string strData;
 					DlgEdit *EditPtr=(DlgEdit *)(CurItem->ObjPtr);
+					
+					// если автодополнение не было явно принято, убираем дополненный фрагмент
+					// и при этом не посылаем DN_EDITCHANGE (диалог уже закрывается)
+					CurItem->IFlags.Set(DLGIIF_EDITCHANGEPROCESSED);
+					EditPtr->RemoveTransientSelection();
+					CurItem->IFlags.Set(DLGIIF_EDITCHANGEPROCESSED);
+
 					// подготовим данные
 					// получим данные
 					EditPtr->GetString(strData);
@@ -1414,7 +1421,7 @@ void Dialog::GetDialogObjectsData()
 						//высылался DN_EDITCHANGE для этого изменения, ибо диалог уже закрыт.
 						CurItem->IFlags.Set(DLGIIF_EDITCHANGEPROCESSED);
 						EditPtr->SetString(strData);
-						CurItem->IFlags.Clear(DLGIIF_EDITCHANGEPROCESSED);
+						CurItem->IFlags.Set(DLGIIF_EDITCHANGEPROCESSED);
 					}
 
 					CurItem->strData = strData;
@@ -3131,7 +3138,7 @@ int Dialog::ProcessKey(int Key)
 									if (DoAutoComplete && FindInEditForAC(Item[FocusPos]->Type == DI_COMBOBOX,Item[FocusPos]->History,strStr))
 									{
 										edt->SetString(strStr);
-										edt->Select(SelEnd,edt->GetLength()); //select the appropriate text
+										edt->SelectTransient(SelEnd,edt->GetLength()); //select the appropriate text
 										edt->SetCurPos(CurPos); // SelEnd
 									}
 								}
@@ -3989,6 +3996,7 @@ unsigned Dialog::ChangeFocus2(unsigned KillFocusPos,unsigned SetFocusPos)
 		        !(Item[KillFocusPos]->Type == DI_COMBOBOX && (Item[KillFocusPos]->Flags & DIF_DROPDOWNLIST)))
 		{
 			DlgEdit *EditPtr=(DlgEdit*)Item[KillFocusPos]->ObjPtr;
+			EditPtr->RemoveTransientSelection();
 			EditPtr->GetSelection(Item[KillFocusPos]->SelStart,Item[KillFocusPos]->SelEnd);
 
 			if ((Opt.Dialogs.EditLine&DLGEDITLINE_CLEARSELONKILLFOCUS))

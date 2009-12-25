@@ -204,6 +204,7 @@ unsigned char DefaultPalette[]=
 	F_LIGHTGRAY|B_BLACK,                    // COL_WARNDIALOGCOMBOSELECTEDGRAYTEXT,
 	F_DARKGRAY|B_RED,                       // COL_WARNDIALOGLISTGRAY,
 	F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGLISTSELECTEDGRAYTEXT,
+	F_DARKGRAY|B_BLACK,                     // COL_COMMANDLINECOMPLETION
 };
 
 
@@ -374,6 +375,8 @@ unsigned char BlackPalette[]=
 	F_WHITE|B_BLACK,                        // COL_WARNDIALOGCOMBOSELECTEDGRAYTEXT,
 	F_DARKGRAY|B_LIGHTGRAY,                 // COL_WARNDIALOGLISTGRAY,
 	F_WHITE|B_BLACK,                        // COL_WARNDIALOGLISTSELECTEDGRAYTEXT,
+
+	F_DARKGRAY|B_BLACK,                     // COL_COMMANDLINECOMPLETION
 };
 
 
