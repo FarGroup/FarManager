@@ -1131,7 +1131,6 @@ __int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 */
 int Viewer::ProcessKey(int Key)
 {
-	int I;
 	ViewerString vString;
 
 	/* $ 22.01.2001 IS
@@ -1143,10 +1142,10 @@ int Viewer::ProcessKey(int Key)
 
 	if (!InternalKey && !LastKeyUndo && (FilePos!=UndoData[0].UndoAddr || LeftPos!=UndoData[0].UndoLeft))
 	{
-		for (int I=countof(UndoData)-1; I>0; I--)
+		for (int i=countof(UndoData)-1; i>0; i--)
 		{
-			UndoData[I].UndoAddr=UndoData[I-1].UndoAddr;
-			UndoData[I].UndoLeft=UndoData[I-1].UndoLeft;
+			UndoData[i].UndoAddr=UndoData[i-1].UndoAddr;
+			UndoData[i].UndoLeft=UndoData[i-1].UndoLeft;
 		}
 
 		UndoData[0].UndoAddr=FilePos;
@@ -1550,7 +1549,7 @@ int Viewer::ProcessKey(int Key)
 		{
 			if (ViewFile)
 			{
-				for (I=Y1; I<Y2; I++)
+				for (int i=Y1; i<Y2; i++)
 					Up();
 
 				Show();
@@ -1574,7 +1573,7 @@ int Viewer::ProcessKey(int Key)
 
 			vseek(ViewFile,FilePos,SEEK_SET);
 
-			for (I=Y1; I<Y2; I++)
+			for (int i=Y1; i<Y2; i++)
 			{
 				ReadString(&vString,-1, MAX_VIEWLINEB);
 
@@ -1587,7 +1586,7 @@ int Viewer::ProcessKey(int Key)
 
 			FilePos=vtell(ViewFile);
 
-			for (I=Y1; I<=Y2; I++)
+			for (int i=Y1; i<=Y2; i++)
 				ReadString(&vString,-1, MAX_VIEWLINEB);
 
 			/* $ 02.06.2003 VVM
@@ -1777,7 +1776,7 @@ int Viewer::ProcessKey(int Key)
 				          Message(0,1,"End",Buf,"Ok");
 				        }
 				*/
-				for (I=0; static_cast<unsigned int>(I)<max_counter; I++)
+				for (int i=0; static_cast<unsigned int>(i)<max_counter; i++)
 					Up();
 
 				/*
@@ -3142,8 +3141,6 @@ void Viewer::SelectText(const __int64 &MatchPos,const __int64 &SearchLength, con
 
 int Viewer::ViewerControl(int Command,void *Param)
 {
-	int I;
-
 	switch (Command)
 	{
 		case VCTL_GETINFO:
@@ -3255,28 +3252,28 @@ int Viewer::ViewerControl(int Command,void *Param)
 			{
 				if ((LONG_PTR)Param != (LONG_PTR)-1) // не только перерисовать?
 				{
-					for (I=0; I < 12; ++I)
+					for (int i=0; i < 12; i++)
 					{
-						if (Kbt->Titles[I])
-							ViewKeyBar->Change(KBL_MAIN,Kbt->Titles[I],I);
+						if (Kbt->Titles[i])
+							ViewKeyBar->Change(KBL_MAIN,Kbt->Titles[i],i);
 
-						if (Kbt->CtrlTitles[I])
-							ViewKeyBar->Change(KBL_CTRL,Kbt->CtrlTitles[I],I);
+						if (Kbt->CtrlTitles[i])
+							ViewKeyBar->Change(KBL_CTRL,Kbt->CtrlTitles[i],i);
 
-						if (Kbt->AltTitles[I])
-							ViewKeyBar->Change(KBL_ALT,Kbt->AltTitles[I],I);
+						if (Kbt->AltTitles[i])
+							ViewKeyBar->Change(KBL_ALT,Kbt->AltTitles[i],i);
 
-						if (Kbt->ShiftTitles[I])
-							ViewKeyBar->Change(KBL_SHIFT,Kbt->ShiftTitles[I],I);
+						if (Kbt->ShiftTitles[i])
+							ViewKeyBar->Change(KBL_SHIFT,Kbt->ShiftTitles[i],i);
 
-						if (Kbt->CtrlShiftTitles[I])
-							ViewKeyBar->Change(KBL_CTRLSHIFT,Kbt->CtrlShiftTitles[I],I);
+						if (Kbt->CtrlShiftTitles[i])
+							ViewKeyBar->Change(KBL_CTRLSHIFT,Kbt->CtrlShiftTitles[i],i);
 
-						if (Kbt->AltShiftTitles[I])
-							ViewKeyBar->Change(KBL_ALTSHIFT,Kbt->AltShiftTitles[I],I);
+						if (Kbt->AltShiftTitles[i])
+							ViewKeyBar->Change(KBL_ALTSHIFT,Kbt->AltShiftTitles[i],i);
 
-						if (Kbt->CtrlAltTitles[I])
-							ViewKeyBar->Change(KBL_CTRLALT,Kbt->CtrlAltTitles[I],I);
+						if (Kbt->CtrlAltTitles[i])
+							ViewKeyBar->Change(KBL_CTRLALT,Kbt->CtrlAltTitles[i],i);
 					}
 				}
 

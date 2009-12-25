@@ -334,35 +334,33 @@ size_t ConvertItemEx2(FarDialogItem *Item,DialogItemEx *Data)
 
 void DataToItemEx(DialogDataEx *Data,DialogItemEx *Item,int Count)
 {
-	int I;
-
 	if (!Item || !Data)
 		return;
 
-	for (I=0; I < Count; I++, ++Item, ++Data)
+	for (int i=0; i < Count; i++)
 	{
-		Item->Clear();
-		Item->ID=static_cast<WORD>(I);
-		Item->Type=Data->Type;
-		Item->X1=Data->X1;
-		Item->Y1=Data->Y1;
-		Item->X2=Data->X2;
-		Item->Y2=Data->Y2;
+		Item[i].Clear();
+		Item[i].ID=static_cast<WORD>(i);
+		Item[i].Type=Data[i].Type;
+		Item[i].X1=Data[i].X1;
+		Item[i].Y1=Data[i].Y1;
+		Item[i].X2=Data[i].X2;
+		Item[i].Y2=Data[i].Y2;
 
-		if (Item->X2 < Item->X1) Item->X2=Item->X1;
+		if (Item[i].X2 < Item[i].X1) Item[i].X2=Item[i].X1;
 
-		if (Item->Y2 < Item->Y1) Item->Y2=Item->Y1;
+		if (Item[i].Y2 < Item[i].Y1) Item[i].Y2=Item[i].Y1;
 
-		Item->Focus=Data->Focus;
-		Item->History=Data->History;
-		Item->Flags=Data->Flags;
-		Item->DefaultButton=Data->DefaultButton;
-		Item->SelStart=-1;
+		Item[i].Focus=Data[i].Focus;
+		Item[i].History=Data[i].History;
+		Item[i].Flags=Data[i].Flags;
+		Item[i].DefaultButton=Data[i].DefaultButton;
+		Item[i].SelStart=-1;
 
-		if (!IsPtr(Data->Data))
-			Item->strData = MSG((int)(DWORD_PTR)Data->Data);
+		if (!IsPtr(Data[i].Data))
+			Item[i].strData = MSG((int)(DWORD_PTR)Data[i].Data);
 		else
-			Item->strData = Data->Data;
+			Item[i].strData = Data[i].Data;
 	}
 }
 
@@ -1147,21 +1145,21 @@ BOOL Dialog::SetItemRect(unsigned ID,SMALL_RECT *Rect)
 
 	DialogItemEx *CurItem=Item[ID];
 	int Type=CurItem->Type;
-	CurItem->X1=(short)Rect->Left;
+	CurItem->X1=Rect->Left;
 	CurItem->Y1=(Rect->Top<0)?0:Rect->Top;
 
 	if (IsEdit(Type))
 	{
 		DlgEdit *DialogEdit=(DlgEdit *)CurItem->ObjPtr;
-		CurItem->X2=(short)Rect->Right;
-		CurItem->Y2=(short)(Type == DI_MEMOEDIT?Rect->Bottom:0);
+		CurItem->X2=Rect->Right;
+		CurItem->Y2=(Type == DI_MEMOEDIT?Rect->Bottom:0);
 		DialogEdit->SetPosition(X1+Rect->Left, Y1+Rect->Top,
 		                        X1+Rect->Right,Y1+Rect->Top);
 	}
 	else if (Type==DI_LISTBOX)
 	{
-		CurItem->X2=(short)Rect->Right;
-		CurItem->Y2=(short)Rect->Bottom;
+		CurItem->X2=Rect->Right;
+		CurItem->Y2=Rect->Bottom;
 		CurItem->ListPtr->SetPosition(X1+Rect->Left, Y1+Rect->Top,
 		                              X1+Rect->Right,Y1+Rect->Bottom);
 		CurItem->ListPtr->SetMaxHeight(CurItem->Y2-CurItem->Y1+1);
@@ -1170,17 +1168,17 @@ BOOL Dialog::SetItemRect(unsigned ID,SMALL_RECT *Rect)
 	switch (Type)
 	{
 		case DI_TEXT:
-			CurItem->X2=(short)Rect->Right;
+			CurItem->X2=Rect->Right;
 			CurItem->Y2=0;                    // ???
 			break;
 		case DI_VTEXT:
 			CurItem->X2=0;                    // ???
-			CurItem->Y2=(short)Rect->Bottom;
+			CurItem->Y2=Rect->Bottom;
 		case DI_DOUBLEBOX:
 		case DI_SINGLEBOX:
 		case DI_USERCONTROL:
-			CurItem->X2=(short)Rect->Right;
-			CurItem->Y2=(short)Rect->Bottom;
+			CurItem->X2=Rect->Right;
+			CurItem->Y2=Rect->Bottom;
 			break;
 	}
 
@@ -1193,7 +1191,7 @@ BOOL Dialog::SetItemRect(unsigned ID,SMALL_RECT *Rect)
 	return TRUE;
 }
 
-BOOL Dialog::GetItemRect(unsigned I,RECT& Rect)
+BOOL Dialog::GetItemRect(unsigned I,SMALL_RECT& Rect)
 {
 	CriticalSectionLock Lock(CS);
 
@@ -1204,10 +1202,10 @@ BOOL Dialog::GetItemRect(unsigned I,RECT& Rect)
 	DWORD ItemFlags=CurItem->Flags;
 	int Type=CurItem->Type;
 	int Len=0;
-	Rect.left=(int)CurItem->X1;
-	Rect.top=(int)CurItem->Y1;
-	Rect.right=(int)CurItem->X2;
-	Rect.bottom=(int)CurItem->Y2;
+	Rect.Left=CurItem->X1;
+	Rect.Top=CurItem->Y1;
+	Rect.Right=CurItem->X2;
+	Rect.Bottom=CurItem->Y2;
 
 	switch (Type)
 	{
@@ -1227,71 +1225,71 @@ BOOL Dialog::GetItemRect(unsigned I,RECT& Rect)
 	{
 		case DI_TEXT:
 
-			if (CurItem->X1==(short)-1)
-				Rect.left=(X2-X1+1-Len)/2;
+			if (CurItem->X1==-1)
+				Rect.Left=(X2-X1+1-Len)/2;
 
-			if (Rect.left < 0)
-				Rect.left=0;
+			if (Rect.Left < 0)
+				Rect.Left=0;
 
-			if (CurItem->Y1==(short)-1)
-				Rect.top=(Y2-Y1+1)/2;
+			if (CurItem->Y1==-1)
+				Rect.Top=(Y2-Y1+1)/2;
 
-			if (Rect.top < 0)
-				Rect.top=0;
+			if (Rect.Top < 0)
+				Rect.Top=0;
 
-			Rect.bottom=Rect.top;
+			Rect.Bottom=Rect.Top;
 
-			if (Rect.right == 0 || Rect.right == Rect.left)
-				Rect.right=Rect.left+Len-(Len==0?0:1);
+			if (Rect.Right == 0 || Rect.Right == Rect.Left)
+				Rect.Right=Rect.Left+Len-(Len==0?0:1);
 
 			if (ItemFlags & (DIF_SEPARATOR|DIF_SEPARATOR2))
 			{
-				Rect.bottom=Rect.top;
-				Rect.left=(!DialogMode.Check(DMODE_SMALLDIALOG)?3:0); //???
-				Rect.right=X2-X1-(!DialogMode.Check(DMODE_SMALLDIALOG)?5:0); //???
+				Rect.Bottom=Rect.Top;
+				Rect.Left=(!DialogMode.Check(DMODE_SMALLDIALOG)?3:0); //???
+				Rect.Right=X2-X1-(!DialogMode.Check(DMODE_SMALLDIALOG)?5:0); //???
 			}
 
 			break;
 		case DI_VTEXT:
 
-			if (CurItem->X1==(short)-1)
-				Rect.left=(X2-X1+1)/2;
+			if (CurItem->X1==-1)
+				Rect.Left=(X2-X1+1)/2;
 
-			if (Rect.left < 0)
-				Rect.left=0;
+			if (Rect.Left < 0)
+				Rect.Left=0;
 
-			if (CurItem->Y1==(short)-1)
-				Rect.top=(Y2-Y1+1-Len)/2;
+			if (CurItem->Y1==-1)
+				Rect.Top=(Y2-Y1+1-Len)/2;
 
-			if (Rect.top < 0)
-				Rect.top=0;
+			if (Rect.Top < 0)
+				Rect.Top=0;
 
-			Rect.right=Rect.left;
+			Rect.Right=Rect.Left;
 
 			//Rect.bottom=Rect.top+Len;
-			if (Rect.bottom == 0 || Rect.bottom == Rect.top)
-				Rect.bottom=Rect.top+Len-(Len==0?0:1);
+			if (Rect.Bottom == 0 || Rect.Bottom == Rect.Top)
+				Rect.Bottom=Rect.Top+Len-(Len==0?0:1);
 
 #if defined(VTEXT_ADN_SEPARATORS)
 
 			if (ItemFlags & (DIF_SEPARATOR|DIF_SEPARATOR2))
 			{
-				Rect.right=Rect.left;
-				Rect.top=(!DialogMode.Check(DMODE_SMALLDIALOG)?1:0); //???
-				Rect.bottom=Y2-Y1-(!DialogMode.Check(DMODE_SMALLDIALOG)?3:0); //???
+				Rect.Right=Rect.Left;
+				Rect.Top=(!DialogMode.Check(DMODE_SMALLDIALOG)?1:0); //???
+				Rect.Bottom=Y2-Y1-(!DialogMode.Check(DMODE_SMALLDIALOG)?3:0); //???
 				break;
 			}
 
 #endif
 			break;
 		case DI_BUTTON:
-			Rect.bottom=Rect.top;
-			Rect.right=Rect.left+Len;
+			Rect.Bottom=Rect.Top;
+			Rect.Right=Rect.Left+Len;
 			break;
 		case DI_CHECKBOX:
 		case DI_RADIOBUTTON:
-			Rect.bottom=Rect.top;
-			Rect.right=Rect.left+Len+((Type == DI_CHECKBOX)?4:
+			Rect.Bottom=Rect.Top;
+			Rect.Right=Rect.Left+Len+((Type == DI_CHECKBOX)?4:
 			                          (ItemFlags & DIF_MOVESELECT?3:4)
 			                         );
 			break;
@@ -1299,7 +1297,7 @@ BOOL Dialog::GetItemRect(unsigned I,RECT& Rect)
 		case DI_EDIT:
 		case DI_FIXEDIT:
 		case DI_PSWEDIT:
-			Rect.bottom=Rect.top;
+			Rect.Bottom=Rect.Top;
 			break;
 	}
 
@@ -2233,7 +2231,6 @@ int Dialog::LenStrItem(int ID, const wchar_t *lpwszStr)
 int Dialog::ProcessMoveDialog(DWORD Key)
 {
 	CriticalSectionLock Lock(CS);
-	int I;
 
 	if (DialogMode.Check(DMODE_DRAGGED)) // если диалог таскается
 	{
@@ -2251,7 +2248,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
 			case KEY_LEFT:      case KEY_NUMPAD4:
 				Hide();
 
-				for (I=0; I<rr; I++)
+				for (int i=0; i<rr; i++)
 					if (X2>0)
 					{
 						X1--;
@@ -2269,7 +2266,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
 			case KEY_RIGHT:     case KEY_NUMPAD6:
 				Hide();
 
-				for (I=0; I<rr; I++)
+				for (int i=0; i<rr; i++)
 					if (X1<ScrX)
 					{
 						X1++;
@@ -2287,7 +2284,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
 			case KEY_UP:        case KEY_NUMPAD8:
 				Hide();
 
-				for (I=0; I<rr; I++)
+				for (int i=0; i<rr; i++)
 					if (Y2>0)
 					{
 						Y1--;
@@ -2305,7 +2302,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
 			case KEY_DOWN:      case KEY_NUMPAD2:
 				Hide();
 
-				for (I=0; I<rr; I++)
+				for (int i=0; i<rr; i++)
 					if (Y1<ScrY)
 					{
 						Y1++;
@@ -3170,7 +3167,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	unsigned I;
 	int MsX,MsY;
 	int Type;
-	RECT Rect;
+	SMALL_RECT Rect;
 
 	if (!DialogMode.Check(DMODE_SHOW))
 		return FALSE;
@@ -3340,18 +3337,18 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 				continue;
 
 			GetItemRect(I,Rect);
-			Rect.left+=X1;  Rect.top+=Y1;
-			Rect.right+=X1; Rect.bottom+=Y1;
+			Rect.Left+=X1;  Rect.Top+=Y1;
+			Rect.Right+=X1; Rect.Bottom+=Y1;
 //_D(SysLog(L"? %2d) Rect (%2d,%2d) (%2d,%2d) '%s'",I,Rect.left,Rect.top,Rect.right,Rect.bottom,Item[I].Data));
 
-			if (MsX >= Rect.left && MsY >= Rect.top && MsX <= Rect.right && MsY <= Rect.bottom)
+			if (MsX >= Rect.Left && MsY >= Rect.Top && MsX <= Rect.Right && MsY <= Rect.Bottom)
 			{
 				// для прозрачных :-)
 				if (Item[I]->Type == DI_SINGLEBOX || Item[I]->Type == DI_DOUBLEBOX)
 				{
 					// если на рамке, то...
-					if (((MsX == Rect.left || MsX == Rect.right) && MsY >= Rect.top && MsY <= Rect.bottom) || // vert
-					        ((MsY == Rect.top  || MsY == Rect.bottom) && MsX >= Rect.left && MsX <= Rect.right))    // hor
+					if (((MsX == Rect.Left || MsX == Rect.Right) && MsY >= Rect.Top && MsY <= Rect.Bottom) || // vert
+					        ((MsY == Rect.Top  || MsY == Rect.Bottom) && MsX >= Rect.Left && MsX <= Rect.Right))    // hor
 					{
 						if (DlgProc((HANDLE)this,DN_MOUSECLICK,I,(LONG_PTR)MouseEvent))
 							return TRUE;
@@ -3366,8 +3363,8 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 				if (Item[I]->Type == DI_USERCONTROL)
 				{
 					// для user-типа подготовим координаты мыши
-					MouseEvent->dwMousePosition.X-=(short)Rect.left;
-					MouseEvent->dwMousePosition.Y-=(short)Rect.top;
+					MouseEvent->dwMousePosition.X-=Rect.Left;
+					MouseEvent->dwMousePosition.Y-=Rect.Top;
 				}
 
 //_SVS(SysLog(L"+ %2d) Rect (%2d,%2d) (%2d,%2d) '%s' Dbl=%d",I,Rect.left,Rect.top,Rect.right,Rect.bottom,Item[I].Data,MouseEvent->dwEventFlags==DOUBLE_CLICK));
@@ -6357,14 +6354,10 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
 			if (Param2)
 			{
-				RECT Rect;
-
+				SMALL_RECT Rect;
 				if (Dlg->GetItemRect(Param1,Rect))
 				{
-					((SMALL_RECT *)Param2)->Left=(short)Rect.left;
-					((SMALL_RECT *)Param2)->Top=(short)Rect.top;
-					((SMALL_RECT *)Param2)->Right=(short)Rect.right;
-					((SMALL_RECT *)Param2)->Bottom=(short)Rect.bottom;
+					*reinterpret_cast<PSMALL_RECT>(Param2)=Rect;
 					return TRUE;
 				}
 			}

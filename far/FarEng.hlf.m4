@@ -260,6 +260,7 @@ $ #Panel control commands  #
   Hide/show left panel                                       #Ctrl-F1#
   Hide/show right panel                                      #Ctrl-F2#
   Change panels height                             #Ctrl-Up,Ctrl-Down#
+  Change current panel height          #Ctrl-Shift-Up,Ctrl-Shift-Down#
   Change panels width                           #Ctrl-Left,Ctrl-Right#
     (when the command line is empty)
   Restore default panels width                          #Ctrl-Numpad5#

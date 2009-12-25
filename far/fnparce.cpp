@@ -390,7 +390,6 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
   SubstFileName()
   ѕреобразование метасимволов ассоциации файлов в реальные значени€
 
-  ¬ходные ListName и ShortListName обязаны иметь размер NM*2 !!!
 */
 int SubstFileName(string &strStr,            // результирующа€ строка
                   const wchar_t *Name,           // ƒлинное им€

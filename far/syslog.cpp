@@ -360,7 +360,6 @@ void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,F
 		return;
 
 	int CY=(SizeBuf+15)/16;
-	int X,Y;
 	int InternalLog=fp==NULL?TRUE:FALSE;
 	static wchar_t timebuf[64];
 //  char msg[MAX_LOG_LINE];
@@ -377,19 +376,18 @@ void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,F
 		if (!InternalLog && Title && *Title)
 			fwprintf(fp,L"%s\n",Title);
 
-		wchar_t TmpBuf[17];
-		int I;
-		TmpBuf[16]=0;
+		wchar_t TmpBuf[17]={0};
 
-		for (Y=0; Y < CY; ++Y)
+		for (int Y=0; Y < CY; ++Y)
 		{
 			//memset(TmpBuf,' ',16);
 			fwprintf(fp,L"%s %s ",PrintTime(timebuf,countof(timebuf)),MakeSpace());
 			fwprintf(fp, L" %08X: ",StartAddress+Y*16);
 
-			for (X=0; X < 16; ++X)
+			for (int X=0; X < 16; ++X)
 			{
-				if ((I=Y*16+X < SizeBuf) != 0)
+				int I=Y*16+X;
+				if ((I < SizeBuf) != 0)
 					fwprintf(fp,L"%02X ",Buf[Y*16+X]&0xFF);
 				else
 					fwprintf(fp,L"   ");
@@ -633,21 +631,20 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 	{
 		const Manager *Man=(m==NULL?FrameManager:m);
 //StartSysLog
-		int I;
 		string Type,Name;
 		fwprintf(fp,L"**** Queue modal frames ***\nFrameListSize=%d, FramePos=%d, FrameCount=%d\n",Man->FrameListSize,Man->FramePos,Man->FrameCount);
 
 		if (Man->FrameList)
 		{
-			for (I=0; I < Man->FrameCount; ++I)
+			for (int i=0; i < Man->FrameCount; i++)
 			{
-				if (Man->FrameList[I])
+				if (Man->FrameList[i])
 				{
-					Man->FrameList[I]->GetTypeAndName(Type,Name);
-					fwprintf(fp,L"\tFrameList[%d] %p  Type='%s' Name='%s'\n",I,Man->FrameList[I],(const wchar_t*)Type,(const wchar_t*)Name);
+					Man->FrameList[i]->GetTypeAndName(Type,Name);
+					fwprintf(fp,L"\tFrameList[%d] %p  Type='%s' Name='%s'\n",i,Man->FrameList[i],(const wchar_t*)Type,(const wchar_t*)Name);
 				}
 				else
-					fwprintf(fp,L"\tFrameList[%d] NULL\n",I);
+					fwprintf(fp,L"\tFrameList[%d] NULL\n",i);
 			}
 		}
 		else
@@ -657,16 +654,16 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 
 		if (Man->ModalStack)
 		{
-			for (I=0; I < Man->ModalStackCount; ++I)
+			for (int i=0; i < Man->ModalStackCount; i++)
 			{
-				if (Man->ModalStack[I])
+				if (Man->ModalStack[i])
 				{
-					Man->ModalStack[I]->GetTypeAndName(Type,Name);
+					Man->ModalStack[i]->GetTypeAndName(Type,Name);
 					fwprintf(fp,L"\tModalStack[%d] %p  Type='%s' Name='%s'\n",
-					         I,Man->ModalStack[I],(const wchar_t*)Type,(const wchar_t*)Name);
+					         i,Man->ModalStack[i],(const wchar_t*)Type,(const wchar_t*)Name);
 				}
 				else
-					fwprintf(fp,L"\tModalStack[%d] NULL\n",I);
+					fwprintf(fp,L"\tModalStack[%d] NULL\n",i);
 			}
 		}
 		else
@@ -1473,7 +1470,7 @@ string __MOUSE_EVENT_RECORD_Dump(MOUSE_EVENT_RECORD *rec)
 	if (rec->dwEventFlags==MOUSE_WHEELED  || rec->dwEventFlags==MOUSE_HWHEELED)
 	{
 		string tmp;
-		tmp.Format(L" (Delta=%d)",(short)HIWORD(rec->dwButtonState));
+		tmp.Format(L" (Delta=%d)",HIWORD(rec->dwButtonState));
 		Records+=tmp;
 	}
 

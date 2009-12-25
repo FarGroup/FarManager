@@ -1397,14 +1397,13 @@ int FileList::IsDizDisplayed()
 
 int FileList::IsColumnDisplayed(int Type)
 {
-	int I;
 
-	for (I=0; I<ViewSettings.ColumnCount; I++)
-		if ((int)(ViewSettings.ColumnType[I] & 0xff)==Type)
+	for (int i=0; i<ViewSettings.ColumnCount; i++)
+		if ((int)(ViewSettings.ColumnType[i] & 0xff)==Type)
 			return(TRUE);
 
-	for (I=0; I<ViewSettings.StatusColumnCount; I++)
-		if ((int)(ViewSettings.StatusColumnType[I] & 0xff)==Type)
+	for (int i=0; i<ViewSettings.StatusColumnCount; i++)
+		if ((int)(ViewSettings.StatusColumnType[i] & 0xff)==Type)
 			return(TRUE);
 
 	return(FALSE);

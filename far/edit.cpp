@@ -262,11 +262,10 @@ int Edit::GetNextCursorPos(int Position,int Where)
 
 	if (Mask && *Mask && (Where==-1 || Where==1))
 	{
-		int i;
 		int PosChanged=FALSE;
 		int MaskLen=StrLength(Mask);
 
-		for (i=Position; i<MaskLen && i>=0; i+=Where)
+		for (int i=Position; i<MaskLen && i>=0; i+=Where)
 		{
 			if (CheckCharMask(Mask[i]))
 			{
@@ -278,7 +277,7 @@ int Edit::GetNextCursorPos(int Position,int Where)
 
 		if (!PosChanged)
 		{
-			for (i=Position; i>=0; i--)
+			for (int i=Position; i>=0; i--)
 			{
 				if (CheckCharMask(Mask[i]))
 				{
@@ -291,7 +290,7 @@ int Edit::GetNextCursorPos(int Position,int Where)
 
 		if (!PosChanged)
 		{
-			for (i=Position; i<MaskLen; i++)
+			for (int i=Position; i<MaskLen; i++)
 			{
 				if (CheckCharMask(Mask[i]))
 				{
@@ -662,8 +661,6 @@ __int64 Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 int Edit::ProcessKey(int Key)
 {
-	int I;
-
 	switch (Key)
 	{
 		case KEY_ADD:
@@ -959,9 +956,7 @@ int Edit::ProcessKey(int Key)
 		}
 		case KEY_CTRLSHIFTBS:
 		{
-			int i;
-
-			for (i=CurPos; i>=0; i--)
+			for (int i=CurPos; i>=0; i--)
 				RecurseProcessKey(KEY_BS);
 
 			Show();
@@ -1400,20 +1395,20 @@ int Edit::ProcessKey(int Key)
 				DeleteBlock();
 			}
 
-			for (I=StrLength(Str)-1; I>=0 && IsEol(Str[I]); I--)
-				Str[I]=0;
+			for (int i=StrLength(Str)-1; i>=0 && IsEol(Str[i]); i--)
+				Str[i]=0;
 
-			for (I=0; ClipText[I]; I++)
+			for (int i=0; ClipText[i]; i++)
 			{
-				if (IsEol(ClipText[I]))
+				if (IsEol(ClipText[i]))
 				{
-					if (IsEol(ClipText[I+1]))
-						wmemmove(&ClipText[I],&ClipText[I+1],StrLength(&ClipText[I+1])+1);
+					if (IsEol(ClipText[i+1]))
+						wmemmove(&ClipText[i],&ClipText[i+1],StrLength(&ClipText[i+1])+1);
 
-					if (ClipText[I+1]==0)
-						ClipText[I]=0;
+					if (ClipText[i+1]==0)
+						ClipText[i]=0;
 					else
-						ClipText[I]=L' ';
+						ClipText[i]=L' ';
 				}
 			}
 
@@ -2047,8 +2042,6 @@ void Edit::SetInputMask(const wchar_t *InputMask)
 // Функция обновления состояния строки ввода по содержимому Mask
 void Edit::RefreshStrByMask(int InitMode)
 {
-	int i;
-
 	if (Mask && *Mask)
 	{
 		int MaskLen=StrLength(Mask);
@@ -2062,14 +2055,14 @@ void Edit::RefreshStrByMask(int InitMode)
 
 			Str=NewStr;
 
-			for (i=StrSize; i<MaskLen; i++)
+			for (int i=StrSize; i<MaskLen; i++)
 				Str[i]=L' ';
 
 			StrSize=MaxLength=MaskLen;
 			Str[StrSize]=0;
 		}
 
-		for (i=0; i<MaskLen; i++)
+		for (int i=0; i<MaskLen; i++)
 		{
 			if (InitMode)
 				Str[i]=L' ';

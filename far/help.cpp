@@ -758,8 +758,6 @@ void Help::DisplayObject()
 
 void Help::FastShow()
 {
-	int I;
-
 	if (!Locked())
 		DrawWindowFrame();
 
@@ -771,17 +769,17 @@ void Help::FastShow()
 	*/
 	CurColor=COL_HELPTEXT;
 
-	for (I=0; I<Y2-Y1-1; I++)
+	for (int i=0; i<Y2-Y1-1; i++)
 	{
 		int StrPos;
 
-		if (I<FixCount)
-			StrPos=I;
-		else if (I==FixCount && FixCount>0)
+		if (i<FixCount)
+			StrPos=i;
+		else if (i==FixCount && FixCount>0)
 		{
 			if (!Locked())
 			{
-				GotoXY(X1,Y1+I+1);
+				GotoXY(X1,Y1+i+1);
 				SetColor(COL_HELPBOX);
 				ShowSeparator(X2-X1+1,1);
 			}
@@ -790,7 +788,7 @@ void Help::FastShow()
 		}
 		else
 		{
-			StrPos=I+StackData.TopStr;
+			StrPos=i+StackData.TopStr;
 
 			if (FixCount>0)
 				StrPos--;
@@ -802,11 +800,11 @@ void Help::FastShow()
 
 			if (*OutStr==L'^')
 			{
-				GotoXY(X1+(X2-X1+1-StringLen(OutStr))/2,Y1+I+1);
+				GotoXY(X1+(X2-X1+1-StringLen(OutStr))/2,Y1+i+1);
 				OutStr++;
 			}
 			else
-				GotoXY(X1+1,Y1+I+1);
+				GotoXY(X1+1,Y1+i+1);
 
 			OutString(OutStr);
 		}
@@ -1540,7 +1538,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 
 	// удалим ссылку на .DLL
 	wchar_t *lpwszNewTopic = strNewTopic.GetBuffer();
-	wchar_t *p=(wchar_t *)wcsrchr(lpwszNewTopic,HelpEndLink);
+	wchar_t *p=wcsrchr(lpwszNewTopic,HelpEndLink);
 
 	if (p)
 	{

@@ -137,7 +137,6 @@ void ShowHotplugDevice()
 	}
 
 	DeviceInfo *pInfo=NULL;
-	int I;
 	VMenu HotPlugList(MSG(MHotPlugListTitle),NULL,0,ScrY-4);
 	HotPlugList.SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
 	HotPlugList.SetPosition(-1,-1,0,0);
@@ -172,7 +171,7 @@ void ShowHotplugDevice()
 				{
 					BlockExtKey blockExtKey;
 					int bResult;
-					I=(int)(INT_PTR)HotPlugList.GetUserData(NULL,0);
+					int I=(int)(INT_PTR)HotPlugList.GetUserData(NULL,0);
 
 					if ((bResult=RemoveHotplugDevice(pInfo[I].hDevInst,pInfo[I].dwDriveMask,EJECT_NOTIFY_AFTERREMOVE)) == 1)
 					{

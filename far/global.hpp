@@ -37,9 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern clock_t StartIdleTime;
 extern clock_t StartExecTime;
 
-#if defined(_INC_WINDOWS) || defined(_WINDOWS_) || defined(_WINDOWS_H)
 extern OSVERSIONINFOW WinVer;
-#endif
 
 extern int WaitInMainLoop;
 extern int WaitInFastFind;

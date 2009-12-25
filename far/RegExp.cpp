@@ -855,15 +855,13 @@ RegExp::~RegExp()
 #ifndef RE_EXTERNAL_CTYPE
 void RegExp::InitLocale()
 {
-	int i;
-
-	for (i=0; i<256; i++)
+	for (int i=0; i<256; i++)
 	{
 		lc[i]=tolower(i);
 		uc[i]=toupper(i);
 	}
 
-	for (i=0; i<256; i++)
+	for (int i=0; i<256; i++)
 	{
 		char res=0;
 
@@ -882,10 +880,9 @@ void RegExp::InitLocale()
 		chartypes[i]=res;
 	}
 
-	int j=0,k=1;
 	memset(charbits,0,sizeof(charbits));
 
-	for (i=0; i<256; i++)
+	for (int i=0,j=0,k=1; i<256; i++)
 	{
 		if (chartypes[i]&TYPE_DIGITCHAR) {charbits[j]|=k;}
 
@@ -2508,9 +2505,7 @@ inline int RegExp::StrCmp(const prechar& str,const prechar _st,const prechar ed)
 #ifdef RELIB
 static void KillMatchList(MatchList *ml)
 {
-	int i;
-
-	for (i=0; i<ml->Count(); i++)
+	for (int i=0; i<ml->Count(); i++)
 	{
 		KillMatchList((*ml)[i].sublist);
 		(*ml)[i].sublist=NULL;
@@ -4278,9 +4273,7 @@ int RegExp::Match(const RECHAR* textstart,const RECHAR* textend,PMatch match,int
 
 	if (res==1)
 	{
-		int i;
-
-		for (i=0; i<matchcount; i++)
+		for (int i=0; i<matchcount; i++)
 		{
 			if (match[i].start==-1 || match[i].end==-1 || match[i].start>match[i].end)
 			{
@@ -4327,9 +4320,7 @@ int RegExp::MatchEx(const RECHAR* datastart,const RECHAR* textstart,const RECHAR
 
 	if (res==1)
 	{
-		int i;
-
-		for (i=0; i<matchcount; i++)
+		for (int i=0; i<matchcount; i++)
 		{
 			if (match[i].start==-1 || match[i].end==-1 || match[i].start>match[i].end)
 			{
@@ -4360,7 +4351,6 @@ int RegExp::Match(const RECHAR* textstart,PMatch match,int& matchcount
 
 int RegExp::Optimize()
 {
-	int i;
 	PREOpCode jumps[MAXDEPTH];
 	int jumpcount=0;
 
@@ -4484,13 +4474,13 @@ int RegExp::Optimize()
 			}
 			case opType:
 			{
-				for (i=0; i<RE_CHAR_COUNT; i++)if (ISTYPE(i,OP.type))first[i]=1;
+				for (int i=0; i<RE_CHAR_COUNT; i++)if (ISTYPE(i,OP.type))first[i]=1;
 
 				break;
 			}
 			case opNotType:
 			{
-				for (i=0; i<RE_CHAR_COUNT; i++)if (!(ISTYPE(i,OP.type)))first[i]=1;
+				for (int i=0; i<RE_CHAR_COUNT; i++)if (!(ISTYPE(i,OP.type)))first[i]=1;
 
 				break;
 			}
@@ -4507,7 +4497,7 @@ int RegExp::Optimize()
 			}
 			case opSymbolClass:
 			{
-				for (i=0; i<RE_CHAR_COUNT; i++)
+				for (int i=0; i<RE_CHAR_COUNT; i++)
 				{
 					if (GetBit(OP.symbolclass,i))first[i]=1;
 				}
@@ -4554,7 +4544,7 @@ int RegExp::Optimize()
 			case opTypeRange:
 			case opTypeMinRange:
 			{
-				for (i=0; i<RE_CHAR_COUNT; i++)
+				for (int i=0; i<RE_CHAR_COUNT; i++)
 				{
 					if (ISTYPE(i,OP.range.type))first[i]=1;
 				}
@@ -4566,7 +4556,7 @@ int RegExp::Optimize()
 			case opNotTypeRange:
 			case opNotTypeMinRange:
 			{
-				for (i=0; i<RE_CHAR_COUNT; i++)
+				for (int i=0; i<RE_CHAR_COUNT; i++)
 				{
 					if (!(ISTYPE(i,OP.range.type)))first[i]=1;
 				}
@@ -4578,7 +4568,7 @@ int RegExp::Optimize()
 			case opClassRange:
 			case opClassMinRange:
 			{
-				for (i=0; i<RE_CHAR_COUNT; i++)
+				for (int i=0; i<RE_CHAR_COUNT; i++)
 				{
 					if (GetBit(OP.range.symbolclass,i))first[i]=1;
 				}
@@ -4721,9 +4711,7 @@ int RegExp::Search(const RECHAR* textstart,const RECHAR* textend,PMatch match,in
 
 	if (res==1)
 	{
-		int i;
-
-		for (i=0; i<matchcount; i++)
+		for (int i=0; i<matchcount; i++)
 		{
 			if (match[i].start==-1 || match[i].end==-1 || match[i].start>match[i].end)
 			{
@@ -4817,9 +4805,7 @@ int RegExp::SearchEx(const RECHAR* datastart,const RECHAR* textstart,const RECHA
 
 	if (res==1)
 	{
-		int i;
-
-		for (i=0; i<matchcount; i++)
+		for (int i=0; i<matchcount; i++)
 		{
 			if (match[i].start==-1 || match[i].end==-1 || match[i].start>match[i].end)
 			{

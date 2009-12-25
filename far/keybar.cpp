@@ -66,7 +66,6 @@ void KeyBar::SetOwner(ScreenObject *Owner)
 
 void KeyBar::DisplayObject()
 {
-	int I;
 	GotoXY(X1,Y1);
 	AltState=CtrlState=ShiftState=0;
 	int KeyWidth=(X2-X1-1)/12;
@@ -76,13 +75,13 @@ void KeyBar::DisplayObject()
 
 	int LabelWidth=KeyWidth-2;
 
-	for (I=0; I<KEY_COUNT; I++)
+	for (int i=0; i<KEY_COUNT; i++)
 	{
 		if (WhereX()+LabelWidth>=X2)
 			break;
 
 		SetColor(COL_KEYBARNUM);
-		mprintf(L"%d",I+1);
+		mprintf(L"%d",i+1);
 		SetColor(COL_KEYBARTEXT);
 		const wchar_t *Label=L"";
 
@@ -96,26 +95,26 @@ void KeyBar::DisplayObject()
 
 				if (!AltPressed) // Ctrl-Alt-Shift - это особый случай :-)
 				{
-					if (I<KeyCounts [KBL_CTRLSHIFT])
-						Label=KeyTitles [KBL_CTRLSHIFT][I];
+					if (i<KeyCounts [KBL_CTRLSHIFT])
+						Label=KeyTitles [KBL_CTRLSHIFT][i];
 				}
 				else if (!(Opt.CASRule&1) || !(Opt.CASRule&2))
 				{
-					if (I<KeyCounts [KBL_CTRLALTSHIFT])
-						Label=KeyTitles [KBL_CTRLALTSHIFT][I];
+					if (i<KeyCounts [KBL_CTRLALTSHIFT])
+						Label=KeyTitles [KBL_CTRLALTSHIFT][i];
 				}
 			}
 			else if (AltPressed)
 			{
-				if (I<KeyCounts [KBL_ALTSHIFT])
-					Label=KeyTitles [KBL_ALTSHIFT][I];
+				if (i<KeyCounts [KBL_ALTSHIFT])
+					Label=KeyTitles [KBL_ALTSHIFT][i];
 
 				AltState=AltPressed;
 			}
 			else
 			{
-				if (I<KeyCounts [KBL_SHIFT])
-					Label=KeyTitles [KBL_SHIFT][I];
+				if (i<KeyCounts [KBL_SHIFT])
+					Label=KeyTitles [KBL_SHIFT][i];
 			}
 		}
 		else if (CtrlPressed)
@@ -124,30 +123,30 @@ void KeyBar::DisplayObject()
 
 			if (AltPressed)
 			{
-				if (I<KeyCounts [KBL_CTRLALT])
-					Label=KeyTitles [KBL_CTRLALT][I];
+				if (i<KeyCounts [KBL_CTRLALT])
+					Label=KeyTitles [KBL_CTRLALT][i];
 
 				AltState=AltPressed;
 			}
 			else
 			{
-				if (I<KeyCounts [KBL_CTRL])
-					Label=KeyTitles [KBL_CTRL][I];
+				if (i<KeyCounts [KBL_CTRL])
+					Label=KeyTitles [KBL_CTRL][i];
 			}
 		}
 		else if (AltPressed)
 		{
 			AltState=AltPressed;
 
-			if (I<KeyCounts [KBL_ALT])
-				Label=KeyTitles [KBL_ALT][I];
+			if (i<KeyCounts [KBL_ALT])
+				Label=KeyTitles [KBL_ALT][i];
 		}
-		else if (I<KeyCounts [KBL_MAIN] && (DisableMask & (1<<I))==0)
-			Label=KeyTitles [KBL_MAIN][I];
+		else if (i<KeyCounts [KBL_MAIN] && (DisableMask & (1<<i))==0)
+			Label=KeyTitles [KBL_MAIN][i];
 
 		mprintf(L"%-*.*s",LabelWidth,LabelWidth,Label);
 
-		if (I<KEY_COUNT-1)
+		if (i<KEY_COUNT-1)
 		{
 			SetColor(COL_KEYBARBACKGROUND);
 			Text(L" ");

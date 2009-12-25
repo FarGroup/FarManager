@@ -1330,7 +1330,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 				SrcPanel->SaveSelection();
 				strDestFSName.Clear();
 				int OldCopySymlinkContents=Flags&FCOPY_COPYSYMLINKCONTENTS;
-				int I;
 				// собственно - один проход копирования
 				// Mantis#45: Необходимо привсти копирование ссылок на папки с NTFS на FAT к более логичному виду
 				{
@@ -1347,7 +1346,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 				PreRedrawItem preRedrawItem=PreRedraw.Peek();
 				preRedrawItem.Param.Param1=CP;
 				PreRedraw.SetParam(preRedrawItem.Param);
-				I=CopyFileTree(strNameTmp);
+				int I=CopyFileTree(strNameTmp);
 				PreRedraw.Pop();
 
 				if (OldCopySymlinkContents)

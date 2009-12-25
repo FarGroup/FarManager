@@ -520,7 +520,7 @@ char* WINAPI RemoveTrailingSpacesA(char *Str)
 	char *ChPtr;
 	size_t I;
 
-	for (ChPtr=Str+(I=strlen((char *)Str))-1; I > 0; I--, ChPtr--)
+	for (ChPtr=Str+(I=strlen(Str))-1; I > 0; I--, ChPtr--)
 	{
 		if (IsSpaceA(*ChPtr) || IsEolA(*ChPtr))
 			*ChPtr=0;
@@ -611,27 +611,6 @@ char* WINAPI RemoveLeadingSpacesA(char *Str)
 
 	return Str;
 }
-
-/*
-char* WINAPI RemoveTrailingSpacesA(char *Str)
-{
-  if(!Str)
-    return NULL;
-  if (*Str == '\0')
-    return Str;
-
-  char *ChPtr;
-  int I;
-
-  for (ChPtr=Str+(I=(int)strlen((char *)Str)-1); I >= 0; I--, ChPtr--)
-    if (IsSpaceA(*ChPtr) || IsEolA(*ChPtr))
-      *ChPtr=0;
-    else
-      break;
-
-  return Str;
-}
-*/
 
 char* WINAPI RemoveExternalSpacesA(char *Str)
 {
@@ -2877,15 +2856,11 @@ int WINAPI FarGetDirListA(const char *Dir,oldfar::PluginPanelItem **pPanelItem,i
 
 	*pPanelItem=NULL;
 	*pItemsNumber=0;
-	wchar_t *DirW=AnsiToUnicode(Dir);
-
-	if (!DirW)
-		return FALSE;
+	string strDir(Dir);
 
 	FAR_FIND_DATA *pItems;
 	int ItemsNumber;
-	int ret=FarGetDirList(DirW, &pItems, &ItemsNumber);
-	xf_free(DirW);
+	int ret=FarGetDirList(strDir, &pItems, &ItemsNumber);
 
 	if (ret && ItemsNumber)
 	{
@@ -2929,15 +2904,11 @@ int WINAPI FarGetPluginDirListA(INT_PTR PluginNumber,HANDLE hPlugin,const char *
 
 	*pPanelItem=NULL;
 	*pItemsNumber=0;
-	wchar_t *DirW=AnsiToUnicode(Dir);
-
-	if (!DirW)
-		return FALSE;
+	string strDir(Dir);
 
 	PluginPanelItem *pPanelItemW;
 	int ItemsNumber;
-	int ret=FarGetPluginDirList(PluginNumber, hPlugin, DirW, &pPanelItemW, &ItemsNumber);
-	xf_free(DirW);
+	int ret=FarGetPluginDirList(PluginNumber, hPlugin, strDir, &pPanelItemW, &ItemsNumber);
 
 	if (ret && ItemsNumber)
 	{
@@ -3698,7 +3669,7 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 					oldfar::KeyBarTitles* oldkbt = (oldfar::KeyBarTitles*)Param;
 					KeyBarTitles newkbt;
 					ConvertKeyBarTitlesA(oldkbt, &newkbt);
-					int ret = FarEditorControl(ECTL_SETKEYBAR, (void*)&newkbt);
+					int ret = FarEditorControl(ECTL_SETKEYBAR, &newkbt);
 					FreeUnicodeKeyBarTitles(&newkbt);
 					return ret;
 			}

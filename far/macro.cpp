@@ -515,14 +515,15 @@ int KeyMacro::LoadMacros(BOOL InitedRAM,BOOL LoadAll)
 		return Ret;
 
 	string strBuffer;
-	int I;
 	ReadVarsConst(MACRO_VARS,strBuffer);
 	ReadVarsConst(MACRO_CONSTS,strBuffer);
 	ReadMacroFunction(MACRO_FUNCS,strBuffer);
 	int Areas[MACRO_LAST];
 
-	for (I=MACRO_OTHER; I < MACRO_LAST; ++I)
-		Areas[I]=I;
+	for (int i=MACRO_OTHER; i < MACRO_LAST; i++)
+	{
+		Areas[i]=i;
+	}
 
 	if (!LoadAll)
 	{
@@ -537,18 +538,18 @@ int KeyMacro::LoadMacros(BOOL InitedRAM,BOOL LoadAll)
 		                            Areas[MACRO_FINDFOLDER]=MACRO_LAST;
 	}
 
-	for (I=MACRO_OTHER; I < MACRO_LAST; ++I)
+	Ret=TRUE;
+	for (int i=MACRO_OTHER; i < MACRO_LAST; i++)
 	{
-		if (Areas[I] == MACRO_LAST)
+		if (Areas[i] == MACRO_LAST)
 			continue;
 
-		if (!ReadMacros(I,strBuffer))
+		if (!ReadMacros(i,strBuffer))
+		{
+			Ret=FALSE;
 			break;
+		}
 	}
-
-	// выставим код возврата - если не все ¬—≈ загрузились, то
-	// будет FALSE
-	Ret=(I == MACRO_LAST)?TRUE:FALSE;
 
 	if (Ret)
 		KeyMacro::Sort();
@@ -1480,7 +1481,7 @@ static bool trimFunc()
 		default: Ret=false;
 	}
 
-	VMStack.Push((const wchar_t*)p);
+	VMStack.Push(p);
 	return Ret;
 }
 
@@ -1506,7 +1507,7 @@ static bool substrFunc()
 			p[p2] = 0;
 
 		Ret=true;
-		VMStack.Push((const wchar_t*)p);
+		VMStack.Push(p);
 	}
 	else
 		VMStack.Push(L"");
@@ -2185,7 +2186,7 @@ static bool dlggetvalueFunc()
 
 					if (SendDlgMessage((HANDLE)CurFrame,DM_LISTGETITEM,Index,(LONG_PTR)&ListItem))
 					{
-						Ret=(wchar_t *)ListItem.Item.Text;
+						Ret=ListItem.Item.Text;
 					}
 					else
 					{
@@ -2551,7 +2552,7 @@ static bool clipFunc()
 	// принудительно второй параметр ставим AS string
 	if (Val.isInteger() && Val.i() == 0)
 	{
-		Val=(const wchar_t *)L"";
+		Val=L"";
 		Val.toString();
 	}
 
@@ -3018,10 +3019,8 @@ static bool chrFunc()
 
 	if (tmpVar.isInteger())
 	{
-		__int64 val=tmpVar.i();
-		wchar_t tmp[2]={0,0};
-		tmp[0]=(wchar_t)(val&0xFFFF); //????
-		tmpVar = (const wchar_t *)tmp;
+		const wchar_t tmp[]={tmpVar.i()&0xFFFF,L'\0'};
+		tmpVar = tmp;
 		tmpVar.toString();
 	}
 
@@ -4169,7 +4168,6 @@ int KeyMacro::WriteVarsConst(int WriteMode)
 */
 int KeyMacro::ReadVarsConst(int ReadMode, string &strSData)
 {
-	int I;
 	string strValueName;
 	long IData;
 	__int64 IData64;
@@ -4177,12 +4175,12 @@ int KeyMacro::ReadVarsConst(int ReadMode, string &strSData)
 	strUpKeyName+=(ReadMode==MACRO_VARS?L"Vars":L"Consts");
 	TVarTable *t = (ReadMode==MACRO_VARS)?&glbVarTable:&glbConstTable;
 
-	for (I=0;; I++)
+	for (int i=0; ; i++)
 	{
 		IData=0;
 		strValueName.Clear();
 		strSData.Clear();
-		int Type=EnumRegValueEx(strUpKeyName,I,strValueName,strSData,(LPDWORD)&IData,(__int64*)&IData64);
+		int Type=EnumRegValueEx(strUpKeyName,i,strValueName,strSData,(LPDWORD)&IData,(__int64*)&IData64);
 
 		if (Type == REG_NONE)
 			break;
@@ -4534,10 +4532,9 @@ void KeyMacro::RunStartMacro()
 	if (!(CtrlObject && CtrlObject->Plugins.IsPluginsLoaded()))
 		return;
 
-	int I;
 	MacroRecord *MR=MacroLIB+IndexMode[Mode][0];
 
-	for (I=0; I < IndexMode[Mode][1]; ++I)
+	for (int I=0; I < IndexMode[Mode][1]; ++I)
 	{
 		DWORD CurFlags;
 
@@ -4559,7 +4556,7 @@ void KeyMacro::RunStartMacro()
 	// посчитаем количество оставшихс€ автостартующих макросов
 	int CntStart=0;
 
-	for (I=0; I < MacroLIBCount; ++I)
+	for (int I=0; I < MacroLIBCount; ++I)
 		if ((MacroLIB[I].Flags&MFLAGS_RUNAFTERFARSTART) && !(MacroLIB[I].Flags&MFLAGS_RUNAFTERFARSTARTED))
 			CntStart++;
 
@@ -5395,11 +5392,9 @@ const wchar_t* KeyMacro::GetSubKey(int Mode)
 // получить код моды по имени
 int KeyMacro::GetSubKey(const wchar_t *Mode)
 {
-	int I;
-
-	for (I=MACRO_FUNCS; I < MACRO_LAST; ++I)
-		if (!StrCmpI(MKeywordsArea[I+3].Name,Mode))
-			return I;
+	for (int i=MACRO_FUNCS; i < MACRO_LAST; i++)
+		if (!StrCmpI(MKeywordsArea[i+3].Name,Mode))
+			return i;
 
 	return MACRO_FUNCS-1;
 }

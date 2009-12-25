@@ -106,9 +106,8 @@ Manager::~Manager()
 BOOL Manager::ExitAll()
 {
 	_MANAGER(CleverSysLog clv(L"Manager::ExitAll()"));
-	int i;
 
-	for (i=this->ModalStackCount-1; i>=0; i--)
+	for (int i=this->ModalStackCount-1; i>=0; i--)
 	{
 		Frame *iFrame=this->ModalStack[i];
 
@@ -125,7 +124,7 @@ BOOL Manager::ExitAll()
 		}
 	}
 
-	for (i=FrameCount-1; i>=0; i--)
+	for (int i=FrameCount-1; i>=0; i--)
 	{
 		Frame *iFrame=FrameList[i];
 
@@ -150,10 +149,9 @@ BOOL Manager::ExitAll()
 void Manager::CloseAll()
 {
 	_MANAGER(CleverSysLog clv(L"Manager::CloseAll()"));
-	int i;
 	Frame *iFrame;
 
-	for (i=ModalStackCount-1; i>=0; i--)
+	for (int i=ModalStackCount-1; i>=0; i--)
 	{
 		iFrame=ModalStack[i];
 		DeleteFrame(iFrame);
@@ -161,7 +159,7 @@ void Manager::CloseAll()
 		DeletedFrame=NULL;
 	}
 
-	for (i=FrameCount-1; i>=0; i--)
+	for (int i=FrameCount-1; i>=0; i--)
 	{
 		iFrame=(*this)[i];
 		DeleteFrame(iFrame);
@@ -1683,10 +1681,9 @@ void Manager::ModalizeCommit()
 
 void Manager::UnmodalizeCommit()
 {
-	int i;
 	Frame *iFrame;
 
-	for (i=0; i<FrameCount; i++)
+	for (int i=0; i<FrameCount; i++)
 	{
 		iFrame=FrameList[i];
 
@@ -1696,7 +1693,7 @@ void Manager::UnmodalizeCommit()
 		}
 	}
 
-	for (i=0; i<ModalStackCount; i++)
+	for (int i=0; i<ModalStackCount; i++)
 	{
 		iFrame=ModalStack[i];
 
@@ -1743,20 +1740,18 @@ void Manager::ResizeAllModal(Frame *ModalFrame)
 
 void Manager::ResizeAllFrame()
 {
-	int I;
-
-	for (I=0; I < FrameCount; I++)
+	for (int i=0; i < FrameCount; i++)
 	{
-		FrameList[I]->ResizeConsole();
+		FrameList[i]->ResizeConsole();
 	}
 
-	for (I=0; I < ModalStackCount; I++)
+	for (int i=0; i < ModalStackCount; i++)
 	{
-		ModalStack[I]->ResizeConsole();
+		ModalStack[i]->ResizeConsole();
 		/* $ 13.04.2002 KM
 		  - А теперь проресайзим все NextModal...
 		*/
-		ResizeAllModal(ModalStack[I]);
+		ResizeAllModal(ModalStack[i]);
 	}
 
 	ImmediateHide();

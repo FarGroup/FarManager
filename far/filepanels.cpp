@@ -258,30 +258,27 @@ void FilePanels::SetPanelPositions(int LeftFullScreen,int RightFullScreen)
 	if (Opt.WidthDecrement > (ScrX/2-10))
 		Opt.WidthDecrement=(ScrX/2-10);
 
-	if (Opt.HeightDecrement>ScrY-7)
-		Opt.HeightDecrement=ScrY-7;
-
-	if (Opt.HeightDecrement<0)
-		Opt.HeightDecrement=0;
+	Opt.LeftHeightDecrement=Max(0,Min(Opt.LeftHeightDecrement,ScrY-7));
+	Opt.RightHeightDecrement=Max(0,Min(Opt.RightHeightDecrement,ScrY-7));
 
 	if (LeftFullScreen)
 	{
-		LeftPanel->SetPosition(0,Opt.ShowMenuBar?1:0,ScrX,ScrY-1-(Opt.ShowKeyBar!=0)-Opt.HeightDecrement);
+		LeftPanel->SetPosition(0,Opt.ShowMenuBar?1:0,ScrX,ScrY-1-(Opt.ShowKeyBar!=0)-Opt.LeftHeightDecrement);
 		LeftPanel->ViewSettings.FullScreen=1;
 	}
 	else
 	{
-		LeftPanel->SetPosition(0,Opt.ShowMenuBar?1:0,ScrX/2-Opt.WidthDecrement,ScrY-1-(Opt.ShowKeyBar!=0)-Opt.HeightDecrement);
+		LeftPanel->SetPosition(0,Opt.ShowMenuBar?1:0,ScrX/2-Opt.WidthDecrement,ScrY-1-(Opt.ShowKeyBar!=0)-Opt.LeftHeightDecrement);
 	}
 
 	if (RightFullScreen)
 	{
-		RightPanel->SetPosition(0,Opt.ShowMenuBar?1:0,ScrX,ScrY-1-(Opt.ShowKeyBar!=0)-Opt.HeightDecrement);
+		RightPanel->SetPosition(0,Opt.ShowMenuBar?1:0,ScrX,ScrY-1-(Opt.ShowKeyBar!=0)-Opt.RightHeightDecrement);
 		RightPanel->ViewSettings.FullScreen=1;
 	}
 	else
 	{
-		RightPanel->SetPosition(ScrX/2+1-Opt.WidthDecrement,Opt.ShowMenuBar?1:0,ScrX,ScrY-1-(Opt.ShowKeyBar!=0)-Opt.HeightDecrement);
+		RightPanel->SetPosition(ScrX/2+1-Opt.WidthDecrement,Opt.ShowMenuBar?1:0,ScrX,ScrY-1-(Opt.ShowKeyBar!=0)-Opt.RightHeightDecrement);
 	}
 }
 
@@ -384,21 +381,11 @@ int FilePanels::SwapPanels()
 		{
 			Opt.WidthDecrement=-Opt.WidthDecrement;
 
-			if (!LeftPanel->ViewSettings.FullScreen)
-			{
-				LeftPanel->SetPosition(ScrX/2+1-Opt.WidthDecrement,YR1,ScrX,YR2);
+			Opt.LeftHeightDecrement^=Opt.RightHeightDecrement;
+			Opt.RightHeightDecrement=Opt.LeftHeightDecrement^Opt.RightHeightDecrement;
+			Opt.LeftHeightDecrement^=Opt.RightHeightDecrement;
 
-				if (LastLeftFilePanel)
-					LastLeftFilePanel->SetPosition(ScrX/2+1-Opt.WidthDecrement,YR1,ScrX,YR2);
-			}
-
-			if (!RightPanel->ViewSettings.FullScreen)
-			{
-				RightPanel->SetPosition(0,YL1,ScrX/2-Opt.WidthDecrement,YL2);
-
-				if (LastRightFilePanel)
-					LastRightFilePanel->SetPosition(0,YL1,ScrX/2-Opt.WidthDecrement,YL2);
-			}
+			SetScreenPosition();
 		}
 
 		Panel *Swap;
@@ -415,7 +402,6 @@ int FilePanels::SwapPanels()
 		FileFilter::SwapFilter();
 		Ret=TRUE;
 	}
-
 	FrameManager->RefreshFrame();
 	return Ret;
 }
@@ -657,9 +643,19 @@ int FilePanels::ProcessKey(int Key)
 		}
 		case KEY_CTRLUP:  case KEY_CTRLNUMPAD8:
 		{
-			if (Opt.HeightDecrement<ScrY-7)
+			bool Set=false;
+			if (Opt.LeftHeightDecrement<ScrY-7)
 			{
-				Opt.HeightDecrement++;
+				Opt.LeftHeightDecrement++;
+				Set=true;
+			}
+			if (Opt.RightHeightDecrement<ScrY-7)
+			{
+				Opt.RightHeightDecrement++;
+				Set=true;
+			}
+			if(Set)
+			{
 				SetScreenPosition();
 				FrameManager->RefreshFrame();
 			}
@@ -668,15 +664,50 @@ int FilePanels::ProcessKey(int Key)
 		}
 		case KEY_CTRLDOWN:  case KEY_CTRLNUMPAD2:
 		{
-			if (Opt.HeightDecrement>0)
+			bool Set=false;
+			if (Opt.LeftHeightDecrement>0)
 			{
-				Opt.HeightDecrement--;
+				Opt.LeftHeightDecrement--;
+				Set=true;
+			}
+			if (Opt.RightHeightDecrement>0)
+			{
+				Opt.RightHeightDecrement--;
+				Set=true;
+			}
+			if(Set)
+			{
 				SetScreenPosition();
 				FrameManager->RefreshFrame();
 			}
 
 			break;
 		}
+
+		case KEY_CTRLSHIFTUP:  case KEY_CTRLSHIFTNUMPAD8:
+		{
+			int& HeightDecrement=(ActivePanel==LeftPanel)?Opt.LeftHeightDecrement:Opt.RightHeightDecrement;
+			if (HeightDecrement<ScrY-7)
+			{
+				HeightDecrement++;
+				SetScreenPosition();
+				FrameManager->RefreshFrame();
+			}
+			break;
+		}
+
+		case KEY_CTRLSHIFTDOWN:  case KEY_CTRLSHIFTNUMPAD2:
+		{
+			int& HeightDecrement=(ActivePanel==LeftPanel)?Opt.LeftHeightDecrement:Opt.RightHeightDecrement;
+			if (HeightDecrement>0)
+			{
+				HeightDecrement--;
+				SetScreenPosition();
+				FrameManager->RefreshFrame();
+			}
+			break;
+		}
+
 		case KEY_CTRLLEFT: case KEY_CTRLNUMPAD4:
 		{
 			if (Opt.WidthDecrement<ScrX/2-10)
@@ -712,9 +743,19 @@ int FilePanels::ProcessKey(int Key)
 		}
 		case KEY_CTRLSHIFTCLEAR:
 		{
-			if (Opt.HeightDecrement!=0)
+			bool Set=false;
+			if (Opt.LeftHeightDecrement!=0)
 			{
-				Opt.HeightDecrement=0;
+				Opt.LeftHeightDecrement=0;
+				Set=true;
+			}
+			if (Opt.RightHeightDecrement!=0)
+			{
+				Opt.RightHeightDecrement=0;
+				Set=true;
+			}
+			if(Set)
+			{
 				SetScreenPosition();
 				FrameManager->RefreshFrame();
 			}

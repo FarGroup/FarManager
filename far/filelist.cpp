@@ -295,7 +295,7 @@ void FileList::SortFileList(int KeepPosition)
 			strCurName = ListData[CurFile]->strName;
 
 		hSortPlugin=(PanelMode==PLUGIN_PANEL) ? hPlugin:NULL;
-		far_qsort((void *)ListData,FileCount,sizeof(*ListData),SortList);
+		far_qsort(ListData,FileCount,sizeof(*ListData),SortList);
 
 		if (KeepPosition)
 			GoToFile(strCurName);

@@ -260,7 +260,7 @@ class Dialog: public Frame
 		void SelectOnEntry(unsigned Pos,BOOL Selected);
 
 		void CheckDialogCoord();
-		BOOL GetItemRect(unsigned I,RECT& Rect);
+		BOOL GetItemRect(unsigned I,SMALL_RECT& Rect);
 
 		// возвращает заголовок диалога (текст первого текста или фрейма)
 		const wchar_t *GetDialogTitle();

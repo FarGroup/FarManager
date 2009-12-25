@@ -43,8 +43,8 @@ const wchar_t WIN_EOL_fmt[]  = L"\r\r\n";
 
 const wchar_t * __cdecl StrStrI(const wchar_t *str1, const wchar_t *str2)
 {
-	wchar_t *cp = (wchar_t *) str1;
-	wchar_t *s1, *s2;
+	const wchar_t *cp = str1;
+	const wchar_t *s1, *s2;
 
 	if (!*str2)
 		return str1;
@@ -52,7 +52,7 @@ const wchar_t * __cdecl StrStrI(const wchar_t *str1, const wchar_t *str2)
 	while (*cp)
 	{
 		s1 = cp;
-		s2 = (wchar_t *) str2;
+		s2 = str2;
 
 		while (*s1 && *s2 && !(Lower(*s1)-Lower(*s2)))
 		{
@@ -80,13 +80,13 @@ const wchar_t * __cdecl RevStrStrI(const wchar_t *str1, const wchar_t *str2)
 	if (!*str2)
 		return &str1[len1];
 
-	wchar_t *cp = (wchar_t *)&str1[len1-len2];
-	wchar_t *s1, *s2;
+	const wchar_t *cp = &str1[len1-len2];
+	const wchar_t *s1, *s2;
 
 	while (cp >= str1)
 	{
 		s1 = cp;
-		s2 = (wchar_t *) str2;
+		s2 = str2;
 
 		while (*s1 && *s2 && !(Lower(*s1)-Lower(*s2)))
 		{
@@ -116,12 +116,17 @@ static int __digit_cnt_0(const wchar_t* s, const wchar_t ** beg)
 	return n;
 }
 
-int __cdecl NumStrCmpI(const wchar_t *s1, const wchar_t *s2)
+int __cdecl NumStrCmpNI(const wchar_t *s1, const wchar_t *s2, int n)
 {
 	int ret;
-
+	int c=0;
 	while (*s1 && *s2)
 	{
+		if(n!=-1 && c==n)
+		{
+			return ret;
+		}
+		c++;
 		if (iswdigit(*s1) && iswdigit(*s2))
 		{
 			// берем длину числа без ведущих нулей
@@ -158,12 +163,17 @@ int __cdecl NumStrCmpI(const wchar_t *s1, const wchar_t *s2)
 	return StrCmpI(s1,s2);
 }
 
-int __cdecl NumStrCmp(const wchar_t *s1, const wchar_t *s2)
+int __cdecl NumStrCmpN(const wchar_t *s1, const wchar_t *s2, int n)
 {
 	int ret;
-
+	int c=0;
 	while (*s1 && *s2)
 	{
+		if(n!=-1 && c==n)
+		{
+			return ret;
+		}
+		c++;
 		if (iswdigit(*s1) && iswdigit(*s2))
 		{
 			// берем длину числа без ведущих нулей

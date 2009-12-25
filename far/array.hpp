@@ -189,11 +189,10 @@ template <class Object>
 bool TArray<Object>::setSize(unsigned int newSize)
 {
 	bool rc=false;
-	unsigned int i;
 
 	if (newSize < Count)              // уменьшение размера
 	{
-		for (i=newSize; i<Count; ++i)
+		for (unsigned int i=newSize; i<Count; ++i)
 		{
 			delete items[i];
 			items[i]=NULL;
@@ -204,7 +203,7 @@ bool TArray<Object>::setSize(unsigned int newSize)
 	}
 	else if (newSize < internalCount) // увеличение, но в рамках имеющегося
 	{
-		for (i=Count; i<newSize; ++i)
+		for (unsigned int i=Count; i<newSize; ++i)
 			items[i]=NULL;
 
 		Count=newSize;
@@ -228,7 +227,7 @@ bool TArray<Object>::setSize(unsigned int newSize)
 			items=newItems;
 			internalCount=newCount;
 
-			for (i=Count; i<newSize; ++i)
+			for (unsigned int i=Count; i<newSize; ++i)
 				items[i]=NULL;
 
 			Count=newSize;
@@ -335,7 +334,6 @@ class TPointerArray
 		bool setSize(unsigned int newSize)
 		{
 			bool rc=false;
-			unsigned int i;
 
 			if (newSize < Count)              // уменьшение размера
 			{
@@ -344,7 +342,7 @@ class TPointerArray
 			}
 			else if (newSize < internalCount) // увеличение, но в рамках имеющегося
 			{
-				for (i=Count; i<newSize; ++i)
+				for (unsigned int i=Count; i<newSize; i++)
 					items[i]=NULL;
 
 				Count=newSize;
@@ -361,7 +359,7 @@ class TPointerArray
 					items=newItems;
 					internalCount=newCount;
 
-					for (i=Count; i<newSize; ++i)
+					for (unsigned int i=Count; i<newSize; i++)
 						items[i]=NULL;
 
 					Count=newSize;

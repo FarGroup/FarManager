@@ -971,7 +971,7 @@ int FileFilter::ParseAndAddMasks(wchar_t **ExtPtr,const wchar_t *FileName,DWORD 
 	// сначала поиск...
 	unsigned int Cnt=ExtCount;
 
-	if (_lfind((const void *)(const wchar_t *)strMask,(void *)*ExtPtr,&Cnt,NM*sizeof(wchar_t),ExtSort))
+	if (_lfind(strMask.CPtr(),*ExtPtr,&Cnt,NM*sizeof(wchar_t),ExtSort))
 		return -1;
 
 	// ... а потом уже выделение памяти!

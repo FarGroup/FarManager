@@ -452,7 +452,8 @@ struct Options
 	FindFileOptions FindOpt;
 
 	string strTempPath;
-	int HeightDecrement;
+	int LeftHeightDecrement;
+	int RightHeightDecrement;
 	int WidthDecrement;
 
 	int ShowColumnTitles;

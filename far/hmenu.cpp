@@ -71,22 +71,21 @@ void HMenu::DisplayObject()
 void HMenu::ShowMenu()
 {
 	string strTmpStr;
-	int I;
 	GotoXY(X1+2,Y1);
 
-	for (I=0; I<ItemCount; I++)
+	for (int i=0; i<ItemCount; i++)
 	{
-		ItemX[I]=WhereX();
+		ItemX[i]=WhereX();
 
-		if (Item[I].Selected)
+		if (Item[i].Selected)
 			SetColor(COL_HMENUSELECTEDTEXT);
 		else
 			SetColor(COL_HMENUTEXT);
 
 		strTmpStr=L"  ";
-		strTmpStr+=Item[I].Name;
+		strTmpStr+=Item[i].Name;
 		strTmpStr+=L"  ";
-		HiText(strTmpStr,Item[I].Selected ? COL_HMENUSELECTEDHIGHLIGHT:COL_HMENUHIGHLIGHT);
+		HiText(strTmpStr,Item[i].Selected ? COL_HMENUSELECTEDHIGHLIGHT:COL_HMENUHIGHLIGHT);
 	}
 
 	ItemX[ItemCount]=WhereX();
@@ -95,14 +94,15 @@ void HMenu::ShowMenu()
 
 __int64 HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
-	int I;
-
-	for (SelectPos=0,I=0; I<ItemCount; I++)
-		if (Item[I].Selected)
+	SelectPos=0;
+	for (int i=0; i<ItemCount; i++)
+	{
+		if (Item[i].Selected)
 		{
-			SelectPos=I;
+			SelectPos=i;
 			break;
 		}
+	}
 
 	string strName;
 
@@ -147,14 +147,15 @@ __int64 HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 int HMenu::ProcessKey(int Key)
 {
-	int I;
-
-	for (SelectPos=0,I=0; I<ItemCount; I++)
-		if (Item[I].Selected)
+	SelectPos=0;
+	for (int i=0; i<ItemCount; i++)
+	{
+		if (Item[i].Selected)
 		{
-			SelectPos=I;
+			SelectPos=i;
 			break;
 		}
+	}
 
 	switch (Key)
 	{
@@ -278,26 +279,26 @@ int HMenu::ProcessKey(int Key)
 		}
 		default:
 		{
-			for (I=0; I<ItemCount; I++)
+			for (int i=0; i<ItemCount; i++)
 			{
-				if (IsKeyHighlighted(Item[I].Name,Key,FALSE))
+				if (IsKeyHighlighted(Item[i].Name,Key,FALSE))
 				{
 					Item[SelectPos].Selected=0;
-					Item[I].Selected=1;
-					SelectPos=I;
+					Item[i].Selected=1;
+					SelectPos=i;
 					ShowMenu();
 					ProcessKey(KEY_ENTER);
 					return(TRUE);
 				}
 			}
 
-			for (I=0; I<ItemCount; I++)
+			for (int i=0; i<ItemCount; i++)
 			{
-				if (IsKeyHighlighted(Item[I].Name,Key,TRUE))
+				if (IsKeyHighlighted(Item[i].Name,Key,TRUE))
 				{
 					Item[SelectPos].Selected=0;
-					Item[I].Selected=1;
-					SelectPos=I;
+					Item[i].Selected=1;
+					SelectPos=i;
 					ShowMenu();
 					ProcessKey(KEY_ENTER);
 					return(TRUE);
@@ -314,30 +315,32 @@ int HMenu::ProcessKey(int Key)
 
 int HMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
-	int I;
 	int MsX,MsY;
 
-	for (SelectPos=0,I=0; I<ItemCount; I++)
-		if (Item[I].Selected)
+	SelectPos=0;
+	for (int i=0; i<ItemCount; i++)
+	{
+		if (Item[i].Selected)
 		{
-			SelectPos=I;
+			SelectPos=i;
 			break;
 		}
+	}
 
 	MsX=MouseEvent->dwMousePosition.X;
 	MsY=MouseEvent->dwMousePosition.Y;
 
 	if (MsY==Y1 && MsX>=X1 && MsX<=X2)
 	{
-		for (I=0; I<ItemCount; I++)
-			if (MsX>=ItemX[I] && MsX<ItemX[I+1])
+		for (int i=0; i<ItemCount; i++)
+			if (MsX>=ItemX[i] && MsX<ItemX[i+1])
 			{
-				if (SubMenu!=NULL && SelectPos==I)
+				if (SubMenu!=NULL && SelectPos==i)
 					return(FALSE);
 
 				Item[SelectPos].Selected=0;
-				Item[I].Selected=1;
-				SelectPos=I;
+				Item[i].Selected=1;
+				SelectPos=i;
 				ShowMenu();
 				ProcessKey(KEY_ENTER);
 			}

@@ -4140,9 +4140,9 @@ BOOL Editor::Search(int Next)
 							Flags.Set(FEDITOR_OVERTYPE);
 							CurLine->SetOvertypeMode(TRUE);
 							//int CurPos=CurLine->GetCurPos();
-							int I;
 
-							for (I=0; SearchLength!=0 && strReplaceStrCurrent[I]!=0; I++,SearchLength--)
+							int I=0;
+							for (; SearchLength!=0 && strReplaceStrCurrent[I]!=0; I++,SearchLength--)
 							{
 								int Ch=strReplaceStrCurrent[I];
 
@@ -5628,7 +5628,6 @@ void Editor::VBlockShift(int Left)
 
 int Editor::EditorControl(int Command,void *Param)
 {
-	int I;
 	_ECTLLOG(CleverSysLog SL(L"Editor::EditorControl()"));
 	_ECTLLOG(SysLog(L"Command=%s Param=[%d/0x%08X]",_ECTL_ToName(Command),Param,Param));
 
@@ -5998,10 +5997,10 @@ int Editor::EditorControl(int Command,void *Param)
 					if ((BlockStartLine=Sel->BlockStartLine) == -1)
 						BlockStartLine=NumLine;
 
-					for (I=0; I < Sel->BlockHeight; I++)
+					for (int i=0; i < Sel->BlockHeight; i++)
 					{
-						int SelStart= (I == 0) ? Sel->BlockStartPos : 0;
-						int SelEnd  = (I < Sel->BlockHeight-1) ? -1 : Sel->BlockStartPos+Sel->BlockWidth;
+						int SelStart= (i == 0) ? Sel->BlockStartPos : 0;
+						int SelEnd  = (i < Sel->BlockHeight-1) ? -1 : Sel->BlockStartPos+Sel->BlockWidth;
 						CurPtr->Select(SelStart,SelEnd);
 						CurPtr=CurPtr->m_next;
 

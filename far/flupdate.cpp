@@ -145,7 +145,6 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	string strCurName, strNextCurName;
 	int OldFileCount=0;
 	int Done;
-	int I;
 	clock_t StartTime=clock();
 	CloseChangeNotification();
 
@@ -203,9 +202,9 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 		if (ListData[CurFile]->Selected)
 		{
-			for (I=CurFile+1; I < FileCount; I++)
+			for (int i=CurFile+1; i < FileCount; i++)
 			{
-				CurPtr = ListData[I];
+				CurPtr = ListData[i];
 
 				if (!CurPtr->Selected)
 				{
@@ -487,7 +486,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	if (AnotherPanel->GetMode()==PLUGIN_PANEL)
 	{
 		HANDLE hAnotherPlugin=AnotherPanel->GetPluginHandle();
-		PluginPanelItem *PanelData=NULL, *PtrPanelData;
+		PluginPanelItem *PanelData=NULL;
 		string strPath;
 		int PanelCount=0;
 		strPath = strCurDir;
@@ -501,11 +500,11 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 			{
 				ListData=pTemp;
 
-				for (PtrPanelData=PanelData, I=0; I < PanelCount; I++, CurPtr++, PtrPanelData++)
+				for (int i=0; i < PanelCount; i++)
 				{
-					CurPtr = ListData[FileCount+I];
-					FAR_FIND_DATA &fdata=PtrPanelData->FindData;
-					PluginToFileListItem(PtrPanelData,CurPtr);
+					CurPtr = ListData[FileCount+i];
+					FAR_FIND_DATA &fdata=PanelData[i].FindData;
+					PluginToFileListItem(&PanelData[i],CurPtr);
 					CurPtr->Position=FileCount;
 					TotalFileSize += fdata.nFileSize;
 					CurPtr->PrevSelected=CurPtr->Selected=0;
@@ -652,11 +651,11 @@ void FileList::MoveSelection(FileListItem **ListData,long FileCount,
 	SelFileCount=0;
 	SelFileSize=0;
 	CacheSelIndex=-1;
-	far_qsort((void *)OldData,OldFileCount,sizeof(*OldData),SortSearchList);
+	far_qsort(OldData,OldFileCount,sizeof(*OldData),SortSearchList);
 
 	while (FileCount--)
 	{
-		OldPtr=(FileListItem **)bsearch((void *)ListData,(void *)OldData,
+		OldPtr=(FileListItem **)bsearch(ListData,(void *)OldData,
 		                                OldFileCount,sizeof(*ListData),SortSearchList);
 
 		if (OldPtr!=NULL)
@@ -689,7 +688,6 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	}
 
 	DizRead=FALSE;
-	int I;
 	FileListItem *CurPtr, **OldData=0;
 	string strCurName, strNextCurName;
 	int OldFileCount=0;
@@ -737,9 +735,9 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
 		if (CurPtr->Selected)
 		{
-			for (I=CurFile+1; I < FileCount; I++)
+			for (int i=CurFile+1; i < FileCount; i++)
 			{
-				CurPtr = ListData[I];
+				CurPtr = ListData[i];
 
 				if (!CurPtr->Selected)
 				{
@@ -781,9 +779,8 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	CtrlObject->HiFiles->UpdateCurrentTime();
 	int DotsPresent=FALSE;
 	int FileListCount=0;
-	PluginPanelItem *CurPanelData=PanelData;
 
-	for (I=0; I < FileCount; I++, CurPanelData++)
+	for (int i=0; i < FileCount; i++)
 	{
 		ListData[FileListCount] = new FileListItem;
 		FileListItem *CurListData=ListData[FileListCount];
@@ -792,15 +789,15 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 		if (Info.Flags & OPIF_USEFILTER)
 
 			//if ((CurPanelData->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
-			if (!Filter->FileInFilter(&CurPanelData->FindData))
+			if (!Filter->FileInFilter(&PanelData[i].FindData))
 				continue;
 
-		if (!Opt.ShowHidden && (CurPanelData->FindData.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM)))
+		if (!Opt.ShowHidden && (PanelData[i].FindData.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM)))
 			continue;
 
 		//memset(CurListData,0,sizeof(*CurListData));
-		PluginToFileListItem(CurPanelData,CurListData);
-		CurListData->Position=I;
+		PluginToFileListItem(&PanelData[i],CurListData);
+		CurListData->Position=i;
 
 		if ((Info.Flags & OPIF_USESORTGROUPS)/* && (CurListData->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0*/)
 			CurListData->SortGroup=CtrlObject->HiFiles->GetGroup(CurListData);

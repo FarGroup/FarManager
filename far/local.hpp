@@ -77,5 +77,7 @@ inline void __cdecl StrLower(wchar_t *s1) { LowerBuf(s1, StrLength(s1)); }
 const wchar_t * __cdecl StrStrI(const wchar_t *str1, const wchar_t *str2);
 const wchar_t * __cdecl RevStrStrI(const wchar_t *str1, const wchar_t *str2);
 
-int __cdecl NumStrCmp(const wchar_t *s1, const wchar_t *s2);
-int __cdecl NumStrCmpI(const wchar_t *s1, const wchar_t *s2);
+int __cdecl NumStrCmpN(const wchar_t *s1, const wchar_t *s2, int n);
+int __cdecl NumStrCmpNI(const wchar_t *s1, const wchar_t *s2, int n);
+inline int __cdecl NumStrCmp(const wchar_t *s1, const wchar_t *s2){return NumStrCmpN(s1,s2,-1);}
+inline int __cdecl NumStrCmpI(const wchar_t *s1, const wchar_t *s2){return NumStrCmpNI(s1,s2,-1);}

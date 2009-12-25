@@ -1559,28 +1559,22 @@ int TreeList::FindPartName(const wchar_t *Name,int Next,int Direct,int ExcludeSe
 		ReplaceStrings(strMask,L"<[%>",L"[[]",-1,1);
 	}
 
-	int I;
-
-	for (I=CurFile+(Next?Direct:0); I >= 0 && I < TreeCount; I+=Direct)
+	for (int i=CurFile+(Next?Direct:0); i >= 0 && i < TreeCount; i+=Direct)
 	{
-		if (CmpName(strMask,ListData[I]->strName,true,(I==CurFile)))
+		if (CmpName(strMask,ListData[i]->strName,true,(i==CurFile)))
 		{
-			CurFile=I;
+			CurFile=i;
 			CurTopFile=CurFile-(Y2-Y1-1)/2;
 			DisplayTree(TRUE);
 			return(TRUE);
 		}
 	}
 
-	for (
-	    I=(Direct > 0)?0:TreeCount-1;
-	    (Direct > 0) ? I < CurFile:I > CurFile;
-	    I+=Direct
-	)
+	for (int i=(Direct > 0)?0:TreeCount-1; (Direct > 0) ? i < CurFile:i > CurFile; i+=Direct)
 	{
-		if (CmpName(strMask,ListData[I]->strName,true))
+		if (CmpName(strMask,ListData[i]->strName,true))
 		{
-			CurFile=I;
+			CurFile=i;
 			CurTopFile=CurFile-(Y2-Y1-1)/2;
 			DisplayTree(TRUE);
 			return(TRUE);
@@ -1834,7 +1828,6 @@ void TreeList::ReadCache(const wchar_t *TreeRoot)
 void TreeList::FlushCache()
 {
 	FILE *TreeFile;
-	int I;
 
 	if (!TreeCache.strTreeName.IsEmpty())
 	{
@@ -1851,8 +1844,8 @@ void TreeList::FlushCache()
 
 		far_qsort(TreeCache.ListName,TreeCache.TreeCount,sizeof(wchar_t*),SortCacheList);
 
-		for (I=0; I<TreeCache.TreeCount; I++)
-			fwprintf(TreeFile,L"%s\n",TreeCache.ListName[I]);
+		for (int i=0; i<TreeCache.TreeCount; i++)
+			fwprintf(TreeFile,L"%s\n",TreeCache.ListName[i]);
 
 		if (fclose(TreeFile)==EOF)
 		{
@@ -1960,8 +1953,8 @@ int _cdecl SortCacheList(const void *el1,const void *el2)
 
 int TreeCmp(const wchar_t *Str1, const wchar_t *Str2, int Numeric, int CaseSensitive)
 {
-	typedef int (__cdecl *CMPFUNC)(const wchar_t *, const wchar_t *);
-	static CMPFUNC funcs[2][2] = { {StrCmp, StrCmpI}, {NumStrCmp, NumStrCmpI} };
+	typedef int (__cdecl *CMPFUNC)(const wchar_t *, const wchar_t *, int);
+	static CMPFUNC funcs[2][2] = { {StrCmpN, StrCmpNI}, {NumStrCmpN, NumStrCmpNI} };
 	CMPFUNC cmpfunc = funcs[Numeric?1:0][CaseSensitive?0:1];
 
 	if (*Str1 == L'\\' && *Str1 == *Str2)
@@ -1970,30 +1963,26 @@ int TreeCmp(const wchar_t *Str1, const wchar_t *Str2, int Numeric, int CaseSensi
 		Str2++;
 	}
 
-	wchar_t *s1 = (wchar_t *)wcschr(Str1,L'\\');
-	wchar_t *s2 = (wchar_t *)wcschr(Str2,L'\\');
+	const wchar_t *s1 = wcschr(Str1,L'\\');
+	const wchar_t *s2 = wcschr(Str2,L'\\');
 
 	while (s1 && s2)
 	{
-		*s1 = *s2 = 0;
-		int r = cmpfunc(Str1,Str2);
-		*s1 = *s2 = L'\\';
+		int r = cmpfunc(Str1,Str2,static_cast<int>(Min(s1-Str1,s2-Str2)));
 
 		if (r)
 			return r;
 
 		Str1 = s1 + 1;
 		Str2 = s2 + 1;
-		s1 = (wchar_t *)wcschr(Str1,L'\\');
-		s2 = (wchar_t *)wcschr(Str2,L'\\');
+		s1 = wcschr(Str1,L'\\');
+		s2 = wcschr(Str2,L'\\');
 	}
 
 	if (s1 || s2)
 	{
-		wchar_t *s = s1 ? s1 : s2;
-		*s = 0;
-		int r = cmpfunc(Str1,Str2);
-		*s = L'\\';
+		int n=static_cast<int>(s1?s1-Str1:s2-Str2);
+		int r = cmpfunc(Str1,Str2,n);
 
 		if (r)
 			return r;
@@ -2001,7 +1990,7 @@ int TreeCmp(const wchar_t *Str1, const wchar_t *Str2, int Numeric, int CaseSensi
 		return s1 ? 1 : -1;
 	}
 
-	return cmpfunc(Str1, Str2);
+	return cmpfunc(Str1, Str2,-1);
 }
 
 /* $ 16.10.2000 tran

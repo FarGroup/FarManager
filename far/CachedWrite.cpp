@@ -56,32 +56,35 @@ CachedWrite::~CachedWrite()
 bool CachedWrite::Write(LPCVOID Data,size_t DataSize)
 {
 	bool Result=false;
+	bool SuccessFlush=true;
 
 	if (Buffer)
 	{
 		if (DataSize>FreeSize)
 		{
-			Flush();
+			SuccessFlush=Flush();
 		}
 
-		if (DataSize>FreeSize)
+		if(SuccessFlush)
 		{
-			DWORD WrittenSize=0;
-
-			if (WriteFile(hFile,Data,static_cast<DWORD>(DataSize),&WrittenSize,NULL) && DataSize==WrittenSize)
+			if (DataSize>FreeSize)
 			{
+				DWORD WrittenSize=0;
+
+				if (WriteFile(hFile,Data,static_cast<DWORD>(DataSize),&WrittenSize,NULL) && DataSize==WrittenSize)
+				{
+					Result=true;
+				}
+			}
+			else
+			{
+				memcpy(&Buffer[BufferSize-FreeSize],Data,DataSize);
+				FreeSize-=DataSize;
+				Flushed=false;
 				Result=true;
 			}
 		}
-		else
-		{
-			memcpy(&Buffer[BufferSize-FreeSize],Data,DataSize);
-			FreeSize-=DataSize;
-			Flushed=false;
-			Result=true;
-		}
 	}
-
 	return Result;
 }
 

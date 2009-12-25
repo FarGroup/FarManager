@@ -1917,8 +1917,11 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 				if (
 				    (Length && !Cache.Write(SaveStr,Length*sizeof(wchar_t))) ||
 				    (EndLength && !Cache.Write(EndSeq,EndLength*sizeof(wchar_t)))
-				)
+						)
+				{
+					SysErrorCode=GetLastError();
 					bError = true;
+				}
 			}
 			else
 			{
@@ -1935,7 +1938,10 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 							WideCharToMultiByte(codepage, 0, SaveStr, Length, SaveStrCopy, length, NULL, NULL);
 
 						if (!Cache.Write(SaveStrCopy,length))
+						{
 							bError = true;
+							SysErrorCode=GetLastError();
+						}
 
 						xf_free(SaveStrCopy);
 					}
@@ -1958,7 +1964,10 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 								WideCharToMultiByte(codepage, 0, EndSeq, EndLength, EndSeqCopy, endlength, NULL, NULL);
 
 							if (!Cache.Write(EndSeqCopy,endlength))
+							{
 								bError = true;
+								SysErrorCode=GetLastError();
+							}
 
 							xf_free(EndSeqCopy);
 						}
@@ -1977,10 +1986,20 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 			}
 		}
 
-		Cache.Flush();
-		SetEndOfFile(hEditFile);
-		CloseHandle(hEditFile);
+		if(Cache.Flush())
+		{
+			SetEndOfFile(hEditFile);
+			CloseHandle(hEditFile);
+		}
+		else
+		{
+			SysErrorCode=GetLastError();
+			CloseHandle(hEditFile);
+			apiDeleteFile(Name);
+			RetCode=SAVEFILE_ERROR;
+		}
 	}
+
 end:
 
 	if (FileAttributes!=INVALID_FILE_ATTRIBUTES && FileAttributesModified)

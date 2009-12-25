@@ -790,8 +790,6 @@ int WINAPI FarMenuFn(
     int ItemsNumber
 )
 {
-	int I;
-
 	if (FrameManager->ManagerIsDown())
 		return -1;
 
@@ -838,9 +836,9 @@ int WINAPI FarMenuFn(
 		{
 			FarMenuItemEx *ItemEx=(FarMenuItemEx*)Item;
 
-			for (I=0; I < ItemsNumber; I++, ++ItemEx)
+			for (int i=0; i < ItemsNumber; i++)
 			{
-				CurItem.Flags=ItemEx->Flags;
+				CurItem.Flags=ItemEx[i].Flags;
 				CurItem.strName.Clear();
 				// исключаем MultiSelected, т.к. у нас сейчас движок к этому не приспособлен, оставляем только первый
 				DWORD SelCurItem=CurItem.Flags&LIF_SELECTED;
@@ -852,23 +850,23 @@ int WINAPI FarMenuFn(
 					Selected++;
 				}
 
-				CurItem.strName=ItemEx->Text;
-				CurItem.AccelKey=(CurItem.Flags&LIF_SEPARATOR)?0:ItemEx->AccelKey;
+				CurItem.strName=ItemEx[i].Text;
+				CurItem.AccelKey=(CurItem.Flags&LIF_SEPARATOR)?0:ItemEx[i].AccelKey;
 				FarMenu.AddItem(&CurItem);
 			}
 		}
 		else
 		{
-			for (I=0; I<ItemsNumber; I++)
+			for (int i=0; i<ItemsNumber; i++)
 			{
-				CurItem.Flags=Item[I].Checked?(LIF_CHECKED|(Item[I].Checked&0xFFFF)):0;
-				CurItem.Flags|=Item[I].Selected?LIF_SELECTED:0;
-				CurItem.Flags|=Item[I].Separator?LIF_SEPARATOR:0;
+				CurItem.Flags=Item[i].Checked?(LIF_CHECKED|(Item[i].Checked&0xFFFF)):0;
+				CurItem.Flags|=Item[i].Selected?LIF_SELECTED:0;
+				CurItem.Flags|=Item[i].Separator?LIF_SEPARATOR:0;
 
-				if (Item[I].Separator)
+				if (Item[i].Separator)
 					CurItem.strName.Clear();
 				else
-					CurItem.strName = Item[I].Text;
+					CurItem.strName = Item[i].Text;
 
 				DWORD SelCurItem=CurItem.Flags&LIF_SELECTED;
 				CurItem.Flags&=~LIF_SELECTED;
@@ -1147,18 +1145,16 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,const wchar_t *HelpTopi
 
 	wchar_t *SingleItems=NULL;
 	wchar_t *Msg;
-	int I;
 
 	// анализ количества строк для FMSG_ALLINONE
 	if (Flags&FMSG_ALLINONE)
 	{
 		ItemsNumber=0;
-		I=StrLength((wchar_t *)Items)+2;
 
-		if ((SingleItems=(wchar_t *)xf_malloc(I*sizeof(wchar_t))) == NULL)
+		if ((SingleItems=(wchar_t *)xf_malloc((StrLength((const wchar_t *)Items)+2)*sizeof(wchar_t))) == NULL)
 			return -1;
 
-		Msg=wcscpy(SingleItems,(wchar_t *)Items);
+		Msg=wcscpy(SingleItems,(const wchar_t *)Items);
 
 		while ((Msg = wcschr(Msg, L'\n')) != NULL)
 		{
@@ -1184,7 +1180,7 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,const wchar_t *HelpTopi
 
 	if (Flags&FMSG_ALLINONE)
 	{
-		I=0;
+		int I=0;
 		Msg=SingleItems;
 		// анализ количества строк и разбивка на пункты
 		wchar_t *MsgTemp;
@@ -1208,8 +1204,8 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,const wchar_t *HelpTopi
 	}
 	else
 	{
-		for (I=0; I < ItemsNumber; I++)
-			MsgItems[I]=Items[I];
+		for (int i=0; i < ItemsNumber; i++)
+			MsgItems[i]=Items[i];
 	}
 
 	// ограничение на строки
@@ -1741,7 +1737,6 @@ static void CopyPluginDirItem(PluginPanelItem *CurPanelItem)
 
 void ScanPluginDir()
 {
-	int I;
 	PluginPanelItem *PanelData=NULL;
 	int ItemCount=0;
 	int AbortOp=FALSE;
@@ -1749,9 +1744,9 @@ void ScanPluginDir()
 	strDirName = strPluginSearchPath;
 	wchar_t *lpwszDirName = strDirName.GetBuffer();
 
-	for (I=0; lpwszDirName[I]!=0; I++)
-		if (lpwszDirName[I]=='\x1')
-			lpwszDirName[I]=lpwszDirName[I+1]==0 ? 0:L'\\';
+	for (int i=0; lpwszDirName[i]!=0; i++)
+		if (lpwszDirName[i]=='\x1')
+			lpwszDirName[i]=lpwszDirName[i+1]==0 ? 0:L'\\';
 
 	strDirName.ReleaseBuffer();
 	TruncStr(strDirName,30);
@@ -1781,17 +1776,17 @@ void ScanPluginDir()
 
 	PluginDirList=NewList;
 
-	for (I=0; I<ItemCount && !StopSearch; I++)
+	for (int i=0; i<ItemCount && !StopSearch; i++)
 	{
-		PluginPanelItem *CurPanelItem=PanelData+I;
+		PluginPanelItem *CurPanelItem=PanelData+i;
 
 		if ((CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
 			CopyPluginDirItem(CurPanelItem);
 	}
 
-	for (I=0; I<ItemCount && !StopSearch; I++)
+	for (int i=0; i<ItemCount && !StopSearch; i++)
 	{
-		PluginPanelItem *CurPanelItem=PanelData+I;
+		PluginPanelItem *CurPanelItem=PanelData+i;
 
 		if ((CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
 		        StrCmp(CurPanelItem->FindData.lpwszFileName,L".")!=0 &&

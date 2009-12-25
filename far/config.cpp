@@ -833,18 +833,16 @@ void ViewerConfig(ViewerOptions &ViOpt,int Local)
 
 	if (Local)
 	{
-		int i;
-
-		for (i=ID_VC_EXTERNALUSEF3; i<=ID_VC_SEPARATOR1; i++)
+		for (int i=ID_VC_EXTERNALUSEF3; i<=ID_VC_SEPARATOR1; i++)
 			CfgDlg[i].Flags |= DIF_HIDDEN;
 
-		for (i=ID_VC_AUTODETECTCODEPAGE; i<ID_VC_SEPARATOR2; i++)
+		for (int i=ID_VC_AUTODETECTCODEPAGE; i<ID_VC_SEPARATOR2; i++)
 			CfgDlg[i].Flags |= DIF_HIDDEN;
 
-		for (i = ID_VC_PERSISTENTSELECTION; i < ID_VC_SEPARATOR2; i++)
+		for (int i = ID_VC_PERSISTENTSELECTION; i < ID_VC_SEPARATOR2; i++)
 			CfgDlg[i].Y1 -= 4;
 
-		for (i = ID_VC_SEPARATOR2; i <= ID_VC_CANCEL; i++)
+		for (int i = ID_VC_SEPARATOR2; i <= ID_VC_CANCEL; i++)
 			CfgDlg[i].Y1 -= 7;
 
 		CfgDlg[ID_VC_TITLE].Y2 -= 7;
@@ -987,18 +985,16 @@ void EditorConfig(EditorOptions &EdOpt,int Local)
 
 	if (Local)
 	{
-		int i;
-
-		for (i = ID_EC_EXTERNALUSEF4; i <= ID_EC_SEPARATOR1; i++)
+		for (int i = ID_EC_EXTERNALUSEF4; i <= ID_EC_SEPARATOR1; i++)
 			CfgDlg[i].Flags |= DIF_HIDDEN;
 
-		for (i = ID_EC_SHARINGWRITE; i < ID_EC_SEPARATOR2; i++)
+		for (int i = ID_EC_SHARINGWRITE; i < ID_EC_SEPARATOR2; i++)
 			CfgDlg[i].Flags |= DIF_HIDDEN;
 
-		for (i = ID_EC_EXPANDTABSTITLE; i < ID_EC_SEPARATOR2; i++)
+		for (int i = ID_EC_EXPANDTABSTITLE; i < ID_EC_SEPARATOR2; i++)
 			CfgDlg[i].Y1 -= 4;
 
-		for (i = ID_EC_SEPARATOR2; i <= ID_EC_CANCEL; i++)
+		for (int i = ID_EC_SEPARATOR2; i <= ID_EC_CANCEL; i++)
 			CfgDlg[i].Y1 -= 11;
 
 		CfgDlg[ID_EC_TITLE].Y2 -= 11;
@@ -1348,7 +1344,8 @@ static struct FARConfig
 	{1, REG_DWORD,  NKeyPanelLayout,L"ScreensNumber",&Opt.ShowScreensNumber,1, 0},
 	{1, REG_DWORD,  NKeyPanelLayout,L"SortMode",&Opt.ShowSortMode,1, 0},
 
-	{1, REG_DWORD,  NKeyLayout,L"HeightDecrement",&Opt.HeightDecrement,0, 0},
+	{1, REG_DWORD,  NKeyLayout,L"LeftHeightDecrement",&Opt.LeftHeightDecrement,0, 0},
+	{1, REG_DWORD,  NKeyLayout,L"RightHeightDecrement",&Opt.RightHeightDecrement,0, 0},
 	{1, REG_DWORD,  NKeyLayout,L"WidthDecrement",&Opt.WidthDecrement,0, 0},
 	{1, REG_DWORD,  NKeyLayout,L"FullscreenHelp",&Opt.FullScreenHelp,0, 0},
 

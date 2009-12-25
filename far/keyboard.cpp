@@ -795,10 +795,9 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 					{
 						DWORD ReadCount3;
 						INPUT_RECORD TmpRec2;
-						int I;
 						PeekConsoleInput(GetStdHandle(STD_INPUT_HANDLE),TmpRec,ReadCount2,&ReadCount3);
 
-						for (I=0; I < ReadCount2; ++I)
+						for (int I=0; I < ReadCount2; ++I)
 						{
 							if (TmpRec[I].EventType!=KEY_EVENT)
 								break;
@@ -1440,7 +1439,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 		   + Обработка колесика мышки. */
 		if (MouseEventFlags == MOUSE_WHEELED)
 		{ // Обработаем колесо и заменим на спец.клавиши
-			short zDelta = (short)HIWORD(rec->Event.MouseEvent.dwButtonState);
+			short zDelta = HIWORD(rec->Event.MouseEvent.dwButtonState);
 			CalcKey = (zDelta>0)?KEY_MSWHEEL_UP:KEY_MSWHEEL_DOWN;
 			/* $ 27.04.2001 SVS
 			   Не были учтены шифтовые клавиши при прокрутке колеса, из-за чего
@@ -1458,7 +1457,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 		// Обработка горизонтального колесика (NT>=6)
 		if (MouseEventFlags == MOUSE_HWHEELED)
 		{
-			short zDelta = (short)HIWORD(rec->Event.MouseEvent.dwButtonState);
+			short zDelta = HIWORD(rec->Event.MouseEvent.dwButtonState);
 			CalcKey = (zDelta>0)?KEY_MSWHEEL_RIGHT:KEY_MSWHEEL_LEFT;
 			CalcKey |= (CtrlState&SHIFT_PRESSED?KEY_SHIFT:0)|
 			           (CtrlState&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)?KEY_CTRL:0)|
@@ -1976,20 +1975,23 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 {
 	int FKey  =Key&0x0003FFFF;
 	int FShift=Key&0x7F000000; // старший бит используется в других целях!
-	int I;
 	VirtKey=0;
 	ControlState=(FShift&KEY_SHIFT?PKF_SHIFT:0)|
 	             (FShift&KEY_ALT?PKF_ALT:0)|
 	             (FShift&KEY_CTRL?PKF_CONTROL:0);
 
-	for (I=0; I < int(countof(Table_KeyToVK)); ++I)
-		if (FKey==Table_KeyToVK[I].Key)
+	bool KeyInTable=false;
+	for (size_t i=0; i < countof(Table_KeyToVK); i++)
+	{
+		if (FKey==Table_KeyToVK[i].Key)
 		{
-			VirtKey=Table_KeyToVK[I].VK;
+			VirtKey=Table_KeyToVK[i].VK;
+			KeyInTable=true;
 			break;
 		}
+	}
 
-	if (I  == countof(Table_KeyToVK))
+	if (!KeyInTable)
 	{
 		if ((FKey>='0' && FKey<='9') || (FKey>='A' && FKey<='Z'))
 			VirtKey=FKey;

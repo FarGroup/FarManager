@@ -527,7 +527,6 @@ void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2)
 
 int GetErrorString(string &strErrStr)
 {
-	int I;
 	static struct TypeErrMsgs
 	{
 		DWORD WinMsg;
@@ -586,16 +585,18 @@ int GetErrorString(string &strErrStr)
 	};
 	DWORD LastError = GetLastError();
 
-	for (I=0; I < (int)countof(ErrMsgs); ++I)
+	bool UseErrMsgs=false;
+	for (int i=0; i < (int)countof(ErrMsgs); i++)
 	{
-		if (ErrMsgs[I].WinMsg == LastError)
+		if (ErrMsgs[i].WinMsg == LastError)
 		{
-			strErrStr = MSG(ErrMsgs[I].FarMsg);
+			strErrStr = MSG(ErrMsgs[i].FarMsg);
+			UseErrMsgs=true;
 			break;
 		}
 	}
 
-	if (I >= (int)countof(ErrMsgs))
+	if (!UseErrMsgs)
 	{
 		if (LastError != ERROR_SUCCESS)
 		{

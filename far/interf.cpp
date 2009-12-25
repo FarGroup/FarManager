@@ -297,7 +297,7 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 	{
 		srWindowRect.Right = xSize-1;
 		srWindowRect.Bottom = ySize-1;
-		srWindowRect.Left = srWindowRect.Top = (SHORT) 0;
+		srWindowRect.Left = srWindowRect.Top = 0;
 		/* define the new console buffer size */
 		coordScreen.X = xSize;
 		coordScreen.Y = ySize;
@@ -597,16 +597,15 @@ static BOOL DetectTTFFont()
 
 void InitRecodeOutTable(UINT cp)
 {
-	int I;
 	OutputCP=!cp?GetConsoleOutputCP():cp;
 
-	for (I=0; I<(int)countof(RecodeOutTable); I++)
-		RecodeOutTable[I]=I;
+	for (size_t i=0; i<countof(RecodeOutTable); i++)
+		RecodeOutTable[i]=static_cast<BYTE>(i);
 
 	if (Opt.CleanAscii)
 	{
-		for (I=0x00; I<0x20; I++)
-			RecodeOutTable[I]='.';
+		for (int i=0x00; i<0x20; i++)
+			RecodeOutTable[i]='.';
 
 		RecodeOutTable[0x07]='*';
 		RecodeOutTable[0x18]=RecodeOutTable[0x19]='|';
@@ -619,8 +618,8 @@ void InitRecodeOutTable(UINT cp)
 
 	if (Opt.NoGraphics)
 	{
-		for (I=0xB3; I<=0xDA; I++)
-			RecodeOutTable[I]='+';
+		for (int i=0xB3; i<=0xDA; i++)
+			RecodeOutTable[i]='+';
 
 		RecodeOutTable[0xB3]=RecodeOutTable[0xBA]='|';
 		RecodeOutTable[0xC4]='-';
@@ -669,8 +668,8 @@ void InitRecodeOutTable(UINT cp)
 
 		if (Opt.CleanAscii)
 		{
-			for (I=0; I<0x20; I++)
-				Oem2Unicode[I]=0;
+			for (int i=0; i<0x20; i++)
+				Oem2Unicode[i]=0;
 
 			Oem2Unicode[0x07]='*';
 			Oem2Unicode[0x18]=Oem2Unicode[0x19]='|';
@@ -694,12 +693,12 @@ void InitRecodeOutTable(UINT cp)
 		      Oem2Unicode[0xCD]='=';
 		    }
 		*/
-		for (I=1; I<(int)countof(RecodeOutTable); I++)
+		for (size_t i=1; i<countof(RecodeOutTable); i++)
 		{
-			if (!Oem2Unicode[I])
+			if (!Oem2Unicode[i])
 			{
-				CHAR Chr = (CHAR)RecodeOutTable[I];
-				MultiByteToWideChar(CP_OEMCP, MB_USEGLYPHCHARS, &Chr, 1, Oem2Unicode+I, 1);
+				CHAR Chr = (CHAR)RecodeOutTable[i];
+				MultiByteToWideChar(CP_OEMCP, MB_USEGLYPHCHARS, &Chr, 1, Oem2Unicode+i, 1);
 			}
 		}
 
@@ -717,8 +716,8 @@ void InitRecodeOutTable(UINT cp)
 
 		if (Opt.NoGraphics)
 		{
-			for (I=BS_V1; I<=BS_LT_H1V1; I++)
-				BoxSymbols[I]=L'+';
+			for (int i=BS_V1; i<=BS_LT_H1V1; i++)
+				BoxSymbols[i]=L'+';
 
 			BoxSymbols[BS_V1]=BoxSymbols[BS_V2]=L'|';
 			BoxSymbols[BS_H1]=L'-';
@@ -1216,12 +1215,10 @@ WCHAR* MakeSeparator(int Length,WCHAR *DestStr,int Type, const wchar_t* UserSep)
 
 int WINAPI TextToCharInfo(const char *Text,WORD Attr, CHAR_INFO *CharInfo, int Length, DWORD Reserved)
 {
-	int I;
-
-	for (I=0; I < Length; I++, ++CharInfo)
+	for (int i=0; i < Length; i++)
 	{
-		CharInfo->Char.UnicodeChar=Oem2Unicode[RecodeOutTable[(BYTE)Text[I]]];
-		CharInfo->Attributes=Attr;
+		CharInfo[i].Char.UnicodeChar=Oem2Unicode[RecodeOutTable[(BYTE)Text[i]]];
+		CharInfo[i].Attributes=Attr;
 	}
 
 	return TRUE;

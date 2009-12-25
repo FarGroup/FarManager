@@ -538,17 +538,16 @@ int CopyKeyTree(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip)
 		return(FALSE);
 	}
 
-	int I;
 	wchar_t ValueDataStatic[1000];
 	DWORD AllocDataSize=sizeof(ValueDataStatic);
 	bool allocData=false;
 	wchar_t *ValueData=ValueDataStatic;
 
-	for (I=0;; I++)
+	for (int i=0; ; i++)
 	{
 		wchar_t ValueName[200];
 		DWORD Type,NameSize=countof(ValueName),DataSize=AllocDataSize;
-		int ExitCode=RegEnumValue(hSrcKey,I,ValueName,&NameSize,NULL,&Type,(BYTE *)ValueData,&DataSize);
+		int ExitCode=RegEnumValue(hSrcKey,i,ValueName,&NameSize,NULL,&Type,(BYTE *)ValueData,&DataSize);
 
 		if (ExitCode != ERROR_SUCCESS)
 		{
@@ -567,7 +566,7 @@ int CopyKeyTree(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip)
 				ValueData=NewValueData;
 			}
 
-			ExitCode=RegEnumValue(hSrcKey,I,ValueName,&NameSize,NULL,&Type,(BYTE *)ValueData,&DataSize);
+			ExitCode=RegEnumValue(hSrcKey,i,ValueName,&NameSize,NULL,&Type,(BYTE *)ValueData,&DataSize);
 
 			if (ExitCode != ERROR_SUCCESS)
 				break;
@@ -581,11 +580,11 @@ int CopyKeyTree(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip)
 
 	CloseRegKey(hDestKey);
 
-	for (I=0;; I++)
+	for (int i=0; ; i++)
 	{
 		string strSubkeyName, strSrcKeyName, strDestKeyName;
 
-		if (apiRegEnumKeyEx(hSrcKey,I,strSubkeyName)!=ERROR_SUCCESS)
+		if (apiRegEnumKeyEx(hSrcKey,i,strSubkeyName)!=ERROR_SUCCESS)
 			break;
 
 		strSrcKeyName  = Src;
