@@ -11147,10 +11147,10 @@ MSetColorCommandLineUserScreen
 MSetColorCommandLineCompletion
 "Автодополнение"
 "Auto completion"              
-"Auto completion"
-"Auto completion"
-"Auto completion"
-"Auto completion"
+upd:"Auto completion"
+upd:"Auto completion"
+upd:"Auto completion"
+upd:"Auto completion"
 
 MSetColorClockNormal
 l:
