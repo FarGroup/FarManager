@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "clipboard.hpp"
-#include "iswind.hpp"
 
 const wchar_t FAR_VerticalBlock[] = L"FAR_VerticalBlock";
 const wchar_t FAR_VerticalBlock_Unicode[] = L"FAR_VerticalBlock_Unicode";
@@ -94,7 +93,7 @@ static BOOL FAR_OpenClipboard()
 		return FALSE;
 	}
 
-	return OpenClipboard(hFarWnd);
+	return OpenClipboard(GetConsoleWindow());
 }
 
 static BOOL FAR_CloseClipboard()

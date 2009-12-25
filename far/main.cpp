@@ -143,7 +143,7 @@ static int MainProcess(
 		ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 		ControlObject CtrlObj;
 		CONSOLE_SCREEN_BUFFER_INFO InitCsbi;
-		GetConsoleScreenBufferInfo(hConOut,&InitCsbi);
+		GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),&InitCsbi);
 		SetRealColor(COL_COMMANDLINEUSERSCREEN);
 		GetSystemInfo(&SystemInfo);
 
@@ -288,7 +288,7 @@ static int MainProcess(
 
 		// очистим за собой!
 		SetScreen(0,0,ScrX,ScrY,L' ',COL_COMMANDLINEUSERSCREEN);
-		SetConsoleTextAttribute(hConOut,InitCsbi.wAttributes);
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),InitCsbi.wAttributes);
 		ScrBuf.ResetShadow();
 		ScrBuf.Flush();
 		MoveRealCursor(0,0);
@@ -561,7 +561,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	{
 		ControlObject::ShowCopyright(1);
 		fprintf(stderr,"\nError: Cannot load language data\n\nPress any key...");
-		FlushConsoleInputBuffer(hConInp);
+		FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
 		WaitKey(); // А стоит ли ожидать клавишу??? Стоит
 		exit(0);
 	}

@@ -1570,7 +1570,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 	int InternalLog=fp==NULL?TRUE:FALSE;
 	DWORD ReadCount2;
 	// берем количество оставшейся порции эвентов
-	GetNumberOfConsoleInputEvents(hConInp,&ReadCount2);
+	GetNumberOfConsoleInputEvents(GetStdHandle(STD_INPUT_HANDLE),&ReadCount2);
 
 	if (ReadCount2 <= 1)
 		return;
@@ -1596,7 +1596,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 			if (TmpRec)
 			{
 				DWORD ReadCount3;
-				PeekConsoleInput(hConInp,TmpRec,ReadCount2,&ReadCount3);
+				PeekConsoleInput(GetStdHandle(STD_INPUT_HANDLE),TmpRec,ReadCount2,&ReadCount3);
 
 				for (DWORD I=0; I < ReadCount2; ++I)
 				{

@@ -44,7 +44,6 @@ class ScreenBuf
 		CHAR_INFO *Buf;
 		CHAR_INFO *Shadow;
 		CHAR_INFO MacroChar;
-		HANDLE hScreen;
 
 		SHORT BufX,BufY;
 		SHORT CurX,CurY;
@@ -64,7 +63,6 @@ class ScreenBuf
 		void Unlock();
 		int  GetLockCount() {return(LockCount);};
 		void SetLockCount(int Count) {LockCount=Count;};
-		void SetHandle(HANDLE hScreen);
 		void ResetShadow();
 		void MoveCursor(int X,int Y);
 		void GetCursorPos(SHORT& X,SHORT& Y);

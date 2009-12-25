@@ -33,8 +33,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-extern HWND hFarWnd;
-
 /* Программое переключение FulScreen <-> Windowed
    (с подачи "Vasily V. Moshninov")
    mode = -2 - GetMode

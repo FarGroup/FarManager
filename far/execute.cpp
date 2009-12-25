@@ -814,7 +814,7 @@ int Execute(const wchar_t *CmdStr,    //  ом.строка дл€ исполнени€
 	ChangeConsoleMode(InitialConsoleMode);
 
 	CONSOLE_SCREEN_BUFFER_INFO sbi={0,};
-	GetConsoleScreenBufferInfo(hConOut,&sbi);
+	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),&sbi);
 
 	ConsoleTitle OldTitle;
 
@@ -1027,11 +1027,12 @@ int Execute(const wchar_t *CmdStr,    //  ом.строка дл€ исполнени€
 									        (shift ?bShift:!bShift))
 									{
 										HICON hSmallIcon=NULL,hLargeIcon=NULL;
+										HWND hWnd = GetConsoleWindow();
 
-										if (hFarWnd)
+										if (hWnd)
 										{
-											hSmallIcon = CopyIcon((HICON)SendMessage(hFarWnd,WM_SETICON,0,(LPARAM)0));
-											hLargeIcon = CopyIcon((HICON)SendMessage(hFarWnd,WM_SETICON,1,(LPARAM)0));
+											hSmallIcon = CopyIcon((HICON)SendMessage(hWnd,WM_SETICON,0,(LPARAM)0));
+											hLargeIcon = CopyIcon((HICON)SendMessage(hWnd,WM_SETICON,1,(LPARAM)0));
 										}
 
 										ReadConsoleInput(hInput,ir,256,&rd);
@@ -1047,18 +1048,19 @@ int Execute(const wchar_t *CmdStr,    //  ом.строка дл€ исполнени€
 										FreeConsole();
 										AllocConsole();
 
-										if (hFarWnd)   // если окно имело HOTKEY, то старое должно его забыть.
-											SendMessage(hFarWnd,WM_SETHOTKEY,0,(LPARAM)0);
+										if (hWnd)   // если окно имело HOTKEY, то старое должно его забыть.
+											SendMessage(hWnd,WM_SETHOTKEY,0,(LPARAM)0);
 
 										SetConsoleScreenBufferSize(hOutput,sbi.dwSize);
 										SetConsoleWindowInfo(hOutput,TRUE,&sbi.srWindow);
 										SetConsoleScreenBufferSize(hOutput,sbi.dwSize);
 										Sleep(100);
 										InitConsole(0);
-										hFarWnd = 0;
 										InitDetectWindowedMode();
 
-										if (hFarWnd)
+										hWnd = GetConsoleWindow();
+
+										if (hWnd)
 										{
 											if (Opt.SmallIcon)
 											{
@@ -1068,10 +1070,10 @@ int Execute(const wchar_t *CmdStr,    //  ом.строка дл€ исполнени€
 											}
 
 											if (hLargeIcon != NULL)
-												SendMessage(hFarWnd,WM_SETICON,1,(LPARAM)hLargeIcon);
+												SendMessage(hWnd,WM_SETICON,1,(LPARAM)hLargeIcon);
 
 											if (hSmallIcon != NULL)
-												SendMessage(hFarWnd,WM_SETICON,0,(LPARAM)hSmallIcon);
+												SendMessage(hWnd,WM_SETICON,0,(LPARAM)hSmallIcon);
 										}
 
 										stop=1;
@@ -1162,7 +1164,7 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
 
 	int Code;
 	CONSOLE_SCREEN_BUFFER_INFO sbi0,sbi1;
-	GetConsoleScreenBufferInfo(hConOut,&sbi0);
+	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),&sbi0);
 	{
 		RedrawDesktop *Redraw=NULL;
 
@@ -1192,7 +1194,7 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
 			Code=Execute(strTempStr,AlwaysWaitFinish,SeparateWindow,DirectRun);
 		}
 
-		GetConsoleScreenBufferInfo(hConOut,&sbi1);
+		GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),&sbi1);
 
 		if (!(sbi0.dwSize.X == sbi1.dwSize.X && sbi0.dwSize.Y == sbi1.dwSize.Y))
 			CtrlObject->CmdLine->CorrectRealScreenCoord();

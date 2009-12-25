@@ -3378,12 +3378,11 @@ done:
 		}
 		case MCODE_OP_SWITCHKBD:          // $KbdSwitch
 		{
-			if (!hFarWnd)
-				InitDetectWindowedMode();
+			HWND hWnd = GetConsoleWindow();
 
-			if (hFarWnd)
+			if (hWnd)
 			{
-				PostMessage(hFarWnd,WM_INPUTLANGCHANGEREQUEST, INPUTLANGCHANGE_FORWARD, 0);
+				PostMessage(hWnd,WM_INPUTLANGCHANGEREQUEST, INPUTLANGCHANGE_FORWARD, 0);
 				//if(Flags & XLAT_SWITCHKEYBBEEP)
 				//MessageBeep(0);
 			}

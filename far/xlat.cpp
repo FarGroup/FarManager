@@ -47,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "registry.hpp"
-#include "iswind.hpp"
 #include "config.hpp"
 #include "xlat.hpp"
 
@@ -222,10 +221,9 @@ wchar_t* WINAPI Xlat(wchar_t *Line,
 	// переключаем раскладку клавиатуры?
 	if (Flags & XLAT_SWITCHKEYBLAYOUT)
 	{
-		if (!hFarWnd)
-			InitDetectWindowedMode();
+		HWND hWnd = GetConsoleWindow();
 
-		if (hFarWnd)
+		if (hWnd)
 		{
 			HKL Next=(HKL)0;
 
@@ -238,7 +236,7 @@ wchar_t* WINAPI Xlat(wchar_t *Line,
 					Next=Opt.XLat.Layouts[Opt.XLat.CurrentLayout];
 			}
 
-			PostMessage(hFarWnd,WM_INPUTLANGCHANGEREQUEST, Next?0:INPUTLANGCHANGE_FORWARD, (LPARAM)Next);
+			PostMessage(hWnd,WM_INPUTLANGCHANGEREQUEST, Next?0:INPUTLANGCHANGE_FORWARD, (LPARAM)Next);
 
 			if (Flags & XLAT_SWITCHKEYBBEEP)
 				MessageBeep(0);

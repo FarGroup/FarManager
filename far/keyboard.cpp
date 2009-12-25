@@ -645,19 +645,19 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 
 	LastEventIdle=FALSE;
 	SetFarConsoleMode();
-	BOOL ZoomedState=IsZoomed(hFarWnd);
-	BOOL IconicState=IsIconic(hFarWnd);
+	BOOL ZoomedState=IsZoomed(GetConsoleWindow());
+	BOOL IconicState=IsIconic(GetConsoleWindow());
 
 	for (;;)
 	{
 		// "Реакция" на максимизацию/восстановление окна консоли
-		if (ZoomedState!=IsZoomed(hFarWnd) && IconicState==IsIconic(hFarWnd))
+		if (ZoomedState!=IsZoomed(GetConsoleWindow()) && IconicState==IsIconic(GetConsoleWindow()))
 		{
 			ZoomedState=!ZoomedState;
 			ChangeVideoMode(ZoomedState);
 		}
 
-		PeekConsoleInput(hConInp,rec,1,&ReadCount);
+		PeekConsoleInput(GetStdHandle(STD_INPUT_HANDLE),rec,1,&ReadCount);
 
 		/* $ 26.04.2001 VVM
 		   ! Убрал подмену колесика */
@@ -668,7 +668,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 			{
 				INPUT_RECORD pinp;
 				DWORD nread;
-				ReadConsoleInput(hConInp, &pinp, 1, &nread);
+				ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), &pinp, 1, &nread);
 				continue;
 			}
 
@@ -697,7 +697,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 			         PrevFarAltEnterMode != FarAltEnter(FAR_CONSOLE_GET_MODE))
 			{
 				CONSOLE_SCREEN_BUFFER_INFO csbi;
-				GetConsoleScreenBufferInfo(hConOut,&csbi);
+				GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),&csbi);
 				_SVS(SysLog(L"AltEnter >>> dwSize={%d,%d} srWindow={%d,%d,%d,%d} dwMaximumWindowSize={%d,%d}  ScrX=%d (%d) ScrY=%d (%d)",csbi.dwSize.X,csbi.dwSize.Y,csbi.srWindow.Left, csbi.srWindow.Top,csbi.srWindow.Right,csbi.srWindow.Bottom,csbi.dwMaximumWindowSize.X,csbi.dwMaximumWindowSize.Y,ScrX,PrevScrX,ScrY,PrevScrY));
 
 				if (rec->EventType==FOCUS_EVENT)
@@ -707,7 +707,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 					TmpRec2.EventType=WINDOW_BUFFER_SIZE_EVENT;
 					TmpRec2.Event.WindowBufferSizeEvent.dwSize.X=csbi.dwSize.X;
 					TmpRec2.Event.WindowBufferSizeEvent.dwSize.Y=csbi.dwSize.Y;
-					WriteConsoleInput(hConInp,&TmpRec2,1,&ReadCount2); // вернем самый первый!
+					WriteConsoleInput(GetStdHandle(STD_INPUT_HANDLE),&TmpRec2,1,&ReadCount2); // вернем самый первый!
 				}
 				else
 					AltEnter=1;
@@ -715,11 +715,11 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 				//PrevFarAltEnterMode=FarAltEnter(FAR_CONSOLE_GET_MODE);
 				/*
 				  DWORD ReadCount2,ReadCount3;
-				  GetNumberOfConsoleInputEvents(hConInp,&ReadCount2);
+				  GetNumberOfConsoleInputEvents(GetStdHandle(STD_INPUT_HANDLE),&ReadCount2);
 				  if(ReadCount2 >= 3)
 				  {
 				    INPUT_RECORD TmpRec2[2];
-				    ReadConsoleInput(hConInp,TmpRec2,2,&ReadCount3); // удалим 2, третья считается позже
+				    ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE),TmpRec2,2,&ReadCount3); // удалим 2, третья считается позже
 				  }
 				*/
 			}
@@ -747,7 +747,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 						*/
 						INPUT_RECORD pinp;
 						DWORD nread;
-						ReadConsoleInput(hConInp, &pinp, 1, &nread);
+						ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), &pinp, 1, &nread);
 						continue;
 					}
 
@@ -768,7 +768,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 						{
 							INPUT_RECORD pinp;
 							DWORD nread;
-							ReadConsoleInput(hConInp, &pinp, 1, &nread);
+							ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), &pinp, 1, &nread);
 							continue;
 						}
 					}
@@ -784,7 +784,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 			{
 				// берем количество оставшейся порции эвентов
 				DWORD ReadCount2;
-				GetNumberOfConsoleInputEvents(hConInp,&ReadCount2);
+				GetNumberOfConsoleInputEvents(GetStdHandle(STD_INPUT_HANDLE),&ReadCount2);
 
 				// если их безобразно много, то просмотрим все на предмет KEY_EVENT
 				if (ReadCount2 > 1)
@@ -796,7 +796,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 						DWORD ReadCount3;
 						INPUT_RECORD TmpRec2;
 						int I;
-						PeekConsoleInput(hConInp,TmpRec,ReadCount2,&ReadCount3);
+						PeekConsoleInput(GetStdHandle(STD_INPUT_HANDLE),TmpRec,ReadCount2,&ReadCount3);
 
 						for (I=0; I < ReadCount2; ++I)
 						{
@@ -804,7 +804,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 								break;
 
 							// // _SVS(SysLog(L"%d> %s",I,_INPUT_RECORD_Dump(rec)));
-							ReadConsoleInput(hConInp,&TmpRec2,1,&ReadCount3);
+							ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE),&TmpRec2,1,&ReadCount3);
 
 							if (TmpRec[I].Event.KeyEvent.bKeyDown==1)
 							{
@@ -917,8 +917,8 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 
 				if (!IsWindowed() && !Opt.Mouse)
 				{
-					SetConsoleMode(hConInp,ENABLE_WINDOW_INPUT|ENABLE_MOUSE_INPUT);
-					SetConsoleMode(hConInp,ENABLE_WINDOW_INPUT);
+					SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE),ENABLE_WINDOW_INPUT|ENABLE_MOUSE_INPUT);
+					SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE),ENABLE_WINDOW_INPUT);
 				}
 
 				ConsoleTitle::SetFarTitle(NULL);//LastFarTitle);
@@ -959,7 +959,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 		MouseButtonState=0;
 		ShiftState=FALSE;
 		PressedLastTime=0;
-		ReadConsoleInput(hConInp,rec,1,&ReadCount);
+		ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE),rec,1,&ReadCount);
 		CalcKey=rec->Event.FocusEvent.bSetFocus?KEY_GOTFOCUS:KEY_KILLFOCUS;
 		memset(rec,0,sizeof(*rec)); // Иначе в ProcessEditorInput такая херь приходит - волосы дыбом становятся
 		rec->EventType=KEY_EVENT;
@@ -995,7 +995,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 		        {
 		          INPUT_RECORD pinp;
 		          DWORD nread;
-		          ReadConsoleInput(hConInp, &pinp, 1, &nread);
+		          ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), &pinp, 1, &nread);
 		          return KEY_NONE;
 		        }
 		      }
@@ -1030,7 +1030,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 					INPUT_RECORD pinp;
 					DWORD nread;
 					// Удалим из очереди...
-					ReadConsoleInput(hConInp, &pinp, 1, &nread);
+					ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), &pinp, 1, &nread);
 					return KEY_NONE;
 				}
 			}
@@ -1093,9 +1093,9 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 		return(CalcKey);
 	}
 
-	ReadConsoleInput(hConInp,rec,1,&ReadCount);
+	ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE),rec,1,&ReadCount);
 #if 0
-	ReadConsoleInput(hConInp,rec,1,&ReadCount);
+	ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE),rec,1,&ReadCount);
 
 	// Эта фигня нужна только в диалоге назначения макро - остальное по барабану - и так работает
 	// ... иначе хреновень с эфектом залипшего шифта проскакивает
@@ -1409,7 +1409,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 		      };
 		      DWORD WriteCount;
 		      TempRec[0].Event.KeyEvent.dwControlKeyState=TempRec[1].Event.KeyEvent.dwControlKeyState=CtrlState;
-					WriteConsoleInput(hConInp,TempRec,2,&WriteCount);
+					WriteConsoleInput(GetStdHandle(STD_INPUT_HANDLE),TempRec,2,&WriteCount);
 		    }
 		*/
 		CtrlPressed=(CtrlState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED));
@@ -1554,7 +1554,7 @@ DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 	}
 	else
 	{
-		PeekConsoleInput(hConInp,rec,1,&ReadCount);
+		PeekConsoleInput(GetStdHandle(STD_INPUT_HANDLE),rec,1,&ReadCount);
 	}
 
 	if (ReadCount==0)
@@ -1639,7 +1639,7 @@ int WriteInput(int Key,DWORD Flags)
 			Rec.Event.KeyEvent.dwControlKeyState=0;
 		}
 
-		return WriteConsoleInput(hConInp,&Rec,1,&WriteCount);
+		return WriteConsoleInput(GetStdHandle(STD_INPUT_HANDLE),&Rec,1,&WriteCount);
 	}
 	else if (KeyQueue)
 	{
@@ -2170,7 +2170,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 			//FlushInputBuffer();//???
 			INPUT_RECORD TempRec;
 			DWORD ReadCount;
-			ReadConsoleInput(hConInp,&TempRec,1,&ReadCount);
+			ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE),&TempRec,1,&ReadCount);
 			ReturnAltValue=TRUE;
 			//_SVS(SysLog(L"0 AltNumPad -> AltValue=0x%0X CtrlState=%X",AltValue,CtrlState));
 			AltValue&=0xFFFF;

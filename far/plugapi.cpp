@@ -623,10 +623,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 		   пригодится плагинам */
 		case ACTL_GETFARHWND:
 		{
-			if (!hFarWnd)
-				InitDetectWindowedMode();
-
-			return (INT_PTR)hFarWnd;
+			return (INT_PTR)GetConsoleWindow();
 		}
 		case ACTL_GETDIALOGSETTINGS:
 		{

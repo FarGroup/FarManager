@@ -63,7 +63,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "keyboard.hpp"
 #include "palette.hpp"
-#include "iswind.hpp"
 #include "message.hpp"
 #include "config.hpp"
 #include "stddlg.hpp"
@@ -603,8 +602,9 @@ void PR_ShellCopyMsg()
 
 BOOL CheckAndUpdateConsole(BOOL IsChangeConsole)
 {
-	BOOL curZoomedState=IsZoomed(hFarWnd);
-	BOOL curIconicState=IsIconic(hFarWnd);
+	HWND hWnd = GetConsoleWindow();
+	BOOL curZoomedState=IsZoomed(hWnd);
+	BOOL curIconicState=IsIconic(hWnd);
 
 	if (ZoomedState!=curZoomedState && IconicState==curIconicState)
 	{
@@ -669,8 +669,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	}
 
 	RPT=RP_EXACTCOPY;
-	ZoomedState=IsZoomed(hFarWnd);
-	IconicState=IsIconic(hFarWnd);
+	ZoomedState=IsZoomed(GetConsoleWindow());
+	IconicState=IsIconic(GetConsoleWindow());
 	// Создадим объект фильтра
 	Filter=new FileFilter(SrcPanel, FFT_COPY);
 	sddata=new char[SDDATA_SIZE]; // Security 16000?

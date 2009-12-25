@@ -215,7 +215,7 @@ void ControlObject::ShowCopyright(DWORD Flags)
 	else
 	{
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		GetConsoleScreenBufferInfo(hConOut,&csbi);
+		GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),&csbi);
 		int FreeSpace=csbi.dwSize.Y-csbi.dwCursorPosition.Y-1;
 		int LineCount=4+(strLine.IsEmpty()?0:1);
 

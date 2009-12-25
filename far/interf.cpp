@@ -68,29 +68,13 @@ CONSOLE_SCREEN_BUFFER_INFO InitScreenBufferInfo={0};
 CONSOLE_SCREEN_BUFFER_INFO CurScreenBufferInfo={0};
 SHORT ScrX=0,ScrY=0;
 SHORT PrevScrX=-1,PrevScrY=-1;
-HANDLE hConOut=NULL,hConInp=NULL;
 DWORD InitialConsoleMode=0;
-
-static void __Create_CONOUT()
-{
-	//hConOut=CreateFile(L"CONOUT$",GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
-	hConOut=GetStdHandle(STD_OUTPUT_HANDLE);
-	ScrBuf.SetHandle(hConOut);
-}
-
-static void __Create_CONIN()
-{
-	//hConInp=CreateFile(L"CONIN$",GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
-	hConInp=GetStdHandle(STD_INPUT_HANDLE);
-}
 
 void InitConsole(int FirstInit)
 {
 	InitRecodeOutTable();
-	__Create_CONOUT();
-	__Create_CONIN();
 	SetConsoleCtrlHandler(CtrlHandler,TRUE);
-	GetConsoleMode(hConInp,&InitialConsoleMode);
+	GetConsoleMode(GetStdHandle(STD_INPUT_HANDLE),&InitialConsoleMode);
 	GetRealCursorType(InitCurVisible,InitCurSize);
 	GetRegKey(L"Interface",L"Mouse",Opt.Mouse,1);
 
@@ -117,11 +101,11 @@ void InitConsole(int FirstInit)
 			COORD newSize;
 			newSize.X = InitScreenBufferInfo.srWindow.Right - InitScreenBufferInfo.srWindow.Left + 1;
 			newSize.Y = InitScreenBufferInfo.srWindow.Bottom - InitScreenBufferInfo.srWindow.Top + 1;
-			SetConsoleScreenBufferSize(hConOut, newSize);
+			SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), newSize);
 			GetVideoMode(InitScreenBufferInfo);
 		}
 
-		if (IsZoomed(hFarWnd))
+		if (IsZoomed(GetConsoleWindow()))
 			ChangeVideoMode(1);
 	}
 
@@ -145,8 +129,6 @@ void CloseConsole()
 	ScrBuf.Flush();
 	SetRealCursorType(InitCurVisible,InitCurSize);
 	ChangeConsoleMode(InitialConsoleMode);
-	CloseHandle(hConInp);
-	CloseHandle(hConOut);
 	delete KeyQueue;
 	KeyQueue=NULL;
 }
@@ -168,7 +150,7 @@ void SetFarConsoleMode(BOOL SetsActiveBuffer)
 	}
 
 	if (SetsActiveBuffer)
-		SetConsoleActiveScreenBuffer(hConOut);
+		SetConsoleActiveScreenBuffer(GetStdHandle(STD_OUTPUT_HANDLE));
 
 	ChangeConsoleMode(Mode);
 }
@@ -176,25 +158,26 @@ void SetFarConsoleMode(BOOL SetsActiveBuffer)
 void ChangeConsoleMode(int Mode)
 {
 	DWORD CurrentConsoleMode;
-	GetConsoleMode(hConInp,&CurrentConsoleMode);
+	HANDLE hConIn = GetStdHandle(STD_INPUT_HANDLE);
+	GetConsoleMode(hConIn,&CurrentConsoleMode);
 
 	if (CurrentConsoleMode!=(DWORD)Mode)
-		SetConsoleMode(hConInp,Mode);
+		SetConsoleMode(hConIn,Mode);
 }
 
 void SaveConsoleWindowInfo()
 {
-	GetConsoleScreenBufferInfo(hConOut,&windowholder_csbi);
+	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),&windowholder_csbi);
 }
 
 void RestoreConsoleWindowInfo()
 {
-	SetConsoleWindowInfo(hConOut,TRUE,&windowholder_csbi.srWindow);
+	SetConsoleWindowInfo(GetStdHandle(STD_OUTPUT_HANDLE),TRUE,&windowholder_csbi.srWindow);
 }
 
 void FlushInputBuffer()
 {
-	FlushConsoleInputBuffer(hConInp);
+	FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
 	MouseButtonState=0;
 	MouseEventFlags=0;
 }
@@ -224,8 +207,8 @@ int operator==(CONSOLE_SCREEN_BUFFER_INFO &csbi1,CONSOLE_SCREEN_BUFFER_INFO &csb
 _OT(void ViewConsoleInfo()\
     {\
      CONSOLE_SCREEN_BUFFER_INFO _csbi; \
-     _OT_ConsoleInfo(hConOut); \
-     _OT_ConsoleInfo(hConInp); \
+     _OT_ConsoleInfo(GetStdHandle(STD_OUTPUT_HANDLE)); \
+     _OT_ConsoleInfo(GetStdHandle(STD_INPUT_HANDLE)); \
     })
 
 void SetVideoMode(int ScreenMode)
@@ -246,14 +229,14 @@ void ChangeVideoMode(int Maximized)
 
 	if (Maximized)
 	{
-		SendMessage(hFarWnd,WM_SYSCOMMAND,SC_MAXIMIZE,(LPARAM)0);
-		coordScreen = GetLargestConsoleWindowSize(hConOut);
+		SendMessage(GetConsoleWindow(),WM_SYSCOMMAND,SC_MAXIMIZE,(LPARAM)0);
+		coordScreen = GetLargestConsoleWindowSize(GetStdHandle(STD_OUTPUT_HANDLE));
 		coordScreen.X+=Opt.ScrSize.DeltaXY.X;
 		coordScreen.Y+=Opt.ScrSize.DeltaXY.Y;
 	}
 	else
 	{
-		SendMessage(hFarWnd,WM_SYSCOMMAND,SC_RESTORE,(LPARAM)0);
+		SendMessage(GetConsoleWindow(),WM_SYSCOMMAND,SC_RESTORE,(LPARAM)0);
 		coordScreen = InitScreenBufferInfo.dwSize;
 	}
 
@@ -270,7 +253,7 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 	COORD coordScreen;
 	int xSize=NumColumns,ySize=NumLines;
 
-	if (!GetConsoleScreenBufferInfo(hConOut, &csbi))
+	if (!GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi))
 	{
 		return;
 	}
@@ -280,7 +263,7 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 	if (NumColumns == 80 && (NumLines == 25 || NumLines == 50)) // обеспечим выполнение !Opt.AltF9
 	{
 		/* get the largest size we can size the console window to */
-		coordScreen = GetLargestConsoleWindowSize(hConOut);
+		coordScreen = GetLargestConsoleWindowSize(GetStdHandle(STD_OUTPUT_HANDLE));
 		/* define the new console window size and scroll position */
 		srWindowRect.Right = (SHORT)(Min((short)xSize, coordScreen.X) - 1);
 		srWindowRect.Bottom = (SHORT)(Min((short)ySize, coordScreen.Y) - 1);
@@ -293,8 +276,8 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 		/* console window first, then the buffer */
 		if ((DWORD) csbi.dwSize.X * csbi.dwSize.Y > (DWORD) xSize * ySize)
 		{
-			SetConsoleWindowInfo(hConOut, TRUE, &srWindowRect);
-			SetConsoleScreenBufferSize(hConOut, coordScreen);
+			SetConsoleWindowInfo(GetStdHandle(STD_OUTPUT_HANDLE), TRUE, &srWindowRect);
+			SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), coordScreen);
 		}
 
 		/* if the current buffer is smaller than what we want, resize the */
@@ -302,8 +285,8 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 		/* buffer first, then the console window */
 		if ((DWORD) csbi.dwSize.X * csbi.dwSize.Y < (DWORD) xSize * ySize)
 		{
-			SetConsoleScreenBufferSize(hConOut, coordScreen);
-			SetConsoleWindowInfo(hConOut, TRUE, &srWindowRect);
+			SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), coordScreen);
+			SetConsoleWindowInfo(GetStdHandle(STD_OUTPUT_HANDLE), TRUE, &srWindowRect);
 		}
 
 //    GetVideoMode();
@@ -324,7 +307,7 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 			if (csbi.dwSize.X < xSize-1)
 			{
 				srWindowRect.Right = csbi.dwSize.X - 1;
-				retSetConsole=SetConsoleWindowInfo(hConOut, TRUE, &srWindowRect);
+				retSetConsole=SetConsoleWindowInfo(GetStdHandle(STD_OUTPUT_HANDLE), TRUE, &srWindowRect);
 
 				if (!retSetConsole)
 				{
@@ -337,7 +320,7 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 			if (csbi.dwSize.Y < ySize-1)
 			{
 				srWindowRect.Bottom=csbi.dwSize.Y - 1;
-				retSetConsole=SetConsoleWindowInfo(hConOut, TRUE, &srWindowRect);
+				retSetConsole=SetConsoleWindowInfo(GetStdHandle(STD_OUTPUT_HANDLE), TRUE, &srWindowRect);
 
 				if (!retSetConsole)
 				{
@@ -347,7 +330,7 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 				srWindowRect.Bottom = ySize-1;
 			}
 
-			retSetConsole=SetConsoleScreenBufferSize(hConOut, coordScreen);
+			retSetConsole=SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), coordScreen);
 
 			if (!retSetConsole)
 			{
@@ -356,22 +339,22 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 			}
 		}
 
-		if ((retSetConsole=SetConsoleWindowInfo(hConOut, TRUE, &srWindowRect)) == 0)
+		if ((retSetConsole=SetConsoleWindowInfo(GetStdHandle(STD_OUTPUT_HANDLE), TRUE, &srWindowRect)) == 0)
 		{
 			_OT(SysLog(L"LastError=%i, srWindowRect",le=GetLastError()));
-			retSetConsole=SetConsoleScreenBufferSize(hConOut, coordScreen);
+			retSetConsole=SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), coordScreen);
 			_OT(le=GetLastError());
-			_OT(SysLog(L"SetConsoleScreenBufferSize(hConOut, coordScreen),  retSetConsole=%i",retSetConsole));
-			retSetConsole=SetConsoleWindowInfo(hConOut, TRUE, &srWindowRect);
+			_OT(SysLog(L"SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), coordScreen),  retSetConsole=%i",retSetConsole));
+			retSetConsole=SetConsoleWindowInfo(GetStdHandle(STD_OUTPUT_HANDLE), TRUE, &srWindowRect);
 			_OT(le=GetLastError());
-			_OT(SysLog(L"SetConsoleWindowInfo(hConOut, TRUE, &srWindowRect),  retSetConsole=%i",retSetConsole));
+			_OT(SysLog(L"SetConsoleWindowInfo(GetStdHandle(STD_OUTPUT_HANDLE), TRUE, &srWindowRect),  retSetConsole=%i",retSetConsole));
 			_OT(ViewConsoleInfo());
 		}
 		else
 		{
-			retSetConsole=SetConsoleScreenBufferSize(hConOut, coordScreen);
+			retSetConsole=SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), coordScreen);
 			_OT(le=GetLastError());
-			_OT(SysLog(L"SetConsoleScreenBufferSize(hConOut, coordScreen),  retSetConsole=%i",retSetConsole));
+			_OT(SysLog(L"SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), coordScreen),  retSetConsole=%i",retSetConsole));
 		}
 	}
 
@@ -387,13 +370,13 @@ void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx, int Sy)
 	CONSOLE_SCREEN_BUFFER_INFO csbi={0}; /* hold current console buffer info */
 
 	if (Sx==-1 || Sy==-1)
-		GetConsoleScreenBufferInfo(hConOut, &csbi);
+		GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
 
 	Rec.EventType=WINDOW_BUFFER_SIZE_EVENT;
 	Rec.Event.WindowBufferSizeEvent.dwSize.X=Sx==-1?csbi.dwSize.X:Sx;
 	Rec.Event.WindowBufferSizeEvent.dwSize.Y=Sy==-1?csbi.dwSize.Y:Sy;
 //_SVS(SysLog(L"[%d:%d] = [%d:%d, %d:%d]",csbi.dwSize.X,csbi.dwSize.Y,csbi.srWindow.Left,csbi.srWindow.Top,csbi.srWindow.Right,csbi.srWindow.Bottom));
-	WriteConsoleInput(hConInp,&Rec,1,&Writes);
+	WriteConsoleInput(GetStdHandle(STD_INPUT_HANDLE),&Rec,1,&Writes);
 }
 
 void GetVideoMode(CONSOLE_SCREEN_BUFFER_INFO &csbi)
@@ -401,7 +384,7 @@ void GetVideoMode(CONSOLE_SCREEN_BUFFER_INFO &csbi)
 	//чтоб решить баг винды приводящий к появлению скролов и т.п. после потери фокуса
 	SaveConsoleWindowInfo();
 	memset(&csbi,0,sizeof(csbi));
-	GetConsoleScreenBufferInfo(hConOut,&csbi);
+	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),&csbi);
 	ScrX=csbi.dwSize.X-1;
 	ScrY=csbi.dwSize.Y-1;
 	assert(ScrX>0);
@@ -557,14 +540,14 @@ void GetCursorType(int &Visible,int &Size)
 void MoveRealCursor(int X,int Y)
 {
 	COORD C={X,Y};
-	SetConsoleCursorPosition(hConOut,C);
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE),C);
 }
 
 
 void GetRealCursorPos(SHORT& X,SHORT& Y)
 {
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
-	GetConsoleScreenBufferInfo(hConOut,&csbi);
+	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),&csbi);
 	X=csbi.dwCursorPosition.X;
 	Y=csbi.dwCursorPosition.Y;
 }
@@ -575,14 +558,14 @@ void SetRealCursorType(int Visible,int Size)
 	CONSOLE_CURSOR_INFO cci;
 	cci.dwSize=Size;
 	cci.bVisible=Visible;
-	SetConsoleCursorInfo(hConOut,&cci);
+	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE),&cci);
 }
 
 
 void GetRealCursorType(int &Visible,int &Size)
 {
 	CONSOLE_CURSOR_INFO cci;
-	GetConsoleCursorInfo(hConOut,&cci);
+	GetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE),&cci);
 	Size=cci.dwSize;
 	Visible=cci.bVisible;
 }
@@ -959,7 +942,7 @@ void SetColor(int Color)
 void SetRealColor(int Color)
 {
 	CurColor=FarColorToReal(Color);
-	SetConsoleTextAttribute(hConOut,CurColor);
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),CurColor);
 }
 
 void ClearScreen(int Color)
@@ -968,7 +951,7 @@ void ClearScreen(int Color)
 	ScrBuf.FillRect(0,0,ScrX,ScrY,L' ',Color);
 	ScrBuf.ResetShadow();
 	ScrBuf.Flush();
-	SetConsoleTextAttribute(hConOut,Color);
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),Color);
 }
 
 int GetColor()
@@ -1079,7 +1062,7 @@ void _PutRealText(HANDLE hConsoleOutput,int X1,int Y1,int X2,int Y2,const void *
 
 void PutRealText(int X1,int Y1,int X2,int Y2,const void *Src)
 {
-	_PutRealText(hConOut,X1,Y1,X2,Y2,Src,ScrX,ScrY);
+	_PutRealText(GetStdHandle(STD_OUTPUT_HANDLE),X1,Y1,X2,Y2,Src,ScrX,ScrY);
 }
 
 void _GetRealText(HANDLE hConsoleOutput,int X1,int Y1,int X2,int Y2,const void *Dest,int BufX,int BufY)
@@ -1108,7 +1091,7 @@ void _GetRealText(HANDLE hConsoleOutput,int X1,int Y1,int X2,int Y2,const void *
 
 void GetRealText(int X1,int Y1,int X2,int Y2,void *Dest)
 {
-	_GetRealText(hConOut,X1,Y1,X2,Y2,Dest,ScrX,ScrY);
+	_GetRealText(GetStdHandle(STD_OUTPUT_HANDLE),X1,Y1,X2,Y2,Dest,ScrX,ScrY);
 }
 
 bool ScrollBarRequired(UINT Length, UINT64 ItemsCount)

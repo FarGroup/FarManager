@@ -68,7 +68,6 @@ ScreenBuf::ScreenBuf()
 	BufX=BufY=0;
 	SBFlags.Set(SBFLAGS_FLUSHED|SBFLAGS_FLUSHEDCURPOS|SBFLAGS_FLUSHEDCURTYPE);
 	LockCount=0;
-	hScreen=NULL;
 }
 
 
@@ -115,6 +114,8 @@ void ScreenBuf::FillBuf()
 	Coord.Bottom=BufY-1;
 	_tran(SysLog(L"BufX*BufY=%i",BufX*BufY));
 
+	HANDLE hConOut = GetStdHandle(STD_OUTPUT_HANDLE);
+
 	if (BufX*BufY>6000)
 	{
 		_tran(SysLog(L"fucked method"));
@@ -126,7 +127,7 @@ void ScreenBuf::FillBuf()
 			Coord.Top=y;
 			Coord.Bottom=y;
 			BOOL r;
-			r=ReadConsoleOutput(hScreen,ci,Size,Corner,&Coord);
+			r=ReadConsoleOutput(hConOut,ci,Size,Corner,&Coord);
 			ci+=BufX;
 		}
 
@@ -134,13 +135,13 @@ void ScreenBuf::FillBuf()
 	}
 	else
 	{
-		ReadConsoleOutput(hScreen,Buf,Size,Corner,&Coord);
+		ReadConsoleOutput(hConOut,Buf,Size,Corner,&Coord);
 	}
 
 	memcpy(Shadow,Buf,BufX*BufY*sizeof(CHAR_INFO));
 	SBFlags.Set(SBFLAGS_USESHADOW);
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
-	GetConsoleScreenBufferInfo(hScreen,&csbi);
+	GetConsoleScreenBufferInfo(hConOut,&csbi);
 	CurX=csbi.dwCursorPosition.X;
 	CurY=csbi.dwCursorPosition.Y;
 }
@@ -325,6 +326,8 @@ void ScreenBuf::Flush()
 
 	if (!LockCount)
 	{
+		HANDLE hConOut = GetStdHandle(STD_OUTPUT_HANDLE);
+
 		if (CtrlObject && CtrlObject->Macro.IsRecording())
 		{
 			if (Buf[0].Char.UnicodeChar!=L'R')
@@ -339,7 +342,7 @@ void ScreenBuf::Flush()
 		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE) && !CurVisible)
 		{
 			CONSOLE_CURSOR_INFO cci={CurSize,CurVisible};
-			SetConsoleCursorInfo(hScreen,&cci);
+			SetConsoleCursorInfo(hConOut,&cci);
 			SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
 		}
 
@@ -474,12 +477,12 @@ void ScreenBuf::Flush()
 							Size.Y=Min(Max(MAXSIZE/static_cast<int>(BufX*sizeof(CHAR_INFO)),1),WriteY2-yy+1);
 							yy+=Size.Y;
 							Coord.Bottom=yy-1;
-							WriteConsoleOutput(hScreen,BufPtr,Size,Corner,&Coord);
+							WriteConsoleOutput(hConOut,BufPtr,Size,Corner,&Coord);
 						}
 					}
 					else
 					{
-						WriteConsoleOutput(hScreen,Buf,Size,Corner,&Coord);
+						WriteConsoleOutput(hConOut,Buf,Size,Corner,&Coord);
 					}
 				}
 
@@ -490,14 +493,14 @@ void ScreenBuf::Flush()
 		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURPOS))
 		{
 			COORD C={CurX,CurY};
-			SetConsoleCursorPosition(hScreen,C);
+			SetConsoleCursorPosition(hConOut,C);
 			SBFlags.Set(SBFLAGS_FLUSHEDCURPOS);
 		}
 
 		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE) && CurVisible)
 		{
 			CONSOLE_CURSOR_INFO cci={CurSize,CurVisible};
-			SetConsoleCursorInfo(hScreen,&cci);
+			SetConsoleCursorInfo(hConOut,&cci);
 			SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
 		}
 
@@ -516,12 +519,6 @@ void ScreenBuf::Unlock()
 {
 	if (LockCount>0)
 		LockCount--;
-}
-
-
-void ScreenBuf::SetHandle(HANDLE hScreen)
-{
-	ScreenBuf::hScreen=hScreen;
 }
 
 

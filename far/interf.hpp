@@ -40,7 +40,6 @@ extern WCHAR BoxSymbols[];
 extern CONSOLE_SCREEN_BUFFER_INFO InitScreenBufferInfo, CurScreenBufferInfo;
 extern SHORT ScrX,ScrY;
 extern SHORT PrevScrX,PrevScrY;
-extern HANDLE hConOut,hConInp;
 extern DWORD InitialConsoleMode;
 
 // типы рамок
