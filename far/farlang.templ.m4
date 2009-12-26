@@ -11153,7 +11153,7 @@ MSetColorCommandLineUserScreen
 "Ekran użytkownika"
 
 MSetColorCommandLineCompletion
-"Автодополнение"
+"Автозавершение"
 "Auto completion"              
 upd:"Auto completion"
 upd:"Auto completion"

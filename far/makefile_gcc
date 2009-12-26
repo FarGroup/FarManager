@@ -43,6 +43,7 @@ SRCS = \
 	dirinfo.cpp \
 	dirmix.cpp \
 	dizlist.cpp \
+	DlgBuilder.cpp \
 	dlgedit.cpp \
 	DList.cpp \
 	drivemix.cpp \
