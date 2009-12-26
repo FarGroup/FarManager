@@ -51,7 +51,7 @@ $^#Copyright (C) 1996-2000 Eugene Roshal#
    ~Panel settings~@PanelSettings@
    ~Interface settings~@InterfSettings@
    ~Dialog settings~@DialogSettings@
-         ~Command line settings~@CmdlineSettings@
+   ~Command line settings~@CmdlineSettings@
 
    ~Files highlighting and sort groups~@Highlight@
    ~File descriptions~@FileDiz@
@@ -1612,7 +1612,7 @@ use the highlighted shortcut letters.
     If you want to save the commands history after exiting FAR, use the
 respective option in the ~system settings dialog~@SystemSettings@.
 
-    Locked history items will not be deleted when the history is cleared. 
+    Locked history items will not be deleted when the history is cleared.
 
 @HistoryViews
 $ #History: file view and edit#
