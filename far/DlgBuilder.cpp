@@ -38,6 +38,48 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "lang.hpp"
 
+struct EditFieldUserData
+{
+	string *TextValue;
+	int *IntValue;
+	int PrefixLabelID;
+	int SuffixLabelID;
+
+	EditFieldUserData(string *aTextValue)
+		: TextValue(aTextValue), IntValue(NULL), PrefixLabelID(-1), SuffixLabelID(-1)
+	{
+	}
+
+	EditFieldUserData(int *aIntValue)
+		: TextValue(NULL), IntValue(aIntValue), PrefixLabelID(-1), SuffixLabelID(-1)
+	{
+	}
+};
+
+static bool IsEditField(DialogItemEx *Item)
+{
+	return Item->Type == DI_EDIT || Item->Type == DI_FIXEDIT || Item->Type == DI_PSWEDIT;
+}
+
+static int TextWidth(const DialogItemEx &Item)
+{
+	switch(Item.Type)
+	{
+	case DI_TEXT:
+		return static_cast<int>(Item.strData.GetLength());
+
+	case DI_CHECKBOX:
+	case DI_RADIOBUTTON:
+		return static_cast<int>(Item.strData.GetLength() + 4);
+
+	case DI_EDIT:
+	case DI_FIXEDIT:
+		return Item.X2 - Item.X1;
+		break;
+	}
+	return 0;
+}
+
 DialogBuilder::DialogBuilder(int TitleMessageId, const wchar_t *HelpTopic)
 	: DialogItemsCount(0),
 	  DialogItemsAllocated(0),
@@ -46,13 +88,21 @@ DialogBuilder::DialogBuilder(int TitleMessageId, const wchar_t *HelpTopic)
 	DialogItemEx *Title = AddDialogItem(DI_DOUBLEBOX, MSG(TitleMessageId));
 	Title->X1 = 3;
 	Title->Y1 = 1;
+	NextY = 2;
 	this->HelpTopic = HelpTopic;
 }
 
 DialogBuilder::~DialogBuilder()
 {
 	if (DialogItems)
+	{
+		for(int i=0; i<DialogItemsCount; i++)
+		{
+			if (IsEditField(&DialogItems [i]))
+				delete (EditFieldUserData *) DialogItems [i].UserData;
+		}
 		delete [] DialogItems;
+	}
 }
 
 void DialogBuilder::ReallocDialogItems()
@@ -90,14 +140,63 @@ DialogItemEx *DialogBuilder::AddDialogItem(int Type, const string &strData)
 	return Item;
 }
 
+void DialogBuilder::SetNextY(DialogItemEx *Item)
+{
+	Item->X1 = 5;
+	Item->Y1 = Item->Y2 = NextY++;
+}
+
 DialogItemEx *DialogBuilder::AddCheckbox(int TextMessageId, BOOL *Value)
 {
 	DialogItemEx *Item = AddDialogItem(DI_CHECKBOX, MSG(TextMessageId));
-	Item->X1 = 5;
-	Item->Y1 = Item->Y2 = DialogItemsCount;
+	SetNextY(Item);
+	Item->X2 = Item->X1 + TextWidth(*Item);
 	Item->Selected = *Value;
 	Item->UserData = (DWORD_PTR) Value;
 	return Item;
+}
+
+DialogItemEx *DialogBuilder::AddText(int LabelId)
+{
+	DialogItemEx *Item = AddDialogItem(DI_TEXT, MSG(LabelId));
+	SetNextY(Item);
+	return Item;
+}
+
+DialogItemEx *DialogBuilder::AddEditField(string *Value, int Width)
+{
+	DialogItemEx *Item = AddDialogItem(DI_EDIT, *Value);
+	SetNextY(Item);
+	Item->X2 = Item->X1 + Width;
+
+	Item->UserData = (DWORD_PTR) new EditFieldUserData(Value);
+	return Item;
+}
+
+DialogItemEx *DialogBuilder::AddIntEditField(int *Value, int Width)
+{
+	DialogItemEx *Item = AddDialogItem(DI_FIXEDIT, L"");
+	string ValueText;
+	ValueText.Format(L"%u", *Value);
+	Item->strData = ValueText;
+	SetNextY(Item);
+	Item->X2 = Item->X1 + Width;
+
+	Item->UserData = (DWORD_PTR) new EditFieldUserData(Value);
+	return Item;
+}
+
+void DialogBuilder::AddSuffixText(DialogItemEx *RelativeTo, int LabelId)
+{
+	DialogItemEx *Item = AddDialogItem(DI_TEXT, MSG(LabelId));
+	Item->Y1 = Item->Y2 = RelativeTo->Y1;
+	Item->X1 = RelativeTo->X2 + 2;
+
+	if (IsEditField(RelativeTo))
+	{
+		EditFieldUserData *UserData = (EditFieldUserData *) RelativeTo->UserData;
+		UserData->SuffixLabelID = Item->ID;
+	}
 }
 
 void DialogBuilder::AddOKCancel()
@@ -105,12 +204,12 @@ void DialogBuilder::AddOKCancel()
 	DialogItemEx *Separator = AddDialogItem(DI_TEXT, L"");
 	Separator->Flags = DIF_BOXCOLOR | DIF_SEPARATOR;
 	Separator->X1 = 3;
-	Separator->Y1 = Separator->Y2 = DialogItemsCount;
+	Separator->Y1 = Separator->Y2 = NextY++;
 
 	DialogItemEx *OKButton = AddDialogItem(DI_BUTTON, MSG(MOk));
 	OKButton->Flags = DIF_CENTERGROUP;
 	OKButton->DefaultButton = 1;
-	OKButton->Y1 = OKButton->Y2 = DialogItemsCount;
+	OKButton->Y1 = OKButton->Y2 = NextY++;
 	OKButtonID = OKButton->ID;
 
 	DialogItemEx *CancelButton = AddDialogItem(DI_BUTTON, MSG(MCancel));
@@ -118,10 +217,29 @@ void DialogBuilder::AddOKCancel()
 	CancelButton->Y1 = CancelButton->Y2 = OKButton->Y1;	
 }
 
+void DialogBuilder::LinkFlags(DialogItemEx *Parent, DialogItemEx *Target, FarDialogItemFlags Flags)
+{
+	Parent->Flags |= DIF_AUTOMATION;
+	Parent->AddAutomation(Target->ID, Flags, DIF_NONE, DIF_NONE, Flags, DIF_NONE, DIF_NONE);
+	if (!Parent->Selected)
+		Target->Flags |= Flags;
+
+	if (IsEditField(Target))
+	{
+		EditFieldUserData *UserData = (EditFieldUserData *) Target->UserData;
+		if (UserData->SuffixLabelID >= 0)
+		{
+			Parent->AddAutomation(UserData->SuffixLabelID, Flags, DIF_NONE, DIF_NONE, Flags, DIF_NONE, DIF_NONE);
+			if (!Parent->Selected)
+				DialogItems [UserData->SuffixLabelID].Flags |= Flags;
+		}
+	}
+}
+
 void DialogBuilder::UpdateBorderSize()
 {
 	DialogItemEx *Title = &DialogItems[0];
-	Title->X2 = Title->X1 + MaxTextWidth() + 2;
+	Title->X2 = Title->X1 + MaxTextWidth() + 3;
 	Title->Y2 = DialogItems [DialogItemsCount-1].Y2 + 1;
 }
 
@@ -130,11 +248,9 @@ int DialogBuilder::MaxTextWidth()
 	int MaxWidth = 0;
 	for(int i=1; i<DialogItemsCount; i++)
 	{
-		int Width = 0;
-		if (DialogItems [i].Type == DI_TEXT)
-			Width = static_cast<int>(DialogItems [i].strData.GetLength());
-		else if (DialogItems [i].Type == DI_CHECKBOX || DialogItems [i].Type == DI_RADIOBUTTON)
-			Width = static_cast<int>(DialogItems [i].strData.GetLength() + 4);
+		int Width = TextWidth(DialogItems [i]);
+		int Indent = DialogItems [i].X1 - 5;
+		Width += Indent;
 		
 		if (MaxWidth < Width)
 			MaxWidth = Width;
@@ -142,7 +258,7 @@ int DialogBuilder::MaxTextWidth()
 	return MaxWidth;
 }
 
-BOOL DialogBuilder::ShowDialog()
+bool DialogBuilder::ShowDialog()
 {
 	UpdateBorderSize();
 
@@ -152,12 +268,12 @@ BOOL DialogBuilder::ShowDialog()
 	Dlg.Process();
 
 	if (Dlg.GetExitCode() != OKButtonID)
-		return FALSE;
+		return false;
 
 	for(int i=0; i<DialogItemsCount; i++)
 		SaveValue(&DialogItems [i]);
 
-	return TRUE;
+	return true;
 }
 
 void DialogBuilder::SaveValue(DialogItemEx *Item)
@@ -166,5 +282,16 @@ void DialogBuilder::SaveValue(DialogItemEx *Item)
 	{
 		BOOL *Value = (BOOL *)Item->UserData;
 		*Value = Item->Selected;
+	}
+	else if (IsEditField(Item))
+	{
+		EditFieldUserData *UserData = (EditFieldUserData *)Item->UserData;
+		if (UserData->TextValue)
+			*UserData->TextValue = Item->strData;
+		else if (UserData->IntValue)
+		{
+			wchar_t *endptr;
+			*UserData->IntValue = wcstoul(Item->strData, &endptr, 10);
+		}
 	}
 }

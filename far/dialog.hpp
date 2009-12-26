@@ -185,6 +185,36 @@ struct DialogItemEx
 		SelEnd        = Other.SelEnd;
 		return *this;
 	}
+
+	void Indent(int Delta)
+	{
+		X1 += Delta;
+		X2 += Delta;
+	}
+
+	bool AddAutomation(int id, 
+		FarDialogItemFlags UncheckedSet,FarDialogItemFlags UncheckedSkip,
+		FarDialogItemFlags CheckedSet,FarDialogItemFlags CheckedSkip,
+		FarDialogItemFlags Checked3Set,FarDialogItemFlags Checked3Skip)
+	{
+		DialogItemAutomation *Auto;
+
+		if ((Auto=(DialogItemAutomation*)xf_realloc(AutoPtr,sizeof(DialogItemAutomation)*(AutoCount+1))) != NULL)
+		{
+			AutoPtr=Auto;
+			Auto=AutoPtr+AutoCount;
+			Auto->ID=id;
+			Auto->Flags[0][0]=UncheckedSet;
+			Auto->Flags[0][1]=UncheckedSkip;
+			Auto->Flags[1][0]=CheckedSet;
+			Auto->Flags[1][1]=CheckedSkip;
+			Auto->Flags[2][0]=Checked3Set;
+			Auto->Flags[2][1]=Checked3Skip;
+			AutoCount++;
+			return true;
+		}
+		return false;
+	}
 };
 
 /*

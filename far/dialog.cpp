@@ -4095,23 +4095,9 @@ int Dialog::SetAutomation(WORD IDParent,WORD id,
 	if (IDParent < ItemCount && (Item[IDParent]->Flags&DIF_AUTOMATION) &&
 	        id < ItemCount && IDParent != id) // Сами себя не юзаем!
 	{
-		DialogItemAutomation *Auto;
-		int AutoCount=Item[IDParent]->AutoCount;
-
-		if ((Auto=(DialogItemAutomation*)xf_realloc(Item[IDParent]->AutoPtr,sizeof(DialogItemAutomation)*(AutoCount+1))) != NULL)
-		{
-			Item[IDParent]->AutoPtr=Auto;
-			Auto=Item[IDParent]->AutoPtr+AutoCount;
-			Auto->ID=id;
-			Auto->Flags[0][0]=UncheckedSet;
-			Auto->Flags[0][1]=UncheckedSkip;
-			Auto->Flags[1][0]=CheckedSet;
-			Auto->Flags[1][1]=CheckedSkip;
-			Auto->Flags[2][0]=Checked3Set;
-			Auto->Flags[2][1]=Checked3Skip;
-			Item[IDParent]->AutoCount++;
-			Ret=TRUE;
-		}
+		Ret = Item[IDParent]->AddAutomation(id, UncheckedSet, UncheckedSkip, 
+			                                    CheckedSet, CheckedSkip,
+				 						        Checked3Set, Checked3Skip);
 	}
 
 	return Ret;

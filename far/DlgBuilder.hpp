@@ -43,17 +43,38 @@ class DialogBuilder
 		int DialogItemsCount;
 		int DialogItemsAllocated;
 		int OKButtonID;
+		int NextY;
 
 		DialogItemEx *AddDialogItem(int Type, const string &strData);
 		void ReallocDialogItems();
 		void UpdateBorderSize();
 		int MaxTextWidth();
 		void SaveValue(DialogItemEx *Item);
+		void SetNextY(DialogItemEx *Item);
 
 	public:
 		DialogBuilder(int TitleMessageId, const wchar_t *HelpTopic);
 		~DialogBuilder();
 		DialogItemEx *AddCheckbox(int TextMessageId, BOOL *Value);
+
+		// Добавляет статический текст, расположенный на отдельной строке в диалоге.
+		DialogItemEx *AddText(int LabelId);
+
+		// Добавляет поле типа DI_EDIT для редактирования указанного строкового значения.
+		DialogItemEx *AddEditField(string *Value, int Width);
+
+		// Добавляет поле типа DI_FIXEDIT для редактирования указанного числового значения.
+		DialogItemEx *AddIntEditField(int *Value, int Width);
+
+		// Добавляет указанную текстовую строку справа от элемента RelativeTo.
+		void AddSuffixText(DialogItemEx *RelativeTo, int LabelId);
+
+		// Связывает состояние элементов Parent и Target. Когда Parent->Selected равно
+		// false, устанавливает флаги Flags у элемента Target; когда равно true -
+		// сбрасывает флаги.
+		void LinkFlags(DialogItemEx *Parent, DialogItemEx *Target, FarDialogItemFlags Flags);
+
+		// Добавляет сепаратор, кнопки OK и Cancel.
 		void AddOKCancel();
-		BOOL ShowDialog();
+		bool ShowDialog();
 };

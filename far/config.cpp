@@ -316,91 +316,41 @@ void PanelSettings()
 */
 void InterfaceSettings()
 {
-	enum enumInterfaceSettings
-	{
-		DLG_INTERF_TITLE,
-		DLG_INTERF_CLOCK,
-		DLG_INTERF_VIEWEREDITORCLOCK,
-		DLG_INTERF_MOUSE,
-		DLG_INTERF_SHOWKEYBAR,
-		DLG_INTERF_SHOWMENUBAR,
-		DLG_INTERF_SCREENSAVER,
-		DLG_INTERF_SCREENSAVERTIME,
-		DLG_INTERF_SAVERMINUTES,
-		DLG_INTERF_COPYSHOWTOTAL,
-		DLG_INTERF_COPYTIMERULE,
-		DLG_INTERF_DELSHOWTOTAL,
-		DLG_INTERF_PGUPCHANGEDISK,
-		DLG_INTERF_CLEARTYPE,
-		DLG_INTERF_TITLEADDONS_TITLE,
-		DLG_INTERF_TITLEADDONS,
-		DLG_INTERF_SEPARATOR,
-		DLG_INTERF_OK,
-		DLG_INTERF_CANCEL
-	};
-	DialogDataEx CfgDlgData[]=
-	{
-		DI_DOUBLEBOX,3, 1,54,18,0,0,0,0,MSG(MConfigInterfaceTitle),
-		DI_CHECKBOX, 5, 2, 0, 2,1,Opt.Clock,0,0,MSG(MConfigClock),
-		DI_CHECKBOX, 5, 3, 0, 3,0,Opt.ViewerEditorClock,0,0,MSG(MConfigViewerEditorClock),
-		DI_CHECKBOX, 5, 4, 0, 4,0,Opt.Mouse,DIF_AUTOMATION,0,MSG(MConfigMouse),
-		DI_CHECKBOX, 5, 5, 0, 5,0,Opt.ShowKeyBar,0,0,MSG(MConfigKeyBar),
-		DI_CHECKBOX, 5, 6, 0, 6,0,Opt.ShowMenuBar,0,0,MSG(MConfigMenuBar),
-		DI_CHECKBOX, 5, 7, 0, 7,0,Opt.ScreenSaver,DIF_AUTOMATION,0,MSG(MConfigSaver),
-		DI_FIXEDIT,  9, 8,11, 8,0,0,!Opt.ScreenSaver?DIF_DISABLE:0,0,L"",
-		DI_TEXT,    13, 8, 0, 8,0,0,!Opt.ScreenSaver?DIF_DISABLE:0,0,MSG(MConfigSaverMinutes),
-		DI_CHECKBOX, 5, 9, 0, 9,0,Opt.CMOpt.CopyShowTotal,0,0,MSG(MConfigCopyTotal),
-		DI_CHECKBOX, 5,10, 0,10,0,Opt.CMOpt.CopyTimeRule,0,0,MSG(MConfigCopyTimeRule),
-		DI_CHECKBOX, 5,11, 0,11,0,Opt.DelOpt.DelShowTotal,0,0,MSG(MConfigDeleteTotal),
-		DI_CHECKBOX, 5,12, 0,12,0,Opt.PgUpChangeDisk,0,0,MSG(MConfigPgUpChangeDisk),
-		DI_CHECKBOX, 5,13, 0,13,0,Opt.ClearType,0,0,MSG(MConfigClearType),
-		DI_TEXT,     5,14, 0,14,0,0,0,0,MSG(MConfigTitleAddons),
-		DI_EDIT,     5,15,52,15,0,0,0,0,Opt.strTitleAddons,
-		DI_TEXT,     3,16, 0,16,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-		DI_BUTTON,   0,17, 0,17,0,0,DIF_CENTERGROUP,1,MSG(MOk),
-		DI_BUTTON,   0,17, 0,17,0,0,DIF_CENTERGROUP,0,MSG(MCancel),
-	};
-	MakeDialogItemsEx(CfgDlgData,CfgDlg);
+	DialogBuilder Builder(MConfigInterfaceTitle, L"InterfSettings");
 
-	CfgDlg[DLG_INTERF_SCREENSAVERTIME].strData.Format(L"%u", Opt.ScreenSaverTime);
+	Builder.AddCheckbox(MConfigClock, &Opt.Clock);
+	Builder.AddCheckbox(MConfigViewerEditorClock, &Opt.ViewerEditorClock);
+	Builder.AddCheckbox(MConfigMouse, &Opt.Mouse);
+	Builder.AddCheckbox(MConfigKeyBar, &Opt.ShowKeyBar);
+	Builder.AddCheckbox(MConfigMenuBar, &Opt.ShowMenuBar);
+	DialogItemEx *SaverCheckbox = Builder.AddCheckbox(MConfigSaver, &Opt.ScreenSaver);
+	
+	DialogItemEx *SaverEdit = Builder.AddIntEditField(&Opt.ScreenSaverTime, 2);
+	SaverEdit->Indent(4);
+	Builder.AddSuffixText(SaverEdit, MConfigSaverMinutes);
+	Builder.LinkFlags(SaverCheckbox, SaverEdit, DIF_DISABLE);
 
+	Builder.AddCheckbox(MConfigCopyTotal, &Opt.CMOpt.CopyShowTotal);
+	Builder.AddCheckbox(MConfigCopyTimeRule, &Opt.CMOpt.CopyTimeRule);
+	Builder.AddCheckbox(MConfigDeleteTotal, &Opt.DelOpt.DelShowTotal);
+	Builder.AddCheckbox(MConfigPgUpChangeDisk, &Opt.PgUpChangeDisk);
+	Builder.AddCheckbox(MConfigClearType, &Opt.ClearType);
+	Builder.AddText(MConfigTitleAddons);
+	Builder.AddEditField(&Opt.strTitleAddons, 48);
+	Builder.AddOKCancel();
+
+	if (Builder.ShowDialog())
 	{
-		Dialog Dlg(CfgDlg,countof(CfgDlg));
-		Dlg.SetHelp(L"InterfSettings");
-		Dlg.SetPosition(-1,-1,58,20);
-		Dlg.SetAutomation(DLG_INTERF_SCREENSAVER,DLG_INTERF_SCREENSAVERTIME,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
-		Dlg.SetAutomation(DLG_INTERF_SCREENSAVER,DLG_INTERF_SAVERMINUTES,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
-		Dlg.Process();
+		if (Opt.CMOpt.CopyTimeRule)
+			Opt.CMOpt.CopyTimeRule = 3;
 
-		if (Dlg.GetExitCode() != DLG_INTERF_OK)
-			return;
+		SetFarConsoleMode();
+		CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+		CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+		CtrlObject->Cp()->SetScreenPosition();
+		// $ 10.07.2001 SKV ! надо это делать, иначе если кейбар спрятали, будет полный рамс.
+		CtrlObject->Cp()->Redraw();
 	}
-
-	Opt.Clock=CfgDlg[DLG_INTERF_CLOCK].Selected;
-	Opt.ViewerEditorClock=CfgDlg[DLG_INTERF_VIEWEREDITORCLOCK].Selected;
-	Opt.Mouse=CfgDlg[DLG_INTERF_MOUSE].Selected;
-	Opt.ShowKeyBar=CfgDlg[DLG_INTERF_SHOWKEYBAR].Selected;
-	Opt.ShowMenuBar=CfgDlg[DLG_INTERF_SHOWMENUBAR].Selected;
-	Opt.ScreenSaver=CfgDlg[DLG_INTERF_SCREENSAVER].Selected;
-	wchar_t *endptr;
-	Opt.ScreenSaverTime=wcstoul(CfgDlg[DLG_INTERF_SCREENSAVERTIME].strData, &endptr, 10);
-	Opt.CMOpt.CopyShowTotal=CfgDlg[DLG_INTERF_COPYSHOWTOTAL].Selected;
-	Opt.DelOpt.DelShowTotal=CfgDlg[DLG_INTERF_DELSHOWTOTAL].Selected==BSTATE_CHECKED;
-	Opt.PgUpChangeDisk=CfgDlg[DLG_INTERF_PGUPCHANGEDISK].Selected;
-	Opt.CMOpt.CopyTimeRule=0;
-
-	if (CfgDlg[DLG_INTERF_COPYTIMERULE].Selected)
-		Opt.CMOpt.CopyTimeRule=3;
-
-	Opt.ClearType=CfgDlg[DLG_INTERF_CLEARTYPE].Selected;
-	Opt.strTitleAddons=CfgDlg[DLG_INTERF_TITLEADDONS].strData;
-
-	SetFarConsoleMode();
-	CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
-	CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
-	CtrlObject->Cp()->SetScreenPosition();
-	// $ 10.07.2001 SKV ! надо это делать, иначе если кейбар спрятали, будет полный рамс.
-	CtrlObject->Cp()->Redraw();
 }
 
 void InfoPanelSettings()
@@ -509,44 +459,17 @@ void CmdlineSettings()
 {
 	DialogBuilder Builder(MConfigCmdlineTitle, L"CmdlineSettings");
 
-	enum enumCmdlineSettings
-	{
-		DLG_CMDLINE_TITLE,
-		DLG_CMDLINE_DIALOGSEDITBLOCK,
-		DLG_CMDLINE_DIALOGDELREMOVESBLOCKS,
-		DLG_CMDLINE_AUTOCOMPLETE,
-		DLG_CMDLINE_USEPROMPTFORMAT,
-		DLG_CMDLINE_PROMPTFORMAT,
-		DLG_CMDLINE_SEPARATOR,
-		DLG_CMDLINE_OK,
-		DLG_CMDLINE_CANCEL
-	};
-	DialogDataEx CfgDlgData[]=
-	{
-		DI_DOUBLEBOX,3, 1,54, 9,0,0,0,0,MSG(MConfigCmdlineTitle),
-		DI_CHECKBOX, 5, 2, 0, 2,0,Opt.CmdLine.EditBlock,0,0,MSG(MConfigCmdlineEditBlock),
-		DI_CHECKBOX, 5, 3, 0, 3,0,Opt.CmdLine.DelRemovesBlocks,0,0,MSG(MConfigCmdlineDelRemovesBlocks),
-		DI_CHECKBOX, 5, 4, 0, 4,0,Opt.CmdLine.AutoComplete,0,0,MSG(MConfigCmdlineAutoComplete),
-		DI_CHECKBOX, 5, 5, 0, 5,0,Opt.CmdLine.UsePromptFormat,DIF_AUTOMATION,0,MSG(MConfigUsePromptFormat),
-		DI_EDIT,     9, 6,24, 6,0,0,!Opt.CmdLine.UsePromptFormat?DIF_DISABLE:0,0,Opt.CmdLine.strPromptFormat,
-		DI_TEXT,     3, 7, 0, 7,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-		DI_BUTTON,   0, 8, 0, 8,0,0,DIF_CENTERGROUP,1,MSG(MOk),
-		DI_BUTTON,   0, 8, 0, 8,0,0,DIF_CENTERGROUP,0,MSG(MCancel),
-	};
-	MakeDialogItemsEx(CfgDlgData,CfgDlg);
-	Dialog Dlg(CfgDlg,countof(CfgDlg));
-	Dlg.SetHelp(L"CmdlineSettings");
-	Dlg.SetPosition(-1,-1,58,11);
-	Dlg.SetAutomation(DLG_CMDLINE_USEPROMPTFORMAT,DLG_CMDLINE_PROMPTFORMAT,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
-	Dlg.Process();
+	Builder.AddCheckbox(MConfigCmdlineEditBlock, &Opt.CmdLine.EditBlock);
+	Builder.AddCheckbox(MConfigCmdlineDelRemovesBlocks, &Opt.CmdLine.DelRemovesBlocks);
+	Builder.AddCheckbox(MConfigCmdlineAutoComplete, &Opt.CmdLine.AutoComplete);
+	DialogItemEx *UsePromptFormat = Builder.AddCheckbox(MConfigUsePromptFormat, &Opt.CmdLine.UsePromptFormat);
+	DialogItemEx *PromptFormat = Builder.AddEditField(&Opt.CmdLine.strPromptFormat, 19);
+	PromptFormat->Indent(4);
+	Builder.LinkFlags(UsePromptFormat, PromptFormat, DIF_DISABLE);
+	Builder.AddOKCancel();
 
-	if (Dlg.GetExitCode()==DLG_CMDLINE_OK)
+	if (Builder.ShowDialog())
 	{
-		Opt.CmdLine.EditBlock=(CfgDlg[DLG_CMDLINE_DIALOGSEDITBLOCK].Selected==BSTATE_CHECKED);
-		Opt.CmdLine.DelRemovesBlocks=(CfgDlg[DLG_CMDLINE_DIALOGDELREMOVESBLOCKS].Selected==BSTATE_CHECKED);
-		Opt.CmdLine.AutoComplete=(CfgDlg[DLG_CMDLINE_AUTOCOMPLETE].Selected==BST_CHECKED);
-		Opt.CmdLine.UsePromptFormat=(CfgDlg[DLG_CMDLINE_USEPROMPTFORMAT].Selected==BSTATE_CHECKED);
-		Opt.CmdLine.strPromptFormat=CfgDlg[DLG_CMDLINE_PROMPTFORMAT].strData;
 		CtrlObject->CmdLine->SetPersistentBlocks(Opt.CmdLine.EditBlock);
 		CtrlObject->CmdLine->SetDelRemovesBlocks(Opt.CmdLine.DelRemovesBlocks);
 	}
@@ -575,47 +498,21 @@ void SetConfirmations()
 
 void SetPluginConfirmations()
 {
-	enum PluginConfirmationDlg
-	{
-		PC_DOUBLEBOX,
-		PC_CHECKBOX_OFP,
-		PC_CHECKBOX_STDASSOC,
-		PC_CHECKBOX_EVENONE,
-		PC_CHECKBOX_SFL,
-		PC_CHECKBOX_PF,
-		PC_SEPARATOR,
-		PC_BUTTON_OK,
-		PC_BUTTON_CANCEL,
-	};
-	const int DlgX=54,DlgY=11;
-	DialogDataEx ConfDlgData[]=
-	{
-		DI_DOUBLEBOX, 3, 1,DlgX-4,DlgY-2,0,0,0,0,MSG(MSetPluginConfirmationTitle),
-		DI_CHECKBOX,  5, 2, 0, 2,1,Opt.PluginConfirm.OpenFilePlugin,DIF_AUTOMATION,0,MSG(MSetPluginConfirmationOFP),
-		DI_CHECKBOX,  7, 3, 0, 3,0,Opt.PluginConfirm.StandardAssociation,DIF_AUTOMATION|(Opt.PluginConfirm.OpenFilePlugin?0:DIF_DISABLE),0,MSG(MSetPluginConfirmationStdAssoc),
-		DI_CHECKBOX,  7, 4, 0, 4,0,Opt.PluginConfirm.EvenIfOnlyOnePlugin,(Opt.PluginConfirm.OpenFilePlugin?0:DIF_DISABLE),0,MSG(MSetPluginConfirmationEvenOne),
-		DI_CHECKBOX,  5, 5, 0, 5,0,Opt.PluginConfirm.SetFindList,0,0,MSG(MSetPluginConfirmationSFL),
-		DI_CHECKBOX,  5, 6, 0, 6,0,Opt.PluginConfirm.Prefix,0,0,MSG(MSetPluginConfirmationPF),
-		DI_TEXT,      3,DlgY-4, 0,DlgY-4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-		DI_BUTTON,    0,DlgY-3, 0,DlgY-3,0,0,DIF_CENTERGROUP,1,MSG(MOk),
-		DI_BUTTON,    0,DlgY-3, 0,DlgY-3,0,0,DIF_CENTERGROUP,0,MSG(MCancel),
-	};
-	MakeDialogItemsEx(ConfDlgData, ConfDlg);
-	Dialog Dlg(ConfDlg,countof(ConfDlg));
-	Dlg.SetHelp(L"ChoosePluginDlg");
-	Dlg.SetPosition(-1,-1,DlgX,DlgY);
-	Dlg.SetAutomation(PC_CHECKBOX_OFP,PC_CHECKBOX_STDASSOC,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
-	Dlg.SetAutomation(PC_CHECKBOX_OFP,PC_CHECKBOX_EVENONE,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
-	Dlg.Process();
+	DialogBuilder Builder(MSetPluginConfirmationTitle, L"ChoosePluginDlg");
 
-	if (Dlg.GetExitCode()==PC_BUTTON_OK)
-	{
-		Opt.PluginConfirm.OpenFilePlugin = ConfDlg[PC_CHECKBOX_OFP].Selected;
-		Opt.PluginConfirm.StandardAssociation = ConfDlg[PC_CHECKBOX_STDASSOC].Selected;
-		Opt.PluginConfirm.EvenIfOnlyOnePlugin = ConfDlg[PC_CHECKBOX_EVENONE].Selected;
-		Opt.PluginConfirm.SetFindList = ConfDlg[PC_CHECKBOX_SFL].Selected;
-		Opt.PluginConfirm.Prefix = ConfDlg[PC_CHECKBOX_PF].Selected;
-	}
+	DialogItemEx *ConfirmOFP = Builder.AddCheckbox(MSetPluginConfirmationOFP, &Opt.PluginConfirm.OpenFilePlugin);
+	DialogItemEx *StandardAssoc = Builder.AddCheckbox(MSetPluginConfirmationStdAssoc, &Opt.PluginConfirm.StandardAssociation);
+	DialogItemEx *EvenIfOnlyOne = Builder.AddCheckbox(MSetPluginConfirmationEvenOne, &Opt.PluginConfirm.EvenIfOnlyOnePlugin);
+	StandardAssoc->Indent(2);
+	EvenIfOnlyOne->Indent(2);
+	Builder.LinkFlags(ConfirmOFP, StandardAssoc, DIF_DISABLE);
+	Builder.LinkFlags(ConfirmOFP, EvenIfOnlyOne, DIF_DISABLE);
+
+	Builder.AddCheckbox(MSetPluginConfirmationSFL, &Opt.PluginConfirm.SetFindList);
+	Builder.AddCheckbox(MSetPluginConfirmationPF, &Opt.PluginConfirm.Prefix);
+	Builder.AddOKCancel();
+
+	Builder.ShowDialog();
 }
 
 
