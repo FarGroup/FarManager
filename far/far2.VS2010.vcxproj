@@ -436,6 +436,7 @@ if not exist Include mkdir Include
     <ClCompile Include="dirinfo.cpp" />
     <ClCompile Include="dirmix.cpp" />
     <ClCompile Include="dizlist.cpp" />
+    <ClCompile Include="DlgBuilder.cpp" />
     <ClCompile Include="dlgedit.cpp" />
     <ClCompile Include="DList.cpp" />
     <ClCompile Include="drivemix.cpp" />
@@ -987,6 +988,7 @@ if not exist Include mkdir Include
     <ClInclude Include="dirinfo.hpp" />
     <ClInclude Include="dirmix.hpp" />
     <ClInclude Include="dizlist.hpp" />
+    <ClInclude Include="DlgBuilder.hpp" />
     <ClInclude Include="dlgedit.hpp" />
     <ClInclude Include="DList.hpp" />
     <ClInclude Include="drivemix.hpp" />

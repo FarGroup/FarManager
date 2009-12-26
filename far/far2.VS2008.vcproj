@@ -702,7 +702,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\DlgBuilder.cpp"
+				RelativePath="DlgBuilder.cpp"
 				>
 			</File>
 			<File
@@ -2801,7 +2801,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\DlgBuilder.hpp"
+				RelativePath="DlgBuilder.hpp"
 				>
 			</File>
 			<File

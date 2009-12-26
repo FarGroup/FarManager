@@ -385,7 +385,6 @@ int FilePanels::SwapPanels()
 			Opt.RightHeightDecrement=Opt.LeftHeightDecrement^Opt.RightHeightDecrement;
 			Opt.LeftHeightDecrement^=Opt.RightHeightDecrement;
 
-			SetScreenPosition();
 		}
 
 		Panel *Swap;
@@ -402,6 +401,7 @@ int FilePanels::SwapPanels()
 		FileFilter::SwapFilter();
 		Ret=TRUE;
 	}
+	SetScreenPosition();
 	FrameManager->RefreshFrame();
 	return Ret;
 }
