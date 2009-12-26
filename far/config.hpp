@@ -284,15 +284,16 @@ struct PoliciesOptions
 
 struct DialogsOptions
 {
-	int   EditBlock;          // Постоянные блоки в строках ввода
-	int   EditHistory;        // Добавлять в историю?
-	int   AutoComplete;       // Разрешено автодополнение?
-	int   EULBsClear;         // = 1 - BS в диалогах для UnChanged строки удаляет такую строку также, как и Del
-	int   SelectFromHistory;  // = 0 then (ctrl-down в строке с историей курсор устанавливался на самую верхнюю строку)
-	DWORD EditLine;           // общая информация о строке ввода (сейчас это пока... позволяет управлять выделением)
-	int   MouseButton;        // Отключение восприятие правой/левой кнопки мышы как команд закрытия окна диалога
+	int   EditBlock;            // Постоянные блоки в строках ввода
+	int   EditHistory;          // Добавлять в историю?
+	int   AutoComplete;         // Разрешено автодополнение?
+	int   ConfirmAutoComplete;  // Подтверждать автодополнение перемещением курсора?
+	int   EULBsClear;           // = 1 - BS в диалогах для UnChanged строки удаляет такую строку также, как и Del
+	int   SelectFromHistory;    // = 0 then (ctrl-down в строке с историей курсор устанавливался на самую верхнюю строку)
+	DWORD EditLine;             // общая информация о строке ввода (сейчас это пока... позволяет управлять выделением)
+	int   MouseButton;          // Отключение восприятие правой/левой кнопки мышы как команд закрытия окна диалога
 	int   DelRemovesBlocks;
-	int   CBoxMaxHeight;      // максимальный размер открываемого списка (по умолчанию=8)
+	int   CBoxMaxHeight;        // максимальный размер открываемого списка (по умолчанию=8)
 };
 
 struct CommandLineOptions

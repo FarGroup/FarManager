@@ -1565,6 +1565,14 @@ MConfigDialogsAutoComplete
 "Beviteli sor a&utomatikus kiegészítése"
 "&Autouzupełnianie podczas edycji"
 
+MConfigDialogsConfirmAutoComplete
+"Подтверждать авто&завершение"
+"&Confirm autocomplete suggestions"
+upd:"Confirm autocomplete suggestions"
+upd:"Confirm autocomplete suggestions"
+upd:"Confirm autocomplete suggestions"
+upd:"Confirm autocomplete suggestions"
+
 MConfigDialogsEULBsClear
 "Backspace &удаляет неизмененный текст"
 "&Backspace deletes unchanged text"

@@ -87,9 +87,9 @@
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateManifest="false"
-				GenerateDebugInformation="true"
 				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile=""
+				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\far.pdb"
 				GenerateMapFile="true"
 				MapFileName="$(OutDir)\far.map"
@@ -186,8 +186,8 @@
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateManifest="false"
-				GenerateDebugInformation="true"
 				ModuleDefinitionFile=""
+				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\far.pdb"
 				GenerateMapFile="true"
 				MapFileName="$(OutDir)\far.map"
@@ -284,8 +284,8 @@
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateManifest="false"
-				GenerateDebugInformation="true"
 				ModuleDefinitionFile=""
+				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\far.pdb"
 				GenerateMapFile="true"
 				MapFileName="$(OutDir)\far.map"
@@ -383,8 +383,8 @@
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateManifest="false"
-				GenerateDebugInformation="true"
 				ModuleDefinitionFile=""
+				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\far.pdb"
 				GenerateMapFile="true"
 				MapFileName="$(OutDir)\far.map"
@@ -482,8 +482,8 @@
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateManifest="false"
-				GenerateDebugInformation="true"
 				ModuleDefinitionFile=""
+				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\far.pdb"
 				GenerateMapFile="true"
 				MapFileName="$(OutDir)\far.map"
@@ -581,8 +581,8 @@
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateManifest="false"
-				GenerateDebugInformation="true"
 				ModuleDefinitionFile=""
+				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\far.pdb"
 				GenerateMapFile="true"
 				MapFileName="$(OutDir)\far.map"
@@ -699,6 +699,10 @@
 			</File>
 			<File
 				RelativePath="dizlist.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\DlgBuilder.cpp"
 				>
 			</File>
 			<File
@@ -2794,6 +2798,10 @@
 			</File>
 			<File
 				RelativePath="dizlist.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\DlgBuilder.hpp"
 				>
 			</File>
 			<File

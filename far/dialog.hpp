@@ -159,6 +159,32 @@ struct DialogItemEx
 		SelStart=0;
 		SelEnd=0;
 	}
+
+	const DialogItemEx &operator=(const DialogItemEx &Other)
+	{
+		Type          = Other.Type;
+		X1            = Other.X1;
+		X2            = Other.X2;
+		Y1            = Other.Y1;
+		Y2            = Other.Y2;
+		Focus         = Other.Focus;
+		Reserved      = Other.Reserved;
+		Flags         = Other.Flags;
+		DefaultButton = Other.DefaultButton;
+		strData       = Other.strData;
+		nMaxLength    = Other.nMaxLength;
+		ID            = Other.ID;
+		IFlags        = Other.IFlags;
+		AutoCount     = Other.AutoCount;
+		AutoPtr       = Other.AutoPtr;
+		UserData      = Other.UserData;
+		ObjPtr        = Other.ObjPtr;
+		ListPtr       = Other.ListPtr;
+		UCData        = Other.UCData;
+		SelStart      = Other.SelStart;
+		SelEnd        = Other.SelEnd;
+		return *this;
+	}
 };
 
 /*

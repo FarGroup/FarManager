@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "udlist.hpp"
+#include "DlgBuilder.hpp"
 
 Options Opt;// BUG !! ={0};
 
@@ -486,60 +487,28 @@ void InfoPanelSettings()
 
 void DialogSettings()
 {
-	enum enumDialogSettings
-	{
-		DLG_DIALOGS_TITLE,
-		DLG_DIALOGS_DIALOGSEDITHISTORY,
-		DLG_DIALOGS_DIALOGSEDITBLOCK,
-		DLG_DIALOGS_DIALOGDELREMOVESBLOCKS,
-		DLG_DIALOGS_AUTOCOMPLETE,
-		DLG_DIALOGS_EULBSCLEAR,
-		DLG_DIALOGS_MOUSEBUTTON,
-		DLG_DIALOGS_SEPARATOR,
-		DLG_DIALOGS_OK,
-		DLG_DIALOGS_CANCEL
-	};
-	static DialogDataEx CfgDlgData[]=
-	{
-		/* 00 */DI_DOUBLEBOX,3, 1,54,10,0,0,0,0,(const wchar_t *)MConfigDlgSetsTitle,
-		/* 01 */DI_CHECKBOX, 5, 2, 0, 2,0,0,0,0,(const wchar_t *)MConfigDialogsEditHistory,
-		/* 02 */DI_CHECKBOX, 5, 3, 0, 3,0,0,0,0,(const wchar_t *)MConfigDialogsEditBlock,
-		/* 03 */DI_CHECKBOX, 5, 4, 0, 4,0,0,0,0,(const wchar_t *)MConfigDialogsDelRemovesBlocks,
-		/* 04 */DI_CHECKBOX, 5, 5, 0, 5,0,0,0,0,(const wchar_t *)MConfigDialogsAutoComplete,
-		/* 05 */DI_CHECKBOX, 5, 6, 0, 6,0,0,0,0,(const wchar_t *)MConfigDialogsEULBsClear,
-		/* 06 */DI_CHECKBOX, 5, 7, 0, 7,0,0,0,0,(const wchar_t *)MConfigDialogsMouseButton,
-		/* 07 */DI_TEXT,     3, 8, 0, 8,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-		/* 08 */DI_BUTTON,   0, 9, 0, 9,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-		/* 09 */DI_BUTTON,   0, 9, 0, 9,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
-	};
-	MakeDialogItemsEx(CfgDlgData,CfgDlg);
-	CfgDlg[DLG_DIALOGS_DIALOGSEDITHISTORY].Selected=Opt.Dialogs.EditHistory;
-	CfgDlg[DLG_DIALOGS_DIALOGSEDITBLOCK].Selected=Opt.Dialogs.EditBlock;
-	CfgDlg[DLG_DIALOGS_DIALOGDELREMOVESBLOCKS].Selected=Opt.Dialogs.DelRemovesBlocks;
-	CfgDlg[DLG_DIALOGS_AUTOCOMPLETE].Selected=Opt.Dialogs.AutoComplete;
-	CfgDlg[DLG_DIALOGS_EULBSCLEAR].Selected=Opt.Dialogs.EULBsClear;
-	CfgDlg[DLG_DIALOGS_MOUSEBUTTON].Selected=Opt.Dialogs.MouseButton;
-	{
-		Dialog Dlg((DialogItemEx*)CfgDlg,countof(CfgDlg));
-		Dlg.SetHelp(L"DialogSettings");
-		Dlg.SetPosition(-1,-1,58,12);
-		Dlg.Process();
+	DialogBuilder Builder(MConfigDlgSetsTitle, L"DialogSettings");
 
-		if (Dlg.GetExitCode() != DLG_DIALOGS_OK)
-			return;
+	Builder.AddCheckbox(MConfigDialogsEditHistory, &Opt.Dialogs.EditHistory);
+	Builder.AddCheckbox(MConfigDialogsEditBlock, &Opt.Dialogs.EditBlock);
+	Builder.AddCheckbox(MConfigDialogsDelRemovesBlocks, &Opt.Dialogs.DelRemovesBlocks);
+	Builder.AddCheckbox(MConfigDialogsAutoComplete, &Opt.Dialogs.AutoComplete);
+	Builder.AddCheckbox(MConfigDialogsConfirmAutoComplete, &Opt.Dialogs.ConfirmAutoComplete);
+	Builder.AddCheckbox(MConfigDialogsEULBsClear, &Opt.Dialogs.EULBsClear);
+	Builder.AddCheckbox(MConfigDialogsMouseButton, &Opt.Dialogs.MouseButton);
+	Builder.AddOKCancel();
+
+	if (Builder.ShowDialog())
+	{
+		if (Opt.Dialogs.MouseButton != 0)
+			Opt.Dialogs.MouseButton = 0xFFFF;
 	}
-	Opt.Dialogs.EditHistory=CfgDlg[DLG_DIALOGS_DIALOGSEDITHISTORY].Selected;
-	Opt.Dialogs.EditBlock=CfgDlg[DLG_DIALOGS_DIALOGSEDITBLOCK].Selected;
-	Opt.Dialogs.DelRemovesBlocks=CfgDlg[DLG_DIALOGS_DIALOGDELREMOVESBLOCKS].Selected;
-	Opt.Dialogs.AutoComplete=CfgDlg[DLG_DIALOGS_AUTOCOMPLETE].Selected;
-	Opt.Dialogs.EULBsClear=CfgDlg[DLG_DIALOGS_EULBSCLEAR].Selected;
-
-	if ((Opt.Dialogs.MouseButton=CfgDlg[DLG_DIALOGS_MOUSEBUTTON].Selected) != 0)
-		Opt.Dialogs.MouseButton=0xFFFF;
 }
 
 void CmdlineSettings()
 {
+	DialogBuilder Builder(MConfigCmdlineTitle, L"CmdlineSettings");
+
 	enum enumCmdlineSettings
 	{
 		DLG_CMDLINE_TITLE,
@@ -585,73 +554,23 @@ void CmdlineSettings()
 
 void SetConfirmations()
 {
-	enum ConfirmationsDlg
-	{
-		CF_DOUBLEBOX,
-		CF_CHECKBOX_COPY,
-		CF_CHECKBOX_MOVE,
-		CF_CHECKBOX_RO,
-		CF_CHECKBOX_DRAG,
-		CF_CHECKBOX_DELETE,
-		CF_CHECKBOX_DELETE_DIR,
-		CF_CHECKBOX_ESC,
-		CF_CHECKBOX_DISCONNECT,
-		CF_CHECKBOX_SUBST,
-		CF_CHECKBOX_HOTPLUG,
-		CF_CHECKBOX_REEDIT,
-		CF_CHECKBOX_HISTORY,
-		CF_CHECKBOX_EXIT,
-		CF_CHECKBOX_SEPARATOR,
-		CF_CHECKBOX_OK,
-		CF_CHECKBOX_CANCEL,
-	};
-	enum DlgCoord
-	{
-		DLG_X=50,
-		DLG_Y=19,
-	};
-	DialogDataEx ConfDlgData[]=
-	{
-		DI_DOUBLEBOX,3, 1,DLG_X-4,DLG_Y-2,0,0,0,0,MSG(MSetConfirmTitle),
-		DI_CHECKBOX, 5, 2, 0, 2,1,Opt.Confirm.Copy,0,0,MSG(MSetConfirmCopy),
-		DI_CHECKBOX, 5, 3, 0, 3,0,Opt.Confirm.Move,0,0,MSG(MSetConfirmMove),
-		DI_CHECKBOX, 5, 4, 0, 4,0,Opt.Confirm.RO,0,0,MSG(MSetConfirmRO),
-		DI_CHECKBOX, 5, 5, 0, 5,0,Opt.Confirm.Drag,0,0,MSG(MSetConfirmDrag),
-		DI_CHECKBOX, 5, 6, 0, 6,0,Opt.Confirm.Delete,0,0,MSG(MSetConfirmDelete),
-		DI_CHECKBOX, 5, 7, 0, 7,0,Opt.Confirm.DeleteFolder,0,0,MSG(MSetConfirmDeleteFolders),
-		DI_CHECKBOX, 5, 8, 0, 8,0,Opt.Confirm.Esc,0,0,MSG(MSetConfirmEsc),
-		DI_CHECKBOX, 5, 9, 0, 9,0,Opt.Confirm.RemoveConnection,0,0,MSG(MSetConfirmRemoveConnection),
-		DI_CHECKBOX, 5,10, 0,10,0,Opt.Confirm.RemoveSUBST,0,0,MSG(MSetConfirmRemoveSUBST),
-		DI_CHECKBOX, 5,11, 0,11,0,Opt.Confirm.RemoveHotPlug,0,0,MSG(MSetConfirmRemoveHotPlug),
-		DI_CHECKBOX, 5,12, 0,12,0,Opt.Confirm.AllowReedit,0,0,MSG(MSetConfirmAllowReedit),
-		DI_CHECKBOX, 5,13, 0,13,0,Opt.Confirm.HistoryClear,0,0,MSG(MSetConfirmHistoryClear),
-		DI_CHECKBOX, 5,14, 0,14,0,Opt.Confirm.Exit,0,0,MSG(MSetConfirmExit),
-		DI_TEXT,     3,DLG_Y-4, 0,DLG_Y-4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-		DI_BUTTON,   0,DLG_Y-3, 0,DLG_Y-3,0,0,DIF_CENTERGROUP,1,MSG(MOk),
-		DI_BUTTON,   0,DLG_Y-3, 0,DLG_Y-3,0,0,DIF_CENTERGROUP,0,MSG(MCancel),
-	};
-	MakeDialogItemsEx(ConfDlgData,ConfDlg);
-	Dialog Dlg(ConfDlg,countof(ConfDlg));
-	Dlg.SetHelp(L"ConfirmDlg");
-	Dlg.SetPosition(-1,-1,DLG_X,DLG_Y);
-	Dlg.Process();
+	DialogBuilder Builder(MSetConfirmTitle, L"ConfirmDlg");
+	
+	Builder.AddCheckbox(MSetConfirmCopy, &Opt.Confirm.Copy);
+	Builder.AddCheckbox(MSetConfirmMove, &Opt.Confirm.Move);
+	Builder.AddCheckbox(MSetConfirmRO, &Opt.Confirm.RO);
+	Builder.AddCheckbox(MSetConfirmDelete, &Opt.Confirm.Delete);
+	Builder.AddCheckbox(MSetConfirmDeleteFolders, &Opt.Confirm.DeleteFolder);
+	Builder.AddCheckbox(MSetConfirmEsc, &Opt.Confirm.Esc);
+	Builder.AddCheckbox(MSetConfirmRemoveConnection, &Opt.Confirm.RemoveConnection);
+	Builder.AddCheckbox(MSetConfirmRemoveSUBST, &Opt.Confirm.RemoveSUBST);
+	Builder.AddCheckbox(MSetConfirmRemoveHotPlug, &Opt.Confirm.RemoveHotPlug);
+	Builder.AddCheckbox(MSetConfirmAllowReedit, &Opt.Confirm.AllowReedit);
+	Builder.AddCheckbox(MSetConfirmHistoryClear, &Opt.Confirm.HistoryClear);
+	Builder.AddCheckbox(MSetConfirmExit, &Opt.Confirm.Exit);
+	Builder.AddOKCancel();
 
-	if (Dlg.GetExitCode()==CF_CHECKBOX_OK)
-	{
-		Opt.Confirm.Copy=ConfDlg[CF_CHECKBOX_COPY].Selected;
-		Opt.Confirm.Move=ConfDlg[CF_CHECKBOX_MOVE].Selected;
-		Opt.Confirm.RO=ConfDlg[CF_CHECKBOX_RO].Selected;
-		Opt.Confirm.Drag=ConfDlg[CF_CHECKBOX_DRAG].Selected;
-		Opt.Confirm.Delete=ConfDlg[CF_CHECKBOX_DELETE].Selected;
-		Opt.Confirm.DeleteFolder=ConfDlg[CF_CHECKBOX_DELETE_DIR].Selected;
-		Opt.Confirm.Esc=ConfDlg[CF_CHECKBOX_ESC].Selected;
-		Opt.Confirm.RemoveConnection=ConfDlg[CF_CHECKBOX_DISCONNECT].Selected;
-		Opt.Confirm.RemoveSUBST=ConfDlg[CF_CHECKBOX_SUBST].Selected;
-		Opt.Confirm.RemoveHotPlug=ConfDlg[CF_CHECKBOX_HOTPLUG].Selected;
-		Opt.Confirm.AllowReedit=ConfDlg[CF_CHECKBOX_REEDIT].Selected;
-		Opt.Confirm.HistoryClear=ConfDlg[CF_CHECKBOX_HISTORY].Selected;
-		Opt.Confirm.Exit=ConfDlg[CF_CHECKBOX_EXIT].Selected;
-	}
+	Builder.ShowDialog();
 }
 
 void SetPluginConfirmations()
@@ -1140,6 +1059,7 @@ static struct FARConfig
 	{1, REG_DWORD,  NKeyDialog, L"EditHistory",&Opt.Dialogs.EditHistory,1, 0},
 	{1, REG_DWORD,  NKeyDialog, L"EditBlock",&Opt.Dialogs.EditBlock,0, 0},
 	{1, REG_DWORD,  NKeyDialog, L"AutoComplete",&Opt.Dialogs.AutoComplete,1, 0},
+	{1, REG_DWORD,  NKeyDialog, L"ConfirmAutoComplete",&Opt.Dialogs.ConfirmAutoComplete,1, 0},
 	{1, REG_DWORD,  NKeyDialog,L"EULBsClear",&Opt.Dialogs.EULBsClear,0, 0},
 	{0, REG_DWORD,  NKeyDialog,L"SelectFromHistory",&Opt.Dialogs.SelectFromHistory,0, 0},
 	{0, REG_DWORD,  NKeyDialog,L"EditLine",&Opt.Dialogs.EditLine,0, 0},

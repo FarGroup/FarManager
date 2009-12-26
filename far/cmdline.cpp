@@ -446,7 +446,13 @@ int CommandLine::ProcessKey(int Key)
 						if (CtrlObject->CmdHistory->GetSimilar(strStr,-1,true))
 						{
 							CmdStr.SetString(strStr);
-							CmdStr.SelectTransient(SelEnd,static_cast<int>(CmdStr.GetLength())); //select the appropriate text
+
+							//select the appropriate text
+							if (Opt.Dialogs.ConfirmAutoComplete)
+								CmdStr.SelectTransient(SelEnd,static_cast<int>(CmdStr.GetLength())); 
+							else
+								CmdStr.Select(SelEnd,static_cast<int>(CmdStr.GetLength())); 
+
 							CmdStr.SetCurPos(CurPos); // SelEnd
 						}
 					}

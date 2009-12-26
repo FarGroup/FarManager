@@ -3138,7 +3138,11 @@ int Dialog::ProcessKey(int Key)
 									if (DoAutoComplete && FindInEditForAC(Item[FocusPos]->Type == DI_COMBOBOX,Item[FocusPos]->History,strStr))
 									{
 										edt->SetString(strStr);
-										edt->SelectTransient(SelEnd,edt->GetLength()); //select the appropriate text
+										//select the appropriate text
+										if (Opt.Dialogs.ConfirmAutoComplete)
+											edt->SelectTransient(SelEnd,edt->GetLength()); 
+										else
+											edt->Select(SelEnd, edt->GetLength());
 										edt->SetCurPos(CurPos); // SelEnd
 									}
 								}
