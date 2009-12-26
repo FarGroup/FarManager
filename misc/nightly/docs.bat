@@ -5,22 +5,22 @@ plugins\common\convert.exe addons\Archivers\Descript.ion addons\Archivers\FarUC2
 plugins\common\convert.exe addons\Archivers\LhArk.reg addons\Archivers\PkZip25.reg addons\Archivers\PkZip25Dos.reg addons\Archivers\Rar20.reg addons\Archivers\WinZipCL.reg %1\Addons\Archivers\
 plugins\common\convert.exe addons\Archivers\Lha32b.reg addons\Archivers\Lha32a.reg addons\Archivers\Arj.reg %1\Addons\Archivers\
 
-plugins\common\convert.exe "addons\Colors\Custom Highlighting\black_from_Fonarev.reg" "addons\Colors\Custom Highlighting\black_from_july.reg" "%1\Addons\Colors\Custom Highlighting\"
-plugins\common\convert.exe "addons\Colors\Custom Highlighting\black_from_Myodov.reg" "addons\Colors\Custom Highlighting\Colors_from_admin_essp_ru.reg" "%1\Addons\Colors\Custom Highlighting\"
-plugins\common\convert.exe "addons\Colors\Custom Highlighting\Colors_from_Gernichenko.reg" "addons\Colors\Custom Highlighting\Colors_from_Sadovoj.reg" "%1\Addons\Colors\Custom Highlighting\"
-plugins\common\convert.exe "addons\Colors\Custom Highlighting\Descript.ion" "addons\Colors\Custom Highlighting\dn_like.reg" "%1\Addons\Colors\Custom Highlighting\"
-plugins\common\convert.exe "addons\Colors\Custom Highlighting\FARColors242.reg" "addons\Colors\Custom Highlighting\GreenMile.reg" "addons\Colors\Custom Highlighting\hell.reg" "%1\Addons\Colors\Custom Highlighting\"
-plugins\common\convert.exe "addons\Colors\Custom Highlighting\import_colors.bat" "addons\Colors\Custom Highlighting\nc5pal2.reg" "%1\Addons\Colors\Custom Highlighting\"
-plugins\common\convert.exe "addons\Colors\Custom Highlighting\Rodion_Doroshkevich.reg" "addons\Colors\Custom Highlighting\VaxColors.reg" "%1\Addons\Colors\Custom Highlighting\"
+plugins\common\convert.exe "addons\Colors\Custom Highlighting\black_from_Fonarev.reg" "addons\Colors\Custom Highlighting\black_from_july.reg" "%1\Addons\Colors\Custom Highlighting"
+plugins\common\convert.exe "addons\Colors\Custom Highlighting\black_from_Myodov.reg" "addons\Colors\Custom Highlighting\Colors_from_admin_essp_ru.reg" "%1\Addons\Colors\Custom Highlighting"
+plugins\common\convert.exe "addons\Colors\Custom Highlighting\Colors_from_Gernichenko.reg" "addons\Colors\Custom Highlighting\Colors_from_Sadovoj.reg" "%1\Addons\Colors\Custom Highlighting"
+plugins\common\convert.exe "addons\Colors\Custom Highlighting\Descript.ion" "addons\Colors\Custom Highlighting\dn_like.reg" "%1\Addons\Colors\Custom Highlighting"
+plugins\common\convert.exe "addons\Colors\Custom Highlighting\FARColors242.reg" "addons\Colors\Custom Highlighting\GreenMile.reg" "addons\Colors\Custom Highlighting\hell.reg" "%1\Addons\Colors\Custom Highlighting"
+plugins\common\convert.exe "addons\Colors\Custom Highlighting\import_colors.bat" "addons\Colors\Custom Highlighting\nc5pal2.reg" "%1\Addons\Colors\Custom Highlighting"
+plugins\common\convert.exe "addons\Colors\Custom Highlighting\Rodion_Doroshkevich.reg" "addons\Colors\Custom Highlighting\VaxColors.reg" "%1\Addons\Colors\Custom Highlighting"
 
-plugins\common\convert.exe "addons\Colors\Default Highlighting\black_from_Fonarev.reg" "addons\Colors\Default Highlighting\black_from_july.reg" "%1\Addons\Colors\Default Highlighting\"
-plugins\common\convert.exe "addons\Colors\Default Highlighting\black_from_Myodov.reg" "addons\Colors\Default Highlighting\Colors_from_admin_essp_ru.reg" "%1\Addons\Colors\Default Highlighting\"
-plugins\common\convert.exe "addons\Colors\Default Highlighting\Colors_from_Gernichenko.reg" "addons\Colors\Default Highlighting\Colors_from_Sadovoj.reg" "%1\Addons\Colors\Default Highlighting\"
-plugins\common\convert.exe "addons\Colors\Default Highlighting\Descript.ion" "addons\Colors\Default Highlighting\dn_like.reg" "%1\Addons\Colors\Default Highlighting\"
-plugins\common\convert.exe "addons\Colors\Default Highlighting\FARColors242.reg" "addons\Colors\Default Highlighting\GreenMile.reg" "%1\Addons\Colors\Default Highlighting\"
-plugins\common\convert.exe "addons\Colors\Default Highlighting\hell.reg" "addons\Colors\Default Highlighting\import_colors.bat" "%1\Addons\Colors\Default Highlighting\"
-plugins\common\convert.exe "addons\Colors\Default Highlighting\nc5pal2.reg" "addons\Colors\Default Highlighting\Rodion_Doroshkevich.reg" "%1\Addons\Colors\Default Highlighting\"
-plugins\common\convert.exe "addons\Colors\Default Highlighting\VaxColors.reg" "%1\Addons\Colors\Default Highlighting\"
+plugins\common\convert.exe "addons\Colors\Default Highlighting\black_from_Fonarev.reg" "addons\Colors\Default Highlighting\black_from_july.reg" "%1\Addons\Colors\Default Highlighting"
+plugins\common\convert.exe "addons\Colors\Default Highlighting\black_from_Myodov.reg" "addons\Colors\Default Highlighting\Colors_from_admin_essp_ru.reg" "%1\Addons\Colors\Default Highlighting"
+plugins\common\convert.exe "addons\Colors\Default Highlighting\Colors_from_Gernichenko.reg" "addons\Colors\Default Highlighting\Colors_from_Sadovoj.reg" "%1\Addons\Colors\Default Highlighting"
+plugins\common\convert.exe "addons\Colors\Default Highlighting\Descript.ion" "addons\Colors\Default Highlighting\dn_like.reg" "%1\Addons\Colors\Default Highlighting"
+plugins\common\convert.exe "addons\Colors\Default Highlighting\FARColors242.reg" "addons\Colors\Default Highlighting\GreenMile.reg" "%1\Addons\Colors\Default Highlighting"
+plugins\common\convert.exe "addons\Colors\Default Highlighting\hell.reg" "addons\Colors\Default Highlighting\import_colors.bat" "%1\Addons\Colors\Default Highlighting"
+plugins\common\convert.exe "addons\Colors\Default Highlighting\nc5pal2.reg" "addons\Colors\Default Highlighting\Rodion_Doroshkevich.reg" "%1\Addons\Colors\Default Highlighting"
+plugins\common\convert.exe "addons\Colors\Default Highlighting\VaxColors.reg" "%1\Addons\Colors\Default Highlighting"
 
 plugins\common\convert.exe addons\Colors\Descript.ion addons\Colors\export_colors.bat addons\Colors\import_colors.bat %1\Addons\Colors\
 
