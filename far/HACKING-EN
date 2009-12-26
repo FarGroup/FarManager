@@ -73,6 +73,14 @@ vbuild.m4
    changes to the SVN you should call "svn_tag_build.bat".
 
 
+Adding new lines to language files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+1. If you've added a new line to language files, you need to add the "upd:"
+   prefix in farlang.templ.m4 to its variants that you did not translate.
+
+
+
 GCC - ensuring "successful" compilation with GCC
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1. Instead of postfixes i64 and ui64 use postfixes ll and ull.
