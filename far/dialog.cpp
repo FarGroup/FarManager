@@ -4107,43 +4107,183 @@ int Dialog::SetAutomation(WORD IDParent,WORD id,
 /*
    AutoComplite: Поиск входжение подстроки в истории
 */
-int Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &strFindStr)
+bool Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &strFindStr)
 {
+	bool Result=FALSE;
 	CriticalSectionLock Lock(CS);
 
-	if (HistoryName==NULL)
-		return FALSE;
-
-	int I, LenFindStr=(int)strFindStr.GetLength();
-
-	if (!TypeFind)
+	if (HistoryName)
 	{
-		string strRegKey=fmtSavedDialogHistory;
-		strRegKey+=HistoryName;
-		History DlgHist(HISTORYTYPE_DIALOG, Opt.DialogsHistoryCount, strRegKey, &Opt.Dialogs.EditHistory, false);
-		DlgHist.ReadHistory(true);
+		int I, LenFindStr=(int)strFindStr.GetLength();
 
-		if (!DlgHist.GetSimilar(strFindStr,-1,true))
-			return FALSE;
-	}
-	else
-	{
-		FarListItem *ListItems=((FarList *)HistoryName)->Items;
-		int Count=((FarList *)HistoryName)->ItemsNumber;
-
-		for (I=0; I < Count ; I++)
+		if (!TypeFind)
 		{
-			if (!StrCmpNI(ListItems[I].Text, strFindStr, LenFindStr) && StrCmp(ListItems[I].Text, strFindStr)!=0)
-				break;
+			string strRegKey=fmtSavedDialogHistory;
+			strRegKey+=HistoryName;
+			History DlgHist(HISTORYTYPE_DIALOG, Opt.DialogsHistoryCount, strRegKey, &Opt.Dialogs.EditHistory, false);
+			DlgHist.ReadHistory(true);
+
+			if(Opt.AutoComplete.ShowList)
+			{
+				VMenu ComplMenu(NULL,NULL,0,0);
+				string strTemp=strFindStr;
+				DlgHist.GetAllSimilar(ComplMenu,strTemp);
+				if(Item[FocusPos]->Flags&DIF_EDITPATH)
+					EnumFiles(ComplMenu,strTemp);
+				DlgEdit* EditLine=reinterpret_cast<DlgEdit*>(Item[FocusPos]->ObjPtr);
+				if(ComplMenu.GetItemCount())
+				{
+					ComplMenu.SetFlags(VMENU_WRAPMODE|VMENU_NOTCENTER);
+					if(ScrY-(Y1+Item[FocusPos]->Y1)<Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount())+2 && (Y1+Item[FocusPos]->Y1)>ScrY/2)
+					{
+						ComplMenu.SetPosition(X1+Item[FocusPos]->X1,Max(0,Y1+Item[FocusPos]->Y1-1-Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount())-1),X1+Item[FocusPos]->X2,Y1+Item[FocusPos]->Y1-1);
+					}
+					else
+					{
+						ComplMenu.SetPosition(X1+Item[FocusPos]->X1,Y1+Item[FocusPos]->Y1+1,X1+Item[FocusPos]->X2,0);
+					}
+
+					if(Opt.AutoComplete.AppendCompletion)
+					{
+						int SelStart=EditLine->GetLength();
+						EditLine->SetString(ComplMenu.GetItemPtr(0)->strName);
+						EditLine->Select(SelStart, EditLine->GetLength());
+					}
+
+					MenuItemEx EmptyItem={0};
+					ComplMenu.AddItem(&EmptyItem,0);
+
+					ComplMenu.SetSelectPos(0,0);
+					ComplMenu.SetBoxType(SHORT_SINGLE_BOX);
+					ComplMenu.ClearDone();
+					ComplMenu.Show();
+					EditLine->Show();
+					int PrevPos=0;
+
+					while (!ComplMenu.Done())
+					{
+						INPUT_RECORD ir;
+						ComplMenu.ReadInput(&ir);
+
+						int CurPos=ComplMenu.GetSelectPos();
+						if(PrevPos!=CurPos)
+						{
+							if(!(ComplMenu.GetItemPtr(0)->Flags&LIF_DISABLE))
+							{
+								ComplMenu.GetItemPtr(0)->Flags|=LIF_DISABLE;
+							}
+							PrevPos=CurPos;
+							IsEnableRedraw--;
+							EditLine->SetString(ComplMenu.GetItemPtr(CurPos)->strName);
+							EditLine->Show();
+							IsEnableRedraw++;
+						}
+						if(ir.EventType==WINDOW_BUFFER_SIZE_EVENT)
+						{
+							if(ScrY-(Y1+Item[FocusPos]->Y1)<Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount())+2 && (Y1+Item[FocusPos]->Y1)>ScrY/2)
+							{
+								ComplMenu.SetPosition(X1+Item[FocusPos]->X1,Max(0,Y1+Item[FocusPos]->Y1-1-Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount())-1),X1+Item[FocusPos]->X2,Y1+Item[FocusPos]->Y1-1);
+							}
+							else
+							{
+								ComplMenu.SetPosition(X1+Item[FocusPos]->X1,Y1+Item[FocusPos]->Y1+1,X1+Item[FocusPos]->X2,0);
+							}
+							ComplMenu.Show();
+						}
+						else if(ir.EventType==KEY_EVENT)
+						{
+							int Key=InputRecordToKey(&ir);
+							if(Key==KEY_ENTER || Key==KEY_NUMENTER)
+							{
+								ComplMenu.ProcessInput();
+								ProcessKey(Key);
+							}
+							if(Key==KEY_TAB || Key==KEY_CTRLF5)
+							{
+								ComplMenu.SetExitCode(-1);
+								ProcessKey(Key);
+							}
+							else if(Key==KEY_LEFT || Key == KEY_RIGHT || Key==KEY_NUMPAD4 || Key == KEY_NUMPAD6 || 	Key==KEY_CTRLS || Key == KEY_CTRLD)
+							{
+								IsEnableRedraw--;
+								EditLine->ProcessKey(Key);
+								IsEnableRedraw++;
+							}
+							else if((Key >= L' ' && Key <= WCHAR_MAX) || Key==KEY_BS)
+							{
+								IsEnableRedraw--;
+								EditLine->ProcessKey(Key);
+								IsEnableRedraw++;
+								EditLine->GetString(strTemp);
+								ComplMenu.DeleteItems();
+								PrevPos=0;
+								if(!strTemp.IsEmpty())
+								{
+									DlgHist.GetAllSimilar(ComplMenu,strTemp);
+								}
+								if(Item[FocusPos]->Flags&DIF_EDITPATH)
+									EnumFiles(ComplMenu,strTemp);
+								if(!ComplMenu.GetItemCount())
+								{
+									ComplMenu.SetExitCode(-1);
+								}
+								else
+								{
+									ComplMenu.SetPosition(X1+Item[FocusPos]->X1,Y1+Item[FocusPos]->Y1+1,X1+Item[FocusPos]->X2,Y1+Item[FocusPos]->Y2+3+Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount()));
+
+									if(Key!=KEY_BS && Opt.AutoComplete.AppendCompletion)
+									{
+										int SelStart=EditLine->GetLength();
+										IsEnableRedraw--;
+										EditLine->SetString(ComplMenu.GetItemPtr(0)->strName);
+										EditLine->Select(SelStart, EditLine->GetLength());
+										IsEnableRedraw++;
+									}
+
+									MenuItemEx EmptyItem={0};
+									ComplMenu.AddItem(&EmptyItem,0);
+
+									ComplMenu.SetSelectPos(0,0);
+									ComplMenu.Redraw();
+								}
+								EditLine->Show();
+							}
+							else
+							{
+								ComplMenu.ProcessInput();
+							}
+						}
+						else
+						{
+							ComplMenu.ProcessInput();
+						}
+					}
+				}
+			}
+			else
+			{
+				Result=DlgHist.GetSimilar(strFindStr,-1,true);
+			}
 		}
+		else
+		{
+			FarListItem *ListItems=((FarList *)HistoryName)->Items;
+			int Count=((FarList *)HistoryName)->ItemsNumber;
 
-		if (I  == Count)
-			return FALSE;
+			for (I=0; I < Count ; I++)
+			{
+				if (!StrCmpNI(ListItems[I].Text, strFindStr, LenFindStr) && StrCmp(ListItems[I].Text, strFindStr)!=0)
+					break;
+			}
 
-		strFindStr += &ListItems[I].Text[LenFindStr];
+			if (I != Count)
+			{
+				strFindStr += &ListItems[I].Text[LenFindStr];
+				Result=true;
+			}
+		}
 	}
-
-	return TRUE;
+	return Result;
 }
 
 //////////////////////////////////////////////////////////////////////////

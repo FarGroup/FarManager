@@ -2693,3 +2693,29 @@ void VMenu::SortItems(int Direction, int Offset, BOOL SortForDataDWORD)
 
 	SetFlags(VMENU_UPDATEREQUIRED);
 }
+
+void EnumFiles(VMenu& Menu, const wchar_t* Str)
+{
+	string strStr=Str;
+	FAR_FIND_DATA_EX d;
+	BOOL MoreFiles=TRUE;
+	HANDLE hFind=INVALID_HANDLE_VALUE;
+	for(hFind=apiFindFirstFile(strStr+L"*",&d);hFind!=INVALID_HANDLE_VALUE && MoreFiles;MoreFiles=apiFindNextFile(hFind,&d))
+	{
+		for(size_t i=0;i<=strStr.GetLength();i++)
+		{
+			if(!StrCmpNI(Str+i,d.strFileName,static_cast<int>(strStr.GetLength()-i)) || !Str[i])
+			{
+				string strTmp=strStr;
+				strTmp.SetLength(i);
+				strTmp+=d.strFileName;
+				Menu.AddItem(strTmp);
+				break;
+			}
+		}
+	}
+	if(hFind!=INVALID_HANDLE_VALUE)
+	{
+		apiFindClose(hFind);
+	}
+}

@@ -336,7 +336,7 @@ void InterfaceSettings()
 	Builder.AddCheckbox(MConfigPgUpChangeDisk, &Opt.PgUpChangeDisk);
 	Builder.AddCheckbox(MConfigClearType, &Opt.ClearType);
 	Builder.AddText(MConfigTitleAddons);
-	Builder.AddEditField(&Opt.strTitleAddons, 48);
+	Builder.AddEditField(&Opt.strTitleAddons, 47);
 	Builder.AddOKCancel();
 
 	if (Builder.ShowDialog())
@@ -935,6 +935,11 @@ static struct FARConfig
 	{0, REG_DWORD,  NKeyInterface, L"ShowTimeoutDelFiles",&Opt.ShowTimeoutDelFiles, 50, 0},
 	{0, REG_DWORD,  NKeyInterface, L"ShowTimeoutDACLFiles",&Opt.ShowTimeoutDACLFiles, 50, 0},
 	{0, REG_DWORD,  NKeyInterface, L"FormatNumberSeparators",&Opt.FormatNumberSeparators, 0, 0},
+	{1, REG_DWORD,  NKeyInterface, L"CopyShowTotal",&Opt.CMOpt.CopyShowTotal,0, 0},
+	{1, REG_DWORD,  NKeyInterface,L"DelShowTotal",&Opt.DelOpt.DelShowTotal,0, 0},
+	{1, REG_SZ,     NKeyInterface,L"TitleAddons",&Opt.strTitleAddons, 0, L"%Ver.%Build %Platform %Admin"},
+	{1, REG_DWORD,  NKeyInterface,L"ACShowList",&Opt.AutoComplete.ShowList, 1, 0},
+	{1, REG_DWORD,  NKeyInterface,L"ACAppend",&Opt.AutoComplete.AppendCompletion, 0, 0},
 
 	{1, REG_SZ,     NKeyViewer,L"ExternalViewerName",&Opt.strExternalViewer, 0, L""},
 	{1, REG_DWORD,  NKeyViewer,L"UseExternalViewer",&Opt.ViOpt.UseExternalViewer,0, 0},
@@ -1022,12 +1027,8 @@ static struct FARConfig
 	{1, REG_DWORD,  NKeySystem,L"UseSystemCopy",&Opt.CMOpt.UseSystemCopy,1, 0},
 	{0, REG_DWORD,  NKeySystem,L"CopySecurityOptions",&Opt.CMOpt.CopySecurityOptions,0, 0},
 	{1, REG_DWORD,  NKeySystem,L"CopyOpened",&Opt.CMOpt.CopyOpened,1, 0},
-	{1, REG_DWORD,  NKeyInterface, L"CopyShowTotal",&Opt.CMOpt.CopyShowTotal,0, 0},
 	{1, REG_DWORD,  NKeySystem, L"MultiCopy",&Opt.CMOpt.MultiCopy,0, 0},
 	{1, REG_DWORD,  NKeySystem,L"CopyTimeRule",  &Opt.CMOpt.CopyTimeRule, 3, 0},
-
-	{1, REG_DWORD,  NKeyInterface,L"DelShowTotal",&Opt.DelOpt.DelShowTotal,0, 0},
-	{1, REG_SZ,     NKeyInterface,L"TitleAddons",&Opt.strTitleAddons, 0, L"%Ver.%Build %Platform %Admin"},
 
 	{1, REG_DWORD,  NKeySystem,L"CreateUppercaseFolders",&Opt.CreateUppercaseFolders,0, 0},
 	{1, REG_DWORD,  NKeySystem,L"InactivityExit",&Opt.InactivityExit,0, 0},

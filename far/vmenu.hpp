@@ -367,3 +367,5 @@ class VMenu: public Modal
 		static LONG_PTR WINAPI DefMenuProc(HANDLE hVMenu,int Msg,int Param1,LONG_PTR Param2);
 		static LONG_PTR WINAPI SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,LONG_PTR Param2);
 };
+
+void EnumFiles(VMenu& Menu, const wchar_t* Str);

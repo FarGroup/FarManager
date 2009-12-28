@@ -110,6 +110,7 @@ class History
 		void GetPrev(string &strStr);
 		void GetNext(string &strStr);
 		bool GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend=false);
+		bool GetAllSimilar(VMenu &HistoryMenu,const wchar_t *Str);
 		void SetAddMode(bool EnableAdd, int RemoveDups, bool KeepSelectedPos);
 		void ResetPosition() { CurrentItem = NULL; }
 };

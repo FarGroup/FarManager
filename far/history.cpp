@@ -860,6 +860,19 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 	return false;
 }
 
+bool History::GetAllSimilar(VMenu &HistoryMenu,const wchar_t *Str)
+{
+	ResetPosition();
+	int Length=StrLength(Str);
+	for (HistoryRecord *HistoryItem=HistoryList.First();HistoryItem;HistoryItem=HistoryList.Next(HistoryItem))
+	{
+		if (!StrCmpNI(Str,HistoryItem->strName,Length) && StrCmp(Str,HistoryItem->strName))
+		{
+			HistoryMenu.AddItem(HistoryItem->strName);
+		}
+	}
+	return false;
+}
 
 void History::SetAddMode(bool EnableAdd, int RemoveDups, bool KeepSelectedPos)
 {

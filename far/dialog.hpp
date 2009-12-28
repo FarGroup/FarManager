@@ -305,7 +305,7 @@ class Dialog: public Frame
 		unsigned ChangeFocus(unsigned FocusPos,int Step,int SkipGroup);
 		BOOL SelectFromEditHistory(DialogItemEx *CurItem,DlgEdit *EditLine,const wchar_t *HistoryName,string &strStr);
 		int SelectFromComboBox(DialogItemEx *CurItem,DlgEdit*EditLine,VMenu *List);
-		int FindInEditForAC(int TypeFind, const wchar_t *HistoryName, string &strFindStr);
+		bool FindInEditForAC(int TypeFind, const wchar_t *HistoryName, string &strFindStr);
 		int AddToEditHistory(const wchar_t *AddStr,const wchar_t *HistoryName);
 
 		void ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex);  // обработка DIF_USELASTHISTORY

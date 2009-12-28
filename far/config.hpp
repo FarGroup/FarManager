@@ -84,6 +84,13 @@ struct PanelOptions
 	int NumericSort;
 };
 
+struct AutoCompleteOptions
+{
+	int ShowList;
+	int AppendCompletion;
+};
+
+
 struct PluginConfirmation
 {
 	int OpenFilePlugin;
@@ -478,6 +485,8 @@ struct Options
 	int ShellRightLeftArrowsRule;
 	PanelOptions LeftPanel;
 	PanelOptions RightPanel;
+
+	AutoCompleteOptions AutoComplete;
 
 	DWORD  AutoUpdateLimit; // выше этого количество автоматически не обновлять панели.
 	int AutoUpdateRemoteDrive;

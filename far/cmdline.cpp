@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dirmix.hpp"
 #include "strmix.hpp"
 #include "keyboard.hpp"
+#include "vmenu.hpp"
 
 CommandLine::CommandLine()
 {
@@ -443,7 +444,118 @@ int CommandLine::ProcessKey(int Key)
 
 					if (DoAutoComplete)
 					{
-						if (CtrlObject->CmdHistory->GetSimilar(strStr,-1,true))
+						if(Opt.AutoComplete.ShowList)
+						{
+							VMenu ComplMenu(NULL,NULL,0,0);
+							string strTemp=strStr;
+							CtrlObject->CmdHistory->GetAllSimilar(ComplMenu,strTemp);
+							EnumFiles(ComplMenu,strTemp);
+							if(ComplMenu.GetItemCount())
+							{
+								ComplMenu.SetFlags(VMENU_WRAPMODE|VMENU_NOTCENTER);
+								ComplMenu.SetPosition(CmdStr.X1,CmdStr.Y1-3-Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount()),CmdStr.X2-2,CmdStr.Y1-1);
+
+								if(Opt.AutoComplete.AppendCompletion)
+								{
+									int SelStart=CmdStr.GetLength();
+									CmdStr.SetString(ComplMenu.GetItemPtr(0)->strName);
+									CmdStr.Select(SelStart, CmdStr.GetLength());
+								}
+
+								MenuItemEx EmptyItem={0};
+								ComplMenu.AddItem(&EmptyItem,0);
+
+								ComplMenu.SetSelectPos(0,0);
+								ComplMenu.SetBoxType(SHORT_SINGLE_BOX);
+								ComplMenu.ClearDone();
+								ComplMenu.Show();
+								CmdStr.Show();
+								int PrevPos=0;
+
+								while (!ComplMenu.Done())
+								{
+									INPUT_RECORD ir;
+									ComplMenu.ReadInput(&ir);
+
+									int CurPos=ComplMenu.GetSelectPos();
+									if(PrevPos!=CurPos)
+									{
+										if(!(ComplMenu.GetItemPtr(0)->Flags&LIF_DISABLE))
+										{
+											ComplMenu.GetItemPtr(0)->Flags|=LIF_DISABLE;
+										}
+										PrevPos=CurPos;
+										CmdStr.SetString(ComplMenu.GetItemPtr(CurPos)->strName);
+										CmdStr.Show();
+									}
+									if(ir.EventType==WINDOW_BUFFER_SIZE_EVENT)
+									{
+										ComplMenu.SetPosition(CmdStr.X1,CmdStr.Y1-3-Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount()),CmdStr.X2-2,CmdStr.Y1-1);
+										ComplMenu.Show();
+									}
+									else if(ir.EventType==KEY_EVENT)
+									{
+										int Key=InputRecordToKey(&ir);
+										if(Key==KEY_ENTER || Key==KEY_NUMENTER)
+										{
+											ComplMenu.ProcessInput();
+											ProcessKey(Key);
+										}
+										if(Key==KEY_TAB)
+										{
+											ComplMenu.SetExitCode(-1);
+											CtrlObject->Cp()->ProcessKey(Key);
+										}
+										else if(Key==KEY_LEFT || Key == KEY_RIGHT || Key==KEY_NUMPAD4 || Key == KEY_NUMPAD6 || 	Key==KEY_CTRLS || Key == KEY_CTRLD)
+										{
+											CmdStr.ProcessKey(Key);
+										}
+										else if((Key >= L' ' && Key <= WCHAR_MAX) || Key==KEY_BS)
+										{
+											CmdStr.ProcessKey(Key);
+											CmdStr.GetString(strTemp);
+											ComplMenu.DeleteItems();
+											PrevPos=0;
+											if(!strTemp.IsEmpty())
+											{
+												CtrlObject->CmdHistory->GetAllSimilar(ComplMenu,strTemp);
+											}
+											EnumFiles(ComplMenu,strTemp);
+											if(!ComplMenu.GetItemCount())
+											{
+												ComplMenu.SetExitCode(-1);
+											}
+											else
+											{
+												ComplMenu.SetPosition(CmdStr.X1,CmdStr.Y1-3-Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount()),CmdStr.X2-2,CmdStr.Y1-1);
+												if(Key!=KEY_BS && Opt.AutoComplete.AppendCompletion)
+												{
+													int SelStart=CmdStr.GetLength();
+													CmdStr.SetString(ComplMenu.GetItemPtr(0)->strName);
+													CmdStr.Select(SelStart, CmdStr.GetLength());
+												}
+
+												MenuItemEx EmptyItem={0};
+												ComplMenu.AddItem(&EmptyItem,0);
+
+												ComplMenu.SetSelectPos(0,0);
+												ComplMenu.Redraw();
+											}
+											CmdStr.Show();
+										}
+										else
+										{
+											ComplMenu.ProcessInput();
+										}
+									}
+									else
+									{
+										ComplMenu.ProcessInput();
+									}
+								}
+							}
+						}
+						else if (CtrlObject->CmdHistory->GetSimilar(strStr,-1,true))
 						{
 							CmdStr.SetString(strStr);
 
