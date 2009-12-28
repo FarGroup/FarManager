@@ -38,20 +38,22 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "lang.hpp"
 
+const int DEFAULT_INDENT = 5;
+
 struct EditFieldUserData
 {
 	string *TextValue;
 	int *IntValue;
-	int PrefixLabelID;
-	int SuffixLabelID;
+	int BeforeLabelID;
+	int AfterLabelID;
 
 	EditFieldUserData(string *aTextValue)
-		: TextValue(aTextValue), IntValue(NULL), PrefixLabelID(-1), SuffixLabelID(-1)
+		: TextValue(aTextValue), IntValue(NULL), BeforeLabelID(-1), AfterLabelID(-1)
 	{
 	}
 
 	EditFieldUserData(int *aIntValue)
-		: TextValue(NULL), IntValue(aIntValue), PrefixLabelID(-1), SuffixLabelID(-1)
+		: TextValue(NULL), IntValue(aIntValue), BeforeLabelID(-1), AfterLabelID(-1)
 	{
 	}
 };
@@ -74,7 +76,10 @@ static int TextWidth(const DialogItemEx &Item)
 
 	case DI_EDIT:
 	case DI_FIXEDIT:
-		return Item.X2 - Item.X1;
+		int Width = Item.X2 - Item.X1 + 1;
+		if (Item.Flags & DIF_HISTORY)
+			Width++;
+		return Width;
 		break;
 	}
 	return 0;
@@ -156,6 +161,21 @@ DialogItemEx *DialogBuilder::AddCheckbox(int TextMessageId, BOOL *Value)
 	return Item;
 }
 
+void DialogBuilder::AddRadioButtons(int *Value, int OptionCount, int MessageIDs[])
+{
+	for(int i=0; i<OptionCount; i++)
+	{
+		DialogItemEx *Item = AddDialogItem(DI_RADIOBUTTON, MSG(MessageIDs[i]));
+		SetNextY(Item);
+		Item->X2 = Item->X1 + TextWidth(*Item);
+		if (i == 0)
+			Item->Flags |= DIF_GROUP;
+		if (*Value == i)
+			Item->Selected = TRUE;
+		Item->UserData = (DWORD_PTR) Value;
+	}
+}
+
 DialogItemEx *DialogBuilder::AddText(int LabelId)
 {
 	DialogItemEx *Item = AddDialogItem(DI_TEXT, MSG(LabelId));
@@ -163,11 +183,16 @@ DialogItemEx *DialogBuilder::AddText(int LabelId)
 	return Item;
 }
 
-DialogItemEx *DialogBuilder::AddEditField(string *Value, int Width)
+DialogItemEx *DialogBuilder::AddEditField(string *Value, int Width, const wchar_t *HistoryID)
 {
 	DialogItemEx *Item = AddDialogItem(DI_EDIT, *Value);
 	SetNextY(Item);
 	Item->X2 = Item->X1 + Width;
+	if (HistoryID)
+	{
+		Item->History = HistoryID;
+		Item->Flags |= DIF_HISTORY;
+	}
 
 	Item->UserData = (DWORD_PTR) new EditFieldUserData(Value);
 	return Item;
@@ -186,7 +211,27 @@ DialogItemEx *DialogBuilder::AddIntEditField(int *Value, int Width)
 	return Item;
 }
 
-void DialogBuilder::AddSuffixText(DialogItemEx *RelativeTo, int LabelId)
+DialogItemEx *DialogBuilder::AddTextBefore(DialogItemEx *RelativeTo, int LabelId)
+{
+	DialogItemEx *Item = AddDialogItem(DI_TEXT, MSG(LabelId));
+	Item->Y1 = Item->Y2 = RelativeTo->Y1;
+	Item->X1 = 5;
+	Item->X2 = Item->X1 + TextWidth(*Item) - 1;
+
+	int RelativeToWidth = RelativeTo->X2 - RelativeTo->X1;
+	RelativeTo->X1 = Item->X2 + 2;
+	RelativeTo->X2 = RelativeTo->X1 + RelativeToWidth;
+
+
+	if (IsEditField(RelativeTo))
+	{
+		EditFieldUserData *UserData = (EditFieldUserData *) RelativeTo->UserData;
+		UserData->BeforeLabelID = Item->ID;
+	}
+	return Item;
+}
+
+DialogItemEx *DialogBuilder::AddTextAfter(DialogItemEx *RelativeTo, int LabelId)
 {
 	DialogItemEx *Item = AddDialogItem(DI_TEXT, MSG(LabelId));
 	Item->Y1 = Item->Y2 = RelativeTo->Y1;
@@ -195,16 +240,22 @@ void DialogBuilder::AddSuffixText(DialogItemEx *RelativeTo, int LabelId)
 	if (IsEditField(RelativeTo))
 	{
 		EditFieldUserData *UserData = (EditFieldUserData *) RelativeTo->UserData;
-		UserData->SuffixLabelID = Item->ID;
+		UserData->AfterLabelID = Item->ID;
 	}
+	return Item;
 }
 
-void DialogBuilder::AddOKCancel()
+void DialogBuilder::AddSeparator()
 {
 	DialogItemEx *Separator = AddDialogItem(DI_TEXT, L"");
 	Separator->Flags = DIF_BOXCOLOR | DIF_SEPARATOR;
 	Separator->X1 = 3;
 	Separator->Y1 = Separator->Y2 = NextY++;
+}
+
+void DialogBuilder::AddOKCancel()
+{
+	AddSeparator();
 
 	DialogItemEx *OKButton = AddDialogItem(DI_BUTTON, MSG(MOk));
 	OKButton->Flags = DIF_CENTERGROUP;
@@ -217,22 +268,28 @@ void DialogBuilder::AddOKCancel()
 	CancelButton->Y1 = CancelButton->Y2 = OKButton->Y1;	
 }
 
-void DialogBuilder::LinkFlags(DialogItemEx *Parent, DialogItemEx *Target, FarDialogItemFlags Flags)
+void DialogBuilder::LinkFlags(DialogItemEx *Parent, DialogItemEx *Target, FarDialogItemFlags Flags, bool LinkLabels)
 {
 	Parent->Flags |= DIF_AUTOMATION;
 	Parent->AddAutomation(Target->ID, Flags, DIF_NONE, DIF_NONE, Flags, DIF_NONE, DIF_NONE);
 	if (!Parent->Selected)
 		Target->Flags |= Flags;
 
-	if (IsEditField(Target))
+	if (IsEditField(Target) && LinkLabels)
 	{
 		EditFieldUserData *UserData = (EditFieldUserData *) Target->UserData;
-		if (UserData->SuffixLabelID >= 0)
-		{
-			Parent->AddAutomation(UserData->SuffixLabelID, Flags, DIF_NONE, DIF_NONE, Flags, DIF_NONE, DIF_NONE);
-			if (!Parent->Selected)
-				DialogItems [UserData->SuffixLabelID].Flags |= Flags;
-		}
+		LinkFlagsByID(Parent, UserData->BeforeLabelID, Flags);
+		LinkFlagsByID(Parent, UserData->AfterLabelID, Flags);
+	}
+}
+
+void DialogBuilder::LinkFlagsByID(DialogItemEx *Parent, int TargetID, FarDialogItemFlags Flags)
+{
+	if (TargetID >= 0)
+	{
+		Parent->AddAutomation(TargetID, Flags, DIF_NONE, DIF_NONE, Flags, DIF_NONE, DIF_NONE);
+		if (!Parent->Selected)
+			DialogItems [TargetID].Flags |= Flags;
 	}
 }
 
@@ -270,18 +327,32 @@ bool DialogBuilder::ShowDialog()
 	if (Dlg.GetExitCode() != OKButtonID)
 		return false;
 
+	int RadioGroupIndex = 0;
 	for(int i=0; i<DialogItemsCount; i++)
-		SaveValue(&DialogItems [i]);
+	{
+		if (DialogItems [i].Flags & DIF_GROUP)
+			RadioGroupIndex = 0;
+		else
+			RadioGroupIndex++;
+
+		SaveValue(&DialogItems [i], RadioGroupIndex);
+	}
 
 	return true;
 }
 
-void DialogBuilder::SaveValue(DialogItemEx *Item)
+void DialogBuilder::SaveValue(DialogItemEx *Item, int RadioGroupIndex)
 {
 	if (Item->Type == DI_CHECKBOX)
 	{
 		BOOL *Value = (BOOL *)Item->UserData;
 		*Value = Item->Selected;
+	}
+	else if (Item->Type == DI_RADIOBUTTON)
+	{
+		int *Value = (int *)Item->UserData;
+		if (Item->Selected)
+			*Value = RadioGroupIndex;
 	}
 	else if (IsEditField(Item))
 	{

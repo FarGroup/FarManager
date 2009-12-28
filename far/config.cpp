@@ -111,202 +111,79 @@ const wchar_t *constBatchExt=L".BAT;.CMD;";
 
 void SystemSettings()
 {
-	const wchar_t *HistoryName=L"PersPath";
-	DialogDataEx CfgDlgData[]=
-	{
-		/* 00 */ DI_DOUBLEBOX,3, 1,52,21,0,0,0,0,(const wchar_t *)MConfigSystemTitle,
-		/* 01 */ DI_CHECKBOX, 5, 2, 0, 2,1,0,0,0,(const wchar_t *)MConfigRO,
-		/* 02 */ DI_CHECKBOX, 5, 3, 0, 3,0,0,DIF_AUTOMATION,0,(const wchar_t *)MConfigRecycleBin,
-		/* 03 */ DI_CHECKBOX, 9, 4, 0, 4,0,0,0,0,(const wchar_t *)MConfigRecycleBinLink,
-		/* 04 */ DI_CHECKBOX, 5, 5, 0, 5,0,0,0,0,(const wchar_t *)MConfigSystemCopy,
-		/* 05 */ DI_CHECKBOX, 5, 6, 0, 6,0,0,0,0,(const wchar_t *)MConfigCopySharing,
-		/* 06 */ DI_CHECKBOX, 5, 7, 0, 7,0,0,0,0,(const wchar_t *)MConfigScanJunction,
-		/* 07 */ DI_CHECKBOX, 5, 8, 0, 8,0,0,0,0,(const wchar_t *)MConfigCreateUppercaseFolders,
-		/* 08 */ DI_CHECKBOX, 5, 9, 0, 9,0,0,DIF_AUTOMATION,0,(const wchar_t *)MConfigInactivity,
-		/* 09 */ DI_FIXEDIT,  9,10,11,10,0,0,0,0,L"",
-		/* 10 */ DI_TEXT,    13,10, 0,10,0,0,0,0,(const wchar_t *)MConfigInactivityMinutes,
-		/* 11 */ DI_CHECKBOX, 5,11, 0,11,0,0,0,0,(const wchar_t *)MConfigSaveHistory,
-		/* 12 */ DI_CHECKBOX, 5,12, 0,12,0,0,0,0,(const wchar_t *)MConfigSaveFoldersHistory,
-		/* 13 */ DI_CHECKBOX, 5,13, 0,13,0,0,0,0,(const wchar_t *)MConfigSaveViewHistory,
-		/* 14 */ DI_CHECKBOX, 5,14, 0,14,0,0,0,0,(const wchar_t *)MConfigRegisteredTypes,
-		/* 15 */ DI_CHECKBOX, 5,15, 0,15,0,0,0,0,(const wchar_t *)MConfigCloseCDGate,
-		/* 16 */ DI_TEXT,     5,16, 0,16,0,0,0,0,(const wchar_t *)MConfigPersonalPath,
-		/* 17 */ DI_EDIT,     5,17,50,17,0,(DWORD_PTR)HistoryName,DIF_HISTORY,0,L"",
-		/* 18 */ DI_CHECKBOX, 5,18, 0,18,0,0,0,0,(const wchar_t *)MConfigAutoSave,
-		/* 19 */ DI_TEXT,     5,19, 0,19,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-		/* 20 */ DI_BUTTON,   0,20, 0,20,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-		/* 21 */ DI_BUTTON,   0,20, 0,20,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
-	};
-	MakeDialogItemsEx(CfgDlgData,CfgDlg);
-	CfgDlg[1].Selected=Opt.ClearReadOnly;
-	CfgDlg[2].Selected=Opt.DeleteToRecycleBin;
-	CfgDlg[3].Selected=Opt.DeleteToRecycleBinKillLink;
-	CfgDlg[4].Selected=Opt.CMOpt.UseSystemCopy;
-	CfgDlg[5].Selected=Opt.CMOpt.CopyOpened;
-	CfgDlg[6].Selected=Opt.ScanJunction;
-	CfgDlg[7].Selected=Opt.CreateUppercaseFolders;
-	CfgDlg[8].Selected=Opt.InactivityExit;
-	CfgDlg[9].strData.Format(L"%d", Opt.InactivityExitTime);
+	DialogBuilder Builder(MConfigSystemTitle, L"SystemSettings");
 
-	if (!Opt.InactivityExit)
-	{
-		CfgDlg[9].Flags|=DIF_DISABLE;
-		CfgDlg[10].Flags|=DIF_DISABLE;
-	}
+	Builder.AddCheckbox(MConfigRO, &Opt.ClearReadOnly);
+	
+	DialogItemEx *DeleteToRecycleBin = Builder.AddCheckbox(MConfigRecycleBin, &Opt.DeleteToRecycleBin);
+	DialogItemEx *DeleteLinks = Builder.AddCheckbox(MConfigRecycleBinLink, &Opt.DeleteToRecycleBinKillLink);
+	DeleteLinks->Indent(4);
+	Builder.LinkFlags(DeleteToRecycleBin, DeleteLinks, DIF_DISABLE);
+	
+	Builder.AddCheckbox(MConfigSystemCopy, &Opt.CMOpt.UseSystemCopy);
+	Builder.AddCheckbox(MConfigCopySharing, &Opt.CMOpt.CopyOpened);
+	Builder.AddCheckbox(MConfigScanJunction, &Opt.ScanJunction);
+	
+	DialogItemEx *InactivityExit = Builder.AddCheckbox(MConfigInactivity, &Opt.InactivityExit);
+	DialogItemEx *InactivityExitTime = Builder.AddIntEditField(&Opt.InactivityExitTime, 2);
+	InactivityExitTime->Indent(4);
+	Builder.AddTextAfter(InactivityExitTime, MConfigInactivityMinutes);
+	Builder.LinkFlags(InactivityExit, InactivityExitTime, DIF_DISABLE);
+	
+	Builder.AddCheckbox(MConfigSaveHistory, &Opt.SaveHistory);
+	Builder.AddCheckbox(MConfigSaveFoldersHistory, &Opt.SaveFoldersHistory);
+	Builder.AddCheckbox(MConfigSaveViewHistory, &Opt.SaveViewHistory);
+	Builder.AddCheckbox(MConfigRegisteredTypes, &Opt.UseRegisteredTypes);
+	Builder.AddCheckbox(MConfigCloseCDGate, &Opt.CloseCDGate);
+	Builder.AddText(MConfigPersonalPath);
+	Builder.AddEditField(&Opt.LoadPlug.strPersonalPluginsPath, 45, L"PersPath");
+	Builder.AddCheckbox(MConfigAutoSave, &Opt.AutoSaveSetup);
+	Builder.AddOKCancel();
 
-	CfgDlg[11].Selected=Opt.SaveHistory;
-	CfgDlg[12].Selected=Opt.SaveFoldersHistory;
-	CfgDlg[13].Selected=Opt.SaveViewHistory;
-	CfgDlg[14].Selected=Opt.UseRegisteredTypes;
-	CfgDlg[15].Selected=Opt.CloseCDGate;
-	CfgDlg[17].strData = Opt.LoadPlug.strPersonalPluginsPath;
-	CfgDlg[18].Selected=Opt.AutoSaveSetup;
-	{
-		Dialog Dlg((DialogItemEx*)CfgDlg,countof(CfgDlg));
-		Dlg.SetHelp(L"SystemSettings");
-		Dlg.SetPosition(-1,-1,56,23);
-		Dlg.SetAutomation(2,3,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
-		Dlg.SetAutomation(8,9,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
-		Dlg.SetAutomation(8,10,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
-		Dlg.Process();
-
-		if (Dlg.GetExitCode()!=20)
-			return;
-	}
-	Opt.ClearReadOnly=CfgDlg[1].Selected;
-	Opt.DeleteToRecycleBin=CfgDlg[2].Selected;
-	Opt.DeleteToRecycleBinKillLink=CfgDlg[3].Selected;
-	Opt.CMOpt.UseSystemCopy=CfgDlg[4].Selected;
-	Opt.CMOpt.CopyOpened=CfgDlg[5].Selected;
-	Opt.ScanJunction=CfgDlg[6].Selected;
-	Opt.CreateUppercaseFolders=CfgDlg[7].Selected;
-	Opt.InactivityExit=CfgDlg[8].Selected;
-
-	if ((Opt.InactivityExitTime=_wtoi(CfgDlg[9].strData))<=0)
-		Opt.InactivityExit=Opt.InactivityExitTime=0;
-
-	Opt.SaveHistory=CfgDlg[11].Selected;
-	Opt.SaveFoldersHistory=CfgDlg[12].Selected;
-	Opt.SaveViewHistory=CfgDlg[13].Selected;
-	Opt.UseRegisteredTypes=CfgDlg[14].Selected;
-	Opt.CloseCDGate=CfgDlg[15].Selected;
-	Opt.AutoSaveSetup=CfgDlg[18].Selected;
-	Opt.LoadPlug.strPersonalPluginsPath = CfgDlg[17].strData;
+	Builder.ShowDialog();
 }
 
 
 void PanelSettings()
 {
-	enum enumPanelSettings
-	{
-		DLG_PANEL_TITLE,
-		DLG_PANEL_HIDDEN,
-		DLG_PANEL_HIGHLIGHT,
-		DLG_PANEL_CHANGEFOLDER,
-		DLG_PANEL_SELECTFOLDERS,
-		DLG_PANEL_SORTFOLDEREXT,
-		DLG_PANEL_REVERSESORT,
-		DLG_PANEL_AUTOUPDATELIMIT,
-		DLG_PANEL_AUTOUPDATELIMIT2,
-		DLG_PANEL_AUTOUPDATELIMITVAL,
-		DLG_PANEL_AUTOUPDATEREMOTE,
-		DLG_PANEL_SEPARATOR,
-		DLG_PANEL_SHOWCOLUMNTITLES,
-		DLG_PANEL_SHOWPANELSTATUS,
-		DLG_PANEL_SHOWPANELTOTALS,
-		DLG_PANEL_SHOWPANELFREE,
-		DLG_PANEL_SHOWPANELSCROLLBAR,
-		DLG_PANEL_SHOWSCREENSNUMBER,
-		DLG_PANEL_SHOWSORTMODE,
-		DLG_PANEL_SEPARATOR2,
-		DLG_PANEL_OK,
-		DLG_PANEL_CANCEL
-	};
-	static DialogDataEx CfgDlgData[]=
-	{
-		/* 00 */DI_DOUBLEBOX, 3, 1,52,21,0,0,0,0,(const wchar_t *)MConfigPanelTitle,
-		/* 01 */DI_CHECKBOX,  5, 2, 0, 2,1,0,0,0,(const wchar_t *)MConfigHidden,
-		/* 02 */DI_CHECKBOX,  5, 3, 0, 3,0,0,0,0,(const wchar_t *)MConfigHighlight,
-		/* 03 */DI_CHECKBOX,  5, 4, 0, 4,0,0,0,0,(const wchar_t *)MConfigAutoChange,
-		/* 04 */DI_CHECKBOX,  5, 5, 0, 5,0,0,0,0,(const wchar_t *)MConfigSelectFolders,
-		/* 05 */DI_CHECKBOX,  5, 6, 0, 6,0,0,0,0,(const wchar_t *)MConfigSortFolderExt,
-		/* 06 */DI_CHECKBOX,  5, 7, 0, 7,0,0,0,0,(const wchar_t *)MConfigReverseSort,
-		/* 07 */DI_CHECKBOX,  5, 8, 0, 8,0,0,DIF_AUTOMATION,0,(const wchar_t *)MConfigAutoUpdateLimit,
-		/* 08 */DI_TEXT,      9, 9, 0, 9,0,0,0,0,(const wchar_t *)MConfigAutoUpdateLimit2,
-		/* 09 */DI_EDIT,      9, 9,15, 9,0,0,0,0,L"",
-		/* 10 */DI_CHECKBOX,  5,10, 0,10,0,0,0,0,(const wchar_t *)MConfigAutoUpdateRemoteDrive,
-		/* 11 */DI_TEXT,      3,11, 0,11,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-		/* 12 */DI_CHECKBOX,  5,12, 0,12,0,0,0,0,(const wchar_t *)MConfigShowColumns,
-		/* 13 */DI_CHECKBOX,  5,13, 0,13,0,0,0,0,(const wchar_t *)MConfigShowStatus,
-		/* 14 */DI_CHECKBOX,  5,14, 0,14,0,0,0,0,(const wchar_t *)MConfigShowTotal,
-		/* 15 */DI_CHECKBOX,  5,15, 0,15,0,0,0,0,(const wchar_t *)MConfigShowFree,
-		/* 16 */DI_CHECKBOX,  5,16, 0,16,0,0,0,0,(const wchar_t *)MConfigShowScrollbar,
-		/* 17 */DI_CHECKBOX,  5,17, 0,17,0,0,0,0,(const wchar_t *)MConfigShowScreensNumber,
-		/* 18 */DI_CHECKBOX,  5,18, 0,18,0,0,0,0,(const wchar_t *)MConfigShowSortMode,
-		/* 19 */DI_TEXT,      3,19, 0,19,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-		/* 20 */DI_BUTTON,    0,20, 0,20,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-		/* 21 */DI_BUTTON,    0,20, 0,20,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
-	};
-	MakeDialogItemsEx(CfgDlgData,CfgDlg);
-	CfgDlg[DLG_PANEL_HIDDEN].Selected=Opt.ShowHidden;
-	CfgDlg[DLG_PANEL_HIGHLIGHT].Selected=Opt.Highlight;
-	CfgDlg[DLG_PANEL_CHANGEFOLDER].Selected=Opt.Tree.AutoChangeFolder;
-	CfgDlg[DLG_PANEL_SELECTFOLDERS].Selected=Opt.SelectFolders;
-	CfgDlg[DLG_PANEL_SORTFOLDEREXT].Selected=Opt.SortFolderExt;
-	CfgDlg[DLG_PANEL_REVERSESORT].Selected=Opt.ReverseSort;
-	CfgDlg[DLG_PANEL_SHOWCOLUMNTITLES].Selected=Opt.ShowColumnTitles;
-	CfgDlg[DLG_PANEL_SHOWPANELSTATUS].Selected=Opt.ShowPanelStatus;
-	CfgDlg[DLG_PANEL_SHOWPANELTOTALS].Selected=Opt.ShowPanelTotals;
-	CfgDlg[DLG_PANEL_SHOWPANELFREE].Selected=Opt.ShowPanelFree;
-	CfgDlg[DLG_PANEL_SHOWPANELSCROLLBAR].Selected=Opt.ShowPanelScrollbar;
-	CfgDlg[DLG_PANEL_SHOWSCREENSNUMBER].Selected=Opt.ShowScreensNumber;
-	CfgDlg[DLG_PANEL_SHOWSORTMODE].Selected=Opt.ShowSortMode;
-	CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].X1+=StrLength(MSG(MConfigAutoUpdateLimit2))+1;
-	CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].X2+=StrLength(MSG(MConfigAutoUpdateLimit2))+1;
-	CfgDlg[DLG_PANEL_AUTOUPDATELIMIT].Selected=Opt.AutoUpdateLimit!=0;
-	CfgDlg[DLG_PANEL_AUTOUPDATEREMOTE].Selected=Opt.AutoUpdateRemoteDrive;
-	CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].strData.Format(L"%u", Opt.AutoUpdateLimit);;
+	DialogBuilder Builder(MConfigPanelTitle, L"PanelSettings");
+	BOOL AutoUpdate = (Opt.AutoUpdateLimit != 0);
 
-	if (Opt.AutoUpdateLimit==0)
-		CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].Flags|=DIF_DISABLE;
+	Builder.AddCheckbox(MConfigHidden, &Opt.ShowHidden);
+	Builder.AddCheckbox(MConfigHighlight, &Opt.Highlight);
+	Builder.AddCheckbox(MConfigAutoChange, &Opt.Tree.AutoChangeFolder);
+	Builder.AddCheckbox(MConfigSelectFolders, &Opt.SelectFolders);
+	Builder.AddCheckbox(MConfigSortFolderExt, &Opt.SortFolderExt);
+	Builder.AddCheckbox(MConfigReverseSort, &Opt.ReverseSort);
+	
+	DialogItemEx *AutoUpdateEnabled = Builder.AddCheckbox(MConfigAutoUpdateLimit, &AutoUpdate);
+	DialogItemEx *AutoUpdateLimit = Builder.AddIntEditField((int *) &Opt.AutoUpdateLimit, 6);
+	Builder.LinkFlags(AutoUpdateEnabled, AutoUpdateLimit, DIF_DISABLE, false);
+	DialogItemEx *AutoUpdateText = Builder.AddTextBefore(AutoUpdateLimit, MConfigAutoUpdateLimit2);
+	AutoUpdateLimit->Indent(4);
+	AutoUpdateText->Indent(4);
+	Builder.AddCheckbox(MConfigAutoUpdateRemoteDrive, &Opt.AutoUpdateRemoteDrive);
 
+	Builder.AddSeparator();
+	Builder.AddCheckbox(MConfigShowColumns, &Opt.ShowColumnTitles);
+	Builder.AddCheckbox(MConfigShowStatus, &Opt.ShowPanelStatus);
+	Builder.AddCheckbox(MConfigShowTotal, &Opt.ShowPanelTotals);
+	Builder.AddCheckbox(MConfigShowFree, &Opt.ShowPanelFree);
+	Builder.AddCheckbox(MConfigShowScrollbar, &Opt.ShowPanelScrollbar);
+	Builder.AddCheckbox(MConfigShowScreensNumber, &Opt.ShowScreensNumber);
+	Builder.AddCheckbox(MConfigShowSortMode, &Opt.ShowSortMode);
+	Builder.AddOKCancel();
+
+	if (Builder.ShowDialog()) 
 	{
-		Dialog Dlg(CfgDlg,countof(CfgDlg));
-		Dlg.SetHelp(L"PanelSettings");
-		Dlg.SetPosition(-1,-1,56,23);
-		Dlg.SetAutomation(DLG_PANEL_AUTOUPDATELIMIT,DLG_PANEL_AUTOUPDATELIMITVAL,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
-		Dlg.Process();
+		if (!AutoUpdate)
+			Opt.AutoUpdateLimit = 0;
 
-		if (Dlg.GetExitCode() != DLG_PANEL_OK)
-			return;
+	//  FrameManager->RefreshFrame();
+		CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+		CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+		CtrlObject->Cp()->Redraw();
 	}
-	Opt.ShowHidden=CfgDlg[DLG_PANEL_HIDDEN].Selected;
-	Opt.Highlight=CfgDlg[DLG_PANEL_HIGHLIGHT].Selected;
-	Opt.Tree.AutoChangeFolder=CfgDlg[DLG_PANEL_CHANGEFOLDER].Selected;
-	Opt.SelectFolders=CfgDlg[DLG_PANEL_SELECTFOLDERS].Selected;
-	Opt.SortFolderExt=CfgDlg[DLG_PANEL_SORTFOLDEREXT].Selected;
-	Opt.ReverseSort=CfgDlg[DLG_PANEL_REVERSESORT].Selected;
-
-	if (!CfgDlg[DLG_PANEL_AUTOUPDATELIMIT].Selected)
-		Opt.AutoUpdateLimit=0;
-	else
-	{
-		wchar_t *endptr;
-		Opt.AutoUpdateLimit=wcstoul(CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].strData, &endptr, 10);
-	}
-
-	Opt.ShowColumnTitles=CfgDlg[DLG_PANEL_SHOWCOLUMNTITLES].Selected;
-	Opt.ShowPanelStatus=CfgDlg[DLG_PANEL_SHOWPANELSTATUS].Selected;
-	Opt.ShowPanelTotals=CfgDlg[DLG_PANEL_SHOWPANELTOTALS].Selected;
-	Opt.ShowPanelFree=CfgDlg[DLG_PANEL_SHOWPANELFREE].Selected;
-	Opt.ShowPanelScrollbar=CfgDlg[DLG_PANEL_SHOWPANELSCROLLBAR].Selected;
-	Opt.ShowScreensNumber=CfgDlg[DLG_PANEL_SHOWSCREENSNUMBER].Selected;
-	Opt.ShowSortMode=CfgDlg[DLG_PANEL_SHOWSORTMODE].Selected;
-	Opt.AutoUpdateRemoteDrive=CfgDlg[DLG_PANEL_AUTOUPDATEREMOTE].Selected;
-//  FrameManager->RefreshFrame();
-	CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
-	CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
-	CtrlObject->Cp()->Redraw();
 }
 
 
@@ -327,7 +204,7 @@ void InterfaceSettings()
 	
 	DialogItemEx *SaverEdit = Builder.AddIntEditField(&Opt.ScreenSaverTime, 2);
 	SaverEdit->Indent(4);
-	Builder.AddSuffixText(SaverEdit, MConfigSaverMinutes);
+	Builder.AddTextAfter(SaverEdit, MConfigSaverMinutes);
 	Builder.LinkFlags(SaverCheckbox, SaverEdit, DIF_DISABLE);
 
 	Builder.AddCheckbox(MConfigCopyTotal, &Opt.CMOpt.CopyShowTotal);
@@ -518,74 +395,26 @@ void SetPluginConfirmations()
 
 void SetDizConfig()
 {
-	static DialogDataEx DizDlgData[]=
-	{
-		/* 00 */DI_DOUBLEBOX,3,1,72,17,0,0,0,0,(const wchar_t *)MCfgDizTitle,
-		/* 01 */DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MCfgDizListNames,
-		/* 02 */DI_EDIT,5,3,70,3,1,0,0,0,L"",
-		/* 03 */DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-		/* 04 */DI_CHECKBOX,5,5,0,5,0,0,0,0,(const wchar_t *)MCfgDizSetHidden,
-		/* 05 */DI_CHECKBOX,5,6,0,6,0,0,0,0,(const wchar_t *)MCfgDizROUpdate,
-		/* 06 */DI_FIXEDIT,5,7,7,7,0,0,0,0,L"",
-		/* 07 */DI_TEXT,9,7,0,7,0,0,0,0,(const wchar_t *)MCfgDizStartPos,
-		/* 08 */DI_TEXT,3,8,0,8,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-		/* 09 */DI_RADIOBUTTON,5,9,0,9,0,0,DIF_GROUP,0,(const wchar_t *)MCfgDizNotUpdate,
-		/* 10 */DI_RADIOBUTTON,5,10,0,10,0,0,0,0,(const wchar_t *)MCfgDizUpdateIfDisplayed,
-		/* 11 */DI_RADIOBUTTON,5,11,0,11,0,0,0,0,(const wchar_t *)MCfgDizAlwaysUpdate,
-		/* 12 */DI_TEXT,3,12,0,12,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-		/* 13 */DI_CHECKBOX,5,13,0,13,0,0,0,0,(const wchar_t *)MCfgDizAnsiByDefault,
-		/* 14 */DI_CHECKBOX,5,14,0,14,0,0,0,0,(const wchar_t *)MCfgDizSaveInUTF,
-		/* 15 */DI_TEXT,3,15,0,15,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-		/* 16 */DI_BUTTON,0,16,0,16,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-		/* 17 */DI_BUTTON,0,16,0,16,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
-	};
-	MakeDialogItemsEx(DizDlgData,DizDlg);
-	DizDlg[2].strData=Opt.Diz.strListNames;
-	DizDlg[4].Selected=Opt.Diz.SetHidden;
-	DizDlg[5].Selected=Opt.Diz.ROUpdate;
-	DizDlg[6].strData.Format(L"%d", Opt.Diz.StartPos);
+	DialogBuilder Builder(MCfgDizTitle, L"FileDiz");
 
-	if (Opt.Diz.UpdateMode==DIZ_NOT_UPDATE)
-	{
-		DizDlg[9].Selected=TRUE;
-	}
-	else
-	{
-		if (Opt.Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED)
-			DizDlg[10].Selected=TRUE;
-		else
-			DizDlg[11].Selected=TRUE;
-	}
+	Builder.AddText(MCfgDizListNames);
+	Builder.AddEditField(&Opt.Diz.strListNames, 65);
+	Builder.AddSeparator();
 
-	DizDlg[13].Selected=Opt.Diz.AnsiByDefault;
-	DizDlg[14].Selected=Opt.Diz.SaveInUTF;
-	Dialog Dlg((DialogItemEx*)DizDlg,countof(DizDlg));
-	Dlg.SetPosition(-1,-1,76,19);
-	Dlg.SetHelp(L"FileDiz");
-	Dlg.Process();
+	Builder.AddCheckbox(MCfgDizSetHidden, &Opt.Diz.SetHidden);
+	Builder.AddCheckbox(MCfgDizROUpdate, &Opt.Diz.ROUpdate);
+	DialogItemEx *StartPos = Builder.AddIntEditField(&Opt.Diz.StartPos, 2);
+	Builder.AddTextAfter(StartPos, MCfgDizStartPos);
+	Builder.AddSeparator();
 
-	if (Dlg.GetExitCode()!=16)
-		return;
+	static int DizOptions[] = { MCfgDizNotUpdate, MCfgDizUpdateIfDisplayed, MCfgDizAlwaysUpdate };
+	Builder.AddRadioButtons(&Opt.Diz.UpdateMode, 3, DizOptions);
+	Builder.AddSeparator();
 
-	Opt.Diz.strListNames=DizDlg[2].strData;
-	Opt.Diz.SetHidden=DizDlg[4].Selected;
-	Opt.Diz.ROUpdate=DizDlg[5].Selected;
-	Opt.Diz.StartPos=_wtoi(DizDlg[6].strData);
-
-	if (DizDlg[9].Selected)
-	{
-		Opt.Diz.UpdateMode=DIZ_NOT_UPDATE;
-	}
-	else
-	{
-		if (DizDlg[10].Selected)
-			Opt.Diz.UpdateMode=DIZ_UPDATE_IF_DISPLAYED;
-		else
-			Opt.Diz.UpdateMode=DIZ_UPDATE_ALWAYS;
-	}
-
-	Opt.Diz.AnsiByDefault=DizDlg[13].Selected;
-	Opt.Diz.SaveInUTF=DizDlg[14].Selected;
+	Builder.AddCheckbox(MCfgDizAnsiByDefault, &Opt.Diz.AnsiByDefault);
+	Builder.AddCheckbox(MCfgDizSaveInUTF, &Opt.Diz.SaveInUTF);
+	Builder.AddOKCancel();
+	Builder.ShowDialog();
 }
 
 void ViewerConfig(ViewerOptions &ViOpt,int Local)

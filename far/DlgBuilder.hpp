@@ -49,30 +49,44 @@ class DialogBuilder
 		void ReallocDialogItems();
 		void UpdateBorderSize();
 		int MaxTextWidth();
-		void SaveValue(DialogItemEx *Item);
+		void SaveValue(DialogItemEx *Item, int RadioGroupIndex);
 		void SetNextY(DialogItemEx *Item);
+		void LinkFlagsByID(DialogItemEx *Parent, int TargetID, FarDialogItemFlags Flags);
 
 	public:
 		DialogBuilder(int TitleMessageId, const wchar_t *HelpTopic);
 		~DialogBuilder();
+
+		// Добавляет чекбокс.
 		DialogItemEx *AddCheckbox(int TextMessageId, BOOL *Value);
+
+		// Добавляет группу радиокнопок.
+		void AddRadioButtons(int *Value, int OptionCount, int MessageIDs[]);
 
 		// Добавляет статический текст, расположенный на отдельной строке в диалоге.
 		DialogItemEx *AddText(int LabelId);
 
 		// Добавляет поле типа DI_EDIT для редактирования указанного строкового значения.
-		DialogItemEx *AddEditField(string *Value, int Width);
+		DialogItemEx *AddEditField(string *Value, int Width, const wchar_t *HistoryID = NULL);
 
 		// Добавляет поле типа DI_FIXEDIT для редактирования указанного числового значения.
 		DialogItemEx *AddIntEditField(int *Value, int Width);
 
+		// Добавляет указанную текстовую строку слева от элемента RelativeTo.
+		DialogItemEx *AddTextBefore(DialogItemEx *RelativeTo, int LabelId);
+
 		// Добавляет указанную текстовую строку справа от элемента RelativeTo.
-		void AddSuffixText(DialogItemEx *RelativeTo, int LabelId);
+		DialogItemEx *AddTextAfter(DialogItemEx *RelativeTo, int LabelId);
 
 		// Связывает состояние элементов Parent и Target. Когда Parent->Selected равно
 		// false, устанавливает флаги Flags у элемента Target; когда равно true -
 		// сбрасывает флаги.
-		void LinkFlags(DialogItemEx *Parent, DialogItemEx *Target, FarDialogItemFlags Flags);
+		// Если LinkLabels установлено в true, то текстовые элементы, добавленные к элементу Target
+		// методами AddTextBefore и AddTextAfter, также связываются с элементом Parent.
+		void LinkFlags(DialogItemEx *Parent, DialogItemEx *Target, FarDialogItemFlags Flags, bool LinkLabels=true);
+
+		// Добавляет сепаратор.
+		void AddSeparator();
 
 		// Добавляет сепаратор, кнопки OK и Cancel.
 		void AddOKCancel();
