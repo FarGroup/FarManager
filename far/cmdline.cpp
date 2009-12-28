@@ -498,19 +498,24 @@ int CommandLine::ProcessKey(int Key)
 										int Key=InputRecordToKey(&ir);
 										if(Key==KEY_ENTER || Key==KEY_NUMENTER)
 										{
+											ComplMenu.Hide();
 											ComplMenu.ProcessInput();
 											ProcessKey(Key);
 										}
-										if(Key==KEY_TAB)
+										else if(Key==KEY_TAB)
 										{
 											ComplMenu.SetExitCode(-1);
 											CtrlObject->Cp()->ProcessKey(Key);
+										}
+										else if(Key==KEY_CTRLEND)
+										{
+											ComplMenu.ProcessKey(KEY_DOWN);
 										}
 										else if(Key==KEY_LEFT || Key == KEY_RIGHT || Key==KEY_NUMPAD4 || Key == KEY_NUMPAD6 || 	Key==KEY_CTRLS || Key == KEY_CTRLD)
 										{
 											CmdStr.ProcessKey(Key);
 										}
-										else if((Key >= L' ' && Key <= WCHAR_MAX) || Key==KEY_BS)
+										else if((Key >= L' ' && Key <= WCHAR_MAX) || Key==KEY_BS || Key==KEY_DEL)
 										{
 											CmdStr.ProcessKey(Key);
 											CmdStr.GetString(strTemp);

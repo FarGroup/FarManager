@@ -136,7 +136,7 @@ void SystemSettings()
 	Builder.AddCheckbox(MConfigRegisteredTypes, &Opt.UseRegisteredTypes);
 	Builder.AddCheckbox(MConfigCloseCDGate, &Opt.CloseCDGate);
 	Builder.AddText(MConfigPersonalPath);
-	Builder.AddEditField(&Opt.LoadPlug.strPersonalPluginsPath, 45, L"PersPath");
+	Builder.AddEditField(&Opt.LoadPlug.strPersonalPluginsPath, 45, L"PersPath")->Flags|=DIF_EDITEXPAND|DIF_EDITPATH;
 	Builder.AddCheckbox(MConfigAutoSave, &Opt.AutoSaveSetup);
 	Builder.AddOKCancel();
 
@@ -444,7 +444,7 @@ void ViewerConfig(ViewerOptions &ViOpt,int Local)
 		/*  0 */  DI_DOUBLEBOX,  3, 1,70,14,0,0,0,0,(const wchar_t *)MViewConfigTitle,
 		/*  1 */  DI_CHECKBOX,   5, 2, 0, 2,1,0,0,0,(const wchar_t *)MViewConfigExternalF3,
 		/*  2 */  DI_TEXT,       5, 3, 0, 3,0,0,0,0,(const wchar_t *)MViewConfigExternalCommand,
-		/*  3 */  DI_EDIT,       5, 4,68, 4,0,(DWORD_PTR)L"ExternalViewer", DIF_HISTORY,0,L"",
+		/*  3 */  DI_EDIT,       5, 4,68, 4,0,(DWORD_PTR)L"ExternalViewer", DIF_HISTORY|DIF_EDITEXPAND|DIF_EDITPATH,0,L"",
 		/*  4 */  DI_TEXT,       0, 5, 0, 5, 0, 0, DIF_SEPARATOR, 0, (const wchar_t *)MViewConfigInternal,
 		/*  5 */  DI_CHECKBOX,   5, 6, 0, 6,0,0,0,0,(const wchar_t *)MViewConfigPersistentSelection,
 		/*  6 */  DI_CHECKBOX,  38, 6, 0, 6,0,0,0,0,(const wchar_t *)MViewConfigArrows,
@@ -561,7 +561,7 @@ void EditorConfig(EditorOptions &EdOpt,int Local)
 		DI_DOUBLEBOX, 3, 1,70,22,0,0,0,0,(const wchar_t *)MEditConfigTitle,
 		DI_CHECKBOX,  5, 2, 0, 2,0,0,0,0,(const wchar_t *)MEditConfigEditorF4,
 		DI_TEXT,      5, 3, 0, 3,0,0,0,0,(const wchar_t *)MEditConfigEditorCommand,
-		DI_EDIT,      5, 4,68, 4,0,(DWORD_PTR)L"ExternalEditor",DIF_HISTORY,0,L"",
+		DI_EDIT,      5, 4,68, 4,0,(DWORD_PTR)L"ExternalEditor",DIF_HISTORY|DIF_EDITEXPAND|DIF_EDITPATH,0,L"",
 		DI_TEXT,      0, 5, 0, 5,0,0,DIF_SEPARATOR, 0, (const wchar_t *)MEditConfigInternal,
 		DI_TEXT,      5, 6, 0, 6,0,0,0,0,(const wchar_t *)MEditConfigExpandTabsTitle,
 		DI_COMBOBOX,  5, 7,68, 7,1,0,DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE,0,L"",

@@ -4109,7 +4109,7 @@ int Dialog::SetAutomation(WORD IDParent,WORD id,
 */
 bool Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &strFindStr)
 {
-	bool Result=FALSE;
+	bool Result=false;
 	CriticalSectionLock Lock(CS);
 
 	if (HistoryName)
@@ -4198,7 +4198,11 @@ bool Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &st
 								ComplMenu.ProcessInput();
 								ProcessKey(Key);
 							}
-							if(Key==KEY_TAB || Key==KEY_CTRLF5)
+							else if(Key==KEY_CTRLEND)
+							{
+								ComplMenu.ProcessKey(KEY_DOWN);
+							}
+							else if(Key==KEY_TAB || Key==KEY_CTRLF5)
 							{
 								ComplMenu.SetExitCode(-1);
 								ProcessKey(Key);
@@ -4209,7 +4213,7 @@ bool Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &st
 								EditLine->ProcessKey(Key);
 								IsEnableRedraw++;
 							}
-							else if((Key >= L' ' && Key <= WCHAR_MAX) || Key==KEY_BS)
+							else if((Key >= L' ' && Key <= WCHAR_MAX) || Key==KEY_BS || Key==KEY_DEL)
 							{
 								IsEnableRedraw--;
 								EditLine->ProcessKey(Key);
