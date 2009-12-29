@@ -148,7 +148,7 @@ static int MainProcess(
 		GetSystemInfo(&SystemInfo);
 
 		if( Opt.IsUserAdmin )
-			SetEnvironmentVariable(L"FARADMINMODE", MSG(MConfigCmdlinePromptFormatAdmin));
+			SetEnvironmentVariable(L"FARADMINMODE", L"1");
 
 		if (*lpwszEditName || *lpwszViewName)
 		{

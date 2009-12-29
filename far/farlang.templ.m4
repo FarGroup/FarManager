@@ -1623,12 +1623,12 @@ MConfigCmdlineUsePromptFormat
 "Wy&gląd znaku zachęty linii poleceń"
 
 MConfigCmdlinePromptFormatAdmin
-"(Администратор)"
-"(Administrator)"
-upd:"(Administrator)"
-upd:"(Administrator)"
-upd:"(Administrator)"
-upd:"(Administrator)"
+"Администратор"
+"Administrator"
+upd:"Administrator"
+upd:"Administrator"
+upd:"Administrator"
+upd:"Administrator"
 
 MConfigInfoPanelTitle
 l:

@@ -2247,6 +2247,10 @@ code words:
      $$ - the $ character
      $+ - глубина стека каталогов
 
+     $@@xx - ^<wrap>"Администратор", если FAR Manager запущен от имени администратора. 
+Вместо 'xx' необходимо указать два символа, которые будут обрамлять слово "Администратор". 
+Например, #$@@{}$s$p$g# будет представлен как "{Администратор} C:\>"
+
    By default the #$p$g# sequence is used - current drive and
 path ("C:\>").
 
@@ -3781,7 +3785,7 @@ to child processes:
 
     #FARDIRSTACK#        ^<wrap>the contents of directories stack top (the stack is managed with #pushd# and #popd# commands)
 
-    #FARADMINMODE#       ^<wrap>равна "Администратор", если FAR Manager запущен от имени администратора
+    #FARADMINMODE#       ^<wrap>равна "1", если FAR Manager запущен от имени администратора
 
 
 @RegExp

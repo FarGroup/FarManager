@@ -705,6 +705,18 @@ void CommandLine::GetPrompt(string &strDestStr)
 
 							break;
 						}
+						case L'@': // $@xx - Admin
+						{
+							wchar_t lb=*++Format;
+							wchar_t rb=*++Format;
+							if ( Opt.IsUserAdmin )
+							{
+								strDestStr += lb;
+								strDestStr += MSG(MConfigCmdlinePromptFormatAdmin);
+								strDestStr += rb;
+							}
+							break;
+						}
 						case L'D': // $D - Current date
 						case L'T': // $T - Current time
 						{
