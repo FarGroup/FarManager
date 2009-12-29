@@ -566,9 +566,9 @@ int CommandLine::ProcessKey(int Key)
 
 							//select the appropriate text
 							if (Opt.Dialogs.ConfirmAutoComplete)
-								CmdStr.SelectTransient(SelEnd,static_cast<int>(CmdStr.GetLength())); 
+								CmdStr.SelectTransient(SelEnd,static_cast<int>(CmdStr.GetLength()));
 							else
-								CmdStr.Select(SelEnd,static_cast<int>(CmdStr.GetLength())); 
+								CmdStr.Select(SelEnd,static_cast<int>(CmdStr.GetLength()));
 
 							CmdStr.SetCurPos(CurPos); // SelEnd
 						}
@@ -699,11 +699,12 @@ void CommandLine::GetPrompt(string &strDestStr)
 							break;
 						}
 						case L'H': // $H - Backspace (erases previous character)
-
+						{
 							if (!strDestStr.IsEmpty())
 								strDestStr.SetLength(strDestStr.GetLength()-1);
 
 							break;
+						}
 						case L'D': // $D - Current date
 						case L'T': // $T - Current time
 						{
@@ -713,16 +714,19 @@ void CommandLine::GetPrompt(string &strDestStr)
 							break;
 						}
 						case L'N': // $N - Current drive
-
+						{
 							if (IsLocalPath(strCurDir) && IsSlash(strCurDir.At(2)))
 								strDestStr += Upper(strCurDir.At(0));
 							else
 								strDestStr += L'?';
 
 							break;
+						}
 						case L'P': // $P - Current drive and path
+						{
 							strDestStr += strCurDir;
 							break;
+						}
 					}
 				}
 

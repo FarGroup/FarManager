@@ -74,7 +74,9 @@ inline void __cdecl StrUpper(wchar_t *s1) { UpperBuf(s1, StrLength(s1)); }
 
 inline void __cdecl StrLower(wchar_t *s1) { LowerBuf(s1, StrLength(s1)); }
 
+const wchar_t * __cdecl StrStr(const wchar_t *str1, const wchar_t *str2);
 const wchar_t * __cdecl StrStrI(const wchar_t *str1, const wchar_t *str2);
+const wchar_t * __cdecl RevStrStr(const wchar_t *str1, const wchar_t *str2);
 const wchar_t * __cdecl RevStrStrI(const wchar_t *str1, const wchar_t *str2);
 
 int __cdecl NumStrCmpN(const wchar_t *s1, const wchar_t *s2, int n);

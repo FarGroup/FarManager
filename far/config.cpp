@@ -114,22 +114,22 @@ void SystemSettings()
 	DialogBuilder Builder(MConfigSystemTitle, L"SystemSettings");
 
 	Builder.AddCheckbox(MConfigRO, &Opt.ClearReadOnly);
-	
+
 	DialogItemEx *DeleteToRecycleBin = Builder.AddCheckbox(MConfigRecycleBin, &Opt.DeleteToRecycleBin);
 	DialogItemEx *DeleteLinks = Builder.AddCheckbox(MConfigRecycleBinLink, &Opt.DeleteToRecycleBinKillLink);
 	DeleteLinks->Indent(4);
 	Builder.LinkFlags(DeleteToRecycleBin, DeleteLinks, DIF_DISABLE);
-	
+
 	Builder.AddCheckbox(MConfigSystemCopy, &Opt.CMOpt.UseSystemCopy);
 	Builder.AddCheckbox(MConfigCopySharing, &Opt.CMOpt.CopyOpened);
 	Builder.AddCheckbox(MConfigScanJunction, &Opt.ScanJunction);
-	
+
 	DialogItemEx *InactivityExit = Builder.AddCheckbox(MConfigInactivity, &Opt.InactivityExit);
 	DialogItemEx *InactivityExitTime = Builder.AddIntEditField(&Opt.InactivityExitTime, 2);
 	InactivityExitTime->Indent(4);
 	Builder.AddTextAfter(InactivityExitTime, MConfigInactivityMinutes);
 	Builder.LinkFlags(InactivityExit, InactivityExitTime, DIF_DISABLE);
-	
+
 	Builder.AddCheckbox(MConfigSaveHistory, &Opt.SaveHistory);
 	Builder.AddCheckbox(MConfigSaveFoldersHistory, &Opt.SaveFoldersHistory);
 	Builder.AddCheckbox(MConfigSaveViewHistory, &Opt.SaveViewHistory);
@@ -155,7 +155,7 @@ void PanelSettings()
 	Builder.AddCheckbox(MConfigSelectFolders, &Opt.SelectFolders);
 	Builder.AddCheckbox(MConfigSortFolderExt, &Opt.SortFolderExt);
 	Builder.AddCheckbox(MConfigReverseSort, &Opt.ReverseSort);
-	
+
 	DialogItemEx *AutoUpdateEnabled = Builder.AddCheckbox(MConfigAutoUpdateLimit, &AutoUpdate);
 	DialogItemEx *AutoUpdateLimit = Builder.AddIntEditField((int *) &Opt.AutoUpdateLimit, 6);
 	Builder.LinkFlags(AutoUpdateEnabled, AutoUpdateLimit, DIF_DISABLE, false);
@@ -174,7 +174,7 @@ void PanelSettings()
 	Builder.AddCheckbox(MConfigShowSortMode, &Opt.ShowSortMode);
 	Builder.AddOKCancel();
 
-	if (Builder.ShowDialog()) 
+	if (Builder.ShowDialog())
 	{
 		if (!AutoUpdate)
 			Opt.AutoUpdateLimit = 0;
@@ -201,7 +201,7 @@ void InterfaceSettings()
 	Builder.AddCheckbox(MConfigKeyBar, &Opt.ShowKeyBar);
 	Builder.AddCheckbox(MConfigMenuBar, &Opt.ShowMenuBar);
 	DialogItemEx *SaverCheckbox = Builder.AddCheckbox(MConfigSaver, &Opt.ScreenSaver);
-	
+
 	DialogItemEx *SaverEdit = Builder.AddIntEditField(&Opt.ScreenSaverTime, 2);
 	SaverEdit->Indent(4);
 	Builder.AddTextAfter(SaverEdit, MConfigSaverMinutes);
@@ -339,7 +339,7 @@ void CmdlineSettings()
 	Builder.AddCheckbox(MConfigCmdlineEditBlock, &Opt.CmdLine.EditBlock);
 	Builder.AddCheckbox(MConfigCmdlineDelRemovesBlocks, &Opt.CmdLine.DelRemovesBlocks);
 	Builder.AddCheckbox(MConfigCmdlineAutoComplete, &Opt.CmdLine.AutoComplete);
-	DialogItemEx *UsePromptFormat = Builder.AddCheckbox(MConfigUsePromptFormat, &Opt.CmdLine.UsePromptFormat);
+	DialogItemEx *UsePromptFormat = Builder.AddCheckbox(MConfigCmdlineUsePromptFormat, &Opt.CmdLine.UsePromptFormat);
 	DialogItemEx *PromptFormat = Builder.AddEditField(&Opt.CmdLine.strPromptFormat, 19);
 	PromptFormat->Indent(4);
 	Builder.LinkFlags(UsePromptFormat, PromptFormat, DIF_DISABLE);
@@ -355,7 +355,7 @@ void CmdlineSettings()
 void SetConfirmations()
 {
 	DialogBuilder Builder(MSetConfirmTitle, L"ConfirmDlg");
-	
+
 	Builder.AddCheckbox(MSetConfirmCopy, &Opt.Confirm.Copy);
 	Builder.AddCheckbox(MSetConfirmMove, &Opt.Confirm.Move);
 	Builder.AddCheckbox(MSetConfirmRO, &Opt.Confirm.RO);

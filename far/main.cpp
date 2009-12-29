@@ -147,6 +147,9 @@ static int MainProcess(
 		SetRealColor(COL_COMMANDLINEUSERSCREEN);
 		GetSystemInfo(&SystemInfo);
 
+		if( Opt.IsUserAdmin )
+			SetEnvironmentVariable(L"FARADMINMODE", MSG(MConfigCmdlinePromptFormatAdmin));
+
 		if (*lpwszEditName || *lpwszViewName)
 		{
 			Opt.OnlyEditorViewerUsed=1;

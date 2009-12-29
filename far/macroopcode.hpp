@@ -138,7 +138,7 @@ enum MACRO_OP_CODE
 	MCODE_F_FEXIST,                   // S=fexist(S)
 	MCODE_F_FSPLIT,                   // S=fsplit(S,N)
 	MCODE_F_IIF,                      // V=iif(C,V1,V2)
-	MCODE_F_INDEX,                    // S=index(S1,S2)
+	MCODE_F_INDEX,                    // S=index(S1,S2[,Mode])
 	MCODE_F_INT,                      // N=int(V)
 	MCODE_F_ITOA,                     // S=itoa(N[,radix])
 	MCODE_F_KEY,                      // S=key(V)
@@ -159,7 +159,7 @@ enum MACRO_OP_CODE
 	MCODE_F_PANEL_SETPOSIDX,          // N=Panel.SetPosIdx(panelType,Idx)
 	MCODE_F_PANELITEM,                // V=PanelItem(Panel,Index,TypeInfo)
 	MCODE_F_EVAL,                     // N=eval(S[,N])
-	MCODE_F_RINDEX,                   // S=rindex(S1,S2)
+	MCODE_F_RINDEX,                   // S=rindex(S1,S2[,Mode])
 	MCODE_F_SLEEP,                    // Sleep(N)
 	MCODE_F_STRING,                   // S=string(V)
 	MCODE_F_SUBSTR,                   // S=substr(s1,s2)
@@ -168,7 +168,7 @@ enum MACRO_OP_CODE
 	MCODE_F_XLAT,                     // S=xlat(S)
 	MCODE_F_FLOCK,                    // N=FLock(N,N)
 	MCODE_F_CALLPLUGIN,               // V=callplugin(SysID[,param])
-	MCODE_F_REPLACE,                  // S=replace(sS,sF,sR[,Count])
+	MCODE_F_REPLACE,                  // S=replace(sS,sF,sR[,Count[,Mode]])
 	MCODE_F_PROMPT,                   // S=prompt("Title"[,"Prompt"[,flags[, "Src"[, "History"]]]])
 	MCODE_F_BM_ADD,                   // N=BM.Add()  - добавить текущие координаты и обрезать хвост
 	MCODE_F_BM_CLEAR,                 // N=BM.Clear() - очистить все закладки

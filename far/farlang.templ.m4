@@ -1468,14 +1468,6 @@ MConfigSaverMinutes
 "perc tétlenség után"
 "m&inut"
 
-MConfigUsePromptFormat
-"Установить &формат командной строки"
-"Set command line &prompt format"
-"Nastavit formát &příkazového řádku"
-"&Promptformat der Kommandozeile"
-"Parancssori &prompt formátuma"
-"Wy&gląd znaku zachęty linii poleceń"
-
 MConfigCopyTotal
 "Показывать &общий индикатор копирования"
 "Show &total copy progress indicator"
@@ -1621,6 +1613,22 @@ upd:"AutoComplete"
 upd:"AutoComplete"
 upd:"AutoComplete"
 upd:"AutoComplete"
+
+MConfigCmdlineUsePromptFormat
+"Установить &формат командной строки"
+"Set command line &prompt format"
+"Nastavit formát &příkazového řádku"
+"&Promptformat der Kommandozeile"
+"Parancssori &prompt formátuma"
+"Wy&gląd znaku zachęty linii poleceń"
+
+MConfigCmdlinePromptFormatAdmin
+"(Администратор)"
+"(Administrator)"
+upd:"(Administrator)"
+upd:"(Administrator)"
+upd:"(Administrator)"
+upd:"(Administrator)"
 
 MConfigInfoPanelTitle
 l:

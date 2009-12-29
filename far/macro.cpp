@@ -1858,29 +1858,31 @@ static bool iifFunc()
 	return true;
 }
 
-// N=index(S1,S2)
+// N=index(S1,S2[,Mode])
 static bool indexFunc()
 {
-	TVar S2, S1;
-	VMStack.Pop(S2);
-	VMStack.Pop(S1);
+	TVar Mode;  VMStack.Pop(Mode);
+	TVar S2;    VMStack.Pop(S2);
+	TVar S1;    VMStack.Pop(S1);
+
 	const wchar_t *s = S1.toString();
 	const wchar_t *p = S2.toString();
-	const wchar_t *i = StrStrI(s,p);
+	const wchar_t *i = !Mode.getInteger() ? StrStrI(s,p) : StrStr(s,p);
 	bool Ret= i ? true : false;
 	VMStack.Push(TVar((__int64)(i ? i-s : -1)));
 	return Ret;
 }
 
-// S=rindex(S1,S2)
+// S=rindex(S1,S2[,Mode])
 static bool rindexFunc()
 {
-	TVar S2, S1;
-	VMStack.Pop(S2);
-	VMStack.Pop(S1);
+	TVar Mode;  VMStack.Pop(Mode);
+	TVar S2;    VMStack.Pop(S2);
+	TVar S1;    VMStack.Pop(S1);
+
 	const wchar_t *s = S1.toString();
 	const wchar_t *p = S2.toString();
-	const wchar_t *i = RevStrStrI(s,p);
+	const wchar_t *i = !Mode.getInteger() ? RevStrStrI(s,p) : RevStrStr(s,p);
 	bool Ret= i ? true : false;
 	VMStack.Push(TVar((__int64)(i ? i-s : -1)));
 	return Ret;
@@ -2531,6 +2533,11 @@ static bool msaveFunc()
 			Ret=SetRegKey64(L"KeyMacros\\Vars",strValueName,rrr);
 			break;
 		}
+		case vtDouble:
+		{
+			Ret=(DWORD)_RegWriteString(L"KeyMacros\\Vars",strValueName,Result.toString());
+			break;
+		}
 		case vtString:
 		{
 			Ret=(DWORD)_RegWriteString(L"KeyMacros\\Vars",strValueName,Result.toString());
@@ -2671,10 +2678,8 @@ static bool panelsetposidxFunc()
 // N=panel.SetPath(panelType,pathName[,fileName])
 static bool panelsetpathFunc()
 {
-	TVar ValFileName;
-	VMStack.Pop(ValFileName);
-	TVar Val;
-	VMStack.Pop(Val);
+	TVar ValFileName;  VMStack.Pop(ValFileName);
+	TVar Val;          VMStack.Pop(Val);
 	int typePanel=(int)VMStack.Pop().getInteger();
 	__int64 Ret=0;
 
@@ -2718,8 +2723,7 @@ static bool panelsetpathFunc()
 // N=Panel.SetPos(panelType,fileName)
 static bool panelsetposFunc()
 {
-	TVar Val;
-	VMStack.Pop(Val);
+	TVar Val; VMStack.Pop(Val);
 	int typePanel=(int)VMStack.Pop().getInteger();
 	const wchar_t *fileName=Val.s();
 
@@ -2759,13 +2763,14 @@ static bool panelsetposFunc()
 	return Ret?true:false;
 }
 
-// Result=replace(Str,Find,Replace[,Cnt])
+// Result=replace(Str,Find,Replace[,Cnt[,Mode]])
 static bool replaceFunc()
 {
+	int Mode=(int)VMStack.Pop().getInteger();
 	TVar Count; VMStack.Pop(Count);
-	TVar Repl; VMStack.Pop(Repl);
-	TVar Find; VMStack.Pop(Find);
-	TVar Src; VMStack.Pop(Src);
+	TVar Repl;  VMStack.Pop(Repl);
+	TVar Find;  VMStack.Pop(Find);
+	TVar Src;   VMStack.Pop(Src);
 	__int64 Ret=1;
 	// TODO: Здесь нужно проверить в соответствии с УНИХОДОМ!
 	string strStr;
@@ -2775,10 +2780,21 @@ static bool replaceFunc()
 	int cnt=0;
 	const wchar_t *Ptr=Src.s();
 
-	while ((Ptr=StrStrI(Ptr,Find.s())) != NULL)
+	if( !Mode )
 	{
-		cnt++;
-		Ptr+=lenF;
+		while ((Ptr=StrStrI(Ptr,Find.s())) != NULL)
+		{
+			cnt++;
+			Ptr+=lenF;
+		}
+	}
+	else
+	{
+		while ((Ptr=StrStr(Ptr,Find.s())) != NULL)
+		{
+			cnt++;
+			Ptr+=lenF;
+		}
 	}
 
 	if (cnt)
@@ -2792,7 +2808,7 @@ static bool replaceFunc()
 		if (cnt <= 0)
 			cnt=-1;
 
-		ReplaceStrings(strStr,Find.s(),Repl.s(),cnt,TRUE);
+		ReplaceStrings(strStr,Find.s(),Repl.s(),cnt,!Mode);
 		VMStack.Push((const wchar_t *)strStr);
 	}
 	else
@@ -3847,8 +3863,8 @@ done:
 				{MCODE_F_IIF,iifFunc},  // V=iif(Condition,V1,V2)
 				{MCODE_F_SUBSTR,substrFunc}, // S=substr(S,N1,N2)
 				{MCODE_F_TRIM,trimFunc}, // S=trim(S[,N])
-				{MCODE_F_RINDEX,rindexFunc}, // S=rindex(S1,S2)
-				{MCODE_F_INDEX,indexFunc}, // S=index(S1,S2)
+				{MCODE_F_RINDEX,rindexFunc}, // S=rindex(S1,S2[,Mode])
+				{MCODE_F_INDEX,indexFunc}, // S=index(S1,S2[,Mode])
 				{MCODE_F_PANELITEM,panelitemFunc},  // V=panelitem(Panel,Index,TypeInfo)
 				{MCODE_F_PANEL_SETPOS,panelsetposFunc}, // N=Panel.SetPos(panelType,fileName)
 				{MCODE_F_PANEL_SETPATH,panelsetpathFunc}, // N=panel.SetPath(panelType,pathName,fileName)
@@ -3879,7 +3895,7 @@ done:
 				{MCODE_F_ABS,absFunc}, // N=abs(N)
 				{MCODE_F_ASC,ascFunc}, // N=asc(S)
 				{MCODE_F_CHR,chrFunc}, // S=chr(N)
-				{MCODE_F_REPLACE,replaceFunc}, // S=replace(sS,sF,sR)
+				{MCODE_F_REPLACE,replaceFunc}, // Result=replace(Str,Find,Replace[,Cnt[,Mode]])
 				{MCODE_F_KEY,keyFunc}, // S=key(V)
 				{MCODE_F_CALLPLUGIN,callpluginFunc}, // V=callplugin(SysID[,param])
 			};

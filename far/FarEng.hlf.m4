@@ -3777,11 +3777,12 @@ to child processes:
 
     #FARLANG#            the name of the current interface language.
 
-    #FARUSER#            the name of the current user given by the /u
-                       ~command line~@CmdLine@ option.
+    #FARUSER#            ^<wrap>the name of the current user given by the /u ~command line~@CmdLine@ option.
 
-    #FARDIRSTACK#        the contents of directories stack top
-                       (the stack is managed with #pushd# and #popd# commands)
+    #FARDIRSTACK#        ^<wrap>the contents of directories stack top (the stack is managed with #pushd# and #popd# commands)
+
+    #FARADMINMODE#       ^<wrap>равна "Администратор", если FAR Manager запущен от имени администратора
+
 
 @RegExp
 $ #Regular expressions#

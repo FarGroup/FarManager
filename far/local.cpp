@@ -69,6 +69,34 @@ const wchar_t * __cdecl StrStrI(const wchar_t *str1, const wchar_t *str2)
 	return NULL;
 }
 
+const wchar_t * __cdecl StrStr(const wchar_t *str1, const wchar_t *str2)
+{
+	const wchar_t *cp = str1;
+	const wchar_t *s1, *s2;
+
+	if (!*str2)
+		return str1;
+
+	while (*cp)
+	{
+		s1 = cp;
+		s2 = str2;
+
+		while (*s1 && *s2 && !(*s1 - *s2))
+		{
+			s1++;
+			s2++;
+		}
+
+		if (!*s2)
+			return cp;
+
+		cp++;
+	}
+
+	return NULL;
+}
+
 const wchar_t * __cdecl RevStrStrI(const wchar_t *str1, const wchar_t *str2)
 {
 	int len1 = StrLength(str1);
@@ -89,6 +117,40 @@ const wchar_t * __cdecl RevStrStrI(const wchar_t *str1, const wchar_t *str2)
 		s2 = str2;
 
 		while (*s1 && *s2 && !(Lower(*s1)-Lower(*s2)))
+		{
+			s1++;
+			s2++;
+		}
+
+		if (!*s2)
+			return cp;
+
+		cp--;
+	}
+
+	return NULL;
+}
+
+const wchar_t * __cdecl RevStrStr(const wchar_t *str1, const wchar_t *str2)
+{
+	int len1 = StrLength(str1);
+	int len2 = StrLength(str2);
+
+	if (len2 > len1)
+		return NULL;
+
+	if (!*str2)
+		return &str1[len1];
+
+	const wchar_t *cp = &str1[len1-len2];
+	const wchar_t *s1, *s2;
+
+	while (cp >= str1)
+	{
+		s1 = cp;
+		s2 = str2;
+
+		while (*s1 && *s2 && !(*s1 - *s2))
 		{
 			s1++;
 			s2++;

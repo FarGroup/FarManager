@@ -1,3 +1,19 @@
+svs 29.12.2009 13:33:22 +0300 - build 1303
+
+1. Mantis#0001228: Macro Problem (wrong results in 'Index')
+   Добавлены доп.пораметры для макрофункций
+      N=index(S1,S2[,Mode])
+      S=rindex(S1,S2[,Mode])
+      Result=replace(Str,Find,Replace[,Cnt[,Mode]])
+   Здесь Mode: 
+      0 - case insensitive
+      1 - case sensitive
+
+2. Macro: msave() для значения типа double сохраняет значение в виде строки.
+
+3. Если Far в режиме "администратор", то выставляется переменная среды FARADMINMODE, равная "(Администратор)"  (см. MConfigCmdlinePromptFormatAdmin)
+   Может применяться в CmdPrompt.
+
 drkns 29.12.2009 00:44:26 +0200 - build 1302
 
 1. Расставляем DIF_EDITPATH во всех нужных диалогах.
