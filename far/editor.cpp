@@ -4104,6 +4104,9 @@ BOOL Editor::Search(int Next)
 					if (!ReplaceAll)
 					{
 						Show();
+						SHORT CurX,CurY;
+						GetCursorPos(CurX,CurY);
+						ScrBuf.ApplyColor(CurX,CurY,CurPtr->RealPosToTab(CurX+SearchLength)-1,CurY,FarColorToReal(COL_EDITORSELECTEDTEXT));
 						string strQSearchStr(CurPtr->GetStringAddr()+CurPtr->GetCurPos(),SearchLength), strQReplaceStr=strReplaceStrCurrent;
 						InsertQuote(strQSearchStr);
 						InsertQuote(strQReplaceStr);
