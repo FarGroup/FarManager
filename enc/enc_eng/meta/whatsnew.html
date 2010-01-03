@@ -14,14 +14,14 @@
 
 <h3>7 October 2009</h3>
 <ul>
-  <li>Macro: уточнение функции <a href="macro/macrocmd/functions.html#checkhotkey">checkhotkey</a>.
+  <li>Macro: <a href="macro/macrocmd/functions.html#checkhotkey">checkhotkey</a> function refined.
     <br><br>
 </ul>
 
-<h3>8 юиня 2009</h3>
+<h3>8 June 2009</h3>
 <ul>
-  <li>Начало процесса выхода за рамки "только описания АПИ"...<br>
-      Новые имена файлов FarEncyclopedia.en.chm и FarEncyclopedia.ru.chm.
+  <li>Process of going out of limits of "just API description" has begun...<br>
+      New file names FarEncyclopedia.en.chm and FarEncyclopedia.ru.chm.
     <br><br>
 </ul>
 
@@ -67,11 +67,11 @@
 
   <li>Fixed errors in <a href="service_functions/editorcontrol.html#ECTL_SELECT">ECTL_SELECT</a>:
      <ul>
-     <li>отметка блока снимается всегда, даже если были неправильные параметры
-     <li>отметка блока снимается всегда, даже если указанной строки (BlockStartLine) нет (BlockStartLine больше количества строк в редакторе)
-     <li>если BlockHeight превышал количество строк в редакторе (например, пытаемся выделить блок, указывая последнюю строку,
-         а BlockHeight, например, равный 10), то EditorControl возвращал FALSE, хотя блок успешно выделялся.
-     <li>для BlockWidth, равным -1, получалось так, что для BTYPE_COLUMN "транзакция" пометки блока была неполной - это могло приводить к всевозможным проблемам с блоками.
+     <li>block highlight was always cleared, even if parameters were incorrect
+     <li>block highlight was always cleared, even if specified string (BlockStartLine) was absent (BlockStartLine was greater than number of strings in editor)
+     <li>if BlockHeight was greater than number of strings in editor (i.e. try to highlight a block by specifying the last line,
+         with BlockHeight equal to 10), EditorControl returned FALSE, though the block was highlighted.
+     <li>when BlockWidth was equal to -1, the block highlight transaction for BTYPE_COLUMN was incoplete - that could cause various problems with blocks.
      </ul>
 
     <br><br>
@@ -100,13 +100,13 @@
 
 <h3>6 November 2008</h3>
 <ul>
-  <li>Диалоги с флагом FDLG_SMALLDIALOG теперь отрисовываются с тенью. Чтобы запретить рисовать тень, укажите флаг FDLG_NODRAWSHADOW.
+  <li>Dialogs with FDLG_SMALLDIALOG flag are drawn with shadow now. To disable shadow drawing, set FDLG_NODRAWSHADOW flag.
     <br><br>
 </ul>
 
 <h3>24 September 2008</h3>
 <ul>
-  <li>Новые флаги функции <a href="fsf/mklink.html">MkLink</a>: FLINK_SYMLINKFILE, FLINK_SYMLINKDIR, позволяющие создавать символические ссылки Windows Vista/2008. Флаг FLINK_SYMLINK переименован в FLINK_JUNCTION.
+  <li>New flags for <a href="fsf/mklink.html">MkLink</a> function: FLINK_SYMLINKFILE, FLINK_SYMLINKDIR allow Windows Vista/2008 symbolic links creation. FLINK_SYMLINK flag renamed into FLINK_JUNCTION.
     <br><br>
 </ul>
 
@@ -120,15 +120,15 @@
 <ul>
   <li>Macro: CtrlBreak combination breaks macro execution.
     <br><br>
-  <li>Macro: Добавлена функция <a href="macro/macrocmd/functions.html#trim">S=trim(S[,Mode])</a> - удаляет все пробельные символы.
+  <li>Macro: Added function <a href="macro/macrocmd/functions.html#trim">S=trim(S[,Mode])</a> - removes all whitespace symbols.
     <br><br>
-  <li>Viewer API: <a href="service_functions/viewercontrol.html#VCTL_GETINFO">VCTL_GETINFO</a> command returned WindowSizeY value на 1 меньше реального значения.
+  <li>Viewer API: <a href="service_functions/viewercontrol.html#VCTL_GETINFO">VCTL_GETINFO</a> command returned WindowSizeY value that was less by 1 than the real value.
     <br><br>
 </ul>
 
 <h3>19 June 2008</h3>
 <ul>
-  <li>Macro: Теперь <a href="macro/macrocmd/states.html#Dlg.ItemType">Dlg.ItemType</a> "отдает" все то же самое, что возвращает Dlg.GetValue(XXX,1).
+  <li>Macro: Now <a href="macro/macrocmd/states.html#Dlg.ItemType">Dlg.ItemType</a> returns the same value as Dlg.GetValue(XXX,1).
     <br><br>
 </ul>
 
@@ -182,16 +182,16 @@
 
 <h3>25 March 2008</h3>
 <ul>
-  <li>В <a href="defs/farcolors.html">цветовую палитру</a> добавлены цвета для индикаторов длинных строк в меню, списках и комбинированных списках.
+  <li>Colors for long string markers in menus, lists and combo lists were added to <a href="defs/farcolors.html">color palette</a>.
     <br><br>
 
-  <li>Macro: Добавлена константа "<a href="macro/macrocmd/states.html#Editor.RealPos">Editor.RealPos</a>" - текущая позиция курсора в строке в редакторе без привязки к размеру табуляции.
+  <li>Macro: Added "<a href="macro/macrocmd/states.html#Editor.RealPos">Editor.RealPos</a>" constant - current cursor position in the string in editor (tab size independent).
     <br><br>
 
-  <li>Macro: Некоторые функции могут иметь опциональные параметры.
+  <li>Macro: Some functions can have optional parameters.
     <br><br>
 
-  <li>Macro: Новая функция <a href="macro/macrocmd/functions.html#prompt">prompt</a> - позволяет ввести одну строку текста.
+  <li>Macro: New <a href="macro/macrocmd/functions.html#prompt">prompt</a> function - allows to input one text string.
     <br><br>
 </ul>
 
@@ -200,7 +200,7 @@
   <li>
     <br><br>
 
-  <li>Macro: Новая функция <a href="macro/macrocmd/functions.html#akey">V=akey(N)</a> - возвращает имя или код клавиши, инициировавшей макрос.
+  <li>Macro: New <a href="macro/macrocmd/functions.html#akey">V=akey(N)</a> function - returns name or code of the key that initiated the macro.
     <br><br>
 </ul>
 
@@ -212,7 +212,7 @@
 
 <h3>23 December 2007</h3>
 <ul>
-  <li>Plugins menu can be opened from dialog.
+  <li>Plugins menu can be opened from a dialog.
     <br><br>
 
   <li>Plugin can export <a href="exported_functions/processdialogevent.html">ProcessDialogEvent</a> function to process dialog events.
@@ -222,10 +222,10 @@
 
 <h3>14 December 2007</h3>
 <ul>
-  <li>Macro: Добавлена в коллекцию функция <a href="macro/macrocmd/functions.html#replace">Result=replace(Str,Find,Replace,Cnt)</a>.
+  <li>Macro: Added function <a href="macro/macrocmd/functions.html#replace">Result=replace(Str,Find,Replace,Cnt)</a>.
     <br><br>
 
-  <li>API: New <a href="structures/actlkeymacro.html#MCMD_GETSTATE">MCMD_GETSTATE</a> command for <a href="service_functions/advcontrol.html#ACTL_KEYMACRO">ACTL_KEYMACRO</a>, возвращает статус работы макродвижка.
+  <li>API: New <a href="structures/actlkeymacro.html#MCMD_GETSTATE">MCMD_GETSTATE</a> command for <a href="service_functions/advcontrol.html#ACTL_KEYMACRO">ACTL_KEYMACRO</a>, returns macro engine work status.
     <br><br>
 
   <li>Macro: <a href="macro/macrocmd/functions.html#menu.select">Menu.Select</a> function now has two parameters.
@@ -241,20 +241,20 @@
   <li>2 new events for editor plugins: <a href="exported_functions/processeditorevent.html#EE_GOTFOCUS">EE_GOTFOCUS</a> and <a href="exported_functions/processeditorevent.html#EE_KILLFOCUS">EE_KILLFOCUS</a>.
     <br><br>
 
-  <li>В диалогах, сразу после <a href="dialogapi/dmsg/dn_initdialog.html">DN_INITDIALOG</a> приходит <a href="dialogapi/dmsg/dn_gotfocus.html">DN_GOTFOCUS</a> для того элемента, который Focus=1.
+  <li>In dialogs, immediately after <a href="dialogapi/dmsg/dn_initdialog.html">DN_INITDIALOG</a>, <a href="dialogapi/dmsg/dn_gotfocus.html">DN_GOTFOCUS</a> is fired for the element with Focus=1.
     <br><br>
 
 </ul>
 
 <h3>4 December 2007</h3>
 <ul>
-  <li>Macro: Добавлена в коллекцию функция <a href="macro/macrocmd/functions.html#mod">n=mod(n1,n2)</a>.
+  <li>Macro: Added function <a href="macro/macrocmd/functions.html#mod">n=mod(n1,n2)</a>.
     <br><br>
 
-  <li>Macro: добавлена функция <a href="macro/macrocmd/functions.html#menu.select">N=Menu.Select(S)</a>. Позиционирует на первый пункт, содержащий подстроку S.
+  <li>Macro: Added function <a href="macro/macrocmd/functions.html#menu.select">N=Menu.Select(S)</a>. Selects the first item that contains S.
     <br><br>
 
-  <li>Новый флаг <a href="dialogapi/flags/dif_noautocomplete.html">DIF_NOAUTOCOMPLETE</a> для строк редактирования - отключает автодополнение.
+  <li>New flag <a href="dialogapi/flags/dif_noautocomplete.html">DIF_NOAUTOCOMPLETE</a> for edit strings - disables autocomplete.
     <br><br>
 
 </ul>
