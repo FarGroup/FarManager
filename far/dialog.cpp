@@ -2875,6 +2875,9 @@ int Dialog::ProcessKey(int Key)
 				return(TRUE);
 			}
 
+		case KEY_F11:
+			CtrlObject->Plugins.CommandsMenu(FALSE,FALSE,0);
+
 			// для DIF_EDITOR будет обработано ниже
 		default:
 		{
@@ -4168,13 +4171,9 @@ bool Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &st
 						int CurPos=ComplMenu.GetSelectPos();
 						if(CurPos>=0 && PrevPos!=CurPos)
 						{
-							if(!(ComplMenu.GetItemPtr(0)->Flags&LIF_DISABLE))
-							{
-								ComplMenu.GetItemPtr(0)->Flags|=LIF_DISABLE;
-							}
 							PrevPos=CurPos;
 							IsEnableRedraw--;
-							EditLine->SetString(ComplMenu.GetItemPtr(CurPos)->strName);
+							EditLine->SetString(CurPos?ComplMenu.GetItemPtr(CurPos)->strName:strTemp);
 							EditLine->Show();
 							IsEnableRedraw++;
 						}
@@ -4264,6 +4263,9 @@ bool Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &st
 									}
 
 								// навигация по списку
+								case KEY_ESC:
+								case KEY_F10:
+								case KEY_ALTF9:
 								case KEY_UP:
 								case KEY_NUMPAD8:
 								case KEY_DOWN:

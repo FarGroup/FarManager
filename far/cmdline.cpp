@@ -480,12 +480,8 @@ int CommandLine::ProcessKey(int Key)
 									int CurPos=ComplMenu.GetSelectPos();
 									if(CurPos>=0 && PrevPos!=CurPos)
 									{
-										if(!(ComplMenu.GetItemPtr(0)->Flags&LIF_DISABLE))
-										{
-											ComplMenu.GetItemPtr(0)->Flags|=LIF_DISABLE;
-										}
 										PrevPos=CurPos;
-										CmdStr.SetString(ComplMenu.GetItemPtr(CurPos)->strName);
+										CmdStr.SetString(CurPos?ComplMenu.GetItemPtr(CurPos)->strName:strStr);
 										CmdStr.Show();
 									}
 									if(ir.EventType==WINDOW_BUFFER_SIZE_EVENT)
@@ -558,6 +554,9 @@ int CommandLine::ProcessKey(int Key)
 												}
 
 											// навигация по списку
+											case KEY_ESC:
+											case KEY_F10:
+											case KEY_ALTF9:
 											case KEY_UP:
 											case KEY_NUMPAD8:
 											case KEY_DOWN:

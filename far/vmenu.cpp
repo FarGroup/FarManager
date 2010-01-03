@@ -2712,11 +2712,14 @@ void EnumFiles(VMenu& Menu, const wchar_t* Str)
 					string strTmp=strStr;
 					strTmp.SetLength(i);
 					strTmp+=d.strFileName;
-					if(!Separator && Menu.GetItemCount()>1)
+					if(!Separator)
 					{
-						MenuItemEx Item={0};
-						Item.Flags=LIF_SEPARATOR;
-						Menu.AddItem(&Item);
+						if(Menu.GetItemCount())
+						{
+							MenuItemEx Item={0};
+							Item.Flags=LIF_SEPARATOR;
+							Menu.AddItem(&Item);
+						}
 						Separator=true;
 					}
 					Menu.AddItem(strTmp);
