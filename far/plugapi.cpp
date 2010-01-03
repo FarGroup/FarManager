@@ -2190,23 +2190,33 @@ int WINAPI farGetFileOwner(const wchar_t *Computer,const wchar_t *Name, wchar_t 
 
 int WINAPI farConvertPath(CONVERTPATHMODES Mode,const wchar_t *Src, wchar_t *Dest, int DestSize)
 {
-	string strDest;
 	if (Src && *Src)
 	{
+		string strDest;
+
 		switch (Mode)
 		{
-		case CPM_REAL:
-			ConvertNameToReal(Src, strDest);
-			break;
-		case CPM_FULL:
-		default:
-			ConvertNameToFull(Src, strDest);
-			break;
+			case CPM_REAL:
+				ConvertNameToReal(Src, strDest);
+				break;
+			case CPM_FULL:
+			default:
+				ConvertNameToFull(Src, strDest);
+				break;
 		}
+
 		if (Dest && DestSize)
 			xwcsncpy(Dest, strDest.CPtr(), DestSize - 1);
+
+		return static_cast<int>(strDest.GetLength()) + 1;
 	}
-	return static_cast<int>(strDest.GetLength()) + 1;
+	else
+	{
+		if (Dest && DestSize)
+			*Dest = 0;
+
+		return 1;
+	}
 }
 
 int WINAPI farGetReparsePointInfo(const wchar_t *Src,wchar_t *Dest,int DestSize)

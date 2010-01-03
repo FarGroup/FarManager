@@ -2696,26 +2696,37 @@ void VMenu::SortItems(int Direction, int Offset, BOOL SortForDataDWORD)
 
 void EnumFiles(VMenu& Menu, const wchar_t* Str)
 {
-	string strStr=Str;
-	FAR_FIND_DATA_EX d;
-	BOOL MoreFiles=TRUE;
-	HANDLE hFind=INVALID_HANDLE_VALUE;
-	for(hFind=apiFindFirstFile(strStr+L"*",&d);hFind!=INVALID_HANDLE_VALUE && MoreFiles;MoreFiles=apiFindNextFile(hFind,&d))
+	if(Str && *Str)
 	{
-		for(size_t i=0;i<=strStr.GetLength();i++)
+		string strStr=Str;
+		FAR_FIND_DATA_EX d;
+		BOOL MoreFiles=TRUE;
+		HANDLE hFind=INVALID_HANDLE_VALUE;
+		bool Separator=false;
+		for(hFind=apiFindFirstFile(strStr+L"*",&d);hFind!=INVALID_HANDLE_VALUE && MoreFiles;MoreFiles=apiFindNextFile(hFind,&d))
 		{
-			if(!StrCmpNI(Str+i,d.strFileName,static_cast<int>(strStr.GetLength()-i)) || !Str[i])
+			for(size_t i=0;i<=strStr.GetLength();i++)
 			{
-				string strTmp=strStr;
-				strTmp.SetLength(i);
-				strTmp+=d.strFileName;
-				Menu.AddItem(strTmp);
-				break;
+				if(!StrCmpNI(Str+i,d.strFileName,static_cast<int>(strStr.GetLength()-i)) || !Str[i])
+				{
+					string strTmp=strStr;
+					strTmp.SetLength(i);
+					strTmp+=d.strFileName;
+					if(!Separator && Menu.GetItemCount()>1)
+					{
+						MenuItemEx Item={0};
+						Item.Flags=LIF_SEPARATOR;
+						Menu.AddItem(&Item);
+						Separator=true;
+					}
+					Menu.AddItem(strTmp);
+					break;
+				}
 			}
 		}
-	}
-	if(hFind!=INVALID_HANDLE_VALUE)
-	{
-		apiFindClose(hFind);
+		if(hFind!=INVALID_HANDLE_VALUE)
+		{
+			apiFindClose(hFind);
+		}
 	}
 }

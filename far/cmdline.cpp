@@ -478,7 +478,7 @@ int CommandLine::ProcessKey(int Key)
 									ComplMenu.ReadInput(&ir);
 
 									int CurPos=ComplMenu.GetSelectPos();
-									if(PrevPos!=CurPos)
+									if(CurPos>=0 && PrevPos!=CurPos)
 									{
 										if(!(ComplMenu.GetItemPtr(0)->Flags&LIF_DISABLE))
 										{
@@ -493,29 +493,12 @@ int CommandLine::ProcessKey(int Key)
 										ComplMenu.SetPosition(CmdStr.X1,CmdStr.Y1-3-Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount()),CmdStr.X2-2,CmdStr.Y1-1);
 										ComplMenu.Show();
 									}
-									else if(ir.EventType==KEY_EVENT)
+									else if(ir.EventType==KEY_EVENT || ir.EventType==FARMACRO_KEY_EVENT)
 									{
 										int Key=InputRecordToKey(&ir);
-										if(Key==KEY_ENTER || Key==KEY_NUMENTER)
-										{
-											ComplMenu.Hide();
-											ComplMenu.ProcessInput();
-											ProcessKey(Key);
-										}
-										else if(Key==KEY_TAB)
-										{
-											ComplMenu.SetExitCode(-1);
-											CtrlObject->Cp()->ProcessKey(Key);
-										}
-										else if(Key==KEY_CTRLEND)
-										{
-											ComplMenu.ProcessKey(KEY_DOWN);
-										}
-										else if(Key==KEY_LEFT || Key == KEY_RIGHT || Key==KEY_NUMPAD4 || Key == KEY_NUMPAD6 || 	Key==KEY_CTRLS || Key == KEY_CTRLD)
-										{
-											CmdStr.ProcessKey(Key);
-										}
-										else if((Key >= L' ' && Key <= WCHAR_MAX) || Key==KEY_BS || Key==KEY_DEL)
+
+										// ввод
+										if((Key >= L' ' && Key <= WCHAR_MAX) || Key==KEY_BS || Key==KEY_DEL)
 										{
 											CmdStr.ProcessKey(Key);
 											CmdStr.GetString(strTemp);
@@ -550,7 +533,56 @@ int CommandLine::ProcessKey(int Key)
 										}
 										else
 										{
-											ComplMenu.ProcessInput();
+											switch(Key)
+											{
+											case KEY_IDLE:
+											case KEY_NONE:
+												break;
+
+											// "классический" перебор
+											case KEY_CTRLEND:
+												{
+													ComplMenu.ProcessKey(KEY_DOWN);
+													break;
+												}
+											// навигация по строке ввода
+											case KEY_LEFT:
+											case KEY_NUMPAD4:
+											case KEY_RIGHT:
+											case KEY_NUMPAD6:
+											case KEY_CTRLS:
+											case KEY_CTRLD:
+												{
+													CmdStr.ProcessKey(Key);
+													break;
+												}
+
+											// навигация по списку
+											case KEY_UP:
+											case KEY_NUMPAD8:
+											case KEY_DOWN:
+											case KEY_NUMPAD2:
+											case KEY_HOME:
+											case KEY_NUMPAD7:
+											case KEY_END:
+											case KEY_NUMPAD1:
+											case KEY_PGUP:
+											case KEY_NUMPAD9:
+											case KEY_PGDN:
+											case KEY_NUMPAD3:
+												{
+													ComplMenu.ProcessInput();
+													break;
+												}
+
+											// всё остальное закрывает список и идёт в панели
+											default:
+												{
+													ComplMenu.Hide();
+													ComplMenu.SetExitCode(-1);
+													CtrlObject->Cp()->ProcessKey(Key);
+												}
+											}
 										}
 									}
 									else

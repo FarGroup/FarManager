@@ -864,7 +864,7 @@ bool History::GetAllSimilar(VMenu &HistoryMenu,const wchar_t *Str)
 {
 	ResetPosition();
 	int Length=StrLength(Str);
-	for (HistoryRecord *HistoryItem=HistoryList.First();HistoryItem;HistoryItem=HistoryList.Next(HistoryItem))
+	for (HistoryRecord *HistoryItem=HistoryList.Last();HistoryItem;HistoryItem=HistoryList.Prev(HistoryItem))
 	{
 		if (!StrCmpNI(Str,HistoryItem->strName,Length) && StrCmp(Str,HistoryItem->strName))
 		{
