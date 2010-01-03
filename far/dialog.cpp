@@ -4280,7 +4280,8 @@ bool Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &st
 										ComplMenu.ProcessInput();
 										break;
 									}
-								// всё остальное закрывает список и идёт в панели
+
+								// всё остальное закрывает список и идёт в диалог
 								default:
 									{
 										ComplMenu.Hide();
