@@ -143,7 +143,6 @@
         <File Id="import_colors.bat" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\import_colors.bat" />
       </Component>
       <Directory Id="Custom_Highlighting" Name="Custom Highlighting">
-<?if $(var.Branch) = 1 ?>
         <Component Id="black_from_Fonarev.reg" Guid="$(var.Guid.black_from_Fonarev.reg)" Win64="$(var.Win64)">
           <File Id="black_from_Fonarev.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\black_from_Fonarev.reg" />
         </Component>
@@ -189,15 +188,8 @@
         <Component Id="VaxColors.reg" Guid="$(var.Guid.VaxColors.reg)" Win64="$(var.Win64)">
           <File Id="VaxColors.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\VaxColors.reg" />
         </Component>
-<?endif?>
-<?if $(var.Branch) = 2 ?>
-        <Component Id="Custom_Highlighting" Guid="$(var.Guid.Custom_Highlighting)" KeyPath="yes" Win64="$(var.Win64)">
-          <CreateFolder />
-        </Component>
-<?endif?>
       </Directory>
       <Directory Id="Default_Highlighting" Name="Default Highlighting">
-<?if $(var.Branch) = 1 ?>
         <Component Id="black_from_Fonarev.reg_1" Guid="$(var.Guid.black_from_Fonarev.reg_1)" Win64="$(var.Win64)">
           <File Id="black_from_Fonarev.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\black_from_Fonarev.reg" />
         </Component>
@@ -243,12 +235,6 @@
         <Component Id="VaxColors.reg_1" Guid="$(var.Guid.VaxColors.reg_1)" Win64="$(var.Win64)">
           <File Id="VaxColors.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\VaxColors.reg" />
         </Component>
-<?endif?>
-<?if $(var.Branch) = 2 ?>
-        <Component Id="Default_Highlighting" Guid="$(var.Guid.Default_Highlighting)" KeyPath="yes" Win64="$(var.Win64)">
-          <CreateFolder />
-        </Component>
-<?endif?>
       </Directory>
     </Directory>
     <Directory Id="Macros" Name="Macros">

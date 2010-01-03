@@ -15,7 +15,7 @@
     <?define Product = "Far Manager 2 x64" ?>
   <?endif?>
 <?endif?>
-<?define Manufacturer = "Eugene Roshal & FAR Group" ?>
+<?define Manufacturer = "Eugene Roshal & Far Group" ?>
 <?if $(var.Platform) = x86 ?>
   <?define PFiles = "ProgramFilesFolder" ?>
   <?define Win64 = "no" ?>
@@ -46,6 +46,9 @@
     <Property Id="ALLUSERS" Value="1" />
     <Property Id="REINSTALLMODE" Value="amus" />
     <Property Id="ARPPRODUCTICON" Value="Far.ico" />
+    <Property Id="ARPHELPLINK" Value="http://forum.farmanager.com/" />
+    <Property Id="ARPURLINFOABOUT" Value="http://farmanager.com/" />
+    <Property Id="ARPURLUPDATEINFO" Value="http://farmanager.com/download.php" />
     <Media Id="1" Cabinet="far.cab" EmbedCab="yes" />
 <?if $(var.Branch) = 2 ?>
     <Condition Message="$(var.Product) requires Windows 2000 or above."><![CDATA[NOT Version9X AND (VersionNT>=500)]]></Condition>
@@ -54,10 +57,11 @@
     <CustomAction Id="UpdateFeatureState" BinaryKey="CustomActions.dll" DllEntry="UpdateFeatureState" />
     <CustomAction Id="SaveShortcutProps" BinaryKey="CustomActions.dll" DllEntry="SaveShortcutProps" Return="ignore" />
     <CustomAction Id="RestoreShortcutProps" BinaryKey="CustomActions.dll" DllEntry="RestoreShortcutProps" Execute="deferred" Return="ignore" />
-    <CustomAction Id="SetUserInstallDir" Property="INSTALLDIR" Value="[USERINSTALLDIR]" Execute="immediate" />
-    <CustomAction Id="SetUserInstallScope" Property="InstallScope" Value="User" Execute="immediate" />
-    <CustomAction Id="SetALLUSERS" Property="ALLUSERS" Value="" Execute="immediate" />
+    <CustomAction Id="SetUserInstallDir" Property="INSTALLDIR" Value="[USERINSTALLDIR]" />
+    <CustomAction Id="SetUserInstallScope" Property="InstallScope" Value="User" />
+    <CustomAction Id="SetALLUSERS" Property="ALLUSERS" Value="" />
     <CustomAction Id="LaunchApplication" ExeCommand="" FileKey="Far.exe" Impersonate="yes" Return="asyncNoWait" />
+    <CustomAction Id="SetARPINSTALLLOCATION" Property="ARPINSTALLLOCATION" Value="[INSTALLDIR]" />
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="$(var.PFiles)">
         <Directory Id="INSTALLDIR" Name="$(var.DefInstallDir)">
@@ -106,6 +110,7 @@
       <FindRelatedProducts After="SetALLUSERS" />
       <Custom Action="SaveShortcutProps" Before="RestoreShortcutProps">NOT (REMOVE="ALL")</Custom>
       <Custom Action="RestoreShortcutProps" After="CreateShortcuts">NOT (REMOVE="ALL")</Custom>
+      <Custom Action="SetARPINSTALLLOCATION" After="InstallValidate" />
     </InstallExecuteSequence>
     <InstallUISequence>
       <Custom Action="SetUserInstallDir" After="AppSearch">USERINSTALLDIR</Custom>

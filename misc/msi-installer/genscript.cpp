@@ -25,20 +25,20 @@ int main(int argc, char* argv[]) {
     header_file.open(plugin_hpp_path.c_str());
     string line;
     unsigned ver_major, ver_minor, ver_build;
-    unsigned fount_cnt = 0;
-    while (fount_cnt < 3) {
+    unsigned found_cnt = 0;
+    while (found_cnt < 3) {
       header_file >> line;
       if (line == "FARMANAGERVERSION_MAJOR") {
         header_file >> ver_major;
-        fount_cnt++;
+        found_cnt++;
       }
       if (line == "FARMANAGERVERSION_MINOR") {
         header_file >> ver_minor;
-        fount_cnt++;
+        found_cnt++;
       }
       if (line == "FARMANAGERVERSION_BUILD") {
         header_file >> ver_build;
-        fount_cnt++;
+        found_cnt++;
       }
     }
 
@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
 #ifdef NIGHTLY
     makefile << "all:" << endl;
     makefile << "#  cl -nologo -O1 -EHsc customact.cpp -link -dll -out:CustomActions.dll -export:UpdateFeatureState -export:SaveShortcutProps -export:RestoreShortcutProps msi.lib" << endl;
-    makefile << "#  upx --lzma CustomActions.dll" << endl;
+    makefile << "#  -upx --lzma CustomActions.dll" << endl;
     makefile << "  candle -nologo -dSourceDir=\"" << source_dir << "\" -dBranch=" << ver_major << " -dPlatform=" << platform << " -dVersion=" << version << " -dCustomActions=CustomActions.dll installer.wxs ui.wxs" << endl;
     makefile << "  light -nologo -cultures:en-us -loc en-us.wxl -loc ui_en-us.wxl -spdb -sval -sh -dcl:high -out " << msi_name << " installer.wixobj ui.wixobj" << endl;
 #else

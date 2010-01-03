@@ -77,7 +77,6 @@
 <?define Guid.nc5pal2.reg = "67E6649E-EFAC-4FEB-8D3C-CC70992379F4" ?>
 <?define Guid.Rodion_Doroshkevich.reg = "719AA4AD-9B7F-468A-A5A3-33B13FBD185A" ?>
 <?define Guid.VaxColors.reg = "15DBFE54-8FB6-4BBC-AE2B-79D6A1D44C09" ?>
-<?define Guid.Custom_Highlighting = "99EA6FCC-9003-4E03-B36C-79183EFAC179" ?>
 <?define Guid.black_from_Fonarev.reg_1 = "D54330C4-A2B3-4847-951E-B4EAEF08CBDB" ?>
 <?define Guid.black_from_july.reg_1 = "1BC47F98-1E1C-42A0-A3DB-65840471FE9B" ?>
 <?define Guid.black_from_Myodov.reg_1 = "7FB8A575-F48D-4693-969D-1CB841A0DFC1" ?>
@@ -93,7 +92,6 @@
 <?define Guid.nc5pal2.reg_1 = "4E11138F-B00A-4C29-9236-29ACEB530F0C" ?>
 <?define Guid.Rodion_Doroshkevich.reg_1 = "B850AD19-3C5C-4F6E-95DC-77B98BA4DB0F" ?>
 <?define Guid.VaxColors.reg_1 = "8D57C9A2-8732-42D0-9785-B8DA0DA63C69" ?>
-<?define Guid.Default_Highlighting = "43B4E52F-6DFE-4BE6-BEC1-38CD645302CF" ?>
 <?define Guid.AltBS.reg = "74870D78-51DC-4943-8EDD-64653ED12571" ?>
 <?define Guid.AltDown.reg = "1D833DCB-7E76-4F29-9E7F-92A2D3D1CBC0" ?>
 <?define Guid.AltMenu.reg = "5009EC5F-A137-42D4-9C32-E137D4C66FDF" ?>

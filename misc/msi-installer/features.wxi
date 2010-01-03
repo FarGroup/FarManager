@@ -46,7 +46,6 @@
         <ComponentRef Id="Descript.ion_3" />
         <ComponentRef Id="export_colors.bat" />
         <ComponentRef Id="import_colors.bat" />
-<?if $(var.Branch) = 1 ?>
         <ComponentRef Id="black_from_Fonarev.reg" />
         <ComponentRef Id="black_from_july.reg" />
         <ComponentRef Id="black_from_Myodov.reg" />
@@ -77,11 +76,6 @@
         <ComponentRef Id="nc5pal2.reg_1" />
         <ComponentRef Id="Rodion_Doroshkevich.reg_1" />
         <ComponentRef Id="VaxColors.reg_1" />
-<?endif?>
-<?if $(var.Branch) = 2 ?>
-        <ComponentRef Id="Custom_Highlighting" />
-        <ComponentRef Id="Default_Highlighting" />
-<?endif?>
       </Feature>
       <Feature Id="Macros" Level="2" Title="!(loc.Feature.Title.Macros)" AllowAdvertise="no" Description="!(loc.Feature.Description.Macros)">
         <ComponentRef Id="AltBS.reg" />
