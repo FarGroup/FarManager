@@ -13271,11 +13271,11 @@ MPlgRequired
 
 MPlgRequired2
 "Текущая версия FAR - %d.%d.%d."
-"Current FAR version is %d.%d.%d"
-"Nynější verze FARu je %d.%d.%d"
-"Aktuelle FAR-Version ist %d.%d.%d"
+"Current FAR version is %d.%d.%d."
+"Nynější verze FARu je %d.%d.%d."
+"Aktuelle FAR-Version ist %d.%d.%d."
 "A jelenlegi FAR verzió: %d.%d.%d."
-"Bieżąca wersja FAR-a: %d.%d.%d"
+"Bieżąca wersja FAR-a: %d.%d.%d."
 
 MPlgLoadPluginError
 "Ошибка при загрузке плагина"
