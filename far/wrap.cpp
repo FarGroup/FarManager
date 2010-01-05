@@ -3313,7 +3313,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 			return FarAdvControl(ModuleNumber, ACTL_SETARRAYCOLOR, &sc);
 		}
 		case oldfar::ACTL_GETWCHARMODE:
-			return FarAdvControl(ModuleNumber, ACTL_GETWCHARMODE, 0);
+			return TRUE;
 		case oldfar::ACTL_GETPLUGINMAXREADDATA:
 			return FarAdvControl(ModuleNumber, ACTL_GETPLUGINMAXREADDATA, 0);
 		case oldfar::ACTL_GETDIALOGSETTINGS:

@@ -73,6 +73,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "processname.hpp"
 #include "synchro.hpp"
 #include "RegExp.hpp"
+#include "TaskBar.hpp"
 
 wchar_t *WINAPI FarItoa(int value, wchar_t *string, int radix)
 {
@@ -252,6 +253,8 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 		case ACTL_GETPOLICIES:
 		case ACTL_GETPLUGINMAXREADDATA:
 		case ACTL_GETMEDIATYPE:
+		case ACTL_SETPROGRESSSTATE:
+		case ACTL_SETPROGRESSVALUE:
 			break;
 		default:
 
@@ -285,11 +288,6 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 		case ACTL_GETPLUGINMAXREADDATA:
 		{
 			return Opt.PluginMaxReadData;
-		}
-		case ACTL_GETWCHARMODE:
-		{
-			//BUGBUG!!!
-			return 0;//Opt.UseUnicodeConsole;
 		}
 		case ACTL_GETSYSWORDDIV:
 		{
@@ -770,8 +768,24 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 			FrameManager->PluginCommit();
 			return Ret;
 		}
-	}
 
+		case ACTL_SETPROGRESSSTATE:
+		{
+			TBC.SetProgressState(static_cast<TBPFLAG>(reinterpret_cast<INT_PTR>(Param)));
+			return TRUE;
+		}
+
+		case ACTL_SETPROGRESSVALUE:
+		{
+			if(Param)
+			{
+				PROGRESSVALUE* PV=reinterpret_cast<PROGRESSVALUE*>(Param);
+				TBC.SetProgressValue(PV->Completed,PV->Total);
+			}
+			return TRUE;
+		}
+
+	}
 	return FALSE;
 }
 
