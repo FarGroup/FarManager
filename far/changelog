@@ -1,3 +1,11 @@
+drkns 05.01.2010 20:52:04 +0200 - build 1310
+
+1. С форума: уточнение поведения списка "Already existing files" в диалоге копирования.
+
+2. Следствие 1 пункта: в открытый комбинированный список теперь приходит событие DN_LISTHOTKEY.
+
+3. Удалён OPIF_FINDFOLDERS за ненадобностью.
+
 drkns 05.01.2010 19:50:30 +0200 - build 1309
 
 1. Новые actl-команды: ACTL_SETPROGRESSSTATE, ACTL_SETPROGRESSVALUE.

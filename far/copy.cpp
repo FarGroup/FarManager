@@ -1482,6 +1482,7 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 				LGI.Item.Flags|=LIF_CHECKED;
 
 			SendDlgMessage(hDlg,DM_LISTUPDATE,ID_SC_COMBO,(LONG_PTR)&LGI);
+			SendDlgMessage(hDlg,DM_REDRAW,0,0);
 			return TRUE;
 		}
 		case DN_BTNCLICK:
@@ -1535,6 +1536,17 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 			}
 		}
 		break;
+
+		case DN_LISTHOTKEY:
+			if(Param1==ID_SC_COMBO)
+			{
+				if (SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID_SC_COMBO,0)==CM_ASKRO)
+				{
+					SendDlgMessage(hDlg,DM_SWITCHRO,0,0);
+					return TRUE;
+				}
+			}
+			break;
 		case DN_MOUSEEVENT:
 
 			if (SendDlgMessage(hDlg,DM_GETDROPDOWNOPENED,ID_SC_COMBO,0))

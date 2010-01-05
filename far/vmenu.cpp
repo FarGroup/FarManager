@@ -880,7 +880,7 @@ int VMenu::ProcessKey(int Key)
 		case KEY_NUMENTER:
 		case KEY_ENTER:
 		{
-			if (!ParentDialog)
+			if (!ParentDialog || CheckFlags(VMENU_COMBOBOX))
 			{
 				if (ItemCanBeEntered(Item[SelectPos]->Flags))
 				{
@@ -894,7 +894,7 @@ int VMenu::ProcessKey(int Key)
 		case KEY_ESC:
 		case KEY_F10:
 		{
-			if (!ParentDialog)
+			if (!ParentDialog || CheckFlags(VMENU_COMBOBOX))
 			{
 				EndLoop = TRUE;
 				Modal::ExitCode = -1;
@@ -1088,10 +1088,12 @@ int VMenu::ProcessKey(int Key)
 				}
 			}
 
-			if (ParentDialog && OldSelectPos!=SelectPos && SendDlgMessage((HANDLE)ParentDialog,DN_LISTHOTKEY,DialogItemID,SelectPos))
+			if (ParentDialog && SendDlgMessage((HANDLE)ParentDialog,DN_LISTHOTKEY,DialogItemID,SelectPos))
 			{
 				UpdateItemFlags(OldSelectPos,Item[OldSelectPos]->Flags|LIF_SELECTED);
 				ShowMenu(true);
+				EndLoop = FALSE;
+				break;
 			}
 
 			return FALSE;
@@ -2088,7 +2090,7 @@ bool VMenu::CheckKeyHiOrAcc(DWORD Key, int Type, int Translate)
 			SetSelectPos(I,1);
 			ShowMenu(true);
 
-			if (!ParentDialog && ItemCanBeEntered(Item[SelectPos]->Flags))
+			if ((!ParentDialog  || CheckFlags(VMENU_COMBOBOX)) && ItemCanBeEntered(Item[SelectPos]->Flags))
 			{
 				Modal::ExitCode = I;
 				EndLoop = TRUE;

@@ -1363,8 +1363,6 @@ bool IsFileIncluded(PluginPanelItem *FileItem,const wchar_t *FullName,DWORD File
 		  ! Поскольку работу с поиском в папках вынесли в диалог -
 		    флаг в плагине потерял свою актуальность */
 		if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && ((Opt.FindOpt.FindFolders==0) || SearchHex))
-//        ((hPlugin == INVALID_HANDLE_VALUE) ||
-//        (ArcList[FindFileArcIndex].Flags & OPIF_FINDFOLDERS)==0))
 			return FALSE;
 
 		if (!strFindStr.IsEmpty() && FileFound)

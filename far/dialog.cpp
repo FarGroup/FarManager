@@ -902,7 +902,8 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
 
 				if (Type == DI_COMBOBOX)
 				{
-					CurItem->ListPtr=new VMenu(L"",NULL,0,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR|VMENU_NOTCHANGE,NULL/*,Parent*/);
+					CurItem->ListPtr=new VMenu(L"",NULL,0,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR|VMENU_NOTCHANGE,NULL,this);
+					CurItem->ListPtr->SetVDialogItemID(I);
 				}
 
 				CurItem->SelStart=-1;
