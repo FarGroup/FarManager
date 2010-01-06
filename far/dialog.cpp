@@ -4150,12 +4150,15 @@ bool Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &st
 					if(Opt.AutoComplete.AppendCompletion)
 					{
 						int SelStart=EditLine->GetLength();
-						EditLine->SetString(ComplMenu.GetItemPtr(0)->strName);
+						EditLine->InsertString(ComplMenu.GetItemPtr(0)->strName+EditLine->GetLength());
 						EditLine->Select(SelStart, EditLine->GetLength());
 					}
 
-					MenuItemEx EmptyItem={0};
-					ComplMenu.AddItem(&EmptyItem,0);
+					if(!Opt.AutoComplete.ModalList)
+					{
+						MenuItemEx EmptyItem={0};
+						ComplMenu.AddItem(&EmptyItem,0);
+					}
 
 					ComplMenu.SetSelectPos(0,0);
 					ComplMenu.SetBoxType(SHORT_SINGLE_BOX);
@@ -4168,15 +4171,17 @@ bool Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &st
 					{
 						INPUT_RECORD ir;
 						ComplMenu.ReadInput(&ir);
-
-						int CurPos=ComplMenu.GetSelectPos();
-						if(CurPos>=0 && PrevPos!=CurPos)
+						if(!Opt.AutoComplete.ModalList)
 						{
-							PrevPos=CurPos;
-							IsEnableRedraw--;
-							EditLine->SetString(CurPos?ComplMenu.GetItemPtr(CurPos)->strName:strTemp);
-							EditLine->Show();
-							IsEnableRedraw++;
+							int CurPos=ComplMenu.GetSelectPos();
+							if(CurPos>=0 && PrevPos!=CurPos)
+							{
+								PrevPos=CurPos;
+								IsEnableRedraw--;
+								EditLine->SetString(CurPos?ComplMenu.GetItemPtr(CurPos)->strName:strTemp);
+								EditLine->Show();
+								IsEnableRedraw++;
+							}
 						}
 						if(ir.EventType==WINDOW_BUFFER_SIZE_EVENT)
 						{
@@ -4221,13 +4226,16 @@ bool Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &st
 									{
 										int SelStart=EditLine->GetLength();
 										IsEnableRedraw--;
-										EditLine->SetString(ComplMenu.GetItemPtr(0)->strName);
+										EditLine->InsertString(ComplMenu.GetItemPtr(0)->strName+EditLine->GetLength());
 										EditLine->Select(SelStart, EditLine->GetLength());
 										IsEnableRedraw++;
 									}
 
-									MenuItemEx EmptyItem={0};
-									ComplMenu.AddItem(&EmptyItem,0);
+									if(!Opt.AutoComplete.ModalList)
+									{
+										MenuItemEx EmptyItem={0};
+										ComplMenu.AddItem(&EmptyItem,0);
+									}
 
 									ComplMenu.SetSelectPos(0,0);
 									ComplMenu.Redraw();
@@ -4284,6 +4292,16 @@ bool Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &st
 										break;
 									}
 
+								case KEY_ENTER:
+								case KEY_NUMENTER:
+								{
+									if(Opt.AutoComplete.ModalList)
+									{
+										ComplMenu.ProcessInput();
+										break;
+									}
+								}
+
 								// всё остальное закрывает список и идёт в диалог
 								default:
 									{
@@ -4297,6 +4315,13 @@ bool Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &st
 						else
 						{
 							ComplMenu.ProcessInput();
+						}
+					}
+					if(Opt.AutoComplete.ModalList)
+					{
+						if(ComplMenu.GetExitCode()!=-1)
+						{
+							EditLine->SetString(ComplMenu.GetItemPtr(ComplMenu.GetExitCode())->strName);
 						}
 					}
 				}

@@ -113,6 +113,7 @@ class DlgEdit: public ScreenObject
 		int   GetClearFlag();
 
 		void  SetString(const wchar_t *Str);
+		void  InsertString(const wchar_t *Str);
 		void  SetHiString(const wchar_t *Str);
 		void  GetString(wchar_t *Str, int MaxSize,int Row=-1); // Row==-1 - current line
 		void  GetString(string &strStr,int Row=-1);            // Row==-1 - current line

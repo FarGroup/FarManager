@@ -458,12 +458,15 @@ int CommandLine::ProcessKey(int Key)
 								if(Opt.AutoComplete.AppendCompletion)
 								{
 									int SelStart=CmdStr.GetLength();
-									CmdStr.SetString(ComplMenu.GetItemPtr(0)->strName);
+									CmdStr.InsertString(ComplMenu.GetItemPtr(0)->strName+CmdStr.GetLength());
 									CmdStr.Select(SelStart, CmdStr.GetLength());
 								}
 
-								MenuItemEx EmptyItem={0};
-								ComplMenu.AddItem(&EmptyItem,0);
+								if(!Opt.AutoComplete.ModalList)
+								{
+									MenuItemEx EmptyItem={0};
+									ComplMenu.AddItem(&EmptyItem,0);
+								}
 
 								ComplMenu.SetSelectPos(0,0);
 								ComplMenu.SetBoxType(SHORT_SINGLE_BOX);
@@ -476,13 +479,15 @@ int CommandLine::ProcessKey(int Key)
 								{
 									INPUT_RECORD ir;
 									ComplMenu.ReadInput(&ir);
-
-									int CurPos=ComplMenu.GetSelectPos();
-									if(CurPos>=0 && PrevPos!=CurPos)
+									if(!Opt.AutoComplete.ModalList)
 									{
-										PrevPos=CurPos;
-										CmdStr.SetString(CurPos?ComplMenu.GetItemPtr(CurPos)->strName:strStr);
-										CmdStr.Show();
+										int CurPos=ComplMenu.GetSelectPos();
+										if(CurPos>=0 && PrevPos!=CurPos)
+										{
+											PrevPos=CurPos;
+											CmdStr.SetString(CurPos?ComplMenu.GetItemPtr(CurPos)->strName:strStr);
+											CmdStr.Show();
+										}
 									}
 									if(ir.EventType==WINDOW_BUFFER_SIZE_EVENT)
 									{
@@ -515,12 +520,15 @@ int CommandLine::ProcessKey(int Key)
 												if(Key!=KEY_BS && Opt.AutoComplete.AppendCompletion)
 												{
 													int SelStart=CmdStr.GetLength();
-													CmdStr.SetString(ComplMenu.GetItemPtr(0)->strName);
+													CmdStr.InsertString(ComplMenu.GetItemPtr(0)->strName+CmdStr.GetLength());
 													CmdStr.Select(SelStart, CmdStr.GetLength());
 												}
 
-												MenuItemEx EmptyItem={0};
-												ComplMenu.AddItem(&EmptyItem,0);
+												if(!Opt.AutoComplete.ModalList)
+												{
+													MenuItemEx EmptyItem={0};
+													ComplMenu.AddItem(&EmptyItem,0);
+												}
 
 												ComplMenu.SetSelectPos(0,0);
 												ComplMenu.Redraw();
@@ -574,6 +582,15 @@ int CommandLine::ProcessKey(int Key)
 													break;
 												}
 
+											case KEY_ENTER:
+											case KEY_NUMENTER:
+												{
+													if(Opt.AutoComplete.ModalList)
+													{
+														ComplMenu.ProcessInput();
+														break;
+													}
+												}
 											// всё остальное закрывает список и идёт в панели
 											default:
 												{
@@ -587,6 +604,13 @@ int CommandLine::ProcessKey(int Key)
 									else
 									{
 										ComplMenu.ProcessInput();
+									}
+								}
+								if(Opt.AutoComplete.ModalList)
+								{
+									if(ComplMenu.GetExitCode()!=-1)
+									{
+										CmdStr.SetString(ComplMenu.GetItemPtr(ComplMenu.GetExitCode())->strName);
 									}
 								}
 							}

@@ -87,6 +87,7 @@ struct PanelOptions
 struct AutoCompleteOptions
 {
 	int ShowList;
+	int ModalList;
 	int AppendCompletion;
 };
 

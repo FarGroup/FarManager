@@ -78,6 +78,7 @@ const wchar_t NKeyColors[]=L"Colors";
 const wchar_t NKeyScreen[]=L"Screen";
 const wchar_t NKeyCmdline[]=L"Cmdline";
 const wchar_t NKeyInterface[]=L"Interface";
+const wchar_t NKeyInterfaceCompletion[]=L"Interface\\Completion";
 const wchar_t NKeyViewer[]=L"Viewer";
 const wchar_t NKeyDialog[]=L"Dialog";
 const wchar_t NKeyEditor[]=L"Editor";
@@ -767,8 +768,9 @@ static struct FARConfig
 	{1, REG_DWORD,  NKeyInterface, L"CopyShowTotal",&Opt.CMOpt.CopyShowTotal,0, 0},
 	{1, REG_DWORD,  NKeyInterface,L"DelShowTotal",&Opt.DelOpt.DelShowTotal,0, 0},
 	{1, REG_SZ,     NKeyInterface,L"TitleAddons",&Opt.strTitleAddons, 0, L"%Ver.%Build %Platform %Admin"},
-	{1, REG_DWORD,  NKeyInterface,L"ACShowList",&Opt.AutoComplete.ShowList, 1, 0},
-	{1, REG_DWORD,  NKeyInterface,L"ACAppend",&Opt.AutoComplete.AppendCompletion, 0, 0},
+	{1, REG_DWORD,  NKeyInterfaceCompletion,L"ShowList",&Opt.AutoComplete.ShowList, 1, 0},
+	{1, REG_DWORD,  NKeyInterfaceCompletion,L"ModalList",&Opt.AutoComplete.ModalList, 0, 0},
+	{1, REG_DWORD,  NKeyInterfaceCompletion,L"Append",&Opt.AutoComplete.AppendCompletion, 0, 0},
 
 	{1, REG_SZ,     NKeyViewer,L"ExternalViewerName",&Opt.strExternalViewer, 0, L""},
 	{1, REG_DWORD,  NKeyViewer,L"UseExternalViewer",&Opt.ViOpt.UseExternalViewer,0, 0},

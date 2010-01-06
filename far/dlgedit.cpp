@@ -287,6 +287,18 @@ void DlgEdit::SetString(const wchar_t *Str)
 		lineEdit->SetString(Str);
 }
 
+void DlgEdit::InsertString(const wchar_t *Str)
+{
+#if defined(PROJECT_DI_MEMOEDIT)
+	if (Type == DLGEDIT_MULTILINE)
+	{
+		; //multiEdit;
+	}
+	else
+#endif
+		lineEdit->InsertString(Str);
+}
+
 void DlgEdit::GetString(wchar_t *Str,int MaxSize,int Row)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
