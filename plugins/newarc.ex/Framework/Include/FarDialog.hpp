@@ -247,7 +247,7 @@ public:
 	int ListSetData (int ID, FarListItemData *Data)
 		{ return (int)Message (DM_LISTSETDATA, ID, (LONG_PTR)Data); }
 
-	int ListSetDataEx (int ID, int Index, void *pData, dword dwDataSize)
+	int ListSetDataEx (int ID, int Index, void *pData, DWORD dwDataSize)
 		{	FarListItemData Data = {Index, dwDataSize, pData, 0}; 
 			return (int)Message (DM_LISTSETDATA, ID, (LONG_PTR)&Data); }
 

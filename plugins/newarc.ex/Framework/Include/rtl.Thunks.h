@@ -30,14 +30,14 @@
 	_retval = CreateThunkRegister(this, *(void**)&_fake_proc); \
 }
 
-extern byte *CreateThunkFastEx(void *obj, void *start);
-extern byte *CreateThunkEx(void *obj, void *start, void *end);
-extern byte* CreateThunk (void *pClass, void *pfnClassProc);
-extern byte* CreateThunkCdecl (void *pClass, void *pfnClassProc);
-extern byte* CreateThunkRegister(void *pClass, void *pClassProc);
+extern PBYTE CreateThunkFastEx(void *obj, void *start);
+extern PBYTE CreateThunkEx(void *obj, void *start, void *end);
+extern PBYTE CreateThunk(void *pClass, void *pfnClassProc);
+extern PBYTE CreateThunkCdecl(void *pClass, void *pfnClassProc);
+extern PBYTE CreateThunkRegister(void *pClass, void *pClassProc);
 
-extern void ReleaseThunk (byte *pThunk);
-extern void ReleaseThunkEx (byte *pThunk);
-extern void ReleaseThunkCdecl (byte *pThunk);
+extern void ReleaseThunk(PBYTE pThunk);
+extern void ReleaseThunkEx(PBYTE pThunk);
+extern void ReleaseThunkCdecl(PBYTE pThunk);
 
 

@@ -1,7 +1,7 @@
 #include "Rtl.Base.h"
 
 
-inline void SetOptions (dword &fOptions, dword fFlags, bool bOn)
+inline void SetOptions (DWORD &fOptions, DWORD fFlags, bool bOn)
 {
 	if ( bOn )
 		fOptions = fOptions | fFlags;
@@ -10,13 +10,13 @@ inline void SetOptions (dword &fOptions, dword fFlags, bool bOn)
 }
 
 
-inline bool OptionIsOn (dword fOptions, dword fFlags)
+inline bool OptionIsOn (DWORD fOptions, DWORD fFlags)
 {
 	return (fOptions & fFlags) == fFlags;
 }
 
 
-inline void SetOptions (int &fOptions, dword fFlags, bool bOn)
+inline void SetOptions (int &fOptions, DWORD fFlags, bool bOn)
 {
 	if ( bOn )
 		fOptions = fOptions | fFlags;

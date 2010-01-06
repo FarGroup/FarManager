@@ -57,7 +57,7 @@ void __cdecl __fdebug (const TCHAR *format, ...)
 
     if ( hFile != INVALID_HANDLE_VALUE )
     {
-		dword dwWritten;
+		DWORD dwWritten;
     	SetFilePointer (hFile, 0, NULL, FILE_END);
 
     	TCHAR *lpCRLF = _T("\n\r");

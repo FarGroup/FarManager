@@ -1,13 +1,13 @@
 #include <Rtl.Base.h>
 
-byte *CreateThunkEx(void *obj, void *start, void *end)
+PBYTE CreateThunkEx(void *obj, void *start, void *end)
 {
-	int size = (byte*)end-(byte*)start;
+	int size = (PBYTE)end-(PBYTE)start;
 
-	byte *code = (byte*)VirtualAlloc (NULL, size, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	PBYTE code = (PBYTE)VirtualAlloc (NULL, size, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 	memcpy (code, start, size);
 
-	for (byte *p = code; p < code+size-sizeof(DWORD_PTR); p++)
+	for (PBYTE p = code; p < code+size-sizeof(DWORD_PTR); p++)
 	{
 		if ( *(DWORD_PTR*)p == THUNK_MAGIC )
 			memcpy(p, &obj, sizeof(void*));
@@ -16,18 +16,13 @@ byte *CreateThunkEx(void *obj, void *start, void *end)
 	return code;
 }
 
-#include "debug.h"
-
-byte* __code;
-
-
-byte *CreateThunkFastEx(void *obj, void *start)
+PBYTE CreateThunkFastEx(void *obj, void *start)
 {
-	byte *code = (byte*)VirtualAlloc(NULL, 4096, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	PBYTE code = (PBYTE)VirtualAlloc(NULL, 4096, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 
-	memcpy (code, (byte*)start-512, 4096);
+	memcpy (code, (PBYTE)start-512, 4096);
 
-	for (byte *p = code; p < code+4096-sizeof(DWORD_PTR); p++)
+	for (PBYTE p = code; p < code+4096-sizeof(DWORD_PTR); p++)
 	{
 		if ( *(DWORD_PTR*)p == THUNK_MAGIC )
 			*(DWORD_PTR*)p = (DWORD_PTR)obj;
@@ -37,14 +32,14 @@ byte *CreateThunkFastEx(void *obj, void *start)
 	return code+512;
 }
 
-void ReleaseThunkEx (byte *pThunk)
+void ReleaseThunkEx(PBYTE pThunk)
 {
-	VirtualFree (pThunk, 0, MEM_RELEASE);
+	VirtualFree(pThunk, 0, MEM_RELEASE);
 }
 
 
 
-byte _thunk_code[] =	{
+BYTE _thunk_code[] =	{
 		0x5A, // pop edx - pop ret addr
 		0xB9, 0xFF, 0xFF, 0xFF, 0xFF, // mov ecx instance
 		0x51, // push ecx - push instance
@@ -54,16 +49,16 @@ byte _thunk_code[] =	{
 		};
 
 
-byte* CreateThunk (void *pClass, void *pClassProc)
+PBYTE CreateThunk (void *pClass, void *pClassProc)
 {
-	byte *pThunk = (byte*)VirtualAlloc (NULL, sizeof (_thunk_code), MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	PBYTE pThunk = (PBYTE)VirtualAlloc (NULL, sizeof (_thunk_code), MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 	memcpy (pThunk, &_thunk_code, sizeof _thunk_code);
 	memcpy (&pThunk[2], &pClass, 4);
 	memcpy (&pThunk[9], &pClassProc, 4);
 	return pThunk;
 }
 
-void ReleaseThunk (byte *pThunk)
+void ReleaseThunk (PBYTE pThunk)
 {
 	VirtualFree (pThunk, 0, MEM_RELEASE);
 }
@@ -79,9 +74,9 @@ unsigned char registerCode[] = {
 		0xFF, 0xE0 //jmp eax
 		};
 
-byte* CreateThunkRegister(void *pClass, void *pClassProc)
+PBYTE CreateThunkRegister(void *pClass, void *pClassProc)
 {
-	byte *pThunk = (byte*)VirtualAlloc (NULL, sizeof (registerCode), MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	PBYTE pThunk = (byte*)VirtualAlloc (NULL, sizeof (registerCode), MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 	memcpy (pThunk, &registerCode, sizeof (registerCode));
 	memcpy (&pThunk[4], &pClass, 4);
 	memcpy (&pThunk[11], &pClassProc, 4);
@@ -103,10 +98,10 @@ unsigned char cdeclCode[] = {//all ecx!!
 		};
 
 
-byte *CreateThunkCdecl (void *pClass, void *pClassProc)
+PBYTE CreateThunkCdecl (void *pClass, void *pClassProc)
 {
-	byte *code = (byte*)VirtualAlloc (NULL, sizeof cdeclCode, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-	byte *addr = (byte*)malloc (4);
+	PBYTE code = (PBYTE)VirtualAlloc (NULL, sizeof cdeclCode, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	PBYTE addr = (PBYTE)malloc (4);
 
 	memcpy (code, &cdeclCode, sizeof cdeclCode);
 
@@ -121,8 +116,8 @@ byte *CreateThunkCdecl (void *pClass, void *pClassProc)
 }
 
 
-void ReleaseThunkCdecl (byte *pThunk)
+void ReleaseThunkCdecl (PBYTE pThunk)
 {
-	free ((void*)*(DWORD_PTR*)(pThunk+3));
-	VirtualFree (pThunk, 0, MEM_RELEASE);
+	free((void*)*(DWORD_PTR*)(pThunk+3));
+	VirtualFree(pThunk, 0, MEM_RELEASE);
 }
