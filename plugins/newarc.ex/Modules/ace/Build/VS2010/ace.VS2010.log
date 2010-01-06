@@ -1,0 +1,17 @@
+Build started 10.12.2009 5:11:47.
+     1>Project "D:\Development\Far\plugins\newarc\Modules\ace\Build\VS2010\ace.VS2010.vcxproj" on node 1 (build target(s)).
+     1>_PrepareForBuild:
+         Creating "..\..\Bin\Debug Unicode\ace.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         All outputs are up-to-date.
+       Link:
+         All outputs are up-to-date.
+         ace.VS2010.vcxproj -> C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ace\ace.module
+       _AfterBuild:
+         Deleting file "..\..\Bin\Debug Unicode\ace.unsuccessfulbuild".
+         Touching "..\..\Bin\Debug Unicode\ace.lastbuildstate".
+     1>Done Building Project "D:\Development\Far\plugins\newarc\Modules\ace\Build\VS2010\ace.VS2010.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.12

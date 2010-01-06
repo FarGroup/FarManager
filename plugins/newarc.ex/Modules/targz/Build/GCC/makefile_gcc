@@ -1,0 +1,48 @@
+OBJDIR = ../../../o/plugins/targz
+REOBJDIR = \.\.\/\.\.\/\.\.\/o\/plugins\/targz\/
+DLLDIR = ../../../bin/plugins
+DLLNAME = targz.module
+DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
+SRCS = detect.cpp FarBlib.cpp FarZlib.cpp fileutils.cpp TarBase.cpp TarGz.cpp unixutils.cpp
+DEF = targz.gcc.def
+LIBS = -L ../../../o/RTL -lRTL
+
+CXX = g++
+DLLTOOL = dlltool
+RM = rm -f
+CP = cp -f
+M4 = m4 -P
+MV = mv -f
+MKDIR = mkdir
+CXXFLAGS = -Wall -I ../../lib.part/Include -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-rtti -fno-exceptions
+LNKFLAGS = -s -nostartfiles $(LIBS)
+#LNKFLAGS = -s -nostartfiles -nodefaultlibs $(LIBS) -luser32 -lkernel32 -ladvapi32 -lole32
+
+all: $(DLLFULLNAME)
+
+OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS)))
+DEPS = $(patsubst %.cpp,$(OBJDIR)/%.d,$(filter %.cpp,$(SRCS)))
+MAP = $(patsubst %.module,%.map,$(DLLFULLNAME))
+
+$(OBJDIR)/%.d: %.cpp
+	@echo making depends for $<
+	@$(MKDIR) -p $(@D)
+	@$(SHELL) -ec '$(CXX) -c -MM $(CXXFLAGS) $< \
+                | sed '\''s/\($*\)\.o[ :]*/$(REOBJDIR)\1.o $(REOBJDIR)\1.d: /g'\'' > $@; [ -s $@ ] || $(RM) $@'
+
+$(OBJDIR)/%.o: %.cpp
+	@echo compiling $<
+	@$(MKDIR) -p $(@D)
+	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(DLLFULLNAME): $(OBJS)
+	@echo linking $@
+	@$(MKDIR) -p $(@D)
+	@$(CXX) -mdll -o $(DLLNAME) -Xlinker --base-file -Xlinker $(DLLNAME).base $(OBJS) $(LNKFLAGS)
+	@$(DLLTOOL) --dllname $(DLLNAME) --base-file $(DLLNAME).base --output-exp $(DLLNAME).exp --def $(DEF)
+	@$(CXX) -mdll  -o $(DLLNAME) $(OBJS) $(DLLNAME).exp $(LNKFLAGS) -Xlinker -Map -Xlinker $(MAP)
+	@$(MV) $(DLLNAME) $(DLLDIR)
+	@$(RM) $(DLLNAME).base
+	@$(RM) $(DLLNAME).exp
+
+-include $(DEPS)

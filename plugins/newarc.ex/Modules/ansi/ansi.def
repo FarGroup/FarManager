@@ -1,0 +1,6 @@
+LIBRARY
+EXPORTS
+	SetStartupInfo
+	ExitFAR
+	GetPluginStartupInfo
+	GetPluginInfo

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Detect">
+      <UniqueIdentifier>{d576fc3d-1824-423b-9f31-734efc396e58}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Framework">
+      <UniqueIdentifier>{e3a1af0c-6d08-41b4-92d1-d9dcf9ad15ec}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\framework\Src\debug.cpp">
+      <Filter>Source Files\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\framework\Src\FarDialog.cpp">
+      <Filter>Source Files\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\framework\Src\farlng.cpp">
+      <Filter>Source Files\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\framework\Src\FarPagedDialog.cpp">
+      <Filter>Source Files\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Framework\Src\makeguid.cpp">
+      <Filter>Source Files\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\framework\Src\rtl.Hook.cpp">
+      <Filter>Source Files\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\framework\Src\rtl.Kernel.cpp">
+      <Filter>Source Files\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\framework\Src\rtl.Memory.cpp">
+      <Filter>Source Files\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\framework\Src\rtl.Misc.cpp">
+      <Filter>Source Files\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\framework\Src\rtl.Strings.cpp">
+      <Filter>Source Files\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\framework\Src\Rtl.Thunks.cpp">
+      <Filter>Source Files\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\framework\Src\strmix.cpp">
+      <Filter>Source Files\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\7z.Archive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\7z.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\7z.File.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\7z.Helpers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\7z.Module.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\7z.Plugin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Detect\7zdetect.cpp">
+      <Filter>Source Files\Detect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Detect\arjdetect.cpp">
+      <Filter>Source Files\Detect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Detect\cabdetect.cpp">
+      <Filter>Source Files\Detect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Detect\hfsdetect.cpp">
+      <Filter>Source Files\Detect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Detect\isodetect.cpp">
+      <Filter>Source Files\Detect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Detect\lzhdetect.cpp">
+      <Filter>Source Files\Detect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Detect\lzmadetect.cpp">
+      <Filter>Source Files\Detect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Detect\machodetect.cpp">
+      <Filter>Source Files\Detect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Detect\nsisdetect.cpp">
+      <Filter>Source Files\Detect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Detect\pedetect.cpp">
+      <Filter>Source Files\Detect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Detect\rardetect.cpp">
+      <Filter>Source Files\Detect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Detect\tardetect.cpp">
+      <Filter>Source Files\Detect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Detect\udfdetect.cpp">
+      <Filter>Source Files\Detect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Detect\zipdetect.cpp">
+      <Filter>Source Files\Detect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\PropVariant.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,53 @@
+Build started 29.12.2009 3:15:58.
+     1>Project "D:\Development\Far\plugins\newarc\Modules\ma\Build\VS2010\ma.2010.vcxproj" on node 9 (rebuild target(s)).
+     1>_PrepareForClean:
+         Deleting file "..\..\Bin\Release Unicode\ma.lastbuildstate".
+       _PrepareForBuild:
+         Creating "..\..\Bin\Release Unicode\ma.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I../../Include /I../../../../Framework/Include /Zi /nologo /W1 /WX- /O1 /Os /Oy /GL /D _WINDLL /D _UNICODE /D UNICODE /GF /Gm- /MT /Zp1 /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /GR- /Fo"..\..\Bin\Release Unicode\\" /Fd"..\..\Bin\Release Unicode\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt ..\..\..\..\Framework\Src\debug.cpp ..\..\..\..\Framework\Src\FarDialog.cpp ..\..\..\..\Framework\Src\farlng.cpp ..\..\..\..\Framework\Src\FarRegistry.cpp ..\..\..\..\Framework\Src\rtl.Hook.cpp ..\..\..\..\Framework\Src\rtl.Kernel.cpp ..\..\..\..\Framework\Src\rtl.Memory.cpp ..\..\..\..\Framework\Src\rtl.Misc.cpp ..\..\..\..\Framework\Src\rtl.Strings.cpp ..\..\..\..\Framework\Src\Rtl.Thunks.cpp ..\..\..\..\Framework\Src\strmix.cpp ..\..\..\..\Framework\Src\makeguid.cpp ..\..\Source\ma.Archive.cpp ..\..\Source\ma.cpp ..\..\Source\ma.Module.cpp ..\..\Source\ma.Plugin.cpp
+         debug.cpp
+         FarDialog.cpp
+         farlng.cpp
+         FarRegistry.cpp
+         rtl.Hook.cpp
+         rtl.Kernel.cpp
+         rtl.Memory.cpp
+         rtl.Misc.cpp
+         rtl.Strings.cpp
+         Rtl.Thunks.cpp
+         strmix.cpp
+         makeguid.cpp
+         ma.Archive.cpp
+         ma.cpp
+         ma.Module.cpp
+         ma.Plugin.cpp
+       Link:
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ma\ma.module" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /DEF:"../../ma.def" /MANIFEST:NO /PDB:"C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ma\ma.pdb" /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ma\ma.lib" /MACHINE:X86 /DLL "..\..\Bin\Release Unicode\debug.obj"
+         "..\..\Bin\Release Unicode\FarDialog.obj"
+         "..\..\Bin\Release Unicode\farlng.obj"
+         "..\..\Bin\Release Unicode\FarRegistry.obj"
+         "..\..\Bin\Release Unicode\rtl.Hook.obj"
+         "..\..\Bin\Release Unicode\rtl.Kernel.obj"
+         "..\..\Bin\Release Unicode\rtl.Memory.obj"
+         "..\..\Bin\Release Unicode\rtl.Misc.obj"
+         "..\..\Bin\Release Unicode\rtl.Strings.obj"
+         "..\..\Bin\Release Unicode\Rtl.Thunks.obj"
+         "..\..\Bin\Release Unicode\strmix.obj"
+         "..\..\Bin\Release Unicode\makeguid.obj"
+         "..\..\Bin\Release Unicode\ma.Archive.obj"
+         "..\..\Bin\Release Unicode\ma.obj"
+         "..\..\Bin\Release Unicode\ma.Module.obj"
+         "..\..\Bin\Release Unicode\ma.Plugin.obj"
+            Creating library C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ma\ma.lib and object C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ma\ma.exp
+         Generating code
+         Finished generating code
+         ma.2010.vcxproj -> C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ma\ma.module
+       _AfterBuild:
+         Deleting file "..\..\Bin\Release Unicode\ma.unsuccessfulbuild".
+         Touching "..\..\Bin\Release Unicode\ma.lastbuildstate".
+     1>Done Building Project "D:\Development\Far\plugins\newarc\Modules\ma\Build\VS2010\ma.2010.vcxproj" (rebuild target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:14.09

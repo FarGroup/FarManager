@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\Framework\Src\debug.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Framework\Src\FarDialog.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Framework\Src\farlng.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Framework\Src\FarRegistry.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Framework\Src\makeguid.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Framework\Src\rtl.Hook.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Framework\Src\rtl.Kernel.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Framework\Src\rtl.Memory.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Framework\Src\rtl.Misc.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Framework\Src\rtl.Strings.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Framework\Src\Rtl.Thunks.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Framework\Src\strmix.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ma.Archive.cpp" />
+    <ClCompile Include="..\..\Source\ma.cpp" />
+    <ClCompile Include="..\..\Source\ma.Module.cpp" />
+    <ClCompile Include="..\..\Source\ma.Plugin.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Framework">
+      <UniqueIdentifier>{98b092cb-9a74-4b39-8c28-4e5af2e01ca0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

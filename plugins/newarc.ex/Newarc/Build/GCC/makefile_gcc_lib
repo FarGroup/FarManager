@@ -1,0 +1,42 @@
+OBJDIR = ../o/RTL
+REOBJDIR = \.\.\/o\/RTL\/
+DLLDIR = ../o/RTL
+DLLNAME = libRTL.a
+DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
+SRCS = Rtl.Hook.cpp Rtl.Kernel.cpp Rtl.Memory.cpp Rtl.Misc.cpp Rtl.Strings.cpp Rtl.Thunks.cpp FarDialogs.cpp Registry.cpp FarLNG.cpp debug.cpp gcc.cpp
+
+CXX = g++
+DLLTOOL = dlltool
+RM = rm -f
+CP = cp -f
+M4 = m4 -P
+MV = mv -f
+MKDIR = mkdir
+AR = ar
+RANLIB = ranlib
+CXXFLAGS = -Wall -I ./lib.part/Include -Os -fno-strict-aliasing -funsigned-char -fomit-frame-pointer -fno-rtti -fno-exceptions
+
+OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS)))
+DEPS = $(patsubst %.cpp,$(OBJDIR)/%.d,$(filter %.cpp,$(SRCS)))
+
+all: $(DLLFULLNAME)
+
+$(OBJDIR)/%.d: ./lib.part/src/%.cpp
+	@echo making depends for $<
+	@$(MKDIR) -p $(@D)
+	@$(SHELL) -ec '$(CXX) -c -MM $(CXXFLAGS) $< \
+                | sed '\''s/\($*\)\.o[ :]*/$(REOBJDIR)\1.o $(REOBJDIR)\1.d: /g'\'' > $@; [ -s $@ ] || $(RM) $@'
+
+$(OBJDIR)/%.o: ./lib.part/src/%.cpp
+	@echo compiling $<
+	@$(MKDIR) -p $(@D)
+	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(DLLFULLNAME): $(OBJS)
+	@echo linking $@
+	@$(MKDIR) -p $(@D)
+	@$(AR) rc $(DLLNAME) $(OBJS)
+	@$(RANLIB) $(DLLNAME)
+	@$(MV) $(DLLNAME) $(DLLDIR)
+
+-include $(DEPS)

@@ -1,0 +1,18 @@
+LIBRARY newarc
+EXPORTS
+	GetPluginInfoW
+	ConfigureW
+	SetStartupInfoW
+	ExitFARW
+	OpenFilePluginW
+	GetFindDataW
+	FreeFindDataW
+	ClosePluginW
+	GetOpenPluginInfoW
+	SetDirectoryW
+	GetFilesW
+	PutFilesW  
+	DeleteFilesW
+	ProcessHostFileW
+	ProcessKeyW
+	OpenPluginW

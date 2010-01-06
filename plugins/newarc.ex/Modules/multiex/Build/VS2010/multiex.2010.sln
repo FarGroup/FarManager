@@ -1,0 +1,26 @@
+
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "multiex", "multiex.2010.vcxproj", "{74CD90F0-1CB2-4098-964B-C8DFF51FB70C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug Unicode|Win32 = Debug Unicode|Win32
+		Debug|Win32 = Debug|Win32
+		Release Unicode|Win32 = Release Unicode|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{74CD90F0-1CB2-4098-964B-C8DFF51FB70C}.Debug Unicode|Win32.ActiveCfg = Debug Unicode|Win32
+		{74CD90F0-1CB2-4098-964B-C8DFF51FB70C}.Debug Unicode|Win32.Build.0 = Debug Unicode|Win32
+		{74CD90F0-1CB2-4098-964B-C8DFF51FB70C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{74CD90F0-1CB2-4098-964B-C8DFF51FB70C}.Debug|Win32.Build.0 = Debug|Win32
+		{74CD90F0-1CB2-4098-964B-C8DFF51FB70C}.Release Unicode|Win32.ActiveCfg = Release Unicode|Win32
+		{74CD90F0-1CB2-4098-964B-C8DFF51FB70C}.Release Unicode|Win32.Build.0 = Release Unicode|Win32
+		{74CD90F0-1CB2-4098-964B-C8DFF51FB70C}.Release|Win32.ActiveCfg = Release|Win32
+		{74CD90F0-1CB2-4098-964B-C8DFF51FB70C}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

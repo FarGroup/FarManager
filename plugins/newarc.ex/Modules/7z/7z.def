@@ -1,0 +1,3 @@
+LIBRARY 7z
+EXPORTS
+	ModuleEntry

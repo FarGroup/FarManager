@@ -1,0 +1,96 @@
+Build started 29.12.2009 3:16:48.
+     1>Project "D:\Development\Far\plugins\newarc\Modules\7z\Build\VS2010\7z.2010.vcxproj" on node 9 (rebuild target(s)).
+     1>_PrepareForClean:
+         Deleting file "..\..\Bin\Release Unicode\7z.lastbuildstate".
+       _PrepareForBuild:
+         Creating "..\..\Bin\Release Unicode\7z.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I../../Include /I../../../../Framework/Include /Zi /nologo /W1 /WX- /O1 /Os /Oy /GL /D _WINDLL /D _UNICODE /D UNICODE /GF /Gm- /EHsc /MT /Zp1 /GS- /Gy /fp:precise /Zc:wchar_t /Zc:forScope /GR- /Fo"..\..\Bin\Release Unicode\\" /Fd"..\..\Bin\Release Unicode\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt ..\..\..\..\framework\Src\debug.cpp ..\..\..\..\framework\Src\FarDialog.cpp ..\..\..\..\framework\Src\farlng.cpp ..\..\..\..\framework\Src\FarPagedDialog.cpp ..\..\..\..\Framework\Src\makeguid.cpp ..\..\..\..\framework\Src\rtl.Hook.cpp ..\..\..\..\framework\Src\rtl.Kernel.cpp ..\..\..\..\framework\Src\rtl.Memory.cpp ..\..\..\..\framework\Src\rtl.Misc.cpp ..\..\..\..\framework\Src\rtl.Strings.cpp ..\..\..\..\framework\Src\Rtl.Thunks.cpp ..\..\..\..\framework\Src\strmix.cpp ..\..\Source\7z.Archive.cpp ..\..\Source\7z.cpp ..\..\Source\7z.File.cpp ..\..\Source\7z.Helpers.cpp ..\..\Source\7z.Module.cpp ..\..\Source\7z.Plugin.cpp ..\..\Source\Detect\7zdetect.cpp ..\..\Source\Detect\arjdetect.cpp ..\..\Source\Detect\cabdetect.cpp ..\..\Source\Detect\hfsdetect.cpp ..\..\Source\Detect\isodetect.cpp ..\..\Source\Detect\lzhdetect.cpp ..\..\Source\Detect\lzmadetect.cpp ..\..\Source\Detect\machodetect.cpp ..\..\Source\Detect\nsisdetect.cpp ..\..\Source\Detect\pedetect.cpp ..\..\Source\Detect\rardetect.cpp ..\..\Source\Detect\tardetect.cpp ..\..\Source\Detect\udfdetect.cpp ..\..\Source\Detect\zipdetect.cpp ..\..\Source\PropVariant.cpp
+         debug.cpp
+         FarDialog.cpp
+         farlng.cpp
+         FarPagedDialog.cpp
+         makeguid.cpp
+         rtl.Hook.cpp
+         rtl.Kernel.cpp
+         rtl.Memory.cpp
+         rtl.Misc.cpp
+         rtl.Strings.cpp
+         Rtl.Thunks.cpp
+         strmix.cpp
+         7z.Archive.cpp
+         7z.cpp
+         7z.File.cpp
+         7z.Helpers.cpp
+         7z.Module.cpp
+         7z.Plugin.cpp
+         7zdetect.cpp
+         arjdetect.cpp
+         Compiling...
+         cabdetect.cpp
+         hfsdetect.cpp
+         isodetect.cpp
+         lzhdetect.cpp
+         lzmadetect.cpp
+         machodetect.cpp
+         nsisdetect.cpp
+         pedetect.cpp
+         rardetect.cpp
+         tardetect.cpp
+     1>..\..\Source\Detect\tardetect.cpp(128): warning C4005: '_UI64_MAX' : macro redefinition
+                 C:\Program Files\Microsoft Visual Studio 10.0\VC\include\limits.h(67) : see previous definition of '_UI64_MAX'
+     1>..\..\Source\Detect\tardetect.cpp(130): warning C4005: '_I64_MIN' : macro redefinition
+                 C:\Program Files\Microsoft Visual Studio 10.0\VC\include\limits.h(63) : see previous definition of '_I64_MIN'
+     1>..\..\Source\Detect\tardetect.cpp(131): warning C4005: '_I64_MAX' : macro redefinition
+                 C:\Program Files\Microsoft Visual Studio 10.0\VC\include\limits.h(65) : see previous definition of '_I64_MAX'
+         udfdetect.cpp
+         zipdetect.cpp
+         PropVariant.cpp
+       Link:
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\7z.all\7z.module" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /DEF:"../../7z.def" /MANIFEST:NO /PDB:"C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\7z.all\7z.pdb" /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\7z.all\7z.lib" /MACHINE:X86 /DLL "..\..\Bin\Release Unicode\debug.obj"
+         "..\..\Bin\Release Unicode\FarDialog.obj"
+         "..\..\Bin\Release Unicode\farlng.obj"
+         "..\..\Bin\Release Unicode\FarPagedDialog.obj"
+         "..\..\Bin\Release Unicode\makeguid.obj"
+         "..\..\Bin\Release Unicode\rtl.Hook.obj"
+         "..\..\Bin\Release Unicode\rtl.Kernel.obj"
+         "..\..\Bin\Release Unicode\rtl.Memory.obj"
+         "..\..\Bin\Release Unicode\rtl.Misc.obj"
+         "..\..\Bin\Release Unicode\rtl.Strings.obj"
+         "..\..\Bin\Release Unicode\Rtl.Thunks.obj"
+         "..\..\Bin\Release Unicode\strmix.obj"
+         "..\..\Bin\Release Unicode\7z.Archive.obj"
+         "..\..\Bin\Release Unicode\7z.obj"
+         "..\..\Bin\Release Unicode\7z.File.obj"
+         "..\..\Bin\Release Unicode\7z.Helpers.obj"
+         "..\..\Bin\Release Unicode\7z.Module.obj"
+         "..\..\Bin\Release Unicode\7z.Plugin.obj"
+         "..\..\Bin\Release Unicode\7zdetect.obj"
+         "..\..\Bin\Release Unicode\arjdetect.obj"
+         "..\..\Bin\Release Unicode\cabdetect.obj"
+         "..\..\Bin\Release Unicode\hfsdetect.obj"
+         "..\..\Bin\Release Unicode\isodetect.obj"
+         "..\..\Bin\Release Unicode\lzhdetect.obj"
+         "..\..\Bin\Release Unicode\lzmadetect.obj"
+         "..\..\Bin\Release Unicode\machodetect.obj"
+         "..\..\Bin\Release Unicode\nsisdetect.obj"
+         "..\..\Bin\Release Unicode\pedetect.obj"
+         "..\..\Bin\Release Unicode\rardetect.obj"
+         "..\..\Bin\Release Unicode\tardetect.obj"
+         "..\..\Bin\Release Unicode\udfdetect.obj"
+         "..\..\Bin\Release Unicode\zipdetect.obj"
+         "..\..\Bin\Release Unicode\PropVariant.obj"
+            Creating library C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\7z.all\7z.lib and object C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\7z.all\7z.exp
+     1>7z.exp : warning LNK4070: /OUT:7z.dll directive in .EXP differs from output filename 'C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\7z.all\7z.module'; ignoring directive
+         Generating code
+         Finished generating code
+     1>7z.exp : warning LNK4070: /OUT:7z.dll directive in .EXP differs from output filename 'C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\7z.all\7z.module'; ignoring directive
+         7z.2010.vcxproj -> C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\7z.all\7z.module
+       _AfterBuild:
+         Deleting file "..\..\Bin\Release Unicode\7z.unsuccessfulbuild".
+         Touching "..\..\Bin\Release Unicode\7z.lastbuildstate".
+     1>Done Building Project "D:\Development\Far\plugins\newarc\Modules\7z\Build\VS2010\7z.2010.vcxproj" (rebuild target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:48.49

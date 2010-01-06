@@ -1,0 +1,24 @@
+Build started 29.12.2009 3:15:55.
+     1>Project "D:\Development\Far\plugins\newarc\Modules\ansi\Build\2010\ansi.2010.vcxproj" on node 9 (rebuild target(s)).
+     1>_PrepareForClean:
+         Deleting file "Release Unicode\ansi.lastbuildstate".
+       _PrepareForBuild:
+         Creating "Release Unicode\ansi.unsuccessfulbuild" because "AlwaysCreate" was specified.
+     1>C:\Program Files\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(249,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
+       ClCompile:
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I../../Include /I../../../../Framework/Include /Zi /nologo /W3 /WX- /O1 /Oi /Os /Oy- /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _USRDLL /D ANSI2010_EXPORTS /D _WINDLL /D _MBCS /GF /Gm- /EHsc /MT /Zp1 /GS- /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release Unicode\\" /Fd"Release Unicode\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt ..\..\Source\ansi.cpp
+         ansi.cpp
+       Link:
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ma\ansi.dll" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /DEF:"../../ansi.def" /MANIFEST:NO /PDB:"C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ma\ansi.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ma\ansi.lib" /MACHINE:X86 /DLL "Release Unicode\ansi.obj"
+            Creating library C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ma\ansi.lib and object C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ma\ansi.exp
+         Generating code
+         Finished generating code
+         ansi.2010.vcxproj -> C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ma\ansi.dll
+       _AfterBuild:
+         Deleting file "Release Unicode\ansi.unsuccessfulbuild".
+         Touching "Release Unicode\ansi.lastbuildstate".
+     1>Done Building Project "D:\Development\Far\plugins\newarc\Modules\ansi\Build\2010\ansi.2010.vcxproj" (rebuild target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:03.16

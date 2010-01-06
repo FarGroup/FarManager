@@ -1,0 +1,20 @@
+
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rar", "rar.VS2008.vcproj", "{26E284B8-6296-4CBA-9C61-967BC3EDE229}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{26E284B8-6296-4CBA-9C61-967BC3EDE229}.Debug|Win32.ActiveCfg = Debug|Win32
+		{26E284B8-6296-4CBA-9C61-967BC3EDE229}.Debug|Win32.Build.0 = Debug|Win32
+		{26E284B8-6296-4CBA-9C61-967BC3EDE229}.Release|Win32.ActiveCfg = Release|Win32
+		{26E284B8-6296-4CBA-9C61-967BC3EDE229}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

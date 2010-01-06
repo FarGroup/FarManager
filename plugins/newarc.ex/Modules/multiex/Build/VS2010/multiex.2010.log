@@ -1,0 +1,58 @@
+Build started 29.12.2009 3:15:55.
+     1>Project "D:\Development\Far\plugins\newarc\Modules\multiex\Build\VS2010\multiex.2010.vcxproj" on node 10 (rebuild target(s)).
+     1>_PrepareForClean:
+         Deleting file "Release Unicode\multiex.lastbuildstate".
+       _PrepareForBuild:
+         Creating "Release Unicode\multiex.unsuccessfulbuild" because "AlwaysCreate" was specified.
+     1>C:\Program Files\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(249,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
+       ClCompile:
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I../../Include /I../../../../Framework/Include /Zi /nologo /W3 /WX- /O1 /Oi /Os /Oy /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _USRDLL /D MULTIEX2010_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /GF /Gm- /MT /Zp1 /GS- /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /GR- /Fo"Release Unicode\\" /Fd"Release Unicode\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt ..\..\..\..\Framework\Src\debug.cpp ..\..\..\..\Framework\Src\FarDialog.cpp ..\..\..\..\Framework\Src\farlng.cpp ..\..\..\..\Framework\Src\FarPagedDialog.cpp ..\..\..\..\Framework\Src\FarRegistry.cpp ..\..\..\..\Framework\Src\makeguid.cpp ..\..\..\..\Framework\Src\rtl.Hook.cpp ..\..\..\..\Framework\Src\rtl.Kernel.cpp ..\..\..\..\Framework\Src\rtl.Memory.cpp ..\..\..\..\Framework\Src\rtl.Misc.cpp ..\..\..\..\Framework\Src\rtl.Strings.cpp ..\..\..\..\Framework\Src\Rtl.Thunks.cpp ..\..\..\..\Framework\Src\strmix.cpp ..\..\Source\multiex.Archive.cpp ..\..\Source\multiex.cpp ..\..\Source\multiex.Module.cpp ..\..\Source\multiex.Plugin.cpp
+         debug.cpp
+         FarDialog.cpp
+         farlng.cpp
+         FarPagedDialog.cpp
+         FarRegistry.cpp
+         makeguid.cpp
+         rtl.Hook.cpp
+         rtl.Kernel.cpp
+         rtl.Memory.cpp
+         rtl.Misc.cpp
+         rtl.Strings.cpp
+     1>..\..\..\..\Framework\Src\rtl.Strings.cpp(25): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files\Microsoft Visual Studio 10.0\VC\include\string.h(250) : see declaration of 'wcscpy'
+         Rtl.Thunks.cpp
+         strmix.cpp
+         multiex.Archive.cpp
+         multiex.cpp
+         multiex.Module.cpp
+         multiex.Plugin.cpp
+       Link:
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\multiex\multiex.module" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /DEF:"../../multiex.def" /MANIFEST:NO /PDB:"C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\multiex\multiex.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\multiex\multiex.lib" /MACHINE:X86 /DLL "Release Unicode\debug.obj"
+         "Release Unicode\FarDialog.obj"
+         "Release Unicode\farlng.obj"
+         "Release Unicode\FarPagedDialog.obj"
+         "Release Unicode\FarRegistry.obj"
+         "Release Unicode\makeguid.obj"
+         "Release Unicode\rtl.Hook.obj"
+         "Release Unicode\rtl.Kernel.obj"
+         "Release Unicode\rtl.Memory.obj"
+         "Release Unicode\rtl.Misc.obj"
+         "Release Unicode\rtl.Strings.obj"
+         "Release Unicode\Rtl.Thunks.obj"
+         "Release Unicode\strmix.obj"
+         "Release Unicode\multiex.Archive.obj"
+         "Release Unicode\multiex.obj"
+         "Release Unicode\multiex.Module.obj"
+         "Release Unicode\multiex.Plugin.obj"
+            Creating library C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\multiex\multiex.lib and object C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\multiex\multiex.exp
+         Generating code
+         Finished generating code
+         multiex.2010.vcxproj -> C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\multiex\multiex.module
+       _AfterBuild:
+         Deleting file "Release Unicode\multiex.unsuccessfulbuild".
+         Touching "Release Unicode\multiex.lastbuildstate".
+     1>Done Building Project "D:\Development\Far\plugins\newarc\Modules\multiex\Build\VS2010\multiex.2010.vcxproj" (rebuild target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:13.96

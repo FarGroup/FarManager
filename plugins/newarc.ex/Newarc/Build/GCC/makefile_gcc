@@ -1,0 +1,52 @@
+OBJDIR = ../o/NewArc
+REOBJDIR = \.\.\/o\/NewArc\/
+DLLDIR = ../bin
+DLLNAME = newarc.dll
+DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
+SRCS = newarc.Archive.cpp newarc.ArchivePlugin.cpp newarc.cpp newarc.Panel.cpp newarc.Thunks.cpp
+DEF = newarc.gcc.def
+LIBS = -L ../o/RTL -lRTL
+
+CXX = g++
+DLLTOOL = dlltool
+RM = rm -f
+CP = cp -f
+M4 = m4 -P
+MV = mv -f
+MKDIR = mkdir
+CXXFLAGS = -Wall -I ./lib.part/Include -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-rtti -fno-exceptions
+LNKFLAGS = -s -nostartfiles -nodefaultlibs $(LIBS) -luser32 -lkernel32 -ladvapi32 -lcrtdll -lole32
+
+all: $(DLLFULLNAME)
+
+newarc.Messages.h: newarc.Language.feed.txt
+	@lng.generator.exe -i lang.ini newarc.Language.feed.txt
+	@$(MV) newarc.English.lng ../bin/newarc.English.lng
+	@$(MV) newarc.Russian.lng ../bin/newarc.Russian.lng
+
+OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS)))
+DEPS = $(patsubst %.cpp,$(OBJDIR)/%.d,$(filter %.cpp,$(SRCS)))
+MAP = $(patsubst %.dll,%.map,$(DLLFULLNAME))
+
+$(OBJDIR)/%.d: %.cpp
+	@echo making depends for $<
+	@$(MKDIR) -p $(@D)
+	@$(SHELL) -ec '$(CXX) -c -MM $(CXXFLAGS) $< \
+                | sed '\''s/\($*\)\.o[ :]*/$(REOBJDIR)\1.o $(REOBJDIR)\1.d: /g'\'' > $@; [ -s $@ ] || $(RM) $@'
+
+$(OBJDIR)/%.o: %.cpp
+	@echo compiling $<
+	@$(MKDIR) -p $(@D)
+	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(DLLFULLNAME): $(OBJS)
+	@echo linking $@
+	@$(MKDIR) -p $(@D)
+	@$(CXX) -mdll -o $(DLLNAME) -Xlinker --base-file -Xlinker $(DLLNAME).base $(OBJS) $(LNKFLAGS)
+	@$(DLLTOOL) --dllname $(DLLNAME) --base-file $(DLLNAME).base --output-exp $(DLLNAME).exp --def $(DEF)
+	@$(CXX) -mdll  -o $(DLLNAME) $(OBJS) $(DLLNAME).exp $(LNKFLAGS) -Xlinker -Map -Xlinker $(MAP)
+	@$(MV) $(DLLNAME) $(DLLDIR)
+	@$(RM) $(DLLNAME).base
+	@$(RM) $(DLLNAME).exp
+
+-include $(DEPS)

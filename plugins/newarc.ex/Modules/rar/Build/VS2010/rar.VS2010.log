@@ -1,0 +1,16 @@
+Build started 15.11.2009 2:29:49.
+     1>Project "D:\Development\Far\plugins\newarc\Modules\rar\Build\VS2010\rar.VS2010.vcxproj" on node 34 (build target(s)).
+     1>_PrepareForBuild:
+         Touching "..\..\Bin\Release Unicode\rar.unsuccessfulbuild".
+       ClCompile:
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I../../Include /I../../../../Framework/Include /Zi /nologo /W1 /WX- /O1 /Os /Oy /GL /D _WINDLL /D _UNICODE /D UNICODE /GF /Gm- /EHsc /MT /Zp1 /GS- /Gy /fp:precise /Zc:wchar_t /Zc:forScope /GR- /Fo"..\..\Bin\Release Unicode\\" /Fd"..\..\Bin\Release Unicode\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt ..\..\Source\rar.cpp
+         rar.cpp
+     1>..\..\Source\rar.cpp(106): error C2039: 'nFormats' : is not a member of 'ArchiveModuleInfo'
+                 D:\Development\Far\plugins\newarc\Framework\Include\../../API/module.hpp(141) : see declaration of 'ArchiveModuleInfo'
+     1>..\..\Source\rar.cpp(107): error C2039: 'pFormatInfo' : is not a member of 'ArchiveModuleInfo'
+                 D:\Development\Far\plugins\newarc\Framework\Include\../../API/module.hpp(141) : see declaration of 'ArchiveModuleInfo'
+     1>Done Building Project "D:\Development\Far\plugins\newarc\Modules\rar\Build\VS2010\rar.VS2010.vcxproj" (build target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:00.85
