@@ -8,9 +8,15 @@
 
 #ifdef UNICODE
  
+#ifdef _EXTERNAL
+#include "../../common/unicode/plugin.hpp"
+#include "../../common/unicode/farkeys.hpp"
+#include "../../common/unicode/farcolor.hpp"
+#else
 #include "../../../common/unicode/plugin.hpp"
 #include "../../../common/unicode/farkeys.hpp"
 #include "../../../common/unicode/farcolor.hpp"
+#endif
 
 #define FARMANAGER_MAJOR_SAFE FARMANAGERVERSION_MAJOR
 #define FARMANAGER_MINOR_SAFE FARMANAGERVERSION_MINOR
@@ -24,11 +30,13 @@
 #undef FARMANAGERVERSION_MINOR
 #undef FARMANAGERVERSION_BUILD
 
+#ifndef _EXTERNAL
 namespace oldfar {
 #include "../../../common/ascii/plugin.hpp"
 #include "../../../common/ascii/farkeys.hpp"
 #include "../../../common/ascii/farcolor.hpp"
 };
+#endif
 
 #else
 

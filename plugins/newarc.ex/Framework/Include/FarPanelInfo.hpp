@@ -187,6 +187,12 @@ public:
 		return m_short->ItemsNumber;
 	}
 
+	int __stdcall GetType()
+	{
+		UpdatePanelShortInfo();
+		return m_short->PanelType;
+	}		
+
 
 	const TCHAR* GetCurrentDirectory()
 	{
@@ -240,7 +246,7 @@ private:
 			m_short = new PanelInfo;
 
 #ifdef UNICODE
-			Info.Control(INVALID_HANDLE_VALUE, FCTL_GETPANELINFO, 0, (LONG_PTR)m_short);
+			Info.Control(m_hPanel, FCTL_GETPANELINFO, 0, (LONG_PTR)m_short);
 #else
 			if ( m_hPanel == (HANDLE)-2 )
 				Info.Control(INVALID_HANDLE_VALUE, FCTL_GETANOTHERPANELSHORTINFO, m_short);

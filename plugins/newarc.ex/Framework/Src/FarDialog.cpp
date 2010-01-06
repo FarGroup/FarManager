@@ -292,6 +292,7 @@ void FarDialog::Done()
 
 	if ( m_hDlg != INVALID_HANDLE_VALUE )
 		m_Info->DialogFree(m_hDlg);
+
 #else
 	if ( m_pTempBuffer )
 		delete [] m_pTempBuffer;

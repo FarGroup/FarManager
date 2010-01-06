@@ -23,7 +23,7 @@ public:
 		m_lpTitle = StrDuplicate(lpTitle);
 	}
 
-	void Add(const TCHAR *lpStr, DWORD dwFlags = 0, void *UserData = NULL)
+	int Add(const TCHAR *lpStr, DWORD dwFlags = 0, void *UserData = NULL)
 	{
 		FarMenuItemEx *item = m_items.add();
 
@@ -47,7 +47,11 @@ public:
 #endif
 
 			item->UserData = (DWORD_PTR)uds;
+
+			return m_items.count()-1;
 		}
+
+		return -1;
 	}
 
 	int Run()
