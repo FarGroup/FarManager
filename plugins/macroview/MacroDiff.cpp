@@ -1642,8 +1642,9 @@ void __fastcall TMacroView::InsertMacroToEditor(BOOL AllMacros)
   if (FSF.MkTemp(TempFileName,
 #ifdef UNICODE
                  sizeof(TempFileName),TmpPrfx)==1)
-#endif
+#else
                  TmpPrfx)==NULL)
+#endif
   {
     int OldActive=ActiveMode;
     ActiveMode=MAC_ERRORACTIVE;
