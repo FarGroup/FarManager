@@ -1641,7 +1641,7 @@ void __fastcall TMacroView::InsertMacroToEditor(BOOL AllMacros)
 //  if (GetTempFileName(TempPath,TmpPrfx,0,TempFileName)==0)
   if (FSF.MkTemp(TempFileName,
 #ifdef UNICODE
-                 sizeof(TempFileName),
+                 sizeof(TempFileName),TmpPrfx)==1)
 #endif
                  TmpPrfx)==NULL)
   {

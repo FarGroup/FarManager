@@ -206,9 +206,10 @@ static bool MakeTempNames(TCHAR* tempFileName1, TCHAR* tempFileName2, size_t szT
   static const TCHAR tmpPrefix[] = _T("FCP");
   if ( MkTemp(tempFileName1,
 #ifdef UNICODE
-              (DWORD)szTempNames,
-#endif
+              (DWORD)szTempNames,tmpPrefix)>1)
+#else
               tmpPrefix) )
+#endif
   {
     DeleteFile(tempFileName1);
     if ( CreateDirectory(tempFileName1, NULL) )

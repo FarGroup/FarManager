@@ -261,7 +261,7 @@ void ShowHelpFromTempFile()
 #ifdef UNICODE
   wchar_t fname[MAX_PATH];
   esf.FileName = fname;
-  if(FSF.MkTemp(fname, ArraySize(fname)-4,_T("HLF")))
+  if(FSF.MkTemp(fname, ArraySize(fname)-4,_T("HLF"))>1)
 #else
   if(FSF.MkTemp(esf.FileName,_T("HLF")))
 #endif
