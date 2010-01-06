@@ -10,8 +10,8 @@ int RegQueryStringArray (
 	TCHAR **pValueData;
 
 	int i = 0;
-	dword dwType = REG_SZ;
-	dword dwSize;
+	DWORD dwType = REG_SZ;
+	DWORD dwSize;
 
 	while ( true )
 	{
@@ -62,7 +62,7 @@ void RegSaveStringArray (
 {
 	TCHAR *lpValueName = StrCreate (260);
 
-	dword dwSize;
+	DWORD dwSize;
 
 	if ( Strings )
 	{
@@ -93,7 +93,7 @@ TCHAR *RegQueryStringValueEx (
 		TCHAR *lpCurrentValue /* = NULL */
 		)
 {
-	dword dwSize = 0;
+	DWORD dwSize = 0;
 
 	TCHAR *lpResultValue;
 
@@ -130,9 +130,9 @@ void RegQueryLongValue (
 		void *pValueData
 		)
 {
-	dword dwResult;
-	dword dwSize = 4;
-	dword dwType = REG_DWORD;
+	DWORD dwResult;
+	DWORD dwSize = 4;
+	DWORD dwType = REG_DWORD;
 
 	if ( RegQueryValueEx (
 			hKey,
