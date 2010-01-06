@@ -77,6 +77,8 @@ LONG_PTR WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
     case DN_KEY:
     {
       Pos=(int)Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,0,0/*(LONG_PTR)&ListPos*/);
+      if (Pos == -1)
+        return FALSE;
       MData=(MenuData *)Info.SendDlgMessage(hDlg,DM_LISTGETDATA,0,(LONG_PTR)Pos);
       if (*MData->Key=='~' && lstrlen(MData->Key)>1)
       {

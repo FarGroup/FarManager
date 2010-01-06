@@ -1,3 +1,8 @@
+svs 06.01.2010 16:12:54 +0300 - build 18
+
+1. Mantis#0001215: MacroView падает в DN_KEY при пустом списке
+   from Maximus.
+
 t-rex 31.10.2009 14:38:14 +0200 - build 17
 
 1. From Max Moysyuk: Mantis#1146: Макрос исчезает из списка, если вкючить флажок "Deactivate macro".
