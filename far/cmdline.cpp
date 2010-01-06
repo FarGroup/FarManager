@@ -453,7 +453,6 @@ int CommandLine::ProcessKey(int Key)
 							if(ComplMenu.GetItemCount())
 							{
 								ComplMenu.SetFlags(VMENU_WRAPMODE|VMENU_NOTCENTER);
-								ComplMenu.SetPosition(CmdStr.X1,CmdStr.Y1-3-Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount()),CmdStr.X2-2,CmdStr.Y1-1);
 
 								if(Opt.AutoComplete.AppendCompletion)
 								{
@@ -467,6 +466,8 @@ int CommandLine::ProcessKey(int Key)
 									MenuItemEx EmptyItem={0};
 									ComplMenu.AddItem(&EmptyItem,0);
 								}
+
+								ComplMenu.SetPosition(CmdStr.X1,CmdStr.Y1-2-Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount()),CmdStr.X2-2,CmdStr.Y1-1);
 
 								ComplMenu.SetSelectPos(0,0);
 								ComplMenu.SetBoxType(SHORT_SINGLE_BOX);
@@ -491,7 +492,7 @@ int CommandLine::ProcessKey(int Key)
 									}
 									if(ir.EventType==WINDOW_BUFFER_SIZE_EVENT)
 									{
-										ComplMenu.SetPosition(CmdStr.X1,CmdStr.Y1-3-Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount()),CmdStr.X2-2,CmdStr.Y1-1);
+										ComplMenu.SetPosition(CmdStr.X1,CmdStr.Y1-2-Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount()),CmdStr.X2-2,CmdStr.Y1-1);
 										ComplMenu.Show();
 									}
 									else if(ir.EventType==KEY_EVENT || ir.EventType==FARMACRO_KEY_EVENT)
@@ -516,7 +517,6 @@ int CommandLine::ProcessKey(int Key)
 											}
 											else
 											{
-												ComplMenu.SetPosition(CmdStr.X1,CmdStr.Y1-3-Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount()),CmdStr.X2-2,CmdStr.Y1-1);
 												if(Key!=KEY_BS && Opt.AutoComplete.AppendCompletion)
 												{
 													int SelStart=CmdStr.GetLength();
@@ -529,6 +529,8 @@ int CommandLine::ProcessKey(int Key)
 													MenuItemEx EmptyItem={0};
 													ComplMenu.AddItem(&EmptyItem,0);
 												}
+
+												ComplMenu.SetPosition(CmdStr.X1,CmdStr.Y1-2-Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount()),CmdStr.X2-2,CmdStr.Y1-1);
 
 												ComplMenu.SetSelectPos(0,0);
 												ComplMenu.Redraw();

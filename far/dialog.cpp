@@ -4138,14 +4138,6 @@ bool Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &st
 				if(ComplMenu.GetItemCount())
 				{
 					ComplMenu.SetFlags(VMENU_WRAPMODE|VMENU_NOTCENTER);
-					if(ScrY-(Y1+Item[FocusPos]->Y1)<Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount())+2 && (Y1+Item[FocusPos]->Y1)>ScrY/2)
-					{
-						ComplMenu.SetPosition(X1+Item[FocusPos]->X1,Max(0,Y1+Item[FocusPos]->Y1-1-Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount())-1),X1+Item[FocusPos]->X2,Y1+Item[FocusPos]->Y1-1);
-					}
-					else
-					{
-						ComplMenu.SetPosition(X1+Item[FocusPos]->X1,Y1+Item[FocusPos]->Y1+1,X1+Item[FocusPos]->X2,0);
-					}
 
 					if(Opt.AutoComplete.AppendCompletion)
 					{
@@ -4158,6 +4150,15 @@ bool Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &st
 					{
 						MenuItemEx EmptyItem={0};
 						ComplMenu.AddItem(&EmptyItem,0);
+					}
+
+					if(ScrY-(Y1+Item[FocusPos]->Y1)<Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount())+2 && (Y1+Item[FocusPos]->Y1)>ScrY/2)
+					{
+						ComplMenu.SetPosition(X1+Item[FocusPos]->X1,Max(0,Y1+Item[FocusPos]->Y1-1-Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount())-1),X1+Item[FocusPos]->X2,Y1+Item[FocusPos]->Y1-1);
+					}
+					else
+					{
+						ComplMenu.SetPosition(X1+Item[FocusPos]->X1,Y1+Item[FocusPos]->Y1+1,X1+Item[FocusPos]->X2,0);
 					}
 
 					ComplMenu.SetSelectPos(0,0);
@@ -4220,8 +4221,6 @@ bool Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &st
 								}
 								else
 								{
-									ComplMenu.SetPosition(X1+Item[FocusPos]->X1,Y1+Item[FocusPos]->Y1+1,X1+Item[FocusPos]->X2,Y1+Item[FocusPos]->Y2+3+Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount()));
-
 									if(Key!=KEY_BS && Opt.AutoComplete.AppendCompletion)
 									{
 										int SelStart=EditLine->GetLength();
@@ -4235,6 +4234,15 @@ bool Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &st
 									{
 										MenuItemEx EmptyItem={0};
 										ComplMenu.AddItem(&EmptyItem,0);
+									}
+
+									if(ScrY-(Y1+Item[FocusPos]->Y1)<Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount())+2 && (Y1+Item[FocusPos]->Y1)>ScrY/2)
+									{
+										ComplMenu.SetPosition(X1+Item[FocusPos]->X1,Max(0,Y1+Item[FocusPos]->Y1-1-Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount())-1),X1+Item[FocusPos]->X2,Y1+Item[FocusPos]->Y1-1);
+									}
+									else
+									{
+										ComplMenu.SetPosition(X1+Item[FocusPos]->X1,Y1+Item[FocusPos]->Y1+1,X1+Item[FocusPos]->X2,0);
 									}
 
 									ComplMenu.SetSelectPos(0,0);
