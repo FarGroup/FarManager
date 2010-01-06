@@ -116,21 +116,18 @@ void WINAPI FarRecursiveSearch(const wchar_t *InitDir,const wchar_t *Mask,FRSUSE
 
 /* $ 14.09.2000 SVS
  + Функция FarMkTemp - получение имени временного файла с полным путем.
-    Dest - приемник результата (должен быть достаточно большим, например NM
+    Dest - приемник результата
     Template - шаблон по правилам функции mktemp, например "FarTmpXXXXXX"
-   Вернет либо NULL, либо указатель на Dest.
+    Вернет требуемый размер приемника.
 */
-wchar_t* __stdcall FarMkTemp(wchar_t *Dest, DWORD size, const wchar_t *Prefix)
+int WINAPI FarMkTemp(wchar_t *Dest, DWORD size, const wchar_t *Prefix)
 {
 	string strDest;
-
-	if (FarMkTempEx(strDest, Prefix, TRUE))
+	if (FarMkTempEx(strDest, Prefix, TRUE) && Dest && size)
 	{
 		xwcsncpy(Dest, strDest, size-1);
-		return Dest;
 	}
-
-	return NULL;
+	return strDest.GetLength()+1;
 }
 
 /*

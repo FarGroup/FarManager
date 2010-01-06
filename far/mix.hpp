@@ -44,7 +44,7 @@ extern "C"
 	typedef int (WINAPI *FRSUSERFUNC)(const FAR_FIND_DATA *FData,const wchar_t *FullName,void *param);
 	void WINAPI FarRecursiveSearch(const wchar_t *initdir,const wchar_t *mask,FRSUSERFUNC func,DWORD flags,void *param);
 
-	wchar_t* __stdcall FarMkTemp(wchar_t *Dest, DWORD size, const wchar_t *Prefix);
+	int WINAPI FarMkTemp(wchar_t *Dest, DWORD size, const wchar_t *Prefix);
 
 #ifdef __cplusplus
 };
