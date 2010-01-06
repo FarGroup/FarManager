@@ -85,10 +85,7 @@ static int TextWidth(const DialogItemEx &Item)
 	return 0;
 }
 
-DialogBuilder::DialogBuilder(int TitleMessageId, const wchar_t *HelpTopic)
-	: DialogItemsCount(0),
-	  DialogItemsAllocated(0),
-	  DialogItems(NULL)
+DialogBuilder::DialogBuilder(int TitleMessageId, const wchar_t *HelpTopic): DialogItems(NULL), DialogItemsCount(0), DialogItemsAllocated(0)
 {
 	DialogItemEx *Title = AddDialogItem(DI_DOUBLEBOX, MSG(TitleMessageId));
 	Title->X1 = 3;
@@ -117,7 +114,7 @@ void DialogBuilder::ReallocDialogItems()
 	// чтобы все нормальные диалоги помещались без реаллокации
 	// TODO хорошо бы, чтобы они вообще не инвалидировались
 	DialogItemsAllocated += 32;
-	if (DialogItems == NULL) 
+	if (DialogItems == NULL)
 	{
 		DialogItems = new DialogItemEx[DialogItemsAllocated];
 	}
@@ -265,7 +262,7 @@ void DialogBuilder::AddOKCancel()
 
 	DialogItemEx *CancelButton = AddDialogItem(DI_BUTTON, MSG(MCancel));
 	CancelButton->Flags = DIF_CENTERGROUP;
-	CancelButton->Y1 = CancelButton->Y2 = OKButton->Y1;	
+	CancelButton->Y1 = CancelButton->Y2 = OKButton->Y1;
 }
 
 void DialogBuilder::LinkFlags(DialogItemEx *Parent, DialogItemEx *Target, FarDialogItemFlags Flags, bool LinkLabels)
@@ -308,7 +305,7 @@ int DialogBuilder::MaxTextWidth()
 		int Width = TextWidth(DialogItems [i]);
 		int Indent = DialogItems [i].X1 - 5;
 		Width += Indent;
-		
+
 		if (MaxWidth < Width)
 			MaxWidth = Width;
 	}
