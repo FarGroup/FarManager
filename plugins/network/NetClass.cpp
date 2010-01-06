@@ -702,8 +702,7 @@ void NetBrowser::GetOpenPluginInfo(struct OpenPluginInfo *Info)
     LogData(_T("Entering NetBrowser::GetOpenPluginInfo. Info->Flags will NOT contain OPIF_ADDDOTS"));
 #endif
   Info->StructSize=sizeof(*Info);
-  Info->Flags=OPIF_USEHIGHLIGHTING|OPIF_ADDDOTS|OPIF_RAWSELECTION|
-    OPIF_SHOWPRESERVECASE|OPIF_FINDFOLDERS;
+  Info->Flags=OPIF_USEHIGHLIGHTING|OPIF_ADDDOTS|OPIF_RAWSELECTION|OPIF_SHOWPRESERVECASE;
   Info->HostFile=NULL;
   if (PCurResource == NULL)
   {
