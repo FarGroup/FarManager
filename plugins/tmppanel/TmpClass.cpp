@@ -232,10 +232,10 @@ int TmpPanel::PutOneFile(const TCHAR* SrcPath, PluginPanelItem &PanelItem)
 #endif
   if (*SrcPath)
   {
-    lstrcpy(CurPanelItem->FindData.FILE_NAME, SrcPath);
-    FSF.AddEndSlash(CurPanelItem->FindData.FILE_NAME);
+    lstrcpy((TCHAR*)CurPanelItem->FindData.FILE_NAME, SrcPath);
+    FSF.AddEndSlash((TCHAR*)CurPanelItem->FindData.FILE_NAME);
   }
-  lstrcat(CurPanelItem->FindData.FILE_NAME, PanelItem.FindData.FILE_NAME);
+  lstrcat((TCHAR*)CurPanelItem->FindData.FILE_NAME, PanelItem.FindData.FILE_NAME);
   TmpItemsNumber++;
   if (Opt.SelectedCopyContents && (CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
     return PutDirectoryContents(CurPanelItem->FindData.FILE_NAME);
@@ -372,7 +372,7 @@ void TmpPanel::RemoveEmptyItems()
     if(CurItem->Flags & REMOVE_FLAG)
     {
       if(CurItem->Owner) {
-        free(CurItem->Owner);
+        free((void*)CurItem->Owner);
         CurItem->Owner = NULL;
       }
 #ifdef UNICODE
@@ -479,7 +479,7 @@ void TmpPanel::UpdateItems(int ShowOwners,int ShowLinks)
             char save[sizeof(CurItem[J].FindData.cFileName)];
             lstrcpy(save,CurItem[J].FindData.cFileName);
 #else
-            wchar_t *save = CurItem[J].FindData.lpwszFileName;
+            const wchar_t *save = CurItem[J].FindData.lpwszFileName;
 #endif
 
             WFD2FFD(FindData,CurItem[J].FindData);
@@ -519,7 +519,7 @@ void TmpPanel::UpdateItems(int ShowOwners,int ShowLinks)
         TCHAR Owner[80];
         if(CurItem->Owner)
         {
-          free(CurItem->Owner);
+          free((void*)CurItem->Owner);
           CurItem->Owner=NULL;
         }
         if(FSF.GetFileOwner(NULL,CurItem->FindData.FILE_NAME,Owner
@@ -1022,7 +1022,7 @@ copy_name:
     lstrcpyn(FindData->cFileName,FileName,sizeof(FindData->cFileName)-1);
 #else
     if (FindData->lpwszFileName)
-      free(FindData->lpwszFileName);
+      free((void*)FindData->lpwszFileName);
     FindData->lpwszFileName = wcsdup(FileName);
 #endif
     return(TRUE);

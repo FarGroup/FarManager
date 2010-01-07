@@ -53,15 +53,15 @@ int IsCaseMixed(const TCHAR *Str)
   return(FALSE);
 }
 
-TCHAR *GetOnlyName(TCHAR *FullName)
+const TCHAR *GetOnlyName(const TCHAR *FullName)
 {
-  TCHAR *Name=_tcsrchr(FullName,_T('\\'));
+  const TCHAR *Name=_tcsrchr(FullName,_T('\\'));
   if(Name) ++Name;
   else Name=FullName;
   return Name;
 }
 
-TCHAR *GetFullName(TCHAR *Dest,const TCHAR *Dir,TCHAR *Name)
+TCHAR *GetFullName(TCHAR *Dest,const TCHAR *Dir,const TCHAR *Name)
 {
   lstrcpy(Dest,Dir);
   int len=lstrlen(Dest);

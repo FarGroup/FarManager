@@ -70,7 +70,7 @@ class NetBrowser
   static void DisconnectFromServer(NETRESOURCE *nr);
     BOOL ChangeToDirectory (const TCHAR *Dir, int IsFind, int IsExplicit);
     void ManualConnect();
-    BOOL CancelConnection (TCHAR *RemoteName);
+    BOOL CancelConnection (const TCHAR *RemoteName);
     BOOL GetDriveToDisconnect (const TCHAR *RemoteName, TCHAR *LocalName);
     BOOL ConfirmCancelConnection (TCHAR *LocalName, TCHAR *RemoteName, int &UpdateProfile);
     BOOL NeedConfirmCancelConnection();
@@ -85,7 +85,7 @@ class NetBrowser
     BOOL IsReadable(const TCHAR *Remote);
     int GotoComputer (const TCHAR *Dir);
     void SetCursorToShare (TCHAR *Share);
-    BOOL MapNetworkDrive (TCHAR *RemoteName, BOOL AskDrive, BOOL Permanent);
+    BOOL MapNetworkDrive (const TCHAR *RemoteName, BOOL AskDrive, BOOL Permanent);
     BOOL AskMapDrive (TCHAR *NewLocalName, BOOL &Permanent);
     void PutCurrentFileName (BOOL ToCommandLine);
     NetResourceList NetList;               // list of resources in the current folder

@@ -388,12 +388,12 @@ int NetBrowser::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int O
       CharToOEM(NetList[I].lpComment,Comment);
     memset(&NewPanelItem[CurItemPos],0,sizeof(PluginPanelItem));
 
-    NewPanelItem[CurItemPos].CustomColumnData=(LPTSTR*)malloc(sizeof(LPTSTR)*2);
-
     GetLocalName(NetList[I].lpRemoteName,LocalName);
 
-    NewPanelItem[CurItemPos].CustomColumnData[0] = _tcsdup(LocalName);
-    NewPanelItem[CurItemPos].CustomColumnData[1] = _tcsdup(Comment);
+    LPTSTR* CustomColumnData=(LPTSTR*)malloc(sizeof(LPTSTR)*2);
+    CustomColumnData[0] = _tcsdup(LocalName);
+    CustomColumnData[1] = _tcsdup(Comment);
+    NewPanelItem[CurItemPos].CustomColumnData=CustomColumnData;
     NewPanelItem[CurItemPos].CustomColumnNumber=2;
 
 #ifndef UNICODE
@@ -420,11 +420,11 @@ void NetBrowser::FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber)
 {
   for (int I=0;I<ItemsNumber;I++)
   {
-    free(PanelItem[I].CustomColumnData[0]);
-    free(PanelItem[I].CustomColumnData[1]);
-    free(PanelItem[I].CustomColumnData);
+    free((void*)PanelItem[I].CustomColumnData[0]);
+    free((void*)PanelItem[I].CustomColumnData[1]);
+    free((void*)PanelItem[I].CustomColumnData);
 #ifdef UNICODE
-    free(PanelItem[I].FindData.lpwszFileName);
+    free((void*)PanelItem[I].FindData.lpwszFileName);
 #endif
   }
   free(PanelItem);
@@ -481,7 +481,7 @@ int NetBrowser::DeleteFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
   return(TRUE);
 }
 
-BOOL NetBrowser::CancelConnection (TCHAR *RemoteName)
+BOOL NetBrowser::CancelConnection (const TCHAR *RemoteName)
 {
   TCHAR LocalName [NM];
   TCHAR szFullName[NM];
@@ -1407,7 +1407,7 @@ int NetBrowser::ProcessKey(int Key,unsigned int ControlState)
 }
 
 
-BOOL NetBrowser::MapNetworkDrive (TCHAR *RemoteName, BOOL AskDrive, BOOL Permanent)
+BOOL NetBrowser::MapNetworkDrive (const TCHAR *RemoteName, BOOL AskDrive, BOOL Permanent)
 {
   TCHAR AnsiRemoteName[NM];
   OEMToChar(RemoteName,AnsiRemoteName);

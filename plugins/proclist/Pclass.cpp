@@ -140,16 +140,16 @@ void Plist::InitializePanelModes()
 
             GetRegKey(name, _T("ColumnsLocal"), ProcPanelModesLocal[iMode], NT ? DefaultModesNT[iMode].Cols : DefaultModes9x[iMode].Cols, ArraySize(ProcPanelModesLocal[iMode]));
             GetRegKey(name, _T("ColumnsRemote"), ProcPanelModesRemote[iMode], DefaultModesRemoteNT[iMode].Cols, ArraySize(ProcPanelModesRemote[iMode]));
-            GetRegKey(name, _T("WidthsLocal"), PanelModesLocal[iMode].ColumnWidths, NT ? DefaultModesNT[iMode].Width : DefaultModes9x[iMode].Width, MAX_MODE_STR-1);
-            GetRegKey(name, _T("WidthsRemote"), PanelModesRemote[iMode].ColumnWidths, DefaultModesRemoteNT[iMode].Width, MAX_MODE_STR-1);
+            GetRegKey(name, _T("WidthsLocal"), (LPTSTR)PanelModesLocal[iMode].ColumnWidths, NT ? DefaultModesNT[iMode].Width : DefaultModes9x[iMode].Width, MAX_MODE_STR-1);
+            GetRegKey(name, _T("WidthsRemote"), (LPTSTR)PanelModesRemote[iMode].ColumnWidths, DefaultModesRemoteNT[iMode].Width, MAX_MODE_STR-1);
             GetRegKey(name, _T("FullScreenLocal"), PanelModesLocal[iMode].FullScreen, iMode==5 && NT ? 1 : 0);
             GetRegKey(name, _T("FullScreenRemote"), PanelModesRemote[iMode].FullScreen, iMode==5 ? 1 : 0);
 
             //Status line is the same for all modes currently and cannot be changed.
-            TranslateMode(StatusCols, PanelModesLocal[iMode].StatusColumnTypes);
-            TranslateMode(StatusCols, PanelModesRemote[iMode].StatusColumnTypes);
-            lstrcpy(PanelModesLocal[iMode].StatusColumnWidths, NT ? StatusWidthNT : StatusWidth9x);
-            lstrcpy(PanelModesRemote[iMode].StatusColumnWidths, StatusWidthNT);
+            TranslateMode(StatusCols, (LPTSTR)PanelModesLocal[iMode].StatusColumnTypes);
+            TranslateMode(StatusCols, (LPTSTR)PanelModesRemote[iMode].StatusColumnTypes);
+            lstrcpy((TCHAR*)PanelModesLocal[iMode].StatusColumnWidths, NT ? StatusWidthNT : StatusWidth9x);
+            lstrcpy((TCHAR*)PanelModesRemote[iMode].StatusColumnWidths, StatusWidthNT);
         }
 }
 
@@ -228,8 +228,8 @@ bool Plist::TranslateMode(LPCTSTR src, LPTSTR dest)
 void Plist::GeneratePanelModes()
 {
     for(int iMode=0; iMode<NPANELMODES; iMode++) {
-        TranslateMode(ProcPanelModesLocal[iMode], PanelModesLocal[iMode].ColumnTypes);
-        TranslateMode(ProcPanelModesRemote[iMode], PanelModesRemote[iMode].ColumnTypes);
+        TranslateMode(ProcPanelModesLocal[iMode], (LPTSTR)PanelModesLocal[iMode].ColumnTypes);
+        TranslateMode(ProcPanelModesRemote[iMode], (LPTSTR)PanelModesRemote[iMode].ColumnTypes);
         /*TranslateMode(ProcPanelStModesNT[iMode], PanelModesNT[iMode].StatusColumnTypes);
         if(!NT) TranslateMode(ProcPanelStModes9x[iMode], PanelModes9x[iMode].StatusColumnTypes);*/
     }
@@ -421,7 +421,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
             if(cDescMode)
             {
                 CurItem.Description = new TCHAR[lstrlen(pDesc)+1];
-                lstrcpy(CurItem.Description, pDesc);
+                lstrcpy((TCHAR*)CurItem.Description, pDesc);
 #ifndef UNICODE
                 CharToOem(CurItem.Description, CurItem.Description);
 #endif
@@ -496,7 +496,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
                     if(!bCol)
                         continue;
 
-                    CurItem.CustomColumnData[nCustomCols] = pData;
+                    ((TCHAR**)(CurItem.CustomColumnData))[nCustomCols] = pData;
 
                     int nBufSize = max( nColWidth+1, 16); // to provide space for itoa
                     Array<TCHAR> buf(nBufSize);

@@ -45,10 +45,10 @@ void FreePanelItems(PluginPanelItem *Items, DWORD Total)
   if(Items){
     for (DWORD I=0;I<Total;I++) {
       if (Items[I].Owner)
-        free (Items[I].Owner);
+        free ((void*)Items[I].Owner);
 #ifdef UNICODE
       if (Items[I].FindData.lpwszFileName)
-        free(Items[I].FindData.lpwszFileName);
+        free((void*)Items[I].FindData.lpwszFileName);
 #endif
     }
     free (Items);

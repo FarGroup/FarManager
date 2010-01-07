@@ -317,7 +317,7 @@ BOOL GetListNT(PluginPanelItem* &pPanelItem,int &ItemsNumber,PerfThread& Thread)
 #endif
       if(*pd.Owner) {
         CurItem.Owner = new TCHAR[lstrlen(pd.Owner)+1];
-        lstrcpy(CurItem.Owner, pd.Owner);
+        lstrcpy((TCHAR*)CurItem.Owner, pd.Owner);
       }
 #ifndef UNICODE
       if(Thread.IsLocal())
@@ -346,7 +346,7 @@ BOOL GetListNT(PluginPanelItem* &pPanelItem,int &ItemsNumber,PerfThread& Thread)
 #define cAlternateFileName  lpwszAlternateFileName
 #endif
       if(pd.dwProcessId)
-        FSF.itoa(pd.dwProcessId, CurItem.FindData.cAlternateFileName, 10);
+        FSF.itoa(pd.dwProcessId, (TCHAR*)CurItem.FindData.cAlternateFileName, 10);
 #undef cAlternateFileName
       CurItem.NumberOfLinks = pd.dwThreads;
 

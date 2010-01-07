@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 2.0 build 1311
+  Plugin API for FAR Manager 2.0 build 1318
 */
 
 /*
@@ -42,7 +42,7 @@ other possible license with no implications from the above license on them.
 
 #define FARMANAGERVERSION_MAJOR 2
 #define FARMANAGERVERSION_MINOR 0
-#define FARMANAGERVERSION_BUILD 1311
+#define FARMANAGERVERSION_BUILD 1318
 
 #ifndef RC_INVOKED
 
@@ -638,7 +638,6 @@ enum MENUITEMFLAGS
 	MIF_DISABLE    = 0x00080000UL,
 	MIF_GRAYED     = 0x00100000UL,
 	MIF_HIDDEN     = 0x00200000UL,
-	MIF_USETEXTPTR = 0x80000000UL,
 };
 
 struct FarMenuItemEx
@@ -691,8 +690,8 @@ struct FAR_FIND_DATA
 	FILETIME ftLastWriteTime;
 	unsigned __int64 nFileSize;
 	unsigned __int64 nPackSize;
-	wchar_t *lpwszFileName;
-	wchar_t *lpwszAlternateFileName;
+	const wchar_t *lpwszFileName;
+	const wchar_t *lpwszAlternateFileName;
 };
 
 struct PluginPanelItem
@@ -700,9 +699,9 @@ struct PluginPanelItem
 	struct FAR_FIND_DATA FindData;
 	DWORD         Flags;
 	DWORD         NumberOfLinks;
-	wchar_t      *Description;
-	wchar_t      *Owner;
-	wchar_t     **CustomColumnData;
+	const wchar_t *Description;
+	const wchar_t *Owner;
+	const wchar_t * const *CustomColumnData;
 	int           CustomColumnNumber;
 	DWORD_PTR     UserData;
 	DWORD         CRC32;
@@ -1084,7 +1083,7 @@ struct ActlKeyMacro
 	{
 		struct
 		{
-			wchar_t *SequenceText;
+			const wchar_t *SequenceText;
 			DWORD Flags;
 		} PlainText;
 		DWORD_PTR Reserved[3];
@@ -1786,15 +1785,15 @@ struct InfoPanelLine
 
 struct PanelMode
 {
-	wchar_t  *ColumnTypes;
-	wchar_t  *ColumnWidths;
-	wchar_t **ColumnTitles;
+	const wchar_t *ColumnTypes;
+	const wchar_t *ColumnWidths;
+	const wchar_t * const *ColumnTitles;
 	int    FullScreen;
 	int    DetailedStatus;
 	int    AlignExtensions;
 	int    CaseConversion;
-	wchar_t  *StatusColumnTypes;
-	wchar_t  *StatusColumnWidths;
+	const wchar_t *StatusColumnTypes;
+	const wchar_t *StatusColumnWidths;
 	DWORD  Reserved[2];
 };
 

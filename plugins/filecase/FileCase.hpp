@@ -31,8 +31,8 @@ struct InitDialogItem
 const TCHAR *GetMsg(int MsgId);
 void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Item,int ItemsNumber);
 int IsCaseMixed(const TCHAR *Str);
-TCHAR *GetOnlyName(TCHAR *FullName);
-TCHAR *GetFullName(TCHAR *Dest,const TCHAR *Dir,TCHAR *Name);
+const TCHAR *GetOnlyName(const TCHAR *FullName);
+TCHAR *GetFullName(TCHAR *Dest,const TCHAR *Dir,const TCHAR *Name);
 void CaseWord( TCHAR *nm, int Type );
 void ProcessName(TCHAR *OldFullName, DWORD FileAttributes);
 

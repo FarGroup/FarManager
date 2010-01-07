@@ -596,9 +596,9 @@ int OpenFromCommandLine(TCHAR *_farcmd)
               if(command.Param.PlainText.SequenceText)
               {
                 command.Param.PlainText.Flags=KSFLAGS_DISABLEOUTPUT;
-                lstrcpy(command.Param.PlainText.SequenceText,pCmd);
+                lstrcpy((TCHAR*)command.Param.PlainText.SequenceText,pCmd);
                 Info.AdvControl(Info.ModuleNumber,ACTL_KEYMACRO,&command);
-                free(command.Param.PlainText.SequenceText);
+                free((void*)command.Param.PlainText.SequenceText);
               }
             }
             /* SVS $ */

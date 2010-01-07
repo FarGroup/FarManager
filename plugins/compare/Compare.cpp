@@ -703,8 +703,8 @@ static void FreeDirList(OwnPanelInfo *AInfo)
   if (AInfo->PanelItems) {
 #ifdef UNICODE
     for ( int i = 0; i < AInfo->ItemsNumber; i++ ) {
-      free(AInfo->PanelItems[i].FindData.lpwszAlternateFileName);
-      free(AInfo->PanelItems[i].FindData.lpwszFileName);
+      free((void*)AInfo->PanelItems[i].FindData.lpwszAlternateFileName);
+      free((void*)AInfo->PanelItems[i].FindData.lpwszFileName);
     }
     free(AInfo->lpwszCurDir);
 #endif
@@ -1186,26 +1186,26 @@ void FreePanelItems(OwnPanelInfo &AInfo,OwnPanelInfo &PInfo)
 {
   for(int i=0;i<AInfo.ItemsNumber;i++)
   {
-    free(AInfo.PanelItems[i].FindData.lpwszFileName);
-    free(AInfo.PanelItems[i].FindData.lpwszAlternateFileName);
+    free((void*)AInfo.PanelItems[i].FindData.lpwszFileName);
+    free((void*)AInfo.PanelItems[i].FindData.lpwszAlternateFileName);
   }
   for(int i=0;i<AInfo.SelectedItemsNumber;i++)
   {
-    free(AInfo.SelectedItems[i].FindData.lpwszFileName);
-    free(AInfo.SelectedItems[i].FindData.lpwszAlternateFileName);
+    free((void*)AInfo.SelectedItems[i].FindData.lpwszFileName);
+    free((void*)AInfo.SelectedItems[i].FindData.lpwszAlternateFileName);
   }
   delete[] AInfo.PanelItems;
   delete[] AInfo.SelectedItems;
 
   for(int i=0;i<PInfo.ItemsNumber;i++)
   {
-    free(PInfo.PanelItems[i].FindData.lpwszFileName);
-    free(PInfo.PanelItems[i].FindData.lpwszAlternateFileName);
+    free((void*)PInfo.PanelItems[i].FindData.lpwszFileName);
+    free((void*)PInfo.PanelItems[i].FindData.lpwszAlternateFileName);
   }
   for(int i=0;i<PInfo.SelectedItemsNumber;i++)
   {
-    free(PInfo.SelectedItems[i].FindData.lpwszFileName);
-    free(PInfo.SelectedItems[i].FindData.lpwszAlternateFileName);
+    free((void*)PInfo.SelectedItems[i].FindData.lpwszFileName);
+    free((void*)PInfo.SelectedItems[i].FindData.lpwszAlternateFileName);
   }
   delete[] PInfo.PanelItems;
   delete[] PInfo.SelectedItems;
