@@ -254,11 +254,11 @@ size_t FileList::FileListToPluginItem2(FileListItem *fi,PluginPanelItem *pi)
 		{
 			if (fi->CustomColumnData[ii]==NULL)
 			{
-				pi->CustomColumnData[ii]=NULL;
+				((const wchar_t**)(pi->CustomColumnData))[ii]=NULL;
 			}
 			else
 			{
-				pi->CustomColumnData[ii]=wcscpy((wchar_t*)data,fi->CustomColumnData[ii]);
+				((const wchar_t**)(pi->CustomColumnData))[ii]=wcscpy((wchar_t*)data,fi->CustomColumnData[ii]);
 				data+=sizeof(wchar_t)*(wcslen(fi->CustomColumnData[ii])+1);
 			}
 		}

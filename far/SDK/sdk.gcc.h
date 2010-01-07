@@ -280,6 +280,10 @@ OBJECT_INFORMATION_CLASS;
 #define SYMBOLIC_LINK_FLAG_DIRECTORY 0x1
 #endif
 
+#ifndef GetComputerNameEx
+#define GetComputerNameEx GetComputerNameExW
+#endif
+
 //ntddstor.h
 #ifndef IOCTL_STORAGE_QUERY_PROPERTY
 #define IOCTL_STORAGE_QUERY_PROPERTY 0x002D1400

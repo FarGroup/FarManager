@@ -196,7 +196,7 @@ void FileList::ShowFileList(int Fast)
 			        ViewMode<Info.PanelModesNumber &&
 			        Info.PanelModesArray[ViewMode].ColumnTitles!=NULL)
 			{
-				wchar_t *NewTitle=Info.PanelModesArray[ViewMode].ColumnTitles[I];
+				const wchar_t *NewTitle=Info.PanelModesArray[ViewMode].ColumnTitles[I];
 
 				if (NewTitle!=NULL)
 					strTitle=NewTitle;

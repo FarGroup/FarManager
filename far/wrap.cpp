@@ -314,15 +314,15 @@ void FreeUnicodePanelModes(PanelMode *pnmW, int iCount)
 	{
 		for (int i=0; i<iCount; i++)
 		{
-			if (pnmW[i].ColumnTypes) xf_free(pnmW[i].ColumnTypes);
+			if (pnmW[i].ColumnTypes) xf_free((void*)pnmW[i].ColumnTypes);
 
-			if (pnmW[i].ColumnWidths) xf_free(pnmW[i].ColumnWidths);
+			if (pnmW[i].ColumnWidths) xf_free((void*)pnmW[i].ColumnWidths);
 
-			if (pnmW[i].ColumnTitles)	FreeArrayUnicode(pnmW[i].ColumnTitles);
+			if (pnmW[i].ColumnTitles)	FreeArrayUnicode((wchar_t**)pnmW[i].ColumnTitles);
 
-			if (pnmW[i].StatusColumnTypes) xf_free(pnmW[i].StatusColumnTypes);
+			if (pnmW[i].StatusColumnTypes) xf_free((void*)pnmW[i].StatusColumnTypes);
 
-			if (pnmW[i].StatusColumnWidths) xf_free(pnmW[i].StatusColumnWidths);
+			if (pnmW[i].StatusColumnWidths) xf_free((void*)pnmW[i].StatusColumnWidths);
 		}
 
 		delete[] pnmW;
@@ -462,17 +462,17 @@ void FreeUnicodePanelItem(PluginPanelItem *PanelItem, int ItemsNumber)
 	for (int i=0; i<ItemsNumber; i++)
 	{
 		if (PanelItem[i].Description)
-			xf_free(PanelItem[i].Description);
+			xf_free((void*)PanelItem[i].Description);
 
 		if (PanelItem[i].Owner)
-			xf_free(PanelItem[i].Owner);
+			xf_free((void*)PanelItem[i].Owner);
 
 		if (PanelItem[i].CustomColumnNumber)
 		{
 			for (int j=0; j<PanelItem[i].CustomColumnNumber; j++)
-				xf_free(PanelItem[i].CustomColumnData[j]);
+				xf_free((void*)PanelItem[i].CustomColumnData[j]);
 
-			xf_free(PanelItem[i].CustomColumnData);
+			xf_free((void*)PanelItem[i].CustomColumnData);
 		}
 
 		apiFreeFindData(&PanelItem[i].FindData);
@@ -3059,7 +3059,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 					kmA->Param.MacroResult.ErrMsg3 = ErrMsg3 = UnicodeToAnsi(km.Param.MacroResult.ErrMsg3);
 
 					if (km.Param.PlainText.SequenceText)
-						xf_free(km.Param.PlainText.SequenceText);
+						xf_free((void*)km.Param.PlainText.SequenceText);
 
 					break;
 				case MCMD_COMPILEMACRO:
@@ -3071,7 +3071,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 				case MCMD_POSTMACROSTRING:
 
 					if (km.Param.PlainText.SequenceText)
-						xf_free(km.Param.PlainText.SequenceText);
+						xf_free((void*)km.Param.PlainText.SequenceText);
 
 					break;
 			}

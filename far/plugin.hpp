@@ -736,8 +736,13 @@ struct FAR_FIND_DATA
 	FILETIME ftLastWriteTime;
 	unsigned __int64 nFileSize;
 	unsigned __int64 nPackSize;
+#ifdef FAR_USE_INTERNALS
 	wchar_t *lpwszFileName;
 	wchar_t *lpwszAlternateFileName;
+#else // ELSE FAR_USE_INTERNALS
+	const wchar_t *lpwszFileName;
+	const wchar_t *lpwszAlternateFileName;
+#endif // END FAR_USE_INTERNALS
 };
 
 struct PluginPanelItem
@@ -745,9 +750,9 @@ struct PluginPanelItem
 	struct FAR_FIND_DATA FindData;
 	DWORD         Flags;
 	DWORD         NumberOfLinks;
-	wchar_t      *Description;
-	wchar_t      *Owner;
-	wchar_t     **CustomColumnData;
+	const wchar_t *Description;
+	const wchar_t *Owner;
+	const wchar_t * const *CustomColumnData;
 	int           CustomColumnNumber;
 	DWORD_PTR     UserData;
 	DWORD         CRC32;
@@ -1224,7 +1229,7 @@ struct ActlKeyMacro
 	{
 		struct
 		{
-			wchar_t *SequenceText;
+			const wchar_t *SequenceText;
 			DWORD Flags;
 		} PlainText;
 #ifdef FAR_USE_INTERNALS
@@ -1973,15 +1978,15 @@ struct InfoPanelLine
 
 struct PanelMode
 {
-	wchar_t  *ColumnTypes;
-	wchar_t  *ColumnWidths;
-	wchar_t **ColumnTitles;
+	const wchar_t *ColumnTypes;
+	const wchar_t *ColumnWidths;
+	const wchar_t * const *ColumnTitles;
 	int    FullScreen;
 	int    DetailedStatus;
 	int    AlignExtensions;
 	int    CaseConversion;
-	wchar_t  *StatusColumnTypes;
-	wchar_t  *StatusColumnWidths;
+	const wchar_t *StatusColumnTypes;
+	const wchar_t *StatusColumnWidths;
 	DWORD  Reserved[2];
 };
 
