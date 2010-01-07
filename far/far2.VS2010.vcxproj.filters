@@ -92,6 +92,9 @@
     <ClCompile Include="dizlist.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DlgBuilder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="dlgedit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -562,6 +565,9 @@
     <ClInclude Include="dizlist.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DlgBuilder.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="dlgedit.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -707,7 +713,7 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="lang.hpp">
-      <Filter>Generated Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="language.hpp">
       <Filter>Header Files</Filter>
@@ -972,14 +978,17 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="bootstrap\lang.inc">
+      <Filter>Generated Files</Filter>
+    </None>
     <None Include="changelog" />
-    <None Include="copyright.inc">
+    <None Include="bootstrap\copyright.inc">
       <Filter>Generated Files</Filter>
     </None>
     <None Include="Far.ico">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="farversion.inc">
+    <None Include="bootstrap\farversion.inc">
       <Filter>Generated Files</Filter>
     </None>
     <None Include="farversion.m4">
@@ -988,7 +997,7 @@
     <None Include="headers.m4">
       <Filter>Dependencies</Filter>
     </None>
-    <None Include="lang.ini">
+    <None Include="bootstrap\lang.ini">
       <Filter>Generated Files</Filter>
     </None>
     <None Include="svn_tag_build.m4">
@@ -999,18 +1008,21 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="far.rc">
+    <ResourceCompile Include="bootstrap\far.rc">
       <Filter>Generated Files</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
+    <CustomBuild Include="bootstrap\farlang.templ">
+      <Filter>Generated Files</Filter>
+    </CustomBuild>
     <CustomBuild Include="colors.hpp">
       <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="copyright.inc.m4">
       <Filter>Dependencies</Filter>
     </CustomBuild>
-    <CustomBuild Include="Far.exe.manifest">
+    <CustomBuild Include="bootstrap\Far.exe.manifest">
       <Filter>Generated Files</Filter>
     </CustomBuild>
     <CustomBuild Include="Far.exe.manifest.m4">
@@ -1024,9 +1036,6 @@
     </CustomBuild>
     <CustomBuild Include="FarHun.hlf.m4">
       <Filter>Dependencies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="farlang.templ">
-      <Filter>Generated Files</Filter>
     </CustomBuild>
     <CustomBuild Include="farlang.templ.m4">
       <Filter>Dependencies</Filter>

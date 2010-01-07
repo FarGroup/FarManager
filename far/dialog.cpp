@@ -4146,11 +4146,8 @@ bool Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &st
 						EditLine->Select(SelStart, EditLine->GetLength());
 					}
 
-					if(!Opt.AutoComplete.ModalList)
-					{
-						MenuItemEx EmptyItem={0};
-						ComplMenu.AddItem(&EmptyItem,0);
-					}
+					MenuItemEx EmptyItem={0};
+					ComplMenu.AddItem(&EmptyItem,0);
 
 					if(ScrY-(Y1+Item[FocusPos]->Y1)<Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount())+2 && (Y1+Item[FocusPos]->Y1)>ScrY/2)
 					{
@@ -4230,11 +4227,8 @@ bool Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &st
 										IsEnableRedraw++;
 									}
 
-									if(!Opt.AutoComplete.ModalList)
-									{
-										MenuItemEx EmptyItem={0};
-										ComplMenu.AddItem(&EmptyItem,0);
-									}
+									MenuItemEx EmptyItem={0};
+									ComplMenu.AddItem(&EmptyItem,0);
 
 									if(ScrY-(Y1+Item[FocusPos]->Y1)<Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount())+2 && (Y1+Item[FocusPos]->Y1)>ScrY/2)
 									{
@@ -4272,6 +4266,10 @@ bool Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &st
 								case KEY_NUMPAD6:
 								case KEY_CTRLS:
 								case KEY_CTRLD:
+								case KEY_HOME:
+								case KEY_NUMPAD7:
+								case KEY_END:
+								case KEY_NUMPAD1:
 									{
 										IsEnableRedraw--;
 										EditLine->ProcessKey(Key);
@@ -4287,10 +4285,6 @@ bool Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &st
 								case KEY_NUMPAD8:
 								case KEY_DOWN:
 								case KEY_NUMPAD2:
-								case KEY_HOME:
-								case KEY_NUMPAD7:
-								case KEY_END:
-								case KEY_NUMPAD1:
 								case KEY_PGUP:
 								case KEY_NUMPAD9:
 								case KEY_PGDN:
@@ -4327,9 +4321,10 @@ bool Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &st
 					}
 					if(Opt.AutoComplete.ModalList)
 					{
-						if(ComplMenu.GetExitCode()!=-1)
+						int ExitCode=ComplMenu.GetExitCode();
+						if(ExitCode>0)
 						{
-							EditLine->SetString(ComplMenu.GetItemPtr(ComplMenu.GetExitCode())->strName);
+							EditLine->SetString(ComplMenu.GetItemPtr(ExitCode)->strName);
 						}
 					}
 				}

@@ -461,11 +461,8 @@ int CommandLine::ProcessKey(int Key)
 									CmdStr.Select(SelStart, CmdStr.GetLength());
 								}
 
-								if(!Opt.AutoComplete.ModalList)
-								{
-									MenuItemEx EmptyItem={0};
-									ComplMenu.AddItem(&EmptyItem,0);
-								}
+								MenuItemEx EmptyItem={0};
+								ComplMenu.AddItem(&EmptyItem,0);
 
 								ComplMenu.SetPosition(CmdStr.X1,CmdStr.Y1-2-Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount()),CmdStr.X2-2,CmdStr.Y1-1);
 
@@ -524,11 +521,8 @@ int CommandLine::ProcessKey(int Key)
 													CmdStr.Select(SelStart, CmdStr.GetLength());
 												}
 
-												if(!Opt.AutoComplete.ModalList)
-												{
-													MenuItemEx EmptyItem={0};
-													ComplMenu.AddItem(&EmptyItem,0);
-												}
+												MenuItemEx EmptyItem={0};
+												ComplMenu.AddItem(&EmptyItem,0);
 
 												ComplMenu.SetPosition(CmdStr.X1,CmdStr.Y1-2-Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount()),CmdStr.X2-2,CmdStr.Y1-1);
 
@@ -558,6 +552,9 @@ int CommandLine::ProcessKey(int Key)
 											case KEY_NUMPAD6:
 											case KEY_CTRLS:
 											case KEY_CTRLD:
+											case KEY_HOME:
+											case KEY_NUMPAD7:
+											case KEY_END:
 												{
 													CmdStr.ProcessKey(Key);
 													break;
@@ -571,9 +568,6 @@ int CommandLine::ProcessKey(int Key)
 											case KEY_NUMPAD8:
 											case KEY_DOWN:
 											case KEY_NUMPAD2:
-											case KEY_HOME:
-											case KEY_NUMPAD7:
-											case KEY_END:
 											case KEY_NUMPAD1:
 											case KEY_PGUP:
 											case KEY_NUMPAD9:
@@ -610,9 +604,10 @@ int CommandLine::ProcessKey(int Key)
 								}
 								if(Opt.AutoComplete.ModalList)
 								{
-									if(ComplMenu.GetExitCode()!=-1)
+									int ExitCode=ComplMenu.GetExitCode();
+									if(ExitCode>0)
 									{
-										CmdStr.SetString(ComplMenu.GetItemPtr(ComplMenu.GetExitCode())->strName);
+										CmdStr.SetString(ComplMenu.GetItemPtr(ExitCode)->strName);
 									}
 								}
 							}

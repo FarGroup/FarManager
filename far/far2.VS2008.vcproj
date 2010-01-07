@@ -31,7 +31,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Creating mandatory folders…"
-				CommandLine="if not exist $(OutDir)\cod mkdir $(OutDir)\cod&#x0D;&#x0A;if not exist Include mkdir Include&#x0D;&#x0A;"
+				CommandLine="if not exist $(OutDir)\cod mkdir $(OutDir)\cod&#x0D;&#x0A;if not exist Include mkdir Include&#x0D;&#x0A;if not exist bootstrap mkdir bootstrap&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -49,7 +49,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="2"
-				PreprocessorDefinitions="NDEBUG;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS"
 				StringPooling="true"
 				MinimalRebuild="false"
 				ExceptionHandling="0"
@@ -130,7 +130,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Creating mandatory folders…"
-				CommandLine="if not exist $(OutDir)\cod mkdir $(OutDir)\cod&#x0D;&#x0A;if not exist Include mkdir Include&#x0D;&#x0A;"
+				CommandLine="if not exist $(OutDir)\cod mkdir $(OutDir)\cod&#x0D;&#x0A;if not exist Include mkdir Include&#x0D;&#x0A;if not exist bootstrap mkdir bootstrap&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -148,7 +148,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="2"
-				PreprocessorDefinitions="NDEBUG;_WIN64;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="NDEBUG;_WIN64;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS"
 				StringPooling="true"
 				MinimalRebuild="false"
 				ExceptionHandling="0"
@@ -228,7 +228,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Creating mandatory folders…"
-				CommandLine="if not exist $(OutDir)\cod mkdir $(OutDir)\cod&#x0D;&#x0A;if not exist Include mkdir Include&#x0D;&#x0A;"
+				CommandLine="if not exist $(OutDir)\cod mkdir $(OutDir)\cod&#x0D;&#x0A;if not exist Include mkdir Include&#x0D;&#x0A;if not exist bootstrap mkdir bootstrap&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -246,7 +246,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="2"
-				PreprocessorDefinitions="NDEBUG;_WIN64;_M_IA64;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="NDEBUG;_WIN64;_M_IA64;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS"
 				StringPooling="true"
 				MinimalRebuild="false"
 				ExceptionHandling="0"
@@ -326,7 +326,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Creating mandatory folders…"
-				CommandLine="if not exist $(OutDir)\cod mkdir $(OutDir)\cod&#x0D;&#x0A;if not exist Include mkdir Include&#x0D;&#x0A;"
+				CommandLine="if not exist $(OutDir)\cod mkdir $(OutDir)\cod&#x0D;&#x0A;if not exist Include mkdir Include&#x0D;&#x0A;if not exist bootstrap mkdir bootstrap&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -344,7 +344,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				PreprocessorDefinitions="_DEBUG;FAR_ALPHA_VERSION;SYSLOG_FARSYSLOG;SYSLOG;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="_DEBUG;FAR_ALPHA_VERSION;SYSLOG_FARSYSLOG;SYSLOG;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS"
 				StringPooling="true"
 				MinimalRebuild="false"
 				ExceptionHandling="0"
@@ -425,7 +425,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Creating mandatory folders…"
-				CommandLine="if not exist $(OutDir)\cod mkdir $(OutDir)\cod&#x0D;&#x0A;if not exist Include mkdir Include&#x0D;&#x0A;"
+				CommandLine="if not exist $(OutDir)\cod mkdir $(OutDir)\cod&#x0D;&#x0A;if not exist Include mkdir Include&#x0D;&#x0A;if not exist bootstrap mkdir bootstrap&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -443,7 +443,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				PreprocessorDefinitions="_DEBUG;_WIN64;FAR_ALPHA_VERSION;SYSLOG_FARSYSLOG;SYSLOG;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="_DEBUG;_WIN64;FAR_ALPHA_VERSION;SYSLOG_FARSYSLOG;SYSLOG;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS"
 				StringPooling="true"
 				MinimalRebuild="false"
 				ExceptionHandling="0"
@@ -524,7 +524,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Creating mandatory folders…"
-				CommandLine="if not exist $(OutDir)\cod mkdir $(OutDir)\cod&#x0D;&#x0A;if not exist Include mkdir Include&#x0D;&#x0A;"
+				CommandLine="if not exist $(OutDir)\cod mkdir $(OutDir)\cod&#x0D;&#x0A;if not exist Include mkdir Include&#x0D;&#x0A;if not exist bootstrap mkdir bootstrap&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -542,7 +542,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				PreprocessorDefinitions="_DEBUG;_WIN64;_M_IA64;FAR_ALPHA_VERSION;SYSLOG_FARSYSLOG;SYSLOG;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="_DEBUG;_WIN64;_M_IA64;FAR_ALPHA_VERSION;SYSLOG_FARSYSLOG;SYSLOG;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS"
 				StringPooling="true"
 				MinimalRebuild="false"
 				ExceptionHandling="0"
@@ -3055,6 +3055,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="lang.hpp"
+				>
+			</File>
+			<File
 				RelativePath="language.hpp"
 				>
 			</File>
@@ -3503,9 +3507,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) | tools\gawk -f scripts\enc.awk &gt; $(InputName)&#x0D;&#x0A;"
+						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) | tools\gawk -f scripts\enc.awk &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(InputName)"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3514,9 +3518,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=64 $(InputFileName) | tools\gawk -f scripts\enc.awk &gt; $(InputName)&#x0D;&#x0A;"
+						CommandLine="tools\m4 -P -DFARBIT=64 $(InputFileName) | tools\gawk -f scripts\enc.awk &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(InputName)"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3525,9 +3529,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=IA64 $(InputFileName) | tools\gawk -f scripts\enc.awk &gt; $(InputName)&#x0D;&#x0A;"
+						CommandLine="tools\m4 -P -DFARBIT=IA64 $(InputFileName) | tools\gawk -f scripts\enc.awk &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(InputName)"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3536,9 +3540,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) | tools\gawk -f scripts\enc.awk &gt; $(InputName)&#x0D;&#x0A;"
+						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) | tools\gawk -f scripts\enc.awk &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(InputName)"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3547,9 +3551,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=64 $(InputFileName) | tools\gawk -f scripts\enc.awk &gt; $(InputName)&#x0D;&#x0A;"
+						CommandLine="tools\m4 -P -DFARBIT=64 $(InputFileName) | tools\gawk -f scripts\enc.awk &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(InputName)"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3558,9 +3562,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=IA64 $(InputFileName) | tools\gawk -f scripts\enc.awk &gt; $(InputName)&#x0D;&#x0A;"
+						CommandLine="tools\m4 -P -DFARBIT=IA64 $(InputFileName) | tools\gawk -f scripts\enc.awk &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(InputName)"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 			</File>
@@ -3573,9 +3577,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
+						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(InputName)"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3584,9 +3588,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=64 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
+						CommandLine="tools\m4 -P -DFARBIT=64 $(InputFileName) &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(InputName)"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3595,9 +3599,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=IA64 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
+						CommandLine="tools\m4 -P -DFARBIT=IA64 $(InputFileName) &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(InputName)"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3606,9 +3610,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
+						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(InputName)"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3617,9 +3621,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=64 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
+						CommandLine="tools\m4 -P -DFARBIT=64 $(InputFileName) &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(InputName)"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3628,9 +3632,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=IA64 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
+						CommandLine="tools\m4 -P -DFARBIT=IA64 $(InputFileName) &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(InputName)"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 			</File>
@@ -3643,9 +3647,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
+						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(InputName)"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3654,9 +3658,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=64 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
+						CommandLine="tools\m4 -P -DFARBIT=64 $(InputFileName) &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(InputName)"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3665,9 +3669,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=IA64 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
+						CommandLine="tools\m4 -P -DFARBIT=IA64 $(InputFileName) &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(InputName)"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3676,9 +3680,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
+						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(InputName)"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3687,9 +3691,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=64 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
+						CommandLine="tools\m4 -P -DFARBIT=64 $(InputFileName) &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(InputName)"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3698,9 +3702,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=IA64 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
+						CommandLine="tools\m4 -P -DFARBIT=IA64 $(InputFileName) &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(InputName)"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 			</File>
@@ -3853,8 +3857,8 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
-						Outputs="$(InputName)"
+						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3863,8 +3867,8 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=64 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
-						Outputs="$(InputName)"
+						CommandLine="tools\m4 -P -DFARBIT=64 $(InputFileName) &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3873,8 +3877,8 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=IA64 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
-						Outputs="$(InputName)"
+						CommandLine="tools\m4 -P -DFARBIT=IA64 $(InputFileName) &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3883,8 +3887,8 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
-						Outputs="$(InputName)"
+						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3893,8 +3897,8 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=64 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
-						Outputs="$(InputName)"
+						CommandLine="tools\m4 -P -DFARBIT=64 $(InputFileName) &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3903,8 +3907,8 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=IA64 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
-						Outputs="$(InputName)"
+						CommandLine="tools\m4 -P -DFARBIT=IA64 $(InputFileName) &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 			</File>
@@ -3987,9 +3991,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
+						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(InputName)"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3998,9 +4002,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=64 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
+						CommandLine="tools\m4 -P -DFARBIT=64 $(InputFileName) &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(InputName)"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4009,9 +4013,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=IA64 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
+						CommandLine="tools\m4 -P -DFARBIT=IA64 $(InputFileName) &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(InputName)"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4020,9 +4024,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
+						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(InputName)"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4031,9 +4035,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=64 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
+						CommandLine="tools\m4 -P -DFARBIT=64 $(InputFileName) &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(InputName)"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4042,9 +4046,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=IA64 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
+						CommandLine="tools\m4 -P -DFARBIT=IA64 $(InputFileName) &gt; bootstrap\$(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(InputName)"
+						Outputs="bootstrap\$(InputName)"
 					/>
 				</FileConfiguration>
 			</File>
@@ -4140,11 +4144,11 @@
 			SourceControlFiles="false"
 			>
 			<File
-				RelativePath="copyright.inc"
+				RelativePath="bootstrap\copyright.inc"
 				>
 			</File>
 			<File
-				RelativePath="Far.exe.manifest"
+				RelativePath="bootstrap\Far.exe.manifest"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -4196,7 +4200,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="far.rc"
+				RelativePath="bootstrap\far.rc"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -4256,7 +4260,7 @@
 				>
 			</File>
 			<File
-				RelativePath="farlang.templ"
+				RelativePath="bootstrap\farlang.templ"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -4264,9 +4268,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Generating language files based on $(InputFileName)…"
-						CommandLine="tools\lng.generator.exe -nc -i lang.ini -ol $(OutDir) $(InputFileName)&#x0D;&#x0A;"
+						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputFileName)&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
-						Outputs="lang.ini;$(OutDir)\FarRus.lng;$(OutDir)\FarEng.lng"
+						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\*.lng"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4275,9 +4279,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Generating language files based on $(InputFileName)…"
-						CommandLine="tools\lng.generator.exe -nc -i lang.ini -ol $(OutDir) $(InputFileName)&#x0D;&#x0A;"
+						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputFileName)&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
-						Outputs="lang.ini;$(OutDir)\FarRus.lng;$(OutDir)\FarEng.lng"
+						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\*.lng"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4286,9 +4290,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Generating language files based on $(InputFileName)…"
-						CommandLine="tools\lng.generator.exe -nc -i lang.ini -ol $(OutDir) $(InputFileName)&#x0D;&#x0A;"
+						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputFileName)&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
-						Outputs="lang.ini;$(OutDir)\FarRus.lng;$(OutDir)\FarEng.lng"
+						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\*.lng"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4297,9 +4301,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Generating language files based on $(InputFileName)…"
-						CommandLine="tools\lng.generator.exe -nc -i lang.ini -ol $(OutDir) $(InputFileName)&#x0D;&#x0A;"
+						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputFileName)&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
-						Outputs="lang.ini;$(OutDir)\FarRus.lng;$(OutDir)\FarEng.lng"
+						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\*.lng"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4308,9 +4312,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Generating language files based on $(InputFileName)…"
-						CommandLine="tools\lng.generator.exe -nc -i lang.ini -ol $(OutDir) $(InputFileName)&#x0D;&#x0A;"
+						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputFileName)&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
-						Outputs="lang.ini;$(OutDir)\FarRus.lng;$(OutDir)\FarEng.lng"
+						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\*.lng"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4319,22 +4323,22 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Generating language files based on $(InputFileName)…"
-						CommandLine="tools\lng.generator.exe -nc -i lang.ini -ol $(OutDir) $(InputFileName)&#x0D;&#x0A;"
+						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputFileName)&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
-						Outputs="lang.ini;$(OutDir)\FarRus.lng;$(OutDir)\FarEng.lng"
+						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\*.lng"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="farversion.inc"
+				RelativePath="bootstrap\farversion.inc"
 				>
 			</File>
 			<File
-				RelativePath="lang.hpp"
+				RelativePath="bootstrap\lang.inc"
 				>
 			</File>
 			<File
-				RelativePath="lang.ini"
+				RelativePath="bootstrap\lang.ini"
 				>
 			</File>
 			<File

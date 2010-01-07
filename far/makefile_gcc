@@ -20,7 +20,7 @@ EXENAME = Far.exe
 EXEFULLNAME = $(EXEDIR)/$(EXENAME)
 FARINCLUDE = ./Include
 DEF = far.def
-DEPFILE = far.gcc.dep
+DEPFILE = bootstrap/far.gcc.dep
 
 SRCS = \
 	CachedWrite.cpp \
@@ -201,9 +201,9 @@ all: dirs lng depfile
 	@$(MAKE) -f makefile_gcc build
 
 .PHONY: lng
-lng: farlang.templ
+lng: bootstrap/farlang.templ
 	@echo generating language files
-	@tools/lng.generator.exe -nc -i lang.ini -ol "$(EXEDIR)" farlang.templ
+	@tools/lng.generator.exe -nc -i bootstrap/lang.ini -ol "$(EXEDIR)" bootstrap/farlang.templ
 
 .PHONY: depfile
 depfile:
@@ -214,11 +214,12 @@ dirs:
 	@$(MKDIR) $(EXEDIR)
 	@$(MKDIR) $(OBJDIR)
 	@$(MKDIR) $(FARINCLUDE)
+	@$(MKDIR) bootstrap
 
 .PHONY: build
 build: $(EXEFULLNAME) $(EXEDIR)/FarEng.hlf $(EXEDIR)/FarRus.hlf $(EXEDIR)/FarHun.hlf $(EXEDIR)/File_id.diz $(FARINCLUDE)/farcolor.hpp $(FARINCLUDE)/farkeys.hpp $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/PluginW.pas $(FARINCLUDE)/FarColorW.pas $(FARINCLUDE)/FarKeysW.pas
 
-$(EXEFULLNAME): Far.exe.manifest far.rc copyright.inc farversion.inc $(OBJS) $(UCD_OBJS) $(DEF)
+$(EXEFULLNAME): bootstrap/Far.exe.manifest bootstrap/far.rc bootstrap/copyright.inc bootstrap/farversion.inc $(OBJS) $(UCD_OBJS) $(DEF)
 	@echo linking $@
 	@$(CXX) -o $@ $(OBJS) $(UCD_OBJS) $(LNKFLAGS) -Xlinker -Map -Xlinker $(MAP)
 
@@ -244,27 +245,27 @@ $(OBJDIR)/%.o: ./UCD/%.cpp
 	@echo compiling $<
 	@$(CXX) $(CCFLAGS) -c -o $@ $<
 	
-$(OBJDIR)/far.rc.o: far.rc res.hpp Far.ico
+$(OBJDIR)/far.rc.o: bootstrap/far.rc res.hpp Far.ico
 	@echo compiling resource file
 	@$(WINDRES) -i $< -o $@
 
-Far.exe.manifest: Far.exe.manifest.m4 farversion.m4 tools.m4 vbuild.m4
+bootstrap/Far.exe.manifest: Far.exe.manifest.m4 farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@$(M4) Far.exe.manifest.m4 > $@
 
-far.rc: far.rc.m4 farversion.m4 tools.m4 vbuild.m4 res.hpp Far.exe.manifest
+bootstrap/far.rc: far.rc.m4 farversion.m4 tools.m4 vbuild.m4 res.hpp bootstrap/Far.exe.manifest
 	@echo generating $@
 	@$(M4) far.rc.m4 > $@
 
-copyright.inc: copyright.inc.m4 farversion.m4 tools.m4 vbuild.m4
+bootstrap/copyright.inc: copyright.inc.m4 farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@$(M4) copyright.inc.m4 | $(GAWK) -f ./scripts/enc.awk > $@
 
-farversion.inc: farversion.inc.m4 farversion.m4 tools.m4 vbuild.m4
+bootstrap/farversion.inc: farversion.inc.m4 farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@$(M4) farversion.inc.m4 > $@
 
-farlang.templ: farlang.templ.m4 farversion.m4 tools.m4 vbuild.m4
+bootstrap/farlang.templ: farlang.templ.m4 farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@$(M4) farlang.templ.m4 > $@
 
@@ -317,11 +318,9 @@ clean:
 	@echo cleaning
 	@$(RM) $(OBJS)
 	@$(RM) $(UCD_OBJS)
-	@$(RM) $(DEPFILE)
 	@$(RM) $(OBJDIR)/headers.gch
 	@$(RM) $(EXEFULLNAME) $(MAP)
-	@$(RM) Far.exe.manifest far.rc copyright.inc farversion.inc
+	@$(RM) bootstrap/*.*
 	@$(RM) $(EXEDIR)/*.lng
 	@$(RM) $(EXEDIR)/*.hlf
-	@$(RM) farlang.templ lang.hpp lang.ini
 	@$(RM) $(EXEDIR)/File_id.diz

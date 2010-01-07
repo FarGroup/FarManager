@@ -36,12 +36,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* $ 29.06.2000 tran
   בונול char *CopyRight טח inc פאיכא */
-#include "copyright.inc"
+#include "bootstrap/copyright.inc"
 
 /* $ 07.12.2000 SVS
    + ֲונסטÿ בונועסÿ טח פאיכא farversion.inc
 */
-#include "farversion.inc"
+#include "bootstrap/farversion.inc"
 
 OSVERSIONINFO WinVer={0};
 

@@ -1,6 +1,6 @@
 ﻿m4_include(`farversion.m4')m4_dnl
 #hpp file name
-lang.hpp
+bootstrap\lang.inc
 #number of languages
 6
 #id:0 language file name, language name, language description
@@ -17,8 +17,8 @@ FarHun.lng Hungarian "Hungarian (Magyar)"
 FarPol.lng Polish "Polish (Polski)"
 
 #head of the hpp file
-hhead:#pragma once
-hhead:
+#hhead:
+#hhead:
 
 #tail of the hpp file
 #htail:
@@ -9449,6 +9449,14 @@ upd:"Command line settings"
 upd:"Command line settings"
 upd:"Command line settings"
 upd:"Command line settings"
+
+MMenuAutoCompleteSettings
+"Нас&тройки автозавершения"
+"AutoComplete settings"
+upd:"AutoComplete settings"
+upd:"AutoComplete settings"
+upd:"AutoComplete settings"
+upd:"AutoComplete settings"
 
 MMenuInfoPanelSettings
 "Нас&тройки информационной панели"
