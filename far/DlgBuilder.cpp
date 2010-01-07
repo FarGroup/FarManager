@@ -58,6 +58,23 @@ struct EditFieldUserData
 	}
 };
 
+struct ComboBoxUserData
+{
+	int *Value;
+	FarList *List;
+
+	ComboBoxUserData(int *aValue, FarList *aList)
+		: Value(aValue), List(aList)
+	{
+	}
+
+	~ComboBoxUserData()
+	{
+		delete [] List->Items;
+		delete List;
+	}
+};
+
 static bool IsEditField(DialogItemEx *Item)
 {
 	return Item->Type == DI_EDIT || Item->Type == DI_FIXEDIT || Item->Type == DI_PSWEDIT;
@@ -76,9 +93,12 @@ static int TextWidth(const DialogItemEx &Item)
 
 	case DI_EDIT:
 	case DI_FIXEDIT:
+	case DI_COMBOBOX:
 		int Width = Item.X2 - Item.X1 + 1;
+		/* стрелка history занимает дополнительное место, но раньше она рисовалась поверх рамки
 		if (Item.Flags & DIF_HISTORY)
 			Width++;
+		*/
 		return Width;
 		break;
 	}
@@ -102,6 +122,8 @@ DialogBuilder::~DialogBuilder()
 		{
 			if (IsEditField(&DialogItems [i]))
 				delete (EditFieldUserData *) DialogItems [i].UserData;
+			else if (DialogItems [i].Type == DI_COMBOBOX)
+				delete (ComboBoxUserData *) DialogItems [i].UserData;
 		}
 		delete [] DialogItems;
 	}
@@ -205,6 +227,31 @@ DialogItemEx *DialogBuilder::AddIntEditField(int *Value, int Width)
 	Item->X2 = Item->X1 + Width;
 
 	Item->UserData = (DWORD_PTR) new EditFieldUserData(Value);
+	return Item;
+}
+
+DialogItemEx *DialogBuilder::AddComboBox(int *Value, int Width, 
+										 DialogBuilderListItem *Items, int ItemCount, 
+										 DWORD Flags)
+{
+	DialogItemEx *Item = AddDialogItem(DI_COMBOBOX, L"");
+	SetNextY(Item);
+	Item->X2 = Item->X1 + Width;
+	Item->Flags |= Flags;
+
+	FarListItem *ListItems = new FarListItem[ItemCount];
+	for(int i=0; i<ItemCount; i++)
+	{
+		ListItems [i].Text = MSG(Items [i].MessageId);
+		ListItems [i].Flags = (*Value == Items [i].ItemValue) ? LIF_SELECTED : 0;
+		ListItems [i].Reserved [0] = Items [i].ItemValue;
+	}
+	FarList *List = new FarList;
+	List->Items = ListItems;
+	List->ItemsNumber = ItemCount;
+	Item->ListItems = List;
+
+	Item->UserData = (DWORD_PTR) new ComboBoxUserData(Value, List);
 	return Item;
 }
 
@@ -361,5 +408,11 @@ void DialogBuilder::SaveValue(DialogItemEx *Item, int RadioGroupIndex)
 			wchar_t *endptr;
 			*UserData->IntValue = wcstoul(Item->strData, &endptr, 10);
 		}
+	}
+	else if (Item->Type == DI_COMBOBOX)
+	{
+		ComboBoxUserData *UserData = (ComboBoxUserData *)Item->UserData;
+		FarListItem &ListItem = UserData->List->Items[Item->ListPos];
+		*UserData->Value = ListItem.Reserved[0];
 	}
 }

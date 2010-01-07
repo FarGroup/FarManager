@@ -35,6 +35,30 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 struct DialogItemEx;
 class string;
 
+// Ёлемент выпадающего списка в диалоге.
+struct DialogBuilderListItem
+{
+	// —трочка из LNG-файла, котора€ будет показана в диалоге.
+	int MessageId;
+
+	// «начение, которое будет записано в поле Value при выборе этой строчки.
+	int ItemValue;
+};
+
+/* 
+ ласс дл€ динамического построени€ диалогов. јвтоматически вычисл€ет положение и размер
+дл€ добавл€емых контролов, а также размер самого диалога. јвтоматически записывает выбранные 
+значени€ в указанное место после закрыти€ диалога по OK.
+
+ѕо умолчанию каждый контрол размещаетс€ в новой строке диалога. Ўирина дл€ текстовых строк,
+checkbox и radio button вычисл€етс€ автоматически, дл€ других элементов передаЄтс€ €вно.
+≈сть также возможность добавить статический текст слева или справа от контрола, при помощи
+методов AddTextBefore и AddTextAfter. ƒл€ того, чтобы сместить элемент относительно дефолтного
+положени€ по горизонтали, можно использовать метод DialogItemEx::Indent().
+
+≈сть также поддержка automation (изменение флагов одного элемента в зависимости от состо€ни€ 
+другого). –еализуетс€ при помощи метода LinkFlags().
+*/
 class DialogBuilder
 {
 	private:
@@ -71,6 +95,9 @@ class DialogBuilder
 
 		// ƒобавл€ет поле типа DI_FIXEDIT дл€ редактировани€ указанного числового значени€.
 		DialogItemEx *AddIntEditField(int *Value, int Width);
+
+		// ƒобавл€ет выпадающий список с указанными значени€ми.
+		DialogItemEx *AddComboBox(int *Value, int Width, DialogBuilderListItem *Items, int ItemCount, DWORD Flags = DIF_NONE);
 
 		// ƒобавл€ет указанную текстовую строку слева от элемента RelativeTo.
 		DialogItemEx *AddTextBefore(DialogItemEx *RelativeTo, int LabelId);

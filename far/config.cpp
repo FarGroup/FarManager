@@ -124,6 +124,7 @@ void SystemSettings()
 	Builder.AddCheckbox(MConfigSystemCopy, &Opt.CMOpt.UseSystemCopy);
 	Builder.AddCheckbox(MConfigCopySharing, &Opt.CMOpt.CopyOpened);
 	Builder.AddCheckbox(MConfigScanJunction, &Opt.ScanJunction);
+	Builder.AddCheckbox(MConfigCreateUppercaseFolders, &Opt.CreateUppercaseFolders);
 
 	DialogItemEx *InactivityExit = Builder.AddCheckbox(MConfigInactivity, &Opt.InactivityExit);
 	DialogItemEx *InactivityExitTime = Builder.AddIntEditField(&Opt.InactivityExitTime, 2);
@@ -233,30 +234,7 @@ void InterfaceSettings()
 
 void InfoPanelSettings()
 {
-	enum enumInfoPanelSettings
-	{
-		DLG_INFOPANEL_TITLE,
-		DLG_INFOPANEL_USERNAMETITLE,
-		DLG_INFOPANEL_USERNAMELIST,
-		DLG_INFOPANEL_SEPARATOR,
-		DLG_INFOPANEL_OK,
-		DLG_INFOPANEL_CANCEL
-	};
-	static DialogDataEx CfgDlgData[]=
-	{
-		/* 00 */DI_DOUBLEBOX,3, 1,58, 6,0,0,0,0,(const wchar_t *)MConfigInfoPanelTitle,
-		/* 01 */DI_TEXT,     5, 2, 0, 2,0,0,0,0,(const wchar_t *)MConfigInfoPanelUNTitle,
-		/* 02 */DI_COMBOBOX, 5, 3,56, 3,1,0,DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE,0,L"",
-		/* 03 */DI_TEXT,     3, 4, 0, 4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-		/* 04 */DI_BUTTON,   0, 5, 0, 5,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-		/* 05 */DI_BUTTON,   0, 5, 0, 5,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
-	};
-	MakeDialogItemsEx(CfgDlgData,CfgDlg);
-	struct
-	{
-		int MsgFormat;
-		EXTENDED_NAME_FORMAT TypeFormat;
-	} ExtendedNameFormat[]=
+	DialogBuilderListItem ListItems[]=
 	{
 		{ MConfigInfoPanelUNUnknown, NameUnknown },                            // 0  - unknown name type
 		{ MConfigInfoPanelUNFullyQualifiedDN, NameFullyQualifiedDN },          // 1  - CN=John Doe, OU=Software, OU=Engineering, O=Widget, C=US
@@ -288,29 +266,12 @@ void InfoPanelSettings()
 			ComputerNamePhysicalDnsFullyQualified
 				The fully-qualified DNS name that uniquely identifies the computer. On a cluster, this is the fully qualified DNS name of the local node on the cluster. The fully qualified DNS name is a combination of the DNS host name and the DNS domain name, using the form HostName.DomainName.
 	*/
-	FarListItem UserNameListItems[countof(ExtendedNameFormat)]={0};
-	FarList UserNameList = {countof(UserNameListItems),UserNameListItems};
-	CfgDlg[DLG_INFOPANEL_USERNAMELIST].ListItems = &UserNameList;
-
-	for (size_t I=0; I < countof(ExtendedNameFormat); ++I)
-	{
-		UserNameListItems[I].Text=MSG(ExtendedNameFormat[I].MsgFormat);
-
-		if (Opt.InfoPanel.UserNameFormat == ExtendedNameFormat[I].TypeFormat)
-			UserNameListItems[I].Flags|=LIF_SELECTED;
-	}
-
-	{
-		Dialog Dlg((DialogItemEx*)CfgDlg,countof(CfgDlg));
-		Dlg.SetHelp(L"InfoPanelSettings");
-		Dlg.SetPosition(-1,-1,62,8);
-		Dlg.Process();
-
-		if (Dlg.GetExitCode() != DLG_INFOPANEL_OK)
-			return;
-	}
-
-	Opt.InfoPanel.UserNameFormat=ExtendedNameFormat[CfgDlg[DLG_INFOPANEL_USERNAMELIST].ListPos].TypeFormat;
+	
+	DialogBuilder Builder(MConfigInfoPanelTitle, L"InfoPanelSettings");
+	Builder.AddText(MConfigInfoPanelUNTitle);
+	Builder.AddComboBox((int *) &Opt.InfoPanel.UserNameFormat, 50, ListItems, countof(ListItems), DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddOKCancel();
+	Builder.ShowDialog();
 }
 
 void DialogSettings()
