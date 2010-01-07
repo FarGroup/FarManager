@@ -811,7 +811,6 @@ const
   MIF_DISABLE    = $00080000;
   MIF_GRAYED     = $00100000;
   MIF_HIDDEN     = $00200000;
-  MIF_USETEXTPTR = $80000000;
 
 (*
 struct FarMenuItemEx
@@ -1050,9 +1049,9 @@ type
 { FILE_CONTROL_COMMANDS }
 
 const
-  PANEL_NONE	                = -1;
-  PANEL_ACTIVE	                = -1;
-  PANEL_PASSIVE	                = -2;
+  PANEL_NONE                  = -1;
+  PANEL_ACTIVE                  = -1;
+  PANEL_PASSIVE                 = -2;
 
 const
   FCTL_CLOSEPLUGIN              = 0;
@@ -1092,8 +1091,8 @@ type
 typedef int (WINAPI *FARAPICONTROL)(
   HANDLE hPlugin,
   int Command,
-	int Param1,
-	LONG_PTR Param2
+  int Param1,
+  LONG_PTR Param2
 );
 *)
   TFarApiControl = function (
@@ -1345,7 +1344,7 @@ const
   ACTL_REDRAWALL            = 27;
   ACTL_SYNCHRO              = 28;
 
-  
+
 { FarSystemSettings }
 
 const
@@ -1451,7 +1450,7 @@ type
     Flags :DWORD;
   end;
 
-  
+
 { FARKEYSEQUENCEFLAGS }
 
 const
@@ -1845,7 +1844,7 @@ const
   ECTL_UNDOREDO            = 32;
   ECTL_GETFILENAME         = 33;
 
-  
+
 { EDITOR_SETPARAMETER_TYPES }
 
 const

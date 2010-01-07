@@ -2563,7 +2563,7 @@ FarListItem *VMenu::MenuItem2FarList(const MenuItemEx *MItem, FarListItem *FItem
 	if (FItem && MItem)
 	{
 		memset(FItem,0,sizeof(FarListItem));
-		FItem->Flags = MItem->Flags&(~MIF_USETEXTPTR); //??
+		FItem->Flags = MItem->Flags;
 		FItem->Text = MItem->strName;
 		return FItem;
 	}

@@ -1076,15 +1076,8 @@ int WINAPI FarMenuFnA(INT_PTR PluginNumber,int X,int Y,int MaxHeight,DWORD Flags
 
 		for (int i=0; i<ItemsNumber; i++)
 		{
-			mi[i].Flags = p[i].Flags;
-
-			if (mi[i].Flags&MIF_USETEXTPTR)
-			{
-				mi[i].Flags&=~MIF_USETEXTPTR;
-				mi[i].Flags|=LIF_USETEXTPTR;
-			}
-
-			mi[i].Text = AnsiToUnicode(mi[i].Flags&LIF_USETEXTPTR?p[i].Text.TextPtr:p[i].Text.Text);
+			mi[i].Flags = p[i].Flags&~oldfar::MIF_USETEXTPTR;
+			mi[i].Text = AnsiToUnicode(p[i].Flags&oldfar::MIF_USETEXTPTR?p[i].Text.TextPtr:p[i].Text.Text);
 			mi[i].AccelKey = OldKeyToKey(p[i].AccelKey);
 			mi[i].Reserved = p[i].Reserved;
 			mi[i].UserData = p[i].UserData;
