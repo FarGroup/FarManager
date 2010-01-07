@@ -106,7 +106,9 @@ void InfoList::DisplayObject()
 	string strDriveRoot;
 	string strVolumeName, strFileSystemName;
 	DWORD MaxNameLength,FileSystemFlags,VolumeNumber;
+	string strDiskNumber;
 	CloseFile();
+
 	Box(X1,Y1,X2,Y2,COL_PANELBOX,DOUBLE_BOX);
 	SetScreen(X1+1,Y1+1,X2-1,Y2-1,L' ',COL_PANELTEXT);
 	SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
@@ -118,31 +120,47 @@ void InfoList::DisplayObject()
 		Text(strTitle);
 	}
 
-	DrawSeparator(Y1+3);
-	DrawSeparator(Y1+8);
 	SetColor(COL_PANELTEXT);
+
+	int CurY=Y1+1;
+
+	/* #1 - computer name/user name */
+
 	{
 		string strComputerName, strUserName;
-		DWORD dwSize = MAX_COMPUTERNAME_LENGTH+1;
+		DWORD dwSize = 256; //MAX_COMPUTERNAME_LENGTH+1;
 		wchar_t *ComputerName = strComputerName.GetBuffer(dwSize);
-		GetComputerName(ComputerName, &dwSize); // retrieves only the NetBIOS name of the local computer
-		strComputerName.ReleaseBuffer();
-		dwSize = 256; //UNLEN
-		wchar_t *UserName = strUserName.GetBuffer(dwSize);
-
-		if (Opt.InfoPanel.UserNameFormat == NameUnknown || !GetUserNameEx(Opt.InfoPanel.UserNameFormat,UserName, &dwSize))
+		if (Opt.InfoPanel.ComputerNameFormat == ComputerNamePhysicalNetBIOS || !GetComputerNameEx(Opt.InfoPanel.ComputerNameFormat, ComputerName, &dwSize))
 		{
-			GetUserName(UserName, &dwSize);
+			dwSize = MAX_COMPUTERNAME_LENGTH+1;
+			GetComputerName(ComputerName, &dwSize);  // retrieves only the NetBIOS name of the local computer
 		}
+		strComputerName.ReleaseBuffer();
 
-		strUserName.ReleaseBuffer();
-		GotoXY(X1+2,Y1+1);
+		GotoXY(X1+2,CurY++);
 		PrintText(MInfoCompName);
 		PrintInfo(strComputerName);
-		GotoXY(X1+2,Y1+2);
+
+		dwSize = 256; //UNLEN
+		wchar_t *UserName = strUserName.GetBuffer(dwSize);
+		if (Opt.InfoPanel.UserNameFormat == NameUnknown || !GetUserNameEx(Opt.InfoPanel.UserNameFormat, UserName, &dwSize))
+		{
+			dwSize = 256;
+			GetUserName(UserName, &dwSize);
+		}
+		strUserName.ReleaseBuffer();
+
+		GotoXY(X1+2,CurY++);
 		PrintText(MInfoUserName);
 		PrintInfo(strUserName);
 	}
+
+	/* #2 - disk info */
+
+	SetColor(COL_PANELBOX);
+	DrawSeparator(CurY);
+	SetColor(COL_PANELTEXT);
+
 	AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
 	AnotherPanel->GetCurDir(strCurDir);
 
@@ -199,7 +217,7 @@ void InfoList::DisplayObject()
 		}
 
 		LPCWSTR DiskType=(IdxMsgID!=-1)?MSG(IdxMsgID):L"";
-		wchar_t LocalName[]={strDriveRoot.At(0),L':',L'\0'};
+		wchar_t LocalName[]={ExtractPathRoot(strCurDir).At(0),L':',L'\0'}; // strDriveRoot?
 		string strRemoteName;
 
 		if (GetSubstName(DriveType,LocalName,strRemoteName))
@@ -209,7 +227,6 @@ void InfoList::DisplayObject()
 		}
 
 		strTitle=string(L" ")+DiskType+L" "+MSG(MInfoDisk)+L" "+((!strDriveRoot.IsEmpty() && strDriveRoot.At(1)==L':')?LocalName:strDriveRoot)+L" ("+strFileSystemName+L") ";
-
 		if (DriveType==DRIVE_REMOTE)
 		{
 			apiWNetGetConnection(LocalName, strRemoteName);
@@ -220,96 +237,107 @@ void InfoList::DisplayObject()
 			strTitle += L" ";
 		}
 
-		TruncStr(strTitle,X2-X1-3);
-		GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,Y1+3);
-		PrintText(strTitle);
-		unsigned __int64 TotalSize,TotalFree,UserFree;
+		strDiskNumber.Format(L"%04X-%04X",VolumeNumber>>16,VolumeNumber & 0xffff);
+	}
+	else // Error!
+		strTitle = strDriveRoot;
 
-		if (apiGetDiskSize(strCurDir,&TotalSize,&TotalFree,&UserFree))
-		{
-			GotoXY(X1+2,Y1+4);
-			PrintText(MInfoDiskTotal);
-			InsertCommas(TotalSize,strOutStr);
-			PrintInfo(strOutStr);
-			GotoXY(X1+2,Y1+5);
-			PrintText(MInfoDiskFree);
-			InsertCommas(UserFree,strOutStr);
-			PrintInfo(strOutStr);
-		}
+	TruncStr(strTitle,X2-X1-3);
+	GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,CurY++);
+	PrintText(strTitle);
 
-		GotoXY(X1+2,Y1+6);
-		PrintText(MInfoDiskLabel);
-		PrintInfo(strVolumeName);
-		GotoXY(X1+2,Y1+7);
-		PrintText(MInfoDiskNumber);
-		strOutStr.Format(L"%04X-%04X",VolumeNumber>>16,VolumeNumber & 0xffff);
+	/* #3 - disk info: size */
+
+	unsigned __int64 TotalSize,TotalFree,UserFree;
+
+	if (apiGetDiskSize(strCurDir,&TotalSize,&TotalFree,&UserFree))
+	{
+		GotoXY(X1+2,CurY++);
+		PrintText(MInfoDiskTotal);
+		InsertCommas(TotalSize,strOutStr);
+		PrintInfo(strOutStr);
+
+		GotoXY(X1+2,CurY++);
+		PrintText(MInfoDiskFree);
+		InsertCommas(UserFree,strOutStr);
 		PrintInfo(strOutStr);
 	}
 
+	/* #4 - disk info: label & SN */
+
+	GotoXY(X1+2,CurY++);
+	PrintText(MInfoDiskLabel);
+	PrintInfo(strVolumeName);
+
+    GotoXY(X1+2,CurY++);
+	PrintText(MInfoDiskNumber);
+	PrintInfo(strDiskNumber);
+
+	/* #4 - memory info */
+
+	SetColor(COL_PANELBOX);
+	DrawSeparator(CurY);
+	SetColor(COL_PANELTEXT);
 	strTitle = MSG(MInfoMemory);
 	TruncStr(strTitle,X2-X1-3);
-	GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,Y1+8);
+	GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,CurY++);
 	PrintText(strTitle);
-	int CurY=9;
-	if(ifn.pfnGetPhysicallyInstalledSystemMemory)
-	{
-		ULONGLONG TotalMemoryInKilobytes=0;
-		if(ifn.pfnGetPhysicallyInstalledSystemMemory(&TotalMemoryInKilobytes))
-		{
-			GotoXY(X1+2,CurY);
-			PrintText(MInfoMemoryInstalled);
-			InsertCommas(TotalMemoryInKilobytes<<10,strOutStr);
-			PrintInfo(strOutStr);
-			CurY++;
-		}
-	}
+
 	MEMORYSTATUSEX ms={sizeof(ms)};
 	if (GlobalMemoryStatusEx(&ms))
 	{
 		if (ms.dwMemoryLoad==0)
 			ms.dwMemoryLoad=100-ToPercent64(ms.ullAvailPhys+ms.ullAvailPageFile,ms.ullTotalPhys+ms.ullTotalPageFile);
-		GotoXY(X1+2,CurY);
+
+		GotoXY(X1+2,CurY++);
 		PrintText(MInfoMemoryLoad);
 		strOutStr.Format(L"%d%%",ms.dwMemoryLoad);
 		PrintInfo(strOutStr);
-		CurY++;
 
-		GotoXY(X1+2,CurY);
+		if(ifn.pfnGetPhysicallyInstalledSystemMemory)
+		{
+			ULONGLONG TotalMemoryInKilobytes=0;
+			if(ifn.pfnGetPhysicallyInstalledSystemMemory(&TotalMemoryInKilobytes))
+			{
+				GotoXY(X1+2,CurY++);
+				PrintText(MInfoMemoryInstalled);
+				InsertCommas(TotalMemoryInKilobytes<<10,strOutStr);
+				PrintInfo(strOutStr);
+			}
+		}
+
+		GotoXY(X1+2,CurY++);
 		PrintText(MInfoMemoryTotal);
 		InsertCommas(ms.ullTotalPhys,strOutStr);
 		PrintInfo(strOutStr);
-		CurY++;
 
-		GotoXY(X1+2,CurY);
+		GotoXY(X1+2,CurY++);
 		PrintText(MInfoMemoryFree);
 		InsertCommas(ms.ullAvailPhys,strOutStr);
 		PrintInfo(strOutStr);
-		CurY++;
 
-		GotoXY(X1+2,CurY);
+		GotoXY(X1+2,CurY++);
 		PrintText(MInfoVirtualTotal);
 		InsertCommas(ms.ullTotalVirtual,strOutStr);
 		PrintInfo(strOutStr);
-		CurY++;
 
-		GotoXY(X1+2,CurY);
+		GotoXY(X1+2,CurY++);
 		PrintText(MInfoVirtualFree);
 		InsertCommas(ms.ullAvailVirtual,strOutStr);
 		PrintInfo(strOutStr);
-		CurY++;
 
-		GotoXY(X1+2,CurY);
+		GotoXY(X1+2,CurY++);
 		PrintText(MInfoPageFileTotal);
 		InsertCommas(ms.ullTotalPageFile,strOutStr);
 		PrintInfo(strOutStr);
-		CurY++;
 
-		GotoXY(X1+2,CurY);
+		GotoXY(X1+2,CurY++);
 		PrintText(MInfoPageFileFree);
 		InsertCommas(ms.ullAvailPageFile,strOutStr);
 		PrintInfo(strOutStr);
-		CurY++;
 	}
+
+	/* #5 - description */
 
 	ShowDirDescription(CurY);
 	ShowPluginDescription();

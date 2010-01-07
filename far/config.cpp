@@ -234,7 +234,7 @@ void InterfaceSettings()
 
 void InfoPanelSettings()
 {
-	DialogBuilderListItem ListItems[]=
+	DialogBuilderListItem UNListItems[]=
 	{
 		{ MConfigInfoPanelUNUnknown, NameUnknown },                            // 0  - unknown name type
 		{ MConfigInfoPanelUNFullyQualifiedDN, NameFullyQualifiedDN },          // 1  - CN=John Doe, OU=Software, OU=Engineering, O=Widget, C=US
@@ -246,30 +246,23 @@ void InfoPanelSettings()
 		{ MConfigInfoPanelUNServicePrincipal, NameServicePrincipal },          // 10 - www/srv.engineering.com/engineering.com
 		{ MConfigInfoPanelUNDnsDomain, NameDnsDomain },                        // 12 - DNS domain name + SAM username eg: engineering.widget.com\JohnDoe
 	};
-	/* TODO:
-		COMPUTER_NAME_FORMAT:
-			ComputerNameNetBIOS
-				The NetBIOS name of the local computer or the cluster associated with the local computer. This name is limited to MAX_COMPUTERNAME_LENGTH + 1 characters and may be a truncated version of the DNS host name. For example, if the DNS host name is "corporate-mail-server", the NetBIOS name would be "corporate-mail-".
-			ComputerNameDnsHostname
-				The DNS name of the local computer or the cluster associated with the local computer.
-			ComputerNameDnsDomain
-				The name of the DNS domain assigned to the local computer or the cluster associated with the local computer.
-			ComputerNameDnsFullyQualified
-				The fully-qualified DNS name that uniquely identifies the local computer or the cluster associated with the local computer.
-				This name is a combination of the DNS host name and the DNS domain name, using the form HostName.DomainName. For example, if the DNS host name is "corporate-mail-server" and the DNS domain name is "microsoft.com", the fully qualified DNS name is "corporate-mail-server.microsoft.com".
-			ComputerNamePhysicalNetBIOS
-				The NetBIOS name of the local computer. On a cluster, this is the NetBIOS name of the local node on the cluster.
-			ComputerNamePhysicalDnsHostname
-				The DNS host name of the local computer. On a cluster, this is the DNS host name of the local node on the cluster.
-			ComputerNamePhysicalDnsDomain
-				The name of the DNS domain assigned to the local computer. On a cluster, this is the DNS domain of the local node on the cluster.
-			ComputerNamePhysicalDnsFullyQualified
-				The fully-qualified DNS name that uniquely identifies the computer. On a cluster, this is the fully qualified DNS name of the local node on the cluster. The fully qualified DNS name is a combination of the DNS host name and the DNS domain name, using the form HostName.DomainName.
-	*/
-	
+	DialogBuilderListItem CNListItems[]=
+	{
+		{ MConfigInfoPanelCNNetBIOS, ComputerNameNetBIOS },                                     // The NetBIOS name of the local computer or the cluster associated with the local computer. This name is limited to MAX_COMPUTERNAME_LENGTH + 1 characters and may be a truncated version of the DNS host name. For example, if the DNS host name is "corporate-mail-server", the NetBIOS name would be "corporate-mail-".
+		{ MConfigInfoPanelCNDnsHostname, ComputerNameDnsHostname },                             // The DNS name of the local computer or the cluster associated with the local computer.
+		{ MConfigInfoPanelCNDnsDomain, ComputerNameDnsDomain },                                 // The name of the DNS domain assigned to the local computer or the cluster associated with the local computer.
+		{ MConfigInfoPanelCNDnsFullyQualified, ComputerNameDnsFullyQualified },                 // The fully-qualified DNS name that uniquely identifies the local computer or the cluster associated with the local computer. This name is a combination of the DNS host name and the DNS domain name, using the form HostName.DomainName. For example, if the DNS host name is "corporate-mail-server" and the DNS domain name is "microsoft.com", the fully qualified DNS name is "corporate-mail-server.microsoft.com".
+		{ MConfigInfoPanelCNPhysicalNetBIOS, ComputerNamePhysicalNetBIOS },                     // The NetBIOS name of the local computer. On a cluster, this is the NetBIOS name of the local node on the cluster.
+		{ MConfigInfoPanelCNPhysicalDnsHostname, ComputerNamePhysicalDnsHostname },             // The DNS host name of the local computer. On a cluster, this is the DNS host name of the local node on the cluster.
+		{ MConfigInfoPanelCNPhysicalDnsDomain, ComputerNamePhysicalDnsDomain },                 // The name of the DNS domain assigned to the local computer. On a cluster, this is the DNS domain of the local node on the cluster.
+		{ MConfigInfoPanelCNPhysicalDnsFullyQualified, ComputerNamePhysicalDnsFullyQualified }, // The fully-qualified DNS name that uniquely identifies the computer. On a cluster, this is the fully qualified DNS name of the local node on the cluster. The fully qualified DNS name is a combination of the DNS host name and the DNS domain name, using the form HostName.DomainName.
+	};
+
 	DialogBuilder Builder(MConfigInfoPanelTitle, L"InfoPanelSettings");
+	Builder.AddText(MConfigInfoPanelCNTitle);
+	Builder.AddComboBox((int *) &Opt.InfoPanel.ComputerNameFormat, 50, CNListItems, countof(CNListItems), DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
 	Builder.AddText(MConfigInfoPanelUNTitle);
-	Builder.AddComboBox((int *) &Opt.InfoPanel.UserNameFormat, 50, ListItems, countof(ListItems), DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddComboBox((int *) &Opt.InfoPanel.UserNameFormat, 50, UNListItems, countof(UNListItems), DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
 	Builder.AddOKCancel();
 	Builder.ShowDialog();
 }
@@ -980,6 +973,7 @@ static struct FARConfig
 	{1, REG_DWORD,  NKeyCodePages,L"CPMenuMode",&Opt.CPMenuMode,0,0},
 
 	{1, REG_SZ,     NKeySystem,L"FolderInfo",&Opt.InfoPanel.strFolderInfoFiles, 0, L"DirInfo,File_Id.diz,Descript.ion,ReadMe.*,Read.Me"},
+	{1, REG_DWORD,  NKeyPanelInfo,L"InfoComputerNameFormat",&Opt.InfoPanel.ComputerNameFormat, ComputerNamePhysicalNetBIOS, 0},
 	{1, REG_DWORD,  NKeyPanelInfo,L"InfoUserNameFormat",&Opt.InfoPanel.UserNameFormat, NameUserPrincipal, 0},
 };
 

@@ -1010,13 +1010,14 @@ on the same level.
 $ #Panels: info panel#
     The information panel contains the following data:
 
- - #network# names of the computer and the current user;
+ - ^<wrap>#network# names of the computer and the current user (см. ~Настройка информационной панели~@InfoPanelSettings@);
 
- - name and type of the #current disk#, type of the file system, network
+ - ^<wrap>name and type of the #current disk#, type of the file system, network
 name, total and free space, disk volume label and serial number;
 
- - #memory# load percentage (100% means all of available memory is used),
-total and free size of the physical memory, virtual memory and paging file;
+ - ^<wrap>#memory# load percentage (100% means all of available memory is used),
+размер установленой памяти (в Vista и выше), total and free size of the physical 
+memory (доступной для Windows), virtual memory and paging file;
 
  - #folder description# file
 
@@ -2219,6 +2220,64 @@ feature is disabled while a macro is being recorded or executed.
 
 @InfoPanelSettings
 $ #Настройка информационной панели#
+  #Формат вывода имени компьютера#
+
+  Задает формат вывода имени компьютера. Может быть одним из:
+
+    #Physical NetBIOS#
+      ^<wrap>NetBIOS имя локального компьютера.
+
+    #Physical DNS hostname#
+      ^<wrap>DNS имя локального компьютера.
+
+    #Physical DNS domain#
+      ^<wrap>DNS имя домена, которому принадлежит компьютер.
+
+    #Physical DNS fully-qualified#
+      ^<wrap>Полное доменное имя, которое однозначно идентифицирует этот компьютер. Имя представляет собой комбинацию DNS имени хоста и DNS имени домена (формат HostName.DomainName).
+
+    #NetBIOS#
+      ^<wrap>NetBIOS имя локального компьютера. Если компьютер является узлом кластера, то выводится NetBIOS имя кластера виртуального сервера.
+
+    #DNS hostname#
+      ^<wrap>DNS имя локального компьютера. Если компьютер является узлом кластера, то выводится DNS имя кластера виртуального сервера.
+
+    #DNS domain#
+      ^<wrap>DNS имя домена, которому принадлежит компьютер. Если компьютер является узлом кластера, то выводится DNS имя домена кластера виртуального сервера.
+
+    #DNS fully-qualified#
+      ^<wrap>Полное доменное имя, которое однозначно идентифицирует этот компьютер. Имя представляет собой комбинацию DNS имени хоста и DNS имени домена (формат HostName.DomainName). Если компьютер является узлом кластера, то выводится полное DNS имя кластера виртуального сервера.
+
+    Формат вывода зависит от наличия доменной структуры, групповых политик, настроек DNS.
+
+  #Формат вывода имени пользователя#
+
+  Задает формат вывода имени пользователя. Может быть одним из:
+
+    #По умолчанию#
+      Логин пользователя, например, JohnDoe
+    #Полностью определенное имя домена#
+      ^<wrap>FQDN (Fully Qualified Domain Name) - включает наименования всех уровней иерархии, начиная от имени конечного узла и заканчивая корневой точкой (логином), например,
+      CN=JohnDoe, OU=Software, OU=Engineering, O=Widget, C=US
+    #Sam Compatible#
+      Engineering\JohnDoe
+    #Display#
+      Probably "John Doe" but could be something else.  I.e. The display name is not necessarily the defining RDN.
+    #Уникальный идентификатор#
+      ^<wrap>Уникальный идентификатор имени пользователя (GUID), например,
+      {4fa050f0-f561-11cf-bdd9-00aa003a77b6}
+    #Канонический вид#
+      ^<wrap>ADCN (Active Directory Canonical Name) - данный формат является путем в иерархической структуре к объекту (логину), например,
+      engineering.widget.com/software/JohnDoe
+    #Основное имя пользователя#
+      ^<wrap>UPN (User Principial Name) - известен так же как адрес электронной почты, например,
+      someone@example.com
+    #Service Principal#
+      www/srv.engineering.com/engineering.com
+    #Dns Domain#
+      engineering.widget.com\JohnDoe
+
+    Формат вывода зависит от наличия доменной структуры.
 
 @CommandPrompt
 $ #Command line prompt format#

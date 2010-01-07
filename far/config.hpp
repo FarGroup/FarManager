@@ -364,6 +364,7 @@ struct FindFileOptions
 
 struct InfoPanelOptions
 {
+	COMPUTER_NAME_FORMAT ComputerNameFormat;
 	EXTENDED_NAME_FORMAT UserNameFormat;
 	string strFolderInfoFiles;
 };

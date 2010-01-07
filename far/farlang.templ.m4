@@ -1639,8 +1639,80 @@ upd:"InfoPanel settings"
 upd:"InfoPanel settings"
 upd:"InfoPanel settings"
 
+MConfigInfoPanelCNTitle
+"Формат вывода имени &компьютера"
+upd:"ComputerName &format"
+upd:"ComputerName &format"
+upd:"ComputerName &format"
+upd:"ComputerName &format"
+upd:"ComputerName &format"
+
+MConfigInfoPanelCNPhysicalNetBIOS
+upd:"Physical NetBIOS"
+upd:"Physical NetBIOS"
+upd:"Physical NetBIOS"
+upd:"Physical NetBIOS"
+upd:"Physical NetBIOS"
+upd:"Physical NetBIOS"
+
+MConfigInfoPanelCNPhysicalDnsHostname
+upd:"Physical DNS hostname"
+upd:"Physical DNS hostname"
+upd:"Physical DNS hostname"
+upd:"Physical DNS hostname"
+upd:"Physical DNS hostname"
+upd:"Physical DNS hostname"
+
+MConfigInfoPanelCNPhysicalDnsDomain
+upd:"Physical DNS domain"
+upd:"Physical DNS domain"
+upd:"Physical DNS domain"
+upd:"Physical DNS domain"
+upd:"Physical DNS domain"
+upd:"Physical DNS domain"
+
+MConfigInfoPanelCNPhysicalDnsFullyQualified
+upd:"Physical DNS fully-qualified"
+upd:"Physical DNS fully-qualified"
+upd:"Physical DNS fully-qualified"
+upd:"Physical DNS fully-qualified"
+upd:"Physical DNS fully-qualified"
+upd:"Physical DNS fully-qualified"
+
+MConfigInfoPanelCNNetBIOS
+upd:"NetBIOS"
+upd:"NetBIOS"
+upd:"NetBIOS"
+upd:"NetBIOS"
+upd:"NetBIOS"
+upd:"NetBIOS"
+
+MConfigInfoPanelCNDnsHostname
+upd:"DNS hostname"
+upd:"DNS hostname"
+upd:"DNS hostname"
+upd:"DNS hostname"
+upd:"DNS hostname"
+upd:"DNS hostname"
+
+MConfigInfoPanelCNDnsDomain
+upd:"DNS domain"
+upd:"DNS domain"
+upd:"DNS domain"
+upd:"DNS domain"
+upd:"DNS domain"
+upd:"DNS domain"
+
+MConfigInfoPanelCNDnsFullyQualified
+upd:"DNS fully-qualified"
+upd:"DNS fully-qualified"
+upd:"DNS fully-qualified"
+upd:"DNS fully-qualified"
+upd:"DNS fully-qualified"
+upd:"DNS fully-qualified"
+
 MConfigInfoPanelUNTitle
-"Форм&ат вывода имени пользователя"
+"Формат вывода имени &пользователя"
 upd:"UserName &format"
 upd:"UserName &format"
 upd:"UserName &format"
