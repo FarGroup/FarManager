@@ -1200,51 +1200,63 @@ void UnicodeListItemToAnsi(FarListItem* li, oldfar::FarListItem* liA)
 	if (li->Flags&LIF_DELETEUSERDATA) liA->Flags|=oldfar::LIF_DELETEUSERDATA;
 }
 
-int GetAnsiVBufSize(oldfar::FarDialogItem &diA)
+size_t GetAnsiVBufSize(oldfar::FarDialogItem &diA)
 {
 	return (diA.X2-diA.X1+1)*(diA.Y2-diA.Y1+1);
 }
 
-CHAR_INFO *GetAnsiVBufPtr(CHAR_INFO *VBuf, int iSize)
+PCHAR_INFO GetAnsiVBufPtr(PCHAR_INFO VBuf, size_t Size)
 {
-	return (VBuf)?(*((CHAR_INFO **)&(VBuf[iSize]))):NULL;
+	PCHAR_INFO VBufA=NULL;
+	if (VBuf)
+	{
+		VBufA=*reinterpret_cast<PCHAR_INFO*>(&VBuf[Size]);
+	}
+	return VBufA;
 }
 
-void SetAnsiVBufPtr(CHAR_INFO *VBuf, CHAR_INFO *VBufA, int iSize)
+void SetAnsiVBufPtr(PCHAR_INFO VBuf, PCHAR_INFO VBufA, size_t Size)
 {
-	if (VBuf) *((CHAR_INFO **)&(VBuf[iSize])) = VBufA;
+	if (VBuf)
+	{
+		*reinterpret_cast<PCHAR_INFO*>(&VBuf[Size])=VBufA;
+	}
 }
 
-void AnsiVBufToUnicode(CHAR_INFO *VBufA, CHAR_INFO *VBuf, int iSize,bool NoCvt)
+void AnsiVBufToUnicode(PCHAR_INFO VBufA, PCHAR_INFO VBuf, size_t Size,bool NoCvt)
 {
 	if (VBuf && VBufA)
 	{
-		for (int i=0; i<iSize; i++)
+		for (size_t i=0; i<Size; i++)
 		{
 			if (NoCvt)
+			{
 				VBuf[i].Char.UnicodeChar=VBufA[i].Char.UnicodeChar;
+			}
 			else
+			{
 				AnsiToUnicodeBin(&VBufA[i].Char.AsciiChar,&VBuf[i].Char.UnicodeChar,1);
+			}
 
 			VBuf[i].Attributes = VBufA[i].Attributes;
 		}
 	}
 }
 
-CHAR_INFO *AnsiVBufToUnicode(oldfar::FarDialogItem &diA)
+PCHAR_INFO AnsiVBufToUnicode(oldfar::FarDialogItem &diA)
 {
-	CHAR_INFO *VBuf = NULL;
+	PCHAR_INFO VBuf = NULL;
 
 	if (diA.Param.VBuf)
 	{
-		int iSize = GetAnsiVBufSize(diA);
-		//+sizeof(CHAR_INFO*) потому что там храним поинтер на анси vbuf.
-		VBuf = (CHAR_INFO*)xf_malloc(iSize*sizeof(CHAR_INFO)+sizeof(CHAR_INFO*));
+		size_t Size = GetAnsiVBufSize(diA);
+		// +sizeof(PCHAR_INFO) потому что там храним поинтер на анси vbuf.
+		VBuf = reinterpret_cast<PCHAR_INFO>(xf_malloc(Size*sizeof(CHAR_INFO)+sizeof(PCHAR_INFO)));
 
 		if (VBuf)
 		{
-			AnsiVBufToUnicode(diA.Param.VBuf, VBuf, iSize,(diA.Flags&DIF_NOTCVTUSERCONTROL)==DIF_NOTCVTUSERCONTROL);
-			SetAnsiVBufPtr(VBuf, diA.Param.VBuf, iSize);
+			AnsiVBufToUnicode(diA.Param.VBuf, VBuf, Size,(diA.Flags&oldfar::DIF_NOTCVTUSERCONTROL)==oldfar::DIF_NOTCVTUSERCONTROL);
+			SetAnsiVBufPtr(VBuf, diA.Param.VBuf, Size);
 		}
 	}
 
@@ -1385,9 +1397,6 @@ void AnsiDialogItemToUnicodeSafe(oldfar::FarDialogItem &diA, FarDialogItem &di)
 
 		if (diA.Flags&oldfar::DIF_CENTERTEXT)
 			di.Flags|=DIF_CENTERTEXT;
-
-		if (diA.Flags&oldfar::DIF_NOTCVTUSERCONTROL)
-			di.Flags|=DIF_NOTCVTUSERCONTROL;
 
 		if (diA.Flags&oldfar::DIF_SEPARATORUSER)
 			di.Flags|=DIF_SEPARATORUSER;
@@ -1664,9 +1673,6 @@ void UnicodeDialogItemToAnsiSafe(FarDialogItem &di,oldfar::FarDialogItem &diA)
 		if (di.Flags&DIF_CENTERTEXT)
 			diA.Flags|=oldfar::DIF_CENTERTEXT;
 
-		if (di.Flags&DIF_NOTCVTUSERCONTROL)
-			diA.Flags|=oldfar::DIF_NOTCVTUSERCONTROL;
-
 		if (di.Flags&DIF_SEPARATORUSER)
 			diA.Flags|=oldfar::DIF_SEPARATORUSER;
 
@@ -1786,7 +1792,7 @@ LONG_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 
 			if (ret && (di->Type==DI_USERCONTROL) && (di->Param.VBuf))
 			{
-				AnsiVBufToUnicode(FarDiA->Param.VBuf, di->Param.VBuf, GetAnsiVBufSize(*FarDiA),(FarDiA->Flags&DIF_NOTCVTUSERCONTROL)==DIF_NOTCVTUSERCONTROL);
+				AnsiVBufToUnicode(FarDiA->Param.VBuf, di->Param.VBuf, GetAnsiVBufSize(*FarDiA),(FarDiA->Flags&oldfar::DIF_NOTCVTUSERCONTROL)==oldfar::DIF_NOTCVTUSERCONTROL);
 			}
 
 			return ret;

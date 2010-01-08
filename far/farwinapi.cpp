@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "pathmix.hpp"
 #include "mix.hpp"
+#include "ctrlobj.hpp"
 
 BOOL apiDeleteFile(const wchar_t *lpwszFileName)
 {
@@ -208,7 +209,10 @@ BOOL apiSetCurrentDirectory(LPCWSTR lpPathName)
 			AddEndSlash(strCurrentDirectory());
 
 		//try to synchronize far cur dir with process cur dir
-		SetCurrentDirectory(strCurrentDirectory());
+		if(CtrlObject && CtrlObject->Plugins.GetOemPluginsCount())
+		{
+			SetCurrentDirectory(strCurrentDirectory());
+		}
 
 		return TRUE;
 	}

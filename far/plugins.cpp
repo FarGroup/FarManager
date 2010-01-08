@@ -285,6 +285,7 @@ PluginManager::PluginManager()
 {
 	PluginsData=NULL;
 	PluginsCount=0;
+	OemPluginsCount=0;
 	CurPluginItem=NULL;
 	CurEditor=NULL;
 	CurViewer=NULL;
@@ -315,6 +316,10 @@ bool PluginManager::AddPlugin(Plugin *pPlugin)
 	PluginsData = NewPluginsData;
 	PluginsData[PluginsCount]=pPlugin;
 	PluginsCount++;
+	if(pPlugin->IsOemPlugin())
+	{
+		OemPluginsCount++;
+	}
 	return true;
 }
 
@@ -324,6 +329,10 @@ bool PluginManager::RemovePlugin(Plugin *pPlugin)
 	{
 		if (PluginsData[i] == pPlugin)
 		{
+			if(pPlugin->IsOemPlugin())
+			{
+				OemPluginsCount--;
+			}
 			delete pPlugin;
 			memmove(&PluginsData[i], &PluginsData[i+1], (PluginsCount-i-1)*sizeof(Plugin*));
 			PluginsCount--;

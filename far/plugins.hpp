@@ -149,7 +149,8 @@ class PluginManager
 	private:
 
 		Plugin **PluginsData;
-		int    PluginsCount;
+		int PluginsCount;
+		int OemPluginsCount;
 
 	public:
 
@@ -200,6 +201,7 @@ class PluginManager
 		Plugin *GetPlugin(int PluginNumber);
 
 		int GetPluginsCount() { return PluginsCount; }
+		int GetOemPluginsCount() { return OemPluginsCount; }
 
 		BOOL IsPluginsLoaded() { return Flags.Check(PSIF_PLUGINSLOADDED); }
 
