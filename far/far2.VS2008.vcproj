@@ -710,6 +710,10 @@
 				>
 			</File>
 			<File
+				RelativePath="DlgGuid.cpp"
+				>
+			</File>
+			<File
 				RelativePath="DList.cpp"
 				>
 			</File>
@@ -2806,6 +2810,10 @@
 			</File>
 			<File
 				RelativePath="dlgedit.hpp"
+				>
+			</File>
+			<File
+				RelativePath="DlgGuid.hpp"
 				>
 			</File>
 			<File

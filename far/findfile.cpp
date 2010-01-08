@@ -70,6 +70,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "mix.hpp"
 #include "constitle.hpp"
+#include "DlgGuid.hpp"
 
 #define CHAR_TABLE_SIZE 5
 
@@ -3245,8 +3246,6 @@ FindFiles::FindFiles()
 		int ExitCode;
 		Dialog Dlg(FindAskDlg,countof(FindAskDlg),MainDlgProc);
 		Dlg.SetHelp(L"FindFile");
-		// {8C9EAD29-910F-4b24-A669-EDAFBA6ED964}
-		static const GUID FindFileId={0x8c9ead29,0x910f,0x4b24,{0xa6,0x69,0xed,0xaf,0xba,0x6e,0xd9,0x64}};
 		Dlg.SetId(FindFileId);
 		Dlg.SetPosition(-1,-1,78,22);
 		Dlg.Process();

@@ -45,6 +45,7 @@ SRCS = \
 	dizlist.cpp \
 	DlgBuilder.cpp \
 	dlgedit.cpp \
+	DlgGuid.cpp \
 	DList.cpp \
 	drivemix.cpp \
 	edit.cpp \

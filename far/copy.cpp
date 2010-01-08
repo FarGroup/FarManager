@@ -77,6 +77,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "processname.hpp"
 #include "mix.hpp"
 #include "scrbuf.hpp"
+#include "DlgGuid.hpp"
 
 /* Общее время ожидания пользователя */
 extern long WaitUserTime;
@@ -4013,6 +4014,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 				WarnDlg.SetDialogMode(DMODE_WARNINGSTYLE);
 				WarnDlg.SetPosition(-1,-1,WARN_DLG_WIDTH,WARN_DLG_HEIGHT);
 				WarnDlg.SetHelp(L"CopyAskOverwrite");
+				WarnDlg.SetId(CopyOverwriteId);
 				WarnDlg.Process();
 
 				switch (WarnDlg.GetExitCode())
@@ -4117,6 +4119,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 					WarnDlg.SetDialogMode(DMODE_WARNINGSTYLE);
 					WarnDlg.SetPosition(-1,-1,WARN_DLG_WIDTH,WARN_DLG_HEIGHT);
 					WarnDlg.SetHelp(L"CopyFiles");
+					WarnDlg.SetId(CopyOverwriteId);
 					WarnDlg.Process();
 
 					switch (WarnDlg.GetExitCode())

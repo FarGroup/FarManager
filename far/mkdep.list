@@ -45,6 +45,8 @@ DlgBuilder.cpp
 DlgBuilder.hpp
 dlgedit.cpp
 dlgedit.hpp
+DlgGuid.cpp
+DlgGuid.hpp
 DList.cpp
 DList.hpp
 drivemix.cpp
