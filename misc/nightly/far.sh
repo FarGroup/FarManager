@@ -18,11 +18,11 @@ mkdir -p $OUTDIR
 mkdir -p $OUTDIR/obj
 mkdir -p $OUTDIR/cod
 
-m4 -P -DFARBIT=$DIRBIT farlang.templ.m4 > farlang.templ
-m4 -P -DFARBIT=$DIRBIT far.rc.m4 > far.rc
-m4 -P -DFARBIT=$DIRBIT Far.exe.manifest.m4 > Far.exe.manifest
-m4 -P -DFARBIT=$DIRBIT farversion.inc.m4 > farversion.inc
-m4 -P -DFARBIT=$DIRBIT copyright.inc.m4 | gawk -f ./scripts/enc.awk > copyright.inc
+m4 -P -DFARBIT=$DIRBIT farlang.templ.m4 > ${BOOTSTRAP}farlang.templ
+m4 -P -DFARBIT=$DIRBIT far.rc.m4 > ${BOOTSTRAP}far.rc
+m4 -P -DFARBIT=$DIRBIT Far.exe.manifest.m4 > ${BOOTSTRAP}Far.exe.manifest
+m4 -P -DFARBIT=$DIRBIT farversion.inc.m4 > ${BOOTSTRAP}farversion.inc
+m4 -P -DFARBIT=$DIRBIT copyright.inc.m4 | gawk -f ./scripts/enc.awk > ${BOOTSTRAP}copyright.inc
 
 m4 -P -DFARBIT=$DIRBIT File_id.diz.m4 > $OUTDIR/File_id.diz
 dos2unix FarEng.hlf.m4
@@ -33,7 +33,7 @@ if [ $4 -eq 1 ]; then
   gawk -f ./scripts/mkhlf.awk FarHun.hlf.m4 | m4 -P -DFARBIT=$DIRBIT | unix2dos > $OUTDIR/FarHun.hlf
 fi
 
-wine tools/lng.generator.exe -nc -ol $OUTDIR farlang.templ
+wine tools/lng.generator.exe -nc -ol $OUTDIR ${BOOTSTRAP}farlang.templ
 
 wine cmd /c ../myset${3}.${DIRBIT}.bat
 
@@ -62,6 +62,7 @@ m4 -P -DFARBIT=32 -DINPUT=colors.hpp headers.m4 | unix2dos > Include/farcolor.hp
 m4 -P -DFARBIT=32 -DINPUT=keys.hpp headers.m4 | unix2dos > Include/farkeys.hpp
 m4 -P -DFARBIT=32 -DINPUT=plugin.hpp headers.m4 | unix2dos > Include/plugin.hpp
 
+BOOTSTRAP=
 if [ $3 -eq 0 ]; then
   dos2unix farcolor.pas
   dos2unix farkeys.pas
@@ -70,6 +71,8 @@ if [ $3 -eq 0 ]; then
   m4 -P -DFARBIT=32 -DINPUT=farkeys.pas headers.m4 | unix2dos > Include/farkeys.pas
   m4 -P -DFARBIT=32 -DINPUT=plugin.pas headers.m4 | unix2dos > Include/plugin.pas
 else
+  BOOTSTRAP=bootstrap/
+  mkdir -p bootstrap
   dos2unix PluginW.pas
   dos2unix FarColorW.pas
   dos2unix FarKeysW.pas 
@@ -78,10 +81,8 @@ else
   m4 -P -DFARBIT=32 -DINPUT=FarKeysW.pas headers.m4 | unix2dos > Include/FarKeysW.pas
 fi
 
-cd ..
-
-cd $1
-gawk -f ./scripts/mkdep.awk mkdep.list > far.vc.dep
+dos2unix mkdep.list
+gawk -f ./scripts/mkdep.awk mkdep.list | unix2dos > ${BOOTSTRAP}far.vc.dep
 cd ..
 
 buildfar2 32 $1 $2 $3
