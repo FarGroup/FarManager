@@ -233,6 +233,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     if (!ReadFile(ArcHandle,&ZipHd1,sizeof(ZipHd1),&ReadSize,NULL))
       return(GETARC_READERROR);
     memset(&ZipHeader,0,sizeof(ZipHeader));
+    ZipHeader.Mark=ZipHd1.Mark;
     ZipHeader.UnpVer=ZipHd1.UnpVer;
     ZipHeader.UnpOS=ZipHd1.UnpOS;
     ZipHeader.Flags=ZipHd1.Flags;
@@ -293,7 +294,9 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   }
 
   Item->FindData.dwFileAttributes=ZipHeader.Attr & 0x3f;
+  Item->FindData.nFileSizeHigh=0;
   Item->FindData.nFileSizeLow=ZipHeader.UnpSize;
+  Item->PackSizeHigh=0;
   Item->PackSize=ZipHeader.PackSize;
   Item->CRC32=ZipHeader.CRC;
   FILETIME lft;
@@ -315,10 +318,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   Info->UnpVer=(ZipHeader.UnpVer/10)*256+(ZipHeader.UnpVer%10);
   Info->DictSize=32;
 
-
-//NTFS file times support
-
-  // Search for NTFS extra block
+  // Search for extra block
   ULARGE_INTEGER ExtraFieldEnd;
 
   for( ExtraFieldEnd.QuadPart = GetFilePosition(ArcHandle) + ZipHeader.AddLen;
@@ -335,10 +335,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
             || ReadSize!=sizeof(BlockHead) )
       return(GETARC_READERROR);
 
-    if (0xA!=BlockHead.Type) //NTFS Header ID
-      // Move to extra block end
-      SetFilePointer(ArcHandle, BlockHead.Length, NULL, FILE_CURRENT);
-    else
+    if (0xA==BlockHead.Type) // NTFS Header ID
     {
       SetFilePointer(ArcHandle, 4, NULL, FILE_CURRENT); // Skip the reserved 4 bytes
 
@@ -385,6 +382,35 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
         }
       }
     }
+    else
+    if (0x1==BlockHead.Type) // ZIP64
+    {
+     struct ZIP64Descriptor
+     {
+       ULARGE_INTEGER OriginalSize;             //    8 bytes               Original uncompressed file size
+       ULARGE_INTEGER CompressedSize;           //    8 bytes               Size of compressed data
+       ULARGE_INTEGER RelativeHeaderOffset;     //    8 bytes               Offset of local header record
+       DWORD          DiskStartNumber;          //    4 bytes               Number of the disk on which this file starts
+     }
+     ZIP64;
+
+     if (!ReadFile(ArcHandle, &ZIP64, BlockHead.Length, &ReadSize,NULL)
+             || ReadSize!=BlockHead.Length )
+       return(GETARC_READERROR);
+
+     if (BlockHead.Length>=4)
+     {
+       Item->FindData.nFileSizeHigh=ZIP64.OriginalSize.u.HighPart;
+       Item->FindData.nFileSizeLow=ZIP64.OriginalSize.u.LowPart;
+     }
+     if (BlockHead.Length>=8)
+     {
+       Item->PackSizeHigh=ZIP64.CompressedSize.u.HighPart;
+       Item->PackSize=ZIP64.CompressedSize.u.LowPart;
+     }
+    }
+    else // Move to extra block end
+      SetFilePointer(ArcHandle, BlockHead.Length, NULL, FILE_CURRENT);
   }
   // ZipHeader.AddLen is more reliable than the sum of all BlockHead.Length
   SetFilePointer(ArcHandle, ExtraFieldEnd.u.LowPart, (PLONG)&ExtraFieldEnd.u.HighPart, FILE_BEGIN);
@@ -403,10 +429,15 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     SetFilePointer(ArcHandle, ZipHeader.CommLen-ReadSize,NULL,FILE_CURRENT);
   }
 
-  long SeekLen=0;
+  ULARGE_INTEGER SeekLen;
   if (bTruncated)
-    SeekLen+=ZipHeader.PackSize;
-  SetFilePointer(ArcHandle,SeekLen,NULL,FILE_CURRENT);
+  {
+    SeekLen.u.HighPart=Item->PackSizeHigh;
+    SeekLen.u.LowPart=Item->PackSize;
+  }
+  else
+    SeekLen.QuadPart=0;
+  SetFilePointer(ArcHandle,SeekLen.u.LowPart,(PLONG)&SeekLen.u.HighPart,FILE_CURRENT);
   NextPosition.QuadPart=GetFilePosition(ArcHandle);
 
   return(GETARC_SUCCESS);
