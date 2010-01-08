@@ -113,14 +113,14 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">far</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">far</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">far</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">far</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">far</TargetName>
     <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</EmbedManifest>
     <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</EmbedManifest>
     <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</EmbedManifest>
     <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</EmbedManifest>
     <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">false</EmbedManifest>
     <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">false</EmbedManifest>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">far</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">far</TargetName>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

@@ -15,8 +15,8 @@ FILETYPE VFT_APP
 	{
 		BLOCK "000004E4"
 		{
-			VALUE "CompanyName", "Eugene Roshal & FAR Group\000\000"
-			VALUE "FileDescription", "File and archive manager\000\000"
+			VALUE "CompanyName", "Eugene Roshal & FAR Group"
+			VALUE "FileDescription", "File and archive manager"
 #if __FARBIT__ == 32
 			VALUE "FileVersion", "`v'FULLVERSION32"
 #elif __FARBIT__ == 64
