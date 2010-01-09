@@ -543,7 +543,7 @@ struct FarDialogItem
 
 	const wchar_t *PtrData;
 
-	DWORD Reserved2;
+	DWORD_PTR Reserved2;
 };
 
 struct FarDialogItemData
