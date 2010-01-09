@@ -1,3 +1,7 @@
+drkns 09.01.2010 14:17:27 +0200 - build 1327
+
+1. Вернём обратно FarDialogItem.MaxLen )
+
 drkns 09.01.2010 13:51:28 +0200 - build 1326
 
 1. DWORD Reserved2 -> DWORD_PTR Reserved2.

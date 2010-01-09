@@ -891,6 +891,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
 	DestPanel->GetCurDir(strDestDir);
 	SrcPanel->GetCurDir(strSrcDir);
+	CopyDlg[ID_SC_TARGETEDIT].nMaxLength = 0;
 
 	if (CurrentOnly)
 	{

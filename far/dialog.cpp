@@ -181,6 +181,7 @@ void DialogItemExToDialogItemEx(DialogItemEx *pSrc, DialogItemEx *pDest)
 	pDest->History = pSrc->History;
 	pDest->Flags = pSrc->Flags;
 	pDest->DefaultButton = pSrc->DefaultButton;
+	pDest->nMaxLength = 0;
 	pDest->strData = pSrc->strData;
 	pDest->ID = pSrc->ID;
 	pDest->IFlags = pSrc->IFlags;
@@ -205,6 +206,7 @@ void ConvertItemSmall(FarDialogItem *Item,DialogItemEx *Data)
 	Item->Param.History = Data->History;
 	Item->Flags = Data->Flags;
 	Item->DefaultButton = Data->DefaultButton;
+	Item->MaxLen = Data->nMaxLength;
 	Item->PtrData = NULL;
 }
 
@@ -221,7 +223,12 @@ size_t ItemStringAndSize(DialogItemEx *Data,string& ItemString)
 			EditPtr->GetString(ItemString);
 	}
 
-	return ItemString.GetLength();
+	size_t sz = ItemString.GetLength();
+
+	if (sz > Data->nMaxLength && Data->nMaxLength > 0)
+		sz = Data->nMaxLength;
+
+	return sz;
 }
 
 bool ConvertItemEx(
@@ -281,6 +288,10 @@ bool ConvertItemEx(
 				if (FromPlugin==CVTITEM_FROMPLUGIN)
 				{
 					Data->strData = Item->PtrData;
+					Data->nMaxLength = Item->MaxLen;
+
+					if (Data->nMaxLength > 0)
+						Data->strData.SetLength(Data->nMaxLength);
 				}
 
 				Data->ListItems = Item->Param.ListItems;
@@ -931,6 +942,10 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
 			/* $ 15.10.2000 tran
 			  строка редакторирование должна иметь максимум в 511 символов */
 			// выставляем максимальный размер в том случае, если он еще не выставлен
+
+			//BUGBUG
+			if (DialogEdit->GetMaxLength() == -1)
+				DialogEdit->SetMaxLength(CurItem->nMaxLength?(int)CurItem->nMaxLength:-1);
 
 			DialogEdit->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
 			                        X1+CurItem->X2,Y1+CurItem->Y2);

@@ -542,8 +542,7 @@ struct FarDialogItem
 	int DefaultButton;
 
 	const wchar_t *PtrData;
-
-	DWORD_PTR Reserved2;
+	size_t MaxLen; // terminate 0 not included (if == 0 string size is unlimited)
 };
 
 struct FarDialogItemData

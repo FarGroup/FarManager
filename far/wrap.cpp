@@ -1490,11 +1490,16 @@ void AnsiDialogItemToUnicode(oldfar::FarDialogItem &diA, FarDialogItem &di,FarLi
 		di.PtrData = (wchar_t*)xf_malloc(sizeof(diA.Data.Data));
 
 		if (di.PtrData) memcpy((char*)di.PtrData,diA.Data.Data,sizeof(diA.Data.Data));
+
+		di.MaxLen = 0;
 	}
 	else if ((diA.Type==oldfar::DI_EDIT || diA.Type==oldfar::DI_COMBOBOX) && diA.Flags&oldfar::DIF_VAREDIT)
 		di.PtrData = AnsiToUnicode(diA.Data.Ptr.PtrData);
 	else
 		di.PtrData = AnsiToUnicode(diA.Data.Data);
+
+	//BUGBUG тут надо придумать как сделать лучше: maxlen=513 например и также подумать что делать для DIF_VAREDIT
+	//di->MaxLen = 0;
 }
 
 void FreeUnicodeDialogItem(FarDialogItem &di)
