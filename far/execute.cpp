@@ -593,7 +593,7 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
       }
       /* VVM $ */
 
-      if (!Ret && Opt.ExecuteUseAppPath) // третий проход - лезим в реестр в "App Paths"
+      if (!Ret && Opt.ExecuteUseAppPath && !strchr(FullName,'\\')) // третий проход - лезим в реестр в "App Paths"
       {
         // В строке Command заменть исполняемый модуль на полный путь, который
         // берется из SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths
