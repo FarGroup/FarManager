@@ -1587,7 +1587,7 @@ void TMacroView::InitDialogItems(InitDialogItem *Init,FarDialogItem *Item,
       Item[I].PtrData = GetMsg((unsigned)(DWORD_PTR)Init[I].Data);
     else
       Item[I].PtrData = Init[I].Data;
-    Item[I].Reserved2 = 0;
+    Item[I].MaxLen = 0;
 #endif
   }
 }

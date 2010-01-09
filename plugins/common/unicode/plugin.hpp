@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 2.0 build 1326
+  Plugin API for FAR Manager 2.0 build 1327
 */
 
 /*
@@ -42,7 +42,7 @@ other possible license with no implications from the above license on them.
 
 #define FARMANAGERVERSION_MAJOR 2
 #define FARMANAGERVERSION_MINOR 0
-#define FARMANAGERVERSION_BUILD 1326
+#define FARMANAGERVERSION_BUILD 1327
 
 #ifndef RC_INVOKED
 
@@ -509,8 +509,7 @@ struct FarDialogItem
 	int DefaultButton;
 
 	const wchar_t *PtrData;
-
-	DWORD_PTR Reserved2;
+	size_t MaxLen; // terminate 0 not included (if == 0 string size is unlimited)
 };
 
 struct FarDialogItemData

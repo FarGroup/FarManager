@@ -21,7 +21,7 @@ void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Ite
     PItem->Flags=PInit->Flags;
     PItem->DefaultButton=PInit->DefaultButton;
 #ifdef UNICODE
-    PItem->Reserved2=0;
+    PItem->MaxLen=0;
 #endif
     if ((DWORD_PTR)PInit->Data<2000)
 #ifndef UNICODE
