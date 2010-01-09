@@ -30,7 +30,7 @@ void InitDialogItems(const MyInitDialogItem *Init,struct FarDialogItem *Item,
     PItem->History=0;
     PItem->DefaultButton=0;
 #ifdef UNICODE
-    PItem->MaxLen=0;
+    PItem->Reserved2=0;
 #endif
 #ifndef UNICODE
     lstrcpy(PItem->Data,PInit->Data!=-1 ? GetMsg(PInit->Data) : "");

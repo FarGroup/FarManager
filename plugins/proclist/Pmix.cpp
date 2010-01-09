@@ -21,7 +21,7 @@ void InitDialogItems(struct InitDialogItem *Init,struct FarDialogItem *Item,
     Item[i].Flags=Init[i].Flags;
     Item[i].DefaultButton=Init[i].DefaultButton;
 #ifdef UNICODE
-    Item[i].MaxLen=0;
+    Item[i].Reserved2=0;
 #endif
 #ifndef UNICODE
     if ((DWORD_PTR)Init[i].Data<2000)

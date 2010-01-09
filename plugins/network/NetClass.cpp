@@ -1780,8 +1780,8 @@ int NetBrowser::GetNameAndPassword(NameAndPassInfo* passInfo)
     CharToOem(passInfo->Title,DialogItems[0].Data);
 #else
     DialogItems[0].PtrData = passInfo->Title;
-  DialogItems[2].MaxLen = ArraySize(LastName)-1;
-  DialogItems[4].MaxLen = ArraySize(LastPassword)-1;
+  DialogItems[2].Reserved2=0;
+  DialogItems[4].Reserved2=0;
 #endif
 #ifndef UNICODE
   int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,12,

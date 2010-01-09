@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 2.0 build 1318
+  Plugin API for FAR Manager 2.0 build 1325
 */
 
 /*
@@ -42,7 +42,7 @@ other possible license with no implications from the above license on them.
 
 #define FARMANAGERVERSION_MAJOR 2
 #define FARMANAGERVERSION_MINOR 0
-#define FARMANAGERVERSION_BUILD 1318
+#define FARMANAGERVERSION_BUILD 1325
 
 #ifndef RC_INVOKED
 
@@ -217,7 +217,6 @@ enum FarDialogItemFlags
 	DIF_HISTORY               = 0x00040000UL,
 	DIF_BTNNOCLOSE            = 0x00040000UL,
 	DIF_CENTERTEXT            = 0x00040000UL,
-	DIF_NOTCVTUSERCONTROL     = 0x00040000UL,
 	DIF_EDITEXPAND            = 0x00080000UL,
 	DIF_DROPDOWNLIST          = 0x00100000UL,
 	DIF_USELASTHISTORY        = 0x00200000UL,
@@ -510,7 +509,8 @@ struct FarDialogItem
 	int DefaultButton;
 
 	const wchar_t *PtrData;
-	size_t MaxLen; // terminate 0 not included (if == 0 string size is unlimited)
+
+	DWORD Reserved2;
 };
 
 struct FarDialogItemData
