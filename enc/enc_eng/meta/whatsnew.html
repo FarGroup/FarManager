@@ -262,65 +262,65 @@
 
 <h3>12 October 2007</h3>
 <ul>
-  <li>Macro: Добавлена константа "<a href="macro/macrocmd/states.html#MacroArea">MacroArea</a>" - возвращает имя текущей макрообласти.
+  <li>Macro: Added constant "<a href="macro/macrocmd/states.html#MacroArea">MacroArea</a>" - returns the name of current Macro area.
     <br><br>
 
-  <li>Macro: Bof/Eof/Empty/Selected в панелях типа QView/Info/Tree возвращают значения для этих типов панелей. Для обычных панелей возвращают значения из командной строки.
+  <li>Macro: Bof/Eof/Empty/Selected in panels like QView/Info/Tree return values for these types of panels. For regular panels, values are returned for command line.
     <br><br>
 </ul>
 
 <h3>13 September 2007</h3>
 <ul>
-  <li>Теперь при открытом DI_COMBOBOX в диалоговую процедуру посылаются
-    события DN_KEY или DN_MOUSEEVENT. Управлять этим поведением можно с помощью
-    сообщений <a href="dialogapi/dmsg/dm_setcomboboxevent.html">DM_SETCOMBOBOXEVENT</a> и <a href="dialogapi/dmsg/dm_getcomboboxevent.html">DM_GETCOMBOBOXEVENT</a>.
+  <li>Now when DI_COMBOBOX is open, DN_KEY or DN_MOUSEEVENT events are sent to the dialog procedure.
+    This behavior can be controlled using events <a href="dialogapi/dmsg/dm_setcomboboxevent.html">DM_SETCOMBOBOXEVENT</a>
+    and <a href="dialogapi/dmsg/dm_getcomboboxevent.html">DM_GETCOMBOBOXEVENT</a>.
     <br><br>
 </ul>
 
 
 <h3>30 August 2007</h3>
 <ul>
-  <li>Bug: Macro: Если пункт меню не содержит горячую клавишу, то <a href="macro/macrocmd/functions.html">GetHotkey()</a> возвращает "0" вместо ""
+  <li>Bug: Macro: If menu item does not contain hot key, <a href="macro/macrocmd/functions.html">GetHotkey()</a> returns "0" instead of "".
     <br><br>
 
-  <li>Macro: Добавлена команда <a href="macro/macrocmd/selword.html">$SelWord</a> - выделяет слово.
+  <li>Macro: Added command <a href="macro/macrocmd/selword.html">$SelWord</a> - selects a word.
     <br><br>
 
-  <li>Bug: Macro: В панелях быстрого просмотра и информации не работали некоторые переменные: ItemCount, CurPos, Selected, Bof, Eof всегда 0; Empty всегда 1.
+  <li>Bug: Macro: Some variables did not work in QuickView and Infopanel: ItemCount, CurPos, Selected, Bof, Eof were always equal to 0; Empty was always equal to 1.
     <br><br>
 
 </ul>
 
 <h3>7 August 2007</h3>
 <ul>
-  <li>Bug: Если плагин для списка отключал реакцию слежения за курсором мыши
-    (<a href="dialogapi/dmsg/dm_listsetmousereaction.html#LMRT_NEVER">LMRT_NEVER</a>), то в диалоговую процедуру не приходило событие DN_MOUSECLICK
-    для двойного клика мыши (Mantis#0000309)
+  <li>Bug: If a plug-in disabled the mouse cursor tracking reaction
+    (<a href="dialogapi/dmsg/dm_listsetmousereaction.html#LMRT_NEVER">LMRT_NEVER</a>) for a list,
+    the dialog procedure did not get DN_MOUSECLICK event for mouse double click (Mantis#0000309).
     <br><br>
 
-  <li>В структуре <a href="structures/pluginpanelitem.html">PluginPanelItem</a> вместо <a href="winapi/win32_find_data.html">WIN32_FIND_DATA</a> используется
-    структура <a href="defs/far_find_data.html">FAR_FIND_DATA</a>. Вместо макроса _FAR_USE_FARFINDDATA необходимо
-    использовать <a href="defs/_far_use_win32_find_data.html">_FAR_USE_WIN32_FIND_DATA</a>.
+  <li>In the <a href="structures/pluginpanelitem.html">PluginPanelItem</a> structure, <a href="defs/far_find_data.html">FAR_FIND_DATA</a>
+    structure was used instead of <a href="winapi/win32_find_data.html">WIN32_FIND_DATA</a>.
+    <a href="defs/_far_use_win32_find_data.html">_FAR_USE_WIN32_FIND_DATA</a> macro should be used instead of _FAR_USE_FARFINDDATA.
     <br><br>
 
 </ul>
 
 <h3>23 July 2007</h3>
 <ul>
-  <li>Добавлены команды <a href="dialogapi/dmsg/dm_geteditposition.html">DM_GETEDITPOSITION</a> и <a href="dialogapi/dmsg/dm_seteditposition.html">DM_SETEDITPOSITION</a> - управление позицией строки в строках ввода в диалогах.
+  <li>Added commands <a href="dialogapi/dmsg/dm_geteditposition.html">DM_GETEDITPOSITION</a> and <a href="dialogapi/dmsg/dm_seteditposition.html">DM_SETEDITPOSITION</a> - line position control within edit strings and dialogs.
     <br><br>
 
 </ul>
 
 <h3>5 July 2007</h3>
 <ul>
-  <li>Macro: добавлена функция <a href="macro/macrocmd/functions.html#gethotkey">gethotkey</a>.
+  <li>Macro: Added function <a href="macro/macrocmd/functions.html#gethotkey">gethotkey</a>.
     <br><br>
 
-  <li>Macro: Не воспринимались переменные начинающиеся с цифр (например, %3DO).
+  <li>Macro: Variables beginning with a number (such as %3DO) were not processed.
     <br><br>
 
-  <li>Bug: <a href="dialogapi/dmsg/dm_listgetcurpos.html">DM_LISTGETCURPOS</a> возвращал неправильное значение после открытия ComboBox`а, навигации по списку с последующим отказом от выбора (нажали Esc).
+  <li>Bug: <a href="dialogapi/dmsg/dm_listgetcurpos.html">DM_LISTGETCURPOS</a> retrned wrong value after opening a ComboBox, moving through the list and cancelling (pressing Esc).
     <br><br>
 
 </ul>
@@ -328,7 +328,7 @@
 
 <h3>31 May 2007</h3>
 <ul>
-  <li>Macro: добавлена функция <a href="macro/macrocmd/functions.html#panel.setposidx">Panel.SetPosIdx</a> - позиционирование на файловой панели по индексу.
+  <li>Macro: Added function <a href="macro/macrocmd/functions.html#panel.setposidx">Panel.SetPosIdx</a> - File panel positioning using index.
     <br><br>
 
 </ul>
@@ -336,32 +336,32 @@
 <h3>10 May 2007</h3>
 <ul>
   <li>Macro: new functions <a href="macro/macrocmd/functions.html#asc">asc()</a> and
-     <a href="macro/macrocmd/functions.html#chr">chr</a>.
+    <a href="macro/macrocmd/functions.html#chr">chr</a>.
     <br><br>
 
 </ul>
 
 <h3>23 March 2007</h3>
 <ul>
-  <li>Макросы в реестре могут иметь тип REG_MULTI_SZ.
+  <li>Macros in the Registry can have REG_MULTI_SZ type.
     <br><br>
-  <li>Добавлен флаг <a href="structures/actlkeymacro.html#KSFLAGS_REG_MULTI_SZ">KSFLAGS_REG_MULTI_SZ</a>.
+  <li>Added flag <a href="structures/actlkeymacro.html#KSFLAGS_REG_MULTI_SZ">KSFLAGS_REG_MULTI_SZ</a>.
     <br><br>
 
 </ul>
 
 <h3>14 March 2007</h3>
 <ul>
-  <li>После вызова <a href="service_functions/editorcontrol.html#ECTL_SELECT">EditorControl(ECTL_SELECT)</a> с установленным значением
-      поля <a href="structures/editorselect.html">BlockStartLine</a> = -1, последующий вызов
-      <a href="service_functions/editorcontrol.html#ECTL_GETINFO">ECTL_GETINFO</a> так же возвращал -1 в поле <a href="structures/editorinfo.html">BlockStartLine</a>.
+  <li>After calling <a href="service_functions/editorcontrol.html#ECTL_SELECT">EditorControl(ECTL_SELECT)</a>
+    with <a href="structures/editorselect.html">BlockStartLine</a> = -1, next call to
+    <a href="service_functions/editorcontrol.html#ECTL_GETINFO">ECTL_GETINFO</a> also returned -1 in <a href="structures/editorinfo.html">BlockStartLine</a>.
     <br><br>
 
 </ul>
 
 <h3>13 March 2007</h3>
 <ul>
-  <li>Macro: новые функции <a href="macro/macrocmd/functions.html#waitkey">waitkey()</a> и
+  <li>Macro: new functions <a href="macro/macrocmd/functions.html#waitkey">waitkey()</a> and
      <a href="macro/macrocmd/functions.html#eval">eval</a>.
     <br><br>
 
@@ -369,14 +369,14 @@
 
 <h3>20 February 2007</h3>
 <ul>
-  <li>Добавлен флаг <a href="dialogapi/flags/dif_notcvtusercontrol.html">DIF_NOTCVTUSERCONTROL</a> для <a href="dialogapi/controls/di_usercontrol.html">DI_USERCONTROL</a>.
+  <li>Added flag <a href="dialogapi/flags/dif_notcvtusercontrol.html">DIF_NOTCVTUSERCONTROL</a> for <a href="dialogapi/controls/di_usercontrol.html">DI_USERCONTROL</a>.
     <br><br>
 
 </ul>
 <h3>7 February 2007</h3>
 <ul>
-  <li>Macro: новые слова <a href="macro/macrocmd/states.html#APanel.ColumnCount">APanel.ColumnCount</a> и
-     <a href="macro/macrocmd/states.html#PPanel.ColumnCount">PPanel.ColumnCount</a>.
+  <li>Macro: new words <a href="macro/macrocmd/states.html#APanel.ColumnCount">APanel.ColumnCount</a>
+    and <a href="macro/macrocmd/states.html#PPanel.ColumnCount">PPanel.ColumnCount</a>.
     <br><br>
 
 </ul>
@@ -389,13 +389,13 @@
 
 <h3>25 January 2007</h3>
 <ul>
-  <li>Для элемента <a href="dialogapi/controls/di_vtext.html">DI_VTEXT</a> добавлена обработка флагов: DIF_CENTERGROUP, DIF_SEPARATOR, DIF_SEPARATOR2, DIF_SHOWAMPERSAND.
+  <li>For <a href="dialogapi/controls/di_vtext.html">DI_VTEXT</a> element, added handling of flags: DIF_CENTERGROUP, DIF_SEPARATOR, DIF_SEPARATOR2, DIF_SHOWAMPERSAND.
     <br><br>
 
-  <li>В обработчике <a href="dialogapi/defdlgproc.html">DefDlgProc</a> для события <a href="dialogapi/dmsg/dn_btnclick.html">DN_BTNCLICK</a> не учитывался флаг <a href="dialogapi/flags/dif_btnnoclose.html">DIF_BTNNOCLOSE</a>.
+  <li>In <a href="dialogapi/defdlgproc.html">DefDlgProc</a> handler, <a href="dialogapi/flags/dif_btnnoclose.html">DIF_BTNNOCLOSE</a> flag was not handled for <a href="dialogapi/dmsg/dn_btnclick.html">DN_BTNCLICK</a> event.
     <br><br>
 
-  <li>Некорректная отрисовка элемента <a href="dialogapi/controls/di_text.html">DI_TEXT</a> для сочетания условий: DIF_CENTERTEXT + DIF_SEPARATOR + X1 не равен "-1"
+  <li>Incorrect <a href="dialogapi/controls/di_text.html">DI_TEXT</a> element drawing for conditions: DIF_CENTERTEXT + DIF_SEPARATOR + X1 not equal to "-1"
     <br><br>
 
 </ul>
@@ -403,17 +403,17 @@
 
 <h3>24 January 2007</h3>
 <ul>
-  <li>Ужесточение правил, касаемых координат X2 и Y2 в элементах диалогов. Y2 указывать всегда, а не 0.
+  <li>Rules regarding X2 and Y2 coordinates in the dialog elements are hardened. Y2 should be always set, do not use 0.
     <br><br>
 
 </ul>
 
 <h3>18 January 2007</h3>
 <ul>
-  <li>Не посылался <a href="exported_functions/processeditorevent.html#EE_CLOSE">EE_CLOSE</a> для "?New File?".
+  <li><a href="exported_functions/processeditorevent.html#EE_CLOSE">EE_CLOSE</a> event was not fired for "?New File?".
     <br><br>
 
-  <li>Неправильная цветовая отрисовка диалога сообщения при использование флага FMSG_WARNING в функции <a href="service_functions/message.html">Messag</a> без кнопок.
+  <li>Incorrect color drawing for information dialog when FMSG_WARNING flag was used in a <a href="service_functions/message.html">Message</a> function without buttons.
     <br><br>
 </ul>
 

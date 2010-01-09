@@ -1124,10 +1124,10 @@ the main help file, that is actual for the current FAR Manager version.
   1.9. XLat.
 =====================
 
-   Translate  the  selected  block according to the rules table
+   Translates the selected block according to the rules table
    (see %FARHOME%\Addons\Xlat\*.reg).
-   Вызов функции производится при помощи оператора $XLat макроязыка FAR,
-   назначенного на любое удобное вам сочетание клавиш.
+   Function is called by FAR macro language $XLat operator, which can be
+   assigned to any key combination.
 
 1.9.0.(TechInfo #10)
 ~~~~~~~~~~~~~~~~~~~~

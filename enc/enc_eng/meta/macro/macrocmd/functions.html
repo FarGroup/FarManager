@@ -278,10 +278,10 @@ $End</pre>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="panel.setpath">panel.setpath</a></dfn>(panelType,pathName[,fileName])</td>
-    <td class="cont" width="60%">На активной (<em>panelType</em>=0) или пассивной (<em>panelType</em>=1) панели выставляет каталог <em>pathName</em> и
-      позиционирует курсор на элемент с именем <em>fileName</em> (если указан параметр <em>fileName</em>).<br>
-      Возвращает 1 в случае успешной установки каталога и 0, если каталог не существует.<br>
-      Например, на активной панели выставить каталог "C:\WINDOWS", на пассивной - "C:\Program Files", активную панель сделать слева и установить курсор на каталог "FAR":
+    <td class="cont" width="60%">In the active (<em>panelType</em>=0) or passive (<em>panelType</em>=1) panel changes folder to <em>pathName</em> and
+      sets the cursor on the element with name <em>fileName</em> (if <em>fileName</em> parameter was specified).<br>
+      Returns 1 if folder was changed successfully and 0 if folder does not exist.<br>
+      For example, in the active panel change folder to "C:\WINDOWS", in the passive panel to "C:\Program Files", make left panel the active one and set cursor to "FAR" folder:
       <pre class=code>$if(APanel.Left) CtrlU $End
 panel.SetPath(1,"C:\\WINDOWS")
 panel.SetPath(0,"C:\\Program Files","FAR")</pre>
@@ -373,8 +373,8 @@ $End</pre>
         <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">toggle key to on</td></tr>
         <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%">toggle key to reverse state</td></tr>
        </table>
-    В Windows 95/98/Me функция может изменять только состояние клавиш CapsLock и ScrollLock. Для линейки NT (NT/2000/XP/...) этого ограничения нет.<br>
-    Функция капризная (возможно зависание компьютера), поэтому пользоваться ей надо осторожно. Например, макрос, повешенный на CtrlCapsLock (переключение между окнами) должен иметь некую обвязку:
+    In Windows 95/98/Me the function can change only CapsLock and ScrollLock states. Windows NT family (NT/2000/XP/...) has no such restriction.<br>
+    The function is unstable (computer may freeze) and should be used carefully. For example, macro with CtrlCapsLock hot key (switching between windows) should be wrapped in certain way:
        <pre class=code>CtrlShiftTab
 %a=flock(1,-1)&1;
 $while((flock(1,-1)&1)==%a)
