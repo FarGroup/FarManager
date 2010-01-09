@@ -119,7 +119,6 @@ struct DialogItemEx
 	int DefaultButton;
 
 	string strData;
-	size_t nMaxLength;
 
 	WORD ID;
 	BitFlags IFlags;
@@ -147,7 +146,6 @@ struct DialogItemEx
 		Flags=0;
 		DefaultButton=0;
 		strData.Clear();
-		nMaxLength=0;
 		ID=0;
 		IFlags.ClearAll();
 		AutoCount=0;
@@ -172,7 +170,6 @@ struct DialogItemEx
 		Flags         = Other.Flags;
 		DefaultButton = Other.DefaultButton;
 		strData       = Other.strData;
-		nMaxLength    = Other.nMaxLength;
 		ID            = Other.ID;
 		IFlags        = Other.IFlags;
 		AutoCount     = Other.AutoCount;
