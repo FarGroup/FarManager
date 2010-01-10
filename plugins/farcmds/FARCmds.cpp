@@ -64,9 +64,9 @@ static struct PluginStartupInfo Info;
 FarStandardFunctions FSF;
 struct PanelInfo PInfo;
 TCHAR PluginRootKey[80];
-TCHAR selectItem[NM*5];
-//TCHAR tempFileNameOut[NM*5],tempFileNameErr[NM*5],FileNameOut[NM*5],FileNameErr[NM*5],
-TCHAR fullcmd[NM*5],cmd[NM*5];
+TCHAR selectItem[MAX_PATH*5];
+//TCHAR tempFileNameOut[MAX_PATH*5],tempFileNameErr[MAX_PATH*5],FileNameOut[MAX_PATH*5],FileNameErr[MAX_PATH*5],
+TCHAR fullcmd[MAX_PATH*5],cmd[MAX_PATH*5];
 
 #include "Reg.cpp"
 #include "Mix.cpp"
@@ -80,8 +80,8 @@ int WINAPI EXP_NAME(GetMinFarVersion)()
 void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *psInfo)
 {
   Info=*psInfo;
-	FSF=*psInfo->FSF;
-	Info.FSF=&FSF;
+  FSF=*psInfo->FSF;
+  Info.FSF=&FSF;
 
   FarItoa=Info.FSF->itoa;
   FarAtoi=Info.FSF->atoi;
@@ -174,9 +174,9 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
     PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.Control(PANEL_ACTIVE,FCTL_GETPANELITEM,PInfo.CurrentItem,0));
     if(PPI)
     {
-    	Info.Control(PANEL_ACTIVE,FCTL_GETPANELITEM,PInfo.CurrentItem,(LONG_PTR)PPI);
-		lstrcat(selectItem,PPI->FindData.lpwszFileName);
-    	free(PPI);
+      Info.Control(PANEL_ACTIVE,FCTL_GETPANELITEM,PInfo.CurrentItem,(LONG_PTR)PPI);
+      lstrcat(selectItem,PPI->FindData.lpwszFileName);
+      free(PPI);
     }
 #endif
 
@@ -193,7 +193,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
   if(lstrlen(selectItem))
   {
     static struct PanelRedrawInfo PRI;
-    static TCHAR Name[NM], Dir[NM*5];
+    static TCHAR Name[MAX_PATH], Dir[MAX_PATH*5];
     int pathlen;
 
     lstrcpy(Name,PointToName(selectItem));
@@ -231,7 +231,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
       {
         Info.Control(_PANEL_HANDLE,FCTL_GETPANELITEM,J,(LONG_PTR)PPI);
         Equal=!LStricmp(Name,PointToName(PPI->FindData.lpwszFileName));
-      	free(PPI);
+        free(PPI);
       }
       if(Equal)
 #endif

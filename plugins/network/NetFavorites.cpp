@@ -22,7 +22,7 @@ BOOL GetFavorites(LPNETRESOURCE pNR, NetResourceList *pList)
   }
   else if(!lstrcmp(pNR->lpProvider, szFavProv))
   {
-    TCHAR szKey[NM*2];
+    TCHAR szKey[MAX_PATH*2];
     szKey[0] = 0;
     if(pNR->lpRemoteName)
     {
@@ -37,7 +37,7 @@ BOOL GetFavorites(LPNETRESOURCE pNR, NetResourceList *pList)
     HKEY hKey = OpenRegKey(HKEY_CURRENT_USER, szKey, KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS);
     if(hKey)
     {
-      TCHAR szSubKey[NM];
+      TCHAR szSubKey[MAX_PATH];
       szSubKey[0] = 0;
       for(DWORD dwIndex = 0;
           ERROR_SUCCESS == RegEnumKey(hKey,dwIndex,szSubKey,ArraySize(szSubKey));
@@ -45,7 +45,7 @@ BOOL GetFavorites(LPNETRESOURCE pNR, NetResourceList *pList)
       {
         int bTmp; LONG cData = sizeof(bTmp);
         bTmp = 0;
-        TCHAR szSrc[NM];
+        TCHAR szSrc[MAX_PATH];
         szSrc[0] = 0;
 
         if(ERROR_SUCCESS == RegQueryValue(hKey, szSubKey, (TCHAR*)&bTmp, &cData) && bTmp == (int)_T('1'))
@@ -103,13 +103,13 @@ BOOL GetResourceKey(TCHAR* lpRemoteName, const TCHAR* rootKey, TCHAR* lpResource
     return FALSE;
 
   TCHAR *p = NULL;
-  TCHAR szKey[NM];
+  TCHAR szKey[MAX_PATH];
   if(lpRemoteName)
   {
     while (*lpRemoteName==_T('\\')) lpRemoteName++;
     if(0 != (p = _tcschr(lpRemoteName, _T('\\'))))
       *p = 0;
-    TCHAR szFavoritesName[NM];
+    TCHAR szFavoritesName[MAX_PATH];
     OEMToChar(GetMsg(MFavorites), szFavoritesName);
     if(!lstrcmpi(lpRemoteName, szFavoritesName))
     {
@@ -142,7 +142,7 @@ BOOL GetResourceKey(TCHAR* lpRemoteName, const TCHAR* rootKey, TCHAR* lpResource
     }
     return FALSE;
   }
-  int buffLen = lstrlen(lpRemoteName) + lstrlen(SZ_FAVORITES) + NM;
+  int buffLen = lstrlen(lpRemoteName) + lstrlen(SZ_FAVORITES) + MAX_PATH;
   TCHAR* buff = new TCHAR[buffLen];
 
   p = _tcschr(lpRemoteName, _T('\\'));
@@ -200,7 +200,7 @@ BOOL GetResourceKey(TCHAR* lpRemoteName, const TCHAR* rootKey, TCHAR* lpResource
 
 void WriteFavoriteItem(LPFAVORITEITEM lpFavItem, TCHAR* /*szFolder*/)
 {
-  TCHAR szResourceKey[NM];
+  TCHAR szResourceKey[MAX_PATH];
   size_t cSize = ArraySize(szResourceKey);
   GetResourceKey(lpFavItem->lpRemoteName, SZ_FAVORITES, szResourceKey, &cSize);
   SetRegKey(HKEY_CURRENT_USER, szResourceKey, SZ_USERNAME, lpFavItem->lpUserName);
@@ -253,7 +253,7 @@ BOOL GetFavoritesParent(NETRESOURCE& SrcRes, LPNETRESOURCE lpParent)
     return FALSE;
 
 
-  TCHAR szResourceKey[NM];
+  TCHAR szResourceKey[MAX_PATH];
   size_t cSize = ArraySize(szResourceKey);
   if(GetResourceKey(SrcRes.lpRemoteName, SZ_FAVORITES, szResourceKey, &cSize))
   {
@@ -265,7 +265,7 @@ BOOL GetFavoritesParent(NETRESOURCE& SrcRes, LPNETRESOURCE lpParent)
     if(lpParent)
     {
       *--p = 0;
-      TCHAR res[NM];
+      TCHAR res[MAX_PATH];
       res[0] = 0;
       p = _tcschr(szResourceKey, _T('\\'));
       if(p)
@@ -291,7 +291,7 @@ BOOL GetFavoriteResource(TCHAR *SrcName, LPNETRESOURCE DstNetResource)
   NETRESOURCE nr = {0};
   TCHAR *p1, *p = SrcName;
   while(*p == _T('\\')) ++p;
-  TCHAR szKey[NM];
+  TCHAR szKey[MAX_PATH];
   size_t cSize = ArraySize(szKey);
   int dwKey = 0;
   szKey[0] = 0;
@@ -317,7 +317,7 @@ BOOL GetFavoriteResource(TCHAR *SrcName, LPNETRESOURCE DstNetResource)
         {
           nr.lpProvider = szFavProv;
           nr.dwDisplayType = RESOURCEDISPLAYTYPE_DOMAIN;
-          TCHAR szOutName[NM];
+          TCHAR szOutName[MAX_PATH];
           OEMToChar(GetMsg(MFavorites), szOutName);
           lstrcat(szOutName, p);
           nr.lpRemoteName = szOutName;

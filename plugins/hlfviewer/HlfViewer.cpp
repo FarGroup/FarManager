@@ -46,16 +46,16 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
   ::Info=*Info;
   lstrcpy(PluginRootKey,Info->RootKey);
   lstrcat(PluginRootKey,_T("\\HlfViewer"));
-	::FSF=*Info->FSF;
-	::Info.FSF=&::FSF;
-	PointToName=::FSF.PointToName;
-	GetPathRoot=::FSF.GetPathRoot;
-	AddEndSlash=::FSF.AddEndSlash;
-	FarSprintf=::FSF.sprintf;
-	GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.EditorKey,KeyNameFromReg,_T("F1"),ArraySize(KeyNameFromReg)-1);
-	Opt.Key=::FSF.FarNameToKey(KeyNameFromReg);
-	Opt.ProcessEditorInput=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.ProcessEditorInput,1);
-	Opt.Style=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.Style,0);
+  ::FSF=*Info->FSF;
+  ::Info.FSF=&::FSF;
+  PointToName=::FSF.PointToName;
+  GetPathRoot=::FSF.GetPathRoot;
+  AddEndSlash=::FSF.AddEndSlash;
+  FarSprintf=::FSF.sprintf;
+  GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.EditorKey,KeyNameFromReg,_T("F1"),ArraySize(KeyNameFromReg)-1);
+  Opt.Key=::FSF.FarNameToKey(KeyNameFromReg);
+  Opt.ProcessEditorInput=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.ProcessEditorInput,1);
+  Opt.Style=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.Style,0);
 }
 
 HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
@@ -64,7 +64,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
   {
     if(lstrlen((TCHAR *)Item))
     {
-      static TCHAR cmdbuf[1024], FileName[NM], *ptrTopic, *ptrName;
+      static TCHAR cmdbuf[1024], FileName[MAX_PATH], *ptrTopic, *ptrName;
 
       lstrcpy(cmdbuf,(TCHAR *)Item);
       FSF.Trim(cmdbuf);
@@ -101,7 +101,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
         }
       }
 #endif
-      GetFullPathName(ptrName,NM,FileName,&ptrName);
+      GetFullPathName(ptrName,MAX_PATH,FileName,&ptrName);
 #ifdef UNICODE
       if(ptrCurDir)
         delete[] ptrCurDir;

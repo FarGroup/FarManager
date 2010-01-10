@@ -89,7 +89,7 @@ class NetBrowser
     BOOL AskMapDrive (TCHAR *NewLocalName, BOOL &Permanent);
     void PutCurrentFileName (BOOL ToCommandLine);
     NetResourceList NetList;               // list of resources in the current folder
-    TCHAR NetListRemoteName [NM];          // remote name of the resource stored in NetList
+    TCHAR NetListRemoteName [MAX_PATH];    // remote name of the resource stored in NetList
     NetResourceList ConnectedList;         // list of resources mapped to local drives
     NetResourceList RootResources;         // stack of resources above the current level
                                            // (used in non-MS Windows networks only)
@@ -99,7 +99,7 @@ class NetBrowser
     BOOL ChangeDirSuccess;
     BOOL OpenFromFilePanel;
     int ReenterGetFindData;
-    TCHAR CmdLinePath [NM];                 // path passed when invoking us from command line
+    TCHAR CmdLinePath [MAX_PATH];           // path passed when invoking us from command line
     TCHAR PanelMode[4];                     // current start panel mode
 
 #ifdef NETWORK_LOGGING

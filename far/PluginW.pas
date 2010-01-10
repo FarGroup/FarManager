@@ -80,7 +80,6 @@ type
   TIntegerArray = packed array[0..Pred(MaxLongint div SizeOf(Integer))] of Integer;
 
 const
-  NM = 260;
   FARMACRO_KEY_EVENT = KEY_EVENT or $8000;
 
   CP_UNICODE = 1200;

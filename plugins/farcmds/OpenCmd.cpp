@@ -233,7 +233,7 @@ static bool MakeTempNames(TCHAR* tempFileName1, TCHAR* tempFileName2, size_t szT
 
 static TCHAR *loadFile(const TCHAR *fn, TCHAR *buff, DWORD maxSize)
 {
-  TCHAR *p = NULL, FileName[NM*5];
+  TCHAR *p = NULL, FileName[MAX_PATH*5];
   ExpandEnvironmentStr(fn, FileName, ArraySize(FileName));
   HANDLE Handle = CreateFile(FileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
   if ( vh(Handle) )
@@ -320,7 +320,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 {
   if ( !_farcmd ) return FALSE;
 
-  static TCHAR farcmdbuf[NM*10], *farcmd;
+  static TCHAR farcmdbuf[MAX_PATH*10], *farcmd;
   farcmd=farcmdbuf;
   lstrcpy(farcmdbuf, _farcmd);
   FarRTrim(farcmdbuf);
@@ -399,7 +399,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
     if(View||Edit||Goto||Clip||WhereIs||Macro||Link||Run||Load||Unload)
     {
       int SeparatorLen=lstrlen(Opt.Separator);
-      TCHAR *cBracket=NULL, runFile[NM]=_T("");
+      TCHAR *cBracket=NULL, runFile[MAX_PATH]=_T("");
       BOOL BracketsOk=TRUE;
       if(Edit)
       {
@@ -521,7 +521,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
           }
           else if(WhereIs)
           {
-             TCHAR *Path = NULL, *pFile, temp[NM*5], *FARHOMEPath = NULL;
+             TCHAR *Path = NULL, *pFile, temp[MAX_PATH*5], *FARHOMEPath = NULL;
              int Length=
 #ifndef UNICODE
                         GetCurrentDirectory
@@ -687,7 +687,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 #ifdef UNICODE
           else if (Load || Unload)
           {
-            TCHAR temp[NM*5];
+            TCHAR temp[MAX_PATH*5];
             Unquote(pCmd);
             ExpandEnvironmentStr(pCmd,temp,ArraySize(temp));
             if (Load)
@@ -698,8 +698,8 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 #endif
           else
           {
-            TCHAR *tempDir = NULL, temp[NM*5];
-            TCHAR TempFileNameOut[NM*5], TempFileNameErr[ArraySize(TempFileNameOut)];
+            TCHAR *tempDir = NULL, temp[MAX_PATH*5];
+            TCHAR TempFileNameOut[MAX_PATH*5], TempFileNameErr[ArraySize(TempFileNameOut)];
             TempFileNameOut[0] = TempFileNameErr[0] = 0;
             if ( outputtofile )
             {
@@ -881,7 +881,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
                       }
                     }
                   }
-                  TCHAR SaveDir[NM], workDir[NM];
+                  TCHAR SaveDir[MAX_PATH], workDir[MAX_PATH];
                   static PROCESS_INFORMATION pi;
                   memset(&pi,0,sizeof(pi));
                   if ( tempDir )
@@ -1015,7 +1015,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
             {
               if ( View || Edit )
               {
-                TCHAR titleOut[NM] = _T(""), titleErr[NM] = _T("");
+                TCHAR titleOut[MAX_PATH] = _T(""), titleErr[MAX_PATH] = _T("");
                 if ( catchStdError && ( ( catchStdOutput && catchSeparate ) || !catchStdOutput) )
                   lstrcpy(titleErr, GetMsg(MStdErr));
                 if ( catchStdError && catchStdOutput && catchSeparate )

@@ -10,6 +10,8 @@ namespace oldfar
 #endif
 #endif
 
+	const int NM=260;
+
 	enum FARMESSAGEFLAGS
 	{
 		FMSG_WARNING             = 0x00000001,

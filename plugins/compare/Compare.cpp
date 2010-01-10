@@ -191,7 +191,7 @@ static void ShowMessage(const TCHAR *Name1, const TCHAR *Name2)
     return;
   dwTicks = dwNewTicks;
 
-  TCHAR TruncName1[NM], TruncName2[NM];
+  TCHAR TruncName1[MAX_PATH], TruncName2[MAX_PATH];
   TrunCopy(TruncName1, Name1);
   TrunCopy(TruncName2, Name2);
 
@@ -556,7 +556,7 @@ static bool CheckForEsc(void)
  ****************************************************************************/
 static TCHAR *BuildFullFilename(const TCHAR *cpDir, const TCHAR *cpFileName)
 {
-  static TCHAR cName[NM];
+  static TCHAR cName[MAX_PATH];
   FSF.AddEndSlash(lstrcpy(cName, cpDir));
 
   return lstrcat(cName, cpFileName);
@@ -658,7 +658,7 @@ static int GetDirList(OwnPanelInfo *PInfo, const TCHAR *Dir)
     size_t dirLen = lstrlen(Dir);
     if(   dirLen > ArraySize(cPathMask) - sizeof("\\*")
 #ifndef UNICODE
-       || dirLen >= NM
+       || dirLen >= MAX_PATH
 #endif
       )
       return FALSE;
@@ -1167,19 +1167,19 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
 #else
 void GetPanelItem(HANDLE hPlugin,int Command,int Param1,PluginPanelItem* Param2)
 {
-	PluginPanelItem* item=(PluginPanelItem*)malloc(Info.Control(hPlugin,Command,Param1,0));
-	if(item)
-	{
-		Info.Control(hPlugin,Command,Param1,(LONG_PTR)item);
-		*Param2=*item;
-		Param2->FindData.lpwszFileName=wcsdup(item->FindData.lpwszFileName);
-		Param2->FindData.lpwszAlternateFileName=wcsdup(item->FindData.lpwszAlternateFileName);
-		Param2->Description=NULL;
-		Param2->Owner=NULL;
-		Param2->CustomColumnData=NULL;
-		Param2->UserData=0;
-		free(item);
-	}
+  PluginPanelItem* item=(PluginPanelItem*)malloc(Info.Control(hPlugin,Command,Param1,0));
+  if(item)
+  {
+    Info.Control(hPlugin,Command,Param1,(LONG_PTR)item);
+    *Param2=*item;
+    Param2->FindData.lpwszFileName=wcsdup(item->FindData.lpwszFileName);
+    Param2->FindData.lpwszAlternateFileName=wcsdup(item->FindData.lpwszAlternateFileName);
+    Param2->Description=NULL;
+    Param2->Owner=NULL;
+    Param2->CustomColumnData=NULL;
+    Param2->UserData=0;
+    free(item);
+  }
 }
 
 void FreePanelItems(OwnPanelInfo &AInfo,OwnPanelInfo &PInfo)
@@ -1226,7 +1226,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
 #endif
 
 #ifndef UNICODE
-	// Если не удалось запросить информацию о панелях...
+  // Если не удалось запросить информацию о панелях...
   if (   !Info.Control(INVALID_HANDLE_VALUE, FCTL_GETPANELINFO, &AInfo)
       || !Info.Control(INVALID_HANDLE_VALUE, FCTL_GETANOTHERPANELINFO, &PInfo) )
   {
@@ -1324,8 +1324,8 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
   CONSOLE_SCREEN_BUFFER_INFO csbiNfo;
   if (GetConsoleScreenBufferInfo(hConOut, &csbiNfo))
   {
-    if ((iTruncLen = csbiNfo.dwSize.X - 20) > NM - 2)
-      iTruncLen = NM - 2;
+    if ((iTruncLen = csbiNfo.dwSize.X - 20) > MAX_PATH - 2)
+      iTruncLen = MAX_PATH - 2;
     else if (iTruncLen < 0)
       iTruncLen = csbiNfo.dwSize.X - csbiNfo.dwSize.X / 4;
   }

@@ -164,7 +164,7 @@ int WINAPI EXP_NAME(ProcessEditorInput)(const INPUT_RECORD *Rec)
         return TRUE;
       }
       int Found=FALSE;
-      TCHAR FileMask[NM],*MaskPtr=Opt.FileMasks;
+      TCHAR FileMask[MAX_PATH],*MaskPtr=Opt.FileMasks;
       while ((MaskPtr=GetCommaWord(MaskPtr,FileMask))!=NULL)
         if (Info.CmpName(FileMask,
 #ifndef UNICODE

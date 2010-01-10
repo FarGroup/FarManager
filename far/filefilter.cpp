@@ -176,12 +176,12 @@ bool FileFilter::FilterEdit()
 				break;
 	}
 
-	far_qsort((void *)ExtPtr,ExtCount,NM*sizeof(wchar_t),ExtSort);
+	far_qsort((void *)ExtPtr,ExtCount,MAX_PATH*sizeof(wchar_t),ExtSort);
 	ListItem.Clear();
 
 	for (int i=0, h=L'1'; i<ExtCount; i++, (h==L'9'?h=L'A':(h==L'Z'||h==0?h=0:h++)))
 	{
-		wchar_t *CurExtPtr=ExtPtr+i*NM;
+		wchar_t *CurExtPtr=ExtPtr+i*MAX_PATH;
 		MenuString(ListItem.strName,NULL,false,h,true,CurExtPtr,MSG(MPanelFileType));
 		ListItem.SetCheck(CurExtPtr[StrLength(CurExtPtr)+1]);
 		FilterList.SetUserData(CurExtPtr,0,FilterList.AddItem(&ListItem));
@@ -306,7 +306,7 @@ bool FileFilter::FilterEdit()
 					}
 					else if (SelPos2 > (int)(FilterData.getCount()+2))
 					{
-						wchar_t Mask[NM];
+						wchar_t Mask[MAX_PATH];
 						FilterList.GetUserData(Mask,sizeof(Mask),SelPos2-1);
 						NewFilter->SetMask(1,Mask);
 						//Авто фильтры они только для файлов, папки не должны к ним подходить
@@ -503,7 +503,7 @@ void FileFilter::ProcessSelection(VMenu *FilterList)
 		else if (i > (int)(FilterData.getCount() + 2))
 		{
 			const wchar_t *FMask;
-			wchar_t Mask[NM];
+			wchar_t Mask[MAX_PATH];
 			string strMask1;
 			FilterList->GetUserData(Mask,sizeof(Mask),i);
 			//AY: Так как в меню мы показываем только те выбранные авто фильтры
@@ -971,18 +971,18 @@ int FileFilter::ParseAndAddMasks(wchar_t **ExtPtr,const wchar_t *FileName,DWORD 
 	// сначала поиск...
 	unsigned int Cnt=ExtCount;
 
-	if (_lfind(strMask.CPtr(),*ExtPtr,&Cnt,NM*sizeof(wchar_t),ExtSort))
+	if (_lfind(strMask.CPtr(),*ExtPtr,&Cnt,MAX_PATH*sizeof(wchar_t),ExtSort))
 		return -1;
 
 	// ... а потом уже выделение памяти!
 	wchar_t *NewPtr;
 
-	if ((NewPtr=(wchar_t *)xf_realloc(*ExtPtr,NM*(ExtCount+1)*sizeof(wchar_t))) == NULL)
+	if ((NewPtr=(wchar_t *)xf_realloc(*ExtPtr,MAX_PATH*(ExtCount+1)*sizeof(wchar_t))) == NULL)
 		return 0;
 
 	*ExtPtr=NewPtr;
-	NewPtr=*ExtPtr+ExtCount*NM;
-	xwcsncpy(NewPtr,strMask,NM-2);
+	NewPtr=*ExtPtr+ExtCount*MAX_PATH;
+	xwcsncpy(NewPtr,strMask,MAX_PATH-2);
 	NewPtr=NewPtr+StrLength(NewPtr)+1;
 	*NewPtr=Check;
 	ExtCount++;

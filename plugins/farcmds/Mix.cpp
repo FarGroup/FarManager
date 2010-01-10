@@ -219,7 +219,7 @@ BOOL ProcessOSAliases(TCHAR *Str,int SizeStr)
 
   PartCmdLine(Str,NewCmdStr,ArraySize(NewCmdStr),NewCmdPar,ArraySize(NewCmdPar));
 
-  TCHAR ModuleName[NM];
+  TCHAR ModuleName[MAX_PATH];
   GetModuleFileName(NULL,ModuleName,ArraySize(ModuleName));
   TCHAR* ExeName=(TCHAR*)PointToName(ModuleName);
 

@@ -71,10 +71,12 @@ struct EditFieldIntBinding: public DialogItemBinding<DialogItemEx>
 	}
 };
 
+/*
 static bool IsEditField(DialogItemEx *Item)
 {
 	return Item->Type == DI_EDIT || Item->Type == DI_FIXEDIT || Item->Type == DI_PSWEDIT;
 }
+*/
 
 DialogBuilder::DialogBuilder(int TitleMessageId, const wchar_t *HelpTopic)
 {
@@ -154,13 +156,13 @@ DialogItemEx *DialogBuilder::AddIntEditField(int *Value, int Width)
 	SetNextY(Item);
 	Item->X2 = Item->X1 + Width;
 
-	
+
 	SetLastItemBinding(new EditFieldIntBinding(Value));
 	return Item;
 }
 
-DialogItemEx *DialogBuilder::AddComboBox(int *Value, int Width, 
-										 DialogBuilderListItem *Items, int ItemCount, 
+DialogItemEx *DialogBuilder::AddComboBox(int *Value, int Width,
+										 DialogBuilderListItem *Items, int ItemCount,
 										 DWORD Flags)
 {
 	DialogItemEx *Item = AddDialogItem(DI_COMBOBOX, L"");

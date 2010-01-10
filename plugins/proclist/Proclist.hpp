@@ -162,7 +162,7 @@ struct ProcessData
   DWORD dwParentPID;
   DWORD dwPrBase;
   UINT  uAppType;
-  TCHAR FullPath[NM];
+  TCHAR FullPath[MAX_PATH];
 };
 
 struct ProcessDataNT : ProcessData {

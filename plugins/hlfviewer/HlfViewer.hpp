@@ -70,7 +70,7 @@ static struct FarStandardFunctions FSF;
 
 struct PanelInfo PInfo;
 TCHAR PluginRootKey[80];
-TCHAR FullFileName[NM];
+TCHAR FullFileName[MAX_PATH];
 struct EditorInfo ei;
 struct EditorGetString egs;
 struct EditorSetPosition esp;

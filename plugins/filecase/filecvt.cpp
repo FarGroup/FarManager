@@ -63,7 +63,7 @@ void CaseConvertion()
   DialogItems[16].Param.Selected=Opt.ProcessDir;
   DialogItems[18].Param.Selected=0;
 
-  
+
 
 #ifndef UNICODE
   if(Info.DialogEx
@@ -115,7 +115,7 @@ void CaseConvertion()
       const TCHAR *MsgItems[]={GetMsg(MFileCase),GetMsg(MConverting)};
       Info.Message(Info.ModuleNumber,0,NULL,MsgItems,ArraySize(MsgItems),0);
 
-      TCHAR FullName[NM];
+      TCHAR FullName[MAX_PATH];
 
 #ifndef UNICODE
 #define CurDir PInfo.CurDir

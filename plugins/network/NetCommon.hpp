@@ -57,7 +57,7 @@ extern BOOL IsFirstRun;
 extern OSVERSIONINFO WinVer;
 
 extern TCHAR PluginRootKey[80];
-extern TCHAR FarRootKey [NM];
+extern TCHAR FarRootKey [MAX_PATH];
 
 class TSaveScreen{
   private:

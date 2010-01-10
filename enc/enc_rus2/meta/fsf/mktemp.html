@@ -21,7 +21,7 @@
 <pre class=syntax>
 int WINAPI MkTemp(
   wchar_t *Dest,
-  DWORD Size,  
+  DWORD Size,
   const wchar_t *Prefix
 );
 </pre>
@@ -29,7 +29,7 @@ int WINAPI MkTemp(
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>Dest</div>
-  <div class=dfndescr>Указатель на буфер, который получит полное имя временного файла в верхнем регистре. 
+  <div class=dfndescr>Указатель на буфер, который получит полное имя временного файла в верхнем регистре.
   Установите <em>Dest</em> = NULL для того, чтобы узнать необходмый размер буфера.
   </div>
 
@@ -74,13 +74,13 @@ int WINAPI MkTemp(
 <h3>Пример</h3>
 <div class=descr>
 <pre class=code>
-wchar_t TempName[NM];
+wchar_t TempName[MAX_PATH];
 
-FSF.MkTemp(TempName,NM,NULL);         -&gt; "FTMP000D.P50"
-FSF.MkTemp(TempName,NM,L"");          -&gt; "FTMP000D.P50"
-FSF.MkTemp(TempName,NM,L"MY");        -&gt; "MY00000D.P50"
-FSF.MkTemp(TempName,NM,L"BaR");       -&gt; "BAR0000D.P50"
-FSF.MkTemp(TempName,NM,L"TstPlugin"); -&gt; "TSTP000D.P50"
+FSF.MkTemp(TempName,MAX_PATH,NULL);         -&gt; "FTMP000D.P50"
+FSF.MkTemp(TempName,MAX_PATH,L"");          -&gt; "FTMP000D.P50"
+FSF.MkTemp(TempName,MAX_PATH,L"MY");        -&gt; "MY00000D.P50"
+FSF.MkTemp(TempName,MAX_PATH,L"BaR");       -&gt; "BAR0000D.P50"
+FSF.MkTemp(TempName,MAX_PATH,L"TstPlugin"); -&gt; "TSTP000D.P50"
 </pre>
 </div>
 

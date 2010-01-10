@@ -388,7 +388,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
         ProcessData & pdata = *((ProcessData *)CurItem.UserData);
 
         // Make descriptions
-        TCHAR Title[NM]; *Title=0;
+        TCHAR Title[MAX_PATH]; *Title=0;
         TCHAR* pDesc=(TCHAR *)_T("");
         LPBYTE pBuf=0;
         EnumWndData ewdata = { pdata.dwPID, 0 };
@@ -705,7 +705,7 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
             DumpNTCounters(InfoFile, *pPerfThread, pdata->dwPID, CurItem.NumberOfLinks);
         if(!*HostName && pdata->hwnd)
         {
-            TCHAR Title[NM]; *Title=0;
+            TCHAR Title[MAX_PATH]; *Title=0;
             GetWindowText(pdata->hwnd, Title, ArraySize(Title));
 #ifndef UNICODE
             CharToOem(Title,Title);

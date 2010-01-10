@@ -218,7 +218,7 @@ else
    по поддержке расширенных атрибутов - сжатие и шифрование и тип файловой
    системы):
    <pre class=code>DWORD FileSystemFlags;
-char FSysName[NM];
+char FSysName[MAX_PATH];
 
 if (GetVolumeInformation(Root,NULL,0,NULL,NULL,
                         &amp;FileSystemFlags,FSysName,sizeof(FSysName)))
@@ -239,7 +239,7 @@ if (GetVolumeInformation(Root,NULL,0,NULL,NULL,
 
     <pre class=code>BOOL CanCreateHardLinks(char *TargetFile,char *HardLinkName)
 {
-  char RootTarget[NM],RootHardLink[NM],FSysName[NM];
+  char RootTarget[MAX_PATH],RootHardLink[MAX_PATH],FSysName[MAX_PATH];
   GetPathRoot(TargetFile,RootTarget);
   GetPathRoot(HardLinkName,RootHardLink);
 
@@ -318,7 +318,7 @@ end;
   // установить позицию на элементе панели selectItem
 
   struct PanelRedrawInfo PRI;
-  char Name[NM], Dir[NM*5];
+  char Name[MAX_PATH], Dir[MAX_PATH*5];
   int pathlen;
 
   strcpy(Name,Info.FSF-&gt;PointToName(selectItem));

@@ -27,91 +27,91 @@ int WINAPI EXP_NAME(GetMinFarVersion)()
 //-----------------------------------------------------------------------------
 HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 {
-	InitializeNetFunction();
+  InitializeNetFunction();
 
-	HANDLE hPlugin=new NetBrowser;
-	if (hPlugin==NULL)
-		return(INVALID_HANDLE_VALUE);
-	NetBrowser *Browser=(NetBrowser *)hPlugin;
+  HANDLE hPlugin=new NetBrowser;
+  if (hPlugin==NULL)
+    return(INVALID_HANDLE_VALUE);
+  NetBrowser *Browser=(NetBrowser *)hPlugin;
 
-	if(OpenFrom==OPEN_COMMANDLINE)
-	{
-		TCHAR Path[NM] = _T("\\\\");
+  if(OpenFrom==OPEN_COMMANDLINE)
+  {
+    TCHAR Path[MAX_PATH] = _T("\\\\");
 
-		int I=0;
-		TCHAR *cmd=(TCHAR *)Item;
-		TCHAR *p=_tcschr(cmd, _T(':'));
-		if (!p || !*p)
-		{
-			delete Browser;
-			return INVALID_HANDLE_VALUE;
-		}
-		*p++ = _T('\0');
-		bool netg;
-		if (!lstrcmpi(cmd, _T("netg")))
-			netg = true;
-		else if (!lstrcmpi(cmd, _T("net")))
-			netg = false;
-		else
-		{
-			delete Browser;
-			return INVALID_HANDLE_VALUE;
-		}
-		cmd = p;
-		if(lstrlen(FSF.Trim(cmd)))
-		{
-			if (cmd [0] == _T('/'))
-				cmd [0] = _T('\\');
-			if (cmd [1] == _T('/'))
-				cmd [1] = _T('\\');
-			if (!netg && !Opt.NavigateToDomains)
-			{
-				if(cmd[0] == _T('\\') && cmd[1] != _T('\\'))
-					I=1;
-				else if(cmd[0] != _T('\\') && cmd[1] != _T('\\'))
-					I=2;
-			}
-			OEMToChar (cmd, Path+I);
+    int I=0;
+    TCHAR *cmd=(TCHAR *)Item;
+    TCHAR *p=_tcschr(cmd, _T(':'));
+    if (!p || !*p)
+    {
+      delete Browser;
+      return INVALID_HANDLE_VALUE;
+    }
+    *p++ = _T('\0');
+    bool netg;
+    if (!lstrcmpi(cmd, _T("netg")))
+      netg = true;
+    else if (!lstrcmpi(cmd, _T("net")))
+      netg = false;
+    else
+    {
+      delete Browser;
+      return INVALID_HANDLE_VALUE;
+    }
+    cmd = p;
+    if(lstrlen(FSF.Trim(cmd)))
+    {
+      if (cmd [0] == _T('/'))
+        cmd [0] = _T('\\');
+      if (cmd [1] == _T('/'))
+        cmd [1] = _T('\\');
+      if (!netg && !Opt.NavigateToDomains)
+      {
+        if(cmd[0] == _T('\\') && cmd[1] != _T('\\'))
+          I=1;
+        else if(cmd[0] != _T('\\') && cmd[1] != _T('\\'))
+          I=2;
+      }
+      OEMToChar (cmd, Path+I);
 
-			FSF.Unquote(Path);
-			// Expanding environment variables.
-			{
-					TCHAR PathCopy[NM];
-					lstrcpy(PathCopy, Path);
-					ExpandEnvironmentStrings(PathCopy, Path, ArraySize(Path));
-			}
-			Browser->SetOpenFromCommandLine (Path);
-		}
-	}
-	/* The line below is an UNDOCUMENTED and UNSUPPORTED EXPERIMENTAL
-			mechanism supported ONLY in FAR 1.70 beta 3. It will NOT be supported
-			in later versions. Please DON'T use it in your plugins. */
-	else if (OpenFrom == 7)
-	{
-		if (!Browser->SetOpenFromFilePanel ((TCHAR *) Item))
-		{
-			// we don't support upwards browsing from NetWare shares -
-			// it doesn't work correctly
-			delete Browser;
-			return INVALID_HANDLE_VALUE;
-		}
-	}
-	else {
-		if (IsFirstRun && Opt.LocalNetwork)
-			Browser->GotoLocalNetwork();
-	}
-	IsFirstRun = FALSE;
+      FSF.Unquote(Path);
+      // Expanding environment variables.
+      {
+          TCHAR PathCopy[MAX_PATH];
+          lstrcpy(PathCopy, Path);
+          ExpandEnvironmentStrings(PathCopy, Path, ArraySize(Path));
+      }
+      Browser->SetOpenFromCommandLine (Path);
+    }
+  }
+  /* The line below is an UNDOCUMENTED and UNSUPPORTED EXPERIMENTAL
+      mechanism supported ONLY in FAR 1.70 beta 3. It will NOT be supported
+      in later versions. Please DON'T use it in your plugins. */
+  else if (OpenFrom == 7)
+  {
+    if (!Browser->SetOpenFromFilePanel ((TCHAR *) Item))
+    {
+      // we don't support upwards browsing from NetWare shares -
+      // it doesn't work correctly
+      delete Browser;
+      return INVALID_HANDLE_VALUE;
+    }
+  }
+  else {
+    if (IsFirstRun && Opt.LocalNetwork)
+      Browser->GotoLocalNetwork();
+  }
+  IsFirstRun = FALSE;
 
-	TCHAR szCurrDir[MAX_PATH];
-	if (GetCurrentDirectory(ArraySize(szCurrDir), szCurrDir))
-	{
-		if (*szCurrDir == _T('\\') && GetSystemDirectory(szCurrDir, ArraySize(szCurrDir)))
-		{
-			szCurrDir[2] = _T('\0');
-			SetCurrentDirectory(szCurrDir);
-		}
-	}
-	return(hPlugin);
+  TCHAR szCurrDir[MAX_PATH];
+  if (GetCurrentDirectory(ArraySize(szCurrDir), szCurrDir))
+  {
+    if (*szCurrDir == _T('\\') && GetSystemDirectory(szCurrDir, ArraySize(szCurrDir)))
+    {
+      szCurrDir[2] = _T('\0');
+      SetCurrentDirectory(szCurrDir);
+    }
+  }
+  return(hPlugin);
 }
 
 //-----------------------------------------------------------------------------

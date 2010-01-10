@@ -4,9 +4,9 @@
 //                   Call recurse for subdirectories
 void ProcessName(TCHAR *OldFullName, DWORD FileAttributes)
 {
-  TCHAR NewFullName[NM];
-  TCHAR NewName[NM];
-  TCHAR NewExt[NM];
+  TCHAR NewFullName[MAX_PATH];
+  TCHAR NewName[MAX_PATH];
+  TCHAR NewExt[MAX_PATH];
   TCHAR *ExtPtr;
 
   lstrcpy(NewFullName, OldFullName);

@@ -65,8 +65,8 @@ ID элемента диалога.
 ...
   else if(Msg == MAM_ARCSWITCHES)
   {
-    static wchar_t SwHistoryName[NM];
-    FSF.swprintf(SwHistoryName,L"ArcSwitches\\%s",pdd-&gt;ArcFormat);
+    static wchar_t SwHistoryName[MAX_PATH];
+    FSF.sprintf(SwHistoryName,L"ArcSwitches\\%s",pdd-&gt;ArcFormat);
     Info.SendDlgMessage(hDlg,DM_SETHISTORY,4,(LONG_PTR)SwHistoryName);
     Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,4,(LONG_PTR)L"");
   }
@@ -79,8 +79,8 @@ ID элемента диалога.
 ...
   else if(Msg == MAM_ARCSWITCHES)
   {
-    static wchar_t SwHistoryName[NM];
-    FSF.swprintf(SwHistoryName,L"ArcSwitches\\%s",pdd-&gt;ArcFormat);
+    static wchar_t SwHistoryName[MAX_PATH];
+    FSF.sprintf(SwHistoryName,L"ArcSwitches\\%s",pdd-&gt;ArcFormat);
     Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,4,(LONG_PTR)L"");
     Info.SendDlgMessage(hDlg,DM_SETHISTORY,4,(LONG_PTR)SwHistoryName);
   }

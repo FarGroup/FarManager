@@ -335,7 +335,7 @@ int NetBrowser::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int O
     if (CmdLinePath [0])
     {
       // prevent recursion
-      TCHAR TmpCmdLinePath [NM];
+      TCHAR TmpCmdLinePath [MAX_PATH];
       lstrcpy (TmpCmdLinePath, CmdLinePath);
       CmdLinePath [0] = 0;
     ReenterGetFindData--;
@@ -379,7 +379,7 @@ int NetBrowser::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int O
     if (NetList[I].dwType==RESOURCETYPE_PRINT && !Opt.ShowPrinters)
       continue;
 
-    TCHAR RemoteName[NM],LocalName[NM],Comment[300];
+    TCHAR RemoteName[MAX_PATH],LocalName[MAX_PATH],Comment[300];
 
     GetRemoteName(&NetList [I],RemoteName);
     if (NetList[I].lpComment==NULL)
@@ -483,8 +483,8 @@ int NetBrowser::DeleteFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
 
 BOOL NetBrowser::CancelConnection (const TCHAR *RemoteName)
 {
-  TCHAR LocalName [NM];
-  TCHAR szFullName[NM];
+  TCHAR LocalName [MAX_PATH];
+  TCHAR szFullName[MAX_PATH];
   szFullName[0] = 0;
   if(Opt.FullPathShares)
     lstrcpy(szFullName, RemoteName);
@@ -532,7 +532,7 @@ BOOL NetBrowser::CancelConnection (const TCHAR *RemoteName)
 
 BOOL NetBrowser::GetDriveToDisconnect (const TCHAR *RemoteName, TCHAR *LocalName)
 {
-  TCHAR LocalNames [NM][10];
+  TCHAR LocalNames [MAX_PATH][10];
   DWORD LocalNameCount = 0;
   DWORD i;
 
@@ -575,7 +575,7 @@ BOOL NetBrowser::GetDriveToDisconnect (const TCHAR *RemoteName, TCHAR *LocalName
 
 BOOL NetBrowser::ConfirmCancelConnection (TCHAR *LocalName, TCHAR *RemoteName, int &UpdateProfile)
 {
-  TCHAR MsgText[NM];
+  TCHAR MsgText[MAX_PATH];
   struct InitDialogItem InitItems[]=
   {
     /* 0 */ { DI_DOUBLEBOX, 3, 1, 72, 9, 0, 0, 0,                0, (TCHAR*)MConfirmDisconnectTitle },
@@ -608,7 +608,7 @@ BOOL NetBrowser::ConfirmCancelConnection (TCHAR *LocalName, TCHAR *RemoteName, i
   InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
 
 #ifdef UNICODE
-  TCHAR tmp[NM];
+  TCHAR tmp[MAX_PATH];
   DialogItems[3].PtrData = tmp;
 #define Data  PtrData
 #endif
@@ -680,7 +680,7 @@ BOOL NetBrowser::NeedConfirmCancelConnection()
 
 BOOL NetBrowser::HandsOffDisconnectDrive (const TCHAR *LocalName)
 {
-  TCHAR DirBuf [NM];
+  TCHAR DirBuf [MAX_PATH];
   GetCurrentDirectory (ArraySize(DirBuf)-1, DirBuf);
   if (FSF.LUpper (DirBuf [0]) != FSF.LUpper (LocalName [0]))
     return FALSE;
@@ -712,7 +712,7 @@ void NetBrowser::GetOpenPluginInfo(struct OpenPluginInfo *Info)
   }
   else
   {
-    static TCHAR CurDir[NM];
+    static TCHAR CurDir[MAX_PATH];
     if (PCurResource->lpRemoteName==NULL)
       if (CheckFavoriteItem(PCurResource))
         lstrcpy(CurDir, GetMsg(MFavorites));
@@ -725,7 +725,7 @@ void NetBrowser::GetOpenPluginInfo(struct OpenPluginInfo *Info)
 
   Info->Format=(TCHAR *) GetMsg(MNetwork);
 
-  static TCHAR Title[NM];
+  static TCHAR Title[MAX_PATH];
   FSF.sprintf(Title,_T(" %s: %s "),GetMsg(MNetwork), Info->CurDir);
   Info->PanelTitle=Title;
 
@@ -844,7 +844,7 @@ int NetBrowser::SetDirectory(const TCHAR *Dir,int OpMode)
       return ChangeDirSuccess;
     if(GetLastError()==ERROR_CANCELLED)
       return FALSE;
-    TCHAR AnsiDir[NM];
+    TCHAR AnsiDir[MAX_PATH];
     OEMToChar(Dir,AnsiDir);
     if (AnsiDir [0] == _T('/'))
       AnsiDir [0] = _T('\\');
@@ -891,7 +891,7 @@ BOOL NetBrowser::ChangeToDirectory (const TCHAR *Dir, int IsFind, int IsExplicit
     lstrcmp (PCurResource->lpRemoteName, NetListRemoteName) != 0)
     EnumerateNetList();
 
-  TCHAR AnsiDir[NM];
+  TCHAR AnsiDir[MAX_PATH];
   OEMToChar(Dir,AnsiDir);
   if (AnsiDir [0] == _T('/'))
     AnsiDir [0] = _T('\\');
@@ -900,7 +900,7 @@ BOOL NetBrowser::ChangeToDirectory (const TCHAR *Dir, int IsFind, int IsExplicit
 
   for (unsigned I=0;I<NetList.Count();I++)
   {
-    TCHAR RemoteName[NM];
+    TCHAR RemoteName[MAX_PATH];
     GetRemoteName(&NetList[I],RemoteName);
     if (FSF.LStricmp(AnsiDir,RemoteName)==0)
     {
@@ -918,7 +918,7 @@ BOOL NetBrowser::ChangeToDirectory (const TCHAR *Dir, int IsFind, int IsExplicit
       {
         if (IsFind)
           return(FALSE);
-        TCHAR NewDir[NM],LocalName[NM];
+        TCHAR NewDir[MAX_PATH],LocalName[MAX_PATH];
         GetLocalName(NetList[I].lpRemoteName,LocalName);
         if (*LocalName)
           if(IsReadable(LocalName))
@@ -1225,7 +1225,7 @@ BOOL NetBrowser::EditFavorites()
   if(!PCurResource)
     return TRUE;
   // First we should determine the type of Favorite Item under cursor
-  TCHAR szPath[NM];
+  TCHAR szPath[MAX_PATH];
   szPath[0] = 0;
   struct PanelInfo PInfo;
 #ifndef UNICODE
@@ -1409,7 +1409,7 @@ int NetBrowser::ProcessKey(int Key,unsigned int ControlState)
 
 BOOL NetBrowser::MapNetworkDrive (const TCHAR *RemoteName, BOOL AskDrive, BOOL Permanent)
 {
-  TCHAR AnsiRemoteName[NM];
+  TCHAR AnsiRemoteName[MAX_PATH];
   OEMToChar(RemoteName,AnsiRemoteName);
   DWORD DriveMask=GetLogicalDrives();
   TCHAR NewLocalName[10];
@@ -1643,8 +1643,8 @@ int NetBrowser::AddConnectionFromFavorites(NETRESOURCE *nr,int Remember)
   //Try to search login info in registry
   if(nr)
   {
-    TCHAR Name[NM];
-    TCHAR Pass[NM];
+    TCHAR Name[MAX_PATH];
+    TCHAR Pass[MAX_PATH];
     Name[0] = Pass[0] = 0;
     FAVORITEITEM Item =
     {
@@ -1822,7 +1822,7 @@ void NetBrowser::PutCurrentFileName (BOOL ToCommandLine)
 #endif
   if (PInfo.ItemsNumber > 0)
   {
-    TCHAR CurFile [NM];
+    TCHAR CurFile [MAX_PATH];
 #ifndef UNICODE
     lstrcpy (CurFile, PInfo.PanelItems [PInfo.CurrentItem].FindData.cFileName);
 #else
@@ -1886,7 +1886,7 @@ void NetBrowser::GetRemoteName(NETRESOURCE *NetRes,TCHAR *RemoteName)
 {
   if (CheckFavoriteItem(NetRes))
   {
-    TCHAR buff[NM];
+    TCHAR buff[MAX_PATH];
     if(!NetRes->lpRemoteName)
     {
       OEMToChar(GetMsg(MFavorites), buff);
@@ -1915,7 +1915,7 @@ void NetBrowser::GetRemoteName(NETRESOURCE *NetRes,TCHAR *RemoteName)
 
 BOOL NetBrowser::IsReadable(const TCHAR *Remote)
 {
-  TCHAR Mask[NM];
+  TCHAR Mask[MAX_PATH];
 #ifdef UNICODE
   if (*Remote == _T('\\') && *(Remote+1) == _T('\\'))
     FSF.sprintf(Mask,_T("\\\\?\\UNC%s\\*"),Remote+1);
@@ -1957,7 +1957,7 @@ BOOL NetBrowser::SetOpenFromFilePanel (TCHAR *ShareName)
   NETRESOURCE nr;
   NetResourceList::InitNetResource (nr);
 
-  TCHAR ShareNameANSI [NM];
+  TCHAR ShareNameANSI [MAX_PATH];
   OEMToChar (ShareName, ShareNameANSI);
   if (!GetResourceInfo (ShareNameANSI, &nr))
     return FALSE;
@@ -1974,7 +1974,7 @@ int NetBrowser::GotoComputer (const TCHAR *Dir)
   LogData(_T("Entering GotoComputer"));
 #endif
   // if there are backslashes in the name, truncate them
-  TCHAR ComputerName [NM];
+  TCHAR ComputerName [MAX_PATH];
   lstrcpy (ComputerName, Dir);
   BOOL IsShare = FALSE;
 
@@ -2026,7 +2026,7 @@ int NetBrowser::GotoComputer (const TCHAR *Dir)
 
   if (IsShare)
   {
-    TCHAR ShareName [NM];
+    TCHAR ShareName [MAX_PATH];
     lstrcpy (ShareName, Dir);
 
     // replace forward slashes with backslashes
@@ -2048,9 +2048,9 @@ int NetBrowser::GotoComputer (const TCHAR *Dir)
 void NetBrowser::GotoLocalNetwork()
 {
   TSaveScreen ss;
-  TCHAR ComputerName [NM];
+  TCHAR ComputerName [MAX_PATH];
   lstrcpy (ComputerName, _T("\\\\"));
-  DWORD ComputerNameLength = NM-3;
+  DWORD ComputerNameLength = MAX_PATH-3;
   if (!GetComputerName (ComputerName+2, &ComputerNameLength))
     return;
 
@@ -2122,8 +2122,8 @@ void NetBrowser::SetCursorToShare (TCHAR *Share)
 
 void WINAPI EXP_NAME(ExitFAR)()
 {
-	delete CommonRootResources;
-	NetResourceList::DeleteNetResource (CommonCurResource);
+  delete CommonRootResources;
+  NetResourceList::DeleteNetResource (CommonCurResource);
 }
 
 void NetBrowser::RemoveItems()
@@ -2141,7 +2141,7 @@ void NetBrowser::RemoveItems()
   {
     return;
   }
-  TCHAR szConfirmation[NM*2];
+  TCHAR szConfirmation[MAX_PATH*2];
   if(PInfo.SelectedItemsNumber == 1)
   {
 #ifndef UNICODE

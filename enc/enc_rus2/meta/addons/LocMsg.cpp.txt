@@ -30,7 +30,7 @@ char *LocMsg(struct PluginStartupInfo *psi,char *MsgName, char *Var,int Len)
   static char Msg[81];
   char *ppMsg;
   char *sLanguage="Language", *smsg=".msg", *sRussian="Russian";
-  char msgfile[NM],       //им€ файла с данными
+  char msgfile[MAX_PATH],       //им€ файла с данными
        Lang[80],                //Ќазвание €зыковой секции, по умолчанию=Russian
        LangKey[80]="";    //языковые настройки FAR'а
 

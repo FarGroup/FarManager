@@ -69,7 +69,7 @@ char *LocMsg(char *MsgName, char *Var)
         HKEY hKey;
         DWORD Type;
         static char Msg[80];
-        char msgfile[NM],       //им€ файла с данными
+        char msgfile[MAX_PATH], //им€ файла с данными
              Lang[80]="Russian",/*Ќазвание €зыковой секции,
                                 по умолчанию=Russian*/
              LangKey[80]="";    //языковые настройки FAR'а

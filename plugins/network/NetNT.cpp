@@ -11,13 +11,13 @@ void NetBrowser::GetHideShareNT()
 #ifdef NETWORK_LOGGING
   LogData(_T("UsedNetFunctions = TRUE"));
 #endif
-    TCHAR lpwsNetPath[NM];
+    TCHAR lpwsNetPath[MAX_PATH];
     PSHARE_INFO_1 BufPtr, p;
     NET_API_STATUS res;
     if(PCurResource == NULL) return;
 
     LPTSTR lpszServer = PCurResource->lpRemoteName;
-    TCHAR szResPath [NM];
+    TCHAR szResPath [MAX_PATH];
     LPTSTR pszSystem;
     NETRESOURCE pri;
     NETRESOURCE nr [256];
@@ -101,7 +101,7 @@ void NetBrowser::GetHideShare95()
     if(PCurResource == NULL) return;
 
     const int MAX_ENTRIES = 64;
-    TCHAR szResPath [NM];
+    TCHAR szResPath [MAX_PATH];
     LPTSTR pszSystem;
     NETRESOURCE nr [256];
     USHORT nEntriesRead, nTotalEntries;

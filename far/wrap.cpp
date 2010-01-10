@@ -806,7 +806,7 @@ void WINAPI DeleteBufferA(void *Buffer)
 int WINAPI ProcessNameA(const char *Param1,char *Param2,DWORD Flags)
 {
 	string strP1(Param1), strP2(Param2);
-	int size = (int)(strP1.GetLength()+strP2.GetLength()+NM)+1; //а хрен ещё как угадать скока там этот Param2 для PN_GENERATENAME
+	int size = (int)(strP1.GetLength()+strP2.GetLength()+oldfar::NM)+1; //а хрен ещё как угадать скока там этот Param2 для PN_GENERATENAME
 	wchar_t *p=(wchar_t *)xf_malloc(size*sizeof(wchar_t));
 	wcscpy(p,strP2);
 	int newFlags = 0;
@@ -859,7 +859,7 @@ BOOL WINAPI FarKeyToNameA(int Key,char *KeyText,int Size)
 char* WINAPI FarMkTempA(char *Dest, const char *Prefix)
 {
 	string strP(Prefix);
-	wchar_t D[NM] = {0};
+	wchar_t D[oldfar::NM] = {0};
 	FarMkTemp(D,countof(D),strP);
 	UnicodeToOEM(D,Dest,sizeof(D));
 	return Dest;
@@ -940,7 +940,7 @@ static int WINAPI FarRecursiveSearchA_Callback(const FAR_FIND_DATA *FData,const 
 	FindData.nFileSizeHigh = (DWORD)(FData->nFileSize>>32);
 	UnicodeToOEM(FData->lpwszFileName,FindData.cFileName,sizeof(FindData.cFileName));
 	UnicodeToOEM(FData->lpwszAlternateFileName,FindData.cAlternateFileName,sizeof(FindData.cAlternateFileName));
-	char FullNameA[NM];
+	char FullNameA[oldfar::NM];
 	UnicodeToOEM(FullName,FullNameA,sizeof(FullNameA));
 	return pCallbackParam->Func(&FindData,FullNameA,pCallbackParam->Param);
 }
@@ -2984,7 +2984,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 			{
 				wchar_t *SysWordDiv = (wchar_t*)xf_malloc((Length+1)*sizeof(wchar_t));
 				FarAdvControl(ModuleNumber, ACTL_GETSYSWORDDIV, SysWordDiv);
-				UnicodeToOEM(SysWordDiv,(char*)Param,NM);
+				UnicodeToOEM(SysWordDiv,(char*)Param,oldfar::NM);
 				xf_free(SysWordDiv);
 			}
 
@@ -4034,6 +4034,6 @@ int WINAPI GetFileOwnerA(const char *Computer,const char *Name, char *Owner)
 {
 	string strComputer(Computer), strName(Name), strOwner;
 	int Ret=GetFileOwner(strComputer,strName,strOwner);
-	strOwner.GetCharString(Owner,NM);
+	strOwner.GetCharString(Owner,oldfar::NM);
 	return Ret;
 }

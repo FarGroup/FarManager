@@ -4,7 +4,7 @@
 /*
   farcolor.hpp
 
-  Colors Index for FAR Manager 2.0 build 1327
+  Colors Index for FAR Manager 2.0 build 1330
   HKCU\Software\Far\Colors\CurrentPalette
 */
 
@@ -205,8 +205,6 @@ enum PaletteColors
 	COL_WARNDIALOGCOMBOSELECTEDGRAYTEXT,
 	COL_WARNDIALOGLISTGRAY,
 	COL_WARNDIALOGLISTSELECTEDGRAYTEXT,
-
-	COL_COMMANDLINECOMPLETION,
 
 	COL_LASTPALETTECOLOR
 };
