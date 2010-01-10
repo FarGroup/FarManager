@@ -284,7 +284,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 		MSG(MMenuPluginsConfig),0,0,
 		MSG(MMenuDialogSettings),0,0,
 		MSG(MMenuCmdlineSettings),0,0,
-		MSG(MMenuAutoCompleteSettings),LIF_GRAYED,0,
+		MSG(MMenuAutoCompleteSettings),0,0,
 		MSG(MMenuInfoPanelSettings),0,0,
 		L"",LIF_SEPARATOR,0,
 		MSG(MMenuConfirmation),0,0,
@@ -622,6 +622,9 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 					break;
 				case MENU_OPTIONS_CMDLINESETTINGS:   // Command line settings
 					CmdlineSettings();
+					break;
+				case MENU_OPTIONS_AUTOCOMPLETESETTINGS:
+					AutoCompleteSettings();
 					break;
 				case MENU_OPTIONS_INFOPANELSETTINGS: // InfoPanel Settings
 					InfoPanelSettings();

@@ -2184,11 +2184,6 @@ $ #Settings dialog: dialogs#
                           feature is disabled while a macro is
                           being recorded or executed.
 
-  #Confirm autocomplete     If enabled, text suggested by autocomplete 
-  #suggestions#             needs to be explicitly accepted by moving
-                          the cursor to the right, before it's used as
-                          dialog input.
-
   #Backspace deletes#       If the option is on, pressing #BackSpace#
   #unchanged text#          in an unchanged edit string deletes
                           the entire text, as if #Del# had been
@@ -2217,6 +2212,9 @@ feature is disabled while a macro is being recorded or executed.
 
   #Set command line prompt format#
   This option allows to set the default FAR command ~line prompt~@CommandPrompt@.
+
+@AutoCompleteSettings
+$ #Settings dialog: AutoComplete#
 
 @InfoPanelSettings
 $ #Настройка информационной панели#

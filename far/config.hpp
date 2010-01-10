@@ -295,7 +295,6 @@ struct DialogsOptions
 	int   EditBlock;            // Постоянные блоки в строках ввода
 	int   EditHistory;          // Добавлять в историю?
 	int   AutoComplete;         // Разрешено автодополнение?
-	int   ConfirmAutoComplete;  // Подтверждать автодополнение перемещением курсора?
 	int   EULBsClear;           // = 1 - BS в диалогах для UnChanged строки удаляет такую строку также, как и Del
 	int   SelectFromHistory;    // = 0 then (ctrl-down в строке с историей курсор устанавливался на самую верхнюю строку)
 	DWORD EditLine;             // общая информация о строке ввода (сейчас это пока... позволяет управлять выделением)
@@ -647,3 +646,4 @@ void ReadConfig();
 void SaveConfig(int Ask);
 void SetFolderInfoFiles();
 void InfoPanelSettings();
+void AutoCompleteSettings();

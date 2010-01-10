@@ -1557,14 +1557,6 @@ MConfigDialogsAutoComplete
 "Beviteli sor a&utomatikus kiegészítése"
 "&Autouzupełnianie podczas edycji"
 
-MConfigDialogsConfirmAutoComplete
-"Подтверждать авто&завершение"
-"&Confirm autocomplete suggestions"
-upd:"Confirm autocomplete suggestions"
-upd:"Confirm autocomplete suggestions"
-upd:"Confirm autocomplete suggestions"
-upd:"Confirm autocomplete suggestions"
-
 MConfigDialogsEULBsClear
 "Backspace &удаляет неизмененный текст"
 "&Backspace deletes unchanged text"
@@ -1629,6 +1621,42 @@ upd:"Administrator"
 upd:"Administrator"
 upd:"Administrator"
 upd:"Administrator"
+
+MConfigAutoCompleteTitle
+l:
+"Настройка автозавершения"
+"AutoComplete settings"
+upd:"AutoComplete settings"
+upd:"AutoComplete settings"
+upd:"AutoComplete settings"
+upd:"AutoComplete settings"
+
+MConfigAutoCompleteShowList
+l:
+"Показывать &список"
+"&Show list"
+upd:"&Show list"
+upd:"&Show list"
+upd:"&Show list"
+upd:"&Show list"
+
+MConfigAutoCompleteModalList
+l:
+"&Модальный режим"
+"&Modal mode"
+upd:"&Modal mode"
+upd:"&Modal mode"
+upd:"&Modal mode"
+upd:"&Modal mode"
+
+MConfigAutoCompleteAutoAppend
+l:
+"&Подставлять первый подходящий вариант"
+"&Append first matched item"
+upd:"&Append first matched item"
+upd:"&Append first matched item"
+upd:"&Append first matched item"
+upd:"&Append first matched item"
 
 MConfigInfoPanelTitle
 l:
@@ -11239,14 +11267,6 @@ MSetColorCommandLineUserScreen
 "Benutzerseite"
 "Konzol háttere"
 "Ekran użytkownika"
-
-MSetColorCommandLineCompletion
-"Автозавершение"
-"Auto completion"              
-upd:"Auto completion"
-upd:"Auto completion"
-upd:"Auto completion"
-upd:"Auto completion"
 
 MSetColorClockNormal
 l:

@@ -314,11 +314,10 @@ void SetColors()
 		(const wchar_t *)MSetColorCommandLineSelected,0,0,
 		(const wchar_t *)MSetColorCommandLinePrefix,0,0,
 		(const wchar_t *)MSetColorCommandLineUserScreen,0,0,
-		(const wchar_t *)MSetColorCommandLineCompletion,0,0,
 	};
 	int CommandLinePaletteItems[]=
 	{
-		COL_COMMANDLINE,COL_COMMANDLINESELECTED,COL_COMMANDLINEPREFIX,COL_COMMANDLINEUSERSCREEN,COL_COMMANDLINECOMPLETION
+		COL_COMMANDLINE,COL_COMMANDLINESELECTED,COL_COMMANDLINEPREFIX,COL_COMMANDLINEUSERSCREEN
 	};
 	MenuDataEx ClockItems[]=
 	{

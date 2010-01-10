@@ -232,6 +232,18 @@ void InterfaceSettings()
 	}
 }
 
+void AutoCompleteSettings()
+{
+	DialogBuilder Builder(MConfigAutoCompleteTitle, L"AutoCompleteSettings");
+	DialogItemEx *ListCheck=Builder.AddCheckbox(MConfigAutoCompleteShowList, &Opt.AutoComplete.ShowList);
+	DialogItemEx *ModalModeCheck=Builder.AddCheckbox(MConfigAutoCompleteModalList, &Opt.AutoComplete.ModalList);
+	ModalModeCheck->Indent(4);
+	Builder.AddCheckbox(MConfigAutoCompleteAutoAppend, &Opt.AutoComplete.AppendCompletion);
+	Builder.LinkFlags(ListCheck, ModalModeCheck, DIF_DISABLE);
+	Builder.AddOKCancel();
+	Builder.ShowDialog();
+}
+
 void InfoPanelSettings()
 {
 	DialogBuilderListItem UNListItems[]=
@@ -275,7 +287,6 @@ void DialogSettings()
 	Builder.AddCheckbox(MConfigDialogsEditBlock, &Opt.Dialogs.EditBlock);
 	Builder.AddCheckbox(MConfigDialogsDelRemovesBlocks, &Opt.Dialogs.DelRemovesBlocks);
 	Builder.AddCheckbox(MConfigDialogsAutoComplete, &Opt.Dialogs.AutoComplete);
-	Builder.AddCheckbox(MConfigDialogsConfirmAutoComplete, &Opt.Dialogs.ConfirmAutoComplete);
 	Builder.AddCheckbox(MConfigDialogsEULBsClear, &Opt.Dialogs.EULBsClear);
 	Builder.AddCheckbox(MConfigDialogsMouseButton, &Opt.Dialogs.MouseButton);
 	Builder.AddOKCancel();
@@ -746,7 +757,6 @@ static struct FARConfig
 	{1, REG_DWORD,  NKeyDialog, L"EditHistory",&Opt.Dialogs.EditHistory,1, 0},
 	{1, REG_DWORD,  NKeyDialog, L"EditBlock",&Opt.Dialogs.EditBlock,0, 0},
 	{1, REG_DWORD,  NKeyDialog, L"AutoComplete",&Opt.Dialogs.AutoComplete,1, 0},
-	{1, REG_DWORD,  NKeyDialog, L"ConfirmAutoComplete",&Opt.Dialogs.ConfirmAutoComplete,1, 0},
 	{1, REG_DWORD,  NKeyDialog,L"EULBsClear",&Opt.Dialogs.EULBsClear,0, 0},
 	{0, REG_DWORD,  NKeyDialog,L"SelectFromHistory",&Opt.Dialogs.SelectFromHistory,0, 0},
 	{0, REG_DWORD,  NKeyDialog,L"EditLine",&Opt.Dialogs.EditLine,0, 0},

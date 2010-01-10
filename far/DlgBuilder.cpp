@@ -33,10 +33,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "lang.hpp"
 #include "FarDlgBuilder.hpp"
 #include "dialog.hpp"
 #include "language.hpp"
-#include "lang.hpp"
 
 const int DEFAULT_INDENT = 5;
 

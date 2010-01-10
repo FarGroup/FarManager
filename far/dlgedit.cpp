@@ -524,23 +524,6 @@ void DlgEdit::Select(int Start,int End)
 		lineEdit->Select(Start,End);
 }
 
-void DlgEdit::SelectTransient(int Start, int End)
-{
-#if defined(PROJECT_DI_MEMOEDIT)
-
-	if (Type == DLGEDIT_MULTILINE)
-		Select(Start,End);
-	else
-#endif
-		lineEdit->SelectTransient(Start,End);
-}
-
-void DlgEdit::RemoveTransientSelection()
-{
-	if (Type == DLGEDIT_SINGLELINE)
-		lineEdit->RemoveTransientSelection();
-}
-
 void DlgEdit::GetSelection(int &Start,int &End)
 {
 #if defined(PROJECT_DI_MEMOEDIT)

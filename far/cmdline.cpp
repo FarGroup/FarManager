@@ -96,7 +96,7 @@ void CommandLine::DisplayObject()
 	GotoXY(X1,Y1);
 	SetColor(COL_COMMANDLINEPREFIX);
 	Text(strTruncDir);
-	CmdStr.SetObjectColor(COL_COMMANDLINE,COL_COMMANDLINESELECTED,COL_COMMANDLINECOMPLETION);
+	CmdStr.SetObjectColor(COL_COMMANDLINE,COL_COMMANDLINESELECTED);
 	//CmdStr.SetLeftPos(0);
 	CmdStr.SetPosition(X1+(int)strTruncDir.GetLength(),Y1,X2,Y2);
 	CmdStr.Show();
@@ -325,7 +325,6 @@ int CommandLine::ProcessKey(int Key)
 		case KEY_SHIFTENTER:
 		{
 			Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-			CmdStr.RemoveTransientSelection();
 			CmdStr.Select(-1,0);
 			CmdStr.Show();
 			CmdStr.GetString(strStr);
@@ -374,12 +373,6 @@ int CommandLine::ProcessKey(int Key)
 			//   —брасываем выделение на некоторых клавишах
 			if (!Opt.CmdLine.EditBlock)
 			{
-				// перемещение курсора влево очищает автодополненный фрагмент
-				if (IsLeftNavKey(Key))
-				{
-					CmdStr.RemoveTransientSelection();
-				}
-
 				static int UnmarkKeys[]=
 				{
 					KEY_LEFT,       KEY_NUMPAD4,
@@ -444,23 +437,22 @@ int CommandLine::ProcessKey(int Key)
 
 					if (DoAutoComplete)
 					{
-						if(Opt.AutoComplete.ShowList)
+						VMenu ComplMenu(NULL,NULL,0,0);
+						string strTemp=strStr;
+						CtrlObject->CmdHistory->GetAllSimilar(ComplMenu,strTemp);
+						EnumFiles(ComplMenu,strTemp);
+						if(ComplMenu.GetItemCount())
 						{
-							VMenu ComplMenu(NULL,NULL,0,0);
-							string strTemp=strStr;
-							CtrlObject->CmdHistory->GetAllSimilar(ComplMenu,strTemp);
-							EnumFiles(ComplMenu,strTemp);
-							if(ComplMenu.GetItemCount())
+							ComplMenu.SetFlags(VMENU_WRAPMODE|VMENU_NOTCENTER);
+
+							if(Opt.AutoComplete.AppendCompletion)
 							{
-								ComplMenu.SetFlags(VMENU_WRAPMODE|VMENU_NOTCENTER);
-
-								if(Opt.AutoComplete.AppendCompletion)
-								{
-									int SelStart=CmdStr.GetLength();
-									CmdStr.InsertString(ComplMenu.GetItemPtr(0)->strName+CmdStr.GetLength());
-									CmdStr.Select(SelStart, CmdStr.GetLength());
-								}
-
+								int SelStart=CmdStr.GetLength();
+								CmdStr.InsertString(ComplMenu.GetItemPtr(0)->strName+CmdStr.GetLength());
+								CmdStr.Select(SelStart, CmdStr.GetLength());
+							}
+							if(Opt.AutoComplete.ShowList)
+							{
 								MenuItemEx EmptyItem={0};
 								ComplMenu.AddItem(&EmptyItem,0);
 
@@ -483,7 +475,7 @@ int CommandLine::ProcessKey(int Key)
 										if(CurPos>=0 && PrevPos!=CurPos)
 										{
 											PrevPos=CurPos;
-											CmdStr.SetString(CurPos?ComplMenu.GetItemPtr(CurPos)->strName:strStr);
+											CmdStr.SetString(CurPos?ComplMenu.GetItemPtr(CurPos)->strName:strTemp);
 											CmdStr.Show();
 										}
 									}
@@ -611,18 +603,6 @@ int CommandLine::ProcessKey(int Key)
 									}
 								}
 							}
-						}
-						else if (CtrlObject->CmdHistory->GetSimilar(strStr,-1,true))
-						{
-							CmdStr.SetString(strStr);
-
-							//select the appropriate text
-							if (Opt.Dialogs.ConfirmAutoComplete)
-								CmdStr.SelectTransient(SelEnd,static_cast<int>(CmdStr.GetLength()));
-							else
-								CmdStr.Select(SelEnd,static_cast<int>(CmdStr.GetLength()));
-
-							CmdStr.SetCurPos(CurPos); // SelEnd
 						}
 					}
 				}

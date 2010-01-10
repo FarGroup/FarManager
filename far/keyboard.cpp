@@ -2057,13 +2057,6 @@ int IsNavKey(DWORD Key)
 	return FALSE;
 }
 
-int IsLeftNavKey(DWORD Key)
-{
-	int KeyWithoutModifiers = (Key&0x00FFFFFF);
-	return (KeyWithoutModifiers == KEY_LEFT    || KeyWithoutModifiers == KEY_HOME || 
-		    KeyWithoutModifiers == KEY_NUMPAD4 || KeyWithoutModifiers == KEY_NUMPAD7);
-}
-
 int IsShiftKey(DWORD Key)
 {
 	static DWORD ShiftKeys[]=

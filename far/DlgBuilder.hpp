@@ -263,7 +263,7 @@ class DialogBuilderBase
 
 		DialogItemBinding<T> *FindBinding(T *Item)
 		{
-			int Index = Item - DialogItems;
+			int Index = static_cast<int>(Item - DialogItems);
 			if (Index >= 0 && Index < DialogItemsCount)
 				return Bindings [Index];
 			return NULL;
@@ -383,7 +383,7 @@ public:
 
 	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
 	{
-		*Value = Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, 0);
+		*Value = static_cast<BOOL>(Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, 0));
 	}
 };
 

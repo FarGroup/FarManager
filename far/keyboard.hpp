@@ -69,7 +69,6 @@ DWORD WaitKey(DWORD KeyWait=(DWORD)-1,DWORD delayMS=0,bool ExcludeMacro=true);
 int SetFLockState(UINT vkKey, int State);
 int WriteInput(int Key,DWORD Flags=0);
 int IsNavKey(DWORD Key);
-int IsLeftNavKey(DWORD Key);
 int IsShiftKey(DWORD Key);
 int CheckForEsc();
 int CheckForEscSilent();

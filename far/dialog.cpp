@@ -1381,12 +1381,6 @@ void Dialog::GetDialogObjectsData()
 				{
 					string strData;
 					DlgEdit *EditPtr=(DlgEdit *)(CurItem->ObjPtr);
-					
-					// если автодополнение не было явно принято, убираем дополненный фрагмент
-					// и при этом не посылаем DN_EDITCHANGE (диалог уже закрывается)
-					CurItem->IFlags.Set(DLGIIF_EDITCHANGEPROCESSED);
-					EditPtr->RemoveTransientSelection();
-					CurItem->IFlags.Set(DLGIIF_EDITCHANGEPROCESSED);
 
 					// подготовим данные
 					// получим данные
@@ -1422,7 +1416,7 @@ void Dialog::GetDialogObjectsData()
 						//высылался DN_EDITCHANGE для этого изменения, ибо диалог уже закрыт.
 						CurItem->IFlags.Set(DLGIIF_EDITCHANGEPROCESSED);
 						EditPtr->SetString(strData);
-						CurItem->IFlags.Set(DLGIIF_EDITCHANGEPROCESSED);
+						CurItem->IFlags.Clear(DLGIIF_EDITCHANGEPROCESSED);
 					}
 
 					CurItem->strData = strData;
@@ -3139,15 +3133,9 @@ int Dialog::ProcessKey(int Key)
 
 									SelEnd=(int)strStr.GetLength();
 
-									if (DoAutoComplete && FindInEditForAC(Item[FocusPos]->Type == DI_COMBOBOX,Item[FocusPos]->History,strStr))
+									if (DoAutoComplete)
 									{
-										edt->SetString(strStr);
-										//select the appropriate text
-										if (Opt.Dialogs.ConfirmAutoComplete)
-											edt->SelectTransient(SelEnd,edt->GetLength()); 
-										else
-											edt->Select(SelEnd, edt->GetLength());
-										edt->SetCurPos(CurPos); // SelEnd
+										AutoComplete(strStr);
 									}
 								}
 
@@ -4004,7 +3992,6 @@ unsigned Dialog::ChangeFocus2(unsigned KillFocusPos,unsigned SetFocusPos)
 		        !(Item[KillFocusPos]->Type == DI_COMBOBOX && (Item[KillFocusPos]->Flags & DIF_DROPDOWNLIST)))
 		{
 			DlgEdit *EditPtr=(DlgEdit*)Item[KillFocusPos]->ObjPtr;
-			EditPtr->RemoveTransientSelection();
 			EditPtr->GetSelection(Item[KillFocusPos]->SelStart,Item[KillFocusPos]->SelEnd);
 
 			if ((Opt.Dialogs.EditLine&DLGEDITLINE_CLEARSELONKILLFOCUS))
@@ -4107,48 +4094,89 @@ int Dialog::SetAutomation(WORD IDParent,WORD id,
 	return Ret;
 }
 
-//////////////////////////////////////////////////////////////////////////
-/*
-   AutoComplite: Поиск входжение подстроки в истории
-*/
-bool Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &strFindStr)
+bool Dialog::AutoComplete(string &strFindStr)
 {
 	bool Result=false;
 	CriticalSectionLock Lock(CS);
 
-	if (HistoryName)
+	VMenu ComplMenu(NULL,NULL,0,0);
+
+	string strTemp=strFindStr;
+	History* DlgHist=NULL;
+
+	if(Item[FocusPos]->Type==DI_EDIT)
 	{
-		int I, LenFindStr=(int)strFindStr.GetLength();
-
-		if (!TypeFind)
+		string strRegKey=fmtSavedDialogHistory;
+		strRegKey+=Item[FocusPos]->History;
+		DlgHist=new History(HISTORYTYPE_DIALOG, Opt.DialogsHistoryCount, strRegKey, &Opt.Dialogs.EditHistory, false);
+		DlgHist->ReadHistory(true);
+		DlgHist->GetAllSimilar(ComplMenu,strTemp);
+	}
+	else
+	{
+		for(int i=0;i<Item[FocusPos]->ListItems->ItemsNumber;i++)
 		{
-			string strRegKey=fmtSavedDialogHistory;
-			strRegKey+=HistoryName;
-			History DlgHist(HISTORYTYPE_DIALOG, Opt.DialogsHistoryCount, strRegKey, &Opt.Dialogs.EditHistory, false);
-			DlgHist.ReadHistory(true);
-
-			if(Opt.AutoComplete.ShowList)
+			if (!StrCmpNI(Item[FocusPos]->ListItems->Items[i].Text, strTemp, static_cast<int>(strTemp.GetLength())) && StrCmp(Item[FocusPos]->ListItems->Items[i].Text, strTemp))
 			{
-				VMenu ComplMenu(NULL,NULL,0,0);
-				string strTemp=strFindStr;
-				DlgHist.GetAllSimilar(ComplMenu,strTemp);
-				if(Item[FocusPos]->Flags&DIF_EDITPATH)
-					EnumFiles(ComplMenu,strTemp);
-				DlgEdit* EditLine=reinterpret_cast<DlgEdit*>(Item[FocusPos]->ObjPtr);
-				if(ComplMenu.GetItemCount())
+				ComplMenu.AddItem(Item[FocusPos]->ListItems->Items[i].Text);
+			}
+		}
+	}
+
+	if(Item[FocusPos]->Flags&DIF_EDITPATH)
+	{
+		EnumFiles(ComplMenu,strTemp);
+	}
+	DlgEdit* EditLine=reinterpret_cast<DlgEdit*>(Item[FocusPos]->ObjPtr);
+	if(ComplMenu.GetItemCount())
+	{
+		ComplMenu.SetFlags(VMENU_WRAPMODE|VMENU_NOTCENTER);
+
+		if(Opt.AutoComplete.AppendCompletion)
+		{
+			int SelStart=EditLine->GetLength();
+			EditLine->InsertString(ComplMenu.GetItemPtr(0)->strName+EditLine->GetLength());
+			EditLine->Select(SelStart, EditLine->GetLength());
+		}
+		if(Opt.AutoComplete.ShowList)
+		{
+			MenuItemEx EmptyItem={0};
+			ComplMenu.AddItem(&EmptyItem,0);
+
+			if(ScrY-(Y1+Item[FocusPos]->Y1)<Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount())+2 && (Y1+Item[FocusPos]->Y1)>ScrY/2)
+			{
+				ComplMenu.SetPosition(X1+Item[FocusPos]->X1,Max(0,Y1+Item[FocusPos]->Y1-1-Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount())-1),X1+Item[FocusPos]->X2,Y1+Item[FocusPos]->Y1-1);
+			}
+			else
+			{
+				ComplMenu.SetPosition(X1+Item[FocusPos]->X1,Y1+Item[FocusPos]->Y1+1,X1+Item[FocusPos]->X2,0);
+			}
+
+			ComplMenu.SetSelectPos(0,0);
+			ComplMenu.SetBoxType(SHORT_SINGLE_BOX);
+			ComplMenu.ClearDone();
+			ComplMenu.Show();
+			EditLine->Show();
+			int PrevPos=0;
+
+			while (!ComplMenu.Done())
+			{
+				INPUT_RECORD ir;
+				ComplMenu.ReadInput(&ir);
+				if(!Opt.AutoComplete.ModalList)
 				{
-					ComplMenu.SetFlags(VMENU_WRAPMODE|VMENU_NOTCENTER);
-
-					if(Opt.AutoComplete.AppendCompletion)
+					int CurPos=ComplMenu.GetSelectPos();
+					if(CurPos>=0 && PrevPos!=CurPos)
 					{
-						int SelStart=EditLine->GetLength();
-						EditLine->InsertString(ComplMenu.GetItemPtr(0)->strName+EditLine->GetLength());
-						EditLine->Select(SelStart, EditLine->GetLength());
+						PrevPos=CurPos;
+						IsEnableRedraw--;
+						EditLine->SetString(CurPos?ComplMenu.GetItemPtr(CurPos)->strName:strTemp);
+						EditLine->Show();
+						IsEnableRedraw++;
 					}
-
-					MenuItemEx EmptyItem={0};
-					ComplMenu.AddItem(&EmptyItem,0);
-
+				}
+				if(ir.EventType==WINDOW_BUFFER_SIZE_EVENT)
+				{
 					if(ScrY-(Y1+Item[FocusPos]->Y1)<Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount())+2 && (Y1+Item[FocusPos]->Y1)>ScrY/2)
 					{
 						ComplMenu.SetPosition(X1+Item[FocusPos]->X1,Max(0,Y1+Item[FocusPos]->Y1-1-Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount())-1),X1+Item[FocusPos]->X2,Y1+Item[FocusPos]->Y1-1);
@@ -4157,32 +4185,60 @@ bool Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &st
 					{
 						ComplMenu.SetPosition(X1+Item[FocusPos]->X1,Y1+Item[FocusPos]->Y1+1,X1+Item[FocusPos]->X2,0);
 					}
-
-					ComplMenu.SetSelectPos(0,0);
-					ComplMenu.SetBoxType(SHORT_SINGLE_BOX);
-					ComplMenu.ClearDone();
 					ComplMenu.Show();
-					EditLine->Show();
-					int PrevPos=0;
+				}
+				else if(ir.EventType==KEY_EVENT || ir.EventType==FARMACRO_KEY_EVENT)
+				{
+					int Key=InputRecordToKey(&ir);
 
-					while (!ComplMenu.Done())
+					// ввод
+					if((Key >= L' ' && Key <= WCHAR_MAX) || Key==KEY_BS || Key==KEY_DEL)
 					{
-						INPUT_RECORD ir;
-						ComplMenu.ReadInput(&ir);
-						if(!Opt.AutoComplete.ModalList)
+						IsEnableRedraw--;
+						EditLine->ProcessKey(Key);
+						IsEnableRedraw++;
+						EditLine->GetString(strTemp);
+						ComplMenu.DeleteItems();
+						PrevPos=0;
+						if(!strTemp.IsEmpty())
 						{
-							int CurPos=ComplMenu.GetSelectPos();
-							if(CurPos>=0 && PrevPos!=CurPos)
+							if(Item[FocusPos]->Type==DI_EDIT)
 							{
-								PrevPos=CurPos;
-								IsEnableRedraw--;
-								EditLine->SetString(CurPos?ComplMenu.GetItemPtr(CurPos)->strName:strTemp);
-								EditLine->Show();
-								IsEnableRedraw++;
+								DlgHist->GetAllSimilar(ComplMenu,strTemp);
+							}
+							else
+							{
+								for(int i=0;i<Item[FocusPos]->ListItems->ItemsNumber;i++)
+								{
+									if (!StrCmpNI(Item[FocusPos]->ListItems->Items[i].Text, strTemp, static_cast<int>(strTemp.GetLength())) && StrCmp(Item[FocusPos]->ListItems->Items[i].Text, strTemp))
+									{
+										ComplMenu.AddItem(Item[FocusPos]->ListItems->Items[i].Text);
+									}
+								}
 							}
 						}
-						if(ir.EventType==WINDOW_BUFFER_SIZE_EVENT)
+						if(Item[FocusPos]->Flags&DIF_EDITPATH)
 						{
+							EnumFiles(ComplMenu,strTemp);
+						}
+						if(!ComplMenu.GetItemCount())
+						{
+							ComplMenu.SetExitCode(-1);
+						}
+						else
+						{
+							if(Key!=KEY_BS && Opt.AutoComplete.AppendCompletion)
+							{
+								int SelStart=EditLine->GetLength();
+								IsEnableRedraw--;
+								EditLine->InsertString(ComplMenu.GetItemPtr(0)->strName+EditLine->GetLength());
+								EditLine->Select(SelStart, EditLine->GetLength());
+								IsEnableRedraw++;
+							}
+
+							MenuItemEx EmptyItem={0};
+							ComplMenu.AddItem(&EmptyItem,0);
+
 							if(ScrY-(Y1+Item[FocusPos]->Y1)<Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount())+2 && (Y1+Item[FocusPos]->Y1)>ScrY/2)
 							{
 								ComplMenu.SetPosition(X1+Item[FocusPos]->X1,Max(0,Y1+Item[FocusPos]->Y1-1-Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount())-1),X1+Item[FocusPos]->X2,Y1+Item[FocusPos]->Y1-1);
@@ -4191,167 +4247,103 @@ bool Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &st
 							{
 								ComplMenu.SetPosition(X1+Item[FocusPos]->X1,Y1+Item[FocusPos]->Y1+1,X1+Item[FocusPos]->X2,0);
 							}
-							ComplMenu.Show();
-						}
-						else if(ir.EventType==KEY_EVENT || ir.EventType==FARMACRO_KEY_EVENT)
-						{
-							int Key=InputRecordToKey(&ir);
 
-							// ввод
-							if((Key >= L' ' && Key <= WCHAR_MAX) || Key==KEY_BS || Key==KEY_DEL)
+							ComplMenu.SetSelectPos(0,0);
+							ComplMenu.Redraw();
+						}
+						EditLine->Show();
+					}
+					else
+					{
+						switch(Key)
+						{
+						case KEY_IDLE:
+						case KEY_NONE:
+							break;
+
+						// "классический" перебор
+						case KEY_CTRLEND:
+							{
+								ComplMenu.ProcessKey(KEY_DOWN);
+								break;
+							}
+
+						// навигация по строке ввода
+						case KEY_LEFT:
+						case KEY_NUMPAD4:
+						case KEY_RIGHT:
+						case KEY_NUMPAD6:
+						case KEY_CTRLS:
+						case KEY_CTRLD:
+						case KEY_HOME:
+						case KEY_NUMPAD7:
+						case KEY_END:
+						case KEY_NUMPAD1:
 							{
 								IsEnableRedraw--;
 								EditLine->ProcessKey(Key);
 								IsEnableRedraw++;
-								EditLine->GetString(strTemp);
-								ComplMenu.DeleteItems();
-								PrevPos=0;
-								if(!strTemp.IsEmpty())
-								{
-									DlgHist.GetAllSimilar(ComplMenu,strTemp);
-								}
-								if(Item[FocusPos]->Flags&DIF_EDITPATH)
-									EnumFiles(ComplMenu,strTemp);
-								if(!ComplMenu.GetItemCount())
-								{
-									ComplMenu.SetExitCode(-1);
-								}
-								else
-								{
-									if(Key!=KEY_BS && Opt.AutoComplete.AppendCompletion)
-									{
-										int SelStart=EditLine->GetLength();
-										IsEnableRedraw--;
-										EditLine->InsertString(ComplMenu.GetItemPtr(0)->strName+EditLine->GetLength());
-										EditLine->Select(SelStart, EditLine->GetLength());
-										IsEnableRedraw++;
-									}
-
-									MenuItemEx EmptyItem={0};
-									ComplMenu.AddItem(&EmptyItem,0);
-
-									if(ScrY-(Y1+Item[FocusPos]->Y1)<Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount())+2 && (Y1+Item[FocusPos]->Y1)>ScrY/2)
-									{
-										ComplMenu.SetPosition(X1+Item[FocusPos]->X1,Max(0,Y1+Item[FocusPos]->Y1-1-Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount())-1),X1+Item[FocusPos]->X2,Y1+Item[FocusPos]->Y1-1);
-									}
-									else
-									{
-										ComplMenu.SetPosition(X1+Item[FocusPos]->X1,Y1+Item[FocusPos]->Y1+1,X1+Item[FocusPos]->X2,0);
-									}
-
-									ComplMenu.SetSelectPos(0,0);
-									ComplMenu.Redraw();
-								}
-								EditLine->Show();
+								break;
 							}
-							else
+
+						// навигация по списку
+						case KEY_ESC:
+						case KEY_F10:
+						case KEY_ALTF9:
+						case KEY_UP:
+						case KEY_NUMPAD8:
+						case KEY_DOWN:
+						case KEY_NUMPAD2:
+						case KEY_PGUP:
+						case KEY_NUMPAD9:
+						case KEY_PGDN:
+						case KEY_NUMPAD3:
 							{
-								switch(Key)
-								{
-								case KEY_IDLE:
-								case KEY_NONE:
-									break;
+								ComplMenu.ProcessInput();
+								break;
+							}
 
-								// "классический" перебор
-								case KEY_CTRLEND:
-									{
-										ComplMenu.ProcessKey(KEY_DOWN);
-										break;
-									}
-
-								// навигация по строке ввода
-								case KEY_LEFT:
-								case KEY_NUMPAD4:
-								case KEY_RIGHT:
-								case KEY_NUMPAD6:
-								case KEY_CTRLS:
-								case KEY_CTRLD:
-								case KEY_HOME:
-								case KEY_NUMPAD7:
-								case KEY_END:
-								case KEY_NUMPAD1:
-									{
-										IsEnableRedraw--;
-										EditLine->ProcessKey(Key);
-										IsEnableRedraw++;
-										break;
-									}
-
-								// навигация по списку
-								case KEY_ESC:
-								case KEY_F10:
-								case KEY_ALTF9:
-								case KEY_UP:
-								case KEY_NUMPAD8:
-								case KEY_DOWN:
-								case KEY_NUMPAD2:
-								case KEY_PGUP:
-								case KEY_NUMPAD9:
-								case KEY_PGDN:
-								case KEY_NUMPAD3:
-									{
-										ComplMenu.ProcessInput();
-										break;
-									}
-
-								case KEY_ENTER:
-								case KEY_NUMENTER:
-								{
-									if(Opt.AutoComplete.ModalList)
-									{
-										ComplMenu.ProcessInput();
-										break;
-									}
-								}
-
-								// всё остальное закрывает список и идёт в диалог
-								default:
-									{
-										ComplMenu.Hide();
-										ComplMenu.SetExitCode(-1);
-										ProcessKey(Key);
-									}
-								}
+						case KEY_ENTER:
+						case KEY_NUMENTER:
+						{
+							if(Opt.AutoComplete.ModalList)
+							{
+								ComplMenu.ProcessInput();
+								break;
 							}
 						}
-						else
-						{
-							ComplMenu.ProcessInput();
-						}
-					}
-					if(Opt.AutoComplete.ModalList)
-					{
-						int ExitCode=ComplMenu.GetExitCode();
-						if(ExitCode>0)
-						{
-							EditLine->SetString(ComplMenu.GetItemPtr(ExitCode)->strName);
+
+						// всё остальное закрывает список и идёт в диалог
+						default:
+							{
+								ComplMenu.Hide();
+								ComplMenu.SetExitCode(-1);
+								ProcessKey(Key);
+							}
 						}
 					}
 				}
+				else
+				{
+					ComplMenu.ProcessInput();
+				}
 			}
-			else
+			if(Opt.AutoComplete.ModalList)
 			{
-				Result=DlgHist.GetSimilar(strFindStr,-1,true);
-			}
-		}
-		else
-		{
-			FarListItem *ListItems=((FarList *)HistoryName)->Items;
-			int Count=((FarList *)HistoryName)->ItemsNumber;
-
-			for (I=0; I < Count ; I++)
-			{
-				if (!StrCmpNI(ListItems[I].Text, strFindStr, LenFindStr) && StrCmp(ListItems[I].Text, strFindStr)!=0)
-					break;
-			}
-
-			if (I != Count)
-			{
-				strFindStr += &ListItems[I].Text[LenFindStr];
-				Result=true;
+				int ExitCode=ComplMenu.GetExitCode();
+				if(ExitCode>0)
+				{
+					EditLine->SetString(ComplMenu.GetItemPtr(ExitCode)->strName);
+				}
 			}
 		}
 	}
+
+	if(DlgHist)
+	{
+		delete DlgHist;
+	}
+
 	return Result;
 }
 

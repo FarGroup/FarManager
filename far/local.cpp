@@ -184,10 +184,6 @@ int __cdecl NumStrCmpNI(const wchar_t *s1, const wchar_t *s2, int n)
 	int c=0;
 	while (*s1 && *s2)
 	{
-		if(n!=-1 && c==n)
-		{
-			return ret;
-		}
 		c++;
 		if (iswdigit(*s1) && iswdigit(*s2))
 		{
@@ -222,6 +218,11 @@ int __cdecl NumStrCmpNI(const wchar_t *s1, const wchar_t *s2, int n)
 		s1++; s2++;
 	}
 
+	if(n!=-1 && c==n)
+	{
+		return ret;
+	}
+
 	return StrCmpI(s1,s2);
 }
 
@@ -231,10 +232,6 @@ int __cdecl NumStrCmpN(const wchar_t *s1, const wchar_t *s2, int n)
 	int c=0;
 	while (*s1 && *s2)
 	{
-		if(n!=-1 && c==n)
-		{
-			return ret;
-		}
 		c++;
 		if (iswdigit(*s1) && iswdigit(*s2))
 		{
@@ -267,6 +264,11 @@ int __cdecl NumStrCmpN(const wchar_t *s1, const wchar_t *s2, int n)
 			return ret;
 
 		s1++; s2++;
+	}
+
+	if(n!=-1 && c==n)
+	{
+		return ret;
 	}
 
 	return StrCmp(s1,s2);
