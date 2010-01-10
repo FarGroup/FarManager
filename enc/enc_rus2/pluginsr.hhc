@@ -1117,14 +1117,6 @@
                                 <param name="Local" value="html/winapi/readconsoleinput.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="SetFileApisToANSI">
-                                <param name="Local" value="html/winapi/setfileapistoansi.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="SetFileApisToOEM">
-                                <param name="Local" value="html/winapi/setfileapistooem.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="SetFileTime">
                                 <param name="Local" value="html/winapi/setfiletime.html">
                                 </OBJECT>
