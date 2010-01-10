@@ -19,9 +19,9 @@
 </div>
 
 <p class=note><img src="../../images/note.gif" alt="Замечание для GetCurrentDirectory" width="10" height="10"> Внимание!</p>
-       <UL class=note><LI>
-       Не используйте для этих целей функцию <dfn>GetCurrentDirectory</dfn> из Windows API. <br> <br>
-      Far устанавливает "текущий каталог" процесса исключительно в целях обратной совместимости, и никто не гарантирует, что он всегда будет соответствовать каталогу, открытому в текущей панели. </LI></UL>
+<ul class=note><li>
+Не используйте для этих целей функцию <dfn>GetCurrentDirectory</dfn> из Windows API.<br><br>
+Far устанавливает "текущий каталог" процесса исключительно в целях совместимости со старыми плагинами, и никто не гарантирует, что он всегда будет соответствовать каталогу, открытому в текущей панели.</li></ul>
 
 <pre class=syntax>
 DWORD WINAPI GetCurrentDirectory(

@@ -126,7 +126,7 @@ Control(<a href="../service_functions/control.html#FCTL_GETPANELINFO">FCTL_GETPA
   <br><br></li>
 
   <li><span class=faqq>Q:</span> <a name="funcCM"><span class=faqqb>Откуда FAR берет процедуры для копирования/удаления/... файлов?</span></a>
-  <br><span class=faqa>A:</span> Из Windows API API.<br>
+  <br><span class=faqa>A:</span> Из Windows API.<br>
   <u>Копирование:</u> <a href="win32/CreateFile.html">CreateFile</a>+<a href="win32/ReadFile.html">ReadFile</a>+<a href="win32/writefile.html">WriteFile</a>+<a href="win32/closehandle.html">CloseHandle</a> или <a href="win32/copyfile.html">CopyFile</a>(Ex), в зависимости от ОС и опции "Use system copy routine".<br>
   <u>Удаление:</u> <a href="win32/DeleteFile.html">DeleteFile</a> или <a href="win32/shfileoperation.html">SHFileOperation</a> в зависимости от опции "Delete to Recycle Bin"
   <br><br></li>
