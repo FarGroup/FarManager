@@ -4276,7 +4276,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Generating language files based on $(InputFileName)…"
-						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputFileName)&#x0D;&#x0A;"
+						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputDir)$(InputFileName)&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
 						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\*.lng"
 					/>
@@ -4287,7 +4287,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Generating language files based on $(InputFileName)…"
-						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputFileName)&#x0D;&#x0A;"
+						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputDir)$(InputFileName)&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
 						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\*.lng"
 					/>
@@ -4298,7 +4298,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Generating language files based on $(InputFileName)…"
-						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputFileName)&#x0D;&#x0A;"
+						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputDir)$(InputFileName)&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
 						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\*.lng"
 					/>
@@ -4308,8 +4308,8 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						Description="Generating language files based on $(InputFileName)…"
-						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputFileName)&#x0D;&#x0A;"
+						Description="Generating language files based on $(InputDir)$(InputFileName)…"
+						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputDir)$(InputFileName)&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
 						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\*.lng"
 					/>
@@ -4320,7 +4320,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Generating language files based on $(InputFileName)…"
-						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputFileName)&#x0D;&#x0A;"
+						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputDir)$(InputFileName)&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
 						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\*.lng"
 					/>
@@ -4331,7 +4331,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Generating language files based on $(InputFileName)…"
-						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputFileName)&#x0D;&#x0A;"
+						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputDir)$(InputFileName)&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
 						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\*.lng"
 					/>
