@@ -32,8 +32,11 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-struct DialogItemEx;
-class string;
+#ifdef UNICODE
+#define EMPTY_TEXT L""
+#else
+#define EMPTY_TEXT ""
+#endif
 
 // Элемент выпадающего списка в диалоге.
 struct DialogBuilderListItem
@@ -59,63 +62,395 @@ checkbox и radio button вычисляется автоматически, для других элементов передаёт
 Есть также поддержка automation (изменение флагов одного элемента в зависимости от состояния 
 другого). Реализуется при помощи метода LinkFlags().
 */
-class DialogBuilder
+
+template<class T>
+struct DialogItemBinding
+{
+	int BeforeLabelID;
+	int AfterLabelID;
+
+	DialogItemBinding()
+		: BeforeLabelID(-1), AfterLabelID(-1)
+	{
+	}
+
+	virtual void SaveValue(T *Item, int RadioGroupIndex)
+	{
+	}
+};
+
+template<class T>
+struct CheckBoxBinding: public DialogItemBinding<T>
 {
 	private:
-		const wchar_t *HelpTopic;
-		DialogItemEx *DialogItems;
-		int DialogItemsCount;
-		int DialogItemsAllocated;
-		int OKButtonID;
-		int NextY;
-
-		DialogItemEx *AddDialogItem(int Type, const string &strData);
-		void ReallocDialogItems();
-		void UpdateBorderSize();
-		int MaxTextWidth();
-		void SaveValue(DialogItemEx *Item, int RadioGroupIndex);
-		void SetNextY(DialogItemEx *Item);
-		void LinkFlagsByID(DialogItemEx *Parent, int TargetID, FarDialogItemFlags Flags);
+		BOOL *Value;
 
 	public:
-		DialogBuilder(int TitleMessageId, const wchar_t *HelpTopic);
-		~DialogBuilder();
+		CheckBoxBinding(BOOL *aValue) : Value(aValue) { }
 
+		virtual void SaveValue(T *Item, int RadioGroupIndex)
+		{
+			*Value = Item->Selected;
+		}
+};
+
+template<class T>
+struct RadioButtonBinding: public DialogItemBinding<T>
+{
+	private:
+		int *Value;
+
+	public:
+		RadioButtonBinding(int *aValue) : Value(aValue) { }
+
+		virtual void SaveValue(T *Item, int RadioGroupIndex)
+		{
+			if (Item->Selected)
+				*Value = RadioGroupIndex;
+		}
+};
+
+template<class T>
+struct ComboBoxBinding: public DialogItemBinding<T>
+{
+	int *Value;
+	FarList *List;
+
+	ComboBoxBinding(int *aValue, FarList *aList)
+		: Value(aValue), List(aList)
+	{
+	}
+
+	~ComboBoxBinding()
+	{
+		delete [] List->Items;
+		delete List;
+	}
+
+	virtual void SaveValue(T *Item, int RadioGroupIndex)
+	{
+		FarListItem &ListItem = List->Items[Item->ListPos];
+		*Value = ListItem.Reserved[0];
+	}
+};
+
+template<class T>
+class DialogBuilderBase
+{
+	protected:
+		T *DialogItems;
+		DialogItemBinding<T> **Bindings;
+		int DialogItemsCount;
+		int DialogItemsAllocated;
+		int NextY;
+		int OKButtonID;
+
+		void ReallocDialogItems()
+		{
+			// реаллокация инвалидирует указатели на DialogItemEx, возвращённые из
+			// AddDialogItem и аналогичных методов, поэтому размер массива подбираем такой,
+			// чтобы все нормальные диалоги помещались без реаллокации
+			// TODO хорошо бы, чтобы они вообще не инвалидировались
+			DialogItemsAllocated += 32;
+			if (DialogItems == NULL)
+			{
+				DialogItems = new T[DialogItemsAllocated];
+				Bindings = new DialogItemBinding<T> * [DialogItemsAllocated];
+			}
+			else
+			{
+				T *NewDialogItems = new T[DialogItemsAllocated];
+				DialogItemBinding<T> **NewBindings = new DialogItemBinding<T> * [DialogItemsAllocated];
+				for(int i=0; i<DialogItemsCount; i++)
+				{
+					NewDialogItems [i] = DialogItems [i];
+					NewBindings [i] = Bindings [i];
+				}
+				delete [] DialogItems;
+				delete [] Bindings;
+				DialogItems = NewDialogItems;
+				Bindings = NewBindings;
+			}
+		}
+
+		T *AddDialogItem(int Type, const TCHAR *Text)
+		{
+			if (DialogItemsCount == DialogItemsAllocated)
+			{
+				ReallocDialogItems();
+			}
+			int Index = DialogItemsCount++;
+			T *Item = &DialogItems [Index];
+			InitDialogItem(Item, Text);
+			Item->Type = Type;
+			Bindings [Index] = NULL;
+			return Item;
+		}
+
+		void SetNextY(T *Item)
+		{
+			Item->X1 = 5;
+			Item->Y1 = Item->Y2 = NextY++;
+		}
+
+		int ItemWidth(const T &Item)
+		{
+			switch(Item.Type)
+			{
+			case DI_TEXT:
+				return TextWidth(Item);
+
+			case DI_CHECKBOX:
+			case DI_RADIOBUTTON:
+				return TextWidth(Item) + 4;
+
+			case DI_EDIT:
+			case DI_FIXEDIT:
+			case DI_COMBOBOX:
+				int Width = Item.X2 - Item.X1 + 1;
+				/* стрелка history занимает дополнительное место, но раньше она рисовалась поверх рамки
+				if (Item.Flags & DIF_HISTORY)
+					Width++;
+				*/
+				return Width;
+				break;
+			}
+			return 0;
+		}
+
+		void AddBorder(const TCHAR *TitleText)
+		{
+			T *Title = AddDialogItem(DI_DOUBLEBOX, TitleText);
+			Title->X1 = 3;
+			Title->Y1 = 1;
+		}
+
+		void UpdateBorderSize()
+		{
+			T *Title = &DialogItems[0];
+			Title->X2 = Title->X1 + MaxTextWidth() + 3;
+			Title->Y2 = DialogItems [DialogItemsCount-1].Y2 + 1;
+		}
+
+		int MaxTextWidth()
+		{
+			int MaxWidth = 0;
+			for(int i=1; i<DialogItemsCount; i++)
+			{
+				int Width = ItemWidth(DialogItems [i]);
+				int Indent = DialogItems [i].X1 - 5;
+				Width += Indent;
+
+				if (MaxWidth < Width)
+					MaxWidth = Width;
+			}
+			return MaxWidth;
+		}
+
+		virtual void InitDialogItem(T *NewDialogItem, const TCHAR *Text)
+		{
+		}
+		
+		virtual int TextWidth(const T &Item)
+		{
+			return -1;
+		}
+
+		void SetLastItemBinding(DialogItemBinding<T> *Binding)
+		{
+			Bindings [DialogItemsCount-1] = Binding;
+		}
+
+		DialogItemBinding<T> *FindBinding(T *Item)
+		{
+			int Index = Item - DialogItems;
+			if (Index >= 0 && Index < DialogItemsCount)
+				return Bindings [Index];
+			return NULL;
+		}
+
+		void SaveValues()
+		{
+			int RadioGroupIndex = 0;
+			for(int i=0; i<DialogItemsCount; i++)
+			{
+				if (DialogItems [i].Flags & DIF_GROUP)
+					RadioGroupIndex = 0;
+				else
+					RadioGroupIndex++;
+
+				if (Bindings [i])
+					Bindings [i]->SaveValue(&DialogItems [i], RadioGroupIndex);
+			}
+		}
+
+		virtual const TCHAR *GetLangString(int MessageID)
+		{
+			return NULL;
+		}
+
+		virtual int DoShowDialog()
+		{
+			return -1;
+		}
+
+		virtual DialogItemBinding<T> *CreateCheckBoxBinding(BOOL *Value)
+		{
+			return NULL;
+		}
+
+		DialogBuilderBase()
+			: DialogItems(NULL), DialogItemsCount(0), DialogItemsAllocated(0), NextY(2)
+		{
+		}	
+
+		~DialogBuilderBase()
+		{
+			for(int i=0; i<DialogItemsCount; i++)
+			{
+				if (Bindings [i])
+					delete Bindings [i];
+			}
+			delete [] DialogItems;
+			delete [] Bindings;
+		}
+
+	public:
 		// Добавляет чекбокс.
-		DialogItemEx *AddCheckbox(int TextMessageId, BOOL *Value);
-
-		// Добавляет группу радиокнопок.
-		void AddRadioButtons(int *Value, int OptionCount, int MessageIDs[]);
-
-		// Добавляет статический текст, расположенный на отдельной строке в диалоге.
-		DialogItemEx *AddText(int LabelId);
-
-		// Добавляет поле типа DI_EDIT для редактирования указанного строкового значения.
-		DialogItemEx *AddEditField(string *Value, int Width, const wchar_t *HistoryID = NULL);
-
-		// Добавляет поле типа DI_FIXEDIT для редактирования указанного числового значения.
-		DialogItemEx *AddIntEditField(int *Value, int Width);
-
-		// Добавляет выпадающий список с указанными значениями.
-		DialogItemEx *AddComboBox(int *Value, int Width, DialogBuilderListItem *Items, int ItemCount, DWORD Flags = DIF_NONE);
-
-		// Добавляет указанную текстовую строку слева от элемента RelativeTo.
-		DialogItemEx *AddTextBefore(DialogItemEx *RelativeTo, int LabelId);
-
-		// Добавляет указанную текстовую строку справа от элемента RelativeTo.
-		DialogItemEx *AddTextAfter(DialogItemEx *RelativeTo, int LabelId);
-
-		// Связывает состояние элементов Parent и Target. Когда Parent->Selected равно
-		// false, устанавливает флаги Flags у элемента Target; когда равно true -
-		// сбрасывает флаги.
-		// Если LinkLabels установлено в true, то текстовые элементы, добавленные к элементу Target
-		// методами AddTextBefore и AddTextAfter, также связываются с элементом Parent.
-		void LinkFlags(DialogItemEx *Parent, DialogItemEx *Target, FarDialogItemFlags Flags, bool LinkLabels=true);
+		T *AddCheckbox(int TextMessageId, BOOL *Value)
+		{
+			T *Item = AddDialogItem(DI_CHECKBOX, GetLangString(TextMessageId));
+			SetNextY(Item);
+			Item->X2 = Item->X1 + ItemWidth(*Item);
+			Item->Selected = *Value;
+			SetLastItemBinding(CreateCheckBoxBinding(Value));
+			return Item;
+		}
 
 		// Добавляет сепаратор.
-		void AddSeparator();
+		void AddSeparator()
+		{
+			T *Separator = AddDialogItem(DI_TEXT, EMPTY_TEXT);
+			Separator->Flags = DIF_BOXCOLOR | DIF_SEPARATOR;
+			Separator->X1 = 3;
+			Separator->Y1 = Separator->Y2 = NextY++;
+		}
 
 		// Добавляет сепаратор, кнопки OK и Cancel.
-		void AddOKCancel();
-		bool ShowDialog();
+		void AddOKCancel()
+		{
+			AddSeparator();
+
+			T *OKButton = AddDialogItem(DI_BUTTON, GetLangString(MOk));
+			OKButton->Flags = DIF_CENTERGROUP;
+			OKButton->DefaultButton = 1;
+			OKButton->Y1 = OKButton->Y2 = NextY++;
+			OKButtonID = DialogItemsCount-1;
+
+			T *CancelButton = AddDialogItem(DI_BUTTON, GetLangString(MCancel));
+			CancelButton->Flags = DIF_CENTERGROUP;
+			CancelButton->Y1 = CancelButton->Y2 = OKButton->Y1;
+		}
+
+		bool ShowDialog()
+		{
+			UpdateBorderSize();
+			int Result = DoShowDialog();
+			if (Result == OKButtonID)
+			{
+				SaveValues();
+				return true;
+			}
+			return false;
+		}
+};
+
+class PluginDialogBuilder;
+
+class PluginCheckBoxBinding: public DialogItemBinding<FarDialogItem>
+{
+private:
+	const PluginStartupInfo &Info;
+	HANDLE *DialogHandle;
+	int ID;
+	BOOL *Value;
+
+public:
+	PluginCheckBoxBinding(const PluginStartupInfo &aInfo, HANDLE *aHandle, int aID, BOOL *aValue)
+		: Info(aInfo), DialogHandle(aHandle), ID(aID), Value(aValue)
+	{
+	}
+
+	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
+	{
+		*Value = Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, 0);
+	}
+};
+
+class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
+{
+	protected:
+		const PluginStartupInfo &Info;
+		HANDLE DialogHandle;
+
+		virtual void InitDialogItem(FarDialogItem *Item, const TCHAR *Text)
+		{
+			memset(Item, 0, sizeof(FarDialogItem));
+#ifdef UNICODE
+			Item->PtrData = Text;
+#else
+			lstrcpy(Item->Data, Text);
+#endif
+		}
+
+		virtual int TextWidth(const FarDialogItem &Item)
+		{
+#ifdef UNICODE
+			return lstrlen(Item.PtrData);
+#else
+			return lstrlen(Item.Data);
+#endif
+		}
+
+		virtual const TCHAR *GetLangString(int MessageID)
+		{
+			return Info.GetMsg(Info.ModuleNumber, MessageID);
+		}
+
+		virtual int DoShowDialog()
+		{
+			int Width = DialogItems [0].X2+4;
+			int Height = DialogItems [0].Y2+2;
+#ifdef UNICODE
+			DialogHandle = Info.DialogInit(Info.ModuleNumber, -1, -1, Width, Height,
+				L"", DialogItems, DialogItemsCount, 0, 0, NULL, 0);
+			return Info.DialogRun(DialogHandle);
+#else
+			return Info.Dialog(Info.ModuleNumber, -1, -1, Width, Height,
+				"", DialogItems, DialogItemsCount);
+#endif
+		}
+
+		virtual DialogItemBinding<FarDialogItem> *CreateCheckBoxBinding(BOOL *Value)
+		{
+#ifdef UNICODE
+			return new PluginCheckBoxBinding(Info, &DialogHandle, DialogItemsCount-1, Value);
+#else
+			return new CheckBoxBinding<FarDialogItem>(Value);
+#endif
+		}
+
+	public:
+		PluginDialogBuilder(const PluginStartupInfo &aInfo, int TitleMessageID)
+			: Info(aInfo)
+		{
+			AddBorder(GetLangString(TitleMessageID));
+		}
+
+		~PluginDialogBuilder()
+		{
+#ifdef UNICODE
+			Info.DialogFree(DialogHandle);
+#endif
+		}
 };

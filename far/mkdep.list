@@ -60,6 +60,7 @@ eject.hpp
 execute.cpp
 execute.hpp
 exitcode.hpp
+FarDlgBuilder.hpp
 farexcpt.cpp
 farexcpt.hpp
 farqueue.cpp

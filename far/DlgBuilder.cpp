@@ -33,45 +33,41 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "DlgBuilder.hpp"
+#include "FarDlgBuilder.hpp"
 #include "dialog.hpp"
 #include "language.hpp"
 #include "lang.hpp"
 
 const int DEFAULT_INDENT = 5;
 
-struct EditFieldUserData
+struct EditFieldBinding: public DialogItemBinding<DialogItemEx>
 {
 	string *TextValue;
-	int *IntValue;
-	int BeforeLabelID;
-	int AfterLabelID;
 
-	EditFieldUserData(string *aTextValue)
-		: TextValue(aTextValue), IntValue(NULL), BeforeLabelID(-1), AfterLabelID(-1)
+	EditFieldBinding(string *aTextValue)
+		: TextValue(aTextValue)
 	{
 	}
 
-	EditFieldUserData(int *aIntValue)
-		: TextValue(NULL), IntValue(aIntValue), BeforeLabelID(-1), AfterLabelID(-1)
+	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex)
 	{
+		*TextValue = Item->strData;
 	}
 };
 
-struct ComboBoxUserData
+struct EditFieldIntBinding: public DialogItemBinding<DialogItemEx>
 {
-	int *Value;
-	FarList *List;
+	int *IntValue;
 
-	ComboBoxUserData(int *aValue, FarList *aList)
-		: Value(aValue), List(aList)
+	EditFieldIntBinding(int *aIntValue)
+		: IntValue(aIntValue)
 	{
 	}
 
-	~ComboBoxUserData()
+	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex)
 	{
-		delete [] List->Items;
-		delete List;
+		wchar_t *endptr;
+		*IntValue = wcstoul(Item->strData, &endptr, 10);
 	}
 };
 
@@ -80,104 +76,36 @@ static bool IsEditField(DialogItemEx *Item)
 	return Item->Type == DI_EDIT || Item->Type == DI_FIXEDIT || Item->Type == DI_PSWEDIT;
 }
 
-static int TextWidth(const DialogItemEx &Item)
+DialogBuilder::DialogBuilder(int TitleMessageId, const wchar_t *HelpTopic)
 {
-	switch(Item.Type)
-	{
-	case DI_TEXT:
-		return static_cast<int>(Item.strData.GetLength());
-
-	case DI_CHECKBOX:
-	case DI_RADIOBUTTON:
-		return static_cast<int>(Item.strData.GetLength() + 4);
-
-	case DI_EDIT:
-	case DI_FIXEDIT:
-	case DI_COMBOBOX:
-		int Width = Item.X2 - Item.X1 + 1;
-		/* стрелка history занимает дополнительное место, но раньше она рисовалась поверх рамки
-		if (Item.Flags & DIF_HISTORY)
-			Width++;
-		*/
-		return Width;
-		break;
-	}
-	return 0;
-}
-
-DialogBuilder::DialogBuilder(int TitleMessageId, const wchar_t *HelpTopic): DialogItems(NULL), DialogItemsCount(0), DialogItemsAllocated(0)
-{
-	DialogItemEx *Title = AddDialogItem(DI_DOUBLEBOX, MSG(TitleMessageId));
-	Title->X1 = 3;
-	Title->Y1 = 1;
-	NextY = 2;
+	AddBorder(GetLangString(TitleMessageId));
 	this->HelpTopic = HelpTopic;
 }
 
 DialogBuilder::~DialogBuilder()
 {
-	if (DialogItems)
-	{
-		for(int i=0; i<DialogItemsCount; i++)
-		{
-			if (IsEditField(&DialogItems [i]))
-				delete (EditFieldUserData *) DialogItems [i].UserData;
-			else if (DialogItems [i].Type == DI_COMBOBOX)
-				delete (ComboBoxUserData *) DialogItems [i].UserData;
-		}
-		delete [] DialogItems;
-	}
 }
 
-void DialogBuilder::ReallocDialogItems()
+void DialogBuilder::InitDialogItem(DialogItemEx *Item, const TCHAR *Text)
 {
-	// реаллокация инвалидирует указатели на DialogItemEx, возвращённые из
-	// AddDialogItem и аналогичных методов, поэтому размер массива подбираем такой,
-	// чтобы все нормальные диалоги помещались без реаллокации
-	// TODO хорошо бы, чтобы они вообще не инвалидировались
-	DialogItemsAllocated += 32;
-	if (DialogItems == NULL)
-	{
-		DialogItems = new DialogItemEx[DialogItemsAllocated];
-	}
-	else
-	{
-		DialogItemEx *NewDialogItems = new DialogItemEx[DialogItemsAllocated];
-		for(int i=0; i<DialogItemsCount; i++)
-			NewDialogItems [i] = DialogItems [i];
-		delete [] DialogItems;
-		DialogItems = NewDialogItems;
-	}
-}
-
-DialogItemEx *DialogBuilder::AddDialogItem(int Type, const string &strData)
-{
-	if (DialogItemsCount == DialogItemsAllocated)
-	{
-		ReallocDialogItems();
-	}
-	DialogItemEx *Item = &DialogItems [DialogItemsCount++];
 	Item->Clear();
 	Item->ID = DialogItemsCount-1;
-	Item->Type = Type;
-	Item->strData = strData;
-	return Item;
+	Item->strData = Text;
 }
 
-void DialogBuilder::SetNextY(DialogItemEx *Item)
+int DialogBuilder::TextWidth(const DialogItemEx &Item)
 {
-	Item->X1 = 5;
-	Item->Y1 = Item->Y2 = NextY++;
+	return static_cast<int>(Item.strData.GetLength());
 }
 
-DialogItemEx *DialogBuilder::AddCheckbox(int TextMessageId, BOOL *Value)
+const TCHAR *DialogBuilder::GetLangString(int MessageID)
 {
-	DialogItemEx *Item = AddDialogItem(DI_CHECKBOX, MSG(TextMessageId));
-	SetNextY(Item);
-	Item->X2 = Item->X1 + TextWidth(*Item);
-	Item->Selected = *Value;
-	Item->UserData = (DWORD_PTR) Value;
-	return Item;
+	return MSG(MessageID);
+}
+
+DialogItemBinding<DialogItemEx> *DialogBuilder::CreateCheckBoxBinding(BOOL *Value)
+{
+	return new CheckBoxBinding<DialogItemEx>(Value);
 }
 
 void DialogBuilder::AddRadioButtons(int *Value, int OptionCount, int MessageIDs[])
@@ -186,12 +114,12 @@ void DialogBuilder::AddRadioButtons(int *Value, int OptionCount, int MessageIDs[
 	{
 		DialogItemEx *Item = AddDialogItem(DI_RADIOBUTTON, MSG(MessageIDs[i]));
 		SetNextY(Item);
-		Item->X2 = Item->X1 + TextWidth(*Item);
+		Item->X2 = Item->X1 + ItemWidth(*Item);
 		if (i == 0)
 			Item->Flags |= DIF_GROUP;
 		if (*Value == i)
 			Item->Selected = TRUE;
-		Item->UserData = (DWORD_PTR) Value;
+		SetLastItemBinding(new RadioButtonBinding<DialogItemEx>(Value));
 	}
 }
 
@@ -213,7 +141,7 @@ DialogItemEx *DialogBuilder::AddEditField(string *Value, int Width, const wchar_
 		Item->Flags |= DIF_HISTORY;
 	}
 
-	Item->UserData = (DWORD_PTR) new EditFieldUserData(Value);
+	SetLastItemBinding(new EditFieldBinding(Value));
 	return Item;
 }
 
@@ -226,7 +154,8 @@ DialogItemEx *DialogBuilder::AddIntEditField(int *Value, int Width)
 	SetNextY(Item);
 	Item->X2 = Item->X1 + Width;
 
-	Item->UserData = (DWORD_PTR) new EditFieldUserData(Value);
+	
+	SetLastItemBinding(new EditFieldIntBinding(Value));
 	return Item;
 }
 
@@ -251,7 +180,7 @@ DialogItemEx *DialogBuilder::AddComboBox(int *Value, int Width,
 	List->ItemsNumber = ItemCount;
 	Item->ListItems = List;
 
-	Item->UserData = (DWORD_PTR) new ComboBoxUserData(Value, List);
+	SetLastItemBinding(new ComboBoxBinding<DialogItemEx>(Value, List));
 	return Item;
 }
 
@@ -260,18 +189,16 @@ DialogItemEx *DialogBuilder::AddTextBefore(DialogItemEx *RelativeTo, int LabelId
 	DialogItemEx *Item = AddDialogItem(DI_TEXT, MSG(LabelId));
 	Item->Y1 = Item->Y2 = RelativeTo->Y1;
 	Item->X1 = 5;
-	Item->X2 = Item->X1 + TextWidth(*Item) - 1;
+	Item->X2 = Item->X1 + ItemWidth(*Item) - 1;
 
 	int RelativeToWidth = RelativeTo->X2 - RelativeTo->X1;
 	RelativeTo->X1 = Item->X2 + 2;
 	RelativeTo->X2 = RelativeTo->X1 + RelativeToWidth;
 
+	DialogItemBinding<DialogItemEx> *Binding = FindBinding(RelativeTo);
+	if (Binding)
+		Binding->BeforeLabelID = Item->ID;
 
-	if (IsEditField(RelativeTo))
-	{
-		EditFieldUserData *UserData = (EditFieldUserData *) RelativeTo->UserData;
-		UserData->BeforeLabelID = Item->ID;
-	}
 	return Item;
 }
 
@@ -281,35 +208,11 @@ DialogItemEx *DialogBuilder::AddTextAfter(DialogItemEx *RelativeTo, int LabelId)
 	Item->Y1 = Item->Y2 = RelativeTo->Y1;
 	Item->X1 = RelativeTo->X2 + 2;
 
-	if (IsEditField(RelativeTo))
-	{
-		EditFieldUserData *UserData = (EditFieldUserData *) RelativeTo->UserData;
-		UserData->AfterLabelID = Item->ID;
-	}
+	DialogItemBinding<DialogItemEx> *Binding = FindBinding(RelativeTo);
+	if (Binding)
+		Binding->AfterLabelID = Item->ID;
+
 	return Item;
-}
-
-void DialogBuilder::AddSeparator()
-{
-	DialogItemEx *Separator = AddDialogItem(DI_TEXT, L"");
-	Separator->Flags = DIF_BOXCOLOR | DIF_SEPARATOR;
-	Separator->X1 = 3;
-	Separator->Y1 = Separator->Y2 = NextY++;
-}
-
-void DialogBuilder::AddOKCancel()
-{
-	AddSeparator();
-
-	DialogItemEx *OKButton = AddDialogItem(DI_BUTTON, MSG(MOk));
-	OKButton->Flags = DIF_CENTERGROUP;
-	OKButton->DefaultButton = 1;
-	OKButton->Y1 = OKButton->Y2 = NextY++;
-	OKButtonID = OKButton->ID;
-
-	DialogItemEx *CancelButton = AddDialogItem(DI_BUTTON, MSG(MCancel));
-	CancelButton->Flags = DIF_CENTERGROUP;
-	CancelButton->Y1 = CancelButton->Y2 = OKButton->Y1;
 }
 
 void DialogBuilder::LinkFlags(DialogItemEx *Parent, DialogItemEx *Target, FarDialogItemFlags Flags, bool LinkLabels)
@@ -319,11 +222,14 @@ void DialogBuilder::LinkFlags(DialogItemEx *Parent, DialogItemEx *Target, FarDia
 	if (!Parent->Selected)
 		Target->Flags |= Flags;
 
-	if (IsEditField(Target) && LinkLabels)
+	if (LinkLabels)
 	{
-		EditFieldUserData *UserData = (EditFieldUserData *) Target->UserData;
-		LinkFlagsByID(Parent, UserData->BeforeLabelID, Flags);
-		LinkFlagsByID(Parent, UserData->AfterLabelID, Flags);
+		DialogItemBinding<DialogItemEx> *Binding = FindBinding(Target);
+		if (Binding)
+		{
+			LinkFlagsByID(Parent, Binding->BeforeLabelID, Flags);
+			LinkFlagsByID(Parent, Binding->AfterLabelID, Flags);
+		}
 	}
 }
 
@@ -337,82 +243,11 @@ void DialogBuilder::LinkFlagsByID(DialogItemEx *Parent, int TargetID, FarDialogI
 	}
 }
 
-void DialogBuilder::UpdateBorderSize()
+int DialogBuilder::DoShowDialog()
 {
-	DialogItemEx *Title = &DialogItems[0];
-	Title->X2 = Title->X1 + MaxTextWidth() + 3;
-	Title->Y2 = DialogItems [DialogItemsCount-1].Y2 + 1;
-}
-
-int DialogBuilder::MaxTextWidth()
-{
-	int MaxWidth = 0;
-	for(int i=1; i<DialogItemsCount; i++)
-	{
-		int Width = TextWidth(DialogItems [i]);
-		int Indent = DialogItems [i].X1 - 5;
-		Width += Indent;
-
-		if (MaxWidth < Width)
-			MaxWidth = Width;
-	}
-	return MaxWidth;
-}
-
-bool DialogBuilder::ShowDialog()
-{
-	UpdateBorderSize();
-
 	Dialog Dlg(DialogItems, DialogItemsCount);
 	Dlg.SetHelp(HelpTopic);
 	Dlg.SetPosition(-1, -1, DialogItems [0].X2+4, DialogItems [0].Y2+2);
 	Dlg.Process();
-
-	if (Dlg.GetExitCode() != OKButtonID)
-		return false;
-
-	int RadioGroupIndex = 0;
-	for(int i=0; i<DialogItemsCount; i++)
-	{
-		if (DialogItems [i].Flags & DIF_GROUP)
-			RadioGroupIndex = 0;
-		else
-			RadioGroupIndex++;
-
-		SaveValue(&DialogItems [i], RadioGroupIndex);
-	}
-
-	return true;
-}
-
-void DialogBuilder::SaveValue(DialogItemEx *Item, int RadioGroupIndex)
-{
-	if (Item->Type == DI_CHECKBOX)
-	{
-		BOOL *Value = (BOOL *)Item->UserData;
-		*Value = Item->Selected;
-	}
-	else if (Item->Type == DI_RADIOBUTTON)
-	{
-		int *Value = (int *)Item->UserData;
-		if (Item->Selected)
-			*Value = RadioGroupIndex;
-	}
-	else if (IsEditField(Item))
-	{
-		EditFieldUserData *UserData = (EditFieldUserData *)Item->UserData;
-		if (UserData->TextValue)
-			*UserData->TextValue = Item->strData;
-		else if (UserData->IntValue)
-		{
-			wchar_t *endptr;
-			*UserData->IntValue = wcstoul(Item->strData, &endptr, 10);
-		}
-	}
-	else if (Item->Type == DI_COMBOBOX)
-	{
-		ComboBoxUserData *UserData = (ComboBoxUserData *)Item->UserData;
-		FarListItem &ListItem = UserData->List->Items[Item->ListPos];
-		*UserData->Value = ListItem.Reserved[0];
-	}
+	return Dlg.GetExitCode();
 }

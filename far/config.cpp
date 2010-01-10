@@ -58,7 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "udlist.hpp"
-#include "DlgBuilder.hpp"
+#include "FarDlgBuilder.hpp"
 
 Options Opt;// BUG !! ={0};
 

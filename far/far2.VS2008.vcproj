@@ -2845,6 +2845,10 @@
 				>
 			</File>
 			<File
+				RelativePath="FarDlgBuilder.hpp"
+				>
+			</File>
+			<File
 				RelativePath="farexcpt.hpp"
 				>
 			</File>
