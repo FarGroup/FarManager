@@ -30,11 +30,6 @@
                 <param name="ImageNumber" value="12">
                 </OBJECT>
         <LI> <OBJECT type="text/sitemap">
-                <param name="Name" value="Что нового?">
-                <param name="Local" value="html/whatsnew.html">
-                <param name="ImageNumber" value="10">
-                </OBJECT>
-        <LI> <OBJECT type="text/sitemap">
                 <param name="Name" value="Экспортируемые функции">
                 <param name="Local" value="html/exported_functions/index.html">
                 </OBJECT>
