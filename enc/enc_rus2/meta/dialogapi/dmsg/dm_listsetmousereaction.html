@@ -1,0 +1,76 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DM_LISTSETMOUSEREACTION</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DM_LISTSETMOUSEREACTION</h1>
+<div class=navbar>
+<a  href="index_dm.html">Сообщения</a> |
+<a href="../index.html">Dialog API</a><br>
+</div>
+
+<div class=shortdescr>
+Сообщение <dfn>DM_LISTSETMOUSEREACTION</dfn> позволяет управлять
+реакцией на движение мыши в списке <a href="../controls/di_listbox.html">DI_LISTBOX</a>.
+</div>
+
+<h3>Param1</h3>
+<div class=descr>
+ID требуемого элемента диалога.
+</div>
+
+<h3>Param2</h3>
+<div class=descr>
+Может быть одним из следующих значений (перечисление <code><a name="FARLISTMOUSEREACTIONTYPE">FARLISTMOUSEREACTIONTYPE</a></code>):
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Значение</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="LMRT_ONLYFOCUS">LMRT_ONLYFOCUS</a></td>
+<td class="cont" width="60%">Список будет реагировать на движение мыши (перемещать
+курсор в списке) только если элемент в фокусе</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="LMRT_ALWAYS">LMRT_ALWAYS</a></td>
+<td class="cont" width="60%">Список будет всегда реагировать на движение мыши (перемещать
+курсор в списке). Пример такого поведения - список найденных файлов в результатах поиска (<kbd>Alt-F7</kbd>)</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="LMRT_NEVER">LMRT_NEVER</a></td>
+<td class="cont" width="60%">Список не будет реагировать на движение мыши</td></tr>
+</table>
+
+</div>
+
+<h3>Return</h3>
+<div class=descr>
+Предыдущее значение.
+</div>
+
+<h3>Элементы</h3>
+<div class=descr>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../controls/di_listbox.html">DI_LISTBOX</a></td>
+<td class="cont" width="60%">список</td></tr>
+</table>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+<ol>
+<li>По умолчанию список <a href="../controls/di_listbox.html">DI_LISTBOX</a> всегда реагирует на движение курсора мыши.
+</ol>
+</div>
+
+<h3>Пример</h3>
+<div class=descr>
+</div>
+
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="../dialoginit.html">DialogInit</a>
+</div>
+
+</body>
+</html>

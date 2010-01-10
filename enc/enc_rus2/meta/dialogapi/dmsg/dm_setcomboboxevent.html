@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DM_SETCOMBOBOXEVENT</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DM_SETCOMBOBOXEVENT</h1>
+<div class=navbar>
+<a  href="index_dm.html">Сообщения</a> |
+<a href="../index.html">Dialog API</a><br>
+</div>
+
+<div class=shortdescr>
+Сообщение <dfn>DM_SETCOMBOBOXEVENT</dfn> позволяет управлять механизмом
+посылки сообщений <a href="dn_key.html">DN_KEY</a> и <a href="dn_mouseevent.html">DN_MOUSEEVENT</a>
+в диалоговую процедуру при навигации в открытом элементе <a href="../controls/di_combobox.html">DI_COMBOBOX</a>.
+</div>
+
+<h3>Param1</h3>
+<div class=descr>
+ID требуемого элемента <a href="../controls/di_combobox.html">DI_COMBOBOX</a>.
+</div>
+
+<h3>Param2</h3>
+<div class=descr>
+<dfn>Param2</dfn> комбинация следующих значений (перечисление <a name="FARCOMBOBOXEVENTTYPE">FARCOMBOBOXEVENTTYPE</a>):
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+  <tr class="cont"><td class="cont" width="40%"><a name="CBET_KEY">CBET_KEY</a></td>
+  <td class="cont" width="60%">Включить приход событий <a href="dn_key.html">DN_KEY</a></td></tr>
+  <tr class="cont"><td class="cont" width="40%"><a name="CBET_MOUSE">CBET_MOUSE</a></td>
+  <td class="cont" width="60%">Включить приход событий <a href="dn_mouseevent.html">DN_MOUSEEVENT</a></td></tr>
+</table>
+
+</div>
+
+<h3>Return</h3>
+<div class=descr>
+Предыдущее состояние.
+</div>
+
+<h3>Элементы</h3>
+<div class=descr>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../controls/di_combobox.html">DI_COMBOBOX</a></td>
+<td class="cont" width="60%">комбинированный список</td></tr>
+</table>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+По умолчанию при открытом <a href="../controls/di_combobox.html">DI_COMBOBOX</a>
+события <a href="dn_key.html">DN_KEY</a> и <a href="dn_mouseevent.html">DN_MOUSEEVENT</a>
+в диалоговую процедуру не приходят.
+</div>
+
+<h3>Пример</h3>
+<div class=descr>
+</div>
+
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="dm_getcomboboxevent.html">DM_GETCOMBOBOXEVENT</a><br>
+</div>
+
+</body>
+</html>

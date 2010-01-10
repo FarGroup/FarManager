@@ -1,0 +1,141 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>Примеры - Макросы</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>Примеры</h1>
+<div class="navbar">
+<a href="../index.html">главная</a> |
+<a href="index.html">Макросы</a>
+</div>
+
+<p><pre class=code>REGEDIT4
+
+; переход в меню выбора дисков на противоположной панели
+; включение видимости панели в которой будет происходить смена диска, если её не было
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Disks\Tab]
+"Sequence"="Esc $If (!PPanel.Visible) $If (APanel.Left) CtrlF2 $Else CtrlF1 $End $End Tab F9 Enter End Enter"
+"DisableOutput"=dword:00000001</pre>
+
+<pre class=code>REGEDIT4
+
+;выделить/(снять выделение) слово(а) под курсором
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Editor\RAlt]
+"Sequence"="RCtrl9 CtrlRight CtrlLeft $If (!Selected) CtrlShiftRight $Else CtrlU $End Ctrl9"
+"DisableOutput"=dword:00000001</pre>
+
+<pre class=code>REGEDIT4
+
+;создание папки с именем = текущей дате
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlShiftF7]
+"Sequence"="%folder=date(\"%d.%m0.%Y\"); $If (!panel.fexist(0,%folder)) F7 CtrlY $Text %folder Enter $End"
+"DisableOutput"=dword:00000001
+"NoPluginPanels"=dword:00000001</pre>
+
+<pre class=code>REGEDIT4
+
+;искать тот же файл на другой панели что и на активной
+;F5 ShiftEnter CtrlIns - применено чтобы получить имя файла вне зависимости
+;пусто/непусто в cmdline и сколько выделено на панели файлов
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlAltLeft]
+"Sequence"="$IClip $If (((Bof &amp;&amp; APanel.Root) || !Bof) &amp;&amp; PPanel.Visible)
+$If (fexist(PPanel.Path+\"\\\\\"+APanel.Current) == 1) F5 ShiftEnter
+CtrlIns Esc Tab Home Alt< ShiftIns Esc $End $End"
+"DisableOutput"=dword:00000001
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlAltRight]
+"Sequence"="$IClip $If (((Bof &amp;&amp; APanel.Root) || !Bof) &amp;&amp; PPanel.Visible)
+$If (fexist(PPanel.Path+\"\\\\\"+APanel.Current) == 1) F5 ShiftEnter CtrlIns
+Esc Tab Home Alt< ShiftIns Esc $End $End"
+"DisableOutput"=dword:00000001
+</pre>
+
+<pre class=code>REGEDIT4
+
+;выделение следующих нижних/верхних 30 файлов
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlDown]
+"Sequence"="$If (!Eof) $Rep (30) $If (Eof) Ins $Exit $Else Ins $End $End $End"
+"DisableOutput"=dword:00000001
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlUp]
+"Sequence"="Up $If (Bof) $If (!APanel.Root) Down $End $Exit $Else Down $End
+$If (Eof) Ins $Else Ins Up $End $Rep (29) Up Ins Up $If (Bof)
+$If (!APanel.Root) Down $End $Exit $End $End Up"
+"DisableOutput"=dword:00000001
+</pre>
+
+
+<pre class=code>REGEDIT4
+
+;сграбить весь экран в текстовый файл far-screen.out
+;работает в области Dialog
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Dialog\AltP]
+"Sequence"="$IClip AltIns CtrlHome ShiftEnd ShiftPgDn Enter Esc
+$If (!Shell) Esc $End $If (Shell &amp;&amp; !APanel.Plugin) ShiftF4 CtrlY
+\"far-screen.out\" Enter ShiftIns Enter Enter F2 Esc $End"
+"DisableOutput"=dword:00000001</pre>
+
+
+<pre class=code>REGEDIT4
+
+;удаление файла/папки по клавише Del
+;если стояли на элементе .. то пытаемся удалить вышестоящую папку
+;если не в конце ком строки то удаляем символы в ней
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\Del]
+"Sequence"="$If (!CmdLine.Eof) Del $Exit $Else
+$If ((APanel.Bof &amp;&amp; !APanel.Selected) &amp;&amp;
+(!APanel.Root || APanel.Plugin)) CtrlPgUp $End F8 $End"
+"DisableOutput"=dword:00000001
+</pre>
+
+<pre class=code>REGEDIT4
+
+; перед вызовом быстрого просмотра сделать пассивную панель
+; максимально большего размера.
+; для обратной операции восстановить панели.
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlQ]
+"Sequence"="Tab $If (QView) Tab Ctrl2 Tab CtrlClear $Else Tab Ctrl6 Tab
+$If (APanel.Left) $Rep (APanel.width) CtrlRight $End $Else
+$Rep (APanel.width) CtrlLeft $End $End $End Tab CtrlQ"
+"DisableOutput"=dword:00000001
+</pre>
+
+
+<p><p>Следующий макрос служит для того чтобы помечать вместе с htm-файлом и парную ему папку:
+<pre class=code>REGEDIT4
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlShiftIns]
+"Sequence"="%Current=APanel.Current; %Ext=substr(%Current,len(%Current)-6);
+$If (%Ext==\"_files\") %Name=substr(%Current,0,len(%Current)-6); $Else
+%Ext=fsplit(%Current,FSPLIT_EXT); %Name=fsplit(%Current,FSPLIT_NAME); $End
+$if (%Ext==\".htm\" || %Ext==\".html\") panel.setpos(ACTIVEPANEL,%Name+\".files\")
+panel.setpos(ACTIVEPANEL,%Name+\"_files\") $end $if (%Ext==\".files\" || %Ext==\"_files\")
+panel.setpos(ACTIVEPANEL,%Name+\".htm\") panel.setpos(ACTIVEPANEL,%Name+\".html\") $End
+$if (APanel.Current!=%Current) $If(!panelitem(ACTIVEPANEL,0,PANELITEM_SELECTED)) Ins $End
+panel.setpos(ACTIVEPANEL,%Current) $If(!panelitem(ACTIVEPANEL,0,PANELITEM_SELECTED))
+Ins $End $End $MMode 1 $MMode 1"
+"DisableOutput"=dword:00000001
+
+;При непустой командной строке макрос не вызывается чтобы можно пользоваться первоначальной
+;функцией сочетания CtrlShiftIns - Поместить помеченные имена в Буфер Обмена
+"EmptyCommandLine"=dword:00000001
+</pre>
+
+
+</body>
+
+</html>
