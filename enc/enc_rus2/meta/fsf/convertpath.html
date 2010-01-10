@@ -18,12 +18,14 @@
 Функция <dfn>FSF.ConvertPath</dfn> преобразует относительное имя файлового объекта в полное.
 </div>
  
-<p class=note><img src="../../images/note.gif" alt="Замечание для ConvertPath" width="10" height="10"> Внимание!</p>
-     <UL class=note><LI>
-     Не используйте для этих целей функцию <dfn>GetFullPathName</dfn> из Windows API.<br><br> 
-     Не передавайте относительные имена файлов в любые функции Windows API, все относительные пути должны быть преобразованы в полные. 
-     При передаче имён в функции Windows API используйте префикс "\\?\", чтобы избежать проблем с длинными и нестандартными именами файлов.
-</LI></UL>
+<p class=note>
+  <img src="../../images/note.gif" alt="Замечание для ConvertPath" width="10" height="10"> Внимание!
+  <ul class=note>
+    <li>Не используйте для этих целей функцию <dfn>GetFullPathName</dfn> из Windows API.</li>
+    <li>Не передавайте относительные имена файлов в любые функции Windows API, все относительные пути должны быть преобразованы в полные.</li>
+    <li>При передаче имён в функции Windows API используйте префикс "\\?\", чтобы избежать проблем с длинными и нестандартными именами файлов.</li>
+  </ul>
+</p>
 
 <pre class=syntax>
 int WINAPI ConvertPath(
@@ -59,7 +61,7 @@ int WINAPI ConvertPath(
   </div>
 
   <div class=dfn>DestSize</div>
-  <div class=dfndescr>Размер принимаемых данных.
+  <div class=dfndescr>Размер буфера <var>Dest</var> в символах.
   Если <var>Dest</var>=<code>NULL</code>, то параметр <var>DestSize</var>
   игнорируется.
   </div>
@@ -67,8 +69,8 @@ int WINAPI ConvertPath(
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-Реальный размер полного пути, размещенного в <var>Dest</var> или требуемый
-размер строки для случая, когда <var>Dest</var>=<code>NULL</code>.
+Необходимый размер буфера <var>Dest</var> в символах.
+<p>Особенности <var>Mode</var>=<code>CPM_REAL</code>:</p>
 <ul>
 <li>Для монтированных дисков, которые не имеют буквы диска, функция
     поместит в <var>Dest</var> строку, подобную этой:
@@ -83,8 +85,7 @@ int WINAPI ConvertPath(
 <h3>Примечание</h3>
 <div class=descr>
 <ol>
-<li>Параметры <var>Src</var> и <var>Dest</var> могут ссылаться на одну и
-  ту же строку.
+<li>Параметры <var>Src</var> и <var>Dest</var> могут ссылаться на одну и ту же строку.
 </ol>
 </div>
 
@@ -92,14 +93,19 @@ int WINAPI ConvertPath(
 <div class=descr>
 <p>Неправильно:</p>
 <pre class=code>
-GetFileAttributes(L"..\some_file");
+   GetFileAttributes(L"..\some_file");
 </pre>
 
 <p>Правильно:</p>
 <pre class=code>
-   size_t Size=FSF.ConvertPath(CPM_FULL,L"..\some_file",NULL,0);
-   WCHAR FullName=new WCHAR[Size];
-   FSF.ConvertPath(CPM_FULL,L"..\some_file",FullName,Size);
+   wchar_t FullName = new wchar_t[MAX_PATH];
+   size_t Size = FSF.ConvertPath(CPM_FULL, L"..\some_file", FullName, Size);
+   if (Size > MAX_PATH)
+   {
+     delete[] FullName;
+     FullName = new wchar_t[Size];
+     FSF.ConvertPath(CPM_FULL, L"..\some_file", FullName, Size);
+   }
    GetFileAttributes(FullName);
    delete[] FullName;
 </pre>
