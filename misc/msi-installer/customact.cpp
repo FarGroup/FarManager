@@ -217,12 +217,33 @@ wstring add_trailing_slash(const wstring& path) {
   }
 }
 
-list<wstring> get_shortcut_list(MSIHANDLE h_install) {
+bool is_installed(UINT (WINAPI *MsiGetState)(MSIHANDLE, LPCWSTR, INSTALLSTATE*, INSTALLSTATE*), MSIHANDLE h_install, const wstring& name) {
+  INSTALLSTATE st_inst, st_action;
+  CHECK_ADVSYS(MsiGetState(h_install, name.c_str(), &st_inst, &st_action));
+  INSTALLSTATE st = st_action;
+  if (st <= 0) st = st_inst;
+  if (st <= 0) return false;
+  if ((st == INSTALLSTATE_REMOVED) || (st == INSTALLSTATE_ABSENT)) return false;
+  return true;
+}
+
+bool is_component_installed(MSIHANDLE h_install, const wstring& component) {
+  return is_installed(MsiGetComponentStateW, h_install, component);
+}
+
+bool is_feature_installed(MSIHANDLE h_install, const wstring& feature) {
+  return is_installed(MsiGetFeatureStateW, h_install, feature);
+}
+
+list<wstring> get_shortcut_list(MSIHANDLE h_install, const wchar_t* condition = NULL) {
   list<wstring> result;
   PMSIHANDLE h_db = MsiGetActiveDatabase(h_install);
   CHECK(h_db);
   PMSIHANDLE h_view;
-  CHECK_ADVSYS(MsiDatabaseOpenView(h_db, "SELECT Shortcut, Directory_, Name FROM Shortcut", &h_view));
+  wstring query = L"SELECT Shortcut, Directory_, Name, Component_ FROM Shortcut";
+  if (condition)
+    query.append(L" WHERE ").append(condition);
+  CHECK_ADVSYS(MsiDatabaseOpenViewW(h_db, query.c_str(), &h_view));
   CHECK_ADVSYS(MsiViewExecute(h_view, 0));
   PMSIHANDLE h_record;
   while (true) {
@@ -230,16 +251,19 @@ list<wstring> get_shortcut_list(MSIHANDLE h_install) {
     if (res == ERROR_NO_MORE_ITEMS) break;
     CHECK_ADVSYS(res);
 
-    wstring shortcut_id = get_field(h_record, 1);
-    wstring directory_id = get_field(h_record, 2);
-    wstring file_name = get_field(h_record, 3);
+    wstring component = get_field(h_record, 4);
 
-    size_t pos = file_name.find(L'|');
-    if (pos != wstring::npos)
-      file_name.erase(0, pos + 1);
-    wstring directory_path = get_property(h_install, directory_id);
-    wstring full_path = add_trailing_slash(directory_path) + file_name + L".lnk";
-    result.push_back(full_path);
+    if (is_component_installed(h_install, component)) {
+      wstring shortcut_id = get_field(h_record, 1);
+      wstring directory_id = get_field(h_record, 2);
+      wstring file_name = get_field(h_record, 3);
+      size_t pos = file_name.find(L'|');
+      if (pos != wstring::npos)
+        file_name.erase(0, pos + 1);
+      wstring directory_path = get_property(h_install, directory_id);
+      wstring full_path = add_trailing_slash(directory_path) + file_name + L".lnk";
+      result.push_back(full_path);
+    }
   }
   return result;
 }
@@ -312,15 +336,24 @@ void log_message(MSIHANDLE h_install, const wstring& message) {
     log_message(h_install, get_error_message(e)); \
   } \
   catch (...) { \
-    log_message(h_install, L"unknwon error"); \
+    log_message(h_install, L"unknown error"); \
   }
 
-void save_shortcut_props(MSIHANDLE h_install) {
-  BEGIN_ERROR_HANDLER
-  HRESULT com_hr = CoInitialize(NULL);
-  CHECK_COM(com_hr);
-  CLEAN(HRESULT, com_hr, CoUninitialize());
+class ComInit: private NonCopyable {
+private:
+  HRESULT hr;
+public:
+  ComInit() {
+    hr = CoInitialize(NULL);
+  }
+  ~ComInit() {
+    if (SUCCEEDED(hr))
+      CoUninitialize();
+  }
+};
 
+void save_shortcut_props(MSIHANDLE h_install) {
+  ComInit com_init;
   wstring data;
   list<wstring> shortcut_list = get_shortcut_list(h_install);
   init_progress(h_install, L"SaveShortcutProps", L"Saving shortcut properties", shortcut_list.size());
@@ -332,7 +365,6 @@ void save_shortcut_props(MSIHANDLE h_install) {
     END_ERROR_HANDLER
   }
   CHECK_ADVSYS(MsiSetPropertyW(h_install, L"RestoreShortcutProps", data.c_str()));
-  END_ERROR_HANDLER
 }
 
 list<wstring> split(const wstring& str, wchar_t sep) {
@@ -350,11 +382,7 @@ list<wstring> split(const wstring& str, wchar_t sep) {
 }
 
 void restore_shortcut_props(MSIHANDLE h_install) {
-  BEGIN_ERROR_HANDLER
-  HRESULT com_hr = CoInitialize(NULL);
-  CHECK_COM(com_hr);
-  CLEAN(HRESULT, com_hr, CoUninitialize());
-
+  ComInit com_init;
   wstring data = get_property(h_install, L"CustomActionData");
   list<wstring> str_list = split(data, L'\n');
   CHECK(str_list.size() % 2 == 0);
@@ -368,17 +396,6 @@ void restore_shortcut_props(MSIHANDLE h_install) {
     set_shortcut_props(file_path, props);
     END_ERROR_HANDLER
   }
-  END_ERROR_HANDLER
-}
-
-bool is_inst(MSIHANDLE h_install, const wstring& feature) {
-  INSTALLSTATE st_inst, st_action;
-  CHECK_ADVSYS(MsiGetFeatureStateW(h_install, feature.c_str(), &st_inst, &st_action));
-  INSTALLSTATE st = st_action;
-  if (st <= 0) st = st_inst;
-  if (st <= 0) return false;
-  if ((st == INSTALLSTATE_REMOVED) || (st == INSTALLSTATE_ABSENT)) return false;
-  return true;
 }
 
 void update_feature_state(MSIHANDLE h_install) {
@@ -400,13 +417,23 @@ void update_feature_state(MSIHANDLE h_install) {
 
     bool inst = true;
     for (list<wstring>::const_iterator feature = sub_features.begin(); feature != sub_features.end(); feature++) {
-      if (!is_inst(h_install, *feature)) {
+      if (!is_feature_installed(h_install, *feature)) {
         inst = false;
         break;
       }
     }
     CHECK_ADVSYS(MsiSetFeatureStateW(h_install, feature_id.c_str(), inst ? INSTALLSTATE_LOCAL : INSTALLSTATE_ABSENT));
   }
+}
+
+void launch_shortcut(MSIHANDLE h_install) {
+  list<wstring> shortcut_list = get_shortcut_list(h_install, L"Target = '[#Far.exe]'");
+  CHECK(!shortcut_list.empty());
+  SHELLEXECUTEINFOW sei = { sizeof(SHELLEXECUTEINFOW) };
+  sei.fMask = SEE_MASK_FLAG_NO_UI | SEE_MASK_NO_CONSOLE;
+  sei.lpFile = shortcut_list.begin()->c_str();
+  sei.nShow = SW_SHOWDEFAULT;
+  CHECK_SYS(ShellExecuteExW(&sei));
 }
 
 // Find all hidden features with names like F1.F2...FN and set their state to installed
@@ -423,13 +450,32 @@ UINT __stdcall UpdateFeatureState(MSIHANDLE h_install) {
 
 // Read console properties for all existing shortcuts and save them for later use by RestoreShortcutProps.
 UINT __stdcall SaveShortcutProps(MSIHANDLE h_install) {
+  BEGIN_ERROR_HANDLER
   save_shortcut_props(h_install);
   return ERROR_SUCCESS;
+  END_ERROR_HANDLER
+  return ERROR_INSTALL_FAILURE;
 }
 
 // Restore console properties saved by SaveShortcutProps.
 // This action is run after shortcuts are recreated by upgrade/repair.
 UINT __stdcall RestoreShortcutProps(MSIHANDLE h_install) {
+  BEGIN_ERROR_HANDLER
   restore_shortcut_props(h_install);
   return ERROR_SUCCESS;
+  END_ERROR_HANDLER
+  return ERROR_INSTALL_FAILURE;
+}
+
+// Launch Far via installed shortcut
+UINT __stdcall LaunchShortcut(MSIHANDLE h_install) {
+  BEGIN_ERROR_HANDLER
+  launch_shortcut(h_install);
+  return ERROR_SUCCESS;
+  END_ERROR_HANDLER
+  BEGIN_ERROR_HANDLER
+  CHECK_ADVSYS(MsiDoAction(h_install, "LaunchApp"));
+  return ERROR_SUCCESS;
+  END_ERROR_HANDLER
+  return ERROR_INSTALL_FAILURE;
 }

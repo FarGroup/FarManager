@@ -151,8 +151,7 @@
     <String Id="ProgressDlgTitleRepairing">{\WixUI_Font_Title}Repairing [ProductName]</String>
     <String Id="ProgressDlgTextRemoving">Please wait while the Setup Wizard removes [ProductName].</String>
     <String Id="ProgressDlgTitleRemoving">{\WixUI_Font_Title}Removing [ProductName]</String>
-    <String Id="ProgressDlgProgressBar">Progress done</String>
-    <String Id="ProgressDlgStatusLabel">Status:</String>
+    <String Id="ProgressDlgScriptInProgress">Compiling execution script</String>
 
     <String Id="ResumeDlg_Title">[ProductName] Setup</String>
     <String Id="ResumeDlgInstall">&amp;Install</String>
@@ -203,12 +202,12 @@
     <String Id="ProgressTextCostFinalize">Computing space requirements</String>
     <String Id="ProgressTextCreateShortcuts">Creating shortcuts</String>
     <String Id="ProgressTextCreateShortcutsTemplate">Shortcut: [1]</String>
-    <String Id="ProgressTextPublishComponents">Publishing Qualified Components</String>
+    <String Id="ProgressTextPublishComponents">Publishing qualified components</String>
     <String Id="ProgressTextPublishComponentsTemplate">Component ID: [1], Qualifier: [2]</String>
-    <String Id="ProgressTextPublishFeatures">Publishing Product Features</String>
+    <String Id="ProgressTextPublishFeatures">Publishing product features</String>
     <String Id="ProgressTextPublishFeaturesTemplate">Feature: [1]</String>
     <String Id="ProgressTextPublishProduct">Publishing product information</String>
-    <String Id="ProgressTextRegisterClassInfo">Registering Class servers</String>
+    <String Id="ProgressTextRegisterClassInfo">Registering class servers</String>
     <String Id="ProgressTextRegisterClassInfoTemplate">Class Id: [1]</String>
     <String Id="ProgressTextRegisterExtensionInfo">Registering extension servers</String>
     <String Id="ProgressTextRegisterExtensionInfoTemplate">Extension: [1]</String>
@@ -242,7 +241,7 @@
     <String Id="ProgressTextPatchFiles">Patching files</String>
     <String Id="ProgressTextPatchFilesTemplate">File: [1],  Directory: [2],  Size: [3]</String>
     <String Id="ProgressTextProcessComponents">Updating component registration</String>
-    <String Id="ProgressTextRegisterComPlus">Registering COM+ Applications and Components</String>
+    <String Id="ProgressTextRegisterComPlus">Registering COM+ applications and components</String>
     <String Id="ProgressTextRegisterComPlusTemplate">AppId: [1]{{, AppType: [2], Users: [3], RSN: [4]}}</String>
     <String Id="ProgressTextRegisterFonts">Registering fonts</String>
     <String Id="ProgressTextRegisterFontsTemplate">Font: [1]</String>
@@ -279,13 +278,13 @@
     <String Id="ProgressTextStartServicesTemplate">Service: [1]</String>
     <String Id="ProgressTextStopServices">Stopping services</String>
     <String Id="ProgressTextStopServicesTemplate">Service: [1]</String>
-    <String Id="ProgressTextUnpublishComponents">Unpublishing Qualified Components</String>
+    <String Id="ProgressTextUnpublishComponents">Unpublishing qualified components</String>
     <String Id="ProgressTextUnpublishComponentsTemplate">Component ID: [1], Qualifier: [2]</String>
-    <String Id="ProgressTextUnpublishFeatures">Unpublishing Product Features</String>
+    <String Id="ProgressTextUnpublishFeatures">Unpublishing product features</String>
     <String Id="ProgressTextUnpublishFeaturesTemplate">Feature: [1]</String>
-    <String Id="ProgressTextUnregisterClassInfo">Unregister Class servers</String>
+    <String Id="ProgressTextUnregisterClassInfo">Unregistering class servers</String>
     <String Id="ProgressTextUnregisterClassInfoTemplate">Class Id: [1]</String>
-    <String Id="ProgressTextUnregisterComPlus">Unregistering COM+ Applications and Components</String>
+    <String Id="ProgressTextUnregisterComPlus">Unregistering COM+ applications and components</String>
     <String Id="ProgressTextUnregisterComPlusTemplate">AppId: [1]{{, AppType: [2]}}</String>
     <String Id="ProgressTextUnregisterExtensionInfo">Unregistering extension servers</String>
     <String Id="ProgressTextUnregisterExtensionInfoTemplate">Extension: [1]</String>

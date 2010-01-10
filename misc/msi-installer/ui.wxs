@@ -48,7 +48,7 @@
       <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="FeaturesDlg" Order="1">NOT Installed OR WixUI_InstallMode = "Change"</Publish>
       <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="MaintenanceTypeDlg" Order="2">Installed</Publish>
 
-      <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchApplication" Order="1">LaunchApp = 1 and NOT Installed</Publish>
+      <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchShortcut" Order="1">LaunchApp = 1 AND NOT Installed</Publish>
       <Publish Dialog="ExitDialog" Control="Finish" Event="EndDialog" Value="Return" Order="999">1</Publish>
 
       <Property Id="ErrorDialog" Value="ErrorDlg" />
@@ -569,13 +569,18 @@
         <Control Id="TitleRemoving" Type="Text" X="20" Y="15" Width="330" Height="15" Transparent="yes" NoPrefix="yes" Hidden="yes" Text="!(loc.ProgressDlgTitleRemoving)">
           <Condition Action="show">WixUI_InstallMode = "Remove"</Condition>
         </Control>
-        <Control Id="ActionText" Type="Text" X="70" Y="100" Width="285" Height="10">
+        <Control Id="ScriptInProgress" Type="Text" X="20" Y="100" Width="330" Height="25" Hidden="yes" Text="!(loc.ProgressDlgScriptInProgress)">
+          <Subscribe Event="ScriptInProgress" Attribute="Visible" />
+        </Control>
+        <Control Id="ActionText" Type="Text" X="20" Y="100" Width="330" Height="10">
           <Subscribe Event="ActionText" Attribute="Text" />
         </Control>
-        <Control Id="ProgressBar" Type="ProgressBar" X="20" Y="115" Width="330" Height="10" ProgressBlocks="yes" Text="!(loc.ProgressDlgProgressBar)">
+        <Control Id="ActionData" Type="Text" X="20" Y="115" Width="330" Height="10">
+          <Subscribe Event="ActionData" Attribute="Text" />
+        </Control>
+        <Control Id="ProgressBar" Type="ProgressBar" X="20" Y="130" Width="330" Height="10" ProgressBlocks="yes">
           <Subscribe Event="SetProgress" Attribute="Progress" />
         </Control>
-        <Control Id="StatusLabel" Type="Text" X="20" Y="100" Width="50" Height="10" Text="!(loc.ProgressDlgStatusLabel)" />
       </Dialog>
 
       <Dialog Id="ResumeDlg" Width="370" Height="270" Title="!(loc.ResumeDlg_Title)">

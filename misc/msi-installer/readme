@@ -23,7 +23,7 @@ nmake -nologo
 Как собирать (для nightly):
 
 Для сборки требуется готовая CustomActions.dll. Собирать её рекомендуется так:
-cl -nologo -O1 -EHsc customact.cpp -link -dll -out:CustomActions.dll -export:UpdateFeatureState -export:SaveShortcutProps -export:RestoreShortcutProps msi.lib
+cl -nologo -O1 -EHsc customact.cpp -link -dll -out:CustomActions.dll -def:customact.def msi.lib shell32.lib
 upx --lzma CustomActions.dll
 
 1. Собираем вспомогательную тулзу:

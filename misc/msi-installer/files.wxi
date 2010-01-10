@@ -49,13 +49,13 @@
     <File Id="REGISTER.TXT" KeyPath="yes" Source="$(var.SourceDir)\REGISTER.TXT" />
   </Component>
   <Component Id="ClearPluginsCache.bat" Guid="$(var.Guid.ClearPluginsCache.bat)" Win64="$(var.Win64)">
-    <File Id="ClearPluginsCache.bat" KeyPath="yes" Source="$(var.SourceDir)\ClearPluginsCache.bat" />
+    <File Id="ClearPluginsCache.cmd" KeyPath="yes" Source="$(var.SourceDir)\ClearPluginsCache.bat" />
   </Component>
   <Component Id="RestoreSettings.bat" Guid="$(var.Guid.RestoreSettings.bat)" Win64="$(var.Win64)">
-    <File Id="RestoreSettings.bat" KeyPath="yes" Source="$(var.SourceDir)\RestoreSettings.bat" />
+    <File Id="RestoreSettings.cmd" KeyPath="yes" Source="$(var.SourceDir)\RestoreSettings.bat" />
   </Component>
   <Component Id="SaveSettings.bat" Guid="$(var.Guid.SaveSettings.bat)" Win64="$(var.Win64)">
-    <File Id="SaveSettings.bat" KeyPath="yes" Source="$(var.SourceDir)\SaveSettings.bat" />
+    <File Id="SaveSettings.cmd" KeyPath="yes" Source="$(var.SourceDir)\SaveSettings.bat" />
   </Component>
 <?endif?>
 <?if $(var.Branch) = 2 ?>
