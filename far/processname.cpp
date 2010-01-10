@@ -246,11 +246,12 @@ static int CmpName_Body(const wchar_t *pattern,const wchar_t *str, bool CmpNameS
 					}
 				}
 
-				while (*str)
+				do
 				{
-					if (CmpName(pattern,str++,false,CmpNameSearchMode))
-						return(TRUE);
+					if(CmpName(pattern,str,false,CmpNameSearchMode))
+						return TRUE;
 				}
+				while (*str++);
 
 				return(FALSE);
 			case L'[':
