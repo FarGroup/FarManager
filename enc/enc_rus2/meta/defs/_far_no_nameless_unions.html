@@ -23,8 +23,6 @@ Mакроопределение _FAR_NO_NAMELESS_UNIONS определяет, будут ли в структуре
 
 <p>
 Если <b>не определено</b> макроопределение <dfn>_FAR_NO_NAMELESS_UNIONS</dfn>, структура
-<code>FarDialogItem</code> имеет вид, совместимый с FAR 1.65 и FAR 1.70
-beta 3 и более ранними. При этом структура
 <a href="../dialogapi/structures/fardialogitem.html">FarDialogItem</a>
 будет иметь следующий вид:
 
@@ -49,9 +47,7 @@ struct FarDialogItem
 
 <p>Если <b>определено</b> макроопределение <dfn>_FAR_NO_NAMELESS_UNIONS</dfn>,
 в структуре будут использоваться именованные объединения. При этом структура
-будет совместима с компиляторами ANSI C, но не будет совместима на уровне
-исходных текстов с плагинами, написанными для FAR 1.65. Структура будет иметь
-следующий вид:
+будет совместима с компиляторами ANSI C. Структура будет иметь следующий вид:
 
 <pre class="code">
 struct FarDialogItem
@@ -79,7 +75,7 @@ struct FarDialogItem
 </pre>
 
 <p class=note><img src="../../images/warning.gif" alt="Внимание!" width="10" height="10"> Внимание!</p>
-<UL class=note><LI>В FAR Manager v.2 умолчанием является вариант, при котором <dfn>_FAR_NO_NAMELESS_UNIONS</dfn> определена.
+<UL class=note><LI>Умолчанием является вариант, при котором <dfn>_FAR_NO_NAMELESS_UNIONS</dfn> не определена.
 </LI></UL>
 
 <div class=see>Смотрите также:</div><div class=seecont>

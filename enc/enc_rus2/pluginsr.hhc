@@ -2094,44 +2094,6 @@
                 <param name="Local" value="html/customapi/index.html">
                 </OBJECT>
         <UL>
-								<LI> <OBJECT type="text/sitemap">
-												<param name="Name" value="Дополнительные структуры и функции">
-												<param name="Local" value="html/addons/index.html">
-												</OBJECT>
-								<UL>
-												<LI> <OBJECT type="text/sitemap">
-																<param name="Name" value="Функции общего назначения">
-																<param name="Local" value="html/addons/index_common.html">
-																</OBJECT>
-												<UL>
-																<LI> <OBJECT type="text/sitemap">
-																				<param name="Name" value="InitDialogItems">
-																				<param name="Local" value="html/addons/initdialogitems.html">
-																				</OBJECT>
-																<LI> <OBJECT type="text/sitemap">
-																				<param name="Name" value="InitMenuItems">
-																				<param name="Local" value="html/addons/initmenuitems.html">
-																				</OBJECT>
-																<LI> <OBJECT type="text/sitemap">
-																				<param name="Name" value="LocMsg">
-																				<param name="Local" value="html/addons/locmsg.html">
-																				</OBJECT>
-												</UL>
-												<LI> <OBJECT type="text/sitemap">
-																<param name="Name" value="Структуры">
-																<param name="Local" value="html/addons/index_struct.html">
-																</OBJECT>
-												<UL>
-																<LI> <OBJECT type="text/sitemap">
-																				<param name="Name" value="InitDialogItem">
-																				<param name="Local" value="html/addons/structures/initdialogitem.html">
-																				</OBJECT>
-																<LI> <OBJECT type="text/sitemap">
-																				<param name="Name" value="InitMenuItem">
-																				<param name="Local" value="html/addons/structures/initmenuitem.html">
-																				</OBJECT>
-												</UL>
-								</UL>
                 <LI> <OBJECT type="text/sitemap">
                         <param name="Name" value="Поддержка архивов">
                         <param name="Local" value="html/customapi/archives/index.html">
@@ -2203,70 +2165,6 @@
                                 <param name="Local" value="html/customapi/archives/custom_ini.html">
                                 <param name="ImageNumber" value="11">
                                 </OBJECT>
-                </UL>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Интерфейс регулярных выражений библиотеки colorer">
-                        <param name="Local" value="html/customapi/colorer/index.html">
-                        </OBJECT>
-                <UL>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="CRegExp">
-                                <param name="Local" value="html/customapi/colorer/cregexp.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="isok">
-                                <param name="Local" value="html/customapi/colorer/isok.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="geterror">
-                                <param name="Local" value="html/customapi/colorer/geterror.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="SetNoMoves">
-                                <param name="Local" value="html/customapi/colorer/setnomoves.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="SetBkTrace">
-                                <param name="Local" value="html/customapi/colorer/setbktrace.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="SetExpr">
-                                <param name="Local" value="html/customapi/colorer/setexpr.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="SetCodePage">
-                                <param name="Local" value="html/customapi/colorer/setcodepage.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Parse">
-                                <param name="Local" value="html/customapi/colorer/parse.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="extended Parse">
-                                <param name="Local" value="html/customapi/colorer/parse2.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="SMatches">
-                                <param name="Local" value="html/customapi/colorer/smatches.html">
-                                </OBJECT>
-                </UL>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Search and Replace plugins programming">
-                        <param name="Local" value="html/customapi/srplugins/index.html">
-                        </OBJECT>
-                <UL>
-                        <OBJECT type="text/sitemap">
-                        <param name="Merge" value="srplugins.chm::/srplugins.hhc">
-                        </OBJECT>
-                </UL>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Mr.Ripper API">
-                        <param name="Local" value="html/customapi/mrriper/index.html">
-                        </OBJECT>
-                <UL>
-                        <OBJECT type="text/sitemap">
-                        <param name="Merge" value="ripapi.chm::/ripapi.hhc">
-                        </OBJECT>
                 </UL>
         </UL>
         <LI> <OBJECT type="text/sitemap">
