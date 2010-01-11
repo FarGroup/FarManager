@@ -568,8 +568,12 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
               strcpy(WorkPtrFName,PtrExt);
             if(SearchPath(Path,FullName,PtrExt,sizeof(FullName),FullName,&FilePart))
             {
-              Ret=TRUE;
-              break;
+              DWORD dwFileAttr = GetFileAttributes(FullName);
+              if ((dwFileAttr!=INVALID_FILE_ATTRIBUTES) && !(dwFileAttr & FILE_ATTRIBUTE_DIRECTORY))
+              {
+                Ret=TRUE;
+                break;
+              }
             }
             PtrExt+=strlen(PtrExt)+1;
           }
@@ -585,8 +589,12 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
             strcpy(WorkPtrFName,PtrExt);
           if(SearchPath(NULL,FullName,PtrExt,sizeof(FullName),FullName,&FilePart))
           {
-            Ret=TRUE;
-            break;
+            DWORD dwFileAttr = GetFileAttributes(FullName);
+            if ((dwFileAttr!=INVALID_FILE_ATTRIBUTES) && !(dwFileAttr & FILE_ATTRIBUTE_DIRECTORY))
+            {
+              Ret=TRUE;
+              break;
+            }
           }
           PtrExt+=strlen(PtrExt)+1;
         }
