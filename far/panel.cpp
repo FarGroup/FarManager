@@ -1120,10 +1120,7 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
 	string strMsgText;
 	int UpdateProfile=CONNECT_UPDATE_PROFILE;
 	BOOL Processed=FALSE;
-	wchar_t DiskLetter [4];
-	DiskLetter[0] = Drive;
-	DiskLetter[1] = L':';
-	DiskLetter[2] = 0;
+	wchar_t DiskLetter[]={Drive,L':',0};
 
 	if (DriveType == DRIVE_REMOTE && MessageRemoveConnection(Drive,UpdateProfile))
 		Processed=TRUE;

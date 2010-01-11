@@ -384,7 +384,7 @@ string TryConvertVolumeGuidToDrivePath(const string& Path)
 
 				while (*Drive)
 				{
-					if (GetVolumeNameForVolumeMountPointW(Drive, VolumeGuid, countof(VolumeGuid)))
+					if (GetVolumeNameForVolumeMountPoint(Drive, VolumeGuid, countof(VolumeGuid)))
 					{
 						if (Path.Equal(0, VolumeGuid, cVolumeGuidLen))
 						{

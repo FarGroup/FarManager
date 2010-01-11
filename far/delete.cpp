@@ -62,8 +62,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static void ShellDeleteMsg(const wchar_t *Name,int Wipe,int Percent);
 static int AskDeleteReadOnly(const wchar_t *Name,DWORD Attr,int Wipe);
-static int ShellRemoveFile(const wchar_t *Name,const wchar_t *ShortName,int Wipe);
-static int ERemoveDirectory(const wchar_t *Name,const wchar_t *ShortName,int Wipe);
+static int ShellRemoveFile(const wchar_t *Name,int Wipe);
+static int ERemoveDirectory(const wchar_t *Name,int Wipe);
 static int RemoveToRecycleBin(const wchar_t *Name);
 static int WipeFile(const wchar_t *Name);
 static int WipeDirectory(const wchar_t *Name);
@@ -435,15 +435,6 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 							ShellDeleteMsg(strFullName,Wipe,Opt.DelOpt.DelShowTotal?(ItemsCount?(ProcessedItems*100/ItemsCount):0):-1);
 						}
 
-						string strShortName;
-						strShortName = strFullName;
-
-						if (!FindData.strAlternateFileName.IsEmpty())
-						{
-							CutToNameUNC(strShortName);
-							strShortName += FindData.strAlternateFileName; //???
-						}
-
 						if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 						{
 							if (FindData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
@@ -451,7 +442,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 								if (FindData.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
 									apiSetFileAttributes(strFullName,FILE_ATTRIBUTE_NORMAL);
 
-								int MsgCode=ERemoveDirectory(strFullName,strShortName,Wipe);
+								int MsgCode=ERemoveDirectory(strFullName,Wipe);
 
 								if (MsgCode==DELETE_CANCEL)
 								{
@@ -500,7 +491,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 								if (FindData.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
 									apiSetFileAttributes(strFullName,FILE_ATTRIBUTE_NORMAL);
 
-								int MsgCode=ERemoveDirectory(strFullName,strShortName,Wipe);
+								int MsgCode=ERemoveDirectory(strFullName,Wipe);
 
 								if (MsgCode==DELETE_CANCEL)
 								{
@@ -527,7 +518,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 							}
 
 							if (AskCode==DELETE_YES)
-								if (ShellRemoveFile(strFullName,strShortName,Wipe)==DELETE_CANCEL)
+								if (ShellRemoveFile(strFullName,Wipe)==DELETE_CANCEL)
 								{
 									Cancel=true;
 									break;
@@ -547,7 +538,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 					// симлинка в корзину чревато потерей оригинала.
 					if (DirSymLink || !Opt.DeleteToRecycleBin || Wipe)
 					{
-						DeleteCode=ERemoveDirectory(strSelName,strSelShortName,Wipe);
+						DeleteCode=ERemoveDirectory(strSelName,Wipe);
 
 						if (DeleteCode==DELETE_CANCEL)
 							break;
@@ -585,7 +576,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 
 				if (AskCode==DELETE_YES)
 				{
-					int DeleteCode=ShellRemoveFile(strSelName,strSelShortName,Wipe);
+					int DeleteCode=ShellRemoveFile(strSelName,Wipe);
 
 					if (DeleteCode==DELETE_SUCCESS && UpdateDiz)
 					{
@@ -698,7 +689,7 @@ int AskDeleteReadOnly(const wchar_t *Name,DWORD Attr,int Wipe)
 
 
 
-int ShellRemoveFile(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
+int ShellRemoveFile(const wchar_t *Name,int Wipe)
 {
 	ProcessedItems++;
 	string strFullName;
@@ -741,7 +732,7 @@ int ShellRemoveFile(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
 					SkipWipeMode=0;
 				case 0:
 
-					if (WipeFile(Name)||WipeFile(ShortName))
+					if (WipeFile(Name))
 						return DELETE_SUCCESS;
 			}
 		}
@@ -785,7 +776,7 @@ int ShellRemoveFile(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
 }
 
 
-int ERemoveDirectory(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
+int ERemoveDirectory(const wchar_t *Name,int Wipe)
 {
 	ProcessedItems++;
 	string strFullName;
@@ -795,10 +786,10 @@ int ERemoveDirectory(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
 	{
 		if (Wipe)
 		{
-			if (WipeDirectory(Name) || (_localLastError != ERROR_ACCESS_DENIED && WipeDirectory(ShortName)))
+			if (WipeDirectory(Name))
 				break;
 		}
-		else if (apiRemoveDirectory(Name) || (_localLastError != ERROR_ACCESS_DENIED && apiRemoveDirectory(ShortName)))
+		else if (apiRemoveDirectory(Name))
 			break;
 
 		int MsgCode;
@@ -880,7 +871,7 @@ int RemoveToRecycleBin(const wchar_t *Name)
 		while (ScTree.GetNextName(&FindData,strFullName2))
 		{
 			if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY && FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
-				ERemoveDirectory(strFullName2,FindData.strAlternateFileName,FALSE);
+				ERemoveDirectory(strFullName2,FALSE);
 		}
 	}
 

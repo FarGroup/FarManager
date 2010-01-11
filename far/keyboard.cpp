@@ -1941,8 +1941,7 @@ BOOL WINAPI KeyToText(int Key0, string &strKeyText0)
 				{
 					FKey=Upper((wchar_t)Key&0xFFFF);
 
-					wchar_t KeyText[2];
-					KeyText[0]=KeyText[1] = 0;
+					wchar_t KeyText[2]={0};
 
 					if (FKey >= L'A' && FKey <= L'Z')
 					{

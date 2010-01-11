@@ -1207,7 +1207,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 			if (Text)
 			{
-				strText = (const wchar_t *)Text;
+				strText = Text;
 				xf_free(Text);
 			}
 

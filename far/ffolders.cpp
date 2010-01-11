@@ -248,7 +248,7 @@ static int ShowFolderShortcutMenu(int Pos)
 					strOldNewDir = strNewDir;
 
 					if (GetString(MSG(MFolderShortcutsTitle),MSG(MEnterShortcut),NULL,
-					              strNewDir,strNewDir,HelpFolderShortcuts,FIB_BUTTONS/*|FIB_EDITPATH*/) &&
+					              strNewDir,strNewDir,HelpFolderShortcuts,FIB_BUTTONS|FIB_EDITPATH) &&
 					        StrCmp(strNewDir,strOldNewDir) != 0)
 					{
 						Unquote(strNewDir);

@@ -238,7 +238,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 	wchar_t SplitLine[2*MAX_HELP_STRING_LENGTH+8],*Ptr;
 	int Formatting=TRUE,RepeatLastLine,PosTab,BreakProcess;
 	const int MaxLength=X2-X1-1;
-	wchar_t TabSpace[32]; //BUGBUG
+	string strTabSpace;
 	string strPath;
 
 	if (StackData.strHelpTopic.At(0)==HelpBeginLink)
@@ -338,16 +338,19 @@ int Help::ReadHelp(const wchar_t *Mask)
 	int NearTopicFound=0;
 	wchar_t PrevSymbol=0;
 
-	for (size_t i = 0; i < countof(TabSpace); i++)
-		TabSpace[i] = L' ';
+	LPWSTR TabSpace=strTabSpace.GetBuffer(CtrlTabSize+1);
+	for (int i=0; i < CtrlTabSize; i++)
+	{
+		TabSpace[i]=L' ';
+	}
+	strTabSpace.ReleaseBuffer(CtrlTabSize);
 
-	TabSpace[countof(TabSpace)-1]=0;
 	StartPos = (DWORD)-1;
 	LastStartPos = (DWORD)-1;
 	int RealMaxLength;
 	bool MacroProcess=false;
 	int MI=0;
-	wchar_t MacroArea[64];
+	string strMacroArea;
 
 	for (;;)
 	{
@@ -379,7 +382,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 			string strKeyName;
 			string strOutTemp;
 
-			if (CtrlObject->Macro.GetMacroKeyInfo(true,CtrlObject->Macro.GetSubKey(MacroArea),MI,strKeyName,strDescription) == -1)
+			if (CtrlObject->Macro.GetMacroKeyInfo(true,CtrlObject->Macro.GetSubKey(strMacroArea),MI,strKeyName,strDescription) == -1)
 			{
 				MacroProcess=false;
 				MI=0;
@@ -424,7 +427,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 			PosTab=(int)(Ptr-ReadStr+1);
 
 			if (CtrlTabSize > 1) // заменим табулятор по всем праивилам
-				InsertString(ReadStr,PosTab,TabSpace, CtrlTabSize - (PosTab % CtrlTabSize));
+				InsertString(ReadStr,PosTab,strTabSpace, CtrlTabSize - (PosTab % CtrlTabSize));
 
 			if (StrLength(ReadStr) > (int)(countof(ReadStr)/2))
 				break;
@@ -497,7 +500,7 @@ m1:
 						continue;
 
 					LPtr[-1]=0;
-					xwcsncpy(MacroArea,ReadStr+8,countof(MacroArea)-1);
+					strMacroArea=ReadStr+8;
 					MacroProcess=true;
 					MI=0;
 					continue;

@@ -836,10 +836,9 @@ void HiText(const wchar_t *Str,int HiColor,int isVertText)
 
 			if (ChPtr[1])
 			{
-				wchar_t Chr[2];
+				wchar_t Chr[]={ChPtr[1],0};
 				SaveColor=CurColor;
 				SetColor(HiColor);
-				Chr[0]=ChPtr[1]; Chr[1]=0;
 
 				if (isVertText)
 					VText(Chr);
@@ -1252,8 +1251,7 @@ string& HiText2Str(string& strDest, const wchar_t *Str)
 
 			if (ChPtr[1])
 			{
-				wchar_t Chr[2];
-				Chr[0]=ChPtr[1]; Chr[1]=0;
+				wchar_t Chr[]={ChPtr[1],0};
 				strDest+=Chr;
 				string strText = (ChPtr+1);
 				ReplaceStrings(strText,L"&&",L"&",-1);

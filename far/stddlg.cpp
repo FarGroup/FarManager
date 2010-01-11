@@ -294,7 +294,7 @@ int WINAPI GetSearchReplaceString(
 			SearchDlg[2].Flags&=~DIF_HISTORY;
 		}
 		else
-			SearchDlg[2].History=(const wchar_t*)TextHistoryName;
+			SearchDlg[2].History=TextHistoryName;
 
 		SearchDlg[2].strData = *pSearchStr;
 
@@ -478,14 +478,14 @@ int WINAPI GetString(
 		/*      Type          X1 Y1 X2  Y2 Focus Flags             DefaultButton
 		                                      Selected               Data
 		*/
-		/* 0 */ DI_DOUBLEBOX, 3, 1, 72, 4, 0, 0, 0,                0,L"",
-		/* 1 */ DI_TEXT,      5, 2,  0, 2, 0, 0, DIF_SHOWAMPERSAND,0,L"",
-		/* 2 */ DI_EDIT,      5, 3, 70, 3, 1, 0, 0,                1,L"",
-		/* 3 */ DI_TEXT,      0, 4,  0, 4, 0, 0, DIF_SEPARATOR,    0,L"",
-		/* 4 */ DI_CHECKBOX,  5, 5,  0, 5, 0, 0, 0,                0,L"",
-		/* 5 */ DI_TEXT,      0, 6,  0, 6, 0, 0, DIF_SEPARATOR,    0,L"",
-		/* 6 */ DI_BUTTON,    0, 7,  0, 7, 0, 0, DIF_CENTERGROUP,  0,L"",
-		/* 7 */ DI_BUTTON,    0, 7,  0, 7, 0, 0, DIF_CENTERGROUP,  0,L""
+		/* 0 */ DI_DOUBLEBOX, 3, 1, 72, 4, 0, 0, 0,                                0,L"",
+		/* 1 */ DI_TEXT,      5, 2,  0, 2, 0, 0, DIF_SHOWAMPERSAND,                0,L"",
+		/* 2 */ DI_EDIT,      5, 3, 70, 3, 1, 0, Flags&FIB_EDITPATH?DIF_EDITPATH:0,1,L"",
+		/* 3 */ DI_TEXT,      0, 4,  0, 4, 0, 0, DIF_SEPARATOR,                    0,L"",
+		/* 4 */ DI_CHECKBOX,  5, 5,  0, 5, 0, 0, 0,                                0,L"",
+		/* 5 */ DI_TEXT,      0, 6,  0, 6, 0, 0, DIF_SEPARATOR,                    0,L"",
+		/* 6 */ DI_BUTTON,    0, 7,  0, 7, 0, 0, DIF_CENTERGROUP,                  0,L"",
+		/* 7 */ DI_BUTTON,    0, 7,  0, 7, 0, 0, DIF_CENTERGROUP,                  0,L""
 	};
 	MakeDialogItemsEx(StrDlgData,StrDlg);
 

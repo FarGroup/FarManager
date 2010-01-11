@@ -491,24 +491,11 @@ CopyProgress *CP;
 int CmpFullNames(const wchar_t *Src,const wchar_t *Dest)
 {
 	string strSrcFullName, strDestFullName;
-	size_t I;
+
 	// получим полные пути с учетом символических связей
 	ConvertNameToReal(Src, strSrcFullName);
 	ConvertNameToReal(Dest, strDestFullName);
-	wchar_t *lpwszSrc = strSrcFullName.GetBuffer();
-
-	// уберем мусор из имен
-	for (I=strSrcFullName.GetLength()-1; I>0 && lpwszSrc[I]==L'.'; I--)
-		lpwszSrc[I]=0;
-
-	strSrcFullName.ReleaseBuffer();
 	DeleteEndSlash(strSrcFullName);
-	wchar_t *lpwszDest = strDestFullName.GetBuffer();
-
-	for (I=strDestFullName.GetLength()-1; I>0 && lpwszDest[I]==L'.'; I--)
-		lpwszDest[I]=0;
-
-	strDestFullName.ReleaseBuffer();
 	DeleteEndSlash(strDestFullName);
 
 	// избавимся от коротких имен
@@ -539,23 +526,10 @@ string& GetParentFolder(const wchar_t *Src, string &strDest)
 int CmpFullPath(const wchar_t *Src, const wchar_t *Dest)
 {
 	string strSrcFullName, strDestFullName;
-	size_t I;
+
 	GetParentFolder(Src, strSrcFullName);
 	GetParentFolder(Dest, strDestFullName);
-	wchar_t *lpwszSrc = strSrcFullName.GetBuffer();
-
-	// уберем мусор из имен
-	for (I=strSrcFullName.GetLength()-1; I>0 && lpwszSrc[I]==L'.'; I--)
-		lpwszSrc[I]=0;
-
-	strSrcFullName.ReleaseBuffer();
 	DeleteEndSlash(strSrcFullName);
-	wchar_t *lpwszDest = strDestFullName.GetBuffer();
-
-	for (I=strDestFullName.GetLength()-1; I>0 && lpwszDest[I]==L'.'; I--)
-		lpwszDest[I]=0;
-
-	strDestFullName.ReleaseBuffer();
 	DeleteEndSlash(strDestFullName);
 
 	// избавимся от коротких имен

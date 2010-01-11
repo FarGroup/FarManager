@@ -342,8 +342,8 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	*/
 #ifdef _MSC_VER
 	float x=1.1f;
-	char buf[15];
-	sprintf(buf,"%f",x);
+	wchar_t buf[15];
+	wsprintf(buf,L"%f",x);
 #endif
 	// если под дебагером, то отключаем исключения однозначно,
 	//  иначе - смотря что указал юзвер.

@@ -784,7 +784,7 @@ void Viewer::ShowHex()
 				else
 				{
 					char NewCh;
-					WideCharToMultiByte(VM.CodePage, 0, (const wchar_t*)&Ch,1, &NewCh,1," ",NULL);
+					WideCharToMultiByte(VM.CodePage, 0, &Ch,1, &NewCh,1," ",NULL);
 					int OutStrLen=StrLength(OutStr);
 					_snwprintf(OutStr+OutStrLen,countof(OutStr)-OutStrLen,L"%02X ", NewCh);
 

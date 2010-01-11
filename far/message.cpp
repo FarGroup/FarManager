@@ -87,13 +87,8 @@ int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str11,const wchar_t *Str12,const wchar_t *Str13,
             const wchar_t *Str14,INT_PTR PluginNumber)
 {
-	int StrCount;
-	const wchar_t *Str[14];
-	Str[0]=Str1;   Str[1]=Str2;   Str[2]=Str3;   Str[3]=Str4;
-	Str[4]=Str5;   Str[5]=Str6;   Str[6]=Str7;   Str[7]=Str8;
-	Str[8]=Str9;   Str[9]=Str10;  Str[10]=Str11; Str[11]=Str12;
-	Str[12]=Str13; Str[13]=Str14;
-	StrCount=0;
+	const wchar_t *Str[]={Str1,Str2,Str3,Str4,Str5,Str6,Str7,Str8,Str9,Str10,Str11,Str12,Str13,Str14};
+	int StrCount=0;
 
 	while (StrCount<(int)countof(Str) && Str[StrCount]!=NULL)
 		StrCount++;

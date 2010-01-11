@@ -110,4 +110,5 @@ class CommandLine:public ScreenObject
 		void ShowBackground();
 		void CorrectRealScreenCoord();
 		void LockUpdatePanel(int Mode) {Flags.Change(FCMDOBJ_LOCKUPDATEPANEL,Mode);};
+		void ShowEdit();
 };

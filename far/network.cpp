@@ -154,14 +154,7 @@ string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName)
 	}
 	else
 	{
-		/* $ 28.03.2002 KM
-		   - Падение VC на
-		     char *LocalName="A:";
-		     *LocalName=*CurDir;
-		     Так как память в LocalName ReadOnly.
-		*/
-		wchar_t LocalName[3];
-		xwcsncpy(LocalName, CurDir, 2);
+		wchar_t LocalName[]={CurDir[0],CurDir[1],0};
 		apiWNetGetConnection(LocalName, strNetDir);
 	}
 

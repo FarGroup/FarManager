@@ -87,6 +87,15 @@ void CommandLine::SetDelRemovesBlocks(int Mode)
 	CmdStr.SetDelRemovesBlocks(Mode);
 }
 
+void CommandLine::ShowEdit()
+{
+	if(CmdStr.X2-CmdStr.X1+1>CmdStr.GetLength())
+	{
+		CmdStr.SetLeftPos(0);
+	}
+	CmdStr.Show();
+}
+
 void CommandLine::DisplayObject()
 {
 	_OT(SysLog(L"[%p] CommandLine::DisplayObject()",this));
@@ -97,9 +106,15 @@ void CommandLine::DisplayObject()
 	SetColor(COL_COMMANDLINEPREFIX);
 	Text(strTruncDir);
 	CmdStr.SetObjectColor(COL_COMMANDLINE,COL_COMMANDLINESELECTED);
-	//CmdStr.SetLeftPos(0);
+
 	CmdStr.SetPosition(X1+(int)strTruncDir.GetLength(),Y1,X2,Y2);
-	CmdStr.Show();
+
+	if(CmdStr.X2-CmdStr.X1+1>CmdStr.GetLength())
+	{
+		CmdStr.SetLeftPos(0);
+	}
+
+	ShowEdit();
 }
 
 
@@ -326,7 +341,7 @@ int CommandLine::ProcessKey(int Key)
 		{
 			Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 			CmdStr.Select(-1,0);
-			CmdStr.Show();
+			ShowEdit();
 			CmdStr.GetString(strStr);
 
 			if (strStr.IsEmpty())
@@ -345,7 +360,7 @@ int CommandLine::ProcessKey(int Key)
 		return(TRUE);
 		case KEY_CTRLU:
 			CmdStr.Select(-1,0);
-			CmdStr.Show();
+			ShowEdit();
 			return(TRUE);
 		case KEY_OP_XLAT:
 		{
@@ -462,7 +477,7 @@ int CommandLine::ProcessKey(int Key)
 								ComplMenu.SetBoxType(SHORT_SINGLE_BOX);
 								ComplMenu.ClearDone();
 								ComplMenu.Show();
-								CmdStr.Show();
+								ShowEdit();
 								int PrevPos=0;
 
 								while (!ComplMenu.Done())
@@ -476,7 +491,7 @@ int CommandLine::ProcessKey(int Key)
 										{
 											PrevPos=CurPos;
 											CmdStr.SetString(CurPos?ComplMenu.GetItemPtr(CurPos)->strName:strTemp);
-											CmdStr.Show();
+											ShowEdit();
 										}
 									}
 									if(ir.EventType==WINDOW_BUFFER_SIZE_EVENT)
@@ -489,39 +504,44 @@ int CommandLine::ProcessKey(int Key)
 										int Key=InputRecordToKey(&ir);
 
 										// ввод
-										if((Key >= L' ' && Key <= WCHAR_MAX) || Key==KEY_BS || Key==KEY_DEL)
+										if((Key >= L' ' && Key <= WCHAR_MAX) || Key==KEY_BS || Key==KEY_DEL || Key==KEY_NUMDEL)
 										{
+											string strPrev;
+											CmdStr.GetString(strPrev);
 											CmdStr.ProcessKey(Key);
 											CmdStr.GetString(strTemp);
-											ComplMenu.DeleteItems();
-											PrevPos=0;
-											if(!strTemp.IsEmpty())
+											if(StrCmp(strPrev,strTemp))
 											{
-												CtrlObject->CmdHistory->GetAllSimilar(ComplMenu,strTemp);
-											}
-											EnumFiles(ComplMenu,strTemp);
-											if(!ComplMenu.GetItemCount())
-											{
-												ComplMenu.SetExitCode(-1);
-											}
-											else
-											{
-												if(Key!=KEY_BS && Opt.AutoComplete.AppendCompletion)
+												ComplMenu.DeleteItems();
+												PrevPos=0;
+												if(!strTemp.IsEmpty())
 												{
-													int SelStart=CmdStr.GetLength();
-													CmdStr.InsertString(ComplMenu.GetItemPtr(0)->strName+CmdStr.GetLength());
-													CmdStr.Select(SelStart, CmdStr.GetLength());
+													CtrlObject->CmdHistory->GetAllSimilar(ComplMenu,strTemp);
 												}
+												EnumFiles(ComplMenu,strTemp);
+												if(!ComplMenu.GetItemCount())
+												{
+													ComplMenu.SetExitCode(-1);
+												}
+												else
+												{
+													if(Key!=KEY_BS && Key!=KEY_DEL && Key!=KEY_NUMDEL && Opt.AutoComplete.AppendCompletion)
+													{
+														int SelStart=CmdStr.GetLength();
+														CmdStr.InsertString(ComplMenu.GetItemPtr(0)->strName+CmdStr.GetLength());
+														CmdStr.Select(SelStart, CmdStr.GetLength());
+													}
 
-												MenuItemEx EmptyItem={0};
-												ComplMenu.AddItem(&EmptyItem,0);
+													MenuItemEx EmptyItem={0};
+													ComplMenu.AddItem(&EmptyItem,0);
 
-												ComplMenu.SetPosition(CmdStr.X1,CmdStr.Y1-2-Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount()),CmdStr.X2-2,CmdStr.Y1-1);
+													ComplMenu.SetPosition(CmdStr.X1,CmdStr.Y1-2-Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount()),CmdStr.X2-2,CmdStr.Y1-1);
 
-												ComplMenu.SetSelectPos(0,0);
-												ComplMenu.Redraw();
+													ComplMenu.SetSelectPos(0,0);
+													ComplMenu.Redraw();
+												}
+												ShowEdit();
 											}
-											CmdStr.Show();
 										}
 										else
 										{
@@ -645,7 +665,7 @@ void CommandLine::SetString(const wchar_t *Str,BOOL Redraw)
 	CmdStr.SetLeftPos(0);
 
 	if (Redraw)
-		CmdStr.Show();
+		ShowEdit();
 }
 
 
@@ -661,7 +681,7 @@ void CommandLine::InsertString(const wchar_t *Str)
 {
 	LastCmdPartLength=-1;
 	CmdStr.InsertString(Str);
-	CmdStr.Show();
+	ShowEdit();
 }
 
 

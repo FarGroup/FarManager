@@ -640,9 +640,7 @@ int TreeList::GetCacheTreeName(const wchar_t *Root, string &strName,int CreateDi
 		strRemoteName = Root;
 	else
 	{
-		wchar_t wszLocalName [10];
-		wcscpy(wszLocalName, L"A:");
-		*wszLocalName=*Root;
+		wchar_t wszLocalName[]={*Root,L':',0};
 		apiWNetGetConnection(wszLocalName, strRemoteName);
 
 		if (!strRemoteName.IsEmpty())
@@ -1721,7 +1719,7 @@ void TreeList::RenTreeName(const wchar_t *SrcName,const wchar_t *DestName)
 		if (StrCmpNI(SrcName,DirName,SrcLength) == 0 && (DirName[SrcLength] == 0 || IsSlash(DirName[SrcLength])))
 		{
 			string strNewName = DestName;
-			strNewName += (const wchar_t*)(DirName + SrcLength);
+			strNewName += DirName + SrcLength;
 
 			if (TreeCache.ListName[CachePos])
 				xf_free(TreeCache.ListName[CachePos]);

@@ -4079,7 +4079,7 @@ bool FileList::ApplyCommand()
 	string strCommand;
 	bool isSilent=false;
 
-	if (!GetString(MSG(MAskApplyCommandTitle),MSG(MAskApplyCommand),L"ApplyCmd",strPrevCommand,strCommand,L"ApplyCmd",FIB_BUTTONS) || !SetCurPath())
+	if (!GetString(MSG(MAskApplyCommandTitle),MSG(MAskApplyCommand),L"ApplyCmd",strPrevCommand,strCommand,L"ApplyCmd",FIB_BUTTONS|FIB_EDITPATH) || !SetCurPath())
 		return false;
 
 	strPrevCommand = strCommand;

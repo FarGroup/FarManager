@@ -1011,7 +1011,7 @@ void ReadConfig()
 	DWORD OptPolicies_ShowHiddenDrives,  OptPolicies_DisabledOptions;
 	string strKeyNameFromReg;
 	string strPersonalPluginsPath;
-	size_t I;
+
 	/* <ПРЕПРОЦЕССЫ> *************************************************** */
 	// "Вспомним" путь для дополнительного поиска плагинов
 	SetRegRootKey(HKEY_LOCAL_MACHINE);
@@ -1027,7 +1027,7 @@ void ReadConfig()
 	//Opt.LCIDSort=LOCALE_USER_DEFAULT; // проинициализируем на всякий случай
 	/* *************************************************** </ПРЕПРОЦЕССЫ> */
 
-	for (I=0; I < countof(CFG); ++I)
+	for (size_t I=0; I < countof(CFG); ++I)
 	{
 		switch (CFG[I].ValType)
 		{
@@ -1056,7 +1056,7 @@ void ReadConfig()
 
 	Opt.HelpTabSize=8; // пока жестко пропишем...
 	//   Уточняем алгоритм "взятия" палитры.
-	for (I=COL_PRIVATEPOSITION_FOR_DIF165ABOVE-COL_FIRSTPALETTECOLOR+1;
+	for (size_t I=COL_PRIVATEPOSITION_FOR_DIF165ABOVE-COL_FIRSTPALETTECOLOR+1;
 	        I < (COL_LASTPALETTECOLOR-COL_FIRSTPALETTECOLOR);
 	        ++I)
 	{
@@ -1138,7 +1138,7 @@ void ReadConfig()
 			UserDefinedList DestList;
 			DestList.SetParameters(L';',0,ULF_UNIQUE);
 			DestList.Set(strXLatLayouts);
-			I=0;
+			size_t I=0;
 
 			while (NULL!=(ValPtr=DestList.GetNext()))
 			{

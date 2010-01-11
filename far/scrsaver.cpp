@@ -69,9 +69,7 @@ static wchar_t StarSymbol[5][2]=
 
 static void ShowSaver(int Step)
 {
-	size_t I;
-
-	for (I=0; I<countof(Star); I++)
+	for (size_t I=0; I<countof(Star); I++)
 		if (Star[I].Type!=STAR_NONE && (Step%Star[I].Speed)==0)
 		{
 			SetColor(F_LIGHTCYAN|B_BLACK);
@@ -135,7 +133,7 @@ static void ShowSaver(int Step)
 			}
 		}
 
-	for (I=0; I<countof(Star); I++)
+	for (size_t I=0; I<countof(Star); I++)
 		if (Star[I].Type==STAR_NONE)
 		{
 			static const int Colors[]={F_MAGENTA,F_RED,F_BLUE};

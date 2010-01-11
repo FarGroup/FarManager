@@ -121,6 +121,11 @@ void DlgEdit::SetPosition(int X1,int Y1,int X2,int Y2)
 
 void DlgEdit::Show()
 {
+	if(lineEdit->X2-lineEdit->X1+1>lineEdit->GetLength())
+	{
+		lineEdit->SetLeftPos(0);
+	}
+
 #if defined(PROJECT_DI_MEMOEDIT)
 
 	if (Type == DLGEDIT_MULTILINE)

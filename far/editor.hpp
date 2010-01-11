@@ -353,7 +353,7 @@ class Editor:public ScreenObject
 		void SetSearchPickUpWord(int NewMode) {EdOpt.SearchPickUpWord=NewMode;}
 
 		void SetWordDiv(const wchar_t *WordDiv) { EdOpt.strWordDiv = WordDiv; }
-		const wchar_t *GetWordDiv() { return (const wchar_t*)EdOpt.strWordDiv; }
+		const wchar_t *GetWordDiv() { return EdOpt.strWordDiv; }
 
 		void SetShowWhiteSpace(int NewMode);
 

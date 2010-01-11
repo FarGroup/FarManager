@@ -1329,7 +1329,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 				case MCODE_V_MENU_VALUE: // Menu.Value
 				{
 					int CurMMode=GetMode();
-					Cond=(const wchar_t*)L"";
+					Cond=L"";
 
 					if (CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS || CurMMode == MACRO_USERMENU)
 					{
@@ -1521,10 +1521,10 @@ static BOOL SplitFileName(const wchar_t *lpFullName,string &strDest,int nFlags)
 #define FLAG_PATH   2
 #define FLAG_NAME   4
 #define FLAG_EXT    8
-	wchar_t *s = (wchar_t*)lpFullName; //start of sub-string
-	wchar_t *p = s; //current string pointer
-	wchar_t *es = s+StrLength(s); //end of string
-	wchar_t *e; //end of sub-string
+	const wchar_t *s = lpFullName; //start of sub-string
+	const wchar_t *p = s; //current string pointer
+	const wchar_t *es = s+StrLength(s); //end of string
+	const wchar_t *e; //end of sub-string
 
 	if (!*p)
 		return FALSE;
@@ -1611,7 +1611,7 @@ static BOOL SplitFileName(const wchar_t *lpFullName,string &strDest,int nFlags)
 
 	if (nFlags & FLAG_NAME)
 	{
-		wchar_t *ptr=wcspbrk(s,L":");
+		const wchar_t *ptr=wcspbrk(s,L":");
 
 		if (ptr)
 			s=ptr+1;
@@ -2038,7 +2038,7 @@ static bool _fattrFunc(int Type)
 		TVar S;
 		VMStack.Pop(S);
 		int typePanel=(int)VMStack.Pop().getInteger();
-		wchar_t *Str = (wchar_t *)S.toString();
+		const wchar_t *Str = S.toString();
 		Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 		Panel *PassivePanel=NULL;
 
@@ -3752,19 +3752,14 @@ done:
 
 				if (f && (Result=f->VMProcess(MCODE_F_MENU_GETHOTKEY,NULL,tmpVar.i()-1)) != 0)
 				{
-					wchar_t _value[2];
-					_value[0]=_value[1]=0;
-
-					if (Result)
-						_value[0]=(wchar_t)Result;
-
-					tmpVar=(const wchar_t*)_value;
+					const wchar_t _value[]={static_cast<wchar_t>(Result),0};
+					tmpVar=_value;
 				}
 				else
-					tmpVar=(const wchar_t*)L"";
+					tmpVar=L"";
 			}
 			else
-				tmpVar=(const wchar_t*)L"";
+				tmpVar=L"";
 
 			VMStack.Push(tmpVar);
 			goto begin;
@@ -5402,7 +5397,7 @@ int KeyMacro::GetRecordSize(int Key, int CheckMode)
 // получить название моды по коду
 const wchar_t* KeyMacro::GetSubKey(int Mode)
 {
-	return (const wchar_t *)((Mode >= MACRO_FUNCS && Mode < MACRO_LAST)?MKeywordsArea[Mode+3].Name:L"");
+	return (Mode >= MACRO_FUNCS && Mode < MACRO_LAST)?MKeywordsArea[Mode+3].Name:L"";
 }
 
 // получить код моды по имени

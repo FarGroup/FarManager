@@ -4282,7 +4282,7 @@
 						Description="Generating language files based on $(InputFileName)…"
 						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputDir)$(InputFileName)&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
-						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\*.lng"
+						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4293,7 +4293,7 @@
 						Description="Generating language files based on $(InputFileName)…"
 						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputDir)$(InputFileName)&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
-						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\*.lng"
+						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4304,7 +4304,7 @@
 						Description="Generating language files based on $(InputFileName)…"
 						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputDir)$(InputFileName)&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
-						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\*.lng"
+						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4312,10 +4312,10 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						Description="Generating language files based on $(InputDir)$(InputFileName)…"
+						Description="Generating language files based on $(InputFileName)…"
 						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputDir)$(InputFileName)&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
-						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\*.lng"
+						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4326,7 +4326,7 @@
 						Description="Generating language files based on $(InputFileName)…"
 						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputDir)$(InputFileName)&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
-						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\*.lng"
+						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4337,7 +4337,7 @@
 						Description="Generating language files based on $(InputFileName)…"
 						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputDir)$(InputFileName)&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
-						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\*.lng"
+						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng"
 					/>
 				</FileConfiguration>
 			</File>

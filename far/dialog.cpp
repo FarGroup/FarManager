@@ -3102,7 +3102,7 @@ int Dialog::ProcessKey(int Key)
 
 						if (!(Item[FocusPos]->Flags & DIF_NOAUTOCOMPLETE))
 							if (CtrlObject->Macro.GetCurRecord(NULL,NULL) == MACROMODE_NOMACRO &&
-							        ((Item[FocusPos]->Flags & DIF_HISTORY) || Item[FocusPos]->Type == DI_COMBOBOX))
+							        ((Item[FocusPos]->Flags & (DIF_HISTORY|DIF_EDITPATH)) || Item[FocusPos]->Type == DI_COMBOBOX))
 								if ((Opt.Dialogs.AutoComplete && Key && Key < 0x10000 && Key != KEY_BS && !(Key == KEY_DEL||Key == KEY_NUMDEL)) ||
 								        (!Opt.Dialogs.AutoComplete && (Key == KEY_CTRLEND || Key == KEY_CTRLNUMPAD1))
 								   )
@@ -4192,66 +4192,73 @@ bool Dialog::AutoComplete(string &strFindStr)
 					int Key=InputRecordToKey(&ir);
 
 					// ввод
-					if((Key >= L' ' && Key <= WCHAR_MAX) || Key==KEY_BS || Key==KEY_DEL)
+					if((Key >= L' ' && Key <= WCHAR_MAX) || Key==KEY_BS || Key==KEY_DEL || Key==KEY_NUMDEL)
 					{
+						string strPrev;
+						EditLine->GetString(strPrev);
 						IsEnableRedraw--;
 						EditLine->ProcessKey(Key);
 						IsEnableRedraw++;
 						EditLine->GetString(strTemp);
-						ComplMenu.DeleteItems();
-						PrevPos=0;
-						if(!strTemp.IsEmpty())
+						if(StrCmp(strPrev,strTemp))
 						{
-							if(Item[FocusPos]->Type==DI_EDIT)
+							ComplMenu.DeleteItems();
+							PrevPos=0;
+							if(!strTemp.IsEmpty())
 							{
-								DlgHist->GetAllSimilar(ComplMenu,strTemp);
-							}
-							else
-							{
-								for(int i=0;i<Item[FocusPos]->ListItems->ItemsNumber;i++)
+								if(Item[FocusPos]->Type==DI_EDIT)
 								{
-									if (!StrCmpNI(Item[FocusPos]->ListItems->Items[i].Text, strTemp, static_cast<int>(strTemp.GetLength())) && StrCmp(Item[FocusPos]->ListItems->Items[i].Text, strTemp))
+									DlgHist->GetAllSimilar(ComplMenu,strTemp);
+								}
+								else
+								{
+									for(int i=0;i<Item[FocusPos]->ListItems->ItemsNumber;i++)
 									{
-										ComplMenu.AddItem(Item[FocusPos]->ListItems->Items[i].Text);
+										if (!StrCmpNI(Item[FocusPos]->ListItems->Items[i].Text, strTemp, static_cast<int>(strTemp.GetLength())) && StrCmp(Item[FocusPos]->ListItems->Items[i].Text, strTemp))
+										{
+											ComplMenu.AddItem(Item[FocusPos]->ListItems->Items[i].Text);
+										}
 									}
 								}
 							}
-						}
-						if(Item[FocusPos]->Flags&DIF_EDITPATH)
-						{
-							EnumFiles(ComplMenu,strTemp);
-						}
-						if(!ComplMenu.GetItemCount())
-						{
-							ComplMenu.SetExitCode(-1);
-						}
-						else
-						{
-							if(Key!=KEY_BS && Opt.AutoComplete.AppendCompletion)
+							if(Item[FocusPos]->Flags&DIF_EDITPATH)
 							{
-								int SelStart=EditLine->GetLength();
-								IsEnableRedraw--;
-								EditLine->InsertString(ComplMenu.GetItemPtr(0)->strName+EditLine->GetLength());
-								EditLine->Select(SelStart, EditLine->GetLength());
-								IsEnableRedraw++;
+								EnumFiles(ComplMenu,strTemp);
 							}
-
-							MenuItemEx EmptyItem={0};
-							ComplMenu.AddItem(&EmptyItem,0);
-
-							if(ScrY-(Y1+Item[FocusPos]->Y1)<Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount())+2 && (Y1+Item[FocusPos]->Y1)>ScrY/2)
+							if(!ComplMenu.GetItemCount())
 							{
-								ComplMenu.SetPosition(X1+Item[FocusPos]->X1,Max(0,Y1+Item[FocusPos]->Y1-1-Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount())-1),X1+Item[FocusPos]->X2,Y1+Item[FocusPos]->Y1-1);
+								ComplMenu.SetExitCode(-1);
 							}
 							else
 							{
-								ComplMenu.SetPosition(X1+Item[FocusPos]->X1,Y1+Item[FocusPos]->Y1+1,X1+Item[FocusPos]->X2,0);
-							}
+								if(Key!=KEY_BS && Key!=KEY_DEL && Key!=KEY_NUMDEL && Opt.AutoComplete.AppendCompletion)
+								{
+									int SelStart=EditLine->GetLength();
+									IsEnableRedraw--;
+									EditLine->InsertString(ComplMenu.GetItemPtr(0)->strName+EditLine->GetLength());
+									if(X2-X1>EditLine->GetLength())
+										EditLine->SetLeftPos(0);
+									EditLine->Select(SelStart, EditLine->GetLength());
+									IsEnableRedraw++;
+								}
 
-							ComplMenu.SetSelectPos(0,0);
-							ComplMenu.Redraw();
+								MenuItemEx EmptyItem={0};
+								ComplMenu.AddItem(&EmptyItem,0);
+
+								if(ScrY-(Y1+Item[FocusPos]->Y1)<Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount())+2 && (Y1+Item[FocusPos]->Y1)>ScrY/2)
+								{
+									ComplMenu.SetPosition(X1+Item[FocusPos]->X1,Max(0,Y1+Item[FocusPos]->Y1-1-Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount())-1),X1+Item[FocusPos]->X2,Y1+Item[FocusPos]->Y1-1);
+								}
+								else
+								{
+									ComplMenu.SetPosition(X1+Item[FocusPos]->X1,Y1+Item[FocusPos]->Y1+1,X1+Item[FocusPos]->X2,0);
+								}
+
+								ComplMenu.SetSelectPos(0,0);
+								ComplMenu.Redraw();
+							}
+							EditLine->Show();
 						}
-						EditLine->Show();
 					}
 					else
 					{

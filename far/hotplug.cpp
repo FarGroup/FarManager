@@ -377,7 +377,7 @@ DWORD GetDriveMaskFromMountPoints(DEVINST hDevInst)
 
 						if (GetVolumeNameForVolumeMountPoint(
 						            lpwszMountPoint,
-						            (wchar_t*)&wszVolumeName,
+						            wszVolumeName,
 						            MAX_PATH
 						        ))
 							dwMask |= DriveMaskFromVolumeName(wszVolumeName);

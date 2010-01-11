@@ -321,13 +321,12 @@ bool PluginA::Load()
 	if (!m_hModule)
 	{
 		string strCurPath, strCurPlugDiskPath;
-		wchar_t Drive[4];
-		Drive[0]=0; // ставим 0, как признак того, что вертать обратно ненадо!
+		wchar_t Drive[]={0,L' ',L':',0}; // ставим 0, как признак того, что вертать обратно ненадо!
 		apiGetCurrentDirectory(strCurPath);
 
 		if (IsLocalPath(m_strModuleName))  // если указан локальный путь, то...
 		{
-			wcscpy(Drive,L"= :");
+			Drive[0] = L'=';
 			Drive[1] = m_strModuleName.At(0);
 			apiGetEnvironmentVariable(Drive,strCurPlugDiskPath);
 		}

@@ -335,16 +335,16 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 	static int LastHItem=-1,LastVItem=0;
 	int HItem,VItem;
 	// дисаблим
-	CmdMenu[MENU_COMMANDS_HOTPLUGLIST].SetDisable(!ifn.bSetupAPIFunctions);
+	CmdMenu[MENU_COMMANDS_HOTPLUGLIST].SetGrayed(!ifn.bSetupAPIFunctions);
 
 	if (Opt.Policies.DisabledOptions)
 	{
 		for (size_t I = 0; I < countof(OptionsMenu); ++I)
 		{
 			if (I >= MENU_OPTIONS_CONFIRMATIONS)
-				OptionsMenu[I].SetDisable((Opt.Policies.DisabledOptions >> (I-1)) & 1);
+				OptionsMenu[I].SetGrayed((Opt.Policies.DisabledOptions >> (I-1)) & 1);
 			else
-				OptionsMenu[I].SetDisable((Opt.Policies.DisabledOptions >> I) & 1);
+				OptionsMenu[I].SetGrayed((Opt.Policies.DisabledOptions >> I) & 1);
 		}
 	}
 
