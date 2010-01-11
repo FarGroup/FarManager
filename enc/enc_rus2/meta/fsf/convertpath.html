@@ -98,7 +98,7 @@ int WINAPI ConvertPath(
 
 <p>Правильно:</p>
 <pre class=code>
-   wchar_t FullName = new wchar_t[MAX_PATH];
+   wchar_t *FullName = new wchar_t[MAX_PATH];
    size_t Size = FSF.ConvertPath(CPM_FULL, L"..\some_file", FullName, Size);
    if (Size > MAX_PATH)
    {
