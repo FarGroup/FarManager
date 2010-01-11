@@ -224,11 +224,12 @@ int CmpName_Body(const char *pattern,const char *string)
         }
         /* DJ $ */
 
-        while (*string)
+        do
         {
-          if (CmpName(pattern,string++,FALSE))
+          if (CmpName(pattern,string,FALSE))
             return(TRUE);
         }
+        while (*string++);
         return(FALSE);
       case '[':
         if (strchr(pattern,']')==NULL)
