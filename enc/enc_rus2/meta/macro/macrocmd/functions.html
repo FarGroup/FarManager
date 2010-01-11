@@ -45,6 +45,10 @@
     <td class="cont" width="40%">N=<dfn><a name="int">int</a></dfn>(V)</td>
     <td class="cont" width="60%">Приведение значения выражения <em>V</em> к числу.</td>
   </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="float">float</a></dfn>(V)</td>
+    <td class="cont" width="60%">Приведение значения выражения <em>V</em> к числу с плавающей точкой.</td>
+  </tr>
 
   <!-- -------------------------------------- -->
   <tr class="cont"><th class="cont" colspan=2>Строковые функции</th></tr>
@@ -53,20 +57,25 @@
     <th class="cont" width="60%">Описание</th>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="index">index</a></dfn>(S1,S2)</td>
-    <td class="cont" width="60%">Если подстрока <em>S2</em> содержится в строке <em>S1</em>,
-      то возвращается ее позиция, иначе -1.</td>
+    <td class="cont" width="40%">N=<dfn><a name="index">index</a></dfn>(S1,S2[,Mode])</td>
+    <td class="cont" width="60%">Если подстрока <em>S2</em> содержится в строке <em>S1</em>, то возвращается ее позиция, иначе -1.
+      <br>Необязательный параметр <em>Mode</em> задает режим сравнения: 0 (по умолчанию) - без учета регистра, 1 - с учетом регистра.
+      </td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="rindex">rindex</a></dfn>(S1,S2)</td>
+    <td class="cont" width="40%">N=<dfn><a name="rindex">rindex</a></dfn>(S1,S2[,Mode])</td>
     <td class="cont" width="60%">Если подстрока <em>S2</em> содержится в строке <em>S1</em>,
-      то возвращается ее позиция, иначе -1. Поиск ведется от конца строки <em>S1</em>.</td>
+      то возвращается ее позиция, иначе -1. Поиск ведется от конца строки <em>S1</em>.
+      <br>Необязательный параметр <em>Mode</em> задает режим сравнения: 0 (по умолчанию) - без учета регистра, 1 - с учетом регистра.
+      </td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">Result=<dfn><a name="replace">replace</a></dfn>(Str,Find,Replace[,Cnt])</td>
+    <td class="cont" width="40%">Result=<dfn><a name="replace">replace</a></dfn>(Str,Find,Replace[,Cnt[,Mode]])</td>
     <td class="cont" width="60%">В строке <em>Str</em> заменить подстроку <em>Find</em> на подстроку <em>Replace</em> <em>Cnt</em> раз
       (укажите <em>Cnt</em> равное 0 или опустите этот параметр для замены всех найденных подстрок).<br>
-      Возвращается результат замены.</td>
+      Возвращается результат замены.
+      <br>Необязательный параметр <em>Mode</em> задает режим сравнения: 0 (по умолчанию) - без учета регистра, 1 - с учетом регистра.
+      </td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="asc">asc</a></dfn>(S)</td>
@@ -89,7 +98,7 @@
     <td class="cont" width="60%">Конвертирует строковое представление строки <em>N</em> в число.
     Значение <em>Radix</em> определяет базу, которая будет использоваться при
     преобразовании строки <em>S</em>. Допустимые значения <em>Radix</em> от 2 до 36.<br>
-    Если параметр <em>Radix</em> не указан, то функция попытается сама определить в каком виде представлено строковое представление числа.
+    Если параметр <em>Radix</em> не указан или равен 0, то функция попытается сама определить в каком виде представлено строковое представление числа.
     </td>
   </tr>
   <tr class="cont">
@@ -322,7 +331,8 @@ panel.SetPath(0,"C:\\Program Files","FAR")</pre>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">B=<dfn><a name="msave">msave</a></dfn>(S)</td>
-    <td class="cont" width="60%">Сохраняет значение глобальной переменной с именем <em>S</em> в область <dfn>Vars</dfn>.
+    <td class="cont" width="60%">Сохраняет значение глобальной переменной с именем <em>S</em> в область <dfn>Vars</dfn>.<br>
+     Числовые значения с плавающей точкой сохраняются в реестре в виде строки.<br>
      В случае неудачи возвращает 0.<br>
      Например, <pre class=code>%%GlobalVars="Foo Bar"; %a=msave("%%GlobalVars");</pre>
     </td>
@@ -531,22 +541,23 @@ $End
     Если <em>S</em> - пустая строка, то функция вернет позицию элемента, который не содержит ни одной горячей клавиши.<br>
     Возвращает: -1 - если функция вызывана не из своей области (MainMenu, Menu, Disks, UserMenu и Dialog), 0 - ничего не найдено, > 0 - если в меню/диалоге/списке присутствует горячая
     клавиша <em>S</em>.<br>
-      <p>Например, в меню вызова плагинов (F11) плагину S&amp;R назначена
-      горячая клавиша '7'. Последовательность макрокоманды для редактора:
-      <pre class=code>F11 $if (checkhotkey(&quot;7&quot;)) 7 1 $else Esc AltF7 $end</pre>
-      вызовет плагин, если хоткей назначен или стандартный диалог
-      поиска, если хоткей не назначен.
+    В диалогах: если текущий элемент ListBox или открытый Combobox (или открытый History), то функция работает с этим элементов.<br>
+    <p>Например, в меню вызова плагинов (F11) плагину S&amp;R назначена
+    горячая клавиша '7'. Последовательность макрокоманды для редактора:
+    <pre class=code>F11 $if (checkhotkey(&quot;7&quot;)) 7 1 $else Esc AltF7 $end</pre>
+    вызовет плагин, если хоткей назначен или стандартный диалог
+    поиска, если хоткей не назначен.
    </td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">S=<dfn><a name="gethotkey">gethotkey</a></dfn>(N)</td>
+    <td class="cont" width="40%">S=<dfn><a name="gethotkey">gethotkey</a></dfn>([N])</td>
     <td class="cont" width="60%">Возвращает хоткей <em>S</em> для пункта <em>N</em>, если в меню присутствует горячая
       клавиша и текущий &quot;объект&quot; - меню. В противном случае (не меню; нет хоткея; N больше чем количество пунктов меню) возвращает 0.<br>
       Здесь <em>N</em> - позиция в списке от 1 (0 - текущая).
     </td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="menu.select">Menu.Select</a></dfn>(S[,N])</td>
+    <td class="cont" width="40%">N=<dfn><a name="menu.select">Menu.Select</a></dfn>(S[,N[,Dir]])</td>
     <td class="cont" width="60%">В меню позиционирует курсор на первый пункт, содержащий подстроку <em>S</em>.
     Поиск подстроки ведется в зависимости от указанного режима <em>N</em>:
        <table class="cont">
@@ -557,6 +568,7 @@ $End
         <tr class="cont"><td class="cont" width="40%">3</td><td class="cont" width="60%">присутствие подстроки <em>S</em> в пункте меню</td></tr>
        </table>
     Поиск регистронезависим. Если такого пункта нет, то ничего не делает.<br>
+    Параметр <em>Dir</em> задает направление поиска: 0 - от начала в конец списка, 1 - от текущей позиции в начало, 2 - от текущей позиции в конец списка пунктов меню.<br>
     Возвращает: -1=ошибка - функция вызвана не для меню, 0=ошибка при позиционировании (нет пункта или пункт задисаблен), иначе - позицию пункта меню.
     <pre class=code>F11 $if(Menu.Select(&quot;Advanced compare&quot;,0) > 0) Enter $end</pre>
     Если параметр <em>N</em> не указан, подразумевается полное совпадение.
@@ -628,6 +640,12 @@ $End
         <tr class="cont"><td class="cont" width="10%">12</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Символы разделители слов (TechInfo #1)</td></tr>
         <tr class="cont"><td class="cont" width="10%">13</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">EditorF7Rules (TechInfo #18)</td></tr>
         <tr class="cont"><td class="cont" width="10%">14</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">AllowEmptySpaceAfterEof (TechInfo #67)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">15</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">ShowScrollBar</td></tr>
+        <tr class="cont"><td class="cont" width="10%">16</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">EditOpenedForWrite</td></tr>
+        <tr class="cont"><td class="cont" width="10%">17</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">SearchSelFound</td></tr>
+        <tr class="cont"><td class="cont" width="10%">18</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">SearchRegexp</td></tr>
+        <tr class="cont"><td class="cont" width="10%">19</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">SearchPickUpWord</td></tr>
+        <tr class="cont"><td class="cont" width="10%">20</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">ShowWhiteSpace</td></tr>
        </table>
        Значение <em>Var</em> может быть равно -1, в этом случае функция ничего не изменит, а вернет текущее значение настройки.<br>
        Возвращает предыдущее значение опций или -1, если данные указаны некорректно.<br>
@@ -706,6 +724,48 @@ $end</pre>
     </td>
   </tr>
 
+  <tr class="cont">
+    <td class="cont" width="40%">V=<dfn><a name="Editor.Undo">Editor.Undo</a></dfn>(N)</td>
+    <td class="cont" width="60%">Работа с Undo/Redo. Здесь <em>N</em> одно из:
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">N</th><th class="cont" width="90%">Описание</th></tr>
+       <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">начало блочной операции</td></tr>
+       <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">конец блочной операции</td></tr>
+       <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%">выполнить Undo</td></tr>
+       <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="90%">выполнить Redo</td></tr>
+       </table>
+       Возвращает 1 для успешно выполненной операции или 0 в случае ошибки.<br>
+    </td>
+  </tr>
+
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="Editor.Pos">Editor.Pos</a></dfn>(Op,What[,Where])</td>
+    <td class="cont" width="60%">Получение/установка позиций в редакторе.<br>
+      Параметр <em>Op</em> задает поведение функции: 0 - получить данные, 1 - установить данные.<br>
+      Параметр <em>What</em> - над чем выполняется операция:
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">What</th><th class="cont" width="90%">Описание</th></tr>
+       <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">строка</td></tr>
+       <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%">положение курсора в строке</td></tr>
+       <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="90%">экранная позиция курсора</td></tr>
+       <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="90%">новая строка вверху экрана</td></tr>
+       <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="90%">позиция левой границы окна редактора</td></tr>
+       <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="90%">режим вставки</td></tr>
+       </table>
+     Возвращает: -1 - ошибка (например, неверные параметры), для установки 1/0 - успешно/не успешно выполнена установка, для получения - текущее значение.<br>
+     Пример (при включенном ScrollLock клавиши Left/Right выполняют скроллинг текста по горизонтали):
+
+     <pre class="code">
+[HKEY_CURRENT_USER\Software\far2\KeyMacros\Editor\Right]
+"Sequence"="$if(FLock(2,-1) == 1) Editor.Pos(1,5,Editor.Pos(0,5)+1); $else Right $end"
+"DisableOutput"=dword:00000001
+
+[HKEY_CURRENT_USER\Software\far2\KeyMacros\Editor\Left]
+"Sequence"="$if(FLock(2,-1) == 1) Editor.Pos(1,5,Editor.Pos(0,5)-1); $else Left $end"
+"DisableOutput"=dword:00000001
+     </pre>
+    </td>
+  </tr>
 
   <!-- -------------------------------------- -->
   <tr class="cont"><th class="cont" colspan=2>Работа с закладками</th></tr>
