@@ -256,6 +256,7 @@ int PluginClass::ReadArchive(char *Name)
     const char *MsgItems[]={GetMsg(MError),NameMsg,GetMsg(GetItemCode),GetMsg(MOk)};
     FSF.TruncPathStr(lstrcpyn(NameMsg,Name,sizeof(NameMsg)),MAX_WIDTH_MESSAGE);
     Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,ArraySize(MsgItems),1);
+    return FALSE; // Mantis#0001241
   }
 
   //Info.RestoreScreen(NULL);
@@ -298,12 +299,10 @@ int PluginClass::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int 
     }
     if (!ReadArcOK) return FALSE;
   }
-
   int CurDirLength=lstrlen(CurDir);
   *pPanelItem=NULL;
   *pItemsNumber=0;
   int AlocatedItemsNumber=0;
-
   for (int I=0;I<ArcDataCount;I++)
   {
     char Name[NM];
