@@ -1190,7 +1190,7 @@ struct KeySequence
 {
 	DWORD Flags;
 	int Count;
-	DWORD *Sequence;
+	const DWORD *Sequence;
 };
 
 enum FARMACROCOMMAND

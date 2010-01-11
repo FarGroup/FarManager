@@ -1,3 +1,7 @@
+chupakabra 11.01.2010 02:28:00 +0200 - build 1332
+
+1. const в plugin api.
+
 drkns 11.01.2010 01:19:27 +0200 - build 1331
 
 1. Mantis#0000848: Find Folder: неправильная обработка символа *.

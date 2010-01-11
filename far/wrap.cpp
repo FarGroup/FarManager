@@ -3064,7 +3064,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 				case MCMD_COMPILEMACRO:
 
 					if (km.Param.Compile.Sequence)
-						xf_free(km.Param.Compile.Sequence);
+						xf_free((void*)km.Param.Compile.Sequence);
 
 					break;
 				case MCMD_POSTMACROSTRING:
@@ -3092,15 +3092,15 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 
 			if (ksA->Flags&oldfar::KSFLAGS_NOSENDKEYSTOPLUGINS) ks.Flags|=KSFLAGS_NOSENDKEYSTOPLUGINS;
 
-			ks.Sequence = (DWORD*)xf_malloc(ks.Count*sizeof(DWORD));
-
+			DWORD* Sequence = (DWORD*)xf_malloc(ks.Count*sizeof(DWORD));
 			for (int i=0; i<ks.Count; i++)
 			{
-				ks.Sequence[i]=OldKeyToKey(ksA->Sequence[i]);
+				Sequence[i]=OldKeyToKey(ksA->Sequence[i]);
 			}
+			ks.Sequence = Sequence;
 
 			LONG_PTR ret = FarAdvControl(ModuleNumber, ACTL_POSTKEYSEQUENCE, &ks);
-			xf_free(ks.Sequence);
+			xf_free(Sequence);
 			return ret;
 		}
 		case oldfar::ACTL_GETSHORTWINDOWINFO:
