@@ -203,11 +203,17 @@ void ConvertItemSmall(FarDialogItem *Item,DialogItemEx *Data)
 	Item->X2 = Data->X2;
 	Item->Y2 = Data->Y2;
 	Item->Focus = Data->Focus;
-	Item->Param.History = Data->History;
 	Item->Flags = Data->Flags;
 	Item->DefaultButton = Data->DefaultButton;
 	Item->MaxLen = Data->nMaxLength;
 	Item->PtrData = NULL;
+
+	Item->Param.History = NULL;
+	if (Data->Type==DI_LISTBOX || Data->Type==DI_COMBOBOX)
+		Item->Param.ListPos = Data->ListPtr?Data->ListPtr->GetSelectPos():0;
+	else
+		Item->Param.History = Data->History;
+
 }
 
 size_t ItemStringAndSize(DialogItemEx *Data,string& ItemString)
@@ -320,13 +326,11 @@ size_t ConvertItemEx2(FarDialogItem *Item,DialogItemEx *Data)
 	if (Item)
 	{
 		ConvertItemSmall(Item,Data);
+
 		wchar_t* p=(wchar_t*)(Item+1);
 		Item->PtrData = p;
 		wmemcpy(p, (const wchar_t*)str, sz);
 		p[sz] = L'\0';
-
-		if (Data->Type==DI_LISTBOX || Data->Type==DI_COMBOBOX)
-			Item->Param.ListPos=Data->ListPtr?Data->ListPtr->GetSelectPos():0;
 	}
 
 	return size;
@@ -4086,7 +4090,7 @@ int Dialog::SetAutomation(WORD IDParent,WORD id,
 	if (IDParent < ItemCount && (Item[IDParent]->Flags&DIF_AUTOMATION) &&
 	        id < ItemCount && IDParent != id) // Сами себя не юзаем!
 	{
-		Ret = Item[IDParent]->AddAutomation(id, UncheckedSet, UncheckedSkip, 
+		Ret = Item[IDParent]->AddAutomation(id, UncheckedSet, UncheckedSkip,
 			                                    CheckedSet, CheckedSkip,
 				 						        Checked3Set, Checked3Skip);
 	}
@@ -6404,17 +6408,8 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 		/*****************************************************************/
 		case DM_GETDLGITEMSHORT:
 		{
-			if (Param2)
-			{
-				if (ConvertItemEx(CVTITEM_TOPLUGINSHORT,(FarDialogItem *)Param2,CurItem,1))
-				{
-					if (Type==DI_LISTBOX || Type==DI_COMBOBOX)
-						((FarDialogItem *)Param2)->Param.ListPos=CurItem->ListPtr?CurItem->ListPtr->GetSelectPos():0;
-
-					return TRUE;
-				}
-			}
-
+			if (Param2 && ConvertItemEx(CVTITEM_TOPLUGINSHORT,(FarDialogItem *)Param2,CurItem,1))
+				return TRUE;
 			return FALSE;
 		}
 		/*****************************************************************/
