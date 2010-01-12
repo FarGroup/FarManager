@@ -1839,7 +1839,7 @@ static bool modFunc()
 
 	if (!V2.i())
 	{
-		_KEYMACRO(SysLog(L"[%d] modFunc() Error: Divide (mod) by zero",__LINE__));
+		_KEYMACRO(___FILEFUNCLINE___;SysLog(L"Error: Divide (mod) by zero"));
 		VMStack.Push(0ll);
 		return false;
 	}

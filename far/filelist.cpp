@@ -528,7 +528,7 @@ void FileList::SetFocus()
 int FileList::SendKeyToPlugin(DWORD Key,BOOL Pred)
 {
 	_ALGO(CleverSysLog clv(L"FileList::SendKeyToPlugin()"));
-	_ALGO(SysLog(L"Key=%u (0x%08X) Pred=%d",Key,Key,Pred));
+	_ALGO(SysLog(L"Key=%s Pred=%d",_FARKEY_ToName(Key),Pred));
 
 	if (PanelMode==PLUGIN_PANEL &&
 	        (CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING_COMMON || CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING_COMMON || CtrlObject->Macro.GetCurRecord(NULL,NULL) == MACROMODE_NOMACRO)

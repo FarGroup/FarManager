@@ -773,7 +773,7 @@ int Manager::ProcessKey(DWORD Key)
 				case MODALTYPE_PANELS:
 				{
 					_ALGO(CleverSysLog clv(L"Manager::ProcessKey()"));
-					_ALGO(SysLog(L"Key=%u (0x%08X)",Key,Key));
+					_ALGO(SysLog(L"Key=%s",_FARKEY_ToName(Key)));
 
 					if (CtrlObject->Cp()->ActivePanel->SendKeyToPlugin(Key,TRUE))
 						return TRUE;

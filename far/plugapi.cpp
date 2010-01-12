@@ -1301,9 +1301,9 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,const wchar_t *HelpTopi
 int WINAPI FarControl(HANDLE hPlugin,int Command,int Param1,LONG_PTR Param2)
 {
 	_FCTLLOG(CleverSysLog CSL(L"Control"));
-	_FCTLLOG(SysLog(L"(hPlugin=0x%08X, Command=%s, Param=[%d/0x%08X])",hPlugin,_FCTL_ToName(Command),(int)Param,Param));
+	_FCTLLOG(SysLog(L"(hPlugin=0x%08X, Command=%s, Param1=[%d/0x%08X], Param2=[%d/0x%08X])",hPlugin,_FCTL_ToName(Command),(int)Param1,Param1,(int)Param2,Param2));
 	_ALGO(CleverSysLog clv(L"FarControl"));
-	_ALGO(SysLog(L"(hPlugin=0x%08X, Command=%s, Param=[%d/0x%08X])",hPlugin,_FCTL_ToName(Command),(int)Param,Param));
+	_ALGO(SysLog(L"(hPlugin=0x%08X, Command=%s, Param1=[%d/0x%08X], Param2=[%d/0x%08X])",hPlugin,_FCTL_ToName(Command),(int)Param1,Param1,(int)Param2,Param2));
 
 	if (Command == FCTL_CHECKPANELSEXIST)
 		return Opt.OnlyEditorViewerUsed == 0 ? TRUE : FALSE;

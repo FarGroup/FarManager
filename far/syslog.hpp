@@ -100,6 +100,12 @@ extern "C"
 #endif
 
 #if defined(_DEBUG) && defined(SYSLOG)
+#define ___FILEFUNCLINE___  SysLog(L"[{%s} %s() #%d] ",__FILE__,__FUNCTION__,__LINE__)
+#else
+#define ___FILEFUNCLINE___
+#endif
+
+#if defined(_DEBUG) && defined(SYSLOG)
 #define _D(x)  x
 #else
 #define _D(x)

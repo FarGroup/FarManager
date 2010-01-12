@@ -380,7 +380,7 @@ HANDLE FileList::OpenPluginForFile(const wchar_t *FileName,DWORD FileAttr)
 		if (ReadFile(hFile,Buffer,Opt.PluginMaxReadData,&BytesRead,NULL))
 		{
 			CloseHandle(hFile);
-			_ALGO(SysLogDump("First 128 bytes",0,(LPBYTE)Buffer,128,NULL));
+			_ALGO(SysLogDump(L"First 128 bytes",0,(LPBYTE)Buffer,128,NULL));
 			_ALGO(SysLog(L"close AnotherPanel file"));
 			CtrlObject->Cp()->GetAnotherPanel(this)->CloseFile();
 			_ALGO(SysLog(L"call Plugins.OpenFilePlugin {"));
@@ -967,7 +967,7 @@ int FileList::ProcessOneHostFile(int Idx)
 {
 	_ALGO(CleverSysLog clv(L"FileList::ProcessOneHostFile()"));
 	int Done=-1;
-	_ALGO(SysLog(L"call OpenPluginForFile([Idx=%d] '%s')",Idx,ListData[Idx]->Name));
+	_ALGO(SysLog(L"call OpenPluginForFile([Idx=%d] '%s')",Idx,ListData[Idx]->strName.CPtr()));
 	string strName = ListData[Idx]->strName;
 	HANDLE hNewPlugin=OpenPluginForFile(strName,ListData[Idx]->FileAttr);
 
