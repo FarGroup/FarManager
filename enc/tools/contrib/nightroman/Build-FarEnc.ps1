@@ -1,36 +1,38 @@
 
 <#
-.Synopsis
-	Builds pluginse.chm from enc_eng or pluginsr.chm from enc_rus.
+.SYNOPSIS
+	Builds FarEncyclopedia.xx.chm from enc_eng or from enc_rus.
 	Author: Roman Kuzmin (NightRoman)
 
-.Description
-	It processes and compiles FAR API encyclopedia source enc_eng or enc_rus
-	into pluginse.chm or pluginsr.chm
+.DESCRIPTION
+	It processes and compiles Far API encyclopedia source enc_eng or enc_rus
+	into FarEncyclopedia.en.chm or FarEncyclopedia.ru.chm.
 
 	Notes
 	- Assume you have: C:\Program Files\HTML Help Workshop\hhc.exe
 	- Invoke one instance at a time, it uses the same temp files
 	- Temp directory $env:TEMP\far_enc still exists on failures
 
-.Example
+	Submitted: enc\tools\contrib\nightroman\Build-FarEnc.ps1
+
+.EXAMPLE
 	# The current directory is enc_eng or enc_rus and CHM will be here
 	Build-FarEnc
 
-	# Build both pluginse.chm and pluginsr.chm in batch mode
+	# Build both .en.chm and .ru.chm in batch mode
 	Build-FarEnc c:\dev\enc\enc_eng c:\distr\enc -NoInteraction
 	Build-FarEnc c:\dev\enc\enc_rus c:\distr\enc -NoInteraction
 
-.Parameter InputPath
+.PARAMETER InputPath
 		Directory where input items: images, meta, styles, plugins?.hhc,
 		plugins?.hhp are located. Normally it is enc_eng or enc_rus. Default:
 		the current directory.
 
-.Parameter OutputPath
+.PARAMETER OutputPath
 		Directory for the output pluginse.chm or pluginsr.chm. If it does not
 		exist then it is created. Default: the current directory.
 
-.Parameter NoInteraction
+.PARAMETER NoInteraction
 		Do not invoke the result CHM.
 #>
 
@@ -53,13 +55,13 @@ $Tmp = "$env:TEMP\far_enc"
 $InputPath = [IO.Path]::GetFullPath($InputPath)
 $OutputPath = [IO.Path]::GetFullPath($OutputPath)
 if (Test-Path "$InputPath\pluginse.hhp") {
-	$Chm = 'pluginse.chm'
+	$Chm = 'FarEncyclopedia.en.chm'
 	$Hhp = 'pluginse.hhp'
 	$Hhk = 'pluginse.hhk'
 	$Out = 'distr_chm_pluginse'
 }
 elseif (Test-Path "$InputPath\pluginsr.hhp") {
-	$Chm = 'pluginsr.chm'
+	$Chm = 'FarEncyclopedia.ru.chm'
 	$Hhp = 'pluginsr.hhp'
 	$Hhk = 'pluginsr.hhk'
 	$Out = 'distr_chm_pluginsr'
