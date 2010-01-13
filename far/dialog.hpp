@@ -250,6 +250,7 @@ class ConsoleTitle;
 class Dialog: public Frame
 {
 		friend class FindFiles;
+		friend class DlgEdit;
 		friend LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 		friend LONG_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 
@@ -305,7 +306,6 @@ class Dialog: public Frame
 		unsigned ChangeFocus(unsigned FocusPos,int Step,int SkipGroup);
 		BOOL SelectFromEditHistory(DialogItemEx *CurItem,DlgEdit *EditLine,const wchar_t *HistoryName,string &strStr);
 		int SelectFromComboBox(DialogItemEx *CurItem,DlgEdit*EditLine,VMenu *List);
-		bool AutoComplete(string &strFindStr);
 		int AddToEditHistory(const wchar_t *AddStr,const wchar_t *HistoryName);
 
 		void ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex);  // обработка DIF_USELASTHISTORY
@@ -414,7 +414,6 @@ class Dialog: public Frame
 		virtual void SetPosition(int X1,int Y1,int X2,int Y2);
 
 		BOOL IsInited();
-		BOOL IsEditChanged(unsigned ID);
 		bool ProcessEvents();
 
 		void SetId(const GUID& Id);
@@ -431,3 +430,5 @@ LONG_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 bool IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos=-1);
 
 void DataToItemEx(DialogDataEx *Data,DialogItemEx *Item,int Count);
+
+extern const wchar_t* fmtSavedDialogHistory;

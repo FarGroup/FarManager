@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "dlgedit.hpp"
 #include "dialog.hpp"
+#include "history.hpp"
 
 DlgEdit::DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type)
 {
@@ -57,8 +58,33 @@ DlgEdit::DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type)
 			break;
 		case DLGEDIT_SINGLELINE:
 		{
-			Edit::Callback callback={EditChange,this};
-			lineEdit=new Edit(NULL,&callback); // ??? (pOwner) ?
+			Edit::Callback callback={true,EditChange,this};
+			
+			iHistory=0;
+			FarList* iList=0;
+			DWORD iFlags=0;
+			if(pOwner)
+			{
+				DialogItemEx* CurItem=pOwner->Item[Index];
+				if(Opt.Dialogs.AutoComplete && CurItem->Flags&(DIF_HISTORY|DIF_EDITPATH) && !(CurItem->Flags&DIF_NOAUTOCOMPLETE))
+				{
+					iFlags=EditControl::EC_ENABLEAUTOCOMPLETE;
+					string strHistory;
+					if(CurItem->Flags&DIF_HISTORY && CurItem->History)
+					{
+						strHistory=fmtSavedDialogHistory;
+						strHistory+=CurItem->History;
+						iHistory=new History(HISTORYTYPE_DIALOG, Opt.DialogsHistoryCount, strHistory, &Opt.Dialogs.EditHistory, false);
+						iHistory->ReadHistory(true);
+					}
+					iList=CurItem->ListItems;
+					if(CurItem->Flags&DIF_EDITPATH)
+					{
+						iFlags|=EditControl::EC_ENABLEFNCOMPLETE;
+					}
+				}
+			}
+			lineEdit=new EditControl(pOwner,&callback,true,iHistory,iList,iFlags);
 		}
 		break;
 	}
@@ -66,6 +92,11 @@ DlgEdit::DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type)
 
 DlgEdit::~DlgEdit()
 {
+	if(iHistory)
+	{
+		delete iHistory;
+	}
+
 	if (lineEdit)  delete lineEdit;
 
 #if defined(PROJECT_DI_MEMOEDIT)
@@ -690,7 +721,7 @@ void DlgEdit::EditChange(void* aParam)
 
 void DlgEdit::DoEditChange()
 {
-	if (m_Dialog->IsInited()&&!m_Dialog->IsEditChanged(m_Index))
+	if (m_Dialog->IsInited())
 	{
 		SendDlgMessage((HANDLE)m_Dialog,DN_EDITCHANGE,m_Index,0);
 	}

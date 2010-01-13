@@ -1968,7 +1968,7 @@ int TreeCmp(const wchar_t *Str1, const wchar_t *Str2, int Numeric, int CaseSensi
 
 	while (s1 && s2)
 	{
-		int r = cmpfunc(Str1,s1-Str1,Str2,s2-Str2);
+		int r = cmpfunc(Str1,static_cast<int>(s1-Str1),Str2,static_cast<int>(s2-Str2));
 
 		if (r)
 			return r;
@@ -1981,7 +1981,7 @@ int TreeCmp(const wchar_t *Str1, const wchar_t *Str2, int Numeric, int CaseSensi
 
 	if (s1 || s2)
 	{
-		int r = cmpfunc(Str1,s1?s1-Str1:-1,Str2,s2?s2-Str2:-1);
+		int r = cmpfunc(Str1,s1?static_cast<int>(s1-Str1):-1,Str2,s2?static_cast<int>(s2-Str2):-1);
 
 		if (r)
 			return r;

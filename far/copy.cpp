@@ -854,6 +854,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	if (DestPanelMode == PLUGIN_PANEL)
 	{
 		// Если противоположная панель - плагин, то дисаблим OnlyNewer //?????
+/*
 		CDP.CopySecurity=2;
 		CopyDlg[ID_SC_ACCOPY].Selected=0;
 		CopyDlg[ID_SC_ACINHERIT].Selected=0;
@@ -861,6 +862,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		CopyDlg[ID_SC_ACCOPY].Flags|=DIF_DISABLE;
 		CopyDlg[ID_SC_ACINHERIT].Flags|=DIF_DISABLE;
 		CopyDlg[ID_SC_ACLEAVE].Flags|=DIF_DISABLE;
+*/
 	}
 
 	DestPanel->GetCurDir(strDestDir);
@@ -1536,6 +1538,7 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 			}
 
 			break;
+#if 0
 		case DN_EDITCHANGE:
 
 			if (Param1 == ID_SC_TARGETEDIT)
@@ -1616,6 +1619,7 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 			}
 
 			break;
+#endif
 		case DM_CALLTREE:
 		{
 			/* $ 13.10.2001 IS

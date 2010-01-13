@@ -569,7 +569,7 @@ int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,i
 	        (SrcName[0]!=L'.' || SrcName[2]!=0) && wcschr(DotPtr+1,L' ')==NULL)
 	{
 		int DotLength=StrLength(DotPtr+1);
-		int NameLength=(int)(DotPtr-SrcName);
+		int NameLength=DotLength?(int)(DotPtr-SrcName):SrcLength;
 		int DotPos=MaxLength-Max(DotLength,3);
 
 		if (DotPos<=NameLength)

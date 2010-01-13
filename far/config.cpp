@@ -315,6 +315,7 @@ void CmdlineSettings()
 	{
 		CtrlObject->CmdLine->SetPersistentBlocks(Opt.CmdLine.EditBlock);
 		CtrlObject->CmdLine->SetDelRemovesBlocks(Opt.CmdLine.DelRemovesBlocks);
+		CtrlObject->CmdLine->SetAutoComplete(Opt.CmdLine.AutoComplete);
 	}
 }
 

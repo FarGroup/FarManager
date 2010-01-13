@@ -3266,7 +3266,7 @@ void FileList::SelectFiles(int Mode)
 			strRawMask+=strCurName;
 			size_t pos;
 
-			if (strRawMask.RPos(pos,L'.'))
+			if (strRawMask.RPos(pos,L'.') && pos!=strRawMask.GetLength()-1)
 				strRawMask.SetLength(pos);
 
 			strRawMask += L".*\"";

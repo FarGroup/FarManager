@@ -55,6 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "palette.hpp"
 #include "config.hpp"
 #include "processname.hpp"
+#include "pathmix.hpp"
 
 VMenu::VMenu(const wchar_t *Title,       // заголовок меню
              MenuDataEx *Data, // пункты меню
@@ -2707,26 +2708,24 @@ void EnumFiles(VMenu& Menu, const wchar_t* Str)
 		bool Separator=false;
 		for(hFind=apiFindFirstFile(strStr+L"*",&d);hFind!=INVALID_HANDLE_VALUE && MoreFiles;MoreFiles=apiFindNextFile(hFind,&d))
 		{
-			for(size_t i=0;i<=strStr.GetLength();i++)
+			const wchar_t* FileName=PointToName(strStr);
+			bool NameMatch=!StrCmpNI(FileName,d.strFileName,StrLength(FileName)),AltNameMatch=NameMatch?false:!StrCmpNI(FileName,d.strAlternateFileName,StrLength(FileName));
+			if(NameMatch || AltNameMatch)
 			{
-				if(!StrCmpNI(Str+i,d.strFileName,static_cast<int>(strStr.GetLength()-i)) || !Str[i])
+				string strTmp=strStr;
+				strTmp.SetLength(FileName-strStr.CPtr());
+				strTmp+=NameMatch?d.strFileName:d.strAlternateFileName;
+				if(!Separator)
 				{
-					string strTmp=strStr;
-					strTmp.SetLength(i);
-					strTmp+=d.strFileName;
-					if(!Separator)
+					if(Menu.GetItemCount())
 					{
-						if(Menu.GetItemCount())
-						{
-							MenuItemEx Item={0};
-							Item.Flags=LIF_SEPARATOR;
-							Menu.AddItem(&Item);
-						}
-						Separator=true;
+						MenuItemEx Item={0};
+						Item.Flags=LIF_SEPARATOR;
+						Menu.AddItem(&Item);
 					}
-					Menu.AddItem(strTmp);
-					break;
+					Separator=true;
 				}
+				Menu.AddItem(strTmp);
 			}
 		}
 		if(hFind!=INVALID_HANDLE_VALUE)

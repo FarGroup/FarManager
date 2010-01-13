@@ -55,6 +55,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "panelmix.hpp"
 #include "RegExp.hpp"
+#include "History.hpp"
+#include "vmenu.hpp"
 
 static int Recurse=0;
 
@@ -70,6 +72,7 @@ static const wchar_t *EOL_TYPE_CHARS[]={L"",L"\r",L"\n",L"\r\n",L"\r\r\n"};
 
 Edit::Edit(ScreenObject *pOwner, Callback* aCallback, bool bAllocateData)
 {
+	m_Callback.Active=true;
 	m_Callback.m_Callback=NULL;
 	m_Callback.m_Param=NULL;
 
@@ -1268,7 +1271,7 @@ int Edit::ProcessKey(int Key)
 				Str=(wchar_t *)xf_realloc(Str,(StrSize+1)*sizeof(wchar_t));
 			}
 
-			Changed();
+			Changed(true);
 			Show();
 			return(TRUE);
 		}
@@ -2563,7 +2566,7 @@ void Edit::DeleteBlock()
 			LeftPos=CurPos;
 	}
 
-	Changed();
+	Changed(true);
 }
 
 
@@ -2864,12 +2867,15 @@ void Edit::SetDialogParent(DWORD Sets)
 	}
 }
 
-void Edit::Changed()
+void Edit::Changed(bool DelBlock)
 {
-	if (m_Callback.m_Callback) m_Callback.m_Callback(m_Callback.m_Param);
+	if(m_Callback.Active && m_Callback.m_Callback)
+	{
+		m_Callback.m_Callback(m_Callback.m_Param);
+	}
 }
 
-
+/*
 SystemCPEncoder::SystemCPEncoder(int nCodePage)
 {
 	m_nCodePage = nCodePage;
@@ -2956,4 +2962,257 @@ int __stdcall SystemCPEncoder::Transcode(
 	}
 
 	return -1;
+}
+*/
+
+EditControl::EditControl(ScreenObject *pOwner,Callback* aCallback,bool bAllocateData,History* iHistory,FarList* iList,DWORD iFlags):Edit(pOwner,aCallback,bAllocateData)
+{
+	ECFlags=iFlags;
+	pHistory=iHistory;
+	pList=iList;
+}
+
+void EditControl::Changed(bool DelBlock)
+{
+	if(m_Callback.Active)
+	{
+		Edit::Changed();
+		AutoComplete(false,DelBlock);
+	}
+}
+
+void EditControl::SetMenuPos(VMenu& menu)
+{
+	if(ScrY-Y1<Min(Opt.Dialogs.CBoxMaxHeight,menu.GetItemCount())+2 && Y1>ScrY/2)
+	{
+		menu.SetPosition(X1,Max(0,Y1-1-Min(Opt.Dialogs.CBoxMaxHeight,menu.GetItemCount())-1),Min(ScrX-2,X2),Y1-1);
+	}
+	else
+	{
+		menu.SetPosition(X1,Y1+1,X2,0);
+	}
+}
+
+void EditControl::AutoComplete(bool Manual,bool DelBlock)
+{
+	static int Reenter=0;
+
+	if(ECFlags.Check(EC_ENABLEAUTOCOMPLETE) && *Str && !Reenter && (CtrlObject->Macro.GetCurRecord(NULL,NULL) == MACROMODE_NOMACRO || Manual))
+	{
+		Reenter++;
+
+		VMenu ComplMenu(NULL,NULL,0,0);
+		string strTemp=Str;
+
+		if(pHistory)
+		{
+			pHistory->GetAllSimilar(ComplMenu,strTemp);
+		}
+		else if(pList)
+		{
+			for(int i=0;i<pList->ItemsNumber;i++)
+			{
+				if (!StrCmpNI(pList->Items[i].Text, strTemp, static_cast<int>(strTemp.GetLength())) && StrCmp(pList->Items[i].Text, strTemp))
+				{
+					ComplMenu.AddItem(pList->Items[i].Text);
+				}
+			}
+		}
+
+		if(ECFlags.Check(EC_ENABLEFNCOMPLETE))
+		{
+			EnumFiles(ComplMenu,strTemp);
+		}
+
+		if(ComplMenu.GetItemCount())
+		{
+			ComplMenu.SetFlags(VMENU_WRAPMODE|VMENU_NOTCENTER);
+
+			if(!DelBlock && Opt.AutoComplete.AppendCompletion && (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS) || Opt.AutoComplete.ShowList))
+			{
+				int SelStart=GetLength();
+				InsertString(ComplMenu.GetItemPtr(0)->strName+GetLength());
+				Select(SelStart, GetLength());
+			}
+			if(Opt.AutoComplete.ShowList)
+			{
+				MenuItemEx EmptyItem={0};
+				ComplMenu.AddItem(&EmptyItem,0);
+				SetMenuPos(ComplMenu);
+				ComplMenu.SetSelectPos(0,0);
+				ComplMenu.SetBoxType(SHORT_SINGLE_BOX);
+				ComplMenu.ClearDone();
+				ComplMenu.Show();
+				Show();
+				int PrevPos=0;
+
+				while (!ComplMenu.Done())
+				{
+					INPUT_RECORD ir;
+					ComplMenu.ReadInput(&ir);
+					if(!Opt.AutoComplete.ModalList)
+					{
+						int CurPos=ComplMenu.GetSelectPos();
+						if(CurPos>=0 && PrevPos!=CurPos)
+						{
+							PrevPos=CurPos;
+							SetString(CurPos?ComplMenu.GetItemPtr(CurPos)->strName:strTemp);
+							Show();
+						}
+					}
+					if(ir.EventType==WINDOW_BUFFER_SIZE_EVENT)
+					{
+						SetMenuPos(ComplMenu);
+						ComplMenu.Show();
+					}
+					else if(ir.EventType==KEY_EVENT || ir.EventType==FARMACRO_KEY_EVENT)
+					{
+						int MenuKey=InputRecordToKey(&ir);
+
+						// ввод
+						if((MenuKey>=L' ' && MenuKey<=WCHAR_MAX) || MenuKey==KEY_BS || MenuKey==KEY_DEL || MenuKey==KEY_NUMDEL)
+						{
+							string strPrev;
+							GetString(strPrev);
+							DeleteBlock();
+							ProcessKey(MenuKey);
+							GetString(strTemp);
+							if(StrCmp(strPrev,strTemp))
+							{
+								ComplMenu.DeleteItems();
+								PrevPos=0;
+								if(!strTemp.IsEmpty())
+								{
+									if(pHistory)
+									{
+										pHistory->GetAllSimilar(ComplMenu,strTemp);
+									}
+									else if(pList)
+									{
+										for(int i=0;i<pList->ItemsNumber;i++)
+										{
+											if (!StrCmpNI(pList->Items[i].Text, strTemp, static_cast<int>(strTemp.GetLength())) && StrCmp(pList->Items[i].Text, strTemp))
+											{
+												ComplMenu.AddItem(pList->Items[i].Text);
+											}
+										}
+									}
+								}
+								if(ECFlags.Check(EC_ENABLEFNCOMPLETE))
+								{
+									EnumFiles(ComplMenu,strTemp);
+								}
+								if(!ComplMenu.GetItemCount())
+								{
+									ComplMenu.SetExitCode(-1);
+								}
+								else
+								{
+									if(MenuKey!=KEY_BS && MenuKey!=KEY_DEL && MenuKey!=KEY_NUMDEL && Opt.AutoComplete.AppendCompletion)
+									{
+										int SelStart=GetLength();
+										bool CBState=m_Callback.Active;
+										m_Callback.Active=false;
+										InsertString(ComplMenu.GetItemPtr(0)->strName+GetLength());
+										m_Callback.Active=CBState;
+										if(X2-X1>GetLength())
+											SetLeftPos(0);
+										Select(SelStart, GetLength());
+									}
+
+									MenuItemEx EmptyItem={0};
+									ComplMenu.AddItem(&EmptyItem,0);
+									SetMenuPos(ComplMenu);
+									ComplMenu.SetSelectPos(0,0);
+									ComplMenu.Redraw();
+								}
+								Show();
+							}
+						}
+						else
+						{
+							switch(MenuKey)
+							{
+							case KEY_IDLE:
+							case KEY_NONE:
+								break;
+
+							// "классический" перебор
+							case KEY_CTRLEND:
+								{
+									ComplMenu.ProcessKey(KEY_DOWN);
+									break;
+								}
+
+							// навигация по строке ввода
+							case KEY_LEFT:
+							case KEY_NUMPAD4:
+							case KEY_RIGHT:
+							case KEY_NUMPAD6:
+							case KEY_CTRLS:
+							case KEY_CTRLD:
+							case KEY_HOME:
+							case KEY_NUMPAD7:
+							case KEY_END:
+							case KEY_NUMPAD1:
+								{
+									ProcessKey(MenuKey);
+									break;
+								}
+
+							// навигация по списку
+							case KEY_ESC:
+							case KEY_F10:
+							case KEY_ALTF9:
+							case KEY_UP:
+							case KEY_NUMPAD8:
+							case KEY_DOWN:
+							case KEY_NUMPAD2:
+							case KEY_PGUP:
+							case KEY_NUMPAD9:
+							case KEY_PGDN:
+							case KEY_NUMPAD3:
+								{
+									ComplMenu.ProcessInput();
+									break;
+								}
+
+							case KEY_ENTER:
+							case KEY_NUMENTER:
+							{
+								if(Opt.AutoComplete.ModalList)
+								{
+									ComplMenu.ProcessInput();
+									break;
+								}
+							}
+
+							// всё остальное закрывает список и идёт владельцу
+							default:
+								{
+									ComplMenu.Hide();
+									ComplMenu.SetExitCode(-1);
+									pOwner->ProcessKey(MenuKey);
+								}
+							}
+						}
+					}
+					else
+					{
+						ComplMenu.ProcessInput();
+					}
+				}
+				if(Opt.AutoComplete.ModalList)
+				{
+					int ExitCode=ComplMenu.GetExitCode();
+					if(ExitCode>0)
+					{
+						SetString(ComplMenu.GetItemPtr(ExitCode)->strName);
+					}
+				}
+			}
+		}
+
+		Reenter--;
+	}
 }

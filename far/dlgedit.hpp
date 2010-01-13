@@ -59,8 +59,9 @@ class DlgEdit: public ScreenObject
 		Dialog* m_Dialog;
 		unsigned m_Index;
 		DLGEDITTYPE Type;
+		History* iHistory;
 
-		Edit   *lineEdit;
+		EditControl   *lineEdit;
 #if defined(PROJECT_DI_MEMOEDIT)
 		Editor *multiEdit;
 #endif
@@ -151,4 +152,9 @@ class DlgEdit: public ScreenObject
 
 		int  GetReadOnly();
 		void SetReadOnly(int NewReadOnly);
+
+		void SetCallbackState(bool Enable){lineEdit->SetCallbackState(Enable);}
+		void SetECFlags(DWORD Flags){lineEdit->ECFlags.Set(Flags);}
+		void ClearECFlags(DWORD Flags){lineEdit->ECFlags.Clear(Flags);}
+		void AutoComplete(bool Manual,bool DelBlock){return lineEdit->AutoComplete(Manual,DelBlock);}
 };

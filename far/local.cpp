@@ -218,7 +218,7 @@ int __cdecl NumStrCmpNI(const wchar_t *s1, int n1, const wchar_t *s2, int n2)
 		s1++; s2++;
 	}
 
-	if(n1!=-1 && c==n1 || n2!=-1 && c==n2)
+	if((n1!=-1 && c==n1 ) || (n2!=-1 && c==n2))
 	{
 		return ret;
 	}
@@ -266,7 +266,7 @@ int __cdecl NumStrCmpN(const wchar_t *s1, int n1, const wchar_t *s2, int n2)
 		s1++; s2++;
 	}
 
-	if(n1!=-1 && c==n1 || n2!=-1 && c==n2)
+	if((n1!=-1 && c==n1) || (n2!=-1 && c==n2))
 	{
 		return ret;
 	}

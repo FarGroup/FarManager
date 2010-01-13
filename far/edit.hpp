@@ -73,7 +73,7 @@ enum SetCPFlags
 	SETCP_MB2WCERROR = 0x00000002,
 	SETCP_OTHERERROR = 0x10000000,
 };
-
+/*
 interface ICPEncoder
 {
 
@@ -109,7 +109,7 @@ class SystemCPEncoder : public ICPEncoder
 		virtual int __stdcall Decode(const wchar_t *lpwszString, int nLength, char *lpResult, int nResultLength);
 		virtual int __stdcall Transcode(const wchar_t *lpwszString, int nLength, ICPEncoder *pFrom, wchar_t *lpwszResult, int nResultLength);
 };
-
+*/
 class Dialog;
 class Editor;
 
@@ -118,11 +118,13 @@ class Edit:public ScreenObject
 		friend class DlgEdit;
 		friend class Editor;
 		friend class CommandLine;
+		friend class EditControl;
 
 	public:
 		typedef void (*EDITCHANGEFUNC)(void* aParam);
 		struct Callback
 		{
+			bool Active;
 			EDITCHANGEFUNC m_Callback;
 			void* m_Param;
 		};
@@ -294,5 +296,37 @@ class Edit:public ScreenObject
 		int  GetDropDownBox() {return Flags.Check(FEDITLINE_DROPDOWNBOX);}
 		void SetDropDownBox(int NewDropDownBox) {Flags.Change(FEDITLINE_DROPDOWNBOX,NewDropDownBox);}
 		void SetWordDiv(const string& WordDiv) {strWordDiv=&WordDiv;}
-		void Changed();
+		virtual void Changed(bool DelBlock=false);
+};
+
+
+
+class History;
+class VMenu;
+
+// Надстройка над Edit.
+// Одиночная строка ввода для диалогов и комстроки (не для редактора)
+
+class EditControl:public Edit
+{
+	friend class DlgEdit;
+
+	History* pHistory;
+	FarList* pList;
+	void SetMenuPos(VMenu& menu);
+
+public:
+
+	BitFlags ECFlags;
+
+	enum ECFLAGS
+	{
+		EC_ENABLEAUTOCOMPLETE=0x1,
+		EC_ENABLEFNCOMPLETE=0x2,
+	};
+
+	EditControl(ScreenObject *pOwner=NULL,Callback* aCallback=NULL,bool bAllocateData=true,History* iHistory=0,FarList* iList=0,DWORD iFlags=0);
+	virtual void Changed(bool DelBlock=false);
+	void SetCallbackState(bool Enable){m_Callback.Active=Enable;}
+	void AutoComplete(bool Manual,bool DelBlock);
 };

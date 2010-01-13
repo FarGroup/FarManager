@@ -62,7 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "vmenu.hpp"
 
-CommandLine::CommandLine()
+CommandLine::CommandLine():CmdStr(CtrlObject->Cp(),0,true,CtrlObject->CmdHistory,0,(Opt.CmdLine.AutoComplete?EditControl::EC_ENABLEAUTOCOMPLETE:0)|EditControl::EC_ENABLEFNCOMPLETE)
 {
 	CmdStr.SetEditBeyondEnd(FALSE);
 	SetPersistentBlocks(Opt.CmdLine.EditBlock);
@@ -87,6 +87,18 @@ void CommandLine::SetDelRemovesBlocks(int Mode)
 	CmdStr.SetDelRemovesBlocks(Mode);
 }
 
+void CommandLine::SetAutoComplete(int Mode)
+{
+	if(Mode)
+	{
+		CmdStr.ECFlags.Set(EditControl::EC_ENABLEAUTOCOMPLETE);
+	}
+	else
+	{
+		CmdStr.ECFlags.Clear(EditControl::EC_ENABLEAUTOCOMPLETE);
+	}
+}
+
 void CommandLine::ShowEdit()
 {
 	if(CmdStr.X2-CmdStr.X1+1>CmdStr.GetLength())
@@ -108,11 +120,6 @@ void CommandLine::DisplayObject()
 	CmdStr.SetObjectColor(COL_COMMANDLINE,COL_COMMANDLINESELECTED);
 
 	CmdStr.SetPosition(X1+(int)strTruncDir.GetLength(),Y1,X2,Y2);
-
-	if(CmdStr.X2-CmdStr.X1+1>CmdStr.GetLength())
-	{
-		CmdStr.SetLeftPos(0);
-	}
 
 	ShowEdit();
 }
@@ -170,8 +177,16 @@ int CommandLine::ProcessKey(int Key)
 			if (SetLastCmdStr(CmdStr.GetStringAddr()))
 				LastCmdPartLength=CurCmdPartLength;
 		}
-
+		BOOL AC=CmdStr.ECFlags.Check(EditControl::EC_ENABLEAUTOCOMPLETE);
+		if(AC)
+		{
+			CmdStr.ECFlags.Clear(EditControl::EC_ENABLEAUTOCOMPLETE);
+		}
 		CmdStr.SetString(strStr);
+		if(AC)
+		{
+			CmdStr.ECFlags.Set(EditControl::EC_ENABLEAUTOCOMPLETE);
+		}
 		Show();
 		return(TRUE);
 	}
@@ -418,216 +433,11 @@ int CommandLine::ProcessKey(int Key)
 
 			LastCmdPartLength=-1;
 
-			// history autocomplete
-			if (CtrlObject->Macro.GetCurRecord(NULL,NULL) == MACROMODE_NOMACRO)
+			if(!Opt.CmdLine.AutoComplete && (Key == KEY_CTRLSHIFTEND || Key == KEY_CTRLSHIFTNUMPAD1))
 			{
-				if ((Opt.CmdLine.AutoComplete && Key && Key < 0x10000 && Key != KEY_BS && !(Key == KEY_DEL||Key == KEY_NUMDEL)) ||
-				        (!Opt.CmdLine.AutoComplete && (Key == KEY_CTRLSHIFTEND || Key == KEY_CTRLSHIFTNUMPAD1)))
-				{
-					string strStr;
-					CmdStr.GetString(strStr);
-					int SelStart,SelEnd;
-					CmdStr.GetSelection(SelStart,SelEnd);
-
-					if (SelStart<0||SelStart==SelEnd)
-						SelStart=(int)strStr.GetLength();
-					else
-						SelStart++;
-
-					int CurPos=CmdStr.GetCurPos();
-					bool DoAutoComplete=(CurPos>=SelStart && (SelStart>=SelEnd || SelEnd>=(int)strStr.GetLength()));
-
-					if (Opt.CmdLine.EditBlock)
-					{
-						if (DoAutoComplete && CurPos <= SelEnd)
-						{
-							strStr.SetLength(CurPos);
-							CmdStr.Select(CurPos,CmdStr.GetLength()); //select the appropriate text
-							CmdStr.DeleteBlock();
-							CmdStr.FastShow();
-						}
-					}
-
-					SelEnd=static_cast<int>(strStr.GetLength());
-
-					if (DoAutoComplete)
-					{
-						VMenu ComplMenu(NULL,NULL,0,0);
-						string strTemp=strStr;
-						CtrlObject->CmdHistory->GetAllSimilar(ComplMenu,strTemp);
-						EnumFiles(ComplMenu,strTemp);
-						if(ComplMenu.GetItemCount())
-						{
-							ComplMenu.SetFlags(VMENU_WRAPMODE|VMENU_NOTCENTER);
-
-							if(Opt.AutoComplete.AppendCompletion)
-							{
-								int SelStart=CmdStr.GetLength();
-								CmdStr.InsertString(ComplMenu.GetItemPtr(0)->strName+CmdStr.GetLength());
-								CmdStr.Select(SelStart, CmdStr.GetLength());
-							}
-							if(Opt.AutoComplete.ShowList)
-							{
-								MenuItemEx EmptyItem={0};
-								ComplMenu.AddItem(&EmptyItem,0);
-
-								ComplMenu.SetPosition(CmdStr.X1,CmdStr.Y1-2-Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount()),CmdStr.X2-2,CmdStr.Y1-1);
-
-								ComplMenu.SetSelectPos(0,0);
-								ComplMenu.SetBoxType(SHORT_SINGLE_BOX);
-								ComplMenu.ClearDone();
-								ComplMenu.Show();
-								ShowEdit();
-								int PrevPos=0;
-
-								while (!ComplMenu.Done())
-								{
-									INPUT_RECORD ir;
-									ComplMenu.ReadInput(&ir);
-									if(!Opt.AutoComplete.ModalList)
-									{
-										int CurPos=ComplMenu.GetSelectPos();
-										if(CurPos>=0 && PrevPos!=CurPos)
-										{
-											PrevPos=CurPos;
-											CmdStr.SetString(CurPos?ComplMenu.GetItemPtr(CurPos)->strName:strTemp);
-											ShowEdit();
-										}
-									}
-									if(ir.EventType==WINDOW_BUFFER_SIZE_EVENT)
-									{
-										ComplMenu.SetPosition(CmdStr.X1,CmdStr.Y1-2-Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount()),CmdStr.X2-2,CmdStr.Y1-1);
-										ComplMenu.Show();
-									}
-									else if(ir.EventType==KEY_EVENT || ir.EventType==FARMACRO_KEY_EVENT)
-									{
-										int Key=InputRecordToKey(&ir);
-
-										// ввод
-										if((Key >= L' ' && Key <= WCHAR_MAX) || Key==KEY_BS || Key==KEY_DEL || Key==KEY_NUMDEL)
-										{
-											string strPrev;
-											CmdStr.GetString(strPrev);
-											CmdStr.ProcessKey(Key);
-											CmdStr.GetString(strTemp);
-											if(StrCmp(strPrev,strTemp))
-											{
-												ComplMenu.DeleteItems();
-												PrevPos=0;
-												if(!strTemp.IsEmpty())
-												{
-													CtrlObject->CmdHistory->GetAllSimilar(ComplMenu,strTemp);
-												}
-												EnumFiles(ComplMenu,strTemp);
-												if(!ComplMenu.GetItemCount())
-												{
-													ComplMenu.SetExitCode(-1);
-												}
-												else
-												{
-													if(Key!=KEY_BS && Key!=KEY_DEL && Key!=KEY_NUMDEL && Opt.AutoComplete.AppendCompletion)
-													{
-														int SelStart=CmdStr.GetLength();
-														CmdStr.InsertString(ComplMenu.GetItemPtr(0)->strName+CmdStr.GetLength());
-														CmdStr.Select(SelStart, CmdStr.GetLength());
-													}
-
-													MenuItemEx EmptyItem={0};
-													ComplMenu.AddItem(&EmptyItem,0);
-
-													ComplMenu.SetPosition(CmdStr.X1,CmdStr.Y1-2-Min(Opt.Dialogs.CBoxMaxHeight,ComplMenu.GetItemCount()),CmdStr.X2-2,CmdStr.Y1-1);
-
-													ComplMenu.SetSelectPos(0,0);
-													ComplMenu.Redraw();
-												}
-												ShowEdit();
-											}
-										}
-										else
-										{
-											switch(Key)
-											{
-											case KEY_IDLE:
-											case KEY_NONE:
-												break;
-
-											// "классический" перебор
-											case KEY_CTRLEND:
-												{
-													ComplMenu.ProcessKey(KEY_DOWN);
-													break;
-												}
-											// навигация по строке ввода
-											case KEY_LEFT:
-											case KEY_NUMPAD4:
-											case KEY_RIGHT:
-											case KEY_NUMPAD6:
-											case KEY_CTRLS:
-											case KEY_CTRLD:
-											case KEY_HOME:
-											case KEY_NUMPAD7:
-											case KEY_END:
-												{
-													CmdStr.ProcessKey(Key);
-													break;
-												}
-
-											// навигация по списку
-											case KEY_ESC:
-											case KEY_F10:
-											case KEY_ALTF9:
-											case KEY_UP:
-											case KEY_NUMPAD8:
-											case KEY_DOWN:
-											case KEY_NUMPAD2:
-											case KEY_NUMPAD1:
-											case KEY_PGUP:
-											case KEY_NUMPAD9:
-											case KEY_PGDN:
-											case KEY_NUMPAD3:
-												{
-													ComplMenu.ProcessInput();
-													break;
-												}
-
-											case KEY_ENTER:
-											case KEY_NUMENTER:
-												{
-													if(Opt.AutoComplete.ModalList)
-													{
-														ComplMenu.ProcessInput();
-														break;
-													}
-												}
-											// всё остальное закрывает список и идёт в панели
-											default:
-												{
-													ComplMenu.Hide();
-													ComplMenu.SetExitCode(-1);
-													CtrlObject->Cp()->ProcessKey(Key);
-												}
-											}
-										}
-									}
-									else
-									{
-										ComplMenu.ProcessInput();
-									}
-								}
-								if(Opt.AutoComplete.ModalList)
-								{
-									int ExitCode=ComplMenu.GetExitCode();
-									if(ExitCode>0)
-									{
-										CmdStr.SetString(ComplMenu.GetItemPtr(ExitCode)->strName);
-									}
-								}
-							}
-						}
-					}
-				}
-
-				Redraw();
+				CmdStr.ECFlags.Set(EditControl::EC_ENABLEAUTOCOMPLETE);
+				CmdStr.AutoComplete(true,false);
+				CmdStr.ECFlags.Clear(EditControl::EC_ENABLEAUTOCOMPLETE);
 			}
 
 			return(TRUE);

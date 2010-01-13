@@ -63,7 +63,7 @@ ControlObject::ControlObject()
 	FrameManager = new Manager;
 	//Macro.LoadMacros();
 	ReadConfig();
-	CmdLine=new CommandLine;
+	CmdLine=0;
 	CmdHistory=new History(HISTORYTYPE_CMD,Opt.HistoryCount,L"SavedHistory",&Opt.SaveHistory,false);
 	FolderHistory=new History(HISTORYTYPE_FOLDER,Opt.FoldersHistoryCount,L"SavedFolderHistory",&Opt.SaveFoldersHistory,true);
 	ViewHistory=new History(HISTORYTYPE_VIEW,Opt.ViewHistoryCount,L"SavedViewHistory",&Opt.SaveViewHistory,true);
@@ -90,8 +90,9 @@ void ControlObject::Init()
 	ShowCopyright();
 	GotoXY(0,ScrY-2);
 	MoveCursor(0,ScrY-1);
-	CmdLine->SaveBackground(0,0,ScrX,ScrY);
 	FPanels=new FilePanels();
+	CmdLine=new CommandLine();
+	CmdLine->SaveBackground(0,0,ScrX,ScrY);
 	this->MainKeyBar=&(FPanels->MainKeyBar);
 	this->TopMenuBar=&(FPanels->TopMenuBar);
 	FPanels->Init();
