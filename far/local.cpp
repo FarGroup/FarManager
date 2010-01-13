@@ -178,7 +178,7 @@ static int __digit_cnt_0(const wchar_t* s, const wchar_t ** beg)
 	return n;
 }
 
-int __cdecl NumStrCmpNI(const wchar_t *s1, const wchar_t *s2, int n)
+int __cdecl NumStrCmpNI(const wchar_t *s1, int n1, const wchar_t *s2, int n2)
 {
 	int ret;
 	int c=0;
@@ -218,7 +218,7 @@ int __cdecl NumStrCmpNI(const wchar_t *s1, const wchar_t *s2, int n)
 		s1++; s2++;
 	}
 
-	if(n!=-1 && c==n)
+	if(n1!=-1 && c==n1 || n2!=-1 && c==n2)
 	{
 		return ret;
 	}
@@ -226,7 +226,7 @@ int __cdecl NumStrCmpNI(const wchar_t *s1, const wchar_t *s2, int n)
 	return StrCmpI(s1,s2);
 }
 
-int __cdecl NumStrCmpN(const wchar_t *s1, const wchar_t *s2, int n)
+int __cdecl NumStrCmpN(const wchar_t *s1, int n1, const wchar_t *s2, int n2)
 {
 	int ret;
 	int c=0;
@@ -266,7 +266,7 @@ int __cdecl NumStrCmpN(const wchar_t *s1, const wchar_t *s2, int n)
 		s1++; s2++;
 	}
 
-	if(n!=-1 && c==n)
+	if(n1!=-1 && c==n1 || n2!=-1 && c==n2)
 	{
 		return ret;
 	}

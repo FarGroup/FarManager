@@ -50,11 +50,13 @@ inline wchar_t __cdecl Upper(wchar_t Ch) { CharUpperBuff(&Ch, 1); return Ch; }
 
 inline wchar_t __cdecl Lower(wchar_t Ch) { CharLowerBuff(&Ch, 1); return Ch; }
 
-inline int __cdecl StrCmpNI(const wchar_t *s1, const wchar_t *s2, int n) { return CompareString(0,NORM_IGNORECASE|NORM_STOP_ON_NULL|SORT_STRINGSORT,s1,n,s2,n)-2; }
+inline int __cdecl StrCmpNNI(const wchar_t *s1, int n1, const wchar_t *s2, int n2) { return CompareString(0,NORM_IGNORECASE|NORM_STOP_ON_NULL|SORT_STRINGSORT,s1,n1,s2,n2)-2; }
+inline int __cdecl StrCmpNI(const wchar_t *s1, const wchar_t *s2, int n) { return StrCmpNNI(s1,n,s2,n); }
 
 inline int __cdecl StrCmpI(const wchar_t *s1, const wchar_t *s2) { return CompareString(0,NORM_IGNORECASE|SORT_STRINGSORT,s1,-1,s2,-1)-2; }
 
-inline int __cdecl StrCmpN(const wchar_t *s1, const wchar_t *s2, int n) { return CompareString(0,NORM_STOP_ON_NULL|SORT_STRINGSORT,s1,n,s2,n)-2; }
+inline int __cdecl StrCmpNN(const wchar_t *s1, int n1, const wchar_t *s2, int n2) { return CompareString(0,NORM_STOP_ON_NULL|SORT_STRINGSORT,s1,n1,s2,n2)-2; }
+inline int __cdecl StrCmpN(const wchar_t *s1, const wchar_t *s2, int n) { return StrCmpNN(s1,n,s2,n); }
 
 inline int __cdecl StrCmp(const wchar_t *s1, const wchar_t *s2) { return CompareString(0,SORT_STRINGSORT,s1,-1,s2,-1)-2; }
 
@@ -79,7 +81,7 @@ const wchar_t * __cdecl StrStrI(const wchar_t *str1, const wchar_t *str2);
 const wchar_t * __cdecl RevStrStr(const wchar_t *str1, const wchar_t *str2);
 const wchar_t * __cdecl RevStrStrI(const wchar_t *str1, const wchar_t *str2);
 
-int __cdecl NumStrCmpN(const wchar_t *s1, const wchar_t *s2, int n);
-int __cdecl NumStrCmpNI(const wchar_t *s1, const wchar_t *s2, int n);
-inline int __cdecl NumStrCmp(const wchar_t *s1, const wchar_t *s2){return NumStrCmpN(s1,s2,-1);}
-inline int __cdecl NumStrCmpI(const wchar_t *s1, const wchar_t *s2){return NumStrCmpNI(s1,s2,-1);}
+int __cdecl NumStrCmpN(const wchar_t *s1, int n1, const wchar_t *s2, int n2);
+int __cdecl NumStrCmpNI(const wchar_t *s1, int n1, const wchar_t *s2, int n2);
+inline int __cdecl NumStrCmp(const wchar_t *s1, const wchar_t *s2){return NumStrCmpN(s1,-1,s2,-1);}
+inline int __cdecl NumStrCmpI(const wchar_t *s1, const wchar_t *s2){return NumStrCmpNI(s1,-1,s2,-1);}
