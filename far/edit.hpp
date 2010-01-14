@@ -326,6 +326,7 @@ public:
 	};
 
 	EditControl(ScreenObject *pOwner=NULL,Callback* aCallback=NULL,bool bAllocateData=true,History* iHistory=0,FarList* iList=0,DWORD iFlags=0);
+	virtual void Show();
 	virtual void Changed(bool DelBlock=false);
 	void SetCallbackState(bool Enable){m_Callback.Active=Enable;}
 	void AutoComplete(bool Manual,bool DelBlock);

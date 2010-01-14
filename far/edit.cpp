@@ -2972,6 +2972,15 @@ EditControl::EditControl(ScreenObject *pOwner,Callback* aCallback,bool bAllocate
 	pList=iList;
 }
 
+void EditControl::Show()
+{
+	if(X2-X1+1>StrSize)
+	{
+		SetLeftPos(0);
+	}
+	Edit::Show();
+}
+
 void EditControl::Changed(bool DelBlock)
 {
 	if(m_Callback.Active)

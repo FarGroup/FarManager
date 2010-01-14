@@ -99,15 +99,6 @@ void CommandLine::SetAutoComplete(int Mode)
 	}
 }
 
-void CommandLine::ShowEdit()
-{
-	if(CmdStr.X2-CmdStr.X1+1>CmdStr.GetLength())
-	{
-		CmdStr.SetLeftPos(0);
-	}
-	CmdStr.Show();
-}
-
 void CommandLine::DisplayObject()
 {
 	_OT(SysLog(L"[%p] CommandLine::DisplayObject()",this));
@@ -121,7 +112,7 @@ void CommandLine::DisplayObject()
 
 	CmdStr.SetPosition(X1+(int)strTruncDir.GetLength(),Y1,X2,Y2);
 
-	ShowEdit();
+	CmdStr.Show();
 }
 
 
@@ -356,7 +347,7 @@ int CommandLine::ProcessKey(int Key)
 		{
 			Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 			CmdStr.Select(-1,0);
-			ShowEdit();
+			CmdStr.Show();
 			CmdStr.GetString(strStr);
 
 			if (strStr.IsEmpty())
@@ -375,7 +366,7 @@ int CommandLine::ProcessKey(int Key)
 		return(TRUE);
 		case KEY_CTRLU:
 			CmdStr.Select(-1,0);
-			ShowEdit();
+			CmdStr.Show();
 			return(TRUE);
 		case KEY_OP_XLAT:
 		{
@@ -475,14 +466,20 @@ void CommandLine::SetString(const wchar_t *Str,BOOL Redraw)
 	CmdStr.SetLeftPos(0);
 
 	if (Redraw)
-		ShowEdit();
+		CmdStr.Show();
 }
 
 
 void CommandLine::ExecString(const wchar_t *Str,int AlwaysWaitFinish,int SeparateWindow,
                              int DirectRun)
 {
+	BOOL EC=CmdStr.ECFlags.Check(EditControl::EC_ENABLEAUTOCOMPLETE);
+	CmdStr.ECFlags.Clear(EditControl::EC_ENABLEAUTOCOMPLETE);
 	SetString(Str);
+	if(EC)
+	{
+		CmdStr.ECFlags.Set(EditControl::EC_ENABLEAUTOCOMPLETE);
+	}
 	CmdExecute(Str,AlwaysWaitFinish,SeparateWindow,DirectRun);
 }
 
@@ -491,7 +488,7 @@ void CommandLine::InsertString(const wchar_t *Str)
 {
 	LastCmdPartLength=-1;
 	CmdStr.InsertString(Str);
-	ShowEdit();
+	CmdStr.Show();
 }
 
 
