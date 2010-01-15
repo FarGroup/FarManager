@@ -110,25 +110,21 @@ bool FillREPARSE_DATA_BUFFER(PREPARSE_DATA_BUFFER rdb,LPCWSTR PrintName,size_t P
 bool SetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
 {
 	bool Result=false;
-	HANDLE hObject=apiCreateFile(Object,GENERIC_WRITE,0,NULL,OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT);
-
-	if (hObject!=INVALID_HANDLE_VALUE)
+	if (IsReparseTagValid(rdb->ReparseTag))
 	{
-		DWORD dwBytesReturned;
-
-		if (IsReparseTagValid(rdb->ReparseTag))
+		if (rdb->ReparseTag==IO_REPARSE_TAG_SYMLINK)
 		{
-			if (rdb->ReparseTag==IO_REPARSE_TAG_SYMLINK)
-			{
-				SetPrivilege(L"SeCreateSymbolicLinkPrivilege",TRUE);
-			}
-
+			SetPrivilege(L"SeCreateSymbolicLinkPrivilege",TRUE);
+		}
+		HANDLE hObject=apiCreateFile(Object,GENERIC_WRITE,0,NULL,OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT);
+		if (hObject!=INVALID_HANDLE_VALUE)
+		{
+			DWORD dwBytesReturned;
 			if (DeviceIoControl(hObject,FSCTL_SET_REPARSE_POINT,rdb,rdb->ReparseDataLength+REPARSE_DATA_BUFFER_HEADER_SIZE,NULL,0,&dwBytesReturned,0))
 			{
 				Result=true;
 			}
 		}
-
 		CloseHandle(hObject);
 	}
 
