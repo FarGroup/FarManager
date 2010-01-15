@@ -69,6 +69,15 @@ static const wchar_t *EOL_TYPE_CHARS[]={L"",L"\r",L"\n",L"\r\n",L"\r\r\n"};
 #define EDMASK_ALPHA L'A' // позволяет вводить в строку ввода только буквы.
 #define EDMASK_HEX   L'H' // позволяет вводить в строку ввода шестнадцатиричные символы.
 
+class DisableCallback
+{
+	bool OldState;
+	bool *CurState;
+public:
+	DisableCallback(bool &State){OldState=State;CurState=&State;State=false;}
+	void Restore(){*CurState=OldState;}
+	~DisableCallback(){Restore();}
+};
 
 Edit::Edit(ScreenObject *pOwner, Callback* aCallback, bool bAllocateData)
 {
@@ -959,9 +968,15 @@ int Edit::ProcessKey(int Key)
 		}
 		case KEY_CTRLSHIFTBS:
 		{
-			for (int i=CurPos; i>=0; i--)
-				RecurseProcessKey(KEY_BS);
+			DisableCallback DC(m_Callback.Active);
 
+			// BUGBUG
+			for (int i=CurPos; i>=0; i--)
+			{
+				RecurseProcessKey(KEY_BS);
+			}
+			DC.Restore();
+			Changed();
 			Show();
 			return(TRUE);
 		}
@@ -975,8 +990,9 @@ int Edit::ProcessKey(int Key)
 
 			Lock();
 
-//      while (CurPos>0 && IsSpace(Str[CurPos-1]))
-//        RecurseProcessKey(KEY_BS);
+			DisableCallback DC(m_Callback.Active);
+
+			// BUGBUG
 			for (;;)
 			{
 				int StopDelete=FALSE;
@@ -994,6 +1010,8 @@ int Edit::ProcessKey(int Key)
 			}
 
 			Unlock();
+			DC.Restore();
+			Changed();
 			Show();
 			return(TRUE);
 		}
@@ -1061,9 +1079,7 @@ int Edit::ProcessKey(int Key)
 				return(FALSE);
 
 			Lock();
-
-//      while (CurPos<StrSize && IsSpace(Str[CurPos]))
-//        RecurseProcessKey(KEY_DEL);
+			DisableCallback DC(m_Callback.Active);
 			if (Mask && *Mask)
 			{
 				int MaskLen=StrLength(Mask);
@@ -1079,6 +1095,7 @@ int Edit::ProcessKey(int Key)
 						break;
 				}
 
+				// BUGBUG
 				for (int i=0; i<ptr-CurPos; i++)
 					RecurseProcessKey(KEY_DEL);
 			}
@@ -1102,6 +1119,8 @@ int Edit::ProcessKey(int Key)
 			}
 
 			Unlock();
+			DC.Restore();
+			Changed();
 			Show();
 			return(TRUE);
 		}
@@ -3002,8 +3021,10 @@ void EditControl::SetMenuPos(VMenu& menu)
 	}
 }
 
-void EditControl::AutoComplete(bool Manual,bool DelBlock)
+
+int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 {
+	int Result=0;
 	static int Reenter=0;
 
 	if(ECFlags.Check(EC_ENABLEAUTOCOMPLETE) && *Str && !Reenter && (CtrlObject->Macro.GetCurRecord(NULL,NULL) == MACROMODE_NOMACRO || Manual))
@@ -3120,10 +3141,8 @@ void EditControl::AutoComplete(bool Manual,bool DelBlock)
 									if(MenuKey!=KEY_BS && MenuKey!=KEY_DEL && MenuKey!=KEY_NUMDEL && Opt.AutoComplete.AppendCompletion)
 									{
 										int SelStart=GetLength();
-										bool CBState=m_Callback.Active;
-										m_Callback.Active=false;
+										DisableCallback DC(m_Callback.Active);
 										InsertString(ComplMenu.GetItemPtr(0)->strName+GetLength());
-										m_Callback.Active=CBState;
 										if(X2-X1>GetLength())
 											SetLeftPos(0);
 										Select(SelStart, GetLength());
@@ -3201,7 +3220,8 @@ void EditControl::AutoComplete(bool Manual,bool DelBlock)
 								{
 									ComplMenu.Hide();
 									ComplMenu.SetExitCode(-1);
-									pOwner->ProcessKey(MenuKey);
+									BackKey=MenuKey;
+									Result=1;
 								}
 							}
 						}
@@ -3223,5 +3243,16 @@ void EditControl::AutoComplete(bool Manual,bool DelBlock)
 		}
 
 		Reenter--;
+	}
+	return Result;
+}
+
+void EditControl::AutoComplete(bool Manual,bool DelBlock)
+{
+	int Key=0;
+	if(AutoCompleteProc(Manual,DelBlock,Key))
+	{
+		pOwner->ProcessKey(Key);
+		Show();
 	}
 }

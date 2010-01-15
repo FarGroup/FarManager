@@ -862,7 +862,6 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 
 bool History::GetAllSimilar(VMenu &HistoryMenu,const wchar_t *Str)
 {
-	ResetPosition();
 	int Length=StrLength(Str);
 	for (HistoryRecord *HistoryItem=HistoryList.Last();HistoryItem;HistoryItem=HistoryList.Prev(HistoryItem))
 	{

@@ -314,6 +314,7 @@ class EditControl:public Edit
 	History* pHistory;
 	FarList* pList;
 	void SetMenuPos(VMenu& menu);
+	int AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey);
 
 public:
 
