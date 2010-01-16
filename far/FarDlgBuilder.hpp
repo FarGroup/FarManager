@@ -51,13 +51,11 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 		virtual int DoShowDialog();
 		
 		virtual DialogItemBinding<DialogItemEx> *CreateCheckBoxBinding(BOOL *Value);
+		virtual DialogItemBinding<DialogItemEx> *CreateRadioButtonBinding(int *Value);
 
 	public:
 		DialogBuilder(int TitleMessageId, const wchar_t *HelpTopic);
 		~DialogBuilder();
-
-		// Добавляет группу радиокнопок.
-		void AddRadioButtons(int *Value, int OptionCount, int MessageIDs[]);
 
 		// Добавляет статический текст, расположенный на отдельной строке в диалоге.
 		DialogItemEx *AddText(int LabelId);
@@ -66,16 +64,10 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 		DialogItemEx *AddEditField(string *Value, int Width, const wchar_t *HistoryID = NULL);
 
 		// Добавляет поле типа DI_FIXEDIT для редактирования указанного числового значения.
-		DialogItemEx *AddIntEditField(int *Value, int Width);
+		virtual DialogItemEx *AddIntEditField(int *Value, int Width);
 
 		// Добавляет выпадающий список с указанными значениями.
 		DialogItemEx *AddComboBox(int *Value, int Width, DialogBuilderListItem *Items, int ItemCount, DWORD Flags = DIF_NONE);
-
-		// Добавляет указанную текстовую строку слева от элемента RelativeTo.
-		DialogItemEx *AddTextBefore(DialogItemEx *RelativeTo, int LabelId);
-
-		// Добавляет указанную текстовую строку справа от элемента RelativeTo.
-		DialogItemEx *AddTextAfter(DialogItemEx *RelativeTo, int LabelId);
 
 		// Связывает состояние элементов Parent и Target. Когда Parent->Selected равно
 		// false, устанавливает флаги Flags у элемента Target; когда равно true -

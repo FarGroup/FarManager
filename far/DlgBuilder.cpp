@@ -58,16 +58,26 @@ struct EditFieldBinding: public DialogItemBinding<DialogItemEx>
 struct EditFieldIntBinding: public DialogItemBinding<DialogItemEx>
 {
 	int *IntValue;
+	TCHAR Mask[32];
 
-	EditFieldIntBinding(int *aIntValue)
+	EditFieldIntBinding(int *aIntValue, int Width)
 		: IntValue(aIntValue)
 	{
+		int MaskWidth = Width < 31 ? Width : 31;
+		for(int i=0; i<MaskWidth; i++)
+			Mask[i] = '9';
+		Mask[MaskWidth] = '\0';
 	}
 
 	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex)
 	{
 		wchar_t *endptr;
 		*IntValue = wcstoul(Item->strData, &endptr, 10);
+	}
+
+	const TCHAR *GetMask() 
+	{
+		return Mask;
 	}
 };
 
@@ -110,19 +120,9 @@ DialogItemBinding<DialogItemEx> *DialogBuilder::CreateCheckBoxBinding(BOOL *Valu
 	return new CheckBoxBinding<DialogItemEx>(Value);
 }
 
-void DialogBuilder::AddRadioButtons(int *Value, int OptionCount, int MessageIDs[])
+DialogItemBinding<DialogItemEx> *DialogBuilder::CreateRadioButtonBinding(int *Value)
 {
-	for(int i=0; i<OptionCount; i++)
-	{
-		DialogItemEx *Item = AddDialogItem(DI_RADIOBUTTON, MSG(MessageIDs[i]));
-		SetNextY(Item);
-		Item->X2 = Item->X1 + ItemWidth(*Item);
-		if (i == 0)
-			Item->Flags |= DIF_GROUP;
-		if (*Value == i)
-			Item->Selected = TRUE;
-		SetLastItemBinding(new RadioButtonBinding<DialogItemEx>(Value));
-	}
+	return new RadioButtonBinding<DialogItemEx>(Value);
 }
 
 DialogItemEx *DialogBuilder::AddText(int LabelId)
@@ -154,10 +154,12 @@ DialogItemEx *DialogBuilder::AddIntEditField(int *Value, int Width)
 	ValueText.Format(L"%u", *Value);
 	Item->strData = ValueText;
 	SetNextY(Item);
-	Item->X2 = Item->X1 + Width;
+	Item->X2 = Item->X1 + Width - 1;
 
-
-	SetLastItemBinding(new EditFieldIntBinding(Value));
+	EditFieldIntBinding *Binding = new EditFieldIntBinding(Value, Width);
+	SetLastItemBinding(Binding);
+	Item->Flags |= DIF_MASKEDIT;
+	Item->Mask = Binding->GetMask();
 	return Item;
 }
 
@@ -183,37 +185,6 @@ DialogItemEx *DialogBuilder::AddComboBox(int *Value, int Width,
 	Item->ListItems = List;
 
 	SetLastItemBinding(new ComboBoxBinding<DialogItemEx>(Value, List));
-	return Item;
-}
-
-DialogItemEx *DialogBuilder::AddTextBefore(DialogItemEx *RelativeTo, int LabelId)
-{
-	DialogItemEx *Item = AddDialogItem(DI_TEXT, MSG(LabelId));
-	Item->Y1 = Item->Y2 = RelativeTo->Y1;
-	Item->X1 = 5;
-	Item->X2 = Item->X1 + ItemWidth(*Item) - 1;
-
-	int RelativeToWidth = RelativeTo->X2 - RelativeTo->X1;
-	RelativeTo->X1 = Item->X2 + 2;
-	RelativeTo->X2 = RelativeTo->X1 + RelativeToWidth;
-
-	DialogItemBinding<DialogItemEx> *Binding = FindBinding(RelativeTo);
-	if (Binding)
-		Binding->BeforeLabelID = Item->ID;
-
-	return Item;
-}
-
-DialogItemEx *DialogBuilder::AddTextAfter(DialogItemEx *RelativeTo, int LabelId)
-{
-	DialogItemEx *Item = AddDialogItem(DI_TEXT, MSG(LabelId));
-	Item->Y1 = Item->Y2 = RelativeTo->Y1;
-	Item->X1 = RelativeTo->X2 + 2;
-
-	DialogItemBinding<DialogItemEx> *Binding = FindBinding(RelativeTo);
-	if (Binding)
-		Binding->AfterLabelID = Item->ID;
-
 	return Item;
 }
 

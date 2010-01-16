@@ -48,21 +48,6 @@ struct DialogBuilderListItem
 	int ItemValue;
 };
 
-/* 
-Класс для динамического построения диалогов. Автоматически вычисляет положение и размер
-для добавляемых контролов, а также размер самого диалога. Автоматически записывает выбранные 
-значения в указанное место после закрытия диалога по OK.
-
-По умолчанию каждый контрол размещается в новой строке диалога. Ширина для текстовых строк,
-checkbox и radio button вычисляется автоматически, для других элементов передаётся явно.
-Есть также возможность добавить статический текст слева или справа от контрола, при помощи
-методов AddTextBefore и AddTextAfter. Для того, чтобы сместить элемент относительно дефолтного
-положения по горизонтали, можно использовать метод DialogItemEx::Indent().
-
-Есть также поддержка automation (изменение флагов одного элемента в зависимости от состояния 
-другого). Реализуется при помощи метода LinkFlags().
-*/
-
 template<class T>
 struct DialogItemBinding
 {
@@ -133,6 +118,21 @@ struct ComboBoxBinding: public DialogItemBinding<T>
 		*Value = ListItem.Reserved[0];
 	}
 };
+
+/* 
+Класс для динамического построения диалогов. Автоматически вычисляет положение и размер
+для добавляемых контролов, а также размер самого диалога. Автоматически записывает выбранные 
+значения в указанное место после закрытия диалога по OK.
+
+По умолчанию каждый контрол размещается в новой строке диалога. Ширина для текстовых строк,
+checkbox и radio button вычисляется автоматически, для других элементов передаётся явно.
+Есть также возможность добавить статический текст слева или справа от контрола, при помощи
+методов AddTextBefore и AddTextAfter. Для того, чтобы сместить элемент относительно дефолтного
+положения по горизонтали, можно использовать метод DialogItemEx::Indent().
+
+Есть также поддержка automation (изменение флагов одного элемента в зависимости от состояния 
+другого). Реализуется при помощи метода LinkFlags().
+*/
 
 template<class T>
 class DialogBuilderBase
@@ -261,6 +261,14 @@ class DialogBuilderBase
 			Bindings [DialogItemsCount-1] = Binding;
 		}
 
+		int GetItemID(T *Item)
+		{
+			int Index = static_cast<int>(Item - DialogItems);
+			if (Index >= 0 && Index < DialogItemsCount)
+				return Index;
+			return -1;
+		}
+
 		DialogItemBinding<T> *FindBinding(T *Item)
 		{
 			int Index = static_cast<int>(Item - DialogItems);
@@ -299,6 +307,11 @@ class DialogBuilderBase
 			return NULL;
 		}
 
+		virtual DialogItemBinding<T> *CreateRadioButtonBinding(int *Value)
+		{
+			return NULL;
+		}
+
 		DialogBuilderBase()
 			: DialogItems(NULL), DialogItemsCount(0), DialogItemsAllocated(0), NextY(2)
 		{
@@ -324,6 +337,61 @@ class DialogBuilderBase
 			Item->X2 = Item->X1 + ItemWidth(*Item);
 			Item->Selected = *Value;
 			SetLastItemBinding(CreateCheckBoxBinding(Value));
+			return Item;
+		}
+
+		// Добавляет группу радиокнопок.
+		void AddRadioButtons(int *Value, int OptionCount, int MessageIDs[])
+		{
+			for(int i=0; i<OptionCount; i++)
+			{
+				T *Item = AddDialogItem(DI_RADIOBUTTON, GetLangString(MessageIDs[i]));
+				SetNextY(Item);
+				Item->X2 = Item->X1 + ItemWidth(*Item);
+				if (i == 0)
+					Item->Flags |= DIF_GROUP;
+				if (*Value == i)
+					Item->Selected = TRUE;
+				SetLastItemBinding(CreateRadioButtonBinding(Value));
+			}
+		}
+
+		// Добавляет поле типа DI_FIXEDIT для редактирования указанного числового значения.
+		virtual T *AddIntEditField(int *Value, int Width)
+		{
+			return NULL;
+		}
+
+		// Добавляет указанную текстовую строку слева от элемента RelativeTo.
+		T *AddTextBefore(T *RelativeTo, int LabelId)
+		{
+			T *Item = AddDialogItem(DI_TEXT, GetLangString(LabelId));
+			Item->Y1 = Item->Y2 = RelativeTo->Y1;
+			Item->X1 = 5;
+			Item->X2 = Item->X1 + ItemWidth(*Item) - 1;
+
+			int RelativeToWidth = RelativeTo->X2 - RelativeTo->X1;
+			RelativeTo->X1 = Item->X2 + 2;
+			RelativeTo->X2 = RelativeTo->X1 + RelativeToWidth;
+
+			DialogItemBinding<T> *Binding = FindBinding(RelativeTo);
+			if (Binding)
+				Binding->BeforeLabelID = GetItemID(Item);
+
+			return Item;
+		}
+
+		// Добавляет указанную текстовую строку справа от элемента RelativeTo.
+		T *AddTextAfter(T *RelativeTo, int LabelId)
+		{
+			T *Item = AddDialogItem(DI_TEXT, GetLangString(LabelId));
+			Item->Y1 = Item->Y2 = RelativeTo->Y1;
+			Item->X1 = RelativeTo->X2 + 2;
+
+			DialogItemBinding<T> *Binding = FindBinding(RelativeTo);
+			if (Binding)
+				Binding->AfterLabelID = GetItemID(Item);
+
 			return Item;
 		}
 
@@ -367,17 +435,27 @@ class DialogBuilderBase
 
 class PluginDialogBuilder;
 
-class PluginCheckBoxBinding: public DialogItemBinding<FarDialogItem>
+class DialogAPIBinding: public DialogItemBinding<FarDialogItem>
 {
-private:
+protected:
 	const PluginStartupInfo &Info;
 	HANDLE *DialogHandle;
 	int ID;
+
+	DialogAPIBinding(const PluginStartupInfo &aInfo, HANDLE *aHandle, int aID)
+		: Info(aInfo), DialogHandle(aHandle), ID(aID)
+	{
+	}
+};
+
+class PluginCheckBoxBinding: public DialogAPIBinding
+{
 	BOOL *Value;
 
 public:
 	PluginCheckBoxBinding(const PluginStartupInfo &aInfo, HANDLE *aHandle, int aID, BOOL *aValue)
-		: Info(aInfo), DialogHandle(aHandle), ID(aID), Value(aValue)
+		: DialogAPIBinding(aInfo, aHandle, aID), 
+		  Value(aValue)
 	{
 	}
 
@@ -386,6 +464,95 @@ public:
 		*Value = static_cast<BOOL>(Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, 0));
 	}
 };
+
+class PluginRadioButtonBinding: public DialogAPIBinding
+{
+	private:
+		int *Value;
+
+	public:
+		PluginRadioButtonBinding(const PluginStartupInfo &aInfo, HANDLE *aHandle, int aID, int *aValue)
+			: DialogAPIBinding(aInfo, aHandle, aID),
+			  Value(aValue)
+		{
+		}
+
+		virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
+		{
+			if (Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, 0))
+				*Value = RadioGroupIndex;
+		}
+};
+
+#ifdef UNICODE
+class PluginIntEditFieldBinding: public DialogAPIBinding
+{
+private:
+	int *Value;
+	TCHAR Buffer[32];
+	TCHAR Mask[32];
+
+public:
+	PluginIntEditFieldBinding(const PluginStartupInfo &aInfo, HANDLE *aHandle, int aID, int *aValue, int Width)
+		: DialogAPIBinding(aInfo, aHandle, aID),
+		  Value(aValue)
+	{
+		aInfo.FSF->itoa(*aValue, Buffer, 10);
+		int MaskWidth = Width < 31 ? Width : 31;
+		for(int i=0; i<MaskWidth; i++)
+			Mask[i] = '9';
+		Mask[MaskWidth] = '\0';
+	}
+
+	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
+	{
+		const TCHAR *DataPtr = (const TCHAR *) Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, 0);
+		*Value = Info.FSF->atoi(DataPtr);
+	}
+
+	TCHAR *GetBuffer()
+	{
+		return Buffer;
+	}
+
+	const TCHAR *GetMask()
+	{
+		return Mask;
+	}
+};
+
+#else
+
+class PluginIntEditFieldBinding: public DialogItemBinding<FarDialogItem>
+{
+private:
+	const PluginStartupInfo &Info;
+	int *Value;
+	TCHAR Mask[32];
+
+public:
+	PluginIntEditFieldBinding(const PluginStartupInfo &aInfo, int *aValue, int Width)
+		: Info(aInfo), Value(aValue)
+	{
+		int MaskWidth = Width < 31 ? Width : 31;
+		for(int i=0; i<MaskWidth; i++)
+			Mask[i] = '9';
+		Mask[MaskWidth] = '\0';
+	}
+
+	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
+	{
+		*Value = Info.FSF->atoi(Item->Data);
+	}
+
+	const TCHAR *GetMask()
+	{
+		return Mask;
+	}
+};
+
+#endif
+
 
 class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 {
@@ -440,7 +607,16 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 #endif
 		}
 
-	public:
+		virtual DialogItemBinding<FarDialogItem> *CreateRadioButtonBinding(BOOL *Value)
+		{
+#ifdef UNICODE
+			return new PluginRadioButtonBinding(Info, &DialogHandle, DialogItemsCount-1, Value);
+#else
+			return new RadioButtonBinding<FarDialogItem>(Value);
+#endif
+		}
+
+public:
 		PluginDialogBuilder(const PluginStartupInfo &aInfo, int TitleMessageID)
 			: Info(aInfo)
 		{
@@ -452,5 +628,30 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 #ifdef UNICODE
 			Info.DialogFree(DialogHandle);
 #endif
+		}
+
+		virtual FarDialogItem *AddIntEditField(int *Value, int Width)
+		{
+			FarDialogItem *Item = AddDialogItem(DI_FIXEDIT, EMPTY_TEXT);
+			Item->Flags |= DIF_MASKEDIT;
+			PluginIntEditFieldBinding *Binding;
+#ifdef UNICODE
+			Binding = new PluginIntEditFieldBinding(Info, &DialogHandle, DialogItemsCount-1, Value, Width);
+			Item->PtrData = Binding->GetBuffer();
+#else
+			Binding = new PluginIntEditFieldBinding(Info, Value, Width);
+			Info.FSF->itoa(*Value, (TCHAR *) Item->Data, 10);
+#endif
+
+	
+#ifdef _FAR_NO_NAMELESS_UNIONS
+			Item->Param.Mask = Binding->GetMask();
+#else
+			Item->Mask = Binding->GetMask();
+#endif
+			SetNextY(Item);
+			Item->X2 = Item->X1 + Width - 1;
+			SetLastItemBinding(Binding);
+			return Item;
 		}
 };
