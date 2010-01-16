@@ -3982,7 +3982,7 @@ BOOL Editor::Search(int Next)
 
 	LastSuccessfulReplaceMode=ReplaceMode;
 
-	if (!EdOpt.PersistentBlocks || SelectFound)
+	if (!EdOpt.PersistentBlocks || (SelectFound && !ReplaceMode))
 		UnmarkBlock();
 
 	{
@@ -4054,7 +4054,7 @@ BOOL Editor::Search(int Next)
 
 			if (CurPtr->Search(strSearchStr,strReplaceStrCurrent,CurPos,Case,WholeWords,ReverseSearch,Regexp,&SearchLength))
 			{
-				if (SelectFound)
+				if (SelectFound && !ReplaceMode)
 				{
 					Pasting++;
 					Lock();
@@ -4234,7 +4234,7 @@ BOOL Editor::Search(int Next)
 							CurLine->SetBinaryString(NewStr,NewStrLen);
 							CurLine->SetCurPos(CurPos+RStrLen);
 
-							if (SelectFound)
+							if (SelectFound && !ReplaceMode)
 							{
 								UnmarkBlock();
 								Flags.Set(FEDITOR_MARKINGBLOCK);
