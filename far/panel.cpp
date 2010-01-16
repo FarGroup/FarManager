@@ -217,6 +217,7 @@ const TypeMessage DrTMsg[]=
 	{DRIVE_DVD_ROM,MChangeDriveDVD_ROM},
 	{DRIVE_DVD_RW,MChangeDriveDVD_RW},
 	{DRIVE_DVD_RAM,MChangeDriveDVD_RAM},
+	{DRIVE_BD_ROM,MChangeDriveBD_ROM},
 	{DRIVE_RAMDISK,MChangeDriveRAM},
 };
 

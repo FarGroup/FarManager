@@ -9865,6 +9865,14 @@ MChangeDriveDVD_RAM
 "DVD-RAM"
 "DVD-RAM"
 
+MChangeDriveBD_ROM
+"BD-ROM"
+"BD-ROM"
+"BD-ROM"
+"BD-ROM"
+"BD-ROM"
+"BD-ROM"
+
 MChangeDriveRAM
 "RAM диск"
 "RAM disk"

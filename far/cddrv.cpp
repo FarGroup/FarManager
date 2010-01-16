@@ -104,6 +104,11 @@ static CDROM_DeviceCaps getCapsUsingProductId(const char *prodID)
 		caps |= CDDEV_CAPS_GENERIC_DVDRAM;
 	}
 
+	if (strstr(productID, "BDROM"))
+	{
+		caps |= CDDEV_CAPS_GENERIC_BDROM;
+	}
+
 	return (CDROM_DeviceCaps)caps;
 }
 
@@ -279,6 +284,9 @@ CDROM_DeviceCaps GetCDDeviceCaps(HANDLE hDevice)
 
 UINT GetCDDeviceTypeByCaps(CDROM_DeviceCaps caps)
 {
+	if (caps & CDDEV_CAPS_READ_BDROM)
+		return DRIVE_BD_ROM;
+
 	if (caps & CDDEV_CAPS_WRITE_DVDRAM)
 		return DRIVE_DVD_RAM;
 
@@ -302,7 +310,7 @@ UINT GetCDDeviceTypeByCaps(CDROM_DeviceCaps caps)
 
 bool IsDriveTypeCDROM(UINT DriveType)
 {
-	return DriveType == DRIVE_CDROM || (DriveType >= DRIVE_CD_RW && DriveType <= DRIVE_DVD_RAM);
+	return DriveType == DRIVE_CDROM || (DriveType >= DRIVE_CD_RW && DriveType <= DRIVE_BD_ROM);
 }
 
 

@@ -50,6 +50,7 @@ enum
 	DRIVE_DVD_ROM               =20,
 	DRIVE_DVD_RW                =21,
 	DRIVE_DVD_RAM               =22,
+	DRIVE_BD_ROM                =23,
 	DRIVE_USBDRIVE              =40,
 	DRIVE_NOT_INIT              =255,
 };
