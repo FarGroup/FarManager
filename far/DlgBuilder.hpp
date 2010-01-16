@@ -69,13 +69,24 @@ struct CheckBoxBinding: public DialogItemBinding<T>
 {
 	private:
 		BOOL *Value;
+		int Mask;
 
 	public:
-		CheckBoxBinding(BOOL *aValue) : Value(aValue) { }
+		CheckBoxBinding(BOOL *aValue, int aMask) : Value(aValue), Mask(aMask) { }
 
 		virtual void SaveValue(T *Item, int RadioGroupIndex)
 		{
-			*Value = Item->Selected;
+			if (Mask == 0)
+			{
+				*Value = Item->Selected;
+			}
+			else
+			{
+				if (Item->Selected)
+					*Value |= Mask;
+				else
+					*Value &= ~Mask;
+			}
 		}
 };
 
@@ -127,11 +138,17 @@ struct ComboBoxBinding: public DialogItemBinding<T>
 По умолчанию каждый контрол размещается в новой строке диалога. Ширина для текстовых строк,
 checkbox и radio button вычисляется автоматически, для других элементов передаётся явно.
 Есть также возможность добавить статический текст слева или справа от контрола, при помощи
-методов AddTextBefore и AddTextAfter. Для того, чтобы сместить элемент относительно дефолтного
-положения по горизонтали, можно использовать метод DialogItemEx::Indent().
+методов AddTextBefore и AddTextAfter. 
 
-Есть также поддержка automation (изменение флагов одного элемента в зависимости от состояния 
-другого). Реализуется при помощи метода LinkFlags().
+Поддерживается также возможность расположения контролов в две колонки. Используется следующим
+образом:
+- StartColumns()
+- добавляются контролы для первой колонки
+- ColumnBreak()
+- добавляются контролы для второй колонки
+- EndColumns()
+
+Базовая версия класса используется как внутри кода FAR, так и в плагинах.
 */
 
 template<class T>
@@ -144,6 +161,13 @@ class DialogBuilderBase
 		int DialogItemsAllocated;
 		int NextY;
 		int OKButtonID;
+		int ColumnStartIndex;
+		int ColumnBreakIndex;
+		int ColumnStartY;
+		int ColumnEndY;
+		int ColumnMinWidth;
+
+		static const int SECOND_COLUMN = -2;
 
 		void ReallocDialogItems()
 		{
@@ -237,6 +261,7 @@ class DialogBuilderBase
 			int MaxWidth = 0;
 			for(int i=1; i<DialogItemsCount; i++)
 			{
+				if (DialogItems [i].X1 == SECOND_COLUMN) continue;
 				int Width = ItemWidth(DialogItems [i]);
 				int Indent = DialogItems [i].X1 - 5;
 				Width += Indent;
@@ -244,7 +269,24 @@ class DialogBuilderBase
 				if (MaxWidth < Width)
 					MaxWidth = Width;
 			}
+			int ColumnsWidth = 2*ColumnMinWidth+1;
+			if (MaxWidth < ColumnsWidth)
+				return ColumnsWidth;
 			return MaxWidth;
+		}
+
+		void UpdateSecondColumnPosition() 
+		{
+			int SecondColumnX1 = 6 + (DialogItems [0].X2 - DialogItems [0].X1 - 1)/2;
+			for(int i=0; i<DialogItemsCount; i++)
+			{
+				if (DialogItems [i].X1 == SECOND_COLUMN)
+				{
+					int Width = DialogItems [i].X2 - DialogItems [i].X1;
+					DialogItems [i].X1 = SecondColumnX1;
+					DialogItems [i].X2 = DialogItems [i].X1 + Width;
+				}
+			}
 		}
 
 		virtual void InitDialogItem(T *NewDialogItem, const TCHAR *Text)
@@ -302,7 +344,7 @@ class DialogBuilderBase
 			return -1;
 		}
 
-		virtual DialogItemBinding<T> *CreateCheckBoxBinding(BOOL *Value)
+		virtual DialogItemBinding<T> *CreateCheckBoxBinding(BOOL *Value, int Mask)
 		{
 			return NULL;
 		}
@@ -313,7 +355,8 @@ class DialogBuilderBase
 		}
 
 		DialogBuilderBase()
-			: DialogItems(NULL), DialogItemsCount(0), DialogItemsAllocated(0), NextY(2)
+			: DialogItems(NULL), DialogItemsCount(0), DialogItemsAllocated(0), NextY(2), 
+			  ColumnStartIndex(-1), ColumnBreakIndex(-1), ColumnMinWidth(0)
 		{
 		}	
 
@@ -329,14 +372,25 @@ class DialogBuilderBase
 		}
 
 	public:
+		// Добавляет статический текст, расположенный на отдельной строке в диалоге.
+		T *AddText(int LabelId)
+		{
+			T *Item = AddDialogItem(DI_TEXT, GetLangString(LabelId));
+			SetNextY(Item);
+			return Item;
+		}
+
 		// Добавляет чекбокс.
-		T *AddCheckbox(int TextMessageId, BOOL *Value)
+		T *AddCheckbox(int TextMessageId, BOOL *Value, int Mask=0)
 		{
 			T *Item = AddDialogItem(DI_CHECKBOX, GetLangString(TextMessageId));
 			SetNextY(Item);
 			Item->X2 = Item->X1 + ItemWidth(*Item);
-			Item->Selected = *Value;
-			SetLastItemBinding(CreateCheckBoxBinding(Value));
+			if (Mask == 0)
+				Item->Selected = *Value;
+			else
+				Item->Selected = (*Value & Mask) != 0;
+			SetLastItemBinding(CreateCheckBoxBinding(Value, Mask));
 			return Item;
 		}
 
@@ -395,10 +449,50 @@ class DialogBuilderBase
 			return Item;
 		}
 
-		// Добавляет сепаратор.
-		void AddSeparator()
+		// Начинает располагать поля диалога в две колонки.
+		void StartColumns()
 		{
-			T *Separator = AddDialogItem(DI_TEXT, EMPTY_TEXT);
+			ColumnStartIndex = DialogItemsCount;
+			ColumnStartY = NextY;
+		}
+
+		// Завершает колонку полей в диалоге и переходит к следующей колонке.
+		void ColumnBreak()
+		{
+			ColumnBreakIndex = DialogItemsCount;
+			ColumnEndY = NextY;
+			NextY = ColumnStartY;
+		}
+
+		// Завершает расположение полей диалога в две колонки.
+		void EndColumns()
+		{
+			for(int i=ColumnStartIndex; i<DialogItemsCount; i++)
+			{
+				int Width = ItemWidth(DialogItems [i]);
+				if (Width > ColumnMinWidth)
+					ColumnMinWidth = Width;
+				if (i >= ColumnBreakIndex)
+				{
+					DialogItems [i].X1 = SECOND_COLUMN;
+					DialogItems [i].X2 = SECOND_COLUMN + Width;
+				}
+			}
+
+			ColumnStartIndex = -1;
+			ColumnBreakIndex = -1;
+		}
+
+		// Добавляет пустую строку.
+		void AddEmptyLine()
+		{
+			NextY++;
+		}
+
+		// Добавляет сепаратор.
+		void AddSeparator(int MessageId=-1)
+		{
+			T *Separator = AddDialogItem(DI_TEXT, MessageId == -1 ? EMPTY_TEXT : GetLangString(MessageId));
 			Separator->Flags = DIF_BOXCOLOR | DIF_SEPARATOR;
 			Separator->X1 = 3;
 			Separator->Y1 = Separator->Y2 = NextY++;
@@ -423,6 +517,7 @@ class DialogBuilderBase
 		bool ShowDialog()
 		{
 			UpdateBorderSize();
+			UpdateSecondColumnPosition();
 			int Result = DoShowDialog();
 			if (Result == OKButtonID)
 			{
@@ -451,17 +546,29 @@ protected:
 class PluginCheckBoxBinding: public DialogAPIBinding
 {
 	BOOL *Value;
+	int Mask;
 
 public:
-	PluginCheckBoxBinding(const PluginStartupInfo &aInfo, HANDLE *aHandle, int aID, BOOL *aValue)
+	PluginCheckBoxBinding(const PluginStartupInfo &aInfo, HANDLE *aHandle, int aID, BOOL *aValue, int aMask)
 		: DialogAPIBinding(aInfo, aHandle, aID), 
-		  Value(aValue)
+		  Value(aValue), Mask(aMask)
 	{
 	}
 
 	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
 	{
-		*Value = static_cast<BOOL>(Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, 0));
+		BOOL Selected = static_cast<BOOL>(Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, 0));
+		if (Mask == 0)
+		{
+			*Value = Selected;
+		}
+		else
+		{
+			if (Selected)
+				*Value |= Mask;
+			else
+				*Value &= ~Mask;
+		}
 	}
 };
 
@@ -485,6 +592,25 @@ class PluginRadioButtonBinding: public DialogAPIBinding
 };
 
 #ifdef UNICODE
+
+class PluginEditFieldBinding: public DialogAPIBinding
+{
+private:
+	TCHAR *Value;
+
+public:
+	PluginEditFieldBinding(const PluginStartupInfo &aInfo, HANDLE *aHandle, int aID, TCHAR *aValue)
+		: DialogAPIBinding(aInfo, aHandle, aID), Value(aValue)
+	{
+	}
+
+	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
+	{
+		const TCHAR *DataPtr = (const TCHAR *) Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, 0);
+		lstrcpy(Value, DataPtr);
+	}
+};
+
 class PluginIntEditFieldBinding: public DialogAPIBinding
 {
 private:
@@ -523,6 +649,23 @@ public:
 
 #else
 
+class PluginEditFieldBinding: public DialogItemBinding<FarDialogItem>
+{
+private: 
+	TCHAR *Value;
+
+public:
+	PluginEditFieldBinding(TCHAR *aValue)
+		: Value(aValue)
+	{
+	}
+
+	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
+	{
+		lstrcpy(Value, Item->Data);
+	}
+};
+
 class PluginIntEditFieldBinding: public DialogItemBinding<FarDialogItem>
 {
 private:
@@ -553,12 +696,15 @@ public:
 
 #endif
 
-
+/*
+Версия класса для динамического построения диалогов, используемая в плагинах к FAR.
+*/
 class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 {
 	protected:
 		const PluginStartupInfo &Info;
 		HANDLE DialogHandle;
+		const TCHAR *HelpTopic;
 
 		virtual void InitDialogItem(FarDialogItem *Item, const TCHAR *Text)
 		{
@@ -590,20 +736,20 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 			int Height = DialogItems [0].Y2+2;
 #ifdef UNICODE
 			DialogHandle = Info.DialogInit(Info.ModuleNumber, -1, -1, Width, Height,
-				L"", DialogItems, DialogItemsCount, 0, 0, NULL, 0);
+				HelpTopic, DialogItems, DialogItemsCount, 0, 0, NULL, 0);
 			return Info.DialogRun(DialogHandle);
 #else
 			return Info.Dialog(Info.ModuleNumber, -1, -1, Width, Height,
-				"", DialogItems, DialogItemsCount);
+				HelpTopic, DialogItems, DialogItemsCount);
 #endif
 		}
 
-		virtual DialogItemBinding<FarDialogItem> *CreateCheckBoxBinding(BOOL *Value)
+		virtual DialogItemBinding<FarDialogItem> *CreateCheckBoxBinding(BOOL *Value, int Mask)
 		{
 #ifdef UNICODE
-			return new PluginCheckBoxBinding(Info, &DialogHandle, DialogItemsCount-1, Value);
+			return new PluginCheckBoxBinding(Info, &DialogHandle, DialogItemsCount-1, Value, Mask);
 #else
-			return new CheckBoxBinding<FarDialogItem>(Value);
+			return new CheckBoxBinding<FarDialogItem>(Value, Mask);
 #endif
 		}
 
@@ -617,8 +763,8 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 		}
 
 public:
-		PluginDialogBuilder(const PluginStartupInfo &aInfo, int TitleMessageID)
-			: Info(aInfo)
+		PluginDialogBuilder(const PluginStartupInfo &aInfo, int TitleMessageID, const TCHAR *aHelpTopic)
+			: Info(aInfo), HelpTopic(aHelpTopic)
 		{
 			AddBorder(GetLangString(TitleMessageID));
 		}
@@ -652,6 +798,29 @@ public:
 			SetNextY(Item);
 			Item->X2 = Item->X1 + Width - 1;
 			SetLastItemBinding(Binding);
+			return Item;
+		}
+
+		FarDialogItem *AddEditField(TCHAR *Value, int Width, const TCHAR *HistoryID = NULL)
+		{
+			FarDialogItem *Item = AddDialogItem(DI_EDIT, Value);
+			SetNextY(Item);
+			Item->X2 = Item->X1 + Width;
+			if (HistoryID)
+			{
+#ifdef _FAR_NO_NAMELESS_UNIONS
+				Item->Param.History = HistoryID;
+#else
+				Item->History = HistoryID;
+#endif
+				Item->Flags |= DIF_HISTORY;
+			}
+
+#ifdef UNICODE
+			SetLastItemBinding(new PluginEditFieldBinding(Info, &DialogHandle, DialogItemsCount-1, Value));
+#else
+			SetLastItemBinding(new PluginEditFieldBinding(Value));
+#endif
 			return Item;
 		}
 };

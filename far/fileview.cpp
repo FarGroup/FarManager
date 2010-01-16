@@ -347,7 +347,7 @@ int FileViewer::ProcessKey(int Key)
 			ViOpt.ShowScrollbar=View.GetShowScrollbar();
 			ViOpt.ShowArrows=View.GetShowArrows();
 			ViOpt.PersistentBlocks=View.GetPersistentBlocks();
-			ViewerConfig(ViOpt,1);
+			ViewerConfig(ViOpt,true);
 			View.SetTabSize(ViOpt.TabSize);
 			View.SetAutoDetectCodePage(ViOpt.AutoDetectCodePage);
 			View.SetShowScrollbar(ViOpt.ShowScrollbar);

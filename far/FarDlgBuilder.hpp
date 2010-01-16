@@ -37,6 +37,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 struct DialogItemEx;
 class string;
 
+/*
+ ласс дл€ динамического построени€ диалогов, используемый внутри кода FAR. 
+»спользует FAR'овский класс string дл€ работы с текстовыми пол€ми.
+
+ƒл€ того, чтобы сместить элемент относительно дефолтного
+положени€ по горизонтали, можно использовать метод DialogItemEx::Indent().
+
+ѕоддерживает automation (изменение флагов одного элемента в зависимости от состо€ни€ 
+другого). –еализуетс€ при помощи метода LinkFlags().
+*/
 class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 {
 	private:
@@ -50,18 +60,15 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 		virtual const TCHAR *GetLangString(int MessageID);
 		virtual int DoShowDialog();
 		
-		virtual DialogItemBinding<DialogItemEx> *CreateCheckBoxBinding(BOOL *Value);
+		virtual DialogItemBinding<DialogItemEx> *CreateCheckBoxBinding(BOOL *Value, int Mask);
 		virtual DialogItemBinding<DialogItemEx> *CreateRadioButtonBinding(int *Value);
 
 	public:
 		DialogBuilder(int TitleMessageId, const wchar_t *HelpTopic);
 		~DialogBuilder();
 
-		// ƒобавл€ет статический текст, расположенный на отдельной строке в диалоге.
-		DialogItemEx *AddText(int LabelId);
-
 		// ƒобавл€ет поле типа DI_EDIT дл€ редактировани€ указанного строкового значени€.
-		DialogItemEx *AddEditField(string *Value, int Width, const wchar_t *HistoryID = NULL);
+		DialogItemEx *AddEditField(string *Value, int Width, const wchar_t *HistoryID = NULL, int Flags = 0);
 
 		// ƒобавл€ет поле типа DI_FIXEDIT дл€ редактировани€ указанного числового значени€.
 		virtual DialogItemEx *AddIntEditField(int *Value, int Width);

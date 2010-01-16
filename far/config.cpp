@@ -384,290 +384,96 @@ void SetDizConfig()
 	Builder.ShowDialog();
 }
 
-void ViewerConfig(ViewerOptions &ViOpt,int Local)
+void ViewerConfig(ViewerOptions &ViOpt,bool Local)
 {
-	enum enumViewerConfig
+	DialogBuilder Builder(MViewConfigTitle, L"ViewerSettings");
+	if (!Local)
 	{
-		ID_VC_TITLE,
-		ID_VC_EXTERNALUSEF3,
-		ID_VC_EXTENALCOMMAND,
-		ID_VC_EXTERALCOMMANDEDIT,
-		ID_VC_SEPARATOR1,
-		ID_VC_PERSISTENTSELECTION,
-		ID_VC_SHOWARROWS,
-		ID_VC_SAVEPOSITION,
-		ID_VC_SAVEBOOKMARKS,
-		ID_VC_TABSIZE,
-		ID_VC_TABSIZEEDIT,
-		ID_VC_SHOWSCROLLBAR,
-		ID_VC_AUTODETECTCODEPAGE,
-		ID_VC_ANSIASDEFAULT,
-		ID_VC_SEPARATOR2,
-		ID_VC_OK,
-		ID_VC_CANCEL
-	};
-	static DialogDataEx CfgDlgData[]=
-	{
-		/*  0 */  DI_DOUBLEBOX,  3, 1,70,14,0,0,0,0,(const wchar_t *)MViewConfigTitle,
-		/*  1 */  DI_CHECKBOX,   5, 2, 0, 2,1,0,0,0,(const wchar_t *)MViewConfigExternalF3,
-		/*  2 */  DI_TEXT,       5, 3, 0, 3,0,0,0,0,(const wchar_t *)MViewConfigExternalCommand,
-		/*  3 */  DI_EDIT,       5, 4,68, 4,0,(DWORD_PTR)L"ExternalViewer", DIF_HISTORY|DIF_EDITEXPAND|DIF_EDITPATH,0,L"",
-		/*  4 */  DI_TEXT,       0, 5, 0, 5, 0, 0, DIF_SEPARATOR, 0, (const wchar_t *)MViewConfigInternal,
-		/*  5 */  DI_CHECKBOX,   5, 6, 0, 6,0,0,0,0,(const wchar_t *)MViewConfigPersistentSelection,
-		/*  6 */  DI_CHECKBOX,  38, 6, 0, 6,0,0,0,0,(const wchar_t *)MViewConfigArrows,
-		/*  7 */  DI_CHECKBOX,   5, 7, 0, 7,0,0,DIF_AUTOMATION,0,(const wchar_t *)MViewConfigSavePos,
-		/*  8 */  DI_CHECKBOX,  38, 7, 0, 7,0,0,0,0,(const wchar_t *)MViewConfigSaveShortPos,
-		/*  9 */  DI_TEXT,      10, 8, 0,8,0,0,0,0,(const wchar_t *)MViewConfigTabSize,
-		/* 10 */  DI_FIXEDIT,    5, 8, 8,8,0,0,0,0,L"",
-		/* 11 */  DI_CHECKBOX,  38, 8, 0,8,0,0,0,0,(const wchar_t *)MViewConfigScrollbar,
-		/* 12 */  DI_CHECKBOX,   5,10, 0,10,0,0,0,0,(const wchar_t *)MViewAutoDetectCodePage,
-		/* 13 */  DI_CHECKBOX,   5,11, 0,11,0,0,0,0,(const wchar_t *)MViewConfigAnsiCodePageAsDefault,
-		/* 14 */  DI_TEXT,       0,12, 0,12, 0, 0, DIF_SEPARATOR, 0, L"",
-		/* 15 */  DI_BUTTON,     0,13, 0,13,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-		/* 16 */  DI_BUTTON,     0,13, 0,13,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
-	};
-	MakeDialogItemsEx(CfgDlgData,CfgDlg);
-	CfgDlg[ID_VC_EXTERNALUSEF3].Selected = Opt.ViOpt.UseExternalViewer;
-	CfgDlg[ID_VC_SAVEPOSITION].Selected = Opt.ViOpt.SaveViewerPos;
-	CfgDlg[ID_VC_SAVEBOOKMARKS].Selected = Opt.ViOpt.SaveViewerShortPos;
-
-	if (!Opt.ViOpt.SaveViewerPos)
-		CfgDlg[ID_VC_SAVEBOOKMARKS].Flags |= DIF_DISABLE;
-
-	CfgDlg[ID_VC_AUTODETECTCODEPAGE].Selected = ViOpt.AutoDetectCodePage;
-	CfgDlg[ID_VC_SHOWSCROLLBAR].Selected = ViOpt.ShowScrollbar;
-	CfgDlg[ID_VC_SHOWARROWS].Selected = ViOpt.ShowArrows;
-	CfgDlg[ID_VC_PERSISTENTSELECTION].Selected = ViOpt.PersistentBlocks;
-	CfgDlg[ID_VC_ANSIASDEFAULT].Selected = ViOpt.AnsiCodePageAsDefault;
-	CfgDlg[ID_VC_EXTERALCOMMANDEDIT].strData = Opt.strExternalViewer;
-	CfgDlg[ID_VC_TABSIZEEDIT].strData.Format(L"%d",ViOpt.TabSize);
-	int DialogHeight = 16;
-
-	if (Local)
-	{
-		for (int i=ID_VC_EXTERNALUSEF3; i<=ID_VC_SEPARATOR1; i++)
-			CfgDlg[i].Flags |= DIF_HIDDEN;
-
-		for (int i=ID_VC_AUTODETECTCODEPAGE; i<ID_VC_SEPARATOR2; i++)
-			CfgDlg[i].Flags |= DIF_HIDDEN;
-
-		for (int i = ID_VC_PERSISTENTSELECTION; i < ID_VC_SEPARATOR2; i++)
-			CfgDlg[i].Y1 -= 4;
-
-		for (int i = ID_VC_SEPARATOR2; i <= ID_VC_CANCEL; i++)
-			CfgDlg[i].Y1 -= 7;
-
-		CfgDlg[ID_VC_TITLE].Y2 -= 7;
-		DialogHeight -= 7;
+		Builder.AddCheckbox(MViewConfigExternalF3, &Opt.ViOpt.UseExternalViewer);
+		Builder.AddText(MViewConfigExternalCommand);
+		Builder.AddEditField(&Opt.strExternalViewer, 64, L"ExternalViewer", DIF_EDITEXPAND|DIF_EDITPATH);
+		Builder.AddSeparator(MViewConfigInternal);
 	}
-
-	{
-		Dialog Dlg((DialogItemEx*)CfgDlg,countof(CfgDlg));
-		Dlg.SetAutomation(ID_VC_SAVEPOSITION,ID_VC_SAVEBOOKMARKS,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
-		Dlg.SetHelp(L"ViewerSettings");
-		Dlg.SetPosition(-1,-1,74,DialogHeight);
-		Dlg.Process();
-
-		if (Dlg.GetExitCode() != ID_VC_OK)
-			return;
-	}
+	
+	Builder.StartColumns();
+	Builder.AddCheckbox(MViewConfigPersistentSelection, &ViOpt.PersistentBlocks);
+	DialogItemEx *SavePos = Builder.AddCheckbox(MViewConfigSavePos, &Opt.ViOpt.SaveViewerPos);
+	DialogItemEx *TabSize = Builder.AddIntEditField(&ViOpt.TabSize, 3);
+	Builder.AddTextAfter(TabSize, MViewConfigTabSize);
+	Builder.ColumnBreak();
+	Builder.AddCheckbox(MViewConfigArrows, &ViOpt.ShowArrows);
+	DialogItemEx *SaveShortPos = Builder.AddCheckbox(MViewConfigSaveShortPos, &Opt.ViOpt.SaveViewerShortPos);
+	Builder.LinkFlags(SavePos, SaveShortPos, DIF_DISABLE);
+	Builder.AddCheckbox(MViewConfigScrollbar, &ViOpt.ShowScrollbar);
+	Builder.EndColumns();
 
 	if (!Local)
 	{
-		Opt.ViOpt.UseExternalViewer=CfgDlg[ID_VC_EXTERNALUSEF3].Selected;
-		Opt.strExternalViewer = CfgDlg[ID_VC_EXTERALCOMMANDEDIT].strData;
+		Builder.AddEmptyLine();
+		Builder.AddCheckbox(MViewAutoDetectCodePage, &ViOpt.AutoDetectCodePage);
+		Builder.AddCheckbox(MViewConfigAnsiCodePageAsDefault, &ViOpt.AnsiCodePageAsDefault);
 	}
-
-	Opt.ViOpt.SaveViewerPos=CfgDlg[ID_VC_SAVEPOSITION].Selected;
-	Opt.ViOpt.SaveViewerShortPos=CfgDlg[ID_VC_SAVEBOOKMARKS].Selected;
-	ViOpt.AutoDetectCodePage=CfgDlg[ID_VC_AUTODETECTCODEPAGE].Selected;
-	ViOpt.TabSize=_wtoi(CfgDlg[ID_VC_TABSIZEEDIT].strData);
-	ViOpt.ShowScrollbar=CfgDlg[ID_VC_SHOWSCROLLBAR].Selected;
-	ViOpt.ShowArrows=CfgDlg[ID_VC_SHOWARROWS].Selected;
-	ViOpt.PersistentBlocks=CfgDlg[ID_VC_PERSISTENTSELECTION].Selected;
-	ViOpt.AnsiCodePageAsDefault=CfgDlg[ID_VC_ANSIASDEFAULT].Selected;
-
-	if (ViOpt.TabSize<1 || ViOpt.TabSize>512)
-		ViOpt.TabSize=8;
+	Builder.AddOKCancel();
+	if (Builder.ShowDialog())
+	{
+		if (ViOpt.TabSize<1 || ViOpt.TabSize>512)
+			ViOpt.TabSize=8;
+	}
 }
 
-void EditorConfig(EditorOptions &EdOpt,int Local)
+void EditorConfig(EditorOptions &EdOpt,bool Local)
 {
-	enum enumEditorConfig
+	DialogBuilder Builder(MEditConfigTitle, L"EditorSettings");
+	if (!Local)
 	{
-		ID_EC_TITLE,
-		ID_EC_EXTERNALUSEF4,
-		ID_EC_EXTERNALCOMMAND,
-		ID_EC_EXTERNALCOMMANDEDIT,
-		ID_EC_SEPARATOR1,
-		ID_EC_EXPANDTABSTITLE,
-		ID_EC_EXPANDTABS,
-		ID_EC_PERSISTENTBLOCKS,
-		ID_EC_DELREMOVESBLOCKS,
-		ID_EC_SAVEPOSITION,
-		ID_EC_SAVEBOOKMARKS,
-		ID_EC_AUTOINDENT,
-		ID_EC_CURSORBEYONDEOL,
-		ID_EC_TABSIZE,
-		ID_EC_TABSIZEEDIT,
-		ID_EC_SHOWSCROLLBAR,
-		ID_EC_SHOWWHITESPACE,
-		ID_EC_PICKUPWORD,
-		ID_EC_SHARINGWRITE,
-		ID_EC_LOCKREADONLY,
-		ID_EC_READONLYWARNING,
-		ID_EC_AUTODETECTCODEPAGE,
-		ID_EC_ANSIASDEFAULT,
-		ID_EC_ANSIFORNEWFILE,
-		ID_EC_SEPARATOR2,
-		ID_EC_OK,
-		ID_EC_CANCEL
-	};
-	static DialogDataEx CfgDlgData[]=
-	{
-		DI_DOUBLEBOX, 3, 1,70,22,0,0,0,0,(const wchar_t *)MEditConfigTitle,
-		DI_CHECKBOX,  5, 2, 0, 2,0,0,0,0,(const wchar_t *)MEditConfigEditorF4,
-		DI_TEXT,      5, 3, 0, 3,0,0,0,0,(const wchar_t *)MEditConfigEditorCommand,
-		DI_EDIT,      5, 4,68, 4,0,(DWORD_PTR)L"ExternalEditor",DIF_HISTORY|DIF_EDITEXPAND|DIF_EDITPATH,0,L"",
-		DI_TEXT,      0, 5, 0, 5,0,0,DIF_SEPARATOR, 0, (const wchar_t *)MEditConfigInternal,
-		DI_TEXT,      5, 6, 0, 6,0,0,0,0,(const wchar_t *)MEditConfigExpandTabsTitle,
-		DI_COMBOBOX,  5, 7,68, 7,1,0,DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE,0,L"",
-		DI_CHECKBOX,  5, 8, 0, 8,0,0,0,0,(const wchar_t *)MEditConfigPersistentBlocks,
-		DI_CHECKBOX, 38, 8, 0, 8,0,0,0,0,(const wchar_t *)MEditConfigDelRemovesBlocks,
-		DI_CHECKBOX,  5, 9, 0, 9,0,0,DIF_AUTOMATION,0,(const wchar_t *)MEditConfigSavePos,
-		DI_CHECKBOX, 38, 9, 0, 9,0,0,0,0,(const wchar_t *)MEditConfigSaveShortPos,
-		DI_CHECKBOX,  5,10, 0,10,0,0,0,0,(const wchar_t *)MEditConfigAutoIndent,
-		DI_CHECKBOX, 38,10, 0,10,0,0,0,0,(const wchar_t *)MEditCursorBeyondEnd,
-		DI_TEXT,     10,11, 0,11,0,0,0,0,(const wchar_t *)MEditConfigTabSize,
-		DI_FIXEDIT,   5,11, 8,11,0,0,0,0,L"",
-		DI_CHECKBOX, 38,11, 0,11,0,0,0,0,(const wchar_t *)MEditConfigScrollbar,
-		DI_CHECKBOX,  5,12, 0,12,0,0,0,0,(const wchar_t *)MEditShowWhiteSpace,
-		DI_CHECKBOX, 38,12, 0,12,0,0,0,0,(const wchar_t *)MEditConfigPickUpWord,
-		DI_CHECKBOX,  5,14, 0,14,0,0,0,0,(const wchar_t *)MEditShareWrite,
-		DI_CHECKBOX,  5,15, 0,15,0,0,0,0,(const wchar_t *)MEditLockROFileModification,
-		DI_CHECKBOX,  5,16, 0,16,0,0,0,0,(const wchar_t *)MEditWarningBeforeOpenROFile,
-		DI_CHECKBOX,  5,17, 0,17,0,0,0,0,(const wchar_t *)MEditAutoDetectCodePage,
-		DI_CHECKBOX,  5,18, 0,18,0,0,0,0,(const wchar_t *)MEditConfigAnsiCodePageAsDefault,
-		DI_CHECKBOX,  5,19, 0,19,0,0,0,0,(const wchar_t *)MEditConfigAnsiCodePageForNewFile,
-		DI_TEXT,      0,20, 0,20,0,0, DIF_SEPARATOR, 0, L"",
-		DI_BUTTON,    0,21, 0,21,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-		DI_BUTTON,    0,21, 0,21,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
-	};
-	MakeDialogItemsEx(CfgDlgData,CfgDlg);
-	CfgDlg[ID_EC_EXTERNALUSEF4].Selected=Opt.EdOpt.UseExternalEditor;
-	CfgDlg[ID_EC_EXTERNALCOMMANDEDIT].strData = Opt.strExternalEditor;
-	FarListItem ExpandTabListItems[3]={0};
-	FarList ExpandTabList = {countof(ExpandTabListItems),ExpandTabListItems};
-	CfgDlg[ID_EC_EXPANDTABS].ListItems = &ExpandTabList;
-	ExpandTabListItems[0].Text=MSG(MEditConfigDoNotExpandTabs);
-	ExpandTabListItems[1].Text=MSG(MEditConfigExpandTabs);
-	ExpandTabListItems[2].Text=MSG(MEditConfigConvertAllTabsToSpaces);
-	//немного ненормальная логика, чтобы сохранить (по возможности) старое поведение
-
-	if (EdOpt.ExpandTabs == EXPAND_NOTABS)
-		ExpandTabListItems[0].Flags = LIF_SELECTED;
-
-	if (EdOpt.ExpandTabs == EXPAND_NEWTABS)
-		ExpandTabListItems[1].Flags = LIF_SELECTED;
-
-	if (EdOpt.ExpandTabs == EXPAND_ALLTABS)
-		ExpandTabListItems[2].Flags = LIF_SELECTED;
-
-	CfgDlg[ID_EC_PERSISTENTBLOCKS].Selected = EdOpt.PersistentBlocks;
-	CfgDlg[ID_EC_DELREMOVESBLOCKS].Selected = EdOpt.DelRemovesBlocks;
-	CfgDlg[ID_EC_AUTOINDENT].Selected = EdOpt.AutoIndent;
-	CfgDlg[ID_EC_SAVEPOSITION].Selected = EdOpt.SavePos;
-	CfgDlg[ID_EC_SAVEBOOKMARKS].Selected = EdOpt.SaveShortPos;
-
-	if (!EdOpt.SavePos)
-		CfgDlg[ID_EC_SAVEBOOKMARKS].Flags |= DIF_DISABLE;
-
-	CfgDlg[ID_EC_AUTODETECTCODEPAGE].Selected = EdOpt.AutoDetectCodePage;
-	CfgDlg[ID_EC_CURSORBEYONDEOL].Selected = EdOpt.CursorBeyondEOL;
-	CfgDlg[ID_EC_SHARINGWRITE].Selected = EdOpt.EditOpenedForWrite;
-	CfgDlg[ID_EC_LOCKREADONLY].Selected = EdOpt.ReadOnlyLock & 1;
-	CfgDlg[ID_EC_READONLYWARNING].Selected = EdOpt.ReadOnlyLock & 2;
-	CfgDlg[ID_EC_ANSIASDEFAULT].Selected = EdOpt.AnsiCodePageAsDefault;
-	CfgDlg[ID_EC_ANSIFORNEWFILE].Selected = EdOpt.AnsiCodePageForNewFile;
-	CfgDlg[ID_EC_TABSIZEEDIT].strData.Format(L"%d",EdOpt.TabSize);
-	CfgDlg[ID_EC_SHOWSCROLLBAR].Selected = EdOpt.ShowScrollBar;
-	CfgDlg[ID_EC_SHOWWHITESPACE].Selected = EdOpt.ShowWhiteSpace;
-	CfgDlg[ID_EC_PICKUPWORD].Selected = EdOpt.SearchPickUpWord;
-	int DialogHeight=24;
-
-	if (Local)
-	{
-		for (int i = ID_EC_EXTERNALUSEF4; i <= ID_EC_SEPARATOR1; i++)
-			CfgDlg[i].Flags |= DIF_HIDDEN;
-
-		for (int i = ID_EC_SHARINGWRITE; i < ID_EC_SEPARATOR2; i++)
-			CfgDlg[i].Flags |= DIF_HIDDEN;
-
-		for (int i = ID_EC_EXPANDTABSTITLE; i < ID_EC_SEPARATOR2; i++)
-			CfgDlg[i].Y1 -= 4;
-
-		for (int i = ID_EC_SEPARATOR2; i <= ID_EC_CANCEL; i++)
-			CfgDlg[i].Y1 -= 11;
-
-		CfgDlg[ID_EC_TITLE].Y2 -= 11;
-		DialogHeight -= 11;
+		Builder.AddCheckbox(MEditConfigEditorF4, &Opt.EdOpt.UseExternalEditor);
+		Builder.AddText(MEditConfigEditorCommand);
+		Builder.AddEditField(&Opt.strExternalEditor, 64, L"ExternalEditor", DIF_EDITEXPAND | DIF_EDITPATH);
+		Builder.AddSeparator(MEditConfigInternal);
 	}
+	
+	Builder.AddText(MEditConfigExpandTabsTitle);
+	DialogBuilderListItem ExpandTabsItems[] = {
+		{ MEditConfigDoNotExpandTabs, EXPAND_NOTABS },
+		{ MEditConfigExpandTabs, EXPAND_NEWTABS },
+		{ MEditConfigConvertAllTabsToSpaces, EXPAND_ALLTABS }
+	};
+	Builder.AddComboBox(&EdOpt.ExpandTabs, 64, ExpandTabsItems, 3, DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
 
-	{
-		Dialog Dlg((DialogItemEx*)CfgDlg,countof(CfgDlg));
-		Dlg.SetAutomation(ID_EC_SAVEPOSITION,ID_EC_SAVEBOOKMARKS,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
-		Dlg.SetHelp(L"EditorSettings");
-		Dlg.SetPosition(-1,-1,74,DialogHeight);
-		Dlg.Process();
-
-		if (Dlg.GetExitCode()!=ID_EC_OK)
-			return;
-	}
+	Builder.StartColumns();
+	Builder.AddCheckbox(MEditConfigPersistentBlocks, &EdOpt.PersistentBlocks);
+	DialogItemEx *SavePos = Builder.AddCheckbox(MEditConfigSavePos, &EdOpt.SavePos);
+	Builder.AddCheckbox(MEditConfigAutoIndent, &EdOpt.AutoIndent);
+	DialogItemEx *TabSize = Builder.AddIntEditField(&EdOpt.TabSize, 3);
+	Builder.AddTextAfter(TabSize, MEditConfigTabSize);
+	Builder.AddCheckbox(MEditShowWhiteSpace, &EdOpt.ShowWhiteSpace);
+	Builder.ColumnBreak();
+	Builder.AddCheckbox(MEditConfigDelRemovesBlocks, &EdOpt.DelRemovesBlocks);
+	DialogItemEx *SaveShortPos = Builder.AddCheckbox(MEditConfigSaveShortPos, &EdOpt.SaveShortPos);
+	Builder.LinkFlags(SavePos, SaveShortPos, DIF_DISABLE);
+	Builder.AddCheckbox(MEditCursorBeyondEnd, &EdOpt.CursorBeyondEOL);
+	Builder.AddCheckbox(MEditConfigScrollbar, &EdOpt.ShowScrollBar);
+	Builder.AddCheckbox(MEditConfigPickUpWord, &EdOpt.SearchPickUpWord);
+	Builder.EndColumns();
 
 	if (!Local)
 	{
-		Opt.EdOpt.UseExternalEditor=CfgDlg[ID_EC_EXTERNALUSEF4].Selected;
-		Opt.strExternalEditor = CfgDlg[ID_EC_EXTERNALCOMMANDEDIT].strData;
+		Builder.AddEmptyLine();
+		Builder.AddCheckbox(MEditShareWrite, &EdOpt.EditOpenedForWrite);
+		Builder.AddCheckbox(MEditLockROFileModification, &EdOpt.ReadOnlyLock, 1);
+		Builder.AddCheckbox(MEditWarningBeforeOpenROFile, &EdOpt.ReadOnlyLock, 2);
+		Builder.AddCheckbox(MEditAutoDetectCodePage, &EdOpt.AutoDetectCodePage);
+		Builder.AddCheckbox(MEditConfigAnsiCodePageAsDefault, &EdOpt.AnsiCodePageAsDefault);
+		Builder.AddCheckbox(MEditConfigAnsiCodePageForNewFile, &EdOpt.AnsiCodePageForNewFile);
 	}
 
-	switch (CfgDlg[ID_EC_EXPANDTABS].ListPos)
+	Builder.AddOKCancel();
+
+	if (Builder.ShowDialog())
 	{
-		case 0:
-			EdOpt.ExpandTabs = EXPAND_NOTABS;
-			break;
-		case 1:
-			EdOpt.ExpandTabs = EXPAND_NEWTABS;
-			break;
-		case 2:
-			EdOpt.ExpandTabs = EXPAND_ALLTABS;
-			break;
+		if (EdOpt.TabSize<1 || EdOpt.TabSize>512)
+			EdOpt.TabSize=8;
 	}
-
-	EdOpt.PersistentBlocks = CfgDlg[ID_EC_PERSISTENTBLOCKS].Selected;
-	EdOpt.DelRemovesBlocks = CfgDlg[ID_EC_DELREMOVESBLOCKS].Selected;
-	EdOpt.AutoIndent = CfgDlg[ID_EC_AUTOINDENT].Selected;
-	EdOpt.SavePos = CfgDlg[ID_EC_SAVEPOSITION].Selected;
-	EdOpt.SaveShortPos = CfgDlg[ID_EC_SAVEBOOKMARKS].Selected;
-	EdOpt.EditOpenedForWrite=CfgDlg[ID_EC_SHARINGWRITE].Selected;
-	EdOpt.AutoDetectCodePage = CfgDlg[ID_EC_AUTODETECTCODEPAGE].Selected;
-	EdOpt.AnsiCodePageAsDefault = CfgDlg[ID_EC_ANSIASDEFAULT].Selected;
-	EdOpt.AnsiCodePageForNewFile = CfgDlg[ID_EC_ANSIFORNEWFILE].Selected;
-	EdOpt.ShowWhiteSpace=CfgDlg[ID_EC_SHOWWHITESPACE].Selected;
-	EdOpt.TabSize=_wtoi(CfgDlg[ID_EC_TABSIZEEDIT].strData);
-
-	if (EdOpt.TabSize<1 || EdOpt.TabSize>512)
-		EdOpt.TabSize=8;
-
-	EdOpt.SearchPickUpWord=CfgDlg[ID_EC_PICKUPWORD].Selected;
-	EdOpt.ShowScrollBar=CfgDlg[ID_EC_SHOWSCROLLBAR].Selected;
-	EdOpt.CursorBeyondEOL=CfgDlg[ID_EC_CURSORBEYONDEOL].Selected;
-	EdOpt.ReadOnlyLock&=~3;
-
-	if (CfgDlg[ID_EC_LOCKREADONLY].Selected)
-		EdOpt.ReadOnlyLock|=1;
-
-	if (CfgDlg[ID_EC_READONLYWARNING].Selected)
-		EdOpt.ReadOnlyLock|=2;
 }
 
 

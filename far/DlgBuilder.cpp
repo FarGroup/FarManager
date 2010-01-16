@@ -115,9 +115,9 @@ const TCHAR *DialogBuilder::GetLangString(int MessageID)
 	return MSG(MessageID);
 }
 
-DialogItemBinding<DialogItemEx> *DialogBuilder::CreateCheckBoxBinding(BOOL *Value)
+DialogItemBinding<DialogItemEx> *DialogBuilder::CreateCheckBoxBinding(BOOL *Value, int Mask)
 {
-	return new CheckBoxBinding<DialogItemEx>(Value);
+	return new CheckBoxBinding<DialogItemEx>(Value, Mask);
 }
 
 DialogItemBinding<DialogItemEx> *DialogBuilder::CreateRadioButtonBinding(int *Value)
@@ -125,14 +125,7 @@ DialogItemBinding<DialogItemEx> *DialogBuilder::CreateRadioButtonBinding(int *Va
 	return new RadioButtonBinding<DialogItemEx>(Value);
 }
 
-DialogItemEx *DialogBuilder::AddText(int LabelId)
-{
-	DialogItemEx *Item = AddDialogItem(DI_TEXT, MSG(LabelId));
-	SetNextY(Item);
-	return Item;
-}
-
-DialogItemEx *DialogBuilder::AddEditField(string *Value, int Width, const wchar_t *HistoryID)
+DialogItemEx *DialogBuilder::AddEditField(string *Value, int Width, const wchar_t *HistoryID, int Flags)
 {
 	DialogItemEx *Item = AddDialogItem(DI_EDIT, *Value);
 	SetNextY(Item);
@@ -142,6 +135,7 @@ DialogItemEx *DialogBuilder::AddEditField(string *Value, int Width, const wchar_
 		Item->History = HistoryID;
 		Item->Flags |= DIF_HISTORY;
 	}
+	Item->Flags |= Flags;
 
 	SetLastItemBinding(new EditFieldBinding(Value));
 	return Item;

@@ -1313,7 +1313,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				//     Работа с локальной копией EditorOptions
 				EditorOptions EdOpt;
 				GetEditorOptions(EdOpt);
-				EditorConfig(EdOpt,1); // $ 27.11.2001 DJ - Local в EditorConfig
+				EditorConfig(EdOpt,true); // $ 27.11.2001 DJ - Local в EditorConfig
 				EditKeyBar.Show(); //???? Нужно ли????
 				SetEditorOptions(EdOpt);
 
