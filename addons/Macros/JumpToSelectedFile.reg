@@ -9,7 +9,7 @@ REGEDIT4
 
 [-HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlShiftEnd]
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlShiftEnd]
-"Description"="Jump to the previous selected file"
+"Description"="Jump to the last selected file"
 "Sequence"="$If ((APanel.SelCount==1) && (panelitem(0,0,8))) $Exit $End End %i=APanel.CurPos; $While (%i>1 && !panelitem(0,%i,8)) %i=%i-1; $End Panel.SetPosIdx(0,%i)"
 "DisableOutput"=dword:00000001
 "Selection"=dword:00000001
@@ -23,7 +23,7 @@ REGEDIT4
 
 [-HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlShiftUp]
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlShiftUp]
-"Description"="Jump to the last selected file"
+"Description"="Jump to the previous selected file"
 "Sequence"="$If ((APanel.SelCount==1) && (panelitem(0,0,8))) $Exit $End %i=APanel.CurPos-1; $if (%i<1) %i=APanel.ItemCount; $End $While (%i>1 && !panelitem(0,%i,8)) %i=%i-1; $End $If (%i<=1 && !panelitem(0,%i,8)) %i=APanel.ItemCount; $While (%i>1 && !panelitem(0,%i,8)) %i=%i-1; $End $End Panel.SetPosIdx(0,%i)"
 "DisableOutput"=dword:00000001
 "Selection"=dword:00000001
