@@ -122,7 +122,7 @@ enum MACRO_OP_CODE
 	MCODE_F_NOFUNC=KEY_MACRO_F_BASE,
 
 	MCODE_F_ABS,                      // N=abs(N)
-	MCODE_F_AKEY,                     // V=akey(N)
+	MCODE_F_AKEY,                     // V=akey(Mode[,Type])
 	MCODE_F_ASC,                      // N=asc(S)
 	MCODE_F_ATOI,                     // N=atoi(S[,radix])
 	MCODE_F_CLIP,                     // V=clip(N[,S])

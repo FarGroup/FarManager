@@ -3380,12 +3380,47 @@ done:
 			return KEY_OP_PLAINTEXT;
 		}
 		case MCODE_OP_EXIT:               // $Exit
+		{
 			goto done;
+		}
+
 		case MCODE_OP_AKEY:               // $AKey
-			return MR->Key;
-			/* $IClip
-				0: MCODE_OP_ICLIP
-			*/
+		case MCODE_F_AKEY:                // V=akey(Mode[,Type])
+		{
+			DWORD aKey=MR->Key;
+			INPUT_RECORD *inRec=FrameManager->GetLastInputRecord();
+			if (inRec->EventType == 0)
+			{
+				inRec->EventType = KEY_EVENT;
+				aKey=CalcKeyCode(inRec,TRUE,NULL);
+			}
+
+			if (Key == MCODE_F_AKEY)
+			{
+				int tmpType=(int)VMStack.Pop().getInteger();
+				int tmpMode=(int)VMStack.Pop().getInteger();
+
+				if(tmpType)
+					aKey=MR->Key;
+
+				if (!tmpMode)
+					tmpVar=(__int64)aKey;
+				else
+				{
+					KeyToText(aKey,value);
+					tmpVar=(const wchar_t*)value;
+					tmpVar.toString();
+				}
+
+				VMStack.Push(tmpVar);
+				goto begin;
+			}
+			return aKey;
+		}
+
+		/* $IClip
+			0: MCODE_OP_ICLIP
+		*/
 		case MCODE_OP_ICLIP:              // $IClip
 		{
 			SetUseInternalClipboardState(!GetUseInternalClipboardState());
@@ -3672,22 +3707,6 @@ done:
 			if (evalFunc())
 				goto initial; // ò.ê.
 
-			goto begin;
-		}
-		case MCODE_F_AKEY: // V=akey(N)
-		{
-			VMStack.Pop(tmpVar);
-
-			if (tmpVar.i() == 0)
-				tmpVar=(__int64)MR->Key;
-			else
-			{
-				KeyToText(MR->Key,value);
-				tmpVar=(const wchar_t*)value;
-				tmpVar.toString();
-			}
-
-			VMStack.Push(tmpVar);
 			goto begin;
 		}
 		case MCODE_F_BM_ADD:              // N=BM.Add()

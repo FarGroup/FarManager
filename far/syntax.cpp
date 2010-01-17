@@ -271,7 +271,7 @@ struct TMacroFunction
 static TMacroFunction macroFunction[]=
 {
 	{L"ABS",              1, 0,   MCODE_F_ABS,              NULL, L"N=Abs(N)"},
-	{L"AKEY",             1, 0,   MCODE_F_AKEY,             NULL, L"V=Akey(N)"},
+	{L"AKEY",             2, 1,   MCODE_F_AKEY,             NULL, L"V=Akey(Mode[,Type])"},
 	{L"ASC",              1, 0,   MCODE_F_ASC,              NULL, L"N=Asc(N)"},
 	{L"ATOI",             2, 1,   MCODE_F_ATOI,             NULL, L"N=Atoi(S[,radix])"},
 	{L"BM.ADD",           0, 0,   MCODE_F_BM_ADD,           NULL, L"N=BM.Add()"},
