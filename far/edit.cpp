@@ -55,7 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "panelmix.hpp"
 #include "RegExp.hpp"
-#include "History.hpp"
+#include "history.hpp"
 #include "vmenu.hpp"
 
 static int Recurse=0;
