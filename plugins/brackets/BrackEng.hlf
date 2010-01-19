@@ -84,7 +84,7 @@ it.
                         only if the cursor is precisely at the
                         bracket.
 
-   #Priority of single#   If this option is enabled, the plugin
+   #Priority of double#   If this option is enabled, the plugin
    #brackets#             first uses the rules for single brackets
                         (for example, if the cursor is at the
                         first character of '#<%#', the plugin

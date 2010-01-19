@@ -88,7 +88,6 @@ int WINAPI EXP_NAME(Configure)(int ItemNumber)
 
 HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 {
-
   struct EditorGetString egs;
   struct EditorSetPosition esp,espo;
   struct EditorSelect es;
@@ -135,7 +134,6 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
     return(INVALID_HANDLE_VALUE);
 
   egs.StringNumber=espo.CurLine;
-
   isSelect=isSelect == 1;
 
   Bracket_1=(CurPos-1 >= 0?egs.StringText[CurPos-1]:_T('\0'));
@@ -143,7 +141,9 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 
   if(!Opt.QuotesType[0])
     Opt.IgnoreQuotes=1;
-  else {
+  else
+  {
+    // размер Opt.QuotesType должен быть кратный двум (иначе усекаем)
     i=lstrlen(Opt.QuotesType);
     if((i&1) == 1)
     {
@@ -162,11 +162,12 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
   {
     for(i=0; i < nQuotes; i+=2)
       if(Bracket_1 == Opt.QuotesType[i] && Bracket1 == Opt.QuotesType[i+1])
-      return(INVALID_HANDLE_VALUE);
+        return(INVALID_HANDLE_VALUE);
   }
 
   Bracket=(CurPos == egs.StringLength)?_T('\0'):egs.StringText[CurPos];
 
+  // размер Opt.Brackets1 должен быть кратный двум (иначе усекаем)
   if(((lenBrackets1=lstrlen(Opt.Brackets1)) & 1) != 0)
   {
     lenBrackets1-=(lenBrackets1&1);
@@ -174,6 +175,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
   }
   lenBrackets1>>=1;
 
+  // размер Opt.Brackets1 должен быть кратный четырем (иначе усекаем)
   if(((lenBrackets2=lstrlen(Opt.Brackets2)) & 3) != 0)
   {
     lenBrackets2-=(lenBrackets2&3);
@@ -181,6 +183,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
   }
   lenBrackets2>>=2;
 
+  // анализ того, что под курсором
   i=3;
   short BracketPrior=Opt.BracketPrior;
   while(--i)
@@ -245,13 +248,13 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 
             if (Bracket_1==B21)
             {
-              types=BrColorer;
+              types=BrRight;
               Direction=1;
               break;
             }
             else if (Bracket_1==B22)
             {
-              types=BrColorer;
+              types=BrRight;
               Direction=-1;
               break;
             }
@@ -260,7 +263,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
     }
   }
 
-  if(Opt.IgnoreAfter && types == BrColorer)
+  if(Opt.IgnoreAfter && types == BrRight)
     return(INVALID_HANDLE_VALUE);
   if(types == BrZERO)
     return(INVALID_HANDLE_VALUE);
@@ -277,6 +280,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
   esp.CurLine=egs.StringNumber;
   egs.StringNumber=-1;
 
+  // поиск пары
   while (!found)
   {
     CurPos+=Direction;
@@ -305,11 +309,12 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
     if (CurPos > egs.StringLength || CurPos < 0)
       continue;
 
-    Ch=((CurPos == egs.StringLength)?_T('\0'):egs.StringText[CurPos]);
     Ch_1=(CurPos-1 >= 0?egs.StringText[CurPos-1]:_T('\0'));
+    Ch=((CurPos == egs.StringLength)?_T('\0'):egs.StringText[CurPos]);
     Ch1=(CurPos+1 < egs.StringLength?egs.StringText[CurPos+1]:_T('\0'));
 
-    if(Opt.IgnoreQuotes == 0)
+    // BUGBUGBUG!!!
+    if(Opt.IgnoreQuotes == 1)
     {
       for(k=j=0; j < nQuotes; j+=2)
         if(Ch_1 == Opt.QuotesType[j] && Ch1 == Opt.QuotesType[j+1])
@@ -337,7 +342,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
       }
 
       /***************************************************************/
-      case BrColorer:
+      case BrRight:
       {
         if(Ch == Bracket_1)
         {
@@ -409,8 +414,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
       else if(Bracket == B22 || Bracket == B23)
         CurPos-=Direction;
     }
-    //if(types == BrColorer)
-    //  CurPos++;
+
     esp.CurPos=CurPos;
 
     esp.CurTabPos=esp.LeftPos=esp.Overtype=-1;
@@ -434,24 +438,27 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
     {
       es.BlockType=BTYPE_STREAM;
       es.BlockStartLine=min(esp.CurLine,espo.CurLine);
-      es.BlockStartPos=(Direction > 0?espo.CurPos:esp.CurPos)
-          -(types == BrColorer?1:0);
-      if(espo.CurPos == esp.CurPos)
-        es.BlockStartPos+=(Direction > 0?1:-1);
+      es.BlockStartPos=(Direction > 0?espo.CurPos:esp.CurPos);
       es.BlockHeight=max(esp.CurLine,espo.CurLine)-min(esp.CurLine,espo.CurLine)+1;
+
       if(Direction > 0)
         es.BlockWidth=esp.CurPos-espo.CurPos+1;
       else
         es.BlockWidth=espo.CurPos-esp.CurPos+1;
-      /*
-      if(espo.CurPos == esp.CurPos)
+
+      if(types == BrRight)
       {
         if(Direction > 0)
+        {
           es.BlockStartPos--;
-        else
-          es.BlockStartPos++;
+          es.BlockWidth++;
+        }
+        else if(Direction < 0)
+        {
+          es.BlockWidth--;
+        }
       }
-      */
+
       Info.EditorControl(ECTL_SELECT,(void*)&es);
     }
   }

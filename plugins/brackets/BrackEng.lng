@@ -1,6 +1,7 @@
 .Language=English,English
 
 "Brackets matching"
+
 "S&earch"
 "&Select"
 
@@ -13,7 +14,7 @@
 "Rules"
 "Ignore brackets in &quotation marks"
 "Do not jump if &after bracket"
-"&Priority of single brackets"
+"&Priority of double brackets"
 "&Go to bracket when selecting"
 "&Beep if matched"
 "Definitions"

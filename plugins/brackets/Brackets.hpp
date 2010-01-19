@@ -23,11 +23,11 @@ struct Options{
 } Opt;
 
 enum{
-  BrZERO,
-  BrOne,
-  BrTwo,
-  BrColorer,
-  BrOneMath,
+  BrZERO,                // не определено
+  BrOne,                 // скобка одинарная, курсор на скобке
+  BrTwo,                 // скобка двойная
+  BrRight,               // скобка одинарная, курсор справа от скобки
+  BrOneMath,             // "скобка" == "кавычка"
 };
 
 static struct PluginStartupInfo Info;
