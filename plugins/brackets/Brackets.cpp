@@ -143,7 +143,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
     Opt.IgnoreQuotes=1;
   else
   {
-    // размер Opt.QuotesType должен быть кратный двум (иначе усекаем)
+    // ЁрчьхЁ Opt.QuotesType фюыцхэ с√Є№ ъЁрЄэ√щ фтєь (шэрўх єёхърхь)
     i=lstrlen(Opt.QuotesType);
     if((i&1) == 1)
     {
@@ -167,7 +167,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 
   Bracket=(CurPos == egs.StringLength)?_T('\0'):egs.StringText[CurPos];
 
-  // размер Opt.Brackets1 должен быть кратный двум (иначе усекаем)
+  // ЁрчьхЁ Opt.Brackets1 фюыцхэ с√Є№ ъЁрЄэ√щ фтєь (шэрўх єёхърхь)
   if(((lenBrackets1=lstrlen(Opt.Brackets1)) & 1) != 0)
   {
     lenBrackets1-=(lenBrackets1&1);
@@ -175,7 +175,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
   }
   lenBrackets1>>=1;
 
-  // размер Opt.Brackets1 должен быть кратный четырем (иначе усекаем)
+  // ЁрчьхЁ Opt.Brackets1 фюыцхэ с√Є№ ъЁрЄэ√щ ўхЄ√Ёхь (шэрўх єёхърхь)
   if(((lenBrackets2=lstrlen(Opt.Brackets2)) & 3) != 0)
   {
     lenBrackets2-=(lenBrackets2&3);
@@ -183,7 +183,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
   }
   lenBrackets2>>=2;
 
-  // анализ того, что под курсором
+  // рэрышч Єюую, ўЄю яюф ъєЁёюЁюь
   i=3;
   short BracketPrior=Opt.BracketPrior;
   while(--i)
@@ -280,7 +280,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
   esp.CurLine=egs.StringNumber;
   egs.StringNumber=-1;
 
-  // поиск пары
+  // яюшёъ ярЁ√
   while (!found)
   {
     CurPos+=Direction;
