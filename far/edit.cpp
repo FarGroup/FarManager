@@ -3056,7 +3056,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 
 		if(ComplMenu.GetItemCount())
 		{
-			ComplMenu.SetFlags(VMENU_WRAPMODE|VMENU_NOTCENTER);
+			ComplMenu.SetFlags(VMENU_WRAPMODE|VMENU_NOTCENTER|VMENU_SHOWAMPERSAND);
 
 			if(!DelBlock && Opt.AutoComplete.AppendCompletion && (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS) || Opt.AutoComplete.ShowList))
 			{
