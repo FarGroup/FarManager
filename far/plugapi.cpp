@@ -787,6 +787,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 
 		case ACTL_QUIT:
 		{
+			CloseFARMenu=TRUE;
 			FrameManager->ExitMainLoop(FALSE);
 			return TRUE;
 		}
@@ -1568,7 +1569,7 @@ int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pIte
 		string strFullName;
 		ScanTree ScTree(FALSE);
 		ScTree.SetFindPath(strDirName,L"*");
-		CutToSlash(strDirName); //BUGBUG
+		AddEndSlash(strDirName);
 		*pItemsNumber=0;
 		*pPanelItem=NULL;
 		FAR_FIND_DATA *ItemsList=NULL;
