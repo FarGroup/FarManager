@@ -785,6 +785,12 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 			return TRUE;
 		}
 
+		case ACTL_QUIT:
+		{
+			FrameManager->ExitMainLoop(FALSE);
+			return TRUE;
+		}
+
 	}
 	return FALSE;
 }
