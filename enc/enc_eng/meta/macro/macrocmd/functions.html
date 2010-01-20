@@ -391,30 +391,30 @@ $end</pre>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">V=<dfn><a name="waitkey">waitkey</a></dfn>([N, [T]])</td>
-    <td class="cont" width="60%">Ожидает любую клавишу и возвращает ее название (<em>T</em>=0) или значение (<em>T</em>=1).
-     Если время ожидания <em>N</em> (миллисекунды) истекло, функция возвращает пустую строку (<em>T</em>=0) или 0 (<em>T</em>=1).
-     Если параметр <em>N</em> не указан или равен 0, то функция будет бесконечно ждать нажатия клавиши.
+    <td class="cont" width="60%">Waits until a key is pressed and returns its name (<em>T</em>=0) or value (<em>T</em>=1).
+     When time to wait <em>N</em> (milliseconds) is up, function returns an empty string (<em>T</em>=0) or 0 (<em>T</em>=1).
+     If <em>N</em> is omitted or is equal to 0, function will wait for key press infinitely.
      <br>
     </td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">S=<dfn><a name="key">key</a></dfn>(V)</td>
-    <td class="cont" width="60%">Преобразует параметр <em>V</em> в строковый эквивалент названия клавиши.<br>
-     Если <em>V</em> строка, то проверяется правильность написания клавиши и она же возвращается,
-     если <em>V</em> число, то происходит попытка преобразовать значение в текстовый эквивалент названия клавиши.<br>
-     В случае ошибок - возвращается пустая строка.
+    <td class="cont" width="60%">Converts parameter <em>V</em> into the string equivalent of the key name.<br>
+     If <em>V</em> is a string, its correctness is checked and returned back,
+     if <em>V</em> is a number, it is converted into the string equivalent of the key name.<br>
+     Function returns empty string in case of any errors.
      <br>
     </td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="eval">eval</a></dfn>(S[,T])</td>
-    <td class="cont" width="60%">"Проиграть" (<em>T</em>=0) или проверить (<em>T</em>=1) макропоследовательность заданную строкой <em>S</em>.
+    <td class="cont" width="60%">"Play back" (<em>T</em>=0) or check (<em>T</em>=1) macro sequence defined in the string <em>S</em>.
       If <em>S</em> contains syntax errors, the sequence will not be played.
      <br>
-     FAR компилирует последовательность <em>S</em>.<br>
-     Для режима исполнения (<em>T</em>=0): если нет ошибок, то состояние текущего макроса сохраняется
-     и начинает выполняться последовательность <em>S</em>. После исполнения <em>S</em> прерванный макрос продолжает работать.
-     <p>Функция возвращает 0 в случае успешной компиляции последовательности <em>S</em> или код ошибки:
+     FAR compiles sequence <em>S</em>.<br>
+     For playback mode (<em>T</em>=0): if there are no errors, state of the current macro is preserved,
+     and sequence <em>S</em>begins execution. After playing <em>S</em>, suspended macro continues its work.
+     <p>If the sequence <em>S</em> compilation was successful, function returns 0, otherwise error code is returned:
        <table class="cont">
        <tr class="cont"><th class="cont" width="10%">Error</th><th class="cont" width="90%">Description</th></tr>
         <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">Unrecognized keyword '<em>keyword</em>'</td></tr>
@@ -433,8 +433,8 @@ $end</pre>
 
      <p>Local variables are common for both the current macro and the macro executed by <dfn>eval</dfn>.
 
-     <p>For example, we want by pressing F10 to open an Explorer window with the current folder on the active panel, command line contents should be saved.<br>
-     We set 2 string variables, in the Vars area, containing a macro-sequence for saving and restoring the command line:
+     <p>For example, by pressing F10 we want to open an Explorer window with the current folder on the active panel, command line contents should be saved.<br>
+     We set 2 string variables, in the Vars area, containing a macro sequence for saving and restoring the command line:
 <pre class=code>
 %%CmdSave=$If (!CmdLine.Empty) %Flg_Cmd=1;
           %CmdCurPos=CmdLine.ItemCount-CmdLine.CurPos+1;
@@ -499,20 +499,20 @@ $End
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">S=<dfn><a name="prompt">prompt</a></dfn>("Title"[,"Prompt"[,flags[, "Src"[, "History"]]]])</td>
-    <td class="cont" width="60%">Функция позволяет ввести одну строку текста.<br>
-      Параметры: <em>Title</em> - заголовок диалога, <em>Prompt</em> - приглашения для ввода, <em>Src</em> - начальное значение строки ввода, <em>History</em> - имя истории ввода<br>
-      <em>Flags</em> может быть набором следующих значений (аналогичным константам <a href="../../service_functions/inputbox.html#INPUTBOXFLAGS">FIB_*</a>):
+    <td class="cont" width="60%">Function allows to enter one text string.<br>
+      Parameters: <em>Title</em> - dialog caption, <em>Prompt</em> - prompt for input, <em>Src</em> - initial input string value, <em>History</em> - input history name<br>
+      <em>Flags</em> can be the set of these values (similar to <a href="../../service_functions/inputbox.html#INPUTBOXFLAGS">FIB_*</a> constants):
        <table class="cont">
        <tr class="cont"><th class="cont" width="10%">Flag</th><th class="cont" width="90%">Description</th></tr>
-           <tr class="cont"><td class="cont" width="40%">0x00000001</td><td class="cont" width="60%">даже если строка ввода пуста функция вернет значение пустое значение.</td></tr>
-           <tr class="cont"><td class="cont" width="40%">0x00000002</td><td class="cont" width="60%">используется для ввода пароля - вводимый текст на экране отрисовывается символами <code>'*'</code>.</td></tr>
-           <tr class="cont"><td class="cont" width="40%">0x00000004</td><td class="cont" width="60%">после успешного ввода, в результирующем значении <em>S</em> идентификаторы переменных окружения заменяются на их значения, например, если пользователь ввел '<code>%TEMP%</code>', то <dfn>DestText</dfn> будет содержать '<code>C:\TEMP</code>'.</td></tr>
-           <tr class="cont"><td class="cont" width="40%">0x00000008</td><td class="cont" width="60%">не использовать предыдущее значение из истории, оставить строку ввода пустой; актуален, если указан непустой параметр <em>History</em>.</td></tr>
-           <tr class="cont"><td class="cont" width="40%">0x00000010</td><td class="cont" width="60%">показать разделительную линию и кнопки [Ok] и [Cancel]. Диалог увеличится на 2 строки.</td></tr>
-           <tr class="cont"><td class="cont" width="40%">0x00000020</td><td class="cont" width="60%">не показывать в приглашении ввода амперсанд, использовать его для определения горячей клавиши.</td></tr>
+           <tr class="cont"><td class="cont" width="40%">0x00000001</td><td class="cont" width="60%">the function will return empty string if the input string is empty.</td></tr>
+           <tr class="cont"><td class="cont" width="40%">0x00000002</td><td class="cont" width="60%">entered text is represented by <code>'*'</code> on the screen, used for passwords input</td></tr>
+           <tr class="cont"><td class="cont" width="40%">0x00000004</td><td class="cont" width="60%">after a successful input, any environment variables within the input string will be replaced by their values in the resulting string <em>S</em>, e.g. if the user entered '<code>%TEMP%</code>', then <em>S</em> will contain '<code>C:\TEMP</code>'.</td></tr>
+           <tr class="cont"><td class="cont" width="40%">0x00000008</td><td class="cont" width="60%">if <em>Src</em> is empty and <em>History</em> is not empty, then do not initialize the input line from the history.</td></tr>
+           <tr class="cont"><td class="cont" width="40%">0x00000010</td><td class="cont" width="60%">display a separator and the [OK] and [Cancel] buttons below the input line. The dialog will grow by 2 lines.</td></tr>
+           <tr class="cont"><td class="cont" width="40%">0x00000020</td><td class="cont" width="60%">the ampersand character will not be shown in the prompt string but can instead be used to define a hotkey.</td></tr>
        </table>
-       Функция возвращает строку - введенное пользователем значение.<br>
-       Например, запросить пароль и вывести его
+       Function returns a string entered by user.<br>
+       For example, ask for password and show it:
       <pre class=code>%s=prompt("Password","Input password:",0x02); $Text %s</pre>
     </td>
   </tr>
@@ -525,40 +525,38 @@ $End
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="checkhotkey">checkhotkey</a></dfn>(S[,Pos])</td>
-    <td class="cont" width="60%">Функция позволяет проверить и получить позицию элемента (начиная с <em>Pos</em>), который содержит горячую клавишу <em>S</em>.
-    Если <em>S</em> - пустая строка, то функция вернет позицию элемента, который не содержит ни одной горячей клавиши.<br>
-    Возвращает: -1 - если функция вызывана не из своей области (MainMenu, Menu, Disks, UserMenu и Dialog), 0 - ничего не найдено, > 0 - если в меню/диалоге/списке присутствует горячая
-    клавиша <em>S</em>.<br>
-      <p>Например, в меню вызова плагинов (F11) плагину S&amp;R назначена
-      горячая клавиша '7'. Последовательность макрокоманды для редактора:
+    <td class="cont" width="60%">Function checks and gets the position of the element (starting from <em>Pos</em>), which contains hot key <em>S</em>.
+    If <em>S</em> is an empty string, then function will return the position of the element without hot keys.<br>
+    Returns: -1 - if called from the wrong area (MainMenu, Menu, Disks, UserMenu, and Dialog), 0 - nothing was nound, > 0 - if menu/dialog/list contains hot key <em>S</em>.<br>
+      <p>For example, in the plugin menu (F11), hot key '7' is defined for S&amp;R plugin.
+      Macro sequence for the editor
       <pre class=code>F11 $if (checkhotkey(&quot;7&quot;)) 7 1 $else Esc AltF7 $end</pre>
-      вызовет плагин, если хоткей назначен или стандартный диалог
-      поиска, если хоткей не назначен.
+      will call the plugin if hot key is defined, or standard Search dialog, if hot key is not defined.
    </td>
   </tr>
 
   <tr class="cont">
     <td class="cont" width="40%">S=<dfn><a name="gethotkey">gethotkey</a></dfn>(N)</td>
-    <td class="cont" width="60%">Returns the hotkey <em>S</em> for item <em>N</em>, if the item has a hotkey
+    <td class="cont" width="60%">Returns the hot key <em>S</em> for item <em>N</em>, if the item has a hot key
       and the current &quot;object&quot; is a menu. Otherwise 0 is returned.<br>
       <em>N</em> - item position beginning with 1 (0 - current item).
     </td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="menu.select">Menu.Select</a></dfn>(S[,N])</td>
-    <td class="cont" width="60%">В меню позиционирует курсор на первый пункт, содержащий подстроку <em>S</em>.
-    Поиск подстроки ведется в зависимости от указанного режима <em>N</em>:
+    <td class="cont" width="60%">In the menu, places cursor to the first item that contains <em>S</em> substring.
+    String is searched according to the mode <em>N</em>:
        <table class="cont">
         <tr class="cont"><th class="cont" width="40%">Mode</th><th class="cont" width="60%">Description</th></tr>
-        <tr class="cont"><td class="cont" width="40%">0</td><td class="cont" width="60%">полное совпадение</td></tr>
-        <tr class="cont"><td class="cont" width="40%">1</td><td class="cont" width="60%">совпадение с началом строки</td></tr>
-        <tr class="cont"><td class="cont" width="40%">2</td><td class="cont" width="60%">совпадение с концом строки</td></tr>
-        <tr class="cont"><td class="cont" width="40%">3</td><td class="cont" width="60%">присутствие подстроки <em>S</em> в пункте меню</td></tr>
+        <tr class="cont"><td class="cont" width="40%">0</td><td class="cont" width="60%">string is <em>S</em></td></tr>
+        <tr class="cont"><td class="cont" width="40%">1</td><td class="cont" width="60%">string begins with <em>S</em></td></tr>
+        <tr class="cont"><td class="cont" width="40%">2</td><td class="cont" width="60%">string ends with <em>S</em></td></tr>
+        <tr class="cont"><td class="cont" width="40%">3</td><td class="cont" width="60%">string contains <em>S</em></td></tr>
        </table>
-    Поиск регистронезависим. Если такого пункта нет, то ничего не делает.<br>
-    Возвращает: -1=ошибка - функция вызвана не для меню, 0=ошибка при позиционировании (нет пункта или пункт задисаблен), иначе - позицию пункта меню.
+    Search is case-insensitive. If item is not found, does nothing.<br>
+    Returns: -1=Error - if called not from the menu, 0=Placement error (item is absent or disabled), otherwise returns menu item position.
     <pre class=code>F11 $if(Menu.Select(&quot;Advanced compare&quot;,0) > 0) Enter $end</pre>
-    Если параметр <em>N</em> не указан, подразумевается полное совпадение.
+    If <em>N</em> parameter is omitted, full string coincidence is assumed.
   </td>
   </tr>
 
@@ -639,32 +637,32 @@ $End
 
   <tr class="cont">
     <td class="cont" width="40%">V=<dfn><a name="editor.sel">Editor.Sel</a></dfn>(Action[,Opt])</td>
-    <td class="cont" width="60%">Функция позволяет производить некоторые операции с блоками в тексте (в редакторе, в строках ввода в диалогах, в командной строке).
+    <td class="cont" width="60%">Function allows manipulations with blocks in the text (in editor, input strings in dialogs, command line).
        <table class="cont">
        <tr class="cont"><th class="cont" width="10%">Action</th><th class="cont" width="90%">Description</th></tr>
         <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">get parameters of the current block
         <table class="cont">
           <tr class="cont"><th class="cont" width="10%">Opt</th><th class="cont" width="90%">Description</th></tr>
-          <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">вернуть номер строки начала блока</td></tr>
-          <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">вернуть номер позиции в строке начала блока</td></tr>
-          <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%">вернуть номер строки конца блока</td></tr>
-          <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="90%">вернуть номер позиции в строке конца блока</td></tr>
-          <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="90%">вернуть тип выделенного блока: 0 - блок не выделен, 1 - обычный блок, 2 - вертикальный блок
-            (альтернативный вариант - <a href="states.html#editor.state">Editor.State</a>)</td></tr>
+          <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">return the string number of the block start</td></tr>
+          <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">return the position number of string of the block start</td></tr>
+          <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%">return the string number of the block end</td></tr>
+          <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="90%">return the position number of string of the block end</td></tr>
+          <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="90%">return the type of highlighted block: 0 - block is not highlighted, 1 - regular block, 2 - vertical block
+            (alternative way is <a href="states.html#editor.state">Editor.State</a>)</td></tr>
         </table>
         </td></tr>
-        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">позиционировать курсор внутри текущего блока (при позиционировании курсора состояние блока не изменяется)
+        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">place cursor within current block (block state is not changed during cursor placement)
         <table class="cont">
           <tr class="cont"><th class="cont" width="10%">Opt</th><th class="cont" width="90%">Description</th></tr>
-          <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">установить курсор в начало отмеченного блока</td></tr>
-          <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">установить курсор в конец отмеченного блока</td></tr>
+          <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">place cursor to the start of the highlighted block</td></tr>
+          <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">place cursor to the end of the highlighted block</td></tr>
         </table>
         </td></tr>
-        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%">установка позиций блока
+        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%">set block positions
         <table class="cont">
           <tr class="cont"><th class="cont" width="10%">Opt</th><th class="cont" width="90%">Description</th></tr>
-          <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">отметить позицию начала блока</td></tr>
-          <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">отметить позицию конца блока</td></tr>
+          <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">set block start position</td></tr>
+          <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">set block end position</td></tr>
         </table>
         Позицией начала/конца блока считается текущая позиция курсора. Блок помечается только после указания конечной позиции (<em>Opt</em>=1), с ранее выделенного блока пометка снимается.
         Если позиция начала и конца блока совпадают, то эта операция равносильна снятию пометки блока.

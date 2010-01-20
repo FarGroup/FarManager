@@ -2499,7 +2499,7 @@
                         <param name="ImageNumber" value="15">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="SVN репозитарий">
+                        <param name="Name" value="SVN repository">
                         <param name="Local" value="http://farmanager.com/svn/">
                         <param name="ImageNumber" value="15">
                         </OBJECT>
