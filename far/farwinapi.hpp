@@ -324,3 +324,8 @@ bool apiSearchPath(
 	const wchar_t *Extension,
 	string &strDest
 );
+
+bool apiQueryDosDevice(
+	const wchar_t *DeviceName,
+	string& Path
+);

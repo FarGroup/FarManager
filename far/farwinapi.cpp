@@ -975,3 +975,17 @@ bool apiSearchPath(const wchar_t *Path, const wchar_t *FileName, const wchar_t *
 
 	return false;
 }
+
+bool apiQueryDosDevice(const wchar_t *DeviceName, string &Path) {
+	SetLastError(NO_ERROR);
+	DWORD Res = QueryDosDeviceW(DeviceName, Path.GetBuffer(MAX_PATH), MAX_PATH);
+	if (!Res && GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+	{
+		SetLastError(NO_ERROR);
+		Res = QueryDosDeviceW(DeviceName, Path.GetBuffer(NT_MAX_PATH), NT_MAX_PATH);
+	}
+	if (!Res || GetLastError() != NO_ERROR)
+		return false;	
+	Path.ReleaseBuffer();
+	return true;
+}

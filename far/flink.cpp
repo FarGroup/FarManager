@@ -428,20 +428,14 @@ bool GetSubstName(int DriveType,const wchar_t *DeviceName, string &strTargetPath
 	{
 		if (IsLocalPath(DeviceName))
 		{
-			wchar_t *Name=new wchar_t[NT_MAX_PATH];
-
-			if (Name)
+			string Name;
+			if (apiQueryDosDevice(DeviceName, Name))
 			{
-				if (QueryDosDevice(DeviceName,Name,NT_MAX_PATH))
+				if (Name.Equal(0, L"\\??\\"))
 				{
-					if (!StrCmpN(Name,L"\\??\\",4))
-					{
-						strTargetPath=Name+4;
-						Ret=true;
-					}
+					strTargetPath=Name.SubStr(4);
+					Ret=true;
 				}
-
-				delete[] Name;
 			}
 		}
 	}

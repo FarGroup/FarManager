@@ -670,9 +670,7 @@ bool PathStartsWith(const string &Path, const string &Start)
 int MatchNtPathRoot(const string &NtPath, const wchar_t *DeviceName)
 {
 	string TargetPath;
-	DWORD Res = QueryDosDeviceW(DeviceName, TargetPath.GetBuffer(NT_MAX_PATH), NT_MAX_PATH);
-
-	if (Res)
+	if (apiQueryDosDevice(DeviceName, TargetPath))
 	{
 		TargetPath.ReleaseBuffer();
 

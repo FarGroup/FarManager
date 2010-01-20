@@ -176,6 +176,14 @@ UnicodeString& UnicodeString::Copy(const char *lpszData, UINT CodePage)
 	return *this;
 }
 
+UnicodeString UnicodeString::SubStr(size_t Pos, size_t Len) {
+	if (Pos >= GetLength())
+		return UnicodeString();
+	if (Len == -1 || Len > GetLength() || Pos + Len > GetLength())
+		Len = GetLength() - Pos;
+	return UnicodeString(m_pData->GetData() + Pos, Len);
+}
+
 bool UnicodeString::Equal(size_t Pos, size_t Len, const wchar_t* Data, size_t DataLen) const
 {
 	if (Pos >= m_pData->GetLength())
