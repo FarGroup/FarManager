@@ -976,7 +976,7 @@ int Edit::ProcessKey(int Key)
 				RecurseProcessKey(KEY_BS);
 			}
 			DC.Restore();
-			Changed();
+			Changed(true);
 			Show();
 			return(TRUE);
 		}
@@ -1011,7 +1011,7 @@ int Edit::ProcessKey(int Key)
 
 			Unlock();
 			DC.Restore();
-			Changed();
+			Changed(true);
 			Show();
 			return(TRUE);
 		}
@@ -1120,7 +1120,7 @@ int Edit::ProcessKey(int Key)
 
 			Unlock();
 			DC.Restore();
-			Changed();
+			Changed(true);
 			Show();
 			return(TRUE);
 		}
@@ -1448,7 +1448,6 @@ int Edit::ProcessKey(int Key)
 			if (ClipText)
 				xf_free(ClipText);
 
-			Changed();
 			Show();
 			return(TRUE);
 		}
@@ -3054,7 +3053,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 			EnumFiles(ComplMenu,strTemp);
 		}
 
-		if(ComplMenu.GetItemCount())
+		if(ComplMenu.GetItemCount()>1 || (ComplMenu.GetItemCount()==1 && StrCmpI(strTemp,ComplMenu.GetItemPtr(0)->strName)))
 		{
 			ComplMenu.SetFlags(VMENU_WRAPMODE|VMENU_NOTCENTER|VMENU_SHOWAMPERSAND);
 
@@ -3132,11 +3131,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 								{
 									EnumFiles(ComplMenu,strTemp);
 								}
-								if(!ComplMenu.GetItemCount())
-								{
-									ComplMenu.SetExitCode(-1);
-								}
-								else
+								if(ComplMenu.GetItemCount()>1 || (ComplMenu.GetItemCount()==1 && StrCmpI(strTemp,ComplMenu.GetItemPtr(0)->strName)))
 								{
 									if(MenuKey!=KEY_BS && MenuKey!=KEY_DEL && MenuKey!=KEY_NUMDEL && Opt.AutoComplete.AppendCompletion)
 									{
@@ -3153,6 +3148,10 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 									SetMenuPos(ComplMenu);
 									ComplMenu.SetSelectPos(0,0);
 									ComplMenu.Redraw();
+								}
+								else
+								{
+									ComplMenu.SetExitCode(-1);
 								}
 								Show();
 							}

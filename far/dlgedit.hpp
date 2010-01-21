@@ -156,5 +156,6 @@ class DlgEdit: public ScreenObject
 		void SetCallbackState(bool Enable){lineEdit->SetCallbackState(Enable);}
 		void SetECFlags(DWORD Flags){lineEdit->ECFlags.Set(Flags);}
 		void ClearECFlags(DWORD Flags){lineEdit->ECFlags.Clear(Flags);}
+		BOOL CheckECFlags(DWORD Flags){return lineEdit->ECFlags.Check(Flags);}
 		void AutoComplete(bool Manual,bool DelBlock){return lineEdit->AutoComplete(Manual,DelBlock);}
 };

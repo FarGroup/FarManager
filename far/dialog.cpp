@@ -6025,7 +6025,16 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 							DlgEdit *EditLine=(DlgEdit *)(CurItem->ObjPtr);
 							int ReadOnly=EditLine->GetReadOnly();
 							EditLine->SetReadOnly(0);
+							BOOL AC=EditLine->CheckECFlags(EditControl::EC_ENABLEAUTOCOMPLETE);
+							if(AC)
+							{
+								EditLine->ClearECFlags(EditControl::EC_ENABLEAUTOCOMPLETE);
+							}
 							EditLine->SetString(CurItem->strData);
+							if(AC)
+							{
+								EditLine->SetECFlags(EditControl::EC_ENABLEAUTOCOMPLETE);
+							}
 							EditLine->SetReadOnly(ReadOnly);
 
 							if (Dlg->DialogMode.Check(DMODE_INITOBJECTS)) // не меняем клеар-флаг, пока не проиницализировались
