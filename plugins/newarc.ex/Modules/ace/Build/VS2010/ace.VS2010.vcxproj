@@ -99,7 +99,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ace\</OutDir>
+    <OutDir>..\..\..\..\Bin\$(Configuration)\Modules\ace\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
     <OutDir>C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ace\</OutDir>
@@ -113,13 +113,13 @@
     <IntDir>..\..\Bin\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ace\</OutDir>
+    <OutDir>..\..\..\..\Bin\$(Configuration)\Modules\ace\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|X64'">
     <OutDir>C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ace\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Unicode|Win32'">
-    <OutDir>C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ace\</OutDir>
+    <OutDir>..\..\..\..\Bin\$(Configuration)\Modules\ace\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Unicode|X64'">
     <OutDir>C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ace\</OutDir>
@@ -141,7 +141,7 @@
     <IntDir>..\..\Bin\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Unicode|Win32'">
-    <OutDir>C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ace\</OutDir>
+    <OutDir>..\..\..\..\Bin\$(Configuration)\Modules\ace\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Unicode|X64'">
     <OutDir>C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ace\</OutDir>

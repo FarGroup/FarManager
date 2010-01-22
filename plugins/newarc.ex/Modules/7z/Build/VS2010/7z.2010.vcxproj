@@ -105,7 +105,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\7z.all\</OutDir>
+    <OutDir>..\..\..\..\Bin\$(Configuration)\Modules\7z\</OutDir>
     <IntDir>..\..\Bin\$(Configuration)\</IntDir>
     <TargetExt>.module</TargetExt>
   </PropertyGroup>
@@ -115,7 +115,7 @@
     <TargetExt>.module</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\7z.all\</OutDir>
+    <OutDir>..\..\..\..\Bin\$(Configuration)\Modules\7z\</OutDir>
     <IntDir>..\..\Bin\$(Configuration)\</IntDir>
     <TargetExt>.module</TargetExt>
   </PropertyGroup>
@@ -125,7 +125,7 @@
     <TargetExt>.module</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Unicode|Win32'">
-    <OutDir>C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\7z.all\</OutDir>
+    <OutDir>..\..\..\..\Bin\$(Configuration)\Modules\7z\</OutDir>
     <IntDir>..\..\Bin\$(Configuration)\</IntDir>
     <TargetExt>.module</TargetExt>
   </PropertyGroup>
@@ -135,7 +135,7 @@
     <TargetExt>.module</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Unicode|Win32'">
-    <OutDir>C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\7z.all\</OutDir>
+    <OutDir>..\..\..\..\Bin\$(Configuration)\Modules\7z\</OutDir>
     <TargetExt>.module</TargetExt>
     <IntDir>..\..\Bin\$(Configuration)\</IntDir>
   </PropertyGroup>

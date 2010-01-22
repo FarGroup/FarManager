@@ -1,37 +1,39 @@
-Build started 1/22/2010 10:15:15 AM.
-     1>Project "D:\Projects\Far\Newarc\Modules\multiex\Build\VS2010\multiex.2010.vcxproj" on node 14 (build target(s)).
+Build started 1/22/2010 10:36:09 AM.
+     1>Project "D:\Projects\Far\Newarc\Modules\multiex\Build\VS2010\multiex.2010.vcxproj" on node 6 (build target(s)).
      1>_PrepareForBuild:
-         Touching "Release Unicode\multiex.unsuccessfulbuild".
-     1>C:\Program Files\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(249,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
+         Creating "..\..\Bin\Release Unicode\multiex.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       PrepareForBuild:
+         Creating directory "..\..\..\..\Bin\Release Unicode\Modules\multiex\".
        ClCompile:
          All outputs are up-to-date.
+     1>C:\Program Files\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(935,5): warning MSB8012: TargetPath(D:\Projects\Far\Newarc\Modules\multiex\Build\VS2010\..\..\..\..\Bin\Release Unicode\Modules\multiex\multiex.module) does not match the Linker's OutputFile property value (D:\Projects\Far\Newarc\Bin\Release Unicode\Modules\multiex\multiex.module). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
        Link:
-         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\multiex\multiex.module" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /DEF:"../../multiex.def" /MANIFEST:NO /PDB:"C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\multiex\multiex.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\multiex\multiex.lib" /MACHINE:X86 /DLL "Release Unicode\debug.obj"
-         "Release Unicode\FarDialog.obj"
-         "Release Unicode\farlng.obj"
-         "Release Unicode\FarPagedDialog.obj"
-         "Release Unicode\FarRegistry.obj"
-         "Release Unicode\makeguid.obj"
-         "Release Unicode\rtl.Hook.obj"
-         "Release Unicode\rtl.Kernel.obj"
-         "Release Unicode\rtl.Memory.obj"
-         "Release Unicode\rtl.Misc.obj"
-         "Release Unicode\rtl.Strings.obj"
-         "Release Unicode\Rtl.Thunks.obj"
-         "Release Unicode\strmix.obj"
-         "Release Unicode\multiex.Archive.obj"
-         "Release Unicode\multiex.obj"
-         "Release Unicode\multiex.Module.obj"
-         "Release Unicode\multiex.Plugin.obj"
-            Creating library C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\multiex\multiex.lib and object C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\multiex\multiex.exp
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"..\..\..\..\Bin\Release Unicode\Modules\multiex\multiex.module" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /DEF:"../../multiex.def" /MANIFEST:NO /PDB:"D:\Projects\Far\Newarc\Bin\Release Unicode\Modules\multiex\multiex.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"..\..\..\..\Bin\Release Unicode\Modules\multiex\multiex.lib" /MACHINE:X86 /DLL "..\..\Bin\Release Unicode\debug.obj"
+         "..\..\Bin\Release Unicode\FarDialog.obj"
+         "..\..\Bin\Release Unicode\farlng.obj"
+         "..\..\Bin\Release Unicode\FarPagedDialog.obj"
+         "..\..\Bin\Release Unicode\FarRegistry.obj"
+         "..\..\Bin\Release Unicode\makeguid.obj"
+         "..\..\Bin\Release Unicode\rtl.Hook.obj"
+         "..\..\Bin\Release Unicode\rtl.Kernel.obj"
+         "..\..\Bin\Release Unicode\rtl.Memory.obj"
+         "..\..\Bin\Release Unicode\rtl.Misc.obj"
+         "..\..\Bin\Release Unicode\rtl.Strings.obj"
+         "..\..\Bin\Release Unicode\Rtl.Thunks.obj"
+         "..\..\Bin\Release Unicode\strmix.obj"
+         "..\..\Bin\Release Unicode\multiex.Archive.obj"
+         "..\..\Bin\Release Unicode\multiex.obj"
+         "..\..\Bin\Release Unicode\multiex.Module.obj"
+         "..\..\Bin\Release Unicode\multiex.Plugin.obj"
+            Creating library ..\..\..\..\Bin\Release Unicode\Modules\multiex\multiex.lib and object ..\..\..\..\Bin\Release Unicode\Modules\multiex\multiex.exp
          Generating code
          Finished generating code
-         multiex.2010.vcxproj -> C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\multiex\multiex.module
+         multiex.2010.vcxproj -> D:\Projects\Far\Newarc\Modules\multiex\Build\VS2010\..\..\..\..\Bin\Release Unicode\Modules\multiex\multiex.module
        _AfterBuild:
-         Deleting file "Release Unicode\multiex.unsuccessfulbuild".
-         Touching "Release Unicode\multiex.lastbuildstate".
+         Deleting file "..\..\Bin\Release Unicode\multiex.unsuccessfulbuild".
+         Touching "..\..\Bin\Release Unicode\multiex.lastbuildstate".
      1>Done Building Project "D:\Projects\Far\Newarc\Modules\multiex\Build\VS2010\multiex.2010.vcxproj" (build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:02.77
+Time Elapsed 00:00:00.57

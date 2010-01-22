@@ -59,10 +59,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\wcx\</OutDir>
+    <OutDir>..\..\..\..\Bin\$(Configuration)\Modules\wcx\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Unicode|Win32'">
-    <OutDir>C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\wcx\</OutDir>
+    <OutDir>..\..\..\..\Bin\$(Configuration)\Modules\wcx\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IntDir>..\..\Bin\$(Configuration)\</IntDir>
@@ -77,10 +77,10 @@
     <TargetExt>.module</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\wcx\</OutDir>
+    <OutDir>..\..\..\..\Bin\$(Configuration)\Modules\wcx\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Unicode|Win32'">
-    <OutDir>C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\wcx\</OutDir>
+    <OutDir>..\..\..\..\Bin\$(Configuration)\Modules\wcx\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IntDir>..\..\Bin\$(Configuration)\</IntDir>

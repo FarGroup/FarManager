@@ -61,22 +61,22 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ma</OutDir>
+    <OutDir>..\..\..\..\Bin\$(Configuration)\Modules\</OutDir>
     <IntDir>..\..\Bin\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Unicode|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ma</OutDir>
+    <OutDir>..\..\..\..\Bin\$(Configuration)\Modules\</OutDir>
     <IntDir>..\..\Bin\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ma</OutDir>
+    <OutDir>..\..\..\..\Bin\$(Configuration)\Modules\</OutDir>
     <IntDir>..\..\Bin\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Unicode|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ma</OutDir>
+    <OutDir>..\..\..\..\Bin\$(Configuration)\Modules\</OutDir>
     <IntDir>..\..\Bin\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

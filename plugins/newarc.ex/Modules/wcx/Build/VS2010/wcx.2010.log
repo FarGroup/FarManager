@@ -1,11 +1,14 @@
-Build started 1/22/2010 10:15:18 AM.
-     1>Project "D:\Projects\Far\Newarc\Modules\wcx\Build\VS2010\wcx.2010.vcxproj" on node 14 (build target(s)).
+Build started 1/22/2010 10:36:10 AM.
+     1>Project "D:\Projects\Far\Newarc\Modules\wcx\Build\VS2010\wcx.2010.vcxproj" on node 6 (build target(s)).
      1>_PrepareForBuild:
-         Touching "..\..\Bin\Release Unicode\wcx.unsuccessfulbuild".
+         Creating "..\..\Bin\Release Unicode\wcx.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       PrepareForBuild:
+         Creating directory "..\..\..\..\Bin\Release Unicode\Modules\wcx\".
        ClCompile:
          All outputs are up-to-date.
+     1>C:\Program Files\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(935,5): warning MSB8012: TargetPath(D:\Projects\Far\Newarc\Modules\wcx\Build\VS2010\..\..\..\..\Bin\Release Unicode\Modules\wcx\wcx.module) does not match the Linker's OutputFile property value (D:\Projects\Far\Newarc\Bin\Release Unicode\Modules\wcx\wcx.module). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
        Link:
-         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\wcx\wcx.module" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /DEF:"../../wcx.def" /MANIFEST:NO /PDB:"C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\wcx\wcx.pdb" /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\wcx\wcx.lib" /MACHINE:X86 /DLL "..\..\Bin\Release Unicode\debug.obj"
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"..\..\..\..\Bin\Release Unicode\Modules\wcx\wcx.module" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /DEF:"../../wcx.def" /MANIFEST:NO /PDB:"D:\Projects\Far\Newarc\Bin\Release Unicode\Modules\wcx\wcx.pdb" /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"..\..\..\..\Bin\Release Unicode\Modules\wcx\wcx.lib" /MACHINE:X86 /DLL "..\..\Bin\Release Unicode\debug.obj"
          "..\..\Bin\Release Unicode\FarDialog.obj"
          "..\..\Bin\Release Unicode\farlng.obj"
          "..\..\Bin\Release Unicode\FarPagedDialog.obj"
@@ -22,10 +25,10 @@ Build started 1/22/2010 10:15:18 AM.
          "..\..\Bin\Release Unicode\wcx.obj"
          "..\..\Bin\Release Unicode\wcx.Module.obj"
          "..\..\Bin\Release Unicode\wcx.Plugin.obj"
-            Creating library C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\wcx\wcx.lib and object C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\wcx\wcx.exp
+            Creating library ..\..\..\..\Bin\Release Unicode\Modules\wcx\wcx.lib and object ..\..\..\..\Bin\Release Unicode\Modules\wcx\wcx.exp
          Generating code
          Finished generating code
-         wcx.2010.vcxproj -> C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\wcx\wcx.module
+         wcx.2010.vcxproj -> D:\Projects\Far\Newarc\Modules\wcx\Build\VS2010\..\..\..\..\Bin\Release Unicode\Modules\wcx\wcx.module
        _AfterBuild:
          Deleting file "..\..\Bin\Release Unicode\wcx.unsuccessfulbuild".
          Touching "..\..\Bin\Release Unicode\wcx.lastbuildstate".
@@ -33,4 +36,4 @@ Build started 1/22/2010 10:15:18 AM.
 
 Build succeeded.
 
-Time Elapsed 00:00:01.71
+Time Elapsed 00:00:00.80

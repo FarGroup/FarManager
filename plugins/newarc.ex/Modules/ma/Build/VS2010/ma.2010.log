@@ -1,11 +1,14 @@
-Build started 1/22/2010 10:15:18 AM.
-     1>Project "D:\Projects\Far\Newarc\Modules\ma\Build\VS2010\ma.2010.vcxproj" on node 13 (build target(s)).
+Build started 1/22/2010 10:36:10 AM.
+     1>Project "D:\Projects\Far\Newarc\Modules\ma\Build\VS2010\ma.2010.vcxproj" on node 5 (build target(s)).
      1>_PrepareForBuild:
-         Touching "..\..\Bin\Release Unicode\ma.unsuccessfulbuild".
+         Creating "..\..\Bin\Release Unicode\ma.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       PrepareForBuild:
+         Creating directory "..\..\..\..\Bin\Release Unicode\Modules\ma\".
        ClCompile:
          All outputs are up-to-date.
+     1>C:\Program Files\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(935,5): warning MSB8012: TargetPath(D:\Projects\Far\Newarc\Modules\ma\Build\VS2010\..\..\..\..\Bin\Release Unicode\Modules\ma\ma.module) does not match the Linker's OutputFile property value (D:\Projects\Far\Newarc\Bin\Release Unicode\Modules\ma\ma.module). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
        Link:
-         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ma\ma.module" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /DEF:"../../ma.def" /MANIFEST:NO /PDB:"C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ma\ma.pdb" /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ma\ma.lib" /MACHINE:X86 /DLL "..\..\Bin\Release Unicode\debug.obj"
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"..\..\..\..\Bin\Release Unicode\Modules\ma\ma.module" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /DEF:"../../ma.def" /MANIFEST:NO /PDB:"D:\Projects\Far\Newarc\Bin\Release Unicode\Modules\ma\ma.pdb" /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"..\..\..\..\Bin\Release Unicode\Modules\ma\ma.lib" /MACHINE:X86 /DLL "..\..\Bin\Release Unicode\debug.obj"
          "..\..\Bin\Release Unicode\FarDialog.obj"
          "..\..\Bin\Release Unicode\farlng.obj"
          "..\..\Bin\Release Unicode\FarRegistry.obj"
@@ -21,10 +24,10 @@ Build started 1/22/2010 10:15:18 AM.
          "..\..\Bin\Release Unicode\ma.obj"
          "..\..\Bin\Release Unicode\ma.Module.obj"
          "..\..\Bin\Release Unicode\ma.Plugin.obj"
-            Creating library C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ma\ma.lib and object C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ma\ma.exp
+            Creating library ..\..\..\..\Bin\Release Unicode\Modules\ma\ma.lib and object ..\..\..\..\Bin\Release Unicode\Modules\ma\ma.exp
          Generating code
          Finished generating code
-         ma.2010.vcxproj -> C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ma\ma.module
+         ma.2010.vcxproj -> D:\Projects\Far\Newarc\Modules\ma\Build\VS2010\..\..\..\..\Bin\Release Unicode\Modules\ma\ma.module
        _AfterBuild:
          Deleting file "..\..\Bin\Release Unicode\ma.unsuccessfulbuild".
          Touching "..\..\Bin\Release Unicode\ma.lastbuildstate".
@@ -32,4 +35,4 @@ Build started 1/22/2010 10:15:18 AM.
 
 Build succeeded.
 
-Time Elapsed 00:00:01.92
+Time Elapsed 00:00:00.55

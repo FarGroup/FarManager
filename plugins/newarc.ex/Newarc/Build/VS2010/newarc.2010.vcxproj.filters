@@ -115,7 +115,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="newarc.rc">
+    <ResourceCompile Include="..\..\newarc.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
