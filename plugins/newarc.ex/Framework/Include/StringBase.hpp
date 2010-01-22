@@ -4,7 +4,6 @@
 
 #define __US_DELTA 20
 
-
 class BaseTraits 
 {
 public:

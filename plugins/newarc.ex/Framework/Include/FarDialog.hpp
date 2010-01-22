@@ -1,20 +1,6 @@
 #pragma once
 #include "FarDialogBase.hpp"
 
-#pragma warning(disable:4800) // force value to bool
-#pragma warning(disable:4018) // signed/unsigned mismatch
-
-/*
-#define CreateList(l, items, default) \
-		l->Items = (FarListItem*)malloc(items*sizeof(FarListItem)); \
-		memset (l->Items, 0, items*sizeof(FarListItem)); \
-		l->ItemsNumber = items; \
-		l->Items[default].Flags |= LIF_SELECTED;
-
-#define DeleteList(l) \
-		free(l->Items); \
-		delete l;
-*/
 #define AUTO_LENGTH -1
 #define CURRENT_ITEM -1
 
@@ -325,37 +311,3 @@ public:
 
 };
 
-/*
-typedef LONG_PTR (__stdcall *DIALOGHANDLER) (FarDialogHandler*, int, int, LONG_PTR);
-
-class FarDialogHandler {
-private:
-	DIALOGHANDLER      m_DlgHandler;
-	PVOID              m_Param;
-	FarDialog         *m_Owner;
-
-public:
-
-	void Create (FarDialog *Owner, DIALOGHANDLER Handler, PVOID Param)
-		{ 
-			m_Owner = Owner; 
-			m_DlgHandler = Handler; 
-			m_Param = Param; 
-		}
-
-	HANDLE GetDlg ()           
-		{	return m_Owner->m_hDlg;  }
-
-	FarDialog *GetOwner()
-		{	return m_Owner; }
-
-	void* GetDlgData ()
-		{	return m_Param; }
-
-	void* SetDlgData (void *pData)
-   		{	void *pResult = m_Param; m_Param = pData; return pResult; }
-
-
-};
-
-*/
