@@ -431,7 +431,7 @@ void ProcessExternal(const wchar_t *Command,const wchar_t *Name,const wchar_t *S
 			SaveScreen SaveScr;
 			CtrlObject->Cp()->LeftPanel->CloseFile();
 			CtrlObject->Cp()->RightPanel->CloseFile();
-			Execute(strExecStr,AlwaysWaitFinish);
+			Execute(strExecStr.CPtr()+1,AlwaysWaitFinish);
 		}
 	}
 
