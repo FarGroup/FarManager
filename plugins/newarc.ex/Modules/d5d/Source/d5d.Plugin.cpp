@@ -495,16 +495,6 @@ int D5DPlugin::QueryArchives(const TCHAR* lpFileName, Array<ArchiveQueryResult*>
 
 
 
-void CreateDirs(const TCHAR *lpFileName)
-{
-	string strNameCopy = lpFileName;
-
-	CutToSlash(strNameCopy);
-	apiCreateDirectoryEx(strNameCopy);
-}
-
-
-
 int D5DPlugin::Extract(
 		const ArchiveItem* pItems, 
 		int nItemsNumber, 
@@ -544,7 +534,7 @@ int D5DPlugin::Extract(
 
 		if ( pInfo->ExtractInternal )
 		{
-			CreateDirs(strFullName);
+			apiCreateDirectoryForFile(strFullName);
 
 		/*	for (int i = 0; i < justName.Length; i++)
 				if ( justName.Data[i] == '\\' )

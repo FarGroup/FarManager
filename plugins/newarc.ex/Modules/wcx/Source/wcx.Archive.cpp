@@ -110,15 +110,6 @@ void WcxArchive::FreeArchiveItem(ArchiveItem *pItem)
 
 
 
-void CreateDirs(const TCHAR *lpFileName)
-{
-	string strNameCopy = lpFileName;
-
-	CutToSlash(strNameCopy);
-	apiCreateDirectoryEx(strNameCopy);
-}
-
-
 
 bool WcxArchive::Extract(
 		const ArchiveItem* pItems,
@@ -192,7 +183,7 @@ bool WcxArchive::Extract(
 						}
 						else
 						{
-							CreateDirs(strDestName);
+							apiCreateDirectoryForFile(strDestName);
 							nProcessResult = m_pPlugin->ProcessFile (m_hArchive, PK_EXTRACT, NULL, strDestName);
 						}
 

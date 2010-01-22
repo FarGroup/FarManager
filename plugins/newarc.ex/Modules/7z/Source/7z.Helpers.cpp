@@ -102,18 +102,6 @@ HRESULT CArchiveExtractCallback::SetCompleted(const unsigned __int64* completeVa
 
 
 
-void CreateDirs (const TCHAR *lpFileName)
-{
-	TCHAR *lpNameCopy = StrDuplicate (lpFileName);
-
-	CutToSlash (lpNameCopy);
-
-	apiCreateDirectoryEx (lpNameCopy);
-
-	StrFree (lpNameCopy);
-}
-
-
 int GetItemIndex (CArchiveExtractCallback *pcb, int index)
 {
 	for (int i = 0; i < pcb->m_nItemsNumber; i++)
@@ -237,7 +225,7 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream(
 		}
 		else
 		{
-			CreateDirs(strFullName);
+			apiCreateDirectoryForFile(strFullName);
 
 			COutFile *file = new COutFile(strFullName);
 

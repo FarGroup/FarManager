@@ -144,14 +144,6 @@ bool ObserverArchive::FreeArchiveItem(ArchiveItem *pItem)
 	return true;
 }
 
-void CreateDirs(const TCHAR *lpFileName)
-{
-	string strNameCopy = lpFileName;
-
-	CutToSlash(strNameCopy);
-	apiCreateDirectoryEx(strNameCopy);
-}
-
 
 bool ObserverArchive::Extract(
 		const ArchiveItem *pItems, 
@@ -195,8 +187,7 @@ bool ObserverArchive::Extract(
 				apiCreateDirectoryEx(strDestName);
 			else
 			{
-				CutToSlash(strDestName);
-				apiCreateDirectoryEx(strDestName);
+				apiCreateDirectoryForFile(strDestName);
 
 				if ( pItems[i].UserData )
 					m_pPlugin->ExtractItem(m_hArchive, pItems[i].UserData-1, strDestName, &callbacks);

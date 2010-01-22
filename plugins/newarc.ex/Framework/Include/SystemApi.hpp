@@ -1,6 +1,7 @@
 #pragma once
 #include "Rtl.Base.h"
 #include "StringBase.hpp"
+#include "strmix.hpp"
 
 DWORD apiExpandEnvironmentStrings(const TCHAR* src, string& strDest);
 
@@ -11,3 +12,4 @@ string& apiRegQueryStringValue(HKEY hKey, const TCHAR *lpValueName, string& strD
 DWORD apiGetFullPathName(const TCHAR* lpFileName, string& strResult);
 
 void apiCreateDirectoryEx(const TCHAR* lpDirectory);
+void apiCreateDirectoryForFile(const TCHAR* lpFileName);
