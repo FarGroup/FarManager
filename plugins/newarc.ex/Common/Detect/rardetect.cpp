@@ -8,7 +8,7 @@
   #pragma pack(push,1)
 #endif
 
-int IsRarHeader(const unsigned char *Data,int DataSize)
+int IsRarHeader(const unsigned char *Data, unsigned int DataSize)
 {
 	for (int I=0;I<DataSize-7;I++)
 	{

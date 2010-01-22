@@ -10,7 +10,7 @@
 
 const size_t MIN_HEADER_LEN = 1024 + 512;
 
-int IsHfsHeader(const unsigned char *Data,int DataSize)
+int IsHfsHeader(const unsigned char *Data, unsigned int DataSize)
 {
 	if ( (size_t)DataSize < MIN_HEADER_LEN )
 		return -1;

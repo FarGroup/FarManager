@@ -13,7 +13,7 @@ const unsigned char udf_signature[] = {'N', 'S', 'R', '0'};
 
 const size_t MIN_HEADER_LEN = 0x8000+sizeof (iso_signature)+1;
 
-int IsUdfHeader(const unsigned char *Data,int DataSize)
+int IsUdfHeader(const unsigned char *Data, unsigned int DataSize)
 {
 	if ( (size_t)DataSize < MIN_HEADER_LEN )
 		return -1;

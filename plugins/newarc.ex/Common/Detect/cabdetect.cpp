@@ -29,7 +29,7 @@ struct CFHEADER
   u2 iCabinet;
 };
 
-int IsCabHeader(const unsigned char *Data,int DataSize)
+int IsCabHeader(const unsigned char *Data, unsigned int DataSize)
 {
   int I;
 

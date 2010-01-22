@@ -28,7 +28,7 @@ static inline BOOL IsValidHeader (const unsigned char *Data)
 	return !memcmp (&header->Signature, &nsis_signature, sizeof (nsis_signature));
 }
 
-int IsNSISHeader(const unsigned char *Data,int DataSize)
+int IsNSISHeader(const unsigned char *Data, unsigned int DataSize)
 {
 	if ( (size_t)DataSize < MIN_HEADER_LEN )
 		return -1;

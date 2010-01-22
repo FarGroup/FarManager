@@ -37,7 +37,7 @@ BOOL CheckLZHHeader(struct LZH_Level0 *lzh)
 }
 
 
-int IsLzhHeader(const unsigned char *Data,int DataSize)
+int IsLzhHeader(const unsigned char *Data, unsigned int DataSize)
 {
   for (int I=0;I<DataSize-5;I++)
   {

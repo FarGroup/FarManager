@@ -75,7 +75,7 @@ __int64 GetOctal(const char *Str)
   return _strtoi64(Str,&endptr,8);
 }
 
-int IsTarHeader (const unsigned char *Data, int DataSize)
+int IsTarHeader (const unsigned char *Data, unsigned int DataSize)
 {
   size_t I;
   struct posix_header *Header;

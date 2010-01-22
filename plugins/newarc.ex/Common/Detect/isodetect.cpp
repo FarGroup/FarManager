@@ -12,7 +12,7 @@ const unsigned char iso_signature[] = {'C', 'D', '0', '0', '1', 0x1};
 
 const size_t MIN_HEADER_LEN = 0x8000+sizeof (iso_signature)+1;
 
-int IsIsoHeader(const unsigned char *Data,int DataSize)
+int IsIsoHeader(const unsigned char *Data, unsigned int DataSize)
 {
 	if ( (size_t)DataSize < MIN_HEADER_LEN )
 		return -1;

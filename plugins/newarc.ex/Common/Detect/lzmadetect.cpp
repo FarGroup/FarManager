@@ -27,7 +27,7 @@ static bool CheckDictSize(DWORD dicSize)
 	return false;
 }
 
-int IsLzmaHeader(const unsigned char *Data,int DataSize)
+int IsLzmaHeader(const unsigned char *Data, unsigned int DataSize)
 {
 	if ( (size_t)DataSize < MIN_HEADER_LEN )
 		return -1;

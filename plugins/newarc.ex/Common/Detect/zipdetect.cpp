@@ -37,7 +37,7 @@ static inline BOOL IsValidHeader(const unsigned char *Data, const unsigned char 
     && Data+MIN_HEADER_LEN+pHdr->FileNameLen+pHdr->ExtraFieldLen<DataEnd);
 }
 
-int IsZipHeader(const unsigned char *Data,int DataSize)
+int IsZipHeader(const unsigned char *Data, unsigned int DataSize)
 {
 	if (DataSize>=4 && Data[0]=='P' && Data[1]=='K' && Data[2]==5 && Data[3]==6)
 	{

@@ -34,7 +34,7 @@ static inline BOOL IsValidHeader (const unsigned char *Data)
 	return !memcmp (&header->Signature, &sevenzip_signature, sizeof (sevenzip_signature)) && (crc == header->dwHeaderCRC);
 }
 
-int Is7zHeader(const unsigned char *Data,int DataSize)
+int Is7zHeader(const unsigned char *Data, unsigned int DataSize)
 {
 	if ( (size_t)DataSize < MIN_HEADER_LEN )
 		return -1;

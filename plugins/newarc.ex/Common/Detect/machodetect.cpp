@@ -10,7 +10,7 @@
 
 const size_t MIN_HEADER_LEN = 4;
 
-int IsMachoHeader(const unsigned char *Data,int DataSize)
+int IsMachoHeader(const unsigned char *Data, unsigned int DataSize)
 {
 	if ( (size_t)DataSize < MIN_HEADER_LEN )
 		return -1;

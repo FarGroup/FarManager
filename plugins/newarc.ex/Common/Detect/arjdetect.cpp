@@ -49,7 +49,7 @@ static void crc_buf(const char *str, int len)
         UPDATE_CRC(CRC, *str++);
 }
 
-int IsArjHeader(const unsigned char *Data,int DataSize)
+int IsArjHeader(const unsigned char *Data, unsigned int DataSize)
 {
   if(!CRCInit)
   {
