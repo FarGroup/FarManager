@@ -898,21 +898,20 @@ sok más lehetőség...
 
     A letölthető pluginekről tájékoztató linkek:
 
-  - A Far Group honlapja
+  - FAR Manager official site
     ~http://www.farmanager.com~@http://www.farmanager.com@
   - Online fórum
-    ~http://enforum.farmanager.com~@http://enforum.farmanager.com@
+    ~http://forum.farmanager.com~@http://forum.farmanager.com@
   - PlugRinG honlap
     ~http://plugring.farmanager.com~@http://plugring.farmanager.com@
+  - Ingyenes levelezőcsoport-szolgáltatás
+    ~http://groups.google.com/group/fardev/~@http://groups.google.com/group/fardev@
   - USENET echo konferencia
     ~news:fido7.far.support~@news:fido7.far.support@
     ~news:fido7.far.development~@news:fido7.far.development@
   - FidoNet echo konferencia
     far.support
     far.development
-  - Ingyenes levelezőcsoport-szolgáltatás
-    ~http://groups.yahoo.com/group/plugring~@http://groups.yahoo.com/group/plugring@
-    ~http://groups.yahoo.com/group/farpluginsapi~@http://groups.yahoo.com/group/farpluginsapi@
 
 
 @Panels

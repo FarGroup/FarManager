@@ -269,6 +269,12 @@ bool GetShellType(const wchar_t *Ext, string &strType,ASSOCIATIONTYPE aType)
 
 	if (!bVistaType)
 	{
+		if (aType == AT_URLPROTOCOL)
+		{
+			strType = Ext;
+			return true;
+		}
+
 		HKEY hCRKey = 0, hUserKey = 0;
 		string strFoundValue;
 

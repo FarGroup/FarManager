@@ -910,23 +910,22 @@ $ #Обзор возможностей подключаемых модулей#
     В качестве источников информации, которые можно использовать для поиска
 конкретных плагинов, можно порекомендовать:
 
-  - сайт Группы разработчиков FAR (FAR Group)
-    ~http://www.farmanager.com~@http://www.farmanager.com@
+  - Официальный сайт Far Manager
+    ~http://www.farmanager.com/~@http://www.farmanager.com@
   - форум
     ~http://forum.farmanager.com~@http://forum.farmanager.com@
+  - Регистрация и обработка проблем
+    ~http://www.farmanager.com/mantis~@http://www.farmanager.com/mantis@
   - сайт PlugRinG
     ~http://plugring.farmanager.com~@http://plugring.farmanager.com@
+  - листы рассылки
+    ~http://groups.google.com/group/fardev/~@http://groups.google.com/group/fardev@
   - конференции USENET
     ~news:fido7.far.support~@news:fido7.far.support@
     ~news:fido7.far.development~@news:fido7.far.development@
   - конференции FidoNet
     far.support
     far.development
-  - листы рассылки
-    ~http://groups.yahoo.com/group/plugring~@http://groups.yahoo.com/group/plugring@
-    ~http://groups.yahoo.com/group/farpluginsapi~@http://groups.yahoo.com/group/farpluginsapi@
-  - использовать плагин PlugRinG viewer и все самые последние плагины
-    вы сможете посмотреть и скачать к себе на диск прямо из FAR.
 
 
 @Panels

@@ -901,21 +901,22 @@ an almost limitless expansion of the features of FAR.
     As an information source, which can be used to search for specific plugins,
 one can recommend:
 
-  - Far Group site
+  - FAR Manager official site
     ~http://www.farmanager.com~@http://www.farmanager.com@
   - Online forum
-    ~http://enforum.farmanager.com~@http://enforum.farmanager.com@
+    ~http://forum.farmanager.com~@http://forum.farmanager.com@
+  - Registration and handling of problems
+    ~http://www.farmanager.com/mantis~@http://www.farmanager.com/mantis@
   - PlugRinG site
     ~http://plugring.farmanager.com~@http://plugring.farmanager.com@
+  - Free email group service
+    ~http://groups.google.com/group/fardeven/~@http://groups.google.com/group/fardeven@
   - USENET echo conference
     ~news:fido7.far.support~@news:fido7.far.support@
     ~news:fido7.far.development~@news:fido7.far.development@
   - FidoNet echo conference
     far.support
     far.development
-  - Free email group service
-    ~http://groups.yahoo.com/group/plugring~@http://groups.yahoo.com/group/plugring@
-    ~http://groups.yahoo.com/group/farpluginsapi~@http://groups.yahoo.com/group/farpluginsapi@
 
 
 @Panels
