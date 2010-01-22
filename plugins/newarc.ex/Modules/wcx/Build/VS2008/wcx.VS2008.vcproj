@@ -420,10 +420,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\..\Framework\Src\rtl.Memory.cpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\..\..\Framework\Src\rtl.Misc.cpp"
 					>
 				</File>

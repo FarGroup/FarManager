@@ -1,9 +1,7 @@
-Build started 1/22/2010 10:36:10 AM.
-     1>Project "D:\Projects\Far\Newarc\Modules\observer\Build\VS2010\observer.V2010.vcxproj" on node 5 (build target(s)).
+Build started 1/22/2010 11:32:52 AM.
+     1>Project "D:\Projects\Far\Newarc\Modules\observer\Build\VS2010\observer.V2010.vcxproj" on node 3 (build target(s)).
      1>_PrepareForBuild:
-         Creating "..\..\Bin\Release Unicode\observer.unsuccessfulbuild" because "AlwaysCreate" was specified.
-       PrepareForBuild:
-         Creating directory "..\..\..\..\Bin\Release Unicode\Modules\observer\".
+         Touching "..\..\Bin\Release Unicode\observer.unsuccessfulbuild".
        ClCompile:
          All outputs are up-to-date.
      1>C:\Program Files\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(935,5): warning MSB8012: TargetPath(D:\Projects\Far\Newarc\Modules\observer\Build\VS2010\..\..\..\..\Bin\Release Unicode\Modules\observer\observer.module) does not match the Linker's OutputFile property value (D:\Projects\Far\Newarc\Bin\Release Unicode\Modules\observer\observer.module). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
@@ -16,7 +14,6 @@ Build started 1/22/2010 10:36:10 AM.
          "..\..\Bin\Release Unicode\makeguid.obj"
          "..\..\Bin\Release Unicode\rtl.Hook.obj"
          "..\..\Bin\Release Unicode\rtl.Kernel.obj"
-         "..\..\Bin\Release Unicode\rtl.Memory.obj"
          "..\..\Bin\Release Unicode\rtl.Misc.obj"
          "..\..\Bin\Release Unicode\rtl.Strings.obj"
          "..\..\Bin\Release Unicode\Rtl.Thunks.obj"
@@ -36,4 +33,4 @@ Build started 1/22/2010 10:36:10 AM.
 
 Build succeeded.
 
-Time Elapsed 00:00:00.57
+Time Elapsed 00:00:00.72

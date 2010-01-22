@@ -304,7 +304,6 @@
     <ClCompile Include="..\..\..\..\Framework\Src\FarRegistry.cpp" />
     <ClCompile Include="..\..\..\..\Framework\Src\rtl.Hook.cpp" />
     <ClCompile Include="..\..\..\..\Framework\Src\rtl.Kernel.cpp" />
-    <ClCompile Include="..\..\..\..\Framework\Src\rtl.Memory.cpp" />
     <ClCompile Include="..\..\..\..\Framework\Src\rtl.Misc.cpp" />
     <ClCompile Include="..\..\..\..\Framework\Src\rtl.Strings.cpp" />
     <ClCompile Include="..\..\..\..\Framework\Src\Rtl.Thunks.cpp" />

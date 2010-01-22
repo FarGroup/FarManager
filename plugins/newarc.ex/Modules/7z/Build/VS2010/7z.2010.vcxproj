@@ -300,7 +300,6 @@
     <ClCompile Include="..\..\..\..\Framework\Src\makeguid.cpp" />
     <ClCompile Include="..\..\..\..\framework\Src\rtl.Hook.cpp" />
     <ClCompile Include="..\..\..\..\framework\Src\rtl.Kernel.cpp" />
-    <ClCompile Include="..\..\..\..\framework\Src\rtl.Memory.cpp" />
     <ClCompile Include="..\..\..\..\framework\Src\rtl.Misc.cpp" />
     <ClCompile Include="..\..\..\..\framework\Src\rtl.Strings.cpp" />
     <ClCompile Include="..\..\..\..\framework\Src\Rtl.Thunks.cpp" />
