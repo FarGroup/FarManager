@@ -69,6 +69,7 @@ namespace oldfar {
 #include "FarMenu.hpp"
 #include "FarMessage.hpp"
 #include "FarApi.hpp"
+#include "FarPanelInfo.hpp"
 
 extern PluginStartupInfo Info;
 extern FARSTANDARDFUNCTIONS FSF;
