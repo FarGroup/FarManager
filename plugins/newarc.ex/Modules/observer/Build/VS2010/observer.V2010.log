@@ -1,12 +1,56 @@
-Build started 1/22/2010 12:13:00 PM.
-     1>Project "D:\Projects\Far\Newarc\Modules\observer\Build\VS2010\observer.V2010.vcxproj" on node 25 (build target(s)).
+Build started 1/22/2010 12:26:48 PM.
+     1>Project "D:\Projects\Far\Newarc\Modules\observer\Build\VS2010\observer.V2010.vcxproj" on node 2 (build target(s)).
      1>_PrepareForBuild:
          Creating "..\..\Bin\Release Unicode\observer.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         All outputs are up-to-date.
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I../../Include /I../../../../Framework/Include /Zi /nologo /W3 /WX- /O1 /Os /Oy /GL /D _WINDLL /D _UNICODE /D UNICODE /GF /Gm- /EHsc /MT /Zp1 /GS- /Gy /fp:precise /Zc:wchar_t /Zc:forScope /GR- /Fo"..\..\Bin\Release Unicode\\" /Fd"..\..\Bin\Release Unicode\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt ..\..\..\..\Framework\Src\FarDialog.cpp
+         FarDialog.cpp
+     1>d:\projects\far\newarc\framework\include\FarDialog.hpp(127): warning C4800: 'LONG_PTR' : forcing value to bool 'true' or 'false' (performance warning)
+     1>d:\projects\far\newarc\framework\include\FarDialog.hpp(145): warning C4800: 'LONG_PTR' : forcing value to bool 'true' or 'false' (performance warning)
+     1>d:\projects\far\newarc\framework\include\FarDialog.hpp(151): warning C4800: 'LONG_PTR' : forcing value to bool 'true' or 'false' (performance warning)
+     1>d:\projects\far\newarc\framework\include\FarDialog.hpp(154): warning C4800: 'LONG_PTR' : forcing value to bool 'true' or 'false' (performance warning)
+     1>d:\projects\far\newarc\framework\include\FarDialog.hpp(157): warning C4800: 'LONG_PTR' : forcing value to bool 'true' or 'false' (performance warning)
+     1>d:\projects\far\newarc\framework\include\FarDialog.hpp(163): warning C4800: 'LONG_PTR' : forcing value to bool 'true' or 'false' (performance warning)
+     1>d:\projects\far\newarc\framework\include\FarDialog.hpp(198): warning C4800: 'LONG_PTR' : forcing value to bool 'true' or 'false' (performance warning)
+     1>d:\projects\far\newarc\framework\include\FarDialog.hpp(204): warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
+     1>d:\projects\far\newarc\framework\include\FarDialog.hpp(216): warning C4800: 'LONG_PTR' : forcing value to bool 'true' or 'false' (performance warning)
+     1>d:\projects\far\newarc\framework\include\FarDialog.hpp(219): warning C4800: 'LONG_PTR' : forcing value to bool 'true' or 'false' (performance warning)
+     1>d:\projects\far\newarc\framework\include\FarDialog.hpp(222): warning C4800: 'LONG_PTR' : forcing value to bool 'true' or 'false' (performance warning)
+     1>d:\projects\far\newarc\framework\include\FarDialog.hpp(241): warning C4800: 'LONG_PTR' : forcing value to bool 'true' or 'false' (performance warning)
+     1>d:\projects\far\newarc\framework\include\FarDialog.hpp(244): warning C4800: 'LONG_PTR' : forcing value to bool 'true' or 'false' (performance warning)
+     1>d:\projects\far\newarc\framework\include\FarDialog.hpp(247): warning C4800: 'LONG_PTR' : forcing value to bool 'true' or 'false' (performance warning)
+     1>d:\projects\far\newarc\framework\include\FarDialog.hpp(250): warning C4800: 'LONG_PTR' : forcing value to bool 'true' or 'false' (performance warning)
+     1>d:\projects\far\newarc\framework\include\FarDialog.hpp(262): warning C4800: 'LONG_PTR' : forcing value to bool 'true' or 'false' (performance warning)
+     1>d:\projects\far\newarc\framework\include\FarDialog.hpp(268): warning C4800: 'LONG_PTR' : forcing value to bool 'true' or 'false' (performance warning)
+     1>d:\projects\far\newarc\framework\include\FarDialog.hpp(274): warning C4800: 'LONG_PTR' : forcing value to bool 'true' or 'false' (performance warning)
+     1>d:\projects\far\newarc\framework\include\FarDialog.hpp(277): warning C4800: 'LONG_PTR' : forcing value to bool 'true' or 'false' (performance warning)
+     1>d:\projects\far\newarc\framework\include\FarDialog.hpp(280): warning C4800: 'LONG_PTR' : forcing value to bool 'true' or 'false' (performance warning)
+     1>d:\projects\far\newarc\framework\include\FarDialog.hpp(283): warning C4800: 'LONG_PTR' : forcing value to bool 'true' or 'false' (performance warning)
+     1>d:\projects\far\newarc\framework\include\FarDialog.hpp(289): warning C4800: 'LONG_PTR' : forcing value to bool 'true' or 'false' (performance warning)
      1>C:\Program Files\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(935,5): warning MSB8012: TargetPath(D:\Projects\Far\Newarc\Modules\observer\Build\VS2010\..\..\..\..\Bin\Release Unicode\Modules\observer\observer.module) does not match the Linker's OutputFile property value (D:\Projects\Far\Newarc\Bin\Release Unicode\Modules\observer\observer.module). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
        Link:
-         All outputs are up-to-date.
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"..\..\..\..\Bin\Release Unicode\Modules\observer\observer.module" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /DEF:"../../observer.def" /MANIFEST:NO /PDB:"D:\Projects\Far\Newarc\Bin\Release Unicode\Modules\observer\observer.pdb" /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"..\..\..\..\Bin\Release Unicode\Modules\observer\observer.lib" /MACHINE:X86 /DLL "..\..\Bin\Release Unicode\debug.obj"
+         "..\..\Bin\Release Unicode\FarApi.obj"
+         "..\..\Bin\Release Unicode\FarDialog.obj"
+         "..\..\Bin\Release Unicode\FarLng.obj"
+         "..\..\Bin\Release Unicode\FarPagedDialog.obj"
+         "..\..\Bin\Release Unicode\FarRegistry.obj"
+         "..\..\Bin\Release Unicode\makeguid.obj"
+         "..\..\Bin\Release Unicode\rtl.Hook.obj"
+         "..\..\Bin\Release Unicode\rtl.Kernel.obj"
+         "..\..\Bin\Release Unicode\rtl.Misc.obj"
+         "..\..\Bin\Release Unicode\rtl.Strings.obj"
+         "..\..\Bin\Release Unicode\Rtl.Thunks.obj"
+         "..\..\Bin\Release Unicode\strmix.obj"
+         "..\..\Bin\Release Unicode\SystemApi.obj"
+         "..\..\Bin\Release Unicode\UnicodeAnsi.obj"
+         "..\..\Bin\Release Unicode\observer.Archive.obj"
+         "..\..\Bin\Release Unicode\observer.obj"
+         "..\..\Bin\Release Unicode\observer.Module.obj"
+         "..\..\Bin\Release Unicode\observer.Plugin.obj"
+            Creating library ..\..\..\..\Bin\Release Unicode\Modules\observer\observer.lib and object ..\..\..\..\Bin\Release Unicode\Modules\observer\observer.exp
+         Generating code
+         Finished generating code
          observer.V2010.vcxproj -> D:\Projects\Far\Newarc\Modules\observer\Build\VS2010\..\..\..\..\Bin\Release Unicode\Modules\observer\observer.module
        _AfterBuild:
          Deleting file "..\..\Bin\Release Unicode\observer.unsuccessfulbuild".
@@ -15,4 +59,4 @@ Build started 1/22/2010 12:13:00 PM.
 
 Build succeeded.
 
-Time Elapsed 00:00:00.01
+Time Elapsed 00:00:01.81

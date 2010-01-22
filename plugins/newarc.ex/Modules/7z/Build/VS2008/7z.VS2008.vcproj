@@ -460,59 +460,59 @@
 				Name="Detect"
 				>
 				<File
-					RelativePath="..\..\Source\Detect\7zdetect.cpp"
+					RelativePath="..\..\..\..\Common\Detect\7zdetect.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\Source\Detect\arjdetect.cpp"
+					RelativePath="..\..\..\..\Common\Detect\arjdetect.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\Source\Detect\cabdetect.cpp"
+					RelativePath="..\..\..\..\Common\Detect\cabdetect.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\Source\Detect\hfsdetect.cpp"
+					RelativePath="..\..\..\..\Common\Detect\hfsdetect.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\Source\Detect\isodetect.cpp"
+					RelativePath="..\..\..\..\Common\Detect\isodetect.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\Source\Detect\lzhdetect.cpp"
+					RelativePath="..\..\..\..\Common\Detect\lzhdetect.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\Source\Detect\lzmadetect.cpp"
+					RelativePath="..\..\..\..\Common\Detect\lzmadetect.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\Source\Detect\machodetect.cpp"
+					RelativePath="..\..\..\..\Common\Detect\machodetect.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\Source\Detect\nsisdetect.cpp"
+					RelativePath="..\..\..\..\Common\Detect\nsisdetect.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\Source\Detect\pedetect.cpp"
+					RelativePath="..\..\..\..\Common\Detect\pedetect.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\Source\Detect\rardetect.cpp"
+					RelativePath="..\..\..\..\Common\Detect\rardetect.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\Source\Detect\tardetect.cpp"
+					RelativePath="..\..\..\..\Common\Detect\tardetect.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\Source\Detect\udfdetect.cpp"
+					RelativePath="..\..\..\..\Common\Detect\udfdetect.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\Source\Detect\zipdetect.cpp"
+					RelativePath="..\..\..\..\Common\Detect\zipdetect.cpp"
 					>
 				</File>
 			</Filter>

@@ -21,6 +21,48 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\Common\Detect\7zdetect.cpp">
+      <Filter>Source Files\Detect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Common\Detect\arjdetect.cpp">
+      <Filter>Source Files\Detect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Common\Detect\cabdetect.cpp">
+      <Filter>Source Files\Detect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Common\Detect\hfsdetect.cpp">
+      <Filter>Source Files\Detect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Common\Detect\isodetect.cpp">
+      <Filter>Source Files\Detect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Common\Detect\lzhdetect.cpp">
+      <Filter>Source Files\Detect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Common\Detect\lzmadetect.cpp">
+      <Filter>Source Files\Detect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Common\Detect\machodetect.cpp">
+      <Filter>Source Files\Detect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Common\Detect\nsisdetect.cpp">
+      <Filter>Source Files\Detect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Common\Detect\pedetect.cpp">
+      <Filter>Source Files\Detect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Common\Detect\rardetect.cpp">
+      <Filter>Source Files\Detect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Common\Detect\tardetect.cpp">
+      <Filter>Source Files\Detect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Common\Detect\udfdetect.cpp">
+      <Filter>Source Files\Detect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Common\Detect\zipdetect.cpp">
+      <Filter>Source Files\Detect</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\Framework\Src\debug.cpp">
       <Filter>Source Files\Framework</Filter>
     </ClCompile>
@@ -83,48 +125,6 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\7z.Plugin.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Detect\7zdetect.cpp">
-      <Filter>Source Files\Detect</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Detect\arjdetect.cpp">
-      <Filter>Source Files\Detect</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Detect\cabdetect.cpp">
-      <Filter>Source Files\Detect</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Detect\hfsdetect.cpp">
-      <Filter>Source Files\Detect</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Detect\isodetect.cpp">
-      <Filter>Source Files\Detect</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Detect\lzhdetect.cpp">
-      <Filter>Source Files\Detect</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Detect\lzmadetect.cpp">
-      <Filter>Source Files\Detect</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Detect\machodetect.cpp">
-      <Filter>Source Files\Detect</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Detect\nsisdetect.cpp">
-      <Filter>Source Files\Detect</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Detect\pedetect.cpp">
-      <Filter>Source Files\Detect</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Detect\rardetect.cpp">
-      <Filter>Source Files\Detect</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Detect\tardetect.cpp">
-      <Filter>Source Files\Detect</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Detect\udfdetect.cpp">
-      <Filter>Source Files\Detect</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Detect\zipdetect.cpp">
-      <Filter>Source Files\Detect</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\PropVariant.cpp">
       <Filter>Source Files</Filter>

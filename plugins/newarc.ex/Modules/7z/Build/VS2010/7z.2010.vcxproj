@@ -293,6 +293,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\Common\Detect\7zdetect.cpp" />
+    <ClCompile Include="..\..\..\..\Common\Detect\arjdetect.cpp" />
+    <ClCompile Include="..\..\..\..\Common\Detect\cabdetect.cpp" />
+    <ClCompile Include="..\..\..\..\Common\Detect\hfsdetect.cpp" />
+    <ClCompile Include="..\..\..\..\Common\Detect\isodetect.cpp" />
+    <ClCompile Include="..\..\..\..\Common\Detect\lzhdetect.cpp" />
+    <ClCompile Include="..\..\..\..\Common\Detect\lzmadetect.cpp" />
+    <ClCompile Include="..\..\..\..\Common\Detect\machodetect.cpp" />
+    <ClCompile Include="..\..\..\..\Common\Detect\nsisdetect.cpp" />
+    <ClCompile Include="..\..\..\..\Common\Detect\pedetect.cpp" />
+    <ClCompile Include="..\..\..\..\Common\Detect\rardetect.cpp" />
+    <ClCompile Include="..\..\..\..\Common\Detect\tardetect.cpp" />
+    <ClCompile Include="..\..\..\..\Common\Detect\udfdetect.cpp" />
+    <ClCompile Include="..\..\..\..\Common\Detect\zipdetect.cpp" />
     <ClCompile Include="..\..\..\..\Framework\Src\debug.cpp" />
     <ClCompile Include="..\..\..\..\Framework\Src\FarApi.cpp" />
     <ClCompile Include="..\..\..\..\Framework\Src\FarDialog.cpp" />
@@ -314,20 +328,6 @@
     <ClCompile Include="..\..\Source\7z.Helpers.cpp" />
     <ClCompile Include="..\..\Source\7z.Module.cpp" />
     <ClCompile Include="..\..\Source\7z.Plugin.cpp" />
-    <ClCompile Include="..\..\Source\Detect\7zdetect.cpp" />
-    <ClCompile Include="..\..\Source\Detect\arjdetect.cpp" />
-    <ClCompile Include="..\..\Source\Detect\cabdetect.cpp" />
-    <ClCompile Include="..\..\Source\Detect\hfsdetect.cpp" />
-    <ClCompile Include="..\..\Source\Detect\isodetect.cpp" />
-    <ClCompile Include="..\..\Source\Detect\lzhdetect.cpp" />
-    <ClCompile Include="..\..\Source\Detect\lzmadetect.cpp" />
-    <ClCompile Include="..\..\Source\Detect\machodetect.cpp" />
-    <ClCompile Include="..\..\Source\Detect\nsisdetect.cpp" />
-    <ClCompile Include="..\..\Source\Detect\pedetect.cpp" />
-    <ClCompile Include="..\..\Source\Detect\rardetect.cpp" />
-    <ClCompile Include="..\..\Source\Detect\tardetect.cpp" />
-    <ClCompile Include="..\..\Source\Detect\udfdetect.cpp" />
-    <ClCompile Include="..\..\Source\Detect\zipdetect.cpp" />
     <ClCompile Include="..\..\Source\PropVariant.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

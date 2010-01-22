@@ -1,6 +1,10 @@
 #pragma once
 #include "FarPluginBase.hpp"
 
+#if defined(_MSC_VER)
+	#pragma warning(disable:4800) // force value to bool
+#endif
+
 #define AUTO_LENGTH -1
 #define CURRENT_ITEM -1
 
@@ -124,7 +128,7 @@ public:
 		} 
 
 	bool AddHistory (int ID, const TCHAR *History)
-		{ return Message (DM_ADDHISTORY, ID, (LONG_PTR)History); }
+		{ return (bool)Message (DM_ADDHISTORY, ID, (LONG_PTR)History); }
 
 	int CloseDialog (int ID)
 		{ return (int)Message (DM_CLOSE, ID, 0); }
