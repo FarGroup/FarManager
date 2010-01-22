@@ -21,10 +21,13 @@
     <ClCompile Include="..\..\..\..\Framework\Src\debug.cpp">
       <Filter>Source Files\Framework</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Framework\Src\FarApi.cpp">
+      <Filter>Source Files\Framework</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\Framework\Src\FarDialog.cpp">
       <Filter>Source Files\Framework</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Framework\Src\farlng.cpp">
+    <ClCompile Include="..\..\..\..\Framework\Src\FarLng.cpp">
       <Filter>Source Files\Framework</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\Framework\Src\FarPagedDialog.cpp">
@@ -52,6 +55,12 @@
       <Filter>Source Files\Framework</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\Framework\Src\strmix.cpp">
+      <Filter>Source Files\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Framework\Src\SystemApi.cpp">
+      <Filter>Source Files\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Framework\Src\UnicodeAnsi.cpp">
       <Filter>Source Files\Framework</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\observer.Archive.cpp">

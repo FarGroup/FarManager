@@ -1,5 +1,4 @@
 #include "FarPluginBase.hpp"
-#include "strmix.hpp"
 
 inline bool IsEOL(char c)
 {

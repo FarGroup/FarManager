@@ -1,3 +1,6 @@
+#pragma once
+#include "FarPluginBase.hpp"
+
 extern bool LoadLanguageFile (
 		const TCHAR *lpFileName, 
 		const TCHAR *lpLanguage,

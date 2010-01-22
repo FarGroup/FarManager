@@ -188,8 +188,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Framework\Src\debug.cpp" />
+    <ClCompile Include="..\..\..\..\Framework\Src\FarApi.cpp" />
     <ClCompile Include="..\..\..\..\Framework\Src\FarDialog.cpp" />
-    <ClCompile Include="..\..\..\..\Framework\Src\farlng.cpp" />
+    <ClCompile Include="..\..\..\..\Framework\Src\FarLng.cpp" />
     <ClCompile Include="..\..\..\..\Framework\Src\FarPagedDialog.cpp" />
     <ClCompile Include="..\..\..\..\Framework\Src\FarRegistry.cpp" />
     <ClCompile Include="..\..\..\..\Framework\Src\makeguid.cpp" />
@@ -199,6 +200,8 @@
     <ClCompile Include="..\..\..\..\Framework\Src\rtl.Strings.cpp" />
     <ClCompile Include="..\..\..\..\Framework\Src\Rtl.Thunks.cpp" />
     <ClCompile Include="..\..\..\..\Framework\Src\strmix.cpp" />
+    <ClCompile Include="..\..\..\..\Framework\Src\SystemApi.cpp" />
+    <ClCompile Include="..\..\..\..\Framework\Src\UnicodeAnsi.cpp" />
     <ClCompile Include="..\..\Source\wcx.Archive.cpp" />
     <ClCompile Include="..\..\Source\wcx.cpp" />
     <ClCompile Include="..\..\Source\wcx.Module.cpp" />

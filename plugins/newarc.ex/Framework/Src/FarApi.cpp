@@ -1,4 +1,5 @@
-#include "farnew.hpp"
+#include "FarPluginBase.hpp"
+#include "SystemApi.hpp"
 #include "strmix.hpp"
 
 DWORD farGetFullPathName(const TCHAR* lpFileName, string& strResult)

@@ -1,4 +1,5 @@
 #pragma once
+#include "Rtl.Base.h"
 #include "StringBase.hpp"
 
 DWORD apiExpandEnvironmentStrings(const TCHAR* src, string& strDest);

@@ -63,7 +63,15 @@ namespace oldfar {
 #include <stdio.h>
 #include <string.h>
 #include <tchar.h>
-#include <Rtl.Base.h>
+#include "Rtl.Base.h"
+#include "array.hpp"
+
+#include "StringBase.hpp"
+#include "UnicodeAnsi.hpp"
+
+extern PluginStartupInfo Info;
+extern FARSTANDARDFUNCTIONS FSF;
+
 
 #include "FarDialog.hpp"
 #include "FarMenu.hpp"
@@ -71,6 +79,4 @@ namespace oldfar {
 #include "FarApi.hpp"
 #include "FarPanelInfo.hpp"
 
-extern PluginStartupInfo Info;
-extern FARSTANDARDFUNCTIONS FSF;
 

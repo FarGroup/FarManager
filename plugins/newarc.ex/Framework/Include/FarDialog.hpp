@@ -1,5 +1,5 @@
 #pragma once
-#include "FarDialogBase.hpp"
+#include "FarPluginBase.hpp"
 
 #define AUTO_LENGTH -1
 #define CURRENT_ITEM -1

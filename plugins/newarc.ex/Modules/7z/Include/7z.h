@@ -2,9 +2,7 @@
 
 //far
 #include "FarPluginBase.hpp"
-#include "StringBase.hpp"
-#include "FarDialogBase.hpp"
-#include "FarPanelInfo.hpp"
+#include "SystemApi.hpp"
 #include "strmix.hpp"
 #include "makeguid.h"
 #include "debug.h"

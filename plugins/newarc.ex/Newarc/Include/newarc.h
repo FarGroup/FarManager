@@ -4,17 +4,14 @@
 
 
 #include "strmix.hpp"
+#include "SystemApi.hpp"
 #include "StringBase.hpp"
 #include <Rtl.Base.h>
 #include <FarPluginBase.hpp>
-#include <FarHelp.hpp>
 #include <FarRegistry.hpp>
-#include <FarDialogBase.hpp>
-#include "FarPanelInfo.hpp"
 #include <FarLNG.hpp>
 #include <array.hpp>
 #include <debug.h>
-#include <farnew.hpp>
 
 
 //newarc

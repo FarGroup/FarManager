@@ -1,7 +1,6 @@
 #pragma once
 #include "FarPluginBase.hpp"
-#include "FarDialogBase.hpp"
-#include "StringBase.hpp"
+#include "SystemApi.hpp"
 #include "strmix.hpp"
 #include "debug.h"
 #include "makeguid.h"

@@ -5,6 +5,8 @@ static wchar_t cBoxSymbols[] = {0x2551, 0x0000, 0x2550, 0x0000, 0x2554, 0x0000, 
 static char cBoxSymbols[] = {'º', 0, 'Í', 0, 'É', 0, '¼', 0, 'È', 0, '»', 0};
 #endif
 
+#define FarGetColor(Index) (BYTE)Info.AdvControl (Info.ModuleNumber, ACTL_GETCOLOR, (void*)Index)
+
 void doFrame (int X, int Y, int Width, int Height, const TCHAR *Header, bool Shadow)
 {
 	int X2 = X+Width-1;

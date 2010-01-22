@@ -866,7 +866,7 @@ LONG_PTR __stdcall ArchivePanel::Callback(HANDLE hPanel, int nMsg, int nParam1, 
 	return nResult;
 }
 
-#include "msg/dlgFileAlreadyExists.cpp"
+#include "dlg/dlgFileAlreadyExists.cpp"
 
 int ArchivePanel::OnFileAlreadyExists(OverwriteStruct* pOS)
 {

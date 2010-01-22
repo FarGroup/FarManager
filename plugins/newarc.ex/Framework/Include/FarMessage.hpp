@@ -1,5 +1,5 @@
 #pragma once
-#include "FarDialogBase.hpp"
+#include "FarPluginBase.hpp"
 
 class FarMessage 
 {

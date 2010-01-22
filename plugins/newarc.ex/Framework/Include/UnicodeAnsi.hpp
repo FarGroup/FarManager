@@ -1,4 +1,5 @@
 #pragma once
+#include <windows.h>
 
 #ifndef UNICODE
 	#define EXP_NAME(p) _export p
