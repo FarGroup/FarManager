@@ -4280,7 +4280,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Generating language files based on $(InputFileName)…"
-						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputDir)$(InputFileName)&#x0D;&#x0A;"
+						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) &quot;$(InputDir)$(InputFileName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
 						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng"
 					/>
@@ -4291,7 +4291,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Generating language files based on $(InputFileName)…"
-						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputDir)$(InputFileName)&#x0D;&#x0A;"
+						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) &quot;$(InputDir)$(InputFileName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
 						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng"
 					/>
@@ -4302,7 +4302,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Generating language files based on $(InputFileName)…"
-						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputDir)$(InputFileName)&#x0D;&#x0A;"
+						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) &quot;$(InputDir)$(InputFileName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
 						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng"
 					/>
@@ -4313,7 +4313,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Generating language files based on $(InputFileName)…"
-						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputDir)$(InputFileName)&#x0D;&#x0A;"
+						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) &quot;$(InputDir)$(InputFileName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
 						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng"
 					/>
@@ -4324,7 +4324,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Generating language files based on $(InputFileName)…"
-						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputDir)$(InputFileName)&#x0D;&#x0A;"
+						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) &quot;$(InputDir)$(InputFileName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
 						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng"
 					/>
@@ -4335,7 +4335,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Generating language files based on $(InputFileName)…"
-						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) $(InputDir)$(InputFileName)&#x0D;&#x0A;"
+						CommandLine="tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) &quot;$(InputDir)$(InputFileName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
 						Outputs="bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng"
 					/>

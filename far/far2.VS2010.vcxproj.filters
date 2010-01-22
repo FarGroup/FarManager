@@ -598,6 +598,9 @@
     <ClInclude Include="exitcode.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FarDlgBuilder.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="farexcpt.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
