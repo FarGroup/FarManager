@@ -3,8 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9,00"
 	Name="zip"
-	ProjectGUID="{25E705A3-FA09-403D-94B0-8D142453307B}"
-	RootNamespace="zip"
+	ProjectGUID="{AF2BE7F2-6541-44F8-BD48-927F140BE4FD}"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -18,8 +17,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="Debug"
-			IntermediateDirectory="Debug"
+			OutputDirectory="..\..\..\..\Bin\$(Configuration)\Modules\zip"
+			IntermediateDirectory="..\..\Bin\$(Configuration)"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
@@ -42,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\lib.part\include"
+				AdditionalIncludeDirectories="../../Include;../../../../Framework/Include;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;ZIP_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -63,10 +62,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="&quot;C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\zip.module&quot; "
+				OutputFile="$(OutDir)\$(ProjectName).module"
 				LinkIncremental="2"
-				GenerateManifest="false"
-				ModuleDefinitionFile="zip.def"
+				ModuleDefinitionFile="../../zip.def"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/zip.pdb"
 				SubSystem="2"
@@ -99,11 +97,12 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="Release"
-			IntermediateDirectory="Release"
+			OutputDirectory="..\..\..\..\Bin\$(Configuration)\Modules\zip"
+			IntermediateDirectory="..\..\Bin\$(Configuration)"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -125,15 +124,16 @@
 				Optimization="1"
 				FavorSizeOrSpeed="2"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="..\..\lib.part\include"
+				AdditionalIncludeDirectories="../../Include;../../../../Framework/Include;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;ZIP_EXPORTS"
 				StringPooling="true"
 				ExceptionHandling="0"
 				RuntimeLibrary="0"
 				StructMemberAlignment="1"
 				BufferSecurityCheck="false"
+				RuntimeTypeInfo="false"
 				UsePrecompiledHeader="0"
-				WarningLevel="0"
+				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="0"
 			/>
@@ -148,16 +148,186 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\..\bin\plugins\zip.module"
+				OutputFile="$(OutDir)\$(ProjectName).module"
 				LinkIncremental="1"
 				GenerateManifest="false"
 				IgnoreAllDefaultLibraries="false"
-				ModuleDefinitionFile="zip.def"
+				ModuleDefinitionFile="../../zip.def"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				OptimizeForWindows98="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				ImportLibrary="$(OutDir)/zip.lib"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release Unicode|Win32"
+			OutputDirectory="..\..\..\..\Bin\$(Configuration)\Modules\zip"
+			IntermediateDirectory="..\..\Bin\$(Configuration)"
+			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="1"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="1"
+				FavorSizeOrSpeed="2"
+				OmitFramePointers="true"
+				AdditionalIncludeDirectories="../../Include;../../../../Framework/Include;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;ZIP_EXPORTS"
+				StringPooling="true"
+				ExceptionHandling="0"
+				RuntimeLibrary="0"
+				StructMemberAlignment="1"
+				BufferSecurityCheck="false"
+				RuntimeTypeInfo="false"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="false"
+				DebugInformationFormat="0"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				OutputFile="$(OutDir)\$(ProjectName).module"
+				LinkIncremental="1"
+				GenerateManifest="false"
+				IgnoreAllDefaultLibraries="false"
+				ModuleDefinitionFile="../../zip.def"
+				GenerateDebugInformation="false"
+				SubSystem="2"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				OptimizeForWindows98="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				ImportLibrary="$(OutDir)/zip.lib"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug Unicode|Win32"
+			OutputDirectory="..\..\..\..\Bin\$(Configuration)\Modules\zip"
+			IntermediateDirectory="..\..\Bin\$(Configuration)"
+			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="../../Include;../../../../Framework/Include;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;ZIP_EXPORTS"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="1"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="4"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				OutputFile="$(OutDir)\$(ProjectName).module"
+				LinkIncremental="2"
+				ModuleDefinitionFile="../../zip.def"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(OutDir)/zip.pdb"
+				SubSystem="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				ImportLibrary="$(OutDir)/zip.lib"
@@ -195,39 +365,87 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\lib.part\Src\debug.cpp"
+				RelativePath="..\..\Source\zip.Archive.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\lib.part\Src\Rtl.Misc.cpp"
+				RelativePath="..\..\Source\zip.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\lib.part\Src\Rtl.Strings.cpp"
+				RelativePath="..\..\Source\zip.Module.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\zip.Class.cpp"
+				RelativePath="..\..\Source\zip.Plugin.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\zip.cpp"
+			<Filter
+				Name="Framework"
 				>
-			</File>
+				<File
+					RelativePath="..\..\..\..\Framework\Src\debug.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\..\Framework\Src\FarDialog.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\..\Framework\Src\farlng.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\..\Framework\Src\farnew.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\..\Framework\Src\FarPagedDialog.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\..\Framework\Src\FarRegistry.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\..\Framework\Src\makeguid.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\..\Framework\Src\rtl.Hook.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\..\Framework\Src\rtl.Kernel.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\..\Framework\Src\rtl.Memory.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\..\Framework\Src\rtl.Misc.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\..\Framework\Src\rtl.Strings.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\..\Framework\Src\Rtl.Thunks.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\..\Framework\Src\strmix.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath=".\zip.Class.H"
-				>
-			</File>
-			<File
-				RelativePath=".\zip.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
