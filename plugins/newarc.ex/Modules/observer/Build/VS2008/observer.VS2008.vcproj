@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9,00"
 	Name="observer"
-	ProjectGUID="{AF2BE7F2-6541-44F8-BD48-927F140BE4FD}"
+	ProjectGUID="{F990F5DD-12C4-4664-931B-EA8923F0E399}"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>

@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9,00"
 	Name="ma"
-	ProjectGUID="{AF2BE7F2-6541-44F8-BD48-927F140BE4FD}"
+	ProjectGUID="{281C1B11-2E85-45A0-8A71-23C13A69D5A6}"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>

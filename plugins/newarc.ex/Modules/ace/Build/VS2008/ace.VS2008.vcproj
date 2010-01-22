@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9,00"
 	Name="ace"
-	ProjectGUID="{AF2BE7F2-6541-44F8-BD48-927F140BE4FD}"
+	ProjectGUID="{68AAB622-D6D4-437B-A803-B114172FB92D}"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>

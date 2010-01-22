@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9,00"
 	Name="rar"
-	ProjectGUID="{AF2BE7F2-6541-44F8-BD48-927F140BE4FD}"
+	ProjectGUID="{54A584FC-6621-45A3-9C38-4B0A73E61028}"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>

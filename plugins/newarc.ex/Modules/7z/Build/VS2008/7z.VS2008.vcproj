@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9,00"
 	Name="7z"
-	ProjectGUID="{AF2BE7F2-6541-44F8-BD48-927F140BE4FD}"
+	ProjectGUID="{0B2A2E61-3FCD-4D34-AC13-556B8CCB3EAD}"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -373,11 +373,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\Source\7z.File.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\7z.Helpers.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\Source\7z.Module.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\Source\7z.Plugin.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\PropVariant.cpp"
 				>
 			</File>
 			<Filter
@@ -437,6 +449,66 @@
 				</File>
 				<File
 					RelativePath="..\..\..\..\Framework\Src\strmix.cpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Detect"
+				>
+				<File
+					RelativePath="..\..\Source\Detect\7zdetect.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\Detect\arjdetect.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\Detect\cabdetect.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\Detect\hfsdetect.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\Detect\isodetect.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\Detect\lzhdetect.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\Detect\lzmadetect.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\Detect\machodetect.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\Detect\nsisdetect.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\Detect\pedetect.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\Detect\rardetect.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\Detect\tardetect.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\Detect\udfdetect.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\Detect\zipdetect.cpp"
 					>
 				</File>
 			</Filter>
