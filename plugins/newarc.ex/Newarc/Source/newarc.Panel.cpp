@@ -798,7 +798,7 @@ int ArchivePanel::pMakeDirectory(const TCHAR* lpDirectory, int nOpMode)
 
 int ArchivePanel::pProcessKey (
 		int nKey,
-		dword dwControlState
+		DWORD dwControlState
 		)
 {
 	if ( (nKey == VK_F7) && (dwControlState == 0) )

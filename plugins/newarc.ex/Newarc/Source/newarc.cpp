@@ -292,7 +292,7 @@ int __stdcall EXP_NAME(SetDirectory) (
 int __stdcall EXP_NAME(ProcessKey) (
 		ArchivePanel *pPanel,
 		int nKey,
-		dword dwControlState
+		DWORD dwControlState
 		)
 {
 	return pPanel->pProcessKey (

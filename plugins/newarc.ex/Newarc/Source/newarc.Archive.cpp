@@ -7,7 +7,7 @@ bool GetFileInfo (
 		const TCHAR *lpFileName,
 		FILETIME *pAccessTime,
 		FILETIME *pWriteTime,
-		dword *pSize
+		DWORD *pSize
 		)
 {
 	bool bResult = false;
@@ -112,7 +112,7 @@ bool Archive::WasUpdated ()
 {
 	FILETIME NewAccessTime;
 	FILETIME NewWriteTime;
-	dword dwFileSizeLow;
+	DWORD dwFileSizeLow;
 
 	GetFileInfo (m_strFileName, &NewAccessTime, &NewWriteTime, &dwFileSizeLow);
 

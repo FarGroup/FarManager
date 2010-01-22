@@ -1,30 +1,9 @@
-Build started 29.12.2009 3:16:13.
-     1>Project "D:\Development\Far\plugins\newarc\Modules\observer\Build\VS2010\observer.V2010.vcxproj" on node 9 (rebuild target(s)).
-     1>_PrepareForClean:
-         Deleting file "..\..\Bin\Release Unicode\observer.lastbuildstate".
-       _PrepareForBuild:
-         Creating "..\..\Bin\Release Unicode\observer.unsuccessfulbuild" because "AlwaysCreate" was specified.
+Build started 1/22/2010 10:15:20 AM.
+     1>Project "D:\Projects\Far\Newarc\Modules\observer\Build\VS2010\observer.V2010.vcxproj" on node 14 (build target(s)).
+     1>_PrepareForBuild:
+         Touching "..\..\Bin\Release Unicode\observer.unsuccessfulbuild".
        ClCompile:
-         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I../../Include /I../../../../Framework/Include /Zi /nologo /W3 /WX- /O1 /Os /Oy /GL /D _WINDLL /D _UNICODE /D UNICODE /GF /Gm- /EHsc /MT /Zp1 /GS- /Gy /fp:precise /Zc:wchar_t /Zc:forScope /GR- /Fo"..\..\Bin\Release Unicode\\" /Fd"..\..\Bin\Release Unicode\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt ..\..\..\..\Framework\Src\debug.cpp ..\..\..\..\Framework\Src\FarDialog.cpp ..\..\..\..\Framework\Src\farlng.cpp ..\..\..\..\Framework\Src\FarPagedDialog.cpp ..\..\..\..\Framework\Src\FarRegistry.cpp ..\..\..\..\Framework\Src\makeguid.cpp ..\..\..\..\Framework\Src\rtl.Hook.cpp ..\..\..\..\Framework\Src\rtl.Kernel.cpp ..\..\..\..\Framework\Src\rtl.Memory.cpp ..\..\..\..\Framework\Src\rtl.Misc.cpp ..\..\..\..\Framework\Src\rtl.Strings.cpp ..\..\..\..\Framework\Src\Rtl.Thunks.cpp ..\..\..\..\Framework\Src\strmix.cpp ..\..\Source\observer.Archive.cpp ..\..\Source\observer.cpp ..\..\Source\observer.Module.cpp ..\..\Source\observer.Plugin.cpp
-         debug.cpp
-         FarDialog.cpp
-         farlng.cpp
-         FarPagedDialog.cpp
-         FarRegistry.cpp
-         makeguid.cpp
-         rtl.Hook.cpp
-         rtl.Kernel.cpp
-         rtl.Memory.cpp
-         rtl.Misc.cpp
-         rtl.Strings.cpp
-     1>..\..\..\..\Framework\Src\rtl.Strings.cpp(25): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 C:\Program Files\Microsoft Visual Studio 10.0\VC\include\string.h(250) : see declaration of 'wcscpy'
-         Rtl.Thunks.cpp
-         strmix.cpp
-         observer.Archive.cpp
-         observer.cpp
-         observer.Module.cpp
-         observer.Plugin.cpp
+         All outputs are up-to-date.
        Link:
          C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\observer\observer.module" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /DEF:"../../observer.def" /MANIFEST:NO /PDB:"C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\observer\observer.pdb" /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\observer\observer.lib" /MACHINE:X86 /DLL "..\..\Bin\Release Unicode\debug.obj"
          "..\..\Bin\Release Unicode\FarDialog.obj"
@@ -50,8 +29,8 @@ Build started 29.12.2009 3:16:13.
        _AfterBuild:
          Deleting file "..\..\Bin\Release Unicode\observer.unsuccessfulbuild".
          Touching "..\..\Bin\Release Unicode\observer.lastbuildstate".
-     1>Done Building Project "D:\Development\Far\plugins\newarc\Modules\observer\Build\VS2010\observer.V2010.vcxproj" (rebuild target(s)).
+     1>Done Building Project "D:\Projects\Far\Newarc\Modules\observer\Build\VS2010\observer.V2010.vcxproj" (build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:35.01
+Time Elapsed 00:00:02.09

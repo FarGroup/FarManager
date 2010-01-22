@@ -1,42 +1,11 @@
-Build started 29.12.2009 3:16:34.
-     1>Project "D:\Development\Far\plugins\newarc\Modules\d5d\Build\VS2010\d5d.vcxproj" on node 10 (rebuild target(s)).
-     1>_PrepareForClean:
-         Deleting file "..\..\Bin\Release Unicode\d5d.lastbuildstate".
-       _PrepareForBuild:
-         Creating "..\..\Bin\Release Unicode\d5d.unsuccessfulbuild" because "AlwaysCreate" was specified.
+Build started 1/22/2010 10:15:20 AM.
+     1>Project "D:\Projects\Far\Newarc\Modules\d5d\Build\VS2010\d5d.vcxproj" on node 13 (build target(s)).
+     1>_PrepareForBuild:
+         Touching "..\..\Bin\Release Unicode\d5d.unsuccessfulbuild".
      1>C:\Program Files\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(249,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
        ClCompile:
-         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I../../Include /I../../../../Framework/Include /Zi /nologo /W1 /WX- /O1 /Oi /Os /Oy /GL /D _WINDLL /D _UNICODE /D UNICODE /GF /Gm- /MT /Zp1 /GS- /Gy /fp:precise /Zc:wchar_t /Zc:forScope /GR- /Fo"..\..\Bin\Release Unicode\\" /Fd"..\..\Bin\Release Unicode\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt ..\..\..\..\Framework\Src\debug.cpp ..\..\..\..\Framework\Src\FarDialog.cpp ..\..\..\..\Framework\Src\farlng.cpp ..\..\..\..\Framework\Src\FarPagedDialog.cpp ..\..\..\..\Framework\Src\FarRegistry.cpp ..\..\..\..\Framework\Src\makeguid.cpp ..\..\..\..\Framework\Src\rtl.Hook.cpp ..\..\..\..\Framework\Src\rtl.Kernel.cpp ..\..\..\..\Framework\Src\rtl.Memory.cpp ..\..\..\..\Framework\Src\rtl.Misc.cpp ..\..\..\..\Framework\Src\rtl.Strings.cpp ..\..\..\..\Framework\Src\Rtl.Thunks.cpp ..\..\..\..\Framework\Src\strmix.cpp ..\..\Source\d5d.Archive.cpp ..\..\Source\d5d.cpp ..\..\Source\d5d.Language.cpp ..\..\Source\d5d.Module.cpp ..\..\Source\d5d.Plugin.cpp
-         debug.cpp
-         FarDialog.cpp
-         farlng.cpp
-         FarPagedDialog.cpp
-         FarRegistry.cpp
-         makeguid.cpp
-         rtl.Hook.cpp
-         rtl.Kernel.cpp
-         rtl.Memory.cpp
-         rtl.Misc.cpp
-         rtl.Strings.cpp
-         Rtl.Thunks.cpp
-         strmix.cpp
-         d5d.Archive.cpp
-         d5d.cpp
-         d5d.Language.cpp
-         d5d.Module.cpp
-         d5d.Plugin.cpp
-         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I../../Include /I../../../../Framework/Include /Zi /nologo /W1 /WX- /O1 /Oi /Os /Oy /GL /D _WINDLL /D _UNICODE /D UNICODE /GF /Gm- /MT /Zp1 /GS- /Gy /fp:precise /Zc:wchar_t /Zc:forScope /GR- /Fo"..\..\Bin\Release Unicode\\" /Fd"..\..\Bin\Release Unicode\vc100.pdb" /Gd /TC /analyze- /errorReport:prompt ..\..\Source\zlib\adler32.c ..\..\Source\zlib\compress.c ..\..\Source\zlib\crc32.c ..\..\Source\zlib\deflate.c ..\..\Source\zlib\infback.c ..\..\Source\zlib\inffast.c ..\..\Source\zlib\inflate.c ..\..\Source\zlib\inftrees.c ..\..\Source\zlib\trees.c ..\..\Source\zlib\uncompr.c ..\..\Source\zlib\zutil.c
-         adler32.c
-         compress.c
-         crc32.c
-         deflate.c
-         infback.c
-         inffast.c
-         inflate.c
-         inftrees.c
-         trees.c
-         uncompr.c
-         zutil.c
+         All outputs are up-to-date.
+         All outputs are up-to-date.
        Link:
          C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\d5d\d5d.module" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /DEF:"../../d5d.def" /MANIFEST:NO /PDB:"C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\d5d\d5d.pdb" /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\d5d\d5d.lib" /MACHINE:X86 /DLL "..\..\Bin\Release Unicode\debug.obj"
          "..\..\Bin\Release Unicode\FarDialog.obj"
@@ -74,8 +43,8 @@ Build started 29.12.2009 3:16:34.
        _AfterBuild:
          Deleting file "..\..\Bin\Release Unicode\d5d.unsuccessfulbuild".
          Touching "..\..\Bin\Release Unicode\d5d.lastbuildstate".
-     1>Done Building Project "D:\Development\Far\plugins\newarc\Modules\d5d\Build\VS2010\d5d.vcxproj" (rebuild target(s)).
+     1>Done Building Project "D:\Projects\Far\Newarc\Modules\d5d\Build\VS2010\d5d.vcxproj" (build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:31.48
+Time Elapsed 00:00:02.66

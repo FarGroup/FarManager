@@ -50,7 +50,7 @@ public:
 	int pDeleteFiles(const PluginPanelItem *PanelItem, int ItemsNumber, int OpMode);
 
 	int pProcessHostFile(const PluginPanelItem *PanelItem, int ItemsNumber, int OpMode);
-	int pProcessKey(int nKey, dword dwControlState);
+	int pProcessKey(int nKey, DWORD dwControlState);
 
 	void GetArchiveItemsToProcess(
 			const PluginPanelItem *pPanelItems,
