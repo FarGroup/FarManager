@@ -17,8 +17,6 @@
 //newarc
 #include "../../API/module.hpp"
 
-
-
 class Archive;
 class ArchiveModule;
 class ArchiveModuleManager;
@@ -60,7 +58,5 @@ extern void FindDataToArchiveItem(const FAR_FIND_DATA *src, ArchiveItem *dest);
 extern const TCHAR *pCommandNames[11];
 
 #define FILE_ENCRYPTED 1
-
-
 
 extern bool msgError(const TCHAR* lpErrorString);
