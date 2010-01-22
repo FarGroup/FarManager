@@ -464,6 +464,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\..\Common\Detect\acedetect.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\..\Common\Detect\arjdetect.cpp"
 					>
 				</File>
