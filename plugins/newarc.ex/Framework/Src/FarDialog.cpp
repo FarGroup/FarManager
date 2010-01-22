@@ -1,4 +1,4 @@
-#include "FarDialogBase.hpp"
+#include "FarPluginBase.hpp"
 
 unsigned int cstrlen (const TCHAR *str)
 {

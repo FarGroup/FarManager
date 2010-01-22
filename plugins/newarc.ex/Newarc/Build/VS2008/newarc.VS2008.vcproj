@@ -385,15 +385,15 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\Framework\Src\FarApi.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\Framework\Src\FarDialog.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\Framework\Src\farlng.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\Framework\Src\farnew.cpp"
+					RelativePath="..\..\..\Framework\Src\FarLng.cpp"
 					>
 				</File>
 				<File
@@ -430,6 +430,14 @@
 				</File>
 				<File
 					RelativePath="..\..\..\Framework\Src\strmix.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Framework\Src\SystemApi.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Framework\Src\UnicodeAnsi.cpp"
 					>
 				</File>
 			</Filter>

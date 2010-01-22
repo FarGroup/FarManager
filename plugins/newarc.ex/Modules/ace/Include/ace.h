@@ -3,7 +3,6 @@
 //far
 #include "FarPluginBase.hpp"
 #include "StringBase.hpp"
-#include "FarDialogBase.hpp"
 #include "strmix.hpp"
 
 //ace
