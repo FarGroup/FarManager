@@ -14,7 +14,7 @@ bool ArchiveModuleManager::LoadIfNeeded()
 		string strModulesPath = Info.ModuleName;
 
 		CutToSlash(strModulesPath);
-		strModulesPath += _T("Plugins"); //BUGBUG, to change
+		strModulesPath += _T("Modules"); 
 
 		FSF.FarRecursiveSearch(strModulesPath, _T("*.module"), (FRSUSERFUNC)LoadModules, FRS_RECUR, this);
 
