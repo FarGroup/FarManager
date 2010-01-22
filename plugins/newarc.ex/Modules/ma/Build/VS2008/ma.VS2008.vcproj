@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="ace"
+	Name="ma"
 	ProjectGUID="{AF2BE7F2-6541-44F8-BD48-927F140BE4FD}"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
@@ -17,7 +17,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\..\..\Bin\$(Configuration)\Modules\ace"
+			OutputDirectory="..\..\..\..\Bin\$(Configuration)\Modules\ma"
 			IntermediateDirectory="..\..\Bin\$(Configuration)"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
@@ -64,13 +64,13 @@
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)\$(ProjectName).module"
 				LinkIncremental="2"
-				ModuleDefinitionFile="../../ace.def"
+				ModuleDefinitionFile="../../ma.def"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/ace.pdb"
+				ProgramDatabaseFile="$(OutDir)/ma.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary="$(OutDir)/ace.lib"
+				ImportLibrary="$(OutDir)/ma.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -97,7 +97,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\..\..\Bin\$(Configuration)\Modules\ace"
+			OutputDirectory="..\..\..\..\Bin\$(Configuration)\Modules\ma"
 			IntermediateDirectory="..\..\Bin\$(Configuration)"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
@@ -152,7 +152,7 @@
 				LinkIncremental="1"
 				GenerateManifest="false"
 				IgnoreAllDefaultLibraries="false"
-				ModuleDefinitionFile="../../ace.def"
+				ModuleDefinitionFile="../../ma.def"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -160,7 +160,7 @@
 				OptimizeForWindows98="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary="$(OutDir)/ace.lib"
+				ImportLibrary="$(OutDir)/ma.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -187,7 +187,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release Unicode|Win32"
-			OutputDirectory="..\..\..\..\Bin\$(Configuration)\Modules\ace"
+			OutputDirectory="..\..\..\..\Bin\$(Configuration)\Modules\ma"
 			IntermediateDirectory="..\..\Bin\$(Configuration)"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
@@ -242,7 +242,7 @@
 				LinkIncremental="1"
 				GenerateManifest="false"
 				IgnoreAllDefaultLibraries="false"
-				ModuleDefinitionFile="../../ace.def"
+				ModuleDefinitionFile="../../ma.def"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -250,7 +250,7 @@
 				OptimizeForWindows98="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary="$(OutDir)/ace.lib"
+				ImportLibrary="$(OutDir)/ma.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -277,7 +277,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug Unicode|Win32"
-			OutputDirectory="..\..\..\..\Bin\$(Configuration)\Modules\ace"
+			OutputDirectory="..\..\..\..\Bin\$(Configuration)\Modules\ma"
 			IntermediateDirectory="..\..\Bin\$(Configuration)"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
@@ -324,13 +324,13 @@
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)\$(ProjectName).module"
 				LinkIncremental="2"
-				ModuleDefinitionFile="../../ace.def"
+				ModuleDefinitionFile="../../ma.def"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/ace.pdb"
+				ProgramDatabaseFile="$(OutDir)/ma.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary="$(OutDir)/ace.lib"
+				ImportLibrary="$(OutDir)/ma.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -365,19 +365,19 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\Source\ace.Archive.cpp"
+				RelativePath="..\..\Source\ma.Archive.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\ace.cpp"
+				RelativePath="..\..\Source\ma.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\ace.Module.cpp"
+				RelativePath="..\..\Source\ma.Module.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\ace.Plugin.cpp"
+				RelativePath="..\..\Source\ma.Plugin.cpp"
 				>
 			</File>
 			<Filter
