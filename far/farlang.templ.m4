@@ -10093,6 +10093,102 @@ MChangeCouldNotEjectMedia
 "%c: meghajtó lemeze nem oldható ki"
 "Nie można wysunąć dysku z napędu %c:"
 
+MChangeDriveConfigure
+"Настройка меню выбора диска"
+"Change Drive Menu Options"
+upd:"Change Drive Menu Options"
+upd:"Change Drive Menu Options"
+upd:"Change Drive Menu Options"
+upd:"Change Drive Menu Options"
+
+MChangeDriveShowDiskType
+"Показывать &тип диска"
+"Show disk &type"
+upd:"Show disk type"
+upd:"Show disk type"
+upd:"Show disk type"
+upd:"Show disk type"
+
+MChangeDriveShowNetworkName
+"Показывать &сетевое имя"
+"Show &network name"
+upd:"Show &network name"
+upd:"Show &network name"
+upd:"Show &network name"
+upd:"Show &network name"
+
+MChangeDriveShowLabel
+"Показывать &метку диска"
+"Show disk &label"
+upd:"Show disk &label"
+upd:"Show disk &label"
+upd:"Show disk &label"
+upd:"Show disk &label"
+
+MChangeDriveShowFileSystem
+"Показывать тип &файловой системы"
+"Show &file system type"
+upd:"Show &file system type"
+upd:"Show &file system type"
+upd:"Show &file system type"
+upd:"Show &file system type"
+
+MChangeDriveShowSize
+"Показывать &размер"
+"Show &size"
+upd:"Show &size"
+upd:"Show &size"
+upd:"Show &size"
+upd:"Show &size"
+
+MChangeDriveShowSizeFloat
+"Показывать ра&змер в стиле Windows Explorer"
+"Show size in &Windows Explorer style"
+upd:"Show size in &Windows Explorer style"
+upd:"Show size in &Windows Explorer style"
+upd:"Show size in &Windows Explorer style"
+upd:"Show size in &Windows Explorer style"
+
+MChangeDriveShowRemovableDrive
+"Показывать параметры см&енных дисков"
+"Show &removable drive parameters"
+upd:"Show &removable drive parameters"
+upd:"Show &removable drive parameters"
+upd:"Show &removable drive parameters"
+upd:"Show &removable drive parameters"
+
+MChangeDriveShowPlugins
+"Показывать &плагины"
+"Show &plugins"
+upd:"Show &plugins"
+upd:"Show &plugins"
+upd:"Show &plugins"
+upd:"Show &plugins"
+
+MChangeDriveShowCD
+"Показывать параметры &компакт-дисков"
+"Show &CD drive parameters"
+upd:"Show &CD drive parameters"
+upd:"Show &CD drive parameters"
+upd:"Show &CD drive parameters"
+upd:"Show &CD drive parameters"
+
+MChangeDriveShowNetworkDrive
+"Показывать параметры се&тевых дисков"
+"Show n&etwork drive parameters"
+upd:"Show ne&twork drive parameters"
+upd:"Show ne&twork drive parameters"
+upd:"Show ne&twork drive parameters"
+upd:"Show ne&twork drive parameters"
+
+MChangeDriveMenuFooter
+"Del,Shift-Del,F4,F9"
+"Del,Shift-Del,F4,F9"
+"Del,Shift-Del,F4,F9"
+"Del,Shift-Del,F4,F9"
+"Del,Shift-Del,F4,F9"
+"Del,Shift-Del,F4,F9"
+
 MAdditionalHotKey
 "#!$%*+-/(),."
 "#!$%*+-/(),."

@@ -84,12 +84,14 @@ enum {UPDATE_KEEP_SELECTION=1,UPDATE_SECONDARY=2,UPDATE_IGNORE_VISIBLE=4,UPDATE_
 
 enum {NORMAL_PANEL,PLUGIN_PANEL};
 
-enum {DRIVE_DEL_FAIL, DRIVE_DEL_SUCCESS, DRIVE_DEL_EJECT};
+enum {DRIVE_DEL_FAIL, DRIVE_DEL_SUCCESS, DRIVE_DEL_EJECT, DRIVE_DEL_NONE};
 
 enum {UIC_UPDATE_NORMAL, UIC_UPDATE_FORCE, UIC_UPDATE_FORCE_NOTIFICATION};
 
 class VMenu;
 class Edit;
+struct PanelMenuItem;
+
 class Panel:public ScreenObject
 {
 	protected:
@@ -116,6 +118,8 @@ class Panel:public ScreenObject
 
 	private:
 		int ChangeDiskMenu(int Pos,int FirstCall);
+		int DisconnectDrive(PanelMenuItem *item, VMenu &ChDisk);
+		void RemoveHotplugDevice(PanelMenuItem *item, VMenu &ChDisk);
 		int ProcessDelDisk(wchar_t Drive, int DriveType,VMenu *ChDiskMenu);
 		void FastFindShow(int FindX,int FindY);
 		void FastFindProcessName(Edit *FindEdit,const wchar_t *Src,string &strLastName, string &strName);

@@ -2769,6 +2769,9 @@ card-reader itself will be stopped.
     Ctrl-9 - display of network parameters.
 
     #Change drive# menu settings are saved in the FAR configuration.
+    
+    #F9# shows a dialog for configuring the display of that 
+information.
 
     If the option "~Use Ctrl-PgUp to change drive~@InterfSettings@" is enabled,
 pressing #Ctrl-PgUp# works the same as pressing #Esc# - cancels drive selection
