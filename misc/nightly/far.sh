@@ -61,7 +61,6 @@ dos2unix plugin.hpp
 m4 -P -DFARBIT=32 -DINPUT=colors.hpp headers.m4 | unix2dos > Include/farcolor.hpp
 m4 -P -DFARBIT=32 -DINPUT=keys.hpp headers.m4 | unix2dos > Include/farkeys.hpp
 m4 -P -DFARBIT=32 -DINPUT=plugin.hpp headers.m4 | unix2dos > Include/plugin.hpp
-m4 -P -DFARBIT=32 -DINPUT=DlgBuilder.hpp headers.m4 | unix2dos > Include/DlgBuilder.hpp
 
 BOOTSTRAP=
 if [ $3 -eq 0 ]; then

@@ -1017,7 +1017,7 @@ $ #Panels: info panel#
 name, total and free space, disk volume label and serial number;
 
  - ^<wrap>#memory# load percentage (100% means all of available memory is used),
-размер установленой памяти (в Vista и выше), total and free size of the physical 
+размер установленой памяти (в Vista и выше), total and free size of the physical
 memory (доступной для Windows), virtual memory and paging file;
 
  - #folder description# file
@@ -2305,8 +2305,8 @@ code words:
      $$ - the $ character
      $+ - глубина стека каталогов
 
-     $@@xx - ^<wrap>"Администратор", если FAR Manager запущен от имени администратора. 
-Вместо 'xx' необходимо указать два символа, которые будут обрамлять слово "Администратор". 
+     $@@xx - ^<wrap>"Администратор", если FAR Manager запущен от имени администратора.
+Вместо 'xx' необходимо указать два символа, которые будут обрамлять слово "Администратор".
 Например, #$@@{}$s$p$g# будет представлен как "{Администратор} C:\>"
 
    By default the #$p$g# sequence is used - current drive and
@@ -2769,8 +2769,8 @@ card-reader itself will be stopped.
     Ctrl-9 - display of network parameters.
 
     #Change drive# menu settings are saved in the FAR configuration.
-    
-    #F9# shows a dialog for configuring the display of that 
+
+    #F9# shows a dialog for configuring the display of that
 information.
 
     If the option "~Use Ctrl-PgUp to change drive~@InterfSettings@" is enabled,
