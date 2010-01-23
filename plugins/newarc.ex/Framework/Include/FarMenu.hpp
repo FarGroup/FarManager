@@ -31,7 +31,10 @@ public:
 			size_t length = _tcslen(lpStr);
 
 			item->Flags = dwFlags;
+
+#ifndef UNICODE
 			item->Flags |= MIF_USETEXTPTR;
+#endif
 
 			UserDataStruct *uds = new UserDataStruct;
 

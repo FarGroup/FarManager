@@ -611,7 +611,7 @@ void ArchivePanel::pFreeFindData (
 #ifdef UNICODE
 
 	for (int i = 0; i < nItemsNumber; i++)
-		StrFree(pPanelItem[i].FindData.lpwszFileName);
+		StrFree((void*)pPanelItem[i].FindData.lpwszFileName);
 #endif
 }
 

@@ -1,5 +1,6 @@
 #include "FarPluginBase.hpp"
 
+/*
 inline bool IsEOL(char c)
 {
 	return c == '\n' || c == '\r';
@@ -9,7 +10,7 @@ inline bool IsEmpty (char c)
 {
 	return c == ' ' || c == '\t';
 }
-
+*/
 
 #define SkipEmpty(s, last) \
 	while ( (s != last) && IsEmpty(*s) ) \

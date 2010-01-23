@@ -169,8 +169,8 @@ public:
 	void FreePanelItem(PluginPanelItem* pItem)
 	{
 #ifdef UNICODE
-		StrFree(pItem->FindData.lpwszFileName);
-		StrFree(pItem->FindData.lpwszAlternateFileName);
+		StrFree((void*)pItem->FindData.lpwszFileName);
+		StrFree((void*)pItem->FindData.lpwszAlternateFileName);
 #else
 #endif
 	}
