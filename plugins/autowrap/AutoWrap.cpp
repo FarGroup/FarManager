@@ -1,4 +1,5 @@
 #include "plugin.hpp"
+#include "DlgBuilder.hpp"
 #include "WrapLng.hpp"
 #include "AutoWrap.hpp"
 #include "CRT/crt.hpp"
@@ -24,14 +25,6 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 #include "WrapReg.cpp"
 #include "WrapMix.cpp"
 
-#ifndef UNICODE
-#define GetCheck(i) DialogItems[i].Selected
-#define GetDataPtr(i) DialogItems[i].Data
-#else
-#define GetCheck(i) (int)Info.SendDlgMessage(hDlg,DM_GETCHECK,i,0)
-#define GetDataPtr(i) ((const TCHAR *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,i,0))
-#endif
-
 int WINAPI EXP_NAME(GetMinFarVersion)()
 {
   return FARMANAGERVERSION;
@@ -53,64 +46,24 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
 
 HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 {
-  struct InitDialogItem InitItems[]={
-    {DI_DOUBLEBOX,3,1,72,11,0,0,0,0,(TCHAR *)MAutoWrap},
-    {DI_CHECKBOX,5,2,0,0,1,0,0,0,(TCHAR *)MEnableWrap},
-    {DI_EDIT,5,3,7,3,0,0,0,0,_T("")},
-    {DI_TEXT,9,3,0,0,0,0,0,0,(TCHAR *)MRightMargin},
-    {DI_TEXT,5,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,_T("")},
-    {DI_TEXT,5,5,0,0,0,0,0,0,(TCHAR *)MFileMasks},
-    {DI_EDIT,5,6,70,6,0,0,0,0,_T("")},
-    {DI_TEXT,5,7,0,0,0,0,0,0,(TCHAR *)MExcludeFileMasks},
-    {DI_EDIT,5,8,70,6,0,0,0,0,_T("")},
-    {DI_TEXT,5,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,_T("")},
-    {DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,1,(TCHAR *)MOk},
-    {DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,0,(TCHAR *)MCancel}
-  };
-
-  struct FarDialogItem DialogItems[ArraySize(InitItems)];
-  InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
-  DialogItems[1].Selected=Opt.Wrap;
-#ifndef UNICODE
-#define SET_DLGITEM(n,v)  lstrcpy(DialogItems[n].Data, v)
-#else
-#define SET_DLGITEM(n,v)  DialogItems[n].PtrData = v
-#endif
-  SET_DLGITEM(6,Opt.FileMasks);
-  SET_DLGITEM(8,Opt.ExcludeFileMasks);
-#ifdef UNICODE
-  wchar_t marstr[32];
-  DialogItems[2].PtrData = marstr;
-  FSF.sprintf(marstr,L"%d",Opt.RightMargin);
-#else
-  FSF.sprintf(DialogItems[2].Data,"%d",Opt.RightMargin);
-#endif
-#ifndef UNICODE
-  int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,13,NULL,DialogItems,
-                           ArraySize(DialogItems));
-#else
-  HANDLE hDlg = Info.DialogInit(Info.ModuleNumber,-1,-1,76,13,NULL,DialogItems,
-                                ArraySize(DialogItems),0,0,NULL,0);
-  if (hDlg == INVALID_HANDLE_VALUE)
-    return INVALID_HANDLE_VALUE;
-
-  int ExitCode=Info.DialogRun(hDlg);
-#endif
-  if (ExitCode==10)
+  PluginDialogBuilder Builder(Info, MAutoWrap, NULL);
+  Builder.AddCheckbox(MEnableWrap, &Opt.Wrap);
+  FarDialogItem *RightMargin = Builder.AddIntEditField(&Opt.RightMargin, 3);
+  Builder.AddTextAfter(RightMargin, MRightMargin);
+  Builder.AddSeparator();
+  Builder.AddText(MFileMasks);
+  Builder.AddEditField(Opt.FileMasks, 65);
+  Builder.AddText(MExcludeFileMasks);
+  Builder.AddEditField(Opt.ExcludeFileMasks, 65);
+  Builder.AddOKCancel();
+  if (Builder.ShowDialog())
   {
-    Opt.Wrap=GetCheck(1);
-    Opt.RightMargin=FSF.atoi(GetDataPtr(2));
-    lstrcpy(Opt.FileMasks,GetDataPtr(6));
-    lstrcpy(Opt.ExcludeFileMasks,GetDataPtr(8));
     SetRegKey(HKEY_CURRENT_USER,_T(""),_T("Wrap"),Opt.Wrap);
     SetRegKey(HKEY_CURRENT_USER,_T(""),_T("RightMargin"),Opt.RightMargin);
     SetRegKey(HKEY_CURRENT_USER,_T(""),_T("FileMasks"),Opt.FileMasks);
     SetRegKey(HKEY_CURRENT_USER,_T(""),_T("ExcludeFileMasks"),Opt.ExcludeFileMasks);
   }
-#ifdef UNICODE
-  Info.DialogFree(hDlg);
-#endif
-  return(INVALID_HANDLE_VALUE);
+  return INVALID_HANDLE_VALUE;
 }
 
 
