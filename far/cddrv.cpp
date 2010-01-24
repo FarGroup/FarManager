@@ -344,7 +344,7 @@ UINT FAR_GetDriveType(const wchar_t *RootDir, CDROM_DeviceCaps *Caps, DWORD Dete
 		else
 			VolumePath.Insert(0, L"\\\\.\\");
 
-		HANDLE hDevice = apiCreateFile(VolumePath, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0);
+		HANDLE hDevice = apiCreateFile(VolumePath, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0);
 
 		if (hDevice != INVALID_HANDLE_VALUE)
 		{
