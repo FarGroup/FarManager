@@ -112,7 +112,7 @@
       <Custom Action="SaveShortcutProps" Before="RestoreShortcutProps">NOT (REMOVE="ALL")</Custom>
       <Custom Action="RestoreShortcutProps" After="CreateShortcuts">NOT (REMOVE="ALL")</Custom>
       <Custom Action="SetARPINSTALLLOCATION" After="InstallValidate" />
-      <Custom Action="LaunchShortcut" After="RemoveExistingProducts"><![CDATA[LAUNCHAPP = 1 AND NOT Installed AND UILevel < 5]]></Custom>
+      <Custom Action="LaunchShortcut" After="RemoveExistingProducts"><![CDATA[LAUNCHAPP AND NOT Installed AND UILevel < 5]]></Custom>
     </InstallExecuteSequence>
     <InstallUISequence>
       <Custom Action="SetUserInstallDir" After="AppSearch">USERINSTALLDIR</Custom>

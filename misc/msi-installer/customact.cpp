@@ -427,11 +427,15 @@ void update_feature_state(MSIHANDLE h_install) {
 }
 
 void launch_shortcut(MSIHANDLE h_install) {
-  list<wstring> shortcut_list = get_shortcut_list(h_install, L"Target = '[#Far.exe]'");
-  CHECK(!shortcut_list.empty());
+  wstring launch_app = get_property(h_install, L"LAUNCHAPP");
+  if (launch_app == L"1") { // launch Far shortcut
+    list<wstring> shortcut_list = get_shortcut_list(h_install, L"Target = '[#Far.exe]'");
+    CHECK(!shortcut_list.empty());
+    launch_app = *shortcut_list.begin();
+  }
   SHELLEXECUTEINFOW sei = { sizeof(SHELLEXECUTEINFOW) };
   sei.fMask = SEE_MASK_FLAG_NO_UI | SEE_MASK_NO_CONSOLE;
-  sei.lpFile = shortcut_list.begin()->c_str();
+  sei.lpFile = launch_app.c_str();
   sei.nShow = SW_SHOWDEFAULT;
   CHECK_SYS(ShellExecuteExW(&sei));
 }
@@ -467,7 +471,7 @@ UINT __stdcall RestoreShortcutProps(MSIHANDLE h_install) {
   return ERROR_INSTALL_FAILURE;
 }
 
-// Launch Far via installed shortcut
+// Launch Far via installed shortcut or command specified by LAUNCHAPP property
 UINT __stdcall LaunchShortcut(MSIHANDLE h_install) {
   BEGIN_ERROR_HANDLER
   launch_shortcut(h_install);

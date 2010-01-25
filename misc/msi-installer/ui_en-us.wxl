@@ -80,11 +80,6 @@
     <String Id="InstallScopeDlgPerMachine">{\WixUI_Font_Emphasized}Install for all users of this &amp;machine</String>
     <String Id="InstallScopeDlgPerMachineDescription">[ProductName] will be installed in a per-machine folder by default and be available for all users. You can change the default installation folder. You must have local Administrator privileges.</String>
 
-    <String Id="InvalidDirDlg_Title">[ProductName] Setup</String>
-    <String Id="InvalidDirDlgText">Installation directory must be on a local hard drive.</String>
-    <String Id="InvalidDirDlgIcon">WixUI_Ico_Info</String>
-    <String Id="InvalidDirDlgIconTooltip">Information icon</String>
-
     <String Id="LicenseAgreementDlg_Title">[ProductName] Setup</String>
     <String Id="LicenseAgreementDlgLicenseAcceptedCheckBox">I &amp;accept the terms in the License Agreement</String>
     <String Id="LicenseAgreementDlgBannerBitmap">WixUI_Bmp_Banner</String>
