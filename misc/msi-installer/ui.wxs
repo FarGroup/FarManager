@@ -48,7 +48,7 @@
       <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="FeaturesDlg" Order="1">NOT Installed OR WixUI_InstallMode = "Change"</Publish>
       <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="MaintenanceTypeDlg" Order="2">Installed</Publish>
 
-      <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchShortcut" Order="1">LaunchApp = 1 AND NOT Installed</Publish>
+      <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchShortcut" Order="1">LAUNCHAPP = 1 AND NOT Installed</Publish>
       <Publish Dialog="ExitDialog" Control="Finish" Event="EndDialog" Value="Return" Order="999">1</Publish>
 
       <Property Id="ErrorDialog" Value="ErrorDlg" />
@@ -345,7 +345,7 @@
         <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
         <Control Id="Description" Type="Text" X="135" Y="70" Width="220" Height="40" Transparent="yes" NoPrefix="yes" Text="!(loc.ExitDialogDescription)" />
         <Control Id="Title" Type="Text" X="135" Y="20" Width="220" Height="60" Transparent="yes" NoPrefix="yes" Text="!(loc.ExitDialogTitle)" />
-        <Control Id="LaunchApp" Type="CheckBox" X="20" Y="243" Width="140" Height="17" Hidden="yes" Property="LaunchApp" CheckBoxValue="1" Text="!(loc.ExitDialogLaunchApp)">
+        <Control Id="LaunchApp" Type="CheckBox" X="20" Y="243" Width="140" Height="17" Hidden="yes" Property="LAUNCHAPP" CheckBoxValue="1" Text="!(loc.ExitDialogLaunchApp)">
           <Condition Action="show">NOT Installed</Condition>
         </Control>
       </Dialog>
