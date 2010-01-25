@@ -1,3 +1,7 @@
+chupakabra 26.01.2010 00:06:00 +0200
+
+1. Снова собираем x64 вариант customact.dll, т.к. иначе ShellExecute работает некорректно.
+
 chupakabra 25.01.2010 22:54:00 +0200
 
 1. LaunchApp -> LAUNCHAPP

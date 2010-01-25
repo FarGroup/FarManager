@@ -81,9 +81,9 @@ int main(int argc, char* argv[]) {
     makefile.open("makefile");
 #ifdef NIGHTLY
     makefile << "all:" << endl;
-    makefile << "#  cl -nologo -O1 -EHsc customact.cpp -link -dll -out:CustomActions.dll -def:customact.def msi.lib shell32.lib" << endl;
-    makefile << "#  -upx --lzma CustomActions.dll" << endl;
-    makefile << "  candle -nologo -dSourceDir=\"" << source_dir << "\" -dBranch=" << ver_major << " -dPlatform=" << platform << " -dVersion=" << version << " -dCustomActions=CustomActions.dll installer.wxs ui.wxs" << endl;
+    makefile << "  cl -nologo -O1 -EHsc customact.cpp -link -dll -out:customact.dll -def:customact.def msi.lib shell32.lib" << endl;
+    makefile << "  -upx --lzma customact.dll" << endl;
+    makefile << "  candle -nologo -dSourceDir=\"" << source_dir << "\" -dBranch=" << ver_major << " -dPlatform=" << platform << " -dVersion=" << version << " installer.wxs ui.wxs" << endl;
     makefile << "  light -nologo -cultures:en-us -loc en-us.wxl -loc ui_en-us.wxl -spdb -sval -sh -dcl:high -out " << msi_name << " installer.wixobj ui.wixobj" << endl;
 #else
     makefile << msi_name << ": installer.wixobj ui.wixobj en-us.wxl ui_en-us.wxl customact.dll makefile" << endl;
@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
     makefile << "  cl -nologo -Zi -EHsc customact.cpp -link -dll -debug -incremental:no -out:customact.dll -def:customact.def msi.lib shell32.lib" << endl;
     makefile << "installer.wxs: files.wxi features.wxi shortcuts.wxi guids_" << ver_major << "_" << platform << ".wxi makefile" << endl;
     makefile << ".wxs.wixobj::" << endl;
-    makefile << "  candle -nologo -dSourceDir=\"" << source_dir << "\" -dBranch=" << ver_major << " -dPlatform=" << platform << " -dVersion=" << version << " -dCustomActions=customact.dll $<" << endl;
+    makefile << "  candle -nologo -dSourceDir=\"" << source_dir << "\" -dBranch=" << ver_major << " -dPlatform=" << platform << " -dVersion=" << version << " $<" << endl;
     makefile << "clean:" << endl;
     makefile << "  del /q /f *.wixobj customact.dll customact.obj #far.cab" << endl;
     makefile << ".SUFFIXES: .wxs" << endl;

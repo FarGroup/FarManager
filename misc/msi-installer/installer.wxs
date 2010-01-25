@@ -53,7 +53,7 @@
 <?if $(var.Branch) = 2 ?>
     <Condition Message="$(var.Product) requires Windows 2000 or above."><![CDATA[NOT Version9X AND (VersionNT>=500)]]></Condition>
 <?endif?>
-    <Binary Id="CustomActions.dll" SourceFile="$(var.CustomActions)" />
+    <Binary Id="CustomActions.dll" SourceFile="customact.dll" />
     <CustomAction Id="UpdateFeatureState" BinaryKey="CustomActions.dll" DllEntry="UpdateFeatureState" />
     <CustomAction Id="SaveShortcutProps" BinaryKey="CustomActions.dll" DllEntry="SaveShortcutProps" Return="ignore" />
     <CustomAction Id="RestoreShortcutProps" BinaryKey="CustomActions.dll" DllEntry="RestoreShortcutProps" Execute="deferred" Return="ignore" />
