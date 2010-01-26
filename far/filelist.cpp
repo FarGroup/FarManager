@@ -2730,7 +2730,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		{
 			Down(1);
 
-			if (MouseButtonState!=RIGHTMOST_BUTTON_PRESSED)
+			if (MouseButtonState==RIGHTMOST_BUTTON_PRESSED)
 			{
 				CurPtr=ListData[CurFile];
 				Select(CurPtr,MouseSelection);
