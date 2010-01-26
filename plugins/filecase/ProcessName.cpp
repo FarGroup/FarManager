@@ -1,8 +1,8 @@
-//   Process case convetsion of single file\directorã
+//   Process case conversion of single file\directory
 //     ProcessName - convert case of given filename
 //                   use all options from `Opt`
 //                   Call recurse for subdirectories
-void ProcessName(TCHAR *OldFullName, DWORD FileAttributes)
+void ProcessName(const TCHAR *OldFullName, DWORD FileAttributes)
 {
   TCHAR NewFullName[MAX_PATH];
   TCHAR NewName[MAX_PATH];
@@ -64,14 +64,10 @@ void ProcessName(TCHAR *OldFullName, DWORD FileAttributes)
   //Recurce to directories
   if( Opt.ProcessSubDir && (FileAttributes&FILE_ATTRIBUTE_DIRECTORY))
   {
-#ifndef UNICODE
-    struct PluginPanelItem *Items;
-#define FILE_NAME(i)  Items[i].FindData.cFileName
-#define FILE_ATTR(i)  Items[i].FindData.dwFileAttributes
-#else
+#ifdef UNICODE
     FAR_FIND_DATA *Items;
-#define FILE_NAME(i)  Items[i].lpwszFileName
-#define FILE_ATTR(i)  Items[i].dwFileAttributes
+#else
+    struct PluginPanelItem *Items;
 #endif
     int ItemsNumber,DirList;
 
@@ -81,12 +77,14 @@ void ProcessName(TCHAR *OldFullName, DWORD FileAttributes)
     {
       for (int I=0; I < ItemsNumber; I++)
       {
-        GetFullName(NewFullName,OldFullName,FILE_NAME(I));
-        ProcessName(NewFullName,FILE_ATTR(I));
+#ifdef UNICODE
+        ProcessName(Items[I].lpwszFileName,Items[I].dwFileAttributes);
+#else
+        GetFullName(NewFullName,OldFullName,Items[I].FindData.cFileName);
+        ProcessName(NewFullName,Items[I].FindData.dwFileAttributes);
+#endif
       }
     }
-#undef FILE_NAME
-#undef FILE_ATTR
     Info.FreeDirList(Items
 #ifdef UNICODE
                           , ItemsNumber

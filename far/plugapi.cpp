@@ -1569,7 +1569,6 @@ int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pIte
 		string strFullName;
 		ScanTree ScTree(FALSE);
 		ScTree.SetFindPath(strDirName,L"*");
-		AddEndSlash(strDirName);
 		*pItemsNumber=0;
 		*pPanelItem=NULL;
 		FAR_FIND_DATA *ItemsList=NULL;
@@ -1608,7 +1607,7 @@ int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pIte
 			ItemsList[ItemsNumber].ftCreationTime = FindData.ftCreationTime;
 			ItemsList[ItemsNumber].ftLastAccessTime = FindData.ftLastAccessTime;
 			ItemsList[ItemsNumber].ftLastWriteTime = FindData.ftLastWriteTime;
-			ItemsList[ItemsNumber].lpwszFileName = xf_wcsdup(((const wchar_t*)strFullName)+strDirName.GetLength());
+			ItemsList[ItemsNumber].lpwszFileName = xf_wcsdup(strFullName.CPtr());
 			ItemsList[ItemsNumber].lpwszAlternateFileName = xf_wcsdup(FindData.strAlternateFileName);
 			ItemsNumber++;
 		}

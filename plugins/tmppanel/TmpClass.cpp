@@ -161,10 +161,10 @@ int TmpPanel::PutDirectoryContents(const TCHAR* Path)
   }
   if (Opt.SelectedCopyContents)
   {
-#ifndef UNICODE
-    struct PluginPanelItem *DirItems;
-#else
+#ifdef UNICODE
     FAR_FIND_DATA *DirItems;
+#else
+    struct PluginPanelItem *DirItems;
 #endif
     int DirItemsNumber;
     if(!Info.GetDirList(Path, &DirItems, &DirItemsNumber))
@@ -178,8 +178,11 @@ int TmpPanel::PutDirectoryContents(const TCHAR* Path)
       return FALSE;
     TmpPanelItem=NewPanelItem;
     memset(&TmpPanelItem[TmpItemsNumber],0,sizeof(*TmpPanelItem)*DirItemsNumber);
-#ifdef UNICODE
     int PathLen = lstrlen(Path);
+#ifndef UNICODE
+    const TCHAR *lpSlash = _tcsrchr(Path,_T('\\'));
+    if (lpSlash)
+      PathLen = lpSlash - Path;
 #endif
     for(int i=0;i<DirItemsNumber;i++)
     {
@@ -188,15 +191,12 @@ int TmpPanel::PutDirectoryContents(const TCHAR* Path)
       TmpItemsNumber++;
 #ifdef UNICODE
       CurPanelItem->FindData=DirItems[i];
-      wchar_t* wp = reinterpret_cast<wchar_t*>(malloc((PathLen+1+lstrlen(DirItems[i].lpwszFileName)+1)*sizeof(wchar_t)));
-      lstrcpy(wp, Path);
-      FSF.AddEndSlash(wp);
-      lstrcat(wp, DirItems[i].lpwszFileName);
-      CurPanelItem->FindData.lpwszFileName = wp;
+      CurPanelItem->FindData.lpwszFileName = wcsdup(DirItems[i].lpwszFileName);
       CurPanelItem->FindData.lpwszAlternateFileName = NULL;
 #else
       CurPanelItem->FindData=DirItems[i].FindData;
       lstrcpy(CurPanelItem->FindData.cFileName,Path);
+      CurPanelItem->FindData.cFileName[PathLen] = 0;
       FSF.AddEndSlash(CurPanelItem->FindData.cFileName);
       lstrcat(CurPanelItem->FindData.cFileName,DirItems[i].FindData.cFileName);
       *CurPanelItem->FindData.cAlternateFileName = 0;

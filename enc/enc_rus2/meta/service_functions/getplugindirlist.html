@@ -72,9 +72,9 @@ int WINAPI GetPluginDirList(
 <h3>Замечания</h3>
 <div class=descr>
 <ol>
-<li>Функция возвращает имена файлов относительно указанного каталога.
-  Например, если <dfn>Dir</dfn> есть <code>D:\DIR1\DIR2</code>,
-  имена файлов будут в виде DIR2\file.ext.
+<li>Возвращаемые имена файлов включают исходный каталог <dfn>Dir</dfn>.
+  Например, если <dfn>Dir</dfn> есть <code>DIR1\DIR2</code>,
+  то имена файлов будут в виде <code>DIR1\DIR2\file.ext</code>, <code>DIR1\DIR2\subdir\file.ext</code> и т.п.
 <li>Пользователь может прервать выполнение функции, нажав клавишу Esc,
     при этом функция вернет значение FALSE.
 </ol>

@@ -34,7 +34,7 @@ int IsCaseMixed(const TCHAR *Str);
 const TCHAR *GetOnlyName(const TCHAR *FullName);
 TCHAR *GetFullName(TCHAR *Dest,const TCHAR *Dir,const TCHAR *Name);
 void CaseWord( TCHAR *nm, int Type );
-void ProcessName(TCHAR *OldFullName, DWORD FileAttributes);
+void ProcessName(const TCHAR *OldFullName, DWORD FileAttributes);
 
 
 void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,DWORD ValueData);

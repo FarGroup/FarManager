@@ -2856,10 +2856,13 @@ int WINAPI FarGetDirListA(const char *Dir,oldfar::PluginPanelItem **pPanelItem,i
 	*pPanelItem=NULL;
 	*pItemsNumber=0;
 	string strDir(Dir);
+	DeleteEndSlash(strDir, true);
 
 	FAR_FIND_DATA *pItems;
 	int ItemsNumber;
 	int ret=FarGetDirList(strDir, &pItems, &ItemsNumber);
+
+	unsigned PathOffset = ExtractFilePath(strDir).GetLength() + 1;
 
 	if (ret && ItemsNumber)
 	{
@@ -2881,7 +2884,7 @@ int WINAPI FarGetDirListA(const char *Dir,oldfar::PluginPanelItem **pPanelItem,i
 				(*pPanelItem)[i].FindData.ftLastWriteTime = pItems[i].ftLastWriteTime;
 				(*pPanelItem)[i].FindData.nFileSizeLow = (DWORD)pItems[i].nFileSize;
 				(*pPanelItem)[i].FindData.nFileSizeHigh = (DWORD)(pItems[i].nFileSize>>32);
-				UnicodeToOEM(pItems[i].lpwszFileName,(*pPanelItem)[i].FindData.cFileName,MAX_PATH);
+				UnicodeToOEM(pItems[i].lpwszFileName+PathOffset,(*pPanelItem)[i].FindData.cFileName,MAX_PATH);
 				UnicodeToOEM(pItems[i].lpwszAlternateFileName,(*pPanelItem)[i].FindData.cAlternateFileName,14);
 			}
 		}
