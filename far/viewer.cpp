@@ -227,7 +227,6 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 
 	if (Opt.OnlyEditorViewerUsed && StrCmp(strFileName, L"-")==0)
 	{
-		HANDLE OutHandle;
 		string strTempName;
 
 		if (!FarMkTempEx(strTempName))
@@ -236,7 +235,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 			return(FALSE);
 		}
 
-		OutHandle=apiCreateFile(strTempName,GENERIC_READ|GENERIC_WRITE,
+		HANDLE OutHandle=apiCreateFile(strTempName,GENERIC_READ|GENERIC_WRITE,
 		                        FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,CREATE_ALWAYS,
 		                        FILE_ATTRIBUTE_TEMPORARY|FILE_FLAG_DELETE_ON_CLOSE);
 
@@ -251,6 +250,10 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 
 		while (ReadFile(GetStdHandle(STD_INPUT_HANDLE),ReadBuf,sizeof(ReadBuf),&ReadSize,NULL))
 			WriteFile(OutHandle,ReadBuf,ReadSize,&WrittenSize,NULL);
+
+		//after reading from the pipe, redirect stdin to the real console stdin
+		HANDLE hConin=CreateFile(L"CONIN$",GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ,0,OPEN_EXISTING,0,0);
+		SetStdHandle(STD_INPUT_HANDLE,hConin);
 
 		int InpHandle=_open_osfhandle((intptr_t)OutHandle,O_BINARY);
 
