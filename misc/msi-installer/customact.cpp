@@ -6,8 +6,6 @@
 
 #include <string>
 #include <list>
-#include <sstream>
-#include <iomanip>
 using namespace std;
 
 #define CLEAN(type, object, code) \
@@ -25,7 +23,7 @@ using namespace std;
 
 struct Error {
   int code;
-  wstring message;
+  const wchar_t* message;
   const char* file;
   int line;
 };
@@ -33,6 +31,7 @@ struct Error {
 #define FAIL(_code) { \
   Error error; \
   error.code = _code; \
+  error.message = NULL; \
   error.file = __FILE__; \
   error.line = __LINE__; \
   throw error; \
@@ -67,10 +66,38 @@ wstring widen(const string& str) {
   return wstring(str.begin(), str.end());
 }
 
+wstring int_to_str(int val) {
+  wchar_t str[64];
+  return _itow(val, str, 10);
+}
+
+wchar_t hex(unsigned char v) {
+  if (v >= 0 && v <= 9)
+    return v + L'0';
+  else
+    return v - 10 + L'A';
+}
+
+unsigned char unhex(wchar_t v) {
+  if (v >= L'0' && v <= L'9')
+    return v - L'0';
+  else
+    return v - L'A' + 10;
+}
+
+wstring hex_str(unsigned val) {
+  wstring result(8, L'0');
+  for (unsigned i = 0; i < 8; i++) {
+    wchar_t c = hex(val & 0x0F);
+    if (c) result[7 - i] = c;
+    val >>= 4;
+  }
+  return result;
+}
+
 wstring get_system_message(HRESULT hr) {
   wchar_t* sys_msg;
   DWORD len = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<LPWSTR>(&sys_msg), 0, NULL);
-  wostringstream st;
   wstring message;
   if (len) {
     CLEAN(wchar_t*, sys_msg, LocalFree(static_cast<HLOCAL>(sys_msg)));
@@ -79,8 +106,8 @@ wstring get_system_message(HRESULT hr) {
   else {
     message = L"HRESULT:";
   }
-  st << message << L" (0x" << hex << uppercase << setw(8) << setfill(L'0') << hr << L")";
-  return st.str();
+  message.append(L" (0x").append(hex_str(hr)).append(L")");
+  return message;
 }
 
 class NonCopyable {
@@ -124,13 +151,6 @@ _COM_SMARTPTR_TYPEDEF(IShellLink, __uuidof(IShellLink));
 _COM_SMARTPTR_TYPEDEF(IPersistFile, __uuidof(IPersistFile));
 _COM_SMARTPTR_TYPEDEF(IShellLinkDataList, __uuidof(IShellLinkDataList));
 
-wchar_t hex(unsigned char v) {
-  if (v >= 0 && v <= 9)
-    return v + L'0';
-  else
-    return v - 10 + L'A';
-}
-
 wstring get_shortcut_props(const wstring& file_name) {
   IShellLinkPtr sl;
   CHECK_COM(sl.CreateInstance(CLSID_ShellLink));
@@ -151,13 +171,6 @@ wstring get_shortcut_props(const wstring& file_name) {
     result += hex(b & 0x0F);
   }
   return result;
-}
-
-unsigned char unhex(wchar_t v) {
-  if (v >= L'0' && v <= L'9')
-    return v - L'0';
-  else
-    return v - L'A' + 10;
 }
 
 void set_shortcut_props(const wstring& file_name, const wstring& props) {
@@ -293,28 +306,28 @@ void update_progress(MSIHANDLE h_install, const wstring& file_name) {
 }
 
 wstring get_error_message(const Error& e) {
-  wostringstream st;
-  st << L"Error at " << widen(e.file) << L":" << e.line << L": ";
-  if (e.code != NO_ERROR)
-    st << get_system_message(e.code);
-  if (!e.message.empty()) {
-    if (e.code != NO_ERROR)
-      st << L": ";
-    st << e.message;
+  wstring str;
+  str.append(L"Error at ").append(widen(e.file)).append(L":").append(int_to_str(e.line)).append(L": ");
+  if (e.code)
+    str.append(get_system_message(e.code));
+  if (e.message) {
+    if (e.code)
+      str.append(L": ");
+    str.append(e.message);
   }
-  return st.str();
+  return str;
 }
 
 wstring get_error_message(const exception& e) {
-  wostringstream st;
-  st << widen(typeid(e).name()) << L": " << widen(e.what());
-  return st.str();
+  wstring str;
+  str.append(widen(typeid(e).name())).append(L": ").append(widen(e.what()));
+  return str;
 }
 
 wstring get_error_message(const _com_error& e) {
-  wostringstream st;
-  st << L"_com_error: " << get_system_message(e.Error());
-  return st.str();
+  wstring str;
+  str.append(L"_com_error: ").append(get_system_message(e.Error()));
+  return str;
 }
 
 void log_message(MSIHANDLE h_install, const wstring& message) {
