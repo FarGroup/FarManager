@@ -2871,7 +2871,7 @@ int Dialog::ProcessKey(int Key)
 			}
 
 		case KEY_F11:
-			CtrlObject->Plugins.CommandsMenu(FALSE,FALSE,0);
+			return FrameManager->ProcessKey(Key);
 
 			// для DIF_EDITOR будет обработано ниже
 		default:

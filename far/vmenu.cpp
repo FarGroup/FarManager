@@ -119,7 +119,7 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
 	{
 		PrevMacroMode = CtrlObject->Macro.GetMode();
 
-		if (PrevMacroMode!=MACRO_MAINMENU && PrevMacroMode!=MACRO_DIALOG && PrevMacroMode!=MACRO_USERMENU)
+		if (!IsMenuArea(PrevMacroMode))
 			CtrlObject->Macro.SetMode(MACRO_MENU);
 	}
 

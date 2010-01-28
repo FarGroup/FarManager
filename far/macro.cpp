@@ -102,6 +102,7 @@ TMacroKeywords MKeywords[] =
 	{0,  L"Tree",               MCODE_C_AREA_TREEPANEL,0},
 	{0,  L"FindFolder",         MCODE_C_AREA_FINDFOLDER,0},
 	{0,  L"UserMenu",           MCODE_C_AREA_USERMENU,0},
+	{0,  L"AutoCompletion",     MCODE_C_AREA_AUTOCOMPLETION,0},
 
 	// ПРОЧЕЕ
 	{2,  L"Bof",                MCODE_C_BOF,0},
@@ -228,6 +229,7 @@ TMacroKeywords MKeywordsArea[] =
 	{0,  L"Tree",               MACRO_TREEPANEL,0},
 	{0,  L"FindFolder",         MACRO_FINDFOLDER,0},
 	{0,  L"UserMenu",           MACRO_USERMENU,0},
+	{0,  L"AutoCompletion",     MACRO_AUTOCOMPLETION,0},
 	{0,  L"Common",             MACRO_COMMON,0},
 };
 
@@ -773,7 +775,7 @@ int KeyMacro::ProcessKey(int Key)
 				// различаем общий режим (с передачей плагину кеев) или специальный (без передачи клавиш плагину)
 				Work.ExecLIBPos=0;
 				PostNewMacro(MacroLIB+I);
-				memcpy(&Work.cRec,FrameManager->GetLastInputRecord(),sizeof(INPUT_RECORD));
+				Work.cRec=*FrameManager->GetLastInputRecord();
 				Work.MacroPC=I;
 				IsRedrawEditor=CtrlObject->Plugins.CheckFlags(PSIF_ENTERTOOPENPLUGIN)?FALSE:TRUE;
 				_KEYMACRO(SysLog(L"**** Start Of Execute Macro ****"));
@@ -1332,7 +1334,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 					int CurMMode=GetMode();
 					Cond=L"";
 
-					if (CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS || CurMMode == MACRO_USERMENU)
+					if (IsMenuArea(CurMMode))
 					{
 						Frame *f=FrameManager->GetCurrentFrame(), *fo=NULL;
 
@@ -3753,7 +3755,7 @@ done:
 
 			int CurMMode=CtrlObject->Macro.GetMode();
 
-			if (CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS || CurMMode == MACRO_USERMENU)
+			if (IsMenuArea(CurMMode))
 			{
 				Frame *f=FrameManager->GetCurrentFrame(), *fo=NULL;
 
@@ -3808,7 +3810,7 @@ done:
 			//const wchar_t *checkStr=tmpVar.toString();
 			int CurMMode=CtrlObject->Macro.GetMode();
 
-			if (CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS || CurMMode == MACRO_USERMENU || CurMMode == MACRO_DIALOG)
+			if (IsMenuArea(CurMMode) || CurMMode == MACRO_DIALOG)
 			{
 				Frame *f=FrameManager->GetCurrentFrame(), *fo=NULL;
 

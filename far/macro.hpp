@@ -64,6 +64,7 @@ enum MACROMODEAREA
 	MACRO_TREEPANEL    =  12, // Панель дерева папок
 	MACRO_FINDFOLDER   =  13, // Поиск папок
 	MACRO_USERMENU     =  14, // Меню пользователя
+	MACRO_AUTOCOMPLETION = 15, // Список автодополнения
 
 	MACRO_COMMON,             // ВЕЗДЕ! - должен быть предпоследним, т.к. приоритет самый низший !!!
 	MACRO_LAST                // Должен быть всегда последним! Используется в циклах
@@ -279,3 +280,5 @@ void initMacroVarTable(int global);
 void doneMacroVarTable(int global);
 bool checkMacroConst(const wchar_t *name);
 const wchar_t *eStackAsString(int Pos=0);
+
+inline bool IsMenuArea(int Area){return Area==MACRO_MAINMENU || Area==MACRO_MENU || Area==MACRO_DISKS || Area==MACRO_USERMENU || Area==MACRO_AUTOCOMPLETION;}

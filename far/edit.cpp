@@ -57,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "RegExp.hpp"
 #include "history.hpp"
 #include "vmenu.hpp"
+#include "chgmmode.hpp"
 
 static int Recurse=0;
 
@@ -3065,6 +3066,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 			}
 			if(Opt.AutoComplete.ShowList)
 			{
+				ChangeMacroMode MacroMode(MACRO_AUTOCOMPLETION);
 				MenuItemEx EmptyItem={0};
 				ComplMenu.AddItem(&EmptyItem,0);
 				SetMenuPos(ComplMenu);
