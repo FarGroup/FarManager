@@ -773,6 +773,7 @@ int KeyMacro::ProcessKey(int Key)
 				// различаем общий режим (с передачей плагину кеев) или специальный (без передачи клавиш плагину)
 				Work.ExecLIBPos=0;
 				PostNewMacro(MacroLIB+I);
+				memcpy(&Work.cRec,FrameManager->GetLastInputRecord(),sizeof(INPUT_RECORD));
 				Work.MacroPC=I;
 				IsRedrawEditor=CtrlObject->Plugins.CheckFlags(PSIF_ENTERTOOPENPLUGIN)?FALSE:TRUE;
 				_KEYMACRO(SysLog(L"**** Start Of Execute Macro ****"));
@@ -3388,12 +3389,11 @@ done:
 		case MCODE_F_AKEY:                // V=akey(Mode[,Type])
 		{
 			DWORD aKey=MR->Key;
-			INPUT_RECORD *inRec=FrameManager->GetLastInputRecord();
+			INPUT_RECORD *inRec=&Work.cRec;
 			if (inRec->EventType == 0)
-			{
 				inRec->EventType = KEY_EVENT;
+			if(inRec->EventType == KEY_EVENT || inRec->EventType == FARMACRO_KEY_EVENT)
 				aKey=CalcKeyCode(inRec,TRUE,NULL);
-			}
 
 			if (Key == MCODE_F_AKEY)
 			{

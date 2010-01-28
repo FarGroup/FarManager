@@ -40,19 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // If not, I don't know who wrote it.
 //---------------------------------------------------------------
 
-#define MAXEXEXSTACK 256
-
-enum TToken
-{
-	tNo, tEnd,  tLet,
-	tVar, tConst, tStr, tInt, tFunc, tFARVar, tFloat,
-	tPlus, tMinus, tMul, tDiv, tLp, tRp, tComma,
-	tBoolAnd, tBoolOr,
-	tBitAnd, tBitOr, tBitXor, tBitNot, tNot, tBitShl, tBitShr,
-	tEq, tNe, tLt, tLe, tGt, tGe,
-};
-
-
 struct TMacroKeywords
 {
 	int Type;              // “ËÔ: 0=Area, 1=Flags, 2=Condition

@@ -137,6 +137,7 @@ struct MacroState
 	int MacroWORKCount;
 	bool UseInternalClipboard;
 	struct MacroRecord *MacroWORK; // т.н. текущее исполнение
+	INPUT_RECORD cRec; // "описание реально нажатой клавиши"
 
 	bool AllocVarTable;
 	TVarTable *locVarTable;

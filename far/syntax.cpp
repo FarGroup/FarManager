@@ -55,11 +55,24 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define EOFCH 65536
 
+#define MAXEXEXSTACK 256
+
+enum TToken
+{
+	tNo, tEnd,  tLet,
+	tVar, tConst, tStr, tInt, tFunc, tFARVar, tFloat,
+	tPlus, tMinus, tMul, tDiv, tLp, tRp, tComma,
+	tBoolAnd, tBoolOr,
+	tBitAnd, tBitOr, tBitXor, tBitNot, tNot, tBitShl, tBitShr,
+	tEq, tNe, tLt, tLe, tGt, tGe,
+};
+
 static int exprBuffSize = 0;
 static unsigned long FARVar, *exprBuff = NULL;
 static int IsProcessFunc=0;
 
 static int _macro_nErr = 0;
+static int _macro_nLine = 0;
 static int _macro_ErrCode=err_Success;
 static wchar_t nameString[1024];
 static wchar_t *sSrcString;
@@ -78,7 +91,7 @@ static void printKeyValue(DWORD* k, int& i);
 #endif
 #endif
 
-static const wchar_t *__GetNextWord(const wchar_t *BufPtr,string &strCurKeyText);
+static const wchar_t *__GetNextWord(const wchar_t *BufPtr,string &strCurKeyText,int& Line,const wchar_t **StartBufPtr);
 static void keyMacroParseError(int err, const wchar_t *s, const wchar_t *p, const wchar_t *c=NULL);
 static void keyMacroParseError(int err, const wchar_t *c = NULL);
 
@@ -216,6 +229,7 @@ static void keyMacroParseError(int err, const wchar_t *s, const wchar_t *p, cons
 		int lPos = ePos-oPos+(oPos ? 3 : 0);
 		InsertQuote(ErrMessage[1]);
 		ErrMessage[2].Format(L"%*s%c", lPos+1, L"", L'^');
+		//ErrMessage[2].Format(L"line=%d pos=%d", _macro_nLine, lPos+1);
 	}
 }
 
@@ -1253,14 +1267,15 @@ static int parseExpr(const wchar_t*& BufPtr, unsigned long *eBuff, wchar_t bound
 }
 
 
-static const wchar_t *__GetNextWord(const wchar_t *BufPtr,string &strCurKeyText)
+static const wchar_t *__GetNextWord(const wchar_t *BufPtr,string &strCurKeyText,int& Line,const wchar_t **StartBufPtr)
 {
 	// пропускаем ведущие пробельные символы
 	while (IsSpace(*BufPtr) || IsEol(*BufPtr))
 	{
 		if (IsEol(*BufPtr))
 		{
-			//TODO!!!
+			*StartBufPtr=++BufPtr;
+			Line++;//TODO!!!
 		}
 
 		BufPtr++;
@@ -1278,6 +1293,12 @@ static const wchar_t *__GetNextWord(const wchar_t *BufPtr,string &strCurKeyText)
 	{
 		if (SpecMacro && (Chr == L'[' || Chr == L'(' || Chr == L'{'))
 			break;
+
+		if (IsEol(Chr))
+		{
+			*StartBufPtr=++BufPtr;
+			Line++;//TODO!!!
+		}
 
 		BufPtr++;
 		Chr=*BufPtr;
@@ -1457,7 +1478,9 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 	_KEYMACRO(CleverSysLog Clev(L"parseMacroString"));
 	_KEYMACRO(SysLog(L"BufPtr[%p]='%s'", BufPtr,BufPtr));
 	_macro_nErr = 0;
+	_macro_nLine= 0;
 	pSrcString = oSrcString = sSrcString = emptyString;
+	int Line=0;
 
 	if (BufPtr == NULL || !*BufPtr)
 	{
@@ -1478,6 +1501,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 	TExec exec;
 	wchar_t varName[256];
 	DWORD KeyCode, *CurMacro_Buffer = NULL;
+	const wchar_t *startLineBufPtr = BufPtr;
 
 	for (;;)
 	{
@@ -1485,9 +1509,11 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 		int SizeVarName = 0;
 		const wchar_t *oldBufPtr = BufPtr;
 
-		if ((BufPtr = __GetNextWord(BufPtr, strCurrKeyText)) == NULL)
+		if ((BufPtr = __GetNextWord(BufPtr, strCurrKeyText, Line, &startLineBufPtr)) == NULL)
 			break;
 
+		_SVS(SysLog(L"BufPtr         =%s",BufPtr));
+		_SVS(SysLog(L"startLineBufPtr=%s",startLineBufPtr));
 		_SVS(SysLog(L"strCurrKeyText=%s",(const wchar_t*)strCurrKeyText));
 
 		//- AN ----------------------------------------------
@@ -1516,7 +1542,14 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 				BufPtr = oldBufPtr;
 
 				while (*BufPtr && (IsSpace(*BufPtr) || IsEol(*BufPtr)))
+				{
+					if (IsEol(*BufPtr))
+					{
+						startLineBufPtr = ++BufPtr;
+						Line++;//TODO!!!
+					}
 					BufPtr++;
+				}
 
 				memset(varName, 0, sizeof(varName));
 				KeyCode = MCODE_OP_SAVE;
@@ -1548,6 +1581,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 				if (_macro_nErr)
 				{
 					ProcError++;
+					_macro_nLine=Line;
 				}
 			}
 			else
@@ -1572,14 +1606,28 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 					BufPtr = oldBufPtr;
 
 					while (*BufPtr && (IsSpace(*BufPtr) || IsEol(*BufPtr)))
+					{
+						if (IsEol(*BufPtr))
+						{
+							startLineBufPtr = ++BufPtr;
+							Line++;//TODO!!!
+						}
 						BufPtr++;
+					}
 
 					Size += parseExpr(BufPtr, dwExprBuff, 0, 0);
 
 					/*
 					// этого пока ненадо, считаем, что ';' идет сразу за функцией, иначе это отдельный символ ';', который нужно поместить в поток
 					while ( *BufPtr && (IsSpace(*BufPtr) || IsEol(*BufPtr)) )
-					  BufPtr++;
+					{
+						if (IsEol(*BufPtr))
+						{
+							startLineBufPtr = ++BufPtr;
+							Line++;//TODO!!!
+						}
+						BufPtr++;
+					}
 					*/
 					if (*BufPtr == L';')
 						BufPtr++; // здесь Size не увеличиваем, т.к. мы прокидываем символ ';'
@@ -1587,6 +1635,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 					//Size--; //???
 					if (_macro_nErr)
 					{
+						_macro_nLine=Line;
 						ProcError++;
 					}
 					else
@@ -1608,8 +1657,10 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 
 			if (ProcError)
 			{
+				_macro_nLine=Line;
 				if (!_macro_nErr)
 					keyMacroParseError(err_Unrecognized_keyword, strCurrKeyText, strCurrKeyText,strCurrKeyText);
+					//keyMacroParseError(err_Unrecognized_keyword, BufPtr, startLineBufPtr, strCurrKeyText);
 
 				if (CurMacro_Buffer != NULL)
 				{
@@ -1752,6 +1803,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 
 		if (_macro_nErr)
 		{
+			_macro_nLine=Line;
 			if (CurMacro_Buffer != NULL)
 			{
 				xf_free(CurMacro_Buffer);
@@ -1953,7 +2005,10 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 	}
 
 	if (_macro_nErr)
+	{
+		_macro_nLine=Line;
 		return FALSE;
+	}
 
 	return TRUE;
 }
