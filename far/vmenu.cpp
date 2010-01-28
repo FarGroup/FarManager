@@ -142,7 +142,6 @@ VMenu::~VMenu()
 	if (!CheckFlags(VMENU_LISTBOX))
 	{
 		FrameManager->UnmodalizeFrame(this);
-		FrameManager->RefreshFrame();
 	}
 }
 
