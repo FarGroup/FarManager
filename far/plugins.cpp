@@ -1248,7 +1248,6 @@ int PluginManager::Compare(
 {
 	PluginHandle *ph = (PluginHandle*)hPlugin;
 	return ph->pPlugin->Compare(ph->hPlugin, Item1, Item2, Mode);
-	//BUGBUG, was return -3
 }
 
 void PluginManager::ConfigureCurrent(Plugin *pPlugin, int INum)

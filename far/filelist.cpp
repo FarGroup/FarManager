@@ -294,7 +294,8 @@ void FileList::SortFileList(int KeepPosition)
 		if (KeepPosition)
 			strCurName = ListData[CurFile]->strName;
 
-		hSortPlugin=(PanelMode==PLUGIN_PANEL) ? hPlugin:NULL;
+		hSortPlugin=(PanelMode==PLUGIN_PANEL && hPlugin && reinterpret_cast<PluginHandle*>(hPlugin)->pPlugin->HasCompare()) ? hPlugin:NULL;
+
 		far_qsort(ListData,FileCount,sizeof(*ListData),SortList);
 
 		if (KeepPosition)
@@ -353,9 +354,7 @@ int _cdecl SortList(const void *el1,const void *el2)
 		FileList::FreePluginPanelItem(&pi1);
 		FileList::FreePluginPanelItem(&pi2);
 
-		if (RetCode==-2)
-			hSortPlugin=NULL;
-		else
+		if (RetCode!=-2)
 			return(ListSortOrder*RetCode);
 	}
 
