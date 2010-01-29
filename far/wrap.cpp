@@ -2862,7 +2862,7 @@ int WINAPI FarGetDirListA(const char *Dir,oldfar::PluginPanelItem **pPanelItem,i
 	int ItemsNumber;
 	int ret=FarGetDirList(strDir, &pItems, &ItemsNumber);
 
-	unsigned PathOffset = ExtractFilePath(strDir).GetLength() + 1;
+	size_t PathOffset = ExtractFilePath(strDir).GetLength() + 1;
 
 	if (ret && ItemsNumber)
 	{

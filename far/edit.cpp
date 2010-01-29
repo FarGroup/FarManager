@@ -3253,7 +3253,12 @@ void EditControl::AutoComplete(bool Manual,bool DelBlock)
 	int Key=0;
 	if(AutoCompleteProc(Manual,DelBlock,Key))
 	{
-		pOwner->ProcessKey(Key);
+		// BUGBUG, hack
+		int Wait=WaitInMainLoop;
+		WaitInMainLoop=1;
+		if(!CtrlObject->Macro.ProcessKey(Key))
+			pOwner->ProcessKey(Key);
+		WaitInMainLoop=Wait;
 		Show();
 	}
 }
