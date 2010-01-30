@@ -178,7 +178,7 @@ int TmpPanel::PutDirectoryContents(const TCHAR* Path)
       return FALSE;
     TmpPanelItem=NewPanelItem;
     memset(&TmpPanelItem[TmpItemsNumber],0,sizeof(*TmpPanelItem)*DirItemsNumber);
-    int PathLen = lstrlen(Path);
+    size_t PathLen = lstrlen(Path);
 #ifndef UNICODE
     const TCHAR *lpSlash = _tcsrchr(Path,_T('\\'));
     if (lpSlash)
