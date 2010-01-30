@@ -304,7 +304,7 @@ int FileViewer::ProcessKey(int Key)
 				UINT cp=View.VM.CodePage;
 				string strViewFileName;
 				View.GetFileName(strViewFileName);
-				HANDLE hEdit=apiCreateFile(strViewFileName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN);
+				HANDLE hEdit=apiCreateFile(strViewFileName,GENERIC_READ,FILE_SHARE_READ|(Opt.EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0),NULL,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN);
 
 				if (hEdit==INVALID_HANDLE_VALUE)
 				{
