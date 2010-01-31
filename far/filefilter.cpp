@@ -232,6 +232,7 @@ bool FileFilter::FilterEdit()
 				FilterList.SetUpdateRequired(TRUE);
 				FilterList.FastShow();
 				FilterList.ProcessKey(KEY_DOWN);
+				bNeedUpdate=true;
 				break;
 			}
 			case KEY_SHIFTBS:
@@ -411,6 +412,7 @@ bool FileFilter::FilterEdit()
 		}
 	}
 
+	FilterList.Hide();
 	ExitCode=FilterList.Modal::GetExitCode();
 
 	if (ExitCode!=-1)
