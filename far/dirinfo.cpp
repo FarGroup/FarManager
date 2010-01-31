@@ -214,7 +214,7 @@ int GetDirInfo(const wchar_t *Title,
 			unsigned __int64 CurSize = FindData.nFileSize;
 			FileSize+=CurSize;
 
-			if ((FindData.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED) || (FindData.dwFileAttributes & FILE_ATTRIBUTE_SPARSE_FILE))
+			if (FindData.dwFileAttributes & (FILE_ATTRIBUTE_COMPRESSED|FILE_ATTRIBUTE_SPARSE_FILE))
 			{
 				UINT64 Size=0;
 
@@ -256,20 +256,14 @@ int GetPluginDirInfo(HANDLE hPlugin,const wchar_t *DirName,unsigned long &DirCou
 		for (int I=0; I<ItemsNumber; I++)
 		{
 			if (PanelItem[I].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			{
 				DirCount++;
+			}
 			else
 			{
 				FileCount++;
-				unsigned __int64 CurSize = PanelItem[I].FindData.nFileSize;
-				FileSize+=CurSize;
-
-				if (PanelItem[I].FindData.nPackSize)
-					CompressedFileSize+=CurSize;
-				else
-				{
-					unsigned __int64 AddSize = PanelItem[I].FindData.nPackSize;
-					CompressedFileSize+=AddSize;
-				}
+				FileSize+=PanelItem[I].FindData.nFileSize;
+				CompressedFileSize+=PanelItem[I].FindData.nPackSize?PanelItem[I].FindData.nPackSize:PanelItem[I].FindData.nFileSize;
 			}
 		}
 	}

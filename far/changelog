@@ -1,3 +1,7 @@
+drkns 31.01.2010 16:37:49 +0200 - build 1364
+
+1. В плагиновых панелях не показывался упакованный размер элементов.
+
 drkns 30.01.2010 20:09:48 +0200 - build 1363
 
 1. Mantis#0001257: File sharing violation when attempting to open Editor from Viewer.
