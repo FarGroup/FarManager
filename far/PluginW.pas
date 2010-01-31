@@ -52,7 +52,7 @@ uses Windows;
 const
   FARMANAGERVERSION_MAJOR = 2;
   FARMANAGERVERSION_MINOR = 0;
-  FARMANAGERVERSION_BUILD = 1135;
+  FARMANAGERVERSION_BUILD = 1363;
 
 type
 //TFarChar = AnsiChar;
@@ -146,6 +146,7 @@ const
 { FarDialogItemFlags }
 
 const
+  DIF_NONE                  = 0;
   DIF_COLORMASK             = $000000ff;
   DIF_SETCOLOR              = $00000100;
   DIF_BOXCOLOR              = $00000200;
@@ -164,13 +165,14 @@ const
   DIF_HISTORY               = $00040000;
   DIF_BTNNOCLOSE            = $00040000;
   DIF_CENTERTEXT            = $00040000;
-  DIF_NOTCVTUSERCONTROL     = $00040000;
+//DIF_NOTCVTUSERCONTROL     = $00040000;
   DIF_EDITEXPAND            = $00080000;
   DIF_DROPDOWNLIST          = $00100000;
   DIF_USELASTHISTORY        = $00200000;
   DIF_MASKEDIT              = $00400000;
   DIF_SELECTONENTRY         = $00800000;
   DIF_3STATE                = $00800000;
+  DIF_EDITPATH              = $01000000;
   DIF_LISTWRAPMODE          = $01000000;
   DIF_NOAUTOCOMPLETE        = $02000000;
   DIF_LISTAUTOHIGHLIGHT     = $02000000;
@@ -1048,9 +1050,9 @@ type
 { FILE_CONTROL_COMMANDS }
 
 const
-  PANEL_NONE                  = -1;
-  PANEL_ACTIVE                  = -1;
-  PANEL_PASSIVE                 = -2;
+  PANEL_NONE	                = -1;
+  PANEL_ACTIVE	                = -1;
+  PANEL_PASSIVE	                = -2;
 
 const
   FCTL_CLOSEPLUGIN              = 0;
@@ -1078,7 +1080,7 @@ const
   FCTL_GETPANELITEM             = 22;
   FCTL_GETSELECTEDPANELITEM     = 23;
   FCTL_GETCURRENTPANELITEM      = 24;
-  FCTL_GETCURRENTDIRECTORY      = 25;
+  FCTL_GETPANELDIR              = 25;
   FCTL_GETCOLUMNTYPES           = 26;
   FCTL_GETCOLUMNWIDTHS          = 27;
   FCTL_BEGINSELECTION           = 28;
@@ -1090,8 +1092,8 @@ type
 typedef int (WINAPI *FARAPICONTROL)(
   HANDLE hPlugin,
   int Command,
-  int Param1,
-  LONG_PTR Param2
+	int Param1,
+	LONG_PTR Param2
 );
 *)
   TFarApiControl = function (
@@ -1325,7 +1327,7 @@ const
   ACTL_EJECTMEDIA           = 6;
   ACTL_KEYMACRO             = 7;
   ACTL_POSTKEYSEQUENCE      = 8;
-  ACTL_GETWINDOWINFO_W      = 9;
+  ACTL_GETWINDOWINFO        = 9;
   ACTL_GETWINDOWCOUNT       = 10;
   ACTL_SETCURRENTWINDOW     = 11;
   ACTL_COMMIT               = 12;
@@ -1336,14 +1338,17 @@ const
   ACTL_GETCONFIRMATIONS     = 17;
   ACTL_GETDESCSETTINGS      = 18;
   ACTL_SETARRAYCOLOR        = 19;
-  ACTL_GETWCHARMODE         = 20;
+//ACTL_GETWCHARMODE         = 20;
   ACTL_GETPLUGINMAXREADDATA = 21;
   ACTL_GETDIALOGSETTINGS    = 22;
   ACTL_GETSHORTWINDOWINFO   = 23;
   ACTL_REDRAWALL            = 27;
   ACTL_SYNCHRO              = 28;
+  ACTL_SETPROGRESSSTATE     = 29;
+  ACTL_SETPROGRESSVALUE     = 30;
+  ACTL_QUIT                 = 31;
 
-
+  
 { FarSystemSettings }
 
 const
@@ -1397,6 +1402,7 @@ const
   FIS_SHOWTOTALCOPYPROGRESSINDICATOR = $00000100;
   FIS_SHOWCOPYINGTIMEINFO            = $00000200;
   FIS_USECTRLPGUPTOCHANGEDRIVE       = $00000800;
+  FIS_SHOWTOTALDELPROGRESSINDICATOR  = $00001000;
 
 { FarConfirmationsSettings }
 
@@ -1449,7 +1455,7 @@ type
     Flags :DWORD;
   end;
 
-
+  
 { FARKEYSEQUENCEFLAGS }
 
 const
@@ -1579,6 +1585,30 @@ type
     NameSize :Integer;
   end;
 
+
+{ PROGRESSTATE }
+
+const
+  PS_NOPROGRESS    = 0;
+  PS_INDETERMINATE = 1;
+  PS_NORMAL        = 2;
+  PS_ERROR         = 4;
+  PS_PAUSED        = 8;
+
+(*
+struct PROGRESSVALUE
+{
+	unsigned __int64 Completed;
+	unsigned __int64 Total;
+};
+*)
+type
+  PProgressValue = ^TProgressValue;
+  TProgressValue = record
+    Completed :Int64;
+    Total :Int64;
+  end;
+
 (*
 typedef INT_PTR (WINAPI *FARAPIADVCONTROL)(
   INT_PTR ModuleNumber,
@@ -1644,7 +1674,7 @@ type
     ParamType : Integer;
 
     Param : record case Integer of
-      0 : (iParam   : Integer);
+      0 : (iParam : Integer);
       1 : (wszParam : PFarChar);
     end;
 
@@ -1843,7 +1873,7 @@ const
   ECTL_UNDOREDO            = 32;
   ECTL_GETFILENAME         = 33;
 
-
+  
 { EDITOR_SETPARAMETER_TYPES }
 
 const
@@ -1857,6 +1887,7 @@ const
   ESPT_LOCKMODE         = 7;
   ESPT_SETWORDDIV       = 8;
   ESPT_GETWORDDIV       = 9;
+  ESPT_SHOWWHITESPACE   = 10;
 
 (*
 struct EditorSetParameter
@@ -1876,12 +1907,12 @@ type
   TEditorSetParameter = record
     ParamType : Integer;
     Param : record case Integer of
-       0 : (iParam   : Integer);
+       0 : (iParam : Integer);
        1 : (wszParam : PFarChar);
        2 : (Reserved : DWORD);
     end;
     Flags : DWORD;
-    Size  : DWORD;
+    Size : DWORD;
   end;
 
 
@@ -1966,6 +1997,7 @@ const
   EOPT_AUTODETECTCODEPAGE = $00000020;
   EOPT_CURSORBEYONDEOL    = $00000040;
   EOPT_EXPANDONLYNEWTABS  = $00000080;
+  EOPT_SHOWWHITESPACE     = $00000100;
 
 
 { EDITOR_BLOCK_TYPES }
@@ -2172,6 +2204,7 @@ const
   FIB_NOUSELASTHISTORY = $00000008;
   FIB_BUTTONS          = $00000010;
   FIB_NOAMPERSAND      = $00000020;
+  FIB_EDITPATH         = $01000000;
 
 (*
 typedef int (WINAPI *FARAPIINPUTBOX)(
@@ -2376,15 +2409,17 @@ typedef int (WINAPI *FRSUSERFUNC)(
   const wchar_t *FullName,
   void *Param
 );
-typedef void    (WINAPI *FARSTDRECURSIVESEARCH)(const wchar_t *InitDir,const wchar_t *Mask,FRSUSERFUNC Func,DWORD Flags,void *Param);
+typedef void     (WINAPI *FARSTDRECURSIVESEARCH)(const wchar_t *InitDir,const wchar_t *Mask,FRSUSERFUNC Func,DWORD Flags,void *Param);
 typedef wchar_t* (WINAPI *FARSTDMKTEMP)(wchar_t *Dest, DWORD size, const wchar_t *Prefix);
-typedef void    (WINAPI *FARSTDDELETEBUFFER)(void *Buffer);
+->
+typedef int      (WINAPI *FARSTDMKTEMP)(wchar_t *Dest, DWORD size, const wchar_t *Prefix);
+typedef void     (WINAPI *FARSTDDELETEBUFFER)(void *Buffer);
 *)
 type
   TFRSUserFunc = function (const FData :PFarFindData; const FullName :PFarChar; Param :Pointer) :Integer; stdcall;
 
   TFarStdRecursiveSearch = procedure (InitDir, Mask :PFarChar; Func :TFRSUserFunc; Flags :DWORD; Param :Pointer); stdcall;
-  TFarStdMkTemp = function (Dest :PFarChar; Size :DWORD; Prefix :PFarChar) :PFarChar; stdcall;
+  TFarStdMkTemp = function (Dest :PFarChar; Size :DWORD; Prefix :PFarChar) :Integer; stdcall;
   TFarStdDeleteBuffer = procedure(Buffer :Pointer); stdcall;
 
 
@@ -2400,14 +2435,34 @@ const
 
 (*
 typedef int     (WINAPI *FARSTDMKLINK)(const wchar_t *Src,const wchar_t *Dest,DWORD Flags);
-typedef int     (WINAPI *FARCONVERTNAMETOREAL)(const wchar_t *Src, wchar_t *Dest, int DestSize);
 typedef int     (WINAPI *FARGETREPARSEPOINTINFO)(const wchar_t *Src, wchar_t *Dest,int DestSize);
 *)
 type
   TFarStdMkLink = function (Src, Dest :PFarChar; Flags :DWORD) :Integer; stdcall;
-  TFarStdConvertNameToReal = function (Src, Dest :PFarChar; DestSize :Integer) : Integer; stdcall;
-  TFarStdGetReparsePointInfo = function (Src, Dest :PFarChar; DestSize :Integer) : Integer; stdcall;
+  TFarGetReparsePointInfo = function (Src, Dest :PFarChar; DestSize :Integer) : Integer; stdcall;
 
+(*
+enum CONVERTPATHMODES
+{
+	CPM_FULL,
+	CPM_REAL,
+};
+
+typedef int (WINAPI *FARCONVERTPATH)(CONVERTPATHMODES Mode, const wchar_t *Src, wchar_t *Dest, int DestSize);
+*)
+
+const
+  CPM_FULL = 0;
+  CPM_REAL = 1;
+
+type
+  TFarConvertPath = function(Mode :Integer {TConvertPathModes}; Src :PFarChar; Dest :PFarChar; DestSize :Integer) :Integer; stdcall;
+
+(*
+typedef DWORD (WINAPI *FARGETCURRENTDIRECTORY)(DWORD Size,wchar_t* Buffer);
+*)
+type
+  TFarGetCurrentDirectory = function(Size :DWORD; Buffer :PFarChar) :DWORD; stdcall;
 
 (*
 typedef struct FarStandardFunctions
@@ -2467,8 +2522,9 @@ typedef struct FarStandardFunctions
   FARSTDDELETEBUFFER         DeleteBuffer;
   FARSTDPROCESSNAME          ProcessName;
   FARSTDMKLINK               MkLink;
-  FARCONVERTNAMETOREAL       ConvertNameToReal;
+  FARCONVERTPATH             ConvertPath;
   FARGETREPARSEPOINTINFO     GetReparsePointInfo;
+  FARGETCURRENTDIRECTORY     GetCurrentDirectory;
 } FARSTANDARDFUNCTIONS;
 *)
 type
@@ -2528,9 +2584,10 @@ type
     DeleteBuffer        : TFarStdDeleteBuffer;
     ProcessName         : TFarStdProcessName;
     MkLink              : TFarStdMkLink;
-    ConvertNameToReal   : TFarStdConvertNameToReal;
-    GetReparsePointInfo : TFarStdGetReparsePointInfo;
-  end;
+    ConvertPath         : TFarConvertPath;
+    GetReparsePointInfo : TFarGetReparsePointInfo;
+    GetCurrentDirectory : TFarGetCurrentDirectory;
+  end; {TFarStandardFunctions}
 
 
 (*
@@ -2615,7 +2672,7 @@ type
     FileFilterControl   : TFarApiFilterControl;
 
     RegExpControl       : TFarApiRegexpControl;
-  end;
+  end; {TPluginStartupInfo}
 
 
 { PLUGIN_FLAGS }
@@ -2726,7 +2783,7 @@ const
   OPIF_SHOWNAMESONLY       = $00000040;
   OPIF_SHOWRIGHTALIGNNAMES = $00000080;
   OPIF_SHOWPRESERVECASE    = $00000100;
-  OPIF_FINDFOLDERS         = $00000200;
+//OPIF_FINDFOLDERS         = $00000200;
   OPIF_COMPAREFATTIME      = $00000400;
   OPIF_EXTERNALGET         = $00000800;
   OPIF_EXTERNALPUT         = $00001000;
@@ -2979,6 +3036,8 @@ int    WINAPI _export ProcessKeyW(HANDLE hPlugin,int Key,unsigned int ControlSta
 int    WINAPI _export ProcessSynchroEventW(int Event,void *Param);
 int    WINAPI _export ProcessViewerEventW(int Event,void *Param);
 int    WINAPI _export PutFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,int OpMode);
+->
+int    WINAPI _export PutFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t *SrcPath,int OpMode);
 int    WINAPI _export SetDirectoryW(HANDLE hPlugin,const wchar_t *Dir,int OpMode);
 int    WINAPI _export SetFindListW(HANDLE hPlugin,const struct PluginPanelItem *PanelItem,int ItemsNumber);
 void   WINAPI _export SetStartupInfoW(const struct PluginStartupInfo *Info);
