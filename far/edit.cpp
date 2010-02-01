@@ -2989,6 +2989,8 @@ EditControl::EditControl(ScreenObject *pOwner,Callback* aCallback,bool bAllocate
 	ECFlags=iFlags;
 	pHistory=iHistory;
 	pList=iList;
+	Selection=false;
+	SelectionStart=-1;
 }
 
 void EditControl::Show()
@@ -3261,4 +3263,37 @@ void EditControl::AutoComplete(bool Manual,bool DelBlock)
 		WaitInMainLoop=Wait;
 		Show();
 	}
+}
+
+int EditControl::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+{
+	if(Edit::ProcessMouse(MouseEvent))
+	{
+		while(IsMouseButtonPressed()==FROM_LEFT_1ST_BUTTON_PRESSED)
+		{
+			Flags.Clear(FEDITLINE_CLEARFLAG);
+			SetTabCurPos(MouseX - X1 + LeftPos);
+			if(MouseEventFlags&MOUSE_MOVED)
+			{
+				if(!Selection)
+				{
+					Selection=true;
+					SelectionStart=-1;
+					Select(SelectionStart,0);
+				}
+				else
+				{
+					if(SelectionStart==-1)
+					{
+						SelectionStart=CurPos;
+					}
+					Select(Min(SelectionStart,CurPos),Min(StrSize,Max(SelectionStart,CurPos)));
+					Show();
+				}
+			}
+		}
+		Selection=false;
+		return TRUE;
+	}
+	return FALSE;
 }

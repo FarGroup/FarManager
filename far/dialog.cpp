@@ -3288,7 +3288,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		return(FALSE);
 	}
 
-	if (MouseEvent->dwEventFlags==0 || MouseEvent->dwEventFlags==DOUBLE_CLICK)
+	if (MouseEvent->dwEventFlags==0 || MouseEvent->dwEventFlags==DOUBLE_CLICK || MouseEvent->dwEventFlags==MOUSE_MOVED)
 	{
 		// первый цикл - все за исключением рамок.
 		//for (I=0; I < ItemCount;I++)
@@ -3399,17 +3399,17 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 							return(TRUE);
 						}
 
+						if (!(Item[I]->Flags&DIF_NOFOCUS)) //??? !!!
+							ChangeFocus2(FocusPos,I);      //??? !!!
+						else
+						{
+							Item[FocusPos]->Focus=0; //??
+							FocusPos=I;
+						}
+
 						if (EditLine->ProcessMouse(MouseEvent))
 						{
 							EditLine->SetClearFlag(0); // а может это делать в самом edit?
-
-							if (!(Item[I]->Flags&DIF_NOFOCUS)) //??? !!!
-								ChangeFocus2(FocusPos,I);      //??? !!!
-							else
-							{
-								Item[FocusPos]->Focus=0; //??
-								FocusPos=I;
-							}
 
 							/* $ 23.06.2001 KM
 							   ! Оказалось нужно перерисовывать весь диалог иначе

@@ -573,7 +573,10 @@ int Language::GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strVa
 				RemoveExternalSpaces(strFullParamName);
 
 				if (!StrCmpI(strFullParamName,KeyName))
-					return(TRUE);
+				{
+					fseek(SrcFile,CurFilePos,SEEK_SET);
+					return TRUE;
+				}
 			}
 		}
 	}

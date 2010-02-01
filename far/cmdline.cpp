@@ -113,6 +113,10 @@ void CommandLine::DisplayObject()
 	CmdStr.SetPosition(X1+(int)strTruncDir.GetLength(),Y1,X2,Y2);
 
 	CmdStr.Show();
+
+	GotoXY(X2+1,Y1);
+	SetColor(COL_COMMANDLINEPREFIX);
+	Text(L"\x2191");
 }
 
 
@@ -494,6 +498,10 @@ void CommandLine::InsertString(const wchar_t *Str)
 
 int CommandLine::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
+	if(MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED && MouseEvent->dwMousePosition.X==X2+1)
+	{
+		return ProcessKey(KEY_ALTF8);
+	}
 	return(CmdStr.ProcessMouse(MouseEvent));
 }
 
