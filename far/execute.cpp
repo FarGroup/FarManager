@@ -1177,6 +1177,9 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
 		if (IsVisible() /* && ScrBuf.GetLockCount()==0 */)
 			Redraw=new RedrawDesktop(TRUE);
 
+		GotoXY(X2+1,Y1);
+		Text(L" ");
+
 		ScrollScreen(1);
 		MoveCursor(X1,Y1);
 

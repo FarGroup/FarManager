@@ -1,3 +1,7 @@
+drkns 01.02.2010 23:28:33 +0200 - build 1367
+
+1. Поправка к 1366.
+
 drkns 01.02.2010 21:44:16 +0200 - build 1366
 
 1. From Alexey Samlyukov: при наличии в hlf-файле секции ".Options" не учитывалась секция ".PluginContents".

@@ -4092,13 +4092,6 @@ bool FileList::ApplyCommand()
 
 	string strSelName, strSelShortName;
 	DWORD FileAttr;
-	int NeedCountScroll=0;
-
-	if (CtrlObject->MainKeyBar->IsVisible())
-		NeedCountScroll++;
-
-	if (CtrlObject->CmdLine->IsVisible())
-		NeedCountScroll++;
 
 	//redraw надо запрещать обязательно.
 	//иначе после выполнения каждой комманды текущая директория перечитывается.
@@ -4165,11 +4158,8 @@ bool FileList::ApplyCommand()
 	if (GetSelPosition >= FileCount)
 		ClearSelection();
 
-	if (NeedCountScroll)
-	{
-		ScrBuf.Scroll(NeedCountScroll);
-		ScrBuf.Flush();
-	}
+	GotoXY(0,ScrY);
+	FS<<fmt::Width(ScrX+1)<<L"";
 
 	--UpdateDisabled;
 	return true;
