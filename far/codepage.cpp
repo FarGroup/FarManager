@@ -104,14 +104,16 @@ void AddCodePage(const wchar_t *codePageName, UINT codePage, int position = -1, 
 
 		// Вставляем элемент
 		FarListInsert item = {position};
-		UnicodeString name;
 
-		if (codePage==CP_AUTODETECT)
-			name = codePageName;
-		else
-			name.Format(L"%5u%c %s", codePage, BoxSymbols[BS_V1], codePageName);
+		FormatString name;
 
-		item.Item.Text = name.GetBuffer();
+		if (codePage!=CP_AUTODETECT)
+		{
+			name<<fmt::Width(5)<<codePage<<BoxSymbols[BS_V1]<<L" ";
+		}
+		name<<codePageName;
+
+		item.Item.Text = name;
 
 		if (selectedCodePages && checked)
 		{
@@ -140,10 +142,14 @@ void AddCodePage(const wchar_t *codePageName, UINT codePage, int position = -1, 
 		if (!enabled)
 			item.Flags |= MIF_GRAYED;
 
-		if (codePage==CP_AUTODETECT)
-			item.strName = codePageName;
-		else
-			item.strName.Format(L"%5u%c %s", codePage, BoxSymbols[BS_V1], codePageName);
+		FormatString name;
+		if (codePage!=CP_AUTODETECT)
+		{
+			name<<fmt::Width(5)<<codePage<<BoxSymbols[BS_V1]<<L" ";
+		}
+		name<<codePageName;
+
+		item.strName = name;
 
 		item.UserData = (char *)(UINT_PTR)codePage;
 		item.UserDataSize = sizeof(UINT);
@@ -170,8 +176,8 @@ void AddStandardCodePage(const wchar_t *codePageName, UINT codePage, int positio
 
 	if (selectedCodePages && codePage!=CP_AUTODETECT)
 	{
-		string strCodePageName;
-		strCodePageName.Format(L"%u", codePage);
+		FormatString strCodePageName;
+		strCodePageName<<codePage;
 		int selectType = 0;
 		GetRegKey(FavoriteCodePagesKey, strCodePageName, selectType, 0);
 
@@ -369,8 +375,8 @@ void ProcessSelected(bool select)
 	if ((select && itemPosition >= itemCount-normalCodePages) || (!select && itemPosition>=itemCount-normalCodePages-favoriteCodePages-(normalCodePages?1:0) && itemPosition < itemCount-normalCodePages))
 	{
 		// Преобразуем номер таблицы символов в строку
-		string strCPName;
-		strCPName.Format(L"%u", curItem->UserData);
+		FormatString strCPName;
+		strCPName<<static_cast<UINT>(reinterpret_cast<UINT_PTR>(curItem->UserData));
 		// Получаем текущее состояние флага в реестре
 		int selectType = 0;
 		GetRegKey(FavoriteCodePagesKey, strCPName, selectType, 0);
@@ -504,8 +510,8 @@ wchar_t *FormatCodePageName(UINT CodePage, wchar_t *CodePageName, size_t Length)
 	// Формируем имя таблиц символов
 	if (!*CodePageName)
 	{
-		string strCodePage;
-		strCodePage.Format(L"%u", CodePage);
+		FormatString strCodePage;
+		strCodePage<<CodePage;
 		// Если имя не задано, то пытаемся получить его из Far2\CodePages\Names
 		string strCodePageName;
 		GetRegKey(NamesOfCodePagesKey, strCodePage, strCodePageName, L"");

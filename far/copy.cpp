@@ -420,8 +420,8 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 
 	Bar[BarLength]=0;
 	Percents=ToPercent64(CompletedSize,TotalSize);
-	string strPercents;
-	strPercents.Format(L"%4d%%",Percents);
+	FormatString strPercents;
+	strPercents<<fmt::Width(4)<<Percents<<L"%";
 	Text(BarCoord.X,BarCoord.Y,Color,Bar);
 	Text(static_cast<int>(BarCoord.X+BarLength),BarCoord.Y,Color,strPercents);
 
@@ -3970,18 +3970,19 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 			}
 			else
 			{
-				string strSrcFileStr, strDestFileStr;
+				FormatString strSrcFileStr, strDestFileStr;
 				unsigned __int64 SrcSize = SrcData.nFileSize;
-				string strSrcSizeText;
-				strSrcSizeText.Format(L"%I64u", SrcSize);
+				FormatString strSrcSizeText;
+				strSrcSizeText<<SrcSize;
 				unsigned __int64 DestSize = DestData.nFileSize;
-				string strDestSizeText;
-				strDestSizeText.Format(L"%I64u", DestSize);
+				FormatString strDestSizeText;
+				strDestSizeText<<DestSize;
 				string strDateText, strTimeText;
 				ConvertDate(SrcData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE,TRUE);
-				strSrcFileStr.Format(L"%-17s %25.25s %s %s",MSG(MCopySource),(const wchar_t*)strSrcSizeText,(const wchar_t*)strDateText,(const wchar_t*)strTimeText);
+				strSrcFileStr<<fmt::LeftAlign()<<fmt::Width(17)<<MSG(MCopySource)<<L" "<<fmt::Width(25)<<fmt::Precision(25)<<strSrcSizeText<<L" "<<strDateText<<L" "<<strTimeText;
 				ConvertDate(DestData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE,TRUE);
-				strDestFileStr.Format(L"%-17s %25.25s %s %s",MSG(MCopyDest),(const wchar_t*)strDestSizeText,(const wchar_t*)strDateText,(const wchar_t*)strTimeText);
+				strDestFileStr<<fmt::LeftAlign()<<fmt::Width(17)<<MSG(MCopyDest)<<L" "<<fmt::Width(25)<<fmt::Precision(25)<<strDestSizeText<<L" "<<strDateText<<L" "<<strTimeText;
+
 				WarnCopyDlgData[WDLG_SRCFILEBTN].Data=strSrcFileStr;
 				WarnCopyDlgData[WDLG_DSTFILEBTN].Data=strDestFileStr;
 				MakeDialogItemsEx(WarnCopyDlgData,WarnCopyDlg);
@@ -4070,17 +4071,17 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 					}
 
 					string strDateText,strTimeText;
-					string strSrcFileStr, strDestFileStr;
+					FormatString strSrcFileStr, strDestFileStr;
 					unsigned __int64 SrcSize = SrcData.nFileSize;
-					string strSrcSizeText;
-					strSrcSizeText.Format(L"%I64u", SrcSize);
+					FormatString strSrcSizeText;
+					strSrcSizeText<<SrcSize;
 					unsigned __int64 DestSize = DestData.nFileSize;
-					string strDestSizeText;
-					strDestSizeText.Format(L"%I64u", DestSize);
+					FormatString strDestSizeText;
+					strDestSizeText<<DestSize;
 					ConvertDate(SrcData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE,TRUE);
-					strSrcFileStr.Format(L"%-17s %25.25s %s %s",MSG(MCopySource),(const wchar_t*)strSrcSizeText,(const wchar_t*)strDateText,(const wchar_t*)strTimeText);
+					strSrcFileStr<<fmt::LeftAlign()<<fmt::Width(17)<<MSG(MCopySource)<<L" "<<fmt::Width(25)<<fmt::Precision(25)<<strSrcSizeText<<L" "<<strDateText<<L" "<<strTimeText;
 					ConvertDate(DestData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE,TRUE);
-					strDestFileStr.Format(L"%-17s %25.25s %s %s",MSG(MCopyDest),(const wchar_t*)strDestSizeText,(const wchar_t*)strDateText,(const wchar_t*)strTimeText);
+					strDestFileStr<<fmt::LeftAlign()<<fmt::Width(17)<<MSG(MCopyDest)<<L" "<<fmt::Width(25)<<fmt::Precision(25)<<strDestSizeText<<L" "<<strDateText<<L" "<<strTimeText;
 					WarnCopyDlgData[WDLG_SRCFILEBTN].Data=strSrcFileStr;
 					WarnCopyDlgData[WDLG_DSTFILEBTN].Data=strDestFileStr;
 					WarnCopyDlgData[WDLG_TEXT].Data=MSG(MCopyFileRO);

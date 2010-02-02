@@ -777,7 +777,7 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
 		if (Type==DI_BUTTON &&
 		        (ItemFlags & DIF_NOBRACKETS)==0 &&
 		        (!CurItem->strData.IsEmpty() && (CurItem->strData.At(0) != L'[')))
-			CurItem->strData.Format(L"[ %s ]", (const wchar_t*)CurItem->strData);
+			CurItem->strData=L"[ "+CurItem->strData+L" ]";
 
 		// предварительный поик фокуса
 		if (FocusPos == (unsigned)-1 &&
@@ -3259,7 +3259,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		}
 	}
 
-	if ((MsX<X1 || MsY<Y1 || MsX>X2 || MsY>Y2) && MouseEventFlags != MOUSE_MOVED)
+	if (MsX<X1 || MsY<Y1 || MsX>X2 || MsY>Y2)
 	{
 		if (DialogMode.Check(DMODE_CLICKOUTSIDE) && !DlgProc((HANDLE)this,DN_MOUSECLICK,-1,(LONG_PTR)MouseEvent))
 		{

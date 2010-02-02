@@ -3967,7 +3967,7 @@ int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize)
 			TableSet->LowerTable[i] = LocalLower(i);
 		}
 
-		string sTableName;
+		FormatString sTableName;
 		UINT nCP = ConvertCharTableToCodePage(Command);
 
 		if (nCP==CP_AUTODETECT) return -1;
@@ -3989,8 +3989,8 @@ int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize)
 			return -1;
 
 		wchar_t *codePageName = FormatCodePageName(nCP, cpiex.CodePageName, sizeof(cpiex.CodePageName)/sizeof(wchar_t));
-		sTableName.Format(L"%5u%c %s", nCP, BoxSymbols[BS_V1], codePageName);
-		sTableName.GetCharString(TableSet->TableName, sizeof(TableSet->TableName) - 1, CP_OEMCP);
+		sTableName<<fmt::Width(5)<<nCP<<BoxSymbols[BS_V1]<<L" "<<codePageName;
+		sTableName.strValue().GetCharString(TableSet->TableName, sizeof(TableSet->TableName) - 1, CP_OEMCP);
 		wchar_t *us=AnsiToUnicodeBin((char*)TableSet->DecodeTable, sizeof(TableSet->DecodeTable), nCP);
 		CharLowerBuff(us, sizeof(TableSet->DecodeTable));
 		WideCharToMultiByte(nCP, 0, us, sizeof(TableSet->DecodeTable), (char*)TableSet->LowerTable, sizeof(TableSet->DecodeTable), NULL, NULL);

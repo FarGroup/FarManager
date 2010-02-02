@@ -621,9 +621,7 @@ void InfoList::ShowPluginDescription()
 			string strTitle;
 
 			if (InfoLine->Text!=NULL && *InfoLine->Text)
-				strTitle.Format(L" %s ",InfoLine->Text);
-			else
-				strTitle.Clear();
+				strTitle.Append(L" ").Append(InfoLine->Text).Append(L" ");
 
 			DrawSeparator(Y);
 			TruncStr(strTitle,X2-X1-3);
@@ -700,7 +698,7 @@ int InfoList::OpenDizFile(const wchar_t *DizFile,int YPos)
 
 	DizView->Show();
 	string strTitle;
-	strTitle.Format(L" %s ", (const wchar_t*)PointToName(strDizFileName));
+	strTitle.Append(L" ").Append(PointToName(strDizFileName)).Append(L" ");
 	TruncStr(strTitle,X2-X1-3);
 	GotoXY(X1+(X2-X1-(int)strTitle.GetLength())/2,YPos);
 	SetColor(COL_PANELTEXT);

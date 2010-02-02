@@ -2226,8 +2226,8 @@ void ViewerSearchMsg(const wchar_t *MsgStr,int Percent)
 			wmemset(Progress,BoxSymbols[BS_X_DB],CurPos);
 			wmemset(Progress+(CurPos),BoxSymbols[BS_X_B0],Length-CurPos);
 			strProgress.ReleaseBuffer(Length);
-			string strTmp;
-			strTmp.Format(L" %3d%%",Percent);
+			FormatString strTmp;
+			strTmp<<L" "<<fmt::Width(3)<<Percent<<L"%";
 			strProgress+=strTmp;
 		}
 

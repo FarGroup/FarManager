@@ -144,8 +144,8 @@ DialogItemEx *DialogBuilder::AddEditField(string *Value, int Width, const wchar_
 DialogItemEx *DialogBuilder::AddIntEditField(int *Value, int Width)
 {
 	DialogItemEx *Item = AddDialogItem(DI_FIXEDIT, L"");
-	string ValueText;
-	ValueText.Format(L"%u", *Value);
+	FormatString ValueText;
+	ValueText<<*Value;
 	Item->strData = ValueText;
 	SetNextY(Item);
 	Item->X2 = Item->X1 + Width - 1;

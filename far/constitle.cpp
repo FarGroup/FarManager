@@ -122,7 +122,7 @@ static const string& GetFarTitleAddons()
 		%Platform - x86
 		%Admin    - MFarTitleAddonsAdmin
     */
-	static string strVer, strBuild;
+	static FormatString strVer, strBuild;
 	static bool bFirstRun = true;
 	static string strTitleAddons;
 
@@ -132,8 +132,8 @@ static const string& GetFarTitleAddons()
 	if (bFirstRun)
 	{
 		bFirstRun = false;
-		strVer.Format(L"%u.%u",HIBYTE(LOWORD(FAR_VERSION)),LOBYTE(LOWORD(FAR_VERSION)));
-		strBuild.Format(L"%u",HIWORD(FAR_VERSION));
+		strVer<<HIBYTE(LOWORD(FAR_VERSION))<<L"."<<LOBYTE(LOWORD(FAR_VERSION));
+		strBuild<<HIWORD(FAR_VERSION);
 	}
 
 	ReplaceStrings(strTitleAddons,L"%Ver",strVer,-1,true);

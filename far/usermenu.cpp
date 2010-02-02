@@ -793,8 +793,9 @@ int UserMenu::ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t
 		// Цикл исполнения команд меню (CommandX)
 		for (;;)
 		{
-			string strLineName, strCommand;
-			strLineName.Format(L"Command%d",CurLine);
+			FormatString strLineName;
+			string strCommand;
+			strLineName<<L"Command"<<CurLine;
 
 			if (!GetRegKey(strCurrentKey,strLineName,strCommand,L""))
 				break;
@@ -1002,8 +1003,8 @@ LONG_PTR WINAPI EditMenuDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 bool UserMenu::EditMenu(const wchar_t *MenuKey,int EditPos,int TotalRecords,bool Create)
 {
 	bool Result=false;
-	string strItemKey;
-	strItemKey.Format(L"%s\\Item%d", MenuKey,EditPos);
+	FormatString strItemKey;
+	strItemKey<<MenuKey<<L"\\Item"<<EditPos;
 	MenuModified=MenuNeedRefresh=true;
 	bool SubMenu=false,Continue=true;
 
@@ -1168,8 +1169,9 @@ bool UserMenu::EditMenu(const wchar_t *MenuKey,int EditPos,int TotalRecords,bool
 
 int UserMenu::DeleteMenuRecord(const wchar_t *MenuKey,int DeletePos)
 {
-	string strRecText,strRegKey;
-	strRegKey.Format(L"%s\\Item%d",MenuKey,DeletePos);
+	string strRecText;
+	FormatString strRegKey;
+	strRegKey<<MenuKey<<L"\\Item"<<DeletePos;
 	GetRegKey(strRegKey,L"Label",strRecText,L"");
 	int SubMenu;
 	GetRegKey(strRegKey,L"Submenu",SubMenu,0);
@@ -1180,17 +1182,17 @@ int UserMenu::DeleteMenuRecord(const wchar_t *MenuKey,int DeletePos)
 		return(FALSE);
 
 	MenuModified=MenuNeedRefresh=true;
-	strRegKey.Format(L"%s\\Item%%d", MenuKey);
+	strRegKey<<MenuKey<<L"\\Item%d";
 	DeleteKeyRecord(strRegKey,DeletePos);
 	return(TRUE);
 }
 
 bool UserMenu::MoveMenuItem(const wchar_t *MenuKey,int Pos,int NewPos)
 {
-	string strSrc,strDst,strTmp;
-	strSrc.Format(L"%s\\Item%d",MenuKey,Pos);
-	strDst.Format(L"%s\\Item%d",MenuKey,NewPos);
-	strTmp.Format(L"%s\\Tmp%u",MenuKey,GetTickCount());
+	FormatString strSrc,strDst,strTmp;
+	strSrc<<MenuKey<<L"\\Item"<<Pos;
+	strDst<<MenuKey<<L"\\Item"<<NewPos;
+	strTmp<<MenuKey<<L"\\Item"<<GetTickCount();
 	CopyLocalKeyTree(strDst,strTmp);
 	DeleteKeyTree(strDst);
 	CopyLocalKeyTree(strSrc,strDst);
