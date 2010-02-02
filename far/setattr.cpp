@@ -707,7 +707,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel)
 
 				if (Opt.SetAttrFolderRules)
 				{
-					if (apiGetFindDataEx(strSelName,&FindData))
+					if (DlgParam.Plugin || apiGetFindDataEx(strSelName,&FindData))
 					{
 						ConvertDate(FindData.ftLastWriteTime, AttrDlg[SA_EDIT_MDATE].strData,AttrDlg[SA_EDIT_MTIME].strData,12,FALSE,FALSE,TRUE,TRUE);
 						ConvertDate(FindData.ftCreationTime,  AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData,12,FALSE,FALSE,TRUE,TRUE);
