@@ -31,7 +31,7 @@ plugins\common\convert.exe addons\Macros\Apps.reg addons\Macros\BS.reg addons\Ma
 plugins\common\convert.exe addons\Macros\CtrlQ.reg addons\Macros\CtrlRight.reg addons\Macros\CtrlS.reg addons\Macros\CtrlShiftBackSlash.reg addons\Macros\CtrlShiftPgUpDn.reg %1\Addons\Macros\
 plugins\common\convert.exe addons\Macros\CtrlUpDown.reg addons\Macros\CtrlW.reg addons\Macros\Del.reg addons\Macros\Descript.ion addons\Macros\Esc.reg addons\Macros\F3.reg %1\Addons\Macros\
 plugins\common\convert.exe addons\Macros\F9DeactivateMenu.reg addons\Macros\F9Table.reg addons\Macros\JumpToSelectedFile.reg addons\Macros\Lynx-mot.reg addons\Macros\MacroConsts.reg %1\Addons\Macros\
-plugins\common\convert.exe addons\Macros\MiddleClickAsEnter.reg addons\Macros\Notepad.reg addons\Macros\Numpad.reg addons\Macros\OpeningLastFile.reg addons\Macros\ShiftBS.reg %1\Addons\Macros\
+plugins\common\convert.exe addons\Macros\Notepad.reg addons\Macros\Numpad.reg addons\Macros\OpeningLastFile.reg addons\Macros\ShiftBS.reg %1\Addons\Macros\
 plugins\common\convert.exe addons\Macros\ShiftF1.reg addons\Macros\ShiftInsSearch.reg addons\Macros\ShiftTab.reg addons\Macros\Space.reg addons\Macros\SwitchMainLanguage.reg %1\Addons\Macros\
 plugins\common\convert.exe addons\Macros\View.PgDn.reg addons\Macros\View.Space.reg addons\Macros\ViewerAddSubstract.reg addons\Macros\WheelScreenSwitch.reg addons\Macros\MouseWheelTilt.reg %1\Addons\Macros\
 
