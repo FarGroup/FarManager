@@ -106,7 +106,6 @@
         <ComponentRef Id="JumpToSelectedFile.reg" />
         <ComponentRef Id="Lynx_mot.reg" />
         <ComponentRef Id="MacroConsts.reg" />
-        <ComponentRef Id="MiddleClickAsEnter.reg" />
         <ComponentRef Id="MouseWheelTilt.reg" />
         <ComponentRef Id="Notepad.reg" />
         <ComponentRef Id="Numpad.reg" />

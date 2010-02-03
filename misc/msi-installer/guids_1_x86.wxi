@@ -120,7 +120,6 @@
 <?define Guid.JumpToSelectedFile.reg = "FEDC18A6-299E-48F7-8833-BC0F80578A69" ?>
 <?define Guid.Lynx_mot.reg = "CD7BAB00-E51C-4170-9FC7-9CA489DE24AC" ?>
 <?define Guid.MacroConsts.reg = "E3C21A24-DB83-4C25-A156-E2EA0F38CDB2" ?>
-<?define Guid.MiddleClickAsEnter.reg = "12C7695F-1B42-4950-A7B7-35F1DEF74DF0" ?>
 <?define Guid.MouseWheelTilt.reg = "88C3AB60-26F9-41BA-86FE-41A1C8A3F808" ?>
 <?define Guid.Notepad.reg = "80350047-8257-4287-8DF3-FBC493CDB0C7" ?>
 <?define Guid.Numpad.reg = "31D60613-C85F-42D0-9434-9A453669E757" ?>

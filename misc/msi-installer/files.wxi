@@ -322,9 +322,6 @@
       <Component Id="MacroConsts.reg" Guid="$(var.Guid.MacroConsts.reg)" Win64="$(var.Win64)">
         <File Id="MacroConsts.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\MacroConsts.reg" />
       </Component>
-      <Component Id="MiddleClickAsEnter.reg" Guid="$(var.Guid.MiddleClickAsEnter.reg)" Win64="$(var.Win64)">
-        <File Id="MiddleClickAsEnter.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\MiddleClickAsEnter.reg" />
-      </Component>
       <Component Id="MouseWheelTilt.reg" Guid="$(var.Guid.MouseWheelTilt.reg)" Win64="$(var.Win64)">
         <File Id="MouseWheelTilt.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\MouseWheelTilt.reg" />
       </Component>
