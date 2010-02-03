@@ -436,7 +436,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 		{
 			wchar_t Line[MAX_HELP_STRING_LENGTH];
 			int Length = (int)(wcsstr(ReadStr, strCtrlStartPosChar)-ReadStr);
-			xwcsncpy(Line, ReadStr, Length);
+			xwcsncpy(Line, ReadStr, Length+1);
 			LastStartPos = StringLen(Line);
 			wcscpy(ReadStr+Length, ReadStr+Length+strCtrlStartPosChar.GetLength());
 		}
@@ -683,10 +683,10 @@ void Help::AddLine(const wchar_t *Line)
 		for (DWORD i = 0; i < StartPos; i++)
 			HelpStr[i] = L' ';
 
-		xwcsncpy(HelpStr+StartPos, (*Line == L' ')?Line+1:Line, MAX_HELP_STRING_LENGTH-1);
+		xwcsncpy(HelpStr+StartPos, (*Line == L' ')?Line+1:Line, MAX_HELP_STRING_LENGTH);
 	}
 	else
-		xwcsncpy(HelpStr, Line, MAX_HELP_STRING_LENGTH-1);
+		xwcsncpy(HelpStr, Line, MAX_HELP_STRING_LENGTH);
 
 	StrCount++;
 }
@@ -1283,22 +1283,22 @@ int Help::ProcessKey(int Key)
 		case KEY_MSWHEEL_UP:
 		case(KEY_MSWHEEL_UP | KEY_ALT):
 		{
-			int Roll = Key & KEY_ALT?1:Opt.MsWheelDeltaHelp;
-
-			for (int i=0; i<Roll; i++)
-				ProcessKey(KEY_UP);
-
-			return(TRUE);
+			if (StackData.TopStr>0)
+			{
+				StackData.TopStr-=Key&KEY_ALT?1:Opt.MsWheelDeltaHelp;
+				FastShow();
+			}
+			return TRUE;
 		}
 		case KEY_MSWHEEL_DOWN:
 		case(KEY_MSWHEEL_DOWN | KEY_ALT):
 		{
-			int Roll = Key & KEY_ALT?1:Opt.MsWheelDeltaHelp;
-
-			for (int i=0; i<Roll; i++)
-				ProcessKey(KEY_DOWN);
-
-			return(TRUE);
+			if (StackData.TopStr<StrCount-FixCount-(Y2-Y1-1-FixSize))
+			{
+				StackData.TopStr+=Key&KEY_ALT?1:Opt.MsWheelDeltaHelp;
+				FastShow();
+			}
+			return TRUE;
 		}
 		case KEY_PGUP:      case KEY_NUMPAD9:
 		{
@@ -1477,7 +1477,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 	{
 		string strFullPath;
 		wchar_t *lpwszHelpTopic = strNewTopic.GetBuffer(pos);
-		xwcsncpy(lpwszHelpTopic, (const wchar_t *)StackData.strSelTopic+1,pos-1);
+		xwcsncpy(lpwszHelpTopic, (const wchar_t *)StackData.strSelTopic+1,pos);
 		strNewTopic.ReleaseBuffer();
 		strFullPath = StackData.strHelpPath;
 		// уберем _все_ конечные слеши и добавим один
@@ -1655,9 +1655,11 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	if (HelpKeyBar.ProcessMouse(MouseEvent))
 		return TRUE;
 
-	if (MouseEvent->dwEventFlags==MOUSE_MOVED &&
-	        (MouseEvent->dwButtonState & MOUSE_ANY_BUTTON_PRESSED)==0)
-		return(FALSE);
+	if (MouseEvent->dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED && MouseEvent->dwEventFlags!=MOUSE_MOVED)
+	{
+		ProcessKey(KEY_ENTER);
+		return TRUE;
+	}
 
 	int MsX,MsY;
 	MsX=MouseEvent->dwMousePosition.X;
@@ -1678,7 +1680,7 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		return(TRUE);
 	}
 
-	if (MouseX==X2 && (MouseEvent->dwButtonState & 1))
+	if (MouseX==X2 && (MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED))
 	{
 		int ScrollY=Y1+FixSize+1;
 		int Height=Y2-Y1-FixSize-1;
@@ -1749,10 +1751,6 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		return(TRUE);
 	}
 
-	StackData.CurX=MouseEvent->dwMousePosition.X-X1-1;
-	StackData.CurY=MouseEvent->dwMousePosition.Y-Y1-1-FixSize;
-	FastShow();
-
 	/* $ 26.11.2001 VVM
 	  + «апомнить нажатие клавиши мышки и только в этом случае реагировать при отпускании */
 	if (MouseEvent->dwEventFlags==0 &&
@@ -1768,9 +1766,12 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		ProcessKey(KEY_ENTER);
 	}
 
-//  if ((MouseEvent->dwButtonState & 3)==0 && *StackData.SelTopic)
-//    ProcessKey(KEY_ENTER);
-	return(TRUE);
+	StackData.CurX=MouseEvent->dwMousePosition.X-X1-1;
+	StackData.CurY=MouseEvent->dwMousePosition.Y-Y1-1-FixSize;
+	FastShow();
+	Sleep(1);
+
+	return TRUE;
 }
 
 
@@ -1977,11 +1978,11 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 				{
 					if ((PtrPath=strrchr(FullFileName,'\\')) != NULL || (PtrPath=strrchr(FullFileName,'/')) != NULL)
 					{
-						xstrncpy(FMask,PtrPath+1,sizeof(FMask)-1);
+						xstrncpy(FMask,PtrPath+1,sizeof(FMask));
 						*++PtrPath=0;
 					}
 					else
-						xstrncpy(FMask,HelpFileMask,sizeof(FMask)-1);
+						xstrncpy(FMask,HelpFileMask,sizeof(FMask));
 
 					FILE *HelpFile=Language::OpenLangFile(Path,FMask,Opt.HelpLanguage,FullFileName,TRUE);
 

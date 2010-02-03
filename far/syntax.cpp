@@ -1306,7 +1306,7 @@ static const wchar_t *__GetNextWord(const wchar_t *BufPtr,string &strCurKeyText,
 
 	int Length=(int)(BufPtr-CurBufPtr);
 	wchar_t *CurKeyText = strCurKeyText.GetBuffer(Length+1);
-	xwcsncpy(CurKeyText,CurBufPtr,Length);
+	xwcsncpy(CurKeyText,CurBufPtr,Length+1);
 	strCurKeyText.ReleaseBuffer();
 	return BufPtr;
 }

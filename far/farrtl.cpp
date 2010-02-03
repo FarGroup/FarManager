@@ -497,45 +497,41 @@ unsigned __int64 __cdecl _wcstoui64(const wchar_t *nptr,wchar_t **endptr,int iba
 #endif
 
 // dest и src НЕ ДОЛЖНЫ пересекаться
-// maxlen - максимальное число символов, которое можно скопировать
-//          в dest БЕЗ учета заключительного нуля, т.е. в общем
-//          случае это "sizeof-1"
-char * __cdecl xstrncpy(char * dest,const char * src,size_t maxlen)
+char * __cdecl xstrncpy(char * dest,const char * src,size_t DestSize)
 {
 	char *tmpsrc = dest;
 
-	while (maxlen && 0 != (*dest++ = *src++))
-		--maxlen;
+	while (DestSize>1 && (*dest++ = *src++))
+	{
+		DestSize--;
+	}
 
 	*dest = 0;
 	return tmpsrc;
 }
 
-wchar_t * __cdecl xwcsncpy(wchar_t * dest,const wchar_t * src,size_t maxlen)
+wchar_t * __cdecl xwcsncpy(wchar_t * dest,const wchar_t * src,size_t DestSize)
 {
 	wchar_t *tmpsrc = dest;
 
-	while (maxlen && 0 != (*dest++ = *src++))
-		--maxlen;
+	while (DestSize>1 && (*dest++ = *src++))
+		DestSize--;
 
 	*dest = 0;
 	return tmpsrc;
 }
 
-// maxlen - максимальное число символов, которое может содержать
-//          dest БЕЗ учета заключительного нуля, т.е. в общем
-//          случае это "sizeof-1"
-char * __cdecl xstrncat(char * dest,const char * src, size_t maxlen)
+char * __cdecl xstrncat(char * dest,const char * src, size_t DestSize)
 {
 	char * start=dest;
 
 	while (*dest)
 	{
 		dest++;
-		maxlen--;
+		DestSize--;
 	}
 
-	while (maxlen--)
+	while (DestSize-->1)
 		if (!(*dest++=*src++))
 			return start;
 
@@ -543,17 +539,17 @@ char * __cdecl xstrncat(char * dest,const char * src, size_t maxlen)
 	return start;
 }
 
-wchar_t * __cdecl xwcsncat(wchar_t * dest,const wchar_t * src, size_t maxlen)
+wchar_t * __cdecl xwcsncat(wchar_t * dest,const wchar_t * src, size_t DestSize)
 {
 	wchar_t * start=dest;
 
 	while (*dest)
 	{
 		dest++;
-		maxlen--;
+		DestSize--;
 	}
 
-	while (maxlen--)
+	while (DestSize-->1)
 		if (!(*dest++=*src++))
 			return start;
 

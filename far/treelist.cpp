@@ -269,7 +269,7 @@ void TreeList::DisplayTree(int Fast)
 	if (TreeCount>0)
 		strCurDir = ListData[CurFile]->strName; //BUGBUG
 
-//    xstrncpy(CurDir,ListData[CurFile].Name,sizeof(CurDir)-1);
+//    xstrncpy(CurDir,ListData[CurFile].Name,sizeof(CurDir));
 	if (!Fast)
 	{
 		Box(X1,Y1,X2,Y2,COL_PANELBOX,DOUBLE_BOX);
@@ -1483,7 +1483,7 @@ int TreeList::ReadTreeFile()
 
 	if (DirName)
 	{
-		xwcsncpy(DirName, strRoot, NT_MAX_PATH-1);
+		xwcsncpy(DirName, strRoot, NT_MAX_PATH);
 		string strLastDirName;
 
 		while (fgetws(DirName+RootLength,static_cast<int>(NT_MAX_PATH-RootLength),TreeFile)!=NULL)

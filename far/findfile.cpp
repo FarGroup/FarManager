@@ -1725,7 +1725,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 																	Opt.Confirm.AllowReedit)
 																{
 																	char MsgFullFileName[NM];
-																	xstrncpy(MsgFullFileName,SearchFileName,sizeof(MsgFullFileName)-1);
+																	xstrncpy(MsgFullFileName,SearchFileName,sizeof(MsgFullFileName));
 																	int MsgCode=Message(0,2,MSG(MFindFileTitle),
 																				TruncPathStr(MsgFullFileName,ScrX-16),
 																				MSG(MAskReload),

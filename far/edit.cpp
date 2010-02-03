@@ -924,7 +924,7 @@ int Edit::ProcessKey(int Key)
 				if (ShortStr==NULL)
 					return FALSE;
 
-				xwcsncpy(ShortStr,Str,StrSize);
+				xwcsncpy(ShortStr,Str,StrSize+1);
 				Len=StrLength(RemoveTrailingSpaces(ShortStr));
 				delete[] ShortStr;
 			}
@@ -1188,7 +1188,7 @@ int Edit::ProcessKey(int Key)
 				if (ShortStr==NULL)
 					return FALSE;
 
-				xwcsncpy(ShortStr,Str,StrSize);
+				xwcsncpy(ShortStr,Str,StrSize+1);
 				CurPos=StrLength(RemoveTrailingSpaces(ShortStr));
 				delete[] ShortStr;
 			}
@@ -1222,7 +1222,7 @@ int Edit::ProcessKey(int Key)
 				if (ShortStr==NULL)
 					return FALSE;
 
-				xwcsncpy(ShortStr,Str,StrSize);
+				xwcsncpy(ShortStr,Str,StrSize+1);
 				int Len=StrLength(RemoveTrailingSpaces(ShortStr));
 				delete[] ShortStr;
 
@@ -1332,7 +1332,7 @@ int Edit::ProcessKey(int Key)
 				if (ShortStr==NULL)
 					return FALSE;
 
-				xwcsncpy(ShortStr,Str,StrSize);
+				xwcsncpy(ShortStr,Str,StrSize+1);
 				Len=StrLength(RemoveTrailingSpaces(ShortStr));
 				delete[] ShortStr;
 
@@ -1382,7 +1382,7 @@ int Edit::ProcessKey(int Key)
 						if (ShortStr==NULL)
 							return FALSE;
 
-						xwcsncpy(ShortStr,Str,StrSize);
+						xwcsncpy(ShortStr,Str,StrSize+1);
 						RemoveTrailingSpaces(ShortStr);
 						CopyToClipboard(ShortStr);
 						delete[] ShortStr;
@@ -1694,7 +1694,7 @@ void Edit::SetObjectColor(int Color,int SelColor,int ColorUnChanged)
 
 void Edit::GetString(wchar_t *Str,int MaxSize)
 {
-	//xwcsncpy(Str, Edit::Str,MaxSize-1);
+	//xwcsncpy(Str, Edit::Str,MaxSize);
 	wmemmove(Str,Edit::Str,Min(StrSize,MaxSize-1));
 	Str[Min(StrSize,MaxSize-1)]=0;
 	Str[MaxSize-1]=0;
@@ -1886,9 +1886,9 @@ int Edit::GetSelString(wchar_t *Str, int MaxSize)
 	int CopyLength;
 
 	if (SelEnd==-1)
-		CopyLength=MaxSize-1;
+		CopyLength=MaxSize;
 	else
-		CopyLength=Min(MaxSize-1,SelEnd-SelStart);
+		CopyLength=Min(MaxSize,SelEnd-SelStart+1);
 
 	xwcsncpy(Str,Edit::Str+SelStart,CopyLength);
 	return(TRUE);
@@ -2351,7 +2351,7 @@ void Edit::SetTabCurPos(int NewPos)
 		if (ShortStr==NULL)
 			return;
 
-		xwcsncpy(ShortStr,Str,StrSize);
+		xwcsncpy(ShortStr,Str,StrSize+1);
 		Pos=StrLength(RemoveTrailingSpaces(ShortStr));
 		delete[] ShortStr;
 

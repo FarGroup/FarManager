@@ -190,7 +190,7 @@ bool History::SaveHistory()
 		}
 
 		BufferLines=PtrBuffer;
-		xwcsncpy(BufferLines+SizeLines,HistoryItem->strName,HistoryItem->strName.GetLength());
+		xwcsncpy(BufferLines+SizeLines,HistoryItem->strName,HistoryItem->strName.GetLength()+1);
 		SizeLines+=HistoryItem->strName.GetLength()+1;
 
 		if (SaveType)

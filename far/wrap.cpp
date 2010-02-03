@@ -3763,7 +3763,7 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 
 							if (olddiv)
 							{
-								xstrncpy(oldsp->Param.cParam, olddiv, countof(oldsp->Param.cParam)-1);
+								xstrncpy(oldsp->Param.cParam, olddiv, 0x100);
 								xf_free(olddiv);
 							}
 

@@ -984,7 +984,7 @@ int FileFilter::ParseAndAddMasks(wchar_t **ExtPtr,const wchar_t *FileName,DWORD 
 
 	*ExtPtr=NewPtr;
 	NewPtr=*ExtPtr+ExtCount*MAX_PATH;
-	xwcsncpy(NewPtr,strMask,MAX_PATH-2);
+	xwcsncpy(NewPtr,strMask,MAX_PATH-1);
 	NewPtr=NewPtr+StrLength(NewPtr)+1;
 	*NewPtr=Check;
 	ExtCount++;

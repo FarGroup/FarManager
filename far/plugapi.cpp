@@ -152,7 +152,7 @@ int WINAPI FarInputBox(
 
 	string strDest;
 	int nResult = GetString(Title,Prompt,HistoryName,SrcText,strDest,HelpTopic,Flags&~FIB_CHECKBOX,NULL,NULL);
-	xwcsncpy(DestText, strDest, DestLength);
+	xwcsncpy(DestText, strDest, DestLength+1);
 	return nResult;
 }
 
@@ -553,7 +553,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 
 					if (wi->TypeNameSize && wi->TypeName)
 					{
-						xwcsncpy(wi->TypeName,strType,wi->TypeNameSize-1);
+						xwcsncpy(wi->TypeName,strType,wi->TypeNameSize);
 					}
 					else
 					{
@@ -562,7 +562,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 
 					if (wi->NameSize && wi->Name)
 					{
-						xwcsncpy(wi->Name,strName,wi->NameSize-1);
+						xwcsncpy(wi->Name,strName,wi->NameSize);
 					}
 					else
 					{
@@ -1439,7 +1439,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,int Param1,LONG_PTR Param2)
 				CmdLine->GetSelString(strParam);
 
 			if (Param1&&Param2)
-				xwcsncpy((wchar_t*)Param2,strParam,Param1-1);
+				xwcsncpy((wchar_t*)Param2,strParam,Param1);
 
 			return (int)strParam.GetLength()+1;
 		}
@@ -2203,7 +2203,7 @@ int WINAPI farGetFileOwner(const wchar_t *Computer,const wchar_t *Name, wchar_t 
 	/*int Ret=*/GetFileOwner(Computer,Name,strOwner);
 
 	if (Owner && Size)
-		xwcsncpy(Owner,strOwner,Size-1);
+		xwcsncpy(Owner,strOwner,Size);
 
 	return static_cast<int>(strOwner.GetLength()+1);
 }
@@ -2226,7 +2226,7 @@ int WINAPI farConvertPath(CONVERTPATHMODES Mode,const wchar_t *Src, wchar_t *Des
 		}
 
 		if (Dest && DestSize)
-			xwcsncpy(Dest, strDest.CPtr(), DestSize - 1);
+			xwcsncpy(Dest, strDest.CPtr(), DestSize);
 
 		return static_cast<int>(strDest.GetLength()) + 1;
 	}
@@ -2253,7 +2253,7 @@ int WINAPI farGetReparsePointInfo(const wchar_t *Src,wchar_t *Dest,int DestSize)
 		_LOGCOPYR(SysLog(L"return -> %d strSrc='%s', strDest='%s'",__LINE__,(const wchar_t *)strSrc,(const wchar_t *)strDest));
 
 		if (DestSize && Dest)
-			xwcsncpy(Dest,strDest,DestSize-1);
+			xwcsncpy(Dest,strDest,DestSize);
 
 		return Size;
 	}
@@ -2269,7 +2269,7 @@ int WINAPI farGetPathRoot(const wchar_t *Path, wchar_t *Root, int DestSize)
 		GetPathRoot(strPath,strRoot);
 
 		if (DestSize && Root)
-			xwcsncpy(Root,strRoot,DestSize-1);
+			xwcsncpy(Root,strRoot,DestSize);
 
 		return (int)strRoot.GetLength()+1;
 	}
@@ -2449,7 +2449,7 @@ DWORD WINAPI farGetCurrentDirectory(DWORD Size,wchar_t* Buffer)
 
 	if (Buffer && Size)
 	{
-		xwcsncpy(Buffer,strCurDir,Size-1);
+		xwcsncpy(Buffer,strCurDir,Size);
 	}
 
 	return static_cast<DWORD>(strCurDir.GetLength()+1);

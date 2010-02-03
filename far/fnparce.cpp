@@ -231,7 +231,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 		{
 			if (Ptr[1] != L'?')
 			{
-				xwcsncpy(Modifers,CurStr+2,Min((int)(countof(Modifers)-1), (int)(Ptr-(CurStr+2))));
+				xwcsncpy(Modifers,CurStr+2,Min((int)(countof(Modifers)), (int)(Ptr-(CurStr+2))));
 
 				if (pListName)
 				{

@@ -125,7 +125,7 @@ int WINAPI FarMkTemp(wchar_t *Dest, DWORD size, const wchar_t *Prefix)
 	string strDest;
 	if (FarMkTempEx(strDest, Prefix, TRUE) && Dest && size)
 	{
-		xwcsncpy(Dest, strDest, size-1);
+		xwcsncpy(Dest, strDest, size);
 	}
 	return static_cast<int>(strDest.GetLength()+1);
 }

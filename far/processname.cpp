@@ -71,7 +71,7 @@ int WINAPI ProcessName(const wchar_t *param1, wchar_t *param2, DWORD size, DWORD
 	{
 		string strResult;
 		int nResult = ConvertWildcards(param1, strResult, (flags&0xFFFF)|(skippath?PN_SKIPPATH:0));
-		xwcsncpy(param2, strResult, size-1);
+		xwcsncpy(param2, strResult, size);
 		return nResult;
 	}
 
@@ -115,7 +115,7 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 
 	wchar_t *PartBeforeName = (wchar_t*)xf_malloc((BeforeNameLength+1)*sizeof(wchar_t));
 
-	xwcsncpy(PartBeforeName, Src, BeforeNameLength);
+	xwcsncpy(PartBeforeName, Src, BeforeNameLength+1);
 
 	const wchar_t *SrcNameDot = wcsrchr(SrcNamePtr, L'.');
 

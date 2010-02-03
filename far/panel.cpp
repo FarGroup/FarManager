@@ -2212,7 +2212,7 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 			}
 
 			if (Param1&&Param2)
-				xwcsncpy((wchar_t*)Param2,strInfoCurDir,Param1-1);
+				xwcsncpy((wchar_t*)Param2,strInfoCurDir,Param1);
 
 			Result=(int)strInfoCurDir.GetLength()+1;
 		}
@@ -2228,14 +2228,14 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 				if (Command==FCTL_GETCOLUMNTYPES)
 				{
 					if (Param1&&Param2)
-						xwcsncpy((wchar_t*)Param2,strColumnTypes,Param1-1);
+						xwcsncpy((wchar_t*)Param2,strColumnTypes,Param1);
 
 					Result=(int)strColumnTypes.GetLength()+1;
 				}
 				else
 				{
 					if (Param1&&Param2)
-						xwcsncpy((wchar_t*)Param2,strColumnWidths,Param1-1);
+						xwcsncpy((wchar_t*)Param2,strColumnWidths,Param1);
 
 					Result=(int)strColumnWidths.GetLength()+1;
 				}

@@ -192,8 +192,8 @@ void FileFilterParams::SetDate(bool Used, DWORD DateType, FILETIME DateAfter, FI
 void FileFilterParams::SetSize(bool Used, const wchar_t *SizeAbove, const wchar_t *SizeBelow)
 {
 	FSize.Used=Used;
-	xwcsncpy(FSize.SizeAbove,SizeAbove,countof(FSize.SizeAbove)-1);
-	xwcsncpy(FSize.SizeBelow,SizeBelow,countof(FSize.SizeBelow)-1);
+	xwcsncpy(FSize.SizeAbove,SizeAbove,countof(FSize.SizeAbove));
+	xwcsncpy(FSize.SizeBelow,SizeBelow,countof(FSize.SizeBelow));
 	FSize.SizeAboveReal=ConvertFileSizeString(FSize.SizeAbove);
 	FSize.SizeBelowReal=ConvertFileSizeString(FSize.SizeBelow);
 }

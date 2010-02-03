@@ -384,10 +384,10 @@ const wchar_t *TVar::toString()
 	switch (vType)
 	{
 		case vtDouble:
-			xwcsncpy(s, ::toString(dnum),countof(s)-1);
+			xwcsncpy(s, ::toString(dnum),countof(s));
 			break;
 		case vtInteger:
-			xwcsncpy(s, ::toString(inum),countof(s)-1);
+			xwcsncpy(s, ::toString(inum),countof(s));
 			break;
 		default:
 			return str;

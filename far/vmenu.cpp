@@ -1118,6 +1118,12 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		return(FALSE);
 	}
 
+	if (MouseEvent->dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED && MouseEvent->dwEventFlags!=MOUSE_MOVED)
+	{
+		ProcessKey(KEY_ENTER);
+		return TRUE;
+	}
+
 	int MsX=MouseEvent->dwMousePosition.X;
 	int MsY=MouseEvent->dwMousePosition.Y;
 

@@ -444,7 +444,7 @@ wchar_t *PasteFromClipboardEx(int max)
 			if (ClipText!=NULL)
 			{
 				wmemset(ClipText,0,BufferSize+1);
-				xwcsncpy(ClipText,ClipAddr,BufferSize);
+				xwcsncpy(ClipText,ClipAddr,BufferSize+1);
 				/*
 				        if (Unicode)
 				          if(AnsiMode)

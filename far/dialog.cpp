@@ -5320,12 +5320,12 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 								if (!strTitle.IsEmpty()||!strBottomTitle.IsEmpty())
 								{
 									if (ListTitle->Title&&ListTitle->TitleLen)
-										xwcsncpy((wchar_t*)ListTitle->Title,strTitle,ListTitle->TitleLen-1);
+										xwcsncpy((wchar_t*)ListTitle->Title,strTitle,ListTitle->TitleLen);
 									else
 										ListTitle->TitleLen=(int)strTitle.GetLength()+1;
 
 									if (ListTitle->Bottom&&ListTitle->BottomLen)
-										xwcsncpy((wchar_t*)ListTitle->Bottom,strBottomTitle,ListTitle->BottomLen-1);
+										xwcsncpy((wchar_t*)ListTitle->Bottom,strBottomTitle,ListTitle->BottomLen);
 									else
 										ListTitle->BottomLen=(int)strBottomTitle.GetLength()+1;
 

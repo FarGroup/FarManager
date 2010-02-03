@@ -725,6 +725,11 @@ default button or does another similar thing).
 
     #Right clicking# outside the dialog works the same as pressing #Enter#.
 
+    Clicking the #middle mouse button# in the ~panels~@PanelCmd@ has the same
+effect as pressing the #Enter# key with the same modifiers (#Ctrl#, #Alt#,
+#Shift#). If the ~command line~@CmdLineCmd@ is not empty, its contents will be
+executed.
+
     FAR Manager also supports the ~mouse wheel~@MsWheel@.
 
     You can move a dialog (window) by dragging it with mouse or by pressing
@@ -735,7 +740,9 @@ default button or does another similar thing).
 $ #Mouse: wheel support#
 
    #Panels#    Rotating the wheel scrolls the file list without
-             changing the cursor position on the screen.
+             changing the cursor position on the screen. Pressing
+             the #middle button# has the same effect as pressing
+             #Enter#.
 
    #Editor#    Rotating the wheel scrolls the text without changing
              the cursor position on the screen (similar to #Ctrl-Up#/
@@ -746,7 +753,9 @@ $ #Mouse: wheel support#
    #Help#      Rotating the wheel scrolls the text.
 
    #Menus#     Wheel scrolling works as #Up#/#Down# keys.
-             It is possible to choose items without moving the cursor.
+             Pressing the #middle button# has the same effect as
+             pressing #Enter#. It is possible to choose items without
+             moving the cursor.
 
    #Dialogs#   In dialogs, when the wheel is rotated at an edit line
              with a history list or a combo box, the drop-down list

@@ -281,7 +281,7 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak, EditorCacheParams *pp)
       if (!LastLineCR && ((CurEOL=wmemchr(Str+Offset,L'\r',StrLength-Offset))!=NULL ||
           (CurEOL=wmemchr(Str+Offset,L'\n',StrLength-Offset))!=NULL))
       {
-        xwcsncpy(GlobalEOL,CurEOL,countof(GlobalEOL)-1);
+        xwcsncpy(GlobalEOL,CurEOL,countof(GlobalEOL));
         GlobalEOL[countof(GlobalEOL)-1]=0;
         LastLineCR=1;
       }
@@ -535,7 +535,7 @@ int Editor::ReadData(LPCWSTR SrcBuf,int SizeSrcBuf)
 			if (!LastLineCR && ((CurEOL=(char *)memchr(Str+Offset,'\r',StrLength-Offset))!=NULL ||
 			                    (CurEOL=(char *)memchr(Str+Offset,'\n',StrLength-Offset))!=NULL))
 			{
-				xstrncpy(GlobalEOL,CurEOL,sizeof(GlobalEOL)-1);
+				xstrncpy(GlobalEOL,CurEOL,sizeof(GlobalEOL));
 				GlobalEOL[sizeof(GlobalEOL)-1]=0;
 				LastLineCR=1;
 			}
@@ -6218,7 +6218,7 @@ int Editor::EditorControl(int Command,void *Param)
 						_ECTLLOG(SysLog(L"  wszParam    =(%p)",espar->Param.wszParam));
 
 						if (espar->Param.wszParam && espar->Size)
-							xwcsncpy(espar->Param.wszParam,EdOpt.strWordDiv,espar->Size-1);
+							xwcsncpy(espar->Param.wszParam,EdOpt.strWordDiv,espar->Size);
 
 						rc=(int)EdOpt.strWordDiv.GetLength()+1;
 						break;

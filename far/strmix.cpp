@@ -629,7 +629,7 @@ void PrepareUnitStr()
 {
 	for (int i=0; i<UNIT_COUNT; i++)
 	{
-		xwcsncpy(UnitStr[i][0],MSG(MListBytes+i),MAX_UNITSTR_SIZE-1);
+		xwcsncpy(UnitStr[i][0],MSG(MListBytes+i),MAX_UNITSTR_SIZE);
 		wcscpy(UnitStr[i][1],UnitStr[i][0]);
 		CharLower(UnitStr[i][0]);
 		CharUpper(UnitStr[i][1]);

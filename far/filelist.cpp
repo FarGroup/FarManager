@@ -769,7 +769,7 @@ int FileList::ProcessKey(int Key)
 					if(I == CtrlObject->Plugins.PluginsCount)
 					{
 					  char Target[NM*2];
-					  xstrncpy(Target, PluginModule, sizeof(Target)-1);
+					  xstrncpy(Target, PluginModule, sizeof(Target));
 					  TruncPathStr(Target, ScrX-16);
 					  Message (MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), Target, MSG (MNeedNearPath), MSG(MOk))
 					}
@@ -2630,6 +2630,25 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 			return(TRUE);
 		}
+	}
+
+	if(MouseEvent->dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED && MouseEvent->dwEventFlags!=MOUSE_MOVED)
+	{
+		int Key = KEY_ENTER;
+		if(MouseEvent->dwControlKeyState&SHIFT_PRESSED)
+		{
+			Key |= KEY_SHIFT;
+		}
+		if(MouseEvent->dwControlKeyState&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED))
+		{
+			Key|=KEY_CTRL;
+		}
+		if(MouseEvent->dwControlKeyState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED))
+		{
+			Key|=KEY_ALT;
+		}
+		ProcessKey(Key);
+		return TRUE;
 	}
 
 	if (Panel::PanelProcessMouse(MouseEvent,RetCode))

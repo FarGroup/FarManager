@@ -1893,10 +1893,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 	}
 
 	LoadIfCacheAbsent();
-	string strPrefix;
-	wchar_t *Prefix = strPrefix.GetBuffer(PrefixLength+1);
-	xwcsncpy(Prefix,strCommand,PrefixLength);
-	strPrefix.ReleaseBuffer();
+	string strPrefix(strCommand,PrefixLength);
 	string strPluginPrefix;
 	bool bFirstFound = false;
 	TPointerArray<PluginData> items;
@@ -1938,7 +1935,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 
 			if (Len<PrefixLength)Len=PrefixLength;
 
-			if (StrCmpNI(Prefix, PrStart, (int)Len)==0)
+			if (StrCmpNI(strPrefix, PrStart, (int)Len)==0)
 			{
 				if (PluginsData[I]->Load() && PluginsData[I]->HasOpenPlugin())
 				{

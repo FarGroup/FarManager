@@ -1662,7 +1662,7 @@ static bool metaFunc()
 	{
 		char SubstText[512];
 		char Name[NM],ShortName[NM];
-		xstrncpy(SubstText,s,sizeof(SubstText)-1);
+		xstrncpy(SubstText,s,sizeof(SubstText));
 		SubstFileName(SubstText,sizeof(SubstText),Name,ShortName,NULL,NULL,TRUE);
 		return TVar(SubstText);
 	}
@@ -4663,7 +4663,7 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
 				*KeyText=0;
 				while(NULL!=(OneKey=KeybList.GetNext()))
 				{
-					xstrncpy(KeyText, OneKey, sizeof(KeyText)-1);
+					xstrncpy(KeyText, OneKey, sizeof(KeyText));
 					SendDlgMessage(hDlg,DM_LISTADDSTR,2,(long)KeyText);
 				}
 			}

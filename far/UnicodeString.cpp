@@ -179,7 +179,7 @@ UnicodeString& UnicodeString::Copy(const char *lpszData, UINT CodePage)
 UnicodeString UnicodeString::SubStr(size_t Pos, size_t Len) {
 	if (Pos >= GetLength())
 		return UnicodeString();
-	if (Len == -1 || Len > GetLength() || Pos + Len > GetLength())
+	if (Len == static_cast<size_t>(-1) || Len > GetLength() || Pos + Len > GetLength())
 		Len = GetLength() - Pos;
 	return UnicodeString(m_pData->GetData() + Pos, Len);
 }
