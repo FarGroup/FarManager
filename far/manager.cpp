@@ -818,6 +818,7 @@ int Manager::ProcessKey(DWORD Key)
 				{EXCEPTION_ILLEGAL_INSTRUCTION,L"Illegal instruction"},
 				{EXCEPTION_STACK_OVERFLOW,L"Stack Overflow"},
 				{EXCEPTION_FLT_DIVIDE_BY_ZERO,L"Floating-point divide by zero"},
+				{EXCEPTION_BREAKPOINT,L"Breakpoint"},
 #ifdef _M_IA64
 				{EXCEPTION_DATATYPE_MISALIGNMENT,L"Alignment fault (IA64 specific)",},
 #endif
@@ -893,10 +894,13 @@ int Manager::ProcessKey(DWORD Key)
 					Test_EXCEPTION_STACK_OVERFLOW(NULL);
 					break;
 				case 5:
-					refers.d = 1 / zero_const.d;
-#ifdef _M_IA64
+					refers.d = 1.0/zero_const.d;
 					break;
 				case 6:
+					DebugBreak();
+					break;
+#ifdef _M_IA64
+				case 7:
 				{
 					BYTE temp[10];
 					memset(temp, 0, 10);

@@ -43,7 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "manager.hpp"
 #include "ctrlobj.hpp"
-#include "BlockExtKey.hpp"
 #include "macroopcode.hpp"
 #include "syslog.hpp"
 #include "registry.hpp"
@@ -180,7 +179,6 @@ Help::Help(const wchar_t *Topic, const wchar_t *Mask,DWORD Flags)
 		{
 			if (!ScreenObject::Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP))
 			{
-				BlockExtKey blockExtKey;
 				Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),StackData.strHelpTopic,MSG(MOk));
 			}
 
@@ -290,7 +288,6 @@ int Help::ReadHelp(const wchar_t *Mask)
 
 			if (!(StackData.Flags&FHELP_NOSHOWERROR))
 			{
-				BlockExtKey blockExtKey;
 				Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MCannotOpenHelp),Mask,MSG(MOk));
 			}
 		}
@@ -730,7 +727,6 @@ void Help::DisplayObject()
 
 			if (!(StackData.Flags&FHELP_NOSHOWERROR))
 			{
-				BlockExtKey blockExtKey;
 				Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),StackData.strHelpTopic,MSG(MOk));
 			}
 
@@ -1632,7 +1628,6 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 
 		if (!(StackData.Flags&FHELP_NOSHOWERROR))
 		{
-			BlockExtKey blockExtKey;
 			Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),StackData.strHelpTopic,MSG(MOk));
 		}
 
@@ -2199,7 +2194,6 @@ static int RunURL(const wchar_t *Protocol, wchar_t *URLPath)
 
 					if (Opt.HelpURLRules == 2 || Opt.HelpURLRules == 2+256)
 					{
-						BlockExtKey blockExtKey;
 						Disposition=Message(MSG_WARNING,2,MSG(MHelpTitle),
 						                    MSG(MHelpActivatorURL),
 						                    strAction,

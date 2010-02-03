@@ -1463,13 +1463,13 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 					if (!StopSearch)
 					{
 						PauseSearch=TRUE;
-						IsProcessAssignMacroKey++; // запретим спец клавиши
+						IsProcessAssignMacroKey--;
 						int LocalRes=TRUE;
 
 						if (Opt.Confirm.Esc)
 							LocalRes=AbortMessage();
 
-						IsProcessAssignMacroKey--;
+						IsProcessAssignMacroKey++;
 						PauseSearch=FALSE;
 						StopSearch=LocalRes;
 						return TRUE;
@@ -1479,6 +1479,8 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 				// Некоторые спец.клавиши все-же обработаем.
 				case KEY_CTRLALTSHIFTPRESS:
 				case KEY_ALTF9:
+				case KEY_F11:
+				case KEY_CTRLW:
 				{
 					IsProcessAssignMacroKey--;
 					FrameManager->ProcessKey((DWORD)Param2);

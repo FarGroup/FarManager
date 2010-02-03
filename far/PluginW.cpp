@@ -50,7 +50,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farexcpt.hpp"
 #include "fileedit.hpp"
 #include "RefreshFrameManager.hpp"
-#include "BlockExtKey.hpp"
 #include "plclass.hpp"
 #include "PluginW.hpp"
 #include "registry.hpp"

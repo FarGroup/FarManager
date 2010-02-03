@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "help.hpp"
 #include "lang.hpp"
 #include "vmenu.hpp"
-#include "BlockExtKey.hpp"
 #include "language.hpp"
 #include "message.hpp"
 #include "config.hpp"
@@ -69,10 +68,7 @@ void ShowProcessList()
 		{
 			case KEY_F1:
 			{
-				BlockExtKey blockExtKey;
-				{
-					Help Hlp(L"TaskList");
-				}
+				Help Hlp(L"TaskList");
 				break;
 			}
 			case KEY_CTRLR:
@@ -93,8 +89,6 @@ void ShowProcessList()
 			case KEY_NUMDEL:
 			case KEY_DEL:
 			{
-				BlockExtKey blockExtKey;
-
 				// Полиция 21
 				if (Opt.Policies.DisabledOptions&FFPOL_KILLTASK)
 				{

@@ -54,7 +54,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farexcpt.hpp"
 #include "fileedit.hpp"
 #include "RefreshFrameManager.hpp"
-#include "BlockExtKey.hpp"
 #include "registry.hpp"
 #include "plugapi.hpp"
 #include "TaskBar.hpp"
@@ -486,7 +485,6 @@ Plugin *PluginManager::GetPlugin(int PluginNumber)
 void PluginManager::LoadPlugins()
 {
 	TaskBar TB;
-	BlockExtKey blockExtKey;
 	Flags.Clear(PSIF_PLUGINSLOADDED);
 
 	if (Opt.LoadPlug.PluginsCacheOnly)  // $ 01.09.2000 tran  '/co' switch
@@ -1400,7 +1398,6 @@ void PluginManager::Configure(int StartPos)
 
 						if (PluginList.GetItemCount() > 0 && SelPos<MenuItemNumber)
 						{
-							BlockExtKey blockExtKey;
 							string strName00;
 							int nOffset = HotKeysPresent?3:0;
 							strName00 = (const wchar_t*)PluginList.GetItemPtr()->strName+nOffset;
@@ -1564,7 +1561,6 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 						if (PluginList.GetItemCount() > 0 && SelPos<MenuItemNumber)
 						{
-							BlockExtKey blockExtKey;
 							string strName00;
 							int nOffset = HotKeysPresent?3:0;
 							strName00 = (const wchar_t*)PluginList.GetItemPtr()->strName+nOffset;

@@ -41,7 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filepanels.hpp"
 #include "ctrlobj.hpp"
 #include "manager.hpp"
-#include "BlockExtKey.hpp"
 #include "registry.hpp"
 #include "message.hpp"
 #include "config.hpp"
@@ -84,7 +83,6 @@ extern void CreatePluginStartupInfo(Plugin *pPlugin, PluginStartupInfo *PSI, Far
 static DWORD WINAPI _xfilter(LPVOID dummy=NULL)
 {
 	ProcessException=TRUE;
-	BlockExtKey blockExtKey;
 	DWORD Result = EXCEPTION_EXECUTE_HANDLER;
 	BOOL Res=FALSE;
 //   if(From == (int)INVALID_HANDLE_VALUE)

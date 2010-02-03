@@ -2991,6 +2991,7 @@ EditControl::EditControl(ScreenObject *pOwner,Callback* aCallback,bool bAllocate
 	pList=iList;
 	Selection=false;
 	SelectionStart=-1;
+	ACState=ECFlags.Check(EC_ENABLEAUTOCOMPLETE)!=0;
 }
 
 void EditControl::Show()
@@ -3296,4 +3297,16 @@ int EditControl::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		return TRUE;
 	}
 	return FALSE;
+}
+
+void EditControl::EnableAC(bool Permanent)
+{
+	ACState=Permanent?true:ECFlags.Check(EC_ENABLEAUTOCOMPLETE)!=0;
+	ECFlags.Set(EC_ENABLEAUTOCOMPLETE);
+}
+
+void EditControl::DisableAC(bool Permanent)
+{
+	ACState=Permanent?false:ECFlags.Check(EC_ENABLEAUTOCOMPLETE)!=0;
+	ECFlags.Clear(EC_ENABLEAUTOCOMPLETE);
 }

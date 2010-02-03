@@ -40,7 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keys.hpp"
 #include "help.hpp"
 #include "vmenu.hpp"
-#include "BlockExtKey.hpp"
 #include "imports.hpp"
 #include "message.hpp"
 #include "config.hpp"
@@ -153,10 +152,7 @@ void ShowHotplugDevice()
 		{
 			case KEY_F1:
 			{
-				BlockExtKey blockExtKey;
-				{
-					Help Hlp(L"HotPlugList");
-				}
+				Help Hlp(L"HotPlugList");
 				break;
 			}
 			case KEY_CTRLR:
@@ -169,7 +165,6 @@ void ShowHotplugDevice()
 			{
 				if (HotPlugList.GetItemCount() > 0)
 				{
-					BlockExtKey blockExtKey;
 					int bResult;
 					int I=(int)(INT_PTR)HotPlugList.GetUserData(NULL,0);
 

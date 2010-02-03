@@ -319,9 +319,12 @@ class EditControl:public Edit
 	void SetMenuPos(VMenu& menu);
 	int AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey);
 
-public:
 
 	BitFlags ECFlags;
+
+	bool ACState;
+
+public:
 
 	enum ECFLAGS
 	{
@@ -334,5 +337,9 @@ public:
 	virtual void Show();
 	virtual void Changed(bool DelBlock=false);
 	void SetCallbackState(bool Enable){m_Callback.Active=Enable;}
+
 	void AutoComplete(bool Manual,bool DelBlock);
+	void EnableAC(bool Permanent=false);
+	void DisableAC(bool Permanent=false);
+	void RevertAC(){ACState?EnableAC():DisableAC();}
 };

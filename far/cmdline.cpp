@@ -91,11 +91,11 @@ void CommandLine::SetAutoComplete(int Mode)
 {
 	if(Mode)
 	{
-		CmdStr.ECFlags.Set(EditControl::EC_ENABLEAUTOCOMPLETE);
+		CmdStr.EnableAC(true);
 	}
 	else
 	{
-		CmdStr.ECFlags.Clear(EditControl::EC_ENABLEAUTOCOMPLETE);
+		CmdStr.DisableAC(true);
 	}
 }
 
@@ -172,16 +172,9 @@ int CommandLine::ProcessKey(int Key)
 			if (SetLastCmdStr(CmdStr.GetStringAddr()))
 				LastCmdPartLength=CurCmdPartLength;
 		}
-		BOOL AC=CmdStr.ECFlags.Check(EditControl::EC_ENABLEAUTOCOMPLETE);
-		if(AC)
-		{
-			CmdStr.ECFlags.Clear(EditControl::EC_ENABLEAUTOCOMPLETE);
-		}
+		CmdStr.DisableAC();
 		CmdStr.SetString(strStr);
-		if(AC)
-		{
-			CmdStr.ECFlags.Set(EditControl::EC_ENABLEAUTOCOMPLETE);
-		}
+		CmdStr.RevertAC();
 		Show();
 		return(TRUE);
 	}
@@ -251,10 +244,17 @@ int CommandLine::ProcessKey(int Key)
 
 			if (SelectType > 0 && SelectType <= 3)
 			{
+				if(SelectType<3)
+				{
+					CmdStr.DisableAC();
+				}
 				SetString(strStr);
 
 				if (SelectType < 3)
+				{
 					ProcessKey(SelectType==1?(int)KEY_ENTER:(int)KEY_SHIFTENTER);
+					CmdStr.RevertAC();
+				}
 			}
 		}
 		return(TRUE);
@@ -430,9 +430,9 @@ int CommandLine::ProcessKey(int Key)
 
 			if(!Opt.CmdLine.AutoComplete && (Key == KEY_CTRLSHIFTEND || Key == KEY_CTRLSHIFTNUMPAD1))
 			{
-				CmdStr.ECFlags.Set(EditControl::EC_ENABLEAUTOCOMPLETE);
+				CmdStr.EnableAC();
 				CmdStr.AutoComplete(true,false);
-				CmdStr.ECFlags.Clear(EditControl::EC_ENABLEAUTOCOMPLETE);
+				CmdStr.RevertAC();
 			}
 
 			return(TRUE);
@@ -477,13 +477,9 @@ void CommandLine::SetString(const wchar_t *Str,BOOL Redraw)
 void CommandLine::ExecString(const wchar_t *Str,int AlwaysWaitFinish,int SeparateWindow,
                              int DirectRun)
 {
-	BOOL EC=CmdStr.ECFlags.Check(EditControl::EC_ENABLEAUTOCOMPLETE);
-	CmdStr.ECFlags.Clear(EditControl::EC_ENABLEAUTOCOMPLETE);
+	CmdStr.DisableAC();
 	SetString(Str);
-	if(EC)
-	{
-		CmdStr.ECFlags.Set(EditControl::EC_ENABLEAUTOCOMPLETE);
-	}
+	CmdStr.RevertAC();
 	CmdExecute(Str,AlwaysWaitFinish,SeparateWindow,DirectRun);
 }
 
