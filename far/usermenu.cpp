@@ -1182,6 +1182,7 @@ int UserMenu::DeleteMenuRecord(const wchar_t *MenuKey,int DeletePos)
 		return(FALSE);
 
 	MenuModified=MenuNeedRefresh=true;
+	strRegKey.Clear();
 	strRegKey<<MenuKey<<L"\\Item%d";
 	DeleteKeyRecord(strRegKey,DeletePos);
 	return(TRUE);
