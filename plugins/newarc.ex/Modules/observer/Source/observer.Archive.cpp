@@ -67,18 +67,43 @@ bool ObserverArchive::Open()
 #endif
 				}
 
-				if ( *info.SubType )
+				if ( *info.Compression )
 				{
 					item = m_pArchiveInfo.add();
-					item->lpName = StrDuplicate(_T("SubType"));
+					item->lpName = StrDuplicate(_T("Compression"));
 #ifdef UNICODE
-					item->lpValue = StrDuplicate(info.SubType);
+					item->lpValue = StrDuplicate(info.Compression);
 #else
-					char* lpTemp = UnicodeToAnsi(info.SubType);
+					char* lpTemp = UnicodeToAnsi(info.Compression);
 					item->lpValue = StrDuplicate(lpTemp);
 					free(lpTemp);
 #endif
 				}
+
+				if ( *info.Comment )
+				{
+					item = m_pArchiveInfo.add();
+					item->lpName = StrDuplicate(_T("Comment"));
+#ifdef UNICODE
+					item->lpValue = StrDuplicate(info.Comment);
+#else
+					char* lpTemp = UnicodeToAnsi(info.Comment);
+					item->lpValue = StrDuplicate(lpTemp);
+					free(lpTemp);
+#endif
+				}
+
+				FILETIME time;
+				SYSTEMTIME stime;
+
+				FileTimeToLocalFileTime(&info.Created, &time);
+				FileTimeToSystemTime(&time, &stime);
+
+				item = m_pArchiveInfo.add();
+				item->lpName = StrDuplicate(_T("Creation time"));
+
+				strValue.Format(_T("%2.2d.%2.2d.%4.4d %2.2d:%2.2d:%2.2d"), stime.wDay, stime.wMonth, stime.wYear, stime.wHour, stime.wMinute, stime.wSecond);
+				item->lpValue = StrDuplicate(strValue);
 
 				item = m_pArchiveInfo.add();
 				item->lpName = StrDuplicate(_T("Number of files"));
