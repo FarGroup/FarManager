@@ -43,13 +43,15 @@ struct ProgressContext
 	}
 };
 
-#define STORAGE_FORMAT_NAME_MAX_LEN 14
-#define STORAGE_SUBTYPE_NAME_MAX_LEN 24
+#define STORAGE_FORMAT_NAME_MAX_LEN 16
+#define STORAGE_PARAM_MAX_LEN 32
 
 struct StorageGeneralInfo
 {
 	wchar_t Format[STORAGE_FORMAT_NAME_MAX_LEN];
-	wchar_t SubType[STORAGE_SUBTYPE_NAME_MAX_LEN];
+	wchar_t Compression[STORAGE_PARAM_MAX_LEN];
+	wchar_t Comment[STORAGE_PARAM_MAX_LEN];
+	FILETIME Created;
 	DWORD NumRealItems;		// Number of items which should be queried from submodule (usually NumFiles + NumDirectories)
 };
 

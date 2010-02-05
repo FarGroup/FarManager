@@ -18,8 +18,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\..\Bin\$(Configuration)"
-			IntermediateDirectory="..\..\Bin\$(Configuration)"
+			OutputDirectory="..\..\..\Bin\$(ConfigurationName)"
+			IntermediateDirectory="..\..\Bin\$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="2"
 			>
@@ -94,8 +94,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\..\Bin\$(Configuration)"
-			IntermediateDirectory="..\..\Bin\$(Configuration)"
+			OutputDirectory="..\..\..\Bin\$(ConfigurationName)"
+			IntermediateDirectory="..\..\Bin\$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
@@ -179,8 +179,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release Unicode|Win32"
-			OutputDirectory="..\..\..\Bin\$(Configuration)"
-			IntermediateDirectory="..\..\Bin\$(Configuration)"
+			OutputDirectory="..\..\..\Bin\$(ConfigurationName)"
+			IntermediateDirectory="..\..\Bin\$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -264,8 +264,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug Unicode|Win32"
-			OutputDirectory="..\..\..\Bin\$(Configuration)"
-			IntermediateDirectory="..\..\Bin\$(Configuration)"
+			OutputDirectory="..\..\..\Bin\$(ConfigurationName)"
+			IntermediateDirectory="..\..\Bin\$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="1"
 			>
