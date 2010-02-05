@@ -1,7 +1,7 @@
 
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ansi.VS2008", "ansi.VS2008.vcproj", "{14198FDD-C0DF-484A-B622-CF6C84FDD66B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ansi.VS2008", "ansi.VS2008.vcproj", "{5EC871B9-F277-4FB4-BC74-F38C48E1C0B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,10 +9,10 @@ Global
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{14198FDD-C0DF-484A-B622-CF6C84FDD66B}.Debug|Win32.ActiveCfg = Debug|Win32
-		{14198FDD-C0DF-484A-B622-CF6C84FDD66B}.Debug|Win32.Build.0 = Debug|Win32
-		{14198FDD-C0DF-484A-B622-CF6C84FDD66B}.Release|Win32.ActiveCfg = Release|Win32
-		{14198FDD-C0DF-484A-B622-CF6C84FDD66B}.Release|Win32.Build.0 = Release|Win32
+		{5EC871B9-F277-4FB4-BC74-F38C48E1C0B8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5EC871B9-F277-4FB4-BC74-F38C48E1C0B8}.Debug|Win32.Build.0 = Debug|Win32
+		{5EC871B9-F277-4FB4-BC74-F38C48E1C0B8}.Release|Win32.ActiveCfg = Release|Win32
+		{5EC871B9-F277-4FB4-BC74-F38C48E1C0B8}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

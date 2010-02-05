@@ -1,7 +1,7 @@
 
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "newarc.VS2008", "newarc.VS2008.vcproj", "{0AFA52CE-82ED-4692-B80E-78A836AD3059}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "newarc", "newarc.VS2008.vcproj", "{0AFA52CE-82ED-4692-B80E-78A836AD3059}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wcx", "..\..\..\Modules\wcx\Build\VS2008\wcx.VS2008.vcproj", "{AF2BE7F2-6541-44F8-BD48-927F140BE4FD}"
 EndProject
@@ -20,6 +20,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rar", "..\..\..\Modules\rar\Build\VS2008\rar.VS2008.vcproj", "{54A584FC-6621-45A3-9C38-4B0A73E61028}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zip", "..\..\..\Modules\zip\Build\VS2008\zip.VS2008.vcproj", "{A916FF85-AF79-43B7-803A-A5694FA6B77C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ansi", "..\..\..\Modules\ansi\Build\VS2008\ansi.VS2008.vcproj", "{5EC871B9-F277-4FB4-BC74-F38C48E1C0B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,8 +43,8 @@ Global
 		{AF2BE7F2-6541-44F8-BD48-927F140BE4FD}.Debug Unicode|Win32.Build.0 = Debug Unicode|Win32
 		{AF2BE7F2-6541-44F8-BD48-927F140BE4FD}.Debug|Win32.ActiveCfg = Debug|Win32
 		{AF2BE7F2-6541-44F8-BD48-927F140BE4FD}.Debug|Win32.Build.0 = Debug|Win32
-		{AF2BE7F2-6541-44F8-BD48-927F140BE4FD}.Release Unicode|Win32.ActiveCfg = Release|Win32
-		{AF2BE7F2-6541-44F8-BD48-927F140BE4FD}.Release Unicode|Win32.Build.0 = Release|Win32
+		{AF2BE7F2-6541-44F8-BD48-927F140BE4FD}.Release Unicode|Win32.ActiveCfg = Release Unicode|Win32
+		{AF2BE7F2-6541-44F8-BD48-927F140BE4FD}.Release Unicode|Win32.Build.0 = Release Unicode|Win32
 		{AF2BE7F2-6541-44F8-BD48-927F140BE4FD}.Release|Win32.ActiveCfg = Release|Win32
 		{AF2BE7F2-6541-44F8-BD48-927F140BE4FD}.Release|Win32.Build.0 = Release|Win32
 		{0B2A2E61-3FCD-4D34-AC13-556B8CCB3EAD}.Debug Unicode|Win32.ActiveCfg = Debug Unicode|Win32
@@ -109,6 +111,12 @@ Global
 		{A916FF85-AF79-43B7-803A-A5694FA6B77C}.Release Unicode|Win32.Build.0 = Release Unicode|Win32
 		{A916FF85-AF79-43B7-803A-A5694FA6B77C}.Release|Win32.ActiveCfg = Release|Win32
 		{A916FF85-AF79-43B7-803A-A5694FA6B77C}.Release|Win32.Build.0 = Release|Win32
+		{5EC871B9-F277-4FB4-BC74-F38C48E1C0B8}.Debug Unicode|Win32.ActiveCfg = Debug Unicode|Win32
+		{5EC871B9-F277-4FB4-BC74-F38C48E1C0B8}.Debug Unicode|Win32.Build.0 = Debug Unicode|Win32
+		{5EC871B9-F277-4FB4-BC74-F38C48E1C0B8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5EC871B9-F277-4FB4-BC74-F38C48E1C0B8}.Release Unicode|Win32.ActiveCfg = Release Unicode|Win32
+		{5EC871B9-F277-4FB4-BC74-F38C48E1C0B8}.Release Unicode|Win32.Build.0 = Release Unicode|Win32
+		{5EC871B9-F277-4FB4-BC74-F38C48E1C0B8}.Release|Win32.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
