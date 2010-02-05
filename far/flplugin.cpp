@@ -79,12 +79,16 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 		return(FALSE);
 	}
 
+	// указатель на плагин, с которого уходим
+	PluginsListItem *PStack=*PluginsList.Last();
+	
 	// закрываем текущий плагин.
+	PluginsList.Delete(PluginsList.Last());
 	CtrlObject->Plugins.ClosePlugin(hPlugin);
-	PluginsListItem *PStack=*PluginsList.Last(); // указатель на плагин, с которого уходим
-	if (PluginsList.Prev(PluginsList.Last()))
+
+	if (!PluginsList.Empty())
 	{
-		hPlugin=(*PluginsList.Prev(PluginsList.Last()))->hPlugin;
+		hPlugin=(*PluginsList.Last())->hPlugin;
 		strOriginalCurDir=PStack->strPrevOriginalCurDir;
 
 		if (EnableRestoreViewMode)
@@ -137,7 +141,6 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 	}
 
 	delete PStack;
-	PluginsList.Delete(PluginsList.Last());
 
 	if (EnableRestoreViewMode)
 		CtrlObject->Cp()->RedrawKeyBar();

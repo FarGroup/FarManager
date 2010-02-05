@@ -134,6 +134,7 @@ VMenu::~VMenu()
 	if (!CheckFlags(VMENU_LISTBOX) && CtrlObject!=NULL)
 		CtrlObject->Macro.SetMode(PrevMacroMode);
 
+	bool WasVisible=Flags.Check(FSCROBJ_VISIBLE)!=0;
 	Hide();
 	DeleteItems();
 	delete[] Used;
@@ -142,6 +143,10 @@ VMenu::~VMenu()
 	if (!CheckFlags(VMENU_LISTBOX))
 	{
 		FrameManager->UnmodalizeFrame(this);
+		if(WasVisible)
+		{
+			FrameManager->RefreshFrame();
+		}
 	}
 }
 
