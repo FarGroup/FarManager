@@ -1446,13 +1446,14 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,int Param1,LONG_PTR Param2)
 		case FCTL_SETCMDLINE:
 		case FCTL_INSERTCMDLINE:
 		{
+			CmdLine->DisableAC();
 			if (Command==FCTL_SETCMDLINE)
 				CmdLine->SetString((const wchar_t*)Param2);
 			else
 				CmdLine->InsertString((const wchar_t*)Param2);
-
+			CmdLine->RevertAC();
 			CmdLine->Redraw();
-			return(TRUE);
+			return TRUE;
 		}
 		case FCTL_SETCMDLINEPOS:
 		{
