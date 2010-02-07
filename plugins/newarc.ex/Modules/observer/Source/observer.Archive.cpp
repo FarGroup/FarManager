@@ -214,6 +214,8 @@ bool ObserverArchive::Extract(
 			{
 				apiCreateDirectoryForFile(strDestName);
 
+				CutToSlash(strDestName); //??we need dir only
+
 				if ( pItems[i].UserData )
 					m_pPlugin->ExtractItem(m_hArchive, pItems[i].UserData-1, strDestName, &callbacks);
 			}
