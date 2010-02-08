@@ -11,7 +11,6 @@ extern "C"
 {
 #endif
 
-	int _cdecl getdisk();
 	void __cdecl qsortex(char *base, size_t nel, size_t width,
 	                     int (__cdecl *comp_fp)(const void *, const void *,void*), void *user);
 

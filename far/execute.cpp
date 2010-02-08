@@ -1213,6 +1213,9 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
 			SHORT CurX,CurY;
 			GetCursorPos(CurX,CurY);
 
+			GotoXY(X2+1,Y1);
+			Text(L" ");
+
 			if (CurY>=Y1-1)
 				ScrollScreen(Min(CurY-Y1+2,2/*Opt.ShowKeyBar ? 2:1*/));
 		}
@@ -1451,14 +1454,13 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 
 	if (!SeparateWindow && strCmdLine.At(0) && strCmdLine.At(1)==L':' && strCmdLine.At(2)==0)
 	{
-		FarChDir(strCmdLine);
-		wchar_t NewDir[]={Upper(strCmdLine.At(0)),L':',L'\\',0};
-
-		if (getdisk()!=(int)(NewDir[0]-L'A'))
+		if(!FarChDir(strCmdLine))
 		{
-			FarChDir(NewDir);
+			wchar_t NewDir[]={Upper(strCmdLine.At(0)),L':',L'\\',0};
+			{
+				FarChDir(NewDir);
+			}
 		}
-
 		SetPanel->ChangeDirToCurrent();
 		return(TRUE);
 	}

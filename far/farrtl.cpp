@@ -13,18 +13,6 @@ farrtl.cpp
 #pragma intrinsic (memcpy)
 #endif
 
-int _cdecl getdisk()
-{
-	/* Use GetCurrentDirectory to get the current directory path, then
-	 * parse the drive name.
-	 */
-	string strBuf;
-	apiGetCurrentDirectory(strBuf);    /* ignore errors */
-	wchar_t drive=Upper(strBuf.At(0))-L'A';
-	return (int)drive;
-}
-
-#include <io.h>
 #ifdef _MSC_VER
 extern "C"
 {

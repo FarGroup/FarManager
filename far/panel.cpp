@@ -165,12 +165,12 @@ void Panel::ChangeDirToCurrent()
 
 void Panel::ChangeDisk()
 {
-	int Pos,FirstCall=TRUE;
+	int Pos=-1,FirstCall=TRUE;
 
 	if (!strCurDir.IsEmpty() && strCurDir.At(1)==L':')
+	{
 		Pos=Upper(strCurDir.At(0))-L'A';
-	else
-		Pos=getdisk();
+	}
 
 	while (Pos!=-1)
 	{
