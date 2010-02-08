@@ -172,7 +172,13 @@ void SaveConsoleWindowInfo()
 
 void RestoreConsoleWindowInfo()
 {
-	SetConsoleWindowInfo(GetStdHandle(STD_OUTPUT_HANDLE),TRUE,&windowholder_csbi.srWindow);
+	CONSOLE_SCREEN_BUFFER_INFO scbi;
+	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),&scbi);
+	if(scbi.srWindow.Right-scbi.srWindow.Left<windowholder_csbi.srWindow.Right-windowholder_csbi.srWindow.Left ||
+		scbi.srWindow.Bottom-scbi.srWindow.Top<windowholder_csbi.srWindow.Bottom-windowholder_csbi.srWindow.Top)
+	{
+		SetConsoleWindowInfo(GetStdHandle(STD_OUTPUT_HANDLE),TRUE,&windowholder_csbi.srWindow);
+	}
 }
 
 void FlushInputBuffer()
