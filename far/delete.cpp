@@ -72,6 +72,8 @@ static void PR_ShellDeleteMsg();
 static int ReadOnlyDeleteMode,SkipMode,SkipWipeMode,SkipFoldersMode,DeleteAllFolders;
 ULONG ProcessedItems;
 
+ConsoleTitle *DeleteTitle=NULL;
+
 enum {DELETE_SUCCESS,DELETE_YES,DELETE_SKIP,DELETE_CANCEL};
 
 void ShellDelete(Panel *SrcPanel,int Wipe)
@@ -89,7 +91,6 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 	int DizPresent;
 	int Ret;
 	BOOL NeedUpdate=TRUE, NeedSetUpADir=FALSE;
-	ConsoleTitle *DeleteTitle;
 	int Opt_DeleteToRecycleBin=Opt.DeleteToRecycleBin;
 	/*& 31.05.2001 OT Запретить перерисовку текущего фрейма*/
 	Frame *FrameFromLaunched=FrameManager->GetCurrentFrame();
@@ -631,6 +632,7 @@ void ShellDeleteMsg(const wchar_t *Name,int Wipe,int Percent)
 			FormatString strTmp;
 			strTmp<<L" "<<fmt::Width(3)<<Percent<<L"%";
 			strProgress+=strTmp;
+			DeleteTitle->Set(L"{%d%%} %s",Percent,MSG(Wipe?MDeleteWipeTitle:MDeleteTitle));
 		}
 
 		TBC.SetProgressValue(Percent,100);

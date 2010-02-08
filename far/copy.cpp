@@ -2926,10 +2926,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 					return((COPY_CODES)CopyCode);
 				}
-				else if (CopyCode == COPY_FAILURE)
-				{
-					SkipEncMode=-1;
-				}
 
 				if (DestAttr!=INVALID_FILE_ATTRIBUTES && Append)
 					apiSetFileAttributes(strDestPath,DestAttr);
@@ -2960,11 +2956,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					}
 					else
 					{
-						if (_localLastError == 5)
+						if (_localLastError == ERROR_ACCESS_DENIED)
 						{
-#define ERROR_EFS_SERVER_NOT_TRUSTED     6011L
-							;//SetLastError(_localLastError=(DWORD)0x80090345L);//SEC_E_DELEGATION_REQUIRED);
-							SetLastError(_localLastError=ERROR_EFS_SERVER_NOT_TRUSTED);
+							SetLastError(_localLastError=ERROR_ENCRYPTION_FAILED);
 						}
 
 						MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,5,MSG(MError),
@@ -2977,26 +2971,24 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 						                MSG(MCopySkip),
 						                MSG(MCopySkipAll),
 						                MSG(MCopyCancel));
+					}
+					switch (MsgCode)
+					{
+						case 1:
+							SkipEncMode=1;
+						case 0:
+							Flags|=FCOPY_DECRYPTED_DESTINATION;
+							break;
 
-						switch (MsgCode)
-						{
-							case  0:
-								Flags|=FCOPY_DECRYPTED_DESTINATION;
-								break;//return COPY_NEXT;
-							case  1:
-								SkipEncMode=1;
-								Flags|=FCOPY_DECRYPTED_DESTINATION;
-								break;//return COPY_NEXT;
-							case  2:
-								return COPY_NEXT;
-							case  3:
-								SkipMode=1;
-								return COPY_NEXT;
-							case -1:
-							case -2:
-							case  4:
-								return COPY_CANCEL;
-						}
+						case 3:
+							SkipEncMode=3;
+						case 2:
+							return COPY_NEXT;
+
+						case -1:
+						case -2:
+						case 4:
+							return COPY_CANCEL;
 					}
 				}
 				else
