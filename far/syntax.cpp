@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "keyboard.hpp"
 #include "macro.hpp"
+#include "udlist.hpp"
 #include "strmix.hpp"
 
 #define EOFCH 65536
@@ -76,7 +77,7 @@ static int _macro_nLine = 0;
 static int _macro_ErrCode=err_Success;
 static wchar_t nameString[1024];
 static wchar_t *sSrcString;
-static wchar_t *pSrcString = NULL;
+static const wchar_t *pSrcString = NULL;
 static wchar_t *oSrcString = NULL;
 static wchar_t emptyString[1]={0};
 
@@ -228,8 +229,8 @@ static void keyMacroParseError(int err, const wchar_t *s, const wchar_t *p, cons
 		//	strncpy(&ErrMessage[1][61], "...",sizeof(ErrMessage[1])-62);
 		int lPos = ePos-oPos+(oPos ? 3 : 0);
 		InsertQuote(ErrMessage[1]);
-		ErrMessage[2].Format(L"%*s%c", lPos+1, L"", L'^');
-		//ErrMessage[2].Format(L"line=%d pos=%d", _macro_nLine, lPos+1);
+		//ErrMessage[2].Format(L"%*s%c", lPos+1, L"", L'^');
+		ErrMessage[2].Format(L"line=%d pos=%d", _macro_nLine, lPos+1);
 	}
 }
 
@@ -328,6 +329,7 @@ static TMacroFunction macroFunction[]=
 	{L"MIN",              2, 0,   MCODE_F_MIN,              NULL, L"N=Min(N1,N2)"},
 	{L"PANEL.FATTR",      2, 0,   MCODE_F_PANEL_FATTR,      NULL, L"N=Panel.FAttr(panelType,fileMask)"},
 	{L"PANEL.FEXIST",     2, 0,   MCODE_F_PANEL_FEXIST,     NULL, L"N=Panel.FExist(panelType,fileMask)"},
+	{L"PANEL.ITEM",       3, 0,   MCODE_F_PANELITEM,        NULL, L"V=Panel.Item(Panel,Index,TypeInfo)"},
 	{L"PANEL.SETPATH",    3, 1,   MCODE_F_PANEL_SETPATH,    NULL, L"N=panel.SetPath(panelType,pathName[,fileName])"},
 	{L"PANEL.SETPOS",     2, 0,   MCODE_F_PANEL_SETPOS,     NULL, L"N=panel.SetPos(panelType,fileName)"},
 	{L"PANEL.SETPOSIDX",  2, 0,   MCODE_F_PANEL_SETPOSIDX,  NULL, L"N=Panel.SetPosIdx(panelType,Idx)"},
@@ -1191,7 +1193,7 @@ static int parseExpr(const wchar_t*& BufPtr, unsigned long *eBuff, wchar_t bound
 
 	if (bound1)
 	{
-		pSrcString = oSrcString = sSrcString = (wchar_t*)BufPtr+(*BufPtr?1:0);
+		/*pSrcString = */oSrcString = sSrcString = (wchar_t*)BufPtr+(*BufPtr?1:0);
 
 		if (*BufPtr != bound1)
 		{
@@ -1202,7 +1204,7 @@ static int parseExpr(const wchar_t*& BufPtr, unsigned long *eBuff, wchar_t bound
 		}
 	}
 	else
-		pSrcString = oSrcString = sSrcString = (wchar_t*)BufPtr;
+		/*pSrcString = */oSrcString = sSrcString = (wchar_t*)BufPtr;
 
 	exprBuff = eBuff;
 #if 1
@@ -1267,14 +1269,13 @@ static int parseExpr(const wchar_t*& BufPtr, unsigned long *eBuff, wchar_t bound
 }
 
 
-static const wchar_t *__GetNextWord(const wchar_t *BufPtr,string &strCurKeyText,int& Line,const wchar_t **StartBufPtr)
+static const wchar_t *__GetNextWord(const wchar_t *BufPtr,string &strCurKeyText,int& Line)
 {
 	// пропускаем ведущие пробельные символы
 	while (IsSpace(*BufPtr) || IsEol(*BufPtr))
 	{
 		if (IsEol(*BufPtr))
 		{
-			*StartBufPtr=++BufPtr;
 			Line++;//TODO!!!
 		}
 
@@ -1296,7 +1297,6 @@ static const wchar_t *__GetNextWord(const wchar_t *BufPtr,string &strCurKeyText,
 
 		if (IsEol(Chr))
 		{
-			*StartBufPtr=++BufPtr;
 			Line++;//TODO!!!
 		}
 
@@ -1476,17 +1476,29 @@ static void printKeyValue(DWORD* k, int& i)
 int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wchar_t *BufPtr)
 {
 	_KEYMACRO(CleverSysLog Clev(L"parseMacroString"));
-	_KEYMACRO(SysLog(L"BufPtr[%p]='%s'", BufPtr,BufPtr));
+	//_KEYMACRO(SysLog(L"BufPtr[%p]='%s'", BufPtr,BufPtr));
 	_macro_nErr = 0;
-	_macro_nLine= 0;
-	pSrcString = oSrcString = sSrcString = emptyString;
-	int Line=0;
+	_macro_nLine= 1;
+	pSrcString = emptyString;
+	/*pSrcString = */oSrcString = sSrcString = emptyString;
 
 	if (BufPtr == NULL || !*BufPtr)
 	{
 		keyMacroParseError(err_ZeroLengthMacro);
 		return FALSE;
 	}
+
+	const wchar_t *NewBufPtr;
+
+	UserDefinedList MacroSrcList(L'\n',L'\r',ULF_NOTTRIM);
+	MacroSrcList.Set(BufPtr);
+
+	//{
+	//	_SVS(SysLog(L"MacroSrcList.GetTotal()=%d",MacroSrcList.GetTotal()));
+	//	while((NewBufPtr=MacroSrcList.GetNext()) != NULL)
+	//		_SVS(SysLog(L"[%s]",NewBufPtr));
+	//	MacroSrcList.Reset();
+	//}
 
 	int SizeCurKeyText = (int)(StrLength(BufPtr)*2)*sizeof(wchar_t);
 	string strCurrKeyText;
@@ -1501,7 +1513,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 	TExec exec;
 	wchar_t varName[256];
 	DWORD KeyCode, *CurMacro_Buffer = NULL;
-	const wchar_t *startLineBufPtr = BufPtr;
+	pSrcString=BufPtr=MacroSrcList.GetNext();
 
 	for (;;)
 	{
@@ -1509,12 +1521,19 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 		int SizeVarName = 0;
 		const wchar_t *oldBufPtr = BufPtr;
 
-		if ((BufPtr = __GetNextWord(BufPtr, strCurrKeyText, Line, &startLineBufPtr)) == NULL)
-			break;
-
-		_SVS(SysLog(L"BufPtr         =%s",BufPtr));
-		_SVS(SysLog(L"startLineBufPtr=%s",startLineBufPtr));
-		_SVS(SysLog(L"strCurrKeyText=%s",(const wchar_t*)strCurrKeyText));
+		if ((BufPtr = __GetNextWord(BufPtr, strCurrKeyText, _macro_nLine)) == NULL)
+		{
+			NewBufPtr=MacroSrcList.GetNext();
+			if(!NewBufPtr)
+				break;
+			_macro_nLine++;
+			pSrcString=BufPtr=NewBufPtr;
+			continue;
+		}
+		_SVS(SysLog(L"_macro_nLine   = [%d]",_macro_nLine));
+		_SVS(SysLog(L"BufPtr         = [%s]",BufPtr));
+		_SVS(SysLog(L"pSrcString     = [%s]",pSrcString));
+		_SVS(SysLog(L"strCurrKeyText = [%s]",(const wchar_t*)strCurrKeyText));
 
 		//- AN ----------------------------------------------
 		//  Проверка на строковый литерал
@@ -1545,8 +1564,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 				{
 					if (IsEol(*BufPtr))
 					{
-						startLineBufPtr = ++BufPtr;
-						Line++;//TODO!!!
+						_macro_nLine++;//TODO!!!
 					}
 					BufPtr++;
 				}
@@ -1581,7 +1599,6 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 				if (_macro_nErr)
 				{
 					ProcError++;
-					_macro_nLine=Line;
 				}
 			}
 			else
@@ -1609,8 +1626,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 					{
 						if (IsEol(*BufPtr))
 						{
-							startLineBufPtr = ++BufPtr;
-							Line++;//TODO!!!
+							_macro_nLine++;//TODO!!!
 						}
 						BufPtr++;
 					}
@@ -1623,8 +1639,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 					{
 						if (IsEol(*BufPtr))
 						{
-							startLineBufPtr = ++BufPtr;
-							Line++;//TODO!!!
+							_macro_nLine++;//TODO!!!
 						}
 						BufPtr++;
 					}
@@ -1635,7 +1650,6 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 					//Size--; //???
 					if (_macro_nErr)
 					{
-						_macro_nLine=Line;
 						ProcError++;
 					}
 					else
@@ -1657,10 +1671,9 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 
 			if (ProcError)
 			{
-				_macro_nLine=Line;
 				if (!_macro_nErr)
-					keyMacroParseError(err_Unrecognized_keyword, strCurrKeyText, strCurrKeyText,strCurrKeyText);
-					//keyMacroParseError(err_Unrecognized_keyword, BufPtr, startLineBufPtr, strCurrKeyText);
+					//keyMacroParseError(err_Unrecognized_keyword, strCurrKeyText, strCurrKeyText,strCurrKeyText);
+					keyMacroParseError(err_Unrecognized_keyword, oldBufPtr, pSrcString, strCurrKeyText);
 
 				if (CurMacro_Buffer != NULL)
 				{
@@ -1803,7 +1816,6 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 
 		if (_macro_nErr)
 		{
-			_macro_nLine=Line;
 			if (CurMacro_Buffer != NULL)
 			{
 				xf_free(CurMacro_Buffer);
@@ -1870,7 +1882,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 				}
 				else // тут $else и не предвиделось :-/
 				{
-					keyMacroParseError(err_Not_expected_ELSE, oldBufPtr+1, oldBufPtr); // strCurrKeyText
+					keyMacroParseError(err_Not_expected_ELSE, BufPtr, pSrcString); // strCurrKeyText
 
 					if (CurMacro_Buffer != NULL)
 					{
@@ -1890,7 +1902,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 				{
 					case emmMain:
 						// тут $end и не предвиделось :-/
-						keyMacroParseError(err_Not_expected_END, oldBufPtr+1, oldBufPtr); // strCurrKeyText
+						keyMacroParseError(err_Not_expected_END, BufPtr, pSrcString); // strCurrKeyText
 
 						if (CurMacro_Buffer != NULL)
 						{
@@ -2006,7 +2018,6 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 
 	if (_macro_nErr)
 	{
-		_macro_nLine=Line;
 		return FALSE;
 	}
 

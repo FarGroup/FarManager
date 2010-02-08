@@ -157,6 +157,7 @@ bool UserDefinedList::SetParameters(WORD separator1, WORD separator2,
 	PackAsterisks=(Flags & ULF_PACKASTERISKS)?true:false;
 	Unique=(Flags & ULF_UNIQUE)?true:false;
 	Sort=(Flags & ULF_SORT)?true:false;
+	IsTrim=(Flags & ULF_NOTTRIM)?false:true;
 
 	if (!Separator1 && Separator2)
 	{
@@ -280,7 +281,8 @@ bool UserDefinedList::Set(const wchar_t *List, bool AddToList)
 		{
 			const wchar_t *End=List+1;
 
-			while (IsSpace(*End)) ++End; // пропустим мусор
+			if ( IsTrim )
+				while (IsSpace(*End)) ++End; // пропустим мусор
 
 			if (!*End) // Если кроме разделителя ничего больше в строке нет,
 			{         // то считается, что это не разделитель, а простой символ
@@ -341,11 +343,13 @@ const wchar_t *UserDefinedList::Skip(const wchar_t *Str, int &Length, int &RealL
 	Length=RealLength=0;
 	Error=false;
 
-	while (IsSpace(*Str)) ++Str;
+	if ( IsTrim )
+		while (IsSpace(*Str)) ++Str;
 
 	if (*Str==Separator1 || *Str==Separator2) ++Str;
 
-	while (IsSpace(*Str)) ++Str;
+	if ( IsTrim )
+		while (IsSpace(*Str)) ++Str;
 
 	if (!*Str) return NULL;
 
@@ -375,11 +379,12 @@ const wchar_t *UserDefinedList::Skip(const wchar_t *Str, int &Length, int &RealL
 		RealLength=Length=(int)(cur-Str);
 		--cur;
 
-		while (IsSpace(*cur))
-		{
-			--Length;
-			--cur;
-		}
+		if ( IsTrim )
+			while (IsSpace(*cur))
+			{
+				--Length;
+				--cur;
+			}
 
 		return Str;
 	}
@@ -396,7 +401,8 @@ const wchar_t *UserDefinedList::Skip(const wchar_t *Str, int &Length, int &RealL
 
 	const wchar_t *End=QuoteEnd+1;
 
-	while (IsSpace(*End)) ++End;
+	if ( IsTrim )
+		while (IsSpace(*End)) ++End;
 
 	if (!*End || *End==Separator1 || *End==Separator2)
 	{

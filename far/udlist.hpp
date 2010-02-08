@@ -50,6 +50,7 @@ enum UDL_FLAGS
 	// строки инициализации
 	ULF_UNIQUE         =0x00000010, // убирать дублирующиеся элементы
 	ULF_SORT           =0x00000020, // отсортировать (с учетом регистра)
+	ULF_NOTTRIM        =0x00000040, // не удалять пробелы
 };
 
 
@@ -73,7 +74,7 @@ class UserDefinedList : private NonCopyable
 		TArray<UserDefinedListItem> Array;
 		unsigned int CurrentItem;
 		WORD Separator1, Separator2;
-		bool ProcessBrackets, AddAsterisk, PackAsterisks, Unique, Sort;
+		bool ProcessBrackets, AddAsterisk, PackAsterisks, Unique, Sort, IsTrim;
 
 	private:
 		bool CheckSeparators() const; // проверка разделителей на корректность
