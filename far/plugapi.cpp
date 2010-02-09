@@ -439,7 +439,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 					case MCMD_CHECKMACRO:  // проверка макроса
 					{
 						MacroRecord CurMacro={0};
-						int Ret=Macro.ParseMacroString(&CurMacro,KeyMacro->Param.PlainText.SequenceText);
+						int Ret=Macro.ParseMacroString(&CurMacro,KeyMacro->Param.PlainText.SequenceText,(KeyMacro->Param.PlainText.Flags&KSFLAGS_SILENTCHECK)?TRUE:FALSE);
 
 						if (Ret)
 						{

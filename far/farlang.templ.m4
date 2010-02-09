@@ -12951,6 +12951,14 @@ upd:"Line %d, Pos %d"
 upd:"Line %d, Pos %d"
 upd:"Line %d, Pos %d"
 
+MMacroPErrIntParserError
+"Внутренняя ошибка парсера"
+upd:"Internal parser error"
+upd:"Internal parser error"
+upd:"Internal parser error"
+upd:"Internal parser error"
+upd:"Internal parser error"
+
 MMacroPErrUnrecognized_keyword
 l:
 "Неизвестное ключевое слово '%s'"

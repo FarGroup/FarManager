@@ -51,19 +51,20 @@ struct TMacroKeywords
 // в plugin.hpp это FARMACROPARSEERRORCODE
 enum errParseCode
 {
-	err_Success,
-	err_Unrecognized_keyword,
-	err_Unrecognized_function,
-	err_Func_Param,
-	err_Not_expected_ELSE,
-	err_Not_expected_END,
-	err_Unexpected_EOS,
-	err_Expected,
-	err_Bad_Hex_Control_Char,
-	err_Bad_Control_Char,
-	err_Var_Expected,
-	err_Expr_Expected,
-	err_ZeroLengthMacro,
+	err_Success = 0,
+	err_Unrecognized_keyword = 1,
+	err_Unrecognized_function = 2,
+	err_Func_Param = 3,
+	err_Not_expected_ELSE = 4,
+	err_Not_expected_END = 5,
+	err_Unexpected_EOS = 6,
+	err_Expected_Token = 7,
+	err_Bad_Hex_Control_Char = 8,
+	err_Bad_Control_Char = 9,
+	err_Var_Expected = 10,
+	err_Expr_Expected = 11,
+	err_ZeroLengthMacro = 12,
+	err_IntParserError = 13,
 };
 
 extern int MKeywordsSize;

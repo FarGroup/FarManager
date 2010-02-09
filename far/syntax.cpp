@@ -213,8 +213,8 @@ static void keyMacroParseError(int err, const wchar_t *s, const wchar_t *p, cons
 
 		if (ePos < 0)
 		{
-			ErrMessage[0] = MSG(MMacroPErrExpr_Expected); // TODO: .Format !
-			_macro_ErrCode=MMacroPErrExpr_Expected;
+			ErrMessage[0] = MSG(MMacroPErrIntParserError);
+			_macro_ErrCode=err_IntParserError;
 			return;
 		}
 
@@ -233,7 +233,7 @@ static void keyMacroParseError(int err, const wchar_t *s, const wchar_t *p, cons
 		_macro_nPos = ePos-oPos+(oPos ? 3 : 0);
 		InsertQuote(ErrMessage[1]);
 		ErrMessage[2].Format(L"%*s%c", _macro_nPos+1, L"", L'\x2191');
-		ErrMessage[3].Format(MSG(MMacroPErrorPosition), _macro_nLine, _macro_nPos+1);
+		ErrMessage[3].Format(MSG(MMacroPErrorPosition), _macro_nLine+1, _macro_nPos+1);
 	}
 }
 
@@ -414,9 +414,9 @@ static void calcFunc()
 							break;
 
 						if (i == nParam-1)
-							keyMacroParseError(err_Expected, L")");
+							keyMacroParseError(err_Expected_Token, L")");
 						else
-							keyMacroParseError(err_Expected, L",");
+							keyMacroParseError(err_Expected_Token, L",");
 
 						currTok = tEnd;
 					}
@@ -455,7 +455,7 @@ static void calcFunc()
 
 			if (currTok != tRp)
 			{
-				keyMacroParseError(err_Expected, L")");
+				keyMacroParseError(err_Expected_Token, L")");
 				currTok = tEnd;
 			}
 		}
@@ -1035,7 +1035,7 @@ static void prim()
 			expr();
 
 			if (currTok != tRp)
-				keyMacroParseError(err_Expected, L")");
+				keyMacroParseError(err_Expected_Token, L")");
 
 			getToken();
 			break;
@@ -1202,7 +1202,7 @@ static int parseExpr(const wchar_t*& BufPtr, unsigned long *eBuff, wchar_t bound
 		{
 			tmp[0] = bound1;
 			tmp[1] = 0;
-			keyMacroParseError(err_Expected, tmp);
+			keyMacroParseError(err_Expected_Token, tmp);
 			return 0;
 		}
 	}
@@ -1230,7 +1230,7 @@ static int parseExpr(const wchar_t*& BufPtr, unsigned long *eBuff, wchar_t bound
 		{
 			tmp[0] = bound2;
 			tmp[1] = 0;
-			keyMacroParseError(err_Expected, tmp);
+			keyMacroParseError(err_Expected_Token, tmp);
 			return 0;
 		}
 
@@ -1259,7 +1259,7 @@ static int parseExpr(const wchar_t*& BufPtr, unsigned long *eBuff, wchar_t bound
 			{
 				tmp[0] = bound2;
 				tmp[1] = 0;
-				keyMacroParseError(err_Expected, tmp);
+				keyMacroParseError(err_Expected_Token, tmp);
 				return 0;
 			}
 
@@ -1481,7 +1481,8 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 	_KEYMACRO(CleverSysLog Clev(L"parseMacroString"));
 	//_KEYMACRO(SysLog(L"BufPtr[%p]='%s'", BufPtr,BufPtr));
 	_macro_nErr = 0;
-	_macro_nLine= 1;
+	_macro_nLine= 0;
+	_macro_nPos = 0;
 	pSrcString = emptyString;
 	/*pSrcString = */oSrcString = sSrcString = emptyString;
 
