@@ -75,7 +75,7 @@
     <String Id="InstallScopeDlgBannerBitmap">WixUI_Bmp_Banner</String>
     <String Id="InstallScopeDlgDescription">Choose the installation scope</String>
     <String Id="InstallScopeDlgTitle">{\WixUI_Font_Title}Installation Scope</String>
-    <String Id="InstallScopeDlgPerUser">{\WixUI_Font_Emphasized}Install &amp;just for you ([USERNAME])</String>
+    <String Id="InstallScopeDlgPerUser">{\WixUI_Font_Emphasized}Install &amp;just for you ([LogonUser])</String>
     <String Id="InstallScopeDlgPerUserDescription">[ProductName] will be installed in a per-user folder and be available just for your user account. You do not need local Administrator privileges.</String>
     <String Id="InstallScopeDlgPerMachine">{\WixUI_Font_Emphasized}Install for all users of this &amp;machine</String>
     <String Id="InstallScopeDlgPerMachineDescription">[ProductName] will be installed in a per-machine folder by default and be available for all users. You can change the default installation folder. You must have local Administrator privileges.</String>

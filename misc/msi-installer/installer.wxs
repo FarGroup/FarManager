@@ -17,20 +17,16 @@
 <?endif?>
 <?define Manufacturer = "Eugene Roshal & Far Group" ?>
 <?if $(var.Platform) = x86 ?>
-  <?define PFiles = "ProgramFilesFolder" ?>
   <?define Win64 = "no" ?>
 <?endif?>
 <?if $(var.Platform) = x64 ?>
-  <?define PFiles = "ProgramFiles64Folder" ?>
   <?define Win64 = "yes" ?>
 <?endif?>
 <?if $(var.Branch) = 1 ?>
   <?define RegKey = "Far" ?>
-  <?define DefInstallDir = "Far" ?>
 <?endif?>
 <?if $(var.Branch) = 2 ?>
   <?define RegKey = "Far2" ?>
-  <?define DefInstallDir = "Far2" ?>
 <?endif?>
 <?include guids_$(var.Branch)_$(var.Platform).wxi ?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
@@ -61,40 +57,39 @@
     <CustomAction Id="LaunchApp" ExeCommand="" FileKey="Far.exe" Return="asyncNoWait" />
     <CustomAction Id="SetUserInstallDir" Property="INSTALLDIR" Value="[USERINSTALLDIR]" />
     <CustomAction Id="SetUserInstallScope" Property="InstallScope" Value="User" />
+    <CustomAction Id="SetUserInstallScopeDefault" Property="InstallScope" Value="User" />
     <CustomAction Id="SetALLUSERS" Property="ALLUSERS" Value="" />
     <CustomAction Id="SetARPINSTALLLOCATION" Property="ARPINSTALLLOCATION" Value="[INSTALLDIR]" />
     <Directory Id="TARGETDIR" Name="SourceDir">
-      <Directory Id="$(var.PFiles)">
-        <Directory Id="INSTALLDIR" Name="$(var.DefInstallDir)">
+      <Directory Id="INSTALLDIR">
 <?include files.wxi ?>
-          <Component Id="InstallDir" Guid="$(var.Guid.InstallDir)" Win64="$(var.Win64)">
-            <RegistryValue Root="HKMU" Key="Software\$(var.RegKey)" Name="InstallDir" Value="[INSTALLDIR]" Type="string" KeyPath="yes" />
-          </Component>
-          <Component Id="AppPaths" Guid="$(var.Guid.AppPaths)" Win64="$(var.Win64)">
-            <RegistryKey Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\App Paths\Far.exe">
-              <RegistryValue Value="[#Far.exe]" Type="string" KeyPath="yes" />
-              <RegistryValue Name="Path" Value="[INSTALLDIR]" Type="string" />
-            </RegistryKey>
-          </Component>
-          <Component Id="FarHere" Guid="$(var.Guid.FarHere)" Win64="$(var.Win64)">
-            <RegistryValue Root="HKCR" Key="Directory\shell\FarHere" Value="Far Here" Type="string" KeyPath="yes" />
-            <RegistryValue Root="HKCR" Key="Directory\shell\FarHere\command" Value="&quot;[#Far.exe]&quot; &quot;%1&quot;" Type="string" />
-            <RegistryValue Root="HKCR" Key="Drive\shell\FarHere" Value="Far Here" Type="string" />
-            <RegistryValue Root="HKCR" Key="Drive\shell\FarHere\command" Value="&quot;[#Far.exe]&quot; &quot;%1&quot;" Type="string" />
-          </Component>
+        <Component Id="InstallDir" Guid="$(var.Guid.InstallDir)" Win64="$(var.Win64)">
+          <RegistryValue Root="HKMU" Key="Software\$(var.RegKey)" Name="InstallDir" Value="[INSTALLDIR]" Type="string" KeyPath="yes" />
+        </Component>
+        <Component Id="AppPaths" Guid="$(var.Guid.AppPaths)" Win64="$(var.Win64)">
+          <RegistryKey Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\App Paths\Far.exe">
+            <RegistryValue Value="[#Far.exe]" Type="string" KeyPath="yes" />
+            <RegistryValue Name="Path" Value="[INSTALLDIR]" Type="string" />
+          </RegistryKey>
+        </Component>
+        <Component Id="FarHere" Guid="$(var.Guid.FarHere)" Win64="$(var.Win64)">
+          <RegistryValue Root="HKCR" Key="Directory\shell\FarHere" Value="Far Here" Type="string" KeyPath="yes" />
+          <RegistryValue Root="HKCR" Key="Directory\shell\FarHere\command" Value="&quot;[#Far.exe]&quot; &quot;%1&quot;" Type="string" />
+          <RegistryValue Root="HKCR" Key="Drive\shell\FarHere" Value="Far Here" Type="string" />
+          <RegistryValue Root="HKCR" Key="Drive\shell\FarHere\command" Value="&quot;[#Far.exe]&quot; &quot;%1&quot;" Type="string" />
+        </Component>
 <?if $(var.Platform) = x86 ?>
-          <Component Id="FExceptReg" Guid="$(var.Guid.FExceptReg)" Win64="$(var.Win64)">
-            <RegistryValue Root="HKCU" Key="Software\$(var.RegKey)\System\Exception" Name="Used" Value="1" Type="integer" KeyPath="yes" />
-            <RegistryValue Root="HKCU" Key="Software\$(var.RegKey)\System\Exception" Name="FarEvent.svc" Value="FExcept\fexcept.dll" Type="string" />
-          </Component>
-          <Component Id="FStd_trap.log" Guid="$(var.Guid.FStd_trap.log)" Win64="$(var.Win64)">
-            <RemoveFile Id="FStd_trap.log" Name="FStd_trap.log" On="uninstall" />
-          </Component>
+        <Component Id="FExceptReg" Guid="$(var.Guid.FExceptReg)" Win64="$(var.Win64)">
+          <RegistryValue Root="HKCU" Key="Software\$(var.RegKey)\System\Exception" Name="Used" Value="1" Type="integer" KeyPath="yes" />
+          <RegistryValue Root="HKCU" Key="Software\$(var.RegKey)\System\Exception" Name="FarEvent.svc" Value="FExcept\fexcept.dll" Type="string" />
+        </Component>
+        <Component Id="FStd_trap.log" Guid="$(var.Guid.FStd_trap.log)" Win64="$(var.Win64)">
+          <RemoveFile Id="FStd_trap.log" Name="FStd_trap.log" On="uninstall" />
+        </Component>
 <?endif?>
-          <Component Id="ClearPluginsCache" Guid="$(var.Guid.ClearPluginsCache)" Win64="$(var.Win64)">
-            <RemoveRegistryKey Root="HKCU" Key="Software\$(var.RegKey)\PluginsCache" Action="removeOnInstall" />
-          </Component>
-        </Directory>
+        <Component Id="ClearPluginsCache" Guid="$(var.Guid.ClearPluginsCache)" Win64="$(var.Win64)">
+          <RemoveRegistryKey Root="HKCU" Key="Software\$(var.RegKey)\PluginsCache" Action="removeOnInstall" />
+        </Component>
       </Directory>
 <?include shortcuts.wxi ?>
     </Directory>
@@ -105,6 +100,7 @@
     <InstallExecuteSequence>
       <Custom Action="UpdateFeatureState" Before="InstallValidate" />
       <RemoveExistingProducts After="InstallFinalize" />
+      <Custom Action="SetUserInstallScopeDefault" Before="AppSearch">NOT Privileged</Custom>
       <Custom Action="SetUserInstallDir" After="AppSearch">USERINSTALLDIR</Custom>
       <Custom Action="SetUserInstallScope" After="SetUserInstallDir">USERINSTALLDIR</Custom>
       <Custom Action="SetALLUSERS" After="SetUserInstallScope">USERINSTALLDIR</Custom>
@@ -115,6 +111,7 @@
       <Custom Action="LaunchShortcut" After="RemoveExistingProducts"><![CDATA[LAUNCHAPP AND NOT Installed AND UILevel < 5]]></Custom>
     </InstallExecuteSequence>
     <InstallUISequence>
+      <Custom Action="SetUserInstallScopeDefault" Before="AppSearch">NOT Privileged</Custom>
       <Custom Action="SetUserInstallDir" After="AppSearch">USERINSTALLDIR</Custom>
       <Custom Action="SetUserInstallScope" After="SetUserInstallDir">USERINSTALLDIR</Custom>
       <Custom Action="SetALLUSERS" After="SetUserInstallScope">USERINSTALLDIR</Custom>

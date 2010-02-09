@@ -1,4 +1,16 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
+<?if $(var.Platform) = x86 ?>
+  <?define ProgramFiles = "ProgramFilesFolder" ?>
+<?endif?>
+<?if $(var.Platform) = x64 ?>
+  <?define ProgramFiles = "ProgramFiles64Folder" ?>
+<?endif?>
+<?if $(var.Branch) = 1 ?>
+  <?define DefInstallDir = "Far" ?>
+<?endif?>
+<?if $(var.Branch) = 2 ?>
+  <?define DefInstallDir = "Far2" ?>
+<?endif?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Fragment>
     <Binary Id="WixUI_Bmp_Banner" SourceFile="rsrc\banner.jpg" />
@@ -24,8 +36,10 @@
 
       <Publish Dialog="InstallScopeDlg" Control="Back" Event="NewDialog" Value="LicenseAgreementDlg">1</Publish>
       <Publish Dialog="InstallScopeDlg" Control="Next" Property="ALLUSERS" Value="{}" Order="1">InstallScope = "User"</Publish>
-      <Publish Dialog="InstallScopeDlg" Control="Next" Property="ALLUSERS" Value="1" Order="2">InstallScope = "Machine"</Publish>
-      <Publish Dialog="InstallScopeDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg" Order="3">1</Publish>
+      <Publish Dialog="InstallScopeDlg" Control="Next" Property="INSTALLDIR" Value="[LocalAppDataFolder]\$(var.DefInstallDir)" Order="2">InstallScope = "User"</Publish>
+      <Publish Dialog="InstallScopeDlg" Control="Next" Property="ALLUSERS" Value="1" Order="3">InstallScope = "Machine"</Publish>
+      <Publish Dialog="InstallScopeDlg" Control="Next" Property="INSTALLDIR" Value="[$(var.ProgramFiles)]\$(var.DefInstallDir)" Order="4">InstallScope = "Machine"</Publish>
+      <Publish Dialog="InstallScopeDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg" Order="5">1</Publish>
 
       <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="InstallScopeDlg">1</Publish>
       <Publish Dialog="InstallDirDlg" Control="Next" Event="SetTargetPath" Value="[WIXUI_INSTALLDIR]" Order="1">1</Publish>
