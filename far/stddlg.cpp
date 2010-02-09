@@ -96,12 +96,12 @@ int WINAPI GetSearchReplaceString(
 			/*  2 */DI_EDIT,5,3,70,3,1,0,DIF_HISTORY|DIF_USELASTHISTORY,0,L"",
 			/*  3 */DI_TEXT,5,4,0,4,0,0,0,0,(const wchar_t *)MEditReplaceWith,
 			/*  4 */DI_EDIT,5,5,70,5,0,0,DIF_HISTORY/*|DIF_USELASTHISTORY*/,0,L"",
-			/*  5 */DI_TEXT,3,6,0,6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+			/*  5 */DI_TEXT,3,6,0,6,0,0,DIF_SEPARATOR,0,L"",
 			/*  6 */DI_CHECKBOX,5,7,0,7,0,0,0,0,(const wchar_t *)MEditSearchCase,
 			/*  7 */DI_CHECKBOX,5,8,0,8,0,0,0,0,(const wchar_t *)MEditSearchWholeWords,
 			/*  8 */DI_CHECKBOX,5,9,0,9,0,0,0,0,(const wchar_t *)MEditSearchReverse,
 			/*  9 */DI_CHECKBOX,40,7,0,7,0,0,0,0,(const wchar_t *)MEditSearchRegexp,
-			/* 10 */DI_TEXT,3,10,0,10,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+			/* 10 */DI_TEXT,3,10,0,10,0,0,DIF_SEPARATOR,0,L"",
 			/* 11 */DI_BUTTON,0,11,0,11,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MEditReplaceReplace,
 			/* 12 */DI_BUTTON,0,11,0,11,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MEditSearchCancel
 		};
@@ -268,13 +268,13 @@ int WINAPI GetSearchReplaceString(
 			/*  0 */DI_DOUBLEBOX,3,1,72,10,0,0,0,0,(const wchar_t *)MEditSearchTitle,
 			/*  1 */DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MEditSearchFor,
 			/*  2 */DI_EDIT,5,3,70,3,1,0,DIF_HISTORY|DIF_USELASTHISTORY,0,L"",
-			/*  3 */DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+			/*  3 */DI_TEXT,3,4,0,4,0,0,DIF_SEPARATOR,0,L"",
 			/*  4 */DI_CHECKBOX,5,5,0,5,0,0,0,0,(const wchar_t *)MEditSearchCase,
 			/*  5 */DI_CHECKBOX,5,6,0,6,0,0,0,0,(const wchar_t *)MEditSearchWholeWords,
 			/*  6 */DI_CHECKBOX,5,7,0,7,0,0,0,0,(const wchar_t *)MEditSearchReverse,
 			/*  7 */DI_CHECKBOX,40,5,0,5,0,0,0,0,(const wchar_t *)MEditSearchRegexp,
 			/*  8 */DI_CHECKBOX,40,6,0,6,0,0,0,0,(const wchar_t *)MEditSearchSelFound,
-			/*  9 */DI_TEXT,3,8,0,8,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+			/*  9 */DI_TEXT,3,8,0,8,0,0,DIF_SEPARATOR,0,L"",
 			/* 10 */DI_BUTTON,0,9,0,9,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MEditSearchSearch,
 			/* 11 */DI_BUTTON,0,9,0,9,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MEditSearchCancel,
 		};
@@ -625,7 +625,7 @@ int WINAPI GetNameAndPassword(const wchar_t *Title, string &strUserName, string 
 		/* 2 */ DI_EDIT,       5, 3,70, 3,1,0,DIF_USELASTHISTORY|DIF_HISTORY,0,L"",
 		/* 3 */ DI_TEXT,       5, 4, 0, 4,0,0,0,0,L"",
 		/* 4 */ DI_PSWEDIT,    5, 5,70, 5,0,0,0,0,L"",
-		/* 5 */ DI_TEXT,       3, 6, 0, 6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+		/* 5 */ DI_TEXT,       3, 6, 0, 6,0,0,DIF_SEPARATOR,0,L"",
 		/* 6 */ DI_BUTTON,     0, 7, 0, 7,0,0,DIF_CENTERGROUP,1,L"",
 		/* 7 */ DI_BUTTON,     0, 7, 0, 7,0,0,DIF_CENTERGROUP,0,L""
 	};

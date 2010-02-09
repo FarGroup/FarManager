@@ -905,7 +905,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		DI_BUTTON,0,6,71,6,0,0,DIF_BTNNOCLOSE,0,(const wchar_t *)MFileFilterBlank,
 
 		DI_TEXT,0,9,0,9,0,0,DIF_SEPARATOR,0,L"",
-		DI_VTEXT,22,5,22,9,0,0,0,0,(const wchar_t *)VerticalLine,
+		DI_VTEXT,22,5,22,9,0,0,DIF_BOXCOLOR,0,(const wchar_t *)VerticalLine,
 
 		DI_CHECKBOX, 5,10,0,10,0,0,DIF_AUTOMATION,0,(const wchar_t *)MFileFilterAttr,
 		DI_CHECKBOX, 7,11,0,11,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrR,
@@ -924,7 +924,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		DI_CHECKBOX,51,13,0,13,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrOffline,
 		DI_CHECKBOX,51,14,0,14,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrVirtual,
 
-		DI_TEXT,-1,14,0,14,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,(const wchar_t *)MHighlightColors,
+		DI_TEXT,-1,14,0,14,0,0,DIF_SEPARATOR,0,(const wchar_t *)MHighlightColors,
 		DI_TEXT,7,15,0,15,0,0,0,0,(const wchar_t *)MHighlightMarkChar,
 		DI_FIXEDIT,5,15,5,15,0,0,0,0,L"",
 		DI_CHECKBOX,0,15,0,15,0,0,0,0,(const wchar_t *)MHighlightTransparentMarkChar,

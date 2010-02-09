@@ -365,7 +365,7 @@ int Message(
 				if (Chr == 1 || Chr == 2)
 				{
 					CPtrStr++;
-					PtrMsgDlg->Flags|=DIF_BOXCOLOR|(Chr==2?DIF_SEPARATOR2:DIF_SEPARATOR);
+					PtrMsgDlg->Flags|=(Chr==2?DIF_SEPARATOR2:DIF_SEPARATOR);
 				}
 				else if (StrLength(CPtrStr)>X2-X1-9)
 				{

@@ -1038,7 +1038,7 @@ bool UserMenu::EditMenu(const wchar_t *MenuKey,int EditPos,int TotalRecords,bool
 			DI_TEXT,5,4,0,4,0,0,0,0,MSG(MEditMenuLabel),
 			DI_EDIT,5,5,DLG_X-6,5,0,0,0,0,L"",
 
-			DI_TEXT,3,6,0,6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR|State,0,L"",
+			DI_TEXT,3,6,0,6,0,0,DIF_SEPARATOR|State,0,L"",
 			DI_TEXT,5,7,0,7,0,0,State,0,MSG(MEditMenuCommands),
 #ifdef PROJECT_DI_MEMOEDIT
 			DI_MEMOEDIT,5, 8,DLG_X-6,17,0,0,DIF_EDITPATH,0,L"",
@@ -1055,7 +1055,7 @@ bool UserMenu::EditMenu(const wchar_t *MenuKey,int EditPos,int TotalRecords,bool
 			DI_EDIT,5,17,DLG_X-6,17,0,0,DIF_EDITPATH|DIF_EDITOR|State,0,L"",
 #endif
 
-			DI_TEXT,3,DLG_Y-4,0,DLG_Y-4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+			DI_TEXT,3,DLG_Y-4,0,DLG_Y-4,0,0,DIF_SEPARATOR,0,L"",
 			DI_BUTTON,0,DLG_Y-3,0,DLG_Y-3,0,0,DIF_CENTERGROUP,1,MSG(MOk),
 			DI_BUTTON,0,DLG_Y-3,0,DLG_Y-3,0,0,DIF_CENTERGROUP,0,MSG(MCancel),
 		};

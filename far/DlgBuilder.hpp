@@ -493,7 +493,7 @@ class DialogBuilderBase
 		void AddSeparator(int MessageId=-1)
 		{
 			T *Separator = AddDialogItem(DI_TEXT, MessageId == -1 ? EMPTY_TEXT : GetLangString(MessageId));
-			Separator->Flags = DIF_BOXCOLOR | DIF_SEPARATOR;
+			Separator->Flags = DIF_SEPARATOR;
 			Separator->X1 = 3;
 			Separator->Y1 = Separator->Y2 = NextY++;
 		}

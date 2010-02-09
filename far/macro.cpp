@@ -4608,23 +4608,26 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
 	string strKeyText;
 	static int LastKey=0;
 	static DlgParam *KMParam=NULL;
-	int Index, I;
+	int Index;
 
 	//_SVS(SysLog(L"LastKey=%d Msg=%s",LastKey,_DLGMSG_ToName(Msg)));
 	if (Msg == DN_INITDIALOG)
 	{
-		KMParam=(DlgParam *)Param2;
+		KMParam=reinterpret_cast<DlgParam*>(Param2);
 		LastKey=0;
 		// < лавиши, которые не введешь в диалоге назначени€>
-		static const wchar_t * const PreDefKeyName[]=
+		DWORD PreDefKeyMain[]=
 		{
-			L"CtrlDown", L"Enter", L"Esc", L"F1", L"CtrlF5",
+			KEY_CTRLDOWN,KEY_ENTER,KEY_NUMENTER,KEY_ESC,KEY_F1,KEY_CTRLF5,
 		};
 
-		for (I=0; I < (int)countof(PreDefKeyName); ++I)
-			SendDlgMessage(hDlg,DM_LISTADDSTR,2,(LONG_PTR)PreDefKeyName[I]);
+		for (size_t i=0; i<countof(PreDefKeyMain); i++)
+		{
+			KeyToText(PreDefKeyMain[i],strKeyText);
+			SendDlgMessage(hDlg,DM_LISTADDSTR,2,reinterpret_cast<LONG_PTR>(strKeyText.CPtr()));
+		}
 
-		static DWORD PreDefKey[]=
+		DWORD PreDefKey[]=
 		{
 			KEY_MSWHEEL_UP,KEY_MSWHEEL_DOWN,KEY_MSWHEEL_LEFT,KEY_MSWHEEL_RIGHT,
 			KEY_MSLCLICK,KEY_MSRCLICK,KEY_MSM1CLICK,KEY_MSM2CLICK,KEY_MSM3CLICK,
@@ -4632,19 +4635,19 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
 			KEY_MSLDBLCLICK,KEY_MSRDBLCLICK,KEY_MSM1DBLCLICK,KEY_MSM2DBLCLICK,KEY_MSM3DBLCLICK,
 #endif
 		};
-		static DWORD PreDefModKey[]=
+		DWORD PreDefModKey[]=
 		{
 			0,KEY_CTRL,KEY_SHIFT,KEY_ALT,KEY_CTRLSHIFT,KEY_CTRLALT,KEY_ALTSHIFT,
 		};
 
-		for (I=0; I < (int)countof(PreDefKey); ++I)
+		for (size_t i=0; i<countof(PreDefKey); i++)
 		{
-			SendDlgMessage(hDlg,DM_LISTADDSTR,2,(LONG_PTR)L"\1");
+			SendDlgMessage(hDlg,DM_LISTADDSTR,2,reinterpret_cast<LONG_PTR>(L"\1"));
 
-			for (int J=0; J < (int)countof(PreDefModKey); ++J)
+			for (size_t j=0; j<countof(PreDefModKey); j++)
 			{
-				KeyToText(PreDefKey[I]|PreDefModKey[J],strKeyText);
-				SendDlgMessage(hDlg,DM_LISTADDSTR,2,(LONG_PTR)(const wchar_t*)strKeyText);
+				KeyToText(PreDefKey[i]|PreDefModKey[j],strKeyText);
+				SendDlgMessage(hDlg,DM_LISTADDSTR,2,reinterpret_cast<LONG_PTR>(strKeyText.CPtr()));
 			}
 		}
 
@@ -4671,7 +4674,7 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
 			xf_free(KeyStr);
 		}
 		*/
-		SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(LONG_PTR)L"");
+		SendDlgMessage(hDlg,DM_SETTEXTPTR,2,reinterpret_cast<LONG_PTR>(L""));
 		// </ лавиши, которые не введешь в диалоге назначени€>
 	}
 	else if (Param1 == 2 && Msg == DN_EDITCHANGE)
@@ -4695,8 +4698,7 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
 		if (Param2 == KEY_ESC ||
 		        ((Param2 == KEY_ENTER||Param2 == KEY_NUMENTER) && (LastKey == KEY_ENTER||LastKey == KEY_NUMENTER)) ||
 		        Param2 == KEY_CTRLDOWN ||
-		        Param2 == KEY_F1
-		   )
+		        Param2 == KEY_F1)
 		{
 			return FALSE;
 		}
@@ -4741,21 +4743,18 @@ M1:
 			// общие макросы учитываем только при удалении.
 			if (!MacroDlg->RecBuffer || !MacroDlg->RecBufferSize || (Mac->Flags&0xFF)!=MACRO_COMMON)
 			{
-				DWORD DisFlags=Mac->Flags&MFLAGS_DISABLEMACRO;
-				string strBuf;
-				string strBufKey;
 				string strRegKeyName;
-				string strTextBuffer;
 				MacroDlg->MkRegKeyName(Index, strRegKeyName);
 
+				string strBufKey;
 				if (Mac->Src != NULL)
 				{
 					strBufKey=Mac->Src;
 					InsertQuote(strBufKey);
 				}
-				else
-					strBufKey.Clear();
 
+				DWORD DisFlags=Mac->Flags&MFLAGS_DISABLEMACRO;
+				string strBuf;
 				if ((Mac->Flags&0xFF)==MACRO_COMMON)
 					strBuf.Format(MSG(!MacroDlg->RecBufferSize?
 					                  (DisFlags?MMacroCommonDeleteAssign:MMacroCommonDeleteKey):
@@ -4766,17 +4765,16 @@ M1:
 							                  MMacroReDefinedKey), (const wchar_t*)strKeyText);
 
 				// проверим "а не совпадает ли всЄ?"
-				if (!DisFlags &&
+				int Result=0;
+				if (!(!DisFlags &&
 				        Mac->Buffer && MacroDlg->RecBuffer &&
 				        Mac->BufferSize == MacroDlg->RecBufferSize &&
 				        (
 				            (Mac->BufferSize >  1 && !memcmp(Mac->Buffer,MacroDlg->RecBuffer,MacroDlg->RecBufferSize*sizeof(DWORD))) ||
 				            (Mac->BufferSize == 1 && (DWORD)(DWORD_PTR)Mac->Buffer == (DWORD)(DWORD_PTR)MacroDlg->RecBuffer)
 				        )
-				   )
-					I=0;
-				else
-					I=Message(MSG_WARNING,2,MSG(MWarning),
+				   ))
+					Result=Message(MSG_WARNING,2,MSG(MWarning),
 					          strBuf,
 					          MSG(MMacroSequence),
 					          strBufKey,
@@ -4785,16 +4783,16 @@ M1:
 					          MSG(DisFlags && MacroDlg->RecBufferSize?MMacroDisOverwrite:MYes),
 					          MSG(DisFlags && MacroDlg->RecBufferSize?MMacroDisAnotherKey:MNo));
 
-				if (!I)
-		{
+				if (!Result)
+				{
 					if (DisFlags)
 					{
-						if (Opt.AutoSaveSetup) // удал€ем из реестра только в случае
-						{                      // когда включен автосейв
+						// удал€ем из реестра только если включен автосейв
+						if (Opt.AutoSaveSetup) 
+						{
 							// удалим старую запись из реестра
 							DeleteRegKey(strRegKeyName);
 						}
-
 						// раздисаблим
 						Mac->Flags&=~MFLAGS_DISABLEMACRO;
 					}
@@ -4819,13 +4817,6 @@ M1:
 		LastKey=(int)Param2;
 		return TRUE;
 	}
-	else if (Msg == DN_CTLCOLORDLGITEM) // сбросим Unchanged
-	{
-		Param2&=0xFF00FFFFU;      // Unchanged у нас сидит в младшем байте старшего слова
-		Param2|=(Param2&0xFF)<<16;
-		return Param2;
-	}
-
 	return DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
@@ -4840,7 +4831,7 @@ DWORD KeyMacro::AssignMacroKey()
 	static DialogDataEx MacroAssignDlgData[]=
 	{
 		/* 00 */ DI_DOUBLEBOX,3,1,30,4,0,0,0,0,(const wchar_t *)MDefineMacroTitle,
-		/* 01 */ DI_TEXT,-1,2,0,2,0,0,DIF_BOXCOLOR|DIF_READONLY,0,(const wchar_t *)MDefineMacro,
+		/* 01 */ DI_TEXT,-1,2,0,2,0,0,0,0,(const wchar_t *)MDefineMacro,
 		/* 02 */ DI_COMBOBOX,5,3,28,3,1,0,0,1,L"",
 	};
 	MakeDialogItemsEx(MacroAssignDlgData,MacroAssignDlg);
@@ -5035,10 +5026,10 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 		/* 00 */DI_DOUBLEBOX,3,1,69,17,0,0,0,0,L"",
 		/* 01 */DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MMacroSequence,
 		/* 02 */DI_EDIT,5,3,67,3,1,0,0,0,L"",
-		/* 03 */DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+		/* 03 */DI_TEXT,3,4,0,4,0,0,DIF_SEPARATOR,0,L"",
 		/* 04 */DI_CHECKBOX,5,5,0,5,0,0,0,0,(const wchar_t *)MMacroSettingsEnableOutput,
 		/* 05 */DI_CHECKBOX,5,6,0,6,0,0,0,0,(const wchar_t *)MMacroSettingsRunAfterStart,
-		/* 06 */DI_TEXT,3,7,0,7,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+		/* 06 */DI_TEXT,3,7,0,7,0,0,DIF_SEPARATOR,0,L"",
 		/* 07 */DI_CHECKBOX,5,8,0,8,0,0,0,0,(const wchar_t *)MMacroSettingsActivePanel,
 		/* 08 */DI_CHECKBOX,7,9,0,9,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsPluginPanel,
 		/* 09 */DI_CHECKBOX,7,10,0,10,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsFolders,
@@ -5047,10 +5038,10 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 		/* 12 */DI_CHECKBOX,39,9,0,9,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsPluginPanel,
 		/* 13 */DI_CHECKBOX,39,10,0,10,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsFolders,
 		/* 14 */DI_CHECKBOX,39,11,0,11,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsSelectionPresent,
-		/* 15 */DI_TEXT,3,12,0,12,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+		/* 15 */DI_TEXT,3,12,0,12,0,0,DIF_SEPARATOR,0,L"",
 		/* 16 */DI_CHECKBOX,5,13,0,13,0,2,DIF_3STATE,0,(const wchar_t *)MMacroSettingsCommandLine,
 		/* 17 */DI_CHECKBOX,5,14,0,14,0,2,DIF_3STATE,0,(const wchar_t *)MMacroSettingsSelectionBlockPresent,
-		/* 18 */DI_TEXT,3,15,0,15,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+		/* 18 */DI_TEXT,3,15,0,15,0,0,DIF_SEPARATOR,0,L"",
 		/* 19 */DI_BUTTON,0,16,0,16,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
 		/* 20 */DI_BUTTON,0,16,0,16,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
 	};
@@ -5274,7 +5265,7 @@ int KeyMacro::ParseMacroString(MacroRecord *CurMacro,const wchar_t *BufPtr,BOOL 
 		{
 			// TODO: Ё“ќ“  ”—ќ  ƒќЋ∆≈Ќ ѕ–≈ƒѕќЋј√ј“№ ¬ќ«ћќ∆Ќќ—“№ –≈∆»ћј SILENT!
 			bool scrLocks=LockScr != NULL;
-			string ErrMsg[3];
+			string ErrMsg[4];
 
 			if (scrLocks) // если был - удалим
 			{
@@ -5284,9 +5275,9 @@ int KeyMacro::ParseMacroString(MacroRecord *CurMacro,const wchar_t *BufPtr,BOOL 
 			}
 
 			InternalInput++; // InternalInput - ограничитель того, чтобы макрос не продолжал свое исполнение
-			GetMacroParseError(&ErrMsg[0],&ErrMsg[1],NULL,&ErrMsg[2]);
+			GetMacroParseError(&ErrMsg[0],&ErrMsg[1],&ErrMsg[2],&ErrMsg[3]);
 			//if(...)
-			Message(MSG_WARNING|MSG_LEFTALIGN,1,MSG(MMacroPErrorTitle),ErrMsg[0],ErrMsg[2],L"\x1",ErrMsg[1],L"\x1",MSG(MOk));
+			Message(MSG_WARNING|MSG_LEFTALIGN,1,MSG(MMacroPErrorTitle),ErrMsg[3]+L":",ErrMsg[0],L"\x1",ErrMsg[1],ErrMsg[2],L"\x1",MSG(MOk));
 			//else
 			// вывести диагностику в файл
 			InternalInput--;

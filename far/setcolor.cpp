@@ -611,7 +611,7 @@ int GetColorDialog(WORD& Color,bool bCentered,bool bAddTransparent)
 		/*  37 */ DI_TEXT,        5, 8, 33,8, 0,0,DIF_SETCOLOR,0,(const wchar_t *)MSetColorSample,
 		/*  38 */ DI_TEXT,        5, 9, 33,9, 0,0,DIF_SETCOLOR,0,(const wchar_t *)MSetColorSample,
 		/*  39 */ DI_TEXT,        5,10, 33,10,0,0,DIF_SETCOLOR,0,(const wchar_t *)MSetColorSample,
-		/*  40 */ DI_TEXT,        0,11, 0, 11,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+		/*  40 */ DI_TEXT,        0,11, 0, 11,0,0,DIF_SEPARATOR,0,L"",
 		/*  41 */ DI_BUTTON,      0,12, 0, 12,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MSetColorSet,
 		/*  42 */ DI_BUTTON,      0,12, 0, 12,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MSetColorCancel,
 

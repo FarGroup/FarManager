@@ -587,7 +587,7 @@ bool EditTypeRecord(int EditPos,int TotalRecords,bool NewRec)
 		DI_EDIT,     5, 3,DlgX-6, 3,1,(DWORD_PTR)L"Masks",DIF_HISTORY,0,L"",
 		DI_TEXT,     5, 4, 0, 4,0,0,0,0,MSG(MFileAssocDescr),
 		DI_EDIT,     5, 5,DlgX-6, 5,0,0,0,0,L"",
-		DI_TEXT,     3, 6, 0, 6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+		DI_TEXT,     3, 6, 0, 6,0,0,DIF_SEPARATOR,0,L"",
 		DI_CHECKBOX, 5, 7, 0, 7,0,1,0,0,MSG(MFileAssocExec),
 		DI_EDIT,     9, 8,DlgX-6, 8,0,0,0,0,L"",
 		DI_CHECKBOX, 5, 9, 0, 9,0,1,0,0,MSG(MFileAssocAltExec),
@@ -600,7 +600,7 @@ bool EditTypeRecord(int EditPos,int TotalRecords,bool NewRec)
 		DI_EDIT,     9,16,DlgX-6,16,0,0,0,0,L"",
 		DI_CHECKBOX, 5,17, 0,17,0,1,0,0,MSG(MFileAssocAltEdit),
 		DI_EDIT,     9,18,DlgX-6,18,0,0,0,0,L"",
-		DI_TEXT,     3,DlgY-4, 0,DlgY-4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+		DI_TEXT,     3,DlgY-4, 0,DlgY-4,0,0,DIF_SEPARATOR,0,L"",
 		DI_BUTTON,   0,DlgY-3, 0,DlgY-3,0,0,DIF_CENTERGROUP,1,MSG(MOk),
 		DI_BUTTON,   0,DlgY-3, 0,DlgY-3,0,0,DIF_CENTERGROUP,0,MSG(MCancel),
 	};
