@@ -463,6 +463,7 @@ void FileEditor::Init(
 	//AY: флаг оповещающий закрытие редактора.
 	m_bClosing = false;
 	bEE_READ_Sent = false;
+	m_bAddSignature = false;
 	m_editor = new Editor;
 	__smartlock.Set(m_editor);
 
@@ -630,6 +631,9 @@ void FileEditor::Init(
 
 	if (BlankFileName && Flags.Check(FFILEEDIT_CANNEWFILE))
 		Flags.Set(FFILEEDIT_NEW);
+
+	if (Flags.Check(FFILEEDIT_NEW))
+	  m_bAddSignature = true;
 
 	if (Flags.Check(FFILEEDIT_LOCKED))
 		m_editor->Flags.Set(FEDITOR_LOCKMODE);
@@ -1054,7 +1058,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					bool SaveAs = Key==KEY_SHIFTF2 || Flags.Check(FFILEEDIT_SAVETOSAVEAS);
 					int NameChanged=FALSE;
 					string strFullSaveAsName = strFullFileName;
-					bool AddSignature=(m_bSignatureFound || Flags.Check(FFILEEDIT_NEW));
+					bool AddSignature=m_bAddSignature;
 
 					if (SaveAs)
 					{
@@ -1063,9 +1067,9 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 						if (!dlgSaveFileAs(strSaveAsName, TextFormat, codepage, AddSignature))
 							return FALSE;
 
-						if (m_bSignatureFound && !AddSignature)
+						if (m_bAddSignature && !AddSignature)
 						{
-							m_bSignatureFound=false;
+							m_bAddSignature=false;
 						}
 
 						apiExpandEnvironmentStrings(strSaveAsName, strSaveAsName);
@@ -1514,7 +1518,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 
 	if (m_codepage == CP_AUTODETECT || IsUnicodeOrUtfCodePage(m_codepage))
 	{
-		Detect=GetFileFormat(EditFile,dwCP,&m_bSignatureFound,Opt.EdOpt.AutoDetectCodePage!=0);
+		Detect=GetFileFormat(EditFile,dwCP,&m_bAddSignature,Opt.EdOpt.AutoDetectCodePage!=0);
 
 		// Проверяем поддерживается или нет задетектировання кодовая страница
 		if (Detect)
@@ -1848,7 +1852,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 		TPreRedrawFuncGuard preRedrawFuncGuard(Editor::PR_EditorShowMsg);
 
 		if (!bSaveAs)
-			AddSignature=(m_bSignatureFound || Flags.Check(FFILEEDIT_NEW));
+			AddSignature=m_bAddSignature;
 
 		if (AddSignature)
 		{
@@ -2568,7 +2572,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 
 					Flags.Set(FFILEEDIT_SAVEWQUESTIONS);
 					//всегда записываем в режиме save as - иначе не сменить кодировку и концы линий.
-					return SaveFile(strName,FALSE,true,EOL,codepage,m_bSignatureFound);
+					return SaveFile(strName,FALSE,true,EOL,codepage,m_bAddSignature);
 				}
 			}
 
@@ -2663,9 +2667,33 @@ int FileEditor::EditorControl(int Command, void *Param)
 			ReProcessKey((int)(INT_PTR)Param);
 			return TRUE;
 		}
+		case ECTL_SETPARAM:
+		{
+			if (Param)
+			{
+				EditorSetParameter *espar=(EditorSetParameter *)Param;
+				if (ESPT_SETBOM==espar->Type)
+				{
+				    if(IsUnicodeOrUtfCodePage(m_codepage))
+				    {
+						m_bAddSignature=espar->Param.iParam;
+						return TRUE;
+					}
+					return FALSE;
+				}
+			}
+			break;
+		}
 	}
 
-	return m_editor->EditorControl(Command,Param);
+	int result=m_editor->EditorControl(Command,Param);
+	if (result&&Param&&ECTL_GETINFO==Command)
+	{
+		EditorInfo *Info=(EditorInfo *)Param;
+		if (m_bAddSignature)
+			Info->Options|=EOPT_BOM;
+	}
+	return result;
 }
 
 bool FileEditor::LoadFromCache(EditorCacheParams *pp)

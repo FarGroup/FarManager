@@ -112,7 +112,7 @@ class FileEditor : public Frame
 
 		bool bEE_READ_Sent;
 
-		bool m_bSignatureFound;
+		bool m_bAddSignature;
 
 		UINT m_codepage; //BUGBUG
 
