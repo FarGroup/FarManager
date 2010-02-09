@@ -238,7 +238,7 @@ successful.
    The search is performed in the following order:
 
    1. Current folder
-   2. Каталог, на котрый указывает переменная среды %FARHOME%
+   2. Каталог, на который указывает переменная среды %FARHOME%
    3. Windows 95: Windows' system folder (SYSTEM)
       Windows NT: 32 bit Windows' system folder (SYSTEM32)
    4. Windows NT: 16 bit Windows' system folder (SYSTEM)
@@ -285,6 +285,16 @@ typed from the keyboard.
 
       The sequence is executed only after return the FAR Manager receives control.
 
+   4. Проверить синтаксис макропоследовательности
+
+      #far:macro check sequence#
+      или
+      #macro:check sequence#
+
+      В случае ошибок в "sequence" будет выведено сообщение с
+      указанием типа ошибки и позиции в последовательности.
+
+   Команда #check# доступна только в Unicode-версии (для FAR 2.x)
 
    See also: ~Contents~@Contents@, ~Macro~@:KeyMacroCmds@
 

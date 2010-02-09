@@ -584,21 +584,42 @@ int OpenFromCommandLine(TCHAR *_farcmd)
               command.Command=MCMD_SAVEALL;
               Info.AdvControl(Info.ModuleNumber,ACTL_KEYMACRO,&command);
             }
-            /* $ 21.06.2001 SVS
-               Новая команда - поместить последовательность клавиш */
+            #ifdef UNICODE
+            else if(!LStrnicmp(pCmd,_T("CHECK"),5))
+            {
+              pCmd+=5;
+              command.Command=MCMD_CHECKMACRO;
+              command.Param.PlainText.Flags=0;
+              TCHAR *SequenceText=(TCHAR *)malloc((lstrlen(pCmd)+1)*sizeof(TCHAR));
+              if(SequenceText)
+              {
+                //command.Param.PlainText.Flags=KSFLAGS_SILENTCHECK;
+                command.Param.PlainText.SequenceText=SequenceText;
+                lstrcpy((TCHAR*)command.Param.PlainText.SequenceText,pCmd);
+                if(!Info.AdvControl(Info.ModuleNumber,ACTL_KEYMACRO,&command))
+                {
+                  ;
+                    //command.Param.MacroResult.ErrPos
+                    //command.Param.MacroResult.ErrCode
+                    //command.Param.MacroResult.ErrSrc
+                }
+                free((void*)SequenceText);
+              }
+            }
+            #endif
             else if(!LStrnicmp(pCmd,_T("POST"),4))
             {
               pCmd+=4;
 
               command.Command=MCMD_POSTMACROSTRING;
-
-              command.Param.PlainText.SequenceText=(TCHAR *)malloc((lstrlen(pCmd)+1)*sizeof(TCHAR));
-              if(command.Param.PlainText.SequenceText)
+              TCHAR *SequenceText=(TCHAR *)malloc((lstrlen(pCmd)+1)*sizeof(TCHAR));
+              if(SequenceText)
               {
                 command.Param.PlainText.Flags=KSFLAGS_DISABLEOUTPUT;
+                command.Param.PlainText.SequenceText=SequenceText;
                 lstrcpy((TCHAR*)command.Param.PlainText.SequenceText,pCmd);
                 Info.AdvControl(Info.ModuleNumber,ACTL_KEYMACRO,&command);
-                free((void*)command.Param.PlainText.SequenceText);
+                free((void*)SequenceText);
               }
             }
             /* SVS $ */

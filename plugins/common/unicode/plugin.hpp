@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 2.0 build 1330
+  Plugin API for FAR Manager 2.0 build 1382
 */
 
 /*
@@ -42,7 +42,7 @@ other possible license with no implications from the above license on them.
 
 #define FARMANAGERVERSION_MAJOR 2
 #define FARMANAGERVERSION_MINOR 0
-#define FARMANAGERVERSION_BUILD 1330
+#define FARMANAGERVERSION_BUILD 1382
 
 #ifndef RC_INVOKED
 
@@ -221,6 +221,7 @@ enum FarDialogItemFlags
 	DIF_MASKEDIT              = 0x00400000UL,
 	DIF_SELECTONENTRY         = 0x00800000UL,
 	DIF_3STATE                = 0x00800000UL,
+	DIF_EDITPATH              = 0x01000000UL,
 	DIF_LISTWRAPMODE          = 0x01000000UL,
 	DIF_NOAUTOCOMPLETE        = 0x02000000UL,
 	DIF_LISTAUTOHIGHLIGHT     = 0x02000000UL,
@@ -941,6 +942,7 @@ enum ADVANCED_CONTROL_COMMANDS
 	ACTL_SYNCHRO              = 28,
 	ACTL_SETPROGRESSSTATE     = 29,
 	ACTL_SETPROGRESSVALUE     = 30,
+	ACTL_QUIT                 = 31,
 };
 
 
@@ -1046,13 +1048,14 @@ enum FARKEYSEQUENCEFLAGS
 	KSFLAGS_DISABLEOUTPUT       = 0x00000001,
 	KSFLAGS_NOSENDKEYSTOPLUGINS = 0x00000002,
 	KSFLAGS_REG_MULTI_SZ        = 0x00100000,
+	KSFLAGS_SILENTCHECK         = 0x00000001,
 };
 
 struct KeySequence
 {
 	DWORD Flags;
 	int Count;
-	DWORD *Sequence;
+	const DWORD *Sequence;
 };
 
 enum FARMACROCOMMAND
@@ -1060,6 +1063,7 @@ enum FARMACROCOMMAND
 	MCMD_LOADALL           = 0,
 	MCMD_SAVEALL           = 1,
 	MCMD_POSTMACROSTRING   = 2,
+	MCMD_CHECKMACRO        = 4,
 	MCMD_GETSTATE          = 5,
 };
 
@@ -1072,6 +1076,30 @@ enum FARMACROSTATE
 	MACROSTATE_RECORDING_COMMON =4,
 };
 
+enum FARMACROPARSEERRORCODE
+{
+	MPEC_SUCCESS                = 0,
+	MPEC_UNRECOGNIZED_KEYWORD   = 1,
+	MPEC_UNRECOGNIZED_FUNCTION  = 2,
+	MPEC_FUNC_PARAM             = 3,
+	MPEC_NOT_EXPECTED_ELSE      = 4,
+	MPEC_NOT_EXPECTED_END       = 5,
+	MPEC_UNEXPECTED_EOS         = 6,
+	MPEC_EXPECTED_TOKEN         = 7,
+	MPEC_BAD_HEX_CONTROL_CHAR   = 8,
+	MPEC_BAD_CONTROL_CHAR       = 9,
+	MPEC_VAR_EXPECTED           =10,
+	MPEC_EXPR_EXPECTED          =11,
+	MPEC_ZEROLENGTHMACRO        =12,
+	MPEC_INTPARSERERROR         =13,
+};
+
+struct MacroParseResult
+{
+	DWORD ErrCode;
+	COORD ErrPos;
+	const wchar_t *ErrSrc;
+};
 
 struct ActlKeyMacro
 {
@@ -1083,6 +1111,7 @@ struct ActlKeyMacro
 			const wchar_t *SequenceText;
 			DWORD Flags;
 		} PlainText;
+		struct MacroParseResult MacroResult;
 		DWORD_PTR Reserved[3];
 	} Param;
 };
@@ -1506,6 +1535,7 @@ enum INPUTBOXFLAGS
 	FIB_NOUSELASTHISTORY = 0x00000008,
 	FIB_BUTTONS          = 0x00000010,
 	FIB_NOAMPERSAND      = 0x00000020,
+	FIB_EDITPATH         = 0x01000000,
 };
 
 typedef int (WINAPI *FARAPIINPUTBOX)(
