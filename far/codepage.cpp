@@ -161,11 +161,18 @@ void AddCodePage(const wchar_t *codePageName, UINT codePage, int position = -1, 
 			CodePages->AddItem(&item);
 
 		// Если надо позиционируем курсор на добавленный элемент
-		if (currentCodePage==codePage && (CodePages->GetSelectPos()==-1 || (UINT)(UINT_PTR)CodePages->GetItemPtr()->UserData!=codePage))
-			CodePages->SetSelectPos(position>=0?position:CodePages->GetItemCount()-1, 1);
-		// Корректируем позицию выбранного элемента
-		else if (position!=-1 && CodePages->GetSelectPos()>=position)
-			CodePages->SetSelectPos(CodePages->GetSelectPos()+1, 1);
+		if (currentCodePage==codePage)
+		{
+			if ((CodePages->GetSelectPos()==-1 || (UINT)(UINT_PTR)CodePages->GetItemPtr()->UserData!=codePage))
+			{
+				CodePages->SetSelectPos(position>=0?position:CodePages->GetItemCount()-1, 1);
+			}
+			// Корректируем позицию выбранного элемента
+			else if (position!=-1 && CodePages->GetSelectPos()>=position)
+			{
+				CodePages->SetSelectPos(CodePages->GetSelectPos()+1, 1);
+			}
+		}
 	}
 }
 
