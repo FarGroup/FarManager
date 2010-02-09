@@ -3288,7 +3288,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		return(FALSE);
 	}
 
-	if (MouseEvent->dwEventFlags==0 || MouseEvent->dwEventFlags==DOUBLE_CLICK || MouseEvent->dwEventFlags==MOUSE_MOVED)
+	if (MouseEvent->dwEventFlags==0 || MouseEvent->dwEventFlags==DOUBLE_CLICK)
 	{
 		// первый цикл - все за исключением рамок.
 		//for (I=0; I < ItemCount;I++)
