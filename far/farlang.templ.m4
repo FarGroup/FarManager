@@ -12938,10 +12938,10 @@ l:// for <!Macro:Vars!> and <!Macro:Consts!>, count formats = 2
 MMacroPErrorTitle
 "Ошибка при разборе макроса"
 "Macro parsing error"
-"Macro parsing error"
-"Macro parsing error"
+upd:"Macro parsing error"
+upd:"Macro parsing error"
 "Makróelemzési hiba"
-"Macro parsing error"
+upd:"Macro parsing error"
 
 MMacroPErrorPosition
 "Строка %d, позиция %d"
