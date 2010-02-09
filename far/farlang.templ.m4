@@ -12935,6 +12935,22 @@ l:// for <!Macro:Vars!> and <!Macro:Consts!>, count formats = 2
 "%g"
 "%g"
 
+MMacroPErrorTitle
+"Ошибка при разборе макроса"
+"Macro parsing error"
+"Macro parsing error"
+"Macro parsing error"
+"Makróelemzési hiba"
+"Macro parsing error"
+
+MMacroPErrorPosition
+"Строка %d, позиция %d"
+"Line %d, Pos %d"
+upd:"Line %d, Pos %d"
+upd:"Line %d, Pos %d"
+upd:"Line %d, Pos %d"
+upd:"Line %d, Pos %d"
+
 MMacroPErrUnrecognized_keyword
 l:
 "Неизвестное ключевое слово '%s'"
@@ -13031,14 +13047,6 @@ upd:"Zero-length macro"
 upd:"Zero-length macro"
 "Nulla hosszúságú makró"
 upd:"Zero-length macro"
-
-MMacroPErrorTitle
-"Ошибка при разборе макроса"
-"Macro parsing error"
-"Macro parsing error"
-"Macro parsing error"
-"Makróelemzési hiba"
-"Macro parsing error"
 
 MCannotSaveFile
 l:

@@ -776,6 +776,7 @@ int KeyMacro::ProcessKey(int Key)
 				Work.ExecLIBPos=0;
 				PostNewMacro(MacroLIB+I);
 				Work.cRec=*FrameManager->GetLastInputRecord();
+				_SVS(FarSysLog_INPUT_RECORD_Dump(L"Macro",&Work.cRec));
 				Work.MacroPC=I;
 				IsRedrawEditor=CtrlObject->Plugins.CheckFlags(PSIF_ENTERTOOPENPLUGIN)?FALSE:TRUE;
 				_KEYMACRO(SysLog(L"**** Start Of Execute Macro ****"));
@@ -5283,9 +5284,9 @@ int KeyMacro::ParseMacroString(MacroRecord *CurMacro,const wchar_t *BufPtr,BOOL 
 			}
 
 			InternalInput++; // InternalInput - ограничитель того, чтобы макрос не продолжал свое исполнение
-			GetMacroParseError(&ErrMsg[0],&ErrMsg[1],&ErrMsg[2]);
+			GetMacroParseError(&ErrMsg[0],&ErrMsg[1],NULL,&ErrMsg[2]);
 			//if(...)
-			Message(MSG_WARNING|MSG_LEFTALIGN,1,MSG(MMacroPErrorTitle),ErrMsg[0],L"\x1",ErrMsg[1],ErrMsg[2],L"\x1",MSG(MOk));
+			Message(MSG_WARNING|MSG_LEFTALIGN,1,MSG(MMacroPErrorTitle),ErrMsg[0],ErrMsg[2],L"\x1",ErrMsg[1],L"\x1",MSG(MOk));
 			//else
 			// вывести диагностику в файл
 			InternalInput--;
@@ -5860,9 +5861,14 @@ void doneMacroVarTable(int global)
 	}
 }
 
-BOOL KeyMacro::GetMacroParseError(string *ErrMsg1,string *ErrMsg2,string *ErrMsg3)
+BOOL KeyMacro::GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc)
 {
-	return __getMacroParseError(ErrMsg1,ErrMsg2,ErrMsg3);
+	return __getMacroParseError(ErrCode,ErrPos,ErrSrc);
+}
+
+BOOL KeyMacro::GetMacroParseError(string *Err1, string *Err2, string *Err3, string *Err4)
+{
+	return __getMacroParseError(Err1, Err2, Err3, Err4);
 }
 
 // это OpCode (за исключением MCODE_OP_ENDKEYS)?

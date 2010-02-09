@@ -3049,6 +3049,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 			switch (km.Command)
 			{
 				case MCMD_CHECKMACRO:
+				{
 
 					if (ErrMsg1) xf_free(ErrMsg1);
 
@@ -3056,14 +3057,20 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 
 					if (ErrMsg3) xf_free(ErrMsg3);
 
-					kmA->Param.MacroResult.ErrMsg1 = ErrMsg1 = UnicodeToAnsi(km.Param.MacroResult.ErrMsg1);
-					kmA->Param.MacroResult.ErrMsg2 = ErrMsg2 = UnicodeToAnsi(km.Param.MacroResult.ErrMsg2);
-					kmA->Param.MacroResult.ErrMsg3 = ErrMsg3 = UnicodeToAnsi(km.Param.MacroResult.ErrMsg3);
+					string ErrMessage[3];
+
+					CtrlObject->Macro.GetMacroParseError(&ErrMessage[0],&ErrMessage[1],&ErrMessage[2],NULL);
+
+					kmA->Param.MacroResult.ErrMsg1 = ErrMsg1 = UnicodeToAnsi(ErrMessage[0]);
+					kmA->Param.MacroResult.ErrMsg2 = ErrMsg2 = UnicodeToAnsi(ErrMessage[1]);
+					kmA->Param.MacroResult.ErrMsg3 = ErrMsg3 = UnicodeToAnsi(ErrMessage[2]);
 
 					if (km.Param.PlainText.SequenceText)
 						xf_free((void*)km.Param.PlainText.SequenceText);
 
 					break;
+				}
+
 				case MCMD_COMPILEMACRO:
 
 					if (km.Param.Compile.Sequence)

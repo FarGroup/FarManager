@@ -505,7 +505,9 @@ DWORD IsMouseButtonPressed()
 	INPUT_RECORD rec;
 
 	if (PeekInputRecord(&rec))
+	{
 		GetInputRecord(&rec);
+	}
 
 	Sleep(1);
 	return MouseButtonState;
@@ -547,6 +549,7 @@ static DWORD KeyMsClick2ButtonState(DWORD Key,DWORD& Event)
 
 DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 {
+	_KEYMACRO(CleverSysLog Clev(L"GetInputRecord()"));
 	static int LastEventIdle=FALSE;
 	DWORD ReadCount;
 	DWORD LoopCount=0,CalcKey;
@@ -608,6 +611,8 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 		//???
 		if (!ExcludeMacro && CtrlObject && CtrlObject->Macro.IsRecording() && (CalcKey == (KEY_ALT|KEY_NUMPAD0) || CalcKey == (KEY_ALT|KEY_INS)))
 		{
+			_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessKey(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
+			FrameManager->SetLastInputRecord(rec);
 			if (CtrlObject->Macro.ProcessKey(CalcKey))
 			{
 				RunGraber();
@@ -620,8 +625,8 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 
 		if (!NotMacros)
 		{
-			_KEYMACRO(CleverSysLog Clev(L"CALL(1) CtrlObject->Macro.ProcessKey()"));
-
+			_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessKey(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
+			FrameManager->SetLastInputRecord(rec);
 			if (!ExcludeMacro && CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(CalcKey))
 			{
 				rec->EventType=0;
@@ -1068,6 +1073,8 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 	/*
 	  if(CtrlObject && CtrlObject->Macro.IsRecording() && (CalcKey == (KEY_ALT|KEY_NUMPAD0) || CalcKey == (KEY_ALT|KEY_INS)))
 	  {
+	  	_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessKey(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
+	  	FrameManager->SetLastInputRecord(rec);
 	    if(CtrlObject->Macro.ProcessKey(CalcKey))
 	    {
 	      RunGraber();
@@ -1081,8 +1088,8 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 //_SVS(SysLog(L"1) CalcKey=%s",_FARKEY_ToName(CalcKey)));
 	if (ReturnAltValue && !NotMacros)
 	{
-		_KEYMACRO(CleverSysLog Clev(L"CALL(2) CtrlObject->Macro.ProcessKey()"));
-
+		_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessKey(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
+		FrameManager->SetLastInputRecord(rec);
 		if (CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(CalcKey))
 		{
 			rec->EventType=0;
@@ -1277,8 +1284,8 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 			}
 
 			{
-				_KEYMACRO(CleverSysLog Clev(L"CALL(3) CtrlObject->Macro.ProcessKey()"));
-
+				_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessKey(%s)",__LINE__,_FARKEY_ToName(Key)));
+				FrameManager->SetLastInputRecord(rec);
 				if (Key!=-1 && !NotMacros && CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(Key))
 				{
 					rec->EventType=0;
@@ -1508,10 +1515,15 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 					// для WaitKey()
 					if (ProcessMouse)
 						return MsCalcKey;
-					else if (CtrlObject->Macro.ProcessKey(MsCalcKey))
+					else
 					{
-						memset(rec,0,sizeof(*rec)); // Иначе в ProcessEditorInput такая херь приходит - волосы дыбом становятся
-						return KEY_NONE;
+						_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessKey(%s)",__LINE__,_FARKEY_ToName(MsCalcKey)));
+						FrameManager->SetLastInputRecord(rec);
+						if (CtrlObject->Macro.ProcessKey(MsCalcKey))
+						{
+							memset(rec,0,sizeof(*rec)); // Иначе в ProcessEditorInput такая херь приходит - волосы дыбом становятся
+							return KEY_NONE;
+						}
 					}
 				}
 			}
@@ -1524,8 +1536,8 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 		CalcKey=ReadKey;
 
 	{
-		_KEYMACRO(CleverSysLog Clev(L"CALL(1) CtrlObject->Macro.ProcessKey()"));
-
+		_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessKey(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
+		FrameManager->SetLastInputRecord(rec);
 		if (!NotMacros && CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(CalcKey))
 		{
 			rec->EventType=0;
@@ -1585,7 +1597,9 @@ DWORD WaitKey(DWORD KeyWait,DWORD delayMS,bool ExcludeMacro)
 		Key=KEY_NONE;
 
 		if (PeekInputRecord(&rec,ExcludeMacro))
+		{
 			Key=GetInputRecord(&rec,ExcludeMacro,true);
+		}
 
 		if (KeyWait == (DWORD)-1)
 		{
@@ -2356,8 +2370,10 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 			if (KeyCode==VK_INSERT || KeyCode==VK_NUMPAD0)
 			{
 				if (CtrlObject && CtrlObject->Macro.IsRecording())
+				{
+					_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessKey(KEY_INS|KEY_ALT)",__LINE__));
 					CtrlObject->Macro.ProcessKey(KEY_INS|KEY_ALT);
-
+				}
 				RunGraber();
 				return(KEY_NONE);
 			}

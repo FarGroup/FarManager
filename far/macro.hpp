@@ -269,7 +269,8 @@ class KeyMacro
 		static wchar_t *MkTextSequence(DWORD *Buffer,int BufferSize,const wchar_t *Src=NULL);
 		// из строкового представления макроса сделать MacroRecord
 		int ParseMacroString(struct MacroRecord *CurMacro,const wchar_t *BufPtr,BOOL onlyCheck=FALSE);
-		BOOL GetMacroParseError(string *ErrMsg1,string *ErrMsg2,string *ErrMsg3);
+		BOOL GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc);
+		BOOL GetMacroParseError(string *Err1, string *Err2, string *Err3, string *Err4);
 
 		static void SetMacroConst(const wchar_t *ConstName, const TVar Value);
 };

@@ -72,8 +72,11 @@ static int exprBuffSize = 0;
 static unsigned long FARVar, *exprBuff = NULL;
 static int IsProcessFunc=0;
 
+static string _ErrWord;
+static string ErrMessage[4];
 static int _macro_nErr = 0;
 static int _macro_nLine = 0;
+static int _macro_nPos = 0;
 static int _macro_ErrCode=err_Success;
 static wchar_t nameString[1024];
 static wchar_t *sSrcString;
@@ -92,7 +95,7 @@ static void printKeyValue(DWORD* k, int& i);
 #endif
 #endif
 
-static const wchar_t *__GetNextWord(const wchar_t *BufPtr,string &strCurKeyText,int& Line,const wchar_t **StartBufPtr);
+static const wchar_t *__GetNextWord(const wchar_t *BufPtr,string &strCurKeyText,int& Line);
 static void keyMacroParseError(int err, const wchar_t *s, const wchar_t *p, const wchar_t *c=NULL);
 static void keyMacroParseError(int err, const wchar_t *c = NULL);
 
@@ -163,8 +166,6 @@ int TExec::del()
 
 
 //-----------------------------------------------
-static string ErrMessage[3];
-
 static void put(unsigned long code)
 {
 	exprBuff[exprBuffSize++] = code;
@@ -208,15 +209,17 @@ static void keyMacroParseError(int err, const wchar_t *s, const wchar_t *p, cons
 	{
 		_macro_ErrCode=err;
 		int oPos = 0, ePos = (int)(s-p);
-		ErrMessage[0]=ErrMessage[1]=ErrMessage[2]=L"";
+		ErrMessage[0]=ErrMessage[1]=ErrMessage[2]=ErrMessage[3]=L"";
 
 		if (ePos < 0)
 		{
 			ErrMessage[0] = MSG(MMacroPErrExpr_Expected); // TODO: .Format !
+			_macro_ErrCode=MMacroPErrExpr_Expected;
 			return;
 		}
 
 		ErrMessage[0].Format(MSG(MMacroPErrUnrecognized_keyword+err-1),c);
+		_ErrWord=c;
 
 		if (ePos > 61)
 		{
@@ -227,10 +230,10 @@ static void keyMacroParseError(int err, const wchar_t *s, const wchar_t *p, cons
 		ErrMessage[1] += p+oPos;
 		//if ( ErrMessage[1][61] ) BUGBUG
 		//	strncpy(&ErrMessage[1][61], "...",sizeof(ErrMessage[1])-62);
-		int lPos = ePos-oPos+(oPos ? 3 : 0);
+		_macro_nPos = ePos-oPos+(oPos ? 3 : 0);
 		InsertQuote(ErrMessage[1]);
-		//ErrMessage[2].Format(L"%*s%c", lPos+1, L"", L'^');
-		ErrMessage[2].Format(L"line=%d pos=%d", _macro_nLine, lPos+1);
+		ErrMessage[2].Format(L"%*s%c", _macro_nPos+1, L"", L'^');
+		ErrMessage[3].Format(MSG(MMacroPErrorPosition), _macro_nLine, _macro_nPos+1);
 	}
 }
 
@@ -1488,10 +1491,12 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 		return FALSE;
 	}
 
+	bool useUDL=true;
 	const wchar_t *NewBufPtr;
 
 	UserDefinedList MacroSrcList(L'\n',L'\r',ULF_NOTTRIM);
-	MacroSrcList.Set(BufPtr);
+	if(!MacroSrcList.Set(BufPtr))
+		useUDL=false; // все в одну строку!
 
 	//{
 	//	_SVS(SysLog(L"MacroSrcList.GetTotal()=%d",MacroSrcList.GetTotal()));
@@ -1513,7 +1518,11 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 	TExec exec;
 	wchar_t varName[256];
 	DWORD KeyCode, *CurMacro_Buffer = NULL;
-	pSrcString=BufPtr=MacroSrcList.GetNext();
+
+	if(useUDL)
+		BufPtr=MacroSrcList.GetNext();
+
+	pSrcString=BufPtr;
 
 	for (;;)
 	{
@@ -1523,6 +1532,8 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 
 		if ((BufPtr = __GetNextWord(BufPtr, strCurrKeyText, _macro_nLine)) == NULL)
 		{
+			if(!useUDL)
+				break;
 			NewBufPtr=MacroSrcList.GetNext();
 			if(!NewBufPtr)
 				break;
@@ -2024,7 +2035,29 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 	return TRUE;
 }
 
-BOOL __getMacroParseError(string *strErrMsg1,string *strErrMsg2,string *strErrMsg3)
+BOOL __getMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc)
+{
+	if (_macro_nErr)
+	{
+		if (ErrSrc)
+			*ErrSrc = _ErrWord;
+
+		if (ErrCode)
+			*ErrCode = _macro_ErrCode;
+
+		if (ErrPos)
+		{
+			ErrPos->X=(SHORT)_macro_nPos;
+			ErrPos->Y=(SHORT)_macro_nLine;
+		}
+
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+BOOL __getMacroParseError(string *strErrMsg1,string *strErrMsg2,string *strErrMsg3,string *strErrMsg4)
 {
 	if (_macro_nErr)
 	{
@@ -2036,6 +2069,9 @@ BOOL __getMacroParseError(string *strErrMsg1,string *strErrMsg2,string *strErrMs
 
 		if (strErrMsg3)
 			*strErrMsg3 = ErrMessage[2];
+
+		if (strErrMsg4)
+			*strErrMsg4 = ErrMessage[3];
 
 		return TRUE;
 	}

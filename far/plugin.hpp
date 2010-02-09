@@ -1199,8 +1199,8 @@ enum FARMACROCOMMAND
 	MCMD_POSTMACROSTRING   = 2,
 #ifdef FAR_USE_INTERNALS
 	MCMD_COMPILEMACRO      = 3,
-	MCMD_CHECKMACRO        = 4,
 #endif // END FAR_USE_INTERNALS
+	MCMD_CHECKMACRO        = 4,
 	MCMD_GETSTATE          = 5,
 };
 
@@ -1213,6 +1213,29 @@ enum FARMACROSTATE
 	MACROSTATE_RECORDING_COMMON =4,
 };
 
+enum FARMACROPARSEERRORCODE
+{
+	MPEC_SUCCESS                = 0,
+	MPEC_UNRECOGNIZED_KEYWORD   = 1,
+	MPEC_UNRECOGNIZED_FUNCTION  = 2,
+	MPEC_FUNC_PARAM             = 3,
+	MPEC_NOT_EXPECTED_ELSE      = 4,
+	MPEC_NOT_EXPECTED_END       = 5,
+	MPEC_UNEXPECTED_EOS         = 6,
+	MPEC_EXPECTED               = 7,
+	MPEC_BAD_HEX_CONTROL_CHAR   = 8,
+	MPEC_BAD_CONTROL_CHAR       = 9,
+	MPEC_VAR_EXPECTED           =10,
+	MPEC_EXPR_EXPECTED          =11,
+	MPEC_ZEROLENGTHMACRO        =12,
+};
+
+struct MacroParseResult
+{
+	DWORD ErrCode;
+	COORD ErrPos;
+	const wchar_t *ErrSrc;
+};
 
 struct ActlKeyMacro
 {
@@ -1226,13 +1249,8 @@ struct ActlKeyMacro
 		} PlainText;
 #ifdef FAR_USE_INTERNALS
 		struct KeySequence Compile;
-		struct
-		{
-			const wchar_t *ErrMsg1;
-			const wchar_t *ErrMsg2;
-			const wchar_t *ErrMsg3;
-		} MacroResult;
 #endif // END FAR_USE_INTERNALS
+		struct MacroParseResult MacroResult;
 		DWORD_PTR Reserved[3];
 	} Param;
 };

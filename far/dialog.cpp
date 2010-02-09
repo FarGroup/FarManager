@@ -2494,8 +2494,8 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 int Dialog::ProcessKey(int Key)
 {
 	CriticalSectionLock Lock(CS);
-	_DIALOG(CleverSysLog CL("Dialog::ProcessKey"));
-	_DIALOG(SysLog("Param: Key=%s",_FARKEY_ToName(Key)));
+	_DIALOG(CleverSysLog CL(L"Dialog::ProcessKey"));
+	_DIALOG(SysLog(L"Param: Key=%s",_FARKEY_ToName(Key)));
 	unsigned I;
 	string strStr;
 

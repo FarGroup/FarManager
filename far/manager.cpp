@@ -675,6 +675,13 @@ void Manager::EnterMainLoop()
 	}
 }
 
+void Manager::SetLastInputRecord(INPUT_RECORD *Rec)
+{
+	if (&LastInputRecord != Rec)
+		LastInputRecord=*Rec;
+}
+
+
 void Manager::ProcessMainLoop()
 {
 	if (CurrentFrame&&!CurrentFrame->ProcessEvents())

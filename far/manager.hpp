@@ -174,6 +174,7 @@ class Manager
 		void SwitchToPanels();
 
 		INPUT_RECORD *GetLastInputRecord() { return &LastInputRecord; }
+		void SetLastInputRecord(INPUT_RECORD *Rec);
 		void ResetLastInputRecord() { LastInputRecord.EventType=0; }
 
 		Frame *GetCurrentFrame() { return CurrentFrame; }
