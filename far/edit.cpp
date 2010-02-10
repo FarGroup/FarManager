@@ -3204,6 +3204,11 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 							case KEY_NUMPAD9:
 							case KEY_PGDN:
 							case KEY_NUMPAD3:
+
+							case KEY_ALTLEFT:
+							case KEY_ALTRIGHT:
+							case KEY_ALTHOME:
+							case KEY_ALTEND:
 								{
 									ComplMenu.ProcessInput();
 									break;
