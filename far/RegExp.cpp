@@ -1936,7 +1936,7 @@ int RegExp::InnerCompile(const prechar src,int srclength,int options)
 
 										if (to>9)to-='a'-'0'-10;
 
-										for(int j=1,k=i;j<4 && k+j<srclength;j++)
+										for(int j=1,k=(i+1);j<4 && k+j<srclength;j++)
 										{
 											int c=TOLOWER(src[k+j]);
 											if(isxdigit(c))
