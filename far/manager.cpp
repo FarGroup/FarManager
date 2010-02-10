@@ -701,7 +701,11 @@ void Manager::ProcessMainLoop()
 			return;
 
 		if (LastInputRecord.EventType==MOUSE_EVENT)
-			ProcessMouse(&LastInputRecord.Event.MouseEvent);
+		{
+				// используем копию структуры, т.к. LastInputRecord может внезапно измениться во время выполнения ProcessMouse
+				MOUSE_EVENT_RECORD mer=LastInputRecord.Event.MouseEvent;
+				ProcessMouse(&mer);
+		}
 		else
 			ProcessKey(Key);
 	}
