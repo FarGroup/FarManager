@@ -445,6 +445,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 						{
 							if (CurMacro.BufferSize > 1)
 								xf_free(CurMacro.Buffer);
+							memset(&KeyMacro->Param.MacroResult,0,sizeof(struct MacroParseResult));
 						}
 						else
 						{

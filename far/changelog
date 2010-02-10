@@ -1,3 +1,11 @@
+svs 10.02.2010 12:55:31 +0300 - build 1386
+
+1. ¬арнинги
+
+2. Macro: MCMD_CHECKMACRO - инициализаци€ кода успешного чекинь€ макроса
+   «десь нужно понимать, что ActlKeyMacro.Param - это union и что Param.PlainText.SequenceText затретс€ после отработки MCMD_CHECKMACRO, т.е.
+   Far вернет Param.MacroResult.*
+
 drkns 10.02.2010 00:57:46 +0200 - build 1385
 
 1. Ќекорректное позиционирование фокуса в меню кодовых страниц.
