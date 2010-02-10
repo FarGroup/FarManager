@@ -12953,7 +12953,7 @@ upd:"Line %d, Pos %d"
 
 MMacroPErrIntParserError
 "Внутренняя ошибка парсера"
-upd:"Internal parser error"
+"Internal parser error"
 upd:"Internal parser error"
 upd:"Internal parser error"
 upd:"Internal parser error"
