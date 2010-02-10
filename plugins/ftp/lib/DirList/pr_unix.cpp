@@ -73,7 +73,11 @@ BOOL net_convert_unix_date( pchar& datestr, Time_t& decoded )
       ecol = bcol + 2;
     } else {
     //Month
-      CHECK( ((st.wMonth = NET_MonthNo(datestr)) == MAX_WORD), FALSE )
+      if ( NET_IS_DIGIT(bcol[0]) && NET_IS_DIGIT(bcol[1]) && NET_IS_SPACE(bcol[2]) )
+        st.wMonth = AtoI( bcol,MAX_WORD );
+      else
+        st.wMonth = NET_MonthNo(datestr);
+      CHECK( (st.wMonth == MAX_WORD), FALSE )
       bcol = SkipSpace(SkipNSpace(bcol));
       CHECK( (*bcol == 0), FALSE )
 
