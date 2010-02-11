@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "chgprior.hpp"
 #include "dialog.hpp"
 #include "savescr.hpp"
+#include "clipboard.hpp"
 #include "ctrlobj.hpp"
 #include "manager.hpp"
 #include "constitle.hpp"
@@ -831,6 +832,29 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	return 0;
 }
 
+bool VMenu::AddToFilter(const wchar_t *str)
+{
+	int Key;
+
+	if (bFilterEnabled && !bFilterLocked)
+	{
+		while ((Key=*str) != 0)
+		{
+			if( IsFilterEditKey(Key) )
+			{
+				if ( Key==KEY_BS && !strFilter.IsEmpty() )
+					strFilter.SetLength(strFilter.GetLength()-1);
+				else
+					strFilter += Key;
+			}
+			++str;
+		}
+		return true;
+	}
+
+	return false;
+}
+
 int VMenu::ProcessKey(int Key)
 {
 	CriticalSectionLock Lock(CS);
@@ -845,20 +869,8 @@ int VMenu::ProcessKey(int Key)
 		if (!*str)
 			return FALSE;
 
-		if (bFilterEnabled && !bFilterLocked) // дл€ фильтра: всю строку целиком в фильтр, а там разберемс€.
+		if ( AddToFilter(str) ) // дл€ фильтра: всю строку целиком в фильтр, а там разберемс€.
 		{
-			while ((Key=*str) != 0)
-			{
-				if( IsFilterEditKey(Key) )
-				{
-					if (Key==KEY_BS && !strFilter.IsEmpty()) // Ёхперемент!
-						strFilter.SetLength(strFilter.GetLength()-1);
-					else
-						strFilter += Key;
-				}
-				++str;
-			}
-
 			if (strFilter.IsEmpty())
 				RestoreFilteredItems();
 			else
@@ -1049,6 +1061,30 @@ int VMenu::ProcessKey(int Key)
 
 			DisplayObject();
 			break;
+		}
+		case KEY_CTRLV:
+		case KEY_SHIFTINS:    case KEY_SHIFTNUMPAD0:
+		{
+			if (bFilterEnabled && !bFilterLocked)
+			{
+				wchar_t *ClipText=PasteFromClipboard();
+
+				if (ClipText==NULL)
+					return TRUE;
+
+				if ( AddToFilter(ClipText) )
+				{
+					if (strFilter.IsEmpty())
+						RestoreFilteredItems();
+					else
+						FilterStringUpdated(true);
+
+					DisplayObject();
+				}
+
+				xf_free(ClipText);
+			}
+			return TRUE;
 		}
 		case KEY_CTRLALTL:
 		{

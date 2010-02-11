@@ -266,6 +266,7 @@ class VMenu: public Modal
 		void FilterStringUpdated(bool bLonger);
 		bool IsFilterEditKey(int Key);
 		bool ShouldSendKeyToFilter(int Key);
+		bool AddToFilter(const wchar_t *str);
 		//коректировка текущей позиции и флагов SELECTED
 		void UpdateSelectPos();
 
