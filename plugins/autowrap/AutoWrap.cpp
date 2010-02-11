@@ -1,6 +1,6 @@
 #include "plugin.hpp"
-#include "DlgBuilder.hpp"
 #include "WrapLng.hpp"
+#include "DlgBuilder.hpp"
 #include "AutoWrap.hpp"
 #include "CRT/crt.hpp"
 
