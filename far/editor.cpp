@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stddlg.hpp"
 #include "strmix.hpp"
 #include "palette.hpp"
+#include "FarDlgBuilder.hpp"
 
 static int ReplaceMode,ReplaceAll;
 
@@ -4795,45 +4796,31 @@ void Editor::GoToLine(int Line)
 
 void Editor::GoToPosition()
 {
-	int NewLine, NewCol;
-	int LeftPos=CurLine->GetTabCurPos()+1;
-	int CurPos;
-	CurPos=CurLine->GetCurPos();
-	const wchar_t *LineHistoryName=L"LineNumber";
-	static DialogDataEx GoToDlgData[]=
+	DialogBuilder Builder(MEditGoToLine, L"EditorGotoPos");
+	string strData;
+	Builder.AddEditField(&strData,28,L"LineNumber",DIF_HISTORY|DIF_USELASTHISTORY|DIF_NOAUTOCOMPLETE)->Focus;
+	Builder.AddOKCancel();
+	Builder.ShowDialog();
+	if(!strData.IsEmpty())
 	{
-		DI_DOUBLEBOX,3,1,21,3,0,0,0,0,(const wchar_t *)MEditGoToLine,
-		DI_EDIT,     5,2,19,2,1,(DWORD_PTR)LineHistoryName,DIF_HISTORY|DIF_USELASTHISTORY|DIF_NOAUTOCOMPLETE,1,L"",
-	};
-	MakeDialogItemsEx(GoToDlgData,GoToDlg);
-	Dialog Dlg(GoToDlg,countof(GoToDlg));
-	Dlg.SetPosition(-1,-1,25,5);
-	Dlg.SetHelp(L"EditorGotoPos");
-	Dlg.Process();
+		int LeftPos=CurLine->GetTabCurPos()+1;
+		int CurPos=CurLine->GetCurPos();
 
-	if (Dlg.GetExitCode()!=1)
-		return ;
+		int NewLine=0, NewCol=0;
+		GetRowCol(strData,&NewLine,&NewCol);
+		GoToLine(NewLine);
 
-	GetRowCol(GoToDlg[1].strData,&NewLine,&NewCol);
-	//_D(SysLog(L"GoToPosition: NewLine=%i, NewCol=%i",NewLine,NewCol));
-	GoToLine(NewLine);
-
-	if (NewCol == -1)
-	{
-		CurLine->SetTabCurPos(CurPos);
-		CurLine->SetLeftPos(LeftPos);
+		if (NewCol == -1)
+		{
+			CurLine->SetTabCurPos(CurPos);
+			CurLine->SetLeftPos(LeftPos);
+		}
+		else
+		{
+			CurLine->SetTabCurPos(NewCol);
+		}
+		Show();
 	}
-	else
-	{
-		CurLine->SetTabCurPos(NewCol);
-	}
-
-// <GOTO_UNMARK:3>
-//  if (!EdOpt.PersistentBlocks)
-//     UnmarkBlock();
-// </GOTO_UNMARK>
-	Show();
-	return ;
 }
 
 void Editor::GetRowCol(const wchar_t *_argv,int *row,int *col)

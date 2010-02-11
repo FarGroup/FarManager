@@ -213,7 +213,6 @@ class FileEditor : public Frame
 		void SaveToCache();
 
 		void SetCodePage(UINT codepage);  //BUGBUG
-		bool UnicodeLostAgreeMsg();
 		void CodepageChangedByUser(void) {Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);};
 };
 

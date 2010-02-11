@@ -5629,20 +5629,20 @@ MEditDataLostWarn2
 "poprawnie zapisane w wybranej stronie kodowej."
 
 MEditDataLostWarn3
-"Продолжить?"
-"Continue?"
-"Pokračovat?"
-"Fortsetzen?"
-"Folytatja?"
-"Kontynuować?"
-
-MEditDataLostWarn4
 "Сохранять файл не рекомендуется."
 "It is not recommended to save this file."
 "Není doporučeno uložit tento soubor."
 "Es wird empfohlen, die Datei nicht zu speichern."
 "A fájl mentése nem ajánlott."
 "Odradzamy zapis pliku."
+
+MEditDataLostWarnShow
+"Показать"
+"Show"
+upd:"Show"
+upd:"Show"
+upd:"Show"
+upd:"Show"
 
 MColumnName
 l:
@@ -8346,7 +8346,7 @@ MHighlightExample1
 "║filename.ext │"
 "║dateinam.erw │"
 "║fájlneve.kit │"
-"║nazwa.roz │"
+"║nazwa.roz    │"
 
 MHighlightExample2
 "║ filename.ext│"
@@ -8354,7 +8354,7 @@ MHighlightExample2
 "║ filename.ext│"
 "║ dateinam.erw│"
 "║ fájlneve.kit│"
-"║ nazwa.roz│"
+"║ nazwa.roz   │"
 
 MHighlightContinueProcessing
 "Продолжать &обработку"

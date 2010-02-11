@@ -817,12 +817,6 @@ int FileEditor::ProcessKey(int Key)
 	return ReProcessKey(Key,FALSE);
 }
 
-bool FileEditor::UnicodeLostAgreeMsg()
-{
-	//SetMessageHelp(L"EditorDataLostWarning")
-	return !Message(MSG_WARNING,2,MSG(MWarning),MSG(MEditDataLostWarn1),MSG(MEditDataLostWarn2),MSG(MEditDataLostWarn3),MSG(MOk),MSG(MCancel));
-}
-
 int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 {
 	DWORD FNAttr;
@@ -1613,7 +1607,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	}
 
 	if (!GetStr.IsConversionValid())
-		Message(MSG_WARNING,1,MSG(MWarning),MSG(MEditDataLostWarn1),MSG(MEditDataLostWarn2),MSG(MEditDataLostWarn4),MSG(MOk));
+		Message(MSG_WARNING,1,MSG(MWarning),MSG(MEditDataLostWarn1),MSG(MEditDataLostWarn2),MSG(MEditDataLostWarn3),MSG(MOk));
 
 	if (LastLineCR||!m_editor->NumLastLine)
 		m_editor->InsertString(L"", 0);
@@ -1786,8 +1780,8 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 		if (!IsUnicodeOrUtfCodePage(codepage))
 		{
 			bool UnicodeLostAgree=false;
-
-			for (Edit *CurPtr=m_editor->TopList; CurPtr; CurPtr=CurPtr->m_next)
+			int LineNumber=0;
+			for (Edit *CurPtr=m_editor->TopList; CurPtr; CurPtr=CurPtr->m_next,LineNumber++)
 			{
 				const wchar_t *SaveStr, *EndSeq;
 				int Length;
@@ -1805,14 +1799,38 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
 				if (!UnicodeLostAgree && (UsedDefaultCharStr||UsedDefaultCharEOL))
 				{
-					if (!UnicodeLostAgreeMsg())
-					{
-						return SAVEFILE_CANCEL;
-					}
-					else
+					//SetMessageHelp(L"EditorDataLostWarning")
+					int Result=Message(MSG_WARNING,3,MSG(MWarning),MSG(MEditDataLostWarn1),MSG(MEditDataLostWarn2),MSG(MOk),MSG(MEditDataLostWarnShow),MSG(MCancel));
+					if (Result==0)
 					{
 						UnicodeLostAgree=true;
 						break;
+					}
+					else
+					{
+						if(Result==1)
+						{
+							m_editor->GoToLine(LineNumber);
+							if(UsedDefaultCharStr)
+							{
+								for(int Pos=0;Pos<Length;Pos++)
+								{
+									BOOL UseDefChar=0;
+									WideCharToMultiByte(codepage,WC_NO_BEST_FIT_CHARS,SaveStr+Pos,1,NULL,0,NULL,&UseDefChar);
+									if(UseDefChar)
+									{
+										CurPtr->SetCurPos(Pos);
+										break;
+									}
+								}
+							}
+							else
+							{
+								CurPtr->SetCurPos(CurPtr->GetLength());
+							}
+							Show();
+						}
+						return SAVEFILE_CANCEL;
 					}
 				}
 			}
@@ -2786,7 +2804,7 @@ void FileEditor::SetCodePage(UINT codepage)
 		if (m_editor)
 		{
 			if (!m_editor->SetCodePage(m_codepage))
-				Message(MSG_WARNING,1,MSG(MWarning),MSG(MEditDataLostWarn1),MSG(MEditDataLostWarn2),MSG(MEditDataLostWarn4),MSG(MOk));
+				Message(MSG_WARNING,1,MSG(MWarning),MSG(MEditDataLostWarn1),MSG(MEditDataLostWarn2),MSG(MEditDataLostWarn3),MSG(MOk));
 
 			ChangeEditKeyBar(); //???
 		}
