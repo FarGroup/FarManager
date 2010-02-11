@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Language Files">
+      <UniqueIdentifier>{7be3e982-5bff-409e-aa26-a97f8017c282}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Help Files">
+      <UniqueIdentifier>{6eed9ebc-9574-4d60-8c24-a826e5b76c55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Reg Files">
+      <UniqueIdentifier>{8bc999d0-0890-47b8-9221-5d32720d47f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Text Files">
+      <UniqueIdentifier>{bc0a7007-9ebb-4596-86ce-f288e0416b25}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="auto_sz.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EMenu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FarMenu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OleThread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Pidl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Plugin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Reg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="EMenu.vc.def">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="EMenuW.vc.def">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="TODO_64.txt">
+      <Filter>Text Files</Filter>
+    </None>
+    <None Include="changelog" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="auto_sz.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FarMenu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Handle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HMenu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OleThread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Pidl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Plugin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="EMenu.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="EMenuEng.lng">
+      <Filter>Language Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="EMenuRus.lng">
+      <Filter>Language Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="EMenuEng.hlf">
+      <Filter>Help Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="EMenuRus.hlf">
+      <Filter>Help Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="EMenuDel.reg">
+      <Filter>Reg Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="HotkeyClipboard.reg">
+      <Filter>Reg Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="HotkeyProperties.reg">
+      <Filter>Reg Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Hotkey.reg">
+      <Filter>Reg Files</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>

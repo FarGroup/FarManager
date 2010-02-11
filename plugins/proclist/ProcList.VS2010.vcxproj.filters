@@ -1,0 +1,118 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\WMI">
+      <UniqueIdentifier>{6cd2d142-9bcb-49af-a1a8-702fdbefce16}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Language Files">
+      <UniqueIdentifier>{1ddd4fd4-e2ea-4084-b5e4-b2db1af6667a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Help Files">
+      <UniqueIdentifier>{cb5c178c-0cb4-4fe1-8b3b-04c203e8c74c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="fileio.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="handles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Pcfg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Pclass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="perfthread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Plist95.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PlistNT.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Pmix.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Preg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Proclist.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wmi.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Proclist.vc.def">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="ProclistW.vc.def">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="changelog" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="perfthread.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Proclist.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Proclng.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WMI\DispEx.h">
+      <Filter>Header Files\WMI</Filter>
+    </ClInclude>
+    <ClInclude Include="WMI\WbemCli.h">
+      <Filter>Header Files\WMI</Filter>
+    </ClInclude>
+    <ClInclude Include="WMI\WbemDisp.h">
+      <Filter>Header Files\WMI</Filter>
+    </ClInclude>
+    <ClInclude Include="WMI\WbemIdl.h">
+      <Filter>Header Files\WMI</Filter>
+    </ClInclude>
+    <ClInclude Include="WMI\WbemProv.h">
+      <Filter>Header Files\WMI</Filter>
+    </ClInclude>
+    <ClInclude Include="WMI\WbemTran.h">
+      <Filter>Header Files\WMI</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ProcList.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="ProcEng.lng">
+      <Filter>Language Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ProcRus.lng">
+      <Filter>Language Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ProcEng.hlf">
+      <Filter>Help Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ProcRus.hlf">
+      <Filter>Help Files</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>
