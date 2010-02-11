@@ -5277,7 +5277,15 @@ int KeyMacro::ParseMacroString(MacroRecord *CurMacro,const wchar_t *BufPtr,BOOL 
 			InternalInput++; // InternalInput - ограничитель того, чтобы макрос не продолжал свое исполнение
 			GetMacroParseError(&ErrMsg[0],&ErrMsg[1],&ErrMsg[2],&ErrMsg[3]);
 			//if(...)
-			Message(MSG_WARNING|MSG_LEFTALIGN,1,MSG(MMacroPErrorTitle),ErrMsg[3]+L":",ErrMsg[0],L"\x1",ErrMsg[1],ErrMsg[2],L"\x1",MSG(MOk));
+			string strTitle=MSG(MMacroPErrorTitle);
+			if(CurMacro->Key)
+			{
+				strTitle+=L" ";
+				string strKey;
+				KeyToText(CurMacro->Key,strKey);
+				strTitle.Append(GetSubKey(LOBYTE(LOWORD(CurMacro->Flags)))).Append(L"\\").Append(strKey);
+			}
+			Message(MSG_WARNING|MSG_LEFTALIGN,1,strTitle,ErrMsg[3]+L":",ErrMsg[0],L"\x1",ErrMsg[1],ErrMsg[2],L"\x1",MSG(MOk));
 			//else
 			// вывести диагностику в файл
 			InternalInput--;

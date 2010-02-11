@@ -1478,7 +1478,7 @@ int Edit::ProcessKey(int Key)
 					SelStart=PrevSelStart;
 					SelEnd=PrevSelEnd;
 				}
-
+				DisableCallback DC(m_Callback.Active);
 				DeleteBlock();
 			}
 

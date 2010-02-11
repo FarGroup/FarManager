@@ -573,7 +573,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 			{
 				// Ахтунг! Для мышиной клавиши вернем значение MOUSE_EVENT, соответствующее _последнему_ событию мыши.
 				rec->EventType=MOUSE_EVENT;
-				memcpy(&rec->Event.MouseEvent,&lastMOUSE_EVENT_RECORD,sizeof(MOUSE_EVENT_RECORD));
+				rec->Event.MouseEvent=lastMOUSE_EVENT_RECORD;
 				rec->Event.MouseEvent.dwButtonState=MsClickKey;
 				rec->Event.MouseEvent.dwEventFlags=EventState;
 				LastMsClickMacroKey=MacroKey;
@@ -1400,7 +1400,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 
 	if (rec->EventType==MOUSE_EVENT)
 	{
-		memcpy(&lastMOUSE_EVENT_RECORD,&rec->Event.MouseEvent,sizeof(MOUSE_EVENT_RECORD));
+		lastMOUSE_EVENT_RECORD=rec->Event.MouseEvent;
 		PreMouseEventFlags=MouseEventFlags;
 		MouseEventFlags=rec->Event.MouseEvent.dwEventFlags;
 		DWORD CtrlState=rec->Event.MouseEvent.dwControlKeyState;
