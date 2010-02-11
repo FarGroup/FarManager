@@ -1495,7 +1495,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 	bool useUDL=true;
 	const wchar_t *NewBufPtr;
 
-	UserDefinedList MacroSrcList(L'\n',L'\r',ULF_NOTTRIM);
+	UserDefinedList MacroSrcList(L'\n',L'\r',ULF_NOTTRIM|ULF_NOTUNQUOTES);
 	if(!MacroSrcList.Set(BufPtr))
 		useUDL=false; // все в одну строку!
 

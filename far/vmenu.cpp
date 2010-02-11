@@ -845,7 +845,31 @@ int VMenu::ProcessKey(int Key)
 		if (!*str)
 			return FALSE;
 
-		Key=*str;
+		if (bFilterEnabled && !bFilterLocked) // дл€ фильтра: всю строку целиком в фильтр, а там разберемс€.
+		{
+			while ((Key=*str) != 0)
+			{
+				if( IsFilterEditKey(Key) )
+				{
+					if (Key==KEY_BS && !strFilter.IsEmpty()) // Ёхперемент!
+						strFilter.SetLength(strFilter.GetLength()-1);
+					else
+						strFilter += Key;
+				}
+				++str;
+			}
+
+			if (strFilter.IsEmpty())
+				RestoreFilteredItems();
+			else
+				FilterStringUpdated(true);
+
+			DisplayObject();
+
+			return TRUE;
+		}
+		else // не дл€ фильтра: по старинке, первый символ последовательности, остальное игнорируем (ибо некуда)
+			Key=*str;
 	}
 
 	SetFlags(VMENU_UPDATEREQUIRED);

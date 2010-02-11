@@ -140,7 +140,7 @@ void UserDefinedList::SetDefaultSeparators()
 
 bool UserDefinedList::CheckSeparators() const
 {
-	return !((Separator1==L'\"' || Separator2==L'\"') ||
+	return !((IsUnQuotes && (Separator1==L'\"' || Separator2==L'\"')) ||
 	         (ProcessBrackets && (Separator1==L'[' || Separator2==L'[' ||
 	                              Separator1==L']' || Separator2==L']'))
 	        );
@@ -158,6 +158,8 @@ bool UserDefinedList::SetParameters(WORD separator1, WORD separator2,
 	Unique=(Flags & ULF_UNIQUE)?true:false;
 	Sort=(Flags & ULF_SORT)?true:false;
 	IsTrim=(Flags & ULF_NOTTRIM)?false:true;
+	IsUnQuotes=(Flags & ULF_NOTUNQUOTES)?false:true;
+
 
 	if (!Separator1 && Separator2)
 	{
@@ -389,30 +391,35 @@ const wchar_t *UserDefinedList::Skip(const wchar_t *Str, int &Length, int &RealL
 		return Str;
 	}
 
-	// мы в кавычках - захватим все отсюда и до следующих кавычек
-	++cur;
-	const wchar_t *QuoteEnd=wcschr(cur, L'\"');
-
-	if (QuoteEnd==NULL)
+	if ( IsUnQuotes )
 	{
+		// мы в кавычках - захватим все отсюда и до следующих кавычек
+		++cur;
+		const wchar_t *QuoteEnd=wcschr(cur, L'\"');
+
+		if (QuoteEnd==NULL)
+		{
+			Error=true;
+			return NULL;
+		}
+
+		const wchar_t *End=QuoteEnd+1;
+
+		if ( IsTrim )
+			while (IsSpace(*End)) ++End;
+
+		if (!*End || *End==Separator1 || *End==Separator2)
+		{
+			Length=(int)(QuoteEnd-cur);
+			RealLength=(int)(End-cur);
+			return cur;
+		}
+
 		Error=true;
 		return NULL;
 	}
 
-	const wchar_t *End=QuoteEnd+1;
-
-	if ( IsTrim )
-		while (IsSpace(*End)) ++End;
-
-	if (!*End || *End==Separator1 || *End==Separator2)
-	{
-		Length=(int)(QuoteEnd-cur);
-		RealLength=(int)(End-cur);
-		return cur;
-	}
-
-	Error=true;
-	return NULL;
+	return Str;
 }
 
 void UserDefinedList::Reset()
