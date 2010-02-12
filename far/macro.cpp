@@ -4373,6 +4373,7 @@ int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
 	strUpKeyName+=GetSubKey(ReadMode);
 	string strRegKeyName, strKeyText;
 	string strDescription;
+	int ErrorCount=0;
 
 	for (I=0;; I++)
 	{
@@ -4461,7 +4462,10 @@ int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
 		}
 
 		if (!ParseMacroString(&CurMacro,strBuffer))
+		{
+			ErrorCount++;
 			continue;
+		}
 
 		MacroRecord *NewMacros=(MacroRecord *)xf_realloc(MacroLIB,sizeof(*MacroLIB)*(MacroLIBCount+1));
 
@@ -4483,7 +4487,7 @@ int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
 		MacroLIBCount++;
 	}
 
-	return TRUE;
+	return ErrorCount?FALSE:TRUE;
 }
 
 // эта функция будет вызываться из тех классов, которым нужен перезапуск макросов
@@ -4788,7 +4792,7 @@ M1:
 					if (DisFlags)
 					{
 						// удаляем из реестра только если включен автосейв
-						if (Opt.AutoSaveSetup) 
+						if (Opt.AutoSaveSetup)
 						{
 							// удалим старую запись из реестра
 							DeleteRegKey(strRegKeyName);
