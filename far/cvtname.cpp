@@ -414,52 +414,44 @@ void ConvertNameToReal(const wchar_t *Src, string &strDest)
 	ConvertNameToFull(Src, FullPath);
 	strDest = FullPath;
 
-	// Для нелокальных дисков даже и не пытаемся анализировать симлинки
-	// также ничего не делаем для нелокальных дисков, т.к. для них невозможно узнать
-	// корректную информацию про объект, на который указывает симлинк (т.е. невозможно
-	// "разыменовать симлинк")
-	if (IsLocalDrive(FullPath))
+	string Path = FullPath;
+	HANDLE hFile;
+
+	for (;;)
 	{
-		string Path = FullPath;
-		HANDLE hFile;
-
-		for (;;)
-		{
-			hFile = apiCreateFile(Path.CPtr(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, 0);
-
-			if (hFile != INVALID_HANDLE_VALUE)
-				break;
-
-			if (IsRootPath(Path))
-				break;
-
-			Path = ExtractFilePath(Path);
-		}
+		hFile = apiCreateFile(Path.CPtr(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, 0);
 
 		if (hFile != INVALID_HANDLE_VALUE)
+			break;
+
+		if (IsRootPath(Path))
+			break;
+
+		Path = ExtractFilePath(Path);
+	}
+
+	if (hFile != INVALID_HANDLE_VALUE)
+	{
+		string FinalFilePath;
+		apiGetFinalPathNameByHandle(hFile, FinalFilePath);
+
+		CloseHandle(hFile);
+
+		assert(!FinalFilePath.IsEmpty());
+
+		if (!FinalFilePath.IsEmpty())
 		{
-			string FinalFilePath;
+			// append non-existent path part (if present)
+			DeleteEndSlash(Path);
 
-			apiGetFinalPathNameByHandle(hFile, FinalFilePath);
-
-			CloseHandle(hFile);
-
-			assert(!FinalFilePath.IsEmpty());
-
-			if (!FinalFilePath.IsEmpty())
+			if (FullPath.GetLength() > Path.GetLength() + 1)
 			{
-				// append non-existent path part (if present)
-				DeleteEndSlash(Path);
-
-				if (FullPath.GetLength() > Path.GetLength() + 1)
-				{
-					AddEndSlash(FinalFilePath);
-					FinalFilePath.Append(FullPath.CPtr() + Path.GetLength() + 1, FullPath.GetLength() - Path.GetLength() - 1);
-				}
-
-				FinalFilePath = TryConvertVolumeGuidToDrivePath(FinalFilePath);
-				strDest = FinalFilePath;
+				AddEndSlash(FinalFilePath);
+				FinalFilePath.Append(FullPath.CPtr() + Path.GetLength() + 1, FullPath.GetLength() - Path.GetLength() - 1);
 			}
+
+			FinalFilePath = TryConvertVolumeGuidToDrivePath(FinalFilePath);
+			strDest = FinalFilePath;
 		}
 	}
 }

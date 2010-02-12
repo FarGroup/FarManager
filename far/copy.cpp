@@ -1887,8 +1887,14 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 
 			KeepPathPos=(int)(PointToName(strSelName)-(const wchar_t*)strSelName);
 
-			if (!StrCmpI(strSrcDriveRoot,strSelName) && (RPT==RP_JUNCTION || RPT==RP_SYMLINKDIR)) // но сначала посмотрим на "это корень диска?"
+			if (RPT==RP_JUNCTION || RPT==RP_SYMLINKDIR)
+			{
 				SrcData.dwFileAttributes=FILE_ATTRIBUTE_DIRECTORY;
+			}
+			else if(RPT==RP_SYMLINKFILE)
+			{
+				SrcData.dwFileAttributes=0;
+			}
 			else
 			{
 				// проверка на вшивость ;-)

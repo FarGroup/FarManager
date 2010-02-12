@@ -982,8 +982,10 @@ bool ShellSetFileAttributes(Panel *SrcPanel)
 		//reparse point editor
 		if (StrCmpI(AttrDlg[SA_EDIT_SYMLINK].strData,strLinkName))
 		{
-			// BUGBUG: check errors
-			ModifyReparsePoint(strSelName,AttrDlg[SA_EDIT_SYMLINK].strData);
+			if(!ModifyReparsePoint(strSelName,AttrDlg[SA_EDIT_SYMLINK].strData))
+			{
+				Message(FMSG_WARNING|FMSG_ERRORTYPE,1,MSG(MError),MSG(MCopyCannotCreateLink),strSelName,MSG(MHOk));
+			}
 		}
 
 		const size_t Times[]={SA_EDIT_MTIME,SA_EDIT_CTIME,SA_EDIT_ATIME};
