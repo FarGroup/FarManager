@@ -1052,19 +1052,13 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					bool SaveAs = Key==KEY_SHIFTF2 || Flags.Check(FFILEEDIT_SAVETOSAVEAS);
 					int NameChanged=FALSE;
 					string strFullSaveAsName = strFullFileName;
-					bool AddSignature=m_bAddSignature;
 
 					if (SaveAs)
 					{
 						string strSaveAsName = Flags.Check(FFILEEDIT_SAVETOSAVEAS)?strFullFileName:strFileName;
 
-						if (!dlgSaveFileAs(strSaveAsName, TextFormat, codepage, AddSignature))
+						if (!dlgSaveFileAs(strSaveAsName, TextFormat, codepage, m_bAddSignature))
 							return FALSE;
-
-						if (m_bAddSignature && !AddSignature)
-						{
-							m_bAddSignature=false;
-						}
 
 						apiExpandEnvironmentStrings(strSaveAsName, strSaveAsName);
 						RemoveTrailingSpaces(strSaveAsName);
@@ -1103,7 +1097,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 					ShowConsoleTitle();
 					FarChDir(strStartDir); //???
-					int SaveResult=SaveFile(strFullSaveAsName, 0, SaveAs, TextFormat, codepage, AddSignature);
+					int SaveResult=SaveFile(strFullSaveAsName, 0, SaveAs, TextFormat, codepage, m_bAddSignature);
 
 					if (SaveResult==SAVEFILE_ERROR)
 					{
