@@ -3948,6 +3948,7 @@ int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
 {
   _KEYMACRO(CleverSysLog Clev("KeyMacro::ReadMacros()"));
   int I, J;
+  int ErrorCount=0;
   struct MacroRecord CurMacro;
   /* $ 20.12.2003 IS
        Принудительно обнулим, иначе падаем при xf_free(Src)
@@ -4031,7 +4032,10 @@ int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
     }
 
     if(!ParseMacroString(&CurMacro,Buffer))
+    {
+      ErrorCount++;
       continue;
+    }
 
     struct MacroRecord *NewMacros=(struct MacroRecord *)xf_realloc(MacroLIB,sizeof(*MacroLIB)*(MacroLIBCount+1));
     if (NewMacros==NULL)
@@ -4055,9 +4059,8 @@ int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
     memcpy(MacroLIB+MacroLIBCount,&CurMacro,sizeof(CurMacro));
     MacroLIBCount++;
   }
-  return TRUE;
+  return ErrorCount?FALSE:TRUE;
 }
-/* SVS $ */
 
 // эта функция будет вызываться из тех классов, которым нужен перезапуск макросов
 void KeyMacro::RestartAutoMacro(int /*Mode*/)

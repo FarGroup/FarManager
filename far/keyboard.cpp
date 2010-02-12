@@ -1776,6 +1776,15 @@ static char *GetShiftKeyName(char *Name, DWORD Key,int& Len)
  + Функция KeyNameToKey - получение кода клавиши по имени
    Если имя не верно или нет такого - возвращается -1
    Может и криво, но правильно и коротко!
+
+   Функция KeyNameToKey ждет строку по вот такой спецификации:
+
+   1. Сочетания, определенные в структуре FKeys1[]
+   2. Опциональные модификаторы (Alt/RAlt/Ctrl/RCtrl/Shift) и 1 символ, например, AltD или CtrlC
+   3. "Alt" (или RAlt) и 5 десятичных цифр (с ведущими нулями)
+   4. "Spec" и 5 десятичных цифр (с ведущими нулями)
+   5. "Oem" и 5 десятичных цифр (с ведущими нулями)
+   6. только модификаторы (Alt/RAlt/Ctrl/RCtrl/Shift)
 */
 int WINAPI KeyNameToKey(const char *Name)
 {
@@ -1783,7 +1792,7 @@ int WINAPI KeyNameToKey(const char *Name)
      return -1;
    DWORD Key=0;
 
-//// // _KBDLOG(SysLog("KeyNameToKey('%s')",Name));
+   // _KBDLOG(SysLog("KeyNameToKey('%s')",Name));
 
    // Это макроклавиша?
    if(Name[0] == '$' && Name[1])
@@ -1792,8 +1801,8 @@ int WINAPI KeyNameToKey(const char *Name)
      return -1;
    if(Name[1] && strpbrk(Name,"()")) // если не один символ и встречаются '(' или ')', то это явно не клавиша!
      return -1;
-//   if((Key=KeyNameMacroToKey(Name)) != (DWORD)-1)
-//     return Key;
+   //   if((Key=KeyNameMacroToKey(Name)) != (DWORD)-1)
+   //     return Key;
 
    int I, Pos;
    char TmpName[128];
@@ -1812,11 +1821,11 @@ int WINAPI KeyNameToKey(const char *Name)
      }
    }
    //Pos=strlen(TmpName);
-//// // _KBDLOG(SysLog("Name=%s",Name));
+   // _KBDLOG(SysLog("Name=%s",Name));
    // если что-то осталось - преобразуем.
    if(Pos < Len)
    {
-     // сначала - FKeys1
+     // сначала - FKeys1 - Вариант (1)
      const char* Ptr=Name+Pos;
      int PtrLen = Len-Pos;
 
@@ -1830,13 +1839,22 @@ int WINAPI KeyNameToKey(const char *Name)
        }
      }
 
-     if(I  == -1)
+     if(I  == -1) // F-клавиш нет?
      {
-       if(Len == 1 || Pos == Len-1)
+		/*
+			здесь только 5 оставшихся вариантов:
+			2) Опциональные модификаторы (Alt/RAlt/Ctrl/RCtrl/Shift) и 1 символ, например, AltD или CtrlC
+			3) "Alt" (или RAlt) и 5 десятичных цифр (с ведущими нулями)
+			4) "Spec" и 5 десятичных цифр (с ведущими нулями)
+			5) "Oem" и 5 десятичных цифр (с ведущими нулями)
+			6) только модификаторы (Alt/RAlt/Ctrl/RCtrl/Shift)
+		*/
+       if(Len == 1 || Pos == Len-1)  // Вариант (2)
        {
          WORD Chr=(WORD)(BYTE)Name[Pos];
          if (Chr > 0 && Chr < 256)
          {
+           // если были модификаторы Alt/Ctrl, то преобразуем в "физичекую клавишу" (независимо от языка)
            if (Key&(KEY_ALT|KEY_RCTRL|KEY_CTRL|KEY_RALT))
            {
              if(Chr > 0x7F)
@@ -1848,28 +1866,23 @@ int WINAPI KeyNameToKey(const char *Name)
              Pos++;
          }
        }
-       else if(Key & (KEY_ALT|KEY_RALT))
+       else if (Key == KEY_ALT || Key == KEY_RALT || Key == KEY_M_SPEC || Key == KEY_M_OEM) // Варианты (3), (4) и (5)
        {
-         int K=atoi(Ptr);
-         if(K != -1)
+         char *endptr=NULL;
+         int K=(int)strtol(Ptr, &endptr, 10);
+         if (Ptr+5 == endptr)
          {
-           // Было введение Alt-Num
-           Key=(Key|K|KEY_ALTDIGIT)&(~(KEY_ALT|KEY_RALT));
-           Pos=Len;
-         }
-       }
-       else if(Key & (KEY_M_SPEC|KEY_M_OEM))
-       {
-         int K=atoi(Ptr);
-         if(K != -1)
-         {
-           if(Key & KEY_M_SPEC)
+           if (Key == KEY_ALT || Key == KEY_RALT) // Вариант (3) - Alt-Num
+             Key=(Key|K|KEY_ALTDIGIT)&(~(KEY_ALT|KEY_RALT));
+           else if (Key == KEY_M_SPEC) // Вариант (4)
              Key=(Key|(K+KEY_VK_0xFF_BEGIN))&(~(KEY_M_SPEC|KEY_M_OEM));
-           else if(Key & KEY_M_OEM)
+           else if (Key == KEY_M_OEM) // Вариант (5)
              Key=(Key|(K+KEY_FKEY_BEGIN))&(~(KEY_M_SPEC|KEY_M_OEM));
+
            Pos=Len;
          }
        }
+       // Вариант (6). Уже "собран".
      }
    }
 /*
