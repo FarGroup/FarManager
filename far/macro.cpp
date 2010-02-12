@@ -443,14 +443,18 @@ int KeyMacro::LoadMacros(BOOL InitedRAM)
     int I;
     ReadVarsConst(MACRO_VARS,Buffer,TEMP_BUFFER_SIZE-1);
     ReadVarsConst(MACRO_CONSTS,Buffer,TEMP_BUFFER_SIZE-1);
+    Ret=TRUE;
     for(I=MACRO_OTHER; I < MACRO_LAST; ++I)
       if(!ReadMacros(I,Buffer,TEMP_BUFFER_SIZE-1))
-        break;
+      {
+        Ret=FALSE;
+        ;//break;
+      }
     delete[] Buffer;
     // выставим код возврата - если не все ВСЕ загрузились, то
     // будет FALSE
-    Ret=(I == MACRO_LAST)?TRUE:FALSE;
-    if(Ret)
+    //Ret=(I == MACRO_LAST)?TRUE:FALSE;
+    //if(Ret)
       KeyMacro::Sort();
   }
 //  Mode=MACRO_SHELL;
