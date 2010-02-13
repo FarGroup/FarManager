@@ -359,16 +359,16 @@
   <ItemGroup>
     <CustomBuild Include="..\..\Locale\newarc.feed">
       <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug Unicode|Win32'">"../../../Tools/lng.generator.exe" -oh "../../Include" -ol "$(OutDir)" "%(FullName)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug Unicode|Win32'">"../../../Tools/lng.generator.exe" -ol $(OutDir) -oh "..\..\Include" %(FullPath)</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug Unicode|Win32'">Building language files</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug Unicode|Win32'">$(OutDir)\newarc.Russian.lng;$(OutDir)\newarc.English.lng</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"../../../Tools/lng.generator.exe" -oh "../../Include" -ol "$(OutDir)" "%(FullName)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"../../../Tools/lng.generator.exe" -ol $(OutDir) -oh "..\..\Include" %(FullPath)</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building language files</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)\newarc.Russian.lng;$(OutDir)\newarc.English.lng</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release Unicode|Win32'">"../../../Tools/lng.generator.exe" -oh "../../Include" -ol "$(OutDir)" "%(FullName)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release Unicode|Win32'">"../../../Tools/lng.generator.exe" -ol $(OutDir) -oh "..\..\Include" %(FullPath)</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release Unicode|Win32'">Building language files</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release Unicode|Win32'">$(OutDir)\newarc.Russian.lng;$(OutDir)\newarc.English.lng</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"../../../Tools/lng.generator.exe" -oh "../../Include" -ol "$(OutDir)" "%(FullName)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"../../../Tools/lng.generator.exe" -ol $(OutDir) -oh "..\..\Include" %(FullPath)</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building language files</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)\newarc.Russian.lng;$(OutDir)\newarc.English.lng</Outputs>
     </CustomBuild>
