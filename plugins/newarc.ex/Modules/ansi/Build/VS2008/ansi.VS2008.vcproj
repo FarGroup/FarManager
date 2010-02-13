@@ -18,7 +18,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\..\..\Bin\$(ConfigurationName)\Modules\ansi"
+			OutputDirectory="..\..\..\..\Bin\$(ConfigurationName)\Modules\ma"
 			IntermediateDirectory="..\..\Bin\$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="1"
@@ -92,7 +92,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\..\..\Bin\$(ConfigurationName)\Modules\ansi"
+			OutputDirectory="..\..\..\..\Bin\$(ConfigurationName)\Modules\ma"
 			IntermediateDirectory="..\..\Bin\$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="1"
@@ -169,7 +169,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release Unicode|Win32"
-			OutputDirectory="..\..\..\..\Bin\$(ConfigurationName)\Modules\ansi"
+			OutputDirectory="..\..\..\..\Bin\$(ConfigurationName)\Modules\ma"
 			IntermediateDirectory="..\..\Bin\$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="1"
@@ -246,7 +246,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug Unicode|Win32"
-			OutputDirectory="..\..\..\..\Bin\$(ConfigurationName)\Modules\ansi"
+			OutputDirectory="..\..\..\..\Bin\$(ConfigurationName)\Modules\ma"
 			IntermediateDirectory="..\..\Bin\$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="1"

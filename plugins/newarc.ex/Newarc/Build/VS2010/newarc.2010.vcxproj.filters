@@ -22,6 +22,9 @@
     <Filter Include="Source Files\Framework">
       <UniqueIdentifier>{cd29b27d-f50f-4ddc-93fd-c7f914b2a515}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Locale">
+      <UniqueIdentifier>{8ac2a670-30ac-41af-be71-6e32fbd356d8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Framework\Src\debug.cpp">
@@ -124,5 +127,10 @@
     <ResourceCompile Include="..\..\newarc.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\Locale\newarc.feed">
+      <Filter>Locale</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

@@ -90,6 +90,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				Description=""
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration
@@ -175,6 +177,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				Description=""
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration
@@ -260,6 +264,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				Description=""
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration
@@ -271,6 +277,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -337,6 +344,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				Description=""
+				CommandLine=""
 			/>
 		</Configuration>
 	</Configurations>
@@ -679,6 +688,54 @@
 			<File
 				RelativePath="..\..\newarc.rc"
 				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Locale"
+			>
+			<File
+				RelativePath="..\..\Locale\newarc.feed"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Building language files"
+						CommandLine="&quot;../../../Tools/lng.generator.exe&quot; -oh &quot;../../Include&quot; -ol &quot;$(OutDir)&quot; &quot;$(InputDir)$(InputFileName)&quot; "
+						Outputs="$(OutDir)\newarc.Russian.lng;$(OutDir)\newarc.English.lng"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Building language files"
+						CommandLine="&quot;../../../Tools/lng.generator.exe&quot; -oh &quot;../../Include&quot; -ol &quot;$(OutDir)&quot; &quot;$(InputDir)$(InputFileName)&quot; "
+						Outputs="$(OutDir)\newarc.Russian.lng;$(OutDir)\newarc.English.lng"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Building language files"
+						CommandLine="&quot;../../../Tools/lng.generator.exe&quot; -oh &quot;../../Include&quot; -ol &quot;$(OutDir)&quot; &quot;$(InputDir)$(InputFileName)&quot; "
+						Outputs="$(OutDir)\newarc.Russian.lng;$(OutDir)\newarc.English.lng"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Unicode|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Building language files"
+						CommandLine="&quot;../../../Tools/lng.generator.exe&quot; -oh &quot;../../Include&quot; -ol &quot;$(OutDir)&quot; &quot;$(InputDir)$(InputFileName)&quot; "
+						Outputs="$(OutDir)\newarc.Russian.lng;$(OutDir)\newarc.English.lng"
+					/>
+				</FileConfiguration>
 			</File>
 		</Filter>
 	</Files>
