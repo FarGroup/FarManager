@@ -38,13 +38,13 @@ struct DialogItemEx;
 class string;
 
 /*
-Класс для динамического построения диалогов, используемый внутри кода FAR. 
+Класс для динамического построения диалогов, используемый внутри кода FAR.
 Использует FAR'овский класс string для работы с текстовыми полями.
 
 Для того, чтобы сместить элемент относительно дефолтного
 положения по горизонтали, можно использовать метод DialogItemEx::Indent().
 
-Поддерживает automation (изменение флагов одного элемента в зависимости от состояния 
+Поддерживает automation (изменение флагов одного элемента в зависимости от состояния
 другого). Реализуется при помощи метода LinkFlags().
 */
 class DialogBuilder: public DialogBuilderBase<DialogItemEx>
@@ -59,7 +59,7 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 		virtual int TextWidth(const DialogItemEx &Item);
 		virtual const TCHAR *GetLangString(int MessageID);
 		virtual int DoShowDialog();
-		
+
 		virtual DialogItemBinding<DialogItemEx> *CreateCheckBoxBinding(BOOL *Value, int Mask);
 		virtual DialogItemBinding<DialogItemEx> *CreateRadioButtonBinding(int *Value);
 
@@ -85,6 +85,6 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 
 		void AddOKCancel()
 		{
-			DialogBuilderBase::AddOKCancel(MOk, MCancel);
+			DialogBuilderBase<DialogItemEx>::AddOKCancel(MOk, MCancel);
 		}
 };
