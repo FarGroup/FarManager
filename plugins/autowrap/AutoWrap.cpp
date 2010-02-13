@@ -55,7 +55,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
   Builder.AddEditField(Opt.FileMasks, 65);
   Builder.AddText(MExcludeFileMasks);
   Builder.AddEditField(Opt.ExcludeFileMasks, 65);
-  Builder.AddOKCancel();
+  Builder.AddOKCancel(MOk, MCancel);
   if (Builder.ShowDialog())
   {
     SetRegKey(HKEY_CURRENT_USER,_T(""),_T("Wrap"),Opt.Wrap);

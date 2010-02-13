@@ -493,23 +493,23 @@ class DialogBuilderBase
 		void AddSeparator(int MessageId=-1)
 		{
 			T *Separator = AddDialogItem(DI_TEXT, MessageId == -1 ? EMPTY_TEXT : GetLangString(MessageId));
-			Separator->Flags = DIF_BOXCOLOR | DIF_SEPARATOR;
+			Separator->Flags = DIF_SEPARATOR;
 			Separator->X1 = 3;
 			Separator->Y1 = Separator->Y2 = NextY++;
 		}
 
 		// Добавляет сепаратор, кнопки OK и Cancel.
-		void AddOKCancel()
+		void AddOKCancel(int OKMessageId, int CancelMessageId)
 		{
 			AddSeparator();
 
-			T *OKButton = AddDialogItem(DI_BUTTON, GetLangString(MOk));
+			T *OKButton = AddDialogItem(DI_BUTTON, GetLangString(OKMessageId));
 			OKButton->Flags = DIF_CENTERGROUP;
 			OKButton->DefaultButton = 1;
 			OKButton->Y1 = OKButton->Y2 = NextY++;
 			OKButtonID = DialogItemsCount-1;
 
-			T *CancelButton = AddDialogItem(DI_BUTTON, GetLangString(MCancel));
+			T *CancelButton = AddDialogItem(DI_BUTTON, GetLangString(CancelMessageId));
 			CancelButton->Flags = DIF_CENTERGROUP;
 			CancelButton->Y1 = CancelButton->Y2 = OKButton->Y1;
 		}

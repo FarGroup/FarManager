@@ -82,4 +82,9 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 		// Если LinkLabels установлено в true, то текстовые элементы, добавленные к элементу Target
 		// методами AddTextBefore и AddTextAfter, также связываются с элементом Parent.
 		void LinkFlags(DialogItemEx *Parent, DialogItemEx *Target, FarDialogItemFlags Flags, bool LinkLabels=true);
+
+		void AddOKCancel()
+		{
+			DialogBuilderBase::AddOKCancel(MOk, MCancel);
+		}
 };
