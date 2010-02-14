@@ -205,7 +205,7 @@ static FTPType ListingTypes[] = {
   /* 9*/ { TRUE,  "VxWorks", "VX DOS style parser",                               idPRParceVX_DOS,  NULL },
   /*10*/ { TRUE,  "PC/TCP ", "PC/TCP v 2.11 ftpsrv.exe",                          idPRParcePCTCP,   idDirParcePCTCP },
   /*11*/ { TRUE,  "OS/400 ", "IBM OS/400",                                        idPRParceOS400,   NULL },
-  /*12*/ { TRUE,  "MVS    ", "MVS system",                                        idPRParceMVS,     idDirParceMVS }
+  /*12*/ { FALSE, "MVS    ", "MVS system",                                        idPRParceMVS,     idDirParceMVS }
 };
 
 static WORD ParseSystemInfo( CONSTSTR str )
