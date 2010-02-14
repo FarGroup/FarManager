@@ -1,16 +1,5 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<?if $(var.Platform) = x86 ?>
-  <?define ProgramFiles = "ProgramFilesFolder" ?>
-<?endif?>
-<?if $(var.Platform) = x64 ?>
-  <?define ProgramFiles = "ProgramFiles64Folder" ?>
-<?endif?>
-<?if $(var.Branch) = 1 ?>
-  <?define DefInstallDir = "Far" ?>
-<?endif?>
-<?if $(var.Branch) = 2 ?>
-  <?define DefInstallDir = "Far2" ?>
-<?endif?>
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?include defines.wxi ?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Fragment>
     <Binary Id="WixUI_Bmp_Banner" SourceFile="rsrc\banner.jpg" />
@@ -35,7 +24,7 @@
       <Publish Dialog="LicenseAgreementDlg" Control="Next" Event="NewDialog" Value="InstallScopeDlg">LicenseAccepted = "1"</Publish>
 
       <Publish Dialog="InstallScopeDlg" Control="Back" Event="NewDialog" Value="LicenseAgreementDlg">1</Publish>
-      <Publish Dialog="InstallScopeDlg" Control="Next" Property="ALLUSERS" Value="{}" Order="1">InstallScope = "User"</Publish>
+      <Publish Dialog="InstallScopeDlg" Control="Next" Property="ALLUSERS" Order="1">InstallScope = "User"</Publish>
       <Publish Dialog="InstallScopeDlg" Control="Next" Property="INSTALLDIR" Value="[LocalAppDataFolder]\$(var.DefInstallDir)" Order="2">InstallScope = "User"</Publish>
       <Publish Dialog="InstallScopeDlg" Control="Next" Property="ALLUSERS" Value="1" Order="3">InstallScope = "Machine"</Publish>
       <Publish Dialog="InstallScopeDlg" Control="Next" Property="INSTALLDIR" Value="[$(var.ProgramFiles)]\$(var.DefInstallDir)" Order="4">InstallScope = "Machine"</Publish>
@@ -69,7 +58,7 @@
       <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
 
       <InstallUISequence>
-        <Show Dialog="PrepareDlg" Before="AppSearch" />
+        <Show Dialog="PrepareDlg" Before="LaunchConditions" />
         <Show Dialog="WelcomeDlg" Before="ProgressDlg">NOT Installed</Show>
         <Show Dialog="MaintenanceWelcomeDlg" Before="ProgressDlg">Installed AND NOT RESUME AND NOT Preselected</Show>
         <Show Dialog="ResumeDlg" Before="ProgressDlg">Installed AND (RESUME OR Preselected)</Show>

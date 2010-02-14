@@ -90,7 +90,8 @@ int main(int argc, char* argv[]) {
     makefile << "  light -nologo -cultures:en-us -loc en-us.wxl -loc ui_en-us.wxl -spdb -sval -sh -cc . -reusecab -O2 -out " << msi_name << " installer.wixobj ui.wixobj" << endl;
     makefile << "customact.dll: customact.cpp customact.def" << endl;
     makefile << "  cl -nologo -Zi -EHsc customact.cpp -link -dll -debug -incremental:no -out:customact.dll -def:customact.def msi.lib shell32.lib" << endl;
-    makefile << "installer.wxs: files.wxi features.wxi shortcuts.wxi guids_" << ver_major << "_" << platform << ".wxi makefile" << endl;
+    makefile << "installer.wxs: files.wxi features.wxi shortcuts.wxi defines.wxi guids_" << ver_major << "_" << platform << ".wxi makefile" << endl;
+    makefile << "ui.wxs: defines.wxi" << endl;
     makefile << ".wxs.wixobj::" << endl;
     makefile << "  candle -nologo -dSourceDir=\"" << source_dir << "\" -dBranch=" << ver_major << " -dPlatform=" << platform << " -dVersion=" << version << " $<" << endl;
     makefile << "clean:" << endl;
