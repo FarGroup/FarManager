@@ -3101,10 +3101,8 @@ corresponding checkboxes was changed from the initial state.
 and #Encrypted# attributes are mutually exclusive, that is, you can set only
 one of them. You cannot clear the #Sparse# attribute in Windows 2000/XP/2003.
 
-    For ~folder links~@HardSymLink@ the dialog will display the original folder
-information (NTFS only). If the information on the original folder is not
-available (in particular, for symbolic links in remote folders), then the
-"#(data not available)#" message will be shown.
+    For ~symbolic links~@HardSymLink@ the dialog will display the path where it refers to.
+If this information is not available, then the "#(data not available)#" message will be shown.
 
   #File date and time#
 
