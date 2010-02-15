@@ -335,7 +335,7 @@ $ #Panel control commands  #
   Copy network (UNC) names of selected files to the     #Ctrl-Alt-Ins#
    clipboard (ignore command line state)
 
-  См. так же список ~макроклавиш~@KeyMacroShellList@, доступных в панелях.
+  See also the list of ~macro keys~@KeyMacroShellList@, available in the panels.
 
   Notes:
 
@@ -418,7 +418,7 @@ the search field. If used the entered text will be transliterated and a new
 match corresponding to the new text will be searched. See TechInfo##10 on how
 to set the hotkey for the transliteration.
 
-   См. так же список ~макроклавиш~@KeyMacroSearchList@, доступных в быстром поиске файла.
+   See also the list of ~macro keys~@KeyMacroSearchList@, available in fast find. 
 
 @CmdLineCmd
 $ #Command line commands#
@@ -990,7 +990,7 @@ panel.
     ~Speed search~@FastFind@ action may be used to point to the required file
 by the first letters of its name.
 
-    См. так же список ~макроклавиш~@KeyMacroShellList@, доступных в панелях.
+    See also the list of ~macro keys~@KeyMacroShellList@, available in the panels. 
 
 @TreePanel
 $ #Panels: tree panel#
@@ -1014,20 +1014,20 @@ Pressing #Ctrl-Enter# keys simultaneously will select the next match.
     #Gray +# and #Gray -# keys move up and down the tree to the next branch
 on the same level.
 
-    См. так же список ~макроклавиш~@KeyMacroTreeList@, доступных в панели дерева папок.
+    See also the list of ~macro keys~@KeyMacroTreeList@, available in the folder tree panel. 
 
 @InfoPanel
 $ #Panels: info panel#
     The information panel contains the following data:
 
- - ^<wrap>#network# names of the computer and the current user (см. ~Настройка информационной панели~@InfoPanelSettings@);
+ - ^<wrap>#network# names of the computer and the current user (see ~Info panel settings~@InfoPanelSettings@);
 
  - ^<wrap>name and type of the #current disk#, type of the file system, network
 name, total and free space, disk volume label and serial number;
 
  - ^<wrap>#memory# load percentage (100% means all of available memory is used),
-размер установленой памяти (в Vista и выше), total and free size of the physical
-memory (доступной для Windows), virtual memory and paging file;
+size of the installed physical memory (in Vista and newer), total and free size of the physical
+memory (available for Windows), virtual memory and paging file;
 
  - #folder description# file
 
@@ -1051,7 +1051,7 @@ prompt, and set the '#Local Policies/Security Options/Devices: Restrict#
     For virtual devices (SUBST-disk) the parameters of the primary disk are
 shown.
 
-    См. так же список ~макроклавиш~@KeyMacroInfoList@, доступных в панели информации.
+    See also the list of ~macro keys~@KeyMacroInfoList@, available in the info panel. 
 
 @QViewPanel
 $ #Panels: quick view panel#
@@ -1079,7 +1079,7 @@ enabled.
     2. ^<wrap>If the folder or its subfolders contain multiple hard links to the same
 file.
 
-    См. так же список ~макроклавиш~@KeyMacroQViewList@, доступных в панели быстрого просмотра.
+    See also the list of ~macro keys~@KeyMacroQViewList@, available in the quick view panel. 
 
 @DragAndDrop
 $ #Copying: drag and drop files#
@@ -1115,7 +1115,7 @@ passive panel.
 
      ~Commands menu~@CmdMenu@                 ~Options menu~@OptMenu@
 
-    См. так же список ~макроклавиш~@KeyMacroMainMenuList@, доступных в главном меню.
+    See also the list of ~macro keys~@KeyMacroMainMenuList@, available in the main menu. 
 
 @LeftRightMenu
 $ #Menus: left and right menus#
@@ -1508,7 +1508,7 @@ window to the previous size.
 part of the filename that you have already entered. #Ctrl-Shift-Enter# allows
 to cycle backwards.
 
-    См. так же список ~макроклавиш~@KeyMacroFindFolderList@, доступных в поиске папок.
+    See also the list of ~macro keys~@KeyMacroFindFolderList@, available in the find folder dialog. 
 
 @Filter
 $ #Filter#
@@ -1793,7 +1793,7 @@ the main menu saved in the registry.
 
     To close the menu even if submenus are open use #Shift-F10#.
 
-    См. так же список ~макроклавиш~@KeyMacroUserMenuList@, доступных в меню пользователя.
+    See also the list of ~macro keys~@KeyMacroUserMenuList@, available in the user menu. 
 
 @FileAssoc
 $ #File associations #
@@ -2129,7 +2129,7 @@ This option also may be switched by #Ctrl-B#.
   Show top screen menu bar even when it is inactive.
 
   #Screen saver#
-  Run screen saver after the inactivity шnterval in minutes. When this option
+  Run screen saver after the inactivity interval in minutes. When this option
 is enabled, screen saver will also activate when mouse pointer is brought
 to the upper right corner of FAR window.
 
@@ -2204,7 +2204,7 @@ $ #Settings dialog: dialogs#
                           This option allows to switch off this
                           functionality.
 
-   См. так же список ~макроклавиш~@KeyMacroDialogList@, доступных в диалогах.
+   See also the list of ~macro keys~@KeyMacroDialogList@, available in dialogs. 
 
 @CmdlineSettings
 $ #Settings dialog: command line#
@@ -2391,7 +2391,7 @@ $ #Viewer: control keys#
                        the search to the clipboard.
     #Ctrl-U#             Remove the highlighting of the search results.
 
-    См. так же список ~макроклавиш~@KeyMacroViewerList@, доступных в программе просмотра.
+    See also the list of ~macro keys~@KeyMacroViewerList@, available in the viewer. 
 
     Notes:
 
@@ -2459,7 +2459,7 @@ while searching (so, for example, #Text# will not be found when searching for #t
 
         #Whole words#         - ^<wrap>the given text will be found only if it occurs in the text as a whole word.
 
-        #Regular expressions# - ^<wrap>Для поиска использовать ~регуляные выражения~@RegExp@.
+        #Regular expressions# - ^<wrap>enable the use of ~regular expressions~@RegExp@ in the search string.
 
     #Search for hex#
 
@@ -2580,7 +2580,7 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
    #Ctrl-B#                  ^<wrap>Show/Hide functional key bar at the bottom line.
    #Ctrl-Shift-B#            Show/Hide status line
 
-   См. так же список ~макроклавиш~@KeyMacroEditList@, доступных в редакторе.
+   See also the list of ~macro keys~@KeyMacroEditList@, available in the editor. 
 
     Notes:
 
@@ -2814,7 +2814,7 @@ currently selected plugin, if the plugin has a help file.
 written for Far 1.7x and it does not support all possibilities available in
 Far 2 (these are, in particular, Unicode characters in filenames and in editor).
 
-   См. так же список ~макроклавиш~@KeyMacroDisksList@, доступных в меню выбора диска.
+   See also the list of ~macro keys~@KeyMacroDisksList@, available in the disk menu. 
 
 
 @DisconnectDrive
@@ -3855,7 +3855,7 @@ to child processes:
 
     #FARDIRSTACK#        ^<wrap>the contents of directories stack top (the stack is managed with #pushd# and #popd# commands)
 
-    #FARADMINMODE#       ^<wrap>равна "1", если FAR Manager запущен от имени администратора
+    #FARADMINMODE#       ^<wrap>equals "1" if FAR Manager was run by an administrator
 
 
 @RegExp
@@ -3867,7 +3867,7 @@ $ #Regular expressions#
     #Options#:
     #i# - ignore character case;
     #s# - ^<wrap>consider the whole text as one line, '.' matches any character;
-    #m# - ^<wrap>consider the whole text as multiple lines. ^ и $ match the
+    #m# - ^<wrap>consider the whole text as multiple lines. ^ and $ match the
     beginning and the end of any "inner" string;
     #x# - ^<wrap>ignore space characters (unscreened ones, i.e. without backslash before).
 This is useful to outline the complex expressions.
@@ -4208,9 +4208,9 @@ $ #Macro command: settings#
 macro recording with #Ctrl-Shift-<.># instead of #Ctrl-<.># and select the
 desired options in the dialog:
 
-    #Sequence:#
+   #Sequence:#
 
-    Позволяет изменить записанную последовательность клавиш.
+    Allows to edit the recorded key sequence.
 
    #Allow screen output while executing macro#
 
@@ -4264,7 +4264,7 @@ passive panels:
 checked.
 
     2. Some key combinations (including #Enter#, #Esc#, #F1# and #Ctrl-F5#,
-#MsWheelUp#, #MsWheelDown# и другие клавиши мыши with #Ctrl#, #Shift#, #Alt#) cannot be entered
+#MsWheelUp#, #MsWheelDown# and other mouse keys combined with #Ctrl#, #Shift#, #Alt#) cannot be entered
 directly because they have special functions in the dialog. To assign a macro
 to one of those key combinations, select it from the drop-down list.
 
