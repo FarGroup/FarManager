@@ -6956,17 +6956,21 @@ void Editor::EditorShowMsg(const wchar_t *Title,const wchar_t *Msg, const wchar_
 
 	if (Percent!=-1)
 	{
-		size_t Length=Max(Min(static_cast<int>(MAX_WIDTH_MESSAGE-2),StrLength(Name)),40)-5; // -5 под проценты
+		FormatString strPercent;
+		strPercent<<Percent;
+
+		size_t PercentLength=Max(strPercent.strValue().GetLength(),3u);
+		size_t Length=Max(Min(static_cast<int>(MAX_WIDTH_MESSAGE-2),StrLength(Name)),40)-PercentLength-2;
 		wchar_t *Progress=strProgress.GetBuffer(Length);
 
 		if (Progress)
 		{
-			size_t CurPos=Percent*(Length)/100;
+			size_t CurPos=(Percent>100?100:Percent)*Length/100;
 			wmemset(Progress,BoxSymbols[BS_X_DB],CurPos);
 			wmemset(Progress+(CurPos),BoxSymbols[BS_X_B0],Length-CurPos);
 			strProgress.ReleaseBuffer(Length);
 			FormatString strTmp;
-			strTmp<<L" "<<fmt::Width(3)<<Percent<<L"%";
+			strTmp<<L" "<<fmt::Width(PercentLength)<<strPercent<<L"%";
 			strProgress+=strTmp;
 		}
 

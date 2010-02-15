@@ -2215,19 +2215,23 @@ void ViewerSearchMsg(const wchar_t *MsgStr,int Percent)
 {
 	string strProgress;
 
-	if (Percent!=-1)
+	if (Percent>=0)
 	{
-		size_t Length=Max(Min(static_cast<int>(MAX_WIDTH_MESSAGE-2),StrLength(MsgStr)),40)-5; // -5 под проценты
+		FormatString strPercent;
+		strPercent<<Percent;
+
+		size_t PercentLength=Max(strPercent.strValue().GetLength(),3u);
+		size_t Length=Max(Min(static_cast<int>(MAX_WIDTH_MESSAGE-2),StrLength(MsgStr)),40)-PercentLength-2;
 		wchar_t *Progress=strProgress.GetBuffer(Length);
 
 		if (Progress)
 		{
-			size_t CurPos=Percent*(Length)/100;
+			size_t CurPos=(Percent>100?100:Percent)*Length/100;
 			wmemset(Progress,BoxSymbols[BS_X_DB],CurPos);
 			wmemset(Progress+(CurPos),BoxSymbols[BS_X_B0],Length-CurPos);
 			strProgress.ReleaseBuffer(Length);
 			FormatString strTmp;
-			strTmp<<L" "<<fmt::Width(3)<<Percent<<L"%";
+			strTmp<<L" "<<fmt::Width(PercentLength)<<strPercent<<L"%";
 			strProgress+=strTmp;
 		}
 
@@ -2453,7 +2457,20 @@ void Viewer::Search(int Next,int FirstChar)
 
 					INT64 Total=ReverseSearch?StartPos:FileSize-StartPos;
 					INT64 Current=_abs64(CurPos-StartPos);
-					ViewerSearchMsg(strMsgStr,Total>0?static_cast<int>(Current*100/Total):-1);
+					int Percent=Total>0?static_cast<int>(Current*100/Total):-1;
+					// В случае если файл увеличивается размере, то количество
+					// процентов может быть больше 100. Обрабатываем эту ситуацию.
+					if (Percent>100)
+					{
+						SetFileSize();
+						Total=FileSize-StartPos;
+						Percent=Total>0?static_cast<int>(Current*100/Total):-1;
+						if (Percent>100)
+						{
+							Percent=100;
+						}
+					}
+					ViewerSearchMsg(strMsgStr,Percent);
 				}
 
 				/* $ 01.08.2000 KM

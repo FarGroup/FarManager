@@ -1574,7 +1574,19 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 			SetCursorType(FALSE,0);
 			INT64 CurPos=0;
 			apiSetFilePointerEx(hEdit,0,&CurPos,FILE_CURRENT);
-			Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditReading),Name,static_cast<int>(CurPos*100/FileSize));
+			int Percent=static_cast<int>(CurPos*100/FileSize);
+			// В случае если во время загрузки файл увеличивается размере, то количество
+			// процентов может быть больше 100. Обрабатываем эту ситуацию.
+			if (Percent>100)
+			{
+				apiGetFileSizeEx(hEdit,FileSize);
+				Percent=static_cast<int>(CurPos*100/FileSize);
+				if (Percent>100)
+				{
+					Percent=100;
+				}
+			}
+			Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditReading),Name,Percent);
 		}
 
 		const wchar_t *CurEOL;
