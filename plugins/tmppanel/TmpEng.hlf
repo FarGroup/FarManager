@@ -251,5 +251,7 @@ $^#Temporary panel: Command line#
    #<filelist>#  - the ~list file~@List@ from which the temporary
 panel will read its list of elements
 
+   See ~Temporary panel: configuration~@Config@ for a more in depth
+explanation of command line switches.
 
  ~Contents~@Contents@
