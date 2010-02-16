@@ -1,3 +1,7 @@
+drkns 16.02.2010 19:32:46 +0200 - build 1403
+
+1. Уточнение работы FCTL_CLEARSELECTION.
+
 drkns 16.02.2010 13:47:00 +0300 - build 1402
 
 1. Mantis#0000942: far hangs at exit after using of proclist

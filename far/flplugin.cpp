@@ -1117,30 +1117,26 @@ void FileList::PluginClearSelection(int SelectedItemNumber)
 {
 	if (ListData && SelectedItemNumber<FileCount)
 	{
-		if (SelectedItemNumber==CacheSelClearIndex)
+		if (SelectedItemNumber<=CacheSelClearIndex)
 		{
-			Select(ListData[CacheSelClearPos],FALSE);
+			CacheSelClearIndex=-1;
 		}
-		else
+
+		int CurSel=CacheSelClearIndex,StartValue=CacheSelClearIndex>=0?CacheSelClearPos+1:0;
+
+		for (int i=StartValue; i<FileCount; i++)
 		{
-			if (SelectedItemNumber<CacheSelClearIndex) CacheSelClearIndex=-1;
-
-			int CurSel=CacheSelClearIndex,StartValue=CacheSelClearIndex>=0?CacheSelClearPos+1:0;
-
-			for (int i=StartValue; i<FileCount; i++)
+			if (ListData[i]->Selected)
 			{
-				if (ListData[i]->Selected)
-				{
-					CurSel++;
-				}
+				CurSel++;
+			}
 
-				if (CurSel==SelectedItemNumber)
-				{
-					Select(ListData[i],FALSE);
-					CacheSelClearIndex=SelectedItemNumber;
-					CacheSelClearPos=i;
-					break;
-				}
+			if (CurSel==SelectedItemNumber)
+			{
+				Select(ListData[i],FALSE);
+				CacheSelClearIndex=SelectedItemNumber;
+				CacheSelClearPos=i;
+				break;
 			}
 		}
 	}
