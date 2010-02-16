@@ -510,16 +510,17 @@ void KeyMacro::ReleaseWORKBuffer(BOOL All)
 // загрузка ВСЕХ макросов из реестра
 int KeyMacro::LoadMacros(BOOL InitedRAM,BOOL LoadAll)
 {
-	int Ret=FALSE;
+	int ErrCount=0;
 	InitInternalVars(InitedRAM);
 
 	if (Opt.DisableMacro&MDOL_ALL)
-		return Ret;
+		return FALSE;
 
 	string strBuffer;
 	ReadVarsConst(MACRO_VARS,strBuffer);
 	ReadVarsConst(MACRO_CONSTS,strBuffer);
 	ReadMacroFunction(MACRO_FUNCS,strBuffer);
+
 	int Areas[MACRO_LAST];
 
 	for (int i=MACRO_OTHER; i < MACRO_LAST; i++)
@@ -540,7 +541,6 @@ int KeyMacro::LoadMacros(BOOL InitedRAM,BOOL LoadAll)
 		                            Areas[MACRO_FINDFOLDER]=MACRO_LAST;
 	}
 
-	Ret=TRUE;
 	for (int i=MACRO_OTHER; i < MACRO_LAST; i++)
 	{
 		if (Areas[i] == MACRO_LAST)
@@ -548,17 +548,17 @@ int KeyMacro::LoadMacros(BOOL InitedRAM,BOOL LoadAll)
 
 		if (!ReadMacros(i,strBuffer))
 		{
-			Ret=FALSE;
+			ErrCount++;
 			break;
 		}
 	}
 
-	if (Ret)
+	//if (Ret)
 		KeyMacro::Sort();
-	else
-		InitInternalVars(); // все или ничего
+	//else
+	//	InitInternalVars(); // все или ничего
 
-	return Ret;
+	return ErrCount?FALSE:TRUE;
 }
 
 int KeyMacro::ProcessKey(int Key)
@@ -4434,7 +4434,10 @@ int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
 		RemoveExternalSpaces(strBuffer);
 
 		if (strBuffer.IsEmpty())
+		{
+			//ErrorCount++; // Раскомментить, если не допускается пустой "Sequence"
 			continue;
+		}
 
 		CurMacro.Key=KeyCode;
 		CurMacro.Buffer=NULL;

@@ -299,8 +299,8 @@ class Editor:public ScreenObject
 		bool SetCodePage(UINT codepage);  //BUGBUG
 		UINT GetCodePage();  //BUGBUG
 
-		int ReadData(LPCWSTR SrcBuf,int SizeSrcBuf);                  // преобразование из буфера в список
-		int SaveData(wchar_t **DestBuf,int& SizeDestBuf,int TextFormat); // преобразование из списка в буфер
+		int SetRawData(const wchar_t *SrcBuf,int SizeSrcBuf,int TextFormat); // преобразование из буфера в список
+		int GetRawData(wchar_t **DestBuf,int& SizeDestBuf,int TextFormat=0);   // преобразование из списка в буфер
 
 		virtual int ProcessKey(int Key);
 		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
