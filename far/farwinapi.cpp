@@ -989,3 +989,17 @@ bool apiQueryDosDevice(const wchar_t *DeviceName, string &Path) {
 	Path.ReleaseBuffer();
 	return true;
 }
+
+bool apiGetVolumeNameForVolumeMountPoint(LPCWSTR VolumeMountPoint,string& strVolumeName)
+{
+	bool Result=false;
+	WCHAR VolumeName[50];
+	string strVolumeMountPoint(NTPath(VolumeMountPoint).Str);
+	AddEndSlash(strVolumeMountPoint);
+	if(GetVolumeNameForVolumeMountPoint(strVolumeMountPoint,VolumeName,countof(VolumeName)))
+	{
+		strVolumeName=VolumeName;
+		Result=true;
+	}
+	return Result;
+}

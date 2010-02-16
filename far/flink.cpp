@@ -52,11 +52,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 bool WINAPI CreateVolumeMountPoint(const wchar_t *TargetVolume, const wchar_t *Object)
 {
 	bool Result=false;
-	wchar_t Buf[50];
+	string strBuf;
 
-	if (GetVolumeNameForVolumeMountPoint(TargetVolume,Buf,countof(Buf)))
+	if (apiGetVolumeNameForVolumeMountPoint(TargetVolume,strBuf))
 	{
-		if (SetVolumeMountPoint(Object,Buf))
+		if (SetVolumeMountPoint(Object,strBuf))
 		{
 			Result=true;
 		}
@@ -124,8 +124,8 @@ bool SetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
 			{
 				Result=true;
 			}
+			CloseHandle(hObject);
 		}
-		CloseHandle(hObject);
 	}
 
 	return Result;

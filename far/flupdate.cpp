@@ -187,6 +187,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	TotalFileCount=0;
 	TotalFileSize=0;
 	CacheSelIndex=-1;
+	CacheSelClearIndex=-1;
 
 	if (Opt.ShowPanelFree)
 	{
@@ -347,6 +348,8 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 			if (fdata.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
 			{
 				NewPtr->ReparseTag=fdata.dwReserved0; //MSDN
+				string strJuncName;
+				NewPtr->VolMount=apiGetVolumeNameForVolumeMountPoint(fdata.strFileName,strJuncName);
 			}
 
 			if ((fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
@@ -651,6 +654,7 @@ void FileList::MoveSelection(FileListItem **ListData,long FileCount,
 	SelFileCount=0;
 	SelFileSize=0;
 	CacheSelIndex=-1;
+	CacheSelClearIndex=-1;
 	far_qsort(OldData,OldFileCount,sizeof(*OldData),SortSearchList);
 
 	while (FileCount--)
@@ -726,6 +730,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	TotalFileCount=0;
 	TotalFileSize=0;
 	CacheSelIndex=-1;
+	CacheSelClearIndex=-1;
 	strPluginDizName.Clear();
 
 	if (FileCount>0)

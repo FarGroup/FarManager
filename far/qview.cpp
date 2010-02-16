@@ -147,16 +147,8 @@ void QuickView::DisplayObject()
 
 				if (ReparseTag==IO_REPARSE_TAG_MOUNT_POINT)
 				{
-					if (IsLocalVolumePath(strJuncName) && !strJuncName.At(49))
+					if (IsLocalVolumeRootPath(strJuncName))
 					{
-						//"\??\\\?\Volume{..."
-						strJuncName.LShift(4);
-						string strJuncRoot;
-						GetPathRoot(strJuncName, strJuncRoot);
-
-						if (strJuncRoot.At(1) == L':')
-							strJuncName = strJuncRoot;
-
 						ID_Msg=MQuickViewVolMount;
 					}
 				}

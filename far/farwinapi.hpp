@@ -329,3 +329,8 @@ bool apiQueryDosDevice(
 	const wchar_t *DeviceName,
 	string& Path
 );
+
+bool apiGetVolumeNameForVolumeMountPoint(
+	LPCWSTR VolumeMountPoint,
+	string& strVolumeName
+);

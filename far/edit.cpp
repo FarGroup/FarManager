@@ -3165,10 +3165,6 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 						{
 							switch(MenuKey)
 							{
-							case KEY_IDLE:
-							case KEY_NONE:
-								break;
-
 							// "классический" перебор
 							case KEY_CTRLEND:
 								{
@@ -3193,6 +3189,8 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 								}
 
 							// навигация по списку
+							case KEY_IDLE:
+							case KEY_NONE:
 							case KEY_ESC:
 							case KEY_F10:
 							case KEY_ALTF9:
@@ -3204,11 +3202,14 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 							case KEY_NUMPAD9:
 							case KEY_PGDN:
 							case KEY_NUMPAD3:
-
 							case KEY_ALTLEFT:
 							case KEY_ALTRIGHT:
 							case KEY_ALTHOME:
 							case KEY_ALTEND:
+							case KEY_MSWHEEL_UP:
+							case KEY_MSWHEEL_DOWN:
+							case KEY_MSWHEEL_LEFT:
+							case KEY_MSWHEEL_RIGHT:
 								{
 									ComplMenu.ProcessInput();
 									break;

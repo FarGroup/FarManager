@@ -81,7 +81,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 
 	// указатель на плагин, с которого уходим
 	PluginsListItem *PStack=*PluginsList.Last();
-	
+
 	// закрываем текущий плагин.
 	PluginsList.Delete(PluginsList.Last());
 	CtrlObject->Plugins.ClosePlugin(hPlugin);
@@ -1111,6 +1111,39 @@ void FileList::PluginBeginSelection()
 void FileList::PluginSetSelection(int ItemNumber,bool Selection)
 {
 	Select(ListData[ItemNumber],Selection);
+}
+
+void FileList::PluginClearSelection(int SelectedItemNumber)
+{
+	if (ListData && SelectedItemNumber<FileCount)
+	{
+		if (SelectedItemNumber==CacheSelClearIndex)
+		{
+			Select(ListData[CacheSelClearPos],FALSE);
+		}
+		else
+		{
+			if (SelectedItemNumber<CacheSelClearIndex) CacheSelClearIndex=-1;
+
+			int CurSel=CacheSelClearIndex,StartValue=CacheSelClearIndex>=0?CacheSelClearPos+1:0;
+
+			for (int i=StartValue; i<FileCount; i++)
+			{
+				if (ListData[i]->Selected)
+				{
+					CurSel++;
+				}
+
+				if (CurSel==SelectedItemNumber)
+				{
+					Select(ListData[i],FALSE);
+					CacheSelClearIndex=SelectedItemNumber;
+					CacheSelClearPos=i;
+					break;
+				}
+			}
+		}
+	}
 }
 
 void FileList::PluginEndSelection()

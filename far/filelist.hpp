@@ -76,6 +76,7 @@ struct FileListItem
 	string strShortName;
 
 	DWORD ReparseTag;
+	bool VolMount;
 
 	void Clear()
 	{
@@ -218,6 +219,8 @@ class FileList:public Panel
 		int InternalProcessKey;
 
 		long CacheSelIndex,CacheSelPos;
+		long CacheSelClearIndex,CacheSelClearPos;
+
 	private:
 		virtual void SetSelectedFirstMode(int Mode);
 		virtual int GetSelectedFirstMode() {return SelectedFirst;};
@@ -375,6 +378,7 @@ class FileList:public Panel
 
 		void PluginBeginSelection();
 		void PluginSetSelection(int ItemNumber,bool Selection);
+		void PluginClearSelection(int SelectedItemNumber);
 		void PluginEndSelection();
 
 		virtual void SetPluginModified();

@@ -156,6 +156,7 @@ FileList::FileList()
 	InternalProcessKey=FALSE;
 	GetSelPosition = 0;
 	CacheSelIndex=-1;
+	CacheSelClearIndex=-1;
 	UpdateDisabled=0;
 }
 
@@ -2084,6 +2085,7 @@ void FileList::Select(FileListItem *SelPtr,int Selection)
 	if (!TestParentFolderName(SelPtr->strName) && SelPtr->Selected!=Selection)
 	{
 		CacheSelIndex=-1;
+		CacheSelClearIndex=-1;
 
 		if ((SelPtr->Selected=Selection)!=0)
 		{

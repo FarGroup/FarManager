@@ -1122,21 +1122,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 												PtrName=MSG(MListSymLink);
 												break;
 											case IO_REPARSE_TAG_MOUNT_POINT:
-												PtrName=MSG(MListJunction);
-												{
-													string strJuncName;
-													string strName(strCurDir);
-													AddEndSlash(strName);
-													strName+=ListData[ListPos]->strName;
-
-													if (GetReparsePointInfo(strName,strJuncName))
-													{
-														NormalizeSymlinkName(strJuncName);
-
-														if (IsLocalVolumeRootPath(strJuncName))
-															PtrName=MSG(MListVolMount);
-													}
-												}
+												PtrName=MSG(ListData[ListPos]->VolMount?MListVolMount:MListJunction);
 												break;
 										}
 									}

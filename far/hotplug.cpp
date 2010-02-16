@@ -310,15 +310,13 @@ BOOL IsHotPlugDevice(DEVINST hDevInst)
 
 DWORD DriveMaskFromVolumeName(const wchar_t *lpwszVolumeName)
 {
-	wchar_t wszCurrentVolumeName[MAX_PATH];
-	wchar_t wszMountPoint[]={L'A',L':',L'\\',0};
+	string strCurrentVolumeName;
+	wchar_t wszMountPoint[]=L"\\\\?\\A:\\";
 
 	for (wchar_t Letter = L'A'; Letter <= L'Z'; Letter++)
 	{
-		wszMountPoint[0] = Letter;
-		GetVolumeNameForVolumeMountPoint(wszMountPoint, wszCurrentVolumeName, MAX_PATH);
-
-		if (!StrCmpI(wszCurrentVolumeName, lpwszVolumeName))
+		wszMountPoint[4] = Letter;
+		if(apiGetVolumeNameForVolumeMountPoint(wszMountPoint,strCurrentVolumeName) && strCurrentVolumeName.Equal(0,lpwszVolumeName))
 			return (1 << (Letter-L'A'));
 	}
 
@@ -368,14 +366,10 @@ DWORD GetDriveMaskFromMountPoints(DEVINST hDevInst)
 						if (!FirstSlash(p+4))
 							wcscat(lpwszMountPoint, L"\\");
 
-						wchar_t wszVolumeName[MAX_PATH];
+						string strVolumeName;
 
-						if (GetVolumeNameForVolumeMountPoint(
-						            lpwszMountPoint,
-						            wszVolumeName,
-						            MAX_PATH
-						        ))
-							dwMask |= DriveMaskFromVolumeName(wszVolumeName);
+						if (apiGetVolumeNameForVolumeMountPoint(lpwszMountPoint,strVolumeName))
+							dwMask |= DriveMaskFromVolumeName(strVolumeName);
 
 						xf_free(lpwszMountPoint);
 						p += wcslen(p)+1;

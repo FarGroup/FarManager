@@ -2278,6 +2278,15 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 			}
 		}
 		break;
+		case FCTL_CLEARSELECTION:
+		{
+			if (GetType()==FILE_PANEL)
+			{
+				reinterpret_cast<FileList*>(this)->PluginClearSelection(Param1);
+				Result=TRUE;
+			}
+		}
+		break;
 		case FCTL_ENDSELECTION:
 		{
 			if (GetType()==FILE_PANEL)

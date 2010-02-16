@@ -763,14 +763,6 @@ bool ShellSetFileAttributes(Panel *SrcPanel)
 				{
 					if (IsLocalVolumeRootPath(strLinkName))
 					{
-						string strLinkRoot;
-						GetPathRoot(strLinkName,strLinkRoot);
-
-						if (IsLocalPath(strLinkRoot))
-						{
-							strLinkName = strLinkRoot;
-						}
-
 						ID_Msg=MSetAttrVolMount;
 					}
 					else

@@ -380,13 +380,13 @@ string TryConvertVolumeGuidToDrivePath(const string& Path)
 			if (apiGetLogicalDriveStrings(DriveStrings))
 			{
 				wchar_t* Drive = DriveStrings.GetBuffer();
-				wchar_t VolumeGuid[cVolumeGuidLen + 1 + 1];
+				string strVolumeGuid;
 
 				while (*Drive)
 				{
-					if (GetVolumeNameForVolumeMountPoint(Drive, VolumeGuid, countof(VolumeGuid)))
+					if (apiGetVolumeNameForVolumeMountPoint(Drive,strVolumeGuid))
 					{
-						if (Path.Equal(0, VolumeGuid, cVolumeGuidLen))
+						if (Path.Equal(0, strVolumeGuid, cVolumeGuidLen))
 						{
 							DeleteEndSlash(Drive);
 							Result.Replace(0, cVolumeGuidLen, Drive);
@@ -437,7 +437,7 @@ void ConvertNameToReal(const wchar_t *Src, string &strDest)
 
 		CloseHandle(hFile);
 
-		assert(!FinalFilePath.IsEmpty());
+		//assert(!FinalFilePath.IsEmpty());
 
 		if (!FinalFilePath.IsEmpty())
 		{

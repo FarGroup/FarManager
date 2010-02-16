@@ -284,7 +284,7 @@ void Manager::ExecuteNonModal()
 	{
 		Commit();
 
-		if (CurrentFrame!=NonModal)
+		if (CurrentFrame!=NonModal || EndLoop)
 		{
 			break;
 		}
