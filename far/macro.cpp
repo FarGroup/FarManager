@@ -419,6 +419,7 @@ void KeyMacro::InitInternalLIBVars()
 	if (RecBuffer)
 		xf_free(RecBuffer);
 
+	memset(&IndexMode,0,sizeof(IndexMode));
 	MacroLIBCount=0;
 	MacroLIB=NULL;
 	LastOpCodeUF=KEY_MACRO_U_BASE;
@@ -480,6 +481,9 @@ void KeyMacro::ReleaseWORKBuffer(BOOL All)
 
 			Work.MacroWORK=NULL;
 			Work.MacroWORKCount=0;
+
+			VMStack.Free();
+			CurPCStack=-1;
 		}
 		else
 		{

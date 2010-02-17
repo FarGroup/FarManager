@@ -684,7 +684,10 @@ void Manager::SetLastInputRecord(INPUT_RECORD *Rec)
 
 void Manager::ProcessMainLoop()
 {
-	if (CurrentFrame&&!CurrentFrame->ProcessEvents())
+	if ( CurrentFrame )
+		CtrlObject->Macro.SetMode(CurrentFrame->GetMacroMode());
+
+	if ( CurrentFrame && !CurrentFrame->ProcessEvents() )
 	{
 		ProcessKey(KEY_IDLE);
 	}
