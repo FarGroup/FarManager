@@ -72,6 +72,24 @@ bool IsNetworkPath(const wchar_t *Path)
 	return Path && ((Path[0] == L'\\' && Path[1] == L'\\' && !HasPathPrefix(Path))||(HasPathPrefix(Path) && !StrCmpNI(Path+4,L"UNC\\",4)));
 }
 
+bool IsNetworkServerPath(const wchar_t *Path)
+{
+/*
+	"\\server\share\" is valid windows path.
+	"\\server\" is not.
+*/
+	bool Result=true;
+	if(IsNetworkPath(Path))
+	{
+		LPCWSTR SharePtr=wcspbrk(HasPathPrefix(Path)?Path+8:Path+2,L"\\/");
+		if(SharePtr && SharePtr[1] && !IsSlash(SharePtr[1]))
+		{
+			Result=false;
+		}
+	}
+	return Result;
+}
+
 bool IsLocalPath(const wchar_t *Path)
 {
 	return (Path && *Path && Path[1]==L':');

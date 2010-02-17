@@ -52,6 +52,7 @@ class NTPath
 inline int IsSlash(wchar_t x) { return x==L'\\' || x==L'/'; }
 
 bool IsNetworkPath(const wchar_t *Path);
+bool IsNetworkServerPath(const wchar_t *Path);
 bool IsLocalPath(const wchar_t *Path);
 bool IsLocalRootPath(const wchar_t *Path);
 bool IsLocalPrefixPath(const wchar_t *Path);

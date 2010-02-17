@@ -346,7 +346,7 @@ HANDLE apiFindFirstFile(
 	string strName(NTPath(lpwszFileName).Str);
 	HANDLE hResult = FindFirstFile(strName, &fdata);
 
-	if (hResult==INVALID_HANDLE_VALUE && ScanSymLink)
+	if (hResult==INVALID_HANDLE_VALUE && GetLastError()==ERROR_ACCESS_DENIED && ScanSymLink)
 	{
 		ConvertNameToReal(strName,strName);
 		strName=NTPath(strName);
