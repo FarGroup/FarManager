@@ -764,28 +764,29 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 						2 - от текущей позиции в конец списка пунктов меню.
 				*/
 				iParam&=0xFF;
-				int CurPos=GetVisualPos(SelectPos);
 				int StartPos=Direct?SelectPos:0;
 				int EndPos=ItemCount-1;
 
-				if( Direct == 1)
+				if (Direct == 1)
 				{
 					EndPos=0;
 					Direct=-1;
 				}
-				else if( !Direct || Direct == 2)
+				else
+				{
 					Direct=1;
+				}
 
-				for (int I=StartPos ; ; I+=Direct)
+				for (int I=StartPos; ;I+=Direct)
 				{
 					if (Direct > 0)
 					{
-						if(I > EndPos)
+						if (I > EndPos)
 							break;
 					}
 					else
 					{
-						if(I < EndPos)
+						if (I < EndPos)
 							break;
 					}
 
