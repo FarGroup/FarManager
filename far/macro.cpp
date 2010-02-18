@@ -319,6 +319,7 @@ KeyMacro::KeyMacro()
   MacroLIB=NULL;
   RecBuffer=NULL;
   Mode=MACRO_SHELL;
+  memset(IndexMode,0,sizeof(IndexMode));
   LoadMacros();
 }
 
@@ -348,6 +349,7 @@ void KeyMacro::InitInternalLIBVars()
   if(RecBuffer) xf_free(RecBuffer);
   MacroLIBCount=0;
   MacroLIB=NULL;
+  memset(IndexMode,0,sizeof(IndexMode));
 }
 
 // инициализация всех переменных
@@ -401,6 +403,8 @@ void KeyMacro::ReleaseWORKBuffer(BOOL All)
       }
       Work.MacroWORK=NULL;
       Work.MacroWORKCount=0;
+      VMStack.Free();
+      CurPCStack=-1;
     }
     else
     {

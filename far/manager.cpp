@@ -585,6 +585,7 @@ void Manager::EnterMainLoop()
 
 void Manager::ProcessMainLoop()
 {
+  CtrlObject->Macro.SetMode(CurrentFrame->GetMacroMode());
                                   // Mantis#0000073: Не работает автоскролинг в QView
   WaitInMainLoop=IsPanelsActive() && ((FilePanels*)CurrentFrame)->ActivePanel->GetType()!=QVIEW_PANEL;
 
