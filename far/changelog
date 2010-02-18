@@ -1,3 +1,35 @@
+svs 18.02.2010 14:33:53 +0300 - build 1407
+
+1. Mantis#0001286: ƒобавить состо€ние кликов мыши
+   ƒобавлена константа MsEventFlags. Ќабор битов (see http://msdn.microsoft.com/en-us/library/ms684239%28VS.85%29.aspx):
+     DOUBLE_CLICK = 0x0002
+        The second click (button press) of a double-click occurred. 
+        The first click is returned as a regular button-press event.
+     MOUSE_HWHEELED = 0x0008
+        The horizontal mouse wheel was moved.
+     MOUSE_MOVED = 0x0001
+        A change in mouse position occurred.
+     MOUSE_WHEELED = 0x0004
+        The vertical mouse wheel was moved.
+
+2. Macro: panel.setposidx()
+   a) добавлен 3-й необ€зательный параметр InSelection
+        N=Panel.SetPosIdx(panelType,Idx[,InSelection])
+      если InSelection = 1, то Idx - индекс в виртуальном массиве отмеченных видимых файлов
+      если InSelection = 0, то Idx - индекс в виртуальном массиве видимых файлов
+   b) теперь эта функци€ работает только с видимыми файлами, с учетом примененных фильтров на панели.
+   c) второй параметр Idx:
+        < 0 - "искать" от конца в начало
+        > 0 - "искать" от начала в конец
+        = 0 - игнорировать переход, просто вернуть текущую позицию (естественно  учетом фильтра)
+
+3. Macro: добавлены булевые состо€ни€ [A|P]Panel.Filter - "на активной/пассивной панели включен фильтр?"
+
+4. Macro: уточнение 1401
+
+5. ƒобавлены virtual public Panel::FileInFilter(long idxItem) и Panel::IsSelected(long idxItem)
+
+
 drkns 17.02.2010 22:22:31 +0200 - build 1406
 
 1. ѕродолжение #0001273. ѕосле 1395 начали про€вл€тьс€ разнообразные древние, присыпанные листь€ми грабли.

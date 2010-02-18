@@ -156,7 +156,7 @@ enum MACRO_OP_CODE
 	MCODE_F_PANEL_SETPATH,            // N=panel.SetPath(panelType,pathName[,fileName])
 	MCODE_F_PANEL_FEXIST,             // N=Panel.FExist(panelType,fileMask)
 	MCODE_F_PANEL_SETPOS,             // N=Panel.SetPos(panelType,fileName)
-	MCODE_F_PANEL_SETPOSIDX,          // N=Panel.SetPosIdx(panelType,Idx)
+	MCODE_F_PANEL_SETPOSIDX,          // N=Panel.SetPosIdx(panelType,Idx[,InSelection])
 	MCODE_F_PANELITEM,                // V=PanelItem(Panel,Index,TypeInfo)
 	MCODE_F_EVAL,                     // N=eval(S[,N])
 	MCODE_F_RINDEX,                   // S=rindex(S1,S2[,Mode])
@@ -232,6 +232,8 @@ enum MACRO_OP_CODE
 	MCODE_C_PPANEL_LEFT,              // пассивная панель левая?
 	MCODE_C_APANEL_LFN,               // на активной панели длинные имена?
 	MCODE_C_PPANEL_LFN,               // на пассивной панели длинные имена?
+	MCODE_C_APANEL_FILTER,            // на активной панели включен фильтр?
+	MCODE_C_PPANEL_FILTER,            // на пассивной панели включен фильтр?
 
 	MCODE_C_CMDLINE_BOF,              // курсор в начале cmd-строки редактирования?
 	MCODE_C_CMDLINE_EOF,              // курсор в конце cmd-строки редактирования?

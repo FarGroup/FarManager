@@ -145,6 +145,8 @@ TMacroKeywords MKeywords[] =
 	{2,  L"PPanel.Left",        MCODE_C_PPANEL_LEFT,0},
 	{2,  L"APanel.LFN",         MCODE_C_APANEL_LFN,0},
 	{2,  L"PPanel.LFN",         MCODE_C_PPANEL_LFN,0},
+	{2,  L"APanel.Filter",      MCODE_C_APANEL_FILTER,0},
+	{2,  L"PPanel.Filter",      MCODE_C_PPANEL_FILTER,0},
 
 	{2,  L"APanel.Type",        MCODE_V_APANEL_TYPE,0},
 	{2,  L"PPanel.Type",        MCODE_V_PPANEL_TYPE,0},
@@ -553,14 +555,10 @@ int KeyMacro::LoadMacros(BOOL InitedRAM,BOOL LoadAll)
 		if (!ReadMacros(i,strBuffer))
 		{
 			ErrCount++;
-			break;
 		}
 	}
 
-	//if (Ret)
-		KeyMacro::Sort();
-	//else
-	//	InitInternalVars(); // все или ничего
+	KeyMacro::Sort();
 
 	return ErrCount?FALSE:TRUE;
 }
@@ -1064,6 +1062,16 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 						      (GetFileCount == 1 && TestParentFolderName(strFileName)))
 						     ?1:0;
 					}
+
+					break;
+				}
+				case MCODE_C_APANEL_FILTER:
+				case MCODE_C_PPANEL_FILTER:
+				{
+					Panel *SelPanel=(CheckCode==MCODE_C_APANEL_FILTER)?ActivePanel:PassivePanel;
+
+					if (SelPanel!=NULL)
+						Cond=SelPanel->VMProcess(MCODE_C_APANEL_FILTER)?1:0;
 
 					break;
 				}
@@ -2646,9 +2654,10 @@ static bool clipFunc()
 }
 
 
-// N=Panel.SetPosIdx(panelType,Idx)
+// N=Panel.SetPosIdx(panelType,Idx[,InSelection])
 static bool panelsetposidxFunc()
 {
+	int InSelection=(int)VMStack.Pop().getInteger();
 	long idxItem=(long)VMStack.Pop().getInteger();
 	int typePanel=(int)VMStack.Pop().getInteger();
 	Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
@@ -2667,15 +2676,72 @@ static bool panelsetposidxFunc()
 
 		if (TypePanel == FILE_PANEL || TypePanel ==TREE_PANEL)
 		{
-			if (SelPanel->GoToFile(idxItem-1))
+			if (idxItem) // < 0 || > 0
 			{
-				//SelPanel->Show();
-				// <Mantis#0000289> - грозно, но со вкусом :-)
-				ShellUpdatePanels(SelPanel);
-				FrameManager->RefreshFrame(FrameManager->GetTopModal());
-				// </Mantis#0000289>
-				Ret=(__int64)(SelPanel->GetCurrentPos()+1);
+				long EndPos=SelPanel->GetFileCount();
+				if ( EndPos > 0 )
+				{
+					long StartPos;
+					long Direct=idxItem < 0?-1:1;
+					long I;
+
+					EndPos--;
+
+					if( Direct < 0 )
+						idxItem=-idxItem;
+					idxItem--;
+
+					if( Direct < 0 )
+					{
+						StartPos=EndPos;
+						EndPos=InSelection?0:idxItem;
+					}
+					else
+						StartPos=InSelection?0:idxItem;
+
+					bool found=false;
+					long idxFoundItem=0;
+
+					for ( I=StartPos ; ; I+=Direct )
+					{
+						if (Direct > 0)
+						{
+							if(I > EndPos)
+								break;
+						}
+						else
+						{
+							if(I < EndPos)
+								break;
+						}
+
+						if ( (!InSelection || InSelection && SelPanel->IsSelected(I)) && SelPanel->FileInFilter(I) )
+						{
+							if (idxFoundItem++ == idxItem)
+							{
+								idxItem=I;
+								found=true;
+								break;
+							}
+						}
+					}
+
+					if (!found)
+						idxItem=-1;
+
+					if (idxItem != -1 && SelPanel->GoToFile(idxItem))
+					{
+						//SelPanel->Show();
+						// <Mantis#0000289> - грозно, но со вкусом :-)
+						ShellUpdatePanels(SelPanel);
+						FrameManager->RefreshFrame(FrameManager->GetTopModal());
+						// </Mantis#0000289>
+						Ret=(__int64)(SelPanel->GetCurrentPos()+1);
+					}
+				}
 			}
+			else // = 0 - вернем текущую позицию
+				Ret=(__int64)(SelPanel->GetCurrentPos()+1);
 		}
 	}
 
@@ -3889,7 +3955,7 @@ done:
 				{MCODE_F_PANELITEM,panelitemFunc},  // V=panelitem(Panel,Index,TypeInfo)
 				{MCODE_F_PANEL_SETPOS,panelsetposFunc}, // N=Panel.SetPos(panelType,fileName)
 				{MCODE_F_PANEL_SETPATH,panelsetpathFunc}, // N=panel.SetPath(panelType,pathName,fileName)
-				{MCODE_F_PANEL_SETPOSIDX,panelsetposidxFunc}, // N=Panel.SetPosIdx(panelType,Idx)
+				{MCODE_F_PANEL_SETPOSIDX,panelsetposidxFunc}, // N=Panel.SetPosIdx(panelType,Idx[,InSelection])
 				{MCODE_F_PANEL_FATTR,panelfattrFunc},         // N=Panel.FAttr(panelType,fileMask)
 				{MCODE_F_PANEL_FEXIST,panelfexistFunc},        // N=Panel.FExist(panelType,fileMask)
 				{MCODE_F_SLEEP,sleepFunc}, // N=Sleep(N)
@@ -4260,6 +4326,7 @@ int KeyMacro::ReadVarsConst(int ReadMode, string &strSData)
 		SetMacroConst(constMsY,Value);
 		SetMacroConst(constMsButton,Value);
 		SetMacroConst(constMsCtrlState,Value);
+		SetMacroConst(constMsEventFlags,Value);
 	}
 
 	return TRUE;

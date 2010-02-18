@@ -178,6 +178,7 @@ class Panel:public ScreenObject
 		virtual long FindFile(const wchar_t *Name,BOOL OnlyPartName=FALSE) {return -1;};
 
 		virtual int IsSelected(const wchar_t *Name) {return(FALSE);};
+		virtual int IsSelected(long indItem) {return(FALSE);};
 
 		virtual long FindFirst(const wchar_t *Name) {return -1;}
 		virtual long FindNext(int StartPos, const wchar_t *Name) {return -1;}
@@ -216,6 +217,7 @@ class Panel:public ScreenObject
 		virtual void RestoreSelection() {};
 		virtual void SortFileList(int KeepPosition) {};
 		virtual void EditFilter() {};
+		virtual bool FileInFilter(long idxItem) {return true;};
 		virtual void ReadDiz(struct PluginPanelItem *ItemList=NULL,int ItemLength=0, DWORD dwFlags=0) {};
 		virtual void DeleteDiz(const wchar_t *Name,const wchar_t *ShortName) {};
 		virtual void GetDizName(string &strDizName) {};

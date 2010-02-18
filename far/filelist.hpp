@@ -345,6 +345,7 @@ class FileList:public Panel
 		virtual long FindFile(const wchar_t *Name,BOOL OnlyPartName=FALSE);
 
 		virtual int IsSelected(const wchar_t *Name);
+		virtual int IsSelected(long idxItem);
 
 		virtual long FindFirst(const wchar_t *Name);
 		virtual long FindNext(int StartPos, const wchar_t *Name);
@@ -356,6 +357,7 @@ class FileList:public Panel
 		virtual void SaveSelection();
 		virtual void RestoreSelection();
 		virtual void EditFilter();
+		virtual bool FileInFilter(long idxItem);
 		virtual void ReadDiz(PluginPanelItem *ItemList=NULL,int ItemLength=0, DWORD dwFlags=0);
 		virtual void DeleteDiz(const wchar_t *Name, const wchar_t *ShortName);
 		virtual void FlushDiz();

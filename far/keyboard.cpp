@@ -1405,6 +1405,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 		MouseEventFlags=rec->Event.MouseEvent.dwEventFlags;
 		DWORD CtrlState=rec->Event.MouseEvent.dwControlKeyState;
 		KeyMacro::SetMacroConst(constMsCtrlState,(__int64)CtrlState);
+		KeyMacro::SetMacroConst(constMsEventFlags,(__int64)MouseEventFlags);
 		/*
 		    // Сигнал на прорисовку ;-) Помогает прорисовать кейбар при движении мышью
 		    if(CtrlState != (CtrlPressed|AltPressed|ShiftPressed))

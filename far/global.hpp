@@ -101,6 +101,7 @@ extern const wchar_t constMsX[];
 extern const wchar_t constMsY[];
 extern const wchar_t constMsButton[];
 extern const wchar_t constMsCtrlState[];
+extern const wchar_t constMsEventFlags[];
 
 extern DWORD RedrawTimeout;
 

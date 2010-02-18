@@ -585,6 +585,8 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			return (FileCount);
 		case MCODE_V_CURPOS:
 			return (CurFile+1);
+		case MCODE_C_APANEL_FILTER:
+			return (Filter!=NULL);
 	}
 
 	return 0;
@@ -2988,6 +2990,19 @@ int FileList::IsSelected(const wchar_t *Name)
 	return(Pos!=-1 && (ListData[Pos]->Selected || (SelFileCount==0 && Pos==CurFile)));
 }
 
+bool FileList::FileInFilter(long idxItem)
+{
+	if ( ((DWORD)idxItem < (DWORD)FileCount) && ( !Filter || (Filter && Filter->FileInFilter(ListData[idxItem])) ) )
+		return true;
+	return false;
+}
+
+int FileList::IsSelected(long idxItem)
+{
+	if ((DWORD)idxItem < (DWORD)FileCount)
+		return(ListData[idxItem]->Selected); //  || (SelFileCount==0 && idxItem==CurFile) ???
+	return FALSE;
+}
 
 // $ 02.08.2000 IG  Wish.Mix #21 - при нажатии '/' или '\' в QuickSerach переходим на директорию
 int FileList::FindPartName(const wchar_t *Name,int Next,int Direct,int ExcludeSets)
