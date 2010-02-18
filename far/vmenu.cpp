@@ -756,9 +756,39 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			{
 				string strTemp;
 				int Res;
+				int Direct=(iParam >> 8)&0xFF;
+				/*
+					Direct:
+						0 - от начала в конец списка;
+						1 - от текущей позиции в начало;
+						2 - от текущей позиции в конец списка пунктов меню.
+				*/
+				iParam&=0xFF;
+				int CurPos=GetVisualPos(SelectPos);
+				int StartPos=Direct?SelectPos:0;
+				int EndPos=ItemCount-1;
 
-				for (int I=0; I < ItemCount; ++I)
+				if( Direct == 1)
 				{
+					EndPos=0;
+					Direct=-1;
+				}
+				else if( !Direct || Direct == 2)
+					Direct=1;
+
+				for (int I=StartPos ; ; I+=Direct)
+				{
+					if (Direct > 0)
+					{
+						if(I > EndPos)
+							break;
+					}
+					else
+					{
+						if(I < EndPos)
+							break;
+					}
+
 					MenuItemEx *_item = GetItemPtr(I);
 
 					if (!ItemIsVisible(_item->Flags))
