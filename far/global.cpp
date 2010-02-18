@@ -120,3 +120,6 @@ DWORD RedrawTimeout=200;
 SYSTEM_INFO SystemInfo;
 
 FormatScreen FS;
+
+DWORD ErrorMode;
+

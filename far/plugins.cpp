@@ -352,8 +352,8 @@ bool PluginManager::LoadPlugin(
 
 	switch (IsModulePlugin(lpwszModuleName))
 	{
-		case UNICODE_PLUGIN: pPlugin = (Plugin *) new PluginW(this, lpwszModuleName); break;
-		case OEM_PLUGIN: pPlugin = (Plugin *) new PluginA(this, lpwszModuleName); break;
+		case UNICODE_PLUGIN: pPlugin = new PluginW(this, lpwszModuleName); break;
+		case OEM_PLUGIN: pPlugin = new PluginA(this, lpwszModuleName); break;
 		default: return false;
 	}
 
@@ -417,6 +417,7 @@ int PluginManager::UnloadPlugin(Plugin *pPlugin, DWORD dwException, bool bRemove
 		{
 			Flags.Clear(PSIF_DIALOG);
 			FrameManager->DeleteFrame();
+			FrameManager->PluginCommit();
 		}
 
 		bool bPanelPlugin = pPlugin->IsPanelPlugin();
@@ -1266,9 +1267,8 @@ void PluginManager::ConfigureCurrent(Plugin *pPlugin, int INum)
 				pPanel->Redraw();
 			}
 		}
+		pPlugin->SaveToCache();
 	}
-
-	pPlugin->SaveToCache();
 }
 
 struct PluginMenuItemData
@@ -2112,100 +2112,4 @@ HANDLE PluginManager::OpenPlugin(Plugin *pPlugin,int OpenFrom,INT_PTR Item)
 	}
 
 	return hPlugin;
-}
-
-/* $ 23.10.2000 SVS
-   Функция TestPluginInfo - проверка на вшивость переданных плагином данных
-*/
-bool PluginManager::TestPluginInfo(Plugin *Item,PluginInfo *Info)
-{
-	if (!Opt.ExceptRules)
-		return true;
-
-	char Buf[1];
-	bool bResult=false;
-	//EXCEPTION_POINTERS *xp;
-	__try
-	{
-
-		if (Info->DiskMenuStringsNumber > 0 && !Info->DiskMenuStrings)
-			RaiseException(STATUS_STRUCTWRONGFILLED, 0, 0, 0);
-		else for (int I=0; I<Info->DiskMenuStringsNumber; I++)
-				memcpy(Buf,Info->DiskMenuStrings[I],1);
-
-		if (Info->PluginMenuStringsNumber > 0 && !Info->PluginMenuStrings)
-			RaiseException(STATUS_STRUCTWRONGFILLED+1, 0, 0, 0);
-		else for (int I=0; I<Info->PluginMenuStringsNumber; I++)
-				memcpy(Buf,Info->PluginMenuStrings[I],1);
-
-		if (Info->PluginConfigStringsNumber > 0 && !Info->PluginConfigStrings)
-			RaiseException(STATUS_STRUCTWRONGFILLED+2, 0, 0, 0);
-		else for (int I=0; I<Info->PluginConfigStringsNumber; I++)
-				memcpy(Buf,Info->PluginConfigStrings[I],1);
-
-		if (Info->CommandPrefix)
-			memcpy(Buf,Info->CommandPrefix,1);
-
-		bResult=true;
-	}
-	__except(xfilter(EXCEPT_GETPLUGININFO_DATA,GetExceptionInformation(),Item,1))
-	{
-		UnloadPlugin(Item,EXCEPT_GETPLUGININFO_DATA); // тест не пройден, выгружаем его
-		bResult=false;
-//     ProcessException=FALSE;
-	}
-	return bResult;
-}
-
-/* $ 31.10.2000 SVS
-   Функция TestOpenPluginInfo - проверка на вшивость переданных плагином данных
-*/
-bool PluginManager::TestOpenPluginInfo(Plugin *Item,OpenPluginInfo *Info)
-{
-	if (!Opt.ExceptRules)
-		return true;
-
-	char Buf[1];
-	bool bResult=false;
-	//EXCEPTION_POINTERS *xp;
-	__try
-	{
-
-		if (Info->HostFile) memcpy(Buf,Info->HostFile,1);
-
-		if (Info->CurDir) memcpy(Buf,Info->CurDir,1);
-
-		if (Info->Format) memcpy(Buf,Info->Format,1);
-
-		if (Info->PanelTitle) memcpy(Buf,Info->PanelTitle,1);
-
-		if (Info->InfoLinesNumber > 0 && !Info->InfoLines)
-			RaiseException(STATUS_STRUCTWRONGFILLED, 0, 0, 0);
-		else for (int I=0; I<Info->InfoLinesNumber; I++)
-				memcpy(Buf,&Info->InfoLines[I],1);
-
-		if (Info->DescrFilesNumber > 0 && !Info->DescrFiles)
-			RaiseException(STATUS_STRUCTWRONGFILLED+1, 0, 0, 0);
-		else for (int I=0; I<Info->DescrFilesNumber; I++)
-				memcpy(Buf,Info->DescrFiles[I],1);
-
-		if (Info->PanelModesNumber > 0 && !Info->PanelModesArray)
-			RaiseException(STATUS_STRUCTWRONGFILLED+2, 0, 0, 0);
-
-		for (int I=0; I<Info->PanelModesNumber; I++)
-			memcpy(Buf,&Info->PanelModesArray[I],1);
-
-		if (Info->KeyBar) memcpy(Buf,Info->KeyBar,1);
-
-		if (Info->ShortcutData) memcpy(Buf,Info->ShortcutData,1);
-
-		bResult=true;
-	}
-	__except(xfilter(EXCEPT_GETOPENPLUGININFO_DATA,GetExceptionInformation(),Item,1))
-	{
-		UnloadPlugin(Item,EXCEPT_GETOPENPLUGININFO_DATA); // тест не пройден, выгружаем его
-		bResult=false;
-//     ProcessException=FALSE;
-	}
-	return bResult;
 }

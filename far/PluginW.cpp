@@ -555,9 +555,9 @@ struct ExecuteStruct
 			{ \
 				function; \
 			} \
-			__except(xfilter(es.id, GetExceptionInformation(), (Plugin *)this, 0)) \
+			__except(xfilter(es.id, GetExceptionInformation(), this, 0)) \
 			{ \
-				m_owner->UnloadPlugin((Plugin *)this, es.id, true); \
+				m_owner->UnloadPlugin(this, es.id, true); \
 				es.bUnloaded = true; \
 				ProcessException=FALSE; \
 			} \
@@ -577,9 +577,9 @@ struct ExecuteStruct
 			{ \
 				es.nResult = (INT_PTR)function; \
 			} \
-			__except(xfilter(es.id, GetExceptionInformation(), (Plugin *)this, 0)) \
+			__except(xfilter(es.id, GetExceptionInformation(), this, 0)) \
 			{ \
-				m_owner->UnloadPlugin((Plugin *)this, es.id, true); \
+				m_owner->UnloadPlugin(this, es.id, true); \
 				es.bUnloaded = true; \
 				es.nResult = es.nDefaultResult; \
 				ProcessException=FALSE; \
@@ -595,7 +595,7 @@ bool PluginW::SetStartupInfo(bool &bUnloaded)
 	{
 		PluginStartupInfo _info;
 		FarStandardFunctions _fsf;
-		CreatePluginStartupInfo((Plugin *)this, &_info, &_fsf);
+		CreatePluginStartupInfo(this, &_info, &_fsf);
 		// скорректирем адреса и плагино-зависимые пол€
 		strRootKey = Opt.strRegRoot;
 		strRootKey += L"\\Plugins";

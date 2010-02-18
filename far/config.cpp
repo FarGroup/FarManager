@@ -828,9 +828,6 @@ void ReadConfig()
 	SetRegRootKey(HKEY_CURRENT_USER);
 	GetRegKey(NKeySystem,L"PersonalPluginsPath",Opt.LoadPlug.strPersonalPluginsPath, strPersonalPluginsPath);
 
-	if (Opt.ExceptRules == -1)
-		GetRegKey(L"System",L"ExceptRules",Opt.ExceptRules,1);
-
 	//Opt.LCIDSort=LOCALE_USER_DEFAULT; // проинициализируем на всякий случай
 	/* *************************************************** </ПРЕПРОЦЕССЫ> */
 

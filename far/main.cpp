@@ -119,15 +119,14 @@ static void show_help()
 	    L"      Allows to have separate settings for different users.\n"
 	    L" /v <filename>\n"
 	    L"      View the specified file. If <filename> is -, data is read from the stdin.\n"
-	    L" /x   Disable exception handling.\n");
+	    L" /x   Disable exception handling.\n"
 #if defined(_DEBUGEXC)
-	wprintf(
-	    L" /xd  Enable exception handling.\n");
+	    L" /xd  Enable exception handling.\n"
 #endif
 #ifdef DIRECT_RT
-	wprintf(
-	    L" /do  Direct output.\n");
+	    L" /do  Direct output.\n"
 #endif
+			);
 }
 
 static int MainProcess(
@@ -301,29 +300,20 @@ static int MainProcess(
 	return(0);
 }
 
-#ifdef __GNUC__
-int _cdecl wmain(int Argc, wchar_t *Argv[]);
-
-int main()
+int MainProcessSEH(string& strEditName,string& strViewName,string& DestName1,string& DestName2,int StartLine,int StartChar)
 {
-	LPWSTR* wstrCmdLineArgs;
-	int nArgs;
-	wstrCmdLineArgs = CommandLineToArgvW(GetCommandLineW(), &nArgs);
-	return wmain(nArgs, wstrCmdLineArgs);
-}
-#endif
-int wmain_sehed(string& strEditName,string& strViewName,string& DestName1,string& DestName2,int StartLine,int StartChar)
-{
+	int Result=0;
 	__try
 	{
-		return MainProcess(strEditName,strViewName,DestName1,DestName2,StartLine,StartChar);
+		Result=MainProcess(strEditName,strViewName,DestName1,DestName2,StartLine,StartChar);
 	}
 	__except(xfilter((int)(INT_PTR)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1))
 	{
 		TerminateProcess(GetCurrentProcess(), 1);
 	}
-	return -1; // Никогда сюда не попадем
+	return Result;
 }
+
 int _cdecl wmain(int Argc, wchar_t *Argv[])
 {
 	ifn.Load();
@@ -353,6 +343,11 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	Opt.ExceptRules=IsDebuggerPresent()?0:-1;
 #endif
 //  Opt.ExceptRules=-1;
+
+#ifdef __GNUC__
+	Opt.ExceptRules=0;
+#endif
+
 //_SVS(SysLog(L"Opt.ExceptRules=%d",Opt.ExceptRules));
 	SetRegRootKey(HKEY_CURRENT_USER);
 	Opt.strRegRoot = L"Software\\Far2";
@@ -512,7 +507,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 				case L'H':
 					ControlObject::ShowCopyright(1);
 					show_help();
-					exit(0);
+					return 0;
 #ifdef DIRECT_RT
 				case L'D':
 
@@ -566,34 +561,40 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 		fprintf(stderr,"\nError: Cannot load language data\n\nPress any key...");
 		FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
 		WaitKey(); // А стоит ли ожидать клавишу??? Стоит
-		exit(0);
+		return 1;
 	}
 
 	SetEnvironmentVariable(L"FARLANG",Opt.strLanguage);
 	SetHighlighting();
 	DeleteEmptyKey(HKEY_CLASSES_ROOT,L"Directory\\shellex\\CopyHookHandlers");
 	initMacroVarTable(1);
-	int Result=0;
-	SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOOPENFILEERRORBOX | (Opt.ExceptRules?SEM_NOGPFAULTERRORBOX:0)
-#if defined (_M_IA64) && defined (_WIN64)
-	             | (GetRegKey(L"System\\Exception", L"IgnoreDataAlignmentFaults", 0) ? SEM_NOALIGNMENTFAULTEXCEPT:0)
-#endif
-	            );
 
-	if (Opt.ExceptRules)
+	if (Opt.ExceptRules == -1)
 	{
-		Result=wmain_sehed(strEditName,strViewName,DestNames[0],DestNames[1],StartLine,StartChar);
+		GetRegKey(L"System",L"ExceptRules",Opt.ExceptRules,1);
 	}
-	else
-	{
-		Result=MainProcess(strEditName,strViewName,DestNames[0],DestNames[1],StartLine,StartChar);
-	}
+
+	ErrorMode=SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX|(Opt.ExceptRules?SEM_NOGPFAULTERRORBOX:0)|(GetRegKey(L"System\\Exception", L"IgnoreDataAlignmentFaults", 0)?SEM_NOALIGNMENTFAULTEXCEPT:0);
+	SetErrorMode(ErrorMode);
+
+	int Result=MainProcessSEH(strEditName,strViewName,DestNames[0],DestNames[1],StartLine,StartChar);
 
 	EmptyInternalClipboard();
 	doneMacroVarTable(1);
 	_OT(SysLog(L"[[[[[Exit of FAR]]]]]]]]]"));
 	return Result;
 }
+
+#ifdef __GNUC__
+int _cdecl main()
+{
+	int nArgs;
+	LPWSTR* wstrCmdLineArgs = CommandLineToArgvW(GetCommandLineW(), &nArgs);
+	int Result=wmain(nArgs, wstrCmdLineArgs);
+	LocalFree(wstrCmdLineArgs);
+	return Result;
+}
+#endif
 
 /* $ 03.08.2000 SVS
   ! Не срабатывал шаблон поиска файлов для под-юзеров

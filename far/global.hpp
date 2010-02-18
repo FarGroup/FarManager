@@ -108,3 +108,6 @@ extern DWORD RedrawTimeout;
 extern SYSTEM_INFO SystemInfo;
 
 extern FormatScreen FS;
+
+extern DWORD ErrorMode;
+

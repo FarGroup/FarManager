@@ -129,5 +129,7 @@ class ShellCopy
 		ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
 		          int &ToPlugin, const wchar_t *PluginDestPath);
 		~ShellCopy();
-		static LONG_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 };
+
+LONG_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
+

@@ -2040,13 +2040,9 @@ static bool _fattrFunc(int Type)
 	{
 		TVar Str;
 		VMStack.Pop(Str);
-		//UINT  PrevErrMode;
-		// дабы не выскакивал гуевый диалог, если диск эжектед.
-		//PrevErrMode = SetErrorMode(SEM_FAILCRITICALERRORS);
 		FAR_FIND_DATA_EX FindData;
 		apiGetFindDataEx(Str.toString(),&FindData);
 		FileAttr=FindData.dwFileAttributes;
-		//SetErrorMode(PrevErrMode);
 		Ret=true;
 	}
 	else
@@ -2715,7 +2711,7 @@ static bool panelsetposidxFunc()
 								break;
 						}
 
-						if ( (!InSelection || InSelection && SelPanel->IsSelected(I)) && SelPanel->FileInFilter(I) )
+						if ( (!InSelection || (InSelection && SelPanel->IsSelected(I))) && SelPanel->FileInFilter(I) )
 						{
 							if (idxFoundItem++ == idxItem)
 							{

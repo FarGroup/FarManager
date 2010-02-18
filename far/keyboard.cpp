@@ -1538,7 +1538,10 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 
 	{
 		_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessKey(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
-		FrameManager->SetLastInputRecord(rec);
+		if(FrameManager)
+		{
+			FrameManager->SetLastInputRecord(rec);
+		}
 		if (!NotMacros && CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(CalcKey))
 		{
 			rec->EventType=0;

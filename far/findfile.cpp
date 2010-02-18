@@ -2548,7 +2548,7 @@ DWORD WINAPI FindFiles::PrepareFilesList(void *Param)
 		DoPrepareFileList(reinterpret_cast<HANDLE>(Param));
 		ReleaseInFileSearch();
 	}
-	__except(xfilter((int)(INT_PTR)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1))
+	__except(xfilter(EXCEPT_KERNEL,GetExceptionInformation(),NULL,1))
 	{
 		TerminateProcess(GetCurrentProcess(), 1);
 	}
@@ -2868,7 +2868,7 @@ DWORD WINAPI FindFiles::PreparePluginList(void *Param)
 		DoPreparePluginList(reinterpret_cast<HANDLE>(Param), false);
 		ReleaseInFileSearch();
 	}
-	__except(xfilter((int)(INT_PTR)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1))
+	__except(xfilter(EXCEPT_KERNEL,GetExceptionInformation(),NULL,1))
 	{
 		TerminateProcess(GetCurrentProcess(), 1);
 	}
@@ -3116,7 +3116,7 @@ DWORD WINAPI FindFiles::WriteDialogData(void *Param)
 	{
 		DoWriteDialogData(reinterpret_cast<HANDLE>(Param));
 	}
-	__except(xfilter((int)(INT_PTR)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1))
+	__except(xfilter(EXCEPT_KERNEL,GetExceptionInformation(),NULL,1))
 	{
 		TerminateProcess(GetCurrentProcess(), 1);
 	}

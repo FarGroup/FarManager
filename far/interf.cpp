@@ -84,7 +84,6 @@ void InitConsole(int FirstInit)
 
 	SetFarConsoleMode();
 
-	//SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
 	/* $ 09.04.2002 DJ
 	   если размер консольного буфера больше размера окна, выставим
 	   их равными
