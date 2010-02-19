@@ -449,6 +449,8 @@ void KeyMacro::InitInternalVars(BOOL InitedRAM)
 	RecSrc=NULL;
 	Recording=MACROMODE_NOMACRO;
 	InternalInput=FALSE;
+	VMStack.Free();
+	CurPCStack=-1;
 }
 
 // удаление временного буфера, если он создавался динамически
@@ -483,9 +485,6 @@ void KeyMacro::ReleaseWORKBuffer(BOOL All)
 
 			Work.MacroWORK=NULL;
 			Work.MacroWORKCount=0;
-
-			VMStack.Free();
-			CurPCStack=-1;
 		}
 		else
 		{
@@ -519,7 +518,7 @@ int KeyMacro::LoadMacros(BOOL InitedRAM,BOOL LoadAll)
 	int ErrCount=0;
 	InitInternalVars(InitedRAM);
 
-	if (Opt.DisableMacro&MDOL_ALL)
+	if (Opt.Macro.DisableMacro&MDOL_ALL)
 		return FALSE;
 
 	string strBuffer;
@@ -570,7 +569,7 @@ int KeyMacro::ProcessKey(int Key)
 
 	if (Recording) // Идет запись?
 	{
-		if ((unsigned int)Key==Opt.KeyMacroCtrlDot || (unsigned int)Key==Opt.KeyMacroCtrlShiftDot) // признак конца записи?
+		if ((unsigned int)Key==Opt.Macro.KeyMacroCtrlDot || (unsigned int)Key==Opt.Macro.KeyMacroCtrlShiftDot) // признак конца записи?
 		{
 			_KEYMACRO(CleverSysLog Clev(L"MACRO End record..."));
 			DWORD MacroKey;
@@ -587,7 +586,7 @@ int KeyMacro::ProcessKey(int Key)
 			// добавим проверку на удаление
 			// если удаляем, то не нужно выдавать диалог настройки.
 			//if (MacroKey != (DWORD)-1 && (Key==KEY_CTRLSHIFTDOT || Recording==2) && RecBufferSize)
-			if (MacroKey != (DWORD)-1 && (unsigned int)Key==Opt.KeyMacroCtrlShiftDot && RecBufferSize)
+			if (MacroKey != (DWORD)-1 && (unsigned int)Key==Opt.Macro.KeyMacroCtrlShiftDot && RecBufferSize)
 			{
 				if (!GetMacroSettings(MacroKey,Flags))
 					MacroKey=(DWORD)-1;
@@ -703,7 +702,7 @@ int KeyMacro::ProcessKey(int Key)
 			return(FALSE);
 		}
 	}
-	else if ((unsigned int)Key==Opt.KeyMacroCtrlDot || (unsigned int)Key==Opt.KeyMacroCtrlShiftDot) // Начало записи?
+	else if ((unsigned int)Key==Opt.Macro.KeyMacroCtrlDot || (unsigned int)Key==Opt.Macro.KeyMacroCtrlShiftDot) // Начало записи?
 	{
 		_KEYMACRO(CleverSysLog Clev(L"MACRO Begin record..."));
 
@@ -723,7 +722,7 @@ int KeyMacro::ProcessKey(int Key)
 		// тип записи - с вызовом диалога настроек или...
 		// В зависимости от того, КАК НАЧАЛИ писать макрос, различаем общий режим (Ctrl-.
 		// с передачей плагину кеев) или специальный (Ctrl-Shift-. - без передачи клавиш плагину)
-		Recording=((unsigned int)Key==Opt.KeyMacroCtrlDot) ? MACROMODE_RECORDING_COMMON:MACROMODE_RECORDING;
+		Recording=((unsigned int)Key==Opt.Macro.KeyMacroCtrlDot) ? MACROMODE_RECORDING_COMMON:MACROMODE_RECORDING;
 
 		if (RecBuffer)
 			xf_free(RecBuffer);
@@ -2651,6 +2650,8 @@ static bool clipFunc()
 
 
 // N=Panel.SetPosIdx(panelType,Idx[,InSelection])
+/*
+*/
 static bool panelsetposidxFunc()
 {
 	int InSelection=(int)VMStack.Pop().getInteger();
@@ -2672,16 +2673,18 @@ static bool panelsetposidxFunc()
 
 		if (TypePanel == FILE_PANEL || TypePanel ==TREE_PANEL)
 		{
+			long EndPos=SelPanel->GetFileCount();
+			long StartPos;
+			long I;
+			long idxFoundItem=0;
+
+			EndPos--;
+
 			if (idxItem) // < 0 || > 0
 			{
-				long EndPos=SelPanel->GetFileCount();
 				if ( EndPos > 0 )
 				{
-					long StartPos;
 					long Direct=idxItem < 0?-1:1;
-					long I;
-
-					EndPos--;
 
 					if( Direct < 0 )
 						idxItem=-idxItem;
@@ -2690,13 +2693,12 @@ static bool panelsetposidxFunc()
 					if( Direct < 0 )
 					{
 						StartPos=EndPos;
-						EndPos=InSelection?0:idxItem;
+						EndPos=0;//InSelection?0:idxItem;
 					}
 					else
-						StartPos=InSelection?0:idxItem;
+						StartPos=0;//!InSelection?0:idxItem;
 
 					bool found=false;
-					long idxFoundItem=0;
 
 					for ( I=StartPos ; ; I+=Direct )
 					{
@@ -2713,12 +2715,13 @@ static bool panelsetposidxFunc()
 
 						if ( (!InSelection || (InSelection && SelPanel->IsSelected(I))) && SelPanel->FileInFilter(I) )
 						{
-							if (idxFoundItem++ == idxItem)
+							if (idxFoundItem == idxItem)
 							{
 								idxItem=I;
 								found=true;
 								break;
 							}
+							idxFoundItem++;
 						}
 					}
 
@@ -2732,12 +2735,35 @@ static bool panelsetposidxFunc()
 						ShellUpdatePanels(SelPanel);
 						FrameManager->RefreshFrame(FrameManager->GetTopModal());
 						// </Mantis#0000289>
-						Ret=(__int64)(SelPanel->GetCurrentPos()+1);
+
+						if ( !InSelection )
+							Ret=(__int64)(SelPanel->GetCurrentPos()+1);
+						else
+							Ret=(__int64)(idxFoundItem+1);
 					}
 				}
 			}
 			else // = 0 - вернем текущую позицию
-				Ret=(__int64)(SelPanel->GetCurrentPos()+1);
+			{
+				if ( !InSelection )
+					Ret=(__int64)(SelPanel->GetCurrentPos()+1);
+				else
+				{
+					long CurPos=SelPanel->GetCurrentPos();
+					for ( I=0 ; I < EndPos ; I++ )
+					{
+						if ( SelPanel->IsSelected(I) && SelPanel->FileInFilter(I) )
+						{
+							if (I == CurPos)
+							{
+								Ret=(__int64)(idxFoundItem+1);
+								break;
+							}
+							idxFoundItem++;
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -3215,12 +3241,16 @@ static bool callpluginFunc()
 
 		if (OpenFrom != -1)
 		{
+			if( Opt.Macro.CallPluginRules )
+				CtrlObject->Macro.PushState(true);
 			if (CtrlObject->Plugins.CallPlugin((DWORD)SysID.i(),OpenFrom,
 			                                   Param.isString() ? (void*)Param.s() :
 			                                   (void*)(size_t)Param.i()))
 			{
 				Ret=1;
 			}
+			if( Opt.Macro.CallPluginRules )
+				CtrlObject->Macro.PopState();
 		}
 	}
 
@@ -3987,9 +4017,14 @@ done:
 			for (J=0; J < int(countof(MCode2Func)); ++J)
 				if (MCode2Func[J].Op == Key)
 				{
-					InternalInput++; // в процессе работы функций макросы отключаются
+					if(Key != MCODE_F_CALLPLUGIN || !Opt.Macro.CallPluginRules)
+						InternalInput++; // в процессе работы функций макросы отключаются
+
 					MCode2Func[J].Func();
-					InternalInput--;
+
+					if(Key != MCODE_F_CALLPLUGIN || !Opt.Macro.CallPluginRules)
+						InternalInput--;
+
 					break;
 				}
 
@@ -4590,10 +4625,10 @@ void KeyMacro::RestartAutoMacro(int /*Mode*/)
 // подобных макросов, то именно сюды!
 void KeyMacro::RunStartMacro()
 {
-	if (Opt.DisableMacro&MDOL_ALL)
+	if (Opt.Macro.DisableMacro&MDOL_ALL)
 		return;
 
-	if (Opt.DisableMacro&MDOL_AUTOSTART)
+	if (Opt.Macro.DisableMacro&MDOL_AUTOSTART)
 		return;
 
 	// временно отсавим старый вариант

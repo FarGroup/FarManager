@@ -366,7 +366,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	}
 
 	// макросы не дисаблим
-	Opt.DisableMacro=0;
+	Opt.Macro.DisableMacro=0;
 
 	for (int I=1; I<Argc; I++)
 	{
@@ -435,12 +435,12 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 					switch (Upper(Argv[I][2]))
 					{
 						case 0:
-							Opt.DisableMacro|=MDOL_ALL;
+							Opt.Macro.DisableMacro|=MDOL_ALL;
 							break;
 						case L'A':
 
 							if (!Argv[I][3])
-								Opt.DisableMacro|=MDOL_AUTOSTART;
+								Opt.Macro.DisableMacro|=MDOL_AUTOSTART;
 
 							break;
 					}

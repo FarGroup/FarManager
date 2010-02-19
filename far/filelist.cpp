@@ -586,7 +586,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_V_CURPOS:
 			return (CurFile+1);
 		case MCODE_C_APANEL_FILTER:
-			return (Filter!=NULL);
+			return (Filter && Filter->IsEnabledOnPanel());
 	}
 
 	return 0;
@@ -2992,7 +2992,16 @@ int FileList::IsSelected(const wchar_t *Name)
 
 bool FileList::FileInFilter(long idxItem)
 {
-	if ( ((DWORD)idxItem < (DWORD)FileCount) && ( !Filter || (Filter && Filter->FileInFilter(ListData[idxItem])) ) )
+	if (
+		( (DWORD)idxItem < (DWORD)FileCount ) &&
+		( !Filter ||
+			( Filter &&
+				( !Filter->IsEnabledOnPanel() ||
+					( Filter->IsEnabledOnPanel() && Filter->FileInFilter(ListData[idxItem]) )
+				)
+			)
+		)
+	)
 		return true;
 	return false;
 }

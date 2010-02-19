@@ -394,6 +394,17 @@ struct DeleteOptions
 	int DelShowTotal;         // показать общий индикатор удаления
 };
 
+struct MacroOptions
+{
+	int MacroReuseRules; // Правило на счет повторно использования забинденных клавиш
+	DWORD DisableMacro; // параметры /m или /ma или /m....
+	DWORD KeyMacroCtrlDot; // аля KEY_CTRLDOT
+	DWORD KeyMacroCtrlShiftDot; // аля KEY_CTRLSHIFTDOT
+	int CallPluginRules; // 0 - блокировать макросы при вызове плагина, 1 - разрешить макросы (ахтунг!)
+	string strMacroCONVFMT; // формат преобразования double в строку
+	string strDateFormat; // Для $Date
+};
+
 struct Options
 {
 	int Clock;
@@ -531,12 +542,6 @@ struct Options
 	   модификаторами Alt-, Ctrl-, Alt-Shift-, Ctrl-Shift-, Ctrl-Alt-
 	*/
 	int ShiftsKeyRules;
-	int MacroReuseRules; // Правило на счет повторно использования забинденных клавиш
-	DWORD DisableMacro; // параметры /m или /ma или /m....
-	string strMacroCONVFMT;
-
-	DWORD KeyMacroCtrlDot; // аля KEY_CTRLDOT
-	DWORD KeyMacroCtrlShiftDot; // аля KEY_CTRLSHIFTDOT
 	int CursorSize[4];   // Размер курсора ФАРа
 
 	CodeXLAT XLat;
@@ -610,7 +615,6 @@ struct Options
 	//int CPAJHefuayor; // производное от "Close Plugin And Jump:
 	// Highly experimental feature, use at your own risk"
 
-	string strDateFormat; // Для $Date
 	LoadPluginsOptions LoadPlug;
 
 	DialogsOptions Dialogs;
@@ -618,6 +622,7 @@ struct Options
 	PoliciesOptions Policies;
 	NowellOptions Nowell;
 	ScreenSizes ScrSize;
+	MacroOptions Macro;
 
 	int FindCodePage;
 

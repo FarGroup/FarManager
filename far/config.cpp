@@ -394,7 +394,7 @@ void ViewerConfig(ViewerOptions &ViOpt,bool Local)
 		Builder.AddEditField(&Opt.strExternalViewer, 64, L"ExternalViewer", DIF_EDITEXPAND|DIF_EDITPATH);
 		Builder.AddSeparator(MViewConfigInternal);
 	}
-	
+
 	Builder.StartColumns();
 	Builder.AddCheckbox(MViewConfigPersistentSelection, &ViOpt.PersistentBlocks);
 	DialogItemEx *SavePos = Builder.AddCheckbox(MViewConfigSavePos, &Opt.ViOpt.SaveViewerPos);
@@ -431,7 +431,7 @@ void EditorConfig(EditorOptions &EdOpt,bool Local)
 		Builder.AddEditField(&Opt.strExternalEditor, 64, L"ExternalEditor", DIF_EDITEXPAND | DIF_EDITPATH);
 		Builder.AddSeparator(MEditConfigInternal);
 	}
-	
+
 	Builder.AddText(MEditConfigExpandTabsTitle);
 	DialogBuilderListItem ExpandTabsItems[] = {
 		{ MEditConfigDoNotExpandTabs, EXPAND_NOTABS },
@@ -777,9 +777,10 @@ static struct FARConfig
 	{1, REG_DWORD,  NKeyDescriptions,L"AnsiByDefault",&Opt.Diz.AnsiByDefault,0, 0},
 	{1, REG_DWORD,  NKeyDescriptions,L"SaveInUTF",&Opt.Diz.SaveInUTF,0, 0},
 
-	{0, REG_DWORD,  NKeyKeyMacros,L"MacroReuseRules",&Opt.MacroReuseRules,0, 0},
-	{0, REG_SZ,     NKeyKeyMacros,L"DateFormat",&Opt.strDateFormat, 0, L"%a %b %d %H:%M:%S %Z %Y"},
-	{0, REG_SZ,     NKeyKeyMacros,L"CONVFMT",&Opt.strMacroCONVFMT, 0, L"%.6g"},
+	{0, REG_DWORD,  NKeyKeyMacros,L"MacroReuseRules",&Opt.Macro.MacroReuseRules,0, 0},
+	{0, REG_SZ,     NKeyKeyMacros,L"DateFormat",&Opt.Macro.strDateFormat, 0, L"%a %b %d %H:%M:%S %Z %Y"},
+	{0, REG_SZ,     NKeyKeyMacros,L"CONVFMT",&Opt.Macro.strMacroCONVFMT, 0, L"%.6g"},
+	{0, REG_DWORD,  NKeyKeyMacros,L"CallPluginRules",&Opt.Macro.CallPluginRules,0, 0},
 
 	{0, REG_DWORD,  NKeyPolicies,L"ShowHiddenDrives",&Opt.Policies.ShowHiddenDrives,1, 0},
 	{0, REG_DWORD,  NKeyPolicies,L"DisabledOptions",&Opt.Policies.DisabledOptions,0, 0},
@@ -905,13 +906,13 @@ void ReadConfig()
 
 	GetRegKey(NKeyKeyMacros,L"KeyRecordCtrlDot",strKeyNameFromReg,szCtrlDot);
 
-	if ((Opt.KeyMacroCtrlDot=KeyNameToKey(strKeyNameFromReg)) == (DWORD)-1)
-		Opt.KeyMacroCtrlDot=KEY_CTRLDOT;
+	if ((Opt.Macro.KeyMacroCtrlDot=KeyNameToKey(strKeyNameFromReg)) == (DWORD)-1)
+		Opt.Macro.KeyMacroCtrlDot=KEY_CTRLDOT;
 
 	GetRegKey(NKeyKeyMacros,L"KeyRecordCtrlShiftDot",strKeyNameFromReg,szCtrlShiftDot);
 
-	if ((Opt.KeyMacroCtrlShiftDot=KeyNameToKey(strKeyNameFromReg)) == (DWORD)-1)
-		Opt.KeyMacroCtrlShiftDot=KEY_CTRLSHIFTDOT;
+	if ((Opt.Macro.KeyMacroCtrlShiftDot=KeyNameToKey(strKeyNameFromReg)) == (DWORD)-1)
+		Opt.Macro.KeyMacroCtrlShiftDot=KEY_CTRLSHIFTDOT;
 
 	Opt.EdOpt.strWordDiv = Opt.strWordDiv;
 	FileList::ReadPanelModes();

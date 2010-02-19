@@ -527,7 +527,7 @@ size_t MkStrFTime(string &strDest, const wchar_t *Fmt)
 	time_now=localtime(&secs_now);
 
 	if (!Fmt||!*Fmt)
-		Fmt=Opt.strDateFormat;
+		Fmt=Opt.Macro.strDateFormat;
 
 	return StrFTime(strDest,Fmt,time_now);
 }
