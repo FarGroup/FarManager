@@ -1154,7 +1154,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
 	Flags|=CopyDlg[ID_SC_COPYSYMLINK].Selected?FCOPY_COPYSYMLINKCONTENTS:0;
 
-	if (DestPlugin && !StrCmp(strCopyDlgValue,strInitDestDir))
+	if (DestPlugin && !StrCmp(CopyDlg[ID_SC_TARGETEDIT].strData,strInitDestDir))
 	{
 		ToPlugin=1;
 		return;
