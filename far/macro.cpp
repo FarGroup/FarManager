@@ -374,6 +374,8 @@ void KeyMacro::InitInternalVars(BOOL InitedRAM)
 
   Recording=MACROMODE_NOMACRO;
   InternalInput=FALSE;
+      VMStack.Free();
+      CurPCStack=-1;
 }
 
 // удаление временного буфера, если он создавался динамически
@@ -403,8 +405,6 @@ void KeyMacro::ReleaseWORKBuffer(BOOL All)
       }
       Work.MacroWORK=NULL;
       Work.MacroWORKCount=0;
-      VMStack.Free();
-      CurPCStack=-1;
     }
     else
     {
