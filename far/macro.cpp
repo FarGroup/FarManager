@@ -206,7 +206,7 @@ TMacroKeywords MKeywords[] =
 
 	{2,  L"Menu.Value",         MCODE_V_MENU_VALUE,0},
 
-	{2,  L"Fullscreen",           MCODE_C_FULLSCREENMODE,0},
+	{2,  L"Fullscreen",         MCODE_C_FULLSCREENMODE,0},
 	{2,  L"IsUserAdmin",        MCODE_C_ISUSERADMIN,0},
 };
 
@@ -2677,10 +2677,9 @@ static bool panelsetposidxFunc()
 			long I;
 			long idxFoundItem=0;
 
-			EndPos--;
-
 			if (idxItem) // < 0 || > 0
 			{
+				EndPos--;
 				if ( EndPos > 0 )
 				{
 					long Direct=idxItem < 0?-1:1;

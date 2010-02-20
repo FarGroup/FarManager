@@ -2990,27 +2990,18 @@ int FileList::IsSelected(const wchar_t *Name)
 	return(Pos!=-1 && (ListData[Pos]->Selected || (SelFileCount==0 && Pos==CurFile)));
 }
 
-bool FileList::FileInFilter(long idxItem)
-{
-	if (
-		( (DWORD)idxItem < (DWORD)FileCount ) &&
-		( !Filter ||
-			( Filter &&
-				( !Filter->IsEnabledOnPanel() ||
-					( Filter->IsEnabledOnPanel() && Filter->FileInFilter(ListData[idxItem]) )
-				)
-			)
-		)
-	)
-		return true;
-	return false;
-}
-
 int FileList::IsSelected(long idxItem)
 {
 	if ((DWORD)idxItem < (DWORD)FileCount)
 		return(ListData[idxItem]->Selected); //  || (SelFileCount==0 && idxItem==CurFile) ???
 	return FALSE;
+}
+
+bool FileList::FileInFilter(long idxItem)
+{
+	if ( ( (DWORD)idxItem < (DWORD)FileCount ) && ( !Filter || !Filter->IsEnabledOnPanel() || Filter->FileInFilter(ListData[idxItem]) ) )
+		return true;
+	return false;
 }
 
 // $ 02.08.2000 IG  Wish.Mix #21 - при нажатии '/' или '\' в QuickSerach переходим на директорию
