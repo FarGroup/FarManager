@@ -64,7 +64,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cddrv.hpp"
 #include "interf.hpp"
 #include "grabber.hpp"
-#include "iswind.hpp"
 #include "message.hpp"
 #include "clipboard.hpp"
 #include "xlat.hpp"
@@ -207,7 +206,7 @@ TMacroKeywords MKeywords[] =
 
 	{2,  L"Menu.Value",         MCODE_V_MENU_VALUE,0},
 
-	{2,  L"Windowed",           MCODE_C_WINDOWEDMODE,0},
+	{2,  L"Fullscreen",           MCODE_C_FULLSCREENMODE,0},
 	{2,  L"IsUserAdmin",        MCODE_C_ISUSERADMIN,0},
 };
 
@@ -892,8 +891,8 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 				case MCODE_C_DISABLEOUTPUT: // DisableOutput?
 					Cond=LockScr?1:0;
 					break;
-				case MCODE_C_WINDOWEDMODE: // Windowed?
-					Cond=FarAltEnter(-2)==0?1:0;
+				case MCODE_C_FULLSCREENMODE: // Fullscreen?
+					Cond=IsFullscreen();
 					break;
 				case MCODE_C_ISUSERADMIN: // IsUserAdmin?
 					Cond=(__int64)Opt.IsUserAdmin;

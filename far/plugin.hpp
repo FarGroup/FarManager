@@ -979,7 +979,9 @@ typedef BOOL (WINAPI *FARAPISHOWHELP)(
 enum ADVANCED_CONTROL_COMMANDS
 {
 	ACTL_GETFARVERSION        = 0,
-	ACTL_CONSOLEMODE          = 1,
+#ifdef FAR_USE_INTERNALS
+
+#endif // END FAR_USE_INTERNALS
 	ACTL_GETSYSWORDDIV        = 2,
 	ACTL_WAITKEY              = 3,
 	ACTL_GETCOLOR             = 4,
@@ -1120,13 +1122,6 @@ enum FarDescriptionSettings
 	FDS_SETHIDDEN                      = 0x00000004,
 	FDS_UPDATEREADONLY                 = 0x00000008,
 };
-
-#define FAR_CONSOLE_GET_MODE       (-2)
-#define FAR_CONSOLE_TRIGGER        (-1)
-#define FAR_CONSOLE_SET_WINDOWED   (0)
-#define FAR_CONSOLE_SET_FULLSCREEN (1)
-#define FAR_CONSOLE_WINDOWED       (0)
-#define FAR_CONSOLE_FULLSCREEN     (1)
 
 enum FAREJECTMEDIAFLAGS
 {

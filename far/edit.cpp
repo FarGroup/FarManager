@@ -46,7 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "interf.hpp"
 #include "palette.hpp"
-#include "iswind.hpp"
 #include "clipboard.hpp"
 #include "xlat.hpp"
 #include "datetime.hpp"
@@ -237,16 +236,16 @@ void Edit::DisplayObject()
 	{
 		if (Flags.Check(FEDITLINE_OVERTYPE))
 		{
-			int NewCursorSize=IsWindowed()?
-			                  (Opt.CursorSize[2]?Opt.CursorSize[2]:99):
-					                  (Opt.CursorSize[3]?Opt.CursorSize[3]:99);
+			int NewCursorSize=IsFullscreen()?
+			                  (Opt.CursorSize[3]?Opt.CursorSize[3]:99):
+					                  (Opt.CursorSize[2]?Opt.CursorSize[2]:99);
 			::SetCursorType(1,CursorSize==-1?NewCursorSize:CursorSize);
 		}
 		else
 {
-			int NewCursorSize=IsWindowed()?
-			                  (Opt.CursorSize[0]?Opt.CursorSize[0]:10):
-					                  (Opt.CursorSize[1]?Opt.CursorSize[1]:10);
+			int NewCursorSize=IsFullscreen()?
+			                  (Opt.CursorSize[1]?Opt.CursorSize[1]:10):
+					                  (Opt.CursorSize[0]?Opt.CursorSize[0]:10);
 			::SetCursorType(1,CursorSize==-1?NewCursorSize:CursorSize);
 		}
 	}

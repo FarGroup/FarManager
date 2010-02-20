@@ -49,7 +49,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "keyboard.hpp"
 #include "grabber.hpp"
-#include "iswind.hpp"
 #include "message.hpp"
 #include "config.hpp"
 #include "plist.hpp"
@@ -966,7 +965,7 @@ int Manager::ProcessKey(DWORD Key)
 				{
 					//_MANAGER(SysLog(1,"Manager::ProcessKey, KEY_ALTF9 pressed..."));
 					Sleep(1);
-					SetVideoMode(FarAltEnter(-2));
+					SetVideoMode();
 					Sleep(1);
 
 					/* В процессе исполнения Alt-F9 (в нормальном режиме) в очередь

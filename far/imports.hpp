@@ -122,12 +122,6 @@ typedef BOOL (WINAPI *PCREATESYMBOLICLINK)(
     const wchar_t *lpTargetFileName,
     DWORD dwFlags);
 
-typedef BOOL (__stdcall *PSETCONSOLEDISPLAYMODE)(
-    HANDLE hConsoleOutput,
-    DWORD dwFlags,
-    PCOORD lpNewScreenBufferDimensions
-);
-
 typedef HRESULT(WINAPI *PSHCREATEASSOCIATIONREGISTRATION)(REFIID, void **);
 
 typedef HANDLE(WINAPI *FINDFIRSTFILENAMEW)(
@@ -224,7 +218,6 @@ struct ImportedFunctions
 	bool bSetupAPIFunctions;
 	//
 	PGETCONSOLEKEYBOARDLAYOUTNAME pfnGetConsoleKeyboardLayoutName;
-	PSETCONSOLEDISPLAYMODE pfnSetConsoleDisplayMode;
 
 	PCREATESYMBOLICLINK pfnCreateSymbolicLink;
 

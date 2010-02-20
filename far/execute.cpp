@@ -52,7 +52,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "localOEM.hpp"
 #include "manager.hpp"
 #include "interf.hpp"
-#include "iswind.hpp"
 #include "message.hpp"
 #include "config.hpp"
 #include "pathmix.hpp"
@@ -1062,7 +1061,6 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 										SetConsoleScreenBufferSize(hOutput,sbi.dwSize);
 										Sleep(100);
 										InitConsole(0);
-										InitDetectWindowedMode();
 
 										hWnd = GetConsoleWindow();
 

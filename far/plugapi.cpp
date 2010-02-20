@@ -62,7 +62,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "keyboard.hpp"
 #include "palette.hpp"
-#include "iswind.hpp"
 #include "message.hpp"
 #include "eject.hpp"
 #include "filefilter.hpp"
@@ -270,20 +269,6 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 				*(DWORD*)Param=FAR_VERSION;
 
 			return FAR_VERSION;
-		}
-		/* $ 25.07.2000 SVS
-		   + Программое переключение FulScreen <-> Windowed (ACTL_CONSOLEMODE)
-		   mode = -2 - получить текущее состояние
-		          -1 - как тригер
-		           0 - Windowed
-		           1 - FulScreen
-		   Return
-		           0 - Windowed
-		           1 - FulScreen
-		*/
-		case ACTL_CONSOLEMODE:
-		{
-			return FarAltEnter((int)(INT_PTR)Param);
 		}
 		case ACTL_GETPLUGINMAXREADDATA:
 		{

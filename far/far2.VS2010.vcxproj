@@ -500,7 +500,6 @@ if not exist bootstrap mkdir bootstrap</Command>
     <ClCompile Include="imports.cpp" />
     <ClCompile Include="infolist.cpp" />
     <ClCompile Include="interf.cpp" />
-    <ClCompile Include="iswind.cpp" />
     <ClCompile Include="keybar.cpp" />
     <ClCompile Include="keyboard.cpp" />
     <ClCompile Include="language.cpp" />
@@ -1028,7 +1027,6 @@ if not exist bootstrap mkdir bootstrap</Command>
     <ClInclude Include="imports.hpp" />
     <ClInclude Include="infolist.hpp" />
     <ClInclude Include="interf.hpp" />
-    <ClInclude Include="iswind.hpp" />
     <ClInclude Include="keybar.hpp" />
     <ClInclude Include="keyboard.hpp" />
     <CustomBuild Include="keys.hpp">

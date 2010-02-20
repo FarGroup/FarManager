@@ -136,8 +136,6 @@ infolist.cpp
 infolist.hpp
 interf.cpp
 interf.hpp
-iswind.cpp
-iswind.hpp
 keybar.cpp
 keybar.hpp
 keyboard.cpp

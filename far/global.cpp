@@ -97,10 +97,6 @@ SaveScreen *GlobalSaveScrPtr=NULL;
 
 int CriticalInternalError=FALSE;
 
-#if defined(DETECT_ALT_ENTER)
-int PrevFarAltEnterMode=-1;
-#endif
-
 int _localLastError=0;
 
 int KeepUserScreen;

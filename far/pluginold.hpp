@@ -920,13 +920,6 @@ namespace oldfar
 		FDS_UPDATEREADONLY                 = 0x00000008,
 	};
 
-//#define FAR_CONSOLE_GET_MODE       (-2)
-//#define FAR_CONSOLE_TRIGGER        (-1)
-//#define FAR_CONSOLE_SET_WINDOWED   (0)
-//#define FAR_CONSOLE_SET_FULLSCREEN (1)
-//#define FAR_CONSOLE_WINDOWED       (0)
-//#define FAR_CONSOLE_FULLSCREEN     (1)
-
 	enum FAREJECTMEDIAFLAGS
 	{
 		EJECT_NO_MESSAGE                    = 0x00000001,

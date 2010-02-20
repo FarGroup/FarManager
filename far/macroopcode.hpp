@@ -201,7 +201,7 @@ enum MACRO_OP_CODE
 	MCODE_C_AREA_USERMENU,            // Меню пользователя
 	MCODE_C_AREA_AUTOCOMPLETION,      // Список автодополнения
 
-	MCODE_C_WINDOWEDMODE,             // оконный режим?
+	MCODE_C_FULLSCREENMODE,           // полноэкранный режим?
 	MCODE_C_ISUSERADMIN,              // Administrator status
 	MCODE_C_BOF,                      // начало файла/активного каталога?
 	MCODE_C_EOF,                      // конец файла/активного каталога?

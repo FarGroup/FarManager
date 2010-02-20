@@ -51,7 +51,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TPreRedrawFunc.hpp"
 #include "syslog.hpp"
 #include "interf.hpp"
-#include "iswind.hpp"
 #include "registry.hpp"
 #include "message.hpp"
 #include "config.hpp"
@@ -90,9 +89,6 @@ static BOOL IsKeyRCASPressed=FALSE; // Right CtrlAltShift - нажато или нет?
 
 static clock_t PressedLastTime,KeyPressedLastTime;
 static int ShiftState=0;
-#if defined(DETECT_ALT_ENTER)
-static int AltEnter=-1;
-#endif
 static int LastShiftEnterPressed=FALSE;
 
 /* ----------------------------------------------------------------- */
@@ -652,6 +648,8 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 	SetFarConsoleMode();
 	BOOL ZoomedState=IsZoomed(GetConsoleWindow());
 	BOOL IconicState=IsIconic(GetConsoleWindow());
+	
+	bool FullscreenState=IsFullscreen();
 
 	for (;;)
 	{
@@ -661,6 +659,13 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 			ZoomedState=!ZoomedState;
 			ChangeVideoMode(ZoomedState);
 		}
+
+		bool CurrentFullscreenState=IsFullscreen();
+		if(CurrentFullscreenState && !FullscreenState)
+		{
+			ChangeVideoMode(25,80);
+		}
+		FullscreenState=CurrentFullscreenState;
 
 		PeekConsoleInput(GetStdHandle(STD_INPUT_HANDLE),rec,1,&ReadCount);
 
@@ -676,62 +681,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 				ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), &pinp, 1, &nread);
 				continue;
 			}
-
-#if defined(DETECT_ALT_ENTER)
-			/*
-			   Windowed -> FullScreen
-			     KEY_EVENT_RECORD:   Dn, Vk="VK_MENU"    FarAltEnter:  0
-			     FOCUS_EVENT_RECORD: FALSE               FarAltEnter:  1
-			       FOCUS_EVENT_RECORD: TRUE                FarAltEnter:  1
-			       FOCUS_EVENT_RECORD: TRUE                FarAltEnter:  1
-
-			   FullScreen -> Windowed
-			     KEY_EVENT_RECORD:   Dn, Vk="VK_MENU"    FarAltEnter:  1
-			     WINDOW_BUFFER_SIZE_RECORD: Size=[W,H]   FarAltEnter:  0
-			       FOCUS_EVENT_RECORD: FALSE               FarAltEnter:  0
-			       FOCUS_EVENT_RECORD: TRUE                FarAltEnter:  0
-			*/
-
-			if (rec->EventType==KEY_EVENT && rec->Event.KeyEvent.wVirtualKeyCode == VK_MENU && rec->Event.KeyEvent.bKeyDown)
-			{
-				AltEnter=1;
-			}
-			else if (AltEnter &&
-			         (rec->EventType==FOCUS_EVENT && !rec->Event.FocusEvent.bSetFocus ||
-			          rec->EventType==WINDOW_BUFFER_SIZE_EVENT) &&
-			         PrevFarAltEnterMode != FarAltEnter(FAR_CONSOLE_GET_MODE))
-			{
-				CONSOLE_SCREEN_BUFFER_INFO csbi;
-				GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),&csbi);
-				_SVS(SysLog(L"AltEnter >>> dwSize={%d,%d} srWindow={%d,%d,%d,%d} dwMaximumWindowSize={%d,%d}  ScrX=%d (%d) ScrY=%d (%d)",csbi.dwSize.X,csbi.dwSize.Y,csbi.srWindow.Left, csbi.srWindow.Top,csbi.srWindow.Right,csbi.srWindow.Bottom,csbi.dwMaximumWindowSize.X,csbi.dwMaximumWindowSize.Y,ScrX,PrevScrX,ScrY,PrevScrY));
-
-				if (rec->EventType==FOCUS_EVENT)
-				{
-					DWORD ReadCount2;
-					INPUT_RECORD TmpRec2;
-					TmpRec2.EventType=WINDOW_BUFFER_SIZE_EVENT;
-					TmpRec2.Event.WindowBufferSizeEvent.dwSize.X=csbi.dwSize.X;
-					TmpRec2.Event.WindowBufferSizeEvent.dwSize.Y=csbi.dwSize.Y;
-					WriteConsoleInput(GetStdHandle(STD_INPUT_HANDLE),&TmpRec2,1,&ReadCount2); // вернем самый первый!
-				}
-				else
-					AltEnter=1;
-
-				//PrevFarAltEnterMode=FarAltEnter(FAR_CONSOLE_GET_MODE);
-				/*
-				  DWORD ReadCount2,ReadCount3;
-				  GetNumberOfConsoleInputEvents(GetStdHandle(STD_INPUT_HANDLE),&ReadCount2);
-				  if(ReadCount2 >= 3)
-				  {
-				    INPUT_RECORD TmpRec2[2];
-				    ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE),TmpRec2,2,&ReadCount3); // удалим 2, третья считается позже
-				  }
-				*/
-			}
-			else
-				AltEnter=0;
-
-#endif
 
 			// Эта фигня нужна только в диалоге назначения макро - остальное по барабану - и так работает
 			// ... иначе хреновень с эфектом залипшего шифта проскакивает
@@ -919,7 +868,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 			{
 				StartExecTime=0;
 
-				if (!IsWindowed() && !Opt.Mouse)
+				if (IsFullscreen() && !Opt.Mouse)
 				{
 					SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE),ENABLE_WINDOW_INPUT|ENABLE_MOUSE_INPUT);
 					SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE),ENABLE_WINDOW_INPUT);
@@ -1040,9 +989,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 			}
 		}
 
-		if (AltPressed && (CtrlState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED))==0)
-			DetectWindowedMode();
-
 		CtrlPressed=(CtrlState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED));
 		AltPressed=(CtrlState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED));
 		ShiftPressed=(CtrlState & SHIFT_PRESSED);
@@ -1135,66 +1081,25 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 	/*& 17.05.2001 OT Изменился размер консоли, генерим клавишу*/
 	if (rec->EventType==WINDOW_BUFFER_SIZE_EVENT)
 	{
-#if defined(DETECT_ALT_ENTER)
-		//_SVS(CleverSysLog Clev(L""));
-		//_SVS(SysLog(L"ScrX=%d (%d) ScrY=%d (%d), AltEnter=%d",ScrX,PrevScrX,ScrY,PrevScrY,AltEnter));
-		//_SVS(SysLog(L"FarAltEnter -> %d",FarAltEnter(FAR_CONSOLE_GET_MODE)));
-#endif
 		int PScrX=ScrX;
 		int PScrY=ScrY;
 		//// // _SVS(SysLog(1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT)"));
 		Sleep(1);
 		GetVideoMode(CurScreenBufferInfo);
-#if defined(DETECT_ALT_ENTER)
-
-//    if((PScrX == PrevScrX && PScrY == PrevScrY) && PrevFarAltEnterMode == FarAltEnter(FAR_CONSOLE_GET_MODE))
-		if (PScrX+1 == CurScreenBufferInfo.dwSize.X &&
-		        PScrY+1 == CurScreenBufferInfo.dwSize.Y &&
-		        PScrX+1 <= CurScreenBufferInfo.dwMaximumWindowSize.X &&
-		        PScrY+1 <= CurScreenBufferInfo.dwMaximumWindowSize.Y
-		        && PrevFarAltEnterMode == FarAltEnter(FAR_CONSOLE_GET_MODE)
-		   )
-#else
 		if (PScrX+1 == CurScreenBufferInfo.dwSize.X &&
 		        PScrY+1 == CurScreenBufferInfo.dwSize.Y)
-#endif
 		{
-#if defined(DETECT_ALT_ENTER)
-			//_SVS(SysLog(L"return KEY_NONE"));
-#endif
 			return KEY_NONE;
 		}
 		else
 		{
-#if defined(DETECT_ALT_ENTER)
-
-			//_SVS(SysLog(L"return KEY_CONSOLE_BUFFER_RESIZE ScrX=%d (%d) ScrY=%d (%d)",ScrX,PrevScrX,ScrY,PrevScrY));
-			if (FarAltEnter(FAR_CONSOLE_GET_MODE) == FAR_CONSOLE_FULLSCREEN)
-			{
-				//_SVS(SysLog(L"call ChangeVideoMode"));
-				PrevFarAltEnterMode=FarAltEnter(FAR_CONSOLE_GET_MODE);
-				ChangeVideoMode(PScrY==24?50:25,80);
-				GetVideoMode(CurScreenBufferInfo);
-			}
-			else
-			{
-				//_SVS(SysLog(L"PrevScrX=PScrX"));
-				PrevScrX=PScrX;
-				PrevScrY=PScrY;
-			}
-
-#else
 			PrevScrX=PScrX;
 			PrevScrY=PScrY;
 			//// // _SVS(SysLog(-1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT); return KEY_CONSOLE_BUFFER_RESIZE"));
-#endif
 			Sleep(1);
 
 			if (FrameManager)
 			{
-#if defined(DETECT_ALT_ENTER)
-				//_SVS(SysLog(L"if(FrameManager)"));
-#endif
 				// апдейтим панели (именно они сейчас!)
 				LockScreen LckScr;
 
@@ -1646,8 +1551,7 @@ int WriteInput(int Key,DWORD Flags)
 			Rec.Event.KeyEvent.bKeyDown=1;
 			Rec.Event.KeyEvent.wRepeatCount=1;
 			Rec.Event.KeyEvent.wVirtualKeyCode=Key;
-			Rec.Event.KeyEvent.wVirtualScanCode=MapVirtualKeyA(
-			                                        Rec.Event.KeyEvent.wVirtualKeyCode, 0);
+			Rec.Event.KeyEvent.wVirtualScanCode=MapVirtualKey(Rec.Event.KeyEvent.wVirtualKeyCode,MAPVK_VK_TO_VSC);
 
 			if (Key < 0x30 || Key > 0x5A) // 0-9:;<=>?@@ A..Z  //?????
 				Key=0;
@@ -2025,26 +1929,22 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 			VirtKey=FKey;
 		else if ((unsigned int)FKey > KEY_FKEY_BEGIN && (unsigned int)FKey < KEY_END_FKEY)
 			VirtKey=FKey-KEY_FKEY_BEGIN;
-		else if (FKey < 0x100)          // EXTENDED_KEY_BASE ???
-			VirtKey=VkKeyScanA(FKey)&0xFF;
+		else if (FKey < WCHAR_MAX)
+			VirtKey=VkKeyScan(FKey);
 		else
 			VirtKey=FKey;
 	}
 
-	if (Rec && VirtKey!=0)
+	if (Rec && VirtKey)
 	{
 		Rec->EventType=KEY_EVENT;
 		Rec->Event.KeyEvent.bKeyDown=1;
 		Rec->Event.KeyEvent.wRepeatCount=1;
 		Rec->Event.KeyEvent.wVirtualKeyCode=VirtKey;
-		Rec->Event.KeyEvent.wVirtualScanCode = MapVirtualKeyA(
-		                                           Rec->Event.KeyEvent.wVirtualKeyCode, 0);
+		Rec->Event.KeyEvent.wVirtualScanCode = MapVirtualKey(Rec->Event.KeyEvent.wVirtualKeyCode,MAPVK_VK_TO_VSC);
 
-		if (Key>255)                    // 0xFFFFF ???
-			Key=0;
+		Rec->Event.KeyEvent.uChar.UnicodeChar=Key>WCHAR_MAX?0:Key;
 
-		Rec->Event.KeyEvent.uChar.UnicodeChar=
-		    Rec->Event.KeyEvent.uChar.AsciiChar=Key;
 		// здесь подход к Shift-клавишам другой, нежели для ControlState
 		Rec->Event.KeyEvent.dwControlKeyState=
 		    (FShift&KEY_SHIFT?SHIFT_PRESSED:0)|
@@ -2054,7 +1954,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 		    (FShift&KEY_RCTRL?RIGHT_CTRL_PRESSED:0);
 	}
 
-	return(VirtKey!=0);
+	return VirtKey!=0;
 }
 
 

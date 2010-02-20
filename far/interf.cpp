@@ -47,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "registry.hpp"
 #include "palette.hpp"
-#include "iswind.hpp"
 #include "strmix.hpp"
 
 BOOL __stdcall CtrlHandler(DWORD CtrlType);
@@ -69,6 +68,8 @@ CONSOLE_SCREEN_BUFFER_INFO CurScreenBufferInfo={0};
 SHORT ScrX=0,ScrY=0;
 SHORT PrevScrX=-1,PrevScrY=-1;
 DWORD InitialConsoleMode=0;
+
+static HICON hOldLargeIcon=NULL, hOldSmallIcon=NULL;
 
 void InitConsole(int FirstInit)
 {
@@ -118,11 +119,22 @@ void InitConsole(int FirstInit)
 	if (FirstInit)
 		memcpy(Palette,DefaultPalette,SizeArrayPalette);
 
-#if defined(DETECT_ALT_ENTER)
-	PrevFarAltEnterMode=FarAltEnter(FAR_CONSOLE_GET_MODE);
-#endif
-}
+	HWND hWnd = GetConsoleWindow();
+	if (hWnd && Opt.SmallIcon)
+	{
+		string strFarName;
+		apiGetModuleFileName(NULL, strFarName);
+		HICON hSmallIcon=NULL,hLargeIcon=NULL;
+		ExtractIconEx(strFarName,0,&hLargeIcon,&hSmallIcon,1);
 
+		if (hLargeIcon!=NULL)
+			hOldLargeIcon=(HICON)SendMessage(hWnd,WM_SETICON,1,(LPARAM)hLargeIcon);
+
+		if (hSmallIcon!=NULL)
+			hOldSmallIcon=(HICON)SendMessage(hWnd,WM_SETICON,0,(LPARAM)hSmallIcon);
+	}
+
+}
 void CloseConsole()
 {
 	ScrBuf.Flush();
@@ -130,6 +142,18 @@ void CloseConsole()
 	ChangeConsoleMode(InitialConsoleMode);
 	delete KeyQueue;
 	KeyQueue=NULL;
+
+	HWND hWnd = GetConsoleWindow();
+
+	if (hWnd && Opt.SmallIcon)
+	{
+		if (hOldLargeIcon!=NULL)
+		{
+			SendMessage(hWnd,WM_SETICON,1,(LPARAM)hOldLargeIcon);
+			SendMessage(hWnd,WM_SETICON,0,(LPARAM)(hOldSmallIcon!=NULL ? hOldSmallIcon:hOldLargeIcon));
+		}
+	}
+
 }
 
 
@@ -216,9 +240,9 @@ _OT(void ViewConsoleInfo()\
      _OT_ConsoleInfo(GetStdHandle(STD_INPUT_HANDLE)); \
     })
 
-void SetVideoMode(int ScreenMode)
+void SetVideoMode()
 {
-	if (!ScreenMode && Opt.AltF9)
+	if (!IsFullscreen() && Opt.AltF9)
 	{
 		ChangeVideoMode(InitScreenBufferInfo==CurScreenBufferInfo);
 	}
@@ -406,7 +430,7 @@ void GetVideoMode(CONSOLE_SCREEN_BUFFER_INFO &csbi)
 }
 
 BOOL __stdcall CtrlHandler(DWORD CtrlType)
-{
+{return 1;
 	/*
 	    TODO: need handle
 	       CTRL_CLOSE_EVENT
@@ -523,9 +547,9 @@ void GetCursorPos(SHORT& X,SHORT& Y)
 void SetCursorType(int Visible,int Size)
 {
 	if (Size==-1 || !Visible)
-		Size=IsWindowed()?
-		     (Opt.CursorSize[0]?Opt.CursorSize[0]:InitCurSize):
-				     (Opt.CursorSize[1]?Opt.CursorSize[1]:InitCurSize);
+		Size=IsFullscreen()?
+		     (Opt.CursorSize[1]?Opt.CursorSize[1]:InitCurSize):
+				     (Opt.CursorSize[0]?Opt.CursorSize[0]:InitCurSize);
 
 	ScrBuf.SetCursorType(Visible,Size);
 }
@@ -1404,4 +1428,15 @@ int HiFindNextVisualPos(const wchar_t *Str, int Pos, int Direct)
 	}
 
 	return 0;
+}
+
+bool IsFullscreen()
+{
+	bool Result=false;
+	DWORD ModeFlags=0;
+	if(GetConsoleDisplayMode(&ModeFlags) && ModeFlags&CONSOLE_FULLSCREEN_HARDWARE)
+	{
+		Result=true;
+	}
+	return Result;
 }

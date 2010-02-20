@@ -40,7 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "frame.hpp"
 #include "macroopcode.hpp"
 #include "keyboard.hpp"
-#include "iswind.hpp"
 #include "datetime.hpp"
 #include "pathmix.hpp"
 #include "strmix.hpp"
@@ -1072,7 +1071,7 @@ string __MCODE_ToName(int OpCode)
 		DEF_MCODE_(C_PPANEL_VISIBLE),
 		DEF_MCODE_(C_ROOTFOLDER),
 		DEF_MCODE_(C_SELECTED),
-		DEF_MCODE_(C_WINDOWEDMODE),
+		DEF_MCODE_(C_FULLSCREENMODE),
 		DEF_MCODE_(C_ISUSERADMIN),
 		DEF_MCODE_(F_ABS),
 		DEF_MCODE_(F_AKEY),
@@ -1549,7 +1548,7 @@ string __INPUT_RECORD_Dump(INPUT_RECORD *rec)
 	}
 
 	string tmp;
-	tmp.Format(L" (%s)",FarAltEnter(FAR_CONSOLE_GET_MODE)==FAR_CONSOLE_WINDOWED?L"Widowed":L"Full Screen");
+	tmp.Format(L" (%s)",IsFullscreen()?L"Fullscreen":L"Widowed");
 	Records+=tmp;
 	return Records;
 #else

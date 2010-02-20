@@ -162,7 +162,6 @@ LINK_OBJS = \
 	"$(INTDIR)\imports.obj"\
 	"$(INTDIR)\infolist.obj" \
 	"$(INTDIR)\interf.obj" \
-	"$(INTDIR)\iswind.obj" \
 	"$(INTDIR)\keybar.obj" \
 	"$(INTDIR)\keyboard.obj" \
 	"$(INTDIR)\language.obj" \

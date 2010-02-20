@@ -85,10 +85,6 @@ extern SaveScreen *GlobalSaveScrPtr;
 
 extern int CriticalInternalError;
 
-#if defined(DETECT_ALT_ENTER)
-extern int PrevFarAltEnterMode;
-#endif
-
 extern int _localLastError;
 
 extern int KeepUserScreen;

@@ -90,7 +90,6 @@ SRCS = \
 	imports.cpp \
 	infolist.cpp \
 	interf.cpp \
-	iswind.cpp \
 	keybar.cpp \
 	keyboard.cpp \
 	language.cpp \

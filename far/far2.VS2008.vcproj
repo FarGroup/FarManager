@@ -990,10 +990,6 @@
 				>
 			</File>
 			<File
-				RelativePath="iswind.cpp"
-				>
-			</File>
-			<File
 				RelativePath="keybar.cpp"
 				>
 			</File>
@@ -2982,10 +2978,6 @@
 			</File>
 			<File
 				RelativePath="interf.hpp"
-				>
-			</File>
-			<File
-				RelativePath="iswind.hpp"
 				>
 			</File>
 			<File

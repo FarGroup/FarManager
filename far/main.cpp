@@ -55,7 +55,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "localOEM.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
-#include "iswind.hpp"
 #include "clipboard.hpp"
 #include "pathmix.hpp"
 #include "strmix.hpp"
@@ -296,7 +295,6 @@ static int MainProcess(
 		MoveRealCursor(0,0);
 	}
 	CloseConsole();
-	RestoreIcons();
 	return(0);
 }
 
@@ -551,7 +549,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 		Opt.LoadPlug.PluginsPersonal=FALSE;
 	}
 
-	InitDetectWindowedMode();
 	InitConsole();
 	GetRegKey(L"Language",L"Main",Opt.strLanguage,L"English");
 

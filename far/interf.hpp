@@ -116,7 +116,7 @@ void CloseConsole();
 void SetFarConsoleMode(BOOL SetsActiveBuffer=FALSE);
 void ChangeConsoleMode(int Mode);
 void FlushInputBuffer();
-void SetVideoMode(int ScreenMode);
+void SetVideoMode();
 void ChangeVideoMode(int Maximized);
 void ChangeVideoMode(int NumLines,int NumColumns);
 void GetVideoMode(CONSOLE_SCREEN_BUFFER_INFO &csbi);
@@ -186,3 +186,5 @@ int HiFindRealPos(const wchar_t *Str, int Pos, BOOL ShowAmp);
 int HiFindNextVisualPos(const wchar_t *Str, int Pos, int Direct);
 string& HiText2Str(string& strDest, const wchar_t *Str);
 #define RemoveHighlights(Str) RemoveChar(Str,L'&')
+
+bool IsFullscreen();

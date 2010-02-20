@@ -111,7 +111,6 @@ void ImportedFunctions::Load()
 	if (hKernel)
 	{
 		pfnGetConsoleKeyboardLayoutName = (PGETCONSOLEKEYBOARDLAYOUTNAME)GetProcAddress(hKernel, "GetConsoleKeyboardLayoutNameW");
-		pfnSetConsoleDisplayMode = (PSETCONSOLEDISPLAYMODE)GetProcAddress(hKernel, "SetConsoleDisplayMode");
 		pfnCreateSymbolicLink = (PCREATESYMBOLICLINK)GetProcAddress(hKernel, "CreateSymbolicLinkW");
 		pfnFindFirstFileNameW = (FINDFIRSTFILENAMEW)GetProcAddress(hKernel, "FindFirstFileNameW");
 		pfnFindNextFileNameW = (FINDNEXTFILENAMEW)GetProcAddress(hKernel, "FindNextFileNameW");

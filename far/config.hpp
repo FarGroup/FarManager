@@ -320,22 +320,8 @@ struct NowellOptions
 struct ScreenSizes
 {
 	COORD DeltaXY;            // на сколько поз. изменить размеры для распахнутого экрана
-#if defined(DETECT_ALT_ENTER)
-	/*
-	  Opt.WScreenSize - Windowed/Full Screen Size
-	     COORD[0].X - Windowed Width  mode 1
-	     COORD[0].Y - Windowed Height mode 1
-	     COORD[1].X - Windowed Width  mode 2
-	     COORD[1].Y - Windowed Height mode 2
-
-	     COORD[2].X - FullScreen Width  mode 1
-	     COORD[2].Y - FullScreen Height mode 1
-	     COORD[3].X - FullScreen Width  mode 2
-	     COORD[3].Y - FullScreen Height mode 2
-	*/
 	int WScreenSizeSet;
 	COORD WScreenSize[4];
-#endif
 };
 
 struct LoadPluginsOptions

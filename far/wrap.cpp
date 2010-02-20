@@ -2978,7 +2978,8 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 			return FarVer;
 		}
 		case oldfar::ACTL_CONSOLEMODE:
-			return FarAdvControl(ModuleNumber, ACTL_CONSOLEMODE, Param);
+			return IsFullscreen();
+
 		case oldfar::ACTL_GETSYSWORDDIV:
 		{
 			INT_PTR Length = FarAdvControl(ModuleNumber, ACTL_GETSYSWORDDIV, NULL);
