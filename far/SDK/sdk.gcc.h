@@ -261,9 +261,16 @@ OBJECT_INFORMATION_CLASS;
 #define CM_DEVCAP_UNIQUEID 0x00000010
 #endif
 
+#ifndef MAPVK_VK_TO_VSC
+#define MAPVK_VK_TO_VSC 0
+#endif
+
 // wincon.h
 #ifndef MOUSE_HWHEELED
 #define MOUSE_HWHEELED 0x0008
+#endif
+#ifndef CONSOLE_FULLSCREEN_HARDWARE
+#define CONSOLE_FULLSCREEN_HARDWARE 2
 #endif
 
 // winnt.h
