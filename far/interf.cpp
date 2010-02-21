@@ -430,7 +430,7 @@ void GetVideoMode(CONSOLE_SCREEN_BUFFER_INFO &csbi)
 }
 
 BOOL __stdcall CtrlHandler(DWORD CtrlType)
-{return 1;
+{
 	/*
 	    TODO: need handle
 	       CTRL_CLOSE_EVENT
