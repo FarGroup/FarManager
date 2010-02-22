@@ -797,8 +797,10 @@ wchar_t *InsertString(wchar_t *Str,int Pos,const wchar_t *InsStr,int InsSize)
 int ReplaceStrings(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr,int Count,BOOL IgnoreCase)
 {
 	int I=0, J=0, Res;
-	int LenReplStr=StrLength(ReplStr);
 	int LenFindStr=StrLength(FindStr);
+	if ( !LenFindStr || !Count )
+		return 0;
+	int LenReplStr=StrLength(ReplStr);
 	int L=(int)strStr.GetLength();
 	wchar_t *Str = strStr.GetBuffer(1024);  //BUGBUG!!!
 

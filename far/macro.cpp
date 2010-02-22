@@ -2858,6 +2858,17 @@ static bool panelsetposFunc()
 }
 
 // Result=replace(Str,Find,Replace[,Cnt[,Mode]])
+/*
+Find=="" - return Str
+Cnt==0 - return Str
+Replace=="" - return Str (с удалением всех подстрок Find)
+Str=="" return ""
+
+Mode:
+      0 - case insensitive
+      1 - case sensitive
+
+*/
 static bool replaceFunc()
 {
 	int Mode=(int)VMStack.Pop().getInteger();
@@ -2872,22 +2883,25 @@ static bool replaceFunc()
 	int lenF=(int)StrLength(Find.s());
 	int lenR=(int)StrLength(Repl.s());
 	int cnt=0;
-	const wchar_t *Ptr=Src.s();
 
-	if( !Mode )
+	if( lenF )
 	{
-		while ((Ptr=StrStrI(Ptr,Find.s())) != NULL)
+		const wchar_t *Ptr=Src.s();
+		if( !Mode )
 		{
-			cnt++;
-			Ptr+=lenF;
+			while ((Ptr=StrStrI(Ptr,Find.s())) != NULL)
+			{
+				cnt++;
+				Ptr+=lenF;
+			}
 		}
-	}
-	else
-	{
-		while ((Ptr=StrStr(Ptr,Find.s())) != NULL)
+		else
 		{
-			cnt++;
-			Ptr+=lenF;
+			while ((Ptr=StrStr(Ptr,Find.s())) != NULL)
+			{
+				cnt++;
+				Ptr+=lenF;
+			}
 		}
 	}
 
