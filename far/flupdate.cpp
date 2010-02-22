@@ -259,40 +259,18 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	//Рефреш текущему времени для фильтра перед началом операции
 	Filter->UpdateCurrentTime();
 	CtrlObject->HiFiles->UpdateCurrentTime();
-	bool bDotExists=false, bTwoDotsExists=false;
-	bool bDotSeen=false, bTwoDotsSeen=false;
+	bool bTwoDotsSeen=false;
 	bool bCurDirRoot=IsLocalRootPath(strCurDir)||IsLocalPrefixRootPath(strCurDir)||IsLocalVolumeRootPath(strCurDir);
 	FILETIME TwoDotsTimes[3]={0};
 	string TwoDotsOwner;
 
-	if (!Done)
-	{
-		string strTemp(NTPath(strCurDir).Str);
-		DWORD dw;
-		strTemp += L"\\.";
-		dw = apiGetFileAttributes(strTemp);
-		bDotExists = dw!=INVALID_FILE_ATTRIBUTES && dw&FILE_ATTRIBUTE_DIRECTORY;
-		strTemp += L".";
-		dw = apiGetFileAttributes(strTemp);
-		bTwoDotsExists = dw!=INVALID_FILE_ATTRIBUTES && dw&FILE_ATTRIBUTE_DIRECTORY;
-	}
-
 	for (FileCount=0; !Done;)
 	{
-		// Весь смысл этого ужаса в том что на FAT можно создать папки "." и "..".
-		// Поэтому извращаемся вот по такой системе:
-		// если существует реальная папка "." или ".." (проверка сверху)
-		// то если мы не в корне диска (так как только в корне нету обычных "." и "..")
-		// то скипаем первое вхождение "." или ".." так как это обычные, а потом не скипаем
-		// так как это уже те которые буратино создал.
-		// Есть один прокол, если на замапленом диске есть такие папки и к тому же листинг такого
-		// диска возвращает обычные тоже, то уж увольте но это просто у вас в глазах двоится/троится будет,
-		// ни чем помочь не могу. Смерть фату и всё такое.
 		if (fdata.strFileName.At(0) == L'.' && fdata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
 		{
-			if (fdata.strFileName.At(1) == L'.' && fdata.strFileName.At(2) == 0)
+			if ((fdata.strFileName.At(1) == L'.' && fdata.strFileName.At(2) == 0) || (fdata.strFileName.At(1) == 0))
 			{
-				if (!bTwoDotsExists || (!bCurDirRoot && !bTwoDotsSeen))
+				if (fdata.strFileName.At(1) != 0 && !bCurDirRoot && !bTwoDotsSeen)
 				{
 					bTwoDotsSeen=true;
 					TwoDotsTimes[0]=fdata.ftCreationTime;
@@ -303,19 +281,10 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 					{
 						GetFileOwner(strComputerName,fdata.strFileName,TwoDotsOwner);
 					}
+				}
 
-					Done=!apiFindNextFile(FindHandle,&fdata);
-					continue;
-				}
-			}
-			else if (fdata.strFileName.At(1) == 0)
-			{
-				if (!bDotExists || (!bCurDirRoot && !bDotSeen))
-				{
-					bDotSeen=true;
-					Done=!apiFindNextFile(FindHandle,&fdata);
-					continue;
-				}
+				Done=!apiFindNextFile(FindHandle,&fdata);
+				continue;
 			}
 		}
 
