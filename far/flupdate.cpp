@@ -266,7 +266,9 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 	for (FileCount=0; !Done;)
 	{
-		if (fdata.strFileName.At(0) == L'.' && fdata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
+		if (fdata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY && fdata.strFileName.At(0) == L'.'
+		// хитрый способ - у виртуальных папок не бывает SFN, в отличие от.
+		&& fdata.strAlternateFileName.IsEmpty())
 		{
 			if ((fdata.strFileName.At(1) == L'.' && fdata.strFileName.At(2) == 0) || (fdata.strFileName.At(1) == 0))
 			{
@@ -968,7 +970,6 @@ void FileList::AddParentPoint(FileListItem *CurPtr,long CurFilePos,FILETIME* Tim
 	CurPtr->Clear();
 	CurPtr->FileAttr = FILE_ATTRIBUTE_DIRECTORY;
 	CurPtr->strName = L"..";
-	CurPtr->strShortName = L"..";
 
 	if (Times)
 	{
