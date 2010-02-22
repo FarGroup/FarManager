@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 2.0 build 1382
+  Plugin API for FAR Manager 2.0 build 1419
 */
 
 /*
@@ -42,7 +42,7 @@ other possible license with no implications from the above license on them.
 
 #define FARMANAGERVERSION_MAJOR 2
 #define FARMANAGERVERSION_MINOR 0
-#define FARMANAGERVERSION_BUILD 1382
+#define FARMANAGERVERSION_BUILD 1419
 
 #ifndef RC_INVOKED
 
@@ -793,6 +793,7 @@ enum FILE_CONTROL_COMMANDS
 	FCTL_GETCOLUMNWIDTHS,
 	FCTL_BEGINSELECTION,
 	FCTL_ENDSELECTION,
+	FCTL_CLEARSELECTION,
 };
 
 typedef int (WINAPI *FARAPICONTROL)(
@@ -916,7 +917,6 @@ typedef BOOL (WINAPI *FARAPISHOWHELP)(
 enum ADVANCED_CONTROL_COMMANDS
 {
 	ACTL_GETFARVERSION        = 0,
-	ACTL_CONSOLEMODE          = 1,
 	ACTL_GETSYSWORDDIV        = 2,
 	ACTL_WAITKEY              = 3,
 	ACTL_GETCOLOR             = 4,
@@ -1022,13 +1022,6 @@ enum FarDescriptionSettings
 	FDS_SETHIDDEN                      = 0x00000004,
 	FDS_UPDATEREADONLY                 = 0x00000008,
 };
-
-#define FAR_CONSOLE_GET_MODE       (-2)
-#define FAR_CONSOLE_TRIGGER        (-1)
-#define FAR_CONSOLE_SET_WINDOWED   (0)
-#define FAR_CONSOLE_SET_FULLSCREEN (1)
-#define FAR_CONSOLE_WINDOWED       (0)
-#define FAR_CONSOLE_FULLSCREEN     (1)
 
 enum FAREJECTMEDIAFLAGS
 {
@@ -1352,6 +1345,7 @@ enum EDITOR_SETPARAMETER_TYPES
 	ESPT_SETWORDDIV,
 	ESPT_GETWORDDIV,
 	ESPT_SHOWWHITESPACE,
+	ESPT_SETBOM,
 };
 
 
@@ -1423,6 +1417,7 @@ enum EDITOR_OPTIONS
 	EOPT_CURSORBEYONDEOL   = 0x00000040,
 	EOPT_EXPANDONLYNEWTABS = 0x00000080,
 	EOPT_SHOWWHITESPACE    = 0x00000100,
+	EOPT_BOM               = 0x00000200,
 };
 
 
