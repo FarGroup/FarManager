@@ -10459,12 +10459,12 @@ MSetAttrSelectedObjects
 "wybranych obiektów"
 
 MSetAttrHardLinks
-"жестких ссылок (%d)"
-"hard links (%d)"
-"pevné linky (%d)"
-"Hardlinks (%d)"
-"hardlink (%d)"
-"linków trwałych (%d)"
+"жестких ссылок"
+"hard links"
+"pevné linky"
+"Hardlinks"
+"hardlink"
+"linków trwałych"
 
 MSetAttrJunction
 "Связь:"

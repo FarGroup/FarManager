@@ -46,10 +46,10 @@ class KeyBar;
 
 struct InternalEditorBookMark
 {
-	DWORD Line[BOOKMARK_COUNT];
-	DWORD Cursor[BOOKMARK_COUNT];
-	DWORD ScreenLine[BOOKMARK_COUNT];
-	DWORD LeftPos[BOOKMARK_COUNT];
+	DWORD64 Line[BOOKMARK_COUNT];
+	DWORD64 Cursor[BOOKMARK_COUNT];
+	DWORD64 ScreenLine[BOOKMARK_COUNT];
+	DWORD64 LeftPos[BOOKMARK_COUNT];
 };
 
 struct InternalEditorStackBookMark

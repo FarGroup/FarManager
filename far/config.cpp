@@ -649,7 +649,7 @@ static struct FARConfig
 	{0, REG_DWORD,  NKeySystem,L"SubstPluginPrefix",&Opt.SubstPluginPrefix, 0, 0},
 	{0, REG_DWORD,  NKeySystem,L"CmdHistoryRule",&Opt.CmdHistoryRule,0, 0},
 	{0, REG_DWORD,  NKeySystem,L"SetAttrFolderRules",&Opt.SetAttrFolderRules,1, 0},
-	{0, REG_DWORD,  NKeySystem,L"MaxPositionCache",&Opt.MaxPositionCache,64, 0},
+	{0, REG_DWORD,  NKeySystem,L"MaxPositionCache",&Opt.MaxPositionCache,MAX_POSITIONS, 0},
 	{0, REG_SZ,     NKeySystem,L"ConsoleDetachKey", &strKeyNameConsoleDetachKey, 0, L"CtrlAltTab"},
 	{0, REG_DWORD,  NKeySystem,L"SilentLoadPlugin",  &Opt.LoadPlug.SilentLoadPlugin, 0, 0},
 	{1, REG_DWORD,  NKeySystem,L"MultiMakeDir",&Opt.MultiMakeDir,0, 0},
@@ -890,9 +890,6 @@ void ReadConfig()
 	// Исключаем случайное стирание разделителей
 	if (Opt.XLat.strWordDivForXlat.IsEmpty())
 		Opt.XLat.strWordDivForXlat = WordDivForXlat0;
-
-	if (Opt.MaxPositionCache < 16 || Opt.MaxPositionCache > 128)
-		Opt.MaxPositionCache=64;
 
 	Opt.PanelRightClickRule%=3;
 	Opt.PanelCtrlAltShiftRule%=3;

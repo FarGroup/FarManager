@@ -3032,7 +3032,7 @@ void Editor::DeleteString(Edit *DelPtr,int DeleteLast,int UndoLine)
 	}
 
 	for (size_t I=0; I<countof(SavePos.Line); I++)
-		if (SavePos.Line[I]!=0xffffffff && UndoLine<static_cast<int>(SavePos.Line[I]))
+		if (SavePos.Line[I]!=POS_NONE && UndoLine<static_cast<int>(SavePos.Line[I]))
 			SavePos.Line[I]--;
 
 	if (StackPos)
@@ -3161,7 +3161,7 @@ void Editor::InsertString()
 	CurLine->GetSelection(SelStart,SelEnd);
 
 	for (size_t I=0; I<countof(SavePos.Line); I++)
-		if (SavePos.Line[I]!=0xffffffff &&
+		if (SavePos.Line[I]!=POS_NONE &&
 		        (NumLine<(int)SavePos.Line[I] || (NumLine==(int)SavePos.Line[I] && CurPos==0)))
 			SavePos.Line[I]++;
 
@@ -5911,11 +5911,11 @@ int Editor::GotoBookmark(DWORD Pos)
 {
 	if (Pos < BOOKMARK_COUNT)
 	{
-		if (SavePos.Line[Pos]!=0xffffffff)
+		if (SavePos.Line[Pos]!=POS_NONE)
 		{
-			GoToLine(SavePos.Line[Pos]);
-			CurLine->SetCurPos(SavePos.Cursor[Pos]);
-			CurLine->SetLeftPos(SavePos.LeftPos[Pos]);
+			GoToLine(static_cast<int>(SavePos.Line[Pos]));
+			CurLine->SetCurPos(static_cast<int>(SavePos.Cursor[Pos]));
+			CurLine->SetLeftPos(static_cast<int>(SavePos.LeftPos[Pos]));
 			TopScreen=CurLine;
 
 			for (DWORD I=0; I<SavePos.ScreenLine[Pos] && TopScreen->m_prev!=NULL; I++)

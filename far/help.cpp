@@ -832,7 +832,7 @@ void Help::DrawWindowFrame()
 
 	TruncStrFromEnd(strHelpTitleBuf,X2-X1-3);
 	GotoXY(X1+(X2-X1+1-(int)strHelpTitleBuf.GetLength()-2)/2,Y1);
-	mprintf(L" %s ", (const wchar_t*)strHelpTitleBuf);
+	FS<<L" "<<strHelpTitleBuf<<L" ";
 }
 
 /* $ 01.09.2000 SVS
@@ -999,7 +999,7 @@ void Help::OutString(const wchar_t *Str)
 	if (!Locked() && WhereX()<X2)
 	{
 		SetColor(CurColor);
-		mprintf(L"%*s",X2-WhereX(),L"");
+		FS<<fmt::Width(X2-WhereX())<<L"";
 	}
 }
 

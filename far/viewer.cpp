@@ -141,25 +141,22 @@ Viewer::~Viewer()
 				CodePage=VM.CodePage;
 			}
 
+			PosCache poscache={0};
+			poscache.Param[0]=FilePos;
+			poscache.Param[1]=LeftPos;
+			poscache.Param[2]=VM.Hex;
+			//=poscache.Param[3];
+			poscache.Param[4]=CodePage;
+
+			if (Opt.ViOpt.SaveViewerShortPos)
 			{
-				/*TPosCache32*/
-				TPosCache64 PosCache={0};
-				PosCache.Param[0]=FilePos;
-				PosCache.Param[1]=LeftPos;
-				PosCache.Param[2]=VM.Hex;
-				//=PosCache.Param[3];
-				PosCache.Param[4]=CodePage;
-
-				if (Opt.ViOpt.SaveViewerShortPos)
-				{
-					PosCache.Position[0]=BMSavePos.SavePosAddr;
-					PosCache.Position[1]=(__int64*)BMSavePos.SavePosLeft;
-					//PosCache.Position[2]=;
-					//PosCache.Position[3]=;
-				}
-
-				CtrlObject->ViewerPosCache->AddPosition(strCacheName,&PosCache);
+				poscache.Position[0]=BMSavePos.SavePosAddr;
+				poscache.Position[1]=BMSavePos.SavePosLeft;
+				//poscache.Position[2]=;
+				//poscache.Position[3]=;
 			}
+
+			CtrlObject->ViewerPosCache->AddPosition(strCacheName,poscache);
 		}
 	}
 
@@ -313,29 +310,26 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 		__int64 NewLeftPos,NewFilePos;
 		string strCacheName=strPluginData.IsEmpty()?strFileName:strPluginData+PointToName(strFileName);
 		memset(&BMSavePos,0xff,sizeof(BMSavePos)); //??!!??
+		PosCache poscache={0};
+
+		if (Opt.ViOpt.SaveViewerShortPos)
 		{
-			/*TPosCache32*/
-			TPosCache64 PosCache={0};
-
-			if (Opt.ViOpt.SaveViewerShortPos)
-			{
-				PosCache.Position[0]=BMSavePos.SavePosAddr;
-				PosCache.Position[1]=(__int64*)BMSavePos.SavePosLeft;
-				//PosCache.Position[2]=;
-				//PosCache.Position[3]=;
-			}
-
-			CtrlObject->ViewerPosCache->GetPosition(strCacheName,&PosCache);
-			NewFilePos=PosCache.Param[0];
-			NewLeftPos=PosCache.Param[1];
-			VM.Hex=(int)PosCache.Param[2];
-			//=PosCache.Param[3];
-			CachedCodePage=(UINT)PosCache.Param[4];
-
-			// Проверяем поддерживается или нет загруженная из кэша кодовая страница
-			if (CachedCodePage && !IsCodePageSupported(CachedCodePage))
-				CachedCodePage = 0;
+			poscache.Position[0]=BMSavePos.SavePosAddr;
+			poscache.Position[1]=BMSavePos.SavePosLeft;
+			//poscache.Position[2]=;
+			//poscache.Position[3]=;
 		}
+
+		CtrlObject->ViewerPosCache->GetPosition(strCacheName,poscache);
+		NewFilePos=poscache.Param[0];
+		NewLeftPos=poscache.Param[1];
+		VM.Hex=(int)poscache.Param[2];
+		//=poscache.Param[3];
+		CachedCodePage=(UINT)poscache.Param[4];
+
+		// Проверяем поддерживается или нет загруженная из кэша кодовая страница
+		if (CachedCodePage && !IsCodePageSupported(CachedCodePage))
+			CachedCodePage = 0;
 		LastSelPos=FilePos=NewFilePos;
 		LeftPos=NewLeftPos;
 	}
@@ -1328,23 +1322,22 @@ int Viewer::ProcessKey(int Key)
 							CodePage=VM.CodePage;
 
 						{
-							/*TPosCache32*/
-							TPosCache64 PosCache={0};
-							PosCache.Param[0]=FilePos;
-							PosCache.Param[1]=LeftPos;
-							PosCache.Param[2]=VM.Hex;
-							//=PosCache.Param[3];
-							PosCache.Param[4]=CodePage;
+							PosCache poscache={0};
+							poscache.Param[0]=FilePos;
+							poscache.Param[1]=LeftPos;
+							poscache.Param[2]=VM.Hex;
+							//=poscache.Param[3];
+							poscache.Param[4]=CodePage;
 
 							if (Opt.ViOpt.SaveViewerShortPos)
 							{
-								PosCache.Position[0]=BMSavePos.SavePosAddr;
-								PosCache.Position[1]=(__int64*)BMSavePos.SavePosLeft;
-								//PosCache.Position[2]=;
-								//PosCache.Position[3]=;
+								poscache.Position[0]=BMSavePos.SavePosAddr;
+								poscache.Position[1]=BMSavePos.SavePosLeft;
+								//poscache.Position[2]=;
+								//poscache.Position[3]=;
 							}
 
-							CtrlObject->ViewerPosCache->AddPosition(strCacheName,&PosCache);
+							CtrlObject->ViewerPosCache->AddPosition(strCacheName,poscache);
 							memset(&BMSavePos,0xff,sizeof(BMSavePos)); //??!!??
 						}
 					}

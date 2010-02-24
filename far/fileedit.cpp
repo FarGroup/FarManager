@@ -2736,7 +2736,7 @@ bool FileEditor::LoadFromCache(EditorCacheParams *pp)
 		ReplaceSlashToBSlash(strCacheName);
 	}
 
-	TPosCache32 PosCache={0};
+	PosCache PosCache={0};
 
 	if (Opt.EdOpt.SaveShortPos)
 	{
@@ -2748,14 +2748,14 @@ bool FileEditor::LoadFromCache(EditorCacheParams *pp)
 
 	if (CtrlObject->EditorPosCache->GetPosition(
 	            strCacheName,
-	            &PosCache
+	            PosCache
 	        ))
 	{
-		pp->Line=PosCache.Param[0];
-		pp->ScreenLine=PosCache.Param[1];
-		pp->LinePos=PosCache.Param[2];
-		pp->LeftPos=PosCache.Param[3];
-		pp->CodePage=PosCache.Param[4];
+		pp->Line=static_cast<int>(PosCache.Param[0]);
+		pp->ScreenLine=static_cast<int>(PosCache.Param[1]);
+		pp->LinePos=static_cast<int>(PosCache.Param[2]);
+		pp->LeftPos=static_cast<int>(PosCache.Param[3]);
+		pp->CodePage=static_cast<UINT>(PosCache.Param[4]);
 
 		if ((int)pp->Line < 0) pp->Line=0;
 
@@ -2781,23 +2781,23 @@ void FileEditor::SaveToCache()
 
 	if (!Flags.Check(FFILEEDIT_OPENFAILED))   //????
 	{
-		TPosCache32 PosCache = {0};
-		PosCache.Param[0] = cp.Line;
-		PosCache.Param[1] = cp.ScreenLine;
-		PosCache.Param[2] = cp.LinePos;
-		PosCache.Param[3] = cp.LeftPos;
-		PosCache.Param[4] = Flags.Check(FFILEEDIT_CODEPAGECHANGEDBYUSER)?m_codepage:0;
+		PosCache poscache = {0};
+		poscache.Param[0] = cp.Line;
+		poscache.Param[1] = cp.ScreenLine;
+		poscache.Param[2] = cp.LinePos;
+		poscache.Param[3] = cp.LeftPos;
+		poscache.Param[4] = Flags.Check(FFILEEDIT_CODEPAGECHANGEDBYUSER)?m_codepage:0;
 
 		if (Opt.EdOpt.SaveShortPos)
 		{
 			//if no position saved these are nulls
-			PosCache.Position[0] = cp.SavePos.Line;
-			PosCache.Position[1] = cp.SavePos.Cursor;
-			PosCache.Position[2] = cp.SavePos.ScreenLine;
-			PosCache.Position[3] = cp.SavePos.LeftPos;
+			poscache.Position[0] = cp.SavePos.Line;
+			poscache.Position[1] = cp.SavePos.Cursor;
+			poscache.Position[2] = cp.SavePos.ScreenLine;
+			poscache.Position[3] = cp.SavePos.LeftPos;
 		}
 
-		CtrlObject->EditorPosCache->AddPosition(strCacheName, &PosCache);
+		CtrlObject->EditorPosCache->AddPosition(strCacheName, poscache);
 	}
 }
 

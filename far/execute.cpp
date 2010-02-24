@@ -1756,9 +1756,9 @@ BOOL CommandLine::IntChDir(const wchar_t *CmdLine,int ClosePlugin,bool Selent)
 	/*
 	if (CtrlObject->Plugins.ProcessCommandLine(ExpandedDir))
 	{
-	  //CmdStr.SetString("");
+	  //CmdStr.SetString(L"");
 	  GotoXY(X1,Y1);
-	  mprintf("%*s",X2-X1+1,"");
+	  FS<<fmt::Width(X2-X1+1)<<L"";
 	  Show();
 	  return(TRUE);
 	}

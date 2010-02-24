@@ -333,9 +333,9 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 				{
 					FarListInfo li;
 					SendDlgMessage(hDlg,DM_LISTINFO,SA_COMBO_HARDLINK,(LONG_PTR)&li);
-					string strTmp;
-					strTmp.Format(MSG(MSetAttrHardLinks),li.ItemsNumber);
-					SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_COMBO_HARDLINK,(LONG_PTR)strTmp.CPtr());
+					FormatString strTmp;
+					strTmp<<MSG(MSetAttrHardLinks)<<L" ("<<li.ItemsNumber<<L")";
+					SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_COMBO_HARDLINK,(LONG_PTR)strTmp.strValue().CPtr());
 				}
 				break;
 				case SA_EDIT_MDATE:
@@ -833,7 +833,9 @@ bool ShellSetFileAttributes(Panel *SrcPanel)
 					AttrDlg[SA_COMBO_HARDLINK].Flags|=DIF_DISABLE;
 				}
 
-				AttrDlg[SA_COMBO_HARDLINK].strData.Format(MSG(MSetAttrHardLinks),NameList.ItemsNumber);
+				FormatString strTmp;
+				strTmp<<MSG(MSetAttrHardLinks)<<L" ("<<NameList.ItemsNumber<<L")";
+				AttrDlg[SA_COMBO_HARDLINK].strData=strTmp;
 			}
 
 			AttrDlg[SA_TEXT_NAME].strData = strSelName;

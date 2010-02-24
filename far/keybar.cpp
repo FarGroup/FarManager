@@ -81,7 +81,7 @@ void KeyBar::DisplayObject()
 			break;
 
 		SetColor(COL_KEYBARNUM);
-		mprintf(L"%d",i+1);
+		FS<<i+1;
 		SetColor(COL_KEYBARTEXT);
 		const wchar_t *Label=L"";
 
@@ -144,7 +144,7 @@ void KeyBar::DisplayObject()
 		else if (i<KeyCounts [KBL_MAIN] && (DisableMask & (1<<i))==0)
 			Label=KeyTitles [KBL_MAIN][i];
 
-		mprintf(L"%-*.*s",LabelWidth,LabelWidth,Label);
+		FS<<fmt::LeftAlign()<<fmt::Width(LabelWidth)<<fmt::Precision(LabelWidth)<<Label;
 
 		if (i<KEY_COUNT-1)
 		{
@@ -158,7 +158,7 @@ void KeyBar::DisplayObject()
 	if (Width>0)
 	{
 		SetColor(COL_KEYBARTEXT);
-		mprintf(L"%*s",Width,L"");
+		FS<<fmt::Width(Width)<<L"";
 	}
 }
 

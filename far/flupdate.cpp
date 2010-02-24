@@ -400,7 +400,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 						TruncStr(strReadMsg,TitleLength-2);
 						int MsgLength=(int)strReadMsg.GetLength();
 						GotoXY(X1+1+(TitleLength-MsgLength-1)/2,Y1);
-						mprintf(L" %s ", (const wchar_t*)strReadMsg);
+						FS<<L" "<<strReadMsg<<L" ";
 					}
 				}
 

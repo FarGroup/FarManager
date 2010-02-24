@@ -130,7 +130,7 @@ void FileList::ShowFileList(int Fast)
 //    SetScreen(X1+1,Y1+1,X2-1,Y1+1,' ',COL_PANELTEXT);
 		SetColor(COL_PANELTEXT); //???
 		//GotoXY(X1+1,Y1+1);
-		//mprintf("%*s",X2-X1-1,"");
+		//FS<<fmt::Width(X2-X1-1)<<L"";
 	}
 
 	for (int I=0,ColumnPos=X1+1; I<ViewSettings.ColumnCount; I++)
@@ -355,7 +355,7 @@ void FileList::ShowFileList(int Fast)
 		SetScreen(X1+1,Y2-1,X2-1,Y2-1,L' ',COL_PANELTEXT);
 		SetColor(COL_PANELTEXT); //???
 		//GotoXY(X1+1,Y2-1);
-		//mprintf("%*s",X2-X1-1,"");
+		//FS<<fmt::Width(X2-X1-1)<<L"";
 	}
 
 	if (PanelMode==PLUGIN_PANEL && FileCount>0 && (Info.Flags & OPIF_REALNAMES))
@@ -944,8 +944,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								MaxLeftPos=CurLeftPos;
 						}
 					}
-
-					mprintf(L"%-*.*s",ColumnWidth,ColumnWidth,ColumnData+CurLeftPos);
+					FS<<fmt::LeftAlign()<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<ColumnData+CurLeftPos;
 				}
 				else
 				{
@@ -1133,14 +1132,14 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								else
 									strStr = PtrName;
 
-								mprintf(L"%*.*s",Width,Width, (const wchar_t*)strStr);
+								FS<<fmt::Width(Width)<<fmt::Precision(Width)<<strStr;
 							}
 							else
 							{
 								string strOutStr;
 								// подсократим - весь код по форматированию размера
 								//   в отдельную функцию - FileSizeToStr().
-								mprintf(L"%s",FileSizeToStr(strOutStr,
+								Text(FileSizeToStr(strOutStr,
 								                            Packed?ListData[ListPos]->PackSize:Streams?ListData[ListPos]->StreamsSize:ListData[ListPos]->UnpSize,
 								                            Width,ColumnTypes[K]).CPtr());
 							}
@@ -1150,14 +1149,14 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 						{
 							string strOutStr;
 							ConvertDate(ListData[ListPos]->WriteTime,strDateStr,strTimeStr,0,FALSE,FALSE,ColumnWidth>9);
-							mprintf(L"%*.*s",ColumnWidth,ColumnWidth,strDateStr.CPtr());
+							FS<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<strDateStr;
 						}
 						break;
 						case TIME_COLUMN:
 						{
 							string strOutStr;
 							ConvertDate(ListData[ListPos]->WriteTime,strDateStr,strTimeStr,ColumnWidth);
-							mprintf(L"%*.*s",ColumnWidth,ColumnWidth,strTimeStr.CPtr());
+							FS<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<strTimeStr;
 						}
 						break;
 						case MDATE_COLUMN:
@@ -1297,7 +1296,9 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 				}
 			}
 			else
-				mprintf(L"%*s",ColumnWidth,L"");
+			{
+				FS<<fmt::Width(ColumnWidth)<<L"";
+			}
 
 			if (ShowDivider==FALSE)
 				GotoXY(CurX+ColumnWidth+1,CurY);
@@ -1340,7 +1341,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 		if ((!ShowStatus || StatusLine) && WhereX()<X2)
 		{
 			SetColor(COL_PANELTEXT);
-			mprintf(L"%*s",X2-WhereX(),L"");
+			FS<<fmt::Width(X2-WhereX())<<L"";
 		}
 	}
 
@@ -1349,7 +1350,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 		SetScreen(X1+1,Y2-1,X2-1,Y2-1,L' ',COL_PANELTEXT);
 		SetColor(COL_PANELTEXT); //???
 		//GotoXY(X1+1,Y2-1);
-		//mprintf("%*s",X2-X1-1,"");
+		//FS<<fmt::Width(X2-X1-1)<<L"";
 	}
 
 	if (!ShowStatus)

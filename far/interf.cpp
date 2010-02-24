@@ -1045,12 +1045,12 @@ void Box(int x1,int y1,int x2,int y2,int Color,int Type)
 		OutStr[_width]=BoxSymbols[Type?BS_RT_H2V2:BS_RT_H1V1];
 		GotoXY(x1,y1);
 		Text(OutStr);
-		//mprintf(L"%.*s",x2-x1+1,OutStr);
+		//FS<<fmt::Precision(x2-x1+1)<<OutStr;
 		OutStr[0]=BoxSymbols[Type?BS_LB_H2V2:BS_LB_H1V1];
 		OutStr[_width]=BoxSymbols[Type?BS_RB_H2V2:BS_RB_H1V1];
 		GotoXY(x1,y2);
 		Text(OutStr);
-		//mprintf(L"%.*s",x2-x1+1,OutStr);
+		//FS<<fmt::Precision(x2-x1+1)<<OutStr;
 		wmemset(OutStr,BoxSymbols[Type?BS_V2:BS_V1],countof(OutStr));
 		OutStr[_height-1]=0;
 		GotoXY(x1,y1+1);

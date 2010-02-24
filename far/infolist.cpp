@@ -501,10 +501,10 @@ int InfoList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 void InfoList::PrintText(const wchar_t *Str)
 {
-	if (WhereY()>Y2-1)
-		return;
-
-	mprintf(L"%.*s",X2-WhereX(),Str);
+	if (WhereY()<=Y2-1)
+	{
+		FS<<fmt::Precision(X2-WhereX())<<Str;
+	}
 }
 
 
@@ -533,7 +533,7 @@ void InfoList::PrintInfo(const wchar_t *str)
 	{
 		GotoXY(NewX,WhereY());
 		SetColor(COL_PANELINFOTEXT);
-		mprintf(L"%s ",(const wchar_t*)strStr);
+		FS<<strStr<<L" ";
 		SetColor(SaveColor);
 	}
 }
@@ -611,7 +611,7 @@ void InfoList::ShowPluginDescription()
 		SetColor(COL_PANELBOX);
 		Text(VertcalLine);
 		SetColor(COL_PANELTEXT);
-		mprintf(L"%*s",X2-X1-1,L"");
+		FS<<fmt::Width(X2-X1-1)<<L"";
 		SetColor(COL_PANELBOX);
 		Text(VertcalLine);
 		GotoXY(X1+2,Y);

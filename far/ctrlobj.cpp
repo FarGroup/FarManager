@@ -58,8 +58,8 @@ ControlObject::ControlObject()
 	FPanels=0;
 	CtrlObject=this;
 	HiFiles = new HighlightFiles;
-	ViewerPosCache = new FilePositionCache(FPOSCACHE_64);
-	EditorPosCache = new FilePositionCache(FPOSCACHE_32);
+	ViewerPosCache = new FilePositionCache();
+	EditorPosCache = new FilePositionCache();
 	FrameManager = new Manager;
 	//Macro.LoadMacros();
 	ReadConfig();

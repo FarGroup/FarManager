@@ -414,8 +414,8 @@ void DeleteKeyRecord(const wchar_t *KeyMask,int Position)
 
 	for (;;)
 	{
-		strFullKeyName.Format((const wchar_t*)strMaskKeyName,Position++);
-		strNextFullKeyName.Format((const wchar_t*)strMaskKeyName,Position);
+		strFullKeyName.Format(strMaskKeyName,Position++);
+		strNextFullKeyName.Format(strMaskKeyName,Position);
 
 		if (!CopyKeyTree(strNextFullKeyName,strFullKeyName))
 		{
@@ -433,14 +433,14 @@ void InsertKeyRecord(const wchar_t *KeyMask,int Position,int TotalKeys)
 
 	for (int CurPos=TotalKeys; CurPos>Position; CurPos--)
 	{
-		strFullKeyName.Format((const wchar_t*)strMaskKeyName,CurPos);
-		strPrevFullKeyName.Format((const wchar_t*)strMaskKeyName,CurPos-1);
+		strFullKeyName.Format(strMaskKeyName,CurPos);
+		strPrevFullKeyName.Format(strMaskKeyName,CurPos-1);
 
 		if (!CopyKeyTree(strPrevFullKeyName,strFullKeyName))
 			break;
 	}
 
-	strFullKeyName.Format((const wchar_t*)strMaskKeyName,Position);
+	strFullKeyName.Format(strMaskKeyName,Position);
 	DeleteFullKeyTree(strFullKeyName);
 }
 
@@ -509,8 +509,8 @@ void RenumKeyRecord(const wchar_t *KeyRoot,const wchar_t *KeyMask,const wchar_t 
 
 			if (!CheckRegKey(strFullKeyName))
 			{
-				strFullKeyName.Format((const wchar_t*)strMaskKeyName,CurPos);
-				strPrevFullKeyName.Format((const wchar_t*)strMaskKeyName,Item->ItemIdx);
+				strFullKeyName.Format(strMaskKeyName,CurPos);
+				strPrevFullKeyName.Format(strMaskKeyName,Item->ItemIdx);
 
 				if (!CopyKeyTree(strPrevFullKeyName,strFullKeyName))
 					break;
