@@ -236,9 +236,6 @@
     <ClCompile Include="interf.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="iswind.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="keybar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -710,9 +707,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="interf.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="iswind.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="keybar.hpp">
