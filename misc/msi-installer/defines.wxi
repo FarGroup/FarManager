@@ -2,17 +2,21 @@
 <?if $(var.Branch) = 1 ?>
   <?if $(var.Platform) = x86 ?>
     <?define Product = "Far Manager" ?>
+    <?define DefUserInstallDir = "Far" ?>
   <?endif?>
   <?if $(var.Platform) = x64 ?>
     <?define Product = "Far Manager x64" ?>
+    <?define DefUserInstallDir = "Far_x64" ?>
   <?endif?>
 <?endif?>
 <?if $(var.Branch) = 2 ?>
   <?if $(var.Platform) = x86 ?>
     <?define Product = "Far Manager 2" ?>
+    <?define DefUserInstallDir = "Far2" ?>
   <?endif?>
   <?if $(var.Platform) = x64 ?>
     <?define Product = "Far Manager 2 x64" ?>
+    <?define DefUserInstallDir = "Far2_x64" ?>
   <?endif?>
 <?endif?>
 <?define Manufacturer = "Eugene Roshal & Far Group" ?>
@@ -26,10 +30,10 @@
 <?endif?>
 <?if $(var.Branch) = 1 ?>
   <?define RegKey = "Far" ?>
-  <?define DefInstallDir = "Far" ?>
+  <?define DefMachineInstallDir = "Far" ?>
 <?endif?>
 <?if $(var.Branch) = 2 ?>
   <?define RegKey = "Far2" ?>
-  <?define DefInstallDir = "Far2" ?>
+  <?define DefMachineInstallDir = "Far2" ?>
 <?endif?>
 <Include />

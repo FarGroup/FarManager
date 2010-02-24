@@ -95,7 +95,7 @@ int main(int argc, char* argv[]) {
     makefile << ".wxs.wixobj::" << endl;
     makefile << "  candle -nologo -dSourceDir=\"" << source_dir << "\" -dBranch=" << ver_major << " -dPlatform=" << platform << " -dVersion=" << version << " $<" << endl;
     makefile << "clean:" << endl;
-    makefile << "  del /q /f *.wixobj customact.dll customact.obj #far.cab" << endl;
+    makefile << "  del /q /f *.wixobj customact.dll customact.obj *.cab" << endl;
     makefile << ".SUFFIXES: .wxs" << endl;
     makefile << ".PHONY: clean" << endl;
 #endif

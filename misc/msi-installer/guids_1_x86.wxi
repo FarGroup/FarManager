@@ -3,8 +3,8 @@
 <!-- special -->
 <?define Guid.UpgradeCode = "3E402D4C-51A7-4FB3-883E-00D007ABFCAB" ?>
 <?define Guid.InstallDir = "23BDB296-CE2A-4B3E-BACA-FC2A8120B84B" ?>
-<?define Guid.AppPaths = "31B040AD-2F8A-4208-86F4-E4E5016B2F3B" ?>
-<?define Guid.FarHere = "4167131D-012A-47B1-9D05-56634C3A0305" ?>
+<?define Guid.AppPaths = "25084435-FEEC-4ED4-9238-5B82F62F69B3" ?>
+<?define Guid.FarHere = "9122803B-1CA8-4F67-B777-4AFB51ED2BD7" ?>
 <?define Guid.FExceptReg = "DACC93EB-6966-4C63-B2A4-074F5ADDE6EF" ?>
 <?define Guid.FStd_trap.log = "B872F050-A22F-4528-81E2-897EC02F7669" ?>
 <?define Guid.ClearPluginsCache = "76C0BC24-9F4D-42FA-AC8F-3FA9471DBF49" ?>

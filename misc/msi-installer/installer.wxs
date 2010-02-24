@@ -17,7 +17,7 @@
     <Property Id="ARPHELPLINK" Value="http://forum.farmanager.com/" />
     <Property Id="ARPURLINFOABOUT" Value="http://farmanager.com/" />
     <Property Id="ARPURLUPDATEINFO" Value="http://farmanager.com/download.php" />
-    <Media Id="1" Cabinet="far.cab" EmbedCab="yes" />
+    <Media Id="1" Cabinet="far_$(var.Branch)_$(var.Platform).cab" EmbedCab="yes" />
 <?if $(var.Branch) = 2 ?>
     <Condition Message="!(loc.LaunchCondition)"><![CDATA[NOT Version9X AND VersionNT >= 500]]></Condition>
 <?endif?>
@@ -33,22 +33,27 @@
     <CustomAction Id="SetALLUSERS" Property="ALLUSERS" Value="" Execute="firstSequence" />
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="$(var.ProgramFiles)">
-        <Directory Id="INSTALLDIR" Name="$(var.DefInstallDir)">
+        <Directory Id="INSTALLDIR" Name="$(var.DefMachineInstallDir)">
 <?include files.wxi ?>
           <Component Id="InstallDir" Guid="$(var.Guid.InstallDir)" Win64="$(var.Win64)">
             <RegistryValue Root="HKMU" Key="Software\$(var.RegKey)" Name="InstallDir" Value="[INSTALLDIR]" Type="string" KeyPath="yes" />
           </Component>
+<?if $(var.Platform) = x64 ?>
+          <Component Id="InstallDir_x64" Guid="$(var.Guid.InstallDir_x64)" Win64="$(var.Win64)">
+            <RegistryValue Root="HKMU" Key="Software\$(var.RegKey)" Name="InstallDir_x64" Value="[INSTALLDIR]" Type="string" KeyPath="yes" />
+          </Component>
+<?endif?>
           <Component Id="AppPaths" Guid="$(var.Guid.AppPaths)" Win64="$(var.Win64)">
-            <RegistryKey Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\App Paths\Far.exe">
+            <RegistryKey Root="HKMU" Key="Software\Microsoft\Windows\CurrentVersion\App Paths\Far.exe">
               <RegistryValue Value="[#Far.exe]" Type="string" KeyPath="yes" />
               <RegistryValue Name="Path" Value="[INSTALLDIR]" Type="string" />
             </RegistryKey>
           </Component>
           <Component Id="FarHere" Guid="$(var.Guid.FarHere)" Win64="$(var.Win64)">
-            <RegistryValue Root="HKCR" Key="Directory\shell\FarHere" Value="Far Here" Type="string" KeyPath="yes" />
-            <RegistryValue Root="HKCR" Key="Directory\shell\FarHere\command" Value="&quot;[#Far.exe]&quot; &quot;%1&quot;" Type="string" />
-            <RegistryValue Root="HKCR" Key="Drive\shell\FarHere" Value="Far Here" Type="string" />
-            <RegistryValue Root="HKCR" Key="Drive\shell\FarHere\command" Value="&quot;[#Far.exe]&quot; &quot;%1&quot;" Type="string" />
+            <RegistryValue Root="HKCR" Key="Directory\shell\$(var.Product)" Value="$(var.Product) Here" Type="string" KeyPath="yes" />
+            <RegistryValue Root="HKCR" Key="Directory\shell\$(var.Product)\command" Value="&quot;[#Far.exe]&quot; &quot;%1&quot;" Type="string" />
+            <RegistryValue Root="HKCR" Key="Drive\shell\$(var.Product)" Value="$(var.Product) Here" Type="string" />
+            <RegistryValue Root="HKCR" Key="Drive\shell\$(var.Product)\command" Value="&quot;[#Far.exe]&quot; &quot;%1&quot;" Type="string" />
           </Component>
 <?if $(var.Platform) = x86 ?>
           <Component Id="FExceptReg" Guid="$(var.Guid.FExceptReg)" Win64="$(var.Win64)">
