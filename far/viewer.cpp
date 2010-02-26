@@ -309,7 +309,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 	{
 		__int64 NewLeftPos,NewFilePos;
 		string strCacheName=strPluginData.IsEmpty()?strFileName:strPluginData+PointToName(strFileName);
-		memset(&BMSavePos,0xff,sizeof(BMSavePos)); //??!!??
+		memset(&BMSavePos,0xff,sizeof(BMSavePos)); //заполним с -1
 		PosCache poscache={0};
 
 		if (Opt.ViOpt.SaveViewerShortPos)
@@ -1156,7 +1156,7 @@ int Viewer::ProcessKey(int Key)
 	{
 		int Pos=Key-KEY_CTRL0;
 
-		if (BMSavePos.SavePosAddr[Pos]!=-1)
+		if (BMSavePos.SavePosAddr[Pos]!=POS_NONE)
 		{
 			FilePos=BMSavePos.SavePosAddr[Pos];
 			LeftPos=BMSavePos.SavePosLeft[Pos];
