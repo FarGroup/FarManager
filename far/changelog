@@ -1,3 +1,7 @@
+drkns 27.02.2010 00:07:33 +0200 - build 1422
+
+1. Не работала опция "Lock editing of read-only files".
+
 t-rex 26.02.2010 20:36:01 +0200 - build 1421
 
 1. Не надо вызывать apiGetVolumeNameForVolumeMountPoint() для репарс поинтов которые не папки (видимо Mantis#1288).

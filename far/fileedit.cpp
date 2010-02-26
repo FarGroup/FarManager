@@ -1493,6 +1493,12 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	m_editor->FreeAllocatedData(false);
 	bool bCached = LoadFromCache(&cp);
 
+	DWORD FileAttributes=apiGetFileAttributes(Name);
+	if((m_editor->EdOpt.ReadOnlyLock&1) && FileAttributes != INVALID_FILE_ATTRIBUTES && (FileAttributes & (FILE_ATTRIBUTE_READONLY|((m_editor->EdOpt.ReadOnlyLock&0x60)>>4))))
+	{
+		m_editor->Flags.Swap(FEDITOR_LOCKMODE);
+	}
+
 	// Проверяем поддерживается или нет загруженная кодовая страница
 	if (bCached && cp.CodePage && !IsCodePageSupported(cp.CodePage))
 		cp.CodePage = 0;
