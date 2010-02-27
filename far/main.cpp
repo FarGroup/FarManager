@@ -315,6 +315,13 @@ int MainProcessSEH(string& strEditName,string& strViewName,string& DestName1,str
 int _cdecl wmain(int Argc, wchar_t *Argv[])
 {
 	ifn.Load();
+
+	if (ifn.pfnHeapSetInformation) {
+		// enable low fragmentation heap
+		ULONG HeapFragValue = 2;
+		ifn.pfnHeapSetInformation(GetProcessHeap(), HeapCompatibilityInformation, &HeapFragValue, sizeof(HeapFragValue));
+	}
+
 	InitCurrentDirectory();
 	_OT(SysLog(L"[[[[[[[[New Session of FAR]]]]]]]]]"));
 	string strEditName;

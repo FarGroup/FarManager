@@ -119,6 +119,7 @@ void ImportedFunctions::Load()
 		pfnGetFinalPathNameByHandle = (GETFINALPATHNAMEBYHANDLE)GetProcAddress(hKernel, "GetFinalPathNameByHandleW");
 		pfnGetVolumePathNamesForVolumeName = (GETVOLUMEPATHNAMESFORVOLUMENAME)GetProcAddress(hKernel, "GetVolumePathNamesForVolumeNameW");
 		pfnGetPhysicallyInstalledSystemMemory = (GETPHYSICALLYINSTALLEDSYSTEMMEMORY)GetProcAddress(hKernel, "GetPhysicallyInstalledSystemMemory");
+		pfnHeapSetInformation = (HEAPSETINFORMATION)GetProcAddress(hKernel, "HeapSetInformation");
 	}
 
 	if (hNtdll)

@@ -199,6 +199,13 @@ typedef BOOL (WINAPI *GETVOLUMEPATHNAMESFORVOLUMENAME)(
     PDWORD lpcchReturnLength
 );
 
+typedef BOOL (WINAPI *HEAPSETINFORMATION)(
+    HANDLE HeapHandle,
+    HEAP_INFORMATION_CLASS HeapInformationClass,
+    PVOID HeapInformation,
+    SIZE_T HeapInformationLength
+);
+
 struct ImportedFunctions
 {
 
@@ -238,6 +245,8 @@ struct ImportedFunctions
 	NTQUERYSYMBOLICLINKOBJECT pfnNtQuerySymbolicLinkObject;
 	NTCLOSE pfnNtClose;
 	GETVOLUMEPATHNAMESFORVOLUMENAME pfnGetVolumePathNamesForVolumeName;
+
+	HEAPSETINFORMATION pfnHeapSetInformation;
 
 	void Load();
 };

@@ -1,3 +1,8 @@
+chupakabra 27.02.2010 07:51:00 +0200 - build 1423
+
+1. Mantis#0000840: включаем Low-fragmentation Heap.
+   http://msdn.microsoft.com/en-us/library/aa366750%28VS.85%29.aspx
+
 drkns 27.02.2010 00:07:33 +0200 - build 1422
 
 1. Не работала опция "Lock editing of read-only files".
