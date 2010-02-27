@@ -1,3 +1,7 @@
+drkns 27.02.2010 19:16:33 +0200 - build 1424
+
+1. Собираем с /largeaddressaware.
+
 chupakabra 27.02.2010 07:51:00 +0200 - build 1423
 
 1. Mantis#0000840: включаем Low-fragmentation Heap.
