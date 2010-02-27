@@ -1416,7 +1416,8 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 				SHELLEXECUTEINFOW seInfo={sizeof(seInfo)};
 				seInfo.nShow = SW_SHOW;
 				seInfo.fMask = SEE_MASK_INVOKEIDLIST;
-				string strFullName(NTPath(strSelName).Str);
+				// "\\?\c:\" fails on old windows
+				string strFullName(IsLocalRootPath(strSelName)?strSelName:NTPath(strSelName).Str);
 				seInfo.lpFile = strFullName;
 				seInfo.lpVerb = L"properties";
 				string strCurDir;
