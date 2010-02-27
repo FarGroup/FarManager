@@ -622,15 +622,19 @@ bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd,enumFileInFilterType *foundTyp
     }
   }
 
-  if (bFolder)
+  //авто-фильтр папки
   {
     Flags = FoldersFilter.GetFlags(FFFT);
 
     if (Flags && (!bFound || (Flags&FFF_STRONG)))
     {
-      bAnyIncludeFound = bAnyIncludeFound || (Flags&FFF_INCLUDE);
+      if (Flags&FFF_INCLUDE)
+      {
+        bAnyIncludeFound = true;
+        bAnyFolderIncludeFound = true;
+      }
 
-      if (FoldersFilter.FileInFilter(fd, CurrentTime))
+      if (bFolder && FoldersFilter.FileInFilter(fd, CurrentTime))
       {
         bFound = true;
         if (Flags&FFF_INCLUDE)
@@ -642,30 +646,31 @@ bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd,enumFileInFilterType *foundTyp
       }
     }
   }
-  else //авто-фильтры никогда не могут быть для папок
+
+  //авто-фильтры
+  for (unsigned int i=0; i<TempFilterData.getCount(); i++)
   {
-    for (unsigned int i=0; i<TempFilterData.getCount(); i++)
+    CurFilterData = TempFilterData.getItem(i);
+    Flags = CurFilterData->GetFlags(FFFT);
+
+    if (Flags && (!bFound || (Flags&FFF_STRONG)))
     {
-      CurFilterData = TempFilterData.getItem(i);
-      Flags = CurFilterData->GetFlags(FFFT);
+      bAnyIncludeFound = bAnyIncludeFound || (Flags&FFF_INCLUDE);
 
-      if (Flags)
+      if (bFolder) //авто-фильтры никогда не могут быть для папок
+        continue;
+
+      if (CurFilterData->FileInFilter(fd, CurrentTime))
       {
-        if (bFound && !(Flags&FFF_STRONG))
-          continue;
+        bFound = true;
 
-        bAnyIncludeFound = bAnyIncludeFound || (Flags&FFF_INCLUDE);
+        if (Flags&FFF_INCLUDE)
+          bInc = true;
+        else
+          bInc = false;
 
-        if (CurFilterData->FileInFilter(fd, CurrentTime))
-        {
-          bFound = true;
-          if (Flags&FFF_INCLUDE)
-            bInc = true;
-          else
-            bInc = false;
-          if (Flags&FFF_STRONG)
-            goto final;
-        }
+        if (Flags&FFF_STRONG)
+          goto final;
       }
     }
   }
