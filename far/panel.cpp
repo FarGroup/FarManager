@@ -75,6 +75,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "constitle.hpp"
 #include "FarDlgBuilder.hpp"
+#include "setattr.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;
@@ -790,16 +791,9 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				{
 					if (item && !item->bIsPlugin)
 					{
-						wchar_t DosDeviceName[]={item->cDrive,L':',L'\\',L'\0'};
-						SHELLEXECUTEINFOW seInfo={sizeof(seInfo)};
-						seInfo.nShow = SW_SHOW;
-						seInfo.fMask = SEE_MASK_INVOKEIDLIST;
-						seInfo.lpFile = DosDeviceName;
-						seInfo.lpVerb = L"properties";
-						string strCurDir;
-						apiGetCurrentDirectory(strCurDir);
-						seInfo.lpDirectory=strCurDir;
-						ShellExecuteExW(&seInfo);
+						wchar_t DeviceName[]={item->cDrive,L':',L'\\',L'\0'};
+						ShellSetFileAttributes(NULL,DeviceName);
+						ChDisk.Redraw();
 					}
 
 					break;

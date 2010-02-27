@@ -2747,7 +2747,7 @@ network drive or open a new ~plugin~@Plugins@ panel.
 the item with the plugin name to create a new plugin panel. If the panel type
 is not a ~file panel~@FilePanel@, it will be changed to the file panel.
 
-    #Ctrl-A#, #F4# hotkeys invoke the Windows drive properties dialog.
+    #Ctrl-A#, #F4# hotkeys invoke the ~file attributes~@FileAttrDlg@.
 
     #Del# key can be used:
 
@@ -3096,7 +3096,7 @@ folders, all checkboxes will always be 3-state.
 corresponding checkboxes was changed from the initial state.
 
     The #Compressed#, #Encrypted#, #Not indexed#, #Sparse#, #Temporary#,
-#Offline# and #Virtual# attributes are available only on NTFS drives. The
+#Offline#, #Reparse point# and #Virtual# attributes are available only on NTFS drives. The
 #Virtual# attribute is not used in Windows 2000/XP/2003. The #Compressed#
 and #Encrypted# attributes are mutually exclusive, that is, you can set only
 one of them. You cannot clear the #Sparse# attribute in Windows 2000/XP/2003.
@@ -3127,6 +3127,11 @@ unchanged.
 
     The #Original# button fills the file time fields with their original
 values. Available only when the dialog is invoked for a single file object.
+
+
+    The #System properties# button invoke the system properties dialog for
+selected objects.
+
 
 
 @FolderShortcuts

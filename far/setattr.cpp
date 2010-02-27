@@ -54,6 +54,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "lasterror.hpp"
+#include "network.hpp"
+#include "fileowner.hpp"
 
 enum SETATTRDLG
 {
@@ -64,6 +66,9 @@ enum SETATTRDLG
 	SA_EDIT_SYMLINK,
 	SA_COMBO_HARDLINK,
 	SA_SEPARATOR1,
+	SA_TEXT_OWNER,
+	SA_EDIT_OWNER,
+	SA_SEPARATOR2,
 	SA_ATTR_FIRST,
 	SA_CHECKBOX_RO=SA_ATTR_FIRST,
 	SA_CHECKBOX_ARCHIVE,
@@ -75,10 +80,9 @@ enum SETATTRDLG
 	SA_CHECKBOX_SPARSE,
 	SA_CHECKBOX_TEMP,
 	SA_CHECKBOX_OFFLINE,
+	SA_CHECKBOX_REPARSEPOINT,
 	SA_CHECKBOX_VIRTUAL,
 	SA_ATTR_LAST=SA_CHECKBOX_VIRTUAL,
-	SA_SEPARATOR2,
-	SA_CHECKBOX_SUBFOLDERS,
 	SA_SEPARATOR3,
 	SA_TEXT_TITLEDATE,
 	SA_TEXT_MODIFICATION,
@@ -94,7 +98,10 @@ enum SETATTRDLG
 	SA_BUTTON_CURRENT,
 	SA_BUTTON_BLANK,
 	SA_SEPARATOR4,
+	SA_CHECKBOX_SUBFOLDERS,
+	SA_SEPARATOR5,
 	SA_BUTTON_SET,
+	SA_BUTTON_SYSTEMDLG,
 	SA_BUTTON_CANCEL,
 };
 
@@ -534,32 +541,34 @@ void PR_ShellSetFileAttributesMsg()
 	ShellSetFileAttributesMsg(reinterpret_cast<const wchar_t*>(preRedrawItem.Param.Param1));
 }
 
-bool ShellSetFileAttributes(Panel *SrcPanel)
+bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-	short DlgX=70,DlgY=23;
+	short DlgX=70,DlgY=25;
 	DialogDataEx AttrDlgData[]=
 	{
 		DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,0,0,0,MSG(MSetAttrTitle),
 		DI_TEXT,-1,2,0,2,0,0,0,0,MSG(MSetAttrFor),
 		DI_TEXT,-1,3,0,3,0,0,DIF_SHOWAMPERSAND,0,L"",
-		DI_TEXT,5,3,14,3,0,0,DIF_HIDDEN,0,L"",
-		DI_EDIT,15,3,DlgX-6,3,0,0,DIF_HIDDEN|DIF_EDITPATH,0,L"",
+		DI_TEXT,5,3,17,3,0,0,DIF_HIDDEN,0,L"",
+		DI_EDIT,18,3,DlgX-6,3,0,0,DIF_HIDDEN|DIF_EDITPATH,0,L"",
 		DI_COMBOBOX,5,3,DlgX-6,3,0,0,DIF_SHOWAMPERSAND|DIF_DROPDOWNLIST|DIF_LISTWRAPMODE|DIF_HIDDEN,0,L"",
 		DI_TEXT,3,4,0,4,0,0,DIF_SEPARATOR,0,L"",
-		DI_CHECKBOX,5, 5,0,5,1,0,DIF_3STATE,0,MSG(MSetAttrRO),
-		DI_CHECKBOX,5, 6,0,6,0,0,DIF_3STATE,0,MSG(MSetAttrArchive),
-		DI_CHECKBOX,5, 7,0,7,0,0,DIF_3STATE,0,MSG(MSetAttrHidden),
-		DI_CHECKBOX,5, 8,0,8,0,0,DIF_3STATE,0,MSG(MSetAttrSystem),
-		DI_CHECKBOX,5, 9,0,9,0,0,DIF_3STATE,0,MSG(MSetAttrCompressed),
-		DI_CHECKBOX,5,10,0,10,0,0,DIF_3STATE,0,MSG(MSetAttrEncrypted),
-		DI_CHECKBOX,DlgX/2,5,0,5,0,0,DIF_3STATE,0,MSG(MSetAttrNotIndexed),
-		DI_CHECKBOX,DlgX/2,6,0,6,0,0,DIF_3STATE,0,MSG(MSetAttrSparse),
-		DI_CHECKBOX,DlgX/2,7,0,7,0,0,DIF_3STATE,0,MSG(MSetAttrTemp),
-		DI_CHECKBOX,DlgX/2,8,0,8,0,0,DIF_3STATE,0,MSG(MSetAttrOffline),
-		DI_CHECKBOX,DlgX/2,9,0,9,0,0,DIF_3STATE|DIF_DISABLE,0,MSG(MSetAttrVirtual),
-		DI_TEXT,3,11,0,11,0,0,DIF_SEPARATOR,0,L"",
-		DI_CHECKBOX,5,12,0,12,0,0,DIF_DISABLE,0,MSG(MSetAttrSubfolders),
+		DI_TEXT,5,5,17,5,0,0,0,0,MSG(MSetAttrOwner),
+		DI_EDIT,18,5,DlgX-6,5,0,0,DIF_READONLY,0,L"",
+		DI_TEXT,3,6,0,6,0,0,DIF_SEPARATOR,0,L"",
+		DI_CHECKBOX,5, 7,0,7,1,0,DIF_3STATE,0,MSG(MSetAttrRO),
+		DI_CHECKBOX,5, 8,0,8,0,0,DIF_3STATE,0,MSG(MSetAttrArchive),
+		DI_CHECKBOX,5, 9,0,9,0,0,DIF_3STATE,0,MSG(MSetAttrHidden),
+		DI_CHECKBOX,5,10,0,10,0,0,DIF_3STATE,0,MSG(MSetAttrSystem),
+		DI_CHECKBOX,5,11,0,11,0,0,DIF_3STATE,0,MSG(MSetAttrCompressed),
+		DI_CHECKBOX,5,12,0,12,0,0,DIF_3STATE,0,MSG(MSetAttrEncrypted),
+		DI_CHECKBOX,DlgX/2,7,0,7,0,0,DIF_3STATE,0,MSG(MSetAttrNotIndexed),
+		DI_CHECKBOX,DlgX/2,8,0,8,0,0,DIF_3STATE,0,MSG(MSetAttrSparse),
+		DI_CHECKBOX,DlgX/2,9,0,9,0,0,DIF_3STATE,0,MSG(MSetAttrTemp),
+		DI_CHECKBOX,DlgX/2,10,0,10,0,0,DIF_3STATE,0,MSG(MSetAttrOffline),
+		DI_CHECKBOX,DlgX/2,11,0,11,0,0,DIF_3STATE|DIF_DISABLE,0,MSG(MSetAttrReparsePoint),
+		DI_CHECKBOX,DlgX/2,12,0,12,0,0,DIF_3STATE|DIF_DISABLE,0,MSG(MSetAttrVirtual),
 		DI_TEXT,3,13,0,13,0,0,DIF_SEPARATOR,0,L"",
 		DI_TEXT,DlgX-28,14,0,14,0,0,0,0,L"",
 		DI_TEXT,    5,15,0,15,0,0,0,0,MSG(MSetAttrModification),
@@ -574,20 +583,28 @@ bool ShellSetFileAttributes(Panel *SrcPanel)
 		DI_BUTTON,0,18,0,18,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,MSG(MSetAttrOriginal),
 		DI_BUTTON,0,18,0,18,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,MSG(MSetAttrCurrent),
 		DI_BUTTON,0,18,0,18,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,MSG(MSetAttrBlank),
+		DI_TEXT,3,19,0,19,0,0,DIF_SEPARATOR,0,L"",
+		DI_CHECKBOX,5,20,0,20,0,0,DIF_DISABLE,0,MSG(MSetAttrSubfolders),
 		DI_TEXT,3,DlgY-4,0,DlgY-4,0,0,DIF_SEPARATOR,0,L"",
 		DI_BUTTON,0,DlgY-3,0,DlgY-3,0,0,DIF_CENTERGROUP,1,MSG(MSetAttrSet),
+		DI_BUTTON,0,DlgY-3,0,DlgY-3,0,0,DIF_CENTERGROUP|DIF_DISABLE,0,MSG(MSetAttrSystemDialog),
 		DI_BUTTON,0,DlgY-3,0,DlgY-3,0,0,DIF_CENTERGROUP,0,MSG(MCancel),
 	};
 	MakeDialogItemsEx(AttrDlgData,AttrDlg);
 	SetAttrDlgParam DlgParam={0};
-	int SelCount=SrcPanel->GetSelCount();
+	int SelCount=SrcPanel?SrcPanel->GetSelCount():1;
 
 	if (!SelCount)
 	{
 		return false;
 	}
 
-	if (SrcPanel->GetMode()==PLUGIN_PANEL)
+	if(SelCount==1)
+	{
+		AttrDlg[SA_BUTTON_SYSTEMDLG].Flags&=~DIF_DISABLE;
+	}
+
+	if (SrcPanel && SrcPanel->GetMode()==PLUGIN_PANEL)
 	{
 		OpenPluginInfo Info;
 		HANDLE hPlugin=SrcPanel->GetPluginHandle();
@@ -602,6 +619,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel)
 		if (!(Info.Flags & OPIF_REALNAMES))
 		{
 			AttrDlg[SA_BUTTON_SET].Flags|=DIF_DISABLE;
+			AttrDlg[SA_BUTTON_SYSTEMDLG].Flags|=DIF_DISABLE;
 			DlgParam.Plugin=true;
 		}
 	}
@@ -635,11 +653,20 @@ bool ShellSetFileAttributes(Panel *SrcPanel)
 	}
 
 	{
-		DWORD FileAttr;
-		SrcPanel->GetSelName(NULL,FileAttr);
+		DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
 		string strSelName;
 		FAR_FIND_DATA_EX FindData;
-		SrcPanel->GetSelName(&strSelName,FileAttr,NULL,&FindData);
+		if(SrcPanel)
+		{
+			SrcPanel->GetSelName(NULL,FileAttr);
+			SrcPanel->GetSelName(&strSelName,FileAttr,NULL,&FindData);
+		}
+		else
+		{
+			strSelName=Object;
+			apiGetFindDataEx(Object,&FindData);
+			FileAttr=FindData.dwFileAttributes;
+		}
 
 		if (SelCount==0 || (SelCount==1 && TestParentFolderName(strSelName)))
 			return false;
@@ -689,6 +716,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel)
 			{SA_CHECKBOX_TEMP,FILE_ATTRIBUTE_TEMPORARY},
 			{SA_CHECKBOX_OFFLINE,FILE_ATTRIBUTE_OFFLINE},
 			{SA_CHECKBOX_OFFLINE,FILE_ATTRIBUTE_OFFLINE},
+			{SA_CHECKBOX_REPARSEPOINT,FILE_ATTRIBUTE_REPARSE_POINT},
 			{SA_CHECKBOX_VIRTUAL,FILE_ATTRIBUTE_VIRTUAL},
 		};
 
@@ -859,6 +887,15 @@ bool ShellSetFileAttributes(Panel *SrcPanel)
 					ConvertDate(*TimeValues[i],AttrDlg[Dates[i]].strData,AttrDlg[Times[i]].strData,12,FALSE,FALSE,TRUE,TRUE);
 				}
 			}
+
+			string strComputerName;
+			if(SrcPanel)
+			{
+				string strCurDir;
+				SrcPanel->GetCurDir(strCurDir);
+				CurPath2ComputerName(strCurDir, strComputerName);
+			}
+			GetFileOwner(strComputerName,strSelName,AttrDlg[SA_EDIT_OWNER].strData);
 		}
 		else
 		{
@@ -883,28 +920,72 @@ bool ShellSetFileAttributes(Panel *SrcPanel)
 
 			// проверка - есть ли среди выделенных - каталоги?
 			// так же проверка на атрибуты
-			SrcPanel->GetSelName(NULL,FileAttr);
+			if(SrcPanel)
+			{
+				SrcPanel->GetSelName(NULL,FileAttr);
+			}
 			FolderPresent=false;
 
-			while (SrcPanel->GetSelName(&strSelName,FileAttr,NULL,&FindData))
+			if(SrcPanel)
 			{
-				if (!FolderPresent&&(FileAttr&FILE_ATTRIBUTE_DIRECTORY))
+				string strComputerName;
+				string strCurDir;
+				SrcPanel->GetCurDir(strCurDir);
+				CurPath2ComputerName(strCurDir, strComputerName);
+
+				bool CheckOwner=true;
+				while (SrcPanel->GetSelName(&strSelName,FileAttr,NULL,&FindData))
+				{
+					if (!FolderPresent&&(FileAttr&FILE_ATTRIBUTE_DIRECTORY))
+					{
+						FolderPresent=true;
+						AttrDlg[SA_CHECKBOX_SUBFOLDERS].Flags&=~DIF_DISABLE;
+					}
+
+					for (size_t i=0; i<countof(AP); i++)
+					{
+						if (FileAttr&AP[i].Attribute)
+						{
+							AttrDlg[AP[i].Item].Selected++;
+						}
+					}
+					if(CheckOwner)
+					{
+						string strCurOwner;
+						GetFileOwner(strComputerName,strSelName,strCurOwner);
+						if(AttrDlg[SA_EDIT_OWNER].strData.IsEmpty())
+						{
+							AttrDlg[SA_EDIT_OWNER].strData=strCurOwner;
+						}
+						else if(!AttrDlg[SA_EDIT_OWNER].strData.Equal(0,strCurOwner))
+						{
+							AttrDlg[SA_EDIT_OWNER].strData=MSG(MSetAttrOwnerMultiple);
+							CheckOwner=false;
+						}
+					}
+				}
+			}
+			else
+			{
+				// BUGBUG, copy-paste
+				if (!FolderPresent&&(FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
 				{
 					FolderPresent=true;
 					AttrDlg[SA_CHECKBOX_SUBFOLDERS].Flags&=~DIF_DISABLE;
 				}
-
 				for (size_t i=0; i<countof(AP); i++)
 				{
-					if (FileAttr&AP[i].Attribute)
+					if (FindData.dwFileAttributes&AP[i].Attribute)
 					{
 						AttrDlg[AP[i].Item].Selected++;
 					}
 				}
 			}
-
-			SrcPanel->GetSelName(NULL,FileAttr);
-			SrcPanel->GetSelName(&strSelName,FileAttr,NULL,&FindData);
+			if(SrcPanel)
+			{
+				SrcPanel->GetSelName(NULL,FileAttr);
+				SrcPanel->GetSelName(&strSelName,FileAttr,NULL,&FindData);
+			}
 
 			// выставим "неопределенку" или то, что нужно
 			for (size_t i=SA_ATTR_FIRST; i<=SA_ATTR_LAST; i++)
@@ -951,320 +1032,197 @@ bool ShellSetFileAttributes(Panel *SrcPanel)
 		DlgParam.OSubfoldersState=static_cast<FARCHECKEDSTATE>(AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected);
 		DlgParam.OCompressState=static_cast<FARCHECKEDSTATE>(AttrDlg[SA_CHECKBOX_COMPRESSED].Selected);
 		DlgParam.OEncryptState=static_cast<FARCHECKEDSTATE>(AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected);
+
+		Dialog Dlg(AttrDlg,countof(AttrDlgData),SetAttrDlgProc,(LONG_PTR)&DlgParam);
+		Dlg.SetHelp(L"FileAttrDlg");                 //  ^ - это одиночный диалог!
+
+		if (LinkPresent)
 		{
-			Dialog Dlg(AttrDlg,countof(AttrDlgData),SetAttrDlgProc,(LONG_PTR)&DlgParam);
-			Dlg.SetHelp(L"FileAttrDlg");                 //  ^ - это одиночный диалог!
-
-			if (LinkPresent)
-			{
-				DlgY++;
-			}
-
-			Dlg.SetPosition(-1,-1,DlgX,DlgY);
-			Dlg.Process();
-
-			if (NameList.Items)
-				delete[] NameList.Items;
-
-			if (strLinks)
-				delete[] strLinks;
-
-			if (Dlg.GetExitCode()!=SA_BUTTON_SET)
-				return false;
+			DlgY++;
 		}
 
-		//reparse point editor
-		if (StrCmpI(AttrDlg[SA_EDIT_SYMLINK].strData,strLinkName))
+		Dlg.SetPosition(-1,-1,DlgX,DlgY);
+		Dlg.Process();
+
+		if (NameList.Items)
+			delete[] NameList.Items;
+
+		if (strLinks)
+			delete[] strLinks;
+
+		int ExitCode=SA_BUTTON_CANCEL;
+
+		switch(Dlg.GetExitCode())
 		{
-			if(!ModifyReparsePoint(strSelName,AttrDlg[SA_EDIT_SYMLINK].strData))
+		case SA_BUTTON_SET:
 			{
-				Message(FMSG_WARNING|FMSG_ERRORTYPE,1,MSG(MError),MSG(MCopyCannotCreateLink),strSelName,MSG(MHOk));
-			}
-		}
-
-		const size_t Times[]={SA_EDIT_MTIME,SA_EDIT_CTIME,SA_EDIT_ATIME};
-
-		for (size_t i=0; i<countof(Times); i++)
-		{
-			LPWSTR TimePtr=AttrDlg[Times[i]].strData.GetBuffer();
-			TimePtr[8]=GetTimeSeparator();
-			AttrDlg[Times[i]].strData.ReleaseBuffer(AttrDlg[Times[i]].strData.GetLength());
-		}
-
-		TPreRedrawFuncGuard preRedrawFuncGuard(PR_ShellSetFileAttributesMsg);
-		ShellSetFileAttributesMsg(SelCount==1?strSelName.CPtr():NULL);
-		int SkipMode=-1;
-
-		if (SelCount==1 && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-		{
-			DWORD NewAttr=FileAttr&FILE_ATTRIBUTE_DIRECTORY;
-
-			for (size_t i=0; i<countof(AP); i++)
-			{
-				if (AttrDlg[AP[i].Item].Selected)
+				//reparse point editor
+				if (StrCmpI(AttrDlg[SA_EDIT_SYMLINK].strData,strLinkName))
 				{
-					NewAttr|=AP[i].Attribute;
-				}
-			}
-
-			FILETIME LastWriteTime,CreationTime,LastAccessTime;
-			int SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strSelName,LastWriteTime,AttrDlg[SA_EDIT_MDATE].strData,AttrDlg[SA_EDIT_MTIME].strData);
-			int SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strSelName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
-			int SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strSelName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
-			//_SVS(SysLog(L"\n\tSetWriteTime=%d\n\tSetCreationTime=%d\n\tSetLastAccessTime=%d",SetWriteTime,SetCreationTime,SetLastAccessTime));
-			int SetWriteTimeRetCode=SETATTR_RET_OK;
-
-			if (SetWriteTime || SetCreationTime || SetLastAccessTime)
-			{
-				SetWriteTimeRetCode=SkipMode==-1?ESetFileTime(strSelName,SetWriteTime?&LastWriteTime:NULL,SetCreationTime?&CreationTime:NULL,SetLastAccessTime?&LastAccessTime:NULL,FileAttr,SkipMode):SkipMode;
-			}
-
-			//if(NewAttr != (FileAttr & (~FILE_ATTRIBUTE_DIRECTORY))) // нужно ли что-нить менять???
-			if (SetWriteTimeRetCode == SETATTR_RET_OK) // если время удалось выставить...
-			{
-				int Ret=SETATTR_RET_OK;
-
-				if ((NewAttr&FILE_ATTRIBUTE_COMPRESSED) && !(FileAttr&FILE_ATTRIBUTE_COMPRESSED))
-					Ret=ESetFileCompression(strSelName,1,FileAttr,SkipMode);
-				else if (!(NewAttr&FILE_ATTRIBUTE_COMPRESSED) && (FileAttr&FILE_ATTRIBUTE_COMPRESSED))
-					Ret=ESetFileCompression(strSelName,0,FileAttr,SkipMode);
-
-				if ((NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && !(FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
-					Ret=ESetFileEncryption(strSelName,1,FileAttr,SkipMode);
-				else if (!(NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && (FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
-					Ret=ESetFileEncryption(strSelName,0,FileAttr,SkipMode);
-
-				if ((NewAttr&FILE_ATTRIBUTE_SPARSE_FILE) && !(FileAttr&FILE_ATTRIBUTE_SPARSE_FILE))
-				{
-					Ret=ESetFileSparse(strSelName,true,FileAttr,SkipMode);
-				}
-				else if (!(NewAttr&FILE_ATTRIBUTE_SPARSE_FILE) && (FileAttr&FILE_ATTRIBUTE_SPARSE_FILE))
-				{
-					Ret=ESetFileSparse(strSelName,false,FileAttr,SkipMode);
+					// BUGBUG: check errors
+					ModifyReparsePoint(strSelName,AttrDlg[SA_EDIT_SYMLINK].strData);
 				}
 
-				if ((FileAttr&~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED|FILE_ATTRIBUTE_SPARSE_FILE))!=(NewAttr&~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED|FILE_ATTRIBUTE_SPARSE_FILE)))
+				const size_t Times[]={SA_EDIT_MTIME,SA_EDIT_CTIME,SA_EDIT_ATIME};
+
+				for (size_t i=0; i<countof(Times); i++)
 				{
-					Ret=ESetFileAttributes(strSelName,NewAttr&~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED|FILE_ATTRIBUTE_SPARSE_FILE),SkipMode);
+					LPWSTR TimePtr=AttrDlg[Times[i]].strData.GetBuffer();
+					TimePtr[8]=GetTimeSeparator();
+					AttrDlg[Times[i]].strData.ReleaseBuffer(AttrDlg[Times[i]].strData.GetLength());
 				}
 
-				if (Ret==SETATTR_RET_SKIPALL)
-					SkipMode=SETATTR_RET_SKIP;
-			}
-			else if (SetWriteTimeRetCode==SETATTR_RET_SKIPALL)
-				SkipMode=SETATTR_RET_SKIP;
-		}
-		/* Multi *********************************************************** */
-		else
-		{
-			int RetCode=1;
-			ConsoleTitle SetAttrTitle(MSG(MSetAttrTitle));
-			CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->CloseFile();
-			DWORD SetAttr=0,ClearAttr=0;
+				TPreRedrawFuncGuard preRedrawFuncGuard(PR_ShellSetFileAttributesMsg);
+				ShellSetFileAttributesMsg(SelCount==1?strSelName.CPtr():NULL);
+				int SkipMode=-1;
 
-			for (size_t i=0; i<countof(AP); i++)
-			{
-				switch (AttrDlg[AP[i].Item].Selected)
+				if (SelCount==1 && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 				{
-					case BSTATE_CHECKED:
-						SetAttr|=AP[i].Attribute;
-						break;
-					case BSTATE_UNCHECKED:
-						ClearAttr|=AP[i].Attribute;
-						break;
-				}
-			}
+					DWORD NewAttr=FileAttr&FILE_ATTRIBUTE_DIRECTORY;
 
-			if (AttrDlg[SA_CHECKBOX_COMPRESSED].Selected==BSTATE_CHECKED)
-			{
-				ClearAttr|=FILE_ATTRIBUTE_ENCRYPTED;
-			}
-
-			if (AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected==BSTATE_CHECKED)
-			{
-				ClearAttr|=FILE_ATTRIBUTE_COMPRESSED;
-			}
-
-			SrcPanel->GetSelName(NULL,FileAttr);
-			TaskBar TB;
-			bool Cancel=false;
-			DWORD LastTime=GetTickCount();
-
-			while (SrcPanel->GetSelName(&strSelName,FileAttr,NULL,&FindData) && !Cancel)
-			{
-//_SVS(SysLog(L"SelName='%s'\n\tFileAttr =0x%08X\n\tSetAttr  =0x%08X\n\tClearAttr=0x%08X\n\tResult   =0x%08X",
-//    SelName,FileAttr,SetAttr,ClearAttr,((FileAttr|SetAttr)&(~ClearAttr))));
-				DWORD CurTime=GetTickCount();
-
-				if (CurTime-LastTime>RedrawTimeout)
-				{
-					LastTime=CurTime;
-					ShellSetFileAttributesMsg(strSelName);
-
-					if (CheckForEsc())
-						break;
-				}
-
-				FILETIME LastWriteTime,CreationTime,LastAccessTime;
-				int SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strSelName,LastWriteTime,AttrDlg[SA_EDIT_MDATE].strData,AttrDlg[SA_EDIT_MTIME].strData);
-				int SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strSelName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
-				int SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strSelName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
-				RetCode=SkipMode==-1?ESetFileTime(strSelName,SetWriteTime?&LastWriteTime:NULL,SetCreationTime?&CreationTime:NULL,SetLastAccessTime?&LastAccessTime:NULL,FileAttr,SkipMode):SkipMode;
-
-				if (RetCode == SETATTR_RET_ERROR)
-					break;
-				else if (RetCode == SETATTR_RET_SKIP)
-					continue;
-				else if (RetCode == SETATTR_RET_SKIPALL)
-				{
-					SkipMode=SETATTR_RET_SKIP;
-					continue;
-				}
-
-				if (((FileAttr|SetAttr)&(~ClearAttr)) != FileAttr)
-				{
-					if (AttrDlg[SA_CHECKBOX_COMPRESSED].Selected != BSTATE_3STATE)
+					for (size_t i=0; i<countof(AP); i++)
 					{
-						RetCode=ESetFileCompression(strSelName,AttrDlg[SA_CHECKBOX_COMPRESSED].Selected,FileAttr,SkipMode);
-
-						if (RetCode == SETATTR_RET_ERROR)
-							break;
-						else if (RetCode == SETATTR_RET_SKIP)
-							continue;
-						else if (RetCode == SETATTR_RET_SKIPALL)
+						if (AttrDlg[AP[i].Item].Selected)
 						{
+							NewAttr|=AP[i].Attribute;
+						}
+					}
+
+					FILETIME LastWriteTime,CreationTime,LastAccessTime;
+					int SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strSelName,LastWriteTime,AttrDlg[SA_EDIT_MDATE].strData,AttrDlg[SA_EDIT_MTIME].strData);
+					int SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strSelName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
+					int SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strSelName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
+					//_SVS(SysLog(L"\n\tSetWriteTime=%d\n\tSetCreationTime=%d\n\tSetLastAccessTime=%d",SetWriteTime,SetCreationTime,SetLastAccessTime));
+					int SetWriteTimeRetCode=SETATTR_RET_OK;
+
+					if (SetWriteTime || SetCreationTime || SetLastAccessTime)
+					{
+						SetWriteTimeRetCode=SkipMode==-1?ESetFileTime(strSelName,SetWriteTime?&LastWriteTime:NULL,SetCreationTime?&CreationTime:NULL,SetLastAccessTime?&LastAccessTime:NULL,FileAttr,SkipMode):SkipMode;
+					}
+
+					//if(NewAttr != (FileAttr & (~FILE_ATTRIBUTE_DIRECTORY))) // нужно ли что-нить менять???
+					if (SetWriteTimeRetCode == SETATTR_RET_OK) // если время удалось выставить...
+					{
+						int Ret=SETATTR_RET_OK;
+
+						if ((NewAttr&FILE_ATTRIBUTE_COMPRESSED) && !(FileAttr&FILE_ATTRIBUTE_COMPRESSED))
+							Ret=ESetFileCompression(strSelName,1,FileAttr,SkipMode);
+						else if (!(NewAttr&FILE_ATTRIBUTE_COMPRESSED) && (FileAttr&FILE_ATTRIBUTE_COMPRESSED))
+							Ret=ESetFileCompression(strSelName,0,FileAttr,SkipMode);
+
+						if ((NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && !(FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
+							Ret=ESetFileEncryption(strSelName,1,FileAttr,SkipMode);
+						else if (!(NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && (FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
+							Ret=ESetFileEncryption(strSelName,0,FileAttr,SkipMode);
+
+						if ((NewAttr&FILE_ATTRIBUTE_SPARSE_FILE) && !(FileAttr&FILE_ATTRIBUTE_SPARSE_FILE))
+						{
+							Ret=ESetFileSparse(strSelName,true,FileAttr,SkipMode);
+						}
+						else if (!(NewAttr&FILE_ATTRIBUTE_SPARSE_FILE) && (FileAttr&FILE_ATTRIBUTE_SPARSE_FILE))
+						{
+							Ret=ESetFileSparse(strSelName,false,FileAttr,SkipMode);
+						}
+
+						if ((FileAttr&~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED|FILE_ATTRIBUTE_SPARSE_FILE))!=(NewAttr&~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED|FILE_ATTRIBUTE_SPARSE_FILE)))
+						{
+							Ret=ESetFileAttributes(strSelName,NewAttr&~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED|FILE_ATTRIBUTE_SPARSE_FILE),SkipMode);
+						}
+
+						if (Ret==SETATTR_RET_SKIPALL)
 							SkipMode=SETATTR_RET_SKIP;
-							continue;
-						}
 					}
-
-					if (AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected != BSTATE_3STATE) // +E -C
-					{
-						if (AttrDlg[SA_CHECKBOX_COMPRESSED].Selected != BSTATE_CHECKED)
-						{
-							RetCode=ESetFileEncryption(strSelName,AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected,FileAttr,SkipMode);
-
-							if (RetCode == SETATTR_RET_ERROR)
-								break;
-							else if (RetCode == SETATTR_RET_SKIP)
-								continue;
-							else if (RetCode == SETATTR_RET_SKIPALL)
-							{
-								SkipMode=SETATTR_RET_SKIP;
-								continue;
-							}
-						}
-					}
-
-					if (AttrDlg[SA_CHECKBOX_SPARSE].Selected!=BSTATE_3STATE)
-					{
-						RetCode=ESetFileSparse(strSelName,AttrDlg[SA_CHECKBOX_SPARSE].Selected==BSTATE_CHECKED,FileAttr,SkipMode);
-
-						if (RetCode == SETATTR_RET_ERROR)
-						{
-							break;
-						}
-						else if (RetCode == SETATTR_RET_SKIP)
-						{
-							continue;
-						}
-						else if (RetCode == SETATTR_RET_SKIPALL)
-						{
-							SkipMode=SETATTR_RET_SKIP;
-							continue;
-						}
-					}
-
-					RetCode=ESetFileAttributes(strSelName,((FileAttr|SetAttr)&(~ClearAttr)),SkipMode);
-
-					if (RetCode == SETATTR_RET_ERROR)
-						break;
-					else if (RetCode == SETATTR_RET_SKIP)
-						continue;
-					else if (RetCode == SETATTR_RET_SKIPALL)
-					{
+					else if (SetWriteTimeRetCode==SETATTR_RET_SKIPALL)
 						SkipMode=SETATTR_RET_SKIP;
-						continue;
-					}
 				}
-
-				if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected)
+				/* Multi *********************************************************** */
+				else
 				{
-					ScanTree ScTree(FALSE);
-					ScTree.SetFindPath(strSelName,L"*");
-					DWORD LastTime=GetTickCount();
-					string strFullName;
-
-					while (ScTree.GetNextName(&FindData,strFullName))
+					int RetCode=1;
+					ConsoleTitle SetAttrTitle(MSG(MSetAttrTitle));
+					if(SrcPanel)
 					{
+						CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->CloseFile();
+					}
+					DWORD SetAttr=0,ClearAttr=0;
+
+					for (size_t i=0; i<countof(AP); i++)
+					{
+						switch (AttrDlg[AP[i].Item].Selected)
+						{
+							case BSTATE_CHECKED:
+								SetAttr|=AP[i].Attribute;
+								break;
+							case BSTATE_UNCHECKED:
+								ClearAttr|=AP[i].Attribute;
+								break;
+						}
+					}
+
+					if (AttrDlg[SA_CHECKBOX_COMPRESSED].Selected==BSTATE_CHECKED)
+					{
+						ClearAttr|=FILE_ATTRIBUTE_ENCRYPTED;
+					}
+
+					if (AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected==BSTATE_CHECKED)
+					{
+						ClearAttr|=FILE_ATTRIBUTE_COMPRESSED;
+					}
+
+					if(SrcPanel)
+					{
+						SrcPanel->GetSelName(NULL,FileAttr);
+					}
+					TaskBar TB;
+					bool Cancel=false;
+					DWORD LastTime=GetTickCount();
+
+					bool SingleFileDone=false;
+					while (SrcPanel?SrcPanel->GetSelName(&strSelName,FileAttr,NULL,&FindData):!SingleFileDone && !Cancel)
+					{
+						if(!SrcPanel)
+						{
+							SingleFileDone=true;
+						}
+		//_SVS(SysLog(L"SelName='%s'\n\tFileAttr =0x%08X\n\tSetAttr  =0x%08X\n\tClearAttr=0x%08X\n\tResult   =0x%08X",
+		//    SelName,FileAttr,SetAttr,ClearAttr,((FileAttr|SetAttr)&(~ClearAttr))));
 						DWORD CurTime=GetTickCount();
 
 						if (CurTime-LastTime>RedrawTimeout)
 						{
 							LastTime=CurTime;
-							ShellSetFileAttributesMsg(strFullName);
+							ShellSetFileAttributesMsg(strSelName);
 
 							if (CheckForEsc())
-							{
-								Cancel=true;
 								break;
-							}
 						}
 
-						SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strFullName,LastWriteTime,AttrDlg[SA_EDIT_MDATE].strData,AttrDlg[SA_EDIT_MTIME].strData);
-						SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strFullName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
-						SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strFullName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
+						FILETIME LastWriteTime,CreationTime,LastAccessTime;
+						int SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strSelName,LastWriteTime,AttrDlg[SA_EDIT_MDATE].strData,AttrDlg[SA_EDIT_MTIME].strData);
+						int SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strSelName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
+						int SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strSelName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
+						RetCode=SkipMode==-1?ESetFileTime(strSelName,SetWriteTime?&LastWriteTime:NULL,SetCreationTime?&CreationTime:NULL,SetLastAccessTime?&LastAccessTime:NULL,FileAttr,SkipMode):SkipMode;
 
-						if (!(FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (SetWriteTime || SetCreationTime || SetLastAccessTime))
+						if (RetCode == SETATTR_RET_ERROR)
+							break;
+						else if (RetCode == SETATTR_RET_SKIP)
+							continue;
+						else if (RetCode == SETATTR_RET_SKIPALL)
 						{
-							RetCode=ESetFileTime(strFullName,SetWriteTime?&LastWriteTime:NULL,SetCreationTime?&CreationTime:NULL,SetLastAccessTime?&LastAccessTime:NULL,FindData.dwFileAttributes,SkipMode);
-
-							if (RetCode == SETATTR_RET_ERROR)
-							{
-								Cancel=true;
-								break;
-							}
-							else if (RetCode == SETATTR_RET_SKIP)
-								continue;
-							else if (RetCode == SETATTR_RET_SKIPALL)
-							{
-								SkipMode=SETATTR_RET_SKIP;
-								continue;
-							}
+							SkipMode=SETATTR_RET_SKIP;
+							continue;
 						}
 
-						if (((FindData.dwFileAttributes|SetAttr)&(~ClearAttr)) !=
-						        FindData.dwFileAttributes)
+						if(FileAttr!=INVALID_FILE_ATTRIBUTES)
 						{
-							if (AttrDlg[SA_CHECKBOX_COMPRESSED].Selected!=BSTATE_3STATE)
+							if (((FileAttr|SetAttr)&~ClearAttr) != FileAttr)
 							{
-								RetCode=ESetFileCompression(strFullName,AttrDlg[SA_CHECKBOX_COMPRESSED].Selected,FindData.dwFileAttributes,SkipMode);
-
-								if (RetCode == SETATTR_RET_ERROR)
+								if (AttrDlg[SA_CHECKBOX_COMPRESSED].Selected != BSTATE_3STATE)
 								{
-									Cancel=true;
-									break;
-								}
-								else if (RetCode == SETATTR_RET_SKIP)
-									continue;
-								else if (RetCode == SETATTR_RET_SKIPALL)
-								{
-									SkipMode=SETATTR_RET_SKIP;
-									continue;
-								}
-							}
-
-							if (AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected!=BSTATE_3STATE) // +E -C
-							{
-								if (AttrDlg[SA_CHECKBOX_COMPRESSED].Selected != 1)
-								{
-									RetCode=ESetFileEncryption(strFullName,AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected,FindData.dwFileAttributes,SkipMode);
+									RetCode=ESetFileCompression(strSelName,AttrDlg[SA_CHECKBOX_COMPRESSED].Selected,FileAttr,SkipMode);
 
 									if (RetCode == SETATTR_RET_ERROR)
-									{
-										Cancel=true;
 										break;
-									}
 									else if (RetCode == SETATTR_RET_SKIP)
 										continue;
 									else if (RetCode == SETATTR_RET_SKIPALL)
@@ -1273,21 +1231,50 @@ bool ShellSetFileAttributes(Panel *SrcPanel)
 										continue;
 									}
 								}
-							}
 
-							if (AttrDlg[SA_CHECKBOX_SPARSE].Selected!=BSTATE_3STATE)
-							{
-								RetCode=ESetFileSparse(strFullName,AttrDlg[SA_CHECKBOX_SPARSE].Selected==BSTATE_CHECKED,FindData.dwFileAttributes,SkipMode);
+								if (AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected != BSTATE_3STATE) // +E -C
+								{
+									if (AttrDlg[SA_CHECKBOX_COMPRESSED].Selected != BSTATE_CHECKED)
+									{
+										RetCode=ESetFileEncryption(strSelName,AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected,FileAttr,SkipMode);
+
+										if (RetCode == SETATTR_RET_ERROR)
+											break;
+										else if (RetCode == SETATTR_RET_SKIP)
+											continue;
+										else if (RetCode == SETATTR_RET_SKIPALL)
+										{
+											SkipMode=SETATTR_RET_SKIP;
+											continue;
+										}
+									}
+								}
+
+								if (AttrDlg[SA_CHECKBOX_SPARSE].Selected!=BSTATE_3STATE)
+								{
+									RetCode=ESetFileSparse(strSelName,AttrDlg[SA_CHECKBOX_SPARSE].Selected==BSTATE_CHECKED,FileAttr,SkipMode);
+
+									if (RetCode == SETATTR_RET_ERROR)
+									{
+										break;
+									}
+									else if (RetCode == SETATTR_RET_SKIP)
+									{
+										continue;
+									}
+									else if (RetCode == SETATTR_RET_SKIPALL)
+									{
+										SkipMode=SETATTR_RET_SKIP;
+										continue;
+									}
+								}
+
+								RetCode=ESetFileAttributes(strSelName,((FileAttr|SetAttr)&(~ClearAttr)),SkipMode);
 
 								if (RetCode == SETATTR_RET_ERROR)
-								{
-									Cancel=true;
 									break;
-								}
 								else if (RetCode == SETATTR_RET_SKIP)
-								{
 									continue;
-								}
 								else if (RetCode == SETATTR_RET_SKIPALL)
 								{
 									SkipMode=SETATTR_RET_SKIP;
@@ -1295,31 +1282,161 @@ bool ShellSetFileAttributes(Panel *SrcPanel)
 								}
 							}
 
-							RetCode=ESetFileAttributes(strFullName,(FindData.dwFileAttributes|SetAttr)&(~ClearAttr),SkipMode);
+							if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected)
+							{
+								ScanTree ScTree(FALSE);
+								ScTree.SetFindPath(strSelName,L"*");
+								DWORD LastTime=GetTickCount();
+								string strFullName;
 
-							if (RetCode == SETATTR_RET_ERROR)
-							{
-								Cancel=true;
-								break;
-							}
-							else if (RetCode == SETATTR_RET_SKIP)
-								continue;
-							else if (RetCode == SETATTR_RET_SKIPALL)
-							{
-								SkipMode=SETATTR_RET_SKIP;
-								continue;
+								while (ScTree.GetNextName(&FindData,strFullName))
+								{
+									DWORD CurTime=GetTickCount();
+
+									if (CurTime-LastTime>RedrawTimeout)
+									{
+										LastTime=CurTime;
+										ShellSetFileAttributesMsg(strFullName);
+
+										if (CheckForEsc())
+										{
+											Cancel=true;
+											break;
+										}
+									}
+
+									SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strFullName,LastWriteTime,AttrDlg[SA_EDIT_MDATE].strData,AttrDlg[SA_EDIT_MTIME].strData);
+									SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strFullName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
+									SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strFullName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
+
+									if (!(FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (SetWriteTime || SetCreationTime || SetLastAccessTime))
+									{
+										RetCode=ESetFileTime(strFullName,SetWriteTime?&LastWriteTime:NULL,SetCreationTime?&CreationTime:NULL,SetLastAccessTime?&LastAccessTime:NULL,FindData.dwFileAttributes,SkipMode);
+
+										if (RetCode == SETATTR_RET_ERROR)
+										{
+											Cancel=true;
+											break;
+										}
+										else if (RetCode == SETATTR_RET_SKIP)
+											continue;
+										else if (RetCode == SETATTR_RET_SKIPALL)
+										{
+											SkipMode=SETATTR_RET_SKIP;
+											continue;
+										}
+									}
+
+									if (((FindData.dwFileAttributes|SetAttr)&(~ClearAttr)) !=
+													FindData.dwFileAttributes)
+									{
+										if (AttrDlg[SA_CHECKBOX_COMPRESSED].Selected!=BSTATE_3STATE)
+										{
+											RetCode=ESetFileCompression(strFullName,AttrDlg[SA_CHECKBOX_COMPRESSED].Selected,FindData.dwFileAttributes,SkipMode);
+
+											if (RetCode == SETATTR_RET_ERROR)
+											{
+												Cancel=true;
+												break;
+											}
+											else if (RetCode == SETATTR_RET_SKIP)
+												continue;
+											else if (RetCode == SETATTR_RET_SKIPALL)
+											{
+												SkipMode=SETATTR_RET_SKIP;
+												continue;
+											}
+										}
+
+										if (AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected!=BSTATE_3STATE) // +E -C
+										{
+											if (AttrDlg[SA_CHECKBOX_COMPRESSED].Selected != 1)
+											{
+												RetCode=ESetFileEncryption(strFullName,AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected,FindData.dwFileAttributes,SkipMode);
+
+												if (RetCode == SETATTR_RET_ERROR)
+												{
+													Cancel=true;
+													break;
+												}
+												else if (RetCode == SETATTR_RET_SKIP)
+													continue;
+												else if (RetCode == SETATTR_RET_SKIPALL)
+												{
+													SkipMode=SETATTR_RET_SKIP;
+													continue;
+												}
+											}
+										}
+
+										if (AttrDlg[SA_CHECKBOX_SPARSE].Selected!=BSTATE_3STATE)
+										{
+											RetCode=ESetFileSparse(strFullName,AttrDlg[SA_CHECKBOX_SPARSE].Selected==BSTATE_CHECKED,FindData.dwFileAttributes,SkipMode);
+
+											if (RetCode == SETATTR_RET_ERROR)
+											{
+												Cancel=true;
+												break;
+											}
+											else if (RetCode == SETATTR_RET_SKIP)
+											{
+												continue;
+											}
+											else if (RetCode == SETATTR_RET_SKIPALL)
+											{
+												SkipMode=SETATTR_RET_SKIP;
+												continue;
+											}
+										}
+
+										RetCode=ESetFileAttributes(strFullName,(FindData.dwFileAttributes|SetAttr)&(~ClearAttr),SkipMode);
+
+										if (RetCode == SETATTR_RET_ERROR)
+										{
+											Cancel=true;
+											break;
+										}
+										else if (RetCode == SETATTR_RET_SKIP)
+											continue;
+										else if (RetCode == SETATTR_RET_SKIPALL)
+										{
+											SkipMode=SETATTR_RET_SKIP;
+											continue;
+										}
+									}
+								}
 							}
 						}
-					}
+					} // END: while (SrcPanel->GetSelName(...))
 				}
-			} // END: while (SrcPanel->GetSelName(...))
+			}
+			break;
+		case SA_BUTTON_SYSTEMDLG:
+			{
+				SHELLEXECUTEINFOW seInfo={sizeof(seInfo)};
+				seInfo.nShow = SW_SHOW;
+				seInfo.fMask = SEE_MASK_INVOKEIDLIST;
+				string strFullName(NTPath(strSelName).Str);
+				seInfo.lpFile = strFullName;
+				seInfo.lpVerb = L"properties";
+				string strCurDir;
+				apiGetCurrentDirectory(strCurDir);
+				seInfo.lpDirectory=strCurDir;
+				ShellExecuteExW(&seInfo);
+			}
+			break;
+		default:
+			return false;
 		}
 	}
 
-	SrcPanel->SaveSelection();
-	SrcPanel->Update(UPDATE_KEEP_SELECTION);
-	SrcPanel->ClearSelection();
-	CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+	if(SrcPanel)
+	{
+		SrcPanel->SaveSelection();
+		SrcPanel->Update(UPDATE_KEEP_SELECTION);
+		SrcPanel->ClearSelection();
+		CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+	}
 	CtrlObject->Cp()->Redraw();
 	return true;
 }

@@ -10578,6 +10578,14 @@ MSetAttrOffline
 "O&ffline"
 "Offline"
 
+MSetAttrReparsePoint
+"Точка повторной обработки"
+"Reparse point"
+upd:"Reparse point"
+upd:"Reparse point"
+upd:"Reparse point"
+upd:"Reparse point"
+
 MSetAttrVirtual
 "Виртуальный"
 "Virtual"
@@ -10593,6 +10601,22 @@ MSetAttrSubfolders
 "Unterordner miteinbe&ziehen"
 "Az almappákon is"
 "Przetwarzaj &podkatalogi"
+
+MSetAttrOwner
+"Владелец:"
+"Owner:"
+"Vlastník:"
+"Besitzer:"
+"Tulajdonos:"
+"Właściciel:"
+
+MSetAttrOwnerMultiple
+"(несколько значений)"
+"(multiple values)"
+upd:"(multiple values)"
+upd:"(multiple values)"
+upd:"(multiple values)"
+upd:"(multiple values)"
 
 MSetAttrModification
 "Время &модификации файла:"
@@ -10674,6 +10698,14 @@ upd:"RRRR%cMM%cDD hh%cmm%css%cms"
 upd:"JJJJ%cMM%cTT hh%cmm%css%cms"
 upd:"ÉÉÉÉ%cHH%cNN óó%cpp%cmm%cms"
 upd:"RRRR%cMM%cDD gg%cmm%css%cms"
+
+MSetAttrSystemDialog
+"Системные свойства"
+"System properties"
+upd:"System properties"
+upd:"System properties"
+upd:"System properties"
+upd:"System properties"
 
 MSetAttrSetting
 l:
