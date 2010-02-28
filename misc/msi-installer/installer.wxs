@@ -23,14 +23,16 @@
 <?endif?>
     <Binary Id="CustomActions.dll" SourceFile="customact.dll" />
     <CustomAction Id="UpdateFeatureState" BinaryKey="CustomActions.dll" DllEntry="UpdateFeatureState" />
-    <CustomAction Id="SaveShortcutProps" BinaryKey="CustomActions.dll" DllEntry="SaveShortcutProps" Return="ignore" />
-    <CustomAction Id="RestoreShortcutProps" BinaryKey="CustomActions.dll" DllEntry="RestoreShortcutProps" Execute="deferred" Return="ignore" />
+    <CustomAction Id="SaveShortcutProps" BinaryKey="CustomActions.dll" DllEntry="SaveShortcutProps" Return="ignore" Impersonate="no" />
+    <CustomAction Id="RestoreShortcutProps" BinaryKey="CustomActions.dll" DllEntry="RestoreShortcutProps" Execute="deferred" Return="ignore" Impersonate="no" />
     <CustomAction Id="LaunchShortcut" BinaryKey="CustomActions.dll" DllEntry="LaunchShortcut" Return="ignore" />
     <CustomAction Id="LaunchApp" ExeCommand="" FileKey="Far.exe" Return="asyncNoWait" />
     <CustomAction Id="SetARPINSTALLLOCATION" Property="ARPINSTALLLOCATION" Value="[INSTALLDIR]" />
     <CustomAction Id="SetUserInstallScope" Property="InstallScope" Value="User" Execute="firstSequence" />
     <CustomAction Id="SetUserInstallDir" Property="INSTALLDIR" Value="[USERINSTALLDIR]" Execute="firstSequence" />
     <CustomAction Id="SetALLUSERS" Property="ALLUSERS" Value="" Execute="firstSequence" />
+    <CustomAction Id="SetALLUSERS2" Property="ALLUSERS" Value="2" Execute="firstSequence" />
+    <CustomAction Id="SetMSIINSTALLPERUSER" Property="MSIINSTALLPERUSER" Value="1" Execute="firstSequence" />
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="$(var.ProgramFiles)">
         <Directory Id="INSTALLDIR" Name="$(var.DefMachineInstallDir)">
@@ -92,6 +94,8 @@
       <Custom Action="SetUserInstallDir" Before="FindRelatedProducts">USERINSTALLDIR</Custom>
       <Custom Action="SetALLUSERS" Before="FindRelatedProducts">USERINSTALLDIR</Custom>
       <FindRelatedProducts After="AppSearch" />
+      <Custom Action="SetMSIINSTALLPERUSER" Before="SetALLUSERS2"><![CDATA[NOT ALLUSERS AND VersionMsi >= "5.00"]]></Custom>
+      <Custom Action="SetALLUSERS2" Before="ExecuteAction"><![CDATA[NOT ALLUSERS AND VersionMsi >= "5.00"]]></Custom>
     </InstallUISequence>
     <UIRef Id="WixUI_Mod" />
     <Icon Id="Far.ico" SourceFile="rsrc\far.ico" />
