@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 const DWORD64 POS_NONE=_UI64_MAX;
 
-#define MAX_POSITIONS 64
+#define MAX_POSITIONS 512
 
 // Количество закладок в редакторе/вьювере на одну позицию
 #define BOOKMARK_COUNT   10
