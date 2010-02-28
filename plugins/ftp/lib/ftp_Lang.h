@@ -168,7 +168,6 @@ enum {
   MNotPlainFile,                   //"Not a plain file"
   MProxyNoThird,                   //"Proxy server does not support third party tran"
   MNotConnected,                   //"No primary connection"
-  MCopyResumeAll,                  //"Res&ume all"
 
   MResmResume,                     //"Resuming"
   MResmSupport,                    //"Supported"
@@ -302,15 +301,15 @@ enum {
   MListTitle,                      //"List of files to process"
   MListFooter,                     //"INS - toggle, F1 - help"
 
-  MBtnOverwrite,                   //"&Overwrite "
-  MBtnCopySkip,                    //"&Skip      "
-  MBtnCopyResume,                  //"&Resume    "
+  MBtnOverwrite,                   //"&Overwrite"
+  MBtnCopySkip,                    //"&Skip"
+  MBtnCopyResume,                  //"&Resume"
   MBtnCopyCancel,                  //"&Cancel"
-  MBtnOverwriteAll,                //"&All       "
-  MBtnCopySkipAll,                 //"S&kip all  "
-  MBtnCopyResumeAll,               //"Res&ume all"
   MBtnCopyNew,                     //" New"
   MBtnCopyExisting,                //" Existing"
+  MBtnRemember,                    //"Re&member choice"
+  MBtnCopyNewer,                   //"&Newer"
+  MOverNewer,                      //"All &newer"
 
   MNoVersion_txt1,                 //"Unknown version of FTP host file."
   MNoVersion_txt2,                 //"Password may be wrong on usage."
@@ -432,7 +431,9 @@ enum {
   MAskDir3,                        //"Try to change to nearest place?"
 
   MDownloadOnServer,               //"Move inside server"
+
   mNoNe
+
 };
 
 #endif

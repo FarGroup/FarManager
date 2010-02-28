@@ -99,10 +99,12 @@ static FP_DECL_DIALOG( InitItems )
    /*16*/      FDI_RADIO(41,11,    FMSG(MOverOver) )
    /*17*/      FDI_RADIO(41,12,    FMSG(MOverSkip) )
    /*18*/      FDI_RADIO(41,13,    FMSG(MOverResume) )
+   /*19*/      FDI_RADIO(41,14,    FMSG(MOverNewer) )
 
-   /*19*/      FDI_HLINE( 3,15 )
-   /*20*/ FDI_GDEFBUTTON( 0,16,    NULL )
-   /*21*/    FDI_GBUTTON( 0,16,    FMSG(MDownloadCancel) )
+   /*20*/      FDI_HLINE( 3,15 )
+   /*21*/ FDI_GDEFBUTTON( 0,16,    NULL )
+   /*22*/    FDI_GBUTTON( 0,16,    FMSG(MDownloadCancel) )
+
 FP_END_DIALOG
 
 enum {
@@ -121,7 +123,8 @@ enum {
   MID_OVER     = 16,
   MID_SKIP     = 17,
   MID_RESUME   = 18,
-  MID_DEFB     = 20,
+  MID_NEWER    = 19,
+  MID_DEFB     = 21
 };
      FarDialogItem  di[ FP_DIALOG_SIZE(InitItems) ];
      char          *m;
@@ -183,6 +186,7 @@ enum {
        case   ocOverAll: di[MID_OVER  ].Selected = TRUE; break;
        case   ocSkipAll: di[MID_SKIP  ].Selected = TRUE; break;
        case ocResumeAll: di[MID_RESUME].Selected = TRUE; break;
+       case  ocNewerAll: di[MID_NEWER ].Selected = TRUE; break;
                 default: di[MID_ASK   ].Selected = TRUE; break;
      }
 
@@ -227,7 +231,8 @@ enum {
      //Mode
      if ( di[MID_OVER  ].Selected ) ci->MsgCode = ocOverAll; else
      if ( di[MID_SKIP  ].Selected ) ci->MsgCode = ocSkipAll; else
-     if ( di[MID_RESUME].Selected ) ci->MsgCode = ocResumeAll;
+     if ( di[MID_RESUME].Selected ) ci->MsgCode = ocResumeAll; else
+     if ( di[MID_NEWER ].Selected ) ci->MsgCode = ocNewerAll;
 
  return TRUE;
 }

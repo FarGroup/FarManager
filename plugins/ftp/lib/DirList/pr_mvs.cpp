@@ -91,10 +91,10 @@ PO F
   DSSICK    01.05 2003/03/31 2003/04/01 10:47    10    10     5 SMEN
   DSSREST   01.22 1997/05/05 2003/04/09 09:40    13    10     8 TG
    Name     VV.MM   Created       Changed      Size  Init   Mod   Id
-  BLSGPROF                                                              
-  BPXWPROF                                                              
-  CBDPROF                                                               
-  CSQOPROF     
+  BLSGPROF
+  BPXWPROF
+  CBDPROF
+  CSQOPROF
 
 PO U
             1         2         3         4         5         6         7
@@ -132,7 +132,7 @@ UNIX like
  *(UNIX REAL)
   -rw-r--r--    1 montulli eng        14615 Nov  9 17:03 Makefile
   -rw-r--r--  1 panfilov users 139264 2005-06-20 14:22 AddTransToStacks.doc
-  
+
 */
 
 BOOL net_convert_unix_date( pchar& datestr, Time_t& decoded );
@@ -147,14 +147,14 @@ BOOL DECLSPEC idPRParceMVS( const PFTPServerInfo Server, PFTPFileInfo p, char *e
     if(strncmp(entry,"Volume Unit    Referred Ext Used Recfm Lrecl BlkSz Dsorg Dsname",63)==0) return FALSE;
     if(strncmp(entry," Name     VV.MM   Created       Changed      Size  Init   Mod   Id",66)==0) return FALSE;
     if(strncmp(entry," Name      Size   TTR   Alias-of AC --------- Attributes --------- Amode Rmode",78)==0) return FALSE;
-    
+
     if(strlen(entry)>51&&(strncmp(entry+51," PO ",4)==0))
       ei.FileType = NET_DIRECTORY;
     else
     if(strncmp(entry,"Pseudo Directory",16)==0)
     {
       ei.FileType = NET_DIRECTORY;
-//		  ei.FileType = NET_SYM_LINK_TO_DIR;
+//      ei.FileType = NET_SYM_LINK_TO_DIR;
       needDot = TRUE;
     }
     else
@@ -163,7 +163,7 @@ BOOL DECLSPEC idPRParceMVS( const PFTPServerInfo Server, PFTPFileInfo p, char *e
       ei.FileType = NET_DIRECTORY;
       hidden = TRUE;
       strcpy(ei.UnixMode,"VSAM");
-//		  ei.FileType = NET_SYM_LINK_TO_DIR;
+//      ei.FileType = NET_SYM_LINK_TO_DIR;
       needDot = TRUE;
     }
     else
@@ -173,7 +173,7 @@ BOOL DECLSPEC idPRParceMVS( const PFTPServerInfo Server, PFTPFileInfo p, char *e
       strcpy(ei.UnixMode,"-offline-");
       hidden = TRUE;
     }
-        
+
 
 #define BYTES_PER_TRACK_3380 47476
 #define BYTES_PER_TRACK_3390 56664
@@ -256,7 +256,7 @@ BOOL DECLSPEC idPRParceMVS( const PFTPServerInfo Server, PFTPFileInfo p, char *e
      entry = SkipSpace( entry );
      if(*entry=='\'') entry++;
      StrCpy( ei.FindData.cFileName, entry, sizeof(ei.FindData.cFileName) );
-     int le = strlen(ei.FindData.cFileName);
+     size_t le = strlen(ei.FindData.cFileName);
      if(le&&ei.FindData.cFileName[le-1]=='\'')ei.FindData.cFileName[le-1]=0;
      //e=strchr(ei.FindData.cFileName,'.');
      //if(e) { *(e+1)=0; ei.FileType = NET_DIRECTORY; }
@@ -270,24 +270,25 @@ BOOL DECLSPEC idPRParceMVS( const PFTPServerInfo Server, PFTPFileInfo p, char *e
 }
 
 BOOL DECLSPEC idDirParceMVS( const PFTPServerInfo Server, CONSTSTR Line, char *CurDir, size_t CurDirSize )
-  {
+{
   // 01234
   // 250 "'xxxx.yyy.'"
-     Line+=5;
-     if(*Line=='\'') 
-     {
-       Line++;
-       strcpy(CurDir,Line);
+  Line+=5;
+  if(*Line=='\'')
+  {
+    Line++;
+    strcpy(CurDir,Line);
     char* Ptr=CurDir;
     while(!isspace(*Ptr))
       Ptr++;
     if(Ptr > CurDir+1)
       Ptr--;
     *Ptr=0;
-     int le = strlen(CurDir);
-     if(le&&CurDir[le-1]=='\'')CurDir[le-1]=0;
-     if(CurDir[0]==0)strcpy(CurDir,"*");
-       return TRUE;
-     }
- return FALSE;
+    size_t le = strlen(CurDir);
+    if(le&&CurDir[le-1]=='\'')CurDir[le-1]=0;
+    if(CurDir[0]==0)strcpy(CurDir,"*");
+    return TRUE;
+  }
+
+  return FALSE;
 }

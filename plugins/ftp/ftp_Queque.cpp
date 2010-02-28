@@ -505,9 +505,9 @@ void FTP::ExecuteQueueINT( PQueueExecOptions op )
              ffd = fd;
              ffd.nFileSizeHigh = (DWORD)((fsz >> 32) & MAX_DWORD);
              ffd.nFileSizeLow  = (DWORD)(fsz & MAX_DWORD);
-             ci.MsgCode  = AskOverwrite( MDownloadTitle, TRUE, &fd, &ffd, ci.MsgCode );
+             ci.MsgCode  = AskOverwrite( MDownloadTitle, TRUE, &fd, &ffd, ci.MsgCode, FALSE );
            } else
-             ci.MsgCode  = AskOverwrite( MDownloadTitle, TRUE, &fd, NULL, ci.MsgCode );
+             ci.MsgCode  = AskOverwrite( MDownloadTitle, TRUE, &fd, NULL, ci.MsgCode, FALSE );
 
            switch( ci.MsgCode ) {
              case   ocOverAll:
@@ -516,6 +516,8 @@ void FTP::ExecuteQueueINT( PQueueExecOptions op )
              case   ocSkipAll: goto Skip;
              case    ocResume:
              case ocResumeAll: break;
+	     case     ocNewer:
+	     case  ocNewerAll: goto Skip;
            }
            if ( ci.MsgCode == ocCancel ) {
              SetLastError( ERROR_CANCELLED );
@@ -551,7 +553,7 @@ void FTP::ExecuteQueueINT( PQueueExecOptions op )
            ffd = fd;
            ffd.nFileSizeHigh = (DWORD)((fsz >> 32) & MAX_DWORD);
            ffd.nFileSizeLow  = (DWORD)(fsz & MAX_DWORD);
-           ci.MsgCode  = AskOverwrite( MUploadTitle, FALSE, &ffd, &fd, ci.MsgCode );
+           ci.MsgCode  = AskOverwrite( MUploadTitle, FALSE, &ffd, &fd, ci.MsgCode, FALSE );
 
            switch( ci.MsgCode ) {
              case   ocOverAll:
@@ -560,6 +562,8 @@ void FTP::ExecuteQueueINT( PQueueExecOptions op )
              case   ocSkipAll: goto Skip;
              case    ocResume:
              case ocResumeAll: break;
+	     case     ocNewer:
+	     case  ocNewerAll: goto Skip;
            }
            if ( ci.MsgCode == ocCancel ) {
              SetLastError( ERROR_CANCELLED );

@@ -112,11 +112,13 @@ int FTP::GetFilesInterface( struct PluginPanelItem *PanelItem,int ItemsNumber,in
      FTPCopyInfo      ci;
      FP_SizeItemList  il;
      char            *CurName;
+     FILETIME         CurTime;
      String           DestName;
      FP_Screen        _scr;
      int              i,isDestDir;
      FTPFileInfo      FindData;
      DWORD            DestAttr;
+     FILETIME         DestTime;
      int              mTitle;
      int              rc;
 
@@ -252,7 +254,10 @@ int FTP::GetFilesInterface( struct PluginPanelItem *PanelItem,int ItemsNumber,in
 
     CurPanelItem = &il.List[i];
     CurName      = FTP_FILENAME( CurPanelItem );
+    CurTime      = CurPanelItem->FindData.ftLastWriteTime;
     DestAttr     = MAX_DWORD;
+    DestTime.dwLowDateTime = 0;
+    DestTime.dwHighDateTime = 0;
 
     //Skip deselected in list
     if ( CurPanelItem->FindData.dwReserved1 == MAX_DWORD )
@@ -270,8 +275,10 @@ int FTP::GetFilesInterface( struct PluginPanelItem *PanelItem,int ItemsNumber,in
 
       Log(( "Rename [%s] to [%s]",CurName,DestName.c_str() ));
       if ( FtpFindFirstFile( hConnect, DestName.c_str(), &FindData, NULL) )
-        if ( stricmp( FTP_FILENAME( &FindData ), CurName ) == 0 )
+        if ( stricmp( FTP_FILENAME( &FindData ), CurName ) == 0 ) {
           DestAttr = FindData.FindData.dwFileAttributes;
+          DestTime = FindData.FindData.ftLastWriteTime;
+        }
     } else {
     //Copy to local disk
       if ( isDestDir )
@@ -288,6 +295,7 @@ int FTP::GetFilesInterface( struct PluginPanelItem *PanelItem,int ItemsNumber,in
       if ( FRealFile(DestName.c_str(),&FindData.FindData) ) {
         Log(( "Real file: [%s]",DestName.c_str() ));
         DestAttr = GetFileAttributes( DestName.c_str() );
+        DestTime = FindData.FindData.ftLastWriteTime;
       }
     }
 
@@ -298,13 +306,15 @@ int FTP::GetFilesInterface( struct PluginPanelItem *PanelItem,int ItemsNumber,in
     switch( ci.MsgCode ) {
       case      ocOver:
       case      ocSkip:
-      case    ocResume: ci.MsgCode = ocNone;
+      case    ocResume:
+      case     ocNewer: ci.MsgCode = ocNone;
                      break;
     }
 
     if ( DestAttr != MAX_DWORD ) {
       ci.MsgCode = AskOverwrite( ci.FTPRename ? MRenameTitle : MDownloadTitle, TRUE,
-                                 &FindData.FindData, &CurPanelItem->FindData, ci.MsgCode );
+                                 &FindData.FindData, &CurPanelItem->FindData, ci.MsgCode,
+                                 ((CurTime.dwLowDateTime || CurTime.dwHighDateTime) && (DestTime.dwLowDateTime || DestTime.dwHighDateTime)));
       LastMsgCode = ci.MsgCode;
 
       switch( ci.MsgCode ) {
@@ -315,6 +325,13 @@ int FTP::GetFilesInterface( struct PluginPanelItem *PanelItem,int ItemsNumber,in
                           continue;
         case    ocResume:
         case ocResumeAll: break;
+
+        case     ocNewer:
+        case  ocNewerAll: if (CompareFileTime(&CurTime, &DestTime) <= 0) {
+                             hConnect->TrafficInfo->Skip();
+                             continue;
+                           }
+                           break;
 
         case    ocCancel: return -1;
       }

@@ -105,7 +105,7 @@ CLASS( FTP )
     int       ExpandList(struct PluginPanelItem *PanelItem,int ItemsNumber,PFP_SizeItemList il,BOOL FromPlugin,ExpandListCB cb = NULL,LPVOID Param = NULL );
     BOOL      CopyAskDialog( BOOL Move, BOOL Download,PFTPCopyInfo ci );
     BOOL      ShowFilesList( PFP_SizeItemList il );
-    overCode  AskOverwrite( int title,BOOL Download,LPFAR_FIND_DATA dest,LPFAR_FIND_DATA src,overCode last );
+    overCode  AskOverwrite( int title,BOOL Download,LPFAR_FIND_DATA dest,LPFAR_FIND_DATA src,overCode last,bool haveTimes );
     void      BackToHosts( void );
     BOOL      FullConnect();
     void      SaveList( PFP_SizeItemList il );

@@ -1,3 +1,18 @@
+t-rex 28.02.2010 20:53:35 +0200 - 257 + DirList 1.8
+
+1. from pepak Mantis#1111: Transfer only newer files:
+ a. Modified "overwrite confirmation" dialog to match current FAR's overwrite
+    dialog (Overwrite/Skip/Resume buttons + Remember checkbox, rather than
+    Overwrite/OverwriteAll/Skip/SkipApp/Resume/ResumeAll buttons).
+ 
+ b. Added new option "Newer" for overwriting if source file is newer and
+    skipping otherwise. Option works for Download and Upload but not for
+    queue operations.
+
+2. Removed some unused lng lines.
+
+3. Some x64 warnings in DirList and minor code formatting. 
+
 t-rex 14.02.2010 14:42:07 +0200 - DirList 1.7
 
 from vitbo:

@@ -62,7 +62,9 @@ enum overCode {
   ocResume,
   ocResumeAll,
   ocCancel,
-  ocNone
+  ocNone,
+  ocNewer,
+  ocNewerAll
 };
 
 //Current FTP state

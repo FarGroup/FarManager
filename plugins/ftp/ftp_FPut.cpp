@@ -96,7 +96,9 @@ int FTP::PutFilesINT( struct PluginPanelItem *PanelItem,int ItemsNumber, int Mov
      FP_SizeItemList   il;
      String            DestName;
      char             *CurName;
+     FILETIME          CurTime;
      DWORD             DestAttr;
+     FILETIME          DestTime;
      FTPFileInfo       FindData;
      int               mTitle;
      DWORD             SrcAttr;
@@ -150,6 +152,7 @@ int FTP::PutFilesINT( struct PluginPanelItem *PanelItem,int ItemsNumber, int Mov
     SrcAttr = il.List[I].FindData.dwFileAttributes;
     tmp     = FTP_FILENAME( &il.List[I] );
     CurName = tmp.c_str();
+    CurTime = il.List[I].FindData.ftLastWriteTime;
 
     Log(( "PutFiles: list[%d], %d-th, att: %d, dw:%08X,%08X \"%s\"",
           il.Count(), I,
@@ -193,6 +196,8 @@ int FTP::PutFilesINT( struct PluginPanelItem *PanelItem,int ItemsNumber, int Mov
     }
 
     DestAttr = MAX_DWORD;
+    DestTime.dwLowDateTime = 0; // Local files are considered newer by default
+    DestTime.dwHighDateTime = 0; // Local files are considered newer by default
     MemSet( &FindData.FindData, 0, sizeof(FindData.FindData) );
 
     __int64 sz;
@@ -207,6 +212,7 @@ int FTP::PutFilesINT( struct PluginPanelItem *PanelItem,int ItemsNumber, int Mov
         if ( stricmp( PointToName( FTP_FILENAME(&FindData) ),
                       PointToName( DestName.c_str() ) ) == 0 )
           DestAttr = FindData.FindData.dwFileAttributes;
+          DestTime = FindData.FindData.ftLastWriteTime;
         break;
       } else
       if ( !FtpCmdLineAlive(hConnect) ) {
@@ -217,6 +223,8 @@ int FTP::PutFilesINT( struct PluginPanelItem *PanelItem,int ItemsNumber, int Mov
         FindData.FindData.nFileSizeHigh = (DWORD)((sz >> 32) & MAX_DWORD);
         FindData.FindData.nFileSizeLow  = (DWORD)(sz & MAX_DWORD);
         DestAttr = 0;
+        //Can't find file date using FTP commands - leave the default value
+        //DestTime = ;
         break;
       } else
       if ( !FtpCmdLineAlive(hConnect) ) {
@@ -257,11 +265,13 @@ int FTP::PutFilesINT( struct PluginPanelItem *PanelItem,int ItemsNumber, int Mov
     switch( ci.MsgCode ) {
       case      ocOver:
       case      ocSkip:
-      case    ocResume: ci.MsgCode = ocNone;
+      case    ocResume:
+      case     ocNewer: ci.MsgCode = ocNone;
                      break;
     }
     if ( DestAttr != MAX_DWORD ) {
-      ci.MsgCode  = AskOverwrite( MUploadTitle, FALSE, &FindData.FindData, &il.List[I].FindData, ci.MsgCode );
+      ci.MsgCode  = AskOverwrite( MUploadTitle, FALSE, &FindData.FindData, &il.List[I].FindData, ci.MsgCode,
+                                  ((CurTime.dwLowDateTime || CurTime.dwHighDateTime) && (DestTime.dwLowDateTime || DestTime.dwHighDateTime)) );
       LastMsgCode = ci.MsgCode;
       switch( ci.MsgCode ) {
         case   ocOverAll:
@@ -273,6 +283,13 @@ int FTP::PutFilesINT( struct PluginPanelItem *PanelItem,int ItemsNumber, int Mov
         case    ocResume:
         case ocResumeAll:
                        break;
+
+        case     ocNewer:
+        case  ocNewerAll: if (CompareFileTime(&CurTime, &DestTime) <= 0) {
+                             hConnect->TrafficInfo->Skip();
+                             continue;
+                           }
+                           break;
 
         case    ocCancel: return -1;
       }
