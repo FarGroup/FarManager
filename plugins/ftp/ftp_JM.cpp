@@ -254,7 +254,7 @@ char *DECLSPEC FDigit( char *buff,__int64 val,int sz )
 
      if (!sz) return buff;
 
-     if ( !val || !Opt.dDelimit || !Opt.dDelimiter ) {
+     if ( !Opt.dDelimit || !Opt.dDelimiter ) {
        PDigit( buff,val,sz );
        return buff;
      }

@@ -90,7 +90,6 @@ enum {
 
   MAlreadyExist,                   //"File already exists"
   MAlreadyExistRO,                 //"Read-only file already exists"
-  MAskOverwrite,                   //"Do you wish to overwrite the old file?"
   MOverwrite,                      //"&Overwrite"
   MOverwriteAll,                   //"&All"
   MCopySkip,                       //"&Skip"

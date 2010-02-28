@@ -89,7 +89,6 @@
 
 "File already exists"
 "Read-only file already exists"
-"Do you wish to overwrite the old file?"
 "&Overwrite"
 "&All"
 "&Skip"

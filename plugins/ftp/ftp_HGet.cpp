@@ -124,7 +124,6 @@ FP_END_DIALOG
           FMSG( Move ? MMoveHostTitle:MCopyHostTitle ),
           FMSG( IS_FLAG(DestAttr,FILE_ATTRIBUTE_READONLY) ? MAlreadyExistRO : MAlreadyExist ),
           DestName,
-          FMSG( MAskOverwrite ),
           /*0*/FMSG(MOverwrite),
           /*1*/FMSG(MOverwriteAll),
           /*2*/FMSG(MCopySkip),
