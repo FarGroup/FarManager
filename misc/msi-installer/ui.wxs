@@ -25,9 +25,9 @@
 
       <Publish Dialog="InstallScopeDlg" Control="Back" Event="NewDialog" Value="LicenseAgreementDlg">1</Publish>
       <Publish Dialog="InstallScopeDlg" Control="Next" Property="ALLUSERS" Order="1">InstallScope = "User"</Publish>
-      <Publish Dialog="InstallScopeDlg" Control="Next" Property="INSTALLDIR" Value="[LocalAppDataFolder]\$(var.DefUserInstallDir)" Order="2">InstallScope = "User"</Publish>
+      <Publish Dialog="InstallScopeDlg" Control="Next" Property="INSTALLDIR" Value="[LocalAppDataFolder]$(var.DefUserInstallDir)" Order="2">InstallScope = "User"</Publish>
       <Publish Dialog="InstallScopeDlg" Control="Next" Property="ALLUSERS" Value="1" Order="3">InstallScope = "Machine"</Publish>
-      <Publish Dialog="InstallScopeDlg" Control="Next" Property="INSTALLDIR" Value="[$(var.ProgramFiles)]\$(var.DefMachineInstallDir)" Order="4">InstallScope = "Machine"</Publish>
+      <Publish Dialog="InstallScopeDlg" Control="Next" Property="INSTALLDIR" Value="[$(var.ProgramFiles)]$(var.DefMachineInstallDir)" Order="4">InstallScope = "Machine"</Publish>
       <Publish Dialog="InstallScopeDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg" Order="5">1</Publish>
 
       <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg" Order="1">PREVIOUSVERSIONSINSTALLED</Publish>

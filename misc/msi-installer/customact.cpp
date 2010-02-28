@@ -365,17 +365,20 @@ public:
   }
 };
 
+const wchar_t* c_default_shortcut_props = L"CC000000020000A00700F50050002C01500019000000000000000000000000000000100036000000900100004C0075006300690064006100200043006F006E0073006F006C00650000000F0034879F7C080000003F2300009CEA48013EB7A87C9CF315000000000098F31500190000000000000000000000010000000100000032000000040000000000000000000000000080000080000000808000800000008000800080800000C0C0C000808080000000FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00";
+
 void save_shortcut_props(MSIHANDLE h_install) {
   ComInit com_init;
   wstring data;
   list<wstring> shortcut_list = get_shortcut_list(h_install);
   init_progress(h_install, L"SaveShortcutProps", L"Saving shortcut properties", shortcut_list.size());
   for (list<wstring>::const_iterator file_path = shortcut_list.begin(); file_path != shortcut_list.end(); file_path++) {
-    BEGIN_ERROR_HANDLER
     update_progress(h_install, *file_path);
-    wstring props = get_shortcut_props(*file_path);
-    data.append(*file_path).append(L"\n").append(props).append(L"\n");
+    wstring props = c_default_shortcut_props;
+    BEGIN_ERROR_HANDLER
+    props = get_shortcut_props(*file_path);
     END_ERROR_HANDLER
+    data.append(*file_path).append(L"\n").append(props).append(L"\n");
   }
   CHECK_ADVSYS(MsiSetPropertyW(h_install, L"RestoreShortcutProps", data.c_str()));
 }
