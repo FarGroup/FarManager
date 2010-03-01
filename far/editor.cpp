@@ -290,6 +290,7 @@ bool Editor::GetCacheParams (EditorCacheParams *pp)
     return false;
 
   memset (pp, 0, sizeof (EditorCacheParams));
+  memset(&pp->SavePos,0xff,sizeof(InternalEditorBookMark));
 
   pp->Line = NumLine;
   pp->ScreenLine = CalcDistance(TopScreen, CurLine,-1);

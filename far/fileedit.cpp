@@ -2299,6 +2299,7 @@ int FileEditor::EditorControl(int Command,void *Param)
 bool FileEditor::LoadFromCache (EditorCacheParams *pp)
 {
   memset(pp,0,sizeof(EditorCacheParams));
+  memset(&pp->SavePos,0xff,sizeof(InternalEditorBookMark));
 
   char *ptrPluginData=GetPluginData();
   char *CacheName=(char *)alloca(strlen(ptrPluginData)+strlen(FullFileName)+NM);

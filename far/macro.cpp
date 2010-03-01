@@ -3057,7 +3057,7 @@ done:
   }
 
 
-  DWORD Key=GetOpCode(MR,Work.ExecLIBPos++);
+  DWORD Key=!MR?MCODE_OP_EXIT:GetOpCode(MR,Work.ExecLIBPos++);
   _KEYMACRO(SysLog("[%d] IP=%d Op=%08X ==> %s",__LINE__,Work.ExecLIBPos-1,Key,((Key&KEY_MACRO_BASE)?_MCODE_ToName(Key):_FARKEY_ToName(Key))));
 
   if(Work.KeyProcess && Key != MCODE_OP_ENDKEYS)
@@ -3541,6 +3541,13 @@ done:
         goto begin;
     }
 
+    case MCODE_F_CALLPLUGIN: // V=callplugin(SysID[,param])
+    {
+       InternalInput++; // в процессе работы функций макросы отключаются
+       callpluginFunc();
+       InternalInput--;
+    }
+
     //
     default:
     {
@@ -3587,7 +3594,6 @@ done:
         {MCODE_F_ASC,ascFunc}, // N=asc(S)
         {MCODE_F_CHR,chrFunc}, // S=chr(N)
         {MCODE_F_REPLACE,replaceFunc}, // S=replace(sS,sF,sR)
-        {MCODE_F_CALLPLUGIN,callpluginFunc}, // V=callplugin(SysID[,param])
         {MCODE_F_REG_GET,reggetFunc}, // V=reg.get(iRoot, "Key"[, "Value"])
         {MCODE_F_REG_CHECK,regcheckFunc}, // V=reg.check(iRoot, "Key"[, "Value"])
         {MCODE_F_KEY,keyFunc}, // S=key(V)
@@ -3596,9 +3602,7 @@ done:
       for(J=0; J < sizeof(MCode2Func)/sizeof(MCode2Func[0]); ++J)
         if(MCode2Func[J].Op == Key)
         {
-          InternalInput++; // в процессе работы функций макросы отключаются
           MCode2Func[J].Func();
-          InternalInput--;
           break;
         }
 

@@ -262,7 +262,7 @@ BOOL FilePositionCache::Save(const char *Key)
     return FALSE;
 
   char DataStr[2048];
-  int J, I, Pos;
+  int I, Pos;
 
   for (I=0;I < Opt.MaxPositionCache;I++)
   {
@@ -299,22 +299,37 @@ BOOL FilePositionCache::Save(const char *Key)
     if((Opt.ViOpt.SaveViewerShortPos && Opt.ViOpt.SaveViewerPos) ||
        (Opt.EdOpt.SaveShortPos && Opt.EdOpt.SavePos))
     {
+      bool found=false;
       // Если не запоминались позиции по RCtrl+<N>, то и не записываем их
-      for(J=0; J < 4; J++)
+      for(int J=0; J < 4; J++)
       {
-        if(SizeValue==sizeof(DWORD))
+        DWORD *dw=(DWORD*)(Position+POSITION_POS(Pos,J));
+        __int64 *i64=(__int64*)(Position+POSITION_POS(Pos,J));
+
+        for (int K=0; K < BOOKMARK_COUNT; ++K)
         {
-          if(*(DWORD*)(Position+POSITION_POS(Pos,J)) != -1)
-            break;
+          if(SizeValue==sizeof(DWORD))
+          {
+            if(dw[K] != -1)
+            {
+              found=true;
+              break;
+            }
+          }
+          else
+          {
+            if(i64[K] != -1)
+            {
+              found=true;
+              break;
+            }
+          }
         }
-        else
-        {
-          if(*(__int64*)(Position+POSITION_POS(Pos,J)) != -1)
-            break;
-        }
+        if (found)
+          break;
       }
 
-      if(J < 4)
+      if(found)
         SetRegKey(Key,SubKeyShort,Position+POSITION_POS(Pos,0),(BOOKMARK_COUNT*4)*SizeValue);
       else
         DeleteRegValue(Key,SubKeyShort);
