@@ -273,20 +273,21 @@ static struct TKeyCodeName
 	const wchar_t *Name;
 } KeyMacroCodes[]=
 {
-	{ MCODE_OP_AKEY,                 5, L"$AKey"    }, // клавиша, которой вызвали макрос
-	{ MCODE_OP_DATE,                 5, L"$Date"    }, // $Date "%d-%a-%Y"
-	{ MCODE_OP_ELSE,                 5, L"$Else"    },
-	{ MCODE_OP_END,                  4, L"$End"     },
-	{ MCODE_OP_EXIT,                 5, L"$Exit"    },
-	{ MCODE_OP_ICLIP,                6, L"$IClip"   },
-	{ MCODE_OP_IF,                   3, L"$If"      },
-	{ MCODE_OP_SWITCHKBD,           10, L"$KbdSwitch"},
-	{ MCODE_OP_MACROMODE,            6, L"$MMode"   },
-	{ MCODE_OP_REP,                  4, L"$Rep"     },
-	{ MCODE_OP_SELWORD,              8, L"$SelWord" },
-	{ MCODE_OP_PLAINTEXT,            5, L"$Text"    }, // $Text "Plain Text"
-	{ MCODE_OP_WHILE,                6, L"$While"   },
-	{ MCODE_OP_XLAT,                 5, L"$XLat"    },
+	{ MCODE_OP_AKEY,                 5, L"$AKey"      }, // клавиша, которой вызвали макрос
+	{ MCODE_OP_CONTINUE,             9, L"$Continue"  },
+	{ MCODE_OP_DATE,                 5, L"$Date"      }, // $Date "%d-%a-%Y"
+	{ MCODE_OP_ELSE,                 5, L"$Else"      },
+	{ MCODE_OP_END,                  4, L"$End"       },
+	{ MCODE_OP_EXIT,                 5, L"$Exit"      },
+	{ MCODE_OP_ICLIP,                6, L"$IClip"     },
+	{ MCODE_OP_IF,                   3, L"$If"        },
+	{ MCODE_OP_SWITCHKBD,           10, L"$KbdSwitch" },
+	{ MCODE_OP_MACROMODE,            6, L"$MMode"     },
+	{ MCODE_OP_REP,                  4, L"$Rep"       },
+	{ MCODE_OP_SELWORD,              8, L"$SelWord"   },
+	{ MCODE_OP_PLAINTEXT,            5, L"$Text"      }, // $Text "Plain Text"
+	{ MCODE_OP_WHILE,                6, L"$While"     },
+	{ MCODE_OP_XLAT,                 5, L"$XLat"      },
 };
 
 
@@ -1902,7 +1903,7 @@ static bool rindexFunc()
 	return Ret;
 }
 
-// S=date(S)
+// S=date([S])
 static bool dateFunc()
 {
 	TVar Val;
@@ -3437,7 +3438,9 @@ done:
 			goto done;                  // ...и завершаем макрос.
 		}
 	}
-	DWORD Key=GetOpCode(MR,Work.ExecLIBPos++);
+
+	DWORD Key=!MR?MCODE_OP_EXIT:GetOpCode(MR,Work.ExecLIBPos++);
+
 	string value;
 	_KEYMACRO(SysLog(L"[%d] IP=%d Op=%08X ==> %s or %s",__LINE__,Work.ExecLIBPos-1,Key,_MCODE_ToName(Key),_FARKEY_ToName(Key)));
 
@@ -3449,6 +3452,9 @@ done:
 
 	switch (Key)
 	{
+		case MCODE_OP_CONTINUE:
+			goto begin; // следом идет Jump
+
 		case MCODE_OP_NOP:
 			goto begin;
 		case MCODE_OP_KEYS:                    // за этим кодом следуют ФАРовы коды клавиш
@@ -3638,9 +3644,17 @@ done:
 
 			break;
 		}
+
+		case MCODE_OP_DUP:        // продублировать верхнее значение в стеке
+			VMStack.Pop(tmpVar);
+			VMStack.Push(tmpVar);
+			VMStack.Push(tmpVar);
+			goto begin;
+
 		case MCODE_OP_DISCARD:    // убрать значение с вершины стека
 			VMStack.Pop();
 			goto begin;
+
 		case MCODE_OP_POP:        // 0: pop 1: varname -> присвоить значение переменной и убрать из вершины стека
 		{
 			VMStack.Pop(tmpVar);
@@ -3971,6 +3985,20 @@ done:
 
 			goto begin;
 		}
+        /* *************************************************************** */
+		case MCODE_F_CALLPLUGIN:
+		{
+			if(!Opt.Macro.CallPluginRules)
+				InternalInput++; // в процессе работы функций макросы отключаются
+
+			callpluginFunc();
+
+			if(!Opt.Macro.CallPluginRules)
+				InternalInput--;
+
+			goto begin;
+		}
+
 		default:
 		{
 			static struct TMCode2Func
@@ -4015,28 +4043,20 @@ done:
 				{MCODE_F_CLIP,clipFunc}, // V=Clip(N[,S])
 				{MCODE_F_FLOAT,floatFunc}, // N=float(V)
 				{MCODE_F_INT,intFunc}, // N=int(V)
-				{MCODE_F_DATE,dateFunc},  // // S=date(S)
+				{MCODE_F_DATE,dateFunc},  // // S=date([S])
 				{MCODE_F_XLAT,xlatFunc}, // S=xlat(S)
 				{MCODE_F_ABS,absFunc}, // N=abs(N)
 				{MCODE_F_ASC,ascFunc}, // N=asc(S)
 				{MCODE_F_CHR,chrFunc}, // S=chr(N)
 				{MCODE_F_REPLACE,replaceFunc}, // Result=replace(Str,Find,Replace[,Cnt[,Mode]])
 				{MCODE_F_KEY,keyFunc}, // S=key(V)
-				{MCODE_F_CALLPLUGIN,callpluginFunc}, // V=callplugin(SysID[,param])
 			};
 			int J;
 
 			for (J=0; J < int(countof(MCode2Func)); ++J)
 				if (MCode2Func[J].Op == Key)
 				{
-					if(Key != MCODE_F_CALLPLUGIN || !Opt.Macro.CallPluginRules)
-						InternalInput++; // в процессе работы функций макросы отключаются
-
 					MCode2Func[J].Func();
-
-					if(Key != MCODE_F_CALLPLUGIN || !Opt.Macro.CallPluginRules)
-						InternalInput--;
-
 					break;
 				}
 

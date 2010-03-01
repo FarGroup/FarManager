@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 const DWORD64 POS_NONE=_UI64_MAX;
 
+// Максимальное количество элементов в кэше
 #define MAX_POSITIONS 512
 
 // Количество закладок в редакторе/вьювере на одну позицию
@@ -42,7 +43,36 @@ const DWORD64 POS_NONE=_UI64_MAX;
 
 struct PosCache
 {
+    /*
+    Param:
+    	Editor:
+			Param[0] = Line
+			Param[1] = ScreenLine
+			Param[2] = LinePos
+			Param[3] = LeftPos
+			Param[4] = CodePage or 0
+		Viewer:
+			Param[0] = FilePos
+			Param[1] = LeftPos
+			Param[2] = Hex?
+			Param[3] = 0
+			Param[4] = CodePage
+    */
 	DWORD64 Param[5];
+
+    /*
+    Position
+    	Editor:
+			Position[0] = [BOOKMARK_COUNT] Line
+			Position[1] = [BOOKMARK_COUNT] Cursor
+			Position[2] = [BOOKMARK_COUNT] ScreenLine
+			Position[3] = [BOOKMARK_COUNT] LeftPos
+		Viewer:
+			Position[0] = [BOOKMARK_COUNT] SavePosAddr
+			Position[1] = [BOOKMARK_COUNT] SavePosLeft
+			Position[2] = [BOOKMARK_COUNT] 0
+			Position[3] = [BOOKMARK_COUNT] 0
+    */
 	DWORD64 *Position[4];
 };
 
@@ -50,9 +80,9 @@ class FilePositionCache
 {
 	private:
 		int IsMemory;
-		string *Names;
 		int CurPos;
 
+		string *Names;
 		BYTE *Param;
 		BYTE *Position;
 

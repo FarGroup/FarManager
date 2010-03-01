@@ -274,8 +274,8 @@ struct ViewerOptions
 	int PersistentBlocks; // $ 14.05.2002 VVM Постоянные блоки во вьюере
 	int ViewerIsWrap; // (Wrap|WordWarp)=1 | UnWrap=0
 	int ViewerWrap; // Wrap=0|WordWarp=1
-	int SaveViewerPos;
-	int SaveViewerShortPos;
+	int SavePos;
+	int SaveShortPos;
 	int UseExternalViewer;
 	int ShowKeyBar; // $ 15.07.2000 tran + ShowKeyBar
 	int AnsiCodePageAsDefault;

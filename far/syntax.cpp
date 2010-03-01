@@ -78,6 +78,7 @@ static int _macro_nErr = 0;
 static int _macro_nLine = 0;
 static int _macro_nPos = 0;
 static int _macro_ErrCode=err_Success;
+static int inloop = 0; // =1 мы в цикле
 static wchar_t nameString[1024];
 static wchar_t *sSrcString;
 static const wchar_t *pSrcString = NULL;
@@ -103,10 +104,10 @@ static void keyMacroParseError(int err, const wchar_t *c = NULL);
 enum TExecMode
 {
 	emmMain,
-	emmWhile,
 	emmThen,
 	emmElse,
-	emmRep
+	emmWhile,
+	emmRep,
 };
 
 struct TExecItem
@@ -134,9 +135,23 @@ class TExec
 		}
 
 		TExecItem& operator()() { return stack[current]; }
+		int findnearloop(TExecItem**);
 		int add(TExecMode, DWORD, DWORD = 0);
 		int del();
 };
+
+int TExec::findnearloop(TExecItem **found)
+{
+	for (int I=current; I >= 0; --I)
+	{
+		if (stack[I].state == emmRep || stack[I].state == emmWhile)
+		{
+			*found=stack+I;
+			return I;
+		}
+	}
+	return -1;
+}
 
 int TExec::add(TExecMode s, DWORD p1, DWORD p2)
 {
@@ -303,7 +318,7 @@ static TMacroFunction macroFunction[]=
 	{L"CALLPLUGIN",       2, 1,   MCODE_F_CALLPLUGIN,       NULL, L"V=CallPlugin(SysID[,param])"},
 	{L"CHR",              1, 0,   MCODE_F_CHR,              NULL, L"S=Chr(N)"},
 	{L"CLIP",             2, 1,   MCODE_F_CLIP,             NULL, L"V=Clip(N[,S])"},
-	{L"DATE",             1, 0,   MCODE_F_DATE,             NULL, L"S=Date(S)"},
+	{L"DATE",             1, 1,   MCODE_F_DATE,             NULL, L"S=Date([S])"},
 	{L"DLG.GETVALUE",     2, 0,   MCODE_F_DLG_GETVALUE,     NULL, L"V=Dlg.GetValue(ID,N)"},
 	{L"EDITOR.POS",       3, 1,   MCODE_F_EDITOR_POS,       NULL, L"N=Editor.Pos(Op,What[,Where])"},
 	{L"EDITOR.SEL",       2, 1,   MCODE_F_EDITOR_SEL,       NULL, L"V=Editor.Sel(Action[,Opt])"},
@@ -1484,6 +1499,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 	_macro_nLine= 0;
 	_macro_nPos = 0;
 	pSrcString = emptyString;
+	inloop = 0;
 	/*pSrcString = */oSrcString = sSrcString = emptyString;
 
 	if (BufPtr == NULL || !*BufPtr)
@@ -1706,8 +1722,15 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 
 		switch (KeyCode)
 		{
+			// $Date
+			// -------------------------------------
+			//            MCODE_OP_DATE
+			//            0
+			// или
+			//            MCODE_OP_DATE
+			//            <expr>
 			case MCODE_OP_DATE:
-
+			{
 				while (*BufPtr && IsSpace(*BufPtr))
 					BufPtr++;
 
@@ -1721,53 +1744,39 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 				}
 
 				break;
+			}
+			// $Text
+			// -------------------------------------
+			//            MCODE_OP_PLAINTEXT
+			//            <expr>
+			// $MMode
+			// -------------------------------------
+			//            MCODE_OP_MACROMODE
+			//            <expr>
 			case MCODE_OP_PLAINTEXT:
 			case MCODE_OP_MACROMODE:
+			{
 				Size += parseExpr(BufPtr, dwExprBuff, 0, 0);
 				break;
-// $Rep (expr) ... $End
-// -------------------------------------
-//            <expr>
-//            MCODE_OP_SAVEREPCOUNT       1
-// +--------> MCODE_OP_REP                    p1=*
-// |          <counter>                   3
-// |          <counter>                   4
-// |          MCODE_OP_JZ  ------------+  5   p2=*+2
-// |          ...                      |
-// +--------- MCODE_OP_JMP             |
-//            MCODE_OP_END <-----------+
-			case MCODE_OP_REP:
-				Size += parseExpr(BufPtr, dwExprBuff, L'(', L')');
-
-				if (!exec.add(emmRep, CurMacroBufferSize+Size, CurMacroBufferSize+Size+4))   //??? 3
-				{
-					if (CurMacro_Buffer != NULL)
-					{
-						xf_free(CurMacro_Buffer);
-						CurMacroBuffer = NULL;
-					}
-
-					CurMacroBufferSize = 0;
-					xf_free(dwExprBuff);
-					return FALSE;
-				}
-
-				Size += 5;  // естественно, размер будет больше = 4
-				break;
-// $If (expr) ... $End
-// -------------------------------------
-//            <expr>
-//            MCODE_OP_JZ  ------------+      p1=*+0
-//            ...                      |
-// +--------- MCODE_OP_JMP             |
-// |          ...          <-----------+
-// +--------> MCODE_OP_END
-// или
-//            <expr>
-//            MCODE_OP_JZ  ------------+      p1=*+0
-//            ...                      |
-//            MCODE_OP_END <-----------+
+			}
+			// $If (expr) ... $End
+			// -------------------------------------
+			//            <expr>
+			//            MCODE_OP_JZ                     p1=*+0
+			//            addr1        ------------+
+			//            ...                      |
+			//            MCODE_OP_JMP             |
+			// +--------- addr2                    |
+			// |          ...          <-----------+
+			// +--------> MCODE_OP_END
+			// или
+			//            <expr>
+			//            MCODE_OP_JZ                     p1=*+0
+			//            addr1        ------------+
+			//            ...                      |
+			//            MCODE_OP_END <-----------+
 			case MCODE_OP_IF:
+			{
 				Size += parseExpr(BufPtr, dwExprBuff, L'(', L')');
 
 				if (!exec.add(emmThen, CurMacroBufferSize+Size))
@@ -1785,17 +1794,59 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 
 				Size++;
 				break;
+			}
 			case MCODE_OP_ELSE:
+			{
 				Size++;
 				break;
-// $While (expr) ... $End
-// -------------------------------------
-// +--------> <expr>
-// |          MCODE_OP_JZ  ------------+
-// |          ...                      |
-// +--------- MCODE_OP_JMP             |
-//            MCODE_OP_END <-----------+
+			}
+			// $Rep (expr) ... $End
+			// -------------------------------------
+			//            <expr>
+			//            MCODE_OP_SAVEREPCOUNT       1
+			// +--------> MCODE_OP_REP                    p1=*
+			// |          <counter>                   3
+			// |          <counter>                   4
+			// |          MCODE_OP_JZ                 5   p2=*+2
+			// |          addr1        ------------+
+			// |          ...                      |
+			// |          MCODE_OP_JMP             |
+			// +--------- addr2                    |
+			//            MCODE_OP_END <-----------+
+			case MCODE_OP_REP:
+			{
+				inloop++;
+				Size += parseExpr(BufPtr, dwExprBuff, L'(', L')');
+
+				if (!exec.add(emmRep, CurMacroBufferSize+Size, CurMacroBufferSize+Size+4))   //??? 3
+				{
+					if (CurMacro_Buffer != NULL)
+					{
+						xf_free(CurMacro_Buffer);
+						CurMacroBuffer = NULL;
+					}
+
+					CurMacroBufferSize = 0;
+					xf_free(dwExprBuff);
+					return FALSE;
+				}
+
+				Size += 5;  // естественно, размер будет больше = 4
+				break;
+			}
+			// $While (expr) ... $End
+			// -------------------------------------
+			// +--------> <expr>
+			// |          MCODE_OP_JZ                    CurMacroBufferSize + Size - 2
+			// |          addr1        ------------+     CurMacroBufferSize + Size - 1
+			// |          ...                      |     ...
+			// |          MCODE_OP_JMP             |     CurMacroBufferSize + Size - 3
+			// +--------- addr2                    |     CurMacroBufferSize + Size - 2
+			//            MCODE_OP_END <-----------+     CurMacroBufferSize + Size - 1
+			//                                           CurMacroBufferSize + Size
 			case MCODE_OP_WHILE:
+			{
+				inloop++;
 				Size += parseExpr(BufPtr, dwExprBuff, L'(', L')');
 
 				if (!exec.add(emmWhile, CurMacroBufferSize, CurMacroBufferSize+Size))
@@ -1813,8 +1864,19 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 
 				Size++;
 				break;
+			}
+			// $continue
+			// -------------------------------------
+			// ^          MCODE_OP_CONTINUE
+			// |          MCODE_OP_JMP
+			// +--------- addr
+			case MCODE_OP_CONTINUE:
+			{
+				Size += 2; // Место под дополнительный JMP
+				break;
+			}
 			case MCODE_OP_END:
-
+			{
 				switch (exec().state)
 				{
 					case emmRep:
@@ -1824,6 +1886,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 				}
 
 				break;
+			}
 		}
 
 		if (_macro_nErr)
@@ -1858,20 +1921,27 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 			case MCODE_OP_DATE:
 			case MCODE_OP_PLAINTEXT:
 			case MCODE_OP_MACROMODE:
+			{
 				_SVS(SysLog(L"[%d] Size=%u",__LINE__,Size));
 				memcpy(CurMacro_Buffer+CurMacroBufferSize, dwExprBuff, Size*sizeof(DWORD));
 				CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
 				break;
+			}
 			case MCODE_OP_SAVE:
+			{
 				memcpy(CurMacro_Buffer+CurMacroBufferSize, dwExprBuff, Size*sizeof(DWORD));
 				CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
 				memcpy(CurMacro_Buffer+CurMacroBufferSize+Size, varName, SizeVarName*sizeof(DWORD));
 				break;
+			}
 			case MCODE_OP_IF:
+			{
 				memcpy(CurMacro_Buffer+CurMacroBufferSize, dwExprBuff, Size*sizeof(DWORD));
 				CurMacro_Buffer[CurMacroBufferSize+Size-2] = MCODE_OP_JZ;
 				break;
+			}
 			case MCODE_OP_REP:
+			{
 				memcpy(CurMacro_Buffer+CurMacroBufferSize, dwExprBuff, Size*sizeof(DWORD));
 				CurMacro_Buffer[CurMacroBufferSize+Size-6] = MCODE_OP_SAVEREPCOUNT;
 				CurMacro_Buffer[CurMacroBufferSize+Size-5] = KeyCode;
@@ -1879,12 +1949,15 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 				CurMacro_Buffer[CurMacroBufferSize+Size-3] = 0;
 				CurMacro_Buffer[CurMacroBufferSize+Size-2] = MCODE_OP_JZ;
 				break;
+			}
 			case MCODE_OP_WHILE:
+			{
 				memcpy(CurMacro_Buffer+CurMacroBufferSize, dwExprBuff, Size*sizeof(DWORD));
 				CurMacro_Buffer[CurMacroBufferSize+Size-2] = MCODE_OP_JZ;
 				break;
+			}
 			case MCODE_OP_ELSE:
-
+			{
 				if (exec().state == emmThen)
 				{
 					exec().state = emmElse;
@@ -1908,8 +1981,31 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 				}
 
 				break;
-			case MCODE_OP_END:
+			}
+			case MCODE_OP_CONTINUE:
+			{
+				TExecItem *ei=NULL;
+				if (!inloop || exec.findnearloop(&ei) == -1)
+				{
+					keyMacroParseError(err_Continue_Outside_The_Loop, oldBufPtr, pSrcString);//BufPtr, pSrcString); // strCurrKeyText
 
+					if (CurMacro_Buffer != NULL)
+					{
+						xf_free(CurMacro_Buffer);
+						CurMacroBuffer = NULL;
+					}
+
+					CurMacroBufferSize = 0;
+					xf_free(dwExprBuff);
+					return FALSE;
+				}
+				CurMacro_Buffer[CurMacroBufferSize+Size-3] = MCODE_OP_CONTINUE; // для метки!
+				CurMacro_Buffer[CurMacroBufferSize+Size-2] = MCODE_OP_JMP;
+				CurMacro_Buffer[CurMacroBufferSize+Size-1] = ei->pos1;
+				break;
+			}
+			case MCODE_OP_END:
+			{
 				switch (exec().state)
 				{
 					case emmMain:
@@ -1931,17 +2027,19 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 						CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
 						break;
 					case emmElse:
-						CurMacro_Buffer[exec().pos1-0] = MCODE_OP_JMP; //??
-						CurMacro_Buffer[exec().pos1+1] = CurMacroBufferSize+Size-1; //??
+						CurMacro_Buffer[exec().pos1-0] = MCODE_OP_JMP;
+						CurMacro_Buffer[exec().pos1+1] = CurMacroBufferSize+Size-1;
 						CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
 						break;
 					case emmRep:
-						CurMacro_Buffer[exec().pos2] = CurMacroBufferSize+Size-1;   //??????
+						inloop--;
+						CurMacro_Buffer[exec().pos2] = CurMacroBufferSize+Size-1;
 						CurMacro_Buffer[CurMacroBufferSize+Size-3] = MCODE_OP_JMP;
 						CurMacro_Buffer[CurMacroBufferSize+Size-2] = exec().pos1;
 						CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
 						break;
 					case emmWhile:
+						inloop--;
 						CurMacro_Buffer[exec().pos2] = CurMacroBufferSize+Size-1;
 						CurMacro_Buffer[CurMacroBufferSize+Size-3] = MCODE_OP_JMP;
 						CurMacro_Buffer[CurMacroBufferSize+Size-2] = exec().pos1;
@@ -1963,6 +2061,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 				}
 
 				break;
+			}
 			case MCODE_OP_KEYS:
 			{
 				CurMacro_Buffer[CurMacroBufferSize+Size-3]=MCODE_OP_KEYS;

@@ -49,6 +49,11 @@ enum TVarType
 
 typedef int (*TVarFuncCmp)(TVarType vt,const void *, const void *);
 
+class TVarSet;
+class TAbstractSet;
+const int V_TABLE_SIZE = 23;
+typedef TVarSet *(TVarTable)[V_TABLE_SIZE];
+
 class TVar
 {
 	private:
@@ -164,9 +169,6 @@ class TVarSet : public TAbstractSet
 		TVarSet(const wchar_t *s) : TAbstractSet(s), value() {}
 };
 
-const int V_TABLE_SIZE = 23;
-
-typedef TVarSet *(TVarTable)[V_TABLE_SIZE];
 extern int isVar(TVarTable, const wchar_t*);
 extern TVarSet *varEnum(TVarTable, int, int);
 extern TVarSet *varLook(TVarTable worktable, const wchar_t* name, bool ins=false);

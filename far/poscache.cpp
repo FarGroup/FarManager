@@ -39,11 +39,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "registry.hpp"
 #include "config.hpp"
 
-#define MSIZE_PARAM            (Opt.MaxPositionCache*sizeof(DWORD64)*5)
-#define MSIZE_POSITION         (BOOKMARK_COUNT*Opt.MaxPositionCache*sizeof(DWORD64)*4)
+#define MSIZE_PARAM1           (sizeof(DWORD64)*5)
+#define MSIZE_PARAM            (Opt.MaxPositionCache*MSIZE_PARAM1)
+#define MSIZE_POSITION1        (BOOKMARK_COUNT*sizeof(DWORD64)*4)
+#define MSIZE_POSITION         (Opt.MaxPositionCache*MSIZE_POSITION1)
 
-#define PARAM_POS(Pos)         ((Pos)*sizeof(DWORD64)*5)
-#define POSITION_POS(Pos,Idx)  ((Pos)*BOOKMARK_COUNT*sizeof(DWORD64)*4+(Idx)*BOOKMARK_COUNT*sizeof(DWORD64))
+#define PARAM_POS(Pos)         ((Pos)*MSIZE_PARAM1)
+#define POSITION_POS(Pos,Idx)  (((Pos)*4+(Idx))*BOOKMARK_COUNT*sizeof(DWORD64))
 
 LPCWSTR EmptyPos=L"0,0,0,0,0,\"$\"";
 
@@ -117,8 +119,8 @@ void FilePositionCache::AddPosition(const wchar_t *Name,PosCache& poscache)
 		Pos = CurPos;
 
 	Names[Pos] = strFullName;
-	memset(Position+POSITION_POS(Pos,0),0xFF,(BOOKMARK_COUNT*4)*sizeof(DWORD64));
-	memcpy(Param+PARAM_POS(Pos),&poscache,sizeof(DWORD64)*5); // ѕри условии, что в TPosCache?? Param стоит первым :-)
+	memcpy(Param+PARAM_POS(Pos),&poscache,MSIZE_PARAM1); // ѕри условии, что в TPosCache?? Param стоит первым :-)
+	memset(Position+POSITION_POS(Pos,0),0xFF,MSIZE_POSITION1);
 
 	for (size_t i=0; i<4; i++)
 	{
@@ -153,7 +155,7 @@ bool FilePositionCache::GetPosition(const wchar_t *Name,PosCache& poscache)
 
 		if (Pos >= 0)
 		{
-			memcpy(&poscache,Param+PARAM_POS(Pos),sizeof(DWORD64)*5); // ѕри условии, что в TPosCache?? Param стоит первым :-)
+			memcpy(&poscache,Param+PARAM_POS(Pos),MSIZE_PARAM1); // ѕри условии, что в TPosCache?? Param стоит первым :-)
 
 			for (size_t i=0; i<4; i++)
 			{
@@ -199,8 +201,8 @@ bool FilePositionCache::Read(const wchar_t *Key)
 	bool Result=false;
 	if (IsMemory)
 	{
-		BYTE DefPos[8096];
-		memset(DefPos,0xff,(BOOKMARK_COUNT*4)*sizeof(DWORD64));
+		BYTE DefPos[MSIZE_POSITION1];
+		memset(DefPos,0xff,MSIZE_POSITION1);
 
 		for (int i=0; i < Opt.MaxPositionCache; i++)
 		{
@@ -208,7 +210,7 @@ bool FilePositionCache::Read(const wchar_t *Key)
 			strItem<<L"Item"<<i;
 			FormatString strShort;
 			strShort<<L"Short"<<i;
-			GetRegKey(Key,strShort,(LPBYTE)Position+POSITION_POS(i,0),(LPBYTE)DefPos,(BOOKMARK_COUNT*4)*sizeof(DWORD64));
+			GetRegKey(Key,strShort,(LPBYTE)Position+POSITION_POS(i,0),(LPBYTE)DefPos,MSIZE_POSITION1);
 			string strDataStr;
 			GetRegKey(Key,strItem,strDataStr,EmptyPos);
 
@@ -275,19 +277,29 @@ bool FilePositionCache::Save(const wchar_t *Key)
 
 			SetRegKey(Key,strItem,strDataStr);
 
-			if ((Opt.ViOpt.SaveViewerShortPos && Opt.ViOpt.SaveViewerPos) ||
-							(Opt.EdOpt.SaveShortPos && Opt.EdOpt.SavePos))
+			if ((Opt.ViOpt.SaveShortPos && Opt.ViOpt.SavePos) || (Opt.EdOpt.SaveShortPos && Opt.EdOpt.SavePos))
 			{
 				// ≈сли не запоминались позиции по RCtrl+<N>, то и не записываем их
-				int j=0;
-				for (; j < 4; j++)
+				bool found=false;
+				for (int j=0; j < 4; j++)
 				{
-					if (*reinterpret_cast<PDWORD64>(Position+POSITION_POS(Pos,j)) != POS_NONE)
+					DWORD64 *CurLine=reinterpret_cast<PDWORD64>(Position+POSITION_POS(Pos,j));
+					// просмотр всех BOOKMARK_COUNT позиций.
+					for (int k=0; k < BOOKMARK_COUNT; ++k)
+					{
+						if (CurLine[k] != POS_NONE)
+						{
+							found=true;
+							break;
+						}
+					}
+
+					if (found)
 						break;
 				}
 
-				if (j < 4)
-					SetRegKey(Key,strShort,Position+POSITION_POS(Pos,0),(BOOKMARK_COUNT*4)*sizeof(DWORD64));
+				if (found)
+					SetRegKey(Key,strShort,Position+POSITION_POS(Pos,0),MSIZE_POSITION1);
 				else
 					DeleteRegValue(Key,strShort);
 			}

@@ -131,7 +131,7 @@ Viewer::~Viewer()
 	{
 		fclose(ViewFile);
 
-		if (Opt.ViOpt.SaveViewerPos)
+		if (Opt.ViOpt.SavePos)
 		{
 			string strCacheName=strPluginData.IsEmpty()?strFullFileName:strPluginData+PointToName(strFileName);
 			UINT CodePage=0;
@@ -148,7 +148,7 @@ Viewer::~Viewer()
 			//=poscache.Param[3];
 			poscache.Param[4]=CodePage;
 
-			if (Opt.ViOpt.SaveViewerShortPos)
+			if (Opt.ViOpt.SaveShortPos)
 			{
 				poscache.Position[0]=BMSavePos.SavePosAddr;
 				poscache.Position[1]=BMSavePos.SavePosLeft;
@@ -305,14 +305,14 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 	apiGetFindDataEx(strFileName, &ViewFindData);
 	UINT CachedCodePage=0;
 
-	if (Opt.ViOpt.SaveViewerPos && !ReadStdin)
+	if (Opt.ViOpt.SavePos && !ReadStdin)
 	{
 		__int64 NewLeftPos,NewFilePos;
 		string strCacheName=strPluginData.IsEmpty()?strFileName:strPluginData+PointToName(strFileName);
 		memset(&BMSavePos,0xff,sizeof(BMSavePos)); //заполним с -1
 		PosCache poscache={0};
 
-		if (Opt.ViOpt.SaveViewerShortPos)
+		if (Opt.ViOpt.SaveShortPos)
 		{
 			poscache.Position[0]=BMSavePos.SavePosAddr;
 			poscache.Position[1]=BMSavePos.SavePosLeft;
@@ -1313,7 +1313,7 @@ int Viewer::ProcessKey(int Key)
 
 				if (NextFileFound)
 				{
-					if (Opt.ViOpt.SaveViewerPos)
+					if (Opt.ViOpt.SavePos)
 					{
 						string strCacheName=strPluginData.IsEmpty()?strFileName:strPluginData+PointToName(strFileName);
 						UINT CodePage=0;
@@ -1329,7 +1329,7 @@ int Viewer::ProcessKey(int Key)
 							//=poscache.Param[3];
 							poscache.Param[4]=CodePage;
 
-							if (Opt.ViOpt.SaveViewerShortPos)
+							if (Opt.ViOpt.SaveShortPos)
 							{
 								poscache.Position[0]=BMSavePos.SavePosAddr;
 								poscache.Position[1]=BMSavePos.SavePosLeft;
@@ -3171,7 +3171,7 @@ int Viewer::ViewerControl(int Command,void *Param)
 				Info->CurMode=VM;
 				Info->Options=0;
 
-				if (Opt.ViOpt.SaveViewerPos)   Info->Options|=VOPT_SAVEFILEPOSITION;
+				if (Opt.ViOpt.SavePos)   Info->Options|=VOPT_SAVEFILEPOSITION;
 
 				if (ViOpt.AutoDetectCodePage)     Info->Options|=VOPT_AUTODETECTCODEPAGE;
 

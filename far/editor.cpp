@@ -6708,6 +6708,7 @@ void Editor::SetCacheParams(EditorCacheParams *pp)
 void Editor::GetCacheParams(EditorCacheParams *pp)
 {
 	memset(pp, 0, sizeof(EditorCacheParams));
+	memset(&pp->SavePos,0xff,sizeof(InternalEditorBookMark));
 	pp->Line = NumLine;
 	pp->ScreenLine = CalcDistance(TopScreen, CurLine,-1);
 	pp->LinePos = CurLine->GetTabCurPos();

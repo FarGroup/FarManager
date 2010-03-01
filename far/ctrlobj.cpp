@@ -170,7 +170,7 @@ ControlObject::~ControlObject()
 	delete CmdLine;
 	delete HiFiles;
 
-	if (Opt.ViOpt.SaveViewerPos)
+	if (Opt.ViOpt.SavePos)
 		ViewerPosCache->Save(L"Viewer\\LastPositions");
 
 	delete ViewerPosCache;
@@ -179,6 +179,7 @@ ControlObject::~ControlObject()
 		EditorPosCache->Save(L"Editor\\LastPositions");
 
 	delete EditorPosCache;
+
 	delete FrameManager;
 	TreeList::FlushCache();
 	SIDCacheFlush();

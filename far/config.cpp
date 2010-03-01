@@ -397,12 +397,12 @@ void ViewerConfig(ViewerOptions &ViOpt,bool Local)
 
 	Builder.StartColumns();
 	Builder.AddCheckbox(MViewConfigPersistentSelection, &ViOpt.PersistentBlocks);
-	DialogItemEx *SavePos = Builder.AddCheckbox(MViewConfigSavePos, &Opt.ViOpt.SaveViewerPos);
+	DialogItemEx *SavePos = Builder.AddCheckbox(MViewConfigSavePos, &Opt.ViOpt.SavePos);
 	DialogItemEx *TabSize = Builder.AddIntEditField(&ViOpt.TabSize, 3);
 	Builder.AddTextAfter(TabSize, MViewConfigTabSize);
 	Builder.ColumnBreak();
 	Builder.AddCheckbox(MViewConfigArrows, &ViOpt.ShowArrows);
-	DialogItemEx *SaveShortPos = Builder.AddCheckbox(MViewConfigSaveShortPos, &Opt.ViOpt.SaveViewerShortPos);
+	DialogItemEx *SaveShortPos = Builder.AddCheckbox(MViewConfigSaveShortPos, &Opt.ViOpt.SaveShortPos);
 	Builder.LinkFlags(SavePos, SaveShortPos, DIF_DISABLE);
 	Builder.AddCheckbox(MViewConfigScrollbar, &ViOpt.ShowScrollbar);
 	Builder.EndColumns();
@@ -546,8 +546,8 @@ static struct FARConfig
 
 	{1, REG_SZ,     NKeyViewer,L"ExternalViewerName",&Opt.strExternalViewer, 0, L""},
 	{1, REG_DWORD,  NKeyViewer,L"UseExternalViewer",&Opt.ViOpt.UseExternalViewer,0, 0},
-	{1, REG_DWORD,  NKeyViewer,L"SaveViewerPos",&Opt.ViOpt.SaveViewerPos,1, 0},
-	{1, REG_DWORD,  NKeyViewer,L"SaveViewerShortPos",&Opt.ViOpt.SaveViewerShortPos,1, 0},
+	{1, REG_DWORD,  NKeyViewer,L"SaveViewerPos",&Opt.ViOpt.SavePos,1, 0},
+	{1, REG_DWORD,  NKeyViewer,L"SaveViewerShortPos",&Opt.ViOpt.SaveShortPos,1, 0},
 	{1, REG_DWORD,  NKeyViewer,L"AutoDetectCodePage",&Opt.ViOpt.AutoDetectCodePage,0, 0},
 	{1, REG_DWORD,  NKeyViewer,L"SearchRegexp",&Opt.ViOpt.SearchRegexp,0, 0},
 

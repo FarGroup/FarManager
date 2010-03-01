@@ -12983,14 +12983,6 @@ upd:"Line %d, Pos %d"
 upd:"Line %d, Pos %d"
 upd:"Line %d, Pos %d"
 
-MMacroPErrIntParserError
-"Внутренняя ошибка парсера"
-"Internal parser error"
-upd:"Internal parser error"
-upd:"Internal parser error"
-upd:"Internal parser error"
-upd:"Internal parser error"
-
 MMacroPErrUnrecognized_keyword
 l:
 "Неизвестное ключевое слово '%s'"
@@ -13087,6 +13079,22 @@ upd:"Zero-length macro"
 upd:"Zero-length macro"
 "Nulla hosszúságú makró"
 upd:"Zero-length macro"
+
+MMacroPErrIntParserError
+"Внутренняя ошибка парсера"
+"Internal parser error"
+upd:"Internal parser error"
+upd:"Internal parser error"
+upd:"Internal parser error"
+upd:"Internal parser error"
+
+MMacroPErrContinueOutsideTheLoop
+"Оператор $Continue вне цикла"
+upd:"$Continue outside the loop"
+upd:"$Continue outside the loop"
+upd:"$Continue outside the loop"
+upd:"$Continue outside the loop"
+upd:"$Continue outside the loop"
 
 MCannotSaveFile
 l:
