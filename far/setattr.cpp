@@ -119,9 +119,9 @@ struct SetAttrDlgParam
 	DIALOGMODE DialogMode;
 	string strSelName;
 	// значения CheckBox`ов на момент старта диалога
-	int OriginalCBAttr[16];
-	int OriginalCBAttr2[16];
-	DWORD OriginalCBFlag[16];
+	int OriginalCBAttr[SA_ATTR_LAST-SA_ATTR_FIRST+1];
+	int OriginalCBAttr2[SA_ATTR_LAST-SA_ATTR_FIRST+1];
+	DWORD OriginalCBFlag[SA_ATTR_LAST-SA_ATTR_FIRST+1];
 	FARCHECKEDSTATE OSubfoldersState, OCompressState, OEncryptState;
 	bool OLastWriteTime,OCreationTime,OLastAccessTime;
 };
@@ -138,8 +138,11 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
 			if ((Param1>=SA_ATTR_FIRST&&Param1<=SA_ATTR_LAST)||Param1==SA_CHECKBOX_SUBFOLDERS)
 			{
-				DlgParam->OriginalCBAttr[Param1-SA_ATTR_FIRST]=static_cast<int>(Param2);
-				DlgParam->OriginalCBAttr2[Param1-SA_ATTR_FIRST]=0;
+				if(Param1!=SA_CHECKBOX_SUBFOLDERS)
+				{
+					DlgParam->OriginalCBAttr[Param1-SA_ATTR_FIRST]=static_cast<int>(Param2);
+					DlgParam->OriginalCBAttr2[Param1-SA_ATTR_FIRST]=0;
+				}
 				int FocusPos=static_cast<int>(SendDlgMessage(hDlg,DM_GETFOCUS,0,0));
 				FARCHECKEDSTATE CompressState=static_cast<FARCHECKEDSTATE>(SendDlgMessage(hDlg,DM_GETCHECK,SA_CHECKBOX_COMPRESSED,0));
 				FARCHECKEDSTATE EncryptState=static_cast<FARCHECKEDSTATE>(SendDlgMessage(hDlg,DM_GETCHECK,SA_CHECKBOX_ENCRYPTED,0));
