@@ -1414,6 +1414,7 @@ int Edit::ProcessKey(int Key)
 
 			if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
 			{
+				DisableCallback DC(m_Callback.Active);
 				DeleteBlock();
 			}
 
