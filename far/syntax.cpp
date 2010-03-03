@@ -358,6 +358,7 @@ static TMacroFunction macroFunction[]=
 	{L"SLEEP",            1, 0,   MCODE_F_SLEEP,            NULL, L"N=Sleep(N)"},
 	{L"STRING",           1, 0,   MCODE_F_STRING,           NULL, L"S=String(V)"},
 	{L"SUBSTR",           3, 1,   MCODE_F_SUBSTR,           NULL, L"S=SubStr(S,N1[,N2])"},
+	{L"TESTFOLDER",       1, 0,   MCODE_F_TESTFOLDER,       NULL, L"N=testfolder(S)"},
 	{L"TRIM",             2, 1,   MCODE_F_TRIM,             NULL, L"S=Trim(S[,N])"},
 	{L"UCASE",            1, 0,   MCODE_F_UCASE,            NULL, L"S=UCase(S1)"},
 	{L"WAITKEY",          2, 2,   MCODE_F_WAITKEY,          NULL, L"V=Waitkey([N,[T]])"},

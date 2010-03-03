@@ -105,18 +105,18 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
 }
 
 /*
-  ‘ункци€ CheckFolder возвращает одно состо€ний тестируемого каталога:
+  ‘ункци€ TestFolder возвращает одно состо€ний тестируемого каталога:
 
-    CHKFLD_NOTFOUND   (2) - нет такого
-    CHKFLD_NOTEMPTY   (1) - не пусто
-    CHKFLD_EMPTY      (0) - пусто
-    CHKFLD_NOTACCESS (-1) - нет доступа
-    CHKFLD_ERROR     (-2) - ошибка (параметры - дерьмо или нехватило пам€ти дл€ выделени€ промежуточных буферов)
+    TSTFLD_NOTFOUND   (2) - нет такого
+    TSTFLD_NOTEMPTY   (1) - не пусто
+    TSTFLD_EMPTY      (0) - пусто
+    TSTFLD_NOTACCESS (-1) - нет доступа
+    TSTFLD_ERROR     (-2) - ошибка (кривые параметры или нехватило пам€ти дл€ выделени€ промежуточных буферов)
 */
-int CheckFolder(const wchar_t *Path)
+int TestFolder(const wchar_t *Path)
 {
 	if (!(Path && *Path)) // проверка на вшивость
-		return CHKFLD_ERROR;
+		return TSTFLD_ERROR;
 
 	HANDLE FindHandle;
 	FAR_FIND_DATA_EX fdata;
@@ -132,7 +132,7 @@ int CheckFolder(const wchar_t *Path)
 		GuardLastError lstError;
 
 		if (lstError.Get() == ERROR_FILE_NOT_FOUND)
-			return CHKFLD_EMPTY;
+			return TSTFLD_EMPTY;
 
 		// собственно... не факт, что диск не читаем, т.к. на чистом диске в корне нету даже "."
 		// поэтому посмотрим на Root
@@ -144,9 +144,9 @@ int CheckFolder(const wchar_t *Path)
 			if (apiGetFileAttributes(strFindPath)!=INVALID_FILE_ATTRIBUTES)
 			{
 				if (lstError.Get() == ERROR_ACCESS_DENIED)
-					return CHKFLD_NOTACCESS;
+					return TSTFLD_NOTACCESS;
 
-				return CHKFLD_EMPTY;
+				return TSTFLD_EMPTY;
 			}
 		}
 
@@ -155,10 +155,10 @@ int CheckFolder(const wchar_t *Path)
 		if (CheckShortcutFolder(&strFindPath,FALSE,TRUE))
 		{
 			if (StrCmp(Path,strFindPath))
-				return CHKFLD_NOTFOUND;
+				return TSTFLD_NOTFOUND;
 		}
 
-		return CHKFLD_NOTACCESS;
+		return TSTFLD_NOTACCESS;
 	}
 
 	// ќк. „то-то есть. ѕопробуем ответить на вопрос "путой каталог?"
@@ -170,7 +170,7 @@ int CheckFolder(const wchar_t *Path)
 		{
 			// что-то есть, отличное от "." и ".." - каталог не пуст
 			apiFindClose(FindHandle);
-			return CHKFLD_NOTEMPTY;
+			return TSTFLD_NOTEMPTY;
 		}
 
 		Done=!apiFindNextFile(FindHandle,&fdata);
@@ -178,7 +178,7 @@ int CheckFolder(const wchar_t *Path)
 
 	// однозначно каталог пуст
 	apiFindClose(FindHandle);
-	return CHKFLD_EMPTY;
+	return TSTFLD_EMPTY;
 }
 
 /*
@@ -223,9 +223,9 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 
 					if (apiGetFileAttributes(strTestPathTemp) != INVALID_FILE_ATTRIBUTES)
 					{
-						int ChkFld=CheckFolder(strTestPathTemp);
+						int ChkFld=TestFolder(strTestPathTemp);
 
-						if (ChkFld > CHKFLD_ERROR && ChkFld < CHKFLD_NOTFOUND)
+						if (ChkFld > TSTFLD_ERROR && ChkFld < TSTFLD_NOTFOUND)
 						{
 							if (!(pTestPath->At(0) == L'\\' && pTestPath->At(1) == L'\\' && strTestPathTemp.At(1) == 0))
 							{

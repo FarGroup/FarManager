@@ -33,13 +33,13 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-enum CHECKFOLDERCONST  // for CheckFolder()
+enum TESTFOLDERCONST  // for TestFolder()
 {
-	CHKFLD_ERROR     = -2,
-	CHKFLD_NOTACCESS = -1,
-	CHKFLD_EMPTY     =  0,
-	CHKFLD_NOTEMPTY  =  1,
-	CHKFLD_NOTFOUND  =  2,
+	TSTFLD_ERROR     = -2,
+	TSTFLD_NOTACCESS = -1,
+	TSTFLD_EMPTY     =  0,
+	TSTFLD_NOTEMPTY  =  1,
+	TSTFLD_NOTFOUND  =  2,
 };
 
 /* $ 15.02.2002 IS
@@ -50,7 +50,7 @@ enum CHECKFOLDERCONST  // for CheckFolder()
 */
 BOOL FarChDir(const wchar_t *NewDir,BOOL ChangeDir=TRUE);
 
-int CheckFolder(const wchar_t *Name);
+int TestFolder(const wchar_t *Name);
 int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent=FALSE);
 
 void CreatePath(string &strPath);

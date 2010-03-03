@@ -367,7 +367,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 				{
 					ConvertNameToFull(strSelName, strFullName);
 
-					if (CheckFolder(strFullName) == CHKFLD_NOTEMPTY)
+					if (TestFolder(strFullName) == TSTFLD_NOTEMPTY)
 					{
 						int MsgCode=0;
 
@@ -464,7 +464,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 								continue;
 							}
 
-							if (!DeleteAllFolders && !ScTree.IsDirSearchDone() && CheckFolder(strFullName) == CHKFLD_NOTEMPTY)
+							if (!DeleteAllFolders && !ScTree.IsDirSearchDone() && TestFolder(strFullName) == TSTFLD_NOTEMPTY)
 							{
 								int MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(Wipe?MWipeFolderTitle:MDeleteFolderTitle),
 								                    MSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),strFullName,

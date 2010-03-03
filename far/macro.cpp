@@ -74,6 +74,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "panelmix.hpp"
 #include "constitle.hpp"
+#include "dirmix.hpp"
 
 // для диалога назначения клавиши
 struct DlgParam
@@ -3271,6 +3272,31 @@ static bool callpluginFunc()
 	return Ret?true:false;
 }
 
+// N=testfolder(S)
+/*
+возвращает одно состояний тестируемого каталога:
+
+TSTFLD_NOTFOUND   (2) - нет такого
+TSTFLD_NOTEMPTY   (1) - не пусто
+TSTFLD_EMPTY      (0) - пусто
+TSTFLD_NOTACCESS (-1) - нет доступа
+TSTFLD_ERROR     (-2) - ошибка (кривые параметры или нехватило памяти для выделения промежуточных буферов)
+*/
+static bool testfolderFunc()
+{
+	TVar tmpVar;
+	VMStack.Pop(tmpVar);
+	__int64 Ret=TSTFLD_ERROR;
+
+	if (tmpVar.isString())
+	{
+		Ret=(__int64)TestFolder(tmpVar.s());
+	}
+
+	VMStack.Push(Ret);
+	return Ret?true:false;
+}
+
 const wchar_t *eStackAsString(int)
 {
 	const wchar_t *s=__varTextDate.toString();
@@ -3646,10 +3672,19 @@ done:
 		}
 
 		case MCODE_OP_DUP:        // продублировать верхнее значение в стеке
-			VMStack.Pop(tmpVar);
-			VMStack.Push(tmpVar);
+			tmpVar=VMStack.Peek();
 			VMStack.Push(tmpVar);
 			goto begin;
+
+		case MCODE_OP_SWAP:
+		{
+			TVar Val0;
+			VMStack.Pop(Val0);
+			VMStack.Pop(tmpVar);
+			VMStack.Push(Val0);
+			VMStack.Push(tmpVar);
+			goto begin;
+		}
 
 		case MCODE_OP_DISCARD:    // убрать значение с вершины стека
 			VMStack.Pop();
@@ -3669,11 +3704,11 @@ done:
 		}
 		/*                               Вместо
 			0: MCODE_OP_COPY                 0:   MCODE_OP_PUSHVAR
-			1: VarDest                       1:   VarSrc
+			1: szVarDest                     1:   VarSrc
 			...                              ...
-			N: VarSrc                        N:   MCODE_OP_DOIT
-			...                            N+1:   MCODE_OP_SAVE
-			                               N+2:   VarDest
+			N: szVarSrc                      N:   MCODE_OP_SAVE
+			...                            N+1:   VarDest
+			                               N+2:
 			                                 ...
 		*/
 		case MCODE_OP_COPY:       // 0: Copy 1: VarDest 2: VarSrc ==>  %a=%d
@@ -3826,6 +3861,89 @@ done:
 		case MCODE_OP_BITSHR: VMStack.Pop(tmpVar); VMStack.Push(VMStack.Pop() >> tmpVar); goto begin;
 		case MCODE_OP_BITSHL: VMStack.Pop(tmpVar); VMStack.Push(VMStack.Pop() << tmpVar); goto begin;
 		case MCODE_OP_BITNOT: VMStack.Pop(tmpVar); VMStack.Push(~tmpVar); goto begin;
+		case MCODE_OP_ADDEQ:                   // a +=  b
+		{
+			GetPlainText(value);
+			TVarTable *t = (value.At(0) == L'%') ? &glbVarTable : Work.locVarTable;
+			tmpVarSet=varLook(*t, value);
+			VMStack.Pop(tmpVar);
+			tmpVarSet->value += tmpVar;
+			goto begin;
+		}
+		case MCODE_OP_SUBEQ:                   // a -=  b
+		{
+			GetPlainText(value);
+			TVarTable *t = (value.At(0) == L'%') ? &glbVarTable : Work.locVarTable;
+			tmpVarSet=varLook(*t, value);
+			VMStack.Pop(tmpVar);
+			tmpVarSet->value -= tmpVar;
+			goto begin;
+		}
+		case MCODE_OP_MULEQ:                   // a *=  b
+		{
+			GetPlainText(value);
+			TVarTable *t = (value.At(0) == L'%') ? &glbVarTable : Work.locVarTable;
+			tmpVarSet=varLook(*t, value);
+			VMStack.Pop(tmpVar);
+			tmpVarSet->value *= tmpVar;
+			goto begin;
+		}
+		case MCODE_OP_DIVEQ:                   // a /=  b
+		{
+			GetPlainText(value);
+			TVarTable *t = (value.At(0) == L'%') ? &glbVarTable : Work.locVarTable;
+			tmpVarSet=varLook(*t, value);
+			VMStack.Pop(tmpVar);
+			if (tmpVar == 0ll)
+				goto done;
+			tmpVarSet->value /= tmpVar;
+			goto begin;
+		}
+		case MCODE_OP_BITSHREQ:                // a >>= b
+		{
+			GetPlainText(value);
+			TVarTable *t = (value.At(0) == L'%') ? &glbVarTable : Work.locVarTable;
+			tmpVarSet=varLook(*t, value);
+			VMStack.Pop(tmpVar);
+			tmpVarSet->value >>= tmpVar;
+			goto begin;
+		}
+		case MCODE_OP_BITSHLEQ:                // a <<= b
+		{
+			GetPlainText(value);
+			TVarTable *t = (value.At(0) == L'%') ? &glbVarTable : Work.locVarTable;
+			tmpVarSet=varLook(*t, value);
+			VMStack.Pop(tmpVar);
+			tmpVarSet->value <<= tmpVar;
+			goto begin;
+		}
+		case MCODE_OP_BITANDEQ:                // a &=  b
+		{
+			GetPlainText(value);
+			TVarTable *t = (value.At(0) == L'%') ? &glbVarTable : Work.locVarTable;
+			tmpVarSet=varLook(*t, value);
+			VMStack.Pop(tmpVar);
+			tmpVarSet->value &= tmpVar;
+			goto begin;
+		}
+		case MCODE_OP_BITXOREQ:                // a ^=  b
+		{
+			GetPlainText(value);
+			TVarTable *t = (value.At(0) == L'%') ? &glbVarTable : Work.locVarTable;
+			tmpVarSet=varLook(*t, value);
+			VMStack.Pop(tmpVar);
+			tmpVarSet->value ^= tmpVar;
+			goto begin;
+		}
+		case MCODE_OP_BITOREQ:                 // a |=  b
+		{
+			GetPlainText(value);
+			TVarTable *t = (value.At(0) == L'%') ? &glbVarTable : Work.locVarTable;
+			tmpVarSet=varLook(*t, value);
+			VMStack.Pop(tmpVar);
+			tmpVarSet->value |= tmpVar;
+			goto begin;
+		}
 			// Function
 		case MCODE_F_EVAL: // N=eval(S)
 		{
@@ -4050,6 +4168,7 @@ done:
 				{MCODE_F_CHR,chrFunc}, // S=chr(N)
 				{MCODE_F_REPLACE,replaceFunc}, // Result=replace(Str,Find,Replace[,Cnt[,Mode]])
 				{MCODE_F_KEY,keyFunc}, // S=key(V)
+				{MCODE_F_TESTFOLDER,testfolderFunc}, // N=testfolder(S)
 			};
 			int J;
 

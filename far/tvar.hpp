@@ -91,11 +91,16 @@ class TVar
 
 		TVar& operator=(const TVar&);
 
-		TVar& operator+=(const TVar& b) { return *this = *this+b; };
-		TVar& operator-=(const TVar& b) { return *this = *this-b; };
-		TVar& operator*=(const TVar& b) { return *this = *this*b; };
-		TVar& operator/=(const TVar& b) { return *this = *this/b; };
-		TVar& operator%=(const TVar& b) { return *this = *this%b; };
+		TVar& operator+=(const TVar& b)  { return *this = *this+b;  };
+		TVar& operator-=(const TVar& b)  { return *this = *this-b;  };
+		TVar& operator*=(const TVar& b)  { return *this = *this*b;  };
+		TVar& operator/=(const TVar& b)  { return *this = *this/b;  };
+		TVar& operator%=(const TVar& b)  { return *this = *this%b;  };
+		TVar& operator&=(const TVar& b)  { return *this = *this&b;  };
+		TVar& operator|=(const TVar& b)  { return *this = *this|b;  };
+		TVar& operator^=(const TVar& b)  { return *this = *this^b;  };
+		TVar& operator>>=(const TVar& b) { return *this = *this>>b; };
+		TVar& operator<<=(const TVar& b) { return *this = *this<<b; };
 
 		TVar operator+();
 		TVar operator-();

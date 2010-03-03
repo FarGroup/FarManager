@@ -69,33 +69,55 @@ enum MACRO_OP_CODE
 	MCODE_OP_END,                     // $end - признак конца цикла/условия
 
 	// Одноместные операции
+	// ++a, --a
+
 	MCODE_OP_NEGATE,                  // -a
 	MCODE_OP_NOT,                     // !a
+	MCODE_OP_BITNOT,                  // ~a
 
 	// Двуместные операции
+	MCODE_OP_MUL,                     // a *  b
+	MCODE_OP_DIV,                     // a /  b
+
+	MCODE_OP_ADD,                     // a +  b
+	MCODE_OP_SUB,                     // a -  b
+
+	MCODE_OP_BITSHR,                  // a >> b
+	MCODE_OP_BITSHL,                  // a << b
+
 	MCODE_OP_LT,                      // a <  b
 	MCODE_OP_LE,                      // a <= b
 	MCODE_OP_GT,                      // a >  b
 	MCODE_OP_GE,                      // a >= b
+
 	MCODE_OP_EQ,                      // a == b
 	MCODE_OP_NE,                      // a != b
 
-	MCODE_OP_ADD,                     // a +  b
-	MCODE_OP_SUB,                     // a -  b
-	MCODE_OP_MUL,                     // a *  b
-	MCODE_OP_DIV,                     // a /  b
+	MCODE_OP_BITAND,                  // a &  b
+
+	MCODE_OP_BITXOR,                  // a ^  b
+
+	MCODE_OP_BITOR,                   // a |  b
 
 	MCODE_OP_AND,                     // a && b
+
 	MCODE_OP_OR,                      // a || b
-	MCODE_OP_BITAND,                  // a &  b
-	MCODE_OP_BITOR,                   // a |  b
-	MCODE_OP_BITXOR,                  // a ^  b
-	MCODE_OP_BITSHR,                  // a >> b
-	MCODE_OP_BITSHL,                  // a << b
-	MCODE_OP_BITNOT,                  // ~a
+
+	MCODE_OP_ADDEQ,                   // a +=  b
+	MCODE_OP_SUBEQ,                   // a -=  b
+	MCODE_OP_MULEQ,                   // a *=  b
+	MCODE_OP_DIVEQ,                   // a /=  b
+	MCODE_OP_BITSHREQ,                // a >>= b
+	MCODE_OP_BITSHLEQ,                // a <<= b
+	MCODE_OP_BITANDEQ,                // a &=  b
+	MCODE_OP_BITXOREQ,                // a ^=  b
+	MCODE_OP_BITOREQ,                 // a |=  b
+
+	// a++, a--
 
 	MCODE_OP_DISCARD,                 // убрать значение с вершины стека
 	MCODE_OP_DUP,                     // продублировать верхнее значение в стеке
+	MCODE_OP_SWAP,                    // обменять местами два значения в вершине стека
 	MCODE_OP_POP,                     // присвоить значение переменной и убрать из вершины стека
 	MCODE_OP_COPY,                    // %a=%d, стек не используется
 
@@ -182,6 +204,7 @@ enum MACRO_OP_CODE
 	MCODE_F_BM_STAT,                  // N=BM.Stat([M]) - возвращает информацию о закладках, N=0 - текущее количество закладок
 	MCODE_F_TRIM,                     // S=trim(S[,N])
 	MCODE_F_FLOAT,                    // N=float(V)
+	MCODE_F_TESTFOLDER,               // N=testfolder(S)
 
 	/* ************************************************************************* */
 	// булевые переменные - различные состояния

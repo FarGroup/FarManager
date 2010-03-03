@@ -646,7 +646,7 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 				return 0;
 			}
 
-			if (CheckFolder(strDestFullName) == CHKFLD_NOTEMPTY) // а пустой?
+			if (TestFolder(strDestFullName) == TSTFLD_NOTEMPTY) // а пустой?
 			{
 				// не пустой, ну что же, тогда пробуем сделать dest\srcname
 				AddEndSlash(strDestFullName);
@@ -665,7 +665,7 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 
 				if (JSAttr != INVALID_FILE_ATTRIBUTES) // И такой тоже есть???
 				{
-					if (CheckFolder(strDestFullName) == CHKFLD_NOTEMPTY) // а пустой?
+					if (TestFolder(strDestFullName) == TSTFLD_NOTEMPTY) // а пустой?
 					{
 						if (!(Flags&FCOPY_NOSHOWMSGLINK))
 						{

@@ -474,7 +474,7 @@ static void ConfigureChangeDriveMode()
 	Builder.AddCheckbox(MChangeDriveShowFileSystem, &Opt.ChangeDriveMode, DRIVE_SHOW_FILESYSTEM);
 
 	BOOL ShowSizeAny = Opt.ChangeDriveMode & (DRIVE_SHOW_SIZE | DRIVE_SHOW_SIZE_FLOAT);
-	
+
 	DialogItemEx *ShowSize = Builder.AddCheckbox(MChangeDriveShowSize, &ShowSizeAny);
 	DialogItemEx *ShowSizeFloat = Builder.AddCheckbox(MChangeDriveShowSizeFloat, &Opt.ChangeDriveMode, DRIVE_SHOW_SIZE_FLOAT);
 	ShowSizeFloat->Indent(3);
@@ -484,9 +484,9 @@ static void ConfigureChangeDriveMode()
 	Builder.AddCheckbox(MChangeDriveShowPlugins, &Opt.ChangeDriveMode, DRIVE_SHOW_PLUGINS);
 	Builder.AddCheckbox(MChangeDriveShowCD, &Opt.ChangeDriveMode, DRIVE_SHOW_CDROM);
 	Builder.AddCheckbox(MChangeDriveShowNetworkDrive, &Opt.ChangeDriveMode, DRIVE_SHOW_REMOTE);
-		
+
 	Builder.AddOKCancel();
-	if (Builder.ShowDialog()) 
+	if (Builder.ShowDialog())
 	{
 		if (ShowSizeAny)
 		{
@@ -1827,9 +1827,9 @@ int Panel::SetCurPath()
 
 			if (FAR_GetDriveType(strRoot) != DRIVE_REMOVABLE || apiIsDiskInDrive(strRoot))
 			{
-				int Result=CheckFolder(strCurDir);
+				int Result=TestFolder(strCurDir);
 
-				if (Result == CHKFLD_NOTFOUND)
+				if (Result == TSTFLD_NOTFOUND)
 				{
 					if (CheckShortcutFolder(&strCurDir,FALSE,TRUE) && FarChDir(strCurDir))
 					{
@@ -1877,7 +1877,7 @@ int Panel::SetCurPath()
 
 			if (FAR_GetDriveType(Root) == DRIVE_REMOVABLE && !apiIsDiskInDrive(Root))
 				IsChangeDisk=TRUE;
-			else if (CheckFolder(CurDir) == CHKFLD_NOTACCESS)
+			else if (TestFolder(CurDir) == TSTFLD_NOTACCESS)
 			{
 				if (FarChDir(Root))
 					SetCurDir(Root,TRUE);

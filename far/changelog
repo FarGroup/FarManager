@@ -1,3 +1,26 @@
+svs 03.03.2010 17:33:17 +0300 - build 1432
+
+1. Функция CheckFolder() переименована в TestFolder(), соответствующим образом изменены наименование кодов возврата.
+
+2. Macro: Новая функция: N=testfolder(S) - тестирование каталога, возвращает
+      2 - нет такого
+      1 - не пусто
+      0 - пусто
+     -1 - нет доступа
+     -2 - ошибка (неправильные параметры или нехватило памяти для выделения промежуточных буферов)
+
+   Константы:
+     REGEDIT4
+
+     [HKEY_CURRENT_USER\Software\Far2\KeyMacros\Consts]
+     "TSTFLD_NOTFOUND"=dword:00000002
+     "TSTFLD_NOTEMPTY"=dword:00000001
+     "TSTFLD_EMPTY"=dword:00000000
+     "TSTFLD_NOTACCESS"=dword:FFFFFFFF
+     "TSTFLD_ERROR"=dword:FFFFFFFE
+
+3. Macro: немного тестовых добавок в "машину".
+
 drkns 02.03.2010 18:32:43 +0200 - build 1431
 
 1. Лишний callback при вставке текста в строку ввода.
