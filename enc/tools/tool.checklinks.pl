@@ -14,6 +14,11 @@ srch($dir);
 $dir = "../enc_eng/meta";
 srch($dir);
 
+$dir = "../enc_rus2/meta";
+srch($dir);
+
+#$dir = "../enc_eng2/meta";
+#srch($dir);
 
 sub srch
 {
