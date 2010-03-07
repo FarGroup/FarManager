@@ -1,15 +1,8 @@
-#$src_dir            =
+#!/usr/bin/perl -w
+
 $dest_dr            = "../enc";
 
 $dest_dr_inet       = $dest_dr."/inet";
-$dest_dr_inet_ru    = $dest_dr_inet."/ru";
-$dest_dr_inet_en    = $dest_dr_inet."/en";
-$dest_dr_chm        = $dest_dr."/chm";
-$dest_dr_chm_ru     = $dest_dr_chm."/ru";
-$dest_dr_chm_en     = $dest_dr_chm."/en";
-
-$meta_ru            = $dest_dr_chm_ru."/meta";
-$meta_en            = $dest_dr_chm_en."/meta";
 
 print "PREPARING INET PROJECT\n";
 
@@ -26,12 +19,12 @@ mkdir $dest_dr_inet."/styles", 0775;
 
 mk_inet_lng("ru","rus");
 mk_inet_lng("en","eng");
+mk_inet_lng("ru2","rus2");
+#mk_inet_lng("en2","eng2");
 
 system "cp -f inet/index.html ".$dest_dr_inet."/index.html";
 system "cp -f inet/farenclogo.gif ".$dest_dr_inet."/images/farenclogo.gif";
 system "cp -f inet/styles.css ".$dest_dr_inet."/styles/styles.css";
-
-#print " -- now convert manually all files in ../inet/ to koi8 \n";
 
 sub mk_inet_lng
 {

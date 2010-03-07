@@ -1,4 +1,5 @@
 #!/usr/bin/perl -w
+
 $dest_dr            = "/var/www/api";
 
 $dest_dr_inet       = $dest_dr."/temp";
@@ -17,6 +18,8 @@ mkdir $dest_dr."/styles", 0775;
 
 mk_inet_lng("ru","rus");
 mk_inet_lng("en","eng");
+mk_inet_lng("ru2","rus2");
+#mk_inet_lng("en2","eng2");
 
 system "svn export -q --force --username=fargroup --password=secret http://localhost/svn/enc/trunk/tools/inet/ ".$dest_dr_inet."/inet";
 system "cp -f ".$dest_dr_inet."/inet/index.html ".$dest_dr;

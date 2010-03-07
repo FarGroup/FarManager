@@ -1,13 +1,6 @@
-$dest_dr            = "../enc";
-$dest_dr_inet       = $dest_dr."/inet";
-$dest_dr_inet_ru    = $dest_dr_inet."/ru";
-$dest_dr_inet_en    = $dest_dr_inet."/en";
-$dest_dr_chm        = $dest_dr."/chm";
-$dest_dr_chm_ru     = $dest_dr_chm."/ru";
-$dest_dr_chm_en     = $dest_dr_chm."/en";
+#!/usr/bin/perl -w
 
-$meta_ru            = $dest_dr_chm_ru."/meta";
-$meta_en            = $dest_dr_chm_en."/meta";
+$dest_dr            = "../enc";
 
 $toolpath           = "";
 if($^O eq "MSWin32"){
