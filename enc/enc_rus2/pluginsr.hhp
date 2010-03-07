@@ -1,6 +1,6 @@
 [OPTIONS]
 Compatibility=1.1 or later
-Compiled file=distr_chm_pluginsr\FarEncyclopedia2.ru.chm
+Compiled file=distr_chm_pluginsr\FarEncyclopedia.ru.chm
 Contents file=pluginsr.hhc
 Default Font=,8,204
 Default Window=far
