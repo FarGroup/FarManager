@@ -590,9 +590,11 @@
     </Directory>
   </Directory>
   <Directory Id="Encyclopedia" Name="Encyclopedia">
+<?if $(var.Branch) = 1 ?>
     <Component Id="FarEncyclopedia.en.chm" Guid="$(var.Guid.FarEncyclopedia.en.chm)" Win64="$(var.Win64)">
       <File Id="FarEncyclopedia.en.chm" KeyPath="yes" Source="$(var.SourceDir)\Encyclopedia\FarEncyclopedia.en.chm" />
     </Component>
+<?endif?>
     <Component Id="FarEncyclopedia.ru.chm" Guid="$(var.Guid.FarEncyclopedia.ru.chm)" Win64="$(var.Win64)">
       <File Id="FarEncyclopedia.ru.chm" KeyPath="yes" Source="$(var.SourceDir)\Encyclopedia\FarEncyclopedia.ru.chm" />
     </Component>
