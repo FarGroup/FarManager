@@ -70,31 +70,34 @@ struct FarDialogItem
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_dropdownlist.html">DIF_DROPDOWNLIST</a></td>
- <td class="cont" width="60%">Стиль нередактируемого раскрывающегося списка - DropDownList.
+ <td class="cont" width="60%">стиль нередактируемого раскрывающегося списка - DropDownList
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_editexpand.html">DIF_EDITEXPAND</a></td>
- <td class="cont" width="60%">"Расширять" переменные среды.
+ <td class="cont" width="60%">"расширять" переменные среды
  </td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_editpath.html">DIF_EDITPATH</a></td>
+<td class="cont" width="60%">строка ввода будет содержать имена реальных файловых объектов
+</td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listautohighlight.html">DIF_LISTAUTOHIGHLIGHT</a></td>
- <td class="cont" width="60%">Горячие клавиши будут назначены автоматически.
+ <td class="cont" width="60%">горячие клавиши будут назначены автоматически
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listnoampersand.html">DIF_LISTNOAMPERSAND</a></td>
- <td class="cont" width="60%">показывать горячие клавиши в списке.
+ <td class="cont" width="60%">показывать горячие клавиши в списке
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listwrapmode.html">DIF_LISTWRAPMODE</a></td>
- <td class="cont" width="60%">"Заворачивает" список при навигации по списку.
+ <td class="cont" width="60%">"заворачивает" список при навигации по списку
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_disable.html">DIF_DISABLE</a></td>
- <td class="cont" width="60%">Элемент является недоступным.
+ <td class="cont" width="60%">элемент является недоступным
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_readonly.html">DIF_READONLY</a></td>
- <td class="cont" width="60%">Переводит строки редактирования в состояние "только для чтения"
+ <td class="cont" width="60%">переводит строки редактирования в состояние "только для чтения"
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_selectonentry.html">DIF_SELECTONENTRY</a></td>
- <td class="cont" width="60%">Выделить редактируемый текст при получении фокуса ввода.
+ <td class="cont" width="60%">выделить редактируемый текст при получении фокуса ввода
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a></td>
- <td class="cont" width="60%">Управляющий элемент не получает клавиатурный фокус ввода.
+ <td class="cont" width="60%">управляющий элемент не получает клавиатурный фокус ввода
  </td></tr>
 </table>
 </div>
@@ -136,11 +139,13 @@ HiWord HiByte - цвет символа для вызова списка
                 (<a href="../../defs/farcolors.html#COL_DIALOGTEXT">COL_DIALOGTEXT</a>)</pre>
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlglist.html">DN_CTLCOLORDLGLIST</a></td>
- <td class="cont" width="60%">запрос цветовых атрибутов перед отрисовкой открытого
-   комбинированного списка.
+ <td class="cont" width="60%">запрос цветовых атрибутов перед отрисовкой открытого комбинированного списка
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_key.html">DN_KEY</a></td>
- <td class="cont" width="60%">нажали клавишу.
+ <td class="cont" width="60%">нажали клавишу
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_listhotkey.html">DN_LISTHOTKEY</a></td>
+ <td class="cont" width="60%">пользователь для смены пункта в открытом комбинированном списке воспользовался горячими клавишами
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_mouseclick.html">DN_MOUSECLICK</a></td>
  <td class="cont" width="60%">"кликнули" клавишей мыши
@@ -149,10 +154,10 @@ HiWord HiByte - цвет символа для вызова списка
  <td class="cont" width="60%">текст изменен
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_KILLFOCUS</a></td>
- <td class="cont" width="60%">элемент потерял фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>).
+ <td class="cont" width="60%">элемент потерял фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_gotfocus.html">DN_GOTFOCUS</a></td>
- <td class="cont" width="60%">элемент получил фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>).
+ <td class="cont" width="60%">элемент получил фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)
  </td></tr>
 
 </table>

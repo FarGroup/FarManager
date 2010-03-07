@@ -610,6 +610,34 @@ $If (Viewer.State &amp; 0x20) <em>выполнить действия, если выставлен 16-ричный р
     </td>
   </tr>
   <tr class="cont">
+    <td class="cont" width="20%"><a name="MsEventFlags">MsEventFlags</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">Состояние событий мыши:
+      <table class="cont">
+        <tr class="cont">
+          <th class="cont" width="10%">Значение</th>
+          <th class="cont" width="90%">Описание</th>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x0001</td>
+          <td class="cont" width="90%">MOUSE_MOVED<br>Перемещение мыши</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x0002</td>
+          <td class="cont" width="90%">DOUBLE_CLICK<br>Двойной клик клавиши мыши</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x0004</td>
+          <td class="cont" width="90%">MOUSE_WHEELED<br>Перемещение колеса по вертикали</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x0008</td>
+          <td class="cont" width="90%">MOUSE_HWHEELED<br>Перемещение колеса по горизонтали</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr class="cont">
     <td class="cont" width="20%"><a name="IsUserAdmin">IsUserAdmin</a></td>
     <td class="cont" width="20%">Number</td>
     <td class="cont" width="60%">Far запущен под Администратором? (1 или 0)</td>

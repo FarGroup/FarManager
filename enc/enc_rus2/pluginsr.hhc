@@ -10,19 +10,24 @@
 </OBJECT>
 <UL>
 <LI> <OBJECT type="text/sitemap">
-        <param name="Name" value="Far Manager Encyclopedia">
+        <param name="Name" value="Programming FAR plugins - Encyclopedia for Developers v2.0">
         <param name="Local" value="html/index.html">
         </OBJECT>
 <UL>
         <LI> <OBJECT type="text/sitemap">
-                <param name="Name" value="Programming FAR plugins">
+                <param name="Name" value="Encyclopedia for Developers v2.0">
                 <param name="Local" value="html/index.html">
                 <param name="ImageNumber" value="11">
                 </OBJECT>
         <LI> <OBJECT type="text/sitemap">
-                <param name="Name" value="Programming FAR plugins - Encyclopedia for Developers">
+                <param name="Name" value="О проекте">
                 <param name="Local" value="html/other/aboutproject.html">
                 <param name="ImageNumber" value="11">
+                </OBJECT>
+        <LI> <OBJECT type="text/sitemap">
+                <param name="Name" value="Что нового?">
+                <param name="Local" value="html/whatsnew.html">
+                <param name="ImageNumber" value="10">
                 </OBJECT>
         <LI> <OBJECT type="text/sitemap">
                 <param name="Name" value="Лицензия">
@@ -30,7 +35,12 @@
                 <param name="ImageNumber" value="12">
                 </OBJECT>
         <LI> <OBJECT type="text/sitemap">
-                <param name="Name" value="Экспортируемые функции">
+                <param name="Name" value="Авторы">
+                <param name="Local" value="html/other/authors.html">
+                <param name="ImageNumber" value="27">
+                </OBJECT>
+        <LI> <OBJECT type="text/sitemap">
+                <param name="Name" value="Экспортируемые функции из плагинов">
                 <param name="Local" value="html/exported_functions/index.html">
                 </OBJECT>
         <UL>
@@ -178,22 +188,18 @@
                 </UL>
         </UL>
         <LI> <OBJECT type="text/sitemap">
-                <param name="Name" value="Сервисные функции">
+                <param name="Name" value="Сервисные функции предоставляемые FAR`ом">
                 <param name="Local" value="html/service_functions/index.html">
                 </OBJECT>
         <UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Сервисные функции предоставляемые FAR`ом">
+                        <param name="Name" value="Функции общего назначения">
                         <param name="Local" value="html/service_functions/index_common.html">
                         </OBJECT>
                 <UL>
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="AdvControl">
                                 <param name="Local" value="html/service_functions/advcontrol.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="CharTable">
-                                <param name="Local" value="html/service_functions/chartable.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="CmpName">
@@ -206,6 +212,14 @@
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="FreeDirList">
                                 <param name="Local" value="html/service_functions/freedirlist.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FreePluginDirList">
+                                <param name="Local" value="html/service_functions/freeplugindirlist.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FileFilterControl">
+                                <param name="Local" value="html/service_functions/filefiltercontrol.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="GetDirList">
@@ -222,6 +236,14 @@
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="Menu">
                                 <param name="Local" value="html/service_functions/menu.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="PluginsControl">
+                                <param name="Local" value="html/service_functions/pluginscontrol.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="RegExpControl">
+                                <param name="Local" value="html/service_functions/regexpcontrol.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="RestoreScreen">
@@ -269,7 +291,7 @@
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Специфические функции Dialog API">
+                        <param name="Name" value="Специфические функции диалога">
                         <param name="Local" value="html/dialogapi/index_service_functions.html">
                         </OBJECT>
                 <UL>
@@ -280,6 +302,7 @@
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="DialogFree">
                                 <param name="Local" value="html/dialogapi/dialogfree.html">
+                                </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="DialogInit">
                                 <param name="Local" value="html/dialogapi/dialoginit.html">
@@ -305,8 +328,14 @@
                                 <param name="Local" value="html/dialogapi/senddlgmessage.html">
                                 </OBJECT>
                 </UL>
+        </UL>
+        <LI> <OBJECT type="text/sitemap">
+                <param name="Name" value="Структуры">
+                <param name="Local" value="html/structures/index.html">
+                </OBJECT>
+        <UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Полезные функции из Far.exe">
+                        <param name="Name" value="FarStandardFunctions - полезные функции из Far.exe">
                         <param name="Local" value="html/fsf/index.html">
                         </OBJECT>
                 <UL>
@@ -327,8 +356,8 @@
                                 <param name="Local" value="html/fsf/bsearch.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="ConvertNameToReal">
-                                <param name="Local" value="html/fsf/convertnametoreal.html">
+                                <param name="Name" value="ConvertPath">
+                                <param name="Local" value="html/fsf/convertpath.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="CopyToClipboard">
@@ -353,6 +382,10 @@
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="FarRecursiveSearch">
                                 <param name="Local" value="html/fsf/farrecursivesearch.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="GetCurrentDirectory">
+                                <param name="Local" value="html/fsf/getcurrentdirectory.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="GetFileOwner">
@@ -431,12 +464,12 @@
                                 <param name="Local" value="html/fsf/lupperbuf.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="MkTemp">
-                                <param name="Local" value="html/fsf/mktemp.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="MkLink">
                                 <param name="Local" value="html/fsf/mklink.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="MkTemp">
+                                <param name="Local" value="html/fsf/mktemp.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="PasteFromClipboard">
@@ -499,14 +532,8 @@
                                 <param name="Local" value="html/fsf/xlat.html">
                                 </OBJECT>
                 </UL>
-        </UL>
-        <LI> <OBJECT type="text/sitemap">
-                <param name="Name" value="Структуры">
-                <param name="Local" value="html/structures/index.html">
-                </OBJECT>
-        <UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Основные структуры FAR Manager">
+                        <param name="Name" value="Структуры общего назначения">
                         <param name="Local" value="html/structures/index_common.html">
                         </OBJECT>
                 <UL>
@@ -518,14 +545,6 @@
                                 <param name="Name" value="ActlKeyMacro">
                                 <param name="Local" value="html/structures/actlkeymacro.html">
                                 </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="CharTableSet">
-                                <param name="Local" value="html/structures/chartableset.html">
-                                </OBJECT>
-		                <LI> <OBJECT type="text/sitemap">
-        		                <param name="Name" value="FARINT64">
-                		        <param name="Local" value="html/structures/farint64.html">
-                        		</OBJECT>
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="CmdLineSelect">
                                 <param name="Local" value="html/structures/cmdlineselect.html">
@@ -543,8 +562,46 @@
                                 <param name="Local" value="html/structures/farsetcolors.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="FarStandardFunctions">
-                                <param name="Local" value="html/fsf/index.html">
+                                <param name="Name" value="KeySequence">
+                                <param name="Local" value="html/structures/keysequence.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="OpenPluginInfo">
+                                <param name="Local" value="html/structures/openplugininfo.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="PluginInfo">
+                                <param name="Local" value="html/structures/plugininfo.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="PluginStartupInfo">
+                                <param name="Local" value="html/structures/pluginstartupinfo.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="PROGRESSVALUE">
+                                <param name="Local" value="html/structures/progressvalue.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="RegExpMatch">
+                                <param name="Local" value="html/structures/regexpmatch.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="RegExpSearch">
+                                <param name="Local" value="html/structures/regexpsearch.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="WindowInfo">
+                                <param name="Local" value="html/structures/windowinfo.html">
+                                </OBJECT>
+                </UL>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Специфические структуры панели">
+                        <param name="Local" value="html/panelapi/index_structures.html">
+                        </OBJECT>
+                <UL>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FAR_FIND_DATA">
+                                <param name="Local" value="html/structures/far_find_data.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="InfoPanelLine">
@@ -553,14 +610,6 @@
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="KeyBarTitles">
                                 <param name="Local" value="html/structures/keybartitles.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="KeySequence">
-                                <param name="Local" value="html/structures/keysequence.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="OpenPluginInfo">
-                                <param name="Local" value="html/structures/openplugininfo.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="PanelInfo">
@@ -575,25 +624,13 @@
                                 <param name="Local" value="html/structures/panelredrawinfo.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="PluginInfo">
-                                <param name="Local" value="html/structures/plugininfo.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="PluginPanelItem">
                                 <param name="Local" value="html/structures/pluginpanelitem.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="PluginStartupInfo">
-                                <param name="Local" value="html/structures/pluginstartupinfo.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="WindowInfo">
-                                <param name="Local" value="html/structures/windowinfo.html">
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
                         <param name="Name" value="Специфические структуры редактора">
-                        <param name="Local" value="html/structures/index_editor.html">
+                        <param name="Local" value="html/editorapi/index_structures.html">
                         </OBJECT>
                 <UL>
                         <LI> <OBJECT type="text/sitemap">
@@ -609,16 +646,16 @@
                                 <param name="Local" value="html/structures/editorconvertpos.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="EditorConvertText">
-                                <param name="Local" value="html/structures/editorconverttext.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="EditorGetString">
                                 <param name="Local" value="html/structures/editorgetstring.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="EditorInfo">
                                 <param name="Local" value="html/structures/editorinfo.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="EditorSaveFile">
+                                <param name="Local" value="html/structures/editorsavefile.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="EditorSelect">
@@ -636,12 +673,462 @@
                                 <param name="Name" value="EditorSetString">
                                 <param name="Local" value="html/structures/editorsetstring.html">
                                 </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="EditorUndoRedo">
+                                <param name="Local" value="html/structures/editorundoredo.html">
+                                </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Специфические структуры Dialog API">
-                        <param name="Local" value="html/structures/index_dialog.html">
+                        <param name="Name" value="Специфические структуры программы просмотра">
+                        <param name="Local" value="html/viewerapi/index_structures.html">
                         </OBJECT>
                 <UL>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="ViewerInfo">
+                                <param name="Local" value="html/structures/viewerinfo.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="ViewerMode">
+                                <param name="Local" value="html/structures/viewermode.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="ViewerSelect">
+                                <param name="Local" value="html/structures/viewerselect.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="ViewerSetMode">
+                                <param name="Local" value="html/structures/viewersetmode.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="ViewerSetPosition">
+                                <param name="Local" value="html/structures/viewersetposition.html">
+                                </OBJECT>
+                </UL>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Специфические структуры диалога">
+                        <param name="Local" value="html/dialogapi/index_structures.html">
+                        </OBJECT>
+                <UL>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="DialogInfo">
+                                <param name="Local" value="html/dialogapi/structures/dialoginfo.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FarDialogEvent">
+                                <param name="Local" value="html/structures/fardialogevent.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FarDialogItem">
+                                <param name="Local" value="html/dialogapi/structures/fardialogitem.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FarDialogItemData">
+                                <param name="Local" value="html/dialogapi/structures/fardialogitemdata.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FarList">
+                                <param name="Local" value="html/dialogapi/structures/farlist.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FarListColors">
+                                <param name="Local" value="html/dialogapi/structures/farlistcolors.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FarListDelete">
+                                <param name="Local" value="html/dialogapi/structures/farlistdelete.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FarListFind">
+                                <param name="Local" value="html/dialogapi/structures/farlistfind.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FarListGetItem">
+                                <param name="Local" value="html/dialogapi/structures/farlistgetitem.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FarListInfo">
+                                <param name="Local" value="html/dialogapi/structures/farlistinfo.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FarListInsert">
+                                <param name="Local" value="html/dialogapi/structures/farlistinsert.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FarListItem">
+                                <param name="Local" value="html/dialogapi/structures/farlistitem.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FarListPos">
+                                <param name="Local" value="html/dialogapi/structures/farlistpos.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FarListItemData">
+                                <param name="Local" value="html/dialogapi/structures/farlistitemdata.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FarListTitles">
+                                <param name="Local" value="html/dialogapi/structures/farlisttitles.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FarListUpdate">
+                                <param name="Local" value="html/dialogapi/structures/farlistupdate.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="OpenDlgPluginData">
+                                <param name="Local" value="html/structures/opendlgplugindata.html">
+                                </OBJECT>
+                </UL>
+        </UL>
+        <LI> <OBJECT type="text/sitemap">
+                <param name="Name" value="Panel API">
+                <param name="Local" value="html/panelapi/index.html">
+                </OBJECT>
+        <UL>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Экспортируемые функции Panel API">
+                        <param name="Local" value="html/panelapi/index_exported_functions.html">
+                        </OBJECT>
+                <UL>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="ClosePluginW">
+                                <param name="Local" value="html/exported_functions/closepluginw.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="CompareW">
+                                <param name="Local" value="html/exported_functions/comparew.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="DeleteFilesW">
+                                <param name="Local" value="html/exported_functions/deletefilesw.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FreeFindDataW">
+                                <param name="Local" value="html/exported_functions/freefinddataw.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FreeVirtualFindDataW">
+                                <param name="Local" value="html/exported_functions/freevirtualfinddataw.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="GetFilesW">
+                                <param name="Local" value="html/exported_functions/getfilesw.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="GetFindDataW">
+                                <param name="Local" value="html/exported_functions/getfinddataw.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="GetOpenPluginInfoW">
+                                <param name="Local" value="html/exported_functions/getopenplugininfow.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="GetVirtualFindDataW">
+                                <param name="Local" value="html/exported_functions/getvirtualfinddataw.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="MakeDirectoryW">
+                                <param name="Local" value="html/exported_functions/makedirectoryw.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="OpenFilePluginW">
+                                <param name="Local" value="html/exported_functions/openfilepluginw.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="OpenPluginW">
+                                <param name="Local" value="html/exported_functions/openpluginw.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="ProcessEventW">
+                                <param name="Local" value="html/exported_functions/processeventw.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="ProcessHostFileW">
+                                <param name="Local" value="html/exported_functions/processhostfilew.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="ProcessKeyW">
+                                <param name="Local" value="html/exported_functions/processkeyw.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="PutFilesW">
+                                <param name="Local" value="html/exported_functions/putfilesw.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="SetDirectoryW">
+                                <param name="Local" value="html/exported_functions/setdirectoryw.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="SetFindListW">
+                                <param name="Local" value="html/exported_functions/setfindlistw.html">
+                                </OBJECT>
+            </UL>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Сервисные функции Panel API">
+                        <param name="Local" value="html/panelapi/index_service_functions.html">
+                        </OBJECT>
+                <UL>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="Control">
+                                <param name="Local" value="html/service_functions/control.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FreeDirList">
+                                <param name="Local" value="html/service_functions/freedirlist.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FreePluginDirList">
+                                <param name="Local" value="html/service_functions/freeplugindirlist.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FileFilterControl">
+                                <param name="Local" value="html/service_functions/filefiltercontrol.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="GetDirList">
+                                <param name="Local" value="html/service_functions/getdirlist.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="GetPluginDirList">
+                                <param name="Local" value="html/service_functions/getplugindirlist.html">
+                                </OBJECT>
+            </UL>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Структуры Panel API">
+                        <param name="Local" value="html/panelapi/index_structures.html">
+                        </OBJECT>
+                <UL>
+                    <LI> <OBJECT type="text/sitemap">
+                            <param name="Name" value="FAR_FIND_DATA">
+                            <param name="Local" value="html/structures/far_find_data.html">
+                            </OBJECT>
+                    <LI> <OBJECT type="text/sitemap">
+                            <param name="Name" value="InfoPanelLine">
+                            <param name="Local" value="html/structures/infopanelline.html">
+                            </OBJECT>
+                    <LI> <OBJECT type="text/sitemap">
+                            <param name="Name" value="KeyBarTitles">
+                            <param name="Local" value="html/structures/keybartitles.html">
+                            </OBJECT>
+                    <LI> <OBJECT type="text/sitemap">
+                            <param name="Name" value="PanelInfo">
+                            <param name="Local" value="html/structures/panelinfo.html">
+                            </OBJECT>
+                    <LI> <OBJECT type="text/sitemap">
+                            <param name="Name" value="PanelMode">
+                            <param name="Local" value="html/structures/panelmode.html">
+                            </OBJECT>
+                    <LI> <OBJECT type="text/sitemap">
+                            <param name="Name" value="PanelRedrawInfo">
+                            <param name="Local" value="html/structures/panelredrawinfo.html">
+                            </OBJECT>
+                    <LI> <OBJECT type="text/sitemap">
+                            <param name="Name" value="PluginPanelItem">
+                            <param name="Local" value="html/structures/pluginpanelitem.html">
+                            </OBJECT>
+            </UL>
+        </UL>
+        <LI> <OBJECT type="text/sitemap">
+                <param name="Name" value="Editor API">
+                <param name="Local" value="html/editorapi/index.html">
+                </OBJECT>
+        <UL>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Экспортируемые функции Editor API">
+                        <param name="Local" value="html/editorapi/index_exported_functions.html">
+                        </OBJECT>
+                <UL>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="ProcessEditorInputW">
+                                <param name="Local" value="html/exported_functions/processeditorinputw.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="ProcessEditorEventW">
+                                <param name="Local" value="html/exported_functions/processeditoreventw.html">
+                                </OBJECT>
+            </UL>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Сервисные функции Editor API">
+                        <param name="Local" value="html/editorapi/index_service_functions.html">
+                        </OBJECT>
+                <UL>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="Editor">
+                                <param name="Local" value="html/service_functions/editor.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="EditorControl">
+                                <param name="Local" value="html/service_functions/editorcontrol.html">
+                                </OBJECT>
+            </UL>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Структуры Editor API">
+                        <param name="Local" value="html/editorapi/index_structures.html">
+                        </OBJECT>
+                <UL>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="EditorBookMarks">
+                                <param name="Local" value="html/structures/editorbookmarks.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="EditorColor">
+                                <param name="Local" value="html/structures/editorcolor.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="EditorConvertPos">
+                                <param name="Local" value="html/structures/editorconvertpos.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="EditorGetString">
+                                <param name="Local" value="html/structures/editorgetstring.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="EditorInfo">
+                                <param name="Local" value="html/structures/editorinfo.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="EditorSaveFile">
+                                <param name="Local" value="html/structures/editorsavefile.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="EditorSelect">
+                                <param name="Local" value="html/structures/editorselect.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="EditorSetParameter">
+                                <param name="Local" value="html/structures/editorsetparameter.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="EditorSetPosition">
+                                <param name="Local" value="html/structures/editorsetposition.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="EditorSetString">
+                                <param name="Local" value="html/structures/editorsetstring.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="EditorUndoRedo">
+                                <param name="Local" value="html/structures/editorundoredo.html">
+                                </OBJECT>
+            </UL>
+        </UL>
+        <LI> <OBJECT type="text/sitemap">
+                <param name="Name" value="Viewer API">
+                <param name="Local" value="html/viewerapi/index.html">
+                </OBJECT>
+        <UL>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Экспортируемые функции Viewer API">
+                        <param name="Local" value="html/viewerapi/index_exported_functions.html">
+                        </OBJECT>
+                <UL>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="ProcessViewerEventW">
+                                <param name="Local" value="html/exported_functions/processviewereventw.html">
+                                </OBJECT>
+            </UL>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Сервисные функции Viewer API">
+                        <param name="Local" value="html/viewerapi/index_service_functions.html">
+                        </OBJECT>
+                <UL>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="Viewer">
+                                <param name="Local" value="html/service_functions/viewer.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="ViewerControl">
+                                <param name="Local" value="html/service_functions/viewercontrol.html">
+                                </OBJECT>
+            </UL>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Структуры Viewer API">
+                        <param name="Local" value="html/viewerapi/index_structures.html">
+                        </OBJECT>
+                <UL>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="ViewerInfo">
+                                <param name="Local" value="html/structures/viewerinfo.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="ViewerMode">
+                                <param name="Local" value="html/structures/viewermode.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="ViewerSelect">
+                                <param name="Local" value="html/structures/viewerselect.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="ViewerSetMode">
+                                <param name="Local" value="html/structures/viewersetmode.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="ViewerSetPosition">
+                                <param name="Local" value="html/structures/viewersetposition.html">
+                                </OBJECT>
+            </UL>
+        </UL>
+        <LI> <OBJECT type="text/sitemap">
+                <param name="Name" value="Dialog API">
+                <param name="Local" value="html/dialogapi/index.html">
+                </OBJECT>
+        <UL>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Экспортируемые функции Dialog API">
+                        <param name="Local" value="html/dialogapi/index_exported_functions.html">
+                        </OBJECT>
+                <UL>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="ProcessDialogEventW">
+                                <param name="Local" value="html/exported_functions/processdialogeventw.html">
+                                </OBJECT>
+                </UL>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Сервисные функции Dialog API">
+                        <param name="Local" value="html/dialogapi/index_service_functions.html">
+                        </OBJECT>
+                <UL>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="DefDlgProc">
+                                <param name="Local" value="html/dialogapi/defdlgproc.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="DialogFree">
+                                <param name="Local" value="html/dialogapi/dialogfree.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="DialogInit">
+                                <param name="Local" value="html/dialogapi/dialoginit.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="DialogRun">
+                                <param name="Local" value="html/dialogapi/dialogrun.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="DlgProc">
+                                <param name="Local" value="html/dialogapi/dlgproc.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="InputBox">
+                                <param name="Local" value="html/service_functions/inputbox.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="Message">
+                                <param name="Local" value="html/service_functions/message.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="SendDlgMessage">
+                                <param name="Local" value="html/dialogapi/senddlgmessage.html">
+                                </OBJECT>
+                </UL>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Структуры Dialog API">
+                        <param name="Local" value="html/dialogapi/index_structures.html">
+                        </OBJECT>
+                <UL>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="DialogInfo">
+                                <param name="Local" value="html/dialogapi/structures/dialoginfo.html">
+                                </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="FarDialogEvent">
                                 <param name="Local" value="html/structures/fardialogevent.html">
@@ -708,546 +1195,6 @@
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Специфические структуры программы просмотра">
-                        <param name="Local" value="html/structures/index_viewer.html">
-                        </OBJECT>
-                <UL>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="ViewerInfo">
-                                <param name="Local" value="html/structures/viewerinfo.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="ViewerMode">
-                                <param name="Local" value="html/structures/viewermode.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="ViewerSelect">
-                                <param name="Local" value="html/structures/viewerselect.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="ViewerSetMode">
-                                <param name="Local" value="html/structures/viewersetmode.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="ViewerSetPosition">
-                                <param name="Local" value="html/structures/viewersetposition.html">
-                                </OBJECT>
-                </UL>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Delphi-структуры">
-                        <param name="Local" value="html/delphi/index.html">
-                        </OBJECT>
-                <UL>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TActlEjectMedia">
-                                <param name="Local" value="html/delphi/tactlejectmedia.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TActlKeyMacro">
-                                <param name="Local" value="html/delphi/tactlkeymacro.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TArcInfo">
-                                <param name="Local" value="html/delphi/tarcinfo.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TArcItemInfo">
-                                <param name="Local" value="html/delphi/tarciteminfo.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TCharTableSet">
-                                <param name="Local" value="html/delphi/tchartableset.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TCmdLineSelect">
-                                <param name="Local" value="html/delphi/tcmdlineselect.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TEditorBookMarks">
-                                <param name="Local" value="html/delphi/teditorbookmarks.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TEditorColor">
-                                <param name="Local" value="html/delphi/teditorcolor.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TEditorConvertPos">
-                                <param name="Local" value="html/delphi/teditorconvertpos.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TEditorConvertText">
-                                <param name="Local" value="html/delphi/teditorconverttext.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TEditorGetString">
-                                <param name="Local" value="html/delphi/teditorgetstring.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TEditorInfo">
-                                <param name="Local" value="html/delphi/teditorinfo.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TEditorSelect">
-                                <param name="Local" value="html/delphi/teditorselect.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TEditorSetParameter">
-                                <param name="Local" value="html/delphi/teditorsetparameter.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TEditorSetPosition">
-                                <param name="Local" value="html/delphi/teditorsetposition.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TEditorSetString">
-                                <param name="Local" value="html/delphi/teditorsetstring.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TFarSetColors">
-                                <param name="Local" value="html/delphi/tfarsetcolors.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TFarDialogItem">
-                                <param name="Local" value="html/delphi/tfardialogitem.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TFarDialogItemData">
-                                <param name="Local" value="html/delphi/tfardialogitemdata.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TFarList">
-                                <param name="Local" value="html/delphi/tfarlist.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TFarListColors">
-                                <param name="Local" value="html/delphi/tfarlistcolors.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TFarListDelete">
-                                <param name="Local" value="html/delphi/tfarlistdelete.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TFarListGetItem">
-                                <param name="Local" value="html/delphi/tfarlistgetitem.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TFarListItem">
-                                <param name="Local" value="html/delphi/tfarlistitem.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TFarListPos">
-                                <param name="Local" value="html/delphi/tfarlistpos.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TFarListItemData">
-                                <param name="Local" value="html/delphi/tfarlistitemdata.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TFarListTitles">
-                                <param name="Local" value="html/delphi/tfarlisttitles.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TFarMenuItem">
-                                <param name="Local" value="html/delphi/tfarmenuitem.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TFarMenuItemEx">
-                                <param name="Local" value="html/delphi/tfarmenuitemex.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TFarListFind">
-                                <param name="Local" value="html/delphi/tfarlistfind.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TFarListInfo">
-                                <param name="Local" value="html/delphi/tfarlistinfo.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TFarListInsert">
-                                <param name="Local" value="html/delphi/tfarlistinsert.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TInfoPanelLine">
-                                <param name="Local" value="html/delphi/tinfopanelline.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TKeyBarTitles">
-                                <param name="Local" value="html/delphi/tkeybartitles.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TKeySequence">
-                                <param name="Local" value="html/delphi/tkeysequence.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TOpenPluginInfo">
-                                <param name="Local" value="html/delphi/topenplugininfo.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TPanelInfo">
-                                <param name="Local" value="html/delphi/tpanelinfo.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TPanelMode">
-                                <param name="Local" value="html/delphi/tpanelmode.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TPanelRedrawInfo">
-                                <param name="Local" value="html/delphi/tpanelredrawinfo.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TPluginInfo">
-                                <param name="Local" value="html/delphi/tplugininfo.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TPluginPanelItem">
-                                <param name="Local" value="html/delphi/tpluginpanelitem.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TPluginStartupInfo">
-                                <param name="Local" value="html/delphi/tpluginstartupinfo.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TWin32FindData">
-                                <param name="Local" value="html/delphi/twin32finddata.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TWindowInfo">
-                                <param name="Local" value="html/delphi/twindowinfo.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TFarInt64">
-                                <param name="Local" value="html/delphi/tfarint64.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TViewerInfo">
-                                <param name="Local" value="html/delphi/tviewerinfo.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TViewerMode">
-                                <param name="Local" value="html/delphi/tviewermode.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TViewerSelect">
-                                <param name="Local" value="html/delphi/tviewerselect.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TViewerSetMode">
-                                <param name="Local" value="html/delphi/tviewersetmode.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="TViewerSetPosition">
-                                <param name="Local" value="html/delphi/tviewersetposition.html">
-                                </OBJECT>
-                </UL>
-        </UL>
-        <LI> <OBJECT type="text/sitemap">
-                <param name="Name" value="Типы и определения">
-                <param name="Local" value="html/defs/index.html">
-                </OBJECT>
-        <UL>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="COL_* - Индексы цветов в цветовой палитре">
-                        <param name="Local" value="html/defs/farcolors.html">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="KEY_* - Коды клавиш FAR Manager">
-                        <param name="Local" value="html/defs/farkeycodes.html">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="VK_* - Virtual Key Codes (Win32)">
-                        <param name="Local" value="html/winapi/virtualkeycodes.html">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="OPM_* - Operation mode">
-                        <param name="Local" value="html/defs/operation_mode.html">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="SM_* - Метод сортировки">
-                        <param name="Local" value="html/defs/sortmetods.html">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="PKF_* - состояние Shift-клавиш">
-                        <param name="Local" value="html/defs/far_pkf_flags.html">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="_FAR_NO_NAMELESS_UNIONS - использование Pure C">
-                        <param name="Local" value="html/defs/_far_no_nameless_unions.html">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="FARMANAGERVERSION - Номер версии FAR Manager">
-                        <param name="Local" value="html/defs/farmanagerversion.html">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="MAKEFARVERSION - Генерация требуемой версии FAR Manager">
-                        <param name="Local" value="html/defs/makefarversion.html">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="FarConfirmationsSettings - информация о настройках подтверждений">
-                        <param name="Local" value="html/defs/farconfirmationssettings.html">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="FarInterfaceSettings - информация о настройках интерфейса">
-                        <param name="Local" value="html/defs/farinterfacesettings.html">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="FarDialogSettings - информация о настройках диалогов">
-                        <param name="Local" value="html/defs/fardialogsettings.html">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="FarDescriptionSettings - информация о настройках описаний файлов">
-                        <param name="Local" value="html/defs/fardescriptionsettings.html">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="FarSystemSettings - информация о системных настройках">
-                        <param name="Local" value="html/defs/farsystemsettings.html">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="FarPanelSettings - информация о настройках панелей">
-                        <param name="Local" value="html/defs/farpanelsettings.html">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Маски файлов">
-                        <param name="Local" value="html/filemasks.html">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Синтаксис тем помощи">
-                        <param name="Local" value="html/language/helptopic.html">
-                        </OBJECT>
-        </UL>
-        <LI> <OBJECT type="text/sitemap">
-                <param name="Name" value="Языки и файлы помощи">
-                <param name="Local" value="html/language/index.html">
-                </OBJECT>
-        <UL>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Управляющие элементы">
-                        <param name="Local" value="html/language/control_statements.html">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Языковые файлы">
-                        <param name="Local" value="html/language/language_files.html">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Файлы помощи">
-                        <param name="Local" value="html/language/help_files.html">
-                        </OBJECT>
-        </UL>
-        <LI> <OBJECT type="text/sitemap">
-                <param name="Name" value="Win32: структуры, функции, определения">
-                <param name="Local" value="html/winapi/index.html">
-                </OBJECT>
-        <UL>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Win32: структуры">
-                        <param name="Local" value="html/winapi/index_struct.html">
-                        </OBJECT>
-                <UL>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="CHAR_INFO">
-                                <param name="Local" value="html/winapi/char_info.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="CONSOLE_CURSOR_INFO">
-                                <param name="Local" value="html/winapi/console_cursor_info.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="COORD">
-                                <param name="Local" value="html/winapi/coord.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="FILETIME">
-                                <param name="Local" value="html/winapi/filetime.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="FOCUS_EVENT_RECORD">
-                                <param name="Local" value="html/winapi/focus_event_record.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="INPUT_RECORD">
-                                <param name="Local" value="html/winapi/input_record.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="KEY_EVENT_RECORD">
-                                <param name="Local" value="html/winapi/key_event_record.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="MENU_EVENT_RECORD">
-                                <param name="Local" value="html/winapi/menu_event_record.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="MOUSE_EVENT_RECORD">
-                                <param name="Local" value="html/winapi/mouse_event_record.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="RECT">
-                                <param name="Local" value="html/winapi/rect.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="SMALL_RECT">
-                                <param name="Local" value="html/winapi/small_rect.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="SYSTEMTIME">
-                                <param name="Local" value="html/winapi/systemtime.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="WIN32_FIND_DATA">
-                                <param name="Local" value="html/winapi/win32_find_data.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="WINDOW_BUFFER_SIZE_RECORD">
-                                <param name="Local" value="html/winapi/window_buffer_size_record.html">
-                                </OBJECT>
-                </UL>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Win32: функции">
-                        <param name="Local" value="html/winapi/index_func.html">
-                        </OBJECT>
-                <UL>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="GetFileTime">
-                                <param name="Local" value="html/winapi/getfiletime.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="PeekConsoleInput">
-                                <param name="Local" value="html/winapi/peekconsoleinput.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="ReadConsoleInput">
-                                <param name="Local" value="html/winapi/readconsoleinput.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="SetFileTime">
-                                <param name="Local" value="html/winapi/setfiletime.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="WriteConsoleInput">
-                                <param name="Local" value="html/winapi/writeconsoleinput.html">
-                                </OBJECT>
-                </UL>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Win32: константы">
-                        <param name="Local" value="html/winapi/index_defs.html">
-                        </OBJECT>
-                <UL>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="виртуальные коды клавиш">
-                                <param name="Local" value="html/winapi/virtualkeycodes.html">
-                                </OBJECT>
-                </UL>
-        </UL>
-        <LI> <OBJECT type="text/sitemap">
-                <param name="Name" value="Dialog API">
-                <param name="Local" value="html/dialogapi/index.html">
-                </OBJECT>
-        <UL>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Функции Dialog API">
-                        <param name="Local" value="html/dialogapi/function.html">
-                        </OBJECT>
-                <UL>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="DefDlgProc">
-                                <param name="Local" value="html/dialogapi/defdlgproc.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Dialog">
-                                <param name="Local" value="html/dialogapi/dialog.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="DialogEx">
-                                <param name="Local" value="html/dialogapi/dialogex.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="DlgProc">
-                                <param name="Local" value="html/dialogapi/dlgproc.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="InputBox">
-                                <param name="Local" value="html/service_functions/inputbox.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Message">
-                                <param name="Local" value="html/service_functions/message.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="SendDlgMessage">
-                                <param name="Local" value="html/dialogapi/senddlgmessage.html">
-                                </OBJECT>
-                </UL>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Структуры Dialog API">
-                        <param name="Local" value="html/dialogapi/structures/index.html">
-                        </OBJECT>
-                <UL>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="FarDialogItem">
-                                <param name="Local" value="html/dialogapi/structures/fardialogitem.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="FarDialogItemData">
-                                <param name="Local" value="html/dialogapi/structures/fardialogitemdata.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="FarList">
-                                <param name="Local" value="html/dialogapi/structures/farlist.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="FarListColors">
-                                <param name="Local" value="html/dialogapi/structures/farlistcolors.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="FarListDelete">
-                                <param name="Local" value="html/dialogapi/structures/farlistdelete.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="FarListFind">
-                                <param name="Local" value="html/dialogapi/structures/farlistfind.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="FarListGetItem">
-                                <param name="Local" value="html/dialogapi/structures/farlistgetitem.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="FarListInfo">
-                                <param name="Local" value="html/dialogapi/structures/farlistinfo.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="FarListInsert">
-                                <param name="Local" value="html/dialogapi/structures/farlistinsert.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="FarListItem">
-                                <param name="Local" value="html/dialogapi/structures/farlistitem.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="FarListPos">
-                                <param name="Local" value="html/dialogapi/structures/farlistpos.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="FarListItemData">
-                                <param name="Local" value="html/dialogapi/structures/farlistitemdata.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="FarListTitles">
-                                <param name="Local" value="html/dialogapi/structures/farlisttitles.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="FarListUpdate">
-                                <param name="Local" value="html/dialogapi/structures/farlistupdate.html">
-                                </OBJECT>
-                </UL>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Макросы и типы">
-                        <param name="Local" value="html/dialogapi/defs/index.html">
-                        </OBJECT>
-                <UL>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="FARWINDOWPROC - Функция-обработчик диалога">
-                                <param name="Local" value="html/dialogapi/defs/farwindowproc.html">
-                                </OBJECT>
-                </UL>
-                <LI> <OBJECT type="text/sitemap">
                         <param name="Name" value="Элементы Dialog API">
                         <param name="Local" value="html/dialogapi/controls/index.html">
                         </OBJECT>
@@ -1306,7 +1253,7 @@
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Флаги элементов диалога">
+                        <param name="Name" value="Флаги элементов диалога Dialog API">
                         <param name="Local" value="html/dialogapi/flags/index.html">
                         </OBJECT>
                 <UL>
@@ -1349,6 +1296,10 @@
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="DIF_EDITOR">
                                 <param name="Local" value="html/dialogapi/flags/dif_editor.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="DIF_EDITPATH">
+                                <param name="Local" value="html/dialogapi/flags/dif_editpath.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="DIF_GROUP">
@@ -1411,10 +1362,6 @@
                                 <param name="Local" value="html/dialogapi/flags/dif_nofocus.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="DIF_NOTCVTUSERCONTROL">
-                                <param name="Local" value="html/dialogapi/flags/dif_notcvtusercontrol.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="DIF_READONLY">
                                 <param name="Local" value="html/dialogapi/flags/dif_readonly.html">
                                 </OBJECT>
@@ -1441,10 +1388,6 @@
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="DIF_USELASTHISTORY">
                                 <param name="Local" value="html/dialogapi/flags/dif_uselasthistory.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="DIF_VAREDIT">
-                                <param name="Local" value="html/dialogapi/flags/dif_varedit.html">
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
@@ -1481,6 +1424,10 @@
                                 <param name="Local" value="html/dialogapi/dmsg/dm_getcomboboxevent.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="DM_GETCONSTTEXTPTR">
+                                <param name="Local" value="html/dialogapi/dmsg/dm_getconsttextptr.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="DM_GETCURSORPOS">
                                 <param name="Local" value="html/dialogapi/dmsg/dm_getcursorpos.html">
                                 </OBJECT>
@@ -1489,12 +1436,20 @@
                                 <param name="Local" value="html/dialogapi/dmsg/dm_getcursorsize.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="DM_GETDIALOGINFO">
+                                <param name="Local" value="html/dialogapi/dmsg/dm_getdialoginfo.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="DM_GETDLGDATA">
                                 <param name="Local" value="html/dialogapi/dmsg/dm_getdlgdata.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="DM_GETDLGITEM">
                                 <param name="Local" value="html/dialogapi/dmsg/dm_getdlgitem.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="DM_GETDLGITEMSHORT">
+                                <param name="Local" value="html/dialogapi/dmsg/dm_getdlgitemshort.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="DM_GETDLGRECT">
@@ -1529,12 +1484,12 @@
                                 <param name="Local" value="html/dialogapi/dmsg/dm_gettext.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="DM_GETTEXTPTR">
-                                <param name="Local" value="html/dialogapi/dmsg/dm_gettextptr.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="DM_GETTEXTLENGTH">
                                 <param name="Local" value="html/dialogapi/dmsg/dm_gettextlength.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="DM_GETTEXTPTR">
+                                <param name="Local" value="html/dialogapi/dmsg/dm_gettextptr.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="DM_KEY">
@@ -1653,6 +1608,10 @@
                                 <param name="Local" value="html/dialogapi/dmsg/dm_setdlgitem.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="DM_SETDLGITEMSHORT">
+                                <param name="Local" value="html/dialogapi/dmsg/dm_setdlgitemshort.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="DM_SETDROPDOWNOPENED">
                                 <param name="Local" value="html/dialogapi/dmsg/dm_setdropdownopened.html">
                                 </OBJECT>
@@ -1763,6 +1722,10 @@
                                 <param name="Local" value="html/dialogapi/dmsg/dn_enteridle.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="DN_GETDIALOGINFO">
+                                <param name="Local" value="html/dialogapi/dmsg/dn_getdialoginfo.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="DN_GOTFOCUS">
                                 <param name="Local" value="html/dialogapi/dmsg/dn_gotfocus.html">
                                 </OBJECT>
@@ -1814,272 +1777,212 @@
                         </OBJECT>
         </UL>
         <LI> <OBJECT type="text/sitemap">
-                <param name="Name" value="Panel API">
-                <param name="Local" value="html/panelapi/index.html">
+                <param name="Name" value="Типы и определения">
+                <param name="Local" value="html/defs/index.html">
                 </OBJECT>
         <UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Экспортируемые функции">
-                        <param name="Local" value="html/exported_functions/index_panel.html">
+                        <param name="Name" value="COL_* - Индексы цветов в цветовой палитре">
+                        <param name="Local" value="html/defs/farcolors.html">
                         </OBJECT>
-                <UL>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Compare">
-                                <param name="Local" value="html/exported_functions/compare.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="DeleteFiles">
-                                <param name="Local" value="html/exported_functions/deletefiles.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="FreeFindData">
-                                <param name="Local" value="html/exported_functions/freefinddata.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="FreeVirtualFindData">
-                                <param name="Local" value="html/exported_functions/freevirtualfinddata.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="GetFiles">
-                                <param name="Local" value="html/exported_functions/getfiles.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="GetFindData">
-                                <param name="Local" value="html/exported_functions/getfinddata.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="GetVirtualFindData">
-                                <param name="Local" value="html/exported_functions/getvirtualfinddata.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="MakeDirectory">
-                                <param name="Local" value="html/exported_functions/makedirectory.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="OpenFilePlugin">
-                                <param name="Local" value="html/exported_functions/openfileplugin.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="OpenPlugin">
-                                <param name="Local" value="html/exported_functions/openplugin.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="ProcessEvent">
-                                <param name="Local" value="html/exported_functions/processevent.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="ProcessHostFile">
-                                <param name="Local" value="html/exported_functions/processhostfile.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="ProcessKey">
-                                <param name="Local" value="html/exported_functions/processkey.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="PutFiles">
-                                <param name="Local" value="html/exported_functions/putfiles.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="SetDirectory">
-                                <param name="Local" value="html/exported_functions/setdirectory.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="SetFindList">
-                                <param name="Local" value="html/exported_functions/setfindlist.html">
-                                </OBJECT>
-		        </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Сервисные функции">
-                        <param name="Local" value="html/service_functions/index_panel.html">
+                        <param name="Name" value="KEY_* - Коды клавиш FAR Manager">
+                        <param name="Local" value="html/defs/farkeycodes.html">
                         </OBJECT>
-                <UL>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Control">
-                                <param name="Local" value="html/service_functions/control.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="FreeDirList">
-                                <param name="Local" value="html/service_functions/freedirlist.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="GetDirList">
-                                <param name="Local" value="html/service_functions/getdirlist.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="GetPluginDirList">
-                                <param name="Local" value="html/service_functions/getplugindirlist.html">
-                                </OBJECT>
-		        </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Структуры">
-                        <param name="Local" value="html/structures/index_panel.html">
+                        <param name="Name" value="VK_* - Virtual Key Codes (Windows API)">
+                        <param name="Local" value="html/winapi/virtualkeycodes.html">
                         </OBJECT>
-                <UL>
-		                <LI> <OBJECT type="text/sitemap">
-        		                <param name="Name" value="InfoPanelLine">
-                		        <param name="Local" value="html/structures/infopanelline.html">
-                        		</OBJECT>
-		                <LI> <OBJECT type="text/sitemap">
-        		                <param name="Name" value="KeyBarTitles">
-                		        <param name="Local" value="html/structures/keybartitles.html">
-                        		</OBJECT>
-		                <LI> <OBJECT type="text/sitemap">
-        		                <param name="Name" value="PanelInfo">
-                		        <param name="Local" value="html/structures/panelinfo.html">
-                        		</OBJECT>
-		                <LI> <OBJECT type="text/sitemap">
-        		                <param name="Name" value="PanelMode">
-                		        <param name="Local" value="html/structures/panelmode.html">
-                        		</OBJECT>
-		                <LI> <OBJECT type="text/sitemap">
-        		                <param name="Name" value="PanelRedrawInfo">
-                		        <param name="Local" value="html/structures/panelredrawinfo.html">
-                        		</OBJECT>
-		                <LI> <OBJECT type="text/sitemap">
-        		                <param name="Name" value="PluginPanelItem">
-                		        <param name="Local" value="html/structures/pluginpanelitem.html">
-                        		</OBJECT>
-		        </UL>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="OPM_* - Operation mode">
+                        <param name="Local" value="html/defs/operation_mode.html">
+                        </OBJECT>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="SM_* - Метод сортировки">
+                        <param name="Local" value="html/defs/sortmetods.html">
+                        </OBJECT>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="PKF_* - Состояние Shift-клавиш">
+                        <param name="Local" value="html/defs/far_pkf_flags.html">
+                        </OBJECT>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="ERROR_* - Типы ошибок">
+                        <param name="Local" value="html/defs/winerror.html">
+                        </OBJECT>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="_FAR_NO_NAMELESS_UNIONS - Использование Pure C">
+                        <param name="Local" value="html/defs/_far_no_nameless_unions.html">
+                        </OBJECT>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="FARMACRO_KEY_EVENT - Сообщение, приходит во время исполнения макрокоманды">
+                        <param name="Local" value="html/defs/farmacro_key_event.html">
+                        </OBJECT>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="FARMANAGERVERSION - Номер версии FAR Manager">
+                        <param name="Local" value="html/defs/farmanagerversion.html">
+                        </OBJECT>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="MAKEFARVERSION - Генерация требуемой версии FAR Manager">
+                        <param name="Local" value="html/defs/makefarversion.html">
+                        </OBJECT>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="FarConfirmationsSettings - Информация о настройках подтверждений">
+                        <param name="Local" value="html/defs/farconfirmationssettings.html">
+                        </OBJECT>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="FarInterfaceSettings - Информация о настройках интерфейса">
+                        <param name="Local" value="html/defs/farinterfacesettings.html">
+                        </OBJECT>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="FarDialogSettings - Информация о настройках диалогов">
+                        <param name="Local" value="html/defs/fardialogsettings.html">
+                        </OBJECT>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="FarDescriptionSettings - Информация о настройках описаний файлов">
+                        <param name="Local" value="html/defs/fardescriptionsettings.html">
+                        </OBJECT>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="FarSystemSettings - Информация о системных настройках">
+                        <param name="Local" value="html/defs/farsystemsettings.html">
+                        </OBJECT>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="FarPanelSettings - Информация о настройках панелей">
+                        <param name="Local" value="html/defs/farpanelsettings.html">
+                        </OBJECT>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="FARWINDOWPROC - Функция-обработчик диалогового окна">
+                        <param name="Local" value="html/defs/farwindowproc.html">
+                        </OBJECT>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="FRSUSERFUNC - CALLBACK-функция, вызываемая из FSF.FarRecursiveSearch">
+                        <param name="Local" value="html/defs/frsuserfunc.html">
+                        </OBJECT>
         </UL>
         <LI> <OBJECT type="text/sitemap">
-                <param name="Name" value="Editor API">
-                <param name="Local" value="html/editorapi/index.html">
+                <param name="Name" value="Языки и файлы помощи">
+                <param name="Local" value="html/language/index.html">
                 </OBJECT>
         <UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Экспортируемые функции">
-                        <param name="Local" value="html/exported_functions/index_viewer.html">
+                        <param name="Name" value="Управляющие элементы">
+                        <param name="Local" value="html/language/control_statements.html">
                         </OBJECT>
-                <UL>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="ProcessEditorInput">
-                                <param name="Local" value="html/exported_functions/processeditorinput.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="ProcessEditorEvent">
-                                <param name="Local" value="html/exported_functions/processeditorevent.html">
-                                </OBJECT>
-		        </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Сервисные функции">
-                        <param name="Local" value="html/service_functions/index_editor.html">
+                        <param name="Name" value="Языковые файлы">
+                        <param name="Local" value="html/language/language_files.html">
                         </OBJECT>
-                <UL>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Editor">
-                                <param name="Local" value="html/service_functions/editor.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="EditorControl">
-                                <param name="Local" value="html/service_functions/editorcontrol.html">
-                                </OBJECT>
-		        </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Структуры Editor API">
-                        <param name="Local" value="html/structures/index_editor.html">
+                        <param name="Name" value="Файлы помощи">
+                        <param name="Local" value="html/language/help_files.html">
                         </OBJECT>
-                <UL>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="EditorBookMarks">
-                                <param name="Local" value="html/structures/editorbookmarks.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="EditorColor">
-                                <param name="Local" value="html/structures/editorcolor.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="EditorConvertPos">
-                                <param name="Local" value="html/structures/editorconvertpos.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="EditorConvertText">
-                                <param name="Local" value="html/structures/editorconverttext.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="EditorGetString">
-                                <param name="Local" value="html/structures/editorgetstring.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="EditorInfo">
-                                <param name="Local" value="html/structures/editorinfo.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="EditorSelect">
-                                <param name="Local" value="html/structures/editorselect.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="EditorSetParameter">
-                                <param name="Local" value="html/structures/editorsetparameter.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="EditorSetPosition">
-                                <param name="Local" value="html/structures/editorsetposition.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="EditorSetString">
-                                <param name="Local" value="html/structures/editorsetstring.html">
-                                </OBJECT>
-		        </UL>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Синтаксис тем помощи">
+                        <param name="Local" value="html/language/helptopic.html">
+                        </OBJECT>
         </UL>
         <LI> <OBJECT type="text/sitemap">
-                <param name="Name" value="Viewer API">
-                <param name="Local" value="html/viewerapi/index.html">
+                <param name="Name" value="Windows API: структуры, функции, определения">
+                <param name="Local" value="html/winapi/index.html">
                 </OBJECT>
         <UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Экспортируемые функции">
-                        <param name="Local" value="html/exported_functions/index_viewer.html">
+                        <param name="Name" value="Windows API функции">
+                        <param name="Local" value="html/winapi/index_func.html">
                         </OBJECT>
                 <UL>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="ProcessViewerEvent">
-                                <param name="Local" value="html/exported_functions/processviewerevent.html">
+                                <param name="Name" value="GetFileTime">
+                                <param name="Local" value="html/winapi/getfiletime.html">
                                 </OBJECT>
-		        </UL>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="PeekConsoleInput">
+                                <param name="Local" value="html/winapi/peekconsoleinput.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="ReadConsoleInput">
+                                <param name="Local" value="html/winapi/readconsoleinput.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="SetFileTime">
+                                <param name="Local" value="html/winapi/setfiletime.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="WriteConsoleInput">
+                                <param name="Local" value="html/winapi/writeconsoleinput.html">
+                                </OBJECT>
+                </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Сервисные функции">
-                        <param name="Local" value="html/service_functions/index_viewer.html">
+                        <param name="Name" value="Windows API структуры">
+                        <param name="Local" value="html/winapi/index_struct.html">
                         </OBJECT>
                 <UL>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Viewer">
-                                <param name="Local" value="html/service_functions/viewer.html">
+                                <param name="Name" value="CHAR_INFO">
+                                <param name="Local" value="html/winapi/char_info.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="ViewerControl">
-                                <param name="Local" value="html/service_functions/viewercontrol.html">
+                                <param name="Name" value="CONSOLE_CURSOR_INFO">
+                                <param name="Local" value="html/winapi/console_cursor_info.html">
                                 </OBJECT>
-		        </UL>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="COORD">
+                                <param name="Local" value="html/winapi/coord.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FILETIME">
+                                <param name="Local" value="html/winapi/filetime.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FOCUS_EVENT_RECORD">
+                                <param name="Local" value="html/winapi/focus_event_record.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="INPUT_RECORD">
+                                <param name="Local" value="html/winapi/input_record.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="KEY_EVENT_RECORD">
+                                <param name="Local" value="html/winapi/key_event_record.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="MENU_EVENT_RECORD">
+                                <param name="Local" value="html/winapi/menu_event_record.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="MOUSE_EVENT_RECORD">
+                                <param name="Local" value="html/winapi/mouse_event_record.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="RECT">
+                                <param name="Local" value="html/winapi/rect.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="SMALL_RECT">
+                                <param name="Local" value="html/winapi/small_rect.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="SYSTEMTIME">
+                                <param name="Local" value="html/winapi/systemtime.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="WIN32_FIND_DATA">
+                                <param name="Local" value="html/winapi/win32_find_data.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="WINDOW_BUFFER_SIZE_RECORD">
+                                <param name="Local" value="html/winapi/window_buffer_size_record.html">
+                                </OBJECT>
+                </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Структуры">
-                        <param name="Local" value="html/structures/index_viewer.html">
+                        <param name="Name" value="Windows API константы">
+                        <param name="Local" value="html/winapi/index_defs.html">
                         </OBJECT>
                 <UL>
-		                <LI> <OBJECT type="text/sitemap">
-        		                <param name="Name" value="FARINT64">
-                		        <param name="Local" value="html/structures/farint64.html">
-                        		</OBJECT>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="ViewerInfo">
-                                <param name="Local" value="html/structures/viewerinfo.html">
+                                <param name="Name" value="виртуальные коды клавиш">
+                                <param name="Local" value="html/winapi/virtualkeycodes.html">
                                 </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="ViewerMode">
-                                <param name="Local" value="html/structures/viewermode.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="ViewerSelect">
-                                <param name="Local" value="html/structures/viewerselect.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="ViewerSetMode">
-                                <param name="Local" value="html/structures/viewersetmode.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="ViewerSetPosition">
-                                <param name="Local" value="html/structures/viewersetposition.html">
-                                </OBJECT>
-		        </UL>
+                </UL>
         </UL>
         <LI> <OBJECT type="text/sitemap">
                 <param name="Name" value="Custom API">
@@ -2295,63 +2198,8 @@
                 </OBJECT>
         <UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Как компилировать с помощью Borland C++ 5.5 без startup code">
-                        <param name="Local" value="html/articles/essay.html">
-                        <param name="ImageNumber" value="11">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Собственные типы колонок на панели плагина">
-                        <param name="Local" value="html/articles/column_types.html">
-                        <param name="ImageNumber" value="11">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Как уменьшить размер плагина (Microsoft VC++ 4.2)">
-                        <param name="Local" value="html/articles/rsp_microsoftvc42.html">
-                        <param name="ImageNumber" value="11">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Плагин для разных версий FAR Manager">
-                        <param name="Local" value="html/articles/good_version.html">
-                        <param name="ImageNumber" value="11">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Как настроить Alignment (extended)">
-                        <param name="Local" value="html/articles/alignment2.html">
-                        <param name="ImageNumber" value="11">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Несколько приемов работы с окнами FAR.">
-                        <param name="Local" value="html/articles/nonmodaleditorwork.html">
-                        <param name="ImageNumber" value="11">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Оптимизация размера плагина при использовании gcc.">
-                        <param name="Local" value="html/articles/gcc_opt.html">
-                        <param name="ImageNumber" value="11">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="О пользе и вреде static в диалогах.">
-                        <param name="Local" value="html/articles/static.html">
-                        <param name="ImageNumber" value="11">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Как уменьшить размер плагина (Microsoft VC++ 6.0)">
-                        <param name="Local" value="html/articles/rsp_microsoftvc.html">
-                        <param name="ImageNumber" value="11">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Отладка плагинов в Borland Turbo Debugger">
-                        <param name="Local" value="html/articles/td.html">
-                        <param name="ImageNumber" value="11">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
                         <param name="Name" value="Упаковщики - ЗА и ПРОТИВ">
                         <param name="Local" value="html/articles/packers.html">
-                        <param name="ImageNumber" value="11">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Плагин для разных версий FAR Manager">
-                        <param name="Local" value="html/articles/version.html">
                         <param name="ImageNumber" value="11">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
@@ -2360,48 +2208,8 @@
                         <param name="ImageNumber" value="11">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Распределение памяти. Скромная попытка расставить все по своим местам в этом вопросе.">
-                        <param name="Local" value="html/articles/heaps.html">
-                        <param name="ImageNumber" value="11">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Распределение памяти в Borland Delphi - проблемы и решения">
-                        <param name="Local" value="html/articles/delphialloc.html">
-                        <param name="ImageNumber" value="11">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Приручаем Borland C++ к crtdll.dll">
-                        <param name="Local" value="html/articles/bc2crtdll.html">
-                        <param name="ImageNumber" value="11">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Синдром ``Рождественской Ёлки'' или...">
-                        <param name="Local" value="html/articles/colorer_src.html">
-                        <param name="ImageNumber" value="11">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Написание плагинов на Virtual Pascal 2.0">
-                        <param name="Local" value="html/articles/vpplug.html">
-                        <param name="ImageNumber" value="11">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
                         <param name="Name" value="Локализация плагинов второго уровня">
                         <param name="Local" value="html/articles/localization.html">
-                        <param name="ImageNumber" value="11">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Корретировка PLUGIN.HPP">
-                        <param name="Local" value="html/articles/pluginshpp.html">
-                        <param name="ImageNumber" value="11">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Как настроить Alignment">
-                        <param name="Local" value="html/articles/alignment.html">
-                        <param name="ImageNumber" value="11">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Формат Hrc изнутри">
-                        <param name="Local" value="html/articles/colorer_hrcdoc.html">
                         <param name="ImageNumber" value="11">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
@@ -2412,36 +2220,6 @@
                 <LI> <OBJECT type="text/sitemap">
                         <param name="Name" value="ECTL_GETSTRING работает слишком медленно">
                         <param name="Local" value="html/articles/ectl_getstring.html">
-                        <param name="ImageNumber" value="11">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Как уменьшить размер плагина (Watcom v11)">
-                        <param name="Local" value="html/articles/rsp_watcom.html">
-                        <param name="ImageNumber" value="11">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Подсказка в нестандартных диалогах">
-                        <param name="Local" value="html/articles/f1mydialog.html">
-                        <param name="ImageNumber" value="11">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Как получить полный путь...">
-                        <param name="Local" value="html/articles/ed_fullpath.html">
-                        <param name="ImageNumber" value="11">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Как уменьшить размер плагина (Borland C++)">
-                        <param name="Local" value="html/articles/rsp_borlandc.html">
-                        <param name="ImageNumber" value="11">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Написание плагина на Delphi (ID3 Viewer)">
-                        <param name="Local" value="html/articles/delphisimple.html">
-                        <param name="ImageNumber" value="11">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Работа с временной панелью в своем плагине">
-                        <param name="Local" value="html/articles/temppanel.html">
                         <param name="ImageNumber" value="11">
                         </OBJECT>
         </UL>
@@ -2466,14 +2244,14 @@
                         <param name="ImageNumber" value="41">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Словарь">
+                        <param name="Local" value="html/other/dict.html">
+                        <param name="ImageNumber" value="21">
+                        </OBJECT>
+                <LI> <OBJECT type="text/sitemap">
                         <param name="Name" value="ЧАВО">
                         <param name="Local" value="html/other/faq.html">
                         <param name="ImageNumber" value="37">
-                        </OBJECT>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Авторы">
-                        <param name="Local" value="html/other/authors.html">
-                        <param name="ImageNumber" value="27">
                         </OBJECT>
         </UL>
         <LI> <OBJECT type="text/sitemap">

@@ -41,27 +41,6 @@ INT_PTR WINAPI AdvControl(
        <var>Param</var> = 0 (не используется)<br>
        Функция возвращает <code>TRUE</code> в случае успеха и <code>FALSE</code> при неудаче.
       </td></tr>
-      <tr class="cont"><td class="cont" width="40%"><a name="ACTL_CONSOLEMODE">ACTL_CONSOLEMODE</a></td>
-      <td class="cont" width="60%">Программное переключение "FullScreen &lt;-&gt; Windowed".<br>
-        <var>Param</var> может принимать одно из следующих значений:
-        <table class="cont"><tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
-            <tr class="cont"><td class="cont" width="40%"><a name="FAR_CONSOLE_GET_MODE">FAR_CONSOLE_GET_MODE</a></td>
-            <td class="cont" width="60%">получить текущее состояние</td></tr>
-            <tr class="cont"><td class="cont" width="40%"><a name="FAR_CONSOLE_SET_FULLSCREEN">FAR_CONSOLE_SET_FULLSCREEN</a></td>
-            <td class="cont" width="60%">полноэкранный режим</td></tr>
-            <tr class="cont"><td class="cont" width="40%"><a name="FAR_CONSOLE_SET_WINDOWED">FAR_CONSOLE_SET_WINDOWED</a></td>
-            <td class="cont" width="60%">оконный режим</td></tr>
-            <tr class="cont"><td class="cont" width="40%"><a name="FAR_CONSOLE_TRIGGER">FAR_CONSOLE_TRIGGER</a></td>
-            <td class="cont" width="60%">переключить состояние</td></tr>
-        </table>
-        Возвращается текущее значение режима - одна из констант:
-        <table class="cont"><tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
-            <tr class="cont"><td class="cont" width="40%"><a name="FAR_CONSOLE_WINDOWED">FAR_CONSOLE_WINDOWED</a></td>
-            <td class="cont" width="60%">оконный режим</td></tr>
-            <tr class="cont"><td class="cont" width="40%"><a name="FAR_CONSOLE_FULLSCREEN">FAR_CONSOLE_FULLSCREEN</a></td>
-            <td class="cont" width="60%">полноэкранный режим</td></tr>
-        </table>
-      </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_EJECTMEDIA">ACTL_EJECTMEDIA</a></td>
       <td class="cont" width="60%">Извлечь диск из съемного накопителя (CD-ROM/USB/SUBST).<br>

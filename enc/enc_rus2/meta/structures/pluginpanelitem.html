@@ -46,7 +46,7 @@ struct PluginPanelItem
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
       <tr class="cont"><td class="cont" width="40%"><a name="PPIF_PROCESSDESCR">PPIF_PROCESSDESCR</a></td>
-      <td class="cont" width="60%">Использовать внутреннюю обработку описаний FAR'а.
+      <td class="cont" width="60%">Использовать внутреннюю обработку описаний FAR'а.<br>
         Этот флаг может быть установлен для обрабатываемых файлов в
         функциях  <a href="../exported_functions/deletefilesw.html">DeleteFilesW</a>,
         <a href="../exported_functions/getfilesw.html">GetFilesW</a> и
@@ -56,13 +56,12 @@ struct PluginPanelItem
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="PPIF_SELECTED">PPIF_SELECTED</a></td>
-      <td class="cont" width="60%">Для <a href="../service_functions/control.html">Control</a>, в функциях FCTL_GETPANELINFO,
-        FCTL_GETANOTHERPANELINFO, FCTL_SETSELECTION и FCTL_SETANOTHERSELECTION этот флаг позволяет
-        проверить и установить выделение элементов.<br>
+      <td class="cont" width="60%">Этот флаг отвечает за выделение элемента.<br>
+      <!-- Для <a href="../service_functions/control.html">Control</a>, в функциях FCTL_GETPANELINFO, FCTL_GETANOTHERPANELINFO, FCTL_SETSELECTION и FCTL_SETANOTHERSELECTION
+           этот флаг позволяет проверить и установить выделение элементов. -->
         В функциях <a href="../exported_functions/putfilesw.html">PutFilesW</a>, <a href="../exported_functions/getfilesw.html">GetFilesW</a>
         и <a href="../exported_functions/processhostfilew.html">ProcessHostFileW</a>, если операция не удалась,
-        но часть файлов была успешно обработана, плагин может убрать выделение только с
-        обработанных файлов.<br>
+        но часть файлов была успешно обработана, плагин может убрать выделение только с обработанных файлов.<br>
         Для этого плагин должен очистить флаг PPIF_SELECTED у обрабатываемых элементов в переданном функции списке <i>PluginPanelItem</i>.
       </td></tr>
 

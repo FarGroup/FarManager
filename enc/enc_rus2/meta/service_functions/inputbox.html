@@ -47,7 +47,7 @@ int WINAPI InputBox(
     <div class=dfndescr>"Приемник" введенных данных. Может указать на ту же область памяти что и <dfn>SrcText</dfn>.</div>
 
     <div class=dfn>DestLength</div>
-    <div class=dfndescr>Размер "приемника"</div>
+    <div class=dfndescr>Размер "приемника".</div>
 
     <div class=dfn>HelpTopic</div>
     <div class=dfndescr>Адрес строки с <a href="../language/helptopic.html">названием темы</a>
@@ -57,20 +57,22 @@ int WINAPI InputBox(
     </div>
 
     <div class=dfn>Flags</div>
-    <div class=dfndescr>Может быть комбинацией следующих значений (перечисленние <a name="INPUTBOXFLAGS">INPUTBOXFLAGS</a>):
+    <div class=dfndescr>Может быть комбинацией следующих значений (перечисление <a name="INPUTBOXFLAGS">INPUTBOXFLAGS</a>):
         <table class="cont"><tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
            <tr class="cont"><td class="cont" width="40%"><a name="FIB_ENABLEEMPTY">FIB_ENABLEEMPTY</a></td>
-           <td class="cont" width="60%">даже если строка ввода пуста функция вернет значение TRUE.</td></tr>
+           <td class="cont" width="60%">даже если строка ввода пуста функция вернет значение TRUE</td></tr>
            <tr class="cont"><td class="cont" width="40%"><a name="FIB_PASSWORD">FIB_PASSWORD</a></td>
-           <td class="cont" width="60%">используется для ввода пароля - вводимый текст на экране отрисовывается символами <code>'*'</code>.</td></tr>
+           <td class="cont" width="60%">используется для ввода пароля - вводимый текст на экране отрисовывается символами <code>'*'</code></td></tr>
            <tr class="cont"><td class="cont" width="40%"><a name="FIB_EXPANDENV">FIB_EXPANDENV</a></td>
-           <td class="cont" width="60%">после успешного ввода, в строке <dfn>DestText</dfn> идентификаторы переменных окружения заменяются на их значения, например, если пользователь ввел '<code>%TEMP%</code>', то <dfn>DestText</dfn> будет содержать '<code>C:\TEMP</code>'.</td></tr>
+           <td class="cont" width="60%">после успешного ввода, в строке <dfn>DestText</dfn> идентификаторы переменных окружения заменяются на их значения, например, если пользователь ввел '<code>%TEMP%</code>', то <dfn>DestText</dfn> будет содержать '<code>C:\TEMP</code>'</td></tr>
            <tr class="cont"><td class="cont" width="40%"><a name="FIB_NOUSELASTHISTORY">FIB_NOUSELASTHISTORY</a></td>
-           <td class="cont" width="60%">не использовать предыдущее значение из истории, оставить строку ввода пустой; актуален, если параметр <dfn>HistoryName</dfn> не равен NULL.</td></tr>
+           <td class="cont" width="60%">не использовать предыдущее значение из истории, оставить строку ввода пустой; актуален, если параметр <dfn>HistoryName</dfn> не равен NULL</td></tr>
            <tr class="cont"><td class="cont" width="40%"><a name="FIB_BUTTONS">FIB_BUTTONS</a></td>
-           <td class="cont" width="60%">показать разделительную линию и кнопки [Ok] и [Cancel]. Диалог увеличится на 2 строки.</td></tr>
+           <td class="cont" width="60%">показать разделительную линию и кнопки [Ok] и [Cancel]. Диалог увеличится на 2 строки</td></tr>
            <tr class="cont"><td class="cont" width="40%"><a name="FIB_NOAMPERSAND">FIB_NOAMPERSAND</a></td>
-           <td class="cont" width="60%">не показывать в приглашении ввода амперсанд, использовать его для определения горячей клавиши.</td></tr>
+           <td class="cont" width="60%">не показывать в приглашении ввода амперсанд, использовать его для определения горячей клавиши</td></tr>
+           <tr class="cont"><td class="cont" width="40%"><a name="FIB_EDITPATH">FIB_EDITPATH</a></td>
+           <td class="cont" width="60%">говорит, что строка ввода будет содержать имена реальных файловых объектов</td></tr>
         </table>
     </div>
 </div>

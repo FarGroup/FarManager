@@ -27,6 +27,7 @@ struct ActlKeyMacro {
       const wchar_t *SequenceText;
       DWORD Flags;
     } PlainText;
+    struct MacroParseResult MacroResult;
     DWORD_PTR Reserved[3];
   } Param;
 };
@@ -72,6 +73,12 @@ struct ActlKeyMacro {
 
 </td></tr>
 
+<tr class="cont"><td class="cont" width="40%"><a name="MCMD_CHECKMACRO">MCMD_CHECKMACRO</a></td>
+<td class="cont" width="60%">Проверяет макропоследовательность Param.PlainText.SequenceText и возвращает результат в Param.MacroResult
+(структура <a href="macroparseresult.html">MacroParseResult</a>). Содержимое Param.PlainText затирается.
+</td></tr>
+
+
 </table>
     </div>
     <div class=dfn>Param.PlainText.SequenceText</div>
@@ -98,6 +105,10 @@ struct ActlKeyMacro {
 
        </td>
        </tr>
+
+       <tr class="cont"><td class="cont" width="40%"><a name="KSFLAGS_SILENTCHECK">KSFLAGS_SILENTCHECK</a></td>
+       <td class="cont" width="60%">Не отображать на экране результат проверки макропоследовательности.</td></tr>
+
 
 </table>
      Этот член структуры используется для команды <dfn>MCMD_POSTMACROSTRING</dfn>.

@@ -35,7 +35,7 @@ int WINAPI Control(
   <div class=dfndescr>Текущий описатель плагина.
     При запросе информации относительно активной панели установите
     этот параметр равным <code>PANEL_ACTIVE</code>, для пассивной -  <code>PANEL_PASSIVE</code>. Это позволяет
-    использовать эту функцию в командах плагина без создания новой панели. 
+    использовать эту функцию в командах плагина без создания новой панели.
     Так же <code>PANEL_ACTIVE(PANEL_PASSIVE)</code> можно использовать для неплагиновой панели.</div>
 
   <div class=dfn>Command</div>
@@ -71,11 +71,11 @@ int WINAPI Control(
 
       <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETPANELINFO">FCTL_GETPANELINFO</a></td>
       <td class="cont" width="60%">Получить общую информацию о панели.<br>
-      <var>Param1</var> = 0 (не используется). <br>     
+      <var>Param1</var> = 0 (не используется). <br>
       <var>Param2</var> указывает на структуру <a href="../structures/panelinfo.html">PanelInfo</a>,
         которая получит информацию о панели.<br>
        <p>В процессе исполнения запроса
-       <pre class=code>Info.Control(PANEL_ACTIVE, FCTL_GETPANELINFO, &amp;PInfo);</pre>
+       <pre class=code>Info.Control(PANEL_ACTIVE,FCTL_GETPANELINFO,0,(LONG_PTR)&amp;PInfo);</pre>
         FAR вызывает экспортируемую функцию <a href="../exported_functions/getopenplugininfow.html">GetOpenPluginInfoW</a>
         того плагина, которому принадлежит панель. FAR содержит защиту от
         бесконечной рекурсии: в случае, когда плагин из обработчика
@@ -133,7 +133,7 @@ int WINAPI Control(
        //...нужные нам действия
        free(PPI);
      }
-   }</pre>   
+   }</pre>
 </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETSELECTEDPANELITEM">FCTL_GETSELECTEDPANELITEM</a></td>
@@ -156,7 +156,7 @@ int WINAPI Control(
 
       <tr class="cont"><td class="cont" width="40%"><a name="FCTL_REDRAWPANEL">FCTL_REDRAWPANEL</a></td>
       <td class="cont" width="60%">Перерисовать панель.<br>
-      <var>Param1</var> = 0 (не используется). <br>        
+      <var>Param1</var> = 0 (не используется). <br>
       <var>Param2</var> - указатель на структуру <a href="../structures/panelredrawinfo.html">PanelRedrawInfo</a>,  которой можно задать новые позиции курсора и верхнего элемента панели. Если <var>Param2</var> равен NULL, то позиции курсора и верхнего элемента панели при прорисовке не изменяются.<br>
        Панель прорисуется только в случае, если в данный момент панель видна.
       </td></tr>
@@ -169,7 +169,7 @@ int WINAPI Control(
 
       <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETPANELDIR">FCTL_SETPANELDIR</a></td>
       <td class="cont" width="60%">Установить текущий каталог в панели.<br>
-       <var>Param1</var> = 0 (не используется). <br>        
+       <var>Param1</var> = 0 (не используется). <br>
        <var>Param2</var> указывает на имя каталога. Если плагин поддерживает
         свою собственную панель, он будет закрыт после выполнения этой команды.
         <p>После выполнения этой функции пропадет выделение с элементов каталога
@@ -180,7 +180,7 @@ int WINAPI Control(
      <tr class="cont"><td class="cont" width="40%"><a name="FCTL_BEGINSELECTION">FCTL_BEGINSELECTION</a><br>
       <a name="FCTL_ENDSELECTION">FCTL_ENDSELECTION</a></td>
       <td class="cont" width="60%">Начать/закончить операцию выделения в панели.<br>
-      <var>Param1</var> = 0,  <var>Param2</var> = NULL  (не используются).<br> 
+      <var>Param1</var> = 0,  <var>Param2</var> = NULL  (не используются).<br>
        <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_BEGINSELECTION" width="10" height="10"> Внимание!</p>
           <UL class=note><LI> Порядок использования смотрите в примере к <dfn>FCTL_SETSELECTION</dfn></LI></UL>
         </td></tr>
@@ -188,8 +188,8 @@ int WINAPI Control(
       <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETSELECTION">FCTL_SETSELECTION</a></td>
       <td class="cont" width="60%">Установить выделение в панели.<br>
         <var>Param1</var> порядковый номер элемента на панели (подмножество <a href="../structures/panelinfo.html">PanelInfo.ItemsNumber</a>). <br>
-        <var>Param2</var> указывает на переменную типа BOOL (TRUE - выделить элемент, FALSE - снять выделение). 
-    <!--    
+        <var>Param2</var> указывает на переменную типа BOOL (TRUE - выделить элемент, FALSE - снять выделение).
+    <!--
         Нельзя использовать другие
         функции <dfn>Control</dfn> между FCTL_GETPANELINFO и FCTL_SETSELECTION.
         Обратите внимание, что FCTL_GETPANELINFO и FCTL_GETANOTHERPANELINFO
@@ -197,21 +197,30 @@ int WINAPI Control(
         соответствующее состоянию панели.
 -->
         <p>Нужно вызвать FCTL_REDRAWPANEL для показа изменений.
-      
+
 <p>Пример:
 <pre class=code>
    // начинаем операцию по выделению файлов
-   Info.Control(PANEL_ACTIVE, FCTL_BEGINSELECTION, 0, NULL);
- 
+   Info.Control(PANEL_ACTIVE,FCTL_BEGINSELECTION,0,NULL);
+
    // выделяем
    for(int i=0; i < PInfo.ItemsNumber; i++)
    {
-       Info.Control(PANEL_ACTIVE, FCTL_SETSELECTION, i, TRUE);
+       Info.Control(PANEL_ACTIVE,FCTL_SETSELECTION,i,TRUE);
    }
    // завершаем операцию и перерисовываем панель
-   Info.Control(PANEL_ACTIVE, FCTL_ENDSELECTION, 0, NULL);
-   Info.Control(PANEL_ACTIVE, FCTL_REDRAWPANEL, 0, NULL);  
+   Info.Control(PANEL_ACTIVE,FCTL_ENDSELECTION,0,NULL);
+   Info.Control(PANEL_ACTIVE,FCTL_REDRAWPANEL,0,NULL);
   </pre> </td></tr>
+
+     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_CLEARSELECTION">FCTL_CLEARSELECTION</a><br>
+      <td class="cont" width="60%">Снять выделение с выделенных элементов панели.<br>
+       <var>Param1</var> порядковый номер элемента на панели (подмножество <a href="../structures/panelinfo.html">PanelInfo.SelectedItemsNumber</a>). <br>
+       <var>Param2</var> = NULL  (не используются).<br>
+        <p>Нужно вызвать FCTL_REDRAWPANEL для показа изменений.
+       <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_CLEARSELECTION" width="10" height="10"> Внимание!<br><br></p>
+          <UL class=note><LI> Порядок использования такой же, что и в примере к <dfn>FCTL_SETSELECTION</dfn></LI></UL>
+        </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETSORTMODE">FCTL_SETSORTMODE</a></td>
       <td class="cont" width="60%">Установить режим сортировки для панели.<br>
@@ -246,7 +255,7 @@ int WINAPI Control(
 
       <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETCMDLINEPOS">FCTL_GETCMDLINEPOS</a></td>
       <td class="cont" width="60%">Получить позицию курсора в командной строке.<br>
-      <var>Param1</var> = 0 (не используется). <br> 
+      <var>Param1</var> = 0 (не используется). <br>
       <var>Param2</var> содержит указатель на переменную типа int, в которую будет помещена позиция курсора.
       </td></tr>
 
@@ -255,12 +264,12 @@ int WINAPI Control(
     <var>Param1</var> размер буфера. Указывает максимальное количество символов, которые могут
      быть записаны в <var>Param2</var>, включая '\0'. <br>
       <var>Param2</var> указывает на буфер, выделяемый плагином, который получит данные. <br>
-      Функция возвращает необходимый размер буфера, если <var>Param2</var>= NULL.    
+      Функция возвращает необходимый размер буфера, если <var>Param2</var>= NULL.
     </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETCMDLINESELECTION">FCTL_GETCMDLINESELECTION</a></td>
       <td class="cont" width="60%">Получить параметры выделенного текста командной строки.<br>
-      <var>Param1</var> = 0 (не используется). <br>      
+      <var>Param1</var> = 0 (не используется). <br>
       <var>Param2</var> указывает на структуру <a href="../structures/cmdlineselect.html">CmdLineSelect</a>.</td></tr>
 
 
@@ -281,7 +290,7 @@ int WINAPI Control(
 
       <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETCMDLINESELECTION">FCTL_SETCMDLINESELECTION</a></td>
       <td class="cont" width="60%">Выделить текст командной строки.<br>
-      <var>Param1</var> = 0 (не используется). <br>   
+      <var>Param1</var> = 0 (не используется). <br>
       <var>Param2</var> указывает на структуру <a href="../structures/cmdlineselect.html">CmdLineSelect</a>.</td></tr>
 
 

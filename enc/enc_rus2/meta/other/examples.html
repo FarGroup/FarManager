@@ -33,7 +33,7 @@
   Во включенном состоянии плагин
   пропускает через себя все события от клавиатуры и мыши.
   Используется функция <a href="../exported_functions/processeditorinputw.html">ProcessEditorInputW</a>:
-<pre class=code>int WINAPI _export ProcessEditorInput(const INPUT_RECORD *Rec)
+<pre class=code>int WINAPI _export ProcessEditorInputW(const INPUT_RECORD *Rec)
 {
   // обработка очередного KEY_EVENT
 }</pre>
@@ -54,7 +54,7 @@
   Используется "бесконечный цикл" с вызовом команд
   <a href="../service_functions/editorcontrol.html#ECTL_READINPUT">ECTL_READINPUT</a> и
   <a href="../service_functions/editorcontrol.html#ECTL_PROCESSINPUT">ECTL_PROCESSINPUT</a>:
-<pre class=code>HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
+<pre class=code>HANDLE WINAPI _export OpenPluginW(int OpenFrom,INT_PTR Item)
 {
   ...
   while (!Done)

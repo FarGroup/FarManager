@@ -16,21 +16,21 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FileFilterControl</dfn> позволяет управлять созданием и примененим файловых фильтров.
+Функция <dfn>FileFilterControl</dfn> позволяет управлять созданием и применением файловых фильтров.
 </div>
 
 <pre class=syntax>
 int WINAPI FileFilterControl(
-  HANDLE hHandle, 
-  int Command, 
-  int Param1, 
-  LONG_PTR Param2  
+  HANDLE hHandle,
+  int Command,
+  int Param1,
+  LONG_PTR Param2
 );
 </pre>
 
 <h3>Параметры</h3>
 <div class=descr>
- 
+
  <div class=dfn>hHandle</div>
   <div class=dfndescr>Смотрите описание <var>Command</var>.</div>
 
@@ -39,7 +39,7 @@ int WINAPI FileFilterControl(
    <table class="cont"><tr class="cont"><th class="cont" width="40%">Команда</th><th class="cont" width="60%">Описание</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FFCTL_CREATEFILEFILTER">FFCTL_CREATEFILEFILTER</a></td>
     <td class="cont" width="60%"> Создает фильтр для заданной области. <br>
-    <var>hHandle</var> должн быть установлен в значение <code>PANEL_ACTIVE</code> или  <code>PANEL_PASSIVE</code>.<br>
+    <var>hHandle</var> должен быть установлен в значение <code>PANEL_ACTIVE</code> или  <code>PANEL_PASSIVE</code>.<br>
     <var>Param1</var> в значение типа <code>FAR_FILE_FILTER_TYPE</code>:
            <table class="cont"><tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
             <tr class="cont"><td class="cont" width="40%"><a name="FFT_PANEL">FFT_PANEL</a></td>
@@ -53,9 +53,9 @@ int WINAPI FileFilterControl(
         </table>
     Созданный фильтр получит настройки заданного типа,
     настройки глобальны и всегда идентичны в любом фильтре этого типа (но левая и правая панели различаются). <br>
-   <var>Param2</var> - указатель типа <code>HANDLE</code>, в который запишется созданный хэндл фильтра. <br>
+   <var>Param2</var> - указатель типа <code>HANDLE</code>, в который запишется созданный описатель фильтра. <br>
    Функция при неудаче вернет <code>FALSE</code> и <var>Param2</var>=<code>INVALID_HANDLE_VALUE</code>.</td></tr>
- 
+
    <tr class="cont"><td class="cont" width="40%"><a name="FFCTL_FREEFILEFILTER">FFCTL_FREEFILEFILTER</a></td>
     <td class="cont" width="60%"> Освобождает память занятую при создании фильтра.<br>
     <var>hHandle</var> -  <code>HANDLE</code> фильтра, созданный по команде  <dfn>FFCTL_CREATEFILEFILTER</dfn>.<br>
@@ -82,7 +82,7 @@ int WINAPI FileFilterControl(
     Функция возвращает <code>TRUE</code>, если файл попадает под условия фильтра. </td></tr>
   </table>
   </div>
-  
+
   <div class=dfn>Param1</div>
   <div class=dfndescr>Указывает на <var>Параметр1</var> команды. Смотрите описание <var>Command</var>.
   </div>
@@ -99,8 +99,32 @@ int WINAPI FileFilterControl(
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
- </div>
+<pre class=code>
+HANDLE AFilter = INVALID_HANDLE_VALUE;
+
+// создаем фильтр для области "активная панель"
+Info.FileFilterControl(PANEL_ACTIVE,FFCTL_CREATEFILEFILTER,FFT_PANEL,(LONG_PTR)&AFilter);
+
+// обновляем параметр "текущее время"
+Info.FileFilterControl(AFilter,FFCTL_STARTINGTOFILTER,0,0);
+
+if (AFilter != INVALID_HANDLE_VALUE)
+{
+  // производим манипуляции с элементами панели
+  for (int i=0; i < pInfo->ItemsNumber; i++)
+  {
+    //...применяем фильтр, например, так
+    if (Info.FileFilterControl(AFilter,FFCTL_ISFILEINFILTER,0,(LONG_PTR)&pInfo->PanelItems[i].FindData))
+    {
+      // элемент попал под условия фильтра
+      // обработаем элемент...
+    }
+  }
+}
+
+// освобождаем память
+Info.FileFilterControl(AFilter, FFCTL_FREEFILEFILTER,0,0);
+</pre>
 
 <div class=see>Смотрите также:</div><div class=seecont>
 <a href="control.html">Control</a></div>

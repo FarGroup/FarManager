@@ -21,16 +21,16 @@
 
 <pre class=syntax>
 int WINAPI PluginsControl(
-  HANDLE hHandle, 
-  int Command, 
-  int Param1, 
-  LONG_PTR Param2  
+  HANDLE hHandle,
+  int Command,
+  int Param1,
+  LONG_PTR Param2
 );
 </pre>
 
 <h3>Параметры</h3>
 <div class=descr>
- 
+
  <div class=dfn>hHandle</div>
   <div class=dfndescr>Смотрите описание <var>Command</var>. (в настоящее время значение игнорируется).</div>
 
@@ -42,15 +42,15 @@ int WINAPI PluginsControl(
    <var>Param1</var> должен быть установлен в значение <code>PLT_PATH</code> (перечисление <a href="#FAR_PLUGIN_LOAD_TYPE">FAR_PLUGIN_LOAD_TYPE</a>). <br>
    <var>Param2</var> указывать на полный путь до dll-файла плагина. <br>
   Функция возвращает <code>TRUE</code>, если плагин удалось загрузить.</td></tr>
- 
+
 <tr class="cont"><td class="cont" width="40%"><a name="PCTL_UNLOADPLUGIN">PCTL_UNLOADPLUGIN</a></td>
-    <td class="cont" width="60%"> Выгрузить плагин. <br> 
+    <td class="cont" width="60%"> Выгрузить плагин. <br>
    <var>Param1</var> должен быть установлен в значение <code>PLT_PATH</code> (перечисление <a href="#FAR_PLUGIN_LOAD_TYPE">FAR_PLUGIN_LOAD_TYPE</a>). <br>
    <var>Param2</var> указывать на полный путь до dll-файла плагина. <br>
   Функция возвращает <code>TRUE</code>, если плагин удалось выгрузить.</td></tr>
   </table>
   </div>
-  
+
   <div class=dfn>Param1</div>
   <div class=dfndescr>Указывает на <var>Параметр1</var> команды. Смотрите описание <var>Command</var>.
   </div>
@@ -70,13 +70,24 @@ int WINAPI PluginsControl(
 <div class=descr>Перечисление <a name="FAR_PLUGIN_LOAD_TYPE">FAR_PLUGIN_LOAD_TYPE: </a>
 <table class="cont"><tr class="cont"><th class="cont" width="40%">Тип</th><th class="cont" width="60%">Описание</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="PLT_PATH">PLT_PATH</a></td>
-    <td class="cont" width="60%"> Полное имяь dll-файла плагина, включая папку.</td></tr>
+    <td class="cont" width="60%"> Полное имя dll-файла плагина, включая папку.</td></tr>
 </table>
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
- </div>
+
+<pre class=code>
+const wchar_t *PlugPath = L"C:\\FAR2\\Plugins\\AutoWrap\\AutoWrap.dll";
+
+//загрузим либо выгрузим плагин
+if (bLoad || bUnload)
+{
+  if (bLoad)
+    Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_LOADPLUGIN,PLT_PATH,(LONG_PTR)PlugPath);
+  else
+    Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_UNLOADPLUGIN,PLT_PATH,(LONG_PTR)PlugPath);
+}
+</pre>
 
 <div class=see>Смотрите также:</div><div class=seecont>
 <a href="control.html">Control</a></div>

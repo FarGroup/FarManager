@@ -84,9 +84,8 @@
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">&quot;AutoCompletion&quot;</td>
-    <td class="cont" width="60%">Пользовательское меню</td>
+    <td class="cont" width="60%">Список автодополнения</td>
   </tr>
-
   <tr class="cont">
     <td class="cont" width="40%">&quot;Other&quot;</td>
     <td class="cont" width="60%">Режим копирования текста с экрана</td>
@@ -267,6 +266,7 @@
 <p>При старте FAR компилирует последовательность &quot;Sequence&quot; во
 внутренний байткод. Если в процессе компиляции обнаружена ошибка,
 то макрос &quot;отбрасывается&quot; <a name="startmacro"></a>
+
 <h3>Условия запуска макроса</h3>
 <p>Перед исполнением макроса FAR проверяет условия запуска в
 следующей последовательности:
@@ -281,6 +281,44 @@
   <li>PSelection + NoPSelection (если не в Viewer, Editor и Dialog)
   <li>EVSelection + NoEVSelection (если в Viewer, Editor и Dialog)
 </ol>
+
+
+<h3>Дополнительные параметры в реестре</h3>
+<p>Все дополнительные параметры хранятся в ветке реестра <code>[HKEY_CURRENT_USER\Software\Far2\[Users\USERNAME\]KeyMacros]</code>.
+
+<table class="cont">
+  <tr class="cont">
+    <th class="cont" width="25%">Имя</th>
+    <th class="cont" width="10%">Тип</th>
+    <th class="cont" width="10%">Default</th>
+    <th class="cont" width="55%">Описание</th>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="25%">DateFormat</td>
+    <td class="cont" width="10%">REG_SZ</td>
+    <td class="cont" width="10%"><nobr>%a %b %d %H:%M:%S %Z %Y</nobr></td>
+    <td class="cont" width="55%">Формат вывода даты/времени по умолчанию (см. <a href="macrocmd/date.html">$Date</a> и <a href="macrocmd/functions.html#date">date()</a>)</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="25%">CONVFMT</td>
+    <td class="cont" width="10%">REG_SZ</td>
+    <td class="cont" width="10%"><nobr>%.6g</nobr></td>
+    <td class="cont" width="55%">Формат преобразования чисел (констант и переменных) с плавающей точкой в строку.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="25%">KeyRecordCtrlDot</td>
+    <td class="cont" width="10%">REG_SZ</td>
+    <td class="cont" width="10%"><nobr>Ctrl.</nobr></td>
+    <td class="cont" width="55%">Имя комбинации клавиш для записи макроса в общем режиме (см. "<a href="macrokey/record.html">Запись макроса</a>").</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="25%">KeyRecordCtrlShiftDot</td>
+    <td class="cont" width="10%">REG_SZ</td>
+    <td class="cont" width="10%"><nobr>CtrlShift.</nobr></td>
+    <td class="cont" width="55%">Имя комбинации клавиш для записи макроса в специальном режиме (см. "<a href="macrokey/record.html">Запись макроса</a>").</td>
+  </tr>
+</table>
+
 
 <div class=see>Смотрите также:</div><div class=seecont>
 <a href="about/index.html">Общие сведения</a>,

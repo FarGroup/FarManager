@@ -28,7 +28,14 @@ int WINAPI FarNameToKey(
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>Name</div>
-  <div class=dfndescr>Символьное представление клавиши.
+  <div class=dfndescr>Символьное представление клавиши. Функция ожидает строку по спецификации:<ol>
+    <li>Предопределенные сочетания (см. <a href="http://farmanager.com/svn/trunk/unicode_far/keyboard.cpp">keyboard.cpp</a>::FKeys1[])
+    <li>Опциональные модификаторы (Alt/RAlt/Ctrl/RCtrl/Shift) и 1 символ, например, AltD или CtrlC
+    <li>"Alt" (или RAlt) и 5 десятичных цифр (с ведущими нулями)
+    <li>"Spec" и 5 десятичных цифр (с ведущими нулями)
+    <li>"Oem" и 5 десятичных цифр (с ведущими нулями)
+    <li>только модификаторы (Alt/RAlt/Ctrl/RCtrl/Shift)
+  </ol>
   </div>
 </div>
 

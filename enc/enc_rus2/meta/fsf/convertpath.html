@@ -93,18 +93,18 @@ int WINAPI ConvertPath(
 <div class=descr>
 <p>Неправильно:</p>
 <pre class=code>
-   GetFileAttributes(L"..\some_file");
+   GetFileAttributes(L"..\\some_file");
 </pre>
 
 <p>Правильно:</p>
 <pre class=code>
    wchar_t *FullName = new wchar_t[MAX_PATH];
-   size_t Size = FSF.ConvertPath(CPM_FULL, L"..\some_file", FullName, Size);
+   size_t Size = FSF.ConvertPath(CPM_FULL, L"..\\some_file", FullName, Size);
    if (Size > MAX_PATH)
    {
      delete[] FullName;
      FullName = new wchar_t[Size];
-     FSF.ConvertPath(CPM_FULL, L"..\some_file", FullName, Size);
+     FSF.ConvertPath(CPM_FULL, L"..\\some_file", FullName, Size);
    }
    GetFileAttributes(FullName);
    delete[] FullName;

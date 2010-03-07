@@ -7,103 +7,104 @@
 <script language="JavaScript" src='../links.js' type="text/javascript"></script>
 </head>
 <body>
+
 <h1>Panel API</h1>
 <div class=navbar>
 <a href="../index.html">главная</a>
 </div>
-
 
 <div class=shortdescr>
   <p>Краткое описание <a href="about.html">Panel API</a>
 </div>
 
 <h3>Экспортируемые функции, т.е. те которые плагины экспортируют для FAR Manager</h3>
+
 <table class="cont">
-<tr class="cont">
-<th class="cont" width="40%">Функция</th>
-<th class="cont" width="60%">Описание</th>
+<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th>
 </tr>
-<tr class="cont">
+<tr>
 <td class="cont" width="40%"><a href="../exported_functions/closepluginw.html">ClosePluginW</a></td>
-<td class="cont" width="60%">перед закрытием открытого плагина.</td>
+<td class="cont" width="60%">перед закрытием открытого плагина</td>
 </tr>
-<tr class="cont">
+<tr>
 <td class="cont" width="40%"><a href="../exported_functions/comparew.html">CompareW</a></td>
 <td class="cont" width="60%">перекрывает алгоритм сортировки</td>
 </tr>
-<tr class="cont">
+<tr>
 <td class="cont" width="40%"><a href="../exported_functions/deletefilesw.html">DeleteFilesW</a></td>
 <td class="cont" width="60%">удаление файлов</td>
 </tr>
-<tr class="cont">
+<tr>
 <td class="cont" width="40%"><a href="../exported_functions/freefinddataw.html">FreeFindDataW</a></td>
 <td class="cont" width="60%">освобождает память, запрошенную функцией GetFindDataW</td>
 </tr>
-<tr class="cont">
+<tr>
 <td class="cont" width="40%"><a href="../exported_functions/freevirtualfinddataw.html">FreeVirtualFindDataW</a></td>
 <td class="cont" width="60%">освобождает память, выделенную функцией GetVirtualFindDataW</td>
 </tr>
-<tr class="cont">
+<tr>
 <td class="cont" width="40%"><a href="../exported_functions/getfilesw.html">GetFilesW</a></td>
 <td class="cont" width="60%">получить файлы</td>
 </tr>
-<tr class="cont">
+<tr>
 <td class="cont" width="40%"><a href="../exported_functions/getfinddataw.html">GetFindDataW</a></td>
 <td class="cont" width="60%">получить файлы из текущего каталога</td>
 </tr>
-<tr class="cont">
+<tr>
 <td class="cont" width="40%"><a href="../exported_functions/getopenplugininfow.html">GetOpenPluginInfoW</a></td>
 <td class="cont" width="60%">информация об открытом плагине</td>
 </tr>
-<tr class="cont">
+<tr>
 <td class="cont" width="40%"><a href="../exported_functions/getvirtualfinddataw.html">GetVirtualFindDataW</a></td>
 <td class="cont" width="60%">получить файлы</td>
 </tr>
-<tr class="cont">
+<tr>
 <td class="cont" width="40%"><a href="../exported_functions/makedirectoryw.html">MakeDirectoryW</a></td>
 <td class="cont" width="60%">создать каталог</td>
 </tr>
-<tr class="cont">
+<tr>
 <td class="cont" width="40%"><a href="../exported_functions/openfilepluginw.html">OpenFilePluginW</a></td>
 <td class="cont" width="60%">открыть файл</td>
 </tr>
-<tr class="cont">
+<tr>
 <td class="cont" width="40%"><a href="../exported_functions/openpluginw.html">OpenPluginW</a></td>
 <td class="cont" width="60%">создает новую копию плагина в памяти</td>
 </tr>
-<tr class="cont">
+<tr>
 <td class="cont" width="40%"><a href="../exported_functions/processeventw.html">ProcessEventW</a></td>
 <td class="cont" width="60%">обработка событий</td>
 </tr>
-<tr class="cont">
+<tr>
 <td class="cont" width="40%"><a href="../exported_functions/processhostfilew.html">ProcessHostFileW</a></td>
 <td class="cont" width="60%">выполнить архивную команду FAR'a</td>
 </tr>
-<tr class="cont">
+<tr>
 <td class="cont" width="40%"><a href="../exported_functions/processkeyw.html">ProcessKeyW</a></td>
 <td class="cont" width="60%">обработка событий клавиатуры</td>
 </tr>
-<tr class="cont">
+<tr>
 <td class="cont" width="40%"><a href="../exported_functions/putfilesw.html">PutFilesW</a></td>
 <td class="cont" width="60%">поместить файлы на эмулируемую файловую систему</td>
 </tr>
-<tr class="cont">
+<tr>
 <td class="cont" width="40%"><a href="../exported_functions/setdirectoryw.html">SetDirectoryW</a></td>
-<td class="cont" width="60%">установить текущий каталог на эмулируемой файловой системе.</td>
+<td class="cont" width="60%">установить текущий каталог на эмулируемой файловой системе</td>
 </tr>
-<tr class="cont">
+<tr>
 <td class="cont" width="40%"><a href="../exported_functions/setfindlistw.html">SetFindListW</a></td>
-<td class="cont" width="60%">Перемещает найденные в Диалоге поиска файлов файлы в эмулируемую файловую панель</td>
+<td class="cont" width="60%">перемещает найденные в Диалоге поиска файлов файлы в эмулируемую файловую панель</td>
 </tr>
 </table>
 
 <h3>Сервисные функции, указатели на эти функции плагины получают от FAR Manager в функции
   <a href="../exported_functions/setstartupinfow.html">SetStartupInfoW</a></h3>
+
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th>
+</tr>
 <tr>
 <td class="cont" width="40%"><a href="../service_functions/control.html">Control</a></td>
-<td class="cont" width="60%">позволяет запрашивать различную информацию и выполнять управляющие действия.</td>
+<td class="cont" width="60%">позволяет запрашивать различную информацию и выполнять управляющие действия</td>
 </tr>
 <tr>
 <td class="cont" width="40%"><a href="../service_functions/freedirlist.html">FreeDirList</a></td>
@@ -115,7 +116,7 @@
 </tr>
 <tr>
 <td class="cont" width="40%"><a href="../service_functions/filefiltercontrol.html">FileFilterControl</a></td>
-<td class="cont" width="60%">управляет созданием и примененим файловых фильтров</td>
+<td class="cont" width="60%">управляет созданием и применением файловых фильтров</td>
 </tr>
 <tr>
 <td class="cont" width="40%"><a href="../service_functions/getdirlist.html">GetDirList</a></td>
@@ -125,49 +126,45 @@
 <td class="cont" width="40%"><a href="../service_functions/getplugindirlist.html">GetPluginDirList</a></td>
 <td class="cont" width="60%">возвращает список файлов в указанной директории эмулируемой файловой системы</td>
 </tr>
-
 </table>
 
 <h3>Структуры</h3>
+
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Структура</th><th class="cont" width="60%">Описание</th></tr>
-<tr class="cont">
+<tr class="cont"><th class="cont" width="40%">Структура</th><th class="cont" width="60%">Описание</th>
+</tr>
+<tr>
 <td class="cont" width="40%"><a href="../structures/far_find_data.html">FAR_FIND_DATA</a></td>
 <td class="cont" width="60%">информация об одном элементе в файловой системе</td>
 </tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../structures/infopanelline.html">InfoPanelLine</a></td>
-<td class="cont" width="60%">одна линия информационной панели</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../structures/keybartitles.html">KeyBarTitles</a></td>
-<td class="cont" width="60%">переопределяет названия функциональных клавиш в полоске клавиш</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../structures/panelinfo.html">PanelInfo</a></td>
-<td class="cont" width="60%">информация о панели Far'а</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../structures/panelmode.html">PanelMode</a></td>
-<td class="cont" width="60%">определяет режим просмотра панели</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../structures/panelredrawinfo.html">PanelRedrawInfo</a></td>
-<td class="cont" width="60%">используется при перерисовке панели</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../structures/pluginpanelitem.html">PluginPanelItem</a></td>
-<td class="cont" width="60%">информация об одном элементе в эмулируемой файловой системе</td></tr>
-
-</table>
-
-<h3>Константы</h3>
-<table class="cont">
-<tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
-
-<tr class="cont">
-<td class="cont" width="40%"><a href="../defs/operation_mode.html">OPM_*</a></td>
-<td class="cont" width="60%">дополнительная информация о режиме функции и месте, откуда она была вызвана</td>
+<tr>
+<td class="cont" width="40%"><a href="../structures/infopanelline.html">InfoPanelLine</a></td>
+<td class="cont" width="60%">одна линия информационной панели</td>
 </tr>
-<tr class="cont">
-<td class="cont" width="40%"><a href="../defs/sortmetods.html">SM_*</a></td>
-<td class="cont" width="60%">метод сортировки.</td>
+<tr>
+<td class="cont" width="40%"><a href="../structures/keybartitles.html">KeyBarTitles</a></td>
+<td class="cont" width="60%">переопределяет названия функциональных клавиш в полоске клавиш</td>
 </tr>
-
+<tr>
+<td class="cont" width="40%"><a href="../structures/panelinfo.html">PanelInfo</a></td>
+<td class="cont" width="60%">информация о панели Far'а</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/panelmode.html">PanelMode</a></td>
+<td class="cont" width="60%">определяет режим просмотра панели</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/panelredrawinfo.html">PanelRedrawInfo</a></td>
+<td class="cont" width="60%">используется при перерисовке панели</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/pluginpanelitem.html">PluginPanelItem</a></td>
+<td class="cont" width="60%">информация об одном элементе в эмулируемой файловой системе</td>
+</tr>
 </table>
-
-
 
 <div class=see>Смотрите также:</div><div class=seecont>
+<a href="../defs/index.html">Типы и определения</a>
 </div>
 
 </body>

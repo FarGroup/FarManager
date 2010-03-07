@@ -72,9 +72,16 @@
   <tr class="cont">
     <td class="cont" width="40%">Result=<dfn><a name="replace">replace</a></dfn>(Str,Find,Replace[,Cnt[,Mode]])</td>
     <td class="cont" width="60%">В строке <em>Str</em> заменить подстроку <em>Find</em> на подстроку <em>Replace</em> <em>Cnt</em> раз
-      (укажите <em>Cnt</em> равное 0 или опустите этот параметр для замены всех найденных подстрок).<br>
+      (укажите <em>Cnt</em> меньше или равно 0 или опустите этот параметр для замены всех найденных подстрок).<br>
       Возвращается результат замены.
-      <br>Необязательный параметр <em>Mode</em> задает режим сравнения: 0 (по умолчанию) - без учета регистра, 1 - с учетом регистра.
+      <br>Необязательный параметр <em>Mode</em> задает режим сравнения: 0 (по умолчанию) - без учета регистра, 1 - с учетом регистра.<br>
+      Замечания:<ul>
+      <li>если <em>Find</em> пустая строка, то возвращается <em>Str</em> без преобразований;</li>
+      <!-- li>если <em>Cnt</em> не указан или равно нулю, то возвращается <em>Str</em> без преобразований;</li -->
+      <li>если <em>Replace</em> пустая строка, то возвращается копия <em>Str</em>, в которой удалены все подстроки <em>Find</em>;</li>
+      <li>если <em>Str</em> пустая строка, то возвращается... пустая строка.</li>
+      </ul>
+
       </td>
   </tr>
   <tr class="cont">
@@ -140,12 +147,12 @@
     <td class="cont" width="60%">Преобразует строку <em>S</em> в верхний регистр.</td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">S=<dfn><a name="date">date</a></dfn>(format)</td>
+    <td class="cont" width="40%">S=<dfn><a name="date">date</a></dfn>([format])</td>
     <td class="cont" width="60%">Возвращает текущую дату/время по формату <em>format</em>
       (описание <em>format</em> см. в $Date).<br>
       Функция аналогична макрокоманде $Date, но используется в
-      выражениях. Строковый аргумент <em>format</em> в отличии от
-      макрокоманды $Date обязателен.</td>
+      выражениях.<br>
+      Если аргумент <em>format</em> не указан, то FAR будет использовать форматную строку <nobr><code>&quot;%a %b %d %H:%M:%S %Z %Y&quot;</code></nobr> (см.).</td>
   </tr>
 
 
@@ -203,6 +210,20 @@
        Функция не работает с панелями.
     </td>
   </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="fattr">testfolder</a></dfn>(S)</td>
+    <td class="cont" width="60%">Тестирует каталог <em>S</em>.<br>
+       Возвращает:
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Значение</th><th class="cont" width="90%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="10%"> 2</td><td class="cont" width="90%">нет такого</td></tr>
+        <tr class="cont"><td class="cont" width="10%"> 1</td><td class="cont" width="90%">каталог не пустой</td></tr>
+        <tr class="cont"><td class="cont" width="10%"> 0</td><td class="cont" width="90%">каталог пустой</td></tr>
+        <tr class="cont"><td class="cont" width="10%">-1</td><td class="cont" width="90%">нет доступа</td></tr>
+        <tr class="cont"><td class="cont" width="10%">-2</td><td class="cont" width="90%">ошибка (некорректный параметр или внутренние проблемы с выделением памяти)</td></tr>
+       </table>
+    </td>
+  </tr>
 
 
   <!-- -------------------------------------- -->
@@ -247,7 +268,7 @@
     </td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">V=<dfn><a name="panelitem">panelitem</a></dfn>(panelType,itemIndex,propIndex)</td>
+    <td class="cont" width="40%">V=<dfn><a name="panelitem"></a><a name="panel.item">panel.item</a></dfn>(panelType,itemIndex,propIndex)</td>
     <td class="cont" width="60%">Возвращает различную информацию для элемента панели <em>itemIndex</em> (начиная с 1)
       из активной (<em>panelType</em>=0) или пассивной (<em>panelType</em>=1) панели. <em>propIndex</em> может быть
       одним из следующих значений:
@@ -299,9 +320,18 @@ panel.SetPath(0,"C:\\Program Files","FAR")</pre>
     </td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="panel.setposidx">panel.setposidx</a></dfn>(panelType,indexItem)</td>
+    <td class="cont" width="40%">N=<dfn><a name="panel.setposidx">panel.setposidx</a></dfn>(panelType,indexItem[,InSelection])</td>
     <td class="cont" width="60%">Позиционирует курсор на элемент с индексом <em>indexItem</em> на активной (<em>panelType</em>=0) или пассивной (<em>panelType</em>=1) панели.<br>
+      Знак параметра <em>indexItem</em> задает направление "поиска":<br><ul>
+        <li>&lt; 0 - "искать" от конца в начало;
+        <li>&gt; 0 - "искать" от начала в конец;
+        <li>= 0 - игнорировать переход, просто вернуть текущую позицию</ul>
+      Необязательный параметр <em>InSelection</em> задает область позиционирования:<ul>
+        <li>0 - позиционирование в виртуальном массиве видимых файлов;
+        <li>1 - позиционирование в виртуальном массиве отмеченных видимых файлов.</ul><br>
+      Функция работает только с видимыми файловыми элементами, с учетом примененных фильтров на панели.<br>
       Возвращает позицию элемента или 0, если такого элемента на панели нет.<br>
+
     </td>
   </tr>
 
@@ -338,9 +368,10 @@ panel.SetPath(0,"C:\\Program Files","FAR")</pre>
     </td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">V=<dfn><a name="akey">akey</a></dfn>(N)</td>
+    <td class="cont" width="40%">V=<dfn><a name="akey">akey</a></dfn>(Mode[,Type])</td>
     <td class="cont" width="60%">Возвращает название или код клавиши, вызвавшей макропоследовательность.
-       <em>N</em> = 0 - возвращается код клавиши, <em>N</em> = 1 - возвращается наименование клавиши.<br>
+       <em>Mode</em> = 0 - возвращается код клавиши, <em>Mode</em> = 1 - возвращается наименование клавиши.<br>
+       <em>Type</em> = 0 - возвращает реально-нажатое сочетание, которым вызывался макрос, <em>Type</em> = 1 - возвращает клавишу, на которую назначен макрос.<br>
        Пример см. в описании <a href="akey.html">$AKey</a></td>
   </tr>
   <tr class="cont">

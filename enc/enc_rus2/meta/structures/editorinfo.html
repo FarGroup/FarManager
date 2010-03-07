@@ -106,28 +106,42 @@ struct EditorInfo
         <td class="cont" width="60%">Включена опция &quot;Del удаляет блоки&quot;.</td></tr>
 
         <tr class="cont"><td class="cont" width="40%"><a name="EOPT_AUTOINDENT">EOPT_AUTOINDENT</a></td>
-        <td class="cont" width="60%">Включена опция &quot;Автоотступ&quot;.
+        <td class="cont" width="60%">Включена опция &quot;Автоотступ&quot;.<br>
           Этот параметр можно изменить используя команду
-          <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">ECTL_SETPARAM</a>.
+          <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">ECTL_SETPARAM</a>
+          (<a href="editorsetparameter.html#ESPT_AUTOINDENT">ESPT_AUTOINDENT</a>).
         </td></tr>
 
         <tr class="cont"><td class="cont" width="40%"><a name="EOPT_AUTODETECTCODEPAGE">EOPT_AUTODETECTCODEPAGE</a></td>
         <td class="cont" width="60%">Включена опция &quot;Автоопределение кодовой страницы&quot;</td></tr>
 
         <tr class="cont"><td class="cont" width="40%"><a name="EOPT_CURSORBEYONDEOL">EOPT_CURSORBEYONDEOL</a></td>
-        <td class="cont" width="60%">Включена опция &quot;Курсор за пределами строки&quot;
+        <td class="cont" width="60%">Включена опция &quot;Курсор за пределами строки&quot;.<br>
           Этот параметр можно изменить используя команду
-          <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">ECTL_SETPARAM</a>.
+          <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">ECTL_SETPARAM</a>
+          (<a href="editorsetparameter.html#ESPT_CURSORBEYONDEOL">ESPT_CURSORBEYONDEOL</a>).
         </td></tr>
        
          <tr class="cont"><td class="cont" width="40%"><a name="EOPT_SAVEFILEPOSITION">EOPT_SAVEFILEPOSITION</a></td>
-         <td class="cont" width="60%">Включена опция &quot;Сохранять позицию файла&quot;
+         <td class="cont" width="60%">Включена опция &quot;Сохранять позицию файла&quot;.<br>
           Этот параметр можно изменить используя команду
-          <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">ECTL_SETPARAM</a>.
+          <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">ECTL_SETPARAM</a>
+          (<a href="editorsetparameter.html#ESPT_SAVEFILEPOSITION">ESPT_SAVEFILEPOSITION</a>).
         </td></tr>
 
         <tr class="cont"><td class="cont" width="40%"><a name="EOPT_SHOWWHITESPACE">EOPT_SHOWWHITESPACE</a></td>
-        <td class="cont" width="60%">Включена опция &quot;Пробельные символы&quot;.</td></tr>
+        <td class="cont" width="60%">Включена опция &quot;Пробельные символы&quot;.
+          Этот параметр можно изменить используя команду
+          <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">ECTL_SETPARAM</a>
+          (<a href="editorsetparameter.html#ESPT_SHOWWHITESPACE">ESPT_SHOWWHITESPACE</a>).
+          </td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="EOPT_BOM">EOPT_BOM</a></td>
+        <td class="cont" width="60%">Установлена опция &quot;Добавить сигнатуру (BOM)&quot; для файлов в кодировке Unicode/UTF8.<br>
+          Этот параметр можно изменить используя команду
+          <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">ECTL_SETPARAM</a>
+          (<a href="editorsetparameter.html#ESPT_SETBOM">ESPT_SETBOM</a>).
+          </td></tr>
 
 </table>
     </div>
