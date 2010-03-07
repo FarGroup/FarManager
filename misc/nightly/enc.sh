@@ -6,11 +6,20 @@ L=$2
 
 cd $LNG
 wine "C:/Program Files/HTML Help Workshop/hhc.exe" plugins${L}.hhp
-cp -f distr_chm_plugins${L}/FarEncyclopedia.${LNG}.chm ../../../../outfinalnew32/Encyclopedia/
-cp -f distr_chm_plugins${L}/FarEncyclopedia.${LNG}.chm ../../../../outfinalnew64/Encyclopedia/
 cp -f distr_chm_plugins${L}/FarEncyclopedia.${LNG}.chm ../../../../outfinalold32/Encyclopedia/
 cp -f distr_chm_plugins${L}/FarEncyclopedia.${LNG}.chm ../../../../outfinalold64/Encyclopedia/
-COPYOK=$?
+cd ..
+
+}
+
+function benc2 {
+LNG=$1
+L=$2
+
+cd ${LNG}2
+wine "C:/Program Files/HTML Help Workshop/hhc.exe" plugins${L}.hhp
+cp -f distr_chm_plugins${L}/FarEncyclopedia.${LNG}.chm ../../../../outfinalnew32/Encyclopedia/
+cp -f distr_chm_plugins${L}/FarEncyclopedia.${LNG}.chm ../../../../outfinalnew64/Encyclopedia/
 cd ..
 
 }
@@ -31,5 +40,8 @@ cd ../enc/chm
 
 benc en e
 benc ru r
+
+#benc2 en e
+benc2 ru r
 
 popd
