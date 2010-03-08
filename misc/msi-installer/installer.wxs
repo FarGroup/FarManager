@@ -55,7 +55,7 @@
             <RegistryValue Root="HKCR" Key="Directory\shell\$(var.Product)" Value="$(var.Product) Here" Type="string" KeyPath="yes" />
             <RegistryValue Root="HKCR" Key="Directory\shell\$(var.Product)\command" Value="&quot;[#Far.exe]&quot; &quot;%1&quot;" Type="string" />
             <RegistryValue Root="HKCR" Key="Drive\shell\$(var.Product)" Value="$(var.Product) Here" Type="string" />
-            <RegistryValue Root="HKCR" Key="Drive\shell\$(var.Product)\command" Value="&quot;[#Far.exe]&quot; &quot;%1&quot;" Type="string" />
+            <RegistryValue Root="HKCR" Key="Drive\shell\$(var.Product)\command" Value="&quot;[#Far.exe]&quot; &quot;%1\&quot;" Type="string" />
           </Component>
 <?if $(var.Platform) = x86 ?>
           <Component Id="FExceptReg" Guid="$(var.Guid.FExceptReg)" Win64="$(var.Win64)">
