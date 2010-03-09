@@ -20,10 +20,13 @@
 </div>
 
 <pre class=syntax>
-struct ActlKeyMacro {
+struct ActlKeyMacro
+{
   int Command;
-  union{
-    struct {
+  union
+  {
+    struct
+    {
       const wchar_t *SequenceText;
       DWORD Flags;
     } PlainText;

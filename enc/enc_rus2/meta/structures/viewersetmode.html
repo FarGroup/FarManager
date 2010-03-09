@@ -22,7 +22,8 @@
 struct ViewerSetMode
 {
   int Type;
-  union {
+  union
+  {
     int iParam;
     wchar_t *wszParam;
   } Param;
