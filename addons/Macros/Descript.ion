@@ -39,5 +39,4 @@ CtrlIns...reg If CtrlIns was pressed while on .. and command line is empty then 
 Notepad.reg Editor: like Notepad
 MacroConsts.reg Predefined macro constants
 JumpToSelectedFile.reg Navigate through selected files
-MiddleClickAsEnter.reg Middle mouse click = Enter
 MouseWheelTilt.reg use CtrlPgUp/CtrlPgDn via extended buttons mouse
