@@ -1,13 +1,13 @@
 enum
 {
-  MFolderPanel,
+	MFolderPanel,
 
-  MOk,
-  MCancel,
-  MError,
+	MOk,
+	MCancel,
+	MError,
 
-  MConfigTitle,
-  MConfigAddToDisksMenu,
-  MConfigDisksMenuDigit,
-  MDefaultFolder,
+	MConfigTitle,
+	MConfigAddToDisksMenu,
+	MConfigDisksMenuDigit,
+	MDefaultFolder,
 };

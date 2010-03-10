@@ -1,19 +1,19 @@
 struct Options
 {
-  int AddToDisksMenu;
-  int DisksMenuDigit;
-  char DefaultFolder[512];
+	int AddToDisksMenu;
+	int DisksMenuDigit;
+	char DefaultFolder[512];
 };
 
 struct InitDialogItem
 {
-  unsigned char Type;
-  unsigned char X1,Y1,X2,Y2;
-  unsigned char Focus;
-  unsigned int Selected;
-  unsigned int Flags;
-  unsigned char DefaultButton;
-  char *Data;
+	unsigned char Type;
+	unsigned char X1,Y1,X2,Y2;
+	unsigned char Focus;
+	unsigned int Selected;
+	unsigned int Flags;
+	unsigned char DefaultButton;
+	char *Data;
 };
 
 
