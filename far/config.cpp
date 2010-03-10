@@ -138,7 +138,7 @@ void SystemSettings()
 	Builder.AddCheckbox(MConfigRegisteredTypes, &Opt.UseRegisteredTypes);
 	Builder.AddCheckbox(MConfigCloseCDGate, &Opt.CloseCDGate);
 	Builder.AddText(MConfigPersonalPath);
-	Builder.AddEditField(&Opt.LoadPlug.strPersonalPluginsPath, 45, L"PersPath")->Flags|=DIF_EDITEXPAND|DIF_EDITPATH;
+	Builder.AddEditField(&Opt.LoadPlug.strPersonalPluginsPath, 45, L"PersPath", DIF_EDITPATH);
 	Builder.AddCheckbox(MConfigAutoSave, &Opt.AutoSaveSetup);
 	Builder.AddOKCancel();
 
@@ -391,7 +391,7 @@ void ViewerConfig(ViewerOptions &ViOpt,bool Local)
 	{
 		Builder.AddCheckbox(MViewConfigExternalF3, &Opt.ViOpt.UseExternalViewer);
 		Builder.AddText(MViewConfigExternalCommand);
-		Builder.AddEditField(&Opt.strExternalViewer, 64, L"ExternalViewer", DIF_EDITEXPAND|DIF_EDITPATH);
+		Builder.AddEditField(&Opt.strExternalViewer, 64, L"ExternalViewer", DIF_EDITPATH);
 		Builder.AddSeparator(MViewConfigInternal);
 	}
 
@@ -428,7 +428,7 @@ void EditorConfig(EditorOptions &EdOpt,bool Local)
 	{
 		Builder.AddCheckbox(MEditConfigEditorF4, &Opt.EdOpt.UseExternalEditor);
 		Builder.AddText(MEditConfigEditorCommand);
-		Builder.AddEditField(&Opt.strExternalEditor, 64, L"ExternalEditor", DIF_EDITEXPAND | DIF_EDITPATH);
+		Builder.AddEditField(&Opt.strExternalEditor, 64, L"ExternalEditor", DIF_EDITPATH);
 		Builder.AddSeparator(MEditConfigInternal);
 	}
 

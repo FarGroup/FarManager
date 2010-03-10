@@ -1385,7 +1385,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 									SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strFullName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
 									SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strFullName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
 
-									if (!(FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (SetWriteTime || SetCreationTime || SetLastAccessTime))
+									if (SetWriteTime || SetCreationTime || SetLastAccessTime)
 									{
 										RetCode=ESetFileTime(strFullName,SetWriteTime?&LastWriteTime:NULL,SetCreationTime?&CreationTime:NULL,SetLastAccessTime?&LastAccessTime:NULL,FindData.dwFileAttributes,SkipMode);
 
