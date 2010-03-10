@@ -191,6 +191,7 @@ LINK_OBJS = \
 	"$(INTDIR)\PluginW.obj" \
 	"$(INTDIR)\poscache.obj" \
 	"$(INTDIR)\print.obj" \
+	"$(INTDIR)\privilege.obj" \
 	"$(INTDIR)\processname.obj" \
 	"$(INTDIR)\qview.obj" \
 	"$(INTDIR)\rdrwdsk.obj" \

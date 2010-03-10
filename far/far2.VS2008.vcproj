@@ -1112,6 +1112,10 @@
 				>
 			</File>
 			<File
+				RelativePath="privilege.cpp"
+				>
+			</File>
+			<File
 				RelativePath="processname.cpp"
 				>
 			</File>
@@ -3260,6 +3264,10 @@
 			</File>
 			<File
 				RelativePath="print.hpp"
+				>
+			</File>
+			<File
+				RelativePath="privilege.hpp"
 				>
 			</File>
 			<File

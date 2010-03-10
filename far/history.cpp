@@ -94,7 +94,6 @@ void History::AddToHistoryLocal(const wchar_t *Str, const wchar_t *Prefix, int T
 	}
 
 	AddRecord.strName += Str;
-	RemoveTrailingSpaces(AddRecord.strName);
 	AddRecord.Type=Type;
 
 	if (RemoveDups) // удалять дубликаты?

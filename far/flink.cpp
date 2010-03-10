@@ -42,7 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "drivemix.hpp"
 #include "panelmix.hpp"
-
+#include "privilege.hpp"
 #include "message.hpp"
 #include "lang.hpp"
 #include "language.hpp"
@@ -112,9 +112,10 @@ bool SetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
 	bool Result=false;
 	if (IsReparseTagValid(rdb->ReparseTag))
 	{
+		Privilege* CreateSymlinkPrivilege=NULL;
 		if (rdb->ReparseTag==IO_REPARSE_TAG_SYMLINK)
 		{
-			SetPrivilege(L"SeCreateSymbolicLinkPrivilege",TRUE);
+			CreateSymlinkPrivilege=new Privilege(SE_CREATE_SYMBOLIC_LINK_NAME);
 		}
 		HANDLE hObject=apiCreateFile(Object,GENERIC_WRITE,0,NULL,OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT);
 		if (hObject!=INVALID_HANDLE_VALUE)
@@ -125,6 +126,10 @@ bool SetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
 				Result=true;
 			}
 			CloseHandle(hObject);
+		}
+		if(CreateSymlinkPrivilege)
+		{
+			delete CreateSymlinkPrivilege;
 		}
 	}
 
@@ -268,32 +273,6 @@ bool GetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
 
 			CloseHandle(hObject);
 		}
-	}
-
-	return Result;
-}
-
-bool SetPrivilege(LPCWSTR Privilege,BOOL bEnable)
-{
-	bool Result=false;
-	HANDLE hToken=0;
-
-	if (OpenProcessToken(GetCurrentProcess(),TOKEN_ADJUST_PRIVILEGES,&hToken))
-	{
-		TOKEN_PRIVILEGES tp;
-
-		if (LookupPrivilegeValue(NULL,Privilege,&tp.Privileges->Luid))
-		{
-			tp.PrivilegeCount=1;
-			tp.Privileges->Attributes=bEnable?SE_PRIVILEGE_ENABLED:0;
-
-			if (AdjustTokenPrivileges(hToken,FALSE,&tp,sizeof(tp),NULL,NULL) && GetLastError()==ERROR_SUCCESS)
-			{
-				Result=true;
-			}
-		}
-
-		CloseHandle(hToken);
 	}
 
 	return Result;

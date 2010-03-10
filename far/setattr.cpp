@@ -56,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lasterror.hpp"
 #include "network.hpp"
 #include "fileowner.hpp"
+#include "privilege.hpp"
 
 enum SETATTRDLG
 {
@@ -118,6 +119,8 @@ struct SetAttrDlgParam
 	DWORD FileSystemFlags;
 	DIALOGMODE DialogMode;
 	string strSelName;
+	string strOwner;
+	bool OwnerChanged;
 	// значения CheckBox`ов на момент старта диалога
 	int OriginalCBAttr[SA_ATTR_LAST-SA_ATTR_FIRST+1];
 	int OriginalCBAttr2[SA_ATTR_LAST-SA_ATTR_FIRST+1];
@@ -211,26 +214,39 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 						{
 							if (DlgParam->OSubfoldersState != SubfoldersState) // Состояние изменилось?
 							{
-								// убираем 3-State
-								for (int i=SA_ATTR_FIRST; i<=SA_ATTR_LAST; i++)
+								// установили?
+								if (SubfoldersState)
 								{
-									// сняли?
-									if (!SubfoldersState)
-									{
-										SendDlgMessage(hDlg,DM_SET3STATE,i,FALSE);
-										SendDlgMessage(hDlg,DM_SETCHECK,i,DlgParam->OriginalCBAttr[i-SA_ATTR_FIRST]);
-									}
-									// установили?
-									else
+									for (int i=SA_ATTR_FIRST; i<=SA_ATTR_LAST; i++)
 									{
 										SendDlgMessage(hDlg,DM_SET3STATE,i,TRUE);
-
 										if (DlgParam->OriginalCBAttr2[i-SA_ATTR_FIRST]==-1)
 										{
 											SendDlgMessage(hDlg,DM_SETCHECK,i,BSTATE_3STATE);
 										}
 									}
+									LPCWSTR Owner=reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,SA_EDIT_OWNER,0));
+									if(!DlgParam->OwnerChanged)
+									{
+										DlgParam->OwnerChanged=StrCmpI(Owner,DlgParam->strOwner)!=0;
+									}
+									DlgParam->strOwner=Owner;
+									if(!DlgParam->OwnerChanged)
+									{
+										SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_EDIT_OWNER,reinterpret_cast<LONG_PTR>(L""));
+									}
 								}
+								// сняли?
+								else
+								{
+									for (int i=SA_ATTR_FIRST; i<=SA_ATTR_LAST; i++)
+									{
+										SendDlgMessage(hDlg,DM_SET3STATE,i,FALSE);
+										SendDlgMessage(hDlg,DM_SETCHECK,i,DlgParam->OriginalCBAttr[i-SA_ATTR_FIRST]);
+									}
+									SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_EDIT_OWNER,reinterpret_cast<LONG_PTR>(DlgParam->strOwner.CPtr()));
+								}
+
 
 								if (Opt.SetAttrFolderRules)
 								{
@@ -260,16 +276,10 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 							// Состояние изменилось?
 							if (DlgParam->OSubfoldersState!=SubfoldersState)
 							{
-								for (int i=SA_ATTR_FIRST; i<= SA_ATTR_LAST; i++)
+								// установили?
+								if (SubfoldersState)
 								{
-									// сняли?
-									if (!SubfoldersState)
-									{
-										SendDlgMessage(hDlg,DM_SET3STATE,i,((DlgParam->OriginalCBFlag[i-SA_ATTR_FIRST]&DIF_3STATE)?TRUE:FALSE));
-										SendDlgMessage(hDlg,DM_SETCHECK,i,DlgParam->OriginalCBAttr[i-SA_ATTR_FIRST]);
-									}
-									// установили?
-									else
+									for (int i=SA_ATTR_FIRST; i<= SA_ATTR_LAST; i++)
 									{
 										if (DlgParam->OriginalCBAttr2[i-SA_ATTR_FIRST]==-1)
 										{
@@ -277,6 +287,17 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 											SendDlgMessage(hDlg,DM_SETCHECK,i,BSTATE_3STATE);
 										}
 									}
+									SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_EDIT_OWNER,reinterpret_cast<LONG_PTR>(L""));
+								}
+								// сняли?
+								else
+								{
+									for (int i=SA_ATTR_FIRST; i<= SA_ATTR_LAST; i++)
+									{
+										SendDlgMessage(hDlg,DM_SET3STATE,i,((DlgParam->OriginalCBFlag[i-SA_ATTR_FIRST]&DIF_3STATE)?TRUE:FALSE));
+										SendDlgMessage(hDlg,DM_SETCHECK,i,DlgParam->OriginalCBAttr[i-SA_ATTR_FIRST]);
+									}
+									SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_EDIT_OWNER,reinterpret_cast<LONG_PTR>(DlgParam->strOwner.CPtr()));
 								}
 							}
 						}
@@ -558,7 +579,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 		DI_COMBOBOX,5,3,DlgX-6,3,0,0,DIF_SHOWAMPERSAND|DIF_DROPDOWNLIST|DIF_LISTWRAPMODE|DIF_HIDDEN,0,L"",
 		DI_TEXT,3,4,0,4,0,0,DIF_SEPARATOR,0,L"",
 		DI_TEXT,5,5,17,5,0,0,0,0,MSG(MSetAttrOwner),
-		DI_EDIT,18,5,DlgX-6,5,0,0,DIF_READONLY,0,L"",
+		DI_EDIT,18,5,DlgX-6,5,0,0,0,0,L"",
 		DI_TEXT,3,6,0,6,0,0,DIF_SEPARATOR,0,L"",
 		DI_CHECKBOX,5, 7,0,7,1,0,DIF_3STATE,0,MSG(MSetAttrRO),
 		DI_CHECKBOX,5, 8,0,8,0,0,DIF_3STATE,0,MSG(MSetAttrArchive),
@@ -605,6 +626,11 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 	if(SelCount==1)
 	{
 		AttrDlg[SA_BUTTON_SYSTEMDLG].Flags&=~DIF_DISABLE;
+	}
+
+	if(!CheckPrivilege(SE_TAKE_OWNERSHIP_NAME) && !CheckPrivilege(SE_RESTORE_NAME))
+	{
+		AttrDlg[SA_EDIT_OWNER].Flags|=DIF_DISABLE;
 	}
 
 	if (SrcPanel && SrcPanel->GetMode()==PLUGIN_PANEL)
@@ -1030,6 +1056,9 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 			DlgParam.OriginalCBFlag[i-SA_ATTR_FIRST]=AttrDlg[i].Flags;
 		}
 
+		DlgParam.strOwner=AttrDlg[SA_EDIT_OWNER].strData;
+		string strInitOwner=AttrDlg[SA_EDIT_OWNER].strData;
+
 		DlgParam.DialogMode=((SelCount==1&&!(FileAttr&FILE_ATTRIBUTE_DIRECTORY))?MODE_FILE:(SelCount==1?MODE_FOLDER:MODE_MULTIPLE));
 		DlgParam.strSelName=strSelName;
 		DlgParam.OSubfoldersState=static_cast<FARCHECKEDSTATE>(AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected);
@@ -1053,8 +1082,6 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 		if (strLinks)
 			delete[] strLinks;
 
-		int ExitCode=SA_BUTTON_CANCEL;
-
 		switch(Dlg.GetExitCode())
 		{
 		case SA_BUTTON_SET:
@@ -1062,8 +1089,10 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 				//reparse point editor
 				if (StrCmpI(AttrDlg[SA_EDIT_SYMLINK].strData,strLinkName))
 				{
-					// BUGBUG: check errors
-					ModifyReparsePoint(strSelName,AttrDlg[SA_EDIT_SYMLINK].strData);
+					if(!ModifyReparsePoint(strSelName,AttrDlg[SA_EDIT_SYMLINK].strData))
+					{
+						Message(FMSG_WARNING|FMSG_ERRORTYPE,1,MSG(MError),MSG(MCopyCannotCreateLink),strSelName,MSG(MHOk));
+					}
 				}
 
 				const size_t Times[]={SA_EDIT_MTIME,SA_EDIT_CTIME,SA_EDIT_ATIME};
@@ -1091,52 +1120,80 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 						}
 					}
 
+					if(!AttrDlg[SA_EDIT_OWNER].strData.IsEmpty() && StrCmpI(strInitOwner,AttrDlg[SA_EDIT_OWNER].strData))
+					{
+						if (ESetFileOwner(strSelName,AttrDlg[SA_EDIT_OWNER].strData,SkipMode)==SETATTR_RET_SKIPALL)
+						{
+							SkipMode=SETATTR_RET_SKIP;
+						}
+					}
+
 					FILETIME LastWriteTime,CreationTime,LastAccessTime;
 					int SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strSelName,LastWriteTime,AttrDlg[SA_EDIT_MDATE].strData,AttrDlg[SA_EDIT_MTIME].strData);
 					int SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strSelName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
 					int SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strSelName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
 					//_SVS(SysLog(L"\n\tSetWriteTime=%d\n\tSetCreationTime=%d\n\tSetLastAccessTime=%d",SetWriteTime,SetCreationTime,SetLastAccessTime));
-					int SetWriteTimeRetCode=SETATTR_RET_OK;
 
 					if (SetWriteTime || SetCreationTime || SetLastAccessTime)
 					{
-						SetWriteTimeRetCode=SkipMode==-1?ESetFileTime(strSelName,SetWriteTime?&LastWriteTime:NULL,SetCreationTime?&CreationTime:NULL,SetLastAccessTime?&LastAccessTime:NULL,FileAttr,SkipMode):SkipMode;
-					}
-
-					//if(NewAttr != (FileAttr & (~FILE_ATTRIBUTE_DIRECTORY))) // нужно ли что-нить менять???
-					if (SetWriteTimeRetCode == SETATTR_RET_OK) // если время удалось выставить...
-					{
-						int Ret=SETATTR_RET_OK;
-
-						if ((NewAttr&FILE_ATTRIBUTE_COMPRESSED) && !(FileAttr&FILE_ATTRIBUTE_COMPRESSED))
-							Ret=ESetFileCompression(strSelName,1,FileAttr,SkipMode);
-						else if (!(NewAttr&FILE_ATTRIBUTE_COMPRESSED) && (FileAttr&FILE_ATTRIBUTE_COMPRESSED))
-							Ret=ESetFileCompression(strSelName,0,FileAttr,SkipMode);
-
-						if ((NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && !(FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
-							Ret=ESetFileEncryption(strSelName,1,FileAttr,SkipMode);
-						else if (!(NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && (FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
-							Ret=ESetFileEncryption(strSelName,0,FileAttr,SkipMode);
-
-						if ((NewAttr&FILE_ATTRIBUTE_SPARSE_FILE) && !(FileAttr&FILE_ATTRIBUTE_SPARSE_FILE))
+						if(ESetFileTime(strSelName,SetWriteTime?&LastWriteTime:NULL,SetCreationTime?&CreationTime:NULL,SetLastAccessTime?&LastAccessTime:NULL,FileAttr,SkipMode)==SETATTR_RET_SKIPALL)
 						{
-							Ret=ESetFileSparse(strSelName,true,FileAttr,SkipMode);
-						}
-						else if (!(NewAttr&FILE_ATTRIBUTE_SPARSE_FILE) && (FileAttr&FILE_ATTRIBUTE_SPARSE_FILE))
-						{
-							Ret=ESetFileSparse(strSelName,false,FileAttr,SkipMode);
-						}
-
-						if ((FileAttr&~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED|FILE_ATTRIBUTE_SPARSE_FILE))!=(NewAttr&~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED|FILE_ATTRIBUTE_SPARSE_FILE)))
-						{
-							Ret=ESetFileAttributes(strSelName,NewAttr&~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED|FILE_ATTRIBUTE_SPARSE_FILE),SkipMode);
-						}
-
-						if (Ret==SETATTR_RET_SKIPALL)
 							SkipMode=SETATTR_RET_SKIP;
+						}
 					}
-					else if (SetWriteTimeRetCode==SETATTR_RET_SKIPALL)
-						SkipMode=SETATTR_RET_SKIP;
+
+					if ((NewAttr&FILE_ATTRIBUTE_COMPRESSED) && !(FileAttr&FILE_ATTRIBUTE_COMPRESSED))
+					{
+						if (ESetFileCompression(strSelName,1,FileAttr,SkipMode)==SETATTR_RET_SKIPALL)
+						{
+							SkipMode=SETATTR_RET_SKIP;
+						}
+					}
+					else if (!(NewAttr&FILE_ATTRIBUTE_COMPRESSED) && (FileAttr&FILE_ATTRIBUTE_COMPRESSED))
+					{
+						if(ESetFileCompression(strSelName,0,FileAttr,SkipMode)==SETATTR_RET_SKIPALL)
+						{
+							SkipMode=SETATTR_RET_SKIP;
+						}
+					}
+
+					if ((NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && !(FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
+					{
+						if (ESetFileEncryption(strSelName,1,FileAttr,SkipMode)==SETATTR_RET_SKIPALL)
+						{
+							SkipMode=SETATTR_RET_SKIP;
+						}
+					}
+					else if (!(NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && (FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
+					{
+						if (ESetFileEncryption(strSelName,0,FileAttr,SkipMode)==SETATTR_RET_SKIPALL)
+						{
+							SkipMode=SETATTR_RET_SKIP;
+						}
+					}
+
+					if ((NewAttr&FILE_ATTRIBUTE_SPARSE_FILE) && !(FileAttr&FILE_ATTRIBUTE_SPARSE_FILE))
+					{
+						if (ESetFileSparse(strSelName,true,FileAttr,SkipMode)==SETATTR_RET_SKIPALL)
+						{
+							SkipMode=SETATTR_RET_SKIP;
+						}
+					}
+					else if (!(NewAttr&FILE_ATTRIBUTE_SPARSE_FILE) && (FileAttr&FILE_ATTRIBUTE_SPARSE_FILE))
+					{
+						if (ESetFileSparse(strSelName,false,FileAttr,SkipMode)==SETATTR_RET_SKIPALL)
+						{
+							SkipMode=SETATTR_RET_SKIP;
+						}
+					}
+
+					if ((FileAttr&~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED|FILE_ATTRIBUTE_SPARSE_FILE))!=(NewAttr&~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED|FILE_ATTRIBUTE_SPARSE_FILE)))
+					{
+						if (ESetFileAttributes(strSelName,NewAttr&~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED|FILE_ATTRIBUTE_SPARSE_FILE),SkipMode)==SETATTR_RET_SKIPALL)
+						{
+							SkipMode=SETATTR_RET_SKIP;
+						}
+					}
 				}
 				/* Multi *********************************************************** */
 				else
@@ -1198,6 +1255,14 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 
 							if (CheckForEsc())
 								break;
+						}
+
+						if(!AttrDlg[SA_EDIT_OWNER].strData.IsEmpty() && StrCmpI(strInitOwner,AttrDlg[SA_EDIT_OWNER].strData))
+						{
+							if (ESetFileOwner(strSelName,AttrDlg[SA_EDIT_OWNER].strData,SkipMode)==SETATTR_RET_SKIPALL)
+							{
+								SkipMode=SETATTR_RET_SKIP;
+							}
 						}
 
 						FILETIME LastWriteTime,CreationTime,LastAccessTime;
@@ -1305,6 +1370,14 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 										{
 											Cancel=true;
 											break;
+										}
+									}
+
+									if(!AttrDlg[SA_EDIT_OWNER].strData.IsEmpty() && (DlgParam.OSubfoldersState || StrCmpI(strInitOwner,AttrDlg[SA_EDIT_OWNER].strData)))
+									{
+										if (ESetFileOwner(strFullName,AttrDlg[SA_EDIT_OWNER].strData,SkipMode)==SETATTR_RET_SKIPALL)
+										{
+											SkipMode=SETATTR_RET_SKIP;
 										}
 									}
 

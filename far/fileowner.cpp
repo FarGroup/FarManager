@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileowner.hpp"
 #include "pathmix.hpp"
 #include "DList.hpp"
+#include "privilege.hpp"
 
 // эта часть - перспективная фигня, которая значительно ускоряет получение овнеров
 
@@ -173,6 +174,37 @@ bool WINAPI GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &st
 				}
 			}
 			xf_free(sd);
+		}
+	}
+	return Result;
+}
+
+bool SetOwner(LPCWSTR Object, LPCWSTR Owner)
+{
+	bool Result=false;
+	SID_NAME_USE Use;
+	DWORD cSid=0,ReferencedDomain=0;
+	LookupAccountName(NULL,Owner,NULL,&cSid,NULL,&ReferencedDomain,&Use);
+	if(cSid)
+	{
+		PSID Sid=xf_malloc(cSid);
+		if(Sid)
+		{
+			LPWSTR ReferencedDomainName=new WCHAR[ReferencedDomain];
+			if(ReferencedDomainName)
+			{
+				if(LookupAccountName(NULL,Owner,Sid,&cSid,ReferencedDomainName,&ReferencedDomain,&Use))
+				{
+					Privilege TakeOwnershipPrivilege(SE_TAKE_OWNERSHIP_NAME);
+					Privilege RestorePrivilege(SE_RESTORE_NAME);
+					if(SetNamedSecurityInfo(const_cast<LPWSTR>(NTPath(Object).Str.CPtr()),SE_FILE_OBJECT,OWNER_SECURITY_INFORMATION,Sid,NULL,NULL,NULL)==ERROR_SUCCESS)
+					{
+						Result=true;
+					}
+				}
+				delete[] ReferencedDomainName;
+			}
+			xf_free(Sid);
 		}
 	}
 	return Result;

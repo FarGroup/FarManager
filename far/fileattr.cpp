@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "message.hpp"
 #include "pathmix.hpp"
+#include "fileowner.hpp"
 
 static int SetFileEncryption(const wchar_t *Name,int State);
 static int SetFileCompression(const wchar_t *Name,int State);
@@ -343,5 +344,35 @@ int ESetFileSparse(const wchar_t *Name,bool State,DWORD FileAttr,int SkipMode)
 			apiSetFileAttributes(Name,FileAttr);
 	}
 
+	return Ret;
+}
+
+int ESetFileOwner(LPCWSTR Name,LPCWSTR Owner,int SkipMode)
+{
+	int Ret=SETATTR_RET_OK;
+	while (!SetOwner(Name,Owner))
+	{
+		int Code;
+		if (SkipMode!=-1)
+			Code=SkipMode;
+		else
+			Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),MSG(MSetAttrOwnerCannotFor),Name,MSG(MHRetry),MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
+
+		if (Code==1 || Code<0)
+		{
+			Ret=SETATTR_RET_SKIP;
+			break;
+		}
+		else if (Code==2)
+		{
+			Ret=SETATTR_RET_SKIPALL;
+			break;
+		}
+		else if (Code==3)
+		{
+			Ret=SETATTR_RET_ERROR;
+			break;
+		}
+	}
 	return Ret;
 }

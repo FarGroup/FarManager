@@ -323,6 +323,9 @@
     <ClCompile Include="print.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="privilege.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="processname.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -809,6 +812,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="print.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="privilege.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="processname.hpp">

@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <mmsystem.h>
 #include <wininet.h>
 #include <setupapi.h>
+#include <Aclapi.h>
 #define SECURITY_WIN32
 #include <security.h>
 

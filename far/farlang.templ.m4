@@ -10756,6 +10756,15 @@ MSetAttrTimeCannotFor
 "A dátum nem állítható be:"
 "Nie mogę ustawić czasu pliku dla"
 
+MSetAttrOwnerCannotFor
+"Не удалось установить владельца для"
+"Cannot set owner for"
+upd:"Cannot set owner for"
+upd:"Cannot set owner for"
+upd:"Cannot set owner for"
+upd:"Cannot set owner for"
+
+
 MSetColorPanel
 l:
 "&Панель"

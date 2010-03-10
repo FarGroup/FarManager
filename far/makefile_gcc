@@ -119,6 +119,7 @@ SRCS = \
 	PluginW.cpp \
 	poscache.cpp \
 	print.cpp \
+	privilege.cpp \
 	processname.cpp \
 	qview.cpp \
 	rdrwdsk.cpp \

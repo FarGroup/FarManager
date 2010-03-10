@@ -201,6 +201,8 @@ poscache.cpp
 poscache.hpp
 print.cpp
 print.hpp
+privilege.cpp
+privilege.hpp
 processname.cpp
 processname.hpp
 qview.cpp

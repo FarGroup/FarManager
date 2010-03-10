@@ -68,8 +68,6 @@ void GetPathRoot(const wchar_t *Path, string &strRoot);
 
 bool EnumStreams(const wchar_t *FileName,UINT64 &StreamsSize,DWORD &StreamsCount);
 
-bool SetPrivilege(LPCWSTR Privilege,BOOL bEnable);
-
 bool DuplicateReparsePoint(const wchar_t *Src,const wchar_t *Dst);
 
 void NormalizeSymlinkName(string &strLinkName);

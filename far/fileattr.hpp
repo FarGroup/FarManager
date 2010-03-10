@@ -46,3 +46,4 @@ int ESetFileCompression(const wchar_t *Name,int State,DWORD FileAttr,int SkipMod
 int ESetFileEncryption(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode=-1,int Silent=0);
 int ESetFileSparse(const wchar_t *Name,bool State,DWORD FileAttr,int SkipMode=-1);
 int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationTime,FILETIME *LastAccessTime,DWORD FileAttr,int SkipMode=-1);
+int ESetFileOwner(LPCWSTR Name,LPCWSTR Owner,int SkipMode=-1);
