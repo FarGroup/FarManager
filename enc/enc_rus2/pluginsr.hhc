@@ -566,6 +566,10 @@
                                 <param name="Local" value="html/structures/keysequence.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="MacroParseResult">
+                                <param name="Local" value="html/structures/macroparseresult.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="OpenPluginInfo">
                                 <param name="Local" value="html/structures/openplugininfo.html">
                                 </OBJECT>

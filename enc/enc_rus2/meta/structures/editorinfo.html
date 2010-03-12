@@ -52,15 +52,15 @@ struct EditorInfo
     <div class=dfn>TotalLines</div>
     <div class=dfndescr>Количество строк в редактируемом тексте.</div>
     <div class=dfn>CurLine</div>
-    <div class=dfndescr>Номер текущей строки.</div>
+    <div class=dfndescr>Номер текущей строки. Нумерация начинается с 0.</div>
     <div class=dfn>CurPos</div>
-    <div class=dfndescr>Позиция курсора в текущей строке.</div>
+    <div class=dfndescr>Позиция курсора в текущей строке. Нумерация начинается с 0.</div>
     <div class=dfn>CurTabPos</div>
-    <div class=dfndescr>Экранная позиция курсора в текущей строке. Если строка не содержит символов табуляции, <i>CurTabPos</i> эквивалентна <i>CurPos</i>.</div>
+    <div class=dfndescr>Экранная позиция курсора в текущей строке. Нумерация начинается с 0. Если строка не содержит символов табуляции, <i>CurTabPos</i> эквивалентна <i>CurPos</i>.</div>
     <div class=dfn>TopScreenLine</div>
-    <div class=dfndescr>Номер строки вверху экрана.</div>
+    <div class=dfndescr>Номер строки вверху экрана. Нумерация начинается с 0.</div>
     <div class=dfn>LeftPos</div>
-    <div class=dfndescr>Позиция левой границы окна редактора в редактируемом тексте.</div>
+    <div class=dfndescr>Позиция левой границы окна редактора в редактируемом тексте. Нумерация начинается с 0.</div>
     <div class=dfn>Overtype</div>
     <div class=dfndescr>0 - режим вставки, 1 - замены.</div>
     <div class=dfn>BlockType</div>
@@ -76,7 +76,7 @@ struct EditorInfo
         </table>
     </div>
     <div class=dfn>BlockStartLine</div>
-    <div class=dfndescr>Номер первой строки блока.</div>
+    <div class=dfndescr>Номер первой строки блока. Нумерация начинается с 0.</div>
     <div class=dfn>Options</div>
     <div class=dfndescr>Описывает состояние настроек редактора.
       Может быть комбинацией следующих флагов (перечисление <a name="EDITOR_OPTIONS">EDITOR_OPTIONS</a>):
@@ -121,7 +121,7 @@ struct EditorInfo
           <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">ECTL_SETPARAM</a>
           (<a href="editorsetparameter.html#ESPT_CURSORBEYONDEOL">ESPT_CURSORBEYONDEOL</a>).
         </td></tr>
-       
+
          <tr class="cont"><td class="cont" width="40%"><a name="EOPT_SAVEFILEPOSITION">EOPT_SAVEFILEPOSITION</a></td>
          <td class="cont" width="60%">Включена опция &quot;Сохранять позицию файла&quot;.<br>
           Этот параметр можно изменить используя команду
