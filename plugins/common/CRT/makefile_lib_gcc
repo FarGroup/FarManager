@@ -16,7 +16,6 @@ strchr.cpp \
 strcpy.cpp \
 strcspn.cpp \
 strdup.cpp \
-stricmp.cpp \
 strncat.cpp \
 strncmp.cpp \
 strncpy.cpp \
@@ -41,7 +40,6 @@ memmove.cpp \
 strchr.cpp \
 strcpy.cpp \
 strdup.cpp \
-stricmp.cpp \
 strncat.cpp \
 strncmp.cpp \
 strncpy.cpp \

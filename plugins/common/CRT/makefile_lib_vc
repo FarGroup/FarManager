@@ -79,8 +79,6 @@ $(OBJDIRW)\strcpy.obj \
 $(OBJDIR)\strcspn.obj \
 $(OBJDIR)\strdup.obj \
 $(OBJDIRW)\strdup.obj \
-$(OBJDIR)\stricmp.obj \
-$(OBJDIRW)\stricmp.obj \
 $(OBJDIR)\strncat.obj \
 $(OBJDIRW)\strncat.obj \
 $(OBJDIR)\strncmp.obj \
@@ -177,8 +175,6 @@ $(OBJDIRW)\strcpy.obj: strcpy.cpp crt.hpp
 $(OBJDIR)\strcspn.obj: strcspn.cpp crt.hpp
 $(OBJDIR)\strdup.obj: strdup.cpp crt.hpp
 $(OBJDIRW)\strdup.obj: strdup.cpp crt.hpp
-$(OBJDIR)\stricmp.obj: stricmp.cpp crt.hpp
-$(OBJDIRW)\stricmp.obj: stricmp.cpp crt.hpp
 $(OBJDIR)\strncat.obj: strncat.cpp crt.hpp
 $(OBJDIRW)\strncat.obj: strncat.cpp crt.hpp
 $(OBJDIR)\strncmp.obj: strncmp.cpp crt.hpp
