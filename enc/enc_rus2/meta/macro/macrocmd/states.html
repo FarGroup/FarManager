@@ -60,6 +60,12 @@
     <td class="cont" width="60%">содержит UNC-путь панели (без заключительного '\')</td>
   </tr>
   <tr class="cont">
+    <td class="cont" width="20%"><a name="APanel.HostFile">APanel.HostFile</a><br>
+    <a name="PPanel.HostFile">PPanel.HostFile</a></td>
+    <td class="cont" width="20%">String</td>
+    <td class="cont" width="60%">содержит имя хост-файла панели плагина (или пусто)</td>
+  </tr>
+  <tr class="cont">
     <td class="cont" width="20%"><a name="APanel.Width">APanel.Width</a><br>
     <a name="PPanel.Width">PPanel.Width</a></td>
     <td class="cont" width="20%">Number</td>
@@ -653,6 +659,7 @@ $If (Viewer.State &amp; 0x20) <em>выполнить действия, если выставлен 16-ричный р
 <h3>Замечания</h3>
 <div class=descr>
 <ol>
+<li>В операторах панели префикс <em>APanel.</em> относится к активной панели, <em>PPanel.</em> к пассивной.
 <li>Элементы макроязыка невозможно использовать во время <a href="../macrokey/record.html">записи
     макроса</a> стандартным образом. Добавить элементы языка в макрос можно только путем ручной
     правки реестра или путем применения специальных программ/плагинов.</li>
