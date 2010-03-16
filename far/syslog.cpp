@@ -812,6 +812,18 @@ CleverSysLog::CleverSysLog(const wchar_t *Title)
 	SysLog(1,L"%s{",Title?Title:L"");
 #endif
 }
+
+CleverSysLog::CleverSysLog(int Line,const wchar_t *Title)
+{
+#if defined(SYSLOG)
+
+	if (!IsLogON())
+		return;
+
+	SysLog(1,L"[%d] %s{",Line,Title?Title:L"");
+#endif
+}
+
 CleverSysLog::~CleverSysLog()
 {
 #if defined(SYSLOG)
@@ -1245,6 +1257,10 @@ string __MCODE_ToName(int OpCode)
 		DEF_MCODE_(F_FLOAT),
 		DEF_MCODE_(F_EDITOR_POS),
 		DEF_MCODE_(F_TESTFOLDER),
+		DEF_MCODE_(F_PANEL_SELECT),             // V=Panel.Select(panelType,Action[,Mode[,Items]])
+		DEF_MCODE_(V_APANEL_HOSTFILE), // APanel.HostFile
+		DEF_MCODE_(V_PPANEL_HOSTFILE), // PPanel.HostFile
+
 	};
 	string Name;
 

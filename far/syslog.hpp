@@ -280,5 +280,6 @@ class CleverSysLog  // ;-)
 {
 	public:
 		CleverSysLog(const wchar_t *Title=NULL);
+		CleverSysLog(int Line,const wchar_t *Title);
 		~CleverSysLog();
 };

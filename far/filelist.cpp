@@ -587,6 +587,127 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			return (CurFile+1);
 		case MCODE_C_APANEL_FILTER:
 			return (Filter && Filter->IsEnabledOnPanel());
+
+		case MCODE_F_PANEL_SELECT:
+		{
+			// vParam = MacroPanelSelect*, iParam = 0
+			__int64 Result=-1;
+			MacroPanelSelect *mps=(MacroPanelSelect *)vParam;
+
+			if (!ListData)
+				return Result;
+
+			if (mps->Mode == 1 && (DWORD)mps->Index >= (DWORD)FileCount)
+				return Result;
+
+			if (mps->Action != 3)
+			{
+				SaveSelection();
+			}
+
+			/*
+			Mode:
+				отсутствует или 0 - выполнить действие Action для всех элементов, Items игнорируется
+				1 - Items является числом - индексом
+				2 - Items является строкой - 0 или больше имен (даже с путем), разделенных CRLF
+				3 - Items является строкой с маской (или масками файлов, разделенных запятыми)
+			Items:
+				для Mode==1:
+					Items==0 или отсутствует - выполнить действие Action для текущего элемента
+					Items>0 - выполнить действие Action для элемента с индексом Items
+				для Mode==2 и Mode==3:
+					Items=="" или отсутствует - не выполнять никаких действий
+					Items<>"" - выполнить действие Action для элементов, указанных в Items
+			};
+			*/
+			// mps->ActionFlags
+			switch (mps->Action)
+			{
+				case 0:  // снять выделение
+				{
+					switch(mps->Mode)
+					{
+						case 0: // снять со всего?
+							Result=(__int64)GetRealSelCount();
+							ClearSelection();
+							break;
+						case 1: // по индексу?
+							Result=1;
+							Select(ListData[mps->Index],FALSE);
+							break;
+						case 2: // набор строк через CRLF
+							// mps->Item
+							break;
+						case 3: // масками файлов, разделенных запятыми
+							// mps->Item
+							break;
+					}
+					break;
+				}
+
+				case 1:  // добавить выделение
+				{
+					switch(mps->Mode)
+					{
+						case 0: // выделить все?
+						    for (int i=0; i < FileCount; i++)
+						    	Select(ListData[i],TRUE);
+							Result=(__int64)GetRealSelCount();
+							break;
+						case 1: // по индексу?
+							Result=1;
+							Select(ListData[mps->Index],TRUE);
+							break;
+						case 2: // набор строк через CRLF
+							// mps->Item
+							break;
+						case 3: // масками файлов, разделенных запятыми
+							// mps->Item
+							break;
+					}
+					break;
+				}
+
+				case 2:  // инвертировать выделение
+				{
+					switch(mps->Mode)
+					{
+						case 0: // инвертировать все?
+						    for (int i=0; i < FileCount; i++)
+						    	Select(ListData[i],ListData[i]->Selected?FALSE:TRUE);
+							Result=(__int64)GetRealSelCount();
+							break;
+						case 1: // по индексу?
+							Result=1;
+							Select(ListData[mps->Index],ListData[mps->Index]->Selected?FALSE:TRUE);
+							break;
+						case 2: // набор строк через CRLF
+							// mps->Item
+							break;
+						case 3: // масками файлов, разделенных запятыми
+							// mps->Item
+							break;
+					}
+					break;
+				}
+
+				case 3:  // восстановить выделение
+				{
+					RestoreSelection();
+					Result=(__int64)GetRealSelCount();
+					break;
+				}
+			}
+
+			if (Result != -1 && mps->Action != 3)
+			{
+				if (SelectedFirst)
+					SortFileList(TRUE);
+				Redraw();
+			}
+
+			return Result;
+		}
 	}
 
 	return 0;

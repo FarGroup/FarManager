@@ -182,6 +182,7 @@ enum MACRO_OP_CODE
 	MCODE_F_PANEL_FEXIST,             // N=Panel.FExist(panelType,fileMask)
 	MCODE_F_PANEL_SETPOS,             // N=Panel.SetPos(panelType,fileName)
 	MCODE_F_PANEL_SETPOSIDX,          // N=Panel.SetPosIdx(panelType,Idx[,InSelection])
+	MCODE_F_PANEL_SELECT,             // V=Panel.Select(panelType,Action[,Mode[,Items]])
 	MCODE_F_PANELITEM,                // V=PanelItem(Panel,Index,TypeInfo)
 	MCODE_F_EVAL,                     // N=eval(S[,N])
 	MCODE_F_RINDEX,                   // S=rindex(S1,S2[,Mode])
@@ -283,8 +284,8 @@ enum MACRO_OP_CODE
 	MCODE_V_PPANEL_UNCPATH,           // PPanel.UNCPath - пассивная панель: UNC-путь на панели
 	MCODE_V_APANEL_WIDTH,             // APanel.Width - активная панель:  ширина панели
 	MCODE_V_PPANEL_WIDTH,             // PPanel.Width - пассивная панель: ширина панели
-	MCODE_V_APANEL_TYPE,              // тип активной панели
-	MCODE_V_PPANEL_TYPE,              // тип пассивной панели
+	MCODE_V_APANEL_TYPE,              // APanel.Type - тип активной панели
+	MCODE_V_PPANEL_TYPE,              // PPanel.Type - тип пассивной панели
 	MCODE_V_APANEL_ITEMCOUNT,         // APanel.ItemCount - активная панель:  число элементов
 	MCODE_V_PPANEL_ITEMCOUNT,         // PPanel.ItemCount - пассивная панель: число элементов
 	MCODE_V_APANEL_CURPOS,            // APanel.CurPos - активная панель:  текущий индекс
@@ -297,6 +298,8 @@ enum MACRO_OP_CODE
 	MCODE_V_PPANEL_HEIGHT,            // PPanel.Height - пассивная панель: высота панели
 	MCODE_V_APANEL_COLUMNCOUNT,       // APanel.ColumnCount - активная панель:  количество колонок
 	MCODE_V_PPANEL_COLUMNCOUNT,       // PPanel.ColumnCount - пассивная панель: количество колонок
+	MCODE_V_APANEL_HOSTFILE,          // APanel.HostFile - активная панель:  имя Host-файла
+	MCODE_V_PPANEL_HOSTFILE,          // PPanel.HostFile - пассивная панель: имя Host-файла
 
 	MCODE_V_ITEMCOUNT,                // ItemCount - число элементов в текущем объекте
 	MCODE_V_CURPOS,                   // CurPos - текущий индекс в текущем объекте

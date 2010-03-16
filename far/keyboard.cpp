@@ -296,7 +296,6 @@ static TFKey3 ModifKeyName[]=
 static TFKey3 SpecKeyName[]=
 {
 	{ KEY_CONSOLE_BUFFER_RESIZE,19, L"ConsoleBufferResize", L"CONSOLEBUFFERRESIZE"},
-	{ KEY_LOCKSCREEN           ,10, L"LockScreen", L"LOCKSCREEN"},
 	{ KEY_OP_SELWORD           ,10, L"OP_SelWord", L"OP_SELWORD"},
 	{ KEY_KILLFOCUS             ,9, L"KillFocus", L"KILLFOCUS"},
 	{ KEY_GOTFOCUS              ,8, L"GotFocus", L"GOTFOCUS"},
@@ -648,7 +647,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 	SetFarConsoleMode();
 	BOOL ZoomedState=IsZoomed(GetConsoleWindow());
 	BOOL IconicState=IsIconic(GetConsoleWindow());
-	
+
 	bool FullscreenState=IsFullscreen();
 
 	for (;;)

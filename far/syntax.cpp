@@ -348,6 +348,7 @@ static TMacroFunction macroFunction[]=
 	{L"PANEL.FATTR",      2, 0,   MCODE_F_PANEL_FATTR,      NULL, L"N=Panel.FAttr(panelType,fileMask)"},
 	{L"PANEL.FEXIST",     2, 0,   MCODE_F_PANEL_FEXIST,     NULL, L"N=Panel.FExist(panelType,fileMask)"},
 	{L"PANEL.ITEM",       3, 0,   MCODE_F_PANELITEM,        NULL, L"V=Panel.Item(Panel,Index,TypeInfo)"},
+	{L"PANEL.SELECT",     4, 2,   MCODE_F_PANEL_SELECT,     NULL, L"V=Panel.Select(panelType,Action[,Mode[,Items]])"},
 	{L"PANEL.SETPATH",    3, 1,   MCODE_F_PANEL_SETPATH,    NULL, L"N=panel.SetPath(panelType,pathName[,fileName])"},
 	{L"PANEL.SETPOS",     2, 0,   MCODE_F_PANEL_SETPOS,     NULL, L"N=panel.SetPos(panelType,fileName)"},
 	{L"PANEL.SETPOSIDX",  3, 1,   MCODE_F_PANEL_SETPOSIDX,  NULL, L"N=Panel.SetPosIdx(panelType,Idx[,InSelection])"},

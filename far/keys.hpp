@@ -54,39 +54,32 @@ Far Manager plugins that use this header file can be distributed under any
 other possible license with no implications from the above license on them.
 */
 
+#define EXTENDED_KEY_BASE     0x00010000
+#define INTERNAL_KEY_BASE     0x00020000
+#define INTERNAL_KEY_BASE_2   0x00030000
 #ifdef FAR_USE_INTERNALS
-/*
-HiWord
-~~~~~~
-  HiByte - Shift State
-  LoByte - Spec Keys
-             +
-LoWord
-~~~~~~
-  HiByte - Func Keys
-  LoByte - ASCII Code
-
-*/
-#endif // END FAR_USE_INTERNALS
-
-#define EXTENDED_KEY_BASE   0x00010000
-#define INTERNAL_KEY_BASE   0x00020000
-#define INTERNAL_KEY_BASE_2 0x00030000
+#define INTERNAL_MACRO_BASE   0x00080000
+#endif  // END FAR_USE_INTERNALS
 
 enum BaseDefKeyboard
 {
+	KEY_CTRLMASK             =0xFFF00000,
+#ifdef FAR_USE_INTERNALS
+	KEY_M_OEM                =0x00100000,
+	KEY_M_SPEC               =0x00200000,
+	//
+	//
+#endif  // END FAR_USE_INTERNALS
 	KEY_CTRL                 =0x01000000,
 	KEY_ALT                  =0x02000000,
 	KEY_SHIFT                =0x04000000,
+	//
 	KEY_RCTRL                =0x10000000,
 	KEY_RALT                 =0x20000000,
 #ifdef FAR_USE_INTERNALS
 	KEY_ALTDIGIT             =0x40000000,
 	KEY_RSHIFT               =0x80000000,
-	KEY_M_OEM                =0x00100000,
-	KEY_M_SPEC               =0x00200000,
 #endif  // END FAR_USE_INTERNALS
-	KEY_CTRLMASK             =0xFF000000,
 
 	KEY_BRACKET              ='[',
 	KEY_BACKBRACKET          =']',
@@ -259,33 +252,34 @@ enum BaseDefKeyboard
 #ifdef FAR_USE_INTERNALS
 	KEY_DRAGCOPY             =INTERNAL_KEY_BASE_2+3,
 	KEY_DRAGMOVE             =INTERNAL_KEY_BASE_2+4,
-	KEY_LOCKSCREEN           =INTERNAL_KEY_BASE_2+5,
+#endif // END FAR_USE_INTERNALS
 
 	KEY_KILLFOCUS            =INTERNAL_KEY_BASE_2+6,
 	KEY_GOTFOCUS             =INTERNAL_KEY_BASE_2+7,
 	KEY_CONSOLE_BUFFER_RESIZE=INTERNAL_KEY_BASE_2+8,
 
+#ifdef FAR_USE_INTERNALS
 	KEY_OP_BASE              =INTERNAL_KEY_BASE_2+0x100,
 	KEY_OP_XLAT              =KEY_OP_BASE+0,
 	KEY_OP_DATE              =KEY_OP_BASE+1,
 	KEY_OP_PLAINTEXT         =KEY_OP_BASE+2,
 	KEY_OP_SELWORD           =KEY_OP_BASE+3,
 	KEY_OP_ENDBASE           =INTERNAL_KEY_BASE_2+0x1FF,
-
 #endif // END FAR_USE_INTERNALS
 
 	KEY_END_SKEY             =0x0003FFFF,
 	KEY_LAST_BASE            =KEY_END_SKEY,
 
 #ifdef FAR_USE_INTERNALS
-	KEY_MACRO_BASE           =0x00080000,
-	KEY_MACRO_OP_BASE        =KEY_MACRO_BASE,          // opcode             0x00080000
-	KEY_MACRO_F_BASE         =KEY_MACRO_OP_BASE+256,   // функции            0x00080100
-	KEY_MACRO_C_BASE         =KEY_MACRO_F_BASE+256,    // булевые условия    0x00080200
-	KEY_MACRO_V_BASE         =KEY_MACRO_C_BASE+512,    // разные переменные  0x00080400
-
-	KEY_MACRO_U_BASE         =0x00088000,              // внешние функции    0x00088000
 	// см macroopcode.hpp
+	KEY_MACRO_BASE           =INTERNAL_MACRO_BASE,
+	KEY_MACRO_OP_BASE        =INTERNAL_MACRO_BASE+0x0000,     // opcode             0x00080000 - 0x000803FF
+	KEY_MACRO_C_BASE         =INTERNAL_MACRO_BASE+0x0400,     // булевые условия    0x00080400 - 0x000807FF
+	KEY_MACRO_V_BASE         =INTERNAL_MACRO_BASE+0x0800,     // разные переменные  0x00080800 - 0x00080BFF
+	KEY_MACRO_F_BASE         =INTERNAL_MACRO_BASE+0x0C00,     // функции            0x00080C00 -
+
+	KEY_MACRO_U_BASE         =INTERNAL_MACRO_BASE+0x8000,     // внешние функции    0x00088000 -
+
 	KEY_MACRO_ENDBASE        =0x000FFFFF,
 #endif // END FAR_USE_INTERNALS
 };

@@ -1212,6 +1212,22 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 
 					break;
 				}
+
+				case MCODE_V_APANEL_HOSTFILE: // APanel.HostFile
+				case MCODE_V_PPANEL_HOSTFILE: // PPanel.HostFile
+				{
+					Panel *SelPanel = CheckCode == MCODE_V_APANEL_HOSTFILE ? ActivePanel : PassivePanel;
+
+					if (SelPanel != NULL)
+					{
+						OpenPluginInfo Info;
+						SelPanel->GetOpenPluginInfo(&Info);
+						Cond = (const wchar_t*)Info.HostFile;
+					}
+
+					break;
+				}
+
 				case MCODE_V_APANEL_PATH: // APanel.Path
 				case MCODE_V_PPANEL_PATH: // PPanel.Path
 				{
@@ -2029,6 +2045,48 @@ static bool environFunc()
 
 	VMStack.Push((const wchar_t*)strEnv);
 	return Ret;
+}
+
+// V=Panel.Select(panelType,Action[,Mode[,Items]])
+static bool panelselectFunc()
+{
+	TVar ValItems;  VMStack.Pop(ValItems);
+	int Mode=(int)VMStack.Pop().getInteger();
+	DWORD Action=(int)VMStack.Pop().getInteger();
+	int typePanel=(int)VMStack.Pop().getInteger();
+	__int64 Result=-1;
+
+	Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+	Panel *PassivePanel=NULL;
+
+	if (ActivePanel!=NULL)
+		PassivePanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
+
+	Panel *SelPanel = typePanel == 0 ? ActivePanel : (typePanel == 1?PassivePanel:NULL);
+
+	if (SelPanel)
+	{
+		__int64 Index=-1;
+		if (Mode == 1)
+		{
+			Index=ValItems.getInteger();
+			if (!Index)
+				Index=SelPanel->GetCurrentPos();
+			else
+				Index--;
+		}
+
+		MacroPanelSelect mps;
+		mps.Action      = Action & 0xF;
+		mps.ActionFlags = (Action & (~0xF)) >> 4;
+		mps.Mode        = Mode;
+		mps.Index       = Index;
+		mps.Item        = &ValItems;
+		Result=SelPanel->VMProcess(MCODE_F_PANEL_SELECT,&mps,0);
+	}
+
+	VMStack.Push(Result);
+	return Result==-1?false:true;
 }
 
 static bool _fattrFunc(int Type)
@@ -2927,7 +2985,7 @@ static bool replaceFunc()
 	return Ret?true:false;
 }
 
-// V=PanelItem(typePanel,Index,TypeInfo)
+// V=Panel.Item(typePanel,Index,TypeInfo)
 static bool panelitemFunc()
 {
 	TVar P2; VMStack.Pop(P2);
@@ -4142,6 +4200,7 @@ done:
 				{MCODE_F_PANEL_SETPOSIDX,panelsetposidxFunc}, // N=Panel.SetPosIdx(panelType,Idx[,InSelection])
 				{MCODE_F_PANEL_FATTR,panelfattrFunc},         // N=Panel.FAttr(panelType,fileMask)
 				{MCODE_F_PANEL_FEXIST,panelfexistFunc},        // N=Panel.FExist(panelType,fileMask)
+				{MCODE_F_PANEL_SELECT,panelselectFunc}, // V=Panel.Select(panelType,Action[,Mode[,Items]])
 				{MCODE_F_SLEEP,sleepFunc}, // N=Sleep(N)
 				{MCODE_F_ENVIRON,environFunc}, // S=env(S)
 				{MCODE_F_LEN,lenFunc},  // N=len(S)

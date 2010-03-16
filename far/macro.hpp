@@ -146,6 +146,15 @@ struct MacroState
 	void Init(TVarTable *tbl);
 };
 
+
+struct MacroPanelSelect {
+	int     Action;
+	DWORD   ActionFlags;
+	int     Mode;
+	__int64 Index;
+	TVar    *Item;
+};
+
 /* $TODO:
     1. Удалить IndexMode[], Sort()
     2. Из MacroLIB сделать
