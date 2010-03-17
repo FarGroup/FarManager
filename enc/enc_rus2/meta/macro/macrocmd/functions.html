@@ -337,28 +337,52 @@ panel.SetPath(0,"C:\\Program Files","FAR")</pre>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="panel.select">panel.select</a></dfn>(panelType,Action[,Mode[,Items]])</td>
     <td class="cont" width="60%">Операции с выделением элементов на активной (<em>panelType</em>=0) или пассивной (<em>panelType</em>=1) панели.<br>
-    <em>Action:</em><br>
-     0 - снять выделение<br>
-     1 - выделить<br>
-     2 - инвертировать выделение<br>
-     3 - восстановить выделение (аналог Ctrl-M; возвращает количество восстановленных элементов)<br>
-    <em>Mode:</em><br>
-     0 или отсутствует - выполнить действие <em>Action</em> для всех элементов<br>
-     1 - <em>Items</em> является числом - индексом элемента панели<br>
-    <em>Items:</em><br>
-     для <em>Mode</em> равное 0 - параметр <em>Items</em> игнорируется<br>
-     для <em>Mode</em> равное 1:<br>
-       <em>Items</em> равно 0 или отсутствует - выполнить действие <em>Action</em> для текущего элемента<br>
-       <em>Items</em> больше 0 - выполнить действие <em>Action</em> для элемента с индексом <em>Items</em><br>
-   Функция возвращает количество элементов, над которыми производилось <em>Action</em><br>
+      <em>Action</em> может принимать следующие значения:
+      <table class="cont">
+      <tr class="cont"><th class="cont" width="10%">Значение</th><th class="cont" width="90%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">снять выделение</td></tr>
+        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">выделить</td></tr>
+        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%">инвертировать выделение</td></tr>
+        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="90%">восстановить выделение (аналог Ctrl-M; возвращает количество восстановленных элементов)</td></tr>
+      </table>
+      Необязательный параметр <em>Mode</em> может принимать следующие значения:
+      <table class="cont">
+      <tr class="cont"><th class="cont" width="10%">Значение</th><th class="cont" width="90%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0/не указан</td><td class="cont" width="90%">выполнить действие <em>Action</em> для всех элементов, параметр <em>Items</em> игнорируется</td></tr>
+        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%"><em>Items</em> является числом - индексом элемента панели</td></tr>
+        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%"><em>Items</em> является строкой - имена файловых объектов (возможны с полными путями)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="90%"><em>Items</em> является строкой - файловые маски</td></tr>
+      </table>
+      Необязательный параметр <em>Items</em> может принимать значения, в зависимости от <em>Action</em> и <em>Mode</em>:<ul>
+       <li>для <em>Mode</em> равное 0 - параметр <em>Items</em> игнорируется</li>
+       <li>для <em>Mode</em> равное 1:
+         <ul>
+          <li><em>Items</em> равно 0 или отсутствует - выполнить действие <em>Action</em> для текущего элемента</li>
+          <li><em>Items</em> больше 0 - выполнить действие <em>Action</em> для элемента с индексом <em>Items</em></li>
+         </ul>
+       <li>для <em>Mode</em> равное 2 и 3:
+         <ul>
+         <li><em>Items</em> равно "" или отсутствует - не выполнять никаких действий</li>
+         <li><em>Items</em> отличное от пустой строки - выполнить действие <em>Action</em> для элементов, указанных в <em>Items</em></li>
+         </ul>
+      </ul>
+
+    <p>Для строковых значений содержимое <em>Items</em> должно подчиняться следующим правилам:
+    <ol>
+    <li>разделители - функция ожидает смесь разделителей: точка с запятой, запятая или CrLf ("\r\n");
+    <li>имена в двойных кавычках.
+    </ol>
+
+    <p>Функция возвращает количество элементов, над которыми производилось <em>Action</em><br>
        <table class="cont">
        <tr class="cont"><th class="cont" width="50%">Пример</th><th class="cont" width="50%">Описание</th></tr>
-        <tr class="cont"><td class="cont" width="50%">Panel.Select(0)</td><td class="cont" width="50%">полное снятие выделения</td></tr>
+        <tr class="cont"><td class="cont" width="50%">Panel.Select(0,0)</td><td class="cont" width="50%">полное снятие выделения</td></tr>
         <tr class="cont"><td class="cont" width="50%">Panel.Select(0,1)</td><td class="cont" width="50%">выделить все элементы</td></tr>
         <tr class="cont"><td class="cont" width="50%">Panel.Select(0,2)</td><td class="cont" width="50%">инверсия всего</td></tr>
         <tr class="cont"><td class="cont" width="50%">Panel.Select(0,2,1)</td><td class="cont" width="50%">инверсия того, что под курсором</td></tr>
         <tr class="cont"><td class="cont" width="50%">Panel.Select(0,1,1,10)</td><td class="cont" width="50%">"в догонку" выделить 10-й элемент панели</td></tr>
         <tr class="cont"><td class="cont" width="50%">Panel.Select(0,0,3)</td><td class="cont" width="50%">ничего не делать</td></tr>
+        <tr class="cont"><td class="cont" width="50%">Panel.Select(0,1,2,clip(0))</td><td class="cont" width="50%">выделить элементы, имена которых содержаться в Буфере Обмена</td></tr>
        </table>
     </td>
   </tr>
