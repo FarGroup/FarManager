@@ -239,7 +239,7 @@ class FileList:public Panel
 		int ConvertName(const wchar_t *SrcName, string &strDest, int MaxLength, int RightAlign, int ShowStatus, DWORD dwFileAttr);
 
 		void Select(FileListItem *SelPtr,int Selection);
-		void SelectFiles(int Mode);
+		long SelectFiles(int Mode,const wchar_t *Mask=NULL);
 		void ProcessEnter(bool EnableExec,bool SeparateWindow, bool EnableAssoc=true);
 		// ChangeDir возвращает FALSE, eсли не смогла выставить заданный путь
 		BOOL ChangeDir(const wchar_t *NewDir,BOOL IsUpdated=TRUE);

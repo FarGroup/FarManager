@@ -95,9 +95,20 @@ static int ListSortMode,ListSortOrder,ListSortGroups,ListSelectedFirst;
 static int ListPanelMode,ListCaseSensitive,ListNumericSort;
 static HANDLE hSortPlugin;
 
-enum SELECT_MODES {SELECT_INVERT,SELECT_INVERTALL,SELECT_ADD,SELECT_REMOVE,
-                   SELECT_ADDEXT,SELECT_REMOVEEXT,SELECT_ADDNAME,SELECT_REMOVENAME
-                  };
+enum SELECT_MODES
+{
+	SELECT_INVERT          =  0,
+	SELECT_INVERTALL       =  1,
+	SELECT_ADD             =  2,
+	SELECT_REMOVE          =  3,
+	SELECT_ADDEXT          =  4,
+	SELECT_REMOVEEXT       =  5,
+	SELECT_ADDNAME         =  6,
+	SELECT_REMOVENAME      =  7,
+	SELECT_ADDMASK         =  8,
+	SELECT_REMOVEMASK      =  9,
+	SELECT_INVERTMASK      = 10,
+};
 
 FileList::FileList()
 {
@@ -600,26 +611,20 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			if (mps->Mode == 1 && (DWORD)mps->Index >= (DWORD)FileCount)
 				return Result;
 
+			UserDefinedList *itemsList=NULL;
+
 			if (mps->Action != 3)
 			{
+				if (mps->Mode == 2)
+				{
+					itemsList=new UserDefinedList(L';',L',',ULF_UNIQUE);
+					if (!itemsList->Set(mps->Item->s()))
+						return Result;
+				}
+
 				SaveSelection();
 			}
 
-			/*
-			Mode:
-				отсутствует или 0 - выполнить действие Action дл€ всех элементов, Items игнорируетс€
-				1 - Items €вл€етс€ числом - индексом
-				2 - Items €вл€етс€ строкой - 0 или больше имен (даже с путем), разделенных CRLF
-				3 - Items €вл€етс€ строкой с маской (или масками файлов, разделенных зап€тыми)
-			Items:
-				дл€ Mode==1:
-					Items==0 или отсутствует - выполнить действие Action дл€ текущего элемента
-					Items>0 - выполнить действие Action дл€ элемента с индексом Items
-				дл€ Mode==2 и Mode==3:
-					Items=="" или отсутствует - не выполн€ть никаких действий
-					Items<>"" - выполнить действие Action дл€ элементов, указанных в Items
-			};
-			*/
 			// mps->ActionFlags
 			switch (mps->Action)
 			{
@@ -635,11 +640,24 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							Result=1;
 							Select(ListData[mps->Index],FALSE);
 							break;
-						case 2: // набор строк через CRLF
-							// mps->Item
+						case 2: // набор строк
+						{
+							const wchar_t *namePtr;
+							int Pos;
+							Result=0;
+
+							while((namePtr=itemsList->GetNext()) != NULL)
+							{
+								if ((Pos=FindFile(PointToName(namePtr),TRUE)) != -1)
+								{
+									Select(ListData[Pos],FALSE);
+									Result++;
+								}
+							}
 							break;
+						}
 						case 3: // масками файлов, разделенных зап€тыми
-							// mps->Item
+							Result=SelectFiles(SELECT_REMOVEMASK,mps->Item->s());
 							break;
 					}
 					break;
@@ -659,10 +677,23 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							Select(ListData[mps->Index],TRUE);
 							break;
 						case 2: // набор строк через CRLF
-							// mps->Item
+						{
+							const wchar_t *namePtr;
+							int Pos;
+							Result=0;
+
+							while((namePtr=itemsList->GetNext()) != NULL)
+							{
+								if ((Pos=FindFile(PointToName(namePtr),TRUE)) != -1)
+								{
+									Select(ListData[Pos],TRUE);
+									Result++;
+								}
+							}
 							break;
+						}
 						case 3: // масками файлов, разделенных зап€тыми
-							// mps->Item
+							Result=SelectFiles(SELECT_ADDMASK,mps->Item->s());
 							break;
 					}
 					break;
@@ -682,10 +713,23 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							Select(ListData[mps->Index],ListData[mps->Index]->Selected?FALSE:TRUE);
 							break;
 						case 2: // набор строк через CRLF
-							// mps->Item
+						{
+							const wchar_t *namePtr;
+							int Pos;
+							Result=0;
+
+							while((namePtr=itemsList->GetNext()) != NULL)
+							{
+								if ((Pos=FindFile(PointToName(namePtr),TRUE)) != -1)
+								{
+									Select(ListData[Pos],ListData[Pos]->Selected?FALSE:TRUE);
+									Result++;
+								}
+							}
 							break;
+						}
 						case 3: // масками файлов, разделенных зап€тыми
-							// mps->Item
+							Result=SelectFiles(SELECT_INVERTMASK,mps->Item->s());
 							break;
 					}
 					break;
@@ -705,6 +749,9 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 					SortFileList(TRUE);
 				Redraw();
 			}
+
+			if (itemsList)
+				delete itemsList;
 
 			return Result;
 		}
@@ -3353,7 +3400,7 @@ int FileList::GetCurBaseName(string &strName, string &strShortName)
 	return(TRUE);
 }
 
-void FileList::SelectFiles(int Mode)
+long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 {
 	CFileMask FileMask; //  ласс дл€ работы с масками
 	const wchar_t *HistoryName=L"Masks";
@@ -3382,7 +3429,7 @@ void FileList::SelectFiles(int Mode)
 	bool WrapBrackets=false; // говорит о том, что нужно вз€ть кв.скобки в скобки
 
 	if (CurFile>=FileCount)
-		return;
+		return 0;
 
 	int RawSelection=FALSE;
 
@@ -3459,7 +3506,7 @@ void FileList::SelectFiles(int Mode)
 						}
 
 						if (Dlg.GetExitCode()!=3)
-							return;
+							return 0;
 
 						strMask = SelectDlg[1].strData;
 
@@ -3470,6 +3517,13 @@ void FileList::SelectFiles(int Mode)
 						}
 					}
 				}
+			}
+			else if (Mode==SELECT_ADDMASK || Mode==SELECT_REMOVEMASK || Mode==SELECT_INVERTMASK)
+			{
+				strMask = Mask;
+
+				if (!FileMask.Set(strMask, 0)) // ѕроверим маски на ошибки
+					return 0;
 			}
 		}
 	}
@@ -3498,6 +3552,8 @@ void FileList::SelectFiles(int Mode)
 		}
 	}
 
+	long workCount=0;
+
 	if (bUseFilter || FileMask.Set(strMask, FMF_SILENT)) // —компилируем маски файлов и работаем
 	{                                                // дальше в зависимости от успеха компил€ции
 		for (I=0; I < FileCount; I++)
@@ -3520,20 +3576,26 @@ void FileList::SelectFiles(int Mode)
 				switch (Mode)
 				{
 					case SELECT_ADD:
+					case SELECT_ADDMASK:
 						Selection=1;
 						break;
 					case SELECT_REMOVE:
+					case SELECT_REMOVEMASK:
 						Selection=0;
 						break;
 					case SELECT_INVERT:
 					case SELECT_INVERTALL:
+					case SELECT_INVERTMASK:
 						Selection=!CurPtr->Selected;
 						break;
 				}
 
 				if (bUseFilter || (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0 || Opt.SelectFolders ||
-				        Selection==0 || RawSelection || Mode==SELECT_INVERTALL)
+				        Selection==0 || RawSelection || Mode==SELECT_INVERTALL || Mode==SELECT_INVERTMASK)
+				{
 					Select(CurPtr,Selection);
+					workCount++;
+				}
 			}
 		}
 	}
@@ -3542,6 +3604,8 @@ void FileList::SelectFiles(int Mode)
 		SortFileList(TRUE);
 
 	ShowFileList(TRUE);
+
+	return workCount;
 }
 
 void FileList::UpdateViewPanel()

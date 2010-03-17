@@ -2076,6 +2076,13 @@ static bool panelselectFunc()
 				Index--;
 		}
 
+		if (Mode == 2 || Mode == 3)
+		{
+			string strStr=ValItems.s();
+			ReplaceStrings(strStr,L"\r\n",L";");
+			ValItems=strStr.CPtr();
+		}
+
 		MacroPanelSelect mps;
 		mps.Action      = Action & 0xF;
 		mps.ActionFlags = (Action & (~0xF)) >> 4;
