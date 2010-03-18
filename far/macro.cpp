@@ -2100,8 +2100,9 @@ static bool _fattrFunc(int Type)
 {
 	bool Ret=false;
 	DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
+	long Pos=-1;
 
-	if (Type == 0 || Type == 2) // не панели
+	if (Type == 0 || Type == 2) // не панели: fattr(0) & fexist(2)
 	{
 		TVar Str;
 		VMStack.Pop(Str);
@@ -2110,7 +2111,7 @@ static bool _fattrFunc(int Type)
 		FileAttr=FindData.dwFileAttributes;
 		Ret=true;
 	}
-	else
+	else // panel.fattr(1) & panel.fexist(3)
 	{
 		TVar S;
 		VMStack.Pop(S);
@@ -2127,8 +2128,6 @@ static bool _fattrFunc(int Type)
 
 		if (SelPanel)
 		{
-			long Pos=-1;
-
 			if (wcspbrk(Str,L"*?") != NULL)
 				Pos=SelPanel->FindFirst(Str);
 			else
@@ -2143,8 +2142,10 @@ static bool _fattrFunc(int Type)
 		}
 	}
 
-	if (Type == 2 || Type == 3)
+	if (Type == 2) // fexist(2)
 		FileAttr=(FileAttr!=INVALID_FILE_ATTRIBUTES)?1:0;
+	else if (Type == 3) // panel.fexist(3)
+		FileAttr=(DWORD)Pos+1;
 
 	VMStack.Push(TVar((__int64)(long)FileAttr));
 	return Ret;
