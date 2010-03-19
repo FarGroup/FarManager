@@ -23,10 +23,12 @@
 <?if $(var.Platform) = x86 ?>
   <?define Win64 = "no" ?>
   <?define ProgramFiles = "ProgramFilesFolder" ?>
+  <?define InstallDir = "InstallDir" ?>
 <?endif?>
 <?if $(var.Platform) = x64 ?>
   <?define Win64 = "yes" ?>
   <?define ProgramFiles = "ProgramFiles64Folder" ?>
+  <?define InstallDir = "InstallDir_x64" ?>
 <?endif?>
 <?if $(var.Branch) = 1 ?>
   <?define RegKey = "Far" ?>

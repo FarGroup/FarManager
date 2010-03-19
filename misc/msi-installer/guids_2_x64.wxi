@@ -2,8 +2,7 @@
 <Include>
 <!-- special -->
 <?define Guid.UpgradeCode = "83140F3F-1457-42EB-8053-233293664714" ?>
-<?define Guid.InstallDir = "47B64A73-8956-4231-9203-72E1E7E5A039" ?>
-<?define Guid.InstallDir_x64 = "0A10FBD0-CFFF-4D21-82A8-A34B70F9EE5B" ?>
+<?define Guid.InstallDir = "0A10FBD0-CFFF-4D21-82A8-A34B70F9EE5B" ?>
 <?define Guid.AppPaths = "8F5CACF9-DF19-4840-82C6-E628A43D057B" ?>
 <?define Guid.FarHere = "A7E4ECEC-3893-44BB-B850-BDC71DA09F69" ?>
 <?define Guid.FExceptReg = "418CA084-68CC-4E58-84BF-6330C4D9BEC1" ?>
