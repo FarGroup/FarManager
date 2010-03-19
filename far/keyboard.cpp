@@ -2039,8 +2039,8 @@ int IsShiftKey(DWORD Key)
 // GetAsyncKeyState(VK_RSHIFT)
 DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 {
-//_SVS(CleverSysLog Clev(L"CalcKeyCode"));
-//_SVS(SysLog(L"CalcKeyCode -> %s| RealKey=%d  *NotMacros=%d",_INPUT_RECORD_Dump(rec),RealKey,(NotMacros?*NotMacros:0)));
+	_SVS(CleverSysLog Clev(L"CalcKeyCode"));
+	_SVS(SysLog(L"CalcKeyCode -> %s| RealKey=%d  *NotMacros=%d",_INPUT_RECORD_Dump(rec),RealKey,(NotMacros?*NotMacros:0)));
 	UINT CtrlState=rec->Event.KeyEvent.dwControlKeyState;
 	UINT ScanCode=rec->Event.KeyEvent.wVirtualScanCode;
 	UINT KeyCode=rec->Event.KeyEvent.wVirtualKeyCode;
@@ -2603,6 +2603,8 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 					return(KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_DOT);
 				case VK_OEM_COMMA:
 					return(KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_COMMA);
+				case VK_OEM_102: // <> \|
+ 					return KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_BACKSLASH;
 			}
 
 		switch (KeyCode)
@@ -2663,6 +2665,8 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 					return(KEY_CTRL+KEY_ALT+KEY_DOT);
 				case VK_OEM_COMMA:
 					return(KEY_CTRL+KEY_ALT+KEY_COMMA);
+				case VK_OEM_102: // <> \|
+ 					return KEY_CTRL+KEY_ALT+KEY_BACKSLASH;
 			}
 
 		switch (KeyCode)
@@ -2827,6 +2831,8 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 					return(KEY_CTRL+KEY_SHIFT+KEY_SEMICOLON);
 				case VK_OEM_COMMA:
 					return(KEY_CTRL+KEY_SHIFT+KEY_COMMA);
+				case VK_OEM_102: // <> \|
+ 					return KEY_CTRL+KEY_SHIFT+KEY_BACKSLASH;
 			}
 
 		if (Char)
@@ -2908,6 +2914,8 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 				return KEY_CTRL|KEY_STANDBY;
 			case VK_SNAPSHOT:
 				return KEY_CTRL|KEY_PRNTSCRN;
+			case VK_OEM_102: // <> \|
+ 				return KEY_CTRL|KEY_BACKSLASH;
 		}
 
 		if (Opt.ShiftsKeyRules) //???
