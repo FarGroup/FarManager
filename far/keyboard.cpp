@@ -2748,6 +2748,8 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 					return(KEY_ALT+KEY_SHIFT+KEY_DOT);
 				case VK_OEM_COMMA:
 					return(KEY_ALT+KEY_SHIFT+KEY_COMMA);
+				case VK_OEM_102: // <> \|
+ 					return KEY_ALT+KEY_SHIFT+KEY_BACKSLASH;
 			}
 
 		switch (KeyCode)
@@ -2970,6 +2972,8 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 					return(KEY_ALT+KEY_SEMICOLON);
 				case VK_OEM_2:
 					return(KEY_ALT+KEY_SLASH);
+				case VK_OEM_102: // <> \|
+ 					return KEY_ALT+KEY_BACKSLASH;
 			}
 
 		switch (KeyCode)
