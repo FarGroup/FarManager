@@ -72,11 +72,11 @@ static int InitHex=FALSE,SearchHex=FALSE;
 
 static int ViewerID=0;
 
-Viewer::Viewer(bool bQuickView, UINT aCodePage)
+Viewer::Viewer(bool bQuickView, UINT aCodePage):
+	ViOpt(Opt.ViOpt),
+	m_bQuickView(bQuickView)
 {
 	_OT(SysLog(L"[%p] Viewer::Viewer()", this));
-	m_bQuickView = bQuickView;
-	ViOpt=Opt.ViOpt;
 
 	for (int i=0; i<=MAXSCRY; i++)
 	{
@@ -95,8 +95,8 @@ Viewer::Viewer(bool bQuickView, UINT aCodePage)
 	VM.Wrap=Opt.ViOpt.ViewerIsWrap;
 	VM.WordWrap=Opt.ViOpt.ViewerWrap;
 	VM.Hex=InitHex;
-	ViewFile=NULL;
-	ViewKeyBar=NULL;
+	ViewFile=nullptr;
+	ViewKeyBar=nullptr;
 	FilePos=0;
 	LeftPos=0;
 	SecondPos=0;
@@ -116,7 +116,7 @@ Viewer::Viewer(bool bQuickView, UINT aCodePage)
 	Viewer::ViewerID=::ViewerID++;
 	CtrlObject->Plugins.CurViewer=this;
 	OpenFailed=false;
-	HostFileViewer=NULL;
+	HostFileViewer=nullptr;
 	SelectPosOffSet=0;
 	bVE_READ_Sent = false;
 	Signature = false;
@@ -212,13 +212,13 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 {
 	VM.CodePage=DefCodePage;
 	DefCodePage=CP_AUTODETECT;
-	FILE *NewViewFile=NULL;
+	FILE *NewViewFile=nullptr;
 	OpenFailed=false;
 
 	if (ViewFile)
 		fclose(ViewFile);
 
-	ViewFile=NULL;
+	ViewFile=nullptr;
 	SelectSize = 0; // Сбросим выделение
 	strFileName = Name;
 
@@ -233,7 +233,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 		}
 
 		HANDLE OutHandle=apiCreateFile(strTempName,GENERIC_READ|GENERIC_WRITE,
-		                        FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,CREATE_ALWAYS,
+		                        FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,CREATE_ALWAYS,
 		                        FILE_ATTRIBUTE_TEMPORARY|FILE_FLAG_DELETE_ON_CLOSE);
 
 		if (OutHandle==INVALID_HANDLE_VALUE)
@@ -245,8 +245,8 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 		char ReadBuf[8192];
 		DWORD ReadSize,WrittenSize;
 
-		while (ReadFile(GetStdHandle(STD_INPUT_HANDLE),ReadBuf,sizeof(ReadBuf),&ReadSize,NULL))
-			WriteFile(OutHandle,ReadBuf,ReadSize,&WrittenSize,NULL);
+		while (ReadFile(GetStdHandle(STD_INPUT_HANDLE),ReadBuf,sizeof(ReadBuf),&ReadSize,nullptr))
+			WriteFile(OutHandle,ReadBuf,ReadSize,&WrittenSize,nullptr);
 
 		//after reading from the pipe, redirect stdin to the real console stdin
 		HANDLE hConin=CreateFile(L"CONIN$",GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ,0,OPEN_EXISTING,0,0);
@@ -262,11 +262,11 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 	}
 	else
 	{
-		NewViewFile=NULL;
+		NewViewFile=nullptr;
 		HANDLE hView=apiCreateFile(strFileName,
 		                           GENERIC_READ,
 		                           FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,
-		                           NULL,
+		                           nullptr,
 		                           OPEN_EXISTING,
 		                           0);
 
@@ -280,13 +280,13 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 			{
 				NewViewFile=_fdopen(ViewHandle,"rb");
 
-				if (NewViewFile==NULL)
+				if (NewViewFile==nullptr)
 					_close(ViewHandle);
 			}
 		}
 	}
 
-	if (NewViewFile==NULL)
+	if (NewViewFile==nullptr)
 	{
 		/* $ 04.07.2000 tran
 		   + 'warning' flag processing, in QuickView it is FALSE
@@ -400,7 +400,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 	CtrlObject->Plugins.CurViewer=this; // HostFileViewer;
 	/* $ 15.09.2001 tran
 	   пора легализироваться */
-	CtrlObject->Plugins.ProcessViewerEvent(VE_READ,NULL);
+	CtrlObject->Plugins.ProcessViewerEvent(VE_READ,nullptr);
 	bVE_READ_Sent = true;
 	return(TRUE);
 }
@@ -458,7 +458,7 @@ void Viewer::ShowPage(int nMode)
 	int I,Y;
 	AdjustWidth();
 
-	if (ViewFile==NULL)
+	if (ViewFile==nullptr)
 	{
 		if (!strFileName.IsEmpty() && ((nMode == SHOW_RELOAD) || (nMode == SHOW_HEX)))
 		{
@@ -781,7 +781,7 @@ void Viewer::ShowHex()
 				else
 				{
 					char NewCh;
-					WideCharToMultiByte(VM.CodePage, 0, &Ch,1, &NewCh,1," ",NULL);
+					WideCharToMultiByte(VM.CodePage, 0, &Ch,1, &NewCh,1," ",nullptr);
 					int OutStrLen=StrLength(OutStr);
 					_snwprintf(OutStr+OutStrLen,countof(OutStr)-OutStrLen,L"%02X ", NewCh);
 
@@ -1101,9 +1101,9 @@ __int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_C_SELECTED:
 			return (__int64)(SelectSize==0?FALSE:TRUE);
 		case MCODE_C_EOF:
-			return (__int64)(LastPage || ViewFile==NULL);
+			return (__int64)(LastPage || ViewFile==nullptr);
 		case MCODE_C_BOF:
-			return (__int64)(!FilePos || ViewFile==NULL);
+			return (__int64)(!FilePos || ViewFile==nullptr);
 		case MCODE_V_VIEWERSTATE:
 		{
 			DWORD MacroViewerState=0;
@@ -1124,7 +1124,7 @@ __int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 }
 
 /* $ 28.01.2001
-   - Путем проверки ViewFile на NULL избавляемся от падения
+   - Путем проверки ViewFile на nullptr избавляемся от падения
 */
 int Viewer::ProcessKey(int Key)
 {
@@ -1203,7 +1203,7 @@ int Viewer::ProcessKey(int Key)
 				size_t DataSize = (size_t)SelectSize+(IsUnicodeCodePage(VM.CodePage)?sizeof(wchar_t):1);
 				__int64 CurFilePos=vtell(ViewFile);
 
-				if ((SelData=(wchar_t*)xf_malloc(DataSize*sizeof(wchar_t))) != NULL)
+				if ((SelData=(wchar_t*)xf_malloc(DataSize*sizeof(wchar_t))) != nullptr)
 				{
 					wmemset(SelData, 0, DataSize);
 					vseek(ViewFile,SelectPos,SEEK_SET);
@@ -1271,7 +1271,7 @@ int Viewer::ProcessKey(int Key)
 				}
 			}
 
-			if (Opt.ViewerEditorClock && HostFileViewer!=NULL && HostFileViewer->IsFullScreen() && Opt.ViOpt.ShowTitleBar)
+			if (Opt.ViewerEditorClock && HostFileViewer!=nullptr && HostFileViewer->IsFullScreen() && Opt.ViOpt.ShowTitleBar)
 				ShowTime(FALSE);
 
 			return(TRUE);
@@ -1561,7 +1561,7 @@ int Viewer::ProcessKey(int Key)
 			if (!vString.lpData)
 				return TRUE;
 
-			if (LastPage || ViewFile==NULL)
+			if (LastPage || ViewFile==nullptr)
 			{
 				delete[] vString.lpData;
 				return(TRUE);
@@ -1901,7 +1901,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		int XCodePage, XPos, NameLength;
 		NameLength=ObjWidth-40;
 
-		if (Opt.ViewerEditorClock && HostFileViewer!=NULL && HostFileViewer->IsFullScreen())
+		if (Opt.ViewerEditorClock && HostFileViewer!=nullptr && HostFileViewer->IsFullScreen())
 			NameLength-=6;
 
 		if (NameLength<20)
@@ -2081,7 +2081,7 @@ int Viewer::GetStrBytesNum(const wchar_t *Str, int Length)
 	if (IsUnicodeCodePage(VM.CodePage))
 		return Length;
 	else
-		return WideCharToMultiByte(VM.CodePage, 0, Str, Length, NULL, 0, NULL, NULL);
+		return WideCharToMultiByte(VM.CodePage, 0, Str, Length, nullptr, 0, nullptr, nullptr);
 }
 
 void Viewer::SetViewKeyBar(KeyBar *ViewKeyBar)
@@ -2231,7 +2231,7 @@ void ViewerSearchMsg(const wchar_t *MsgStr,int Percent)
 		TBC.SetProgressValue(Percent,100);
 	}
 
-	Message(0,0,MSG(MViewSearchTitle),(SearchHex?MSG(MViewSearchingHex):MSG(MViewSearchingFor)),MsgStr,strProgress.IsEmpty()?NULL:strProgress.CPtr());
+	Message(0,0,MSG(MViewSearchTitle),(SearchHex?MSG(MViewSearchingHex):MSG(MViewSearchingFor)),MsgStr,strProgress.IsEmpty()?nullptr:strProgress.CPtr());
 	PreRedrawItem preRedrawItem=PreRedraw.Peek();
 	preRedrawItem.Param.Param1=(void*)MsgStr;
 	preRedrawItem.Param.Param2=(LPVOID)(INT_PTR)Percent;
@@ -2272,7 +2272,7 @@ void Viewer::Search(int Next,int FirstChar)
 	__int64 MatchPos=0;
 	int SearchLength,Case,WholeWords,ReverseSearch,Match,SearchRegexp;
 
-	if (ViewFile==NULL || (Next && strLastSearchStr.IsEmpty()))
+	if (ViewFile==nullptr || (Next && strLastSearchStr.IsEmpty()))
 		return;
 
 	if (!strLastSearchStr.IsEmpty())
@@ -2494,7 +2494,7 @@ void Viewer::Search(int Next,int FirstChar)
 						if (I!=0)
 						{
 							if (IsSpace(Buf[I-1]) || IsEol(Buf[I-1]) ||
-							        (wcschr(Opt.strWordDiv,Buf[I-1])!=NULL))
+							        (wcschr(Opt.strWordDiv,Buf[I-1])!=nullptr))
 								locResultLeft=TRUE;
 						}
 						else
@@ -2506,7 +2506,7 @@ void Viewer::Search(int Next,int FirstChar)
 							locResultRight=TRUE;
 						else if (I+SearchLength<ReadSize &&
 						         (IsSpace(Buf[I+SearchLength]) || IsEol(Buf[I+SearchLength]) ||
-						          (wcschr(Opt.strWordDiv,Buf[I+SearchLength])!=NULL)))
+						          (wcschr(Opt.strWordDiv,Buf[I+SearchLength])!=nullptr)))
 							locResultRight=TRUE;
 					}
 					else
@@ -2694,7 +2694,7 @@ void Viewer::SetTempViewName(const wchar_t *Name, BOOL DeleteFolder)
 
 void Viewer::SetTitle(const wchar_t *Title)
 {
-	if (Title==NULL)
+	if (Title==nullptr)
 		strTitle.Clear();
 	else
 		strTitle = Title;
@@ -2715,7 +2715,7 @@ void Viewer::SetPluginData(const wchar_t *PluginData)
 
 void Viewer::SetNamesList(NamesList *List)
 {
-	if (List!=NULL)
+	if (List!=nullptr)
 		List->MoveData(ViewNamesList);
 }
 
@@ -3248,7 +3248,7 @@ int Viewer::ViewerControl(int Command,void *Param)
 			break;
 		}
 		/* Функция установки Keybar Labels
-		     Param = NULL - восстановить, пред. значение
+		     Param = nullptr - восстановить, пред. значение
 		     Param = -1   - обновить полосу (перерисовать)
 		     Param = KeyBarTitles
 		*/
@@ -3258,7 +3258,7 @@ int Viewer::ViewerControl(int Command,void *Param)
 
 			if (!Kbt)
 			{        // восстановить пред значение!
-				if (HostFileViewer!=NULL)
+				if (HostFileViewer!=nullptr)
 					HostFileViewer->InitKeyBar();
 			}
 			else
@@ -3319,7 +3319,7 @@ int Viewer::ViewerControl(int Command,void *Param)
 				*/
 				FrameManager->DeleteFrame(HostFileViewer);
 
-				if (HostFileViewer!=NULL)
+				if (HostFileViewer!=nullptr)
 					HostFileViewer->SetExitCode(0);
 
 				return(TRUE);

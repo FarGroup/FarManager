@@ -482,7 +482,7 @@ bool ReadFileTime(int Type,const wchar_t *Name,FILETIME& FileTime,const wchar_t 
 		WORD DateN[3]={0},TimeN[4]={0};
 		GetFileDateAndTime(OSrcDate,DateN,countof(DateN),GetDateSeparator());
 		GetFileDateAndTime(OSrcTime,TimeN,countof(TimeN),GetTimeSeparator());
-		FILETIME *OriginalFileTime=NULL;
+		FILETIME *OriginalFileTime=nullptr;
 		SYSTEMTIME st={0}, ost={0};
 
 		switch (Type)
@@ -654,7 +654,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 	}
 
 	FarList NameList={0};
-	string *strLinks=NULL;
+	string *strLinks=nullptr;
 
 	if (!DlgParam.Plugin)
 	{
@@ -662,7 +662,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 		apiGetCurrentDirectory(strRootPathName);
 		GetPathRoot(strRootPathName,strRootPathName);
 
-		if (apiGetVolumeInformation(strRootPathName,NULL,0,NULL,&DlgParam.FileSystemFlags,NULL))
+		if (apiGetVolumeInformation(strRootPathName,nullptr,0,nullptr,&DlgParam.FileSystemFlags,nullptr))
 		{
 			if (!(DlgParam.FileSystemFlags&FILE_FILE_COMPRESSION))
 			{
@@ -687,8 +687,8 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 		FAR_FIND_DATA_EX FindData;
 		if(SrcPanel)
 		{
-			SrcPanel->GetSelName(NULL,FileAttr);
-			SrcPanel->GetSelName(&strSelName,FileAttr,NULL,&FindData);
+			SrcPanel->GetSelName(nullptr,FileAttr);
+			SrcPanel->GetSelName(&strSelName,FileAttr,nullptr,&FindData);
 		}
 		else
 		{
@@ -836,7 +836,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 				string strRoot;
 				GetPathRoot(strSelName,strRoot);
 
-				if (apiGetVolumeInformation(strRoot,NULL,0,NULL,&DlgParam.FileSystemFlags,NULL))
+				if (apiGetVolumeInformation(strRoot,nullptr,0,nullptr,&DlgParam.FileSystemFlags,nullptr))
 				{
 					if (!(DlgParam.FileSystemFlags&FILE_FILE_COMPRESSION))
 					{
@@ -951,7 +951,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 			// так же проверка на атрибуты
 			if(SrcPanel)
 			{
-				SrcPanel->GetSelName(NULL,FileAttr);
+				SrcPanel->GetSelName(nullptr,FileAttr);
 			}
 			FolderPresent=false;
 
@@ -963,7 +963,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 				CurPath2ComputerName(strCurDir, strComputerName);
 
 				bool CheckOwner=true;
-				while (SrcPanel->GetSelName(&strSelName,FileAttr,NULL,&FindData))
+				while (SrcPanel->GetSelName(&strSelName,FileAttr,nullptr,&FindData))
 				{
 					if (!FolderPresent&&(FileAttr&FILE_ATTRIBUTE_DIRECTORY))
 					{
@@ -1012,8 +1012,8 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 			}
 			if(SrcPanel)
 			{
-				SrcPanel->GetSelName(NULL,FileAttr);
-				SrcPanel->GetSelName(&strSelName,FileAttr,NULL,&FindData);
+				SrcPanel->GetSelName(nullptr,FileAttr);
+				SrcPanel->GetSelName(&strSelName,FileAttr,nullptr,&FindData);
 			}
 
 			// выставим "неопределенку" или то, что нужно
@@ -1105,7 +1105,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 				}
 
 				TPreRedrawFuncGuard preRedrawFuncGuard(PR_ShellSetFileAttributesMsg);
-				ShellSetFileAttributesMsg(SelCount==1?strSelName.CPtr():NULL);
+				ShellSetFileAttributesMsg(SelCount==1?strSelName.CPtr():nullptr);
 				int SkipMode=-1;
 
 				if (SelCount==1 && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
@@ -1122,9 +1122,14 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 
 					if(!AttrDlg[SA_EDIT_OWNER].strData.IsEmpty() && StrCmpI(strInitOwner,AttrDlg[SA_EDIT_OWNER].strData))
 					{
-						if (ESetFileOwner(strSelName,AttrDlg[SA_EDIT_OWNER].strData,SkipMode)==SETATTR_RET_SKIPALL)
+						int Result=ESetFileOwner(strSelName,AttrDlg[SA_EDIT_OWNER].strData,SkipMode);
+						if(Result==SETATTR_RET_SKIPALL)
 						{
 							SkipMode=SETATTR_RET_SKIP;
+						}
+						else if(Result==SETATTR_RET_ERROR)
+						{
+							break;
 						}
 					}
 
@@ -1136,7 +1141,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 
 					if (SetWriteTime || SetCreationTime || SetLastAccessTime)
 					{
-						if(ESetFileTime(strSelName,SetWriteTime?&LastWriteTime:NULL,SetCreationTime?&CreationTime:NULL,SetLastAccessTime?&LastAccessTime:NULL,FileAttr,SkipMode)==SETATTR_RET_SKIPALL)
+						if(ESetFileTime(strSelName,SetWriteTime?&LastWriteTime:nullptr,SetCreationTime?&CreationTime:nullptr,SetLastAccessTime?&LastAccessTime:nullptr,FileAttr,SkipMode)==SETATTR_RET_SKIPALL)
 						{
 							SkipMode=SETATTR_RET_SKIP;
 						}
@@ -1231,14 +1236,14 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 
 					if(SrcPanel)
 					{
-						SrcPanel->GetSelName(NULL,FileAttr);
+						SrcPanel->GetSelName(nullptr,FileAttr);
 					}
 					TaskBar TB;
 					bool Cancel=false;
 					DWORD LastTime=GetTickCount();
 
 					bool SingleFileDone=false;
-					while (SrcPanel?SrcPanel->GetSelName(&strSelName,FileAttr,NULL,&FindData):!SingleFileDone && !Cancel)
+					while (SrcPanel?SrcPanel->GetSelName(&strSelName,FileAttr,nullptr,&FindData):!SingleFileDone && !Cancel)
 					{
 						if(!SrcPanel)
 						{
@@ -1259,9 +1264,14 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 
 						if(!AttrDlg[SA_EDIT_OWNER].strData.IsEmpty() && StrCmpI(strInitOwner,AttrDlg[SA_EDIT_OWNER].strData))
 						{
-							if (ESetFileOwner(strSelName,AttrDlg[SA_EDIT_OWNER].strData,SkipMode)==SETATTR_RET_SKIPALL)
+							int Result=ESetFileOwner(strSelName,AttrDlg[SA_EDIT_OWNER].strData,SkipMode);
+							if(Result==SETATTR_RET_SKIPALL)
 							{
 								SkipMode=SETATTR_RET_SKIP;
+							}
+							else if(Result==SETATTR_RET_ERROR)
+							{
+								break;
 							}
 						}
 
@@ -1269,7 +1279,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 						int SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strSelName,LastWriteTime,AttrDlg[SA_EDIT_MDATE].strData,AttrDlg[SA_EDIT_MTIME].strData);
 						int SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strSelName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
 						int SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strSelName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
-						RetCode=SkipMode==-1?ESetFileTime(strSelName,SetWriteTime?&LastWriteTime:NULL,SetCreationTime?&CreationTime:NULL,SetLastAccessTime?&LastAccessTime:NULL,FileAttr,SkipMode):SkipMode;
+						RetCode=SkipMode==-1?ESetFileTime(strSelName,SetWriteTime?&LastWriteTime:nullptr,SetCreationTime?&CreationTime:nullptr,SetLastAccessTime?&LastAccessTime:nullptr,FileAttr,SkipMode):SkipMode;
 
 						if (RetCode == SETATTR_RET_ERROR)
 							break;
@@ -1375,9 +1385,14 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 
 									if(!AttrDlg[SA_EDIT_OWNER].strData.IsEmpty() && (DlgParam.OSubfoldersState || StrCmpI(strInitOwner,AttrDlg[SA_EDIT_OWNER].strData)))
 									{
-										if (ESetFileOwner(strFullName,AttrDlg[SA_EDIT_OWNER].strData,SkipMode)==SETATTR_RET_SKIPALL)
+										int Result=ESetFileOwner(strFullName,AttrDlg[SA_EDIT_OWNER].strData,SkipMode);
+										if(Result==SETATTR_RET_SKIPALL)
 										{
 											SkipMode=SETATTR_RET_SKIP;
+										}
+										else if(Result==SETATTR_RET_ERROR)
+										{
+											break;
 										}
 									}
 
@@ -1387,7 +1402,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 
 									if (SetWriteTime || SetCreationTime || SetLastAccessTime)
 									{
-										RetCode=ESetFileTime(strFullName,SetWriteTime?&LastWriteTime:NULL,SetCreationTime?&CreationTime:NULL,SetLastAccessTime?&LastAccessTime:NULL,FindData.dwFileAttributes,SkipMode);
+										RetCode=ESetFileTime(strFullName,SetWriteTime?&LastWriteTime:nullptr,SetCreationTime?&CreationTime:nullptr,SetLastAccessTime?&LastAccessTime:nullptr,FindData.dwFileAttributes,SkipMode);
 
 										if (RetCode == SETATTR_RET_ERROR)
 										{
@@ -1494,6 +1509,10 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 				seInfo.fMask = SEE_MASK_INVOKEIDLIST;
 				// "\\?\c:\" fails on old windows
 				string strFullName(IsLocalRootPath(strSelName)?strSelName:NTPath(strSelName).Str);
+				if(FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
+				{
+					AddEndSlash(strFullName);
+				}
 				seInfo.lpFile = strFullName;
 				seInfo.lpVerb = L"properties";
 				string strCurDir;

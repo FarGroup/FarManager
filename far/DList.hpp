@@ -4,7 +4,7 @@
 DList.hpp
 Шаблон работы с двусвязным списком.
 Type должен иметь конструктор по умолчанию, если используются методы
-Push, Unshift, InsertBefore или InsertAfter с item!=NULL должен так же
+Push, Unshift, InsertBefore или InsertAfter с item!=nullptr должен так же
 существовать оператор копирования:
       const Type& operator=(const Type &)
 */
@@ -80,38 +80,38 @@ class DList : public CDList
 
 		//создать новый элемент и поместить его в конец сприска
 		//возвращает указатель на созданный элемент
-		Type *Push(const Type *item=NULL) {return (Type*)CInsertBefore(NULL, (void*)item);}
+		Type *Push(const Type *item=nullptr) {return (Type*)CInsertBefore(nullptr, (void*)item);}
 
 		//создать новый элемент и поместить его в начало сприска
 		//возвращает указатель на созданный элемент
-		Type *Unshift(const Type *item=NULL) {return (Type*)CInsertAfter(NULL, (void*)item);}
+		Type *Unshift(const Type *item=nullptr) {return (Type*)CInsertAfter(nullptr, (void*)item);}
 
 		//создать новый элемент и поместить его в списке перед before
-		//если before==NULL элемент помещается в конец списка
+		//если before==nullptr элемент помещается в конец списка
 		//возвращает указатель на созданный элемент
-		Type *InsertBefore(const Type *before, const Type *item=NULL) {return (Type*)CInsertBefore((void*)before, (void*)item);}
+		Type *InsertBefore(const Type *before, const Type *item=nullptr) {return (Type*)CInsertBefore((void*)before, (void*)item);}
 
 		//создать новый элемент и поместить его в списке после after
-		//если after==NULL элемент помещается в начало списка
+		//если after==nullptr элемент помещается в начало списка
 		//возвращает указатель на созданный элемент
-		Type *InsertAfter(const Type *after, const Type *item=NULL) {return (Type*)CInsertAfter((void*)after, (void*)item);}
+		Type *InsertAfter(const Type *after, const Type *item=nullptr) {return (Type*)CInsertAfter((void*)after, (void*)item);}
 
 		//удалить элемент item из списка, возвращается указатель на предыдущий элемент,
-		//если удалялся первый элемент возвращается NULL
+		//если удалялся первый элемент возвращается nullptr
 		Type *Delete(Type *item) {return (Type*)CDelete(item);}
 
-		//возвращает первый элемент списка или NULL если список пустой
+		//возвращает первый элемент списка или nullptr если список пустой
 		Type *First() {return Node2Type(root.next);}
 
-		//возвращает последний элемент списка или NULL если список пустой
+		//возвращает последний элемент списка или nullptr если список пустой
 		Type *Last() {return Node2Type(root.prev);}
 
-		//возвращает элемент следующий за item или NULL если item последний элемент.
-		//Next(NULL) возвращает первый элемент
+		//возвращает элемент следующий за item или nullptr если item последний элемент.
+		//Next(nullptr) возвращает первый элемент
 		Type *Next(const Type *item) {return Node2Type(Type2Node(item)->next);}
 
-		//возвращает элемент идущий в списке перед item или NULL если item первый элемент.
-		//Prev(NULL) возвращает последний элемент
+		//возвращает элемент идущий в списке перед item или nullptr если item первый элемент.
+		//Prev(nullptr) возвращает последний элемент
 		Type *Prev(const Type *item) {return Node2Type(Type2Node(item)->prev);}
 
 		//меняет местами содержимое списков

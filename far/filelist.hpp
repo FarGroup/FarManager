@@ -91,10 +91,10 @@ struct FileListItem
 		UserData = 0;
 		Position = 0;
 		SortGroup = 0;
-		DizText = NULL;
+		DizText = nullptr;
 		DeleteDiz = 0;
 		strOwner.Clear();
-		CustomColumnData = NULL;
+		CustomColumnData = nullptr;
 		CustomColumnNumber = 0;
 		CRC32 = 0;
 		FileAttr = 0;
@@ -239,7 +239,7 @@ class FileList:public Panel
 		int ConvertName(const wchar_t *SrcName, string &strDest, int MaxLength, int RightAlign, int ShowStatus, DWORD dwFileAttr);
 
 		void Select(FileListItem *SelPtr,int Selection);
-		long SelectFiles(int Mode,const wchar_t *Mask=NULL);
+		long SelectFiles(int Mode,const wchar_t *Mask=nullptr);
 		void ProcessEnter(bool EnableExec,bool SeparateWindow, bool EnableAssoc=true);
 		// ChangeDir возвращает FALSE, eсли не смогла выставить заданный путь
 		BOOL ChangeDir(const wchar_t *NewDir,BOOL IsUpdated=TRUE);
@@ -252,7 +252,7 @@ class FileList:public Panel
 
 		void MoveSelection(FileListItem **FileList,long FileCount,FileListItem **OldList,long OldFileCount);
 		virtual int GetSelCount();
-		virtual int GetSelName(string *strName,DWORD &FileAttr,string *strShortName=NULL,FAR_FIND_DATA_EX *fd=NULL);
+		virtual int GetSelName(string *strName,DWORD &FileAttr,string *strShortName=nullptr,FAR_FIND_DATA_EX *fd=nullptr);
 		virtual void UngetSelName();
 		virtual void ClearLastGetSelection();
 
@@ -290,7 +290,7 @@ class FileList:public Panel
 		void PluginClearSelection(PluginPanelItem *ItemList,int ItemNumber);
 		void ProcessCopyKeys(int Key);
 		void ReadSortGroups(bool UpdateFilterCurrentTime=true);
-		void AddParentPoint(FileListItem *CurPtr,long CurFilePos,FILETIME* Times=NULL,string Owner=L"");
+		void AddParentPoint(FileListItem *CurPtr,long CurFilePos,FILETIME* Times=nullptr,string Owner=L"");
 		int  ProcessOneHostFile(int Idx);
 
 		static void TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *ColumnWidths,
@@ -306,7 +306,7 @@ class FileList:public Panel
 	public:
 		virtual int ProcessKey(int Key);
 		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-		virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
+		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
 		virtual void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent);
 		virtual void SetFocus();
 		virtual void Update(int Mode);
@@ -358,7 +358,7 @@ class FileList:public Panel
 		virtual void RestoreSelection();
 		virtual void EditFilter();
 		virtual bool FileInFilter(long idxItem);
-		virtual void ReadDiz(PluginPanelItem *ItemList=NULL,int ItemLength=0, DWORD dwFlags=0);
+		virtual void ReadDiz(PluginPanelItem *ItemList=nullptr,int ItemLength=0, DWORD dwFlags=0);
 		virtual void DeleteDiz(const wchar_t *Name, const wchar_t *ShortName);
 		virtual void FlushDiz();
 		virtual void GetDizName(string &strDizName);

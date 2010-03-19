@@ -60,7 +60,7 @@ static void AddToPrintersMenu(VMenu *PrinterList, PRINTER_INFO *pi, int PrinterN
 	string strDefaultPrinter;
 	DWORD pcchBuffer = 0;
 
-	if (!GetDefaultPrinter(NULL, &pcchBuffer) && ERROR_INSUFFICIENT_BUFFER==GetLastError())
+	if (!GetDefaultPrinter(nullptr, &pcchBuffer) && ERROR_INSUFFICIENT_BUFFER==GetLastError())
 	{
 		if (!GetDefaultPrinter(strDefaultPrinter.GetBuffer(pcchBuffer), &pcchBuffer))
 			strDefaultPrinter.ReleaseBuffer(0);
@@ -118,7 +118,7 @@ void PrintFiles(Panel *SrcPanel)
 
 	// проверка каталогов
 	_ALGO(SysLog(L"Check for FILE_ATTRIBUTE_DIRECTORY"));
-	SrcPanel->GetSelName(NULL,FileAttr);
+	SrcPanel->GetSelName(nullptr,FileAttr);
 
 	while (SrcPanel->GetSelName(&strSelName,FileAttr))
 	{
@@ -129,14 +129,14 @@ void PrintFiles(Panel *SrcPanel)
 	if (DirsCount==SelCount)
 		return;
 
-	PRINTER_INFO *pi = NULL;
+	PRINTER_INFO *pi = nullptr;
 
-	if (EnumPrinters(PRINTER_ENUM_LOCAL|PRINTER_ENUM_CONNECTIONS,NULL,PRINTER_INFO_LEVEL,NULL,0,&Needed,&Returned) || Needed<=0)
+	if (EnumPrinters(PRINTER_ENUM_LOCAL|PRINTER_ENUM_CONNECTIONS,nullptr,PRINTER_INFO_LEVEL,nullptr,0,&Needed,&Returned) || Needed<=0)
 		return;
 
 	pi = (PRINTER_INFO *)xf_malloc(Needed);
 
-	if (!EnumPrinters(PRINTER_ENUM_LOCAL|PRINTER_ENUM_CONNECTIONS,NULL,PRINTER_INFO_LEVEL,(LPBYTE)pi,Needed,&Needed,&Returned))
+	if (!EnumPrinters(PRINTER_ENUM_LOCAL|PRINTER_ENUM_CONNECTIONS,nullptr,PRINTER_INFO_LEVEL,(LPBYTE)pi,Needed,&Needed,&Returned))
 	{
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MPrintTitle),MSG(MCannotEnumeratePrinters),MSG(MOk));
 		xf_free(pi);
@@ -150,7 +150,7 @@ void PrintFiles(Panel *SrcPanel)
 
 		if (SelCount==1)
 		{
-			SrcPanel->GetSelName(NULL,FileAttr);
+			SrcPanel->GetSelName(nullptr,FileAttr);
 			SrcPanel->GetSelName(&strName,FileAttr);
 			TruncStr(strName,50);
 			strSelName=strName;
@@ -164,7 +164,7 @@ void PrintFiles(Panel *SrcPanel)
 			strTitle.Format(MSG(MPrintFilesTo),SelCount);
 		}
 
-		VMenu PrinterList(strTitle,NULL,0,ScrY-4);
+		VMenu PrinterList(strTitle,nullptr,0,ScrY-4);
 		PrinterList.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
 		PrinterList.SetPosition(-1,-1,0,0);
 		AddToPrintersMenu(&PrinterList,pi,Returned);
@@ -186,7 +186,7 @@ void PrintFiles(Panel *SrcPanel)
 
 	HANDLE hPrinter;
 
-	if (!OpenPrinter((wchar_t*)(const wchar_t*)strPrinterName,&hPrinter,NULL))
+	if (!OpenPrinter((wchar_t*)(const wchar_t*)strPrinterName,&hPrinter,nullptr))
 	{
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MPrintTitle),MSG(MCannotOpenPrinter),
 		        strPrinterName,MSG(MOk));
@@ -204,7 +204,7 @@ void PrintFiles(Panel *SrcPanel)
 		HANDLE hPlugin=SrcPanel->GetPluginHandle();
 		int PluginMode=SrcPanel->GetMode()==PLUGIN_PANEL &&
 		               !CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
-		SrcPanel->GetSelName(NULL,FileAttr);
+		SrcPanel->GetSelName(nullptr,FileAttr);
 
 		while (SrcPanel->GetSelName(&strSelName,FileAttr))
 		{
@@ -212,14 +212,14 @@ void PrintFiles(Panel *SrcPanel)
 				continue;
 
 			int Success=FALSE;
-			FILE *SrcFile=NULL;
+			FILE *SrcFile=nullptr;
 			string strTempDir, strTempName;
 
 			if (PluginMode)
 			{
 				if (FarMkTempEx(strTempDir))
 				{
-					apiCreateDirectory(strTempDir,NULL);
+					apiCreateDirectory(strTempDir,nullptr);
 					FileListItem ListItem;
 
 					if (SrcPanel->GetLastSelectedItem(&ListItem))
@@ -239,12 +239,12 @@ void PrintFiles(Panel *SrcPanel)
 			else
 				SrcFile=_wfopen(strSelName, L"rb");
 
-			if (SrcFile!=NULL)
+			if (SrcFile!=nullptr)
 			{
 				DOC_INFO_1 di1;
 				di1.pDocName=(wchar_t*)(const wchar_t*)strSelName;
-				di1.pOutputFile=NULL;
-				di1.pDatatype=NULL;
+				di1.pOutputFile=nullptr;
+				di1.pDatatype=nullptr;
 
 				if (StartDocPrinter(hPrinter,1,(LPBYTE)&di1))
 				{

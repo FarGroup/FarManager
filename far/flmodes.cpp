@@ -262,7 +262,7 @@ void FileList::TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *Col
 	{
 		string strArgName;
 
-		if ((TextPtr=GetCommaWord(TextPtr,strArgName))==NULL)
+		if ((TextPtr=GetCommaWord(TextPtr,strArgName))==nullptr)
 			break;
 
 		strArgName.Upper();
@@ -388,7 +388,7 @@ void FileList::TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *Col
 	{
 		string strArgName;
 
-		if ((TextPtr=GetCommaWord(TextPtr,strArgName))==NULL)
+		if ((TextPtr=GetCommaWord(TextPtr,strArgName))==nullptr)
 			break;
 
 		ViewColumnWidths[I]=_wtoi(strArgName);

@@ -47,4 +47,4 @@ void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeT
 
 void PrepareStrFTime();
 size_t WINAPI StrFTime(string &strDest, const wchar_t *Format,const tm *t);
-size_t MkStrFTime(string &strDest, const wchar_t *Fmt=NULL);
+size_t MkStrFTime(string &strDest, const wchar_t *Fmt=nullptr);

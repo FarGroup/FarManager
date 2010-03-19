@@ -61,8 +61,8 @@ class FileViewer:public Frame
 
 	public:
 		FileViewer(const wchar_t *Name,int EnableSwitch=FALSE,int DisableHistory=FALSE,
-		           int DisableEdit=FALSE,long ViewStartPos=-1,const wchar_t *PluginData=NULL,
-		           NamesList *ViewNamesList=NULL,int ToSaveAs=FALSE,UINT aCodePage=CP_AUTODETECT);
+		           int DisableEdit=FALSE,long ViewStartPos=-1,const wchar_t *PluginData=nullptr,
+		           NamesList *ViewNamesList=nullptr,int ToSaveAs=FALSE,UINT aCodePage=CP_AUTODETECT);
 		FileViewer(const wchar_t *Name,int EnableSwitch,int DisableHistory,
 		           const wchar_t *Title,int X1,int Y1,int X2,int Y2,UINT aCodePage=CP_AUTODETECT);
 		virtual ~FileViewer();
@@ -73,7 +73,7 @@ class FileViewer:public Frame
 		virtual void InitKeyBar();
 		virtual int ProcessKey(int Key);
 		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-		virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
+		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
 		virtual void ShowConsoleTitle();
 		/* $ 14.06.2002 IS
 		   Параметр DeleteFolder - удалить не только файл, но и каталог, его

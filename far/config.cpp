@@ -804,7 +804,7 @@ bool IsUserAdmin()
 	if(AllocateAndInitializeSid(&NtAuthority,2,SECURITY_BUILTIN_DOMAIN_RID,DOMAIN_ALIAS_RID_ADMINS,0,0,0,0,0,0,&AdministratorsGroup))
 	{
 		BOOL IsMember=FALSE;
-		if(CheckTokenMembership(NULL,AdministratorsGroup,&IsMember)&&IsMember)
+		if(CheckTokenMembership(nullptr,AdministratorsGroup,&IsMember)&&IsMember)
 		{
 			Result=true;
 		}
@@ -942,7 +942,7 @@ void ReadConfig()
 			DestList.Set(strXLatLayouts);
 			size_t I=0;
 
-			while (NULL!=(ValPtr=DestList.GetNext()))
+			while (nullptr!=(ValPtr=DestList.GetNext()))
 			{
 				DWORD res=(DWORD)wcstoul(ValPtr, &endptr, 16);
 				Opt.XLat.Layouts[I]=(HKL)(LONG_PTR)(HIWORD(res) == 0?MAKELONG(res,res):res);

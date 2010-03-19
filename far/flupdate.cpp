@@ -224,7 +224,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	else
 		DeleteListData(ListData,FileCount);
 
-	ListData=NULL;
+	ListData=nullptr;
 	int ReadOwners=IsColumnDisplayed(OWNER_COLUMN);
 	int ReadPacked=IsColumnDisplayed(PACKED_COLUMN);
 	int ReadNumLinks=IsColumnDisplayed(NUMLINK_COLUMN);
@@ -249,11 +249,11 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	int TitleLength=Min((int)X2-X1-1,(int)(countof(Title))-1);
 	//wmemset(Title,0x0CD,TitleLength); //BUGBUG
 	//Title[TitleLength]=0;
-	MakeSeparator(TitleLength, Title, 9, NULL);
+	MakeSeparator(TitleLength, Title, 9, nullptr);
 	BOOL IsShowTitle=FALSE;
 	BOOL NeedHighlight=Opt.Highlight && PanelMode != PLUGIN_PANEL;
 
-	if (Filter==NULL)
+	if (Filter==nullptr)
 		Filter=new FileFilter(this,FFT_PANEL);
 
 	//Рефреш текущему времени для фильтра перед началом операции
@@ -297,7 +297,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 				AllocatedCount=AllocatedCount+256+AllocatedCount/4;
 				FileListItem **pTemp;
 
-				if ((pTemp=(FileListItem **)xf_realloc(ListData,AllocatedCount*sizeof(*ListData)))==NULL)
+				if ((pTemp=(FileListItem **)xf_realloc(ListData,AllocatedCount*sizeof(*ListData)))==nullptr)
 					break;
 
 				ListData=pTemp;
@@ -429,7 +429,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	if (strCurDir.At(0)==L'\\' && strCurDir.At(1)==L'\\')
 	{
 		const wchar_t *ChPtr=wcschr((const wchar_t*)strCurDir+2,'\\');
-		if (ChPtr==NULL || wcschr(ChPtr+1,L'\\')==NULL)
+		if (ChPtr==nullptr || wcschr(ChPtr+1,L'\\')==nullptr)
 			NetRoot=TRUE;
 	}
 	*/
@@ -441,11 +441,11 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 		{
 			FileListItem **pTemp;
 
-			if ((pTemp=(FileListItem **)xf_realloc(ListData,(FileCount+1)*sizeof(*ListData)))!=NULL)
+			if ((pTemp=(FileListItem **)xf_realloc(ListData,(FileCount+1)*sizeof(*ListData)))!=nullptr)
 				ListData=pTemp;
 		}
 
-		if (ListData!=NULL)
+		if (ListData!=nullptr)
 		{
 			ListData[FileCount] = new FileListItem;
 			AddParentPoint(ListData[FileCount],FileCount,TwoDotsTimes,TwoDotsOwner);
@@ -463,7 +463,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	if (AnotherPanel->GetMode()==PLUGIN_PANEL)
 	{
 		HANDLE hAnotherPlugin=AnotherPanel->GetPluginHandle();
-		PluginPanelItem *PanelData=NULL;
+		PluginPanelItem *PanelData=nullptr;
 		string strPath;
 		int PanelCount=0;
 		strPath = strCurDir;
@@ -473,7 +473,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 		{
 			FileListItem **pTemp;
 
-			if ((pTemp=(FileListItem **)xf_realloc(ListData,(FileCount+PanelCount)*sizeof(*ListData)))!=NULL)
+			if ((pTemp=(FileListItem **)xf_realloc(ListData,(FileCount+PanelCount)*sizeof(*ListData)))!=nullptr)
 			{
 				ListData=pTemp;
 
@@ -547,7 +547,7 @@ int FileList::UpdateIfChanged(int UpdateMode)
 		if ((IsVisible() && (clock()-LastUpdateTime>2000)) || (UpdateMode != UIC_UPDATE_NORMAL))
 		{
 			if (UpdateMode == UIC_UPDATE_NORMAL)
-				ProcessPluginEvent(FE_IDLE,NULL);
+				ProcessPluginEvent(FE_IDLE,nullptr);
 
 			/* $ 24.12.2002 VVM
 			  ! Поменяем логику обновления панелей. */
@@ -636,7 +636,7 @@ void FileList::MoveSelection(FileListItem **ListData,long FileCount,
 		OldPtr=(FileListItem **)bsearch(ListData,(void *)OldData,
 		                                OldFileCount,sizeof(*ListData),SortSearchList);
 
-		if (OldPtr!=NULL)
+		if (OldPtr!=nullptr)
 		{
 			if (OldPtr[0]->ShowFolderSize)
 			{
@@ -682,7 +682,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 			FreeDiskSize=0;
 	}
 
-	PluginPanelItem *PanelData=NULL;
+	PluginPanelItem *PanelData=nullptr;
 	int PluginFileCount;
 
 	if (!CtrlObject->Plugins.GetFindData(hPlugin,&PanelData,&PluginFileCount,0))
@@ -744,13 +744,13 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	FileCount=PluginFileCount;
 	ListData=(FileListItem**)xf_malloc(sizeof(FileListItem*)*(FileCount+1));
 
-	if (ListData==NULL)
+	if (ListData==nullptr)
 	{
 		FileCount=0;
 		return;
 	}
 
-	if (Filter==NULL)
+	if (Filter==nullptr)
 		Filter=new FileFilter(this,FFT_PANEL);
 
 	//Рефреш текущему времени для фильтра перед началом операции
@@ -783,10 +783,10 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 		else
 			CurListData->SortGroup=DEFAULT_SORT_GROUP;
 
-		if (CurListData->DizText==NULL)
+		if (CurListData->DizText==nullptr)
 		{
 			CurListData->DeleteDiz=FALSE;
-			//CurListData->DizText=NULL;
+			//CurListData->DizText=nullptr;
 		}
 
 		if (TestParentFolderName(CurListData->strName))
@@ -877,7 +877,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 	}
 	else
 	{
-		PluginPanelItem *PanelData=NULL;
+		PluginPanelItem *PanelData=nullptr;
 		int PluginFileCount=0;
 		OpenPluginInfo Info;
 		CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
@@ -889,7 +889,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 
 		/* $ 25.02.2001 VVM
 		    + Обработка флага RDF_NO_UPDATE */
-		if ((ItemList==NULL) && ((dwFlags & RDF_NO_UPDATE) == 0))
+		if ((ItemList==nullptr) && ((dwFlags & RDF_NO_UPDATE) == 0))
 		{
 			GetCode=CtrlObject->Plugins.GetFindData(hPlugin,&PanelData,&PluginFileCount,0);
 		}
@@ -913,7 +913,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 					{
 						string strTempDir, strDizName;
 
-						if (FarMkTempEx(strTempDir) && apiCreateDirectory(strTempDir,NULL))
+						if (FarMkTempEx(strTempDir) && apiCreateDirectory(strTempDir,nullptr))
 						{
 							if (CtrlObject->Plugins.GetFile(hPlugin,CurPanelData,strTempDir,strDizName,OPM_SILENT|OPM_VIEW|OPM_QUICKVIEW|OPM_DESCR))
 							{
@@ -925,7 +925,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 							}
 
 							apiRemoveDirectory(strTempDir);
-							//ViewPanel->ShowFile(NULL,FALSE,NULL);
+							//ViewPanel->ShowFile(nullptr,FALSE,nullptr);
 						}
 					}
 				}
@@ -933,14 +933,14 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 
 			/* $ 25.02.2001 VVM
 			    + Обработка флага RDF_NO_UPDATE */
-			if ((ItemList==NULL) && ((dwFlags & RDF_NO_UPDATE) == 0))
+			if ((ItemList==nullptr) && ((dwFlags & RDF_NO_UPDATE) == 0))
 				CtrlObject->Plugins.FreeFindData(hPlugin,PanelData,PluginFileCount);
 		}
 	}
 
 	for (int I=0; I<FileCount; I++)
 	{
-		if (ListData[I]->DizText==NULL)
+		if (ListData[I]->DizText==nullptr)
 		{
 			ListData[I]->DeleteDiz=FALSE;
 			ListData[I]->DizText=(wchar_t*)Diz.GetDizTextAddr(ListData[I]->strName,ListData[I]->strShortName,ListData[I]->UnpSize);

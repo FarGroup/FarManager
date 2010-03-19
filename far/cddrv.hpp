@@ -69,4 +69,4 @@ enum CDROM_DeviceCaps
 CDROM_DeviceCaps GetCDDeviceCaps(HANDLE hDevice);
 UINT GetCDDeviceTypeByCaps(CDROM_DeviceCaps caps);
 bool IsDriveTypeCDROM(UINT DriveType);
-UINT FAR_GetDriveType(const wchar_t *RootDir, CDROM_DeviceCaps *caps=NULL, DWORD Detect=0);
+UINT FAR_GetDriveType(const wchar_t *RootDir, CDROM_DeviceCaps *caps=nullptr, DWORD Detect=0);

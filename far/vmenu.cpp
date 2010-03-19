@@ -57,7 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "processname.hpp"
 #include "pathmix.hpp"
-
+#include "cmdline.hpp"
 VMenu::VMenu(const wchar_t *Title,       // заголовок меню
              MenuDataEx *Data, // пункты меню
              int ItemCount,     // количество пунктов меню
@@ -65,36 +65,33 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
              DWORD Flags,       // нужен ScrollBar?
              FARWINDOWPROC Proc,    // обработчик
              Dialog *ParentDialog
-            )  // родитель дл€ ListBox
+            ):  // родитель дл€ ListBox
+	strTitle(Title),
+	SelectPos(-1),
+	TopPos(0),
+	MaxLength(0),
+	BoxType(DOUBLE_BOX),
+	ParentDialog(ParentDialog),
+	VMenuProc(Proc?Proc:(FARWINDOWPROC)VMenu::DefMenuProc),
+	OldTitle(nullptr),
+	Used(new bool[WCHAR_MAX]),
+	bFilterEnabled(false),
+	bFilterLocked(false),
+	Item(nullptr),
+	ItemCount(0),
+	ItemHiddenCount(0),
+	ItemSubMenusCount(0)
 {
+	string a;
+	CtrlObject->CmdLine->GetSelString(a);
+	SaveScr=nullptr;
 	SetDynamicallyBorn(false);
 	SetFlags(Flags|VMENU_MOUSEREACTION|VMENU_UPDATEREQUIRED);
 	ClearFlags(VMENU_SHOWAMPERSAND|VMENU_MOUSEDOWN);
-	VMenu::ParentDialog = ParentDialog;
-	BoxType=DOUBLE_BOX;
-	OldTitle = NULL;
-	SaveScr = NULL;
-	bFilterEnabled = false;
-	bFilterLocked = false;
 	GetCursorType(PrevCursorVisible,PrevCursorSize);
 
-	if (!Proc) // функци€ должна быть всегда!!!
-		Proc = (FARWINDOWPROC)VMenu::DefMenuProc;
-
-	VMenuProc = Proc;
-
-	if (Title!=NULL)
-		strTitle = Title;
-
 	// инициализируем перед тем, как добавл€ть айтема
-	MaxLength = 0;
 	UpdateMaxLengthFromTitles();
-	VMenu::Item = NULL;
-	VMenu::TopPos = 0;
-	VMenu::ItemCount = 0;
-	VMenu::ItemHiddenCount = 0;
-	VMenu::ItemSubMenusCount = 0;
-	VMenu::SelectPos = -1;
 
 	MenuItemEx NewItem;
 
@@ -114,9 +111,9 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
 	}
 
 	SetMaxHeight(MaxHeight);
-	SetColors(NULL); //”становим цвет по умолчанию
+	SetColors(nullptr); //”становим цвет по умолчанию
 
-	if (!CheckFlags(VMENU_LISTBOX) && CtrlObject!=NULL)
+	if (!CheckFlags(VMENU_LISTBOX) && CtrlObject!=nullptr)
 	{
 		PrevMacroMode = CtrlObject->Macro.GetMode();
 
@@ -126,13 +123,11 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
 
 	if (!CheckFlags(VMENU_LISTBOX))
 		FrameManager->ModalizeFrame(this);
-
-	Used=new bool[WCHAR_MAX];
 }
 
 VMenu::~VMenu()
 {
-	if (!CheckFlags(VMENU_LISTBOX) && CtrlObject!=NULL)
+	if (!CheckFlags(VMENU_LISTBOX) && CtrlObject!=nullptr)
 		CtrlObject->Macro.SetMode(PrevMacroMode);
 
 	bool WasVisible=Flags.Check(FSCROBJ_VISIBLE)!=0;
@@ -450,7 +445,7 @@ int VMenu::AddItem(const MenuItemEx *NewItem,int PosAdd)
 	if ((ItemCount & 255)==0)
 	{
 		MenuItemEx **NewPtr;
-		if ((NewPtr=(MenuItemEx **)xf_realloc(Item, sizeof(*Item)*(ItemCount+256+1)))==NULL)
+		if ((NewPtr=(MenuItemEx **)xf_realloc(Item, sizeof(*Item)*(ItemCount+256+1)))==nullptr)
 			return -1;
 
 		Item=NewPtr;
@@ -500,7 +495,7 @@ int VMenu::UpdateItem(const FarListUpdate *NewItem)
 		if (PItem->UserDataSize > (int)sizeof(PItem->UserData) && PItem->UserData && (NewItem->Item.Flags&LIF_DELETEUSERDATA))
 		{
 			xf_free(PItem->UserData);
-			PItem->UserData = NULL;
+			PItem->UserData = nullptr;
 			PItem->UserDataSize = 0;
 		}
 
@@ -590,7 +585,7 @@ void VMenu::DeleteItems()
 		xf_free(Item);
 	}
 
-	Item=NULL;
+	Item=nullptr;
 	ItemCount=0;
 	ItemHiddenCount=0;
 	ItemSubMenusCount=0;
@@ -810,10 +805,10 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							break;
 						case 2: // end compare
 							p = RevStrStrI(strTemp,str);
-							Res = p!=NULL && *(p+StrLength(str)) == 0;
+							Res = p!=nullptr && *(p+StrLength(str)) == 0;
 							break;
 						case 3: // in str
-							Res = StrStrI(strTemp,str)!=NULL;
+							Res = StrStrI(strTemp,str)!=nullptr;
 							break;
 					}
 
@@ -1100,7 +1095,7 @@ int VMenu::ProcessKey(int Key)
 			{
 				wchar_t *ClipText=PasteFromClipboard();
 
-				if (ClipText==NULL)
+				if (ClipText==nullptr)
 					return TRUE;
 
 				if ( AddToFilter(ClipText) )
@@ -1563,7 +1558,7 @@ void VMenu::Hide()
 	if (!CheckFlags(VMENU_LISTBOX) && SaveScr)
 	{
 		delete SaveScr;
-		SaveScr = NULL;
+		SaveScr = nullptr;
 		ScreenObject::Hide();
 	}
 
@@ -1574,7 +1569,7 @@ void VMenu::Hide()
 	if (OldTitle)
 	{
 		delete OldTitle;
-		OldTitle = NULL;
+		OldTitle = nullptr;
 	}
 }
 
@@ -1588,7 +1583,7 @@ void VMenu::DisplayObject()
 
 	SetCursorType(0,10);
 
-	if (!CheckFlags(VMENU_LISTBOX) && SaveScr==NULL)
+	if (!CheckFlags(VMENU_LISTBOX) && SaveScr==nullptr)
 	{
 		if (!CheckFlags(VMENU_DISABLEDRAWBACKGROUND) && !(BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX))
 			SaveScr = new SaveScreen(X1-2,Y1-1,X2+4,Y2+2);
@@ -1850,7 +1845,7 @@ void VMenu::ShowMenu(bool IsParent)
 						{
 							int Correction = 0;
 
-							if (!CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I-1]->strName,L'&',J)!=NULL)
+							if (!CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I-1]->strName,L'&',J)!=nullptr)
 								Correction = 1;
 
 							if (NextItem==BoxSymbols[BS_V1])
@@ -1862,7 +1857,7 @@ void VMenu::ShowMenu(bool IsParent)
 						{
 							int Correction = 0;
 
-							if (!CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I+1]->strName,L'&',J)!=NULL)
+							if (!CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I+1]->strName,L'&',J)!=nullptr)
 								Correction = 1;
 
 							Ptr[J-Correction+(BoxType==NO_BOX?1:2)] = BoxSymbols[BS_T_H1V1];
@@ -2153,7 +2148,7 @@ void VMenu::AssignHighlights(int Reverse)
 		const wchar_t *Name = Item[I]->strName.CPtr() + ShowPos;
 		const wchar_t *ChPtr = wcschr(Name, L'&');
 
-		if (ChPtr==NULL || CheckFlags(VMENU_SHOWAMPERSAND))
+		if (ChPtr==nullptr || CheckFlags(VMENU_SHOWAMPERSAND))
 		{
 			// TODO: проверка на LIF_HIDDEN
 			for (int J=0; Name[J]; J++)
@@ -2287,7 +2282,7 @@ void VMenu::SetTitle(const wchar_t *Title)
 			if (OldTitle)
 			{
 				delete OldTitle;
-				OldTitle = NULL;
+				OldTitle = nullptr;
 			}
 		}
 	}
@@ -2301,7 +2296,7 @@ void VMenu::ResizeConsole()
 	{
 		SaveScr->Discard();
 		delete SaveScr;
-		SaveScr = NULL;
+		SaveScr = nullptr;
 	}
 
 	if (CheckFlags(VMENU_NOTCHANGE))
@@ -2539,7 +2534,7 @@ MenuItemEx *VMenu::GetItemPtr(int Position)
 	int ItemPos = GetItemPosition(Position);
 
 	if (ItemPos < 0)
-		return NULL;
+		return nullptr;
 
 	return Item[ItemPos];
 }
@@ -2549,7 +2544,7 @@ void *VMenu::_GetUserData(MenuItemEx *PItem, void *Data, int Size)
 	int DataSize = PItem->UserDataSize;
 	char *PtrData = PItem->UserData; // PtrData содержит: либо указатель на что-то либо sizeof(void*)!
 
-	if (Size > 0 && Data != NULL)
+	if (Size > 0 && Data != nullptr)
 	{
 		if (PtrData) // данные есть?
 		{
@@ -2593,7 +2588,7 @@ int VMenu::_SetUserData(MenuItemEx *PItem,
 		xf_free(PItem->UserData);
 
 	PItem->UserDataSize=0;
-	PItem->UserData=NULL;
+	PItem->UserData=nullptr;
 
 	if (Data)
 	{
@@ -2610,7 +2605,7 @@ int VMenu::_SetUserData(MenuItemEx *PItem,
 			if (SizeReal > (int)sizeof(PItem->UserData))
 			{
 				// ...значит выдел€ем нужную пам€ть.
-				if ((PItem->UserData=(char*)xf_malloc(SizeReal)) != NULL)
+				if ((PItem->UserData=(char*)xf_malloc(SizeReal)) != nullptr)
 				{
 					PItem->UserDataSize=SizeReal;
 					memcpy(PItem->UserData,Data,SizeReal);
@@ -2655,7 +2650,7 @@ void* VMenu::GetUserData(void *Data,int Size,int Position)
 	int ItemPos = GetItemPosition(Position);
 
 	if (ItemPos < 0)
-		return NULL;
+		return nullptr;
 
 	return _GetUserData(Item[ItemPos], Data, Size);
 }
@@ -2670,7 +2665,7 @@ FarListItem *VMenu::MenuItem2FarList(const MenuItemEx *MItem, FarListItem *FItem
 		return FItem;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 MenuItemEx *VMenu::FarList2MenuItem(const FarListItem *FItem, MenuItemEx *MItem)
@@ -2683,7 +2678,7 @@ MenuItemEx *VMenu::FarList2MenuItem(const FarListItem *FItem, MenuItemEx *MItem)
 		return MItem;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 int VMenu::GetTypeAndName(string &strType, string &strName)

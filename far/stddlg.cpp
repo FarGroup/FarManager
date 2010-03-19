@@ -520,7 +520,7 @@ int WINAPI GetString(
 		StrDlg[2].Flags|=DIF_EDITPATH;
 	}
 
-	if (HistoryName!=NULL)
+	if (HistoryName!=nullptr)
 	{
 		StrDlg[2].History=HistoryName;
 		StrDlg[2].Flags|=DIF_HISTORY|(Flags&FIB_NOUSELASTHISTORY?0:DIF_USELASTHISTORY);
@@ -548,7 +548,7 @@ int WINAPI GetString(
 		Dialog Dlg(StrDlg,countof(StrDlg)-Substract,GetStringDlgProc);
 		Dlg.SetPosition(-1,-1,76,offset+((Flags&FIB_BUTTONS)?8:6));
 
-		if (HelpTopic!=NULL)
+		if (HelpTopic!=nullptr)
 			Dlg.SetHelp(HelpTopic);
 
 #if 0
@@ -560,7 +560,7 @@ int WINAPI GetString(
 				Dlg.Process();
 			}
 			__except(xfilter(EXCEPT_FARDIALOG,
-			                 GetExceptionInformation(),NULL,1)) // NULL=???
+			                 GetExceptionInformation(),nullptr,1)) // nullptr=???
 			{
 				return FALSE;
 			}
@@ -596,8 +596,8 @@ int WINAPI GetString(
 
   Name      - сюда будет помещен юзвер (max 256 символов!!!)
   Password  - сюда будет помещен пароль (max 256 символов!!!)
-  Title     - заголовок диалога (может быть NULL)
-  HelpTopic - тема помощи (может быть NULL)
+  Title     - заголовок диалога (может быть nullptr)
+  HelpTopic - тема помощи (может быть nullptr)
   Flags     - флаги (GNP_*)
 */
 int WINAPI GetNameAndPassword(const wchar_t *Title, string &strUserName, string &strPassword,const wchar_t *HelpTopic,DWORD Flags)
@@ -635,7 +635,7 @@ int WINAPI GetNameAndPassword(const wchar_t *Title, string &strUserName, string 
 	PassDlg[6].strData = MSG(MOk);
 	PassDlg[7].strData = MSG(MCancel);
 
-	if (Title!=NULL)
+	if (Title!=nullptr)
 		PassDlg[0].strData = Title;
 
 	PassDlg[2].strData = (Flags&GNP_USELAST)?strLastName:strUserName;
@@ -644,7 +644,7 @@ int WINAPI GetNameAndPassword(const wchar_t *Title, string &strUserName, string 
 		Dialog Dlg(PassDlg,countof(PassDlg));
 		Dlg.SetPosition(-1,-1,76,10);
 
-		if (HelpTopic!=NULL)
+		if (HelpTopic!=nullptr)
 			Dlg.SetHelp(HelpTopic);
 
 		Dlg.Process();

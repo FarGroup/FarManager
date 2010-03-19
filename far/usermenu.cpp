@@ -184,9 +184,9 @@ void MenuFileToReg(const wchar_t *MenuKey,FILE *MenuFile,bool SingleItemMenu=fal
 
 		if (!IsSpace(*MenuStr))
 		{
-			wchar_t *ChPtr=NULL;
+			wchar_t *ChPtr=nullptr;
 
-			if ((ChPtr=wcschr(MenuStr,L':'))==NULL)
+			if ((ChPtr=wcschr(MenuStr,L':'))==nullptr)
 				continue;
 
 			if (!SingleItemMenu)
@@ -276,7 +276,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 		if (MenuMode != MM_MAIN)
 		{
 			// ѕытаемс€ открыть файл на локальном диске
-			FILE *MenuFile = NULL;
+			FILE *MenuFile = nullptr;
 
 			if (PathCanHoldRegularFile(strMenuFilePath))
 				MenuFile = _wfopen(NTPath(strMenuFileFullPath),L"rb");
@@ -473,7 +473,7 @@ int FillUserMenu(VMenu& UserMenu,const wchar_t *MenuKey,int MenuPos,int *FuncPos
 		}
 		else
 		{
-			SubstFileName(strLabel,Name,ShortName,NULL,NULL,NULL,NULL,TRUE);
+			SubstFileName(strLabel,Name,ShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
 			apiExpandEnvironmentStrings(strLabel, strLabel);
 			FuncNum=PrepareHotKey(strHotKey);
 			int Offset=strHotKey.At(0)==L'&'?5:4;
@@ -558,7 +558,7 @@ int UserMenu::ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t
 		}
 
 		{
-			VMenu UserMenu(strMenuTitle,NULL,0,ScrY-4);
+			VMenu UserMenu(strMenuTitle,nullptr,0,ScrY-4);
 			UserMenu.SetFlags(VMENU_WRAPMODE);
 			UserMenu.SetHelp(L"UserMenu");
 			UserMenu.SetPosition(-1,-1,0,0);
@@ -662,7 +662,7 @@ int UserMenu::ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t
 						FILE *MenuFile;
 						string strMenuFileName;
 
-						if (!FarMkTempEx(strMenuFileName) || (MenuFile=_wfopen(strMenuFileName,L"wb"))==NULL)
+						if (!FarMkTempEx(strMenuFileName) || (MenuFile=_wfopen(strMenuFileName,L"wb"))==nullptr)
 							break;
 
 						string strCurrentKey;
@@ -678,14 +678,14 @@ int UserMenu::ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t
 						{
 							ConsoleTitle *OldTitle=new ConsoleTitle;
 							string strFileName = strMenuFileName;
-							FileEditor ShellEditor(strFileName,CP_UNICODE,FFILEEDIT_DISABLEHISTORY,-1,-1,NULL);
+							FileEditor ShellEditor(strFileName,CP_UNICODE,FFILEEDIT_DISABLEHISTORY,-1,-1,nullptr);
 							delete OldTitle;
 							ShellEditor.SetDynamicallyBorn(false);
 							FrameManager->EnterModalEV();
 							FrameManager->ExecuteModal();
 							FrameManager->ExitModalEV();
 
-							if (!ShellEditor.IsFileChanged() || (MenuFile=_wfopen(strMenuFileName,L"rb"))==NULL)
+							if (!ShellEditor.IsFileChanged() || (MenuFile=_wfopen(strMenuFileName,L"rb"))==nullptr)
 							{
 								apiDeleteFile(strMenuFileName);
 
@@ -750,7 +750,7 @@ int UserMenu::ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t
 
 			if (GetRegKey(strSubMenuKey,L"Label",strSubMenuLabel,L""))
 			{
-				SubstFileName(strSubMenuLabel,strName,strShortName,NULL,NULL,NULL,NULL,TRUE);
+				SubstFileName(strSubMenuLabel,strName,strShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
 				apiExpandEnvironmentStrings(strSubMenuLabel, strSubMenuLabel);
 				size_t pos;
 
@@ -962,8 +962,8 @@ LONG_PTR WINAPI EditMenuDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 			if (Param1==EM_BUTTON_OK)
 			{
 				BOOL Result=TRUE;
-				LPCWSTR HotKey=reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,EM_HOTKEY_EDIT,NULL));
-				LPCWSTR Label=reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,EM_LABEL_EDIT,NULL));
+				LPCWSTR HotKey=reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,EM_HOTKEY_EDIT,0));
+				LPCWSTR Label=reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,EM_LABEL_EDIT,0));
 				int FocusPos=-1;
 
 				if (!*Label && StrCmp(HotKey,L"-"))

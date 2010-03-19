@@ -106,7 +106,7 @@ int GetShortcutFolderSize(int Key)
 		return 0;
 
 	Key-=KEY_RCTRL0;
-	return ProcessShortcutRecord(PSCR_CMDGETFILDERSIZE,PSCR_RT_SHORTCUT,Key,NULL);
+	return ProcessShortcutRecord(PSCR_CMDGETFILDERSIZE,PSCR_RT_SHORTCUT,Key,nullptr);
 }
 
 
@@ -167,7 +167,7 @@ static int ShowFolderShortcutMenu(int Pos)
 	int ExitCode=-1;
 	{
 		MenuItemEx ListItem;
-		VMenu FolderList(MSG(MFolderShortcutsTitle),NULL,0,ScrY-4);
+		VMenu FolderList(MSG(MFolderShortcutsTitle),nullptr,0,ScrY-4);
 		FolderList.SetFlags(VMENU_WRAPMODE); // VMENU_SHOWAMPERSAND|
 		FolderList.SetHelp(HelpFolderShortcuts);
 		FolderList.SetPosition(-1,-1,0,0);
@@ -210,7 +210,7 @@ static int ShowFolderShortcutMenu(int Pos)
 				case KEY_NUMPAD0:
 				case KEY_INS:
 				{
-					ProcessShortcutRecord(PSCR_CMDDELALL,0,SelPos,NULL);
+					ProcessShortcutRecord(PSCR_CMDDELALL,0,SelPos,nullptr);
 
 					if (Key == KEY_INS || Key == KEY_NUMPAD0)
 					{
@@ -247,7 +247,7 @@ static int ShowFolderShortcutMenu(int Pos)
 					ProcessShortcutRecord(PSCR_CMDGET,PSCR_RT_SHORTCUT,SelPos,&strNewDir);
 					strOldNewDir = strNewDir;
 
-					if (GetString(MSG(MFolderShortcutsTitle),MSG(MEnterShortcut),NULL,
+					if (GetString(MSG(MFolderShortcutsTitle),MSG(MEnterShortcut),nullptr,
 					              strNewDir,strNewDir,HelpFolderShortcuts,FIB_BUTTONS|FIB_EDITPATH) &&
 					        StrCmp(strNewDir,strOldNewDir) != 0)
 					{
@@ -267,7 +267,7 @@ static int ShowFolderShortcutMenu(int Pos)
 
 						if (Saved)
 						{
-							ProcessShortcutRecord(PSCR_CMDDELALL,0,SelPos,NULL);
+							ProcessShortcutRecord(PSCR_CMDDELALL,0,SelPos,nullptr);
 							ProcessShortcutRecord(PSCR_CMDSET,PSCR_RT_SHORTCUT,SelPos,&strNewDir);
 							return(SelPos);
 						}

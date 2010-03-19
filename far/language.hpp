@@ -71,7 +71,7 @@ class Language
 		const wchar_t* GetMsg(int nID);
 		const char* GetMsgA(int nID);
 
-		static FILE* OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language,string &strFileName, UINT &nCodePage, BOOL StrongLang=FALSE, string *pLangName=NULL);
+		static FILE* OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language,string &strFileName, UINT &nCodePage, BOOL StrongLang=FALSE, string *pLangName=nullptr);
 		static int GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strParam1, string *strParam2, UINT nCodePage);
 		/*
 		   метод, для получения параметров для .Options

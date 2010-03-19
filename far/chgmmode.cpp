@@ -39,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ChangeMacroMode::ChangeMacroMode(int NewMode)
 {
-	if (CtrlObject!=NULL)
+	if (CtrlObject!=nullptr)
 	{
 		PrevMacroMode=CtrlObject->Macro.GetMode();
 		CtrlObject->Macro.SetMode(NewMode);
@@ -47,12 +47,12 @@ ChangeMacroMode::ChangeMacroMode(int NewMode)
 	else
 	{
 		PrevMacroMode=MACRO_SHELL;
-    }
+	}
 }
 
 
 ChangeMacroMode::~ChangeMacroMode()
 {
-	if (CtrlObject!=NULL)
+	if (CtrlObject!=nullptr)
 		CtrlObject->Macro.SetMode(PrevMacroMode);
 }

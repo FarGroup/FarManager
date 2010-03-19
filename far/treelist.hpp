@@ -143,7 +143,7 @@ class TreeList: public Panel
 	public:
 		virtual int ProcessKey(int Key);
 		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-		virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
+		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
 //    virtual void KillFocus();
 		virtual void Update(int Mode);
 		int  ReadTree();
@@ -181,7 +181,7 @@ class TreeList: public Panel
 		virtual BOOL GetItem(int Index,void *Dest);
 		virtual int GetCurrentPos();
 
-		virtual int GetSelName(string *strName,DWORD &FileAttr,string *ShortName=NULL,FAR_FIND_DATA_EX *fd=NULL);
+		virtual int GetSelName(string *strName,DWORD &FileAttr,string *ShortName=nullptr,FAR_FIND_DATA_EX *fd=nullptr);
 
 	public:
 		static void AddTreeName(const wchar_t *Name);

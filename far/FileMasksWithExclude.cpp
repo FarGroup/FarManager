@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "FileMasksWithExclude.hpp"
 
-const wchar_t EXCLUDEMASKSEPARATOR=0x7C; // '|'
+const wchar_t EXCLUDEMASKSEPARATOR=L'|';
 
 FileMasksWithExclude::FileMasksWithExclude():BaseFileMask()
 {
@@ -51,7 +51,7 @@ void FileMasksWithExclude::Free()
 
 bool FileMasksWithExclude::IsExcludeMask(const wchar_t *masks)
 {
-	return FindExcludeChar(masks)!=NULL;
+	return FindExcludeChar(masks)!=nullptr;
 }
 
 const wchar_t *FileMasksWithExclude::FindExcludeChar(const wchar_t *masks)
@@ -69,7 +69,7 @@ const wchar_t *FileMasksWithExclude::FindExcludeChar(const wchar_t *masks)
 			pExclude++;
 
 		if (*pExclude != EXCLUDEMASKSEPARATOR)
-			pExclude = NULL;
+			pExclude = nullptr;
 	}
 	else
 	{
@@ -89,7 +89,7 @@ bool FileMasksWithExclude::Set(const wchar_t *masks, DWORD Flags)
 {
 	Free();
 
-	if (NULL==masks || !*masks) return FALSE;
+	if (nullptr==masks || !*masks) return FALSE;
 
 	size_t len=StrLength(masks)+1;
 	bool rc=false;

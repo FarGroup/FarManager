@@ -209,13 +209,13 @@ class PluginManager
 
 		void Configure(int StartPos=0);
 		void ConfigureCurrent(Plugin *pPlugin,int INum);
-		int CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName=NULL);
+		int CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName=nullptr);
 		bool GetDiskMenuItem(Plugin *pPlugin,int PluginItem,bool &ItemPresent, int &PluginTextNumber, string &strPluginText);
 
 		int UseFarCommand(HANDLE hPlugin,int CommandType);
 		void ReloadLanguage();
 		void DiscardCache();
-		int ProcessCommandLine(const wchar_t *Command,Panel *Target=NULL);
+		int ProcessCommandLine(const wchar_t *Command,Panel *Target=nullptr);
 
 		// $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
 		int CallPlugin(DWORD SysID,int OpenFrom, void *Data);

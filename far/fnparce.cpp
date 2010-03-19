@@ -77,12 +77,12 @@ struct TSubstData
 };
 
 
-static int IsReplaceVariable(const wchar_t *str,int *scr = NULL,
-                             int *end = NULL,
-                             int *beg_scr_break = NULL,
-                             int *end_scr_break = NULL,
-                             int *beg_txt_break = NULL,
-                             int *end_txt_break = NULL);
+static int IsReplaceVariable(const wchar_t *str,int *scr = nullptr,
+                             int *end = nullptr,
+                             int *beg_scr_break = nullptr,
+                             int *end_scr_break = nullptr,
+                             int *beg_txt_break = nullptr,
+                             int *end_txt_break = nullptr);
 
 
 static int ReplaceVariables(string &strStr,TSubstData *PSubstData);
@@ -172,7 +172,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 			CntSkip++;
 		}
 
-		WPanel->GetSelName(NULL,FileAttrL);
+		WPanel->GetSelName(nullptr,FileAttrL);
 		int First = TRUE;
 
 		while (WPanel->GetSelName(&strFileNameL,FileAttrL,&strShortNameL))
@@ -227,7 +227,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 		wchar_t Modifers[32]=L"";
 		const wchar_t *Ptr;
 
-		if ((Ptr=wcschr(CurStr+2,L'!')) != NULL)
+		if ((Ptr=wcschr(CurStr+2,L'!')) != nullptr)
 		{
 			if (Ptr[1] != L'?')
 			{
@@ -347,7 +347,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 
 		if (*CurStr==L'!')
 		{
-			if (wcspbrk(PSubstData->PassivePanel?(const wchar_t *)PSubstData->strAnotherName:PSubstData->Name,L"\\:")!=NULL)
+			if (wcspbrk(PSubstData->PassivePanel?(const wchar_t *)PSubstData->strAnotherName:PSubstData->Name,L"\\:")!=nullptr)
 				strCurDir.Clear();
 		}
 
@@ -356,7 +356,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 	}
 
 	// !?<title>?<init>!
-	if (StrCmpN(CurStr,L"!?",2)==0 && wcschr(CurStr+2,L'!')!=NULL)
+	if (StrCmpN(CurStr,L"!?",2)==0 && wcschr(CurStr+2,L'!')!=nullptr)
 	{
 		int j;
 		int i = IsReplaceVariable(CurStr);
@@ -430,7 +430,7 @@ int SubstFileName(string &strStr,            // результирующая строка
 	PSubstData->pShortListName=pShortListName;  // Короткое имя файла-списка
 	PSubstData->pAnotherShortListName=pAnotherShortListName;  // Короткое имя файла-списка
 	// Если имя текущего каталога не задано...
-	if (CmdLineDir!=NULL)
+	if (CmdLineDir!=nullptr)
 		PSubstData->strCmdDir = CmdLineDir;
 	else // ...спросим у ком.строки
 		CtrlObject->CmdLine->GetCurDir(PSubstData->strCmdDir);
@@ -725,7 +725,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 
 	if (FarMkTempEx(strListFileName))
 	{
-		HANDLE hListFile=apiCreateFile(strListFileName,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,CREATE_ALWAYS,0);
+		HANDLE hListFile=apiCreateFile(strListFileName,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,CREATE_ALWAYS,0);
 
 		if (hListFile!=INVALID_HANDLE_VALUE)
 		{
@@ -765,14 +765,14 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 					if (Signature && SignatureSize)
 					{
 						DWORD NumberOfBytesWritten;
-						WriteFile(hListFile,&Signature,SignatureSize,&NumberOfBytesWritten,NULL);
+						WriteFile(hListFile,&Signature,SignatureSize,&NumberOfBytesWritten,nullptr);
 					}
 				}
 			}
 
 			string strFileName,strShortName;
 			DWORD FileAttr;
-			GetSelName(NULL,FileAttr);
+			GetSelName(nullptr,FileAttr);
 
 			while (GetSelName(&strFileName,FileAttr,&strShortName))
 			{
@@ -813,8 +813,8 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 					}
 				}
 
-				LPCVOID Ptr=NULL;
-				LPSTR Buffer=NULL;
+				LPCVOID Ptr=nullptr;
+				LPSTR Buffer=nullptr;
 				DWORD NumberOfBytesToWrite=0,NumberOfBytesWritten=0;
 
 				if (CodePage==CP_UNICODE)
@@ -824,7 +824,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 				}
 				else
 				{
-					int Size=WideCharToMultiByte(CodePage,0,strFileName,static_cast<int>(strFileName.GetLength()),NULL,0,NULL,NULL);
+					int Size=WideCharToMultiByte(CodePage,0,strFileName,static_cast<int>(strFileName.GetLength()),nullptr,0,nullptr,nullptr);
 
 					if (Size)
 					{
@@ -832,20 +832,20 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 
 						if (Buffer)
 						{
-							NumberOfBytesToWrite=WideCharToMultiByte(CodePage,0,strFileName,static_cast<int>(strFileName.GetLength()),Buffer,Size,NULL,NULL);
+							NumberOfBytesToWrite=WideCharToMultiByte(CodePage,0,strFileName,static_cast<int>(strFileName.GetLength()),Buffer,Size,nullptr,nullptr);
 							Ptr=Buffer;
 						}
 					}
 				}
 
-				BOOL Written=WriteFile(hListFile,Ptr,NumberOfBytesToWrite,&NumberOfBytesWritten,NULL);
+				BOOL Written=WriteFile(hListFile,Ptr,NumberOfBytesToWrite,&NumberOfBytesWritten,nullptr);
 
 				if (Buffer)
 					xf_free(Buffer);
 
 				if (Written && NumberOfBytesWritten==NumberOfBytesToWrite)
 				{
-					if (WriteFile(hListFile,Eol,EolSize,&NumberOfBytesWritten,NULL) && NumberOfBytesWritten==EolSize)
+					if (WriteFile(hListFile,Eol,EolSize,&NumberOfBytesWritten,nullptr) && NumberOfBytesWritten==EolSize)
 					{
 						Ret=true;
 					}
@@ -893,11 +893,11 @@ static int IsReplaceVariable(const wchar_t *str,
 	bool was_quest = false;         //  ?
 	bool was_asterics = false;      //  !
 	bool in_firstpart_was_scob = false;
-	const wchar_t *beg_firstpart_scob = NULL;
-	const wchar_t *end_firstpart_scob = NULL;
+	const wchar_t *beg_firstpart_scob = nullptr;
+	const wchar_t *end_firstpart_scob = nullptr;
 	bool in_secondpart_was_scob = false;
-	const wchar_t *beg_secondpart_scob = NULL;
-	const wchar_t *end_secondpart_scob = NULL;
+	const wchar_t *beg_secondpart_scob = nullptr;
+	const wchar_t *end_secondpart_scob = nullptr;
 
 	if (!s)
 		return -1;
@@ -997,43 +997,43 @@ static int IsReplaceVariable(const wchar_t *str,
 	if (second_count_scob != 0) return -1;
 
 	//
-	if (scr != NULL)
+	if (scr != nullptr)
 		*scr = (int)(scrtxt - str);
 
-	if (end != NULL)
+	if (end != nullptr)
 		*end = (int)(s - str) - 1;
 
 	if (in_firstpart_was_scob)
 	{
-		if (beg_scr_break != NULL)
+		if (beg_scr_break != nullptr)
 			*beg_scr_break = (int)(beg_firstpart_scob - str);
 
-		if (end_scr_break != NULL)
+		if (end_scr_break != nullptr)
 			*end_scr_break = (int)(end_firstpart_scob - str);
 	}
 	else
 	{
-		if (beg_scr_break != NULL)
+		if (beg_scr_break != nullptr)
 			*beg_scr_break = -1;
 
-		if (end_scr_break != NULL)
+		if (end_scr_break != nullptr)
 			*end_scr_break = -1;
 	}
 
 	if (in_secondpart_was_scob)
 	{
-		if (beg_txt_break != NULL)
+		if (beg_txt_break != nullptr)
 			*beg_txt_break = (int)(beg_secondpart_scob - str);
 
-		if (end_txt_break != NULL)
+		if (end_txt_break != nullptr)
 			*end_txt_break = (int)(end_secondpart_scob - str);
 	}
 	else
 	{
-		if (beg_txt_break != NULL)
+		if (beg_txt_break != nullptr)
 			*beg_txt_break = -1;
 
-		if (end_txt_break != NULL)
+		if (end_txt_break != nullptr)
 			*end_txt_break = -1;
 	}
 

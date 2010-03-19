@@ -45,9 +45,9 @@ LONG SetRegKey(const wchar_t *Key,const wchar_t *ValueName,DWORD ValueData);
 
 LONG SetRegKey(const wchar_t *Key,const wchar_t *ValueName,const BYTE *ValueData,DWORD ValueSize);
 
-int GetRegKey(const wchar_t *Key,const wchar_t *ValueName, string &strValueData,const wchar_t *Default,DWORD *pType=NULL);
+int GetRegKey(const wchar_t *Key,const wchar_t *ValueName, string &strValueData,const wchar_t *Default,DWORD *pType=nullptr);
 
-int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,BYTE *ValueData,const BYTE *Default,DWORD DataSize,DWORD *pType=NULL);
+int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,BYTE *ValueData,const BYTE *Default,DWORD DataSize,DWORD *pType=nullptr);
 
 int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,int &ValueData,DWORD Default);
 
@@ -61,9 +61,9 @@ int GetRegKeySize(const wchar_t *Key,const wchar_t *ValueName);
 
 int GetRegKeySize(HKEY hKey,const wchar_t *ValueName);
 
-int EnumRegValue(const wchar_t *Key,DWORD Index, string &strDestName, LPBYTE SData,DWORD SDataSize,LPDWORD IData=NULL,__int64* IData64=NULL);
+int EnumRegValue(const wchar_t *Key,DWORD Index, string &strDestName, LPBYTE SData,DWORD SDataSize,LPDWORD IData=nullptr,__int64* IData64=nullptr);
 
-int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string &strData, LPDWORD IData=NULL,__int64* IData64=NULL, DWORD *Type=NULL);
+int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string &strData, LPDWORD IData=nullptr,__int64* IData64=nullptr, DWORD *Type=nullptr);
 
 LONG SetRegKey64(const wchar_t *Key,const wchar_t *ValueName,unsigned __int64 ValueData);
 
@@ -91,7 +91,7 @@ int DeleteEmptyKey(HKEY hRoot, const wchar_t *FullKeyName);
 
 int EnumRegKey(const wchar_t *Key,DWORD Index,string &strDestName);
 
-int CopyKeyTree(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip=NULL);
+int CopyKeyTree(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip=nullptr);
 
 int CopyLocalKeyTree(const wchar_t *Src,const wchar_t *Dest);
 

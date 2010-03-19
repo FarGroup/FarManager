@@ -43,14 +43,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "config.hpp"
 
-RedrawDesktop::RedrawDesktop(BOOL IsHidden)
+RedrawDesktop::RedrawDesktop(BOOL IsHidden):
+	LeftVisible(CtrlObject->Cp()->LeftPanel->IsVisible()),
+	RightVisible(CtrlObject->Cp()->RightPanel->IsVisible()),
+	KeyBarVisible(Opt.ShowKeyBar), //CtrlObject->MainKeyBar->IsVisible();
+	TopMenuBarVisible(Opt.ShowMenuBar) //CtrlObject->TopMenuBar->IsVisible();
 {
 	CtrlObject->CmdLine->ShowBackground();
 	CtrlObject->CmdLine->Show();
-	LeftVisible=CtrlObject->Cp()->LeftPanel->IsVisible();
-	RightVisible=CtrlObject->Cp()->RightPanel->IsVisible();
-	KeyBarVisible=Opt.ShowKeyBar;//CtrlObject->MainKeyBar->IsVisible();
-	TopMenuBarVisible=Opt.ShowMenuBar;//CtrlObject->TopMenuBar->IsVisible();
 
 	if (IsHidden)
 	{

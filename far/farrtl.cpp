@@ -137,11 +137,11 @@ char * __cdecl xf_strdup(const char * string)
 	{
 		char *memory;
 
-		if ((memory = (char *)xf_malloc(strlen(string) + 1)) != NULL)
+		if ((memory = (char *)xf_malloc(strlen(string) + 1)) != nullptr)
 			return strcpy(memory,string);
 	}
 
-	return(NULL);
+	return(nullptr);
 }
 
 wchar_t * __cdecl xf_wcsdup(const wchar_t * string)
@@ -150,11 +150,11 @@ wchar_t * __cdecl xf_wcsdup(const wchar_t * string)
 	{
 		wchar_t *memory;
 
-		if ((memory = (wchar_t *)xf_malloc((wcslen(string)+1)*sizeof(wchar_t))) != NULL)
+		if ((memory = (wchar_t *)xf_malloc((wcslen(string)+1)*sizeof(wchar_t))) != nullptr)
 			return wcscpy(memory,string);
 	}
 
-	return(NULL);
+	return(nullptr);
 }
 
 #if defined(_DEBUG) && defined(_MSC_VER)
@@ -293,7 +293,7 @@ static unsigned __int64 strtoxq(
 			number = _I64_MAX;
 	}
 
-	if (endptr != NULL)
+	if (endptr != nullptr)
 		/* store pointer to char that stopped the scan */
 		*endptr = p;
 
@@ -457,7 +457,7 @@ static unsigned __int64 __cdecl wcstoxq(
 			number = _I64_MAX;
 	}
 
-	if (endptr != NULL)
+	if (endptr != nullptr)
 		/* store pointer to wchar_t that stopped the scan */
 		*endptr = p;
 

@@ -143,7 +143,7 @@ struct DialogItemEx
 		X2=0;
 		Y2=0;
 		Focus=0;
-		History=NULL;
+		History=nullptr;
 		Flags=0;
 		DefaultButton=0;
 		strData.Clear();
@@ -151,11 +151,11 @@ struct DialogItemEx
 		ID=0;
 		IFlags.ClearAll();
 		AutoCount=0;
-		AutoPtr=NULL;
+		AutoPtr=nullptr;
 		UserData=0;
-		ObjPtr=NULL;
-		ListPtr=NULL;
-		UCData=NULL;
+		ObjPtr=nullptr;
+		ListPtr=nullptr;
+		UCData=nullptr;
 		SelStart=0;
 		SelEnd=0;
 	}
@@ -199,7 +199,7 @@ struct DialogItemEx
 	{
 		DialogItemAutomation *Auto;
 
-		if ((Auto=(DialogItemAutomation*)xf_realloc(AutoPtr,sizeof(DialogItemAutomation)*(AutoCount+1))) != NULL)
+		if ((Auto=(DialogItemAutomation*)xf_realloc(AutoPtr,sizeof(DialogItemAutomation)*(AutoCount+1))) != nullptr)
 		{
 			AutoPtr=Auto;
 			Auto=AutoPtr+AutoCount;
@@ -292,7 +292,7 @@ class Dialog: public Frame
 		void Init(FARWINDOWPROC DlgProc,LONG_PTR InitParam);
 		virtual void DisplayObject();
 		void DeleteDialogObjects();
-		int  LenStrItem(int ID, const wchar_t *lpwszStr = NULL);
+		int  LenStrItem(int ID, const wchar_t *lpwszStr = nullptr);
 
 		void ShowDialog(unsigned ID=(unsigned)-1);  //    ID=-1 - отрисовать весь диалог
 
@@ -342,22 +342,22 @@ class Dialog: public Frame
 		int Do_ProcessNextCtrl(int Next,BOOL IsRedraw=TRUE);
 		int Do_ProcessFirstCtrl();
 		int Do_ProcessSpace();
-		void SetComboBoxPos(DialogItemEx* Item=NULL);
+		void SetComboBoxPos(DialogItemEx* Item=nullptr);
 
 		LONG_PTR CallDlgProc(int nMsg, int nParam1, LONG_PTR nParam2);
 
 	public:
 		Dialog(DialogItemEx *SrcItem, unsigned SrcItemCount,
-		       FARWINDOWPROC DlgProc=NULL,LONG_PTR InitParam=0);
+		       FARWINDOWPROC DlgProc=nullptr,LONG_PTR InitParam=0);
 		Dialog(FarDialogItem *SrcItem, unsigned SrcItemCount,
-		       FARWINDOWPROC DlgProc=NULL,LONG_PTR InitParam=0);
+		       FARWINDOWPROC DlgProc=nullptr,LONG_PTR InitParam=0);
 		bool InitOK() {return bInitOK;}
 		virtual ~Dialog();
 
 	public:
 		virtual int ProcessKey(int Key);
 		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-		virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
+		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
 		virtual void Show();
 		virtual void Hide();
 		void FastShow() {ShowDialog();}

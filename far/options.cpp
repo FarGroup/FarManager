@@ -390,7 +390,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 			}
 		}
 
-		if (MouseEvent!=NULL)
+		if (MouseEvent!=nullptr)
 		{
 			ChangeMacroMode MacroMode(MACRO_MAINMENU);
 			HOptMenu.Show();

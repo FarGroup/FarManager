@@ -90,7 +90,7 @@ static struct TreeListCache
 
 	TreeListCache()
 	{
-		ListName=NULL;
+		ListName=nullptr;
 		TreeCount=0;
 		TreeSize=0;
 	}
@@ -142,7 +142,7 @@ static struct TreeListCache
 
 		if (ListName) xf_free(ListName);
 
-		ListName=NULL;
+		ListName=nullptr;
 		TreeCount=0;
 		TreeSize=0;
 		strTreeName.Clear();
@@ -160,21 +160,21 @@ static struct TreeListCache
 } TreeCache, tempTreeCache;
 
 
-TreeList::TreeList(int IsPanel)
+TreeList::TreeList(int IsPanel):
+	PrevMacroMode(-1),
+	ListData(nullptr),
+	TreeCount(0),
+	WorkDir(0),
+	GetSelPosition(0),
+	CaseSensitiveSort(FALSE),
+	NumericSort(FALSE),
+	ExitCode(1),
+	SaveListData(nullptr)
 {
 	Type=TREE_PANEL;
-	ListData=NULL;
-	SaveListData=NULL;
-	TreeCount=0;
-	WorkDir=CurFile=CurTopFile=0;
-	GetSelPosition=0;
-//  *Root=0;
+	CurFile=CurTopFile=0;
 	Flags.Set(FTREELIST_UPDATEREQUIRED);
-	CaseSensitiveSort=FALSE;
-	NumericSort=FALSE;
-	PrevMacroMode = -1;
 	Flags.Clear(FTREELIST_TREEISPREPARED);
-	ExitCode=1;
 	Flags.Change(FTREELIST_ISPANEL,IsPanel);
 }
 
@@ -259,7 +259,7 @@ void TreeList::DisplayTree(int Fast)
 	};
 	TreeItem *CurPtr;
 	string strTitle;
-	LockScreen *LckScreen=NULL;
+	LockScreen *LckScreen=nullptr;
 
 	if (CtrlObject->Cp()->GetAnotherPanel(this)->GetType() == QVIEW_PANEL)
 		LckScreen=new LockScreen;
@@ -311,7 +311,7 @@ void TreeList::DisplayTree(int Fast)
 				BoxText(strOutStr);
 				const wchar_t *ChPtr=LastSlash(CurPtr->strName);
 
-				if (ChPtr!=NULL)
+				if (ChPtr!=nullptr)
 					DisplayTreeName(ChPtr+1,J);
 			}
 		}
@@ -452,7 +452,7 @@ int TreeList::ReadTree()
 
 	TreeCount=0;
 
-	if ((ListData=(TreeItem**)xf_malloc((TreeCount+256+1)*sizeof(TreeItem*)))==NULL)
+	if ((ListData=(TreeItem**)xf_malloc((TreeCount+256+1)*sizeof(TreeItem*)))==nullptr)
 	{
 		RestoreState();
 		return FALSE;
@@ -521,7 +521,7 @@ int TreeList::ReadTree()
 			xf_free(ListData);
 		}
 
-		ListData=NULL;
+		ListData=nullptr;
 		TreeCount=0;
 		RestoreState();
 		return FALSE;
@@ -562,14 +562,14 @@ void TreeList::SaveTreeFile()
 	if (FileAttributes != INVALID_FILE_ATTRIBUTES)
 		apiSetFileAttributes(strName,FILE_ATTRIBUTE_NORMAL);
 
-	HANDLE hTreeFile=apiCreateFile(strName,GENERIC_WRITE,FILE_SHARE_READ,NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL);
+	HANDLE hTreeFile=apiCreateFile(strName,GENERIC_WRITE,FILE_SHARE_READ,nullptr,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL);
 
 	if (hTreeFile==INVALID_HANDLE_VALUE)
 	{
 		/* $ 16.10.2000 tran
 		   если диск должен кешироваться, то и пытаться не стоит */
 		if (MustBeCached(strRoot))
-			if (!GetCacheTreeName(strRoot,strName,TRUE) || (hTreeFile=apiCreateFile(strName,GENERIC_WRITE,FILE_SHARE_READ,NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL))==INVALID_HANDLE_VALUE)
+			if (!GetCacheTreeName(strRoot,strName,TRUE) || (hTreeFile=apiCreateFile(strName,GENERIC_WRITE,FILE_SHARE_READ,nullptr,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL))==INVALID_HANDLE_VALUE)
 				return;
 
 		/* tran $ */
@@ -584,14 +584,14 @@ void TreeList::SaveTreeFile()
 		if (RootLength>=ListData[I]->strName.GetLength())
 		{
 			DWORD Size=2*sizeof(WCHAR);
-			Success=(WriteFile(hTreeFile,L"\\\n",Size,&Written,NULL) && Written==Size);
+			Success=(WriteFile(hTreeFile,L"\\\n",Size,&Written,nullptr) && Written==Size);
 		}
 		else
 		{
 			DWORD Size=static_cast<DWORD>((ListData[I]->strName.GetLength()-RootLength)*sizeof(WCHAR));
-			Success=(WriteFile(hTreeFile,ListData[I]->strName+RootLength,Size,&Written,NULL) && Written==Size);
+			Success=(WriteFile(hTreeFile,ListData[I]->strName+RootLength,Size,&Written,nullptr) && Written==Size);
 			Size=1*sizeof(WCHAR);
-			Success=(WriteFile(hTreeFile,L"\n",Size,&Written,NULL) && Written==Size);
+			Success=(WriteFile(hTreeFile,L"\n",Size,&Written,nullptr) && Written==Size);
 		}
 	}
 
@@ -616,8 +616,8 @@ int TreeList::GetCacheTreeName(const wchar_t *Root, string &strName,int CreateDi
 	            Root,
 	            &strVolumeName,
 	            &dwVolumeSerialNumber,
-	            NULL,
-	            NULL,
+	            nullptr,
+	            nullptr,
 	            &strFileSystemName
 	        ))
 		return(FALSE);
@@ -628,7 +628,7 @@ int TreeList::GetCacheTreeName(const wchar_t *Root, string &strName,int CreateDi
 
 	if (CreateDir)
 	{
-		apiCreateDirectory(strFolderName, NULL);
+		apiCreateDirectory(strFolderName, nullptr);
 		apiSetFileAttributes(strFolderName,Opt.Tree.TreeFileAttr);
 	}
 
@@ -934,7 +934,7 @@ int TreeList::ProcessKey(int Key)
 			if (SetCurPath())
 			{
 				int ToPlugin=0;
-				ShellCopy ShCopy(this,Key==KEY_SHIFTF6,FALSE,TRUE,TRUE,ToPlugin,NULL);
+				ShellCopy ShCopy(this,Key==KEY_SHIFTF6,FALSE,TRUE,TRUE,ToPlugin,nullptr);
 			}
 
 			return(TRUE);
@@ -959,7 +959,7 @@ int TreeList::ProcessKey(int Key)
 					return TRUE;
 
 				{
-					ShellCopy ShCopy(this,Move,Link,FALSE,Ask,ToPlugin,NULL);
+					ShellCopy ShCopy(this,Move,Link,FALSE,Ask,ToPlugin,nullptr);
 				}
 
 				if (ToPlugin==1)
@@ -1455,15 +1455,15 @@ void TreeList::ProcessEnter()
 
 int TreeList::ReadTreeFile()
 {
-	FILE *TreeFile=NULL;
+	FILE *TreeFile=nullptr;
 	size_t RootLength=strRoot.IsEmpty()?0:strRoot.GetLength()-1;
 	string strName;
 	//SaveState();
 	FlushCache();
 	MkTreeFileName(strRoot,strName);
 
-	if (MustBeCached(strRoot) || (TreeFile=_wfopen(strName,L"rb"))==NULL)
-		if (!GetCacheTreeName(strRoot,strName,FALSE) || (TreeFile=_wfopen(strName,L"rb"))==NULL)
+	if (MustBeCached(strRoot) || (TreeFile=_wfopen(strName,L"rb"))==nullptr)
+		if (!GetCacheTreeName(strRoot,strName,FALSE) || (TreeFile=_wfopen(strName,L"rb"))==nullptr)
 		{
 			//RestoreState();
 			return(FALSE);
@@ -1477,7 +1477,7 @@ int TreeList::ReadTreeFile()
 		xf_free(ListData);
 	}
 
-	ListData=NULL;
+	ListData=nullptr;
 	TreeCount=0;
 	wchar_t *DirName=new wchar_t[NT_MAX_PATH];
 
@@ -1486,7 +1486,7 @@ int TreeList::ReadTreeFile()
 		xwcsncpy(DirName, strRoot, NT_MAX_PATH);
 		string strLastDirName;
 
-		while (fgetws(DirName+RootLength,static_cast<int>(NT_MAX_PATH-RootLength),TreeFile)!=NULL)
+		while (fgetws(DirName+RootLength,static_cast<int>(NT_MAX_PATH-RootLength),TreeFile)!=nullptr)
 		{
 			if (!IsSlash(*(DirName+RootLength)) || StrCmpI(DirName,strLastDirName)==0)
 				continue;
@@ -1514,7 +1514,7 @@ int TreeList::ReadTreeFile()
 						xf_free(ListData);
 					}
 
-					ListData=NULL;
+					ListData=nullptr;
 					TreeCount=0;
 					delete[] DirName;
 					fclose(TreeFile);
@@ -1593,7 +1593,7 @@ int TreeList::GetSelCount()
 
 int TreeList::GetSelName(string *strName,DWORD &FileAttr,string *strShortName,FAR_FIND_DATA_EX *fd)
 {
-	if (strName==NULL)
+	if (strName==nullptr)
 	{
 		GetSelPosition=0;
 		return(TRUE);
@@ -1603,7 +1603,7 @@ int TreeList::GetSelName(string *strName,DWORD &FileAttr,string *strShortName,FA
 	{
 		GetCurDir(*strName);
 
-		if (strShortName != NULL)
+		if (strShortName != nullptr)
 			*strShortName = *strName;
 
 		FileAttr=FILE_ATTRIBUTE_DIRECTORY;
@@ -1785,7 +1785,7 @@ void TreeList::ClearCache(int EnableFreeMem)
 void TreeList::ReadCache(const wchar_t *TreeRoot)
 {
 	string strTreeName;
-	FILE *TreeFile=NULL;
+	FILE *TreeFile=nullptr;
 
 	if (StrCmp(MkTreeFileName(TreeRoot,strTreeName),TreeCache.strTreeName)==0)
 		return;
@@ -1793,8 +1793,8 @@ void TreeList::ReadCache(const wchar_t *TreeRoot)
 	if (TreeCache.TreeCount!=0)
 		FlushCache();
 
-	if (MustBeCached(TreeRoot) || (TreeFile=_wfopen(strTreeName,L"rb"))==NULL)
-		if (!GetCacheTreeName(TreeRoot,strTreeName,FALSE) || (TreeFile=_wfopen(strTreeName,L"rb"))==NULL)
+	if (MustBeCached(TreeRoot) || (TreeFile=_wfopen(strTreeName,L"rb"))==nullptr)
+		if (!GetCacheTreeName(TreeRoot,strTreeName,FALSE) || (TreeFile=_wfopen(strTreeName,L"rb"))==nullptr)
 		{
 			ClearCache(1);
 			return;
@@ -1805,7 +1805,7 @@ void TreeList::ReadCache(const wchar_t *TreeRoot)
 
 	if (DirName)
 	{
-		while (fgetws(DirName,NT_MAX_PATH,TreeFile)!=NULL)
+		while (fgetws(DirName,NT_MAX_PATH,TreeFile)!=nullptr)
 		{
 			if (!IsSlash(*DirName))
 				continue;
@@ -1836,7 +1836,7 @@ void TreeList::FlushCache()
 		if (FileAttributes != INVALID_FILE_ATTRIBUTES)
 			apiSetFileAttributes(TreeCache.strTreeName,FILE_ATTRIBUTE_NORMAL);
 
-		if ((TreeFile=_wfopen(TreeCache.strTreeName,L"wb"))==NULL)
+		if ((TreeFile=_wfopen(TreeCache.strTreeName,L"wb"))==nullptr)
 		{
 			ClearCache(1);
 			return;
@@ -1872,7 +1872,7 @@ void TreeList::UpdateViewPanel()
 		GetCurDir(strCurName);
 
 		if (AnotherPanel->GetType()==QVIEW_PANEL && SetCurPath())
-			((QuickView *)AnotherPanel)->ShowFile(strCurName,FALSE,NULL);
+			((QuickView *)AnotherPanel)->ShowFile(strCurName,FALSE,nullptr);
 	}
 }
 
@@ -2048,7 +2048,7 @@ void TreeList::KillFocus()
 
 void TreeList::SetMacroMode(int Restore)
 {
-	if (CtrlObject == NULL)
+	if (CtrlObject == nullptr)
 		return;
 
 	if (PrevMacroMode == -1)
@@ -2148,7 +2148,7 @@ string &TreeList::CreateTreeFileName(const wchar_t *Path,string &strDest)
 #if 0
 	char RootPath[NM];
 	RootPath = ExtractPathRoot(Path);
-	UINT DriveType = FAR_GetDriveType(RootPath,NULL,FALSE);
+	UINT DriveType = FAR_GetDriveType(RootPath,nullptr,FALSE);
 	// получение инфы о томе
 	char VolumeName[NM],FileSystemName[NM];
 	DWORD MaxNameLength,FileSystemFlags,VolumeNumber;
@@ -2182,7 +2182,7 @@ bool TreeList::SaveState()
 {
 	if (SaveListData) delete [] SaveListData;
 
-	SaveListData=NULL;
+	SaveListData=nullptr;
 	SaveTreeCount=SaveWorkDir=0;
 
 	if (TreeCount > 0)
@@ -2215,9 +2215,9 @@ bool TreeList::RestoreState()
 	}
 
 	TreeCount=WorkDir=0;
-	ListData=NULL;
+	ListData=nullptr;
 
-	if (SaveTreeCount > 0 && (ListData=(TreeItem **)xf_realloc_nomove(ListData,SaveTreeCount*sizeof(TreeItem*))) != NULL)
+	if (SaveTreeCount > 0 && (ListData=(TreeItem **)xf_realloc_nomove(ListData,SaveTreeCount*sizeof(TreeItem*))) != nullptr)
 	{
 		for (int i=0; i<SaveTreeCount; i++)
 		{

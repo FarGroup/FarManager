@@ -72,7 +72,7 @@ class CallBackStack
 			string strSelTopic;         // текущее выделение
 			string strHelpMask;         // маска
 
-			ListNode(const StackHelpData *Data, ListNode* n=NULL)
+			ListNode(const StackHelpData *Data, ListNode* n=nullptr)
 			{
 				strHelpTopic=Data->strHelpTopic;
 				strHelpPath=Data->strHelpPath;
@@ -92,15 +92,15 @@ class CallBackStack
 		ListNode *topOfStack;
 
 	public:
-		CallBackStack() {topOfStack=NULL;};
+		CallBackStack() {topOfStack=nullptr;};
 		~CallBackStack() {ClearStack();};
 
 	public:
 		void ClearStack();
-		BOOL isEmpty() const {return topOfStack==NULL;};
+		BOOL isEmpty() const {return topOfStack==nullptr;};
 
 		void Push(const StackHelpData *Data);
-		int Pop(StackHelpData *Data=NULL);
+		int Pop(StackHelpData *Data=nullptr);
 
 		void PrintStack(const wchar_t *Title);
 };
@@ -117,27 +117,25 @@ static const wchar_t *HelpContents=L"Contents";
 
 static int RunURL(const wchar_t *Protocol, wchar_t *URLPath);
 
-Help::Help(const wchar_t *Topic, const wchar_t *Mask,DWORD Flags)
+Help::Help(const wchar_t *Topic, const wchar_t *Mask,DWORD Flags):
+	ErrorHelp(TRUE),
+	HelpData(nullptr),
+	IsNewTopic(TRUE),
+	MouseDown(FALSE),
+	CurColor(COL_HELPTEXT),
+	CtrlTabSize(8),
+	PrevMacroMode(CtrlObject->Macro.GetMode())
 {
+	CanLoseFocus=FALSE;
+	KeyBarVisible=TRUE;
 	/* $ OT По умолчанию все хелпы создаются статически*/
 	SetDynamicallyBorn(FALSE);
-	CanLoseFocus=FALSE;
-	PrevMacroMode=CtrlObject->Macro.GetMode();
 	CtrlObject->Macro.SetMode(MACRO_HELP);
-	strFullHelpPathName.Clear();
-	ErrorHelp=TRUE;
-	IsNewTopic=TRUE;
-	MouseDown = FALSE;
 	Stack=new CallBackStack;
 	StackData.Clear();
 	StackData.Flags=Flags;
-	//   Установим по умолчанию текущий цвет отрисовки...
-	CurColor=COL_HELPTEXT;
-	CtrlTabSize = 8;
 	StackData.strHelpMask = Mask; // сохраним маску файла
-	KeyBarVisible = TRUE;  // Заставим обновлятся кейбар
 	TopScreen=new SaveScreen;
-	HelpData=NULL;
 	StackData.strHelpTopic = Topic;
 
 	if (Opt.FullScreenHelp)
@@ -163,7 +161,7 @@ Help::Help(const wchar_t *Topic, const wchar_t *Mask,DWORD Flags)
 		ReadHelp(StackData.strHelpMask);
 	}
 
-	if (HelpData!=NULL)
+	if (HelpData!=nullptr)
 	{
 		ScreenObject::Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
 		InitKeyBar();
@@ -278,7 +276,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 	UINT nCodePage = CP_OEMCP;
 	FILE *HelpFile=Language::OpenLangFile(strPath,(!*Mask?HelpFileMask:Mask),Opt.strHelpLanguage,strFullHelpPathName, nCodePage);
 
-	if (HelpFile==NULL)
+	if (HelpFile==nullptr)
 	{
 		ErrorHelp=TRUE;
 
@@ -318,7 +316,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 	/* $ 29.11.2001 DJ
 	   запомним, чего там написано в PluginContents
 	*/
-	if (!Language::GetLangParam(HelpFile,L"PluginContents",&strCurPluginContents, NULL, nCodePage))
+	if (!Language::GetLangParam(HelpFile,L"PluginContents",&strCurPluginContents, nullptr, nCodePage))
 		strCurPluginContents.Clear();
 
 	*SplitLine=0;
@@ -326,7 +324,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 	if (HelpData)
 		xf_free(HelpData);
 
-	HelpData=NULL;
+	HelpData=nullptr;
 	StrCount=0;
 	FixCount=0;
 	TopicFound=0;
@@ -356,7 +354,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 		else
 			RealMaxLength = MaxLength;
 
-		if (!MacroProcess && !RepeatLastLine && !BreakProcess && ReadString(HelpFile, ReadStr,sizeof(ReadStr)/2/sizeof(wchar_t), nCodePage)==NULL)
+		if (!MacroProcess && !RepeatLastLine && !BreakProcess && ReadString(HelpFile, ReadStr,sizeof(ReadStr)/2/sizeof(wchar_t), nCodePage)==nullptr)
 		{
 			if (StringLen(SplitLine)<MaxLength)
 			{
@@ -418,7 +416,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 
 		RepeatLastLine=FALSE;
 
-		while ((Ptr=wcschr(ReadStr,L'\t')) != NULL)
+		while ((Ptr=wcschr(ReadStr,L'\t')) != nullptr)
 		{
 			*Ptr=L' ';
 			PosTab=(int)(Ptr-ReadStr+1);
@@ -671,7 +669,7 @@ void Help::AddLine(const wchar_t *Line)
 {
 	wchar_t *NewHelpData=(wchar_t *)xf_realloc(HelpData,(StrCount+1)*MAX_HELP_STRING_LENGTH*sizeof(wchar_t));
 
-	if (NewHelpData==NULL)
+	if (NewHelpData==nullptr)
 		return;
 
 	HelpData=NewHelpData;
@@ -841,7 +839,7 @@ void Help::DrawWindowFrame()
 void Help::OutString(const wchar_t *Str)
 {
 	wchar_t OutStr[512]; //BUGBUG
-	const wchar_t *StartTopic=NULL;
+	const wchar_t *StartTopic=nullptr;
 	int OutPos=0,Highlight=0,Topic=0;
 
 	while (OutPos<(int)(countof(OutStr)-10))
@@ -893,7 +891,7 @@ void Help::OutString(const wchar_t *Str)
 
 							EndPtr=wcschr(EndPtr,L'@');
 
-							if (EndPtr!=NULL)
+							if (EndPtr!=nullptr)
 								*EndPtr=0;
 
 							StackData.strSelTopic.ReleaseBuffer();
@@ -1113,8 +1111,8 @@ int Help::Search(int Next)
 
 	if (!Next)
 		if (!GetSearchReplaceString(FALSE,SearchStr,sizeof(SearchStr),
-		                            NULL,0,NULL,NULL,
-		                            NULL/*&Case*/,NULL/*&WholeWords*/,NULL/*&ReverseSearch*/,NULL))
+		                            nullptr,0,nullptr,nullptr,
+		                            nullptr/*&Case*/,nullptr/*&WholeWords*/,nullptr/*&ReverseSearch*/,nullptr))
 			return FALSE;
 
 	xstrncpy((char *)LastSearchStr,(char *)SearchStr,sizeof(LastSearchStr));
@@ -1786,7 +1784,7 @@ int Help::IsReferencePresent()
 	}
 
 	wchar_t *OutStr=HelpData+StrPos*MAX_HELP_STRING_LENGTH;
-	return (wcschr(OutStr,L'@')!=NULL && wcschr(OutStr,L'~')!=NULL);
+	return (wcschr(OutStr,L'@')!=nullptr && wcschr(OutStr,L'~')!=nullptr);
 }
 
 
@@ -1869,7 +1867,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 	if (HelpData)
 		xf_free(HelpData);
 
-	HelpData=NULL;
+	HelpData=nullptr;
 	/* $ 29.11.2001 DJ
 	   это не плагин -> чистим CurPluginContents
 	*/
@@ -1916,7 +1914,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 				UINT nCodePage = CP_OEMCP;
 				FILE *HelpFile=Language::OpenLangFile(strPath,HelpFileMask,Opt.strHelpLanguage,strFullFileName, nCodePage);
 
-				if (HelpFile!=NULL)
+				if (HelpFile!=nullptr)
 				{
 					string strEntryName, strHelpLine, strSecondParam;
 
@@ -1944,12 +1942,12 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 			{
 				strcpy(Path,CtrlObject->Plugins.PluginsData[I].ModuleName);
 
-				if ((Slash=strrchr(Path,'\\'))!=NULL || (Slash=strrchr(Path,'/'))!=NULL)
+				if ((Slash=strrchr(Path,'\\'))!=nullptr || (Slash=strrchr(Path,'/'))!=nullptr)
 					*++Slash=0;
 
 				FILE *HelpFile=Language::OpenLangFile(Path,HelpFileMask,Opt.HelpLanguage,FullFileName);
 
-				if (HelpFile!=NULL)
+				if (HelpFile!=nullptr)
 				{
 					if (Language::GetLangParam(HelpFile,ContentsName,EntryName,SecondParam))
 					{
@@ -1976,7 +1974,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 
 				while (ScTree.GetNextName(&FindData,FullFileName))
 				{
-					if ((PtrPath=strrchr(FullFileName,'\\')) != NULL || (PtrPath=strrchr(FullFileName,'/')) != NULL)
+					if ((PtrPath=strrchr(FullFileName,'\\')) != nullptr || (PtrPath=strrchr(FullFileName,'/')) != nullptr)
 					{
 						xstrncpy(FMask,PtrPath+1,sizeof(FMask));
 						*++PtrPath=0;
@@ -1986,7 +1984,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 
 					FILE *HelpFile=Language::OpenLangFile(Path,FMask,Opt.HelpLanguage,FullFileName,TRUE);
 
-					if (HelpFile!=NULL)
+					if (HelpFile!=nullptr)
 					{
 						if (Language::GetLangParam(HelpFile,ContentsName,EntryName,SecondParam))
 						{
@@ -2049,7 +2047,7 @@ string &Help::MkTopic(INT_PTR PluginNumber,const wchar_t *HelpTopic,string &strT
 				wchar_t *Ptr, *Ptr2;
 				wchar_t *lpwszTopic = strTopic.GetBuffer(strTopic.GetLength()*2); //BUGBUG
 
-				if ((Ptr=wcschr(lpwszTopic,HelpEndLink)) == NULL)
+				if ((Ptr=wcschr(lpwszTopic,HelpEndLink)) == nullptr)
 				{
 					*lpwszTopic=0;
 				}
@@ -2069,7 +2067,7 @@ string &Help::MkTopic(INT_PTR PluginNumber,const wchar_t *HelpTopic,string &strT
 					if (!IsSlash(*Ptr2)) // Это имя модуля?
 					{
 						// значит удалим это чертово имя :-)
-						if ((Ptr2=const_cast<wchar_t*>(LastSlash(lpwszTopic))) == NULL) // ВО! Фигня какая-то :-(
+						if ((Ptr2=const_cast<wchar_t*>(LastSlash(lpwszTopic))) == nullptr) // ВО! Фигня какая-то :-(
 							*lpwszTopic=0;
 					}
 
@@ -2176,7 +2174,7 @@ static int RunURL(const wchar_t *Protocol, wchar_t *URLPath)
 					// удалим два идущих в подряд ~~
 					wchar_t *Ptr=URLPath;
 
-					while (*Ptr && (Ptr=wcsstr(Ptr,L"~~")) != NULL)
+					while (*Ptr && (Ptr=wcsstr(Ptr,L"~~")) != nullptr)
 					{
 						wmemmove(Ptr,Ptr+1,StrLength(Ptr+1)+1);
 						Ptr++;
@@ -2185,7 +2183,7 @@ static int RunURL(const wchar_t *Protocol, wchar_t *URLPath)
 					// удалим два идущих в подряд ##
 					Ptr=URLPath;
 
-					while (*Ptr && (Ptr=wcsstr(Ptr,L"##")) != NULL)
+					while (*Ptr && (Ptr=wcsstr(Ptr,L"##")) != nullptr)
 					{
 						wmemmove(Ptr,Ptr+1,StrLength(Ptr+1)+1);
 						++Ptr;
@@ -2240,7 +2238,7 @@ static int RunURL(const wchar_t *Protocol, wchar_t *URLPath)
 							si.cb=sizeof(si);
 							strAction+=URLPath;
 
-							if (!CreateProcess(NULL,(wchar_t*)(const wchar_t*)strAction,NULL,NULL,TRUE,0,NULL,strCurDir,&si,&pi))
+							if (!CreateProcess(nullptr,(wchar_t*)(const wchar_t*)strAction,nullptr,nullptr,TRUE,0,nullptr,strCurDir,&si,&pi))
 							{
 								EditCode=1;
 							}
@@ -2274,7 +2272,7 @@ void Help::ResizeConsole()
 	ScreenObject::Flags.Set(FHELPOBJ_ERRCANNOTOPENHELP);
 	IsNewTopic=FALSE;
 	delete TopScreen;
-	TopScreen=NULL;
+	TopScreen=nullptr;
 	Hide();
 
 	if (Opt.FullScreenHelp)
@@ -2323,7 +2321,7 @@ int CallBackStack::Pop(StackHelpData *Dest)
 		ListNode *oldTop = topOfStack;
 		topOfStack = topOfStack->Next;
 
-		if (Dest!=NULL)
+		if (Dest!=nullptr)
 		{
 			Dest->strHelpTopic = oldTop->strHelpTopic;
 			Dest->strHelpPath = oldTop->strHelpPath;

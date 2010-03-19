@@ -56,13 +56,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static int LastWrapMode = -1;
 static int LastWrapType = -1;
 
-QuickView::QuickView()
+QuickView::QuickView():
+	QView(nullptr),
+	Directory(0),
+	PrevMacroMode(-1)
 {
 	Type=QVIEW_PANEL;
-	QView=NULL;
-	Directory=0;
-	PrevMacroMode = -1;
-
 	if (LastWrapMode < 0)
 	{
 		LastWrapMode = Opt.ViOpt.ViewerIsWrap;
@@ -95,10 +94,10 @@ void QuickView::DisplayObject()
 	Flags.Set(FSCROBJ_ISREDRAWING);
 	string strTitle;
 
-	if (QView==NULL && !ProcessingPluginCommand)
+	if (QView==nullptr && !ProcessingPluginCommand)
 		CtrlObject->Cp()->GetAnotherPanel(this)->UpdateViewPanel();
 
-	if (QView!=NULL)
+	if (QView!=nullptr)
 		QView->SetPosition(X1+1,Y1+1,X2-1,Y2-3);
 
 	Box(X1,Y1,X2,Y2,COL_PANELBOX,DOUBLE_BOX);
@@ -241,7 +240,7 @@ void QuickView::DisplayObject()
 			}
 		}
 	}
-	else if (QView!=NULL)
+	else if (QView!=nullptr)
 		QView->Show();
 
 	Flags.Clear(FSCROBJ_ISREDRAWING);
@@ -250,7 +249,7 @@ void QuickView::DisplayObject()
 
 __int64 QuickView::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
-	if (!Directory && QView!=NULL)
+	if (!Directory && QView!=nullptr)
 		return QView->VMProcess(OpCode,vParam,iParam);
 
 	switch (OpCode)
@@ -296,7 +295,7 @@ int QuickView::ProcessKey(int Key)
 		return(TRUE);
 	}
 
-	if (QView!=NULL && !Directory && Key>=256)
+	if (QView!=nullptr && !Directory && Key>=256)
 	{
 		int ret = QView->ProcessKey(Key);
 
@@ -336,7 +335,7 @@ int QuickView::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 	SetFocus();
 
-	if (QView!=NULL && !Directory)
+	if (QView!=nullptr && !Directory)
 		return(QView->ProcessMouse(MouseEvent));
 
 	return(FALSE);
@@ -357,12 +356,12 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
 {
 	DWORD FileAttr;
 	CloseFile();
-	QView=NULL;
+	QView=nullptr;
 
 	if (!IsVisible())
 		return;
 
-	if (FileName==NULL)
+	if (FileName==nullptr)
 	{
 		ProcessingPluginCommand++;
 		Show();
@@ -413,7 +412,7 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
 		{
 			int ExitCode=GetDirInfo(MSG(MQuickViewTitle),strCurFileName,DirCount,
 			                        FileCount,FileSize,CompressedFileSize,RealFileSize,
-			                        ClusterSize,500,NULL,GETDIRINFO_ENHBREAK|GETDIRINFO_SCANSYMLINKDEF|GETDIRINFO_DONTREDRAWFRAME);
+			                        ClusterSize,500,nullptr,GETDIRINFO_ENHBREAK|GETDIRINFO_SCANSYMLINKDEF|GETDIRINFO_DONTREDRAWFRAME);
 
 			if (ExitCode==1)
 				Directory=1;
@@ -455,14 +454,14 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
 
 void QuickView::CloseFile()
 {
-	if (QView!=NULL)
+	if (QView!=nullptr)
 	{
 		LastWrapMode=QView->GetWrapMode();
 		LastWrapType=QView->GetWrapType();
 		QView->SetWrapMode(OldWrapMode);
 		QView->SetWrapType(OldWrapType);
 		delete QView;
-		QView=NULL;
+		QView=nullptr;
 	}
 
 	strCurFileType.Clear();
@@ -475,14 +474,14 @@ void QuickView::QViewDelTempName()
 {
 	if (!strTempName.IsEmpty())
 	{
-		if (QView!=NULL)
+		if (QView!=nullptr)
 		{
 			LastWrapMode=QView->GetWrapMode();
 			LastWrapType=QView->GetWrapType();
 			QView->SetWrapMode(OldWrapMode);
 			QView->SetWrapType(OldWrapType);
 			delete QView;
-			QView=NULL;
+			QView=nullptr;
 		}
 
 		apiSetFileAttributes(strTempName, FILE_ATTRIBUTE_ARCHIVE);
@@ -508,7 +507,7 @@ int QuickView::UpdateIfChanged(int UpdateMode)
 	if (IsVisible() && !strCurFileName.IsEmpty() && Directory==2)
 	{
 		string strViewName = strCurFileName;
-		ShowFile(strViewName, !strTempName.IsEmpty() ,NULL);
+		ShowFile(strViewName, !strTempName.IsEmpty() ,nullptr);
 		return(TRUE);
 	}
 
@@ -554,7 +553,7 @@ void QuickView::KillFocus()
 
 void QuickView::SetMacroMode(int Restore)
 {
-	if (CtrlObject == NULL)
+	if (CtrlObject == nullptr)
 		return;
 
 	if (PrevMacroMode == -1)

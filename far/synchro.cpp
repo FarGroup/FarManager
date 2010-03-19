@@ -38,9 +38,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PluginSynchro PluginSynchroManager;
 
-PluginSynchro::PluginSynchro()
+PluginSynchro::PluginSynchro():
+	Mutex(CreateMutex(nullptr,FALSE,nullptr))
 {
-	Mutex=CreateMutex(NULL,FALSE,NULL);
 }
 
 PluginSynchro::~PluginSynchro()
@@ -68,7 +68,7 @@ bool PluginSynchro::Process(void)
 
 	if (Mutex)
 	{
-		bool process=false; INT_PTR module=0; void* param=NULL;
+		bool process=false; INT_PTR module=0; void* param=nullptr;
 
 		if (WaitForSingleObject(Mutex,INFINITE)==WAIT_OBJECT_0)
 		{

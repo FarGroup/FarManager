@@ -143,7 +143,7 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 		case KEY_CTRLSHIFTENTER:       // Текущий файл с пасс.панели
 		case KEY_SHIFTENTER:           // Текущий файл с актив.панели
 		{
-			Panel *SrcPanel=NULL;
+			Panel *SrcPanel=nullptr;
 			FilePanels *Cp=CtrlObject->Cp();
 
 			switch (Key)
@@ -170,7 +170,7 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 					break;
 			}
 
-			if (SrcPanel!=NULL)
+			if (SrcPanel!=nullptr)
 			{
 				if (Key == KEY_SHIFTENTER || Key == KEY_CTRLSHIFTENTER || Key == KEY_SHIFTNUMENTER || Key == KEY_CTRLSHIFTNUMENTER)
 				{

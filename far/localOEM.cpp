@@ -207,7 +207,7 @@ const char * __cdecl LocalStrstri(const char *str1, const char *str2)
 		cp++;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 const char * __cdecl LocalRevStrstri(const char *str1, const char *str2)
@@ -216,7 +216,7 @@ const char * __cdecl LocalRevStrstri(const char *str1, const char *str2)
 	size_t len2 = strlen(str2);
 
 	if (len2 > len1)
-		return NULL;
+		return nullptr;
 
 	if (!*str2)
 		return &str1[len1];
@@ -241,7 +241,7 @@ const char * __cdecl LocalRevStrstri(const char *str1, const char *str2)
 		cp--;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 int __cdecl LocalStricmp(const char *s1,const char *s2)

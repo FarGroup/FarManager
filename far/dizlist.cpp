@@ -58,17 +58,16 @@ struct DizSearchKey
 	const int Len;
 };
 
-DizList::DizList()
+DizList::DizList():
+	DizData(nullptr),
+	DizCount(0),
+	IndexData(nullptr),
+	IndexCount(0),
+	Modified(false),
+	NeedRebuild(true),
+	OrigCodePage(CP_AUTODETECT),
+	AnsiBuf(nullptr)
 {
-	DizData=NULL;
-	DizCount=0;
-	IndexData=NULL;
-	IndexCount=0;
-	strDizFileName.Clear();
-	Modified=false;
-	NeedRebuild=true;
-	OrigCodePage=CP_AUTODETECT;
-	AnsiBuf=NULL;
 }
 
 DizList::~DizList()
@@ -88,13 +87,13 @@ void DizList::Reset()
 	if (DizData)
 		xf_free(DizData);
 
-	DizData=NULL;
+	DizData=nullptr;
 	DizCount=0;
 
 	if (IndexData)
 		xf_free(IndexData);
 
-	IndexData=NULL;
+	IndexData=nullptr;
 	IndexCount=0;
 	Modified=false;
 	NeedRebuild=true;
@@ -128,7 +127,7 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
 
 			string strArgName;
 
-			if ((NamePtr=GetCommaWord(NamePtr,strArgName))==NULL)
+			if ((NamePtr=GetCommaWord(NamePtr,strArgName))==nullptr)
 				break;
 
 			AddEndSlash(strDizFileName);
@@ -172,7 +171,7 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
 			return;
 		}
 
-		if (DizName!=NULL)
+		if (DizName!=nullptr)
 			break;
 	}
 
@@ -232,7 +231,7 @@ bool DizList::AddRecord(const wchar_t *DizText)
 
 const wchar_t* DizList::GetDizTextAddr(const wchar_t *Name, const wchar_t *ShortName, const __int64 FileSize)
 {
-	const wchar_t *DizText=NULL;
+	const wchar_t *DizText=nullptr;
 	int TextPos;
 	int DizPos=GetDizPosEx(Name,ShortName,&TextPos);
 
@@ -293,7 +292,7 @@ int DizList::GetDizPosEx(const wchar_t *Name, const wchar_t *ShortName, int *Tex
 			return -1;
 
 		AnsiBuf = tmp;
-		WideCharToMultiByte(OrigCodePage, 0, Name, len, AnsiBuf, len, NULL, NULL);
+		WideCharToMultiByte(OrigCodePage, 0, Name, len, AnsiBuf, len, nullptr, nullptr);
 		AnsiBuf[len]=0;
 		string strRecoded(AnsiBuf, OrigCodePage);
 
@@ -309,7 +308,7 @@ int DizList::GetDizPosEx(const wchar_t *Name, const wchar_t *ShortName, int *Tex
 
 int DizList::GetDizPos(const wchar_t *Name, int *TextPos)
 {
-	if (DizData==NULL || !*Name)
+	if (DizData==nullptr || !*Name)
 		return -1;
 
 	if (NeedRebuild)
@@ -319,9 +318,9 @@ int DizList::GetDizPos(const wchar_t *Name, int *TextPos)
 	DizSearchKey Key={Name, StrLength(Name)};
 	int *DestIndex=(int *)bsearch(&Key,IndexData,IndexCount,sizeof(*IndexData),SortDizSearch);
 
-	if (DestIndex!=NULL)
+	if (DestIndex!=nullptr)
 	{
-		if (TextPos!=NULL)
+		if (TextPos!=nullptr)
 		{
 			*TextPos=DizData[*DestIndex].NameStart+DizData[*DestIndex].NameLength;
 
@@ -343,7 +342,7 @@ void DizList::BuildIndex()
 		if (IndexData)
 			xf_free(IndexData);
 
-		if ((IndexData=(int *)xf_malloc(DizCount*sizeof(int)))==NULL)
+		if ((IndexData=(int *)xf_malloc(DizCount*sizeof(int)))==nullptr)
 		{
 			Reset();
 			return;
@@ -423,7 +422,7 @@ int _cdecl SortDizSearch(const void *key,const void *elem)
 
 bool DizList::DeleteDiz(const wchar_t *Name,const wchar_t *ShortName)
 {
-	int DizPos=GetDizPosEx(Name,ShortName,NULL);
+	int DizPos=GetDizPosEx(Name,ShortName,nullptr);
 
 	if (DizPos==-1)
 		return false;
@@ -450,13 +449,13 @@ bool DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
 	if (!Modified)
 		return true;
 
-	if (DizName!=NULL)
+	if (DizName!=nullptr)
 	{
 		strDizFileName = DizName;
 	}
 	else if (strDizFileName.IsEmpty())
 	{
-		if (DizData==NULL || Path==NULL)
+		if (DizData==nullptr || Path==nullptr)
 			return false;
 
 		strDizFileName = Path;
@@ -478,7 +477,7 @@ bool DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
 			apiSetFileAttributes(strDizFileName,FILE_ATTRIBUTE_ARCHIVE);
 	}
 
-	if ((DizFile=_wfopen(NTPath(strDizFileName),L"wb"))==NULL)
+	if ((DizFile=_wfopen(NTPath(strDizFileName),L"wb"))==nullptr)
 	{
 		if (!Opt.Diz.ROUpdate && (FileAttr&FILE_ATTRIBUTE_READONLY))
 			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotUpdateDiz),MSG(MCannotUpdateRODiz),MSG(MOk));
@@ -506,7 +505,7 @@ bool DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
 
 			if (lpDizText)
 			{
-				WideCharToMultiByte(CodePage, 0, DizData[I].DizText, len+1, lpDizText, (len+1)*3, NULL, NULL);
+				WideCharToMultiByte(CodePage, 0, DizData[I].DizText, len+1, lpDizText, (len+1)*3, nullptr, nullptr);
 				fprintf(DizFile,"%s\r\n", lpDizText);
 				xf_free(lpDizText);
 				AddedDizCount++;

@@ -37,10 +37,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plognmn.hpp"
 #include "pathmix.hpp"
 
-PreserveLongName::PreserveLongName(const wchar_t *ShortName,int Preserve)
+PreserveLongName::PreserveLongName(const wchar_t *ShortName,int Preserve):
+	Preserve(Preserve)
 {
-	PreserveLongName::Preserve=Preserve;
-
 	if (Preserve)
 	{
 		FAR_FIND_DATA_EX FindData;

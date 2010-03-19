@@ -39,9 +39,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 
-ChangePriority::ChangePriority(int NewPriority)
+ChangePriority::ChangePriority(int NewPriority):
+	SavePriority(GetThreadPriority(GetCurrentThread()))
 {
-	SavePriority=GetThreadPriority(GetCurrentThread());
 	SetThreadPriority(GetCurrentThread(),NewPriority);
 }
 

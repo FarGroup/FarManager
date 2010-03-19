@@ -101,7 +101,7 @@ class History
 		~History();
 
 	public:
-		void AddToHistory(const wchar_t *Str, int Type=0, const wchar_t *Prefix=NULL, bool SaveForbid=false);
+		void AddToHistory(const wchar_t *Str, int Type=0, const wchar_t *Prefix=nullptr, bool SaveForbid=false);
 		bool ReadHistory(bool bOnlyLines=false);
 		bool SaveHistory();
 		static bool ReadLastItem(const wchar_t *RegKey, string &strStr);
@@ -112,5 +112,5 @@ class History
 		bool GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend=false);
 		bool GetAllSimilar(VMenu &HistoryMenu,const wchar_t *Str);
 		void SetAddMode(bool EnableAdd, int RemoveDups, bool KeepSelectedPos);
-		void ResetPosition() { CurrentItem = NULL; }
+		void ResetPosition() { CurrentItem = nullptr; }
 };

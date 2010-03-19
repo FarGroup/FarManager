@@ -88,10 +88,10 @@ static bool IsEditField(DialogItemEx *Item)
 }
 */
 
-DialogBuilder::DialogBuilder(int TitleMessageId, const wchar_t *HelpTopic)
+DialogBuilder::DialogBuilder(int TitleMessageId, const wchar_t *HelpTopic):
+	HelpTopic(HelpTopic)
 {
 	AddBorder(GetLangString(TitleMessageId));
-	this->HelpTopic = HelpTopic;
 }
 
 DialogBuilder::~DialogBuilder()

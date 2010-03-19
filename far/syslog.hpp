@@ -74,17 +74,17 @@ string __SysLog_LinearDump(LPBYTE Buf,int SizeBuf);
 #define _SysLog_LinearDump(B,S) (const wchar_t*)__SysLog_LinearDump((B),(S))
 
 void GetOpenPluginInfo_Dump(const wchar_t *Title,const struct OpenPluginInfo *Info,FILE *fp);
-void INPUT_RECORD_DumpBuffer(FILE *fp=NULL);
-void PanelViewSettings_Dump(const wchar_t *Title,const struct PanelViewSettings &ViewSettings,FILE *fp=NULL);
-void PluginsStackItem_Dump(const wchar_t *Title,const struct PluginsStackItem *StackItems,int ItemNumber,FILE *fp=NULL);
-void SaveScreenDumpBuffer(const wchar_t *Title,const CHAR_INFO *Buffer,int X1,int Y1,int X2,int Y2,int RealScreen,FILE *fp=NULL);
+void INPUT_RECORD_DumpBuffer(FILE *fp=nullptr);
+void PanelViewSettings_Dump(const wchar_t *Title,const struct PanelViewSettings &ViewSettings,FILE *fp=nullptr);
+void PluginsStackItem_Dump(const wchar_t *Title,const struct PluginsStackItem *StackItems,int ItemNumber,FILE *fp=nullptr);
+void SaveScreenDumpBuffer(const wchar_t *Title,const CHAR_INFO *Buffer,int X1,int Y1,int X2,int Y2,int RealScreen,FILE *fp=nullptr);
 class Manager;
-void ManagerClass_Dump(const wchar_t *Title,const Manager *m=NULL,FILE *fp=NULL);
+void ManagerClass_Dump(const wchar_t *Title,const Manager *m=nullptr,FILE *fp=nullptr);
 void GetVolumeInformation_Dump(const wchar_t *Title,LPCWSTR lpRootPathName,LPCWSTR lpVolumeNameBuffer,DWORD nVolumeNameSize,
                                DWORD lpVolumeSerialNumber, DWORD lpMaximumComponentLength, DWORD lpFileSystemFlags,
-                               LPCWSTR lpFileSystemNameBuffer, DWORD nFileSystemNameSize,FILE *fp=NULL);
+                               LPCWSTR lpFileSystemNameBuffer, DWORD nFileSystemNameSize,FILE *fp=nullptr);
 
-void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &fd,FILE *fp=NULL);
+void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &fd,FILE *fp=nullptr);
 
 #if defined(SYSLOG_FARSYSLOG)
 #ifdef __cplusplus
@@ -265,7 +265,7 @@ struct TUserLog
 	int   Level;
 };
 
-void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp=NULL);
+void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp=nullptr);
 
 FILE *OpenLogStream(const wchar_t *file);
 
@@ -279,7 +279,7 @@ FILE *OpenLogStream(const wchar_t *file);
 class CleverSysLog  // ;-)
 {
 	public:
-		CleverSysLog(const wchar_t *Title=NULL);
+		CleverSysLog(const wchar_t *Title=nullptr);
 		CleverSysLog(int Line,const wchar_t *Title);
 		~CleverSysLog();
 };

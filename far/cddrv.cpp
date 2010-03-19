@@ -44,7 +44,7 @@ static CDROM_DeviceCaps getCapsUsingMediaType(HANDLE hDevice)
 	UCHAR buffer[2048]; // Must be big enough hold DEVICE_MEDIA_INFO
 	ULONG returned;
 
-	if (!DeviceIoControl(hDevice, IOCTL_STORAGE_GET_MEDIA_TYPES_EX, NULL, 0,
+	if (!DeviceIoControl(hDevice, IOCTL_STORAGE_GET_MEDIA_TYPES_EX, nullptr, 0,
 	                     buffer, sizeof(buffer), &returned, FALSE))
 	{
 		return CDDEV_CAPS_NONE;
@@ -243,7 +243,7 @@ static CDROM_DeviceCaps getCapsUsingDeviceProps(HANDLE hDevice)
 	             &outBuf,
 	             512,
 	             &returnedLength,
-	             NULL
+	             nullptr
 	         );
 
 	if (status)
@@ -344,7 +344,7 @@ UINT FAR_GetDriveType(const wchar_t *RootDir, CDROM_DeviceCaps *Caps, DWORD Dete
 		else
 			VolumePath.Insert(0, L"\\\\.\\");
 
-		HANDLE hDevice = apiCreateFile(VolumePath, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0);
+		HANDLE hDevice = apiCreateFile(VolumePath, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0);
 
 		if (hDevice != INVALID_HANDLE_VALUE)
 		{
@@ -357,9 +357,9 @@ UINT FAR_GetDriveType(const wchar_t *RootDir, CDROM_DeviceCaps *Caps, DWORD Dete
 			DrvType=DRIVE_CDROM;       // ...вертаем в зад сидюк.
 	}
 
-//  if((Detect&2) && IsDriveUsb(*LocalName,NULL)) //DrvType == DRIVE_REMOVABLE
+//  if((Detect&2) && IsDriveUsb(*LocalName,nullptr)) //DrvType == DRIVE_REMOVABLE
 //    DrvType=DRIVE_USBDRIVE;
-//  if((Detect&4) && GetSubstName(DrvType,LocalName,NULL,0))
+//  if((Detect&4) && GetSubstName(DrvType,LocalName,nullptr,0))
 //    DrvType=DRIVE_SUBSTITUTE;
 
 	if (Caps)

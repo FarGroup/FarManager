@@ -87,7 +87,7 @@ unsigned __int64 ConvertFileSizeString(const wchar_t *FileSizeStr);
 string &FormatNumber(const wchar_t *Src, string &strDest, int NumDigits=0);
 string &InsertCommas(unsigned __int64 li, string &strDest);
 
-inline bool IsWordDiv(const wchar_t *WordDiv, wchar_t Chr) { return wcschr(WordDiv, Chr)!=NULL; }
+inline bool IsWordDiv(const wchar_t *WordDiv, wchar_t Chr) { return wcschr(WordDiv, Chr)!=nullptr; }
 
 //   WordDiv  - набор разделителей слова в кодировке OEM
 // возвращает указатель на начало слова

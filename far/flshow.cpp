@@ -105,7 +105,7 @@ void FileList::ShowFileList(int Fast)
 
 	if (PanelMode==PLUGIN_PANEL)
 	{
-		if (ProcessPluginEvent(FE_REDRAW,NULL))
+		if (ProcessPluginEvent(FE_REDRAW,nullptr))
 			return;
 
 		CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
@@ -192,13 +192,13 @@ void FileList::ShowFileList(int Fast)
 			if (IDMessage != -1)
 				strTitle=MSG(IDMessage);
 
-			if (PanelMode==PLUGIN_PANEL && Info.PanelModesArray!=NULL &&
+			if (PanelMode==PLUGIN_PANEL && Info.PanelModesArray!=nullptr &&
 			        ViewMode<Info.PanelModesNumber &&
-			        Info.PanelModesArray[ViewMode].ColumnTitles!=NULL)
+			        Info.PanelModesArray[ViewMode].ColumnTitles!=nullptr)
 			{
 				const wchar_t *NewTitle=Info.PanelModesArray[ViewMode].ColumnTitles[I];
 
-				if (NewTitle!=NULL)
+				if (NewTitle!=nullptr)
 					strTitle=NewTitle;
 			}
 
@@ -257,7 +257,7 @@ void FileList::ShowFileList(int Fast)
 				const wchar_t *SortStr=MSG(SortStrings[I]);
 				const wchar_t *Ch=wcschr(SortStr,L'&');
 
-				if (Ch!=NULL)
+				if (Ch!=nullptr)
 				{
 					if (Opt.ShowColumnTitles)
 						GotoXY(NextX1,Y1+1);
@@ -269,7 +269,7 @@ void FileList::ShowFileList(int Fast)
 					Text(OutCharacter);
 					NextX1++;
 
-					if (Filter!=NULL && Filter->IsEnabledOnPanel())
+					if (Filter!=nullptr && Filter->IsEnabledOnPanel())
 					{
 						OutCharacter[0]=L'*';
 						Text(OutCharacter);
@@ -323,7 +323,7 @@ void FileList::ShowFileList(int Fast)
 	int TitleX2=Opt.Clock && !Opt.ShowMenuBar ? Min(ScrX-4,X2):X2;
 	int TruncSize=TitleX2-X1-3;
 
-	if (!Opt.ShowColumnTitles && Opt.ShowSortMode && Filter!=NULL && Filter->IsEnabledOnPanel())
+	if (!Opt.ShowColumnTitles && Opt.ShowSortMode && Filter!=nullptr && Filter->IsEnabledOnPanel())
 		TruncSize-=2;
 
 	GetTitle(strTitle,TruncSize,2);//,(PanelMode==PLUGIN_PANEL?0:2));
@@ -528,7 +528,7 @@ void FileList::ShowTotalSize(OpenPluginInfo &Info)
 	Length=(int)strTotalStr.GetLength();
 	GotoXY(X1+(X2-X1+1-Length)/2,Y2);
 	const wchar_t *FirstBox=wcschr(strTotalStr,BoxSymbols[BS_H2]);
-	int BoxPos=(FirstBox==NULL) ? -1:(int)(FirstBox-(const wchar_t*)strTotalStr);
+	int BoxPos=(FirstBox==nullptr) ? -1:(int)(FirstBox-(const wchar_t*)strTotalStr);
 	int BoxLength=0;
 
 	if (BoxPos!=-1)
@@ -565,8 +565,8 @@ int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,i
 	if (!ShowStatus &&
 	        ((!(FileAttr&FILE_ATTRIBUTE_DIRECTORY) && ViewSettings.AlignExtensions) || ((FileAttr&FILE_ATTRIBUTE_DIRECTORY) && ViewSettings.FolderAlignExtensions))
 	        && SrcLength<=MaxLength &&
-	        (DotPtr=wcsrchr(SrcName,L'.'))!=NULL && DotPtr!=SrcName &&
-	        (SrcName[0]!=L'.' || SrcName[2]!=0) && wcschr(DotPtr+1,L' ')==NULL)
+	        (DotPtr=wcsrchr(SrcName,L'.'))!=nullptr && DotPtr!=SrcName &&
+	        (SrcName[0]!=L'.' || SrcName[2]!=0) && wcschr(DotPtr+1,L' ')==nullptr)
 	{
 		int DotLength=StrLength(DotPtr+1);
 		int NameLength=DotLength?(int)(DotPtr-SrcName):SrcLength;
@@ -597,7 +597,7 @@ void FileList::PrepareViewSettings(int ViewMode,OpenPluginInfo *PlugInfo)
 
 	if (PanelMode==PLUGIN_PANEL)
 	{
-		if (PlugInfo==NULL)
+		if (PlugInfo==nullptr)
 			CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
 		else
 			Info=*PlugInfo;
@@ -607,17 +607,17 @@ void FileList::PrepareViewSettings(int ViewMode,OpenPluginInfo *PlugInfo)
 
 	if (PanelMode==PLUGIN_PANEL)
 	{
-		if (Info.PanelModesArray!=NULL && ViewMode<Info.PanelModesNumber &&
-		        Info.PanelModesArray[ViewMode].ColumnTypes!=NULL &&
-		        Info.PanelModesArray[ViewMode].ColumnWidths!=NULL)
+		if (Info.PanelModesArray!=nullptr && ViewMode<Info.PanelModesNumber &&
+		        Info.PanelModesArray[ViewMode].ColumnTypes!=nullptr &&
+		        Info.PanelModesArray[ViewMode].ColumnWidths!=nullptr)
 		{
 			TextToViewSettings(Info.PanelModesArray[ViewMode].ColumnTypes,
 			                   Info.PanelModesArray[ViewMode].ColumnWidths,
 			                   ViewSettings.ColumnType,ViewSettings.ColumnWidth,
 			                   ViewSettings.ColumnWidthType,ViewSettings.ColumnCount);
 
-			if (Info.PanelModesArray[ViewMode].StatusColumnTypes!=NULL &&
-			        Info.PanelModesArray[ViewMode].StatusColumnWidths!=NULL)
+			if (Info.PanelModesArray[ViewMode].StatusColumnTypes!=nullptr &&
+			        Info.PanelModesArray[ViewMode].StatusColumnWidths!=nullptr)
 				TextToViewSettings(Info.PanelModesArray[ViewMode].StatusColumnTypes,
 				                   Info.PanelModesArray[ViewMode].StatusColumnWidths,
 				                   ViewSettings.StatusColumnType,ViewSettings.StatusColumnWidth,
@@ -919,12 +919,12 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 				if (ColumnType>=CUSTOM_COLUMN0 && ColumnType<=CUSTOM_COLUMN9)
 				{
 					int ColumnNumber=ColumnType-CUSTOM_COLUMN0;
-					const wchar_t *ColumnData=NULL;
+					const wchar_t *ColumnData=nullptr;
 
 					if (ColumnNumber<ListData[ListPos]->CustomColumnNumber)
 						ColumnData=ListData[ListPos]->CustomColumnData[ColumnNumber];
 
-					if (ColumnData==NULL)
+					if (ColumnData==nullptr)
 						ColumnData=L"";
 
 					int CurLeftPos=0;

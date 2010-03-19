@@ -42,10 +42,11 @@ class GetFileString
 		char ReadBuf[8192];
 		wchar_t wReadBuf[8192];
 
-		char *Str;
 		int m_nStrLength;
-		wchar_t *wStr;
+		char *Str;
+
 		int m_nwStrLength;
+		wchar_t *wStr;
 
 		bool SomeDataLost;
 		bool bCrCr;
@@ -63,5 +64,5 @@ class GetFileString
 		bool IsConversionValid() { return !SomeDataLost; };
 };
 
-bool GetFileFormat(FILE *file, UINT &nCodePage, bool *pSignatureFound = NULL, bool bUseHeuristics = true);
+bool GetFileFormat(FILE *file, UINT &nCodePage, bool *pSignatureFound = nullptr, bool bUseHeuristics = true);
 wchar_t *ReadString(FILE *file, wchar_t *lpwszDest, int nDestLength, int nCodePage);

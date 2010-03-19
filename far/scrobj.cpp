@@ -38,15 +38,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "interf.hpp"
 
-ScreenObject *ScreenObject::CaptureMouseObject=NULL;
+ScreenObject *ScreenObject::CaptureMouseObject=nullptr;
 
-ScreenObject::ScreenObject()
+ScreenObject::ScreenObject():
+	ShadowSaveScr(nullptr),
+	X1(0),
+	Y1(0),
+	X2(0),
+	Y2(0),
+	ObjWidth(0),
+	ObjHeight(0),
+	nLockCount(0),
+	pOwner(nullptr),
+	SaveScr(nullptr)
 {
 //  _OT(SysLog(L"[%p] ScreenObject::ScreenObject()", this));
-	ObjWidth=ObjHeight=X1=Y1=X2=Y2=0;
-	SaveScr=ShadowSaveScr=NULL;
-	nLockCount = 0;
-	pOwner = NULL;
 }
 
 
@@ -108,7 +114,7 @@ void ScreenObject::SetPosition(int X1,int Y1,int X2,int Y2)
 	if (SaveScr)
 	{
 		delete SaveScr;
-		SaveScr=NULL;
+		SaveScr=nullptr;
 	}
 
 	ScreenObject::X1=X1;
@@ -146,13 +152,13 @@ void ScreenObject::Hide()
 	if (ShadowSaveScr)
 	{
 		delete ShadowSaveScr;
-		ShadowSaveScr=NULL;
+		ShadowSaveScr=nullptr;
 	}
 
 	if (SaveScr)
 	{
 		delete SaveScr;
-		SaveScr=NULL;
+		SaveScr=nullptr;
 	}
 }
 
@@ -191,7 +197,7 @@ void ScreenObject::SavePrevScreen()
 	{
 		Flags.Set(FSCROBJ_VISIBLE);
 
-		if (Flags.Check(FSCROBJ_ENABLERESTORESCREEN) && SaveScr==NULL)
+		if (Flags.Check(FSCROBJ_ENABLERESTORESCREEN) && SaveScr==nullptr)
 			SaveScr=new SaveScreen(X1,Y1,X2,Y2);
 	}
 }
@@ -209,7 +215,7 @@ void ScreenObject::Shadow()
 {
 	if (Flags.Check(FSCROBJ_VISIBLE))
 	{
-		if (ShadowSaveScr==NULL)
+		if (ShadowSaveScr==nullptr)
 			ShadowSaveScr=new SaveScreen(X1,Y1,X2+2,Y2+1);
 
 		MakeShadow(X1+2,Y2+1,X2+1,Y2+1);

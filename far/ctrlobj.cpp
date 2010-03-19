@@ -52,10 +52,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ControlObject *CtrlObject;
 
-ControlObject::ControlObject()
+ControlObject::ControlObject():
+	FPanels(0),
+	CmdLine(0)
 {
 	_OT(SysLog(L"[%p] ControlObject::ControlObject()", this));
-	FPanels=0;
 	CtrlObject=this;
 	HiFiles = new HighlightFiles;
 	ViewerPosCache = new FilePositionCache();
@@ -63,7 +64,6 @@ ControlObject::ControlObject()
 	FrameManager = new Manager;
 	//Macro.LoadMacros();
 	ReadConfig();
-	CmdLine=0;
 	CmdHistory=new History(HISTORYTYPE_CMD,Opt.HistoryCount,L"SavedHistory",&Opt.SaveHistory,false);
 	FolderHistory=new History(HISTORYTYPE_FOLDER,Opt.FoldersHistoryCount,L"SavedFolderHistory",&Opt.SaveFoldersHistory,true);
 	ViewHistory=new History(HISTORYTYPE_VIEW,Opt.ViewHistoryCount,L"SavedViewHistory",&Opt.SaveViewHistory,true);
@@ -148,7 +148,7 @@ ControlObject::~ControlObject()
 
 	_OT(SysLog(L"[%p] ControlObject::~ControlObject()", this));
 
-	if (Cp()&&Cp()->ActivePanel!=NULL)
+	if (Cp()&&Cp()->ActivePanel!=nullptr)
 	{
 		if (Opt.AutoSaveSetup)
 			SaveConfig(0);
@@ -157,12 +157,12 @@ ControlObject::~ControlObject()
 		{
 			string strCurDir;
 			Cp()->ActivePanel->GetCurDir(strCurDir);
-			FolderHistory->AddToHistory(strCurDir,NULL,0);
+			FolderHistory->AddToHistory(strCurDir);
 		}
 	}
 
 	FrameManager->CloseAll();
-	FPanels=NULL;
+	FPanels=nullptr;
 	FileFilter::CloseFilter();
 	delete CmdHistory;
 	delete FolderHistory;
@@ -184,14 +184,14 @@ ControlObject::~ControlObject()
 	TreeList::FlushCache();
 	SIDCacheFlush();
 	Lang.Close();
-	CtrlObject=NULL;
+	CtrlObject=nullptr;
 }
 
 
 void ControlObject::ShowCopyright(DWORD Flags)
 {
 	char *Str=xf_strdup(Copyright);
-	char *Line2=NULL;
+	char *Line2=nullptr;
 	char Xor=17;
 
 	for (int I=0; Str[I]; I++)

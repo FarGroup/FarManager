@@ -66,7 +66,7 @@ const wchar_t * __cdecl StrStrI(const wchar_t *str1, const wchar_t *str2)
 		cp++;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 const wchar_t * __cdecl StrStr(const wchar_t *str1, const wchar_t *str2)
@@ -94,7 +94,7 @@ const wchar_t * __cdecl StrStr(const wchar_t *str1, const wchar_t *str2)
 		cp++;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 const wchar_t * __cdecl RevStrStrI(const wchar_t *str1, const wchar_t *str2)
@@ -103,7 +103,7 @@ const wchar_t * __cdecl RevStrStrI(const wchar_t *str1, const wchar_t *str2)
 	int len2 = StrLength(str2);
 
 	if (len2 > len1)
-		return NULL;
+		return nullptr;
 
 	if (!*str2)
 		return &str1[len1];
@@ -128,7 +128,7 @@ const wchar_t * __cdecl RevStrStrI(const wchar_t *str1, const wchar_t *str2)
 		cp--;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 const wchar_t * __cdecl RevStrStr(const wchar_t *str1, const wchar_t *str2)
@@ -137,7 +137,7 @@ const wchar_t * __cdecl RevStrStr(const wchar_t *str1, const wchar_t *str2)
 	int len2 = StrLength(str2);
 
 	if (len2 > len1)
-		return NULL;
+		return nullptr;
 
 	if (!*str2)
 		return &str1[len1];
@@ -162,7 +162,7 @@ const wchar_t * __cdecl RevStrStr(const wchar_t *str1, const wchar_t *str2)
 		cp--;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 static int __digit_cnt_0(const wchar_t* s, const wchar_t ** beg)

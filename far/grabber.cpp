@@ -170,7 +170,7 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
 		wchar_t *AppendBuf=PasteFromClipboard();
 		int add=0;
 
-		if (AppendBuf!=NULL)
+		if (AppendBuf!=nullptr)
 		{
 			size_t DataSize=StrLength(AppendBuf);
 

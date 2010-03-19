@@ -124,5 +124,5 @@ void NamesList::Init()
 {
 	Names.Clear();
 	strCurrentDir.Clear();
-	CurrentName=NULL;
+	CurrentName=nullptr;
 }

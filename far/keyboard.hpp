@@ -58,13 +58,13 @@ int KeyToKeyLayout(int Key);
 
 // возвращает: 1 - LeftPressed, 2 - Right Pressed, 3 - Middle Pressed, 0 - none
 DWORD IsMouseButtonPressed();
-int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *rec=NULL);
+int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *rec=nullptr);
 int WINAPI KeyNameToKey(const wchar_t *Name);
 BOOL WINAPI KeyToText(int Key, string &strKeyText);
 int WINAPI InputRecordToKey(const INPUT_RECORD *Rec);
 DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro=false,bool ProcessMouse=false);
 DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro=true);
-DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros=NULL);
+DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros=nullptr);
 DWORD WaitKey(DWORD KeyWait=(DWORD)-1,DWORD delayMS=0,bool ExcludeMacro=true);
 int SetFLockState(UINT vkKey, int State);
 int WriteInput(int Key,DWORD Flags=0);

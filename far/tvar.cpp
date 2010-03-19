@@ -253,7 +253,7 @@ static const wchar_t *toString(double num)
 
 static wchar_t *dubstr(const wchar_t *s)
 {
-	wchar_t *newStr=NULL;
+	wchar_t *newStr=nullptr;
 
 	if (s)
 	{
@@ -301,45 +301,44 @@ TVar::~TVar()
 }
 
 TVar::TVar(__int64 v) :
-		vType(vtInteger),
-		inum(v),
-		dnum(0.0)
+	vType(vtInteger),
+	inum(v),
+	dnum(0.0),
+	str(nullptr)
 {
-	str = NULL;
 }
 
 TVar::TVar(int v) :
-		vType(vtInteger),
-		inum((__int64)v),
-		dnum(0.0)
+	vType(vtInteger),
+	inum((__int64)v),
+	dnum(0.0),
+	str(nullptr)
 {
-	str = NULL;
 }
 
 TVar::TVar(double v) :
-		vType(vtDouble),
-		inum(0),
-		dnum(v)
+	vType(vtDouble),
+	inum(0),
+	dnum(v),
+	str(nullptr)
 {
-	str = NULL;
 }
 
 TVar::TVar(const wchar_t *v) :
-		vType(vtString),
-		inum(0),
-		dnum(0.0)
+	vType(vtString),
+	inum(0),
+	dnum(0.0),
+	str(dubstr(v))
 {
-	str=dubstr(v);
 }
 
 TVar::TVar(const TVar& v) :
-		vType(v.vType),
-		inum(v.inum),
-		dnum(v.dnum)
+	vType(v.vType),
+	inum(v.inum),
+	dnum(v.dnum),
+	str(dubstr(v.str))
 {
-	str=dubstr(v.str);
 }
-
 
 TVar& TVar::operator=(const TVar& v)
 {
@@ -1591,13 +1590,13 @@ TVarSet *varLook(TVarTable table, const wchar_t *p, bool ins)
 		return nn;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 TVarSet *varEnum(TVarTable table,int NumTable, int Index)
 {
 	if (NumTable >= V_TABLE_SIZE)
-		return NULL;
+		return nullptr;
 
 	TVarSet *n = table[NumTable];
 
@@ -1633,17 +1632,17 @@ void varKill(TVarTable table, const wchar_t *p)
 void initVTable(TVarTable table)
 {
 	for (int i = 0 ; i < V_TABLE_SIZE ; i++)
-		table[i] = NULL;
+		table[i] = nullptr;
 }
 
 void deleteVTable(TVarTable table)
 {
 	for (int i = 0 ; i < V_TABLE_SIZE ; i++)
 	{
-		while (table[i] != NULL)
+		while (table[i] != nullptr)
 		{
 			TVarSet *n = ((TVarSet*)(table[i]->next));
-			table[i]->next = NULL;
+			table[i]->next = nullptr;
 			delete table[i];
 			table[i] = n;
 		}

@@ -101,8 +101,8 @@ void LoadFilterFromReg(FileFilterParams *HData, const wchar_t *RegKey, const wch
 		HData->SetMask(GetRegKey(RegKey,HLS.IgnoreMask,0)==0, Mask);
 
 	FILETIME DateAfter, DateBefore;
-	GetRegKey(RegKey,HLS.DateAfter,(BYTE *)&DateAfter,NULL,sizeof(DateAfter));
-	GetRegKey(RegKey,HLS.DateBefore,(BYTE *)&DateBefore,NULL,sizeof(DateBefore));
+	GetRegKey(RegKey,HLS.DateAfter,(BYTE *)&DateAfter,nullptr,sizeof(DateAfter));
+	GetRegKey(RegKey,HLS.DateBefore,(BYTE *)&DateBefore,nullptr,sizeof(DateBefore));
 	HData->SetDate(GetRegKey(RegKey,HLS.UseDate,0)!=0,
 	               (DWORD)GetRegKey(RegKey,HLS.DateType,0),
 	               DateAfter,
@@ -317,7 +317,7 @@ void HighlightFiles::GetHiColor(FileListItem **FileItem,int FileCount,bool UseAt
 		{
 			CurHiData = HiData.getItem(i);
 
-			if (UseAttrHighlighting && CurHiData->GetMask(NULL))
+			if (UseAttrHighlighting && CurHiData->GetMask(nullptr))
 				continue;
 
 			if (CurHiData->FileInFilter(fli, CurrentTime))
@@ -416,7 +416,7 @@ void HighlightFiles::ProcessGroups()
 int HighlightFiles::MenuPosToRealPos(int MenuPos, int **Count, bool Insert)
 {
 	int Pos=MenuPos;
-	*Count=NULL;
+	*Count=nullptr;
 	int x = Insert ? 1 : 0;
 
 	if (MenuPos<FirstCount+x)
@@ -444,7 +444,7 @@ int HighlightFiles::MenuPosToRealPos(int MenuPos, int **Count, bool Insert)
 
 void HighlightFiles::HiEdit(int MenuPos)
 {
-	VMenu HiMenu(MSG(MHighlightTitle),NULL,0,ScrY-4);
+	VMenu HiMenu(MSG(MHighlightTitle),nullptr,0,ScrY-4);
 	HiMenu.SetHelp(HLS.HighlightList);
 	HiMenu.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
 	HiMenu.SetPosition(-1,-1,0,0);
@@ -485,7 +485,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 				case KEY_NUMDEL:
 				case KEY_DEL:
 				{
-					int *Count=NULL;
+					int *Count=nullptr;
 					int RealSelectPos=MenuPosToRealPos(SelectPos,&Count);
 
 					if (Count && RealSelectPos<(int)HiData.getCount())
@@ -509,7 +509,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 				case KEY_ENTER:
 				case KEY_F4:
 				{
-					int *Count=NULL;
+					int *Count=nullptr;
 					int RealSelectPos=MenuPosToRealPos(SelectPos,&Count);
 
 					if (Count && RealSelectPos<(int)HiData.getCount())
@@ -520,7 +520,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 				}
 				case KEY_INS: case KEY_NUMPAD0:
 				{
-					int *Count=NULL;
+					int *Count=nullptr;
 					int RealSelectPos=MenuPosToRealPos(SelectPos,&Count,true);
 
 					if (Count)
@@ -543,7 +543,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 				}
 				case KEY_F5:
 				{
-					int *Count=NULL;
+					int *Count=nullptr;
 					int RealSelectPos=MenuPosToRealPos(SelectPos,&Count);
 
 					if (Count && RealSelectPos<(int)HiData.getCount())
@@ -569,7 +569,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 				}
 				case KEY_CTRLUP: case KEY_CTRLNUMPAD8:
 				{
-					int *Count=NULL;
+					int *Count=nullptr;
 					int RealSelectPos=MenuPosToRealPos(SelectPos,&Count);
 
 					if (Count && SelectPos > 0)
@@ -605,7 +605,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 				}
 				case KEY_CTRLDOWN: case KEY_CTRLNUMPAD2:
 				{
-					int *Count=NULL;
+					int *Count=nullptr;
 					int RealSelectPos=MenuPosToRealPos(SelectPos,&Count);
 
 					if (Count && SelectPos < (int)HiMenu.GetItemCount()-2)
@@ -679,7 +679,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 void SaveFilterToReg(FileFilterParams *CurHiData, const wchar_t *RegKey, bool bSortGroup)
 {
 	if (bSortGroup)
-		SetRegKey(RegKey,HLS.UseMask,CurHiData->GetMask(NULL));
+		SetRegKey(RegKey,HLS.UseMask,CurHiData->GetMask(nullptr));
 	else
 	{
 		const wchar_t *Mask;

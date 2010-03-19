@@ -58,10 +58,10 @@ static FileFilterParams FoldersFilter;
 
 static bool bMenuOpen = false;
 
-FileFilter::FileFilter(Panel *HostPanel, FAR_FILE_FILTER_TYPE FilterType)
+FileFilter::FileFilter(Panel *HostPanel, FAR_FILE_FILTER_TYPE FilterType):
+	m_HostPanel(HostPanel),
+	m_FilterType(FilterType)
 {
-	m_HostPanel=HostPanel;
-	m_FilterType=FilterType;
 	UpdateCurrentTime();
 }
 
@@ -92,7 +92,7 @@ bool FileFilter::FilterEdit()
 	MenuItemEx ListItem;
 	int ExitCode;
 	bool bNeedUpdate=false;
-	VMenu FilterList(MSG(MFilterTitle),NULL,0,ScrY-6);
+	VMenu FilterList(MSG(MFilterTitle),nullptr,0,ScrY-6);
 	FilterList.SetHelp(L"FiltersMenu");
 	FilterList.SetPosition(-1,-1,0,0);
 	FilterList.SetBottomTitle(MSG(MFilterBottom));
@@ -120,7 +120,7 @@ bool FileFilter::FilterEdit()
 		ListItem.Flags|=LIF_SELECTED;
 
 	FilterList.AddItem(&ListItem);
-	wchar_t *ExtPtr=NULL;
+	wchar_t *ExtPtr=nullptr;
 	int ExtCount=0;
 	{
 		enumFileFilterFlagsType FFFT = GetFFFT();
@@ -182,7 +182,7 @@ bool FileFilter::FilterEdit()
 	for (int i=0, h=L'1'; i<ExtCount; i++, (h==L'9'?h=L'A':(h==L'Z'||h==0?h=0:h++)))
 	{
 		wchar_t *CurExtPtr=ExtPtr+i*MAX_PATH;
-		MenuString(ListItem.strName,NULL,false,h,true,CurExtPtr,MSG(MPanelFileType));
+		MenuString(ListItem.strName,nullptr,false,h,true,CurExtPtr,MSG(MPanelFileType));
 		ListItem.SetCheck(CurExtPtr[StrLength(CurExtPtr)+1]);
 		FilterList.SetUserData(CurExtPtr,0,FilterList.AddItem(&ListItem));
 	}
@@ -492,7 +492,7 @@ void FileFilter::ProcessSelection(VMenu *FilterList)
 	for (int i=0,j=0; i < FilterList->GetItemCount(); i++)
 	{
 		int Check=FilterList->GetCheck(i);
-		CurFilterData=NULL;
+		CurFilterData=nullptr;
 
 		if (i < (int)FilterData.getCount())
 		{
@@ -517,7 +517,7 @@ void FileFilter::ProcessSelection(VMenu *FilterList)
 			strMask1 = Mask;
 			Unquote(strMask1);
 
-			while ((CurFilterData=TempFilterData.getItem(j))!=NULL)
+			while ((CurFilterData=TempFilterData.getItem(j))!=nullptr)
 			{
 				string strMask2;
 				CurFilterData->GetMask(&FMask);
@@ -559,7 +559,7 @@ void FileFilter::ProcessSelection(VMenu *FilterList)
 					}
 				}
 				else
-					CurFilterData=NULL;
+					CurFilterData=nullptr;
 			}
 
 			if (Check && !CurFilterData)
@@ -661,7 +661,7 @@ bool FileFilter::FileInFilter(const FAR_FIND_DATA *fd,enumFileInFilterType *foun
 				bAnyIncludeFound = true;
 				DWORD AttrClear;
 
-				if (CurFilterData->GetAttr(NULL,&AttrClear))
+				if (CurFilterData->GetAttr(nullptr,&AttrClear))
 					bAnyFolderIncludeFound = bAnyFolderIncludeFound || !(AttrClear&FILE_ATTRIBUTE_DIRECTORY);
 			}
 
@@ -808,8 +808,8 @@ void FileFilter::InitFilter()
 			NewFilter->SetMask(GetRegKey(strRegKey,L"UseMask",1)!=0,
 			                   strMask);
 			FILETIME DateAfter, DateBefore;
-			GetRegKey(strRegKey,L"DateAfter",(BYTE *)&DateAfter,NULL,sizeof(DateAfter));
-			GetRegKey(strRegKey,L"DateBefore",(BYTE *)&DateBefore,NULL,sizeof(DateBefore));
+			GetRegKey(strRegKey,L"DateAfter",(BYTE *)&DateAfter,nullptr,sizeof(DateAfter));
+			GetRegKey(strRegKey,L"DateBefore",(BYTE *)&DateBefore,nullptr,sizeof(DateBefore));
 			NewFilter->SetDate(GetRegKey(strRegKey,L"UseDate",0)!=0,
 			                   (DWORD)GetRegKey(strRegKey,L"DateType",0),
 			                   DateAfter,
@@ -824,7 +824,7 @@ void FileFilter::InitFilter()
 			                   (DWORD)GetRegKey(strRegKey,L"AttrSet",0),
 			                   (DWORD)GetRegKey(strRegKey,L"AttrClear",FILE_ATTRIBUTE_DIRECTORY));
 			DWORD Flags[FFFT_COUNT];
-			GetRegKey(strRegKey,L"FFlags",(BYTE *)Flags,NULL,sizeof(Flags));
+			GetRegKey(strRegKey,L"FFlags",(BYTE *)Flags,nullptr,sizeof(Flags));
 
 			for (DWORD i=FFFT_FIRST; i < FFFT_COUNT; i++)
 				NewFilter->SetFlags((enumFileFilterFlagsType)i, Flags[i]);
@@ -848,7 +848,7 @@ void FileFilter::InitFilter()
 			//Авто фильтры они только для файлов, папки не должны к ним подходить
 			NewFilter->SetAttr(1,0,FILE_ATTRIBUTE_DIRECTORY);
 			DWORD Flags[FFFT_COUNT];
-			GetRegKey(strRegKey,L"FFlags",(BYTE *)Flags,NULL,sizeof(Flags));
+			GetRegKey(strRegKey,L"FFlags",(BYTE *)Flags,nullptr,sizeof(Flags));
 
 			for (DWORD i=FFFT_FIRST; i < FFFT_COUNT; i++)
 				NewFilter->SetFlags((enumFileFilterFlagsType)i, Flags[i]);
@@ -861,7 +861,7 @@ void FileFilter::InitFilter()
 		FoldersFilter.SetMask(0,L"");
 		FoldersFilter.SetAttr(1,FILE_ATTRIBUTE_DIRECTORY,0);
 		DWORD Flags[FFFT_COUNT];
-		GetRegKey(L"Filters",L"FoldersFilterFFlags",(BYTE *)Flags,NULL,sizeof(Flags));
+		GetRegKey(L"Filters",L"FoldersFilterFFlags",(BYTE *)Flags,nullptr,sizeof(Flags));
 
 		for (DWORD i=FFFT_FIRST; i < FFFT_COUNT; i++)
 			FoldersFilter.SetFlags((enumFileFilterFlagsType)i, Flags[i]);
@@ -966,7 +966,7 @@ int FileFilter::ParseAndAddMasks(wchar_t **ExtPtr,const wchar_t *FileName,DWORD 
 	string strMask;
 
 	// Если маска содержит разделитель (',' или ';'), то возьмем ее в кавычки
-	if (DotPtr==NULL)
+	if (DotPtr==nullptr)
 		strMask = L"*.";
 	else if (wcspbrk(DotPtr,L",;"))
 		strMask.Format(L"\"*%s\"",DotPtr);
@@ -982,7 +982,7 @@ int FileFilter::ParseAndAddMasks(wchar_t **ExtPtr,const wchar_t *FileName,DWORD 
 	// ... а потом уже выделение памяти!
 	wchar_t *NewPtr;
 
-	if ((NewPtr=(wchar_t *)xf_realloc(*ExtPtr,MAX_PATH*(ExtCount+1)*sizeof(wchar_t))) == NULL)
+	if ((NewPtr=(wchar_t *)xf_realloc(*ExtPtr,MAX_PATH*(ExtCount+1)*sizeof(wchar_t))) == nullptr)
 		return 0;
 
 	*ExtPtr=NewPtr;

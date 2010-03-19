@@ -49,26 +49,23 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "exitcode.hpp"
 
-FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,int IsFullScreen)
+FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,int IsFullScreen):
+	Tree(nullptr),
+	FindEdit(nullptr),
+	ModalMode(iModalMode),
+	IsFullScreen(IsFullScreen),
+	IsStandalone(IsStandalone),
+	PrevMacroMode(CtrlObject->Macro.GetMode())
 {
 	SetDynamicallyBorn(FALSE);
-	ModalMode=iModalMode;
-	PrevMacroMode=CtrlObject->Macro.GetMode();
 	SetRestoreScreenMode(TRUE);
-
 	if (ModalMode != MODALTREE_FREE)
 		strResultFolder.Clear();
-
-	strNewFolder.Clear();
-	FolderTree::IsFullScreen=IsFullScreen;
-	FolderTree::IsStandalone=IsStandalone;
-	FindEdit=NULL;
-	Tree=NULL;
 	KeyBarVisible = TRUE;  // Заставим обновлятся кейбар
 	//TopScreen=new SaveScreen;
 	SetCoords();
 
-	if ((Tree=new TreeList(FALSE))!=NULL)
+	if ((Tree=new TreeList(FALSE))!=nullptr)
 	{
 		CtrlObject->Macro.SetMode(MACRO_FINDFOLDER);
 		MacroMode = MACRO_FINDFOLDER;
@@ -85,7 +82,7 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,i
 		// если было прерывание в процессе сканирования и это было дерево копира...
 		if (Tree->GetExitCode())
 		{
-			if ((FindEdit=new Edit)==NULL)
+			if ((FindEdit=new Edit)==nullptr)
 			{
 				SetExitCode(XC_OPEN_ERROR);
 				return;
@@ -165,7 +162,7 @@ void FolderTree::ResizeConsole()
 {
 	//if ( TopScreen )
 	//   delete TopScreen;
-	//TopScreen=NULL;
+	//TopScreen=nullptr;
 	Hide();
 	SetCoords();
 	Tree->SetPosition(X1,Y1,X2,Y2);

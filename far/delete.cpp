@@ -72,7 +72,7 @@ static void PR_ShellDeleteMsg();
 static int ReadOnlyDeleteMode,SkipMode,SkipWipeMode,SkipFoldersMode,DeleteAllFolders;
 ULONG ProcessedItems;
 
-ConsoleTitle *DeleteTitle=NULL;
+ConsoleTitle *DeleteTitle=nullptr;
 
 enum {DELETE_SUCCESS,DELETE_YES,DELETE_SKIP,DELETE_CANCEL};
 
@@ -107,7 +107,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 	{
 		string strRoot;
 //    char FSysNameSrc[NM];
-		SrcPanel->GetSelName(NULL,FileAttr);
+		SrcPanel->GetSelName(nullptr,FileAttr);
 		SrcPanel->GetSelName(&strSelName,FileAttr);
 		ConvertNameToFull(strSelName, strRoot);
 		GetPathRoot(strRoot,strRoot);
@@ -119,7 +119,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 
 	if (SelCount==1)
 	{
-		SrcPanel->GetSelName(NULL,FileAttr);
+		SrcPanel->GetSelName(nullptr,FileAttr);
 		SrcPanel->GetSelName(&strSelName,FileAttr);
 
 		if (TestParentFolderName(strSelName) || strSelName.IsEmpty())
@@ -287,7 +287,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 
 		if (Opt.DelOpt.DelShowTotal)
 		{
-			SrcPanel->GetSelName(NULL,FileAttr);
+			SrcPanel->GetSelName(nullptr,FileAttr);
 			DWORD StartTime=GetTickCount();
 			bool FirstTime=true;
 
@@ -316,7 +316,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 						ULONG CurrentFileCount,CurrentDirCount,ClusterSize;
 						UINT64 FileSize,CompressedFileSize,RealSize;
 
-						if (GetDirInfo(NULL,strSelName,CurrentDirCount,CurrentFileCount,FileSize,CompressedFileSize,RealSize,ClusterSize,-1,NULL,0)>0)
+						if (GetDirInfo(nullptr,strSelName,CurrentDirCount,CurrentFileCount,FileSize,CompressedFileSize,RealSize,ClusterSize,-1,nullptr,0)>0)
 						{
 							ItemsCount+=CurrentFileCount+CurrentDirCount+1;
 						}
@@ -333,7 +333,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 			}
 		}
 
-		SrcPanel->GetSelName(NULL,FileAttr);
+		SrcPanel->GetSelName(nullptr,FileAttr);
 		DWORD StartTime=GetTickCount();
 		bool FirstTime=true;
 
@@ -641,7 +641,7 @@ void ShellDeleteMsg(const wchar_t *Name,int Wipe,int Percent)
 	string strOutFileName(Name);
 	TruncPathStr(strOutFileName,static_cast<int>(Width));
 	CenterStr(strOutFileName,strOutFileName,static_cast<int>(Width));
-	Message(0,0,MSG(Wipe?MDeleteWipeTitle:MDeleteTitle),(Percent>=0||!Opt.DelOpt.DelShowTotal)?MSG(Wipe?MDeletingWiping:MDeleting):MSG(MScanningFolder),strOutFileName,strProgress.IsEmpty()?NULL:strProgress.CPtr());
+	Message(0,0,MSG(Wipe?MDeleteWipeTitle:MDeleteTitle),(Percent>=0||!Opt.DelOpt.DelShowTotal)?MSG(Wipe?MDeletingWiping:MDeleting):MSG(MScanningFolder),strOutFileName,strProgress.IsEmpty()?nullptr:strProgress.CPtr());
 	PreRedrawItem preRedrawItem=PreRedraw.Peek();
 	preRedrawItem.Param.Param1=static_cast<void*>(const_cast<wchar_t*>(Name));
 	preRedrawItem.Param.Param4=(void *)(INT_PTR)Wipe;
@@ -741,8 +741,8 @@ int ShellRemoveFile(const wchar_t *Name,int Wipe)
 		else if (!Opt.DeleteToRecycleBin)
 		{
 			/*
-			        HANDLE hDelete=FAR_CreateFile(Name,GENERIC_WRITE,0,NULL,OPEN_EXISTING,
-			               FILE_FLAG_DELETE_ON_CLOSE|FILE_FLAG_POSIX_SEMANTICS,NULL);
+			        HANDLE hDelete=FAR_CreateFile(Name,GENERIC_WRITE,0,nullptr,OPEN_EXISTING,
+			               FILE_FLAG_DELETE_ON_CLOSE|FILE_FLAG_POSIX_SEMANTICS,nullptr);
 			        if (hDelete!=INVALID_HANDLE_VALUE && CloseHandle(hDelete))
 			          break;
 			*/
@@ -930,7 +930,7 @@ int WipeFile(const wchar_t *Name)
 	unsigned __int64 FileSize;
 	HANDLE WipeHandle;
 	apiSetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
-	WipeHandle=apiCreateFile(Name,GENERIC_WRITE,0,NULL,OPEN_EXISTING,FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN);
+	WipeHandle=apiCreateFile(Name,GENERIC_WRITE,0,nullptr,OPEN_EXISTING,FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN);
 
 	if (WipeHandle==INVALID_HANDLE_VALUE)
 		return(FALSE);
@@ -952,17 +952,17 @@ int WipeFile(const wchar_t *Name)
 	while (FileSize>0)
 	{
 		DWORD WriteSize=(DWORD)Min((unsigned __int64)BufSize,FileSize);
-		WriteFile(WipeHandle,Buf,WriteSize,&Written,NULL);
+		WriteFile(WipeHandle,Buf,WriteSize,&Written,nullptr);
 		FileSize-=WriteSize;
 	}
 
-	WriteFile(WipeHandle,Buf,BufSize,&Written,NULL);
+	WriteFile(WipeHandle,Buf,BufSize,&Written,nullptr);
 	delete[] Buf;
-	apiSetFilePointerEx(WipeHandle,0,NULL,FILE_BEGIN);
+	apiSetFilePointerEx(WipeHandle,0,nullptr,FILE_BEGIN);
 	SetEndOfFile(WipeHandle);
 	CloseHandle(WipeHandle);
 	string strTempName;
-	FarMkTempEx(strTempName,NULL,FALSE);
+	FarMkTempEx(strTempName,nullptr,FALSE);
 
 	if (apiMoveFile(Name,strTempName))
 		return(apiDeleteFile(strTempName)); //BUGBUG
@@ -985,7 +985,7 @@ int WipeDirectory(const wchar_t *Name)
 		usePath = TRUE;
 	}
 
-	FarMkTempEx(strTempName,NULL,usePath);
+	FarMkTempEx(strTempName,nullptr,usePath);
 	Opt.strTempPath = strSavePath;
 
 	if (!apiMoveFile(Name, strTempName))

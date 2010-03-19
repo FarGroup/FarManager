@@ -48,14 +48,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "keyboard.hpp"
 
-HMenu::HMenu(HMenuData *Item,int ItemCount)
+HMenu::HMenu(HMenuData *Item,int ItemCount):
+	SubMenu(nullptr),
+	Item(Item),
+	ItemCount(ItemCount),
+	VExitCode(-1)
 {
 	SetDynamicallyBorn(FALSE);
-	SubMenu=NULL;
-	HMenu::Item=Item;
-	HMenu::ItemCount=ItemCount;
 	SetRestoreScreenMode(TRUE);
-	VExitCode = -1;
 	FrameManager->ModalizeFrame(this);
 }
 
@@ -335,7 +335,7 @@ int HMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		for (int i=0; i<ItemCount; i++)
 			if (MsX>=ItemX[i] && MsX<ItemX[i+1])
 			{
-				if (SubMenu!=NULL && SelectPos==i)
+				if (SubMenu!=nullptr && SelectPos==i)
 					return(FALSE);
 
 				Item[SelectPos].Selected=0;
@@ -362,7 +362,7 @@ void HMenu::GetExitCode(int &ExitCode,int &VExitCode)
 void HMenu::ProcessSubMenu(MenuDataEx *Data,int DataCount,
                            const wchar_t *SubMenuHelp,int X,int Y,int &Position)
 {
-	if (SubMenu!=NULL)
+	if (SubMenu!=nullptr)
 		delete SubMenu;
 
 	Position=-1;
@@ -394,7 +394,7 @@ void HMenu::ProcessSubMenu(MenuDataEx *Data,int DataCount,
 				if (ProcessMouse(&rec.Event.MouseEvent))
 				{
 					delete SubMenu;
-					SubMenu=NULL;
+					SubMenu=nullptr;
 					return;
 				}
 
@@ -407,7 +407,7 @@ void HMenu::ProcessSubMenu(MenuDataEx *Data,int DataCount,
 			        Key == KEY_MSWHEEL_LEFT || Key == KEY_MSWHEEL_RIGHT)
 			{
 				delete SubMenu;
-				SubMenu=NULL;
+				SubMenu=nullptr;
 				ProcessKey(Key);
 				ProcessKey(KEY_ENTER);
 				return;
@@ -419,7 +419,7 @@ void HMenu::ProcessSubMenu(MenuDataEx *Data,int DataCount,
 
 	Position=SubMenu->Modal::GetExitCode();
 	delete SubMenu;
-	SubMenu=NULL;
+	SubMenu=nullptr;
 }
 
 void HMenu::ResizeConsole()
@@ -428,7 +428,7 @@ void HMenu::ResizeConsole()
 	{
 		SaveScr->Discard();
 		delete SaveScr;
-		SaveScr=NULL;
+		SaveScr=nullptr;
 	}
 
 	Hide();

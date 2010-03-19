@@ -32,7 +32,7 @@ C    C  M     M  E       M     M    Œ¡⁄≈ “ÕŒ-Œ–»≈Õ“»–Œ¬¿ÕÕ€’
 #if defined(CMEM_INCLUDE) && defined(SYSLOG)
 
 #ifndef ALLOC
-static HANDLE FARHeapForNew=NULL;
+static HANDLE FARHeapForNew=nullptr;
 #endif
 
 #if     !defined(MAX_POINTERS)
@@ -51,11 +51,11 @@ enum line_char { U='\xDA', D='\xC0', H='\xC4',
 
 typedef void (*pvf)();
 
-//static HANDLE FARHeapForNew=NULL;
+//static HANDLE FARHeapForNew=nullptr;
 
 void GetNameEXE(char name[])
 {
-	GetModuleFileName(NULL,name,512);
+	GetModuleFileName(nullptr,name,512);
 	char *ptr=strrchr(name,'.');
 
 	if (ptr)
@@ -154,7 +154,7 @@ void ControlMem::open_r(void)
 	HANDLE hFile;
 	GetNameEXE(n);
 
-	if ((rpt = fopen(n, "wt")) == NULL)
+	if ((rpt = fopen(n, "wt")) == nullptr)
 		rpt = stderr;
 
 	fprintf(rpt,
@@ -277,7 +277,7 @@ void ControlMem::out_heap(void)
 	fprintf(rpt, "+---+-------+------+\n");
 	fprintf(rpt, "| # | Size  |Status|\n");
 	fprintf(rpt, "+---+-------+------+\n");
-	hi.ptr = NULL;
+	hi.ptr = nullptr;
 
 	while (heapwalk(&hi) == _HEAPOK)
 		fprintf(rpt, "|%3d|%7lu| %4s |\n",
@@ -378,7 +378,7 @@ void  *o_NEW(size_t s)
 	void  *p;
 	s = s ? abs(s) : 1;
 
-	while ((p = malloc(s)) == NULL && _new_handler != NULL)
+	while ((p = malloc(s)) == nullptr && _new_handler != nullptr)
 		_new_handler();
 
 	return p;
@@ -547,12 +547,12 @@ typedef struct _MEMORYSTATUS { // mst
 void *operator new(size_t size)
 {
 	extern new_handler _new_handler;
-	void *p=NULL;
+	void *p=nullptr;
 	size=size?size:1;
 
-	while ((p=malloc(size))==NULL)
+	while ((p=malloc(size))==nullptr)
 	{
-		if (_new_handler!=NULL)_new_handler();
+		if (_new_handler!=nullptr)_new_handler();
 		else break;
 	}
 

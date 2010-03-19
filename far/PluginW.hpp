@@ -141,35 +141,35 @@ class PluginW: public Plugin
 
 		bool IsPanelPlugin();
 
-		bool HasOpenPlugin() { return pOpenPluginW!=NULL; }
-		bool HasMakeDirectory() { return pMakeDirectoryW!=NULL; }
-		bool HasDeleteFiles() { return pDeleteFilesW!=NULL; }
-		bool HasPutFiles() { return pPutFilesW!=NULL; }
-		bool HasGetFiles() { return pGetFilesW!=NULL; }
-		bool HasSetStartupInfo() { return pSetStartupInfoW!=NULL; }
-		bool HasOpenFilePlugin() { return pOpenFilePluginW!=NULL; }
-		bool HasClosePlugin() { return pClosePluginW!=NULL; }
-		bool HasGetPluginInfo() { return pGetPluginInfoW!=NULL; }
-		bool HasGetOpenPluginInfo() { return pGetOpenPluginInfoW!=NULL; }
-		bool HasGetFindData() { return pGetFindDataW!=NULL; }
-		bool HasFreeFindData() { return pFreeFindDataW!=NULL; }
-		bool HasGetVirtualFindData() { return pGetVirtualFindDataW!=NULL; }
-		bool HasFreeVirtualFindData() { return pFreeVirtualFindDataW!=NULL; }
-		bool HasSetDirectory() { return pSetDirectoryW!=NULL; }
-		bool HasProcessHostFile() { return pProcessHostFileW!=NULL; }
-		bool HasSetFindList() { return pSetFindListW!=NULL; }
-		bool HasConfigure() { return pConfigureW!=NULL; }
-		bool HasExitFAR() { return pExitFARW!=NULL; }
-		bool HasProcessKey() { return pProcessKeyW!=NULL; }
-		bool HasProcessEvent() { return pProcessEventW!=NULL; }
-		bool HasProcessEditorEvent() { return pProcessEditorEventW!=NULL; }
-		bool HasCompare() { return pCompareW!=NULL; }
-		bool HasProcessEditorInput() { return pProcessEditorInputW!=NULL; }
-		bool HasMinFarVersion() { return pMinFarVersionW!=NULL; }
-		bool HasProcessViewerEvent() { return pProcessViewerEventW!=NULL; }
-		bool HasProcessDialogEvent() { return pProcessDialogEventW!=NULL; }
-		bool HasProcessSynchroEvent() { return pProcessSynchroEventW!=NULL; }
-		bool HasAnalyse() { return pAnalyseW != NULL; }
+		bool HasOpenPlugin() { return pOpenPluginW!=nullptr; }
+		bool HasMakeDirectory() { return pMakeDirectoryW!=nullptr; }
+		bool HasDeleteFiles() { return pDeleteFilesW!=nullptr; }
+		bool HasPutFiles() { return pPutFilesW!=nullptr; }
+		bool HasGetFiles() { return pGetFilesW!=nullptr; }
+		bool HasSetStartupInfo() { return pSetStartupInfoW!=nullptr; }
+		bool HasOpenFilePlugin() { return pOpenFilePluginW!=nullptr; }
+		bool HasClosePlugin() { return pClosePluginW!=nullptr; }
+		bool HasGetPluginInfo() { return pGetPluginInfoW!=nullptr; }
+		bool HasGetOpenPluginInfo() { return pGetOpenPluginInfoW!=nullptr; }
+		bool HasGetFindData() { return pGetFindDataW!=nullptr; }
+		bool HasFreeFindData() { return pFreeFindDataW!=nullptr; }
+		bool HasGetVirtualFindData() { return pGetVirtualFindDataW!=nullptr; }
+		bool HasFreeVirtualFindData() { return pFreeVirtualFindDataW!=nullptr; }
+		bool HasSetDirectory() { return pSetDirectoryW!=nullptr; }
+		bool HasProcessHostFile() { return pProcessHostFileW!=nullptr; }
+		bool HasSetFindList() { return pSetFindListW!=nullptr; }
+		bool HasConfigure() { return pConfigureW!=nullptr; }
+		bool HasExitFAR() { return pExitFARW!=nullptr; }
+		bool HasProcessKey() { return pProcessKeyW!=nullptr; }
+		bool HasProcessEvent() { return pProcessEventW!=nullptr; }
+		bool HasProcessEditorEvent() { return pProcessEditorEventW!=nullptr; }
+		bool HasCompare() { return pCompareW!=nullptr; }
+		bool HasProcessEditorInput() { return pProcessEditorInputW!=nullptr; }
+		bool HasMinFarVersion() { return pMinFarVersionW!=nullptr; }
+		bool HasProcessViewerEvent() { return pProcessViewerEventW!=nullptr; }
+		bool HasProcessDialogEvent() { return pProcessDialogEventW!=nullptr; }
+		bool HasProcessSynchroEvent() { return pProcessSynchroEventW!=nullptr; }
+		bool HasAnalyse() { return pAnalyseW != nullptr; }
 
 		const string &GetModuleName() { return m_strModuleName; }
 		const wchar_t *GetCacheName() { return m_strCacheName; }

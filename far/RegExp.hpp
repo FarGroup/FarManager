@@ -463,7 +463,7 @@ class RegExp
 		*/
 		int Match(const RECHAR* textstart,const RECHAR* textend,PMatch match,int& matchcount
 #ifdef NAMEDBRACKETS
-		          ,PMatchHash hmatch=NULL
+		          ,PMatchHash hmatch=nullptr
 #endif
 		         );
 		/*! Same as Match(const char* textstart,const char* textend,...), but for ASCIIZ string.
@@ -471,7 +471,7 @@ class RegExp
 		*/
 		int Match(const RECHAR* textstart,PMatch match,int& matchcount
 #ifdef NAMEDBRACKETS
-		          ,PMatchHash hmatch=NULL
+		          ,PMatchHash hmatch=nullptr
 #endif
 		         );
 		/*! Advanced version of match. Can be used for multiple matches
@@ -479,7 +479,7 @@ class RegExp
 		*/
 		int MatchEx(const RECHAR* datastart,const RECHAR* textstart,const RECHAR* textend,PMatch match,int& matchcount
 #ifdef NAMEDBRACKETS
-		            ,PMatchHash hmatch=NULL
+		            ,PMatchHash hmatch=nullptr
 #endif
 		           );
 		/*! Try to find substring that will match regexp.
@@ -488,7 +488,7 @@ class RegExp
 		*/
 		int Search(const RECHAR* textstart,const RECHAR* textend,PMatch match,int& matchcount
 #ifdef NAMEDBRACKETS
-		           ,PMatchHash hmatch=NULL
+		           ,PMatchHash hmatch=nullptr
 #endif
 		          );
 		/*! Same as Search with specified textend, but for ASCIIZ strings only.
@@ -496,7 +496,7 @@ class RegExp
 		*/
 		int Search(const RECHAR* textstart,PMatch match,int& matchcount
 #ifdef NAMEDBRACKETS
-		           ,PMatchHash hmatch=NULL
+		           ,PMatchHash hmatch=nullptr
 #endif
 		          );
 		/*! Advanced version of search. Can be used for multiple searches
@@ -504,7 +504,7 @@ class RegExp
 		*/
 		int SearchEx(const RECHAR* datastart,const RECHAR* textstart,const RECHAR* textend,PMatch match,int& matchcount
 #ifdef NAMEDBRACKETS
-		             ,PMatchHash hmatch=NULL
+		             ,PMatchHash hmatch=nullptr
 #endif
 		            );
 

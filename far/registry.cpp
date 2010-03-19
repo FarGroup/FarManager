@@ -47,7 +47,7 @@ static void DeleteKeyTreePart(const wchar_t *KeyName);
 static int DeleteCount;
 
 static HKEY hRegRootKey=HKEY_CURRENT_USER;
-static HKEY hRegCurrentKey=NULL;
+static HKEY hRegCurrentKey=nullptr;
 static int RequestSameKey=FALSE;
 
 void SetRegRootKey(HKEY hRootKey)
@@ -65,10 +65,10 @@ void UseSameRegKey()
 
 void CloseSameRegKey()
 {
-	if (hRegCurrentKey!=NULL)
+	if (hRegCurrentKey!=nullptr)
 	{
 		RegCloseKey(hRegCurrentKey);
-		hRegCurrentKey=NULL;
+		hRegCurrentKey=nullptr;
 	}
 
 	RequestSameKey=FALSE;
@@ -80,7 +80,7 @@ LONG SetRegKey(const wchar_t *Key,const wchar_t *ValueName,const wchar_t * const
 	HKEY hKey;
 	LONG Ret=ERROR_SUCCESS;
 
-	if ((hKey=CreateRegKey(Key)) != NULL)
+	if ((hKey=CreateRegKey(Key)) != nullptr)
 		Ret=RegSetValueEx(hKey,ValueName,0,Type,(unsigned char *)ValueData,(int)SizeData);
 
 	CloseRegKey(hKey);
@@ -92,7 +92,7 @@ LONG SetRegKey(const wchar_t *Key,const wchar_t *ValueName,const wchar_t * const
 	HKEY hKey;
 	LONG Ret=ERROR_SUCCESS;
 
-	if ((hKey=CreateRegKey(Key)) != NULL)
+	if ((hKey=CreateRegKey(Key)) != nullptr)
 		Ret=RegSetValueEx(hKey,ValueName,0,REG_SZ,(unsigned char *)ValueData,(int)(StrLength(ValueData)+1)*sizeof(wchar_t));
 
 	CloseRegKey(hKey);
@@ -104,7 +104,7 @@ LONG SetRegKey(const wchar_t *Key,const wchar_t *ValueName,DWORD ValueData)
 	HKEY hKey;
 	LONG Ret=ERROR_SUCCESS;
 
-	if ((hKey=CreateRegKey(Key)) != NULL)
+	if ((hKey=CreateRegKey(Key)) != nullptr)
 		Ret=RegSetValueEx(hKey,ValueName,0,REG_DWORD,(BYTE *)&ValueData,sizeof(ValueData));
 
 	CloseRegKey(hKey);
@@ -117,7 +117,7 @@ LONG SetRegKey64(const wchar_t *Key,const wchar_t *ValueName,unsigned __int64 Va
 	HKEY hKey;
 	LONG Ret=ERROR_SUCCESS;
 
-	if ((hKey=CreateRegKey(Key)) != NULL)
+	if ((hKey=CreateRegKey(Key)) != nullptr)
 		Ret=RegSetValueEx(hKey,ValueName,0,REG_QWORD,(BYTE *)&ValueData,sizeof(ValueData));
 
 	CloseRegKey(hKey);
@@ -129,7 +129,7 @@ LONG SetRegKey(const wchar_t *Key,const wchar_t *ValueName,const BYTE *ValueData
 	HKEY hKey;
 	LONG Ret=ERROR_SUCCESS;
 
-	if ((hKey=CreateRegKey(Key)) != NULL)
+	if ((hKey=CreateRegKey(Key)) != nullptr)
 		Ret=RegSetValueEx(hKey,ValueName,0,REG_BINARY,ValueData,ValueSize);
 
 	CloseRegKey(hKey);
@@ -182,7 +182,7 @@ int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,string &strValueData,c
 		                    ValueName,
 		                    0,
 		                    &Type,
-		                    NULL,
+		                    nullptr,
 		                    &QueryDataSize
 		                )) == ERROR_SUCCESS)
 		{
@@ -299,7 +299,7 @@ int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,BYTE *ValueData,const 
 
 	if (ExitCode!=ERROR_SUCCESS)
 	{
-		if (Default!=NULL)
+		if (Default!=nullptr)
 			memcpy(ValueData,Default,DataSize);
 		else
 			memset(ValueData,0,DataSize);
@@ -346,9 +346,9 @@ HKEY CreateRegKey(const wchar_t *Key)
 	static string strFullKeyName;
 	MkKeyName(Key,strFullKeyName);
 
-	if (RegCreateKeyEx(hRegRootKey,strFullKeyName,0,NULL,0,KEY_WRITE,NULL,
+	if (RegCreateKeyEx(hRegRootKey,strFullKeyName,0,nullptr,0,KEY_WRITE,nullptr,
 	                   &hKey,&Disposition) != ERROR_SUCCESS)
-		hKey=NULL;
+		hKey=nullptr;
 
 	if (RequestSameKey)
 	{
@@ -372,7 +372,7 @@ HKEY OpenRegKey(const wchar_t *Key)
 	if (RegOpenKeyEx(hRegRootKey,strFullKeyName,0,KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS,&hKey)!=ERROR_SUCCESS)
 	{
 		CloseSameRegKey();
-		return(NULL);
+		return(nullptr);
 	}
 
 	if (RequestSameKey)
@@ -532,7 +532,7 @@ int CopyKeyTree(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip)
 	DeleteFullKeyTree(Dest);
 	DWORD Disposition;
 
-	if (RegCreateKeyEx(hRegRootKey,Dest,0,NULL,0,KEY_WRITE,NULL,&hDestKey,&Disposition)!=ERROR_SUCCESS)
+	if (RegCreateKeyEx(hRegRootKey,Dest,0,nullptr,0,KEY_WRITE,nullptr,&hDestKey,&Disposition)!=ERROR_SUCCESS)
 	{
 		CloseRegKey(hSrcKey);
 		return(FALSE);
@@ -547,7 +547,7 @@ int CopyKeyTree(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip)
 	{
 		wchar_t ValueName[200];
 		DWORD Type,NameSize=countof(ValueName),DataSize=AllocDataSize;
-		int ExitCode=RegEnumValue(hSrcKey,i,ValueName,&NameSize,NULL,&Type,(BYTE *)ValueData,&DataSize);
+		int ExitCode=RegEnumValue(hSrcKey,i,ValueName,&NameSize,nullptr,&Type,(BYTE *)ValueData,&DataSize);
 
 		if (ExitCode != ERROR_SUCCESS)
 		{
@@ -566,7 +566,7 @@ int CopyKeyTree(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip)
 				ValueData=NewValueData;
 			}
 
-			ExitCode=RegEnumValue(hSrcKey,i,ValueName,&NameSize,NULL,&Type,(BYTE *)ValueData,&DataSize);
+			ExitCode=RegEnumValue(hSrcKey,i,ValueName,&NameSize,nullptr,&Type,(BYTE *)ValueData,&DataSize);
 
 			if (ExitCode != ERROR_SUCCESS)
 				break;
@@ -591,7 +591,7 @@ int CopyKeyTree(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip)
 		strSrcKeyName += L"\\";
 		strSrcKeyName += strSubkeyName;
 
-		if (Skip!=NULL)
+		if (Skip!=nullptr)
 		{
 			bool Found=false;
 			const wchar_t *SkipName=Skip;
@@ -610,7 +610,7 @@ int CopyKeyTree(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip)
 		strDestKeyName += L"\\";
 		strDestKeyName += strSubkeyName;
 
-		if (RegCreateKeyEx(hRegRootKey,strDestKeyName,0,NULL,0,KEY_WRITE,NULL,&hDestKey,&Disposition)!=ERROR_SUCCESS)
+		if (RegCreateKeyEx(hRegRootKey,strDestKeyName,0,nullptr,0,KEY_WRITE,nullptr,&hDestKey,&Disposition)!=ERROR_SUCCESS)
 			break;
 
 		CloseRegKey(hDestKey);
@@ -696,7 +696,7 @@ int DeleteEmptyKey(HKEY hRoot, const wchar_t *FullKeyName)
 			{
 				wchar_t SubName[1];	// no matter
 				DWORD SubSize=countof(SubName);
-				ExitCode=RegEnumValue(hKey,0,SubName,&SubSize,NULL,NULL,NULL, NULL);
+				ExitCode=RegEnumValue(hKey,0,SubName,&SubSize,nullptr,nullptr,nullptr, nullptr);
 			}
 
 			CloseRegKey(hKey);
@@ -707,7 +707,7 @@ int DeleteEmptyKey(HKEY hRoot, const wchar_t *FullKeyName)
 				wchar_t *pKeyName = strKeyName.GetBuffer();
 				wchar_t *pSubKey = pKeyName;
 
-				if (NULL!=(pSubKey=wcsrchr(pSubKey,L'\\')))
+				if (nullptr!=(pSubKey=wcsrchr(pSubKey,L'\\')))
 				{
 					*pSubKey=0;
 					pSubKey++;
@@ -753,7 +753,7 @@ int CheckRegValue(const wchar_t *Key,const wchar_t *ValueName)
 	if (hKey)
 	{
 		DWORD Type;
-		ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,NULL,&DataSize);
+		ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,nullptr,&DataSize);
 		CloseRegKey(hKey);
 	}
 
@@ -819,7 +819,7 @@ int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string &
 		{
 			wchar_t *Name=strValueName.GetBuffer(ValNameSize);
 			ValNameSize0=ValNameSize;
-			ExitCode=RegEnumValue(hKey,Index,Name,&ValNameSize0,NULL,NULL,NULL,NULL);
+			ExitCode=RegEnumValue(hKey,Index,Name,&ValNameSize0,nullptr,nullptr,nullptr,nullptr);
 			strValueName.ReleaseBuffer();
 		}
 
@@ -828,7 +828,7 @@ int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string &
 			DWORD Size = 0, Size0;
 			ValNameSize0=ValNameSize;
 			// Get DataSize
-			/*ExitCode = */RegEnumValue(hKey,Index,(LPWSTR)(const wchar_t*)strValueName,&ValNameSize0, NULL, &Type, NULL, &Size);
+			/*ExitCode = */RegEnumValue(hKey,Index,(LPWSTR)(const wchar_t*)strValueName,&ValNameSize0, nullptr, &Type, nullptr, &Size);
 			// здесь ExitCode == ERROR_SUCCESS
 
 			// корректировка размера
@@ -847,7 +847,7 @@ int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string &
 			wmemset(Data,0,Size/sizeof(wchar_t)+1);
 			ValNameSize0=ValNameSize;
 			Size0=Size;
-			ExitCode=RegEnumValue(hKey,Index,(LPWSTR)(const wchar_t*)strValueName,&ValNameSize0,NULL,&Type,(LPBYTE)Data,&Size0);
+			ExitCode=RegEnumValue(hKey,Index,(LPWSTR)(const wchar_t*)strValueName,&ValNameSize0,nullptr,&Type,(LPBYTE)Data,&Size0);
 
 			if (ExitCode == ERROR_SUCCESS)
 			{
@@ -899,9 +899,9 @@ int RegQueryStringValueEx(
 	int nResult = RegQueryValueEx(
 	                  hKey,
 	                  lpwszValueName,
-	                  NULL,
-	                  NULL,
-	                  NULL,
+	                  nullptr,
+	                  nullptr,
+	                  nullptr,
 	                  &cbSize
 	              );
 
@@ -911,8 +911,8 @@ int RegQueryStringValueEx(
 		nResult = RegQueryValueEx(
 		              hKey,
 		              lpwszValueName,
-		              NULL,
-		              NULL,
+		              nullptr,
+		              nullptr,
 		              (LPBYTE)lpwszData,
 		              &cbSize
 		          );
@@ -937,9 +937,9 @@ int RegQueryStringValue(
 	int nResult = RegQueryValueEx(
 	                  hKey,
 	                  lpwszSubKey,
-	                  NULL,
-	                  NULL,
-	                  NULL,
+	                  nullptr,
+	                  nullptr,
+	                  nullptr,
 	                  &cbSize
 	              );
 
@@ -950,7 +950,7 @@ int RegQueryStringValue(
 		nResult = RegQueryValueEx(
 		              hKey,
 		              lpwszSubKey,
-		              NULL,
+		              nullptr,
 		              &Type,
 		              (LPBYTE)lpwszData,
 		              &cbSize

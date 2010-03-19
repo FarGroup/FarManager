@@ -245,7 +245,7 @@ int GetPluginDirInfo(HANDLE hPlugin,const wchar_t *DirName,unsigned long &DirCou
                      unsigned long &FileCount,unsigned __int64 &FileSize,
                      unsigned __int64 &CompressedFileSize)
 {
-	PluginPanelItem *PanelItem=NULL;
+	PluginPanelItem *PanelItem=nullptr;
 	int ItemsNumber,ExitCode;
 	DirCount=FileCount=0;
 	FileSize=CompressedFileSize=0;
@@ -268,7 +268,7 @@ int GetPluginDirInfo(HANDLE hPlugin,const wchar_t *DirName,unsigned long &DirCou
 		}
 	}
 
-	if (PanelItem!=NULL)
+	if (PanelItem!=nullptr)
 		FarFreePluginDirList(PanelItem, ItemsNumber);
 
 	return(ExitCode);

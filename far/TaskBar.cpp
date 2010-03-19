@@ -37,10 +37,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 TaskBarCore TBC;
 
-TaskBarCore::TaskBarCore()
+TaskBarCore::TaskBarCore():
+	pTaskbarList(nullptr)
 {
-	pTaskbarList=NULL;
-	HRESULT hRes=CoInitializeEx(NULL,COINIT_APARTMENTTHREADED);
+	
+	HRESULT hRes=CoInitializeEx(nullptr,COINIT_APARTMENTTHREADED);
 
 	switch (hRes)
 	{
@@ -49,7 +50,7 @@ TaskBarCore::TaskBarCore()
 			CoInited=true;
 		case RPC_E_CHANGED_MODE:
 #ifndef __GNUC__ //BUGBUG
-			CoCreateInstance(CLSID_TaskbarList,NULL,CLSCTX_INPROC_SERVER,IID_PPV_ARGS(&pTaskbarList));
+			CoCreateInstance(CLSID_TaskbarList,nullptr,CLSCTX_INPROC_SERVER,IID_PPV_ARGS(&pTaskbarList));
 #endif
 			break;
 		default:
@@ -124,10 +125,9 @@ TaskBar::~TaskBar()
 
 
 
-TaskBarPause::TaskBarPause()
+TaskBarPause::TaskBarPause():
+	PrevState(TBC.GetProgressState())
 {
-	PrevState=TBC.GetProgressState();
-
 	if (PrevState!=TBPF_ERROR && PrevState!=TBPF_PAUSED)
 	{
 		if (PrevState==TBPF_INDETERMINATE||PrevState==TBPF_NOPROGRESS)
@@ -147,9 +147,9 @@ TaskBarPause::~TaskBarPause()
 
 
 
-TaskBarError::TaskBarError()
+TaskBarError::TaskBarError():
+	PrevState(TBC.GetProgressState())
 {
-	PrevState=TBC.GetProgressState();
 
 	if (PrevState!=TBPF_ERROR && PrevState!=TBPF_PAUSED)
 	{

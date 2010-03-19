@@ -35,8 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "local.hpp"
 
-#define string UnicodeString
-
 #define __US_DELTA 20
 
 class UnicodeStringData
@@ -120,7 +118,7 @@ class UnicodeStringData
 		~UnicodeStringData() { FreeData(m_pData); }
 };
 
-class UnicodeString
+typedef class UnicodeString
 {
 	private:
 		UnicodeStringData *m_pData;
@@ -136,7 +134,7 @@ class UnicodeString
 		UnicodeString(const char *lpszData, UINT CodePage=CP_OEMCP) { SetEUS(); Copy(lpszData, CodePage); }
 		explicit UnicodeString(size_t nSize, size_t nDelta=0) { m_pData = new UnicodeStringData(nSize, nDelta); }
 
-		~UnicodeString() { /*if (m_pData) он не должен быть NULL*/ m_pData->DecRef(); }
+		~UnicodeString() { /*if (m_pData) он не должен быть nullptr*/ m_pData->DecRef(); }
 
 		void Inflate(size_t nSize);
 		wchar_t *GetBuffer(size_t nSize = (size_t)-1);
@@ -175,7 +173,7 @@ class UnicodeString
 		UnicodeString& Copy(const UnicodeString &Str);
 		UnicodeString& Copy(const char *lpszData, UINT CodePage=CP_OEMCP);
 
-		UnicodeString& Remove(size_t Pos, size_t Len = 1) { return Replace(Pos, Len, NULL, 0); }
+		UnicodeString& Remove(size_t Pos, size_t Len = 1) { return Replace(Pos, Len, nullptr, 0); }
 		UnicodeString& LShift(size_t nShiftCount, size_t nStartPos=0) { return Remove(nStartPos, nShiftCount); }
 
 		UnicodeString& Clear();
@@ -216,6 +214,6 @@ class UnicodeString
 		bool PosI(size_t &nPos, const wchar_t *lpwszFind, size_t nStartPos=0) const;
 		bool RPos(size_t &nPos, wchar_t Ch, size_t nStartPos=0) const;
 
-		bool Contains(wchar_t Ch, size_t nStartPos=0) const { return wcschr(m_pData->GetData()+nStartPos,Ch)==NULL ? false : true; }
-		bool Contains(const wchar_t *lpwszFind, size_t nStartPos=0) const { return wcsstr(m_pData->GetData()+nStartPos,lpwszFind)==NULL ? false : true; }
-};
+		bool Contains(wchar_t Ch, size_t nStartPos=0) const { return wcschr(m_pData->GetData()+nStartPos,Ch)==nullptr ? false : true; }
+		bool Contains(const wchar_t *lpwszFind, size_t nStartPos=0) const { return wcsstr(m_pData->GetData()+nStartPos,lpwszFind)==nullptr ? false : true; }
+} string;

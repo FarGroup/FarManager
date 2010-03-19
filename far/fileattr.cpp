@@ -82,7 +82,7 @@ int ESetFileAttributes(const wchar_t *Name,DWORD Attr,int SkipMode)
 static int SetFileCompression(const wchar_t *Name,int State)
 {
 	HANDLE hFile=apiCreateFile(Name,FILE_READ_DATA|FILE_WRITE_DATA,
-	                           FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,
+	                           FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_EXISTING,
 	                           FILE_FLAG_SEQUENTIAL_SCAN);
 
 	if (hFile==INVALID_HANDLE_VALUE)
@@ -91,7 +91,7 @@ static int SetFileCompression(const wchar_t *Name,int State)
 	USHORT NewState=State ? COMPRESSION_FORMAT_DEFAULT:COMPRESSION_FORMAT_NONE;
 	DWORD Result;
 	int RetCode=DeviceIoControl(hFile,FSCTL_SET_COMPRESSION,&NewState,
-	                            sizeof(NewState),NULL,0,&Result,NULL);
+	                            sizeof(NewState),nullptr,0,&Result,nullptr);
 	CloseHandle(hFile);
 	return(RetCode);
 }
@@ -220,7 +220,7 @@ int ESetFileEncryption(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode
 int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationTime,
                  FILETIME *LastAccessTime,DWORD FileAttr,int SkipMode)
 {
-	if (LastWriteTime==NULL && CreationTime==NULL && LastAccessTime==NULL)
+	if (LastWriteTime==nullptr && CreationTime==nullptr && LastAccessTime==nullptr)
 		return SETATTR_RET_OK;
 
 	while (1)
@@ -229,7 +229,7 @@ int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationT
 			apiSetFileAttributes(Name,FileAttr & ~FILE_ATTRIBUTE_READONLY);
 
 		HANDLE hFile=apiCreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,
-		                           NULL,OPEN_EXISTING,
+		                           nullptr,OPEN_EXISTING,
 		                           FILE_FLAG_OPEN_REPARSE_POINT);
 		int SetTime;
 		DWORD LastError=0;
@@ -290,13 +290,13 @@ int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationT
 static bool SetFileSparse(const wchar_t *Name,bool State)
 {
 	bool Ret=false;
-	HANDLE hFile=apiCreateFile(Name,FILE_WRITE_DATA,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,OPEN_EXISTING,0);
+	HANDLE hFile=apiCreateFile(Name,FILE_WRITE_DATA,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,0);
 
 	if (hFile!=INVALID_HANDLE_VALUE)
 	{
 		DWORD BytesReturned;
 		FILE_SET_SPARSE_BUFFER sb={State};
-		Ret=(DeviceIoControl(hFile,FSCTL_SET_SPARSE,&sb,sizeof(sb),NULL,0,&BytesReturned,NULL)!=0);
+		Ret=(DeviceIoControl(hFile,FSCTL_SET_SPARSE,&sb,sizeof(sb),nullptr,0,&BytesReturned,nullptr)!=0);
 		CloseHandle(hFile);
 	}
 

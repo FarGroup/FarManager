@@ -176,7 +176,7 @@ class DialogBuilderBase
 			// чтобы все нормальные диалоги помещались без реаллокации
 			// TODO хорошо бы, чтобы они вообще не инвалидировались
 			DialogItemsAllocated += 32;
-			if (DialogItems == NULL)
+			if (DialogItems == nullptr)
 			{
 				DialogItems = new T[DialogItemsAllocated];
 				Bindings = new DialogItemBinding<T> * [DialogItemsAllocated];
@@ -207,7 +207,7 @@ class DialogBuilderBase
 			T *Item = &DialogItems [Index];
 			InitDialogItem(Item, Text);
 			Item->Type = Type;
-			Bindings [Index] = NULL;
+			Bindings [Index] = nullptr;
 			return Item;
 		}
 
@@ -316,7 +316,7 @@ class DialogBuilderBase
 			int Index = static_cast<int>(Item - DialogItems);
 			if (Index >= 0 && Index < DialogItemsCount)
 				return Bindings [Index];
-			return NULL;
+			return nullptr;
 		}
 
 		void SaveValues()
@@ -336,7 +336,7 @@ class DialogBuilderBase
 
 		virtual const TCHAR *GetLangString(int MessageID)
 		{
-			return NULL;
+			return nullptr;
 		}
 
 		virtual int DoShowDialog()
@@ -346,16 +346,16 @@ class DialogBuilderBase
 
 		virtual DialogItemBinding<T> *CreateCheckBoxBinding(BOOL *Value, int Mask)
 		{
-			return NULL;
+			return nullptr;
 		}
 
 		virtual DialogItemBinding<T> *CreateRadioButtonBinding(int *Value)
 		{
-			return NULL;
+			return nullptr;
 		}
 
 		DialogBuilderBase()
-			: DialogItems(NULL), DialogItemsCount(0), DialogItemsAllocated(0), NextY(2), 
+			: DialogItems(nullptr), DialogItemsCount(0), DialogItemsAllocated(0), NextY(2), 
 			  ColumnStartIndex(-1), ColumnBreakIndex(-1), ColumnMinWidth(0)
 		{
 		}	
@@ -413,7 +413,7 @@ class DialogBuilderBase
 		// ƒобавл€ет поле типа DI_FIXEDIT дл€ редактировани€ указанного числового значени€.
 		virtual T *AddIntEditField(int *Value, int Width)
 		{
-			return NULL;
+			return nullptr;
 		}
 
 		// ƒобавл€ет указанную текстовую строку слева от элемента RelativeTo.
@@ -736,7 +736,7 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 			int Height = DialogItems [0].Y2+2;
 #ifdef UNICODE
 			DialogHandle = Info.DialogInit(Info.ModuleNumber, -1, -1, Width, Height,
-				HelpTopic, DialogItems, DialogItemsCount, 0, 0, NULL, 0);
+				HelpTopic, DialogItems, DialogItemsCount, 0, 0, nullptr, 0);
 			return Info.DialogRun(DialogHandle);
 #else
 			return Info.Dialog(Info.ModuleNumber, -1, -1, Width, Height,
@@ -801,7 +801,7 @@ public:
 			return Item;
 		}
 
-		FarDialogItem *AddEditField(TCHAR *Value, int Width, const TCHAR *HistoryID = NULL)
+		FarDialogItem *AddEditField(TCHAR *Value, int Width, const TCHAR *HistoryID = nullptr)
 		{
 			FarDialogItem *Item = AddDialogItem(DI_EDIT, Value);
 			SetNextY(Item);

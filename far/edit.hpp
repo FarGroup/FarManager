@@ -191,7 +191,7 @@ class Edit:public ScreenObject
 
 		inline const wchar_t* WordDiv(void) {return strWordDiv->CPtr();};
 	public:
-		Edit(ScreenObject *pOwner = NULL, Callback* aCallback = NULL, bool bAllocateData = true);
+		Edit(ScreenObject *pOwner = nullptr, Callback* aCallback = nullptr, bool bAllocateData = true);
 		virtual ~Edit();
 
 	public:
@@ -202,7 +202,7 @@ class Edit:public ScreenObject
 		virtual void  FastShow();
 		virtual int   ProcessKey(int Key);
 		virtual int   ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-		virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
+		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
 
 		//   ! Функция установки текущих Color,SelColor и ColorUnChanged!
 		void  SetObjectColor(int Color,int SelColor=0xf,int ColorUnChanged=COL_DIALOGEDITUNCHANGED);
@@ -332,7 +332,7 @@ public:
 		EC_ENABLEFNCOMPLETE=0x2,
 	};
 
-	EditControl(ScreenObject *pOwner=NULL,Callback* aCallback=NULL,bool bAllocateData=true,History* iHistory=0,FarList* iList=0,DWORD iFlags=0);
+	EditControl(ScreenObject *pOwner=nullptr,Callback* aCallback=nullptr,bool bAllocateData=true,History* iHistory=0,FarList* iList=0,DWORD iFlags=0);
 	virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 	virtual void Show();
 	virtual void Changed(bool DelBlock=false);

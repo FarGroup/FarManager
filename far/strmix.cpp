@@ -70,7 +70,7 @@ string &FormatNumber(const wchar_t *Src, string &strDest, int NumDigits)
 
 	fmt.NumDigits = NumDigits;
 	string strSrc=Src;
-	int Size=GetNumberFormat(LOCALE_USER_DEFAULT,0,strSrc,&fmt,NULL,0);
+	int Size=GetNumberFormat(LOCALE_USER_DEFAULT,0,strSrc,&fmt,nullptr,0);
 	wchar_t* lpwszDest=strDest.GetBuffer(Size);
 	GetNumberFormat(LOCALE_USER_DEFAULT,0,strSrc,&fmt,lpwszDest,Size);
 	strDest.ReleaseBuffer();
@@ -143,7 +143,7 @@ wchar_t * WINAPI InsertQuote(wchar_t *Str)
 
 wchar_t * WINAPI InsertRegexpQuote(wchar_t *Str)
 {
-	if (Str!=NULL && *Str != L'/')
+	if (Str!=nullptr && *Str != L'/')
 		return InsertCustomQuote(Str,L'/');
 	else          //выражение вида /regexp/i не дополняем слэшем
 		return Str;
@@ -151,7 +151,7 @@ wchar_t * WINAPI InsertRegexpQuote(wchar_t *Str)
 
 wchar_t* WINAPI QuoteSpace(wchar_t *Str)
 {
-	if (wcspbrk(Str, Opt.strQuotedSymbols) != NULL)
+	if (wcspbrk(Str, Opt.strQuotedSymbols) != nullptr)
 		InsertQuote(Str);
 
 	return Str;
@@ -173,7 +173,7 @@ string& InsertRegexpQuote(string &strStr)
 
 string &QuoteSpace(string &strStr)
 {
-	if (wcspbrk(strStr, Opt.strQuotedSymbols) != NULL)
+	if (wcspbrk(strStr, Opt.strQuotedSymbols) != nullptr)
 		InsertQuote(strStr);
 
 	return strStr;
@@ -182,7 +182,7 @@ string &QuoteSpace(string &strStr)
 
 wchar_t*  WINAPI QuoteSpaceOnly(wchar_t *Str)
 {
-	if (wcschr(Str,L' ')!=NULL)
+	if (wcschr(Str,L' ')!=nullptr)
 		InsertQuote(Str);
 
 	return Str;
@@ -311,7 +311,7 @@ wchar_t* WINAPI TruncPathStr(wchar_t *Str, int MaxLength)
 
 		if ((MaxLength > 0) && (nLength > MaxLength) && (nLength >= 2))
 		{
-			wchar_t *lpStart = NULL;
+			wchar_t *lpStart = nullptr;
 
 			if (*Str && (Str[1] == L':') && IsSlash(Str[2]))
 				lpStart = Str+3;
@@ -319,11 +319,11 @@ wchar_t* WINAPI TruncPathStr(wchar_t *Str, int MaxLength)
 			{
 				if ((Str[0] == L'\\') && (Str[1] == L'\\'))
 				{
-					if ((lpStart = const_cast<wchar_t*>(FirstSlash(Str+2))) != NULL)
+					if ((lpStart = const_cast<wchar_t*>(FirstSlash(Str+2))) != nullptr)
 					{
 						wchar_t *lpStart2=lpStart;
 
-						if ((lpStart-Str < nLength) && ((lpStart=const_cast<wchar_t*>(FirstSlash(lpStart2+1)))!=NULL))
+						if ((lpStart-Str < nLength) && ((lpStart=const_cast<wchar_t*>(FirstSlash(lpStart2+1)))!=nullptr))
 							lpStart++;
 					}
 				}
@@ -356,7 +356,7 @@ wchar_t* WINAPI RemoveLeadingSpaces(wchar_t *Str)
 	wchar_t *ChPtr = Str;
 
 	if (!ChPtr)
-		return NULL;
+		return nullptr;
 
 	for (; IsSpace(*ChPtr) || IsEol(*ChPtr); ChPtr++)
 		;
@@ -384,7 +384,7 @@ string& WINAPI RemoveLeadingSpaces(string &strStr)
 wchar_t* WINAPI RemoveTrailingSpaces(wchar_t *Str)
 {
 	if (!Str)
-		return NULL;
+		return nullptr;
 
 	if (!*Str)
 		return Str;
@@ -503,7 +503,7 @@ string& CenterStr(const wchar_t *Src, string &strDest, int Length)
 const wchar_t *GetCommaWord(const wchar_t *Src, string &strWord,wchar_t Separator)
 {
 	if (*Src==0)
-		return NULL;
+		return nullptr;
 
 	const wchar_t *StartPtr = Src;
 	size_t WordLen;
@@ -511,7 +511,7 @@ const wchar_t *GetCommaWord(const wchar_t *Src, string &strWord,wchar_t Separato
 
 	for (WordLen=0; *Src!=0; Src++,WordLen++)
 	{
-		if (*Src==L'[' && wcschr(Src+1,L']')!=NULL)
+		if (*Src==L'[' && wcschr(Src+1,L']')!=nullptr)
 			SkipBrackets=true;
 
 		if (*Src==L']')
@@ -857,7 +857,7 @@ FarFormatText("Пример строки, которая будет разбита на несколько строк по ширине
 ---
 
 Example 2.
-FarFormatText( "Эта строка содержит оооооооооооооччччччччеееень длиное слово", 9, Dest, NULL, FFTM_BREAKLONGWORD);
+FarFormatText( "Эта строка содержит оооооооооооооччччччччеееень длиное слово", 9, Dest, nullptr, FFTM_BREAKLONGWORD);
 Этот пример вернет:
 
 ---
@@ -881,7 +881,7 @@ enum FFTMODE
 string& WINAPI FarFormatText(const wchar_t *SrcText,     // источник
                              int Width,               // заданная ширина
                              string &strDestText,          // приемник
-                             const wchar_t* Break,       // брик, если = NULL, то принимается '\n'
+                             const wchar_t* Break,       // брик, если = nullptr, то принимается '\n'
                              DWORD Flags)             // один из FFTM_*
 {
 	const wchar_t *breakchar;
@@ -1091,7 +1091,7 @@ const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Star
 	int StrSize=StrLength(Str);
 
 	if (CurPos >= StrSize)
-		return NULL;
+		return nullptr;
 
 	string strWordDiv(WordDiv0);
 	strWordDiv += L" \t\n\r";
@@ -1257,7 +1257,7 @@ void Transform(string &strBuffer,const wchar_t *ConvStr,wchar_t TransformType)
 					WCHAR Hex[]={ptrConvStr[0],ptrConvStr[1],0};
 					size_t l=strTemp.GetLength();
 					wchar_t *Temp=strTemp.GetBuffer(l+2);
-					Temp[l]=(wchar_t)wcstoul(Hex,NULL,16)&0xFFFF;
+					Temp[l]=(wchar_t)wcstoul(Hex,nullptr,16)&0xFFFF;
 					strTemp.ReleaseBuffer(l+1);
 					ptrConvStr++;
 				}

@@ -76,7 +76,7 @@ void AddSavedNetworkDisks(DWORD& Mask, DWORD& NetworkMask)
 				memset(netResource,0,bufsz);
 				DWORD res = WNetEnumResource(hEnum, &size, netResource, &bufsz);
 
-				if (res == NO_ERROR && size > 0 && netResource->lpLocalName != NULL)
+				if (res == NO_ERROR && size > 0 && netResource->lpLocalName != nullptr)
 				{
 					wchar_t letter = Lower(netResource->lpLocalName[0]);
 
@@ -124,7 +124,7 @@ void ConnectToNetworkDrive(const wchar_t *NewDir)
 	{
 		while (1)
 		{
-			if (!GetNameAndPassword(strRemoteName, strUserName, strPassword, NULL, GNP_USELAST))
+			if (!GetNameAndPassword(strRemoteName, strUserName, strPassword, nullptr, GNP_USELAST))
 				break;
 
 			res = WNetAddConnection2(&netResource, strPassword, strUserName, 0);

@@ -173,7 +173,7 @@ bool TestCurrentDirectory(const wchar_t *TestDir)
 
 const wchar_t* __stdcall PointToName(const wchar_t *lpwszPath)
 {
-	return PointToName(lpwszPath,NULL);
+	return PointToName(lpwszPath,nullptr);
 }
 
 const wchar_t* PointToName(string& strPath)
@@ -186,7 +186,7 @@ const wchar_t* PointToName(string& strPath)
 const wchar_t* PointToName(const wchar_t *lpwszPath,const wchar_t *lpwszEndPtr)
 {
 	if (!lpwszPath)
-		return NULL;
+		return nullptr;
 
 	if (*lpwszPath!=0 && *(lpwszPath+1)==L':') lpwszPath+=2;
 
@@ -219,7 +219,7 @@ const wchar_t* PointToName(const wchar_t *lpwszPath,const wchar_t *lpwszEndPtr)
 const wchar_t* __stdcall PointToFolderNameIfFolder(const wchar_t *Path)
 {
 	if (!Path)
-		return NULL;
+		return nullptr;
 
 	const wchar_t *NamePtr=Path, *prevNamePtr=Path;
 
@@ -241,7 +241,7 @@ const wchar_t* __stdcall PointToFolderNameIfFolder(const wchar_t *Path)
 const wchar_t* PointToExt(const wchar_t *lpwszPath)
 {
 	if (!lpwszPath)
-		return NULL;
+		return nullptr;
 
 	const wchar_t *lpwszEndPtr = lpwszPath;
 
@@ -260,7 +260,7 @@ const wchar_t* PointToExt(string& strPath)
 const wchar_t* PointToExt(const wchar_t *lpwszPath,const wchar_t *lpwszEndPtr)
 {
 	if (!lpwszPath || !lpwszEndPtr)
-		return NULL;
+		return nullptr;
 
 	const wchar_t *lpwszExtPtr = lpwszEndPtr;
 
@@ -489,7 +489,7 @@ string &CutToFolderNameIfFolder(string &strPath)
 const wchar_t *PointToNameUNC(const wchar_t *lpwszPath)
 {
 	if (!lpwszPath)
-		return NULL;
+		return nullptr;
 
 	if (IsSlash(lpwszPath[0]) && IsSlash(lpwszPath[1]))
 	{
@@ -543,7 +543,7 @@ const wchar_t *FirstSlash(const wchar_t *String)
 	}
 	while (*String++);
 
-	return NULL;
+	return nullptr;
 }
 
 const wchar_t *LastSlash(const wchar_t *String)
@@ -556,7 +556,7 @@ const wchar_t *LastSlash(const wchar_t *String)
 	while (--String!=Start && !IsSlash(*String))
 		;
 
-	return IsSlash(*String)?String:NULL;
+	return IsSlash(*String)?String:nullptr;
 }
 
 bool FindSlash(size_t &Pos, const string &Str, size_t StartPos)
@@ -700,7 +700,7 @@ int MatchNtPathRoot(const string &NtPath, const wchar_t *DeviceName)
 		ObjName.Length = ObjName.MaximumLength = static_cast<USHORT>(TargetPath.GetLength() * sizeof(wchar_t));
 		ObjName.Buffer = const_cast<PWSTR>(TargetPath.CPtr());
 		OBJECT_ATTRIBUTES ObjAttrs;
-		InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, NULL, NULL);
+		InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, nullptr, nullptr);
 		HANDLE hSymLink;
 		NTSTATUS Res = ifn.pfnNtOpenSymbolicLinkObject(&hSymLink, GENERIC_READ, &ObjAttrs);
 
@@ -711,7 +711,7 @@ int MatchNtPathRoot(const string &NtPath, const wchar_t *DeviceName)
 			UNICODE_STRING LinkTarget;
 			LinkTarget.MaximumLength = static_cast<USHORT>(BufSize * sizeof(wchar_t));
 			LinkTarget.Buffer = Buffer.GetBuffer(BufSize);
-			Res = ifn.pfnNtQuerySymbolicLinkObject(hSymLink, &LinkTarget, NULL);
+			Res = ifn.pfnNtQuerySymbolicLinkObject(hSymLink, &LinkTarget, nullptr);
 
 			if (Res == STATUS_SUCCESS)
 			{

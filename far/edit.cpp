@@ -79,40 +79,40 @@ public:
 	~DisableCallback(){Restore();}
 };
 
-Edit::Edit(ScreenObject *pOwner, Callback* aCallback, bool bAllocateData)
+Edit::Edit(ScreenObject *pOwner, Callback* aCallback, bool bAllocateData):
+	m_next(nullptr),
+	m_prev(nullptr),
+	Str(bAllocateData ? reinterpret_cast<wchar_t*>(xf_malloc(sizeof(wchar_t))) : nullptr),
+	StrSize(0),
+	MaxLength(-1),
+	Mask(nullptr),
+	LeftPos(0),
+	CurPos(0),
+	PrevCurPos(0),
+	MSelStart(-1),
+	SelStart(-1),
+	SelEnd(0),
+	CursorSize(-1),
+	CursorPos(0)
 {
 	m_Callback.Active=true;
-	m_Callback.m_Callback=NULL;
-	m_Callback.m_Param=NULL;
+	m_Callback.m_Callback=nullptr;
+	m_Callback.m_Param=nullptr;
 
 	if (aCallback) m_Callback=*aCallback;
 
 	SetOwner(pOwner);
-	m_next = NULL;
-	m_prev = NULL;
-	Str=bAllocateData ? (wchar_t*) xf_malloc(sizeof(wchar_t)) : NULL;
-	StrSize=0;
 	SetWordDiv(Opt.strWordDiv);
 
 	if (bAllocateData)
 		*Str=0;
 
-	Mask=NULL;
-	PrevCurPos=0;
-	CurPos=0;
-	CursorPos=0;
-	CursorSize=-1;
-	LeftPos=0;
-	MaxLength=-1;
-	MSelStart=-1;
-	SelStart=-1;
-	SelEnd=0;
 	Flags.Set(FEDITLINE_EDITBEYONDEND);
 	Color=F_LIGHTGRAY|B_BLACK;
 	SelColor=F_WHITE|B_BLACK;
 	ColorUnChanged=COL_DIALOGEDITUNCHANGED;
 	EndType=EOL_NONE;
-	ColorList=NULL;
+	ColorList=nullptr;
 	ColorCount=0;
 	TabSize=Opt.EdOpt.TabSize;
 	TabExpandMode = EXPAND_NOTABS;
@@ -145,7 +145,7 @@ DWORD Edit::SetCodePage(UINT codepage)
 	if (m_codepage==CP_UTF7 || m_codepage==CP_UTF8) // BUGBUG: CP_SYMBOL, 50xxx, 57xxx too
 	{
 		wc2mbFlags=0;
-		lpUsedDefaultChar=NULL;
+		lpUsedDefaultChar=nullptr;
 	}
 
 	DWORD mb2wcFlags=MB_ERR_INVALID_CHARS;
@@ -160,7 +160,7 @@ DWORD Edit::SetCodePage(UINT codepage)
 		if (Str && *Str)
 		{
 			//m_codepage = codepage;
-			int length = WideCharToMultiByte(m_codepage, wc2mbFlags, Str, StrSize, NULL, 0, NULL, lpUsedDefaultChar);
+			int length = WideCharToMultiByte(m_codepage, wc2mbFlags, Str, StrSize, nullptr, 0, nullptr, lpUsedDefaultChar);
 
 			if (UsedDefaultChar)
 				Ret|=SETCP_WC2MBERROR;
@@ -173,13 +173,13 @@ DWORD Edit::SetCodePage(UINT codepage)
 				return Ret;
 			}
 
-			WideCharToMultiByte(m_codepage, 0, Str, StrSize, decoded, length, NULL, NULL);
-			int length2 = MultiByteToWideChar(codepage, mb2wcFlags, decoded, length, NULL, 0);
+			WideCharToMultiByte(m_codepage, 0, Str, StrSize, decoded, length, nullptr, nullptr);
+			int length2 = MultiByteToWideChar(codepage, mb2wcFlags, decoded, length, nullptr, 0);
 
 			if (!length2 && GetLastError()==ERROR_NO_UNICODE_TRANSLATION)
 			{
 				Ret|=SETCP_MB2WCERROR;
-				length2 = MultiByteToWideChar(codepage, 0, decoded, length, NULL, 0);
+				length2 = MultiByteToWideChar(codepage, 0, decoded, length, nullptr, 0);
 			}
 
 			wchar_t *encoded = (wchar_t*)xf_malloc((length2+1)*sizeof(wchar_t));
@@ -920,7 +920,7 @@ int Edit::ProcessKey(int Key)
 			{
 				wchar_t *ShortStr=new wchar_t[StrSize+1];
 
-				if (ShortStr==NULL)
+				if (ShortStr==nullptr)
 					return FALSE;
 
 				xwcsncpy(ShortStr,Str,StrSize+1);
@@ -1184,7 +1184,7 @@ int Edit::ProcessKey(int Key)
 			{
 				wchar_t *ShortStr=new wchar_t[StrSize+1];
 
-				if (ShortStr==NULL)
+				if (ShortStr==nullptr)
 					return FALSE;
 
 				xwcsncpy(ShortStr,Str,StrSize+1);
@@ -1218,7 +1218,7 @@ int Edit::ProcessKey(int Key)
 			{
 				wchar_t *ShortStr=new wchar_t[StrSize+1];
 
-				if (ShortStr==NULL)
+				if (ShortStr==nullptr)
 					return FALSE;
 
 				xwcsncpy(ShortStr,Str,StrSize+1);
@@ -1328,7 +1328,7 @@ int Edit::ProcessKey(int Key)
 			{
 				wchar_t *ShortStr=new wchar_t[StrSize+1];
 
-				if (ShortStr==NULL)
+				if (ShortStr==nullptr)
 					return FALSE;
 
 				xwcsncpy(ShortStr,Str,StrSize+1);
@@ -1378,7 +1378,7 @@ int Edit::ProcessKey(int Key)
 					{
 						wchar_t *ShortStr=new wchar_t[StrSize+1];
 
-						if (ShortStr==NULL)
+						if (ShortStr==nullptr)
 							return FALSE;
 
 						xwcsncpy(ShortStr,Str,StrSize+1);
@@ -1402,14 +1402,14 @@ int Edit::ProcessKey(int Key)
 		}
 		case KEY_SHIFTINS:    case KEY_SHIFTNUMPAD0:
 		{
-			wchar_t *ClipText=NULL;
+			wchar_t *ClipText=nullptr;
 
 			if (MaxLength==-1)
 				ClipText=PasteFromClipboard();
 			else
 				ClipText=PasteFromClipboardEx(MaxLength);
 
-			if (ClipText==NULL)
+			if (ClipText==nullptr)
 				return(TRUE);
 
 			if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
@@ -1623,7 +1623,7 @@ int Edit::InsertKey(int Key)
 		{
 			if (CurPos>=StrSize)
 			{
-				if ((NewStr=(wchar_t *)xf_realloc(Str,(CurPos+2)*sizeof(wchar_t)))==NULL)
+				if ((NewStr=(wchar_t *)xf_realloc(Str,(CurPos+2)*sizeof(wchar_t)))==nullptr)
 					return(FALSE);
 
 				Str=NewStr;
@@ -1641,7 +1641,7 @@ int Edit::InsertKey(int Key)
 				return TRUE;
 			}
 
-			if ((NewStr=(wchar_t *)xf_realloc(Str,(StrSize+1)*sizeof(wchar_t)))==NULL)
+			if ((NewStr=(wchar_t *)xf_realloc(Str,(StrSize+1)*sizeof(wchar_t)))==nullptr)
 				return(TRUE);
 
 			Str=NewStr;
@@ -1686,23 +1686,23 @@ int Edit::InsertKey(int Key)
 
 void Edit::SetObjectColor(int Color,int SelColor,int ColorUnChanged)
 {
-	Edit::Color=Color;
-	Edit::SelColor=SelColor;
-	Edit::ColorUnChanged=ColorUnChanged;
+	this->Color=Color;
+	this->SelColor=SelColor;
+	this->ColorUnChanged=ColorUnChanged;
 }
 
 
 void Edit::GetString(wchar_t *Str,int MaxSize)
 {
-	//xwcsncpy(Str, Edit::Str,MaxSize);
-	wmemmove(Str,Edit::Str,Min(StrSize,MaxSize-1));
+	//xwcsncpy(Str, this->Str,MaxSize);
+	wmemmove(Str,this->Str,Min(StrSize,MaxSize-1));
 	Str[Min(StrSize,MaxSize-1)]=0;
 	Str[MaxSize-1]=0;
 }
 
 void Edit::GetString(string &strStr)
 {
-	strStr = Edit::Str;
+	strStr = Str;
 }
 
 
@@ -1844,15 +1844,15 @@ void Edit::SetBinaryString(const wchar_t *Str,int Length)
 	}
 	else
 	{
-		wchar_t *NewStr=(wchar_t *)xf_realloc_nomove(Edit::Str,(Length+1)*sizeof(wchar_t));
+		wchar_t *NewStr=(wchar_t *)xf_realloc_nomove(this->Str,(Length+1)*sizeof(wchar_t));
 
-		if (NewStr==NULL)
+		if (NewStr==nullptr)
 			return;
 
-		Edit::Str=NewStr;
+		this->Str=NewStr;
 		StrSize=Length;
-		wmemcpy(Edit::Str,Str,Length);
-		Edit::Str[Length]=0;
+		wmemcpy(this->Str,Str,Length);
+		this->Str[Length]=0;
 
 		if (TabExpandMode == EXPAND_ALLTABS)
 			ReplaceTabs();
@@ -1866,9 +1866,9 @@ void Edit::SetBinaryString(const wchar_t *Str,int Length)
 
 void Edit::GetBinaryString(const wchar_t **Str,const wchar_t **EOL,int &Length)
 {
-	*Str=Edit::Str;
+	*Str=this->Str;
 
-	if (EOL!=NULL)
+	if (EOL!=nullptr)
 		*EOL=EOL_TYPE_CHARS[EndType];
 
 	Length=StrSize; //???
@@ -1890,7 +1890,7 @@ int Edit::GetSelString(wchar_t *Str, int MaxSize)
 	else
 		CopyLength=Min(MaxSize,SelEnd-SelStart+1);
 
-	xwcsncpy(Str,Edit::Str+SelStart,CopyLength);
+	xwcsncpy(Str,this->Str+SelStart,CopyLength);
 	return(TRUE);
 }
 
@@ -1904,9 +1904,9 @@ int Edit::GetSelString(string &strStr)
 	}
 
 	int CopyLength;
-	CopyLength=SelEnd-SelStart; //??? BUGBUG
+	CopyLength=SelEnd-SelStart+1;
 	wchar_t *lpwszStr = strStr.GetBuffer(CopyLength+1);
-	xwcsncpy(lpwszStr,Edit::Str+SelStart,CopyLength);
+	xwcsncpy(lpwszStr,this->Str+SelStart,CopyLength);
 	strStr.ReleaseBuffer();
 	return(TRUE);
 }
@@ -1977,7 +1977,7 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 		}
 
 		RefreshStrByMask();
-		//_SVS(SysLog(L"InsertBinaryString ==> Edit::Str='%s'",Edit::Str));
+		//_SVS(SysLog(L"InsertBinaryString ==> this->Str='%s'",this->Str));
 	}
 	else
 	{
@@ -1994,12 +1994,12 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 		{
 			if (CurPos>StrSize)
 			{
-				if ((NewStr=(wchar_t *)xf_realloc(Edit::Str,(CurPos+1)*sizeof(wchar_t)))==NULL)
+				if ((NewStr=(wchar_t *)xf_realloc(this->Str,(CurPos+1)*sizeof(wchar_t)))==nullptr)
 					return;
 
-				Edit::Str=NewStr;
-				_snwprintf(&Edit::Str[StrSize],CurPos+1,L"%*s",CurPos-StrSize,L"");
-				//memset(Edit::Str+StrSize,' ',CurPos-StrSize);Edit::Str[CurPos+1]=0;
+				this->Str=NewStr;
+				_snwprintf(&this->Str[StrSize],CurPos+1,L"%*s",CurPos-StrSize,L"");
+				//memset(this->Str+StrSize,' ',CurPos-StrSize);this->Str[CurPos+1]=0;
 				StrSize=CurPos;
 			}
 
@@ -2009,21 +2009,21 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 			if (!TmpStr)
 				return;
 
-			wmemcpy(TmpStr,&Edit::Str[CurPos],TmpSize);
+			wmemcpy(TmpStr,&this->Str[CurPos],TmpSize);
 			StrSize+=Length;
 
-			if ((NewStr=(wchar_t *)xf_realloc(Edit::Str,(StrSize+1)*sizeof(wchar_t)))==NULL)
+			if ((NewStr=(wchar_t *)xf_realloc(this->Str,(StrSize+1)*sizeof(wchar_t)))==nullptr)
 			{
 				delete[] TmpStr;
 				return;
 			}
 
-			Edit::Str=NewStr;
-			wmemcpy(&Edit::Str[CurPos],Str,Length);
+			this->Str=NewStr;
+			wmemcpy(&this->Str[CurPos],Str,Length);
 			PrevCurPos=CurPos;
 			CurPos+=Length;
-			wmemcpy(Edit::Str+CurPos,TmpStr,TmpSize);
-			Edit::Str[StrSize]=0;
+			wmemcpy(this->Str+CurPos,TmpStr,TmpSize);
+			this->Str[StrSize]=0;
 			delete[] TmpStr;
 
 			if (TabExpandMode == EXPAND_ALLTABS)
@@ -2051,13 +2051,13 @@ void Edit::SetInputMask(const wchar_t *InputMask)
 
 	if (InputMask && *InputMask)
 	{
-		if ((Mask=xf_wcsdup(InputMask)) == NULL)
+		if ((Mask=xf_wcsdup(InputMask)) == nullptr)
 			return;
 
 		RefreshStrByMask(TRUE);
 	}
 	else
-		Mask=NULL;
+		Mask=nullptr;
 }
 
 
@@ -2072,7 +2072,7 @@ void Edit::RefreshStrByMask(int InitMode)
 		{
 			wchar_t *NewStr=(wchar_t *)xf_realloc(Str,(MaskLen+1)*sizeof(wchar_t));
 
-			if (NewStr==NULL)
+			if (NewStr==nullptr)
 				return;
 
 			Str=NewStr;
@@ -2177,14 +2177,14 @@ int Edit::Search(const string& Str,string& ReplaceStr,int Position,int Case,int 
 				int n = re.GetBracketsCount();
 				SMatch *m = (SMatch *)xf_malloc(n*sizeof(SMatch));
 
-				if (m == NULL)
+				if (m == nullptr)
 					return FALSE;
 
-				if (re.SearchEx(Edit::Str,Edit::Str+Position,Edit::Str+StrSize,m,n))
+				if (re.SearchEx(this->Str,this->Str+Position,this->Str+StrSize,m,n))
 				{
 					*SearchLength = m[0].end - m[0].start;
 					CurPos = m[0].start;
-					ReplaceStr=ReplaceBrackets(Edit::Str,ReplaceStr,m,n);
+					ReplaceStr=ReplaceBrackets(this->Str,ReplaceStr,m,n);
 					free(m);
 					return TRUE;
 				}
@@ -2212,17 +2212,17 @@ int Edit::Search(const string& Str,string& ReplaceStr,int Position,int Case,int 
 					wchar_t ChLeft,ChRight;
 					int locResultLeft=FALSE;
 					int locResultRight=FALSE;
-					ChLeft=Edit::Str[I-1];
+					ChLeft=this->Str[I-1];
 
 					if (I>0)
-						locResultLeft=(IsSpace(ChLeft) || wcschr(WordDiv(),ChLeft)!=NULL);
+						locResultLeft=(IsSpace(ChLeft) || wcschr(WordDiv(),ChLeft)!=nullptr);
 					else
 						locResultLeft=TRUE;
 
 					if (I+Length<StrSize)
 					{
-						ChRight=Edit::Str[I+Length];
-						locResultRight=(IsSpace(ChRight) || wcschr(WordDiv(),ChRight)!=NULL);
+						ChRight=this->Str[I+Length];
+						locResultRight=(IsSpace(ChRight) || wcschr(WordDiv(),ChRight)!=nullptr);
 					}
 					else
 					{
@@ -2233,7 +2233,7 @@ int Edit::Search(const string& Str,string& ReplaceStr,int Position,int Case,int 
 						break;
 				}
 
-				wchar_t Ch=Edit::Str[I+J];
+				wchar_t Ch=this->Str[I+J];
 
 				if (Case)
 				{
@@ -2298,7 +2298,7 @@ void Edit::ReplaceTabs()
 
 	bool changed=false;
 
-	while ((TabPtr=(wchar_t *)wmemchr(Str+Pos,L'\t',StrSize-Pos))!=NULL)
+	while ((TabPtr=(wchar_t *)wmemchr(Str+Pos,L'\t',StrSize-Pos))!=nullptr)
 	{
 		changed=true;
 		Pos=(int)(TabPtr-Str);
@@ -2348,7 +2348,7 @@ void Edit::SetTabCurPos(int NewPos)
 	{
 		wchar_t *ShortStr=new wchar_t[StrSize+1];
 
-		if (ShortStr==NULL)
+		if (ShortStr==nullptr)
 			return;
 
 		xwcsncpy(ShortStr,Str,StrSize+1);
@@ -2365,7 +2365,7 @@ void Edit::SetTabCurPos(int NewPos)
 
 int Edit::RealPosToTab(int Pos)
 {
-	return RealPosToTab(0, 0, Pos, NULL);
+	return RealPosToTab(0, 0, Pos, nullptr);
 }
 
 
@@ -2622,7 +2622,7 @@ int Edit::DeleteColor(int ColorPos)
 	if (ColorCount==0)
 	{
 		xf_free(ColorList);
-		ColorList=NULL;
+		ColorList=nullptr;
 	}
 
 	return(DelCount!=0);
@@ -2683,7 +2683,7 @@ void Edit::ApplyColor()
 		// Для отптимизации делаем вычисление относительно предыдущей позиции
 		else
 		{
-			RealStart = RealPosToTab(TabPos, Pos, CurItem->StartPos, NULL);
+			RealStart = RealPosToTab(TabPos, Pos, CurItem->StartPos, nullptr);
 			Start = RealStart-LeftPos;
 		}
 
@@ -2715,7 +2715,7 @@ void Edit::ApplyColor()
 			// иначе ничего не вычисялем и берём старые значения
 			if (CorrectPos && EndPos < StrSize && Str[EndPos] == L'\t')
 			{
-				RealEnd = RealPosToTab(TabPos, Pos, ++EndPos, NULL);
+				RealEnd = RealPosToTab(TabPos, Pos, ++EndPos, nullptr);
 				End = RealEnd-LeftPos;
 			}
 			else
@@ -2934,7 +2934,7 @@ int __stdcall SystemCPEncoder::Encode(
     int nResultLength
 )
 {
-	int length = MultiByteToWideChar(m_nCodePage, 0, lpString, nLength, NULL, 0);
+	int length = MultiByteToWideChar(m_nCodePage, 0, lpString, nLength, nullptr, 0);
 
 	if (lpwszResult)
 		length = MultiByteToWideChar(m_nCodePage, 0, lpString, nLength, lpwszResult, nResultLength);
@@ -2949,10 +2949,10 @@ int __stdcall SystemCPEncoder::Decode(
     int nResultLength
 )
 {
-	int length = WideCharToMultiByte(m_nCodePage, 0, lpwszString, nLength, NULL, 0, NULL, NULL);
+	int length = WideCharToMultiByte(m_nCodePage, 0, lpwszString, nLength, nullptr, 0, nullptr, nullptr);
 
 	if (lpResult)
-		length = WideCharToMultiByte(m_nCodePage, 0, lpwszString, nLength, lpResult, nResultLength, NULL, NULL);
+		length = WideCharToMultiByte(m_nCodePage, 0, lpwszString, nLength, lpResult, nResultLength, nullptr, nullptr);
 
 	return length;
 }
@@ -2965,13 +2965,13 @@ int __stdcall SystemCPEncoder::Transcode(
     int nResultLength
 )
 {
-	int length = pFrom->Decode(lpwszString, nLength, NULL, 0);
+	int length = pFrom->Decode(lpwszString, nLength, nullptr, 0);
 	char *lpDecoded = (char *)xf_malloc(length);
 
 	if (lpDecoded)
 	{
 		pFrom->Decode(lpwszString, nLength, lpDecoded, length);
-		length = Encode(lpDecoded, length, NULL, 0);
+		length = Encode(lpDecoded, length, nullptr, 0);
 
 		if (lpwszResult)
 			length = Encode(lpDecoded, length, lpwszResult, nResultLength);
@@ -3030,11 +3030,11 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 	int Result=0;
 	static int Reenter=0;
 
-	if(ECFlags.Check(EC_ENABLEAUTOCOMPLETE) && *Str && !Reenter && (CtrlObject->Macro.GetCurRecord(NULL,NULL) == MACROMODE_NOMACRO || Manual))
+	if(ECFlags.Check(EC_ENABLEAUTOCOMPLETE) && *Str && !Reenter && (CtrlObject->Macro.GetCurRecord(nullptr,nullptr) == MACROMODE_NOMACRO || Manual))
 	{
 		Reenter++;
 
-		VMenu ComplMenu(NULL,NULL,0,0);
+		VMenu ComplMenu(nullptr,nullptr,0,0);
 		string strTemp=Str;
 
 		if(pHistory)

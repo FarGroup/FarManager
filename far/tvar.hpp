@@ -148,8 +148,8 @@ class TAbstractSet
 	public:
 		TAbstractSet(const wchar_t *s)
 		{
-			str = NULL;
-			next = NULL;
+			str = nullptr;
+			next = nullptr;
 
 			if (s)
 			{

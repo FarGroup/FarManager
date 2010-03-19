@@ -49,20 +49,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 LPCWSTR EmptyPos=L"0,0,0,0,0,\"$\"";
 
-FilePositionCache::FilePositionCache()
+FilePositionCache::FilePositionCache():
+	IsMemory(0),
+	CurPos(0),
+	Param(nullptr),
+	Position(nullptr)
 {
 	if (!Opt.MaxPositionCache)
 	{
 		GetRegKey(L"System",L"MaxPositionCache",Opt.MaxPositionCache,MAX_POSITIONS);
 	}
 
-	Param=NULL;
-	Position=NULL;
-	IsMemory=0;
-	CurPos=0;
 	Names=new string[Opt.MaxPositionCache];
 
-	if (Names != NULL)
+	if (Names != nullptr)
 	{
 		Param=(BYTE*)xf_malloc(MSIZE_PARAM);
 		Position=(BYTE*)xf_malloc(MSIZE_POSITION);
@@ -75,9 +75,9 @@ FilePositionCache::FilePositionCache()
 		}
 		else
 		{
-			if (Param)       { xf_free(Param);       Param=NULL; }
+			if (Param)       { xf_free(Param);       Param=nullptr; }
 
-			if (Position)    { xf_free(Position);    Position=NULL; }
+			if (Position)    { xf_free(Position);    Position=nullptr; }
 		}
 	}
 }

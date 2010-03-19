@@ -108,7 +108,7 @@ bool ExtractIfExistCommand(string &strCommandText)
 	return Result;
 }
 
-int GetDescriptionWidth(const wchar_t *Name=NULL,const wchar_t *ShortName=NULL)
+int GetDescriptionWidth(const wchar_t *Name=nullptr,const wchar_t *ShortName=nullptr)
 {
 	int Width=0;
 	RenumKeyRecord(FTS.Associations,FTS.TypeFmt,FTS.Type0);
@@ -131,7 +131,7 @@ int GetDescriptionWidth(const wchar_t *Name=NULL,const wchar_t *ShortName=NULL)
 		GetRegKey(strRegKey,FTS.Desc,strDescription,L"");
 		int CurWidth;
 
-		if (Name == NULL)
+		if (Name == nullptr)
 			CurWidth = HiStrlen(strDescription);
 		else
 		{
@@ -139,7 +139,7 @@ int GetDescriptionWidth(const wchar_t *Name=NULL,const wchar_t *ShortName=NULL)
 				continue;
 
 			string strExpandedDesc = strDescription;
-			SubstFileName(strExpandedDesc,Name,ShortName,NULL,NULL,NULL,NULL,TRUE);
+			SubstFileName(strExpandedDesc,Name,ShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
 			CurWidth = HiStrlen(strExpandedDesc);
 		}
 
@@ -171,7 +171,7 @@ bool ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode
 {
 	RenumKeyRecord(FTS.Associations,FTS.TypeFmt,FTS.Type0);
 	MenuItemEx TypesMenuItem;
-	VMenu TypesMenu(MSG(MSelectAssocTitle),NULL,0,ScrY-4);
+	VMenu TypesMenu(MSG(MSelectAssocTitle),nullptr,0,ScrY-4);
 	TypesMenu.SetHelp(FTS.Help);
 	TypesMenu.SetFlags(VMENU_WRAPMODE);
 	TypesMenu.SetPosition(-1,-1,0,0);
@@ -194,7 +194,7 @@ bool ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode
 		{
 			if (FMask.Compare(Name))
 			{
-				LPCWSTR Type=NULL;
+				LPCWSTR Type=nullptr;
 
 				switch (Mode)
 				{
@@ -240,7 +240,7 @@ bool ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode
 
 		TypesMenuItem.Clear();
 		string strCommandText = strCommand;
-		SubstFileName(strCommandText,Name,ShortName,NULL,NULL,NULL,NULL,TRUE);
+		SubstFileName(strCommandText,Name,ShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
 
 		// все "подставлено", теперь проверим условия "if exist"
 		if (!ExtractIfExistCommand(strCommandText))
@@ -256,7 +256,7 @@ bool ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode
 			if (!strDescription.IsEmpty())
 			{
 				strTitle = strDescription;
-				SubstFileName(strTitle, Name,ShortName,NULL,NULL,NULL,NULL,TRUE);
+				SubstFileName(strTitle, Name,ShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
 			}
 
 			size_t Pos=0;
@@ -559,7 +559,7 @@ LONG_PTR WINAPI EditTypeRecordDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Pa
 			if (Param1==ETR_BUTTON_OK)
 			{
 				BOOL Result=TRUE;
-				LPCWSTR Masks=reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,ETR_EDIT_MASKS,NULL));
+				LPCWSTR Masks=reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,ETR_EDIT_MASKS,0));
 				CFileMask FMask;
 
 				if (!FMask.Set(Masks,0))
@@ -690,7 +690,7 @@ void EditFileTypes()
 	int NumLine=0;
 	int MenuPos=0;
 	RenumKeyRecord(FTS.Associations,FTS.TypeFmt,FTS.Type0);
-	VMenu TypesMenu(MSG(MAssocTitle),NULL,0,ScrY-4);
+	VMenu TypesMenu(MSG(MAssocTitle),nullptr,0,ScrY-4);
 	TypesMenu.SetHelp(FTS.Help);
 	TypesMenu.SetFlags(VMENU_WRAPMODE);
 	TypesMenu.SetPosition(-1,-1,0,0);

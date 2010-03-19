@@ -130,7 +130,7 @@ FILE * OpenLogStream(const wchar_t *file)
 	strRealLogName.Format(L"%s\\Far.%04d%02d%02d.%05d.log",file,st.wYear,st.wMonth,st.wDay,HIWORD(FAR_VERSION));
 	return _wfsopen(strRealLogName,L"a+t",SH_DENYWR);
 #else
-	return NULL;
+	return nullptr;
 #endif
 }
 
@@ -146,7 +146,7 @@ void OpenSysLog()
 
 	if (Attr == INVALID_FILE_ATTRIBUTES)
 	{
-		if (!apiCreateDirectory(strLogFileName,NULL))
+		if (!apiCreateDirectory(strLogFileName,nullptr))
 			strLogFileName.SetLength(g_strFarPath.GetLength());
 	}
 	else if (!(Attr&FILE_ATTRIBUTE_DIRECTORY))
@@ -185,7 +185,7 @@ void ShowHeap()
 		fwprintf(LogStream,L"   ----   ------\n");
 		DWORD Sz=0;
 		_HEAPINFO hi;
-		hi._pentry=NULL;
+		hi._pentry=nullptr;
 
 		//    int     *__pentry;
 		while (_rtl_heapwalk(&hi) == _HEAPOK)
@@ -284,8 +284,8 @@ void SysLogLastError()
 	wchar_t *lpMsgBuf;
 	DWORD LastErr=GetLastError();
 	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS,
-	              NULL,LastErr,MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),
-	              (LPWSTR) &lpMsgBuf,0,NULL);
+	              nullptr,LastErr,MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),
+	              (LPWSTR) &lpMsgBuf,0,nullptr);
 	OpenSysLog();
 
 	if (LogStream)
@@ -359,7 +359,7 @@ void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,F
 		return;
 
 	int CY=(SizeBuf+15)/16;
-	int InternalLog=fp==NULL?TRUE:FALSE;
+	int InternalLog=fp==nullptr?TRUE:FALSE;
 	static wchar_t timebuf[64];
 //  char msg[MAX_LOG_LINE];
 
@@ -419,7 +419,7 @@ void SaveScreenDumpBuffer(const wchar_t *Title,const CHAR_INFO *Buffer,int X1,in
 	if (!IsLogON())
 		return;
 
-	int InternalLog=fp==NULL?TRUE:FALSE;
+	int InternalLog=fp==nullptr?TRUE:FALSE;
 
 	if (InternalLog)
 	{
@@ -480,7 +480,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 	if (!IsLogON())
 		return;
 
-	int InternalLog=fp==NULL?TRUE:FALSE;
+	int InternalLog=fp==nullptr?TRUE:FALSE;
 
 	if (InternalLog)
 	{
@@ -545,7 +545,7 @@ void GetOpenPluginInfo_Dump(const wchar_t *Title,const OpenPluginInfo *Info,FILE
 	if (!IsLogON())
 		return;
 
-	int InternalLog=fp==NULL?TRUE:FALSE;
+	int InternalLog=fp==nullptr?TRUE:FALSE;
 
 	if (InternalLog)
 	{
@@ -618,7 +618,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 	if (!IsLogON())
 		return;
 
-	int InternalLog=fp==NULL?TRUE:FALSE;
+	int InternalLog=fp==nullptr?TRUE:FALSE;
 
 	if (InternalLog)
 	{
@@ -628,7 +628,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 
 	if (fp)
 	{
-		const Manager *Man=(m==NULL?FrameManager:m);
+		const Manager *Man=(m==nullptr?FrameManager:m);
 //StartSysLog
 		string Type,Name;
 		fwprintf(fp,L"**** Queue modal frames ***\nFrameListSize=%d, FramePos=%d, FrameCount=%d\n",Man->FrameListSize,Man->FramePos,Man->FrameCount);
@@ -643,11 +643,11 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 					fwprintf(fp,L"\tFrameList[%d] %p  Type='%s' Name='%s'\n",i,Man->FrameList[i],(const wchar_t*)Type,(const wchar_t*)Name);
 				}
 				else
-					fwprintf(fp,L"\tFrameList[%d] NULL\n",i);
+					fwprintf(fp,L"\tFrameList[%d] nullptr\n",i);
 			}
 		}
 		else
-			fwprintf(fp,L"\tFrameList = NULL\n");
+			fwprintf(fp,L"\tFrameList = nullptr\n");
 
 		fwprintf(fp,L"**** Stack modal frames ***\nModalStackSize=%d\n",Man->ModalStackSize);
 
@@ -662,11 +662,11 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 					         i,Man->ModalStack[i],(const wchar_t*)Type,(const wchar_t*)Name);
 				}
 				else
-					fwprintf(fp,L"\tModalStack[%d] NULL\n",i);
+					fwprintf(fp,L"\tModalStack[%d] nullptr\n",i);
 			}
 		}
 		else
-			fwprintf(fp,L"\tModalStack = NULL\n");
+			fwprintf(fp,L"\tModalStack = nullptr\n");
 
 		fwprintf(fp,L"**** Detail... ***\n");
 
@@ -789,7 +789,7 @@ void WINAPI _export FarSysLogDump(const wchar_t *ModuleName,DWORD StartAddress,L
 	if (!IsLogON())
 		return;
 
-	SysLogDump(ModuleName,StartAddress,Buf,SizeBuf,NULL);
+	SysLogDump(ModuleName,StartAddress,Buf,SizeBuf,nullptr);
 }
 
 void WINAPI _export FarSysLog_INPUT_RECORD_Dump(const wchar_t *ModuleName,INPUT_RECORD *rec)
@@ -1592,7 +1592,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 	if (!IsLogON())
 		return;
 
-	int InternalLog=fp==NULL?TRUE:FALSE;
+	int InternalLog=fp==nullptr?TRUE:FALSE;
 	DWORD ReadCount2;
 	// берем количество оставшейся порции эвентов
 	GetNumberOfConsoleInputEvents(GetStdHandle(STD_INPUT_HANDLE),&ReadCount2);
@@ -1669,7 +1669,7 @@ void GetVolumeInformation_Dump(const wchar_t *Title,LPCWSTR lpRootPathName,LPCWS
 	if (!IsLogON())
 		return;
 
-	int InternalLog=fp==NULL?TRUE:FALSE;
+	int InternalLog=fp==nullptr?TRUE:FALSE;
 	const wchar_t *space=MakeSpace();
 
 	if (InternalLog)
@@ -1753,7 +1753,7 @@ void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &wfd,FILE *
 	if (!IsLogON())
 		return;
 
-	int InternalLog=fp==NULL?TRUE:FALSE;
+	int InternalLog=fp==nullptr?TRUE:FALSE;
 	const wchar_t *space=MakeSpace();
 
 	if (InternalLog)
@@ -1865,7 +1865,7 @@ void PanelViewSettings_Dump(const wchar_t *Title,const PanelViewSettings &ViewSe
 	if (!IsLogON())
 		return;
 
-	int InternalLog=fp==NULL?TRUE:FALSE;
+	int InternalLog=fp==nullptr?TRUE:FALSE;
 	const wchar_t *space=MakeSpace();
 
 	if (InternalLog)

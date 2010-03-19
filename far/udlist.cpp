@@ -68,7 +68,7 @@ const UserDefinedListItem& UserDefinedListItem::operator=(const
 		if (Str)
 		{
 			xf_free(Str);
-			Str=NULL;
+			Str=nullptr;
 		}
 
 		if (rhs.Str)
@@ -87,7 +87,7 @@ const UserDefinedListItem& UserDefinedListItem::operator=(const wchar_t *rhs)
 		if (Str)
 		{
 			xf_free(Str);
-			Str=NULL;
+			Str=nullptr;
 		}
 
 		if (rhs)
@@ -104,7 +104,7 @@ wchar_t *UserDefinedListItem::set(const wchar_t *Src, unsigned int size)
 		if (Str)
 		{
 			xf_free(Str);
-			Str=NULL;
+			Str=nullptr;
 		}
 
 		Str=static_cast<wchar_t*>(xf_malloc((size+1)*sizeof(wchar_t)));
@@ -203,7 +203,7 @@ bool UserDefinedList::Set(const wchar_t *List, bool AddToList)
 			const wchar_t *CurList=List;
 
 			while (!Error &&
-			        NULL!=(CurList=Skip(CurList, Length, RealLength, Error)))
+			        nullptr!=(CurList=Skip(CurList, Length, RealLength, Error)))
 			{
 				if (Length > 0)
 				{
@@ -244,7 +244,7 @@ bool UserDefinedList::Set(const wchar_t *List, bool AddToList)
 								}
 							}
 
-							if (AddAsterisk && wcspbrk(item.Str,L"?*.")==NULL)
+							if (AddAsterisk && wcspbrk(item.Str,L"?*.")==nullptr)
 							{
 								Length=StrLength(item.Str);
 								/* $ 18.09.2002 DJ
@@ -353,7 +353,7 @@ const wchar_t *UserDefinedList::Skip(const wchar_t *Str, int &Length, int &RealL
 	if ( IsTrim )
 		while (IsSpace(*Str)) ++Str;
 
-	if (!*Str) return NULL;
+	if (!*Str) return nullptr;
 
 	const wchar_t *cur=Str;
 	bool InBrackets=false, InQoutes = (*cur==L'\"');
@@ -366,7 +366,7 @@ const wchar_t *UserDefinedList::Skip(const wchar_t *Str, int &Length, int &RealL
 				if (*cur==L']')
 					InBrackets=false;
 
-				if (*cur==L'[' && NULL!=wcschr(cur+1, L']'))
+				if (*cur==L'[' && nullptr!=wcschr(cur+1, L']'))
 					InBrackets=true;
 			}
 
@@ -397,10 +397,10 @@ const wchar_t *UserDefinedList::Skip(const wchar_t *Str, int &Length, int &RealL
 		++cur;
 		const wchar_t *QuoteEnd=wcschr(cur, L'\"');
 
-		if (QuoteEnd==NULL)
+		if (QuoteEnd==nullptr)
 		{
 			Error=true;
-			return NULL;
+			return nullptr;
 		}
 
 		const wchar_t *End=QuoteEnd+1;
@@ -416,7 +416,7 @@ const wchar_t *UserDefinedList::Skip(const wchar_t *Str, int &Length, int &RealL
 		}
 
 		Error=true;
-		return NULL;
+		return nullptr;
 	}
 
 	return Str;
@@ -437,5 +437,5 @@ const wchar_t *UserDefinedList::GetNext()
 {
 	UserDefinedListItem *item=Array.getItem(CurrentItem);
 	++CurrentItem;
-	return item?item->Str:NULL;
+	return item?item->Str:nullptr;
 }

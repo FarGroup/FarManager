@@ -103,13 +103,13 @@ void ConsoleTitle::SetFarTitle(const wchar_t *Title)
 	else
 	{
 		/*
-			Title=NULL для случая, когда нужно выставить пред.заголовок
-			SetFarTitle(NULL) - это не для всех!
+			Title=nullptr для случая, когда нужно выставить пред.заголовок
+			SetFarTitle(nullptr) - это не для всех!
 			Этот вызов имеет право делать только макро-движок!
 		*/
 		SetConsoleTitle(strFarTitle);
 		TitleModified=false;
-		//_SVS(SysLog(L"  (NULL)FarTitle='%s'",FarTitle));
+		//_SVS(SysLog(L"  (nullptr)FarTitle='%s'",FarTitle));
 	}
 }
 

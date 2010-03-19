@@ -60,7 +60,7 @@ class UserDefinedListItem
 	public:
 		unsigned int index;
 		wchar_t *Str;
-		UserDefinedListItem():index(0), Str(NULL) {}
+		UserDefinedListItem():index(0), Str(nullptr) {}
 		bool operator==(const UserDefinedListItem &rhs) const;
 		int operator<(const UserDefinedListItem &rhs) const;
 		const UserDefinedListItem& operator=(const UserDefinedListItem &rhs);
@@ -110,11 +110,11 @@ class UserDefinedList : private NonCopyable
 
 		// Инициализирует список. Принимает список, разделенный разделителями.
 		// Возвращает false при неудаче.
-		// Фича: если List==NULL, то происходит освобождение занятой ранее памяти
+		// Фича: если List==nullptr, то происходит освобождение занятой ранее памяти
 		bool Set(const wchar_t *List, bool AddToList=false);
 
 		// Добавление к уже существующему списку
-		// Фича: если NewItem==NULL, то происходит освобождение занятой ранее
+		// Фича: если NewItem==nullptr, то происходит освобождение занятой ранее
 		// памяти
 		bool AddItem(const wchar_t *NewItem)
 		{
@@ -124,7 +124,7 @@ class UserDefinedList : private NonCopyable
 		// Вызывать перед началом работы со списком
 		void Reset();
 
-		// Выдает указатель на очередной элемент списка или NULL
+		// Выдает указатель на очередной элемент списка или nullptr
 		const wchar_t *GetNext();
 
 		// Освободить память

@@ -48,17 +48,18 @@ UndoGlobalSaveScrPtr::UndoGlobalSaveScrPtr(SaveScreen *SaveScr)
 
 UndoGlobalSaveScrPtr::~UndoGlobalSaveScrPtr()
 {
-	GlobalSaveScrPtr=NULL;
+	GlobalSaveScrPtr=nullptr;
 }
 
 
-RefreshFrameManager::RefreshFrameManager(int OScrX,int OScrY, int MsgWaitTime, BOOL DontRedrawFrame)
+RefreshFrameManager::RefreshFrameManager(int OScrX,int OScrY, int MsgWaitTime, BOOL DontRedrawFrame):
+	OScrX(OScrX),
+	OScrY(OScrY),
+	MsgWaitTime(MsgWaitTime),
+	DontRedrawFrame(DontRedrawFrame)
 {
-	RefreshFrameManager::OScrX=OScrX;
-	RefreshFrameManager::OScrY=OScrY;
-	RefreshFrameManager::MsgWaitTime=MsgWaitTime;
-	RefreshFrameManager::DontRedrawFrame=DontRedrawFrame;
 }
+
 RefreshFrameManager::~RefreshFrameManager()
 {
 	if (DontRedrawFrame || !FrameManager || !FrameManager->ManagerStarted())

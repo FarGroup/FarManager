@@ -62,13 +62,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "vmenu.hpp"
 
-CommandLine::CommandLine():CmdStr(CtrlObject->Cp(),0,true,CtrlObject->CmdHistory,0,(Opt.CmdLine.AutoComplete?EditControl::EC_ENABLEAUTOCOMPLETE:0)|EditControl::EC_ENABLEFNCOMPLETE)
+CommandLine::CommandLine():
+	CmdStr(CtrlObject->Cp(),0,true,CtrlObject->CmdHistory,0,(Opt.CmdLine.AutoComplete?EditControl::EC_ENABLEAUTOCOMPLETE:0)|EditControl::EC_ENABLEFNCOMPLETE),
+	BackgroundScreen(nullptr),
+	LastCmdPartLength(-1)
 {
 	CmdStr.SetEditBeyondEnd(FALSE);
 	SetPersistentBlocks(Opt.CmdLine.EditBlock);
 	SetDelRemovesBlocks(Opt.CmdLine.DelRemovesBlocks);
-	LastCmdPartLength=-1;
-	BackgroundScreen=NULL;
 }
 
 CommandLine::~CommandLine()

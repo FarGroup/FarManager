@@ -69,7 +69,7 @@ enum TToken
 };
 
 static int exprBuffSize = 0;
-static unsigned long FARVar, *exprBuff = NULL;
+static unsigned long FARVar, *exprBuff = nullptr;
 static int IsProcessFunc=0;
 
 static string _ErrWord;
@@ -81,8 +81,8 @@ static int _macro_ErrCode=err_Success;
 static int inloop = 0; // =1 мы в цикле
 static wchar_t nameString[1024];
 static wchar_t *sSrcString;
-static const wchar_t *pSrcString = NULL;
-static wchar_t *oSrcString = NULL;
+static const wchar_t *pSrcString = nullptr;
+static wchar_t *oSrcString = nullptr;
 static wchar_t emptyString[1]={0};
 
 static TToken currTok = tNo;
@@ -97,8 +97,8 @@ static void printKeyValue(DWORD* k, int& i);
 #endif
 
 static const wchar_t *__GetNextWord(const wchar_t *BufPtr,string &strCurKeyText,int& Line);
-static void keyMacroParseError(int err, const wchar_t *s, const wchar_t *p, const wchar_t *c=NULL);
-static void keyMacroParseError(int err, const wchar_t *c = NULL);
+static void keyMacroParseError(int err, const wchar_t *s, const wchar_t *p, const wchar_t *c=nullptr);
+static void keyMacroParseError(int err, const wchar_t *c = nullptr);
 
 // —тек структурных операторов
 enum TExecMode
@@ -303,67 +303,67 @@ struct TMacroFunction
 
 static TMacroFunction macroFunction[]=
 {
-	{L"ABS",              1, 0,   MCODE_F_ABS,              NULL, L"N=Abs(N)"},
-	{L"AKEY",             2, 1,   MCODE_F_AKEY,             NULL, L"V=Akey(Mode[,Type])"},
-	{L"ASC",              1, 0,   MCODE_F_ASC,              NULL, L"N=Asc(N)"},
-	{L"ATOI",             2, 1,   MCODE_F_ATOI,             NULL, L"N=Atoi(S[,radix])"},
-	{L"BM.ADD",           0, 0,   MCODE_F_BM_ADD,           NULL, L"N=BM.Add()"},
-	{L"BM.CLEAR",         0, 0,   MCODE_F_BM_CLEAR,         NULL, L"N=BM.Clear()"},
-	{L"BM.DEL",           1, 1,   MCODE_F_BM_DEL,           NULL, L"N=BM.Del([Idx])"},
-	{L"BM.GET",           2, 0,   MCODE_F_BM_GET,           NULL, L"N=BM.Get(Idx,M)"},
-	{L"BM.NEXT",          0, 0,   MCODE_F_BM_NEXT,          NULL, L"N=BM.Next()"},
-	{L"BM.PREV",          0, 0,   MCODE_F_BM_PREV,          NULL, L"N=BM.Prev()"},
-	{L"BM.STAT",          1, 1,   MCODE_F_BM_STAT,          NULL, L"N=BM.Stat([N])"},
-	{L"CHECKHOTKEY",      2, 1,   MCODE_F_MENU_CHECKHOTKEY, NULL, L"N=checkhotkey(S[,N])"},
-	{L"CALLPLUGIN",       2, 1,   MCODE_F_CALLPLUGIN,       NULL, L"V=CallPlugin(SysID[,param])"},
-	{L"CHR",              1, 0,   MCODE_F_CHR,              NULL, L"S=Chr(N)"},
-	{L"CLIP",             2, 1,   MCODE_F_CLIP,             NULL, L"V=Clip(N[,S])"},
-	{L"DATE",             1, 1,   MCODE_F_DATE,             NULL, L"S=Date([S])"},
-	{L"DLG.GETVALUE",     2, 0,   MCODE_F_DLG_GETVALUE,     NULL, L"V=Dlg.GetValue(ID,N)"},
-	{L"EDITOR.POS",       3, 1,   MCODE_F_EDITOR_POS,       NULL, L"N=Editor.Pos(Op,What[,Where])"},
-	{L"EDITOR.SEL",       2, 1,   MCODE_F_EDITOR_SEL,       NULL, L"V=Editor.Sel(Action[,Opt])"},
-	{L"EDITOR.SET",       2, 0,   MCODE_F_EDITOR_SET,       NULL, L"N=Editor.Set(N,Var)"},
-	{L"EDITOR.UNDO",      1, 0,   MCODE_F_EDITOR_UNDO,      NULL, L"V=Editor.Undo(N)"},
-	{L"ENV",              1, 0,   MCODE_F_ENVIRON,          NULL, L"S=Env(S)"},
-	{L"EVAL",             2, 1,   MCODE_F_EVAL,             NULL, L"N=Eval(S[,N])"},
-	{L"FATTR",            1, 0,   MCODE_F_FATTR,            NULL, L"N=FAttr(S)"},
-	{L"FEXIST",           1, 0,   MCODE_F_FEXIST,           NULL, L"N=FExist(S)"},
-	{L"FLOAT",            1, 0,   MCODE_F_FLOAT,            NULL, L"N=Float(V)"},
-	{L"FLOCK",            2, 0,   MCODE_F_FLOCK,            NULL, L"N=FLock(N,N)"},
-	{L"FSPLIT",           2, 0,   MCODE_F_FSPLIT,           NULL, L"S=FSplit(S,N)"},
-	{L"GETHOTKEY",        1, 1,   MCODE_F_MENU_GETHOTKEY,   NULL, L"S=GetHotkey([N])"},
-	{L"IIF",              3, 0,   MCODE_F_IIF,              NULL, L"V=Iif(Condition,V1,V2)"},
-	{L"INDEX",            3, 1,   MCODE_F_INDEX,            NULL, L"S=Index(S1,S2[,Mode])"},
-	{L"INT",              1, 0,   MCODE_F_INT,              NULL, L"N=Int(V)"},
-	{L"ITOA",             2, 1,   MCODE_F_ITOA,             NULL, L"S=Itoa(N[,radix])"},
-	{L"LCASE",            1, 0,   MCODE_F_LCASE,            NULL, L"S=LCase(S1)"},
-	{L"KEY",              1, 0,   MCODE_F_KEY,              NULL, L"S=Key(V)"},
-	{L"LEN",              1, 0,   MCODE_F_LEN,              NULL, L"N=Len(S)"},
-	{L"MAX",              2, 0,   MCODE_F_MAX,              NULL, L"N=Max(N1,N2)"},
-	{L"MENU.SELECT",      3, 2,   MCODE_F_MENU_SELECT,      NULL, L"N=Menu.Select(S[,N[,Dir]])"},
-	{L"MOD",              2, 0,   MCODE_F_MOD,              NULL, L"N=Mod(a,b)"},
-	{L"MSAVE",            1, 0,   MCODE_F_MSAVE,            NULL, L"N=MSave(S)"},
-	{L"MSGBOX",           3, 3,   MCODE_F_MSGBOX,           NULL, L"N=MsgBox([Title[,Text[,flags]]])"},
-	{L"MIN",              2, 0,   MCODE_F_MIN,              NULL, L"N=Min(N1,N2)"},
-	{L"PANEL.FATTR",      2, 0,   MCODE_F_PANEL_FATTR,      NULL, L"N=Panel.FAttr(panelType,fileMask)"},
-	{L"PANEL.FEXIST",     2, 0,   MCODE_F_PANEL_FEXIST,     NULL, L"N=Panel.FExist(panelType,fileMask)"},
-	{L"PANEL.ITEM",       3, 0,   MCODE_F_PANELITEM,        NULL, L"V=Panel.Item(Panel,Index,TypeInfo)"},
-	{L"PANEL.SELECT",     4, 2,   MCODE_F_PANEL_SELECT,     NULL, L"V=Panel.Select(panelType,Action[,Mode[,Items]])"},
-	{L"PANEL.SETPATH",    3, 1,   MCODE_F_PANEL_SETPATH,    NULL, L"N=panel.SetPath(panelType,pathName[,fileName])"},
-	{L"PANEL.SETPOS",     2, 0,   MCODE_F_PANEL_SETPOS,     NULL, L"N=panel.SetPos(panelType,fileName)"},
-	{L"PANEL.SETPOSIDX",  3, 1,   MCODE_F_PANEL_SETPOSIDX,  NULL, L"N=Panel.SetPosIdx(panelType,Idx[,InSelection])"},
-	{L"PANELITEM",        3, 0,   MCODE_F_PANELITEM,        NULL, L"V=PanelItem(Panel,Index,TypeInfo)"},
-	{L"PROMPT",           5, 4,   MCODE_F_PROMPT,           NULL, L"S=Prompt(Title[,Prompt[,flags[,Src[,HistoryName]]]])"},
-	{L"REPLACE",          5, 2,   MCODE_F_REPLACE,          NULL, L"S=Replace(Str,Find,Replace[,Cnt[,Mode]])"},
-	{L"RINDEX",           3, 1,   MCODE_F_RINDEX,           NULL, L"S=RIndex(S1,S2[,Mode])"},
-	{L"SLEEP",            1, 0,   MCODE_F_SLEEP,            NULL, L"N=Sleep(N)"},
-	{L"STRING",           1, 0,   MCODE_F_STRING,           NULL, L"S=String(V)"},
-	{L"SUBSTR",           3, 1,   MCODE_F_SUBSTR,           NULL, L"S=SubStr(S,N1[,N2])"},
-	{L"TESTFOLDER",       1, 0,   MCODE_F_TESTFOLDER,       NULL, L"N=testfolder(S)"},
-	{L"TRIM",             2, 1,   MCODE_F_TRIM,             NULL, L"S=Trim(S[,N])"},
-	{L"UCASE",            1, 0,   MCODE_F_UCASE,            NULL, L"S=UCase(S1)"},
-	{L"WAITKEY",          2, 2,   MCODE_F_WAITKEY,          NULL, L"V=Waitkey([N,[T]])"},
-	{L"XLAT",             1, 0,   MCODE_F_XLAT,             NULL, L"S=Xlat(S)"},
+	{L"ABS",              1, 0,   MCODE_F_ABS,              nullptr, L"N=Abs(N)"},
+	{L"AKEY",             2, 1,   MCODE_F_AKEY,             nullptr, L"V=Akey(Mode[,Type])"},
+	{L"ASC",              1, 0,   MCODE_F_ASC,              nullptr, L"N=Asc(N)"},
+	{L"ATOI",             2, 1,   MCODE_F_ATOI,             nullptr, L"N=Atoi(S[,radix])"},
+	{L"BM.ADD",           0, 0,   MCODE_F_BM_ADD,           nullptr, L"N=BM.Add()"},
+	{L"BM.CLEAR",         0, 0,   MCODE_F_BM_CLEAR,         nullptr, L"N=BM.Clear()"},
+	{L"BM.DEL",           1, 1,   MCODE_F_BM_DEL,           nullptr, L"N=BM.Del([Idx])"},
+	{L"BM.GET",           2, 0,   MCODE_F_BM_GET,           nullptr, L"N=BM.Get(Idx,M)"},
+	{L"BM.NEXT",          0, 0,   MCODE_F_BM_NEXT,          nullptr, L"N=BM.Next()"},
+	{L"BM.PREV",          0, 0,   MCODE_F_BM_PREV,          nullptr, L"N=BM.Prev()"},
+	{L"BM.STAT",          1, 1,   MCODE_F_BM_STAT,          nullptr, L"N=BM.Stat([N])"},
+	{L"CHECKHOTKEY",      2, 1,   MCODE_F_MENU_CHECKHOTKEY, nullptr, L"N=checkhotkey(S[,N])"},
+	{L"CALLPLUGIN",       2, 1,   MCODE_F_CALLPLUGIN,       nullptr, L"V=CallPlugin(SysID[,param])"},
+	{L"CHR",              1, 0,   MCODE_F_CHR,              nullptr, L"S=Chr(N)"},
+	{L"CLIP",             2, 1,   MCODE_F_CLIP,             nullptr, L"V=Clip(N[,S])"},
+	{L"DATE",             1, 1,   MCODE_F_DATE,             nullptr, L"S=Date([S])"},
+	{L"DLG.GETVALUE",     2, 0,   MCODE_F_DLG_GETVALUE,     nullptr, L"V=Dlg.GetValue(ID,N)"},
+	{L"EDITOR.POS",       3, 1,   MCODE_F_EDITOR_POS,       nullptr, L"N=Editor.Pos(Op,What[,Where])"},
+	{L"EDITOR.SEL",       2, 1,   MCODE_F_EDITOR_SEL,       nullptr, L"V=Editor.Sel(Action[,Opt])"},
+	{L"EDITOR.SET",       2, 0,   MCODE_F_EDITOR_SET,       nullptr, L"N=Editor.Set(N,Var)"},
+	{L"EDITOR.UNDO",      1, 0,   MCODE_F_EDITOR_UNDO,      nullptr, L"V=Editor.Undo(N)"},
+	{L"ENV",              1, 0,   MCODE_F_ENVIRON,          nullptr, L"S=Env(S)"},
+	{L"EVAL",             2, 1,   MCODE_F_EVAL,             nullptr, L"N=Eval(S[,N])"},
+	{L"FATTR",            1, 0,   MCODE_F_FATTR,            nullptr, L"N=FAttr(S)"},
+	{L"FEXIST",           1, 0,   MCODE_F_FEXIST,           nullptr, L"N=FExist(S)"},
+	{L"FLOAT",            1, 0,   MCODE_F_FLOAT,            nullptr, L"N=Float(V)"},
+	{L"FLOCK",            2, 0,   MCODE_F_FLOCK,            nullptr, L"N=FLock(N,N)"},
+	{L"FSPLIT",           2, 0,   MCODE_F_FSPLIT,           nullptr, L"S=FSplit(S,N)"},
+	{L"GETHOTKEY",        1, 1,   MCODE_F_MENU_GETHOTKEY,   nullptr, L"S=GetHotkey([N])"},
+	{L"IIF",              3, 0,   MCODE_F_IIF,              nullptr, L"V=Iif(Condition,V1,V2)"},
+	{L"INDEX",            3, 1,   MCODE_F_INDEX,            nullptr, L"S=Index(S1,S2[,Mode])"},
+	{L"INT",              1, 0,   MCODE_F_INT,              nullptr, L"N=Int(V)"},
+	{L"ITOA",             2, 1,   MCODE_F_ITOA,             nullptr, L"S=Itoa(N[,radix])"},
+	{L"LCASE",            1, 0,   MCODE_F_LCASE,            nullptr, L"S=LCase(S1)"},
+	{L"KEY",              1, 0,   MCODE_F_KEY,              nullptr, L"S=Key(V)"},
+	{L"LEN",              1, 0,   MCODE_F_LEN,              nullptr, L"N=Len(S)"},
+	{L"MAX",              2, 0,   MCODE_F_MAX,              nullptr, L"N=Max(N1,N2)"},
+	{L"MENU.SELECT",      3, 2,   MCODE_F_MENU_SELECT,      nullptr, L"N=Menu.Select(S[,N[,Dir]])"},
+	{L"MOD",              2, 0,   MCODE_F_MOD,              nullptr, L"N=Mod(a,b)"},
+	{L"MSAVE",            1, 0,   MCODE_F_MSAVE,            nullptr, L"N=MSave(S)"},
+	{L"MSGBOX",           3, 3,   MCODE_F_MSGBOX,           nullptr, L"N=MsgBox([Title[,Text[,flags]]])"},
+	{L"MIN",              2, 0,   MCODE_F_MIN,              nullptr, L"N=Min(N1,N2)"},
+	{L"PANEL.FATTR",      2, 0,   MCODE_F_PANEL_FATTR,      nullptr, L"N=Panel.FAttr(panelType,fileMask)"},
+	{L"PANEL.FEXIST",     2, 0,   MCODE_F_PANEL_FEXIST,     nullptr, L"N=Panel.FExist(panelType,fileMask)"},
+	{L"PANEL.ITEM",       3, 0,   MCODE_F_PANELITEM,        nullptr, L"V=Panel.Item(Panel,Index,TypeInfo)"},
+	{L"PANEL.SELECT",     4, 2,   MCODE_F_PANEL_SELECT,     nullptr, L"V=Panel.Select(panelType,Action[,Mode[,Items]])"},
+	{L"PANEL.SETPATH",    3, 1,   MCODE_F_PANEL_SETPATH,    nullptr, L"N=panel.SetPath(panelType,pathName[,fileName])"},
+	{L"PANEL.SETPOS",     2, 0,   MCODE_F_PANEL_SETPOS,     nullptr, L"N=panel.SetPos(panelType,fileName)"},
+	{L"PANEL.SETPOSIDX",  3, 1,   MCODE_F_PANEL_SETPOSIDX,  nullptr, L"N=Panel.SetPosIdx(panelType,Idx[,InSelection])"},
+	{L"PANELITEM",        3, 0,   MCODE_F_PANELITEM,        nullptr, L"V=PanelItem(Panel,Index,TypeInfo)"},
+	{L"PROMPT",           5, 4,   MCODE_F_PROMPT,           nullptr, L"S=Prompt(Title[,Prompt[,flags[,Src[,HistoryName]]]])"},
+	{L"REPLACE",          5, 2,   MCODE_F_REPLACE,          nullptr, L"S=Replace(Str,Find,Replace[,Cnt[,Mode]])"},
+	{L"RINDEX",           3, 1,   MCODE_F_RINDEX,           nullptr, L"S=RIndex(S1,S2[,Mode])"},
+	{L"SLEEP",            1, 0,   MCODE_F_SLEEP,            nullptr, L"N=Sleep(N)"},
+	{L"STRING",           1, 0,   MCODE_F_STRING,           nullptr, L"S=String(V)"},
+	{L"SUBSTR",           3, 1,   MCODE_F_SUBSTR,           nullptr, L"S=SubStr(S,N1[,N2])"},
+	{L"TESTFOLDER",       1, 0,   MCODE_F_TESTFOLDER,       nullptr, L"N=testfolder(S)"},
+	{L"TRIM",             2, 1,   MCODE_F_TRIM,             nullptr, L"S=Trim(S[,N])"},
+	{L"UCASE",            1, 0,   MCODE_F_UCASE,            nullptr, L"S=UCase(S1)"},
+	{L"WAITKEY",          2, 2,   MCODE_F_WAITKEY,          nullptr, L"V=Waitkey([N,[T]])"},
+	{L"XLAT",             1, 0,   MCODE_F_XLAT,             nullptr, L"S=Xlat(S)"},
 };
 
 /*
@@ -1303,7 +1303,7 @@ static const wchar_t *__GetNextWord(const wchar_t *BufPtr,string &strCurKeyText,
 	}
 
 	if (*BufPtr==0)
-		return NULL;
+		return nullptr;
 
 	const wchar_t *CurBufPtr=BufPtr;
 	wchar_t Chr=*BufPtr, Chr2=BufPtr[1];
@@ -1504,7 +1504,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 	inloop = 0;
 	/*pSrcString = */oSrcString = sSrcString = emptyString;
 
-	if (BufPtr == NULL || !*BufPtr)
+	if (BufPtr == nullptr || !*BufPtr)
 	{
 		keyMacroParseError(err_ZeroLengthMacro);
 		return FALSE;
@@ -1519,7 +1519,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 
 	//{
 	//	_SVS(SysLog(L"MacroSrcList.GetTotal()=%d",MacroSrcList.GetTotal()));
-	//	while((NewBufPtr=MacroSrcList.GetNext()) != NULL)
+	//	while((NewBufPtr=MacroSrcList.GetNext()) != nullptr)
 	//		_SVS(SysLog(L"[%s]",NewBufPtr));
 	//	MacroSrcList.Reset();
 	//}
@@ -1531,12 +1531,12 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 	//- AN ----------------------------------------------
 	DWORD *dwExprBuff = (DWORD*)xf_malloc(SizeCurKeyText*sizeof(DWORD));
 
-	if (dwExprBuff == NULL)
+	if (dwExprBuff == nullptr)
 		return FALSE;
 
 	TExec exec;
 	wchar_t varName[256];
-	DWORD KeyCode, *CurMacro_Buffer = NULL;
+	DWORD KeyCode, *CurMacro_Buffer = nullptr;
 
 	if(useUDL)
 		BufPtr=MacroSrcList.GetNext();
@@ -1549,7 +1549,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 		int SizeVarName = 0;
 		const wchar_t *oldBufPtr = BufPtr;
 
-		if ((BufPtr = __GetNextWord(BufPtr, strCurrKeyText, _macro_nLine)) == NULL)
+		if ((BufPtr = __GetNextWord(BufPtr, strCurrKeyText, _macro_nLine)) == nullptr)
 		{
 			if(!useUDL)
 				break;
@@ -1705,10 +1705,10 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 					//keyMacroParseError(err_Unrecognized_keyword, strCurrKeyText, strCurrKeyText,strCurrKeyText);
 					keyMacroParseError(err_Unrecognized_keyword, oldBufPtr, pSrcString, strCurrKeyText);
 
-				if (CurMacro_Buffer != NULL)
+				if (CurMacro_Buffer != nullptr)
 				{
 					xf_free(CurMacro_Buffer);
-					CurMacroBuffer = NULL;
+					CurMacroBuffer = nullptr;
 				}
 
 				CurMacroBufferSize = 0;
@@ -1783,10 +1783,10 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 
 				if (!exec.add(emmThen, CurMacroBufferSize+Size))
 				{
-					if (CurMacro_Buffer != NULL)
+					if (CurMacro_Buffer != nullptr)
 					{
 						xf_free(CurMacro_Buffer);
-						CurMacroBuffer = NULL;
+						CurMacroBuffer = nullptr;
 					}
 
 					CurMacroBufferSize = 0;
@@ -1822,10 +1822,10 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 
 				if (!exec.add(emmRep, CurMacroBufferSize+Size, CurMacroBufferSize+Size+4))   //??? 3
 				{
-					if (CurMacro_Buffer != NULL)
+					if (CurMacro_Buffer != nullptr)
 					{
 						xf_free(CurMacro_Buffer);
-						CurMacroBuffer = NULL;
+						CurMacroBuffer = nullptr;
 					}
 
 					CurMacroBufferSize = 0;
@@ -1853,10 +1853,10 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 
 				if (!exec.add(emmWhile, CurMacroBufferSize, CurMacroBufferSize+Size))
 				{
-					if (CurMacro_Buffer != NULL)
+					if (CurMacro_Buffer != nullptr)
 					{
 						xf_free(CurMacro_Buffer);
-						CurMacroBuffer = NULL;
+						CurMacroBuffer = nullptr;
 					}
 
 					CurMacroBufferSize = 0;
@@ -1893,10 +1893,10 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 
 		if (_macro_nErr)
 		{
-			if (CurMacro_Buffer != NULL)
+			if (CurMacro_Buffer != nullptr)
 			{
 				xf_free(CurMacro_Buffer);
-				CurMacroBuffer = NULL;
+				CurMacroBuffer = nullptr;
 			}
 
 			CurMacroBufferSize = 0;
@@ -1904,15 +1904,15 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 			return FALSE;
 		}
 
-		if (BufPtr == NULL)   // ???
+		if (BufPtr == nullptr)   // ???
 			break;
 
 		// код найден, добавим этот код в буфер последовательности.
 		CurMacro_Buffer = (DWORD *)xf_realloc(CurMacro_Buffer,sizeof(*CurMacro_Buffer)*(CurMacroBufferSize+Size+SizeVarName));
 
-		if (CurMacro_Buffer == NULL)
+		if (CurMacro_Buffer == nullptr)
 		{
-			CurMacroBuffer = NULL;
+			CurMacroBuffer = nullptr;
 			CurMacroBufferSize = 0;
 			xf_free(dwExprBuff);
 			return FALSE;
@@ -1971,10 +1971,10 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 				{
 					keyMacroParseError(err_Not_expected_ELSE, BufPtr, pSrcString); // strCurrKeyText
 
-					if (CurMacro_Buffer != NULL)
+					if (CurMacro_Buffer != nullptr)
 					{
 						xf_free(CurMacro_Buffer);
-						CurMacroBuffer = NULL;
+						CurMacroBuffer = nullptr;
 					}
 
 					CurMacroBufferSize = 0;
@@ -1986,15 +1986,15 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 			}
 			case MCODE_OP_CONTINUE:
 			{
-				TExecItem *ei=NULL;
+				TExecItem *ei=nullptr;
 				if (!inloop || exec.findnearloop(&ei) == -1)
 				{
 					keyMacroParseError(err_Continue_Outside_The_Loop, oldBufPtr, pSrcString);//BufPtr, pSrcString); // strCurrKeyText
 
-					if (CurMacro_Buffer != NULL)
+					if (CurMacro_Buffer != nullptr)
 					{
 						xf_free(CurMacro_Buffer);
-						CurMacroBuffer = NULL;
+						CurMacroBuffer = nullptr;
 					}
 
 					CurMacroBufferSize = 0;
@@ -2014,10 +2014,10 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 						// тут $end и не предвиделось :-/
 						keyMacroParseError(err_Not_expected_END, BufPtr, pSrcString); // strCurrKeyText
 
-						if (CurMacro_Buffer != NULL)
+						if (CurMacro_Buffer != nullptr)
 						{
 							xf_free(CurMacro_Buffer);
-							CurMacroBuffer = NULL;
+							CurMacroBuffer = nullptr;
 						}
 
 						CurMacroBufferSize = 0;
@@ -2051,10 +2051,10 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 
 				if (!exec.del())    // ¬ообще-то этого быть не должно,  но подстрахуемс€
 				{
-					if (CurMacro_Buffer != NULL)
+					if (CurMacro_Buffer != nullptr)
 					{
 						xf_free(CurMacro_Buffer);
-						CurMacroBuffer = NULL;
+						CurMacroBuffer = nullptr;
 					}
 
 					CurMacroBufferSize = 0;
@@ -2082,9 +2082,9 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 	{
 		CurMacro_Buffer = (DWORD *)xf_realloc(CurMacro_Buffer,sizeof(*CurMacro_Buffer)*(CurMacroBufferSize+1));
 
-		if (CurMacro_Buffer == NULL)
+		if (CurMacro_Buffer == nullptr)
 		{
-			CurMacroBuffer = NULL;
+			CurMacroBuffer = nullptr;
 			CurMacroBufferSize = 0;
 			xf_free(dwExprBuff);
 			return FALSE;
@@ -2096,7 +2096,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 
 #ifdef _DEBUG
 #ifdef SYSLOG_KEYMACRO
-	SysLogDump(L"Macro Buffer",0,(LPBYTE)CurMacro_Buffer,CurMacroBufferSize*sizeof(DWORD),NULL);
+	SysLogDump(L"Macro Buffer",0,(LPBYTE)CurMacro_Buffer,CurMacroBufferSize*sizeof(DWORD),nullptr);
 	SysLog(L"<ByteCode>{");
 
 	if (CurMacro_Buffer)
@@ -2107,7 +2107,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 			printKeyValue(CurMacro_Buffer, ii);
 	}
 	else
-		SysLog(L"??? is NULL");
+		SysLog(L"??? is nullptr");
 
 	SysLog(L"}</ByteCode>");
 #endif

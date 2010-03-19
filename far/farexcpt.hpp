@@ -245,9 +245,9 @@ enum ExceptFunctionsType
 typedef BOOL (WINAPI *FARPROCESSEVENT)(FARExceptionState * Context);
 
 int WriteEvent(DWORD DumpType, // FLOG_*
-               EXCEPTION_POINTERS *xp=NULL,
-               Plugin *Module=NULL,
-               void *RawData=NULL,DWORD RawDataSize=0,
+               EXCEPTION_POINTERS *xp=nullptr,
+               Plugin *Module=nullptr,
+               void *RawData=nullptr,DWORD RawDataSize=0,
                DWORD RawDataFlags=0,DWORD RawType=RAWTYPE_BINARY);
 
 DWORD WINAPI xfilter(

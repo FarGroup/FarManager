@@ -159,7 +159,7 @@ wchar_t *findString,*findStringBuffer;
 size_t *skipCharsTable;
 int favoriteCodePages = 0;
 
-TaskBar *TB=NULL;
+TaskBar *TB=nullptr;
 
 bool InFileSearchInited=false;
 
@@ -338,7 +338,7 @@ void InitInFileSearch()
 				else
 				{
 					codePagesCount = 0;
-					codePages = NULL;
+					codePages = nullptr;
 				}
 
 				// Добавляем стандартные таблицы символов
@@ -392,7 +392,7 @@ void InitInFileSearch()
 					cp->MaxCharSize = cpi.MaxCharSize;
 				}
 
-				cp->LastSymbol = NULL;
+				cp->LastSymbol = 0;
 				cp->WordFound = false;
 			}
 		}
@@ -450,37 +450,37 @@ void ReleaseInFileSearch()
 		if (readBufferA)
 		{
 			xf_free(readBufferA);
-			readBufferA=NULL;
+			readBufferA=nullptr;
 		}
 
 		if (readBuffer)
 		{
 			xf_free(readBuffer);
-			readBuffer=NULL;
+			readBuffer=nullptr;
 		}
 
 		if (skipCharsTable)
 		{
 			xf_free(skipCharsTable);
-			skipCharsTable=NULL;
+			skipCharsTable=nullptr;
 		}
 
 		if (codePages)
 		{
 			xf_free(codePages);
-			codePages=NULL;
+			codePages=nullptr;
 		}
 
 		if (findStringBuffer)
 		{
 			xf_free(findStringBuffer);
-			findStringBuffer=NULL;
+			findStringBuffer=nullptr;
 		}
 
 		if (hexFindString)
 		{
 			xf_free(hexFindString);
-			hexFindString=NULL;
+			hexFindString=nullptr;
 		}
 
 		InFileSearchInited=false;
@@ -533,7 +533,7 @@ void ClearAllLists()
 		xf_free(FindList);
 	}
 
-	FindList=NULL;
+	FindList=nullptr;
 	FindListCapacity=FindListCount=0;
 
 	if (ArcList)
@@ -546,7 +546,7 @@ void ClearAllLists()
 		xf_free(ArcList);
 	}
 
-	ArcList=NULL;
+	ArcList=nullptr;
 	ArcListCapacity=ArcListCount=0;
 }
 
@@ -597,7 +597,7 @@ void SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,bool UpdatePanel=f
 			// if not done SetDirectory may fail
 			{
 				int FileCount=0;
-				PluginPanelItem *PanelData=NULL;
+				PluginPanelItem *PanelData=nullptr;
 
 				if (CtrlObject->Plugins.GetFindData(hPlugin,&PanelData,&FileCount,OPM_SILENT))
 				{
@@ -635,7 +635,7 @@ LONG_PTR WINAPI AdvancedDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
 			if (Param1==AD_BUTTON_OK)
 			{
-				LPCWSTR Data=reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,AD_EDIT_SEARCHFIRST,NULL));
+				LPCWSTR Data=reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,AD_EDIT_SEARCHFIRST,0));
 
 				if (Data && *Data && !CheckFileSizeStringFormat(Data))
 				{
@@ -683,7 +683,7 @@ LONG_PTR WINAPI MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 	{
 		case DN_INITDIALOG:
 		{
-			bool Hex=(SendDlgMessage(hDlg,DM_GETCHECK,FAD_CHECKBOX_HEX,NULL)==BSTATE_CHECKED);
+			bool Hex=(SendDlgMessage(hDlg,DM_GETCHECK,FAD_CHECKBOX_HEX,0)==BSTATE_CHECKED);
 			SendDlgMessage(hDlg,DM_SHOWITEM,FAD_EDIT_TEXT,!Hex);
 			SendDlgMessage(hDlg,DM_SHOWITEM,FAD_EDIT_HEX,Hex);
 			SendDlgMessage(hDlg,DM_ENABLE,FAD_TEXT_CP,!Hex);
@@ -696,7 +696,7 @@ LONG_PTR WINAPI MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 			SendDlgMessage(hDlg,DM_SETTEXTPTR,FAD_TEXT_TEXTHEX,(LONG_PTR)(Hex?MSG(MFindFileHex):MSG(MFindFileText)));
 			SendDlgMessage(hDlg,DM_SETTEXTPTR,FAD_TEXT_CP,(LONG_PTR)MSG(MFindFileCodePage));
 			SendDlgMessage(hDlg,DM_SETCOMBOBOXEVENT,FAD_COMBOBOX_CP,CBET_KEY);
-			FarListTitles Titles={0,NULL,0,MSG(MFindFileCodePageBottom)};
+			FarListTitles Titles={0,nullptr,0,MSG(MFindFileCodePageBottom)};
 			SendDlgMessage(hDlg,DM_LISTSETTITLES,FAD_COMBOBOX_CP,reinterpret_cast<LONG_PTR>(&Titles));
 			/* Установка запомненных ранее параметров */
 			CodePage = Opt.FindCodePage;
@@ -719,7 +719,7 @@ LONG_PTR WINAPI MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 			{
 				case FAD_BUTTON_FIND:
 				{
-					LPCWSTR Mask=(LPCWSTR)SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,FAD_EDIT_MASK,NULL);
+					LPCWSTR Mask=(LPCWSTR)SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,FAD_EDIT_MASK,0);
 
 					if (!Mask||!*Mask)
 						Mask=L"*";
@@ -788,7 +788,7 @@ LONG_PTR WINAPI MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 				{
 					SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 					string strDataStr;
-					Transform(strDataStr,(LPCWSTR)SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,Param2?FAD_EDIT_TEXT:FAD_EDIT_HEX,NULL),Param2?L'X':L'S');
+					Transform(strDataStr,(LPCWSTR)SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,Param2?FAD_EDIT_TEXT:FAD_EDIT_HEX,0),Param2?L'X':L'S');
 					SendDlgMessage(hDlg,DM_SETTEXTPTR,Param2?FAD_EDIT_HEX:FAD_EDIT_TEXT,(LONG_PTR)(const wchar_t*)strDataStr);
 					SendDlgMessage(hDlg,DM_SHOWITEM,FAD_EDIT_TEXT,!Param2);
 					SendDlgMessage(hDlg,DM_SHOWITEM,FAD_EDIT_HEX,Param2);
@@ -925,7 +925,7 @@ LONG_PTR WINAPI MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 				case FAD_COMBOBOX_CP:
 				{
 					// Получаем выбранную в выпадающем списке таблицу символов
-					CodePage = (UINT)SendDlgMessage(hDlg, DM_LISTGETDATA, FAD_COMBOBOX_CP, SendDlgMessage(hDlg, DM_LISTGETCURPOS, FAD_COMBOBOX_CP, NULL));
+					CodePage = (UINT)SendDlgMessage(hDlg, DM_LISTGETDATA, FAD_COMBOBOX_CP, SendDlgMessage(hDlg, DM_LISTGETCURPOS, FAD_COMBOBOX_CP, 0));
 				}
 				return TRUE;
 				case FAD_COMBOBOX_WHERE:
@@ -937,7 +937,7 @@ LONG_PTR WINAPI MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 		{
 			if (Param1==FAD_TEXT_TEXTHEX)
 			{
-				bool Hex=(SendDlgMessage(hDlg,DM_GETCHECK,FAD_CHECKBOX_HEX,NULL)==BSTATE_CHECKED);
+				bool Hex=(SendDlgMessage(hDlg,DM_GETCHECK,FAD_CHECKBOX_HEX,0)==BSTATE_CHECKED);
 				SendDlgMessage(hDlg,DM_SETFOCUS,Hex?FAD_EDIT_HEX:FAD_EDIT_TEXT,0);
 				return FALSE;
 			}
@@ -1018,7 +1018,7 @@ const int FindStringBMH(const wchar_t* searchBuffer, size_t searchBufferCount)
 {
 	size_t findStringCount = strFindStr.GetLength();
 	const wchar_t *buffer = searchBuffer;
-	const wchar_t *findStringLower = CmpCase ? NULL : findString+findStringCount;
+	const wchar_t *findStringLower = CmpCase ? nullptr : findString+findStringCount;
 	size_t lastBufferChar = findStringCount-1;
 
 	while (searchBufferCount>=findStringCount)
@@ -1074,7 +1074,7 @@ int LookForString(const wchar_t *Name)
 	                        Name,
 	                        FILE_READ_ATTRIBUTES | FILE_READ_DATA | FILE_WRITE_ATTRIBUTES,
 	                        FILE_SHARE_READ | FILE_SHARE_WRITE,
-	                        NULL,
+	                        nullptr,
 	                        OPEN_EXISTING,
 	                        FILE_FLAG_SEQUENTIAL_SCAN
 	                    );
@@ -1091,13 +1091,13 @@ int LookForString(const wchar_t *Name)
 		                 Name,
 		                 FILE_READ_DATA,
 		                 FILE_SHARE_READ | FILE_SHARE_WRITE,
-		                 NULL,
+		                 nullptr,
 		                 OPEN_EXISTING,
 		                 FILE_FLAG_SEQUENTIAL_SCAN
 		             );
 	else
 		// Запоминаем время последнего доуступа к файлу
-		isTimeReaded = GetFileTime(fileHandle, NULL, &lastAccessTime, NULL);
+		isTimeReaded = GetFileTime(fileHandle, nullptr, &lastAccessTime, nullptr);
 
 	// Если файл открыть не удалось, то считаем, что ничего не нашли
 	if (fileHandle==INVALID_HANDLE_VALUE)
@@ -1124,7 +1124,7 @@ int LookForString(const wchar_t *Name)
 	UINT LastPercents=0;
 
 	// Основной цикл чтения из файла
-	while (!StopSearch && ReadFile(fileHandle,readBufferA,(!SearchInFirst || alreadyRead+readBufferSizeA<=SearchInFirst)?readBufferSizeA:static_cast<DWORD>(SearchInFirst-alreadyRead),&readBlockSize,NULL))
+	while (!StopSearch && ReadFile(fileHandle,readBufferA,(!SearchInFirst || alreadyRead+readBufferSizeA<=SearchInFirst)?readBufferSizeA:static_cast<DWORD>(SearchInFirst-alreadyRead),&readBlockSize,nullptr))
 	{
 		UINT Percents=static_cast<UINT>(FileSize?alreadyRead*100/FileSize:0);
 
@@ -1166,7 +1166,7 @@ int LookForString(const wchar_t *Name)
 					if (WholeWords && alreadyRead==readBlockSize)
 					{
 						cpi->WordFound = false;
-						cpi->LastSymbol = NULL;
+						cpi->LastSymbol = 0;
 					}
 
 				// Если ничего не прочитали
@@ -1329,7 +1329,7 @@ int LookForString(const wchar_t *Name)
 		if (readBlockSize==readBufferSizeA)
 		{
 			// Отступаем назад на длину слова поиска минус 1
-			if (!apiSetFilePointerEx(fileHandle, -1*offset, NULL, FILE_CURRENT))
+			if (!apiSetFilePointerEx(fileHandle, -1*offset, nullptr, FILE_CURRENT))
 				RETURN(FALSE)
 				alreadyRead -= offset;
 		}
@@ -1339,7 +1339,7 @@ exit:
 
 	// Восстаналиваем время доступа
 	if (isTimeReaded)
-		SetFileTime(fileHandle, NULL, &lastAccessTime, NULL);
+		SetFileTime(fileHandle, nullptr, &lastAccessTime, nullptr);
 
 	// Закрываем хэндл файла
 	CloseHandle(fileHandle);
@@ -1381,8 +1381,8 @@ bool IsFileIncluded(PluginPanelItem *FileItem,const wchar_t *FullName,DWORD File
 				if (!CtrlObject->Plugins.UseFarCommand(hPlugin, PLUGIN_FARGETFILES))
 				{
 					string strTempDir;
-					FarMkTempEx(strTempDir); // А проверка на NULL???
-					apiCreateDirectory(strTempDir,NULL);
+					FarMkTempEx(strTempDir); // А проверка на nullptr???
+					apiCreateDirectory(strTempDir,nullptr);
 					WaitForSingleObject(hPluginMutex,INFINITE);
 
 					if (!CtrlObject->Plugins.GetFile(hPlugin,FileItem,strTempDir,strSearchFileName,OPM_SILENT|OPM_FIND))
@@ -1431,7 +1431,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 	if (StopSearch && TB)
 	{
 		delete TB;
-		TB=NULL;
+		TB=nullptr;
 	}
 
 	CriticalSectionLock Lock(Dlg->CS);
@@ -1548,7 +1548,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 					}
 
 					ffCS.Enter();
-					size_t ItemIndex = reinterpret_cast<size_t>(ListBox->GetUserData(NULL,0));
+					size_t ItemIndex = reinterpret_cast<size_t>(ListBox->GetUserData(nullptr,0));
 					int RemoveTemp=FALSE;
 					int ClosePlugin=FALSE; // Плагины надо закрывать, если открыли.
 					string strSearchFileName;
@@ -1573,12 +1573,12 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
 							if (Buffer)
 							{
-								HANDLE hProcessFile=apiCreateFile(strFindArcName,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,OPEN_EXISTING,0);
+								HANDLE hProcessFile=apiCreateFile(strFindArcName,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,0);
 
 								if (hProcessFile!=INVALID_HANDLE_VALUE)
 								{
 									DWORD ReadSize=0;
-									bool Result=(ReadFile(hProcessFile,Buffer,Opt.PluginMaxReadData,&ReadSize,NULL)!=FALSE);
+									bool Result=(ReadFile(hProcessFile,Buffer,Opt.PluginMaxReadData,&ReadSize,nullptr)!=FALSE);
 									CloseHandle(hProcessFile);
 
 									if (Result)
@@ -1612,7 +1612,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 						}
 
 						FarMkTempEx(strTempDir);
-						apiCreateDirectory(strTempDir, NULL);
+						apiCreateDirectory(strTempDir, nullptr);
 						// if (!CtrlObject->Plugins.GetFile(ArcList[FindList[ItemIndex].ArcIndex].hPlugin,&FileItem,TempDir,SearchFileName,OPM_SILENT|OPM_FIND))
 						WaitForSingleObject(hPluginMutex,INFINITE);
 
@@ -1668,7 +1668,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 							{
 								for (int I=0; I<ListSize; I++)
 								{
-									FINDLIST* PtrFindList=FindList[reinterpret_cast<size_t>(ListBox->GetUserData(NULL,0,I))];
+									FINDLIST* PtrFindList=FindList[reinterpret_cast<size_t>(ListBox->GetUserData(nullptr,0,I))];
 
 									if ((PtrFindList->ArcIndex == LIST_INDEX_NONE)||(ArcList[PtrFindList->ArcIndex]->Flags & OPIF_REALNAMES))
 									{
@@ -1685,7 +1685,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 							SendDlgMessage(hDlg,DM_SHOWDIALOG,FALSE,0);
 							SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 							{
-								FileViewer ShellViewer(strSearchFileName,FALSE,FALSE,FALSE,-1,NULL,(FindList[ItemIndex]->ArcIndex != LIST_INDEX_NONE)?NULL:(Opt.FindOpt.CollectFiles?&ViewList:NULL));
+								FileViewer ShellViewer(strSearchFileName,FALSE,FALSE,FALSE,-1,nullptr,(FindList[ItemIndex]->ArcIndex != LIST_INDEX_NONE)?nullptr:(Opt.FindOpt.CollectFiles?&ViewList:nullptr));
 								ShellViewer.SetDynamicallyBorn(FALSE);
 								ShellViewer.SetEnableF6(TRUE);
 
@@ -1841,7 +1841,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 						return TRUE;
 					}
 
-					FindExitIndex = (DWORD)(DWORD_PTR)ListBox->GetUserData(NULL, 0);
+					FindExitIndex = (DWORD)(DWORD_PTR)ListBox->GetUserData(nullptr, 0);
 					FindExitCode = FIND_EXIT_GOTO;
 					return FALSE;
 				}
@@ -1864,12 +1864,12 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 						}
 
 						FindExitCode=FIND_EXIT_PANEL;
-						FindExitIndex=(DWORD)(DWORD_PTR)ListBox->GetUserData(NULL, 0);
+						FindExitIndex=(DWORD)(DWORD_PTR)ListBox->GetUserData(nullptr, 0);
 
 						if (TB)
 						{
 							delete TB;
-							TB=NULL;
+							TB=nullptr;
 						}
 					}
 
@@ -2081,15 +2081,15 @@ bool FindFiles::FindFilesProcess()
 	strFindMessage.Clear();
 	strFindPercentMessage.Clear();
 	FindMessagePercentReady=false;
-	HANDLE Threads[]={NULL,NULL};
+	HANDLE Threads[]={nullptr,nullptr};
 #define THREAD_WORK 0
 #define THREAD_DISPLAY 1
-	Threads[THREAD_WORK]=CreateThread(NULL,0,PluginMode?PreparePluginList:PrepareFilesList,&Dlg,0,NULL);
+	Threads[THREAD_WORK]=CreateThread(nullptr,0,PluginMode?PreparePluginList:PrepareFilesList,&Dlg,0,nullptr);
 
 	if (Threads[THREAD_WORK])
 	{
 		// Нитка для вывода в диалоге информации о ходе поиска
-		Threads[THREAD_DISPLAY]=CreateThread(NULL,0,WriteDialogData,&Dlg,0,NULL);
+		Threads[THREAD_DISPLAY]=CreateThread(nullptr,0,WriteDialogData,&Dlg,0,nullptr);
 
 		if (Threads[THREAD_DISPLAY])
 		{
@@ -2113,7 +2113,7 @@ bool FindFiles::FindFilesProcess()
 					size_t ListSize = FindListCount;
 					PluginPanelItem *PanelItems=new PluginPanelItem[ListSize];
 
-					if (PanelItems==NULL)
+					if (PanelItems==nullptr)
 						ListSize=0;
 
 					int ItemsNumber=0;
@@ -2306,7 +2306,7 @@ void FindFiles::DoScanTree(HANDLE hDlg,string& strRoot)
 	DWORD FileAttr;
 
 	if (SearchMode==FFSEARCH_SELECTED)
-		CtrlObject->Cp()->ActivePanel->GetSelName(NULL,FileAttr);
+		CtrlObject->Cp()->ActivePanel->GetSelName(nullptr,FileAttr);
 
 	while (1)
 	{
@@ -2434,7 +2434,7 @@ void FindFiles::DoScanTree(HANDLE hDlg,string& strRoot)
 					statusCS.Leave();
 				}
 
-				if (IsFileIncluded(NULL,strFullStreamName,FindData.dwFileAttributes))
+				if (IsFileIncluded(nullptr,strFullStreamName,FindData.dwFileAttributes))
 				{
 					AddMenuRecord(hDlg,strFullStreamName,&FindData);
 				}
@@ -2461,7 +2461,7 @@ void FindFiles::DoScanTree(HANDLE hDlg,string& strRoot)
 void FindFiles::DoPrepareFileList(HANDLE hDlg)
 {
 	string strRoot;
-	wchar_t *Ptr=NULL;
+	wchar_t *Ptr=nullptr;
 	DWORD DiskMask=FarGetLogicalDrives();
 	//string strRoot; //BUGBUG
 	CtrlObject->CmdLine->GetCurDir(strRoot);
@@ -2548,7 +2548,7 @@ DWORD WINAPI FindFiles::PrepareFilesList(void *Param)
 		DoPrepareFileList(reinterpret_cast<HANDLE>(Param));
 		ReleaseInFileSearch();
 	}
-	__except(xfilter(EXCEPT_KERNEL,GetExceptionInformation(),NULL,1))
+	__except(xfilter(EXCEPT_KERNEL,GetExceptionInformation(),nullptr,1))
 	{
 		TerminateProcess(GetCurrentProcess(), 1);
 	}
@@ -2558,7 +2558,7 @@ DWORD WINAPI FindFiles::PrepareFilesList(void *Param)
 void FindFiles::ArchiveSearch(HANDLE hDlg,const wchar_t *ArcName)
 {
 	_ALGO(CleverSysLog clv(L"FindFiles::ArchiveSearch()"));
-	_ALGO(SysLog(L"ArcName='%s'",(ArcName?ArcName:L"NULL")));
+	_ALGO(SysLog(L"ArcName='%s'",(ArcName?ArcName:L"nullptr")));
 	char *Buffer=new char[Opt.PluginMaxReadData];
 
 	if (!Buffer)
@@ -2569,7 +2569,7 @@ void FindFiles::ArchiveSearch(HANDLE hDlg,const wchar_t *ArcName)
 
 	FILE *ProcessFile=_wfopen(ArcName,L"rb");
 
-	if (ProcessFile==NULL)
+	if (ProcessFile==nullptr)
 	{
 		delete[] Buffer;
 		return;
@@ -2868,7 +2868,7 @@ DWORD WINAPI FindFiles::PreparePluginList(void *Param)
 		DoPreparePluginList(reinterpret_cast<HANDLE>(Param), false);
 		ReleaseInFileSearch();
 	}
-	__except(xfilter(EXCEPT_KERNEL,GetExceptionInformation(),NULL,1))
+	__except(xfilter(EXCEPT_KERNEL,GetExceptionInformation(),nullptr,1))
 	{
 		TerminateProcess(GetCurrentProcess(), 1);
 	}
@@ -2877,7 +2877,7 @@ DWORD WINAPI FindFiles::PreparePluginList(void *Param)
 
 void FindFiles::ScanPluginTree(HANDLE hDlg,HANDLE hPlugin, DWORD Flags)
 {
-	PluginPanelItem *PanelData=NULL;
+	PluginPanelItem *PanelData=nullptr;
 	int ItemCount=0;
 	WaitForSingleObject(hPluginMutex,INFINITE);
 
@@ -3116,7 +3116,7 @@ DWORD WINAPI FindFiles::WriteDialogData(void *Param)
 	{
 		DoWriteDialogData(reinterpret_cast<HANDLE>(Param));
 	}
-	__except(xfilter(EXCEPT_KERNEL,GetExceptionInformation(),NULL,1))
+	__except(xfilter(EXCEPT_KERNEL,GetExceptionInformation(),nullptr,1))
 	{
 		TerminateProcess(GetCurrentProcess(), 1);
 	}
@@ -3141,9 +3141,9 @@ FindFiles::FindFiles()
 	strFindStr = strLastFindStr;
 	BreakMainThread=false;
 	strSearchFromRoot = MSG(MSearchFromRootFolder);
-	FindList = NULL;
-	ArcList = NULL;
-	hPluginMutex=CreateMutexW(NULL,FALSE,NULL);
+	FindList = nullptr;
+	ArcList = nullptr;
+	hPluginMutex=CreateMutexW(nullptr,FALSE,nullptr);
 
 	do
 	{

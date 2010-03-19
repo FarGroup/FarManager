@@ -47,17 +47,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dialog.hpp"
 #include "interf.hpp"
 
-History::History(enumHISTORYTYPE TypeHistory, size_t HistoryCount, const wchar_t *RegKey, const int *EnableSave, bool SaveType)
+History::History(enumHISTORYTYPE TypeHistory, size_t HistoryCount, const wchar_t *RegKey, const int *EnableSave, bool SaveType):
+	strRegKey(RegKey),
+	EnableAdd(true),
+	KeepSelectedPos(false),
+	SaveType(SaveType),
+	RemoveDups(1),
+	TypeHistory(TypeHistory),
+	HistoryCount(HistoryCount),
+	EnableSave(EnableSave),
+	CurrentItem(nullptr)
 {
-	strRegKey = RegKey;
-	History::SaveType=SaveType;
-	History::EnableSave=EnableSave;
-	History::TypeHistory=TypeHistory;
-	History::HistoryCount=HistoryCount;
-	EnableAdd=true;
-	RemoveDups=1;
-	KeepSelectedPos=false;
-	CurrentItem=NULL;
 }
 
 History::~History()
@@ -98,7 +98,7 @@ void History::AddToHistoryLocal(const wchar_t *Str, const wchar_t *Prefix, int T
 
 	if (RemoveDups) // удалять дубликаты?
 	{
-		for (HistoryRecord *HistoryItem=HistoryList.First(); HistoryItem != NULL; HistoryItem=HistoryList.Next(HistoryItem))
+		for (HistoryRecord *HistoryItem=HistoryList.First(); HistoryItem != nullptr; HistoryItem=HistoryList.Next(HistoryItem))
 		{
 			if (EqualType(AddRecord.Type,HistoryItem->Type))
 			{
@@ -134,7 +134,7 @@ bool History::SaveHistory()
 		return true;
 	}
 
-	wchar_t *TypesBuffer=NULL;
+	wchar_t *TypesBuffer=nullptr;
 
 	if (SaveType)
 	{
@@ -144,7 +144,7 @@ bool History::SaveHistory()
 			return false;
 	}
 
-	wchar_t *LocksBuffer=NULL;
+	wchar_t *LocksBuffer=nullptr;
 
 	if (!(LocksBuffer=(wchar_t *)xf_malloc((HistoryList.Count()+1)*sizeof(wchar_t))))
 	{
@@ -154,7 +154,7 @@ bool History::SaveHistory()
 		return false;
 	}
 
-	FILETIME *TimesBuffer=NULL;
+	FILETIME *TimesBuffer=nullptr;
 
 	if (!(TimesBuffer=(FILETIME *)xf_malloc((HistoryList.Count()+1)*sizeof(FILETIME))))
 	{
@@ -174,15 +174,15 @@ bool History::SaveHistory()
 		wmemset(TypesBuffer,0,HistoryList.Count()+1);
 
 	bool ret = false;
-	HKEY hKey = NULL;
-	wchar_t *BufferLines=NULL, *PtrBuffer;
+	HKEY hKey = nullptr;
+	wchar_t *BufferLines=nullptr, *PtrBuffer;
 	size_t SizeLines=0, SizeTypes=0, SizeLocks=0, SizeTimes=0;
 	int Position = -1;
 	size_t i=HistoryList.Count()-1;
 
-	for (const HistoryRecord *HistoryItem=HistoryList.Last(); HistoryItem != NULL; HistoryItem=HistoryList.Prev(HistoryItem))
+	for (const HistoryRecord *HistoryItem=HistoryList.Last(); HistoryItem != nullptr; HistoryItem=HistoryList.Prev(HistoryItem))
 	{
-		if ((PtrBuffer=(wchar_t*)xf_realloc(BufferLines,(SizeLines+HistoryItem->strName.GetLength()+2)*sizeof(wchar_t))) == NULL)
+		if ((PtrBuffer=(wchar_t*)xf_realloc(BufferLines,(SizeLines+HistoryItem->strName.GetLength()+2)*sizeof(wchar_t))) == nullptr)
 		{
 			ret = false;
 			goto end;
@@ -208,7 +208,7 @@ bool History::SaveHistory()
 
 	hKey=CreateRegKey(strRegKey);
 
-	if (hKey!=NULL)
+	if (hKey!=nullptr)
 	{
 		RegSetValueEx(hKey,L"Lines",0,REG_MULTI_SZ,(unsigned char *)BufferLines,static_cast<DWORD>(SizeLines*sizeof(wchar_t)));
 
@@ -250,7 +250,7 @@ bool History::ReadLastItem(const wchar_t *RegKey, string &strStr)
 	DWORD Type;
 	DWORD Size=0;
 
-	if (RegQueryValueEx(hKey,L"Lines",0,&Type,NULL,&Size)!=ERROR_SUCCESS || Size<sizeof(wchar_t)) // Нету ничерта
+	if (RegQueryValueEx(hKey,L"Lines",0,&Type,nullptr,&Size)!=ERROR_SUCCESS || Size<sizeof(wchar_t)) // Нету ничерта
 		return false;
 
 	wchar_t *Buffer=(wchar_t*)xf_malloc(Size);
@@ -278,10 +278,10 @@ bool History::ReadHistory(bool bOnlyLines)
 		return false;
 
 	bool ret = false;
-	wchar_t *TypesBuffer=NULL;
-	wchar_t *LocksBuffer=NULL;
-	FILETIME *TimesBuffer=NULL;
-	wchar_t *Buffer=NULL;
+	wchar_t *TypesBuffer=nullptr;
+	wchar_t *LocksBuffer=nullptr;
+	FILETIME *TimesBuffer=nullptr;
+	wchar_t *Buffer=nullptr;
 	int Position=-1;
 	DWORD Size=sizeof(Position);
 	DWORD Type;
@@ -294,7 +294,7 @@ bool History::ReadHistory(bool bOnlyLines)
 	bool NeedReadTime=false;
 	Size=0;
 
-	if (!bOnlyLines && SaveType && RegQueryValueEx(hKey,L"Types",0,&Type,NULL,&Size)==ERROR_SUCCESS && Size>0)
+	if (!bOnlyLines && SaveType && RegQueryValueEx(hKey,L"Types",0,&Type,nullptr,&Size)==ERROR_SUCCESS && Size>0)
 	{
 		NeedReadType=true;
 		Size=Max(Size,(DWORD)((HistoryCount+2)*sizeof(wchar_t)));
@@ -313,7 +313,7 @@ bool History::ReadHistory(bool bOnlyLines)
 
 	Size=0;
 
-	if (!bOnlyLines && RegQueryValueEx(hKey,L"Locks",0,&Type,NULL,&Size)==ERROR_SUCCESS && Size>0)
+	if (!bOnlyLines && RegQueryValueEx(hKey,L"Locks",0,&Type,nullptr,&Size)==ERROR_SUCCESS && Size>0)
 	{
 		NeedReadLock=true;
 		Size=Max(Size,(DWORD)((HistoryCount+2)*sizeof(wchar_t)));
@@ -332,7 +332,7 @@ bool History::ReadHistory(bool bOnlyLines)
 
 	Size=0;
 
-	if (!bOnlyLines && RegQueryValueEx(hKey,L"Times",0,&Type,NULL,&Size)==ERROR_SUCCESS && Size>0)
+	if (!bOnlyLines && RegQueryValueEx(hKey,L"Times",0,&Type,nullptr,&Size)==ERROR_SUCCESS && Size>0)
 	{
 		NeedReadTime=true;
 		Size=Max(Size,(DWORD)((HistoryCount+2)*sizeof(FILETIME)));
@@ -351,18 +351,18 @@ bool History::ReadHistory(bool bOnlyLines)
 
 	Size=0;
 
-	if (RegQueryValueEx(hKey,L"Lines",0,&Type,NULL,&Size)!=ERROR_SUCCESS || !Size) // Нету ничерта
+	if (RegQueryValueEx(hKey,L"Lines",0,&Type,nullptr,&Size)!=ERROR_SUCCESS || !Size) // Нету ничерта
 	{
 		ret = true;
 		goto end;
 	}
 
-	if ((Buffer=(wchar_t*)xf_malloc(Size)) == NULL)
+	if ((Buffer=(wchar_t*)xf_malloc(Size)) == nullptr)
 		goto end;
 
 	if (RegQueryValueEx(hKey,L"Lines",0,&Type,(unsigned char *)Buffer,&Size)==ERROR_SUCCESS)
 	{
-		CurrentItem=NULL;
+		CurrentItem=nullptr;
 		wchar_t *TypesBuf=TypesBuffer;
 		wchar_t *LockBuf=LocksBuffer;
 		FILETIME *TimeBuf=TimesBuffer;
@@ -459,21 +459,21 @@ const wchar_t *History::GetTitle(int Type)
 int History::Select(const wchar_t *Title, const wchar_t *HelpTopic, string &strStr, int &Type)
 {
 	int Height=ScrY-8;
-	VMenu HistoryMenu(Title,NULL,0,Height);
+	VMenu HistoryMenu(Title,nullptr,0,Height);
 	HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
 
-	if (HelpTopic!=NULL)
+	if (HelpTopic!=nullptr)
 		HistoryMenu.SetHelp(HelpTopic);
 
 	HistoryMenu.SetPosition(-1,-1,0,0);
 	HistoryMenu.AssignHighlights(TRUE);
-	return ProcessMenu(strStr, Title, HistoryMenu, Height, Type, NULL);
+	return ProcessMenu(strStr, Title, HistoryMenu, Height, Type, nullptr);
 }
 
 int History::Select(VMenu &HistoryMenu, int Height, Dialog *Dlg, string &strStr)
 {
 	int Type=0;
-	return ProcessMenu(strStr, NULL, HistoryMenu, Height, Type, Dlg);
+	return ProcessMenu(strStr, nullptr, HistoryMenu, Height, Type, Dlg);
 }
 
 /*
@@ -490,7 +490,7 @@ int History::Select(VMenu &HistoryMenu, int Height, Dialog *Dlg, string &strStr)
 int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMenu, int Height, int &Type, Dialog *Dlg)
 {
 	MenuItemEx MenuItem;
-	HistoryRecord *SelectedRecord=NULL;
+	HistoryRecord *SelectedRecord=nullptr;
 	FarListPos Pos={0,0};
 	int Code=-1;
 	int RetCode=1;
@@ -507,7 +507,7 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 		HistoryMenu.Modal::ClearDone();
 
 		// заполнение пунктов меню
-		for (const HistoryRecord *HistoryItem=TypeHistory==HISTORYTYPE_DIALOG?HistoryList.Last():HistoryList.First(); HistoryItem != NULL; HistoryItem=TypeHistory==HISTORYTYPE_DIALOG?HistoryList.Prev(HistoryItem):HistoryList.Next(HistoryItem))
+		for (const HistoryRecord *HistoryItem=TypeHistory==HISTORYTYPE_DIALOG?HistoryList.Last():HistoryList.First(); HistoryItem != nullptr; HistoryItem=TypeHistory==HISTORYTYPE_DIALOG?HistoryList.Prev(HistoryItem):HistoryList.Next(HistoryItem))
 		{
 			string strRecord = HistoryItem->strName;
 			strRecord.Clear();
@@ -545,7 +545,7 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 		//MenuItem.strName = L"                    ";
 		//if (!SetUpMenuPos)
 		//MenuItem.SetSelect(CurLastPtr==-1 || CurLastPtr>=HistoryList.Length);
-		//HistoryMenu.SetUserData(NULL,sizeof(OneItem *),HistoryMenu.AddItem(&MenuItem));
+		//HistoryMenu.SetUserData(nullptr,sizeof(OneItem *),HistoryMenu.AddItem(&MenuItem));
 
 		if (TypeHistory == HISTORYTYPE_DIALOG)
 			Dlg->SetComboBoxPos();
@@ -592,7 +592,7 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 			}
 
 			HistoryMenu.GetSelectPos(&Pos);
-			HistoryRecord *CurrentRecord=(HistoryRecord *)HistoryMenu.GetUserData(NULL,sizeof(HistoryRecord *),Pos.SelectPos);
+			HistoryRecord *CurrentRecord=(HistoryRecord *)HistoryMenu.GetUserData(nullptr,sizeof(HistoryRecord *),Pos.SelectPos);
 
 			switch (Key)
 			{
@@ -602,7 +602,7 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 					{
 						bool ModifiedHistory=false;
 
-						for (HistoryRecord *HistoryItem=HistoryList.First(); HistoryItem != NULL; HistoryItem=HistoryList.Next(HistoryItem))
+						for (HistoryRecord *HistoryItem=HistoryList.First(); HistoryItem != nullptr; HistoryItem=HistoryList.Next(HistoryItem))
 						{
 							if (HistoryItem->Lock) // залоченные не трогаем
 								continue;
@@ -715,7 +715,7 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 					                  MSG(MHistoryClear),
 					                  MSG(MClear),MSG(MCancel))==0)))
 					{
-						for (HistoryRecord *HistoryItem=HistoryList.First(); HistoryItem != NULL; HistoryItem=HistoryList.Next(HistoryItem))
+						for (HistoryRecord *HistoryItem=HistoryList.First(); HistoryItem != nullptr; HistoryItem=HistoryList.Next(HistoryItem))
 						{
 							if (HistoryItem->Lock) // залоченные не трогаем
 								continue;
@@ -747,7 +747,7 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 
 		if (Code >= 0)
 		{
-			SelectedRecord=(HistoryRecord *)HistoryMenu.GetUserData(NULL,sizeof(HistoryRecord *),Code);
+			SelectedRecord=(HistoryRecord *)HistoryMenu.GetUserData(nullptr,sizeof(HistoryRecord *),Code);
 
 			if (!SelectedRecord)
 				return -1;

@@ -36,12 +36,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "privilege.hpp"
 #include "lasterror.hpp"
 
-Privilege::Privilege(LPCWSTR PrivilegeName):hToken(INVALID_HANDLE_VALUE),Changed(true)
+Privilege::Privilege(LPCWSTR PrivilegeName):hToken(INVALID_HANDLE_VALUE),Changed(false)
 {
 	if (OpenProcessToken(GetCurrentProcess(),TOKEN_ADJUST_PRIVILEGES|TOKEN_QUERY,&hToken))
 	{
 		TOKEN_PRIVILEGES NewState={1};
-		if (LookupPrivilegeValue(NULL,PrivilegeName,&NewState.Privileges->Luid))
+		if (LookupPrivilegeValue(nullptr,PrivilegeName,&NewState.Privileges->Luid))
 		{
 			NewState.Privileges->Attributes=SE_PRIVILEGE_ENABLED;
 			DWORD ReturnLength=sizeof(SavedState);
@@ -60,7 +60,7 @@ Privilege::~Privilege()
 		GuardLastError LE;
 		if(Changed)
 		{
-			AdjustTokenPrivileges(hToken,FALSE,&SavedState,sizeof(SavedState),NULL,NULL);
+			AdjustTokenPrivileges(hToken,FALSE,&SavedState,sizeof(SavedState),nullptr,nullptr);
 		}
 		CloseHandle(hToken);
 	}
@@ -70,13 +70,13 @@ bool CheckPrivilege(LPCWSTR PrivilegeName)
 {
 	bool Result=false;
 	TOKEN_PRIVILEGES State={1};
-	if (LookupPrivilegeValue(NULL,PrivilegeName,&State.Privileges->Luid))
+	if (LookupPrivilegeValue(nullptr,PrivilegeName,&State.Privileges->Luid))
 	{
 		HANDLE hToken=INVALID_HANDLE_VALUE;
 		if (OpenProcessToken(GetCurrentProcess(),TOKEN_QUERY,&hToken))
 		{
 			DWORD TokenInformationLength=0;
-			GetTokenInformation(hToken,TokenPrivileges,NULL,0,&TokenInformationLength);
+			GetTokenInformation(hToken,TokenPrivileges,nullptr,0,&TokenInformationLength);
 			if (TokenInformationLength)
 			{
 				PTOKEN_PRIVILEGES TokenInformation=reinterpret_cast<PTOKEN_PRIVILEGES>(xf_malloc(TokenInformationLength));

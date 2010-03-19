@@ -55,7 +55,7 @@ struct SIDCacheItem
 			{
 				DWORD AccountLength=0,DomainLength=0;
 				SID_NAME_USE snu;
-				LookupAccountSid(Computer,SID,NULL,&AccountLength,NULL,&DomainLength,&snu);
+				LookupAccountSid(Computer,SID,nullptr,&AccountLength,nullptr,&DomainLength,&snu);
 				if (AccountLength && DomainLength)
 				{
 					string strAccountName,strDomainName;
@@ -75,7 +75,7 @@ struct SIDCacheItem
 		if(strUserName.IsEmpty())
 		{
 			xf_free(SID);
-			SID=NULL;
+			SID=nullptr;
 		}
 	}
 
@@ -84,7 +84,7 @@ struct SIDCacheItem
 		if(SID)
 		{
 			xf_free(SID);
-			SID=NULL;
+			SID=nullptr;
 		}
 	}
 };
@@ -102,7 +102,7 @@ void SIDCacheFlush()
 
 const wchar_t* AddSIDToCache(const wchar_t *Computer,PSID SID)
 {
-	LPCWSTR Result=NULL;
+	LPCWSTR Result=nullptr;
 	SIDCacheItem* NewItem=new SIDCacheItem(Computer,SID);
 	if(NewItem->strUserName.IsEmpty())
 	{
@@ -117,7 +117,7 @@ const wchar_t* AddSIDToCache(const wchar_t *Computer,PSID SID)
 
 const wchar_t* GetNameFromSIDCache(PSID sid)
 {
-	LPCWSTR Result=NULL;
+	LPCWSTR Result=nullptr;
 	for(SIDCacheItem** i=SIDCache.First();i;i=SIDCache.Next(i))
 	{
 		if (EqualSid((*i)->SID,sid))
@@ -144,7 +144,7 @@ bool WINAPI GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &st
 	SECURITY_INFORMATION si=OWNER_SECURITY_INFORMATION|GROUP_SECURITY_INFORMATION;;
 	DWORD LengthNeeded=0;
 	string strName(NTPath(Name).Str);
-	GetFileSecurity(strName,si,NULL,0,&LengthNeeded);
+	GetFileSecurity(strName,si,nullptr,0,&LengthNeeded);
 
 	if (LengthNeeded)
 	{
@@ -184,7 +184,7 @@ bool SetOwner(LPCWSTR Object, LPCWSTR Owner)
 	bool Result=false;
 	SID_NAME_USE Use;
 	DWORD cSid=0,ReferencedDomain=0;
-	LookupAccountName(NULL,Owner,NULL,&cSid,NULL,&ReferencedDomain,&Use);
+	LookupAccountName(nullptr,Owner,nullptr,&cSid,nullptr,&ReferencedDomain,&Use);
 	if(cSid)
 	{
 		PSID Sid=xf_malloc(cSid);
@@ -193,11 +193,11 @@ bool SetOwner(LPCWSTR Object, LPCWSTR Owner)
 			LPWSTR ReferencedDomainName=new WCHAR[ReferencedDomain];
 			if(ReferencedDomainName)
 			{
-				if(LookupAccountName(NULL,Owner,Sid,&cSid,ReferencedDomainName,&ReferencedDomain,&Use))
+				if(LookupAccountName(nullptr,Owner,Sid,&cSid,ReferencedDomainName,&ReferencedDomain,&Use))
 				{
 					Privilege TakeOwnershipPrivilege(SE_TAKE_OWNERSHIP_NAME);
 					Privilege RestorePrivilege(SE_RESTORE_NAME);
-					if(SetNamedSecurityInfo(const_cast<LPWSTR>(NTPath(Object).Str.CPtr()),SE_FILE_OBJECT,OWNER_SECURITY_INFORMATION,Sid,NULL,NULL,NULL)==ERROR_SUCCESS)
+					if(SetNamedSecurityInfo(const_cast<LPWSTR>(NTPath(Object).Str.CPtr()),SE_FILE_OBJECT,OWNER_SECURITY_INFORMATION,Sid,nullptr,nullptr,nullptr)==ERROR_SUCCESS)
 					{
 						Result=true;
 					}

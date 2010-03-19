@@ -130,7 +130,7 @@ class FileEditor : public Frame
 
 		bool AskOverwrite(const string& FileName);
 	public:
-		FileEditor(const wchar_t *Name, UINT codepage, DWORD InitFlags,int StartLine=-1,int StartChar=-1,const wchar_t *PluginData=NULL,int OpenModeExstFile=FEOPMODE_QUERY);
+		FileEditor(const wchar_t *Name, UINT codepage, DWORD InitFlags,int StartLine=-1,int StartChar=-1,const wchar_t *PluginData=nullptr,int OpenModeExstFile=FEOPMODE_QUERY);
 		FileEditor(const wchar_t *Name, UINT codepage, DWORD InitFlags,int StartLine,int StartChar,const wchar_t *Title,int X1,int Y1,int X2,int Y2,int DeleteOnClose=0,int OpenModeExstFile=FEOPMODE_QUERY);
 		virtual ~FileEditor();
 
@@ -151,7 +151,7 @@ class FileEditor : public Frame
 		virtual void InitKeyBar();                            // $ 07.08.2000 SVS - Функция инициализации KeyBar Labels
 		virtual int ProcessKey(int Key);
 		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-		virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
+		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
 		virtual void ShowConsoleTitle();
 		BOOL IsFileChanged() const { return m_editor->IsFileChanged(); };
 		virtual BOOL IsFileModified() const { return m_editor->IsFileModified(); };

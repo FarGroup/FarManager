@@ -119,7 +119,7 @@ bool IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos)
 {
 	if (AmpPos == -1)
 	{
-		if ((Str=wcschr(Str,L'&'))==NULL)
+		if ((Str=wcschr(Str,L'&'))==nullptr)
 			return(FALSE);
 
 		AmpPos=1;
@@ -201,9 +201,9 @@ void ConvertItemSmall(FarDialogItem *Item,DialogItemEx *Data)
 	Item->Flags = Data->Flags;
 	Item->DefaultButton = Data->DefaultButton;
 	Item->MaxLen = Data->nMaxLength;
-	Item->PtrData = NULL;
+	Item->PtrData = nullptr;
 
-	Item->Param.History = NULL;
+	Item->Param.History = nullptr;
 	if (Data->Type==DI_LISTBOX || Data->Type==DI_COMBOBOX)
 		Item->Param.ListPos = Data->ListPtr?Data->ListPtr->GetSelectPos():0;
 	else
@@ -220,7 +220,7 @@ size_t ItemStringAndSize(DialogItemEx *Data,string& ItemString)
 	{
 		DlgEdit *EditPtr;
 
-		if ((EditPtr = (DlgEdit *)(Data->ObjPtr)) != NULL)
+		if ((EditPtr = (DlgEdit *)(Data->ObjPtr)) != nullptr)
 			EditPtr->GetString(ItemString);
 	}
 
@@ -302,7 +302,7 @@ bool ConvertItemEx(
 				if (Data->Y2 < Data->Y1) Data->Y2=Data->Y1;
 
 				if ((Data->Type == DI_COMBOBOX || Data->Type == DI_LISTBOX) && !IsPtr(Item->Param.ListItems))
-					Data->ListItems=NULL;
+					Data->ListItems=nullptr;
 			}
 
 			break;
@@ -368,9 +368,9 @@ void DataToItemEx(DialogDataEx *Data,DialogItemEx *Item,int Count)
 Dialog::Dialog(DialogItemEx *SrcItem,    // Набор элементов диалога
                unsigned SrcItemCount,              // Количество элементов
                FARWINDOWPROC DlgProc,      // Диалоговая процедура
-               LONG_PTR InitParam)             // Ассоцированные с диалогом данные
+               LONG_PTR InitParam):             // Ассоцированные с диалогом данные
+	bInitOK(false)
 {
-	bInitOK = false;
 	Dialog::Item = (DialogItemEx**)xf_malloc(sizeof(DialogItemEx*)*SrcItemCount);
 
 	for (unsigned i = 0; i < SrcItemCount; i++)
@@ -402,7 +402,7 @@ Dialog::Dialog(FarDialogItem *SrcItem,    // Набор элементов диалога
 	}
 
 	Dialog::ItemCount = SrcItemCount;
-	Dialog::pSaveItemEx = NULL;
+	Dialog::pSaveItemEx = nullptr;
 	Init(DlgProc, InitParam);
 }
 
@@ -411,7 +411,7 @@ void Dialog::Init(FARWINDOWPROC DlgProc,      // Диалоговая процедура
 {
 	SetDynamicallyBorn(FALSE); // $OT: По умолчанию все диалоги создаются статически
 	CanLoseFocus = FALSE;
-	HelpTopic = NULL;
+	HelpTopic = nullptr;
 	//Номер плагина, вызвавшего диалог (-1 = Main)
 	PluginNumber=-1;
 	Dialog::DataDialog=InitParam;
@@ -430,7 +430,7 @@ void Dialog::Init(FARWINDOWPROC DlgProc,      // Диалоговая процедура
 
 	Dialog::RealDlgProc=DlgProc;
 
-	if (CtrlObject!=NULL)
+	if (CtrlObject!=nullptr)
 	{
 		// запомним пред. режим макро.
 		PrevMacroMode=CtrlObject->Macro.GetMode();
@@ -455,7 +455,7 @@ Dialog::~Dialog()
 	_tran(SysLog(L"[%p] Dialog::~Dialog()",this));
 	DeleteDialogObjects();
 
-	if (CtrlObject!=NULL)
+	if (CtrlObject!=nullptr)
 		CtrlObject->Macro.SetMode(PrevMacroMode);
 
 	Hide();
@@ -842,8 +842,8 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
 		{
 			if (!DialogMode.Check(DMODE_CREATEOBJECTS))
 			{
-				CurItem->ListPtr=new VMenu(NULL,NULL,0,CurItem->Y2-CurItem->Y1+1,
-				                           VMENU_ALWAYSSCROLLBAR|VMENU_LISTBOX,NULL,this);
+				CurItem->ListPtr=new VMenu(nullptr,nullptr,0,CurItem->Y2-CurItem->Y1+1,
+				                           VMENU_ALWAYSSCROLLBAR|VMENU_LISTBOX,nullptr,this);
 			}
 
 			if (CurItem->ListPtr)
@@ -901,7 +901,7 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
 
 				if (Type == DI_COMBOBOX)
 				{
-					CurItem->ListPtr=new VMenu(L"",NULL,0,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR|VMENU_NOTCHANGE,NULL,this);
+					CurItem->ListPtr=new VMenu(L"",nullptr,0,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR|VMENU_NOTCHANGE,nullptr,this);
 					CurItem->ListPtr->SetVDialogItemID(I);
 				}
 
@@ -988,7 +988,7 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
 						DialogEdit->SetInputMask(CurItem->Mask);
 					else
 					{
-						CurItem->Mask=NULL;
+						CurItem->Mask=nullptr;
 						ItemFlags&=~DIF_MASKEDIT;
 					}
 				}
@@ -1084,7 +1084,7 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
 const wchar_t *Dialog::GetDialogTitle()
 {
 	CriticalSectionLock Lock(CS);
-	DialogItemEx *CurItem, *CurItemList=NULL;
+	DialogItemEx *CurItem, *CurItemList=nullptr;
 
 	for (unsigned I=0; I < ItemCount; I++)
 	{
@@ -1110,7 +1110,7 @@ const wchar_t *Dialog::GetDialogTitle()
 		return CurItemList->ListPtr->GetPtrTitle();
 	}
 
-	return NULL; //""
+	return nullptr; //""
 }
 
 void Dialog::ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex)
@@ -1675,7 +1675,7 @@ LONG_PTR Dialog::CtlColorDlgItem(int ItemPos,int Type,int Focus,DWORD Flags)
 		}
 		case DI_LISTBOX:
 		{
-			Item[ItemPos]->ListPtr->SetColors(NULL);
+			Item[ItemPos]->ListPtr->SetColors(nullptr);
 			return 0;
 		}
 		default:
@@ -3284,7 +3284,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	if (MouseEvent->dwButtonState==0)
 	{
 		DialogMode.Clear(DMODE_CLICKOUTSIDE);
-//    ScreenObject::SetCapture(NULL);
+//    ScreenObject::SetCapture(nullptr);
 		return(FALSE);
 	}
 
@@ -4067,7 +4067,7 @@ int Dialog::SelectFromComboBox(
 	int EditX1,EditY1,EditX2,EditY2;
 	int I,Dest, OriginalPos;
 	unsigned CurFocusPos=FocusPos;
-	//if((Str=(char*)xf_malloc(MaxLen)) != NULL)
+	//if((Str=(char*)xf_malloc(MaxLen)) != nullptr)
 	{
 		EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
 
@@ -4081,7 +4081,7 @@ int Dialog::SelectFromComboBox(
 		FarListColors ListColors={0};
 		ListColors.ColorCount=VMENU_COLOR_COUNT;
 		ListColors.Colors=RealColors;
-		ComboBox->SetColors(NULL);
+		ComboBox->SetColors(nullptr);
 		ComboBox->GetColors(&ListColors);
 
 		if (DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,CurItem->ID,(LONG_PTR)&ListColors))
@@ -4220,7 +4220,7 @@ BOOL Dialog::SelectFromEditHistory(DialogItemEx *CurItem,
 	DlgHist.ResetPosition();
 	{
 		// создание пустого вертикального меню
-		VMenu HistoryMenu(L"",NULL,0,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR|VMENU_COMBOBOX|VMENU_NOTCHANGE);
+		VMenu HistoryMenu(L"",nullptr,0,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR|VMENU_COMBOBOX|VMENU_NOTCHANGE);
 		HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND);
 		HistoryMenu.SetBoxType(SHORT_SINGLE_BOX);
 		SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
@@ -4228,7 +4228,7 @@ BOOL Dialog::SelectFromEditHistory(DialogItemEx *CurItem,
 		CurItem->ListPtr=&HistoryMenu;
 		ret = DlgHist.Select(HistoryMenu, Opt.Dialogs.CBoxMaxHeight, this, strStr);
 		// забудим (не нужен)
-		CurItem->ListPtr=NULL;
+		CurItem->ListPtr=nullptr;
 		SetDropDownOpened(FALSE); // Установим флаг "закрытия" комбобокса.
 	}
 
@@ -4462,7 +4462,7 @@ void Dialog::Process()
 	SetRestoreScreenMode(TRUE);
 	ClearDone();
 	InitDialog();
-	TaskBarError *TBE=DialogMode.Check(DMODE_WARNINGSTYLE)?new TaskBarError:NULL;
+	TaskBarError *TBE=DialogMode.Check(DMODE_WARNINGSTYLE)?new TaskBarError:nullptr;
 
 	if (ExitCode == -1)
 	{
@@ -4527,7 +4527,7 @@ void Dialog::SetHelp(const wchar_t *Topic)
 	if (HelpTopic)
 		delete[] HelpTopic;
 
-	HelpTopic=NULL;
+	HelpTopic=nullptr;
 
 	if (Topic && *Topic)
 	{
@@ -4674,7 +4674,7 @@ LONG_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
 	Dialog* Dlg=(Dialog*)hDlg;
 	CriticalSectionLock Lock(Dlg->CS);
-	DialogItemEx *CurItem=NULL;
+	DialogItemEx *CurItem=nullptr;
 	int Type=0;
 
 	switch (Msg)
@@ -5119,7 +5119,7 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 	}
 
 	/*****************************************************************/
-	DialogItemEx *CurItem=NULL;
+	DialogItemEx *CurItem=nullptr;
 	int Type=0;
 	size_t Len=0;
 
@@ -5236,7 +5236,7 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
 							MenuItemEx *ListMenuItem;
 
-							if ((ListMenuItem=ListBox->GetItemPtr(ListItems->ItemIndex)) != NULL)
+							if ((ListMenuItem=ListBox->GetItemPtr(ListItems->ItemIndex)) != nullptr)
 							{
 								//ListItems->ItemIndex=1;
 								FarListItem *Item=&ListItems->Item;
@@ -5255,7 +5255,7 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 						case DM_LISTGETDATA: // Param1=ID Param2=Index
 						{
 							if (Param2 < ListBox->GetItemCount())
-								return (LONG_PTR)ListBox->GetUserData(NULL,0,(int)Param2);
+								return (LONG_PTR)ListBox->GetUserData(nullptr,0,(int)Param2);
 
 							return 0;
 						}
@@ -5277,7 +5277,7 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 								                         ListItems->DataSize,
 								                         ListItems->Index);
 
-								if (!Ret && ListBox->GetUserData(NULL,0,ListItems->Index))
+								if (!Ret && ListBox->GetUserData(nullptr,0,ListItems->Index))
 									Ret=sizeof(DWORD);
 
 								return Ret;
@@ -5404,7 +5404,7 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 					{
 						MenuItemEx *ListMenuItem;
 
-						if ((ListMenuItem=ListBox->GetItemPtr(ListBox->GetSelectPos())) != NULL)
+						if ((ListMenuItem=ListBox->GetItemPtr(ListBox->GetSelectPos())) != nullptr)
 						{
 							if (CurItem->Flags & (DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND))
 								((DlgEdit *)(CurItem->ObjPtr))->SetHiString(ListMenuItem->strName);
@@ -5445,7 +5445,7 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 				else
 				{
 					CurItem->Flags&=~DIF_HISTORY;
-					CurItem->History=NULL;
+					CurItem->History=nullptr;
 				}
 
 				if (Dlg->DialogMode.Check(DMODE_SHOW))
@@ -5827,7 +5827,7 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 			/*****************************************************************/
 		case DM_GETTEXT:
 
-			if (Param2) // если здесь NULL, то это еще один способ получить размер
+			if (Param2) // если здесь nullptr, то это еще один способ получить размер
 			{
 				FarDialogItemData *did=(FarDialogItemData*)Param2;
 				Len=0;
@@ -5933,7 +5933,7 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 					Len=0;
 					MenuItemEx *ListMenuItem;
 
-					if ((ListMenuItem=CurItem->ListPtr->GetItemPtr(-1)) != NULL)
+					if ((ListMenuItem=CurItem->ListPtr->GetItemPtr(-1)) != nullptr)
 					{
 						Len=(int)ListMenuItem->strName.GetLength()+1;
 					}

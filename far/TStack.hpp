@@ -51,7 +51,7 @@ class TStack : private NonCopyable
 		DWORD Size;
 
 	public:
-		TStack():Top(NULL), Size(0) {};
+		TStack():Top(nullptr), Size(0) {};
 		~TStack() { Free(); }
 
 	public:
@@ -62,7 +62,7 @@ class TStack : private NonCopyable
 		bool empty() const { return !Size; }
 
 		// взять элемент со стека
-		// при удаче вернется адрес Destination, иначе - NULL
+		// при удаче вернется адрес Destination, иначе - nullptr
 		Object *Pop(Object &Destination)
 		{
 			if (Top)
@@ -75,11 +75,11 @@ class TStack : private NonCopyable
 				return &Destination;
 			}
 
-			return NULL;
+			return nullptr;
 		}
 
 		// взять элемент со стека без изменения стека
-		// при удаче вернется адрес Destination, иначе - NULL
+		// при удаче вернется адрес Destination, иначе - nullptr
 		Object *Peek(/*Object &Destination*/)
 		{
 			if (Top)
@@ -89,11 +89,11 @@ class TStack : private NonCopyable
 				return &Top->Item;
 			}
 
-			return NULL;
+			return nullptr;
 		}
 
 		// положить элемент на стек
-		// при удаче вернется адрес элемента на стеке, иначе - NULL
+		// при удаче вернется адрес элемента на стеке, иначе - nullptr
 		Object *Push(const Object &Source)
 		{
 			struct OneItem *Temp=new OneItem;
@@ -107,7 +107,7 @@ class TStack : private NonCopyable
 				return &Top->Item;
 			}
 
-			return NULL;
+			return nullptr;
 		}
 
 		// очистить стек

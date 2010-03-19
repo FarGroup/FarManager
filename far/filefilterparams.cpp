@@ -52,7 +52,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 FileFilterParams::FileFilterParams()
 {
-	m_strTitle.Clear();
 	SetMask(1,L"*");
 	SetSize(0,L"",L"");
 	memset(&FDate,0,sizeof(FDate));
@@ -70,7 +69,7 @@ const FileFilterParams &FileFilterParams::operator=(const FileFilterParams &FF)
 		SetTitle(FF.GetTitle());
 		const wchar_t *Mask;
 		FF.GetMask(&Mask);
-		SetMask(FF.GetMask(NULL),Mask);
+		SetMask(FF.GetMask(nullptr),Mask);
 		FSize=FF.FSize;
 		FDate=FF.FDate;
 		FAttr=FF.FAttr;
@@ -108,7 +107,7 @@ string &Add_PATHEXT(string &strDest)
 		const wchar_t *Ptr;
 		MaskList.Reset();
 
-		while (NULL!=(Ptr=MaskList.GetNext()))
+		while (nullptr!=(Ptr=MaskList.GetNext()))
 		{
 			strDest += L"*";
 			strDest += Ptr;
@@ -309,7 +308,7 @@ bool FileFilterParams::FileInFilter(const FAR_FIND_DATA_EX *fde, unsigned __int6
 bool FileFilterParams::FileInFilter(const FAR_FIND_DATA *fd, unsigned __int64 CurrentTime)
 {
 	// Пустое значение?
-	//if (fd==NULL)
+	//if (fd==nullptr)
 	//return false;
 
 	// Режим проверки атрибутов файла включен?
@@ -462,8 +461,8 @@ void MenuString(string &strDest, FileFilterParams *FF, bool bHighlightType, int 
 		if (!FF->GetAttr(&IncludeAttr,&ExcludeAttr))
 			IncludeAttr=ExcludeAttr=0;
 
-		UseSize=FF->GetSize(NULL,NULL);
-		UseDate=FF->GetDate(NULL,NULL,NULL,&RelativeDate);
+		UseSize=FF->GetSize(nullptr,nullptr);
+		UseDate=FF->GetDate(nullptr,nullptr,nullptr,&RelativeDate);
 	}
 
 	wchar_t Attr[countof(AttrC)*2] = {0};
@@ -1069,7 +1068,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 			FilterDlg[i].Flags|=DIF_DISABLE;
 	}
 
-	Dialog Dlg(FilterDlg,countof(FilterDlg),FileFilterConfigDlgProc,(LONG_PTR)(ColorConfig?&Colors:NULL));
+	Dialog Dlg(FilterDlg,countof(FilterDlg),FileFilterConfigDlgProc,(LONG_PTR)(ColorConfig?&Colors:nullptr));
 	Dlg.SetHelp(ColorConfig?L"HighlightEdit":L"Filter");
 	Dlg.SetPosition(-1,-1,FilterDlg[ID_FF_TITLE].X2+4,FilterDlg[ID_FF_TITLE].Y2+2);
 	Dlg.SetAutomation(ID_FF_MATCHMASK,ID_FF_MASKEDIT,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);

@@ -61,7 +61,7 @@ wchar_t* WINAPI Xlat(wchar_t *Line,
 	int IsChange=0;
 
 	if (!Line || !*Line)
-		return NULL;
+		return nullptr;
 
 	int Length=StrLength(Line);
 	EndPos=Min(EndPos,Length);

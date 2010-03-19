@@ -56,20 +56,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dirmix.hpp"
 #include "interf.hpp"
 
-FilePanels::FilePanels()
+FilePanels::FilePanels():
+	LastLeftFilePanel(0),
+	LastRightFilePanel(0),
+	LeftPanel(CreatePanel(Opt.LeftPanel.Type)),
+	RightPanel(CreatePanel(Opt.RightPanel.Type)),
+	ActivePanel(0),
+	LastLeftType(0),
+	LastRightType(0),
+	LeftStateBeforeHide(0),
+	RightStateBeforeHide(0)
 {
 	_OT(SysLog(L"[%p] FilePanels::FilePanels()", this));
-	LeftPanel=CreatePanel(Opt.LeftPanel.Type);
-	RightPanel=CreatePanel(Opt.RightPanel.Type);
-//  CmdLine=0;
-	ActivePanel=0;
-	LastLeftType=0;
-	LastRightType=0;
-//  HideState=0;
-	LeftStateBeforeHide=0;
-	RightStateBeforeHide=0;
-	LastLeftFilePanel=0;
-	LastRightFilePanel=0;
 	MacroMode = MACRO_SHELL;
 	KeyBarVisible = Opt.ShowKeyBar;
 //  SetKeyBar(&MainKeyBar);
@@ -125,7 +123,7 @@ void FilePanels::Init()
 	LeftPanel->SetSelectedFirstMode(Opt.LeftSelectedFirst);
 	RightPanel->SetSelectedFirstMode(Opt.RightSelectedFirst);
 	SetCanLoseFocus(TRUE);
-	Panel *PassivePanel=NULL;
+	Panel *PassivePanel=nullptr;
 	int PassiveIsLeftFlag=TRUE;
 
 	if (Opt.LeftPanel.Focus)
@@ -245,9 +243,9 @@ FilePanels::~FilePanels()
 		DeletePanel(LastRightFilePanel);
 
 	DeletePanel(LeftPanel);
-	LeftPanel=NULL;
+	LeftPanel=nullptr;
 	DeletePanel(RightPanel);
-	RightPanel=NULL;
+	RightPanel=nullptr;
 }
 
 void FilePanels::SetPanelPositions(int LeftFullScreen,int RightFullScreen)
@@ -302,7 +300,7 @@ void FilePanels::RedrawKeyBar()
 
 Panel* FilePanels::CreatePanel(int Type)
 {
-	Panel *pResult = NULL;
+	Panel *pResult = nullptr;
 
 	switch (Type)
 	{
@@ -329,14 +327,14 @@ Panel* FilePanels::CreatePanel(int Type)
 
 void FilePanels::DeletePanel(Panel *Deleted)
 {
-	if (Deleted==NULL)
+	if (Deleted==nullptr)
 		return;
 
 	if (Deleted==LastLeftFilePanel)
-		LastLeftFilePanel=NULL;
+		LastLeftFilePanel=nullptr;
 
 	if (Deleted==LastRightFilePanel)
-		LastRightFilePanel=NULL;
+		LastRightFilePanel=nullptr;
 
 	delete Deleted;
 }
@@ -512,7 +510,7 @@ int FilePanels::ProcessKey(int Key)
 				if (ActivePanel->GetType()==NewType)
 					AnotherPanel=ActivePanel;
 
-				if (!AnotherPanel->ProcessPluginEvent(FE_CLOSE,NULL))
+				if (!AnotherPanel->ProcessPluginEvent(FE_CLOSE,nullptr))
 				{
 					if (AnotherPanel->GetType()==NewType)
 						/* $ 19.09.2000 IS
@@ -764,12 +762,12 @@ int FilePanels::ProcessKey(int Key)
 		}
 		case KEY_F9:
 		{
-			ShellOptions(0,NULL);
+			ShellOptions(0,nullptr);
 			return(TRUE);
 		}
 		case KEY_SHIFTF10:
 		{
-			ShellOptions(1,NULL);
+			ShellOptions(1,nullptr);
 			return(TRUE);
 		}
 		default:
@@ -807,7 +805,7 @@ int FilePanels::ChangePanelViewMode(Panel *Current,int Mode,BOOL RefreshFrame)
 
 Panel* FilePanels::ChangePanelToFilled(Panel *Current,int NewType)
 {
-	if (Current->GetType()!=NewType && !Current->ProcessPluginEvent(FE_CLOSE,NULL))
+	if (Current->GetType()!=NewType && !Current->ProcessPluginEvent(FE_CLOSE,nullptr))
 	{
 		Current->Hide();
 		Current=ChangePanel(Current,NewType,FALSE,FALSE);
@@ -833,7 +831,7 @@ Panel* FilePanels::GetAnotherPanel(Panel *Current)
 Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Force)
 {
 	Panel *NewPanel;
-	SaveScreen *SaveScr=NULL;
+	SaveScreen *SaveScr=nullptr;
 	// OldType не инициализировался...
 	int OldType=Current->GetType(),X1,Y1,X2,Y2;
 	int OldViewMode,OldSortMode,OldSortOrder,OldSortGroups,OldSelectedFirst;
@@ -864,13 +862,13 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 	if (!ChangePosition)
 	{
 		SaveScr=Current->SaveScr;
-		Current->SaveScr=NULL;
+		Current->SaveScr=nullptr;
 	}
 
 	if (OldType==FILE_PANEL && NewType!=FILE_PANEL)
 	{
 		delete Current->SaveScr;
-		Current->SaveScr=NULL;
+		Current->SaveScr=nullptr;
 
 		if (LastFilePanel!=Current)
 		{
@@ -884,7 +882,7 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 		{
 			LastFilePanel->SaveScr->Discard();
 			delete LastFilePanel->SaveScr;
-			LastFilePanel->SaveScr=NULL;
+			LastFilePanel->SaveScr=nullptr;
 		}
 	}
 	else
@@ -895,11 +893,11 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 		if (OldType==FILE_PANEL && NewType==FILE_PANEL)
 		{
 			DeletePanel(LastFilePanel);
-			LastFilePanel=NULL;
+			LastFilePanel=nullptr;
 		}
 	}
 
-	if (!CreateNew && NewType==FILE_PANEL && LastFilePanel!=NULL)
+	if (!CreateNew && NewType==FILE_PANEL && LastFilePanel!=nullptr)
 	{
 		int LastX1,LastY1,LastX2,LastY2;
 		LastFilePanel->GetPosition(LastX1,LastY1,LastX2,LastY2);
@@ -918,7 +916,7 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 			{
 				Panel *AnotherPanel=GetAnotherPanel(Current);
 
-				if (SaveScr!=NULL && AnotherPanel->IsVisible() &&
+				if (SaveScr!=nullptr && AnotherPanel->IsVisible() &&
 				        AnotherPanel->GetType()==FILE_PANEL && AnotherPanel->IsFullScreen())
 					SaveScr->Discard();
 
@@ -1054,7 +1052,7 @@ void FilePanels::DisplayObject()
 		RightPanel->Show();
 
 #else
-	Panel *PassivePanel=NULL;
+	Panel *PassivePanel=nullptr;
 	int PassiveIsLeftFlag=TRUE;
 
 	if (Opt.LeftPanel.Focus)

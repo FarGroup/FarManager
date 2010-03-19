@@ -39,18 +39,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "syslog.hpp"
 
-Frame::Frame()
+Frame::Frame():
+	FrameToBack(nullptr),
+	NextModal(nullptr),
+	PrevModal(nullptr),
+	DynamicallyBorn(TRUE),
+	CanLoseFocus(FALSE),
+	ExitCode(-1),
+	KeyBarVisible(0),
+	TitleBarVisible(0),
+	FrameKeyBar(nullptr),
+	MacroMode(0)
 {
 	_OT(SysLog(L"[%p] Frame::Frame()", this));
-	CanLoseFocus=FALSE;
-	ExitCode=-1;
-	TitleBarVisible=KeyBarVisible=MacroMode=0;
-	FrameKeyBar=NULL;
-//  ModalStack=NULL;
-//  ModalStackCount = ModalStackSize=0;
-	DynamicallyBorn=TRUE;
-	FrameToBack=NULL;
-	NextModal=PrevModal=NULL;
 }
 
 Frame::~Frame()
@@ -67,7 +68,7 @@ void Frame::SetKeyBar(KeyBar *FrameKeyBar)
 
 void Frame::UpdateKeyBar()
 {
-	if (FrameKeyBar!=NULL && KeyBarVisible)
+	if (FrameKeyBar!=nullptr && KeyBarVisible)
 		FrameKeyBar->RedrawIfChanged();
 }
 
@@ -123,7 +124,7 @@ bool Frame::Pop(){
 
 Frame *Frame::operator[](int Index)
 {
-  Frame *Result=NULL;
+  Frame *Result=nullptr;
   if (Index>=0 && Index<ModalStackSize){
     Result=ModalStack[Index];
   }
@@ -151,7 +152,7 @@ void Frame::DestroyAllModal()
 
 	while (NextModal)
 	{
-		Prev->NextModal=NULL;
+		Prev->NextModal=nullptr;
 		Prev=Next;
 		Next=Next->NextModal;
 //    if (GetDynamicallyBorn())
@@ -210,7 +211,7 @@ bool Frame::RemoveModal(Frame *aFrame)
 	if (fFound)
 	{
 		RemoveModal(Next->NextModal);
-		Prev->NextModal=NULL;
+		Prev->NextModal=nullptr;
 		return true;
 	}
 	else

@@ -39,16 +39,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dialog.hpp"
 #include "history.hpp"
 
-DlgEdit::DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type)
-{
-	m_Dialog=pOwner;
-	m_Index=Index;
-	DlgEdit::Type=Type;
+DlgEdit::DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type):
+	m_Dialog(pOwner),
+	m_Index(Index),
+	Type(Type),
 #if defined(PROJECT_DI_MEMOEDIT)
-	multiEdit=NULL;
+	multiEdit(nullptr),
 #endif
-	lineEdit=NULL;
-
+	lineEdit(nullptr)
+{
 	switch (Type)
 	{
 		case DLGEDIT_MULTILINE:
@@ -285,7 +284,7 @@ const wchar_t* DlgEdit::GetStringAddr()
 
 	if (Type == DLGEDIT_MULTILINE)
 	{
-		return NULL; //??? //multiEdit;
+		return nullptr; //??? //multiEdit;
 	}
 	else
 #endif

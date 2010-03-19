@@ -36,10 +36,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "savefpos.hpp"
 
-SaveFilePos::SaveFilePos(FILE *SaveFile)
+SaveFilePos::SaveFilePos(FILE *SaveFile):
+	SaveFile(SaveFile)
 {
-	SaveFilePos::SaveFile=SaveFile;
-
 	if (SaveFile)
 		SavePos=ftell64(SaveFile);
 }

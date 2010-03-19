@@ -71,7 +71,7 @@ class TPreRedrawFunc
 		static struct PreRedrawItem errorStack;
 
 	public:
-		TPreRedrawFunc() : Total(0), Top(NULL) {};
+		TPreRedrawFunc() : Total(0), Top(nullptr) {};
 		~TPreRedrawFunc() { Free(); }
 
 	public:
@@ -86,7 +86,7 @@ class TPreRedrawFunc
 
 		// положить элемент на стек
 		PreRedrawItem Push(const PreRedrawItem &Source);
-		PreRedrawItem Push(PREREDRAWFUNC Func,PreRedrawParamStruct *Param=NULL);
+		PreRedrawItem Push(PREREDRAWFUNC Func,PreRedrawParamStruct *Param=nullptr);
 
 		PreRedrawItem SetParam(PreRedrawParamStruct Param);
 

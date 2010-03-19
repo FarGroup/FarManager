@@ -233,7 +233,7 @@ struct UniSet
 			}
 			else
 			{
-				high[i]=NULL;
+				high[i]=nullptr;
 			}
 		}
 
@@ -257,7 +257,7 @@ struct UniSet
 				{
 					if (high[i])delete [] high[i];
 
-					high[i]=NULL;
+					high[i]=nullptr;
 				}
 			}
 
@@ -682,7 +682,7 @@ void *RegExp::CreateArray(const unsigned int size, const unsigned int total,
 			*reinterpret_cast<int*>(record)=size;
 			*reinterpret_cast<int*>(record+sizeof(unsigned int))=total;
 
-			if (Create!=NULL)
+			if (Create!=nullptr)
 				for (unsigned int f=0; f<total; ++f)
 					Create(array+size*f);
 
@@ -690,7 +690,7 @@ void *RegExp::CreateArray(const unsigned int size, const unsigned int total,
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 void RegExp::DeleteArray(void **array, ON_DELETE_FUNC Delete)
@@ -700,7 +700,7 @@ void RegExp::DeleteArray(void **array, ON_DELETE_FUNC Delete)
 		unsigned char *record=reinterpret_cast<unsigned char*>(*array)-
 		                      2*sizeof(unsigned int);
 
-		if (Delete!=NULL)
+		if (Delete!=nullptr)
 		{
 			unsigned char *m=static_cast<unsigned char*>(*array);
 			unsigned int size=*reinterpret_cast<int*>(record),
@@ -711,7 +711,7 @@ void RegExp::DeleteArray(void **array, ON_DELETE_FUNC Delete)
 		}
 
 		free(record);
-		*array=NULL;
+		*array=nullptr;
 	}
 }
 #else  // RE_NO_NEWARRAY
@@ -747,9 +747,9 @@ case opClassMinRange:delete [] range.symbolclass; break;
 void RegExp::Init(const prechar expr,int options)
 {
 	//memset(this,0,sizeof(*this));
-	code=NULL;
-	brhandler=NULL;
-	brhdata=NULL;
+	code=nullptr;
+	brhandler=nullptr;
+	brhdata=nullptr;
 #ifndef UNICODE
 #ifndef RE_STATIC_LOCALE
 #ifndef RE_EXTERNAL_CTYPE
@@ -764,26 +764,42 @@ void RegExp::Init(const prechar expr,int options)
 	st=&stack[0];
 	initstackpage.stack=stack;
 	firstpage=lastpage=&initstackpage;
-	firstpage->next=NULL;
-	firstpage->prev=NULL;
+	firstpage->next=nullptr;
+	firstpage->prev=nullptr;
 #ifdef UNICODE
 	firstptr=new UniSet();
 #define first (*firstptr)
 #endif
-	start=NULL;
-	end=NULL;
-	trimend=NULL;
+	start=nullptr;
+	end=nullptr;
+	trimend=nullptr;
 	Compile((const RECHAR*)expr,options);
 }
 
-RegExp::RegExp()
+RegExp::RegExp():
+	code(nullptr),
+#ifdef NAMEDBRACKETS
+	havenamedbrackets(0),
+#endif
+	stack(&initstack[0]),
+	st(&stack[0]),
+	slashChar('/'),
+	backslashChar('\\'),
+	firstpage(&initstackpage),
+	lastpage(&initstackpage),
+#ifdef UNICODE
+	firstptr(new UniSet()),
+#endif
+	errorcode(errNotCompiled),
+	start(nullptr),
+	end(nullptr),
+	trimend(nullptr),
+#ifdef RE_DEBUG
+	resrc(nullptr),
+#endif
+	brhandler(nullptr),
+	brhdata(nullptr)
 {
-	//memset(this,0,sizeof(*this));
-	code=NULL;
-	brhandler=NULL;
-	brhdata=NULL;
-	slashChar='/';
-	backslashChar='\\';
 #ifndef UNICODE
 #ifndef RE_STATIC_LOCALE
 #ifndef RE_EXTERNAL_CTYPE
@@ -791,25 +807,9 @@ RegExp::RegExp()
 #endif
 #endif
 #endif//UNICODE
-#ifdef NAMEDBRACKETS
-	havenamedbrackets=0;
-#endif
-	stack=&initstack[0];
-	st=&stack[0];
 	initstackpage.stack=stack;
-	firstpage=lastpage=&initstackpage;
-	firstpage->next=NULL;
-	firstpage->prev=NULL;
-#ifdef UNICODE
-	firstptr=new UniSet();
-#endif
-	start=NULL;
-	end=NULL;
-	trimend=NULL;
-	errorcode=errNotCompiled;
-#ifdef RE_DEBUG
-	resrc=NULL;
-#endif
+	firstpage->next=nullptr;
+	firstpage->prev=nullptr;
 }
 
 RegExp::RegExp(const RECHAR* expr,int options)
@@ -817,7 +817,7 @@ RegExp::RegExp(const RECHAR* expr,int options)
 	slashChar='/';
 	backslashChar='\\';
 #ifdef RE_DEBUG
-	resrc=NULL;
+	resrc=nullptr;
 #endif
 	Init((const prechar)expr,options);
 }
@@ -841,7 +841,7 @@ RegExp::~RegExp()
 		DeleteArray(reinterpret_cast<void**>(&code),REOpCode::OnDelete);
 #else
 		delete [] code;
-		code=NULL;
+		code=nullptr;
 #endif
 	}
 
@@ -1100,7 +1100,7 @@ int RegExp::Compile(const RECHAR* src,int options)
 
 	if (code)delete [] code;
 
-	code=NULL;
+	code=nullptr;
 #endif
 
 	if (options&OP_PERLSTYLE)
@@ -1178,7 +1178,7 @@ int RegExp::Compile(const RECHAR* src,int options)
 		DeleteArray(reinterpret_cast<void**>(&code),REOpCode::OnDelete);
 #else
 		delete [] code;
-		code=NULL;
+		code=nullptr;
 #endif
 	}
 	else
@@ -2289,7 +2289,7 @@ inline void RegExp::PushState()
 			lastpage->next=new StateStackPage;
 			lastpage->next->prev=lastpage;
 			lastpage=lastpage->next;
-			lastpage->next=NULL;
+			lastpage->next=nullptr;
 #ifdef RE_NO_NEWARRAY
 			lastpage->stack=static_cast<StateStackItem*>
 			                (CreateArray(sizeof(StateStackItem), STACK_PAGE_SIZE,
@@ -2317,7 +2317,7 @@ inline int RegExp::PopState()
 
 	if (stackcount<0)
 	{
-		if (lastpage->prev==NULL)return 0;
+		if (lastpage->prev==nullptr)return 0;
 
 		lastpage=lastpage->prev;
 		stack=lastpage->stack;
@@ -2343,7 +2343,7 @@ inline StateStackItem *RegExp::GetState()
 
 	if (tempcount<0)
 	{
-		if (temppage->prev==NULL)return 0;
+		if (temppage->prev==nullptr)return 0;
 
 		temppage=temppage->prev;
 		tempstack=temppage->stack;
@@ -2374,7 +2374,7 @@ inline StateStackItem *RegExp::FindStateByPos(PREOpCode pos,int op)
 
 		if (tempcount<0)
 		{
-			if (temppage->prev==NULL)return 0;
+			if (temppage->prev==nullptr)return 0;
 
 			temppage=temppage->prev;
 			tempstack=temppage->stack;
@@ -2508,7 +2508,7 @@ static void KillMatchList(MatchList *ml)
 	for (int i=0; i<ml->Count(); i++)
 	{
 		KillMatchList((*ml)[i].sublist);
-		(*ml)[i].sublist=NULL;
+		(*ml)[i].sublist=nullptr;
 	}
 
 	ml->Clean();
@@ -2526,7 +2526,7 @@ int RegExp::InnerMatch(const prechar str,const prechar strend,PMatch match,int& 
 //  register prechar str=start;
 	int i,j;
 	int minimizing;
-	PREOpCode op,tmp=NULL;
+	PREOpCode op,tmp=nullptr;
 	PMatch m;
 #ifdef UNICODE
 	UniSet *cl;
@@ -3719,7 +3719,7 @@ int RegExp::InnerMatch(const prechar str,const prechar strend,PMatch match,int& 
 						if (re->bracketscount>10)
 #ifdef RE_NO_NEWARRAY
 							mtch=static_cast<PMatch>(CreateArray(sizeof(SMatch),
-							                                     re->bracketscount, NULL));
+							                                     re->bracketscount, nullptr));
 
 #else
 							mtch=new SMatch[re->bracketscount];
@@ -3752,7 +3752,7 @@ int RegExp::InnerMatch(const prechar str,const prechar strend,PMatch match,int& 
 
 						if (mtch!=mt)
 #ifdef RE_NO_NEWARRAY
-							DeleteArray(reinterpret_cast<void**>(&mtch),NULL);
+							DeleteArray(reinterpret_cast<void**>(&mtch),nullptr);
 
 #else
 							delete [] mtch;
@@ -4232,7 +4232,7 @@ int RegExp::InnerMatch(const prechar str,const prechar strend,PMatch match,int& 
 					{
 						matchlist->Pop(ml);
 						KillMatchList(ml.sublist);
-						ml.sublist=NULL;
+						ml.sublist=nullptr;
 					}
 
 					//PopState();
@@ -4953,7 +4953,7 @@ void RegExp::CleanStack()
 	{
 		tmp2=tmp->next;
 #ifdef RE_NO_NEWARRAY
-		DeleteArray(reinterpret_cast<void**>(&tmp->stack),NULL);
+		DeleteArray(reinterpret_cast<void**>(&tmp->stack),nullptr);
 #else
 		delete [] tmp->stack;
 #endif // RE_NO_NEWARRAY
@@ -5030,7 +5030,7 @@ int RELibMatch(RELib& relib,MatchList& ml,const char* name,const char* start,con
 	li.sublist=pml;
 	li.start=0;
 	ml.Append(li);
-	ml.parent=NULL;
+	ml.parent=nullptr;
 	pml->parent=&ml;
 	relib[(char*)name]->SetMatchList(pml);
 #ifdef NAMEDBRACKETS

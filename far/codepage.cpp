@@ -77,7 +77,7 @@ static HANDLE dialog;
 // Идентифкатор диалога
 static UINT control;
 // Меню
-static VMenu *CodePages = NULL;
+static VMenu *CodePages = nullptr;
 // Текущая таблица символов
 static UINT currentCodePage;
 // Количество выбранных и обыкновенных таблиц символов
@@ -196,7 +196,7 @@ void AddStandardCodePage(const wchar_t *codePageName, UINT codePage, int positio
 }
 
 // Добавляем разделитель
-void AddSeparator(LPCWSTR Label=NULL,int position = -1)
+void AddSeparator(LPCWSTR Label=nullptr,int position = -1)
 {
 	if (CallbackCallSource == CodePagesFill)
 	{
@@ -549,7 +549,7 @@ UINT SelectCodePage(UINT nCurrent, bool bShowUnicode, bool bShowUTF)
 	CallbackCallSource = CodePageSelect;
 	currentCodePage = nCurrent;
 	// Создаём меню
-	CodePages = new VMenu(L"", NULL, 0, ScrY-4);
+	CodePages = new VMenu(L"", nullptr, 0, ScrY-4);
 	CodePages->SetBottomTitle(MSG(!Opt.CPMenuMode?MGetCodePageBottomTitle:MGetCodePageBottomShortTitle));
 	CodePages->SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
 	CodePages->SetHelp(L"CodePagesMenu");
@@ -586,9 +586,9 @@ UINT SelectCodePage(UINT nCurrent, bool bShowUnicode, bool bShowUTF)
 	}
 
 	// Получаем выбранную таблицу символов
-	UINT codePage = CodePages->Modal::GetExitCode() >= 0 ? (UINT)(UINT_PTR)CodePages->GetUserData(NULL, 0) : (UINT)-1;
+	UINT codePage = CodePages->Modal::GetExitCode() >= 0 ? (UINT)(UINT_PTR)CodePages->GetUserData(nullptr, 0) : (UINT)-1;
 	delete CodePages;
-	CodePages = NULL;
+	CodePages = nullptr;
 	return codePage;
 }
 

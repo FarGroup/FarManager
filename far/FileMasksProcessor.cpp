@@ -38,12 +38,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FileMasksProcessor.hpp"
 #include "processname.hpp"
 
-FileMasksProcessor::FileMasksProcessor():BaseFileMask()
+FileMasksProcessor::FileMasksProcessor():
+	BaseFileMask(),
+	re(nullptr),
+	m(nullptr),
+	n(0),
+	bRE(false)
 {
-	bRE = false;
-	re = NULL;
-	m = NULL;
-	n = 0;
 }
 
 void FileMasksProcessor::Free()
@@ -53,12 +54,12 @@ void FileMasksProcessor::Free()
 	if (re)
 		delete re;
 
-	re = NULL;
+	re = nullptr;
 
 	if (m)
 		xf_free(m);
 
-	m = NULL;
+	m = nullptr;
 	n = 0;
 	bRE = false;
 }
@@ -89,7 +90,7 @@ bool FileMasksProcessor::Set(const wchar_t *masks, DWORD Flags)
 			n = re->GetBracketsCount();
 			m = (SMatch *)xf_malloc(n*sizeof(SMatch));
 
-			if (m == NULL)
+			if (m == nullptr)
 			{
 				n = 0;
 				return false;
@@ -136,7 +137,7 @@ bool FileMasksProcessor::Compare(const wchar_t *FileName)
 
 	Masks.Reset();
 
-	while (NULL!=(MaskPtr=Masks.GetNext()))
+	while (nullptr!=(MaskPtr=Masks.GetNext()))
 	{
 		// SkipPath=FALSE, ע.ך. ג CFileMask גûחûגאועסÿ PointToName
 		if (CmpName(MaskPtr,FileName, false))

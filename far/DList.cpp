@@ -36,12 +36,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "DList.hpp"
 
-CDList::CDList()
+CDList::CDList():
+	count(0)
 {
-	count=0;
 	root.next=&root;
 	root.prev=&root;
 }
+
 void CDList::Clear()
 {
 	Node *f=root.next;
@@ -97,5 +98,5 @@ void *CDList::CDelete(void *item)
 	nx->prev=pr;
 	--count;
 	DeleteNode(node);
-	return pr==&root ? NULL : ((BYTE*)pr)+sizeof(Node);
+	return pr==&root ? nullptr : ((BYTE*)pr)+sizeof(Node);
 }

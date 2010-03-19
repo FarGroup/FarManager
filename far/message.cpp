@@ -56,8 +56,8 @@ int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
             INT_PTR PluginNumber)
 {
-	return(Message(Flags,Buttons,Title,Str1,Str2,Str3,Str4,NULL,NULL,NULL,
-	               NULL,NULL,NULL,NULL,NULL,NULL,NULL,PluginNumber));
+	return(Message(Flags,Buttons,Title,Str1,Str2,Str3,Str4,nullptr,nullptr,nullptr,
+	               nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,PluginNumber));
 }
 
 int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
@@ -66,7 +66,7 @@ int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
             INT_PTR PluginNumber)
 {
 	return(Message(Flags,Buttons,Title,Str1,Str2,Str3,Str4,Str5,Str6,Str7,
-	               NULL,NULL,NULL,NULL,NULL,NULL,NULL,PluginNumber));
+	               nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,PluginNumber));
 }
 
 
@@ -77,7 +77,7 @@ int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
             INT_PTR PluginNumber)
 {
 	return(Message(Flags,Buttons,Title,Str1,Str2,Str3,Str4,Str5,Str6,Str7,Str8,
-	               Str9,Str10,NULL,NULL,NULL,NULL,PluginNumber));
+	               Str9,Str10,nullptr,nullptr,nullptr,nullptr,PluginNumber));
 }
 
 int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
@@ -90,7 +90,7 @@ int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
 	const wchar_t *Str[]={Str1,Str2,Str3,Str4,Str5,Str6,Str7,Str8,Str9,Str10,Str11,Str12,Str13,Str14};
 	int StrCount=0;
 
-	while (StrCount<(int)countof(Str) && Str[StrCount]!=NULL)
+	while (StrCount<(int)countof(Str) && Str[StrCount]!=nullptr)
 		StrCount++;
 
 	return Message(Flags,Buttons,Title,Str,StrCount,PluginNumber);
@@ -238,7 +238,7 @@ int Message(
 		PtrStr = strErrStr.GetBuffer();
 
 		//BUGBUG: string не преднозначен для хранения строк разделённых \0
-		while ((PtrStr=wcschr(PtrStr,L'\n')) != NULL)
+		while ((PtrStr=wcschr(PtrStr,L'\n')) != nullptr)
 		{
 			*PtrStr++=0;
 
@@ -470,7 +470,7 @@ int Message(
 			Length=ScrX-15;
 
 		int Width=X2-X1+1;
-		wchar_t *lpwszTemp = NULL;
+		wchar_t *lpwszTemp = nullptr;
 
 		if (Flags & MSG_LEFTALIGN)
 		{
@@ -597,12 +597,12 @@ int GetErrorString(string &strErrStr)
 		{
 			LPWSTR lpBuffer;
 			FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_IGNORE_INSERTS,
-			              NULL,
+			              nullptr,
 			              LastError,
 			              0,
 			              (LPWSTR)&lpBuffer,
 			              0,
-			              NULL
+			              nullptr
 			             );
 			strErrStr=lpBuffer;
 			LocalFree(lpBuffer);

@@ -68,13 +68,13 @@ LONG_PTR WINAPI MkDirDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 		{
 			if (Param1==MKDIR_OK)
 			{
-				string strDirName=reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,MKDIR_EDIT,NULL));
-				Opt.MultiMakeDir=(SendDlgMessage(hDlg,DM_GETCHECK,MKDIR_CHECKBOX,NULL)==BSTATE_CHECKED);
+				string strDirName=reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,MKDIR_EDIT,0));
+				Opt.MultiMakeDir=(SendDlgMessage(hDlg,DM_GETCHECK,MKDIR_CHECKBOX,0)==BSTATE_CHECKED);
 
 				// это по поводу создания одиночного каталога, который
 				// начинается с пробела! Чтобы ручками не заключать
 				// такой каталог в кавычки
-				if (Opt.MultiMakeDir && wcspbrk(strDirName,L";,\"") == NULL)
+				if (Opt.MultiMakeDir && wcspbrk(strDirName,L";,\"") == nullptr)
 				{
 					QuoteSpaceOnly(strDirName);
 				}
@@ -88,7 +88,7 @@ LONG_PTR WINAPI MkDirDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 					InsertQuote(strDirName);
 				}
 
-				UserDefinedList* pDirList=reinterpret_cast<UserDefinedList*>(SendDlgMessage(hDlg,DM_GETDLGDATA,0,NULL));
+				UserDefinedList* pDirList=reinterpret_cast<UserDefinedList*>(SendDlgMessage(hDlg,DM_GETDLGDATA,0,0));
 
 				if (!(pDirList->Set(strDirName)&&!wcspbrk(strDirName,ReservedFilenameSymbols)))
 				{
@@ -132,7 +132,7 @@ void ShellMakeDir(Panel *SrcPanel)
 		const wchar_t *OneDir;
 		DirList.Reset();
 
-		while (NULL!=(OneDir=DirList.GetNext()))
+		while (nullptr!=(OneDir=DirList.GetNext()))
 		{
 			strDirName = OneDir;
 			strOriginalDirName = strDirName;
@@ -151,7 +151,7 @@ void ShellMakeDir(Panel *SrcPanel)
 				{
 					*ChPtr=0;
 
-					if (*lpwszDirName && apiCreateDirectory(lpwszDirName,NULL))
+					if (*lpwszDirName && apiCreateDirectory(lpwszDirName,nullptr))
 					{
 						TreeList::AddTreeName(lpwszDirName);
 						bSuccess = true;
@@ -165,7 +165,7 @@ void ShellMakeDir(Panel *SrcPanel)
 			BOOL bSuccess2;
 			bool bSkip=false;
 
-			while (!(bSuccess2=apiCreateDirectory(strDirName,NULL)))
+			while (!(bSuccess2=apiCreateDirectory(strDirName,nullptr)))
 			{
 				int LastError=GetLastError();
 

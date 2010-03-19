@@ -69,7 +69,7 @@ SHORT ScrX=0,ScrY=0;
 SHORT PrevScrX=-1,PrevScrY=-1;
 DWORD InitialConsoleMode=0;
 
-static HICON hOldLargeIcon=NULL, hOldSmallIcon=NULL;
+static HICON hOldLargeIcon=nullptr, hOldSmallIcon=nullptr;
 
 void InitConsole(int FirstInit)
 {
@@ -123,14 +123,14 @@ void InitConsole(int FirstInit)
 	if (hWnd && Opt.SmallIcon)
 	{
 		string strFarName;
-		apiGetModuleFileName(NULL, strFarName);
-		HICON hSmallIcon=NULL,hLargeIcon=NULL;
+		apiGetModuleFileName(nullptr, strFarName);
+		HICON hSmallIcon=nullptr,hLargeIcon=nullptr;
 		ExtractIconEx(strFarName,0,&hLargeIcon,&hSmallIcon,1);
 
-		if (hLargeIcon!=NULL)
+		if (hLargeIcon!=nullptr)
 			hOldLargeIcon=(HICON)SendMessage(hWnd,WM_SETICON,1,(LPARAM)hLargeIcon);
 
-		if (hSmallIcon!=NULL)
+		if (hSmallIcon!=nullptr)
 			hOldSmallIcon=(HICON)SendMessage(hWnd,WM_SETICON,0,(LPARAM)hSmallIcon);
 	}
 
@@ -141,16 +141,16 @@ void CloseConsole()
 	SetRealCursorType(InitCurVisible,InitCurSize);
 	ChangeConsoleMode(InitialConsoleMode);
 	delete KeyQueue;
-	KeyQueue=NULL;
+	KeyQueue=nullptr;
 
 	HWND hWnd = GetConsoleWindow();
 
 	if (hWnd && Opt.SmallIcon)
 	{
-		if (hOldLargeIcon!=NULL)
+		if (hOldLargeIcon!=nullptr)
 		{
 			SendMessage(hWnd,WM_SETICON,1,(LPARAM)hOldLargeIcon);
-			SendMessage(hWnd,WM_SETICON,0,(LPARAM)(hOldSmallIcon!=NULL ? hOldSmallIcon:hOldLargeIcon));
+			SendMessage(hWnd,WM_SETICON,0,(LPARAM)(hOldSmallIcon!=nullptr ? hOldSmallIcon:hOldLargeIcon));
 		}
 	}
 
@@ -444,10 +444,10 @@ BOOL __stdcall CtrlHandler(DWORD CtrlType)
 
 		if (CtrlObject && CtrlObject->Cp())
 		{
-			if (CtrlObject->Cp()->LeftPanel!=NULL && CtrlObject->Cp()->LeftPanel->GetMode()==PLUGIN_PANEL)
+			if (CtrlObject->Cp()->LeftPanel!=nullptr && CtrlObject->Cp()->LeftPanel->GetMode()==PLUGIN_PANEL)
 				CtrlObject->Plugins.ProcessEvent(CtrlObject->Cp()->LeftPanel->GetPluginHandle(),FE_BREAK,(void *)(DWORD_PTR)CtrlType);
 
-			if (CtrlObject->Cp()->RightPanel!=NULL && CtrlObject->Cp()->RightPanel->GetMode()==PLUGIN_PANEL)
+			if (CtrlObject->Cp()->RightPanel!=nullptr && CtrlObject->Cp()->RightPanel->GetMode()==PLUGIN_PANEL)
 				CtrlObject->Plugins.ProcessEvent(CtrlObject->Cp()->RightPanel->GetPluginHandle(),FE_BREAK,(void *)(DWORD_PTR)CtrlType);
 		}
 
@@ -464,7 +464,7 @@ BOOL __stdcall CtrlHandler(DWORD CtrlType)
 	*/
 	if (!Opt.CloseConsoleRule)
 	{
-		if ((FileEditor::CurrentEditor!=NULL && FileEditor::CurrentEditor->IsFileModified()) ||
+		if ((FileEditor::CurrentEditor!=nullptr && FileEditor::CurrentEditor->IsFileModified()) ||
 		        (FrameManager && FrameManager->IsAnyFrameModified(FALSE)))
 			return(TRUE);
 
@@ -603,7 +603,7 @@ static BOOL DetectTTFFont()
 {
 	string strAppName, strOptRegRoot;
 	BOOL UseTTFConsoleFont=FALSE;
-	apiGetModuleFileName(NULL, strAppName);
+	apiGetModuleFileName(nullptr, strAppName);
 	SetRegRootKey(HKEY_CURRENT_USER);
 	strOptRegRoot = Opt.strRegRoot;
 	Opt.strRegRoot = L"Console";
@@ -754,7 +754,7 @@ void InitRecodeOutTable(UINT cp)
 		}
 	}
 
-	//_SVS(SysLogDump("Oem2Unicode",0,(LPBYTE)Oem2Unicode,sizeof(Oem2Unicode),NULL));
+	//_SVS(SysLogDump("Oem2Unicode",0,(LPBYTE)Oem2Unicode,sizeof(Oem2Unicode),nullptr));
 }
 
 
@@ -1257,7 +1257,7 @@ string& HiText2Str(string& strDest, const wchar_t *Str)
 	const wchar_t *ChPtr;
 	strDest = Str;
 
-	if ((ChPtr=wcschr(Str,L'&')) != NULL)
+	if ((ChPtr=wcschr(Str,L'&')) != nullptr)
 	{
 		/*
 		   &&      = '&'

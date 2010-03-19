@@ -182,7 +182,7 @@ static int MainProcess(
 			}
 
 			FrameManager->EnterMainLoop();
-			CtrlObj.Cp()->LeftPanel=CtrlObj.Cp()->RightPanel=CtrlObj.Cp()->ActivePanel=NULL;
+			CtrlObj.Cp()->LeftPanel=CtrlObj.Cp()->RightPanel=CtrlObj.Cp()->ActivePanel=nullptr;
 			delete DummyPanel;
 			_tran(SysLog(L"editor/viewer closed, delete dummy panels"));
 		}
@@ -305,7 +305,7 @@ int MainProcessSEH(string& strEditName,string& strViewName,string& DestName1,str
 	{
 		Result=MainProcess(strEditName,strViewName,DestName1,DestName2,StartLine,StartChar);
 	}
-	__except(xfilter((int)(INT_PTR)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1))
+	__except(xfilter((int)(INT_PTR)INVALID_HANDLE_VALUE,GetExceptionInformation(),nullptr,1))
 	{
 		TerminateProcess(GetCurrentProcess(), 1);
 	}
@@ -361,7 +361,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	Opt.LoadPlug.PluginsPersonal=TRUE;
 	Opt.LoadPlug.PluginsCacheOnly=FALSE;
 
-	if (apiGetModuleFileName(NULL, g_strFarPath))
+	if (apiGetModuleFileName(nullptr, g_strFarPath))
 	{
 		CutToSlash(g_strFarPath,true);
 		ConvertNameToLong(g_strFarPath, g_strFarPath);
@@ -402,7 +402,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 						StartLine=_wtoi(&Argv[I][2]);
 						wchar_t *ChPtr=wcschr(&Argv[I][2],L':');
 
-						if (ChPtr!=NULL)
+						if (ChPtr!=nullptr)
 							StartChar=_wtoi(ChPtr+1);
 					}
 

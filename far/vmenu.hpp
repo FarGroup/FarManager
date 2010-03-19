@@ -140,7 +140,7 @@ struct MenuItemEx
 		strName.Clear();
 		AccelKey = 0;
 		UserDataSize = 0;
-		UserData = NULL;
+		UserData = nullptr;
 		AmpPos = 0;
 		Len[0] = 0;
 		Len[1] = 0;
@@ -157,7 +157,7 @@ struct MenuItemEx
 			strName = srcMenu.strName;
 			AccelKey = srcMenu.AccelKey;
 			UserDataSize = 0;
-			UserData = NULL;
+			UserData = nullptr;
 			AmpPos = srcMenu.AmpPos;
 			Len[0] = srcMenu.Len[0];
 			Len[1] = srcMenu.Len[1];
@@ -229,8 +229,6 @@ class VMenu: public Modal
 		bool bFilterLocked;
 		string strFilter;
 
-	protected:
-
 		MenuItemEx **Item;
 
 		int ItemCount;
@@ -241,10 +239,6 @@ class VMenu: public Modal
 
 		int MaxLineWidth;
 
-	public:
-		Frame *FrameFromLaunched;
-
-	private:
 		virtual void DisplayObject();
 		void ShowMenu(bool IsParent=false);
 		void DrawTitles();
@@ -277,13 +271,12 @@ class VMenu: public Modal
 		      int ItemCount,
 		      int MaxHeight=0,
 		      DWORD Flags=0,
-		      FARWINDOWPROC Proc=NULL,
-		      Dialog *ParentDialog=NULL);
+		      FARWINDOWPROC Proc=nullptr,
+		      Dialog *ParentDialog=nullptr);
 
 
 		virtual ~VMenu();
 
-	public:
 		void FastShow() {ShowMenu();}
 		virtual void Show();
 		virtual void Hide();
@@ -294,7 +287,7 @@ class VMenu: public Modal
 
 		void SetBottomTitle(const wchar_t *BottomTitle);
 		string &GetBottomTitle(string &strDest);
-		void SetDialogStyle(int Style) {ChangeFlags(VMENU_WARNDIALOG,Style); SetColors(NULL);}
+		void SetDialogStyle(int Style) {ChangeFlags(VMENU_WARNDIALOG,Style); SetColors(nullptr);}
 		void SetUpdateRequired(int SetUpdate) {ChangeFlags(VMENU_UPDATEREQUIRED,SetUpdate);}
 		void SetBoxType(int BoxType);
 
@@ -306,14 +299,14 @@ class VMenu: public Modal
 
 		void AssignHighlights(int Reverse);
 
-		void SetColors(struct FarListColors *ColorsIn=NULL);
+		void SetColors(struct FarListColors *ColorsIn=nullptr);
 		void GetColors(struct FarListColors *ColorsOut);
 		void SetOneColor(int Index, short Color);
 
 		virtual int ProcessKey(int Key);
 		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-		virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
-		virtual int ReadInput(INPUT_RECORD *GetReadRec=NULL);
+		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
+		virtual int ReadInput(INPUT_RECORD *GetReadRec=nullptr);
 
 		void DeleteItems();
 		int  DeleteItem(int ID,int Count=1);
@@ -362,7 +355,6 @@ class VMenu: public Modal
 		int GetVDialogItemID() const {return DialogItemID;};
 		void SetVDialogItemID(int NewDialogItemID) {DialogItemID=NewDialogItemID;};
 
-	public:
 		static MenuItemEx *FarList2MenuItem(const FarListItem *Item,MenuItemEx *ListItem);
 		static FarListItem *MenuItem2FarList(const MenuItemEx *ListItem,FarListItem *Item);
 

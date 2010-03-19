@@ -87,25 +87,25 @@ static bool GetImageSubsystem(const wchar_t *FileName,DWORD& ImageSubsystem)
 {
 	bool Result=false;
 	ImageSubsystem=IMAGE_SUBSYSTEM_UNKNOWN;
-	HANDLE hModuleFile=apiCreateFile(FileName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0);
+	HANDLE hModuleFile=apiCreateFile(FileName,GENERIC_READ,FILE_SHARE_READ,nullptr,OPEN_EXISTING,0);
 
 	if (hModuleFile!=INVALID_HANDLE_VALUE)
 	{
 		IMAGE_DOS_HEADER DOSHeader;
 		DWORD ReadSize;
 
-		if (ReadFile(hModuleFile,&DOSHeader,sizeof(DOSHeader),&ReadSize,NULL) && ReadSize==sizeof(DOSHeader))
+		if (ReadFile(hModuleFile,&DOSHeader,sizeof(DOSHeader),&ReadSize,nullptr) && ReadSize==sizeof(DOSHeader))
 		{
 			if (DOSHeader.e_magic==IMAGE_DOS_SIGNATURE)
 			{
 				//ImageSubsystem = IMAGE_SUBSYSTEM_DOS_EXECUTABLE;
 				Result=true;
 
-				if (apiSetFilePointerEx(hModuleFile,DOSHeader.e_lfanew,NULL,FILE_BEGIN))
+				if (apiSetFilePointerEx(hModuleFile,DOSHeader.e_lfanew,nullptr,FILE_BEGIN))
 				{
 					IMAGE_HEADERS PEHeader;
 
-					if (ReadFile(hModuleFile,&PEHeader,sizeof(PEHeader),&ReadSize,NULL) && ReadSize==sizeof(PEHeader))
+					if (ReadFile(hModuleFile,&PEHeader,sizeof(PEHeader),&ReadSize,nullptr) && ReadSize==sizeof(PEHeader))
 					{
 						if (PEHeader.Signature==IMAGE_NT_SIGNATURE)
 						{
@@ -220,7 +220,7 @@ bool SearchExtHandlerFromList(HKEY hExtKey, string &strType)
 		DWORD nValueType;
 
 		// Пройдемся по всем значениям и проверим имена на пренадлежность к валидным типам
-		while ((nRet = RegEnumValue(hExtIDListSubKey, nValueIndex, wszValueName, &nValueNameSize, NULL, &nValueType, NULL, NULL)) != ERROR_NO_MORE_ITEMS)
+		while ((nRet = RegEnumValue(hExtIDListSubKey, nValueIndex, wszValueName, &nValueNameSize, nullptr, &nValueType, nullptr, nullptr)) != ERROR_NO_MORE_ITEMS)
 		{
 			if (nRet != ERROR_SUCCESS) break;
 
@@ -330,27 +330,27 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
 	Error = ERROR_SUCCESS;
 	ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
 
-	if ((ExtPtr=wcsrchr(FileName,L'.'))==NULL)
-		return(NULL);
+	if ((ExtPtr=wcsrchr(FileName,L'.'))==nullptr)
+		return(nullptr);
 
 	if (!GetShellType(ExtPtr, strValue))
-		return NULL;
+		return nullptr;
 
 	HKEY hKey;
 
 	if (RegOpenKeyEx(HKEY_CLASSES_ROOT,strValue,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS)
 	{
-		int nResult=RegQueryValueEx(hKey,L"IsShortcut",NULL,NULL,NULL,NULL);
+		int nResult=RegQueryValueEx(hKey,L"IsShortcut",nullptr,nullptr,nullptr,nullptr);
 		RegCloseKey(hKey);
 
 		if (nResult==ERROR_SUCCESS)
-			return NULL;
+			return nullptr;
 	}
 
 	strValue += L"\\shell";
 
 	if (RegOpenKey(HKEY_CLASSES_ROOT,strValue,&hKey)!=ERROR_SUCCESS)
-		return(NULL);
+		return(nullptr);
 
 	static string strAction;
 	int RetQuery = RegQueryStringValueEx(hKey,L"",strAction,L"");
@@ -359,16 +359,16 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
 	if (RetQuery == ERROR_SUCCESS)
 	{
 		UserDefinedList ActionList(0,0,ULF_UNIQUE);
-		RetPtr = (strAction.IsEmpty() ? NULL : strAction.CPtr());
+		RetPtr = (strAction.IsEmpty() ? nullptr : strAction.CPtr());
 		const wchar_t *ActionPtr;
 		LONG RetEnum = ERROR_SUCCESS;
 
-		if (RetPtr != NULL && ActionList.Set(strAction))
+		if (RetPtr != nullptr && ActionList.Set(strAction))
 		{
 			HKEY hOpenKey;
 			ActionList.Reset();
 
-			while (RetEnum == ERROR_SUCCESS && (ActionPtr = ActionList.GetNext()) != NULL)
+			while (RetEnum == ERROR_SUCCESS && (ActionPtr = ActionList.GetNext()) != nullptr)
 			{
 				strNewValue = strValue;
 				strNewValue += ActionPtr;
@@ -390,18 +390,18 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
 		}
 
 		if (RetEnum != ERROR_NO_MORE_ITEMS) // Если ничего не нашли, то...
-			RetPtr=NULL;
+			RetPtr=nullptr;
 	}
 	else
 	{
 		// This member defaults to "Open" if no verb is specified.
-		// Т.е. если мы вернули NULL, то подразумевается команда "Open"
-		RetPtr=NULL;
+		// Т.е. если мы вернули nullptr, то подразумевается команда "Open"
+		RetPtr=nullptr;
 	}
 
-	// Если RetPtr==NULL - мы не нашли default action.
+	// Если RetPtr==nullptr - мы не нашли default action.
 	// Посмотрим - есть ли вообще что-нибудь у этого расширения
-	if (RetPtr==NULL)
+	if (RetPtr==nullptr)
 	{
 		LONG RetEnum = ERROR_SUCCESS;
 		DWORD dwIndex = 0;
@@ -445,7 +445,7 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
 
 	RegCloseKey(hKey);
 
-	if (RetPtr != NULL)
+	if (RetPtr != nullptr)
 	{
 		strValue += command_action;
 
@@ -465,7 +465,7 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
 				{
 					wchar_t *QPtr = wcschr(Ptr + 1,L'\"');
 
-					if (QPtr!=NULL)
+					if (QPtr!=nullptr)
 					{
 						*QPtr=0;
 						wmemmove(Ptr, Ptr + 1, QPtr-Ptr);
@@ -473,7 +473,7 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
 				}
 				else
 				{
-					if ((Ptr=wcspbrk(Ptr,L" \t/"))!=NULL)
+					if ((Ptr=wcspbrk(Ptr,L" \t/"))!=nullptr)
 						*Ptr=0;
 				}
 
@@ -483,7 +483,7 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
 			else
 			{
 				Error=ERROR_NO_ASSOCIATION;
-				RetPtr=NULL;
+				RetPtr=nullptr;
 			}
 		}
 	}
@@ -606,7 +606,7 @@ bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 						string strDest;
 						LPCWSTR Ext=PathExtList.GetNext();
 
-						if (apiSearchPath(NULL,strFullName,Ext,strDest))
+						if (apiSearchPath(nullptr,strFullName,Ext,strDest))
 						{
 							DWORD Attr=apiGetFileAttributes(strDest);
 
@@ -706,7 +706,7 @@ int PartCmdLine(const wchar_t *CmdStr, string &strNewCmdStr, string &strNewCmdPa
 	RemoveExternalSpaces(strNewCmdStr);
 	wchar_t *NewCmdStr = strNewCmdStr.GetBuffer();
 	wchar_t *CmdPtr = NewCmdStr;
-	wchar_t *ParPtr = NULL;
+	wchar_t *ParPtr = nullptr;
 	// Разделим собственно команду для исполнения и параметры.
 	// При этом заодно определим наличие символов переопределения потоков
 	// Работаем с учетом кавычек. Т.е. пайп в кавычках - не пайп.
@@ -825,8 +825,8 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 
 	DWORD dwSubSystem;
 	DWORD dwError = 0;
-	HANDLE hProcess = NULL, hThread = NULL;
-	LPCWSTR lpVerb = NULL;
+	HANDLE hProcess = nullptr, hThread = nullptr;
+	LPCWSTR lpVerb = nullptr;
 
 	if (FolderRun && SeparateWindow==2)
 	{
@@ -882,7 +882,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 		string strCurDir;
 		apiGetCurrentDirectory(strCurDir);
 		seInfo.lpDirectory=strCurDir;
-		seInfo.lpVerb = (dwAttr&FILE_ATTRIBUTE_DIRECTORY)?NULL:lpVerb?lpVerb:GetShellAction(strNewCmdStr, dwSubSystem, dwError);
+		seInfo.lpVerb = (dwAttr&FILE_ATTRIBUTE_DIRECTORY)?nullptr:lpVerb?lpVerb:GetShellAction(strNewCmdStr, dwSubSystem, dwError);
 		//seInfo.lpVerb = "open";
 		seInfo.fMask = SEE_MASK_FLAG_NO_UI|SEE_MASK_FLAG_DDEWAIT|SEE_MASK_NOCLOSEPROCESS|SEE_MASK_NOZONECHECKS;
 
@@ -955,13 +955,13 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 			si.lpTitle=(wchar_t*)strFarTitle.CPtr();
 
 		if (CreateProcess(
-		            NULL,
+		            nullptr,
 		            (wchar_t*)strExecLine.CPtr(),
-		            NULL,
-		            NULL,
+		            nullptr,
+		            nullptr,
 		            false,
 		            SeparateWindow?CREATE_NEW_CONSOLE|CREATE_DEFAULT_ERROR_MODE:CREATE_DEFAULT_ERROR_MODE,
-		            NULL,
+		            nullptr,
 		            strCurDir,
 		            &si,
 		            &pi
@@ -1001,7 +1001,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 					INPUT_RECORD ir[256];
 					DWORD rd;
 					int vkey=0,ctrl=0;
-					TranslateKeyToVK(Opt.ConsoleDetachKey,vkey,ctrl,NULL);
+					TranslateKeyToVK(Opt.ConsoleDetachKey,vkey,ctrl,nullptr);
 					int alt=ctrl&PKF_ALT;
 					int shift=ctrl&PKF_SHIFT;
 					ctrl=ctrl&PKF_CONTROL;
@@ -1031,7 +1031,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 									        (ctrl ?bCtrl:!bCtrl) &&
 									        (shift ?bShift:!bShift))
 									{
-										HICON hSmallIcon=NULL,hLargeIcon=NULL;
+										HICON hSmallIcon=nullptr,hLargeIcon=nullptr;
 										HWND hWnd = GetConsoleWindow();
 
 										if (hWnd)
@@ -1049,7 +1049,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 										CloseHandle(hInput);
 										CloseHandle(hOutput);
 										delete KeyQueue;
-										KeyQueue=NULL;
+										KeyQueue=nullptr;
 										FreeConsole();
 										AllocConsole();
 
@@ -1069,14 +1069,14 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 											if (Opt.SmallIcon)
 											{
 												string strFarName;
-												apiGetModuleFileName(NULL, strFarName);
+												apiGetModuleFileName(nullptr, strFarName);
 												ExtractIconEx(strFarName,0,&hLargeIcon,&hSmallIcon,1);
 											}
 
-											if (hLargeIcon != NULL)
+											if (hLargeIcon != nullptr)
 												SendMessage(hWnd,WM_SETICON,1,(LPARAM)hLargeIcon);
 
-											if (hSmallIcon != NULL)
+											if (hSmallIcon != nullptr)
 												SendMessage(hWnd,WM_SETICON,0,(LPARAM)hSmallIcon);
 										}
 
@@ -1170,7 +1170,7 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
 	CONSOLE_SCREEN_BUFFER_INFO sbi0,sbi1;
 	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),&sbi0);
 	{
-		RedrawDesktop *Redraw=NULL;
+		RedrawDesktop *Redraw=nullptr;
 
 		if (IsVisible() /* && ScrBuf.GetLockCount()==0 */)
 			Redraw=new RedrawDesktop(TRUE);
@@ -1247,7 +1247,7 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
      if exist file if exist file2 command
    Return - указатель на "command"
             пуская строка - условие не выполнимо
-            NULL - не попался "IF" или ошибки в предложении, например
+            nullptr - не попался "IF" или ошибки в предложении, например
                    не exist, а exist или предложение неполно.
 
    DEFINED - подобно EXIST, но оперирует с переменными среды
@@ -1258,7 +1258,7 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
 const wchar_t *PrepareOSIfExist(const wchar_t *CmdLine)
 {
 	if (!CmdLine || !*CmdLine)
-		return NULL;
+		return nullptr;
 
 	string strCmd;
 	string strExpandedStr;
@@ -1428,7 +1428,7 @@ const wchar_t *PrepareOSIfExist(const wchar_t *CmdLine)
 		}
 	}
 
-	return Exist?PtrCmd:NULL;
+	return Exist?PtrCmd:nullptr;
 }
 
 int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
@@ -1481,7 +1481,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 		if (strCmdLine.GetLength() == pos+1) //set var=
 		{
 			strCmdLine.SetLength(pos);
-			SetEnvironmentVariable(strCmdLine,NULL);
+			SetEnvironmentVariable(strCmdLine,nullptr);
 		}
 		else
 		{
@@ -1549,7 +1549,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 		{
 			int Ret=IntChDir(prec.strName,true,SilentInt);
 			PushPopRecord *ptrprec=ppstack.Peek();
-			SetEnvironmentVariable(L"FARDIRSTACK",(ptrprec?ptrprec->strName.CPtr():NULL));
+			SetEnvironmentVariable(L"FARDIRSTACK",(ptrprec?ptrprec->strName.CPtr():nullptr));
 			return Ret;
 		}
 
@@ -1559,7 +1559,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 	else if (!StrCmpI(CmdLine,L"CLRD"))
 	{
 		ppstack.Free();
-		SetEnvironmentVariable(L"FARDIRSTACK",NULL);
+		SetEnvironmentVariable(L"FARDIRSTACK",nullptr);
 		return TRUE;
 	}
 	/*
@@ -1812,7 +1812,7 @@ bool ProcessOSAliases(string &strStr)
 	PartCmdLine(strStr,strNewCmdStr,strNewCmdPar);
 
 	string strModuleName;
-	apiGetModuleFileName(NULL,strModuleName);
+	apiGetModuleFileName(nullptr,strModuleName);
 
 	const wchar_t *lpwszExeName=PointToName(strModuleName);
 	int nSize=(int)strNewCmdStr.GetLength()+4096;

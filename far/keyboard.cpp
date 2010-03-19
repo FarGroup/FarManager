@@ -62,7 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* start Глобальные переменные */
 
 // "дополнительная" очередь кодов клавиш
-FarQueue<DWORD> *KeyQueue=NULL;
+FarQueue<DWORD> *KeyQueue=nullptr;
 int AltPressed=0,CtrlPressed=0,ShiftPressed=0;
 int RightAltPressed=0,RightCtrlPressed=0,RightShiftPressed=0;
 DWORD MouseButtonState=0,PrevMouseButtonState=0;
@@ -323,7 +323,7 @@ void InitKeysArray()
 
 	if (LayoutNumber==0)
 	{
-		HKEY hk=NULL;
+		HKEY hk=nullptr;
 
 		if (RegOpenKeyEx(HKEY_CURRENT_USER, L"Keyboard Layout\\Preload", 0, KEY_READ, &hk)==ERROR_SUCCESS)
 		{
@@ -335,12 +335,12 @@ void InitKeysArray()
 				dwValueSize=16;
 				dwDataSize=16*sizeof(wchar_t);
 
-				if (ERROR_SUCCESS==RegEnumValue(hk, dwIndex, SValue, &dwValueSize, NULL, &dwType,(LPBYTE)SData, &dwDataSize))
+				if (ERROR_SUCCESS==RegEnumValue(hk, dwIndex, SValue, &dwValueSize, nullptr, &dwType,(LPBYTE)SData, &dwDataSize))
 				{
 					if (dwType == REG_SZ && isdigit(SValue[0]) &&
 					        (isdigit(SData[0]) || (SData[0] >= L'a' && SData[0] <= L'f') || (SData[0] >= L'A' && SData[0] <= L'F')))
 					{
-						wchar_t *endptr=NULL;
+						wchar_t *endptr=nullptr;
 						dwKeyb=wcstoul(SData, &endptr, 16); // SData=="00000419"
 
 						if (dwKeyb)
@@ -407,11 +407,11 @@ void InitKeysArray()
 		}
 	}
 
-	//_SVS(SysLogDump(L"KeyToKey calculate",0,KeyToKey,sizeof(KeyToKey),NULL));
+	//_SVS(SysLogDump(L"KeyToKey calculate",0,KeyToKey,sizeof(KeyToKey),nullptr));
 	//unsigned char KeyToKeyMap[256];
 	//if(GetRegKey(L"System",L"KeyToKeyMap",KeyToKeyMap,KeyToKey,sizeof(KeyToKeyMap)))
 	//memcpy(KeyToKey,KeyToKeyMap,sizeof(KeyToKey));
-	//_SVS(SysLogDump("KeyToKey readed",0,KeyToKey,sizeof(KeyToKey),NULL));
+	//_SVS(SysLogDump("KeyToKey readed",0,KeyToKey,sizeof(KeyToKey),nullptr));
 }
 
 //Сравнивает если Key и CompareKey это одна и та же клавиша в разных раскладках
@@ -622,7 +622,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 		{
 			_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessKey(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
 			FrameManager->SetLastInputRecord(rec);
-			if (!ExcludeMacro && CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(CalcKey))
+			if (!ExcludeMacro && CtrlObject!=nullptr && CtrlObject->Macro.ProcessKey(CalcKey))
 			{
 				rec->EventType=0;
 				CalcKey=KEY_NONE;
@@ -632,7 +632,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 		return(CalcKey);
 	}
 
-	int EnableShowTime=Opt.Clock && (WaitInMainLoop || (CtrlObject!=NULL &&
+	int EnableShowTime=Opt.Clock && (WaitInMainLoop || (CtrlObject!=nullptr &&
 	                                 CtrlObject->Macro.GetMode()==MACRO_SEARCH));
 
 	if (EnableShowTime)
@@ -873,7 +873,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 					SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE),ENABLE_WINDOW_INPUT);
 				}
 
-				ConsoleTitle::SetFarTitle(NULL);//LastFarTitle);
+				ConsoleTitle::SetFarTitle(nullptr);//LastFarTitle);
 			}
 
 			if (Opt.ScreenSaver && Opt.ScreenSaverTime>0 &&
@@ -1035,7 +1035,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 	{
 		_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessKey(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
 		FrameManager->SetLastInputRecord(rec);
-		if (CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(CalcKey))
+		if (CtrlObject!=nullptr && CtrlObject->Macro.ProcessKey(CalcKey))
 		{
 			rec->EventType=0;
 			CalcKey=KEY_NONE;
@@ -1190,7 +1190,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 			{
 				_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessKey(%s)",__LINE__,_FARKEY_ToName(Key)));
 				FrameManager->SetLastInputRecord(rec);
-				if (Key!=-1 && !NotMacros && CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(Key))
+				if (Key!=-1 && !NotMacros && CtrlObject!=nullptr && CtrlObject->Macro.ProcessKey(Key))
 				{
 					rec->EventType=0;
 					Key=KEY_NONE;
@@ -1446,7 +1446,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 		{
 			FrameManager->SetLastInputRecord(rec);
 		}
-		if (!NotMacros && CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(CalcKey))
+		if (!NotMacros && CtrlObject!=nullptr && CtrlObject->Macro.ProcessKey(CalcKey))
 		{
 			rec->EventType=0;
 			CalcKey=KEY_NONE;
@@ -1790,7 +1790,7 @@ int WINAPI KeyNameToKey(const wchar_t *Name)
 			}
 			else if (Key == KEY_ALT || Key == KEY_RALT || Key == KEY_M_SPEC || Key == KEY_M_OEM) // Варианты (3), (4) и (5)
 			{
-				wchar_t *endptr=NULL;
+				wchar_t *endptr=nullptr;
 				int K=(int)wcstol(Ptr, &endptr, 10);
 
 				if (Ptr+5 == endptr)
@@ -2708,7 +2708,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 		if (KeyCode>='0' && KeyCode<='9')
 		{
 			if (WaitInFastFind > 0 &&
-			        CtrlObject->Macro.GetCurRecord(NULL,NULL) < MACROMODE_RECORDING &&
+			        CtrlObject->Macro.GetCurRecord(nullptr,nullptr) < MACROMODE_RECORDING &&
 			        CtrlObject->Macro.GetIndex(KEY_ALTSHIFT0+KeyCode-'0',-1) == -1)
 			{
 				return KEY_ALT|KEY_SHIFT|Char;

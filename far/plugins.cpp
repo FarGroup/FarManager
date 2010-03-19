@@ -244,7 +244,7 @@ PluginType IsModulePlugin(const wchar_t *lpModuleName)
 	                         lpModuleName,
 	                         GENERIC_READ,
 	                         FILE_SHARE_READ,
-	                         NULL,
+	                         nullptr,
 	                         OPEN_EXISTING,
 	                         0
 	                     );
@@ -253,11 +253,11 @@ PluginType IsModulePlugin(const wchar_t *lpModuleName)
 	{
 		HANDLE hModuleMapping = CreateFileMapping(
 		                            hModuleFile,
-		                            NULL,
+		                            nullptr,
 		                            PAGE_READONLY,
 		                            0,
 		                            0,
-		                            NULL
+		                            nullptr
 		                        );
 
 		if (hModuleMapping)
@@ -280,19 +280,19 @@ PluginType IsModulePlugin(const wchar_t *lpModuleName)
 }
 
 
-PluginManager::PluginManager()
+PluginManager::PluginManager():
+	PluginsData(nullptr),
+	PluginsCount(0),
+	OemPluginsCount(0),
+	CurPluginItem(nullptr),
+	CurEditor(nullptr),
+	CurViewer(nullptr)
 {
-	PluginsData=NULL;
-	PluginsCount=0;
-	OemPluginsCount=0;
-	CurPluginItem=NULL;
-	CurEditor=NULL;
-	CurViewer=NULL;
 }
 
 PluginManager::~PluginManager()
 {
-	CurPluginItem=NULL;
+	CurPluginItem=nullptr;
 	Plugin *pPlugin;
 
 	for (int i = 0; i < PluginsCount; i++)
@@ -348,7 +348,7 @@ bool PluginManager::LoadPlugin(
     const FAR_FIND_DATA_EX &FindData
 )
 {
-	Plugin *pPlugin = NULL;
+	Plugin *pPlugin = nullptr;
 
 	switch (IsModulePlugin(lpwszModuleName))
 	{
@@ -407,10 +407,10 @@ int PluginManager::UnloadPlugin(Plugin *pPlugin, DWORD dwException, bool bRemove
 	if (pPlugin && (dwException != EXCEPT_EXITFAR))   //схитрим, если упали в EXITFAR, не полезем в рекурсию, мы и так в Unload
 	{
 		//какие-то непонятные действия...
-		CurPluginItem=NULL;
+		CurPluginItem=nullptr;
 		Frame *frame;
 
-		if ((frame = FrameManager->GetBottomFrame()) != NULL)
+		if ((frame = FrameManager->GetBottomFrame()) != nullptr)
 			frame->Unlock();
 
 		if (Flags.Check(PSIF_DIALOG))   // BugZ#52 exception handling for floating point incorrect
@@ -472,7 +472,7 @@ Plugin *PluginManager::GetPlugin(const wchar_t *lpwszModuleName)
 			return pPlugin;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 Plugin *PluginManager::GetPlugin(int PluginNumber)
@@ -480,7 +480,7 @@ Plugin *PluginManager::GetPlugin(int PluginNumber)
 	if (PluginNumber < PluginsCount && PluginNumber >= 0)
 		return PluginsData[PluginNumber];
 
-	return NULL;
+	return nullptr;
 }
 
 void PluginManager::LoadPlugins()
@@ -520,7 +520,7 @@ void PluginManager::LoadPlugins()
 		PluginPathList.Reset();
 
 		// теперь пройдемся по всему ранее собранному списку
-		while (NULL!=(NamePtr=PluginPathList.GetNext()))
+		while (nullptr!=(NamePtr=PluginPathList.GetNext()))
 		{
 			// расширяем значение пути
 			apiExpandEnvironmentStrings(NamePtr,strFullName);
@@ -594,9 +594,9 @@ HANDLE PluginManager::OpenFilePlugin(const wchar_t *Name, const unsigned char *D
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
-	ConsoleTitle ct(Opt.ShowCheckingFile?MSG(MCheckingFileInPlugin):NULL);
+	ConsoleTitle ct(Opt.ShowCheckingFile?MSG(MCheckingFileInPlugin):nullptr);
 
-	Plugin *pPlugin = NULL;
+	Plugin *pPlugin = nullptr;
 
 	string strFullName;
 
@@ -662,9 +662,9 @@ HANDLE PluginManager::OpenFilePlugin(
 )
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-	ConsoleTitle ct(Opt.ShowCheckingFile?MSG(MCheckingFileInPlugin):NULL);
+	ConsoleTitle ct(Opt.ShowCheckingFile?MSG(MCheckingFileInPlugin):nullptr);
 	HANDLE hResult = INVALID_HANDLE_VALUE;
-	PluginHandle *pResult = NULL;
+	PluginHandle *pResult = nullptr;
 	TPointerArray<PluginHandle> items;
 	string strFullName;
 
@@ -674,7 +674,7 @@ HANDLE PluginManager::OpenFilePlugin(
 		Name = strFullName;
 	}
 
-	Plugin *pPlugin = NULL;
+	Plugin *pPlugin = nullptr;
 	bool bFirstFound = false;
 
 	for (int i = 0; i < PluginsCount; i++)
@@ -732,7 +732,7 @@ HANDLE PluginManager::OpenFilePlugin(
 	{
 		if ((items.getCount() > 1) || (Opt.PluginConfirm.OpenFilePlugin && (Opt.PluginConfirm.StandardAssociation || Opt.PluginConfirm.EvenIfOnlyOnePlugin)))
 		{
-			VMenu menu(MSG(MMenuPluginConfirmation), NULL, 0, ScrY-4);
+			VMenu menu(MSG(MMenuPluginConfirmation), nullptr, 0, ScrY-4);
 			menu.SetPosition(-1, -1, 0, 0);
 			menu.SetHelp(L"ChoosePluginMenu");
 			menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
@@ -767,7 +767,7 @@ HANDLE PluginManager::OpenFilePlugin(
 			if (menu.GetExitCode() == -1)
 				hResult = (HANDLE)-2;
 			else
-				pResult = (PluginHandle*)menu.GetUserData(NULL, 0);
+				pResult = (PluginHandle*)menu.GetUserData(nullptr, 0);
 		}
 		else
 		{
@@ -781,7 +781,7 @@ HANDLE PluginManager::OpenFilePlugin(
 			if (h != INVALID_HANDLE_VALUE)
 				pResult->hPlugin = h;
 			else
-				pResult = NULL;
+				pResult = nullptr;
 		}
 	}
 
@@ -810,9 +810,9 @@ HANDLE PluginManager::OpenFilePlugin(
 HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, int ItemsNumber)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-	PluginHandle *pResult = NULL;
+	PluginHandle *pResult = nullptr;
 	TPointerArray<PluginHandle> items;
-	Plugin *pPlugin=NULL;
+	Plugin *pPlugin=nullptr;
 	bool bFirstFound=false;
 
 	for (int i = 0; i < PluginsCount; i++)
@@ -840,7 +840,7 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, int I
 	{
 		if (items.getCount()>1)
 		{
-			VMenu menu(MSG(MMenuPluginConfirmation), NULL, 0, ScrY-4);
+			VMenu menu(MSG(MMenuPluginConfirmation), nullptr, 0, ScrY-4);
 			menu.SetPosition(-1, -1, 0, 0);
 			menu.SetHelp(L"ChoosePluginMenu");
 			menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
@@ -879,7 +879,7 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, int I
 	{
 		if (!pResult->pPlugin->SetFindList(pResult->hPlugin, PanelItem, ItemsNumber))
 		{
-			pResult=NULL;
+			pResult=nullptr;
 		}
 	}
 
@@ -935,7 +935,7 @@ int PluginManager::ProcessEditorEvent(int Event,void *Param)
 
 	if (CtrlObject->Plugins.CurEditor)
 	{
-		Plugin *pPlugin = NULL;
+		Plugin *pPlugin = nullptr;
 
 		for (int i = 0; i < PluginsCount; i++)
 		{
@@ -1050,7 +1050,7 @@ int PluginManager::GetFile(
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	PluginHandle *ph = (PluginHandle*)hPlugin;
-	SaveScreen *SaveScr=NULL;
+	SaveScreen *SaveScr=nullptr;
 	int Found=FALSE;
 	KeepUserScreen=FALSE;
 
@@ -1208,7 +1208,7 @@ void PluginManager::GetOpenPluginInfo(
 	PluginHandle *ph = (PluginHandle*)hPlugin;
 	ph->pPlugin->GetOpenPluginInfo(ph->hPlugin, Info);
 
-	if (Info->CurDir == NULL)  //хмм...
+	if (Info->CurDir == nullptr)  //хмм...
 		Info->CurDir = L"";
 
 	if ((Info->Flags & OPIF_REALNAMES) && (CtrlObject->Cp()->ActivePanel->GetPluginHandle() == hPlugin) && *Info->CurDir && !IsNetworkServerPath(Info->CurDir))
@@ -1288,7 +1288,7 @@ void PluginManager::Configure(int StartPos)
 		return;
 
 	{
-		VMenu PluginList(MSG(MPluginConfigTitle),NULL,0,ScrY-4);
+		VMenu PluginList(MSG(MPluginConfigTitle),nullptr,0,ScrY-4);
 		PluginList.SetFlags(VMENU_WRAPMODE);
 		PluginList.SetHelp(L"PluginsConfig");
 
@@ -1379,7 +1379,7 @@ void PluginManager::Configure(int StartPos)
 			{
 				DWORD Key=PluginList.ReadInput();
 				int SelPos=PluginList.GetSelectPos();
-				PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(NULL,0,SelPos);
+				PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(nullptr,0,SelPos);
 				string strRegKey;
 
 				switch (Key)
@@ -1390,7 +1390,7 @@ void PluginManager::Configure(int StartPos)
 						if (!FarShowHelp(strPluginModuleName,L"Config",FHELP_SELFHELP|FHELP_NOSHOWERROR) &&
 						        !FarShowHelp(strPluginModuleName,L"Configure",FHELP_SELFHELP|FHELP_NOSHOWERROR))
 						{
-							FarShowHelp(strPluginModuleName,NULL,FHELP_SELFHELP|FHELP_NOSHOWERROR);
+							FarShowHelp(strPluginModuleName,nullptr,FHELP_SELFHELP|FHELP_NOSHOWERROR);
 						}
 
 						break;
@@ -1430,7 +1430,7 @@ void PluginManager::Configure(int StartPos)
 				if (StartPos<0)
 					break;
 
-				PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(NULL,0,StartPos);
+				PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(nullptr,0,StartPos);
 				ConfigureCurrent(item->pPlugin, item->nItem);
 			}
 		}
@@ -1448,7 +1448,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 	string strRegKey;
 	PluginMenuItemData item;
 	{
-		VMenu PluginList(MSG(MPluginCommandsMenuTitle),NULL,0,ScrY-4);
+		VMenu PluginList(MSG(MPluginCommandsMenuTitle),nullptr,0,ScrY-4);
 		PluginList.SetFlags(VMENU_WRAPMODE);
 		PluginList.SetHelp(L"PluginCommands");
 		BOOL NeedUpdateItems=TRUE;
@@ -1546,7 +1546,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 			{
 				DWORD Key=PluginList.ReadInput();
 				int SelPos=PluginList.GetSelectPos();
-				PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(NULL,0,SelPos);
+				PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(nullptr,0,SelPos);
 
 				switch (Key)
 				{
@@ -1624,7 +1624,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 		}
 
 		ScrBuf.Flush();
-		item = *(PluginMenuItemData*)PluginList.GetUserData(NULL,0,ExitCode);
+		item = *(PluginMenuItemData*)PluginList.GetUserData(nullptr,0,ExitCode);
 	}
 
 	Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
@@ -1652,7 +1652,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 	if (hPlugin!=INVALID_HANDLE_VALUE && !Editor && !Viewer && !Dialog)
 	{
-		if (ActivePanel->ProcessPluginEvent(FE_CLOSE,NULL))
+		if (ActivePanel->ProcessPluginEvent(FE_CLOSE,nullptr))
 		{
 			ClosePlugin(hPlugin);
 			return(FALSE);
@@ -1666,7 +1666,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 	if (Editor && CurEditor)
 	{
-		CurEditor->SetPluginTitle(NULL);
+		CurEditor->SetPluginTitle(nullptr);
 	}
 
 	CtrlObject->Macro.SetMode(PrevMacroMode);
@@ -1931,7 +1931,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 		for (;;)
 		{
 			const wchar_t *PrEnd = wcschr(PrStart, L':');
-			size_t Len=PrEnd==NULL ? StrLength(PrStart):(PrEnd-PrStart);
+			size_t Len=PrEnd==nullptr ? StrLength(PrStart):(PrEnd-PrStart);
 
 			if (Len<PrefixLength)Len=PrefixLength;
 
@@ -1947,7 +1947,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 				}
 			}
 
-			if (PrEnd == NULL)
+			if (PrEnd == nullptr)
 				break;
 
 			PrStart = ++PrEnd;
@@ -1963,14 +1963,14 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 	Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 	Panel *CurPanel=(Target)?Target:ActivePanel;
 
-	if (CurPanel->ProcessPluginEvent(FE_CLOSE,NULL))
+	if (CurPanel->ProcessPluginEvent(FE_CLOSE,nullptr))
 		return(FALSE);
 
-	PluginData* PData=NULL;
+	PluginData* PData=nullptr;
 
 	if (items.getCount()>1)
 	{
-		VMenu menu(MSG(MMenuPluginConfirmation), NULL, 0, ScrY-4);
+		VMenu menu(MSG(MMenuPluginConfirmation), nullptr, 0, ScrY-4);
 		menu.SetPosition(-1, -1, 0, 0);
 		menu.SetHelp(L"ChoosePluginMenu");
 		menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
@@ -2096,7 +2096,7 @@ Plugin *PluginManager::FindPlugin(DWORD SysID)
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 HANDLE PluginManager::OpenPlugin(Plugin *pPlugin,int OpenFrom,INT_PTR Item)

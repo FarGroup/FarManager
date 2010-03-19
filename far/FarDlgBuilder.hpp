@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgBuilder.hpp"
 
 struct DialogItemEx;
-class string;
 
 /*
 Класс для динамического построения диалогов, используемый внутри кода FAR.
@@ -68,7 +67,7 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 		~DialogBuilder();
 
 		// Добавляет поле типа DI_EDIT для редактирования указанного строкового значения.
-		DialogItemEx *AddEditField(string *Value, int Width, const wchar_t *HistoryID = NULL, int Flags = 0);
+		DialogItemEx *AddEditField(string *Value, int Width, const wchar_t *HistoryID = nullptr, int Flags = 0);
 
 		// Добавляет поле типа DI_FIXEDIT для редактирования указанного числового значения.
 		virtual DialogItemEx *AddIntEditField(int *Value, int Width);

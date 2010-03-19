@@ -67,7 +67,7 @@ static DeviceInfo *EnumHotPlugDevice(LPARAM lParam);
 DeviceInfo *EnumHotPlugDevice(LPARAM lParam)
 {
 	VMenu *HotPlugList=(VMenu *)lParam;
-	DeviceInfo *pInfo=NULL;
+	DeviceInfo *pInfo=nullptr;
 	int nCount = GetHotplugDevicesInfo(&pInfo);
 
 	if (nCount)
@@ -119,7 +119,7 @@ static void RefreshHotplugMenu(DeviceInfo*& pInfo,VMenu& HotPlugList)
 {
 	if (pInfo) FreeHotplugDevicesInfo(pInfo);
 
-	pInfo=NULL;
+	pInfo=nullptr;
 	HotPlugList.Hide();
 	HotPlugList.DeleteItems();
 	HotPlugList.SetPosition(-1,-1,0,0);
@@ -135,8 +135,8 @@ void ShowHotplugDevice()
 		return;
 	}
 
-	DeviceInfo *pInfo=NULL;
-	VMenu HotPlugList(MSG(MHotPlugListTitle),NULL,0,ScrY-4);
+	DeviceInfo *pInfo=nullptr;
+	VMenu HotPlugList(MSG(MHotPlugListTitle),nullptr,0,ScrY-4);
 	HotPlugList.SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
 	HotPlugList.SetPosition(-1,-1,0,0);
 	pInfo=EnumHotPlugDevice((LPARAM)&HotPlugList);
@@ -166,7 +166,7 @@ void ShowHotplugDevice()
 				if (HotPlugList.GetItemCount() > 0)
 				{
 					int bResult;
-					int I=(int)(INT_PTR)HotPlugList.GetUserData(NULL,0);
+					int I=(int)(INT_PTR)HotPlugList.GetUserData(nullptr,0);
 
 					if ((bResult=RemoveHotplugDevice(pInfo[I].hDevInst,pInfo[I].dwDriveMask,EJECT_NOTIFY_AFTERREMOVE)) == 1)
 					{
@@ -175,7 +175,7 @@ void ShowHotplugDevice()
 						if (pInfo)
 							FreeHotplugDevicesInfo(pInfo);
 
-						pInfo=NULL;
+						pInfo=nullptr;
 						RefreshHotplugMenu(pInfo,HotPlugList);
 					}
 					else if (bResult != -1)
@@ -226,7 +226,7 @@ int ProcessRemoveHotplugDevice(wchar_t Drive, DWORD Flags)
 		}
 
 		FreeHotplugDevicesInfo(pInfo);
-		pInfo=NULL;
+		pInfo=nullptr;
 	}
 
 	SetLastError(SavedLastError);
@@ -259,7 +259,7 @@ bool CheckChild(DEVINST hDevInst)
 		DWORD Capabilities;
 		ULONG Length=sizeof(Capabilities);
 
-		if (ifn.pfnGetDevNodeRegistryProperty(hDevChild,CM_DRP_CAPABILITIES,NULL,&Capabilities,&Length,0)==CR_SUCCESS)
+		if (ifn.pfnGetDevNodeRegistryProperty(hDevChild,CM_DRP_CAPABILITIES,nullptr,&Capabilities,&Length,0)==CR_SUCCESS)
 		{
 			Result=!(Capabilities&CM_DEVCAP_SURPRISEREMOVALOK)&&(Capabilities&CM_DEVCAP_UNIQUEID);
 		}
@@ -281,7 +281,7 @@ BOOL IsHotPlugDevice(DEVINST hDevInst)
 	if (ifn.pfnGetDevNodeRegistryProperty(
 	            hDevInst,
 	            CM_DRP_CAPABILITIES,
-	            NULL,
+	            nullptr,
 	            (PVOID)&Capabilities,
 	            &Len,
 	            0
@@ -513,7 +513,7 @@ int GetHotplugDevicesInfo(DeviceInfo **pInfo)
 {
 	if (pInfo)
 	{
-		*pInfo = NULL;
+		*pInfo = nullptr;
 
 		if (ifn.bSetupAPIFunctions)
 		{
@@ -521,7 +521,7 @@ int GetHotplugDevicesInfo(DeviceInfo **pInfo)
 
 			if (ifn.pfnLocateDevNode(
 			            &hDevRoot,
-			            NULL,
+			            nullptr,
 			            CM_LOCATE_DEVNODE_NORMAL
 			        ) == CR_SUCCESS)
 			{
@@ -561,8 +561,8 @@ bool GetDeviceProperty(
 		crResult = ifn.pfnGetDevNodeRegistryProperty(
 		               hDevInst,
 		               nProperty,//CM_DRP_FRIENDLYNAME,
-		               NULL,
-		               NULL,
+		               nullptr,
+		               nullptr,
 		               &dwSize,
 		               0
 		           );
@@ -583,7 +583,7 @@ bool GetDeviceProperty(
 			crResult = ifn.pfnGetDevNodeRegistryProperty(
 			               hDevInst,
 			               nProperty,//CM_DRP_FRIENDLYNAME,
-			               NULL,
+			               nullptr,
 			               lpwszBuffer,
 			               &dwSize,
 			               0

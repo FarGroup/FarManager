@@ -62,12 +62,14 @@ extern int DirectRT;
 
 ScreenBuf ScrBuf;
 
-ScreenBuf::ScreenBuf()
+ScreenBuf::ScreenBuf():
+	Buf(nullptr),
+	Shadow(nullptr),
+	BufX(0),
+	BufY(0),
+	LockCount(0)
 {
-	Buf=Shadow=NULL;
-	BufX=BufY=0;
 	SBFlags.Set(SBFLAGS_FLUSHED|SBFLAGS_FLUSHEDCURPOS|SBFLAGS_FLUSHEDCURTYPE);
-	LockCount=0;
 }
 
 
@@ -198,7 +200,7 @@ void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text,int MaxTextLeng
 		memcpy(Text+Idx,Buf+(Y1+I)*BufX+X1,Min((int)sizeof(CHAR_INFO)*Width,(int)MaxTextLength));
 
 	if (X1==0 && Y1==0 &&
-	        CtrlObject!=NULL &&
+	        CtrlObject!=nullptr &&
 	        CtrlObject->Macro.IsRecording() &&
 	        MacroChar.Char.UnicodeChar != L'R')
 		Text[0]=MacroChar;

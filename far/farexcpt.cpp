@@ -107,8 +107,8 @@ bool UseExternalHandler=false;
 
 // Some parametes for _xfilter function
 static int From=0;
-static EXCEPTION_POINTERS *xp=NULL;    // данные ситуации
-static Plugin *Module=NULL;     // модуль, приведший к исключению.
+static EXCEPTION_POINTERS *xp=nullptr;    // данные ситуации
+static Plugin *Module=nullptr;     // модуль, приведший к исключению.
 static DWORD Flags=0;                  // дополнительные флаги - пока только один
 //        0x1 - спрашивать про выгрузку?
 
@@ -187,7 +187,7 @@ bool ExcDialog(LPCWSTR ModuleName,LPCWSTR Exception,LPVOID Adress)
 	return Dlg.GetExitCode()==11;
 }
 
-static DWORD WINAPI _xfilter(LPVOID dummy=NULL)
+static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 {
 	ProcessException=TRUE;
 	DWORD Result = EXCEPTION_EXECUTE_HANDLER;
@@ -217,7 +217,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=NULL)
 					memset(&LocalStartupInfo,0,sizeof(LocalStartupInfo));
 					static FarStandardFunctions LocalStandardFunctions;
 					memset(&LocalStandardFunctions,0,sizeof(LocalStandardFunctions));
-					CreatePluginStartupInfo(NULL, &LocalStartupInfo, &LocalStandardFunctions);
+					CreatePluginStartupInfo(nullptr, &LocalStartupInfo, &LocalStandardFunctions);
 					LocalStartupInfo.ModuleName = strFarEventSvc;
 					static string strRootKey;
 					strRootKey = Opt.strRegRoot;
@@ -264,7 +264,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=NULL)
 						PlugRec.FuncFlags|=Module->HasProcessSynchroEvent()?PICFF_PROCESSSYNCHROEVENT:0;
 					}
 
-					Res=p(xp,(Module?&PlugRec:NULL),&LocalStartupInfo,&Result);
+					Res=p(xp,(Module?&PlugRec:nullptr),&LocalStartupInfo,&Result);
 				}
 
 				FreeLibrary(m);
@@ -313,7 +313,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=NULL)
 	EXCEPTION_RECORD *xr = xp->ExceptionRecord;
 
 	// выведим дамп перед выдачей сообщений
-	WriteEvent(FLOG_ALL,xp,Module,NULL,0);
+	WriteEvent(FLOG_ALL,xp,Module,nullptr,0);
 
 	// CONTEXT можно использовать для отображения или записи в лог
 	//         содержимого регистров...
@@ -324,11 +324,11 @@ static DWORD WINAPI _xfilter(LPVOID dummy=NULL)
 	*/
 
 	if (From == EXCEPT_KERNEL || !Module)
-		apiGetModuleFileName(NULL, strFileName);
+		apiGetModuleFileName(nullptr, strFileName);
 	else
 		strFileName = Module->GetModuleName();
 
-	LPCWSTR Exception=NULL;
+	LPCWSTR Exception=nullptr;
 	// просмотрим "знакомые" FAR`у исключения и обработаем...
 	for (size_t I=0; I < countof(ECode); ++I)
 	{
@@ -414,9 +414,9 @@ DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp, Plugin *Module,DWORD Flags
 #ifdef _M_IA64
 			// TODO: Bad way to restore IA64 stacks (CreateThread)
 			// Can you do smartly? See REMINDER file, section IA64Stacks
-			static HANDLE hThread = NULL;
+			static HANDLE hThread = nullptr;
 
-			if ((hThread = CreateThread(NULL, 0, _xfilter, NULL, 0, NULL)) == NULL)
+			if ((hThread = CreateThread(nullptr, 0, _xfilter, nullptr, 0, nullptr)) == nullptr)
 			{
 				TerminateProcess(GetCurrentProcess(), 1);
 			}

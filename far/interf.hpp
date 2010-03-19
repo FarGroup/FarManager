@@ -167,10 +167,10 @@ void Box(int x1,int y1,int x2,int y2,int Color,int Type);
 void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total);
 bool ScrollBarRequired(UINT Length, UINT64 ItemsCount);
 bool ScrollBarEx(UINT X1,UINT Y1,UINT Length,UINT64 TopItem,UINT64 ItemsCount);
-void DrawLine(int Length,int Type, const wchar_t* UserSep=NULL);
+void DrawLine(int Length,int Type, const wchar_t* UserSep=nullptr);
 #define ShowSeparator(Length,Type) DrawLine(Length,Type)
 #define ShowUserSeparator(Length,Type,UserSep) DrawLine(Length,Type,UserSep)
-WCHAR* MakeSeparator(int Length,WCHAR *DestStr,int Type=1, const wchar_t* UserSep=NULL);
+WCHAR* MakeSeparator(int Length,WCHAR *DestStr,int Type=1, const wchar_t* UserSep=nullptr);
 
 void InitRecodeOutTable(UINT cp=0);
 

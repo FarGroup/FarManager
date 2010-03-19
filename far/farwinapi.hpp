@@ -188,7 +188,7 @@ HANDLE apiCreateFile(
     LPSECURITY_ATTRIBUTES lpSecurityAttributes, // pointer to security attributes
     DWORD dwCreationDistribution, // how to create
     DWORD dwFlagsAndAttributes,   // file attributes
-    HANDLE hTemplateFile=NULL          // handle to file with attributes to copy
+    HANDLE hTemplateFile=nullptr          // handle to file with attributes to copy
 );
 
 BOOL apiCopyFileEx(
@@ -215,7 +215,7 @@ int apiRegEnumKeyEx(
     HKEY hKey,
     DWORD dwIndex,
     string &strName,
-    PFILETIME lpftLastWriteTime=NULL
+    PFILETIME lpftLastWriteTime=nullptr
 );
 
 BOOL apiMoveFileThroughTemp(

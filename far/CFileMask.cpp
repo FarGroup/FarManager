@@ -42,9 +42,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "pathmix.hpp"
 
-CFileMask::CFileMask()
+CFileMask::CFileMask():
+	FileMask(nullptr)
 {
-	FileMask=NULL;
 }
 
 void CFileMask::Free()
@@ -52,7 +52,7 @@ void CFileMask::Free()
 	if (FileMask)
 		delete FileMask;
 
-	FileMask=NULL;
+	FileMask=nullptr;
 }
 
 /*

@@ -268,14 +268,14 @@ class KeyMacro
 		void RestartAutoMacro(int Mode);
 
 		// получить данные о макросе (возвращает статус)
-		int GetCurRecord(struct MacroRecord* RBuf=NULL,int *KeyPos=NULL);
+		int GetCurRecord(struct MacroRecord* RBuf=nullptr,int *KeyPos=nullptr);
 		// проверить флаги текущего исполняемого макроса.
 		BOOL CheckCurMacroFlags(DWORD Flags);
 
 		static const wchar_t* GetSubKey(int Mode);
 		static int   GetSubKey(const wchar_t *Mode);
 		static int   GetMacroKeyInfo(bool FromReg,int Mode,int Pos,string &strKeyName,string &strDescription);
-		static wchar_t *MkTextSequence(DWORD *Buffer,int BufferSize,const wchar_t *Src=NULL);
+		static wchar_t *MkTextSequence(DWORD *Buffer,int BufferSize,const wchar_t *Src=nullptr);
 		// из строкового представления макроса сделать MacroRecord
 		int ParseMacroString(struct MacroRecord *CurMacro,const wchar_t *BufPtr,BOOL onlyCheck=FALSE);
 		BOOL GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc);

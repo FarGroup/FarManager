@@ -41,12 +41,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "keyboard.hpp"
 
-Modal::Modal()
+Modal::Modal():
+	WriteKey(-1),
+	ExitCode(-1),
+	EndLoop(0)
 {
-	ExitCode=-1;
-	WriteKey=-1;
-	EndLoop=0;
-	strHelpTopic.Clear();
 }
 
 

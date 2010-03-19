@@ -40,7 +40,7 @@ class ConsoleTitle
 		static bool TitleModified;
 
 	public:
-		ConsoleTitle(const wchar_t *title=NULL);
+		ConsoleTitle(const wchar_t *title=nullptr);
 		~ConsoleTitle();
 
 	public:

@@ -55,7 +55,7 @@ int WINAPI ProcessName(const wchar_t *param1, wchar_t *param2, DWORD size, DWORD
 		const wchar_t *MaskPtr;
 		MaskPtr=param1;
 
-		while ((MaskPtr=GetCommaWord(MaskPtr,strFileMask))!=NULL)
+		while ((MaskPtr=GetCommaWord(MaskPtr,strFileMask))!=nullptr)
 		{
 			if (CmpName(strFileMask,param2,skippath))
 			{
@@ -95,7 +95,7 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 	wchar_t *DestNamePtr = (wchar_t*)PointToName(DestName);
 	string strWildName = DestNamePtr;
 
-	if (wcschr(strWildName, L'*')==NULL && wcschr(strWildName, L'?')==NULL)
+	if (wcschr(strWildName, L'*')==nullptr && wcschr(strWildName, L'?')==nullptr)
 	{
 		//strDest.ReleaseBuffer (); не надо так как строка не поменялась
 		return(FALSE);
@@ -137,7 +137,7 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 
 				while (*SrcNamePtr)
 				{
-					if (*CurWildPtr==L'.' && SrcNameDot!=NULL && wcschr(CurWildPtr+1,L'.')==NULL)
+					if (*CurWildPtr==L'.' && SrcNameDot!=nullptr && wcschr(CurWildPtr+1,L'.')==nullptr)
 					{
 						if (SrcNamePtr==SrcNameDot)
 							break;
@@ -155,7 +155,7 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 				CurWildPtr++;
 				*(DestNamePtr++)=L'.';
 
-				if (wcspbrk(CurWildPtr,L"*?")!=NULL)
+				if (wcspbrk(CurWildPtr,L"*?")!=nullptr)
 					while (*SrcNamePtr)
 						if (*(SrcNamePtr++)==L'.')
 							break;
@@ -229,19 +229,19 @@ static int CmpName_Body(const wchar_t *pattern,const wchar_t *str, bool CmpNameS
 					if (pattern[1]==L'*' && pattern[2]==0)
 						return(TRUE);
 
-					if (wcspbrk(pattern, L"*?[") == NULL)
+					if (wcspbrk(pattern, L"*?[") == nullptr)
 					{
 						const wchar_t *dot = wcsrchr(str, L'.');
 
 						if (pattern[1] == 0)
-							return (dot==NULL || dot[1]==0);
+							return (dot==nullptr || dot[1]==0);
 
 						const wchar_t *patdot = wcschr(pattern+1, L'.');
 
-						if (patdot != NULL && dot == NULL)
+						if (patdot != nullptr && dot == nullptr)
 							return(FALSE);
 
-						if (patdot == NULL && dot != NULL)
+						if (patdot == nullptr && dot != nullptr)
 							return(StrCmpI(pattern+1,dot+1) == 0);
 					}
 				}
@@ -256,7 +256,7 @@ static int CmpName_Body(const wchar_t *pattern,const wchar_t *str, bool CmpNameS
 				return(FALSE);
 			case L'[':
 
-				if (wcschr(pattern,L']')==NULL)
+				if (wcschr(pattern,L']')==nullptr)
 				{
 					if (patternc != stringc)
 						return (FALSE);

@@ -66,11 +66,11 @@ class DizList
 		~DizList();
 
 	public:
-		void Read(const wchar_t *Path, const wchar_t *DizName=NULL);
+		void Read(const wchar_t *Path, const wchar_t *DizName=nullptr);
 		void Reset();
 		const wchar_t *GetDizTextAddr(const wchar_t *Name, const wchar_t *ShortName, const __int64 FileSize);
 		bool DeleteDiz(const wchar_t *Name, const wchar_t *ShortName);
-		bool Flush(const wchar_t *Path, const wchar_t *DizName=NULL);
+		bool Flush(const wchar_t *Path, const wchar_t *DizName=nullptr);
 		bool AddDizText(const wchar_t *Name, const wchar_t *ShortName, const wchar_t *DizText);
 		bool CopyDiz(const wchar_t *Name, const wchar_t *ShortName, const wchar_t *DestName, const wchar_t *DestShortName,DizList *DestDiz);
 		void GetDizName(string &strDizName);

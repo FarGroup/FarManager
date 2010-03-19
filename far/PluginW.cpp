@@ -172,18 +172,14 @@ int WINAPI KeyNameToKeyW(const wchar_t *Name)
 	return KeyNameToKey(strN);
 }
 
-PluginW::PluginW(
-    PluginManager *owner,
-    const wchar_t *lpwszModuleName
-)
-{
-	m_hModule = NULL;
+PluginW::PluginW(PluginManager *owner, const wchar_t *lpwszModuleName):
+	m_owner(owner),
+	m_strModuleName(lpwszModuleName),
+	m_strCacheName(lpwszModuleName),
+	m_hModule(nullptr)
 	//more initialization here!!!
-	m_owner = owner;
-	m_strModuleName = lpwszModuleName;
-	m_strCacheName = lpwszModuleName;
+{
 	wchar_t *p = m_strCacheName.GetBuffer();
-
 	while (*p)
 	{
 		if (*p == L'\\')
@@ -191,7 +187,6 @@ PluginW::PluginW(
 
 		p++;
 	}
-
 	m_strCacheName.ReleaseBuffer();
 	ClearExports();
 }
@@ -316,16 +311,16 @@ bool PluginW::SaveToCache()
 		SetRegKey(strRegKey, L"Flags", Info.Flags);
 		strRegKey += L"\\Exports";
 		SetRegKey(strRegKey, wszReg_SysID, SysID);
-		SetRegKey(strRegKey, wszReg_OpenPlugin, pOpenPluginW!=NULL);
-		SetRegKey(strRegKey, wszReg_OpenFilePlugin, pOpenFilePluginW!=NULL);
-		SetRegKey(strRegKey, wszReg_SetFindList, pSetFindListW!=NULL);
-		SetRegKey(strRegKey, wszReg_ProcessEditorInput, pProcessEditorInputW!=NULL);
-		SetRegKey(strRegKey, wszReg_ProcessEditorEvent, pProcessEditorEventW!=NULL);
-		SetRegKey(strRegKey, wszReg_ProcessViewerEvent, pProcessViewerEventW!=NULL);
-		SetRegKey(strRegKey, wszReg_ProcessDialogEvent, pProcessDialogEventW!=NULL);
-		SetRegKey(strRegKey, wszReg_ProcessSynchroEvent, pProcessSynchroEventW!=NULL);
-		SetRegKey(strRegKey, wszReg_Configure, pConfigureW!=NULL);
-		SetRegKey(strRegKey, wszReg_Analyse, pAnalyseW != NULL);
+		SetRegKey(strRegKey, wszReg_OpenPlugin, pOpenPluginW!=nullptr);
+		SetRegKey(strRegKey, wszReg_OpenFilePlugin, pOpenFilePluginW!=nullptr);
+		SetRegKey(strRegKey, wszReg_SetFindList, pSetFindListW!=nullptr);
+		SetRegKey(strRegKey, wszReg_ProcessEditorInput, pProcessEditorInputW!=nullptr);
+		SetRegKey(strRegKey, wszReg_ProcessEditorEvent, pProcessEditorEventW!=nullptr);
+		SetRegKey(strRegKey, wszReg_ProcessViewerEvent, pProcessViewerEventW!=nullptr);
+		SetRegKey(strRegKey, wszReg_ProcessDialogEvent, pProcessDialogEventW!=nullptr);
+		SetRegKey(strRegKey, wszReg_ProcessSynchroEvent, pProcessSynchroEventW!=nullptr);
+		SetRegKey(strRegKey, wszReg_Configure, pConfigureW!=nullptr);
+		SetRegKey(strRegKey, wszReg_Analyse, pAnalyseW != nullptr);
 		return true;
 	}
 
@@ -354,7 +349,7 @@ bool PluginW::Load()
 		}
 
 		PrepareModulePath(m_strModuleName);
-		m_hModule = LoadLibraryEx(m_strModuleName,NULL,LOAD_WITH_ALTERED_SEARCH_PATH);
+		m_hModule = LoadLibraryEx(m_strModuleName,nullptr,LOAD_WITH_ALTERED_SEARCH_PATH);
 		GuardLastError Err;
 		FarChDir(strCurPath);
 
@@ -514,7 +509,7 @@ void CreatePluginStartupInfo(Plugin *pPlugin, PluginStartupInfo *PSI, FarStandar
 	*PSI=StartupInfo;
 	*FSF=StandardFunctions;
 	PSI->FSF=FSF;
-	PSI->RootKey=NULL;
+	PSI->RootKey=nullptr;
 	PSI->ModuleNumber=(INT_PTR)pPlugin;
 
 	if (pPlugin)
@@ -668,7 +663,7 @@ int PluginW::Unload(bool bExitFAR)
 		ClearExports();
 	}
 
-	m_hModule = NULL;
+	m_hModule = nullptr;
 	FuncFlags.Clear(PICFF_LOADED); //??
 	return nResult;
 }
@@ -732,7 +727,7 @@ HANDLE PluginW::OpenPlugin(int OpenFrom, INT_PTR Item)
 		es.hResult = INVALID_HANDLE_VALUE;
 		EXECUTE_FUNCTION_EX(pOpenPluginW(OpenFrom,Item), es);
 		hResult = es.hResult;
-		//CurPluginItem=NULL; //BUGBUG
+		//CurPluginItem=nullptr; //BUGBUG
 		/*    CtrlObject->Macro.SetRedrawEditor(TRUE); //BUGBUG
 
 		    if ( !es.bUnloaded )

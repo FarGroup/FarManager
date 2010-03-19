@@ -145,7 +145,7 @@ class Panel:public ScreenObject
 
 		virtual int GetSelCount() {return(0);};
 		virtual int GetRealSelCount() {return(0);};
-		virtual int GetSelName(string *strName,DWORD &FileAttr,string *ShortName=NULL,FAR_FIND_DATA_EX *fd=NULL) {return(FALSE);};
+		virtual int GetSelName(string *strName,DWORD &FileAttr,string *ShortName=nullptr,FAR_FIND_DATA_EX *fd=nullptr) {return(FALSE);};
 		virtual void UngetSelName() {};
 		virtual void ClearLastGetSelection() {};
 		virtual unsigned __int64 GetLastSelectedSize() {return (unsigned __int64)(-1);};
@@ -218,7 +218,7 @@ class Panel:public ScreenObject
 		virtual void SortFileList(int KeepPosition) {};
 		virtual void EditFilter() {};
 		virtual bool FileInFilter(long idxItem) {return true;};
-		virtual void ReadDiz(struct PluginPanelItem *ItemList=NULL,int ItemLength=0, DWORD dwFlags=0) {};
+		virtual void ReadDiz(struct PluginPanelItem *ItemList=nullptr,int ItemLength=0, DWORD dwFlags=0) {};
 		virtual void DeleteDiz(const wchar_t *Name,const wchar_t *ShortName) {};
 		virtual void GetDizName(string &strDizName) {};
 		virtual void FlushDiz() {};
@@ -237,7 +237,7 @@ class Panel:public ScreenObject
 		virtual void SetTitle();
 		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
 
-		virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
+		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
 
 		virtual void IfGoHome(wchar_t Drive) {};
 
@@ -259,7 +259,7 @@ class Panel:public ScreenObject
 		int GetFocus() {return(Focus);};
 		int GetType() {return(Type);};
 		void SetUpdateMode(int Mode) {EnableUpdate=Mode;};
-		bool MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *Modifers=NULL);
+		bool MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *Modifers=nullptr);
 		int SetCurPath();
 
 		BOOL NeedUpdatePanel(Panel *AnotherPanel);

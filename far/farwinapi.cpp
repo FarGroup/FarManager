@@ -140,7 +140,7 @@ BOOL apiMoveFileThroughTemp(const wchar_t *Src, const wchar_t *Dest)
 	string strTemp;
 	BOOL rc = FALSE;
 
-	if (FarMkTempEx(strTemp, NULL, FALSE))
+	if (FarMkTempEx(strTemp, nullptr, FALSE))
 	{
 		if (apiMoveFile(Src, strTemp))
 			rc = apiMoveFile(strTemp, Dest);
@@ -151,7 +151,7 @@ BOOL apiMoveFileThroughTemp(const wchar_t *Src, const wchar_t *Dest)
 
 DWORD apiGetEnvironmentVariable(const wchar_t *lpwszName, string &strBuffer)
 {
-	int nSize = GetEnvironmentVariable(lpwszName, NULL, 0);
+	int nSize = GetEnvironmentVariable(lpwszName, nullptr, 0);
 
 	if (nSize)
 	{
@@ -172,7 +172,7 @@ string& strCurrentDirectory()
 void InitCurrentDirectory()
 {
 	//get real curdir:
-	DWORD Size=GetCurrentDirectory(0,NULL);
+	DWORD Size=GetCurrentDirectory(0,nullptr);
 	string strInitCurDir;
 	LPWSTR InitCurDir=strInitCurDir.GetBuffer(Size);
 	GetCurrentDirectory(Size,InitCurDir);
@@ -226,7 +226,7 @@ BOOL apiSetCurrentDirectory(LPCWSTR lpPathName, bool Validate)
 
 DWORD apiGetTempPath(string &strBuffer)
 {
-	DWORD dwSize = GetTempPath(0, NULL);
+	DWORD dwSize = GetTempPath(0, nullptr);
 	wchar_t *lpwszBuffer = strBuffer.GetBuffer(dwSize);
 	dwSize = GetTempPath(dwSize, lpwszBuffer);
 	strBuffer.ReleaseBuffer();
@@ -238,7 +238,7 @@ DWORD apiGetModuleFileName(HMODULE hModule, string &strFileName)
 {
 	DWORD dwSize = 0;
 	DWORD dwBufferSize = MAX_PATH;
-	wchar_t *lpwszFileName = NULL;
+	wchar_t *lpwszFileName = nullptr;
 
 	do
 	{
@@ -258,7 +258,7 @@ DWORD apiGetModuleFileName(HMODULE hModule, string &strFileName)
 DWORD apiExpandEnvironmentStrings(const wchar_t *src, string &strDest)
 {
 	string strSrc = src;
-	DWORD length = ExpandEnvironmentStrings(strSrc, NULL, 0);
+	DWORD length = ExpandEnvironmentStrings(strSrc, nullptr, 0);
 
 	if (length)
 	{
@@ -276,7 +276,7 @@ DWORD apiGetConsoleTitle(string &strConsoleTitle)
 {
 	DWORD dwSize = 0;
 	DWORD dwBufferSize = MAX_PATH;
-	wchar_t *lpwszTitle = NULL;
+	wchar_t *lpwszTitle = nullptr;
 
 	do
 	{
@@ -297,7 +297,7 @@ DWORD apiGetConsoleTitle(string &strConsoleTitle)
 DWORD apiWNetGetConnection(const wchar_t *lpwszLocalName, string &strRemoteName)
 {
 	DWORD dwRemoteNameSize = 0;
-	DWORD dwResult = WNetGetConnection(lpwszLocalName, NULL, &dwRemoteNameSize);
+	DWORD dwResult = WNetGetConnection(lpwszLocalName, nullptr, &dwRemoteNameSize);
 
 	if (dwResult == ERROR_SUCCESS || dwResult == ERROR_MORE_DATA)
 	{
@@ -318,8 +318,8 @@ BOOL apiGetVolumeInformation(
     string *pFileSystemName
 )
 {
-	wchar_t *lpwszVolumeName = pVolumeName?pVolumeName->GetBuffer(MAX_PATH+1):NULL;  //MSDN!
-	wchar_t *lpwszFileSystemName = pFileSystemName?pFileSystemName->GetBuffer(MAX_PATH+1):NULL;
+	wchar_t *lpwszVolumeName = pVolumeName?pVolumeName->GetBuffer(MAX_PATH+1):nullptr;  //MSDN!
+	wchar_t *lpwszFileSystemName = pFileSystemName?pFileSystemName->GetBuffer(MAX_PATH+1):nullptr;
 	BOOL bResult = GetVolumeInformation(
 	                   lpwszRootPathName,
 	                   lpwszVolumeName,
@@ -451,7 +451,7 @@ BOOL apiGetFindDataEx(const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData,
 			{
 				pFindData->Clear();
 				pFindData->dwFileAttributes=dwAttr;
-				HANDLE hFile=apiCreateFile(lpwszFileName,FILE_READ_ATTRIBUTES,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,OPEN_EXISTING,0);
+				HANDLE hFile=apiCreateFile(lpwszFileName,FILE_READ_ATTRIBUTES,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,0);
 
 				if (hFile!=INVALID_HANDLE_VALUE)
 				{
@@ -500,7 +500,7 @@ bool apiGetFileSizeEx(HANDLE hFile, UINT64 &Size)
 		GET_LENGTH_INFORMATION gli;
 		DWORD BytesReturned;
 
-		if (DeviceIoControl(hFile,IOCTL_DISK_GET_LENGTH_INFO,NULL,0,&gli,sizeof(gli),&BytesReturned,NULL))
+		if (DeviceIoControl(hFile,IOCTL_DISK_GET_LENGTH_INFO,nullptr,0,&gli,sizeof(gli),&BytesReturned,nullptr))
 		{
 			Size=gli.Length.QuadPart;
 			Result=true;
@@ -518,7 +518,7 @@ int apiRegEnumKeyEx(HKEY hKey,DWORD dwIndex,string &strName,PFILETIME lpftLastWr
 	{
 		wchar_t *Name=strName.GetBuffer(Size);
 		DWORD Size0=Size;
-		ExitCode=RegEnumKeyEx(hKey,dwIndex,Name,&Size0,NULL,NULL,NULL,lpftLastWriteTime);
+		ExitCode=RegEnumKeyEx(hKey,dwIndex,Name,&Size0,nullptr,nullptr,nullptr,lpftLastWriteTime);
 		strName.ReleaseBuffer();
 	}
 
@@ -534,13 +534,13 @@ BOOL apiIsDiskInDrive(const wchar_t *Root)
 	string strFS;
 	strDrive = Root;
 	AddEndSlash(strDrive);
-	BOOL Res = apiGetVolumeInformation(strDrive, &strVolName, NULL, &MaxComSize, &Flags, &strFS);
+	BOOL Res = apiGetVolumeInformation(strDrive, &strVolName, nullptr, &MaxComSize, &Flags, &strFS);
 	return Res;
 }
 
 int apiGetFileTypeByName(const wchar_t *Name)
 {
-	HANDLE hFile=apiCreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0);
+	HANDLE hFile=apiCreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_EXISTING,0);
 
 	if (hFile==INVALID_HANDLE_VALUE)
 		return FILE_TYPE_UNKNOWN;
@@ -603,7 +603,7 @@ HANDLE apiFindFirstFileName(LPCWSTR lpFileName,DWORD dwFlags,string& strLinkName
 	{
 		DWORD StringLength=0;
 
-		if (ifn.pfnFindFirstFileNameW(NTPath(lpFileName),0,&StringLength,NULL)==INVALID_HANDLE_VALUE && GetLastError()==ERROR_MORE_DATA)
+		if (ifn.pfnFindFirstFileNameW(NTPath(lpFileName),0,&StringLength,nullptr)==INVALID_HANDLE_VALUE && GetLastError()==ERROR_MORE_DATA)
 		{
 			hRet=ifn.pfnFindFirstFileNameW(NTPath(lpFileName),0,&StringLength,strLinkName.GetBuffer(StringLength));
 			strLinkName.ReleaseBuffer();
@@ -625,7 +625,7 @@ BOOL apiFindNextFileName(HANDLE hFindStream,string& strLinkName)
 	{
 		DWORD StringLength=0;
 
-		if (!ifn.pfnFindNextFileNameW(hFindStream,&StringLength,NULL) && GetLastError()==ERROR_MORE_DATA)
+		if (!ifn.pfnFindNextFileNameW(hFindStream,&StringLength,nullptr) && GetLastError()==ERROR_MORE_DATA)
 		{
 			Ret=ifn.pfnFindNextFileNameW(hFindStream,&StringLength,strLinkName.GetBuffer(StringLength));
 			strLinkName.ReleaseBuffer();
@@ -712,7 +712,7 @@ HANDLE apiFindFirstStream(LPCWSTR lpFileName,STREAM_INFO_LEVELS InfoLevel,LPVOID
 	{
 		if (InfoLevel==FindStreamInfoStandard && ifn.pfnNtQueryInformationFile)
 		{
-			HANDLE hFile = apiCreateFile(lpFileName,0,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,OPEN_EXISTING,0);
+			HANDLE hFile = apiCreateFile(lpFileName,0,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,0);
 
 			if (hFile!=INVALID_HANDLE_VALUE)
 			{
@@ -964,12 +964,12 @@ bool apiGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 
 bool apiSearchPath(const wchar_t *Path, const wchar_t *FileName, const wchar_t *Extension, string &strDest)
 {
-	DWORD dwSize = SearchPath(Path,FileName,Extension,0,NULL,NULL);
+	DWORD dwSize = SearchPath(Path,FileName,Extension,0,nullptr,nullptr);
 
 	if (dwSize)
 	{
 		wchar_t *lpwszFullName=strDest.GetBuffer(dwSize);
-		dwSize = SearchPath(Path,FileName,Extension,dwSize,lpwszFullName,NULL);
+		dwSize = SearchPath(Path,FileName,Extension,dwSize,lpwszFullName,nullptr);
 		strDest.ReleaseBuffer(dwSize);
 		return true;
 	}

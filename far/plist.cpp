@@ -49,7 +49,7 @@ static BOOL KillProcess(DWORD dwPID);
 
 void ShowProcessList()
 {
-	VMenu ProcList(MSG(MProcessListTitle),NULL,0,ScrY-4);
+	VMenu ProcList(MSG(MProcessListTitle),nullptr,0,ScrY-4);
 	ProcList.SetFlags(VMENU_WRAPMODE);
 	ProcList.SetPosition(-1,-1,0,0);
 
@@ -96,9 +96,9 @@ void ShowProcessList()
 					break;
 				}
 
-				HWND ProcWnd=(HWND)ProcList.GetUserData(NULL,0);
+				HWND ProcWnd=(HWND)ProcList.GetUserData(nullptr,0);
 
-				if (ProcWnd!=NULL)
+				if (ProcWnd!=nullptr)
 				{
 					wchar_t *lpwszTitle=0;
 					int LenTitle=GetWindowTextLength(ProcWnd);
@@ -107,7 +107,7 @@ void ShowProcessList()
 					{
 						lpwszTitle=(wchar_t *)xf_malloc((LenTitle+1)*sizeof(wchar_t));
 
-						if (lpwszTitle!=NULL && (LenTitle=GetWindowText(ProcWnd,lpwszTitle,LenTitle+1)))
+						if (lpwszTitle!=nullptr && (LenTitle=GetWindowText(ProcWnd,lpwszTitle,LenTitle+1)))
 							lpwszTitle[LenTitle]=0;
 					}
 
@@ -143,9 +143,9 @@ void ShowProcessList()
 
 	if (ProcList.Modal::GetExitCode()>=0)
 	{
-		HWND ProcWnd=(HWND)ProcList.GetUserData(NULL,0);
+		HWND ProcWnd=(HWND)ProcList.GetUserData(nullptr,0);
 
-		if (ProcWnd!=NULL)
+		if (ProcWnd!=nullptr)
 		{
 			//SetForegroundWindow(ProcWnd);
 			// Allow SetForegroundWindow on Win98+.
@@ -181,7 +181,7 @@ BOOL KillProcess(DWORD dwPID)
 	BOOL bRet;
 	hProcess=OpenProcess(PROCESS_TERMINATE,FALSE,dwPID);
 
-	if (hProcess!=NULL)
+	if (hProcess!=nullptr)
 	{
 		bRet=TerminateProcess(hProcess,0xFFFFFFFF);
 
@@ -210,7 +210,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 		{
 			wchar_t *lpwszTitle=(wchar_t *)xf_malloc((LenTitle+1)*sizeof(wchar_t));
 
-			if (lpwszTitle!=NULL)
+			if (lpwszTitle!=nullptr)
 			{
 				if ((LenTitle=GetWindowText(hwnd,lpwszTitle,LenTitle+1))!=0)
 				{

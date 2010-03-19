@@ -242,7 +242,7 @@ bool MixToFullPath(LPCWSTR stPath, string& strDest, LPCWSTR stCurrentDir)
 	if (lFullPath > 0)
 	{
 		strDest.Clear();
-		LPCWSTR pstPath = NULL, pstCurrentDir = NULL;
+		LPCWSTR pstPath = nullptr, pstCurrentDir = nullptr;
 		bool blIgnore = false;
 		size_t PathOffset=0;
 		PATH_PFX_TYPE PathType=Point2Root(stPath,PathOffset);
@@ -419,7 +419,7 @@ void ConvertNameToReal(const wchar_t *Src, string &strDest)
 
 	for (;;)
 	{
-		hFile = apiCreateFile(Path.CPtr(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, 0);
+		hFile = apiCreateFile(Path.CPtr(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, 0);
 
 		if (hFile != INVALID_HANDLE_VALUE)
 			break;
@@ -459,7 +459,7 @@ void ConvertNameToReal(const wchar_t *Src, string &strDest)
 void ConvertNameToShort(const wchar_t *Src, string &strDest)
 {
 	string strCopy = Src;
-	int nSize = GetShortPathName(strCopy, NULL, 0);
+	int nSize = GetShortPathName(strCopy, nullptr, 0);
 
 	if (nSize)
 	{
@@ -478,7 +478,7 @@ void ConvertNameToShort(const wchar_t *Src, string &strDest)
 void ConvertNameToLong(const wchar_t *Src, string &strDest)
 {
 	string strCopy = Src;
-	int nSize = GetLongPathName(strCopy, NULL, 0);
+	int nSize = GetLongPathName(strCopy, nullptr, 0);
 
 	if (nSize)
 	{
@@ -500,7 +500,7 @@ void ConvertNameToUNC(string &strFileName)
 	string strTemp;
 	GetPathRoot(strFileName,strTemp);
 
-	if (!apiGetVolumeInformation(strTemp,NULL,NULL,NULL,NULL,&strFileSystemName))
+	if (!apiGetVolumeInformation(strTemp,nullptr,nullptr,nullptr,nullptr,&strFileSystemName))
 		strFileSystemName.Clear();
 
 	DWORD uniSize = 1024;
@@ -534,7 +534,7 @@ void ConvertNameToUNC(string &strFileName)
 		{
 			const wchar_t *NamePtr=FirstSlash(strFileName);
 
-			if (NamePtr != NULL)
+			if (NamePtr != nullptr)
 			{
 				AddEndSlash(strTemp);
 				strTemp += &NamePtr[1];

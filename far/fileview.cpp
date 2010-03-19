@@ -55,12 +55,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 FileViewer::FileViewer(const wchar_t *Name,int EnableSwitch,int DisableHistory,
                        int DisableEdit,long ViewStartPos,const wchar_t *PluginData,
-                       NamesList *ViewNamesList,int ToSaveAs,UINT aCodePage): View(false,aCodePage)
+                       NamesList *ViewNamesList,int ToSaveAs,UINT aCodePage):
+	View(false,aCodePage),
+	FullScreen(TRUE),
+	DisableEdit(DisableEdit)
 {
 	_OT(SysLog(L"[%p] FileViewer::FileViewer(I variant...)", this));
-	FileViewer::DisableEdit=DisableEdit;
 	SetPosition(0,0,ScrX,ScrY);
-	FullScreen=TRUE;
 	Init(Name,EnableSwitch,DisableHistory,ViewStartPos,PluginData,ViewNamesList,ToSaveAs);
 }
 
@@ -98,7 +99,7 @@ FileViewer::FileViewer(const wchar_t *Name,int EnableSwitch,int DisableHistory,
 	SetPosition(X1,Y1,X2,Y2);
 	FullScreen=(X1==0 && Y1==0 && X2==ScrX && Y2==ScrY);
 	View.SetTitle(Title);
-	Init(Name,EnableSwitch,DisableHistory,-1,L"",NULL,FALSE);
+	Init(Name,EnableSwitch,DisableHistory,-1,L"",nullptr,FALSE);
 }
 
 
@@ -304,7 +305,7 @@ int FileViewer::ProcessKey(int Key)
 				UINT cp=View.VM.CodePage;
 				string strViewFileName;
 				View.GetFileName(strViewFileName);
-				HANDLE hEdit=apiCreateFile(strViewFileName,GENERIC_READ,FILE_SHARE_READ|(Opt.EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0),NULL,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN);
+				HANDLE hEdit=apiCreateFile(strViewFileName,GENERIC_READ,FILE_SHARE_READ|(Opt.EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0),nullptr,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN);
 
 				if (hEdit==INVALID_HANDLE_VALUE)
 				{
@@ -322,7 +323,7 @@ int FileViewer::ProcessKey(int Key)
 				   Ќадо бы поправить FileEditor на этот счет.
 				*/
 				FileEditor *ShellEditor = new FileEditor(strViewFileName, cp,
-				        (GetCanLoseFocus()?FFILEEDIT_ENABLEF6:0)|(SaveToSaveAs?FFILEEDIT_SAVETOSAVEAS:0)|(DisableHistory?FFILEEDIT_DISABLEHISTORY:0),-2, static_cast<int>(FilePos), NULL);
+				        (GetCanLoseFocus()?FFILEEDIT_ENABLEF6:0)|(SaveToSaveAs?FFILEEDIT_SAVETOSAVEAS:0)|(DisableHistory?FFILEEDIT_DISABLEHISTORY:0),-2, static_cast<int>(FilePos), nullptr);
 				ShellEditor->SetEnableF6(TRUE);
 				/* $ 07.05.2001 DJ сохран€ем NamesList */
 				ShellEditor->SetNamesList(View.GetNamesList());
@@ -426,7 +427,7 @@ void FileViewer::OnDestroy()
 {
 	_OT(SysLog(L"[%p] FileViewer::OnDestroy()",this));
 
-	if (!DisableHistory && (CtrlObject->Cp()->ActivePanel!=NULL || StrCmp(strName, L"-")!=0))
+	if (!DisableHistory && (CtrlObject->Cp()->ActivePanel!=nullptr || StrCmp(strName, L"-")!=0))
 	{
 		string strFullFileName;
 		View.GetFileName(strFullFileName);

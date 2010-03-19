@@ -248,7 +248,7 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 			return 0;
 	}
 
-	if (CtrlObject->Cp()->ActivePanel->ProcessPluginEvent(FE_CLOSE,NULL))
+	if (CtrlObject->Cp()->ActivePanel->ProcessPluginEvent(FE_CLOSE,nullptr))
 		return -1;
 
 	return 1;
@@ -272,7 +272,7 @@ void CreatePath(string &strPath)
 			if (Opt.CreateUppercaseFolders && !IsCaseMixed(DirPart) && apiGetFileAttributes(strPath) == INVALID_FILE_ATTRIBUTES)  //BUGBUG
 				CharUpper(DirPart);
 
-			if (apiCreateDirectory(strPath, NULL))
+			if (apiCreateDirectory(strPath, nullptr))
 				TreeList::AddTreeName(strPath);
 
 			if (bEnd)

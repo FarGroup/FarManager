@@ -112,16 +112,16 @@ bool SetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
 	bool Result=false;
 	if (IsReparseTagValid(rdb->ReparseTag))
 	{
-		Privilege* CreateSymlinkPrivilege=NULL;
+		Privilege* CreateSymlinkPrivilege=nullptr;
 		if (rdb->ReparseTag==IO_REPARSE_TAG_SYMLINK)
 		{
 			CreateSymlinkPrivilege=new Privilege(SE_CREATE_SYMBOLIC_LINK_NAME);
 		}
-		HANDLE hObject=apiCreateFile(Object,GENERIC_WRITE,0,NULL,OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT);
+		HANDLE hObject=apiCreateFile(Object,GENERIC_WRITE,0,nullptr,OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT);
 		if (hObject!=INVALID_HANDLE_VALUE)
 		{
 			DWORD dwBytesReturned;
-			if (DeviceIoControl(hObject,FSCTL_SET_REPARSE_POINT,rdb,rdb->ReparseDataLength+REPARSE_DATA_BUFFER_HEADER_SIZE,NULL,0,&dwBytesReturned,0))
+			if (DeviceIoControl(hObject,FSCTL_SET_REPARSE_POINT,rdb,rdb->ReparseDataLength+REPARSE_DATA_BUFFER_HEADER_SIZE,nullptr,0,&dwBytesReturned,0))
 			{
 				Result=true;
 			}
@@ -160,11 +160,11 @@ bool WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,DWOR
 
 					if (Type==RP_SYMLINKDIR)
 					{
-						ObjectCreated=apiCreateDirectory(Object,NULL)!=FALSE;
+						ObjectCreated=apiCreateDirectory(Object,nullptr)!=FALSE;
 					}
 					else
 					{
-						HANDLE hFile=apiCreateFile(Object,0,0,NULL,CREATE_NEW,0);
+						HANDLE hFile=apiCreateFile(Object,0,0,nullptr,CREATE_NEW,0);
 
 						if (hFile!=INVALID_HANDLE_VALUE)
 						{
@@ -242,7 +242,7 @@ bool WINAPI DeleteReparsePoint(const wchar_t *Object)
 	{
 		REPARSE_GUID_DATA_BUFFER rgdb={ReparseTag};
 		DWORD dwBytes;
-		Result=(DeviceIoControl(hObject,FSCTL_DELETE_REPARSE_POINT,&rgdb,REPARSE_GUID_DATA_BUFFER_HEADER_SIZE,NULL,0,&dwBytes,0)==TRUE);
+		Result=(DeviceIoControl(hObject,FSCTL_DELETE_REPARSE_POINT,&rgdb,REPARSE_GUID_DATA_BUFFER_HEADER_SIZE,nullptr,0,&dwBytes,0)==TRUE);
 		CloseHandle(hObject);
 	}
 
@@ -260,13 +260,13 @@ bool GetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
 	*/
 	if (FileAttr!=INVALID_FILE_ATTRIBUTES && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT))
 	{
-		HANDLE hObject=apiCreateFile(Object,0,0,NULL,OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT);
+		HANDLE hObject=apiCreateFile(Object,0,0,nullptr,OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT);
 
 		if (hObject!=INVALID_HANDLE_VALUE)
 		{
 			DWORD dwBytesReturned;
 
-			if (DeviceIoControl(hObject,FSCTL_GET_REPARSE_POINT,NULL,0,(LPVOID)rdb,MAXIMUM_REPARSE_DATA_BUFFER_SIZE,&dwBytesReturned,0) && IsReparseTagValid(rdb->ReparseTag))
+			if (DeviceIoControl(hObject,FSCTL_GET_REPARSE_POINT,nullptr,0,(LPVOID)rdb,MAXIMUM_REPARSE_DATA_BUFFER_SIZE,&dwBytesReturned,0) && IsReparseTagValid(rdb->ReparseTag))
 			{
 				Result=true;
 			}
@@ -331,7 +331,7 @@ DWORD WINAPI GetReparsePointInfo(const wchar_t *Object, string &strDestBuff,LPDW
 int WINAPI GetNumberOfLinks(const wchar_t *Name)
 {
 	int NumberOfLinks=1;
-	HANDLE hFile=apiCreateFile(Name,0,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0);
+	HANDLE hFile=apiCreateFile(Name,0,FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_EXISTING,0);
 
 	if (hFile!=INVALID_HANDLE_VALUE)
 	{
@@ -351,7 +351,7 @@ int WINAPI GetNumberOfLinks(const wchar_t *Name)
 
 int WINAPI MkHardLink(const wchar_t *ExistingName,const wchar_t *NewName)
 {
-	return apiCreateHardLink(NewName,ExistingName,NULL)!=FALSE;
+	return apiCreateHardLink(NewName,ExistingName,nullptr)!=FALSE;
 }
 
 bool EnumStreams(const wchar_t *FileName,UINT64 &StreamsSize,DWORD &StreamsCount)
@@ -534,7 +534,7 @@ int WINAPI FarMkLink(const wchar_t *Src,const wchar_t *Dest,DWORD Flags)
 	}
 
 	if (Result && !(Flags&FLINK_DONOTUPDATEPANEL))
-		ShellUpdatePanels(NULL,FALSE);
+		ShellUpdatePanels(nullptr,FALSE);
 
 	return Result;
 }
@@ -669,7 +669,7 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 				}
 				else // создаем.
 				{
-					if (apiCreateDirectory(strDestFullName,NULL))
+					if (apiCreateDirectory(strDestFullName,nullptr))
 						TreeList::AddTreeName(strDestFullName);
 					else
 						CreatePath(strDestFullName);
@@ -716,7 +716,7 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 
 				if (CreateDir)
 				{
-					if (apiCreateDirectory(strDestFullName,NULL))
+					if (apiCreateDirectory(strDestFullName,nullptr))
 						TreeList::AddTreeName(strDestFullName);
 					else
 						CreatePath(strDestFullName);

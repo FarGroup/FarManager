@@ -108,15 +108,15 @@ struct EditorUndoData
 			delete[] this->Str;
 		}
 
-		if (Str!=NULL)
+		if (Str!=nullptr)
 		{
 			this->Str=new wchar_t[Length+1];
 
-			if (this->Str!=NULL)
+			if (this->Str!=nullptr)
 				wmemmove(this->Str,Str,Length);
 		}
 		else
-			this->Str=NULL;
+			this->Str=nullptr;
 	}
 };
 
@@ -248,14 +248,14 @@ class Editor:public ScreenObject
 		void TextChanged(int State);
 
 		int  CalcDistance(Edit *From, Edit *To,int MaxDist);
-		void Paste(const wchar_t *Src=NULL);
+		void Paste(const wchar_t *Src=nullptr);
 		void Copy(int Append);
 		void DeleteBlock();
 		void UnmarkBlock();
 		void UnmarkEmptyBlock();
 		void UnmarkMacroBlock();
 
-		void AddUndoData(int Type,const wchar_t *Str=NULL,const wchar_t *Eol=NULL,int StrNum=0,int StrPos=0,int Length=-1);
+		void AddUndoData(int Type,const wchar_t *Str=nullptr,const wchar_t *Eol=nullptr,int StrNum=0,int StrPos=0,int Length=-1);
 		void Undo(int redo);
 		void SelectAll();
 		//void SetStringsTable();
@@ -288,7 +288,7 @@ class Editor:public ScreenObject
 		wchar_t *VBlock2Text(const wchar_t *ptrInitData);
 
 	public:
-		Editor(ScreenObject *pOwner=NULL,bool DialogUsed=false);
+		Editor(ScreenObject *pOwner=nullptr,bool DialogUsed=false);
 		virtual ~Editor();
 
 	public:
@@ -304,7 +304,7 @@ class Editor:public ScreenObject
 
 		virtual int ProcessKey(int Key);
 		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-		virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
+		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
 
 		void KeepInitParameters();
 		void SetStartPos(int LineNum,int CharNum);
@@ -375,7 +375,7 @@ class Editor:public ScreenObject
 		void FreeAllocatedData(bool FreeUndo=true);
 
 		Edit *CreateString(const wchar_t *lpwszStr, int nLength);
-		Edit *InsertString(const wchar_t *lpwszStr, int nLength, Edit *pAfter = NULL);
+		Edit *InsertString(const wchar_t *lpwszStr, int nLength, Edit *pAfter = nullptr);
 
 		void SetDialogParent(DWORD Sets);
 		void SetReadOnly(int NewReadOnly) {Flags.Change(FEDITOR_LOCKMODE,NewReadOnly);};

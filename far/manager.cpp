@@ -58,30 +58,27 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Manager *FrameManager;
 
-Manager::Manager()
+Manager::Manager():
+	ModalStack(nullptr),
+	ModalStackCount(0),
+	ModalStackSize(0),
+	FrameCount(0),
+	FrameList(reinterpret_cast<Frame **>(xf_malloc(sizeof(Frame*)*(FrameCount+1)))),
+	FrameListSize(0),
+	FramePos(-1),
+	InsertedFrame(nullptr),
+	DeletedFrame(nullptr),
+	ActivatedFrame(nullptr),
+	RefreshedFrame(nullptr),
+	ModalizedFrame(nullptr),
+	UnmodalizedFrame(nullptr),
+	DeactivatedFrame(nullptr),
+	ExecutedFrame(nullptr),
+	CurrentFrame(nullptr),
+	ModalEVCount(0),
+	EndLoop(FALSE),
+	StartManager(FALSE)
 {
-	FrameList=NULL;
-	FrameCount=FrameListSize=0;
-	FramePos=-1;
-	ModalStack=NULL;
-	FrameList=(Frame **)xf_realloc(FrameList,sizeof(*FrameList)*(FrameCount+1));
-	ModalStack=NULL;
-	ModalStackSize = ModalStackCount = 0;
-	EndLoop = FALSE;
-	RefreshedFrame=NULL;
-	CurrentFrame  = NULL;
-	InsertedFrame = NULL;
-	DeletedFrame  = NULL;
-	ActivatedFrame= NULL;
-	DeactivatedFrame=NULL;
-	ModalizedFrame=NULL;
-	UnmodalizedFrame=NULL;
-	ExecutedFrame=NULL;
-	//SemiModalBackFrames=NULL; //Теперь это массив
-	//SemiModalBackFramesCount=0;
-	//SemiModalBackFramesSize=0;
-	ModalEVCount=0;
-	StartManager=FALSE;
 }
 
 Manager::~Manager()
@@ -155,7 +152,7 @@ void Manager::CloseAll()
 		iFrame=ModalStack[i];
 		DeleteFrame(iFrame);
 		DeleteCommit();
-		DeletedFrame=NULL;
+		DeletedFrame=nullptr;
 	}
 
 	for (int i=FrameCount-1; i>=0; i--)
@@ -163,11 +160,11 @@ void Manager::CloseAll()
 		iFrame=(*this)[i];
 		DeleteFrame(iFrame);
 		DeleteCommit();
-		DeletedFrame=NULL;
+		DeletedFrame=nullptr;
 	}
 
 	xf_free(FrameList);
-	FrameList=NULL;
+	FrameList=nullptr;
 	FrameCount=FramePos=0;
 }
 
@@ -269,9 +266,9 @@ void Manager::ExecuteNonModal()
 	if (-1==NonModalIndex)
 	{
 		InsertedFrame=NonModal;
-		ExecutedFrame=NULL;
+		ExecutedFrame=nullptr;
 		InsertCommit();
-		InsertedFrame=NULL;
+		InsertedFrame=nullptr;
 	}
 	else
 	{
@@ -313,7 +310,7 @@ void Manager::ExecuteModal(Frame *Executed)
 		if (ExecutedFrame)
 		{
 			_MANAGER(SysLog(L"WARNING! Попытка в одном цикле запустить в модальном режиме два фрейма. Executed=%p, ExecitedFrame=%p",Executed, ExecutedFrame));
-			return;// NULL; //?? Определить, какое значение правильно возвращать в этом случае
+			return;// nullptr; //?? Определить, какое значение правильно возвращать в этом случае
 		}
 		else
 		{
@@ -367,7 +364,7 @@ int Manager::CountFramesWithName(const wchar_t *Name, BOOL IgnoreCase)
 }
 
 /*!
-  \return Возвращает NULL если нажат "отказ" или если нажат текущий фрейм.
+  \return Возвращает nullptr если нажат "отказ" или если нажат текущий фрейм.
   Другими словами, если немодальный фрейм не поменялся.
   Если же фрейм поменялся, то тогда функция должна возвратить
   указатель на предыдущий фрейм.
@@ -381,12 +378,12 @@ Frame *Manager::FrameMenu()
 	static int AlreadyShown=FALSE;
 
 	if (AlreadyShown)
-		return NULL;
+		return nullptr;
 
 	int ExitCode, CheckCanLoseFocus=CurrentFrame->GetCanLoseFocus();
 	{
 		MenuItemEx ModalMenuItem;
-		VMenu ModalMenu(MSG(MScreensTitle),NULL,0,ScrY-4);
+		VMenu ModalMenu(MSG(MScreensTitle),nullptr,0,ScrY-4);
 		ModalMenu.SetHelp(L"ScrSwitch");
 		ModalMenu.SetFlags(VMENU_WRAPMODE);
 		ModalMenu.SetPosition(-1,-1,0,0);
@@ -426,13 +423,13 @@ Frame *Manager::FrameMenu()
 		if (ExitCode>=0)
 		{
 			ActivateFrame(ExitCode);
-			return (ActivatedFrame==CurrentFrame || !CurrentFrame->GetCanLoseFocus()?NULL:CurrentFrame);
+			return (ActivatedFrame==CurrentFrame || !CurrentFrame->GetCanLoseFocus()?nullptr:CurrentFrame);
 		}
 
-		return (ActivatedFrame==CurrentFrame?NULL:CurrentFrame);
+		return (ActivatedFrame==CurrentFrame?nullptr:CurrentFrame);
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -733,8 +730,8 @@ void Manager::ExitMainLoop(int Ask)
 			//      глюки, например, при перезагрузке
 			FilePanels *cp;
 
-			if ((cp = CtrlObject->Cp()) == NULL
-			        || (!cp->LeftPanel->ProcessPluginEvent(FE_CLOSE,NULL) && !cp->RightPanel->ProcessPluginEvent(FE_CLOSE,NULL)))
+			if ((cp = CtrlObject->Cp()) == nullptr
+			        || (!cp->LeftPanel->ProcessPluginEvent(FE_CLOSE,nullptr) && !cp->RightPanel->ProcessPluginEvent(FE_CLOSE,nullptr)))
 				EndLoop=TRUE;
 		}
 		else
@@ -862,7 +859,7 @@ int Manager::ProcessKey(DWORD Key)
 			zero_const.i=0L;
 			MenuItemEx ModalMenuItem;
 			ModalMenuItem.Clear();
-			VMenu ModalMenu(L"Test Exceptions",NULL,0,ScrY-4);
+			VMenu ModalMenu(L"Test Exceptions",nullptr,0,ScrY-4);
 			ModalMenu.SetFlags(VMENU_WRAPMODE);
 			ModalMenu.SetPosition(-1,-1,0,0);
 
@@ -903,7 +900,7 @@ int Manager::ProcessKey(DWORD Key)
 #endif
 					break;
 				case 4:
-					Test_EXCEPTION_STACK_OVERFLOW(NULL);
+					Test_EXCEPTION_STACK_OVERFLOW(nullptr);
 					break;
 				case 5:
 					refers.d = 1.0/zero_const.d;
@@ -1153,7 +1150,7 @@ void Manager::PluginsMenu()
 		// в редакторе, вьюере или диалоге покажем свою помощь по Shift-F1
 		const wchar_t *Topic=curType==MODALTYPE_EDITOR?L"Editor":
 		                     curType==MODALTYPE_VIEWER?L"Viewer":
-		                     curType==MODALTYPE_DIALOG?L"Dialog":NULL;
+		                     curType==MODALTYPE_DIALOG?L"Dialog":nullptr;
 		CtrlObject->Plugins.CommandsMenu(curType,0,Topic);
 	}
 
@@ -1176,7 +1173,7 @@ Frame *Manager::operator[](int Index)
 {
 	if (Index<0 || Index>=FrameCount || FrameList==0)
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	return FrameList[Index];
@@ -1223,57 +1220,57 @@ BOOL Manager::Commit()
 	if (DeletedFrame && (InsertedFrame||ExecutedFrame))
 	{
 		UpdateCommit();
-		DeletedFrame = NULL;
-		InsertedFrame = NULL;
-		ExecutedFrame=NULL;
+		DeletedFrame = nullptr;
+		InsertedFrame = nullptr;
+		ExecutedFrame=nullptr;
 		Result=true;
 	}
 	else if (ExecutedFrame)
 	{
 		ExecuteCommit();
-		ExecutedFrame=NULL;
+		ExecutedFrame=nullptr;
 		Result=true;
 	}
 	else if (DeletedFrame)
 	{
 		DeleteCommit();
-		DeletedFrame = NULL;
+		DeletedFrame = nullptr;
 		Result=true;
 	}
 	else if (InsertedFrame)
 	{
 		InsertCommit();
-		InsertedFrame = NULL;
+		InsertedFrame = nullptr;
 		Result=true;
 	}
 	else if (DeactivatedFrame)
 	{
 		DeactivateCommit();
-		DeactivatedFrame=NULL;
+		DeactivatedFrame=nullptr;
 		Result=true;
 	}
 	else if (ActivatedFrame)
 	{
 		ActivateCommit();
-		ActivatedFrame=NULL;
+		ActivatedFrame=nullptr;
 		Result=true;
 	}
 	else if (RefreshedFrame)
 	{
 		RefreshCommit();
-		RefreshedFrame=NULL;
+		RefreshedFrame=nullptr;
 		Result=true;
 	}
 	else if (ModalizedFrame)
 	{
 		ModalizeCommit();
-//    ModalizedFrame=NULL;
+//    ModalizedFrame=nullptr;
 		Result=true;
 	}
 	else if (UnmodalizedFrame)
 	{
 		UnmodalizeCommit();
-//    UnmodalizedFrame=NULL;
+//    UnmodalizedFrame=nullptr;
 		Result=true;
 	}
 
@@ -1300,7 +1297,7 @@ void Manager::DeactivateCommit()
 
 	if (!ActivatedFrame)
 	{
-		_MANAGER("WARNING! ActivatedFrame == NULL");
+		_MANAGER("WARNING! ActivatedFrame == nullptr");
 	}
 
 	if (DeactivatedFrame)
@@ -1513,7 +1510,7 @@ void Manager::DeleteCommit()
 		  вызван commit, то надо подстраховаться.
 		*/
 		Frame *tmp=DeletedFrame;
-		DeletedFrame=NULL;
+		DeletedFrame=nullptr;
 		delete tmp;
 	}
 
@@ -1692,7 +1689,7 @@ void Manager::ImmediateHide()
 void Manager::ModalizeCommit()
 {
 	CurrentFrame->Push(ModalizedFrame);
-	ModalizedFrame=NULL;
+	ModalizedFrame=nullptr;
 }
 
 void Manager::UnmodalizeCommit()
@@ -1719,7 +1716,7 @@ void Manager::UnmodalizeCommit()
 		}
 	}
 
-	UnmodalizedFrame=NULL;
+	UnmodalizedFrame=nullptr;
 }
 
 BOOL Manager::ifDoubleInstance(Frame *frame)
@@ -1825,7 +1822,7 @@ void Manager::RemoveSemiModalBackFrame(Frame* frame)
 // возвращает top-модал или сам фрейм, если у фрейма нету модалов
 Frame* Manager::GetTopModal()
 {
-	Frame *f=CurrentFrame, *fo=NULL;
+	Frame *f=CurrentFrame, *fo=nullptr;
 
 	while (f)
 	{

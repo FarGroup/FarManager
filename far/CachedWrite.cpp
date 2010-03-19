@@ -35,12 +35,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "CachedWrite.hpp"
 
-CachedWrite::CachedWrite(HANDLE hFile)
+CachedWrite::CachedWrite(HANDLE hFile):
+	Buffer(reinterpret_cast<LPBYTE>(xf_malloc(BufferSize))),
+	hFile(hFile),
+	FreeSize(BufferSize),
+	Flushed(false)
 {
-	this->hFile=hFile;
-	Buffer=reinterpret_cast<LPBYTE>(xf_malloc(BufferSize));
-	FreeSize=BufferSize;
-	Flushed=false;
 }
 
 CachedWrite::~CachedWrite()
@@ -71,7 +71,7 @@ bool CachedWrite::Write(LPCVOID Data,size_t DataSize)
 			{
 				DWORD WrittenSize=0;
 
-				if (WriteFile(hFile,Data,static_cast<DWORD>(DataSize),&WrittenSize,NULL) && DataSize==WrittenSize)
+				if (WriteFile(hFile,Data,static_cast<DWORD>(DataSize),&WrittenSize,nullptr) && DataSize==WrittenSize)
 				{
 					Result=true;
 				}
@@ -96,7 +96,7 @@ bool CachedWrite::Flush()
 		{
 			DWORD WrittenSize=0;
 
-			if (WriteFile(hFile,Buffer,static_cast<DWORD>(BufferSize-FreeSize),&WrittenSize,NULL) && BufferSize-FreeSize==WrittenSize)
+			if (WriteFile(hFile,Buffer,static_cast<DWORD>(BufferSize-FreeSize),&WrittenSize,nullptr) && BufferSize-FreeSize==WrittenSize)
 			{
 				Flushed=true;
 				FreeSize=BufferSize;

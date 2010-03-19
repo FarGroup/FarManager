@@ -123,7 +123,7 @@ class Help:public Frame
 
 	private:
 		virtual void DisplayObject();
-		int  ReadHelp(const wchar_t *Mask=NULL);
+		int  ReadHelp(const wchar_t *Mask=nullptr);
 		void AddLine(const wchar_t *Line);
 		void AddTitle(const wchar_t *Title);
 		void HighlightsCorrection(wchar_t *Str);
@@ -135,10 +135,10 @@ class Help:public Frame
 		int  IsReferencePresent();
 		void MoveToReference(int Forward,int CurScreen);
 		void ReadDocumentsHelp(int TypeIndex);
-		int  JumpTopic(const wchar_t *JumpTopic=NULL);
+		int  JumpTopic(const wchar_t *JumpTopic=nullptr);
 
 	public:
-		Help(const wchar_t *Topic,const wchar_t *Mask=NULL,DWORD Flags=0);
+		Help(const wchar_t *Topic,const wchar_t *Mask=nullptr,DWORD Flags=0);
 		virtual ~Help();
 
 	public:

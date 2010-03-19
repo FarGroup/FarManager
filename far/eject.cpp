@@ -45,7 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static BOOL DismountVolume(HANDLE hVolume)
 {
 	DWORD dwBytesReturned;
-	return DeviceIoControl(hVolume,FSCTL_DISMOUNT_VOLUME,NULL, 0,NULL, 0,&dwBytesReturned,NULL);
+	return DeviceIoControl(hVolume,FSCTL_DISMOUNT_VOLUME,nullptr, 0,nullptr, 0,&dwBytesReturned,nullptr);
 }
 #endif
 
@@ -86,13 +86,13 @@ BOOL EjectVolume(wchar_t Letter,DWORD Flags)
 	}
 
 	DiskHandle=apiCreateFile(szRootName,dwAccessFlags,
-	                         FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,
+	                         FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_EXISTING,
 	                         0);
 
 	if ((DiskHandle==INVALID_HANDLE_VALUE) && (GetLastError()==ERROR_ACCESS_DENIED))
 	{
 		DiskHandle=apiCreateFile(szRootName,GENERIC_READ,
-		                         FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,
+		                         FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_EXISTING,
 		                         0);
 		ReadOnly=FALSE;
 	}
@@ -101,7 +101,7 @@ BOOL EjectVolume(wchar_t Letter,DWORD Flags)
 	{
 		while (Retry)
 		{
-			if (DeviceIoControl(DiskHandle,FSCTL_LOCK_VOLUME,NULL,0,NULL,0,&temp,NULL))
+			if (DeviceIoControl(DiskHandle,FSCTL_LOCK_VOLUME,nullptr,0,nullptr,0,&temp,nullptr))
 			{
 				foundError=FALSE;
 
@@ -130,7 +130,7 @@ BOOL EjectVolume(wchar_t Letter,DWORD Flags)
 					PREVENT_MEDIA_REMOVAL PreventMediaRemoval;
 					PreventMediaRemoval.PreventMediaRemoval=FALSE;
 
-					if (DeviceIoControl(DiskHandle,IOCTL_STORAGE_MEDIA_REMOVAL,&PreventMediaRemoval,sizeof(PreventMediaRemoval),NULL,0,&temp,NULL))
+					if (DeviceIoControl(DiskHandle,IOCTL_STORAGE_MEDIA_REMOVAL,&PreventMediaRemoval,sizeof(PreventMediaRemoval),nullptr,0,&temp,nullptr))
 					{
 #if 1
 
@@ -139,7 +139,7 @@ BOOL EjectVolume(wchar_t Letter,DWORD Flags)
 						{
 							fAutoEject=DeviceIoControl(DiskHandle,
 							                           IOCTL_STORAGE_CHECK_VERIFY,
-							                           NULL,0,0,0,&temp,NULL);
+							                           nullptr,0,0,0,&temp,nullptr);
 
 							// ...если ошибка = "нет доступа", то это похоже на то,
 							// что диск вставлен
@@ -153,7 +153,7 @@ BOOL EjectVolume(wchar_t Letter,DWORD Flags)
 #endif
 							fAutoEject=DeviceIoControl(DiskHandle,
 							                           (Flags&EJECT_LOAD_MEDIA)?IOCTL_STORAGE_LOAD_MEDIA:IOCTL_STORAGE_EJECT_MEDIA,
-							                           NULL,0,NULL,0,&temp,NULL
+							                           nullptr,0,nullptr,0,&temp,nullptr
 							                          );
 					}
 
@@ -184,7 +184,7 @@ BOOL EjectVolume(wchar_t Letter,DWORD Flags)
 			}
 		} // END: while(Retry)
 
-		DeviceIoControl(DiskHandle,FSCTL_UNLOCK_VOLUME,NULL,0,NULL,0,&temp,NULL);
+		DeviceIoControl(DiskHandle,FSCTL_UNLOCK_VOLUME,nullptr,0,nullptr,0,&temp,nullptr);
 		CloseHandle(DiskHandle);
 	}
 
@@ -211,7 +211,7 @@ BOOL IsEjectableMedia(wchar_t Letter,UINT DriveType,BOOL ForceCDROM)
 		DISK_GEOMETRY disk_g={0};
 		DWORD b_ret=0;
 		int ret=DeviceIoControl(h, IOCTL_DISK_GET_DRIVE_GEOMETRY,
-		                        NULL,                          // lpInBuffer
+		                        nullptr,                          // lpInBuffer
 		                        0,                             // nInBufferSize
 		                        &disk_g,                       // output buffer
 		                        sizeof(disk_g),                // size of output buffer

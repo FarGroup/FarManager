@@ -93,8 +93,8 @@ int CheckDisksProps(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedTy
 	ConvertNameToUNC(strDestRoot);
 	GetPathRoot(strSrcRoot,strSrcRoot);
 	GetPathRoot(strDestRoot,strDestRoot);
-	SrcDriveType=FAR_GetDriveType(strSrcRoot,NULL,TRUE);
-	DestDriveType=FAR_GetDriveType(strDestRoot,NULL,TRUE);
+	SrcDriveType=FAR_GetDriveType(strSrcRoot,nullptr,TRUE);
+	DestDriveType=FAR_GetDriveType(strDestRoot,nullptr,TRUE);
 
 	if (!apiGetVolumeInformation(strSrcRoot,&strSrcVolumeName,&SrcVolumeNumber,&SrcMaximumComponentLength,&SrcFileSystemFlags,&strSrcFileSystemName))
 		return(FALSE);
@@ -104,7 +104,7 @@ int CheckDisksProps(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedTy
 
 	if (CheckedType == CHECKEDPROPS_ISSAMEDISK)
 	{
-		if (wcspbrk(DestPath,L"\\:")==NULL)
+		if (wcspbrk(DestPath,L"\\:")==nullptr)
 			return TRUE;
 
 		if (((strSrcRoot.At(0)==L'\\' && strSrcRoot.At(1)==L'\\') || (strDestRoot.At(0)==L'\\' && strDestRoot.At(1)==L'\\')) &&

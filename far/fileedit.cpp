@@ -308,7 +308,7 @@ bool dlgSaveFileAs(string &strFileName, int &TextFormat, UINT &codepage,bool &Ad
 }
 
 
-const FileEditor *FileEditor::CurrentEditor = NULL;
+const FileEditor *FileEditor::CurrentEditor = nullptr;
 
 FileEditor::FileEditor(
     const wchar_t *Name,
@@ -323,7 +323,7 @@ FileEditor::FileEditor(
 	ScreenObject::SetPosition(0,0,ScrX,ScrY);
 	Flags.Set(InitFlags);
 	Flags.Set(FFILEEDIT_FULLSCREEN);
-	Init(Name,codepage, NULL,InitFlags,StartLine,StartChar, PluginData,FALSE,OpenModeExstFile);
+	Init(Name,codepage, nullptr,InitFlags,StartLine,StartChar, PluginData,FALSE,OpenModeExstFile);
 }
 
 
@@ -388,7 +388,7 @@ FileEditor::~FileEditor()
 	//AY: флаг оповещающий закрытие редактора.
 	m_bClosing = true;
 
-	if (m_editor->EdOpt.SavePos && CtrlObject!=NULL)
+	if (m_editor->EdOpt.SavePos && CtrlObject!=nullptr)
 		SaveToCache();
 
 	BitFlags FEditFlags=m_editor->Flags;
@@ -428,8 +428,8 @@ FileEditor::~FileEditor()
 	if (m_editor)
 		delete m_editor;
 
-	m_editor=NULL;
-	CurrentEditor=NULL;
+	m_editor=nullptr;
+	CurrentEditor=nullptr;
 
 	if (EditNamesList)
 		delete EditNamesList;
@@ -452,7 +452,7 @@ void FileEditor::Init(
 		private:
 			Editor *editor;
 		public:
-			SmartLock() {editor=NULL;};
+			SmartLock() {editor=nullptr;};
 			~SmartLock() {if (editor) editor->Unlock();};
 
 			void Set(Editor *e) {editor=e; editor->Lock();};
@@ -481,7 +481,7 @@ void FileEditor::Init(
 	FileAttributes=INVALID_FILE_ATTRIBUTES;
 	FileAttributesModified=false;
 	SetTitle(Title);
-	EditNamesList = NULL;
+	EditNamesList = nullptr;
 	KeyBarVisible = Opt.EdOpt.ShowKeyBar;
 	TitleBarVisible = Opt.EdOpt.ShowTitleBar;
 	// $ 17.08.2001 KM - Добавлено для поиска по AltF7. При редактировании найденного файла из архива для клавиши F2 сделать вызов ShiftF2.
@@ -677,7 +677,7 @@ void FileEditor::Init(
 	}
 
 	CtrlObject->Plugins.CurEditor=this;//&FEdit;
-	CtrlObject->Plugins.ProcessEditorEvent(EE_READ,NULL);
+	CtrlObject->Plugins.ProcessEditorEvent(EE_READ,nullptr);
 	bEE_READ_Sent = true;
 	ShowConsoleTitle();
 	EditKeyBar.SetOwner(this);
@@ -739,7 +739,7 @@ void FileEditor::InitKeyBar()
 
 void FileEditor::SetNamesList(NamesList *Names)
 {
-	if (EditNamesList == NULL)
+	if (EditNamesList == nullptr)
 		EditNamesList = new NamesList;
 
 	Names->MoveData(*EditNamesList);
@@ -903,7 +903,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 						SetDeleteOnClose(0);
 						//объект будет в конце удалён в FrameManager
 						new FileViewer(strFullFileName, GetCanLoseFocus(), Flags.Check(FFILEEDIT_DISABLEHISTORY), FALSE,
-						               FilePos, NULL, EditNamesList, Flags.Check(FFILEEDIT_SAVETOSAVEAS), cp);
+						               FilePos, nullptr, EditNamesList, Flags.Check(FFILEEDIT_SAVETOSAVEAS), cp);
 					}
 
 					ShowTime(2);
@@ -935,11 +935,11 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 	_SVS(if (Key=='n' || Key=='m'))
 		_SVS(SysLog(L"%d Key='%c'",__LINE__,Key));
 
-	if (!CalledFromControl && (CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING_COMMON || CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING_COMMON || CtrlObject->Macro.GetCurRecord(NULL,NULL) == MACROMODE_NOMACRO))
+	if (!CalledFromControl && (CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING_COMMON || CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING_COMMON || CtrlObject->Macro.GetCurRecord(nullptr,nullptr) == MACROMODE_NOMACRO))
 	{
 
 		_SVS(if (CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING_COMMON || CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING_COMMON))
-			_SVS(SysLog(L"%d !!!! CtrlObject->Macro.GetCurRecord(NULL,NULL) != MACROMODE_NOMACRO !!!!",__LINE__));
+			_SVS(SysLog(L"%d !!!! CtrlObject->Macro.GetCurRecord(nullptr,nullptr) != MACROMODE_NOMACRO !!!!",__LINE__));
 
 		ProcessedNext=!ProcessEditorInput(FrameManager->GetLastInputRecord());
 	}
@@ -1119,7 +1119,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 							if (!bInPlace)
 							{
 								m_editor->FreeAllocatedData();
-								m_editor->InsertString(NULL, 0);
+								m_editor->InsertString(nullptr, 0);
 							}
 
 							SetFileName(strFullSaveAsName);
@@ -1404,7 +1404,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	                   Name,
 	                   GENERIC_READ,
 	                   FILE_SHARE_READ|(Opt.EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0),
-	                   NULL,
+	                   nullptr,
 	                   OPEN_EXISTING,
 	                   FILE_FLAG_SEQUENTIAL_SCAN
 	               );
@@ -1430,7 +1430,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 		return FALSE;
 	}
 
-	if ((EditFile=_fdopen(EditHandle,"rb")) == NULL)
+	if ((EditFile=_fdopen(EditHandle,"rb")) == nullptr)
 	{
 		_close(EditHandle);
 		return FALSE;
@@ -1601,8 +1601,8 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 
 		if (!LastLineCR &&
 		        (
-		            (CurEOL = wmemchr(Str+Offset,L'\r',StrLength-Offset)) != NULL ||
-		            (CurEOL = wmemchr(Str+Offset,L'\n',StrLength-Offset)) != NULL
+		            (CurEOL = wmemchr(Str+Offset,L'\r',StrLength-Offset)) != nullptr ||
+		            (CurEOL = wmemchr(Str+Offset,L'\n',StrLength-Offset)) != nullptr
 		        )
 		   )
 		{
@@ -1799,7 +1799,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 				int Length;
 				CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
 				BOOL UsedDefaultCharStr=FALSE,UsedDefaultCharEOL=FALSE;
-				WideCharToMultiByte(codepage,WC_NO_BEST_FIT_CHARS,SaveStr,Length,NULL,0,NULL,&UsedDefaultCharStr);
+				WideCharToMultiByte(codepage,WC_NO_BEST_FIT_CHARS,SaveStr,Length,nullptr,0,nullptr,&UsedDefaultCharStr);
 
 				if (!*EndSeq && CurPtr->m_next)
 					EndSeq=*m_editor->GlobalEOL?m_editor->GlobalEOL:DOS_EOL_fmt;
@@ -1807,7 +1807,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 				if (TextFormat&&*EndSeq)
 					EndSeq=m_editor->GlobalEOL;
 
-				WideCharToMultiByte(codepage,WC_NO_BEST_FIT_CHARS,EndSeq,StrLength(EndSeq),NULL,0,NULL,&UsedDefaultCharEOL);
+				WideCharToMultiByte(codepage,WC_NO_BEST_FIT_CHARS,EndSeq,StrLength(EndSeq),nullptr,0,nullptr,&UsedDefaultCharEOL);
 
 				if (!UnicodeLostAgree && (UsedDefaultCharStr||UsedDefaultCharEOL))
 				{
@@ -1828,7 +1828,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 								for(int Pos=0;Pos<Length;Pos++)
 								{
 									BOOL UseDefChar=0;
-									WideCharToMultiByte(codepage,WC_NO_BEST_FIT_CHARS,SaveStr+Pos,1,NULL,0,NULL,&UseDefChar);
+									WideCharToMultiByte(codepage,WC_NO_BEST_FIT_CHARS,SaveStr+Pos,1,nullptr,0,nullptr,&UseDefChar);
 									if(UseDefChar)
 									{
 										CurPtr->SetCurPos(Pos);
@@ -1848,12 +1848,12 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 			}
 		}
 
-		CtrlObject->Plugins.ProcessEditorEvent(EE_SAVE,NULL);
+		CtrlObject->Plugins.ProcessEditorEvent(EE_SAVE,nullptr);
 		HANDLE hEditFile = apiCreateFile(
 		                       Name,
 		                       GENERIC_WRITE,
 		                       FILE_SHARE_READ,
-		                       NULL,
+		                       nullptr,
 		                       CREATE_ALWAYS,
 		                       FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN
 		                   );
@@ -1905,7 +1905,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 					break;
 			}
 
-			if (!WriteFile(hEditFile,&dwSignature,SignLength,&dwWritten,NULL)||dwWritten!=SignLength)
+			if (!WriteFile(hEditFile,&dwSignature,SignLength,&dwWritten,nullptr)||dwWritten!=SignLength)
 			{
 				CloseHandle(hEditFile);
 				apiDeleteFile(Name);
@@ -1934,7 +1934,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
 			CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
 
-			if (*EndSeq==0 && CurPtr->m_next!=NULL)
+			if (*EndSeq==0 && CurPtr->m_next!=nullptr)
 				EndSeq=*m_editor->GlobalEOL ? m_editor->GlobalEOL:DOS_EOL_fmt;
 
 			if (TextFormat!=0 && *EndSeq!=0)
@@ -1961,7 +1961,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 			{
 				if (Length)
 				{
-					DWORD length = (codepage == CP_REVERSEBOM?Length*sizeof(wchar_t):WideCharToMultiByte(codepage, 0, SaveStr, Length, NULL, 0, NULL, NULL));
+					DWORD length = (codepage == CP_REVERSEBOM?Length*sizeof(wchar_t):WideCharToMultiByte(codepage, 0, SaveStr, Length, nullptr, 0, nullptr, nullptr));
 					char *SaveStrCopy=(char *)xf_malloc(length);
 
 					if (SaveStrCopy)
@@ -1969,7 +1969,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 						if (codepage == CP_REVERSEBOM)
 							_swab((char*)SaveStr,SaveStrCopy,length);
 						else
-							WideCharToMultiByte(codepage, 0, SaveStr, Length, SaveStrCopy, length, NULL, NULL);
+							WideCharToMultiByte(codepage, 0, SaveStr, Length, SaveStrCopy, length, nullptr, nullptr);
 
 						if (!Cache.Write(SaveStrCopy,length))
 						{
@@ -1987,7 +1987,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 				{
 					if (EndLength)
 					{
-						DWORD endlength = (codepage == CP_REVERSEBOM?EndLength*sizeof(wchar_t):WideCharToMultiByte(codepage, 0, EndSeq, EndLength, NULL, 0, NULL, NULL));
+						DWORD endlength = (codepage == CP_REVERSEBOM?EndLength*sizeof(wchar_t):WideCharToMultiByte(codepage, 0, EndSeq, EndLength, nullptr, 0, nullptr, nullptr));
 						char *EndSeqCopy=(char *)xf_malloc(endlength);
 
 						if (EndSeqCopy)
@@ -1995,7 +1995,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 							if (codepage == CP_REVERSEBOM)
 								_swab((char*)EndSeq,EndSeqCopy,endlength);
 							else
-								WideCharToMultiByte(codepage, 0, EndSeq, EndLength, EndSeqCopy, endlength, NULL, NULL);
+								WideCharToMultiByte(codepage, 0, EndSeq, EndLength, EndSeqCopy, endlength, nullptr, nullptr);
 
 							if (!Cache.Write(EndSeqCopy,endlength))
 							{
@@ -2116,7 +2116,7 @@ void FileEditor::OnDestroy()
 
 	if (CtrlObject->Plugins.CurEditor==this)//&this->FEdit)
 	{
-		CtrlObject->Plugins.CurEditor=NULL;
+		CtrlObject->Plugins.CurEditor=nullptr;
 	}
 }
 
@@ -2294,7 +2294,7 @@ void FileEditor::ShowStatus()
 	{
 		const wchar_t *Str;
 		int Length;
-		m_editor->CurLine->GetBinaryString(&Str,NULL,Length);
+		m_editor->CurLine->GetBinaryString(&Str,nullptr,Length);
 		int CurPos=m_editor->CurLine->GetCurPos();
 
 		if (CurPos<Length)
@@ -2515,7 +2515,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 		}
 		/*
 			Функция установки Keybar Labels
-			Param = NULL - восстановить, пред. значение
+			Param = nullptr - восстановить, пред. значение
 			Param = -1   - обновить полосу (перерисовать)
 			Param = KeyBarTitles
 		*/
@@ -2571,7 +2571,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 
 				if (*esf->FileName) strName=esf->FileName;
 
-				if (esf->FileEOL!=NULL)
+				if (esf->FileEOL!=nullptr)
 				{
 					if (StrCmp(esf->FileEOL,DOS_EOL_fmt)==0)
 						EOL=1;

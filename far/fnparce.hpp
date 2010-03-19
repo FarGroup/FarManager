@@ -34,8 +34,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 int SubstFileName(string &strStr, const wchar_t *Name, const wchar_t *ShortName,
-                  string *strListName=NULL,
-                  string *strAnotherListName = NULL,
-                  string *strShortListName=NULL,
-                  string *strAnotherShortListName=NULL,
-                  int IgnoreInput=FALSE,const wchar_t *CmdLineDir=NULL);
+                  string *strListName=nullptr,
+                  string *strAnotherListName = nullptr,
+                  string *strShortListName=nullptr,
+                  string *strAnotherShortListName=nullptr,
+                  int IgnoreInput=FALSE,const wchar_t *CmdLineDir=nullptr);

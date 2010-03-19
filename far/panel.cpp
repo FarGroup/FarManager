@@ -79,7 +79,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;
-static SaveScreen *DragSaveScr=NULL;
+static SaveScreen *DragSaveScr=nullptr;
 static string strDragName;
 
 static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile);
@@ -125,20 +125,18 @@ const ChDiskPluginItem& ChDiskPluginItem::operator=(const ChDiskPluginItem &rhs)
 }
 
 
-Panel::Panel()
+Panel::Panel():
+	Focus(0),
+	EnableUpdate(TRUE),
+	PanelMode(NORMAL_PANEL),
+	PrevViewMode(VIEW_3),
+	NumericSort(0),
+	ModalMode(0),
+	ViewSettings()
 {
 	_OT(SysLog(L"[%p] Panel::Panel()", this));
-	Focus=0;
-	NumericSort=0;
-	PanelMode=NORMAL_PANEL;
-	PrevViewMode=VIEW_3;
-	EnableUpdate=TRUE;
+	SrcDragPanel=nullptr;
 	DragX=DragY=-1;
-	SrcDragPanel=NULL;
-	ModalMode=0;
-	ViewSettings.ColumnCount=0;
-	ViewSettings.FullScreen=0;
-	ProcessingPluginCommand=0;
 };
 
 
@@ -425,9 +423,9 @@ static int AddPluginItems(VMenu &ChDisk, int Pos, int DiskCount, bool ShowSpecia
 		}
 
 		item->Item.strName = strMenuText;
-		ChDiskPluginItem *pResult = NULL;
+		ChDiskPluginItem *pResult = nullptr;
 
-		if (!item->Item.strName.IsEmpty() && ((pResult = MPItems.addItem(*item)) != NULL))
+		if (!item->Item.strName.IsEmpty() && ((pResult = MPItems.addItem(*item)) != nullptr))
 		{
 			pResult->Item.UserData = (char*)item->Item.UserData; //BUGBUG, это фантастика просто. Исправить!!!! связано с работой TArray
 			pResult->Item.UserDataSize = item->Item.UserDataSize;
@@ -526,7 +524,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 	PanelMenuItem Item, *mitem=0;
 	{ // эта скобка надо, см. M#605
-		VMenu ChDisk(MSG(MChangeDriveTitle),NULL,0,ScrY-Y1-3);
+		VMenu ChDisk(MSG(MChangeDriveTitle),nullptr,0,ScrY-Y1-3);
 		ChDisk.SetBottomTitle(MSG(MChangeDriveMenuFooter));
 		ChDisk.SetFlags(VMENU_NOTCENTER);
 
@@ -556,7 +554,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			strRootDir=Drv+1;
 			Drv[3]=L' ';
 			strMenuText=Drv;
-			DriveType = FAR_GetDriveType(strRootDir,NULL,Opt.ChangeDriveMode & DRIVE_SHOW_CDROM?0x01:0);
+			DriveType = FAR_GetDriveType(strRootDir,nullptr,Opt.ChangeDriveMode & DRIVE_SHOW_CDROM?0x01:0);
 
 			if ((1<<I)&NetworkMask)
 				DriveType = DRIVE_REMOTE_NOT_CONNECTED;
@@ -599,9 +597,9 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				if (ShowDisk && !apiGetVolumeInformation(
 				            strRootDir,
 				            &strVolumeName,
-				            NULL,
-				            NULL,
-				            NULL,
+				            nullptr,
+				            nullptr,
+				            nullptr,
 				            &strFileSystemName
 				        ))
 				{
@@ -731,7 +729,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				Key=ChDisk.ReadInput();
 			}
 			int SelPos=ChDisk.GetSelectPos();
-			PanelMenuItem *item = (PanelMenuItem*)ChDisk.GetUserData(NULL,0);
+			PanelMenuItem *item = (PanelMenuItem*)ChDisk.GetUserData(nullptr,0);
 
 			switch (Key)
 			{
@@ -792,7 +790,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					if (item && !item->bIsPlugin)
 					{
 						wchar_t DeviceName[]={item->cDrive,L':',L'\\',L'\0'};
-						ShellSetFileAttributes(NULL,DeviceName);
+						ShellSetFileAttributes(nullptr,DeviceName);
 						ChDisk.Redraw();
 					}
 
@@ -869,7 +867,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 						// Вызываем нужный топик, который передали в CommandsMenu()
 						FarShowHelp(
 						    item->pPlugin->GetModuleName(),
-						    NULL,
+						    nullptr,
 						    FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS
 						);
 					}
@@ -913,7 +911,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		if (ChDisk.Modal::GetExitCode()<0)
 			return -1;
 
-		mitem=(PanelMenuItem*)ChDisk.GetUserData(NULL,0);
+		mitem=(PanelMenuItem*)ChDisk.GetUserData(nullptr,0);
 
 		if (mitem)
 		{
@@ -937,7 +935,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		}
 	}
 
-	if (ProcessPluginEvent(FE_CLOSE,NULL))
+	if (ProcessPluginEvent(FE_CLOSE,nullptr))
 		return -1;
 
 	ScrBuf.Flush();
@@ -1552,7 +1550,7 @@ void Panel::SetFocus()
 		CtrlObject->Cp()->ActivePanel=this;
 	}
 
-	ProcessPluginEvent(FE_GOTFOCUS,NULL);
+	ProcessPluginEvent(FE_GOTFOCUS,nullptr);
 
 	if (!GetFocus())
 	{
@@ -1567,7 +1565,7 @@ void Panel::SetFocus()
 void Panel::KillFocus()
 {
 	Focus=FALSE;
-	ProcessPluginEvent(FE_KILLFOCUS,NULL);
+	ProcessPluginEvent(FE_KILLFOCUS,nullptr);
 	Redraw();
 }
 
@@ -1642,7 +1640,7 @@ int  Panel::PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 			if ((abs(MouseEvent->dwMousePosition.X-DragX)>15 || SrcDragPanel!=this) &&
 			        !ModalMode)
 			{
-				if (SrcDragPanel->GetSelCount()==1 && DragSaveScr==NULL)
+				if (SrcDragPanel->GetSelCount()==1 && DragSaveScr==nullptr)
 				{
 					SrcDragPanel->GoToFile(strDragName);
 					SrcDragPanel->Show();
@@ -1654,7 +1652,7 @@ int  Panel::PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 			else
 			{
 				delete DragSaveScr;
-				DragSaveScr=NULL;
+				DragSaveScr=nullptr;
 			}
 		}
 	}
@@ -1667,7 +1665,7 @@ int  Panel::PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 	{
 		DWORD FileAttr;
 		MoveToMouse(MouseEvent);
-		GetSelName(NULL,FileAttr);
+		GetSelName(nullptr,FileAttr);
 
 		if (GetSelName(&strDragName,FileAttr) && !TestParentFolderName(strDragName))
 		{
@@ -1684,14 +1682,14 @@ int  Panel::PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 
 int  Panel::IsDragging()
 {
-	return(DragSaveScr!=NULL);
+	return(DragSaveScr!=nullptr);
 }
 
 
 void Panel::EndDrag()
 {
 	delete DragSaveScr;
-	DragSaveScr=NULL;
+	DragSaveScr=nullptr;
 	DragX=DragY=-1;
 }
 
@@ -1708,7 +1706,7 @@ void Panel::DragMessage(int X,int Y,int Move)
 	{
 		string strCvtName;
 		DWORD FileAttr;
-		SrcDragPanel->GetSelName(NULL,FileAttr);
+		SrcDragPanel->GetSelName(nullptr,FileAttr);
 		SrcDragPanel->GetSelName(&strSelName,FileAttr);
 		strCvtName = PointToName(strSelName);
 		QuoteSpace(strCvtName);

@@ -52,7 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static void SetItemColors(MenuDataEx *Items,int *PaletteItems,int Size,int TypeSub);
 void GetColor(int PaletteIndex);
-static VMenu *MenuToRedraw1=NULL,*MenuToRedraw2=NULL,*MenuToRedraw3=NULL;
+static VMenu *MenuToRedraw1=nullptr,*MenuToRedraw2=nullptr,*MenuToRedraw3=nullptr;
 
 static MenuDataEx ListItems[]=
 {
@@ -467,7 +467,7 @@ static void SetItemColors(MenuDataEx *Items,int *PaletteItems,int Size,int TypeS
 		if (TypeSub == 1 && PaletteItems[ItemsCode] < 4)
 		{
 			SetItemColors(ListItems,ListPaletteItems[PaletteItems[ItemsCode]],countof(ListItems),2);
-			MenuToRedraw3=NULL;
+			MenuToRedraw3=nullptr;
 		}
 		else
 			GetColor(PaletteItems[ItemsCode]);

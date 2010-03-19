@@ -50,4 +50,4 @@ extern "C"
 };
 #endif
 
-string& FarMkTempEx(string &strDest, const wchar_t *Prefix=NULL, BOOL WithPath=TRUE);
+string& FarMkTempEx(string &strDest, const wchar_t *Prefix=nullptr, BOOL WithPath=TRUE);

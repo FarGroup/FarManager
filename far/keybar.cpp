@@ -45,13 +45,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "config.hpp"
 
-KeyBar::KeyBar()
+KeyBar::KeyBar():
+	Owner(nullptr),
+	AltState(0),
+	CtrlState(0),
+	ShiftState(0),
+	DisableMask(0),
+	RegReaded(FALSE)
 {
 	_OT(SysLog(L"[%p] KeyBar::KeyBar()", this));
-	DisableMask=0;
-	Owner=NULL;
-	AltState=CtrlState=ShiftState=0;
-	RegReaded=FALSE;
 	memset(KeyTitles, 0, sizeof(KeyTitles));
 	memset(KeyCounts, 0, sizeof(KeyCounts));
 	memset(RegKeyTitles, 0, sizeof(RegKeyTitles));

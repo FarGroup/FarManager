@@ -49,9 +49,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farqueue.hpp"
 
 template <class Object>
-FarQueue<Object>::FarQueue(int SizeQueue)
+FarQueue<Object>::FarQueue(int SizeQueue):
+	Array(nullptr)
 {
-	Array=NULL;
 	Init(SizeQueue);
 }
 
@@ -96,7 +96,7 @@ template <class Object>
 Object FarQueue<Object>::Peek() const
 {
 	if (isEmpty())
-		return (Object)NULL;
+		return 0;
 
 	return Array[Front];
 }
@@ -105,7 +105,7 @@ template <class Object>
 Object FarQueue<Object>::Get()
 {
 	if (isEmpty())
-		return (Object)NULL;
+		return 0;
 
 	CurrentSize--;
 	Object FrontItem = Array[Front];

@@ -70,7 +70,7 @@ size_t UnicodeString::GetCharString(char *lpszStr, size_t nSize, UINT CodePage) 
 		return 0;
 
 	size_t nCopyLength = (nSize <= m_pData->GetLength()+1 ? nSize-1 : m_pData->GetLength());
-	WideCharToMultiByte(CodePage,0,m_pData->GetData(),(int)nCopyLength,lpszStr,(int)nCopyLength+1,NULL,NULL);
+	WideCharToMultiByte(CodePage,0,m_pData->GetData(),(int)nCopyLength,lpszStr,(int)nCopyLength+1,nullptr,nullptr);
 	lpszStr[nCopyLength] = 0;
 	return nCopyLength+1;
 }
@@ -135,7 +135,7 @@ UnicodeString& UnicodeString::Append(const char *lpszAdd, UINT CodePage)
 {
 	if (lpszAdd && *lpszAdd)
 	{
-		size_t nAddSize = MultiByteToWideChar(CodePage,0,lpszAdd,-1,NULL,0);
+		size_t nAddSize = MultiByteToWideChar(CodePage,0,lpszAdd,-1,nullptr,0);
 		size_t nNewLength = m_pData->GetLength() + nAddSize - 1;
 		Inflate(nNewLength + 1);
 		MultiByteToWideChar(CodePage,0,lpszAdd,(int)nAddSize,m_pData->GetData() + m_pData->GetLength(),(int)m_pData->GetSize());
@@ -167,7 +167,7 @@ UnicodeString& UnicodeString::Copy(const char *lpszData, UINT CodePage)
 	}
 	else
 	{
-		size_t nSize = MultiByteToWideChar(CodePage,0,lpszData,-1,NULL,0);
+		size_t nSize = MultiByteToWideChar(CodePage,0,lpszData,-1,nullptr,0);
 		m_pData = new UnicodeStringData(nSize);
 		MultiByteToWideChar(CodePage,0,lpszData,(int)nSize,m_pData->GetData(),(int)m_pData->GetSize());
 		m_pData->SetLength(nSize - 1);
@@ -265,7 +265,7 @@ UnicodeString& UnicodeString::Clear()
 
 int __cdecl UnicodeString::Format(const wchar_t * format, ...)
 {
-	wchar_t *buffer = NULL;
+	wchar_t *buffer = nullptr;
 	size_t Size = MAX_PATH;
 	int retValue = -1;
 	va_list argptr;

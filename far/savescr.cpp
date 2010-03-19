@@ -40,10 +40,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "palette.hpp"
 
-SaveScreen::SaveScreen()
+SaveScreen::SaveScreen():
+	RealScreen(FALSE)
 {
 	_OT(SysLog(L"[%p] SaveScreen::SaveScreen()", this));
-	RealScreen=FALSE;
 	SaveArea(0,0,ScrX,ScrY);
 }
 
@@ -90,7 +90,7 @@ void SaveScreen::Discard()
 		return;
 
 	delete[] ScreenBuf;
-	ScreenBuf=NULL;
+	ScreenBuf=nullptr;
 }
 
 
@@ -179,7 +179,7 @@ void SaveScreen::AppendArea(SaveScreen *NewArea)
 {
 	CHAR_INFO *Buf=ScreenBuf,*NewBuf=NewArea->ScreenBuf;
 
-	if (Buf==NULL || NewBuf==NULL)
+	if (Buf==nullptr || NewBuf==nullptr)
 		return;
 
 	for (int X=X1; X<=X2; X++)
@@ -292,5 +292,5 @@ void SaveScreen::CleanupBuffer(PCHAR_INFO Buffer, size_t BufSize)
 
 void SaveScreen::DumpBuffer(const wchar_t *Title)
 {
-	SaveScreenDumpBuffer(Title,GetBufferAddress(),X1,Y1,X2,Y2,RealScreen,NULL);
+	SaveScreenDumpBuffer(Title,GetBufferAddress(),X1,Y1,X2,Y2,RealScreen,nullptr);
 }

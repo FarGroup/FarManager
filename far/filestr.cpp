@@ -54,18 +54,18 @@ enum EolType
 	FEOL_NOTEPAD
 };
 
-GetFileString::GetFileString(FILE *SrcFile)
+GetFileString::GetFileString(FILE *SrcFile):
+	SrcFile(SrcFile),
+	ReadPos(0),
+	ReadSize(0),
+	m_nStrLength(DELTA),
+	Str(reinterpret_cast<char*>(xf_malloc(m_nStrLength))),
+	m_nwStrLength(DELTA),
+	wStr(reinterpret_cast<wchar_t*>(xf_malloc(m_nwStrLength * sizeof(wchar_t)))),
+	SomeDataLost(false),
+	bCrCr(false)
 {
-	m_nwStrLength = DELTA;
-	wStr = (wchar_t*)xf_malloc(m_nwStrLength * sizeof(wchar_t));
-	m_nStrLength = DELTA;
-	Str = (char*)xf_malloc(m_nStrLength);
-	GetFileString::SrcFile = SrcFile;
-	ReadPos = ReadSize = 0;
-	SomeDataLost = false;
-	bCrCr = false;
 }
-
 
 GetFileString::~GetFileString()
 {
@@ -133,7 +133,7 @@ int GetFileString::GetString(wchar_t **DestStr, int nCodePage, int &Length)
 
 			if (ERROR_INSUFFICIENT_BUFFER == ret)
 			{
-				nResultLength = MultiByteToWideChar(nCodePage, 0, Str, Length, NULL, 0);
+				nResultLength = MultiByteToWideChar(nCodePage, 0, Str, Length, nullptr, 0);
 				wStr = (wchar_t*)xf_realloc_nomove(wStr, (nResultLength + 1) * sizeof(wchar_t));
 				*wStr = L'\0';
 				m_nwStrLength = nResultLength+1;
@@ -157,7 +157,7 @@ int GetFileString::GetAnsiString(char **DestStr, int &Length)
 	int ExitCode = 1;
 	EolType Eol = FEOL_NONE;
 	int x = 0;
-	char *ReadBufPtr = ReadPos < ReadSize ? ReadBuf + ReadPos : NULL;
+	char *ReadBufPtr = ReadPos < ReadSize ? ReadBuf + ReadPos : nullptr;
 
 	// Обработка ситуации, когда у нас пришёл двойной \r\r, а потом не было \n.
 	// В этом случаем считаем \r\r двумя MAC окончаниями строк.
@@ -229,7 +229,7 @@ int GetFileString::GetAnsiString(char **DestStr, int &Length)
 			{
 				char *NewStr = (char *)xf_realloc(Str, m_nStrLength + (DELTA << x));
 
-				if (NewStr == NULL)
+				if (NewStr == nullptr)
 					return (-1);
 
 				Str = NewStr;
@@ -254,7 +254,7 @@ int GetFileString::GetUnicodeString(wchar_t **DestStr, int &Length, bool bBigEnd
 	int ExitCode = 1;
 	EolType Eol = FEOL_NONE;
 	int x = 0;
-	wchar_t *ReadBufPtr = ReadPos < ReadSize ? wReadBuf + ReadPos / sizeof(wchar_t) : NULL;
+	wchar_t *ReadBufPtr = ReadPos < ReadSize ? wReadBuf + ReadPos / sizeof(wchar_t) : nullptr;
 
 	// Обработка ситуации, когда у нас пришёл двойной \r\r, а потом не было \n.
 	// В этом случаем считаем \r\r двумя MAC окончаниями строк.
@@ -329,7 +329,7 @@ int GetFileString::GetUnicodeString(wchar_t **DestStr, int &Length, bool bBigEnd
 			{
 				wchar_t *NewStr = (wchar_t *)xf_realloc(wStr, (m_nwStrLength + (DELTA << x)) * sizeof(wchar_t));
 
-				if (NewStr == NULL)
+				if (NewStr == nullptr)
 					return (-1);
 
 				wStr = NewStr;
@@ -504,7 +504,7 @@ wchar_t *ReadString(FILE *file, wchar_t *lpwszDest, int nDestLength, int nCodePa
 		if (!fgetws(lpwszDest, nDestLength, file))
 		{
 			xf_free(lpDest);
-			return NULL;
+			return nullptr;
 		}
 
 		if (nCodePage == CP_REVERSEBOM)
@@ -535,7 +535,7 @@ wchar_t *ReadString(FILE *file, wchar_t *lpwszDest, int nDestLength, int nCodePa
 		else
 		{
 			xf_free(lpDest);
-			return NULL;
+			return nullptr;
 		}
 	}
 	else if (nCodePage != -1)
@@ -545,7 +545,7 @@ wchar_t *ReadString(FILE *file, wchar_t *lpwszDest, int nDestLength, int nCodePa
 		else
 		{
 			xf_free(lpDest);
-			return NULL;
+			return nullptr;
 		}
 	}
 

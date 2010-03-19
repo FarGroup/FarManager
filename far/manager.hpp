@@ -45,8 +45,8 @@ class Manager
 		int ModalStackCount;    // Размер стека модальных фреймов
 		int ModalStackSize;     // Буфер стека модальных фреймов
 
-		Frame **FrameList;       // Очередь модальных фреймов
 		int  FrameCount;         // Размер немодальной очереди
+		Frame **FrameList;       // Очередь модальных фреймов
 		int  FrameListSize;      // размер буфера под немодальную очередь
 		int  FramePos;           // Индекс текущий немодального фрейма. Он не всегда совпадает с CurrentFrame
 		// текущий немодальный фрейм можно получить с помощью FrameManager->GetBottomFrame();
@@ -88,7 +88,7 @@ class Manager
 		Frame *FrameMenu(); //    вместо void SelectFrame(); // show window menu (F12)
 
 		BOOL Commit();         // завершает транзакцию по изменениям в очереди и стеке фреймов
-		// Она в цикле вызывает себя, пока хотябы один из указателей отличен от NULL
+		// Она в цикле вызывает себя, пока хотябы один из указателей отличен от nullptr
 		// Функции, "подмастерья начальника" - Commit'a
 		// Иногда вызываются не только из него и из других мест
 		void RefreshCommit();  //
@@ -115,13 +115,13 @@ class Manager
 		// Эти функции можно безопасно вызывать практически из любого места кода
 		// они как бы накапливают информацию о том, что нужно будет сделать с фреймами при следующем вызове Commit()
 		void InsertFrame(Frame *NewFrame, int Index=-1);
-		void DeleteFrame(Frame *Deleted=NULL);
+		void DeleteFrame(Frame *Deleted=nullptr);
 		void DeleteFrame(int Index);
 		void DeactivateFrame(Frame *Deactivated,int Direction);
 		void SwapTwoFrame(int Direction);
 		void ActivateFrame(Frame *Activated);
 		void ActivateFrame(int Index);
-		void RefreshFrame(Frame *Refreshed=NULL);
+		void RefreshFrame(Frame *Refreshed=nullptr);
 		void RefreshFrame(int Index);
 
 		//! Функции для запуска модальных фреймов.
@@ -129,7 +129,7 @@ class Manager
 
 
 		//! Входит в новый цикл обработки событий
-		void ExecuteModal(Frame *Executed=NULL);
+		void ExecuteModal(Frame *Executed=nullptr);
 		//! Запускает немодальный фрейм в модальном режиме
 		void ExecuteNonModal();
 		//! Проверка того, что немодальный фрейм находится еще и на вершине стека.
@@ -137,7 +137,7 @@ class Manager
 
 		//!  Функции, которые работают с очередью немодально фрейма.
 		//  Сейчас используются только для хранения информаци о наличии запущенных объектов типа VFMenu
-		void ModalizeFrame(Frame *Modalized=NULL, int Mode=TRUE);
+		void ModalizeFrame(Frame *Modalized=nullptr, int Mode=TRUE);
 		void UnmodalizeFrame(Frame *Unmodalized);
 
 		void CloseAll();
@@ -161,7 +161,7 @@ class Manager
 
 		BOOL IsPanelsActive(); // используется как признак WaitInMainLoop
 		void SetFramePos(int NewPos);
-		int  FindFrameByFile(int ModalType,const wchar_t *FileName,const wchar_t *Dir=NULL);
+		int  FindFrameByFile(int ModalType,const wchar_t *FileName,const wchar_t *Dir=nullptr);
 		BOOL ShowBackground();
 
 		void EnterMainLoop();
