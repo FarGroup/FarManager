@@ -270,7 +270,8 @@ BOOL apiSetFileAttributes(
 void InitCurrentDirectory();
 
 BOOL apiSetCurrentDirectory(
-    LPCWSTR lpPathName
+    LPCWSTR lpPathName,
+    bool Validate = true
 );
 
 BOOL apiCreateSymbolicLink(

@@ -78,13 +78,13 @@ bool IsNetworkServerPath(const wchar_t *Path)
 	"\\server\share\" is valid windows path.
 	"\\server\" is not.
 */
-	bool Result=true;
+	bool Result=false;
 	if(IsNetworkPath(Path))
 	{
 		LPCWSTR SharePtr=wcspbrk(HasPathPrefix(Path)?Path+8:Path+2,L"\\/");
-		if(SharePtr && SharePtr[1] && !IsSlash(SharePtr[1]))
+		if(!SharePtr || !SharePtr[1] || IsSlash(SharePtr[1]))
 		{
-			Result=false;
+			Result=true;
 		}
 	}
 	return Result;

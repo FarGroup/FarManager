@@ -189,35 +189,39 @@ DWORD apiGetCurrentDirectory(string &strCurDir)
 	return static_cast<DWORD>(strCurDir.GetLength());
 }
 
-BOOL apiSetCurrentDirectory(LPCWSTR lpPathName)
+BOOL apiSetCurrentDirectory(LPCWSTR lpPathName, bool Validate)
 {
+	// correct path to our standard
 	string strDir=lpPathName;
-	AddEndSlash(strDir);
-	strDir+=L"*";
-	FAR_FIND_DATA_EX fd;
+	ReplaceSlashToBSlash(strDir);
+	DeleteEndSlash(strDir);
+	LPCWSTR CD=strDir;
+	int Offset=HasPathPrefix(CD)?4:0;
+	if ((CD[Offset] && CD[Offset+1]==L':' && !CD[Offset+2]) || IsLocalVolumeRootPath(CD))
+		AddEndSlash(strDir);
 
-	if (apiGetFindDataEx(strDir,&fd) || GetLastError()==ERROR_FILE_NOT_FOUND) // root dir on empty disk
-	{
-		strCurrentDirectory()=lpPathName;
-
-		//correct it to our standard
-		ReplaceSlashToBSlash(strCurrentDirectory());
-		DeleteEndSlash(strCurrentDirectory());
-		LPCWSTR CD=strCurrentDirectory();
-		int Offset=HasPathPrefix(CD)?4:0;
-		if ((CD[Offset] && CD[Offset+1]==L':' && !CD[Offset+2]) || IsLocalVolumeRootPath(CD))
-			AddEndSlash(strCurrentDirectory());
-
-		//try to synchronize far cur dir with process cur dir
-		if(CtrlObject && CtrlObject->Plugins.GetOemPluginsCount())
-		{
-			SetCurrentDirectory(strCurrentDirectory());
-		}
-
+	if (strDir == strCurrentDirectory())
 		return TRUE;
+
+	if (Validate)
+	{
+		string strDir=lpPathName;
+		AddEndSlash(strDir);
+		strDir+=L"*";
+		FAR_FIND_DATA_EX fd;
+		if (!apiGetFindDataEx(strDir,&fd) && GetLastError()!=ERROR_FILE_NOT_FOUND) // root dir on empty disk
+			return FALSE;
 	}
 
-	return FALSE;
+	strCurrentDirectory()=strDir;
+
+	// try to synchronize far cur dir with process cur dir
+	if(CtrlObject && CtrlObject->Plugins.GetOemPluginsCount())
+	{
+		SetCurrentDirectory(strCurrentDirectory());
+	}
+
+	return TRUE;
 }
 
 DWORD apiGetTempPath(string &strBuffer)
