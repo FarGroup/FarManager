@@ -347,7 +347,7 @@ int _cdecl SortList(const void *el1,const void *el2)
 	if (ListSelectedFirst && SPtr1->Selected!=SPtr2->Selected)
 		return(SPtr1->Selected>SPtr2->Selected ? -1:1);
 
-	if (ListSortGroups && (ListSortMode==BY_NAME || ListSortMode==BY_EXT) &&
+	if (ListSortGroups && (ListSortMode==BY_NAME || ListSortMode==BY_EXT || ListSortMode==BY_FULLNAME) &&
 	        SPtr1->SortGroup!=SPtr2->SortGroup)
 		return(SPtr1->SortGroup<SPtr2->SortGroup ? -1:1);
 
@@ -468,7 +468,20 @@ int _cdecl SortList(const void *el1,const void *el2)
 				return((SPtr1->StreamsSize > SPtr2->StreamsSize) ? -ListSortOrder : ListSortOrder);
 			case BY_FULLNAME:
 
-				int NameCmp = (ListCaseSensitive ? StrCmp(SPtr1->strName, SPtr2->strName) : StrCmpI(SPtr1->strName, SPtr2->strName)) * ListSortOrder;
+				int NameCmp;
+				if (ListNumericSort)
+				{
+					const wchar_t *Path1 = SPtr1->strName.CPtr();
+					const wchar_t *Path2 = SPtr2->strName.CPtr();
+					const wchar_t *Name1 = PointToName(SPtr1->strName);
+					const wchar_t *Name2 = PointToName(SPtr2->strName);
+					NameCmp = ListCaseSensitive ? StrCmpNN(Path1, Name1-Path1, Path2, Name2-Path2) : StrCmpNNI(Path1, Name1-Path1, Path2, Name2-Path2);
+					if (NameCmp == 0)
+						NameCmp = ListCaseSensitive ? NumStrCmp(Name1, Name2) : NumStrCmpI(Name1, Name2);
+				}
+				else
+					NameCmp = ListCaseSensitive ? StrCmp(SPtr1->strName, SPtr2->strName) : StrCmpI(SPtr1->strName, SPtr2->strName);
+				NameCmp *= ListSortOrder;
 				if (NameCmp == 0)
 					NameCmp = SPtr1->Position > SPtr2->Position ? ListSortOrder : -ListSortOrder;
 				return NameCmp;
@@ -495,29 +508,20 @@ int _cdecl SortList(const void *el1,const void *el2)
 		if (!Ext2) Ext2=PointToExt(SPtr2->strName);
 	}
 
-	const wchar_t *Name1Ptr=PointToName(SPtr1->strName);
+	const wchar_t *Name1=PointToName(SPtr1->strName);
+	const wchar_t *Name2=PointToName(SPtr2->strName);
 
-	const wchar_t *Name2Ptr=PointToName(SPtr2->strName);
-	//TODO: в будущем заменить копирование строк на вызов функций сравнения с явным указанием длин сравниваемых строк.
-	string strName1(Name1Ptr,Ext1-Name1Ptr);
-	string strName2(Name2Ptr,Ext2-Name2Ptr);
-	const wchar_t *Name1=strName1.CPtr();
-	const wchar_t *Name2=strName2.CPtr();
+	if (ListNumericSort)
+		NameCmp=ListCaseSensitive?NumStrCmpN(Name1,Ext1-Name1,Name2,Ext2-Name2):NumStrCmpNI(Name1,Ext1-Name1,Name2,Ext2-Name2);
+	else
+		NameCmp=ListCaseSensitive?StrCmpNN(Name1,Ext1-Name1,Name2,Ext2-Name2):StrCmpNNI(Name1,Ext1-Name1,Name2,Ext2-Name2);
 
-	for (size_t ii=0; ii<2; ++ii)
+	if (NameCmp == 0)
 	{
-		if (ii==1)
-		{
-			Name1=Ext1;
-			Name2=Ext2;
-		}
-
-		if (!ListNumericSort)
-			NameCmp=ListCaseSensitive?StrCmp(Name1,Name2):StrCmpI(Name1,Name2);
+		if (ListNumericSort)
+			NameCmp=ListCaseSensitive?NumStrCmp(Ext1,Ext2):NumStrCmpI(Ext1,Ext2);
 		else
-			NameCmp=ListCaseSensitive?NumStrCmp(Name1,Name2):NumStrCmpI(Name1,Name2);
-
-		if (NameCmp) break;
+			NameCmp=ListCaseSensitive?StrCmp(Ext1,Ext2):StrCmpI(Ext1,Ext2);
 	}
 
 	NameCmp*=ListSortOrder;
@@ -525,7 +529,7 @@ int _cdecl SortList(const void *el1,const void *el2)
 	if (NameCmp==0)
 		NameCmp=SPtr1->Position>SPtr2->Position ? ListSortOrder:-ListSortOrder;
 
-	return(NameCmp);
+	return NameCmp;
 }
 
 void FileList::SetFocus()
