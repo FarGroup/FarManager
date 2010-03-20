@@ -132,7 +132,8 @@ Panel::Panel():
 	PrevViewMode(VIEW_3),
 	NumericSort(0),
 	ModalMode(0),
-	ViewSettings()
+	ViewSettings(),
+	ProcessingPluginCommand(0)
 {
 	_OT(SysLog(L"[%p] Panel::Panel()", this));
 	SrcDragPanel=nullptr;
