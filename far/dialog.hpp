@@ -301,7 +301,7 @@ class Dialog: public Frame
 		   + Изменяет фокус ввода между двумя элементами.
 		     Вынесен отдельно для того, чтобы обработать DMSG_KILLFOCUS & DMSG_SETFOCUS
 		*/
-		unsigned ChangeFocus2(unsigned KillFocusPos,unsigned SetFocusPos);
+		void ChangeFocus2(unsigned SetFocusPos);
 
 		unsigned ChangeFocus(unsigned FocusPos,int Step,int SkipGroup);
 		BOOL SelectFromEditHistory(DialogItemEx *CurItem,DlgEdit *EditLine,const wchar_t *HistoryName,string &strStr);
@@ -345,6 +345,8 @@ class Dialog: public Frame
 		void SetComboBoxPos(DialogItemEx* Item=nullptr);
 
 		LONG_PTR CallDlgProc(int nMsg, int nParam1, LONG_PTR nParam2);
+
+		void ProcessKey(int Key, unsigned ItemPos);
 
 	public:
 		Dialog(DialogItemEx *SrcItem, unsigned SrcItemCount,

@@ -2810,7 +2810,7 @@ int Dialog::ProcessKey(int Key)
 
 				if (MinDist<1000)
 				{
-					ChangeFocus2(FocusPos,MinPos);
+					ChangeFocus2(MinPos);
 
 					if (Item[MinPos]->Flags & DIF_MOVESELECT)
 					{
@@ -2862,7 +2862,7 @@ int Dialog::ProcessKey(int Key)
 				for (I=0; I<ItemCount; I++)
 					if (Item[I]->DefaultButton)
 					{
-						ChangeFocus2(FocusPos,I);
+						ChangeFocus2(I);
 						ShowDialog();
 						return(TRUE);
 					}
@@ -3053,14 +3053,8 @@ int Dialog::ProcessKey(int Key)
 							if (!(Item[I]->Flags & DIF_EDITOR))
 								I=ChangeFocus(I,(Key == KEY_PGUP || Key == KEY_NUMPAD9)?1:-1,FALSE);
 
-							unsigned oldFocus=FocusPos;
-							ChangeFocus2(FocusPos,I);
-
-							if (oldFocus != I)
-							{
-								ShowDialog(oldFocus);
-								ShowDialog(FocusPos); // ?? I ??
-							}
+							ChangeFocus2(I);
+							ShowDialog();
 
 							return(TRUE);
 						}
@@ -3111,6 +3105,14 @@ int Dialog::ProcessKey(int Key)
 			return(ProcessHighlighting(Key,FocusPos,TRUE));
 		}
 	}
+}
+
+void Dialog::ProcessKey(int Key, unsigned ItemPos)
+{
+	unsigned SavedFocusPos = FocusPos;
+	FocusPos = ItemPos;
+	ProcessKey(Key);
+	FocusPos = SavedFocusPos;
 }
 
 
@@ -3165,7 +3167,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			{
 				if (FocusPos != I)
 				{
-					ChangeFocus2(FocusPos,I);
+					ChangeFocus2(I);
 					ShowDialog();
 				}
 
@@ -3222,7 +3224,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 						if (MsX==X1+Item[I]->X2 && MsY >= Y1+Item[I]->Y1 && MsY <= Y1+Item[I]->Y2)
 							List->ProcessMouse(MouseEvent); // забыл проверить на клик на скролбар (KM)
 						else
-							ProcessKey(KEY_ENTER);
+							ProcessKey(KEY_ENTER, I);
 					}
 
 #endif
@@ -3337,7 +3339,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 				if (Item[I]->Type == DI_USERCONTROL)
 				{
-					ChangeFocus2(FocusPos,I);
+					ChangeFocus2(I);
 					ShowDialog();
 					return(TRUE);
 				}
@@ -3349,7 +3351,6 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		if ((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
 		{
 			//for (I=0;I<ItemCount;I++)
-			unsigned OldFocusPos=FocusPos;
 
 			for (I=ItemCount-1; I!=(unsigned)-1; I--)
 			{
@@ -3359,7 +3360,13 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 				Type=Item[I]->Type;
 
-				if (MsX>=X1+Item[I]->X1)
+				GetItemRect(I,Rect);
+				Rect.Left+=X1;  Rect.Top+=Y1;
+				Rect.Right+=X1; Rect.Bottom+=Y1;
+				if (Type == DI_COMBOBOX)
+					Rect.Right++;
+
+				if (MsX >= Rect.Left && MsY >= Rect.Top && MsX <= Rect.Right && MsY <= Rect.Bottom)
 				{
 					/* ********************************************************** */
 					if (IsEdit(Type))
@@ -3381,31 +3388,15 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 						{
 							EditLine->SetClearFlag(0);
 
-							if (!(Item[I]->Flags&DIF_NOFOCUS))
-								ChangeFocus2(FocusPos,I);
-							else
-							{
-								Item[FocusPos]->Focus=0; //??
-								FocusPos=I;
-							}
-
+							ChangeFocus2(I);
 							ShowDialog();
-							ProcessOpenComboBox(Item[FocusPos]->Type,Item[FocusPos],FocusPos);
 
-							//ProcessKey(KEY_CTRLDOWN);
-							if (Item[I]->Flags&DIF_NOFOCUS) //???
-								FocusPos=OldFocusPos;       //???
+							ProcessOpenComboBox(Item[I]->Type,Item[I],I);
 
 							return(TRUE);
 						}
 
-						if (!(Item[I]->Flags&DIF_NOFOCUS)) //??? !!!
-							ChangeFocus2(FocusPos,I);      //??? !!!
-						else
-						{
-							Item[FocusPos]->Focus=0; //??
-							FocusPos=I;
-						}
+						ChangeFocus2(I);
 
 						if (EditLine->ProcessMouse(MouseEvent))
 						{
@@ -3431,22 +3422,12 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 							{
 								EditLine->SetClearFlag(0); // раз уж покусились на, то и...
 
-								if (!(Item[I]->Flags&DIF_NOFOCUS))
-									ChangeFocus2(FocusPos,I);
-								else
-								{
-									Item[FocusPos]->Focus=0; //??
-									FocusPos=I;
-								}
+								ChangeFocus2(I);
 
 								if (!(Item[I]->Flags&DIF_HIDDEN))
 									ShowDialog(I);
 
-								ProcessOpenComboBox(Item[FocusPos]->Type,Item[FocusPos],FocusPos);
-
-								//ProcessKey(KEY_CTRLDOWN);
-								if (Item[I]->Flags&DIF_NOFOCUS) //???
-									FocusPos=OldFocusPos;      //???
+								ProcessOpenComboBox(Item[I]->Type,Item[I],I);
 
 								return(TRUE);
 							}
@@ -3458,34 +3439,22 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 					        MsY==Y1+Item[I]->Y1 &&
 					        MsX < X1+Item[I]->X1+HiStrlen(Item[I]->strData))
 					{
-						if (!(Item[I]->Flags&DIF_NOFOCUS))
-						{
-							ChangeFocus2(FocusPos,I);
-							ShowDialog();
-						}
-						else
-						{
-							Item[FocusPos]->Focus=0;
-							FocusPos=I;
-						}
+						ChangeFocus2(I);
+						ShowDialog();
 
-						while (IsMouseButtonPressed())
-							;
+						while (IsMouseButtonPressed());
 
 						if (MouseX <  X1 ||
 						        MouseX >  X1+Item[I]->X1+HiStrlen(Item[I]->strData)+4 ||
 						        MouseY != Y1+Item[I]->Y1)
 						{
-							if (!(Item[I]->Flags&DIF_NOFOCUS))
-							{
-								ChangeFocus2(FocusPos,I);
-								ShowDialog();
-							}
+							ChangeFocus2(I);
+							ShowDialog();
 
 							return(TRUE);
 						}
 
-						ProcessKey(KEY_ENTER);
+						ProcessKey(KEY_ENTER, I);
 						return(TRUE);
 					}
 
@@ -3495,17 +3464,8 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 					        MsY==Y1+Item[I]->Y1 &&
 					        MsX < (X1+Item[I]->X1+HiStrlen(Item[I]->strData)+4-((Item[I]->Flags & DIF_MOVESELECT)!=0)))
 					{
-						if (!(Item[I]->Flags&DIF_NOFOCUS))
-							ChangeFocus2(FocusPos,I);
-						else
-						{
-							Item[FocusPos]->Focus=0; //??
-							FocusPos=I;
-						}
-
-						ProcessKey(KEY_SPACE);
-//            if(Item[I].Flags&DIF_NOFOCUS)
-//              FocusPos=OldFocusPos;
+						ChangeFocus2(I);
+						ProcessKey(KEY_SPACE, I);
 						return(TRUE);
 					}
 				}
@@ -3726,15 +3686,8 @@ int Dialog::Do_ProcessFirstCtrl()
 		for (unsigned I=0; I<ItemCount; I++)
 			if (CanGetFocus(Item[I]->Type))
 			{
-				unsigned OldPos=FocusPos;
-				ChangeFocus2(FocusPos,I);
-
-				if (OldPos!=FocusPos)
-				{
-					ShowDialog(OldPos);
-					ShowDialog(FocusPos);
-				}
-
+				ChangeFocus2(I);
+				ShowDialog();
 				break;
 			}
 	}
@@ -3754,7 +3707,7 @@ int Dialog::Do_ProcessNextCtrl(int Up,BOOL IsRedraw)
 	unsigned I=ChangeFocus(FocusPos,Up? -1:1,FALSE);
 	Item[FocusPos]->Focus=0;
 	Item[I]->Focus=1;
-	ChangeFocus2(FocusPos,I);
+	ChangeFocus2(I);
 
 	if (IsEdit(Item[I]->Type) && (Item[I]->Flags & DIF_EDITOR))
 		((DlgEdit *)(Item[I]->ObjPtr))->SetCurPos(PrevPos);
@@ -3799,14 +3752,8 @@ int Dialog::Do_ProcessTab(int Next)
 	else
 		I=FocusPos;
 
-	unsigned oldFocus=FocusPos;
-	ChangeFocus2(FocusPos,I);
-
-	if (oldFocus != I)
-	{
-		ShowDialog(oldFocus);
-		ShowDialog(FocusPos); // ?? I ??
-	}
+	ChangeFocus2(I);
+	ShowDialog();
 
 	return(TRUE);
 }
@@ -3922,35 +3869,32 @@ unsigned Dialog::ChangeFocus(unsigned CurFocusPos,int Step,int SkipGroup)
    Изменяет фокус ввода между двумя элементами.
    Вынесен отдельно с тем, чтобы обработать DN_KILLFOCUS & DM_SETFOCUS
 */
-unsigned Dialog::ChangeFocus2(unsigned KillFocusPos,unsigned SetFocusPos)
+void Dialog::ChangeFocus2(unsigned SetFocusPos)
 {
 	CriticalSectionLock Lock(CS);
-	int FucusPosNeed=-1;
+	int FocusPosNeed=-1;
 
 	if (!(Item[SetFocusPos]->Flags&(DIF_NOFOCUS|DIF_DISABLE|DIF_HIDDEN)))
 	{
 		if (DialogMode.Check(DMODE_INITOBJECTS))
 		{
-			FucusPosNeed=(int)DlgProc((HANDLE)this,DN_KILLFOCUS,KillFocusPos,0);
+			FocusPosNeed=(int)DlgProc((HANDLE)this,DN_KILLFOCUS,FocusPos,0);
 
 			if (!DialogMode.Check(DMODE_SHOW))
-				return SetFocusPos;
+				return;
 		}
 
-		if (FucusPosNeed != -1 && CanGetFocus(Item[FucusPosNeed]->Type))
-			SetFocusPos=FucusPosNeed;
+		if (FocusPosNeed != -1 && CanGetFocus(Item[FocusPosNeed]->Type))
+			SetFocusPos=FocusPosNeed;
 
-		if (Item[SetFocusPos]->Flags&DIF_NOFOCUS)
-			SetFocusPos=KillFocusPos;
-
-		Item[KillFocusPos]->Focus=0;
+		Item[FocusPos]->Focus=0;
 
 		// "снимать выделение при потере фокуса?"
-		if (IsEdit(Item[KillFocusPos]->Type) &&
-		        !(Item[KillFocusPos]->Type == DI_COMBOBOX && (Item[KillFocusPos]->Flags & DIF_DROPDOWNLIST)))
+		if (IsEdit(Item[FocusPos]->Type) &&
+		        !(Item[FocusPos]->Type == DI_COMBOBOX && (Item[FocusPos]->Flags & DIF_DROPDOWNLIST)))
 		{
-			DlgEdit *EditPtr=(DlgEdit*)Item[KillFocusPos]->ObjPtr;
-			EditPtr->GetSelection(Item[KillFocusPos]->SelStart,Item[KillFocusPos]->SelEnd);
+			DlgEdit *EditPtr=(DlgEdit*)Item[FocusPos]->ObjPtr;
+			EditPtr->GetSelection(Item[FocusPos]->SelStart,Item[FocusPos]->SelEnd);
 
 			if ((Opt.Dialogs.EditLine&DLGEDITLINE_CLEARSELONKILLFOCUS))
 			{
@@ -3986,24 +3930,21 @@ unsigned Dialog::ChangeFocus2(unsigned KillFocusPos,unsigned SetFocusPos)
 		}
 
 		//   проинформируем листбокс, есть ли у него фокус
-		if (Item[KillFocusPos]->Type == DI_LISTBOX)
-			Item[KillFocusPos]->ListPtr->ClearFlags(VMENU_LISTHASFOCUS);
+		if (Item[FocusPos]->Type == DI_LISTBOX)
+			Item[FocusPos]->ListPtr->ClearFlags(VMENU_LISTHASFOCUS);
 
 		if (Item[SetFocusPos]->Type == DI_LISTBOX)
 			Item[SetFocusPos]->ListPtr->SetFlags(VMENU_LISTHASFOCUS);
 
-		Dialog::PrevFocusPos=Dialog::FocusPos;
-		Dialog::FocusPos=SetFocusPos;
-
 		if (DialogMode.Check(DMODE_INITOBJECTS))
 			DlgProc((HANDLE)this,DN_GOTFOCUS,SetFocusPos,0);
-	}
-	else
-		SetFocusPos=KillFocusPos;
 
-	SelectOnEntry(KillFocusPos,FALSE);
-	SelectOnEntry(SetFocusPos,TRUE);
-	return(SetFocusPos);
+		SelectOnEntry(FocusPos,FALSE);
+		SelectOnEntry(SetFocusPos,TRUE);
+
+		PrevFocusPos=FocusPos;
+		FocusPos=SetFocusPos;
+	}
 }
 
 /*
@@ -4359,13 +4300,8 @@ int Dialog::ProcessHighlighting(int Key,unsigned FocusPos,int Translate)
 				if (!DlgProc((HANDLE)this,DN_HOTKEY,I,Key))
 					break; // сказали не продолжать обработку...
 
-				ChangeFocus2(FocusPos,I); //??
-
-				if (FocusPos != I)
-				{
-					ShowDialog(FocusPos);
-					ShowDialog(I);
-				}
+				ChangeFocus2(I);
+				ShowDialog();
 
 				if ((Item[I]->Type==DI_CHECKBOX || Item[I]->Type==DI_RADIOBUTTON) &&
 				        (!DisableSelect || (Item[I]->Flags & DIF_MOVESELECT)))
@@ -4375,7 +4311,7 @@ int Dialog::ProcessHighlighting(int Key,unsigned FocusPos,int Translate)
 				}
 				else if (Item[I]->Type==DI_BUTTON)
 				{
-					ProcessKey(KEY_ENTER);
+					ProcessKey(KEY_ENTER, I);
 					return(TRUE);
 				}
 				// при ComboBox`е - "вываливаем" последний //????
@@ -5797,7 +5733,9 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 			if (Dlg->FocusPos == (unsigned)Param1) // уже и так установлено все!
 				return TRUE;
 
-			if (Dlg->ChangeFocus2(Dlg->FocusPos,Param1) == (unsigned)Param1)
+			Dlg->ChangeFocus2(Param1);
+
+			if (Dlg->FocusPos == (unsigned)Param1)
 			{
 				Dlg->ShowDialog();
 				return TRUE;
@@ -6165,7 +6103,7 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 					if ((CurItem->Flags&DIF_HIDDEN) && Dlg->FocusPos == (unsigned)Param1)
 					{
 						Param2=Dlg->ChangeFocus(Param1,1,TRUE);
-						Dlg->ChangeFocus2(Param1,(int)Param2);
+						Dlg->ChangeFocus2((int)Param2);
 					}
 
 					// Либо все,  либо... только 1
