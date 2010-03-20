@@ -9752,6 +9752,14 @@ upd:"Size of st&reams"
 "Stream-ek m&érete"
 upd:"Size of st&reams"
 
+MMenuSortByFullName
+"&Полное имя"
+"&Full name"
+upd:"&Full name"
+upd:"&Full name"
+upd:"&Full name"
+upd:"&Full name"
+
 MMenuSortUseGroups
 "Использовать &группы сортировки   Shift-F11"
 "Use sort &groups      Shift-F11"
@@ -9761,8 +9769,8 @@ MMenuSortUseGroups
 "użyj &grup sortowania        Shift-F11"
 
 MMenuSortSelectedFirst
-"&Помеченные файлы вперед          Shift-F12"
-"Show selected &first  Shift-F12"
+"Помеченные &файлы вперед          Shift-F12"
+"Show selected f&irst  Shift-F12"
 "Nejdřív zobrazit vy&brané  Shift-F12"
 "&Ausgewählte zuerst     Umsch-F12"
 "Kijel&ölteket előre   Shift-F12"

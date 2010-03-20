@@ -242,12 +242,14 @@ void FileList::ShowFileList(int Fast)
 		static int SortModes[]={UNSORTED,BY_NAME,BY_EXT,BY_MTIME,BY_CTIME,
 		                        BY_ATIME,BY_SIZE,BY_DIZ,BY_OWNER,
 		                        BY_COMPRESSEDSIZE,BY_NUMLINKS,
-		                        BY_NUMSTREAMS,BY_STREAMSSIZE
+		                        BY_NUMSTREAMS,BY_STREAMSSIZE,
+		                        BY_FULLNAME
 		                       };
 		static int SortStrings[]={MMenuUnsorted,MMenuSortByName,
 		                          MMenuSortByExt,MMenuSortByModification,MMenuSortByCreation,
 		                          MMenuSortByAccess,MMenuSortBySize,MMenuSortByDiz,MMenuSortByOwner,
-		                          MMenuSortByCompressedSize,MMenuSortByNumLinks,MMenuSortByNumStreams,MMenuSortByStreamsSize
+		                          MMenuSortByCompressedSize,MMenuSortByNumLinks,MMenuSortByNumStreams,MMenuSortByStreamsSize,
+		                          MMenuSortByFullName
 		                         };
 
 		for (size_t I=0; I<countof(SortModes); I++)

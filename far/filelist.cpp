@@ -466,6 +466,12 @@ int _cdecl SortList(const void *el1,const void *el2)
 					break;
 
 				return((SPtr1->StreamsSize > SPtr2->StreamsSize) ? -ListSortOrder : ListSortOrder);
+			case BY_FULLNAME:
+
+				int NameCmp = (ListCaseSensitive ? StrCmp(SPtr1->strName, SPtr2->strName) : StrCmpI(SPtr1->strName, SPtr2->strName)) * ListSortOrder;
+				if (NameCmp == 0)
+					NameCmp = SPtr1->Position > SPtr2->Position ? ListSortOrder : -ListSortOrder;
+				return NameCmp;
 		}
 	}
 
@@ -4138,16 +4144,18 @@ void FileList::SelectSortMode()
 		/* 10 */(const wchar_t *)MMenuSortByNumLinks,0,0,
 		/* 11 */(const wchar_t *)MMenuSortByNumStreams,0,0,
 		/* 12 */(const wchar_t *)MMenuSortByStreamsSize,0,0,
-		/* 13 */L"",LIF_SEPARATOR,0,
-		/* 14 */(const wchar_t *)MMenuSortUseNumeric,0,0,
-		/* 15 */(const wchar_t *)MMenuSortUseGroups,0,KEY_SHIFTF11,
-		/* 16 */(const wchar_t *)MMenuSortSelectedFirst,0,KEY_SHIFTF12,
+		/* 13 */(const wchar_t *)MMenuSortByFullName,0,0,
+		/* 14 */L"",LIF_SEPARATOR,0,
+		/* 15 */(const wchar_t *)MMenuSortUseNumeric,0,0,
+		/* 16 */(const wchar_t *)MMenuSortUseGroups,0,KEY_SHIFTF11,
+		/* 17 */(const wchar_t *)MMenuSortSelectedFirst,0,KEY_SHIFTF12,
 	};
 	static int SortModes[]={BY_NAME,   BY_EXT,    BY_MTIME,
 	                        BY_SIZE,   UNSORTED,  BY_CTIME,
 	                        BY_ATIME,  BY_DIZ,    BY_OWNER,
 	                        BY_COMPRESSEDSIZE,BY_NUMLINKS,
-	                        BY_NUMSTREAMS,BY_STREAMSSIZE
+	                        BY_NUMSTREAMS,BY_STREAMSSIZE,
+	                        BY_FULLNAME,
 	                       };
 
 	for (size_t I=0; I<countof(SortModes); I++)
@@ -4158,9 +4166,9 @@ void FileList::SelectSortMode()
 		}
 
 	int SG=GetSortGroups();
-	SortMenu[14].SetCheck(NumericSort);
-	SortMenu[15].SetCheck(SG);
-	SortMenu[16].SetCheck(SelectedFirst);
+	SortMenu[15].SetCheck(NumericSort);
+	SortMenu[16].SetCheck(SG);
+	SortMenu[17].SetCheck(SelectedFirst);
 	int SortCode;
 	{
 		VMenu SortModeMenu(MSG(MMenuSortTitle),SortMenu,countof(SortMenu),0);
@@ -4178,13 +4186,13 @@ void FileList::SelectSortMode()
 	else
 		switch (SortCode)
 		{
-			case 15:
+			case 16:
 				ProcessKey(KEY_SHIFTF11);
 				break;
-			case 16:
+			case 17:
 				ProcessKey(KEY_SHIFTF12);
 				break;
-			case 14:
+			case 15:
 				NumericSort=NumericSort?0:1;
 				Update(UPDATE_KEEP_SELECTION);
 				Redraw();
