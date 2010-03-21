@@ -85,7 +85,7 @@ struct PanelInfo
     <div class=dfn>SortMode</div>
     <div class=dfndescr><a href="../defs/sortmetods.html">Режим сортировки</a> панели. Может быть SM_DEFAULT, SM_UNSORTED, SM_NAME,
       SM_EXT, SM_MTIME, SM_CTIME, SM_ATIME, SM_SIZE, SM_DESCR, SM_OWNER,
-      SM_COMPRESSEDSIZE, SM_NUMLINKS.</div>
+      SM_COMPRESSEDSIZE, SM_NUMLINKS, SM_NUMSTREAMS, SM_STREAMSSIZE, SM_FULLNAME.</div>
 
     <div class=dfn>Flags</div>
     <div class=dfndescr>Дополнительные флаги. Могут быть комбинацией следующих
@@ -107,11 +107,13 @@ struct PanelInfo
       <td class="cont" width="60%">Элементы на панели плагина отображают именами
        реальных файлов (см. также <a href="openplugininfo.html#OPIF_REALNAMES">OPIF_REALNAMES</a>)</td></tr>
       <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_NUMERICSORT">PFLAGS_NUMERICSORT</a></td>
-      <td class="cont" width="60%">Используется <a href="../other/dict.html#numericsort">числовая сортировка</a></td></tr>
+      <td class="cont" width="60%">Используется <a href="../other/dict.html#numericsort">числовая сортировка.</a></td></tr>
       <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_PANELLEFT">PFLAGS_PANELLEFT</a></td>
       <td class="cont" width="60%">Левая панель.</td></tr>
+      <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_DIRECTORIESFIRST">PFLAGS_DIRECTORIESFIRST</a></td>
+      <td class="cont" width="60%">Каталоги отображаются в начале списка.</td></tr>
     </table>
-     </div>
+    </div>
 
     <div class=dfn>Reserved</div>
     <div class=dfndescr>Зарезервировано для будущего использования.</div>

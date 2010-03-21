@@ -243,6 +243,11 @@ int WINAPI Control(
         Если <var>Param1</var> = <code>0</code>, текущее выделение файлов будет снято, иначе выделение не  изменится.<br>
       <var>Param2</var> = NULL (не используется).</td></tr>
 
+      <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETDIRECTORIESFIRST">FCTL_SETDIRECTORIESFIRST</a></td>
+      <td class="cont" width="60%">Задает режим отображения каталогов в начале списка файлов.<br>
+      <var>Param1</var> - целое число, 1 - каталоги отображаются в начале списка, 0 - нет.<br>
+      <var>Param2</var> = NULL (не используется). </td></tr>
+
       <!-- ком.строка -->
 <tr class="cont"><th class="cont" width="100%" colspan="2"><b>Командная строка</b></th></tr>
       <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETCMDLINE">FCTL_GETCMDLINE</a></td>
@@ -295,7 +300,7 @@ int WINAPI Control(
 
 
       <!-- прочие -->
-<tr class="cont"><th class="cont" width="100%" colspan="2"><b>Прочие</b></th></tr>
+      <tr class="cont"><th class="cont" width="100%" colspan="2"><b>Прочие</b></th></tr>
       <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETUSERSCREEN">FCTL_SETUSERSCREEN</a></td>
       <td class="cont" width="60%">Копиpует текущее содеpжимое экpана в буфеp
         пользовательского экрана FAR (он показывается, когда панели убpаны).<br>
