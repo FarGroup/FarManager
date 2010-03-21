@@ -141,6 +141,7 @@ keybar.hpp
 keyboard.cpp
 keyboard.hpp
 keys.hpp
+lang.hpp
 language.cpp
 language.hpp
 lasterror.hpp

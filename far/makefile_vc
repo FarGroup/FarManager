@@ -442,8 +442,6 @@ $(FARINCLUDE)\FarKeysW.pas: $(@F) farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	$(M4) -DINPUT=$(@F) headers.m4 > $@
 
-lang.hpp: bootstrap\lang.inc
-
 .PHONY: CLEAN
 CLEAN:
 	echo cleaning

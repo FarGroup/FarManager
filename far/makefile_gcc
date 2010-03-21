@@ -310,8 +310,6 @@ $(FARINCLUDE)/FarKeysW.pas: FarKeysW.pas farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@$(M4) -DINPUT=FarKeysW.pas headers.m4 > $@
 
-lang.hpp: bootstrap\lang.inc
-
 ifeq ($(MAKECMDGOALS),build)
 include $(DEPFILE)
 endif
