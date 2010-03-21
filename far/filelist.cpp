@@ -483,6 +483,8 @@ int _cdecl SortList(const void *el1,const void *el2)
 					NameCmp = ListCaseSensitive ? StrCmpNN(Path1, Name1-Path1, Path2, Name2-Path2) : StrCmpNNI(Path1, Name1-Path1, Path2, Name2-Path2);
 					if (NameCmp == 0)
 						NameCmp = ListCaseSensitive ? NumStrCmp(Name1, Name2) : NumStrCmpI(Name1, Name2);
+					else
+						NameCmp = ListCaseSensitive ? StrCmp(Path1, Path2) : StrCmpI(Path1, Path2);
 				}
 				else
 					NameCmp = ListCaseSensitive ? StrCmp(SPtr1->strName, SPtr2->strName) : StrCmpI(SPtr1->strName, SPtr2->strName);
