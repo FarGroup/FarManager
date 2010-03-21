@@ -741,6 +741,7 @@ static struct FARConfig
 	{1, REG_SZ,     NKeyPanelLeft,L"Folder",&Opt.strLeftFolder, 0, L""},
 	{1, REG_SZ,     NKeyPanelLeft,L"CurFile",&Opt.strLeftCurFile, 0, L""},
 	{1, REG_DWORD,  NKeyPanelLeft,L"SelectedFirst",&Opt.LeftSelectedFirst,0,0},
+	{1, REG_DWORD,  NKeyPanelLeft,L"DirectoriesFirst",&Opt.LeftPanel.DirectoriesFirst,1,0},
 
 	{1, REG_DWORD,  NKeyPanelRight,L"Type",&Opt.RightPanel.Type,0, 0},
 	{1, REG_DWORD,  NKeyPanelRight,L"Visible",&Opt.RightPanel.Visible,1, 0},
@@ -754,6 +755,7 @@ static struct FARConfig
 	{1, REG_SZ,     NKeyPanelRight,L"Folder",&Opt.strRightFolder, 0,L""},
 	{1, REG_SZ,     NKeyPanelRight,L"CurFile",&Opt.strRightCurFile, 0,L""},
 	{1, REG_DWORD,  NKeyPanelRight,L"SelectedFirst",&Opt.RightSelectedFirst,0, 0},
+	{1, REG_DWORD,  NKeyPanelRight,L"DirectoriesFirst",&Opt.RightPanel.DirectoriesFirst,1,0},
 
 	{1, REG_DWORD,  NKeyPanelLayout,L"ColumnTitles",&Opt.ShowColumnTitles,1, 0},
 	{1, REG_DWORD,  NKeyPanelLayout,L"StatusLine",&Opt.ShowPanelStatus,1, 0},
@@ -987,6 +989,7 @@ void SaveConfig(int Ask)
 		Opt.LeftPanel.ShowShortNames=LeftPanel->GetShowShortNamesMode();
 		Opt.LeftPanel.NumericSort=LeftPanel->GetNumericSort();
 		Opt.LeftSelectedFirst=LeftPanel->GetSelectedFirstMode();
+		Opt.LeftPanel.DirectoriesFirst=LeftPanel->GetDirectoriesFirst();
 	}
 
 	LeftPanel->GetCurDir(Opt.strLeftFolder);
@@ -1002,6 +1005,7 @@ void SaveConfig(int Ask)
 		Opt.RightPanel.ShowShortNames=RightPanel->GetShowShortNamesMode();
 		Opt.RightPanel.NumericSort=RightPanel->GetNumericSort();
 		Opt.RightSelectedFirst=RightPanel->GetSelectedFirstMode();
+		Opt.RightPanel.DirectoriesFirst=RightPanel->GetDirectoriesFirst();
 	}
 
 	RightPanel->GetCurDir(Opt.strRightFolder);

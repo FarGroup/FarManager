@@ -131,6 +131,7 @@ Panel::Panel():
 	PanelMode(NORMAL_PANEL),
 	PrevViewMode(VIEW_3),
 	NumericSort(0),
+	DirectoriesFirst(1),
 	ModalMode(0),
 	ViewSettings(),
 	ProcessingPluginCommand(0)
@@ -2067,7 +2068,7 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 		{
 			int Mode=Param1;
 
-			if ((Mode>SM_DEFAULT) && (Mode<=SM_NUMLINKS))
+			if ((Mode>SM_DEFAULT) && (Mode<=SM_FULLNAME))
 			{
 				SetSortMode(--Mode); // ”меньшим на 1 из-за SM_DEFAULT
 				Result=TRUE;
@@ -2083,6 +2084,12 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 		case FCTL_SETSORTORDER:
 		{
 			ChangeSortOrder(Param1?-1:1);
+			Result=TRUE;
+		}
+		break;
+		case FCTL_SETDIRECTORIESFIRST:
+		{
+			SetDirectoriesFirst(Param1);
 			Result=TRUE;
 		}
 		break;
@@ -2147,6 +2154,7 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 				Flags|=GetSortOrder()<0?PFLAGS_REVERSESORTORDER:0;
 				Flags|=GetSortGroups()?PFLAGS_USESORTGROUPS:0;
 				Flags|=GetSelectedFirstMode()?PFLAGS_SELECTEDFIRST:0;
+				Flags|=GetDirectoriesFirst()?PFLAGS_DIRECTORIESFIRST:0;
 				Flags|=GetNumericSort()?PFLAGS_NUMERICSORT:0;
 
 				if (CtrlObject->Cp()->LeftPanel == this)

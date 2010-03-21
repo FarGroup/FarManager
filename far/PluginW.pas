@@ -966,6 +966,7 @@ const
   PFLAGS_REALNAMES        = $00000020;
   PFLAGS_NUMERICSORT      = $00000040;
   PFLAGS_PANELLEFT        = $00000080;
+  PFLAGS_DIRECTORIESFIRST = $00000100;
 
 
 { PANELINFOTYPE }
@@ -1085,7 +1086,7 @@ const
   FCTL_GETCOLUMNWIDTHS          = 27;
   FCTL_BEGINSELECTION           = 28;
   FCTL_ENDSELECTION             = 29;
-
+  FCTL_SETDIRECTORIESFIRST      = 30;
 
 type
 (*
@@ -2807,6 +2808,9 @@ const
   SM_OWNER          = 9;
   SM_COMPRESSEDSIZE = 10;
   SM_NUMLINKS       = 11;
+	SM_NUMSTREAMS     = 12;
+	SM_STREAMSSIZE    = 13;
+	SM_FULLNAME       = 14;
 
 (*
 struct KeyBarTitles

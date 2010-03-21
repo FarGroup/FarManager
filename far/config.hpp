@@ -82,6 +82,7 @@ struct PanelOptions
 	int SortGroups;
 	int ShowShortNames;
 	int NumericSort;
+	int DirectoriesFirst;
 };
 
 struct AutoCompleteOptions

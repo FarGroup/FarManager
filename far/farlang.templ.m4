@@ -9650,7 +9650,7 @@ l:
 
 MMenuSortByName
 "&Имя                              Ctrl-F3"
-"&Name                 Ctrl-F3"
+"&Name                   Ctrl-F3"
 "&Názvu                     Ctrl-F3"
 "&Name                   Strg-F3"
 "&Név                  Ctrl-F3"
@@ -9658,7 +9658,7 @@ MMenuSortByName
 
 MMenuSortByExt
 "&Расширение                       Ctrl-F4"
-"E&xtension            Ctrl-F4"
+"E&xtension              Ctrl-F4"
 "&Přípony                   Ctrl-F4"
 "&Erweiterung            Strg-F4"
 "Ki&terjesztés         Ctrl-F4"
@@ -9666,7 +9666,7 @@ MMenuSortByExt
 
 MMenuSortByModification
 "Время &модификации                Ctrl-F5"
-"&Modification time    Ctrl-F5"
+"&Modification time      Ctrl-F5"
 "Č&asu modifikace           Ctrl-F5"
 "&Veränderungsdatum      Strg-F5"
 "Módosítás &ideje      Ctrl-F5"
@@ -9674,7 +9674,7 @@ MMenuSortByModification
 
 MMenuSortBySize
 "Р&азмер                           Ctrl-F6"
-"&Size                 Ctrl-F6"
+"&Size                   Ctrl-F6"
 "&Velikosti                 Ctrl-F6"
 "&Größe                  Strg-F6"
 "&Méret                Ctrl-F6"
@@ -9682,7 +9682,7 @@ MMenuSortBySize
 
 MMenuUnsorted
 "&Не сортировать                   Ctrl-F7"
-"&Unsorted             Ctrl-F7"
+"&Unsorted               Ctrl-F7"
 "N&eřadit                   Ctrl-F7"
 "&Unsortiert             Strg-F7"
 "&Rendezetlen          Ctrl-F7"
@@ -9690,7 +9690,7 @@ MMenuUnsorted
 
 MMenuSortByCreation
 "Время &создания                   Ctrl-F8"
-"&Creation time        Ctrl-F8"
+"&Creation time          Ctrl-F8"
 "&Data vytvoření            Ctrl-F8"
 "E&rstelldatum           Strg-F8"
 "Ke&letkezés ideje     Ctrl-F8"
@@ -9698,7 +9698,7 @@ MMenuSortByCreation
 
 MMenuSortByAccess
 "Время &доступа                    Ctrl-F9"
-"&Access time          Ctrl-F9"
+"&Access time            Ctrl-F9"
 "Ča&su přístupu             Ctrl-F9"
 "&Zugriffsdatum          Strg-F9"
 "&Hozzáférés ideje     Ctrl-F9"
@@ -9706,7 +9706,7 @@ MMenuSortByAccess
 
 MMenuSortByDiz
 "&Описания                         Ctrl-F10"
-"&Descriptions         Ctrl-F10"
+"&Descriptions           Ctrl-F10"
 "P&opisků                   Ctrl-F10"
 "&Beschreibungen         Strg-F10"
 "Megjegyzé&sek         Ctrl-F10"
@@ -9714,7 +9714,7 @@ MMenuSortByDiz
 
 MMenuSortByOwner
 "&Владельцы файлов                 Ctrl-F11"
-"&Owner                Ctrl-F11"
+"&Owner                  Ctrl-F11"
 "V&lastníka                 Ctrl-F11"
 "Bes&itzer               Strg-F11"
 "Tula&jdonos           Ctrl-F11"
@@ -9762,7 +9762,7 @@ upd:"&Full name"
 
 MMenuSortUseGroups
 "Использовать &группы сортировки   Shift-F11"
-"Use sort &groups      Shift-F11"
+"Use sort &groups        Shift-F11"
 "Řazení podle skup&in       Shift-F11"
 "Sortier&gruppen verw.   Umsch-F11"
 "Rend. cs&oport haszn. Shift-F11"
@@ -9770,11 +9770,19 @@ MMenuSortUseGroups
 
 MMenuSortSelectedFirst
 "Помеченные &файлы вперед          Shift-F12"
-"Show selected f&irst  Shift-F12"
+"Show selected f&irst    Shift-F12"
 "Nejdřív zobrazit vy&brané  Shift-F12"
 "&Ausgewählte zuerst     Umsch-F12"
 "Kijel&ölteket előre   Shift-F12"
 "zazna&czone najpierw         Shift-F12"
+
+MMenuSortDirectoriesFirst
+"&Каталоги вперед"
+"Sho&w directories first"
+upd:"Sho&w directories first"
+upd:"Sho&w directories first"
+upd:"Sho&w directories first"
+upd:"Sho&w directories first"
 
 MMenuSortUseNumeric
 "Использовать &числовую сортировку"

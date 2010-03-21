@@ -122,6 +122,8 @@ void FilePanels::Init()
 	RightPanel->SetShowShortNamesMode(Opt.RightPanel.ShowShortNames);
 	LeftPanel->SetSelectedFirstMode(Opt.LeftSelectedFirst);
 	RightPanel->SetSelectedFirstMode(Opt.RightSelectedFirst);
+	LeftPanel->SetDirectoriesFirst(Opt.LeftPanel.DirectoriesFirst);
+	RightPanel->SetDirectoriesFirst(Opt.RightPanel.DirectoriesFirst);
 	SetCanLoseFocus(TRUE);
 	Panel *PassivePanel=nullptr;
 	int PassiveIsLeftFlag=TRUE;
@@ -834,7 +836,7 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 	SaveScreen *SaveScr=nullptr;
 	// OldType не инициализировался...
 	int OldType=Current->GetType(),X1,Y1,X2,Y2;
-	int OldViewMode,OldSortMode,OldSortOrder,OldSortGroups,OldSelectedFirst;
+	int OldViewMode,OldSortMode,OldSortOrder,OldSortGroups,OldSelectedFirst,OldDirectoriesFirst;
 	int OldShowShortNames,OldPanelMode,LeftPosition,ChangePosition,OldNumericSort;
 	int OldFullScreen,OldFocus,UseLastPanel=0;
 	OldPanelMode=Current->GetMode();
@@ -851,6 +853,7 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 	OldShowShortNames=Current->GetShowShortNamesMode();
 	OldFocus=Current->GetFocus();
 	OldSelectedFirst=Current->GetSelectedFirstMode();
+	OldDirectoriesFirst=Current->GetPrevDirectoriesFirst();
 	LeftPosition=(Current==LeftPanel);
 	Panel *(&LastFilePanel)=LeftPosition ? LastLeftFilePanel:LastRightFilePanel;
 	Current->GetPosition(X1,Y1,X2,Y2);
@@ -977,6 +980,7 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 		NewPanel->SetPrevViewMode(OldViewMode);
 		NewPanel->SetViewMode(OldViewMode);
 		NewPanel->SetSelectedFirstMode(OldSelectedFirst);
+		NewPanel->SetDirectoriesFirst(OldDirectoriesFirst);
 	}
 
 	return(NewPanel);

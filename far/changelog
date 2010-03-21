@@ -1,3 +1,11 @@
+chupakabra 21.03.2010 20:43:00 +0200 - build 1448
+
+1. ќпци€ дл€ отображени€ каталогов в начале списке при сортировке (Ctrl+F12).
+
+2. Plugin API: FCTL_SETDIRECTORIESFIRST, PFLAGS_DIRECTORIESFIRST, SM_NUMSTREAMS, SM_STREAMSSIZE, SM_FULLNAME.
+
+3. ¬ makefile поправлены зависимости.
+
 chupakabra 21.03.2010 01:11:00 +0200 - build 1447
 
 1. Mantis#0001081: режим сортировки по полному имени учитывает числовую сортировку и группы сортировки.

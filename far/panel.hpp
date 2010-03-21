@@ -109,6 +109,7 @@ class Panel:public ScreenObject
 		int CurFile;
 		int ShowShortNames;
 		int NumericSort;
+		int DirectoriesFirst;
 		int ModalMode;
 		int PluginCommand;
 		string strPluginParam;
@@ -200,6 +201,9 @@ class Panel:public ScreenObject
 		virtual int GetPrevNumericSort() {return NumericSort;};
 		int GetNumericSort() { return NumericSort; }
 		void SetNumericSort(int Mode) { Panel::NumericSort=Mode; }
+		virtual int GetPrevDirectoriesFirst() {return DirectoriesFirst;};
+		int GetDirectoriesFirst() { return DirectoriesFirst; }
+		void SetDirectoriesFirst(int Mode) { DirectoriesFirst=Mode; }
 		virtual void SetSortMode(int SortMode) {Panel::SortMode=SortMode;};
 		int GetSortOrder() {return(SortOrder);};
 		void SetSortOrder(int SortOrder) {Panel::SortOrder=SortOrder;};

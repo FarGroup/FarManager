@@ -153,6 +153,7 @@ struct PluginsListItem
 	int PrevSortMode;
 	int PrevSortOrder;
 	int PrevNumericSort;
+	int PrevDirectoriesFirst;
 	PanelViewSettings PrevViewSettings;
 };
 
@@ -334,6 +335,8 @@ class FileList:public Panel
 		virtual int GetPrevSortOrder();
 		virtual int GetPrevViewMode();
 		virtual int GetPrevNumericSort();
+		virtual int GetPrevDirectoriesFirst();
+
 		HANDLE OpenFilePlugin(const wchar_t *FileName,int PushPrev);
 		virtual int GetFileName(string &strName,int Pos,DWORD &FileAttr);
 		virtual int GetCurrentPos();

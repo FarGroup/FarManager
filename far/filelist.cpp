@@ -91,7 +91,7 @@ extern size_t SizeViewSettingsArray;
 
 static int _cdecl SortList(const void *el1,const void *el2);
 
-static int ListSortMode,ListSortOrder,ListSortGroups,ListSelectedFirst;
+static int ListSortMode,ListSortOrder,ListSortGroups,ListSelectedFirst,ListDirectoriesFirst;
 static int ListPanelMode,ListCaseSensitive,ListNumericSort;
 static HANDLE hSortPlugin;
 
@@ -167,6 +167,7 @@ FileList::FileList():
 	ViewMode=VIEW_3;
 	ViewSettings=ViewSettingsArray[ViewMode];
 	NumericSort=0;
+	DirectoriesFirst=1;
 	Columns=PreparePanelView(&ViewSettings);
 	PluginCommand=-1;
 }
@@ -299,6 +300,7 @@ void FileList::SortFileList(int KeepPosition)
 		ListSortOrder=SortOrder;
 		ListSortGroups=SortGroups;
 		ListSelectedFirst=SelectedFirst;
+		ListDirectoriesFirst=DirectoriesFirst;
 		ListPanelMode=PanelMode;
 		ListCaseSensitive=ViewSettingsArray[ViewMode].CaseSensitiveSort;
 		ListNumericSort=NumericSort;
@@ -338,11 +340,14 @@ int _cdecl SortList(const void *el1,const void *el2)
 		return((SPtr1->Position>SPtr2->Position) ? ListSortOrder:-ListSortOrder);
 	}
 
-	if ((SPtr1->FileAttr & FILE_ATTRIBUTE_DIRECTORY) < (SPtr2->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-		return(1);
+	if (ListDirectoriesFirst)
+	{
+		if ((SPtr1->FileAttr & FILE_ATTRIBUTE_DIRECTORY) < (SPtr2->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+			return(1);
 
-	if ((SPtr1->FileAttr & FILE_ATTRIBUTE_DIRECTORY) > (SPtr2->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-		return(-1);
+		if ((SPtr1->FileAttr & FILE_ATTRIBUTE_DIRECTORY) > (SPtr2->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+			return(-1);
+	}
 
 	if (ListSelectedFirst && SPtr1->Selected!=SPtr2->Selected)
 		return(SPtr1->Selected>SPtr2->Selected ? -1:1);
@@ -2593,7 +2598,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 				DeleteListData(Item->PrevListData,Item->PrevFileCount);
 				delete Item;
 
-				if (ListSelectedFirst)
+				if (SelectedFirst)
 					SortFileList(FALSE);
 				else if (FileCount>0)
 					SortFileList(TRUE);
@@ -3012,7 +3017,6 @@ void FileList::SetViewMode(int ViewMode)
 	int OldStreamsSize=IsColumnDisplayed(STREAMSSIZE_COLUMN);
 	int OldDiz=IsColumnDisplayed(DIZ_COLUMN);
 	int OldCaseSensitiveSort=ViewSettings.CaseSensitiveSort;
-	int OldNumericSort=NumericSort;
 	PrepareViewSettings(ViewMode,nullptr);
 	int NewOwner=IsColumnDisplayed(OWNER_COLUMN);
 	int NewPacked=IsColumnDisplayed(PACKED_COLUMN);
@@ -3022,7 +3026,6 @@ void FileList::SetViewMode(int ViewMode)
 	int NewDiz=IsColumnDisplayed(DIZ_COLUMN);
 	int NewAccessTime=IsColumnDisplayed(ADATE_COLUMN);
 	int NewCaseSensitiveSort=ViewSettings.CaseSensitiveSort;
-	int NewNumericSort=NumericSort;
 	int ResortRequired=FALSE;
 	string strDriveRoot;
 	DWORD FileSystemFlags;
@@ -3039,7 +3042,7 @@ void FileList::SetViewMode(int ViewMode)
 	         (!OldStreamsSize && NewStreamsSize) ||
 	         (AccessTimeUpdateRequired && NewAccessTime)))
 		Update(UPDATE_KEEP_SELECTION);
-	else if (OldCaseSensitiveSort!=NewCaseSensitiveSort || OldNumericSort!=NewNumericSort) //????
+	else if (OldCaseSensitiveSort!=NewCaseSensitiveSort)
 		ResortRequired=TRUE;
 
 	if (!OldDiz && NewDiz)
@@ -4153,6 +4156,7 @@ void FileList::SelectSortMode()
 		/* 15 */(const wchar_t *)MMenuSortUseNumeric,0,0,
 		/* 16 */(const wchar_t *)MMenuSortUseGroups,0,KEY_SHIFTF11,
 		/* 17 */(const wchar_t *)MMenuSortSelectedFirst,0,KEY_SHIFTF12,
+		/* 18 */(const wchar_t *)MMenuSortDirectoriesFirst,0,0,
 	};
 	static int SortModes[]={BY_NAME,   BY_EXT,    BY_MTIME,
 	                        BY_SIZE,   UNSORTED,  BY_CTIME,
@@ -4173,6 +4177,7 @@ void FileList::SelectSortMode()
 	SortMenu[15].SetCheck(NumericSort);
 	SortMenu[16].SetCheck(SG);
 	SortMenu[17].SetCheck(SelectedFirst);
+	SortMenu[18].SetCheck(DirectoriesFirst);
 	int SortCode;
 	{
 		VMenu SortModeMenu(MSG(MMenuSortTitle),SortMenu,countof(SortMenu),0);
@@ -4190,19 +4195,21 @@ void FileList::SelectSortMode()
 	else
 		switch (SortCode)
 		{
+			case 15:
+				NumericSort=NumericSort?0:1;
+				SortFileList(TRUE);
+				Show();
+				break;
 			case 16:
 				ProcessKey(KEY_SHIFTF11);
 				break;
 			case 17:
 				ProcessKey(KEY_SHIFTF12);
 				break;
-			case 15:
-				NumericSort=NumericSort?0:1;
-				Update(UPDATE_KEEP_SELECTION);
-				Redraw();
-				Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
-				AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
-				AnotherPanel->Redraw();
+			case 18:
+				DirectoriesFirst=DirectoriesFirst?0:1;
+				SortFileList(TRUE);
+				Show();
 				break;
 		}
 }
@@ -4530,6 +4537,10 @@ int FileList::GetPrevNumericSort()
 	return (PanelMode==PLUGIN_PANEL && !PluginsList.Empty())?(*PluginsList.First())->PrevNumericSort:NumericSort;
 }
 
+int FileList::GetPrevDirectoriesFirst()
+{
+	return (PanelMode==PLUGIN_PANEL && !PluginsList.Empty())?(*PluginsList.First())->PrevDirectoriesFirst:DirectoriesFirst;
+}
 
 HANDLE FileList::OpenFilePlugin(const wchar_t *FileName, int PushPrev)
 {

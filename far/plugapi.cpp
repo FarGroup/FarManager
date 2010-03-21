@@ -1327,6 +1327,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,int Param1,LONG_PTR Param2)
 		case FCTL_SETSORTMODE:
 		case FCTL_SETSORTORDER:
 		case FCTL_SETNUMERICSORT:
+		case FCTL_SETDIRECTORIESFIRST:
 		{
 			if (!FPanels)
 				return FALSE;

@@ -517,6 +517,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 				         L"PrevSortMode=%d/%-17s "
 				         L"PrevSortOrder=%02d "
 				         L"PrevNumericSort=%02d "
+				         L"PrevDirectoriesFirst=%02d "
 				         L"HostFile=%s\n",
 				         I,
 				         ListItems[I].hPlugin,
@@ -526,6 +527,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 				         (ListItems[I].PrevSortMode<BY_FULLNAME?__SORT[ListItems[I].PrevSortMode].Name:L"<Unknown>"),
 				         ListItems[I].PrevSortOrder,
 				         ListItems[I].PrevNumericSort,
+				         ListItems[I].PrevDirectoriesFirst,
 				         (const wchar_t*)ListItems[I].strHostFile);
 		}
 
@@ -974,6 +976,7 @@ string __FCTL_ToName(int Command)
 		DEF_FCTL_(GETCMDLINESELECTEDTEXT),
 		DEF_FCTL_(SETCMDLINESELECTION),   DEF_FCTL_(GETCMDLINESELECTION),
 		DEF_FCTL_(CHECKPANELSEXIST),      DEF_FCTL_(SETNUMERICSORT),
+		DEF_FCTL_(SETDIRECTORIESFIRST),
 	};
 	return _XXX_ToName(Command,L"FCTL",FCTL,countof(FCTL));
 #else
