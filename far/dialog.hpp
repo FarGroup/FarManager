@@ -317,6 +317,7 @@ class Dialog: public Frame
 
 		void CheckDialogCoord();
 		BOOL GetItemRect(unsigned I,SMALL_RECT& Rect);
+		bool ItemHasDropDownArrow(const DialogItemEx *Item);
 
 		// возвращает заголовок диалога (текст первого текста или фрейма)
 		const wchar_t *GetDialogTitle();

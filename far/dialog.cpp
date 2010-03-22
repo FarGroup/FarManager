@@ -1306,6 +1306,11 @@ BOOL Dialog::GetItemRect(unsigned I,SMALL_RECT& Rect)
 	return TRUE;
 }
 
+bool Dialog::ItemHasDropDownArrow(const DialogItemEx *Item)
+{
+	return ((Item->History && (Item->Flags & DIF_HISTORY) && Opt.Dialogs.EditHistory) ||
+		(Item->Type == DI_COMBOBOX && Item->ListPtr && Item->ListPtr->GetItemCount() > 0));
+}
 
 //////////////////////////////////////////////////////////////////////////
 /* Private:
@@ -2105,8 +2110,7 @@ void Dialog::ShowDialog(unsigned ID)
 				if (DialogMode.Check(DMODE_DRAGGED))
 					SetCursorType(0,0);
 
-				if ((CurItem->History && (CurItem->Flags & DIF_HISTORY) && Opt.Dialogs.EditHistory) ||
-				        (CurItem->Type == DI_COMBOBOX && CurItem->ListPtr && CurItem->ListPtr->GetItemCount() > 0))
+				if (ItemHasDropDownArrow(CurItem))
 				{
 					int EditX1,EditY1,EditX2,EditY2;
 					EditPtr->GetPosition(EditX1,EditY1,EditX2,EditY2);
@@ -3363,7 +3367,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 				GetItemRect(I,Rect);
 				Rect.Left+=X1;  Rect.Top+=Y1;
 				Rect.Right+=X1; Rect.Bottom+=Y1;
-				if (Type == DI_COMBOBOX)
+				if (ItemHasDropDownArrow(Item[I]))
 					Rect.Right++;
 
 				if (MsX >= Rect.Left && MsY >= Rect.Top && MsX <= Rect.Right && MsY <= Rect.Bottom)
@@ -3412,13 +3416,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 						else
 						{
 							// Проверка на DI_COMBOBOX здесь лишняя. Убрана (KM).
-							if (MsX==EditX2+1 && MsY==EditY1 &&
-							        (Item[I]->History ||
-							         (Type == DI_COMBOBOX && Item[I]->ListPtr && Item[I]->ListPtr->GetItemCount())
-							        ) &&
-							        (((Item[I]->Flags & DIF_HISTORY) && Opt.Dialogs.EditHistory)
-							         || Type == DI_COMBOBOX))
-//                  ((Item[I].Flags & DIF_HISTORY) && Opt.Dialogs.EditHistory))
+							if (MsX==EditX2+1 && MsY==EditY1 && ItemHasDropDownArrow(Item[I]))
 							{
 								EditLine->SetClearFlag(0); // раз уж покусились на, то и...
 
