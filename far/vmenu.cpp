@@ -506,6 +506,8 @@ int VMenu::UpdateItem(const FarListUpdate *NewItem)
 
 		UpdateItemFlags(NewItem->Index, MItem.Flags);
 
+		SetFlags(VMENU_UPDATEREQUIRED);
+
 		return TRUE;
 	}
 
