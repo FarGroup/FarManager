@@ -319,11 +319,6 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 			if (fdata.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
 			{
 				NewPtr->ReparseTag=fdata.dwReserved0; //MSDN
-				if (fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-				{
-					string strJuncName;
-					NewPtr->VolMount=apiGetVolumeNameForVolumeMountPoint(fdata.strFileName,strJuncName);
-				}
 			}
 
 			if ((fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)

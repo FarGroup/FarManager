@@ -480,7 +480,7 @@ int _cdecl SortList(const void *el1,const void *el2)
 					const wchar_t *Path2 = SPtr2->strName.CPtr();
 					const wchar_t *Name1 = PointToName(SPtr1->strName);
 					const wchar_t *Name2 = PointToName(SPtr2->strName);
-					NameCmp = ListCaseSensitive ? StrCmpNN(Path1, Name1-Path1, Path2, Name2-Path2) : StrCmpNNI(Path1, Name1-Path1, Path2, Name2-Path2);
+					NameCmp = ListCaseSensitive ? StrCmpNN(Path1, static_cast<int>(Name1-Path1), Path2, static_cast<int>(Name2-Path2)) : StrCmpNNI(Path1, static_cast<int>(Name1-Path1), Path2, static_cast<int>(Name2-Path2));
 					if (NameCmp == 0)
 						NameCmp = ListCaseSensitive ? NumStrCmp(Name1, Name2) : NumStrCmpI(Name1, Name2);
 					else
@@ -519,9 +519,9 @@ int _cdecl SortList(const void *el1,const void *el2)
 	const wchar_t *Name2=PointToName(SPtr2->strName);
 
 	if (ListNumericSort)
-		NameCmp=ListCaseSensitive?NumStrCmpN(Name1,Ext1-Name1,Name2,Ext2-Name2):NumStrCmpNI(Name1,Ext1-Name1,Name2,Ext2-Name2);
+		NameCmp=ListCaseSensitive?NumStrCmpN(Name1,static_cast<int>(Ext1-Name1),Name2,static_cast<int>(Ext2-Name2)):NumStrCmpNI(Name1,static_cast<int>(Ext1-Name1),Name2,static_cast<int>(Ext2-Name2));
 	else
-		NameCmp=ListCaseSensitive?StrCmpNN(Name1,Ext1-Name1,Name2,Ext2-Name2):StrCmpNNI(Name1,Ext1-Name1,Name2,Ext2-Name2);
+		NameCmp=ListCaseSensitive?StrCmpNN(Name1,static_cast<int>(Ext1-Name1),Name2,static_cast<int>(Ext2-Name2)):StrCmpNNI(Name1,static_cast<int>(Ext1-Name1),Name2,static_cast<int>(Ext2-Name2));
 
 	if (NameCmp == 0)
 	{

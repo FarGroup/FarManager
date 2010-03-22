@@ -76,7 +76,6 @@ struct FileListItem
 	string strShortName;
 
 	DWORD ReparseTag;
-	bool VolMount;
 
 	void Clear()
 	{

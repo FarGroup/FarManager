@@ -5790,14 +5790,6 @@ MListJunction
 "Csomópt"
 "Dowiązania"
 
-MListVolMount
-"Том"
-"Volume"
-"Svazek"
-"Datenträger"
-"Kötet"
-"Napęd"
-
 MListBytes
 "Б"
 "B"

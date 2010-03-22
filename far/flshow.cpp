@@ -1111,8 +1111,10 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							{
 								const wchar_t *PtrName=MSG(MListFolder);
 
-								if (TestParentFolderName(ListData[ListPos]->strName))
+								if (!ListPos && TestParentFolderName(ListData[ListPos]->strName))
+								{
 									PtrName=MSG(MListUp);
+								}
 								else
 								{
 									if (ListData[ListPos]->FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)
@@ -1123,7 +1125,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 												PtrName=MSG(MListSymLink);
 												break;
 											case IO_REPARSE_TAG_MOUNT_POINT:
-												PtrName=MSG(ListData[ListPos]->VolMount?MListVolMount:MListJunction);
+												PtrName=MSG(MListJunction);
 												break;
 										}
 									}
