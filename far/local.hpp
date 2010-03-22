@@ -81,7 +81,8 @@ const wchar_t * __cdecl StrStrI(const wchar_t *str1, const wchar_t *str2);
 const wchar_t * __cdecl RevStrStr(const wchar_t *str1, const wchar_t *str2);
 const wchar_t * __cdecl RevStrStrI(const wchar_t *str1, const wchar_t *str2);
 
-int __cdecl NumStrCmpN(const wchar_t *s1, int n1, const wchar_t *s2, int n2);
-int __cdecl NumStrCmpNI(const wchar_t *s1, int n1, const wchar_t *s2, int n2);
-inline int __cdecl NumStrCmp(const wchar_t *s1, const wchar_t *s2){return NumStrCmpN(s1,-1,s2,-1);}
-inline int __cdecl NumStrCmpI(const wchar_t *s1, const wchar_t *s2){return NumStrCmpNI(s1,-1,s2,-1);}
+int NumStrCmp(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2, bool IgnoreCase);
+inline int NumStrCmpN(const wchar_t *s1, int n1, const wchar_t *s2, int n2) { return NumStrCmp(s1, n1, s2, n2, false); }
+inline int NumStrCmpNI(const wchar_t *s1, int n1, const wchar_t *s2, int n2) { return NumStrCmp(s1, n1, s2, n2, true); }
+inline int NumStrCmp(const wchar_t *s1, const wchar_t *s2) { return NumStrCmp(s1, -1, s2, -1, false); }
+inline int NumStrCmpI(const wchar_t *s1, const wchar_t *s2) { return NumStrCmp(s1, -1, s2, -1, true); }

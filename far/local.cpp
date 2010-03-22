@@ -165,111 +165,102 @@ const wchar_t * __cdecl RevStrStr(const wchar_t *str1, const wchar_t *str2)
 	return nullptr;
 }
 
-static int __digit_cnt_0(const wchar_t* s, const wchar_t ** beg)
+int NumStrCmp(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2, bool IgnoreCase)
 {
-	int n = 0;
-
-	while (*s == L'0') s++;
-
-	*beg = s;
-
-	while (iswdigit(*s)) { s++; n++; }
-
-	return n;
-}
-
-int __cdecl NumStrCmpNI(const wchar_t *s1, int n1, const wchar_t *s2, int n2)
-{
-	int ret;
-	int c=0;
-	while (*s1 && *s2)
+	size_t l1 = 0;
+	size_t l2 = 0;
+	while (l1 < n1 && l2 < n2 && *s1 && *s2)
 	{
-		c++;
 		if (iswdigit(*s1) && iswdigit(*s2))
 		{
-			// берем длину числа без ведущих нулей
-			int dig_len1 = __digit_cnt_0(s1, &s1);
-			int dig_len2 = __digit_cnt_0(s2, &s2);
-			// если одно длиннее другого, значит они и больше! :)
-
-			if (dig_len1 != dig_len2)
-				return dig_len1 - dig_len2;
-
-			// длины одинаковы, сопоставляем...
-			while (iswdigit(*s1) && iswdigit(*s2))
+			// skip leading zeroes
+			while (l1 < n1 && *s1 == L'0')
 			{
-				ret = StrCmpNI(s1,s2,1);
-
-				if (ret)
-					return ret;
-
-				s1++; s2++;
+				s1++;
+				l1++;
+			}
+			while (l2 < n2 && *s2 == L'0')
+			{
+				s2++;
+				l2++;
 			}
 
-			if (*s1 == 0)
+			// if end of string reached
+			if (l1 == n1 || *s1 == 0 || l2 == n2 || *s2 == 0)
 				break;
+
+			// compare numbers
+			int res = 0;
+			while (l1 < n1 && l2 < n2 && iswdigit(*s1) && iswdigit(*s2))
+			{
+				if (res == 0 && *s1 != *s2)
+					res = *s1 < *s2 ? -1 : 1;
+
+				s1++; s2++;
+				l1++; l2++;
+			}
+			if ((l1 == n1 || !iswdigit(*s1)) && (l2 == n2 || !iswdigit(*s2)))
+			{
+				if (res)
+					return res;
+			}
+			else if (l1 == n1 || !iswdigit(*s1))
+				return -1;
+			else if (l2 == n2 || !iswdigit(*s2))
+				return 1;
 		}
-
-		ret = StrCmpNI(s1,s2,1);
-
-		if (ret)
-			return ret;
-
-		s1++; s2++;
-	}
-
-	if((n1!=-1 && c==n1 ) || (n2!=-1 && c==n2))
-	{
-		return ret;
-	}
-
-	return StrCmpI(s1,s2);
-}
-
-int __cdecl NumStrCmpN(const wchar_t *s1, int n1, const wchar_t *s2, int n2)
-{
-	int ret;
-	int c=0;
-	while (*s1 && *s2)
-	{
-		c++;
-		if (iswdigit(*s1) && iswdigit(*s2))
+		else
 		{
-			// берем длину числа без ведущих нулей
-			int dig_len1 = __digit_cnt_0(s1, &s1);
-			int dig_len2 = __digit_cnt_0(s2, &s2);
-			// если одно длиннее другого, значит они и больше! :)
+			int res = IgnoreCase ? StrCmpNI(s1, s2, 1) : StrCmpN(s1, s2, 1);
+			if (res)
+				return res;
 
-			if (dig_len1 != dig_len2)
-				return dig_len1 - dig_len2;
-
-			// длины одинаковы, сопоставляем...
-			while (iswdigit(*s1) && iswdigit(*s2))
-			{
-				ret = StrCmpN(s1,s2,1);
-
-				if (ret)
-					return ret;
-
-				s1++; s2++;
-			}
-
-			if (*s1 == 0)
-				break;
+			s1++; s2++;
+			l1++; l2++;
 		}
-
-		ret = StrCmpN(s1,s2,1);
-
-		if (ret)
-			return ret;
-
-		s1++; s2++;
 	}
 
-	if((n1!=-1 && c==n1) || (n2!=-1 && c==n2))
+	if ((l1 == n1 || *s1 == 0) && (l2 == n2 || *s2 == 0))
 	{
-		return ret;
+		if (l1 < l2)
+			return -1;
+		else if (l1 == l2)
+			return 0;
+		else
+			return 1;
 	}
+	else if (l1 == n1 || *s1 == 0)
+		return -1;
+	else if (l2 == n2 || *s2 == 0)
+		return 1;
 
-	return StrCmp(s1,s2);
+	assert(false);
+	return 0;
 }
+
+SELF_TEST(
+	assert(NumStrCmp(L"", -1, L"", -1, false) == 0);
+	assert(NumStrCmp(L"", -1, L"a", -1, false) < 0);
+	assert(NumStrCmp(L"a", -1, L"a", -1, false) == 0);
+
+	assert(NumStrCmp(L"0", -1, L"1", -1, false) < 0);
+	assert(NumStrCmp(L"0", -1, L"00", -1, false) < 0);
+	assert(NumStrCmp(L"1", -1, L"00", -1, false) > 0);
+	assert(NumStrCmp(L"10", -1, L"1", -1, false) > 0);
+	assert(NumStrCmp(L"10", -1, L"2", -1, false) > 0);
+	assert(NumStrCmp(L"10", -1, L"0100", -1, false) < 0);
+	assert(NumStrCmp(L"1", -1, L"001", -1, false) < 0);
+
+	assert(NumStrCmp(L"10a", -1, L"2b", -1, false) > 0);
+	assert(NumStrCmp(L"10a", -1, L"0100b", -1, false) < 0);
+	assert(NumStrCmp(L"a1a", -1, L"a001a", -1, false) < 0);
+	assert(NumStrCmp(L"a1b2c", -1, L"a1b2c", -1, false) == 0);
+	assert(NumStrCmp(L"a01b2c", -1, L"a1b002c", -1, false) < 0);
+	assert(NumStrCmp(L"a01b3c", -1, L"a1b002", -1, false) > 0);
+
+	assert(NumStrCmp(L"10", 2, L"0100", 2, false) > 0);
+	assert(NumStrCmp(L"01", 2, L"0100", 2, false) == 0);
+
+	assert(NumStrCmp(L"A1", -1, L"a2", -1, false) > 0);
+	assert(NumStrCmp(L"A1", -1, L"a2", -1, true) < 0);
+)
