@@ -45,16 +45,22 @@
 </div>
 
 
-<h3>Пример</h3>
+<h3>Примеры</h3>
 <div class=descr>
-<pre class=code>REGEDIT
+<ol>
+<li>Если под курсором каталог, то спозиционировать курсор на первый файл.
+<pre class=code>$While (APanel.Folder && !APanel.Eof)
+  Down
+$End</pre>
+</li>
 
-;для перехода на просмотр файла
-
-[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\AltAdd]
-"Sequence"="$While (APanel.Folder && !APanel.Eof) Down $End"
-"DisableOutput"=dword:00000001
-</pre>
+<li>Организация оператора <dfn>for</dfn>: "<em>for (выражение_1;выражение_2;выражение_3) оператор</em>"<br>
+<pre class=code>выражение_1
+$While (выражение_2)
+  оператор
+  выражение_3
+$End</pre>
+</li>
 </div>
 
 <div class=see>Смотрите также:</div><div class=seecont>
