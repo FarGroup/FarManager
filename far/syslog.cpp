@@ -1264,6 +1264,8 @@ string __MCODE_ToName(int OpCode)
 		DEF_MCODE_(F_PANEL_SELECT),             // V=Panel.Select(panelType,Action[,Mode[,Items]])
 		DEF_MCODE_(V_APANEL_HOSTFILE), // APanel.HostFile
 		DEF_MCODE_(V_PPANEL_HOSTFILE), // PPanel.HostFile
+		DEF_MCODE_(F_PRINT),
+		DEF_MCODE_(F_MMODE),                    // N=MMode(Action[,Value])
 
 	};
 	string Name;

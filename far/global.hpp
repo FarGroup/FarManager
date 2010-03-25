@@ -98,6 +98,7 @@ extern const wchar_t constMsY[];
 extern const wchar_t constMsButton[];
 extern const wchar_t constMsCtrlState[];
 extern const wchar_t constMsEventFlags[];
+extern const wchar_t constRCounter[];
 
 extern DWORD RedrawTimeout;
 
@@ -106,4 +107,3 @@ extern SYSTEM_INFO SystemInfo;
 extern FormatScreen FS;
 
 extern DWORD ErrorMode;
-

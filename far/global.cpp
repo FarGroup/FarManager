@@ -110,6 +110,7 @@ const wchar_t constMsY[]=L"MsY";
 const wchar_t constMsButton[]=L"MsButton";
 const wchar_t constMsCtrlState[]=L"MsCtrlState";
 const wchar_t constMsEventFlags[]=L"MsEventFlags";
+const wchar_t constRCounter[]=L"RCounter";
 
 DWORD RedrawTimeout=200;
 
@@ -118,4 +119,3 @@ SYSTEM_INFO SystemInfo;
 FormatScreen FS;
 
 DWORD ErrorMode;
-

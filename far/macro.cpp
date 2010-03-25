@@ -716,8 +716,8 @@ int KeyMacro::ProcessKey(int Key)
 
 		if (LockScr)
 			delete LockScr;
-
 		LockScr=nullptr;
+
 		// Где мы?
 		StartMode=(Mode==MACRO_SHELL && !WaitInMainLoop)?MACRO_OTHER:Mode;
 		// тип записи - с вызовом диалога настроек или...
@@ -3484,8 +3484,8 @@ done:
 		if (CurPCStack < 0 && (Work.MacroWORKCount-1) <= 0) // mantis#351
 		{
 			if (LockScr) delete LockScr;
-
 			LockScr=nullptr;
+			MR->Flags&=~MFLAGS_DISABLEOUTPUT; // ????
 		}
 
 		SetUseInternalClipboardState(false); //??
@@ -3581,12 +3581,15 @@ done:
 			VMStack.Pop(__varTextDate);
 			return KEY_OP_DATE;
 		}
+		case MCODE_F_PRINT:               // N=Print(Str)
 		case MCODE_OP_PLAINTEXT:          // $Text "Text"
 		{
 			if (VMStack.empty())
 				return KEY_NONE;
 
 			VMStack.Pop(__varTextDate);
+			if (Key == MCODE_F_PRINT)
+				VMStack.Push(1);
 			return KEY_OP_PLAINTEXT;
 		}
 		case MCODE_OP_EXIT:               // $Exit
@@ -3670,6 +3673,7 @@ done:
 
 			SetOpCode(MR,Work.ExecLIBPos+1,Counter.u.HighPart);
 			SetOpCode(MR,Work.ExecLIBPos+2,Counter.u.LowPart);
+			SetMacroConst(constRCounter,Counter.QuadPart);
 			goto begin;
 		}
 		case MCODE_OP_REP:
@@ -3680,6 +3684,7 @@ done:
 			Counter.u.LowPart=GetOpCode(MR,Work.ExecLIBPos+1);
 			// и положим его на вершину стека
 			VMStack.Push(Counter.QuadPart);
+			SetMacroConst(constRCounter,Counter.QuadPart);
 			// уменьшим его и пойдем на MCODE_OP_JZ
 			Counter.QuadPart--;
 			SetOpCode(MR,Work.ExecLIBPos++,Counter.u.HighPart);
@@ -3703,6 +3708,69 @@ done:
 
 			goto begin;
 		}
+
+		/* $MMode 1
+			0: MCODE_OP_MACROMODE   - в стеке ожидается число
+		*/
+		case MCODE_OP_MACROMODE:          // $MMode 1
+			if (Work.ExecLIBPos >= MR->BufferSize)
+				break;
+
+		case MCODE_F_MMODE:               // N=MMode(Action[,Value])
+		{
+			__int64 nValue = (__int64)VMStack.Pop().getInteger();
+			TVar Action(1);
+			if (Key == MCODE_F_MMODE)
+				VMStack.Pop(Action);
+
+			__int64 Result=0;
+
+			switch (Action.getInteger())
+			{
+				case 1: // DisableOutput
+				{
+					Result=LockScr?1:0;
+
+					if (Key == MCODE_OP_MACROMODE)
+						nValue=2;
+
+					if (nValue == 2) // изменяет режим отображения ("DisableOutput").
+					{
+						if (MR->Flags&MFLAGS_DISABLEOUTPUT)
+							nValue=0;
+						else
+							nValue=1;
+					}
+
+					switch (nValue)
+					{
+						case 0: // DisableOutput=0, разлочить экран
+							if (LockScr)
+							{
+								delete LockScr;
+								LockScr=nullptr;
+							}
+							MR->Flags&=~MFLAGS_DISABLEOUTPUT;
+							break;
+						case 1: // DisableOutput=1, залочить экран
+							if (!LockScr)
+								LockScr=new LockScreen;
+							MR->Flags|=MFLAGS_DISABLEOUTPUT;
+							break;
+					}
+
+					if (Key == MCODE_OP_MACROMODE)
+						goto begin;
+
+					break;
+				}
+				//
+			}
+
+			VMStack.Push(Result);
+			break;
+		}
+#if 0
 		/* $MMode 1
 			0: MCODE_OP_MACROMODE   - в стеке ожидается число
 		*/
@@ -3736,6 +3804,7 @@ done:
 
 			break;
 		}
+#endif
 
 		case MCODE_OP_DUP:        // продублировать верхнее значение в стеке
 			tmpVar=VMStack.Peek();
@@ -4576,6 +4645,7 @@ int KeyMacro::ReadVarsConst(int ReadMode, string &strSData)
 		SetMacroConst(constMsButton,Value);
 		SetMacroConst(constMsCtrlState,Value);
 		SetMacroConst(constMsEventFlags,Value);
+		SetMacroConst(constRCounter,Value);
 	}
 
 	return TRUE;

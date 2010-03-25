@@ -206,6 +206,9 @@ enum MACRO_OP_CODE
 	MCODE_F_TRIM,                     // S=trim(S[,N])
 	MCODE_F_FLOAT,                    // N=float(V)
 	MCODE_F_TESTFOLDER,               // N=testfolder(S)
+	MCODE_F_PRINT,                    // N=Print(Str)
+	MCODE_F_MMODE,                    // N=MMode(Action[,Value])
+
 
 	/* ************************************************************************* */
 	// булевые переменные - различные состояния
