@@ -72,6 +72,17 @@ enum CodePagesCallbackCallSource
 	CodePageCheck
 };
 
+// Номера контролов диалога редактирования имени коловой страницы
+enum
+{
+	EDITCP_BORDER,
+	EDITCP_EDIT,
+	EDITCP_SEPARATOR,
+	EDITCP_OK,
+	EDITCP_CANCEL,
+	EDITCP_RESET,
+};
+
 // Диалог
 static HANDLE dialog;
 // Идентифкатор диалога
@@ -89,8 +100,50 @@ static CodePagesCallbackCallSource CallbackCallSource;
 // Признак того, что кодовая страница поддерживается
 static bool CodePageSupported;
 
+wchar_t *FormatCodePageName(UINT CodePage, wchar_t *CodePageName, size_t Length, bool &IsCodePageNameCustom);
+
+// Получаем кодовую страницу для элемента в меню
+inline UINT GetMenuItemCodePage(int Position = -1)
+{
+	return static_cast<UINT>(reinterpret_cast<UINT_PTR>(CodePages->GetUserData(nullptr, 0, Position)));
+}
+
+inline UINT GetListItemCodePage(int Position = -1)
+{
+	return static_cast<UINT>(SendDlgMessage(dialog, DM_LISTGETDATA, control, Position));
+}
+
+// Проверяем попадает или нет позиция в диапазон стандартных кодовых страниц (правильность работы для разделителей не гарантируется)
+inline bool IsPositionStandard(UINT position)
+{
+	return position<=(UINT)CodePages->GetItemCount()-favoriteCodePages-(favoriteCodePages?1:0)-normalCodePages-(normalCodePages?1:0);
+}
+
+// Проверяем попадает или нет позиция в диапазон любимых кодовых страниц (правильность работы для разделителей не гарантируется)
+inline bool IsPositionFavorite(UINT position)
+{
+	return position>=(UINT)CodePages->GetItemCount()-normalCodePages;
+}
+
+// Проверяем попадает или нет позиция в диапазон обыкновенных кодовых страниц (правильность работы для разделителей не гарантируется)
+inline bool IsPositionNormal(UINT position)
+{
+	UINT ItemCount = CodePages->GetItemCount();
+	return position>=ItemCount-normalCodePages-favoriteCodePages-(normalCodePages?1:0) && position<ItemCount-normalCodePages;
+}
+
+// Формируем строку для визуального представления таблицы символов
+void FormatCodePageString(UINT CodePage, const wchar_t *CodePageName, FormatString &CodePageNameString, bool IsCodePageNameCustom)
+{
+	if (CodePage!=CP_AUTODETECT)
+	{
+		CodePageNameString<<fmt::Width(5)<<CodePage<<BoxSymbols[BS_V1]<<(!IsCodePageNameCustom||CallbackCallSource==CodePagesFill?L' ':L'*');
+	}
+	CodePageNameString<<CodePageName;
+}
+
 // Добавляем таблицу символов
-void AddCodePage(const wchar_t *codePageName, UINT codePage, int position = -1, bool enabled = true, bool checked = false)
+void AddCodePage(const wchar_t *codePageName, UINT codePage, int position, bool enabled, bool checked, bool IsCodePageNameCustom)
 {
 	if (CallbackCallSource == CodePagesFill)
 	{
@@ -106,13 +159,7 @@ void AddCodePage(const wchar_t *codePageName, UINT codePage, int position = -1, 
 		FarListInsert item = {position};
 
 		FormatString name;
-
-		if (codePage!=CP_AUTODETECT)
-		{
-			name<<fmt::Width(5)<<codePage<<BoxSymbols[BS_V1]<<L" ";
-		}
-		name<<codePageName;
-
+		FormatCodePageString(codePage, codePageName, name, IsCodePageNameCustom);
 		item.Item.Text = name;
 
 		if (selectedCodePages && checked)
@@ -143,12 +190,7 @@ void AddCodePage(const wchar_t *codePageName, UINT codePage, int position = -1, 
 			item.Flags |= MIF_GRAYED;
 
 		FormatString name;
-		if (codePage!=CP_AUTODETECT)
-		{
-			name<<fmt::Width(5)<<codePage<<BoxSymbols[BS_V1]<<L" ";
-		}
-		name<<codePageName;
-
+		FormatCodePageString(codePage, codePageName, name, IsCodePageNameCustom);
 		item.strName = name;
 
 		item.UserData = (char *)(UINT_PTR)codePage;
@@ -163,14 +205,9 @@ void AddCodePage(const wchar_t *codePageName, UINT codePage, int position = -1, 
 		// Если надо позиционируем курсор на добавленный элемент
 		if (currentCodePage==codePage)
 		{
-			if ((CodePages->GetSelectPos()==-1 || (UINT)(UINT_PTR)CodePages->GetItemPtr()->UserData!=codePage))
+			if ((CodePages->GetSelectPos()==-1 || GetMenuItemCodePage()!=codePage))
 			{
 				CodePages->SetSelectPos(position>=0?position:CodePages->GetItemCount()-1, 1);
-			}
-			// Корректируем позицию выбранного элемента
-			else if (position!=-1 && CodePages->GetSelectPos()>=position)
-			{
-				CodePages->SetSelectPos(CodePages->GetSelectPos()+1, 1);
 			}
 		}
 	}
@@ -192,7 +229,7 @@ void AddStandardCodePage(const wchar_t *codePageName, UINT codePage, int positio
 			checked = true;
 	}
 
-	AddCodePage(codePageName, codePage, position, enabled, checked);
+	AddCodePage(codePageName, codePage, position, enabled, checked, false);
 }
 
 // Добавляем разделитель
@@ -223,10 +260,6 @@ void AddSeparator(LPCWSTR Label=nullptr,int position = -1)
 			CodePages->AddItem(&item, position);
 		else
 			CodePages->AddItem(&item);
-
-		// Корректируем позицию выбранного элемента
-		if (position!=-1 && CodePages->GetSelectPos()>=position)
-			CodePages->SetSelectPos(CodePages->GetSelectPos()+1, 1);
 	}
 }
 
@@ -253,9 +286,9 @@ int GetCodePageInsertPosition(UINT codePage, int start, int length)
 		UINT itemCodePage;
 
 		if (CallbackCallSource == CodePageSelect)
-			itemCodePage = (UINT)(UINT_PTR)CodePages->GetItemPtr(position)->UserData;
+			itemCodePage = GetMenuItemCodePage(position);
 		else
-			itemCodePage = (UINT)(UINT_PTR)SendDlgMessage(dialog, DM_LISTGETDATA, control, position);
+			itemCodePage = GetListItemCodePage(position);
 
 		if (itemCodePage >= codePage)
 			return position;
@@ -264,34 +297,43 @@ int GetCodePageInsertPosition(UINT codePage, int start, int length)
 	return start+length;
 }
 
+// Получаем информацию о кодовой странице
+bool GetCodePageInfo(UINT CodePage, CPINFOEX &CodePageInfoEx)
+{
+	if (!GetCPInfoEx(CodePage, 0, &CodePageInfoEx))
+	{
+		// GetCPInfoEx возвращает ошибку для кодовых страниц без имени (например 1125), которые
+		// сами по себе работают. Так что, прежде чем пропускать кодовую страницу из-за ошибки,
+		// пробуем получить для неё информауию через GetCPInfo
+		CPINFO CodePageInfo;
+
+		if (!GetCPInfo(CodePage, &CodePageInfo))
+			return false;
+
+		CodePageInfoEx.MaxCharSize = CodePageInfo.MaxCharSize;
+		CodePageInfoEx.CodePageName[0] = L'\0';
+	}
+	
+	// BUBUG: Пока не поддерживаем многобайтовые кодовые страницы
+	if (CodePageInfoEx.MaxCharSize != 1)
+		return false;
+
+	return true;
+}
+
 // Callback-функция получения таблиц символов
 BOOL __stdcall EnumCodePagesProc(const wchar_t *lpwszCodePage)
 {
 	UINT codePage = _wtoi(lpwszCodePage);
 
-	// Для функции проверки нас не интеерсует информация о кодовых страницах отличных от проверяемой
+	// Для функции проверки нас не интересует информация о кодовых страницах отличных от проверяемой
 	if (CallbackCallSource == CodePageCheck && codePage != currentCodePage)
 		return TRUE;
 
-	// BUBBUG: Существует много кодировок с cpiex.MaxCharSize > 1, пока их не поддерживаем
+	// Получаем информацию о кодовой странице. Если информацию по какой-либо причине получить не удалось, то
+	// для списков прожолжаем енумерацию, а для процедуры же проверки поддерживаемости кодовой страницы выходим
 	CPINFOEX cpiex;
-
-	if (!GetCPInfoEx(codePage, 0, &cpiex))
-	{
-		// GetCPInfoEx возвращает ошибку для кодовых страниц без имени (например 1125), которые
-		// сами по себе работают. Так что, прежде чем пропускать кодовую страницу из-за ошибки,
-		// пробуем получить для неё информауию через GetCPInfo
-		CPINFO cpi;
-
-		if (!GetCPInfo(codePage, &cpi))
-			return CallbackCallSource == CodePageCheck ? FALSE : TRUE;
-
-		cpiex.MaxCharSize = cpi.MaxCharSize;
-		cpiex.CodePageName[0] = L'\0';
-	}
-
-	// BUBUG: Пока не поддерживаем многобайтовые кодовые страницы
-	if (cpiex.MaxCharSize != 1)
+	if (!GetCodePageInfo(codePage, cpiex))
 		return CallbackCallSource == CodePageCheck ? FALSE : TRUE;
 
 	// Для функции провепки поддерживаемости кодовый страницы мы прошли все проверки и можем выходить
@@ -302,7 +344,8 @@ BOOL __stdcall EnumCodePagesProc(const wchar_t *lpwszCodePage)
 	}
 
 	// Формируем имя таблиц символов
-	wchar_t *codePageName = FormatCodePageName(_wtoi(lpwszCodePage), cpiex.CodePageName, sizeof(cpiex.CodePageName)/sizeof(wchar_t));
+	bool IsCodePageNameCustom = false;
+	wchar_t *codePageName = FormatCodePageName(_wtoi(lpwszCodePage), cpiex.CodePageName, sizeof(cpiex.CodePageName)/sizeof(wchar_t), IsCodePageNameCustom);
 	// Получаем признак выбранности таблицы символов
 	int selectType = 0;
 	GetRegKey(FavoriteCodePagesKey, lpwszCodePage, selectType, 0);
@@ -324,7 +367,8 @@ BOOL __stdcall EnumCodePagesProc(const wchar_t *lpwszCodePage)
 		        favoriteCodePages
 		    ),
 		    true,
-		    selectType & CPST_FIND ? true : false
+		    selectType & CPST_FIND ? true : false,
+			IsCodePageNameCustom
 		);
 		// Увеличиваем счётчик выбранных таблиц символов
 		favoriteCodePages++;
@@ -343,7 +387,10 @@ BOOL __stdcall EnumCodePagesProc(const wchar_t *lpwszCodePage)
 		        codePage,
 		        GetItemsCount()-normalCodePages,
 		        normalCodePages
-		    )
+		    ),
+			true,
+			false,
+			IsCodePageNameCustom
 		);
 		// Увеличиваем счётчик выбранных таблиц символов
 		normalCodePages++;
@@ -352,6 +399,7 @@ BOOL __stdcall EnumCodePagesProc(const wchar_t *lpwszCodePage)
 	return TRUE;
 }
 
+// Добавляем все необходимые таблицы символов
 void AddCodePages(DWORD codePages)
 {
 	// Добавляем стандартные таблицы символов
@@ -374,16 +422,14 @@ void ProcessSelected(bool select)
 	if (Opt.CPMenuMode && select)
 		return;
 
-	MenuItemEx *curItem = CodePages->GetItemPtr();
 	UINT itemPosition = CodePages->GetSelectPos();
-	UINT itemCount = CodePages->GetItemCount();
-	UINT codePage = (UINT)(UINT_PTR)curItem->UserData;
+	UINT codePage = GetMenuItemCodePage();
 
-	if ((select && itemPosition >= itemCount-normalCodePages) || (!select && itemPosition>=itemCount-normalCodePages-favoriteCodePages-(normalCodePages?1:0) && itemPosition < itemCount-normalCodePages))
+	if ((select && IsPositionFavorite(itemPosition)) || (!select && IsPositionNormal(itemPosition)))
 	{
 		// Преобразуем номер таблицы символов в строку
 		FormatString strCPName;
-		strCPName<<static_cast<UINT>(reinterpret_cast<UINT_PTR>(curItem->UserData));
+		strCPName<<codePage;
 		// Получаем текущее состояние флага в реестре
 		int selectType = 0;
 		GetRegKey(FavoriteCodePagesKey, strCPName, selectType, 0);
@@ -399,7 +445,7 @@ void ProcessSelected(bool select)
 		// Создаём новый элемент меню
 		MenuItemEx newItem;
 		newItem.Clear();
-		newItem.strName = curItem->strName;
+		newItem.strName = CodePages->GetItemPtr()->strName;
 		newItem.UserData = (char *)(UINT_PTR)codePage;
 		newItem.UserDataSize = sizeof(UINT);
 		// Сохраняем позицию курсора
@@ -407,7 +453,7 @@ void ProcessSelected(bool select)
 		// Удаляем старый пункт меню
 		CodePages->DeleteItem(CodePages->GetSelectPos());
 
-		// Добавляем пункт меню в новое сесто
+		// Добавляем пункт меню в новое место
 		if (select)
 		{
 			// Добавляем разделитель, если выбранных кодовых страниц ещё не было
@@ -480,26 +526,25 @@ void ProcessSelected(bool select)
 }
 
 // Заполняем меню выбора таблиц символов
-void FillCodePagesVMenu(bool bShowUnicode, bool bShowUTF)
+void FillCodePagesVMenu(bool bShowUnicode, bool bShowUTF, bool bShowUTF7)
 {
-	// Сохраняем выбранную таблицу символов
 	UINT codePage = currentCodePage;
 
 	if (CodePages->GetSelectPos()!=-1 && CodePages->GetSelectPos()<CodePages->GetItemCount()-normalCodePages)
-		currentCodePage = (UINT)(UINT_PTR)CodePages->GetItemPtr()->UserData;
+		currentCodePage = GetMenuItemCodePage();
 
 	// Очищаем меню
 	favoriteCodePages = normalCodePages = 0;
 	CodePages->DeleteItems();
-	// Устанавливаем заголовок меню
-	UnicodeString title = MSG(MGetCodePageTitle);
 
+	UnicodeString title = MSG(MGetCodePageTitle);
 	if (Opt.CPMenuMode)
 		title += L" *";
-
 	CodePages->SetTitle(title);
+
 	// Добавляем таблицы символов
-	AddCodePages(::OEM | ::ANSI | (bShowUTF ? /* BUBUG ::UTF7 | */ ::UTF8 : 0) | (bShowUnicode ? (::UTF16BE | ::UTF16LE) : 0));
+	// BUBUG: Когда добавится поддержка UTF7 параметр bShowUTF7 нужно убрать отовсюду
+	AddCodePages(::OEM | ::ANSI | (bShowUTF ? ::UTF8 : 0) | (bShowUTF7 ? ::UTF7 : 0) | (bShowUnicode ? (::UTF16BE | ::UTF16LE) : 0));
 	// Восстанавливаем оригинальню таблицу символов
 	currentCodePage = codePage;
 	// Позиционируем меню
@@ -511,40 +556,132 @@ void FillCodePagesVMenu(bool bShowUnicode, bool bShowUTF)
 // Форматируем имя таблицы символов
 wchar_t *FormatCodePageName(UINT CodePage, wchar_t *CodePageName, size_t Length)
 {
+	bool IsCodePageNameCustom;
+	return FormatCodePageName(CodePage, CodePageName, Length, IsCodePageNameCustom);
+}
+
+// Форматируем имя таблицы символов
+wchar_t *FormatCodePageName(UINT CodePage, wchar_t *CodePageName, size_t Length, bool &IsCodePageNameCustom)
+{
 	if (!CodePageName || !Length)
 		return CodePageName;
 
-	// Формируем имя таблиц символов
-	if (!*CodePageName)
+	// Пытаемся получить заданное пользоваталем имя таблицы символов
+	FormatString strCodePage;
+	strCodePage<<CodePage;
+	string strCodePageName;
+	if (GetRegKey(NamesOfCodePagesKey, strCodePage, strCodePageName, L""))
 	{
-		FormatString strCodePage;
-		strCodePage<<CodePage;
-		// Если имя не задано, то пытаемся получить его из Far2\CodePages\Names
-		string strCodePageName;
-		GetRegKey(NamesOfCodePagesKey, strCodePage, strCodePageName, L"");
 		Length = Min(Length-1, strCodePageName.GetLength());
-		wmemcpy(CodePageName, strCodePageName, Length);
-		CodePageName[Length] = L'\0';
-		return CodePageName;
+		IsCodePageNameCustom = true;
 	}
-	else
+	if (*CodePageName)
 	{
 		// Под виндой на входе "XXXX (Name)", а, например, под wine просто "Name"
 		wchar_t *Name = wcschr(CodePageName, L'(');
-
 		if (Name && *(++Name))
 		{
-			Name[wcslen(Name)-1] = L'\0';
-			return Name;
+			size_t NameLength = wcslen(Name)-1;
+			if (Name[NameLength] == L')')
+			{
+				Name[NameLength] = L'\0';
+			}
+		}
+		if (IsCodePageNameCustom)
+		{
+			if (strCodePage==Name)
+			{
+				DeleteRegValue(NamesOfCodePagesKey, strCodePage);
+				return Name;
+			}
 		}
 		else
-		{
-			return CodePageName;
-		}
+			return Name;
 	}
+	if (IsCodePageNameCustom)
+	{
+		wmemcpy(CodePageName, strCodePageName, Length);
+		CodePageName[Length] = L'\0';
+	}
+	return CodePageName;
 }
 
-UINT SelectCodePage(UINT nCurrent, bool bShowUnicode, bool bShowUTF)
+// Каллбак для диалога редактирования имени кодовой страницы
+LONG_PTR WINAPI EditDialogProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
+{
+	if (Msg==DN_CLOSE)
+	{
+		if (Param1==EDITCP_OK || Param1==EDITCP_RESET)
+		{
+			string strCodePageName;
+			UINT CodePage = GetMenuItemCodePage();
+			FormatString strCodePage;
+			strCodePage<<CodePage;
+			if (Param1==EDITCP_OK)
+			{
+				wchar_t *CodePageName = strCodePageName.GetBuffer(SendDlgMessage(hDlg, DM_GETTEXTPTR, EDITCP_EDIT, 0)+1);
+				SendDlgMessage(hDlg, DM_GETTEXTPTR, EDITCP_EDIT, (LONG_PTR)CodePageName);
+				strCodePageName.ReleaseBuffer();
+			}
+			// Если имя кодовой страницы пустое, то считаем, что имя не задано
+			if (!strCodePageName.GetLength())
+				DeleteRegValue(NamesOfCodePagesKey, strCodePage);
+			else
+				SetRegKey(NamesOfCodePagesKey, strCodePage, strCodePageName);
+			// Получаем информацию о кодовой странице
+			CPINFOEX cpiex;
+			if (GetCodePageInfo(CodePage, cpiex))
+			{
+				// Формируем имя таблиц символов
+				bool IsCodePageNameCustom = false;
+				wchar_t *CodePageName = FormatCodePageName(CodePage, cpiex.CodePageName, sizeof(cpiex.CodePageName)/sizeof(wchar_t), IsCodePageNameCustom);
+				// Формируем строку представления
+				strCodePage.Clear();
+				FormatCodePageString(CodePage, CodePageName, strCodePage, IsCodePageNameCustom);
+				// Обновляем имя кодовой страницы
+				int Position = CodePages->GetSelectPos();
+				CodePages->DeleteItem(Position);
+				MenuItemEx NewItem;
+				NewItem.Clear();
+				NewItem.strName = strCodePage;
+				NewItem.UserData = (char *)(UINT_PTR)CodePage;
+				NewItem.UserDataSize = sizeof(UINT);
+				CodePages->AddItem(&NewItem, Position);
+				CodePages->SetSelectPos(Position, 1);
+			}
+		}
+	}
+	return DefDlgProc(hDlg, Msg, Param1, Param2);
+}
+
+// Вызов редактора имени кодовой страницы
+void EditCodePageName()
+{
+	UINT Position = CodePages->GetSelectPos();
+	if (IsPositionStandard(Position))
+		return;
+	string CodePageName = CodePages->GetItemPtr(Position)->strName;
+	size_t BoxPosition;
+	if (!CodePageName.Pos(BoxPosition, BoxSymbols[BS_V1]))
+		return;
+	CodePageName.LShift(BoxPosition+2);
+	DialogDataEx EditDialogData[]=
+		{
+			DI_DOUBLEBOX, 3, 1, 50, 5, 0, 0, 0, 0, MSG(MGetCodePageEditCodePageName),
+			DI_EDIT,      5, 2, 48, 2, 1, (DWORD_PTR)L"CodePageName", DIF_HISTORY, 0, CodePageName,
+			DI_TEXT,      0, 3,  0, 3, 0, 0, DIF_SEPARATOR, 0, L"",
+			DI_BUTTON,    0, 4,  0, 3, 0, 0, DIF_CENTERGROUP, 1, MSG(MOk),
+			DI_BUTTON,    0, 4,  0, 3, 0, 0, DIF_CENTERGROUP, 0, MSG(MCancel),
+			DI_BUTTON,    0, 4,  0, 3, 0, 0, DIF_CENTERGROUP, 0, MSG(MGetCodePageResetCodePageName)
+		};
+	MakeDialogItemsEx(EditDialogData, EditDialog);
+	Dialog Dlg(EditDialog, countof(EditDialog), EditDialogProc);
+	Dlg.SetPosition(-1, -1, 54, 7);
+	Dlg.SetHelp(L"EdidCodePageNameDlg");
+	Dlg.Process();
+}
+
+UINT SelectCodePage(UINT nCurrent, bool bShowUnicode, bool bShowUTF, bool bShowUTF7)
 {
 	CallbackCallSource = CodePageSelect;
 	currentCodePage = nCurrent;
@@ -554,7 +691,7 @@ UINT SelectCodePage(UINT nCurrent, bool bShowUnicode, bool bShowUTF)
 	CodePages->SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
 	CodePages->SetHelp(L"CodePagesMenu");
 	// Добавляем таблицы символов
-	FillCodePagesVMenu(bShowUnicode, bShowUTF);
+	FillCodePagesVMenu(bShowUnicode, bShowUTF, bShowUTF7);
 	// Показываем меню
 	CodePages->Show();
 
@@ -563,21 +700,25 @@ UINT SelectCodePage(UINT nCurrent, bool bShowUnicode, bool bShowUTF)
 	{
 		switch (CodePages->ReadInput())
 		{
-				// Обработка скрытия/показа системных таблиц символов
+			// Обработка скрытия/показа системных таблиц символов
 			case KEY_CTRLH:
 				Opt.CPMenuMode = !Opt.CPMenuMode;
 				CodePages->SetBottomTitle(MSG(!Opt.CPMenuMode?MGetCodePageBottomTitle:MGetCodePageBottomShortTitle));
-				FillCodePagesVMenu(bShowUnicode, bShowUTF);
+				FillCodePagesVMenu(bShowUnicode, bShowUTF, bShowUTF7);
 				break;
-				// Обработка удаления таблицы символов из списка выбранных
+			// Обработка удаления таблицы символов из списка выбранных
 			case KEY_DEL:
 			case KEY_NUMDEL:
 				ProcessSelected(false);
 				break;
-				// Обработка добавления таблицы символов в список выбранных
+			// Обработка добавления таблицы символов в список выбранных
 			case KEY_INS:
 			case KEY_NUMPAD0:
 				ProcessSelected(true);
+				break;
+			// Редактируем имя таблицы символов
+			case KEY_F4:
+				EditCodePageName();
 				break;
 			default:
 				CodePages->ProcessInput();
@@ -586,7 +727,7 @@ UINT SelectCodePage(UINT nCurrent, bool bShowUnicode, bool bShowUTF)
 	}
 
 	// Получаем выбранную таблицу символов
-	UINT codePage = CodePages->Modal::GetExitCode() >= 0 ? (UINT)(UINT_PTR)CodePages->GetUserData(nullptr, 0) : (UINT)-1;
+	UINT codePage = CodePages->Modal::GetExitCode() >= 0 ? GetMenuItemCodePage() : (UINT)-1;
 	delete CodePages;
 	CodePages = nullptr;
 	return codePage;
@@ -613,13 +754,13 @@ UINT FillCodePagesList(HANDLE dialogHandle, UINT controlId, UINT codePage, bool 
 
 		for (int i=0; i<info.ItemsNumber; i++)
 		{
-			if (static_cast<UINT>(SendDlgMessage(dialogHandle,DM_LISTGETDATA,controlId,i))==codePage)
+			if (GetListItemCodePage(i)==codePage)
 			{
 				FarListGetItem Item={i};
-				SendDlgMessage(dialog, DM_LISTGETITEM,controlId,reinterpret_cast<LONG_PTR>(&Item));
-				SendDlgMessage(dialog, DM_SETTEXTPTR,controlId,reinterpret_cast<LONG_PTR>(Item.Item.Text));
+				SendDlgMessage(dialog, DM_LISTGETITEM, control, reinterpret_cast<LONG_PTR>(&Item));
+				SendDlgMessage(dialog, DM_SETTEXTPTR, control, reinterpret_cast<LONG_PTR>(Item.Item.Text));
 				FarListPos Pos={i,-1};
-				SendDlgMessage(dialogHandle,DM_LISTSETCURPOS,controlId,reinterpret_cast<LONG_PTR>(&Pos));
+				SendDlgMessage(dialog, DM_LISTSETCURPOS, control, reinterpret_cast<LONG_PTR>(&Pos));
 				break;
 			}
 		}

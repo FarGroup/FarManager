@@ -8155,20 +8155,36 @@ upd:"Other"
 upd:"Other"
 
 MGetCodePageBottomTitle
-"Ctrl-H, Del, Ins"
-"Ctrl-H, Del, Ins"
-"Ctrl-H, Del, Ins"
-"Strg-H, Entf, Einf"
-"Ctrl-H, Del, Ins"
-"Ctrl-H, Del, Ins"
+"Ctrl-H, Del, Ins, F4"
+"Ctrl-H, Del, Ins, F4"
+"Ctrl-H, Del, Ins, F4"
+"Strg-H, Entf, Einf, F4"
+"Ctrl-H, Del, Ins, F4"
+"Ctrl-H, Del, Ins, F4"
 
 MGetCodePageBottomShortTitle
-"Ctrl-H, Del"
-"Ctrl-H, Del"
-"Ctrl-H, Del"
-"Strg-H, Entf"
-"Ctrl-H, Del"
-"Ctrl-H, Del"
+"Ctrl-H, Del, F4"
+"Ctrl-H, Del, F4"
+"Ctrl-H, Del, F4"
+"Strg-H, Entf, F4"
+"Ctrl-H, Del, F4"
+"Ctrl-H, Del, F4"
+
+MGetCodePageEditCodePageName
+"Изменить имя кодовой страницы"
+"Edit code page name"
+upd:"Edit code page name"
+upd:"Edit code page name"
+upd:"Edit code page name"
+upd:"Edit code page name"
+
+MGetCodePageResetCodePageName
+"&Сбросить"
+"&Reset"
+upd:"&Reset"
+upd:"&Reset"
+upd:"&Reset"
+upd:"&Reset"
 
 MHighlightTitle
 l:
@@ -9463,7 +9479,7 @@ MMenuDialogSettings
 "Ustawienia okna &dialogowego"
 
 MMenuCmdlineSettings
-"Настройки командной строки"
+"Настройки &командной строки"
 "Command line settings"
 upd:"Command line settings"
 upd:"Command line settings"
@@ -9471,7 +9487,7 @@ upd:"Command line settings"
 upd:"Command line settings"
 
 MMenuAutoCompleteSettings
-"Нас&тройки автозавершения"
+"На&стройки автозавершения"
 "AutoComplete settings"
 upd:"AutoComplete settings"
 upd:"AutoComplete settings"
@@ -9495,7 +9511,7 @@ MMenuConfirmation
 "P&otwierdzenia"
 
 MMenuPluginConfirmation
-"Выбор плагина"
+"Выбор п&лагина"
 "Plugin sele&ction"
 upd:"Plugin selection"
 upd:"Plugin selection"
@@ -9549,6 +9565,14 @@ MMenuEditor
 "&Editor einrichten"
 "&Szerkesztő beállítások"
 "Ustawienia &edytora"
+
+MMenuCodePages
+"Кодов&ые страницы"
+upd:"Code pages"
+upd:"Znakové sady:"
+upd:"Tabellen"
+upd:"Kódlapok"
+upd:"Strony kodowe"
 
 MMenuColors
 "&Цвета"

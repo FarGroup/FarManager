@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ffolders.hpp"
 #include "strmix.hpp"
 #include "interf.hpp"
+#include "codepage.hpp"
 
 enum enumMenus
 {
@@ -164,6 +165,7 @@ enum enumOptionsMenu
 	MENU_OPTIONS_SEPARATOR2,
 	MENU_OPTIONS_VIEWERSETTINGS,
 	MENU_OPTIONS_EDITORSETTINGS,
+	MENU_OPTIONS_CODEPAGESSETTINGS,
 	MENU_OPTIONS_SEPARATOR3,
 	MENU_OPTIONS_COLORS,
 	MENU_OPTIONS_FILESHIGHLIGHTING,
@@ -295,6 +297,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 		L"",LIF_SEPARATOR,0,
 		MSG(MMenuViewer),0,0,
 		MSG(MMenuEditor),0,0,
+		MSG(MMenuCodePages),0,0,
 		L"",LIF_SEPARATOR,0,
 		MSG(MMenuColors),0,0,
 		MSG(MMenuFilesHighlighting),0,0,
@@ -649,6 +652,9 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 					break;
 				case MENU_OPTIONS_EDITORSETTINGS:  // Editor settings
 					EditorConfig(Opt.EdOpt);
+					break;
+				case MENU_OPTIONS_CODEPAGESSETTINGS: // Code pages
+					SelectCodePage(CP_AUTODETECT, true, true, true);
 					break;
 				case MENU_OPTIONS_COLORS:  // Colors
 					SetColors();
