@@ -9568,7 +9568,7 @@ MMenuEditor
 
 MMenuCodePages
 "Кодов&ые страницы"
-upd:"Code pages"
+upd:"Cod&e pages"
 upd:"Znakové sady:"
 upd:"Tabellen"
 upd:"Kódlapok"

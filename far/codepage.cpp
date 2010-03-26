@@ -589,9 +589,10 @@ wchar_t *FormatCodePageName(UINT CodePage, wchar_t *CodePageName, size_t Length,
 		}
 		if (IsCodePageNameCustom)
 		{
-			if (strCodePage==Name)
+			if (strCodePageName==Name)
 			{
 				DeleteRegValue(NamesOfCodePagesKey, strCodePage);
+				IsCodePageNameCustom = false;
 				return Name;
 			}
 		}
