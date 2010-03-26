@@ -428,16 +428,48 @@ panel.SetPath(0,"C:\\Program Files","FAR")</pre>
        Пример см. в описании <a href="akey.html">$AKey</a></td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">V=<dfn><a name="clip">clip</a></dfn>(Cmd[,S])</td>
+    <td class="cont" width="40%">V=<dfn><a name="clip">clip</a></dfn>(Cmd[,Val])</td>
     <td class="cont" width="60%">Позволяет производить разнообразные манипуляции с Clipboard в
          зависимости от команды <em>Cmd</em>:
        <table class="cont">
        <tr class="cont"><th class="cont" width="10%">Cmd</th><th class="cont" width="90%">Описание</th></tr>
-        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">Возвращает данные из Clipboard; параметр <em>S</em> игнорируется; в случае ошибки возвращает 0</td></tr>
-        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">Поместить строку <em>S</em> в Clipboard; в случае ошибки возвращает 0</td></tr>
-        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%">Добавить строку <em>S</em> к Clipboard; в случае ошибки возвращает 0</td></tr>
-        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="90%">Копировать Windows Clipboard во внутренний буфер обмена; параметр <em>S</em> игнорируется; в случае ошибки возвращает 0</td></tr>
-        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="90%">Копировать внутренний буфер обмена в Windows Clipboard; параметр <em>S</em> игнорируется; в случае ошибки возвращает 0</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">Возвращает данные из Clipboard; параметр <em>Val</em> игнорируется; в случае ошибки возвращает 0</td></tr>
+        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">Поместить строку <em>Val</em> в Clipboard; в случае ошибки возвращает 0</td></tr>
+        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%">Добавить строку <em>Val</em> к Clipboard; в случае ошибки возвращает 0</td></tr>
+        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="90%">Копировать Windows Clipboard во внутренний буфер обмена; параметр <em>Val</em> игнорируется; в случае ошибки возвращает 0</td></tr>
+        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="90%">Копировать внутренний буфер обмена в Windows Clipboard; параметр <em>Val</em> игнорируется; в случае ошибки возвращает 0</td></tr>
+        <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="90%">Режимы работы с буфером обмена.<br>
+          По умолчанию FAR, в операциях запоминания/вставки данных, работает с Буфером Обмена Windows. Функция 'clip(5)' позволяет в
+          пределах одного макроса переключать внутренние механизмы FAR для работы с/без использования Буфера Обмена Windows.<br>
+          <em>Val</em> может быть одним из:
+          <table class="cont">
+            <tr class="cont"><th class="cont" width="10%">Val</th><th class="cont" width="90%">Описание</th></tr>
+            <tr class="cont"><td class="cont" width="10%">-1</td><td class="cont" width="90%">Какой буфер обмена сейчас используется</td></tr>
+            <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">Переключить работу с буфера обмена OS на внутренний буфер и наоборот (работает как триггер).</td></tr>
+            <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">Включить буфер обмена OS</td></tr>
+            <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%">Включить внутренний буфер обмена</td></tr>
+          </table>
+          Функция возвращает предыдущее значение: 1 - буфер обмена OS, 2 - внутренний буфер.<br>
+          Пример:
+<pre class=code>REGEDIT4
+
+;искать тот же файл на другой панели что и на активной
+;F5 ShiftEnter CtrlIns - применено чтобы получить имя файла вне зависимости
+;пусто/непусто в cmdline и сколько выделено на панели файлов
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlAltLeft]
+"Sequence"="clip(5) $If (((Bof &amp;&amp; APanel.Root) || !Bof) &amp;&amp; PPanel.Visible)
+$If (fexist(PPanel.Path+\"\\\\\"+APanel.Current) == 1) F5 ShiftEnter
+CtrlIns Esc Tab Home Alt&lt; ShiftIns Esc $End $End"
+"DisableOutput"=dword:00000001
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlAltRight]
+"Sequence"="clip(5) $If (((Bof &amp;&amp; APanel.Root) || !Bof) &amp;&amp; PPanel.Visible)
+$If (fexist(PPanel.Path+\"\\\\\"+APanel.Current) == 1) F5 ShiftEnter CtrlIns
+Esc Tab Home Alt&lt; ShiftIns Esc $End $End"
+"DisableOutput"=dword:00000001
+</pre>
+        </td></tr>
        </table>
        Например, поместить в Clipboard список отмеченных файлов в формате CSV (имя и размер):
        <pre class=code>Clip(1,"Name;Size\r\n")
@@ -563,6 +595,26 @@ $End
     </td>
   </tr>
 
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="mmode">mmode</a></dfn>(Action[,Value])</td>
+    <td class="cont" width="60%">Управление параметрами текущего макроса.<br>
+      Параметр <em>Action</em>:
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Значение</th><th class="cont" width="90%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">позволяет изменять режим перерисовки экрана во время проигрывания макропоследовательности</td></tr>
+       </table>
+      Параметр <em>Value</em>:
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Значение</th><th class="cont" width="90%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="10%">-1</td><td class="cont" width="90%">получить текущее значение</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">выключить значение <em>Action</em></td></tr>
+        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">включить значение <em>Action</em></td></tr>
+        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%">переключить значение <em>Action</em> (тригер)</td></tr>
+       </table>
+       Функция возвращает предыдущее значение.
+    </td>
+  </tr>
+
   <!-- -------------------------------------- -->
   <tr class="cont"><th class="cont" colspan=2>Взаимодействие с пользователем</th></tr>
   <tr class="cont">
@@ -613,6 +665,36 @@ $End
     </td>
   </tr>
 
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="print">print</a></dfn>(Str)</td>
+    <td class="cont" width="60%">Функция предназначена для вставки произвольного текста <em>Str</em> в редактор, командную строку, элементы ввода в диалогах, etc.<br>
+      Допускается применение следующих escape-последовательностей:
+      <table class="cont">
+        <tr class="cont"><th class="cont" width="10%">Формат</th><th class="cont" width="90%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="10%">\&quot;</td><td class="cont" width="90%">Символ '&quot;'</td></tr>
+        <tr class="cont"><td class="cont" width="10%">\'</td><td class="cont" width="90%">Символ '''</td></tr>
+        <tr class="cont"><td class="cont" width="10%">\\</td><td class="cont" width="90%">Символ '\'</td></tr>
+        <tr class="cont"><td class="cont" width="10%">\n</td><td class="cont" width="90%">Переводу строки `\n'</td></tr>
+        <tr class="cont"><td class="cont" width="10%">\t</td><td class="cont" width="90%">Табуляции `\t'</td></tr>
+        <tr class="cont"><td class="cont" width="10%">\a</td><td class="cont" width="90%">bell</td></tr>
+        <tr class="cont"><td class="cont" width="10%">\b</td><td class="cont" width="90%">`\b'</td></tr>
+        <tr class="cont"><td class="cont" width="10%">\f</td><td class="cont" width="90%">`\f'</td></tr>
+        <tr class="cont"><td class="cont" width="10%">\v</td><td class="cont" width="90%">`\v'</td></tr>
+        <tr class="cont"><td class="cont" width="10%">\N<br>\NN<br>\NNN</td><td class="cont" width="90%">8-ричный код символа</td></tr>
+        <tr class="cont"><td class="cont" width="10%">\xNN</td><td class="cont" width="90%">16-ричный код символа</td></tr>
+      </table>
+       Функция возвращает 1.<br>
+      Например, создание папки с именем, равным текущей дате:
+      <pre class=code>%Folder=date(\"%d.%m0.%Y\");
+$If (!panel.fexist(0,%Folder))
+  F7
+  print(%Folder)
+  Enter
+$End</pre>
+    </td>
+  </tr>
+
+
   <!-- -------------------------------------- -->
   <tr class="cont"><th class="cont" colspan=2>Элементы управления</th></tr>
   <tr class="cont">
@@ -641,7 +723,7 @@ $End
     </td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="menu.select">Menu.Select</a></dfn>(S[,N[,Dir]])</td>
+    <td class="cont" width="40%">N=<dfn><a name="menu.select">menu.select</a></dfn>(S[,N[,Dir]])</td>
     <td class="cont" width="60%">В меню позиционирует курсор на первый пункт, содержащий подстроку <em>S</em>.
     Поиск подстроки ведется в зависимости от указанного режима <em>N</em>:
        <table class="cont">
@@ -660,7 +742,7 @@ $End
   </tr>
 
   <tr class="cont">
-    <td class="cont" width="40%">V=<dfn><a name="Dlg.GetValue">Dlg.GetValue</a></dfn>(ID,Type)</td>
+    <td class="cont" width="40%">V=<dfn><a name="dlg.getvalue">dlg.getvalue</a></dfn>(ID,Type)</td>
     <td class="cont" width="60%">Получить различные значения текущего диалога.<br>
       <em>ID</em> - номер элемента диалога (элементы нумеруются с 1; 0 - само диалоговое окно).<br>
       <em>Type</em> - тип получаемой информации, зависит от типа элемента. Для самого диалога (ID=0) допустимы следующие значения:
@@ -705,7 +787,7 @@ $End
   </tr>
 
   <tr class="cont">
-    <td class="cont" width="40%">V=<dfn><a name="Editor.Set">Editor.Set</a></dfn>(Idx,Var)</td>
+    <td class="cont" width="40%">V=<dfn><a name="editor.set">editor.set</a></dfn>(Idx,Var)</td>
     <td class="cont" width="60%">Для текущей копии редактора изменить настройки.
        <table class="cont">
        <tr class="cont"><th class="cont" width="10%">Index</th><th class="cont" width="10%">Тип Var</th><th class="cont" width="80%">Описание</th></tr>
@@ -739,7 +821,7 @@ $End
   </tr>
 
   <tr class="cont">
-    <td class="cont" width="40%">V=<dfn><a name="editor.sel">Editor.Sel</a></dfn>(Action[,Opt])</td>
+    <td class="cont" width="40%">V=<dfn><a name="editor.sel">editor.sel</a></dfn>(Action[,Opt])</td>
     <td class="cont" width="60%">Функция позволяет производить некоторые операции с блоками в тексте (в редакторе, в строках ввода в диалогах, в командной строке).
        <table class="cont">
        <tr class="cont"><th class="cont" width="10%">Action</th><th class="cont" width="90%">Описание</th></tr>
@@ -809,7 +891,7 @@ $end</pre>
   </tr>
 
   <tr class="cont">
-    <td class="cont" width="40%">V=<dfn><a name="Editor.Undo">Editor.Undo</a></dfn>(N)</td>
+    <td class="cont" width="40%">V=<dfn><a name="editor.undo">editor.undo</a></dfn>(N)</td>
     <td class="cont" width="60%">Работа с Undo/Redo. Здесь <em>N</em> одно из:
        <table class="cont">
        <tr class="cont"><th class="cont" width="10%">N</th><th class="cont" width="90%">Описание</th></tr>
@@ -823,7 +905,7 @@ $end</pre>
   </tr>
 
   <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="Editor.Pos">Editor.Pos</a></dfn>(Op,What[,Where])</td>
+    <td class="cont" width="40%">N=<dfn><a name="editor.pos">editor.pos</a></dfn>(Op,What[,Where])</td>
     <td class="cont" width="60%">Получение/установка позиций в редакторе.<br>
       Параметр <em>Op</em> задает поведение функции: 0 - получить данные, 1 - установить данные.<br>
       Параметр <em>What</em> - над чем выполняется операция:
@@ -858,19 +940,19 @@ $end</pre>
     <th class="cont" width="60%">Описание</th>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="BM.Add">BM.Add</a></dfn>()</td>
+    <td class="cont" width="40%">N=<dfn><a name="bm.add">bm.add</a></dfn>()</td>
     <td class="cont" width="60%">Добавить текущие параметры закладки и обрезать хвост</td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="BM.Clear">BM.Clear</a></dfn>()</td>
+    <td class="cont" width="40%">N=<dfn><a name="bm.clear">bm.clear</a></dfn>()</td>
     <td class="cont" width="60%">Очистить все закладки</td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="BM.Del">BM.Del</a></dfn>([Idx])</td>
+    <td class="cont" width="40%">N=<dfn><a name="bm.del">bm.del</a></dfn>([Idx])</td>
     <td class="cont" width="60%">Удалить закладку с указанным индексом <em>Idx</em> (нумерация начинается с 1). Если параметр <em>Idx</em> не указан или равен 0 - удаляется текущая закладка.</td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="BM.Get">BM.Get</a></dfn>(Idx,M)</td>
+    <td class="cont" width="40%">N=<dfn><a name="bm.get">bm.get</a></dfn>(Idx,M)</td>
     <td class="cont" width="60%">Получить параметры закладки с индексом <em>Idx</em> (нумерация начинается с 1), Idx=0 - текущая закладка.<br>
       Параметр <em>M</em> может быть одним из следующих:
        <table class="cont">
@@ -883,15 +965,15 @@ $end</pre>
     </td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="BM.Next">BM.Next</a></dfn>()</td>
+    <td class="cont" width="40%">N=<dfn><a name="bm.next">bm.next</a></dfn>()</td>
     <td class="cont" width="60%">Перейти на следующую закладку</td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="BM.Prev">BM.Prev</a></dfn>()</td>
+    <td class="cont" width="40%">N=<dfn><a name="bm.prev">bm.prev</a></dfn>()</td>
     <td class="cont" width="60%">Перейти на предыдущую закладку</td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="BM.Stat">BM.Stat</a></dfn>([M])</td>
+    <td class="cont" width="40%">N=<dfn><a name="bm.stat">bm.stat</a></dfn>([M])</td>
     <td class="cont" width="60%">Получить информацию о закладках.<br>
       Параметр <em>M</em> может быть одним из следующих:
        <table class="cont">
