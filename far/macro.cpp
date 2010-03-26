@@ -915,12 +915,13 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 				case MCODE_V_CMDLINE_ITEMCOUNT:        // CmdLine.ItemCount
 				case MCODE_V_CMDLINE_CURPOS:           // CmdLine.CurPos
 				{
-					Cond=CtrlObject->CmdLine->VMProcess(CheckCode);
+					Cond=CtrlObject->CmdLine?CtrlObject->CmdLine->VMProcess(CheckCode):-1;
 					break;
 				}
 				case MCODE_V_CMDLINE_VALUE:            // CmdLine.Value
 				{
-					CtrlObject->CmdLine->GetString(strFileName);
+					if (CtrlObject->CmdLine)
+						CtrlObject->CmdLine->GetString(strFileName);
 					Cond=(const wchar_t*)strFileName;
 					break;
 				}
@@ -2627,7 +2628,7 @@ static bool msaveFunc()
 	return Ret==ERROR_SUCCESS;
 }
 
-// V=Clip(N[,S])
+// V=Clip(N[,V])
 static bool clipFunc()
 {
 	TVar Val;
@@ -2635,7 +2636,7 @@ static bool clipFunc()
 	int cmdType=(int)VMStack.Pop().getInteger();
 
 	// принудительно второй параметр ставим AS string
-	if (Val.isInteger() && Val.i() == 0)
+	if (cmdType != 5 && Val.isInteger() && Val.i() == 0)
 	{
 		Val=L"";
 		Val.toString();
@@ -2708,6 +2709,24 @@ static bool clipFunc()
 
 			SetUseInternalClipboardState(OldUseInternalClipboard);
 			VMStack.Push(TVar((__int64)Ret)); // 0!  ???
+			return Ret?true:false;
+		}
+		case 5: // ClipMode
+		{
+			// 0 - flip, 1 - виндовый буфер, 2 - внутренний, -1 - что сейчас?
+			int Action=(int)Val.getInteger();
+			bool mode=GetUseInternalClipboardState();
+			if (Action >= 0)
+			{
+				switch (Action)
+				{
+					case 0: mode=!mode; break;
+					case 1: mode=false; break;
+					case 2: mode=true;  break;
+				}
+				mode=SetUseInternalClipboardState(mode);
+			}
+			VMStack.Push((__int64)(mode?2:1)); // 0!  ???
 			return Ret?true:false;
 		}
 	}
@@ -6048,7 +6067,7 @@ BOOL KeyMacro::CheckAll(int /*CheckMode*/,DWORD CurFlags)
 
 	// проверка на пусто/не пусто в ком.строке (а в редакторе? :-)
 	if (CurFlags&(MFLAGS_EMPTYCOMMANDLINE|MFLAGS_NOTEMPTYCOMMANDLINE))
-		if (!CheckCmdLine(CtrlObject->CmdLine->GetLength(),CurFlags))
+		if (CtrlObject->CmdLine && !CheckCmdLine(CtrlObject->CmdLine->GetLength(),CurFlags))
 			return FALSE;
 
 	FilePanels *Cp=CtrlObject->Cp();

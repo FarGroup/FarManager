@@ -492,8 +492,12 @@ int  Manager::FindFrameByFile(int ModalType,const wchar_t *FileName, const wchar
 
 BOOL Manager::ShowBackground()
 {
-	CtrlObject->CmdLine->ShowBackground();
-	return TRUE;
+	if (CtrlObject->CmdLine)
+	{
+		CtrlObject->CmdLine->ShowBackground();
+		return TRUE;
+	}
+	return FALSE;
 }
 
 
@@ -1634,7 +1638,8 @@ void Manager::ImmediateHide()
 		if (ModalStack[ModalStackCount-1]->GetType()==MODALTYPE_EDITOR ||
 		        ModalStack[ModalStackCount-1]->GetType()==MODALTYPE_VIEWER)
 		{
-			CtrlObject->CmdLine->ShowBackground();
+			if (CtrlObject->CmdLine)
+				CtrlObject->CmdLine->ShowBackground();
 		}
 		else
 		{
@@ -1682,7 +1687,8 @@ void Manager::ImmediateHide()
 	}
 	else
 	{
-		CtrlObject->CmdLine->ShowBackground();
+		if (CtrlObject->CmdLine)
+			CtrlObject->CmdLine->ShowBackground();
 	}
 }
 
