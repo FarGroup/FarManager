@@ -2873,6 +2873,7 @@ int Dialog::ProcessKey(int Key)
 
 				return(TRUE);
 			}
+			break;
 
 		case KEY_F11:
 			return FrameManager->ProcessKey(Key);
@@ -3109,6 +3110,7 @@ int Dialog::ProcessKey(int Key)
 			return(ProcessHighlighting(Key,FocusPos,TRUE));
 		}
 	}
+	return FALSE;
 }
 
 void Dialog::ProcessKey(int Key, unsigned ItemPos)
