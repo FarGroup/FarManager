@@ -1,7 +1,0 @@
-REGEDIT4
-
-[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlAltF9]
-[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlAltF9]
-"Description"="Use Ctrl-Alt-F9 to switch main language"
-"Sequence"="F9 End Left Enter Down Down Down Enter Down Enter Enter"
-"DisableOutput"=dword:00000001
