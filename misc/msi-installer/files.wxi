@@ -238,12 +238,6 @@
       </Directory>
     </Directory>
     <Directory Id="Macros" Name="Macros">
-      <Component Id="AltBS.reg" Guid="$(var.Guid.AltBS.reg)" Win64="$(var.Win64)">
-        <File Id="AltBS.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltBS.reg" />
-      </Component>
-      <Component Id="AltDown.reg" Guid="$(var.Guid.AltDown.reg)" Win64="$(var.Win64)">
-        <File Id="AltDown.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltDown.reg" />
-      </Component>
       <Component Id="AltMenu.reg" Guid="$(var.Guid.AltMenu.reg)" Win64="$(var.Win64)">
         <File Id="AltMenu.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltMenu.reg" />
       </Component>
@@ -256,53 +250,26 @@
       <Component Id="AltX.reg" Guid="$(var.Guid.AltX.reg)" Win64="$(var.Win64)">
         <File Id="AltX.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltX.reg" />
       </Component>
-      <Component Id="Apps.reg" Guid="$(var.Guid.Apps.reg)" Win64="$(var.Win64)">
-        <File Id="Apps.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Apps.reg" />
-      </Component>
-      <Component Id="BS.reg" Guid="$(var.Guid.BS.reg)" Win64="$(var.Win64)">
-        <File Id="BS.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\BS.reg" />
-      </Component>
       <Component Id="CtrlDel.reg" Guid="$(var.Guid.CtrlDel.reg)" Win64="$(var.Win64)">
         <File Id="CtrlDel.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlDel.reg" />
       </Component>
       <Component Id="CtrlF10.reg" Guid="$(var.Guid.CtrlF10.reg)" Win64="$(var.Win64)">
         <File Id="CtrlF10.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlF10.reg" />
       </Component>
-      <Component Id="CtrlIns_reg" Guid="$(var.Guid.CtrlIns_reg)" Win64="$(var.Win64)">
-        <File Id="CtrlIns_reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlIns...reg" />
-      </Component>
-      <Component Id="CtrlLeft.reg" Guid="$(var.Guid.CtrlLeft.reg)" Win64="$(var.Win64)">
-        <File Id="CtrlLeft.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlLeft.reg" />
-      </Component>
-      <Component Id="CtrlQ.reg" Guid="$(var.Guid.CtrlQ.reg)" Win64="$(var.Win64)">
-        <File Id="CtrlQ.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlQ.reg" />
-      </Component>
-      <Component Id="CtrlRight.reg" Guid="$(var.Guid.CtrlRight.reg)" Win64="$(var.Win64)">
-        <File Id="CtrlRight.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlRight.reg" />
-      </Component>
-      <Component Id="CtrlS.reg" Guid="$(var.Guid.CtrlS.reg)" Win64="$(var.Win64)">
-        <File Id="CtrlS.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlS.reg" />
-      </Component>
-      <Component Id="CtrlShiftBackSlash.reg" Guid="$(var.Guid.CtrlShiftBackSlash.reg)" Win64="$(var.Win64)">
-        <File Id="CtrlShiftBackSlash.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlShiftBackSlash.reg" />
-      </Component>
-      <Component Id="CtrlShiftPgUpDn.reg" Guid="$(var.Guid.CtrlShiftPgUpDn.reg)" Win64="$(var.Win64)">
-        <File Id="CtrlShiftPgUpDn.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlShiftPgUpDn.reg" />
-      </Component>
-      <Component Id="CtrlUpDown.reg" Guid="$(var.Guid.CtrlUpDown.reg)" Win64="$(var.Win64)">
-        <File Id="CtrlUpDown.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlUpDown.reg" />
-      </Component>
-      <Component Id="CtrlW.reg" Guid="$(var.Guid.CtrlW.reg)" Win64="$(var.Win64)">
-        <File Id="CtrlW.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlW.reg" />
-      </Component>
-      <Component Id="Del.reg" Guid="$(var.Guid.Del.reg)" Win64="$(var.Win64)">
-        <File Id="Del.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Del.reg" />
-      </Component>
       <Component Id="Descript.ion_6" Guid="$(var.Guid.Descript.ion_6)" Win64="$(var.Win64)">
         <File Id="Descript.ion_6" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Descript.ion" />
       </Component>
-      <Component Id="Esc.reg" Guid="$(var.Guid.Esc.reg)" Win64="$(var.Win64)">
-        <File Id="Esc.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Esc.reg" />
+      <Component Id="Dialog.AltDown.reg" Guid="$(var.Guid.Dialog.AltDown.reg)" Win64="$(var.Win64)">
+        <File Id="Dialog.AltDown.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Dialog.AltDown.reg" />
+      </Component>
+      <Component Id="Edit.Notepad.reg" Guid="$(var.Guid.Edit.Notepad.reg)" Win64="$(var.Win64)">
+        <File Id="Edit.Notepad.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Edit.Notepad.reg" />
+      </Component>
+      <Component Id="Edit.SaveAndExit.reg" Guid="$(var.Guid.Edit.SaveAndExit.reg)" Win64="$(var.Win64)">
+        <File Id="Edit.SaveAndExit.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Edit.SaveAndExit.reg" />
+      </Component>
+      <Component Id="Edit.SaveFile.reg" Guid="$(var.Guid.Edit.SaveFile.reg)" Win64="$(var.Win64)">
+        <File Id="Edit.SaveFile.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Edit.SaveFile.reg" />
       </Component>
       <Component Id="F3.reg" Guid="$(var.Guid.F3.reg)" Win64="$(var.Win64)">
         <File Id="F3.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\F3.reg" />
@@ -313,26 +280,62 @@
       <Component Id="F9Table.reg" Guid="$(var.Guid.F9Table.reg)" Win64="$(var.Win64)">
         <File Id="F9Table.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\F9Table.reg" />
       </Component>
-      <Component Id="JumpToSelectedFile.reg" Guid="$(var.Guid.JumpToSelectedFile.reg)" Win64="$(var.Win64)">
-        <File Id="JumpToSelectedFile.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\JumpToSelectedFile.reg" />
-      </Component>
-      <Component Id="Lynx_mot.reg" Guid="$(var.Guid.Lynx_mot.reg)" Win64="$(var.Win64)">
-        <File Id="Lynx_mot.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Lynx-mot.reg" />
-      </Component>
       <Component Id="MacroConsts.reg" Guid="$(var.Guid.MacroConsts.reg)" Win64="$(var.Win64)">
         <File Id="MacroConsts.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\MacroConsts.reg" />
       </Component>
-      <Component Id="MouseWheelTilt.reg" Guid="$(var.Guid.MouseWheelTilt.reg)" Win64="$(var.Win64)">
-        <File Id="MouseWheelTilt.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\MouseWheelTilt.reg" />
-      </Component>
-      <Component Id="Notepad.reg" Guid="$(var.Guid.Notepad.reg)" Win64="$(var.Win64)">
-        <File Id="Notepad.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Notepad.reg" />
-      </Component>
-      <Component Id="Numpad.reg" Guid="$(var.Guid.Numpad.reg)" Win64="$(var.Win64)">
-        <File Id="Numpad.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Numpad.reg" />
-      </Component>
       <Component Id="OpeningLastFile.reg" Guid="$(var.Guid.OpeningLastFile.reg)" Win64="$(var.Win64)">
         <File Id="OpeningLastFile.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\OpeningLastFile.reg" />
+      </Component>
+      <Component Id="Panel.AltBS.reg" Guid="$(var.Guid.Panel.AltBS.reg)" Win64="$(var.Win64)">
+        <File Id="Panel.AltBS.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.AltBS.reg" />
+      </Component>
+      <Component Id="Panel.Apps.reg" Guid="$(var.Guid.Panel.Apps.reg)" Win64="$(var.Win64)">
+        <File Id="Panel.Apps.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Apps.reg" />
+      </Component>
+      <Component Id="Panel.BS.reg" Guid="$(var.Guid.Panel.BS.reg)" Win64="$(var.Win64)">
+        <File Id="Panel.BS.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.BS.reg" />
+      </Component>
+      <Component Id="Panel.CtrlIns_reg" Guid="$(var.Guid.Panel.CtrlIns_reg)" Win64="$(var.Win64)">
+        <File Id="Panel.CtrlIns_reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlIns...reg" />
+      </Component>
+      <Component Id="Panel.CtrlLeft.reg" Guid="$(var.Guid.Panel.CtrlLeft.reg)" Win64="$(var.Win64)">
+        <File Id="Panel.CtrlLeft.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlLeft.reg" />
+      </Component>
+      <Component Id="Panel.CtrlQ.reg" Guid="$(var.Guid.Panel.CtrlQ.reg)" Win64="$(var.Win64)">
+        <File Id="Panel.CtrlQ.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlQ.reg" />
+      </Component>
+      <Component Id="Panel.CtrlRight.reg" Guid="$(var.Guid.Panel.CtrlRight.reg)" Win64="$(var.Win64)">
+        <File Id="Panel.CtrlRight.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlRight.reg" />
+      </Component>
+      <Component Id="Panel.CtrlShiftBackSlash.reg" Guid="$(var.Guid.Panel.CtrlShiftBackSlash.reg)" Win64="$(var.Win64)">
+        <File Id="Panel.CtrlShiftBackSlash.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlShiftBackSlash.reg" />
+      </Component>
+      <Component Id="Panel.CtrlShiftPgUpDn.reg" Guid="$(var.Guid.Panel.CtrlShiftPgUpDn.reg)" Win64="$(var.Win64)">
+        <File Id="Panel.CtrlShiftPgUpDn.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlShiftPgUpDn.reg" />
+      </Component>
+      <Component Id="Panel.Del.reg" Guid="$(var.Guid.Panel.Del.reg)" Win64="$(var.Win64)">
+        <File Id="Panel.Del.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Del.reg" />
+      </Component>
+      <Component Id="Panel.Esc.reg" Guid="$(var.Guid.Panel.Esc.reg)" Win64="$(var.Win64)">
+        <File Id="Panel.Esc.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Esc.reg" />
+      </Component>
+      <Component Id="Panel.JumpToSelectedFile.reg" Guid="$(var.Guid.Panel.JumpToSelectedFile.reg)" Win64="$(var.Win64)">
+        <File Id="Panel.JumpToSelectedFile.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.JumpToSelectedFile.reg" />
+      </Component>
+      <Component Id="Panel.Lynx_mot.reg" Guid="$(var.Guid.Panel.Lynx_mot.reg)" Win64="$(var.Win64)">
+        <File Id="Panel.Lynx_mot.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Lynx-mot.reg" />
+      </Component>
+      <Component Id="Panel.MouseWheelTilt.reg" Guid="$(var.Guid.Panel.MouseWheelTilt.reg)" Win64="$(var.Win64)">
+        <File Id="Panel.MouseWheelTilt.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.MouseWheelTilt.reg" />
+      </Component>
+      <Component Id="Panel.Numpad.reg" Guid="$(var.Guid.Panel.Numpad.reg)" Win64="$(var.Win64)">
+        <File Id="Panel.Numpad.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Numpad.reg" />
+      </Component>
+      <Component Id="Panel.SelectFromClipboard.reg" Guid="$(var.Guid.Panel.SelectFromClipboard.reg)" Win64="$(var.Win64)">
+        <File Id="Panel.SelectFromClipboard.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.SelectFromClipboard.reg" />
+      </Component>
+      <Component Id="Panel.SpaceToSelect.reg" Guid="$(var.Guid.Panel.SpaceToSelect.reg)" Win64="$(var.Win64)">
+        <File Id="Panel.SpaceToSelect.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.SpaceToSelect.reg" />
       </Component>
       <Component Id="ShiftBS.reg" Guid="$(var.Guid.ShiftBS.reg)" Win64="$(var.Win64)">
         <File Id="ShiftBS.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftBS.reg" />
@@ -340,26 +343,23 @@
       <Component Id="ShiftF1.reg" Guid="$(var.Guid.ShiftF1.reg)" Win64="$(var.Win64)">
         <File Id="ShiftF1.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftF1.reg" />
       </Component>
-      <Component Id="ShiftInsSearch.reg" Guid="$(var.Guid.ShiftInsSearch.reg)" Win64="$(var.Win64)">
-        <File Id="ShiftInsSearch.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftInsSearch.reg" />
-      </Component>
       <Component Id="ShiftTab.reg" Guid="$(var.Guid.ShiftTab.reg)" Win64="$(var.Win64)">
         <File Id="ShiftTab.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftTab.reg" />
       </Component>
-      <Component Id="Space.reg" Guid="$(var.Guid.Space.reg)" Win64="$(var.Win64)">
-        <File Id="Space.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Space.reg" />
+      <Component Id="View.CtrlUpDown.reg" Guid="$(var.Guid.View.CtrlUpDown.reg)" Win64="$(var.Win64)">
+        <File Id="View.CtrlUpDown.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.CtrlUpDown.reg" />
       </Component>
-      <Component Id="SwitchMainLanguage.reg" Guid="$(var.Guid.SwitchMainLanguage.reg)" Win64="$(var.Win64)">
-        <File Id="SwitchMainLanguage.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\SwitchMainLanguage.reg" />
+      <Component Id="View.NextPrevFile.reg" Guid="$(var.Guid.View.NextPrevFile.reg)" Win64="$(var.Win64)">
+        <File Id="View.NextPrevFile.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.NextPrevFile.reg" />
       </Component>
       <Component Id="View.PgDn.reg" Guid="$(var.Guid.View.PgDn.reg)" Win64="$(var.Win64)">
         <File Id="View.PgDn.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.PgDn.reg" />
       </Component>
+      <Component Id="View.ShiftInsSearch.reg" Guid="$(var.Guid.View.ShiftInsSearch.reg)" Win64="$(var.Win64)">
+        <File Id="View.ShiftInsSearch.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.ShiftInsSearch.reg" />
+      </Component>
       <Component Id="View.Space.reg" Guid="$(var.Guid.View.Space.reg)" Win64="$(var.Win64)">
         <File Id="View.Space.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.Space.reg" />
-      </Component>
-      <Component Id="ViewerAddSubstract.reg" Guid="$(var.Guid.ViewerAddSubstract.reg)" Win64="$(var.Win64)">
-        <File Id="ViewerAddSubstract.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ViewerAddSubstract.reg" />
       </Component>
       <Component Id="WheelScreenSwitch.reg" Guid="$(var.Guid.WheelScreenSwitch.reg)" Win64="$(var.Win64)">
         <File Id="WheelScreenSwitch.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\WheelScreenSwitch.reg" />

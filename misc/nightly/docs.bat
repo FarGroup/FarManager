@@ -26,14 +26,16 @@ plugins\common\convert.exe addons\Colors\Descript.ion addons\Colors\export_color
 
 plugins\common\convert.exe addons\README.TXT addons\Descript.ion %1\Addons\
 
-plugins\common\convert.exe addons\Macros\AltBS.reg addons\Macros\AltDown.reg addons\Macros\AltMenu.reg addons\Macros\AltScreens.reg addons\Macros\AltSearch.reg addons\Macros\AltX.reg %1\Addons\Macros\
-plugins\common\convert.exe addons\Macros\Apps.reg addons\Macros\BS.reg addons\Macros\CtrlDel.reg addons\Macros\CtrlF10.reg addons\Macros\CtrlIns...reg addons\Macros\CtrlLeft.reg %1\Addons\Macros\
-plugins\common\convert.exe addons\Macros\CtrlQ.reg addons\Macros\CtrlRight.reg addons\Macros\CtrlS.reg addons\Macros\CtrlShiftBackSlash.reg addons\Macros\CtrlShiftPgUpDn.reg %1\Addons\Macros\
-plugins\common\convert.exe addons\Macros\CtrlUpDown.reg addons\Macros\CtrlW.reg addons\Macros\Del.reg addons\Macros\Descript.ion addons\Macros\Esc.reg addons\Macros\F3.reg %1\Addons\Macros\
-plugins\common\convert.exe addons\Macros\F9DeactivateMenu.reg addons\Macros\F9Table.reg addons\Macros\JumpToSelectedFile.reg addons\Macros\Lynx-mot.reg addons\Macros\MacroConsts.reg %1\Addons\Macros\
-plugins\common\convert.exe addons\Macros\Notepad.reg addons\Macros\Numpad.reg addons\Macros\OpeningLastFile.reg addons\Macros\ShiftBS.reg %1\Addons\Macros\
-plugins\common\convert.exe addons\Macros\ShiftF1.reg addons\Macros\ShiftInsSearch.reg addons\Macros\ShiftTab.reg addons\Macros\Space.reg addons\Macros\SwitchMainLanguage.reg %1\Addons\Macros\
-plugins\common\convert.exe addons\Macros\View.PgDn.reg addons\Macros\View.Space.reg addons\Macros\ViewerAddSubstract.reg addons\Macros\WheelScreenSwitch.reg addons\Macros\MouseWheelTilt.reg %1\Addons\Macros\
+plugins\common\convert.exe addons\Macros\AltMenu.reg addons\Macros\AltScreens.reg addons\Macros\AltSearch.reg addons\Macros\AltX.reg addons\Macros\CtrlDel.reg %1\Addons\Macros\
+plugins\common\convert.exe addons\Macros\CtrlF10.reg addons\Macros\Dialog.AltDown.reg addons\Macros\Edit.Notepad.reg addons\Macros\Edit.SaveAndExit.reg %1\Addons\Macros\
+plugins\common\convert.exe addons\Macros\Edit.SaveFile.reg addons\Macros\F3.reg addons\Macros\F9DeactivateMenu.reg addons\Macros\F9Table.reg addons\Macros\MacroConsts.reg %1\Addons\Macros\
+plugins\common\convert.exe addons\Macros\OpeningLastFile.reg addons\Macros\Panel.AltBS.reg addons\Macros\Panel.Apps.reg addons\Macros\Panel.BS.reg %1\Addons\Macros\
+plugins\common\convert.exe addons\Macros\Panel.CtrlIns...reg addons\Macros\Panel.CtrlLeft.reg addons\Macros\Panel.CtrlQ.reg addons\Macros\Panel.CtrlRight.reg %1\Addons\Macros\
+plugins\common\convert.exe addons\Macros\Panel.CtrlShiftBackSlash.reg addons\Macros\Panel.CtrlShiftPgUpDn.reg addons\Macros\Panel.Del.reg addons\Macros\Panel.Esc.reg %1\Addons\Macros\
+plugins\common\convert.exe addons\Macros\Panel.JumpToSelectedFile.reg addons\Macros\Panel.Lynx-mot.reg addons\Macros\Panel.MouseWheelTilt.reg addons\Macros\Panel.Numpad.reg %1\Addons\Macros\
+plugins\common\convert.exe addons\Macros\Panel.SelectFromClipboard.reg addons\Macros\Panel.SpaceToSelect.reg addons\Macros\ShiftBS.reg addons\Macros\ShiftF1.reg %1\Addons\Macros\
+plugins\common\convert.exe addons\Macros\ShiftTab.reg addons\Macros\View.CtrlUpDown.reg addons\Macros\View.NextPrevFile.reg addons\Macros\View.PgDn.reg %1\Addons\Macros\
+plugins\common\convert.exe addons\Macros\View.ShiftInsSearch.reg addons\Macros\View.Space.reg addons\Macros\WheelScreenSwitch.reg addons\Macros\Descript.ion %1\Addons\Macros\
 
 plugins\common\convert.exe addons\SetUp\Default165.reg addons\SetUp\Descript.ion addons\SetUp\Executor.4NT.reg addons\SetUp\Executor.CMD.reg addons\SetUp\WindowsGUI.reg %1\Addons\SetUp\
 
