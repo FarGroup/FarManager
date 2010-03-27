@@ -329,6 +329,8 @@ class FileList:public Panel
 		virtual void SetViewMode(int ViewMode);
 		virtual void SetSortMode(int SortMode);
 		virtual void ChangeSortOrder(int NewOrder);
+		virtual void SetNumericSort(int Mode);
+		virtual void SetDirectoriesFirst(int Mode);
 		virtual BOOL SetCurDir(const wchar_t *NewDir,int ClosePlugin);
 		virtual int GetPrevSortMode();
 		virtual int GetPrevSortOrder();

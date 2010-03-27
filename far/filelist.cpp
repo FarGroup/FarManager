@@ -3114,6 +3114,20 @@ void FileList::SetSortMode(int SortMode)
 	FrameManager->RefreshFrame();
 }
 
+void FileList::SetNumericSort(int Mode)
+{
+	Panel::SetNumericSort(Mode);
+	SortFileList(TRUE);
+	Show();
+}
+
+void FileList::SetDirectoriesFirst(int Mode)
+{
+	Panel::SetDirectoriesFirst(Mode);
+	SortFileList(TRUE);
+	Show();
+}
+
 int FileList::GoToFile(long idxItem)
 {
 	if ((DWORD)idxItem < (DWORD)FileCount)
@@ -4198,9 +4212,7 @@ void FileList::SelectSortMode()
 		switch (SortCode)
 		{
 			case 15:
-				NumericSort=NumericSort?0:1;
-				SortFileList(TRUE);
-				Show();
+				SetNumericSort(NumericSort?0:1);
 				break;
 			case 16:
 				ProcessKey(KEY_SHIFTF11);
@@ -4209,9 +4221,7 @@ void FileList::SelectSortMode()
 				ProcessKey(KEY_SHIFTF12);
 				break;
 			case 18:
-				DirectoriesFirst=DirectoriesFirst?0:1;
-				SortFileList(TRUE);
-				Show();
+				SetDirectoriesFirst(DirectoriesFirst?0:1);
 				break;
 		}
 }

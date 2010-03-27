@@ -1,3 +1,7 @@
+chupakabra 27.03.2010 08:20:00 +0200 - build 1460
+
+1. Не выполнялась пересортировка после FCTL_SETNUMERICSORT и FCTL_SETDIRECTORIESFIRST.
+
 svs 27.03.2010 08:17:48 +0300 - build 1459
 
 1. Mantis#0001312: При отмене редактирования пункта не нужно обновлять файл farmenu.ini
