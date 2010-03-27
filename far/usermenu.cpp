@@ -1005,7 +1005,7 @@ bool UserMenu::EditMenu(const wchar_t *MenuKey,int EditPos,int TotalRecords,bool
 	bool Result=false;
 	FormatString strItemKey;
 	strItemKey<<MenuKey<<L"\\Item"<<EditPos;
-	MenuModified=MenuNeedRefresh=true;
+	MenuNeedRefresh=true;
 	bool SubMenu=false,Continue=true;
 
 	if (Create)
@@ -1116,6 +1116,8 @@ bool UserMenu::EditMenu(const wchar_t *MenuKey,int EditPos,int TotalRecords,bool
 
 		if (Dlg.GetExitCode()==EM_BUTTON_OK)
 		{
+			MenuModified=true;
+
 			if (Create)
 			{
 				string strKeyMask;
