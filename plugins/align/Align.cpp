@@ -106,6 +106,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
   SetRegKey(HKEY_CURRENT_USER,_T(""),_T("RightMargin"),RightMargin);
   SetRegKey(HKEY_CURRENT_USER,_T(""),_T("SmartMode"),SmartMode);
   SetRegKey(HKEY_CURRENT_USER,_T(""),_T("Justify"),Justify);
+  Info.EditorControl(ECTL_TURNOFFMARKINGBLOCK,NULL);
   if (Reformat)
     ReformatBlock(RightMargin,SmartMode,Justify);
   else
