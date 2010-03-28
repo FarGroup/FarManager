@@ -376,7 +376,7 @@ int _cdecl SortList(const void *el1,const void *el2)
 	}
 
 	// ÍÅ ÑÎÐÒÈÐÓÅÌ ÊÀÒÀËÎÃÈ Â ÐÅÆÈÌÅ "ÏÎ ÐÀÑØÈÐÅÍÈÞ" (Îïöèîíàëüíî!)
-	if (!(ListSortMode == BY_EXT && !Opt.SortFolderExt && (SPtr1->FileAttr & FILE_ATTRIBUTE_DIRECTORY)))
+	if (!(ListSortMode == BY_EXT && !Opt.SortFolderExt && ((SPtr1->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (SPtr2->FileAttr & FILE_ATTRIBUTE_DIRECTORY))))
 	{
 		switch (ListSortMode)
 		{
@@ -3114,16 +3114,16 @@ void FileList::SetSortMode(int SortMode)
 	FrameManager->RefreshFrame();
 }
 
-void FileList::SetNumericSort(int Mode)
+void FileList::ChangeNumericSort(int Mode)
 {
-	Panel::SetNumericSort(Mode);
+	Panel::ChangeNumericSort(Mode);
 	SortFileList(TRUE);
 	Show();
 }
 
-void FileList::SetDirectoriesFirst(int Mode)
+void FileList::ChangeDirectoriesFirst(int Mode)
 {
-	Panel::SetDirectoriesFirst(Mode);
+	Panel::ChangeDirectoriesFirst(Mode);
 	SortFileList(TRUE);
 	Show();
 }
@@ -4212,7 +4212,7 @@ void FileList::SelectSortMode()
 		switch (SortCode)
 		{
 			case 15:
-				SetNumericSort(NumericSort?0:1);
+				ChangeNumericSort(NumericSort?0:1);
 				break;
 			case 16:
 				ProcessKey(KEY_SHIFTF11);
@@ -4221,7 +4221,7 @@ void FileList::SelectSortMode()
 				ProcessKey(KEY_SHIFTF12);
 				break;
 			case 18:
-				SetDirectoriesFirst(DirectoriesFirst?0:1);
+				ChangeDirectoriesFirst(DirectoriesFirst?0:1);
 				break;
 		}
 }

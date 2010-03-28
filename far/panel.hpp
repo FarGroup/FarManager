@@ -200,10 +200,12 @@ class Panel:public ScreenObject
 		int GetSortMode() {return(SortMode);};
 		virtual int GetPrevNumericSort() {return NumericSort;};
 		int GetNumericSort() { return NumericSort; }
-		virtual void SetNumericSort(int Mode) { NumericSort=Mode; }
+		void SetNumericSort(int Mode) { NumericSort=Mode; }
+		virtual void ChangeNumericSort(int Mode) { SetNumericSort(Mode); }
 		virtual int GetPrevDirectoriesFirst() {return DirectoriesFirst;};
 		int GetDirectoriesFirst() { return DirectoriesFirst; }
-		virtual void SetDirectoriesFirst(int Mode) { DirectoriesFirst=Mode; }
+		void SetDirectoriesFirst(int Mode) { DirectoriesFirst=Mode; }
+		virtual void ChangeDirectoriesFirst(int Mode) { SetDirectoriesFirst(Mode); }
 		virtual void SetSortMode(int SortMode) {Panel::SortMode=SortMode;};
 		int GetSortOrder() {return(SortOrder);};
 		void SetSortOrder(int SortOrder) {Panel::SortOrder=SortOrder;};

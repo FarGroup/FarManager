@@ -2077,7 +2077,7 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 		break;
 		case FCTL_SETNUMERICSORT:
 		{
-			SetNumericSort(Param1);
+			ChangeNumericSort(Param1);
 			Result=TRUE;
 		}
 		break;
@@ -2089,7 +2089,7 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 		break;
 		case FCTL_SETDIRECTORIESFIRST:
 		{
-			SetDirectoriesFirst(Param1);
+			ChangeDirectoriesFirst(Param1);
 			Result=TRUE;
 		}
 		break;
