@@ -627,7 +627,6 @@ int UserMenu::ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t
 						if (MenuPos<NumLine)
 							DeleteMenuRecord(MenuKey,MenuPos);
 
-						//MenuModified=TRUE;
 						break;
 					case KEY_INS:
 					case KEY_F4:
@@ -638,7 +637,6 @@ int UserMenu::ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t
 							break;
 
 						EditMenu(MenuKey,MenuPos,NumLine,Key == KEY_INS || Key == KEY_NUMPAD0);
-						//MenuModified=TRUE;
 						break;
 					case KEY_CTRLUP:
 					case KEY_CTRLDOWN:
@@ -699,7 +697,7 @@ int UserMenu::ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t
 						MenuFileToReg(strCurrentKey,MenuFile,Key==KEY_ALTSHIFTF4);
 						fclose(MenuFile);
 						apiDeleteFile(strMenuFileName);
-						MenuModified=TRUE;
+						MenuModified=true;
 						UserMenu.Hide();
 
 						if (Key == KEY_ALTSHIFTF4) // для тукущего пункта меню закрывать ненадо
