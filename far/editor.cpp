@@ -6637,6 +6637,7 @@ Edit *Editor::InsertString(const wchar_t *lpwszStr, int nLength, Edit *pAfter)
 
 void Editor::SetCacheParams(EditorCacheParams *pp)
 {
+	bool translateTabs=false;
 	SavePos=pp->SavePos;
 	//m_codepage = pp->Table; //BUGBUG!!!, LoadFile do it itself
 
@@ -6684,7 +6685,12 @@ void Editor::SetCacheParams(EditorCacheParams *pp)
 			if (pp->ScreenLine > pp->Line)
 				pp->ScreenLine = pp->Line;
 
-			pp->LinePos = (StartChar > 0) ? StartChar-1 : 0;
+			pp->LinePos = 0;
+			if (StartChar > 0)
+			{
+				pp->LinePos = StartChar-1;
+				translateTabs = true;
+			}
 		}
 
 		if (pp->ScreenLine > ObjHeight) //ScrY //BUGBUG
@@ -6699,7 +6705,8 @@ void Editor::SetCacheParams(EditorCacheParams *pp)
 			for (int I=0; I < pp->ScreenLine; I++)
 				ProcessKey(KEY_DOWN);
 
-			CurLine->SetTabCurPos(pp->LinePos);
+			if(translateTabs) CurLine->SetCurPos(pp->LinePos);
+			else CurLine->SetTabCurPos(pp->LinePos);
 			CurLine->SetLeftPos(pp->LeftPos);
 			Unlock();
 		}
