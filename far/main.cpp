@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "dirmix.hpp"
+#include "adminmode.hpp"
 
 #ifdef DIRECT_RT
 int DirectRT=0;
@@ -315,6 +316,19 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 {
 	ifn.Load();
 
+	if (apiGetModuleFileName(nullptr, g_strFarModuleName))
+	{
+		ConvertNameToLong(g_strFarModuleName, g_strFarModuleName);
+		PrepareDiskPath(g_strFarModuleName);
+	}
+
+	Opt.IsUserAdmin=IsUserAdmin();
+
+	if(Argc==3 && !StrCmp(Argv[1], L"/admin")) // /admin PID
+	{
+		return AdminMain(_wtoi(Argv[2]));
+	}
+
 	if (ifn.pfnHeapSetInformation) {
 		// enable low fragmentation heap
 		ULONG HeapFragValue = 2;
@@ -360,14 +374,10 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	Opt.LoadPlug.PluginsPersonal=TRUE;
 	Opt.LoadPlug.PluginsCacheOnly=FALSE;
 
-	if (apiGetModuleFileName(nullptr, g_strFarPath))
-	{
-		CutToSlash(g_strFarPath,true);
-		ConvertNameToLong(g_strFarPath, g_strFarPath);
-		PrepareDiskPath(g_strFarPath);
-		SetEnvironmentVariable(L"FARHOME", g_strFarPath);
-		AddEndSlash(g_strFarPath);
-	}
+	g_strFarPath=g_strFarModuleName;
+	CutToSlash(g_strFarPath,true);
+	SetEnvironmentVariable(L"FARHOME", g_strFarPath);
+	AddEndSlash(g_strFarPath);
 
 	// макросы не дисаблим
 	Opt.Macro.DisableMacro=0;

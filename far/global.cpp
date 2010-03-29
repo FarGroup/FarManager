@@ -64,6 +64,7 @@ clock_t StartIdleTime=0;
 
 clock_t StartExecTime=0;
 
+string g_strFarModuleName;
 string g_strFarPath;
 
 string strGlobalSearchString;

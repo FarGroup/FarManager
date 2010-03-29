@@ -797,27 +797,8 @@ static struct FARConfig
 	{1, REG_DWORD,  NKeyPanelInfo,L"InfoUserNameFormat",&Opt.InfoPanel.UserNameFormat, NameUserPrincipal, 0},
 };
 
-
-bool IsUserAdmin()
-{
-	bool Result=false;
-	SID_IDENTIFIER_AUTHORITY NtAuthority=SECURITY_NT_AUTHORITY;
-	PSID AdministratorsGroup;
-	if(AllocateAndInitializeSid(&NtAuthority,2,SECURITY_BUILTIN_DOMAIN_RID,DOMAIN_ALIAS_RID_ADMINS,0,0,0,0,0,0,&AdministratorsGroup))
-	{
-		BOOL IsMember=FALSE;
-		if(CheckTokenMembership(nullptr,AdministratorsGroup,&IsMember)&&IsMember)
-		{
-			Result=true;
-		}
-		FreeSid(AdministratorsGroup);
-	}
-	return Result;
-}
-
 void ReadConfig()
 {
-	Opt.IsUserAdmin=IsUserAdmin();
 	DWORD OptPolicies_ShowHiddenDrives,  OptPolicies_DisabledOptions;
 	string strKeyNameFromReg;
 	string strPersonalPluginsPath;

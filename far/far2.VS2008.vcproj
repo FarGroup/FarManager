@@ -628,6 +628,10 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath="adminmode.cpp"
+				>
+			</File>
+			<File
 				RelativePath="CachedWrite.cpp"
 				>
 			</File>
@@ -2644,6 +2648,10 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl"
 			>
+			<File
+				RelativePath="adminmode.hpp"
+				>
+			</File>
 			<File
 				RelativePath="array.hpp"
 				>

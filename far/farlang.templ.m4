@@ -17224,6 +17224,22 @@ upd:"Administrator"
 upd:"Administrator"
 upd:"Administrator"
 
+MAdminRequired1
+"Нужно обладать правами администратора"
+"You need to provide administrator permission"
+upd:"You need to provide administrator permission"
+upd:"You need to provide administrator permission"
+upd:"You need to provide administrator permission"
+upd:"You need to provide administrator permission"
+
+MAdminRequired2
+"для обработки этого объекта:"
+"to process this object:"
+upd:"to process this object:"
+upd:"to process this object:"
+upd:"to process this object:"
+upd:"to process this object:"
+
 #Must be the last
 MNewFileName
 l:

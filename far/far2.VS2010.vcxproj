@@ -422,6 +422,7 @@ if not exist bootstrap mkdir bootstrap</Command>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="adminmode.cpp" />
     <ClCompile Include="CachedWrite.cpp" />
     <ClCompile Include="cddrv.cpp" />
     <ClCompile Include="CFileMask.cpp" />
@@ -939,6 +940,7 @@ if not exist bootstrap mkdir bootstrap</Command>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="adminmode.hpp" />
     <ClInclude Include="array.hpp" />
     <ClInclude Include="BaseFileMask.hpp" />
     <ClInclude Include="bitflags.hpp" />

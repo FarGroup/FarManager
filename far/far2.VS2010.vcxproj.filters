@@ -32,6 +32,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="adminmode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="CachedWrite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -496,6 +499,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="adminmode.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="array.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

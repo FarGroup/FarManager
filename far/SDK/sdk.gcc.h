@@ -442,4 +442,9 @@ public:
 	virtual HRESULT STDMETHODCALLTYPE SetThumbnailClip(HWND hwnd,RECT *prcClip)=0;
 };
 
+// shellapi.h
+#ifndef SEE_MASK_NOASYNC
+#define SEE_MASK_NOASYNC 0x00000100
+#endif
+
 #endif // __ITaskbarList3_INTERFACE_DEFINED__

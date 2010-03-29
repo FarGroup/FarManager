@@ -1,3 +1,5 @@
+adminmode.cpp
+adminmode.hpp
 array.hpp
 BaseFileMask.hpp
 bitflags.hpp

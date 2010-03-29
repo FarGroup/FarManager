@@ -39,17 +39,28 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "mix.hpp"
 #include "ctrlobj.hpp"
+#include "adminmode.hpp"
 
 BOOL apiDeleteFile(const wchar_t *lpwszFileName)
 {
-	return DeleteFile(NTPath(lpwszFileName));
+	string strNtName(NTPath(lpwszFileName).Str);
+	BOOL Result = DeleteFile(strNtName);
+	if(!Result && GetLastError() == ERROR_ACCESS_DENIED)
+	{
+		Result = Admin.DeleteFile(strNtName);
+	}
+	return Result;
 }
 
 BOOL apiRemoveDirectory(const wchar_t *DirName)
 {
-	string strDirName=DirName;
-	AddEndSlash(strDirName);
-	return RemoveDirectory(NTPath(strDirName));
+	string strNtName(NTPath(DirName).Str);
+	BOOL Result = RemoveDirectory(strNtName);
+	if(!Result && GetLastError() == ERROR_ACCESS_DENIED)
+	{
+		Result = Admin.RemoveDirectory(strNtName);
+	}
+	return Result;
 }
 
 HANDLE apiCreateFile(
@@ -641,9 +652,13 @@ BOOL apiFindNextFileName(HANDLE hFindStream,string& strLinkName)
 
 BOOL apiCreateDirectory(LPCWSTR lpPathName,LPSECURITY_ATTRIBUTES lpSecurityAttributes)
 {
-	string strPathName=NTPath(lpPathName).Str;
-	AddEndSlash(strPathName);
-	return CreateDirectory(strPathName,lpSecurityAttributes);
+	string strNtName(NTPath(lpPathName).Str);
+	BOOL Result = CreateDirectory(strNtName,lpSecurityAttributes);
+	if(!Result && GetLastError() == ERROR_ACCESS_DENIED)
+	{
+		Result = Admin.CreateDirectory(strNtName,lpSecurityAttributes);
+	}
+	return Result;
 }
 
 DWORD apiGetFileAttributes(LPCWSTR lpFileName)
@@ -653,23 +668,36 @@ DWORD apiGetFileAttributes(LPCWSTR lpFileName)
 
 BOOL apiSetFileAttributes(LPCWSTR lpFileName,DWORD dwFileAttributes)
 {
-	return SetFileAttributes(NTPath(lpFileName),dwFileAttributes);
+	string strNtName(NTPath(lpFileName).Str);
+	BOOL Result = SetFileAttributes(strNtName, dwFileAttributes);
+	if(!Result && GetLastError() == ERROR_ACCESS_DENIED)
+	{
+		Result = Admin.SetFileAttributes(strNtName, dwFileAttributes);
+	}
+	return Result;
+
+}
+
+BOOL CreateSymbolicLinkInternal(LPCWSTR Object,LPCWSTR Target, DWORD dwFlags)
+{
+	return ifn.pfnCreateSymbolicLink?
+		ifn.pfnCreateSymbolicLink(Object, Target, dwFlags):
+		CreateReparsePoint(Target, Object, dwFlags&SYMBOLIC_LINK_FLAG_DIRECTORY?RP_SYMLINKDIR:RP_SYMLINKFILE);
 }
 
 BOOL apiCreateSymbolicLink(LPCWSTR lpSymlinkFileName,LPCWSTR lpTargetFileName,DWORD dwFlags)
 {
 	BOOL Result=FALSE;
 	string strSymlinkFileName(NTPath(lpSymlinkFileName).Str);
-
-	if (ifn.pfnCreateSymbolicLink)
+	Result=CreateSymbolicLinkInternal(strSymlinkFileName, lpTargetFileName, dwFlags);
+	if (!Result)
 	{
-		Result=ifn.pfnCreateSymbolicLink(strSymlinkFileName,lpTargetFileName,dwFlags);
+		DWORD LastError = GetLastError();
+		if(!Result && (LastError == ERROR_ACCESS_DENIED || LastError == ERROR_PRIVILEGE_NOT_HELD))
+		{
+			Result=Admin.CreateSymbolicLink(strSymlinkFileName, lpTargetFileName, dwFlags);
+		}
 	}
-	else
-	{
-		Result=CreateReparsePoint(lpTargetFileName,strSymlinkFileName,dwFlags&SYMBOLIC_LINK_FLAG_DIRECTORY?RP_SYMLINKDIR:RP_SYMLINKFILE);
-	}
-
 	return Result;
 }
 

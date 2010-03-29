@@ -82,12 +82,6 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
 	ItemHiddenCount(0),
 	ItemSubMenusCount(0)
 {
-	// <А этот здесь зачем?>
-	string a;
-	if (CtrlObject->CmdLine)
-		CtrlObject->CmdLine->GetSelString(a);
-	// </А этот здесь зачем?>
-
 	SaveScr=nullptr;
 	SetDynamicallyBorn(false);
 	SetFlags(Flags|VMENU_MOUSEREACTION|VMENU_UPDATEREQUIRED);

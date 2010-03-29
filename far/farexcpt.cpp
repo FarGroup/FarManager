@@ -324,7 +324,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 	*/
 
 	if (From == EXCEPT_KERNEL || !Module)
-		apiGetModuleFileName(nullptr, strFileName);
+		strFileName=g_strFarModuleName;
 	else
 		strFileName = Module->GetModuleName();
 

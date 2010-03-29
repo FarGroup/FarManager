@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 "Layouts"="04090409;04190419"
 "Table1"="¹ְֲֳִֵַָֹÊֻּֽ־ֿ׀ׁׂ׃װױײ׳״ÙÚÛÜßאגדהוחטיךכלםמןנסעףפץצקרשתûü‎ÿ¸¨ֱÞ"
 "Table2"="#FDULTPBQRKVYJGHCNEA{WXIO}SMZfdultpbqrkvyjghcnea[wxio]sm'z`~<>"
-"Rules1"=",??&./ב,‏.:^ֶ:ז;;$;\"@Ý\""
+"Rules1"=",??&./ב,‏.:^ֶ:ז;;$\"@Ý\""
 "Rules2"="?,&?/.,ב.‏^::ֶ;ז$;@\"\"Ý"
 "Rules3"="^::ֶֶ^$;;זז$@\"\"ÝÝ@&??,,בב&/..‏‏/"
 */

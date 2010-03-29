@@ -4804,11 +4804,10 @@ string &FileList::AddPluginPrefix(FileList *SrcPanel,string &strPrefix)
 void FileList::IfGoHome(wchar_t Drive)
 {
 	string strTmpCurDir;
-	string strFName;
+	string strFName=g_strFarModuleName;
 
-	if (apiGetModuleFileName(nullptr, strFName))
 	{
-		strFName.SetLength(3);
+		strFName.SetLength(3); //BUGBUG!
 		// СНАЧАЛА ПАССИВНАЯ ПАНЕЛЬ!!!
 		/*
 			Почему? - Просто - если активная широкая (или пассивная

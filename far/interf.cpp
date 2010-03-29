@@ -122,10 +122,8 @@ void InitConsole(int FirstInit)
 	HWND hWnd = GetConsoleWindow();
 	if (hWnd && Opt.SmallIcon)
 	{
-		string strFarName;
-		apiGetModuleFileName(nullptr, strFarName);
 		HICON hSmallIcon=nullptr,hLargeIcon=nullptr;
-		ExtractIconEx(strFarName,0,&hLargeIcon,&hSmallIcon,1);
+		ExtractIconEx(g_strFarModuleName,0,&hLargeIcon,&hSmallIcon,1);
 
 		if (hLargeIcon!=nullptr)
 			hOldLargeIcon=(HICON)SendMessage(hWnd,WM_SETICON,1,(LPARAM)hLargeIcon);
@@ -601,9 +599,8 @@ void GetRealCursorType(int &Visible,int &Size)
 
 static BOOL DetectTTFFont()
 {
-	string strAppName, strOptRegRoot;
+	string strAppName=g_strFarModuleName, strOptRegRoot;
 	BOOL UseTTFConsoleFont=FALSE;
-	apiGetModuleFileName(nullptr, strAppName);
 	SetRegRootKey(HKEY_CURRENT_USER);
 	strOptRegRoot = Opt.strRegRoot;
 	Opt.strRegRoot = L"Console";

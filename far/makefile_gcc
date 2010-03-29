@@ -23,6 +23,7 @@ DEF = far.def
 DEPFILE = bootstrap/far.gcc.dep
 
 SRCS = \
+	adminmode.cpp \
 	CachedWrite.cpp \
 	cddrv.cpp \
 	CFileMask.cpp \

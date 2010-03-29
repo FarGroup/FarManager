@@ -274,6 +274,9 @@ BOOL apiSetCurrentDirectory(
     bool Validate = true
 );
 
+// for AdminMode only, dont' use outside.
+BOOL CreateSymbolicLinkInternal(LPCWSTR Object,LPCWSTR Target, DWORD dwFlags);
+
 BOOL apiCreateSymbolicLink(
     LPCWSTR lpSymlinkFileName,
     LPCWSTR lpTargetFileName,

@@ -884,7 +884,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 		seInfo.lpDirectory=strCurDir;
 		seInfo.lpVerb = (dwAttr&FILE_ATTRIBUTE_DIRECTORY)?nullptr:lpVerb?lpVerb:GetShellAction(strNewCmdStr, dwSubSystem, dwError);
 		//seInfo.lpVerb = "open";
-		seInfo.fMask = SEE_MASK_FLAG_NO_UI|SEE_MASK_FLAG_DDEWAIT|SEE_MASK_NOCLOSEPROCESS|SEE_MASK_NOZONECHECKS;
+		seInfo.fMask = SEE_MASK_FLAG_NO_UI|SEE_MASK_NOASYNC|SEE_MASK_NOCLOSEPROCESS;
 
 		if (!dwError)
 		{
@@ -1068,9 +1068,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 										{
 											if (Opt.SmallIcon)
 											{
-												string strFarName;
-												apiGetModuleFileName(nullptr, strFarName);
-												ExtractIconEx(strFarName,0,&hLargeIcon,&hSmallIcon,1);
+												ExtractIconEx(g_strFarModuleName,0,&hLargeIcon,&hSmallIcon,1);
 											}
 
 											if (hLargeIcon != nullptr)
@@ -1811,19 +1809,17 @@ bool ProcessOSAliases(string &strStr)
 
 	PartCmdLine(strStr,strNewCmdStr,strNewCmdPar);
 
-	string strModuleName;
-	apiGetModuleFileName(nullptr,strModuleName);
-
-	const wchar_t *lpwszExeName=PointToName(strModuleName);
+	const wchar_t *lpwszExeName=PointToName(g_strFarModuleName);
 	int nSize=(int)strNewCmdStr.GetLength()+4096;
 	wchar_t* lpwszNewCmdStr=strNewCmdStr.GetBuffer(nSize);
 	int ret=GetConsoleAlias(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),(wchar_t*)lpwszExeName);
 
 	if (!ret)
 	{
-		if (apiExpandEnvironmentStrings(L"%COMSPEC%",strModuleName))
+		string strComspec;
+		if (apiExpandEnvironmentStrings(L"COMSPEC",strComspec))
 		{
-			lpwszExeName=PointToName(strModuleName);
+			lpwszExeName=PointToName(strComspec);
 			ret=GetConsoleAlias(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),(wchar_t*)lpwszExeName);
 		}
 	}
