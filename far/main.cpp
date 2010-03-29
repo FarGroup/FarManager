@@ -251,7 +251,6 @@ static int MainProcess(
 			if (*lpwszDestName1)  // актиная панель
 			{
 				string strCurDir;
-				LockScreen LockScr;
 				Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 				Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
 
