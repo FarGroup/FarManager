@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "dirmix.hpp"
 #include "treelist.hpp"
+#include "adminmode.hpp"
 
 bool WINAPI CreateVolumeMountPoint(const wchar_t *TargetVolume, const wchar_t *Object)
 {
@@ -112,11 +113,7 @@ bool SetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
 	bool Result=false;
 	if (IsReparseTagValid(rdb->ReparseTag))
 	{
-		Privilege* CreateSymlinkPrivilege=nullptr;
-		if (rdb->ReparseTag==IO_REPARSE_TAG_SYMLINK)
-		{
-			CreateSymlinkPrivilege=new Privilege(SE_CREATE_SYMBOLIC_LINK_NAME);
-		}
+		Privilege CreateSymlinkPrivilege(SE_CREATE_SYMBOLIC_LINK_NAME);
 		HANDLE hObject=apiCreateFile(Object,GENERIC_WRITE,0,nullptr,OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT);
 		if (hObject!=INVALID_HANDLE_VALUE)
 		{
@@ -127,9 +124,9 @@ bool SetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
 			}
 			CloseHandle(hObject);
 		}
-		if(CreateSymlinkPrivilege)
+		if(!Result && GetLastError()==ERROR_ACCESS_DENIED)
 		{
-			delete CreateSymlinkPrivilege;
+			Result=Admin.SetReparseDataBuffer(NTPath(Object), rdb);
 		}
 	}
 

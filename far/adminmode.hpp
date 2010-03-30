@@ -39,12 +39,17 @@ enum ADMIN_COMMAND
 	C_FUNCTION_CREATEDIRECTORY,
 	C_FUNCTION_REMOVEDIRECTORY,
 	C_FUNCTION_DELETEFILE,
+	C_FUNCTION_COPYFILEEX,
+	C_FUNCTION_MOVEFILEEX,
 	C_FUNCTION_SETFILEATTRIBUTES,
 	C_FUNCTION_CREATESYMBOLICLINK,
+	C_FUNCTION_SETREPARSEDATABUFFER,
 };
 
 #define PIPE_NAME L"\\\\.\\pipe\\FarPipe"
 const int Magic=0x1DD0D;
+
+class AutoObject;
 
 class AdminMode
 {
@@ -56,15 +61,18 @@ public:
 	bool CreateDirectory(LPCWSTR Object, LPSECURITY_ATTRIBUTES Attributes);
 	bool RemoveDirectory(LPCWSTR Object);
 	bool DeleteFile(LPCWSTR Object);
+	bool CopyFileEx(LPCWSTR From, LPCWSTR To, LPPROGRESS_ROUTINE ProgressRoutine, LPVOID Data, LPBOOL Cancel, DWORD Flags);
+	bool MoveFileEx(LPCWSTR From, LPCWSTR To, DWORD Flags);
 	bool SetFileAttributes(LPCWSTR Object, DWORD FileAttributes);
-	bool CreateSymbolicLink(LPCWSTR Object, LPCWSTR Target, DWORD dwFlags);
+	bool CreateSymbolicLink(LPCWSTR Object, LPCWSTR Target, DWORD Flags);
+	bool SetReparseDataBuffer(LPCWSTR Object,PREPARSE_DATA_BUFFER ReparseDataBuffer);
 
 private:
 	HANDLE Pipe;
 	bool Approve;
 	bool AskApprove;
 
-	bool ReadData(LPVOID& Data) const;
+	bool ReadData(AutoObject& Data) const;
 	bool WriteData(LPCVOID Data, DWORD DataSize) const;
 	bool ReadInt(int& Data);
 	bool WriteInt(int Data);

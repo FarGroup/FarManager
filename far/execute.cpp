@@ -1817,7 +1817,7 @@ bool ProcessOSAliases(string &strStr)
 	if (!ret)
 	{
 		string strComspec;
-		if (apiExpandEnvironmentStrings(L"COMSPEC",strComspec))
+		if (apiGetEnvironmentVariable(L"COMSPEC",strComspec))
 		{
 			lpwszExeName=PointToName(strComspec);
 			ret=GetConsoleAlias(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),(wchar_t*)lpwszExeName);

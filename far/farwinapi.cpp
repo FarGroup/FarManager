@@ -117,23 +117,27 @@ BOOL apiCopyFileEx(
     DWORD dwCopyFlags
 )
 {
-	return CopyFileEx(
-	           NTPath(lpwszExistingFileName),
-	           NTPath(lpwszNewFileName),
-	           lpProgressRoutine,
-	           lpData,
-	           pbCancel,
-	           dwCopyFlags
-	       );
+	string strFrom(NTPath(lpwszExistingFileName).Str), strTo(NTPath(lpwszNewFileName).Str);
+	BOOL Result = CopyFileEx(strFrom, strTo, lpProgressRoutine, lpData, pbCancel, dwCopyFlags);
+	if(!Result && GetLastError() == ERROR_ACCESS_DENIED)
+	{
+		Result = Admin.CopyFileEx(strFrom, strTo, lpProgressRoutine, lpData, pbCancel, dwCopyFlags);
+	}
+	return Result;
 }
-
 
 BOOL apiMoveFile(
     const wchar_t *lpwszExistingFileName, // address of name of the existing file
     const wchar_t *lpwszNewFileName   // address of new name for the file
 )
 {
-	return MoveFile(NTPath(lpwszExistingFileName),NTPath(lpwszNewFileName));
+	string strFrom(NTPath(lpwszExistingFileName).Str), strTo(NTPath(lpwszNewFileName).Str);
+	BOOL Result = MoveFile(strFrom, strTo);
+	if(!Result && GetLastError() == ERROR_ACCESS_DENIED)
+	{
+		Result = Admin.MoveFileEx(strFrom, strTo, 0);
+	}
+	return Result;
 }
 
 BOOL apiMoveFileEx(
@@ -142,7 +146,13 @@ BOOL apiMoveFileEx(
     DWORD dwFlags   // flag to determine how to move file
 )
 {
-	return MoveFileEx(NTPath(lpwszExistingFileName),NTPath(lpwszNewFileName),dwFlags);
+	string strFrom(NTPath(lpwszExistingFileName).Str), strTo(NTPath(lpwszNewFileName).Str);
+	BOOL Result = MoveFileEx(strFrom, strTo, dwFlags);
+	if(!Result && GetLastError() == ERROR_ACCESS_DENIED)
+	{
+		Result = Admin.MoveFileEx(strFrom, strTo, dwFlags);
+	}
+	return Result;
 }
 
 
