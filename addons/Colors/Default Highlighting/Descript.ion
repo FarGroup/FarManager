@@ -10,6 +10,6 @@ hell.reg light gray on black - (c) Andrey Repin <Andrey.Repin@p24.f877.n5020.z2.
 nc5pal2.reg light cyan on blue - Norton Commander 5.0 Palette 2 - (c) alexey kolesnichenko <gossip@gossip.donetsk.ua>
 Rodion_Doroshkevich.reg light cyan and white on blue - (c) Rodion Doroshkevich <rodion2000@mailru.com>
 VaxColors.reg light gray and green on black - Vax Colors - (c) Eugene Kotlyarov <Eugene.Kotlyarov@p9.f26.n5058.z2.fidonet.org>
-GreenMile.reg black and blue on green - (c) Anton Belenki <antonbelenki@nightmail.ru> [http://antonbelenki.nightmail.ru:8080/ColorScheme-GreenMile.zip]
 import_colors.bat Import color scheme from .reg file
 descript.ion File descriptions
+GreenMile.reg GreenMile.reg black on green - (c) Anton Belenki <lowtrucks@lowtrucks.net>
