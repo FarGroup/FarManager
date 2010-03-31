@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 enum ADMIN_COMMAND
 {
 	C_SERVICE_EXIT,
-	C_SERVICE_TEST,
 	C_FUNCTION_CREATEDIRECTORY,
 	C_FUNCTION_REMOVEDIRECTORY,
 	C_FUNCTION_DELETEFILE,
@@ -44,10 +43,12 @@ enum ADMIN_COMMAND
 	C_FUNCTION_SETFILEATTRIBUTES,
 	C_FUNCTION_CREATESYMBOLICLINK,
 	C_FUNCTION_SETREPARSEDATABUFFER,
+	C_FUNCTION_MOVETORECYCLEBIN,
 };
 
 #define PIPE_NAME L"\\\\.\\pipe\\FarPipe"
-const int Magic=0x1DD0D;
+const int Magic = 0x1DD0D;
+const int CallbackMagic= 0xCA11BAC6;
 
 class AutoObject;
 
@@ -61,22 +62,27 @@ public:
 	bool CreateDirectory(LPCWSTR Object, LPSECURITY_ATTRIBUTES Attributes);
 	bool RemoveDirectory(LPCWSTR Object);
 	bool DeleteFile(LPCWSTR Object);
+	void CallbackRoutine();
 	bool CopyFileEx(LPCWSTR From, LPCWSTR To, LPPROGRESS_ROUTINE ProgressRoutine, LPVOID Data, LPBOOL Cancel, DWORD Flags);
 	bool MoveFileEx(LPCWSTR From, LPCWSTR To, DWORD Flags);
 	bool SetFileAttributes(LPCWSTR Object, DWORD FileAttributes);
 	bool CreateSymbolicLink(LPCWSTR Object, LPCWSTR Target, DWORD Flags);
 	bool SetReparseDataBuffer(LPCWSTR Object,PREPARSE_DATA_BUFFER ReparseDataBuffer);
+	int MoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct);
 
 private:
 	HANDLE Pipe;
+	int PID;
 	bool Approve;
 	bool AskApprove;
+	LPPROGRESS_ROUTINE ProgressRoutine;
 
 	bool ReadData(AutoObject& Data) const;
 	bool WriteData(LPCVOID Data, DWORD DataSize) const;
 	bool ReadInt(int& Data);
 	bool WriteInt(int Data);
 	bool SendCommand(ADMIN_COMMAND Command);
+	bool ReceiveLastError();
 	bool Initialize();
 	bool AdminApproveDlg(LPCWSTR Object);
 };

@@ -110,7 +110,7 @@ static int OrigScrX,OrigScrY;
 static DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
                                         LARGE_INTEGER TotalBytesTransferred,LARGE_INTEGER StreamSize,
                                         LARGE_INTEGER StreamBytesTransferred,DWORD dwStreamNumber,
-                                        DWORD dwCallbackReason,HANDLE hSourceFile,HANDLE hDestinationFile,
+                                        DWORD dwCallbackReason,HANDLE /*hSourceFile*/,HANDLE /*hDestinationFile*/,
                                         LPVOID lpData);
 
 static unsigned __int64 TotalCopySize, TotalCopiedSize; // Общий индикатор копирования
@@ -4224,8 +4224,7 @@ int ShellCopy::ShellSystemCopy(const wchar_t *SrcName,const wchar_t *DestName,co
 	CP->SetNames(SrcName,DestName);
 	CP->SetProgressValue(0,0);
 	TotalCopiedSizeEx=TotalCopiedSize;
-	BOOL Cancel=FALSE;
-	if (!apiCopyFileEx(SrcName,DestName,CopyProgressRoutine,nullptr,&Cancel,Flags&FCOPY_DECRYPTED_DESTINATION?COPY_FILE_ALLOW_DECRYPTED_DESTINATION:0))
+	if (!apiCopyFileEx(SrcName,DestName,CopyProgressRoutine,nullptr,nullptr,Flags&FCOPY_DECRYPTED_DESTINATION?COPY_FILE_ALLOW_DECRYPTED_DESTINATION:0))
 	{
 		Flags&=~FCOPY_DECRYPTED_DESTINATION;
 		return (_localLastError=GetLastError())==ERROR_REQUEST_ABORTED ? COPY_CANCEL:COPY_FAILURE;

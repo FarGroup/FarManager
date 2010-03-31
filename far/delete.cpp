@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelmix.hpp"
 #include "mix.hpp"
 #include "dirinfo.hpp"
+#include "adminmode.hpp"
 
 static void ShellDeleteMsg(const wchar_t *Name,int Wipe,int Percent);
 static int AskDeleteReadOnly(const wchar_t *Name,DWORD Attr,int Wipe);
@@ -831,7 +832,7 @@ DWORD SHErrorToWinError(DWORD SHError)
 		case 0x71:    WinError=ERROR_ALREADY_EXISTS;    break; // DE_SAMEFILE         The source and destination files are the same file.
 		case 0x72:    WinError=ERROR_INVALID_PARAMETER; break; // DE_MANYSRC1DEST     Multiple file paths were specified in the source buffer, but only one destination file path.
 		case 0x73:    WinError=ERROR_NOT_SAME_DEVICE;   break; // DE_DIFFDIR          Rename operation was specified but the destination path is a different directory. Use the move operation instead.
-		case 0x74:    WinError=ERROR_ACCESS_DENIED;     break; // DE_ROOTDIR          The source is a root directory, which cannot be moved or renamed.
+		case 0x74:    WinError=ERROR_INVALID_PARAMETER; break; // DE_ROOTDIR          The source is a root directory, which cannot be moved or renamed.
 		case 0x75:    WinError=ERROR_CANCELLED;         break; // DE_OPCANCELLED      The operation was cancelled by the user, or silently cancelled if the appropriate flags were supplied to SHFileOperation.
 		case 0x76:    WinError=ERROR_BAD_PATHNAME;      break; // DE_DESTSUBTREE      The destination is a subtree of the source.
 		case 0x78:    WinError=ERROR_ACCESS_DENIED;     break; // DE_ACCESSDENIEDSRC  Security settings denied access to the source.
@@ -857,6 +858,28 @@ DWORD SHErrorToWinError(DWORD SHError)
 	return WinError;
 }
 
+bool MoveToRecycleBinInternal(LPCWSTR Object)
+{
+	SHFILEOPSTRUCT fop={0};
+	fop.wFunc=FO_DELETE;
+	fop.pFrom=Object;
+	fop.pTo = L"\0\0";
+	fop.fFlags=FOF_NOCONFIRMATION|FOF_SILENT|FOF_ALLOWUNDO;
+	DWORD Result=SHFileOperation(&fop);
+
+	if (Result == 0x78) // DE_ACCESSDENIEDSRC == ERROR_ACCESS_DENIED
+	{
+		Result = Admin.MoveToRecycleBin(fop);
+	}
+
+	if (Result)
+	{
+		SetLastError(SHErrorToWinError(Result));
+	}
+
+	return !Result && !fop.fAnyOperationsAborted;
+}
+
 int RemoveToRecycleBin(const wchar_t *Name)
 {
 	string strFullName;
@@ -877,52 +900,10 @@ int RemoveToRecycleBin(const wchar_t *Name)
 		}
 	}
 
-	SHFILEOPSTRUCT fop={0};
 	wchar_t *lpwszName = strFullName.GetBuffer(strFullName.GetLength()+2);
 	lpwszName[strFullName.GetLength()+1] = 0; //dirty trick to make strFullName end with DOUBLE zero!!!
-	fop.wFunc=FO_DELETE;
-	fop.pFrom=lpwszName;
-	fop.pTo = L"\0\0";
-	fop.fFlags=FOF_NOCONFIRMATION|FOF_SILENT;
 
-	if (Opt.DeleteToRecycleBin)
-		fop.fFlags|=FOF_ALLOWUNDO;
-
-	DWORD RetCode=SHFileOperation(&fop);
-	DWORD RetCode2=RetCode;
-	strFullName.ReleaseBuffer();
-	/* $ 26.01.2003 IS
-	     + Если не удалось удалить объект (например, имя имеет пробел на конце)
-	       и это не связано с прерыванием удаления пользователем, то попробуем
-	       еще разок, но с указанием полного имени вместе с "\\?\"
-	*/
-	// IS: Следует заметить, что при подобном удалении объект, имя которого
-	// IS: с пробелом на конце, в корзину не попадает даже, если включено
-	// IS: удаление в нее! Почему - ХЗ, проблема скорее всего где-то в Windows
-	// IS: Если этот момент вы посчитаете это поведение плохим и пусть уж лучше
-	// IS: в подобной ситуации пользователь обломится, то просто поменяете 1 на 0
-	// Похоже, в висте этот трюк больше не работает.
-	// TODO: делать или обычное удаление, или через IFileOperation.
-#if 1
-
-	if (RetCode && !fop.fAnyOperationsAborted && !HasPathPrefix(strFullName))
-	{
-		string strFullNameAlt=NTPath(strFullName).Str;
-		lpwszName = strFullNameAlt.GetBuffer(strFullNameAlt.GetLength()+2);
-		lpwszName[strFullNameAlt.GetLength()+1] = 0; //dirty trick to make strFullName end with DOUBLE zero!!!
-		fop.pFrom=lpwszName;
-		RetCode=SHFileOperation(&fop);
-	}
-
-#endif
-
-	if (RetCode)
-	{
-		SetLastError(SHErrorToWinError(RetCode2));
-		return FALSE;
-	}
-
-	return !fop.fAnyOperationsAborted;
+	return MoveToRecycleBinInternal(lpwszName);
 }
 
 int WipeFile(const wchar_t *Name)

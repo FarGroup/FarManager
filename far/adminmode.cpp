@@ -45,7 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "privilege.hpp"
 #include "flink.hpp"
 
-
 class AutoObject
 {
 public:
@@ -159,12 +158,19 @@ bool WritePipeData(HANDLE Pipe, LPCVOID Data, int DataSize)
 	return Result;
 }
 
+bool SendLastError(HANDLE Pipe)
+{
+	return WritePipeInt(Pipe, GetLastError());
+}
+
 AdminMode Admin;
 
 AdminMode::AdminMode():
 	Pipe(INVALID_HANDLE_VALUE),
+	PID(0),
 	Approve(false),
-	AskApprove(true)
+	AskApprove(true),
+	ProgressRoutine(nullptr)
 {
 }
 
@@ -172,6 +178,7 @@ AdminMode::~AdminMode()
 {
 	SendCommand(C_SERVICE_EXIT);
 	DisconnectNamedPipe(Pipe);
+	PID=0;
 	CloseHandle(Pipe);
 }
 
@@ -200,6 +207,14 @@ bool AdminMode::SendCommand(ADMIN_COMMAND Command)
 	return WritePipeInt(Pipe, Command);
 }
 
+bool AdminMode::ReceiveLastError()
+{
+	int LastError = ERROR_SUCCESS;
+	bool Result = ReadPipeInt(Pipe, LastError);
+	SetLastError(LastError);
+	return Result;
+}
+
 bool AdminMode::Initialize()
 {
 	bool Result=false;
@@ -211,22 +226,11 @@ bool AdminMode::Initialize()
 	}
 	if(Pipe!=INVALID_HANDLE_VALUE)
 	{
-		if(SendCommand(C_SERVICE_TEST))
+		if(PID)
 		{
-			int SendData=rand();
-			if(WritePipeInt(Pipe, SendData))
-			{
-				int RecvData=0;
-				if(ReadPipeInt(Pipe, RecvData))
-				{
-					if((RecvData^Magic)==SendData)
-					{
-						Result=true;
-					}
-				}
-			}
+			Result = true; // TODO: OpenProcess() etc.
 		}
-		if(!Result)
+		else
 		{
 			FormatString strParam;
 			strParam << L"/admin " << GetCurrentProcessId();
@@ -245,6 +249,19 @@ bool AdminMode::Initialize()
 				while(!ConnectNamedPipe(Pipe, nullptr))
 				{
 					Sleep(1);
+				}
+				int SendData = GetTickCount();
+				if(WritePipeInt(Pipe, SendData))
+				{
+					int RecvData=0;
+					if(ReadPipeInt(Pipe, RecvData))
+					{
+						if((RecvData^Magic) == SendData)
+						{
+							ReadPipeInt(Pipe, PID);
+							Result = true;
+						}
+					}
 				}
 				Result=true;
 			}
@@ -323,9 +340,12 @@ bool AdminMode::CreateDirectory(LPCWSTR Object, LPSECURITY_ATTRIBUTES Attributes
 			{
 				// BUGBUG: SecurityAttributes ignored
 				int OpResult=0;
-				if(ReadInt(OpResult) && OpResult)
+				if(ReadInt(OpResult))
 				{
-					Result=true;
+					if(ReceiveLastError())
+					{
+						Result = OpResult !=0;
+					}
 				}
 			}
 		}
@@ -343,9 +363,12 @@ bool AdminMode::RemoveDirectory(LPCWSTR Object)
 			if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
 			{
 				int OpResult=0;
-				if(ReadInt(OpResult) && OpResult)
+				if(ReadInt(OpResult))
 				{
-					Result=true;
+					if(ReceiveLastError())
+					{
+						Result = OpResult !=0;
+					}
 				}
 			}
 		}
@@ -363,9 +386,12 @@ bool AdminMode::DeleteFile(LPCWSTR Object)
 			if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
 			{
 				int OpResult=0;
-				if(ReadInt(OpResult) && OpResult)
+				if(ReadInt(OpResult))
 				{
-					Result=true;
+					if(ReceiveLastError())
+					{
+						Result = OpResult !=0;
+					}
 				}
 			}
 		}
@@ -373,24 +399,84 @@ bool AdminMode::DeleteFile(LPCWSTR Object)
 	return Result;
 }
 
+void AdminMode::CallbackRoutine()
+{
+	if(ProgressRoutine)
+	{
+		AutoObject TotalFileSize;
+		if (ReadData(TotalFileSize))
+		{
+			AutoObject TotalBytesTransferred;
+			if (ReadData(TotalBytesTransferred))
+			{
+				AutoObject StreamSize;
+				if (ReadData(StreamSize))
+				{
+					AutoObject StreamBytesTransferred;
+					if (ReadData(StreamBytesTransferred))
+					{
+						int StreamNumber=0;
+						if (ReadInt(StreamNumber))
+						{
+							int CallbackReason=0;
+							if (ReadInt(CallbackReason))
+							{
+								// BUGBUG: SourceFile, DestinationFile ignored
+								AutoObject Data;
+								if (ReadData(Data))
+								{
+									int Result=ProgressRoutine(*reinterpret_cast<PLARGE_INTEGER>(TotalFileSize.Get()), *reinterpret_cast<PLARGE_INTEGER>(TotalBytesTransferred.Get()), *reinterpret_cast<PLARGE_INTEGER>(StreamSize.Get()), *reinterpret_cast<PLARGE_INTEGER>(StreamBytesTransferred.Get()), StreamNumber, CallbackReason, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, Data.Get());
+									if(WriteInt(CallbackMagic))
+									{
+										WriteInt(Result);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 bool AdminMode::CopyFileEx(LPCWSTR From, LPCWSTR To, LPPROGRESS_ROUTINE ProgressRoutine, LPVOID Data, LPBOOL Cancel, DWORD Flags)
 {
-	bool Result=false;
+	bool Result = false;
 	if(AdminApproveDlg(PointToName(From)) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_COPYFILEEX))
 		{
-			if(WriteData(From,From?(StrLength(From)+1)*sizeof(WCHAR):0))
+			this->ProgressRoutine=ProgressRoutine;
+			if(WriteData(From, From?(StrLength(From)+1)*sizeof(WCHAR):0))
 			{
-				// BUGBUG: ProgressRoutine, Data, Cancel ignored
-				if(WriteData(To,To?(StrLength(To)+1)*sizeof(WCHAR):0))
+				if(WriteData(To, To?(StrLength(To)+1)*sizeof(WCHAR):0))
 				{
-					if(WriteInt(Flags))
+					if (WriteData(&ProgressRoutine, sizeof(ProgressRoutine)))
 					{
-						int OpResult=0;
-						if(ReadInt(OpResult) && OpResult)
+						if (WriteData(&Data, sizeof(Data)))
 						{
-							Result=true;
+							// BUGBUG: Cancel ignored
+							if(WriteInt(Flags))
+							{
+								int OpResult=0;
+								if(ReadInt(OpResult))
+								{
+									if (OpResult == CallbackMagic)
+									{
+										while(OpResult == CallbackMagic)
+										{
+											CallbackRoutine();
+											ReadInt(OpResult);
+										}
+									}
+									if(OpResult != CallbackMagic)
+									{
+										Result = OpResult != 0;
+										ReceiveLastError();
+									}
+								}
+							}
 						}
 					}
 				}
@@ -414,9 +500,12 @@ bool AdminMode::MoveFileEx(LPCWSTR From, LPCWSTR To, DWORD Flags)
 					if(WriteInt(Flags))
 					{
 						int OpResult=0;
-						if(ReadInt(OpResult) && OpResult)
+						if(ReadInt(OpResult))
 						{
-							Result=true;
+							if(ReceiveLastError())
+							{
+								Result = OpResult !=0;
+							}
 						}
 					}
 				}
@@ -438,9 +527,12 @@ bool AdminMode::SetFileAttributes(LPCWSTR Object, DWORD FileAttributes)
 				if(WriteInt(FileAttributes))
 				{
 					int OpResult=0;
-					if(ReadInt(OpResult) && OpResult)
+					if(ReadInt(OpResult))
 					{
-						Result=true;
+						if(ReceiveLastError())
+						{
+							Result = OpResult !=0;
+						}
 					}
 				}
 			}
@@ -463,9 +555,12 @@ bool AdminMode::CreateSymbolicLink(LPCWSTR Object, LPCWSTR Target, DWORD Flags)
 					if(WriteInt(Flags))
 					{
 						int OpResult=0;
-						if(ReadInt(OpResult) && OpResult)
+						if(ReadInt(OpResult))
 						{
-							Result=true;
+							if(ReceiveLastError())
+							{
+								Result = OpResult !=0;
+							}
 						}
 					}
 				}
@@ -487,9 +582,42 @@ bool AdminMode::SetReparseDataBuffer(LPCWSTR Object,PREPARSE_DATA_BUFFER Reparse
 				if(WriteData(ReparseDataBuffer,ReparseDataBuffer?MAXIMUM_REPARSE_DATA_BUFFER_SIZE:0))
 				{
 					int OpResult=0;
-					if(ReadInt(OpResult) && OpResult)
+					if(ReadInt(OpResult))
 					{
-						Result=true;
+						if(ReceiveLastError())
+						{
+							Result = OpResult !=0;
+						}
+					}
+				}
+			}
+		}
+	}
+	return Result;
+}
+
+int AdminMode::MoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
+{
+	int Result=0;
+	if(AdminApproveDlg(PointToName(FileOpStruct.pFrom)) && Initialize())
+	{
+		if(SendCommand(C_FUNCTION_MOVETORECYCLEBIN))
+		{
+			if(WriteData(&FileOpStruct, sizeof(FileOpStruct)))
+			{
+				if(WriteData(FileOpStruct.pFrom,FileOpStruct.pFrom?(StrLength(FileOpStruct.pFrom)+1+1)*sizeof(WCHAR):0)) // achtung! +1
+				{
+					if(WriteData(FileOpStruct.pTo,FileOpStruct.pTo?(StrLength(FileOpStruct.pTo)+1+1)*sizeof(WCHAR):0)) // achtung! +1
+					{
+						int OpResult=0;
+						if(ReadInt(OpResult))
+						{
+							// achtung! no "last error" here
+							if(ReadInt(FileOpStruct.fAnyOperationsAborted))
+							{
+								Result = OpResult;
+							}
+						}
 					}
 				}
 			}
@@ -515,6 +643,239 @@ bool IsUserAdmin()
 	return Result;
 }
 
+HANDLE Pipe;
+
+bool Process(int Command);
+
+DWORD WINAPI AdminCopyProgressRoutine(LARGE_INTEGER TotalFileSize, LARGE_INTEGER TotalBytesTransferred, LARGE_INTEGER StreamSize, LARGE_INTEGER StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE SourceFile,HANDLE DestinationFile, LPVOID Data)
+{
+	int Result=0;
+	if (WritePipeInt(Pipe, CallbackMagic))
+	{
+		if (WritePipeData(Pipe, &TotalFileSize, sizeof(TotalFileSize)))
+		{
+			if (WritePipeData(Pipe, &TotalBytesTransferred, sizeof(TotalBytesTransferred)))
+			{
+				if (WritePipeData(Pipe, &StreamSize, sizeof(StreamSize)))
+				{
+					if (WritePipeData(Pipe, &StreamBytesTransferred, sizeof(StreamBytesTransferred)))
+					{
+						if (WritePipeInt(Pipe, StreamNumber))
+						{
+							if (WritePipeInt(Pipe, CallbackReason))
+							{
+								// BUGBUG: SourceFile, DestinationFile ignored
+								if (WritePipeData(Pipe, &Data, sizeof(Data)))
+								{
+									for(;;)
+									{
+										ReadPipeInt(Pipe, Result);
+										if (Result == CallbackMagic)
+										{
+											ReadPipeInt(Pipe, Result);
+											break;
+										}
+										else
+										{
+											// nested call from ProgressRoutine()
+											Process(Result);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return Result;
+}
+
+bool Process(int Command)
+{
+	bool Exit=false;
+	switch(Command)
+	{
+	case C_SERVICE_EXIT:
+		{
+			Exit=true;
+		}
+		break;
+
+	case C_FUNCTION_CREATEDIRECTORY:
+		{
+			AutoObject Object;
+			if(ReadPipeData(Pipe, Object))
+			{
+				// BUGBUG, SecurityAttributes ignored
+				if(WritePipeInt(Pipe, CreateDirectory(Object.GetStr(), NULL)))
+				{
+					SendLastError(Pipe);
+				}
+			}
+		}
+		break;
+
+	case C_FUNCTION_REMOVEDIRECTORY:
+		{
+			AutoObject Object;
+			if(ReadPipeData(Pipe, Object))
+			{
+				if(WritePipeInt(Pipe, RemoveDirectory(Object.GetStr())))
+				{
+					SendLastError(Pipe);
+				}
+			}
+		}
+		break;
+
+	case C_FUNCTION_DELETEFILE:
+		{
+			AutoObject Object;
+			if(ReadPipeData(Pipe, Object))
+			{
+				if(WritePipeInt(Pipe, DeleteFile(Object.GetStr())))
+				{
+					SendLastError(Pipe);
+				}
+			}
+		}
+		break;
+	
+	case C_FUNCTION_COPYFILEEX:
+		{
+			AutoObject From;
+			if(ReadPipeData(Pipe, From))
+			{
+				AutoObject To;
+				if(ReadPipeData(Pipe, To))
+				{
+					AutoObject UserCopyProgressRoutine;
+					if(ReadPipeData(Pipe, UserCopyProgressRoutine))
+					{
+						AutoObject Data;
+						if(ReadPipeData(Pipe, Data))
+						{
+							int Flags = 0;
+							if(ReadPipeInt(Pipe, Flags))
+							{
+								// BUGBUG: Cancel ignored
+								if(WritePipeInt(Pipe, CopyFileEx(From.GetStr(), To.GetStr(), UserCopyProgressRoutine.Get()?AdminCopyProgressRoutine:nullptr, Data.Get(), nullptr, Flags)))
+								{
+									SendLastError(Pipe);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		break;
+
+	case C_FUNCTION_MOVEFILEEX:
+		{
+			AutoObject From;
+			if(ReadPipeData(Pipe, From))
+			{
+				AutoObject To;
+				if(ReadPipeData(Pipe, To))
+				{
+					int Flags = 0;
+					if(ReadPipeInt(Pipe, Flags))
+					{
+						if(WritePipeInt(Pipe, MoveFileEx(From.GetStr(), To.GetStr(), Flags)))
+						{
+							SendLastError(Pipe);
+						}
+					}
+				}
+			}
+		}
+		break;
+
+	case C_FUNCTION_SETFILEATTRIBUTES:
+		{
+			AutoObject Object;
+			if(ReadPipeData(Pipe, Object))
+			{
+				int Attributes = 0;
+				if(ReadPipeInt(Pipe, Attributes))
+				{
+					if(WritePipeInt(Pipe, SetFileAttributes(Object.GetStr(), Attributes)))
+					{
+						SendLastError(Pipe);
+					}
+				}
+			}
+		}
+		break;
+
+	case C_FUNCTION_CREATESYMBOLICLINK:
+		{
+			AutoObject Object;
+			if(ReadPipeData(Pipe, Object))
+			{
+				AutoObject Target;
+				if(ReadPipeData(Pipe, Target))
+				{
+					int Flags = 0;
+					if(ReadPipeInt(Pipe, Flags))
+					{
+						if(WritePipeInt(Pipe, CreateSymbolicLinkInternal(Object.GetStr(), Target.GetStr(), Flags)))
+						{
+							SendLastError(Pipe);
+						}
+					}
+				}
+			}
+		}
+		break;
+
+	case C_FUNCTION_SETREPARSEDATABUFFER:
+		{
+			AutoObject Object;
+			if(ReadPipeData(Pipe, Object))
+			{
+				AutoObject ReparseDataBuffer;
+				if(ReadPipeData(Pipe, ReparseDataBuffer))
+				{
+					if(WritePipeInt(Pipe, SetREPARSE_DATA_BUFFER(Object.GetStr(), reinterpret_cast<PREPARSE_DATA_BUFFER>(ReparseDataBuffer.Get()))))
+					{
+						SendLastError(Pipe);
+					}
+				}
+			}
+		}
+		break;
+
+	case C_FUNCTION_MOVETORECYCLEBIN:
+		{
+			AutoObject Struct;
+			if(ReadPipeData(Pipe, Struct))
+			{
+				AutoObject From;
+				if(ReadPipeData(Pipe, From))
+				{
+					AutoObject To;
+					if(ReadPipeData(Pipe, To))
+					{
+						SHFILEOPSTRUCT* FileOpStruct = reinterpret_cast<SHFILEOPSTRUCT*>(Struct.Get());
+						FileOpStruct->pFrom = From.GetStr();
+						FileOpStruct->pTo = To.GetStr();
+						if(WritePipeInt(Pipe, SHFileOperation(FileOpStruct)))
+						{
+							WritePipeInt(Pipe, FileOpStruct->fAnyOperationsAborted);
+						}
+					}
+				}
+			}
+		}
+		break;
+	}
+	return Exit;
+}
+
 int AdminMain(int PID)
 {
 	int Result = ERROR_SUCCESS;
@@ -528,164 +889,34 @@ int AdminMain(int PID)
 
 	FormatString strPipe;
 	strPipe << PIPE_NAME << PID;
-	HANDLE Pipe = CreateFile(strPipe,GENERIC_READ|GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr);
+	Pipe = CreateFile(strPipe,GENERIC_READ|GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr);
 	if (Pipe != INVALID_HANDLE_VALUE)
 	{
-		bool Exit=false;
-		while(!Exit)
+		int Data=0;
+		if(ReadPipeInt(Pipe, Data))
 		{
-			Sleep(1);
-			int Command;
-			if(ReadPipeInt(Pipe, Command))
+			Data^=Magic;
+			if(WritePipeInt(Pipe, Data))
 			{
-				switch(Command)
+				if(WritePipeInt(Pipe, GetCurrentProcessId()))
 				{
-				case C_SERVICE_EXIT:
+					bool Exit = false;
+					int Command = 0;
+					while(!Exit)
 					{
-						Exit=true;
-					}
-					break;
-
-				case C_SERVICE_TEST:
-					{
-						int Test;
-						if(ReadPipeInt(Pipe, Test))
+						if(ReadPipeInt(Pipe, Command))
 						{
-							Test^=Magic;
-							WritePipeInt(Pipe, Test);
+							Exit = Process(Command);
 						}
-					}
-					break;
-
-				case C_FUNCTION_CREATEDIRECTORY:
-					{
-						AutoObject Object;
-						if(ReadPipeData(Pipe, Object))
+						else
 						{
-							// BUGBUG, SecurityAttributes ignored
-							int OpResult=CreateDirectory(Object.GetStr(), NULL);
-							WritePipeInt(Pipe, OpResult);
-						}
-					}
-					break;
-
-				case C_FUNCTION_REMOVEDIRECTORY:
-					{
-						AutoObject Object;
-						if(ReadPipeData(Pipe, Object))
-						{
-							int OpResult=RemoveDirectory(Object.GetStr());
-							WritePipeInt(Pipe, OpResult);
-						}
-					}
-					break;
-
-				case C_FUNCTION_DELETEFILE:
-					{
-						AutoObject Object;
-						if(ReadPipeData(Pipe, Object))
-						{
-							int OpResult=DeleteFile(Object.GetStr());
-							WritePipeInt(Pipe, OpResult);
-						}
-					}
-					break;
-				
-				case C_FUNCTION_COPYFILEEX:
-					{
-						AutoObject From;
-						if(ReadPipeData(Pipe, From))
-						{
-							AutoObject To;
-							if(ReadPipeData(Pipe, To))
+							if(GetLastError() == ERROR_BROKEN_PIPE)
 							{
-								int Flags = 0;
-								if(ReadPipeInt(Pipe, Flags))
-								{
-									// BUGBUG: ProgressRoutine, Data, Cancel ignored
-									int OpResult=CopyFileEx(From.GetStr(), To.GetStr(), nullptr, nullptr, nullptr, Flags);
-									WritePipeInt(Pipe, OpResult);
-								}
+								Exit=true;
 							}
 						}
+						Sleep(1);
 					}
-					break;
-
-				case C_FUNCTION_MOVEFILEEX:
-					{
-						AutoObject From;
-						if(ReadPipeData(Pipe, From))
-						{
-							AutoObject To;
-							if(ReadPipeData(Pipe, To))
-							{
-								int Flags = 0;
-								if(ReadPipeInt(Pipe, Flags))
-								{
-									int OpResult=MoveFileEx(From.GetStr(), To.GetStr(), Flags);
-									WritePipeInt(Pipe, OpResult);
-								}
-							}
-						}
-					}
-					break;
-
-				case C_FUNCTION_SETFILEATTRIBUTES:
-					{
-						AutoObject Object;
-						if(ReadPipeData(Pipe, Object))
-						{
-							int Attributes = 0;
-							if(ReadPipeInt(Pipe, Attributes))
-							{
-								int OpResult=SetFileAttributes(Object.GetStr(), Attributes);
-								WritePipeInt(Pipe, OpResult);
-							}
-						}
-					}
-					break;
-
-				case C_FUNCTION_CREATESYMBOLICLINK:
-					{
-						AutoObject Object;
-						if(ReadPipeData(Pipe, Object))
-						{
-							AutoObject Target;
-							if(ReadPipeData(Pipe, Target))
-							{
-								int Flags = 0;
-								if(ReadPipeInt(Pipe, Flags))
-								{
-									int OpResult=CreateSymbolicLinkInternal(Object.GetStr(), Target.GetStr(), Flags);
-									WritePipeInt(Pipe, OpResult);
-								}
-							}
-						}
-					}
-					break;
-
-				case C_FUNCTION_SETREPARSEDATABUFFER:
-					{
-						AutoObject Object;
-						if(ReadPipeData(Pipe, Object))
-						{
-							AutoObject ReparseDataBuffer;
-							if(ReadPipeData(Pipe, ReparseDataBuffer))
-							{
-								int OpResult=SetREPARSE_DATA_BUFFER(Object.GetStr(), reinterpret_cast<PREPARSE_DATA_BUFFER>(ReparseDataBuffer.Get()));
-								WritePipeInt(Pipe, OpResult);
-							}
-						}
-					}
-					break;
-
-				}
-			}
-			else
-			{
-				if(GetLastError()==ERROR_BROKEN_PIPE)
-				{
-					Exit=true;
 				}
 			}
 		}

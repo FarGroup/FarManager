@@ -132,4 +132,3 @@ class ShellCopy
 };
 
 LONG_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
-

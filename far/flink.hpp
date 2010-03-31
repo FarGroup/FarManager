@@ -53,6 +53,7 @@ bool  WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,DWO
 bool  WINAPI DeleteReparsePoint(const wchar_t *Object);
 bool ModifyReparsePoint(const wchar_t *Object,const wchar_t *NewData);
 
+// internal, for AdminMode only.
 bool SetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb);
 
 DWORD WINAPI GetReparsePointInfo(const wchar_t *Object, string &szDestBuff,LPDWORD lpReparseTag=nullptr);
