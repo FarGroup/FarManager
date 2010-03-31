@@ -1119,14 +1119,20 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								{
 									if (ListData[ListPos]->FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)
 									{
+										PtrName=MSG(MListSymLink);
 										switch (ListData[ListPos]->ReparseTag)
 										{
 											case IO_REPARSE_TAG_SYMLINK:
-												PtrName=MSG(MListSymLink);
 												break;
+
 											case IO_REPARSE_TAG_MOUNT_POINT:
 												PtrName=MSG(MListJunction);
 												break;
+
+											//case IO_REPARSE_TAG_DRIVER_EXTENDER:
+												//...
+												//break;
+											//case ...
 										}
 									}
 								}

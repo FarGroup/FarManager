@@ -478,23 +478,7 @@ void Dialog::CheckDialogCoord()
 {
 	CriticalSectionLock Lock(CS);
 
-	if (X1 >= 0)
-		X2 = X1+RealWidth-1;
-
-	if (Y1 >= 0)
-		Y2 = Y1+RealHeight-1;
-
-	if (X2 > ScrX)
-	{
-		if (X1 != -1 && X2-X1+1 < ScrX) // если мы все же вмещаемс€ в консоль, то
-		{                              // произведем обычный сдвиг диалога...
-			int D=X2-ScrX;
-			X1-=D;
-			X2-=D;
-		}
-	}
-
-	if (X1 < 0) // задано центрирование диалога по горизонтали?
+	if (X1 == -1) // задано центрирование диалога по горизонтали?
 	{             //   X2 при этом = ширине диалога.
 		X1=(ScrX - X2 + 1)/2;
 
@@ -506,7 +490,7 @@ void Dialog::CheckDialogCoord()
 			X2+=X1-1;
 	}
 
-	if (Y1 < 0) // задано центрирование диалога по вертикали?
+	if (Y1 == -1) // задано центрирование диалога по вертикали?
 	{             //   Y2 при этом = высоте диалога.
 		Y1=(ScrY-Y2+1)/2;
 
@@ -4779,12 +4763,6 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 				Dlg->RealWidth = W1;
 				Dlg->RealHeight = H1;
 
-				if (Dlg->X1+W1>ScrX)
-					Dlg->X1=ScrX-W1+1;
-
-				if (Dlg->Y1+H1>ScrY+1)
-					Dlg->Y1=ScrY-H1+2;
-
 				if (W1<OldW1 || H1<OldH1)
 				{
 					Dlg->DialogMode.Set(DMODE_DRAWING);
@@ -4821,21 +4799,17 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 			}
 
 			// проверили и скорректировали
-			if (Dlg->X1<0)
-				Dlg->X1=0;
+			if (Dlg->X1+W1<0)
+				Dlg->X1=-W1+1;
 
-			if (Dlg->Y1<0)
-				Dlg->Y1=0;
+			if (Dlg->Y1+H1<0)
+				Dlg->Y1=-H1+1;
 
-			/* $ 11.10.2001 KM
-			  - ≈щЄ одно уточнение при ресайзинге, с учЄтом предполагаемого
-			    выхода краЄв диалога за границу экрана.
-			*/
-			if (Dlg->X1+W1>ScrX)
-				Dlg->X1=ScrX-W1+1;
+			if (Dlg->X1>ScrX)
+				Dlg->X1=ScrX;
 
-			if (Dlg->Y1+H1>ScrY+1)
-				Dlg->Y1=ScrY-H1+2;
+			if (Dlg->Y1>ScrY)
+				Dlg->Y1=ScrY;
 
 			Dlg->X2=Dlg->X1+W1-1;
 			Dlg->Y2=Dlg->Y1+H1-1;
