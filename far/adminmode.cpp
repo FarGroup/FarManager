@@ -158,11 +158,6 @@ bool WritePipeData(HANDLE Pipe, LPCVOID Data, int DataSize)
 	return Result;
 }
 
-bool SendLastError(HANDLE Pipe)
-{
-	return WritePipeInt(Pipe, GetLastError());
-}
-
 AdminMode Admin;
 
 AdminMode::AdminMode():
@@ -709,9 +704,11 @@ bool Process(int Command)
 			if(ReadPipeData(Pipe, Object))
 			{
 				// BUGBUG, SecurityAttributes ignored
-				if(WritePipeInt(Pipe, CreateDirectory(Object.GetStr(), NULL)))
+				int Result = CreateDirectory(Object.GetStr(), NULL);
+				int LastError = GetLastError();
+				if(WritePipeInt(Pipe, Result))
 				{
-					SendLastError(Pipe);
+					WritePipeInt(Pipe, LastError);
 				}
 			}
 		}
@@ -722,9 +719,11 @@ bool Process(int Command)
 			AutoObject Object;
 			if(ReadPipeData(Pipe, Object))
 			{
-				if(WritePipeInt(Pipe, RemoveDirectory(Object.GetStr())))
+				int Result = RemoveDirectory(Object.GetStr());
+				int LastError = GetLastError();
+				if(WritePipeInt(Pipe, Result))
 				{
-					SendLastError(Pipe);
+					WritePipeInt(Pipe, LastError);
 				}
 			}
 		}
@@ -735,9 +734,11 @@ bool Process(int Command)
 			AutoObject Object;
 			if(ReadPipeData(Pipe, Object))
 			{
-				if(WritePipeInt(Pipe, DeleteFile(Object.GetStr())))
+				int Result = DeleteFile(Object.GetStr());
+				int LastError = GetLastError();
+				if(WritePipeInt(Pipe, Result))
 				{
-					SendLastError(Pipe);
+					WritePipeInt(Pipe, LastError);
 				}
 			}
 		}
@@ -761,9 +762,11 @@ bool Process(int Command)
 							if(ReadPipeInt(Pipe, Flags))
 							{
 								// BUGBUG: Cancel ignored
-								if(WritePipeInt(Pipe, CopyFileEx(From.GetStr(), To.GetStr(), UserCopyProgressRoutine.Get()?AdminCopyProgressRoutine:nullptr, Data.Get(), nullptr, Flags)))
+								int Result = CopyFileEx(From.GetStr(), To.GetStr(), UserCopyProgressRoutine.Get()?AdminCopyProgressRoutine:nullptr, Data.Get(), nullptr, Flags);
+								int LastError = GetLastError();
+								if(WritePipeInt(Pipe, Result))
 								{
-									SendLastError(Pipe);
+									WritePipeInt(Pipe, LastError);
 								}
 							}
 						}
@@ -784,9 +787,11 @@ bool Process(int Command)
 					int Flags = 0;
 					if(ReadPipeInt(Pipe, Flags))
 					{
-						if(WritePipeInt(Pipe, MoveFileEx(From.GetStr(), To.GetStr(), Flags)))
+						int Result = MoveFileEx(From.GetStr(), To.GetStr(), Flags);
+						int LastError = GetLastError();
+						if(WritePipeInt(Pipe, Result))
 						{
-							SendLastError(Pipe);
+							WritePipeInt(Pipe, LastError);
 						}
 					}
 				}
@@ -802,9 +807,11 @@ bool Process(int Command)
 				int Attributes = 0;
 				if(ReadPipeInt(Pipe, Attributes))
 				{
-					if(WritePipeInt(Pipe, SetFileAttributes(Object.GetStr(), Attributes)))
+					int Result = SetFileAttributes(Object.GetStr(), Attributes);
+					int LastError = GetLastError();
+					if(WritePipeInt(Pipe, Result))
 					{
-						SendLastError(Pipe);
+						WritePipeInt(Pipe, LastError);
 					}
 				}
 			}
@@ -822,9 +829,11 @@ bool Process(int Command)
 					int Flags = 0;
 					if(ReadPipeInt(Pipe, Flags))
 					{
-						if(WritePipeInt(Pipe, CreateSymbolicLinkInternal(Object.GetStr(), Target.GetStr(), Flags)))
+						int Result = CreateSymbolicLinkInternal(Object.GetStr(), Target.GetStr(), Flags);
+						int LastError = GetLastError();
+						if(WritePipeInt(Pipe, Result))
 						{
-							SendLastError(Pipe);
+							WritePipeInt(Pipe, LastError);
 						}
 					}
 				}
@@ -840,9 +849,11 @@ bool Process(int Command)
 				AutoObject ReparseDataBuffer;
 				if(ReadPipeData(Pipe, ReparseDataBuffer))
 				{
-					if(WritePipeInt(Pipe, SetREPARSE_DATA_BUFFER(Object.GetStr(), reinterpret_cast<PREPARSE_DATA_BUFFER>(ReparseDataBuffer.Get()))))
+					int Result = SetREPARSE_DATA_BUFFER(Object.GetStr(), reinterpret_cast<PREPARSE_DATA_BUFFER>(ReparseDataBuffer.Get()));
+					int LastError = GetLastError();
+					if(WritePipeInt(Pipe, Result))
 					{
-						SendLastError(Pipe);
+						WritePipeInt(Pipe, LastError);
 					}
 				}
 			}
