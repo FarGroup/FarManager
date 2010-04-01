@@ -2163,7 +2163,7 @@ int Edit::Search(const string& Str,string& ReplaceStr,int Position,int Case,int 
 			return(FALSE);
 	}
 
-	if (Position<StrSize && !Str.IsEmpty())
+	if ((Position<StrSize || (Position==0 && StrSize==0)) && !Str.IsEmpty())
 	{
 		if (!Reverse && Regexp)
 		{
@@ -2194,6 +2194,8 @@ int Edit::Search(const string& Str,string& ReplaceStr,int Position,int Case,int 
 
 			return FALSE;
 		}
+
+		if (Position==StrSize) return FALSE;
 
 		int Length = *SearchLength = (int)Str.GetLength();
 
