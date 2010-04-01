@@ -208,9 +208,8 @@ enum FINDASKDLG
 	FAD_SEPARATOR_3,
 	FAD_TEXT_WHERE,
 	FAD_COMBOBOX_WHERE,
-	FAD_SEPARATOR_4,
 	FAD_CHECKBOX_FILTER,
-	FAD_SEPARATOR_5,
+	FAD_SEPARATOR_4,
 	FAD_BUTTON_FIND,
 	FAD_BUTTON_DRIVE,
 	FAD_BUTTON_FILTER,
@@ -3171,7 +3170,7 @@ FindFiles::FindFiles()
 		static const wchar_t VSeparator[]={BoxSymbols[BS_T_H1V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_B_H1V1],0};
 		struct DialogDataEx FindAskDlgData[]=
 		{
-			/* 00 */DI_DOUBLEBOX,3,1,74,20,0,0,0,0,(const wchar_t *)MFindFileTitle,
+			/* 00 */DI_DOUBLEBOX,3,1,74,18,0,0,0,0,(const wchar_t *)MFindFileTitle,
 			/* 01 */DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MFindFileMasks,
 			/* 02 */DI_EDIT,5,3,72,3,1,(DWORD_PTR)MasksHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,L"",
 			/* 03 */DI_TEXT,3,4,0,4,0,0,DIF_SEPARATOR,0,L"",
@@ -3190,15 +3189,14 @@ FindFiles::FindFiles()
 			/* 16 */DI_TEXT,3,13,0,13,0,0,DIF_SEPARATOR,0,L"",
 			/* 17 */DI_VTEXT,38,9,0,9,0,0,DIF_BOXCOLOR,0,VSeparator,
 			/* 18 */DI_TEXT,5,14,0,14,0,0,0,0,(const wchar_t *)MSearchWhere,
-			/* 19 */DI_COMBOBOX,5,15,72,15,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,L"",
-			/* 20 */DI_TEXT,3,16,0,16,0,0,DIF_SEPARATOR,0,L"",
-			/* 21 */DI_CHECKBOX,5,17,0,17,0,0,0,0,(const wchar_t *)MFindUseFilter,
-			/* 22 */DI_TEXT,3,18,0,18,0,0,DIF_SEPARATOR,0,L"",
-			/* 23 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MFindFileFind,
-			/* 24 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFindFileDrive,
-			/* 25 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFindFileSetFilter,
-			/* 26 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFindFileAdvanced,
-			/* 27 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
+			/* 19 */DI_COMBOBOX,5,15,36,15,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,L"",
+			/* 21 */DI_CHECKBOX,40,15,0,15,0,0,0,0,(const wchar_t *)MFindUseFilter,
+			/* 22 */DI_TEXT,3,16,0,16,0,0,DIF_SEPARATOR,0,L"",
+			/* 23 */DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MFindFileFind,
+			/* 24 */DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFindFileDrive,
+			/* 25 */DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFindFileSetFilter,
+			/* 26 */DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFindFileAdvanced,
+			/* 27 */DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
 		};
 		MakeDialogItemsEx(FindAskDlgData,FindAskDlg);
 
@@ -3264,7 +3262,7 @@ FindFiles::FindFiles()
 		Dialog Dlg(FindAskDlg,countof(FindAskDlg),MainDlgProc);
 		Dlg.SetHelp(L"FindFile");
 		Dlg.SetId(FindFileId);
-		Dlg.SetPosition(-1,-1,78,22);
+		Dlg.SetPosition(-1,-1,78,20);
 		Dlg.Process();
 		ExitCode=Dlg.GetExitCode();
 		//Рефреш текущему времени для фильтра сразу после выхода из диалога

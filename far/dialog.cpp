@@ -4813,7 +4813,11 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
 			Dlg->X2=Dlg->X1+W1-1;
 			Dlg->Y2=Dlg->Y1+H1-1;
-			Dlg->CheckDialogCoord();
+
+			if (Param1>0)  // абсолютно?
+			{
+				Dlg->CheckDialogCoord();
+			}
 
 			if (Param1 < 0)  // размер?
 			{
