@@ -8079,6 +8079,14 @@ l:
 "Mappa"
 "Katalog"
 
+MFindFileSymLink
+"Ссылка"
+"Symlink"
+"Link"
+"Symlink"
+"SzimLnk"
+"LinkSym"
+
 MFindFileAdvancedTitle
 l:
 "Дополнительные параметры поиска"

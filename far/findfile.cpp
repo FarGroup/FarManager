@@ -2665,7 +2665,9 @@ void FindFiles::AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, FAR_FIND_DATA
 	MenuText << L' ' << fmt::Width(8) << fmt::Precision(8) << strDateStr << L' ' << fmt::Width(5) << fmt::Precision(5) << strTimeStr << BoxSymbols[BS_V1];
 
 	MenuText << fmt::Width(13);
-	if (FindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+	if (FindData->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
+		MenuText << MSG(MFindFileSymLink);
+	else if (FindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		MenuText << MSG(MFindFileFolder);
 	else
 		MenuText << FindData->nFileSize;

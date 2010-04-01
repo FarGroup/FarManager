@@ -344,9 +344,12 @@ void FileList::ShowFileList(int Fast)
 	{
 		int Overlap=TitleX+Length-TitleX2+5;
 
-		if (Overlap>0)
+		if (Overlap > 0)
 			TitleX-=Overlap;
 	}
+
+	if (TitleX <= X1)
+		TitleX = X1+1;
 
 	SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
 	GotoXY(TitleX,Y1);
