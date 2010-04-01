@@ -536,6 +536,33 @@ bool AdminMode::SetFileAttributes(LPCWSTR Object, DWORD FileAttributes)
 	return Result;
 }
 
+bool AdminMode::CreateHardLink(LPCWSTR Object,LPCWSTR Target,LPSECURITY_ATTRIBUTES SecurityAttributes)
+{
+	bool Result=false;
+	if(AdminApproveDlg(PointToName(Object)) && Initialize())
+	{
+		if(SendCommand(C_FUNCTION_CREATEHARDLINK))
+		{
+			if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
+			{
+				if(WriteData(Target,Target?(StrLength(Target)+1)*sizeof(WCHAR):0))
+				{
+					// BUGBUG: SecurityAttributes ignored.
+					int OpResult=0;
+					if(ReadInt(OpResult))
+					{
+						if(ReceiveLastError())
+						{
+							Result = OpResult !=0;
+						}
+					}
+				}
+			}
+		}
+	}
+	return Result;
+}
+
 bool AdminMode::CreateSymbolicLink(LPCWSTR Object, LPCWSTR Target, DWORD Flags)
 {
 	bool Result=false;
@@ -808,6 +835,27 @@ bool Process(int Command)
 				if(ReadPipeInt(Pipe, Attributes))
 				{
 					int Result = SetFileAttributes(Object.GetStr(), Attributes);
+					int LastError = GetLastError();
+					if(WritePipeInt(Pipe, Result))
+					{
+						WritePipeInt(Pipe, LastError);
+					}
+				}
+			}
+		}
+		break;
+
+	case C_FUNCTION_CREATEHARDLINK:
+		{
+			AutoObject Object;
+			if(ReadPipeData(Pipe, Object))
+			{
+				AutoObject Target;
+				if(ReadPipeData(Pipe, Target))
+				{
+					// BUGBUG: SecurityAttributes ignored.
+					int Flags = 0;
+					int Result = CreateHardLink(Object.GetStr(), Target.GetStr(), nullptr);
 					int LastError = GetLastError();
 					if(WritePipeInt(Pipe, Result))
 					{

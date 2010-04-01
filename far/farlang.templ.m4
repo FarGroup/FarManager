@@ -8087,6 +8087,14 @@ MFindFileSymLink
 "SzimLnk"
 "LinkSym"
 
+MFindFileJunction
+"Связь"
+"Junction"
+"Křížení"
+"Knoten"
+"Csomópt"
+"Dowiązania"
+
 MFindFileAdvancedTitle
 l:
 "Дополнительные параметры поиска"

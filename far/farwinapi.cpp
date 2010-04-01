@@ -726,11 +726,21 @@ bool apiGetCompressedFileSize(LPCWSTR lpFileName,UINT64& Size)
 	return Result;
 }
 
+bool CreateHardLinkInternal(LPCWSTR Object,LPCWSTR Target,LPSECURITY_ATTRIBUTES SecurityAttributes)
+{
+	bool Result = CreateHardLink(Object, Target, SecurityAttributes) != FALSE;
+	if(!Result && GetLastError() == ERROR_ACCESS_DENIED)
+	{
+		Result = Admin.CreateHardLink(Object, Target, SecurityAttributes);
+	}
+	return Result;
+}
+
 BOOL apiCreateHardLink(LPCWSTR lpFileName,LPCWSTR lpExistingFileName,LPSECURITY_ATTRIBUTES lpSecurityAttributes)
 {
-	return CreateHardLink(NTPath(lpFileName),NTPath(lpExistingFileName),lpSecurityAttributes) ||
+	return CreateHardLinkInternal(NTPath(lpFileName),NTPath(lpExistingFileName),lpSecurityAttributes) ||
 	       //bug in win2k: \\?\ fails
-	       CreateHardLink(lpFileName,lpExistingFileName,lpSecurityAttributes);
+	       CreateHardLinkInternal(lpFileName,lpExistingFileName,lpSecurityAttributes);
 }
 
 BOOL apiSetFilePointerEx(HANDLE hFile,INT64 DistanceToMove,PINT64 NewFilePointer,DWORD dwMoveMethod)

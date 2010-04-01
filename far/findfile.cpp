@@ -2666,7 +2666,20 @@ void FindFiles::AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, FAR_FIND_DATA
 
 	MenuText << fmt::Width(13);
 	if (FindData->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
-		MenuText << MSG(MFindFileSymLink);
+	{
+		LPCWSTR TagType = MSG(MFindFileSymLink);
+		switch (FindData->dwReserved0)
+		{
+		case IO_REPARSE_TAG_SYMLINK:
+			break;
+		case IO_REPARSE_TAG_MOUNT_POINT:
+			TagType = MSG(MFindFileJunction);
+			break;
+		//case ...
+			//break;
+		}
+		MenuText << TagType;
+	}
 	else if (FindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		MenuText << MSG(MFindFileFolder);
 	else
