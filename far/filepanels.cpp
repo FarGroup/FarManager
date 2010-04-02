@@ -744,7 +744,7 @@ int FilePanels::ProcessKey(int Key)
 
 			break;
 		}
-		case KEY_CTRLSHIFTCLEAR:
+		case KEY_CTRLALTCLEAR:
 		{
 			bool Set=false;
 			if (Opt.LeftHeightDecrement!=0)

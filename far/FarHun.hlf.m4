@@ -260,7 +260,7 @@ $ #Panelvezérlő parancsok#
   A panelek szélességén változtat
     (ha a parancssor üres)                        #Ctrl-Jobb,Ctrl-Bal#
   Visszaállítja a panelszélességek alapértékét          #Ctrl-Numpad5#
-  Visszaállítja a panelmagasságok alapértékét     #Ctrl-Shift-Numpad5#
+  Visszaállítja a panelmagasságok alapértékét       #Ctrl-Alt-Numpad5#
   Megmutatja/elrejti a funkcióbillentyűk sorát
     a képernyő alján                                          #Ctrl-B#
 

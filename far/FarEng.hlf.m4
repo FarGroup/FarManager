@@ -264,7 +264,7 @@ $ #Panel control commands  #
   Change panels width                           #Ctrl-Left,Ctrl-Right#
     (when the command line is empty)
   Restore default panels width                          #Ctrl-Numpad5#
-  Restore default panels height                   #Ctrl-Shift-Numpad5#
+  Restore default panels height                     #Ctrl-Alt-Numpad5#
   Show/Hide functional key bar at the bottom line.            #Ctrl-B#
 
     #File panel commands#
@@ -418,7 +418,7 @@ the search field. If used the entered text will be transliterated and a new
 match corresponding to the new text will be searched. See TechInfo##10 on how
 to set the hotkey for the transliteration.
 
-   See also the list of ~macro keys~@KeyMacroSearchList@, available in fast find. 
+   See also the list of ~macro keys~@KeyMacroSearchList@, available in fast find.
 
 @CmdLineCmd
 $ #Command line commands#
@@ -990,7 +990,7 @@ panel.
     ~Speed search~@FastFind@ action may be used to point to the required file
 by the first letters of its name.
 
-    See also the list of ~macro keys~@KeyMacroShellList@, available in the panels. 
+    See also the list of ~macro keys~@KeyMacroShellList@, available in the panels.
 
 @TreePanel
 $ #Panels: tree panel#
@@ -1014,7 +1014,7 @@ Pressing #Ctrl-Enter# keys simultaneously will select the next match.
     #Gray +# and #Gray -# keys move up and down the tree to the next branch
 on the same level.
 
-    See also the list of ~macro keys~@KeyMacroTreeList@, available in the folder tree panel. 
+    See also the list of ~macro keys~@KeyMacroTreeList@, available in the folder tree panel.
 
 @InfoPanel
 $ #Panels: info panel#
@@ -1051,7 +1051,7 @@ prompt, and set the '#Local Policies/Security Options/Devices: Restrict#
     For virtual devices (SUBST-disk) the parameters of the primary disk are
 shown.
 
-    See also the list of ~macro keys~@KeyMacroInfoList@, available in the info panel. 
+    See also the list of ~macro keys~@KeyMacroInfoList@, available in the info panel.
 
 @QViewPanel
 $ #Panels: quick view panel#
@@ -1079,7 +1079,7 @@ enabled.
     2. ^<wrap>If the folder or its subfolders contain multiple hard links to the same
 file.
 
-    See also the list of ~macro keys~@KeyMacroQViewList@, available in the quick view panel. 
+    See also the list of ~macro keys~@KeyMacroQViewList@, available in the quick view panel.
 
 @DragAndDrop
 $ #Copying: drag and drop files#
@@ -1115,7 +1115,7 @@ passive panel.
 
      ~Commands menu~@CmdMenu@                 ~Options menu~@OptMenu@
 
-    See also the list of ~macro keys~@KeyMacroMainMenuList@, available in the main menu. 
+    See also the list of ~macro keys~@KeyMacroMainMenuList@, available in the main menu.
 
 @LeftRightMenu
 $ #Menus: left and right menus#
@@ -1508,7 +1508,7 @@ window to the previous size.
 part of the filename that you have already entered. #Ctrl-Shift-Enter# allows
 to cycle backwards.
 
-    See also the list of ~macro keys~@KeyMacroFindFolderList@, available in the find folder dialog. 
+    See also the list of ~macro keys~@KeyMacroFindFolderList@, available in the find folder dialog.
 
 @Filter
 $ #Filter#
@@ -1793,7 +1793,7 @@ the main menu saved in the registry.
 
     To close the menu even if submenus are open use #Shift-F10#.
 
-    See also the list of ~macro keys~@KeyMacroUserMenuList@, available in the user menu. 
+    See also the list of ~macro keys~@KeyMacroUserMenuList@, available in the user menu.
 
 @FileAssoc
 $ #File associations #
@@ -2204,7 +2204,7 @@ $ #Settings dialog: dialogs#
                           This option allows to switch off this
                           functionality.
 
-   See also the list of ~macro keys~@KeyMacroDialogList@, available in dialogs. 
+   See also the list of ~macro keys~@KeyMacroDialogList@, available in dialogs.
 
 @CmdlineSettings
 $ #Settings dialog: command line#
@@ -2391,7 +2391,7 @@ $ #Viewer: control keys#
                        the search to the clipboard.
     #Ctrl-U#             Remove the highlighting of the search results.
 
-    See also the list of ~macro keys~@KeyMacroViewerList@, available in the viewer. 
+    See also the list of ~macro keys~@KeyMacroViewerList@, available in the viewer.
 
     Notes:
 
@@ -2580,7 +2580,7 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
    #Ctrl-B#                  ^<wrap>Show/Hide functional key bar at the bottom line.
    #Ctrl-Shift-B#            Show/Hide status line
 
-   See also the list of ~macro keys~@KeyMacroEditList@, available in the editor. 
+   See also the list of ~macro keys~@KeyMacroEditList@, available in the editor.
 
     Notes:
 
@@ -2831,7 +2831,7 @@ currently selected plugin, if the plugin has a help file.
 written for Far 1.7x and it does not support all possibilities available in
 Far 2 (these are, in particular, Unicode characters in filenames and in editor).
 
-   See also the list of ~macro keys~@KeyMacroDisksList@, available in the disk menu. 
+   See also the list of ~macro keys~@KeyMacroDisksList@, available in the disk menu.
 
 
 @DisconnectDrive
