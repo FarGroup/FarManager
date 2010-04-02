@@ -4750,7 +4750,7 @@ int RegExp::SearchEx(const RECHAR* datastart,const RECHAR* textstart,const RECHA
 	if (code->bracket.nextalt==0 && code->next->op==opDataEnd && code->next->next->op==opClosingBracket)
 	{
 		matchcount=1;
-		match[0].start=(int)(textend-textstart);
+		match[0].start=(int)(textend-datastart);
 		match[0].end=match[0].start;
 		return 1;
 	}
