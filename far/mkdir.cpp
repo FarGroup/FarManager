@@ -27,7 +27,6 @@ void ShellMakeDir(Panel *SrcPanel)
   *DirName=0;
   /* $ 15.08.2002 IS запретить дубли */
   UserDefinedList DirList(0,0,ULF_UNIQUE);
-  /* IS $ */
 
   /* $ 07.12.2001 IS
      создание нескольких каталогов за раз теперь опционально
@@ -55,13 +54,11 @@ void ShellMakeDir(Panel *SrcPanel)
       InsertQuote(DirName); // возьмем в кавычки, т.к. могут быть разделители
     }
 
-    if(DirList.Set(DirName) && !strpbrk(DirName,ReservedFilenameSymbols))
+    if(DirList.Set(DirName))
       break;
     else
-      Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),
-                 MSG(MIncorrectDirList), MSG(MOk));
+      Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning), MSG(MIncorrectDirList), MSG(MOk));
   }
-  /* IS $ */
 
   *DirName=0;
   const char *OneDir;
@@ -107,7 +104,7 @@ void ShellMakeDir(Panel *SrcPanel)
     {
       int LastError=GetLastError();
       if (LastError==ERROR_ALREADY_EXISTS || LastError==ERROR_BAD_PATHNAME ||
-          LastError==ERROR_INVALID_NAME)
+          LastError==ERROR_INVALID_NAME || LastError == ERROR_DIRECTORY)
       {
         int ret;
         if (DirList.IsEmpty())
@@ -164,4 +161,3 @@ void ShellMakeDir(Panel *SrcPanel)
     AnotherPanel->Redraw();
   }
 }
-/* IS $ */

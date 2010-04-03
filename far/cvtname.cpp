@@ -230,8 +230,8 @@ int ConvertNameToFull(const char *Src,char *Dest, int DestSize)
   int Result = 0;
 //  char *FullName = (char *) xf_malloc (DestSize);
 //  char *AnsiName = (char *) xf_malloc (DestSize);
-  char *FullName = (char *) alloca (DestSize);
-  char *AnsiName = (char *) alloca (DestSize);
+  char *FullName = (char *) alloca (DestSize+32);
+  char *AnsiName = (char *) alloca (DestSize+32);
   *FullName = 0;
   *AnsiName = 0;
 
@@ -326,7 +326,7 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize, bool Inte
     _SVS(SysLog("%d FileAttr=0x%08X",__LINE__,GetFileAttributes(TempDest)));
     // немного интелектуальности не помешает - корректную инфу мы
     // можем получить только если каталог будет завершен слешем!
-    
+
     //если не каталог - всЄ равно пробуем, т.к. Ё“ќ может быть файл-симлинк
     if((FileAttr=GetFileAttributes(TempDest)) != INVALID_FILE_ATTRIBUTES)
     {

@@ -323,6 +323,10 @@ KeyMacro::KeyMacro()
   LoadMacros();
 }
 
+#if defined(_MSC_VER)
+// http://msdn.microsoft.com/en-us/library/xz7ttk5s%28VS.80%29.aspx
+#pragma optimize("", off)
+#endif
 KeyMacro::~KeyMacro()
 {
   _KEYMACRO(SysLog("[%p] KeyMacro::~KeyMacro()", this));
@@ -330,6 +334,9 @@ KeyMacro::~KeyMacro()
   if(Work.AllocVarTable && Work.locVarTable)
     xf_free(Work.locVarTable);
 }
+#if defined(_MSC_VER)
+#pragma optimize("", on)
+#endif
 
 void KeyMacro::InitInternalLIBVars()
 {
