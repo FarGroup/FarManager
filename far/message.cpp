@@ -555,6 +555,7 @@ int GetErrorString(string &strErrStr)
 		{ERROR_ALREADY_EXISTS,MErrorFileExists},
 		{ERROR_BAD_PATHNAME,MErrorInvalidName},
 		{ERROR_INVALID_NAME,MErrorInvalidName},
+		{ERROR_DIRECTORY,MErrorInvalidName},
 		{ERROR_DISK_FULL,MErrorInsufficientDiskSpace},
 		{ERROR_HANDLE_DISK_FULL,MErrorInsufficientDiskSpace},
 		{ERROR_DIR_NOT_EMPTY,MErrorFolderNotEmpty},

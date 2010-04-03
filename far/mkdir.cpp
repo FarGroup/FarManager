@@ -90,7 +90,7 @@ LONG_PTR WINAPI MkDirDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
 				UserDefinedList* pDirList=reinterpret_cast<UserDefinedList*>(SendDlgMessage(hDlg,DM_GETDLGDATA,0,0));
 
-				if (!(pDirList->Set(strDirName)&&!wcspbrk(strDirName,ReservedFilenameSymbols)))
+				if (!pDirList->Set(strDirName))
 				{
 					Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),MSG(MIncorrectDirList),MSG(MOk));
 					return FALSE;
@@ -170,7 +170,7 @@ void ShellMakeDir(Panel *SrcPanel)
 				int LastError=GetLastError();
 
 				if (LastError==ERROR_ALREADY_EXISTS || LastError==ERROR_BAD_PATHNAME ||
-				        LastError==ERROR_INVALID_NAME)
+				        LastError==ERROR_INVALID_NAME || LastError == ERROR_DIRECTORY)
 				{
 					int ret;
 
