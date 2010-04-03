@@ -545,8 +545,6 @@ void Dialog::InitDialog()
 
 		DlgProc((HANDLE)this,DN_GOTFOCUS,InitFocus,0);
 	}
-
-	CheckDialogCoord();
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -45,6 +45,26 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "privilege.hpp"
 #include "flink.hpp"
 
+#define PIPE_NAME L"\\\\.\\pipe\\FarPipe"
+
+const int Magic = 0x1DD0D;
+const int CallbackMagic= 0xCA11BAC6;
+
+enum ADMIN_COMMAND
+{
+	C_SERVICE_EXIT,
+	C_FUNCTION_CREATEDIRECTORY,
+	C_FUNCTION_REMOVEDIRECTORY,
+	C_FUNCTION_DELETEFILE,
+	C_FUNCTION_COPYFILEEX,
+	C_FUNCTION_MOVEFILEEX,
+	C_FUNCTION_SETFILEATTRIBUTES,
+	C_FUNCTION_CREATEHARDLINK,
+	C_FUNCTION_CREATESYMBOLICLINK,
+	C_FUNCTION_SETREPARSEDATABUFFER,
+	C_FUNCTION_MOVETORECYCLEBIN,
+};
+
 class AutoObject
 {
 public:
@@ -553,7 +573,7 @@ bool AdminMode::CreateHardLink(LPCWSTR Object,LPCWSTR Target,LPSECURITY_ATTRIBUT
 					{
 						if(ReceiveLastError())
 						{
-							Result = OpResult !=0;
+							Result = OpResult != 0;
 						}
 					}
 				}
@@ -854,7 +874,6 @@ bool Process(int Command)
 				if(ReadPipeData(Pipe, Target))
 				{
 					// BUGBUG: SecurityAttributes ignored.
-					int Flags = 0;
 					int Result = CreateHardLink(Object.GetStr(), Target.GetStr(), nullptr);
 					int LastError = GetLastError();
 					if(WritePipeInt(Pipe, Result))
