@@ -3,11 +3,11 @@ SET CPU=i386
 SET APPVER=6.0
 SET Path=%Path%;C:\Program Files\Windows Installer XML v3\bin
 
-cl -nologo -EHsc -DNIGHTLY genscript.cpp
+cl -nologo -EHsc -DNIGHTLY genparams.cpp
 
-genscript c:\src\outfinalnew32 x86
+genparams c:\src\outfinalnew32 x86
 
-nmake -nologo
+nmake -nologo RELEASE=1
 
 SET MSSdk=C:\VC8
 Set SdkTools=%MSSdk%\Bin
@@ -25,6 +25,6 @@ SET CPU=i386
 SET APPVER=6.0
 SET Path=%Path%;C:\Program Files\Windows Installer XML v3\bin
 
-genscript c:\src\outfinalold32 x86
+genparams c:\src\outfinalold32 x86
 
-nmake -nologo
+nmake -nologo RELEASE=1

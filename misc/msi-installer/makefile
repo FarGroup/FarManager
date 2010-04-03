@@ -1,0 +1,70 @@
+!include params.mak
+
+!if "$(CPU)" == "AMD64"
+!if "$(PLATFORM)" != "x64"
+!error "$(PLATFORM) != $(CPU)"
+!endif
+!else
+!if "$(PLATFORM)" != "x86"
+!error "$(PLATFORM) != $(CPU)"
+!endif
+!endif
+
+CPPFLAGS = -nologo -D_WIN32_WINNT=0x0400
+LINKFLAGS = -nologo -incremental:no -machine:$(PLATFORM)
+CANDLEFLAGS = -nologo -dSourceDir="$(SOURCE_DIR)" -dBranch=$(VER_MAJOR) -dPlatform=$(PLATFORM) -dVersion=$(VER_MAJOR).$(VER_MINOR).$(VER_BUILD)
+LIGHTFLAGS = -nologo -cultures:en-us -spdb -sval -sh
+
+!ifdef RELEASE
+OUTDIR = Release
+CPPFLAGS = $(CPPFLAGS) -O1 -DNDEBUG
+LIGHTFLAGS = $(LIGHTFLAGS) -dcl:high
+!else
+OUTDIR = Debug
+CPPFLAGS = $(CPPFLAGS) -Fd$(OUTDIR)\ -Zi
+LINKFLAGS = $(LINKFLAGS) -debug
+LIGHTFLAGS = $(LIGHTFLAGS) -cc $(OUTDIR) -reusecab -O2
+!endif
+
+OUTDIR = $(OUTDIR).$(PLATFORM).$(VER_MAJOR)
+CPPFLAGS = -Fo$(OUTDIR)\ $(CPPFLAGS)
+CANDLEFLAGS = -out $(OUTDIR)\ $(CANDLEFLAGS)
+
+WIXOBJ = $(OUTDIR)\installer.wixobj $(OUTDIR)\ui.wixobj
+!ifdef NIGHTLY
+MSI_NAME = $(SOURCE_DIR)\final.msi
+!else
+MSI_NAME = $(OUTDIR)\far.msi
+!endif
+
+$(MSI_NAME): $(OUTDIR) $(WIXOBJ) en-us.wxl ui_en-us.wxl $(OUTDIR)\customact.dll
+  light $(LIGHTFLAGS) -loc en-us.wxl -loc ui_en-us.wxl -out $@ $(WIXOBJ)
+
+$(OUTDIR)\customact.dll: customact.cpp customact.def $(OUTDIR)\customact.res
+  cl $(CPPFLAGS) -EHsc customact.cpp -link $(LINKFLAGS) -dll -out:$@ -def:customact.def $(OUTDIR)\customact.res msi.lib shell32.lib rpcrt4.lib
+
+$(OUTDIR)\customact.res: customact.rc $(OUTDIR)\consize.exe
+  rc -DOUTDIR=$(OUTDIR) -fo$@ customact.rc
+
+$(OUTDIR)\consize.exe: consize.cpp
+  cl $(CPPFLAGS) -GS- consize.cpp -link $(LINKFLAGS) -nodefaultlib -entry:main -out:$@ kernel32.lib
+
+$(WIXOBJ): params.mak
+
+installer.wxs: files.wxi features.wxi shortcuts.wxi defines.wxi guids_$(VER_MAJOR)_$(PLATFORM).wxi
+
+ui.wxs: defines.wxi
+
+.wxs{$(OUTDIR)}.wixobj::
+  candle $(CANDLEFLAGS) $<
+
+$(OUTDIR):
+  if not exist $(OUTDIR) mkdir $(OUTDIR)
+
+
+clean:
+  if exist $(OUTDIR) rd /s /q $(OUTDIR)
+
+
+.SUFFIXES: .wxs
+.PHONY: clean

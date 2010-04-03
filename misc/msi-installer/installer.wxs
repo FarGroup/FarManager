@@ -17,7 +17,7 @@
     <Property Id="ARPHELPLINK" Value="http://forum.farmanager.com/" />
     <Property Id="ARPURLINFOABOUT" Value="http://farmanager.com/" />
     <Property Id="ARPURLUPDATEINFO" Value="http://farmanager.com/download.php" />
-    <Media Id="1" Cabinet="far_$(var.Branch)_$(var.Platform).cab" EmbedCab="yes" />
+    <Media Id="1" Cabinet="far.cab" EmbedCab="yes" />
 <?if $(var.Branch) = 2 ?>
     <Condition Message="!(loc.LaunchCondition)"><![CDATA[NOT Version9X AND VersionNT >= 500]]></Condition>
 <?endif?>
