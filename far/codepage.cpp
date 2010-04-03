@@ -575,6 +575,8 @@ wchar_t *FormatCodePageName(UINT CodePage, wchar_t *CodePageName, size_t Length,
 		Length = Min(Length-1, strCodePageName.GetLength());
 		IsCodePageNameCustom = true;
 	}
+	else
+		IsCodePageNameCustom = false;
 	if (*CodePageName)
 	{
 		// Под виндой на входе "XXXX (Name)", а, например, под wine просто "Name"
