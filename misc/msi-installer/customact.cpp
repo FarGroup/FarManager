@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <shlobj.h>
 #include <msiquery.h>
+#include <rpc.h>
 
 #include <comdef.h>
 
@@ -8,12 +9,20 @@
 #include <list>
 using namespace std;
 
+#include "consize.hpp"
+
+HMODULE g_h_module;
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
+  g_h_module = hinstDLL;
+  return TRUE;
+}
+
 #define CLEAN(type, object, code) \
   class Clean_##object { \
   private: \
-    type object; \
+    type& object; \
   public: \
-    Clean_##object(type object): object(object) { \
+    Clean_##object(type& object): object(object) { \
     } \
     ~Clean_##object() { \
       code; \
@@ -51,6 +60,42 @@ struct Error {
 #define CHECK_COM(code) { HRESULT __ret = (code); if (FAILED(__ret)) FAIL(__ret); }
 #define CHECK(code) { if (!(code)) FAIL_MSG(L#code); }
 
+class NonCopyable {
+protected:
+  NonCopyable() {}
+  ~NonCopyable() {}
+private:
+  NonCopyable(const NonCopyable&);
+  NonCopyable& operator=(const NonCopyable&);
+};
+
+template<typename Type> class Buffer: private NonCopyable {
+private:
+  Type* buffer;
+  size_t buf_size;
+public:
+  Buffer(): buffer(NULL), buf_size(0) {
+  }
+  Buffer(size_t size) {
+    buffer = new Type[size];
+    buf_size = size;
+  }
+  ~Buffer() {
+    delete[] buffer;
+  }
+  void resize(size_t size) {
+    if (buffer) delete[] buffer;
+    buffer = new Type[size];
+    buf_size = size;
+  }
+  Type* data() {
+    return buffer;
+  }
+  size_t size() const {
+    return buf_size;
+  }
+};
+
 template<class CharType> basic_string<CharType> strip(const basic_string<CharType>& str) {
   basic_string<CharType>::size_type hp = 0;
   basic_string<CharType>::size_type tp = str.size();
@@ -78,11 +123,30 @@ wchar_t hex(unsigned char v) {
     return v - 10 + L'A';
 }
 
+wstring hex(unsigned char* data, size_t size) {
+  wstring result;
+  result.reserve(size * 2);
+  for (unsigned i = 0; i < size; i++) {
+    unsigned char b = data[i];
+    result += hex(b >> 4);
+    result += hex(b & 0x0F);
+  }
+  return result;
+}
+
 unsigned char unhex(wchar_t v) {
   if (v >= L'0' && v <= L'9')
     return v - L'0';
   else
     return v - L'A' + 10;
+}
+
+void unhex(const wstring& str, Buffer<unsigned char>& buf) {
+  buf.resize(str.size() / 2);
+  for (unsigned i = 0; i < str.size(); i += 2) {
+    unsigned char b = (unhex(str[i]) << 4) | unhex(str[i + 1]);
+    buf.data()[i / 2] = b;
+  }
 }
 
 wstring hex_str(unsigned val) {
@@ -110,49 +174,12 @@ wstring get_system_message(HRESULT hr) {
   return message;
 }
 
-class NonCopyable {
-protected:
-  NonCopyable() {}
-  ~NonCopyable() {}
-private:
-  NonCopyable(const NonCopyable&);
-  NonCopyable& operator=(const NonCopyable&);
-};
-
-template<typename Type> class Buffer: private NonCopyable {
-private:
-  Type* buffer;
-  size_t buf_size;
-public:
-  Buffer(size_t size) {
-    buffer = new Type[size];
-    buf_size = size;
-  }
-  ~Buffer() {
-    delete[] buffer;
-  }
-  void resize(size_t size) {
-    delete[] buffer;
-    buffer = new Type[size];
-    buf_size = size;
-  }
-  Type* data() {
-    return buffer;
-  }
-  size_t size() const {
-    return buf_size;
-  }
-  void clear() {
-    memset(buffer, 0, buf_size * sizeof(Type));
-  }
-};
-
-_COM_SMARTPTR_TYPEDEF(IShellLink, __uuidof(IShellLink));
+_COM_SMARTPTR_TYPEDEF(IShellLinkW, __uuidof(IShellLinkW));
 _COM_SMARTPTR_TYPEDEF(IPersistFile, __uuidof(IPersistFile));
 _COM_SMARTPTR_TYPEDEF(IShellLinkDataList, __uuidof(IShellLinkDataList));
 
 wstring get_shortcut_props(const wstring& file_name) {
-  IShellLinkPtr sl;
+  IShellLinkWPtr sl;
   CHECK_COM(sl.CreateInstance(CLSID_ShellLink));
 
   IPersistFilePtr pf(sl);
@@ -163,35 +190,40 @@ wstring get_shortcut_props(const wstring& file_name) {
   CHECK_COM(sldl->CopyDataBlock(NT_CONSOLE_PROPS_SIG, reinterpret_cast<VOID**>(&dbh)));
   CLEAN(DATABLOCK_HEADER*, dbh, LocalFree(dbh));
 
-  wstring result;
-  result.reserve(dbh->cbSize * 2);
-  for (unsigned i = 0; i < dbh->cbSize; i++) {
-    unsigned char b = reinterpret_cast<unsigned char*>(dbh)[i];
-    result += hex(b >> 4);
-    result += hex(b & 0x0F);
-  }
-  return result;
+  return hex(reinterpret_cast<unsigned char*>(dbh), dbh->cbSize);
 }
 
 void set_shortcut_props(const wstring& file_name, const wstring& props) {
-  IShellLinkPtr sl;
+  IShellLinkWPtr sl;
   CHECK_COM(sl.CreateInstance(CLSID_ShellLink));
 
   IPersistFilePtr pf(sl);
   CHECK_COM(pf->Load(file_name.c_str(), STGM_READWRITE));
   
-  string db;
-  db.reserve(props.size() / 2);
-  for (unsigned i = 0; i < props.size(); i += 2) {
-    unsigned char b = (unhex(props[i]) << 4) | unhex(props[i + 1]);
-    db += b;
-  }
+  Buffer<unsigned char> db;
+  unhex(props, db);
   const DATABLOCK_HEADER* dbh = reinterpret_cast<const DATABLOCK_HEADER*>(db.data());
 
   IShellLinkDataListPtr sldl(sl);
   sldl->RemoveDataBlock(dbh->dwSignature);
-  CHECK_COM(sldl->AddDataBlock(const_cast<char*>(db.data())));
+  CHECK_COM(sldl->AddDataBlock(db.data()));
 
+  CHECK_COM(pf->Save(file_name.c_str(), TRUE));
+}
+
+void create_shortcut(const wstring& file_name, const wstring& target, const wstring& props) {
+  IShellLinkWPtr sl;
+  CHECK_COM(sl.CreateInstance(CLSID_ShellLink));
+  CHECK_COM(sl->SetPath(target.c_str()));
+  CHECK_COM(sl->SetShowCmd(SW_SHOWMINNOACTIVE));
+
+  Buffer<unsigned char> db;
+  unhex(props, db);
+  const DATABLOCK_HEADER* dbh = reinterpret_cast<const DATABLOCK_HEADER*>(db.data());
+  IShellLinkDataListPtr sldl(sl);
+  CHECK_COM(sldl->AddDataBlock(db.data()));
+
+  IPersistFilePtr pf(sl);
   CHECK_COM(pf->Save(file_name.c_str(), TRUE));
 }
 
@@ -336,20 +368,23 @@ void log_message(MSIHANDLE h_install, const wstring& message) {
   MsiProcessMessage(h_install, INSTALLMESSAGE_INFO, h_rec);
 }
 
-#define BEGIN_ERROR_HANDLER try {
+#define BEGIN_ERROR_HANDLER \
+  try { \
+    try {
+
 #define END_ERROR_HANDLER \
-  } \
-  catch (const Error& e) { \
-    log_message(h_install, get_error_message(e)); \
-  } \
-  catch (const exception& e) { \
-    log_message(h_install, get_error_message(e)); \
-  } \
-  catch (const _com_error& e) { \
-    log_message(h_install, get_error_message(e)); \
+    } \
+    catch (const Error& e) { \
+      log_message(h_install, get_error_message(e)); \
+    } \
+    catch (const exception& e) { \
+      log_message(h_install, get_error_message(e)); \
+    } \
+    catch (const _com_error& e) { \
+      log_message(h_install, get_error_message(e)); \
+    } \
   } \
   catch (...) { \
-    log_message(h_install, L"unknown error"); \
   }
 
 class ComInit: private NonCopyable {
@@ -365,20 +400,200 @@ public:
   }
 };
 
-const wchar_t* c_default_shortcut_props = L"CC000000020000A00700F50050002C01500019000000000000000000000000000000100036000000900100004C0075006300690064006100200043006F006E0073006F006C00650000000F0034879F7C080000003F2300009CEA48013EB7A87C9CF315000000000098F31500190000000000000000000000010000000100000032000000040000000000000000000000000080000080000000808000800000008000800080800000C0C0C000808080000000FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00";
+class TempFile: private NonCopyable {
+private:
+  wstring path;
+public:
+  TempFile(const wchar_t* ext) {
+    UUID uuid;
+    CHECK(UuidCreate(&uuid) == RPC_S_OK);
+    RPC_WSTR uuid_str;
+    CHECK(UuidToStringW(&uuid, &uuid_str) == RPC_S_OK);
+    CLEAN(RPC_WSTR, uuid_str, RpcStringFreeW(&uuid_str));
+    wstring unique_str(reinterpret_cast<const wchar_t*>(uuid_str));
+
+    Buffer<wchar_t> buf(MAX_PATH);
+    DWORD len = GetTempPathW(static_cast<DWORD>(buf.size()), buf.data());
+    CHECK(len <= buf.size());
+    CHECK_SYS(len);
+    wstring temp_path = wstring(buf.data(), len);
+
+    path = add_trailing_slash(temp_path) + unique_str + L"." + ext;
+  }
+  ~TempFile() {
+    DeleteFileW(path.c_str());
+  }
+  wstring get_path() const {
+    return path;
+  }
+};
+
+class File: private NonCopyable {
+protected:
+  HANDLE h_file;
+public:
+  File(const wstring& file_path, DWORD dwDesiredAccess, DWORD dwShareMode, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes) {
+    h_file = CreateFileW(file_path.c_str(), dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, dwFlagsAndAttributes, NULL);
+    CHECK_SYS(h_file != INVALID_HANDLE_VALUE);
+  }
+  ~File() {
+    CloseHandle(h_file);
+  }
+  unsigned read(Buffer<char>& buffer) {
+    DWORD size_read;
+    CHECK_SYS(ReadFile(h_file, buffer.data(), static_cast<DWORD>(buffer.size()), &size_read, NULL));
+    return size_read;
+  }
+  void write(const void* data, unsigned size) {
+    DWORD size_written;
+    CHECK_SYS(WriteFile(h_file, data, size, &size_written, NULL));
+  }
+};
+
+class Event: private NonCopyable {
+protected:
+  HANDLE h_event;
+public:
+  Event(BOOL bManualReset, BOOL bInitialState) {
+    h_event = CreateEvent(NULL, bManualReset, bInitialState, NULL);
+    CHECK_SYS(h_event);
+  }
+  ~Event() {
+    CloseHandle(h_event);
+  }
+  HANDLE handle() {
+    return h_event;
+  }
+};
+
+class ServerPipe: private NonCopyable {
+protected:
+  HANDLE h_pipe;
+public:
+  ServerPipe(LPCSTR lpName) {
+    h_pipe = CreateNamedPipe(lpName, PIPE_ACCESS_INBOUND | FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT | PIPE_ACCEPT_REMOTE_CLIENTS, 1, 0, 0, 0, NULL);
+    CHECK_SYS(h_pipe != INVALID_HANDLE_VALUE);
+  }
+  ~ServerPipe() {
+    CloseHandle(h_pipe);
+  }
+  void connect(OVERLAPPED& ov, DWORD timeout) {
+    if (!ConnectNamedPipe(h_pipe, &ov)) {
+      if (GetLastError() != ERROR_PIPE_CONNECTED) {
+        CHECK_SYS(GetLastError() == ERROR_IO_PENDING);
+        DWORD wait = WaitForSingleObject(ov.hEvent, timeout);
+        CHECK_SYS(wait != WAIT_FAILED);
+        CHECK(wait == WAIT_OBJECT_0);
+      }
+    }
+  }
+  void read(LPVOID buffer, DWORD size, OVERLAPPED& ov, DWORD timeout) {
+    if (!ReadFile(h_pipe, buffer, size, NULL, &ov)) {
+      CHECK_SYS(GetLastError() == ERROR_IO_PENDING);
+      DWORD wait = WaitForSingleObject(ov.hEvent, timeout);
+      CHECK_SYS(wait != WAIT_FAILED);
+      CHECK(wait == WAIT_OBJECT_0);
+    }
+    DWORD nread;
+    CHECK_SYS(GetOverlappedResult(h_pipe, &ov, &nread, TRUE));
+    CHECK(nread == size);
+  }
+};
+
+const wchar_t* c_lucida_shortcut_props = L"CC000000020000A00700F5005000190050001900FCFFFCFF00000000000000000000100036000000900100004C0075006300690064006100200043006F006E0073006F006C0065000000240034879F7C080000001C4100009CEA060356B7A87CF4BD240000000000F0BD2400190000000000000000000000010000000000000032000000040000000000000000000000000080000080000000808000800000008000800080800000C0C0C000808080000000FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00";
+const wchar_t* c_consolas_shortcut_props = L"CC000000020000A00700F5005000190050001900FCFFFCFF000000000000000000001400360000009001000043006F006E0073006F006C006100730000006E0073006F006C0065000000240034879F7C080000001C4100009CEA060356B7A87CF4BD240000000000F0BD2400190000000000000000000000010000000000000032000000040000000000000000000000000080000080000000808000800000008000800080800000C0C0C000808080000000FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00";
+
+const DWORD c_timeout = 5000;
+
+COORD get_con_size(const wstring& default_shortcut_props) {
+  ServerPipe pipe(c_pipe_name);
+  Event ov_event(TRUE, FALSE);
+  OVERLAPPED ov;
+  memset(&ov, 0, sizeof(ov));
+  ov.hEvent = ov_event.handle();
+
+  HRSRC h_rsrc = FindResourceW(g_h_module, L"consize", L"exe");
+  CHECK_SYS(h_rsrc);
+  HGLOBAL res_data = LoadResource(g_h_module, h_rsrc);
+  CHECK_SYS(res_data);
+  LPVOID res_data_ptr = LockResource(res_data);
+  CHECK_SYS(res_data_ptr);
+  DWORD res_size = SizeofResource(g_h_module, h_rsrc);
+  CHECK_SYS(res_size);
+  TempFile tmp_exe(L"exe");
+  {
+    File file_exe(tmp_exe.get_path(), GENERIC_WRITE, FILE_SHARE_READ, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL);
+    file_exe.write(res_data_ptr, res_size);
+  }
+  
+  TempFile tmp_lnk(L"lnk");
+  create_shortcut(tmp_lnk.get_path(), tmp_exe.get_path(), default_shortcut_props);
+
+  SHELLEXECUTEINFOW sei;
+  memset(&sei, 0, sizeof(sei));
+  sei.cbSize = sizeof(sei);
+  sei.fMask = SEE_MASK_FLAG_NO_UI;
+  wstring file_path = tmp_lnk.get_path();
+  sei.lpFile = file_path.c_str();
+  sei.nShow = SW_HIDE;
+  CHECK_SYS(ShellExecuteExW(&sei));
+
+  pipe.connect(ov, c_timeout);
+
+  DWORD process_id;
+  pipe.read(&process_id, sizeof(process_id), ov, c_timeout);
+
+  HANDLE h_process = OpenProcess(SYNCHRONIZE, FALSE, process_id);
+  CHECK_SYS(h_process);
+
+  COORD con_size;
+  pipe.read(&con_size, sizeof(con_size), ov, c_timeout);
+
+  WaitForSingleObject(h_process, c_timeout);
+
+  return con_size;
+}
 
 void save_shortcut_props(MSIHANDLE h_install) {
   ComInit com_init;
   wstring data;
-  list<wstring> shortcut_list = get_shortcut_list(h_install);
+  list<wstring> shortcut_list = get_shortcut_list(h_install, L"Target = '[#Far.exe]'");
   init_progress(h_install, L"SaveShortcutProps", L"Saving shortcut properties", shortcut_list.size());
+  list<wstring> props_list;
+  bool has_empty_props = false;
   for (list<wstring>::const_iterator file_path = shortcut_list.begin(); file_path != shortcut_list.end(); file_path++) {
     update_progress(h_install, *file_path);
-    wstring props = c_default_shortcut_props;
+    wstring props;
     BEGIN_ERROR_HANDLER
     props = get_shortcut_props(*file_path);
     END_ERROR_HANDLER
-    data.append(*file_path).append(L"\n").append(props).append(L"\n");
+    if (props.empty()) has_empty_props = true;
+    props_list.push_back(props);
+  }
+  wstring default_props;
+  if (has_empty_props) {
+    default_props = MsiEvaluateCondition(h_install, "VersionNT >= 601") == MSICONDITION_TRUE ? c_consolas_shortcut_props : c_lucida_shortcut_props;
+    COORD con_size = { 0, 0 };
+    BEGIN_ERROR_HANDLER
+    con_size = get_con_size(default_props);
+    END_ERROR_HANDLER
+    if (con_size.X) {
+      Buffer<unsigned char> db;
+      unhex(default_props, db);
+      NT_CONSOLE_PROPS* ntcp = reinterpret_cast<NT_CONSOLE_PROPS*>(db.data());
+      ntcp->dwScreenBufferSize = con_size;
+      ntcp->dwWindowSize = con_size;
+      default_props = hex(db.data(), db.size());
+    }
+  }
+  list<wstring>::const_iterator props = props_list.begin();
+  for (list<wstring>::const_iterator file_path = shortcut_list.begin(); file_path != shortcut_list.end(); file_path++, props++) {
+    data.append(*file_path).append(L"\n");
+    if (props->empty())
+      data.append(default_props);
+    else
+      data.append(*props);
+    data.append(L"\n");
   }
   CHECK_ADVSYS(MsiSetPropertyW(h_install, L"RestoreShortcutProps", data.c_str()));
 }

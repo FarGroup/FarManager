@@ -88,8 +88,12 @@ int main(int argc, char* argv[]) {
 #else
     makefile << msi_name << ": installer.wixobj ui.wixobj en-us.wxl ui_en-us.wxl customact.dll makefile" << endl;
     makefile << "  light -nologo -cultures:en-us -loc en-us.wxl -loc ui_en-us.wxl -spdb -sval -sh -cc . -reusecab -O2 -out " << msi_name << " installer.wixobj ui.wixobj" << endl;
-    makefile << "customact.dll: customact.cpp customact.def" << endl;
-    makefile << "  cl -nologo -Zi -EHsc customact.cpp -link -dll -debug -incremental:no -out:customact.dll -def:customact.def msi.lib shell32.lib" << endl;
+    makefile << "customact.dll: customact.cpp customact.def customact.res" << endl;
+    makefile << "  cl -nologo -Zi -EHsc customact.cpp -link -dll -debug -incremental:no -machine:" + platform + " -out:customact.dll -def:customact.def customact.res msi.lib shell32.lib rpcrt4.lib" << endl;
+    makefile << "customact.res: customact.rc consize.exe" << endl;
+    makefile << "  rc customact.rc" << endl;
+    makefile << "consize.exe: consize.cpp" << endl;
+    makefile << "  cl -nologo -O1 -GS- consize.cpp -link -nodefaultlib -entry:main kernel32.lib" << endl;
     makefile << "installer.wxs: files.wxi features.wxi shortcuts.wxi defines.wxi guids_" << ver_major << "_" << platform << ".wxi makefile" << endl;
     makefile << "ui.wxs: defines.wxi" << endl;
     makefile << ".wxs.wixobj::" << endl;
