@@ -303,6 +303,8 @@ enum MACRO_OP_CODE
 	MCODE_V_PPANEL_COLUMNCOUNT,       // PPanel.ColumnCount - пассивная панель: количество колонок
 	MCODE_V_APANEL_HOSTFILE,          // APanel.HostFile - активная панель:  имя Host-файла
 	MCODE_V_PPANEL_HOSTFILE,          // PPanel.HostFile - пассивная панель: имя Host-файла
+	MCODE_V_APANEL_PREFIX,            // APanel.Prefix
+	MCODE_V_PPANEL_PREFIX,            // PPanel.Prefix
 
 	MCODE_V_ITEMCOUNT,                // ItemCount - число элементов в текущем объекте
 	MCODE_V_CURPOS,                   // CurPos - текущий индекс в текущем объекте

@@ -206,6 +206,11 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 						OpenPluginInfo Info;
 						CtrlObject->Plugins.GetOpenPluginInfo(SrcFilePanel->GetPluginHandle(),&Info);
 						FileList::AddPluginPrefix(SrcFilePanel,strPathName);
+						if (Info.HostFile && *Info.HostFile)
+						{
+							strPathName += Info.HostFile;
+							strPathName += L"/";
+						}
 						strPathName += Info.CurDir;
 					}
 

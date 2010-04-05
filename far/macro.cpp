@@ -172,6 +172,10 @@ TMacroKeywords MKeywords[] =
 	{2,  L"PPanel.DriveType",   MCODE_V_PPANEL_DRIVETYPE,0}, // PPanel.DriveType - пассивная панель: тип привода
 	{2,  L"APanel.ColumnCount", MCODE_V_APANEL_COLUMNCOUNT,0}, // APanel.ColumnCount - активная панель:  количество колонок
 	{2,  L"PPanel.ColumnCount", MCODE_V_PPANEL_COLUMNCOUNT,0}, // PPanel.ColumnCount - пассивная панель: количество колонок
+	{2,  L"APanel.HostFile",    MCODE_V_APANEL_HOSTFILE,0},
+	{2,  L"PPanel.HostFile",    MCODE_V_PPANEL_HOSTFILE,0},
+	{2,  L"APanel.Prefix",      MCODE_V_APANEL_PREFIX,0},
+	{2,  L"PPanel.Prefix",      MCODE_V_PPANEL_PREFIX,0},
 
 	{2,  L"CmdLine.Bof",        MCODE_C_CMDLINE_BOF,0}, // курсор в начале cmd-строки редактирования?
 	{2,  L"CmdLine.Eof",        MCODE_C_CMDLINE_EOF,0}, // курсор в конеце cmd-строки редактирования?
@@ -1199,31 +1203,39 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 
 					break;
 				}
+
 				case MCODE_V_APANEL_OPIFLAGS:  // APanel.OPIFlags
 				case MCODE_V_PPANEL_OPIFLAGS:  // PPanel.OPIFlags
+				case MCODE_V_APANEL_HOSTFILE: // APanel.HostFile
+				case MCODE_V_PPANEL_HOSTFILE: // PPanel.HostFile
 				{
-					Panel *SelPanel = CheckCode == MCODE_V_APANEL_OPIFLAGS ? ActivePanel : PassivePanel;
+					Panel *SelPanel = CheckCode == MCODE_V_APANEL_OPIFLAGS || CheckCode == MCODE_V_APANEL_HOSTFILE? ActivePanel : PassivePanel;
 
 					if (SelPanel != nullptr)
 					{
 						OpenPluginInfo Info;
 						SelPanel->GetOpenPluginInfo(&Info);
-						Cond = (__int64)Info.Flags;
+						if (CheckCode == MCODE_V_APANEL_OPIFLAGS || CheckCode == MCODE_V_PPANEL_OPIFLAGS)
+							Cond = (__int64)Info.Flags;
+						else
+							Cond = (const wchar_t*)Info.HostFile;
 					}
 
 					break;
 				}
 
-				case MCODE_V_APANEL_HOSTFILE: // APanel.HostFile
-				case MCODE_V_PPANEL_HOSTFILE: // PPanel.HostFile
+				case MCODE_V_APANEL_PREFIX:           // APanel.Prefix
+				case MCODE_V_PPANEL_PREFIX:           // PPanel.Prefix
 				{
-					Panel *SelPanel = CheckCode == MCODE_V_APANEL_HOSTFILE ? ActivePanel : PassivePanel;
+					Panel *SelPanel = CheckCode == MCODE_V_APANEL_PREFIX ? ActivePanel : PassivePanel;
 
 					if (SelPanel != nullptr)
 					{
-						OpenPluginInfo Info;
-						SelPanel->GetOpenPluginInfo(&Info);
-						Cond = (const wchar_t*)Info.HostFile;
+						PluginInfo PInfo;
+						if (SelPanel->VMProcess(MCODE_V_APANEL_PREFIX,&PInfo))
+							Cond = (const wchar_t*)PInfo.CommandPrefix;
+						else
+							Cond = L"";
 					}
 
 					break;
@@ -1236,7 +1248,14 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 
 					if (SelPanel != nullptr)
 					{
-						SelPanel->GetCurDir(strFileName);
+						if (SelPanel->GetMode() == PLUGIN_PANEL)
+						{
+							OpenPluginInfo Info;
+							SelPanel->GetOpenPluginInfo(&Info);
+							strFileName = (const wchar_t*)Info.CurDir;
+						}
+						else
+							SelPanel->GetCurDir(strFileName);
 						DeleteEndSlash(strFileName); // - чтобы у корня диска было C:, тогда можно писать так: APanel.Path + "\\file"
 						Cond = (const wchar_t*)strFileName;
 					}
@@ -3306,6 +3325,23 @@ static bool editorundoFunc()
 	VMStack.Push(Ret);
 	return Ret.i() != 0;
 }
+
+#if 0
+// N=Editor.Status([S])
+static bool editorstatusFunc()
+{
+	TVar Ret(0ll);
+	TVar Title; VMStack.Pop(Title);
+
+	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins.CurEditor && CtrlObject->Plugins.CurEditor->IsVisible())
+	{
+		Ret=(__int64)CtrlObject->Plugins.CurEditor->EditorControl(ECTL_SETTITLE,Title.s());
+	}
+
+	VMStack.Push(Ret);
+	return Ret.i() != 0;
+}
+#endif
 
 // V=callplugin(SysID[,param])
 static bool callpluginFunc()

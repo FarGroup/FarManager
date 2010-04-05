@@ -616,6 +616,18 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_C_APANEL_FILTER:
 			return (Filter && Filter->IsEnabledOnPanel());
 
+		case MCODE_V_APANEL_PREFIX:           // APanel.Prefix
+		case MCODE_V_PPANEL_PREFIX:           // PPanel.Prefix
+		{
+			PluginInfo *PInfo=(PluginInfo *)vParam;
+			memset(PInfo,0,sizeof(PInfo));
+			PInfo->StructSize=sizeof(PInfo);
+			if (GetMode() == PLUGIN_PANEL && hPlugin != INVALID_HANDLE_VALUE && ((PluginHandle*)hPlugin)->pPlugin)
+				return ((PluginHandle*)hPlugin)->pPlugin->GetPluginInfo(PInfo)?1:0;
+			return 0;
+		}
+
+
 		case MCODE_F_PANEL_SELECT:
 		{
 			// vParam = MacroPanelSelect*, iParam = 0

@@ -837,7 +837,7 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			iParam = Param;
 
 			if (Param>=0 && Param<ItemCount)
-				return GetHighlights(GetItemPtr(GetVisualPos(Param)));
+				return GetHighlights(GetItemPtr(Param));
 
 			return 0;
 		}

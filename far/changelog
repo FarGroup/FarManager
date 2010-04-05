@@ -1,3 +1,14 @@
+svs 05.04.2010 18:18:38 +0300 - build 1482
+
+1. ”точнение Mantis#0001323
+
+2. Macro: [A|P]Panel.path дл€ ѕлагиновой панели
+   http://forum.farmanager.com/viewtopic.php?f=15&t=5254
+
+3. Macro: [A|P]Panel.Prefix - возвращает пусто, либо префикса, как их отдают плагины
+
+4. Macro: [A|P]Panel.UNCPath возвращает (дл€ плагиновой панели) prifix:[hostfile/]path
+
 garry 03.04.2010 22:44:32 +0300 - build 1481
 
 1. ѕосле 1456 отвалилс€ вывод кодовых страниц дл€ ANSI-плагинов (например, FTP).
