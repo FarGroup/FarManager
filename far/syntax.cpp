@@ -323,6 +323,7 @@ static TMacroFunction macroFunction[]=
 	{L"EDITOR.POS",       3, 1,   MCODE_F_EDITOR_POS,       nullptr, L"N=Editor.Pos(Op,What[,Where])"},
 	{L"EDITOR.SEL",       2, 1,   MCODE_F_EDITOR_SEL,       nullptr, L"V=Editor.Sel(Action[,Opt])"},
 	{L"EDITOR.SET",       2, 0,   MCODE_F_EDITOR_SET,       nullptr, L"N=Editor.Set(N,Var)"},
+	{L"EDITOR.SETTITLE",  1, 1,   MCODE_F_EDITOR_SETTITLE,  nullptr, L"N=Editor.SetTitle([Title])"},
 	{L"EDITOR.UNDO",      1, 0,   MCODE_F_EDITOR_UNDO,      nullptr, L"V=Editor.Undo(N)"},
 	{L"ENV",              1, 0,   MCODE_F_ENVIRON,          nullptr, L"S=Env(S)"},
 	{L"EVAL",             2, 1,   MCODE_F_EVAL,             nullptr, L"N=Eval(S[,N])"},

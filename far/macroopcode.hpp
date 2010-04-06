@@ -208,7 +208,7 @@ enum MACRO_OP_CODE
 	MCODE_F_TESTFOLDER,               // N=testfolder(S)
 	MCODE_F_PRINT,                    // N=Print(Str)
 	MCODE_F_MMODE,                    // N=MMode(Action[,Value])
-
+	MCODE_F_EDITOR_SETTITLE,          // N=Editor.SetTitle([Title])
 
 	/* ************************************************************************* */
 	// булевые переменные - различные состояния
