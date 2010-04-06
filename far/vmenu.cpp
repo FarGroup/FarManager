@@ -2800,9 +2800,9 @@ void EnumFiles(VMenu& Menu, const wchar_t* Str)
 		string strStr=Str;
 		FAR_FIND_DATA_EX d;
 		BOOL MoreFiles=TRUE;
-		HANDLE hFind=INVALID_HANDLE_VALUE;
+		FindFile Find(strStr+L"*");
 		bool Separator=false;
-		for(hFind=apiFindFirstFile(strStr+L"*",&d);hFind!=INVALID_HANDLE_VALUE && MoreFiles;MoreFiles=apiFindNextFile(hFind,&d))
+		while(Find.Get(d))
 		{
 			const wchar_t* FileName=PointToName(strStr);
 			bool NameMatch=!StrCmpNI(FileName,d.strFileName,StrLength(FileName)),AltNameMatch=NameMatch?false:!StrCmpNI(FileName,d.strAlternateFileName,StrLength(FileName));
@@ -2823,10 +2823,6 @@ void EnumFiles(VMenu& Menu, const wchar_t* Str)
 				}
 				Menu.AddItem(strTmp);
 			}
-		}
-		if(hFind!=INVALID_HANDLE_VALUE)
-		{
-			apiFindClose(hFind);
 		}
 	}
 }

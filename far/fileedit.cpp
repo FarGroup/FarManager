@@ -1628,7 +1628,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	//if ( bCached )
 	m_editor->SetCacheParams(&cp);
 	SysErrorCode=GetLastError();
-	apiGetFindDataEx(Name,&FileInfo);
+	apiGetFindDataEx(Name, FileInfo);
 	EditorGetFileAttributes(Name);
 	return TRUE;
 }
@@ -1681,7 +1681,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 		{
 			FAR_FIND_DATA_EX FInfo;
 
-			if (apiGetFindDataEx(Name,&FInfo) && !FileInfo.strFileName.IsEmpty())
+			if (apiGetFindDataEx(Name, FInfo) && !FileInfo.strFileName.IsEmpty())
 			{
 				__int64 RetCompare=FileTimeDifference(&FileInfo.ftLastWriteTime,&FInfo.ftLastWriteTime);
 
@@ -2041,7 +2041,7 @@ end:
 		apiSetFileAttributes(Name,FileAttributes|FILE_ATTRIBUTE_ARCHIVE);
 	}
 
-	apiGetFindDataEx(Name,&FileInfo);
+	apiGetFindDataEx(Name, FileInfo);
 	EditorGetFileAttributes(Name);
 
 	if (m_editor->Flags.Check(FEDITOR_MODIFIED) || NewFile)

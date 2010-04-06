@@ -2127,7 +2127,7 @@ static bool _fattrFunc(int Type)
 		TVar Str;
 		VMStack.Pop(Str);
 		FAR_FIND_DATA_EX FindData;
-		apiGetFindDataEx(Str.toString(),&FindData);
+		apiGetFindDataEx(Str.toString(), FindData);
 		FileAttr=FindData.dwFileAttributes;
 		Ret=true;
 	}

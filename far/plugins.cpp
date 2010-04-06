@@ -388,7 +388,7 @@ bool PluginManager::LoadPluginExternal(const wchar_t *lpwszModuleName)
 
 	FAR_FIND_DATA_EX FindData;
 
-	if (apiGetFindDataEx(lpwszModuleName, &FindData, false))
+	if (apiGetFindDataEx(lpwszModuleName, FindData, false))
 	{
 		if (LoadPlugin(lpwszModuleName, FindData))
 		{
@@ -577,7 +577,7 @@ void PluginManager::LoadPluginsFromCache()
 
 		FAR_FIND_DATA_EX FindData;
 
-		if (apiGetFindDataEx(strModuleName, &FindData, false))
+		if (apiGetFindDataEx(strModuleName, FindData, false))
 			LoadPlugin(strModuleName, FindData);
 	}
 }
@@ -1064,36 +1064,30 @@ int PluginManager::GetFile(
 	AddEndSlash(strFindPath);
 	strFindPath += L"*";
 	FAR_FIND_DATA_EX fdata;
-	HANDLE FindHandle;
-
-	if ((FindHandle=apiFindFirstFile(strFindPath,&fdata))!=INVALID_HANDLE_VALUE)
+	FindFile Find(strFindPath);
+	bool Done = true;
+	while(Find.Get(fdata))
 	{
-		int Done=0;
-
-		while (!Done)
+		if(!(fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 		{
-			if ((fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
-				break;
-
-			Done=!apiFindNextFile(FindHandle,&fdata);
+			Done = false;
+			break;
 		}
+	}
 
-		apiFindClose(FindHandle);
+	if (!Done)
+	{
+		strResultName = DestPath;
+		AddEndSlash(strResultName);
+		strResultName += fdata.strFileName;
 
-		if (!Done)
+		if (GetCode!=1)
 		{
-			strResultName = DestPath;
-			AddEndSlash(strResultName);
-			strResultName += fdata.strFileName;
-
-			if (GetCode!=1)
-			{
-				apiSetFileAttributes(strResultName,FILE_ATTRIBUTE_NORMAL);
-				apiDeleteFile(strResultName); //BUGBUG
-			}
-			else
-				Found=TRUE;
+			apiSetFileAttributes(strResultName,FILE_ATTRIBUTE_NORMAL);
+			apiDeleteFile(strResultName); //BUGBUG
 		}
+		else
+			Found=TRUE;
 	}
 
 	ReadUserBackgound(SaveScr);

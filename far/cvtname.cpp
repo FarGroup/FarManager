@@ -582,7 +582,7 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 						{
 							*Src=0;
 							FAR_FIND_DATA_EX fd;
-							BOOL find=apiGetFindDataEx(lpwszPath,&fd,false);
+							BOOL find=apiGetFindDataEx(lpwszPath,fd,false);
 							*Src=c;
 
 							if (find)

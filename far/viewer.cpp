@@ -302,7 +302,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 	CodePageChangedByUser=FALSE;
 	ViewFile=NewViewFile;
 	ConvertNameToFull(strFileName,strFullFileName);
-	apiGetFindDataEx(strFileName, &ViewFindData);
+	apiGetFindDataEx(strFileName, ViewFindData);
 	UINT CachedCodePage=0;
 
 	if (Opt.ViOpt.SavePos && !ReadStdin)
@@ -1240,7 +1240,7 @@ int Viewer::ProcessKey(int Key)
 				{
 					FAR_FIND_DATA_EX NewViewFindData;
 
-					if (!apiGetFindDataEx(strFullFileName,&NewViewFindData))
+					if (!apiGetFindDataEx(strFullFileName, NewViewFindData))
 						return TRUE;
 
 					fflush(ViewFile);

@@ -163,7 +163,7 @@ int FileList::FileNameToPluginItem(const wchar_t *Name,PluginPanelItem *pi)
 	memset(pi,0,sizeof(*pi));
 	FAR_FIND_DATA_EX fdata;
 
-	if (apiGetFindDataEx(Name, &fdata))
+	if (apiGetFindDataEx(Name, fdata))
 	{
 		apiFindDataExToData(&fdata, &pi->FindData);
 		return TRUE;

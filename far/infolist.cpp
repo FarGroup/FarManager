@@ -567,7 +567,7 @@ void InfoList::ShowDirDescription(int YPos)
 			strFullDizName += strArgName;
 			FAR_FIND_DATA_EX FindData;
 
-			if (!apiGetFindDataEx(strFullDizName,&FindData))
+			if (!apiGetFindDataEx(strFullDizName, FindData))
 				continue;
 
 			CutToSlash(strFullDizName, false);

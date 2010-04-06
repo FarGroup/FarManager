@@ -118,16 +118,37 @@ int TestFolder(const wchar_t *Path)
 	if (!(Path && *Path)) // проверка на вшивость
 		return TSTFLD_ERROR;
 
-	HANDLE FindHandle;
-	FAR_FIND_DATA_EX fdata;
-	int Done=FALSE;
 	string strFindPath = Path;
 	// сообразим маску для поиска.
 	AddEndSlash(strFindPath);
 	strFindPath += L"*";
 
 	// первая проверка - че-нить считать можем?
-	if ((FindHandle=apiFindFirstFile(strFindPath,&fdata)) == INVALID_HANDLE_VALUE)
+	FAR_FIND_DATA_EX fdata;
+	FindFile Find(strFindPath);
+
+	bool bFind = false;
+	while (Find.Get(fdata))
+	{
+		// Ок. Что-то есть. Попробуем ответить на вопрос "путой каталог?"
+		bFind = true;
+		if (fdata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY && fdata.strFileName.At(0) == L'.'
+			// хитрый способ - у виртуальных папок не бывает SFN, в отличие от.
+			&& fdata.strAlternateFileName.IsEmpty())
+		{
+			if ((fdata.strFileName.At(1) == L'.' && fdata.strFileName.At(2) == 0) || (fdata.strFileName.At(1) == 0))
+			{
+				continue;
+			}
+		}
+		else
+		{
+			// что-то есть, отличное от "." и ".." - каталог не пуст
+			return TSTFLD_NOTEMPTY;
+		}
+	}
+
+	if (!bFind)
 	{
 		GuardLastError lstError;
 
@@ -161,23 +182,8 @@ int TestFolder(const wchar_t *Path)
 		return TSTFLD_NOTACCESS;
 	}
 
-	// Ок. Что-то есть. Попробуем ответить на вопрос "путой каталог?"
-	while (!Done)
-	{
-		if (fdata.strFileName.At(0) == L'.' && (fdata.strFileName.At(1) == 0 || (fdata.strFileName.At(1) == L'.' && fdata.strFileName.At(2) == 0)))
-			; // игнорируем "." и ".."
-		else
-		{
-			// что-то есть, отличное от "." и ".." - каталог не пуст
-			apiFindClose(FindHandle);
-			return TSTFLD_NOTEMPTY;
-		}
-
-		Done=!apiFindNextFile(FindHandle,&fdata);
-	}
 
 	// однозначно каталог пуст
-	apiFindClose(FindHandle);
 	return TSTFLD_EMPTY;
 }
 

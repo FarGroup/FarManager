@@ -44,7 +44,7 @@ PreserveLongName::PreserveLongName(const wchar_t *ShortName,int Preserve):
 	{
 		FAR_FIND_DATA_EX FindData;
 
-		if (apiGetFindDataEx(ShortName, &FindData))
+		if (apiGetFindDataEx(ShortName, FindData))
 			strSaveLongName = FindData.strFileName;
 		else
 			strSaveLongName.Clear();
@@ -60,7 +60,7 @@ PreserveLongName::~PreserveLongName()
 	{
 		FAR_FIND_DATA_EX FindData;
 
-		if (!apiGetFindDataEx(strSaveShortName, &FindData) || StrCmp(strSaveLongName,FindData.strFileName)!=0)
+		if (!apiGetFindDataEx(strSaveShortName, FindData) || StrCmp(strSaveLongName,FindData.strFileName)!=0)
 		{
 			string strNewName;
 			strNewName = strSaveShortName;

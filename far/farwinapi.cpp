@@ -41,6 +41,65 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "adminmode.hpp"
 
+FindFile::FindFile(LPCWSTR Object, bool ScanSymLink):
+	Handle(INVALID_HANDLE_VALUE),
+	empty(false),
+	admin(false)
+{
+	string strName(NTPath(Object).Str);
+	Handle = FindFirstFile(strName, &W32FindData);
+
+	if (Handle == INVALID_HANDLE_VALUE && GetLastError() == ERROR_ACCESS_DENIED)
+	{
+		if(ScanSymLink)
+		{
+			string strReal;
+			ConvertNameToReal(strName, strReal);
+			strReal = NTPath(strReal);
+			Handle = FindFirstFile(strName, &W32FindData);
+		}
+
+		if (Handle == INVALID_HANDLE_VALUE)
+		{
+			Handle = Admin.FindFirstFile(strName, &W32FindData);
+			admin = Handle != INVALID_HANDLE_VALUE;
+		}
+	}
+	empty = Handle == INVALID_HANDLE_VALUE;
+}
+
+FindFile::~FindFile()
+{
+	if(Handle != INVALID_HANDLE_VALUE)
+	{
+		admin?Admin.FindClose(Handle):FindClose(Handle);
+	}
+}
+
+bool FindFile::Get(FAR_FIND_DATA_EX& FindData)
+{
+	bool Result = false;
+	if (!empty)
+	{
+		FindData.dwFileAttributes = W32FindData.dwFileAttributes;
+		FindData.ftCreationTime = W32FindData.ftCreationTime;
+		FindData.ftLastAccessTime = W32FindData.ftLastAccessTime;
+		FindData.ftLastWriteTime = W32FindData.ftLastWriteTime;
+		FindData.nFileSize = W32FindData.nFileSizeHigh*0x100000000ull+W32FindData.nFileSizeLow;
+		FindData.nPackSize = 0;
+		FindData.dwReserved0 = W32FindData.dwReserved0;
+		FindData.dwReserved1 = W32FindData.dwReserved1;
+		FindData.strFileName = W32FindData.cFileName;
+		FindData.strAlternateFileName = W32FindData.cAlternateFileName;
+		Result = true;
+	}
+	if(Result)
+	{
+		empty = admin?!Admin.FindNextFile(Handle, &W32FindData):!FindNextFile(Handle, &W32FindData);
+	}
+	return Result;
+}
+
 BOOL apiDeleteFile(const wchar_t *lpwszFileName)
 {
 	string strNtName(NTPath(lpwszFileName).Str);
@@ -230,7 +289,7 @@ BOOL apiSetCurrentDirectory(LPCWSTR lpPathName, bool Validate)
 		AddEndSlash(strDir);
 		strDir+=L"*";
 		FAR_FIND_DATA_EX fd;
-		if (!apiGetFindDataEx(strDir,&fd) && GetLastError()!=ERROR_FILE_NOT_FOUND) // root dir on empty disk
+		if (!apiGetFindDataEx(strDir, fd) && GetLastError()!=ERROR_FILE_NOT_FOUND) // root dir on empty disk
 			return FALSE;
 	}
 
@@ -361,67 +420,6 @@ BOOL apiGetVolumeInformation(
 	return bResult;
 }
 
-HANDLE apiFindFirstFile(
-    const wchar_t *lpwszFileName,
-    FAR_FIND_DATA_EX *pFindFileData,
-    bool ScanSymLink
-)
-{
-	WIN32_FIND_DATA fdata;
-	string strName(NTPath(lpwszFileName).Str);
-	HANDLE hResult = FindFirstFile(strName, &fdata);
-
-	if (hResult==INVALID_HANDLE_VALUE && GetLastError()==ERROR_ACCESS_DENIED && ScanSymLink)
-	{
-		ConvertNameToReal(strName,strName);
-		strName=NTPath(strName);
-		hResult=FindFirstFile(strName,&fdata);
-	}
-
-	if (hResult != INVALID_HANDLE_VALUE)
-	{
-		pFindFileData->dwFileAttributes = fdata.dwFileAttributes;
-		pFindFileData->ftCreationTime = fdata.ftCreationTime;
-		pFindFileData->ftLastAccessTime = fdata.ftLastAccessTime;
-		pFindFileData->ftLastWriteTime = fdata.ftLastWriteTime;
-		pFindFileData->nFileSize = fdata.nFileSizeHigh*0x100000000ull+fdata.nFileSizeLow;
-		pFindFileData->nPackSize = 0;
-		pFindFileData->dwReserved0 = fdata.dwReserved0;
-		pFindFileData->dwReserved1 = fdata.dwReserved1;
-		pFindFileData->strFileName = fdata.cFileName;
-		pFindFileData->strAlternateFileName = fdata.cAlternateFileName;
-	}
-
-	return hResult;
-}
-
-BOOL apiFindNextFile(HANDLE hFindFile, FAR_FIND_DATA_EX *pFindFileData)
-{
-	WIN32_FIND_DATA fdata;
-	BOOL bResult = FindNextFile(hFindFile, &fdata);
-
-	if (bResult)
-	{
-		pFindFileData->dwFileAttributes = fdata.dwFileAttributes;
-		pFindFileData->ftCreationTime = fdata.ftCreationTime;
-		pFindFileData->ftLastAccessTime = fdata.ftLastAccessTime;
-		pFindFileData->ftLastWriteTime = fdata.ftLastWriteTime;
-		pFindFileData->nFileSize = fdata.nFileSizeHigh*0x100000000ull+fdata.nFileSizeLow;
-		pFindFileData->nPackSize = 0;
-		pFindFileData->dwReserved0 = fdata.dwReserved0;
-		pFindFileData->dwReserved1 = fdata.dwReserved1;
-		pFindFileData->strFileName = fdata.cFileName;
-		pFindFileData->strAlternateFileName = fdata.cAlternateFileName;
-	}
-
-	return bResult;
-}
-
-BOOL apiFindClose(HANDLE hFindFile)
-{
-	return FindClose(hFindFile);
-}
-
 void apiFindDataToDataEx(const FAR_FIND_DATA *pSrc, FAR_FIND_DATA_EX *pDest)
 {
 	pDest->dwFileAttributes = pSrc->dwFileAttributes;
@@ -452,13 +450,11 @@ void apiFreeFindData(FAR_FIND_DATA *pData)
 	xf_free(pData->lpwszAlternateFileName);
 }
 
-BOOL apiGetFindDataEx(const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData,bool ScanSymLink)
+BOOL apiGetFindDataEx(const wchar_t *lpwszFileName, FAR_FIND_DATA_EX& FindData,bool ScanSymLink)
 {
-	HANDLE hSearch = apiFindFirstFile(lpwszFileName, pFindData,ScanSymLink);
-
-	if (hSearch != INVALID_HANDLE_VALUE)
+	FindFile Find(lpwszFileName, ScanSymLink);
+	if(Find.Get(FindData))
 	{
-		apiFindClose(hSearch);
 		return TRUE;
 	}
 	else if (!wcspbrk(lpwszFileName,L"*?"))
@@ -468,42 +464,36 @@ BOOL apiGetFindDataEx(const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData,
 		if (dwAttr!=INVALID_FILE_ATTRIBUTES)
 		{
 			// Ага, значит файл таки есть. Заполним структуру ручками.
-			if (pFindData)
+			FindData.Clear();
+			FindData.dwFileAttributes=dwAttr;
+			HANDLE hFile=apiCreateFile(lpwszFileName,FILE_READ_ATTRIBUTES,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,0);
+
+			if (hFile!=INVALID_HANDLE_VALUE)
 			{
-				pFindData->Clear();
-				pFindData->dwFileAttributes=dwAttr;
-				HANDLE hFile=apiCreateFile(lpwszFileName,FILE_READ_ATTRIBUTES,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,0);
-
-				if (hFile!=INVALID_HANDLE_VALUE)
-				{
-					GetFileTime(hFile,&pFindData->ftCreationTime,&pFindData->ftLastAccessTime,&pFindData->ftLastWriteTime);
-					apiGetFileSizeEx(hFile,pFindData->nFileSize);
-					CloseHandle(hFile);
-				}
-
-				if (pFindData->dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
-				{
-					string strTmp;
-					GetReparsePointInfo(lpwszFileName,strTmp,&pFindData->dwReserved0); //MSDN
-				}
-				else
-				{
-					pFindData->dwReserved0=0;
-				}
-
-				pFindData->dwReserved1=0;
-				pFindData->strFileName=PointToName(lpwszFileName);
-				ConvertNameToShort(lpwszFileName,pFindData->strAlternateFileName);
-				return TRUE;
+				GetFileTime(hFile,&FindData.ftCreationTime,&FindData.ftLastAccessTime,&FindData.ftLastWriteTime);
+				apiGetFileSizeEx(hFile,FindData.nFileSize);
+				CloseHandle(hFile);
 			}
+
+			if (FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
+			{
+				string strTmp;
+				GetReparsePointInfo(lpwszFileName,strTmp,&FindData.dwReserved0); //MSDN
+			}
+			else
+			{
+				FindData.dwReserved0=0;
+			}
+
+			FindData.dwReserved1=0;
+			FindData.strFileName=PointToName(lpwszFileName);
+			ConvertNameToShort(lpwszFileName,FindData.strAlternateFileName);
+			return TRUE;
 		}
 	}
 
-	if (pFindData)
-	{
-		pFindData->Clear();
-		pFindData->dwFileAttributes=INVALID_FILE_ATTRIBUTES; //BUGBUG
-	}
+	FindData.Clear();
+	FindData.dwFileAttributes=INVALID_FILE_ATTRIBUTES; //BUGBUG
 
 	return FALSE;
 }
@@ -673,7 +663,13 @@ BOOL apiCreateDirectory(LPCWSTR lpPathName,LPSECURITY_ATTRIBUTES lpSecurityAttri
 
 DWORD apiGetFileAttributes(LPCWSTR lpFileName)
 {
-	return GetFileAttributes(NTPath(lpFileName));
+	string strNtName(NTPath(lpFileName).Str);
+	DWORD Result = GetFileAttributes(strNtName);
+	if(Result == INVALID_FILE_ATTRIBUTES && GetLastError() == ERROR_ACCESS_DENIED)
+	{
+		Result = Admin.GetFileAttributes(strNtName);
+	}
+	return Result;
 }
 
 BOOL apiSetFileAttributes(LPCWSTR lpFileName,DWORD dwFileAttributes)
@@ -850,7 +846,7 @@ BOOL apiFindStreamClose(HANDLE hFindFile)
 
 	if (ifn.pfnFindFirstStreamW && ifn.pfnFindNextStreamW)
 	{
-		Ret=apiFindClose(hFindFile);
+		Ret=FindClose(hFindFile);
 	}
 	else
 	{

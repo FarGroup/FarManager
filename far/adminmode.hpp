@@ -34,17 +34,23 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 enum ADMIN_COMMAND
 {
+	C_SERVICE_TEST,
 	C_SERVICE_EXIT,
 	C_FUNCTION_CREATEDIRECTORY,
 	C_FUNCTION_REMOVEDIRECTORY,
 	C_FUNCTION_DELETEFILE,
 	C_FUNCTION_COPYFILEEX,
 	C_FUNCTION_MOVEFILEEX,
+	C_FUNCTION_GETFILEATTRIBUTES,
 	C_FUNCTION_SETFILEATTRIBUTES,
 	C_FUNCTION_CREATEHARDLINK,
 	C_FUNCTION_CREATESYMBOLICLINK,
 	C_FUNCTION_SETREPARSEDATABUFFER,
 	C_FUNCTION_MOVETORECYCLEBIN,
+	C_FUNCTION_FINDFIRSTFILE,
+	C_FUNCTION_FINDNEXTFILE,
+	C_FUNCTION_FINDCLOSE,
+	C_FUNCTION_SETOWNER,
 };
 
 class AutoObject;
@@ -62,11 +68,16 @@ public:
 	void CallbackRoutine();
 	bool CopyFileEx(LPCWSTR From, LPCWSTR To, LPPROGRESS_ROUTINE ProgressRoutine, LPVOID Data, LPBOOL Cancel, DWORD Flags);
 	bool MoveFileEx(LPCWSTR From, LPCWSTR To, DWORD Flags);
+	DWORD GetFileAttributes(LPCWSTR Object);
 	bool SetFileAttributes(LPCWSTR Object, DWORD FileAttributes);
 	bool CreateHardLink(LPCWSTR Object,LPCWSTR Target,LPSECURITY_ATTRIBUTES SecurityAttributes);
 	bool CreateSymbolicLink(LPCWSTR Object, LPCWSTR Target, DWORD Flags);
 	bool SetReparseDataBuffer(LPCWSTR Object,PREPARSE_DATA_BUFFER ReparseDataBuffer);
 	int MoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct);
+	HANDLE FindFirstFile(LPCWSTR Object, PWIN32_FIND_DATA W32FindData);
+	bool FindNextFile(HANDLE Handle, PWIN32_FIND_DATA W32FindData);
+	bool FindClose(HANDLE Handle);
+	bool SetOwner(LPCWSTR Object, LPCWSTR Owner);
 
 private:
 	HANDLE Pipe;
@@ -74,6 +85,7 @@ private:
 	bool Approve;
 	bool AskApprove;
 	LPPROGRESS_ROUTINE ProgressRoutine;
+	bool Recurse;
 
 	bool ReadData(AutoObject& Data) const;
 	bool WriteData(LPCVOID Data, DWORD DataSize) const;

@@ -1689,22 +1689,16 @@ int FileList::ProcessKey(int Key)
 								strPath = strTempName;
 								CutToSlash(strPath, false);
 								strFindName = strPath+L"*";
-								HANDLE FindHandle;
 								FAR_FIND_DATA_EX FindData;
-								bool Done=((FindHandle=apiFindFirstFile(strFindName,&FindData))==INVALID_HANDLE_VALUE);
-
-								while (!Done)
+								::FindFile Find(strFindName);
+								while(Find.Get(FindData))
 								{
-									if ((FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
+									if (!(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 									{
 										strTempName = strPath+FindData.strFileName;
 										break;
 									}
-
-									Done=!apiFindNextFile(FindHandle,&FindData);
 								}
-
-								apiFindClose(FindHandle);
 							}
 
 							if (FileNameToPluginItem(strTempName,&PanelItem))

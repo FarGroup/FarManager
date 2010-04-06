@@ -66,15 +66,16 @@ bool ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
 	if (ScanItems.getCount()==0)
 		return false;
 
-	int Done;
+	bool Done=false;
 	Flags.Clear(FSCANTREE_SECONDDIRNAME);
 
 	for (;;)
 	{
-		if (ScanItems.lastItem()->FindHandle==0)
-			Done=((ScanItems.lastItem()->FindHandle=apiFindFirstFile(strFindPath,fdata))==INVALID_HANDLE_VALUE);
-		else
-			Done=!apiFindNextFile(ScanItems.lastItem()->FindHandle,fdata);
+		if (!ScanItems.lastItem()->Find)
+		{
+			ScanItems.lastItem()->Find = new FindFile(strFindPath);
+		}
+		Done=!ScanItems.lastItem()->Find->Get(*fdata);
 
 		if (Flags.Check(FSCANTREE_FILESFIRST))
 		{
@@ -90,10 +91,11 @@ bool ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
 
 				if (Done)
 				{
-					if (!(ScanItems.lastItem()->FindHandle == INVALID_HANDLE_VALUE || !ScanItems.lastItem()->FindHandle))
-						apiFindClose(ScanItems.lastItem()->FindHandle);
-
-					ScanItems.lastItem()->FindHandle=0;
+					if(ScanItems.lastItem()->Find)
+					{
+						delete ScanItems.lastItem()->Find;
+						ScanItems.lastItem()->Find = nullptr;
+					}
 					ScanItems.lastItem()->Flags.Set(FSCANTREE_SECONDPASS);
 					continue;
 				}
@@ -122,7 +124,7 @@ bool ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
 			if (Flags.Check(FSCANTREE_RETUPDIR))
 			{
 				strFullName = strFindPath;
-				apiGetFindDataEx(strFullName,fdata);
+				apiGetFindDataEx(strFullName, *fdata);
 			}
 
 			CutToSlash(strFindPath);

@@ -90,6 +90,20 @@ struct FAR_FIND_DATA_EX
 	}
 };
 
+class FindFile
+{
+public:
+	FindFile(LPCWSTR Object, bool ScanSymLink = true);
+	~FindFile();
+	bool Get(FAR_FIND_DATA_EX& FindData);
+
+private:
+	HANDLE Handle;
+	bool empty;
+	bool admin;
+	WIN32_FIND_DATA W32FindData;
+};
+
 DWORD apiGetEnvironmentVariable(
     const wchar_t *lpwszName,
     string &strBuffer
@@ -131,20 +145,6 @@ BOOL apiGetVolumeInformation(
     string *pFileSystemName
 );
 
-HANDLE apiFindFirstFile(
-    const wchar_t *lpwszFileName,
-    FAR_FIND_DATA_EX *pFindFileData,
-    bool ScanSymLink=true);
-
-BOOL apiFindNextFile(
-    HANDLE hFindFile,
-    FAR_FIND_DATA_EX *pFindFileData
-);
-
-BOOL apiFindClose(
-    HANDLE hFindFile
-);
-
 BOOL apiFindStreamClose(
     HANDLE hFindFile
 );
@@ -164,7 +164,7 @@ void apiFreeFindData(
 
 BOOL apiGetFindDataEx(
     const wchar_t *lpwszFileName,
-    FAR_FIND_DATA_EX *pFindData,
+    FAR_FIND_DATA_EX& FindData,
     bool ScanSymLink=true);
 
 bool apiGetFileSizeEx(

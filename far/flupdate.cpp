@@ -139,12 +139,10 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	UpdateRequired=FALSE;
 	AccessTimeUpdateRequired=FALSE;
 	DizRead=FALSE;
-	HANDLE FindHandle;
 	FAR_FIND_DATA_EX fdata;
 	FileListItem *CurPtr=0,**OldData=0;
 	string strCurName, strNextCurName;
 	int OldFileCount=0;
-	int Done;
 	clock_t StartTime=clock();
 	CloseChangeNotification();
 
@@ -239,9 +237,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 		SIDCacheFlush();
 	}
 
-	SetLastError(0);
-	//BUGBUG!!!
-	Done=((FindHandle=apiFindFirstFile(L"*",&fdata))==INVALID_HANDLE_VALUE);
+	SetLastError(ERROR_SUCCESS);
 	int AllocatedCount=0;
 	FileListItem *NewPtr;
 	// сформируем заголовок вне цикла
@@ -264,7 +260,10 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	FILETIME TwoDotsTimes[3]={0};
 	string TwoDotsOwner;
 
-	for (FileCount=0; !Done;)
+	FileCount = 0;
+	//BUGBUG!!! // что это?
+	::FindFile Find(L"*");
+	while(Find.Get(fdata))
 	{
 		if (fdata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY && fdata.strFileName.At(0) == L'.'
 		// хитрый способ - у виртуальных папок не бывает SFN, в отличие от.
@@ -285,7 +284,6 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 					}
 				}
 
-				Done=!apiFindNextFile(FindHandle,&fdata);
 				continue;
 			}
 		}
@@ -409,16 +407,12 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 				}
 			}
 		}
-
-		Done=!apiFindNextFile(FindHandle,&fdata);
 	}
 
 	int ErrCode=GetLastError();
 
 	if (!(ErrCode==ERROR_SUCCESS || ErrCode==ERROR_NO_MORE_FILES || ErrCode==ERROR_FILE_NOT_FOUND))
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MReadFolderError),MSG(MOk));
-
-	apiFindClose(FindHandle);
 	/*
 	int NetRoot=FALSE;
 	if (strCurDir.At(0)==L'\\' && strCurDir.At(1)==L'\\')
@@ -817,7 +811,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 		{
 			FAR_FIND_DATA_EX FindData;
 
-			if (apiGetFindDataEx(Info.HostFile,&FindData))
+			if (apiGetFindDataEx(Info.HostFile, FindData))
 			{
 				CurPtr->WriteTime=FindData.ftLastWriteTime;
 				CurPtr->CreationTime=FindData.ftCreationTime;

@@ -252,7 +252,7 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 								{
 									FAR_FIND_DATA_EX FindData;
 
-									if (apiGetFindDataEx(DlgParam->strSelName,&FindData))
+									if (apiGetFindDataEx(DlgParam->strSelName, FindData))
 									{
 										const SETATTRDLG Items[]={SA_TEXT_MODIFICATION,SA_TEXT_CREATION,SA_TEXT_LASTACCESS};
 										bool* ParamTimes[]={&DlgParam->OLastWriteTime,&DlgParam->OCreationTime,&DlgParam->OLastAccessTime};
@@ -313,7 +313,7 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 			{
 				FAR_FIND_DATA_EX FindData;
 
-				if (apiGetFindDataEx(DlgParam->strSelName,&FindData))
+				if (apiGetFindDataEx(DlgParam->strSelName, FindData))
 				{
 					SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_MODIFICATION,(LONG_PTR)&FindData.ftLastWriteTime);
 					SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_CREATION,(LONG_PTR)&FindData.ftCreationTime);
@@ -477,7 +477,7 @@ bool ReadFileTime(int Type,const wchar_t *Name,FILETIME& FileTime,const wchar_t 
 	bool Result=false;
 	FAR_FIND_DATA_EX ffd={0};
 
-	if (apiGetFindDataEx(Name,&ffd))
+	if (apiGetFindDataEx(Name, ffd))
 	{
 		WORD DateN[3]={0},TimeN[4]={0};
 		GetFileDateAndTime(OSrcDate,DateN,countof(DateN),GetDateSeparator());
@@ -628,11 +628,6 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 		AttrDlg[SA_BUTTON_SYSTEMDLG].Flags&=~DIF_DISABLE;
 	}
 
-	if(!CheckPrivilege(SE_TAKE_OWNERSHIP_NAME) && !CheckPrivilege(SE_RESTORE_NAME))
-	{
-		AttrDlg[SA_EDIT_OWNER].Flags|=DIF_DISABLE;
-	}
-
 	if (SrcPanel && SrcPanel->GetMode()==PLUGIN_PANEL)
 	{
 		OpenPluginInfo Info;
@@ -693,7 +688,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 		else
 		{
 			strSelName=Object;
-			apiGetFindDataEx(Object,&FindData);
+			apiGetFindDataEx(Object, FindData);
 			FileAttr=FindData.dwFileAttributes;
 		}
 
@@ -764,7 +759,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 
 				if (Opt.SetAttrFolderRules)
 				{
-					if (DlgParam.Plugin || apiGetFindDataEx(strSelName,&FindData))
+					if (DlgParam.Plugin || apiGetFindDataEx(strSelName, FindData))
 					{
 						ConvertDate(FindData.ftLastWriteTime, AttrDlg[SA_EDIT_MDATE].strData,AttrDlg[SA_EDIT_MTIME].strData,12,FALSE,FALSE,TRUE,TRUE);
 						ConvertDate(FindData.ftCreationTime,  AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData,12,FALSE,FALSE,TRUE,TRUE);
@@ -882,7 +877,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 						Current++;
 					}
 
-					apiFindClose(hFind);
+					FindClose(hFind);
 					AttrDlg[SA_COMBO_HARDLINK].ListItems=&NameList;
 				}
 				else
@@ -909,7 +904,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 			const SETATTRDLG Dates[]={SA_EDIT_MDATE,SA_EDIT_CDATE,SA_EDIT_ADATE},Times[]={SA_EDIT_MTIME,SA_EDIT_CTIME,SA_EDIT_ATIME};
 			const PFILETIME TimeValues[]={&FindData.ftLastWriteTime,&FindData.ftCreationTime,&FindData.ftLastAccessTime};
 
-			if (DlgParam.Plugin || (!DlgParam.Plugin&&apiGetFindDataEx(strSelName,&FindData)))
+			if (DlgParam.Plugin || (!DlgParam.Plugin&&apiGetFindDataEx(strSelName, FindData)))
 			{
 				for (size_t i=0; i<countof(Dates); i++)
 				{

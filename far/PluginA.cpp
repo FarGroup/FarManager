@@ -250,7 +250,7 @@ bool PluginA::SaveToCache()
 		{
 			string strCurPluginID;
 			FAR_FIND_DATA_EX fdata;
-			apiGetFindDataEx(m_strModuleName, &fdata);
+			apiGetFindDataEx(m_strModuleName, fdata);
 			strCurPluginID.Format(
 			    L"%I64x%x%x",
 			    fdata.nFileSize,

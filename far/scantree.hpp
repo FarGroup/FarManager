@@ -59,13 +59,15 @@ enum
 struct ScanTreeData
 {
 	BitFlags Flags;
-	HANDLE FindHandle;
+	FindFile* Find;
 	string RealPath;
-	ScanTreeData(): FindHandle(0) { }
+	ScanTreeData(): Find(nullptr) { }
 	~ScanTreeData()
 	{
-		if (FindHandle && FindHandle!=INVALID_HANDLE_VALUE)
-			apiFindClose(FindHandle);
+		if(Find)
+		{
+			delete Find;
+		}
 	}
 };
 

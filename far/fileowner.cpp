@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "DList.hpp"
 #include "privilege.hpp"
+#include "adminmode.hpp"
 
 // эта часть - перспективная фигня, которая значительно ускоряет получение овнеров
 
@@ -179,33 +180,50 @@ bool WINAPI GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &st
 	return Result;
 }
 
-bool SetOwner(LPCWSTR Object, LPCWSTR Owner)
+bool SetOwnerInternal(LPCWSTR Object, LPCWSTR Owner)
 {
-	bool Result=false;
+	bool Result = false;
 	SID_NAME_USE Use;
-	DWORD cSid=0,ReferencedDomain=0;
-	LookupAccountName(nullptr,Owner,nullptr,&cSid,nullptr,&ReferencedDomain,&Use);
+	DWORD cSid=0, ReferencedDomain=0;
+	LookupAccountName(nullptr, Owner, nullptr, &cSid, nullptr, &ReferencedDomain, &Use);
 	if(cSid)
 	{
-		PSID Sid=xf_malloc(cSid);
+		PSID Sid = xf_malloc(cSid);
 		if(Sid)
 		{
-			LPWSTR ReferencedDomainName=new WCHAR[ReferencedDomain];
+			LPWSTR ReferencedDomainName = new WCHAR[ReferencedDomain];
 			if(ReferencedDomainName)
 			{
-				if(LookupAccountName(nullptr,Owner,Sid,&cSid,ReferencedDomainName,&ReferencedDomain,&Use))
+				if(LookupAccountName(nullptr, Owner, Sid, &cSid, ReferencedDomainName, &ReferencedDomain, &Use))
 				{
 					Privilege TakeOwnershipPrivilege(SE_TAKE_OWNERSHIP_NAME);
 					Privilege RestorePrivilege(SE_RESTORE_NAME);
-					if(SetNamedSecurityInfo(const_cast<LPWSTR>(NTPath(Object).Str.CPtr()),SE_FILE_OBJECT,OWNER_SECURITY_INFORMATION,Sid,nullptr,nullptr,nullptr)==ERROR_SUCCESS)
+					DWORD dwResult = SetNamedSecurityInfo(const_cast<LPWSTR>(Object), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, Sid, nullptr, nullptr, nullptr);
+					if(dwResult == ERROR_SUCCESS)
 					{
-						Result=true;
+						Result = true;
+					}
+					else
+					{
+						SetLastError(dwResult);
 					}
 				}
 				delete[] ReferencedDomainName;
 			}
 			xf_free(Sid);
 		}
+	}
+	return Result;
+}
+
+
+bool SetOwner(LPCWSTR Object, LPCWSTR Owner)
+{
+	string strNtObject(NTPath(Object).Str);
+	bool Result = SetOwnerInternal(strNtObject, Owner);
+	if(!Result && GetLastError() == ERROR_ACCESS_DENIED)
+	{
+		Result = Admin.SetOwner(strNtObject, Owner);
 	}
 	return Result;
 }

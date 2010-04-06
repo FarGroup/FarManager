@@ -1358,7 +1358,7 @@ const wchar_t *PrepareOSIfExist(const wchar_t *CmdLine)
 					{
 						FAR_FIND_DATA_EX wfd;
 
-						if (apiGetFindDataEx(strFullPath, &wfd))
+						if (apiGetFindDataEx(strFullPath, wfd))
 							FileAttr=wfd.dwFileAttributes;
 					}
 					else
@@ -1718,7 +1718,7 @@ BOOL CommandLine::IntChDir(const wchar_t *CmdLine,int ClosePlugin,bool Selent)
 	{
 		FAR_FIND_DATA_EX wfd;
 
-		if (apiGetFindDataEx(strExpandedDir, &wfd))
+		if (apiGetFindDataEx(strExpandedDir, wfd))
 		{
 			size_t pos;
 

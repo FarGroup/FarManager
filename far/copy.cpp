@@ -1884,7 +1884,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 			else
 			{
 				// проверка на вшивость ;-)
-				if (!apiGetFindDataEx(strSelName,&SrcData))
+				if (!apiGetFindDataEx(strSelName,SrcData))
 				{
 					strDestPath = strSelName;
 					CP->SetNames(strSelName,strDestPath);
@@ -2301,7 +2301,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 	FAR_FIND_DATA_EX DestData;
 	if (DestAttr==INVALID_FILE_ATTRIBUTES)
 	{
-		if (apiGetFindDataEx(strDestPath,&DestData,false))
+		if (apiGetFindDataEx(strDestPath,DestData,false))
 			DestAttr=DestData.dwFileAttributes;
 	}
 
@@ -2367,13 +2367,13 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					FAR_FIND_DATA_EX FileData;
 					strOldPath = Src;
 					strOldPath.SetLength(p1-Src);
-					apiGetFindDataEx(strOldPath,&FileData);
+					apiGetFindDataEx(strOldPath,FileData);
 					FileAttr=FileData.dwFileAttributes;
 					// Создадим имя каталога, который теперь нужно создать, если конечно его ещё нет
 					strNewPath = strDestPath+string(PathPtr,p1 - PathPtr);
 
 					// Такого каталога ещё нет, создадим его
-					if (!apiGetFindDataEx(strNewPath,&FileData))
+					if (!apiGetFindDataEx(strNewPath,FileData))
 					{
 						int CopySecurity = Flags&FCOPY_COPYSECURITY;
 						SECURITY_ATTRIBUTES sa;
@@ -2421,7 +2421,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 			strDestPath += PathPtr;
 
-			if (!apiGetFindDataEx(strDestPath,&DestData))
+			if (!apiGetFindDataEx(strDestPath,DestData))
 				DestAttr=INVALID_FILE_ATTRIBUTES;
 			else
 				DestAttr=DestData.dwFileAttributes;
@@ -3911,7 +3911,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 		else
 		{
 			DestData.Clear();
-			apiGetFindDataEx(DestName,&DestData);
+			apiGetFindDataEx(DestName,DestData);
 			DestDataFilled=TRUE;
 
 			if ((Flags&FCOPY_ONLYNEWERFILES))
@@ -4023,7 +4023,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 					if (!DestDataFilled)
 					{
 						DestData.Clear();
-						apiGetFindDataEx(DestName,&DestData);
+						apiGetFindDataEx(DestName,DestData);
 					}
 
 					string strDateText,strTimeText;

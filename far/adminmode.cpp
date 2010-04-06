@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lasterror.hpp"
 #include "privilege.hpp"
 #include "flink.hpp"
+#include "fileowner.hpp"
 
 #define PIPE_NAME L"\\\\.\\pipe\\FarPipe"
 
@@ -170,7 +171,8 @@ AdminMode::AdminMode():
 	PID(0),
 	Approve(false),
 	AskApprove(true),
-	ProgressRoutine(nullptr)
+	ProgressRoutine(nullptr),
+	Recurse(false)
 {
 }
 
@@ -228,42 +230,67 @@ bool AdminMode::Initialize()
 	{
 		if(PID)
 		{
-			Result = true; // TODO: OpenProcess() etc.
-		}
-		else
-		{
-			FormatString strParam;
-			strParam << L"/admin " << GetCurrentProcessId();
-			SHELLEXECUTEINFO info=
+			if(SendCommand(C_SERVICE_TEST))
 			{
-				sizeof(info),
-				SEE_MASK_FLAG_NO_UI|SEE_MASK_UNICODE|SEE_MASK_NOASYNC,
-				nullptr,
-				L"runas",
-				g_strFarModuleName,
-				strParam,
-			};
-			if(ShellExecuteEx(&info))
-			{
-				DisconnectNamedPipe(Pipe);
-				while(!ConnectNamedPipe(Pipe, nullptr))
-				{
-					Sleep(1);
-				}
 				int SendData = GetTickCount();
 				if(WritePipeInt(Pipe, SendData))
 				{
-					int RecvData=0;
+					int RecvData = 0;
 					if(ReadPipeInt(Pipe, RecvData))
 					{
 						if((RecvData^Magic) == SendData)
 						{
-							ReadPipeInt(Pipe, PID);
-							Result = true;
+							int NewPID = 0;
+							if(ReadPipeInt(Pipe, NewPID))
+							{
+								Result = PID == NewPID;
+							}
 						}
 					}
 				}
-				Result=true;
+			}
+		}
+
+		if(!Result)
+		{
+			if(Approve || AdminApproveDlg(nullptr))
+			{
+				FormatString strParam;
+				strParam << L"/admin " << GetCurrentProcessId();
+				SHELLEXECUTEINFO info=
+				{
+					sizeof(info),
+					SEE_MASK_FLAG_NO_UI|SEE_MASK_UNICODE|SEE_MASK_NOASYNC,
+					nullptr,
+					L"runas",
+					g_strFarModuleName,
+					strParam,
+				};
+				if(ShellExecuteEx(&info))
+				{
+					DisconnectNamedPipe(Pipe);
+					while(!ConnectNamedPipe(Pipe, nullptr))
+					{
+						Sleep(1);
+					}
+					if(SendCommand(C_SERVICE_TEST))
+					{
+						int SendData = GetTickCount();
+						if(WritePipeInt(Pipe, SendData))
+						{
+							int RecvData = 0;
+							if(ReadPipeInt(Pipe, RecvData))
+							{
+								if((RecvData^Magic) == SendData)
+								{
+									ReadPipeInt(Pipe, PID);
+									Result = true;
+								}
+							}
+						}
+					}
+					Result=true;
+				}
 			}
 		}
 	}
@@ -302,8 +329,9 @@ LONG_PTR WINAPI AdminApproveDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
 
 bool AdminMode::AdminApproveDlg(LPCWSTR Object)
 {
-	if(FrameManager && !FrameManager->ManagerIsDown() && AskApprove)
+	if(FrameManager && !FrameManager->ManagerIsDown() && AskApprove && !Recurse)
 	{
+		Recurse = true;
 		GuardLastError error;
 		enum {DlgX=64,DlgY=11};
 		DialogDataEx AdminApproveDlgData[]=
@@ -311,8 +339,8 @@ bool AdminMode::AdminApproveDlg(LPCWSTR Object)
 			DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,0,0,0,MSG(MErrorAccessDenied),
 			DI_TEXT,5,2,6,2,0,0,DIF_SETCOLOR|0xE9,0,L"\x2580\x2584",
 			DI_TEXT,8,2,0,2,0,0,0,0,MSG(MAdminRequired1),
-			DI_TEXT,8,3,0,3,0,0,0,0,MSG(MAdminRequired2),
-			DI_EDIT,8,4,DlgX-6,4,0,0,DIF_READONLY|DIF_SETCOLOR|FarColorToReal(COL_DIALOGTEXT),0,Object,
+			DI_TEXT,8,3,0,3,0,0,0,0,Object?MSG(MAdminRequired2):L"",
+			DI_EDIT,8,4,DlgX-6,4,0,0,DIF_READONLY|DIF_SETCOLOR|FarColorToReal(COL_DIALOGTEXT),0,NullToEmpty(Object),
 			DI_CHECKBOX,5,6,0,6,0,1,0,0,MSG(MCopyRememberChoice),
 			DI_TEXT,3,DlgY-4,0,DlgY-4,0,0,DIF_SEPARATOR,0,L"",
 			DI_BUTTON,0,DlgY-3,0,DlgY-3,1,0,DIF_CENTERGROUP,1,MSG(MOk),
@@ -325,6 +353,7 @@ bool AdminMode::AdminApproveDlg(LPCWSTR Object)
 		Dlg.Process();
 		Approve=(Dlg.GetExitCode()==AAD_BUTTON_OK);
 		AskApprove=!AdminApproveDlg[AAD_CHECKBOX_REMEMBER].Selected;
+		Recurse = false;
 	}
 	return Approve;
 }
@@ -515,6 +544,29 @@ bool AdminMode::MoveFileEx(LPCWSTR From, LPCWSTR To, DWORD Flags)
 	return Result;
 }
 
+DWORD AdminMode::GetFileAttributes(LPCWSTR Object)
+{
+	bool Result=false;
+	if(/*AdminApproveDlg(PointToName(Object)) && */Initialize())
+	{
+		if(SendCommand(C_FUNCTION_GETFILEATTRIBUTES))
+		{
+			if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
+			{
+				int OpResult=0;
+				if(ReadInt(OpResult))
+				{
+					if(ReceiveLastError())
+					{
+						Result = OpResult !=0;
+					}
+				}
+			}
+		}
+	}
+	return Result;
+}
+
 bool AdminMode::SetFileAttributes(LPCWSTR Object, DWORD FileAttributes)
 {
 	bool Result=false;
@@ -653,6 +705,117 @@ int AdminMode::MoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 	return Result;
 }
 
+HANDLE AdminMode::FindFirstFile(LPCWSTR Object, PWIN32_FIND_DATA W32FindData)
+{
+	HANDLE Result=INVALID_HANDLE_VALUE;
+	if(/*AdminApproveDlg(PointToName(Object)) && */Initialize())
+	{
+		if(SendCommand(C_FUNCTION_FINDFIRSTFILE))
+		{
+			if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
+			{
+				AutoObject OpResult;
+				if(ReadData(OpResult))
+				{
+					AutoObject FindData;
+					if(ReadData(FindData))
+					{
+						if(ReceiveLastError())
+						{
+							Result = *reinterpret_cast<PHANDLE>(OpResult.Get());
+							if(Result && W32FindData)
+							{
+								*W32FindData = *reinterpret_cast<PWIN32_FIND_DATA>(FindData.Get());
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return Result;
+}
+
+bool AdminMode::FindNextFile(HANDLE Handle, PWIN32_FIND_DATA W32FindData)
+{
+	bool Result=false;
+	//if(AdminApproveDlg(PointToName(Object)) && Initialize())
+	{
+		if(SendCommand(C_FUNCTION_FINDNEXTFILE))
+		{
+			if(WriteData(&Handle,Handle?sizeof(Handle):0))
+			{
+				int OpResult;
+				if(ReadInt(OpResult))
+				{
+					AutoObject FindData;
+					if(ReadData(FindData))
+					{
+						if(ReceiveLastError())
+						{
+							Result = OpResult != FALSE;
+							if(Result && W32FindData)
+							{
+								*W32FindData = *reinterpret_cast<PWIN32_FIND_DATA>(FindData.Get());
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return Result;
+}
+
+bool AdminMode::FindClose(HANDLE Handle)
+{
+	bool Result=false;
+	//if(AdminApproveDlg(PointToName(Object)) && Initialize())
+	{
+		if(SendCommand(C_FUNCTION_FINDCLOSE))
+		{
+			if(WriteData(&Handle,Handle?sizeof(Handle):0))
+			{
+				int OpResult;
+				if(ReadInt(OpResult))
+				{
+					if(ReceiveLastError())
+					{
+						Result = OpResult != FALSE;
+					}
+				}
+			}
+		}
+	}
+	return Result;
+}
+
+bool AdminMode::SetOwner(LPCWSTR Object, LPCWSTR Owner)
+{
+	bool Result=false;
+	if(AdminApproveDlg(PointToName(Object)) && Initialize())
+	{
+		if(SendCommand(C_FUNCTION_SETOWNER))
+		{
+			if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
+			{
+				if(WriteData(Owner,Owner?(StrLength(Owner)+1)*sizeof(WCHAR):0))
+				{
+					int OpResult=0;
+					if(ReadInt(OpResult))
+					{
+						if(ReceiveLastError())
+						{
+							Result = OpResult !=0;
+						}
+					}
+				}
+			}
+		}
+	}
+	return Result;
+}
+
 bool IsUserAdmin()
 {
 	bool Result=false;
@@ -724,6 +887,20 @@ bool Process(int Command)
 	bool Exit=false;
 	switch(Command)
 	{
+	case C_SERVICE_TEST:
+		{
+			int Data=0;
+			if(ReadPipeInt(Pipe, Data))
+			{
+				Data^=Magic;
+				if(WritePipeInt(Pipe, Data))
+				{
+					WritePipeInt(Pipe, GetCurrentProcessId());
+				}
+			}
+		}
+		break;
+
 	case C_SERVICE_EXIT:
 		{
 			Exit=true;
@@ -826,6 +1003,21 @@ bool Process(int Command)
 							WritePipeInt(Pipe, LastError);
 						}
 					}
+				}
+			}
+		}
+		break;
+
+	case C_FUNCTION_GETFILEATTRIBUTES:
+		{
+			AutoObject Object;
+			if(ReadPipeData(Pipe, Object))
+			{
+				int Result = GetFileAttributes(Object.GetStr());
+				int LastError = GetLastError();
+				if(WritePipeInt(Pipe, Result))
+				{
+					WritePipeInt(Pipe, LastError);
 				}
 			}
 		}
@@ -935,6 +1127,79 @@ bool Process(int Command)
 			}
 		}
 		break;
+
+	case C_FUNCTION_FINDFIRSTFILE:
+		{
+			AutoObject Object;
+			if(ReadPipeData(Pipe, Object))
+			{
+				WIN32_FIND_DATA W32FindData;
+				HANDLE Result = FindFirstFile(Object.GetStr(), &W32FindData);
+				int LastError = GetLastError();
+				if(WritePipeData(Pipe, &Result, sizeof(Result)))
+				{
+					if(WritePipeData(Pipe, &W32FindData, sizeof(WIN32_FIND_DATA)))
+					{
+						WritePipeInt(Pipe, LastError);
+					}
+				}
+			}
+		}
+		break;
+
+	case C_FUNCTION_FINDNEXTFILE:
+		{
+			AutoObject Handle;
+			if(ReadPipeData(Pipe, Handle))
+			{
+				WIN32_FIND_DATA W32FindData;
+				int Result = FindNextFile(*reinterpret_cast<PHANDLE>(Handle.Get()), &W32FindData);
+				int LastError = GetLastError();
+				if(WritePipeInt(Pipe, Result))
+				{
+					if(WritePipeData(Pipe, &W32FindData, sizeof(WIN32_FIND_DATA)))
+					{
+						WritePipeInt(Pipe, LastError);
+					}
+				}
+			}
+		}
+		break;
+
+	case C_FUNCTION_FINDCLOSE:
+		{
+			AutoObject Handle;
+			if(ReadPipeData(Pipe, Handle))
+			{
+				int Result = FindClose(*reinterpret_cast<PHANDLE>(Handle.Get()));
+				int LastError = GetLastError();
+				if(WritePipeInt(Pipe, Result))
+				{
+					WritePipeInt(Pipe, LastError);
+				}
+			}
+		}
+		break;
+
+	case C_FUNCTION_SETOWNER:
+		{
+			AutoObject Object;
+			if(ReadPipeData(Pipe, Object))
+			{
+				AutoObject Owner;
+				if(ReadPipeData(Pipe, Owner))
+				{
+					int Result = SetOwnerInternal(Object.GetStr(), Owner.GetStr());
+					int LastError = GetLastError();
+					if(WritePipeInt(Pipe, Result))
+					{
+						WritePipeInt(Pipe, LastError);
+					}
+				}
+			}
+		}
+		break;
+
 	}
 	return Exit;
 }
@@ -948,6 +1213,7 @@ int AdminMain(int PID)
 	Privilege
 		BackupPrivilege(SE_BACKUP_NAME),
 		RestorePrivilege(SE_RESTORE_NAME),
+		TakeOwnershipPrivilege(SE_TAKE_OWNERSHIP_NAME),
 		CreateSymbolicLinkPrivilege(SE_CREATE_SYMBOLIC_LINK_NAME);
 
 	FormatString strPipe;
@@ -955,33 +1221,22 @@ int AdminMain(int PID)
 	Pipe = CreateFile(strPipe,GENERIC_READ|GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr);
 	if (Pipe != INVALID_HANDLE_VALUE)
 	{
-		int Data=0;
-		if(ReadPipeInt(Pipe, Data))
+		bool Exit = false;
+		int Command = 0;
+		while(!Exit)
 		{
-			Data^=Magic;
-			if(WritePipeInt(Pipe, Data))
+			if(ReadPipeInt(Pipe, Command))
 			{
-				if(WritePipeInt(Pipe, GetCurrentProcessId()))
+				Exit = Process(Command);
+			}
+			else
+			{
+				if(GetLastError() == ERROR_BROKEN_PIPE)
 				{
-					bool Exit = false;
-					int Command = 0;
-					while(!Exit)
-					{
-						if(ReadPipeInt(Pipe, Command))
-						{
-							Exit = Process(Command);
-						}
-						else
-						{
-							if(GetLastError() == ERROR_BROKEN_PIPE)
-							{
-								Exit=true;
-							}
-						}
-						Sleep(1);
-					}
+					Exit=true;
 				}
 			}
+			Sleep(1);
 		}
 	}
 	return Result;
