@@ -262,13 +262,16 @@ Info.EditorControl(ECTL_PROCESSKEY,(void*)KEY_CTRLEND);
 
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SETTITLE">ECTL_SETTITLE</a></td>
-    <td class="cont" width="60%"><img src="..\..\images\ectl_settitle.gif" width=213 height=53 align=right alt="DrawLine\DrawLine.cpp: Применена функция SetTitle()">Установить заголовок редактора (верхняя статусная панель).
+    <td class="cont" width="60%"><img src="../../images/ectl_settitle.gif" width=213 height=53 align=right alt="DrawLine\DrawLine.cpp: Применена функция SetTitle()">Установить заголовок редактора (верхняя статусная панель).
       Стандартный заголовок будет восстановлен после отработки плагина.
       <em>Param</em> указывает на строку, оканчивающуюся нулем, которая
       содержит текст заголовка.<br>
+      Для восстановления статусной строки укажите параметр <em>Param</em> равный NULL или пустой строке.<br>
+      Заголовок не будет выведен, если статусная строка погашена.<br>
+      При показе заголовок будет усечен до размера, не затрагивающего служебную информацию (кодировка, позиция, etc.)<br>
 <pre class=code>// DrawLine\DrawLine.cpp: функция SetTitle
 Info.EditorControl(ECTL_SETTITLE,(char *)GetMsg(IDTitle));</pre>
-</td></tr>
+    </td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_TABTOREAL">ECTL_TABTOREAL</a></td>
     <td class="cont" width="60%">Конвертировать экранную позицию курсора в
