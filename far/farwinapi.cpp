@@ -56,7 +56,7 @@ FindFile::FindFile(LPCWSTR Object, bool ScanSymLink):
 			string strReal;
 			ConvertNameToReal(strName, strReal);
 			strReal = NTPath(strReal);
-			Handle = FindFirstFile(strName, &W32FindData);
+			Handle = FindFirstFile(strReal, &W32FindData);
 		}
 
 		if (Handle == INVALID_HANDLE_VALUE)
