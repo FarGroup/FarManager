@@ -9534,6 +9534,14 @@ upd:"Plugin selection"
 "Plugin választás"
 upd:"Plugin selection"
 
+MMenuPluginConfirmationTitle
+"Выбор плагина"
+"Plugin selection"
+upd:"Plugin selection"
+upd:"Plugin selection"
+"Plugin választás"
+upd:"Plugin selection"
+
 MMenuPluginStdAssociation
 "Стандартная ассоциация"
 "Standard association"
@@ -11823,44 +11831,44 @@ upd:"Plugin selection"
 upd:"Plugin selection"
 
 MSetPluginConfirmationOFP
-"Обработка файла (OpenFilePlugin)"
-"File processing (OpenFilePlugin)"
-upd:"File processing (OpenFilePlugin)"
-upd:"File processing (OpenFilePlugin)"
-"Fájl feldolgozása (OpenFilePlugin)"
-upd:"File processing (OpenFilePlugin)"
+"Обработка &файла (OpenFilePlugin)"
+"&File processing (OpenFilePlugin)"
+upd:"&File processing (OpenFilePlugin)"
+upd:"&File processing (OpenFilePlugin)"
+"&Fájl feldolgozása (OpenFilePlugin)"
+upd:"&File processing (OpenFilePlugin)"
 
 MSetPluginConfirmationStdAssoc
-"Пункт вызова стандартной ассоциации"
-"Show standard association item"
-upd:"Show standard association item"
-upd:"Show standard association item"
+"Пункт вызова стандартной &ассоциации"
+"Show standard &association item"
+upd:"Show standard &association item"
+upd:"Show standard &association item"
 "Szabvány társítás megjelenítése"
-upd:"Show standard association item"
+upd:"Show standard &association item"
 
 MSetPluginConfirmationEvenOne
-"Даже если найден всего один плагин"
-"Even if only one plugin found"
-upd:"Even if only one plugin found"
-upd:"Even if only one plugin found"
+"Даже если найден всего &один плагин"
+"Even if only &one plugin found"
+upd:"Even if only &one plugin found"
+upd:"Even if only &one plugin found"
 "Akkor is, ha csak egy plugin van"
-upd:"Even if only one plugin found"
+upd:"Even if only &one plugin found"
 
 MSetPluginConfirmationSFL
-"Результаты поиска (SetFindList)"
-"Search results (SetFindList)"
-upd:"Search results (SetFindList)"
-upd:"Search results (SetFindList)"
+"&Результаты поиска (SetFindList)"
+"Search &results (SetFindList)"
+upd:"Search &results (SetFindList)"
+upd:"Search &results (SetFindList)"
 "Keresés eredménye (SetFindList)"
-upd:"Search results (SetFindList)"
+upd:"Search &results (SetFindList)"
 
 MSetPluginConfirmationPF
-"Обработка префикса"
-"Prefix processing"
-upd:"Prefix processing"
-upd:"Prefix processing"
+"Обработка &префикса"
+"&Prefix processing"
+upd:"&Prefix processing"
+upd:"&Prefix processing"
 "Előtag feldolgozása"
-upd:"Prefix processing"
+upd:"&Prefix processing"
 
 MFindFolderTitle
 l:

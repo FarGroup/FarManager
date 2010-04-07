@@ -3334,6 +3334,11 @@ static bool editorsettitleFunc()
 
 	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins.CurEditor && CtrlObject->Plugins.CurEditor->IsVisible())
 	{
+		if (Title.isInteger() && Title.i() == 0)
+		{
+			Title=L"";
+			Title.toString();
+		}
 		Ret=(__int64)CtrlObject->Plugins.CurEditor->EditorControl(ECTL_SETTITLE,(void*)Title.s());
 	}
 

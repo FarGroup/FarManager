@@ -732,7 +732,7 @@ HANDLE PluginManager::OpenFilePlugin(
 	{
 		if ((items.getCount() > 1) || (Opt.PluginConfirm.OpenFilePlugin && (Opt.PluginConfirm.StandardAssociation || Opt.PluginConfirm.EvenIfOnlyOnePlugin)))
 		{
-			VMenu menu(MSG(MMenuPluginConfirmation), nullptr, 0, ScrY-4);
+			VMenu menu(MSG(MMenuPluginConfirmationTitle), nullptr, 0, ScrY-4);
 			menu.SetPosition(-1, -1, 0, 0);
 			menu.SetHelp(L"ChoosePluginMenu");
 			menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
@@ -840,7 +840,7 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, int I
 	{
 		if (items.getCount()>1)
 		{
-			VMenu menu(MSG(MMenuPluginConfirmation), nullptr, 0, ScrY-4);
+			VMenu menu(MSG(MMenuPluginConfirmationTitle), nullptr, 0, ScrY-4);
 			menu.SetPosition(-1, -1, 0, 0);
 			menu.SetHelp(L"ChoosePluginMenu");
 			menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
@@ -1964,7 +1964,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 
 	if (items.getCount()>1)
 	{
-		VMenu menu(MSG(MMenuPluginConfirmation), nullptr, 0, ScrY-4);
+		VMenu menu(MSG(MMenuPluginConfirmationTitle), nullptr, 0, ScrY-4);
 		menu.SetPosition(-1, -1, 0, 0);
 		menu.SetHelp(L"ChoosePluginMenu");
 		menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
