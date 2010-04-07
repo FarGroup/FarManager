@@ -59,7 +59,7 @@ FindFile::FindFile(LPCWSTR Object, bool ScanSymLink):
 			Handle = FindFirstFile(strReal, &W32FindData);
 		}
 
-		if (Handle == INVALID_HANDLE_VALUE)
+		if (Handle == INVALID_HANDLE_VALUE && GetLastError() == ERROR_ACCESS_DENIED)
 		{
 			Handle = Admin.FindFirstFile(strName, &W32FindData);
 			admin = Handle != INVALID_HANDLE_VALUE;
