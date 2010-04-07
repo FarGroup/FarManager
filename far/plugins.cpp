@@ -388,7 +388,7 @@ bool PluginManager::LoadPluginExternal(const wchar_t *lpwszModuleName)
 
 	FAR_FIND_DATA_EX FindData;
 
-	if (apiGetFindDataEx(lpwszModuleName, FindData, false))
+	if (apiGetFindDataEx(lpwszModuleName, FindData))
 	{
 		if (LoadPlugin(lpwszModuleName, FindData))
 		{
@@ -577,7 +577,7 @@ void PluginManager::LoadPluginsFromCache()
 
 		FAR_FIND_DATA_EX FindData;
 
-		if (apiGetFindDataEx(strModuleName, FindData, false))
+		if (apiGetFindDataEx(strModuleName, FindData))
 			LoadPlugin(strModuleName, FindData);
 	}
 }

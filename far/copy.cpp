@@ -2301,7 +2301,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 	FAR_FIND_DATA_EX DestData;
 	if (DestAttr==INVALID_FILE_ATTRIBUTES)
 	{
-		if (apiGetFindDataEx(strDestPath,DestData,false))
+		if (apiGetFindDataEx(strDestPath,DestData))
 			DestAttr=DestData.dwFileAttributes;
 	}
 
