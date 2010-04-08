@@ -786,6 +786,12 @@ $End</pre>
     </td>
   </tr>
 
+  <!-- -------------------------------------- -->
+  <tr class="cont"><th class="cont" colspan=2>–едактор</th></tr>
+  <tr class="cont">
+    <th class="cont" width="40%">‘ункци€</th>
+    <th class="cont" width="60%">ќписание</th>
+  </tr>
   <tr class="cont">
     <td class="cont" width="40%">V=<dfn><a name="editor.set">editor.set</a></dfn>(Idx,Var)</td>
     <td class="cont" width="60%">ƒл€ текущей копии редактора изменить настройки.
@@ -901,6 +907,15 @@ $end</pre>
        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="90%">выполнить Redo</td></tr>
        </table>
        ¬озвращает 1 дл€ успешно выполненной операции или 0 в случае ошибки.<br>
+    </td>
+  </tr>
+
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="editor.settitle">editor.settitle</a></dfn>([Title])</td>
+    <td class="cont" width="60%">”становка заголовка в статусной строке редактора.<br>
+    ≈сли параметр <em>Title</em> отсутствует или равен пустой строке, то восстанавливаетс€ предыдущее значение статусной строки.<br>
+    ѕри показе заголовок будет усечен до размера, не затрагивающего служебную информацию (кодировка, позици€, etc.)<br>
+    ¬озвращает 1 дл€ успешно выполненной операции или 0 - редактор не в фокусе.<br>
     </td>
   </tr>
 
