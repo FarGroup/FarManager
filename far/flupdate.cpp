@@ -263,8 +263,10 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	FileCount = 0;
 	//BUGBUG!!! // что это?
 	::FindFile Find(L"*");
+	DWORD FindErrorCode = ERROR_SUCCESS;
 	while(Find.Get(fdata))
 	{
+		FindErrorCode = GetLastError();
 		if (fdata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY && fdata.strFileName.At(0) == L'.'
 		// хитрый способ - у виртуальных папок не бывает SFN, в отличие от.
 		&& fdata.strAlternateFileName.IsEmpty())
@@ -280,7 +282,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 					if (ReadOwners)
 					{
-						GetFileOwner(strComputerName,fdata.strFileName,TwoDotsOwner);
+						GetFileOwner(strComputerName,strCurDir,TwoDotsOwner);
 					}
 				}
 
@@ -409,9 +411,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 		}
 	}
 
-	int ErrCode=GetLastError();
-
-	if (!(ErrCode==ERROR_SUCCESS || ErrCode==ERROR_NO_MORE_FILES || ErrCode==ERROR_FILE_NOT_FOUND || ErrCode == ERROR_HANDLE_EOF))
+	if (!(FindErrorCode==ERROR_SUCCESS || FindErrorCode==ERROR_NO_MORE_FILES || FindErrorCode==ERROR_FILE_NOT_FOUND))
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MReadFolderError),MSG(MOk));
 	/*
 	int NetRoot=FALSE;
