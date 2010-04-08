@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "frame.hpp"
 #include "keybar.hpp"
+#include "array.hpp"
 
 class CallBackStack;
 
@@ -78,6 +79,44 @@ enum
 	FHELPOBJ_ERRCANNOTOPENHELP  = 0x80000000,
 };
 
+class HelpRecord
+{
+	public:
+		wchar_t *HelpStr;
+
+		HelpRecord(const wchar_t *HStr=nullptr)
+		{
+			HelpStr = nullptr;
+			if (HStr != nullptr)
+				HelpStr = xf_wcsdup(HStr);
+		};
+
+		const HelpRecord& operator=(const HelpRecord &rhs)
+		{
+			if (this != &rhs)
+			{
+				HelpStr = xf_wcsdup(rhs.HelpStr);
+			}
+
+			return *this;
+		};
+
+		bool operator==(const HelpRecord &rhs) const
+		{
+			return StrCmpI(HelpStr,rhs.HelpStr)==0;
+		};
+
+		int operator<(const HelpRecord &rhs) const
+		{
+			return StrCmpI(HelpStr,rhs.HelpStr) < 0;
+		};
+
+		~HelpRecord()
+		{
+			if (HelpStr) xf_free(HelpStr);
+		}
+};
+
 class Help:public Frame
 {
 	private:
@@ -88,7 +127,8 @@ class Help:public Frame
 		string  strFullHelpPathName;
 
 		StackHelpData StackData;
-		wchar_t *HelpData;             // "хелп" в памяти.
+		TArray<HelpRecord> HelpList; // "хелп" в памяти.
+
 		int   StrCount;             // количество строк в теме
 		int   FixCount;             // количество строк непрокручиваемой области
 		int   FixSize;              // Размер непрокручиваемой области
@@ -110,23 +150,12 @@ class Help:public Frame
 
 		string strCtrlStartPosChar;
 
-#if defined(WORK_HELP_FIND)
-	private:
-		DWORD LastSearchPos;
-		unsigned char LastSearchStr[SEARCHSTRINGBUFSIZE];
-		int LastSearchCase,LastSearchWholeWords,LastSearchReverse;
-
-	private:
-		int Search(int Next);
-		void KeepInitParameters();
-#endif
-
 	private:
 		virtual void DisplayObject();
 		int  ReadHelp(const wchar_t *Mask=nullptr);
 		void AddLine(const wchar_t *Line);
 		void AddTitle(const wchar_t *Title);
-		void HighlightsCorrection(wchar_t *Str);
+		void HighlightsCorrection(string &strStr);
 		void FastShow();
 		void DrawWindowFrame();
 		void OutString(const wchar_t *Str);
@@ -136,6 +165,7 @@ class Help:public Frame
 		void MoveToReference(int Forward,int CurScreen);
 		void ReadDocumentsHelp(int TypeIndex);
 		int  JumpTopic(const wchar_t *JumpTopic=nullptr);
+		const HelpRecord* GetHelpItem(int Pos);
 
 	public:
 		Help(const wchar_t *Topic,const wchar_t *Mask=nullptr,DWORD Flags=0);

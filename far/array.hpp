@@ -62,23 +62,32 @@ class TArray
 
 	public:
 		TArray(unsigned int Delta=8);
-		~TArray() { Free(); }
 		TArray<Object>(const TArray<Object> &rhs);
+		~TArray() { Free(); }
+
+	public:
 		TArray& operator=(const TArray<Object> &rhs);
 
 	public:
 		void Free();
 		void setDelta(unsigned int newDelta);
 		bool setSize(unsigned int newSize);
+
 		Object *setItem(unsigned int index, const Object &newItem);
 		Object *getItem(unsigned int index);
 		int getIndex(const Object &item, int start=-1);
-		void Sort(TARRAYCMPFUNC user_cmp_func=nullptr); // отсортировать массив
-		bool Pack(); // упаковать массив - вместо нескольких одинаковых элементов,
-		// идущих подр€д, оставить только один. ¬озвращает, false,
-		// если изменений массива не производилось.
-		// ¬ызов Pack() после Sort(nullptr) приведет к устранению
-		// дубликатов
+
+		// сортировка массива. Offset - сколько первых пунктов пропустить
+		void Sort(TARRAYCMPFUNC user_cmp_func=nullptr,unsigned int Offset=0);
+
+		// упаковать массив - вместо нескольких одинаковых элементов,
+		/*
+			идущих подр€д, оставить только один. ¬озвращает, false,
+			если изменений массива не производилось.
+			¬ызов Pack() после Sort(nullptr) приведет к устранению
+			дубликатов
+		*/
+		bool Pack();
 
 	public: // inline
 		unsigned int getSize() const { return Count; }
@@ -137,14 +146,14 @@ Object *TArray<Object>::getItem(unsigned int index)
 }
 
 template <class Object>
-void TArray<Object>::Sort(TARRAYCMPFUNC user_cmp_func)
+void TArray<Object>::Sort(TARRAYCMPFUNC user_cmp_func,unsigned int Offset)
 {
 	if (Count)
 	{
 		if (!user_cmp_func)
 			user_cmp_func=reinterpret_cast<TARRAYCMPFUNC>(CmpItems);
 
-		far_qsort(reinterpret_cast<char*>(items),Count,sizeof(Object*),user_cmp_func);
+		far_qsort(reinterpret_cast<char*>(items+Offset),Count-Offset,sizeof(Object*),user_cmp_func);
 	}
 }
 

@@ -106,12 +106,7 @@ class CallBackStack
 };
 
 
-#define MAX_HELP_STRING_LENGTH 300
-
 static const wchar_t *PluginContents=L"__PluginContents__";
-#if defined(WORK_HELP_DOCUMS)
-static const wchar_t *DocumentContents=L"__DocumentContents__";
-#endif
 static const wchar_t *HelpOnHelpTopic=L"Help";
 static const wchar_t *HelpContents=L"Contents";
 
@@ -119,7 +114,6 @@ static int RunURL(const wchar_t *Protocol, wchar_t *URLPath);
 
 Help::Help(const wchar_t *Topic, const wchar_t *Mask,DWORD Flags):
 	ErrorHelp(TRUE),
-	HelpData(nullptr),
 	IsNewTopic(TRUE),
 	MouseDown(FALSE),
 	CurColor(COL_HELPTEXT),
@@ -161,7 +155,7 @@ Help::Help(const wchar_t *Topic, const wchar_t *Mask,DWORD Flags):
 		ReadHelp(StackData.strHelpMask);
 	}
 
-	if (HelpData!=nullptr)
+	if (HelpList.getSize())
 	{
 		ScreenObject::Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
 		InitKeyBar();
@@ -183,14 +177,6 @@ Help::Help(const wchar_t *Topic, const wchar_t *Mask,DWORD Flags):
 			ScreenObject::Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
 		}
 	}
-
-#if defined(WORK_HELP_FIND)
-	strGlobalSearchString = LastSearchStr;
-	LastSearchPos=0;
-	LastSearchCase=GlobalSearchCase;
-	LastSearchWholeWords=GlobalSearchWholeWords;
-	LastSearchReverse=GlobalSearchReverse;
-#endif
 }
 
 Help::~Help()
@@ -198,28 +184,10 @@ Help::~Help()
 	CtrlObject->Macro.SetMode(PrevMacroMode);
 	SetRestoreScreenMode(FALSE);
 
-	if (HelpData)     xf_free(HelpData);
-
 	if (Stack)        delete Stack;
 
 	if (TopScreen)    delete TopScreen;
-
-#if defined(WORK_HELP_FIND)
-	KeepInitParameters();
-#endif
 }
-
-
-#if defined(WORK_HELP_FIND)
-void Help::KeepInitParameters()
-{
-	strGlobalSearchString = LastSearchStr;
-	LastSearchPos=0;
-	GlobalSearchCase=LastSearchCase;
-	GlobalSearchWholeWords=LastSearchWholeWords;
-	GlobalSearchReverse=LastSearchReverse;
-}
-#endif
 
 
 void Help::Hide()
@@ -230,9 +198,10 @@ void Help::Hide()
 
 int Help::ReadHelp(const wchar_t *Mask)
 {
-	wchar_t ReadStr[2*MAX_HELP_STRING_LENGTH];
-	wchar_t SplitLine[2*MAX_HELP_STRING_LENGTH+8],*Ptr;
-	int Formatting=TRUE,RepeatLastLine,PosTab,BreakProcess;
+	wchar_t *ReadStr;
+	string strSplitLine;
+	int Formatting=TRUE,RepeatLastLine,BreakProcess;
+	size_t PosTab;
 	const int MaxLength=X2-X1-1;
 	string strTabSpace;
 	string strPath;
@@ -263,16 +232,6 @@ int Help::ReadHelp(const wchar_t *Mask)
 		return TRUE;
 	}
 
-#if defined(WORK_HELP_DOCUMS)
-
-	if (!strcmp(StackData.HelpTopic,DocumentContents))
-	{
-		strFullHelpPathName.Clear();
-		ReadDocumentsHelp(HIDX_DOCUMS);
-		return TRUE;
-	}
-
-#endif
 	UINT nCodePage = CP_OEMCP;
 	FILE *HelpFile=Language::OpenLangFile(strPath,(!*Mask?HelpFileMask:Mask),Opt.strHelpLanguage,strFullHelpPathName, nCodePage);
 
@@ -319,12 +278,8 @@ int Help::ReadHelp(const wchar_t *Mask)
 	if (!Language::GetLangParam(HelpFile,L"PluginContents",&strCurPluginContents, nullptr, nCodePage))
 		strCurPluginContents.Clear();
 
-	*SplitLine=0;
+	HelpList.Free();
 
-	if (HelpData)
-		xf_free(HelpData);
-
-	HelpData=nullptr;
 	StrCount=0;
 	FixCount=0;
 	TopicFound=0;
@@ -347,6 +302,9 @@ int Help::ReadHelp(const wchar_t *Mask)
 	int MI=0;
 	string strMacroArea;
 
+	GetFileString GetStr(HelpFile);
+	int nStrLength,GetCode;
+
 	for (;;)
 	{
 		if (StartPos != (DWORD)-1)
@@ -354,22 +312,25 @@ int Help::ReadHelp(const wchar_t *Mask)
 		else
 			RealMaxLength = MaxLength;
 
-		if (!MacroProcess && !RepeatLastLine && !BreakProcess && ReadString(HelpFile, ReadStr,sizeof(ReadStr)/2/sizeof(wchar_t), nCodePage)==nullptr)
+		if (!MacroProcess && !RepeatLastLine && !BreakProcess && (GetCode=GetStr.GetString(&ReadStr, nCodePage, nStrLength)) == 0)
 		{
-			if (StringLen(SplitLine)<MaxLength)
+			strReadStr=ReadStr;
+			if (StringLen(strSplitLine)<MaxLength)
 			{
-				if (*SplitLine)
-					AddLine(SplitLine);
+				if (strSplitLine.At(0))
+					AddLine(strSplitLine.CPtr());
 			}
 			else
 			{
-				*ReadStr=0;
+				strReadStr.Clear();
 				RepeatLastLine=TRUE;
 				continue;
 			}
 
 			break;
 		}
+		else
+			strReadStr=ReadStr;
 
 		if (MacroProcess)
 		{
@@ -409,70 +370,71 @@ int Help::ReadHelp(const wchar_t *Mask)
 				strOutTemp+=TruncStrFromEnd(strDescription,300);
 			}
 
-			xwcsncpy(ReadStr, strOutTemp.CPtr(), (countof(ReadStr)));
+			strReadStr=strOutTemp;
 			MacroProcess=true;
 			MI++;
 		}
 
 		RepeatLastLine=FALSE;
 
-		while ((Ptr=wcschr(ReadStr,L'\t')) != nullptr)
+		while (strReadStr.Pos(PosTab,L'\t'))
 		{
-			*Ptr=L' ';
-			PosTab=(int)(Ptr-ReadStr+1);
+			wchar_t *lpwszPtr = strReadStr.GetBuffer();
+			lpwszPtr[PosTab]=L' ';
+			strReadStr.ReleaseBuffer();
 
 			if (CtrlTabSize > 1) // заменим табул€тор по всем праивилам
-				InsertString(ReadStr,PosTab,strTabSpace, CtrlTabSize - (PosTab % CtrlTabSize));
-
-			if (StrLength(ReadStr) > (int)(countof(ReadStr)/2))
-				break;
+				strReadStr.Insert(PosTab, strTabSpace.CPtr(), CtrlTabSize - (PosTab % CtrlTabSize));
 		}
 
-		RemoveTrailingSpaces(ReadStr);
+		RemoveTrailingSpaces(strReadStr);
 
-		if (!strCtrlStartPosChar.IsEmpty() && wcsstr(ReadStr, strCtrlStartPosChar))
+		if (!strCtrlStartPosChar.IsEmpty() && wcsstr(strReadStr, strCtrlStartPosChar))
 		{
-			wchar_t Line[MAX_HELP_STRING_LENGTH];
+			string strLine;
+			ReadStr = strReadStr.GetBuffer();
 			int Length = (int)(wcsstr(ReadStr, strCtrlStartPosChar)-ReadStr);
-			xwcsncpy(Line, ReadStr, Length+1);
-			LastStartPos = StringLen(Line);
+			strLine = ReadStr;
+			strLine.SetLength(Length);
+			LastStartPos = StringLen(strLine);
 			wcscpy(ReadStr+Length, ReadStr+Length+strCtrlStartPosChar.GetLength());
+			strReadStr.ReleaseBuffer();
 		}
 
 		if (TopicFound)
 		{
-			HighlightsCorrection(ReadStr);
+			HighlightsCorrection(strReadStr);
 		}
 
-		if (*ReadStr==L'@' && !BreakProcess)
+		if (strReadStr.At(0)==L'@' && !BreakProcess)
 		{
 			if (TopicFound)
 			{
-				if (StrCmp(ReadStr,L"@+")==0)
+				if (StrCmp(strReadStr,L"@+")==0)
 				{
 					Formatting=TRUE;
 					PrevSymbol=0;
 					continue;
 				}
 
-				if (StrCmp(ReadStr,L"@-")==0)
+				if (StrCmp(strReadStr,L"@-")==0)
 				{
 					Formatting=FALSE;
 					PrevSymbol=0;
 					continue;
 				}
 
-				if (*SplitLine)
+				if (strSplitLine.At(0))
 				{
 					BreakProcess=TRUE;
-					*ReadStr=0;
+					strReadStr.Clear();
 					PrevSymbol=0;
 					goto m1;
 				}
 
 				break;
 			}
-			else if (StrCmpI(ReadStr+1,StackData.strHelpTopic)==0)
+			else if (StrCmpI(strReadStr.CPtr()+1,StackData.strHelpTopic)==0)
 			{
 				TopicFound=1;
 				NearTopicFound=1;
@@ -481,21 +443,17 @@ int Help::ReadHelp(const wchar_t *Mask)
 		else
 		{
 m1:
-
-			if (!*ReadStr && BreakProcess && !*SplitLine)
+			if (strReadStr.IsEmpty() && BreakProcess && strSplitLine.IsEmpty())
 				break;
 
 			if (TopicFound)
 			{
-				if (!StrCmpNI(ReadStr,L"<!Macro:",8) && CtrlObject)
+				if (!StrCmpNI(strReadStr.CPtr(),L"<!Macro:",8) && CtrlObject)
 				{
-					wchar_t *LPtr=wcschr(ReadStr,L'>');
-
-					if (LPtr && LPtr[-1] != L'!')
+					if (strReadStr.Pos(PosTab,L'>') && strReadStr.At(PosTab-1) != L'!')
 						continue;
 
-					LPtr[-1]=0;
-					strMacroArea=ReadStr+8;
+					strMacroArea=strReadStr.SubStr(8,PosTab-1-8); //???
 					MacroProcess=true;
 					MI=0;
 					continue;
@@ -511,27 +469,27 @@ m1:
 					LastStartPos = (DWORD)-1;
 				}
 
-				if (*ReadStr==L'$' && NearTopicFound && (PrevSymbol == L'$' || PrevSymbol == L'@'))
+				if (strReadStr.At(0)==L'$' && NearTopicFound && (PrevSymbol == L'$' || PrevSymbol == L'@'))
 				{
-					AddLine(ReadStr+1);
+					AddLine(strReadStr.CPtr()+1);
 					FixCount++;
 				}
 				else
 				{
 					NearTopicFound=0;
 
-					if (*ReadStr==0 || !Formatting)
+					if (strReadStr.At(0)==0 || !Formatting)
 					{
-						if (*SplitLine)
+						if (!strSplitLine.IsEmpty())
 						{
-							if (StringLen(SplitLine)<RealMaxLength)
+							if (StringLen(strSplitLine)<RealMaxLength)
 							{
-								AddLine(SplitLine);
-								*SplitLine=0;
+								AddLine(strSplitLine);
+								strSplitLine.Clear();
 
-								if (StringLen(ReadStr)<RealMaxLength)
+								if (StringLen(strReadStr)<RealMaxLength)
 								{
-									AddLine(ReadStr);
+									AddLine(strReadStr);
 									LastStartPos = (DWORD)-1;
 									StartPos = (DWORD)-1;
 									continue;
@@ -540,33 +498,33 @@ m1:
 							else
 								RepeatLastLine=TRUE;
 						}
-						else if (*ReadStr)
+						else if (!strReadStr.IsEmpty())
 						{
-							if (StringLen(ReadStr)<RealMaxLength)
+							if (StringLen(strReadStr)<RealMaxLength)
 							{
-								AddLine(ReadStr);
+								AddLine(strReadStr);
 								continue;
 							}
 						}
-						else if (!*ReadStr && !*SplitLine)
+						else if (strReadStr.IsEmpty() && strSplitLine.IsEmpty())
 						{
 							AddLine(L"");
 							continue;
 						}
 					}
 
-					if (*ReadStr && IsSpace(*ReadStr) && Formatting)
+					if (!strReadStr.IsEmpty() && IsSpace(strReadStr.At(0)) && Formatting)
 					{
-						if (StringLen(SplitLine)<RealMaxLength)
+						if (StringLen(strSplitLine)<RealMaxLength)
 						{
-							if (*SplitLine)
+							if (!strSplitLine.IsEmpty())
 							{
-								AddLine(SplitLine);
+								AddLine(strSplitLine);
 								StartPos = (DWORD)-1;
 							}
 
-							wcscpy(SplitLine,ReadStr);
-							*ReadStr=0;
+							strSplitLine=strReadStr;
+							strReadStr.Clear();
 							continue;
 						}
 						else
@@ -575,15 +533,15 @@ m1:
 
 					if (!RepeatLastLine)
 					{
-						if (*SplitLine)
-							wcscat(SplitLine,L" ");
+						if (!strSplitLine.IsEmpty())
+							strSplitLine += L" ";
 
-						wcscat(SplitLine,ReadStr);
+						strSplitLine += strReadStr;
 					}
 
-					if (StringLen(SplitLine)<RealMaxLength)
+					if (StringLen(strSplitLine)<RealMaxLength)
 					{
-						if (!*ReadStr && BreakProcess)
+						if (strReadStr.IsEmpty() && BreakProcess)
 							goto m1;
 
 						continue;
@@ -591,47 +549,50 @@ m1:
 
 					int Splitted=0;
 
-					for (int I=StrLength(SplitLine)-1; I>0; I--)
+					for (size_t I=StrLength(strSplitLine)-1; I>0; I--)
 					{
-						if (I>0 && SplitLine[I]==L'~' && SplitLine[I-1]==L'~')
+						if (I>0 && strSplitLine.At(I)==L'~' && strSplitLine.At(I-1)==L'~')
 						{
 							I--;
 							continue;
 						}
 
-						if (I>0 && SplitLine[I]==L'~' && SplitLine[I-1]!=L'~')
+						if (I>0 && strSplitLine.At(I)==L'~' && strSplitLine.At(I-1)!=L'~')
 						{
 							do
 							{
 								I--;
 							}
-							while (I>0 && SplitLine[I]!=L'~');
+							while (I>0 && strSplitLine.At(I)!=L'~');
 
 							continue;
 						}
 
-						if (SplitLine[I]==L' ')
+						if (strSplitLine.At(I)==L' ')
 						{
-							SplitLine[I]=0;
+							wchar_t *lpwszPtr = strSplitLine.GetBuffer();
+							lpwszPtr[I]=0;
 
-							if (StringLen(SplitLine)<RealMaxLength)
+							if (StringLen(lpwszPtr)<RealMaxLength)
 							{
-								AddLine(SplitLine);
-								wmemmove(SplitLine+1,SplitLine+I+1,StrLength(SplitLine+I+1)+1);
-								*SplitLine=L' ';
-								HighlightsCorrection(SplitLine);
+								AddLine(lpwszPtr);
+								wmemmove(lpwszPtr+1,lpwszPtr+I+1,StrLength(lpwszPtr+I+1)+1);
+								*lpwszPtr=L' ';
+								strSplitLine.ReleaseBuffer();
+
+								HighlightsCorrection(strSplitLine);
 								Splitted=TRUE;
 								break;
 							}
 							else
-								SplitLine[I]=L' ';
+								lpwszPtr[I]=L' ';
 						}
 					}
 
 					if (!Splitted)
 					{
-						AddLine(SplitLine);
-						*SplitLine=0;
+						AddLine(strSplitLine);
+						strSplitLine.Clear();
 					}
 					else
 						StartPos = LastStartPos;
@@ -640,14 +601,14 @@ m1:
 
 			if (BreakProcess)
 			{
-				if (*SplitLine)
+				if (!strSplitLine.IsEmpty())
 					goto m1;
 
 				break;
 			}
 		}
 
-		PrevSymbol=*ReadStr;
+		PrevSymbol=strReadStr.At(0);
 	}
 
 	AddLine(L"");
@@ -667,24 +628,31 @@ m1:
 
 void Help::AddLine(const wchar_t *Line)
 {
-	wchar_t *NewHelpData=(wchar_t *)xf_realloc(HelpData,(StrCount+1)*MAX_HELP_STRING_LENGTH*sizeof(wchar_t));
-
-	if (NewHelpData==nullptr)
-		return;
-
-	HelpData=NewHelpData;
-	wchar_t *HelpStr = HelpData+StrCount*MAX_HELP_STRING_LENGTH;
-	wmemset(HelpStr, 0, MAX_HELP_STRING_LENGTH);
+	string strLine;
 
 	if (StartPos != 0xFFFFFFFF)
 	{
-		for (DWORD i = 0; i < StartPos; i++)
-			HelpStr[i] = L' ';
+		DWORD StartPos0=StartPos;
+		if (*Line == L' ')
+			StartPos0--;
 
-		xwcsncpy(HelpStr+StartPos, (*Line == L' ')?Line+1:Line, MAX_HELP_STRING_LENGTH);
+		if (StartPos0 > 0)
+		{
+			LPWSTR Space=strLine.GetBuffer(StartPos0+1);
+			for (DWORD i=0; i < StartPos0; i++)
+			{
+				Space[i]=L' ';
+			}
+			strLine.ReleaseBuffer(StartPos0);
+		}
 	}
-	else
-		xwcsncpy(HelpStr, Line, MAX_HELP_STRING_LENGTH);
+
+	strLine += Line;
+
+	{
+		HelpRecord AddRecord(strLine);
+		HelpList.addItem(AddRecord);
+	}
 
 	StrCount++;
 }
@@ -696,21 +664,17 @@ void Help::AddTitle(const wchar_t *Title)
 	AddLine(strIndexHelpTitle);
 }
 
-void Help::HighlightsCorrection(wchar_t *Str)
+void Help::HighlightsCorrection(string &strStr)
 {
 	int I,Count;
 
-	for (I=0,Count=0; Str[I]!=0; I++)
-		if (Str[I]==L'#')
+	for (I=0,Count=0; strStr.At(I) != 0; I++)
+		if (strStr.At(I) == L'#')
 			Count++;
 
-	if ((Count & 1) && *Str!=L'$')
-	{
-		wmemmove(Str+1,Str,StrLength(Str)+1);
-		*Str=L'#';
-	}
+	if ((Count & 1) && strStr.At(0) != L'$')
+		strStr.Insert(0, L'#');
 }
-
 
 void Help::DisplayObject()
 {
@@ -793,7 +757,11 @@ void Help::FastShow()
 
 		if (StrPos<StrCount)
 		{
-			wchar_t *OutStr=HelpData+StrPos*MAX_HELP_STRING_LENGTH;
+			const HelpRecord *rec=GetHelpItem(StrPos);
+			wchar_t *OutStr=rec?rec->HelpStr:nullptr;
+
+			if (!OutStr)
+				OutStr=L"";
 
 			if (*OutStr==L'^')
 			{
@@ -1088,77 +1056,6 @@ void Help::CorrectPosition()
 		StackData.TopStr=0;
 }
 
-#if defined(WORK_HELP_FIND)
-/* SVS:
-   ¬Ќ»ћјЌ»≈!!!!!
-   Ёта функци€ совсем сыра€ (м€гко сказано!)
-   ≈сли у кого хватит ума немного ее поправить - милости просим ;-)
-*/
-int Help::Search(int Next)
-{
-	unsigned char SearchStr[SEARCHSTRINGBUFSIZE]
-	char MsgStr[512];
-	int SearchLength,Case,WholeWords,ReverseSearch,Match;
-
-	if (Next && *LastSearchStr==0)
-		return TRUE;
-
-	Match=FALSE;
-	xstrncpy((char *)SearchStr,(char *)LastSearchStr,sizeof(SearchStr));
-	Case=LastSearchCase;
-	WholeWords=LastSearchWholeWords;
-	ReverseSearch=LastSearchReverse;
-
-	if (!Next)
-		if (!GetSearchReplaceString(FALSE,SearchStr,sizeof(SearchStr),
-		                            nullptr,0,nullptr,nullptr,
-		                            nullptr/*&Case*/,nullptr/*&WholeWords*/,nullptr/*&ReverseSearch*/,nullptr))
-			return FALSE;
-
-	xstrncpy((char *)LastSearchStr,(char *)SearchStr,sizeof(LastSearchStr));
-	LastSearchCase=Case;
-	LastSearchWholeWords=WholeWords;
-	LastSearchReverse=ReverseSearch;
-
-	if ((SearchLength=strlen((char *)SearchStr))==0)
-	{
-		return TRUE;
-	}
-	else
-	{
-		SaveScreen SaveScr;
-		SetCursorType(FALSE,0);
-		char Buf[8192];
-		sprintf(MsgStr,"\"%s\"",SearchStr);
-		Message(0,0,MSG(MHelpSearchTitle),MSG(MHelpSearchingFor),MsgStr);
-
-		if (!Case)
-			for (int I=0; I<SearchLength; I++)
-				SearchStr[I]=Upper(SearchStr[I]);
-
-		/*
-		    //if(!ReadHelp(HelpMask))
-		    //fseek(ViewFile,LastSearchPos,SEEK_SET);
-
-		    while (!Match)
-		    {
-
-		    }
-		*/
-	}
-
-	if (!Match)
-	{
-		Message(MSG_DOWN|MSG_WARNING,1,MSG(MHelpFindTitle),
-		        MSG(MHelpSearchCannotFind),MsgStr,MSG(MOk));
-		return FALSE;
-	}
-
-	// перехд к найденному топику.
-	return TRUE;
-}
-#endif
-
 __int64 Help::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
 	switch (OpCode)
@@ -1385,22 +1282,6 @@ int Help::ProcessKey(int Key)
 
 			return(TRUE);
 		}
-#if defined(WORK_HELP_DOCUMS)
-		case KEY_SHIFTF3: // ƒл€ "документов" :-)
-		{
-			//   не поганим SelTopic, если и так в DocumentContents
-			if (StrCmpI(StackData.strHelpTopic,DocumentContents)!=0)
-			{
-				Stack->Push(&StackData);
-				IsNewTopic=TRUE;
-				JumpTopic(DocumentContents);
-				ErrorHelp=FALSE;
-				IsNewTopic=FALSE;
-			}
-
-			return(TRUE);
-		}
-#endif
 		case KEY_ALTF1:
 		case KEY_BS:
 		{
@@ -1435,18 +1316,6 @@ int Help::ProcessKey(int Key)
 
 			return(TRUE);
 		}
-#if defined(WORK_HELP_FIND)
-		case KEY_F7:
-		{
-			Search(0);
-			return(TRUE);
-		}
-		case KEY_SHIFTF7:
-		{
-			Search(1);
-			return(TRUE);
-		}
-#endif
 	}
 
 	return(FALSE);
@@ -1488,7 +1357,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 		StackData.strSelTopic = strFullPath;
 	}
 
-//_SVS(SysLog(L"JumpTopic() = SelTopic=%s",StackData.SelTopic));
+	//_SVS(SysLog(L"JumpTopic() = SelTopic=%s",StackData.SelTopic));
 	// URL активатор - это ведь так просто :-)))
 	{
 		strNewTopic = StackData.strSelTopic;
@@ -1515,7 +1384,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 	}
 	// а вот теперь попробуем...
 
-//_SVS(SysLog(L"JumpTopic() = SelTopic=%s, StackData.HelpPath=%s",StackData.SelTopic,StackData.HelpPath));
+	//_SVS(SysLog(L"JumpTopic() = SelTopic=%s, StackData.HelpPath=%s",StackData.SelTopic,StackData.HelpPath));
 	if (!StackData.strHelpPath.IsEmpty() && StackData.strSelTopic.At(0) !=HelpBeginLink && StrCmp(StackData.strSelTopic,HelpOnHelpTopic)!=0)
 	{
 		if (StackData.strSelTopic.At(0)==L':')
@@ -1547,7 +1416,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 			{
 				if (IsSlash(*p))
 				{
-//          ++p;
+					//++p;
 					if (*p)
 					{
 						StackData.Flags|=FHELP_CUSTOMFILE;
@@ -1578,12 +1447,9 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 
 	strNewTopic.ReleaseBuffer();
 
-//_SVS(SysLog(L"HelpMask=%s NewTopic=%s",StackData.HelpMask,NewTopic));
+	//_SVS(SysLog(L"HelpMask=%s NewTopic=%s",StackData.HelpMask,NewTopic));
 	if (StackData.strSelTopic.At(0) != L':' &&
 	        StrCmpI(StackData.strSelTopic,PluginContents)
-#if defined(WORK_HELP_DOCUMS)
-	        && StrCmpI(StackData.strSelTopic,DocumentContents)
-#endif
 	   )
 	{
 		if (!(StackData.Flags&FHELP_CUSTOMFILE) && wcsrchr(strNewTopic,HelpEndLink))
@@ -1620,7 +1486,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 
 	ScreenObject::Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
 
-	if (!HelpData)
+	if (!HelpList.getSize())
 	{
 		ErrorHelp=TRUE;
 
@@ -1632,12 +1498,9 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 		return FALSE;
 	}
 
-//  ResizeConsole();
+	// ResizeConsole();
 	if (IsNewTopic
 	        || !StrCmpI(StackData.strSelTopic,PluginContents) // Ёто непри€тный костыль :-((
-#if defined(WORK_HELP_DOCUMS)
-	        || !StrCmpI(StackData.strSelTopic,DocumentContents)
-#endif
 	   )
 		MoveToReference(1,1);
 
@@ -1783,10 +1646,17 @@ int Help::IsReferencePresent()
 		return FALSE;
 	}
 
-	wchar_t *OutStr=HelpData+StrPos*MAX_HELP_STRING_LENGTH;
-	return (wcschr(OutStr,L'@')!=nullptr && wcschr(OutStr,L'~')!=nullptr);
+	const HelpRecord *rec=GetHelpItem(StrPos);
+	wchar_t *OutStr=rec?rec->HelpStr:nullptr;
+	return (OutStr != nullptr && wcschr(OutStr,L'@') != nullptr && wcschr(OutStr,L'~') != nullptr);
 }
 
+const HelpRecord* Help::GetHelpItem(int Pos)
+{
+	if ((unsigned int)Pos < HelpList.getSize())
+		return HelpList.getItem(Pos);
+	return nullptr;
+}
 
 void Help::MoveToReference(int Forward,int CurScreen)
 {
@@ -1862,15 +1732,25 @@ void Help::MoveToReference(int Forward,int CurScreen)
 	FastShow();
 }
 
+
+static int __cdecl CmpItems(const HelpRecord **el1, const HelpRecord **el2)
+{
+	if (el1==el2)
+		return 0;
+
+	int result=StrCmpI((**el1).HelpStr,(**el2).HelpStr);
+	if (!result)
+		return 0;
+	else if (result < 0)
+		return -1;
+	else
+		return 1;
+}
+
 void Help::ReadDocumentsHelp(int TypeIndex)
 {
-	if (HelpData)
-		xf_free(HelpData);
+	HelpList.Free();
 
-	HelpData=nullptr;
-	/* $ 29.11.2001 DJ
-	   это не плагин -> чистим CurPluginContents
-	*/
 	strCurPluginContents.Clear();
 	StrCount=0;
 	FixCount=1;
@@ -1888,12 +1768,6 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 			PtrTitle=MSG(MPluginsHelpTitle);
 			ContentsName=L"PluginContents";
 			break;
-#if defined(WORK_HELP_DOCUMS)
-		case HIDX_DOCUMS:
-			PtrTitle=MSG(MDocumentsHelpTitle);
-			ContentsName="DocumentContents";
-			break;
-#endif
 	}
 
 	AddTitle(PtrTitle);
@@ -1934,83 +1808,12 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 
 			break;
 		}
-#if defined(WORK_HELP_DOCUMS)
-		case HIDX_DOCUMS:
-		{
-			// в плагинах.
-			for (int I=0; I<CtrlObject->Plugins.PluginsCount; I++)
-			{
-				strcpy(Path,CtrlObject->Plugins.PluginsData[I].ModuleName);
-
-				if ((Slash=strrchr(Path,'\\'))!=nullptr || (Slash=strrchr(Path,'/'))!=nullptr)
-					*++Slash=0;
-
-				FILE *HelpFile=Language::OpenLangFile(Path,HelpFileMask,Opt.HelpLanguage,FullFileName);
-
-				if (HelpFile!=nullptr)
-				{
-					if (Language::GetLangParam(HelpFile,ContentsName,EntryName,SecondParam))
-					{
-						if (*SecondParam)
-							sprintf(HelpLine,"   ~%s,%s~@<%s>%s@",EntryName,SecondParam,FullFileName,HelpContents);
-						else
-							sprintf(HelpLine,"   ~%s~@<%s>%s@",EntryName,FullFileName,HelpContents);
-
-						AddLine(HelpLine);
-					}
-
-					fclose(HelpFile);
-				}
-			}
-
-			// в документах.
-			{
-				WIN32_FIND_DATA FindData;
-				char FMask[NM];
-				AddEndSlash(strcpy(Path,FarPath));
-				strcat(Path,"Doc");
-				ScanTree ScTree(FALSE,FALSE);
-				ScTree.SetFindPath(Path,HelpFileMask);
-
-				while (ScTree.GetNextName(&FindData,FullFileName))
-				{
-					if ((PtrPath=strrchr(FullFileName,'\\')) != nullptr || (PtrPath=strrchr(FullFileName,'/')) != nullptr)
-					{
-						xstrncpy(FMask,PtrPath+1,sizeof(FMask));
-						*++PtrPath=0;
-					}
-					else
-						xstrncpy(FMask,HelpFileMask,sizeof(FMask));
-
-					FILE *HelpFile=Language::OpenLangFile(Path,FMask,Opt.HelpLanguage,FullFileName,TRUE);
-
-					if (HelpFile!=nullptr)
-					{
-						if (Language::GetLangParam(HelpFile,ContentsName,EntryName,SecondParam))
-						{
-							if (*SecondParam)
-								sprintf(HelpLine,"   ~%s,%s~@<%s>%s@",EntryName,SecondParam,FullFileName,HelpContents);
-							else
-								sprintf(HelpLine,"   ~%s~@<%s>%s@",EntryName,FullFileName,HelpContents);
-
-							AddLine(HelpLine);
-						}
-
-						fclose(HelpFile);
-					}
-				}
-			}
-			StackData.Flags|=FHELP_CUSTOMFILE;
-			break;
-		}
-#endif
 	}
 
 	// сортируем по алфавиту
-	far_qsort(HelpData+OldStrCount*MAX_HELP_STRING_LENGTH,StrCount-OldStrCount,MAX_HELP_STRING_LENGTH*sizeof(wchar_t),(int (__cdecl*)(const void *,const void *))StrCmpI);
-	/* $ 26.06.2000 IS
-	 ”странение глюка с хелпом по f1, shift+f2, end (решение предложил IG)
-	*/
+	HelpList.Sort(reinterpret_cast<TARRAYCMPFUNC>(CmpItems),OldStrCount);
+
+	// $ 26.06.2000 IS - ”странение глюка с хелпом по f1, shift+f2, end (решение предложил IG)
 	AddLine(L"");
 }
 
@@ -2114,13 +1917,9 @@ void Help::InitKeyBar()
 	HelpKeyBar.SetAllGroup(KBL_ALTSHIFT, MHelpAltShiftF1, 12);
 	HelpKeyBar.SetAllGroup(KBL_CTRLALTSHIFT, MHelpCtrlAltShiftF1, 12);
 	// ”берем лишнее с глаз долой
-#if !defined(WORK_HELP_DOCUMS)
 	HelpKeyBar.Change(KBL_SHIFT,L"",3-1);
-#endif
-#if !defined(WORK_HELP_FIND)
 	HelpKeyBar.Change(KBL_MAIN,L"",7-1);
 	HelpKeyBar.Change(KBL_SHIFT,L"",7-1);
-#endif
 	HelpKeyBar.ReadRegGroup(L"Help",Opt.strLanguage);
 	HelpKeyBar.SetAllRegGroup();
 	SetKeyBar(&HelpKeyBar);
@@ -2285,7 +2084,7 @@ void Help::ResizeConsole()
 
 	ReadHelp(StackData.strHelpMask);
 	ErrorHelp=FALSE;
-//  StackData.CurY--; // Ё“ќ ≈—ћ№  ќ—“џЋ№ (пусть пока будет так!)
+	//StackData.CurY--; // Ё“ќ ≈—ћ№  ќ—“џЋ№ (пусть пока будет так!)
 	StackData.CurX--;
 	MoveToReference(1,1);
 	IsNewTopic=OldIsNewTopic;
