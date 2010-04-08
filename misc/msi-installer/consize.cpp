@@ -11,8 +11,8 @@ void main() {
   WriteFile(h_file, &process_id, sizeof(process_id), &nwritten, NULL);
 
   COORD size = GetLargestConsoleWindowSize(GetStdHandle(STD_OUTPUT_HANDLE));
-  if (size.X == 0 || size.Y == 0) return;
-  WriteFile(h_file, &size, sizeof(size), &nwritten, NULL);
+  if (size.X && size.Y)
+    WriteFile(h_file, &size, sizeof(size), &nwritten, NULL);
 
   CloseHandle(h_file);
 }

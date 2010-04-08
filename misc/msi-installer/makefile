@@ -13,7 +13,7 @@
 CPPFLAGS = -nologo -D_WIN32_WINNT=0x0400
 LINKFLAGS = -nologo -incremental:no -machine:$(PLATFORM)
 CANDLEFLAGS = -nologo -dSourceDir="$(SOURCE_DIR)" -dBranch=$(VER_MAJOR) -dPlatform=$(PLATFORM) -dVersion=$(VER_MAJOR).$(VER_MINOR).$(VER_BUILD)
-LIGHTFLAGS = -nologo -cultures:en-us -spdb -sval -sh
+LIGHTFLAGS = -nologo -cultures:en-us -spdb -sval
 
 !ifdef RELEASE
 OUTDIR = Release
@@ -33,6 +33,7 @@ CANDLEFLAGS = -out $(OUTDIR)\ $(CANDLEFLAGS)
 WIXOBJ = $(OUTDIR)\installer.wixobj $(OUTDIR)\ui.wixobj
 !ifdef NIGHTLY
 MSI_NAME = $(SOURCE_DIR)\final.msi
+LIGHTFLAGS = $(LIGHTFLAGS) -sh
 !else
 MSI_NAME = $(OUTDIR)\far.msi
 !endif

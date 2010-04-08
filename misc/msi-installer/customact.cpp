@@ -544,12 +544,12 @@ COORD get_con_size(const wstring& default_shortcut_props) {
   pipe.read(&process_id, sizeof(process_id), ov, c_timeout);
 
   HANDLE h_process = OpenProcess(SYNCHRONIZE, FALSE, process_id);
-  CHECK_SYS(h_process);
 
   COORD con_size;
   pipe.read(&con_size, sizeof(con_size), ov, c_timeout);
 
-  WaitForSingleObject(h_process, c_timeout);
+  if (h_process)
+    WaitForSingleObject(h_process, c_timeout);
 
   return con_size;
 }

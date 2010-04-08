@@ -4,17 +4,15 @@
 Желательно чтобы компилятор умел собирать исполнимые модули, совместимые со старыми операционными системами.
 Иначе инсталлятор не будет работать на Win98 к примеру.
 3. Windows SDK (для msi.lib)
-4. Опционально UPX (http://upx.sourceforge.net/).
-Рекомендуется использовать для уменьшения размера инсталлятора.
 
 Как собирать (для отладки):
 
 1. Собираем вспомогательную тулзу:
-cl -nologo -EHsc genscript.cpp imagehlp.lib
+cl -nologo -EHsc genparams.cpp imagehlp.lib
 
 2. Указываем ей где лежат файлы из дистрибутива:
-genscript с:\path\far
-Тулза создает makefile.
+genparams с:\path\far
+Тулза создает params.mak.
 
 3. Запускаем сборку MSI:
 nmake -nologo
@@ -23,13 +21,13 @@ nmake -nologo
 Как собирать (для nightly):
 
 1. Собираем вспомогательную тулзу:
-cl -nologo -EHsc -DNIGHTLY genscript.cpp
+cl -nologo -EHsc -DNIGHTLY genparams.cpp
 
 2. Указываем ей где лежат файлы из дистрибутива и платформу:
-genscript с:\path\far x86
+genparams с:\path\far x86
 или
-genscript с:\path\far x64
-Тулза создает makefile.
+genparams с:\path\far x64
+Тулза создает params.mak.
 
 3. Запускаем сборку MSI:
-nmake -nologo
+nmake -nologo RELEASE=1
