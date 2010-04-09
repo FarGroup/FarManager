@@ -158,7 +158,6 @@ FileList::FileList():
 	}
 	Type=FILE_PANEL;
 	apiGetCurrentDirectory(strCurDir);
-	strOriginalCurDir=strCurDir;
 	CurTopFile=CurFile=0;
 	ShowShortNames=0;
 	SortMode=BY_NAME;
@@ -627,6 +626,14 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			return 0;
 		}
 
+		case MCODE_V_APANEL_PATH0:
+		case MCODE_V_PPANEL_PATH0:
+		{
+			if (PluginsList.Empty())
+				return 0;
+			*(string *)vParam = (*PluginsList.Last())->strPrevOriginalCurDir;
+			return 1;
+		}
 
 		case MCODE_F_PANEL_SELECT:
 		{

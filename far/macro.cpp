@@ -160,6 +160,8 @@ TMacroKeywords MKeywords[] =
 	{2,  L"PPanel.SelCount",    MCODE_V_PPANEL_SELCOUNT,0},
 	{2,  L"APanel.Path",        MCODE_V_APANEL_PATH,0},
 	{2,  L"PPanel.Path",        MCODE_V_PPANEL_PATH,0},
+	{2,  L"APanel.Path0",       MCODE_V_APANEL_PATH0,0},
+	{2,  L"PPanel.Path0",       MCODE_V_PPANEL_PATH0,0},
 	{2,  L"APanel.UNCPath",     MCODE_V_APANEL_UNCPATH,0},
 	{2,  L"PPanel.UNCPath",     MCODE_V_PPANEL_UNCPATH,0},
 	{2,  L"APanel.Height",      MCODE_V_APANEL_HEIGHT,0},
@@ -1241,6 +1243,22 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 					break;
 				}
 
+				case MCODE_V_APANEL_PATH0:           // APanel.Path0
+				case MCODE_V_PPANEL_PATH0:           // PPanel.Path0
+				{
+					Panel *SelPanel = CheckCode == MCODE_V_APANEL_PATH0 ? ActivePanel : PassivePanel;
+
+					if (SelPanel != nullptr)
+					{
+						string strPath;
+						if (!SelPanel->VMProcess(CheckCode,&strPath))
+							SelPanel->GetCurDir(strPath);
+						Cond = (const wchar_t *)strPath;
+					}
+
+					break;
+				}
+
 				case MCODE_V_APANEL_PATH: // APanel.Path
 				case MCODE_V_PPANEL_PATH: // PPanel.Path
 				{
@@ -1262,6 +1280,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 
 					break;
 				}
+
 				case MCODE_V_APANEL_UNCPATH: // APanel.UNCPath
 				case MCODE_V_PPANEL_UNCPATH: // PPanel.UNCPath
 				{

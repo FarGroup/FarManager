@@ -129,6 +129,8 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	TPreRedrawFuncGuard preRedrawFuncGuard(PR_ReadFileNamesMsg);
 	TaskBar TB;
 
+	strOriginalCurDir=strCurDir;
+
 	if (!IsVisible() && !IgnoreVisible)
 	{
 		UpdateRequired=TRUE;

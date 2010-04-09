@@ -283,6 +283,8 @@ enum MACRO_OP_CODE
 	MCODE_V_PPANEL_SELCOUNT,          // PPanel.SelCount - пассивная панель: число выделенных элементов
 	MCODE_V_APANEL_PATH,              // APanel.Path - активная панель:  путь на панели
 	MCODE_V_PPANEL_PATH,              // PPanel.Path - пассивная панель: путь на панели
+	MCODE_V_APANEL_PATH0,             // APanel.Path0 - активная панель:  путь на панели до вызова плагинов
+	MCODE_V_PPANEL_PATH0,             // PPanel.Path0 - пассивная панель: путь на панели до вызова плагинов
 	MCODE_V_APANEL_UNCPATH,           // APanel.UNCPath - активная панель:  UNC-путь на панели
 	MCODE_V_PPANEL_UNCPATH,           // PPanel.UNCPath - пассивная панель: UNC-путь на панели
 	MCODE_V_APANEL_WIDTH,             // APanel.Width - активная панель:  ширина панели
