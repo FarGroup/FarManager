@@ -197,6 +197,7 @@ void PrintFiles(Panel *SrcPanel)
 
 	{
 		_ALGO(CleverSysLog clv3(L"Print selected Files"));
+		string strFullFileName, strCurDir;
 		//SaveScreen SaveScr;
 		TPreRedrawFuncGuard preRedrawFuncGuard(PR_PrintMsg);
 		SetCursorType(FALSE,0);
@@ -204,12 +205,19 @@ void PrintFiles(Panel *SrcPanel)
 		HANDLE hPlugin=SrcPanel->GetPluginHandle();
 		int PluginMode=SrcPanel->GetMode()==PLUGIN_PANEL &&
 		               !CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
+
+		apiGetCurrentDirectory(strCurDir);
+		AddEndSlash(strCurDir);
+
 		SrcPanel->GetSelName(nullptr,FileAttr);
 
 		while (SrcPanel->GetSelName(&strSelName,FileAttr))
 		{
 			if (TestParentFolderName(strSelName) || (FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 				continue;
+
+			strFullFileName = strCurDir;
+			strFullFileName += strSelName;
 
 			int Success=FALSE;
 			FILE *SrcFile=nullptr;
@@ -237,12 +245,12 @@ void PrintFiles(Panel *SrcPanel)
 				}
 			}
 			else
-				SrcFile=_wfopen(strSelName, L"rb");
+				SrcFile=_wfopen(strFullFileName, L"rb");
 
 			if (SrcFile!=nullptr)
 			{
 				DOC_INFO_1 di1;
-				di1.pDocName=(wchar_t*)(const wchar_t*)strSelName;
+				di1.pDocName=(wchar_t*)(const wchar_t*)strFullFileName;
 				di1.pOutputFile=nullptr;
 				di1.pDatatype=nullptr;
 
