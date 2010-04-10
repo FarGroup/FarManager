@@ -129,6 +129,7 @@ void ImportedFunctions::Load()
 		pfnNtOpenSymbolicLinkObject = (NTOPENSYMBOLICLINKOBJECT)GetProcAddress(hNtdll, "NtOpenSymbolicLinkObject");
 		pfnNtQuerySymbolicLinkObject = (NTQUERYSYMBOLICLINKOBJECT)GetProcAddress(hNtdll, "NtQuerySymbolicLinkObject");
 		pfnNtClose = (NTCLOSE)GetProcAddress(hNtdll, "NtClose");
+		pfnRtlGetLastNtStatus = (RTLGETLASTNTSTATUS)GetProcAddress(hNtdll, "RtlGetLastNtStatus");
 	}
 
 	if (hShell)

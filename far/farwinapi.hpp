@@ -104,6 +104,29 @@ private:
 	WIN32_FIND_DATA W32FindData;
 };
 
+class File
+{
+public:
+	File();
+	~File();
+	bool Open(LPCWSTR Object, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDistribution, DWORD dwFlagsAndAttributes=0, HANDLE hTemplateFile=nullptr);
+	bool Read(LPVOID Buffer, DWORD NumberOfBytesToRead, LPDWORD NumberOfBytesRead, LPOVERLAPPED Overlapped = nullptr) const;
+	bool Write(LPCVOID Buffer, DWORD NumberOfBytesToWrite, LPDWORD NumberOfBytesWritten, LPOVERLAPPED Overlapped = nullptr) const;
+	bool SetPointer(INT64 DistanceToMove, PINT64 NewFilePointer, DWORD MoveMethod);
+	bool SetEnd();
+	bool GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime);
+	bool SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime);
+	bool GetSize(UINT64& Size);
+	bool IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped = nullptr);
+	bool Close();
+
+private:
+	HANDLE Handle;
+	bool admin;
+};
+
+NTSTATUS GetLastNtStatus();
+
 DWORD apiGetEnvironmentVariable(
     const wchar_t *lpwszName,
     string &strBuffer

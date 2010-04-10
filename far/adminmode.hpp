@@ -32,9 +32,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "CriticalSections.hpp"
+
 enum ADMIN_COMMAND
 {
-	C_SERVICE_TEST,
 	C_SERVICE_EXIT,
 	C_FUNCTION_CREATEDIRECTORY,
 	C_FUNCTION_REMOVEDIRECTORY,
@@ -51,6 +52,16 @@ enum ADMIN_COMMAND
 	C_FUNCTION_FINDNEXTFILE,
 	C_FUNCTION_FINDCLOSE,
 	C_FUNCTION_SETOWNER,
+	C_FUNCTION_CREATEFILE,
+	C_FUNCTION_CLOSEHANDLE,
+	C_FUNCTION_READFILE,
+	C_FUNCTION_WRITEFILE,
+	C_FUNCTION_SETFILEPOINTEREX,
+	C_FUNCTION_SETENDOFFILE,
+	C_FUNCTION_GETFILETIME,
+	C_FUNCTION_SETFILETIME,
+	C_FUNCTION_GETFILESIZEEX,
+	C_FUNCTION_DEVICEIOCONTROL,
 };
 
 class AutoObject;
@@ -62,42 +73,57 @@ public:
 	~AdminMode();
 	void ResetApprove(){Approve=false; AskApprove=true;}
 
-	bool CreateDirectory(LPCWSTR Object, LPSECURITY_ATTRIBUTES Attributes);
-	bool RemoveDirectory(LPCWSTR Object);
-	bool DeleteFile(LPCWSTR Object);
-	void CallbackRoutine();
-	bool CopyFileEx(LPCWSTR From, LPCWSTR To, LPPROGRESS_ROUTINE ProgressRoutine, LPVOID Data, LPBOOL Cancel, DWORD Flags);
-	bool MoveFileEx(LPCWSTR From, LPCWSTR To, DWORD Flags);
-	DWORD GetFileAttributes(LPCWSTR Object);
-	bool SetFileAttributes(LPCWSTR Object, DWORD FileAttributes);
-	bool CreateHardLink(LPCWSTR Object,LPCWSTR Target,LPSECURITY_ATTRIBUTES SecurityAttributes);
-	bool CreateSymbolicLink(LPCWSTR Object, LPCWSTR Target, DWORD Flags);
-	bool SetReparseDataBuffer(LPCWSTR Object,PREPARSE_DATA_BUFFER ReparseDataBuffer);
-	int MoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct);
-	HANDLE FindFirstFile(LPCWSTR Object, PWIN32_FIND_DATA W32FindData);
-	bool FindNextFile(HANDLE Handle, PWIN32_FIND_DATA W32FindData);
-	bool FindClose(HANDLE Handle);
-	bool SetOwner(LPCWSTR Object, LPCWSTR Owner);
+	bool fCreateDirectory(LPCWSTR Object, LPSECURITY_ATTRIBUTES Attributes);
+	bool fRemoveDirectory(LPCWSTR Object);
+	bool fDeleteFile(LPCWSTR Object);
+	void fCallbackRoutine() const;
+	bool fCopyFileEx(LPCWSTR From, LPCWSTR To, LPPROGRESS_ROUTINE ProgressRoutine, LPVOID Data, LPBOOL Cancel, DWORD Flags);
+	bool fMoveFileEx(LPCWSTR From, LPCWSTR To, DWORD Flags);
+	DWORD fGetFileAttributes(LPCWSTR Object);
+	bool fSetFileAttributes(LPCWSTR Object, DWORD FileAttributes);
+	bool fCreateHardLink(LPCWSTR Object,LPCWSTR Target,LPSECURITY_ATTRIBUTES SecurityAttributes);
+	bool fCreateSymbolicLink(LPCWSTR Object, LPCWSTR Target, DWORD Flags);
+	bool fSetReparseDataBuffer(LPCWSTR Object,PREPARSE_DATA_BUFFER ReparseDataBuffer);
+	int fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct);
+	HANDLE fFindFirstFile(LPCWSTR Object, PWIN32_FIND_DATA W32FindData);
+	bool fFindNextFile(HANDLE Handle, PWIN32_FIND_DATA W32FindData);
+	bool fFindClose(HANDLE Handle);
+	bool fSetOwner(LPCWSTR Object, LPCWSTR Owner);
+	HANDLE fCreateFile(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile);
+	bool fCloseHandle(HANDLE Handle);
+	bool fReadFile(HANDLE Handle, LPVOID Buffer, DWORD NumberOfBytesToRead, LPDWORD NumberOfBytesRead, LPOVERLAPPED Overlapped);
+	bool fWriteFile(HANDLE Handle, LPCVOID Buffer, DWORD NumberOfBytesToWrite, LPDWORD NumberOfBytesWritten, LPOVERLAPPED Overlapped);
+	bool fSetFilePointerEx(HANDLE Handle, INT64 DistanceToMove, PINT64 NewFilePointer, DWORD MoveMethod);
+	bool fSetEndOfFile(HANDLE Handle);
+	bool fGetFileTime(HANDLE Handle, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime);
+	bool fSetFileTime(HANDLE Handle, const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime);
+	bool fGetFileSizeEx(HANDLE Handle, UINT64& Size);
+	bool fDeviceIoControl(HANDLE Handle, DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped);
 
 private:
 	HANDLE Pipe;
+	HANDLE Process;
 	int PID;
 	bool Approve;
 	bool AskApprove;
 	LPPROGRESS_ROUTINE ProgressRoutine;
 	bool Recurse;
+	CriticalSection CS;
 
 	bool ReadData(AutoObject& Data) const;
 	bool WriteData(LPCVOID Data, DWORD DataSize) const;
-	bool ReadInt(int& Data);
-	bool WriteInt(int Data);
-	bool SendCommand(ADMIN_COMMAND Command);
-	bool ReceiveLastError();
+	bool ReadInt(int& Data) const;
+	bool ReadInt64(INT64& Data) const;
+	bool WriteInt(int Data) const;
+	bool WriteInt64(INT64 Data) const;
+	bool SendCommand(ADMIN_COMMAND Command) const;
+	bool ReceiveLastError() const;
 	bool Initialize();
 	bool AdminApproveDlg(LPCWSTR Object);
 };
 
 extern AdminMode Admin;
 
+bool ElevationRequired();
 bool IsUserAdmin();
 int AdminMain(int PID);

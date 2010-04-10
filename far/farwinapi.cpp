@@ -49,7 +49,7 @@ FindFile::FindFile(LPCWSTR Object, bool ScanSymLink):
 	string strName(NTPath(Object).Str);
 	Handle = FindFirstFile(strName, &W32FindData);
 
-	if (Handle == INVALID_HANDLE_VALUE && GetLastError() == ERROR_ACCESS_DENIED)
+	if (Handle == INVALID_HANDLE_VALUE && ElevationRequired())
 	{
 		if(ScanSymLink)
 		{
@@ -59,9 +59,9 @@ FindFile::FindFile(LPCWSTR Object, bool ScanSymLink):
 			Handle = FindFirstFile(strReal, &W32FindData);
 		}
 
-		if (Handle == INVALID_HANDLE_VALUE && GetLastError() == ERROR_ACCESS_DENIED)
+		if (Handle == INVALID_HANDLE_VALUE && ElevationRequired())
 		{
-			Handle = Admin.FindFirstFile(strName, &W32FindData);
+			Handle = Admin.fFindFirstFile(strName, &W32FindData);
 			admin = Handle != INVALID_HANDLE_VALUE;
 		}
 	}
@@ -72,7 +72,7 @@ FindFile::~FindFile()
 {
 	if(Handle != INVALID_HANDLE_VALUE)
 	{
-		admin?Admin.FindClose(Handle):FindClose(Handle);
+		admin?Admin.fFindClose(Handle):FindClose(Handle);
 	}
 }
 
@@ -95,18 +95,112 @@ bool FindFile::Get(FAR_FIND_DATA_EX& FindData)
 	}
 	if(Result)
 	{
-		empty = admin?!Admin.FindNextFile(Handle, &W32FindData):!FindNextFile(Handle, &W32FindData);
+		empty = admin?!Admin.fFindNextFile(Handle, &W32FindData):!FindNextFile(Handle, &W32FindData);
 	}
 	return Result;
+}
+
+
+
+
+File::File():
+	Handle(INVALID_HANDLE_VALUE),
+	admin(false)
+{
+}
+
+File::~File()
+{
+	if(Handle != INVALID_HANDLE_VALUE)
+	{
+		Close();
+	}
+}
+
+bool File::Open(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile)
+{
+	string strObject(NTPath(Object).Str);
+	FlagsAndAttributes|=FILE_FLAG_BACKUP_SEMANTICS|(CreationDistribution==OPEN_EXISTING?FILE_FLAG_POSIX_SEMANTICS:0);
+	Handle = CreateFile(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
+	if(Handle == INVALID_HANDLE_VALUE)
+	{
+		DWORD Error=GetLastError();
+		if(Error==ERROR_FILE_NOT_FOUND||Error==ERROR_PATH_NOT_FOUND)
+		{
+			FlagsAndAttributes&=~FILE_FLAG_POSIX_SEMANTICS;
+			Handle = CreateFile(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
+		}
+	}
+	if(Handle == INVALID_HANDLE_VALUE && ElevationRequired())
+	{
+		Handle = Admin.fCreateFile(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
+		if(Handle != INVALID_HANDLE_VALUE)
+		{
+			admin = true;
+		}
+	}
+	return Handle != INVALID_HANDLE_VALUE;
+}
+
+bool File::Read(LPVOID Buffer, DWORD NumberOfBytesToRead, LPDWORD NumberOfBytesRead, LPOVERLAPPED Overlapped) const
+{
+	return admin?Admin.fReadFile(Handle, Buffer, NumberOfBytesToRead, NumberOfBytesRead, Overlapped):ReadFile(Handle, Buffer, NumberOfBytesToRead, NumberOfBytesRead, Overlapped) != FALSE;
+}
+
+bool File::Write(LPCVOID Buffer, DWORD NumberOfBytesToWrite, LPDWORD NumberOfBytesWritten, LPOVERLAPPED Overlapped) const
+{
+	return admin?Admin.fWriteFile(Handle, Buffer, NumberOfBytesToWrite, NumberOfBytesWritten, Overlapped):WriteFile(Handle, Buffer, NumberOfBytesToWrite, NumberOfBytesWritten, Overlapped) != FALSE;
+}
+
+bool File::SetPointer(INT64 DistanceToMove, PINT64 NewFilePointer, DWORD MoveMethod)
+{
+	return admin?Admin.fSetFilePointerEx(Handle, DistanceToMove, NewFilePointer, MoveMethod):apiSetFilePointerEx(Handle, DistanceToMove, NewFilePointer, MoveMethod) != FALSE;
+}
+
+bool File::SetEnd()
+{
+	return admin?Admin.fSetEndOfFile(Handle):SetEndOfFile(Handle) != FALSE;
+}
+
+bool File::GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime)
+{
+	return admin?Admin.fGetFileTime(Handle, CreationTime, LastAccessTime, LastWriteTime):GetFileTime(Handle, CreationTime, LastAccessTime, LastWriteTime) != FALSE;
+}
+
+bool File::SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime)
+{
+	return admin?Admin.fSetFileTime(Handle, CreationTime, LastAccessTime, LastWriteTime):SetFileTime(Handle, CreationTime, LastAccessTime, LastWriteTime) != FALSE;
+}
+
+bool File::GetSize(UINT64& Size)
+{
+	return admin?Admin.fGetFileSizeEx(Handle, Size):apiGetFileSizeEx(Handle, Size);
+}
+
+bool File::IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped)
+{
+	return admin?Admin.fDeviceIoControl(Handle, IoControlCode, InBuffer, InBufferSize, OutBuffer, OutBufferSize, BytesReturned, Overlapped):DeviceIoControl(Handle, IoControlCode, InBuffer, InBufferSize, OutBuffer, OutBufferSize, BytesReturned, Overlapped) != FALSE;
+}
+
+bool File::Close()
+{
+	bool Result = admin?Admin.fCloseHandle(Handle):CloseHandle(Handle) != FALSE;
+	Handle = INVALID_HANDLE_VALUE;
+	return Result;
+}
+
+NTSTATUS GetLastNtStatus()
+{
+	return ifn.pfnRtlGetLastNtStatus?ifn.pfnRtlGetLastNtStatus():STATUS_SUCCESS;
 }
 
 BOOL apiDeleteFile(const wchar_t *lpwszFileName)
 {
 	string strNtName(NTPath(lpwszFileName).Str);
 	BOOL Result = DeleteFile(strNtName);
-	if(!Result && GetLastError() == ERROR_ACCESS_DENIED)
+	if(!Result && ElevationRequired())
 	{
-		Result = Admin.DeleteFile(strNtName);
+		Result = Admin.fDeleteFile(strNtName);
 	}
 	return Result;
 }
@@ -115,9 +209,9 @@ BOOL apiRemoveDirectory(const wchar_t *DirName)
 {
 	string strNtName(NTPath(DirName).Str);
 	BOOL Result = RemoveDirectory(strNtName);
-	if(!Result && GetLastError() == ERROR_ACCESS_DENIED)
+	if(!Result && ElevationRequired())
 	{
-		Result = Admin.RemoveDirectory(strNtName);
+		Result = Admin.fRemoveDirectory(strNtName);
 	}
 	return Result;
 }
@@ -178,9 +272,9 @@ BOOL apiCopyFileEx(
 {
 	string strFrom(NTPath(lpwszExistingFileName).Str), strTo(NTPath(lpwszNewFileName).Str);
 	BOOL Result = CopyFileEx(strFrom, strTo, lpProgressRoutine, lpData, pbCancel, dwCopyFlags);
-	if(!Result && GetLastError() == ERROR_ACCESS_DENIED)
+	if(!Result && ElevationRequired())
 	{
-		Result = Admin.CopyFileEx(strFrom, strTo, lpProgressRoutine, lpData, pbCancel, dwCopyFlags);
+		Result = Admin.fCopyFileEx(strFrom, strTo, lpProgressRoutine, lpData, pbCancel, dwCopyFlags);
 	}
 	return Result;
 }
@@ -192,9 +286,9 @@ BOOL apiMoveFile(
 {
 	string strFrom(NTPath(lpwszExistingFileName).Str), strTo(NTPath(lpwszNewFileName).Str);
 	BOOL Result = MoveFile(strFrom, strTo);
-	if(!Result && GetLastError() == ERROR_ACCESS_DENIED)
+	if(!Result && ElevationRequired())
 	{
-		Result = Admin.MoveFileEx(strFrom, strTo, 0);
+		Result = Admin.fMoveFileEx(strFrom, strTo, 0);
 	}
 	return Result;
 }
@@ -207,9 +301,9 @@ BOOL apiMoveFileEx(
 {
 	string strFrom(NTPath(lpwszExistingFileName).Str), strTo(NTPath(lpwszNewFileName).Str);
 	BOOL Result = MoveFileEx(strFrom, strTo, dwFlags);
-	if(!Result && GetLastError() == ERROR_ACCESS_DENIED)
+	if(!Result && ElevationRequired())
 	{
-		Result = Admin.MoveFileEx(strFrom, strTo, dwFlags);
+		Result = Admin.fMoveFileEx(strFrom, strTo, dwFlags);
 	}
 	return Result;
 }
@@ -654,9 +748,9 @@ BOOL apiCreateDirectory(LPCWSTR lpPathName,LPSECURITY_ATTRIBUTES lpSecurityAttri
 {
 	string strNtName(NTPath(lpPathName).Str);
 	BOOL Result = CreateDirectory(strNtName,lpSecurityAttributes);
-	if(!Result && GetLastError() == ERROR_ACCESS_DENIED)
+	if(!Result && ElevationRequired())
 	{
-		Result = Admin.CreateDirectory(strNtName,lpSecurityAttributes);
+		Result = Admin.fCreateDirectory(strNtName,lpSecurityAttributes);
 	}
 	return Result;
 }
@@ -665,9 +759,9 @@ DWORD apiGetFileAttributes(LPCWSTR lpFileName)
 {
 	string strNtName(NTPath(lpFileName).Str);
 	DWORD Result = GetFileAttributes(strNtName);
-	if(Result == INVALID_FILE_ATTRIBUTES && GetLastError() == ERROR_ACCESS_DENIED)
+	if(Result == INVALID_FILE_ATTRIBUTES && ElevationRequired())
 	{
-		Result = Admin.GetFileAttributes(strNtName);
+		Result = Admin.fGetFileAttributes(strNtName);
 	}
 	return Result;
 }
@@ -676,9 +770,9 @@ BOOL apiSetFileAttributes(LPCWSTR lpFileName,DWORD dwFileAttributes)
 {
 	string strNtName(NTPath(lpFileName).Str);
 	BOOL Result = SetFileAttributes(strNtName, dwFileAttributes);
-	if(!Result && GetLastError() == ERROR_ACCESS_DENIED)
+	if(!Result && ElevationRequired())
 	{
-		Result = Admin.SetFileAttributes(strNtName, dwFileAttributes);
+		Result = Admin.fSetFileAttributes(strNtName, dwFileAttributes);
 	}
 	return Result;
 
@@ -698,10 +792,9 @@ BOOL apiCreateSymbolicLink(LPCWSTR lpSymlinkFileName,LPCWSTR lpTargetFileName,DW
 	Result=CreateSymbolicLinkInternal(strSymlinkFileName, lpTargetFileName, dwFlags);
 	if (!Result)
 	{
-		DWORD LastError = GetLastError();
-		if(!Result && (LastError == ERROR_ACCESS_DENIED || LastError == ERROR_PRIVILEGE_NOT_HELD))
+		if(!Result && ElevationRequired())
 		{
-			Result=Admin.CreateSymbolicLink(strSymlinkFileName, lpTargetFileName, dwFlags);
+			Result=Admin.fCreateSymbolicLink(strSymlinkFileName, lpTargetFileName, dwFlags);
 		}
 	}
 	return Result;
@@ -725,9 +818,9 @@ bool apiGetCompressedFileSize(LPCWSTR lpFileName,UINT64& Size)
 bool CreateHardLinkInternal(LPCWSTR Object,LPCWSTR Target,LPSECURITY_ATTRIBUTES SecurityAttributes)
 {
 	bool Result = CreateHardLink(Object, Target, SecurityAttributes) != FALSE;
-	if(!Result && GetLastError() == ERROR_ACCESS_DENIED)
+	if(!Result && ElevationRequired())
 	{
-		Result = Admin.CreateHardLink(Object, Target, SecurityAttributes);
+		Result = Admin.fCreateHardLink(Object, Target, SecurityAttributes);
 	}
 	return Result;
 }

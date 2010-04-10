@@ -869,7 +869,7 @@ bool MoveToRecycleBinInternal(LPCWSTR Object)
 
 	if (Result == 0x78) // DE_ACCESSDENIEDSRC == ERROR_ACCESS_DENIED
 	{
-		Result = Admin.MoveToRecycleBin(fop);
+		Result = Admin.fMoveToRecycleBin(fop);
 	}
 
 	if (Result)

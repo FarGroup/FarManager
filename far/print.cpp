@@ -197,7 +197,6 @@ void PrintFiles(Panel *SrcPanel)
 
 	{
 		_ALGO(CleverSysLog clv3(L"Print selected Files"));
-		string strFullFileName, strCurDir;
 		//SaveScreen SaveScr;
 		TPreRedrawFuncGuard preRedrawFuncGuard(PR_PrintMsg);
 		SetCursorType(FALSE,0);
@@ -205,10 +204,6 @@ void PrintFiles(Panel *SrcPanel)
 		HANDLE hPlugin=SrcPanel->GetPluginHandle();
 		int PluginMode=SrcPanel->GetMode()==PLUGIN_PANEL &&
 		               !CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
-
-		apiGetCurrentDirectory(strCurDir);
-		AddEndSlash(strCurDir);
-
 		SrcPanel->GetSelName(nullptr,FileAttr);
 
 		while (SrcPanel->GetSelName(&strSelName,FileAttr))
@@ -216,11 +211,8 @@ void PrintFiles(Panel *SrcPanel)
 			if (TestParentFolderName(strSelName) || (FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 				continue;
 
-			strFullFileName = strCurDir;
-			strFullFileName += strSelName;
-
 			int Success=FALSE;
-			FILE *SrcFile=nullptr;
+			LPCWSTR FileName = nullptr;
 			string strTempDir, strTempName;
 
 			if (PluginMode)
@@ -236,7 +228,7 @@ void PrintFiles(Panel *SrcPanel)
 						FileList::FileListToPluginItem(&ListItem,&PanelItem);
 
 						if (CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,strTempDir,strTempName,OPM_SILENT))
-							SrcFile=_wfopen(strTempName,L"rb");
+							FileName = strTempName;
 						else
 							apiRemoveDirectory(strTempDir);
 
@@ -245,14 +237,12 @@ void PrintFiles(Panel *SrcPanel)
 				}
 			}
 			else
-				SrcFile=_wfopen(strFullFileName, L"rb");
+				FileName = strSelName;
 
-			if (SrcFile!=nullptr)
+			File SrcFile;
+			if(SrcFile.Open(FileName, GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 			{
-				DOC_INFO_1 di1;
-				di1.pDocName=(wchar_t*)(const wchar_t*)strFullFileName;
-				di1.pOutputFile=nullptr;
-				di1.pDatatype=nullptr;
+				DOC_INFO_1 di1 = {const_cast<LPWSTR>(FileName)};
 
 				if (StartDocPrinter(hPrinter,1,(LPBYTE)&di1))
 				{
@@ -260,7 +250,7 @@ void PrintFiles(Panel *SrcPanel)
 					DWORD Read,Written;
 					Success=TRUE;
 
-					while ((Read=(DWORD)fread(Buffer,1,sizeof(Buffer),SrcFile))>0)
+					while (SrcFile.Read(Buffer, sizeof(Buffer), &Read) && Read > 0)
 						if (!WritePrinter(hPrinter,Buffer,Read,&Written))
 						{
 							Success=FALSE;
@@ -269,8 +259,7 @@ void PrintFiles(Panel *SrcPanel)
 
 					EndDocPrinter(hPrinter);
 				}
-
-				fclose(SrcFile);
+				SrcFile.Close();
 			}
 
 			if (!strTempName.IsEmpty())

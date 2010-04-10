@@ -3071,7 +3071,7 @@ int Dialog::ProcessKey(int Key)
 						if (Item[FocusPos]->Flags & DIF_READONLY)
 							return TRUE;
 
-						if(!Opt.CmdLine.AutoComplete && (Key == KEY_CTRLEND || Key == KEY_CTRLNUMPAD1))
+						if(!Opt.Dialogs.AutoComplete && (Key == KEY_CTRLEND || Key == KEY_CTRLNUMPAD1))
 						{
 							edt->EnableAC();
 							edt->AutoComplete(true,false);

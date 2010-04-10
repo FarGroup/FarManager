@@ -725,9 +725,8 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 
 	if (FarMkTempEx(strListFileName))
 	{
-		HANDLE hListFile=apiCreateFile(strListFileName,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,CREATE_ALWAYS,0);
-
-		if (hListFile!=INVALID_HANDLE_VALUE)
+		File ListFile;
+		if (ListFile.Open(strListFileName,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,CREATE_ALWAYS))
 		{
 			UINT CodePage=CP_OEMCP;
 			LPCVOID Eol="\r\n";
@@ -765,7 +764,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 					if (Signature && SignatureSize)
 					{
 						DWORD NumberOfBytesWritten;
-						WriteFile(hListFile,&Signature,SignatureSize,&NumberOfBytesWritten,nullptr);
+						ListFile.Write(&Signature,SignatureSize, &NumberOfBytesWritten);
 					}
 				}
 			}
@@ -838,14 +837,14 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 					}
 				}
 
-				BOOL Written=WriteFile(hListFile,Ptr,NumberOfBytesToWrite,&NumberOfBytesWritten,nullptr);
+				BOOL Written=ListFile.Write(Ptr,NumberOfBytesToWrite,&NumberOfBytesWritten);
 
 				if (Buffer)
 					xf_free(Buffer);
 
 				if (Written && NumberOfBytesWritten==NumberOfBytesToWrite)
 				{
-					if (WriteFile(hListFile,Eol,EolSize,&NumberOfBytesWritten,nullptr) && NumberOfBytesWritten==EolSize)
+					if (ListFile.Write(Eol,EolSize,&NumberOfBytesWritten) && NumberOfBytesWritten==EolSize)
 					{
 						Ret=true;
 					}
@@ -858,7 +857,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 				}
 			}
 
-			CloseHandle(hListFile);
+			ListFile.Close();
 		}
 		else
 		{

@@ -3209,22 +3209,14 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 		{
 			if (!Opt.CMOpt.CopyOpened)
 			{
-				HANDLE SrcHandle=apiCreateFile(
-				                     SrcName,
-				                     GENERIC_READ,
-				                     FILE_SHARE_READ,
-				                     nullptr,
-				                     OPEN_EXISTING,
-				                     FILE_FLAG_SEQUENTIAL_SCAN
-				                 );
-
-				if (SrcHandle==INVALID_HANDLE_VALUE)
+				File SrcFile;
+				if (SrcFile.Open(SrcName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 				{
 					_LOGCOPYR(SysLog(L"return COPY_FAILURE -> %d if (SrcHandle==INVALID_HANDLE_VALUE)",__LINE__));
 					return COPY_FAILURE;
 				}
 
-				CloseHandle(SrcHandle);
+				SrcFile.Close();
 			}
 
 			//_LOGCOPYR(SysLog(L"call ShellSystemCopy('%s','%s',%p)",SrcName,DestName,SrcData));
@@ -3241,41 +3233,26 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 	if (Opt.CMOpt.CopyOpened)
 		OpenMode|=FILE_SHARE_WRITE;
 
-	HANDLE SrcHandle= apiCreateFile(
-	                      SrcName,
-	                      GENERIC_READ,
-	                      OpenMode,
-	                      nullptr,
-	                      OPEN_EXISTING,
-	                      FILE_FLAG_SEQUENTIAL_SCAN
-	                  );
+	File SrcFile;
+	bool Opened = SrcFile.Open(SrcName, GENERIC_READ, OpenMode, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
 
-	if (SrcHandle==INVALID_HANDLE_VALUE && Opt.CMOpt.CopyOpened)
+	if (!Opened && Opt.CMOpt.CopyOpened)
 	{
 		_localLastError=GetLastError();
-		SetLastError(_localLastError);
 
 		if (_localLastError == ERROR_SHARING_VIOLATION)
 		{
-			SrcHandle = apiCreateFile(
-			                SrcName,
-			                GENERIC_READ,
-			                FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,
-			                nullptr,
-			                OPEN_EXISTING,
-			                FILE_FLAG_SEQUENTIAL_SCAN
-			            );
+			Opened = SrcFile.Open(SrcName, GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
 		}
 	}
 
-	if (SrcHandle == INVALID_HANDLE_VALUE)
+	if (!Opened)
 	{
 		_localLastError=GetLastError();
-		SetLastError(_localLastError);
 		return COPY_FAILURE;
 	}
 
-	HANDLE DestHandle=INVALID_HANDLE_VALUE;
+	File DestFile;
 	__int64 AppendPos=0;
 
 	bool CopySparse=false;
@@ -3284,21 +3261,13 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 	{
 		//if (DestAttr!=INVALID_FILE_ATTRIBUTES && !Append) //вот это портит копирование поверх хардлинков
 		//apiDeleteFile(DestName);
-		DestHandle=apiCreateFile(
-		               strDestName,
-		               GENERIC_WRITE,
-		               FILE_SHARE_READ,
-		               (Flags&FCOPY_COPYSECURITY) ? &sa:nullptr,
-		               (Append ? OPEN_EXISTING:CREATE_ALWAYS),
-		               SrcData.dwFileAttributes&(~((Flags&(FCOPY_DECRYPTED_DESTINATION))?FILE_ATTRIBUTE_ENCRYPTED|FILE_FLAG_SEQUENTIAL_SCAN:FILE_FLAG_SEQUENTIAL_SCAN))
-		           );
+		bool Opened = DestFile.Open(strDestName, GENERIC_WRITE, FILE_SHARE_READ, (Flags&FCOPY_COPYSECURITY) ? &sa:nullptr, (Append ? OPEN_EXISTING:CREATE_ALWAYS), SrcData.dwFileAttributes&(~((Flags&(FCOPY_DECRYPTED_DESTINATION))?FILE_ATTRIBUTE_ENCRYPTED|FILE_FLAG_SEQUENTIAL_SCAN:FILE_FLAG_SEQUENTIAL_SCAN)));
 		Flags&=~FCOPY_DECRYPTED_DESTINATION;
 
-		if (DestHandle==INVALID_HANDLE_VALUE)
+		if (!Opened)
 		{
 			_localLastError=GetLastError();
-			CloseHandle(SrcHandle);
-			SetLastError(_localLastError);
+			SrcFile.Close();
 			_LOGCOPYR(SysLog(L"return COPY_FAILURE -> %d CreateFile=-1, LastError=%d (0x%08X)",__LINE__,_localLastError,_localLastError));
 			return COPY_FAILURE;
 		}
@@ -3314,7 +3283,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 				if(VolFlags&FILE_SUPPORTS_SPARSE_FILES)
 				{
 					DWORD Temp;
-					if (DeviceIoControl(DestHandle,FSCTL_SET_SPARSE,nullptr,0,nullptr,0,&Temp,nullptr))
+					if (DestFile.IoControl(FSCTL_SET_SPARSE, nullptr, 0, nullptr, 0, &Temp))
 					{
 						CopySparse=true;
 					}
@@ -3324,12 +3293,11 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 
 		if (Append)
 		{
-			if (!apiSetFilePointerEx(DestHandle,0,&AppendPos,FILE_END))
+			if (!DestFile.SetPointer(0,&AppendPos,FILE_END))
 			{
 				_localLastError=GetLastError();
-				CloseHandle(SrcHandle);
-				CloseHandle(DestHandle);
-				SetLastError(_localLastError);
+				SrcFile.Close();
+				DestFile.Close();
 				_LOGCOPYR(SysLog(L"return COPY_FAILURE -> %d apiSetFilePointerEx() == FALSE, LastError=%d (0x%08X)",__LINE__,_localLastError,_localLastError));
 				return COPY_FAILURE;
 			}
@@ -3343,10 +3311,10 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 			{
 				INT64 CurPtr=0;
 
-				if (apiSetFilePointerEx(DestHandle,0,&CurPtr,FILE_CURRENT) &&
-				        apiSetFilePointerEx(DestHandle,SrcData.nFileSize,nullptr,FILE_CURRENT) &&
-				        SetEndOfFile(DestHandle))
-					apiSetFilePointerEx(DestHandle,CurPtr,nullptr,FILE_BEGIN);
+				if (DestFile.SetPointer(0,&CurPtr,FILE_CURRENT) &&
+				        DestFile.SetPointer(SrcData.nFileSize,nullptr,FILE_CURRENT) &&
+				        DestFile.SetEnd())
+					DestFile.SetPointer(CurPtr,nullptr,FILE_BEGIN);
 			}
 		}
 	}
@@ -3366,7 +3334,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 
 		if (CopySparse)
 		{
-			SparseQueryResult=DeviceIoControl(SrcHandle,FSCTL_QUERY_ALLOCATED_RANGES,&queryrange,sizeof(queryrange),ranges,sizeof(ranges),&nbytes,nullptr);
+			SparseQueryResult=SrcFile.IoControl(FSCTL_QUERY_ALLOCATED_RANGES, &queryrange, sizeof(queryrange), ranges, sizeof(ranges), &nbytes);
 
 			if (!SparseQueryResult && GetLastError()!=ERROR_MORE_DATA)
 				break;
@@ -3381,13 +3349,13 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 			if (CopySparse)
 			{
 				Size=ranges[i].Length.QuadPart;
-				apiSetFilePointerEx(SrcHandle,ranges[i].FileOffset.QuadPart,nullptr,FILE_BEGIN);
+				SrcFile.SetPointer(ranges[i].FileOffset.QuadPart,nullptr,FILE_BEGIN);
 				INT64 DestPos=ranges[i].FileOffset.QuadPart;
 
 				if (Append)
 					DestPos+=AppendPos;
 
-				apiSetFilePointerEx(DestHandle,DestPos,nullptr,FILE_BEGIN);
+				DestFile.SetPointer(DestPos,nullptr,FILE_BEGIN);
 			}
 
 			DWORD BytesRead,BytesWritten;
@@ -3419,15 +3387,15 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 
 				if (AbortOp)
 				{
-					CloseHandle(SrcHandle);
+					SrcFile.Close();
 
 					if (Append)
 					{
-						apiSetFilePointerEx(DestHandle,AppendPos,nullptr,FILE_BEGIN);
-						SetEndOfFile(DestHandle);
+						DestFile.SetPointer(AppendPos,nullptr,FILE_BEGIN);
+						DestFile.SetEnd();
 					}
 
-					CloseHandle(DestHandle);
+					DestFile.Close();
 
 					if (!Append)
 					{
@@ -3438,7 +3406,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 					return COPY_CANCEL;
 				}
 
-				while (!ReadFile(SrcHandle,CopyBuffer,(CopySparse?(DWORD)Min((LONGLONG)CopyBufferSize,Size):CopyBufferSize),&BytesRead,nullptr))
+				while (!SrcFile.Read(CopyBuffer,(CopySparse?(DWORD)Min((LONGLONG)CopyBufferSize,Size):CopyBufferSize),&BytesRead,nullptr))
 				{
 					int MsgCode = Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
 					                      MSG(MCopyReadError),SrcName,
@@ -3449,17 +3417,17 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 						continue;
 
 					DWORD LastError=GetLastError();
-					CloseHandle(SrcHandle);
+					SrcFile.Close();
 
 					if (!(Flags&FCOPY_COPYTONUL))
 					{
 						if (Append)
 						{
-							apiSetFilePointerEx(DestHandle,AppendPos,nullptr,FILE_BEGIN);
-							SetEndOfFile(DestHandle);
+							DestFile.SetPointer(AppendPos,nullptr,FILE_BEGIN);
+							DestFile.SetEnd();
 						}
 
-						CloseHandle(DestHandle);
+						DestFile.Close();
 
 						if (!Append)
 						{
@@ -3482,7 +3450,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 
 				if (!(Flags&FCOPY_COPYTONUL))
 				{
-					while (!WriteFile(DestHandle,CopyBuffer,BytesRead,&BytesWritten,nullptr))
+					while (!DestFile.Write(CopyBuffer,BytesRead,&BytesWritten,nullptr))
 					{
 						DWORD LastError=GetLastError();
 						int Split=FALSE,SplitCancelled=FALSE,SplitSkipped=FALSE;
@@ -3497,10 +3465,10 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 							if (apiGetDiskSize(strDriveRoot,nullptr,nullptr,&FreeSize))
 							{
 								if (FreeSize<BytesRead &&
-								        WriteFile(DestHandle,CopyBuffer,(DWORD)FreeSize,&BytesWritten,nullptr) &&
-								        apiSetFilePointerEx(SrcHandle,FreeSize-BytesRead,nullptr,FILE_CURRENT))
+								        DestFile.Write(CopyBuffer,(DWORD)FreeSize,&BytesWritten,nullptr) &&
+										SrcFile.SetPointer(FreeSize-BytesRead,nullptr,FILE_CURRENT))
 								{
-									CloseHandle(DestHandle);
+									DestFile.Close();
 									SetMessageHelp(L"CopyFiles");
 									int MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MError),
 									                    MSG(MErrorInsufficientDiskSpace),strDestName,
@@ -3509,7 +3477,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 
 									if (MsgCode==2)
 									{
-										CloseHandle(SrcHandle);
+										SrcFile.Close();
 
 										if (!Append)
 										{
@@ -3559,7 +3527,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 						if (Split)
 						{
 							INT64 FilePtr;
-							apiSetFilePointerEx(SrcHandle,0,&FilePtr,FILE_CURRENT);
+							SrcFile.SetPointer(0,&FilePtr,FILE_CURRENT);
 							FAR_FIND_DATA_EX SplitData=SrcData;
 							SplitData.nFileSize-=FilePtr;
 							int RetCode;
@@ -3567,7 +3535,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 
 							if (!AskOverwrite(SplitData,SrcName,strDestName,INVALID_FILE_ATTRIBUTES,FALSE,((Flags&FCOPY_MOVE)?TRUE:FALSE),((Flags&FCOPY_LINK)?0:1),Append,strNewName,RetCode))
 							{
-								CloseHandle(SrcHandle);
+								SrcFile.Close();
 								return(COPY_CANCEL);
 							}
 
@@ -3588,21 +3556,13 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 							if (CutToSlash(strDestDir,true))
 								CreatePath(strDestDir);
 
-							DestHandle=apiCreateFile(
-							               strDestName,
-							               GENERIC_WRITE,
-							               FILE_SHARE_READ,
-							               nullptr,
-							               (Append ? OPEN_EXISTING:CREATE_ALWAYS),
-							               SrcData.dwFileAttributes|FILE_FLAG_SEQUENTIAL_SCAN
-							           );
+							;
 
-							if (DestHandle==INVALID_HANDLE_VALUE || (Append && !apiSetFilePointerEx(DestHandle,0,nullptr,FILE_END)))
+							if (!DestFile.Open(strDestName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, (Append ? OPEN_EXISTING:CREATE_ALWAYS), SrcData.dwFileAttributes|FILE_FLAG_SEQUENTIAL_SCAN) || (Append && !DestFile.SetPointer(0,nullptr,FILE_END)))
 							{
-								DWORD LastError2=GetLastError();
-								CloseHandle(SrcHandle);
-								CloseHandle(DestHandle);
-								SetLastError(_localLastError=LastError2);
+								_localLastError=GetLastError();
+								SrcFile.Close();
+								DestFile.Close();
 								return COPY_FAILURE;
 							}
 						}
@@ -3615,15 +3575,15 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 								continue;
 							}
 
-							CloseHandle(SrcHandle);
+							SrcFile.Close();
 
 							if (Append)
 							{
-								apiSetFilePointerEx(DestHandle,AppendPos,nullptr,FILE_BEGIN);
-								SetEndOfFile(DestHandle);
+								DestFile.SetPointer(AppendPos,nullptr,FILE_BEGIN);
+								DestFile.SetEnd();
 							}
 
-							CloseHandle(DestHandle);
+							DestFile.Close();
 
 							if (!Append)
 							{
@@ -3686,8 +3646,8 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 
 	if (!(Flags&FCOPY_COPYTONUL))
 	{
-		SetFileTime(DestHandle,nullptr,nullptr,&SrcData.ftLastWriteTime);
-		CloseHandle(SrcHandle);
+		DestFile.SetTime(nullptr,nullptr,&SrcData.ftLastWriteTime);
+		SrcFile.Close();
 
 		if (CopySparse)
 		{
@@ -3696,16 +3656,16 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 			if (Append)
 				Pos+=AppendPos;
 
-			apiSetFilePointerEx(DestHandle,Pos,nullptr,FILE_BEGIN);
-			SetEndOfFile(DestHandle);
+			DestFile.SetPointer(Pos,nullptr,FILE_BEGIN);
+			DestFile.SetEnd();
 		}
 
-		CloseHandle(DestHandle);
+		DestFile.Close();
 		// TODO: ЗДЕСЯ СТАВИТЬ Compressed???
 		Flags&=~FCOPY_DECRYPTED_DESTINATION;
 	}
 	else
-		CloseHandle(SrcHandle);
+		SrcFile.Close();
 
 	return COPY_SUCCESS;
 }

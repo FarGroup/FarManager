@@ -1068,15 +1068,6 @@ int LookForString(const wchar_t *Name)
 
 	// Результат поиска
 	BOOL result = FALSE;
-	// Открываем файл
-	HANDLE fileHandle = apiCreateFile(
-	                        Name,
-	                        FILE_READ_ATTRIBUTES | FILE_READ_DATA | FILE_WRITE_ATTRIBUTES,
-	                        FILE_SHARE_READ | FILE_SHARE_WRITE,
-	                        nullptr,
-	                        OPEN_EXISTING,
-	                        FILE_FLAG_SEQUENTIAL_SCAN
-	                    );
 	// Время последнего доступа к файлу (нужно для его восстановления после поиска)
 	FILETIME lastAccessTime;
 	// Признак того, что время доуступа к файлу было получено
@@ -1084,22 +1075,21 @@ int LookForString(const wchar_t *Name)
 
 	// Если файл не удалось открыть изначальным способом, то пытаемся получить к нему
 	// доступ только на чтение, иначе получаем запоминаем последнего доступа к файлу
-	if (fileHandle == INVALID_HANDLE_VALUE)
+	File file;
+	// Открываем файл
+	bool Opened = file.Open(Name, FILE_READ_ATTRIBUTES|FILE_READ_DATA|FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
+	if (!Opened)
+	{
 		// Открыаем файл только на чтение
-		fileHandle = apiCreateFile(
-		                 Name,
-		                 FILE_READ_DATA,
-		                 FILE_SHARE_READ | FILE_SHARE_WRITE,
-		                 nullptr,
-		                 OPEN_EXISTING,
-		                 FILE_FLAG_SEQUENTIAL_SCAN
-		             );
+		Opened = file.Open(Name, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
+	}
 	else
+	{
 		// Запоминаем время последнего доуступа к файлу
-		isTimeReaded = GetFileTime(fileHandle, nullptr, &lastAccessTime, nullptr);
-
+		isTimeReaded = file.GetTime(nullptr, &lastAccessTime, nullptr);
+	}
 	// Если файл открыть не удалось, то считаем, что ничего не нашли
-	if (fileHandle==INVALID_HANDLE_VALUE)
+	if (!Opened)
 		return (FALSE);
 
 	// Количество считанных из файла байт
@@ -1113,7 +1103,7 @@ int LookForString(const wchar_t *Name)
 		offset = (int)hexFindStringSize-1;
 
 	UINT64 FileSize=0;
-	apiGetFileSizeEx(fileHandle,FileSize);
+	file.GetSize(FileSize);
 
 	if (SearchInFirst)
 	{
@@ -1123,7 +1113,7 @@ int LookForString(const wchar_t *Name)
 	UINT LastPercents=0;
 
 	// Основной цикл чтения из файла
-	while (!StopSearch && ReadFile(fileHandle,readBufferA,(!SearchInFirst || alreadyRead+readBufferSizeA<=SearchInFirst)?readBufferSizeA:static_cast<DWORD>(SearchInFirst-alreadyRead),&readBlockSize,nullptr))
+	while (!StopSearch && file.Read(readBufferA, (!SearchInFirst || alreadyRead+readBufferSizeA <= SearchInFirst)?readBufferSizeA:static_cast<DWORD>(SearchInFirst-alreadyRead), &readBlockSize))
 	{
 		UINT Percents=static_cast<UINT>(FileSize?alreadyRead*100/FileSize:0);
 
@@ -1328,7 +1318,7 @@ int LookForString(const wchar_t *Name)
 		if (readBlockSize==readBufferSizeA)
 		{
 			// Отступаем назад на длину слова поиска минус 1
-			if (!apiSetFilePointerEx(fileHandle, -1*offset, nullptr, FILE_CURRENT))
+			if (!file.SetPointer(-1*offset, nullptr, FILE_CURRENT))
 				RETURN(FALSE)
 				alreadyRead -= offset;
 		}
@@ -1338,10 +1328,10 @@ exit:
 
 	// Восстаналиваем время доступа
 	if (isTimeReaded)
-		SetFileTime(fileHandle, nullptr, &lastAccessTime, nullptr);
+		file.SetTime(nullptr, &lastAccessTime, nullptr);
 
 	// Закрываем хэндл файла
-	CloseHandle(fileHandle);
+	file.Close();
 	// Возвращаем результат
 	return (result);
 #undef CONTINUE

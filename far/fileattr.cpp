@@ -81,18 +81,16 @@ int ESetFileAttributes(const wchar_t *Name,DWORD Attr,int SkipMode)
 
 static int SetFileCompression(const wchar_t *Name,int State)
 {
-	HANDLE hFile=apiCreateFile(Name,FILE_READ_DATA|FILE_WRITE_DATA,
-	                           FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_EXISTING,
-	                           FILE_FLAG_SEQUENTIAL_SCAN);
+	File file;
 
-	if (hFile==INVALID_HANDLE_VALUE)
+	if (!file.Open(Name, FILE_READ_DATA|FILE_WRITE_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 		return(FALSE);
 
 	USHORT NewState=State ? COMPRESSION_FORMAT_DEFAULT:COMPRESSION_FORMAT_NONE;
 	DWORD Result;
-	int RetCode=DeviceIoControl(hFile,FSCTL_SET_COMPRESSION,&NewState,
-	                            sizeof(NewState),nullptr,0,&Result,nullptr);
-	CloseHandle(hFile);
+	int RetCode=file.IoControl(FSCTL_SET_COMPRESSION,&NewState,
+	                            sizeof(NewState),nullptr,0,&Result);
+	file.Close();
 	return(RetCode);
 }
 
@@ -113,12 +111,6 @@ int ESetFileCompression(const wchar_t *Name,int State,DWORD FileAttr,int SkipMod
 
 	while (!SetFileCompression(Name,State))
 	{
-		if (GetLastError()==ERROR_INVALID_FUNCTION)
-		{
-			Ret=SETATTR_RET_OK;
-			break;
-		}
-
 		int Code;
 
 		if (SkipMode!=-1)
@@ -172,9 +164,6 @@ int ESetFileEncryption(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode
 
 	while (!SetFileEncryption(Name,State))
 	{
-		if (GetLastError()==ERROR_INVALID_FUNCTION)
-			break;
-
 		if (Silent)
 		{
 			Ret=SETATTR_RET_ERROR;
@@ -228,22 +217,20 @@ int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationT
 		if (FileAttr & FILE_ATTRIBUTE_READONLY)
 			apiSetFileAttributes(Name,FileAttr & ~FILE_ATTRIBUTE_READONLY);
 
-		HANDLE hFile=apiCreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,
+		bool SetTime=false;
+		DWORD LastError=ERROR_SUCCESS;
+		File file;
+		if (!file.Open(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,
 		                           nullptr,OPEN_EXISTING,
-		                           FILE_FLAG_OPEN_REPARSE_POINT);
-		int SetTime;
-		DWORD LastError=0;
-
-		if (hFile==INVALID_HANDLE_VALUE)
+		                           FILE_FLAG_OPEN_REPARSE_POINT))
 		{
-			SetTime=FALSE;
 			LastError=GetLastError();
 		}
 		else
 		{
-			SetTime=SetFileTime(hFile,CreationTime,LastAccessTime,LastWriteTime);
+			SetTime=file.SetTime(CreationTime,LastAccessTime,LastWriteTime);
 			LastError=GetLastError();
-			CloseHandle(hFile);
+			file.Close();
 
 			if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && LastError==ERROR_NOT_SUPPORTED)   // FIX: Mantis#223
 			{
@@ -290,16 +277,14 @@ int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationT
 static bool SetFileSparse(const wchar_t *Name,bool State)
 {
 	bool Ret=false;
-	HANDLE hFile=apiCreateFile(Name,FILE_WRITE_DATA,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,0);
-
-	if (hFile!=INVALID_HANDLE_VALUE)
+	File file;
+	if (file.Open(Name,FILE_WRITE_DATA,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING))
 	{
 		DWORD BytesReturned;
 		FILE_SET_SPARSE_BUFFER sb={State};
-		Ret=(DeviceIoControl(hFile,FSCTL_SET_SPARSE,&sb,sizeof(sb),nullptr,0,&BytesReturned,nullptr)!=0);
-		CloseHandle(hFile);
+		Ret=file.IoControl(FSCTL_SET_SPARSE,&sb,sizeof(sb),nullptr,0,&BytesReturned,nullptr);
+		file.Close();
 	}
-
 	return Ret;
 }
 

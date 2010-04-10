@@ -124,9 +124,9 @@ bool SetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
 			}
 			CloseHandle(hObject);
 		}
-		if(!Result && GetLastError()==ERROR_ACCESS_DENIED)
+		if(!Result && ElevationRequired())
 		{
-			Result=Admin.SetReparseDataBuffer(NTPath(Object), rdb);
+			Result=Admin.fSetReparseDataBuffer(NTPath(Object), rdb);
 		}
 	}
 
@@ -233,14 +233,13 @@ bool WINAPI DeleteReparsePoint(const wchar_t *Object)
 	DWORD ReparseTag;
 	string strTmp;
 	GetReparsePointInfo(Object,strTmp,&ReparseTag);
-	HANDLE hObject=apiCreateFile(Object,GENERIC_READ|GENERIC_WRITE,0,0,OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT);
-
-	if (hObject!=INVALID_HANDLE_VALUE)
+	File fObject;
+	if (fObject.Open(Object, GENERIC_READ|GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
 	{
 		REPARSE_GUID_DATA_BUFFER rgdb={ReparseTag};
 		DWORD dwBytes;
-		Result=(DeviceIoControl(hObject,FSCTL_DELETE_REPARSE_POINT,&rgdb,REPARSE_GUID_DATA_BUFFER_HEADER_SIZE,nullptr,0,&dwBytes,0)==TRUE);
-		CloseHandle(hObject);
+		Result=fObject.IoControl(FSCTL_DELETE_REPARSE_POINT,&rgdb,REPARSE_GUID_DATA_BUFFER_HEADER_SIZE,nullptr,0,&dwBytes);
+		fObject.Close();
 	}
 
 	return Result;

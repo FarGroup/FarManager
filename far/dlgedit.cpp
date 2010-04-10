@@ -68,19 +68,19 @@ DlgEdit::DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type):
 				if(Opt.Dialogs.AutoComplete && CurItem->Flags&(DIF_HISTORY|DIF_EDITPATH) && !(CurItem->Flags&DIF_NOAUTOCOMPLETE))
 				{
 					iFlags=EditControl::EC_ENABLEAUTOCOMPLETE;
-					string strHistory;
-					if(CurItem->Flags&DIF_HISTORY && CurItem->History)
-					{
-						strHistory=fmtSavedDialogHistory;
-						strHistory+=CurItem->History;
-						iHistory=new History(HISTORYTYPE_DIALOG, Opt.DialogsHistoryCount, strHistory, &Opt.Dialogs.EditHistory, false);
-						iHistory->ReadHistory(true);
-					}
-					iList=CurItem->ListItems;
-					if(CurItem->Flags&DIF_EDITPATH)
-					{
-						iFlags|=EditControl::EC_ENABLEFNCOMPLETE;
-					}
+				}
+				string strHistory;
+				if(CurItem->Flags&DIF_HISTORY && CurItem->History)
+				{
+					strHistory=fmtSavedDialogHistory;
+					strHistory+=CurItem->History;
+					iHistory=new History(HISTORYTYPE_DIALOG, Opt.DialogsHistoryCount, strHistory, &Opt.Dialogs.EditHistory, false);
+					iHistory->ReadHistory(true);
+				}
+				iList=CurItem->ListItems;
+				if(CurItem->Flags&DIF_EDITPATH)
+				{
+					iFlags|=EditControl::EC_ENABLEFNCOMPLETE;
 				}
 			}
 			lineEdit=new EditControl(pOwner,&callback,true,iHistory,iList,iFlags);

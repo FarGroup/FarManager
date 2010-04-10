@@ -192,6 +192,9 @@ typedef NTSTATUS(NTAPI *NTCLOSE)(
     HANDLE Handle
 );
 
+typedef NTSTATUS(NTAPI *RTLGETLASTNTSTATUS)(
+);
+
 typedef BOOL (WINAPI *GETVOLUMEPATHNAMESFORVOLUMENAME)(
     LPCTSTR lpszVolumeName,
     LPTSTR lpszVolumePathNames,
@@ -205,6 +208,7 @@ typedef BOOL (WINAPI *HEAPSETINFORMATION)(
     PVOID HeapInformation,
     SIZE_T HeapInformationLength
 );
+
 
 struct ImportedFunctions
 {
@@ -244,6 +248,7 @@ struct ImportedFunctions
 	NTOPENSYMBOLICLINKOBJECT pfnNtOpenSymbolicLinkObject;
 	NTQUERYSYMBOLICLINKOBJECT pfnNtQuerySymbolicLinkObject;
 	NTCLOSE pfnNtClose;
+	RTLGETLASTNTSTATUS pfnRtlGetLastNtStatus;
 	GETVOLUMEPATHNAMESFORVOLUMENAME pfnGetVolumePathNamesForVolumeName;
 
 	HEAPSETINFORMATION pfnHeapSetInformation;

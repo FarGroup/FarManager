@@ -367,9 +367,8 @@ HANDLE FileList::OpenPluginForFile(const wchar_t *FileName,DWORD FileAttr)
 		return(INVALID_HANDLE_VALUE);
 
 	SetCurPath();
-	HANDLE hFile=apiCreateFile(FileName,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE ,nullptr,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN);
-
-	if (hFile==INVALID_HANDLE_VALUE)
+	File file;
+	if (!file.Open(FileName,GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 	{
 		//Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),MSG(MCannotOpenFile),FileName,MSG(MOk));
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,L"",MSG(MOpenPluginCannotOpenFile),FileName,MSG(MOk));
@@ -383,9 +382,9 @@ HANDLE FileList::OpenPluginForFile(const wchar_t *FileName,DWORD FileAttr)
 		DWORD BytesRead;
 		_ALGO(SysLog(L"Read %d byte(s)",Opt.PluginMaxReadData));
 
-		if (ReadFile(hFile,Buffer,Opt.PluginMaxReadData,&BytesRead,nullptr))
+		if (file.Read(Buffer,Opt.PluginMaxReadData,&BytesRead))
 		{
-			CloseHandle(hFile);
+			file.Close();
 			_ALGO(SysLogDump(L"First 128 bytes",0,(LPBYTE)Buffer,128,nullptr));
 			_ALGO(SysLog(L"close AnotherPanel file"));
 			CtrlObject->Cp()->GetAnotherPanel(this)->CloseFile();
@@ -402,7 +401,7 @@ HANDLE FileList::OpenPluginForFile(const wchar_t *FileName,DWORD FileAttr)
 		}
 	}
 
-	CloseHandle(hFile);
+	file.Close();
 	return(INVALID_HANDLE_VALUE);
 }
 

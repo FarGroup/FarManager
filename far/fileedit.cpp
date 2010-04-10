@@ -611,7 +611,6 @@ void FileEditor::Init(
 		if (Message(MSG_WARNING,2,MSG(MEditTitle),Name,MSG(MEditRSH),
 		            MSG(MEditROOpen),MSG(MYes),MSG(MNo)))
 		{
-			//SetLastError(ERROR_ACCESS_DENIED);
 			ExitCode=XC_OPEN_ERROR;
 			return;
 		}

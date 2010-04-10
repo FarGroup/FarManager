@@ -221,9 +221,9 @@ bool SetOwner(LPCWSTR Object, LPCWSTR Owner)
 {
 	string strNtObject(NTPath(Object).Str);
 	bool Result = SetOwnerInternal(strNtObject, Owner);
-	if(!Result && GetLastError() == ERROR_ACCESS_DENIED)
+	if(!Result && ElevationRequired())
 	{
-		Result = Admin.SetOwner(strNtObject, Owner);
+		Result = Admin.fSetOwner(strNtObject, Owner);
 	}
 	return Result;
 }

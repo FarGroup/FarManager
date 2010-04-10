@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "privilege.hpp"
 #include "flink.hpp"
 #include "fileowner.hpp"
+#include "imports.hpp"
 
 #define PIPE_NAME L"\\\\.\\pipe\\FarPipe"
 
@@ -121,7 +122,17 @@ bool ReadPipeInt(HANDLE Pipe, int& Data)
 	return RawReadPipe(Pipe, &Data, sizeof(Data));
 }
 
+bool ReadPipeInt64(HANDLE Pipe, INT64& Data)
+{
+	return RawReadPipe(Pipe, &Data, sizeof(Data));
+}
+
 bool WritePipeInt(HANDLE Pipe, int Data)
+{
+	return RawWritePipe(Pipe, &Data, sizeof(Data));
+}
+
+bool WritePipeInt64(HANDLE Pipe, INT64 Data)
 {
 	return RawWritePipe(Pipe, &Data, sizeof(Data));
 }
@@ -168,6 +179,7 @@ AdminMode Admin;
 
 AdminMode::AdminMode():
 	Pipe(INVALID_HANDLE_VALUE),
+	Process(nullptr),
 	PID(0),
 	Approve(false),
 	AskApprove(true),
@@ -194,22 +206,32 @@ bool AdminMode::WriteData(LPCVOID Data,DWORD DataSize) const
 	return WritePipeData(Pipe, Data, DataSize);
 }
 
-bool AdminMode::ReadInt(int& Data)
+bool AdminMode::ReadInt(int& Data) const
 {
 	return ReadPipeInt(Pipe, Data);
 }
 
-bool AdminMode::WriteInt(int Data)
+bool AdminMode::ReadInt64(INT64& Data) const
+{
+	return ReadPipeInt64(Pipe, Data);
+}
+
+bool AdminMode::WriteInt(int Data) const
 {
 	return WritePipeInt(Pipe, Data);
 }
 
-bool AdminMode::SendCommand(ADMIN_COMMAND Command)
+bool AdminMode::WriteInt64(INT64 Data) const
+{
+	return WritePipeInt64(Pipe, Data);
+}
+
+bool AdminMode::SendCommand(ADMIN_COMMAND Command) const
 {
 	return WritePipeInt(Pipe, Command);
 }
 
-bool AdminMode::ReceiveLastError()
+bool AdminMode::ReceiveLastError() const
 {
 	int LastError = ERROR_SUCCESS;
 	bool Result = ReadPipeInt(Pipe, LastError);
@@ -224,35 +246,27 @@ bool AdminMode::Initialize()
 	{
 		FormatString strPipe;
 		strPipe << PIPE_NAME << GetCurrentProcessId();
-		Pipe=CreateNamedPipe(strPipe, PIPE_ACCESS_DUPLEX, PIPE_TYPE_BYTE|PIPE_READMODE_BYTE|PIPE_WAIT, 1, 0, 0, 0, nullptr);
+		Pipe=CreateNamedPipe(strPipe, PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE|PIPE_READMODE_BYTE|PIPE_WAIT, 1, 0, 0, 0, nullptr);
 	}
 	if(Pipe!=INVALID_HANDLE_VALUE)
 	{
-		if(PID)
+		if(Process)
 		{
-			if(SendCommand(C_SERVICE_TEST))
+			DWORD ExitCode = 0;
+			GetExitCodeProcess(Process, &ExitCode);
+			if(ExitCode == STILL_ACTIVE)
 			{
-				int SendData = GetTickCount();
-				if(WritePipeInt(Pipe, SendData))
-				{
-					int RecvData = 0;
-					if(ReadPipeInt(Pipe, RecvData))
-					{
-						if((RecvData^Magic) == SendData)
-						{
-							int NewPID = 0;
-							if(ReadPipeInt(Pipe, NewPID))
-							{
-								Result = PID == NewPID;
-							}
-						}
-					}
-				}
+				Result = true;
+			}
+			else
+			{
+				CloseHandle(Process);
+				Process = nullptr;
 			}
 		}
-
 		if(!Result)
 		{
+			DisconnectNamedPipe(Pipe);
 			if(Approve || AdminApproveDlg(nullptr))
 			{
 				FormatString strParam;
@@ -260,7 +274,7 @@ bool AdminMode::Initialize()
 				SHELLEXECUTEINFO info=
 				{
 					sizeof(info),
-					SEE_MASK_FLAG_NO_UI|SEE_MASK_UNICODE|SEE_MASK_NOASYNC,
+					SEE_MASK_FLAG_NO_UI|SEE_MASK_UNICODE|SEE_MASK_NOASYNC|SEE_MASK_NOCLOSEPROCESS,
 					nullptr,
 					L"runas",
 					g_strFarModuleName,
@@ -268,28 +282,34 @@ bool AdminMode::Initialize()
 				};
 				if(ShellExecuteEx(&info))
 				{
-					DisconnectNamedPipe(Pipe);
-					while(!ConnectNamedPipe(Pipe, nullptr))
+					Process = info.hProcess;
+					OVERLAPPED Overlapped;
+					Overlapped.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+					ConnectNamedPipe(Pipe, &Overlapped);
+					if(WaitForSingleObject(Overlapped.hEvent, 5000) == WAIT_OBJECT_0)
 					{
-						Sleep(1);
-					}
-					if(SendCommand(C_SERVICE_TEST))
-					{
-						int SendData = GetTickCount();
-						if(WritePipeInt(Pipe, SendData))
+						DWORD NumberOfBytesTransferred;
+						if(GetOverlappedResult(Pipe, &Overlapped, &NumberOfBytesTransferred, FALSE))
 						{
-							int RecvData = 0;
-							if(ReadPipeInt(Pipe, RecvData))
+							if(ReadPipeInt(Pipe, PID))
 							{
-								if((RecvData^Magic) == SendData)
-								{
-									ReadPipeInt(Pipe, PID);
-									Result = true;
-								}
+								Result = true;
 							}
 						}
 					}
-					Result=true;
+					CloseHandle(Overlapped.hEvent);
+					if(!Result)
+					{
+						DWORD ExitCode = 0;
+						GetExitCodeProcess(Process, &ExitCode);
+						if(ExitCode == STILL_ACTIVE)
+						{
+							TerminateProcess(Process, 0);
+							CloseHandle(Process);
+							Process = nullptr;
+						}
+						SetLastError(ERROR_PROCESS_ABORTED);
+					}
 				}
 			}
 		}
@@ -358,8 +378,9 @@ bool AdminMode::AdminApproveDlg(LPCWSTR Object)
 	return Approve;
 }
 
-bool AdminMode::CreateDirectory(LPCWSTR Object, LPSECURITY_ATTRIBUTES Attributes)
+bool AdminMode::fCreateDirectory(LPCWSTR Object, LPSECURITY_ATTRIBUTES Attributes)
 {
+	CriticalSectionLock Lock(CS);
 	bool Result=false;
 	if(AdminApproveDlg(PointToName(Object)) && Initialize())
 	{
@@ -382,8 +403,9 @@ bool AdminMode::CreateDirectory(LPCWSTR Object, LPSECURITY_ATTRIBUTES Attributes
 	return Result;
 }
 
-bool AdminMode::RemoveDirectory(LPCWSTR Object)
+bool AdminMode::fRemoveDirectory(LPCWSTR Object)
 {
+	CriticalSectionLock Lock(CS);
 	bool Result=false;
 	if(AdminApproveDlg(PointToName(Object)) && Initialize())
 	{
@@ -396,7 +418,7 @@ bool AdminMode::RemoveDirectory(LPCWSTR Object)
 				{
 					if(ReceiveLastError())
 					{
-						Result = OpResult !=0;
+						Result = OpResult != 0;
 					}
 				}
 			}
@@ -405,8 +427,9 @@ bool AdminMode::RemoveDirectory(LPCWSTR Object)
 	return Result;
 }
 
-bool AdminMode::DeleteFile(LPCWSTR Object)
+bool AdminMode::fDeleteFile(LPCWSTR Object)
 {
+	CriticalSectionLock Lock(CS);
 	bool Result=false;
 	if(AdminApproveDlg(PointToName(Object)) && Initialize())
 	{
@@ -428,7 +451,7 @@ bool AdminMode::DeleteFile(LPCWSTR Object)
 	return Result;
 }
 
-void AdminMode::CallbackRoutine()
+void AdminMode::fCallbackRoutine() const
 {
 	if(ProgressRoutine)
 	{
@@ -469,8 +492,9 @@ void AdminMode::CallbackRoutine()
 	}
 }
 
-bool AdminMode::CopyFileEx(LPCWSTR From, LPCWSTR To, LPPROGRESS_ROUTINE ProgressRoutine, LPVOID Data, LPBOOL Cancel, DWORD Flags)
+bool AdminMode::fCopyFileEx(LPCWSTR From, LPCWSTR To, LPPROGRESS_ROUTINE ProgressRoutine, LPVOID Data, LPBOOL Cancel, DWORD Flags)
 {
+	CriticalSectionLock Lock(CS);
 	bool Result = false;
 	if(AdminApproveDlg(PointToName(From)) && Initialize())
 	{
@@ -495,7 +519,7 @@ bool AdminMode::CopyFileEx(LPCWSTR From, LPCWSTR To, LPPROGRESS_ROUTINE Progress
 									{
 										while(OpResult == CallbackMagic)
 										{
-											CallbackRoutine();
+											fCallbackRoutine();
 											ReadInt(OpResult);
 										}
 									}
@@ -515,8 +539,9 @@ bool AdminMode::CopyFileEx(LPCWSTR From, LPCWSTR To, LPPROGRESS_ROUTINE Progress
 	return Result;
 }
 
-bool AdminMode::MoveFileEx(LPCWSTR From, LPCWSTR To, DWORD Flags)
+bool AdminMode::fMoveFileEx(LPCWSTR From, LPCWSTR To, DWORD Flags)
 {
+	CriticalSectionLock Lock(CS);
 	bool Result=false;
 	if(AdminApproveDlg(PointToName(From)) && Initialize())
 	{
@@ -544,8 +569,9 @@ bool AdminMode::MoveFileEx(LPCWSTR From, LPCWSTR To, DWORD Flags)
 	return Result;
 }
 
-DWORD AdminMode::GetFileAttributes(LPCWSTR Object)
+DWORD AdminMode::fGetFileAttributes(LPCWSTR Object)
 {
+	CriticalSectionLock Lock(CS);
 	bool Result=false;
 	if(/*AdminApproveDlg(PointToName(Object)) && */Initialize())
 	{
@@ -567,8 +593,9 @@ DWORD AdminMode::GetFileAttributes(LPCWSTR Object)
 	return Result;
 }
 
-bool AdminMode::SetFileAttributes(LPCWSTR Object, DWORD FileAttributes)
+bool AdminMode::fSetFileAttributes(LPCWSTR Object, DWORD FileAttributes)
 {
+	CriticalSectionLock Lock(CS);
 	bool Result=false;
 	if(AdminApproveDlg(PointToName(Object)) && Initialize())
 	{
@@ -593,8 +620,9 @@ bool AdminMode::SetFileAttributes(LPCWSTR Object, DWORD FileAttributes)
 	return Result;
 }
 
-bool AdminMode::CreateHardLink(LPCWSTR Object,LPCWSTR Target,LPSECURITY_ATTRIBUTES SecurityAttributes)
+bool AdminMode::fCreateHardLink(LPCWSTR Object,LPCWSTR Target,LPSECURITY_ATTRIBUTES SecurityAttributes)
 {
+	CriticalSectionLock Lock(CS);
 	bool Result=false;
 	if(AdminApproveDlg(PointToName(Object)) && Initialize())
 	{
@@ -620,8 +648,9 @@ bool AdminMode::CreateHardLink(LPCWSTR Object,LPCWSTR Target,LPSECURITY_ATTRIBUT
 	return Result;
 }
 
-bool AdminMode::CreateSymbolicLink(LPCWSTR Object, LPCWSTR Target, DWORD Flags)
+bool AdminMode::fCreateSymbolicLink(LPCWSTR Object, LPCWSTR Target, DWORD Flags)
 {
+	CriticalSectionLock Lock(CS);
 	bool Result=false;
 	if(AdminApproveDlg(PointToName(Object)) && Initialize())
 	{
@@ -649,8 +678,9 @@ bool AdminMode::CreateSymbolicLink(LPCWSTR Object, LPCWSTR Target, DWORD Flags)
 	return Result;
 }
 
-bool AdminMode::SetReparseDataBuffer(LPCWSTR Object,PREPARSE_DATA_BUFFER ReparseDataBuffer)
+bool AdminMode::fSetReparseDataBuffer(LPCWSTR Object,PREPARSE_DATA_BUFFER ReparseDataBuffer)
 {
+	CriticalSectionLock Lock(CS);
 	bool Result=false;
 	if(AdminApproveDlg(PointToName(Object)) && Initialize())
 	{
@@ -675,8 +705,9 @@ bool AdminMode::SetReparseDataBuffer(LPCWSTR Object,PREPARSE_DATA_BUFFER Reparse
 	return Result;
 }
 
-int AdminMode::MoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
+int AdminMode::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 {
+	CriticalSectionLock Lock(CS);
 	int Result=0;
 	if(AdminApproveDlg(PointToName(FileOpStruct.pFrom)) && Initialize())
 	{
@@ -705,8 +736,9 @@ int AdminMode::MoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 	return Result;
 }
 
-HANDLE AdminMode::FindFirstFile(LPCWSTR Object, PWIN32_FIND_DATA W32FindData)
+HANDLE AdminMode::fFindFirstFile(LPCWSTR Object, PWIN32_FIND_DATA W32FindData)
 {
+	CriticalSectionLock Lock(CS);
 	HANDLE Result=INVALID_HANDLE_VALUE;
 	if(/*AdminApproveDlg(PointToName(Object)) && */Initialize())
 	{
@@ -723,7 +755,7 @@ HANDLE AdminMode::FindFirstFile(LPCWSTR Object, PWIN32_FIND_DATA W32FindData)
 						if(ReceiveLastError())
 						{
 							Result = *reinterpret_cast<PHANDLE>(OpResult.Get());
-							if(Result && W32FindData)
+							if(Result!=INVALID_HANDLE_VALUE && W32FindData)
 							{
 								*W32FindData = *reinterpret_cast<PWIN32_FIND_DATA>(FindData.Get());
 							}
@@ -736,10 +768,10 @@ HANDLE AdminMode::FindFirstFile(LPCWSTR Object, PWIN32_FIND_DATA W32FindData)
 	return Result;
 }
 
-bool AdminMode::FindNextFile(HANDLE Handle, PWIN32_FIND_DATA W32FindData)
+bool AdminMode::fFindNextFile(HANDLE Handle, PWIN32_FIND_DATA W32FindData)
 {
+	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	//if(AdminApproveDlg(PointToName(Object)) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_FINDNEXTFILE))
 		{
@@ -767,10 +799,10 @@ bool AdminMode::FindNextFile(HANDLE Handle, PWIN32_FIND_DATA W32FindData)
 	return Result;
 }
 
-bool AdminMode::FindClose(HANDLE Handle)
+bool AdminMode::fFindClose(HANDLE Handle)
 {
+	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	//if(AdminApproveDlg(PointToName(Object)) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_FINDCLOSE))
 		{
@@ -790,8 +822,9 @@ bool AdminMode::FindClose(HANDLE Handle)
 	return Result;
 }
 
-bool AdminMode::SetOwner(LPCWSTR Object, LPCWSTR Owner)
+bool AdminMode::fSetOwner(LPCWSTR Object, LPCWSTR Owner)
 {
+	CriticalSectionLock Lock(CS);
 	bool Result=false;
 	if(AdminApproveDlg(PointToName(Object)) && Initialize())
 	{
@@ -812,6 +845,393 @@ bool AdminMode::SetOwner(LPCWSTR Object, LPCWSTR Owner)
 				}
 			}
 		}
+	}
+	return Result;
+}
+
+HANDLE AdminMode::fCreateFile(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile)
+{
+	CriticalSectionLock Lock(CS);
+	HANDLE Result=INVALID_HANDLE_VALUE;
+	if(AdminApproveDlg(PointToName(Object)) && Initialize())
+	{
+		if(SendCommand(C_FUNCTION_CREATEFILE))
+		{
+			if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
+			{
+				if(WriteInt(DesiredAccess))
+				{
+					if(WriteInt(ShareMode))
+					{
+						// BUGBUG: SecurityAttributes ignored
+						if(WriteInt(CreationDistribution))
+						{
+							if(WriteInt(FlagsAndAttributes))
+							{
+								// BUGBUG: TemplateFile ignored
+								AutoObject OpResult;
+								if(ReadData(OpResult))
+								{
+									if(ReceiveLastError())
+									{
+										Result = *reinterpret_cast<PHANDLE>(OpResult.Get());
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return Result;
+}
+
+bool AdminMode::fCloseHandle(HANDLE Handle)
+{
+	CriticalSectionLock Lock(CS);
+	bool Result=false;
+	{
+		if(SendCommand(C_FUNCTION_CLOSEHANDLE))
+		{
+			if(WriteData(&Handle,Handle?sizeof(Handle):0))
+			{
+				int OpResult;
+				if(ReadInt(OpResult))
+				{
+					if(ReceiveLastError())
+					{
+						Result = OpResult != FALSE;
+					}
+				}
+			}
+		}
+	}
+	return Result;
+}
+
+bool AdminMode::fReadFile(HANDLE Handle, LPVOID Buffer, DWORD NumberOfBytesToRead, LPDWORD NumberOfBytesRead, LPOVERLAPPED Overlapped)
+{
+	CriticalSectionLock Lock(CS);
+	bool Result=false;
+	{
+		if(SendCommand(C_FUNCTION_READFILE))
+		{
+			if(WriteData(&Handle,Handle?sizeof(Handle):0))
+			{
+				if(WriteInt(NumberOfBytesToRead))
+				{
+					// BUGBUG: Overlapped ignored
+					int OpResult;
+					if(ReadInt(OpResult))
+					{
+						if(OpResult)
+						{
+							int Read;
+							if(ReadInt(Read))
+							{
+								if(NumberOfBytesRead)
+								{
+									*NumberOfBytesRead = Read;
+								}
+								if(Read)
+								{
+									RawReadPipe(Pipe, Buffer, Read);
+								}
+							}
+						}
+						if(ReceiveLastError())
+						{
+							Result = OpResult != FALSE;
+						}
+					}
+				}
+			}
+		}
+	}
+	return Result;
+}
+
+bool AdminMode::fWriteFile(HANDLE Handle, LPCVOID Buffer, DWORD NumberOfBytesToWrite, LPDWORD NumberOfBytesWritten, LPOVERLAPPED Overlapped)
+{
+	CriticalSectionLock Lock(CS);
+	bool Result=false;
+	{
+		if(SendCommand(C_FUNCTION_WRITEFILE))
+		{
+			if(WriteData(&Handle,Handle?sizeof(Handle):0))
+			{
+				if(WriteData(Buffer, Buffer?NumberOfBytesToWrite:0))
+				{
+					if(WriteInt(NumberOfBytesToWrite))
+					{
+						// BUGBUG: Overlapped ignored
+						int OpResult;
+						if(ReadInt(OpResult))
+						{
+							if(OpResult)
+							{
+								int Written = 0;
+								if(ReadInt(Written))
+								{
+									if(NumberOfBytesWritten)
+									{
+										*NumberOfBytesWritten = Written;
+									}
+								}
+							}
+							if(ReceiveLastError())
+							{
+								Result = OpResult != FALSE;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return Result;
+}
+
+bool AdminMode::fSetFilePointerEx(HANDLE Handle, INT64 DistanceToMove, PINT64 NewFilePointer, DWORD MoveMethod)
+{
+	CriticalSectionLock Lock(CS);
+	bool Result=false;
+	{
+		if(SendCommand(C_FUNCTION_SETFILEPOINTEREX))
+		{
+			if(WriteData(&Handle,Handle?sizeof(Handle):0))
+			{
+				if(WriteInt64(DistanceToMove))
+				{
+					if(WriteInt(MoveMethod))
+					{
+						int OpResult;
+						if(ReadInt(OpResult))
+						{
+							if(OpResult)
+							{
+								INT64 NewPtr = 0;
+								if(ReadInt64(NewPtr))
+								{
+									if(NewFilePointer)
+									{
+										*NewFilePointer = NewPtr;
+									}
+								}
+								if(ReceiveLastError())
+								{
+									Result = OpResult != FALSE;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return Result;
+}
+
+bool AdminMode::fSetEndOfFile(HANDLE Handle)
+{
+	CriticalSectionLock Lock(CS);
+	bool Result=false;
+	{
+		if(SendCommand(C_FUNCTION_SETENDOFFILE))
+		{
+			if(WriteData(&Handle,Handle?sizeof(Handle):0))
+			{
+				int OpResult;
+				if(ReadInt(OpResult))
+				{
+					if(ReceiveLastError())
+					{
+						Result = OpResult != FALSE;
+					}
+				}
+			}
+		}
+	}
+	return Result;
+}
+
+bool AdminMode::fGetFileTime(HANDLE Handle, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime)
+{
+	CriticalSectionLock Lock(CS);
+	bool Result=false;
+	{
+		if(SendCommand(C_FUNCTION_GETFILETIME))
+		{
+			if(WriteData(&Handle,Handle?sizeof(Handle):0))
+			{
+				int OpResult;
+				if(ReadInt(OpResult))
+				{
+					if(OpResult)
+					{
+						AutoObject AutoCreationTime;
+						if(ReadData(AutoCreationTime))
+						{
+							if(CreationTime)
+							{
+								*CreationTime = *reinterpret_cast<LPFILETIME>(AutoCreationTime.Get());
+							}
+							AutoObject AutoLastAccessTime;
+							if(ReadData(AutoLastAccessTime))
+							{
+								if(LastAccessTime)
+								{
+									*LastAccessTime = *reinterpret_cast<LPFILETIME>(AutoLastAccessTime.Get());
+								}
+								AutoObject AutoLastWriteTime;
+								if(ReadData(AutoLastWriteTime))
+								{
+									if(LastWriteTime)
+									{
+										*LastWriteTime = *reinterpret_cast<LPFILETIME>(AutoLastWriteTime.Get());
+									}
+								}
+							}
+						}
+					}
+					if(ReceiveLastError())
+					{
+						Result = OpResult != FALSE;
+					}
+				}
+			}
+		}
+	}
+	return Result;
+}
+
+bool AdminMode::fSetFileTime(HANDLE Handle, const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime)
+{
+	CriticalSectionLock Lock(CS);
+	bool Result=false;
+	{
+		if(SendCommand(C_FUNCTION_SETFILETIME))
+		{
+			if(WriteData(&Handle,Handle?sizeof(Handle):0))
+			{
+				if(WriteData(CreationTime, CreationTime?sizeof(*CreationTime):0))
+				{
+					if(WriteData(LastAccessTime, LastAccessTime?sizeof(*LastAccessTime):0))
+					{
+						if(WriteData(LastWriteTime, LastWriteTime?sizeof(*LastWriteTime):0))
+						{
+							int OpResult;
+							if(ReadInt(OpResult))
+							{
+								if(ReceiveLastError())
+								{
+									Result = OpResult != FALSE;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return Result;
+}
+
+bool AdminMode::fGetFileSizeEx(HANDLE Handle, UINT64& Size)
+{
+	CriticalSectionLock Lock(CS);
+	bool Result=false;
+	{
+		if(SendCommand(C_FUNCTION_GETFILESIZEEX))
+		{
+			if(WriteData(&Handle,Handle?sizeof(Handle):0))
+			{
+				int OpResult;
+				if(ReadInt(OpResult))
+				{
+					if(OpResult)
+					{
+						INT64 iSize;
+						ReadInt64(iSize);
+						Size = iSize;
+					}
+					if(ReceiveLastError())
+					{
+						Result = OpResult != FALSE;
+					}
+				}
+			}
+		}
+	}
+	return Result;
+}
+
+
+bool AdminMode::fDeviceIoControl(HANDLE Handle, DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped)
+{
+	CriticalSectionLock Lock(CS);
+	bool Result=false;
+	{
+		if(SendCommand(C_FUNCTION_DEVICEIOCONTROL))
+		{
+			if(WriteData(&Handle,Handle?sizeof(Handle):0))
+			{
+				if(WriteInt(IoControlCode))
+				{
+					if(WriteData(InBuffer, InBufferSize))
+					{
+						if(WriteInt(InBufferSize))
+						{
+							if(WriteInt(OutBufferSize))
+							{
+								// BUGBUG: Overlapped ignored
+								int OpResult;
+								if(ReadInt(OpResult))
+								{
+									if(OpResult)
+									{
+										int Bytes = 0;
+										if(ReadInt(Bytes))
+										{
+											if(BytesReturned)
+											{
+												*BytesReturned = Bytes;
+											}
+											if(Bytes)
+											{
+												RawReadPipe(Pipe, OutBuffer, Bytes);
+											}
+											if(ReceiveLastError())
+											{
+												Result = OpResult != FALSE;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return Result;
+}
+
+bool ElevationRequired()
+{
+	bool Result = false;
+	if(ifn.pfnRtlGetLastNtStatus)
+	{
+		NTSTATUS LastNtStatus = GetLastNtStatus();
+		Result = LastNtStatus == STATUS_ACCESS_DENIED || LastNtStatus == STATUS_PRIVILEGE_NOT_HELD;
+	}
+	else
+	{
+		// RtlGetLastNtStatus not implemented in w2k.
+		DWORD LastWin32Error = GetLastError();
+		Result = LastWin32Error == ERROR_ACCESS_DENIED || LastWin32Error == ERROR_PRIVILEGE_NOT_HELD;
 	}
 	return Result;
 }
@@ -882,322 +1302,663 @@ DWORD WINAPI AdminCopyProgressRoutine(LARGE_INTEGER TotalFileSize, LARGE_INTEGER
 	return Result;
 }
 
+void CreateDirectoryHandler()
+{
+	AutoObject Object;
+	if(ReadPipeData(Pipe, Object))
+	{
+		// BUGBUG, SecurityAttributes ignored
+		int Result = CreateDirectory(Object.GetStr(), NULL);
+		int LastError = GetLastError();
+		if(WritePipeInt(Pipe, Result))
+		{
+			WritePipeInt(Pipe, LastError);
+		}
+	}
+}
+
+void RemoveDirectoryHandler()
+{
+	AutoObject Object;
+	if(ReadPipeData(Pipe, Object))
+	{
+		int Result = RemoveDirectory(Object.GetStr());
+		int LastError = GetLastError();
+		if(WritePipeInt(Pipe, Result))
+		{
+			WritePipeInt(Pipe, LastError);
+		}
+	}
+}
+
+void DeleteFileHandler()
+{
+	AutoObject Object;
+	if(ReadPipeData(Pipe, Object))
+	{
+		int Result = DeleteFile(Object.GetStr());
+		int LastError = GetLastError();
+		if(WritePipeInt(Pipe, Result))
+		{
+			WritePipeInt(Pipe, LastError);
+		}
+	}
+}
+
+void CopyFileExHandler()
+{
+	AutoObject From;
+	if(ReadPipeData(Pipe, From))
+	{
+		AutoObject To;
+		if(ReadPipeData(Pipe, To))
+		{
+			AutoObject UserCopyProgressRoutine;
+			if(ReadPipeData(Pipe, UserCopyProgressRoutine))
+			{
+				AutoObject Data;
+				if(ReadPipeData(Pipe, Data))
+				{
+					int Flags = 0;
+					if(ReadPipeInt(Pipe, Flags))
+					{
+						// BUGBUG: Cancel ignored
+						int Result = CopyFileEx(From.GetStr(), To.GetStr(), UserCopyProgressRoutine.Get()?AdminCopyProgressRoutine:nullptr, Data.Get(), nullptr, Flags);
+						int LastError = GetLastError();
+						if(WritePipeInt(Pipe, Result))
+						{
+							WritePipeInt(Pipe, LastError);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+void MoveFileExHandler()
+{
+	AutoObject From;
+	if(ReadPipeData(Pipe, From))
+	{
+		AutoObject To;
+		if(ReadPipeData(Pipe, To))
+		{
+			int Flags = 0;
+			if(ReadPipeInt(Pipe, Flags))
+			{
+				int Result = MoveFileEx(From.GetStr(), To.GetStr(), Flags);
+				int LastError = GetLastError();
+				if(WritePipeInt(Pipe, Result))
+				{
+					WritePipeInt(Pipe, LastError);
+				}
+			}
+		}
+	}
+}
+
+void GetFileAttributesHandler()
+{
+	AutoObject Object;
+	if(ReadPipeData(Pipe, Object))
+	{
+		int Result = GetFileAttributes(Object.GetStr());
+		int LastError = GetLastError();
+		if(WritePipeInt(Pipe, Result))
+		{
+			WritePipeInt(Pipe, LastError);
+		}
+	}
+}
+
+void SetFileAttributesHandler()
+{
+	AutoObject Object;
+	if(ReadPipeData(Pipe, Object))
+	{
+		int Attributes = 0;
+		if(ReadPipeInt(Pipe, Attributes))
+		{
+			int Result = SetFileAttributes(Object.GetStr(), Attributes);
+			int LastError = GetLastError();
+			if(WritePipeInt(Pipe, Result))
+			{
+				WritePipeInt(Pipe, LastError);
+			}
+		}
+	}
+}
+
+void CreateHardLinkHandler()
+{
+	AutoObject Object;
+	if(ReadPipeData(Pipe, Object))
+	{
+		AutoObject Target;
+		if(ReadPipeData(Pipe, Target))
+		{
+			// BUGBUG: SecurityAttributes ignored.
+			int Result = CreateHardLink(Object.GetStr(), Target.GetStr(), nullptr);
+			int LastError = GetLastError();
+			if(WritePipeInt(Pipe, Result))
+			{
+				WritePipeInt(Pipe, LastError);
+			}
+		}
+	}
+}
+
+void CreateSymbolicLinkHandler()
+{
+	AutoObject Object;
+	if(ReadPipeData(Pipe, Object))
+	{
+		AutoObject Target;
+		if(ReadPipeData(Pipe, Target))
+		{
+			int Flags = 0;
+			if(ReadPipeInt(Pipe, Flags))
+			{
+				int Result = CreateSymbolicLinkInternal(Object.GetStr(), Target.GetStr(), Flags);
+				int LastError = GetLastError();
+				if(WritePipeInt(Pipe, Result))
+				{
+					WritePipeInt(Pipe, LastError);
+				}
+			}
+		}
+	}
+}
+
+void SetReparseDatabufferHandler()
+{
+	AutoObject Object;
+	if(ReadPipeData(Pipe, Object))
+	{
+		AutoObject ReparseDataBuffer;
+		if(ReadPipeData(Pipe, ReparseDataBuffer))
+		{
+			int Result = SetREPARSE_DATA_BUFFER(Object.GetStr(), reinterpret_cast<PREPARSE_DATA_BUFFER>(ReparseDataBuffer.Get()));
+			int LastError = GetLastError();
+			if(WritePipeInt(Pipe, Result))
+			{
+				WritePipeInt(Pipe, LastError);
+			}
+		}
+	}
+}
+
+void MoveToRecycleBinHandler()
+{
+	AutoObject Struct;
+	if(ReadPipeData(Pipe, Struct))
+	{
+		AutoObject From;
+		if(ReadPipeData(Pipe, From))
+		{
+			AutoObject To;
+			if(ReadPipeData(Pipe, To))
+			{
+				SHFILEOPSTRUCT* FileOpStruct = reinterpret_cast<SHFILEOPSTRUCT*>(Struct.Get());
+				FileOpStruct->pFrom = From.GetStr();
+				FileOpStruct->pTo = To.GetStr();
+				if(WritePipeInt(Pipe, SHFileOperation(FileOpStruct)))
+				{
+					WritePipeInt(Pipe, FileOpStruct->fAnyOperationsAborted);
+				}
+			}
+		}
+	}
+}
+
+void FindFirstFileHandler()
+{
+	AutoObject Object;
+	if(ReadPipeData(Pipe, Object))
+	{
+		WIN32_FIND_DATA W32FindData;
+		HANDLE Result = FindFirstFile(Object.GetStr(), &W32FindData);
+		int LastError = GetLastError();
+		if(WritePipeData(Pipe, &Result, sizeof(Result)))
+		{
+			if(WritePipeData(Pipe, &W32FindData, sizeof(WIN32_FIND_DATA)))
+			{
+				WritePipeInt(Pipe, LastError);
+			}
+		}
+	}
+}
+
+void FindNextFileHandler()
+{
+	AutoObject Handle;
+	if(ReadPipeData(Pipe, Handle))
+	{
+		WIN32_FIND_DATA W32FindData;
+		int Result = FindNextFile(*reinterpret_cast<PHANDLE>(Handle.Get()), &W32FindData);
+		int LastError = GetLastError();
+		if(WritePipeInt(Pipe, Result))
+		{
+			if(WritePipeData(Pipe, &W32FindData, sizeof(WIN32_FIND_DATA)))
+			{
+				WritePipeInt(Pipe, LastError);
+			}
+		}
+	}
+}
+
+void FindCloseHandler()
+{
+	AutoObject Handle;
+	if(ReadPipeData(Pipe, Handle))
+	{
+		int Result = FindClose(*reinterpret_cast<PHANDLE>(Handle.Get()));
+		int LastError = GetLastError();
+		if(WritePipeInt(Pipe, Result))
+		{
+			WritePipeInt(Pipe, LastError);
+		}
+	}
+}
+
+void SetOwnerHandler()
+{
+	AutoObject Object;
+	if(ReadPipeData(Pipe, Object))
+	{
+		AutoObject Owner;
+		if(ReadPipeData(Pipe, Owner))
+		{
+			int Result = SetOwnerInternal(Object.GetStr(), Owner.GetStr());
+			int LastError = GetLastError();
+			if(WritePipeInt(Pipe, Result))
+			{
+				WritePipeInt(Pipe, LastError);
+			}
+		}
+	}
+}
+
+void CreateFileHandler()
+{
+	AutoObject Object;
+	if(ReadPipeData(Pipe, Object))
+	{
+		int DesiredAccess;
+		if(ReadPipeInt(Pipe, DesiredAccess))
+		{
+			int ShareMode;
+			if(ReadPipeInt(Pipe, ShareMode))
+			{
+				// BUGBUG: SecurityAttributes ignored
+				int CreationDistribution;
+				if(ReadPipeInt(Pipe, CreationDistribution))
+				{
+					int FlagsAndAttributes;
+					if(ReadPipeInt(Pipe, FlagsAndAttributes))
+					{
+						// BUGBUG: TemplateFile ignored
+						HANDLE Result = apiCreateFile(Object.GetStr(), DesiredAccess, ShareMode, nullptr, CreationDistribution, FlagsAndAttributes, nullptr);
+						int LastError = GetLastError();
+						if(WritePipeData(Pipe, &Result, sizeof(Result)))
+						{
+							WritePipeInt(Pipe, LastError);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+void CloseHandleHandler()
+{
+	AutoObject Handle;
+	if(ReadPipeData(Pipe, Handle))
+	{
+		int Result = CloseHandle(*reinterpret_cast<PHANDLE>(Handle.Get()));
+		int LastError = GetLastError();
+		if(WritePipeInt(Pipe, Result))
+		{
+			WritePipeInt(Pipe, LastError);
+		}
+	}
+}
+
+void ReadFileHandler()
+{
+	AutoObject Handle;
+	if(ReadPipeData(Pipe, Handle))
+	{
+		int NumberOfBytesToRead = 0;
+		if(ReadPipeInt(Pipe, NumberOfBytesToRead))
+		{
+			LPBYTE Buffer = new BYTE[NumberOfBytesToRead];
+			if(Buffer)
+			{
+				int Read = 0;
+				// BUGBUG: Overlapped ignored
+				int Result = ReadFile(*reinterpret_cast<PHANDLE>(Handle.Get()), Buffer, NumberOfBytesToRead, reinterpret_cast<LPDWORD>(&Read), nullptr);
+				int LastError = GetLastError();
+				if(WritePipeInt(Pipe, Result))
+				{
+					if(Result)
+					{
+						if(WritePipeInt(Pipe, Read))
+						{
+							if(Read)
+							{
+								RawWritePipe(Pipe, Buffer, Read);
+							}
+						}
+					}
+					WritePipeInt(Pipe, LastError);
+				}
+				delete[] Buffer;
+			}
+		}
+	}
+}
+
+void WriteFileHandler()
+{
+	AutoObject Handle;
+	if(ReadPipeData(Pipe, Handle))
+	{
+		AutoObject Buffer;
+		if(ReadPipeData(Pipe, Buffer))
+		{
+			int NumberOfBytesToWrite;
+			if(ReadPipeInt(Pipe, NumberOfBytesToWrite))
+			{
+				// BUGBUG: Overlapped ignored
+				int Written;
+				int Result = WriteFile(*reinterpret_cast<PHANDLE>(Handle.Get()), Buffer.Get(), NumberOfBytesToWrite, reinterpret_cast<LPDWORD>(&Written), nullptr);
+				int LastError = GetLastError();
+				if(WritePipeInt(Pipe, Result))
+				{
+					if(Result)
+					{
+						WritePipeInt(Pipe, Written);
+					}
+					WritePipeInt(Pipe, LastError);
+				}
+			}
+		}
+	}
+}
+
+void SetFilePointerExHandler()
+{
+	AutoObject Handle;
+	if(ReadPipeData(Pipe, Handle))
+	{
+		INT64 DistanceToMove;
+		if(ReadPipeInt64(Pipe, DistanceToMove))
+		{
+			INT MoveMethod;
+			if(ReadPipeInt(Pipe, MoveMethod))
+			{
+				INT64 NewFilePointer;
+				int Result = apiSetFilePointerEx(*reinterpret_cast<PHANDLE>(Handle.Get()), DistanceToMove, &NewFilePointer, MoveMethod);
+				int LastError = GetLastError();
+				if(WritePipeInt(Pipe, Result))
+				{
+					if(Result)
+					{
+						WritePipeInt64(Pipe, NewFilePointer);
+					}
+					WritePipeInt(Pipe, LastError);
+				}
+			}
+		}
+	}
+}
+
+void SetEndOfFileHandler()
+{
+	AutoObject Handle;
+	if(ReadPipeData(Pipe, Handle))
+	{
+		int Result = SetEndOfFile(*reinterpret_cast<PHANDLE>(Handle.Get()));
+		int LastError = GetLastError();
+		if(WritePipeInt(Pipe, Result))
+		{
+			WritePipeInt(Pipe, LastError);
+		}
+	}
+}
+
+void GetFileTimeHandler()
+{
+	AutoObject Handle;
+	if(ReadPipeData(Pipe, Handle))
+	{
+		FILETIME CreationTime, LastAccessTime, LastWriteTime;
+		int Result = GetFileTime(*reinterpret_cast<PHANDLE>(Handle.Get()), &CreationTime, &LastAccessTime, &LastWriteTime);
+		int LastError = GetLastError();
+		if(WritePipeInt(Pipe, Result))
+		{
+			if(Result)
+			{
+				if(WritePipeData(Pipe, &CreationTime, sizeof(CreationTime)))
+				{
+					if(WritePipeData(Pipe, &LastAccessTime, sizeof(LastAccessTime)))
+					{
+						WritePipeData(Pipe, &LastWriteTime, sizeof(LastWriteTime));
+					}
+				}
+			}
+			WritePipeInt(Pipe, LastError);
+		}
+	}
+}
+
+void SetFileTimeHandler()
+{
+	AutoObject Handle;
+	if(ReadPipeData(Pipe, Handle))
+	{
+		AutoObject CreationTime;
+		if(ReadPipeData(Pipe, CreationTime))
+		{
+			AutoObject LastAccessTime;
+			if(ReadPipeData(Pipe, LastAccessTime))
+			{
+				AutoObject LastWriteTime;
+				if(ReadPipeData(Pipe, LastWriteTime))
+				{
+					int Result = SetFileTime(*reinterpret_cast<PHANDLE>(Handle.Get()), reinterpret_cast<PFILETIME>(CreationTime.Get()), reinterpret_cast<PFILETIME>(LastAccessTime.Get()), reinterpret_cast<PFILETIME>(LastWriteTime.Get()));
+					int LastError = GetLastError();
+					if(WritePipeInt(Pipe, Result))
+					{
+						WritePipeInt(Pipe, LastError);
+					}
+				}
+			}
+		}
+	}
+}
+
+void GetFileSizeExHandler()
+{
+	AutoObject Handle;
+	if(ReadPipeData(Pipe, Handle))
+	{
+		UINT64 Size;
+		int Result = apiGetFileSizeEx(*reinterpret_cast<PHANDLE>(Handle.Get()), Size);
+		int LastError = GetLastError();
+		if(WritePipeInt(Pipe, Result))
+		{
+			if(Result)
+			{
+				WritePipeInt64(Pipe, Size);
+			}
+			WritePipeInt(Pipe, LastError);
+		}
+	}
+}
+
+void DeviceIoControlHandler()
+{
+	AutoObject Handle;
+	if(ReadPipeData(Pipe, Handle))
+	{
+		int IoControlCode;
+		if(ReadPipeInt(Pipe, IoControlCode))
+		{
+			AutoObject InBuffer;
+			if(ReadPipeData(Pipe, InBuffer))
+			{
+				int InBufferSize;
+				if(ReadPipeInt(Pipe, InBufferSize))
+				{
+					int OutBufferSize;
+					if(ReadPipeInt(Pipe, OutBufferSize))
+					{
+						LPBYTE OutBuffer = nullptr;
+						if(OutBufferSize)
+						{
+							OutBuffer = new BYTE[OutBufferSize];
+						}
+						int Read = 0;
+						// BUGBUG: Overlapped ignored
+						int BytesReturned = 0;
+						int Result = DeviceIoControl(*reinterpret_cast<PHANDLE>(Handle.Get()), IoControlCode, InBuffer.Get(), InBufferSize, OutBuffer, OutBufferSize, reinterpret_cast<LPDWORD>(&BytesReturned), nullptr);
+						int LastError = GetLastError();
+						if(WritePipeInt(Pipe, Result))
+						{
+							if(Result)
+							{
+								if(WritePipeInt(Pipe, BytesReturned))
+								{
+									if(BytesReturned)
+									{
+										RawWritePipe(Pipe, OutBuffer, BytesReturned);
+									}
+								}
+							}
+							WritePipeInt(Pipe, LastError);
+						}
+						if(OutBuffer)
+						{
+							delete[] OutBuffer;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 bool Process(int Command)
 {
 	bool Exit=false;
 	switch(Command)
 	{
-	case C_SERVICE_TEST:
-		{
-			int Data=0;
-			if(ReadPipeInt(Pipe, Data))
-			{
-				Data^=Magic;
-				if(WritePipeInt(Pipe, Data))
-				{
-					WritePipeInt(Pipe, GetCurrentProcessId());
-				}
-			}
-		}
-		break;
-
 	case C_SERVICE_EXIT:
-		{
-			Exit=true;
-		}
+		Exit = true;
 		break;
 
 	case C_FUNCTION_CREATEDIRECTORY:
-		{
-			AutoObject Object;
-			if(ReadPipeData(Pipe, Object))
-			{
-				// BUGBUG, SecurityAttributes ignored
-				int Result = CreateDirectory(Object.GetStr(), NULL);
-				int LastError = GetLastError();
-				if(WritePipeInt(Pipe, Result))
-				{
-					WritePipeInt(Pipe, LastError);
-				}
-			}
-		}
+		CreateDirectoryHandler();
 		break;
 
 	case C_FUNCTION_REMOVEDIRECTORY:
-		{
-			AutoObject Object;
-			if(ReadPipeData(Pipe, Object))
-			{
-				int Result = RemoveDirectory(Object.GetStr());
-				int LastError = GetLastError();
-				if(WritePipeInt(Pipe, Result))
-				{
-					WritePipeInt(Pipe, LastError);
-				}
-			}
-		}
+		RemoveDirectoryHandler();
 		break;
 
 	case C_FUNCTION_DELETEFILE:
-		{
-			AutoObject Object;
-			if(ReadPipeData(Pipe, Object))
-			{
-				int Result = DeleteFile(Object.GetStr());
-				int LastError = GetLastError();
-				if(WritePipeInt(Pipe, Result))
-				{
-					WritePipeInt(Pipe, LastError);
-				}
-			}
-		}
+		DeleteFileHandler();
 		break;
-	
+
 	case C_FUNCTION_COPYFILEEX:
-		{
-			AutoObject From;
-			if(ReadPipeData(Pipe, From))
-			{
-				AutoObject To;
-				if(ReadPipeData(Pipe, To))
-				{
-					AutoObject UserCopyProgressRoutine;
-					if(ReadPipeData(Pipe, UserCopyProgressRoutine))
-					{
-						AutoObject Data;
-						if(ReadPipeData(Pipe, Data))
-						{
-							int Flags = 0;
-							if(ReadPipeInt(Pipe, Flags))
-							{
-								// BUGBUG: Cancel ignored
-								int Result = CopyFileEx(From.GetStr(), To.GetStr(), UserCopyProgressRoutine.Get()?AdminCopyProgressRoutine:nullptr, Data.Get(), nullptr, Flags);
-								int LastError = GetLastError();
-								if(WritePipeInt(Pipe, Result))
-								{
-									WritePipeInt(Pipe, LastError);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+		CopyFileExHandler();
 		break;
 
 	case C_FUNCTION_MOVEFILEEX:
-		{
-			AutoObject From;
-			if(ReadPipeData(Pipe, From))
-			{
-				AutoObject To;
-				if(ReadPipeData(Pipe, To))
-				{
-					int Flags = 0;
-					if(ReadPipeInt(Pipe, Flags))
-					{
-						int Result = MoveFileEx(From.GetStr(), To.GetStr(), Flags);
-						int LastError = GetLastError();
-						if(WritePipeInt(Pipe, Result))
-						{
-							WritePipeInt(Pipe, LastError);
-						}
-					}
-				}
-			}
-		}
+		MoveFileExHandler();
 		break;
 
 	case C_FUNCTION_GETFILEATTRIBUTES:
-		{
-			AutoObject Object;
-			if(ReadPipeData(Pipe, Object))
-			{
-				int Result = GetFileAttributes(Object.GetStr());
-				int LastError = GetLastError();
-				if(WritePipeInt(Pipe, Result))
-				{
-					WritePipeInt(Pipe, LastError);
-				}
-			}
-		}
+		GetFileAttributesHandler();
 		break;
 
 	case C_FUNCTION_SETFILEATTRIBUTES:
-		{
-			AutoObject Object;
-			if(ReadPipeData(Pipe, Object))
-			{
-				int Attributes = 0;
-				if(ReadPipeInt(Pipe, Attributes))
-				{
-					int Result = SetFileAttributes(Object.GetStr(), Attributes);
-					int LastError = GetLastError();
-					if(WritePipeInt(Pipe, Result))
-					{
-						WritePipeInt(Pipe, LastError);
-					}
-				}
-			}
-		}
+		SetFileAttributesHandler();
 		break;
 
 	case C_FUNCTION_CREATEHARDLINK:
-		{
-			AutoObject Object;
-			if(ReadPipeData(Pipe, Object))
-			{
-				AutoObject Target;
-				if(ReadPipeData(Pipe, Target))
-				{
-					// BUGBUG: SecurityAttributes ignored.
-					int Result = CreateHardLink(Object.GetStr(), Target.GetStr(), nullptr);
-					int LastError = GetLastError();
-					if(WritePipeInt(Pipe, Result))
-					{
-						WritePipeInt(Pipe, LastError);
-					}
-				}
-			}
-		}
+		CreateHardLinkHandler();
 		break;
 
 	case C_FUNCTION_CREATESYMBOLICLINK:
-		{
-			AutoObject Object;
-			if(ReadPipeData(Pipe, Object))
-			{
-				AutoObject Target;
-				if(ReadPipeData(Pipe, Target))
-				{
-					int Flags = 0;
-					if(ReadPipeInt(Pipe, Flags))
-					{
-						int Result = CreateSymbolicLinkInternal(Object.GetStr(), Target.GetStr(), Flags);
-						int LastError = GetLastError();
-						if(WritePipeInt(Pipe, Result))
-						{
-							WritePipeInt(Pipe, LastError);
-						}
-					}
-				}
-			}
-		}
+		CreateSymbolicLinkHandler();
 		break;
 
 	case C_FUNCTION_SETREPARSEDATABUFFER:
-		{
-			AutoObject Object;
-			if(ReadPipeData(Pipe, Object))
-			{
-				AutoObject ReparseDataBuffer;
-				if(ReadPipeData(Pipe, ReparseDataBuffer))
-				{
-					int Result = SetREPARSE_DATA_BUFFER(Object.GetStr(), reinterpret_cast<PREPARSE_DATA_BUFFER>(ReparseDataBuffer.Get()));
-					int LastError = GetLastError();
-					if(WritePipeInt(Pipe, Result))
-					{
-						WritePipeInt(Pipe, LastError);
-					}
-				}
-			}
-		}
+		SetReparseDatabufferHandler();
 		break;
 
 	case C_FUNCTION_MOVETORECYCLEBIN:
-		{
-			AutoObject Struct;
-			if(ReadPipeData(Pipe, Struct))
-			{
-				AutoObject From;
-				if(ReadPipeData(Pipe, From))
-				{
-					AutoObject To;
-					if(ReadPipeData(Pipe, To))
-					{
-						SHFILEOPSTRUCT* FileOpStruct = reinterpret_cast<SHFILEOPSTRUCT*>(Struct.Get());
-						FileOpStruct->pFrom = From.GetStr();
-						FileOpStruct->pTo = To.GetStr();
-						if(WritePipeInt(Pipe, SHFileOperation(FileOpStruct)))
-						{
-							WritePipeInt(Pipe, FileOpStruct->fAnyOperationsAborted);
-						}
-					}
-				}
-			}
-		}
+		MoveToRecycleBinHandler();
 		break;
 
 	case C_FUNCTION_FINDFIRSTFILE:
-		{
-			AutoObject Object;
-			if(ReadPipeData(Pipe, Object))
-			{
-				WIN32_FIND_DATA W32FindData;
-				HANDLE Result = FindFirstFile(Object.GetStr(), &W32FindData);
-				int LastError = GetLastError();
-				if(WritePipeData(Pipe, &Result, sizeof(Result)))
-				{
-					if(WritePipeData(Pipe, &W32FindData, sizeof(WIN32_FIND_DATA)))
-					{
-						WritePipeInt(Pipe, LastError);
-					}
-				}
-			}
-		}
+		FindFirstFileHandler();
 		break;
 
 	case C_FUNCTION_FINDNEXTFILE:
-		{
-			AutoObject Handle;
-			if(ReadPipeData(Pipe, Handle))
-			{
-				WIN32_FIND_DATA W32FindData;
-				int Result = FindNextFile(*reinterpret_cast<PHANDLE>(Handle.Get()), &W32FindData);
-				int LastError = GetLastError();
-				if(WritePipeInt(Pipe, Result))
-				{
-					if(WritePipeData(Pipe, &W32FindData, sizeof(WIN32_FIND_DATA)))
-					{
-						WritePipeInt(Pipe, LastError);
-					}
-				}
-			}
-		}
+		FindNextFileHandler();
 		break;
 
 	case C_FUNCTION_FINDCLOSE:
-		{
-			AutoObject Handle;
-			if(ReadPipeData(Pipe, Handle))
-			{
-				int Result = FindClose(*reinterpret_cast<PHANDLE>(Handle.Get()));
-				int LastError = GetLastError();
-				if(WritePipeInt(Pipe, Result))
-				{
-					WritePipeInt(Pipe, LastError);
-				}
-			}
-		}
+		FindCloseHandler();
 		break;
 
 	case C_FUNCTION_SETOWNER:
-		{
-			AutoObject Object;
-			if(ReadPipeData(Pipe, Object))
-			{
-				AutoObject Owner;
-				if(ReadPipeData(Pipe, Owner))
-				{
-					int Result = SetOwnerInternal(Object.GetStr(), Owner.GetStr());
-					int LastError = GetLastError();
-					if(WritePipeInt(Pipe, Result))
-					{
-						WritePipeInt(Pipe, LastError);
-					}
-				}
-			}
-		}
+		SetOwnerHandler();
+		break;
+
+	case C_FUNCTION_CREATEFILE:
+		CreateFileHandler();
+		break;
+
+	case C_FUNCTION_CLOSEHANDLE:
+		CloseHandleHandler();
+		break;
+
+	case C_FUNCTION_READFILE:
+		ReadFileHandler();
+		break;
+
+	case C_FUNCTION_WRITEFILE:
+		WriteFileHandler();
+		break;
+
+	case C_FUNCTION_SETFILEPOINTEREX:
+		SetFilePointerExHandler();
+		break;
+
+	case C_FUNCTION_SETENDOFFILE:
+		SetEndOfFileHandler();
+		break;
+
+	case C_FUNCTION_GETFILETIME:
+		GetFileTimeHandler();
+		break;
+
+	case C_FUNCTION_SETFILETIME:
+		SetFileTimeHandler();
+		break;
+
+	case C_FUNCTION_GETFILESIZEEX:
+		GetFileSizeExHandler();
+		break;
+
+	case C_FUNCTION_DEVICEIOCONTROL:
+		DeviceIoControlHandler();
 		break;
 
 	}
@@ -1218,25 +1979,29 @@ int AdminMain(int PID)
 
 	FormatString strPipe;
 	strPipe << PIPE_NAME << PID;
+	WaitNamedPipe(strPipe, NMPWAIT_WAIT_FOREVER);
 	Pipe = CreateFile(strPipe,GENERIC_READ|GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr);
 	if (Pipe != INVALID_HANDLE_VALUE)
 	{
-		bool Exit = false;
-		int Command = 0;
-		while(!Exit)
+		if(WritePipeInt(Pipe, GetCurrentProcessId()))
 		{
-			if(ReadPipeInt(Pipe, Command))
+			bool Exit = false;
+			int Command = 0;
+			while(!Exit)
 			{
-				Exit = Process(Command);
-			}
-			else
-			{
-				if(GetLastError() == ERROR_BROKEN_PIPE)
+				if(ReadPipeInt(Pipe, Command))
 				{
-					Exit=true;
+					Exit = Process(Command);
 				}
+				else
+				{
+					if(GetLastError() == ERROR_BROKEN_PIPE)
+					{
+						Exit=true;
+					}
+				}
+				Sleep(1);
 			}
-			Sleep(1);
 		}
 	}
 	return Result;

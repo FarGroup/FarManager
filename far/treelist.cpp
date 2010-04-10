@@ -562,14 +562,13 @@ void TreeList::SaveTreeFile()
 	if (FileAttributes != INVALID_FILE_ATTRIBUTES)
 		apiSetFileAttributes(strName,FILE_ATTRIBUTE_NORMAL);
 
-	HANDLE hTreeFile=apiCreateFile(strName,GENERIC_WRITE,FILE_SHARE_READ,nullptr,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL);
-
-	if (hTreeFile==INVALID_HANDLE_VALUE)
+	File TreeFile;
+	if (!TreeFile.Open(strName,GENERIC_WRITE,FILE_SHARE_READ,nullptr,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL))
 	{
 		/* $ 16.10.2000 tran
 		   если диск должен кешироваться, то и пытаться не стоит */
 		if (MustBeCached(strRoot))
-			if (!GetCacheTreeName(strRoot,strName,TRUE) || (hTreeFile=apiCreateFile(strName,GENERIC_WRITE,FILE_SHARE_READ,nullptr,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL))==INVALID_HANDLE_VALUE)
+			if (!GetCacheTreeName(strRoot,strName,TRUE) || !TreeFile.Open(strName,GENERIC_WRITE,FILE_SHARE_READ,nullptr,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL))
 				return;
 
 		/* tran $ */
@@ -584,18 +583,18 @@ void TreeList::SaveTreeFile()
 		if (RootLength>=ListData[I]->strName.GetLength())
 		{
 			DWORD Size=2*sizeof(WCHAR);
-			Success=(WriteFile(hTreeFile,L"\\\n",Size,&Written,nullptr) && Written==Size);
+			Success=(TreeFile.Write(L"\\\n",Size,&Written) && Written==Size);
 		}
 		else
 		{
 			DWORD Size=static_cast<DWORD>((ListData[I]->strName.GetLength()-RootLength)*sizeof(WCHAR));
-			Success=(WriteFile(hTreeFile,ListData[I]->strName+RootLength,Size,&Written,nullptr) && Written==Size);
+			Success=(TreeFile.Write(ListData[I]->strName+RootLength,Size,&Written) && Written==Size);
 			Size=1*sizeof(WCHAR);
-			Success=(WriteFile(hTreeFile,L"\n",Size,&Written,nullptr) && Written==Size);
+			Success=(TreeFile.Write(L"\n",Size,&Written) && Written==Size);
 		}
 	}
 
-	CloseHandle(hTreeFile);
+	TreeFile.Close();
 
 	if (!Success)
 	{
