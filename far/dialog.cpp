@@ -3100,7 +3100,8 @@ void Dialog::ProcessKey(int Key, unsigned ItemPos)
 	unsigned SavedFocusPos = FocusPos;
 	FocusPos = ItemPos;
 	ProcessKey(Key);
-	FocusPos = SavedFocusPos;
+	if (FocusPos == ItemPos)
+		FocusPos = SavedFocusPos;
 }
 
 
