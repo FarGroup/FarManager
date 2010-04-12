@@ -1250,10 +1250,9 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 
 					if (SelPanel != nullptr)
 					{
-						string strPath;
-						if (!SelPanel->VMProcess(CheckCode,&strPath))
-							SelPanel->GetCurDir(strPath);
-						Cond = (const wchar_t *)strPath;
+						if (!SelPanel->VMProcess(CheckCode,&strFileName,0))
+							SelPanel->GetCurDir(strFileName);
+						Cond = (const wchar_t *)strFileName;
 					}
 
 					break;

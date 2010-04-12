@@ -1,3 +1,8 @@
+svs 12.04.2010 12:38:45 +0300 - build 1497
+
+1. Bug: [A|P]Panel.path0 не возвращает путь
+   http://forum.farmanager.com/viewtopic.php?p=61218#p61218
+
 svs 12.04.2010 11:38:27 +0300 - build 1496
 
 1. Mantis#0000830: Неверный расчет перемещения в функции Viewer::Up() для UTF-8

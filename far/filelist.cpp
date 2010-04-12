@@ -158,6 +158,7 @@ FileList::FileList():
 	}
 	Type=FILE_PANEL;
 	apiGetCurrentDirectory(strCurDir);
+	strOriginalCurDir = strCurDir;
 	CurTopFile=CurFile=0;
 	ShowShortNames=0;
 	SortMode=BY_NAME;
