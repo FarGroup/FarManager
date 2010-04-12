@@ -9,15 +9,17 @@ poscache.hpp
 
 #define MAX_POSITIONS 64
 
-enum {
-  FPOSCACHE_32,
-  FPOSCACHE_64,
+enum
+{
+	FPOSCACHE_32,
+	FPOSCACHE_64,
 };
 
-struct TPosCache32{
-    /*
-    Param:
-    	Editor:
+struct TPosCache32
+{
+	/*
+	Param:
+		Editor:
 			Param[0] = Line
 			Param[1] = ScreenLine
 			Param[2] = LinePos
@@ -29,12 +31,12 @@ struct TPosCache32{
 			Param[2] = Hex?
 			Param[3] = 0
 			Param[4] = CodePage
-    */
-  DWORD Param[5];
+	*/
+	DWORD Param[5];
 
-    /*
-    Position
-    	Editor:
+	/*
+	Position
+		Editor:
 			Position[0] = [BOOKMARK_COUNT] Line
 			Position[1] = [BOOKMARK_COUNT] Cursor
 			Position[2] = [BOOKMARK_COUNT] ScreenLine
@@ -44,41 +46,42 @@ struct TPosCache32{
 			Position[1] = [BOOKMARK_COUNT] SavePosLeft
 			Position[2] = [BOOKMARK_COUNT] 0
 			Position[3] = [BOOKMARK_COUNT] 0
-    */
-  DWORD *Position[4];
+	*/
+	DWORD *Position[4];
 };
 
-struct TPosCache64{
-  __int64 Param[5];
-  __int64 *Position[4];
+struct TPosCache64
+{
+	__int64 Param[5];
+	__int64 *Position[4];
 };
 
 class FilePositionCache
 {
-  private:
-    int IsMemory;
-    char *Names;
-    int SizeValue;
-    int CurPos;
+	private:
+		int IsMemory;
+		char *Names;
+		int SizeValue;
+		int CurPos;
 
-    BYTE *Param;
-    BYTE *Position;
-    static char SubKeyItem[16] ,*PtrSubKeyItem;
-    static char SubKeyShort[16],*PtrSubKeyShort;
+		BYTE *Param;
+		BYTE *Position;
+		static char SubKeyItem[16] ,*PtrSubKeyItem;
+		static char SubKeyShort[16],*PtrSubKeyShort;
 
-  private:
-    int FindPosition(const char *FullName);
+	private:
+		int FindPosition(const char *FullName);
 
-  public:
-    FilePositionCache(int TypeCache);
-   ~FilePositionCache();
+	public:
+		FilePositionCache(int TypeCache);
+		~FilePositionCache();
 
-  public:
-    void AddPosition(const char *Name,void *PosCache);
-    BOOL GetPosition(const char *Name,void *PosCache);
+	public:
+		void AddPosition(const char *Name,void *PosCache);
+		BOOL GetPosition(const char *Name,void *PosCache);
 
-    BOOL Read(const char *Key);
-    BOOL Save(const char *Key);
+		BOOL Read(const char *Key);
+		BOOL Save(const char *Key);
 };
 
 

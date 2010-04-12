@@ -17,31 +17,31 @@ headers.hpp
 #endif
 
 #if defined(__BORLANDC__) && !defined(_WIN64)
-  #pragma option -a2
+#pragma option -a2
 #endif
 
 
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_) && !defined(_WINDOWS_H)
- #if (defined(__GNUC__) || defined(_MSC_VER)) && !defined(_WIN64)
-  #define _WINCON_H
-  #define _WINCON_ // to prevent including wincon.h
-  #if defined(_MSC_VER)
-    #pragma pack(push,2)
-  #else
-    #pragma pack(2)
-  #endif
-  #include <windows.h>
-  #if defined(_MSC_VER)
-    #pragma pack(pop)
-  #else
-    #pragma pack()
-  #endif
-  #undef _WINCON_
-  #undef  _WINCON_H
-  #include <wincon.h> //this file wants 8-byte alignment
- #else
-  #include <windows.h>
- #endif
+#if (defined(__GNUC__) || defined(_MSC_VER)) && !defined(_WIN64)
+#define _WINCON_H
+#define _WINCON_ // to prevent including wincon.h
+#if defined(_MSC_VER)
+#pragma pack(push,2)
+#else
+#pragma pack(2)
+#endif
+#include <windows.h>
+#if defined(_MSC_VER)
+#pragma pack(pop)
+#else
+#pragma pack()
+#endif
+#undef _WINCON_
+#undef  _WINCON_H
+#include <wincon.h> //this file wants 8-byte alignment
+#else
+#include <windows.h>
+#endif
 #endif
 
 #include <winioctl.h>
@@ -102,10 +102,11 @@ headers.hpp
 #ifndef FSCTL_QUERY_ALLOCATED_RANGES
 #define FSCTL_QUERY_ALLOCATED_RANGES    CTL_CODE(FILE_DEVICE_FILE_SYSTEM, 51,  METHOD_NEITHER, FILE_READ_DATA)  // FILE_ALLOCATED_RANGE_BUFFER, FILE_ALLOCATED_RANGE_BUFFER
 
-typedef struct _FILE_ALLOCATED_RANGE_BUFFER {
+typedef struct _FILE_ALLOCATED_RANGE_BUFFER
+{
 
-    LARGE_INTEGER FileOffset;
-    LARGE_INTEGER Length;
+	LARGE_INTEGER FileOffset;
+	LARGE_INTEGER Length;
 
 } FILE_ALLOCATED_RANGE_BUFFER, *PFILE_ALLOCATED_RANGE_BUFFER;
 #endif
@@ -122,24 +123,24 @@ typedef struct _FILE_ALLOCATED_RANGE_BUFFER {
 #include <dos.h>  // FA_*
 #endif
 #if !defined(__DIR_H) && !defined(_DIRECT_H_)
- #if defined(_MSC_VER) || defined(__GNUC__)
-  #include <direct.h> // chdir
- #else
-  #include <dir.h>  // chdir
- #endif
+#if defined(_MSC_VER) || defined(__GNUC__)
+#include <direct.h> // chdir
+#else
+#include <dir.h>  // chdir
+#endif
 #endif //__DIR_H
 #ifdef __cplusplus
- #if defined(__BORLANDC__) && !defined(_WIN64)
-  #pragma option -p-
- #endif
- #if (defined(__BORLANDC__) && !defined(_WIN64)) || (defined(_MSC_VER) && _MSC_VER < 1400)
-  #include <new.h>
- #else
-  #include <new>
- #endif
- #if defined(__BORLANDC__) && !defined(_WIN64)
-  #pragma option -p.
- #endif
+#if defined(__BORLANDC__) && !defined(_WIN64)
+#pragma option -p-
+#endif
+#if (defined(__BORLANDC__) && !defined(_WIN64)) || (defined(_MSC_VER) && _MSC_VER < 1400)
+#include <new.h>
+#else
+#include <new>
+#endif
+#if defined(__BORLANDC__) && !defined(_WIN64)
+#pragma option -p.
+#endif
 #endif
 #if !defined(__MALLOC_H) && !defined(_MALLOC_H_)
 #include <malloc.h>
@@ -178,56 +179,57 @@ typedef struct _FILE_ALLOCATED_RANGE_BUFFER {
 #include <search.h>
 #endif
 #ifdef __GNUC__
-  #define ultoa _ultoa
-  #if !defined(_CTYPE_H_)
-    #include <ctype.h>
-  #endif
+#define ultoa _ultoa
+#if !defined(_CTYPE_H_)
+#include <ctype.h>
+#endif
 #endif
 #if defined(_MSC_VER) || defined(__GNUC__)
-  #if !defined(_INC_WCHAR) && !defined(_WCHAR_H_)
-    #include <wchar.h>
-    #define _wmemset wmemset
-  #endif
-  #define _export
-  #define FA_DIREC _A_SUBDIR
-  #define FA_RDONLY _A_RDONLY
-  #define FA_HIDDEN _A_HIDDEN
-  #define FA_SYSTEM _A_SYSTEM
-  #define FA_RDONLY _A_RDONLY
-  #define FA_ARCH   _A_ARCH
-  #define setdisk(n) _chdrive((n)+1)
-  #define lfind  _lfind
+#if !defined(_INC_WCHAR) && !defined(_WCHAR_H_)
+#include <wchar.h>
+#define _wmemset wmemset
+#endif
+#define _export
+#define FA_DIREC _A_SUBDIR
+#define FA_RDONLY _A_RDONLY
+#define FA_HIDDEN _A_HIDDEN
+#define FA_SYSTEM _A_SYSTEM
+#define FA_RDONLY _A_RDONLY
+#define FA_ARCH   _A_ARCH
+#define setdisk(n) _chdrive((n)+1)
+#define lfind  _lfind
 
-  /* $ 12.07.2000 OT
-    - Исправление бага, из-за которго не работал ScreenSaver после
-      компиляции VC++
-  */
-  #ifndef RAND_MAX
-  #define RAND_MAX 0x7fffU
-  #endif
-  #define randomize() srand(67898)
-  #define random(x) ((int) (((x) *  rand()) / (RAND_MAX+1)) )
-  /* OT $ */
+/* $ 12.07.2000 OT
+  - Исправление бага, из-за которго не работал ScreenSaver после
+    компиляции VC++
+*/
+#ifndef RAND_MAX
+#define RAND_MAX 0x7fffU
+#endif
+#define randomize() srand(67898)
+#define random(x) ((int) (((x) *  rand()) / (RAND_MAX+1)) )
+/* OT $ */
 
-  /* $ 19.07.2000 SVS
-    - Из-за различий в реализации функции getdisk в BC & VC
-      не работал AltFx если панель имела UNC путь
-      Сама функция находится в farrtl.cpp
-  */
-  #ifdef  __cplusplus
-  extern "C" {
-  #endif
-  int _cdecl getdisk(void);
-  #ifdef  __cplusplus
-  }
-  #endif
-  /* SVS $ */
+/* $ 19.07.2000 SVS
+  - Из-за различий в реализации функции getdisk в BC & VC
+    не работал AltFx если панель имела UNC путь
+    Сама функция находится в farrtl.cpp
+*/
+#ifdef  __cplusplus
+extern "C"
+{
+#endif
+	int _cdecl getdisk(void);
+#ifdef  __cplusplus
+}
+#endif
+/* SVS $ */
 
-  #pragma warning (once:4018)
+#pragma warning (once:4018)
 #endif
 
 #if defined(__BORLANDC__) && !defined(_WIN64)
-  #pragma option -a.
+#pragma option -a.
 #endif
 
 //  The specified file could not be encrypted.
@@ -245,9 +247,9 @@ typedef struct _FILE_ALLOCATED_RANGE_BUFFER {
 
 #if defined(_MSC_VER) || defined(__GNUC__)
 #define vsnprintf _vsnprintf
-  #if defined(__GNUC__)
-    #define _strtoi64 strtoll
-  #endif
+#if defined(__GNUC__)
+#define _strtoi64 strtoll
+#endif
 #else
 #if defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)
 #define vsnprintf(a,b,c,d) vsprintf(a,c,d)
@@ -272,119 +274,122 @@ typedef struct _FILE_ALLOCATED_RANGE_BUFFER {
 
 #if defined(__BORLANDC__) || defined(_DEBUG)
 // (defined(_MSC_VER) && _MSC_VER < 1300)
-  #ifdef  __cplusplus
-  extern "C" {
-  #endif
-  __int64 _cdecl _strtoi64(const char *nptr,char **endptr,int ibase);
-  #ifdef  __cplusplus
-  }
-  #endif
+#ifdef  __cplusplus
+extern "C"
+{
+#endif
+	__int64 _cdecl _strtoi64(const char *nptr,char **endptr,int ibase);
+#ifdef  __cplusplus
+}
+#endif
 #endif
 
 
 #if defined(__BORLANDC__) || (defined(_MSC_VER) && _MSC_VER <= 1200)
-  #if (defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)) || (defined(_MSC_VER) && _MSC_VER <= 1200)
-    //#if !defined(__midl) && defined(_X86_)
-    //#define _W64 __w64
-    //#else
-    #define _W64
-    //#endif
-  #endif
+#if (defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)) || (defined(_MSC_VER) && _MSC_VER <= 1200)
+//#if !defined(__midl) && defined(_X86_)
+//#define _W64 __w64
+//#else
+#define _W64
+//#endif
+#endif
 
-  #ifndef _INTPTR_T_DEFINED
-  #ifdef  _WIN64
-  typedef __int64             intptr_t;
-  #else
-  typedef _W64 int            intptr_t;
-  #endif
-  #define _INTPTR_T_DEFINED
-  #endif
+#ifndef _INTPTR_T_DEFINED
+#ifdef  _WIN64
+typedef __int64             intptr_t;
+#else
+typedef _W64 int            intptr_t;
+#endif
+#define _INTPTR_T_DEFINED
+#endif
 #endif
 
 
 #if (defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)) || (defined(_MSC_VER) && _MSC_VER <= 1200)
-  //#if (__BORLANDC__ < 0x0550)
-    #if defined(_WIN64)
-        #if defined(__BORLANDC__)
-        typedef __int64 INT_PTR, *PINT_PTR;
-        typedef unsigned __int64 UINT_PTR, *PUINT_PTR;
-        #endif
+//#if (__BORLANDC__ < 0x0550)
+#if defined(_WIN64)
+#if defined(__BORLANDC__)
+typedef __int64 INT_PTR, *PINT_PTR;
+typedef unsigned __int64 UINT_PTR, *PUINT_PTR;
+#endif
 
-        typedef __int64 LONG_PTR, *PLONG_PTR;
-        typedef unsigned __int64 ULONG_PTR, *PULONG_PTR;
-        typedef unsigned __int64    UINT64, *PUINT64;
-    #else
-        #if defined(__BORLANDC__)
-        typedef _W64 int INT_PTR, *PINT_PTR;
-        typedef _W64 unsigned int UINT_PTR, *PUINT_PTR;
-        #endif
+typedef __int64 LONG_PTR, *PLONG_PTR;
+typedef unsigned __int64 ULONG_PTR, *PULONG_PTR;
+typedef unsigned __int64    UINT64, *PUINT64;
+#else
+#if defined(__BORLANDC__)
+typedef _W64 int INT_PTR, *PINT_PTR;
+typedef _W64 unsigned int UINT_PTR, *PUINT_PTR;
+#endif
 
-        typedef _W64 long LONG_PTR, *PLONG_PTR;
-        typedef _W64 unsigned long ULONG_PTR, *PULONG_PTR;
-        typedef _W64 unsigned __int64    UINT64, *PUINT64;
-    #endif
-    typedef ULONG_PTR DWORD_PTR, *PDWORD_PTR;
+typedef _W64 long LONG_PTR, *PLONG_PTR;
+typedef _W64 unsigned long ULONG_PTR, *PULONG_PTR;
+typedef _W64 unsigned __int64    UINT64, *PUINT64;
+#endif
+typedef ULONG_PTR DWORD_PTR, *PDWORD_PTR;
 #endif
 
 
 #if (defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)) || (defined(_MSC_VER) && _MSC_VER <= 1200) // defined(_DEBUG)
-  #ifndef _DWORDLONG_
-  typedef unsigned __int64 DWORDLONG;
-  typedef DWORDLONG *PDWORDLONG;
-  #endif // !_DWORDLONG_
+#ifndef _DWORDLONG_
+typedef unsigned __int64 DWORDLONG;
+typedef DWORDLONG *PDWORDLONG;
+#endif // !_DWORDLONG_
 
-  typedef struct _MEMORYSTATUSEX {
-      DWORD dwLength;
-      DWORD dwMemoryLoad;
-      DWORDLONG ullTotalPhys;
-      DWORDLONG ullAvailPhys;
-      DWORDLONG ullTotalPageFile;
-      DWORDLONG ullAvailPageFile;
-      DWORDLONG ullTotalVirtual;
-      DWORDLONG ullAvailVirtual;
-      DWORDLONG ullAvailExtendedVirtual;
-  } MEMORYSTATUSEX, *LPMEMORYSTATUSEX;
+typedef struct _MEMORYSTATUSEX
+{
+	DWORD dwLength;
+	DWORD dwMemoryLoad;
+	DWORDLONG ullTotalPhys;
+	DWORDLONG ullAvailPhys;
+	DWORDLONG ullTotalPageFile;
+	DWORDLONG ullAvailPageFile;
+	DWORDLONG ullTotalVirtual;
+	DWORDLONG ullAvailVirtual;
+	DWORDLONG ullAvailExtendedVirtual;
+} MEMORYSTATUSEX, *LPMEMORYSTATUSEX;
 #endif
 
 #if defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)
-  typedef struct _IMAGE_OPTIONAL_HEADER IMAGE_OPTIONAL_HEADER32, *PIMAGE_OPTIONAL_HEADER32;
+typedef struct _IMAGE_OPTIONAL_HEADER IMAGE_OPTIONAL_HEADER32, *PIMAGE_OPTIONAL_HEADER32;
 
-  typedef struct _IMAGE_OPTIONAL_HEADER64 {
-      WORD        Magic;
-      BYTE        MajorLinkerVersion;
-      BYTE        MinorLinkerVersion;
-      DWORD       SizeOfCode;
-      DWORD       SizeOfInitializedData;
-      DWORD       SizeOfUninitializedData;
-      DWORD       AddressOfEntryPoint;
-      DWORD       BaseOfCode;
-      ULONGLONG   ImageBase;
-      DWORD       SectionAlignment;
-      DWORD       FileAlignment;
-      WORD        MajorOperatingSystemVersion;
-      WORD        MinorOperatingSystemVersion;
-      WORD        MajorImageVersion;
-      WORD        MinorImageVersion;
-      WORD        MajorSubsystemVersion;
-      WORD        MinorSubsystemVersion;
-      DWORD       Win32VersionValue;
-      DWORD       SizeOfImage;
-      DWORD       SizeOfHeaders;
-      DWORD       CheckSum;
-      WORD        Subsystem;
-      WORD        DllCharacteristics;
-      ULONGLONG   SizeOfStackReserve;
-      ULONGLONG   SizeOfStackCommit;
-      ULONGLONG   SizeOfHeapReserve;
-      ULONGLONG   SizeOfHeapCommit;
-      DWORD       LoaderFlags;
-      DWORD       NumberOfRvaAndSizes;
-      IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
-  } IMAGE_OPTIONAL_HEADER64, *PIMAGE_OPTIONAL_HEADER64;
+typedef struct _IMAGE_OPTIONAL_HEADER64
+{
+	WORD        Magic;
+	BYTE        MajorLinkerVersion;
+	BYTE        MinorLinkerVersion;
+	DWORD       SizeOfCode;
+	DWORD       SizeOfInitializedData;
+	DWORD       SizeOfUninitializedData;
+	DWORD       AddressOfEntryPoint;
+	DWORD       BaseOfCode;
+	ULONGLONG   ImageBase;
+	DWORD       SectionAlignment;
+	DWORD       FileAlignment;
+	WORD        MajorOperatingSystemVersion;
+	WORD        MinorOperatingSystemVersion;
+	WORD        MajorImageVersion;
+	WORD        MinorImageVersion;
+	WORD        MajorSubsystemVersion;
+	WORD        MinorSubsystemVersion;
+	DWORD       Win32VersionValue;
+	DWORD       SizeOfImage;
+	DWORD       SizeOfHeaders;
+	DWORD       CheckSum;
+	WORD        Subsystem;
+	WORD        DllCharacteristics;
+	ULONGLONG   SizeOfStackReserve;
+	ULONGLONG   SizeOfStackCommit;
+	ULONGLONG   SizeOfHeapReserve;
+	ULONGLONG   SizeOfHeapCommit;
+	DWORD       LoaderFlags;
+	DWORD       NumberOfRvaAndSizes;
+	IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
+} IMAGE_OPTIONAL_HEADER64, *PIMAGE_OPTIONAL_HEADER64;
 
-  #define IMAGE_NT_OPTIONAL_HDR32_MAGIC      0x10b
-  #define IMAGE_NT_OPTIONAL_HDR64_MAGIC      0x20b
-  #define IMAGE_ROM_OPTIONAL_HDR_MAGIC       0x107
+#define IMAGE_NT_OPTIONAL_HDR32_MAGIC      0x10b
+#define IMAGE_NT_OPTIONAL_HDR64_MAGIC      0x20b
+#define IMAGE_ROM_OPTIONAL_HDR_MAGIC       0x107
 #endif
 
 #if (defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)) || defined(__GNUC__)
@@ -413,32 +418,32 @@ typedef struct _FILE_ALLOCATED_RANGE_BUFFER {
 #else
 typedef enum tagASSOCIATIONLEVEL
 {
-  AL_MACHINE,
-  AL_EFFECTIVE,
-  AL_USER,
+	AL_MACHINE,
+	AL_EFFECTIVE,
+	AL_USER,
 } ASSOCIATIONLEVEL;
 
 typedef enum tagASSOCIATIONTYPE
 {
-  AT_FILEEXTENSION,
-  AT_URLPROTOCOL,
-  AT_STARTMENUCLIENT,
-  AT_MIMETYPE,
+	AT_FILEEXTENSION,
+	AT_URLPROTOCOL,
+	AT_STARTMENUCLIENT,
+	AT_MIMETYPE,
 } ASSOCIATIONTYPE;
 
 EXTERN_C const IID IID_IApplicationAssociationRegistration;
 #define INTERFACE IApplicationAssociationRegistration
 DECLARE_INTERFACE_(IApplicationAssociationRegistration,IUnknown)
 {
-  STDMETHOD(QueryInterface)(THIS_ REFIID,PVOID*) PURE;
-  STDMETHOD_(ULONG,AddRef)(THIS) PURE;
-  STDMETHOD_(ULONG,Release)(THIS) PURE;
-  STDMETHOD(QueryCurrentDefault)(THIS_ LPCWSTR, ASSOCIATIONTYPE, ASSOCIATIONLEVEL, LPWSTR *) PURE;
-  STDMETHOD(QueryAppIsDefault)(THIS_ LPCWSTR, ASSOCIATIONTYPE, ASSOCIATIONLEVEL, LPCWSTR, BOOL *) PURE;
-  STDMETHOD(QueryAppIsDefaultAll)(THIS_ ASSOCIATIONLEVEL, LPCWSTR, BOOL *) PURE;
-  STDMETHOD(SetAppAsDefault)(THIS_ LPCWSTR, LPCWSTR, ASSOCIATIONTYPE) PURE;
-  STDMETHOD(SetAppAsDefaultAll)(THIS_ LPCWSTR) PURE;
-  STDMETHOD(ClearUserAssociations)(THIS) PURE;
+	STDMETHOD(QueryInterface)(THIS_ REFIID,PVOID*) PURE;
+	STDMETHOD_(ULONG,AddRef)(THIS) PURE;
+	STDMETHOD_(ULONG,Release)(THIS) PURE;
+	STDMETHOD(QueryCurrentDefault)(THIS_ LPCWSTR, ASSOCIATIONTYPE, ASSOCIATIONLEVEL, LPWSTR *) PURE;
+	STDMETHOD(QueryAppIsDefault)(THIS_ LPCWSTR, ASSOCIATIONTYPE, ASSOCIATIONLEVEL, LPCWSTR, BOOL *) PURE;
+	STDMETHOD(QueryAppIsDefaultAll)(THIS_ ASSOCIATIONLEVEL, LPCWSTR, BOOL *) PURE;
+	STDMETHOD(SetAppAsDefault)(THIS_ LPCWSTR, LPCWSTR, ASSOCIATIONTYPE) PURE;
+	STDMETHOD(SetAppAsDefaultAll)(THIS_ LPCWSTR) PURE;
+	STDMETHOD(ClearUserAssociations)(THIS) PURE;
 };
 #undef INTERFACE
 #endif

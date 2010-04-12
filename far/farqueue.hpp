@@ -10,31 +10,31 @@ farqueue.hpp
 template <class Object>
 class FarQueue
 {
-  private:
-    Object        *Array;
-    int            Size;
-    int            CurrentSize;
-    int            Front;
-    int            Back;
+	private:
+		Object        *Array;
+		int            Size;
+		int            CurrentSize;
+		int            Front;
+		int            Back;
 
-  private:
-    void increment(int& x);
+	private:
+		void increment(int& x);
 
-  public:
-    FarQueue(int SizeQueue=64);
-   ~FarQueue();
+	public:
+		FarQueue(int SizeQueue=64);
+		~FarQueue();
 
-  public:
-    int Init(int SizeQueue);
+	public:
+		int Init(int SizeQueue);
 
-    BOOL isEmpty() const;
-    BOOL isFull() const;
+		BOOL isEmpty() const;
+		BOOL isFull() const;
 
-    Object Peek() const;
+		Object Peek() const;
 
 
-    Object Get();
-    int Put(const Object& x);
+		Object Get();
+		int Put(const Object& x);
 };
 
 #endif // _FARQUEUE_H

@@ -15,12 +15,12 @@ class ChangePriority
 
 ChangePriority::ChangePriority(int NewPriority)
 {
-  SavePriority=GetThreadPriority(GetCurrentThread());
-  SetThreadPriority(GetCurrentThread(),NewPriority);
+	SavePriority=GetThreadPriority(GetCurrentThread());
+	SetThreadPriority(GetCurrentThread(),NewPriority);
 }
 
 
 ChangePriority::~ChangePriority()
 {
-  SetThreadPriority(GetCurrentThread(),SavePriority);
+	SetThreadPriority(GetCurrentThread(),SavePriority);
 }

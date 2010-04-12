@@ -9,11 +9,11 @@ class ChangePriority
 
 class ChangePriority
 {
-  private:
-    int SavePriority;
-  public:
-    ChangePriority(int NewPriority);
-    ~ChangePriority();
+	private:
+		int SavePriority;
+	public:
+		ChangePriority(int NewPriority);
+		~ChangePriority();
 };
 
 #endif  // __CHANGEPRIORITY_HPP__

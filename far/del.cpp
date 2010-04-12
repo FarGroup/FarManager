@@ -8,8 +8,9 @@ del.cpp
 #include "headers.hpp"
 #pragma hdrstop
 
-extern "C" {
-void  __cdecl xf_free(void *__block);
+extern "C"
+{
+	void  __cdecl xf_free(void *__block);
 };
 
 #if defined(SYSLOG)
@@ -19,7 +20,7 @@ extern long CallNewDelete;
 void operator delete(void *ptr)
 {
 #if defined(SYSLOG)
-  CallNewDelete--;
+	CallNewDelete--;
 #endif
-  xf_free(ptr);
+	xf_free(ptr);
 }

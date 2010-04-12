@@ -9,9 +9,9 @@ class LockScreen
 
 class LockScreen
 {
-  public:
-    LockScreen();
-    ~LockScreen();
+	public:
+		LockScreen();
+		~LockScreen();
 };
 
 

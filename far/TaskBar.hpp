@@ -58,41 +58,41 @@ typedef BOOL (WINAPI *FLASHWINDOWEX)(PFLASHWINFO pfwi);
 
 class TaskBarCore
 {
-	bool CoInited;
-	TBPFLAG State;
-	ITaskbarList3* pTaskbarList;
-public:
-	TaskBarCore();
-	~TaskBarCore();
-	TBPFLAG GetProgressState();
-	void SetProgressState(TBPFLAG tbpFlags);
-	void SetProgressValue(UINT64 Completed, UINT64 Total);
-	void Flash();
+		bool CoInited;
+		TBPFLAG State;
+		ITaskbarList3* pTaskbarList;
+	public:
+		TaskBarCore();
+		~TaskBarCore();
+		TBPFLAG GetProgressState();
+		void SetProgressState(TBPFLAG tbpFlags);
+		void SetProgressValue(UINT64 Completed, UINT64 Total);
+		void Flash();
 };
 
 extern TaskBarCore TBC;
 
 class TaskBar
 {
-public:
-	TaskBar();
-	~TaskBar();
+	public:
+		TaskBar();
+		~TaskBar();
 };
 
 class TaskBarPause
 {
-	TBPFLAG PrevState;
-public:
-	TaskBarPause();
-	~TaskBarPause();
+		TBPFLAG PrevState;
+	public:
+		TaskBarPause();
+		~TaskBarPause();
 };
 
 class TaskBarError
 {
-	TBPFLAG PrevState;
-public:
-	TaskBarError();
-	~TaskBarError();
+		TBPFLAG PrevState;
+	public:
+		TaskBarError();
+		~TaskBarError();
 };
 
 #endif //__TASKBAR_HPP__

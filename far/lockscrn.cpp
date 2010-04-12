@@ -13,12 +13,12 @@ class LockScreen
 
 LockScreen::LockScreen()
 {
-  ScrBuf.Lock();
+	ScrBuf.Lock();
 }
 
 
 LockScreen::~LockScreen()
 {
-  ScrBuf.Unlock();
-  ScrBuf.Flush();
+	ScrBuf.Unlock();
+	ScrBuf.Flush();
 }

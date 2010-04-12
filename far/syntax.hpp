@@ -26,37 +26,38 @@ syntax.hpp
 
 enum TToken
 {
-  tNo, tEnd,  tLet,
-  tVar, tConst, tStr, tInt, tFunc, tFARVar,
-  tPlus, tMinus, tMul, tDiv, tLp, tRp, tComma,
-  tBoolAnd, tBoolOr,
-  tBitAnd, tBitOr, tBitXor, tBitNot, tNot, tBitShl, tBitShr,
-  tEq, tNe, tLt, tLe, tGt, tGe,
+	tNo, tEnd,  tLet,
+	tVar, tConst, tStr, tInt, tFunc, tFARVar,
+	tPlus, tMinus, tMul, tDiv, tLp, tRp, tComma,
+	tBoolAnd, tBoolOr,
+	tBitAnd, tBitOr, tBitXor, tBitNot, tNot, tBitShl, tBitShr,
+	tEq, tNe, tLt, tLe, tGt, tGe,
 };
 
 
-struct TMacroKeywords {
-  int Type;                    // Тип: 0=Area, 1=Flags, 2=Condition
-  char *Name;                  // Наименование
-  DWORD Value;         // Значение
-  DWORD Reserved;
+struct TMacroKeywords
+{
+	int Type;                    // Тип: 0=Area, 1=Flags, 2=Condition
+	char *Name;                  // Наименование
+	DWORD Value;         // Значение
+	DWORD Reserved;
 };
 
 enum errParseCode
 {
-  err_Success,
-  err_Unrecognized_keyword,
-  err_Unrecognized_function,
-  err_Func_Param,
-  err_Not_expected_ELSE,
-  err_Not_expected_END,
-  err_Unexpected_EOS,
-  err_Expected,
-  err_Bad_Hex_Control_Char,
-  err_Bad_Control_Char,
-  err_Var_Expected,
-  err_Expr_Expected,
-  err_ZeroLengthMacro,
+	err_Success,
+	err_Unrecognized_keyword,
+	err_Unrecognized_function,
+	err_Func_Param,
+	err_Not_expected_ELSE,
+	err_Not_expected_END,
+	err_Unexpected_EOS,
+	err_Expected,
+	err_Bad_Hex_Control_Char,
+	err_Bad_Control_Char,
+	err_Var_Expected,
+	err_Expr_Expected,
+	err_ZeroLengthMacro,
 };
 
 extern int MKeywordsSize;

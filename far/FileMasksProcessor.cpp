@@ -17,7 +17,7 @@ FileMasksProcessor::FileMasksProcessor():BaseFileMask()
 
 void FileMasksProcessor::Free()
 {
-    Masks.Free();
+	Masks.Free();
 }
 
 /*
@@ -28,17 +28,19 @@ void FileMasksProcessor::Free()
 
 BOOL FileMasksProcessor::Set(const char *masks, DWORD Flags)
 {
-  // разделителем масок является не только запятая, но и точка с запятой!
-  DWORD flags=ULF_PACKASTERISKS|ULF_PROCESSBRACKETS|ULF_SORT|ULF_UNIQUE;
-  if(Flags&FMPF_ADDASTERISK) flags|=ULF_ADDASTERISK;
-  Masks.SetParameters(',',';',flags);
-  return Masks.Set(masks);
+	// разделителем масок является не только запятая, но и точка с запятой!
+	DWORD flags=ULF_PACKASTERISKS|ULF_PROCESSBRACKETS|ULF_SORT|ULF_UNIQUE;
+
+	if (Flags&FMPF_ADDASTERISK) flags|=ULF_ADDASTERISK;
+
+	Masks.SetParameters(',',';',flags);
+	return Masks.Set(masks);
 }
 
 BOOL FileMasksProcessor::IsEmpty(void)
 {
-  Masks.Reset();
-  return Masks.IsEmpty();
+	Masks.Reset();
+	return Masks.IsEmpty();
 }
 
 /* сравнить имя файла со списком масок
@@ -46,12 +48,14 @@ BOOL FileMasksProcessor::IsEmpty(void)
    Путь к файлу в FileName НЕ игнорируется */
 BOOL FileMasksProcessor::Compare(const char *FileName)
 {
-  Masks.Reset();
-  while(NULL!=(MaskPtr=Masks.GetNext()))
-  {
-    if (CmpName(MaskPtr,FileName, FALSE))
-    // SkipPath=FALSE, т.к. в CFileMask вызывается PointToName
-       return TRUE;
-  }
-  return FALSE;
+	Masks.Reset();
+
+	while (NULL!=(MaskPtr=Masks.GetNext()))
+	{
+		if (CmpName(MaskPtr,FileName, FALSE))
+			// SkipPath=FALSE, т.к. в CFileMask вызывается PointToName
+			return TRUE;
+	}
+
+	return FALSE;
 }

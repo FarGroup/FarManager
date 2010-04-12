@@ -17,8 +17,8 @@ FileMasksWithExclude::FileMasksWithExclude():BaseFileMask()
 
 void FileMasksWithExclude::Free()
 {
-    Include.Free();
-    Exclude.Free();
+	Include.Free();
+	Exclude.Free();
 }
 
 /*
@@ -29,38 +29,43 @@ void FileMasksWithExclude::Free()
 
 BOOL FileMasksWithExclude::Set(const char *masks, DWORD Flags)
 {
-  Free();
-  if(NULL==masks || !*masks) return FALSE;
+	Free();
 
-  int len=(int)strlen(masks)+2, rc=FALSE;
-  char *MasksStr=(char *) xf_malloc(len);
-  if(MasksStr)
-  {
-     rc=TRUE;
-     strcpy(MasksStr, masks);
-     char *pExclude=strchr(MasksStr,EXCLUDEMASKSEPARATOR);
-     if(pExclude)
-     {
-       *pExclude=0;
-       ++pExclude;
-       if(strchr(pExclude, EXCLUDEMASKSEPARATOR)) rc=FALSE;
-     }
+	if (NULL==masks || !*masks) return FALSE;
 
-     if(rc)
-     {
-        rc=Include.Set(*MasksStr?MasksStr:"*",
-                       (Flags&FMPF_ADDASTERISK)?FMPF_ADDASTERISK:0);
-        if(rc) rc=Exclude.Set(pExclude, 0);
-     }
-  }
+	int len=(int)strlen(masks)+2, rc=FALSE;
+	char *MasksStr=(char *) xf_malloc(len);
 
-  if(!rc)
-    Free();
+	if (MasksStr)
+	{
+		rc=TRUE;
+		strcpy(MasksStr, masks);
+		char *pExclude=strchr(MasksStr,EXCLUDEMASKSEPARATOR);
 
-  if(MasksStr)
-    xf_free (MasksStr);
+		if (pExclude)
+		{
+			*pExclude=0;
+			++pExclude;
 
-  return rc;
+			if (strchr(pExclude, EXCLUDEMASKSEPARATOR)) rc=FALSE;
+		}
+
+		if (rc)
+		{
+			rc=Include.Set(*MasksStr?MasksStr:"*",
+			               (Flags&FMPF_ADDASTERISK)?FMPF_ADDASTERISK:0);
+
+			if (rc) rc=Exclude.Set(pExclude, 0);
+		}
+	}
+
+	if (!rc)
+		Free();
+
+	if (MasksStr)
+		xf_free(MasksStr);
+
+	return rc;
 }
 
 /* сравнить имя файла со списком масок
@@ -68,10 +73,10 @@ BOOL FileMasksWithExclude::Set(const char *masks, DWORD Flags)
    Путь к файлу в FileName НЕ игнорируется */
 BOOL FileMasksWithExclude::Compare(const char *FileName)
 {
-   return (Include.Compare(FileName) && !Exclude.Compare(FileName));
+	return (Include.Compare(FileName) && !Exclude.Compare(FileName));
 }
 
 BOOL FileMasksWithExclude::IsEmpty(void)
 {
-  return Include.IsEmpty() && Exclude.IsEmpty();
+	return Include.IsEmpty() && Exclude.IsEmpty();
 }

@@ -10,15 +10,15 @@ constitle.hpp
 
 class ConsoleTitle
 {
-  private:
-    char OldTitle[512];
+	private:
+		char OldTitle[512];
 
-  public:
-    ConsoleTitle(char *title=NULL);
-    ~ConsoleTitle();
+	public:
+		ConsoleTitle(char *title=NULL);
+		~ConsoleTitle();
 
-  public:
-    void Set(char *fmt,...);
+	public:
+		void Set(char *fmt,...);
 
 };
 

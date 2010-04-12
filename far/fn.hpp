@@ -102,20 +102,21 @@ void vmprintf(char *fmt,...);
 WORD GetVidCharW(CHAR_INFO CI);
 inline WORD GetVidChar(CHAR_INFO CI)
 {
-  if(Opt.UseUnicodeConsole)
-    return GetVidCharW(CI);
-  return CI.Char.AsciiChar;
+	if (Opt.UseUnicodeConsole)
+		return GetVidCharW(CI);
+
+	return CI.Char.AsciiChar;
 }
 
 inline void SetVidChar(CHAR_INFO& CI,WORD Chr)
 {
-  extern WCHAR Oem2Unicode[];
-  extern BYTE RecodeOutTable[];
+	extern WCHAR Oem2Unicode[];
+	extern BYTE RecodeOutTable[];
 
-  if(Opt.UseUnicodeConsole)
-    CI.Char.UnicodeChar = Oem2Unicode[Chr];
-  else
-    CI.Char.AsciiChar=RecodeOutTable[Chr];
+	if (Opt.UseUnicodeConsole)
+		CI.Char.UnicodeChar = Oem2Unicode[Chr];
+	else
+		CI.Char.AsciiChar=RecodeOutTable[Chr];
 }
 
 #else
@@ -186,7 +187,7 @@ HANDLE WINAPI FAR_CreateFile(
     DWORD dwCreationDistribution, // how to create
     DWORD dwFlagsAndAttributes,   // file attributes
     HANDLE hTemplateFile          // handle to file with attributes to copy
-   );
+);
 /* IS $ */
 
 HANDLE FAR_FindFirstFile(const char *FileName,LPWIN32_FIND_DATA lpFindFileData,bool ScanSymLink=true);
@@ -199,24 +200,24 @@ BOOL FAR_CopyFile(
     LPCTSTR lpExistingFileName, // pointer to name of an existing file
     LPCTSTR lpNewFileName,  // pointer to filename to copy to
     BOOL bFailIfExists  // flag for operation if file exists
-   );
+);
 
 BOOL Init_CopyFileEx(void);
 BOOL FAR_CopyFileEx(LPCTSTR lpExistingFileName,
-            LPCTSTR lpNewFileName,void *lpProgressRoutine,
-            LPVOID lpData,LPBOOL pbCancel,DWORD dwCopyFlags);
+                    LPCTSTR lpNewFileName,void *lpProgressRoutine,
+                    LPVOID lpData,LPBOOL pbCancel,DWORD dwCopyFlags);
 BOOL FAR_MoveFile(
     LPCTSTR lpExistingFileName, // address of name of the existing file
     LPCTSTR lpNewFileName   // address of new name for the file
-   );
+);
 BOOL FAR_MoveFileEx(
     LPCTSTR lpExistingFileName, // address of name of the existing file
     LPCTSTR lpNewFileName,   // address of new name for the file
     DWORD dwFlags   // flag to determine how to move file
-   );
+);
 BOOL MoveFileThroughTemp(const char *Src, const char *Dest);
 
-BOOL FAR_GetFileSize (HANDLE hFile, unsigned __int64 *pSize);
+BOOL FAR_GetFileSize(HANDLE hFile, unsigned __int64 *pSize);
 
 BOOL WINAPI FAR_SetFilePointerEx(HANDLE hFile,LARGE_INTEGER liDistanceToMove,PLARGE_INTEGER lpNewFilePointer,DWORD dwMoveMethod);
 
@@ -401,7 +402,7 @@ void Transform(unsigned char *Buffer,int &BufLen,const char *ConvStr,char Transf
 /* KM $ */
 
 void ConvertDate(const FILETIME &ft,char *DateText,char *TimeText,int TimeLength,
-        int Brief=FALSE,int TextMonth=FALSE,int FullYear=FALSE,int DynInit=FALSE);
+                 int Brief=FALSE,int TextMonth=FALSE,int FullYear=FALSE,int DynInit=FALSE);
 void ConvertRelativeDate(const FILETIME &ft,char *DaysText,char *TimeText);
 void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent);
 
@@ -464,8 +465,8 @@ int GetDirInfo(char *Title,const char *DirName,unsigned long &DirCount,
                FileFilter *Filter,
                DWORD Flags=GETDIRINFO_SCANSYMLINKDEF);
 int GetPluginDirInfo(HANDLE hPlugin,char *DirName,unsigned long &DirCount,
-               unsigned long &FileCount,unsigned __int64 &FileSize,
-               unsigned __int64 &CompressedFileSize);
+                     unsigned long &FileCount,unsigned __int64 &FileSize,
+                     unsigned __int64 &CompressedFileSize);
 
 int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum);
 
@@ -500,23 +501,23 @@ BOOL operator >= (ULARGE_INTEGER &c1,ULARGE_INTEGER &c2);
 #ifdef __PLUGIN_HPP__
 // эти функции _были_ как static
 int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,HANDLE hPlugin,
-                  const char *Dir,struct PluginPanelItem **pPanelItem,
-                  int *pItemsNumber);
+                               const char *Dir,struct PluginPanelItem **pPanelItem,
+                               int *pItemsNumber);
 int WINAPI FarMenuFn(INT_PTR PluginNumber,int X,int Y,int MaxHeight,
-           DWORD Flags,const char *Title,const char *Bottom,
-           const char *HelpTopic,const int *BreakKeys,int *BreakCode,
-           const struct FarMenuItem *Item, int ItemsNumber);
+                     DWORD Flags,const char *Title,const char *Bottom,
+                     const char *HelpTopic,const int *BreakKeys,int *BreakCode,
+                     const struct FarMenuItem *Item, int ItemsNumber);
 int WINAPI FarDialogFn(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,
-           const char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber);
+                       const char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber);
 const char* WINAPI FarGetMsgFn(INT_PTR PluginNumber,int MsgId);
 int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,
-           const char *HelpTopic,const char * const *Items,int ItemsNumber,
-           int ButtonsNumber);
+                        const char *HelpTopic,const char * const *Items,int ItemsNumber,
+                        int ButtonsNumber);
 int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param);
 HANDLE WINAPI FarSaveScreen(int X1,int Y1,int X2,int Y2);
 void WINAPI FarRestoreScreen(HANDLE hScreen);
 int WINAPI FarGetDirList(const char *Dir,struct PluginPanelItem **pPanelItem,
-           int *pItemsNumber);
+                         int *pItemsNumber);
 void WINAPI FarFreeDirList(const struct PluginPanelItem *PanelItem);
 int WINAPI FarViewer(const char *FileName,const char *Title,
                      int X1,int Y1,int X2,int Y2,DWORD Flags);
@@ -561,9 +562,9 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param);
 */
 //  Функция расширенного диалога
 int WINAPI FarDialogEx(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,
-      const char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
-      DWORD Reserved, DWORD Flags,
-      FARWINDOWPROC Proc,LONG_PTR Param);
+                       const char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
+                       DWORD Reserved, DWORD Flags,
+                       FARWINDOWPROC Proc,LONG_PTR Param);
 //  Функция обработки диалога по умолчанию
 LONG_PTR WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 // Посылка сообщения диалогу
@@ -665,8 +666,8 @@ int InternalCopyToClipboard(const char *Data,int AnsiMode);
 */
 int WINAPI GetString(const char *Title,const char *SubTitle,
                      const char *HistoryName,const char *SrcText,
-    char *DestText,int DestLength,const char *HelpTopic=NULL,DWORD Flags=0,
-    int *CheckBoxValue=NULL,const char *CheckBoxText=NULL);
+                     char *DestText,int DestLength,const char *HelpTopic=NULL,DWORD Flags=0,
+                     int *CheckBoxValue=NULL,const char *CheckBoxText=NULL);
 /* IS $ */
 /* SVS $ */
 int WINAPI GetNameAndPassword(char *Title,char *UserName,char *Password,char *HelpTopic,DWORD Flags);
@@ -689,53 +690,54 @@ int FarAltEnter(int mode);
   На основе плагина EditSwap by SVS :-)))
 */
 char* WINAPI Xlat(char *Line,
-                    int StartPos,
-                    int EndPos,
-                    const struct CharTableSet *TableSet,
-                    DWORD Flags);
+                  int StartPos,
+                  int EndPos,
+                  const struct CharTableSet *TableSet,
+                  DWORD Flags);
 /* SVS $ */
 
 /* $ 14.08.2000 SVS
     + Функции семейства seek под __int64
 */
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-void *WINAPI FarBsearch(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
+	void *WINAPI FarBsearch(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
 
-/* $ 10.09.2000 tran
-   FSF/FarRecurseSearch*/
-typedef int  (WINAPI *FRSUSERFUNC)(const WIN32_FIND_DATA *FData,const char *FullName,void *param);
-void WINAPI FarRecursiveSearch(const char *initdir,const char *mask,FRSUSERFUNC func,DWORD flags,void *param);
-/* tran 10.09.2000 $ */
-/* $ 14.09.2000 SVS
- + Функция FarMkTemp - получение имени временного файла с полным путем.
-*/
-/* $ 25.10.2000 IS
- ! Изменил имя параметра с Template на Prefix
-*/
-char* WINAPI FarMkTemp(char *Dest, const char *Prefix);
-char* FarMkTempEx(char *Dest, const char *Prefix=NULL, BOOL WithPath=TRUE);
-/* IS $*/
-/* SVS $*/
+	/* $ 10.09.2000 tran
+	   FSF/FarRecurseSearch*/
+	typedef int (WINAPI *FRSUSERFUNC)(const WIN32_FIND_DATA *FData,const char *FullName,void *param);
+	void WINAPI FarRecursiveSearch(const char *initdir,const char *mask,FRSUSERFUNC func,DWORD flags,void *param);
+	/* tran 10.09.2000 $ */
+	/* $ 14.09.2000 SVS
+	 + Функция FarMkTemp - получение имени временного файла с полным путем.
+	*/
+	/* $ 25.10.2000 IS
+	 ! Изменил имя параметра с Template на Prefix
+	*/
+	char* WINAPI FarMkTemp(char *Dest, const char *Prefix);
+	char* FarMkTempEx(char *Dest, const char *Prefix=NULL, BOOL WithPath=TRUE);
+	/* IS $*/
+	/* SVS $*/
 
-void CreatePath(char *Path);
+	void CreatePath(char *Path);
 
-/* $ 15.02.2002 IS
-   Установка нужного диска и каталога и установление соответствующей переменной
-   окружения. В случае успеха возвращается не ноль.
-   Если ChangeDir==FALSE, то не меняем текущий  диск, а только устанавливаем
-   переменные окружения.
-*/
-BOOL FarChDir(const char *NewDir,BOOL ChangeDir=TRUE);
-/* IS $ */
+	/* $ 15.02.2002 IS
+	   Установка нужного диска и каталога и установление соответствующей переменной
+	   окружения. В случае успеха возвращается не ноль.
+	   Если ChangeDir==FALSE, то не меняем текущий  диск, а только устанавливаем
+	   переменные окружения.
+	*/
+	BOOL FarChDir(const char *NewDir,BOOL ChangeDir=TRUE);
+	/* IS $ */
 
 // обертка вокруг функции получения текущего пути.
 // для локального пути делает букву диска в uppercase
-DWORD FarGetCurDir(DWORD Length,char *Buffer);
+	DWORD FarGetCurDir(DWORD Length,char *Buffer);
 
-void WINAPI DeleteBuffer(void* Buffer);
+	void WINAPI DeleteBuffer(void* Buffer);
 
 #ifdef __cplusplus
 };
@@ -774,18 +776,19 @@ void SaveScreenDumpBuffer(const char *Title,const CHAR_INFO *Buffer,int X1,int Y
 class Manager;
 void ManagerClass_Dump(char *Title,const Manager *m=NULL,FILE *fp=NULL);
 void GetVolumeInformation_Dump(char *Title,LPCTSTR lpRootPathName,LPTSTR lpVolumeNameBuffer,DWORD nVolumeNameSize,
-                                           DWORD lpVolumeSerialNumber, DWORD lpMaximumComponentLength, DWORD lpFileSystemFlags,
-                                           LPTSTR lpFileSystemNameBuffer, DWORD nFileSystemNameSize,FILE *fp=NULL);
+                               DWORD lpVolumeSerialNumber, DWORD lpMaximumComponentLength, DWORD lpFileSystemFlags,
+                               LPTSTR lpFileSystemNameBuffer, DWORD nFileSystemNameSize,FILE *fp=NULL);
 
 void WIN32_FIND_DATA_Dump(char *Title,const WIN32_FIND_DATA &fd,FILE *fp=NULL);
 
 #if defined(SYSLOG_FARSYSLOG)
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
-void WINAPIV _export FarSysLog(char *ModuleName,int Level,char *fmt,...);
-void WINAPI  _export FarSysLogDump(const char *ModuleName,DWORD StartAddress,LPBYTE Buf,int SizeBuf);
-void WINAPI _export FarSysLog_INPUT_RECORD_Dump(char *ModuleName,INPUT_RECORD *rec);
+	void WINAPIV _export FarSysLog(char *ModuleName,int Level,char *fmt,...);
+	void WINAPI  _export FarSysLogDump(const char *ModuleName,DWORD StartAddress,LPBYTE Buf,int SizeBuf);
+	void WINAPI _export FarSysLog_INPUT_RECORD_Dump(char *ModuleName,INPUT_RECORD *rec);
 #ifdef __cplusplus
 };
 #endif
@@ -960,8 +963,8 @@ void CloseSysLog();
 
 struct TUserLog
 {
-    FILE *Stream;
-    int   Level;
+	FILE *Stream;
+	int   Level;
 };
 
 void SysLogDump(const char *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp=NULL);
@@ -975,10 +978,11 @@ FILE *OpenLogStream(char *file);
 #define L_DEBUG2   5
 #define L_DEBUG3   6
 
-class CleverSysLog{ // ;-)
-  public:
-    CleverSysLog(const char *Title=NULL);
-    ~CleverSysLog();
+class CleverSysLog  // ;-)
+{
+	public:
+		CleverSysLog(const char *Title=NULL);
+		~CleverSysLog();
 };
 
 
@@ -992,12 +996,12 @@ BOOL EjectVolume(char Letter,DWORD Flags);
 BOOL RemoveUSBDrive(char Letter,DWORD Flags);
 BOOL IsEjectableMedia(char Letter,UINT DriveType=DRIVE_NOT_INIT,BOOL ForceCDROM=FALSE);
 BOOL IsDriveUsb(char DriveName,void *pDevInst);
-int  ProcessRemoveHotplugDevice (char Drive, DWORD Flags);
+int  ProcessRemoveHotplugDevice(char Drive, DWORD Flags);
 
-bool InitializeSetupAPI ();
-bool CheckInitSetupAPI ();
-void FinalizeSetupAPI ();
-void ShowHotplugDevice ();
+bool InitializeSetupAPI();
+bool CheckInitSetupAPI();
+void FinalizeSetupAPI();
+void ShowHotplugDevice();
 
 
 /* $ 30.12.2000 SVS
@@ -1009,8 +1013,8 @@ int ESetFileCompression(const char *Name,int State,int FileAttr,int SkipMode=-1)
 int ESetFileEncryption(const char *Name,int State,int FileAttr,int SkipMode=-1,int Silent=0);
 #define ESetFileEncryptionSilent(Name,State,FileAttr,SkipMode) ESetFileEncryption(Name,State,FileAttr,SkipMode,1)
 int ESetFileTime(const char *Name,FILETIME *LastWriteTime,
-                  FILETIME *CreationTime,FILETIME *LastAccessTime,
-                  int FileAttr,int SkipMode=-1);
+                 FILETIME *CreationTime,FILETIME *LastAccessTime,
+                 int FileAttr,int SkipMode=-1);
 /* SVS $ */
 int ConvertWildcards(const char *Src,char *Dest, int SelectedFolderNameLength);
 
@@ -1019,16 +1023,16 @@ BOOL IsBatchExtType(const char *ExtPtr);
 BOOL BatchFileExist(const char *FileName,char *DestName,int SizeDestName);
 
 int WINAPI GetSearchReplaceString(
-         int IsReplaceMode,
-         unsigned char *SearchStr,
-         int LenSearchStr,
-         unsigned char *ReplaceStr,
-         int LenReplaceStr,
-         const char *TextHistoryName,
-         const char *ReplaceHistoryName,
-         int *Case,
-         int *WholeWords,
-         int *Reverse);
+    int IsReplaceMode,
+    unsigned char *SearchStr,
+    int LenSearchStr,
+    unsigned char *ReplaceStr,
+    int LenReplaceStr,
+    const char *TextHistoryName,
+    const char *ReplaceHistoryName,
+    int *Case,
+    int *WholeWords,
+    int *Reverse);
 
 BOOL WINAPI KeyMacroToText(int Key,char *KeyText0,int Size);
 int WINAPI KeyNameMacroToKey(const char *Name);
@@ -1075,26 +1079,27 @@ DWORD WINAPI FarGetLogicalDrives(void);
 char *Add_PATHEXT(char *Dest);
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-void __cdecl qsortex(char *base, size_t nel, size_t width,
-            int (__cdecl *comp_fp)(const void *, const void *,void*), void *user);
+	void __cdecl qsortex(char *base, size_t nel, size_t width,
+	int (__cdecl *comp_fp)(const void *, const void *,void*), void *user);
 
-char * __cdecl farmktemp(char *temp);
-char * __cdecl xstrncpy (char * dest,const char * src,size_t maxlen);
-char * __cdecl xstrncat (char * dest,const char * src,size_t maxlen);
-char * __cdecl xf_strdup (const char * string);
-void __cdecl far_qsort (
-    void *base,
-    size_t num,
-    size_t width,
-    int (__cdecl *comp)(const void *, const void *)
-    );
+	char * __cdecl farmktemp(char *temp);
+	char * __cdecl xstrncpy(char * dest,const char * src,size_t maxlen);
+	char * __cdecl xstrncat(char * dest,const char * src,size_t maxlen);
+	char * __cdecl xf_strdup(const char * string);
+	void __cdecl far_qsort(
+	    void *base,
+	    size_t num,
+	    size_t width,
+	    int (__cdecl *comp)(const void *, const void *)
+	);
 
-void  __cdecl xf_free(void *__block);
-void *__cdecl xf_malloc(size_t __size);
-void *__cdecl xf_realloc(void *__block, size_t __size);
+	void  __cdecl xf_free(void *__block);
+	void *__cdecl xf_malloc(size_t __size);
+	void *__cdecl xf_realloc(void *__block, size_t __size);
 
 #ifdef __cplusplus
 }
@@ -1104,16 +1109,16 @@ void *__cdecl xf_realloc(void *__block, size_t __size);
    inline-функции для быстрой конвертации
 */
 
-inline char LocalUpperFast (char c)
+inline char LocalUpperFast(char c)
 {
-  extern unsigned char LowerToUpper[256];  // in local.cpp
-  return LowerToUpper [c];
+	extern unsigned char LowerToUpper[256];  // in local.cpp
+	return LowerToUpper [c];
 }
 
-inline char LocalLowerFast (char c)
+inline char LocalLowerFast(char c)
 {
-  extern unsigned char UpperToLower[256];  // in local.cpp
-  return UpperToLower [c];
+	extern unsigned char UpperToLower[256];  // in local.cpp
+	return UpperToLower [c];
 }
 /* DJ $ */
 
@@ -1132,8 +1137,8 @@ BOOL WINAPI GetMenuHotKey(char *HotKey,int LenHotKey,
                           char *RegValueName);
 
 char *WINAPI FarFormatText(const char *SrcText,int Width,
-                      char *DestText,int MaxLen,
-                      const char* Break, DWORD Flags);
+                           char *DestText,int MaxLen,
+                           const char* Break, DWORD Flags);
 
 int PathMayBeAbsolute(const char *Src);
 char* PrepareDiskPath(char *Path,int MaxSize,BOOL CheckFullPath=TRUE);
@@ -1149,7 +1154,7 @@ void CharBufferTooSmallWarn(int BufSize, int FileNameSize);
 long filelen(FILE *FPtr);
 __int64 filelen64(FILE *FPtr);
 __int64 ftell64(FILE *fp);
-int fseek64 (FILE *fp, __int64 offset, int whence);
+int fseek64(FILE *fp, __int64 offset, int whence);
 
 BOOL IsDiskInDrive(const char *Drive);
 

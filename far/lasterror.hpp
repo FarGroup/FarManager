@@ -12,12 +12,12 @@ lasterror.hpp
 
 class GuardLastError
 {
-  private:
-    DWORD LastError;
-  public:
-    GuardLastError(){LastError=GetLastError();}
-    ~GuardLastError(){SetLastError(LastError);}
-    DWORD Get(){return LastError;}
+	private:
+		DWORD LastError;
+	public:
+		GuardLastError() {LastError=GetLastError();}
+		~GuardLastError() {SetLastError(LastError);}
+		DWORD Get() {return LastError;}
 };
 
 #endif  // __LASTERROR_HPP__

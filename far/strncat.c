@@ -8,14 +8,17 @@
 char * __cdecl xstrncat(char * dest,const char * src, size_t maxlen)
 {
 	char * start=dest;
-	while(*dest)
+
+	while (*dest)
 	{
 		dest++;
 		maxlen--;
 	}
-	while(maxlen--)
-		if(!(*dest++=*src++))
+
+	while (maxlen--)
+		if (!(*dest++=*src++))
 			return start;
+
 	*dest=0;
 	return start;
 }

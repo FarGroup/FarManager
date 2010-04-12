@@ -11,33 +11,33 @@ Parent class для модальных объектов
 
 class Modal: public Frame
 {
-  private:
-    int     ReadKey,
-            WriteKey;
-    typedef ScreenObject inherited;
-  protected:
-    INPUT_RECORD ReadRec;
-    char HelpTopic[512];
-    int  ExitCode;
-    int  EndLoop;
+	private:
+		int     ReadKey,
+		WriteKey;
+		typedef ScreenObject inherited;
+	protected:
+		INPUT_RECORD ReadRec;
+		char HelpTopic[512];
+		int  ExitCode;
+		int  EndLoop;
 
-  public:
-    Modal();
-    virtual ~Modal() {};
-    virtual void GetDialogObjectsData() {};
-    int Done();
-    void ClearDone();
-    int  GetExitCode();
-    virtual void SetExitCode(int Code);
+	public:
+		Modal();
+		virtual ~Modal() {};
+		virtual void GetDialogObjectsData() {};
+		int Done();
+		void ClearDone();
+		int  GetExitCode();
+		virtual void SetExitCode(int Code);
 
-    virtual void Process();
+		virtual void Process();
 
-    int  ReadInput(INPUT_RECORD *GetReadRec=NULL);
-    void WriteInput(int Key);
-    void ProcessInput();
+		int  ReadInput(INPUT_RECORD *GetReadRec=NULL);
+		void WriteInput(int Key);
+		void ProcessInput();
 
-    void SetHelp(const char *Topic);
-    void ShowHelp();
+		void SetHelp(const char *Topic);
+		void ShowHelp();
 };
 
 

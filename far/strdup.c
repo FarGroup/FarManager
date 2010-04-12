@@ -2,10 +2,11 @@
 #pragma hdrstop
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-void *__cdecl xf_malloc(size_t __size);
+	void *__cdecl xf_malloc(size_t __size);
 
 #ifdef __cplusplus
 }
@@ -35,13 +36,15 @@ void *__cdecl xf_malloc(size_t __size);
 *
 *******************************************************************************/
 
-char * __cdecl xf_strdup (const char * string)
+char * __cdecl xf_strdup(const char * string)
 {
-  if(string)
-  {
-    char *memory;
-    if((memory = xf_malloc(strlen(string) + 1)) != NULL)
-       return strcpy(memory,string);
-  }
-  return(NULL);
+	if (string)
+	{
+		char *memory;
+
+		if ((memory = xf_malloc(strlen(string) + 1)) != NULL)
+			return strcpy(memory,string);
+	}
+
+	return(NULL);
 }

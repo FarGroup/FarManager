@@ -11,12 +11,12 @@ class PreserveLongName
 
 class PreserveLongName
 {
-  private:
-    char SaveLongName[NM],SaveShortName[NM];
-    int Preserve;
-  public:
-    PreserveLongName(char *ShortName,int Preserve);
-    ~PreserveLongName();
+	private:
+		char SaveLongName[NM],SaveShortName[NM];
+		int Preserve;
+	public:
+		PreserveLongName(char *ShortName,int Preserve);
+		~PreserveLongName();
 };
 
 

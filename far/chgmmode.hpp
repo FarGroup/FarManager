@@ -9,11 +9,11 @@ class ChangeMacroMode
 
 class ChangeMacroMode
 {
-  private:
-    int PrevMacroMode;
-  public:
-    ChangeMacroMode(int NewMode);
-    ~ChangeMacroMode();
+	private:
+		int PrevMacroMode;
+	public:
+		ChangeMacroMode(int NewMode);
+		~ChangeMacroMode();
 };
 
 #endif  // __CHANGEMACROMODE_HPP__

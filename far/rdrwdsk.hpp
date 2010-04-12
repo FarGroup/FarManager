@@ -9,15 +9,15 @@ class RedrawDesktop
 
 class RedrawDesktop
 {
-  private:
-    int LeftVisible;
-    int RightVisible;
-    int KeyBarVisible;
-    int TopMenuBarVisible;
+	private:
+		int LeftVisible;
+		int RightVisible;
+		int KeyBarVisible;
+		int TopMenuBarVisible;
 
-  public:
-    RedrawDesktop(BOOL IsHidden=FALSE);
-    ~RedrawDesktop();
+	public:
+		RedrawDesktop(BOOL IsHidden=FALSE);
+		~RedrawDesktop();
 };
 
 
