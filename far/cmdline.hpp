@@ -66,7 +66,6 @@ class CommandLine:public ScreenObject
 		int CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int SeparateWindow,int DirectRun);
 		int ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow);
 		void GetPrompt(string &strDestStr);
-		BOOL SetLastCmdStr(const wchar_t *Ptr);
 		BOOL IntChDir(const wchar_t *CmdLine,int ClosePlugin,bool Selent=false);
 		bool CheckCmdLineForHelp(const wchar_t *CmdLine);
 		bool CheckCmdLineForSet(const string& CmdLine);

@@ -3052,6 +3052,11 @@ int Dialog::ProcessKey(int Key)
 				{
 					edt->SetClearFlag(0);
 					edt->Xlat();
+
+					// иначе неправильно работает ctrl-end
+					edt->strLastStr = edt->GetStringAddr();
+					edt->LastPartLength=static_cast<int>(edt->strLastStr.GetLength());
+
 					Redraw(); // Перерисовка должна идти после DN_EDITCHANGE (imho)
 					return TRUE;
 				}
@@ -3071,7 +3076,31 @@ int Dialog::ProcessKey(int Key)
 						if (Item[FocusPos]->Flags & DIF_READONLY)
 							return TRUE;
 
-						if(!Opt.Dialogs.AutoComplete && (Key == KEY_CTRLEND || Key == KEY_CTRLNUMPAD1))
+						if ((Key==KEY_CTRLEND || Key==KEY_CTRLNUMPAD1) && edt->GetCurPos()==edt->GetLength())
+						{
+							if (edt->LastPartLength ==-1)
+								edt->strLastStr = edt->GetStringAddr();
+
+							strStr = edt->strLastStr;
+							int CurCmdPartLength=static_cast<int>(strStr.GetLength());
+							edt->HistoryGetSimilar(strStr, edt->LastPartLength);
+
+							if (edt->LastPartLength == -1)
+							{
+								edt->strLastStr = edt->GetStringAddr();
+								edt->LastPartLength = CurCmdPartLength;
+							}
+							edt->DisableAC();
+							edt->SetString(strStr);
+							edt->Select(edt->LastPartLength, strStr.GetLength());
+							edt->RevertAC();
+							Show();
+							return TRUE;
+						}
+
+						edt->LastPartLength=-1;
+
+						if(Key == KEY_CTRLSHIFTEND || Key == KEY_CTRLSHIFTNUMPAD1)
 						{
 							edt->EnableAC();
 							edt->AutoComplete(true,false);

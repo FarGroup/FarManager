@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "history.hpp"
 
 DlgEdit::DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type):
+	LastPartLength(-1),
 	m_Dialog(pOwner),
 	m_Index(Index),
 	Type(Type),
@@ -719,4 +720,9 @@ void DlgEdit::DoEditChange()
 	{
 		SendDlgMessage((HANDLE)m_Dialog,DN_EDITCHANGE,m_Index,0);
 	}
+}
+
+bool DlgEdit::HistoryGetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
+{
+	return iHistory?iHistory->GetSimilar(strStr, LastCmdPartLength, bAppend):false;
 }

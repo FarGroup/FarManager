@@ -267,49 +267,46 @@ bool AdminMode::Initialize()
 		if(!Result)
 		{
 			DisconnectNamedPipe(Pipe);
-			if(Approve || AdminApproveDlg(nullptr))
+			FormatString strParam;
+			strParam << L"/admin " << GetCurrentProcessId();
+			SHELLEXECUTEINFO info=
 			{
-				FormatString strParam;
-				strParam << L"/admin " << GetCurrentProcessId();
-				SHELLEXECUTEINFO info=
+				sizeof(info),
+				SEE_MASK_FLAG_NO_UI|SEE_MASK_UNICODE|SEE_MASK_NOASYNC|SEE_MASK_NOCLOSEPROCESS,
+				nullptr,
+				L"runas",
+				g_strFarModuleName,
+				strParam,
+			};
+			if(ShellExecuteEx(&info))
+			{
+				Process = info.hProcess;
+				OVERLAPPED Overlapped;
+				Overlapped.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+				ConnectNamedPipe(Pipe, &Overlapped);
+				if(WaitForSingleObject(Overlapped.hEvent, 5000) == WAIT_OBJECT_0)
 				{
-					sizeof(info),
-					SEE_MASK_FLAG_NO_UI|SEE_MASK_UNICODE|SEE_MASK_NOASYNC|SEE_MASK_NOCLOSEPROCESS,
-					nullptr,
-					L"runas",
-					g_strFarModuleName,
-					strParam,
-				};
-				if(ShellExecuteEx(&info))
-				{
-					Process = info.hProcess;
-					OVERLAPPED Overlapped;
-					Overlapped.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-					ConnectNamedPipe(Pipe, &Overlapped);
-					if(WaitForSingleObject(Overlapped.hEvent, 5000) == WAIT_OBJECT_0)
+					DWORD NumberOfBytesTransferred;
+					if(GetOverlappedResult(Pipe, &Overlapped, &NumberOfBytesTransferred, FALSE))
 					{
-						DWORD NumberOfBytesTransferred;
-						if(GetOverlappedResult(Pipe, &Overlapped, &NumberOfBytesTransferred, FALSE))
+						if(ReadPipeInt(Pipe, PID))
 						{
-							if(ReadPipeInt(Pipe, PID))
-							{
-								Result = true;
-							}
+							Result = true;
 						}
 					}
-					CloseHandle(Overlapped.hEvent);
-					if(!Result)
+				}
+				CloseHandle(Overlapped.hEvent);
+				if(!Result)
+				{
+					DWORD ExitCode = 0;
+					GetExitCodeProcess(Process, &ExitCode);
+					if(ExitCode == STILL_ACTIVE)
 					{
-						DWORD ExitCode = 0;
-						GetExitCodeProcess(Process, &ExitCode);
-						if(ExitCode == STILL_ACTIVE)
-						{
-							TerminateProcess(Process, 0);
-							CloseHandle(Process);
-							Process = nullptr;
-						}
-						SetLastError(ERROR_PROCESS_ABORTED);
+						TerminateProcess(Process, 0);
+						CloseHandle(Process);
+						Process = nullptr;
 					}
+					SetLastError(ERROR_PROCESS_ABORTED);
 				}
 			}
 		}
@@ -382,7 +379,7 @@ bool AdminMode::fCreateDirectory(LPCWSTR Object, LPSECURITY_ATTRIBUTES Attribute
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(PointToName(Object)) && Initialize())
+	if(AdminApproveDlg(Object) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_CREATEDIRECTORY))
 		{
@@ -407,7 +404,7 @@ bool AdminMode::fRemoveDirectory(LPCWSTR Object)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(PointToName(Object)) && Initialize())
+	if(AdminApproveDlg(Object) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_REMOVEDIRECTORY))
 		{
@@ -431,7 +428,7 @@ bool AdminMode::fDeleteFile(LPCWSTR Object)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(PointToName(Object)) && Initialize())
+	if(AdminApproveDlg(Object) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_DELETEFILE))
 		{
@@ -496,7 +493,7 @@ bool AdminMode::fCopyFileEx(LPCWSTR From, LPCWSTR To, LPPROGRESS_ROUTINE Progres
 {
 	CriticalSectionLock Lock(CS);
 	bool Result = false;
-	if(AdminApproveDlg(PointToName(From)) && Initialize())
+	if(AdminApproveDlg(From) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_COPYFILEEX))
 		{
@@ -543,7 +540,7 @@ bool AdminMode::fMoveFileEx(LPCWSTR From, LPCWSTR To, DWORD Flags)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(PointToName(From)) && Initialize())
+	if(AdminApproveDlg(From) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_MOVEFILEEX))
 		{
@@ -572,8 +569,8 @@ bool AdminMode::fMoveFileEx(LPCWSTR From, LPCWSTR To, DWORD Flags)
 DWORD AdminMode::fGetFileAttributes(LPCWSTR Object)
 {
 	CriticalSectionLock Lock(CS);
-	bool Result=false;
-	if(/*AdminApproveDlg(PointToName(Object)) && */Initialize())
+	DWORD Result = INVALID_FILE_ATTRIBUTES;
+	if(AdminApproveDlg(Object) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_GETFILEATTRIBUTES))
 		{
@@ -584,7 +581,7 @@ DWORD AdminMode::fGetFileAttributes(LPCWSTR Object)
 				{
 					if(ReceiveLastError())
 					{
-						Result = OpResult !=0;
+						Result = OpResult;
 					}
 				}
 			}
@@ -597,7 +594,7 @@ bool AdminMode::fSetFileAttributes(LPCWSTR Object, DWORD FileAttributes)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(PointToName(Object)) && Initialize())
+	if(AdminApproveDlg(Object) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_SETFILEATTRIBUTES))
 		{
@@ -624,7 +621,7 @@ bool AdminMode::fCreateHardLink(LPCWSTR Object,LPCWSTR Target,LPSECURITY_ATTRIBU
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(PointToName(Object)) && Initialize())
+	if(AdminApproveDlg(Object) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_CREATEHARDLINK))
 		{
@@ -652,7 +649,7 @@ bool AdminMode::fCreateSymbolicLink(LPCWSTR Object, LPCWSTR Target, DWORD Flags)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(PointToName(Object)) && Initialize())
+	if(AdminApproveDlg(Object) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_CREATESYMBOLICLINK))
 		{
@@ -682,7 +679,7 @@ bool AdminMode::fSetReparseDataBuffer(LPCWSTR Object,PREPARSE_DATA_BUFFER Repars
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(PointToName(Object)) && Initialize())
+	if(AdminApproveDlg(Object) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_SETREPARSEDATABUFFER))
 		{
@@ -709,7 +706,7 @@ int AdminMode::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 {
 	CriticalSectionLock Lock(CS);
 	int Result=0;
-	if(AdminApproveDlg(PointToName(FileOpStruct.pFrom)) && Initialize())
+	if(AdminApproveDlg(FileOpStruct.pFrom) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_MOVETORECYCLEBIN))
 		{
@@ -740,7 +737,7 @@ HANDLE AdminMode::fFindFirstFile(LPCWSTR Object, PWIN32_FIND_DATA W32FindData)
 {
 	CriticalSectionLock Lock(CS);
 	HANDLE Result=INVALID_HANDLE_VALUE;
-	if(/*AdminApproveDlg(PointToName(Object)) && */Initialize())
+	if(AdminApproveDlg(Object) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_FINDFIRSTFILE))
 		{
@@ -826,7 +823,7 @@ bool AdminMode::fSetOwner(LPCWSTR Object, LPCWSTR Owner)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(PointToName(Object)) && Initialize())
+	if(AdminApproveDlg(Object) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_SETOWNER))
 		{
@@ -853,7 +850,7 @@ HANDLE AdminMode::fCreateFile(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMo
 {
 	CriticalSectionLock Lock(CS);
 	HANDLE Result=INVALID_HANDLE_VALUE;
-	if(AdminApproveDlg(PointToName(Object)) && Initialize())
+	if(AdminApproveDlg(Object) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_CREATEFILE))
 		{

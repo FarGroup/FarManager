@@ -55,30 +55,16 @@ class Dialog;
 
 class DlgEdit: public ScreenObject
 {
-	private: // приватные данные
-		Dialog* m_Dialog;
-		unsigned m_Index;
-		DLGEDITTYPE Type;
-		History* iHistory;
+	public:
+		// for CtrlEnd
+		string strLastStr;
+		int LastPartLength;
 
-		EditControl   *lineEdit;
-#if defined(PROJECT_DI_MEMOEDIT)
-		Editor *multiEdit;
-#endif
-
-	public:  // публичные данные
 		BitFlags& Flags();
 
-	private: // приватные методы
-		virtual void DisplayObject();
-		static void EditChange(void* aParam);
-		void DoEditChange();
-
-	public:
 		DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type);
 		virtual ~DlgEdit();
 
-	public: // публичные методы
 		virtual int  ProcessKey(int Key);
 		virtual int  ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
@@ -158,4 +144,21 @@ class DlgEdit: public ScreenObject
 		void EnableAC(){return lineEdit->EnableAC();}
 		void DisableAC(){return lineEdit->DisableAC();}
 		void RevertAC(){return lineEdit->RevertAC();}
+
+		bool HistoryGetSimilar(string &strStr, int LastCmdPartLength, bool bAppend=false);
+
+	private:
+		Dialog* m_Dialog;
+		unsigned m_Index;
+		DLGEDITTYPE Type;
+		History* iHistory;
+
+		EditControl   *lineEdit;
+#if defined(PROJECT_DI_MEMOEDIT)
+		Editor *multiEdit;
+#endif
+
+		virtual void DisplayObject();
+		static void EditChange(void* aParam);
+		void DoEditChange();
 };

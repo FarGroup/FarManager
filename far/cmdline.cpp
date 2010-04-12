@@ -128,12 +128,6 @@ void CommandLine::SetCurPos(int Pos, int LeftPos)
 	CmdStr.Redraw();
 }
 
-BOOL CommandLine::SetLastCmdStr(const wchar_t *Ptr)
-{
-	strLastCmdStr = Ptr;
-	return TRUE;
-}
-
 __int64 CommandLine::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
 	if (OpCode >= MCODE_C_CMDLINE_BOF && OpCode <= MCODE_C_CMDLINE_SELECTED)
@@ -162,7 +156,7 @@ int CommandLine::ProcessKey(int Key)
 	if ((Key==KEY_CTRLEND || Key==KEY_CTRLNUMPAD1) && CmdStr.GetCurPos()==CmdStr.GetLength())
 	{
 		if (LastCmdPartLength==-1)
-			SetLastCmdStr(CmdStr.GetStringAddr());
+			strLastCmdStr = CmdStr.GetStringAddr();
 
 		strStr = strLastCmdStr;
 		int CurCmdPartLength=(int)strStr.GetLength();
@@ -170,11 +164,12 @@ int CommandLine::ProcessKey(int Key)
 
 		if (LastCmdPartLength==-1)
 		{
-			if (SetLastCmdStr(CmdStr.GetStringAddr()))
-				LastCmdPartLength=CurCmdPartLength;
+			strLastCmdStr = CmdStr.GetStringAddr();
+			LastCmdPartLength=CurCmdPartLength;
 		}
 		CmdStr.DisableAC();
 		CmdStr.SetString(strStr);
+		CmdStr.Select(LastCmdPartLength,strStr.GetLength());
 		CmdStr.RevertAC();
 		Show();
 		return(TRUE);
@@ -378,10 +373,9 @@ int CommandLine::ProcessKey(int Key)
 			// 13.12.2000 SVS - ! Для CmdLine - если нет выделения, преобразуем всю строку (XLat)
 			CmdStr.Xlat(Opt.XLat.Flags&XLAT_CONVERTALLCMDLINE?TRUE:FALSE);
 
-			if (SetLastCmdStr(CmdStr.GetStringAddr()))
-			{
-				LastCmdPartLength=(int)strLastCmdStr.GetLength();
-			}
+			// иначе неправильно работает ctrl-end
+			strLastCmdStr = CmdStr.GetStringAddr();
+			LastCmdPartLength=(int)strLastCmdStr.GetLength();
 
 			return TRUE;
 		}
@@ -429,7 +423,7 @@ int CommandLine::ProcessKey(int Key)
 
 			LastCmdPartLength=-1;
 
-			if(!Opt.CmdLine.AutoComplete && (Key == KEY_CTRLSHIFTEND || Key == KEY_CTRLSHIFTNUMPAD1))
+			if(Key == KEY_CTRLSHIFTEND || Key == KEY_CTRLSHIFTNUMPAD1)
 			{
 				CmdStr.EnableAC();
 				CmdStr.AutoComplete(true,false);

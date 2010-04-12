@@ -3068,6 +3068,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 				int SelStart=GetLength();
 				InsertString(ComplMenu.GetItemPtr(0)->strName+GetLength());
 				Select(SelStart, GetLength());
+				Show();
 			}
 			if(Opt.AutoComplete.ShowList)
 			{
