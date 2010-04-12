@@ -1982,7 +1982,7 @@ void Viewer::Up()
 	BufSize = vread(Buf,BufSize,ViewFile);
 	Skipped=0;
 
-	if (Buf[BufSize-1]==(unsigned int)CRSym)
+	if (BufSize>0 && Buf[BufSize-1]==(unsigned int)CRSym)
 	{
 		BufSize--;
 		Skipped++;
@@ -2049,7 +2049,7 @@ void Viewer::Up()
 	for (I=Min(Width,BufSize); I>0; I-=5)
 		if (CalcStrSize(&Buf[BufSize-I],I) <= Width)
 		{
-			FilePos-=I+Skipped;
+			FilePos -= GetStrBytesNum(&Buf[BufSize-I], I)+Skipped;
 			break;
 		}
 }
