@@ -46,7 +46,6 @@ enum ADMIN_COMMAND
 	C_FUNCTION_SETFILEATTRIBUTES,
 	C_FUNCTION_CREATEHARDLINK,
 	C_FUNCTION_CREATESYMBOLICLINK,
-	C_FUNCTION_SETREPARSEDATABUFFER,
 	C_FUNCTION_MOVETORECYCLEBIN,
 	C_FUNCTION_FINDFIRSTFILE,
 	C_FUNCTION_FINDNEXTFILE,
@@ -83,7 +82,6 @@ public:
 	bool fSetFileAttributes(LPCWSTR Object, DWORD FileAttributes);
 	bool fCreateHardLink(LPCWSTR Object,LPCWSTR Target,LPSECURITY_ATTRIBUTES SecurityAttributes);
 	bool fCreateSymbolicLink(LPCWSTR Object, LPCWSTR Target, DWORD Flags);
-	bool fSetReparseDataBuffer(LPCWSTR Object,PREPARSE_DATA_BUFFER ReparseDataBuffer);
 	int fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct);
 	HANDLE fFindFirstFile(LPCWSTR Object, PWIN32_FIND_DATA W32FindData);
 	bool fFindNextFile(HANDLE Handle, PWIN32_FIND_DATA W32FindData);
@@ -119,7 +117,7 @@ private:
 	bool SendCommand(ADMIN_COMMAND Command) const;
 	bool ReceiveLastError() const;
 	bool Initialize();
-	bool AdminApproveDlg(LPCWSTR Object);
+	bool AdminApproveDlg(int Why, LPCWSTR Object);
 };
 
 extern AdminMode Admin;

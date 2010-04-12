@@ -17248,7 +17248,7 @@ upd:"Administrator"
 upd:"Administrator"
 upd:"Administrator"
 
-MAdminRequired1
+MAdminRequired
 "Нужно обладать правами администратора"
 "You need to provide administrator permission"
 upd:"You need to provide administrator permission"
@@ -17256,13 +17256,109 @@ upd:"You need to provide administrator permission"
 upd:"You need to provide administrator permission"
 upd:"You need to provide administrator permission"
 
-MAdminRequired2
+MAdminRequiredProcess
 "для обработки этого объекта:"
 "to process this object:"
 upd:"to process this object:"
 upd:"to process this object:"
 upd:"to process this object:"
 upd:"to process this object:"
+
+MAdminRequiredCreate
+"для создания этого объекта:"
+"to create this object:"
+upd:"to create this object:"
+upd:"to create this object:"
+upd:"to create this object:"
+upd:"to create this object:"
+
+MAdminRequiredDelete
+"для удаления этого объекта:"
+"to delete this object:"
+upd:"to delete this object:"
+upd:"to delete this object:"
+upd:"to delete this object:"
+upd:"to delete this object:"
+
+MAdminRequiredCopy
+"для копирования этого объекта:"
+"to copy this object:"
+upd:"to copy this object:"
+upd:"to copy this object:"
+upd:"to copy this object:"
+upd:"to copy this object:"
+
+MAdminRequiredMove
+"для перемещения этого объекта:"
+"to move this object:"
+upd:"to move this object:"
+upd:"to move this object:"
+upd:"to move this object:"
+upd:"to move this object:"
+
+MAdminRequiredGetAttributes
+"для получения атрибутов этого объекта:"
+"to get attributes of this object:"
+upd:"to get attributes of this object:"
+upd:"to get attributes of this object:"
+upd:"to get attributes of this object:"
+upd:"to get attributes of this object:"
+
+MAdminRequiredSetAttributes
+"для установки атрибутов этого объекта:"
+"to set attributes of this object:"
+upd:"to set attributes of this object:"
+upd:"to set attributes of this object:"
+upd:"to set attributes of this object:"
+upd:"to set attributes of this object:"
+
+MAdminRequiredHardLink
+"для создания этой жесткой ссылки:"
+"to create this hard link:"
+upd:"to create this hard link:"
+upd:"to create this hard link:"
+upd:"to create this hard link:"
+upd:"to create this hard link:"
+
+MAdminRequiredSymLink
+"для создания этой символической ссылки:"
+"to create this symbolic link:"
+upd:"to create this symbolic link:"
+upd:"to create this symbolic link:"
+upd:"to create this symbolic link:"
+upd:"to create this symbolic link:"
+
+MAdminRequiredRecycle
+"для перемещения этого объекта в корзину:"
+"to move this object to recycle bin:"
+upd:"to move this object to recycle bin:"
+upd:"to move this object to recycle bin:"
+upd:"to move this object to recycle bin:"
+upd:"to move this object to recycle bin:"
+
+MAdminRequiredList
+"для просмотра этого объекта:"
+"to list this object:"
+upd:"to list this object:"
+upd:"to list this object:"
+upd:"to list this object:"
+upd:"to list this object:"
+
+MAdminRequiredSetOwner
+"для установки владельца этого объекта:"
+"to set owner of this object:"
+upd:"to set owner of this object:"
+upd:"to set owner of this object:"
+upd:"to set owner of this object:"
+upd:"to set owner of this object:"
+
+MAdminRequiredOpen
+"для открытия этого объекта:"
+"to open this object:"
+upd:"to open this object:"
+upd:"to open this object:"
+upd:"to open this object:"
+upd:"to open this object:"
 
 #Must be the last
 MNewFileName

@@ -114,19 +114,15 @@ bool SetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
 	if (IsReparseTagValid(rdb->ReparseTag))
 	{
 		Privilege CreateSymlinkPrivilege(SE_CREATE_SYMBOLIC_LINK_NAME);
-		HANDLE hObject=apiCreateFile(Object,GENERIC_WRITE,0,nullptr,OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT);
-		if (hObject!=INVALID_HANDLE_VALUE)
+		File fObject;
+		if (fObject.Open(Object,GENERIC_WRITE,0,nullptr,OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT))
 		{
 			DWORD dwBytesReturned;
-			if (DeviceIoControl(hObject,FSCTL_SET_REPARSE_POINT,rdb,rdb->ReparseDataLength+REPARSE_DATA_BUFFER_HEADER_SIZE,nullptr,0,&dwBytesReturned,0))
+			if (fObject.IoControl(FSCTL_SET_REPARSE_POINT,rdb,rdb->ReparseDataLength+REPARSE_DATA_BUFFER_HEADER_SIZE,nullptr,0,&dwBytesReturned,0))
 			{
 				Result=true;
 			}
-			CloseHandle(hObject);
-		}
-		if(!Result && ElevationRequired())
-		{
-			Result=Admin.fSetReparseDataBuffer(NTPath(Object), rdb);
+			fObject.Close();
 		}
 	}
 

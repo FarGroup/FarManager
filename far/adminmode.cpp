@@ -43,7 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "palette.hpp"
 #include "lasterror.hpp"
 #include "privilege.hpp"
-#include "flink.hpp"
 #include "fileowner.hpp"
 #include "imports.hpp"
 
@@ -344,7 +343,7 @@ LONG_PTR WINAPI AdminApproveDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
 	return DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
-bool AdminMode::AdminApproveDlg(LPCWSTR Object)
+bool AdminMode::AdminApproveDlg(int Why, LPCWSTR Object)
 {
 	if(FrameManager && !FrameManager->ManagerIsDown() && AskApprove && !Recurse)
 	{
@@ -355,9 +354,9 @@ bool AdminMode::AdminApproveDlg(LPCWSTR Object)
 		{
 			DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,0,0,0,MSG(MErrorAccessDenied),
 			DI_TEXT,5,2,6,2,0,0,DIF_SETCOLOR|0xE9,0,L"\x2580\x2584",
-			DI_TEXT,8,2,0,2,0,0,0,0,MSG(MAdminRequired1),
-			DI_TEXT,8,3,0,3,0,0,0,0,Object?MSG(MAdminRequired2):L"",
-			DI_EDIT,8,4,DlgX-6,4,0,0,DIF_READONLY|DIF_SETCOLOR|FarColorToReal(COL_DIALOGTEXT),0,NullToEmpty(Object),
+			DI_TEXT,8,2,0,2,0,0,0,0,MSG(MAdminRequired),
+			DI_TEXT,8,3,0,3,0,0,0,0,MSG(Why),
+			DI_EDIT,8,4,DlgX-6,4,0,0,DIF_READONLY|DIF_SETCOLOR|FarColorToReal(COL_DIALOGTEXT),0,Object,
 			DI_CHECKBOX,5,6,0,6,0,1,0,0,MSG(MCopyRememberChoice),
 			DI_TEXT,3,DlgY-4,0,DlgY-4,0,0,DIF_SEPARATOR,0,L"",
 			DI_BUTTON,0,DlgY-3,0,DlgY-3,1,0,DIF_CENTERGROUP,1,MSG(MOk),
@@ -379,7 +378,7 @@ bool AdminMode::fCreateDirectory(LPCWSTR Object, LPSECURITY_ATTRIBUTES Attribute
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(Object) && Initialize())
+	if(AdminApproveDlg(MAdminRequiredCreate, Object) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_CREATEDIRECTORY))
 		{
@@ -404,7 +403,7 @@ bool AdminMode::fRemoveDirectory(LPCWSTR Object)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(Object) && Initialize())
+	if(AdminApproveDlg(MAdminRequiredDelete, Object) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_REMOVEDIRECTORY))
 		{
@@ -428,7 +427,7 @@ bool AdminMode::fDeleteFile(LPCWSTR Object)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(Object) && Initialize())
+	if(AdminApproveDlg(MAdminRequiredDelete, Object) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_DELETEFILE))
 		{
@@ -493,7 +492,7 @@ bool AdminMode::fCopyFileEx(LPCWSTR From, LPCWSTR To, LPPROGRESS_ROUTINE Progres
 {
 	CriticalSectionLock Lock(CS);
 	bool Result = false;
-	if(AdminApproveDlg(From) && Initialize())
+	if(AdminApproveDlg(MAdminRequiredCopy, From) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_COPYFILEEX))
 		{
@@ -540,7 +539,7 @@ bool AdminMode::fMoveFileEx(LPCWSTR From, LPCWSTR To, DWORD Flags)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(From) && Initialize())
+	if(AdminApproveDlg(MAdminRequiredMove, From) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_MOVEFILEEX))
 		{
@@ -570,7 +569,7 @@ DWORD AdminMode::fGetFileAttributes(LPCWSTR Object)
 {
 	CriticalSectionLock Lock(CS);
 	DWORD Result = INVALID_FILE_ATTRIBUTES;
-	if(AdminApproveDlg(Object) && Initialize())
+	if(AdminApproveDlg(MAdminRequiredGetAttributes, Object) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_GETFILEATTRIBUTES))
 		{
@@ -594,7 +593,7 @@ bool AdminMode::fSetFileAttributes(LPCWSTR Object, DWORD FileAttributes)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(Object) && Initialize())
+	if(AdminApproveDlg(MAdminRequiredSetAttributes, Object) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_SETFILEATTRIBUTES))
 		{
@@ -621,7 +620,7 @@ bool AdminMode::fCreateHardLink(LPCWSTR Object,LPCWSTR Target,LPSECURITY_ATTRIBU
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(Object) && Initialize())
+	if(AdminApproveDlg(MAdminRequiredHardLink, Object) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_CREATEHARDLINK))
 		{
@@ -649,7 +648,7 @@ bool AdminMode::fCreateSymbolicLink(LPCWSTR Object, LPCWSTR Target, DWORD Flags)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(Object) && Initialize())
+	if(AdminApproveDlg(MAdminRequiredSymLink, Object) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_CREATESYMBOLICLINK))
 		{
@@ -675,38 +674,12 @@ bool AdminMode::fCreateSymbolicLink(LPCWSTR Object, LPCWSTR Target, DWORD Flags)
 	return Result;
 }
 
-bool AdminMode::fSetReparseDataBuffer(LPCWSTR Object,PREPARSE_DATA_BUFFER ReparseDataBuffer)
-{
-	CriticalSectionLock Lock(CS);
-	bool Result=false;
-	if(AdminApproveDlg(Object) && Initialize())
-	{
-		if(SendCommand(C_FUNCTION_SETREPARSEDATABUFFER))
-		{
-			if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
-			{
-				if(WriteData(ReparseDataBuffer,ReparseDataBuffer?MAXIMUM_REPARSE_DATA_BUFFER_SIZE:0))
-				{
-					int OpResult=0;
-					if(ReadInt(OpResult))
-					{
-						if(ReceiveLastError())
-						{
-							Result = OpResult !=0;
-						}
-					}
-				}
-			}
-		}
-	}
-	return Result;
-}
 
 int AdminMode::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 {
 	CriticalSectionLock Lock(CS);
 	int Result=0;
-	if(AdminApproveDlg(FileOpStruct.pFrom) && Initialize())
+	if(AdminApproveDlg(MAdminRequiredRecycle, FileOpStruct.pFrom) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_MOVETORECYCLEBIN))
 		{
@@ -737,7 +710,7 @@ HANDLE AdminMode::fFindFirstFile(LPCWSTR Object, PWIN32_FIND_DATA W32FindData)
 {
 	CriticalSectionLock Lock(CS);
 	HANDLE Result=INVALID_HANDLE_VALUE;
-	if(AdminApproveDlg(Object) && Initialize())
+	if(AdminApproveDlg(MAdminRequiredList, Object) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_FINDFIRSTFILE))
 		{
@@ -823,7 +796,7 @@ bool AdminMode::fSetOwner(LPCWSTR Object, LPCWSTR Owner)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(Object) && Initialize())
+	if(AdminApproveDlg(MAdminRequiredSetOwner, Object) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_SETOWNER))
 		{
@@ -850,7 +823,7 @@ HANDLE AdminMode::fCreateFile(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMo
 {
 	CriticalSectionLock Lock(CS);
 	HANDLE Result=INVALID_HANDLE_VALUE;
-	if(AdminApproveDlg(Object) && Initialize())
+	if(AdminApproveDlg(MAdminRequiredOpen, Object) && Initialize())
 	{
 		if(SendCommand(C_FUNCTION_CREATEFILE))
 		{
@@ -1468,24 +1441,6 @@ void CreateSymbolicLinkHandler()
 	}
 }
 
-void SetReparseDatabufferHandler()
-{
-	AutoObject Object;
-	if(ReadPipeData(Pipe, Object))
-	{
-		AutoObject ReparseDataBuffer;
-		if(ReadPipeData(Pipe, ReparseDataBuffer))
-		{
-			int Result = SetREPARSE_DATA_BUFFER(Object.GetStr(), reinterpret_cast<PREPARSE_DATA_BUFFER>(ReparseDataBuffer.Get()));
-			int LastError = GetLastError();
-			if(WritePipeInt(Pipe, Result))
-			{
-				WritePipeInt(Pipe, LastError);
-			}
-		}
-	}
-}
-
 void MoveToRecycleBinHandler()
 {
 	AutoObject Struct;
@@ -1892,10 +1847,6 @@ bool Process(int Command)
 
 	case C_FUNCTION_CREATESYMBOLICLINK:
 		CreateSymbolicLinkHandler();
-		break;
-
-	case C_FUNCTION_SETREPARSEDATABUFFER:
-		SetReparseDatabufferHandler();
 		break;
 
 	case C_FUNCTION_MOVETORECYCLEBIN:
