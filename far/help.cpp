@@ -312,25 +312,28 @@ int Help::ReadHelp(const wchar_t *Mask)
 		else
 			RealMaxLength = MaxLength;
 
-		if (!MacroProcess && !RepeatLastLine && !BreakProcess && (GetCode=GetStr.GetString(&ReadStr, nCodePage, nStrLength)) == 0)
+		if (!MacroProcess && !RepeatLastLine && !BreakProcess)
 		{
-			strReadStr=ReadStr;
-			if (StringLen(strSplitLine)<MaxLength)
+			if ((GetCode=GetStr.GetString(&ReadStr, nCodePage, nStrLength)) <= 0)
 			{
-				if (strSplitLine.At(0))
-					AddLine(strSplitLine.CPtr());
+				strReadStr=ReadStr;
+				if (StringLen(strSplitLine)<MaxLength)
+				{
+					if (strSplitLine.At(0))
+						AddLine(strSplitLine.CPtr());
+				}
+				else
+				{
+					strReadStr.Clear();
+					RepeatLastLine=TRUE;
+					continue;
+				}
+
+				break;
 			}
 			else
-			{
-				strReadStr.Clear();
-				RepeatLastLine=TRUE;
-				continue;
-			}
-
-			break;
+				strReadStr=ReadStr;
 		}
-		else
-			strReadStr=ReadStr;
 
 		if (MacroProcess)
 		{
