@@ -332,7 +332,9 @@ int Help::ReadHelp(const wchar_t *Mask)
 				break;
 			}
 			else
+			{
 				strReadStr=ReadStr;
+			}
 		}
 
 		if (MacroProcess)
@@ -552,7 +554,7 @@ m1:
 
 					int Splitted=0;
 
-					for (size_t I=StrLength(strSplitLine)-1; I>0; I--)
+					for (size_t I=strSplitLine.GetLength()-1; I>0; I--)
 					{
 						if (I>0 && strSplitLine.At(I)==L'~' && strSplitLine.At(I-1)==L'~')
 						{
@@ -588,7 +590,9 @@ m1:
 								break;
 							}
 							else
+							{
 								lpwszPtr[I]=L' ';
+							}
 						}
 					}
 
@@ -598,7 +602,9 @@ m1:
 						strSplitLine.Clear();
 					}
 					else
+					{
 						StartPos = LastStartPos;
+					}
 				}
 			}
 
@@ -716,7 +722,9 @@ void Help::DisplayObject()
 			HelpKeyBar.Show();
 	}
 	else
+	{
 		HelpKeyBar.Hide();
+	}
 }
 
 
@@ -1904,7 +1912,9 @@ void Help::SetScreenPosition()
 		SetPosition(0,0,ScrX,ScrY);
 	}
 	else
+	{
 		SetPosition(4,2,ScrX-4,ScrY-2);
+	}
 
 	Show();
 }

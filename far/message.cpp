@@ -207,7 +207,7 @@ int Message(
 		++CountErrorLine;
 		//InsertQuote(ErrStr); // оквочим
 		// вычисление "красивого" размера
-		DWORD LenErrStr=(DWORD)StrLength(strErrStr);
+		DWORD LenErrStr=(DWORD)strErrStr.GetLength();
 
 		if (LenErrStr > MAX_WIDTH_MESSAGE)
 		{

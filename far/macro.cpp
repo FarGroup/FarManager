@@ -5927,22 +5927,19 @@ int KeyMacro::GetMacroKeyInfo(bool FromReg,int Mode,int Pos, string &strKeyName,
 
 				if (Mode == MACRO_FUNCS)
 				{
-					size_t lenSyntax=0;
 					regType=0;
 					GetRegKey(strRegKeyName,L"Syntax",strSyntax,L"",&regType);
-					lenSyntax=StrLength(strSyntax);
-					strDescription = strSyntax + (lenSyntax > 0 ? L" - " : L"") + strDescr;
+					strDescription = strSyntax + (strSyntax.GetLength() > 0 ? L" - " : L"") + strDescr;
 				}
 				else
+				{
 					strDescription = strDescr;
+				}
 
 				size_t pos;
 
 				if (strRegKeyName.RPos(pos,L'\\'))
-				{
-					strKeyName = strRegKeyName;
-					strKeyName.LShift(pos+1);
-				}
+					strKeyName = strRegKeyName.SubStr(pos+1);
 				else
 					strKeyName.Clear();
 
