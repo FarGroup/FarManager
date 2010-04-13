@@ -554,21 +554,21 @@ m1:
 
 					int Splitted=0;
 
-					for (size_t I=strSplitLine.GetLength()-1; I>0; I--)
+					for (int I=(int)strSplitLine.GetLength()-1; I > 0; I--)
 					{
-						if (I>0 && strSplitLine.At(I)==L'~' && strSplitLine.At(I-1)==L'~')
+						if (I > 0 && strSplitLine.At(I)==L'~' && strSplitLine.At(I-1)==L'~')
 						{
 							I--;
 							continue;
 						}
 
-						if (I>0 && strSplitLine.At(I)==L'~' && strSplitLine.At(I-1)!=L'~')
+						if (I > 0 && strSplitLine.At(I)==L'~' && strSplitLine.At(I-1)!=L'~')
 						{
 							do
 							{
 								I--;
 							}
-							while (I>0 && strSplitLine.At(I)!=L'~');
+							while (I > 0 && strSplitLine.At(I)!=L'~');
 
 							continue;
 						}
@@ -592,6 +592,7 @@ m1:
 							else
 							{
 								lpwszPtr[I]=L' ';
+								strSplitLine.ReleaseBuffer();
 							}
 						}
 					}
