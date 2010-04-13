@@ -1215,12 +1215,16 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 
 					if (SelPanel != nullptr)
 					{
-						OpenPluginInfo Info;
-						SelPanel->GetOpenPluginInfo(&Info);
-						if (CheckCode == MCODE_V_APANEL_OPIFLAGS || CheckCode == MCODE_V_PPANEL_OPIFLAGS)
-							Cond = (__int64)Info.Flags;
-						else
-							Cond = (const wchar_t*)Info.HostFile;
+						if (SelPanel->GetMode() == PLUGIN_PANEL)
+						{
+							OpenPluginInfo Info={0};
+							Info.StructSize=sizeof(OpenPluginInfo);
+							SelPanel->GetOpenPluginInfo(&Info);
+							if (CheckCode == MCODE_V_APANEL_OPIFLAGS || CheckCode == MCODE_V_PPANEL_OPIFLAGS)
+								Cond = (__int64)Info.Flags;
+							else
+								Cond = (const wchar_t*)Info.HostFile;
+						}
 					}
 
 					break;
@@ -1267,7 +1271,8 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 					{
 						if (SelPanel->GetMode() == PLUGIN_PANEL)
 						{
-							OpenPluginInfo Info;
+							OpenPluginInfo Info={0};
+							Info.StructSize=sizeof(OpenPluginInfo);
 							SelPanel->GetOpenPluginInfo(&Info);
 							strFileName = (const wchar_t*)Info.CurDir;
 						}
