@@ -1,27 +1,37 @@
 #!/bin/sh
 
 ARCNAME=final
-cd outfinalnew32
-7za a -r ${ARCNAME}.7z *
-cd ../outfinalnew64
-7za a -r ${ARCNAME}.7z *
-cd ../outfinalold32
-7za a -r ${ARCNAME}.7z *
-cd ../outfinalold64
-7za a -r ${ARCNAME}.7z *
-cd ..
+NIGHTLY_WEB_ROOT=/var/www/html/nightly
 
 ./installer.sh
 
+#Arguments:  processFarBuild <new|old> <32|64> <New|Old>
+processFarBuild()
+{
+	if [! -e ../outfinal$1$2/${ARCNAME}.msi]; then
+		echo "outfinal$1$2/${ARCNAME}.msi is missing"
+		return
+	fi
+	
+	BASE = $PWD
+	
+	cd ../outfinal$1$2
+	7za a -r -x${ARCNAME}.msi ${ARCNAME}.7z *
+	
+	cd BASE
+	m4 -P -DFARBIT=$2 -D ARC=../outfinal$1$2/$ARCNAME -D FARVAR=$1 -D LASTCHANGE="$LASTCHANGE" ../pagegen.m4 > $NIGHTLY_WEB_ROOT/Far$3.$2.php
+	cd ..
+}
+
 cd far
 LASTCHANGE=`head -1 changelog | dos2unix`
-m4 -P -DFARBIT=32 -D ARC=../outfinalnew32/$ARCNAME -D FARVAR=new -D LASTCHANGE="$LASTCHANGE" ../pagegen.m4 > /var/www/html/nightly/FarNew.32.php
-m4 -P -DFARBIT=64 -D ARC=../outfinalnew64/$ARCNAME -D FARVAR=new -D LASTCHANGE="$LASTCHANGE" ../pagegen.m4 > /var/www/html/nightly/FarNew.64.php
+processFarBuild new 32 New
+processFarBuild new 64 New
 cd ..
 
 cd farold
 LASTCHANGE=`head -1 changelog | dos2unix`
-cp -f ../outfinalold32/changelog /var/www/html/nightly/changelogfar
-m4 -P -DFARBIT=32 -D ARC=../outfinalold32/$ARCNAME -D FARVAR=old -D LASTCHANGE="$LASTCHANGE" ../pagegen.m4 > /var/www/html/nightly/FarOld.32.php
-m4 -P -DFARBIT=64 -D ARC=../outfinalold64/$ARCNAME -D FARVAR=old -D LASTCHANGE="$LASTCHANGE" ../pagegen.m4 > /var/www/html/nightly/FarOld.64.php
+cp -f ../outfinalold32/changelog $NIGHTLY_WEB_ROOT/changelogfar
+processFarBuild old 32 Old
+processFarBuild old 64 Old
 cd ..
