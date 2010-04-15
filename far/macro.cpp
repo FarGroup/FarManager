@@ -753,11 +753,15 @@ int KeyMacro::ProcessKey(int Key)
 			if ((Key&(~KEY_CTRLMASK)) > 0x01 && (Key&(~KEY_CTRLMASK)) < KEY_FKEY_BEGIN) // 0xFFFF ??
 			{
 				//Key=KeyToKeyLayout(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
-				Key=Upper(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
+				//Key=Upper(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
 				//_KEYMACRO(SysLog(L"Upper(Key)=%s",_FARKEY_ToName(Key)));
 
 				if ((Key&(~KEY_CTRLMASK)) > 0x7F && (Key&(~KEY_CTRLMASK)) < KEY_FKEY_BEGIN)
 					Key=KeyToKeyLayout(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
+
+				if (Key < KEY_FKEY_BEGIN)
+					Key=Upper(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
+
 			}
 
 			int I=GetIndex(Key,(Mode==MACRO_SHELL && !WaitInMainLoop) ? MACRO_OTHER:Mode);
