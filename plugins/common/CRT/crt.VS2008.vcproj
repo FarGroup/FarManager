@@ -76,7 +76,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="&quot;$(OutDir)\wide\i64toa.obj&quot; &quot;$(OutDir)\wide\memcpy.obj&quot; &quot;$(OutDir)\wide\memset.obj&quot; &quot;$(OutDir)\wide\strchr.obj&quot; &quot;$(OutDir)\wide\strcpy.obj&quot; &quot;$(OutDir)\wide\strdup.obj&quot; &quot;$(OutDir)\wide\stricmp.obj&quot; &quot;$(OutDir)\wide\strncat.obj&quot; &quot;$(OutDir)\wide\strncmp.obj&quot; &quot;$(OutDir)\wide\strncpy.obj&quot; &quot;$(OutDir)\wide\strrchr.obj&quot; &quot;$(OutDir)\wide\strstr.obj&quot; &quot;$(OutDir)\wide\strtok.obj&quot; &quot;$(OutDir)\wide\strtol.obj&quot; $(NOINHERIT)"
+				AdditionalDependencies="&quot;$(OutDir)\wide\i64toa.obj&quot; &quot;$(OutDir)\wide\memcpy.obj&quot; &quot;$(OutDir)\wide\memset.obj&quot; &quot;$(OutDir)\wide\strchr.obj&quot; &quot;$(OutDir)\wide\strcpy.obj&quot; &quot;$(OutDir)\wide\strdup.obj&quot; &quot;$(OutDir)\wide\strncat.obj&quot; &quot;$(OutDir)\wide\strncmp.obj&quot; &quot;$(OutDir)\wide\strncpy.obj&quot; &quot;$(OutDir)\wide\strrchr.obj&quot; &quot;$(OutDir)\wide\strstr.obj&quot; &quot;$(OutDir)\wide\strtok.obj&quot; &quot;$(OutDir)\wide\strtol.obj&quot; $(NOINHERIT)"
 				OutputFile="..\libCRT.lib"
 				IgnoreAllDefaultLibraries="true"
 			/>
@@ -153,7 +153,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="&quot;$(OutDir)\wide\i64toa.obj&quot; &quot;$(OutDir)\wide\memcpy.obj&quot; &quot;$(OutDir)\wide\memset.obj&quot; &quot;$(OutDir)\wide\strchr.obj&quot; &quot;$(OutDir)\wide\strcpy.obj&quot; &quot;$(OutDir)\wide\strdup.obj&quot; &quot;$(OutDir)\wide\stricmp.obj&quot; &quot;$(OutDir)\wide\strncat.obj&quot; &quot;$(OutDir)\wide\strncmp.obj&quot; &quot;$(OutDir)\wide\strncpy.obj&quot; &quot;$(OutDir)\wide\strrchr.obj&quot; &quot;$(OutDir)\wide\strstr.obj&quot; &quot;$(OutDir)\wide\strtok.obj&quot; &quot;$(OutDir)\wide\strtol.obj&quot; $(NOINHERIT)"
+				AdditionalDependencies="&quot;$(OutDir)\wide\i64toa.obj&quot; &quot;$(OutDir)\wide\memcpy.obj&quot; &quot;$(OutDir)\wide\memset.obj&quot; &quot;$(OutDir)\wide\strchr.obj&quot; &quot;$(OutDir)\wide\strcpy.obj&quot; &quot;$(OutDir)\wide\strdup.obj&quot; &quot;$(OutDir)\wide\strncat.obj&quot; &quot;$(OutDir)\wide\strncmp.obj&quot; &quot;$(OutDir)\wide\strncpy.obj&quot; &quot;$(OutDir)\wide\strrchr.obj&quot; &quot;$(OutDir)\wide\strstr.obj&quot; &quot;$(OutDir)\wide\strtok.obj&quot; &quot;$(OutDir)\wide\strtol.obj&quot; $(NOINHERIT)"
 				OutputFile="..\libCRT64.lib"
 				IgnoreAllDefaultLibraries="true"
 			/>
@@ -230,7 +230,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="&quot;$(OutDir)\wide\i64toa.obj&quot; &quot;$(OutDir)\wide\memcpy.obj&quot; &quot;$(OutDir)\wide\memset.obj&quot; &quot;$(OutDir)\wide\strchr.obj&quot; &quot;$(OutDir)\wide\strcpy.obj&quot; &quot;$(OutDir)\wide\strdup.obj&quot; &quot;$(OutDir)\wide\stricmp.obj&quot; &quot;$(OutDir)\wide\strncat.obj&quot; &quot;$(OutDir)\wide\strncmp.obj&quot; &quot;$(OutDir)\wide\strncpy.obj&quot; &quot;$(OutDir)\wide\strrchr.obj&quot; &quot;$(OutDir)\wide\strstr.obj&quot; &quot;$(OutDir)\wide\strtok.obj&quot; &quot;$(OutDir)\wide\strtol.obj&quot; $(NOINHERIT)"
+				AdditionalDependencies="&quot;$(OutDir)\wide\i64toa.obj&quot; &quot;$(OutDir)\wide\memcpy.obj&quot; &quot;$(OutDir)\wide\memset.obj&quot; &quot;$(OutDir)\wide\strchr.obj&quot; &quot;$(OutDir)\wide\strcpy.obj&quot; &quot;$(OutDir)\wide\strdup.obj&quot; &quot;$(OutDir)\wide\strncat.obj&quot; &quot;$(OutDir)\wide\strncmp.obj&quot; &quot;$(OutDir)\wide\strncpy.obj&quot; &quot;$(OutDir)\wide\strrchr.obj&quot; &quot;$(OutDir)\wide\strstr.obj&quot; &quot;$(OutDir)\wide\strtok.obj&quot; &quot;$(OutDir)\wide\strtol.obj&quot; $(NOINHERIT)"
 				OutputFile="..\libCRTIA64.lib"
 				IgnoreAllDefaultLibraries="true"
 			/>
@@ -309,7 +309,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="&quot;$(OutDir)\wide\i64toa.obj&quot; &quot;$(OutDir)\wide\memcpy.obj&quot; &quot;$(OutDir)\wide\memset.obj&quot; &quot;$(OutDir)\wide\strchr.obj&quot; &quot;$(OutDir)\wide\strcpy.obj&quot; &quot;$(OutDir)\wide\strdup.obj&quot; &quot;$(OutDir)\wide\stricmp.obj&quot; &quot;$(OutDir)\wide\strncat.obj&quot; &quot;$(OutDir)\wide\strncmp.obj&quot; &quot;$(OutDir)\wide\strncpy.obj&quot; &quot;$(OutDir)\wide\strrchr.obj&quot; &quot;$(OutDir)\wide\strstr.obj&quot; &quot;$(OutDir)\wide\strtok.obj&quot; &quot;$(OutDir)\wide\strtol.obj&quot; $(NOINHERIT)"
+				AdditionalDependencies="&quot;$(OutDir)\wide\i64toa.obj&quot; &quot;$(OutDir)\wide\memcpy.obj&quot; &quot;$(OutDir)\wide\memset.obj&quot; &quot;$(OutDir)\wide\strchr.obj&quot; &quot;$(OutDir)\wide\strcpy.obj&quot; &quot;$(OutDir)\wide\strdup.obj&quot; &quot;$(OutDir)\wide\strncat.obj&quot; &quot;$(OutDir)\wide\strncmp.obj&quot; &quot;$(OutDir)\wide\strncpy.obj&quot; &quot;$(OutDir)\wide\strrchr.obj&quot; &quot;$(OutDir)\wide\strstr.obj&quot; &quot;$(OutDir)\wide\strtok.obj&quot; &quot;$(OutDir)\wide\strtol.obj&quot; $(NOINHERIT)"
 				OutputFile="..\libCRT.lib"
 				IgnoreAllDefaultLibraries="true"
 			/>
@@ -398,7 +398,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				ExecutionBucket="9"
-				AdditionalDependencies="&quot;$(OutDir)\wide\i64toa.obj&quot; &quot;$(OutDir)\wide\memcpy.obj&quot; &quot;$(OutDir)\wide\memset.obj&quot; &quot;$(OutDir)\wide\strchr.obj&quot; &quot;$(OutDir)\wide\strcpy.obj&quot; &quot;$(OutDir)\wide\strdup.obj&quot; &quot;$(OutDir)\wide\stricmp.obj&quot; &quot;$(OutDir)\wide\strncat.obj&quot; &quot;$(OutDir)\wide\strncmp.obj&quot; &quot;$(OutDir)\wide\strncpy.obj&quot; &quot;$(OutDir)\wide\strrchr.obj&quot; &quot;$(OutDir)\wide\strstr.obj&quot; &quot;$(OutDir)\wide\strtok.obj&quot; &quot;$(OutDir)\wide\strtol.obj&quot; $(NOINHERIT)"
+				AdditionalDependencies="&quot;$(OutDir)\wide\i64toa.obj&quot; &quot;$(OutDir)\wide\memcpy.obj&quot; &quot;$(OutDir)\wide\memset.obj&quot; &quot;$(OutDir)\wide\strchr.obj&quot; &quot;$(OutDir)\wide\strcpy.obj&quot; &quot;$(OutDir)\wide\strdup.obj&quot; &quot;$(OutDir)\wide\strncat.obj&quot; &quot;$(OutDir)\wide\strncmp.obj&quot; &quot;$(OutDir)\wide\strncpy.obj&quot; &quot;$(OutDir)\wide\strrchr.obj&quot; &quot;$(OutDir)\wide\strstr.obj&quot; &quot;$(OutDir)\wide\strtok.obj&quot; &quot;$(OutDir)\wide\strtol.obj&quot; $(NOINHERIT)"
 				OutputFile="..\libCRT64.lib"
 				IgnoreAllDefaultLibraries="true"
 			/>
@@ -483,7 +483,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="&quot;$(OutDir)\wide\i64toa.obj&quot; &quot;$(OutDir)\wide\memcpy.obj&quot; &quot;$(OutDir)\wide\memset.obj&quot; &quot;$(OutDir)\wide\strchr.obj&quot; &quot;$(OutDir)\wide\strcpy.obj&quot; &quot;$(OutDir)\wide\strdup.obj&quot; &quot;$(OutDir)\wide\stricmp.obj&quot; &quot;$(OutDir)\wide\strncat.obj&quot; &quot;$(OutDir)\wide\strncmp.obj&quot; &quot;$(OutDir)\wide\strncpy.obj&quot; &quot;$(OutDir)\wide\strrchr.obj&quot; &quot;$(OutDir)\wide\strstr.obj&quot; &quot;$(OutDir)\wide\strtok.obj&quot; &quot;$(OutDir)\wide\strtol.obj&quot; $(NOINHERIT)"
+				AdditionalDependencies="&quot;$(OutDir)\wide\i64toa.obj&quot; &quot;$(OutDir)\wide\memcpy.obj&quot; &quot;$(OutDir)\wide\memset.obj&quot; &quot;$(OutDir)\wide\strchr.obj&quot; &quot;$(OutDir)\wide\strcpy.obj&quot; &quot;$(OutDir)\wide\strdup.obj&quot; &quot;$(OutDir)\wide\strncat.obj&quot; &quot;$(OutDir)\wide\strncmp.obj&quot; &quot;$(OutDir)\wide\strncpy.obj&quot; &quot;$(OutDir)\wide\strrchr.obj&quot; &quot;$(OutDir)\wide\strstr.obj&quot; &quot;$(OutDir)\wide\strtok.obj&quot; &quot;$(OutDir)\wide\strtol.obj&quot; $(NOINHERIT)"
 				OutputFile="..\libCRTIA64.lib"
 				IgnoreAllDefaultLibraries="true"
 			/>
@@ -586,10 +586,6 @@
 			</File>
 			<File
 				RelativePath=".\strdup.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\stricmp.cpp"
 				>
 			</File>
 			<File

@@ -326,7 +326,6 @@
     <ClCompile Include="strchr.cpp" />
     <ClCompile Include="strcpy.cpp" />
     <ClCompile Include="strdup.cpp" />
-    <ClCompile Include="stricmp.cpp" />
     <ClCompile Include="strncat.cpp" />
     <ClCompile Include="strncmp.cpp" />
     <ClCompile Include="strncpy.cpp" />

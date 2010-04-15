@@ -508,10 +508,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\stricmp.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\strncat.cpp"
 				>
 			</File>

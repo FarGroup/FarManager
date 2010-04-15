@@ -146,7 +146,7 @@
       <DisableSpecificWarnings>4985;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Lib>
-      <AdditionalDependencies>$(IntDir)wide\i64toa.obj;$(IntDir)wide\memcpy.obj;$(IntDir)wide\memset.obj;$(IntDir)wide\strchr.obj;$(IntDir)wide\strcpy.obj;$(IntDir)wide\strdup.obj;$(IntDir)wide\stricmp.obj;$(IntDir)wide\strncat.obj;$(IntDir)wide\strncmp.obj;$(IntDir)wide\strncpy.obj;$(IntDir)wide\strrchr.obj;$(IntDir)wide\strstr.obj;$(IntDir)wide\strtok.obj;$(IntDir)wide\strtol.obj</AdditionalDependencies>
+      <AdditionalDependencies>$(IntDir)wide\i64toa.obj;$(IntDir)wide\memcpy.obj;$(IntDir)wide\memset.obj;$(IntDir)wide\strchr.obj;$(IntDir)wide\strcpy.obj;$(IntDir)wide\strdup.obj;$(IntDir)wide\strncat.obj;$(IntDir)wide\strncmp.obj;$(IntDir)wide\strncpy.obj;$(IntDir)wide\strrchr.obj;$(IntDir)wide\strstr.obj;$(IntDir)wide\strtok.obj;$(IntDir)wide\strtol.obj</AdditionalDependencies>
       <OutputFile>..\libCRT.lib</OutputFile>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Lib>
@@ -177,7 +177,7 @@
       <DisableSpecificWarnings>4985;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Lib>
-      <AdditionalDependencies>$(IntDir)wide\i64toa.obj;$(IntDir)wide\memcpy.obj;$(IntDir)wide\memset.obj;$(IntDir)wide\strchr.obj;$(IntDir)wide\strcpy.obj;$(IntDir)wide\strdup.obj;$(IntDir)wide\stricmp.obj;$(IntDir)wide\strncat.obj;$(IntDir)wide\strncmp.obj;$(IntDir)wide\strncpy.obj;$(IntDir)wide\strrchr.obj;$(IntDir)wide\strstr.obj;$(IntDir)wide\strtok.obj;$(IntDir)wide\strtol.obj</AdditionalDependencies>
+      <AdditionalDependencies>$(IntDir)wide\i64toa.obj;$(IntDir)wide\memcpy.obj;$(IntDir)wide\memset.obj;$(IntDir)wide\strchr.obj;$(IntDir)wide\strcpy.obj;$(IntDir)wide\strdup.obj;$(IntDir)wide\strncat.obj;$(IntDir)wide\strncmp.obj;$(IntDir)wide\strncpy.obj;$(IntDir)wide\strrchr.obj;$(IntDir)wide\strstr.obj;$(IntDir)wide\strtok.obj;$(IntDir)wide\strtol.obj</AdditionalDependencies>
       <OutputFile>..\libCRT64.lib</OutputFile>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Lib>
@@ -208,7 +208,7 @@
       <DisableSpecificWarnings>4985;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Lib>
-      <AdditionalDependencies>$(IntDir)wide\i64toa.obj;$(IntDir)wide\memcpy.obj;$(IntDir)wide\memset.obj;$(IntDir)wide\strchr.obj;$(IntDir)wide\strcpy.obj;$(IntDir)wide\strdup.obj;$(IntDir)wide\stricmp.obj;$(IntDir)wide\strncat.obj;$(IntDir)wide\strncmp.obj;$(IntDir)wide\strncpy.obj;$(IntDir)wide\strrchr.obj;$(IntDir)wide\strstr.obj;$(IntDir)wide\strtok.obj;$(IntDir)wide\strtol.obj</AdditionalDependencies>
+      <AdditionalDependencies>$(IntDir)wide\i64toa.obj;$(IntDir)wide\memcpy.obj;$(IntDir)wide\memset.obj;$(IntDir)wide\strchr.obj;$(IntDir)wide\strcpy.obj;$(IntDir)wide\strdup.obj;$(IntDir)wide\strncat.obj;$(IntDir)wide\strncmp.obj;$(IntDir)wide\strncpy.obj;$(IntDir)wide\strrchr.obj;$(IntDir)wide\strstr.obj;$(IntDir)wide\strtok.obj;$(IntDir)wide\strtol.obj</AdditionalDependencies>
       <OutputFile>..\libCRTIA64.lib</OutputFile>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Lib>
@@ -239,7 +239,7 @@
       <DisableSpecificWarnings>4985;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Lib>
-      <AdditionalDependencies>$(IntDir)wide\i64toa.obj;$(IntDir)wide\memcpy.obj;$(IntDir)wide\memset.obj;$(IntDir)wide\strchr.obj;$(IntDir)wide\strcpy.obj;$(IntDir)wide\strdup.obj;$(IntDir)wide\stricmp.obj;$(IntDir)wide\strncat.obj;$(IntDir)wide\strncmp.obj;$(IntDir)wide\strncpy.obj;$(IntDir)wide\strrchr.obj;$(IntDir)wide\strstr.obj;$(IntDir)wide\strtok.obj;$(IntDir)wide\strtol.obj</AdditionalDependencies>
+      <AdditionalDependencies>$(IntDir)wide\i64toa.obj;$(IntDir)wide\memcpy.obj;$(IntDir)wide\memset.obj;$(IntDir)wide\strchr.obj;$(IntDir)wide\strcpy.obj;$(IntDir)wide\strdup.obj;$(IntDir)wide\strncat.obj;$(IntDir)wide\strncmp.obj;$(IntDir)wide\strncpy.obj;$(IntDir)wide\strrchr.obj;$(IntDir)wide\strstr.obj;$(IntDir)wide\strtok.obj;$(IntDir)wide\strtol.obj</AdditionalDependencies>
       <OutputFile>..\libCRT.lib</OutputFile>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Lib>
@@ -274,7 +274,7 @@
       <DisableSpecificWarnings>4985;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Lib>
-      <AdditionalDependencies>$(IntDir)wide\i64toa.obj;$(IntDir)wide\memcpy.obj;$(IntDir)wide\memset.obj;$(IntDir)wide\strchr.obj;$(IntDir)wide\strcpy.obj;$(IntDir)wide\strdup.obj;$(IntDir)wide\stricmp.obj;$(IntDir)wide\strncat.obj;$(IntDir)wide\strncmp.obj;$(IntDir)wide\strncpy.obj;$(IntDir)wide\strrchr.obj;$(IntDir)wide\strstr.obj;$(IntDir)wide\strtok.obj;$(IntDir)wide\strtol.obj</AdditionalDependencies>
+      <AdditionalDependencies>$(IntDir)wide\i64toa.obj;$(IntDir)wide\memcpy.obj;$(IntDir)wide\memset.obj;$(IntDir)wide\strchr.obj;$(IntDir)wide\strcpy.obj;$(IntDir)wide\strdup.obj;$(IntDir)wide\strncat.obj;$(IntDir)wide\strncmp.obj;$(IntDir)wide\strncpy.obj;$(IntDir)wide\strrchr.obj;$(IntDir)wide\strstr.obj;$(IntDir)wide\strtok.obj;$(IntDir)wide\strtol.obj</AdditionalDependencies>
       <OutputFile>..\libCRT64.lib</OutputFile>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Lib>
@@ -308,7 +308,7 @@
       <DisableSpecificWarnings>4985;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Lib>
-      <AdditionalDependencies>$(IntDir)wide\i64toa.obj;$(IntDir)wide\memcpy.obj;$(IntDir)wide\memset.obj;$(IntDir)wide\strchr.obj;$(IntDir)wide\strcpy.obj;$(IntDir)wide\strdup.obj;$(IntDir)wide\stricmp.obj;$(IntDir)wide\strncat.obj;$(IntDir)wide\strncmp.obj;$(IntDir)wide\strncpy.obj;$(IntDir)wide\strrchr.obj;$(IntDir)wide\strstr.obj;$(IntDir)wide\strtok.obj;$(IntDir)wide\strtol.obj</AdditionalDependencies>
+      <AdditionalDependencies>$(IntDir)wide\i64toa.obj;$(IntDir)wide\memcpy.obj;$(IntDir)wide\memset.obj;$(IntDir)wide\strchr.obj;$(IntDir)wide\strcpy.obj;$(IntDir)wide\strdup.obj;$(IntDir)wide\strncat.obj;$(IntDir)wide\strncmp.obj;$(IntDir)wide\strncpy.obj;$(IntDir)wide\strrchr.obj;$(IntDir)wide\strstr.obj;$(IntDir)wide\strtok.obj;$(IntDir)wide\strtol.obj</AdditionalDependencies>
       <OutputFile>..\libCRTIA64.lib</OutputFile>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Lib>
@@ -333,7 +333,6 @@
     <ClCompile Include="strcpy.cpp" />
     <ClCompile Include="strcspn.cpp" />
     <ClCompile Include="strdup.cpp" />
-    <ClCompile Include="stricmp.cpp" />
     <ClCompile Include="strncat.cpp" />
     <ClCompile Include="strncmp.cpp" />
     <ClCompile Include="strncpy.cpp" />

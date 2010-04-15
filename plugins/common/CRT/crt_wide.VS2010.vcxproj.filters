@@ -32,9 +32,6 @@
     <ClCompile Include="strdup.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stricmp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="strncat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
