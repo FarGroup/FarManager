@@ -8,17 +8,22 @@ NIGHTLY_WEB_ROOT=/var/www/html/nightly
 #Arguments:  processFarBuild <new|old> <32|64> <New|Old>
 processFarBuild()
 {
-	if [! -e ../outfinal$1$2/${ARCNAME}.msi]; then
+	if [ ! -e ../outfinal$1$2/${ARCNAME}.msi ]; then
 		echo "outfinal$1$2/${ARCNAME}.msi is missing"
 		return
 	fi
 	
-	BASE = $PWD
+	BASE=$PWD
 	
 	cd ../outfinal$1$2
-	7za a -r -x${ARCNAME}.msi ${ARCNAME}.7z *
-	
-	cd BASE
+	if [ ! $? ]; then
+		echo "cd ../outfinal$1$2 failed"
+		return
+	fi
+
+	7za a -r -x!${ARCNAME}.msi ${ARCNAME}.7z *
+
+	cd $BASE
 	m4 -P -DFARBIT=$2 -D ARC=../outfinal$1$2/$ARCNAME -D FARVAR=$1 -D LASTCHANGE="$LASTCHANGE" ../pagegen.m4 > $NIGHTLY_WEB_ROOT/Far$3.$2.php
 }
 
