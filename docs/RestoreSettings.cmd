@@ -7,7 +7,7 @@ if defined PROCESSOR_ARCHITEW6432 (set reg="%systemroot%\sysnative\reg.exe") els
 
 set userfile=FarSettings.User.reg
 set machinefile=FarSettings.Machine.reg
-set machinewow64file=FarSettings.Machine.WOW64.reg
+set machinewow64file=FarSettings.Machine.WoW64.reg
 
 set savepath=%~dp0
 
@@ -27,5 +27,5 @@ echo Deleting %1...
 )
 echo.
 echo Importing %2...
-%reg% import %2 >nul
+%reg% import %2
 )
