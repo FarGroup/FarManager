@@ -17256,6 +17256,14 @@ upd:"You need to provide administrator permission"
 upd:"You need to provide administrator permission"
 upd:"You need to provide administrator permission"
 
+MAdminRequiredPrivileges
+"Требуются дополнительные привилегии"
+"Additional privileges required"
+upd:"Additional privileges required"
+upd:"Additional privileges required"
+upd:"Additional privileges required"
+upd:"Additional privileges required"
+
 MAdminRequiredProcess
 "для обработки этого объекта:"
 "to process this object:"

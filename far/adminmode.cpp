@@ -354,7 +354,7 @@ bool AdminMode::AdminApproveDlg(int Why, LPCWSTR Object)
 		{
 			DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,0,0,0,MSG(MErrorAccessDenied),
 			DI_TEXT,5,2,6,2,0,0,DIF_SETCOLOR|0xE9,0,L"\x2580\x2584",
-			DI_TEXT,8,2,0,2,0,0,0,0,MSG(MAdminRequired),
+			DI_TEXT,8,2,0,2,0,0,0,0,MSG(Opt.IsUserAdmin?MAdminRequiredPrivileges:MAdminRequired),
 			DI_TEXT,8,3,0,3,0,0,0,0,MSG(Why),
 			DI_EDIT,8,4,DlgX-6,4,0,0,DIF_READONLY|DIF_SETCOLOR|FarColorToReal(COL_DIALOGTEXT),0,Object,
 			DI_CHECKBOX,5,6,0,6,0,1,0,0,MSG(MCopyRememberChoice),
@@ -378,19 +378,30 @@ bool AdminMode::fCreateDirectory(LPCWSTR Object, LPSECURITY_ATTRIBUTES Attribute
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(MAdminRequiredCreate, Object) && Initialize())
+	if(AdminApproveDlg(MAdminRequiredCreate, Object))
 	{
-		if(SendCommand(C_FUNCTION_CREATEDIRECTORY))
+		if(Opt.IsUserAdmin)
 		{
-			if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
+			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			Result = CreateDirectory(Object, Attributes) != FALSE;
+		}
+		else
+		{
+			if(Initialize())
 			{
-				// BUGBUG: SecurityAttributes ignored
-				int OpResult=0;
-				if(ReadInt(OpResult))
+				if(SendCommand(C_FUNCTION_CREATEDIRECTORY))
 				{
-					if(ReceiveLastError())
+					if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
 					{
-						Result = OpResult !=0;
+						// BUGBUG: SecurityAttributes ignored
+						int OpResult=0;
+						if(ReadInt(OpResult))
+						{
+							if(ReceiveLastError())
+							{
+								Result = OpResult !=0;
+							}
+						}
 					}
 				}
 			}
@@ -403,18 +414,29 @@ bool AdminMode::fRemoveDirectory(LPCWSTR Object)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(MAdminRequiredDelete, Object) && Initialize())
+	if(AdminApproveDlg(MAdminRequiredDelete, Object))
 	{
-		if(SendCommand(C_FUNCTION_REMOVEDIRECTORY))
+		if(Opt.IsUserAdmin)
 		{
-			if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
+			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			Result = RemoveDirectory(Object) != FALSE;
+		}
+		else
+		{
+			if(Initialize())
 			{
-				int OpResult=0;
-				if(ReadInt(OpResult))
+				if(SendCommand(C_FUNCTION_REMOVEDIRECTORY))
 				{
-					if(ReceiveLastError())
+					if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
 					{
-						Result = OpResult != 0;
+						int OpResult=0;
+						if(ReadInt(OpResult))
+						{
+							if(ReceiveLastError())
+							{
+								Result = OpResult != 0;
+							}
+						}
 					}
 				}
 			}
@@ -427,18 +449,29 @@ bool AdminMode::fDeleteFile(LPCWSTR Object)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(MAdminRequiredDelete, Object) && Initialize())
+	if(AdminApproveDlg(MAdminRequiredDelete, Object))
 	{
-		if(SendCommand(C_FUNCTION_DELETEFILE))
+		if(Opt.IsUserAdmin)
 		{
-			if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
+			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			Result = DeleteFile(Object) != FALSE;
+		}
+		else
+		{
+			if(Initialize())
 			{
-				int OpResult=0;
-				if(ReadInt(OpResult))
+				if(SendCommand(C_FUNCTION_DELETEFILE))
 				{
-					if(ReceiveLastError())
+					if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
 					{
-						Result = OpResult !=0;
+						int OpResult=0;
+						if(ReadInt(OpResult))
+						{
+							if(ReceiveLastError())
+							{
+								Result = OpResult !=0;
+							}
+						}
 					}
 				}
 			}
@@ -492,37 +525,48 @@ bool AdminMode::fCopyFileEx(LPCWSTR From, LPCWSTR To, LPPROGRESS_ROUTINE Progres
 {
 	CriticalSectionLock Lock(CS);
 	bool Result = false;
-	if(AdminApproveDlg(MAdminRequiredCopy, From) && Initialize())
+	if(AdminApproveDlg(MAdminRequiredCopy, From))
 	{
-		if(SendCommand(C_FUNCTION_COPYFILEEX))
+		if(Opt.IsUserAdmin)
 		{
-			this->ProgressRoutine=ProgressRoutine;
-			if(WriteData(From, From?(StrLength(From)+1)*sizeof(WCHAR):0))
+			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			Result = CopyFileEx(From, To, ProgressRoutine, Data, Cancel, Flags) != FALSE;
+		}
+		else
+		{
+			if(Initialize())
 			{
-				if(WriteData(To, To?(StrLength(To)+1)*sizeof(WCHAR):0))
+				if(SendCommand(C_FUNCTION_COPYFILEEX))
 				{
-					if (WriteData(&ProgressRoutine, sizeof(ProgressRoutine)))
+					this->ProgressRoutine=ProgressRoutine;
+					if(WriteData(From, From?(StrLength(From)+1)*sizeof(WCHAR):0))
 					{
-						if (WriteData(&Data, sizeof(Data)))
+						if(WriteData(To, To?(StrLength(To)+1)*sizeof(WCHAR):0))
 						{
-							// BUGBUG: Cancel ignored
-							if(WriteInt(Flags))
+							if (WriteData(&ProgressRoutine, sizeof(ProgressRoutine)))
 							{
-								int OpResult=0;
-								if(ReadInt(OpResult))
+								if (WriteData(&Data, sizeof(Data)))
 								{
-									if (OpResult == CallbackMagic)
+									// BUGBUG: Cancel ignored
+									if(WriteInt(Flags))
 									{
-										while(OpResult == CallbackMagic)
+										int OpResult=0;
+										if(ReadInt(OpResult))
 										{
-											fCallbackRoutine();
-											ReadInt(OpResult);
+											if (OpResult == CallbackMagic)
+											{
+												while(OpResult == CallbackMagic)
+												{
+													fCallbackRoutine();
+													ReadInt(OpResult);
+												}
+											}
+											if(OpResult != CallbackMagic)
+											{
+												Result = OpResult != 0;
+												ReceiveLastError();
+											}
 										}
-									}
-									if(OpResult != CallbackMagic)
-									{
-										Result = OpResult != 0;
-										ReceiveLastError();
 									}
 								}
 							}
@@ -539,22 +583,33 @@ bool AdminMode::fMoveFileEx(LPCWSTR From, LPCWSTR To, DWORD Flags)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(MAdminRequiredMove, From) && Initialize())
+	if(AdminApproveDlg(MAdminRequiredMove, From))
 	{
-		if(SendCommand(C_FUNCTION_MOVEFILEEX))
+		if(Opt.IsUserAdmin)
 		{
-			if(WriteData(From,From?(StrLength(From)+1)*sizeof(WCHAR):0))
+			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			Result = MoveFileEx(From, To, Flags) != FALSE;
+		}
+		else
+		{
+			if(Initialize())
 			{
-				if(WriteData(To,To?(StrLength(To)+1)*sizeof(WCHAR):0))
+				if(SendCommand(C_FUNCTION_MOVEFILEEX))
 				{
-					if(WriteInt(Flags))
+					if(WriteData(From,From?(StrLength(From)+1)*sizeof(WCHAR):0))
 					{
-						int OpResult=0;
-						if(ReadInt(OpResult))
+						if(WriteData(To,To?(StrLength(To)+1)*sizeof(WCHAR):0))
 						{
-							if(ReceiveLastError())
+							if(WriteInt(Flags))
 							{
-								Result = OpResult !=0;
+								int OpResult=0;
+								if(ReadInt(OpResult))
+								{
+									if(ReceiveLastError())
+									{
+										Result = OpResult !=0;
+									}
+								}
 							}
 						}
 					}
@@ -569,18 +624,29 @@ DWORD AdminMode::fGetFileAttributes(LPCWSTR Object)
 {
 	CriticalSectionLock Lock(CS);
 	DWORD Result = INVALID_FILE_ATTRIBUTES;
-	if(AdminApproveDlg(MAdminRequiredGetAttributes, Object) && Initialize())
+	if(AdminApproveDlg(MAdminRequiredGetAttributes, Object))
 	{
-		if(SendCommand(C_FUNCTION_GETFILEATTRIBUTES))
+		if(Opt.IsUserAdmin)
 		{
-			if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
+			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			Result = GetFileAttributes(Object);
+		}
+		else
+		{
+			if(Initialize())
 			{
-				int OpResult=0;
-				if(ReadInt(OpResult))
+				if(SendCommand(C_FUNCTION_GETFILEATTRIBUTES))
 				{
-					if(ReceiveLastError())
+					if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
 					{
-						Result = OpResult;
+						int OpResult=0;
+						if(ReadInt(OpResult))
+						{
+							if(ReceiveLastError())
+							{
+								Result = OpResult;
+							}
+						}
 					}
 				}
 			}
@@ -593,20 +659,31 @@ bool AdminMode::fSetFileAttributes(LPCWSTR Object, DWORD FileAttributes)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(MAdminRequiredSetAttributes, Object) && Initialize())
+	if(AdminApproveDlg(MAdminRequiredSetAttributes, Object))
 	{
-		if(SendCommand(C_FUNCTION_SETFILEATTRIBUTES))
+		if(Opt.IsUserAdmin)
 		{
-			if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
+			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			Result = SetFileAttributes(Object, FileAttributes) != FALSE;
+		}
+		else
+		{
+			if(Initialize())
 			{
-				if(WriteInt(FileAttributes))
+				if(SendCommand(C_FUNCTION_SETFILEATTRIBUTES))
 				{
-					int OpResult=0;
-					if(ReadInt(OpResult))
+					if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
 					{
-						if(ReceiveLastError())
+						if(WriteInt(FileAttributes))
 						{
-							Result = OpResult !=0;
+							int OpResult=0;
+							if(ReadInt(OpResult))
+							{
+								if(ReceiveLastError())
+								{
+									Result = OpResult !=0;
+								}
+							}
 						}
 					}
 				}
@@ -616,25 +693,36 @@ bool AdminMode::fSetFileAttributes(LPCWSTR Object, DWORD FileAttributes)
 	return Result;
 }
 
-bool AdminMode::fCreateHardLink(LPCWSTR Object,LPCWSTR Target,LPSECURITY_ATTRIBUTES SecurityAttributes)
+bool AdminMode::fCreateHardLink(LPCWSTR Object, LPCWSTR Target, LPSECURITY_ATTRIBUTES SecurityAttributes)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(MAdminRequiredHardLink, Object) && Initialize())
+	if(AdminApproveDlg(MAdminRequiredHardLink, Object))
 	{
-		if(SendCommand(C_FUNCTION_CREATEHARDLINK))
+		if(Opt.IsUserAdmin)
 		{
-			if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
+			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			Result = CreateHardLink(Object, Target, SecurityAttributes) != FALSE;
+		}
+		else
+		{
+			if(Initialize())
 			{
-				if(WriteData(Target,Target?(StrLength(Target)+1)*sizeof(WCHAR):0))
+				if(SendCommand(C_FUNCTION_CREATEHARDLINK))
 				{
-					// BUGBUG: SecurityAttributes ignored.
-					int OpResult=0;
-					if(ReadInt(OpResult))
+					if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
 					{
-						if(ReceiveLastError())
+						if(WriteData(Target,Target?(StrLength(Target)+1)*sizeof(WCHAR):0))
 						{
-							Result = OpResult != 0;
+							// BUGBUG: SecurityAttributes ignored.
+							int OpResult=0;
+							if(ReadInt(OpResult))
+							{
+								if(ReceiveLastError())
+								{
+									Result = OpResult != 0;
+								}
+							}
 						}
 					}
 				}
@@ -648,22 +736,33 @@ bool AdminMode::fCreateSymbolicLink(LPCWSTR Object, LPCWSTR Target, DWORD Flags)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(MAdminRequiredSymLink, Object) && Initialize())
+	if(AdminApproveDlg(MAdminRequiredSymLink, Object))
 	{
-		if(SendCommand(C_FUNCTION_CREATESYMBOLICLINK))
+		if(Opt.IsUserAdmin)
 		{
-			if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
+			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			Result = CreateSymbolicLink(Object, Target, Flags) != FALSE;
+		}
+		else
+		{
+			if(Initialize())
 			{
-				if(WriteData(Target,Target?(StrLength(Target)+1)*sizeof(WCHAR):0))
+				if(SendCommand(C_FUNCTION_CREATESYMBOLICLINK))
 				{
-					if(WriteInt(Flags))
+					if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
 					{
-						int OpResult=0;
-						if(ReadInt(OpResult))
+						if(WriteData(Target,Target?(StrLength(Target)+1)*sizeof(WCHAR):0))
 						{
-							if(ReceiveLastError())
+							if(WriteInt(Flags))
 							{
-								Result = OpResult !=0;
+								int OpResult=0;
+								if(ReadInt(OpResult))
+								{
+									if(ReceiveLastError())
+									{
+										Result = OpResult !=0;
+									}
+								}
 							}
 						}
 					}
@@ -679,23 +778,34 @@ int AdminMode::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 {
 	CriticalSectionLock Lock(CS);
 	int Result=0;
-	if(AdminApproveDlg(MAdminRequiredRecycle, FileOpStruct.pFrom) && Initialize())
+	if(AdminApproveDlg(MAdminRequiredRecycle, FileOpStruct.pFrom))
 	{
-		if(SendCommand(C_FUNCTION_MOVETORECYCLEBIN))
+		if(Opt.IsUserAdmin)
 		{
-			if(WriteData(&FileOpStruct, sizeof(FileOpStruct)))
+			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			Result = SHFileOperation(&FileOpStruct);
+		}
+		else
+		{
+			if(Initialize())
 			{
-				if(WriteData(FileOpStruct.pFrom,FileOpStruct.pFrom?(StrLength(FileOpStruct.pFrom)+1+1)*sizeof(WCHAR):0)) // achtung! +1
+				if(SendCommand(C_FUNCTION_MOVETORECYCLEBIN))
 				{
-					if(WriteData(FileOpStruct.pTo,FileOpStruct.pTo?(StrLength(FileOpStruct.pTo)+1+1)*sizeof(WCHAR):0)) // achtung! +1
+					if(WriteData(&FileOpStruct, sizeof(FileOpStruct)))
 					{
-						int OpResult=0;
-						if(ReadInt(OpResult))
+						if(WriteData(FileOpStruct.pFrom,FileOpStruct.pFrom?(StrLength(FileOpStruct.pFrom)+1+1)*sizeof(WCHAR):0)) // achtung! +1
 						{
-							// achtung! no "last error" here
-							if(ReadInt(FileOpStruct.fAnyOperationsAborted))
+							if(WriteData(FileOpStruct.pTo,FileOpStruct.pTo?(StrLength(FileOpStruct.pTo)+1+1)*sizeof(WCHAR):0)) // achtung! +1
 							{
-								Result = OpResult;
+								int OpResult=0;
+								if(ReadInt(OpResult))
+								{
+									// achtung! no "last error" here
+									if(ReadInt(FileOpStruct.fAnyOperationsAborted))
+									{
+										Result = OpResult;
+									}
+								}
 							}
 						}
 					}
@@ -710,24 +820,35 @@ HANDLE AdminMode::fFindFirstFile(LPCWSTR Object, PWIN32_FIND_DATA W32FindData)
 {
 	CriticalSectionLock Lock(CS);
 	HANDLE Result=INVALID_HANDLE_VALUE;
-	if(AdminApproveDlg(MAdminRequiredList, Object) && Initialize())
+	if(AdminApproveDlg(MAdminRequiredList, Object))
 	{
-		if(SendCommand(C_FUNCTION_FINDFIRSTFILE))
+		if(Opt.IsUserAdmin)
 		{
-			if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
+			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			Result = FindFirstFile(Object, W32FindData);
+		}
+		else
+		{
+			if(Initialize())
 			{
-				AutoObject OpResult;
-				if(ReadData(OpResult))
+				if(SendCommand(C_FUNCTION_FINDFIRSTFILE))
 				{
-					AutoObject FindData;
-					if(ReadData(FindData))
+					if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
 					{
-						if(ReceiveLastError())
+						AutoObject OpResult;
+						if(ReadData(OpResult))
 						{
-							Result = *reinterpret_cast<PHANDLE>(OpResult.Get());
-							if(Result!=INVALID_HANDLE_VALUE && W32FindData)
+							AutoObject FindData;
+							if(ReadData(FindData))
 							{
-								*W32FindData = *reinterpret_cast<PWIN32_FIND_DATA>(FindData.Get());
+								if(ReceiveLastError())
+								{
+									Result = *reinterpret_cast<PHANDLE>(OpResult.Get());
+									if(Result!=INVALID_HANDLE_VALUE && W32FindData)
+									{
+										*W32FindData = *reinterpret_cast<PWIN32_FIND_DATA>(FindData.Get());
+									}
+								}
 							}
 						}
 					}
@@ -742,6 +863,11 @@ bool AdminMode::fFindNextFile(HANDLE Handle, PWIN32_FIND_DATA W32FindData)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
+	if(Opt.IsUserAdmin)
+	{
+		Result = FindNextFile(Handle, W32FindData) != FALSE;
+	}
+	else
 	{
 		if(SendCommand(C_FUNCTION_FINDNEXTFILE))
 		{
@@ -773,6 +899,11 @@ bool AdminMode::fFindClose(HANDLE Handle)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
+	if(Opt.IsUserAdmin)
+	{
+		Result = FindClose(Handle) != FALSE;
+	}
+	else
 	{
 		if(SendCommand(C_FUNCTION_FINDCLOSE))
 		{
@@ -796,20 +927,31 @@ bool AdminMode::fSetOwner(LPCWSTR Object, LPCWSTR Owner)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(MAdminRequiredSetOwner, Object) && Initialize())
+	if(AdminApproveDlg(MAdminRequiredSetOwner, Object))
 	{
-		if(SendCommand(C_FUNCTION_SETOWNER))
+		if(Opt.IsUserAdmin)
 		{
-			if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
+			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			Result = SetOwnerInternal(Object, Owner);
+		}
+		else
+		{
+			if(Initialize())
 			{
-				if(WriteData(Owner,Owner?(StrLength(Owner)+1)*sizeof(WCHAR):0))
+				if(SendCommand(C_FUNCTION_SETOWNER))
 				{
-					int OpResult=0;
-					if(ReadInt(OpResult))
+					if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
 					{
-						if(ReceiveLastError())
+						if(WriteData(Owner,Owner?(StrLength(Owner)+1)*sizeof(WCHAR):0))
 						{
-							Result = OpResult !=0;
+							int OpResult=0;
+							if(ReadInt(OpResult))
+							{
+								if(ReceiveLastError())
+								{
+									Result = OpResult !=0;
+								}
+							}
 						}
 					}
 				}
@@ -823,28 +965,39 @@ HANDLE AdminMode::fCreateFile(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMo
 {
 	CriticalSectionLock Lock(CS);
 	HANDLE Result=INVALID_HANDLE_VALUE;
-	if(AdminApproveDlg(MAdminRequiredOpen, Object) && Initialize())
+	if(AdminApproveDlg(MAdminRequiredOpen, Object))
 	{
-		if(SendCommand(C_FUNCTION_CREATEFILE))
+		if(Opt.IsUserAdmin)
 		{
-			if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
+			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			Result = CreateFile(Object, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
+		}
+		else
+		{
+			if(Initialize())
 			{
-				if(WriteInt(DesiredAccess))
+				if(SendCommand(C_FUNCTION_CREATEFILE))
 				{
-					if(WriteInt(ShareMode))
+					if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
 					{
-						// BUGBUG: SecurityAttributes ignored
-						if(WriteInt(CreationDistribution))
+						if(WriteInt(DesiredAccess))
 						{
-							if(WriteInt(FlagsAndAttributes))
+							if(WriteInt(ShareMode))
 							{
-								// BUGBUG: TemplateFile ignored
-								AutoObject OpResult;
-								if(ReadData(OpResult))
+								// BUGBUG: SecurityAttributes ignored
+								if(WriteInt(CreationDistribution))
 								{
-									if(ReceiveLastError())
+									if(WriteInt(FlagsAndAttributes))
 									{
-										Result = *reinterpret_cast<PHANDLE>(OpResult.Get());
+										// BUGBUG: TemplateFile ignored
+										AutoObject OpResult;
+										if(ReadData(OpResult))
+										{
+											if(ReceiveLastError())
+											{
+												Result = *reinterpret_cast<PHANDLE>(OpResult.Get());
+											}
+										}
 									}
 								}
 							}
@@ -861,6 +1014,11 @@ bool AdminMode::fCloseHandle(HANDLE Handle)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
+	if(Opt.IsUserAdmin)
+	{
+		Result = CloseHandle(Handle) != FALSE;
+	}
+	else
 	{
 		if(SendCommand(C_FUNCTION_CLOSEHANDLE))
 		{
@@ -884,6 +1042,11 @@ bool AdminMode::fReadFile(HANDLE Handle, LPVOID Buffer, DWORD NumberOfBytesToRea
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
+	if(Opt.IsUserAdmin)
+	{
+		Result = ReadFile(Handle, Buffer, NumberOfBytesToRead, NumberOfBytesRead, Overlapped) != FALSE;
+	}
+	else
 	{
 		if(SendCommand(C_FUNCTION_READFILE))
 		{
@@ -926,6 +1089,11 @@ bool AdminMode::fWriteFile(HANDLE Handle, LPCVOID Buffer, DWORD NumberOfBytesToW
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
+	if(Opt.IsUserAdmin)
+	{
+		Result = WriteFile(Handle, Buffer, NumberOfBytesToWrite, NumberOfBytesWritten, Overlapped) != FALSE;
+	}
+	else
 	{
 		if(SendCommand(C_FUNCTION_WRITEFILE))
 		{
@@ -967,6 +1135,11 @@ bool AdminMode::fSetFilePointerEx(HANDLE Handle, INT64 DistanceToMove, PINT64 Ne
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
+	if(Opt.IsUserAdmin)
+	{
+		Result = apiSetFilePointerEx(Handle, DistanceToMove, NewFilePointer, MoveMethod) != FALSE;
+	}
+	else
 	{
 		if(SendCommand(C_FUNCTION_SETFILEPOINTEREX))
 		{
@@ -1007,6 +1180,11 @@ bool AdminMode::fSetEndOfFile(HANDLE Handle)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
+	if(Opt.IsUserAdmin)
+	{
+		Result = SetEndOfFile(Handle) != FALSE;
+	}
+	else
 	{
 		if(SendCommand(C_FUNCTION_SETENDOFFILE))
 		{
@@ -1030,6 +1208,11 @@ bool AdminMode::fGetFileTime(HANDLE Handle, LPFILETIME CreationTime, LPFILETIME 
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
+	if(Opt.IsUserAdmin)
+	{
+		Result = GetFileTime(Handle, CreationTime, LastAccessTime, LastWriteTime) != FALSE;
+	}
+	else
 	{
 		if(SendCommand(C_FUNCTION_GETFILETIME))
 		{
@@ -1080,6 +1263,11 @@ bool AdminMode::fSetFileTime(HANDLE Handle, const FILETIME* CreationTime, const 
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
+	if(Opt.IsUserAdmin)
+	{
+		Result = SetFileTime(Handle, CreationTime, LastAccessTime, LastWriteTime) != FALSE;
+	}
+	else
 	{
 		if(SendCommand(C_FUNCTION_SETFILETIME))
 		{
@@ -1112,6 +1300,11 @@ bool AdminMode::fGetFileSizeEx(HANDLE Handle, UINT64& Size)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
+	if(Opt.IsUserAdmin)
+	{
+		Result = apiGetFileSizeEx(Handle, Size);
+	}
+	else
 	{
 		if(SendCommand(C_FUNCTION_GETFILESIZEEX))
 		{
@@ -1142,6 +1335,11 @@ bool AdminMode::fDeviceIoControl(HANDLE Handle, DWORD IoControlCode, LPVOID InBu
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
+	if(Opt.IsUserAdmin)
+	{
+		Result = DeviceIoControl(Handle, IoControlCode, InBuffer, InBufferSize, OutBuffer, OutBufferSize, BytesReturned, Overlapped) != FALSE;
+	}
+	else
 	{
 		if(SendCommand(C_FUNCTION_DEVICEIOCONTROL))
 		{
