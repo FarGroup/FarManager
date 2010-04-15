@@ -20,7 +20,6 @@ processFarBuild()
 	
 	cd BASE
 	m4 -P -DFARBIT=$2 -D ARC=../outfinal$1$2/$ARCNAME -D FARVAR=$1 -D LASTCHANGE="$LASTCHANGE" ../pagegen.m4 > $NIGHTLY_WEB_ROOT/Far$3.$2.php
-	cd ..
 }
 
 cd far
