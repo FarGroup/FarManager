@@ -33,7 +33,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class GetFileString
+// BUGBUG, delete!
+class OldGetFileString
 {
 	private:
 		FILE *SrcFile;
@@ -56,13 +57,52 @@ class GetFileString
 		int GetUnicodeString(wchar_t **DestStr, int &Length, bool bBigEndian);
 
 	public:
-		GetFileString(FILE *SrcFile);
-		~GetFileString();
+		OldGetFileString(FILE *SrcFile);
+		~OldGetFileString();
 
 	public:
 		int GetString(wchar_t **DestStr, int nCodePage, int &Length);
 		bool IsConversionValid() { return !SomeDataLost; };
 };
 
-bool GetFileFormat(FILE *file, UINT &nCodePage, bool *pSignatureFound = nullptr, bool bUseHeuristics = true);
+// BUGBUG, delete!
+bool OldGetFileFormat(FILE *file, UINT &nCodePage, bool *pSignatureFound = nullptr, bool bUseHeuristics = true);
 wchar_t *ReadString(FILE *file, wchar_t *lpwszDest, int nDestLength, int nCodePage);
+
+//-----------------------------------------------------------------------------
+
+class GetFileString
+{
+	public:
+		GetFileString(File& SrcFile);
+		~GetFileString();
+		int PeekString(LPWSTR* DestStr, UINT nCodePage, int& Length);
+		int GetString(LPWSTR* DestStr, UINT nCodePage, int& Length);
+		bool IsConversionValid() { return !SomeDataLost; }
+
+	private:
+		File& SrcFile;
+		DWORD ReadPos, ReadSize;
+
+		bool Peek;
+		int LastLength;
+		LPWSTR* LastString;
+		int LastResult;
+
+		char ReadBuf[8192];
+		wchar_t wReadBuf[8192];
+
+		int m_nStrLength;
+		char *Str;
+
+		int m_nwStrLength;
+		wchar_t *wStr;
+
+		bool SomeDataLost;
+		bool bCrCr;
+
+		int GetAnsiString(LPSTR* DestStr, int& Length);
+		int GetUnicodeString(LPWSTR* DestStr, int& Length, bool bBigEndian);
+};
+
+bool GetFileFormat(File& file, UINT& nCodePage, bool* pSignatureFound = nullptr, bool bUseHeuristics = true);

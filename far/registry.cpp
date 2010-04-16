@@ -416,7 +416,7 @@ void DeleteKeyRecord(const wchar_t *KeyMask,int Position)
 	{
 		strFullKeyName.Format(strMaskKeyName,Position++);
 		strNextFullKeyName.Format(strMaskKeyName,Position);
-
+		DeleteFullKeyTree(strFullKeyName);
 		if (!CopyKeyTree(strNextFullKeyName,strFullKeyName))
 		{
 			DeleteFullKeyTree(strFullKeyName);

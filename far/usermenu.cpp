@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "syslog.hpp"
 #include "interf.hpp"
+#include "CachedWrite.hpp"
 
 #if defined(PROJECT_DI_MEMOEDIT)
 /*
@@ -105,12 +106,17 @@ int PrepareHotKey(string &strHotKey)
 	return FuncNum;
 }
 
-void MenuRegToFile(const wchar_t *MenuKey,FILE *MenuFile,bool SingleItemMenu=false)
+void MenuRegToFile(const wchar_t *MenuKey, File& MenuFile, CachedWrite& CW, bool SingleItemMenu=false)
 {
-	if (!ftell(MenuFile))
-		fputwc(SIGN_UNICODE,MenuFile);
+	INT64 Pos = 0;
+	MenuFile.GetPointer(Pos);
+	if (!Pos)
+	{
+		WCHAR Data = SIGN_UNICODE;
+		CW.Write(&Data, 1*sizeof(WCHAR));
+	}
 
-	for (int i=0;; i++)
+	for (int i=0;;i++)
 	{
 		string strItemKey;
 		strItemKey.Format(L"%s\\Item%d",MenuKey,i);
@@ -123,13 +129,16 @@ void MenuRegToFile(const wchar_t *MenuKey,FILE *MenuFile,bool SingleItemMenu=fal
 		GetRegKey(strItemKey,L"HotKey",strHotKey,L"");
 		BOOL SubMenu;
 		GetRegKey(strItemKey,L"Submenu",SubMenu,0);
-		fwprintf(MenuFile,L"%s:  %s\r\n",(const wchar_t*)strHotKey,(const wchar_t*)strLabel);
+		CW.Write(strHotKey.CPtr(), strHotKey.GetLength()*sizeof(WCHAR));
+		CW.Write(L":  ", 3*sizeof(WCHAR));
+		CW.Write(strLabel.CPtr(), strLabel.GetLength()*sizeof(WCHAR));
+		CW.Write(L"\r\n", 2*sizeof(WCHAR));
 
 		if (SubMenu)
 		{
-			fwprintf(MenuFile,L"{\r\n");
-			MenuRegToFile(strItemKey,MenuFile,false);
-			fwprintf(MenuFile,L"}\r\n");
+			CW.Write(L"{\r\n", 3*sizeof(WCHAR));
+			MenuRegToFile(strItemKey, MenuFile, CW, false);
+			CW.Write(L"}\r\n", 3*sizeof(WCHAR));
 		}
 		else
 		{
@@ -141,25 +150,29 @@ void MenuRegToFile(const wchar_t *MenuKey,FILE *MenuFile,bool SingleItemMenu=fal
 
 				if (!GetRegKey(strItemKey,strLineName,strCommand,L""))
 					break;
-
-				fwprintf(MenuFile,L"    %s\r\n",(const wchar_t *)strCommand);
+				CW.Write(L"    ", 4*sizeof(WCHAR));
+				CW.Write(strCommand.CPtr(), strCommand.GetLength()*sizeof(WCHAR));
+				CW.Write(L"\r\n", 2*sizeof(WCHAR));
 			}
 		}
 	}
 }
 
-void MenuFileToReg(const wchar_t *MenuKey,FILE *MenuFile,bool SingleItemMenu=false,UINT MenuCP=CP_UNICODE)
+void MenuFileToReg(const wchar_t *MenuKey, File& MenuFile, GetFileString& GetStr, bool SingleItemMenu = false, UINT MenuCP = CP_UNICODE)
 {
-	if (!ftell(MenuFile))
+	INT64 Pos = 0;
+	MenuFile.GetPointer(Pos);
+	if(!Pos)
 	{
 		if (!GetFileFormat(MenuFile,MenuCP))
 			MenuCP=CP_OEMCP;
 	}
 
-	wchar_t MenuStr[4096]; //BUGBUG
+	LPWSTR MenuStr = nullptr;
+	int MenuStrLength = 0;
 	int KeyNumber=-1,CommandNumber=0;
 
-	while (ReadString(MenuFile,MenuStr,countof(MenuStr),MenuCP))
+	while(GetStr.GetString(&MenuStr, MenuCP, MenuStrLength))
 	{
 		string strItemKey;
 
@@ -175,7 +188,7 @@ void MenuFileToReg(const wchar_t *MenuKey,FILE *MenuFile,bool SingleItemMenu=fal
 
 		if (*MenuStr==L'{' && KeyNumber>=0)
 		{
-			MenuFileToReg(strItemKey,MenuFile,false,MenuCP);
+			MenuFileToReg(strItemKey,MenuFile, GetStr, false,MenuCP);
 			continue;
 		}
 
@@ -203,8 +216,7 @@ void MenuFileToReg(const wchar_t *MenuKey,FILE *MenuFile,bool SingleItemMenu=fal
 			string strHotKey=MenuStr;
 			string strLabel=ChPtr+1;
 			RemoveLeadingSpaces(strLabel);
-			SaveFilePos SavePos(MenuFile);
-			bool SubMenu=(ReadString(MenuFile,MenuStr,2,MenuCP) && *MenuStr==L'{');
+			bool SubMenu=(GetStr.PeekString(&MenuStr, MenuCP, MenuStrLength) && *MenuStr==L'{');
 			UseSameRegKey();
 			SetRegKey(strItemKey,L"HotKey",strHotKey);
 			SetRegKey(strItemKey,L"Label",strLabel);
@@ -276,16 +288,14 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 		if (MenuMode != MM_MAIN)
 		{
 			// ѕытаемс€ открыть файл на локальном диске
-			FILE *MenuFile = nullptr;
-
-			if (PathCanHoldRegularFile(strMenuFilePath))
-				MenuFile = _wfopen(NTPath(strMenuFileFullPath),L"rb");
-
-			if (MenuFile)
+			File MenuFile;
+			bool FileOpened = PathCanHoldRegularFile(strMenuFilePath) ? MenuFile.Open(strMenuFileFullPath,GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING) : false;
+			if (FileOpened)
 			{
 				// сливаем содержимое в реестр "на запасной путь" и оттуда будем пользовать
-				MenuFileToReg(strLocalMenuKey,MenuFile);
-				fclose(MenuFile);
+				GetFileString GetStr(MenuFile);
+				MenuFileToReg(strLocalMenuKey, MenuFile, GetStr);
+				MenuFile.Close();
 			}
 			else
 			{
@@ -354,19 +364,25 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 						apiSetFileAttributes(strMenuFileFullPath,FILE_ATTRIBUTE_NORMAL);
 				}
 
-				FILE *MenuFile=_wfopen(NTPath(strMenuFileFullPath),L"wb");
-
-				if (MenuFile)
+				File MenuFile;
+				if (MenuFile.Open(strMenuFileFullPath,GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS))
 				{
-					MenuRegToFile(strLocalMenuKey,MenuFile);
-					long Length=filelen(MenuFile);
-					fclose(MenuFile);
+					CachedWrite CW(MenuFile);
+					MenuRegToFile(strLocalMenuKey,MenuFile, CW);
+					CW.Flush();
+					UINT64 Size = 0;
+					MenuFile.GetSize(Size);
+					MenuFile.Close();
 
 					// если файл FarMenu.ini пуст, то удалим его
-					if (Length==0)
+					if (Size<3) // 2 for BOM
+					{
 						apiDeleteFile(strMenuFileFullPath);
+					}
 					else
+					{
 						apiSetFileAttributes(strMenuFileFullPath,FileAttr);
+					}
 				}
 			}
 
@@ -657,11 +673,12 @@ int UserMenu::ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t
 					case KEY_ALTF4:       // редактировать все меню
 					{
 						(*FrameManager)[0]->Unlock();
-						FILE *MenuFile;
 						string strMenuFileName;
-
-						if (!FarMkTempEx(strMenuFileName) || (MenuFile=_wfopen(strMenuFileName,L"wb"))==nullptr)
+						File MenuFile;
+						if (!FarMkTempEx(strMenuFileName) || (!MenuFile.Open(strMenuFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS)))
+						{
 							break;
+						}
 
 						string strCurrentKey;
 
@@ -669,10 +686,11 @@ int UserMenu::ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t
 							strCurrentKey.Format(L"%s\\Item%d",MenuKey,MenuPos);
 						else
 							strCurrentKey=MenuRootKey;
-
-						MenuRegToFile(strCurrentKey,MenuFile,Key==KEY_ALTSHIFTF4);
+						CachedWrite CW(MenuFile);
+						MenuRegToFile(strCurrentKey, MenuFile, CW, Key==KEY_ALTSHIFTF4);
+						CW.Flush();
 						MenuNeedRefresh=true;
-						fclose(MenuFile);
+						MenuFile.Close();
 						{
 							ConsoleTitle *OldTitle=new ConsoleTitle;
 							string strFileName = strMenuFileName;
@@ -683,7 +701,7 @@ int UserMenu::ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t
 							FrameManager->ExecuteModal();
 							FrameManager->ExitModalEV();
 
-							if (!ShellEditor.IsFileChanged() || (MenuFile=_wfopen(strMenuFileName,L"rb"))==nullptr)
+							if (!ShellEditor.IsFileChanged() || (!MenuFile.Open(strMenuFileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING)))
 							{
 								apiDeleteFile(strMenuFileName);
 
@@ -694,8 +712,9 @@ int UserMenu::ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t
 							}
 						}
 						DeleteKeyTree(strCurrentKey);
-						MenuFileToReg(strCurrentKey,MenuFile,Key==KEY_ALTSHIFTF4);
-						fclose(MenuFile);
+						GetFileString GetStr(MenuFile);
+						MenuFileToReg(strCurrentKey, MenuFile, GetStr, Key==KEY_ALTSHIFTF4);
+						MenuFile.Close();
 						apiDeleteFile(strMenuFileName);
 						MenuModified=true;
 						UserMenu.Hide();

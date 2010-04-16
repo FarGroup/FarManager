@@ -302,7 +302,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 	int MI=0;
 	string strMacroArea;
 
-	GetFileString GetStr(HelpFile);
+	OldGetFileString GetStr(HelpFile);
 	int nStrLength,GetCode;
 
 	for (;;)

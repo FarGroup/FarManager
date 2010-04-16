@@ -134,9 +134,8 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
 			strDizFileName += strArgName;
 		}
 
-		FILE *DizFile=_wfopen(NTPath(strDizFileName),L"rb");
-
-		if (DizFile)
+		File DizFile;
+		if (DizFile.Open(strDizFileName,GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
 		{
 			GetFileString GetStr(DizFile);
 			wchar_t *DizText;
@@ -167,7 +166,7 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
 
 			OrigCodePage=CodePage;
 			Modified=false;
-			fclose(DizFile);
+			DizFile.Close();
 			return;
 		}
 

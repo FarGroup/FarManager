@@ -1398,17 +1398,8 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	int LastLineCR = 0;
 	EditorCacheParams cp;
 	UserBreak = 0;
-	FILE *EditFile;
-	HANDLE hEdit = apiCreateFile(
-	                   Name,
-	                   GENERIC_READ,
-	                   FILE_SHARE_READ|(Opt.EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0),
-	                   nullptr,
-	                   OPEN_EXISTING,
-	                   FILE_FLAG_SEQUENTIAL_SCAN
-	               );
-
-	if (hEdit == INVALID_HANDLE_VALUE)
+	File EditFile;
+	if(!EditFile.Open(Name, GENERIC_READ, FILE_SHARE_READ|(Opt.EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 	{
 		SysErrorCode=GetLastError();
 
@@ -1421,55 +1412,35 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 		return FALSE;
 	}
 
-	int EditHandle=_open_osfhandle((intptr_t)hEdit,O_BINARY);
-
-	if (EditHandle == -1)
-	{
-		CloseHandle(hEdit);
-		return FALSE;
-	}
-
-	if ((EditFile=_fdopen(EditHandle,"rb")) == nullptr)
-	{
-		_close(EditHandle);
-		return FALSE;
-	}
-
-	if (GetFileType(hEdit) != FILE_TYPE_DISK)
+	/*if (GetFileType(hEdit) != FILE_TYPE_DISK)
 	{
 		fclose(EditFile);
 		SetLastError(ERROR_INVALID_NAME);
 		UserBreak=-1;
 		Flags.Set(FFILEEDIT_OPENFAILED);
 		return FALSE;
-	}
+	}*/
 
 	if (Opt.EdOpt.FileSizeLimitLo || Opt.EdOpt.FileSizeLimitHi)
 	{
-		UINT64 RealSizeFile=0;
-
-		if (apiGetFileSizeEx(hEdit, RealSizeFile))
+		UINT64 FileSize=0;
+		if (EditFile.GetSize(FileSize))
 		{
-			unsigned __int64 NeedSizeFile = Opt.EdOpt.FileSizeLimitHi*0x100000000ull+Opt.EdOpt.FileSizeLimitLo;
+			UINT64 MaxSize = Opt.EdOpt.FileSizeLimitHi * 0x100000000ull + Opt.EdOpt.FileSizeLimitLo;
 
-			if (RealSizeFile > NeedSizeFile)
+			if (FileSize > MaxSize)
 			{
 				string strTempStr1, strTempStr2, strTempStr3, strTempStr4;
 				// Ширина = 8 - это будет... в Kb и выше...
-				FileSizeToStr(strTempStr1,RealSizeFile,8);
-				FileSizeToStr(strTempStr2,NeedSizeFile,8);
-				strTempStr3.Format(MSG(MEditFileLong),(const wchar_t *)RemoveExternalSpaces(strTempStr1));
-				strTempStr4.Format(MSG(MEditFileLong2),(const wchar_t *)RemoveExternalSpaces(strTempStr2));
+				FileSizeToStr(strTempStr1, FileSize, 8);
+				FileSizeToStr(strTempStr2, MaxSize, 8);
+				strTempStr3.Format(MSG(MEditFileLong), RemoveExternalSpaces(strTempStr1).CPtr());
+				strTempStr4.Format(MSG(MEditFileLong2), RemoveExternalSpaces(strTempStr2).CPtr());
 
-				if (Message(MSG_WARNING,2,MSG(MEditTitle),
-				            Name,
-				            strTempStr3,
-				            strTempStr4,
-				            MSG(MEditROOpen),
-				            MSG(MYes),MSG(MNo)))
+				if (Message(MSG_WARNING,2,MSG(MEditTitle), Name, strTempStr3, strTempStr4, MSG(MEditROOpen), MSG(MYes),MSG(MNo)))
 				{
-					fclose(EditFile);
-					SetLastError(ERROR_OPEN_FAILED);
+					EditFile.Close();
+					SetLastError(ERROR_OPEN_FAILED); //????
 					UserBreak=1;
 					Flags.Set(FFILEEDIT_OPENFAILED);
 					return FALSE;
@@ -1480,8 +1451,8 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 		{
 			if (Message(MSG_WARNING,2,MSG(MEditTitle),Name,MSG(MEditFileGetSizeError),MSG(MEditROOpen),MSG(MYes),MSG(MNo)))
 			{
-				fclose(EditFile);
-				SetLastError(SysErrorCode=ERROR_OPEN_FAILED);
+				EditFile.Close();
+				SetLastError(SysErrorCode=ERROR_OPEN_FAILED); //????
 				UserBreak=1;
 				Flags.Set(FFILEEDIT_OPENFAILED);
 				return FALSE;
@@ -1545,17 +1516,19 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	m_editor->SetCodePage(m_codepage);  //BUGBUG
 
 	if (!IsUnicodeOrUtfCodePage(m_codepage))
-		fseek(EditFile,0,SEEK_SET);
+	{
+		EditFile.SetPointer(0, nullptr, FILE_BEGIN);
+	}
 
 	UINT64 FileSize=0;
-	apiGetFileSizeEx(hEdit,FileSize);
+	EditFile.GetSize(FileSize);
 	DWORD StartTime=GetTickCount();
 
 	while ((GetCode=GetStr.GetString(&Str, m_codepage, StrLength))!=0)
 	{
 		if (GetCode == -1)
 		{
-			fclose(EditFile);
+			EditFile.Close();
 			return FALSE;
 		}
 
@@ -1571,20 +1544,20 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 				if (ConfirmAbortOp())
 				{
 					UserBreak = 1;
-					fclose(EditFile);
+					EditFile.Close();
 					return FALSE;
 				}
 			}
 
 			SetCursorType(FALSE,0);
 			INT64 CurPos=0;
-			apiSetFilePointerEx(hEdit,0,&CurPos,FILE_CURRENT);
+			EditFile.SetPointer(0,&CurPos,FILE_CURRENT);
 			int Percent=static_cast<int>(CurPos*100/FileSize);
 			// В случае если во время загрузки файл увеличивается размере, то количество
 			// процентов может быть больше 100. Обрабатываем эту ситуацию.
 			if (Percent>100)
 			{
-				apiGetFileSizeEx(hEdit,FileSize);
+				EditFile.GetSize(FileSize);
 				Percent=static_cast<int>(CurPos*100/FileSize);
 				if (Percent>100)
 				{
@@ -1612,8 +1585,8 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 
 		if (!m_editor->InsertString(Str, StrLength))
 		{
-			fclose(EditFile);
-			return(FALSE);
+			EditFile.Close();
+			return FALSE;
 		}
 	}
 
@@ -1623,7 +1596,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	if (LastLineCR||!m_editor->NumLastLine)
 		m_editor->InsertString(L"", 0);
 
-	fclose(EditFile);
+	EditFile.Close();
 	//if ( bCached )
 	m_editor->SetCacheParams(&cp);
 	SysErrorCode=GetLastError();
@@ -1848,17 +1821,9 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 		}
 
 		CtrlObject->Plugins.ProcessEditorEvent(EE_SAVE,nullptr);
-		HANDLE hEditFile = apiCreateFile(
-		                       Name,
-		                       GENERIC_WRITE,
-		                       FILE_SHARE_READ,
-		                       nullptr,
-		                       CREATE_ALWAYS,
-		                       FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN
-		                   );
+		File EditFile;
 		DWORD dwWritten=0;
-
-		if (hEditFile==INVALID_HANDLE_VALUE)
+		if(!EditFile.Open(Name, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN))
 		{
 			//_SVS(SysLogLastError();SysLog(L"Name='%s',FileAttributes=%d",Name,FileAttributes));
 			RetCode=SAVEFILE_ERROR;
@@ -1904,9 +1869,9 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 					break;
 			}
 
-			if (!WriteFile(hEditFile,&dwSignature,SignLength,&dwWritten,nullptr)||dwWritten!=SignLength)
+			if (!EditFile.Write(&dwSignature,SignLength,&dwWritten,nullptr)||dwWritten!=SignLength)
 			{
-				CloseHandle(hEditFile);
+				EditFile.Close();
 				apiDeleteFile(Name);
 				RetCode=SAVEFILE_ERROR;
 				goto end;
@@ -1915,7 +1880,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
 		DWORD StartTime=GetTickCount();
 		size_t LineNumber=0;
-		CachedWrite Cache(hEditFile);
+		CachedWrite Cache(EditFile);
 
 		for (Edit *CurPtr=m_editor->TopList; CurPtr; CurPtr=CurPtr->m_next,LineNumber++)
 		{
@@ -2012,7 +1977,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
 			if (bError)
 			{
-				CloseHandle(hEditFile);
+				EditFile.Close();
 				apiDeleteFile(Name);
 				RetCode=SAVEFILE_ERROR;
 				goto end;
@@ -2021,13 +1986,13 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
 		if(Cache.Flush())
 		{
-			SetEndOfFile(hEditFile);
-			CloseHandle(hEditFile);
+			EditFile.SetEnd();
+			EditFile.Close();
 		}
 		else
 		{
 			SysErrorCode=GetLastError();
-			CloseHandle(hEditFile);
+			EditFile.Close();
 			apiDeleteFile(Name);
 			RetCode=SAVEFILE_ERROR;
 		}
