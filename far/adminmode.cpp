@@ -276,6 +276,7 @@ bool AdminMode::Initialize()
 				L"runas",
 				g_strFarModuleName,
 				strParam,
+				g_strFarPath,
 			};
 			if(ShellExecuteEx(&info))
 			{
