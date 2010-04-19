@@ -638,7 +638,7 @@ void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int
 	if (bRelative)
 	{
 		ULARGE_INTEGER time;
-		time.QuadPart = st.wMilliseconds;
+		time.QuadPart = (UINT64)st.wMilliseconds * 10000ull;
 		time.QuadPart += (UINT64)st.wSecond * 10000000ull;
 		time.QuadPart += (UINT64)st.wMinute * 10000000ull * 60ull;
 		time.QuadPart += (UINT64)st.wHour   * 10000000ull * 60ull * 60ull;
