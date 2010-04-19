@@ -1658,11 +1658,6 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 		NewPanel->Show();
 	}
 
-	if (Editor && CurEditor)
-	{
-		CurEditor->SetPluginTitle(nullptr);
-	}
-
 	CtrlObject->Macro.SetMode(PrevMacroMode);
 	return(TRUE);
 }
