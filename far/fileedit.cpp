@@ -1551,7 +1551,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 
 			SetCursorType(FALSE,0);
 			INT64 CurPos=0;
-			EditFile.SetPointer(0,&CurPos,FILE_CURRENT);
+			EditFile.GetPointer(CurPos);
 			int Percent=static_cast<int>(CurPos*100/FileSize);
 			// В случае если во время загрузки файл увеличивается размере, то количество
 			// процентов может быть больше 100. Обрабатываем эту ситуацию.

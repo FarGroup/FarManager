@@ -689,7 +689,7 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
 				if (Param1==ID_FF_CURRENT)
 				{
 					GetSystemTimeAsFileTime(&ft);
-					ConvertDate(ft,strDate,strTime,8,FALSE,FALSE,TRUE);
+					ConvertDate(ft,strDate,strTime,12,FALSE,FALSE,TRUE);
 				}
 				else
 				{
@@ -849,6 +849,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	// Определение параметров даты и времени в системе.
 	int DateSeparator=GetDateSeparator();
 	int TimeSeparator=GetTimeSeparator();
+	wchar_t DecimalSeparator=GetDecimalSeparator();
 	int DateFormat=GetDateFormat();
 
 	switch (DateFormat)
@@ -868,18 +869,18 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	}
 
 	// Маска времени
-	strTimeMask.Format(L"99%c99%c99",TimeSeparator,TimeSeparator);
+	strTimeMask.Format(L"99%c99%c99%c999",TimeSeparator,TimeSeparator,DecimalSeparator);
 	DialogDataEx FilterDlgData[]=
 	{
-		DI_DOUBLEBOX,3,1,73,18,0,0,DIF_SHOWAMPERSAND,0,(const wchar_t *)MFileFilterTitle,
+		DI_DOUBLEBOX,3,1,76,18,0,0,DIF_SHOWAMPERSAND,0,(const wchar_t *)MFileFilterTitle,
 
 		DI_TEXT,5,2,0,2,1,0,0,0,(const wchar_t *)MFileFilterName,
-		DI_EDIT,5,2,71,2,0,(DWORD_PTR)(const wchar_t *)FilterNameHistoryName,DIF_HISTORY,0,L"",
+		DI_EDIT,5,2,74,2,0,(DWORD_PTR)(const wchar_t *)FilterNameHistoryName,DIF_HISTORY,0,L"",
 
 		DI_TEXT,0,3,0,3,0,0,DIF_SEPARATOR,0,L"",
 
 		DI_CHECKBOX,5,4,0,4,0,0,DIF_AUTOMATION,0,(const wchar_t *)MFileFilterMatchMask,
-		DI_EDIT,5,4,71,4,0,(DWORD_PTR)(const wchar_t *)FilterMasksHistoryName,DIF_HISTORY,0,L"",
+		DI_EDIT,5,4,74,4,0,(DWORD_PTR)(const wchar_t *)FilterMasksHistoryName,DIF_HISTORY,0,L"",
 
 		DI_TEXT,0,5,0,5,0,0,DIF_SEPARATOR,0,L"",
 
@@ -892,16 +893,16 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		DI_CHECKBOX,24,6,0,6,0,0,DIF_AUTOMATION,0,(const wchar_t *)MFileFilterDate,
 		DI_COMBOBOX,26,7,41,7,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,L"",
 		DI_CHECKBOX,26,8,0,8,0,0,0,0,(const wchar_t *)MFileFilterDateRelative,
-		DI_TEXT,50,7,51,7,0,0,0,0,(const wchar_t *)MFileFilterDateBeforeSign,
-		DI_FIXEDIT,53,7,62,7,0,(DWORD_PTR)(const wchar_t *)strDateMask,DIF_MASKEDIT,0,L"",
-		DI_FIXEDIT,53,7,62,7,0,(DWORD_PTR)(const wchar_t *)DaysMask,DIF_MASKEDIT,0,L"",
-		DI_FIXEDIT,64,7,71,7,0,(DWORD_PTR)(const wchar_t *)strTimeMask,DIF_MASKEDIT,0,L"",
-		DI_TEXT,50,8,51,8,0,0,0,0,(const wchar_t *)MFileFilterDateAfterSign,
-		DI_FIXEDIT,53,8,62,8,0,(DWORD_PTR)(const wchar_t *)strDateMask,DIF_MASKEDIT,0,L"",
-		DI_FIXEDIT,53,8,62,8,0,(DWORD_PTR)(const wchar_t *)DaysMask,DIF_MASKEDIT,0,L"",
-		DI_FIXEDIT,64,8,71,8,0,(DWORD_PTR)(const wchar_t *)strTimeMask,DIF_MASKEDIT,0,L"",
+		DI_TEXT,49,7,51,7,0,0,0,0,(const wchar_t *)MFileFilterDateBeforeSign,
+		DI_FIXEDIT,52,7,61,7,0,(DWORD_PTR)(const wchar_t *)strDateMask,DIF_MASKEDIT,0,L"",
+		DI_FIXEDIT,52,7,61,7,0,(DWORD_PTR)(const wchar_t *)DaysMask,DIF_MASKEDIT,0,L"",
+		DI_FIXEDIT,63,7,74,7,0,(DWORD_PTR)(const wchar_t *)strTimeMask,DIF_MASKEDIT,0,L"",
+		DI_TEXT,49,8,51,8,0,0,0,0,(const wchar_t *)MFileFilterDateAfterSign,
+		DI_FIXEDIT,52,8,61,8,0,(DWORD_PTR)(const wchar_t *)strDateMask,DIF_MASKEDIT,0,L"",
+		DI_FIXEDIT,52,8,61,8,0,(DWORD_PTR)(const wchar_t *)DaysMask,DIF_MASKEDIT,0,L"",
+		DI_FIXEDIT,63,8,74,8,0,(DWORD_PTR)(const wchar_t *)strTimeMask,DIF_MASKEDIT,0,L"",
 		DI_BUTTON,0,6,0,6,0,0,DIF_BTNNOCLOSE,0,(const wchar_t *)MFileFilterCurrent,
-		DI_BUTTON,0,6,71,6,0,0,DIF_BTNNOCLOSE,0,(const wchar_t *)MFileFilterBlank,
+		DI_BUTTON,0,6,74,6,0,0,DIF_BTNNOCLOSE,0,(const wchar_t *)MFileFilterBlank,
 
 		DI_TEXT,0,9,0,9,0,0,DIF_SEPARATOR,0,L"",
 		DI_VTEXT,22,5,22,9,0,0,DIF_BOXCOLOR,0,(const wchar_t *)VerticalLine,
@@ -1038,8 +1039,8 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	}
 	else
 	{
-		ConvertDate(DateAfter,FilterDlg[ID_FF_DATEAFTEREDIT].strData,FilterDlg[ID_FF_TIMEAFTEREDIT].strData,8,FALSE,FALSE,TRUE);
-		ConvertDate(DateBefore,FilterDlg[ID_FF_DATEBEFOREEDIT].strData,FilterDlg[ID_FF_TIMEBEFOREEDIT].strData,8,FALSE,FALSE,TRUE);
+		ConvertDate(DateAfter,FilterDlg[ID_FF_DATEAFTEREDIT].strData,FilterDlg[ID_FF_TIMEAFTEREDIT].strData,12,FALSE,FALSE,TRUE);
+		ConvertDate(DateBefore,FilterDlg[ID_FF_DATEBEFOREEDIT].strData,FilterDlg[ID_FF_TIMEBEFOREEDIT].strData,12,FALSE,FALSE,TRUE);
 	}
 
 	if (!FilterDlg[ID_FF_MATCHDATE].Selected)
@@ -1128,6 +1129,15 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 			            FilterDlg[ID_FF_SIZEFROMEDIT].strData,
 			            FilterDlg[ID_FF_SIZETOEDIT].strData);
 			bRelative = FilterDlg[ID_FF_DATERELATIVE].Selected!=0;
+
+			LPWSTR TimeBefore = FilterDlg[ID_FF_TIMEBEFOREEDIT].strData.GetBuffer();
+			TimeBefore[8] = TimeSeparator;
+			FilterDlg[ID_FF_TIMEBEFOREEDIT].strData.ReleaseBuffer(FilterDlg[ID_FF_TIMEBEFOREEDIT].strData.GetLength());
+
+			LPWSTR TimeAfter = FilterDlg[ID_FF_TIMEAFTEREDIT].strData.GetBuffer();
+			TimeAfter[8] = TimeSeparator;
+			FilterDlg[ID_FF_TIMEAFTEREDIT].strData.ReleaseBuffer(FilterDlg[ID_FF_TIMEAFTEREDIT].strData.GetLength());
+
 			StrToDateTime(FilterDlg[bRelative?ID_FF_DAYSAFTEREDIT:ID_FF_DATEAFTEREDIT].strData,FilterDlg[ID_FF_TIMEAFTEREDIT].strData,DateAfter,DateFormat,DateSeparator,TimeSeparator,bRelative);
 			StrToDateTime(FilterDlg[bRelative?ID_FF_DAYSBEFOREEDIT:ID_FF_DATEBEFOREEDIT].strData,FilterDlg[ID_FF_TIMEBEFOREEDIT].strData,DateBefore,DateFormat,DateSeparator,TimeSeparator,bRelative);
 			FF->SetDate(FilterDlg[ID_FF_MATCHDATE].Selected!=0,

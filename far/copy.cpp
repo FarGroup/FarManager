@@ -3310,7 +3310,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 			{
 				INT64 CurPtr=0;
 
-				if (DestFile.SetPointer(0,&CurPtr,FILE_CURRENT) &&
+				if (DestFile.GetPointer(CurPtr) &&
 				        DestFile.SetPointer(SrcData.nFileSize,nullptr,FILE_CURRENT) &&
 				        DestFile.SetEnd())
 					DestFile.SetPointer(CurPtr,nullptr,FILE_BEGIN);
@@ -3526,7 +3526,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 						if (Split)
 						{
 							INT64 FilePtr;
-							SrcFile.SetPointer(0,&FilePtr,FILE_CURRENT);
+							SrcFile.GetPointer(FilePtr);
 							FAR_FIND_DATA_EX SplitData=SrcData;
 							SplitData.nFileSize-=FilePtr;
 							int RetCode;

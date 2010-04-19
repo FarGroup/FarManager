@@ -1639,8 +1639,12 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		ProcessKey(KEY_ENTER);
 	}
 
-	StackData.CurX=MouseEvent->dwMousePosition.X-X1-1;
-	StackData.CurY=MouseEvent->dwMousePosition.Y-Y1-1-FixSize;
+	if(MsX != PrevMouseX || MsY != PrevMouseY)
+	{
+		StackData.CurX=MsX-X1-1;
+		StackData.CurY=MsY-Y1-1-FixSize;
+	}
+
 	FastShow();
 	Sleep(1);
 

@@ -581,7 +581,7 @@ void GetFileDateAndTime(const wchar_t *Src,LPWORD Dst,size_t Count,int Separator
 
 void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int DateFormat, int DateSeparator, int TimeSeparator, bool bRelative)
 {
-	WORD DateN[3]={0},TimeN[3]={0};
+	WORD DateN[3]={0},TimeN[4]={0};
 	SYSTEMTIME st={0};
 	// Преобразуем введённые пользователем дату и время
 	GetFileDateAndTime(CDate,DateN,countof(DateN),DateSeparator);
@@ -632,12 +632,14 @@ void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int
 	st.wHour   = TimeN[0]!=(WORD)-1?(TimeN[0]):0;
 	st.wMinute = TimeN[1]!=(WORD)-1?(TimeN[1]):0;
 	st.wSecond = TimeN[2]!=(WORD)-1?(TimeN[2]):0;
+	st.wMilliseconds = TimeN[3]!=(WORD)-1?(TimeN[3]):0;
 
 	// преобразование в "удобоваримый" формат
 	if (bRelative)
 	{
 		ULARGE_INTEGER time;
-		time.QuadPart  = (UINT64)st.wSecond * 10000000ull;
+		time.QuadPart = st.wMilliseconds;
+		time.QuadPart += (UINT64)st.wSecond * 10000000ull;
 		time.QuadPart += (UINT64)st.wMinute * 10000000ull * 60ull;
 		time.QuadPart += (UINT64)st.wHour   * 10000000ull * 60ull * 60ull;
 		time.QuadPart += (UINT64)st.wDay    * 10000000ull * 60ull * 60ull * 24ull;
