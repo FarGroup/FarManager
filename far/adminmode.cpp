@@ -1138,7 +1138,7 @@ bool AdminMode::fSetFilePointerEx(HANDLE Handle, INT64 DistanceToMove, PINT64 Ne
 	bool Result=false;
 	if(Opt.IsUserAdmin)
 	{
-		Result = apiSetFilePointerEx(Handle, DistanceToMove, NewFilePointer, MoveMethod) != FALSE;
+		Result = SetFilePointerEx(Handle, *reinterpret_cast<PLARGE_INTEGER>(&DistanceToMove), reinterpret_cast<PLARGE_INTEGER>(NewFilePointer), MoveMethod) != FALSE;
 	}
 	else
 	{
@@ -1331,6 +1331,69 @@ bool AdminMode::fGetFileSizeEx(HANDLE Handle, UINT64& Size)
 	return Result;
 }
 
+bool AdminMode::fFlushFileBuffers(HANDLE Handle)
+{
+	CriticalSectionLock Lock(CS);
+	bool Result = false;
+	if(Opt.IsUserAdmin)
+	{
+		Result = FlushFileBuffers(Handle) != FALSE;
+	}
+	else
+	{
+		if(SendCommand(C_FUNCTION_FLUSHFILEBUFFERS))
+		{
+			if(WriteData(&Handle,Handle?sizeof(Handle):0))
+			{
+				int OpResult;
+				if(ReadInt(OpResult))
+				{
+					if(ReceiveLastError())
+					{
+						Result = OpResult != FALSE;
+					}
+				}
+			}
+		}
+	}
+	return Result;
+}
+
+bool AdminMode::fGetFileInformationByHandle(HANDLE Handle, BY_HANDLE_FILE_INFORMATION& bhfi)
+{
+	CriticalSectionLock Lock(CS);
+	bool Result = false;
+	if(Opt.IsUserAdmin)
+	{
+		Result = GetFileInformationByHandle(Handle, &bhfi) != FALSE;
+	}
+	else
+	{
+		if(SendCommand(C_FUNCTION_GETFILEINFORMATIONBYHANDLE))
+		{
+			if(WriteData(&Handle,Handle?sizeof(Handle):0))
+			{
+				int OpResult;
+				if(ReadInt(OpResult))
+				{
+					if(OpResult)
+					{
+						AutoObject AutoInformation;
+						if(ReadData(AutoInformation))
+						{
+							bhfi = *reinterpret_cast<LPBY_HANDLE_FILE_INFORMATION>(AutoInformation.Get());
+						}
+					}
+					if(ReceiveLastError())
+					{
+						Result = OpResult != FALSE;
+					}
+				}
+			}
+		}
+	}
+	return Result;
+}
 
 bool AdminMode::fDeviceIoControl(HANDLE Handle, DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped)
 {
@@ -1852,7 +1915,7 @@ void SetFilePointerExHandler()
 			if(ReadPipeInt(Pipe, MoveMethod))
 			{
 				INT64 NewFilePointer;
-				int Result = apiSetFilePointerEx(*reinterpret_cast<PHANDLE>(Handle.Get()), DistanceToMove, &NewFilePointer, MoveMethod);
+				int Result = SetFilePointerEx(*reinterpret_cast<PHANDLE>(Handle.Get()), *reinterpret_cast<PLARGE_INTEGER>(&DistanceToMove), reinterpret_cast<PLARGE_INTEGER>(&NewFilePointer), MoveMethod);
 				int LastError = GetLastError();
 				if(WritePipeInt(Pipe, Result))
 				{
@@ -1945,6 +2008,39 @@ void GetFileSizeExHandler()
 			if(Result)
 			{
 				WritePipeInt64(Pipe, Size);
+			}
+			WritePipeInt(Pipe, LastError);
+		}
+	}
+}
+
+void FlushFileBuffersHandler()
+{
+	AutoObject Handle;
+	if(ReadPipeData(Pipe, Handle))
+	{
+		int Result = FlushFileBuffers(*reinterpret_cast<PHANDLE>(Handle.Get()));
+		int LastError = GetLastError();
+		if(WritePipeInt(Pipe, Result))
+		{
+			WritePipeInt(Pipe, LastError);
+		}
+	}
+}
+
+void GetFileInformationByHandleHandler()
+{
+	AutoObject Handle;
+	if(ReadPipeData(Pipe, Handle))
+	{
+		BY_HANDLE_FILE_INFORMATION bhfi;
+		int Result = GetFileInformationByHandle(*reinterpret_cast<PHANDLE>(Handle.Get()), &bhfi);
+		int LastError = GetLastError();
+		if(WritePipeInt(Pipe, Result))
+		{
+			if(Result)
+			{
+				WritePipeData(Pipe, &bhfi, sizeof(bhfi));
 			}
 			WritePipeInt(Pipe, LastError);
 		}
@@ -2104,8 +2200,12 @@ bool Process(int Command)
 		GetFileSizeExHandler();
 		break;
 
-	case C_FUNCTION_DEVICEIOCONTROL:
-		DeviceIoControlHandler();
+	case C_FUNCTION_FLUSHFILEBUFFERS:
+		FlushFileBuffersHandler();
+		break;
+
+	case C_FUNCTION_GETFILEINFORMATIONBYHANDLE:
+		GetFileInformationByHandleHandler();
 		break;
 
 	}

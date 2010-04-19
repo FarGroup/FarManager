@@ -39,13 +39,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "flink.hpp"
 #include "pathmix.hpp"
 
-static CDROM_DeviceCaps getCapsUsingMediaType(HANDLE hDevice)
+static CDROM_DeviceCaps getCapsUsingMediaType(File& Device)
 {
 	UCHAR buffer[2048]; // Must be big enough hold DEVICE_MEDIA_INFO
 	ULONG returned;
 
-	if (!DeviceIoControl(hDevice, IOCTL_STORAGE_GET_MEDIA_TYPES_EX, nullptr, 0,
-	                     buffer, sizeof(buffer), &returned, FALSE))
+	if (!Device.IoControl(IOCTL_STORAGE_GET_MEDIA_TYPES_EX, nullptr, 0, buffer, sizeof(buffer), &returned))
 	{
 		return CDDEV_CAPS_NONE;
 	}
@@ -113,7 +112,7 @@ static CDROM_DeviceCaps getCapsUsingProductId(const char *prodID)
 }
 
 
-static CDROM_DeviceCaps getCapsUsingSCSIPassThrough(HANDLE hDevice)
+static CDROM_DeviceCaps getCapsUsingSCSIPassThrough(File& Device)
 {
 	SCSI_PASS_THROUGH_WITH_BUFFERS sptwb={0};
 	sptwb.Spt.Length = sizeof(SCSI_PASS_THROUGH);
@@ -136,14 +135,7 @@ static CDROM_DeviceCaps getCapsUsingSCSIPassThrough(HANDLE hDevice)
 	sptwb.Spt.Cdb[2] = MODE_PAGE_CAPABILITIES;
 	sptwb.Spt.Cdb[4] = 192;
 	DWORD returned;
-	BOOL status = DeviceIoControl(hDevice,
-	                              IOCTL_SCSI_PASS_THROUGH,
-	                              &sptwb,
-	                              sizeof(SCSI_PASS_THROUGH),
-	                              &sptwb,
-	                              length,
-	                              &returned,
-	                              FALSE);
+	BOOL status = Device.IoControl(IOCTL_SCSI_PASS_THROUGH, &sptwb, sizeof(sptwb), &sptwb, length, &returned);
 
 	if (status)
 	{
@@ -226,7 +218,7 @@ static CDROM_DeviceCaps getCapsUsingSCSIPassThrough(HANDLE hDevice)
 	return CDDEV_CAPS_NONE;
 }
 
-static CDROM_DeviceCaps getCapsUsingDeviceProps(HANDLE hDevice)
+static CDROM_DeviceCaps getCapsUsingDeviceProps(File& Device)
 {
 	PSTORAGE_DEVICE_DESCRIPTOR      devDesc;
 	BOOL                            status;
@@ -235,16 +227,7 @@ static CDROM_DeviceCaps getCapsUsingDeviceProps(HANDLE hDevice)
 	STORAGE_PROPERTY_QUERY          query;
 	query.PropertyId = StorageDeviceProperty;
 	query.QueryType = PropertyStandardQuery;
-	status = DeviceIoControl(
-	             hDevice,
-	             IOCTL_STORAGE_QUERY_PROPERTY,
-	             &query,
-	             sizeof(STORAGE_PROPERTY_QUERY),
-	             &outBuf,
-	             512,
-	             &returnedLength,
-	             nullptr
-	         );
+	status = Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(STORAGE_PROPERTY_QUERY), &outBuf, sizeof(outBuf), &returnedLength);
 
 	if (status)
 	{
@@ -269,17 +252,17 @@ static CDROM_DeviceCaps getCapsUsingDeviceProps(HANDLE hDevice)
 }
 
 
-CDROM_DeviceCaps GetCDDeviceCaps(HANDLE hDevice)
+CDROM_DeviceCaps GetCDDeviceCaps(File& Device)
 {
 	CDROM_DeviceCaps caps;
 
-	if ((caps = getCapsUsingSCSIPassThrough(hDevice)) !=  CDDEV_CAPS_NONE)
+	if ((caps = getCapsUsingSCSIPassThrough(Device)) !=  CDDEV_CAPS_NONE)
 		return caps;
 
-	if ((caps = getCapsUsingDeviceProps(hDevice)) != CDDEV_CAPS_NONE)
+	if ((caps = getCapsUsingDeviceProps(Device)) != CDDEV_CAPS_NONE)
 		return caps;
 
-	return getCapsUsingMediaType(hDevice);
+	return getCapsUsingMediaType(Device);
 }
 
 UINT GetCDDeviceTypeByCaps(CDROM_DeviceCaps caps)
@@ -344,12 +327,11 @@ UINT FAR_GetDriveType(const wchar_t *RootDir, CDROM_DeviceCaps *Caps, DWORD Dete
 		else
 			VolumePath.Insert(0, L"\\\\.\\");
 
-		HANDLE hDevice = apiCreateFile(VolumePath, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0);
-
-		if (hDevice != INVALID_HANDLE_VALUE)
+		File Device;
+		if(Device.Open(VolumePath, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 		{
-			caps = GetCDDeviceCaps(hDevice);
-			CloseHandle(hDevice);
+			caps = GetCDDeviceCaps(Device);
+			Device.Close();
 			DrvType = GetCDDeviceTypeByCaps(caps);
 		}
 

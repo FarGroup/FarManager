@@ -305,15 +305,13 @@ int FileViewer::ProcessKey(int Key)
 				UINT cp=View.VM.CodePage;
 				string strViewFileName;
 				View.GetFileName(strViewFileName);
-				HANDLE hEdit=apiCreateFile(strViewFileName,GENERIC_READ,FILE_SHARE_READ|(Opt.EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0),nullptr,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN);
-
-				if (hEdit==INVALID_HANDLE_VALUE)
+				File Edit;
+				if(!Edit.Open(strViewFileName, GENERIC_READ, FILE_SHARE_READ|(Opt.EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 				{
 					Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),MSG(MEditCannotOpen),strViewFileName,MSG(MOk));
 					return(TRUE);
 				}
-
-				CloseHandle(hEdit);
+				Edit.Close();
 				// Если переключаемся в редактор, то удалять файл уже не нужно
 				SetTempViewName(L"");
 				SetExitCode(0);

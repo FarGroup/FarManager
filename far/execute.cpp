@@ -87,25 +87,24 @@ static bool GetImageSubsystem(const wchar_t *FileName,DWORD& ImageSubsystem)
 {
 	bool Result=false;
 	ImageSubsystem=IMAGE_SUBSYSTEM_UNKNOWN;
-	HANDLE hModuleFile=apiCreateFile(FileName,GENERIC_READ,FILE_SHARE_READ,nullptr,OPEN_EXISTING,0);
-
-	if (hModuleFile!=INVALID_HANDLE_VALUE)
+	File ModuleFile;
+	if(ModuleFile.Open(FileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
 	{
 		IMAGE_DOS_HEADER DOSHeader;
 		DWORD ReadSize;
 
-		if (ReadFile(hModuleFile,&DOSHeader,sizeof(DOSHeader),&ReadSize,nullptr) && ReadSize==sizeof(DOSHeader))
+		if (ModuleFile.Read(&DOSHeader, sizeof(DOSHeader), &ReadSize) && ReadSize==sizeof(DOSHeader))
 		{
 			if (DOSHeader.e_magic==IMAGE_DOS_SIGNATURE)
 			{
 				//ImageSubsystem = IMAGE_SUBSYSTEM_DOS_EXECUTABLE;
 				Result=true;
 
-				if (apiSetFilePointerEx(hModuleFile,DOSHeader.e_lfanew,nullptr,FILE_BEGIN))
+				if (ModuleFile.SetPointer(DOSHeader.e_lfanew,nullptr,FILE_BEGIN))
 				{
 					IMAGE_HEADERS PEHeader;
 
-					if (ReadFile(hModuleFile,&PEHeader,sizeof(PEHeader),&ReadSize,nullptr) && ReadSize==sizeof(PEHeader))
+					if (ModuleFile.Read(&PEHeader, sizeof(PEHeader), &ReadSize) && ReadSize==sizeof(PEHeader))
 					{
 						if (PEHeader.Signature==IMAGE_NT_SIGNATURE)
 						{
@@ -177,7 +176,7 @@ static bool GetImageSubsystem(const wchar_t *FileName,DWORD& ImageSubsystem)
 		{
 			// ошибка чтения
 		}*/
-		CloseHandle(hModuleFile);
+		ModuleFile.Close();
 	}
 
 	/*else

@@ -157,12 +157,11 @@ bool WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,DWOR
 					}
 					else
 					{
-						HANDLE hFile=apiCreateFile(Object,0,0,nullptr,CREATE_NEW,0);
-
-						if (hFile!=INVALID_HANDLE_VALUE)
+						File file;
+						if(file.Open(Object,0,0,nullptr,CREATE_NEW))
 						{
 							ObjectCreated=true;
-							CloseHandle(hFile);
+							file.Close();
 						}
 					}
 
@@ -246,24 +245,17 @@ bool GetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
 	bool Result=false;
 	const DWORD FileAttr = apiGetFileAttributes(Object);
 
-	/* $ 14.06.2003 IS
-		Для нелокальных дисков получить корректную информацию о связи
-		не представляется возможным
-	*/
 	if (FileAttr!=INVALID_FILE_ATTRIBUTES && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT))
 	{
-		HANDLE hObject=apiCreateFile(Object,0,0,nullptr,OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT);
-
-		if (hObject!=INVALID_HANDLE_VALUE)
+		File fObject;
+		if(fObject.Open(Object,0,0,nullptr,OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT))
 		{
 			DWORD dwBytesReturned;
-
-			if (DeviceIoControl(hObject,FSCTL_GET_REPARSE_POINT,nullptr,0,(LPVOID)rdb,MAXIMUM_REPARSE_DATA_BUFFER_SIZE,&dwBytesReturned,0) && IsReparseTagValid(rdb->ReparseTag))
+			if(fObject.IoControl(FSCTL_GET_REPARSE_POINT, nullptr, 0, rdb, MAXIMUM_REPARSE_DATA_BUFFER_SIZE, &dwBytesReturned) && IsReparseTagValid(rdb->ReparseTag))
 			{
 				Result=true;
 			}
-
-			CloseHandle(hObject);
+			fObject.Close();
 		}
 	}
 
@@ -323,20 +315,16 @@ DWORD WINAPI GetReparsePointInfo(const wchar_t *Object, string &strDestBuff,LPDW
 int WINAPI GetNumberOfLinks(const wchar_t *Name)
 {
 	int NumberOfLinks=1;
-	HANDLE hFile=apiCreateFile(Name,0,FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_EXISTING,0);
-
-	if (hFile!=INVALID_HANDLE_VALUE)
+	File file;
+	if(file.Open(Name, 0, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 	{
 		BY_HANDLE_FILE_INFORMATION bhfi;
-
-		if (GetFileInformationByHandle(hFile,&bhfi))
+		if (file.GetInformation(bhfi))
 		{
 			NumberOfLinks=bhfi.nNumberOfLinks;
 		}
-
-		CloseHandle(hFile);
+		file.Close();
 	}
-
 	return NumberOfLinks;
 }
 
@@ -723,11 +711,10 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 						if (apiGetFileAttributes(strPath)==INVALID_FILE_ATTRIBUTES)
 							CreatePath(strPath);
 
-						HANDLE hFile=apiCreateFile(strDestFullName,0,0,0,CREATE_NEW,apiGetFileAttributes(strSrcFullName));
-
-						if (hFile!=INVALID_HANDLE_VALUE)
+						File file;
+						if(file.Open(strDestFullName, 0, 0, 0, CREATE_NEW, apiGetFileAttributes(strSrcFullName)))
 						{
-							CloseHandle(hFile);
+							file.Close();
 						}
 					}
 				}

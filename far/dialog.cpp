@@ -3092,7 +3092,7 @@ int Dialog::ProcessKey(int Key)
 							}
 							edt->DisableAC();
 							edt->SetString(strStr);
-							edt->Select(edt->LastPartLength, strStr.GetLength());
+							edt->Select(edt->LastPartLength, static_cast<int>(strStr.GetLength()));
 							edt->RevertAC();
 							Show();
 							return TRUE;

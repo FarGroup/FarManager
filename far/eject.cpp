@@ -54,7 +54,6 @@ static BOOL DismountVolume(HANDLE hVolume)
 */
 BOOL EjectVolume(wchar_t Letter,DWORD Flags)
 {
-	HANDLE DiskHandle;
 	BOOL Retry=TRUE;
 	BOOL fAutoEject=FALSE;
 	DWORD temp;
@@ -85,28 +84,25 @@ BOOL EjectVolume(wchar_t Letter,DWORD Flags)
 			return FALSE;
 	}
 
-	DiskHandle=apiCreateFile(szRootName,dwAccessFlags,
-	                         FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_EXISTING,
-	                         0);
-
-	if ((DiskHandle==INVALID_HANDLE_VALUE) && (GetLastError()==ERROR_ACCESS_DENIED))
+	File Disk;
+	bool Opened = Disk.Open(szRootName, dwAccessFlags, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
+	if(!Opened && GetLastError()==ERROR_ACCESS_DENIED)
 	{
-		DiskHandle=apiCreateFile(szRootName,GENERIC_READ,
-		                         FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_EXISTING,
-		                         0);
+		Opened = Disk.Open(szRootName,GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
 		ReadOnly=FALSE;
 	}
 
-	if (DiskHandle!=INVALID_HANDLE_VALUE)
+	if (Opened)
 	{
 		while (Retry)
 		{
-			if (DeviceIoControl(DiskHandle,FSCTL_LOCK_VOLUME,nullptr,0,nullptr,0,&temp,nullptr))
+			if (Disk.IoControl(FSCTL_LOCK_VOLUME, nullptr, 0, nullptr, 0, &temp))
 			{
 				foundError=FALSE;
-
 				if (!ReadOnly)
-					FlushFileBuffers(DiskHandle);
+				{
+					Disk.FlushBuffers();
+				}
 
 #if 0
 
@@ -127,34 +123,28 @@ BOOL EjectVolume(wchar_t Letter,DWORD Flags)
 
 				if (!foundError)
 				{
-					PREVENT_MEDIA_REMOVAL PreventMediaRemoval;
-					PreventMediaRemoval.PreventMediaRemoval=FALSE;
+					PREVENT_MEDIA_REMOVAL PreventMediaRemoval={FALSE};
 
-					if (DeviceIoControl(DiskHandle,IOCTL_STORAGE_MEDIA_REMOVAL,&PreventMediaRemoval,sizeof(PreventMediaRemoval),nullptr,0,&temp,nullptr))
+					if (Disk.IoControl(IOCTL_STORAGE_MEDIA_REMOVAL, &PreventMediaRemoval, sizeof(PreventMediaRemoval), nullptr, 0, &temp))
 					{
 #if 1
 
 						// чистой воды шаманство...
 						if (Flags&EJECT_READY)
 						{
-							fAutoEject=DeviceIoControl(DiskHandle,
-							                           IOCTL_STORAGE_CHECK_VERIFY,
-							                           nullptr,0,0,0,&temp,nullptr);
+							fAutoEject=Disk.IoControl(IOCTL_STORAGE_CHECK_VERIFY, nullptr, 0, 0, 0, &temp);
 
 							// ...если ошибка = "нет доступа", то это похоже на то,
 							// что диск вставлен
 							// Способ экспериментальный, потому афишировать не имеет смысла.
-							if (!fAutoEject && GetLastError() == 5)
+							if (!fAutoEject && GetLastError() == ERROR_ACCESS_DENIED)
 								fAutoEject=TRUE;
 
 							Retry=FALSE;
 						}
 						else
 #endif
-							fAutoEject=DeviceIoControl(DiskHandle,
-							                           (Flags&EJECT_LOAD_MEDIA)?IOCTL_STORAGE_LOAD_MEDIA:IOCTL_STORAGE_EJECT_MEDIA,
-							                           nullptr,0,nullptr,0,&temp,nullptr
-							                          );
+							fAutoEject=Disk.IoControl((Flags&EJECT_LOAD_MEDIA)?IOCTL_STORAGE_LOAD_MEDIA:IOCTL_STORAGE_EJECT_MEDIA, nullptr, 0, nullptr, 0, &temp);
 					}
 
 					Retry=FALSE;
@@ -184,46 +174,35 @@ BOOL EjectVolume(wchar_t Letter,DWORD Flags)
 			}
 		} // END: while(Retry)
 
-		DeviceIoControl(DiskHandle,FSCTL_UNLOCK_VOLUME,nullptr,0,nullptr,0,&temp,nullptr);
-		CloseHandle(DiskHandle);
+		Disk.IoControl(FSCTL_UNLOCK_VOLUME, nullptr, 0, nullptr, 0, &temp);
+		Disk.Close();
 	}
 
 	return fAutoEject||fRemoveSafely; //???
 }
 
-BOOL IsEjectableMedia(wchar_t Letter,UINT DriveType,BOOL ForceCDROM)
+bool IsEjectableMedia(wchar_t Letter,UINT DriveType,BOOL ForceCDROM)
 {
-	BOOL IsEjectable=FALSE;
+	bool Result = false;
 
 	if (ForceCDROM && IsDriveTypeCDROM(DriveType))
 	{
-		IsEjectable = TRUE;
+		Result = true;
 	}
 	else
 	{
-		wchar_t win_name[]=L"\\\\.\\?:";
-		win_name[4]=Letter;
-		HANDLE h=apiCreateFile(win_name, 0, FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0);
-
-		if (h==INVALID_HANDLE_VALUE)
-			return FALSE;
-
-		DISK_GEOMETRY disk_g={0};
-		DWORD b_ret=0;
-		int ret=DeviceIoControl(h, IOCTL_DISK_GET_DRIVE_GEOMETRY,
-		                        nullptr,                          // lpInBuffer
-		                        0,                             // nInBufferSize
-		                        &disk_g,                       // output buffer
-		                        sizeof(disk_g),                // size of output buffer
-		                        &b_ret,                        // number of bytes returned
-		                        0                              // OVERLAPPED structure
-		                       );
-
-		if (ret)
-			IsEjectable=disk_g.MediaType == RemovableMedia;
-
-		CloseHandle(h);
+		wchar_t name[]={L'\\', L'\\', L'.', L'\\', Letter, L':', L'\0'};
+		File file;
+		if(file.Open(name, 0, FILE_SHARE_WRITE, 0, OPEN_EXISTING))
+		{
+			DISK_GEOMETRY dg={0};
+			DWORD Bytes=0;
+			if(file.IoControl(IOCTL_DISK_GET_DRIVE_GEOMETRY, nullptr, 0, &dg, sizeof(dg), &Bytes))
+			{
+				Result = dg.MediaType == RemovableMedia;
+			}
+			file.Close();
+		}
 	}
-
-	return IsEjectable;
+	return Result;
 }

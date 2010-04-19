@@ -154,7 +154,7 @@ bool File::Write(LPCVOID Buffer, DWORD NumberOfBytesToWrite, LPDWORD NumberOfByt
 
 bool File::SetPointer(INT64 DistanceToMove, PINT64 NewFilePointer, DWORD MoveMethod)
 {
-	return admin?Admin.fSetFilePointerEx(Handle, DistanceToMove, NewFilePointer, MoveMethod):apiSetFilePointerEx(Handle, DistanceToMove, NewFilePointer, MoveMethod) != FALSE;
+	return admin?Admin.fSetFilePointerEx(Handle, DistanceToMove, NewFilePointer, MoveMethod):SetFilePointerEx(Handle, *reinterpret_cast<PLARGE_INTEGER>(&DistanceToMove), reinterpret_cast<PLARGE_INTEGER>(NewFilePointer), MoveMethod) != FALSE;
 }
 
 bool File::SetEnd()
@@ -175,6 +175,16 @@ bool File::SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime,
 bool File::GetSize(UINT64& Size)
 {
 	return admin?Admin.fGetFileSizeEx(Handle, Size):apiGetFileSizeEx(Handle, Size);
+}
+
+bool File::FlushBuffers()
+{
+	return admin?Admin.fFlushFileBuffers(Handle):FlushFileBuffers(Handle) != FALSE;
+}
+
+bool File::GetInformation(BY_HANDLE_FILE_INFORMATION& info)
+{
+	return admin?Admin.fGetFileInformationByHandle(Handle, info):GetFileInformationByHandle(Handle, &info) != FALSE;
 }
 
 bool File::IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped)
@@ -560,13 +570,12 @@ BOOL apiGetFindDataEx(const wchar_t *lpwszFileName, FAR_FIND_DATA_EX& FindData,b
 			// Ага, значит файл таки есть. Заполним структуру ручками.
 			FindData.Clear();
 			FindData.dwFileAttributes=dwAttr;
-			HANDLE hFile=apiCreateFile(lpwszFileName,FILE_READ_ATTRIBUTES,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,0);
-
-			if (hFile!=INVALID_HANDLE_VALUE)
+			File file;
+			if(file.Open(lpwszFileName, FILE_READ_ATTRIBUTES, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
 			{
-				GetFileTime(hFile,&FindData.ftCreationTime,&FindData.ftLastAccessTime,&FindData.ftLastWriteTime);
-				apiGetFileSizeEx(hFile,FindData.nFileSize);
-				CloseHandle(hFile);
+				file.GetTime(&FindData.ftCreationTime,&FindData.ftLastAccessTime,&FindData.ftLastWriteTime);
+				file.GetSize(FindData.nFileSize);
+				file.Close();
 			}
 
 			if (FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
@@ -830,11 +839,6 @@ BOOL apiCreateHardLink(LPCWSTR lpFileName,LPCWSTR lpExistingFileName,LPSECURITY_
 	return CreateHardLinkInternal(NTPath(lpFileName),NTPath(lpExistingFileName),lpSecurityAttributes) ||
 	       //bug in win2k: \\?\ fails
 	       CreateHardLinkInternal(lpFileName,lpExistingFileName,lpSecurityAttributes);
-}
-
-BOOL apiSetFilePointerEx(HANDLE hFile,INT64 DistanceToMove,PINT64 NewFilePointer,DWORD dwMoveMethod)
-{
-	return SetFilePointerEx(hFile,*((PLARGE_INTEGER)&DistanceToMove),(PLARGE_INTEGER)NewFilePointer,dwMoveMethod);
 }
 
 HANDLE apiFindFirstStream(LPCWSTR lpFileName,STREAM_INFO_LEVELS InfoLevel,LPVOID lpFindStreamData,DWORD dwFlags)

@@ -66,7 +66,7 @@ enum CDROM_DeviceCaps
 	CDDEV_CAPS_GENERIC_BDROM      = CDDEV_CAPS_GENERIC_DVD | CDDEV_CAPS_READ_BDROM
 };
 
-CDROM_DeviceCaps GetCDDeviceCaps(HANDLE hDevice);
+CDROM_DeviceCaps GetCDDeviceCaps(File& Device);
 UINT GetCDDeviceTypeByCaps(CDROM_DeviceCaps caps);
 bool IsDriveTypeCDROM(UINT DriveType);
 UINT FAR_GetDriveType(const wchar_t *RootDir, CDROM_DeviceCaps *caps=nullptr, DWORD Detect=0);

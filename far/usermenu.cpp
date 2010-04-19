@@ -108,14 +108,6 @@ int PrepareHotKey(string &strHotKey)
 
 void MenuRegToFile(const wchar_t *MenuKey, File& MenuFile, CachedWrite& CW, bool SingleItemMenu=false)
 {
-	INT64 Pos = 0;
-	MenuFile.GetPointer(Pos);
-	if (!Pos)
-	{
-		WCHAR Data = SIGN_UNICODE;
-		CW.Write(&Data, 1*sizeof(WCHAR));
-	}
-
 	for (int i=0;;i++)
 	{
 		string strItemKey;
@@ -368,6 +360,8 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 				if (MenuFile.Open(strMenuFileFullPath,GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS))
 				{
 					CachedWrite CW(MenuFile);
+					WCHAR Data = SIGN_UNICODE;
+					CW.Write(&Data, 1*sizeof(WCHAR));
 					MenuRegToFile(strLocalMenuKey,MenuFile, CW);
 					CW.Flush();
 					UINT64 Size = 0;
@@ -687,6 +681,8 @@ int UserMenu::ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t
 						else
 							strCurrentKey=MenuRootKey;
 						CachedWrite CW(MenuFile);
+						WCHAR Data = SIGN_UNICODE;
+						CW.Write(&Data, 1*sizeof(WCHAR));
 						MenuRegToFile(strCurrentKey, MenuFile, CW, Key==KEY_ALTSHIFTF4);
 						CW.Flush();
 						MenuNeedRefresh=true;

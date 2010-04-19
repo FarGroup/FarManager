@@ -1562,13 +1562,12 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
 							if (Buffer)
 							{
-								HANDLE hProcessFile=apiCreateFile(strFindArcName,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,0);
-
-								if (hProcessFile!=INVALID_HANDLE_VALUE)
+								File ProcessFile;
+								if(ProcessFile.Open(strFindArcName, GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
 								{
 									DWORD ReadSize=0;
-									bool Result=(ReadFile(hProcessFile,Buffer,Opt.PluginMaxReadData,&ReadSize,nullptr)!=FALSE);
-									CloseHandle(hProcessFile);
+									bool Result=ProcessFile.Read(Buffer,Opt.PluginMaxReadData,&ReadSize);
+									ProcessFile.Close();
 
 									if (Result)
 									{

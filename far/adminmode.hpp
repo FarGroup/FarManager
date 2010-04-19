@@ -60,6 +60,8 @@ enum ADMIN_COMMAND
 	C_FUNCTION_GETFILETIME,
 	C_FUNCTION_SETFILETIME,
 	C_FUNCTION_GETFILESIZEEX,
+	C_FUNCTION_FLUSHFILEBUFFERS,
+	C_FUNCTION_GETFILEINFORMATIONBYHANDLE,
 	C_FUNCTION_DEVICEIOCONTROL,
 };
 
@@ -96,6 +98,8 @@ public:
 	bool fGetFileTime(HANDLE Handle, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime);
 	bool fSetFileTime(HANDLE Handle, const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime);
 	bool fGetFileSizeEx(HANDLE Handle, UINT64& Size);
+	bool fFlushFileBuffers(HANDLE Handle);
+	bool fGetFileInformationByHandle(HANDLE Handle, BY_HANDLE_FILE_INFORMATION& bhfi);
 	bool fDeviceIoControl(HANDLE Handle, DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped);
 
 private:

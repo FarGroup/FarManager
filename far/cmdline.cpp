@@ -169,7 +169,7 @@ int CommandLine::ProcessKey(int Key)
 		}
 		CmdStr.DisableAC();
 		CmdStr.SetString(strStr);
-		CmdStr.Select(LastCmdPartLength,strStr.GetLength());
+		CmdStr.Select(LastCmdPartLength,static_cast<int>(strStr.GetLength()));
 		CmdStr.RevertAC();
 		Show();
 		return(TRUE);

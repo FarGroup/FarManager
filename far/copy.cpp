@@ -3298,7 +3298,6 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 				_localLastError=GetLastError();
 				SrcFile.Close();
 				DestFile.Close();
-				_LOGCOPYR(SysLog(L"return COPY_FAILURE -> %d apiSetFilePointerEx() == FALSE, LastError=%d (0x%08X)",__LINE__,_localLastError,_localLastError));
 				return COPY_FAILURE;
 			}
 		}

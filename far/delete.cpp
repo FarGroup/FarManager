@@ -909,17 +909,17 @@ int RemoveToRecycleBin(const wchar_t *Name)
 int WipeFile(const wchar_t *Name)
 {
 	unsigned __int64 FileSize;
-	HANDLE WipeHandle;
 	apiSetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
-	WipeHandle=apiCreateFile(Name,GENERIC_WRITE,0,nullptr,OPEN_EXISTING,FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN);
-
-	if (WipeHandle==INVALID_HANDLE_VALUE)
-		return(FALSE);
-
-	if (!apiGetFileSizeEx(WipeHandle,FileSize))
+	File WipeFile;
+	if(!WipeFile.Open(Name, GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN))
 	{
-		CloseHandle(WipeHandle);
-		return(FALSE);
+		return FALSE;
+	}
+
+	if (!WipeFile.GetSize(FileSize))
+	{
+		WipeFile.Close();
+		return FALSE;
 	}
 
 	const int BufSize=65536;
@@ -933,15 +933,15 @@ int WipeFile(const wchar_t *Name)
 	while (FileSize>0)
 	{
 		DWORD WriteSize=(DWORD)Min((unsigned __int64)BufSize,FileSize);
-		WriteFile(WipeHandle,Buf,WriteSize,&Written,nullptr);
+		WipeFile.Write(Buf,WriteSize,&Written);
 		FileSize-=WriteSize;
 	}
 
-	WriteFile(WipeHandle,Buf,BufSize,&Written,nullptr);
+	WipeFile.Write(Buf,BufSize,&Written);
 	delete[] Buf;
-	apiSetFilePointerEx(WipeHandle,0,nullptr,FILE_BEGIN);
-	SetEndOfFile(WipeHandle);
-	CloseHandle(WipeHandle);
+	WipeFile.SetPointer(0,nullptr,FILE_BEGIN);
+	WipeFile.SetEnd();
+	WipeFile.Close();
 	string strTempName;
 	FarMkTempEx(strTempName,nullptr,FALSE);
 

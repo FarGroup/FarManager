@@ -118,6 +118,8 @@ public:
 	bool GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime);
 	bool SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime);
 	bool GetSize(UINT64& Size);
+	bool FlushBuffers();
+	bool GetInformation(BY_HANDLE_FILE_INFORMATION& info);
 	bool IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped = nullptr);
 	bool Close();
 
@@ -316,13 +318,6 @@ BOOL apiCreateHardLink(
     LPCWSTR lpFileName,
     LPCWSTR lpExistingFileName,
     LPSECURITY_ATTRIBUTES lpSecurityAttributes
-);
-
-BOOL apiSetFilePointerEx(
-    HANDLE hFile,
-    INT64 DistanceToMove,
-    PINT64 NewFilePointer,
-    DWORD dwMoveMethod
 );
 
 HANDLE apiFindFirstStream(

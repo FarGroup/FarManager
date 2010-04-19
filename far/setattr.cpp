@@ -851,7 +851,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 			}
 
 			// обработка случая "несколько хардлинков"
-			NameList.ItemsNumber=GetNumberOfLinks(strSelName);
+			NameList.ItemsNumber=(FileAttr&FILE_ATTRIBUTE_DIRECTORY)?1:GetNumberOfLinks(strSelName);
 
 			if (NameList.ItemsNumber>1)
 			{
