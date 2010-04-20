@@ -120,6 +120,10 @@ const
 	PIMAGE_TLS_CALLBACK hook_wow64_tlscb = HookProc;
 #pragma const_seg()
 #else
+#define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+#if GCC_VERSION >= 40500
+const PIMAGE_TLS_CALLBACK hook_wow64_tlscb __attribute__((section(".CRT$XLY"))) = HookProc;
+#else
 ULONG __tls_index__ = 0;
 char __tls_end__ __attribute__((section(".tls$zzz"))) = 0;
 char __tls_start__ __attribute__((section(".tls"))) = 0;
@@ -137,6 +141,7 @@ const IMAGE_TLS_DIRECTORY32 _tls_used __attribute__((section(".rdata$T"))) =
 	(DWORD) 0,
 	(DWORD) 0
 };
+#endif
 #endif
 
 #ifdef __cplusplus

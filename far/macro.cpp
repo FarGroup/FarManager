@@ -759,7 +759,7 @@ int KeyMacro::ProcessKey(int Key)
 				if ((Key&(~KEY_CTRLMASK)) > 0x7F && (Key&(~KEY_CTRLMASK)) < KEY_FKEY_BEGIN)
 					Key=KeyToKeyLayout(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
 
-				if (Key < KEY_FKEY_BEGIN)
+				if ((DWORD)Key < KEY_FKEY_BEGIN)
 					Key=Upper(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
 
 			}

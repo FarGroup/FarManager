@@ -747,7 +747,9 @@ void Help::FastShow()
 		int StrPos;
 
 		if (i<FixCount)
+		{
 			StrPos=i;
+		}
 		else if (i==FixCount && FixCount>0)
 		{
 			if (!Locked())
@@ -770,7 +772,7 @@ void Help::FastShow()
 		if (StrPos<StrCount)
 		{
 			const HelpRecord *rec=GetHelpItem(StrPos);
-			wchar_t *OutStr=rec?rec->HelpStr:nullptr;
+			const wchar_t *OutStr=rec?rec->HelpStr:nullptr;
 
 			if (!OutStr)
 				OutStr=L"";
@@ -781,7 +783,9 @@ void Help::FastShow()
 				OutStr++;
 			}
 			else
+			{
 				GotoXY(X1+1,Y1+i+1);
+			}
 
 			OutString(OutStr);
 		}

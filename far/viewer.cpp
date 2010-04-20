@@ -334,7 +334,9 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 		LeftPos=NewLeftPos;
 	}
 	else
+	{
 		FilePos=0;
+	}
 
 	/* $ 26.07.2002 IS
 	     Автоопределение Unicode не должно зависеть от опции
@@ -2334,7 +2336,9 @@ void Viewer::Search(int Next,int FirstChar)
 		RemoveTrailingSpaces(strSearchStr);
 	}
 	else
+	{
 		strSearchStr = SearchDlg[SD_EDIT_TEXT].strData;
+	}
 
 	strLastSearchStr = strSearchStr;
 	LastSearchHex=SearchHex;
@@ -2380,7 +2384,9 @@ void Viewer::Search(int Next,int FirstChar)
 				LastSelPos = ReverseSearch?FileSize:0;
 			}
 			else
+			{
 				LastSelPos = SelectPos + (ReverseSearch?-1:1);
+			}
 		}
 		else
 		{
@@ -3107,7 +3113,9 @@ void Viewer::SelectText(const __int64 &MatchPos,const __int64 &SearchLength, con
 
 //  LastSelPos=SelectPos+((Flags&0x2) ? -1:1);
 	if (VM.Hex)
+	{
 		FilePos&=~(IsUnicodeCodePage(VM.CodePage) ? 0x7:0xf);
+	}
 	else
 	{
 		if (SelectPos!=StartLinePos)

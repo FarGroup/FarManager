@@ -74,7 +74,7 @@ public:
 			Data=nullptr;
 		}
 	}
-	
+
 	~AutoObject()
 	{
 		Free();
@@ -84,7 +84,7 @@ public:
 	{
 		return Data;
 	}
-	
+
 	LPCWSTR GetStr()
 	{
 		return reinterpret_cast<wchar_t*>(Get());
@@ -2069,7 +2069,6 @@ void DeviceIoControlHandler()
 						{
 							OutBuffer = new BYTE[OutBufferSize];
 						}
-						int Read = 0;
 						// BUGBUG: Overlapped ignored
 						int BytesReturned = 0;
 						int Result = DeviceIoControl(*reinterpret_cast<PHANDLE>(Handle.Get()), IoControlCode, InBuffer.Get(), InBufferSize, OutBuffer, OutBufferSize, reinterpret_cast<LPDWORD>(&BytesReturned), nullptr);

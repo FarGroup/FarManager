@@ -2799,7 +2799,6 @@ void EnumFiles(VMenu& Menu, const wchar_t* Str)
 	{
 		string strStr=Str;
 		FAR_FIND_DATA_EX d;
-		BOOL MoreFiles=TRUE;
 		FindFile Find(strStr+L"*");
 		bool Separator=false;
 		while(Find.Get(d))
