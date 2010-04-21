@@ -215,9 +215,9 @@ two commands with plugin prefix in the command line. The first path applies to t
 active panel, the second path - to the passive one:
   - ^<wrap>if a folder or archive is specified, FAR will show its contents;
   - ^<wrap>if a file is specified, FAR will change to the folder where it 
-    resides and place the cursor on the file, if it exists;
+resides and place the cursor on the file, if it exists;
   - ^<wrap>when profixes specified (simultaneous use with common paths allowed)
-    passive command executes first (passive panel activates temporary).
+passive command executes first (passive panel activates temporary). Односимвольные префиксы игнорируются.
   Example: far ma:c:\\Far20.7z "macro:post MsgBox(\\"FAR Manager\\",\\"Successfully started\\")"
 
 
