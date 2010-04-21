@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "dirmix.hpp"
 #include "adminmode.hpp"
+#include "cmdline.hpp"
 
 #ifdef DIRECT_RT
 int DirectRT=0;
@@ -100,8 +101,10 @@ static void show_help()
 	wprintf(
 	    L"Usage: far [switches] [apath [ppath]]\n\n"
 	    L"where\n"
-	    L"  apath - path to a folder (or a file or an archive) for the active panel\n"
-	    L"  ppath - path to a folder (or a file or an archive) for the passive panel\n\n"
+	    L"  apath - path to a folder (or a file or an archive or command with prefix)\n"
+	    L"          for the active panel\n"
+	    L"  ppath - path to a folder (or a file or an archive or command with prefix)\n"
+	    L"          for the passive panel\n\n"
 	    L"The following switches may be used in the command line:\n\n"
 	    L" /?   This help.\n"
 	    L" /a   Disable display of characters with codes 0 - 31 and 255.\n"
@@ -257,25 +260,43 @@ static int MainProcess(
 
 				if (*lpwszDestName2)  // пассивная панель
 				{
-					strPath = PointToNameUNC(lpwszDestName2);
 					AnotherPanel->GetCurDir(strCurDir);
 					FarChDir(strCurDir);
 
-					if (!strPath.IsEmpty())
+					if (IsPluginPrefixPath(lpwszDestName2))
 					{
-						if (AnotherPanel->GoToFile(strPath))
-							AnotherPanel->ProcessKey(KEY_CTRLPGDN);
+						AnotherPanel->SetFocus();
+						CtrlObject->CmdLine->ExecString(lpwszDestName2,0);
+						ActivePanel->SetFocus();
+					}
+					else
+					{
+						strPath = PointToNameUNC(lpwszDestName2);
+
+						if (!strPath.IsEmpty())
+						{
+							if (AnotherPanel->GoToFile(strPath))
+								AnotherPanel->ProcessKey(KEY_CTRLPGDN);
+						}
 					}
 				}
 
 				ActivePanel->GetCurDir(strCurDir);
 				FarChDir(strCurDir);
-				strPath = PointToNameUNC(lpwszDestName1);
 
-				if (!strPath.IsEmpty())
+				if (IsPluginPrefixPath(lpwszDestName1))
 				{
-					if (ActivePanel->GoToFile(strPath))
-						ActivePanel->ProcessKey(KEY_CTRLPGDN);
+					CtrlObject->CmdLine->ExecString(lpwszDestName1,0);
+				}
+				else
+				{
+					strPath = PointToNameUNC(lpwszDestName1);
+
+					if (!strPath.IsEmpty())
+					{
+						if (ActivePanel->GoToFile(strPath))
+							ActivePanel->ProcessKey(KEY_CTRLPGDN);
+					}
 				}
 
 				// !!! ВНИМАНИЕ !!!
@@ -536,12 +557,19 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 		{
 			if (CntDestName < 2)
 			{
-				apiExpandEnvironmentStrings(Argv[I], DestNames[CntDestName]);
-				Unquote(DestNames[CntDestName]);
-				ConvertNameToFull(DestNames[CntDestName],DestNames[CntDestName]);
+				if (IsPluginPrefixPath(Argv[I]))
+				{
+					DestNames[CntDestName++] = Argv[I];
+				}
+				else
+				{
+					apiExpandEnvironmentStrings(Argv[I], DestNames[CntDestName]);
+					Unquote(DestNames[CntDestName]);
+					ConvertNameToFull(DestNames[CntDestName],DestNames[CntDestName]);
 
-				if (apiGetFileAttributes(DestNames[CntDestName]) != INVALID_FILE_ATTRIBUTES)
-					CntDestName++; //???
+					if (apiGetFileAttributes(DestNames[CntDestName]) != INVALID_FILE_ATTRIBUTES)
+						CntDestName++; //???
+				}
 			}
 		}
 	}

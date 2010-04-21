@@ -140,93 +140,85 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 @CmdLine
 $ # FAR: command line switches#
-    The following switches may be used in the command line:
+  The following switches may be used in the command line:
 
-  #/a#    Disable display of characters with codes 0 - 31
-        and 255.
-        May be useful when executing FAR under telnet.
+  #/a#
+  Disable display of characters with codes 0 - 31 and 255. May be useful when
+executing FAR under telnet.
 
-  #/ag#   Disable display of pseudo-graphic characters.
+  #/ag#
+  Disable display of pseudo-graphic characters.
 
   #/e[<line>[:<pos>]] <filename>#
-        Edit the specified file. After /e you may optionally
-        specify editor start line and line position.
+  Edit the specified file. After /e you may optionally specify editor start line
+and line position.
+  For example: far /e70:2 readme.
 
-        For example: far /e70:2 readme.
-
-  #/i#    Set small (16x16) icon for FAR console window.
-        In some configurations this switch may lead to
-        unstable work.
+  #/i#
+  Set small (16x16) icon for FAR console window. In some configurations this switch
+may lead to unstable work.
 
   #/p[<path>]#
-        Search for "main" plugins in the folder given in <path>.
-        Several search paths may be given separated by ';'.
+  Search for "main" plugins in the folder given in <path>.
+  Several search paths may be given separated by ';'.
 
-        Example: far /p%SystemRoot%\\Profiles\\%USERNAME%\\FAR
+  Example: far /p%SystemRoot%\\Profiles\\%USERNAME%\\FAR
 
-  #/co#   Forces FAR to load plugins from cache only.
-        Plugins are loaded faster this way, but new or changed
-        plugins are not discovered. Should be used ONLY with a
-        stable list of plugins. After adding, replacing or
-        deleting a plugin FAR should be loaded without this
-        switch. If the cache is empty, no plugins will be loaded.
+  #/co#
+  Forces FAR to load plugins from cache only. Plugins are loaded faster this way,
+but new or changed plugins are not discovered. Should be used ONLY with a stable
+list of plugins. After adding, replacing or deleting a plugin FAR should be loaded
+without this switch. If the cache is empty, no plugins will be loaded.
 
-        Remarks about switches /p and /co:
+  Remarks about switches /p and /co:
 
-        - if /p is empty, then FAR will be loaded with
-          no plugins;
-        - if /p is given with a <path>, then only plugins
-          from <path> will be loaded;
-        - if only the /co switch is given and plugins cache
-          is not empty, then plugins will be loaded from
-          cache;
-        - /co is ignored, if /p is given;
-        - if /p and /co are not given, then plugins will
-          be loaded from the main folder, and from the path
-          given at the "~Path for personal plugins~@SystemSettings@" parameter.
+  - ^<wrap>if /p is empty, then FAR will be loaded with no plugins;
+  - ^<wrap>if /p is given with a <path>, then only plugins from <path> will be loaded;
+  - ^<wrap>if only the /co switch is given and plugins cache is not empty, then plugins
+will be loaded from cache;
+  - ^<wrap>/co is ignored, if /p is given;
+  - ^<wrap>if /p and /co are not given, then plugins will be loaded from the main folder,
+and from the path given at the "~Path for personal plugins~@SystemSettings@" parameter.
 
-  #/rc#   Upon closing, allows to restore console window title
-        and size that were set before running FAR Manager.
+  #/rc#
+  Upon closing, allows to restore console window title and size that were set
+before running FAR Manager.
 
-  #/m#    FAR will not load macros from the registry when
-        started.
+  #/m#
+  FAR will not load macros from the registry when started.
 
-  #/ma#   Macros with the "Run after FAR start" option set
-        will not be run when FAR is started.
+  #/ma#
+  Macros with the "Run after FAR start" option set will not be run when FAR is started.
 
   #/u <username>#
-        Allows to have separate settings for different users.
+  Allows to have separate settings for different users.
+  For example: far /u guest
 
-        For example: far /u guest
-
-        FAR Manager will set the ~environment variable~@FAREnv@
-        "FARUSER" to the value <username>.
+  FAR Manager will set the ~environment variable~@FAREnv@ "FARUSER" to the value <username>.
 
   #/v <filename>#
-        View the specified file. If <filename> is `#-#', data
-        is read from the stdin.
+  View the specified file. If <filename> is `#-#', data is read from the stdin.
 
-        For example, "dir|far /v -" will view dir command output.
+  For example, "dir|far /v -" will view dir command output.
 
-        If the input stream is empty when using '-' (for example,
-        you have not specified the "dir" command in the provided
-        example), FAR will wait forever for the end of data in the
-        input stream. This will probably be fixed in a later
-        version of FAR.
+  If the input stream is empty when using '-' (for example, you have not specified
+the "dir" command in the provided example), FAR will wait forever for the end of data
+in the input stream. This will probably be fixed in a later version of FAR.
+
+  #/x#
+  Disable exception handling. This option has been designed for plugin developers,
+and it is not recommended to specify it during normal operation.
 
 
-  #/x#    Disable exception handling. This option has been designed
-        for plugin developers, and it is not recommended to specify
-        it during normal operation.
-
-    It is possible to specify at most two paths to folder, files or archives in
-the command line. The first path applies to the active panel, the second path -
-to the passive one:
-
-  - if a folder or archive is specified, FAR will show its contents
-
-  - if a file is specified, FAR will change to the folder where it
-    resides and place the cursor on the file, if it exists.
+  It is possible to specify at most two paths (to folders, files or archives) or
+two commands with plugin prefix in the command line. The first path applies to the
+active panel, the second path - to the passive one:
+  - ^<wrap>if a folder or archive is specified, FAR will show its contents;
+  - ^<wrap>if a file is specified, FAR will change to the folder where it 
+    resides and place the cursor on the file, if it exists;
+  - ^<wrap>when profixes specified (simultaneous use with common paths allowed)
+    passive command executes first (passive panel activates temporary).
+  Example: far ma:c:\\Far20.7z "macro:post MsgBox(\\"FAR Manager\\",\\"Successfully started\\")"
 
 
 @KeyRef

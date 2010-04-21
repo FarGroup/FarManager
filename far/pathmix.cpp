@@ -151,6 +151,32 @@ bool PathCanHoldRegularFile(const wchar_t *Path)
 	return true;
 }
 
+bool IsPluginPrefixPath(const wchar_t *Path) //Max:
+{
+	if (Path[0] == L'\\')
+		return false;
+
+	const wchar_t* pC = wcschr(Path, L':');
+
+	if (!pC)
+		return false;
+
+	if ((pC - Path) == 1)
+	{
+		wchar_t d = (Path[0] & ~0x20);
+
+		if (d >= L'C' && d <= 'Z')
+			return false; // буква диска, а не префикс
+	}
+
+	const wchar_t* pS = FirstSlash(Path);
+
+	if (pS && pS < pC)
+		return false;
+
+	return true;
+}
+
 bool TestParentFolderName(const wchar_t *Name)
 {
 	return Name[0] == L'.' && Name[1] == L'.' && (!Name[2] || (IsSlash(Name[2]) && !Name[3]));

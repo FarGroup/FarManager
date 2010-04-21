@@ -64,6 +64,7 @@ bool IsRootPath(const string &Path);
 bool HasPathPrefix(const wchar_t *Path);
 bool PathStartsWith(const string &Path, const string &Start);
 bool PathCanHoldRegularFile(const wchar_t *Path);
+bool IsPluginPrefixPath(const wchar_t *Path);
 
 bool CutToSlash(string &strStr, bool bInclude = false);
 string &CutToNameUNC(string &strPath);
