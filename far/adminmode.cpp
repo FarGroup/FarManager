@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "privilege.hpp"
 #include "fileowner.hpp"
 #include "imports.hpp"
+#include "TaskBar.hpp"
 
 #define PIPE_NAME L"\\\\.\\pipe\\FarPipe"
 
@@ -265,6 +266,7 @@ bool AdminMode::Initialize()
 		}
 		if(!Result)
 		{
+			TaskBar TB;
 			DisconnectNamedPipe(Pipe);
 			FormatString strParam;
 			strParam << L"/admin " << GetCurrentProcessId();
@@ -283,19 +285,22 @@ bool AdminMode::Initialize()
 				Process = info.hProcess;
 				OVERLAPPED Overlapped;
 				Overlapped.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-				ConnectNamedPipe(Pipe, &Overlapped);
-				if(WaitForSingleObject(Overlapped.hEvent, 5000) == WAIT_OBJECT_0)
+				if(Overlapped.hEvent)
 				{
-					DWORD NumberOfBytesTransferred;
-					if(GetOverlappedResult(Pipe, &Overlapped, &NumberOfBytesTransferred, FALSE))
+					ConnectNamedPipe(Pipe, &Overlapped);
+					if(WaitForSingleObject(Overlapped.hEvent, 5000) == WAIT_OBJECT_0)
 					{
-						if(ReadPipeInt(Pipe, PID))
+						DWORD NumberOfBytesTransferred;
+						if(GetOverlappedResult(Pipe, &Overlapped, &NumberOfBytesTransferred, FALSE))
 						{
-							Result = true;
+							if(ReadPipeInt(Pipe, PID))
+							{
+								Result = true;
+							}
 						}
 					}
+					CloseHandle(Overlapped.hEvent);
 				}
-				CloseHandle(Overlapped.hEvent);
 				if(!Result)
 				{
 					DWORD ExitCode = 0;
@@ -350,6 +355,8 @@ bool AdminMode::AdminApproveDlg(int Why, LPCWSTR Object)
 	{
 		Recurse = true;
 		GuardLastError error;
+
+		TaskBarPause TBP;
 		enum {DlgX=64,DlgY=11};
 		DialogDataEx AdminApproveDlgData[]=
 		{
@@ -365,7 +372,7 @@ bool AdminMode::AdminApproveDlg(int Why, LPCWSTR Object)
 		};
 		MakeDialogItemsEx(AdminApproveDlgData,AdminApproveDlg);
 		Dialog Dlg(AdminApproveDlg,countof(AdminApproveDlg),AdminApproveDlgProc);
-		//Dlg.SetHelp(L"AdminApproveDlg");
+		Dlg.SetHelp(L"AdminApproveDlg");
 		Dlg.SetPosition(-1,-1,DlgX,DlgY);
 		Dlg.Process();
 		Approve=(Dlg.GetExitCode()==AAD_BUTTON_OK);

@@ -5612,23 +5612,63 @@ MEditNewPlugin1
 "A szerkesztendő fájlnak nevet kell adni"
 "Nazwa pliku do edycji nie może być pusta"
 
-MEditDataLostWarn1
+MEditorLoadCPWarn1
 "Файл содержит символы, которые невозможно"
-"This file contains characters, which cannot be"
-"Tento soubor obsahuje znaky, které nemohou být"
-"Die Datei enthält Zeichen, welche mit der aktuellen Codepage"
-"A fájl olyan karaktereket tartalmaz, amelyek a"
-"Plik zawiera znaki, które nie mogą być"
+"File contains characters, which cannot be"
+upd:"File contains characters, which cannot be"
+upd:"File contains characters, which cannot be"
+upd:"File contains characters, which cannot be"
+upd:"File contains characters, which cannot be"
 
-MEditDataLostWarn2
-"корректно преобразовать в выбранную кодировку."
-"correctly translated using the selected codepage."
-"korektně přeloženy do zvoleného kódování."
-"nicht korrekt angezeigt werden können."
-"kiválasztott kódlappal nem értelmezhetők helyesen."
-"poprawnie zapisane w wybranej stronie kodowej."
+MEditorLoadCPWarn2
+"корректно прочитать, используя выбранную кодовую страницу."
+"correctly read using selected codepage."
+upd:"correctly read using selected codepage."
+upd:"correctly read using selected codepage."
+upd:"correctly read using selected codepage."
+upd:"correctly read using selected codepage."
 
-MEditDataLostWarn3
+MEditorSaveCPWarn1
+"Редактор содержит символы, которые невозможно"
+"Editor contains characters, which cannot be"
+upd:"Editor contains characters, which cannot be"
+upd:"Editor contains characters, which cannot be"
+upd:"Editor contains characters, which cannot be"
+upd:"Editor contains characters, which cannot be"
+
+MEditorSaveCPWarn2
+"корректно сохранить, используя выбранную кодовую страницу."
+"correctly saved using selected codepage."
+upd:"correctly saved using selected codepage."
+upd:"correctly saved using selected codepage."
+upd:"correctly saved using selected codepage."
+upd:"correctly saved using selected codepage."
+
+MEditorSwitchCPWarn1
+"Редактор содержит символы, которые невозможно"
+"Editor contains characters, which cannot be"
+upd:"Editor contains characters, which cannot be"
+upd:"Editor contains characters, which cannot be"
+upd:"Editor contains characters, which cannot be"
+upd:"Editor contains characters, which cannot be"
+
+MEditorSwitchCPWarn2
+"корректно преобразовать, используя выбранную кодовую страницу."
+"correctly translated using selected codepage."
+upd:"correctly translated using selected codepage."
+upd:"correctly translated using selected codepage."
+upd:"correctly translated using selected codepage."
+upd:"correctly translated using selected codepage."
+
+MEditDataLostWarn
+"Во время редактирования файла некоторые данные были утеряны."
+"During file editing some data was lost."
+upd:"During file editing some data was lost."
+upd:"During file editing some data was lost."
+upd:"During file editing some data was lost."
+upd:"During file editing some data was lost."
+
+MEditorSaveNotRecommended
 "Сохранять файл не рекомендуется."
 "It is not recommended to save this file."
 "Není doporučeno uložit tento soubor."
@@ -5636,7 +5676,7 @@ MEditDataLostWarn3
 "A fájl mentése nem ajánlott."
 "Odradzamy zapis pliku."
 
-MEditDataLostWarnShow
+MEditorSaveCPWarnShow
 "Показать"
 "Show"
 upd:"Show"

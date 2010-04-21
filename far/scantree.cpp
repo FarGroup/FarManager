@@ -104,8 +104,7 @@ bool ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
 
 		const wchar_t *FileName=fdata->strFileName;
 
-		if (Done || !(*FileName==L'.' && (!FileName[1] || (FileName[1]==L'.' && !FileName[2]))))
-			break;
+		break;
 	}
 
 	if (Done)

@@ -167,29 +167,33 @@ bool WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,DWOR
 
 					if (ObjectCreated)
 					{
-						BYTE szBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
-						PREPARSE_DATA_BUFFER rdb=reinterpret_cast<PREPARSE_DATA_BUFFER>(szBuff);
-						rdb->ReparseTag=IO_REPARSE_TAG_SYMLINK;
-						string strPrintName=Target,strSubstituteName=Target;
+						LPBYTE szBuff=new BYTE[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
+						if(szBuff)
+						{
+							PREPARSE_DATA_BUFFER rdb=reinterpret_cast<PREPARSE_DATA_BUFFER>(szBuff);
+							rdb->ReparseTag=IO_REPARSE_TAG_SYMLINK;
+							string strPrintName=Target,strSubstituteName=Target;
 
-						if (IsAbsolutePath(Target))
-						{
-							strSubstituteName=L"\\??\\";
-							strSubstituteName+=(strPrintName.CPtr()+(HasPathPrefix(strPrintName)?4:0));
-							rdb->SymbolicLinkReparseBuffer.Flags=0;
-						}
-						else
-						{
-							rdb->SymbolicLinkReparseBuffer.Flags=SYMLINK_FLAG_RELATIVE;
-						}
+							if (IsAbsolutePath(Target))
+							{
+								strSubstituteName=L"\\??\\";
+								strSubstituteName+=(strPrintName.CPtr()+(HasPathPrefix(strPrintName)?4:0));
+								rdb->SymbolicLinkReparseBuffer.Flags=0;
+							}
+							else
+							{
+								rdb->SymbolicLinkReparseBuffer.Flags=SYMLINK_FLAG_RELATIVE;
+							}
 
-						if (FillREPARSE_DATA_BUFFER(rdb,strPrintName,strPrintName.GetLength(),strSubstituteName,strSubstituteName.GetLength()))
-						{
-							Result=SetREPARSE_DATA_BUFFER(Object,rdb);
-						}
-						else
-						{
-							SetLastError(ERROR_INSUFFICIENT_BUFFER);
+							if (FillREPARSE_DATA_BUFFER(rdb,strPrintName,strPrintName.GetLength(),strSubstituteName,strSubstituteName.GetLength()))
+							{
+								Result=SetREPARSE_DATA_BUFFER(Object,rdb);
+							}
+							else
+							{
+								SetLastError(ERROR_INSUFFICIENT_BUFFER);
+							}
+							delete[] szBuff;
 						}
 					}
 				}
@@ -264,51 +268,54 @@ bool GetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
 
 DWORD WINAPI GetReparsePointInfo(const wchar_t *Object, string &strDestBuff,LPDWORD lpReparseTag)
 {
-	BYTE szBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
-	PREPARSE_DATA_BUFFER rdb = reinterpret_cast<PREPARSE_DATA_BUFFER>(szBuff);
 	WORD NameLength=0;
-
-	if (GetREPARSE_DATA_BUFFER(Object,rdb))
+	LPBYTE szBuff=new BYTE[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
+	if(szBuff)
 	{
-		const wchar_t *PathBuffer;
+		PREPARSE_DATA_BUFFER rdb = reinterpret_cast<PREPARSE_DATA_BUFFER>(szBuff);
 
-		if (lpReparseTag)
-			*lpReparseTag=rdb->ReparseTag;
-
-		if (rdb->ReparseTag == IO_REPARSE_TAG_SYMLINK)
+		if (GetREPARSE_DATA_BUFFER(Object,rdb))
 		{
-			NameLength = rdb->SymbolicLinkReparseBuffer.PrintNameLength/sizeof(wchar_t);
+			const wchar_t *PathBuffer;
 
-			if (NameLength)
+			if (lpReparseTag)
+				*lpReparseTag=rdb->ReparseTag;
+
+			if (rdb->ReparseTag == IO_REPARSE_TAG_SYMLINK)
 			{
-				PathBuffer = &rdb->SymbolicLinkReparseBuffer.PathBuffer[rdb->SymbolicLinkReparseBuffer.PrintNameOffset/sizeof(wchar_t)];
+				NameLength = rdb->SymbolicLinkReparseBuffer.PrintNameLength/sizeof(wchar_t);
+
+				if (NameLength)
+				{
+					PathBuffer = &rdb->SymbolicLinkReparseBuffer.PathBuffer[rdb->SymbolicLinkReparseBuffer.PrintNameOffset/sizeof(wchar_t)];
+				}
+				else
+				{
+					NameLength = rdb->SymbolicLinkReparseBuffer.SubstituteNameLength/sizeof(wchar_t);
+					PathBuffer = &rdb->SymbolicLinkReparseBuffer.PathBuffer[rdb->SymbolicLinkReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)];
+				}
 			}
 			else
 			{
-				NameLength = rdb->SymbolicLinkReparseBuffer.SubstituteNameLength/sizeof(wchar_t);
-				PathBuffer = &rdb->SymbolicLinkReparseBuffer.PathBuffer[rdb->SymbolicLinkReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)];
-			}
-		}
-		else
-		{
-			NameLength = rdb->MountPointReparseBuffer.PrintNameLength/sizeof(wchar_t);
+				NameLength = rdb->MountPointReparseBuffer.PrintNameLength/sizeof(wchar_t);
 
-			if (NameLength)
-			{
-				PathBuffer = &rdb->MountPointReparseBuffer.PathBuffer[rdb->MountPointReparseBuffer.PrintNameOffset/sizeof(wchar_t)];
+				if (NameLength)
+				{
+					PathBuffer = &rdb->MountPointReparseBuffer.PathBuffer[rdb->MountPointReparseBuffer.PrintNameOffset/sizeof(wchar_t)];
+				}
+				else
+				{
+					NameLength = rdb->MountPointReparseBuffer.SubstituteNameLength/sizeof(wchar_t);
+					PathBuffer = &rdb->MountPointReparseBuffer.PathBuffer[rdb->MountPointReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)];
+				}
 			}
-			else
-			{
-				NameLength = rdb->MountPointReparseBuffer.SubstituteNameLength/sizeof(wchar_t);
-				PathBuffer = &rdb->MountPointReparseBuffer.PathBuffer[rdb->MountPointReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)];
-			}
-		}
 
-		wchar_t *lpwszDestBuff=strDestBuff.GetBuffer(NameLength+1);
-		wcsncpy(lpwszDestBuff,PathBuffer,NameLength);
-		strDestBuff.ReleaseBuffer(NameLength);
+			wchar_t *lpwszDestBuff=strDestBuff.GetBuffer(NameLength+1);
+			wcsncpy(lpwszDestBuff,PathBuffer,NameLength);
+			strDestBuff.ReleaseBuffer(NameLength);
+		}
+		delete[] szBuff;
 	}
-
 	return NameLength;
 }
 
@@ -412,68 +419,73 @@ void GetPathRoot(const wchar_t *Path, string &strRoot)
 bool ModifyReparsePoint(const wchar_t *Object,const wchar_t *NewData)
 {
 	bool Result=false;
-	BYTE szBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
-	PREPARSE_DATA_BUFFER rdb=reinterpret_cast<PREPARSE_DATA_BUFFER>(szBuff);
-
-	if (GetREPARSE_DATA_BUFFER(Object,rdb))
+	LPBYTE szBuff=new BYTE[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
+	if(szBuff)
 	{
-		bool FillResult=false;
+		PREPARSE_DATA_BUFFER rdb=reinterpret_cast<PREPARSE_DATA_BUFFER>(szBuff);
 
-		switch (rdb->ReparseTag)
+		if (GetREPARSE_DATA_BUFFER(Object,rdb))
 		{
-			case IO_REPARSE_TAG_MOUNT_POINT:
-			{
-				string strPrintName,strSubstituteName;
-				ConvertNameToFull(NewData,strPrintName);
-				strSubstituteName=L"\\??\\";
-				strSubstituteName+=(strPrintName.CPtr()+(HasPathPrefix(strPrintName)?4:0));
-				FillResult=FillREPARSE_DATA_BUFFER(rdb,strPrintName,strPrintName.GetLength(),strSubstituteName,strSubstituteName.GetLength());
-			}
-			break;
-			case IO_REPARSE_TAG_SYMLINK:
-			{
-				string strPrintName=NewData,strSubstituteName=NewData;
+			bool FillResult=false;
 
-				if (IsAbsolutePath(NewData))
+			switch (rdb->ReparseTag)
+			{
+				case IO_REPARSE_TAG_MOUNT_POINT:
 				{
+					string strPrintName,strSubstituteName;
+					ConvertNameToFull(NewData,strPrintName);
 					strSubstituteName=L"\\??\\";
 					strSubstituteName+=(strPrintName.CPtr()+(HasPathPrefix(strPrintName)?4:0));
-					rdb->SymbolicLinkReparseBuffer.Flags=0;
+					FillResult=FillREPARSE_DATA_BUFFER(rdb,strPrintName,strPrintName.GetLength(),strSubstituteName,strSubstituteName.GetLength());
 				}
-				else
+				break;
+				case IO_REPARSE_TAG_SYMLINK:
 				{
-					rdb->SymbolicLinkReparseBuffer.Flags=SYMLINK_FLAG_RELATIVE;
+					string strPrintName=NewData,strSubstituteName=NewData;
+
+					if (IsAbsolutePath(NewData))
+					{
+						strSubstituteName=L"\\??\\";
+						strSubstituteName+=(strPrintName.CPtr()+(HasPathPrefix(strPrintName)?4:0));
+						rdb->SymbolicLinkReparseBuffer.Flags=0;
+					}
+					else
+					{
+						rdb->SymbolicLinkReparseBuffer.Flags=SYMLINK_FLAG_RELATIVE;
+					}
+
+					FillResult=FillREPARSE_DATA_BUFFER(rdb,strPrintName,strPrintName.GetLength(),strSubstituteName,strSubstituteName.GetLength());
 				}
-
-				FillResult=FillREPARSE_DATA_BUFFER(rdb,strPrintName,strPrintName.GetLength(),strSubstituteName,strSubstituteName.GetLength());
+				break;
 			}
-			break;
-		}
 
-		if (FillResult)
-		{
-			Result=SetREPARSE_DATA_BUFFER(Object,rdb);
+			if (FillResult)
+			{
+				Result=SetREPARSE_DATA_BUFFER(Object,rdb);
+			}
+			else
+			{
+				SetLastError(ERROR_INSUFFICIENT_BUFFER);
+			}
 		}
-		else
-		{
-			SetLastError(ERROR_INSUFFICIENT_BUFFER);
-		}
+		delete[] szBuff;
 	}
-
 	return Result;
 }
 
 bool DuplicateReparsePoint(const wchar_t *Src,const wchar_t *Dst)
 {
 	bool Result=false;
-	BYTE szBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
-	PREPARSE_DATA_BUFFER rdb=reinterpret_cast<PREPARSE_DATA_BUFFER>(szBuff);
-
-	if (GetREPARSE_DATA_BUFFER(Src,rdb) && SetREPARSE_DATA_BUFFER(Dst,rdb))
+	LPBYTE szBuff=new BYTE[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
+	if(szBuff)
 	{
-		Result=true;
+		PREPARSE_DATA_BUFFER rdb=reinterpret_cast<PREPARSE_DATA_BUFFER>(szBuff);
+		if (GetREPARSE_DATA_BUFFER(Src,rdb) && SetREPARSE_DATA_BUFFER(Dst,rdb))
+		{
+			Result=true;
+		}
+		delete[] szBuff;
 	}
-
 	return Result;
 }
 

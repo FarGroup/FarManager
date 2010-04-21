@@ -114,6 +114,8 @@ class FileEditor : public Frame
 
 		bool m_bAddSignature;
 
+		bool BadConversion;
+
 		UINT m_codepage; //BUGBUG
 
 	private:

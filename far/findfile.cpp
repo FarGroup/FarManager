@@ -1068,30 +1068,13 @@ int LookForString(const wchar_t *Name)
 
 	// Результат поиска
 	BOOL result = FALSE;
-	// Время последнего доступа к файлу (нужно для его восстановления после поиска)
-	FILETIME lastAccessTime;
-	// Признак того, что время доуступа к файлу было получено
-	BOOL isTimeReaded = FALSE;
 
-	// Если файл не удалось открыть изначальным способом, то пытаемся получить к нему
-	// доступ только на чтение, иначе получаем запоминаем последнего доступа к файлу
 	File file;
 	// Открываем файл
-	bool Opened = file.Open(Name, FILE_READ_ATTRIBUTES|FILE_READ_DATA|FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
-	if (!Opened)
+	if(!file.Open(Name, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 	{
-		// Открыаем файл только на чтение
-		Opened = file.Open(Name, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
+		return FALSE;
 	}
-	else
-	{
-		// Запоминаем время последнего доуступа к файлу
-		isTimeReaded = file.GetTime(nullptr, &lastAccessTime, nullptr);
-	}
-	// Если файл открыть не удалось, то считаем, что ничего не нашли
-	if (!Opened)
-		return (FALSE);
-
 	// Количество считанных из файла байт
 	DWORD readBlockSize = 0;
 	// Количество прочитанных из файла байт
@@ -1325,11 +1308,6 @@ int LookForString(const wchar_t *Name)
 	}
 
 exit:
-
-	// Восстаналиваем время доступа
-	if (isTimeReaded)
-		file.SetTime(nullptr, &lastAccessTime, nullptr);
-
 	// Закрываем хэндл файла
 	file.Close();
 	// Возвращаем результат

@@ -128,24 +128,9 @@ int TestFolder(const wchar_t *Path)
 	FindFile Find(strFindPath);
 
 	bool bFind = false;
-	while (Find.Get(fdata))
+	if(Find.Get(fdata))
 	{
-		// ќк. „то-то есть. ѕопробуем ответить на вопрос "путой каталог?"
-		bFind = true;
-		if (fdata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY && fdata.strFileName.At(0) == L'.'
-			// хитрый способ - у виртуальных папок не бывает SFN, в отличие от.
-			&& fdata.strAlternateFileName.IsEmpty())
-		{
-			if ((fdata.strFileName.At(1) == L'.' && fdata.strFileName.At(2) == 0) || (fdata.strFileName.At(1) == 0))
-			{
-				continue;
-			}
-		}
-		else
-		{
-			// что-то есть, отличное от "." и ".." - каталог не пуст
-			return TSTFLD_NOTEMPTY;
-		}
+		return TSTFLD_NOTEMPTY;
 	}
 
 	if (!bFind)

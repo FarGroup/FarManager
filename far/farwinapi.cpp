@@ -97,6 +97,15 @@ bool FindFile::Get(FAR_FIND_DATA_EX& FindData)
 	{
 		empty = admin?!Admin.fFindNextFile(Handle, &W32FindData):!FindNextFile(Handle, &W32FindData);
 	}
+
+	// skip ".." & "."
+	if(Result && FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY && FindData.strFileName.At(0) == L'.' &&
+		// хитрый способ - у виртуальных папок не бывает SFN, в отличие от.
+		FindData.strAlternateFileName.IsEmpty() &&
+		((FindData.strFileName.At(1) == L'.' && FindData.strFileName.At(2) == 0) || (FindData.strFileName.At(1) == 0)))
+	{
+		Result = Get(FindData);
+	}
 	return Result;
 }
 
@@ -393,8 +402,12 @@ BOOL apiSetCurrentDirectory(LPCWSTR lpPathName, bool Validate)
 		AddEndSlash(strDir);
 		strDir+=L"*";
 		FAR_FIND_DATA_EX fd;
-		if (!apiGetFindDataEx(strDir, fd) && GetLastError()!=ERROR_FILE_NOT_FOUND) // root dir on empty disk
-			return FALSE;
+		if (!apiGetFindDataEx(strDir, fd))
+		{
+			DWORD LastError = GetLastError();
+			if(!(LastError == ERROR_FILE_NOT_FOUND || LastError == ERROR_NO_MORE_FILES))
+				return FALSE;
+		}
 	}
 
 	strCurrentDirectory()=strDir;
@@ -919,7 +932,7 @@ BOOL apiFindNextStream(HANDLE hFindStream,LPVOID lpFindStreamData)
 				PWIN32_FIND_STREAM_DATA pFsd=reinterpret_cast<PWIN32_FIND_STREAM_DATA>(lpFindStreamData);
 				*reinterpret_cast<PLONG>(hFindStream)=pStreamInfo->NextEntryOffset?NextEntryOffset+pStreamInfo->NextEntryOffset:0;
 
-				if (pStreamInfo->StreamNameLength)
+				if (pStreamInfo->StreamNameLength && pStreamInfo->StreamNameLength < sizeof(pFsd->cStreamName))
 				{
 					memcpy(pFsd->cStreamName,pStreamInfo->StreamName,pStreamInfo->StreamNameLength);
 					pFsd->cStreamName[pStreamInfo->StreamNameLength/sizeof(WCHAR)]=L'\0';

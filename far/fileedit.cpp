@@ -310,15 +310,8 @@ bool dlgSaveFileAs(string &strFileName, int &TextFormat, UINT &codepage,bool &Ad
 
 const FileEditor *FileEditor::CurrentEditor = nullptr;
 
-FileEditor::FileEditor(
-    const wchar_t *Name,
-    UINT codepage,
-    DWORD InitFlags,
-    int StartLine,
-    int StartChar,
-    const wchar_t *PluginData,
-    int OpenModeExstFile
-)
+FileEditor::FileEditor(const wchar_t *Name, UINT codepage, DWORD InitFlags, int StartLine, int StartChar, const wchar_t *PluginData, int OpenModeExstFile):
+	BadConversion(false)
 {
 	ScreenObject::SetPosition(0,0,ScrX,ScrY);
 	Flags.Set(InitFlags);
@@ -1590,8 +1583,11 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 		}
 	}
 
-	if (!GetStr.IsConversionValid())
-		Message(MSG_WARNING,1,MSG(MWarning),MSG(MEditDataLostWarn1),MSG(MEditDataLostWarn2),MSG(MEditDataLostWarn3),MSG(MOk));
+	BadConversion = !GetStr.IsConversionValid();
+	if (BadConversion)
+	{
+		Message(MSG_WARNING,1,MSG(MWarning),MSG(MEditorLoadCPWarn1),MSG(MEditorLoadCPWarn2),MSG(MEditorSaveNotRecommended),MSG(MOk));
+	}
 
 	if (LastLineCR||!m_editor->NumLastLine)
 		m_editor->InsertString(L"", 0);
@@ -1609,6 +1605,18 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 
 int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextFormat, UINT codepage, bool AddSignature)
 {
+	if (BadConversion)
+	{
+		if(Message(MSG_WARNING,2,MSG(MWarning),MSG(MEditDataLostWarn),MSG(MEditorSaveNotRecommended),MSG(MOk),MSG(MCancel)))
+		{
+			return SAVEFILE_CANCEL;
+		}
+		else
+		{
+			BadConversion = false;
+		}
+	}
+
 	if (!bSaveAs)
 	{
 		TextFormat=0;
@@ -1763,7 +1771,6 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
 		if (!IsUnicodeOrUtfCodePage(codepage))
 		{
-			bool UnicodeLostAgree=false;
 			int LineNumber=0;
 			for (Edit *CurPtr=m_editor->TopList; CurPtr; CurPtr=CurPtr->m_next,LineNumber++)
 			{
@@ -1781,13 +1788,13 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
 				WideCharToMultiByte(codepage,WC_NO_BEST_FIT_CHARS,EndSeq,StrLength(EndSeq),nullptr,0,nullptr,&UsedDefaultCharEOL);
 
-				if (!UnicodeLostAgree && (UsedDefaultCharStr||UsedDefaultCharEOL))
+				if (!BadConversion && (UsedDefaultCharStr||UsedDefaultCharEOL))
 				{
 					//SetMessageHelp(L"EditorDataLostWarning")
-					int Result=Message(MSG_WARNING,3,MSG(MWarning),MSG(MEditDataLostWarn1),MSG(MEditDataLostWarn2),MSG(MOk),MSG(MEditDataLostWarnShow),MSG(MCancel));
+					int Result=Message(MSG_WARNING,3,MSG(MWarning),MSG(MEditorSaveCPWarn1),MSG(MEditorSaveCPWarn2),MSG(MEditorSaveNotRecommended),MSG(MOk),MSG(MEditorSaveCPWarnShow),MSG(MCancel));
 					if (Result==0)
 					{
-						UnicodeLostAgree=true;
+						BadConversion=true;
 						break;
 					}
 					else
@@ -2782,7 +2789,10 @@ void FileEditor::SetCodePage(UINT codepage)
 		if (m_editor)
 		{
 			if (!m_editor->SetCodePage(m_codepage))
-				Message(MSG_WARNING,1,MSG(MWarning),MSG(MEditDataLostWarn1),MSG(MEditDataLostWarn2),MSG(MEditDataLostWarn3),MSG(MOk));
+			{
+				Message(MSG_WARNING,1,MSG(MWarning),MSG(MEditorSwitchCPWarn1),MSG(MEditorSwitchCPWarn2),MSG(MEditorSaveNotRecommended),MSG(MOk));
+				BadConversion = true;
+			}
 
 			ChangeEditKeyBar(); //???
 		}

@@ -2609,7 +2609,10 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 							}
 
 							FarControl(hPlugin,FCTL_GETPANELITEM,i,(LONG_PTR)PPI);
-							ConvertPanelItemToAnsi(*PPI,OldPI->PanelItems[i]);
+							if(PPI)
+							{
+								ConvertPanelItemToAnsi(*PPI,OldPI->PanelItems[i]);
+							}
 						}
 
 						if (PPI)
@@ -2644,7 +2647,10 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 							}
 
 							FarControl(hPlugin,FCTL_GETSELECTEDPANELITEM,i,(LONG_PTR)PPI);
-							ConvertPanelItemToAnsi(*PPI,OldPI->SelectedItems[i]);
+							if(PPI)
+							{
+								ConvertPanelItemToAnsi(*PPI,OldPI->SelectedItems[i]);
+							}
 						}
 
 						if (PPI)

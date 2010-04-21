@@ -3150,8 +3150,6 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 											SetLeftPos(0);
 										Select(SelStart, GetLength());
 									}
-
-									MenuItemEx EmptyItem={0};
 									ComplMenu.AddItem(&EmptyItem,0);
 									SetMenuPos(ComplMenu);
 									ComplMenu.SetSelectPos(0,0);

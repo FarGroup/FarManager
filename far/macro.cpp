@@ -2740,7 +2740,7 @@ static bool clipFunc()
 		case 3: // Copy Win to internal, "S" - ignore
 		case 4: // Copy internal to Win, "S" - ignore
 		{
-			bool OldUseInternalClipboard=SetUseInternalClipboardState(cmdType-3?true:false);
+			bool OldUseInternalClipboard=SetUseInternalClipboardState((cmdType-3)?true:false);
 			TVar varClip(L"");
 			wchar_t *ClipText=PasteFromClipboard();
 

@@ -145,19 +145,26 @@ void ShellMakeDir(Panel *SrcPanel)
 			lpwszDirName = strDirName.GetBuffer();
 			bool bSuccess = false;
 
+			if(HasPathPrefix(lpwszDirName))
+			{
+				lpwszDirName += 4;
+			}
 			for (wchar_t *ChPtr=lpwszDirName; *ChPtr!=0; ChPtr++)
 			{
 				if (IsSlash(*ChPtr))
 				{
-					*ChPtr=0;
+					WCHAR Ch = ChPtr[1];
+					ChPtr[1] = 0;
 
-					if (*lpwszDirName && apiCreateDirectory(lpwszDirName,nullptr))
+					if (*lpwszDirName &&
+						(apiGetFileAttributes(lpwszDirName) == INVALID_FILE_ATTRIBUTES) &&
+						apiCreateDirectory(lpwszDirName,nullptr))
 					{
 						TreeList::AddTreeName(lpwszDirName);
 						bSuccess = true;
 					}
 
-					*ChPtr=L'\\';
+					ChPtr[1] = Ch;
 				}
 			}
 

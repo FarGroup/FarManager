@@ -360,16 +360,16 @@ string TryConvertVolumeGuidToDrivePath(const string& Path)
 
 				while (*PathName)
 				{
-					string Path(PathName);
+					string strPath(PathName);
 
-					if (IsRootPath(Path))
+					if (IsRootPath(strPath))
 					{
-						DeleteEndSlash(Path);
-						Result.Replace(0, cVolumeGuidLen, Path);
+						DeleteEndSlash(strPath);
+						Result.Replace(0, cVolumeGuidLen, strPath);
 						break;
 					}
 
-					PathName += Path.GetLength() + 1;
+					PathName += strPath.GetLength() + 1;
 				}
 			}
 		}

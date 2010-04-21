@@ -257,40 +257,16 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	//Рефреш текущему времени для фильтра перед началом операции
 	Filter->UpdateCurrentTime();
 	CtrlObject->HiFiles->UpdateCurrentTime();
-	bool bTwoDotsSeen=false;
 	bool bCurDirRoot=IsLocalRootPath(strCurDir)||IsLocalPrefixRootPath(strCurDir)||IsLocalVolumeRootPath(strCurDir);
-	FILETIME TwoDotsTimes[3]={0};
-	string TwoDotsOwner;
 
 	FileCount = 0;
 	//BUGBUG!!! // что это?
 	::FindFile Find(L"*");
 	DWORD FindErrorCode = ERROR_SUCCESS;
+
 	while(Find.Get(fdata))
 	{
 		FindErrorCode = GetLastError();
-		if (fdata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY && fdata.strFileName.At(0) == L'.'
-		// хитрый способ - у виртуальных папок не бывает SFN, в отличие от.
-		&& fdata.strAlternateFileName.IsEmpty())
-		{
-			if ((fdata.strFileName.At(1) == L'.' && fdata.strFileName.At(2) == 0) || (fdata.strFileName.At(1) == 0))
-			{
-				if (fdata.strFileName.At(1) != 0 && !bCurDirRoot && !bTwoDotsSeen)
-				{
-					bTwoDotsSeen=true;
-					TwoDotsTimes[0]=fdata.ftCreationTime;
-					TwoDotsTimes[1]=fdata.ftLastAccessTime;
-					TwoDotsTimes[2]=fdata.ftLastWriteTime;
-
-					if (ReadOwners)
-					{
-						GetFileOwner(strComputerName,strCurDir,TwoDotsOwner);
-					}
-				}
-
-				continue;
-			}
-		}
 
 		if ((Opt.ShowHidden || (fdata.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))==0) && Filter->FileInFilter(&fdata))
 		{
@@ -439,6 +415,21 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 		if (ListData!=nullptr)
 		{
 			ListData[FileCount] = new FileListItem;
+
+			string TwoDotsOwner;
+			if (ReadOwners)
+			{
+				GetFileOwner(strComputerName,strCurDir,TwoDotsOwner);
+			}
+
+			FILETIME TwoDotsTimes[3]={0};
+			if(apiGetFindDataEx(strCurDir,fdata))
+			{
+				TwoDotsTimes[0]=fdata.ftCreationTime;
+				TwoDotsTimes[1]=fdata.ftLastAccessTime;
+				TwoDotsTimes[2]=fdata.ftLastWriteTime;
+			}
+
 			AddParentPoint(ListData[FileCount],FileCount,TwoDotsTimes,TwoDotsOwner);
 
 			if (NeedHighlight)
