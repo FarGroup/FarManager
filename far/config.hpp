@@ -620,6 +620,8 @@ struct Options
 
 	bool IsUserAdmin;
 	string strTitleAddons;
+
+	DWORD ElevationMode;
 };
 
 extern Options Opt;

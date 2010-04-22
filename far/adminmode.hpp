@@ -34,6 +34,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "CriticalSections.hpp"
 
+enum ELEVATION_MODE
+{
+	ELEVATION_MODIFY_REQUEST=1,
+	ELEVATION_READ_REQUEST,
+};
+
 enum ADMIN_COMMAND
 {
 	C_SERVICE_EXIT,
@@ -126,6 +132,6 @@ private:
 
 extern AdminMode Admin;
 
-bool ElevationRequired();
+bool ElevationRequired(ELEVATION_MODE Mode);
 bool IsUserAdmin();
 int AdminMain(int PID);

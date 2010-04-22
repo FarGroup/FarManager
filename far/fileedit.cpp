@@ -1605,18 +1605,6 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 
 int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextFormat, UINT codepage, bool AddSignature)
 {
-	if (BadConversion)
-	{
-		if(Message(MSG_WARNING,2,MSG(MWarning),MSG(MEditDataLostWarn),MSG(MEditorSaveNotRecommended),MSG(MOk),MSG(MCancel)))
-		{
-			return SAVEFILE_CANCEL;
-		}
-		else
-		{
-			BadConversion = false;
-		}
-	}
-
 	if (!bSaveAs)
 	{
 		TextFormat=0;
@@ -1733,6 +1721,18 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
 			if (FAttr == INVALID_FILE_ATTRIBUTES)
 				return SAVEFILE_ERROR;
+		}
+	}
+
+	if (BadConversion)
+	{
+		if(Message(MSG_WARNING,2,MSG(MWarning),MSG(MEditDataLostWarn),MSG(MEditorSaveNotRecommended),MSG(MOk),MSG(MCancel)))
+		{
+			return SAVEFILE_CANCEL;
+		}
+		else
+		{
+			BadConversion = false;
 		}
 	}
 

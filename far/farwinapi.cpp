@@ -49,7 +49,7 @@ FindFile::FindFile(LPCWSTR Object, bool ScanSymLink):
 	string strName(NTPath(Object).Str);
 	Handle = FindFirstFile(strName, &W32FindData);
 
-	if (Handle == INVALID_HANDLE_VALUE && ElevationRequired())
+	if (Handle == INVALID_HANDLE_VALUE && ElevationRequired(ELEVATION_READ_REQUEST))
 	{
 		if(ScanSymLink)
 		{
@@ -59,7 +59,7 @@ FindFile::FindFile(LPCWSTR Object, bool ScanSymLink):
 			Handle = FindFirstFile(strReal, &W32FindData);
 		}
 
-		if (Handle == INVALID_HANDLE_VALUE && ElevationRequired())
+		if (Handle == INVALID_HANDLE_VALUE && ElevationRequired(ELEVATION_READ_REQUEST))
 		{
 			Handle = Admin.fFindFirstFile(strName, &W32FindData);
 			admin = Handle != INVALID_HANDLE_VALUE;
@@ -140,7 +140,7 @@ bool File::Open(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY
 			Handle = CreateFile(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
 		}
 	}
-	if(Handle == INVALID_HANDLE_VALUE && ElevationRequired())
+	if(Handle == INVALID_HANDLE_VALUE && ElevationRequired(DesiredAccess&(GENERIC_ALL|GENERIC_WRITE|STANDARD_RIGHTS_ALL|STANDARD_RIGHTS_WRITE|WRITE_OWNER|WRITE_DAC|DELETE|FILE_GENERIC_WRITE)?ELEVATION_MODIFY_REQUEST:ELEVATION_READ_REQUEST))
 	{
 		Handle = Admin.fCreateFile(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
 		if(Handle != INVALID_HANDLE_VALUE)
@@ -217,7 +217,7 @@ BOOL apiDeleteFile(const wchar_t *lpwszFileName)
 {
 	string strNtName(NTPath(lpwszFileName).Str);
 	BOOL Result = DeleteFile(strNtName);
-	if(!Result && ElevationRequired())
+	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
 		Result = Admin.fDeleteFile(strNtName);
 	}
@@ -228,7 +228,7 @@ BOOL apiRemoveDirectory(const wchar_t *DirName)
 {
 	string strNtName(NTPath(DirName).Str);
 	BOOL Result = RemoveDirectory(strNtName);
-	if(!Result && ElevationRequired())
+	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
 		Result = Admin.fRemoveDirectory(strNtName);
 	}
@@ -291,7 +291,7 @@ BOOL apiCopyFileEx(
 {
 	string strFrom(NTPath(lpwszExistingFileName).Str), strTo(NTPath(lpwszNewFileName).Str);
 	BOOL Result = CopyFileEx(strFrom, strTo, lpProgressRoutine, lpData, pbCancel, dwCopyFlags);
-	if(!Result && ElevationRequired())
+	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
 	{
 		Result = Admin.fCopyFileEx(strFrom, strTo, lpProgressRoutine, lpData, pbCancel, dwCopyFlags);
 	}
@@ -305,7 +305,7 @@ BOOL apiMoveFile(
 {
 	string strFrom(NTPath(lpwszExistingFileName).Str), strTo(NTPath(lpwszNewFileName).Str);
 	BOOL Result = MoveFile(strFrom, strTo);
-	if(!Result && ElevationRequired())
+	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
 	{
 		Result = Admin.fMoveFileEx(strFrom, strTo, 0);
 	}
@@ -320,7 +320,7 @@ BOOL apiMoveFileEx(
 {
 	string strFrom(NTPath(lpwszExistingFileName).Str), strTo(NTPath(lpwszNewFileName).Str);
 	BOOL Result = MoveFileEx(strFrom, strTo, dwFlags);
-	if(!Result && ElevationRequired())
+	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
 	{
 		Result = Admin.fMoveFileEx(strFrom, strTo, dwFlags);
 	}
@@ -770,7 +770,7 @@ BOOL apiCreateDirectory(LPCWSTR lpPathName,LPSECURITY_ATTRIBUTES lpSecurityAttri
 {
 	string strNtName(NTPath(lpPathName).Str);
 	BOOL Result = CreateDirectory(strNtName,lpSecurityAttributes);
-	if(!Result && ElevationRequired())
+	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
 		Result = Admin.fCreateDirectory(strNtName,lpSecurityAttributes);
 	}
@@ -781,7 +781,7 @@ DWORD apiGetFileAttributes(LPCWSTR lpFileName)
 {
 	string strNtName(NTPath(lpFileName).Str);
 	DWORD Result = GetFileAttributes(strNtName);
-	if(Result == INVALID_FILE_ATTRIBUTES && ElevationRequired())
+	if(Result == INVALID_FILE_ATTRIBUTES && ElevationRequired(ELEVATION_READ_REQUEST))
 	{
 		Result = Admin.fGetFileAttributes(strNtName);
 	}
@@ -792,7 +792,7 @@ BOOL apiSetFileAttributes(LPCWSTR lpFileName,DWORD dwFileAttributes)
 {
 	string strNtName(NTPath(lpFileName).Str);
 	BOOL Result = SetFileAttributes(strNtName, dwFileAttributes);
-	if(!Result && ElevationRequired())
+	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
 		Result = Admin.fSetFileAttributes(strNtName, dwFileAttributes);
 	}
@@ -814,7 +814,7 @@ BOOL apiCreateSymbolicLink(LPCWSTR lpSymlinkFileName,LPCWSTR lpTargetFileName,DW
 	Result=CreateSymbolicLinkInternal(strSymlinkFileName, lpTargetFileName, dwFlags);
 	if (!Result)
 	{
-		if(!Result && ElevationRequired())
+		if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 		{
 			Result=Admin.fCreateSymbolicLink(strSymlinkFileName, lpTargetFileName, dwFlags);
 		}
@@ -840,7 +840,7 @@ bool apiGetCompressedFileSize(LPCWSTR lpFileName,UINT64& Size)
 bool CreateHardLinkInternal(LPCWSTR Object,LPCWSTR Target,LPSECURITY_ATTRIBUTES SecurityAttributes)
 {
 	bool Result = CreateHardLink(Object, Target, SecurityAttributes) != FALSE;
-	if(!Result && ElevationRequired())
+	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
 		Result = Admin.fCreateHardLink(Object, Target, SecurityAttributes);
 	}

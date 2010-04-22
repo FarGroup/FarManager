@@ -867,7 +867,8 @@ bool MoveToRecycleBinInternal(LPCWSTR Object)
 	fop.fFlags=FOF_NOCONFIRMATION|FOF_SILENT|FOF_ALLOWUNDO;
 	DWORD Result=SHFileOperation(&fop);
 
-	if (Result == 0x78) // DE_ACCESSDENIEDSRC == ERROR_ACCESS_DENIED
+	if (Result == 0x78 // DE_ACCESSDENIEDSRC == ERROR_ACCESS_DENIED
+		&& Opt.ElevationMode&ELEVATION_MODIFY_REQUEST) // Achtung! ShellAPI doesn't set LastNtStatus, so don't use ElevationRequired() here.
 	{
 		Result = Admin.fMoveToRecycleBin(fop);
 	}

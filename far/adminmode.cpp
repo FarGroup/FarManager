@@ -1458,19 +1458,22 @@ bool AdminMode::fDeviceIoControl(HANDLE Handle, DWORD IoControlCode, LPVOID InBu
 	return Result;
 }
 
-bool ElevationRequired()
+bool ElevationRequired(ELEVATION_MODE Mode)
 {
 	bool Result = false;
-	if(ifn.pfnRtlGetLastNtStatus)
+	if(Opt.ElevationMode&Mode)
 	{
-		NTSTATUS LastNtStatus = GetLastNtStatus();
-		Result = LastNtStatus == STATUS_ACCESS_DENIED || LastNtStatus == STATUS_PRIVILEGE_NOT_HELD;
-	}
-	else
-	{
-		// RtlGetLastNtStatus not implemented in w2k.
-		DWORD LastWin32Error = GetLastError();
-		Result = LastWin32Error == ERROR_ACCESS_DENIED || LastWin32Error == ERROR_PRIVILEGE_NOT_HELD;
+		if(ifn.pfnRtlGetLastNtStatus)
+		{
+			NTSTATUS LastNtStatus = GetLastNtStatus();
+			Result = LastNtStatus == STATUS_ACCESS_DENIED || LastNtStatus == STATUS_PRIVILEGE_NOT_HELD;
+		}
+		else
+		{
+			// RtlGetLastNtStatus not implemented in w2k.
+			DWORD LastWin32Error = GetLastError();
+			Result = LastWin32Error == ERROR_ACCESS_DENIED || LastWin32Error == ERROR_PRIVILEGE_NOT_HELD;
+		}
 	}
 	return Result;
 }
