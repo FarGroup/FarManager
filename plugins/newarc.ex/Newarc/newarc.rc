@@ -10,7 +10,7 @@
 //
 
 /////////////////////////////////////////////////////////////////////////////
-#include "afxres.h"
+#include "windows.h"
 
 
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -34,7 +34,7 @@ END
 
 2 TEXTINCLUDE 
 BEGIN
-    "#include ""afxres.h""\r\n"
+    "#include ""windows.h""\r\n"
     "\0"
 END
 
