@@ -7,7 +7,7 @@ Temporary panel main plugin code
 
 #include "TmpPanel.hpp"
 
-TCHAR PluginRootKey[80];
+TCHAR *PluginRootKey;
 unsigned int CurrentCommonPanel;
 struct PluginStartupInfo Info;
 struct FarStandardFunctions FSF;
@@ -50,7 +50,9 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
   ::FSF=*Info->FSF;
   ::Info.FSF=&::FSF;
 
-  FSF.sprintf(PluginRootKey,_T("%s\\TmpPanel"),Info->RootKey);
+  PluginRootKey = (TCHAR *)malloc(lstrlen(Info->RootKey)*sizeof(TCHAR) + sizeof(_T("\\TmpPanel")));
+  lstrcpy(PluginRootKey,Info->RootKey);
+  lstrcat(PluginRootKey,_T("\\TmpPanel"));
   GetOptions();
   StartupOptFullScreenPanel=Opt.FullScreenPanel;
   StartupOptCommonPanel=Opt.CommonPanel;
@@ -585,6 +587,7 @@ void WINAPI EXP_NAME(ClosePlugin)(HANDLE hPlugin)
 
 void WINAPI EXP_NAME(ExitFAR)()
 {
+  free(PluginRootKey);
   for (int i=0;i<COMMONPANELSNUMBER;++i)
     FreePanelItems(CommonPanels[i].Items, CommonPanels[i].ItemsNumber);
 }

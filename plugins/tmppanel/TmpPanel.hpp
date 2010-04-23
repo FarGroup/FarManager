@@ -41,7 +41,7 @@ extern struct PluginStartupInfo Info;
 extern struct FarStandardFunctions FSF;
 
 extern int StartupOptFullScreenPanel,StartupOptCommonPanel,StartupOpenFrom;
-extern TCHAR PluginRootKey[80];
+extern TCHAR *PluginRootKey;
 
 const TCHAR *GetMsg(int MsgId);
 void InitDialogItems(const MyInitDialogItem *Init,struct FarDialogItem *Item,int ItemsNumber);
