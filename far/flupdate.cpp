@@ -127,7 +127,7 @@ static void PR_ReadFileNamesMsg()
 void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessage)
 {
 	TPreRedrawFuncGuard preRedrawFuncGuard(PR_ReadFileNamesMsg);
-	TaskBar TB;
+	TaskBar TB(false);
 
 	strOriginalCurDir=strCurDir;
 

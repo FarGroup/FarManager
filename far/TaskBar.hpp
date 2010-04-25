@@ -51,8 +51,10 @@ extern TaskBarCore TBC;
 class TaskBar
 {
 	public:
-		TaskBar();
+		TaskBar(bool EndFlash=true);
 		~TaskBar();
+	private:
+		bool EndFlash;
 };
 
 class TaskBarPause

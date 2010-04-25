@@ -111,17 +111,25 @@ void TaskBarCore::Flash()
 
 
 
-TaskBar::TaskBar()
+TaskBar::TaskBar(bool EndFlash):
+	EndFlash(EndFlash)
 {
 	if (TBC.GetProgressState()!=TBPF_INDETERMINATE)
+	{
 		TBC.SetProgressState(TBPF_INDETERMINATE);
+	}
 }
 
 TaskBar::~TaskBar()
 {
 	if (TBC.GetProgressState()!=TBPF_NOPROGRESS)
+	{
 		TBC.SetProgressState(TBPF_NOPROGRESS);
-	TBC.Flash();
+	}
+	if(EndFlash)
+	{
+		TBC.Flash();
+	}
 }
 
 
