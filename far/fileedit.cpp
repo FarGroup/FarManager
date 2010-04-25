@@ -1045,7 +1045,6 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 							return FALSE;
 
 						apiExpandEnvironmentStrings(strSaveAsName, strSaveAsName);
-						RemoveTrailingSpaces(strSaveAsName);
 						Unquote(strSaveAsName);
 						NameChanged=StrCmpI(strSaveAsName, (Flags.Check(FFILEEDIT_SAVETOSAVEAS)?strFullFileName:strFileName))!=0;
 

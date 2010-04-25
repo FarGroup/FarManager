@@ -1492,7 +1492,6 @@ int FileList::ProcessKey(int Key)
 						if (!strLastFileName.IsEmpty())
 						{
 							strFileName = strLastFileName;
-							RemoveTrailingSpaces(strFileName);
 							Unquote(strFileName);
 							ConvertNameToShort(strFileName,strShortFileName);
 
