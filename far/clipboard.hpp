@@ -36,15 +36,43 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern const wchar_t FAR_VerticalBlock[];
 extern const wchar_t FAR_VerticalBlock_Unicode[];
 
-//Sets UseInternalClipboard to State, and returns previous state
-bool SetUseInternalClipboardState(bool State);
-bool GetUseInternalClipboardState();
-
 wchar_t* PasteFormatFromClipboard(const wchar_t *Format);
-int CopyFormatToClipboard(const wchar_t *Format,const wchar_t *Data);
-wchar_t* PasteFormatFromClipboard(const wchar_t *Format);
+int CopyFormatToClipboard(const wchar_t *Format, const wchar_t *Data);
 int WINAPI CopyToClipboard(const wchar_t *Data);
 wchar_t* WINAPI PasteFromClipboard();
 wchar_t* PasteFromClipboardEx(int max);
-
 BOOL EmptyInternalClipboard();
+
+class Clipboard
+{
+	static HGLOBAL hInternalClipboard[5];
+	static UINT    uInternalClipboardFormat[5];
+
+	static bool UseInternalClipboard;
+	static bool InternalClipboardOpen;
+
+public:
+
+	static bool SetUseInternalClipboardState(bool State); //Sets UseInternalClipboard to State, and returns previous state
+	static bool GetUseInternalClipboardState();
+
+	Clipboard() {}
+	~Clipboard() {}
+
+	BOOL Open();
+	BOOL Close();
+	BOOL Empty();
+	bool Copy(const wchar_t *Data);
+	bool CopyFormat(const wchar_t *Format, const wchar_t *Data);
+	wchar_t *Paste();
+	wchar_t *PasteEx(int max);
+	wchar_t *PasteFormat(const wchar_t *Format);
+
+private:
+
+	UINT RegisterFormat(LPCWSTR lpszFormat);
+	BOOL IsFormatAvailable(UINT Format);
+	//UINT EnumFormats(UINT uFormat);
+	HANDLE GetData(UINT uFormat);
+	HANDLE SetData(UINT uFormat, HANDLE hMem);
+};

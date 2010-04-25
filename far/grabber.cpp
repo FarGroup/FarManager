@@ -165,35 +165,42 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
 		PtrCopyBuf=CopyBuf+StrLength(CopyBuf);
 	}
 
-	if (Append)
+	Clipboard clip;
+
+	if (clip.Open())
 	{
-		wchar_t *AppendBuf=PasteFromClipboard();
-		int add=0;
-
-		if (AppendBuf!=nullptr)
+		if (Append)
 		{
-			size_t DataSize=StrLength(AppendBuf);
+			wchar_t *AppendBuf=clip.Paste();
+			int add=0;
 
-			if (AppendBuf[DataSize-1]!=L'\n')
+			if (AppendBuf!=nullptr)
 			{
-				add=2;
+				size_t DataSize=StrLength(AppendBuf);
+
+				if (AppendBuf[DataSize-1]!=L'\n')
+				{
+					add=2;
+				}
+
+				AppendBuf=(wchar_t *)xf_realloc(AppendBuf,(DataSize+BufSize+add)*sizeof(wchar_t));
+				wmemcpy(AppendBuf+DataSize+add,CopyBuf,BufSize);
+
+				if (add)
+					wmemcpy(AppendBuf+DataSize,L"\r\n",2);
+
+				xf_free(CopyBuf);
+				CopyBuf=AppendBuf;
 			}
-
-			AppendBuf=(wchar_t *)xf_realloc(AppendBuf,(DataSize+BufSize+add)*sizeof(wchar_t));
-			wmemcpy(AppendBuf+DataSize+add,CopyBuf,BufSize);
-
-			if (add)
-				wmemcpy(AppendBuf+DataSize,L"\r\n",2);
-
-			xf_free(CopyBuf);
-			CopyBuf=AppendBuf;
 		}
-	}
 
-	if (VerticalBlock)
-		CopyFormatToClipboard(FAR_VerticalBlock_Unicode,CopyBuf);
-	else
-		CopyToClipboard(CopyBuf);
+		if (VerticalBlock)
+			clip.CopyFormat(FAR_VerticalBlock_Unicode,CopyBuf);
+		else
+			clip.Copy(CopyBuf);
+
+		clip.Close();
+	}
 
 	if (CopyBuf)
 		xf_free(CopyBuf);

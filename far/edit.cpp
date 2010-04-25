@@ -1387,7 +1387,9 @@ int Edit::ProcessKey(int Key)
 						delete[] ShortStr;
 					}
 					else
+					{
 						CopyToClipboard(Str);
+					}
 				}
 				else if (SelEnd<=StrSize) // TODO: если в начало условия добавить "StrSize &&", то пропадет баг "Ctrl-Ins в пустой строке очищает клипборд"
 				{

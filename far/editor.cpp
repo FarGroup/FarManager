@@ -1490,7 +1490,7 @@ int Editor::ProcessKey(int Key)
 				int SelStart,SelEnd;
 				CurLine->GetSelection(SelStart,SelEnd);
 				Pasting++;
-				bool OldUseInternalClipboard=SetUseInternalClipboardState(true);
+				bool OldUseInternalClipboard=Clipboard::SetUseInternalClipboardState(true);
 				ProcessKey(Key==KEY_CTRLP ? KEY_CTRLINS:KEY_SHIFTDEL);
 
 				/* $ 10.04.2001 SVS
@@ -1508,7 +1508,7 @@ int Editor::ProcessKey(int Key)
 				ProcessKey(KEY_SHIFTINS);
 				Pasting--;
 				EmptyInternalClipboard();
-				SetUseInternalClipboardState(OldUseInternalClipboard);
+				Clipboard::SetUseInternalClipboardState(OldUseInternalClipboard);
 				/*$ 08.02.2001 SKV
 				  всЄ делалось с pasting'ом, поэтому redraw плагинам не ушел.
 				  сделаем его.
@@ -3868,14 +3868,25 @@ void Editor::Paste(const wchar_t *Src)
 
 	if (!ClipText)
 	{
-		if ((ClipText=PasteFormatFromClipboard(FAR_VerticalBlock_Unicode))!=nullptr)
+		Clipboard clip;
+
+		if (!clip.Open())
+			return;
+
+		if ((ClipText=clip.PasteFormat(FAR_VerticalBlock_Unicode))!=nullptr)
 		{
 			VPaste(ClipText);
+			clip.Close();
 			return;
 		}
 
-		if ((ClipText=PasteFromClipboard())==nullptr)
+		if ((ClipText=clip.Paste())==nullptr)
+		{
+			clip.Close();
 			return;
+		}
+
+		clip.Close();
 
 		IsDeleteClipText=TRUE;
 	}
@@ -3884,9 +3895,6 @@ void Editor::Paste(const wchar_t *Src)
 	{
 		AddUndoData(UNDO_BEGIN);
 		Flags.Set(FEDITOR_NEWUNDO);
-		/*
-		if (UseDecodeTable)
-		  EncodeString(ClipText,(unsigned char *)TableSet.EncodeTable);*/ //BUGBUG
 		TextChanged(1);
 		int SaveOvertype=Flags.Check(FEDITOR_OVERTYPE);
 		UnmarkBlock();
@@ -3905,8 +3913,8 @@ void Editor::Paste(const wchar_t *Src)
 		   –ешение проблемы непрошеной конвертации табул€ции (котора€ должна быть
 		   добавлена в начало строки при автоотступе) в пробелы.
 		*/
-		int StartPos=CurLine->GetCurPos(),
-		             oldAutoIndent=EdOpt.AutoIndent;
+		int StartPos=CurLine->GetCurPos();
+		int oldAutoIndent=EdOpt.AutoIndent;
 
 		for (int I=0; ClipText[I]!=0;)
 		{
@@ -3983,14 +3991,21 @@ void Editor::Copy(int Append)
 
 	wchar_t *CopyData=nullptr;
 
+	Clipboard clip;
+
+	if (!clip.Open())
+		return;
+
 	if (Append)
-		CopyData=PasteFromClipboard();
+		CopyData=clip.Paste();
 
 	if ((CopyData=Block2Text(CopyData)) != nullptr)
 	{
-		CopyToClipboard(CopyData);
+		clip.Copy(CopyData);
 		xf_free(CopyData);
 	}
+
+	clip.Close();
 }
 
 wchar_t *Editor::Block2Text(const wchar_t *ptrInitData)
@@ -4927,20 +4942,27 @@ void Editor::VCopy(int Append)
 {
 	wchar_t *CopyData=nullptr;
 
+	Clipboard clip;
+
+	if (!clip.Open())
+		return;
+
 	if (Append)
 	{
-		CopyData=PasteFormatFromClipboard(FAR_VerticalBlock_Unicode);
+		CopyData=clip.PasteFormat(FAR_VerticalBlock_Unicode);
 
 		if (!CopyData)
-			CopyData=PasteFromClipboard();
+			CopyData=clip.Paste();
 	}
 
-	if ((CopyData=VBlock2Text(CopyData)) !=nullptr)
+	if ((CopyData=VBlock2Text(CopyData)) != nullptr)
 	{
-		CopyToClipboard(CopyData);
-		CopyFormatToClipboard(FAR_VerticalBlock_Unicode,CopyData);
+		clip.Copy(CopyData);
+		clip.CopyFormat(FAR_VerticalBlock_Unicode,CopyData);
 		xf_free(CopyData);
 	}
+
+	clip.Close();
 }
 
 wchar_t *Editor::VBlock2Text(const wchar_t *ptrInitData)
