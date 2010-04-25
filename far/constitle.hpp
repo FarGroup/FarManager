@@ -38,6 +38,7 @@ class ConsoleTitle
 	private:
 		string strOldTitle;
 		static bool TitleModified;
+		static DWORD ShowTime;
 
 	public:
 		ConsoleTitle(const wchar_t *title=nullptr);

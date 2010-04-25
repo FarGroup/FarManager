@@ -754,13 +754,22 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
 		ItemFlags=CurItem->Flags;
 		Type=CurItem->Type;
 
+		if (Type==DI_BUTTON && ItemFlags&DIF_SETSHIELD)
+		{
+			CurItem->strData=string(L"\x2580\x2584 ")+CurItem->strData;
+		}
+
 		// для кнопок не имеющи стиля "Показывает заголовок кнопки без скобок"
 		//  добавим энти самые скобки
-		if (Type==DI_BUTTON &&
-		        (ItemFlags & DIF_NOBRACKETS)==0 &&
-		        (!CurItem->strData.IsEmpty() && (CurItem->strData.At(0) != L'[')))
-			CurItem->strData=L"[ "+CurItem->strData+L" ]";
-
+		if (Type==DI_BUTTON && !(ItemFlags & DIF_NOBRACKETS))
+		{
+			LPCWSTR Brackets[]={L"[ ", L" ]", L"{ ",L" }"};
+			int Start=(CurItem->DefaultButton?2:0);
+			if(CurItem->strData.At(0)!=*Brackets[Start])
+			{
+				CurItem->strData=Brackets[Start]+CurItem->strData+Brackets[Start+1];
+			}
+		}
 		// предварительный поик фокуса
 		if (FocusPos == (unsigned)-1 &&
 		        CanGetFocus(Type) &&
@@ -1715,7 +1724,7 @@ void Dialog::ShowDialog(unsigned ID)
 
 		//   перед прорисовкой подложки окна диалога...
 		if (!DialogMode.Check(DMODE_NODRAWSHADOW))
-			Shadow();              // "наводим" тень
+			Shadow(DialogMode.Check(DMODE_FULLSHADOW)!=FALSE);              // "наводим" тень
 
 		if (!DialogMode.Check(DMODE_NODRAWPANEL))
 		{
@@ -2058,6 +2067,11 @@ void Dialog::ShowDialog(unsigned ID)
 				else
 					HiText(strStr,HIBYTE(LOWORD(Attr)));
 
+				if(CurItem->Flags & DIF_SETSHIELD)
+				{
+					int startx=X1+CX1+(CurItem->Flags&DIF_NOBRACKETS?0:2);
+					ScrBuf.ApplyColor(startx,Y1+CY1,startx+1,Y1+CY1,0xE9);
+				}
 				break;
 			}
 			/* ***************************************************************** */
@@ -2858,7 +2872,13 @@ int Dialog::ProcessKey(int Key)
 			break;
 
 		case KEY_F11:
-			return FrameManager->ProcessKey(Key);
+			{
+				if(!CheckDialogMode(DMODE_NOPLUGINS))
+				{
+					return FrameManager->ProcessKey(Key);
+				}
+			}
+			break;
 
 			// для DIF_EDITOR будет обработано ниже
 		default:
@@ -4587,15 +4607,18 @@ LONG_PTR WINAPI Dialog::DlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 	LONG_PTR Result;
 	FarDialogEvent de={hDlg,Msg,Param1,Param2,0};
 
-	if (CtrlObject->Plugins.ProcessDialogEvent(DE_DLGPROCINIT,&de))
-		return de.Result;
-
+	if(!reinterpret_cast<Dialog*>(hDlg)->CheckDialogMode(DMODE_NOPLUGINS))
+	{
+		if (CtrlObject->Plugins.ProcessDialogEvent(DE_DLGPROCINIT,&de))
+			return de.Result;
+	}
 	Result=RealDlgProc(hDlg,Msg,Param1,Param2);
-	de.Result=Result;
-
-	if (CtrlObject->Plugins.ProcessDialogEvent(DE_DLGPROCEND,&de))
-		return de.Result;
-
+	if(!reinterpret_cast<Dialog*>(hDlg)->CheckDialogMode(DMODE_NOPLUGINS))
+	{
+		de.Result=Result;
+		if (CtrlObject->Plugins.ProcessDialogEvent(DE_DLGPROCEND,&de))
+			return de.Result;
+	}
 	return Result;
 }
 
@@ -4615,11 +4638,13 @@ LONG_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
 	FarDialogEvent de={hDlg,Msg,Param1,Param2,0};
 
-	if (CtrlObject->Plugins.ProcessDialogEvent(DE_DEFDLGPROCINIT,&de))
+	if(!reinterpret_cast<Dialog*>(hDlg)->CheckDialogMode(DMODE_NOPLUGINS))
 	{
-		return de.Result;
+		if (CtrlObject->Plugins.ProcessDialogEvent(DE_DEFDLGPROCINIT,&de))
+		{
+			return de.Result;
+		}
 	}
-
 	Dialog* Dlg=(Dialog*)hDlg;
 	CriticalSectionLock Lock(Dlg->CS);
 	DialogItemEx *CurItem=nullptr;
@@ -5798,10 +5823,17 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 					case DI_BUTTON:
 						Len=StrLength(Ptr)+1;
 
-						if (!(CurItem->Flags & DIF_NOBRACKETS) && Type == DI_BUTTON)
+						if (Type == DI_BUTTON)
 						{
-							Ptr+=2;
-							Len-=4;
+							if(!(CurItem->Flags & DIF_NOBRACKETS))
+							{
+								Ptr+=2;
+								Len-=4;
+							}
+							if(CurItem->Flags & DIF_SETSHIELD)
+							{
+								Ptr+=2;
+							}
 						}
 
 						if (!did->PtrLength)

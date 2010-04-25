@@ -100,10 +100,7 @@ bool ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
 					continue;
 				}
 			}
-		} /* if */
-
-		const wchar_t *FileName=fdata->strFileName;
-
+		}
 		break;
 	}
 

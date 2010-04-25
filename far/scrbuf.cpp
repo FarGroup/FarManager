@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "palette.hpp"
 #include "config.hpp"
 #include "DList.hpp"
+#include "adminmode.hpp"
 
 enum
 {
@@ -204,6 +205,11 @@ void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text,int MaxTextLeng
 	        CtrlObject->Macro.IsRecording() &&
 	        MacroChar.Char.UnicodeChar != L'R')
 		Text[0]=MacroChar;
+
+	if (X2==BufX-1 && Y2==BufY-1 && Admin.Elevated() && ElevationChar.Char.UnicodeChar != L'A')
+	{
+		Text[Width*Height-1]=ElevationChar;
+	}
 }
 
 /* Изменить значение цветовых атрибутов в соответствии с маской
@@ -242,28 +248,36 @@ void ScreenBuf::ApplyColorMask(int X1,int Y1,int X2,int Y2,WORD ColorMask)
 void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,WORD Color)
 {
 	CriticalSectionLock Lock(CS);
-	int Width=X2-X1+1;
-	int Height=Y2-Y1+1;
-	int I, J;
-
-	for (I=0; I < Height; I++)
+	if(X1<=ScrX && Y1<=ScrY && X2>=0 && Y2>=0)
 	{
-		CHAR_INFO *PtrBuf=Buf+(Y1+I)*BufX+X1;
+		X1=Max(0,X1);
+		X2=Min(static_cast<int>(ScrX),X2);
+		Y1=Max(0,Y1);
+		Y2=Min(static_cast<int>(ScrY),Y2);
 
-		for (J=0; J < Width; J++, ++PtrBuf)
-			PtrBuf->Attributes=Color;
+		int Width=X2-X1+1;
+		int Height=Y2-Y1+1;
+		int I, J;
 
-		//Buf[K+J].Attributes=Color;
-	}
+		for (I=0; I < Height; I++)
+		{
+			CHAR_INFO *PtrBuf=Buf+(Y1+I)*BufX+X1;
+
+			for (J=0; J < Width; J++, ++PtrBuf)
+				PtrBuf->Attributes=Color;
+
+			//Buf[K+J].Attributes=Color;
+		}
 
 #ifdef DIRECT_SCREEN_OUT
-	Flush();
+		Flush();
 #elif defined(DIRECT_RT)
 
-	if (DirectRT)
-		Flush();
+		if (DirectRT)
+			Flush();
 
 #endif
+	}
 }
 
 /* Непосредственное изменение цветовых атрибутов с заданым цетом исключением
@@ -271,24 +285,31 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,WORD Color)
 void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,int Color,WORD ExceptColor)
 {
 	CriticalSectionLock Lock(CS);
-
-	for (int I = 0; I < Y2-Y1+1; I++)
+	if(X1<=ScrX && Y1<=ScrY && X2>=0 && Y2>=0)
 	{
-		CHAR_INFO *PtrBuf = Buf+(Y1+I)*BufX+X1;
+		X1=Max(0,X1);
+		X2=Min(static_cast<int>(ScrX),X2);
+		Y1=Max(0,Y1);
+		Y2=Min(static_cast<int>(ScrY),Y2);
 
-		for (int J = 0; J < X2-X1+1; J++, ++PtrBuf)
-			if (PtrBuf->Attributes != ExceptColor)
-				PtrBuf->Attributes = Color;
-	}
+		for (int I = 0; I < Y2-Y1+1; I++)
+		{
+			CHAR_INFO *PtrBuf = Buf+(Y1+I)*BufX+X1;
+
+			for (int J = 0; J < X2-X1+1; J++, ++PtrBuf)
+				if (PtrBuf->Attributes != ExceptColor)
+					PtrBuf->Attributes = Color;
+		}
 
 #ifdef DIRECT_SCREEN_OUT
-	Flush();
+		Flush();
 #elif defined(DIRECT_RT)
 
-	if (DirectRT)
-		Flush();
+		if (DirectRT)
+			Flush();
 
 #endif
+	}
 }
 
 /* Закрасить прямоугольник символом Ch и цветом Color
@@ -341,6 +362,17 @@ void ScreenBuf::Flush()
 			Buf[0].Attributes=FarColorToReal(COL_WARNDIALOGTEXT);
 		}
 
+		if(Admin.Elevated())
+		{
+			if (Buf[BufX*BufY-1].Char.UnicodeChar!=L'A')
+			{
+				ElevationChar=Buf[BufX*BufY-1];
+			}
+
+			Buf[BufX*BufY-1].Char.UnicodeChar=L'A';
+			Buf[BufX*BufY-1].Attributes=FarColorToReal(COL_WARNDIALOGTEXT);
+		}
+		
 		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE) && !CurVisible)
 		{
 			CONSOLE_CURSOR_INFO cci={CurSize,CurVisible};
@@ -574,6 +606,12 @@ void ScreenBuf::GetCursorType(int &Visible,int &Size)
 void ScreenBuf::RestoreMacroChar()
 {
 	Write(0,0,&MacroChar,1);
+	ResetShadow();
+}
+
+void ScreenBuf::RestoreElevationChar()
+{
+	Write(BufX-1,BufY-1,&ElevationChar,1);
 	ResetShadow();
 }
 

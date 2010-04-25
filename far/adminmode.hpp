@@ -78,7 +78,8 @@ class AdminMode
 public:
 	AdminMode();
 	~AdminMode();
-	void ResetApprove(){Approve=false; AskApprove=true;}
+	void ResetApprove();
+	bool Elevated(){return Elevation;}
 
 	bool fCreateDirectory(LPCWSTR Object, LPSECURITY_ATTRIBUTES Attributes);
 	bool fRemoveDirectory(LPCWSTR Object);
@@ -112,6 +113,9 @@ private:
 	HANDLE Pipe;
 	HANDLE Process;
 	int PID;
+	DWORD MainThreadID;
+	bool Elevation;
+	bool DontAskAgain;
 	bool Approve;
 	bool AskApprove;
 	LPPROGRESS_ROUTINE ProgressRoutine;
@@ -131,6 +135,8 @@ private:
 };
 
 extern AdminMode Admin;
+
+void AdminApproveDlgSync(LPVOID Param);
 
 bool ElevationRequired(ELEVATION_MODE Mode);
 bool IsUserAdmin();

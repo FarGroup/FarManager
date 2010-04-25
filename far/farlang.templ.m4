@@ -7812,14 +7812,6 @@ l:
 "Fájlkeresés"
 "Znajdź plik"
 
-MFindFileResultTitle
-"Поиск файла - результат"
-"Find file - result"
-"Hledat soubor - výsledek"
-"Suchergebnisse"
-"Fájlkeresés eredménye"
-"Wynik poszukiwania"
-
 MFindFileMasks
 "Одна или несколько &масок файлов:"
 "A file &mask or several file masks:"
@@ -8037,12 +8029,12 @@ MFindFileAdvanced
 "&Zaawansowane"
 
 MFindSearchingIn
-"Поиск%s в:"
-"Searching%s in:"
-"Hledám%s v:"
-"Suche%s in:"
-"%s keresése:"
-"Szukam w:"
+"Поиск%s в"
+"Searching%s in"
+"Hledám%s v"
+"Suche%s in"
+"%s keresése"
+"Szukam%s w"
 
 MFindNewSearch
 "&Новый поиск"
@@ -8086,8 +8078,8 @@ MFindStop
 
 MFindDone
 l:
-"Поиск закончен. Найдено %d файл(ов) и %d папка(ок)"
-"Search done. Found %d file(s) and %d folder(s)"
+"Поиск закончен. Найдено файлов: %d, папок: %d"
+"Search done. Found files: %d, folders: %d"
 "Hledání ukončeno. Nalezeno %d soubor(ů) a %d adresář(ů)"
 "Suche beendet. %d Datei(en) und %d Ordner gefunden."
 "A keresés kész. %d fájlt és %d mappát találtam."
@@ -17407,6 +17399,22 @@ upd:"to open this object:"
 upd:"to open this object:"
 upd:"to open this object:"
 upd:"to open this object:"
+
+MAdminDoForAll
+"Выполнить это действие для &всех текущих объектов"
+"Do this for &all current objects"
+upd:"Do this for &all current objects"
+upd:"Do this for &all current objects"
+upd:"Do this for &all current objects"
+upd:"Do this for &all current objects"
+
+MAdminDoNotAskAgainInTheCurrentSession
+"Больше не спрашивать в текущей сессии"
+"Do not ask again in the current session"
+upd:"Do not ask again in the current session"
+upd:"Do not ask again in the current session"
+upd:"Do not ask again in the current session"
+upd:"Do not ask again in the current session"
 
 #Must be the last
 MNewFileName

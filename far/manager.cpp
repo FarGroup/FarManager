@@ -55,6 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "exitcode.hpp"
+#include "scrbuf.hpp"
 
 Manager *FrameManager;
 
@@ -1759,6 +1760,7 @@ void Manager::ResizeAllModal(Frame *ModalFrame)
 
 void Manager::ResizeAllFrame()
 {
+	ScrBuf.Lock();
 	for (int i=0; i < FrameCount; i++)
 	{
 		FrameList[i]->ResizeConsole();
@@ -1776,6 +1778,7 @@ void Manager::ResizeAllFrame()
 	ImmediateHide();
 	FrameManager->RefreshFrame();
 	//RefreshFrame();
+	ScrBuf.Unlock();
 }
 
 void Manager::InitKeyBar()

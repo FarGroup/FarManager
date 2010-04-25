@@ -46,6 +46,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileowner.hpp"
 #include "imports.hpp"
 #include "TaskBar.hpp"
+#include "synchro.hpp"
+#include "scrbuf.hpp"
 
 #define PIPE_NAME L"\\\\.\\pipe\\FarPipe"
 
@@ -181,6 +183,9 @@ AdminMode::AdminMode():
 	Pipe(INVALID_HANDLE_VALUE),
 	Process(nullptr),
 	PID(0),
+	MainThreadID(GetCurrentThreadId()),
+	Elevation(false),
+	DontAskAgain(false),
 	Approve(false),
 	AskApprove(true),
 	ProgressRoutine(nullptr),
@@ -194,6 +199,20 @@ AdminMode::~AdminMode()
 	DisconnectNamedPipe(Pipe);
 	PID=0;
 	CloseHandle(Pipe);
+}
+
+void AdminMode::ResetApprove()
+{
+	if(!DontAskAgain)
+	{
+		Approve=false;
+		AskApprove=true;
+		if(Elevation)
+		{
+			Elevation=false;
+			ScrBuf.RestoreElevationChar();
+		}
+	}
 }
 
 bool AdminMode::ReadData(AutoObject& Data) const
@@ -314,19 +333,24 @@ bool AdminMode::Initialize()
 					SetLastError(ERROR_PROCESS_ABORTED);
 				}
 			}
+			else
+			{
+				ResetApprove();
+			}
 		}
 	}
+	Elevation=Result;
 	return Result;
 }
 
 enum ADMINAPPROVEDLGITEM
 {
 	AAD_DOUBLEBOX,
-	AAD_TEXT_SHIELD,
 	AAD_TEXT_NEEDPERMISSION,
 	AAD_TEXT_DETAILS,
 	AAD_EDIT_OBJECT,
-	AAD_CHECKBOX_REMEMBER,
+	AAD_CHECKBOX_DOFORALL,
+	AAD_CHECKBOX_DONTASKAGAIN,
 	AAD_SEPARATOR,
 	AAD_BUTTON_OK,
 	AAD_BUTTON_SKIP,
@@ -349,34 +373,69 @@ LONG_PTR WINAPI AdminApproveDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
 	return DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
+struct AAData
+{
+	HANDLE Event;
+	int Why;
+	LPCWSTR Object;
+	bool& AskApprove;
+	bool& Approve;
+	bool& DontAskAgain;
+};
+
+void AdminApproveDlgSync(LPVOID Param)
+{
+	AAData* Data=reinterpret_cast<AAData*>(Param);
+	enum {DlgX=64,DlgY=12};
+	DialogDataEx AdminApproveDlgData[]=
+	{
+		DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,0,0,0,MSG(MErrorAccessDenied),
+		DI_TEXT,5,2,0,2,0,0,0,0,MSG(Opt.IsUserAdmin?MAdminRequiredPrivileges:MAdminRequired),
+		DI_TEXT,5,3,0,3,0,0,0,0,MSG(Data->Why),
+		DI_EDIT,5,4,DlgX-6,4,0,0,DIF_READONLY|DIF_SETCOLOR|FarColorToReal(COL_DIALOGTEXT),0,Data->Object,
+		DI_CHECKBOX,5,6,0,6,0,1,0,0,MSG(MAdminDoForAll),
+		DI_CHECKBOX,5,7,0,7,0,0,0,0,MSG(MAdminDoNotAskAgainInTheCurrentSession),
+		DI_TEXT,3,DlgY-4,0,DlgY-4,0,0,DIF_SEPARATOR,0,L"",
+		DI_BUTTON,0,DlgY-3,0,DlgY-3,1,0,DIF_SETSHIELD|DIF_CENTERGROUP,1,MSG(MOk),
+		DI_BUTTON,0,DlgY-3,0,DlgY-3,0,0,DIF_CENTERGROUP,0,MSG(MSkip),
+	};
+	MakeDialogItemsEx(AdminApproveDlgData,AdminApproveDlg);
+	Dialog Dlg(AdminApproveDlg,countof(AdminApproveDlg),AdminApproveDlgProc);
+	Dlg.SetHelp(L"ElevationDlg");
+	Dlg.SetPosition(-1,-1,DlgX,DlgY);
+	Dlg.SetDialogMode(DMODE_FULLSHADOW|DMODE_NOPLUGINS);
+	Dlg.Process();
+	Data->AskApprove=!AdminApproveDlg[AAD_CHECKBOX_DOFORALL].Selected;
+	Data->Approve=Dlg.GetExitCode()==AAD_BUTTON_OK;
+	Data->DontAskAgain=AdminApproveDlg[AAD_CHECKBOX_DONTASKAGAIN].Selected!=FALSE;
+	if(Data->Event)
+	{
+		SetEvent(Data->Event);
+	}
+}
+
 bool AdminMode::AdminApproveDlg(int Why, LPCWSTR Object)
 {
-	if(FrameManager && !FrameManager->ManagerIsDown() && AskApprove && !Recurse)
+	if(FrameManager && !FrameManager->ManagerIsDown() && AskApprove && !DontAskAgain && !Recurse)
 	{
 		Recurse = true;
 		GuardLastError error;
-
 		TaskBarPause TBP;
-		enum {DlgX=64,DlgY=11};
-		DialogDataEx AdminApproveDlgData[]=
+		AAData Data={nullptr, Why, Object, AskApprove, Approve, DontAskAgain};
+		if(GetCurrentThreadId()!=MainThreadID)
 		{
-			DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,0,0,0,MSG(MErrorAccessDenied),
-			DI_TEXT,5,2,6,2,0,0,DIF_SETCOLOR|0xE9,0,L"\x2580\x2584",
-			DI_TEXT,8,2,0,2,0,0,0,0,MSG(Opt.IsUserAdmin?MAdminRequiredPrivileges:MAdminRequired),
-			DI_TEXT,8,3,0,3,0,0,0,0,MSG(Why),
-			DI_EDIT,8,4,DlgX-6,4,0,0,DIF_READONLY|DIF_SETCOLOR|FarColorToReal(COL_DIALOGTEXT),0,Object,
-			DI_CHECKBOX,5,6,0,6,0,1,0,0,MSG(MCopyRememberChoice),
-			DI_TEXT,3,DlgY-4,0,DlgY-4,0,0,DIF_SEPARATOR,0,L"",
-			DI_BUTTON,0,DlgY-3,0,DlgY-3,1,0,DIF_CENTERGROUP,1,MSG(MOk),
-			DI_BUTTON,0,DlgY-3,0,DlgY-3,0,0,DIF_CENTERGROUP,0,MSG(MSkip),
-		};
-		MakeDialogItemsEx(AdminApproveDlgData,AdminApproveDlg);
-		Dialog Dlg(AdminApproveDlg,countof(AdminApproveDlg),AdminApproveDlgProc);
-		Dlg.SetHelp(L"AdminApproveDlg");
-		Dlg.SetPosition(-1,-1,DlgX,DlgY);
-		Dlg.Process();
-		Approve=(Dlg.GetExitCode()==AAD_BUTTON_OK);
-		AskApprove=!AdminApproveDlg[AAD_CHECKBOX_REMEMBER].Selected;
+			Data.Event=CreateEvent(NULL,FALSE,FALSE,NULL);
+			if(Data.Event)
+			{
+				PluginSynchroManager.Synchro(false, 0, &Data);
+				WaitForSingleObject(Data.Event,INFINITE);
+				CloseHandle(Data.Event);
+			}
+		}
+		else
+		{
+			AdminApproveDlgSync(&Data);
+		}
 		Recurse = false;
 	}
 	return Approve;
@@ -1441,11 +1500,11 @@ bool AdminMode::fDeviceIoControl(HANDLE Handle, DWORD IoControlCode, LPVOID InBu
 											{
 												RawReadPipe(Pipe, OutBuffer, Bytes);
 											}
-											if(ReceiveLastError())
-											{
-												Result = OpResult != FALSE;
-											}
 										}
+									}
+									if(ReceiveLastError())
+									{
+										Result = OpResult != FALSE;
 									}
 								}
 							}
@@ -2215,6 +2274,10 @@ bool Process(int Command)
 
 	case C_FUNCTION_GETFILEINFORMATIONBYHANDLE:
 		GetFileInformationByHandleHandler();
+		break;
+
+	case C_FUNCTION_DEVICEIOCONTROL:
+		DeviceIoControlHandler();
 		break;
 
 	}

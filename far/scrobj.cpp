@@ -211,15 +211,25 @@ void ScreenObject::Redraw()
 }
 
 
-void ScreenObject::Shadow()
+void ScreenObject::Shadow(bool Full)
 {
 	if (Flags.Check(FSCROBJ_VISIBLE))
 	{
-		if (ShadowSaveScr==nullptr)
-			ShadowSaveScr=new SaveScreen(X1,Y1,X2+2,Y2+1);
+		if(Full)
+		{
+			if (ShadowSaveScr==nullptr)
+				ShadowSaveScr=new SaveScreen(0,0,ScrX,ScrY);
 
-		MakeShadow(X1+2,Y2+1,X2+1,Y2+1);
-		MakeShadow(X2+1,Y1+1,X2+2,Y2+1);
+			MakeShadow(0,0,ScrX,ScrY);
+		}
+		else
+		{
+			if (ShadowSaveScr==nullptr)
+				ShadowSaveScr=new SaveScreen(X1,Y1,X2+2,Y2+1);
+
+			MakeShadow(X1+2,Y2+1,X2+1,Y2+1);
+			MakeShadow(X2+1,Y1+1,X2+2,Y2+1);
+		}
 	}
 }
 

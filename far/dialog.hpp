@@ -64,6 +64,8 @@ enum DIALOG_MODES
 	//DMODE_OWNSITEMS  =0x00080000, // если TRUE, Dialog освобождает список Item в деструкторе
 	DMODE_NODRAWSHADOW =0x00100000, // не рисовать тень?
 	DMODE_NODRAWPANEL  =0x00200000, // не рисовать подложку?
+	DMODE_FULLSHADOW   =0x00400000,
+	DMODE_NOPLUGINS    =0x00800000,
 	DMODE_CLICKOUTSIDE =0x20000000, // было нажатие мыши вне диалога?
 	DMODE_MSGINTERNAL  =0x40000000, // Внутренняя Message?
 	DMODE_OLDSTYLE     =0x80000000, // Диалог в старом (до 1.70) стиле
@@ -249,7 +251,6 @@ class ConsoleTitle;
 
 class Dialog: public Frame
 {
-		friend class FindFiles;
 		friend class DlgEdit;
 		friend LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 		friend LONG_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
@@ -368,6 +369,7 @@ class Dialog: public Frame
 		void GetDialogObjectsData();
 
 		void SetDialogMode(DWORD Flags) { DialogMode.Set(Flags); }
+		bool CheckDialogMode(DWORD Flags) { return DialogMode.Check(Flags)!=FALSE; }
 
 		// метод для перемещения диалога
 		void AdjustEditPos(int dx,int dy);

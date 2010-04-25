@@ -95,7 +95,7 @@ class ScreenObject
 		int  IsVisible() { return Flags.Check(FSCROBJ_VISIBLE); };
 		void SetVisible(int Visible) {Flags.Change(FSCROBJ_VISIBLE,Visible);};
 		void SetRestoreScreenMode(int Mode) {Flags.Change(FSCROBJ_ENABLERESTORESCREEN,Mode);};
-		void Shadow();
+		void Shadow(bool Full=false);
 
 		static void SetCapture(ScreenObject *Obj);
 };

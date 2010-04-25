@@ -40,13 +40,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "config.hpp"
 #include "ctrlobj.hpp"
+#include "CriticalSections.hpp"
 
 static const string& GetFarTitleAddons();
 
 bool ConsoleTitle::TitleModified = false;
+DWORD ConsoleTitle::ShowTime = 0;
+
+CriticalSection TitleCS;
 
 ConsoleTitle::ConsoleTitle(const wchar_t *title)
 {
+	CriticalSectionLock Lock(TitleCS);
 	apiGetConsoleTitle(strOldTitle);
 
 	if (title)
@@ -55,6 +60,7 @@ ConsoleTitle::ConsoleTitle(const wchar_t *title)
 
 ConsoleTitle::~ConsoleTitle()
 {
+	CriticalSectionLock Lock(TitleCS);
 	const string &strTitleAddons = GetFarTitleAddons();
 	size_t OldLen = strOldTitle.GetLength();
 	size_t AddonsLen = strTitleAddons.GetLength();
@@ -71,6 +77,7 @@ ConsoleTitle::~ConsoleTitle()
 
 void ConsoleTitle::Set(const wchar_t *fmt, ...)
 {
+	CriticalSectionLock Lock(TitleCS);
 	wchar_t msg[2048];
 	va_list argptr;
 	va_start(argptr, fmt);
@@ -81,6 +88,7 @@ void ConsoleTitle::Set(const wchar_t *fmt, ...)
 
 void ConsoleTitle::SetFarTitle(const wchar_t *Title)
 {
+	CriticalSectionLock Lock(TitleCS);
 	static string strFarTitle;
 	string strOldFarTitle;
 
@@ -96,8 +104,13 @@ void ConsoleTitle::SetFarTitle(const wchar_t *Title)
 		        ((CtrlObject->Macro.IsExecuting() && !CtrlObject->Macro.IsDsableOutput()) ||
 		         !CtrlObject->Macro.IsExecuting() || CtrlObject->Macro.IsExecutingLastKey()))
 		{
-			SetConsoleTitle(strFarTitle);
-			TitleModified=true;
+			DWORD CurTime=GetTickCount();
+			if(CurTime-ShowTime>RedrawTimeout)
+			{
+				ShowTime=CurTime;
+				SetConsoleTitle(strFarTitle);
+				TitleModified=true;
+			}
 		}
 	}
 	else

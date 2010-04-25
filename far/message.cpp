@@ -177,7 +177,7 @@ int Message(
 
 	// предварительный обсчет максимального размера.
 	for (BtnLength=0,I=0; I<static_cast<DWORD>(Buttons); I++) //??
-		BtnLength+=HiStrlen(Items[I+StrCount])+2;
+		BtnLength+=HiStrlen(Items[I+StrCount])+5;
 
 	for (MaxLength=BtnLength,I=0; I<StrCount; I++)
 	{
@@ -302,9 +302,9 @@ int Message(
 
 	if (Buttons>0)
 	{
-		DWORD ItemCount;
+		DWORD ItemCount=StrCount+Buttons+1;
 		DialogItemEx *PtrMsgDlg;
-		DialogItemEx *MsgDlg = new DialogItemEx[ItemCount=StrCount+Buttons+1];
+		DialogItemEx *MsgDlg = new DialogItemEx[ItemCount+1];
 
 		if (!MsgDlg)
 		{
@@ -312,7 +312,7 @@ int Message(
 			return -1;
 		}
 
-		for (DWORD i=0; i<ItemCount; i++)
+		for (DWORD i=0; i<ItemCount+1; i++)
 			MsgDlg[i].Clear();
 
 		int RetCode;
@@ -330,15 +330,26 @@ int Message(
 		DWORD FlagsItem=DIF_SHOWAMPERSAND;
 		BOOL IsButton=FALSE;
 		int CurItem=0;
-
+		bool StrSeparator=false;
+		bool Separator=false;
 		for (PtrMsgDlg=MsgDlg+1,I=1; I < ItemCount; ++I, ++PtrMsgDlg, ++CurItem)
 		{
-			if (I==StrCount+1)
+			if (I==StrCount+1 && !StrSeparator && !Separator)
+			{
+				PtrMsgDlg->Type=DI_TEXT;
+				PtrMsgDlg->Flags=DIF_SEPARATOR;
+				PtrMsgDlg->Y1=PtrMsgDlg->Y2=I+1;
+				CurItem--;
+				I--;
+				Separator=true;
+				continue;
+			}
+			if(I==StrCount+1)
 			{
 				PtrMsgDlg->Focus=1;
 				PtrMsgDlg->DefaultButton=1;
 				TypeItem=DI_BUTTON;
-				FlagsItem=DIF_CENTERGROUP|DIF_NOBRACKETS;
+				FlagsItem=DIF_CENTERGROUP;
 				IsButton=TRUE;
 				FirstButtonIndex=CurItem+1;
 				LastButtonIndex=CurItem;
@@ -350,10 +361,8 @@ int Message(
 
 			if (IsButton)
 			{
-				PtrMsgDlg->Y1=Y2-Y1-2;
-				PtrMsgDlg->strData=L" ";
+				PtrMsgDlg->Y1=Y2-Y1-2+(Separator?1:0);
 				PtrMsgDlg->strData+=CPtrStr;
-				PtrMsgDlg->strData+=L" ";
 				LastButtonIndex++;
 			}
 			else
@@ -362,10 +371,11 @@ int Message(
 				PtrMsgDlg->Y1=I+1;
 				wchar_t Chr=*CPtrStr;
 
-				if (Chr == 1 || Chr == 2)
+				if (Chr == L'\1' || Chr == L'\2')
 				{
 					CPtrStr++;
 					PtrMsgDlg->Flags|=(Chr==2?DIF_SEPARATOR2:DIF_SEPARATOR);
+					StrSeparator=true;
 				}
 				else if (StrLength(CPtrStr)>X2-X1-9)
 				{
@@ -383,6 +393,15 @@ int Message(
 		}
 
 		{
+			if(Separator)
+			{
+				FirstButtonIndex++;
+				LastButtonIndex++;
+				MessageY2++;
+				Y2++;
+				MsgDlg[0].Y2++;
+				ItemCount++;
+			}
 			IsWarningStyle=Flags&MSG_WARNING;
 			Dialog Dlg(MsgDlg,ItemCount,MsgDlgProc);
 			Dlg.SetPosition(X1,Y1,X2,Y2);
@@ -409,7 +428,7 @@ int Message(
 
 		delete [] MsgDlg;
 		xf_free(Str);
-		return(RetCode<0?RetCode:RetCode-StrCount-1);
+		return(RetCode<0?RetCode:RetCode-StrCount-1-(Separator?1:0));
 	}
 
 	// *** Без Диалога! ***

@@ -113,9 +113,6 @@ LONG_PTR __stdcall hndOpenEditor(
 	return DefDlgProc(hDlg, msg, param1, param2);
 }
 
-
-
-
 bool dlgOpenEditor(string &strFileName, UINT &codepage)
 {
 	const wchar_t *HistoryName=L"NewEdit";
@@ -146,6 +143,9 @@ bool dlgOpenEditor(string &strFileName, UINT &codepage)
 
 	return false;
 }
+
+
+
 
 enum enumSaveFileAs
 {
@@ -249,35 +249,30 @@ bool dlgSaveFileAs(string &strFileName, int &TextFormat, UINT &codepage,bool &Ad
 	const wchar_t *HistoryName=L"NewEdit";
 	DialogDataEx EditDlgData[]=
 	{
-		/* 00 */ DI_DOUBLEBOX,3,1,72,15,0,0,0,0,(const wchar_t *)MEditTitle,
-		/* 01 */ DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MEditSaveAs,
-		/* 02 */ DI_EDIT,5,3,70,3,1,(DWORD_PTR)HistoryName,DIF_HISTORY|DIF_EDITEXPAND|DIF_EDITPATH,0,L"",
-		/* 03 */ DI_TEXT,3,4,0,4,0,0,DIF_SEPARATOR,0,L"",
-		/* 04 */ DI_TEXT,5,5,0,5,0,0,0,0,(const wchar_t *)MEditCodePage,
-		/* 05 */ DI_COMBOBOX,25,5,70,5,0,0,DIF_DROPDOWNLIST|DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT,0,L"",
-		/* 06 */ DI_CHECKBOX,5,6,0,6,0,AddSignature,DIF_DISABLE,0,(const wchar_t *)MEditAddSignature,
-		/* 07 */ DI_TEXT,3,7,0,7,0,0,DIF_SEPARATOR,0,L"",
-		/* 08 */ DI_TEXT,5,8,0,8,0,0,0,0,(const wchar_t *)MEditSaveAsFormatTitle,
-		/* 09 */ DI_RADIOBUTTON,5,9,0,9,0,0,DIF_GROUP,0,(const wchar_t *)MEditSaveOriginal,
-		/* 10 */ DI_RADIOBUTTON,5,10,0,10,0,0,0,0,(const wchar_t *)MEditSaveDOS,
-		/* 11 */ DI_RADIOBUTTON,5,11,0,11,0,0,0,0,(const wchar_t *)MEditSaveUnix,
-		/* 12 */ DI_RADIOBUTTON,5,12,0,12,0,0,0,0,(const wchar_t *)MEditSaveMac,
-		/* 13 */ DI_TEXT,3,13,0,13,0,0,DIF_SEPARATOR,0,L"",
-		/* 14 */ DI_BUTTON,0,14,0,14,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-		/* 15 */ DI_BUTTON,0,14,0,14,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
+		DI_DOUBLEBOX,3,1,72,15,0,0,0,0,MSG(MEditTitle),
+		DI_TEXT,5,2,0,2,0,0,0,0,MSG(MEditSaveAs),
+		DI_EDIT,5,3,70,3,1,(DWORD_PTR)HistoryName,DIF_HISTORY|DIF_EDITEXPAND|DIF_EDITPATH,0,L"",
+		DI_TEXT,3,4,0,4,0,0,DIF_SEPARATOR,0,L"",
+		DI_TEXT,5,5,0,5,0,0,0,0,MSG(MEditCodePage),
+		DI_COMBOBOX,25,5,70,5,0,0,DIF_DROPDOWNLIST|DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT,0,L"",
+		DI_CHECKBOX,5,6,0,6,0,AddSignature,DIF_DISABLE,0,MSG(MEditAddSignature),
+		DI_TEXT,3,7,0,7,0,0,DIF_SEPARATOR,0,L"",
+		DI_TEXT,5,8,0,8,0,0,0,0,MSG(MEditSaveAsFormatTitle),
+		DI_RADIOBUTTON,5,9,0,9,0,0,DIF_GROUP,0,MSG(MEditSaveOriginal),
+		DI_RADIOBUTTON,5,10,0,10,0,0,0,0,MSG(MEditSaveDOS),
+		DI_RADIOBUTTON,5,11,0,11,0,0,0,0,MSG(MEditSaveUnix),
+		DI_RADIOBUTTON,5,12,0,12,0,0,0,0,MSG(MEditSaveMac),
+		DI_TEXT,3,13,0,13,0,0,DIF_SEPARATOR,0,L"",
+		DI_BUTTON,0,14,0,14,0,0,DIF_CENTERGROUP,1,MSG(MOk),
+		DI_BUTTON,0,14,0,14,0,0,DIF_CENTERGROUP,0,MSG(MCancel),
 	};
 	MakeDialogItemsEx(EditDlgData,EditDlg);
 	EditDlg[ID_SF_FILENAME].strData = (/*Flags.Check(FFILEEDIT_SAVETOSAVEAS)?strFullFileName:strFileName*/strFileName);
 	{
-		size_t pos;
-
+		size_t pos=0;
 		if (EditDlg[ID_SF_FILENAME].strData.Pos(pos,MSG(MNewFileName)))
 			EditDlg[ID_SF_FILENAME].strData.SetLength(pos);
 	}
-	EditDlg[ID_SF_DONOTCHANGE].Selected = 0;
-	EditDlg[ID_SF_DOS].Selected = 0;
-	EditDlg[ID_SF_UNIX].Selected = 0;
-	EditDlg[ID_SF_MAC].Selected=0;
 	EditDlg[ID_SF_DONOTCHANGE+TextFormat].Selected = TRUE;
 	Dialog Dlg(EditDlg, countof(EditDlg), (FARWINDOWPROC)hndSaveFileAs, (LONG_PTR)&codepage);
 	Dlg.SetPosition(-1,-1,76,17);
@@ -287,18 +282,15 @@ bool dlgSaveFileAs(string &strFileName, int &TextFormat, UINT &codepage,bool &Ad
 	if ((Dlg.GetExitCode() == ID_SF_OK) && !EditDlg[ID_SF_FILENAME].strData.IsEmpty())
 	{
 		strFileName = EditDlg[ID_SF_FILENAME].strData;
-		AddSignature=EditDlg[ID_SF_SIGNATURE].Selected?true:false;
+		AddSignature=EditDlg[ID_SF_SIGNATURE].Selected!=0;
 
 		if (EditDlg[ID_SF_DONOTCHANGE].Selected)
 			TextFormat=0;
-
-		if (EditDlg[ID_SF_DOS].Selected)
+		else if (EditDlg[ID_SF_DOS].Selected)
 			TextFormat=1;
-
-		if (EditDlg[ID_SF_UNIX].Selected)
+		else if (EditDlg[ID_SF_UNIX].Selected)
 			TextFormat=2;
-
-		if (EditDlg[ID_SF_MAC].Selected)
+		else if (EditDlg[ID_SF_MAC].Selected)
 			TextFormat=3;
 
 		return true;
@@ -1216,19 +1208,19 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 				if (Key != KEY_SHIFTF10)   // KEY_SHIFTF10 не учитываем!
 				{
-					int FilePlased=apiGetFileAttributes(strFullFileName) == INVALID_FILE_ATTRIBUTES && !Flags.Check(FFILEEDIT_NEW);
+					bool FilePlaced=apiGetFileAttributes(strFullFileName) == INVALID_FILE_ATTRIBUTES && !Flags.Check(FFILEEDIT_NEW);
 
 					if (m_editor->IsFileChanged() || // в текущем сеансе были изменения?
-					        FilePlased) // а сам файл то еще на месте?
+					        FilePlaced) // а сам файл то еще на месте?
 					{
 						int Res;
 
-						if (m_editor->IsFileChanged() && FilePlased)
+						if (m_editor->IsFileChanged() && FilePlaced)
 							Res=Message(MSG_WARNING,3,MSG(MEditTitle),
 							            MSG(MEditSavedChangedNonFile),
 							            MSG(MEditSavedChangedNonFile2),
 							            MSG(MEditSave),MSG(MEditNotSave),MSG(MEditContinue));
-						else if (!m_editor->IsFileChanged() && FilePlased)
+						else if (!m_editor->IsFileChanged() && FilePlaced)
 							Res=Message(MSG_WARNING,3,MSG(MEditTitle),
 							            MSG(MEditSavedChangedNonFile1),
 							            MSG(MEditSavedChangedNonFile2),
@@ -1772,6 +1764,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 		if (!IsUnicodeOrUtfCodePage(codepage))
 		{
 			int LineNumber=0;
+			bool BadSaveConfirmed=false;
 			for (Edit *CurPtr=m_editor->TopList; CurPtr; CurPtr=CurPtr->m_next,LineNumber++)
 			{
 				const wchar_t *SaveStr, *EndSeq;
@@ -1788,13 +1781,13 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
 				WideCharToMultiByte(codepage,WC_NO_BEST_FIT_CHARS,EndSeq,StrLength(EndSeq),nullptr,0,nullptr,&UsedDefaultCharEOL);
 
-				if (!BadConversion && (UsedDefaultCharStr||UsedDefaultCharEOL))
+				if (!BadSaveConfirmed && (UsedDefaultCharStr||UsedDefaultCharEOL))
 				{
 					//SetMessageHelp(L"EditorDataLostWarning")
 					int Result=Message(MSG_WARNING,3,MSG(MWarning),MSG(MEditorSaveCPWarn1),MSG(MEditorSaveCPWarn2),MSG(MEditorSaveNotRecommended),MSG(MOk),MSG(MEditorSaveCPWarnShow),MSG(MCancel));
 					if (Result==0)
 					{
-						BadConversion=true;
+						BadSaveConfirmed=true;
 						break;
 					}
 					else

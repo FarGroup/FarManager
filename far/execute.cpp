@@ -765,7 +765,8 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
             int AlwaysWaitFinish,  // Ждать завершение процесса?
             int SeparateWindow,    // Выполнить в отдельном окне? =2 для вызова ShellExecuteEx()
             int DirectRun,         // Выполнять директом? (без CMD)
-            int FolderRun)         // Это фолдер?
+            int FolderRun,         // Это фолдер?
+            bool WaitForIdle) // for list files
 {
 	int nResult = -1;
 	string strNewCmdStr;
@@ -1091,6 +1092,10 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 			}
 
 			ScrBuf.FillBuf();
+			if(WaitForIdle)
+			{
+				WaitForInputIdle(hProcess, INFINITE);
+			}
 			CloseHandle(hProcess);
 		}
 
@@ -1144,7 +1149,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 }
 
 
-int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
+int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int SeparateWindow,int DirectRun, bool WaitForIdle)
 {
 	LastCmdPartLength=-1;
 
@@ -1195,7 +1200,7 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
 			if (Code == -1)
 				ReplaceStrings(strTempStr,L"/",L"\\",-1);
 
-			Code=Execute(strTempStr,AlwaysWaitFinish,SeparateWindow,DirectRun);
+			Code=Execute(strTempStr,AlwaysWaitFinish,SeparateWindow,DirectRun, 0, WaitForIdle);
 		}
 
 		GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),&sbi1);

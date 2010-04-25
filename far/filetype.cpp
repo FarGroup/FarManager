@@ -299,6 +299,7 @@ bool ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode
 	string strListName, strAnotherListName;
 	string strShortListName, strAnotherShortListName;
 	int PreserveLFN=SubstFileName(strCommand,Name,ShortName,&strListName,&strAnotherListName, &strShortListName, &strAnotherShortListName);
+	bool ListFileUsed=!strListName.IsEmpty()||!strAnotherListName.IsEmpty()||!strShortListName.IsEmpty()||!strAnotherShortListName.IsEmpty();
 
 	// Снова все "подставлено", теперь проверим условия "if exist"
 	if (ExtractIfExistCommand(strCommand))
@@ -319,7 +320,7 @@ bool ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode
 
 			if (!isSilent)
 			{
-				CtrlObject->CmdLine->ExecString(strCommand,AlwaysWaitFinish);
+				CtrlObject->CmdLine->ExecString(strCommand,AlwaysWaitFinish, 0, 0, ListFileUsed);
 
 				if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTFARASS) && !AlwaysWaitFinish) //AN
 					CtrlObject->CmdHistory->AddToHistory(strCommand);
@@ -330,14 +331,14 @@ bool ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode
 				SaveScreen SaveScr;
 				CtrlObject->Cp()->LeftPanel->CloseFile();
 				CtrlObject->Cp()->RightPanel->CloseFile();
-				Execute(strCommand,AlwaysWaitFinish);
+				Execute(strCommand,AlwaysWaitFinish, 0, 0, 0, ListFileUsed);
 #else
 				// здесь была бага с прорисовкой (и... вывод данных
 				// на команду "@type !@!" пропадал с экрана)
 				// сделаем по аналогии с CommandLine::CmdExecute()
 				{
 					RedrawDesktop RdrwDesktop(TRUE);
-					Execute(strCommand,AlwaysWaitFinish);
+					Execute(strCommand,AlwaysWaitFinish, 0, 0, 0, ListFileUsed);
 					ScrollScreen(1); // обязательно, иначе деструктор RedrawDesktop
 					// проредравив экран забьет последнюю строку вывода.
 				}
@@ -407,6 +408,7 @@ void ProcessExternal(const wchar_t *Command,const wchar_t *Name,const wchar_t *S
 	string strFullExecStr = Command;
 	{
 		int PreserveLFN=SubstFileName(strExecStr,Name,ShortName,&strListName,&strAnotherListName, &strShortListName, &strAnotherShortListName);
+		bool ListFileUsed=!strListName.IsEmpty()||!strAnotherListName.IsEmpty()||!strShortListName.IsEmpty()||!strAnotherShortListName.IsEmpty();
 
 		// Снова все "подставлено", теперь проверим условия "if exist"
 		if (!ExtractIfExistCommand(strExecStr))
@@ -425,13 +427,13 @@ void ProcessExternal(const wchar_t *Command,const wchar_t *Name,const wchar_t *S
 		CtrlObject->ViewHistory->AddToHistory(strFullExecStr,(AlwaysWaitFinish&1)+2);
 
 		if (strExecStr.At(0) != L'@')
-			CtrlObject->CmdLine->ExecString(strExecStr,AlwaysWaitFinish);
+			CtrlObject->CmdLine->ExecString(strExecStr,AlwaysWaitFinish, 0, 0, ListFileUsed);
 		else
 		{
 			SaveScreen SaveScr;
 			CtrlObject->Cp()->LeftPanel->CloseFile();
 			CtrlObject->Cp()->RightPanel->CloseFile();
-			Execute(strExecStr.CPtr()+1,AlwaysWaitFinish);
+			Execute(strExecStr.CPtr()+1,AlwaysWaitFinish, 0, 0, 0, ListFileUsed);
 		}
 	}
 

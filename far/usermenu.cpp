@@ -845,6 +845,7 @@ int UserMenu::ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t
 					*/
 					//;
 					int PreserveLFN=SubstFileName(strCommand,strName,strShortName,&strListName,&strAnotherListName, &strShortListName,&strAnotherShortListName, FALSE, strCmdLineDir);
+					bool ListFileUsed=!strListName.IsEmpty()||!strAnotherListName.IsEmpty()||!strShortListName.IsEmpty()||!strAnotherShortListName.IsEmpty();
 
 					if (ExtractIfExistCommand(strCommand))
 					{
@@ -867,14 +868,14 @@ int UserMenu::ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t
 
 							if (!isSilent)
 							{
-								CtrlObject->CmdLine->ExecString(strCommand,FALSE);
+								CtrlObject->CmdLine->ExecString(strCommand,FALSE, 0, 0, ListFileUsed);
 							}
 							else
 							{
 								SaveScreen SaveScr;
 								CtrlObject->Cp()->LeftPanel->CloseFile();
 								CtrlObject->Cp()->RightPanel->CloseFile();
-								Execute(strCommand,TRUE);
+								Execute(strCommand,TRUE, 0, 0, 0, ListFileUsed);
 							}
 						}
 					}

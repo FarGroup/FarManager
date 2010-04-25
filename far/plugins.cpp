@@ -1433,6 +1433,14 @@ void PluginManager::Configure(int StartPos)
 
 int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName)
 {
+	if(ModalType == MODALTYPE_DIALOG)
+	{
+		if(reinterpret_cast<Dialog*>(FrameManager->GetCurrentFrame())->CheckDialogMode(DMODE_NOPLUGINS))
+		{
+			return 0;
+		}
+	}
+
 	int MenuItemNumber=0;
 	int PrevMacroMode=CtrlObject->Macro.GetMode();
 	CtrlObject->Macro.SetMode(MACRO_MENU);

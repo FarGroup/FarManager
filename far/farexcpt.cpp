@@ -181,7 +181,7 @@ bool ExcDialog(LPCWSTR ModuleName,LPCWSTR Exception,LPVOID Adress)
 	};
 	MakeDialogItemsEx(EditDlgData,EditDlg);
 	Dialog Dlg(EditDlg, countof(EditDlg),ExcDlgProc);
-	Dlg.SetDialogMode(DMODE_WARNINGSTYLE);
+	Dlg.SetDialogMode(DMODE_WARNINGSTYLE|DMODE_NOPLUGINS);
 	Dlg.SetPosition(-1,-1,66,10);
 	Dlg.Process();
 	return Dlg.GetExitCode()==11;

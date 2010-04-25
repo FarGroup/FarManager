@@ -121,6 +121,7 @@ TaskBar::~TaskBar()
 {
 	if (TBC.GetProgressState()!=TBPF_NOPROGRESS)
 		TBC.SetProgressState(TBPF_NOPROGRESS);
+	TBC.Flash();
 }
 
 

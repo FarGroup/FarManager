@@ -227,7 +227,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 {
 	if (ACTL_SYNCHRO==Command) //must be first
 	{
-		PluginSynchroManager.Synchro(ModuleNumber,Param);
+		PluginSynchroManager.Synchro(true, ModuleNumber, Param);
 		return 0;
 	}
 

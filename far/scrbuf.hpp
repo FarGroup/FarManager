@@ -44,6 +44,7 @@ class ScreenBuf
 		CHAR_INFO *Buf;
 		CHAR_INFO *Shadow;
 		CHAR_INFO MacroChar;
+		CHAR_INFO ElevationChar;
 
 		SHORT BufX,BufY;
 		SHORT CurX,CurY;
@@ -74,6 +75,7 @@ class ScreenBuf
 		void Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text,int MaxTextLength);
 		void Write(int X,int Y,const CHAR_INFO *Text,int TextLength);
 		void RestoreMacroChar();
+		void RestoreElevationChar();
 
 		void ApplyColorMask(int X1,int Y1,int X2,int Y2,WORD ColorMask);
 		void ApplyColor(int X1,int Y1,int X2,int Y2,WORD Color);

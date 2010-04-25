@@ -84,6 +84,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "processname.hpp"
 #include "mix.hpp"
 #include "constitle.hpp"
+#include "adminmode.hpp"
 
 extern PanelViewSettings ViewSettingsArray[];
 extern size_t SizeViewSettingsArray;
@@ -799,6 +800,8 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 int FileList::ProcessKey(int Key)
 {
+	Admin.ResetApprove();
+
 	FileListItem *CurPtr=nullptr;
 	int N;
 	int CmdLength=CtrlObject->CmdLine->GetLength();
@@ -2781,6 +2784,8 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 
 int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
+	Admin.ResetApprove();
+
 	FileListItem *CurPtr;
 	int RetCode;
 
@@ -4380,6 +4385,7 @@ bool FileList::ApplyCommand()
 		string strShortListName, strAnotherShortListName;
 		string strConvertedCommand = strCommand;
 		int PreserveLFN=SubstFileName(strConvertedCommand,strSelName,strSelShortName,&strListName,&strAnotherListName,&strShortListName, &strAnotherShortListName);
+		bool ListFileUsed=!strListName.IsEmpty()||!strAnotherListName.IsEmpty()||!strShortListName.IsEmpty()||!strAnotherShortListName.IsEmpty();
 
 		if (ExtractIfExistCommand(strConvertedCommand))
 		{
@@ -4392,7 +4398,7 @@ bool FileList::ApplyCommand()
 
 				if (!isSilent)   // TODO: Çהוסü םו isSilent!
 				{
-					CtrlObject->CmdLine->ExecString(strConvertedCommand,FALSE); // Param2 == TRUE?
+					CtrlObject->CmdLine->ExecString(strConvertedCommand,FALSE, 0, 0, ListFileUsed); // Param2 == TRUE?
 					//if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTAPPLYCMD))
 					//	CtrlObject->CmdHistory->AddToHistory(strConvertedCommand);
 				}
@@ -4401,7 +4407,7 @@ bool FileList::ApplyCommand()
 					//SaveScreen SaveScr;
 					CtrlObject->Cp()->LeftPanel->CloseFile();
 					CtrlObject->Cp()->RightPanel->CloseFile();
-					Execute(strConvertedCommand,FALSE,FALSE);
+					Execute(strConvertedCommand,FALSE,FALSE, 0, 0, ListFileUsed);
 				}
 			}
 

@@ -55,7 +55,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "dirmix.hpp"
 #include "interf.hpp"
-#include "adminmode.hpp"
 
 FilePanels::FilePanels():
 	LastLeftFilePanel(0),
@@ -416,8 +415,6 @@ int FilePanels::ProcessKey(int Key)
 {
 	if (!Key)
 		return(TRUE);
-
-	Admin.ResetApprove();
 
 	if ((Key==KEY_CTRLLEFT || Key==KEY_CTRLRIGHT || Key==KEY_CTRLNUMPAD4 || Key==KEY_CTRLNUMPAD6
 	        /* || Key==KEY_CTRLUP   || Key==KEY_CTRLDOWN || Key==KEY_CTRLNUMPAD8 || Key==KEY_CTRLNUMPAD2 */) &&

@@ -36,6 +36,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plclass.hpp"
 #include "plugin.hpp"
 
+#include "adminmode.hpp"
+
 PluginSynchro PluginSynchroManager;
 
 PluginSynchro::PluginSynchro():
@@ -48,13 +50,14 @@ PluginSynchro::~PluginSynchro()
 	CloseHandle(Mutex);
 }
 
-void PluginSynchro::Synchro(INT_PTR ModuleNumber,void* Param)
+void PluginSynchro::Synchro(bool Plugin, INT_PTR ModuleNumber,void* Param)
 {
 	if (Mutex)
 	{
 		if (WaitForSingleObject(Mutex,INFINITE)==WAIT_OBJECT_0)
 		{
 			SynchroData* item=Data.Push();
+			item->Plugin=Plugin;
 			item->ModuleNumber=ModuleNumber;
 			item->Param=Param;
 			ReleaseMutex(Mutex);
@@ -68,7 +71,7 @@ bool PluginSynchro::Process(void)
 
 	if (Mutex)
 	{
-		bool process=false; INT_PTR module=0; void* param=nullptr;
+		bool process=false; bool plugin=false; INT_PTR module=0; void* param=nullptr;
 
 		if (WaitForSingleObject(Mutex,INFINITE)==WAIT_OBJECT_0)
 		{
@@ -77,6 +80,7 @@ bool PluginSynchro::Process(void)
 			if (item)
 			{
 				process=true;
+				plugin=item->Plugin;
 				module=item->ModuleNumber;
 				param=item->Param;
 				Data.Delete(item);
@@ -87,11 +91,19 @@ bool PluginSynchro::Process(void)
 
 		if (process)
 		{
-			Plugin* pPlugin=(Plugin*)module;
-
-			if (pPlugin)
+			if(plugin)
 			{
-				pPlugin->ProcessSynchroEvent(SE_COMMONSYNCHRO,param);
+				Plugin* pPlugin=(Plugin*)module;
+
+				if (pPlugin)
+				{
+					pPlugin->ProcessSynchroEvent(SE_COMMONSYNCHRO,param);
+					res=true;
+				}
+			}
+			else
+			{
+				AdminApproveDlgSync(param);
 				res=true;
 			}
 		}

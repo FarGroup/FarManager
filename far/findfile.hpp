@@ -33,35 +33,20 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-enum
+enum FINDAREA
 {
-	FFSEARCH_ALL,
-	FFSEARCH_ALL_BUTNETWORK,
-	FFSEARCH_INPATH,
-	FFSEARCH_ROOT,
-	FFSEARCH_FROM_CURRENT,
-	FFSEARCH_CURRENT_ONLY,
-	FFSEARCH_SELECTED,
+	FINDAREA_ALL,
+	FINDAREA_ALL_BUTNETWORK,
+	FINDAREA_INPATH,
+	FINDAREA_ROOT,
+	FINDAREA_FROM_CURRENT,
+	FINDAREA_CURRENT_ONLY,
+	FINDAREA_SELECTED,
 };
 
 class FindFiles
 {
-	private:
-		bool FindFilesProcess();
-		static LONG_PTR WINAPI FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
-		static void DoScanTree(HANDLE hDlg,string& strRoot);
-		static void DoPrepareFileList(HANDLE hDlg);
-		static DWORD WINAPI PrepareFilesList(void *Param);
-		static void DoPreparePluginList(HANDLE hDlg,bool Internal);
-		static DWORD WINAPI PreparePluginList(void* Param);
-		static void DoWriteDialogData(HANDLE hDlg);
-		static DWORD WINAPI WriteDialogData(void *Param);
-		static void ScanPluginTree(HANDLE hDlg,HANDLE hPlugin, DWORD Flags);
-		static void ArchiveSearch(HANDLE hDlg,const wchar_t *ArcName);
-		static void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, FAR_FIND_DATA_EX *FindData);
-		static void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, FAR_FIND_DATA *FindData);
-
-	public:
-		FindFiles();
-		~FindFiles();
+public:
+	FindFiles();
+	~FindFiles();
 };
