@@ -909,7 +909,7 @@ bool GetFileFormat(File& file, UINT& nCodePage, bool* pSignatureFound, bool bUse
 	bool bDetect=false;
 
 	DWORD Readed = 0;
-	if (file.Read(&dwTemp, sizeof(dwTemp), &Readed) && Readed == sizeof(dwTemp))
+	if (file.Read(&dwTemp, sizeof(dwTemp), &Readed) && Readed > 1 ) // minimum signature size is 2 bytes
 	{
 		if (LOWORD(dwTemp) == SIGN_UNICODE)
 		{

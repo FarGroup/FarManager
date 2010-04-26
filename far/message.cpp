@@ -177,7 +177,7 @@ int Message(
 
 	// предварительный обсчет максимального размера.
 	for (BtnLength=0,I=0; I<static_cast<DWORD>(Buttons); I++) //??
-		BtnLength+=HiStrlen(Items[I+StrCount])+5;
+		BtnLength+=HiStrlen(Items[I+StrCount])+6;
 
 	for (MaxLength=BtnLength,I=0; I<StrCount; I++)
 	{
