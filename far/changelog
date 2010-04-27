@@ -1,3 +1,7 @@
+drkns 27.04.2010 16:47:00 +0200 - build 1525
+
+1. И снова всякое про FindFiles.
+
 chupakabra 27.04.2010 16:32:00 +0200
 
 1. makefile_vc: для VS2010 Platform=x64.
