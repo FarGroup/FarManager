@@ -1,3 +1,7 @@
+chupakabra 27.04.2010 16:32:00 +0200
+
+1. makefile_vc: для VS2010 Platform=x64.
+
 drkns 27.04.2010 15:47:00 +0200 - build 1524
 
 1. Ещё одно уточнение в Message().
