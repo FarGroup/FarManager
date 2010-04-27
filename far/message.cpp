@@ -268,7 +268,17 @@ int Message(
 		}
 	}
 
-	for (J=0; J < ItemsNumber; ++J, ++I)
+	bool EmptyText=false;
+	if(ItemsNumber==Buttons && !I)
+	{
+		EmptyText=true;
+		Str[I]=L"";
+		I++;
+		StrCount++;
+		ItemsNumber++;
+	}
+
+	for (J=0; J < ItemsNumber-(EmptyText?1:0); ++J, ++I)
 	{
 		Str[I]=Items[J];
 	}
