@@ -1509,7 +1509,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,int Param1,LONG_PTR Param2)
 
 HANDLE WINAPI FarSaveScreen(int X1,int Y1,int X2,int Y2)
 {
-	if (FrameManager->ManagerIsDown())
+	if (DisablePluginsOutput || FrameManager->ManagerIsDown())
 		return nullptr;
 
 	if (X2==-1)
@@ -1524,7 +1524,7 @@ HANDLE WINAPI FarSaveScreen(int X1,int Y1,int X2,int Y2)
 
 void WINAPI FarRestoreScreen(HANDLE hScreen)
 {
-	if (FrameManager->ManagerIsDown())
+	if (DisablePluginsOutput || FrameManager->ManagerIsDown())
 		return;
 
 	if (hScreen==nullptr)
@@ -2090,7 +2090,7 @@ int WINAPI FarCmpName(const wchar_t *pattern,const wchar_t *string,int skippath)
 
 void WINAPI FarText(int X,int Y,int Color,const wchar_t *Str)
 {
-	if (FrameManager->ManagerIsDown())
+	if (DisablePluginsOutput || FrameManager->ManagerIsDown())
 		return;
 
 	if (Str==nullptr)

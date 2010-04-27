@@ -122,7 +122,6 @@ public:
 	{
 		CriticalSectionLock Lock(DataCS);
 		Stop=false;
-		Pause=false;
 		Done=false;
 		FindFileArcIndex=LIST_INDEX_NONE;
 		Percent=0;
@@ -140,9 +139,6 @@ public:
 
 	bool GetStop(){CriticalSectionLock Lock(DataCS); return Stop;}
 	void SetStop(bool Value){CriticalSectionLock Lock(DataCS); Stop=Value;}
-
-	bool GetPause(){CriticalSectionLock Lock(DataCS); return Pause;}
-	void SetPause(bool Value){CriticalSectionLock Lock(DataCS); Pause=Value;}
 
 	bool GetDone(){CriticalSectionLock Lock(DataCS); return Done;}
 	void SetDone(bool Value){CriticalSectionLock Lock(DataCS); Done=Value;}
@@ -356,6 +352,8 @@ string strLastDirName;
 string strPluginSearchPath;
 
 CriticalSection PluginCS;
+
+HANDLE PauseEvent=nullptr;
 
 bool UseFilter=false;
 UINT CodePage=CP_AUTODETECT;
@@ -1603,13 +1601,13 @@ LONG_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 				{
 					if (!itd.GetStop())
 					{
-						itd.SetPause(true);
+						ResetEvent(PauseEvent);
 						IsProcessAssignMacroKey--;
 						bool LocalRes=true;
 						if (Opt.Confirm.Esc)
 							LocalRes=AbortMessage()!=0;
 						IsProcessAssignMacroKey++;
-						itd.SetPause(false);
+						SetEvent(PauseEvent);
 						itd.SetStop(LocalRes);
 						return TRUE;
 					}
@@ -2297,7 +2295,8 @@ void ArchiveSearch(HANDLE hDlg, const wchar_t *ArcName)
 {
 	_ALGO(CleverSysLog clv(L"FindFiles::ArchiveSearch()"));
 	_ALGO(SysLog(L"ArcName='%s'",(ArcName?ArcName:L"nullptr")));
-	char *Buffer=new char[Opt.PluginMaxReadData];
+	
+	LPBYTE Buffer=new BYTE[Opt.PluginMaxReadData];
 
 	if (!Buffer)
 	{
@@ -2305,20 +2304,26 @@ void ArchiveSearch(HANDLE hDlg, const wchar_t *ArcName)
 		return;
 	}
 
-	FILE *ProcessFile=_wfopen(ArcName,L"rb");
-
-	if (ProcessFile==nullptr)
+	File ProcessFile;
+	if(!ProcessFile.Open(ArcName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
 	{
 		delete[] Buffer;
 		return;
 	}
 
-	int ReadSize=(int)fread(Buffer,1,Opt.PluginMaxReadData,ProcessFile);
-	fclose(ProcessFile);
+	DWORD ReadSize=0;
+	bool Read=ProcessFile.Read(Buffer, Opt.PluginMaxReadData, &ReadSize);
+	ProcessFile.Close();
+	if(!Read||!ReadSize)
+	{
+		delete[] Buffer;
+		return;
+	}
+
 	int SavePluginsOutput=DisablePluginsOutput;
 	DisablePluginsOutput=TRUE;
 	string strArcName = ArcName;
-	HANDLE hArc=CtrlObject->Plugins.OpenFilePlugin(strArcName,(unsigned char *)Buffer,ReadSize,OPM_FIND);
+	HANDLE hArc=CtrlObject->Plugins.OpenFilePlugin(strArcName, Buffer, ReadSize, OPM_FIND);
 	DisablePluginsOutput=SavePluginsOutput;
 	delete[] Buffer;
 
@@ -2338,6 +2343,9 @@ void ArchiveSearch(HANDLE hDlg, const wchar_t *ArcName)
 	int SaveSearchMode=SearchMode;
 	size_t SaveArcIndex = itd.GetFindFileArcIndex();
 	{
+		int SavePluginsOutput=DisablePluginsOutput;
+		DisablePluginsOutput=TRUE;
+
 		SearchMode=FINDAREA_FROM_CURRENT;
 		OpenPluginInfo Info;
 		CtrlObject->Plugins.GetOpenPluginInfo(hArc,&Info);
@@ -2364,6 +2372,8 @@ void ArchiveSearch(HANDLE hDlg, const wchar_t *ArcName)
 			if (SaveListCount == itd.GetFindListCount())
 				strLastDirName = strSaveDirName;
 		}
+
+		DisablePluginsOutput=SavePluginsOutput;
 	}
 	itd.SetFindFileArcIndex(SaveArcIndex);
 	SearchMode=SaveSearchMode;
@@ -2406,10 +2416,8 @@ void DoScanTree(HANDLE hDlg, string& strRoot)
 
 		while (!itd.GetStop() && ScTree.GetNextName(&FindData,strFullName))
 		{
-			while (itd.GetPause())
-			{
-				Sleep(1);
-			}
+			Sleep(0);
+			WaitForSingleObject(PauseEvent, INFINITE);
 
 			bool bContinue=false;
 			WIN32_FIND_STREAM_DATA sd;
@@ -2555,10 +2563,8 @@ void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, DWORD Flags, int& RecurseLevel)
 	{
 		for (int I=0; I<ItemCount && !itd.GetStop(); I++)
 		{
-			while (itd.GetPause())
-			{
-				Sleep(1);
-			}
+			Sleep(0);
+			WaitForSingleObject(PauseEvent, INFINITE);
 
 			PluginPanelItem *CurPanelItem=PanelData+I;
 			string strCurName=CurPanelItem->FindData.lpwszFileName;
@@ -2718,7 +2724,6 @@ void DoPrepareFileList(HANDLE hDlg)
 
 void DoPreparePluginList(HANDLE hDlg, bool Internal)
 {
-	Sleep(1);
 	ARCLIST ArcItem;
 	itd.GetArcListItem(itd.GetFindFileArcIndex(), ArcItem);
 	OpenPluginInfo Info;
@@ -2756,27 +2761,19 @@ void DoPreparePluginList(HANDLE hDlg, bool Internal)
 	}
 }
 
-DWORD WINAPI PrepareFilesList(void *Param)
+struct THREADPARAM
 {
-	__try
-	{
-		InitInFileSearch();
-		DoPrepareFileList(reinterpret_cast<HANDLE>(Param));
-		ReleaseInFileSearch();
-	}
-	__except(xfilter(EXCEPT_KERNEL,GetExceptionInformation(),nullptr,1))
-	{
-		TerminateProcess(GetCurrentProcess(), 1);
-	}
-	return 0;
-}
+	bool PluginMode;
+	HANDLE hDlg;
+};
 
-DWORD WINAPI PreparePluginList(LPVOID Param)
+DWORD WINAPI ThreadRoutine(LPVOID Param)
 {
 	__try
 	{
 		InitInFileSearch();
-		DoPreparePluginList(reinterpret_cast<HANDLE>(Param), false);
+		THREADPARAM* tParam=reinterpret_cast<THREADPARAM*>(Param);
+		tParam->PluginMode?DoPreparePluginList(tParam->hDlg, false):DoPrepareFileList(tParam->hDlg);
 		ReleaseInFileSearch();
 	}
 	__except(xfilter(EXCEPT_KERNEL,GetExceptionInformation(),nullptr,1))
@@ -2894,7 +2891,9 @@ bool FindFilesProcess(Vars& v)
 	Dlg.Show();
 
 	strLastDirName.Clear();
-	HANDLE Thread = CreateThread(nullptr,0,v.PluginMode?PreparePluginList:PrepareFilesList,&Dlg,0,nullptr);
+
+	THREADPARAM Param={v.PluginMode,reinterpret_cast<HANDLE>(&Dlg)};
+	HANDLE Thread = CreateThread(nullptr, 0, ThreadRoutine, &Param, 0, nullptr);
 	if (Thread)
 	{
 		v.TB=new TaskBar;
@@ -2903,7 +2902,6 @@ bool FindFilesProcess(Vars& v)
 		IsProcessAssignMacroKey--;
 		WaitForSingleObject(Thread,INFINITE);
 		CloseHandle(Thread);
-
 		switch (Dlg.GetExitCode())
 		{
 			case FD_BUTTON_NEW:
@@ -3122,6 +3120,9 @@ FindFiles::FindFiles()
 	strSearchFromRoot = MSG(MSearchFromRootFolder);
 
 	Vars v;
+
+		PauseEvent=CreateEvent(nullptr, TRUE, TRUE, nullptr);
+
 	do
 	{
 		v.Clear();
@@ -3321,5 +3322,9 @@ FindFiles::~FindFiles()
 	ScrBuf.ResetShadow();
 
 	if (Filter)
+	{
 		delete Filter;
+	}
+
+	CloseHandle(PauseEvent);
 }

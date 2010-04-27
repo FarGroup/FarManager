@@ -464,74 +464,97 @@ bool DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
 		strDizFileName += strArgName;
 	}
 
-	FILE *DizFile;
 	DWORD FileAttr=apiGetFileAttributes(strDizFileName);
-
+	
 	if (FileAttr != INVALID_FILE_ATTRIBUTES)
 	{
-		if (Opt.Diz.ROUpdate && (FileAttr&FILE_ATTRIBUTE_READONLY))
-			apiSetFileAttributes(strDizFileName,FileAttr&(~FILE_ATTRIBUTE_READONLY));
-
-		if ((FileAttr & FILE_ATTRIBUTE_READONLY)==0)
-			apiSetFileAttributes(strDizFileName,FILE_ATTRIBUTE_ARCHIVE);
-	}
-
-	if ((DizFile=_wfopen(NTPath(strDizFileName),L"wb"))==nullptr)
-	{
-		if (!Opt.Diz.ROUpdate && (FileAttr&FILE_ATTRIBUTE_READONLY))
-			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotUpdateDiz),MSG(MCannotUpdateRODiz),MSG(MOk));
-		else
-			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotUpdateDiz),MSG(MOk));
-
-		return false;
-	}
-
-	int AddedDizCount=0;
-	UINT CodePage = Opt.Diz.SaveInUTF ? CP_UTF8 : (Opt.Diz.AnsiByDefault ? CP_ACP : CP_OEMCP);
-
-	if (CodePage == CP_UTF8)
-	{
-		DWORD dwSignature = SIGN_UTF8;
-		fwrite(&dwSignature, 1, 3, DizFile);
-	}
-
-	for (int I=0; I<DizCount; I++)
-	{
-		if (!DizData[I].Deleted)
+		if (FileAttr&FILE_ATTRIBUTE_READONLY)
 		{
-			int len = DizData[I].DizLength;
-			char *lpDizText = (char *) xf_malloc((len+1)*3); //UTF-8, up to 3 bytes per char support
-
-			if (lpDizText)
+			if(Opt.Diz.ROUpdate)
 			{
-				WideCharToMultiByte(CodePage, 0, DizData[I].DizText, len+1, lpDizText, (len+1)*3, nullptr, nullptr);
-				fprintf(DizFile,"%s\r\n", lpDizText);
-				xf_free(lpDizText);
-				AddedDizCount++;
+				if(apiSetFileAttributes(strDizFileName,FileAttr))
+				{
+					FileAttr^=FILE_ATTRIBUTE_READONLY;
+				}
 			}
+		}
+
+		if(!(FileAttr&FILE_ATTRIBUTE_READONLY))
+		{
+			apiSetFileAttributes(strDizFileName,FILE_ATTRIBUTE_ARCHIVE);
+		}
+		else
+		{
+			Message(MSG_WARNING,1,MSG(MError),MSG(MCannotUpdateDiz),MSG(MCannotUpdateRODiz),MSG(MOk));
+			return false;
 		}
 	}
 
-	int CloseCode=fclose(DizFile);
+	File DizFile;
 
-	if (AddedDizCount==0)
-		apiDeleteFile(strDizFileName); //BUGBUG
+	bool AnyError=false;
 
-	if (FileAttr==INVALID_FILE_ATTRIBUTES)
+	if(DizFile.Open(strDizFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS))
 	{
-		FileAttr=FILE_ATTRIBUTE_ARCHIVE;
+		UINT CodePage = Opt.Diz.SaveInUTF ? CP_UTF8 : (Opt.Diz.AnsiByDefault ? CP_ACP : CP_OEMCP);
 
-		if (Opt.Diz.SetHidden)
-			FileAttr|=FILE_ATTRIBUTE_HIDDEN;
+		if (CodePage == CP_UTF8)
+		{
+			DWORD dwSignature = SIGN_UTF8;
+			DWORD Written;
+			if(!(DizFile.Write(&dwSignature, 3, &Written) && Written==3))
+			{
+				AnyError=true;
+			}
+		}
+
+		if(!AnyError)
+		{
+			for (int I=0; I<DizCount; I++)
+			{
+				if (!DizData[I].Deleted)
+				{
+					DWORD Size=(DizData[I].DizLength+1)*(CodePage == CP_UTF8?3:1); //UTF-8, up to 3 bytes per char support
+					char* lpDizText = new char[Size];
+					if (lpDizText)
+					{
+						int BytesCount=WideCharToMultiByte(CodePage, 0, DizData[I].DizText, DizData[I].DizLength+1, lpDizText, Size, nullptr, nullptr);
+						if(BytesCount)
+						{
+							DWORD Written=0;
+							if(!(DizFile.Write(lpDizText, BytesCount, &Written) && Written==BytesCount))
+							{
+								AnyError=true;
+								break;
+							}
+							if(!(DizFile.Write("\r\n", 2, &Written) && Written==2))
+							{
+								AnyError=true;
+								break;
+							}
+						}
+						delete[] lpDizText;
+					}
+				}
+			}
+		}
+		DizFile.Close();
+
+		if (AnyError && FileAttr==INVALID_FILE_ATTRIBUTES)
+		{
+			apiDeleteFile(strDizFileName);
+		}
 	}
-
-	apiSetFileAttributes(strDizFileName,FileAttr);
-
-	if (CloseCode==EOF)
+	if(!AnyError)
 	{
-		clearerr(DizFile);
-		fclose(DizFile);
-		apiDeleteFile(strDizFileName); //BUGBUG
+		if (FileAttr==INVALID_FILE_ATTRIBUTES)
+		{
+			FileAttr=FILE_ATTRIBUTE_ARCHIVE|(Opt.Diz.SetHidden?FILE_ATTRIBUTE_HIDDEN:0);
+		}
+		apiSetFileAttributes(strDizFileName,FileAttr);
+	}
+	else
+	{
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotUpdateDiz),MSG(MOk));
 		return false;
 	}

@@ -375,7 +375,10 @@ int Message(
 				{
 					CPtrStr++;
 					PtrMsgDlg->Flags|=(Chr==2?DIF_SEPARATOR2:DIF_SEPARATOR);
-					StrSeparator=true;
+					if(I==StrCount)
+					{
+						StrSeparator=true;
+					}
 				}
 				else if (StrLength(CPtrStr)>X2-X1-9)
 				{

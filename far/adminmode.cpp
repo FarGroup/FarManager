@@ -303,7 +303,7 @@ bool AdminMode::Initialize()
 			{
 				Process = info.hProcess;
 				OVERLAPPED Overlapped;
-				Overlapped.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+				Overlapped.hEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 				if(Overlapped.hEvent)
 				{
 					ConnectNamedPipe(Pipe, &Overlapped);
@@ -424,7 +424,7 @@ bool AdminMode::AdminApproveDlg(int Why, LPCWSTR Object)
 		AAData Data={nullptr, Why, Object, AskApprove, Approve, DontAskAgain};
 		if(GetCurrentThreadId()!=MainThreadID)
 		{
-			Data.Event=CreateEvent(NULL,FALSE,FALSE,NULL);
+			Data.Event=CreateEvent(nullptr, FALSE, FALSE, nullptr);
 			if(Data.Event)
 			{
 				PluginSynchroManager.Synchro(false, 0, &Data);
@@ -1609,7 +1609,7 @@ void CreateDirectoryHandler()
 	if(ReadPipeData(Pipe, Object))
 	{
 		// BUGBUG, SecurityAttributes ignored
-		int Result = CreateDirectory(Object.GetStr(), NULL);
+		int Result = CreateDirectory(Object.GetStr(), nullptr);
 		int LastError = GetLastError();
 		if(WritePipeInt(Pipe, Result))
 		{
@@ -2319,7 +2319,6 @@ int AdminMain(int PID)
 						Exit=true;
 					}
 				}
-				Sleep(1);
 			}
 		}
 	}
