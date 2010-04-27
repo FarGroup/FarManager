@@ -2888,6 +2888,10 @@ bool FindFilesProcess(Vars& v)
 		IsProcessAssignMacroKey--;
 		WaitForSingleObject(Thread,INFINITE);
 		CloseHandle(Thread);
+
+		SetEvent(PauseEvent);
+		ResetEvent(StopEvent);
+
 		switch (Dlg.GetExitCode())
 		{
 			case FD_BUTTON_NEW:

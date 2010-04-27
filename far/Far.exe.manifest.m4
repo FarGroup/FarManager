@@ -1,7 +1,7 @@
 ﻿m4_include(`farversion.m4')m4_dnl
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <!-- Copyright © 1996-2000 Eugene Roshal, Copyright © COPYRIGHTYEARS FAR Group -->
-<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3" >
 <assemblyIdentity
 	version="MAJOR.MINOR.0.BUILD"
 	processorArchitecture="*"
@@ -40,4 +40,9 @@
 		<supportedOS Id="{35138b9a-5d96-4fbd-8e2d-a2440225f93a}"/>
 	</application> 
 </compatibility>
+<asmv3:application>
+	<asmv3:windowsSettings xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">
+		<dpiAware>true</dpiAware>
+	</asmv3:windowsSettings>
+</asmv3:application>
 </assembly>

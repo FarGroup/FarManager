@@ -71,6 +71,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "processname.hpp"
 #include "constitle.hpp"
 #include "syslog.hpp"
+#include "CachedWrite.hpp"
+#include "filestr.hpp"
 
 static int _cdecl SortList(const void *el1,const void *el2);
 static int _cdecl SortCacheList(const void *el1,const void *el2);
@@ -545,7 +547,6 @@ int TreeList::ReadTree()
 	return TRUE;
 }
 
-//extern FILE *_wfopen(const wchar_t *filename, const wchar_t *mode);
 
 void TreeList::SaveTreeFile()
 {
@@ -575,25 +576,23 @@ void TreeList::SaveTreeFile()
 	}
 
 	bool Success=true;
-
+	CachedWrite Cache(TreeFile);
 	for (I=0; I<TreeCount && Success; I++)
 	{
-		DWORD Written;
-
 		if (RootLength>=ListData[I]->strName.GetLength())
 		{
 			DWORD Size=2*sizeof(WCHAR);
-			Success=(TreeFile.Write(L"\\\n",Size,&Written) && Written==Size);
+			Success=Cache.Write(L"\\\n",Size);
 		}
 		else
 		{
 			DWORD Size=static_cast<DWORD>((ListData[I]->strName.GetLength()-RootLength)*sizeof(WCHAR));
-			Success=(TreeFile.Write(ListData[I]->strName+RootLength,Size,&Written) && Written==Size);
+			Success=Cache.Write(ListData[I]->strName+RootLength,Size);
 			Size=1*sizeof(WCHAR);
-			Success=(TreeFile.Write(L"\n",Size,&Written) && Written==Size);
+			Success=Cache.Write(L"\n",Size);
 		}
 	}
-
+	Cache.Flush();
 	TreeFile.Close();
 
 	if (!Success)
@@ -1454,19 +1453,21 @@ void TreeList::ProcessEnter()
 
 int TreeList::ReadTreeFile()
 {
-	FILE *TreeFile=nullptr;
 	size_t RootLength=strRoot.IsEmpty()?0:strRoot.GetLength()-1;
 	string strName;
 	//SaveState();
 	FlushCache();
 	MkTreeFileName(strRoot,strName);
 
-	if (MustBeCached(strRoot) || (TreeFile=_wfopen(strName,L"rb"))==nullptr)
-		if (!GetCacheTreeName(strRoot,strName,FALSE) || (TreeFile=_wfopen(strName,L"rb"))==nullptr)
+	File TreeFile;
+	if (MustBeCached(strRoot) || (!TreeFile.Open(strName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING)))
+	{
+		if (!GetCacheTreeName(strRoot,strName,FALSE) || (!TreeFile.Open(strName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING)))
 		{
 			//RestoreState();
 			return(FALSE);
 		}
+	}
 
 	if (ListData)
 	{
@@ -1478,26 +1479,31 @@ int TreeList::ReadTreeFile()
 
 	ListData=nullptr;
 	TreeCount=0;
-	wchar_t *DirName=new wchar_t[NT_MAX_PATH];
-
-	if (DirName)
 	{
-		xwcsncpy(DirName, strRoot, NT_MAX_PATH);
 		string strLastDirName;
-
-		while (fgetws(DirName+RootLength,static_cast<int>(NT_MAX_PATH-RootLength),TreeFile)!=nullptr)
+		GetFileString GetStr(TreeFile);
+		LPWSTR Record=nullptr;
+		int RecordLength=0;
+		while(GetStr.GetString(&Record, CP_UNICODE, RecordLength) > 0)
 		{
-			if (!IsSlash(*(DirName+RootLength)) || StrCmpI(DirName,strLastDirName)==0)
+			string strDirName(strRoot, RootLength);
+			strDirName.Append(Record, RecordLength);
+			if (!IsSlash(*Record) || !StrCmpI(strDirName,strLastDirName))
+			{
 				continue;
+			}
 
-			strLastDirName=DirName;
-			wchar_t *ChPtr=wcschr(DirName,L'\n');
+			strLastDirName=strDirName;
+			size_t Pos=0;
+			if(strDirName.Pos(Pos, L'\n'))
+			{
+				strDirName.SetLength(Pos);
+			}
 
-			if (ChPtr)
-				*ChPtr=0;
-
-			if (RootLength>0 && DirName[RootLength-1]!=L':' && IsSlash(DirName[RootLength]) && DirName[RootLength+1]==0)
-				DirName[RootLength]=0;
+			if (RootLength>0 && strDirName.At(RootLength-1)!=L':' && IsSlash(strDirName.At(RootLength)) && !strDirName.At(RootLength+1))
+			{
+				strDirName.SetLength(RootLength);
+			}
 
 			if ((TreeCount & 255)==0)
 			{
@@ -1515,8 +1521,7 @@ int TreeList::ReadTreeFile()
 
 					ListData=nullptr;
 					TreeCount=0;
-					delete[] DirName;
-					fclose(TreeFile);
+					TreeFile.Close();
 					//RestoreState();
 					return(FALSE);
 				}
@@ -1526,14 +1531,12 @@ int TreeList::ReadTreeFile()
 
 			ListData[TreeCount] = new TreeItem;
 			ListData[TreeCount]->Clear();
-			ListData[TreeCount]->strName = DirName;
+			ListData[TreeCount]->strName = strDirName;
 			TreeCount++;
 		}
-
-		delete[] DirName;
 	}
 
-	fclose(TreeFile);
+	TreeFile.Close();
 
 	if (TreeCount==0)
 		return(FALSE);

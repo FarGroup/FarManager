@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "filestr.hpp"
 #include "codepage.hpp"
+#include "CachedWrite.hpp"
 
 static DizRecord *SearchDizData;
 static int _cdecl SortDizIndex(const void *el1,const void *el2);
@@ -498,11 +499,12 @@ bool DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
 	{
 		UINT CodePage = Opt.Diz.SaveInUTF ? CP_UTF8 : (Opt.Diz.AnsiByDefault ? CP_ACP : CP_OEMCP);
 
+		CachedWrite Cache(DizFile);
+		
 		if (CodePage == CP_UTF8)
 		{
 			DWORD dwSignature = SIGN_UTF8;
-			DWORD Written;
-			if(!(DizFile.Write(&dwSignature, 3, &Written) && Written==3))
+			if(!Cache.Write(&dwSignature, 3))
 			{
 				AnyError=true;
 			}
@@ -521,13 +523,12 @@ bool DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
 						int BytesCount=WideCharToMultiByte(CodePage, 0, DizData[I].DizText, DizData[I].DizLength+1, lpDizText, Size, nullptr, nullptr);
 						if(BytesCount)
 						{
-							DWORD Written=0;
-							if(!(DizFile.Write(lpDizText, BytesCount, &Written) && Written==BytesCount))
+							if(!Cache.Write(lpDizText, BytesCount))
 							{
 								AnyError=true;
 								break;
 							}
-							if(!(DizFile.Write("\r\n", 2, &Written) && Written==2))
+							if(!Cache.Write("\r\n", 2))
 							{
 								AnyError=true;
 								break;
@@ -538,6 +539,15 @@ bool DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
 				}
 			}
 		}
+
+		if(!AnyError)
+		{
+			if(!Cache.Flush())
+			{
+				AnyError=true;
+			}
+		}
+		
 		DizFile.Close();
 
 		if (AnyError && FileAttr==INVALID_FILE_ATTRIBUTES)
