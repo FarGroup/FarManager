@@ -4373,7 +4373,7 @@ void Editor::GoToPosition()
 {
 	DialogBuilder Builder(MEditGoToLine, L"EditorGotoPos");
 	string strData;
-	Builder.AddEditField(&strData,28,L"LineNumber",DIF_HISTORY|DIF_USELASTHISTORY|DIF_NOAUTOCOMPLETE)->Focus;
+	Builder.AddEditField(&strData,28,L"LineNumber",DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY|DIF_NOAUTOCOMPLETE);
 	Builder.AddOKCancel();
 	Builder.ShowDialog();
 	if(!strData.IsEmpty())

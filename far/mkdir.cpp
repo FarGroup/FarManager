@@ -111,14 +111,14 @@ void ShellMakeDir(Panel *SrcPanel)
 	UserDefinedList DirList(0,0,ULF_UNIQUE);
 	DialogDataEx MkDirDlgData[]=
 	{
-		DI_DOUBLEBOX,3,1,72,8,0,0,0,0,MSG(MMakeFolderTitle),
-		DI_TEXT,     5,2, 0,2,0,0,0,0,MSG(MCreateFolder),
-		DI_EDIT,     5,3,70,3,1,(DWORD_PTR)L"NewFolder",DIF_EDITEXPAND|DIF_HISTORY|DIF_USELASTHISTORY|DIF_EDITPATH,0,L"",
-		DI_TEXT,     0,4, 0,4,0,0,DIF_SEPARATOR,0,L"",
-		DI_CHECKBOX, 5,5, 0,5,0,Opt.MultiMakeDir, 0,0,MSG(MMultiMakeDir),
-		DI_TEXT,     0,6, 0,6,0,0,DIF_SEPARATOR,0,L"",
-		DI_BUTTON,   0,7, 0,7,0,0,DIF_CENTERGROUP,1,MSG(MOk),
-		DI_BUTTON,   0,7, 0,7,0,0,DIF_CENTERGROUP,0,MSG(MCancel),
+		DI_DOUBLEBOX,3,1,72,8,0,0,MSG(MMakeFolderTitle),
+		DI_TEXT,     5,2, 0,2,0,0,MSG(MCreateFolder),
+		DI_EDIT,     5,3,70,3,(DWORD_PTR)L"NewFolder",DIF_FOCUS|DIF_EDITEXPAND|DIF_HISTORY|DIF_USELASTHISTORY|DIF_EDITPATH,L"",
+		DI_TEXT,     0,4, 0,4,0,DIF_SEPARATOR,L"",
+		DI_CHECKBOX, 5,5, 0,5,Opt.MultiMakeDir,0,MSG(MMultiMakeDir),
+		DI_TEXT,     0,6, 0,6,0,DIF_SEPARATOR,L"",
+		DI_BUTTON,   0,7, 0,7,0,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MOk),
+		DI_BUTTON,   0,7, 0,7,0,DIF_CENTERGROUP,MSG(MCancel),
 	};
 	MakeDialogItemsEx(MkDirDlgData,MkDirDlg);
 	Dialog Dlg(MkDirDlg,countof(MkDirDlg),MkDirDlgProc,reinterpret_cast<LONG_PTR>(&DirList));

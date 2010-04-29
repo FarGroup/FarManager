@@ -11159,6 +11159,38 @@ MSetColorDialogSelectedHighlightedButtons
 "Kijelölt kiemelt gombok"
 "Wybrane podświetlone przyciski "
 
+MSetColorDialogDefaultButton
+"Кнопка по умолчанию"
+"Default button"
+upd:"Default button"
+upd:"Default button"
+upd:"Default button"
+upd:"Default button"
+
+MSetColorDialogSelectedDefaultButton
+"Выбранная кнопка по умолчанию"
+"Selected default button"
+upd:"Selected default button"
+upd:"Selected default button"
+upd:"Selected default button"
+upd:"Selected default button"
+
+MSetColorDialogHighlightedDefaultButton
+"Выделенная кнопка по умолчанию"
+"Highlighted default button"
+upd:"Highlighted default button"
+upd:"Highlighted default button"
+upd:"Highlighted default button"
+upd:"Highlighted default button"
+
+MSetColorDialogSelectedHighlightedDefaultButton
+"Выбранная выделенная кнопка по умолчанию"
+"Selected highlighted default button"
+upd:"Selected highlighted default button"
+upd:"Selected highlighted default button"
+upd:"Selected highlighted default button"
+upd:"Selected highlighted default button"
+
 MSetColorDialogListBoxControl
 "Список"
 "List box"

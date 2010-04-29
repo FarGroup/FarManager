@@ -668,29 +668,29 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		DLG_HEIGHT=16,
 		DLG_WIDTH=76,
 	};
-	static DialogDataEx CopyDlgData[]=
+	DialogDataEx CopyDlgData[]=
 	{
-		/* 00 */  DI_DOUBLEBOX,   3, 1,DLG_WIDTH-4,DLG_HEIGHT-2,0,0,0,0,(wchar_t *)MCopyDlgTitle,
-		/* 01 */  DI_TEXT,        5, 2, 0, 2,0,0,0,0,(wchar_t *)MCMLTargetTO,
-		/* 02 */  DI_EDIT,        5, 3,70, 3,1,(DWORD_PTR)L"Copy",DIF_HISTORY|DIF_EDITEXPAND|DIF_USELASTHISTORY|DIF_EDITPATH,0,L"",
-		/* 03 */  DI_TEXT,        3, 4, 0, 4,0,0,DIF_SEPARATOR,0,L"",
-		/* 04 */  DI_TEXT,        5, 5, 0, 5,0,0,0,0,(wchar_t *)MCopySecurity,
-		/* 05 */  DI_RADIOBUTTON, 5, 5, 0, 5,0,0,DIF_GROUP,0,(wchar_t *)MCopySecurityLeave,
-		/* 06 */  DI_RADIOBUTTON, 5, 5, 0, 5,0,0,0,0,(wchar_t *)MCopySecurityCopy,
-		/* 07 */  DI_RADIOBUTTON, 5, 5, 0, 5,0,0,0,0,(wchar_t *)MCopySecurityInherit,
-		/* 08 */  DI_TEXT,        3, 6, 0, 6,0,0,DIF_SEPARATOR,0,L"",
-		/* 09 */  DI_TEXT,        5, 7, 0, 7,0,0,0,0,(wchar_t *)MCopyIfFileExist,
-		/* 10 */  DI_COMBOBOX,   29, 7,70, 7,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND|DIF_LISTWRAPMODE,0,L"",
-		/* 11 */  DI_CHECKBOX,    5, 8, 0, 8,0,0,0,0,(wchar_t *)MCopySymLinkContents,
-		/* 12 */  DI_CHECKBOX,    5, 9, 0, 9,0,0,0,0,(wchar_t *)MCopyMultiActions,
-		/* 13 */  DI_TEXT,        3,10, 0,10,0,0,DIF_SEPARATOR,0,L"",
-		/* 14 */  DI_CHECKBOX,    5,11, 0,11,0,0,0,0,(wchar_t *)MCopyUseFilter,
-		/* 15 */  DI_TEXT,        3,12, 0,12,0,0,DIF_SEPARATOR,0,L"",
-		/* 16 */  DI_BUTTON,      0,13, 0,13,0,0,DIF_CENTERGROUP,1,(wchar_t *)MCopyDlgCopy,
-		/* 17 */  DI_BUTTON,      0,13, 0,13,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(wchar_t *)MCopyDlgTree,
-		/* 18 */  DI_BUTTON,      0,13, 0,13,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(wchar_t *)MCopySetFilter,
-		/* 19 */  DI_BUTTON,      0,13, 0,13,0,0,DIF_CENTERGROUP,0,(wchar_t *)MCopyDlgCancel,
-		/* 20 */  DI_TEXT,        5, 2, 0, 2,0,0,DIF_SHOWAMPERSAND,0,L"",
+		DI_DOUBLEBOX,   3, 1,DLG_WIDTH-4,DLG_HEIGHT-2,0,0,(wchar_t *)MCopyDlgTitle,
+		DI_TEXT,        5, 2, 0, 2,0,0,(wchar_t *)MCMLTargetTO,
+		DI_EDIT,        5, 3,70, 3,(DWORD_PTR)L"Copy",DIF_FOCUS|DIF_HISTORY|DIF_EDITEXPAND|DIF_USELASTHISTORY|DIF_EDITPATH,L"",
+		DI_TEXT,        3, 4, 0, 4,0,DIF_SEPARATOR,L"",
+		DI_TEXT,        5, 5, 0, 5,0,0,(wchar_t *)MCopySecurity,
+		DI_RADIOBUTTON, 5, 5, 0, 5,0,DIF_GROUP,(wchar_t *)MCopySecurityLeave,
+		DI_RADIOBUTTON, 5, 5, 0, 5,0,0,(wchar_t *)MCopySecurityCopy,
+		DI_RADIOBUTTON, 5, 5, 0, 5,0,0,(wchar_t *)MCopySecurityInherit,
+		DI_TEXT,        3, 6, 0, 6,0,DIF_SEPARATOR,L"",
+		DI_TEXT,        5, 7, 0, 7,0,0,(wchar_t *)MCopyIfFileExist,
+		DI_COMBOBOX,   29, 7,70, 7,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND|DIF_LISTWRAPMODE,L"",
+		DI_CHECKBOX,    5, 8, 0, 8,0,0,(wchar_t *)MCopySymLinkContents,
+		DI_CHECKBOX,    5, 9, 0, 9,0,0,(wchar_t *)MCopyMultiActions,
+		DI_TEXT,        3,10, 0,10,0,DIF_SEPARATOR,L"",
+		DI_CHECKBOX,    5,11, 0,11,0,0,(wchar_t *)MCopyUseFilter,
+		DI_TEXT,        3,12, 0,12,0,DIF_SEPARATOR,L"",
+		DI_BUTTON,      0,13, 0,13,0,DIF_DEFAULT|DIF_CENTERGROUP,(wchar_t *)MCopyDlgCopy,
+		DI_BUTTON,      0,13, 0,13,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,(wchar_t *)MCopyDlgTree,
+		DI_BUTTON,      0,13, 0,13,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,(wchar_t *)MCopySetFilter,
+		DI_BUTTON,      0,13, 0,13,0,DIF_CENTERGROUP,(wchar_t *)MCopyDlgCancel,
+		DI_TEXT,        5, 2, 0, 2,0,DIF_SHOWAMPERSAND,L"",
 	};
 	MakeDialogItemsEx(CopyDlgData,CopyDlg);
 	CopyDlg[ID_SC_MULTITARGET].Selected=Opt.CMOpt.MultiCopy;
@@ -3818,24 +3818,21 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 	};
 	DialogDataEx WarnCopyDlgData[]=
 	{
-		/* 00 */  DI_DOUBLEBOX,3,1,WARN_DLG_WIDTH-4,WARN_DLG_HEIGHT-2,0,0,0,0,MSG(MWarning),
-		/* 01 */  DI_TEXT,5,2,WARN_DLG_WIDTH-6,2,0,0,DIF_CENTERTEXT,0,MSG(MCopyFileExist),
-		/* 02 */  DI_EDIT,5,3,WARN_DLG_WIDTH-6,3,0,0,DIF_READONLY,0,(wchar_t*)DestName,
-		/* 03 */  DI_TEXT,3,4,0,4,0,0,DIF_SEPARATOR,0,L"",
+		DI_DOUBLEBOX,3,1,WARN_DLG_WIDTH-4,WARN_DLG_HEIGHT-2,0,0,MSG(MWarning),
+		DI_TEXT,5,2,WARN_DLG_WIDTH-6,2,0,DIF_CENTERTEXT,MSG(MCopyFileExist),
+		DI_EDIT,5,3,WARN_DLG_WIDTH-6,3,0,DIF_READONLY,(wchar_t*)DestName,
+		DI_TEXT,3,4,0,4,0,DIF_SEPARATOR,L"",
+		DI_BUTTON,5,5,WARN_DLG_WIDTH-6,5,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,L"",
+		DI_BUTTON,5,6,WARN_DLG_WIDTH-6,6,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,L"",
+		DI_TEXT,3,7,0,7,0,DIF_SEPARATOR,L"",
+		DI_CHECKBOX,5,8,0,8,0,DIF_FOCUS,MSG(MCopyRememberChoice),
+		DI_TEXT,3,9,0,9,0,DIF_SEPARATOR,L"",
 
-		/* 04 */  DI_BUTTON,5,5,WARN_DLG_WIDTH-6,5,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,L"",
-		/* 05 */  DI_BUTTON,5,6,WARN_DLG_WIDTH-6,6,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,L"",
-
-		/* 06 */  DI_TEXT,3,7,0,7,0,0,DIF_SEPARATOR,0,L"",
-
-		/* 07 */  DI_CHECKBOX,5,8,0,8,1,0,0,0,MSG(MCopyRememberChoice),
-		/* 08 */  DI_TEXT,3,9,0,9,0,0,DIF_SEPARATOR,0,L"",
-
-		/* 09 */  DI_BUTTON,0,10,0,10,0,0,DIF_CENTERGROUP,1,MSG(MCopyOverwrite),
-		/* 10 */  DI_BUTTON,0,10,0,10,0,0,DIF_CENTERGROUP,0,MSG(MCopySkipOvr),
-		/* 11 */  DI_BUTTON,0,10,0,10,0,0,DIF_CENTERGROUP,0,MSG(MCopyRename),
-		/* 12 */  DI_BUTTON,0,10,0,10,0,0,DIF_CENTERGROUP|(AskAppend?0:(DIF_DISABLE|DIF_HIDDEN)),0,MSG(MCopyAppend),
-		/* 13 */  DI_BUTTON,0,10,0,10,0,0,DIF_CENTERGROUP,0,MSG(MCopyCancelOvr),
+		DI_BUTTON,0,10,0,10,0,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MCopyOverwrite),
+		DI_BUTTON,0,10,0,10,0,DIF_CENTERGROUP,MSG(MCopySkipOvr),
+		DI_BUTTON,0,10,0,10,0,DIF_CENTERGROUP,MSG(MCopyRename),
+		DI_BUTTON,0,10,0,10,0,DIF_CENTERGROUP|(AskAppend?0:(DIF_DISABLE|DIF_HIDDEN)),MSG(MCopyAppend),
+		DI_BUTTON,0,10,0,10,0,DIF_CENTERGROUP,MSG(MCopyCancelOvr),
 	};
 	FAR_FIND_DATA_EX DestData;
 	DestData.Clear();

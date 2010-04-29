@@ -106,7 +106,6 @@ struct DialogItemEx
 {
 	int Type;
 	int X1,Y1,X2,Y2;
-	int Focus;
 	union
 	{
 		DWORD_PTR Reserved;
@@ -118,7 +117,6 @@ struct DialogItemEx
 		CHAR_INFO *VBuf;
 	};
 	DWORD Flags;
-	int DefaultButton;
 
 	string strData;
 	size_t nMaxLength;
@@ -144,10 +142,8 @@ struct DialogItemEx
 		Y1=0;
 		X2=0;
 		Y2=0;
-		Focus=0;
 		History=nullptr;
 		Flags=0;
-		DefaultButton=0;
 		strData.Clear();
 		nMaxLength=0;
 		ID=0;
@@ -169,10 +165,8 @@ struct DialogItemEx
 		X2            = Other.X2;
 		Y1            = Other.Y1;
 		Y2            = Other.Y2;
-		Focus         = Other.Focus;
 		Reserved      = Other.Reserved;
 		Flags         = Other.Flags;
-		DefaultButton = Other.DefaultButton;
 		strData       = Other.strData;
 		nMaxLength    = Other.nMaxLength;
 		ID            = Other.ID;
@@ -229,7 +223,6 @@ struct DialogDataEx
 {
 	WORD  Type;
 	short X1,Y1,X2,Y2;
-	BYTE  Focus;
 	union
 	{
 		DWORD_PTR Reserved;
@@ -241,7 +234,6 @@ struct DialogDataEx
 		CHAR_INFO *VBuf;
 	};
 	DWORD Flags;
-	BYTE  DefaultButton;
 
 	const wchar_t *Data;
 };
@@ -297,7 +289,7 @@ class Dialog: public Frame
 
 		void ShowDialog(unsigned ID=(unsigned)-1);  //    ID=-1 - отрисовать весь диалог
 
-		LONG_PTR CtlColorDlgItem(int ItemPos,int Type,int Focus,DWORD Flags);
+		LONG_PTR CtlColorDlgItem(int ItemPos,int Type,DWORD Flags);
 		/* $ 28.07.2000 SVS
 		   + Изменяет фокус ввода между двумя элементами.
 		     Вынесен отдельно для того, чтобы обработать DMSG_KILLFOCUS & DMSG_SETFOCUS

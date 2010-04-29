@@ -1720,14 +1720,13 @@ bool PluginManager::SetHotKeyDialog(
 	¦ _                                                      ¦
 	L========================================================-
 	*/
-	static DialogDataEx PluginDlgData[]=
+	DialogDataEx PluginDlgData[]=
 	{
-		/* 00 */DI_DOUBLEBOX,3,1,60,4,0,0,0,0,(const wchar_t *)MPluginHotKeyTitle,
-		/* 01 */DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MPluginHotKey,
-		/* 02 */DI_FIXEDIT,5,3,5,3,1,0,0,1,L"",
-		/* 03 */DI_TEXT,8,3,58,3,0,0,0,0,L"",
+		DI_DOUBLEBOX,3,1,60,4,0,0,MSG(MPluginHotKeyTitle),
+		DI_TEXT,5,2,0,2,0,0,MSG(MPluginHotKey),
+		DI_FIXEDIT,5,3,5,3,0,DIF_FOCUS|DIF_DEFAULT,L"",
+		DI_TEXT,8,3,58,3,0,0,DlgPluginTitle,
 	};
-	PluginDlgData[3].Data=DlgPluginTitle;
 	MakeDialogItemsEx(PluginDlgData,PluginDlg);
 	GetRegKey(RegKey,RegValueName,PluginDlg[2].strData,L"");
 	int ExitCode;

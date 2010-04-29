@@ -3451,14 +3451,14 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 {
 	CFileMask FileMask; // Класс для работы с масками
 	const wchar_t *HistoryName=L"Masks";
-	static DialogDataEx SelectDlgData[]=
+	DialogDataEx SelectDlgData[]=
 	{
-		DI_DOUBLEBOX,3,1,51,5,0,0,0,0,L"",
-		DI_EDIT,5,2,49,2,1,(DWORD_PTR)HistoryName,DIF_HISTORY,0,L"",
-		DI_TEXT,0,3,0,3,0,0,DIF_SEPARATOR,0,L"",
-		DI_BUTTON,0,4,0,4,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-		DI_BUTTON,0,4,0,4,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MSelectFilter,
-		DI_BUTTON,0,4,0,4,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
+		DI_DOUBLEBOX,3,1,51,5,0,0,L"",
+		DI_EDIT,5,2,49,2,(DWORD_PTR)HistoryName,DIF_FOCUS|DIF_HISTORY,L"",
+		DI_TEXT,0,3,0,3,0,DIF_SEPARATOR,L"",
+		DI_BUTTON,0,4,0,4,0,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MOk),
+		DI_BUTTON,0,4,0,4,0,DIF_CENTERGROUP,MSG(MSelectFilter),
+		DI_BUTTON,0,4,0,4,0,DIF_CENTERGROUP,MSG(MCancel),
 	};
 	MakeDialogItemsEx(SelectDlgData,SelectDlg);
 	FileFilter Filter(this,FFT_SELECT);

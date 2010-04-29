@@ -343,8 +343,7 @@ int Message(
 			}
 			if(I==StrCount+1)
 			{
-				PtrMsgDlg->Focus=1;
-				PtrMsgDlg->DefaultButton=1;
+				PtrMsgDlg->Flags|=DIF_DEFAULT|DIF_FOCUS;
 				TypeItem=DI_BUTTON;
 				FlagsItem=DIF_CENTERGROUP;
 				IsButton=TRUE;
@@ -353,7 +352,7 @@ int Message(
 			}
 
 			PtrMsgDlg->Type=TypeItem;
-			PtrMsgDlg->Flags=FlagsItem;
+			PtrMsgDlg->Flags|=FlagsItem;
 			CPtrStr=Str[CurItem];
 
 			if (IsButton)

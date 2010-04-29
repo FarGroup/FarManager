@@ -2251,22 +2251,22 @@ void Viewer::Search(int Next,int FirstChar)
 {
 	const wchar_t *TextHistoryName=L"SearchText";
 	const wchar_t *HexMask=L"HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH ";
-	static DialogDataEx SearchDlgData[]=
+	DialogDataEx SearchDlgData[]=
 	{
-		/* 00 */ DI_DOUBLEBOX,3,1,72,11,0,0,0,0,(const wchar_t *)MViewSearchTitle,
-		/* 01 */ DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MViewSearchFor,
-		/* 02 */ DI_EDIT,5,3,70,3,1,(DWORD_PTR)TextHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,L"",
-		/* 03 */ DI_FIXEDIT,5,3,70,3,0,(DWORD_PTR)HexMask,DIF_MASKEDIT,0,L"",
-		/* 04 */ DI_TEXT,3,4,0,4,0,0,DIF_SEPARATOR,0,L"",
-		/* 05 */ DI_RADIOBUTTON,5,5,0,5,0,1,DIF_GROUP,0,(const wchar_t *)MViewSearchForText,
-		/* 06 */ DI_RADIOBUTTON,5,6,0,6,0,0,0,0,(const wchar_t *)MViewSearchForHex,
-		/* 07 */ DI_CHECKBOX,40,5,0,5,0,0,0,0,(const wchar_t *)MViewSearchCase,
-		/* 08 */ DI_CHECKBOX,40,6,0,6,0,0,0,0,(const wchar_t *)MViewSearchWholeWords,
-		/* 09 */ DI_CHECKBOX,40,7,0,7,0,0,0,0,(const wchar_t *)MViewSearchReverse,
-		/* 10 */ DI_CHECKBOX,40,8,0,8,0,0,DIF_DISABLE,0,(const wchar_t *)MViewSearchRegexp,
-		/* 11 */ DI_TEXT,3,9,0,9,0,0,DIF_SEPARATOR,0,L"",
-		/* 12 */ DI_BUTTON,0,10,0,10,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MViewSearchSearch,
-		/* 13 */ DI_BUTTON,0,10,0,10,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MViewSearchCancel
+		DI_DOUBLEBOX,3,1,72,11,0,0,MSG(MViewSearchTitle),
+		DI_TEXT,5,2,0,2,0,0,MSG(MViewSearchFor),
+		DI_EDIT,5,3,70,3,(DWORD_PTR)TextHistoryName,DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY,L"",
+		DI_FIXEDIT,5,3,70,3,(DWORD_PTR)HexMask,DIF_MASKEDIT,L"",
+		DI_TEXT,3,4,0,4,0,DIF_SEPARATOR,L"",
+		DI_RADIOBUTTON,5,5,0,5,1,DIF_GROUP,MSG(MViewSearchForText),
+		DI_RADIOBUTTON,5,6,0,6,0,0,MSG(MViewSearchForHex),
+		DI_CHECKBOX,40,5,0,5,0,0,MSG(MViewSearchCase),
+		DI_CHECKBOX,40,6,0,6,0,0,MSG(MViewSearchWholeWords),
+		DI_CHECKBOX,40,7,0,7,0,0,MSG(MViewSearchReverse),
+		DI_CHECKBOX,40,8,0,8,0,DIF_DISABLE,MSG(MViewSearchRegexp),
+		DI_TEXT,3,9,0,9,0,DIF_SEPARATOR,L"",
+		DI_BUTTON,0,10,0,10,0,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MViewSearchSearch),
+		DI_BUTTON,0,10,0,10,0,DIF_CENTERGROUP,MSG(MViewSearchCancel),
 	};
 	MakeDialogItemsEx(SearchDlgData,SearchDlg);
 	string strSearchStr;
@@ -2878,14 +2878,14 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
 {
 	__int64 Relative=0;
 	const wchar_t *LineHistoryName=L"ViewerOffset";
-	static DialogDataEx GoToDlgData[]=
+	DialogDataEx GoToDlgData[]=
 	{
-		/* 0 */ DI_DOUBLEBOX,3,1,31,7,0,0,0,0,(const wchar_t *)MViewerGoTo,
-		/* 1 */ DI_EDIT,5,2,29,2,1,(DWORD_PTR)LineHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,1,L"",
-		/* 2 */ DI_TEXT,3,3,0,3,0,0,DIF_SEPARATOR,0,L"",
-		/* 3 */ DI_RADIOBUTTON,5,4,0,4,0,0,DIF_GROUP,0,(const wchar_t *)MGoToPercent,
-		/* 4 */ DI_RADIOBUTTON,5,5,0,5,0,0,0,0,(const wchar_t *)MGoToHex,
-		/* 5 */ DI_RADIOBUTTON,5,6,0,6,0,0,0,0,(const wchar_t *)MGoToDecimal,
+		DI_DOUBLEBOX,3,1,31,7,0,0,MSG(MViewerGoTo),
+		DI_EDIT,5,2,29,2,(DWORD_PTR)LineHistoryName,DIF_FOCUS|DIF_DEFAULT|DIF_HISTORY|DIF_USELASTHISTORY,L"",
+		DI_TEXT,3,3,0,3,0,DIF_SEPARATOR,L"",
+		DI_RADIOBUTTON,5,4,0,4,0,DIF_GROUP,MSG(MGoToPercent),
+		DI_RADIOBUTTON,5,5,0,5,0,0,MSG(MGoToHex),
+		DI_RADIOBUTTON,5,6,0,6,0,0,MSG(MGoToDecimal),
 	};
 	MakeDialogItemsEx(GoToDlgData,GoToDlg);
 	static int PrevMode=0;

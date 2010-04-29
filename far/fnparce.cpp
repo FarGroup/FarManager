@@ -548,8 +548,7 @@ int ReplaceVariables(string &strStr,TSubstData *PSubstData)
 
 		if (DlgSize==0)
 		{
-			DlgData[DlgSize+1].Focus=1;
-			DlgData[DlgSize+1].DefaultButton=1;
+			DlgData[DlgSize+1].Flags|=DIF_DEFAULT|DIF_FOCUS;
 		}
 
 		string strTitle;

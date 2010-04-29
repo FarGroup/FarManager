@@ -218,8 +218,14 @@ enum FarDialogItemFlags
 	DIF_COLORMASK             = 0x000000ffUL,
 	DIF_SETCOLOR              = 0x00000100UL,
 	DIF_BOXCOLOR              = 0x00000200UL,
+#ifdef FAR_USE_INTERNALS
+	DIF_DEFAULT               = 0x00000200UL,
+#endif // END FAR_USE_INTERNALS
 	DIF_GROUP                 = 0x00000400UL,
 	DIF_LEFTTEXT              = 0x00000800UL,
+#ifdef FAR_USE_INTERNALS
+	DIF_FOCUS                 = 0x00000800UL,
+#endif // END FAR_USE_INTERNALS
 	DIF_MOVESELECT            = 0x00001000UL,
 	DIF_SHOWAMPERSAND         = 0x00002000UL,
 	DIF_CENTERGROUP           = 0x00004000UL,

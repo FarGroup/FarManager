@@ -89,21 +89,21 @@ int WINAPI GetSearchReplaceString(
 		12   +--------------------------------------------------------------------+
 		13
 		*/
-		static DialogDataEx ReplaceDlgData[]=
+		DialogDataEx ReplaceDlgData[]=
 		{
-			/*  0 */DI_DOUBLEBOX,3,1,72,12,0,0,0,0,(const wchar_t *)MEditReplaceTitle,
-			/*  1 */DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MEditSearchFor,
-			/*  2 */DI_EDIT,5,3,70,3,1,0,DIF_HISTORY|DIF_USELASTHISTORY,0,L"",
-			/*  3 */DI_TEXT,5,4,0,4,0,0,0,0,(const wchar_t *)MEditReplaceWith,
-			/*  4 */DI_EDIT,5,5,70,5,0,0,DIF_HISTORY/*|DIF_USELASTHISTORY*/,0,L"",
-			/*  5 */DI_TEXT,3,6,0,6,0,0,DIF_SEPARATOR,0,L"",
-			/*  6 */DI_CHECKBOX,5,7,0,7,0,0,0,0,(const wchar_t *)MEditSearchCase,
-			/*  7 */DI_CHECKBOX,5,8,0,8,0,0,0,0,(const wchar_t *)MEditSearchWholeWords,
-			/*  8 */DI_CHECKBOX,5,9,0,9,0,0,0,0,(const wchar_t *)MEditSearchReverse,
-			/*  9 */DI_CHECKBOX,40,7,0,7,0,0,0,0,(const wchar_t *)MEditSearchRegexp,
-			/* 10 */DI_TEXT,3,10,0,10,0,0,DIF_SEPARATOR,0,L"",
-			/* 11 */DI_BUTTON,0,11,0,11,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MEditReplaceReplace,
-			/* 12 */DI_BUTTON,0,11,0,11,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MEditSearchCancel
+			DI_DOUBLEBOX,3,1,72,12,0,0,MSG(MEditReplaceTitle),
+			DI_TEXT,5,2,0,2,0,0,MSG(MEditSearchFor),
+			DI_EDIT,5,3,70,3,0,DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY,L"",
+			DI_TEXT,5,4,0,4,0,0,MSG(MEditReplaceWith),
+			DI_EDIT,5,5,70,5,0,DIF_HISTORY/*|DIF_USELASTHISTORY*/,L"",
+			DI_TEXT,3,6,0,6,0,DIF_SEPARATOR,L"",
+			DI_CHECKBOX,5,7,0,7,0,0,MSG(MEditSearchCase),
+			DI_CHECKBOX,5,8,0,8,0,0,MSG(MEditSearchWholeWords),
+			DI_CHECKBOX,5,9,0,9,0,0,MSG(MEditSearchReverse),
+			DI_CHECKBOX,40,7,0,7,0,0,MSG(MEditSearchRegexp),
+			DI_TEXT,3,10,0,10,0,DIF_SEPARATOR,L"",
+			DI_BUTTON,0,11,0,11,0,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MEditReplaceReplace),
+			DI_BUTTON,0,11,0,11,0,DIF_CENTERGROUP,MSG(MEditSearchCancel),
 		};
 		//индекс самого нижнего чекбокса каждой колонки в диалоге.
 		//предполагаем, что чекбокс на позиции Y+1 имеет индекс, на единицу больший
@@ -263,20 +263,20 @@ int WINAPI GetSearchReplaceString(
 		09   |                       [ Search ]  [ Cancel ]                       |
 		10   +--------------------------------------------------------------------+
 		*/
-		static DialogDataEx SearchDlgData[]=
+		DialogDataEx SearchDlgData[]=
 		{
-			/*  0 */DI_DOUBLEBOX,3,1,72,10,0,0,0,0,(const wchar_t *)MEditSearchTitle,
-			/*  1 */DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MEditSearchFor,
-			/*  2 */DI_EDIT,5,3,70,3,1,0,DIF_HISTORY|DIF_USELASTHISTORY,0,L"",
-			/*  3 */DI_TEXT,3,4,0,4,0,0,DIF_SEPARATOR,0,L"",
-			/*  4 */DI_CHECKBOX,5,5,0,5,0,0,0,0,(const wchar_t *)MEditSearchCase,
-			/*  5 */DI_CHECKBOX,5,6,0,6,0,0,0,0,(const wchar_t *)MEditSearchWholeWords,
-			/*  6 */DI_CHECKBOX,5,7,0,7,0,0,0,0,(const wchar_t *)MEditSearchReverse,
-			/*  7 */DI_CHECKBOX,40,5,0,5,0,0,0,0,(const wchar_t *)MEditSearchRegexp,
-			/*  8 */DI_CHECKBOX,40,6,0,6,0,0,0,0,(const wchar_t *)MEditSearchSelFound,
-			/*  9 */DI_TEXT,3,8,0,8,0,0,DIF_SEPARATOR,0,L"",
-			/* 10 */DI_BUTTON,0,9,0,9,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MEditSearchSearch,
-			/* 11 */DI_BUTTON,0,9,0,9,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MEditSearchCancel,
+			DI_DOUBLEBOX,3,1,72,10,0,0,MSG(MEditSearchTitle),
+			DI_TEXT,5,2,0,2,0,0,MSG(MEditSearchFor),
+			DI_EDIT,5,3,70,3,0,DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY,L"",
+			DI_TEXT,3,4,0,4,0,DIF_SEPARATOR,L"",
+			DI_CHECKBOX,5,5,0,5,0,0,MSG(MEditSearchCase),
+			DI_CHECKBOX,5,6,0,6,0,0,MSG(MEditSearchWholeWords),
+			DI_CHECKBOX,5,7,0,7,0,0,MSG(MEditSearchReverse),
+			DI_CHECKBOX,40,5,0,5,0,0,MSG(MEditSearchRegexp),
+			DI_CHECKBOX,40,6,0,6,0,0,MSG(MEditSearchSelFound),
+			DI_TEXT,3,8,0,8,0,DIF_SEPARATOR,L"",
+			DI_BUTTON,0,9,0,9,0,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MEditSearchSearch),
+			DI_BUTTON,0,9,0,9,0,DIF_CENTERGROUP,MSG(MEditSearchCancel),
 		};
 		//индекс самого нижнего чекбокса каждой колонки в диалоге.
 		//предполагаем, что чекбокс на позиции Y+1 имеет индекс, на единицу больший
@@ -473,19 +473,16 @@ int WINAPI GetString(
 	int ExitCode;
 	bool addCheckBox=Flags&FIB_CHECKBOX && CheckBoxValue && CheckBoxText;
 	int offset=addCheckBox?2:0;
-	static DialogDataEx StrDlgData[]=
+	DialogDataEx StrDlgData[]=
 	{
-		/*      Type          X1 Y1 X2  Y2 Focus Flags             DefaultButton
-		                                      Selected               Data
-		*/
-		/* 0 */ DI_DOUBLEBOX, 3, 1, 72, 4, 0, 0, 0,                                0,L"",
-		/* 1 */ DI_TEXT,      5, 2,  0, 2, 0, 0, DIF_SHOWAMPERSAND,                0,L"",
-		/* 2 */ DI_EDIT,      5, 3, 70, 3, 1, 0, Flags&FIB_EDITPATH?DIF_EDITPATH:0,1,L"",
-		/* 3 */ DI_TEXT,      0, 4,  0, 4, 0, 0, DIF_SEPARATOR,                    0,L"",
-		/* 4 */ DI_CHECKBOX,  5, 5,  0, 5, 0, 0, 0,                                0,L"",
-		/* 5 */ DI_TEXT,      0, 6,  0, 6, 0, 0, DIF_SEPARATOR,                    0,L"",
-		/* 6 */ DI_BUTTON,    0, 7,  0, 7, 0, 0, DIF_CENTERGROUP,                  0,L"",
-		/* 7 */ DI_BUTTON,    0, 7,  0, 7, 0, 0, DIF_CENTERGROUP,                  0,L""
+		DI_DOUBLEBOX, 3, 1, 72, 4, 0, 0,                                L"",
+		DI_TEXT,      5, 2,  0, 2, 0, DIF_SHOWAMPERSAND,                L"",
+		DI_EDIT,      5, 3, 70, 3, 0, DIF_FOCUS|DIF_DEFAULT|(Flags&FIB_EDITPATH?DIF_EDITPATH:0),L"",
+		DI_TEXT,      0, 4,  0, 4, 0, DIF_SEPARATOR,                    L"",
+		DI_CHECKBOX,  5, 5,  0, 5, 0, 0,                                L"",
+		DI_TEXT,      0, 6,  0, 6, 0, DIF_SEPARATOR,                    L"",
+		DI_BUTTON,    0, 7,  0, 7, 0, DIF_CENTERGROUP,                  L"",
+		DI_BUTTON,    0, 7,  0, 7, 0, DIF_CENTERGROUP,                  L""
 	};
 	MakeDialogItemsEx(StrDlgData,StrDlg);
 
@@ -501,11 +498,11 @@ int WINAPI GetString(
 	{
 		Substract-=3;
 		StrDlg[0].Y2+=2;
-		StrDlg[2].DefaultButton=0;
-		StrDlg[4+offset].DefaultButton=1;
+		StrDlg[2].Flags&=~DIF_DEFAULT;
 		StrDlg[5+offset].Y1=StrDlg[4+offset].Y1=5+offset;
 		StrDlg[4+offset].Type=StrDlg[5+offset].Type=DI_BUTTON;
 		StrDlg[4+offset].Flags=StrDlg[5+offset].Flags=DIF_CENTERGROUP;
+		StrDlg[4+offset].Flags|=DIF_DEFAULT;
 		StrDlg[4+offset].strData = MSG(MOk);
 		StrDlg[5+offset].strData = MSG(MCancel);
 	}
@@ -618,28 +615,19 @@ int WINAPI GetNameAndPassword(const wchar_t *Title, string &strUserName, string 
 	|8   +---------------------------------------------------------------------+   |
 	|9                                                                             |
 	*/
-	static DialogDataEx PassDlgData[]=
+	DialogDataEx PassDlgData[]=
 	{
-		/* 0 */ DI_DOUBLEBOX,  3, 1,72, 8,0,0,0,0,L"",
-		/* 1 */ DI_TEXT,       5, 2, 0, 2,0,0,0,0,L"",
-		/* 2 */ DI_EDIT,       5, 3,70, 3,1,0,DIF_USELASTHISTORY|DIF_HISTORY,0,L"",
-		/* 3 */ DI_TEXT,       5, 4, 0, 4,0,0,0,0,L"",
-		/* 4 */ DI_PSWEDIT,    5, 5,70, 5,0,0,0,0,L"",
-		/* 5 */ DI_TEXT,       3, 6, 0, 6,0,0,DIF_SEPARATOR,0,L"",
-		/* 6 */ DI_BUTTON,     0, 7, 0, 7,0,0,DIF_CENTERGROUP,1,L"",
-		/* 7 */ DI_BUTTON,     0, 7, 0, 7,0,0,DIF_CENTERGROUP,0,L""
+		DI_DOUBLEBOX,  3, 1,72, 8,0,0,NullToEmpty(Title),
+		DI_TEXT,       5, 2, 0, 2,0,0,MSG(MNetUserName),
+		DI_EDIT,       5, 3,70, 3,0,DIF_FOCUS|DIF_USELASTHISTORY|DIF_HISTORY,(Flags&GNP_USELAST)?strLastName:strUserName,
+		DI_TEXT,       5, 4, 0, 4,0,0,MSG(MNetUserPassword),
+		DI_PSWEDIT,    5, 5,70, 5,0,0,(Flags&GNP_USELAST)?strLastPassword:strPassword,
+		DI_TEXT,       3, 6, 0, 6,0,DIF_SEPARATOR,L"",
+		DI_BUTTON,     0, 7, 0, 7,0,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MOk),
+		DI_BUTTON,     0, 7, 0, 7,0,DIF_CENTERGROUP,MSG(MCancel),
 	};
 	MakeDialogItemsEx(PassDlgData,PassDlg);
-	PassDlg[1].strData = MSG(MNetUserName);
-	PassDlg[3].strData = MSG(MNetUserPassword);
-	PassDlg[6].strData = MSG(MOk);
-	PassDlg[7].strData = MSG(MCancel);
 
-	if (Title!=nullptr)
-		PassDlg[0].strData = Title;
-
-	PassDlg[2].strData = (Flags&GNP_USELAST)?strLastName:strUserName;
-	PassDlg[4].strData = (Flags&GNP_USELAST)?strLastPassword:strPassword;
 	{
 		Dialog Dlg(PassDlg,countof(PassDlg));
 		Dlg.SetPosition(-1,-1,76,10);
