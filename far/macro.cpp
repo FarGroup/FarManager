@@ -1800,44 +1800,6 @@ static bool sleepFunc()
 	return false;
 }
 
-// N=eval(S[,N])
-static bool evalFunc()
-{
-	bool Ret=true;
-	DWORD Cmd=(DWORD)VMStack.Pop().getInteger();
-	TVar Val;
-	VMStack.Pop(Val);
-	MacroRecord RBuf;
-	int KeyPos;
-
-	if (!(Val.isInteger() && Val.i() == 0)) // учитываем только нормальное содержимое строки компиляции
-	{
-		if (Cmd&1) // только проверка?
-		{
-			CtrlObject->Macro.PostNewMacro(Val.toString(),0,0,TRUE);
-			Ret=false; // всегда! т.к. мы проверяем, а не исполняем
-		}
-		else
-		{
-			CtrlObject->Macro.GetCurRecord(&RBuf,&KeyPos);
-			CtrlObject->Macro.PushState(true);
-
-			if (!CtrlObject->Macro.PostNewMacro(Val.toString(),RBuf.Flags&(~MFLAGS_REG_MULTI_SZ),RBuf.Key))
-			{
-				CtrlObject->Macro.PopState();
-				Ret=false;
-			}
-		}
-
-		VMStack.Push((__int64)__getMacroErrorCode());
-	}
-	else
-		VMStack.Push(-1);
-
-	return Ret;
-}
-
-
 // S=key(V)
 static bool keyFunc()
 {
@@ -4177,13 +4139,96 @@ done:
 			goto begin;
 		}
 			// Function
-		case MCODE_F_EVAL: // N=eval(S)
+		case MCODE_F_EVAL: // N=eval(S[,N])
 		{
-			if (evalFunc())
-				goto initial; // т.к.
+			DWORD Cmd=(DWORD)VMStack.Pop().getInteger();
+			TVar Val;
+			VMStack.Pop(Val);
+			MacroRecord RBuf;
+			int KeyPos;
 
+			if (!(Val.isInteger() && Val.i() == 0)) // учитываем только нормальное содержимое строки компиляции
+			{
+				int Ret=-1;
+
+				switch (Cmd)
+				{
+					case 0:
+					{
+						GetCurRecord(&RBuf,&KeyPos);
+						PushState(true);
+
+						if (!PostNewMacro(Val.toString(),RBuf.Flags&(~MFLAGS_REG_MULTI_SZ),RBuf.Key))
+							PopState();
+						else
+							Ret=1;
+						VMStack.Push((__int64)__getMacroErrorCode());
+						break;
+					}
+
+					case 1: // только проверка?
+					{
+						PostNewMacro(Val.toString(),0,0,TRUE);
+						VMStack.Push((__int64)__getMacroErrorCode());
+						break;
+					}
+
+					case 2:
+					{
+						int _Mode;
+						bool UseCommon=true;
+						string strVal=Val.toString();
+						strVal=RemoveExternalSpaces(strVal);
+
+						wchar_t *lpwszVal = strVal.GetBuffer();
+						wchar_t *p=wcsrchr(lpwszVal,L'/');
+
+						if (p != nullptr && p[1])
+						{
+							*p++=0;
+							if ((_Mode = GetSubKey(lpwszVal)) < MACRO_FUNCS)
+							{
+								_Mode=GetMode();
+								if (lpwszVal[0] == L'.' && !lpwszVal[1]) // вариант "./Key" не подразумевает поиск в Common`е
+									UseCommon=false;
+							}
+							else
+								UseCommon=false;
+						}
+						else
+						{
+							p=lpwszVal;
+							_Mode=GetMode();
+						}
+
+						DWORD KeyCode = KeyNameToKey(p);
+						strVal.ReleaseBuffer();
+
+						int I=GetIndex(KeyCode,_Mode,UseCommon);
+						if (I != -1 && !(MacroLIB[I].Flags&MFLAGS_DISABLEMACRO)) // && CtrlObject)
+						{
+							PushState(true);
+							// __setMacroErrorCode(err_Success); // ???
+							PostNewMacro(MacroLIB+I);
+							VMStack.Push((__int64)__getMacroErrorCode()); // ???
+							Ret=1;
+						}
+						else
+						{
+							VMStack.Push(-2);
+						}
+						break;
+					}
+				}
+
+				if (Ret > 0)
+					goto initial; // т.к.
+			}
+			else
+				VMStack.Push(-1);
 			goto begin;
 		}
+
 		case MCODE_F_BM_ADD:              // N=BM.Add()
 		case MCODE_F_BM_CLEAR:            // N=BM.Clear()
 		case MCODE_F_BM_NEXT:             // N=BM.Next()

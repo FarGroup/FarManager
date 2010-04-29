@@ -2191,3 +2191,8 @@ int  __getMacroErrorCode(int *nErr)
 
 	return _macro_ErrCode;
 }
+
+void  __setMacroErrorCode(int ErrCode)
+{
+	_macro_ErrCode=ErrCode;
+}

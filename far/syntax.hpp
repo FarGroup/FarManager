@@ -77,3 +77,4 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 BOOL __getMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc);
 BOOL __getMacroParseError(string* Err1, string* Err2, string* Err3, string* Err4);
 int  __getMacroErrorCode(int *nErr=nullptr);
+void  __setMacroErrorCode(int ErrCode);
