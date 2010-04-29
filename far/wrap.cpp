@@ -1023,7 +1023,9 @@ int WINAPI FarMessageFnA(INT_PTR PluginNumber,DWORD Flags,const char *HelpTopic,
 	wchar_t **p;
 	int c=0;
 
-	if (Flags&FMSG_ALLINONE)
+	Flags&=~oldfar::FMSG_DOWN;
+
+	if (Flags&oldfar::FMSG_ALLINONE)
 	{
 		p = (wchar_t **)AnsiToUnicode((const char *)Items);
 	}

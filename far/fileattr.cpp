@@ -60,7 +60,7 @@ int ESetFileAttributes(const wchar_t *Name,DWORD Attr,int SkipMode)
 		if (SkipMode!=-1)
 			Code=SkipMode;
 		else
-			Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
 			             MSG(MSetAttrCannotFor),Name,MSG(MHRetry),MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
 
 		switch (Code)
@@ -116,7 +116,7 @@ int ESetFileCompression(const wchar_t *Name,int State,DWORD FileAttr,int SkipMod
 		if (SkipMode!=-1)
 			Code=SkipMode;
 		else
-			Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
 			             MSG(MSetAttrCompressedCannotFor),Name,MSG(MHRetry),
 			             MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
 
@@ -175,7 +175,7 @@ int ESetFileEncryption(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode
 		if (SkipMode!=-1)
 			Code=SkipMode;
 		else
-			Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
 			             MSG(MSetAttrEncryptedCannotFor),Name,MSG(MHRetry), //BUGBUG
 			             MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
 
@@ -254,7 +254,7 @@ int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationT
 		if (SkipMode!=-1)
 			Code=SkipMode;
 		else
-			Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
 			             MSG(MSetAttrTimeCannotFor),Name,MSG(MHRetry), //BUGBUG
 			             MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
 
@@ -304,7 +304,7 @@ int ESetFileSparse(const wchar_t *Name,bool State,DWORD FileAttr,int SkipMode)
 			if (SkipMode!=-1)
 				Code=SkipMode;
 			else
-				Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+				Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
 				             MSG(MSetAttrSparseCannotFor),Name,MSG(MHRetry),
 				             MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
 
@@ -341,7 +341,7 @@ int ESetFileOwner(LPCWSTR Name,LPCWSTR Owner,int SkipMode)
 		if (SkipMode!=-1)
 			Code=SkipMode;
 		else
-			Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),MSG(MSetAttrOwnerCannotFor),Name,MSG(MHRetry),MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
+			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),MSG(MSetAttrOwnerCannotFor),Name,MSG(MHRetry),MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
 
 		if (Code==1 || Code<0)
 		{

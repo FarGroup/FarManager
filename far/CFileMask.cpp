@@ -92,7 +92,7 @@ bool CFileMask::Set(const wchar_t *Masks, DWORD Flags)
 	}
 
 	if (!Silent && !Result)
-		Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),MSG(MIncorrectMask), MSG(MOk));
+		Message(MSG_WARNING,1,MSG(MWarning),MSG(MIncorrectMask), MSG(MOk));
 
 	return Result;
 }

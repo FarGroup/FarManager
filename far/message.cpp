@@ -292,19 +292,6 @@ int Message(
 		Y1=0;
 
 	MessageY1=Y1;
-
-	if (Flags & MSG_DOWN)
-	{
-		int NewY=ScrY/2-4;
-
-		if (static_cast<int>(Y1+StrCount+3)<ScrY && NewY>Y1+2)
-			Y1=NewY;
-		else
-			Y1+=2;
-
-		MessageY1=Y1;
-	}
-
 	MessageY2=Y2=Y1+StrCount+3;
 	string strHelpTopic(strMsgHelpTopic);
 	strMsgHelpTopic.Clear();
@@ -550,15 +537,36 @@ void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2)
 	Y2=MessageY2;
 }
 
-
-
-int GetErrorString(string &strErrStr)
+bool FormatErrorString(bool Nt, DWORD Code, string& Str)
 {
+	bool Result=false;
+	LPWSTR lpBuffer=nullptr;
+	Result=FormatMessage((Nt?FORMAT_MESSAGE_FROM_HMODULE:FORMAT_MESSAGE_FROM_SYSTEM)|FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_IGNORE_INSERTS, (Nt?GetModuleHandle(L"ntdll.dll"):nullptr), Code, 0, reinterpret_cast<LPWSTR>(&lpBuffer), 0, nullptr)!=0;
+	Str=lpBuffer;
+	LocalFree(lpBuffer);
+	RemoveUnprintableCharacters(Str);
+	return Result;
+}
+
+bool GetWin32ErrorString(DWORD LastWin32Error, string& Str)
+{
+	return FormatErrorString(false, LastWin32Error, Str);
+}
+
+bool GetNtErrorString(NTSTATUS LastNtStatus, string& Str)
+{
+	return FormatErrorString(true, LastNtStatus, Str);
+}
+
+bool GetErrorString(string &strErrStr)
+{
+	bool Result=false;
 	static struct TypeErrMsgs
 	{
 		DWORD WinMsg;
 		int FarMsg;
-	} ErrMsgs[]=
+	}
+	ErrMsgs[]=
 	{
 		{ERROR_INVALID_FUNCTION,MErrorInvalidFunction},
 		{ERROR_BAD_COMMAND,MErrorBadCommand},
@@ -603,51 +611,31 @@ int GetErrorString(string &strErrStr)
 		{ERROR_DEVICE_ALREADY_REMEMBERED,MErrorAlreadyRemebered},
 		{ERROR_NOT_LOGGED_ON,MErrorNotLoggedOn},
 		{ERROR_INVALID_PASSWORD,MErrorInvalidPassword},
-
-		// "новые знания"
 		{ERROR_NO_RECOVERY_POLICY,MErrorNoRecoveryPolicy},
 		{ERROR_ENCRYPTION_FAILED,MErrorEncryptionFailed},
 		{ERROR_DECRYPTION_FAILED,MErrorDecryptionFailed},
 		{ERROR_FILE_NOT_ENCRYPTED,MErrorFileNotEncrypted},
 		{ERROR_NO_ASSOCIATION,MErrorNoAssociation},
 	};
+
 	DWORD LastError = GetLastError();
 
-	bool UseErrMsgs=false;
-	for (int i=0; i < (int)countof(ErrMsgs); i++)
+	for (size_t i=0; i < countof(ErrMsgs); i++)
 	{
 		if (ErrMsgs[i].WinMsg == LastError)
 		{
 			strErrStr = MSG(ErrMsgs[i].FarMsg);
-			UseErrMsgs=true;
+			Result=true;
 			break;
 		}
 	}
 
-	if (!UseErrMsgs)
+	if (!Result)
 	{
-		if (LastError != ERROR_SUCCESS)
-		{
-			LPWSTR lpBuffer;
-			FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_IGNORE_INSERTS,
-			              nullptr,
-			              LastError,
-			              0,
-			              (LPWSTR)&lpBuffer,
-			              0,
-			              nullptr
-			             );
-			strErrStr=lpBuffer;
-			LocalFree(lpBuffer);
-			RemoveUnprintableCharacters(strErrStr);
-			return TRUE;
-		}
-
-		strErrStr.Clear(); //???
-		return FALSE;
+		Result=GetWin32ErrorString(LastError, strErrStr);
 	}
 
-	return TRUE;
+	return Result;
 }
 
 

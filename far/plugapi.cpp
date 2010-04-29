@@ -1537,7 +1537,7 @@ void WINAPI FarRestoreScreen(HANDLE hScreen)
 
 static void PR_FarGetDirListMsg()
 {
-	Message(MSG_DOWN,0,L"",MSG(MPreparingList));
+	Message(0,0,L"",MSG(MPreparingList));
 }
 
 int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pItemsNumber)

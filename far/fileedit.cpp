@@ -856,7 +856,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					switch (Message(MSG_WARNING,2,MSG(MEditTitle),
 					                MSG(MEditSavedChangedNonFile),
 					                MSG(MEditSavedChangedNonFile2),
-					                MSG(MEditSave),MSG(MCancel)))
+					                MSG(MHYes),MSG(MHNo)))
 					{
 						case 0:
 
@@ -1218,12 +1218,12 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 							Res=Message(MSG_WARNING,3,MSG(MEditTitle),
 							            MSG(MEditSavedChangedNonFile),
 							            MSG(MEditSavedChangedNonFile2),
-							            MSG(MEditSave),MSG(MEditNotSave),MSG(MEditContinue));
+							            MSG(MHYes),MSG(MHNo),MSG(MHCancel));
 						else if (!m_editor->IsFileChanged() && FilePlaced)
 							Res=Message(MSG_WARNING,3,MSG(MEditTitle),
 							            MSG(MEditSavedChangedNonFile1),
 							            MSG(MEditSavedChangedNonFile2),
-							            MSG(MEditSave),MSG(MEditNotSave),MSG(MEditContinue));
+						                MSG(MHYes),MSG(MHNo),MSG(MHCancel));
 						else
 							Res=100;
 
@@ -1615,7 +1615,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 		if (Ask)
 		{
 			switch (Message(MSG_WARNING,3,MSG(MEditTitle),MSG(MEditAskSave),
-			                MSG(MEditSave),MSG(MEditNotSave),MSG(MEditContinue)))
+			                MSG(MHYes),MSG(MHNo),MSG(MHCancel)))
 			{
 				case -1:
 				case -2:
@@ -1649,7 +1649,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 					SetMessageHelp(L"WarnEditorSavedEx");
 
 					switch (Message(MSG_WARNING,3,MSG(MEditTitle),MSG(MEditAskSaveExt),
-					                MSG(MEditSave),MSG(MEditBtnSaveAs),MSG(MEditContinue)))
+					                MSG(MHYes),MSG(MEditBtnSaveAs),MSG(MHCancel)))
 					{
 						case -1:
 						case -2:

@@ -92,7 +92,7 @@ LONG_PTR WINAPI MkDirDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
 				if (!pDirList->Set(strDirName))
 				{
-					Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),MSG(MIncorrectDirList),MSG(MOk));
+					Message(MSG_WARNING,1,MSG(MWarning),MSG(MIncorrectDirList),MSG(MOk));
 					return FALSE;
 				}
 			}
@@ -182,9 +182,9 @@ void ShellMakeDir(Panel *SrcPanel)
 					int ret;
 
 					if (DirList.IsEmpty())
-						ret=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateFolder),strOriginalDirName,MSG(MCancel));
+						ret=Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateFolder),strOriginalDirName,MSG(MCancel));
 					else
-						ret=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MSG(MCannotCreateFolder),strOriginalDirName,MSG(MOk),MSG(MSkip));
+						ret=Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MSG(MCannotCreateFolder),strOriginalDirName,MSG(MOk),MSG(MSkip));
 
 					bSkip = ret==1;
 
@@ -199,11 +199,11 @@ void ShellMakeDir(Panel *SrcPanel)
 
 					if (DirList.IsEmpty())
 					{
-						ret=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MSG(MCannotCreateFolder),strOriginalDirName,MSG(MRetry),MSG(MCancel));
+						ret=Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MSG(MCannotCreateFolder),strOriginalDirName,MSG(MRetry),MSG(MCancel));
 					}
 					else
 					{
-						ret=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),MSG(MCannotCreateFolder),strOriginalDirName,MSG(MRetry),MSG(MSkip),MSG(MCancel));
+						ret=Message(MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),MSG(MCannotCreateFolder),strOriginalDirName,MSG(MRetry),MSG(MSkip),MSG(MCancel));
 						bSkip = ret==1;
 					}
 

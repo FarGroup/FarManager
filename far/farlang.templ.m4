@@ -69,7 +69,7 @@ MNo
 "Nie"
 
 MOk
-"Продолжить"
+"OK"
 "OK"
 "Ok"
 "OK"
@@ -94,7 +94,7 @@ MHNo
 "&Nie"
 
 MHOk
-"&Продолжить"
+"&OK"
 "&OK"
 "&Ok"
 "&OK"
@@ -103,7 +103,7 @@ MHOk
 
 MCancel
 l:
-"Отменить"
+"Отмена"
 "Cancel"
 "Storno"
 "Abbrechen"
@@ -168,7 +168,7 @@ MRemove
 
 MHCancel
 l:
-"&Отменить"
+"&Отмена"
 "&Cancel"
 "&Storno"
 "&Abbrechen"
@@ -3502,48 +3502,23 @@ MEditReading
 "Czytam plik"
 
 MEditAskSave
-"Файл был изменен"
-"File has been modified"
-"Soubor byl modifikován"
-"Datei wurde verändert"
-"A fájl megváltozott"
-"Plik został zmodyfikowany"
+"Файл был изменен. Сохранить?"
+"File has been modified. Save?"
+upd:"Soubor byl modifikován. Save?"
+upd:"Datei wurde verändert. Save?"
+upd:"A fájl megváltozott. Save?"
+upd:"Plik został zmodyfikowany. Save?"
 
 MEditAskSaveExt
-"Файл был изменен внешней программой"
-"The file was changed by an external program"
-"Soubor byl změněný externím programem"
-"Die Datei wurde durch ein externes Programm verändert"
-"A fájlt egy külső program megváltoztatta"
-"Plik został zmieniony przez inny program"
-
-MEditSave
-l:
-"&Сохранить"
-"&Save"
-"&Uložit"
-"&Speichern"
-"&Ment"
-"&Zapisz"
-
-MEditNotSave
-"&Не сохранять"
-"Do &not save"
-"&Neukládat"
-"&Nicht speichern"
-"&Nem ment"
-"&Nie zapisuj"
-
-MEditContinue
-"&Продолжить редактирование"
-"&Continue editing"
-"&Pokračovat"
-"Bearbeiten f&ortsetzen"
-"&Szerkesztést folytat"
-"&Kontynuuj edycję"
+"Файл был изменен внешней программой. Сохранить?"
+"The file was changed by an external program. Save?"
+upd:"Soubor byl změněný externím programem. Save?"
+upd:"Die Datei wurde durch ein externes Programm verändert. Save?"
+upd:"A fájlt egy külső program megváltoztatta. Save?"
+upd:"Plik został zmieniony przez inny program. Save?"
 
 MEditBtnSaveAs
-"Сохр&анить как"
+"Сохр&анить как..."
 "Save &as..."
 "Ulož&it jako..."
 "Speichern &als..."
@@ -5573,12 +5548,12 @@ MEditSavedChangedNonFile1
 "Plik lub folder zawierający"
 
 MEditSavedChangedNonFile2
-"был перемещен или удален."
-"this file was moved or deleted."
-"tento soubor byl přesunut, nebo smazán."
-"diesen Inhalt enthält wurde verschoben oder gelöscht."
-"időközben áthelyezte/átnevezte vagy törölte."
-"ten plik został przeniesiony lub usunięty."
+"был перемещен или удален. Сохранить?"
+"this file was moved or deleted. Save?"
+upd:"tento soubor byl přesunut, nebo smazán. Save?"
+upd:"diesen Inhalt enthält wurde verschoben oder gelöscht. Save?"
+upd:"időközben áthelyezte/átnevezte vagy törölte. Save?"
+upd:"ten plik został przeniesiony lub usunięty. Save?"
 
 MEditNewPath1
 "Путь к редактируемому файлу не существует,"

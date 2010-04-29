@@ -3852,7 +3852,7 @@ BOOL Editor::Search(int Next)
 	Show();
 
 	if (!Match && !UserBreak)
-		Message(MSG_DOWN|MSG_WARNING,1,MSG(MEditSearchTitle),MSG(MEditNotFound),
+		Message(MSG_WARNING,1,MSG(MEditSearchTitle),MSG(MEditNotFound),
 		        strMsgStr,MSG(MOk));
 
 	return TRUE;

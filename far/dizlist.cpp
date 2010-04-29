@@ -495,7 +495,9 @@ bool DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
 
 	bool AnyError=false;
 
-	if(DizFile.Open(strDizFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS))
+	bool EmptyDiz=true;
+
+	if(DizCount && DizFile.Open(strDizFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS))
 	{
 		UINT CodePage = Opt.Diz.SaveInUTF ? CP_UTF8 : (Opt.Diz.AnsiByDefault ? CP_ACP : CP_OEMCP);
 
@@ -523,7 +525,11 @@ bool DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
 						int BytesCount=WideCharToMultiByte(CodePage, 0, DizData[I].DizText, DizData[I].DizLength+1, lpDizText, Size, nullptr, nullptr);
 						if(BytesCount)
 						{
-							if(!Cache.Write(lpDizText, BytesCount))
+							if(Cache.Write(lpDizText, BytesCount))
+							{
+								EmptyDiz=false;
+							}
+							else
 							{
 								AnyError=true;
 								break;
@@ -549,13 +555,9 @@ bool DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
 		}
 		
 		DizFile.Close();
-
-		if (AnyError && FileAttr==INVALID_FILE_ATTRIBUTES)
-		{
-			apiDeleteFile(strDizFileName);
-		}
 	}
-	if(!AnyError)
+	
+	if (!EmptyDiz && !AnyError)
 	{
 		if (FileAttr==INVALID_FILE_ATTRIBUTES)
 		{
@@ -565,8 +567,12 @@ bool DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
 	}
 	else
 	{
-		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotUpdateDiz),MSG(MOk));
-		return false;
+		apiDeleteFile(strDizFileName);
+		if(AnyError)
+		{
+			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotUpdateDiz),MSG(MOk));
+			return false;
+		}
 	}
 
 	Modified=false;

@@ -42,7 +42,6 @@ enum
 	MSG_WARNING        =0x00000001,
 	MSG_ERRORTYPE      =0x00000002,
 	MSG_KEEPBACKGROUND =0x00000004,
-	MSG_DOWN           =0x00000008,
 	MSG_LEFTALIGN      =0x00000010,
 	MSG_KILLSAVESCREEN =0x00000020,
 };
@@ -81,4 +80,4 @@ void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2);
 */
 int AbortMessage();
 
-int GetErrorString(string &strErrStr);
+bool GetErrorString(string &strErrStr);

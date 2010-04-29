@@ -1048,7 +1048,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 				}
 				else
 				{
-					Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),MSG(MCopyIncorrectTargetList), MSG(MOk));
+					Message(MSG_WARNING,1,MSG(MWarning),MSG(MCopyIncorrectTargetList), MSG(MOk));
 				}
 			}
 			else
@@ -1808,7 +1808,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 				}
 				else if ((Attr & FILE_ATTRIBUTE_DIRECTORY)==0)
 				{
-					Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),MSG(MCopyCannotCreateFolder),strNewPath,MSG(MOk));
+					Message(MSG_WARNING,1,MSG(MError),MSG(MCopyCannotCreateFolder),strNewPath,MSG(MOk));
 					return COPY_FAILURE;
 				}
 			}
@@ -1888,7 +1888,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 					strDestPath = strSelName;
 					CP->SetNames(strSelName,strDestPath);
 
-					if (Message(MSG_DOWN|MSG_WARNING,2,MSG(MError),MSG(MCopyCannotFind),
+					if (Message(MSG_WARNING,2,MSG(MError),MSG(MCopyCannotFind),
 					            strSelName,MSG(MSkip),MSG(MCancel))==1)
 					{
 						return COPY_FAILURE;
@@ -2327,7 +2327,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			if (CmpCode==1)
 			{
 				SetMessageHelp(L"ErrCopyItSelf");
-				Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),MSG(MCannotCopyFolderToItself1),
+				Message(MSG_WARNING,1,MSG(MError),MSG(MCannotCopyFolderToItself1),
 				        Src,MSG(MCannotCopyFolderToItself2),MSG(MOk));
 				return(COPY_CANCEL);
 			}
@@ -2392,7 +2392,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 						else
 						{
 							// Ай-ай-ай. Каталог не смогли создать! Значит будем ругаться!
-							int MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
+							int MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
 							                MSG(MCopyCannotCreateFolder),strNewPath,MSG(MCopyRetry),
 							                MSG(MCopySkip),MSG(MCopyCancel));
 
@@ -2519,7 +2519,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					}
 					else
 					{
-						int MsgCode = Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
+						int MsgCode = Message(MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
 						                      MSG(MCopyCannotRenameFolder),Src,MSG(MCopyRetry),
 						                      MSG(MCopyIgnore),MSG(MCopyCancel));
 
@@ -2561,7 +2561,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			{
 				while (!apiCreateDirectory(strDestPath,(Flags&FCOPY_COPYSECURITY) ? &sa:nullptr))
 				{
-					int MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
+					int MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
 					                MSG(MCopyCannotCreateFolder),strDestPath,MSG(MCopyRetry),
 					                MSG(MCopySkip),MSG(MCopyCancel));
 
@@ -2608,7 +2608,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 					while (!ShellSetAttr(strDestPath,SetAttr))
 					{
-						int MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+						int MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
 						                MSG(MCopyCannotChangeFolderAttr),strDestPath,
 						                MSG(MCopyRetry),MSG(MCopySkip),MSG(MCopySkipAll),MSG(MCopyCancel));
 
@@ -2632,7 +2632,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				{
 					while (!ShellSetAttr(strDestPath,SetAttr))
 					{
-						int MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+						int MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
 						                MSG(MCopyCannotChangeFolderAttr),strDestPath,
 						                MSG(MCopyRetry),MSG(MCopySkip),MSG(MCopySkipAll),MSG(MCopyCancel));
 
@@ -2698,7 +2698,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 						if (CmpCode==1)
 						{
-							Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),MSG(MCannotCopyFileToItself1),
+							Message(MSG_WARNING,1,MSG(MError),MSG(MCannotCopyFileToItself1),
 							        Src,MSG(MCannotCopyFileToItself2),MSG(MOk));
 							return(COPY_CANCEL);
 						}
@@ -2941,7 +2941,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 							SetLastError(_localLastError=ERROR_ENCRYPTION_FAILED);
 						}
 
-						MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,5,MSG(MError),
+						MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,5,MSG(MError),
 						                MSG(MsgMCannot),
 						                strMsg1,
 						                MSG(MCannotCopyTo),
@@ -2977,7 +2977,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 						MsgCode=SkipMode;
 					else
 					{
-						MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+						MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
 						                MSG(MsgMCannot),
 						                strMsg1,
 						                MSG(MCannotCopyTo),
@@ -3047,7 +3047,7 @@ COPY_CODES ShellCopy::CheckStreams(const wchar_t *Src,const wchar_t *DestPath)
 			//char SrcFullName[NM];
 			//ConvertNameToFull(Src,SrcFullName, sizeof(SrcFullName));
 			//TruncPathStr(SrcFullName,ScrX-16);
-			int MsgCode=Message(MSG_DOWN|MSG_WARNING,5,MSG(MWarning),
+			int MsgCode=Message(MSG_WARNING,5,MSG(MWarning),
 			                    MSG(MCopyStream1),
 			                    MSG(CanCreateHardLinks(DestPath,nullptr)?MCopyStream2:MCopyStream3),
 			                    MSG(MCopyStream4),"\1",//SrcFullName,"\1",
@@ -3081,7 +3081,7 @@ int ShellCopy::DeleteAfterMove(const wchar_t *Name,DWORD Attr)
 		if (ReadOnlyDelMode!=-1)
 			MsgCode=ReadOnlyDelMode;
 		else
-			MsgCode=Message(MSG_DOWN|MSG_WARNING,5,MSG(MWarning),
+			MsgCode=Message(MSG_WARNING,5,MSG(MWarning),
 			                MSG(MCopyFileRO),Name,MSG(MCopyAskDelete),
 			                MSG(MCopyDeleteRO),MSG(MCopyDeleteAllRO),
 			                MSG(MCopySkipRO),MSG(MCopySkipAllRO),MSG(MCopyCancelRO));
@@ -3112,7 +3112,7 @@ int ShellCopy::DeleteAfterMove(const wchar_t *Name,DWORD Attr)
 		if (SkipDeleteMode!=-1)
 			MsgCode=SkipDeleteMode;
 		else
-			MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),MSG(MCannotDeleteFile),Name,
+			MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),MSG(MCannotDeleteFile),Name,
 			                MSG(MDeleteRetry),MSG(MDeleteSkip),MSG(MDeleteSkipAll),MSG(MDeleteCancel));
 
 		switch (MsgCode)
@@ -3171,7 +3171,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 			SetMessageHelp(L"WarnCopyEncrypt");
 			string strSrcName = SrcName;
 			InsertQuote(strSrcName);
-			MsgCode=Message(MSG_DOWN|MSG_WARNING,3,MSG(MWarning),
+			MsgCode=Message(MSG_WARNING,3,MSG(MWarning),
 			                MSG(MCopyEncryptWarn1),
 			                strSrcName,
 			                MSG(MCopyEncryptWarn2),
@@ -3406,7 +3406,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 
 				while (!SrcFile.Read(CopyBuffer,(CopySparse?(DWORD)Min((LONGLONG)CopyBufferSize,Size):CopyBufferSize),&BytesRead,nullptr))
 				{
-					int MsgCode = Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
+					int MsgCode = Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
 					                      MSG(MCopyReadError),SrcName,
 					                      MSG(MRetry),MSG(MCancel));
 					PR_ShellCopyMsg();
@@ -3468,7 +3468,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 								{
 									DestFile.Close();
 									SetMessageHelp(L"CopyFiles");
-									int MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MError),
+									int MsgCode=Message(MSG_WARNING,4,MSG(MError),
 									                    MSG(MErrorInsufficientDiskSpace),strDestName,
 									                    MSG(MSplit),MSG(MSkip),MSG(MRetry),MSG(MCancel));
 									PR_ShellCopyMsg();
@@ -3495,7 +3495,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 											if (apiGetDiskSize(strDriveRoot,nullptr,nullptr,&FreeSize))
 												if (FreeSize<BytesRead)
 												{
-													int MsgCode2 = Message(MSG_DOWN|MSG_WARNING,2,MSG(MWarning),
+													int MsgCode2 = Message(MSG_WARNING,2,MSG(MWarning),
 													                       MSG(MCopyErrorDiskFull),strDestName,
 													                       MSG(MRetry),MSG(MCancel));
 													PR_ShellCopyMsg();
@@ -3567,7 +3567,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 						else
 						{
 							if (!SplitCancelled && !SplitSkipped &&
-							        Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
+							        Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
 							                MSG(MCopyWriteError),strDestName,MSG(MRetry),MSG(MCancel))==0)
 							{
 								continue;
@@ -4073,7 +4073,7 @@ int ShellCopy::GetSecurity(const wchar_t *FileName,SECURITY_ATTRIBUTES &sa)
 		sd=nullptr;
 
 		if (LastError!=ERROR_SUCCESS && LastError!=ERROR_FILE_NOT_FOUND &&
-		        Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
+		        Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
 		                MSG(MCannotGetSecurity),FileName,MSG(MOk),MSG(MCancel))==1)
 			return(FALSE);
 	}
@@ -4095,7 +4095,7 @@ int ShellCopy::SetSecurity(const wchar_t *FileName,const SECURITY_ATTRIBUTES &sa
 	if (!RetSec)
 	{
 		if (LastError!=ERROR_SUCCESS && LastError!=ERROR_FILE_NOT_FOUND &&
-		        Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
+		        Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
 		                MSG(MCannotSetSecurity),FileName,MSG(MOk),MSG(MCancel))==1)
 			return FALSE;
 	}

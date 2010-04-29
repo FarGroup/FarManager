@@ -609,7 +609,7 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 			{
 				if (!(Flags&FCOPY_NOSHOWMSGLINK))
 				{
-					Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),
+					Message(MSG_WARNING,1,MSG(MError),
 					        MSG(MCopyCannotCreateJunctionToFile),
 					        strDestFullName,MSG(MOk));
 				}
@@ -644,14 +644,14 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 							{
 								strMsgBuf.Format(MSG(MCopyMountVolFailed), SelName);
 								strMsgBuf2.Format(MSG(MCopyMountVolFailed2), (const wchar_t *)strDestFullName);
-								Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),
+								Message(MSG_WARNING,1,MSG(MError),
 								        strMsgBuf,
 								        strMsgBuf2,
 								        MSG(MCopyFolderNotEmpty),
 								        MSG(MOk));
 							}
 							else
-								Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),
+								Message(MSG_WARNING,1,MSG(MError),
 								        MSG(MCopyCannotCreateLink),strDestFullName,
 								        MSG(MCopyFolderNotEmpty),MSG(MOk));
 						}
@@ -671,7 +671,7 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 				{
 					if (!(Flags&FCOPY_NOSHOWMSGLINK))
 					{
-						Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
+						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
 						        MSG(MCopyCannotCreateFolder),
 						        strDestFullName,MSG(MOk));
 					}
@@ -735,7 +735,7 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 				{
 					if (!(Flags&FCOPY_NOSHOWMSGLINK))
 					{
-						Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
+						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
 						        MSG(MCopyCannotCreateLink),strDestFullName,MSG(MOk));
 					}
 
@@ -754,7 +754,7 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 			{
 				if (!(Flags&FCOPY_NOSHOWMSGLINK))
 				{
-					Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
+					Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
 					        MSG(MCopyCannotCreateLink),strDestFullName,MSG(MOk));
 				}
 
@@ -773,7 +773,7 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 				{
 					strMsgBuf.Format(MSG(MCopyMountVolFailed),SelName);
 					strMsgBuf2.Format(MSG(MCopyMountVolFailed2),strDestFullName.CPtr());
-					Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),strMsgBuf,strMsgBuf2,MSG(MOk));
+					Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),strMsgBuf,strMsgBuf2,MSG(MOk));
 				}
 
 				return 0;

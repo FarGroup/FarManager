@@ -1909,7 +1909,7 @@ int FileList::ProcessKey(int Key)
 					strDirName=lpwszDirName;
 
 					if (!MakeCode)
-						Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateFolder),strDirName,MSG(MOk));
+						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateFolder),strDirName,MSG(MOk));
 
 					Update(UPDATE_KEEP_SELECTION);
 

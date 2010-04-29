@@ -2582,11 +2582,11 @@ void Viewer::Search(int Next,int FirstChar)
 		/* $ 27.01.2003 VVM
 		   + После окончания поиска спросим о переходе поиска в начало/конец */
 		if (SearchFlags.Check(SEARCH_MODE2))
-			Message(MSG_DOWN|MSG_WARNING,1,MSG(MViewSearchTitle),
+			Message(MSG_WARNING,1,MSG(MViewSearchTitle),
 			        (SearchHex?MSG(MViewSearchCannotFindHex):MSG(MViewSearchCannotFind)),strMsgStr,MSG(MOk));
 		else
 		{
-			if (Message(MSG_DOWN|MSG_WARNING,2,MSG(MViewSearchTitle),
+			if (Message(MSG_WARNING,2,MSG(MViewSearchTitle),
 			            (SearchHex?MSG(MViewSearchCannotFindHex):MSG(MViewSearchCannotFind)),strMsgStr,
 			            (ReverseSearch?MSG(MViewSearchFromEnd):MSG(MViewSearchFromBegin)),
 			            MSG(MHYes),MSG(MHNo)) == 0)
