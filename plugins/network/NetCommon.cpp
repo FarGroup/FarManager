@@ -12,7 +12,7 @@ NETRESOURCE *PCommonCurResource = NULL;
 
 OSVERSIONINFO WinVer;
 
-TCHAR PluginRootKey[80];
+TCHAR *PluginRootKey;
 TCHAR FarRootKey [MAX_PATH];
 
 HMODULE hMpr32=NULL;
@@ -98,7 +98,10 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
   if (pBkSlash)
     *pBkSlash = _T('\0');
 
-  FSF.sprintf(PluginRootKey,_T("%s\\Network"),Info->RootKey);
+  PluginRootKey = (TCHAR *)malloc(lstrlen(Info->RootKey)*sizeof(TCHAR) + sizeof(_T("\\Network")));
+  lstrcpy(PluginRootKey,Info->RootKey);
+  lstrcat(PluginRootKey,_T("\\Network"));
+
   Opt.AddToDisksMenu=GetRegKey(HKEY_CURRENT_USER,_T(""),StrAddToDisksMenu,1);
   Opt.AddToPluginsMenu=GetRegKey(HKEY_CURRENT_USER,_T(""),StrAddToPluginsMenu,1);
   Opt.DisksMenuDigit=GetRegKey(HKEY_CURRENT_USER,_T(""),StrDisksMenuDigit,3);

@@ -56,7 +56,7 @@ extern LPNETRESOURCE PCommonCurResource;
 extern BOOL IsFirstRun;
 extern OSVERSIONINFO WinVer;
 
-extern TCHAR PluginRootKey[80];
+extern TCHAR *PluginRootKey;
 extern TCHAR FarRootKey [MAX_PATH];
 
 class TSaveScreen{

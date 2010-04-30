@@ -2122,6 +2122,7 @@ void NetBrowser::SetCursorToShare (TCHAR *Share)
 
 void WINAPI EXP_NAME(ExitFAR)()
 {
+  free(PluginRootKey);
   delete CommonRootResources;
   NetResourceList::DeleteNetResource (CommonCurResource);
 }

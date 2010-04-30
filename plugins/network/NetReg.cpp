@@ -4,8 +4,6 @@
 HKEY CreateRegKey(HKEY hRoot,const TCHAR *Key);
 HKEY OpenRegKey(HKEY hRoot,const TCHAR *Key);
 
-const TCHAR *FmtSSS=_T("%s%s%s");
-
 void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,const TCHAR *ValueData)
 {
   HKEY hKey=CreateRegKey(hRoot,Key);
@@ -88,23 +86,34 @@ int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,BYTE *ValueData
 
 HKEY CreateRegKey(HKEY hRoot,const TCHAR *Key)
 {
-  HKEY hKey;
-  DWORD Disposition;
-  TCHAR FullKeyName[512];
-  FSF.sprintf(FullKeyName, FmtSSS, PluginRootKey, *Key ? _T("\\") : _T(""), Key);
-  RegCreateKeyEx(hRoot,FullKeyName,0,NULL,0,KEY_WRITE,NULL,
-                 &hKey,&Disposition);
-  return(hKey);
+  HKEY hKey=NULL;
+  if (RegCreateKeyEx(hRoot,PluginRootKey,0,0,0,KEY_WRITE,0,&hKey,0)==ERROR_SUCCESS)
+  {
+    if (Key && *Key)
+    {
+      HKEY hSubKey=NULL;
+      RegCreateKeyEx(hKey,Key,0,0,0,KEY_WRITE,0,&hSubKey,0);
+      RegCloseKey(hKey);
+      return hSubKey;
+    }
+  }
+  return hKey;
 }
 
 HKEY OpenRegKey(HKEY hRoot, const TCHAR *Key, REGSAM samDesired)
 {
-  HKEY hKey;
-  TCHAR FullKeyName[512];
-  FSF.sprintf(FullKeyName, FmtSSS, PluginRootKey, *Key ? _T("\\") : _T(""), Key);
-  if (RegOpenKeyEx(hRoot,FullKeyName,0,samDesired,&hKey)!=ERROR_SUCCESS)
-    return(NULL);
-  return(hKey);
+  HKEY hKey=NULL;
+  if (RegOpenKeyEx(hRoot,PluginRootKey,0,samDesired,&hKey)!=ERROR_SUCCESS)
+  {
+    if (Key && *Key)
+    {
+      HKEY hSubKey=NULL;
+      RegOpenKeyEx(hKey,Key,0,samDesired,&hSubKey);
+      RegCloseKey(hKey);
+      return hSubKey;
+    }
+  }
+  return hKey;
 }
 
 HKEY OpenRegKey(HKEY hRoot,const TCHAR *Key)
