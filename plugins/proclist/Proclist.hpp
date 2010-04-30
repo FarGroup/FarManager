@@ -172,7 +172,7 @@ struct ProcessDataNT : ProcessData {
 
 extern int NT, W2K;
 
-extern TCHAR PluginRootKey[80];
+extern TCHAR *PluginRootKey;
 
 class PerfThread;
 

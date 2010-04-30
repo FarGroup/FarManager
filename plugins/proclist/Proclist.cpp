@@ -11,7 +11,7 @@ ui64Table *_ui64Table;
 PluginStartupInfo Info;
 FarStandardFunctions FSF;
 int NT, W2K;
-TCHAR PluginRootKey[80];
+TCHAR *PluginRootKey;
 
 #if defined(__GNUC__)
   #define DLLMAINFUNC DllMainCRTStartup
@@ -175,7 +175,9 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
   ::Info = *Info;
   FSF = *Info->FSF;
   ::Info.FSF = &FSF;
-  FSF.sprintf(PluginRootKey,_T("%s\\Plist"),Info->RootKey);
+  PluginRootKey = (TCHAR *)malloc(lstrlen(Info->RootKey)*sizeof(TCHAR) + sizeof(_T("\\Plist")));
+  lstrcpy(PluginRootKey,Info->RootKey);
+  lstrcat(PluginRootKey,_T("\\Plist"));
   _ui64Table = new ui64Table;
   Opt.Read();
 
@@ -186,6 +188,7 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
 
 void WINAPI EXP_NAME(ExitFAR)()
 {
+  free(PluginRootKey);
   delete _ui64Table;
 }
 

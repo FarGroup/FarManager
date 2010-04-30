@@ -86,34 +86,51 @@ int GetRegKey(LPCTSTR Key,LPCTSTR ValueName,BYTE *ValueData,BYTE *Default,DWORD 
 
 void DeleteRegKey(LPCTSTR Key)
 {
-  TCHAR FullKeyName[80];
-  FSF.sprintf(FullKeyName,_T("%s%s%s"),PluginRootKey,*Key ? _T("\\"):_T(""),Key);
-  RegDeleteKey(HKEY_CURRENT_USER,FullKeyName);
+  if (Key && *Key)
+  {
+    HKEY hKey;
+    if (RegOpenKeyEx(HKEY_CURRENT_USER,PluginRootKey,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS)
+    {
+      RegDeleteKey(hKey,Key);
+      RegCloseKey(hKey);
+    }
+  }
+  else
+  {
+    RegDeleteKey(HKEY_CURRENT_USER,PluginRootKey);
+  }
 }
 
 
 static HKEY CreateRegKey(LPCTSTR Key)
 {
-  HKEY hKey;
-  TCHAR FullKeyName[MAX_PATH];
-  if(Key && *Key)
-    FSF.sprintf(FullKeyName,_T("%s\\%s"),PluginRootKey,Key);
-  else
-    lstrcpy(FullKeyName, PluginRootKey);
-  RegCreateKeyEx(HKEY_CURRENT_USER,FullKeyName,0,0,0,KEY_WRITE,0,&hKey,0);
+  HKEY hKey=NULL;
+  if (RegCreateKeyEx(HKEY_CURRENT_USER,PluginRootKey,0,0,0,KEY_WRITE,0,&hKey,0)==ERROR_SUCCESS)
+  {
+    if (Key && *Key)
+    {
+      HKEY hSubKey=NULL;
+      RegCreateKeyEx(hKey,Key,0,0,0,KEY_WRITE,0,&hSubKey,0);
+      RegCloseKey(hKey);
+      return hSubKey;
+    }
+  }
   return hKey;
 }
 
 
 static HKEY OpenRegKey(LPCTSTR Key)
 {
-  HKEY hKey;
-  TCHAR FullKeyName[MAX_PATH];
-  if(Key && *Key)
-    FSF.sprintf(FullKeyName,_T("%s\\%s"),PluginRootKey,Key);
-  else
-    lstrcpy(FullKeyName, PluginRootKey);
-  if (RegOpenKeyEx(HKEY_CURRENT_USER,FullKeyName,0,KEY_QUERY_VALUE,&hKey)!=ERROR_SUCCESS)
-    return NULL;
+  HKEY hKey=NULL;
+  if (RegOpenKeyEx(HKEY_CURRENT_USER,PluginRootKey,0,KEY_QUERY_VALUE,&hKey)!=ERROR_SUCCESS)
+  {
+    if (Key && *Key)
+    {
+      HKEY hSubKey=NULL;
+      RegOpenKeyEx(hKey,Key,0,KEY_QUERY_VALUE,&hSubKey);
+      RegCloseKey(hKey);
+      return hSubKey;
+    }
+  }
   return hKey;
 }
