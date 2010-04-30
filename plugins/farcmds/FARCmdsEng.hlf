@@ -239,11 +239,11 @@ successful.
 
    1. Current folder
    2. Каталог, на который указывает переменная среды %FARHOME%
-   3. Windows 95: Windows' system folder (SYSTEM)
+   3. Folders in the system environment variable #PATH#
+   4. Windows 95: Windows' system folder (SYSTEM)
       Windows NT: 32 bit Windows' system folder (SYSTEM32)
-   4. Windows NT: 16 bit Windows' system folder (SYSTEM)
-   5. Windows folder.
-   6. Folders in the system environment variable #PATH#
+   5. Windows NT: 16 bit Windows' system folder (SYSTEM)
+   6. Windows folder.
    7. Contents of the registry key:
       #HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\App Paths#
    8. Contents of the registry key:

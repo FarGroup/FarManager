@@ -232,13 +232,14 @@ $ #Команда WhereIs#
    #whereis:имяфайла#
 
    Поиск осуществляется в следующем порядке:
+
    1. Текущий каталог
    2. Каталог, на который указывает переменная среды %FARHOME%
-   3. Windows 95: Системный каталог Windows (SYSTEM).
+   3. Каталоги, которые перечислены в переменной окружения #PATH#
+   4. Windows 95: Системный каталог Windows (SYSTEM).
       Windows NT: 32-битный системный каталог Windows (SYSTEM32)
-   4. Windows NT: 16-битный системный каталог Windows (SYSTEM)
-   5. Каталог Windows.
-   6. Каталоги, которые перечислены в переменной окружения #PATH#
+   5. Windows NT: 16-битный системный каталог Windows (SYSTEM)
+   6. Каталог Windows.
    7. Содержимое ветки реестра:
       #HKCU\Software\Microsoft\Windows\CurrentVersion\App Paths#
    8. Содержимое ветки реестра:
