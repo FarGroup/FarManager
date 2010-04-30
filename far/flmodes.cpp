@@ -104,6 +104,30 @@ void FileList::SetFilePanelModes()
 			return;
 
 		CurMode=ModeNumber;
+
+		enum ModeItems
+		{
+			MD_DOUBLEBOX,
+			MD_TEXTTYPES,
+			MD_EDITTYPES,
+			MD_TEXTWIDTHS,
+			MD_EDITWIDTHS,
+			MD_TEXTSTATUSTYPES,
+			MD_EDITSTATUSTYPES,
+			MD_TEXTSTATUSWIDTHS,
+			MD_EDITSTATUSWIDTHS,
+			MD_SEPARATOR1,
+			MD_CHECKBOX_FULLSCREEN,
+			MD_CHECKBOX_ALIGNFILEEXT,
+			MD_CHECKBOX_ALIGNFOLDEREXT,
+			MD_CHECKBOX_FOLDERUPPERCASE,
+			MD_CHECKBOX_FILESLOWERCASE,
+			MD_CHECKBOX_UPPERTOLOWERCASE,
+			MD_CHECKBOX_CASESENSITIVESORT,
+			MD_SEPARATOR2,
+			MD_BUTTON_OK,
+			MD_BUTTON_CANCEL,
+		} ;
 		DialogDataEx ModeDlgData[]=
 		{
 			DI_DOUBLEBOX, 3, 1,72,16,0,0,MSG((int)(DWORD_PTR)ModeListMenu[ModeNumber].Name),
@@ -129,7 +153,7 @@ void FileList::SetFilePanelModes()
 		};
 		MakeDialogItemsEx(ModeDlgData,ModeDlg);
 		int ExitCode;
-		RemoveHighlights(ModeDlg[0].strData);
+		RemoveHighlights(ModeDlg[MD_DOUBLEBOX].strData);
 
 		if (ModeNumber==9)
 			ModeNumber=0;
@@ -137,13 +161,13 @@ void FileList::SetFilePanelModes()
 			ModeNumber++;
 
 		PanelViewSettings NewSettings=ViewSettingsArray[ModeNumber];
-		ModeDlg[11].Selected=NewSettings.FullScreen;
-		ModeDlg[12].Selected=NewSettings.AlignExtensions;
-		ModeDlg[13].Selected=NewSettings.FolderAlignExtensions;
-		ModeDlg[14].Selected=NewSettings.FolderUpperCase;
-		ModeDlg[15].Selected=NewSettings.FileLowerCase;
-		ModeDlg[16].Selected=NewSettings.FileUpperToLowerCase;
-		ModeDlg[17].Selected=NewSettings.CaseSensitiveSort;
+		ModeDlg[MD_CHECKBOX_FULLSCREEN].Selected=NewSettings.FullScreen;
+		ModeDlg[MD_CHECKBOX_ALIGNFILEEXT].Selected=NewSettings.AlignExtensions;
+		ModeDlg[MD_CHECKBOX_ALIGNFOLDEREXT].Selected=NewSettings.FolderAlignExtensions;
+		ModeDlg[MD_CHECKBOX_FOLDERUPPERCASE].Selected=NewSettings.FolderUpperCase;
+		ModeDlg[MD_CHECKBOX_FILESLOWERCASE].Selected=NewSettings.FileLowerCase;
+		ModeDlg[MD_CHECKBOX_UPPERTOLOWERCASE].Selected=NewSettings.FileUpperToLowerCase;
+		ModeDlg[MD_CHECKBOX_CASESENSITIVESORT].Selected=NewSettings.CaseSensitiveSort;
 		ViewSettingsToText(NewSettings.ColumnType,NewSettings.ColumnWidth,NewSettings.ColumnWidthType,
 		                   NewSettings.ColumnCount,ModeDlg[2].strData,ModeDlg[4].strData);
 		ViewSettingsToText(NewSettings.StatusColumnType,NewSettings.StatusColumnWidth,NewSettings.StatusColumnWidthType,
@@ -156,20 +180,20 @@ void FileList::SetFilePanelModes()
 			ExitCode=Dlg.GetExitCode();
 		}
 
-		if (ExitCode!=19)
+		if (ExitCode!=MD_BUTTON_OK)
 			continue;
 
 		memset(&NewSettings,0,sizeof(NewSettings));
-		NewSettings.FullScreen=ModeDlg[11].Selected;
-		NewSettings.AlignExtensions=ModeDlg[12].Selected;
-		NewSettings.FolderAlignExtensions=ModeDlg[13].Selected;
-		NewSettings.FolderUpperCase=ModeDlg[14].Selected;
-		NewSettings.FileLowerCase=ModeDlg[15].Selected;
-		NewSettings.FileUpperToLowerCase=ModeDlg[16].Selected;
-		NewSettings.CaseSensitiveSort=ModeDlg[17].Selected;
-		TextToViewSettings(ModeDlg[2].strData,ModeDlg[4].strData,NewSettings.ColumnType,
+		NewSettings.FullScreen=ModeDlg[MD_CHECKBOX_FULLSCREEN].Selected;
+		NewSettings.AlignExtensions=ModeDlg[MD_CHECKBOX_ALIGNFILEEXT].Selected;
+		NewSettings.FolderAlignExtensions=ModeDlg[MD_CHECKBOX_ALIGNFOLDEREXT].Selected;
+		NewSettings.FolderUpperCase=ModeDlg[MD_CHECKBOX_FOLDERUPPERCASE].Selected;
+		NewSettings.FileLowerCase=ModeDlg[MD_CHECKBOX_FILESLOWERCASE].Selected;
+		NewSettings.FileUpperToLowerCase=ModeDlg[MD_CHECKBOX_UPPERTOLOWERCASE].Selected;
+		NewSettings.CaseSensitiveSort=ModeDlg[MD_CHECKBOX_CASESENSITIVESORT].Selected;
+		TextToViewSettings(ModeDlg[MD_EDITTYPES].strData,ModeDlg[MD_EDITWIDTHS].strData,NewSettings.ColumnType,
 		                   NewSettings.ColumnWidth,NewSettings.ColumnWidthType,NewSettings.ColumnCount);
-		TextToViewSettings(ModeDlg[6].strData,ModeDlg[8].strData,NewSettings.StatusColumnType,
+		TextToViewSettings(ModeDlg[MD_EDITSTATUSTYPES].strData,ModeDlg[MD_EDITSTATUSWIDTHS].strData,NewSettings.StatusColumnType,
 		                   NewSettings.StatusColumnWidth,NewSettings.StatusColumnWidthType,NewSettings.StatusColumnCount);
 		ViewSettingsArray[ModeNumber]=NewSettings;
 		CtrlObject->Cp()->LeftPanel->SortFileList(TRUE);
