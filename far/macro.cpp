@@ -2297,9 +2297,7 @@ static bool dlggetvalueFunc()
 				case 3: Ret=(__int64)Item->Y1;    break;
 				case 4: Ret=(__int64)Item->X2;    break;
 				case 5: Ret=(__int64)Item->Y2;    break;
-				case 6:
-					Ret=(ItemType==DI_SINGLEBOX || ItemType==DI_DOUBLEBOX)?FALSE:(__int64)((Item->Flags&DIF_FOCUS)!=0); //BUGBUG
-					break;
+				case 6: Ret=(__int64)Item->Focus; break;
 				case 7:
 				{
 					if (ItemType == DI_CHECKBOX || ItemType == DI_RADIOBUTTON)
@@ -2326,9 +2324,7 @@ static bool dlggetvalueFunc()
 					break;
 				}
 				case 8: Ret=(__int64)ItemFlags; break;
-				case 9:
-					Ret=(ItemType=DI_TEXT || ItemType==DI_VTEXT)?FALSE:(__int64)((ItemFlags&DIF_DEFAULT)!=0); // BUGBUG
-					break;
+				case 9: Ret=(__int64)Item->DefaultButton; break;
 				case 10:
 				{
 					Ret=(const wchar_t *)Item->strData;
