@@ -196,7 +196,7 @@ int GetRegKey(LPCTSTR Key,LPCTSTR ValueName,int &ValueData,DWORD Default);
 int GetRegKey(LPCTSTR Key,LPCTSTR ValueName,DWORD Default);
 void DeleteRegKey(LPCTSTR Key);
 
-int WinError(TCHAR* pSourceModule=0, BOOL bDown=FALSE);
+int WinError(TCHAR* pSourceModule=0);
 
 class DebugToken
 {

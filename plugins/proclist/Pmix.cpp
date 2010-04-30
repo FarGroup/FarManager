@@ -61,7 +61,7 @@ void ConvertDate(const FILETIME& ft,TCHAR *DateText,TCHAR *TimeText)
       GetDateFormat(LOCALE_USER_DEFAULT, 0, &st, 0, DateText, MAX_DATETIME);
 }
 
-int WinError(TCHAR* pSourceModule, BOOL bDown)
+int WinError(TCHAR* pSourceModule)
 {
   TCHAR* lpMsgBuf; BOOL bAllocated = FALSE;
   DWORD dwLastErr = GetLastError();
@@ -89,8 +89,7 @@ int WinError(TCHAR* pSourceModule, BOOL bDown)
           if(lpMsgBuf[i]==_T(' ')) { lpMsgBuf[i] = _T('\n'); break; }
   items[1] = _tcstok(lpMsgBuf,_T("\r\n"));
   items[2] = _tcstok(NULL,_T("\r\n")); if(!items[2]) items[2] = items[3];
-  int rc = Message(bDown ? FMSG_WARNING|FMSG_DOWN : FMSG_WARNING,
-        0,items,(int)(ArraySize(items) - (items[2]==items[3])));
+  int rc = Message(FMSG_WARNING,0,items,(int)(ArraySize(items) - (items[2]==items[3])));
   if(bAllocated) LocalFree( lpMsgBuf );
   return rc;
 }

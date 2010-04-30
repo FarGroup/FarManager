@@ -990,7 +990,7 @@ bool Plist::Connect(LPCTSTR pMachine, LPCTSTR pUser, LPCTSTR pPasw)
     PerfThread* pNewPerfThread = new PerfThread(*this, Machine, pUser?pUser:0, pUser?pPasw:0);
     if( !pNewPerfThread->IsOK() )
     {
-        WinError(0,TRUE);
+        WinError();
         Info.RestoreScreen(hScreen);
         delete pNewPerfThread;
     }

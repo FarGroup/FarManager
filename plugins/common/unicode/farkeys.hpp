@@ -4,7 +4,7 @@
 /*
   farkeys.hpp
 
-  Inside KeyName for FAR Manager 2.0 build 1419
+  Inside KeyName for FAR Manager 2.0 build 1530
 */
 
 /*
@@ -39,19 +39,19 @@ Far Manager plugins that use this header file can be distributed under any
 other possible license with no implications from the above license on them.
 */
 
-
-#define EXTENDED_KEY_BASE   0x00010000
-#define INTERNAL_KEY_BASE   0x00020000
-#define INTERNAL_KEY_BASE_2 0x00030000
+#define EXTENDED_KEY_BASE     0x00010000
+#define INTERNAL_KEY_BASE     0x00020000
+#define INTERNAL_KEY_BASE_2   0x00030000
 
 enum BaseDefKeyboard
 {
+	KEY_CTRLMASK             =0xFFF00000,
 	KEY_CTRL                 =0x01000000,
 	KEY_ALT                  =0x02000000,
 	KEY_SHIFT                =0x04000000,
+	//
 	KEY_RCTRL                =0x10000000,
 	KEY_RALT                 =0x20000000,
-	KEY_CTRLMASK             =0xFF000000,
 
 	KEY_BRACKET              ='[',
 	KEY_BACKBRACKET          =']',
@@ -190,6 +190,11 @@ enum BaseDefKeyboard
 
 	KEY_NONE                 =INTERNAL_KEY_BASE_2+1,
 	KEY_IDLE                 =INTERNAL_KEY_BASE_2+2,
+
+	KEY_KILLFOCUS            =INTERNAL_KEY_BASE_2+6,
+	KEY_GOTFOCUS             =INTERNAL_KEY_BASE_2+7,
+	KEY_CONSOLE_BUFFER_RESIZE=INTERNAL_KEY_BASE_2+8,
+
 
 	KEY_END_SKEY             =0x0003FFFF,
 	KEY_LAST_BASE            =KEY_END_SKEY,
@@ -652,6 +657,7 @@ enum AddDefKeyboard
 	KEY_CTRLBACKSLASH        =KEY_CTRL|KEY_BACKSLASH,
 	KEY_CTRLCLEAR            =KEY_CTRL|KEY_CLEAR,
 	KEY_CTRLSHIFTCLEAR       =KEY_CTRL|KEY_SHIFT|KEY_CLEAR,
+	KEY_CTRLALTCLEAR         =KEY_CTRL|KEY_ALT|KEY_CLEAR,
 	KEY_CTRLADD              =KEY_CTRL|KEY_ADD,
 	KEY_SHIFTADD             =KEY_SHIFT|KEY_ADD,
 
