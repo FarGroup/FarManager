@@ -1,3 +1,7 @@
+drkns 30.04.2010 11:09:22 +0200 - build 1531
+
+2. Уточнение 1530.2: DIF_DEFAULT и DIF_FOCUS используются в инициализации (DialogDataEx), а в элементах (DialogItemEx) по прежнему DefaultButton и Focus.
+
 drkns 30.04.2010 01:01:01 +0200 - build 1530
 
 1. Для default button можно задавать цвет.
