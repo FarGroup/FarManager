@@ -3575,6 +3575,8 @@ done:
 			goto initial;
 		}
 
+		ScrBuf.RestoreMacroChar();
+
 		return KEY_NONE; // Çהוסü ÂÑÅÃÄÀ!
 	}
 

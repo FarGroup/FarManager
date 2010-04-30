@@ -202,8 +202,8 @@ void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text,int MaxTextLeng
 
 	if (X1==0 && Y1==0 &&
 	        CtrlObject!=nullptr &&
-	        CtrlObject->Macro.IsRecording() &&
-	        MacroChar.Char.UnicodeChar != L'R')
+	        (CtrlObject->Macro.IsRecording() || CtrlObject->Macro.IsExecuting()) &&
+	        MacroChar.Char.UnicodeChar != (CtrlObject->Macro.IsRecording()?L'R':L'P'))
 		Text[0]=MacroChar;
 
 	if (X2==BufX-1 && Y2==BufY-1 && Admin.Elevated() && ElevationChar.Char.UnicodeChar != L'A')
@@ -351,14 +351,14 @@ void ScreenBuf::Flush()
 	{
 		HANDLE hConOut = GetStdHandle(STD_OUTPUT_HANDLE);
 
-		if (CtrlObject && CtrlObject->Macro.IsRecording())
+		if (CtrlObject && (CtrlObject->Macro.IsRecording() || CtrlObject->Macro.IsExecuting()))
 		{
-			if (Buf[0].Char.UnicodeChar!=L'R')
+			if (Buf[0].Char.UnicodeChar != (CtrlObject->Macro.IsRecording()?L'R':L'P'))
 			{
 				MacroChar=Buf[0];
 			}
 
-			Buf[0].Char.UnicodeChar=L'R';
+			Buf[0].Char.UnicodeChar=CtrlObject->Macro.IsRecording()?L'R':L'P';
 			Buf[0].Attributes=FarColorToReal(COL_WARNDIALOGTEXT);
 		}
 
@@ -372,7 +372,7 @@ void ScreenBuf::Flush()
 			Buf[BufX*BufY-1].Char.UnicodeChar=L'A';
 			Buf[BufX*BufY-1].Attributes=FarColorToReal(COL_WARNDIALOGTEXT);
 		}
-		
+
 		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE) && !CurVisible)
 		{
 			CONSOLE_CURSOR_INFO cci={CurSize,CurVisible};
