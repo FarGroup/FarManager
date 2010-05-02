@@ -687,7 +687,13 @@ int OpenFromCommandLine(TCHAR *_farcmd)
               }
             }
 
+#ifdef UNICODE
+            TCHAR temp[MAX_PATH*5];
+            FSF.ConvertPath(CPM_FULL, pCmd, temp, ArraySize(temp));
+            DWORD FTAttr=GetFileAttributes(temp);
+#else
             DWORD FTAttr=GetFileAttributes(pCmd);
+#endif
             if(FTAttr != 0xFFFFFFFF && Arg2)
             {
               TCHAR Disk[16];
