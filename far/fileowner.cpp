@@ -40,6 +40,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "privilege.hpp"
 #include "adminmode.hpp"
 
+static char sddata[64*1024];
+
 // эта часть - перспективная фигня, которая значительно ускоряет получение овнеров
 
 struct SIDCacheItem
@@ -145,38 +147,30 @@ bool WINAPI GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &st
 	SECURITY_INFORMATION si=OWNER_SECURITY_INFORMATION|GROUP_SECURITY_INFORMATION;;
 	DWORD LengthNeeded=0;
 	string strName(NTPath(Name).Str);
-	GetFileSecurity(strName,si,nullptr,0,&LengthNeeded);
+	PSECURITY_DESCRIPTOR sd=reinterpret_cast<PSECURITY_DESCRIPTOR>(sddata);
 
-	if (LengthNeeded)
+	if (GetFileSecurity(strName,si,sd,sizeof(sddata),&LengthNeeded) && LengthNeeded<=sizeof(sddata))
 	{
-		PSECURITY_DESCRIPTOR sd=reinterpret_cast<PSECURITY_DESCRIPTOR>(xf_malloc(LengthNeeded));
-
-		if (sd)
+		PSID pOwner;
+		BOOL OwnerDefaulted;
+		if (GetSecurityDescriptorOwner(sd,&pOwner,&OwnerDefaulted))
 		{
-			if (GetFileSecurity(strName,si,sd,LengthNeeded,&LengthNeeded))
+			if (IsValidSid(pOwner))
 			{
-				PSID pOwner;
-				BOOL OwnerDefaulted;
-				if (GetSecurityDescriptorOwner(sd,&pOwner,&OwnerDefaulted))
+				const wchar_t *Owner=GetNameFromSIDCache(pOwner);
+				if (!Owner)
 				{
-					if (IsValidSid(pOwner))
-					{
-						const wchar_t *Owner=GetNameFromSIDCache(pOwner);
-						if (!Owner)
-						{
-							Owner=AddSIDToCache(Computer,pOwner);
-						}
-						if (Owner)
-						{
-							strOwner=Owner;
-							Result=true;
-						}
-					}
+					Owner=AddSIDToCache(Computer,pOwner);
+				}
+				if (Owner)
+				{
+					strOwner=Owner;
+					Result=true;
 				}
 			}
-			xf_free(sd);
 		}
 	}
+
 	return Result;
 }
 

@@ -80,7 +80,7 @@ extern long WaitUserTime;
 /* Длф того, что бы время при одижании пользователя тикало, а remaining/speed нет */
 static long OldCalcTime;
 
-#define SDDATA_SIZE   64000
+#define SDDATA_SIZE   64*1024
 
 enum {COPY_BUFFER_SIZE  = 0x10000};
 
@@ -637,7 +637,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	IconicState=IsIconic(GetConsoleWindow());
 	// Создадим объект фильтра
 	Filter=new FileFilter(SrcPanel, FFT_COPY);
-	sddata=new char[SDDATA_SIZE]; // Security 16000?
+	sddata=new char[SDDATA_SIZE];
 	// $ 26.05.2001 OT Запретить перерисовку панелей во время копирования
 	_tran(SysLog(L"call (*FrameManager)[0]->LockRefresh()"));
 	(*FrameManager)[0]->Lock();
@@ -2432,7 +2432,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 	CP->SetProgressValue(0,0);
 	CP->SetNames(Src,strDestPath);
-	
+
 	int IsSetSecuty=FALSE;
 
 	if (!(Flags&FCOPY_COPYTONUL))
@@ -4065,7 +4065,7 @@ int ShellCopy::GetSecurity(const wchar_t *FileName,SECURITY_ATTRIBUTES &sa)
 	BOOL RetSec=GetFileSecurity(NTPath(FileName),si,sd,SDDATA_SIZE,&Needed);
 	int LastError=GetLastError();
 
-	if (!RetSec)
+	if (!RetSec || Needed>SDDATA_SIZE)
 	{
 		sd=nullptr;
 
