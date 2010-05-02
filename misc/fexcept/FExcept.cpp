@@ -333,7 +333,11 @@ DECL BOOL WINAPI ExceptionProcINT( EXCEPTION_POINTERS *xInfo,
 
      if ( !FP_Info ||
           !FP_Info->Message ||
-          FP_Info->Message( 0, FMSG_DOWN | FMSG_LEFTALIGN | FMSG_ALLINONE | (isFARTrap ? FMSG_MB_OK : FMSG_MB_YESNO ),
+          FP_Info->Message( 0,
+#ifndef UNICODE
+          FMSG_DOWN |
+#endif
+          FMSG_LEFTALIGN | FMSG_ALLINONE | (isFARTrap ? FMSG_MB_OK : FMSG_MB_YESNO ),
                             NULL, (const TCHAR * const *)str, 0, 0 ) == 0 ) {
        TerminateProcess( GetCurrentProcess(),0 );
      }
