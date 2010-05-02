@@ -629,7 +629,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
             bool NeedSymLink=false;
             DWORD LinkFlags=0;
             TCHAR *Arg2=NULL;
-            while(*pCmd && (*pCmd == _T('/') || *pCmd == _T('-')))
+            while(*pCmd && *pCmd == _T('/'))
             {
               if(!LStrnicmp(pCmd,_T("/MSG"),4))
               {
@@ -645,6 +645,10 @@ int OpenFromCommandLine(TCHAR *_farcmd)
               {
                 NeedSymLink=true;
                 pCmd=FarTrim(pCmd+2);
+              }
+              else
+              {
+                break;
               }
             }
 
