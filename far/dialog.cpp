@@ -609,47 +609,33 @@ void Dialog::DisplayObject()
 void Dialog::ProcessCenterGroup()
 {
 	CriticalSectionLock Lock(CS);
-	int Length,StartX;
-	int Type;
-	DialogItemEx *CurItem, *JCurItem;
-	DWORD ItemFlags;
 
 	for (unsigned I=0; I < ItemCount; I++)
 	{
-		CurItem = Item[I];
-		Type=CurItem->Type;
-		ItemFlags=CurItem->Flags;
-
 		// Последовательно объявленные элементы с флагом DIF_CENTERGROUP
 		// и одинаковой вертикальной позицией будут отцентрированы в диалоге.
 		// Их координаты X не важны. Удобно использовать для центрирования
 		// групп кнопок.
-		if ((ItemFlags & DIF_CENTERGROUP) &&
+		if ((Item[I]->Flags & DIF_CENTERGROUP) &&
 		        (I==0 ||
 		         (I > 0 &&
 		          ((Item[I-1]->Flags & DIF_CENTERGROUP)==0 ||
-		           Item[I-1]->Y1!=CurItem->Y1)
+		           Item[I-1]->Y1!=Item[I]->Y1)
 		         )
 		        )
 		   )
 		{
-			unsigned J;
-			Length=0;
+			int Length=0;
 
-			for (J=I;
-			        J < ItemCount && (Item[J]->Flags & DIF_CENTERGROUP) && Item[J]->Y1==CurItem->Y1;
-			        J++)
+			for (UINT J=I; J < ItemCount && (Item[J]->Flags & DIF_CENTERGROUP) && Item[J]->Y1==Item[I]->Y1; J++)
 			{
-				JCurItem = Item[J];
 				Length+=LenStrItem(J);
 
-//        if (JCurItem->Type==DI_BUTTON && *JCurItem->Data!=' ')
-//          Length+=2;
-				if (!JCurItem->strData.IsEmpty() && (JCurItem->strData.At(0) != L' '))  //BBUG
-					switch (JCurItem->Type)
+				if (!Item[J]->strData.IsEmpty())
+					switch (Item[J]->Type)
 					{
 						case DI_BUTTON:
-							Length+=2;
+							Length++;
 							break;
 						case DI_CHECKBOX:
 						case DI_RADIOBUTTON:
@@ -658,13 +644,11 @@ void Dialog::ProcessCenterGroup()
 					}
 			}
 
-//      if (Type==DI_BUTTON && *CurItem->Data!=' ')
-//        Length-=2;
-			if (!CurItem->strData.IsEmpty() && (CurItem->strData.At(0) != L' '))
-				switch (Type)
+			if (!Item[I]->strData.IsEmpty())
+				switch (Item[I]->Type)
 				{
 					case DI_BUTTON:
-						Length-=2;
+						Length--;
 						break;
 					case DI_CHECKBOX:
 					case DI_RADIOBUTTON:
@@ -672,26 +656,18 @@ void Dialog::ProcessCenterGroup()
 						break;
 				} //Бля, це ж ботва какая-то
 
-			StartX=(X2-X1+1-Length)/2;
+			int StartX=Max(0,(X2-X1+1-Length)/2);
 
-			if (StartX<0)
-				StartX=0;
-
-			for (J=I;
-			        J < ItemCount && (Item[J]->Flags & DIF_CENTERGROUP) && Item[J]->Y1==CurItem->Y1;
-			        J++)
+			for (UINT J=I; J < ItemCount && (Item[J]->Flags & DIF_CENTERGROUP) && Item[J]->Y1==Item[I]->Y1; J++)
 			{
-				JCurItem = Item[J];
-				JCurItem->X1=StartX;
+				Item[J]->X1=StartX;
 				StartX+=LenStrItem(J);
 
-//        if (JCurItem->Type==DI_BUTTON && *JCurItem->Data!=' ')
-//          StartX+=2;
-				if (!JCurItem->strData.IsEmpty() && (JCurItem->strData.At(0) !=L' '))
-					switch (JCurItem->Type)
+				if (!Item[J]->strData.IsEmpty())
+					switch (Item[J]->Type)
 					{
 						case DI_BUTTON:
-							StartX+=2;
+							StartX++;
 							break;
 						case DI_CHECKBOX:
 						case DI_RADIOBUTTON:
@@ -699,10 +675,10 @@ void Dialog::ProcessCenterGroup()
 							break;
 					}
 
-				if (StartX == JCurItem->X1)
-					JCurItem->X2=StartX;
+				if (StartX == Item[J]->X1)
+					Item[J]->X2=StartX;
 				else
-					JCurItem->X2=StartX-1;
+					Item[J]->X2=StartX-1;
 			}
 		}
 	}

@@ -641,7 +641,7 @@ int GetColorDialog(WORD& Color,bool bCentered,bool bAddTransparent)
 		if (static_cast<WORD>((ColorDlg[i].Flags & B_MASK)>>4)==(Color & F_MASK))
 		{
 			ColorDlg[i].Selected=1;
-			ColorDlg[i].Flags|=DIF_FOCUS;
+			ColorDlg[i].Focus=TRUE;
 			break;
 		}
 	}

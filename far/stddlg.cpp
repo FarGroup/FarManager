@@ -498,11 +498,11 @@ int WINAPI GetString(
 	{
 		Substract-=3;
 		StrDlg[0].Y2+=2;
-		StrDlg[2].Flags&=~DIF_DEFAULT;
+		StrDlg[2].DefaultButton=FALSE;
 		StrDlg[5+offset].Y1=StrDlg[4+offset].Y1=5+offset;
 		StrDlg[4+offset].Type=StrDlg[5+offset].Type=DI_BUTTON;
 		StrDlg[4+offset].Flags=StrDlg[5+offset].Flags=DIF_CENTERGROUP;
-		StrDlg[4+offset].Flags|=DIF_DEFAULT;
+		StrDlg[4+offset].DefaultButton=TRUE;
 		StrDlg[4+offset].strData = MSG(MOk);
 		StrDlg[5+offset].strData = MSG(MCancel);
 	}

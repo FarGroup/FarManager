@@ -177,7 +177,13 @@ int Message(
 
 	// предварительный обсчет максимального размера.
 	for (BtnLength=0,I=0; I<static_cast<DWORD>(Buttons); I++) //??
-		BtnLength+=HiStrlen(Items[I+StrCount])+6;
+	{
+		BtnLength+=HiStrlen(Items[I+StrCount])+2+2+1; // "[ ", " ]", " "
+	}
+	if(BtnLength)
+	{
+		BtnLength--;
+	}
 
 	for (MaxLength=BtnLength,I=0; I<StrCount; I++)
 	{
@@ -343,7 +349,8 @@ int Message(
 			}
 			if(I==StrCount+1)
 			{
-				PtrMsgDlg->Flags|=DIF_DEFAULT|DIF_FOCUS;
+				PtrMsgDlg->DefaultButton=TRUE;
+				PtrMsgDlg->Focus=TRUE;
 				TypeItem=DI_BUTTON;
 				FlagsItem=DIF_CENTERGROUP;
 				IsButton=TRUE;

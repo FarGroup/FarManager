@@ -55,7 +55,7 @@ ConsoleTitle::ConsoleTitle(const wchar_t *title)
 	apiGetConsoleTitle(strOldTitle);
 
 	if (title)
-		ConsoleTitle::SetFarTitle(title);
+		ConsoleTitle::SetFarTitle(title, true);
 }
 
 ConsoleTitle::~ConsoleTitle()
@@ -67,12 +67,11 @@ ConsoleTitle::~ConsoleTitle()
 
 	if (AddonsLen <= OldLen)
 	{
-
 		if (!StrCmpI(strOldTitle.CPtr()+OldLen-AddonsLen, strTitleAddons))
 			strOldTitle.SetLength(OldLen-AddonsLen);
 	}
 
-	ConsoleTitle::SetFarTitle(strOldTitle);
+	ConsoleTitle::SetFarTitle(strOldTitle, true);
 }
 
 void ConsoleTitle::Set(const wchar_t *fmt, ...)
@@ -86,7 +85,7 @@ void ConsoleTitle::Set(const wchar_t *fmt, ...)
 	SetFarTitle(msg);
 }
 
-void ConsoleTitle::SetFarTitle(const wchar_t *Title)
+void ConsoleTitle::SetFarTitle(const wchar_t *Title, bool Force)
 {
 	CriticalSectionLock Lock(TitleCS);
 	static string strFarTitle;
@@ -105,7 +104,7 @@ void ConsoleTitle::SetFarTitle(const wchar_t *Title)
 		         !CtrlObject->Macro.IsExecuting() || CtrlObject->Macro.IsExecutingLastKey()))
 		{
 			DWORD CurTime=GetTickCount();
-			if(CurTime-ShowTime>RedrawTimeout)
+			if(CurTime-ShowTime>RedrawTimeout || Force)
 			{
 				ShowTime=CurTime;
 				SetConsoleTitle(strFarTitle);

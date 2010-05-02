@@ -504,7 +504,8 @@ class DialogBuilderBase
 			AddSeparator();
 
 			T *OKButton = AddDialogItem(DI_BUTTON, GetLangString(OKMessageId));
-			OKButton->Flags = DIF_DEFAULT|DIF_CENTERGROUP;
+			OKButton->Flags = DIF_CENTERGROUP;
+			OKButton->DefaultButton = TRUE;
 			OKButton->Y1 = OKButton->Y2 = NextY++;
 			OKButtonID = DialogItemsCount-1;
 
