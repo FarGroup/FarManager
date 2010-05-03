@@ -6,7 +6,8 @@ REGEDIT4
   7e,20,a0,07,0f,a0,20,a0,a0,20,a0,a0,70,7e,78,0f,70,70,af,f8,20,70,20,a0,0f,\
   f0,27,00,70,70,20,07,78,f8,f8,58,f8,f8,78,a0,a0,70,70,0f,f8,70,0f,7e,0e,70,\
   70,f8,70,4f,70,4e,7e,4f,4f,4f,70,0f,78,0e,70,70,78,70,7e,78,0e,7e,78,0e,4e,\
-  48,7e,78,78,0e,78,78,0e,07,20,78,07,78,07,78,07,78,07,48,70
+  48,7e,78,78,0e,78,78,0e,07,20,78,07,78,07,78,07,78,07,48,70,70,f0,7e,f8,5f,\
+  70,5e,7e
 
 [HKEY_CURRENT_USER\Software\far\Colors\Highlight]
 
@@ -237,7 +238,7 @@ REGEDIT4
 
 [HKEY_CURRENT_USER\Software\far\Colors\Highlight\Group9]
 "IgnoreMask"=dword:00000000
-"Mask"="*.txt,*.doc,*.hlp,*.diz,*.log,*.nfo,*.html,*.htm,*.ion,*.bbs,*.pdf"
+"Mask"="*.txt,*.doc,*.hlp,*.diz,*.log,*.nfo,*.html,*.htm,*.ion,*.bbs,*.pdf,*.chm,*.xls"
 "UseDate"=dword:00000000
 "DateType"=dword:00000000
 "DateAfter"=hex:00,00,00,00,00,00,00,00
