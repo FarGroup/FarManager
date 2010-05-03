@@ -66,6 +66,8 @@ ScreenBuf ScrBuf;
 ScreenBuf::ScreenBuf():
 	Buf(nullptr),
 	Shadow(nullptr),
+	MacroCharUsed(false),
+	ElevationCharUsed(false),
 	BufX(0),
 	BufY(0),
 	LockCount(0)
@@ -200,13 +202,12 @@ void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text,int MaxTextLeng
 	for (Idx=I=0; I < Height; I++, Idx+=Width)
 		memcpy(Text+Idx,Buf+(Y1+I)*BufX+X1,Min((int)sizeof(CHAR_INFO)*Width,(int)MaxTextLength));
 
-	if (X1==0 && Y1==0 &&
-	        CtrlObject!=nullptr &&
-	        (CtrlObject->Macro.IsRecording() || CtrlObject->Macro.IsExecuting()) &&
-	        MacroChar.Char.UnicodeChar != (CtrlObject->Macro.IsRecording()?L'R':L'P'))
+	if (X1==0 && Y1==0 && MacroCharUsed)
+	{
 		Text[0]=MacroChar;
+	}
 
-	if (X2==BufX-1 && Y2==BufY-1 && Admin.Elevated() && ElevationChar.Char.UnicodeChar != L'A')
+	if (X2==BufX-1 && Y2==BufY-1 && ElevationCharUsed)
 	{
 		Text[Width*Height-1]=ElevationChar;
 	}
@@ -353,24 +354,34 @@ void ScreenBuf::Flush()
 
 		if (CtrlObject && (CtrlObject->Macro.IsRecording() || CtrlObject->Macro.IsExecuting()))
 		{
-			if (Buf[0].Char.UnicodeChar != (CtrlObject->Macro.IsRecording()?L'R':L'P'))
+			if (!MacroCharUsed)
 			{
 				MacroChar=Buf[0];
+				MacroCharUsed=true;
 			}
 
-			Buf[0].Char.UnicodeChar=CtrlObject->Macro.IsRecording()?L'R':L'P';
-			Buf[0].Attributes=FarColorToReal(COL_WARNDIALOGTEXT);
+			if(CtrlObject->Macro.IsRecording())
+			{
+				Buf[0].Char.UnicodeChar=L'R';
+				Buf[0].Attributes=0xCF;
+			}
+			else
+			{
+				Buf[0].Char.UnicodeChar=L'P';
+				Buf[0].Attributes=0x2F;
+			}
 		}
 
 		if(Admin.Elevated())
 		{
-			if (Buf[BufX*BufY-1].Char.UnicodeChar!=L'A')
+			if (!ElevationCharUsed)
 			{
 				ElevationChar=Buf[BufX*BufY-1];
+				ElevationCharUsed=true;
 			}
 
 			Buf[BufX*BufY-1].Char.UnicodeChar=L'A';
-			Buf[BufX*BufY-1].Attributes=FarColorToReal(COL_WARNDIALOGTEXT);
+			Buf[BufX*BufY-1].Attributes=0xCF;
 		}
 
 		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE) && !CurVisible)
@@ -605,14 +616,20 @@ void ScreenBuf::GetCursorType(int &Visible,int &Size)
 
 void ScreenBuf::RestoreMacroChar()
 {
-	Write(0,0,&MacroChar,1);
-	ResetShadow();
+	if(MacroCharUsed)
+	{
+		Buf[0]=MacroChar;
+		MacroCharUsed=false;
+	}
 }
 
 void ScreenBuf::RestoreElevationChar()
 {
-	Write(BufX-1,BufY-1,&ElevationChar,1);
-	ResetShadow();
+	if(ElevationCharUsed)
+	{
+		Buf[BufX*BufY-1]=ElevationChar;
+		ElevationCharUsed=false;
+	}
 }
 
 //  проскроллировать буффер на одну строку вверх.

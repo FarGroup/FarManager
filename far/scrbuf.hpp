@@ -44,7 +44,9 @@ class ScreenBuf
 		CHAR_INFO *Buf;
 		CHAR_INFO *Shadow;
 		CHAR_INFO MacroChar;
+		bool MacroCharUsed;
 		CHAR_INFO ElevationChar;
+		bool ElevationCharUsed;
 
 		SHORT BufX,BufY;
 		SHORT CurX,CurY;
