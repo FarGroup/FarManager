@@ -122,7 +122,7 @@ static HKEY CreateRegKey(LPCTSTR Key)
 static HKEY OpenRegKey(LPCTSTR Key)
 {
   HKEY hKey=NULL;
-  if (RegOpenKeyEx(HKEY_CURRENT_USER,PluginRootKey,0,KEY_QUERY_VALUE,&hKey)!=ERROR_SUCCESS)
+  if (RegOpenKeyEx(HKEY_CURRENT_USER,PluginRootKey,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS)
   {
     if (Key && *Key)
     {
