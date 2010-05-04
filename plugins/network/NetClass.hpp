@@ -100,7 +100,7 @@ class NetBrowser
     BOOL OpenFromFilePanel;
     int ReenterGetFindData;
     TCHAR CmdLinePath [MAX_PATH];           // path passed when invoking us from command line
-    TCHAR PanelMode[4];                     // current start panel mode
+    TCHAR PanelMode[2];                     // current start panel mode
 
 #ifdef NETWORK_LOGGING
     static FILE *LogFile;

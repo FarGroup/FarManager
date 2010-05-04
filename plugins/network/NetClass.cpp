@@ -176,7 +176,7 @@ BOOL NetResourceList::Enumerate (DWORD dwScope, DWORD dwType, DWORD dwUsage,
 
 NetBrowser::NetBrowser()
 {
-  *(LPDWORD)&PanelMode = 0;
+  memset(PanelMode,0,sizeof(PanelMode));
   GetRegKey(HKEY_CURRENT_USER, _T(""), StrPanelMode, PanelMode, _T("3"), sizeof(PanelMode));
   NetResourceList::InitNetResource(CurResource);
   ReenterGetFindData = 0;
@@ -310,8 +310,8 @@ BOOL NetBrowser::GotoFavorite(TCHAR *lpPath)
     Info.Control (this, FCTL_UPDATEPANEL, NULL);
     Info.Control (this, FCTL_REDRAWPANEL, NULL);
 #else
-    Info.Control (this, FCTL_UPDATEPANEL,0,NULL);
-    Info.Control (this, FCTL_REDRAWPANEL,0,NULL);
+    Info.Control (this, FCTL_UPDATEPANEL,0,0);
+    Info.Control (this, FCTL_REDRAWPANEL,0,0);
 #endif
     return TRUE;
   }
@@ -756,7 +756,7 @@ void NetBrowser::GetOpenPluginInfo(struct OpenPluginInfo *Info)
 
   Info->PanelModesArray=PanelModesArray;
   Info->PanelModesNumber=ArraySize(PanelModesArray);
-  Info->StartPanelMode=*(LPDWORD)&PanelMode;//_T('3');  // TODO Panel mode should be read from the registry
+  Info->StartPanelMode=PanelMode[0];
   static struct KeyBarTitles KeyBar={
     {NULL,NULL,(TCHAR *)_T(""),(TCHAR *)_T(""),(TCHAR *)_T(""),(TCHAR *)_T(""),(TCHAR *)_T(""),(TCHAR *)_T(""),NULL,NULL,NULL,NULL},
     {NULL,NULL,NULL,NULL,(TCHAR *)_T(""),(TCHAR *)_T(""),NULL,NULL,NULL,NULL,NULL,NULL},
@@ -1330,8 +1330,8 @@ int NetBrowser::ProcessKey(int Key,unsigned int ControlState)
       Info.Control(this,FCTL_UPDATEPANEL,NULL);
       Info.Control(this,FCTL_REDRAWPANEL,NULL);
 #else
-      Info.Control(this,FCTL_UPDATEPANEL,0,NULL);
-      Info.Control(this,FCTL_REDRAWPANEL,0,NULL);
+      Info.Control(this,FCTL_UPDATEPANEL,0,0);
+      Info.Control(this,FCTL_REDRAWPANEL,0,0);
 #endif
     }
     return(TRUE);
@@ -1371,7 +1371,7 @@ int NetBrowser::ProcessKey(int Key,unsigned int ControlState)
 #ifndef UNICODE
           Info.Control(this,FCTL_UPDATEPANEL,(void*)1);
 #else
-          Info.Control(this,FCTL_UPDATEPANEL,1,NULL);
+          Info.Control(this,FCTL_UPDATEPANEL,1,0);
 #endif
           PanelRedrawInfo ri = {0};
           ri.CurrentItem = ri.TopPanelItem = 0;
@@ -2021,7 +2021,7 @@ int NetBrowser::GotoComputer (const TCHAR *Dir)
 #ifndef UNICODE
   /*int result = */Info.Control (this, FCTL_UPDATEPANEL, NULL);
 #else
-  /*int result = */Info.Control (this, FCTL_UPDATEPANEL,0,NULL);
+  /*int result = */Info.Control (this, FCTL_UPDATEPANEL,0,0);
 #endif
 
   if (IsShare)
@@ -2040,7 +2040,7 @@ int NetBrowser::GotoComputer (const TCHAR *Dir)
 #ifndef UNICODE
     Info.Control (this, FCTL_REDRAWPANEL, NULL);
 #else
-    Info.Control (this, FCTL_REDRAWPANEL,0,NULL);
+    Info.Control (this, FCTL_REDRAWPANEL,0,0);
 #endif
   return TRUE;
 }
@@ -2071,8 +2071,8 @@ void NetBrowser::GotoLocalNetwork()
   Info.Control (this, FCTL_UPDATEPANEL, NULL);
   Info.Control (this, FCTL_REDRAWPANEL, NULL);
 #else
-  Info.Control (this, FCTL_UPDATEPANEL,0,NULL);
-  Info.Control (this, FCTL_REDRAWPANEL,0,NULL);
+  Info.Control (this, FCTL_UPDATEPANEL,0,0);
+  Info.Control (this, FCTL_REDRAWPANEL,0,0);
 #endif
 }
 
@@ -2195,8 +2195,8 @@ void NetBrowser::RemoveItems()
   Info.Control (this, FCTL_UPDATEPANEL, NULL);
   Info.Control (this, FCTL_REDRAWPANEL, NULL);
 #else
-  Info.Control (this, FCTL_UPDATEPANEL,0,NULL);
-  Info.Control (this, FCTL_REDRAWPANEL,0,NULL);
+  Info.Control (this, FCTL_UPDATEPANEL,0,0);
+  Info.Control (this, FCTL_REDRAWPANEL,0,0);
 #endif
 }
 
@@ -2216,8 +2216,8 @@ void NetBrowser::CreateFavSubFolder()
     Info.Control(this,FCTL_UPDATEPANEL,NULL);
     Info.Control(this,FCTL_REDRAWPANEL,NULL);
 #else
-    Info.Control(this,FCTL_UPDATEPANEL,0,NULL);
-    Info.Control(this,FCTL_REDRAWPANEL,0,NULL);
+    Info.Control(this,FCTL_UPDATEPANEL,0,0);
+    Info.Control(this,FCTL_REDRAWPANEL,0,0);
 #endif
   }
 }
