@@ -126,7 +126,7 @@ File::~File()
 	}
 }
 
-bool File::Open(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile)
+bool File::Open(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile, bool ForceElevation)
 {
 	string strObject(NTPath(Object).Str);
 	FlagsAndAttributes|=FILE_FLAG_BACKUP_SEMANTICS|(CreationDistribution==OPEN_EXISTING?FILE_FLAG_POSIX_SEMANTICS:0);
@@ -140,8 +140,12 @@ bool File::Open(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY
 			Handle = CreateFile(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
 		}
 	}
-	if(Handle == INVALID_HANDLE_VALUE && ElevationRequired(DesiredAccess&(GENERIC_ALL|GENERIC_WRITE|STANDARD_RIGHTS_ALL|STANDARD_RIGHTS_WRITE|WRITE_OWNER|WRITE_DAC|DELETE|FILE_GENERIC_WRITE)?ELEVATION_MODIFY_REQUEST:ELEVATION_READ_REQUEST))
+	if((Handle == INVALID_HANDLE_VALUE && ElevationRequired(DesiredAccess&(GENERIC_ALL|GENERIC_WRITE|STANDARD_RIGHTS_ALL|STANDARD_RIGHTS_WRITE|WRITE_OWNER|WRITE_DAC|DELETE|FILE_GENERIC_WRITE)?ELEVATION_MODIFY_REQUEST:ELEVATION_READ_REQUEST)) || ForceElevation)
 	{
+		if(ForceElevation && Handle!=INVALID_HANDLE_VALUE)
+		{
+			CloseHandle(Handle);
+		}
 		Handle = Admin.fCreateFile(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
 		if(Handle != INVALID_HANDLE_VALUE)
 		{

@@ -115,14 +115,28 @@ bool SetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
 	{
 		Privilege CreateSymlinkPrivilege(SE_CREATE_SYMBOLIC_LINK_NAME);
 		File fObject;
-		if (fObject.Open(Object,GENERIC_WRITE,0,nullptr,OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT))
+
+		bool ForceElevation=false;
+
+		for(size_t i=0;i<2;i++)
 		{
-			DWORD dwBytesReturned;
-			if (fObject.IoControl(FSCTL_SET_REPARSE_POINT,rdb,rdb->ReparseDataLength+REPARSE_DATA_BUFFER_HEADER_SIZE,nullptr,0,&dwBytesReturned,0))
+			if (fObject.Open(Object,GENERIC_WRITE,0,nullptr,OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT,nullptr,ForceElevation))
 			{
-				Result=true;
+				DWORD dwBytesReturned;
+				if (fObject.IoControl(FSCTL_SET_REPARSE_POINT,rdb,rdb->ReparseDataLength+REPARSE_DATA_BUFFER_HEADER_SIZE,nullptr,0,&dwBytesReturned))
+				{
+					Result=true;
+				}
+				fObject.Close();
+
+				// Open() success, but IoControl() fails. We can't handle this automatically :(
+				if(!i && !Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
+				{
+					ForceElevation=true;
+					continue;
+				}
+				break;
 			}
-			fObject.Close();
 		}
 	}
 
