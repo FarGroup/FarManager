@@ -103,7 +103,7 @@ HKEY CreateRegKey(HKEY hRoot,const TCHAR *Key)
 HKEY OpenRegKey(HKEY hRoot, const TCHAR *Key, REGSAM samDesired)
 {
   HKEY hKey=NULL;
-  if (RegOpenKeyEx(hRoot,PluginRootKey,0,samDesired,&hKey)!=ERROR_SUCCESS)
+  if (RegOpenKeyEx(hRoot,PluginRootKey,0,samDesired,&hKey)==ERROR_SUCCESS)
   {
     if (Key && *Key)
     {
