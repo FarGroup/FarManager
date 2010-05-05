@@ -618,7 +618,7 @@ void ScreenBuf::RestoreMacroChar()
 {
 	if(MacroCharUsed)
 	{
-		Buf[0]=MacroChar;
+		Write(0,0,&MacroChar,1);
 		MacroCharUsed=false;
 	}
 }
@@ -627,7 +627,7 @@ void ScreenBuf::RestoreElevationChar()
 {
 	if(ElevationCharUsed)
 	{
-		Buf[BufX*BufY-1]=ElevationChar;
+		Write(BufX-1,BufY-1,&ElevationChar,1);
 		ElevationCharUsed=false;
 	}
 }
