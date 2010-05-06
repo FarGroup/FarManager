@@ -201,16 +201,6 @@ void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text,int MaxTextLeng
 
 	for (Idx=I=0; I < Height; I++, Idx+=Width)
 		memcpy(Text+Idx,Buf+(Y1+I)*BufX+X1,Min((int)sizeof(CHAR_INFO)*Width,(int)MaxTextLength));
-
-	if (X1==0 && Y1==0 && MacroCharUsed)
-	{
-		Text[0]=MacroChar;
-	}
-
-	if (X2==BufX-1 && Y2==BufY-1 && ElevationCharUsed)
-	{
-		Text[Width*Height-1]=ElevationChar;
-	}
 }
 
 /* Изменить значение цветовых атрибутов в соответствии с маской
@@ -354,11 +344,8 @@ void ScreenBuf::Flush()
 
 		if (CtrlObject && (CtrlObject->Macro.IsRecording() || CtrlObject->Macro.IsExecuting()))
 		{
-			if (!MacroCharUsed)
-			{
-				MacroChar=Buf[0];
-				MacroCharUsed=true;
-			}
+			MacroChar=Buf[0];
+			MacroCharUsed=true;
 
 			if(CtrlObject->Macro.IsRecording())
 			{
@@ -374,11 +361,8 @@ void ScreenBuf::Flush()
 
 		if(Admin.Elevated())
 		{
-			if (!ElevationCharUsed)
-			{
-				ElevationChar=Buf[BufX*BufY-1];
-				ElevationCharUsed=true;
-			}
+			ElevationChar=Buf[BufX*BufY-1];
+			ElevationCharUsed=true;
 
 			Buf[BufX*BufY-1].Char.UnicodeChar=L'A';
 			Buf[BufX*BufY-1].Attributes=0xCF;
@@ -533,6 +517,16 @@ void ScreenBuf::Flush()
 
 				memcpy(Shadow,Buf,BufX*BufY*sizeof(CHAR_INFO));
 			}
+		}
+
+		if (MacroCharUsed)
+		{
+			Buf[0]=MacroChar;
+		}
+
+		if (ElevationCharUsed)
+		{
+			Buf[BufX*BufY-1]=ElevationChar;
 		}
 
 		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURPOS))

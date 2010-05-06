@@ -638,13 +638,14 @@ void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int
 	if (bRelative)
 	{
 		ULARGE_INTEGER time;
-		time.QuadPart = (UINT64)st.wMilliseconds * 10000ull;
-		time.QuadPart += (UINT64)st.wSecond * 10000000ull;
-		time.QuadPart += (UINT64)st.wMinute * 10000000ull * 60ull;
-		time.QuadPart += (UINT64)st.wHour   * 10000000ull * 60ull * 60ull;
-		time.QuadPart += (UINT64)st.wDay    * 10000000ull * 60ull * 60ull * 24ull;
-		ft.dwLowDateTime  = time.u.LowPart;
-		ft.dwHighDateTime = time.u.HighPart;
+		time.QuadPart = st.wMilliseconds;
+		time.QuadPart += (UINT64)st.wSecond * 1000;
+		time.QuadPart += (UINT64)st.wMinute * 1000 * 60;
+		time.QuadPart += (UINT64)st.wHour   * 1000 * 60 * 60;
+		time.QuadPart += (UINT64)st.wDay    * 1000 * 60 * 60 * 24;
+		time.QuadPart *= 10000;
+		ft.dwLowDateTime  = time.LowPart;
+		ft.dwHighDateTime = time.HighPart;
 	}
 	else
 	{
@@ -784,13 +785,18 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeText)
 {
 	ULARGE_INTEGER time={ft.dwLowDateTime,ft.dwHighDateTime};
-	WORD d = (WORD)(time.QuadPart / (10000000ull * 60ull * 60ull * 24ull));
-	time.QuadPart = time.QuadPart - ((UINT64)d * 10000000ull * 60ull * 60ull * 24ull);
-	WORD h = (WORD)(time.QuadPart / (10000000ull * 60ull * 60ull));
-	time.QuadPart = time.QuadPart - ((UINT64)h * 10000000ull * 60ull * 60ull);
-	WORD m = (WORD)(time.QuadPart / (10000000ull * 60));
-	time.QuadPart = time.QuadPart - ((UINT64)m * 10000000ull * 60ull);
-	WORD s = (WORD)(time.QuadPart / 10000000ull);
-	strDaysText.Format(L"%u",d);
-	strTimeText.Format(L"%02d%c%02d%c%02d", h, GetTimeSeparator(), m, GetTimeSeparator(), s);
+	
+	UINT64 ms = (time.QuadPart/=10000)%1000;
+	UINT64 s = (time.QuadPart/=1000)%60;
+	UINT64 m = (time.QuadPart/=60)%60;
+	UINT64 h = (time.QuadPart/=60)%24;
+	UINT64 d = time.QuadPart/=24;
+
+	FormatString DaysText;
+	DaysText<<d;
+	strDaysText=DaysText.strValue();
+
+	FormatString TimeText;
+	TimeText<<fmt::Width(2)<<h<<GetTimeSeparator()<<fmt::Width(2)<<m<<GetTimeSeparator()<<fmt::Width(2)<<s<<GetDecimalSeparator()<<fmt::Width(3)<<ms;
+	strTimeText=TimeText.strValue();
 }
