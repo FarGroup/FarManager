@@ -1,8 +1,9 @@
-struct RegistryStr {const TCHAR *Add2PlugMenu; const TCHAR *Add2DisksMenu; const TCHAR *sss;
-                    const TCHAR *Separator; const TCHAR *DisksMenuDigit; const TCHAR *ShowCmdOutput;
-                    const TCHAR *CatchMode; const TCHAR *ViewZeroFiles; const TCHAR *EditNewFiles;};
-
-struct HELPIDS {const TCHAR *CMD; const TCHAR *Config;};
+struct RegistryStr
+{
+	const TCHAR *Add2PlugMenu; const TCHAR *Add2DisksMenu; const TCHAR *sss;
+	const TCHAR *Separator; const TCHAR *DisksMenuDigit; const TCHAR *ShowCmdOutput;
+	const TCHAR *CatchMode; const TCHAR *ViewZeroFiles; const TCHAR *EditNewFiles;
+};
 
 void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,DWORD ValueData);
 void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData);
@@ -18,31 +19,33 @@ inline int IsEol(int x)  { return x==_T('\r') || x==_T('\n'); }
 
 struct InitDialogItem
 {
-  int Type;
-  int X1,Y1,X2,Y2;
-  int Focus;
-  DWORD_PTR Selected;
-  DWORD Flags;
-  int DefaultButton;
-  const TCHAR *Data;
+	int Type;
+	int X1,Y1,X2,Y2;
+	int Focus;
+	DWORD_PTR Selected;
+	DWORD Flags;
+	int DefaultButton;
+	const TCHAR *Data;
 };
 
-struct Options{
-  int Add2PlugMenu;
-  int Add2DisksMenu;
-  int DisksMenuDigit;
-  int ShowCmdOutput;
-  int CatchMode;
-  int ViewZeroFiles;
-  int EditNewFiles;
-  TCHAR Separator[4];
-} Opt={
- 0,
- 0,
- 0,
- 0,
- 0,
- 1,
- 1,
- _T(" ")
+struct Options
+{
+	int Add2PlugMenu;
+	int Add2DisksMenu;
+	int DisksMenuDigit;
+	int ShowCmdOutput;
+	int CatchMode;
+	int ViewZeroFiles;
+	int EditNewFiles;
+	TCHAR Separator[4];
+} Opt=
+{
+	0,
+	0,
+	0,
+	0,
+	0,
+	1,
+	1,
+	_T(" ")
 };

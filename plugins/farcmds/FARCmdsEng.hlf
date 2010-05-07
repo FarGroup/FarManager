@@ -73,7 +73,7 @@ $ #The Load command#
 
    Команда доступна только в Unicode-версии (для FAR 2.x)
 
-   See also: ~unload~@Unload@ | ~Notes~@Remark@
+   See also: ~unload~@Unload@ | ~Contents~@Contents@ | ~Notes~@Remark@
 
 @Unload
 $ #The Unload command#
@@ -84,7 +84,7 @@ $ #The Unload command#
 
    Команда доступна только в Unicode-версии (для FAR 2.x)
 
-   See also: ~Load~@load@ | ~Notes~@Remark@
+   See also: ~Load~@load@ | ~Contents~@Contents@ | ~Notes~@Remark@
 
 @Clip
 $^#The Clip command#
@@ -97,7 +97,7 @@ code #0x00# (1 megabyte at most).
    or
    #clip:filename#
 
-   See also: ~Output Redirection~@Direction@ | ~Notes~@Remark@
+   See also: ~Output Redirection~@Direction@ | ~Contents~@Contents@ | ~Notes~@Remark@
 
 @Run
 $ #The Run command#
@@ -108,7 +108,7 @@ on the screen or hidden from the user using ~Output Redirection~@Direction@ modi
    #far:run filename<command#
    #run:filename<command#
 
-   See also: ~Output Redirection~@Direction@ | ~Remarks~@Remark@
+   See also: ~Output Redirection~@Direction@ | ~Contents~@Contents@ | ~Remarks~@Remark@
 
 
 @View
@@ -120,7 +120,7 @@ built-in ~viewer~@:Viewer@:
    or
    #view:filename#
 
-   See also: ~Output Redirection~@Direction@ | ~Notes~@Remark@
+   See also: ~Output Redirection~@Direction@ | ~Contents~@Contents@ | ~Notes~@Remark@
 
 @Edit
 $^#The Edit command#
@@ -156,7 +156,7 @@ the correct opening of the file in the editor you must provide at least one deli
    edit: [1].txt
    edit:"[1].txt"
 
-   See also: ~Output Redirection~@Direction@ | ~Notes~@Remark@
+   See also: ~Output Redirection~@Direction@ | ~Contents~@Contents@ | ~Notes~@Remark@
 
 @Goto
 $^#The Goto command#
