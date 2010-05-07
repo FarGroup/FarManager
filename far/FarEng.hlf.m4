@@ -1542,6 +1542,10 @@ rule sets.
                    or both range boundaries then file size for that
                    boundary is not limited.
 
+                   Example:
+                   >= 1K - select files greater than or equal to 1 kilobyte
+                   <= 1M - to less than or equal to 1 megabyte
+
 
    #Date/time#       Starting and ending file date/time.
                    You can specify the date/time of last file
@@ -1561,6 +1565,19 @@ rule sets.
                    type. If one or both of the date/time limit
                    fields are empty then the date/time for that
                    type is not limited.
+
+                   Example:
+                   <= 31.01.2010 - select files up to 31 numbers
+                   >= 01.01.2010 - but after Jan. 1, 2010
+
+                   Option #Relative# allows you to switch
+                   to work with the date in relative time.
+                   The logic at work this option is similar to
+                   arithmetic with negative numbers.
+
+                   Example:
+                   <= 0 - select files in the period from the "Today"
+                   >= 30 - and 30-days ago, including
 
 
    #Attributes#      Inclusion and exclusion attributes.
@@ -2878,7 +2895,7 @@ that a file belongs to a group, no further groups are checked.
 @HighlightEdit
 $ #Files highlighting and sort groups: editing#
     The #Files highlighting# dialog in the ~Options menu~@OptMenu@ allows to
-define file highlighting groups. Each group definition includes:
+define file highlighting groups. Each group definition ~includes~@Filter@:
 
      - one or more ~file masks~@FileMasks@;
 
@@ -4038,6 +4055,10 @@ sequence in regular expression. #$0# means the whole found sequence.
 #$*# is replaced with '*' character.
 
 
+@ElevationDlg
+$ #Запрос привилегий алминистратора#
+
+
 @KeyMacro
 $ #Macro command #
     Keyboard macro commands or macro commands - are recorded sequences of key
@@ -4190,7 +4211,7 @@ usually does as a reaction to this combination.
     ~hotkey assignment~@KeyMacroSetting@ dialog will appear, where the hotkey that
     will be used to execute the recorded sequence can be set.
 
-    Воспроизведение макроса сопровождается отображением в левом верхнем углу экрана символа '\4FP\-'.
+    Воспроизведение макроса сопровождается отображением в левом верхнем углу экрана символа '\2FP\-'.
 
 
 @KeyMacroDelete

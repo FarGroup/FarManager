@@ -3785,6 +3785,10 @@ megadott felhasználói név.
 $ #Regular expressions#
 
 
+@ElevationDlg
+$ #Запрос привилегий алминистратора#
+
+
 @KeyMacro
 $ #Makrók#
     A makrók (vagy másként billentyűmakrók) a billentyűleütések sorozatának
