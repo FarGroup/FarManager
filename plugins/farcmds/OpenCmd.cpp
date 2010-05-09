@@ -62,7 +62,7 @@ static bool validForView(const TCHAR *FileName, int viewEmpty, int editNew)
 
 	if (*ptrFileName && PointToName(ptrFileName) == ptrFileName)
 	{
-		size_t Size=Info.Control(PANEL_ACTIVE,FCTL_GETPANELDIR,0,NULL);
+		size_t Size=Info.Control(PANEL_ACTIVE,FCTL_GETPANELDIR,0,0);
 
 		if (Size)
 		{
@@ -372,8 +372,8 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 	if (!_farcmd) return FALSE;
 
 	int View=0,Edit=0,Goto=0,Far=0,Clip=0,WhereIs=0,Macro=0,Link=0,Run=0, Load=0,Unload=0;
-	size_t PrefIdx=-1;
-	static struct
+	size_t PrefIdx=static_cast<size_t>(-1);
+	struct
 	{
 		int& Pref;
 		LPCTSTR Name;
@@ -430,9 +430,8 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 		int stream=Opt.CatchMode;
 		BOOL outputtofile=0, allOK=TRUE;
 		TCHAR *Ptr, *pCmd=NULL;
-		size_t I;
 
-		for (I=0; I < ArraySize(Pref); ++I)
+		for (size_t I=0; I < ArraySize(Pref); ++I)
 		{
 			Pref[I].Pref=TestPrefix(farcmd,Pref[I].Name);
 
@@ -627,7 +626,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 							HKEY RootFindKey[2]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE},hKey;
 							TCHAR FullKeyName[512];
 
-							for (I=0; I < ArraySize(RootFindKey); ++I)
+							for (size_t I=0; I < ArraySize(RootFindKey); ++I)
 							{
 								FarSprintf(FullKeyName,_T("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s"),pCmd);
 #ifndef UNICODE
@@ -1154,7 +1153,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 #ifndef UNICODE
 										Info.Control(INVALID_HANDLE_VALUE, FCTL_SETUSERSCREEN, NULL);
 #else
-										Info.Control(PANEL_ACTIVE, FCTL_SETUSERSCREEN,0,NULL);
+										Info.Control(PANEL_ACTIVE, FCTL_SETUSERSCREEN,0,0);
 #endif
 									}
 
@@ -1331,7 +1330,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 
 	if (showhelp)
 	{
-		Info.ShowHelp(Info.ModuleName,(PrefIdx==-1)?_T("Contents"):Pref[PrefIdx].HelpName,0);
+		Info.ShowHelp(Info.ModuleName,(PrefIdx==static_cast<size_t>(-1))?_T("Contents"):Pref[PrefIdx].HelpName,0);
 		return TRUE;
 	}
 
