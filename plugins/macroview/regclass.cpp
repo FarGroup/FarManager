@@ -207,7 +207,7 @@ BOOL TReg::GetKeyInfo(TRegKeyInfo &Value)
     &Value.MaxValueLen,&Value.MaxDataLen,NULL,NULL)==ERROR_SUCCESS);
 }
 
-BOOL TReg::GetKeyNames(TStrList *&List)
+BOOL TReg::GetKeyNames(TStrList *List)
 {
   DWORD i,len;
   TRegKeyInfo KeyInfo;
@@ -228,7 +228,7 @@ BOOL TReg::GetKeyNames(TStrList *&List)
   return FALSE;
 }
 
-BOOL TReg::GetValueNames(TStrList *&List)
+BOOL TReg::GetValueNames(TStrList *List)
 {
   DWORD i,len;
   TRegKeyInfo Info;

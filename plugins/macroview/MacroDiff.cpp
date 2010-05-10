@@ -1064,8 +1064,8 @@ void __fastcall TMacroView::InitMacroAreas()
     (TCHAR *)MMacroNameViewer,
     (TCHAR *)MMacroNameOther,
     (TCHAR *)MMacroNameCommon,
-  (TCHAR *)MMacroNameFindFolder,
-  (TCHAR *)MMacroNameUserMenu
+    (TCHAR *)MMacroNameFindFolder,
+    (TCHAR *)MMacroNameUserMenu
   };
 
   MacroGroupsSize=ArraySize(MacroGroupShort);
@@ -2193,8 +2193,9 @@ BOOL __fastcall TMacroView::CopyMoveMacro(int Op)
   // в основной конфигурации пользовател€.
   lstrcpy(LocalKeyMacros,KeyMacros);
 
-  // —оздадим список, в который будем читать из реестра имена пользовательских конфигураций.
-  TStrList *UserList=new TStrList;
+  // список, в который будем читать из реестра имена пользовательских конфигураций.
+  TStrList UserList;
+  FarListItem *ConfItems=NULL;
 
   if (!Reg->OpenKey(FarUsersKey))
   {
@@ -2202,7 +2203,6 @@ BOOL __fastcall TMacroView::CopyMoveMacro(int Op)
     ConfItems=new FarListItem[1];
     if (ConfItems==NULL)
     {
-      delete UserList;
       int OldActive=ActiveMode;
       ActiveMode=MAC_ERRORACTIVE;
 //      Error(erNotMemory);
@@ -2220,15 +2220,14 @@ BOOL __fastcall TMacroView::CopyMoveMacro(int Op)
   }
   else
   {
-    if (Reg->GetKeyNames(UserList))
+    if (Reg->GetKeyNames(&UserList))
     {
-      if (UserList->GetCount()>0)
+      if (UserList.GetCount()>0)
         UserCount++;
-      UserCount+=UserList->GetCount();
+      UserCount+=UserList.GetCount();
       ConfItems=new FarListItem[UserCount];
       if (ConfItems==NULL)
       {
-        delete UserList;
         int OldActive=ActiveMode;
         ActiveMode=MAC_ERRORACTIVE;
 //        Error(erNotMemory);
@@ -2254,13 +2253,13 @@ BOOL __fastcall TMacroView::CopyMoveMacro(int Op)
 #endif
         ZeroMemory(ConfItems[1].Reserved,sizeof(ConfItems[1].Reserved));
 
-        for (int i=0;i<UserList->GetCount();i++)
+        for (int i=0;i<UserList.GetCount();i++)
         {
           ConfItems[i+2].Flags=0;
 #ifndef UNICODE
-          lstrcpyn(ConfItems[i+2].Text,UserList->GetText(i),ArraySize(ConfItems[i+2].Text));
+          lstrcpyn(ConfItems[i+2].Text,UserList.GetText(i),ArraySize(ConfItems[i+2].Text));
 #else
-          ConfItems[i+2].Text=UserList->GetText(i);
+          ConfItems[i+2].Text=UserList.GetText(i);
 #endif
           ZeroMemory(ConfItems[i+2].Reserved,sizeof(ConfItems[i+2].Reserved));
 
@@ -2276,7 +2275,6 @@ BOOL __fastcall TMacroView::CopyMoveMacro(int Op)
       ConfItems=new FarListItem[1];
       if (ConfItems==NULL)
       {
-        delete UserList;
         int OldActive=ActiveMode;
         ActiveMode=MAC_ERRORACTIVE;
 //        Error(erNotMemory);
@@ -2293,8 +2291,6 @@ BOOL __fastcall TMacroView::CopyMoveMacro(int Op)
       ZeroMemory(ConfItems[0].Reserved,sizeof(ConfItems[0].Reserved));
     }
   }
-
-  delete UserList;
 
   ConfList.ItemsNumber=UserCount;
   ConfList.Items=ConfItems;
@@ -2475,7 +2471,6 @@ COPY_MOVE:
       }
 
       delete[] Str1;
-      delete[] ConfItems;
 
       // «апомним новые имена группы и команды выполнени€
       lstrcpy(Group,lGroup);
@@ -2487,6 +2482,9 @@ COPY_MOVE:
     Info.DialogFree(hDlg);
   }
 #endif
+
+  delete[] ConfItems;
+
   return lResult;
 }
 

@@ -5,7 +5,7 @@
 
 "Macro list"
 "Macro list (DS)"
-"Edit: Del,Ins,F4"
+"Edit: Del,Ins,F4,F5"
 
 "Error"
 "Warning"
@@ -83,6 +83,7 @@
 "Common macros"
 "Find folder panel"
 "User menu"
+"AutoCompletion"
 // End of list of long area names
 
 "Deactivate macr&o"

@@ -1,19 +1,9 @@
 #ifndef STR_CLASS_INCLUDED
 #define STR_CLASS_INCLUDED
 
-class TStrList;
-/*class TStr
-{
-  friend class TStrList;
-
-  TCHAR *string;
-  TStr():string(NULL){}
-};*/
-
 class TStrList
 {
   private:
-//    TStr *List;
     TCHAR **List;
     int Count;
     void DeleteList();
@@ -31,7 +21,6 @@ class TStrList
     int GetCount() {return Count;};
     void __fastcall Sort(int Low,int Up);
     TStrList &operator=(TStrList &lst);
-//    TStrList &operator=(TCHAR *String);
 };
 
 #endif //STR_CLASS_INCLUDED

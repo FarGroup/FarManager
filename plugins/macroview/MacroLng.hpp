@@ -83,6 +83,7 @@ enum
   MMacroNameCommon,
   MMacroNameFindFolder,
   MMacroNameUserMenu,
+  MMacroNameAutoCompletion,
 // End of list of long areas names
 
   MMacroSwitchOff,

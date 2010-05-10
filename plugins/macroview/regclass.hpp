@@ -54,8 +54,8 @@ class TReg
     BOOL __fastcall DeleteKey(const TCHAR *Key);
     BOOL __fastcall DeleteValue(const TCHAR *Name);
     BOOL GetKeyInfo(TRegKeyInfo &Value);
-    BOOL GetKeyNames(TStrList *&List);
-    BOOL GetValueNames(TStrList *&List);
+    BOOL GetKeyNames(TStrList *List);
+    BOOL GetValueNames(TStrList *List);
     BOOL GetDataInfo(const TCHAR *ValueName,TRegDataInfo &Value);
     int __fastcall GetDataSize(const TCHAR *ValueName);
     TRegDataType GetDataType(const TCHAR *ValueName);

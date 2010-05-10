@@ -61,6 +61,9 @@ const TCHAR *MacroGroupShort[]=
   _T("Dialog"),_T("Disks"),_T("Editor"),_T("Help"),_T("Info"),_T("MainMenu"),
   _T("Menu"),_T("QView"),_T("Search"),_T("Shell"),_T("Tree"),_T("Viewer"),
   _T("Other"),_T("Common"),_T("FindFolder"),_T("UserMenu"),
+#ifdef UNICODE
+  _T("AutoCompletion"),
+#endif
 };
 
 
@@ -71,6 +74,9 @@ const TCHAR *MacroGroupShort[]=
 int GroupIndex[]=
 {
   -1,9,-1,-1,-1,2,11,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+#ifdef UNICODE
+  -1,
+#endif
 };
 
 
@@ -148,7 +154,7 @@ struct Config
 
 struct MenuData
 {
-  TCHAR Group[16];
+  TCHAR Group[ArraySize(MacroGroupShort)];
   TCHAR Key[32];
 };
 
@@ -210,7 +216,7 @@ class TMacroView
     FarDialogItem EditDialog[32];
     FarDialogItem MenuDialog[2];
     FarDialogItem DefKeyDialog[2];
-    FarListItem   GroupItems[16],*ConfItems;
+    FarListItem   GroupItems[ArraySize(MacroGroupShort)];
     FarList       GroupList,ConfList;
 
     BOOL          CtrlDotPressed,

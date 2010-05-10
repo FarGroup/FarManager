@@ -179,11 +179,3 @@ TStrList &TStrList::operator=(TStrList &lst)
   }
   return *this;
 }
-
-
-//TStrList &TStrList::operator=(TCHAR *String)
-//{
-//  Add(String);
-//  return *this;
-//}
-
