@@ -58,13 +58,14 @@ FARSTDQUOTESPACEONLY QuoteSpaceOnly;
 FARSTDRECURSIVESEARCH FarRecursiveSearch;
 FARSTDLOCALISALPHA FarIsAlpha;
 
-struct RegistryStr REGStr={_T("Add2PlugMenu"),_T("Add2DisksMenu"),_T("%s%s%s"),_T("Separator"),
+struct RegistryStr REGStr={_T("Add2PlugMenu"),_T("Add2DisksMenu"),_T("Separator"),
 	_T("DisksMenuDigit"), _T("ShowCmdOutput"), _T("CatchMode"), _T("ViewZeroFiles"), _T("EditNewFiles")
 };
+
 static struct PluginStartupInfo Info;
 FarStandardFunctions FSF;
 struct PanelInfo PInfo;
-TCHAR PluginRootKey[80];
+TCHAR *PluginRootKey;
 TCHAR selectItem[MAX_PATH*5];
 //TCHAR tempFileNameOut[MAX_PATH*5],tempFileNameErr[MAX_PATH*5],FileNameOut[MAX_PATH*5],FileNameErr[MAX_PATH*5],
 TCHAR fullcmd[MAX_PATH*5],cmd[MAX_PATH*5];
@@ -105,8 +106,12 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *psInfo)
 	QuoteSpaceOnly=Info.FSF->QuoteSpaceOnly;
 	FarRecursiveSearch=Info.FSF->FarRecursiveSearch;
 	FarIsAlpha=Info.FSF->LIsAlpha;
+
+	PluginRootKey = (TCHAR *)malloc(lstrlen(Info.RootKey)*sizeof(TCHAR) + sizeof(_T("\\FARCmds")));
 	lstrcpy(PluginRootKey,Info.RootKey);
 	lstrcat(PluginRootKey,_T("\\FARCmds"));
+
+
 	GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.Separator,Opt.Separator,_T(" "),3);
 	Opt.Add2PlugMenu=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.Add2PlugMenu,0);
 	Opt.Add2DisksMenu=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.Add2DisksMenu,0);
@@ -123,8 +128,10 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *psInfo)
 #endif
 }
 
-
-
+void WINAPI EXP_NAME(ExitFAR)()
+{
+  free(PluginRootKey);
+}
 
 HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 {
@@ -310,7 +317,7 @@ int WINAPI EXP_NAME(Configure)(int /*ItemNumber*/)
 {
 	struct InitDialogItem InitItems[]=
 	{
-		//   Type           X1 Y1 X2 Y2 Fo Se Fl               DB Data
+		//       Type           X1 Y1 X2 Y2 Fo Se Fl               DB Data
 		/*00*/ { DI_DOUBLEBOX,   3, 1,69,20, 0, 0, DIF_BOXCOLOR,    0, (TCHAR *)MConfig},
 		/*01*/ { DI_CHECKBOX,    5, 2, 0, 0, 1, 0, 0,               0, (TCHAR *)MAddSetPassiveDir2PlugMenu},
 		/*02*/ { DI_TEXT,        0, 3, 0, 3, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR,   0,_T("")},

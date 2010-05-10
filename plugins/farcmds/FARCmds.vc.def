@@ -4,3 +4,4 @@ EXPORTS
    OpenPlugin
    SetStartupInfo
    GetMinFarVersion
+   ExitFAR

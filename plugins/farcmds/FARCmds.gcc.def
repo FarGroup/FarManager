@@ -4,3 +4,4 @@ EXPORTS
    OpenPlugin=OpenPlugin@8
    SetStartupInfo=SetStartupInfo@4
    GetMinFarVersion=GetMinFarVersion@0
+   ExitFAR=ExitFAR@0

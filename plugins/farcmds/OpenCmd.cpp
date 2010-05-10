@@ -5,8 +5,6 @@
 #define LIGHTGRAY 7
 #endif
 
-#include "syslog.h"
-
 static inline bool vh(HANDLE h)
 {
 	return h != INVALID_HANDLE_VALUE;

@@ -1,6 +1,6 @@
 struct RegistryStr
 {
-	const TCHAR *Add2PlugMenu; const TCHAR *Add2DisksMenu; const TCHAR *sss;
+	const TCHAR *Add2PlugMenu; const TCHAR *Add2DisksMenu;
 	const TCHAR *Separator; const TCHAR *DisksMenuDigit; const TCHAR *ShowCmdOutput;
 	const TCHAR *CatchMode; const TCHAR *ViewZeroFiles; const TCHAR *EditNewFiles;
 };
