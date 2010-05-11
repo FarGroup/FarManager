@@ -482,12 +482,14 @@ void Dialog::CheckDialogCoord()
 	{             //   X2 при этом = ширине диалога.
 		X1=(ScrX - X2 + 1)/2;
 
-		if (X1 <= 0) // ширина диалога больше ширины экрана?
+		if (X1 < 0) // ширина диалога больше ширины экрана?
 		{
 			X1=0;
 		}
 		else
+		{
 			X2+=X1-1;
+		}
 	}
 
 	if (Y1 == -1) // задано центрирование диалога по вертикали?
@@ -501,10 +503,11 @@ void Dialog::CheckDialogCoord()
 		if (Y1<0)
 		{
 			Y1=0;
-			Y2=ScrY+1;
 		}
 		else
+		{
 			Y2+=Y1-1;
+		}
 	}
 }
 
@@ -1949,7 +1952,7 @@ void Dialog::ShowDialog(unsigned ID)
 					if (Y1+Y+CntChr-1 > Y2)
 						CntChr=Y2-(Y1+Y)+1;
 
-					FS<<fmt::Width(CntChr)<<L"";
+					vmprintf(L"%*s",CntChr,L"");
 				}
 
 #if defined(VTEXT_ADN_SEPARATORS)
