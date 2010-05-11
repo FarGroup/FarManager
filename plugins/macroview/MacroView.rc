@@ -1,6 +1,6 @@
 #include "farversion.hpp"
 
-#define PLUGIN_BUILD 23
+#define PLUGIN_BUILD 24
 #define PLUGIN_DESC "Macro browser for FAR Manager"
 #define PLUGIN_NAME "MacroView"
 #define PLUGIN_FILENAME "MacroView.dll"

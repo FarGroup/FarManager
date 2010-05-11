@@ -281,10 +281,10 @@ static TCHAR *loadFile(const TCHAR *fn, TCHAR *buff, DWORD maxSize)
 	Unquote(FileName);
 	ExpandEnvironmentStr(FileName, FileName, ArraySize(FileName));
 
-	TCHAR *ptrCurDir=NULL;
 	const TCHAR *ptrFileName=FileName;
 
 #ifdef UNICODE
+	WCHAR *ptrCurDir=NULL;
 
 	if (*ptrFileName && PointToName(ptrFileName) == ptrFileName)
 	{

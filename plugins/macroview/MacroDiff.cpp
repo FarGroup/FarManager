@@ -1065,7 +1065,10 @@ void __fastcall TMacroView::InitMacroAreas()
     (TCHAR *)MMacroNameOther,
     (TCHAR *)MMacroNameCommon,
     (TCHAR *)MMacroNameFindFolder,
-    (TCHAR *)MMacroNameUserMenu
+    (TCHAR *)MMacroNameUserMenu,
+#ifdef UNICODE
+    (TCHAR *)MMacroNameAutoCompletion,
+#endif
   };
 
   MacroGroupsSize=ArraySize(MacroGroupShort);
