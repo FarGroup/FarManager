@@ -95,7 +95,7 @@ previous size.
 @About
 $ # FAR: about#
     #FAR# is a text mode file and archive manager for Windows
-2000/XP/2003/Vista/2008/7. It supports #long file names# and provides a wide set
+SUPPORTEDWINDOWSVERSIONS. It supports #long file names# and provides a wide set
 of file and folder operations.
 
     #FAR# is #freeware# and #open source# software distributed under the
@@ -2749,9 +2749,9 @@ codepage back. Клавиша #F4# позволяет изменять отоб�
 имена для #любимых# и #прочих# кодовых страниц (кодовые страницы для которых было
 изменено имя помечаются символом #*# перед именем).
 
-    Диалог ~Изменение имени кодовой страницы~@EdidCodePageNameDlg@
+    Диалог ~Изменение имени кодовой страницы~@EditCodePageNameDlg@
 
-@EdidCodePageNameDlg
+@EditCodePageNameDlg
 $ #Изменение имени кодовой страницы#
     Диалог #Изменение имени кодовой страницы# позволяет изменить отображаемое имя для
 #любимых# и #прочих# кодовых страниц.
@@ -4056,7 +4056,7 @@ sequence in regular expression. #$0# means the whole found sequence.
 
 
 @ElevationDlg
-$ #Запрос привилегий алминистратора#
+$ #Запрос привилегий администратора#
 
 
 @KeyMacro

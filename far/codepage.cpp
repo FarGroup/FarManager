@@ -680,7 +680,7 @@ void EditCodePageName()
 	MakeDialogItemsEx(EditDialogData, EditDialog);
 	Dialog Dlg(EditDialog, countof(EditDialog), EditDialogProc);
 	Dlg.SetPosition(-1, -1, 54, 7);
-	Dlg.SetHelp(L"EdidCodePageNameDlg");
+	Dlg.SetHelp(L"EditCodePageNameDlg");
 	Dlg.Process();
 }
 

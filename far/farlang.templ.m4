@@ -1756,7 +1756,7 @@ upd:"Default"
 upd:"Default"
 
 MConfigInfoPanelUNFullyQualifiedDN
-"Полностью определенное имя домена"
+"Полностью определённое имя домена"
 "Fully Qualified Domain Name"
 upd:"Fully Qualified Domain Name"
 upd:"Fully Qualified Domain Name"
@@ -2226,7 +2226,7 @@ MCopyAskRO
 "&Pytaj także o pliki tylko do odczytu"
 
 MCopyOnlyNewerFiles
-"Только &новые/обновленные файлы"
+"Только &новые/обновлённые файлы"
 "Only ne&wer file(s)"
 "Pouze &novější soubory"
 "Nur &neuere Dateien"
@@ -2282,7 +2282,7 @@ MCopySymLinkContents
 "&Kopiuj zawartość linków symbolicznych"
 
 MCopyMultiActions
-"Обр&абатывать несколько имен файлов"
+"Обр&абатывать несколько имён файлов"
 "Process &multiple destinations"
 "&Zpracovat více míst určení"
 "&Mehrere Ziele verarbeiten"
@@ -3355,7 +3355,7 @@ MAskWipeRO
 
 MDeleteHardLink1
 l:
-"Файл имеет несколько жестких ссылок"
+"Файл имеет несколько жёстких ссылок"
 "Several hard links link to this file."
 "Více pevných linků ukazuje na tento soubor."
 "Mehrere Hardlinks zeigen auf diese Datei."
@@ -3363,7 +3363,7 @@ l:
 "Do tego pliku prowadzi wiele linków trwałych."
 
 MDeleteHardLink2
-"Уничтожение файла приведет к обнулению всех ссылающихся на него файлов."
+"Уничтожение файла приведёт к обнулению всех ссылающихся на него файлов."
 "Wiping this file will void all files linking to it."
 "Vymazání tohoto souboru zneplatní všechny soubory, které na něj linkují."
 "Sicheres Löschen dieser Datei entfernt ebenfalls alle Links."
@@ -3502,7 +3502,7 @@ MEditReading
 "Czytam plik"
 
 MEditAskSave
-"Файл был изменен. Сохранить?"
+"Файл был изменён. Сохранить?"
 "File has been modified. Save?"
 upd:"Soubor byl modifikován. Save?"
 upd:"Datei wurde verändert. Save?"
@@ -3510,7 +3510,7 @@ upd:"A fájl megváltozott. Save?"
 upd:"Plik został zmodyfikowany. Save?"
 
 MEditAskSaveExt
-"Файл был изменен внешней программой. Сохранить?"
+"Файл был изменён внешней программой. Сохранить?"
 "The file was changed by an external program. Save?"
 upd:"Soubor byl změněný externím programem. Save?"
 upd:"Die Datei wurde durch ein externes Programm verändert. Save?"
@@ -5532,7 +5532,7 @@ MEditCannotSave
 "Nie mogę zapisać pliku"
 
 MEditSavedChangedNonFile
-"Файл изменен, но файл или папка, в которой он находился,"
+"Файл изменён, но файл или папка, в которой он находился,"
 "The file is changed but the file or the folder containing"
 "Soubor je změněn, ale soubor, nebo adresář obsahující"
 "Inhalt dieser Datei wurde verändert aber die Datei oder der Ordner, welche"
@@ -5548,7 +5548,7 @@ MEditSavedChangedNonFile1
 "Plik lub folder zawierający"
 
 MEditSavedChangedNonFile2
-"был перемещен или удален. Сохранить?"
+"был перемещён или удалён. Сохранить?"
 "this file was moved or deleted. Save?"
 upd:"tento soubor byl přesunut, nebo smazán. Save?"
 upd:"diesen Inhalt enthält wurde verschoben oder gelöscht. Save?"
@@ -7771,7 +7771,7 @@ MAskDeleteFilter
 "Czy chcesz usunąć filtr"
 
 MCanDeleteCustomFilterOnly
-"Только пользовательский фильтр может быть удален"
+"Только пользовательский фильтр может быть удалён"
 "Only custom filter can be deleted"
 "Jedině vlastní filtr může být smazán"
 "Nur eigene Filter können gelöscht werden."
@@ -7892,7 +7892,7 @@ upd:"Suchbereich:"
 "Obszar wyszukiwania:"
 
 MSearchAllDisks
-"На всех несъемных &дисках"
+"На всех несъёмных &дисках"
 "In &all non-removable drives"
 "Ve všech p&evných discích"
 "Auf &allen festen Datenträger"
@@ -8300,7 +8300,7 @@ MHighlightTransparentMarkChar
 "prze&zroczyste"
 
 MHighlightColors
-" Цвета файлов (\"черный на черном\" - цвет по умолчанию) "
+" Цвета файлов (\"чёрный на чёрном\" - цвет по умолчанию) "
 " File name colors (\"black on black\" - default color) "
 " Barva názvu souborů (\"černá na černé\" - výchozí barva) "
 " Dateinamenfarben (\"Schwarz auf Schwarz\"=Standard) "
@@ -8429,7 +8429,7 @@ MInfoRemovable
 "Wyjmowalny"
 
 MInfoFixed
-"Жесткий"
+"Жёсткий"
 "Fixed"
 "Pevný"
 "Lokales"
@@ -8670,7 +8670,7 @@ MErrorTooManyOpenFiles
 "Zbyt wiele otwartych plików"
 
 MErrorAccessDenied
-"Доступ запрещен"
+"Доступ запрещён"
 "Access denied"
 "Přístup odepřen"
 "Zugriff verweigert"
@@ -8686,7 +8686,7 @@ MErrorNotEnoughMemory
 "Za mało pamięci"
 
 MErrorDiskRO
-"Попытка записи на защищенный от записи диск"
+"Попытка записи на защищённый от записи диск"
 "Cannot write to write protected disk"
 "Nelze zapisovat na disk chráněný proti zápisu"
 "Der Datenträger ist schreibgeschützt"
@@ -8774,7 +8774,7 @@ MErrorNetworkBusy
 "Sieć jest zajęta"
 
 MErrorNetworkAccessDenied
-"Сетевой доступ запрещен"
+"Сетевой доступ запрещён"
 "Network access is denied"
 "Přístup na síť zakázán"
 "Netzwerkzugriff wurde verweigert"
@@ -8926,7 +8926,7 @@ MErrorInvalidPassword
 "Hasło użytkownika jest niewłaściwe"
 
 MErrorNoRecoveryPolicy
-"Для этой системы отсутствует политика надежного восстановления шифрования"
+"Для этой системы отсутствует политика надёжного восстановления шифрования"
 "There is no valid encryption recovery policy configured for this system"
 "V tomto systému není nastaveno žádné platné pravidlo pro dešifrování"
 "Auf diesem System ist keine gültige Richtlinie zum Wiederherstellen der Verschlüsselung konfiguriert."
@@ -9009,7 +9009,7 @@ MCreateFolder
 "Nazwa katalogu"
 
 MMultiMakeDir
-"Обрабатыват&ь несколько имен папок"
+"Обрабатыват&ь несколько имён папок"
 "Process &multiple names"
 "Zpracovat &více názvů"
 "&Mehrere Namen verarbeiten (getrennt durch Semikolon)"
@@ -9816,7 +9816,7 @@ MMenuSortUseGroups
 "użyj &grup sortowania        Shift-F11"
 
 MMenuSortSelectedFirst
-"Помеченные &файлы вперед          Shift-F12"
+"Помеченные &файлы вперёд          Shift-F12"
 "Show selected f&irst    Shift-F12"
 "Nejdřív zobrazit vy&brané  Shift-F12"
 "&Ausgewählte zuerst     Umsch-F12"
@@ -9824,7 +9824,7 @@ MMenuSortSelectedFirst
 "zazna&czone najpierw         Shift-F12"
 
 MMenuSortDirectoriesFirst
-"&Каталоги вперед"
+"&Каталоги вперёд"
 "Sho&w directories first"
 upd:"Sho&w directories first"
 upd:"Sho&w directories first"
@@ -9857,7 +9857,7 @@ MChangeDriveRemovable
 "wyjmowalny"
 
 MChangeDriveFixed
-"жесткий"
+"жёсткий"
 "fixed"
 "pevná"
 "fest"
@@ -9873,7 +9873,7 @@ MChangeDriveNetwork
 "sieciowy"
 
 MChangeDriveDisconnectedNetwork
-"не подключенный"
+"не подключённый"
 "disconnected"
 upd:"disconnected"
 upd:"disconnected"
@@ -9969,7 +9969,7 @@ MChangeDriveCannotReadDisk
 "Nie mogę odczytać dysku w napędzie %c:"
 
 MChangeDriveCannotDisconnect
-"Не удается отсоединиться от %s"
+"Не удаётся отсоединиться от %s"
 "Cannot disconnect from %s"
 "Nelze se odpojit od %s"
 "Verbindung zu %s konnte nicht getrennt werden."
@@ -9977,7 +9977,7 @@ MChangeDriveCannotDisconnect
 "Nie mogę odłączyć się od %s"
 
 MChangeDriveCannotDelSubst
-"Не удается удалить виртуальный драйвер %s"
+"Не удаётся удалить виртуальный драйвер %s"
 "Cannot delete a substituted drive %s"
 "Nelze smazat substnutá jednotka %s"
 "Substlaufwerk %s konnte nicht gelöscht werden."
@@ -10125,7 +10125,7 @@ l:
 "Czy chcesz mimo to odłączyć urządzenie?"
 
 MChangeVolumeInUse
-"Не удается извлечь диск из привода %c:"
+"Не удаётся извлечь диск из привода %c:"
 "Volume %c: cannot be ejected."
 "Jednotka %c: nemůže být vysunuta."
 "Datenträger %c: kann nicht ausgeworfen werden."
@@ -10522,7 +10522,7 @@ MSetAttrSelectedObjects
 "wybranych obiektów"
 
 MSetAttrHardLinks
-"жестких ссылок"
+"жёстких ссылок"
 "hard links"
 "pevné linky"
 "Hardlinks"
@@ -10804,7 +10804,7 @@ MSetAttrEncryptedCannotFor
 "Nie mogę ustawić atrybutu ZASZYFROWANY dla"
 
 MSetAttrSparseCannotFor
-"Не удалось установить атрибут РАЗРЕЖЕННЫЙ для"
+"Не удалось установить атрибут РАЗРЕЖЁННЫЙ для"
 "Cannot set attribute SPARSE for"
 upd:"Cannot set attribute SPARSE for"
 upd:"Cannot set attribute SPARSE for"
@@ -10926,7 +10926,7 @@ MSetDefaultColors
 "&Ustaw kolory domyślne"
 
 MSetBW
-"Черно-бел&ый режим"
+"Чёрно-бел&ый режим"
 "&Black and white mode"
 "Černo&bílý mód"
 "Schwarz && &Weiß"
@@ -12421,7 +12421,7 @@ MCannotUpdateDiz
 "Nie moge aktualizować opisów plików"
 
 MCannotUpdateRODiz
-"Файл описаний защищен от записи"
+"Файл описаний защищён от записи"
 "The description file is read only"
 "Popiskový soubor má atribut Jen pro čtení"
 "Die Beschreibungsdatei ist schreibgeschützt."
@@ -12438,7 +12438,7 @@ l:
 "Opisy plików"
 
 MCfgDizListNames
-"Имена &списков описаний, разделенные запятыми:"
+"Имена &списков описаний, разделённые запятыми:"
 "Description &list names delimited with commas:"
 "Seznam pop&isových souborů oddělených čárkami:"
 "Beschreibungs&dateien, getrennt durch Komma:"
@@ -12740,7 +12740,7 @@ l:
 "Pliki opisu katalogu"
 
 MSetFolderInfoNames
-"Введите имена файлов, разделенные запятыми (допускаются маски)"
+"Введите имена файлов, разделённые запятыми (допускаются маски)"
 "Enter file names delimited with commas (wildcards are allowed)"
 "Zadejte jména souborů oddělených čárkami (značky jsou povoleny)"
 "Dateiliste, getrennt mit Komma (Jokerzeichen möglich):"
@@ -13576,7 +13576,7 @@ MNetUserPassword
 
 MReadFolderError
 l:
-"Не удается прочесть содержимое папки"
+"Не удаётся прочесть содержимое папки"
 "Cannot read folder contents"
 "Nelze načíst obsah adresáře"
 "Kann Ordnerinhalt nicht lesen"
@@ -13618,7 +13618,7 @@ MPlgLoadPluginError
 
 MBuffSizeTooSmall_1
 l:
-"Буфер, размещенный под имя файла слишком мал."
+"Буфер, размещённый под имя файла, слишком мал."
 "Buffer allocated for file name is too small."
 "Buffer alokovaný pro jméno souboru je příliš malý."
 "Reservierter Puffer für Dateiname ist zu klein."
@@ -17207,7 +17207,7 @@ MFileFilterAttrNI
 "Nie z&indeksowany"
 
 MFileFilterAttrSparse
-"&Разреженный"
+"&Разрежённый"
 "S&parse"
 "Říd&ký"
 "Reserve"
@@ -17360,7 +17360,7 @@ upd:"to set attributes of this object:"
 upd:"to set attributes of this object:"
 
 MAdminRequiredHardLink
-"для создания этой жесткой ссылки:"
+"для создания этой жёсткой ссылки:"
 "to create this hard link:"
 upd:"to create this hard link:"
 upd:"to create this hard link:"
