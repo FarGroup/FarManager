@@ -5,6 +5,11 @@
 #define LIGHTGRAY 7
 #endif
 
+#define SIGN_UNICODE    0xFEFF
+#define SIGN_REVERSEBOM 0xFFFE
+#define SIGN_UTF8_LO    0xBBEF
+#define SIGN_UTF8_HI    0xBF
+
 static inline bool vh(HANDLE h)
 {
 	return h != INVALID_HANDLE_VALUE;
@@ -272,8 +277,41 @@ static bool MakeTempNames(TCHAR* tempFileName1, TCHAR* tempFileName2, size_t szT
 static TCHAR *loadFile(const TCHAR *fn, TCHAR *buff, DWORD maxSize)
 {
 	TCHAR *p = NULL, FileName[MAX_PATH*5];
-	ExpandEnvironmentStr(fn, FileName, ArraySize(FileName));
-	HANDLE Handle = CreateFile(FileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+	lstrcpyn(FileName,fn,ArraySize(FileName)-1);
+	Unquote(FileName);
+	ExpandEnvironmentStr(FileName, FileName, ArraySize(FileName));
+
+	TCHAR *ptrCurDir=NULL;
+	const TCHAR *ptrFileName=FileName;
+
+#ifdef UNICODE
+
+	if (*ptrFileName && PointToName(ptrFileName) == ptrFileName)
+	{
+		size_t Size=Info.Control(PANEL_ACTIVE,FCTL_GETPANELDIR,0,0);
+
+		if (Size)
+		{
+			ptrCurDir=new WCHAR[Size+lstrlen(FileName)+8];
+			Info.Control(PANEL_ACTIVE,FCTL_GETPANELDIR,(int)Size,reinterpret_cast<LONG_PTR>(ptrCurDir));
+			AddEndSlash(ptrCurDir);
+			lstrcat(ptrCurDir,ptrFileName);
+			ptrFileName=(const TCHAR *)ptrCurDir;
+		}
+	}
+
+#endif
+
+	if (!(*ptrFileName && FileExists(ptrFileName)))
+	{
+		#ifdef UNICODE
+		if (ptrCurDir)
+			delete[] ptrCurDir;
+		#endif
+		return p;
+	}
+
+	HANDLE Handle = CreateFile(ptrFileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
 
 	if (vh(Handle))
 	{
@@ -318,6 +356,11 @@ static TCHAR *loadFile(const TCHAR *fn, TCHAR *buff, DWORD maxSize)
 
 		CloseHandle(Handle);
 	}
+
+#ifdef UNICODE
+	if (ptrCurDir)
+		delete[] ptrCurDir;
+#endif
 
 	return p;
 }
@@ -522,7 +565,6 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 				if (Far)
 					pCmd=_tcsstr(farcmd,Opt.Separator);
 
-				/* SVS $ */
 				if (pCmd)
 				{
 					if (Far) pCmd+=SeparatorLen;
@@ -571,15 +613,63 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 					{
 						if (outputtofile)
 						{
-							if (loadFile(pCmd, selectItem, ArraySize(selectItem)))
+							Ptr = loadFile(pCmd, NULL, 1048576/sizeof(TCHAR));
+
+							if (Ptr)
 							{
+								size_t shift=0;
+#ifdef UNICODE
+								if (Ptr[0]==SIGN_UNICODE)
+								{
+									shift=1;
+								}
+								else if (Ptr[0]==SIGN_REVERSEBOM)
+								{
+									shift=1;
+									size_t PtrLength=lstrlen(Ptr);
+									swab((char*)Ptr,(char*)Ptr,int(PtrLength*sizeof(TCHAR)));
+								}
+								else
+								{
+									UINT cp=outputtofile?GetConsoleOutputCP():GetACP();
+									if (Ptr[0]==SIGN_UTF8_LO&&(Ptr[1]&0xff)==SIGN_UTF8_HI)
+									{
+										shift=1;
+										cp=CP_UTF8;
+									}
+									size_t PtrLength=MultiByteToWideChar(cp,0,(char*)Ptr,-1,NULL,0);
+									if (PtrLength)
+									{
+										TCHAR* NewPtr=(TCHAR*)malloc(PtrLength*sizeof(TCHAR));
+										if (NewPtr)
+										{
+											if (MultiByteToWideChar(cp,0,(char*)Ptr,-1,NewPtr,(int)PtrLength))
+											{
+												free(Ptr);
+												Ptr=NewPtr;
+											}
+											else
+											{
+												free(NewPtr);
+											}
+										}
+									}
+								}
+
+#endif
+								lstrcpyn(selectItem, Ptr+shift, ArraySize(selectItem)-1);
+								free(Ptr);
+
 								if (NULL==(Ptr=_tcschr(selectItem,_T('\r'))))
 									Ptr=_tcschr(selectItem,_T('\n'));
 
-								if (Ptr!=NULL) *Ptr=0;
+								if (Ptr!=NULL)
+									*Ptr=0;
 							}
+
 						}
-						else lstrcpy(selectItem,pCmd);
+						else
+							lstrcpy(selectItem,pCmd);
 
 						TCHAR ExpSelectItem[ArraySize(selectItem)];
 						ExpandEnvironmentStr(selectItem,ExpSelectItem,ArraySize(ExpSelectItem));
@@ -1257,11 +1347,6 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 								{
 									size_t shift=0;
 #ifdef UNICODE
-#define SIGN_UNICODE    0xFEFF
-#define SIGN_REVERSEBOM 0xFFFE
-#define SIGN_UTF8_LO    0xBBEF
-#define SIGN_UTF8_HI    0xBF
-
 									//if(outputtofile)
 									//{
 									//;
