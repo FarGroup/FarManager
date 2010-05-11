@@ -1159,6 +1159,8 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 				{
 					Panel *SelPanel = CheckCode == MCODE_V_APANEL_CURRENT ? ActivePanel : PassivePanel;
 
+					Cond = L"";
+
 					if (SelPanel != nullptr)
 					{
 						SelPanel->GetFileName(strFileName,SelPanel->GetCurrentPos(),FileAttr);
@@ -1217,6 +1219,9 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 				{
 					Panel *SelPanel = CheckCode == MCODE_V_APANEL_OPIFLAGS || CheckCode == MCODE_V_APANEL_HOSTFILE? ActivePanel : PassivePanel;
 
+					if (CheckCode == MCODE_V_APANEL_HOSTFILE || CheckCode == MCODE_V_PPANEL_HOSTFILE)
+						Cond = L"";
+
 					if (SelPanel != nullptr)
 					{
 						if (SelPanel->GetMode() == PLUGIN_PANEL)
@@ -1239,13 +1244,13 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 				{
 					Panel *SelPanel = CheckCode == MCODE_V_APANEL_PREFIX ? ActivePanel : PassivePanel;
 
+					Cond = L"";
+
 					if (SelPanel != nullptr)
 					{
 						PluginInfo PInfo;
 						if (SelPanel->VMProcess(MCODE_V_APANEL_PREFIX,&PInfo))
 							Cond = (const wchar_t*)PInfo.CommandPrefix;
-						else
-							Cond = L"";
 					}
 
 					break;
@@ -1255,6 +1260,8 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 				case MCODE_V_PPANEL_PATH0:           // PPanel.Path0
 				{
 					Panel *SelPanel = CheckCode == MCODE_V_APANEL_PATH0 ? ActivePanel : PassivePanel;
+
+					Cond = L"";
 
 					if (SelPanel != nullptr)
 					{
@@ -1270,6 +1277,8 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 				case MCODE_V_PPANEL_PATH: // PPanel.Path
 				{
 					Panel *SelPanel = CheckCode == MCODE_V_APANEL_PATH ? ActivePanel : PassivePanel;
+
+					Cond = L"";
 
 					if (SelPanel != nullptr)
 					{
@@ -1292,6 +1301,8 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 				case MCODE_V_APANEL_UNCPATH: // APanel.UNCPath
 				case MCODE_V_PPANEL_UNCPATH: // PPanel.UNCPath
 				{
+					Cond = L"";
+
 					if (_MakePath1(CheckCode == MCODE_V_APANEL_UNCPATH?KEY_ALTSHIFTBRACKET:KEY_ALTSHIFTBACKBRACKET,strFileName,L""))
 					{
 						UnquoteExternal(strFileName);
@@ -1472,6 +1483,9 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 				case MCODE_V_EDITORVALUE:   // Editor.Value
 				case MCODE_V_EDITORSELVALUE: // Editor.SelValue
 				{
+					if (CheckCode == MCODE_V_EDITORVALUE || CheckCode == MCODE_V_EDITORSELVALUE)
+						Cond=L"";
+
 					if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins.CurEditor && CtrlObject->Plugins.CurEditor->IsVisible())
 					{
 						if (CheckCode == MCODE_V_EDITORFILENAME)
@@ -1502,6 +1516,8 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 				case MCODE_V_HELPTOPIC:     // Help.Topic
 				case MCODE_V_HELPSELTOPIC:  // Help.SelTopic
 				{
+					Cond=L"";
+
 					if (CtrlObject->Macro.GetMode() == MACRO_HELP)
 					{
 						CurFrame->VMProcess(CheckCode,&strFileName,0);
@@ -1513,6 +1529,9 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 				case MCODE_V_VIEWERFILENAME: // Viewer.FileName
 				case MCODE_V_VIEWERSTATE: // Viewer.State
 				{
+					if (CheckCode == MCODE_V_VIEWERFILENAME)
+						Cond=L"";
+
 					if ((CtrlObject->Macro.GetMode()==MACRO_VIEWER || CtrlObject->Macro.GetMode()==MACRO_QVIEWPANEL) &&
 					        CtrlObject->Plugins.CurViewer && CtrlObject->Plugins.CurViewer->IsVisible())
 					{

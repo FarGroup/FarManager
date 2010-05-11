@@ -1,3 +1,16 @@
+svs 11.05.2010 09:59:58 +0300 - build 1542
+
+1. Macro: Содержимое 
+      
+      [A|P]Panel.HostFile, [A|P]Panel.Prefix, [A|P]Panel.Path0, [A|P]Panel.Path, 
+      [A|P]Panel.UNCPath, [A|P]Panel.Current, Editor.SelValue, Editor.Value, Help.FileName, 
+      Help.Topic, Help.SelTopic, Viewer.FileName
+
+   принудительно приводится к "строке", что позволяет избежать ситуации, когда для пустого 
+   содержимого возвращается число 0.
+
+   Что у нас еще такого, особенного осталось?
+
 drkns 09.05.2010 23:50:50 +0200
 
 1. From Anton Sinitsin: "Ёфицирование" хелпа.
