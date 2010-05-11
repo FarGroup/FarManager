@@ -2033,6 +2033,9 @@ int VMenu::CheckHighlights(wchar_t CheckSymbol, int StartPos)
 {
 	CriticalSectionLock Lock(CS);
 
+	if (CheckSymbol)
+		CheckSymbol=Upper(CheckSymbol);
+
 	for (int I=StartPos; I < ItemCount; I++)
 	{
 		if (!ItemIsVisible(Item[I]->Flags))
@@ -2042,7 +2045,7 @@ int VMenu::CheckHighlights(wchar_t CheckSymbol, int StartPos)
 
 		if (Ch)
 		{
-			if (Upper(CheckSymbol) == Upper(Ch))
+			if (CheckSymbol == Upper(Ch) || CheckSymbol == Upper(KeyToKeyLayout(Ch)))
 				return I;
 		}
 		else if (!CheckSymbol)
@@ -2111,6 +2114,7 @@ void VMenu::AssignHighlights(int Reverse)
 
 	int I, Delta = Reverse ? -1 : 1;
 
+	// проверка заданных хоткеев
 	for (I = Reverse ? ItemCount-1 : 0; I>=0 && I<ItemCount; I+=Delta)
 	{
 		wchar_t Ch = 0;
@@ -2135,6 +2139,9 @@ void VMenu::AssignHighlights(int Reverse)
 
 		if (Ch && !Used[Upper(Ch)] && !Used[Lower(Ch)])
 		{
+			wchar_t ChKey=KeyToKeyLayout(Ch);
+			Used[Upper(ChKey)] = true;
+			Used[Lower(ChKey)] = true;
 			Used[Upper(Ch)] = true;
 			Used[Lower(Ch)] = true;
 			Item[I]->AmpPos = static_cast<short>(ChPtr-Name)+static_cast<short>(ShowPos);
@@ -2157,6 +2164,9 @@ void VMenu::AssignHighlights(int Reverse)
 
 				if ((Ch == L'&' || IsAlpha(Ch) || (Ch >= L'0' && Ch <=L'9')) && !Used[Upper(Ch)] && !Used[Lower(Ch)])
 				{
+					wchar_t ChKey=KeyToKeyLayout(Ch);
+					Used[Upper(ChKey)] = true;
+					Used[Lower(ChKey)] = true;
 					Used[Upper(Ch)] = true;
 					Used[Lower(Ch)] = true;
 					Item[I]->AmpPos = J + ShowPos;
