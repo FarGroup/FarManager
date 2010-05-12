@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TaskBar.hpp"
 #include "synchro.hpp"
 #include "scrbuf.hpp"
+#include "event.hpp"
 
 #define PIPE_NAME L"\\\\.\\pipe\\FarPipe"
 
@@ -303,22 +304,19 @@ bool AdminMode::Initialize()
 			{
 				Process = info.hProcess;
 				OVERLAPPED Overlapped;
-				Overlapped.hEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-				if(Overlapped.hEvent)
+				Event AEvent;
+				Overlapped.hEvent = AEvent.Handle();
+				ConnectNamedPipe(Pipe, &Overlapped);
+				if(AEvent.Wait(5000))
 				{
-					ConnectNamedPipe(Pipe, &Overlapped);
-					if(WaitForSingleObject(Overlapped.hEvent, 5000) == WAIT_OBJECT_0)
+					DWORD NumberOfBytesTransferred;
+					if(GetOverlappedResult(Pipe, &Overlapped, &NumberOfBytesTransferred, FALSE))
 					{
-						DWORD NumberOfBytesTransferred;
-						if(GetOverlappedResult(Pipe, &Overlapped, &NumberOfBytesTransferred, FALSE))
+						if(ReadPipeInt(Pipe, PID))
 						{
-							if(ReadPipeInt(Pipe, PID))
-							{
-								Result = true;
-							}
+							Result = true;
 						}
 					}
-					CloseHandle(Overlapped.hEvent);
 				}
 				if(!Result)
 				{
@@ -375,7 +373,7 @@ LONG_PTR WINAPI AdminApproveDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
 
 struct AAData
 {
-	HANDLE Event;
+	Event* pEvent;
 	int Why;
 	LPCWSTR Object;
 	bool& AskApprove;
@@ -408,9 +406,9 @@ void AdminApproveDlgSync(LPVOID Param)
 	Data->AskApprove=!AdminApproveDlg[AAD_CHECKBOX_DOFORALL].Selected;
 	Data->Approve=Dlg.GetExitCode()==AAD_BUTTON_OK;
 	Data->DontAskAgain=AdminApproveDlg[AAD_CHECKBOX_DONTASKAGAIN].Selected!=FALSE;
-	if(Data->Event)
+	if(Data->pEvent)
 	{
-		SetEvent(Data->Event);
+		Data->pEvent->Set();
 	}
 }
 
@@ -424,12 +422,12 @@ bool AdminMode::AdminApproveDlg(int Why, LPCWSTR Object)
 		AAData Data={nullptr, Why, Object, AskApprove, Approve, DontAskAgain};
 		if(GetCurrentThreadId()!=MainThreadID)
 		{
-			Data.Event=CreateEvent(nullptr, FALSE, FALSE, nullptr);
-			if(Data.Event)
+			Data.pEvent=new Event();
+			if(Data.pEvent)
 			{
 				PluginSynchroManager.Synchro(false, 0, &Data);
-				WaitForSingleObject(Data.Event,INFINITE);
-				CloseHandle(Data.Event);
+				Data.pEvent->Wait();
+				delete Data.pEvent;
 			}
 		}
 		else

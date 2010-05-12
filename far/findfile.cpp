@@ -71,6 +71,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "constitle.hpp"
 #include "DlgGuid.hpp"
+#include "event.hpp"
 
 const int CHAR_TABLE_SIZE=5;
 const int LIST_DELTA=64;
@@ -342,8 +343,8 @@ string strPluginSearchPath;
 
 CriticalSection PluginCS;
 
-HANDLE PauseEvent=nullptr;
-HANDLE StopEvent=nullptr;
+Event PauseEvent(true, true);
+Event StopEvent(true, false);
 
 bool UseFilter=false;
 UINT CodePage=CP_AUTODETECT;
@@ -1199,7 +1200,7 @@ int LookForString(const wchar_t *Name)
 	UINT LastPercents=0;
 
 	// Основной цикл чтения из файла
-	while (WaitForSingleObject(StopEvent, 0)!=WAIT_OBJECT_0 && file.Read(readBufferA, (!SearchInFirst || alreadyRead+readBufferSizeA <= SearchInFirst)?readBufferSizeA:static_cast<DWORD>(SearchInFirst-alreadyRead), &readBlockSize))
+	while (!StopEvent.Signaled() && file.Read(readBufferA, (!SearchInFirst || alreadyRead+readBufferSizeA <= SearchInFirst)?readBufferSizeA:static_cast<DWORD>(SearchInFirst-alreadyRead), &readBlockSize))
 	{
 		UINT Percents=static_cast<UINT>(FileSize?alreadyRead*100/FileSize:0);
 
@@ -1505,7 +1506,7 @@ LONG_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 		if(Time-ShowTime>RedrawTimeout)
 		{
 			ShowTime=Time;
-			if (WaitForSingleObject(StopEvent, 0)!=WAIT_OBJECT_0)
+			if (!StopEvent.Signaled())
 			{
 				string strDataStr;
 				strDataStr.Format(MSG(MFindFound), itd.GetFileCount(), itd.GetDirCount());
@@ -1547,7 +1548,7 @@ LONG_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 		Recurse=false;
 	}
 
-	if(!v->Finalized && WaitForSingleObject(StopEvent, 0)==WAIT_OBJECT_0)
+	if(!v->Finalized && StopEvent.Signaled())
 	{
 		string strMessage;
 		strMessage.Format(MSG(MFindDone),itd.GetFileCount(), itd.GetDirCount());
@@ -1589,18 +1590,18 @@ LONG_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 			case KEY_ESC:
 			case KEY_F10:
 				{
-					if (WaitForSingleObject(StopEvent, 0)!=WAIT_OBJECT_0)
+					if (!StopEvent.Signaled())
 					{
-						ResetEvent(PauseEvent);
+						PauseEvent.Reset();
 						IsProcessAssignMacroKey--;
 						bool LocalRes=true;
 						if (Opt.Confirm.Esc)
 							LocalRes=AbortMessage()!=0;
 						IsProcessAssignMacroKey++;
-						SetEvent(PauseEvent);
+						PauseEvent.Set();
 						if(LocalRes)
 						{
-							SetEvent(StopEvent);
+							StopEvent.Set();
 						}
 						return TRUE;
 					}
@@ -1969,16 +1970,16 @@ LONG_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 			{
 			case FD_BUTTON_NEW:
 				{
-					SetEvent(StopEvent);
+					StopEvent.Set();
 					return FALSE;
 				}
 				break;
 
 			case FD_BUTTON_STOP:
 				{
-					if(WaitForSingleObject(StopEvent, 0)!=WAIT_OBJECT_0)
+					if(!StopEvent.Signaled())
 					{
-						SetEvent(StopEvent);
+						StopEvent.Set();
 						return TRUE;
 					}
 					else
@@ -2024,7 +2025,7 @@ LONG_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 			{
 				FindDlgProc(hDlg,DN_BTNCLICK,FD_BUTTON_GOTO,0); // emulates a [ Go to ] button pressing;
 			}
-			SetEvent(StopEvent);
+			StopEvent.Set();
 			return TRUE;
 		}
 		break;
@@ -2322,7 +2323,7 @@ void ArchiveSearch(HANDLE hDlg, const wchar_t *ArcName)
 
 	if (hArc==(HANDLE)-2)
 	{
-		SetEvent(StopEvent);
+		StopEvent.Set();
 		_ALGO(SysLog(L"return: hArc==(HANDLE)-2"));
 		return;
 	}
@@ -2381,7 +2382,7 @@ void DoScanTree(HANDLE hDlg, string& strRoot)
 	if (SearchMode==FINDAREA_SELECTED)
 		CtrlObject->Cp()->ActivePanel->GetSelName(nullptr,FileAttr);
 
-	while (WaitForSingleObject(StopEvent, 0)!=WAIT_OBJECT_0)
+	while (!StopEvent.Signaled())
 	{
 		string strCurRoot;
 
@@ -2407,10 +2408,10 @@ void DoScanTree(HANDLE hDlg, string& strRoot)
 		FAR_FIND_DATA_EX FindData;
 		string strFullName;
 
-		while (WaitForSingleObject(StopEvent, 0)!=WAIT_OBJECT_0 && ScTree.GetNextName(&FindData,strFullName))
+		while (!StopEvent.Signaled() && ScTree.GetNextName(&FindData,strFullName))
 		{
 			Sleep(0);
-			WaitForSingleObject(PauseEvent, INFINITE);
+			PauseEvent.Wait();
 
 			bool bContinue=false;
 			WIN32_FIND_STREAM_DATA sd;
@@ -2423,7 +2424,7 @@ void DoScanTree(HANDLE hDlg, string& strRoot)
 				hFindStream=apiFindFirstStream(strFullName,FindStreamInfoStandard,&sd);
 			}
 
-			while (WaitForSingleObject(StopEvent, 0)!=WAIT_OBJECT_0)
+			while (!StopEvent.Signaled())
 			{
 				string strFullStreamName=strFullName;
 
@@ -2539,7 +2540,7 @@ void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, DWORD Flags, int& RecurseLevel)
 	{
 		CriticalSectionLock Lock(PluginCS);
 		{
-			if(WaitForSingleObject(StopEvent, 0)!=WAIT_OBJECT_0)
+			if(!StopEvent.Signaled())
 			{
 				GetFindDataResult=CtrlObject->Plugins.GetFindData(hPlugin,&PanelData,&ItemCount,OPM_FIND)!=FALSE;
 			}
@@ -2554,10 +2555,10 @@ void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, DWORD Flags, int& RecurseLevel)
 
 	if (SearchMode!=FINDAREA_SELECTED || RecurseLevel!=1)
 	{
-		for (int I=0; I<ItemCount && WaitForSingleObject(StopEvent, 0)!=WAIT_OBJECT_0; I++)
+		for (int I=0; I<ItemCount && !StopEvent.Signaled(); I++)
 		{
 			Sleep(0);
-			WaitForSingleObject(PauseEvent, INFINITE);
+			PauseEvent.Wait();
 
 			PluginPanelItem *CurPanelItem=PanelData+I;
 			string strCurName=CurPanelItem->FindData.lpwszFileName;
@@ -2588,7 +2589,7 @@ void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, DWORD Flags, int& RecurseLevel)
 
 	if (SearchMode!=FINDAREA_CURRENT_ONLY)
 	{
-		for (int I=0; I<ItemCount && WaitForSingleObject(StopEvent, 0)!=WAIT_OBJECT_0; I++)
+		for (int I=0; I<ItemCount && !StopEvent.Signaled(); I++)
 		{
 			PluginPanelItem *CurPanelItem=PanelData+I;
 			string strCurName=CurPanelItem->FindData.lpwszFileName;
@@ -2626,7 +2627,7 @@ void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, DWORD Flags, int& RecurseLevel)
 					}
 					if (!SetDirectoryResult)
 					{
-						SetEvent(StopEvent);
+						StopEvent.Set();
 					}
 				}
 			}
@@ -2706,7 +2707,7 @@ void DoPrepareFileList(HANDLE hDlg)
 	}
 
 	itd.SetPercent(0);
-	SetEvent(StopEvent);
+	StopEvent.Set();
 }
 
 void DoPreparePluginList(HANDLE hDlg, bool Internal)
@@ -2743,7 +2744,7 @@ void DoPreparePluginList(HANDLE hDlg, bool Internal)
 	if (!Internal)
 	{
 		itd.SetPercent(0);
-		SetEvent(StopEvent);
+		StopEvent.Set();
 	}
 }
 
@@ -2889,8 +2890,8 @@ bool FindFilesProcess(Vars& v)
 		WaitForSingleObject(Thread,INFINITE);
 		CloseHandle(Thread);
 
-		SetEvent(PauseEvent);
-		ResetEvent(StopEvent);
+		PauseEvent.Set();
+		StopEvent.Reset();
 
 		switch (Dlg.GetExitCode())
 		{
@@ -3111,9 +3112,6 @@ FindFiles::FindFiles()
 
 	Vars v;
 
-	PauseEvent=CreateEvent(nullptr, TRUE, TRUE, nullptr);
-	StopEvent=CreateEvent(nullptr, TRUE, FALSE, nullptr);
-
 	do
 	{
 		v.Clear();
@@ -3316,7 +3314,4 @@ FindFiles::~FindFiles()
 	{
 		delete Filter;
 	}
-
-	CloseHandle(PauseEvent);
-	CloseHandle(StopEvent);
 }

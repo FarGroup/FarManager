@@ -598,6 +598,9 @@
     <ClInclude Include="eject.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="event.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="execute.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

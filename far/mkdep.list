@@ -59,6 +59,7 @@ editor.cpp
 editor.hpp
 eject.cpp
 eject.hpp
+event.hpp
 execute.cpp
 execute.hpp
 exitcode.hpp
