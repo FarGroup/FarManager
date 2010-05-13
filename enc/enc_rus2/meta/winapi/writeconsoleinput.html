@@ -55,19 +55,12 @@ BOOL WriteConsoleInput(
   <p>Функция <dfn>WriteConsoleInput</dfn> помещает записи <a href="input_record.html">INPUT_RECORD</a>
   в конец входного буфера. Входной буфер при необходимости растет динамически для хранения необходимого количества записей.
 
-  <p class=note><img src="../../images/note.gif" alt="Семейство Windows NT" width="10" height="10"> Windows NT/2000/XP/2003/Vista/2008/7</p>
   <UL class=note><LI>
   Эта функция использует либо Unicode, либо 8-битовые символы из текущей кодовой страницы консоли.
   Кодовая страница консоли по умолчанию равна системной OEM странице.<br>
   Для смены кодовой страницы используйте функции <a href="win32/SetConsoleCP">SetConsoleCP</a> или
   <a href="win32/SetConsoleOutputCP">SetConsoleOutputCP</a>,
   или используйте команды <code>chcp</code> или <code>mode con cp select=</code>.
-  </LI></UL>
-
-  <p class=note><img src="../../images/note.gif" alt="Замечание для Windows 95/98/Me" width="10" height="10"> Windows 95/98/Me</p>
-  <UL class=note><LI>
-  Установите Microsoft Layer for Unicode для того, чтобы использовать функцию <dfn>WriteConsoleInputW</dfn>
-  (которая позволит использовать Unicode в консольном окне).
   </LI></UL>
 
 </div>

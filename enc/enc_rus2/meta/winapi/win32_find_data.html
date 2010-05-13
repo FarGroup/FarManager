@@ -78,10 +78,10 @@ typedef struct _WIN32_FIND_DATA {
         не могут записывать или удалять его.</td></tr>
 
         <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_REPARSE_POINT">FILE_ATTRIBUTE_REPARSE_POINT</a></td>
-        <td class="cont" width="60%">Каталог является <a href="../other/dict.html#symboliclinks">символической связью</a>.</td></tr>
+        <td class="cont" width="60%">Каталог является <a href="../other/dict.html#symboliclinks">точкой повторной обработки</a>.</td></tr>
 
         <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_SPARSE_FILE">FILE_ATTRIBUTE_SPARSE_FILE</a></td>
-        <td class="cont" width="60%">Файл является т.н. <a href="../other/dict.html#sparsefile">Sparse file</a>.</td></tr>
+        <td class="cont" width="60%">Файл является т.н. <a href="../other/dict.html#sparsefile">Разреженный файл</a>.</td></tr>
 
         <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_SYSTEM">FILE_ATTRIBUTE_SYSTEM</a></td>
         <td class="cont" width="60%">Этот файл - часть операционной системы.</td></tr>
@@ -140,8 +140,8 @@ typedef struct _WIN32_FIND_DATA {
 
     <div class=dfn>dwReserved0</div>
     <div class=dfndescr>Если поле <var>dwFileAttributes</var> содержит атрибут
-       <dfn>FILE_ATTRIBUTE_REPARSE_POINT</dfn>, это поле содержит специфическую информацию
-       для <a href="../other/dict.html#symboliclinks">символической связи</a>.
+       <dfn>FILE_ATTRIBUTE_REPARSE_POINT</dfn>, это поле содержит тип
+       <a href="../other/dict.html#symboliclinks">точки повторной обработки</a>.
        В противном случае значение этого поля не определено и не должно
        использоваться.</div>
 

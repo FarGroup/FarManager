@@ -195,8 +195,8 @@
         <tr class="cont"><td class="cont" width="10%">0x00000020</td><td class="cont" width="90%">FILE_ATTRIBUTE_ARCHIVE. Это архивный файл. Приложения должны использовать этот флаг для копирования, архивирования или удаления.</td></tr>
         <tr class="cont"><td class="cont" width="10%">0x00000080</td><td class="cont" width="90%">FILE_ATTRIBUTE_NORMAL. У этого файла не установлены другие атрибуты. Это значение корректно только при использовании без остальных флагов.</td></tr>
         <tr class="cont"><td class="cont" width="10%">0x00000100</td><td class="cont" width="90%">FILE_ATTRIBUTE_TEMPORARY. Это временный файл. Приложения должны записывать в такой файл только в крайней необходимости. Большая часть данных файла находится в памяти и не сбрасывается на диск, так как файл будет удален.</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0x00000200</td><td class="cont" width="90%">FILE_ATTRIBUTE_SPARSE_FILE. Файл является т.н. "Sparse file".</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0x00000400</td><td class="cont" width="90%">FILE_ATTRIBUTE_REPARSE_POINT. Каталог является символической связью.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000200</td><td class="cont" width="90%">FILE_ATTRIBUTE_SPARSE_FILE. Файл является разреженным.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000400</td><td class="cont" width="90%">FILE_ATTRIBUTE_REPARSE_POINT. Каталог является точкой повторной обработки.</td></tr>
         <tr class="cont"><td class="cont" width="10%">0x00000800</td><td class="cont" width="90%">FILE_ATTRIBUTE_COMPRESSED. Файл или каталог сжат. Для файла это означает, что все данные его сжаты, для каталога - что компрессия по умолчанию применяется ко всем его файлам и подкаталогам.</td></tr>
         <tr class="cont"><td class="cont" width="10%">0x00001000</td><td class="cont" width="90%">FILE_ATTRIBUTE_OFFLINE. Данные файла не доступны непосредственно. Означает, что реальные данные файла были физически перемещены на устройства хранения.</td></tr>
         <tr class="cont"><td class="cont" width="10%">0x00002000</td><td class="cont" width="90%">FILE_ATTRIBUTE_NOT_CONTENT_INDEXED. Этот файл или каталог не будут индексироваться службой индексирования.</td></tr>
@@ -253,8 +253,8 @@
         <tr class="cont"><td class="cont" width="10%">0x00000020</td><td class="cont" width="90%">FILE_ATTRIBUTE_ARCHIVE. Это архивный файл. Приложения должны использовать этот флаг для копирования, архивирования или удаления.</td></tr>
         <tr class="cont"><td class="cont" width="10%">0x00000080</td><td class="cont" width="90%">FILE_ATTRIBUTE_NORMAL. У этого файла не установлены другие атрибуты. Это значение корректно только при использовании без остальных флагов.</td></tr>
         <tr class="cont"><td class="cont" width="10%">0x00000100</td><td class="cont" width="90%">FILE_ATTRIBUTE_TEMPORARY. Это временный файл. Приложения должны записывать в такой файл только в крайней необходимости. Большая часть данных файла находится в памяти и не сбрасывается на диск, так как файл будет удален.</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0x00000200</td><td class="cont" width="90%">FILE_ATTRIBUTE_SPARSE_FILE. Файл является т.н. "Sparse file".</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0x00000400</td><td class="cont" width="90%">FILE_ATTRIBUTE_REPARSE_POINT. Каталог является символической связью.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000200</td><td class="cont" width="90%">FILE_ATTRIBUTE_SPARSE_FILE. Файл является разреженным.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000400</td><td class="cont" width="90%">FILE_ATTRIBUTE_REPARSE_POINT. Каталог является точкой повторной обработки.</td></tr>
         <tr class="cont"><td class="cont" width="10%">0x00000800</td><td class="cont" width="90%">FILE_ATTRIBUTE_COMPRESSED. Файл или каталог сжат. Для файла это означает, что все данные его сжаты, для каталога - что компрессия по умолчанию применяется ко всем его файлам и подкаталогам.</td></tr>
         <tr class="cont"><td class="cont" width="10%">0x00001000</td><td class="cont" width="90%">FILE_ATTRIBUTE_OFFLINE. Данные файла не доступны непосредственно. Означает, что реальные данные файла были физически перемещены на устройства хранения.</td></tr>
         <tr class="cont"><td class="cont" width="10%">0x00002000</td><td class="cont" width="90%">FILE_ATTRIBUTE_NOT_CONTENT_INDEXED. Этот файл или каталог не будут индексироваться службой индексирования.</td></tr>
@@ -501,7 +501,6 @@ $End</pre>
         <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">включить индикатор</td></tr>
         <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%">переключить индикатор в противоположное состояние</td></tr>
        </table>
-    В Windows 95/98/Me функция может изменять только состояние клавиш CapsLock и ScrollLock. Для линейки NT (NT/2000/XP/...) этого ограничения нет.<br>
     Функция капризная (возможно зависание компьютера), поэтому пользоваться ей надо осторожно. Например, макрос, повешенный на CtrlCapsLock (переключение между окнами) должен иметь некую обвязку:
        <pre class=code>CtrlShiftTab
 %a=flock(1,-1)&1;

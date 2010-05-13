@@ -35,9 +35,9 @@
   <li><a href="#FARDir">Как можно получить имя каталога, из которого запущен FAR?</a>
   <li><a href="#PlReduce">А как уменьшить размер DLL?</a>
   <li><a href="#ClipDup">А что за дупы в клипборде идут, зачем 2 раза одну и ту же в Clipboard помещать?</a>
-  <li><a href="#symlink1">Как определить что есть "символическая связь"...</a>
+  <li><a href="#symlink1">Как определить что есть "связь каталогов"...</a>
   <li><a href="#symlink2">...что скрывается по именем '\\?\Volume{...'</a>
-  <li><a href="#symlink3">А еще что нить полезного про символические связи можно узнать?</a>
+  <li><a href="#symlink3">А еще что нить полезного про символические ссылки можно узнать?</a>
   <li><a href="#editor3">Можно ли получить для редактируемого файла флаг изменен...</a>
   <li><a href="#viewer1">Как узнать имя файла, загруженного во вьювер?</a>
   <li><a href="#fsf1">Возможно ли каким-то способом в FSF.ProcessName...</a>
@@ -158,16 +158,16 @@ LPTSTR lpFile;
   и использует его без всяческих перекодировок.
   <br><br></li>
 
-  <li><span class=faqq>Q:</span> <a name="symlink1"><span class=faqqb>Как определить что есть "символическая связь" - простая ссылка на каталог или монтированный диск.</span></a>
-  <br><span class=faqa>A:</span> Основное правило - символические связи в Win2K - <b>ТОЛЬКО ДЛЯ КАТАЛОГОВ!</b>
+  <li><span class=faqq>Q:</span> <a name="symlink1"><span class=faqqb>Как определить что есть "связь каталогов" - простая ссылка на каталог или монтированный диск.</span></a>
+  <br><span class=faqa>A:</span> Основное правило - связи каталогов - <b>ТОЛЬКО ДЛЯ КАТАЛОГОВ!</b>
    Значит нам нужно узнать - "<em>А не каталог ли ЭТО?</em>".
    На это указывает файловый атрибут <code>FA_DIREC</code> (или
    <code>FILE_ATTRIBUTE_DIRECTORY</code>).
 
   <br>Едем дальше.
 
-  <br>Нам достоверно известно, что любые символические связи (иначе, reparse point) в
-   Win2K имеют атрибут <code>FILE_ATTRIBUTE_REPARSE_POINT</code> - проверяем его.
+  <br>Нам достоверно известно, что любые связи каталогов
+   имеют атрибут <code>FILE_ATTRIBUTE_REPARSE_POINT</code> - проверяем его.
 
   <br>Вызываем<br>
      <pre class=code><a href="../fsf/getreparsepointinfo.html">FSF.GetReparsePointInfo</a>(FullFolderName,DestName,sizeof(DestName))</pre>
@@ -207,8 +207,8 @@ else
    маячила, т.с. ;-)
   <br><br></li>
 
-  <li><span class=faqq>Q:</span> <a name="symlink3"><span class=faqqb>А еще что нить полезного про символические связи можно узнать?</span></a>
-  <br><span class=faqa>A:</span> А как же :-) Правда не совсем про символические связи, но...
+  <li><span class=faqq>Q:</span> <a name="symlink3"><span class=faqqb>А еще что нить полезного про символические ссылки можно узнать?</span></a>
+  <br><span class=faqa>A:</span> А как же :-) Правда не совсем про символические ссылки, но...
   <br>Например, мы можем узнать еще порцию полезностей для монтированных
    дисков. Здесь все просто - вызываем стандартную
    <a href="win32/GetVolumeInformation">GetVolumeInformation()</a>
@@ -222,18 +222,18 @@ char FSysName[MAX_PATH];
 if (GetVolumeInformation(Root,NULL,0,NULL,NULL,
                         &amp;FileSystemFlags,FSysName,sizeof(FSysName)))
 {
-  if (FileSystemFlags &amp; FS_FILE_COMPRESSION)
+  if (FileSystemFlags &amp; FILE_FILE_COMPRESSION)
   {
-    // файловая система поддерживает компрессию файлов
+    // файловая система поддерживает сжатие файлов
   }
 
-  if (FileSystemFlags &amp; FS_FILE_ENCRYPTION)
+  if (FileSystemFlags &amp; FILE_SUPPORTS_ENCRYPTION)
   {
     // файловая система поддерживает шифрование файлов
   }
 }</pre>
 
-   <br>Типичная функция проверки возможности создания... жестких связей
+   <br>Типичная функция проверки возможности создания... жестких ссылок
    могла бы выглядеть так:
 
     <pre class=code>BOOL CanCreateHardLinks(char *TargetFile,char *HardLinkName)
@@ -244,13 +244,12 @@ if (GetVolumeInformation(Root,NULL,0,NULL,NULL,
 
   if(!strcmp(RootTarget,RootHardLink)) // тот же корень (то же диск)?
   {
-    // NTFS drive?
     DWORD FileSystemFlags;
 
     if(GetVolumeInformation(RootTarget,NULL,0,NULL,NULL,&amp;FileSystemFlags,
-                            FSysName,sizeof(FSysName)))
+                            NULL,0))
     {
-      if(!strcmp(FSysName,"NTFS"))
+      if(FileSystemFlags&amp;FILE_SUPPORTS_HARD_LINKS)
         return TRUE;
     }
   }
