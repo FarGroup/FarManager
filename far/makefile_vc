@@ -222,6 +222,7 @@ LINK_OBJS = \
 	"$(INTDIR)\usermenu.obj" \
 	"$(INTDIR)\viewer.obj" \
 	"$(INTDIR)\vmenu.obj" \
+	"$(INTDIR)\window.obj" \
 	"$(INTDIR)\xlat.obj" \
 !if defined(X86) && !defined(DISABLE_WOW64_HOOK)
 	"$(INTDIR)\hook_wow64.obj"

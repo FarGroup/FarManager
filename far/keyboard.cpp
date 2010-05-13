@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "synchro.hpp"
 #include "constitle.hpp"
+#include "window.hpp"
 
 /* start Глобальные переменные */
 
@@ -542,6 +543,43 @@ static DWORD KeyMsClick2ButtonState(DWORD Key,DWORD& Event)
 	return 0;
 }
 
+void ReloadEnvironment()
+{
+	struct addr
+	{
+		HKEY Key;
+		LPCWSTR SubKey;
+	}
+	Addr[]=
+	{
+		{HKEY_LOCAL_MACHINE, L"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"},
+		{HKEY_CURRENT_USER, L"Environment"},
+		{HKEY_CURRENT_USER, L"Volatile Environment"}
+	};
+	string strName, strData;
+	string strOptRegRoot(Opt.strRegRoot);
+	Opt.strRegRoot.Clear();
+
+	for(size_t i=0; i<countof(Addr); i++)
+	{
+		SetRegRootKey(Addr[i].Key);
+		DWORD Type;
+		for(int j=0; EnumRegValueEx(Addr[i].SubKey, j, strName, strData, nullptr, nullptr, &Type); j++)
+		{
+			if(Type==REG_EXPAND_SZ)
+			{
+				apiExpandEnvironmentStrings(strData, strData);
+				Type=REG_SZ;
+			}
+			if(Type==REG_SZ)
+			{
+				SetEnvironmentVariable(strName, strData);
+			}
+		}
+	}
+	Opt.strRegRoot=strOptRegRoot;
+}
+
 DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 {
 	_KEYMACRO(CleverSysLog Clev(L"GetInputRecord()"));
@@ -665,6 +703,13 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 			ChangeVideoMode(25,80);
 		}
 		FullscreenState=CurrentFullscreenState;
+
+		Window.Check();
+
+		if(Events.EnvironmentChangeEvent.Signaled())
+		{
+			ReloadEnvironment();
+		}
 
 		PeekConsoleInput(GetStdHandle(STD_INPUT_HANDLE),rec,1,&ReadCount);
 

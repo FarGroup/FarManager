@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <wininet.h>
 #include <setupapi.h>
 #include <aclapi.h>
+#include <Dbt.h>
 #define SECURITY_WIN32
 #include <security.h>
 

@@ -571,6 +571,7 @@ if not exist bootstrap mkdir bootstrap</Command>
     <ClCompile Include="usermenu.cpp" />
     <ClCompile Include="viewer.cpp" />
     <ClCompile Include="vmenu.cpp" />
+    <ClCompile Include="window.cpp" />
     <ClCompile Include="wrap.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -1159,6 +1160,7 @@ if not exist bootstrap mkdir bootstrap</Command>
     <ClInclude Include="usermenu.hpp" />
     <ClInclude Include="viewer.hpp" />
     <ClInclude Include="vmenu.hpp" />
+    <ClInclude Include="window.hpp" />
     <ClInclude Include="xlat.hpp" />
     <ClInclude Include="UCD\CharDistribution.h" />
     <ClInclude Include="UCD\JpCntx.h" />

@@ -76,6 +76,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constitle.hpp"
 #include "FarDlgBuilder.hpp"
 #include "setattr.hpp"
+#include "window.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;
@@ -721,21 +722,33 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		if (Y < 3)
 			ChDisk.SetBoxType(SHORT_DOUBLE_BOX);
 
+		Events.DeviceArivalEvent.Reset();
+		Events.DeviceRemoveEvent.Reset();
+		Events.MediaArivalEvent.Reset();
+		Events.MediaRemoveEvent.Reset();
+
 		ChDisk.Show();
 
 		while (!ChDisk.Done())
 		{
 			int Key;
-			{ //очередная фигня
-				ChangeMacroMode MacroMode(MACRO_DISKS);
-				Key=ChDisk.ReadInput();
+			if(Events.DeviceArivalEvent.Signaled() || Events.DeviceRemoveEvent.Signaled() || Events.MediaArivalEvent.Signaled() || Events.MediaRemoveEvent.Signaled())
+			{
+				Key=KEY_CTRLR;
+			}
+			else
+			{
+				{ //очередная фигня
+					ChangeMacroMode MacroMode(MACRO_DISKS);
+					Key=ChDisk.ReadInput();
+				}
 			}
 			int SelPos=ChDisk.GetSelectPos();
 			PanelMenuItem *item = (PanelMenuItem*)ChDisk.GetUserData(nullptr,0);
 
 			switch (Key)
 			{
-					// Shift-Enter в меню выбора дисков вызывает проводник для данного диска
+				// Shift-Enter в меню выбора дисков вызывает проводник для данного диска
 				case KEY_SHIFTNUMENTER:
 				case KEY_SHIFTENTER:
 				{

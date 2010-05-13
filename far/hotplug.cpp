@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "interf.hpp"
+#include "window.hpp"
 
 DEFINE_GUID(GUID_DEVINTERFACE_VOLUME,0x53f5630dL,0xb6bf,0x11d0,0x94,0xf2,0x00,0xa0,0xc9,0x1e,0xfb,0x8b)=
     {0x53f5630dL,0xb6bf,0x11d0,0x94,0xf2,0x00,0xa0,0xc9,0x1e,0xfb,0x8b};
@@ -142,12 +143,15 @@ void ShowHotplugDevice()
 	pInfo=EnumHotPlugDevice((LPARAM)&HotPlugList);
 	HotPlugList.AssignHighlights(TRUE);
 	HotPlugList.SetBottomTitle(MSG(MHotPlugListBottom));
+
+	Events.DeviceArivalEvent.Reset();
+	Events.DeviceRemoveEvent.Reset();
+
 	HotPlugList.Show();
 
 	while (!HotPlugList.Done())
 	{
-		int Key=HotPlugList.ReadInput();
-
+		int Key=Events.DeviceArivalEvent.Signaled() || Events.DeviceRemoveEvent.Signaled()?KEY_CTRLR:HotPlugList.ReadInput();
 		switch (Key)
 		{
 			case KEY_F1:

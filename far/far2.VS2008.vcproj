@@ -1232,6 +1232,10 @@
 				>
 			</File>
 			<File
+				RelativePath="window.cpp"
+				>
+			</File>
+			<File
 				RelativePath="wrap.cpp"
 				>
 				<FileConfiguration
@@ -3400,6 +3404,10 @@
 			</File>
 			<File
 				RelativePath="vmenu.hpp"
+				>
+			</File>
+			<File
+				RelativePath="window.hpp"
 				>
 			</File>
 			<File

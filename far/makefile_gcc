@@ -149,6 +149,7 @@ SRCS = \
 	usermenu.cpp \
 	viewer.cpp \
 	vmenu.cpp \
+	window.cpp \
 	xlat.cpp \
 	hook_wow64.c
 

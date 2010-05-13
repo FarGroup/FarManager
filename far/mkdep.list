@@ -265,6 +265,8 @@ viewer.cpp
 viewer.hpp
 vmenu.cpp
 vmenu.hpp
+window.cpp
+window.hpp
 wrap.cpp
 xlat.cpp
 xlat.hpp
