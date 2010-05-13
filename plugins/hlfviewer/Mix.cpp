@@ -30,6 +30,7 @@ void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Ite
 #ifndef UNICODE
     lstrcpy(PItem->Data,((DWORD_PTR)PInit->Data<2000)?GetMsg((unsigned int)(DWORD_PTR)PInit->Data):PInit->Data);
 #else
+    PItem->MaxLen=0;
     PItem->PtrData = ((DWORD_PTR)PInit->Data<2000)?GetMsg((unsigned int)(DWORD_PTR)PInit->Data):PInit->Data;
 #endif
   }
