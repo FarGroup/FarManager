@@ -1,3 +1,9 @@
+svs 13.05.2010 16:03:14 +0300 - build 1547
+
+1. + CPM_NATIVE для FSF.ConvertPath()
+   Возвращает полный путь с префиксом "\\?\"
+   (from drkns)
+
 drkns 13.05.2010 00:21:42 +0200 - build 1546
 
 1. Класс Event: обёртка над HANDLE/<Create|Set|Reset>Event/WaitForSingleObject.

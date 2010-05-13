@@ -1848,6 +1848,7 @@ enum CONVERTPATHMODES
 {
 	CPM_FULL,
 	CPM_REAL,
+	CPM_NATIVE,
 };
 
 typedef int (WINAPI *FARCONVERTPATH)(enum CONVERTPATHMODES Mode, const wchar_t *Src, wchar_t *Dest, int DestSize);
