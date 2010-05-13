@@ -57,6 +57,9 @@ FARSTDKEYNAMETOKEY FarNameToKey;
 FARSTDQUOTESPACEONLY QuoteSpaceOnly;
 FARSTDRECURSIVESEARCH FarRecursiveSearch;
 FARSTDLOCALISALPHA FarIsAlpha;
+#ifdef UNICODE
+FARCONVERTPATH FarConvertPath;
+#endif
 
 struct RegistryStr REGStr={_T("Add2PlugMenu"),_T("Add2DisksMenu"),_T("Separator"),
 	_T("DisksMenuDigit"), _T("ShowCmdOutput"), _T("CatchMode"), _T("ViewZeroFiles"), _T("EditNewFiles")
@@ -89,6 +92,9 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *psInfo)
 	FarSprintf=Info.FSF->sprintf;
 #ifndef UNICODE
 	ExpandEnvironmentStr=Info.FSF->ExpandEnvironmentStr;
+#endif
+#ifdef UNICODE
+	FarConvertPath=Info.FSF->ConvertPath;
 #endif
 	Unquote=Info.FSF->Unquote;
 	PointToName=Info.FSF->PointToName;
