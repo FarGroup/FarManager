@@ -17,20 +17,20 @@
 <div class=shortdescr>
 Функция <dfn>FSF.ConvertPath</dfn> преобразует относительное имя файлового объекта в полное.
 </div>
- 
+
 <p class=note>
   <img src="../../images/note.gif" alt="Замечание для ConvertPath" width="10" height="10"> Внимание!
   <ul class=note>
     <li>Не используйте для этих целей функцию <dfn>GetFullPathName</dfn> из Windows API.</li>
     <li>Не передавайте относительные имена файлов в любые функции Windows API, все относительные пути должны быть преобразованы в полные.</li>
-    <li>При передаче имён в функции Windows API используйте префикс "\\?\", чтобы избежать проблем с длинными и нестандартными именами файлов.</li>
+    <li>При передаче имён в функции Windows API используйте префикс "\\?\", чтобы избежать проблемы с длинными и нестандартными именами файлов.</li>
   </ul>
 </p>
 
 <pre class=syntax>
 int WINAPI ConvertPath(
   CONVERTPATHMODES Mode,
-  const wchar_t *Src,  
+  const wchar_t *Src,
   wchar_t *Dest,
   int DestSize
 );
@@ -38,16 +38,20 @@ int WINAPI ConvertPath(
 
 <h3>Параметры</h3>
 <div class=descr>
- 
+
 <div class=dfn>Mode</div>
   <div class=dfndescr>Указывает на необходимое действие. Может быть следующим (перечисление <a name="CONVERTPATHMODES">CONVERTPATHMODES</a>):
  <table class="cont">
  <tr class="cont"><th class="cont" width="40%">Действие</th><th class="cont" width="60%">Описание</th></tr>
   <tr class="cont"><td class="cont" width="40%"><a name="CPM_FULL">CPM_FULL</a></td>
-  <td class="cont" width="60%"> преобразует относительное имя файлового объекта в полное. </td></tr>
+  <td class="cont" width="60%"> преобразует относительное имя файлового объекта в полное</td></tr>
 
   <tr class="cont"><td class="cont" width="40%"><a name="CPM_REAL">CPM_REAL</a></td>
-  <td class="cont" width="60%">преобразует относительное имя файлового объекта в полное, с учетом символических связей (т.н.  reparse point в Windows 2000). </td></tr>
+  <td class="cont" width="60%">преобразует относительное имя файлового объекта в полное, с учетом символических связей (т.н.  reparse point в Windows 2000)</td></tr>
+
+  <tr class="cont"><td class="cont" width="40%"><a name="CPM_NATIVE">CPM_NATIVE</a></td>
+  <td class="cont" width="60%">преобразует относительное имя файлового объекта в полное, предваряя путь префиксами "\\?\" (для локальных объектов) или "\\?\UNC\" (для сетевых объектов);<br>
+    это преобразование имеет смысл применять для избежания проблем с длинными и нестандартными именами файлов (<a href="http://msdn.microsoft.com/en-us/library/aa365247.aspx">подробности</a>)</td></tr>
 </table>
 </div>
 
