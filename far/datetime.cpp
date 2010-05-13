@@ -797,6 +797,6 @@ void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeT
 	strDaysText=DaysText.strValue();
 
 	FormatString TimeText;
-	TimeText<<fmt::Width(2)<<h<<GetTimeSeparator()<<fmt::Width(2)<<m<<GetTimeSeparator()<<fmt::Width(2)<<s<<GetDecimalSeparator()<<fmt::Width(3)<<ms;
+	TimeText<<fmt::Width(2)<<fmt::FillChar(L'0')<<h<<GetTimeSeparator()<<fmt::Width(2)<<fmt::FillChar(L'0')<<m<<GetTimeSeparator()<<fmt::Width(2)<<fmt::FillChar(L'0')<<s<<GetDecimalSeparator()<<fmt::Width(3)<<fmt::FillChar(L'0')<<ms;
 	strTimeText=TimeText.strValue();
 }
