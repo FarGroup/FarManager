@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 2.0 build 1530
+  Plugin API for FAR Manager 2.0 build 1547
 */
 
 /*
@@ -42,7 +42,7 @@ other possible license with no implications from the above license on them.
 
 #define FARMANAGERVERSION_MAJOR 2
 #define FARMANAGERVERSION_MINOR 0
-#define FARMANAGERVERSION_BUILD 1530
+#define FARMANAGERVERSION_BUILD 1547
 
 #ifndef RC_INVOKED
 
@@ -1665,6 +1665,7 @@ enum CONVERTPATHMODES
 {
 	CPM_FULL,
 	CPM_REAL,
+	CPM_NATIVE,
 };
 
 typedef int (WINAPI *FARCONVERTPATH)(enum CONVERTPATHMODES Mode, const wchar_t *Src, wchar_t *Dest, int DestSize);
