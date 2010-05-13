@@ -109,7 +109,6 @@ void DizList::PR_ReadingMsg()
 void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
 {
 	Reset();
-	TaskBar TB;
 	TPreRedrawFuncGuard preRedrawFuncGuard(DizList::PR_ReadingMsg);
 	const wchar_t *NamePtr=Opt.Diz.strListNames;
 
