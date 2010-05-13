@@ -1,3 +1,11 @@
+zg 14.05.2010 02:18:32 +0200 - build 1552
+
+1. после 1444 в DN_GOTFOCUS Param1 <> SendDlgMessage(DM_GETFOCUS).
+
+2. экспериментально DN_GOTFOCUS приходит после установки выделения для элементов с флагом DIF_SELECTONENTRY.
+
+3. gcc warning.
+
 drkns 14.05.2010 01:55:38 +0200 - build 1551
 
 1. Mantis#0001380: проблема с выставлением значения в поле часов/минут в Filters -> Date/Time -> Relative

@@ -3947,14 +3947,14 @@ void Dialog::ChangeFocus2(unsigned SetFocusPos)
 		if (Item[SetFocusPos]->Type == DI_LISTBOX)
 			Item[SetFocusPos]->ListPtr->SetFlags(VMENU_LISTHASFOCUS);
 
-		if (DialogMode.Check(DMODE_INITOBJECTS))
-			DlgProc((HANDLE)this,DN_GOTFOCUS,SetFocusPos,0);
-
 		SelectOnEntry(FocusPos,FALSE);
 		SelectOnEntry(SetFocusPos,TRUE);
 
 		PrevFocusPos=FocusPos;
 		FocusPos=SetFocusPos;
+
+		if (DialogMode.Check(DMODE_INITOBJECTS))
+			DlgProc((HANDLE)this,DN_GOTFOCUS,FocusPos,0);
 	}
 }
 

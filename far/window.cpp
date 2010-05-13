@@ -58,7 +58,7 @@ LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 				Arrival=true;
 			case DBT_DEVICEREMOVECOMPLETE:
 				{
-					
+
 					PDEV_BROADCAST_HDR Pbh=reinterpret_cast<PDEV_BROADCAST_HDR>(lParam);
 					if(Pbh->dbch_devicetype==DBT_DEVTYP_VOLUME)
 					{
@@ -87,14 +87,13 @@ LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 			}
 			break;
 		}
-	
+
 	}
 	return DefWindowProc(Hwnd, Msg, wParam, lParam);
 }
 
 DWORD WINAPI WindowThreadRoutine(LPVOID Param)
 {
-	DWORD Result=0;
 	WNDCLASSEX wc={sizeof(wc)};
 	wc.lpfnWndProc = WndProc;
 	wc.lpszClassName = L"FarHiddenWindowClass";
@@ -111,7 +110,7 @@ DWORD WINAPI WindowThreadRoutine(LPVOID Param)
 				TranslateMessage(&Msg);
 				DispatchMessage(&Msg);
 			}
-			
+
 		}
 		UnregisterClass(wc.lpszClassName, 0);
 	}
