@@ -42,11 +42,11 @@ LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 	switch(Msg)
 	{
 	case WM_CLOSE:
-	case WM_QUIT:
+		DestroyWindow(Hwnd);
+		break;
+
 	case WM_DESTROY:
-		{
-			return 0;
-		}
+		PostQuitMessage(0);
 		break;
 
 	case WM_DEVICECHANGE:
@@ -101,8 +101,9 @@ DWORD WINAPI WindowThreadRoutine(LPVOID Param)
 	UnregisterClass(wc.lpszClassName, 0);
 	if(RegisterClassEx(&wc))
 	{
-		HWND Hwnd=CreateWindowEx(0, wc.lpszClassName, nullptr, 0, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, nullptr, nullptr, nullptr, nullptr);
-		if(Hwnd)
+		HWND* pHwnd=reinterpret_cast<HWND*>(Param);
+		*pHwnd=CreateWindowEx(0, wc.lpszClassName, nullptr, 0, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, nullptr, nullptr, nullptr, nullptr);
+		if(*pHwnd)
 		{
 			MSG Msg;
 			while(GetMessage(&Msg, NULL, 0, 0)>0)
@@ -126,6 +127,7 @@ WindowHandler::~WindowHandler()
 {
 	if(Thread)
 	{
+		SendMessage(Hwnd,WM_CLOSE, 0, 0);
 		WaitForSingleObject(Thread,INFINITE);
 		CloseHandle(Thread);
 	}
@@ -135,7 +137,7 @@ void WindowHandler::Check()
 {
 	if(!Thread || WaitForSingleObject(Thread, 0)!=WAIT_TIMEOUT)
 	{
-		Thread=CreateThread(nullptr, 0, WindowThreadRoutine, nullptr, 0, nullptr);
+		Thread=CreateThread(nullptr, 0, WindowThreadRoutine, &Hwnd, 0, nullptr);
 	}
 }
 

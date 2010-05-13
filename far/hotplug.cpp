@@ -136,6 +136,9 @@ void ShowHotplugDevice()
 		return;
 	}
 
+	Events.DeviceArivalEvent.Reset();
+	Events.DeviceRemoveEvent.Reset();
+
 	DeviceInfo *pInfo=nullptr;
 	VMenu HotPlugList(MSG(MHotPlugListTitle),nullptr,0,ScrY-4);
 	HotPlugList.SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
@@ -143,9 +146,6 @@ void ShowHotplugDevice()
 	pInfo=EnumHotPlugDevice((LPARAM)&HotPlugList);
 	HotPlugList.AssignHighlights(TRUE);
 	HotPlugList.SetBottomTitle(MSG(MHotPlugListBottom));
-
-	Events.DeviceArivalEvent.Reset();
-	Events.DeviceRemoveEvent.Reset();
 
 	HotPlugList.Show();
 

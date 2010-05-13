@@ -51,6 +51,7 @@ public:
 
 private:
 	HANDLE Thread;
+	HWND Hwnd;
 };
 
 extern WindowHandler Window;

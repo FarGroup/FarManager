@@ -505,6 +505,11 @@ static void ConfigureChangeDriveMode()
 
 int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 {
+	Events.DeviceArivalEvent.Reset();
+	Events.DeviceRemoveEvent.Reset();
+	Events.MediaArivalEvent.Reset();
+	Events.MediaRemoveEvent.Reset();
+
 	class Guard_Macro_DskShowPosType  //фигня какая-то
 	{
 		public:
@@ -721,11 +726,6 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		if (Y < 3)
 			ChDisk.SetBoxType(SHORT_DOUBLE_BOX);
-
-		Events.DeviceArivalEvent.Reset();
-		Events.DeviceRemoveEvent.Reset();
-		Events.MediaArivalEvent.Reset();
-		Events.MediaRemoveEvent.Reset();
 
 		ChDisk.Show();
 
