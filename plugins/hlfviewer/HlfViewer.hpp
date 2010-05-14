@@ -1,26 +1,27 @@
 struct RegistryStr
 {
- const TCHAR *sss;
- const TCHAR *EditorKey;
- const TCHAR *ProcessEditorInput;
- const TCHAR *Style;
-} REGStr= {
- _T("%s%s%s"),
- _T("EditorKey"),
- _T("ProcessEditorInput"),
- _T("Style")
+	const TCHAR *sss;
+	const TCHAR *EditorKey;
+	const TCHAR *ProcessEditorInput;
+	const TCHAR *Style;
+} REGStr=
+{
+	_T("%s%s%s"),
+	_T("EditorKey"),
+	_T("ProcessEditorInput"),
+	_T("Style")
 };
 
 struct HELPIDS
 {
- const TCHAR *Contents;
- const TCHAR *cmd;
- const TCHAR *Config;
+	const TCHAR *Contents;
+	const TCHAR *cmd;
+	const TCHAR *Config;
 } HlfId=
 {
- _T("Contents"),
- _T("cmd"),
- _T("Config")
+	_T("Contents"),
+	_T("cmd"),
+	_T("Config")
 };
 
 void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,DWORD ValueData);
@@ -44,20 +45,20 @@ void ShowHelpFromTempFile();
 
 struct InitDialogItem
 {
-  int Type;
-  int X1,Y1,X2,Y2;
-  int Focus;
-  DWORD_PTR Selected;
-  DWORD Flags;
-  int DefaultButton;
-  const TCHAR *Data;
+	int Type;
+	int X1,Y1,X2,Y2;
+	int Focus;
+	DWORD_PTR Selected;
+	DWORD Flags;
+	int DefaultButton;
+	const TCHAR *Data;
 };
 
 struct Options
 {
- BOOL ProcessEditorInput;
- int Key;
- DWORD Style;
+	BOOL ProcessEditorInput;
+	int Key;
+	DWORD Style;
 } Opt;
 
 FARSTDPOINTTONAME PointToName;
