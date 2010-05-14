@@ -1281,6 +1281,7 @@ string __MCODE_ToName(int OpCode)
 		DEF_MCODE_(F_MMODE),                    // N=MMode(Action[,Value])
 		DEF_MCODE_(V_APANEL_PREFIX),
 		DEF_MCODE_(V_PPANEL_PREFIX),
+		DEF_MCODE_(F_MENU_GETVALUE), //N=Menu.GetValue([N])
 
 	};
 	string Name;

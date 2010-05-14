@@ -341,6 +341,7 @@ static TMacroFunction macroFunction[]=
 	{L"KEY",              1, 0,   MCODE_F_KEY,              nullptr, L"S=Key(V)"},
 	{L"LEN",              1, 0,   MCODE_F_LEN,              nullptr, L"N=Len(S)"},
 	{L"MAX",              2, 0,   MCODE_F_MAX,              nullptr, L"N=Max(N1,N2)"},
+	{L"MENU.GETVALUE",    1, 1,   MCODE_F_MENU_GETVALUE,    nullptr, L"N=Menu.GetValue([N])"},
 	{L"MENU.SELECT",      3, 2,   MCODE_F_MENU_SELECT,      nullptr, L"N=Menu.Select(S[,N[,Dir]])"},
 	{L"MMODE",            2, 1,   MCODE_F_MMODE,            nullptr, L"N=MMode(Action[,Value])"},
 	{L"MOD",              2, 0,   MCODE_F_MOD,              nullptr, L"N=Mod(a,b)"},

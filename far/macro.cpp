@@ -4284,9 +4284,11 @@ done:
 			VMStack.Push(Result);
 			goto begin;
 		}
+
+		case MCODE_F_MENU_GETVALUE:  // N=Menu.GetValue([N])
 		case MCODE_F_MENU_GETHOTKEY:      // S=gethotkey([N])
 		{
-			_KEYMACRO(CleverSysLog Clev(L"MCODE_F_MENU_GETHOTKEY"));
+			_KEYMACRO(CleverSysLog Clev(Key == MCODE_F_MENU_GETHOTKEY?L"MCODE_F_MENU_GETHOTKEY":L"MCODE_F_MENU_GETVALUE"));
 			VMStack.Pop(tmpVar);
 
 			if (!tmpVar.isInteger())
@@ -4310,10 +4312,31 @@ done:
 
 				__int64 Result;
 
-				if (f && (Result=f->VMProcess(MCODE_F_MENU_GETHOTKEY,nullptr,tmpVar.i()-1)) != 0)
+				if (f)
 				{
-					const wchar_t _value[]={static_cast<wchar_t>(Result),0};
-					tmpVar=_value;
+					if (Key == MCODE_F_MENU_GETHOTKEY)
+					{
+						if ((Result=f->VMProcess(Key,nullptr,tmpVar.i()-1)) != 0)
+						{
+
+							const wchar_t _value[]={static_cast<wchar_t>(Result),0};
+							tmpVar=_value;
+						}
+						else
+							tmpVar=L"";
+					}
+					else
+					{
+						string NewStr;
+						if (f->VMProcess(Key,&NewStr,tmpVar.i()-1))
+						{
+							HiText2Str(NewStr, NewStr);
+							RemoveExternalSpaces(NewStr);
+							tmpVar=(const wchar_t*)NewStr;
+						}
+						else
+							tmpVar=L"";
+					}
 				}
 				else
 					tmpVar=L"";

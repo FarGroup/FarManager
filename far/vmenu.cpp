@@ -841,6 +841,29 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 			return 0;
 		}
+
+		case MCODE_F_MENU_GETVALUE: // N=Menu.GetValue([N])
+		{
+			int Param = (int)iParam;
+
+			if (Param == -1)
+				Param = SelectPos;
+			else
+				Param = VisualPosToReal(Param);
+
+			if (Param>=0 && Param<ItemCount)
+			{
+				MenuItemEx *menuEx = GetItemPtr(Param);
+				if (menuEx)
+				{
+					*(string *)vParam = menuEx->strName;
+					return 1;
+				}
+			}
+
+			return 0;
+		}
+
 		case MCODE_V_MENU_VALUE: // Menu.Value
 		{
 			MenuItemEx *menuEx = GetItemPtr(SelectPos);

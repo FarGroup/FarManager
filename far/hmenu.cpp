@@ -135,6 +135,19 @@ __int64 HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 			return 0;
 		}
+		case MCODE_F_MENU_GETVALUE: // N=Menu.GetValue([N])
+		{
+			if (iParam == -1)
+				iParam=SelectPos;
+
+			if ((int)iParam < ItemCount)
+			{
+				*(string *)vParam=Item[(int)iParam].Name;
+				return 1;
+			}
+
+			return 0;
+		}
 		case MCODE_V_MENU_VALUE: // Menu.Value
 		{
 			*(string *)vParam=Item[SelectPos].Name;
