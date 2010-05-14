@@ -307,6 +307,11 @@ void ShowHelpFromTempFile()
 		if (Handle != INVALID_HANDLE_VALUE)
 		{
 			Info.EditorControl(ECTL_GETINFO,&ei);
+#ifdef UNICODE
+#define SIGN_UNICODE    0xFEFF
+			WORD sign=SIGN_UNICODE;
+			WriteFile(Handle, &sign, 2, &Count, NULL);
+#endif
 
 			for (egs.StringNumber=0; egs.StringNumber<ei.TotalLines; egs.StringNumber++)
 			{
