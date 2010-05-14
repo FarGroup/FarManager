@@ -754,6 +754,14 @@ $End</pre>
     </td>
   </tr>
   <tr class="cont">
+    <td class="cont" width="40%">S=<dfn><a name="menu.getvalue">menu.getvalue</a></dfn>([N])</td>
+    <td class="cont" width="60%">¬озвращает текст пункта меню дл€ заданной позиции <em>N</em>.<br>
+      ≈сли текущий &quot;объект&quot; не меню и позици€ <em>N</em> не валидна (меньше 0 или больше количества пунктов в меню), то возвращаетс€ пуста€ строка.<br>
+      ≈сли <em>N</em> не указан или равен 0, то действие аналогично применению <a href="states.html#Menu.Value">Menu.Value</a>.<br>
+      ѕозици€ меню не мен€етс€.
+    </td>
+  </tr>
+  <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="menu.select">menu.select</a></dfn>(S[,N[,Dir]])</td>
     <td class="cont" width="60%">¬ меню позиционирует курсор на первый пункт, содержащий подстроку <em>S</em>.
     ѕоиск подстроки ведетс€ в зависимости от указанного режима <em>N</em>:
