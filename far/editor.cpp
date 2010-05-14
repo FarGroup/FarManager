@@ -4008,18 +4008,35 @@ void Editor::Copy(int Append)
 	clip.Close();
 }
 
-wchar_t *Editor::Block2Text(const wchar_t *ptrInitData)
+wchar_t *Editor::Block2Text(wchar_t *ptrInitData)
 {
-	wchar_t *CopyData=nullptr;
 	size_t DataSize=0;
 
 	if (ptrInitData)
-	{
-		if ((CopyData = xf_wcsdup(ptrInitData)) == nullptr)
-			return nullptr;
+		DataSize = wcslen(ptrInitData);
 
-		xf_free((void*)ptrInitData);
-		DataSize = StrLength(CopyData);
+	size_t TotalChars = DataSize;
+	for (Edit *Ptr=BlockStart; Ptr!=nullptr; Ptr=Ptr->m_next)
+	{
+		TotalChars += Ptr->GetLength();
+		TotalChars += 2; // CRLF
+	}
+	TotalChars++; // '\0'
+
+	wchar_t *CopyData=(wchar_t *)xf_malloc(TotalChars*sizeof(wchar_t));
+
+	if (!CopyData)
+	{
+		if (ptrInitData)
+			xf_free(ptrInitData);
+
+		return nullptr;
+	}
+
+	if (ptrInitData)
+	{
+		wcscpy(CopyData,ptrInitData);
+		xf_free(ptrInitData);
 	}
 
 	Edit *CurPtr=BlockStart;
@@ -4033,20 +4050,6 @@ wchar_t *Editor::Block2Text(const wchar_t *ptrInitData)
 		if (StartSel==-1)
 			break;
 
-		wchar_t *NewPtr=(wchar_t *)xf_realloc(CopyData,(DataSize+Length+2)*sizeof(wchar_t));
-
-		if (NewPtr==nullptr)
-		{
-			if (CopyData)
-			{
-				xf_free(CopyData);
-				CopyData=nullptr;
-			}
-
-			break;
-		}
-
-		CopyData=NewPtr;
 		CurPtr->GetSelString(CopyData+DataSize,Length);
 		DataSize+=StrLength(CopyData+DataSize);
 
@@ -4965,7 +4968,7 @@ void Editor::VCopy(int Append)
 	clip.Close();
 }
 
-wchar_t *Editor::VBlock2Text(const wchar_t *ptrInitData)
+wchar_t *Editor::VBlock2Text(wchar_t *ptrInitData)
 {
 	wchar_t *CopyData=nullptr;
 	size_t DataSize=0;
@@ -4973,9 +4976,12 @@ wchar_t *Editor::VBlock2Text(const wchar_t *ptrInitData)
 	if (ptrInitData)
 	{
 		if ((CopyData = xf_wcsdup(ptrInitData)) == nullptr)
+		{
+			xf_free(ptrInitData);
 			return nullptr;
+		}
 
-		xf_free((void*)ptrInitData);
+		xf_free(ptrInitData);
 		DataSize = StrLength(CopyData);
 	}
 

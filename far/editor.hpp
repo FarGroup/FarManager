@@ -284,8 +284,8 @@ class Editor:public ScreenObject
 		int BlockStart2NumLine(int *Pos);
 		int BlockEnd2NumLine(int *Pos);
 		bool CheckLine(Edit* line);
-		wchar_t *Block2Text(const wchar_t *ptrInitData);
-		wchar_t *VBlock2Text(const wchar_t *ptrInitData);
+		wchar_t *Block2Text(wchar_t *ptrInitData);
+		wchar_t *VBlock2Text(wchar_t *ptrInitData);
 
 	public:
 		Editor(ScreenObject *pOwner=nullptr,bool DialogUsed=false);

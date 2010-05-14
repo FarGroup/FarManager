@@ -1,3 +1,10 @@
+t-rex 14.05.2010 16:56:29 +0200 - build 1554
+
+1. from Alexander Kornienko: Mantis#1224: copying big block of binary data causes big mem/cpu usage and heap thrashing.
+   Ќадо бы такой же фикс и в VBlock2Text() сделать.
+
+2. ѕотенциальна€ утечка пам€ти в Block2Text() и VBlock2Text(). 
+
 svs 14.05.2010 16:13:05 +0300 - build 1553
 
 1. Macro: добавлена функци€ S=Menu.GetValue([N]) - возвращает текст пункта меню дл€ заданной позиции (позици€ меню не мен€етс€).
