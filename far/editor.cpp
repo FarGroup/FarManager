@@ -4970,19 +4970,28 @@ void Editor::VCopy(int Append)
 
 wchar_t *Editor::VBlock2Text(wchar_t *ptrInitData)
 {
-	wchar_t *CopyData=nullptr;
 	size_t DataSize=0;
 
 	if (ptrInitData)
-	{
-		if ((CopyData = xf_wcsdup(ptrInitData)) == nullptr)
-		{
-			xf_free(ptrInitData);
-			return nullptr;
-		}
+		DataSize = wcslen(ptrInitData);
 
+	//RealPos всегда <= TabPos, поэтому берём максимальный размер буффера
+	size_t TotalChars = DataSize + (VBlockSizeX + 2)*VBlockSizeY + 1;
+
+	wchar_t *CopyData=(wchar_t *)xf_malloc(TotalChars*sizeof(wchar_t));
+
+	if (!CopyData)
+	{
+		if (ptrInitData)
+			xf_free(ptrInitData);
+
+		return nullptr;
+	}
+
+	if (ptrInitData)
+	{
+		wcscpy(CopyData,ptrInitData);
 		xf_free(ptrInitData);
-		DataSize = StrLength(CopyData);
 	}
 
 	Edit *CurPtr=VBlockStart;
@@ -4990,25 +4999,10 @@ wchar_t *Editor::VBlock2Text(wchar_t *ptrInitData)
 	for (int Line=0; CurPtr!=nullptr && Line<VBlockSizeY; Line++,CurPtr=CurPtr->m_next)
 	{
 		int TBlockX=CurPtr->TabPosToReal(VBlockX);
-		int TBlockSizeX=CurPtr->TabPosToReal(VBlockX+VBlockSizeX)-CurPtr->TabPosToReal(VBlockX);
+		int TBlockSizeX=CurPtr->TabPosToReal(VBlockX+VBlockSizeX)-TBlockX;
 		const wchar_t *CurStr,*EndSeq;
 		int Length;
 		CurPtr->GetBinaryString(&CurStr,&EndSeq,Length);
-		size_t AllocSize=Max(DataSize+Length+3,DataSize+TBlockSizeX+3);
-		wchar_t *NewPtr=(wchar_t *)xf_realloc(CopyData,AllocSize*sizeof(wchar_t));
-
-		if (NewPtr==nullptr)
-		{
-			if (CopyData)
-			{
-				xf_free(CopyData);
-				CopyData=nullptr;
-			}
-
-			break;
-		}
-
-		CopyData=NewPtr;
 
 		if (Length>TBlockX)
 		{
@@ -5023,7 +5017,9 @@ wchar_t *Editor::VBlock2Text(wchar_t *ptrInitData)
 				wmemset(CopyData+DataSize+CopySize,L' ',TBlockSizeX-CopySize);
 		}
 		else
+		{
 			wmemset(CopyData+DataSize,L' ',TBlockSizeX);
+		}
 
 		DataSize+=TBlockSizeX;
 		wcscpy(CopyData+DataSize,DOS_EOL_fmt);

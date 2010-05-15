@@ -1,3 +1,7 @@
+t-rex 15.05.2010 16:10:31 +0200 - build 1555
+
+1. from Alexander Kornienko: Mantis#1383: Дополнения для Mantis#1224 (VBlock2Text)
+
 t-rex 14.05.2010 16:56:29 +0200 - build 1554
 
 1. from Alexander Kornienko: Mantis#1224: copying big block of binary data causes big mem/cpu usage and heap thrashing.
