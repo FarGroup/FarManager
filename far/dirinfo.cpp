@@ -90,7 +90,7 @@ int GetDirInfo(const wchar_t *Title,
 	SaveScreen SaveScr;
 	UndoGlobalSaveScrPtr UndSaveScr(&SaveScr);
 	TPreRedrawFuncGuard preRedrawFuncGuard(PR_DrawGetDirInfoMsg);
-	TaskBar TB;
+	TaskBar TB(MsgWaitTime!=-1);
 	ScanTree ScTree(FALSE,TRUE,(Flags&GETDIRINFO_SCANSYMLINKDEF?(DWORD)-1:(Flags&GETDIRINFO_SCANSYMLINK)));
 	FAR_FIND_DATA_EX FindData;
 	clock_t StartTime=clock();
