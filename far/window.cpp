@@ -81,7 +81,7 @@ LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 
 	case WM_SETTINGCHANGE:
 		{
-			if(!wcscmp(reinterpret_cast<LPCWSTR>(lParam),L"Environment"))
+			if(lParam && !StrCmp(reinterpret_cast<LPCWSTR>(lParam),L"Environment"))
 			{
 				Events.EnvironmentChangeEvent.Set();
 			}
