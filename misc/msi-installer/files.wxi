@@ -30,24 +30,6 @@
   <Component Id="Descript.ion" Guid="$(var.Guid.Descript.ion)" Win64="$(var.Win64)">
     <File Id="Descript.ion" KeyPath="yes" Source="$(var.SourceDir)\Descript.ion" />
   </Component>
-  <Component Id="Far.Site.txt" Guid="$(var.Guid.Far.Site.txt)" Win64="$(var.Win64)">
-    <File Id="Far.Site.txt" KeyPath="yes" Source="$(var.SourceDir)\Far.Site.txt" />
-  </Component>
-  <Component Id="License.txt" Guid="$(var.Guid.License.txt)" Win64="$(var.Win64)">
-    <File Id="License.txt" KeyPath="yes" Source="$(var.SourceDir)\License.txt" />
-  </Component>
-  <Component Id="License.xUSSR.txt" Guid="$(var.Guid.License.xUSSR.txt)" Win64="$(var.Win64)">
-    <File Id="License.xUSSR.txt" KeyPath="yes" Source="$(var.SourceDir)\License.xUSSR.txt" />
-  </Component>
-  <Component Id="README.TXT" Guid="$(var.Guid.README.TXT)" Win64="$(var.Win64)">
-    <File Id="README.TXT" KeyPath="yes" Source="$(var.SourceDir)\README.TXT" />
-  </Component>
-  <Component Id="REGISTER.FRM" Guid="$(var.Guid.REGISTER.FRM)" Win64="$(var.Win64)">
-    <File Id="REGISTER.FRM" KeyPath="yes" Source="$(var.SourceDir)\REGISTER.FRM" />
-  </Component>
-  <Component Id="REGISTER.TXT" Guid="$(var.Guid.REGISTER.TXT)" Win64="$(var.Win64)">
-    <File Id="REGISTER.TXT" KeyPath="yes" Source="$(var.SourceDir)\REGISTER.TXT" />
-  </Component>
   <Component Id="ClearPluginsCache.bat" Guid="$(var.Guid.ClearPluginsCache.bat)" Win64="$(var.Win64)">
     <File Id="ClearPluginsCache.cmd" KeyPath="yes" Source="$(var.SourceDir)\ClearPluginsCache.bat" />
   </Component>

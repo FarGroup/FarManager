@@ -9,12 +9,6 @@
     <ComponentRef Id="File_id.diz" />
 <?if $(var.Branch) = 1 ?>
     <ComponentRef Id="Descript.ion" />
-    <ComponentRef Id="Far.Site.txt" />
-    <ComponentRef Id="License.txt" />
-    <ComponentRef Id="License.xUSSR.txt" />
-    <ComponentRef Id="README.TXT" />
-    <ComponentRef Id="REGISTER.FRM" />
-    <ComponentRef Id="REGISTER.TXT" />
     <ComponentRef Id="ClearPluginsCache.bat" />
     <ComponentRef Id="RestoreSettings.bat" />
     <ComponentRef Id="SaveSettings.bat" />
