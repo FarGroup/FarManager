@@ -17,8 +17,7 @@ Contacts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Internet distribution:
 
-1. http://www.farmanager.com
-2. http://www.rarlab.com
+http://www.farmanager.com
 
 Please post your comments and bug
 reports in the forum:
