@@ -1,3 +1,33 @@
+/*
+hook_wow64.c
+*/
+/*
+Copyright (c) 2007 Far Group
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. The name of the authors may not be used to endorse or promote products
+   derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -34,8 +64,8 @@ typedef struct
 	BOOL (WINAPI *revert)(PVOID);
 } WOW;
 
-static BOOL WINAPI e_disable(PVOID* p) {(void)p; return FALSE; }
-static BOOL WINAPI e_revert(PVOID p) {(void)p; return FALSE; }
+static BOOL WINAPI e_disable(PVOID* p) { (void)p; return FALSE; }
+static BOOL WINAPI e_revert(PVOID p) { (void)p; return FALSE; }
 
 volatile const WOW wow = { e_disable, e_revert };
 
@@ -91,6 +121,10 @@ const
 	PIMAGE_TLS_CALLBACK hook_wow64_tlscb = HookProc;
 #pragma const_seg()
 #else
+#define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+#if GCC_VERSION >= 40500
+const PIMAGE_TLS_CALLBACK hook_wow64_tlscb __attribute__((section(".CRT$XLY"))) = HookProc;
+#else
 ULONG __tls_index__ = 0;
 char __tls_end__ __attribute__((section(".tls$zzz"))) = 0;
 char __tls_start__ __attribute__((section(".tls"))) = 0;
@@ -108,6 +142,7 @@ const IMAGE_TLS_DIRECTORY32 _tls_used __attribute__((section(".rdata$T"))) =
 	(DWORD) 0,
 	(DWORD) 0
 };
+#endif
 #endif
 
 #ifdef __cplusplus
@@ -162,7 +197,7 @@ __asm__("call    _wow_restore \n\t"
         "call    _wow_disable \n\t"
         "popl    %eax         \n\t"
         "ret                  \n\t"
-        "_l1:                     \n\t"
+        "_l1:                 \n\t"
         "pushl   $0x240       \n\t"
         "jmp     *%edx");
 #endif
@@ -176,9 +211,9 @@ static void init_hook(void)
 	DWORD p;
 	static const wchar_t k32_w[] = L"kernel32", ntd_w[] = L"ntdll";
 	static const char dis_c[] = "Wow64DisableWow64FsRedirection",
-	                            rev_c[] = "Wow64RevertWow64FsRedirection",
-	                                      wow_c[] = "IsWow64Process",
-	                                                ldr_c[] = "LdrLoadDll";
+	                  rev_c[] = "Wow64RevertWow64FsRedirection",
+	                  wow_c[] = "IsWow64Process",
+	                  ldr_c[] = "LdrLoadDll";
 	WOW rwow;
 	BOOL b=FALSE;
 	BOOL (WINAPI *IsWow)(HANDLE,PBOOL);

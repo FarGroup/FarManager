@@ -542,66 +542,6 @@ void ShowTime(int ShowAlways)
 		//ScrBuf.Flush();
 	}
 
-	static int RegChecked=FALSE;
-#ifdef _DEBUGEXC
-
-	if (!CheckRegistration)
-		RegChecked=TRUE;
-
-#endif
-
-	if (!RegChecked && clock()>10000)
-	{
-		RegChecked=TRUE;
-		struct RegInfo Reg;
-		Reg.Done=0;
-		RegistrationBugs=FALSE;
-
-		if (_beginthread(CheckReg,0x10000,&Reg) == -1)
-		{
-			RegistrationBugs=TRUE;
-			CheckReg(&Reg);
-		}
-
-		while (!Reg.Done)
-			Sleep(10);
-
-		if (*Reg.RegName)
-		{
-			unsigned char Add=158,Xor1=211;
-
-			for (int I=0; Reg.RegName[I]; I++)
-			{
-				Add+=Reg.RegName[I];
-				Xor1^=(RegName[I]<<I)^I;
-			}
-
-			if ((Add & 0xf)!=ToHex(Reg.RegCode[1]) || ((Add>>3) & 0xf)!=ToHex(Reg.RegCode[2]))
-			{
-				RegistrationBugs=FALSE;
-				void *ErrRegFnPtr=((char *)ErrRegFn-(200*lasttm.wMilliseconds));
-
-				if (_beginthread((void (__cdecl *)(void *))((char *)ErrRegFnPtr+(200*lasttm.wMilliseconds)),0x10000,NULL) == -1)
-				{
-					RegistrationBugs=TRUE;
-					((void (__cdecl *)(void *))((char *)ErrRegFnPtr+(200*lasttm.wMilliseconds)))(NULL);
-				}
-			}
-
-			if (RegVer!=3 && (((Xor1>>5) & 0xf)!=ToHex(Reg.RegCode[4]) || (~Xor1 & 0xf)!=ToHex(Reg.RegCode[6])))
-			{
-				RegistrationBugs=FALSE;
-				void *ErrRegFnPtr=((char *)ErrRegFn-(0x55*lasttm.wMilliseconds));
-
-				if (_beginthread((void (__cdecl *)(void *))((char *)ErrRegFnPtr+(0x55*lasttm.wMilliseconds)),0x10000,NULL) == -1)
-				{
-					RegistrationBugs=TRUE;
-					((void (__cdecl *)(void *))((char *)ErrRegFnPtr+(0x55*lasttm.wMilliseconds)))(NULL);
-				}
-			}
-		}
-	}
-
 	ProcessShowClock--;
 }
 

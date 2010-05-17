@@ -35,17 +35,9 @@ htail:#endif  // __FARLANG_HPP__
 #lse://это только после енг строки
 #"Evaluation copy, please register."
 
-MShareware=0
+MYes=0
 `l://Version: 'MAJOR`.'MINOR` build 'BUILD
 l:
-"Пожалуйста, зарегистрируйте Вашу копию"
-"Evaluation copy, please register."
-
-MRegistered
-"Зарегистрирован"
-"Registered to"
-
-MYes
 "Да"
 "Yes"
 
@@ -8209,35 +8201,6 @@ MKBTreeCtrlAltShiftF12
 ""
 ""
 
-MRegTitle
-l:
-"Регистрация FAR"
-"Register FAR"
-
-MRegUser
-"Регистрационное имя"
-"Registration name"
-
-MRegCode
-"Регистрационный код"
-"Registration code"
-
-MRegFailed
-"Некорректный код"
-"Registration failed"
-
-MRegThanks
-"Успешная регистрация"
-"Thank you for support!"
-
-MRegOnly
-"Эта функция доступна только в зарегистрированной версии"
-"This function is available in registered version only"
-
-MRegOnlyShort
-"доступно после регистрации"
-"available in registered version"
-
 MCopyTimeInfo
 l:
 "Время: %8.8s  Осталось: %8.8s  %5d%1.1sб/с"
@@ -8439,12 +8402,8 @@ MBadFileSizeFormat
 "Неправильно заполнено поле размера!"
 "File size field is incorrectly filled!"
 
+#Must be the last
 MNewFileName
 l:
 "?Новый файл?"
 "?New File?"
-
-MListEval
-l:
-"Shareware версия"
-"Evaluation version"

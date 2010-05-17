@@ -483,12 +483,6 @@ BOOL Manager::ShowBackground()
 {
 	_MANAGERLOG(CleverSysLog Clev("Manager::ShowBackground()"));
 
-	if (!RegVer)
-	{
-		Message(MSG_WARNING,1,MSG(MWarning),MSG(MRegOnly),MSG(MOk));
-		return FALSE;
-	}
-
 	CtrlObject->CmdLine->ShowBackground();
 	return TRUE;
 }

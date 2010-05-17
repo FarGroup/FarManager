@@ -59,15 +59,6 @@ struct Confirmation
 	int RemoveHotPlug;
 };
 
-
-struct RegInfo
-{
-	char RegName[256];
-	char RegCode[256];
-	int Done;
-};
-
-
 struct DizOptions
 {
 	char ListNames[NM];

@@ -4713,71 +4713,66 @@ LONG_PTR WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_
 #if 0
 	else if (Msg==DN_KEY && Param2==KEY_ALTF4)
 	{
-		if (RegVer)
+		KeyMacro *MacroDlg=KMParam->Handle;
+		(*FrameManager)[0]->UnlockRefresh();
+		FILE *MacroFile;
+		char MacroFileName[NM];
+
+		if (!FarMkTempEx(MacroFileName) || (MacroFile=fopen(MacroFileName,"wb"))==NULL)
+			return TRUE;
+
+		char *TextBuffer;
+		DWORD Buf[1];
+		Buf[0]=MacroDlg->RecBuffer[0];
+
+		if ((TextBuffer=MacroDlg->MkTextSequence((MacroDlg->RecBufferSize==1?Buf:MacroDlg->RecBuffer),MacroDlg->RecBufferSize)) != NULL)
 		{
-			KeyMacro *MacroDlg=KMParam->Handle;
-			(*FrameManager)[0]->UnlockRefresh();
-			FILE *MacroFile;
-			char MacroFileName[NM];
-
-			if (!FarMkTempEx(MacroFileName) || (MacroFile=fopen(MacroFileName,"wb"))==NULL)
-				return TRUE;
-
-			char *TextBuffer;
-			DWORD Buf[1];
-			Buf[0]=MacroDlg->RecBuffer[0];
-
-			if ((TextBuffer=MacroDlg->MkTextSequence((MacroDlg->RecBufferSize==1?Buf:MacroDlg->RecBuffer),MacroDlg->RecBufferSize)) != NULL)
+			fwrite(TextBuffer,strlen(TextBuffer),1,MacroFile);
+			fclose(MacroFile);
+			xf_free(TextBuffer);
 			{
-				fwrite(TextBuffer,strlen(TextBuffer),1,MacroFile);
-				fclose(MacroFile);
-				xf_free(TextBuffer);
+				//ConsoleTitle *OldTitle=new ConsoleTitle;
+				FileEditor ShellEditor(MacroFileName,FFILEEDIT_DISABLEHISTORY,-1,-1,NULL);
+				//delete OldTitle;
+				ShellEditor.SetDynamicallyBorn(false);
+				FrameManager->EnterModalEV();
+				FrameManager->ExecuteModal();
+				FrameManager->ExitModalEV();
+
+				if (!ShellEditor.IsFileChanged() || (MacroFile=fopen(MacroFileName,"rb"))==NULL)
+					;
+				else
 				{
-					//ConsoleTitle *OldTitle=new ConsoleTitle;
-					FileEditor ShellEditor(MacroFileName,FFILEEDIT_DISABLEHISTORY,-1,-1,NULL);
-					//delete OldTitle;
-					ShellEditor.SetDynamicallyBorn(false);
-					FrameManager->EnterModalEV();
-					FrameManager->ExecuteModal();
-					FrameManager->ExitModalEV();
+					struct MacroRecord NewMacroWORK2={0};
+					long FileSize=filelen(MacroFile);
+					TextBuffer=(char*)malloc(FileSize);
 
-					if (!ShellEditor.IsFileChanged() || (MacroFile=fopen(MacroFileName,"rb"))==NULL)
-						;
-					else
+					if (TextBuffer)
 					{
-						struct MacroRecord NewMacroWORK2={0};
-						long FileSize=filelen(MacroFile);
-						TextBuffer=(char*)malloc(FileSize);
+						fread(TextBuffer,FileSize,1,MacroFile);
 
-						if (TextBuffer)
+						if (!MacroDlg->ParseMacroString(&NewMacroWORK2,TextBuffer))
 						{
-							fread(TextBuffer,FileSize,1,MacroFile);
-
-							if (!MacroDlg->ParseMacroString(&NewMacroWORK2,TextBuffer))
-							{
-								if (NewMacroWORK2.BufferSize > 1)
-									xf_free(NewMacroWORK2.Buffer);
-							}
-							else
-							{
-								MacroDlg->RecBuffer=NewMacroWORK2.Buffer;
-								MacroDlg->RecBufferSize=NewMacroWORK2.BufferSize;
-							}
+							if (NewMacroWORK2.BufferSize > 1)
+								xf_free(NewMacroWORK2.Buffer);
 						}
-
-						fclose(MacroFile);
+						else
+						{
+							MacroDlg->RecBuffer=NewMacroWORK2.Buffer;
+							MacroDlg->RecBufferSize=NewMacroWORK2.BufferSize;
+						}
 					}
-				}
-				FrameManager->ResizeAllFrame();
-				FrameManager->PluginCommit();
-			}
-			else
-				fclose(MacroFile);
 
-			remove(MacroFileName);
+					fclose(MacroFile);
+				}
+			}
+			FrameManager->ResizeAllFrame();
+			FrameManager->PluginCommit();
 		}
 		else
-			Message(MSG_WARNING,1,MSG(MWarning),MSG(MRegOnly),MSG(MOk));
+			fclose(MacroFile);
+
+		remove(MacroFileName);
 
 		return TRUE;
 	}

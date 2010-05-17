@@ -113,7 +113,6 @@ RESFLAGS = -i$(INCLUDEPATH) -R
 
 
 FAROBJ=\
-   $(OBJPATH)\checkver.obj\
    $(OBJPATH)\udlist.obj\
    $(OBJPATH)\FileMasksProcessor.obj\
    $(OBJPATH)\FileMasksWithExclude.obj\

@@ -103,9 +103,7 @@ static void show_help(void)
 	    "      View the specified file. If <filename> is -, data is read from the stdin.\n"
 	    " /x   Disable exception handling.\n");
 #if defined(_DEBUGEXC)
-	printf(
-	    " /xd  Enable exception handling.\n"
-	    " /cr  Disable check registration.\n");
+	printf(" /xd  Enable exception handling.\n");
 #endif
 #ifdef DIRECT_RT
 	printf(
@@ -125,23 +123,7 @@ static void show_help(void)
 #endif
 }
 
-void QueryRegistration()
-{
-	static struct RegInfo Reg;
-
-	if (_beginthread(CheckReg,0x10000,&Reg) == -1)
-	{
-		RegistrationBugs=TRUE;
-		CheckReg(&Reg);
-	}
-	else
-		RegistrationBugs=FALSE;
-
-	while (!Reg.Done)
-		Sleep(10);
-}
-
-static int MainProcess(char *EditName,char *ViewName,char *DestName1,char *DestName2,int StartLine,int StartChar,int RegOpt)
+static int MainProcess(char *EditName,char *ViewName,char *DestName1,char *DestName2,int StartLine,int StartChar)
 {
 	{
 		ChangePriority ChPriority(WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS ? THREAD_PRIORITY_ABOVE_NORMAL:THREAD_PRIORITY_NORMAL);
@@ -197,22 +179,6 @@ static int MainProcess(char *EditName,char *ViewName,char *DestName1,char *DestN
 			char Path[NM];
 			Opt.OnlyEditorViewerUsed=0;
 			NotUseCAS=FALSE;
-#ifdef _DEBUGEXC
-
-			if (CheckRegistration)
-			{
-#endif
-
-				if (RegOpt)
-				{
-					Register();
-					QueryRegistration();
-				}
-
-#ifdef _DEBUGEXC
-			}
-
-#endif
 			Opt.SetupArgv=0;
 
 			// воспользуемс€ тем, что ControlObject::Init() создает панели
@@ -321,11 +287,11 @@ static int MainProcess(char *EditName,char *ViewName,char *DestName1,char *DestN
 	return(0);
 }
 
-int main_sehed(char *EditName,char *ViewName,char *DestName1,char *DestName2,int StartLine,int StartChar,int RegOpt)
+int main_sehed(char *EditName,char *ViewName,char *DestName1,char *DestName2,int StartLine,int StartChar)
 {
 	TRY
 	{
-		return MainProcess(EditName,ViewName,DestName1,DestName2,StartLine,StartChar,RegOpt);
+		return MainProcess(EditName,ViewName,DestName1,DestName2,StartLine,StartChar);
 	}
 	EXCEPT(xfilter((int)(INT_PTR)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1))
 	{
@@ -340,7 +306,7 @@ int _cdecl main(int Argc, char *Argv[])
 	//char EditName[NM],ViewName[NM];
 	char *EditName="",*ViewName="";
 	char DestName[2][NM];
-	int StartLine=-1,StartChar=-1,RegOpt=FALSE,RectoreConsole=FALSE;
+	int StartLine=-1,StartChar=-1,RectoreConsole=FALSE;
 	int CntDestName=0; // количество параметров-имен каталогов
 	//*EditName=*ViewName=0;
 	DestName[0][0]=DestName[1][0]=0;
@@ -481,9 +447,6 @@ int _cdecl main(int Argc, char *Argv[])
 
 					switch (toupper(Argv[I][2]))
 					{
-						case 0:
-							RegOpt=TRUE;
-							break;
 						case 'C':
 
 							if (!Argv[I][3])
@@ -598,12 +561,6 @@ int _cdecl main(int Argc, char *Argv[])
 						Opt.LoadPlug.PluginsCacheOnly=TRUE;
 						Opt.LoadPlug.PluginsPersonal=FALSE;
 					}
-
-#ifdef _DEBUGEXC
-					else if (toupper(Argv[I][2])=='R' && !Argv[I][3])
-						CheckRegistration=FALSE;
-
-#endif
 					break;
 					/* tran $ */
 					/* $ 19.01.2001 SVS
@@ -714,7 +671,7 @@ int _cdecl main(int Argc, char *Argv[])
 	InitConsole();
 	GetRegKey("Language","Main",Opt.Language,"English",sizeof(Opt.Language));
 
-	if (!Lang.Init(FarPath,MListEval))
+	if (!Lang.Init(FarPath,MNewFileName))
 	{
 		/* $ 15.12.2000 SVS
 		   ¬ случае, если не нашли нужных LNG-файлов - выдаем простое сообщение
@@ -743,19 +700,6 @@ int _cdecl main(int Argc, char *Argv[])
 	}
 	/* IS $ */
 	initMacroVarTable(1);
-#ifdef _DEBUGEXC
-
-	if (CheckRegistration)
-	{
-#endif
-		RegVer=-1;
-		QueryRegistration();
-#ifdef _DEBUGEXC
-	}
-	else
-		RegVer = 1;
-
-#endif
 	int Result=0;
 	SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOOPENFILEERRORBOX | (Opt.ExceptRules?SEM_NOGPFAULTERRORBOX:0)
 #if defined (_M_IA64) && defined (_WIN64)
@@ -765,10 +709,10 @@ int _cdecl main(int Argc, char *Argv[])
 
 	if (Opt.ExceptRules)
 	{
-		Result=main_sehed(EditName,ViewName,DestName[0],DestName[1],StartLine,StartChar,RegOpt);
+		Result=main_sehed(EditName,ViewName,DestName[0],DestName[1],StartLine,StartChar);
 	}
 	else
-		Result=MainProcess(EditName,ViewName,DestName[0],DestName[1],StartLine,StartChar,RegOpt);
+		Result=MainProcess(EditName,ViewName,DestName[0],DestName[1],StartLine,StartChar);
 
 	UsedInternalClipboard=TRUE;
 	FAR_EmptyClipboard();

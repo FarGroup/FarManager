@@ -12,7 +12,7 @@ $^#Copyright (C) 1996-2000 Eugene Roshal#
    ~How to use help~@Help@
 
    ~About FAR~@About@
-   ~How to register FAR~@Register@
+   ~License~@License@
 
    ~Command line switches~@CmdLine@
    ~Keyboard reference~@KeyRef@
@@ -97,8 +97,8 @@ $ # FAR: about#
 95/98/Me/NT/2000/XP/2003/Vista/2008/7. It supports #long file names# and
 provides a wide set of file and folder operations.
 
-    #FAR# is #shareware# software. You must ~register~@Register@ it to continue
-to use after 40-days trial period.
+    #FAR# is a #freeware# software distributed under
+the revised BSD ~license~@License@.
 
     #FAR# does transparent #archive# processing. Files in the archive are
 handled similarly as in a folder: when you operate with the archive, FAR
@@ -107,16 +107,34 @@ transforms your commands into the corresponding external archiver calls.
     #FAR# offers a number of service functions as well.
 
 
-@Register
-$ # FAR: how to register#
-    FAR is #shareware# software. You must register it to continue to use after
-the 40-days trial period. Please read License.txt file for user license.
+@License
+$ # FAR: License#
 
-    Detailed registration instructions are provided in Register.txt. File
-Far_Site.txt contains a list of FAR registration sites. You also may read the
-latest version of this list on:
+ Copyright (c) 1996 Eugene Roshal
+ Copyright (c) 2000 Far Group
+ All rights reserved.
 
-    ~http://www.rarlab.com~@http://www.rarlab.com@
+ Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+ 1. ^<wrap>Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+ 2. Redistributions in binary form must reproduce the above copyright
+notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.
+ 3. The name of the authors may not be used to endorse or promote products
+derived from this software without specific prior written permission.
+
+ THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 @CmdLine
@@ -1584,7 +1602,7 @@ respective option in the ~system settings dialog~@SystemSettings@.
      of time if a file was located on a currently unavailable remote
      resource.
 
-  3. Заблокированные пункты не будут удаляться при очистке или обновлении 
+  3. Заблокированные пункты не будут удаляться при очистке или обновлении
      истории.
 
 @HistoryFolders
@@ -1629,7 +1647,7 @@ respective option in the ~system settings dialog~@SystemSettings@.
      of time if a folder was located on a currently unavailable
      remote resource.
 
-  3. Заблокированные пункты не будут удаляться при очистке или обновлении 
+  3. Заблокированные пункты не будут удаляться при очистке или обновлении
      истории.
 
 @TaskList
@@ -2183,8 +2201,8 @@ will contain the computer name, current drive and path
 display the current time in HH:MM format before the current
 drive and path
 
-   3. ^<wrap>Код "$+" отображает нужное число знаков плюс (+) в зависимости 
-от текущей глубины стека каталогов ~PUSHD~@OSCommands@, по одному знаку на 
+   3. ^<wrap>Код "$+" отображает нужное число знаков плюс (+) в зависимости
+от текущей глубины стека каталогов ~PUSHD~@OSCommands@, по одному знаку на
 каждый сохраненный путь.
 
 @Viewer
@@ -3613,8 +3631,8 @@ exist and the environment variable "variable" is defined.
 
     #pushd path#
 
-    Команда PUSHD сохраняет текущий каталог во внутреннем стеке и делает 
-текущим каталог path. 
+    Команда PUSHD сохраняет текущий каталог во внутреннем стеке и делает
+текущим каталог path.
 
     #popd#
 

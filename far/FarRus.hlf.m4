@@ -12,7 +12,7 @@ $^#Copyright (C) 1996-2000 Eugene Roshal#
    ~Как пользоваться помощью~@Help@
 
    ~Что такое FAR~@About@
-   ~Как зарегистрировать FAR~@Register@
+   ~Лицензия~@License@
 
    ~Параметры командной строки~@CmdLine@
    ~Клавиатурные команды~@KeyRef@
@@ -99,8 +99,8 @@ $ #FAR: что это такое#
 Windows 95/98/Me/NT/2000/XP/2003/Vista/2008/7, которая обеспечивает обработку
 файлов с #длинными именами# и имеет обширный набор дополнительных функций.
 
-    #FAR# является #shareware#. Вы должны ~зарегистрировать~@Register@ его,
-чтобы продолжать использовать после 40-дневного испытательного периода.
+    #FAR# является #freeware# программой распространяемой
+под модифицированной BSD ~лицензией~@License@.
 
     #FAR# позволяет работать с #архивами#. При этом файлы в архивах
 обрабатываются аналогично файлам в папках. #FAR# сам преобразует ваши команды в
@@ -109,19 +109,34 @@ Windows 95/98/Me/NT/2000/XP/2003/Vista/2008/7, которая обеспечивает обработку
     #FAR# также обеспечивает значительное количество сервисных функций.
 
 
-@Register
-$ #FAR: как зарегистрировать#
-    FAR является #shareware#. Вы должны зарегистрировать его, чтобы продолжать
-использовать после 40-дневного испытательного периода. Пользовательская
-лицензия приведена в файле License.txt.
+@License
+$ # FAR: Лицензия#
 
-    Граждане стран бывшего СССР для данной версии FAR также могут использовать
-лицензию, приведенную в License.xUSSR.txt.
+ Copyright (c) 1996 Eugene Roshal
+ Copyright (c) 2000 Far Group
+ All rights reserved.
 
-    Инструкции по регистрации содержатся в файле Register.txt. Список
-регистраторов FAR можно прочесть либо в файле Far_Site.txt, либо по адресу:
+ Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+ 1. ^<wrap>Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+ 2. Redistributions in binary form must reproduce the above copyright
+notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.
+ 3. The name of the authors may not be used to endorse or promote products
+derived from this software without specific prior written permission.
 
-    ~http://www.rarlab.com~@http://www.rarlab.com@
+ THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 @CmdLine
@@ -1627,7 +1642,7 @@ $ #История просмотра и редактирования#
   2. Операция обновления списка (Ctrl-R) может занять значительное время,
      если файл находился на недоступном в данный момент сетевом ресурсе.
 
-  3. Заблокированные пункты не будут удаляться при очистке или обновлении 
+  3. Заблокированные пункты не будут удаляться при очистке или обновлении
      истории.
 
 @HistoryFolders
@@ -1670,7 +1685,7 @@ $ #История смены папок#
   2. Операция обновления списка (Ctrl-R) может занять значительное время,
      если каталог находился на недоступном в данный момент сетевом ресурсе.
 
-  3. Заблокированные пункты не будут удаляться при очистке или обновлении 
+  3. Заблокированные пункты не будут удаляться при очистке или обновлении
      истории.
 
 @TaskList
@@ -2251,8 +2266,8 @@ $ #Формат командной строки#
    2. ^<wrap>Приглашение формата #[$T$H$H$H]$S$P$G# перед текущем путем
 выведет время в формате HH:MM
 
-   3. ^<wrap>Код "$+" отображает нужное число знаков плюс (+) в зависимости 
-от текущей глубины стека каталогов ~PUSHD~@OSCommands@, по одному знаку на 
+   3. ^<wrap>Код "$+" отображает нужное число знаков плюс (+) в зависимости
+от текущей глубины стека каталогов ~PUSHD~@OSCommands@, по одному знаку на
 каждый сохраненный путь.
 
 @Viewer
@@ -3737,8 +3752,8 @@ $ #Команды операционной системы#
 
     #pushd path#
 
-    Команда PUSHD сохраняет текущий каталог во внутреннем стеке и делает 
-текущим каталог path. 
+    Команда PUSHD сохраняет текущий каталог во внутреннем стеке и делает
+текущим каталог path.
 
     #popd#
 

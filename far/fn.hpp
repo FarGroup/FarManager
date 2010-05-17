@@ -138,12 +138,6 @@ char* InsertCommas(const unsigned __int64 &li,char *Dest,int Size);
 void DeleteDirTree(const char *Dir);
 int GetClusterSize(char *Root);
 
-void __cdecl CheckVersion(void *Param);
-void __cdecl ErrRegFn(void *Param);
-void __cdecl CheckReg(void *Param);
-void Register();
-
-char ToHex(char Ch);
 void InitDetectWindowedMode();
 void DetectWindowedMode();
 int IsWindowed();

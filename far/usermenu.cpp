@@ -597,8 +597,6 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
 //              MenuModified=TRUE;
 							break;
 						case KEY_ALTF4:
-
-							if (RegVer)
 							{
 								(*FrameManager)[0]->Unlock();
 								FILE *MenuFile;
@@ -638,10 +636,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
 								   ! Закрыть меню
 								*/
 								return(0);
-								/* VVM $ */
-							}
-							else
-								Message(MSG_WARNING,1,MSG(MWarning),MSG(MRegOnly),MSG(MOk));
+							}	/* VVM $ */
 
 							break;
 							/* $ 28.06.2000 tran

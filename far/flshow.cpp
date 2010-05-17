@@ -444,22 +444,6 @@ void FileList::ShowSelectedSize()
 		GotoXY(X1+(X2-X1+1-Length)/2,Y2-2*Opt.ShowPanelStatus);
 		Text(SelStr);
 	}
-	else if (!RegVer)
-	{
-		char EvalStr[256];
-		char *EvalMsg=MSG(MListEval);
-
-		if (*EvalMsg==0)
-			strcpy(EvalStr," Evaluation version ");
-		else
-			sprintf(EvalStr," %s ",MSG(MListEval));
-
-		TruncStr(EvalStr,X2-X1-1);
-		Length=(int)strlen(EvalStr);
-		SetColor(COL_PANELTEXT);
-		GotoXY(X1+(X2-X1+1-Length)/2,Y2-2*Opt.ShowPanelStatus);
-		Text(EvalStr);
-	}
 }
 
 

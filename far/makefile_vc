@@ -102,7 +102,6 @@ LINK32_OBJS= \
 !endif
 	"$(INTDIR)\cddrv.obj" \
 	"$(INTDIR)\CFileMask.obj" \
-	"$(INTDIR)\checkver.obj" \
 	"$(INTDIR)\chgmmode.obj" \
 	"$(INTDIR)\chgprior.obj" \
 	"$(INTDIR)\clipboard.obj" \

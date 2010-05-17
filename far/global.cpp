@@ -100,10 +100,6 @@ int ScreenSaverActive=FALSE;
 FileEditor *CurrentEditor=NULL;
 int CloseFAR=FALSE,CloseFARMenu=FALSE;
 
-// Про регистрацию
-int  RegVer;
-char RegName[256];
-
 int CmpNameSearchMode=FALSE;
 int DisablePluginsOutput=FALSE;
 int CmdMode=FALSE;
@@ -143,12 +139,6 @@ SaveScreen *GlobalSaveScrPtr=NULL;
 int CriticalInternalError=FALSE;
 
 int UsedInternalClipboard=0;
-
-#ifdef _DEBUGEXC
-int CheckRegistration=TRUE;
-#endif
-
-int RegistrationBugs=FALSE;
 
 #if defined(DETECT_ALT_ENTER)
 int PrevFarAltEnterMode=-1;

@@ -63,25 +63,8 @@ void ControlObject::Init()
 	FileFilter::InitFilter();
 	SetColor(COL_COMMANDLINEUSERSCREEN);
 	GotoXY(0,ScrY-3);
-
-	while (RegVer==-1)
-		Sleep(0);
-
 	ShowCopyright();
 	GotoXY(0,ScrY-2);
-	char TruncRegName[512];
-	xstrncpy(TruncRegName,RegName,sizeof(TruncRegName)-1);
-	char *CountPtr=strstr(TruncRegName," - (");
-
-	if (CountPtr!=NULL && isdigit(CountPtr[4]) && strchr(CountPtr+5,'/')!=NULL &&
-	        strchr(CountPtr+6,')')!=NULL)
-		*CountPtr=0;
-
-	if (RegVer)
-		mprintf("%s: %s",MSG(MRegistered),TruncRegName);
-	else
-		Text(MShareware);
-
 	MoveCursor(0,ScrY-1);
 	CmdLine->SaveBackground(0,0,ScrX,ScrY);
 	FPanels=new FilePanels();
@@ -98,17 +81,6 @@ void ControlObject::Init()
 
 	if (Opt.ShowKeyBar)
 		this->MainKeyBar->Show();
-
-	RegistrationBugs=FALSE;
-#ifdef _DEBUGEXC
-
-	if (CheckRegistration)
-#endif
-		if (_beginthread(CheckVersion,0x10000,NULL) == -1)
-		{
-			RegistrationBugs=TRUE;
-			CheckVersion(NULL);
-		}
 
 	if (Cp()->LeftPanel->GetType() != TREE_PANEL)
 		Cp()->LeftPanel->Update(0);

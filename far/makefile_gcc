@@ -9,7 +9,6 @@ DEPFILE = far.gcc.dep
 
 SRCS = 	cddrv.cpp \
 	CFileMask.cpp \
-	checkver.cpp \
 	chgmmode.cpp \
 	chgprior.cpp \
 	clipboard.cpp \
@@ -140,7 +139,7 @@ WINDRES = windres -D__FARBIT__=$(DIRBIT)
 DEFINES = -D USE_WFUNC -D FAR_ALPHA_VERSION -D USE_WFUNC_ALW -D USE_WFUNC_IN
 CCFLAGS = -mno-cygwin -pipe -Os $(DEFINES) -funsigned-char -fomit-frame-pointer -fno-exceptions -fno-rtti -Wno-write-strings -Wno-missing-braces -Wno-unknown-pragmas -Wno-switch
 CFLAGS = -mno-cygwin -pipe -Os $(DEFINES) -funsigned-char -fomit-frame-pointer -fno-exceptions -Wno-write-strings -Wno-missing-braces -Wno-unknown-pragmas -Wno-switch
-LNKFLAGS = -mno-cygwin -s -lmpr -lwinspool -lole32
+LNKFLAGS = -mno-cygwin -static-libgcc -static-libstdc++ -s -lmpr -lwinspool -lole32
 
 .PHONY: all
 all: dirs lng depfile

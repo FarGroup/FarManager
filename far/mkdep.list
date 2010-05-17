@@ -5,7 +5,6 @@ BlockExtKey.hpp
 cddrv.cpp
 CFileMask.cpp
 CFileMask.hpp
-checkver.cpp
 chgmmode.cpp
 chgmmode.hpp
 chgprior.cpp

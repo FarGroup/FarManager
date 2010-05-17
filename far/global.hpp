@@ -75,9 +75,6 @@ extern char LastFarTitle[512];
 extern int  TitleModified;
 extern int CloseFAR, CloseFARMenu;
 
-extern int RegVer;
-extern char RegName[256];
-
 extern int CmpNameSearchMode;
 extern int DisablePluginsOutput;
 extern int CmdMode;
@@ -150,12 +147,6 @@ extern SaveScreen *GlobalSaveScrPtr;
 extern int CriticalInternalError;
 
 extern int UsedInternalClipboard;
-
-#ifdef _DEBUGEXC
-extern int CheckRegistration;
-#endif
-
-extern int RegistrationBugs;
 
 #if defined(DETECT_ALT_ENTER)
 extern int PrevFarAltEnterMode;

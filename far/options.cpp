@@ -459,7 +459,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 					{
 						Lang.Close();
 
-						if (!Lang.Init(FarPath,MListEval))
+						if (!Lang.Init(FarPath,MNewFileName))
 						{
 							Message(MSG_WARNING,1,"Error","Cannot load language data","Ok");
 							exit(0);
