@@ -1002,7 +1002,7 @@ void Viewer::ReadString(ViewerString *pString, int MaxSize, int StrSize)
 				{
 					vseek(ViewFile,SavePos,SEEK_SET);
 
-					if (VM.WordWrap) // только для зарегестрированных
+					if (VM.WordWrap)
 					{
 						if (!IsSpace(Ch) && !IsSpace(pString->lpData[(int)OutPtr]))
 						{
