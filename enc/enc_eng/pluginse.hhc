@@ -2494,8 +2494,8 @@
                         <param name="ImageNumber" value="15">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Mantis. Bugtracking System">
-                        <param name="Local" value="http://www.farmanager.com/mantis/">
+                        <param name="Name" value="Bugtracking System">
+                        <param name="Local" value="http://bugs.farmanager.com/">
                         <param name="ImageNumber" value="15">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">

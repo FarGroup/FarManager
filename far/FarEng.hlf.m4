@@ -214,7 +214,7 @@ and it is not recommended to specify it during normal operation.
 two commands with plugin prefix in the command line. The first path applies to the
 active panel, the second path - to the passive one:
   - ^<wrap>if a folder or archive is specified, FAR will show its contents;
-  - ^<wrap>if a file is specified, FAR will change to the folder where it 
+  - ^<wrap>if a file is specified, FAR will change to the folder where it
 resides and place the cursor on the file, if it exists;
   - ^<wrap>when profixes specified (simultaneous use with common paths allowed)
 passive command executes first (passive panel activates temporary). Односимвольные префиксы игнорируются.
@@ -907,7 +907,7 @@ one can recommend:
   - Online forum
     ~http://forum.farmanager.com~@http://forum.farmanager.com@
   - Registration and handling of problems
-    ~http://www.farmanager.com/mantis~@http://www.farmanager.com/mantis@
+    ~http://bugs.farmanager.com~@http://bugs.farmanager.com@
   - PlugRinG site
     ~http://plugring.farmanager.com~@http://plugring.farmanager.com@
   - Free email group service

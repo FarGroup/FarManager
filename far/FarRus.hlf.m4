@@ -925,7 +925,7 @@ $ #Обзор возможностей подключаемых модулей#
   - форум
     ~http://forum.farmanager.com~@http://forum.farmanager.com@
   - Регистрация и обработка проблем
-    ~http://www.farmanager.com/mantis~@http://www.farmanager.com/mantis@
+    ~http://bugs.farmanager.com~@http://bugs.farmanager.com@
   - сайт PlugRinG
     ~http://plugring.farmanager.com~@http://plugring.farmanager.com@
   - листы рассылки
