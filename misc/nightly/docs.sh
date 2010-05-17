@@ -5,7 +5,7 @@ function makedocs {
 mkdir -p $1/Documentation/eng
 mkdir -p $1/Documentation/rus
 
-cp docs/ClearPluginsCache.bat docs/RestoreSettings.bat docs/SaveSettings.bat docs/REGISTER.FRM docs/Descript.ion docs/Far.Site.txt docs/License.txt docs/License.xUSSR.txt docs/README.TXT docs/REGISTER.TXT $1/
+cp docs/ClearPluginsCache.bat docs/RestoreSettings.bat docs/SaveSettings.bat docs/Descript.ion $1/
 cp docs/ENG/Descript.ion docs/ENG/Arc.Support.txt docs/ENG/Bug.Report.txt docs/ENG/Far.FAQ.txt docs/ENG/Plugins.Install.txt docs/ENG/Plugins.Review.txt docs/ENG/TechInfo.txt $1/Documentation/eng/
 cp docs/RUS/Descript.ion docs/RUS/Arc.Support.txt docs/RUS/Bug.Report.txt docs/RUS/Far.FAQ.txt docs/RUS/Plugins.Install.txt docs/RUS/Plugins.Review.txt docs/RUS/TechInfo.txt $1/Documentation/rus/
 cp docs/PluginSDK/Descript.ion docs/PluginSDK/GCCReadme.txt docs/PluginSDK/README.TXT docs/PluginSDK/VCReadme.txt $1/PluginSDK/
