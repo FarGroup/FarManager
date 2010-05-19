@@ -796,38 +796,44 @@ wchar_t *InsertString(wchar_t *Str,int Pos,const wchar_t *InsStr,int InsSize)
 // Return - количество замен
 int ReplaceStrings(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr,int Count,BOOL IgnoreCase)
 {
-	int I=0, J=0, Res;
 	int LenFindStr=StrLength(FindStr);
 	if ( !LenFindStr || !Count )
 		return 0;
 	int LenReplStr=StrLength(ReplStr);
 	int L=(int)strStr.GetLength();
-	wchar_t *Str = strStr.GetBuffer(1024);  //BUGBUG!!!
 
+	int Delta = LenReplStr-LenFindStr;
+	int AllocDelta = Delta > 0 ? Delta*10 : 0;
+
+	int I=0, J=0;
 	while (I <= L-LenFindStr)
 	{
-		Res=IgnoreCase?StrCmpNI(Str+I, FindStr, LenFindStr):StrCmpN(Str+I, FindStr, LenFindStr);
+		int Res=IgnoreCase?StrCmpNI(&strStr[I], FindStr, LenFindStr):StrCmpN(&strStr[I], FindStr, LenFindStr);
 
 		if (Res == 0)
 		{
-			if (LenReplStr > LenFindStr)
-				wmemmove(Str+I+(LenReplStr-LenFindStr),Str+I,(StrLength(Str+I)+1)); // >>
-			else if (LenReplStr < LenFindStr)
-				wmemmove(Str+I,Str+I+(LenFindStr-LenReplStr),(StrLength(Str+I+(LenFindStr-LenReplStr))+1)); //??
+			wchar_t *Str = strStr.GetBuffer(L+AllocDelta);
+
+			if (Delta > 0)
+				wmemmove(Str+I+Delta,Str+I,L-I+1);
+			else if (Delta < 0)
+				wmemmove(Str+I,Str+I-Delta,L-I+Delta+1);
 
 			wmemcpy(Str+I,ReplStr,LenReplStr);
 			I += LenReplStr;
+
+			L+=Delta;
+			strStr.ReleaseBuffer(L);
 
 			if (++J == Count && Count > 0)
 				break;
 		}
 		else
+		{
 			I++;
-
-		L=StrLength(Str);
+		}
 	}
 
-	strStr.ReleaseBuffer();
 	return J;
 }
 
