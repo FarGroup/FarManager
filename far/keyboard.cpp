@@ -559,24 +559,42 @@ void ReloadEnvironment()
 	string strName, strData;
 	string strOptRegRoot(Opt.strRegRoot);
 	Opt.strRegRoot.Clear();
-
+	
 	for(size_t i=0; i<countof(Addr); i++)
 	{
 		SetRegRootKey(Addr[i].Key);
-		DWORD Type;
-		for(int j=0; EnumRegValueEx(Addr[i].SubKey, j, strName, strData, nullptr, nullptr, &Type); j++)
+		DWORD Types[]={REG_SZ,REG_EXPAND_SZ}; // REG_SZ first
+		for(size_t t=0; t<countof(Types); t++) // two passes
 		{
-			if(Type==REG_EXPAND_SZ)
+			DWORD Type;
+			for(int j=0; EnumRegValueEx(Addr[i].SubKey, j, strName, strData, nullptr, nullptr, &Type); j++)
 			{
-				apiExpandEnvironmentStrings(strData, strData);
-				Type=REG_SZ;
-			}
-			if(Type==REG_SZ)
-			{
-				SetEnvironmentVariable(strName, strData);
+				if(Type==Types[t])
+				{
+					if(Type==REG_EXPAND_SZ)
+					{
+						apiExpandEnvironmentStrings(strData, strData);
+					}
+					if(Addr[i].Key==HKEY_CURRENT_USER)
+					{
+						// see http://support.microsoft.com/kb/100843 for details
+						if(!StrCmpI(strName, L"path") || !StrCmpI(strName, L"libpath") || !StrCmpI(strName, L"os2libpath"))
+						{
+							string strMergedPath;
+							apiGetEnvironmentVariable(strName, strMergedPath);
+							if(strMergedPath.At(strMergedPath.GetLength()-1)!=L';')
+							{
+								strMergedPath+=L';';
+							}
+							strData=strMergedPath+strData;
+						}
+					}
+					SetEnvironmentVariable(strName, strData);
+				}
 			}
 		}
 	}
+
 	Opt.strRegRoot=strOptRegRoot;
 }
 
