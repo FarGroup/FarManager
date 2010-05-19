@@ -398,7 +398,7 @@ void Edit::FastShow()
 			{
 				if (*p==L' ')
 				{
-					*p=L'\x2219';
+					*p=L'\xB7';
 				}
 			}
 
