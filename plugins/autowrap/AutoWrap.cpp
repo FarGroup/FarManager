@@ -1,8 +1,8 @@
 #include "plugin.hpp"
 #include "WrapLng.hpp"
-#include "DlgBuilder.hpp"
 #include "AutoWrap.hpp"
 #include "CRT/crt.hpp"
+#include "DlgBuilder.hpp"
 
 #if defined(__GNUC__)
 #ifdef __cplusplus
@@ -52,9 +52,9 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
   Builder.AddTextAfter(RightMargin, MRightMargin);
   Builder.AddSeparator();
   Builder.AddText(MFileMasks);
-  Builder.AddEditField(Opt.FileMasks, 65);
+  Builder.AddEditField(Opt.FileMasks, ArraySize(Opt.FileMasks), 65);
   Builder.AddText(MExcludeFileMasks);
-  Builder.AddEditField(Opt.ExcludeFileMasks, 65);
+  Builder.AddEditField(Opt.ExcludeFileMasks, ArraySize(Opt.ExcludeFileMasks), 65);
   Builder.AddOKCancel(MOk, MCancel);
   if (Builder.ShowDialog())
   {

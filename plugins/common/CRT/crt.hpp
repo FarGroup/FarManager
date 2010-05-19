@@ -195,4 +195,8 @@ extern "C"
 #define _ui64(n)  n ## ui64
 #endif
 
+#if (defined(__GNUC__)) || (defined(_MSC_VER) && _MSC_VER<1600)
+#define nullptr NULL
+#endif
+
 #endif
