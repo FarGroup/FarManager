@@ -81,22 +81,6 @@ string &InsertCommas(unsigned __int64 li,string &strDest)
 {
 	strDest.Format(L"%I64u", li);
 	return FormatNumber(strDest,strDest);
-	/*
-	   wchar_t *lpwszDest = strDest.GetBuffer(strDest.GetLength() << 1); //BUGBUG
-
-	   for (int I=StrLength(lpwszDest)-4;I>=0;I-=3)
-	   {
-	      if (lpwszDest[I])
-	      {
-	        wmemmove(lpwszDest+I+2,lpwszDest+I+1,StrLength(lpwszDest+I));
-	        lpwszDest[I+1]=L',';
-	      }
-	   }
-
-	   strDest.ReleaseBuffer();
-
-	   return strDest;
-	*/
 }
 
 static wchar_t * WINAPI InsertCustomQuote(wchar_t *Str,wchar_t QuoteChar)
@@ -796,23 +780,28 @@ wchar_t *InsertString(wchar_t *Str,int Pos,const wchar_t *InsStr,int InsSize)
 // Return - количество замен
 int ReplaceStrings(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr,int Count,BOOL IgnoreCase)
 {
-	int LenFindStr=StrLength(FindStr);
+	const int LenFindStr=StrLength(FindStr);
 	if ( !LenFindStr || !Count )
 		return 0;
-	int LenReplStr=StrLength(ReplStr);
-	int L=(int)strStr.GetLength();
+	const int LenReplStr=StrLength(ReplStr);
+	size_t L=strStr.GetLength();
 
-	int Delta = LenReplStr-LenFindStr;
-	int AllocDelta = Delta > 0 ? Delta*10 : 0;
+	const int Delta = LenReplStr-LenFindStr;
+	const int AllocDelta = Delta > 0 ? Delta*10 : 0;
 
-	int I=0, J=0;
-	while (I <= L-LenFindStr)
+	size_t I=0;
+	int J=0;
+	while (I+LenFindStr <= L)
 	{
 		int Res=IgnoreCase?StrCmpNI(&strStr[I], FindStr, LenFindStr):StrCmpN(&strStr[I], FindStr, LenFindStr);
 
 		if (Res == 0)
 		{
-			wchar_t *Str = strStr.GetBuffer(L+AllocDelta);
+			wchar_t *Str;
+			if (L+Delta+1 > strStr.GetSize())
+				Str = strStr.GetBuffer(L+AllocDelta);
+			else
+				Str = strStr.GetBuffer();
 
 			if (Delta > 0)
 				wmemmove(Str+I+Delta,Str+I,L-I+1);

@@ -1,3 +1,11 @@
+t-rex 19.05.2010 18:53:42 +0200 - build 1560
+
+1. GetSize() в UnicodeString для получения размера внутренего буффера.
+
+2. Оптимизация ReplaceStrings().
+
+3. Удалил каплю мусора.
+
 t-rex 19.05.2010 15:57:31 +0200 - build 1559
 
 1. С форума http://forum.farmanager.com/viewtopic.php?p=63127#p63127
