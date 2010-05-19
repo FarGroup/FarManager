@@ -130,15 +130,15 @@ struct ComboBoxBinding: public DialogItemBinding<T>
 	}
 };
 
-/* 
+/*
  ласс дл€ динамического построени€ диалогов. јвтоматически вычисл€ет положение и размер
-дл€ добавл€емых контролов, а также размер самого диалога. јвтоматически записывает выбранные 
+дл€ добавл€емых контролов, а также размер самого диалога. јвтоматически записывает выбранные
 значени€ в указанное место после закрыти€ диалога по OK.
 
 ѕо умолчанию каждый контрол размещаетс€ в новой строке диалога. Ўирина дл€ текстовых строк,
 checkbox и radio button вычисл€етс€ автоматически, дл€ других элементов передаЄтс€ €вно.
 ≈сть также возможность добавить статический текст слева или справа от контрола, при помощи
-методов AddTextBefore и AddTextAfter. 
+методов AddTextBefore и AddTextAfter.
 
 ѕоддерживаетс€ также возможность расположени€ контролов в две колонки. »спользуетс€ следующим
 образом:
@@ -275,7 +275,7 @@ class DialogBuilderBase
 			return MaxWidth;
 		}
 
-		void UpdateSecondColumnPosition() 
+		void UpdateSecondColumnPosition()
 		{
 			int SecondColumnX1 = 6 + (DialogItems [0].X2 - DialogItems [0].X1 - 1)/2;
 			for(int i=0; i<DialogItemsCount; i++)
@@ -292,7 +292,7 @@ class DialogBuilderBase
 		virtual void InitDialogItem(T *NewDialogItem, const TCHAR *Text)
 		{
 		}
-		
+
 		virtual int TextWidth(const T &Item)
 		{
 			return -1;
@@ -355,10 +355,10 @@ class DialogBuilderBase
 		}
 
 		DialogBuilderBase()
-			: DialogItems(nullptr), DialogItemsCount(0), DialogItemsAllocated(0), NextY(2), 
+			: DialogItems(nullptr), DialogItemsCount(0), DialogItemsAllocated(0), NextY(2),
 			  ColumnStartIndex(-1), ColumnBreakIndex(-1), ColumnMinWidth(0)
 		{
-		}	
+		}
 
 		~DialogBuilderBase()
 		{
@@ -550,7 +550,7 @@ class PluginCheckBoxBinding: public DialogAPIBinding
 
 public:
 	PluginCheckBoxBinding(const PluginStartupInfo &aInfo, HANDLE *aHandle, int aID, BOOL *aValue, int aMask)
-		: DialogAPIBinding(aInfo, aHandle, aID), 
+		: DialogAPIBinding(aInfo, aHandle, aID),
 		  Value(aValue), Mask(aMask)
 	{
 	}
@@ -597,17 +597,18 @@ class PluginEditFieldBinding: public DialogAPIBinding
 {
 private:
 	TCHAR *Value;
+	int MaxSize;
 
 public:
-	PluginEditFieldBinding(const PluginStartupInfo &aInfo, HANDLE *aHandle, int aID, TCHAR *aValue)
-		: DialogAPIBinding(aInfo, aHandle, aID), Value(aValue)
+	PluginEditFieldBinding(const PluginStartupInfo &aInfo, HANDLE *aHandle, int aID, TCHAR *aValue, int aMaxSize)
+		: DialogAPIBinding(aInfo, aHandle, aID), Value(aValue), MaxSize(aMaxSize)
 	{
 	}
 
 	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
 	{
 		const TCHAR *DataPtr = (const TCHAR *) Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, 0);
-		lstrcpy(Value, DataPtr);
+		lstrcpyn(Value, DataPtr, MaxSize);
 	}
 };
 
@@ -651,18 +652,19 @@ public:
 
 class PluginEditFieldBinding: public DialogItemBinding<FarDialogItem>
 {
-private: 
+private:
 	TCHAR *Value;
+	int MaxSize;
 
 public:
-	PluginEditFieldBinding(TCHAR *aValue)
-		: Value(aValue)
+	PluginEditFieldBinding(TCHAR *aValue, int aMaxSize)
+		: Value(aValue), MaxSize(aMaxSize)
 	{
 	}
 
 	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
 	{
-		lstrcpy(Value, Item->Data);
+		lstrcpyn(Value, Item->Data, MaxSize);
 	}
 };
 
@@ -712,7 +714,7 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 #ifdef UNICODE
 			Item->PtrData = Text;
 #else
-			lstrcpy(Item->Data, Text);
+			lstrcpyn(Item->Data, Text, sizeof(Item->Data)/sizeof(Item->Data[0]));
 #endif
 		}
 
@@ -789,7 +791,7 @@ public:
 			Info.FSF->itoa(*Value, (TCHAR *) Item->Data, 10);
 #endif
 
-	
+
 #ifdef _FAR_NO_NAMELESS_UNIONS
 			Item->Param.Mask = Binding->GetMask();
 #else
@@ -801,7 +803,7 @@ public:
 			return Item;
 		}
 
-		FarDialogItem *AddEditField(TCHAR *Value, int Width, const TCHAR *HistoryID = nullptr)
+		FarDialogItem *AddEditField(TCHAR *Value, int MaxSize, int Width, const TCHAR *HistoryID = nullptr)
 		{
 			FarDialogItem *Item = AddDialogItem(DI_EDIT, Value);
 			SetNextY(Item);
@@ -817,9 +819,9 @@ public:
 			}
 
 #ifdef UNICODE
-			SetLastItemBinding(new PluginEditFieldBinding(Info, &DialogHandle, DialogItemsCount-1, Value));
+			SetLastItemBinding(new PluginEditFieldBinding(Info, &DialogHandle, DialogItemsCount-1, Value, MaxSize));
 #else
-			SetLastItemBinding(new PluginEditFieldBinding(Value));
+			SetLastItemBinding(new PluginEditFieldBinding(Value, MaxSize));
 #endif
 			return Item;
 		}
