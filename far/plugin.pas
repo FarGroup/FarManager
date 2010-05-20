@@ -435,7 +435,7 @@ type
 
       Data : record case Integer of
          0 : (Data : array [0..511] of Char);
-         1 : (Ptr : PFarDataPtr);
+         1 : (Ptr : TFarDataPtr);
       end;
    end;
 
@@ -1014,7 +1014,7 @@ const
    MCMD_GETSTATE        = 5;
 
 { FARMACROSTATE }
-const                            
+const
    MACROSTATE_NOMACRO          = 0;
    MACROSTATE_EXECUTING        = 1;
    MACROSTATE_EXECUTING_COMMON = 2;
