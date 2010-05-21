@@ -47,7 +47,7 @@ int WINAPI ConvertPath(
   <td class="cont" width="60%"> преобразует относительное имя файлового объекта в полное</td></tr>
 
   <tr class="cont"><td class="cont" width="40%"><a name="CPM_REAL">CPM_REAL</a></td>
-  <td class="cont" width="60%">преобразует относительное имя файлового объекта в полное, с учетом символических ссылок. </td></tr>
+  <td class="cont" width="60%">преобразует относительное имя файлового объекта в полное, с учётом символических ссылок. </td></tr>
 
   <tr class="cont"><td class="cont" width="40%"><a name="CPM_NATIVE">CPM_NATIVE</a></td>
   <td class="cont" width="60%">преобразует относительное имя файлового объекта в полное, предваряя путь префиксами "\\?\" (для локальных объектов) или "\\?\UNC\" (для сетевых объектов);<br>
@@ -60,7 +60,7 @@ int WINAPI ConvertPath(
   </div>
 
   <div class=dfn>Dest</div>
-  <div class=dfndescr>Строка назначения, сюда будет помещен полный путь.
+  <div class=dfndescr>Строка назначения, сюда будет помещён полный путь.
    Может быть равна <code>NULL</code>.
   </div>
 
@@ -82,7 +82,7 @@ int WINAPI ConvertPath(
 
 <li>Если, например, каталог <code>"D:\Foo\Bar"</code> является симлинком для
     реально существующего <code>"C:\work\Doc"</code>, то функция для файла
-    <code>"D:\Foo\Bar\1092\readme.txt"</code> вернет <code>"C:\work\Doc\1092\readme.txt"<code>
+    <code>"D:\Foo\Bar\1092\readme.txt"</code> вернёт <code>"C:\work\Doc\1092\readme.txt"<code>
 </ul>
 </div>
 

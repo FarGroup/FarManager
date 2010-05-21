@@ -53,7 +53,7 @@ typedef struct _KEY_EVENT_RECORD {
     <div class=dfndescr>Виртуальный скан-код клавиши. Определяет устройство-зависимое значение,
     генерируемое аппаратурой клавиатуры.</div>
     <div class=dfn>uChar</div>
-    <div class=dfndescr>Переведенный Unicode или ASCII символ, в зависимости от того,
+    <div class=dfndescr>Переведённый Unicode или ASCII символ, в зависимости от того,
     использовалась Wide- или ANSI-версия функции <a href="readconsoleinput.html">ReadConsoleInput</a>.</div>
     <div class=dfn>dwControlKeyState</div>
     <div class=dfndescr>Состояние управляющих клавиш. Может быть комбинацией следующих значений:
@@ -61,7 +61,7 @@ typedef struct _KEY_EVENT_RECORD {
       <table class="cont">
      <tr class="cont"><th class="cont" width="20%">Клавиша</th><th class="cont" width="20%">Значение</th><th class="cont" width="60%">Описание</th></tr>
         <tr class="cont"><td class="cont" width="20%">CAPSLOCK_ON</td><td class="cont" width="20%">0x0080</td>
-        <td class="cont" width="60%">CAPS LOCK включен.</td>
+        <td class="cont" width="60%">CAPS LOCK включён.</td>
         </tr>
         <tr class="cont"><td class="cont" width="20%">ENHANCED_KEY</td><td class="cont" width="20%">0x0100</td>
         <td class="cont" width="60%">Клавиша расширенная.</td></tr>
@@ -70,13 +70,13 @@ typedef struct _KEY_EVENT_RECORD {
         <tr class="cont"><td class="cont" width="20%">LEFT_CTRL_PRESSED </td><td class="cont" width="20%">0x0008</td>
         <td class="cont" width="60%">Левый CTRL нажат.</td></tr>
         <tr class="cont"><td class="cont" width="20%">NUMLOCK_ON </td><td class="cont" width="20%">0x0020</td>
-        <td class="cont" width="60%">NUM LOCK включен.</td></tr>
+        <td class="cont" width="60%">NUM LOCK включён.</td></tr>
         <tr class="cont"><td class="cont" width="20%">RIGHT_ALT_PRESSED </td><td class="cont" width="20%">0x0001</td>
         <td class="cont" width="60%">Правый ALT нажат.</td></tr>
         <tr class="cont"><td class="cont" width="20%">RIGHT_CTRL_PRESSED </td><td class="cont" width="20%">0x0004</td>
         <td class="cont" width="60%">Правый CTRL нажат.</td></tr>
         <tr class="cont"><td class="cont" width="20%">SCROLLLOCK_ON </td><td class="cont" width="20%">0x0040</td>
-        <td class="cont" width="60%">SCROLL LOCK включен. </td></tr>
+        <td class="cont" width="60%">SCROLL LOCK включён. </td></tr>
         <tr class="cont"><td class="cont" width="20%">SHIFT_PRESSED </td><td class="cont" width="20%">0x0010</td>
         <td class="cont" width="60%">Клавиша SHIFT нажата.</td></tr>
      </table>
@@ -92,8 +92,8 @@ typedef struct _KEY_EVENT_RECORD {
   Сообщения клавиатурного ввода генерируются, когда любая клавиша,
   включая управляющую, нажата или отпущена.
   Однако, когда клавиша ALT нажимается и отпускается, это имеет специальное значение в Windows
-  и такое событие не передается приложению. Также сочетание <code>CTRL+C</code>
-  не передается, если хендл входной консоли имеет флаг ENABLE_PROCESSED_INPUT.
+  и такое событие не передаётся приложению. Также сочетание <code>CTRL+C</code>
+  не передаётся, если хендл входной консоли имеет флаг ENABLE_PROCESSED_INPUT.
 </div>
 
 <div class=see>Смотрите также:</div><div class=seecont>

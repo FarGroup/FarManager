@@ -75,7 +75,7 @@
     <td class="cont" width="20%"><a name="APanel.Prefix">APanel.Prefix</a><br>
     <a name="PPanel.Prefix">PPanel.Prefix</a></td>
     <td class="cont" width="20%">String</td>
-    <td class="cont" width="60%">содержит префикс плагина или пусто (или несколько префиксов, разделенных символом ':')</td>
+    <td class="cont" width="60%">содержит префикс плагина или пусто (или несколько префиксов, разделённых символом ':')</td>
   </tr>
   <tr class="cont">
     <td class="cont" width="20%"><a name="APanel.Width">APanel.Width</a><br>
@@ -137,7 +137,7 @@
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">3</td>
-          <td class="cont" width="90%">Жесткий диск</td>
+          <td class="cont" width="90%">Жёсткий диск</td>
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">4</td>
@@ -362,7 +362,7 @@ MsgBox(substr(Editor.Value,Editor.CurPos-1,1),Editor.FileName,0)
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">0x08000000</td>
-          <td class="cont" width="90%">FAR запущен с ключами /e</td>
+          <td class="cont" width="90%">FAR запущен с ключом /e</td>
         </tr>
       </table>
       Например,
@@ -408,7 +408,7 @@ $If (Editor.State &amp; 0x8) <em>выполнить действия, если файл модифицирован</em
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">0x00000008</td>
-          <td class="cont" width="90%">включен перенос строк</td>
+          <td class="cont" width="90%">включён перенос строк</td>
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">0x00000010</td>
@@ -425,7 +425,7 @@ $If (Editor.State &amp; 0x8) <em>выполнить действия, если файл модифицирован</em
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">0x08000000</td>
-          <td class="cont" width="90%">FAR запущен с ключами /v</td>
+          <td class="cont" width="90%">FAR запущен с ключом /v</td>
         </tr>
       </table>
       Например,
@@ -452,43 +452,43 @@ $If (Viewer.State &amp; 0x20) <em>выполнить действия, если выставлен 16-ричный р
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">0x00000001</td>
-          <td class="cont" width="90%">включен показ типа дисков</td>
+          <td class="cont" width="90%">включён показ типа дисков</td>
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">0x00000002</td>
-          <td class="cont" width="90%">включен показ сетевого имени (и путь, ассоциированный с SUBST-диском под NT)</td>
+          <td class="cont" width="90%">включён показ сетевого имени (и путь, ассоциированный с SUBST-диском под NT)</td>
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">0x00000004</td>
-          <td class="cont" width="90%">включен показ метки диска</td>
+          <td class="cont" width="90%">включён показ метки диска</td>
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">0x00000008</td>
-          <td class="cont" width="90%">включен показ типа файловой системы</td>
+          <td class="cont" width="90%">включён показ типа файловой системы</td>
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">0x00000010</td>
-          <td class="cont" width="90%">включен показ общего и свободного места на диске</td>
+          <td class="cont" width="90%">включён показ общего и свободного места на диске</td>
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">0x00000020</td>
-          <td class="cont" width="90%">включен показ параметров сменных дисков</td>
+          <td class="cont" width="90%">включён показ параметров сменных дисков</td>
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">0x00000040</td>
-          <td class="cont" width="90%">включен показ имен подключаемых модулей</td>
+          <td class="cont" width="90%">включён показ имён подключаемых модулей</td>
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">0x00000080</td>
-          <td class="cont" width="90%">включен показ параметров компакт-дисков</td>
+          <td class="cont" width="90%">включён показ параметров компакт-дисков</td>
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">0x00000100</td>
-          <td class="cont" width="90%">включен показ общего и свободного места на диске в стиле Windows Explorer</td>
+          <td class="cont" width="90%">включён показ общего и свободного места на диске в стиле Windows Explorer</td>
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">0x00000200</td>
-          <td class="cont" width="90%">включен показ параметров для сетевых дисков</td>
+          <td class="cont" width="90%">включён показ параметров для сетевых дисков</td>
         </tr>
       </table>
     </td>
@@ -675,8 +675,8 @@ $If (Viewer.State &amp; 0x20) <em>выполнить действия, если выставлен 16-ричный р
   <tr class="cont">
     <td class="cont" width="20%"><a name="RCounter">RCounter</a></td>
     <td class="cont" width="20%">Number</td>
-    <td class="cont" width="60%">Содержит текущее значение счетчика оператора цикла $Rep. Область видимости - текущий $Rep.
-      За пределами цикла значение константы неопределенное (любое/нет смысла использовать).</td>
+    <td class="cont" width="60%">Содержит текущее значение счётчика оператора цикла $Rep. Область видимости - текущий $Rep.
+      За пределами цикла значение константы неопределённое (любое/нет смысла использовать).</td>
   </tr>
 
 </table>
@@ -686,8 +686,8 @@ $If (Viewer.State &amp; 0x20) <em>выполнить действия, если выставлен 16-ричный р
 <ol>
 <li>В операторах панели префикс <em>APanel.</em> относится к активной панели, <em>PPanel.</em> к пассивной.
 <li>Элементы макроязыка невозможно использовать во время <a href="../macrokey/record.html">записи
-    макроса</a> стандартным образом. Добавить элементы языка в макрос можно только путем ручной
-    правки реестра или путем применения специальных программ/плагинов.</li>
+    макроса</a> стандартным образом. Добавить элементы языка в макрос можно только путём ручной
+    правки реестра или путём применения специальных программ/плагинов.</li>
 </ol>
 </div>
 

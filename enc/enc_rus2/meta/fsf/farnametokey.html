@@ -29,7 +29,7 @@ int WINAPI FarNameToKey(
 <div class=descr>
   <div class=dfn>Name</div>
   <div class=dfndescr>Символьное представление клавиши. Функция ожидает строку по спецификации:<ol>
-    <li>Предопределенные сочетания (см. <a href="http://farmanager.com/svn/trunk/unicode_far/keyboard.cpp">keyboard.cpp</a>::FKeys1[])
+    <li>Предопределённые сочетания (см. <a href="http://farmanager.com/svn/trunk/unicode_far/keyboard.cpp">keyboard.cpp</a>::FKeys1[])
     <li>Опциональные модификаторы (Alt/RAlt/Ctrl/RCtrl/Shift) и 1 символ, например, AltD или CtrlC
     <li>"Alt" (или RAlt) и 5 десятичных цифр (с ведущими нулями)
     <li>"Spec" и 5 десятичных цифр (с ведущими нулями)
@@ -49,11 +49,11 @@ int WINAPI FarNameToKey(
 <div class=descr>
 <ol>
 <li>Если в комбинации клавиш присутствует <kbd>Ctrl</kbd> или <kbd>Alt</kbd> и клавиша - "буква", то "буква"
-    принудительно приводится к верхнему регистру. Например, <code>FarNameToKey("CtrlAltz")</code> вернет <kbd>KEY_CTRLALTZ</kbd>.
+    принудительно приводится к верхнему регистру. Например, <code>FarNameToKey("CtrlAltz")</code> вернёт <kbd>KEY_CTRLALTZ</kbd>.
 
 <li>Если в комбинации клавиш присутствует <kbd>Ctrl</kbd> или <kbd>Alt</kbd> и клавиша - "буква национального алфавита", то "буква"
     принудительно заменяется на клавиатурный эквивалент и приводится к верхнему регистру.
-    Например, <code>FarNameToKey("CtrlУ")</code> вернет <kbd>KEY_CTRLE</kbd>.
+    Например, <code>FarNameToKey("CtrlУ")</code> вернёт <kbd>KEY_CTRLE</kbd>.
 
 <li>Комбинации клавиш <kbd>Shift</kbd>-"буква" преобразуется к "БУКВА" (т.е. удаляется компонента Shift и
     "буква" переводится в верхний регистр).

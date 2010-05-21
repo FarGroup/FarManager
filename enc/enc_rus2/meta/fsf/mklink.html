@@ -15,7 +15,7 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.MkLink</dfn> создает жесткие и символические ссылки, связи каталогов, а
+Функция <dfn>FSF.MkLink</dfn> создаёт жёсткие и символические ссылки, связи каталогов, а
 также монтирует локальные диски на файловую систему. 
 </div>
 
@@ -42,7 +42,7 @@ int WINAPI MkLink(
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Операция</th><th class="cont" width="60%">Описание</th></tr>
   <tr class="cont"><td class="cont" width="40%"><a name="FLINK_HARDLINK">FLINK_HARDLINK</a></td>
-  <td class="cont" width="60%">Создать жесткую ссылку (hardlink).
+  <td class="cont" width="60%">Создать жёсткую ссылку (hardlink).
     </td></tr>
 
   <tr class="cont"><td class="cont" width="40%"><a name="FLINK_JUNCTION">FLINK_JUNCTION</a></td>
@@ -81,7 +81,7 @@ int WINAPI MkLink(
 <p>1 - ссылка создана.
 <p>0 - ошибка при создании ссылки:
 <ul>
-<li>Для жестких ссылок:
+<li>Для жёстких ссылок:
   <ul>
    <li>Src или Dest находятся на разных разделах;
    <li>раздел не NTFS;
@@ -111,7 +111,7 @@ int WINAPI MkLink(
 <ol>
 <li>Ссылки создаются по следующим правилам:
   <ul>
-  <li>жесткие ссылки (hardlink) создаются только для файлов в пределах
+  <li>жёсткие ссылки (hardlink) создаются только для файлов в пределах
       текущего NTFS-раздела;
   <li>связи (junction) создаются только для каталогов в
       пределах локальных NTFS-разделов;

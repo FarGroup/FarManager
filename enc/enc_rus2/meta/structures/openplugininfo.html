@@ -104,7 +104,7 @@ struct OpenPluginInfo
     <div class=dfn>HostFile</div>
     <div class=dfndescr>Имя файла на эмулируемой файловой системе. Если плагин не эмулирует файловую систему, основанную на файле, установите эту переменную в NULL.</div>
     <div class=dfn>CurDir</div>
-    <div class=dfndescr>Текущая директория плагина. Если панельный плагин вернет здесь пустую строку, то при нажатии ENTER на ".." FAR закроет плагин автоматически.</div>
+    <div class=dfndescr>Текущая директория плагина. Если панельный плагин вернёт здесь пустую строку, то при нажатии ENTER на ".." FAR закроет плагин автоматически.</div>
     <div class=dfn>Format</div>
     <div class=dfndescr>Имя формата плагина. Оно показывается в диалоге копирования файла.</div>
     <div class=dfn>PanelTitle</div>
@@ -123,7 +123,7 @@ struct OpenPluginInfo
       значительное время. Если Вам это не нужно, установите <i>DescrFiles</i>
       в NULL.</div>
     <div class=dfn>DescrFilesNumber</div>
-    <div class=dfndescr>Число имен файлов описаний.</div>
+    <div class=dfndescr>Число имён файлов описаний.</div>
     <div class=dfn>PanelModesArray</div>
     <div class=dfndescr>Адрес массива структур <a href="panelmode.html">PanelMode</a>. Используя его, вы можете переопределить настройки режимов просмотра. Первая структура описывает режим просмотра номер 0, вторая - 1 и т.д. Если Вам не нужно определение новых режимов просмотра, установите <i>PanelModesArray</i> в NULL.</div>
     <div class=dfn>PanelModesNumber</div>
@@ -155,9 +155,9 @@ struct OpenPluginInfo
     <i>KeyBar</i> в NULL.</div>
 
     <div class=dfn>ShortcutData</div>
-    <div class=dfndescr>Адрес текстовой строки, оканчивающейся нулем, описывающей текущее
+    <div class=dfndescr>Адрес текстовой строки, оканчивающейся нулём, описывающей текущее
     состояние плагина. Она должна быть не больше значения
-    <dfn><a name="MAXSIZE_SHORTCUTDATA">MAXSIZE_SHORTCUTDATA</a></dfn>. Эта строка передается в
+    <dfn><a name="MAXSIZE_SHORTCUTDATA">MAXSIZE_SHORTCUTDATA</a></dfn>. Эта строка передаётся в
     <a href="../exported_functions/openpluginw.html">OpenPluginW</a>, когда плагин активирован
     командой ссылки на папку. Например, FTP клиент может поместить сюда текущий
     хост, логин и пароль. Нет необходимости сохранять здесь текущий каталог,

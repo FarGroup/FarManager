@@ -17,7 +17,7 @@
 
 <div class=shortdescr>
   Структура <dfn>FarDialogItem</dfn> описывает один элемент диалога. Массив этих
-  структур передается в функции <a href="../dialoginit.html">DialogInit</a>.
+  структур передаётся в функции <a href="../dialoginit.html">DialogInit</a>.
 </div>
 
 <pre class=syntax>
@@ -58,7 +58,7 @@ struct FarDialogItem
 
     <div class=dfn>X1,Y1,X2,Y2</div>
     <div class=dfndescr>Координаты, определяющие позицию элемента, относительно
-      диалогового окна (начало отсчета - левый верхний угол диалогового окна, (<code>0,0</code>)).
+      диалогового окна (начало отсчёта - левый верхний угол диалогового окна, (<code>0,0</code>)).
       Более подробно о координатах см. описание каждого
       <a href="../controls/index.html">элемента диалога</a>.
     </div>
@@ -77,7 +77,7 @@ struct FarDialogItem
     <div class=dfn>Param.Selected</div>
     <div class=dfndescr>Определяет состояние элементов <a href="../controls/di_checkbox.html">DI_CHECKBOX</a> и
       <a href="../controls/di_radiobutton.html">DI_RADIOBUTTON</a>
-      при показе диалога - включен/выключен. Возвращает их состояние после
+      при показе диалога - включён/выключен. Возвращает их состояние после
       закрытия окна диалога.
     </div>
 
@@ -118,7 +118,7 @@ struct FarDialogItem
     <div class=dfndescr>Флаг, означающий, что данный элемент диалога является
     "элементом по умолчанию". Если при нажатии на <code>&lt;Enter&gt;</code>
     фокус установлен не на кнопке, то функция <a href="../dialogrun.html">DialogRun</a>
-    вернет номер того элемента, для которого <var>DefaultButton</var> равно 1. Флаг <var>DefaultButton</var>
+    вернёт номер того элемента, для которого <var>DefaultButton</var> равно 1. Флаг <var>DefaultButton</var>
     может быть установлен не только для кнопки, но и для любого другого
     элемента диалога.
     </div>
@@ -140,7 +140,7 @@ struct FarDialogItem
 <div class=descr>
 <ol>
 <li>Вся информация по структуре <dfn>FarDialogItem</dfn> изложена
-    с учетом именованных объединений. Более подробно читайте в описании
+    с учётом именованных объединений. Более подробно читайте в описании
     определения <a href="../../defs/_far_no_nameless_unions.html">_FAR_NO_NAMELESS_UNIONS</a>.
 
 </ol>

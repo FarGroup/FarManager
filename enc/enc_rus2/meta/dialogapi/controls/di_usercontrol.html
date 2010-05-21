@@ -21,7 +21,7 @@
 <em>Свобода выбора!</em>
 Элемент диалога <dfn>DI_USERCONTROL</dfn> описывает элемент управления,
 определяемый программистом:  отрисовка, реагирование на события и прочие
-операции с элементом - все это возлагается "на хрупкие плечи" плагина.<br>
+операции с элементом - всё это возлагается "на хрупкие плечи" плагина.<br>
 </div>
 
 <pre class=syntax>
@@ -45,7 +45,7 @@ struct FarDialogItem
 <a name="virtbuf"></a>
 <h3>Виртуальный буфер отрисовки</h3>
 <div class=descr>
-<p>Параметр <dfn>VBuf</dfn> задает адрес виртуального буфера типа <a href="../../winapi/char_info.html">CHAR_INFO</a>.
+<p>Параметр <dfn>VBuf</dfn> задаёт адрес виртуального буфера типа <a href="../../winapi/char_info.html">CHAR_INFO</a>.
 
 <p>Если значение <dfn>VBuf</dfn> = NULL, то это значит, что плагин сам должен
 отрисовывать элемент <dfn>DI_USERCONTROL</dfn> после прихода события
@@ -97,7 +97,7 @@ case DN_DRAWDLGITEM:
           Face[1]=FaceWhite;
           AddColor=0x00;
         }
-        <font color=#808080>// для черного игрока</font>
+        <font color=#808080>// для чёрного игрока</font>
         else if (GAME[0].Field[Y*8+X]==GAME[0].Pl2)
         {
           Face[1]=FaceBlack;

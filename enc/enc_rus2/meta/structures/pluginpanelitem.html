@@ -52,7 +52,7 @@ struct PluginPanelItem
         <a href="../exported_functions/getfilesw.html">GetFilesW</a> и
         <a href="../exported_functions/putfilesw.html">PutFilesW</a>.
         В этом случае FAR будет обновлять файлы описаний с именами,
-        возвращенными в функции <a href="../exported_functions/getopenplugininfow.html">GetOpenPluginInfoW</a>.
+        возвращёнными в функции <a href="../exported_functions/getopenplugininfow.html">GetOpenPluginInfoW</a>.
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="PPIF_SELECTED">PPIF_SELECTED</a></td>
@@ -74,16 +74,16 @@ struct PluginPanelItem
   </div>
 
   <div class=dfn>NumberOfLinks</div>
-  <div class=dfndescr>Количество жестких ссылок.</div>
+  <div class=dfndescr>Количество жёстких ссылок.</div>
   <div class=dfn>Description</div>
   <div class=dfndescr>Указывает на описание файла. Плагин может использовать это поле для передачи описания файла
     FAR'у. Если вы не хотите указывать описания, установите <i>Description</i> в NULL. Если плагин
     использует стандартную обработку описаний FAR'а, и передал имена описаний FAR'у в функции <a href="../exported_functions/getopenplugininfow.html">GetOpenPluginInfoW</a>, это поле также должно быть NULL.</div>
   <div class=dfn>Owner</div>
-  <div class=dfndescr>Указывает на имя владельца файла. Плагин может использовать это поле для передачи имен владельцев файлов FAR'у.
+  <div class=dfndescr>Указывает на имя владельца файла. Плагин может использовать это поле для передачи имён владельцев файлов FAR'у.
     Если Вам это не нужно, установите это поле в NULL.</div>
   <div class=dfn>CustomColumnData</div>
-  <div class=dfndescr>Указывает на массив адресов строк для определенных плагином типов колонок. Первая строка содержит
+  <div class=dfndescr>Указывает на массив адресов строк для определённых плагином типов колонок. Первая строка содержит
     данные для типа колонки C0, вторая - для C1 и т.д. Может быть задано до 10 дополнительных типов колонок от <b><code>C0</code></b>
     до <b><code>C9</code></b>. Если вы не нуждаетесь в дополнительных типах колонок, установите
     это поле в NULL.</div>
@@ -94,7 +94,7 @@ struct PluginPanelItem
     В последнем случае, когда <i>UserData</i> указывает на структуру данных, первое поле
     этой структуры должно быть 32-битным значением, равным размеру структуры, и плагин должен установить флаг PPIF_USERDATA в
     поле <i>Flags</i>. Это позволит FAR'у правильно скопировать структуру во внутренний буфер FAR'а
-    и позже передать ее плагину в списках <i>PluginPanelItem</i>. В функции <a href="../exported_functions/freefinddataw.html">FreeFindDataW</a> плагин должен освободить память,
+    и позже передать её плагину в списках <i>PluginPanelItem</i>. В функции <a href="../exported_functions/freefinddataw.html">FreeFindDataW</a> плагин должен освободить память,
     занятую такими дополнительными структурами.</div>
   <div class=dfn>CRC32</div>
   <div class=dfndescr>Контрольная сумма. FAR не использует это поле.</div>
@@ -107,14 +107,14 @@ struct PluginPanelItem
 <ol>
 <li>Все данные, выделенные плагином для членов <var>Description</var>,
   <var>Owner</var> и <var>CustomColumnData</var>, должны быть освобождены им.
-  FAR создает копии этих данные в своих внутренних структурах. Таким образом
+  FAR создаёт копии этих данные в своих внутренних структурах. Таким образом
   они могут быть освобождены в любой момент после передачи FAR'у в
   функции <a href="../exported_functions/getfinddataw.html">GetFindDataW</a>.
 
 <li>Если плагин использует, например, <var>UserData</var> для получения данных о
    файле, то плагинописатель должен удостовериться в валидности этих
    данных. Это связано с тем, что при вызове <a href="../exported_functions/getfilesw.html">GetFilesW</a>
-   из списка найденных файлов  FAR передает плагину элементы  <dfn>PluginPanelItem</dfn>
+   из списка найденных файлов  FAR передаёт плагину элементы  <dfn>PluginPanelItem</dfn>
    только с одним правильно заполненным членом - <var>FindData</var>, остальные
    члены установлены в <code>NULL</code>.
 

@@ -48,7 +48,7 @@ int WINAPI ProcessEditorInputW(
 <div class=descr>
 <ol>
 
-<li>Плагин должен корректно обрабатывать входные события путем анализа поля <code>INPUT_RECORD.EventType</code>
+<li>Плагин должен корректно обрабатывать входные события путём анализа поля <code>INPUT_RECORD.EventType</code>
     и, в случае если плагин данное событие не обрабатывает, вернуть управление в FAR Manager.
   </li>
 
@@ -59,7 +59,7 @@ int WINAPI ProcessEditorInputW(
 <li>Плагин может вызвать команду <a href="../service_functions/editorcontrol.html">EditorControl</a>
     из этой функции, но будьте осторожны, когда вызываете здесь <a href="../service_functions/editorcontrol.html#ECTL_PROCESSINPUT">ECTL_PROCESSINPUT</a>,
     потому что эта команда вызывает функцию <dfn>ProcessEditorInput</dfn> снова. Таким образом,
-    плагин должен сам предотвратить такой самовызов, или он впадет в бесконечный цикл.
+    плагин должен сам предотвратить такой самовызов, или он впадёт в бесконечный цикл.
   </li>
 
 <li>Плагину не приходят клавиши: <kbd>Ctrl-W</kbd>, <kbd>F11</kbd>, <kbd>Alt-F9</kbd>,

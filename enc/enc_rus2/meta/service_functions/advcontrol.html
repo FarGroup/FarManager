@@ -43,7 +43,7 @@ INT_PTR WINAPI AdvControl(
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_EJECTMEDIA">ACTL_EJECTMEDIA</a></td>
-      <td class="cont" width="60%">Извлечь диск из съемного накопителя (CD-ROM/USB/SUBST).<br>
+      <td class="cont" width="60%">Извлечь диск из съёмного накопителя (CD-ROM/USB/SUBST).<br>
        <var>Param</var> - указатель на структуру <a href="../structures/actlejectmedia.html">ActlEjectMedia</a><br>
        Функция возвращает <code>TRUE</code> - успешное извлечение, <code>FALSE</code> - ошибка.
       </td></tr>
@@ -52,7 +52,7 @@ INT_PTR WINAPI AdvControl(
       <td class="cont" width="60%">Выполнить операции по работе с макрокомандами.<br>
        <var>Param</var> - указатель на структуру <a href="../structures/actlkeymacro.html">ActlKeyMacro</a><br>
        Функция возвращает <code>TRUE</code> - успешное выполнение, <code>FALSE</code> - ошибка
-       ("в данный момент идет запись макроса" или "нехватка памяти" или
+       ("в данный момент идёт запись макроса" или "нехватка памяти" или
        "макрос выполняется").
       </td></tr>
 
@@ -145,7 +145,7 @@ LOWORD:  HIBYTE = major version (FAR 1.70.387 = 0x01)
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETSYSWORDDIV">ACTL_GETSYSWORDDIV</a></td>
       <td class="cont" width="60%">Получить строку с символами-разделителями, делящими
         текст на слова.<br>
-        <var>Param</var> = указатель на строку-приемник, куда будут скопированы
+        <var>Param</var> = указатель на строку-приёмник, куда будут скопированы
          символы-разделители.<br>
         <var>Param</var> = <code>NULL</code> - узнать длину строки (без символа конца
          строки '\0')<br>
@@ -187,7 +187,7 @@ LOWORD:  HIBYTE = major version (FAR 1.70.387 = 0x01)
        кодов клавиш.<br>
        <var>Param</var> - указатель на структуру <a href="../structures/keysequence.html">KeySequence</a><br>
        Функция возвращает <code>TRUE</code> - клавиши успешно помещены в очередь, <code>FALSE</code> - ошибка.<br>
-       Последовательность переданных клавиш начнет исполняться тогда, когда FAR
+       Последовательность переданных клавиш начнёт исполняться тогда, когда FAR
        получит управление.<br>
       </td></tr>
 
@@ -218,7 +218,7 @@ LOWORD:  HIBYTE = major version (FAR 1.70.387 = 0x01)
 
        <p class=note><img src="../../images/note.gif" alt="Замечание для ACTL_COMMIT" width="10" height="10"> Внимание!</p>
        <UL class=note><LI>
-       Переключение не произойдет до тех пор, пока не будет вызван
+       Переключение не произойдёт до тех пор, пока не будет вызван
        <dfn>ACTL_COMMIT</dfn> или пока FAR не получит управление.
        </LI></UL>
 
@@ -270,8 +270,8 @@ LOWORD:  HIBYTE = major version (FAR 1.70.387 = 0x01)
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_WAITKEY">ACTL_WAITKEY</a></td>
       <td class="cont" width="60%">Ожидать клавишу.<br>
-        <var>Param</var> = -1 или <code>NULL</code> - ждем любую клавишу<br>
-        <var>Param</var> = (внутренний код клавиши) - ждем конкретную клавишу.<br>
+        <var>Param</var> = -1 или <code>NULL</code> - ждём любую клавишу<br>
+        <var>Param</var> = (внутренний код клавиши) - ждём конкретную клавишу.<br>
         Функция всегда возвращает 0.
       </td></tr>
 

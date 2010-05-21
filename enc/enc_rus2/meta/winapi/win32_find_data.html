@@ -81,7 +81,7 @@ typedef struct _WIN32_FIND_DATA {
         <td class="cont" width="60%">Каталог является <a href="../other/dict.html#symboliclinks">точкой повторной обработки</a>.</td></tr>
 
         <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_SPARSE_FILE">FILE_ATTRIBUTE_SPARSE_FILE</a></td>
-        <td class="cont" width="60%">Файл является т.н. <a href="../other/dict.html#sparsefile">Разреженный файл</a>.</td></tr>
+        <td class="cont" width="60%">Файл является т.н. <a href="../other/dict.html#sparsefile">Разрежённый файл</a>.</td></tr>
 
         <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_SYSTEM">FILE_ATTRIBUTE_SYSTEM</a></td>
         <td class="cont" width="60%">Этот файл - часть операционной системы.</td></tr>
@@ -90,7 +90,7 @@ typedef struct _WIN32_FIND_DATA {
         <td class="cont" width="60%">Это временный файл. Приложения должны записывать в такой файл
          только в крайней необходимости. Большая часть данных файла
          находится в памяти и не сбрасывается на диск, так как файл будет
-         удален.</td></tr>
+         удалён.</td></tr>
 
         <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_NOT_CONTENT_INDEXED">FILE_ATTRIBUTE_NOT_CONTENT_INDEXED</a></td>
         <td class="cont" width="60%">Этот файл или каталог не будут индексироваться службой индексирования.</td></tr>
@@ -160,7 +160,7 @@ typedef struct _WIN32_FIND_DATA {
 <div class=descr>
 <ul>
 <li>Если файл имеет длинное имя, полное имя возвращается в элементе <var>cFileName</var>
-  а усеченная версия формата 8.3 сохраняется в <var>cAlternateFileName</var>.
+  а усечённая версия формата 8.3 сохраняется в <var>cAlternateFileName</var>.
   Иначе <var>cAlternateFileName</var> пусто.
   Как альтернативу вы можете использовать функцию <a href="win32/GetShortPathName">GetShortPathName</a>
   для возвращения 8.3-вида имени файла.

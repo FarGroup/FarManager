@@ -30,7 +30,7 @@
   <div class=dfn>Auto wrap</div>
   <div class=dfndescr>Auto wrap в редакторе - пример установки "хука" для
   внутреннего редактора FAR Manager.<br>
-  Во включенном состоянии плагин
+  Во включённом состоянии плагин
   пропускает через себя все события от клавиатуры и мыши.
   Используется функция <a href="../exported_functions/processeditorinputw.html">ProcessEditorInputW</a>:
 <pre class=code>int WINAPI _export ProcessEditorInputW(const INPUT_RECORD *Rec)
@@ -43,7 +43,7 @@
   <div class=dfn>Brackets</div>
   <div class=dfndescr>Поиск и выделение парных скобок в редакторе.<br>
   Плагин из разряда "Вызвали, отработал, завершился".<br>
-  Поиск ведется с помощью <a href="../service_functions/editorcontrol.html#ECTL_GETSTRING">ECTL_GETSTRING</a>,
+  Поиск ведётся с помощью <a href="../service_functions/editorcontrol.html#ECTL_GETSTRING">ECTL_GETSTRING</a>,
   установка курсора на найденную парную скобку - <a href="../service_functions/editorcontrol.html#ECTL_SETPOSITION">ECTL_SETPOSITION</a>,
   выделение блока - <a href="../service_functions/editorcontrol.html#ECTL_SELECT">ECTL_SELECT</a>.
   </div>
@@ -71,7 +71,7 @@
   <div class=dfn>EditCase</div>
   <div class=dfndescr>Изменение начертания символов (верхний/нижний регистр).<br>
   Плагин из разряда "Вызвали, отработал, завершился".<br>
-  Строка берется с помощью команды <a href="../service_functions/editorcontrol.html#ECTL_GETSTRING">ECTL_GETSTRING</a>,
+  Строка берётся с помощью команды <a href="../service_functions/editorcontrol.html#ECTL_GETSTRING">ECTL_GETSTRING</a>,
   преобразуется и заменяется в редакторе с помощью
   команды <a href="../service_functions/editorcontrol.html#ECTL_SETSTRING">ECTL_SETSTRING</a>.
   </div>
@@ -102,7 +102,7 @@
 
   <div class=dfn>FileCase</div>
   <div class=dfndescr>Эта команда позволяет изменить регистр
-    отмеченных имен файлов в соответствии с любым из
+    отмеченных имён файлов в соответствии с любым из
     нескольких доступных форматов. Это - простой плагин, воспользуйтесь им как
     шаблоном для создания новых команд для FAR.
   </div>

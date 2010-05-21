@@ -29,7 +29,7 @@ struct FarDialogItem
   int Y2               = <b>Y</b> (равен значению Y1)
   int Focus            = <b>Focus</b>
   union {
-    FarList *ListItems = <b>ListItems</b>  [передается]
+    FarList *ListItems = <b>ListItems</b>  [передаётся]
     int ListPos        = <b>ListPos</b>    [возвращается]
   };
   DWORD Flags          = <b>Flags</b>
@@ -52,7 +52,7 @@ struct FarDialogItem
 Редактируемое поле заполняется значением
 первого пункта списка с установленным флагом <a href="../structures/farlistitem.html#LIF_SELECTED">LIF_SELECTED</a>
 при условии, что <dfn>PtrData</dfn> не содержит "<em>редактируемый текст</em>" и есть хотя бы
-один элемент списка с таким флагом. Если таких пунктов несколько, берется
+один элемент списка с таким флагом. Если таких пунктов несколько, берётся
 первый.
 <p>Если значение = NULL, то список выводится не будет.
 </div>
@@ -151,7 +151,7 @@ HiWord HiByte - цвет символа для вызова списка
  <td class="cont" width="60%">"кликнули" клавишей мыши
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_editchange.html">DN_EDITCHANGE</a></td>
- <td class="cont" width="60%">текст изменен
+ <td class="cont" width="60%">текст изменён
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_KILLFOCUS</a></td>
  <td class="cont" width="60%">элемент потерял фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)

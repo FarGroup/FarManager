@@ -44,10 +44,10 @@ int WINAPI InputBox(
     <div class=dfndescr>Исходные данные для ввода и редактирования. Может быть равен NULL или "".</div>
 
     <div class=dfn>DestText</div>
-    <div class=dfndescr>"Приемник" введенных данных. Может указать на ту же область памяти что и <dfn>SrcText</dfn>.</div>
+    <div class=dfndescr>"Приёмник" введённых данных. Может указать на ту же область памяти что и <dfn>SrcText</dfn>.</div>
 
     <div class=dfn>DestLength</div>
-    <div class=dfndescr>Размер "приемника".</div>
+    <div class=dfndescr>Размер "приёмника".</div>
 
     <div class=dfn>HelpTopic</div>
     <div class=dfndescr>Адрес строки с <a href="../language/helptopic.html">названием темы</a>
@@ -60,11 +60,11 @@ int WINAPI InputBox(
     <div class=dfndescr>Может быть комбинацией следующих значений (перечисление <a name="INPUTBOXFLAGS">INPUTBOXFLAGS</a>):
         <table class="cont"><tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
            <tr class="cont"><td class="cont" width="40%"><a name="FIB_ENABLEEMPTY">FIB_ENABLEEMPTY</a></td>
-           <td class="cont" width="60%">даже если строка ввода пуста функция вернет значение TRUE</td></tr>
+           <td class="cont" width="60%">даже если строка ввода пуста функция вернёт значение TRUE</td></tr>
            <tr class="cont"><td class="cont" width="40%"><a name="FIB_PASSWORD">FIB_PASSWORD</a></td>
            <td class="cont" width="60%">используется для ввода пароля - вводимый текст на экране отрисовывается символами <code>'*'</code></td></tr>
            <tr class="cont"><td class="cont" width="40%"><a name="FIB_EXPANDENV">FIB_EXPANDENV</a></td>
-           <td class="cont" width="60%">после успешного ввода, в строке <dfn>DestText</dfn> идентификаторы переменных окружения заменяются на их значения, например, если пользователь ввел '<code>%TEMP%</code>', то <dfn>DestText</dfn> будет содержать '<code>C:\TEMP</code>'</td></tr>
+           <td class="cont" width="60%">после успешного ввода, в строке <dfn>DestText</dfn> идентификаторы переменных окружения заменяются на их значения, например, если пользователь ввёл '<code>%TEMP%</code>', то <dfn>DestText</dfn> будет содержать '<code>C:\TEMP</code>'</td></tr>
            <tr class="cont"><td class="cont" width="40%"><a name="FIB_NOUSELASTHISTORY">FIB_NOUSELASTHISTORY</a></td>
            <td class="cont" width="60%">не использовать предыдущее значение из истории, оставить строку ввода пустой; актуален, если параметр <dfn>HistoryName</dfn> не равен NULL</td></tr>
            <tr class="cont"><td class="cont" width="40%"><a name="FIB_BUTTONS">FIB_BUTTONS</a></td>

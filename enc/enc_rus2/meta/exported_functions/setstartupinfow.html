@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>SetStartupInfoW</dfn> вызывается один раз, после загрузки DLL-модуля в память. FAR Manager передает плагину информацию, необходимую для
+Функция <dfn>SetStartupInfoW</dfn> вызывается один раз, после загрузки DLL-модуля в память. FAR Manager передаёт плагину информацию, необходимую для
 дальнейшей работы.</div>
 
 <pre class=syntax>
@@ -54,7 +54,7 @@ void WINAPI _export SetStartupInfoW(const struct PluginStartupInfo *Info)
 </pre>
 <li>Если в плагине используются "стандартные функции" из структуры <a href="../fsf/index.html">FarStandardFunctions</a>,
     то член <a href="../structures/pluginstartupinfo.html">PluginStartupInfo.FSF</a>
-    так же должен быть сохранен в локальное пространство плагина:
+    так же должен быть сохранён в локальное пространство плагина:
   <pre class=code>static struct PluginStartupInfo Info;
 static struct FarStandardFunctions FSF;
 

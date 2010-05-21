@@ -15,7 +15,7 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.MkTemp</dfn> создает имя временного файла на основе шаблона.
+Функция <dfn>FSF.MkTemp</dfn> создаёт имя временного файла на основе шаблона.
 </div>
 
 <pre class=syntax>
@@ -34,16 +34,16 @@ int WINAPI MkTemp(
   </div>
 
   <div class=dfn>Size</div>
-  <div class=dfndescr>Максимальное количество символов, которое можно поместить в <em>Dest</em>, с заключительным нулем.
+  <div class=dfndescr>Максимальное количество символов, которое можно поместить в <em>Dest</em>, с заключительным нулём.
   </div>
 
   <div class=dfn>Prefix</div>
-  <div class=dfndescr>Указывает на оканчивающуюся нулем строку-префикс.
+  <div class=dfndescr>Указывает на оканчивающуюся нулём строку-префикс.
     Максимум первые четыре символа из этой строки будут использованы в качестве
     префикса имени файла. FAR дополнит символами <code>'0'</code> префикс,
     если размер <var>Prefix</var> меньше 4.<br>
     Если <var>Prefix</var> равен <code>NULL</code> или пустой строке,
-    то будет применен стандартный префикс <code>"FTMP"</code>
+    то будет применён стандартный префикс <code>"FTMP"</code>
   </div>
 </div>
 
@@ -67,7 +67,7 @@ int WINAPI MkTemp(
 &nbsp;&nbsp;&nbsp;<b>PP</b> - две 16-ричных цифры PID (результат функции <a href="win32/GetCurrentProcessId">GetCurrentProcessId</a>);<br>
 &nbsp;&nbsp;&nbsp;<b>TT</b> - две 16-ричных цифры TID (результат функции <a href="win32/GetCurrentThreadId">GetCurrentThreadId</a>).<br>
 
-<li>Функция, физически не создает файл на диске, только формирует имя.
+<li>Функция, физически не создаёт файл на диске, только формирует имя.
 </ol>
 </div>
 

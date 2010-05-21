@@ -51,7 +51,7 @@ int WINAPI EditorControl(
   </td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_DELETEBLOCK">ECTL_DELETEBLOCK</a></td>
-    <td class="cont" width="60%">Удалить блок в редакторе. Функция вернет
+    <td class="cont" width="60%">Удалить блок в редакторе. Функция вернёт
      <code>TRUE</code> в случае удачного удаления блока и <code>FALSE</code>,
      если редактор заблокирован (пользователь нажал <kbd>Ctrl-L</kbd>) или
      нет выделенного блока. <em>Param</em> должен быть равен <code>NULL</code>.
@@ -85,7 +85,7 @@ int WINAPI EditorControl(
      <em>Param</em> указывает на структуру <a href="../structures/editorbookmarks.html">EditorBookMarks</a>.
      <br>Команда возвращает FALSE в случае, если:
      <ol>
-       <li>файл еще не открыт;
+       <li>файл ещё не открыт;
        <li>в качестве <var>Param</var> был передано значение <code>NULL</code>;
      </ol>
      В случае успеха возвращается TRUE.<br>
@@ -129,7 +129,7 @@ Info.EditorControl(ECTL_GETSTRING,&amp;egs);</pre>
     <td class="cont" width="60%">
       Вставить новую строку (разорвать строку) с текущей позиции
       курсора и переместить курсор либо на первую позицию новой
-      строки, либо на позицию с учетом отступа.
+      строки, либо на позицию с учётом отступа.
       Если <em>Param</em> указывает на целочисленную переменную, равную 1,
       то при выполнении данной команды будет использоваться отступ.
       Для его отключения установите <em>Param</em> в <code>NULL</code>
@@ -144,7 +144,7 @@ Info.EditorControl(ECTL_INSERTSTRING,0);</pre>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_INSERTTEXT">ECTL_INSERTTEXT</a></td>
     <td class="cont" width="60%">Вставить текст, начиная с позиции курсора. <em>Param</em>
-      указывает на строку, оканчивающуюся нулем. Команда корректно
+      указывает на строку, оканчивающуюся нулём. Команда корректно
       обрабатывает символ(ы) перевода строки (CR). Команда
       <dfn>ECTL_INSERTTEXT</dfn> работает так, как будто текст вводится с
       клавиатуры.
@@ -166,8 +166,8 @@ Info.EditorControl(ECTL_INSERTTEXT,L"Text");</pre>
   </td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_PROCESSINPUT">ECTL_PROCESSINPUT</a></td>
-    <td class="cont" width="60%">Передает структуру <a href="../winapi/input_record.html">INPUT_RECORD</a>,
-      указатель на которую передается в <em>Param</em>, внутреннему редактору
+    <td class="cont" width="60%">Передаёт структуру <a href="../winapi/input_record.html">INPUT_RECORD</a>,
+      указатель на которую передаётся в <em>Param</em>, внутреннему редактору
       FAR для обработки.<br>
       Учтите, что если ваш плагин экспортирует функцию <a href="../exported_functions/processeditorinputw.html">ProcessEditorInputW</a>,
       то данные из <em>Param</em> сразу же будут переданы в ProcessEditorInput.
@@ -223,7 +223,7 @@ Info.EditorControl(ECTL_PROCESSKEY,(void*)KEY_CTRLEND);
      Если <em>Param</em> равен NULL, то будут использованы имя редактируемого
      файла и текущий формат сохранения (DOS-формат - перевод строки заменяется
      на "\r\n", Unix-формат - "\n").
-     При успешном сохранении файла функция вернет TRUE.</td></tr>
+     При успешном сохранении файла функция вернёт TRUE.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SELECT">ECTL_SELECT</a></td>
     <td class="cont" width="60%">Выделить или снять выделение с блока. <em>Param</em>
@@ -237,7 +237,7 @@ Info.EditorControl(ECTL_PROCESSKEY,(void*)KEY_CTRLEND);
      <em>Param</em> = указатель на структуру <a href="../structures/keybartitles.html">KeyBarTitles</a>.<p>
      Вызывать данную команду в событии <a href="../exported_functions/processeditoreventw.html#EE_READ">EE_READ</a>
      не имеет смысла, т.к. строки функциональных клавиш, как объекта, в момент
-     загрузки файла в редактор еще не существует.<br>
+     загрузки файла в редактор ещё не существует.<br>
      Команда возвращает TRUE в случае успешного выполнения или FALSE (когда
      строка, как объект, не создана).<br>
      </td></tr>
@@ -263,10 +263,10 @@ Info.EditorControl(ECTL_PROCESSKEY,(void*)KEY_CTRLEND);
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SETTITLE">ECTL_SETTITLE</a></td>
     <td class="cont" width="60%"><img src="../../images/ectl_settitle.gif" width=213 height=53 align=right alt="DrawLine\DrawLine.cpp: Применена функция SetTitle()">Установить заголовок редактора (верхняя статусная панель).
-      <em>Param</em> указывает на строку, оканчивающуюся нулем, которая содержит текст заголовка.<br>
+      <em>Param</em> указывает на строку, оканчивающуюся нулём, которая содержит текст заголовка.<br>
       Для восстановления статусной строки укажите параметр <em>Param</em> равный NULL или пустой строке.<br>
       Заголовок не будет выведен, если статусная строка погашена.<br>
-      При показе заголовок будет усечен до размера, не затрагивающего служебную информацию (кодировка, позиция, etc.)<br>
+      При показе заголовок будет усечён до размера, не затрагивающего служебную информацию (кодировка, позиция, etc.)<br>
 <pre class=code>// DrawLine\DrawLine.cpp: функция SetTitle
 Info.EditorControl(ECTL_SETTITLE,(wchar_t *)GetMsg(IDTitle));</pre>
     </td></tr>

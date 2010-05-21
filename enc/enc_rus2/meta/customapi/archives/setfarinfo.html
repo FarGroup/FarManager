@@ -18,7 +18,7 @@
 
 <div class=shortdescr>
 ¬ызываетс€, когда модуль плагина второго уровн€ загружен и MultiArc
-передает плагину указатель на структуру
+передаЄт плагину указатель на структуру
 <a href="../../structures/pluginstartupinfo.html">PluginStartupInfo</a>. Ёта функци€
 дополнительна€ и может быть опущена.
 </div>
@@ -62,7 +62,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 
 <li>≈сли в плагине используютс€ "стандартные функции" из структуры <a href="../../fsf/index.html">FarStandardFunctions</a>,
     то член <a href="../../structures/pluginstartupinfo.html">PluginStartupInfo.FSF</a>
-    так же должен быть сохранен в локальное пространство плагина второго уровн€:
+    так же должен быть сохранЄн в локальное пространство плагина второго уровн€:
   <pre class=code>static struct PluginStartupInfo Info;
 static struct FarStandardFunctions FSF;
 

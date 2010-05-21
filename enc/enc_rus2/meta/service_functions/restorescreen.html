@@ -16,7 +16,7 @@
 </div>
 
 Функция <dfn>RestoreScreen</dfn> восстанавливает область экрана
-предварительно сохраненную функцией <a href="savescreen.html">SaveScreen</a>.
+предварительно сохранённую функцией <a href="savescreen.html">SaveScreen</a>.
 
 <pre class=syntax>
 void WINAPI RestoreScreen(
@@ -42,12 +42,12 @@ void WINAPI RestoreScreen(
 <h3>Замечания</h3>
 <div class=descr>
   Для увеличения скорости <dfn>RestoreScreen</dfn> перерисовывает только
-  измененную область экрана. <dfn>RestoreScreen</dfn> не может корректно
+  изменённую область экрана. <dfn>RestoreScreen</dfn> не может корректно
   определить эту область, если область экрана была изменена не функцией
   FAR Manager (например, запущенной из плагина внешней  программой).
 
   В этом случае сначала вы должны вызвать <dfn>RestoreScreen</dfn> с параметром <code>NULL</code>, чтобы
-  показать FAR'у, что экран изменен, а затем вызвать <dfn>RestoreScreen</dfn>
+  показать FAR'у, что экран изменён, а затем вызвать <dfn>RestoreScreen</dfn>
   как обычно - с описателем от <a href="savescreen.html">SaveScreen</a>.
 </div>
 

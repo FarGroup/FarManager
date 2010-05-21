@@ -37,7 +37,7 @@ struct WindowInfo
 <div class=descr>
     <div class=dfn>Pos</div>
     <div class=dfndescr>Номер окна, о котором нужно узнать информацию.
-      Нумерация идет с 0. <var>Pos</var> = -1 вернет информацию о текущем окне.
+      Нумерация идёт с 0. <var>Pos</var> = -1 вернёт информацию о текущем окне.
     </div>
     <div class=dfn>Type</div>
     <div class=dfndescr>Тип окна. Может иметь одно из следующих значений (перечисление <a name="WINDOWINFO_TYPE">WINDOWINFO_TYPE</a>):
@@ -67,7 +67,7 @@ struct WindowInfo
     <div class=dfndescr>Имя типа окна (Panels,View,Edit,Help,VMenu), зависит от текущего языка.
     </div>
     <div class=dfn>TypeNameSize</div>
-    <div class=dfndescr>Размер буфера <var>TypeName</var> с учетом завершающего '\0'.
+    <div class=dfndescr>Размер буфера <var>TypeName</var> с учётом завершающего '\0'.
     </div>
     <div class=dfn>Name</div>
     <div class=dfndescr>Имя окна. Для окон типа <dfn>WTYPE_VIEWER</dfn>, <dfn>WTYPE_EDITOR</dfn> содержит имя файла.
@@ -76,7 +76,7 @@ struct WindowInfo
        Для диалогов и меню - заголовок.
     </div>
     <div class=dfn>NameSize</div>
-    <div class=dfndescr>Размер буфера <var>Name</var> с учетом завершающего '\0'.
+    <div class=dfndescr>Размер буфера <var>Name</var> с учётом завершающего '\0'.
     </div>
 
 </div>
@@ -115,7 +115,7 @@ void GetFarWindowInfo()
     // запросили информацию
     Info.AdvControl(Info.ModuleNumber,ACTL_GETWINDOWINFO,(void*)&amp;WInfo);
     
-    // распечатали ее
+    // распечатали её
     fwprintf(Fp,L"Window[%i], Type=%i (%s), File=[%s] Current=%i, Modified=%i\n",
                I,WInfo.Type,WInfo.TypeName,WInfo.Name,
                WInfo.Current,WInfo.Modified);

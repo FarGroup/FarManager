@@ -83,7 +83,7 @@ int WINAPI Control(
         <code>Info.Control(...,FCTL_GETPANELINFO)</code>, повторного
         вложенного вызова <code>GetOpenPluginInfoW()</code> не произойдёт.
         <p>В некоторых случаях (пример: поиск в архивах по <kbd>Alt-F7</kbd>)
-        физически панель плагина не создается, поэтому необходимо
+        физически панель плагина не создаётся, поэтому необходимо
         обязательно проверять код возврата у <dfn>Control</dfn>, чтобы не упасть в
         самый не подходящий момент, выполнив работу для панели, которой нет.
         </td></tr>
@@ -162,7 +162,7 @@ int WINAPI Control(
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETNUMERICSORT">FCTL_SETNUMERICSORT</a></td>
-      <td class="cont" width="60%">Задает <a href="../other/dict.html#numericsort">числовой порядок</a> сортировки для панели.<br>
+      <td class="cont" width="60%">Задаёт <a href="../other/dict.html#numericsort">числовой порядок</a> сортировки для панели.<br>
       <var>Param1</var> - целое число, задающее числовую сортировку:<br>
       0 - отключить числовую сортировку или 1 - включить числовую сортировку.<br>
       <var>Param2</var> = NULL (не используется). </td></tr>
@@ -172,7 +172,7 @@ int WINAPI Control(
        <var>Param1</var> = 0 (не используется). <br>
        <var>Param2</var> указывает на имя каталога. Если плагин поддерживает
         свою собственную панель, он будет закрыт после выполнения этой команды.
-        <p>После выполнения этой функции пропадет выделение с элементов каталога
+        <p>После выполнения этой функции пропадёт выделение с элементов каталога
         и его будет невозможно восстановить (комбинация <kbd>Ctrl-M</kbd>) по желанию
         пользователя, даже если новый каталог равен старому.
         </td></tr>
@@ -229,7 +229,7 @@ int WINAPI Control(
       <var>Param2</var> = NULL (не используется). </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETSORTORDER">FCTL_SETSORTORDER</a></td>
-      <td class="cont" width="60%">Задает порядок сортировки для панели.<br>
+      <td class="cont" width="60%">Задаёт порядок сортировки для панели.<br>
       <var>Param1</var> - целое число, содержащее порядок сортировки: 0 или 1 (обратная сортировка).<br>
       <var>Param2</var> = NULL (не используется). </td></tr>
 
@@ -244,7 +244,7 @@ int WINAPI Control(
       <var>Param2</var> = NULL (не используется).</td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETDIRECTORIESFIRST">FCTL_SETDIRECTORIESFIRST</a></td>
-      <td class="cont" width="60%">Задает режим отображения каталогов в начале списка файлов.<br>
+      <td class="cont" width="60%">Задаёт режим отображения каталогов в начале списка файлов.<br>
       <var>Param1</var> - целое число, 1 - каталоги отображаются в начале списка, 0 - нет.<br>
       <var>Param2</var> = NULL (не используется). </td></tr>
 
@@ -281,12 +281,12 @@ int WINAPI Control(
       <tr class="cont"><td class="cont" width="40%"><a name="FCTL_INSERTCMDLINE">FCTL_INSERTCMDLINE</a></td>
       <td class="cont" width="60%">Вставить текст в командную строку, начиная с текущей позиции курсора.<br>
        <var>Param1</var> = 0 (не используется). <br>
-       <var>Param2</var> указывает на строку, оканчивающуюся нулем, которая будет вставлена в командную строку.</td></tr>
+       <var>Param2</var> указывает на строку, оканчивающуюся нулём, которая будет вставлена в командную строку.</td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETCMDLINE">FCTL_SETCMDLINE</a></td>
       <td class="cont" width="60%">Установить содержимое командной строки.<br>
        <var>Param1</var> = 0 (не используется). <br>
-       <var>Param2</var> указывает на строку, оканчивающуюся нулем, которая будет помещена в командную строку.</td></tr>
+       <var>Param2</var> указывает на строку, оканчивающуюся нулём, которая будет помещена в командную строку.</td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETCMDLINEPOS">FCTL_SETCMDLINEPOS</a></td>
       <td class="cont" width="60%">Установить позицию курсора в командной строке.<br>

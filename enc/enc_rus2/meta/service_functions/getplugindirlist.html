@@ -50,7 +50,7 @@ int WINAPI GetPluginDirList(
     плагина должна уметь обрабатывать имя каталога, возвращаемое
     <a href="../exported_functions/getopenplugininfow.html">GetOpenPluginInfoW</a>.
     Иначе текущая директория будет изменена, и вы должны быть
-    готовы восстановить ее.</div>
+    готовы восстановить её.</div>
   <div class=dfn>pPanelItem</div>
   <div class=dfndescr>Указывает на переменную, которая получит адрес
     массива структур <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>.<br>
@@ -63,10 +63,10 @@ int WINAPI GetPluginDirList(
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-  Если функция завершилась успешно, она вернет
+  Если функция завершилась успешно, она вернёт
   TRUE. Если функция закончилась неудачно или
   обработка директории была прервана
-  пользователем, то она вернет FALSE.
+  пользователем, то она вернёт FALSE.
 </div>
 
 <h3>Замечания</h3>
@@ -76,7 +76,7 @@ int WINAPI GetPluginDirList(
   Например, если <dfn>Dir</dfn> есть <code>DIR1\DIR2</code>,
   то имена файлов будут в виде <code>DIR1\DIR2\file.ext</code>, <code>DIR1\DIR2\subdir\file.ext</code> и т.п.
 <li>Пользователь может прервать выполнение функции, нажав клавишу Esc,
-    при этом функция вернет значение FALSE.
+    при этом функция вернёт значение FALSE.
 </ol>
 </div>
 

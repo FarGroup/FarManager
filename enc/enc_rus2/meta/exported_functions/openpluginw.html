@@ -43,8 +43,8 @@ HANDLE WINAPI OpenPluginW(
           Этот идентификатор плагин получит только в том случае, если
           он экспортирует функцию <a href="setfindlistw.html">SetFindListW</a>.
           Последующий вызов функции <a href="setfindlistw.html">SetFindListW</a>
-          произойдет только в том случае, если функция <dfn>OpenPluginW</dfn>
-          вернет значение отличное от <code>INVALID_HANDLE_VALUE</code>.
+          произойдёт только в том случае, если функция <dfn>OpenPluginW</dfn>
+          вернёт значение отличное от <code>INVALID_HANDLE_VALUE</code>.
         </td></tr>
 
         <tr class="cont"><td class="cont" width="40%"><a name="OPEN_SHORTCUT">OPEN_SHORTCUT</a></td>
@@ -90,16 +90,16 @@ HANDLE WINAPI OpenPluginW(
       передана в элемент ShortcutData структуры <a href="../structures/openplugininfo.html">OpenPluginInfo</a>
       в момент сохранения горячей клавиши. Плагин может использовать это поле
       для сохранения дополнительной информации о текущем состоянии.
-      Не обязательно сохранять в нем информацию о текущей директории, так как этим
+      Не обязательно сохранять в нём информацию о текущей директории, так как этим
       занимается сам FAR.
       <li>Для OPEN_DIALOG <em>Item</em> содержит адрес структуры
       <a href="../structures/opendlgplugindata.html">OpenDlgPluginData</a>.
-      <li>Для OPEN_COMMANDLINE <em>Item</em> содержит адрес введенного
+      <li>Для OPEN_COMMANDLINE <em>Item</em> содержит адрес введённого
       пользователем в командной строке выражения.
       Если плагин не установил флаг <a href="../structures/plugininfo.html#PF_FULLCMDLINE">PF_FULLCMDLINE</a>, то
       командный префикс плагина в командную строку не включается. При установленном
       флаге <a href="../structures/plugininfo.html#PF_FULLCMDLINE">PF_FULLCMDLINE</a>
-      плагину передается полная строка (с командным префиксом).<br>
+      плагину передаётся полная строка (с командным префиксом).<br>
 
       К примеру, если плагин устанавливает префикс <em>ftp</em> и пользователь
       вводит <code>ftp://ftp.abc.com</code>, <em>Item</em>  будет указывать на
@@ -129,7 +129,7 @@ HANDLE WINAPI OpenPluginW(
   <li>Вы можете использовать эту функцию для реализации плагинов, работающих
   без создания файловых панелей. Просто выполните все необходимые действия и
   верните INVALID_HANDLE_VALUE.
-  <li>Если функция вернет ноль, то FAR Manager выгрузит плагин из памяти.
+  <li>Если функция вернёт ноль, то FAR Manager выгрузит плагин из памяти.
 </ol>
 </div>
 
