@@ -1997,7 +1997,11 @@ void VMenu::ShowMenu(bool IsParent)
 					HiText(strMenuLine, Col);
 
 				// сделаем добавочку для NO_BOX
-				FS << fmt::Width(X2-WhereX()+(BoxType==NO_BOX?1:0)) << L"";
+				{
+					int Width = X2-WhereX()+(BoxType==NO_BOX?1:0);
+					if (Width > 0)
+						FS << fmt::Width(Width) << L"";
+				}
 
 				if (Item[I]->Flags & MIF_SUBMENU)
 				{

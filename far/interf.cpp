@@ -1295,30 +1295,53 @@ string& HiText2Str(string& strDest, const wchar_t *Str)
 
 int HiStrlen(const wchar_t *Str)
 {
-	int Length=0;
+	/*
+			&&      = '&'
+			&&&     = '&'
+                       ^H
+			&&&&    = '&&'
+			&&&&&   = '&&'
+                       ^H
+			&&&&&&  = '&&&'
+	*/
 
-	if (Str && *Str)
+	int Length=0;
+	bool Hi=false;
+
+	if (Str)
 	{
 		while (*Str)
 		{
-			if (*Str!=L'&')
+			if (*Str == L'&')
 			{
-				Length++;
+				int Count=0;
+
+				while (*Str == L'&')
+				{
+					Str++;
+					Count++;
+				}
+
+				if (Count&1) //нечёт?
+				{
+					if (Hi)
+						Length+=+1;
+					else
+						Hi=true;
+				}
+
+				Length+=Count/2;
 			}
 			else
 			{
-				if (Str[1] == L'&')
-				{
-					Length++;
-					++Str;
-				}
+				Str++;
+				Length++;
 			}
-
-			Str++;
 		}
 	}
 
-	return(Length);
+	return Length;
+
 }
 
 int HiFindRealPos(const wchar_t *Str, int Pos, BOOL ShowAmp)
