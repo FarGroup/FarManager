@@ -958,6 +958,8 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 		if (SeparateWindow)
 			si.lpTitle=(wchar_t*)strFarTitle.CPtr();
 
+		Console.Write(L"\n\n", 2);
+
 		if (CreateProcess(
 		            nullptr,
 		            (wchar_t*)strExecLine.CPtr(),
