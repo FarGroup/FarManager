@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "interf.hpp"
+#include "console.hpp"
 
 #if !defined(SYSLOG)
 #if defined(SYSLOG_OT)             || \
@@ -419,7 +420,7 @@ void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,F
 }
 
 
-void SaveScreenDumpBuffer(const wchar_t *Title,const CHAR_INFO *Buffer,int X1,int Y1,int X2,int Y2,int RealScreen,FILE *fp)
+void SaveScreenDumpBuffer(const wchar_t *Title,const CHAR_INFO *Buffer,int X1,int Y1,int X2,int Y2,FILE *fp)
 {
 #if defined(SYSLOG)
 
@@ -449,7 +450,7 @@ void SaveScreenDumpBuffer(const wchar_t *Title,const CHAR_INFO *Buffer,int X1,in
 		if (!InternalLog && Title && *Title)
 			fwprintf(fp,L"CHAR_INFO DumpBuffer: %s\n",Title);
 
-		fwprintf(fp,L"XY={%i,%i - %i,%i}, RealScreen=%i\n",X1,Y1,X2,Y2,RealScreen);
+		fwprintf(fp,L"XY={%i,%i - %i,%i}\n",X1,Y1,X2,Y2);
 
 		for (y=Y1; y <= Y2; y++)
 		{
@@ -1617,7 +1618,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 	int InternalLog=fp==nullptr?TRUE:FALSE;
 	DWORD ReadCount2;
 	// берем количество оставшейся порции эвентов
-	GetNumberOfConsoleInputEvents(GetStdHandle(STD_INPUT_HANDLE),&ReadCount2);
+	Console.GetNumberOfInputEvents(ReadCount2);
 
 	if (ReadCount2 <= 1)
 		return;
@@ -1643,7 +1644,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 			if (TmpRec)
 			{
 				DWORD ReadCount3;
-				PeekConsoleInput(GetStdHandle(STD_INPUT_HANDLE),TmpRec,ReadCount2,&ReadCount3);
+				Console.PeekInput(*TmpRec, ReadCount2, ReadCount3);
 
 				for (DWORD I=0; I < ReadCount2; ++I)
 				{

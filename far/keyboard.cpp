@@ -59,6 +59,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "synchro.hpp"
 #include "constitle.hpp"
 #include "window.hpp"
+#include "console.hpp"
+#include "palette.hpp"
 
 /* start Глобальные переменные */
 
@@ -701,15 +703,15 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 
 	LastEventIdle=FALSE;
 	SetFarConsoleMode();
-	BOOL ZoomedState=IsZoomed(GetConsoleWindow());
-	BOOL IconicState=IsIconic(GetConsoleWindow());
-
+	BOOL ZoomedState=IsZoomed(Console.GetWindow());
+	BOOL IconicState=IsIconic(Console.GetWindow());
+	
 	bool FullscreenState=IsFullscreen();
 
 	for (;;)
 	{
 		// "Реакция" на максимизацию/восстановление окна консоли
-		if (ZoomedState!=IsZoomed(GetConsoleWindow()) && IconicState==IsIconic(GetConsoleWindow()))
+		if (ZoomedState!=IsZoomed(Console.GetWindow()) && IconicState==IsIconic(Console.GetWindow()))
 		{
 			ZoomedState=!ZoomedState;
 			ChangeVideoMode(ZoomedState);
@@ -729,7 +731,17 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 			ReloadEnvironment();
 		}
 
-		PeekConsoleInput(GetStdHandle(STD_INPUT_HANDLE),rec,1,&ReadCount);
+		if(Opt.WindowMode)
+		{
+			SMALL_RECT CurConRect;
+			Console.GetWindowRect(CurConRect);
+			if(CurConRect.Bottom-CurConRect.Top!=ScrY || CurConRect.Right-CurConRect.Left!=ScrX)
+			{
+				GenerateWINDOW_BUFFER_SIZE_EVENT();
+			}
+		}
+
+		Console.PeekInput(*rec, 1, ReadCount);
 
 		/* $ 26.04.2001 VVM
 		   ! Убрал подмену колесика */
@@ -740,7 +752,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 			{
 				INPUT_RECORD pinp;
 				DWORD nread;
-				ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), &pinp, 1, &nread);
+				Console.ReadInput(pinp, 1, nread);
 				continue;
 			}
 
@@ -763,7 +775,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 						*/
 						INPUT_RECORD pinp;
 						DWORD nread;
-						ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), &pinp, 1, &nread);
+						Console.ReadInput(pinp, 1, nread);
 						continue;
 					}
 
@@ -784,7 +796,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 						{
 							INPUT_RECORD pinp;
 							DWORD nread;
-							ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), &pinp, 1, &nread);
+							Console.ReadInput(pinp, 1, nread);
 							continue;
 						}
 					}
@@ -800,7 +812,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 			{
 				// берем количество оставшейся порции эвентов
 				DWORD ReadCount2;
-				GetNumberOfConsoleInputEvents(GetStdHandle(STD_INPUT_HANDLE),&ReadCount2);
+				GetNumberOfConsoleInputEvents(Console.GetInputHandle(),&ReadCount2);
 
 				// если их безобразно много, то просмотрим все на предмет KEY_EVENT
 				if (ReadCount2 > 1)
@@ -811,7 +823,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 					{
 						DWORD ReadCount3;
 						INPUT_RECORD TmpRec2;
-						PeekConsoleInput(GetStdHandle(STD_INPUT_HANDLE),TmpRec,ReadCount2,&ReadCount3);
+						Console.PeekInput(Console.GetInputHandle(),TmpRec,ReadCount2,&ReadCount3);
 
 						for (int I=0; I < ReadCount2; ++I)
 						{
@@ -819,7 +831,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 								break;
 
 							// // _SVS(SysLog(L"%d> %s",I,_INPUT_RECORD_Dump(rec)));
-							ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE),&TmpRec2,1,&ReadCount3);
+							Console.ReadInput((Console.GetInputHandle(),&TmpRec2,1,&ReadCount3);
 
 							if (TmpRec[I].Event.KeyEvent.bKeyDown==1)
 							{
@@ -932,8 +944,8 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 
 				if (IsFullscreen() && !Opt.Mouse)
 				{
-					SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE),ENABLE_WINDOW_INPUT|ENABLE_MOUSE_INPUT);
-					SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE),ENABLE_WINDOW_INPUT);
+					Console.SetMode(Console.GetInputHandle(),ENABLE_WINDOW_INPUT|ENABLE_MOUSE_INPUT);
+					Console.SetMode(Console.GetInputHandle(),ENABLE_WINDOW_INPUT);
 				}
 
 				ConsoleTitle::SetFarTitle(nullptr);//LastFarTitle);
@@ -974,16 +986,16 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 		MouseButtonState=0;
 		ShiftState=FALSE;
 		PressedLastTime=0;
-		ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE),rec,1,&ReadCount);
+		Console.ReadInput(*rec, 1, ReadCount);
 		CalcKey=rec->Event.FocusEvent.bSetFocus?KEY_GOTFOCUS:KEY_KILLFOCUS;
 		memset(rec,0,sizeof(*rec)); // Иначе в ProcessEditorInput такая херь приходит - волосы дыбом становятся
 		rec->EventType=KEY_EVENT;
 
 		//чтоб решить баг винды приводящий к появлению скролов и т.п. после потери фокуса
 		if (CalcKey == KEY_GOTFOCUS)
-			RestoreConsoleWindowInfo();
+			RestoreConsoleWindowRect();
 		else
-			SaveConsoleWindowInfo();
+			SaveConsoleWindowRect();
 
 		return CalcKey;
 	}
@@ -1010,7 +1022,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 		        {
 		          INPUT_RECORD pinp;
 		          DWORD nread;
-		          ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), &pinp, 1, &nread);
+		          Console.ReadInput((Console.GetInputHandle(), &pinp, 1, &nread);
 		          return KEY_NONE;
 		        }
 		      }
@@ -1045,7 +1057,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 					INPUT_RECORD pinp;
 					DWORD nread;
 					// Удалим из очереди...
-					ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), &pinp, 1, &nread);
+					Console.ReadInput(pinp, 1, nread);
 					return KEY_NONE;
 				}
 			}
@@ -1107,9 +1119,9 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 		return(CalcKey);
 	}
 
-	ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE),rec,1,&ReadCount);
+	Console.ReadInput(*rec, 1, ReadCount);
 #if 0
-	ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE),rec,1,&ReadCount);
+	Console.ReadInput(*rec, 1, ReadCount);
 
 	// Эта фигня нужна только в диалоге назначения макро - остальное по барабану - и так работает
 	// ... иначе хреновень с эфектом залипшего шифта проскакивает
@@ -1147,14 +1159,18 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 		int PScrY=ScrY;
 		//// // _SVS(SysLog(1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT)"));
 		Sleep(1);
-		GetVideoMode(CurScreenBufferInfo);
-		if (PScrX+1 == CurScreenBufferInfo.dwSize.X &&
-		        PScrY+1 == CurScreenBufferInfo.dwSize.Y)
+		GetVideoMode(CurSize);
+		bool NotIgnore=Opt.WindowMode && (rec->Event.WindowBufferSizeEvent.dwSize.X!=CurSize.X || rec->Event.WindowBufferSizeEvent.dwSize.Y!=CurSize.Y);
+		if (PScrX+1 == CurSize.X && PScrY+1 == CurSize.Y && !NotIgnore)
 		{
 			return KEY_NONE;
 		}
 		else
 		{
+			if(Opt.WindowMode)
+			{
+				Console.ClearExtraRegions(FarColorToReal(COL_COMMANDLINEUSERSCREEN));
+			}
 			PrevScrX=PScrX;
 			PrevScrY=PScrY;
 			//// // _SVS(SysLog(-1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT); return KEY_CONSOLE_BUFFER_RESIZE"));
@@ -1162,6 +1178,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 
 			if (FrameManager)
 			{
+				ScrBuf.ResetShadow();
 				// апдейтим панели (именно они сейчас!)
 				LockScreen LckScr;
 
@@ -1383,7 +1400,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 		      };
 		      DWORD WriteCount;
 		      TempRec[0].Event.KeyEvent.dwControlKeyState=TempRec[1].Event.KeyEvent.dwControlKeyState=CtrlState;
-					WriteConsoleInput(GetStdHandle(STD_INPUT_HANDLE),TempRec,2,&WriteCount);
+					Console.WriteInput(*TempRec, 2, WriteCount);
 		    }
 		*/
 		CtrlPressed=(CtrlState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED));
@@ -1536,7 +1553,7 @@ DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 	}
 	else
 	{
-		PeekConsoleInput(GetStdHandle(STD_INPUT_HANDLE),rec,1,&ReadCount);
+		Console.PeekInput(*rec, 1, ReadCount);
 	}
 
 	if (ReadCount==0)
@@ -1622,7 +1639,7 @@ int WriteInput(int Key,DWORD Flags)
 			Rec.Event.KeyEvent.dwControlKeyState=0;
 		}
 
-		return WriteConsoleInput(GetStdHandle(STD_INPUT_HANDLE),&Rec,1,&WriteCount);
+		return Console.WriteInput(Rec, 1, WriteCount);
 	}
 	else if (KeyQueue)
 	{
@@ -2162,7 +2179,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 			//FlushInputBuffer();//???
 			INPUT_RECORD TempRec;
 			DWORD ReadCount;
-			ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE),&TempRec,1,&ReadCount);
+			Console.ReadInput(TempRec, 1, ReadCount);
 			ReturnAltValue=TRUE;
 			//_SVS(SysLog(L"0 AltNumPad -> AltValue=0x%0X CtrlState=%X",AltValue,CtrlState));
 			AltValue&=0xFFFF;

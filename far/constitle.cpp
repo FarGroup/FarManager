@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "ctrlobj.hpp"
 #include "CriticalSections.hpp"
+#include "console.hpp"
 
 static const string& GetFarTitleAddons();
 
@@ -52,7 +53,7 @@ CriticalSection TitleCS;
 ConsoleTitle::ConsoleTitle(const wchar_t *title)
 {
 	CriticalSectionLock Lock(TitleCS);
-	apiGetConsoleTitle(strOldTitle);
+	Console.GetTitle(strOldTitle);
 
 	if (title)
 		ConsoleTitle::SetFarTitle(title, true);
@@ -93,7 +94,7 @@ void ConsoleTitle::SetFarTitle(const wchar_t *Title, bool Force)
 
 	if (Title)
 	{
-		apiGetConsoleTitle(strOldFarTitle);
+		Console.GetTitle(strOldFarTitle);
 		strFarTitle=Title;
 		strFarTitle.SetLength(0x100);
 		strFarTitle+=GetFarTitleAddons();
@@ -107,7 +108,7 @@ void ConsoleTitle::SetFarTitle(const wchar_t *Title, bool Force)
 			if(CurTime-ShowTime>RedrawTimeout || Force)
 			{
 				ShowTime=CurTime;
-				SetConsoleTitle(strFarTitle);
+				Console.SetTitle(strFarTitle);
 				TitleModified=true;
 			}
 		}
@@ -119,7 +120,7 @@ void ConsoleTitle::SetFarTitle(const wchar_t *Title, bool Force)
 			SetFarTitle(nullptr) - это не для всех!
 			Этот вызов имеет право делать только макро-движок!
 		*/
-		SetConsoleTitle(strFarTitle);
+		Console.SetTitle(strFarTitle);
 		TitleModified=false;
 		//_SVS(SysLog(L"  (nullptr)FarTitle='%s'",FarTitle));
 	}

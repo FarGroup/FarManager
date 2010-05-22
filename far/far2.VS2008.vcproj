@@ -672,6 +672,10 @@
 				>
 			</File>
 			<File
+				RelativePath="console.cpp"
+				>
+			</File>
+			<File
 				RelativePath="constitle.cpp"
 				>
 			</File>
@@ -2776,6 +2780,10 @@
 			</File>
 			<File
 				RelativePath="config.hpp"
+				>
+			</File>
+			<File
+				RelativePath="console.hpp"
 				>
 			</File>
 			<File

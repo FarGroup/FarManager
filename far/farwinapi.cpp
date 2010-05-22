@@ -472,29 +472,6 @@ DWORD apiExpandEnvironmentStrings(const wchar_t *src, string &strDest)
 	return length;
 }
 
-
-DWORD apiGetConsoleTitle(string &strConsoleTitle)
-{
-	DWORD dwSize = 0;
-	DWORD dwBufferSize = MAX_PATH;
-	wchar_t *lpwszTitle = nullptr;
-
-	do
-	{
-		dwBufferSize <<= 1;
-		lpwszTitle = (wchar_t*)xf_realloc_nomove(lpwszTitle, dwBufferSize*sizeof(wchar_t));
-		dwSize = GetConsoleTitle(lpwszTitle, dwBufferSize);
-	}
-	while (!dwSize && GetLastError() == ERROR_SUCCESS);
-
-	if (dwSize)
-		strConsoleTitle = lpwszTitle;
-
-	xf_free(lpwszTitle);
-	return dwSize;
-}
-
-
 DWORD apiWNetGetConnection(const wchar_t *lpwszLocalName, string &strRemoteName)
 {
 	DWORD dwRemoteNameSize = 0;
@@ -702,28 +679,6 @@ BOOL apiGetDiskSize(const wchar_t *Path,unsigned __int64 *TotalSize, unsigned __
 		*UserFree = uiUserFree;
 
 	return ExitCode;
-}
-
-BOOL apiGetConsoleKeyboardLayoutName(string &strDest)
-{
-	BOOL ret=FALSE;
-	strDest.Clear();
-
-	if (ifn.pfnGetConsoleKeyboardLayoutName)
-	{
-		wchar_t *p = strDest.GetBuffer(KL_NAMELENGTH+1);
-
-		if (p && ifn.pfnGetConsoleKeyboardLayoutName(p))
-			ret=TRUE;
-
-		strDest.ReleaseBuffer();
-	}
-	else
-	{
-		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-	}
-
-	return ret;
 }
 
 HANDLE apiFindFirstFileName(LPCWSTR lpFileName,DWORD dwFlags,string& strLinkName)

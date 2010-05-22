@@ -124,10 +124,12 @@ WindowHandler::WindowHandler()
 
 WindowHandler::~WindowHandler()
 {
-	if(Thread)
+	if(Hwnd)
 	{
 		SendMessage(Hwnd,WM_CLOSE, 0, 0);
-		WaitForSingleObject(Thread,INFINITE);
+	}
+	if(Thread)
+	{
 		CloseHandle(Thread);
 	}
 }

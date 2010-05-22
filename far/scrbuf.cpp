@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "DList.hpp"
 #include "adminmode.hpp"
+#include "console.hpp"
 
 enum
 {
@@ -107,48 +108,15 @@ void ScreenBuf::AllocBuf(int X,int Y)
 void ScreenBuf::FillBuf()
 {
 	CriticalSectionLock Lock(CS);
-	COORD Size,Corner;
-	SMALL_RECT Coord;
-	Size.X=BufX;
-	Size.Y=BufY;
-	Corner.X=0;
-	Corner.Y=0;
-	Coord.Left=0;
-	Coord.Top=0;
-	Coord.Right=BufX-1;
-	Coord.Bottom=BufY-1;
-	_tran(SysLog(L"BufX*BufY=%i",BufX*BufY));
-
-	HANDLE hConOut = GetStdHandle(STD_OUTPUT_HANDLE);
-
-	if (BufX*BufY>6000)
-	{
-		_tran(SysLog(L"fucked method"));
-		CHAR_INFO *ci=(CHAR_INFO*)Buf;
-
-		for (int y=0; y<BufY; y++)
-		{
-			Size.Y=1;
-			Coord.Top=y;
-			Coord.Bottom=y;
-			BOOL r;
-			r=ReadConsoleOutput(hConOut,ci,Size,Corner,&Coord);
-			ci+=BufX;
-		}
-
-		_tran(SysLog(L"fucked method end"));
-	}
-	else
-	{
-		ReadConsoleOutput(hConOut,Buf,Size,Corner,&Coord);
-	}
-
+	COORD BufferSize={BufX, BufY}, BufferCoord={0, 0};
+	SMALL_RECT ReadRegion={0, 0, BufX-1, BufY-1};
+	Console.ReadOutput(*Buf, BufferSize, BufferCoord, ReadRegion);
 	memcpy(Shadow,Buf,BufX*BufY*sizeof(CHAR_INFO));
 	SBFlags.Set(SBFLAGS_USESHADOW);
-	CONSOLE_SCREEN_BUFFER_INFO csbi;
-	GetConsoleScreenBufferInfo(hConOut,&csbi);
-	CurX=csbi.dwCursorPosition.X;
-	CurY=csbi.dwCursorPosition.Y;
+	COORD CursorPosition;
+	Console.GetCursorPosition(CursorPosition);
+	CurX=CursorPosition.X;
+	CurY=CursorPosition.Y;
 }
 
 /* Записать Text в виртуальный буфер
@@ -340,8 +308,6 @@ void ScreenBuf::Flush()
 
 	if (!LockCount)
 	{
-		HANDLE hConOut = GetStdHandle(STD_OUTPUT_HANDLE);
-
 		if (CtrlObject && (CtrlObject->Macro.IsRecording() || CtrlObject->Macro.IsExecuting()))
 		{
 			MacroChar=Buf[0];
@@ -371,7 +337,7 @@ void ScreenBuf::Flush()
 		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE) && !CurVisible)
 		{
 			CONSOLE_CURSOR_INFO cci={CurSize,CurVisible};
-			SetConsoleCursorInfo(hConOut,&cci);
+			Console.SetCursorInfo(cci);
 			SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
 		}
 
@@ -488,33 +454,10 @@ void ScreenBuf::Flush()
 			{
 				for (PSMALL_RECT PtrRect=WriteList.First(); PtrRect; PtrRect=WriteList.Next(PtrRect))
 				{
-					COORD Size={BufX,BufY},Corner={PtrRect->Left,PtrRect->Top};
-					SMALL_RECT Coord=*PtrRect;
-					// BUGBUG: в Windows 7 при 0xFFFF в консоли имеем мусор и падает conhost.
-					// посему пишем по 32 K.
-#define MAXSIZE 0x7FFF
-
-					if (BufX*BufY*sizeof(CHAR_INFO)>MAXSIZE) // See REMINDER file section scrbuf.cpp
-					{
-						Corner.Y=0;
-						int WriteY2=Coord.Bottom;
-
-						for (int yy=Coord.Top; yy<=WriteY2;)
-						{
-							Coord.Top=yy;
-							PCHAR_INFO BufPtr=Buf+yy*BufX;
-							Size.Y=Min(Max(MAXSIZE/static_cast<int>(BufX*sizeof(CHAR_INFO)),1),WriteY2-yy+1);
-							yy+=Size.Y;
-							Coord.Bottom=yy-1;
-							WriteConsoleOutput(hConOut,BufPtr,Size,Corner,&Coord);
-						}
-					}
-					else
-					{
-						WriteConsoleOutput(hConOut,Buf,Size,Corner,&Coord);
-					}
+					COORD BufferSize={BufX, BufY}, BufferCoord={PtrRect->Left,PtrRect->Top};
+					SMALL_RECT WriteRegion=*PtrRect;
+					Console.WriteOutput(*Buf, BufferSize, BufferCoord, WriteRegion);
 				}
-
 				memcpy(Shadow,Buf,BufX*BufY*sizeof(CHAR_INFO));
 			}
 		}
@@ -532,14 +475,14 @@ void ScreenBuf::Flush()
 		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURPOS))
 		{
 			COORD C={CurX,CurY};
-			SetConsoleCursorPosition(hConOut,C);
+			Console.SetCursorPosition(C);
 			SBFlags.Set(SBFLAGS_FLUSHEDCURPOS);
 		}
 
 		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE) && CurVisible)
 		{
 			CONSOLE_CURSOR_INFO cci={CurSize,CurVisible};
-			SetConsoleCursorInfo(hConOut,&cci);
+			Console.SetCursorInfo(cci);
 			SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
 		}
 

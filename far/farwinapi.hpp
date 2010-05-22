@@ -153,10 +153,6 @@ DWORD apiExpandEnvironmentStrings(
     string &strDest
 );
 
-DWORD apiGetConsoleTitle(
-    string &strConsoleTitle
-);
-
 DWORD apiWNetGetConnection(
     const wchar_t *lpwszLocalName,
     string &strRemoteName
@@ -262,10 +258,6 @@ BOOL apiGetDiskSize(
     unsigned __int64 *TotalSize,
     unsigned __int64 *TotalFree,
     unsigned __int64 *UserFree
-);
-
-BOOL apiGetConsoleKeyboardLayoutName(
-    string &strDest
 );
 
 HANDLE apiFindFirstFileName(

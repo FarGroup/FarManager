@@ -40,26 +40,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "palette.hpp"
 
-SaveScreen::SaveScreen():
-	RealScreen(FALSE)
+SaveScreen::SaveScreen()
 {
 	_OT(SysLog(L"[%p] SaveScreen::SaveScreen()", this));
 	SaveArea(0,0,ScrX,ScrY);
 }
 
-
-SaveScreen::SaveScreen(int RealScreen)
-{
-	_OT(SysLog(L"[%p] SaveScreen::SaveScreen(RealScreen=%i)",this,RealScreen));
-	SaveScreen::RealScreen=RealScreen;
-	SaveArea(0,0,ScrX,ScrY);
-}
-
-
-SaveScreen::SaveScreen(int X1,int Y1,int X2,int Y2,int RealScreen)
+SaveScreen::SaveScreen(int X1,int Y1,int X2,int Y2)
 {
 	_OT(SysLog(L"[%p] SaveScreen::SaveScreen(X1=%i,Y1=%i,X2=%i,Y2=%i)",this,X1,Y1,X2,Y2));
-	SaveScreen::RealScreen=RealScreen;
 
 	if (X1<0) X1=0;
 
@@ -99,23 +88,12 @@ void SaveScreen::RestoreArea(int RestoreCursor)
 	if (!ScreenBuf)
 		return;
 
-	if (RealScreen)
-		PutRealText(X1,Y1,X2,Y2,ScreenBuf);
-	else
-		PutText(X1,Y1,X2,Y2,ScreenBuf);
+	PutText(X1,Y1,X2,Y2,ScreenBuf);
 
 	if (RestoreCursor)
 	{
-		if (RealScreen)
-		{
-			SetRealCursorType(CurVisible,CurSize);
-			MoveRealCursor(CurPosX,CurPosY);
-		}
-		else
-		{
-			SetCursorType(CurVisible,CurSize);
-			MoveCursor(CurPosX,CurPosY);
-		}
+		SetCursorType(CurVisible,CurSize);
+		MoveCursor(CurPosX,CurPosY);
 	}
 }
 
@@ -131,18 +109,9 @@ void SaveScreen::SaveArea(int X1,int Y1,int X2,int Y2)
 	if (!ScreenBuf)
 		return;
 
-	if (RealScreen)
-	{
-		GetRealText(X1,Y1,X2,Y2,ScreenBuf);
-		GetRealCursorPos(CurPosX,CurPosY);
-		GetRealCursorType(CurVisible,CurSize);
-	}
-	else
-	{
-		GetText(X1,Y1,X2,Y2,ScreenBuf,ScreenBufCharCount()*sizeof(CHAR_INFO));
-		GetCursorPos(CurPosX,CurPosY);
-		GetCursorType(CurVisible,CurSize);
-	}
+	GetText(X1,Y1,X2,Y2,ScreenBuf,ScreenBufCharCount()*sizeof(CHAR_INFO));
+	GetCursorPos(CurPosX,CurPosY);
+	GetCursorType(CurVisible,CurSize);
 }
 
 void SaveScreen::SaveArea()
@@ -150,18 +119,9 @@ void SaveScreen::SaveArea()
 	if (!ScreenBuf)
 		return;
 
-	if (RealScreen)
-	{
-		GetRealText(X1,Y1,X2,Y2,ScreenBuf);
-		GetRealCursorPos(CurPosX,CurPosY);
-		GetRealCursorType(CurVisible,CurSize);
-	}
-	else
-	{
-		GetText(X1,Y1,X2,Y2,ScreenBuf,ScreenBufCharCount()*sizeof(CHAR_INFO));
-		GetCursorPos(CurPosX,CurPosY);
-		GetCursorType(CurVisible,CurSize);
-	}
+	GetText(X1,Y1,X2,Y2,ScreenBuf,ScreenBufCharCount()*sizeof(CHAR_INFO));
+	GetCursorPos(CurPosX,CurPosY);
+	GetCursorType(CurVisible,CurSize);
 }
 
 void SaveScreen::CorrectRealScreenCoord()
@@ -292,5 +252,5 @@ void SaveScreen::CleanupBuffer(PCHAR_INFO Buffer, size_t BufSize)
 
 void SaveScreen::DumpBuffer(const wchar_t *Title)
 {
-	SaveScreenDumpBuffer(Title,GetBufferAddress(),X1,Y1,X2,Y2,RealScreen,nullptr);
+	SaveScreenDumpBuffer(Title,GetBufferAddress(),X1,Y1,X2,Y2,nullptr);
 }

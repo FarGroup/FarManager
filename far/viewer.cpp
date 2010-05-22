@@ -64,6 +64,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filestr.hpp"
 #include "mix.hpp"
 #include "constitle.hpp"
+#include "console.hpp"
 
 static void PR_ViewerSearchMsg();
 static void ViewerSearchMsg(const wchar_t *Name,int Percent);
@@ -245,7 +246,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 		char ReadBuf[8192];
 		DWORD ReadSize,WrittenSize;
 
-		while (ReadFile(GetStdHandle(STD_INPUT_HANDLE),ReadBuf,sizeof(ReadBuf),&ReadSize,nullptr))
+		while (ReadFile(Console.GetInputHandle(),ReadBuf,sizeof(ReadBuf),&ReadSize,nullptr))
 			WriteFile(OutHandle,ReadBuf,ReadSize,&WrittenSize,nullptr);
 
 		//after reading from the pipe, redirect stdin to the real console stdin

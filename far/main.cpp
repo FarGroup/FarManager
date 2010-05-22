@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dirmix.hpp"
 #include "adminmode.hpp"
 #include "cmdline.hpp"
+#include "console.hpp"
 
 #ifdef DIRECT_RT
 int DirectRT=0;
@@ -70,15 +71,17 @@ class ConsoleRestore
 {
 	private:
 		string strOldTitle;
-		CONSOLE_SCREEN_BUFFER_INFO sbi;
+		SMALL_RECT WindowRect;
+		COORD Size;
 		HANDLE hOutput;
 		bool IsRestoreConsole;
 	public:
 		ConsoleRestore(bool RestoreConsole)
 		{
-			hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
-			apiGetConsoleTitle(strOldTitle);
-			GetConsoleScreenBufferInfo(hOutput,&sbi);
+			hOutput = Console.GetOutputHandle();
+			Console.GetTitle(strOldTitle);
+			Console.GetWindowRect(WindowRect);
+			Console.GetSize(Size);
 			IsRestoreConsole=RestoreConsole;
 		}
 
@@ -86,10 +89,10 @@ class ConsoleRestore
 		{
 			if (IsRestoreConsole)
 			{
-				SetConsoleTitle(strOldTitle);
-				//SetConsoleScreenBufferSize(hOutput,sbi.dwSize);
-				SetConsoleWindowInfo(hOutput,TRUE,&sbi.srWindow);
-				SetConsoleScreenBufferSize(hOutput,sbi.dwSize);
+				Console.SetTitle(strOldTitle);
+				Console.SetSize(Size);
+				Console.SetWindowRect(WindowRect);
+				Console.SetSize(Size);
 			}
 		}
 };
@@ -98,7 +101,7 @@ static void CopyGlobalSettings();
 
 static void show_help()
 {
-	wprintf(
+	WCHAR HelpMsg[]=
 	    L"Usage: far [switches] [apath [ppath]]\n\n"
 	    L"where\n"
 	    L"  apath - path to a folder (or a file or an archive or command with prefix)\n"
@@ -109,27 +112,29 @@ static void show_help()
 	    L" /?   This help.\n"
 	    L" /a   Disable display of characters with codes 0 - 31 and 255.\n"
 	    L" /ag  Disable display of pseudographics characters.\n"
+	    L" /co  Forces FAR to load plugins from the cache only.\n"
+#ifdef DIRECT_RT
+	    L" /do  Direct output.\n"
+#endif
 	    L" /e[<line>[:<pos>]] <filename>\n"
 	    L"      Edit the specified file.\n"
 	    L" /i   Set small (16x16) icon for FAR console window.\n"
-	    L" /p[<path>]\n"
-	    L"      Search for \"common\" plugins in the directory, specified by <path>.\n"
-	    L" /co  Forces FAR to load plugins from the cache only.\n"
-	    L" /rc  Restore console windows settings upon exiting FAR.\n"
 	    L" /m   Do not load macros.\n"
 	    L" /ma  Do not execute auto run macros.\n"
+	    L" /p[<path>]\n"
+	    L"      Search for \"common\" plugins in the directory, specified by <path>.\n"
+	    L" /rc  Restore console windows settings upon exiting FAR.\n"
 	    L" /u <username>\n"
 	    L"      Allows to have separate settings for different users.\n"
 	    L" /v <filename>\n"
 	    L"      View the specified file. If <filename> is -, data is read from the stdin.\n"
+	    L" /w   Stretch to console window instead of console buffer.\n"
 	    L" /x   Disable exception handling.\n"
-#if defined(_DEBUGEXC)
+#ifdef _DEBUGEXC
 	    L" /xd  Enable exception handling.\n"
 #endif
-#ifdef DIRECT_RT
-	    L" /do  Direct output.\n"
-#endif
-			);
+		;
+	Console.Write(HelpMsg, countof(HelpMsg)-1);
 }
 
 static int MainProcess(
@@ -144,8 +149,8 @@ static int MainProcess(
 	{
 		ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 		ControlObject CtrlObj;
-		CONSOLE_SCREEN_BUFFER_INFO InitCsbi;
-		GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),&InitCsbi);
+		WORD InitAttributes=0;
+		Console.GetTextAttributes(InitAttributes);
 		SetRealColor(COL_COMMANDLINEUSERSCREEN);
 		GetSystemInfo(&SystemInfo);
 
@@ -310,7 +315,7 @@ static int MainProcess(
 
 		// очистим за собой!
 		SetScreen(0,0,ScrX,ScrY,L' ',COL_COMMANDLINEUSERSCREEN);
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),InitCsbi.wAttributes);
+		Console.SetTextAttributes(InitAttributes);
 		ScrBuf.ResetShadow();
 		ScrBuf.Flush();
 		MoveRealCursor(0,0);
@@ -551,6 +556,11 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
 					break;
 #endif
+				case L'W':
+					{
+						Opt.WindowMode=TRUE;
+					}
+					break;
 			}
 		}
 		else // простые параметры. Их может быть max две штукА.
@@ -599,8 +609,9 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	if (!Lang.Init(g_strFarPath,true,MNewFileName))
 	{
 		ControlObject::ShowCopyright(1);
-		fprintf(stderr,"\nError: Cannot load language data\n\nPress any key...");
-		FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
+		WCHAR LngMsg[]=L"\nError: Cannot load language data.\n\nPress any key...";
+		Console.Write(LngMsg,countof(LngMsg)-1);
+		Console.FlushInputBuffer();
 		WaitKey(); // А стоит ли ожидать клавишу??? Стоит
 		return 1;
 	}

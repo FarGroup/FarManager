@@ -439,6 +439,7 @@ if not exist bootstrap mkdir bootstrap</Command>
     <ClCompile Include="cmem.cpp" />
     <ClCompile Include="codepage.cpp" />
     <ClCompile Include="config.cpp" />
+    <ClCompile Include="console.cpp" />
     <ClCompile Include="constitle.cpp" />
     <ClCompile Include="copy.cpp" />
     <ClCompile Include="ctrlobj.cpp" />
@@ -987,6 +988,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Include\farcolor.hpp;%(Outputs)</Outputs>
     </CustomBuild>
     <ClInclude Include="config.hpp" />
+    <ClInclude Include="console.hpp" />
     <ClInclude Include="constitle.hpp" />
     <ClInclude Include="copy.hpp" />
     <ClInclude Include="CriticalSections.hpp" />

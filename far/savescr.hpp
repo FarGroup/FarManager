@@ -41,9 +41,7 @@ class SaveScreen
 		SHORT CurPosX,CurPosY;
 		int CurVisible,CurSize;
 		int X1,Y1,X2,Y2;
-		int RealScreen;
 
-	private:
 		void CleanupBuffer(PCHAR_INFO Buffer, size_t BufSize);
 		int ScreenBufCharCount();
 		void CharCopy(PCHAR_INFO ToBuffer,PCHAR_INFO FromBuffer,int Count);
@@ -51,8 +49,7 @@ class SaveScreen
 
 	public:
 		SaveScreen();
-		SaveScreen(int RealScreen);
-		SaveScreen(int X1,int Y1,int X2,int Y2,int RealScreen=FALSE);
+		SaveScreen(int X1,int Y1,int X2,int Y2);
 		~SaveScreen();
 
 	public:

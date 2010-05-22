@@ -107,6 +107,7 @@ LINK_OBJS = \
 	"$(INTDIR)\cmem.obj" \
 	"$(INTDIR)\codepage.obj" \
 	"$(INTDIR)\config.obj" \
+	"$(INTDIR)\console.obj" \
 	"$(INTDIR)\constitle.obj" \
 	"$(INTDIR)\copy.obj" \
 	"$(INTDIR)\ctrlobj.obj" \

@@ -676,6 +676,7 @@ static struct FARConfig
 	{1, REG_DWORD,  NKeySystem,L"ScanJunction",&Opt.ScanJunction,1, 0},
 	{0, REG_DWORD,  NKeySystem,L"UsePrintManager",&Opt.UsePrintManager,1, 0},
 	{1, REG_DWORD,  NKeySystem,L"ElevationMode",&Opt.ElevationMode,0xFFFFFFFFU, 0},
+	{0, REG_DWORD,  NKeySystem,L"WindowMode",&Opt.WindowMode, 0, 0},
 
 	{0, REG_DWORD,  NKeySystemNowell,L"MoveRO",&Opt.Nowell.MoveRO,1, 0},
 
@@ -812,7 +813,7 @@ void ReadConfig()
 	OptPolicies_DisabledOptions=GetRegKey(NKeyPolicies,L"DisabledOptions",0);
 	SetRegRootKey(HKEY_CURRENT_USER);
 	GetRegKey(NKeySystem,L"PersonalPluginsPath",Opt.LoadPlug.strPersonalPluginsPath, strPersonalPluginsPath);
-
+	bool ExplicitWindowMode=Opt.WindowMode!=0;
 	//Opt.LCIDSort=LOCALE_USER_DEFAULT; // проинициализируем на всякий случай
 	/* *************************************************** </ПРЕПРОЦЕССЫ> */
 
@@ -842,6 +843,11 @@ void ReadConfig()
 
 	if (Opt.PluginMaxReadData < 0x1000) // || Opt.PluginMaxReadData > 0x80000)
 		Opt.PluginMaxReadData=0x20000;
+
+	if(ExplicitWindowMode)
+	{
+		Opt.WindowMode=TRUE;
+	}
 
 	Opt.HelpTabSize=8; // пока жестко пропишем...
 	//   Уточняем алгоритм "взятия" палитры.

@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "TaskBar.hpp"
+#include "console.hpp"
 
 TaskBarCore TBC;
 
@@ -77,7 +78,7 @@ void TaskBarCore::SetProgressState(TBPFLAG tbpFlags)
 	if (pTaskbarList)
 	{
 		State=tbpFlags;
-		pTaskbarList->SetProgressState(GetConsoleWindow(),tbpFlags);
+		pTaskbarList->SetProgressState(Console.GetWindow(),tbpFlags);
 	}
 }
 
@@ -86,7 +87,7 @@ void TaskBarCore::SetProgressValue(UINT64 Completed, UINT64 Total)
 	if (pTaskbarList)
 	{
 		State=TBPF_NORMAL;
-		pTaskbarList->SetProgressValue(GetConsoleWindow(),Completed,Total);
+		pTaskbarList->SetProgressValue(Console.GetWindow(),Completed,Total);
 	}
 }
 
@@ -99,11 +100,11 @@ void TaskBarCore::Flash()
 {
 	WINDOWINFO WI={sizeof(WI)};
 
-	if (GetWindowInfo(GetConsoleWindow(),&WI))
+	if (GetWindowInfo(Console.GetWindow(),&WI))
 	{
 		if (WI.dwWindowStatus!=WS_ACTIVECAPTION)
 		{
-			FLASHWINFO FWI={sizeof(FWI),GetConsoleWindow(),FLASHW_ALL|FLASHW_TIMERNOFG,0,0};
+			FLASHWINFO FWI={sizeof(FWI),Console.GetWindow(),FLASHW_ALL|FLASHW_TIMERNOFG,0,0};
 			FlashWindowEx(&FWI);
 		}
 	}

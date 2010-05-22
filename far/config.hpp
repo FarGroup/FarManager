@@ -622,6 +622,7 @@ struct Options
 	string strTitleAddons;
 
 	DWORD ElevationMode;
+	BOOL WindowMode;
 };
 
 extern Options Opt;

@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "registry.hpp"
 #include "config.hpp"
 #include "xlat.hpp"
+#include "console.hpp"
 
 wchar_t* WINAPI Xlat(wchar_t *Line,
                      int StartPos,
@@ -77,7 +78,7 @@ wchar_t* WINAPI Xlat(wchar_t *Line,
 	string strLayoutName;
 	int ProcessLayoutName=FALSE;
 
-	if ((Flags & XLAT_USEKEYBLAYOUTNAME) && apiGetConsoleKeyboardLayoutName(strLayoutName))
+	if ((Flags & XLAT_USEKEYBLAYOUTNAME) && Console.GetKeyboardLayoutName(strLayoutName))
 	{
 		/*
 			”точнение по поводу этого куска, чтобы потом не вспоминать ;-)
@@ -221,7 +222,7 @@ wchar_t* WINAPI Xlat(wchar_t *Line,
 	// переключаем раскладку клавиатуры?
 	if (Flags & XLAT_SWITCHKEYBLAYOUT)
 	{
-		HWND hWnd = GetConsoleWindow();
+		HWND hWnd = Console.GetWindow();
 
 		if (hWnd)
 		{

@@ -73,6 +73,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "synchro.hpp"
 #include "RegExp.hpp"
 #include "TaskBar.hpp"
+#include "console.hpp"
 
 wchar_t *WINAPI FarItoa(int value, wchar_t *string, int radix)
 {
@@ -605,7 +606,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 		   пригодится плагинам */
 		case ACTL_GETFARHWND:
 		{
-			return (INT_PTR)GetConsoleWindow();
+			return (INT_PTR)Console.GetWindow();
 		}
 		case ACTL_GETDIALOGSETTINGS:
 		{
@@ -1518,7 +1519,7 @@ HANDLE WINAPI FarSaveScreen(int X1,int Y1,int X2,int Y2)
 	if (Y2==-1)
 		Y2=ScrY;
 
-	return((HANDLE)(new SaveScreen(X1,Y1,X2,Y2,FALSE)));
+	return((HANDLE)(new SaveScreen(X1,Y1,X2,Y2)));
 }
 
 

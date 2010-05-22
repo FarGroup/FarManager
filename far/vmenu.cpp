@@ -1049,7 +1049,7 @@ int VMenu::ProcessKey(int Key)
 				for (int I=0; I < ItemCount; ++I)
 				{
 					if (CheckFlags(VMENU_SHOWAMPERSAND))
-						_len=StrLength(Item[I]->strName);
+						_len=static_cast<int>(Item[I]->strName.GetLength());
 					else
 						_len=HiStrlen(Item[I]->strName);
 

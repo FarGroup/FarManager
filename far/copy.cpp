@@ -74,6 +74,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "processname.hpp"
 #include "mix.hpp"
 #include "DlgGuid.hpp"
+#include "console.hpp"
 
 /* Общее время ожидания пользователя */
 extern long WaitUserTime;
@@ -573,7 +574,7 @@ void PR_ShellCopyMsg()
 
 BOOL CheckAndUpdateConsole(BOOL IsChangeConsole)
 {
-	HWND hWnd = GetConsoleWindow();
+	HWND hWnd = Console.GetWindow();
 	BOOL curZoomedState=IsZoomed(hWnd);
 	BOOL curIconicState=IsIconic(hWnd);
 
@@ -633,8 +634,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 			return;
 	}
 
-	ZoomedState=IsZoomed(GetConsoleWindow());
-	IconicState=IsIconic(GetConsoleWindow());
+	ZoomedState=IsZoomed(Console.GetWindow());
+	IconicState=IsIconic(Console.GetWindow());
 	// Создадим объект фильтра
 	Filter=new FileFilter(SrcPanel, FFT_COPY);
 	sddata=new char[SDDATA_SIZE];

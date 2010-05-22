@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "fileowner.hpp"
 #include "dirmix.hpp"
+#include "console.hpp"
 
 ControlObject *CtrlObject;
 
@@ -123,10 +124,10 @@ void ControlObject::Init()
 	Cp()->ActivePanel->SetFocus();
 	{
 		string strOldTitle;
-		apiGetConsoleTitle(strOldTitle);
+		Console.GetTitle(strOldTitle);
 		FrameManager->PluginCommit();
 		Plugins.LoadPlugins();
-		SetConsoleTitle(strOldTitle);
+		Console.SetTitle(strOldTitle);
 	}
 	Macro.LoadMacros();
 	/*
@@ -212,13 +213,17 @@ void ControlObject::ShowCopyright(DWORD Flags)
 
 	if (Flags&1)
 	{
-		fwprintf(stderr,L"%s\n%s\n",(const wchar_t*)strStr,(const wchar_t*)strLine);
+		Console.Write(strStr,static_cast<DWORD>(strStr.GetLength()));
+		Console.Write(L"\n",1);
+		Console.Write(strLine,static_cast<DWORD>(strLine.GetLength()));
+		Console.Write(L"\n",1);
 	}
 	else
 	{
-		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),&csbi);
-		int FreeSpace=csbi.dwSize.Y-csbi.dwCursorPosition.Y-1;
+		COORD Size, CursorPosition;
+		Console.GetSize(Size);
+		Console.GetCursorPosition(CursorPosition);
+		int FreeSpace=Size.Y-CursorPosition.Y-1;
 		int LineCount=4+(strLine.IsEmpty()?0:1);
 
 		if (FreeSpace<LineCount)

@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelmix.hpp"
 #include "syslog.hpp"
 #include "constitle.hpp"
+#include "console.hpp"
 
 static const wchar_t strSystemExecutor[]=L"System\\Executor";
 
@@ -812,14 +813,16 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
-	int ConsoleCP = GetConsoleCP();
-	int ConsoleOutputCP = GetConsoleOutputCP();
+	int ConsoleCP = Console.GetInputCodepage();
+	int ConsoleOutputCP = Console.GetOutputCodepage();
 
 	FlushInputBuffer();
 	ChangeConsoleMode(InitialConsoleMode);
 
-	CONSOLE_SCREEN_BUFFER_INFO sbi={0,};
-	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),&sbi);
+	SMALL_RECT ConsoleWindowRect;
+	COORD ConsoleSize;
+	Console.GetWindowRect(ConsoleWindowRect);
+	Console.GetSize(ConsoleSize);
 
 	ConsoleTitle OldTitle;
 
@@ -898,6 +901,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 				dwError = GetLastError();
 			}
 		}
+		Console.Write(L"\n", 1);
 	}
 	else
 	{
@@ -918,7 +922,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 			}
 		}
 
-		SetConsoleTitle(strFarTitle);
+		Console.SetTitle(strFarTitle);
 
 		QuoteSpace(strNewCmdStr);
 		strExecLine = strComspec;
@@ -996,8 +1000,8 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 					  Отделение фаровской консоли от неинтерактивного процесса.
 					  Задаётся кнопкой в System/ConsoleDetachKey
 					*/
-					HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
-					HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
+					HANDLE hOutput = Console.GetOutputHandle();
+					HANDLE hInput = Console.GetInputHandle();
 					INPUT_RECORD ir[256];
 					DWORD rd;
 					int vkey=0,ctrl=0;
@@ -1011,7 +1015,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 					//Тут нельзя делать WaitForMultipleObjects из за бага в Win7 при работе в телнет
 					while (WaitForSingleObject(hProcess, 100) != WAIT_OBJECT_0)
 					{
-						if (WaitForSingleObject(hInput, 100)==WAIT_OBJECT_0 && PeekConsoleInput(hInput,ir,256,&rd) && rd)
+						if (WaitForSingleObject(hInput, 100)==WAIT_OBJECT_0 && Console.PeekInput(*ir, 256, rd) && rd)
 						{
 							int stop=0;
 
@@ -1032,7 +1036,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 									        (shift ?bShift:!bShift))
 									{
 										HICON hSmallIcon=nullptr,hLargeIcon=nullptr;
-										HWND hWnd = GetConsoleWindow();
+										HWND hWnd = Console.GetWindow();
 
 										if (hWnd)
 										{
@@ -1040,7 +1044,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 											hLargeIcon = CopyIcon((HICON)SendMessage(hWnd,WM_SETICON,1,(LPARAM)0));
 										}
 
-										ReadConsoleInput(hInput,ir,256,&rd);
+										Console.ReadInput(*ir, 256, rd);
 										/*
 										  Не будем вызыват CloseConsole, потому, что она поменяет
 										  ConsoleMode на тот, что был до запуска Far'а,
@@ -1050,19 +1054,19 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 										CloseHandle(hOutput);
 										delete KeyQueue;
 										KeyQueue=nullptr;
-										FreeConsole();
-										AllocConsole();
+										Console.Free();
+										Console.Allocate();
 
 										if (hWnd)   // если окно имело HOTKEY, то старое должно его забыть.
 											SendMessage(hWnd,WM_SETHOTKEY,0,(LPARAM)0);
 
-										SetConsoleScreenBufferSize(hOutput,sbi.dwSize);
-										SetConsoleWindowInfo(hOutput,TRUE,&sbi.srWindow);
-										SetConsoleScreenBufferSize(hOutput,sbi.dwSize);
+										Console.SetSize(ConsoleSize);
+										Console.SetWindowRect(ConsoleWindowRect);
+										Console.SetSize(ConsoleSize);
 										Sleep(100);
 										InitConsole(0);
 
-										hWnd = GetConsoleWindow();
+										hWnd = Console.GetWindow();
 
 										if (hWnd)
 										{
@@ -1090,7 +1094,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 					}
 				}
 			}
-
+			Console.Write(L"\n\n",Opt.ShowKeyBar?2:1);
 			ScrBuf.FillBuf();
 			if(WaitForIdle)
 			{
@@ -1141,8 +1145,8 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 	if (Opt.RestoreCPAfterExecute)
 	{
 		// восстановим CP-консоли после исполнения проги
-		SetConsoleCP(ConsoleCP);
-		SetConsoleOutputCP(ConsoleOutputCP);
+		Console.SetInputCodepage(ConsoleCP);
+		Console.SetOutputCodepage(ConsoleOutputCP);
 	}
 
 	return nResult;
@@ -1169,8 +1173,8 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
 	}
 
 	int Code;
-	CONSOLE_SCREEN_BUFFER_INFO sbi0,sbi1;
-	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),&sbi0);
+	COORD Size0;
+	Console.GetSize(Size0);
 	{
 		RedrawDesktop *Redraw=nullptr;
 
@@ -1180,7 +1184,6 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
 		GotoXY(X2+1,Y1);
 		Text(L" ");
 
-		ScrollScreen(1);
 		MoveCursor(X1,Y1);
 
 		if (!strCurDir.IsEmpty() && strCurDir.At(1)==L':')
@@ -1203,21 +1206,14 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
 			Code=Execute(strTempStr,AlwaysWaitFinish,SeparateWindow,DirectRun, 0, WaitForIdle);
 		}
 
-		GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),&sbi1);
+		COORD Size1;
+		Console.GetSize(Size1);
 
-		if (!(sbi0.dwSize.X == sbi1.dwSize.X && sbi0.dwSize.Y == sbi1.dwSize.Y))
-			CtrlObject->CmdLine->CorrectRealScreenCoord();
-
-		//if(Code != -1)
+		if (Size0.X != Size1.X || Size0.Y != Size1.Y)
 		{
-			SHORT CurX,CurY;
-			GetCursorPos(CurX,CurY);
-
 			GotoXY(X2+1,Y1);
 			Text(L" ");
-
-			if (CurY>=Y1-1)
-				ScrollScreen(Min(CurY-Y1+2,2/*Opt.ShowKeyBar ? 2:1*/));
+			CtrlObject->CmdLine->CorrectRealScreenCoord();
 		}
 
 		if (Redraw)
@@ -1594,8 +1590,8 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 
 		wchar_t *Ptr2;
 		UINT cp=(UINT)wcstol(strCmdLine,&Ptr2,10); //BUGBUG
-		BOOL r1=SetConsoleCP(cp);
-		BOOL r2=SetConsoleOutputCP(cp);
+		BOOL r1=Console.SetInputCodepage(cp);
+		BOOL r2=Console.SetOutputCodepage(cp);
 
 		if (r1 && r2) // Если все ОБИ, то так  и...
 		{
@@ -1816,7 +1812,7 @@ bool ProcessOSAliases(string &strStr)
 	const wchar_t *lpwszExeName=PointToName(g_strFarModuleName);
 	int nSize=(int)strNewCmdStr.GetLength()+4096;
 	wchar_t* lpwszNewCmdStr=strNewCmdStr.GetBuffer(nSize);
-	int ret=GetConsoleAlias(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),(wchar_t*)lpwszExeName);
+	int ret=Console.GetAlias(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),lpwszExeName);
 
 	if (!ret)
 	{
@@ -1824,7 +1820,7 @@ bool ProcessOSAliases(string &strStr)
 		if (apiGetEnvironmentVariable(L"COMSPEC",strComspec))
 		{
 			lpwszExeName=PointToName(strComspec);
-			ret=GetConsoleAlias(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),(wchar_t*)lpwszExeName);
+			ret=Console.GetAlias(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),lpwszExeName);
 		}
 	}
 

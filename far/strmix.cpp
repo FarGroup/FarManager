@@ -194,6 +194,8 @@ wchar_t* WINAPI TruncStrFromEnd(wchar_t *Str,int MaxLength)
 {
 	assert(MaxLength >= 0);
 
+	MaxLength=Max(0, MaxLength);
+
 	if (Str)
 	{
 		int Length = StrLength(Str);
@@ -214,6 +216,8 @@ wchar_t* WINAPI TruncStrFromEnd(wchar_t *Str,int MaxLength)
 wchar_t* WINAPI TruncStr(wchar_t *Str,int MaxLength)
 {
 	assert(MaxLength >= 0);
+
+	MaxLength=Max(0, MaxLength);
 
 	if (Str)
 	{
@@ -250,6 +254,8 @@ string& __stdcall TruncStr(string &strStr, int MaxLength)
 wchar_t* TruncStrFromCenter(wchar_t *Str, int MaxLength)
 {
 	assert(MaxLength >= 0);
+
+	MaxLength=Max(0, MaxLength);
 
 	if (Str)
 	{
@@ -288,6 +294,8 @@ string& TruncStrFromCenter(string &strStr, int MaxLength)
 wchar_t* WINAPI TruncPathStr(wchar_t *Str, int MaxLength)
 {
 	assert(MaxLength >= 0);
+
+	MaxLength=Max(0, MaxLength);
 
 	if (Str)
 	{

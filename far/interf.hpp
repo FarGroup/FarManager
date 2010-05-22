@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 extern WCHAR Oem2Unicode[];
 extern WCHAR BoxSymbols[];
-extern CONSOLE_SCREEN_BUFFER_INFO InitScreenBufferInfo, CurScreenBufferInfo;
+extern COORD InitSize, CurSize;
 extern SHORT ScrX,ScrY;
 extern SHORT PrevScrX,PrevScrY;
 extern DWORD InitialConsoleMode;
@@ -119,10 +119,10 @@ void FlushInputBuffer();
 void SetVideoMode();
 void ChangeVideoMode(int Maximized);
 void ChangeVideoMode(int NumLines,int NumColumns);
-void GetVideoMode(CONSOLE_SCREEN_BUFFER_INFO &csbi);
+void GetVideoMode(COORD& Size);
 void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx=-1, int Sy=-1);
-void SaveConsoleWindowInfo();
-void RestoreConsoleWindowInfo();
+void SaveConsoleWindowRect();
+void RestoreConsoleWindowRect();
 
 void GotoXY(int X,int Y);
 int WhereX();
@@ -150,10 +150,6 @@ void PutText(int X1,int Y1,int X2,int Y2,const void *Src);
 void GetText(int X1,int Y1,int X2,int Y2,void *Dest,int DestSize);
 void BoxText(wchar_t Chr);
 void BoxText(const wchar_t *Str,int IsVert=0);
-void _PutRealText(HANDLE hConsoleOutput,int X1,int Y1,int X2,int Y2,const void *Src,int BufX,int BufY);
-void PutRealText(int X1,int Y1,int X2,int Y2,const void *Src);
-void _GetRealText(HANDLE hConsoleOutput,int X1,int Y1,int X2,int Y2,const void *Dest,int BufX,int BufY);
-void GetRealText(int X1,int Y1,int X2,int Y2,void *Dest);
 
 void SetScreen(int X1,int Y1,int X2,int Y2,wchar_t Ch,int Color);
 void MakeShadow(int X1,int Y1,int X2,int Y2);

@@ -56,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "exitcode.hpp"
 #include "scrbuf.hpp"
+#include "console.hpp"
 
 Manager *FrameManager;
 
@@ -935,8 +936,8 @@ int Manager::ProcessKey(DWORD Key)
 		/***   КОТОРЫЕ НЕЛЬЗЯ НАМАКРОСИТЬ    ***/
 		switch (Key)
 		{
-			case(KEY_ALT|KEY_NUMPAD0):
-			case(KEY_ALT|KEY_INS):
+			case KEY_ALT|KEY_NUMPAD0:
+			case KEY_ALTINS:
 			{
 				RunGraber();
 				return TRUE;
@@ -955,6 +956,22 @@ int Manager::ProcessKey(DWORD Key)
 			      во время вызова онных из поиска файлов ** */
 			switch (Key)
 			{
+				case KEY_CTRLALTPGUP:
+					if(Opt.WindowMode)
+					{
+						Console.Scroll(-ScrY);
+						return TRUE;
+					}
+					break;
+
+				case KEY_CTRLALTPGDN:
+					if(Opt.WindowMode)
+					{
+						Console.Scroll(ScrY);
+						return TRUE;
+					}
+					break;
+
 				case KEY_CTRLW:
 					ShowProcessList();
 					return(TRUE);
@@ -981,10 +998,9 @@ int Manager::ProcessKey(DWORD Key)
 						int PScrX=ScrX;
 						int PScrY=ScrY;
 						Sleep(1);
-						GetVideoMode(CurScreenBufferInfo);
+						GetVideoMode(CurSize);
 
-						if (PScrX+1 == CurScreenBufferInfo.dwSize.X &&
-						        PScrY+1 == CurScreenBufferInfo.dwSize.Y)
+						if (PScrX+1 == CurSize.X && PScrY+1 == CurSize.Y)
 						{
 							//_MANAGER(SysLog(-1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT); return KEY_NONE"));
 							return TRUE;

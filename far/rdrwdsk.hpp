@@ -38,8 +38,7 @@ class RedrawDesktop
 	private:
 		int LeftVisible;
 		int RightVisible;
-		int KeyBarVisible;
-		int TopMenuBarVisible;
+		bool ClockVisible;
 
 	public:
 		RedrawDesktop(BOOL IsHidden=FALSE);

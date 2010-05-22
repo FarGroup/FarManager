@@ -22,6 +22,8 @@ cmem.cpp
 colors.hpp
 config.cpp
 config.hpp
+console.cpp
+console.hpp
 constitle.cpp
 constitle.hpp
 copy.cpp

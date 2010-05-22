@@ -72,6 +72,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constitle.hpp"
 #include "DlgGuid.hpp"
 #include "event.hpp"
+#include "console.hpp"
 
 const int CHAR_TABLE_SIZE=5;
 const int LIST_DELTA=64;
@@ -1799,7 +1800,7 @@ LONG_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 					if (FileAttr!=INVALID_FILE_ATTRIBUTES)
 					{
 						string strOldTitle;
-						apiGetConsoleTitle(strOldTitle);
+						Console.GetTitle(strOldTitle);
 
 						if (Param2==KEY_F3 || Param2==KEY_NUMPAD5 || Param2==KEY_SHIFTNUMPAD5)
 						{
@@ -1950,7 +1951,7 @@ LONG_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 							SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
 							SendDlgMessage(hDlg,DM_SHOWDIALOG,TRUE,0);
 						}
-						SetConsoleTitle(strOldTitle);
+						Console.SetTitle(strOldTitle);
 					}
 					if (RemoveTemp)
 					{

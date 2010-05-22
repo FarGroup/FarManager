@@ -34,6 +34,7 @@ SRCS = \
 	cmem.cpp \
 	codepage.cpp \
 	config.cpp \
+	console.cpp \
 	constitle.cpp \
 	copy.cpp \
 	ctrlobj.cpp \

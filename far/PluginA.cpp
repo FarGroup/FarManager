@@ -530,6 +530,7 @@ struct ExecuteStruct
 		{ \
 			function; \
 		} \
+		SetFileApisToANSI(); \
 	}
 
 
@@ -556,6 +557,7 @@ struct ExecuteStruct
 		{ \
 			es.nResult = (INT_PTR)function; \
 		} \
+		SetFileApisToANSI(); \
 	}
 
 

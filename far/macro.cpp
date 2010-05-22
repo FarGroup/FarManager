@@ -75,6 +75,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelmix.hpp"
 #include "constitle.hpp"
 #include "dirmix.hpp"
+#include "console.hpp"
 
 // для диалога назначения клавиши
 struct DlgParam
@@ -894,7 +895,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 					Cond=(__int64)(ScrY+1);
 					break;
 				case MCODE_V_FAR_TITLE:
-					apiGetConsoleTitle(strFileName);
+					Console.GetTitle(strFileName);
 					Cond=(const wchar_t*)strFileName;
 					break;
 				case MCODE_V_MACROAREA:
@@ -3648,6 +3649,7 @@ done:
 
 			break;
 		}
+
 		case MCODE_OP_XLAT:               // $XLat
 		{
 			return KEY_OP_XLAT;
@@ -3720,7 +3722,7 @@ done:
 		}
 		case MCODE_OP_SWITCHKBD:          // $KbdSwitch
 		{
-			HWND hWnd = GetConsoleWindow();
+			HWND hWnd = Console.GetWindow();
 
 			if (hWnd)
 			{

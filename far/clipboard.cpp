@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "clipboard.hpp"
+#include "console.hpp"
 
 const wchar_t FAR_VerticalBlock[] = L"FAR_VerticalBlock";
 const wchar_t FAR_VerticalBlock_Unicode[] = L"FAR_VerticalBlock_Unicode";
@@ -93,7 +94,7 @@ BOOL Clipboard::Open()
 		return FALSE;
 	}
 
-	return OpenClipboard(GetConsoleWindow());
+	return OpenClipboard(Console.GetWindow());
 }
 
 BOOL Clipboard::Close()
