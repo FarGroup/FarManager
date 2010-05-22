@@ -250,30 +250,25 @@ bool console::WriteInput(INPUT_RECORD& Buffer, DWORD Length, DWORD& NumberOfEven
 }
 
 // пишем/читаем порциями по 32 K, иначе проблемы.
-#define MAXSIZE 0x7FFF
+#define MAXSIZE 0x8000
 
 bool console::ReadOutput(CHAR_INFO& Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& ReadRegion)
 {
-	if(Opt.WindowMode)
-	{
-		int Delta=GetDelta();
-		ReadRegion.Top+=Delta;
-		ReadRegion.Bottom+=Delta;
-	}
-
 	bool Result=false;
-
+	int Delta=Opt.WindowMode?GetDelta():0;
 	if(BufferSize.X*BufferSize.Y*sizeof(CHAR_INFO)>MAXSIZE)
 	{
 		BufferCoord.Y=0;
-		int WriteY2=ReadRegion.Bottom;
-		for (int yy=ReadRegion.Top; yy<=WriteY2;)
+		int ReadY2=ReadRegion.Bottom;
+		for (int yy=ReadRegion.Top; yy<=ReadY2;)
 		{
 			ReadRegion.Top=yy;
 			PCHAR_INFO BufPtr=&Buffer+yy*BufferSize.X;
-			BufferSize.Y=Min(Max(MAXSIZE/static_cast<int>(BufferSize.X*sizeof(CHAR_INFO)),1),WriteY2-yy+1);
+			BufferSize.Y=Min(Max(MAXSIZE/static_cast<int>(BufferSize.X*sizeof(CHAR_INFO)),1),ReadY2-yy+1);
 			yy+=BufferSize.Y;
 			ReadRegion.Bottom=yy-1;
+			ReadRegion.Top+=Delta;
+			ReadRegion.Bottom+=Delta;
 			Result=ReadConsoleOutput(GetOutputHandle(), BufPtr, BufferSize, BufferCoord, &ReadRegion)!=FALSE;
 			if(!Result)
 			{
@@ -283,6 +278,8 @@ bool console::ReadOutput(CHAR_INFO& Buffer, COORD BufferSize, COORD BufferCoord,
 	}
 	else
 	{
+		ReadRegion.Top+=Delta;
+		ReadRegion.Bottom+=Delta;
 		Result=ReadConsoleOutput(GetOutputHandle(), &Buffer, BufferSize, BufferCoord, &ReadRegion)!=FALSE;
 	}
 
@@ -291,15 +288,8 @@ bool console::ReadOutput(CHAR_INFO& Buffer, COORD BufferSize, COORD BufferCoord,
 
 bool console::WriteOutput(const CHAR_INFO& Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& WriteRegion)
 {
-	if(Opt.WindowMode)
-	{
-		int Delta=GetDelta();
-		WriteRegion.Top+=Delta;
-		WriteRegion.Bottom+=Delta;
-	}
-
 	bool Result=false;
-
+	int Delta=Opt.WindowMode?GetDelta():0;
 	if(BufferSize.X*BufferSize.Y*sizeof(CHAR_INFO)>MAXSIZE)
 	{
 		BufferCoord.Y=0;
@@ -311,6 +301,8 @@ bool console::WriteOutput(const CHAR_INFO& Buffer, COORD BufferSize, COORD Buffe
 			BufferSize.Y=Min(Max(MAXSIZE/static_cast<int>(BufferSize.X*sizeof(CHAR_INFO)),1),WriteY2-yy+1);
 			yy+=BufferSize.Y;
 			WriteRegion.Bottom=yy-1;
+			WriteRegion.Top+=Delta;
+			WriteRegion.Bottom+=Delta;
 			Result=WriteConsoleOutput(GetOutputHandle(), BufPtr, BufferSize, BufferCoord, &WriteRegion)!=FALSE;
 			if(!Result)
 			{
@@ -320,6 +312,8 @@ bool console::WriteOutput(const CHAR_INFO& Buffer, COORD BufferSize, COORD Buffe
 	}
 	else
 	{
+		WriteRegion.Top+=Delta;
+		WriteRegion.Bottom+=Delta;
 		Result=WriteConsoleOutput(GetOutputHandle(), &Buffer, BufferSize, BufferCoord, &WriteRegion)!=FALSE;
 	}
 

@@ -114,6 +114,4 @@ class CommandLine:public ScreenObject
 		void EnableAC(){return CmdStr.EnableAC();}
 		void DisableAC(){return CmdStr.DisableAC();}
 		void RevertAC(){return CmdStr.RevertAC();}
-
-		void UpdateConsoleInvisibleArea();
 };
