@@ -96,7 +96,7 @@ public:
 
 	bool ClearExtraRegions(WORD Color);
 
-	bool Scroll(int Lines);
+	bool ScrollWindow(int Lines);
 
 	bool ResetPosition();
 

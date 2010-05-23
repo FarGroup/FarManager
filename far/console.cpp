@@ -444,24 +444,24 @@ bool console::ClearExtraRegions(WORD Color)
 	return true;
 }
 
-bool console::Scroll(int Lines)
+bool console::ScrollWindow(int Lines)
 {
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
-	csbi.srWindow.Top+=Lines;
-	csbi.srWindow.Bottom+=Lines;
-	if(csbi.srWindow.Top<0)
+	if((Lines<0 && csbi.srWindow.Top) || (Lines>0 && csbi.srWindow.Bottom!=csbi.dwSize.Y-1))
 	{
-		csbi.srWindow.Bottom-=csbi.srWindow.Top;
-		csbi.srWindow.Top=0;
-	}
-	if(csbi.srWindow.Bottom>=csbi.dwSize.Y)
-	{
-		csbi.srWindow.Top-=(csbi.srWindow.Bottom-(csbi.dwSize.Y-1));
-		csbi.srWindow.Bottom=csbi.dwSize.Y-1;
-	}
-	//if(csbi.srWindow.Top>=0 && csbi.srWindow.Bottom<csbi.dwSize.Y)
-	{
+		csbi.srWindow.Top+=Lines;
+		csbi.srWindow.Bottom+=Lines;
+		if(csbi.srWindow.Top<0)
+		{
+			csbi.srWindow.Bottom-=csbi.srWindow.Top;
+			csbi.srWindow.Top=0;
+		}
+		if(csbi.srWindow.Bottom>=csbi.dwSize.Y)
+		{
+			csbi.srWindow.Top-=(csbi.srWindow.Bottom-(csbi.dwSize.Y-1));
+			csbi.srWindow.Bottom=csbi.dwSize.Y-1;
+		}
 		SetWindowRect(csbi.srWindow);
 	}
 	return true;

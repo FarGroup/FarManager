@@ -48,34 +48,6 @@ Editor:Save bookmarks
 
    svs 09.09.2007 18:18:00 +0300
 
-
-scrbuf.cpp
-   FAR слабо адаптирован к работе на больших разрешени€х консоли, например,
-   размер редактора 1024 символа, вывод имен файлов не до конца
-   прорисовывает курсор в случае если колонка с именем файла больше 256
-   (260) символов и т.п. “ак же валитс€ иногда, например, в редаторе. Ќужно
-   в эту сторону покопать.
-
-   ѕроблемы отсюда росли, остальное слишком малые буферы или подобное:
-
-   BOOL WINAPI WriteConsoleOutput(    
-     __in HANDLE hConsoleOutput,      
-     __in const CHAR_INFO *lpBuffer,  
-     __in COORD dwBufferSize,         
-     __in COORD dwBufferCoord,        
-     __inout PSMALL_RECT lpWriteRegion
-   );                                 
-                                      
-...
-
-   lpBuffer [in]                                                           
-   The data to be written to the console screen buffer. This pointer is    
-   treated as the origin of a two-dimensional array of CHAR_INFO structures
-   whose size is specified by the dwBufferSize parameter. The total size of
-   the array must be less than __64K__.                                    
-
-   Zuz 22.07.2008 20:47:38 +0500
-
 IA64Stacks
    ¬ IA64 два стека, регистровый и "обычный", имитаци€ с помощью структуры
    вот примерно такого:

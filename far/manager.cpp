@@ -959,7 +959,7 @@ int Manager::ProcessKey(DWORD Key)
 				case KEY_CTRLALTPGUP:
 					if(Opt.WindowMode)
 					{
-						Console.Scroll(-ScrY);
+						Console.ScrollWindow(-ScrY);
 						return TRUE;
 					}
 					break;
@@ -967,7 +967,7 @@ int Manager::ProcessKey(DWORD Key)
 				case KEY_CTRLALTPGDN:
 					if(Opt.WindowMode)
 					{
-						Console.Scroll(ScrY);
+						Console.ScrollWindow(ScrY);
 						return TRUE;
 					}
 					break;
