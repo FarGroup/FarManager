@@ -63,7 +63,7 @@ class CommandLine:public ScreenObject
 
 	private:
 		virtual void DisplayObject();
-		int CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int SeparateWindow,int DirectRun, bool WaitForIdle=false);
+		int CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int SeparateWindow,int DirectRun, bool WaitForIdle=false, bool Silent=false);
 		int ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow);
 		void GetPrompt(string &strDestStr);
 		BOOL IntChDir(const wchar_t *CmdLine,int ClosePlugin,bool Selent=false);
@@ -89,7 +89,7 @@ class CommandLine:public ScreenObject
 		void SetString(const wchar_t *Str,BOOL Redraw=TRUE);
 		void InsertString(const wchar_t *Str);
 
-		void ExecString(const wchar_t *Str,int AlwaysWaitFinish,int SeparateWindow=FALSE,int DirectRun=FALSE, bool WaitForIdle=false);
+		void ExecString(const wchar_t *Str,int AlwaysWaitFinish,int SeparateWindow=FALSE,int DirectRun=FALSE, bool WaitForIdle=false, bool Silent=false);
 
 		void ShowViewEditHistory();
 

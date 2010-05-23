@@ -676,9 +676,6 @@ void Text(const WCHAR *Str)
 {
 	size_t Length=StrLength(Str);
 
-	if (CurX+Length>static_cast<size_t>(ScrX))
-		Length=ScrX-CurX+1;
-
 	if (Length<=0)
 		return;
 
@@ -715,9 +712,6 @@ void Text(int MsgId)
 void VText(const WCHAR *Str)
 {
 	int Length=StrLength(Str);
-
-	if (CurY+Length>ScrY)
-		Length=ScrY-CurY+1;
 
 	if (Length<=0)
 		return;

@@ -331,7 +331,7 @@ bool ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode
 				SaveScreen SaveScr;
 				CtrlObject->Cp()->LeftPanel->CloseFile();
 				CtrlObject->Cp()->RightPanel->CloseFile();
-				Execute(strCommand,AlwaysWaitFinish, 0, 0, 0, ListFileUsed);
+				Execute(strCommand,AlwaysWaitFinish, 0, 0, 0, ListFileUsed, true);
 #else
 				// здесь была бага с прорисовкой (и... вывод данных
 				// на команду "@type !@!" пропадал с экрана)
@@ -427,7 +427,7 @@ void ProcessExternal(const wchar_t *Command,const wchar_t *Name,const wchar_t *S
 		CtrlObject->ViewHistory->AddToHistory(strFullExecStr,(AlwaysWaitFinish&1)+2);
 
 		if (strExecStr.At(0) != L'@')
-			CtrlObject->CmdLine->ExecString(strExecStr,AlwaysWaitFinish, 0, 0, ListFileUsed);
+			CtrlObject->CmdLine->ExecString(strExecStr,AlwaysWaitFinish, 0, 0, ListFileUsed, true);
 		else
 		{
 			SaveScreen SaveScr;

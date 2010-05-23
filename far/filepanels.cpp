@@ -285,7 +285,6 @@ void FilePanels::SetPanelPositions(int LeftFullScreen,int RightFullScreen)
 void FilePanels::SetScreenPosition()
 {
 	_OT(SysLog(L"[%p] FilePanels::SetScreenPosition() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
-//  RedrawDesktop Redraw;
 	CtrlObject->CmdLine->SetPosition(0,ScrY-(Opt.ShowKeyBar!=0),ScrX-1,ScrY-(Opt.ShowKeyBar!=0));
 	TopMenuBar.SetPosition(0,0,ScrX,0);
 	MainKeyBar.SetPosition(0,ScrY,ScrX,ScrY);

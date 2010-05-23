@@ -43,10 +43,10 @@ public:
 	HANDLE GetErrorHandle();
 
 	HWND GetWindow();
-	
+
 	bool GetSize(COORD& Size);
 	bool SetSize(COORD Size);
-	
+
 	bool GetWindowRect(SMALL_RECT& ConsoleWindow);
 	bool SetWindowRect(const SMALL_RECT& ConsoleWindow);
 	
@@ -97,6 +97,8 @@ public:
 	bool ClearExtraRegions(WORD Color);
 
 	bool ScrollWindow(int Lines);
+
+	bool ScrollScreenBuffer(int Lines);
 
 	bool ResetPosition();
 

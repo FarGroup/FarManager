@@ -767,7 +767,8 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
             int SeparateWindow,    // Выполнить в отдельном окне? =2 для вызова ShellExecuteEx()
             int DirectRun,         // Выполнять директом? (без CMD)
             int FolderRun,         // Это фолдер?
-            bool WaitForIdle) // for list files
+            bool WaitForIdle,      // for list files
+            bool Silent)
 {
 	int nResult = -1;
 	string strNewCmdStr;
@@ -874,8 +875,6 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 			SeparateWindow = 2;
 	}
 
-	ScrBuf.Flush();
-
 	if (SeparateWindow == 2)
 	{
 		SHELLEXECUTEINFO seInfo={sizeof(seInfo)};
@@ -889,8 +888,13 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 		//seInfo.lpVerb = "open";
 		seInfo.fMask = SEE_MASK_FLAG_NO_UI|SEE_MASK_NOASYNC|SEE_MASK_NOCLOSEPROCESS;
 
+
 		if (!dwError)
 		{
+			if(!Silent)
+			{
+				Console.ScrollScreenBuffer(2);
+			}
 			if (ShellExecuteEx(&seInfo))
 			{
 				hProcess = seInfo.hProcess;
@@ -901,7 +905,6 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 				dwError = GetLastError();
 			}
 		}
-		Console.Write(L"\n", 1);
 	}
 	else
 	{
@@ -958,8 +961,10 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 		if (SeparateWindow)
 			si.lpTitle=(wchar_t*)strFarTitle.CPtr();
 
-		Console.Write(L"\n\n", 2);
-
+		if(!Silent)
+		{
+			Console.ScrollScreenBuffer(2);
+		}
 		if (CreateProcess(
 		            nullptr,
 		            (wchar_t*)strExecLine.CPtr(),
@@ -994,6 +999,10 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 				if (Opt.ConsoleDetachKey == 0)
 				{
 					WaitForSingleObject(hProcess,INFINITE);
+					if(!Silent)
+					{
+						Console.ScrollScreenBuffer(Opt.ShowKeyBar?2:1);
+					}
 				}
 				else
 				{
@@ -1094,10 +1103,12 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 								break;
 						}
 					}
+					if(!Silent)
+					{
+						Console.ScrollScreenBuffer(Opt.ShowKeyBar?2:1);
+					}
 				}
 			}
-			Console.Write(L"\n\n",Opt.ShowKeyBar?2:1);
-			ScrBuf.FillBuf();
 			if(WaitForIdle)
 			{
 				WaitForInputIdle(hProcess, INFINITE);
@@ -1126,10 +1137,11 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 			ScrBuf.Flush();
 			strOutStr.Format(MSG(MExecuteErrorMessage),strNewCmdStr.CPtr());
 			string strPtrStr=FarFormatText(strOutStr,ScrX,strPtrStr,L"\n",0);
-			wprintf(strPtrStr);
-			ScrBuf.FillBuf();
+			Console.Write(strPtrStr, static_cast<DWORD>(strPtrStr.GetLength()));
 		}
 	}
+
+	ScrBuf.FillBuf();
 
 	SetFarConsoleMode(TRUE);
 	/* Принудительная установка курсора, т.к. SetCursorType иногда не спасает
@@ -1137,12 +1149,13 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 	*/
 	SetCursorType(Visible,Size);
 	SetRealCursorType(Visible,Size);
-	/* Если юзер выполнил внешнюю команду, например
-	   mode con lines=50 cols=100
-	   то ФАР не знал об изменении размера консоли.
-	   Для этого надо ФАРу напомнить лишний раз :-)
-	*/
-	GenerateWINDOW_BUFFER_SIZE_EVENT(-1,-1); //бред...
+	
+	COORD ConSize;
+	Console.GetSize(ConSize);
+	if(ConSize.X!=ScrX+1 || ConSize.Y!=ScrY+1)
+	{
+		ChangeVideoMode(ConSize.Y, ConSize.X);
+	}
 
 	if (Opt.RestoreCPAfterExecute)
 	{
@@ -1155,7 +1168,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 }
 
 
-int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int SeparateWindow,int DirectRun, bool WaitForIdle)
+int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int SeparateWindow,int DirectRun, bool WaitForIdle, bool Silent)
 {
 	LastCmdPartLength=-1;
 
@@ -1177,62 +1190,62 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
 	int Code;
 	COORD Size0;
 	Console.GetSize(Size0);
+
+	if(!Silent)
 	{
-		RedrawDesktop *Redraw=nullptr;
-
-		if (IsVisible() /* && ScrBuf.GetLockCount()==0 */)
-			Redraw=new RedrawDesktop(TRUE);
-
-		GotoXY(X2+1,Y1);
-		Text(L" ");
-
-		MoveCursor(X1,Y1);
-
-		if (!strCurDir.IsEmpty() && strCurDir.At(1)==L':')
-			FarChDir(strCurDir);
-
-		SetString(L"", FALSE);
-
-		if ((Code=ProcessOSCommands(CmdLine,SeparateWindow)) == TRUE)
-		{
-			Code=-1;
-		}
-		else
-		{
-			string strTempStr;
-			strTempStr = CmdLine;
-
-			if (Code == -1)
-				ReplaceStrings(strTempStr,L"/",L"\\",-1);
-
-			Code=Execute(strTempStr,AlwaysWaitFinish,SeparateWindow,DirectRun, 0, WaitForIdle);
-		}
-
-		COORD Size1;
-		Console.GetSize(Size1);
-
-		if (Size0.X != Size1.X || Size0.Y != Size1.Y)
-		{
-			GotoXY(X2+1,Y1);
-			Text(L" ");
-			CtrlObject->CmdLine->CorrectRealScreenCoord();
-		}
-
-		if (Redraw)
-			delete Redraw;
+		ProcessShowClock++;
+		ShowBackground();
+		Show();
+		CmdStr.Show();
 	}
 
-	if (!Flags.Check(FCMDOBJ_LOCKUPDATEPANEL))
-		ShellUpdatePanels(CtrlObject->Cp()->ActivePanel,FALSE);
+	GotoXY(X2+1,Y1);
+	Text(L" ");
+	MoveCursor(X1,Y1);
 
-	/*
+	ScrBuf.Flush();
+
+	if (!strCurDir.IsEmpty() && strCurDir.At(1)==L':')
+		FarChDir(strCurDir);
+
+	SetString(L"", FALSE);
+
+	if ((Code=ProcessOSCommands(CmdLine,SeparateWindow)) == TRUE)
+	{
+		Code=-1;
+	}
 	else
 	{
-		CtrlObject->Cp()->LeftPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
-		CtrlObject->Cp()->RightPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
-		CtrlObject->Cp()->Redraw();
+		string strTempStr;
+		strTempStr = CmdLine;
+
+		if (Code == -1)
+			ReplaceStrings(strTempStr,L"/",L"\\",-1);
+
+		Code=Execute(strTempStr,AlwaysWaitFinish,SeparateWindow,DirectRun, 0, WaitForIdle, Silent);
 	}
-	*/
+
+	COORD Size1;
+	Console.GetSize(Size1);
+
+	if (Size0.X != Size1.X || Size0.Y != Size1.Y)
+	{
+		GotoXY(X2+1,Y1);
+		Text(L" ");
+		CtrlObject->CmdLine->CorrectRealScreenCoord();
+	}
+
+	SaveBackground();
+	ProcessShowClock--;
+
+	if (!Flags.Check(FCMDOBJ_LOCKUPDATEPANEL))
+	{
+		ShellUpdatePanels(CtrlObject->Cp()->ActivePanel,FALSE);
+		if (Opt.ShowKeyBar)
+		{
+			CtrlObject->MainKeyBar->Show();
+		}
+	}
 	ScrBuf.Flush();
 	return(Code);
 }

@@ -470,12 +470,12 @@ void CommandLine::SetString(const wchar_t *Str,BOOL Redraw)
 
 
 void CommandLine::ExecString(const wchar_t *Str,int AlwaysWaitFinish,int SeparateWindow,
-                             int DirectRun, bool WaitForIdle)
+                             int DirectRun, bool WaitForIdle, bool Silent)
 {
 	CmdStr.DisableAC();
 	SetString(Str);
 	CmdStr.RevertAC();
-	CmdExecute(Str,AlwaysWaitFinish,SeparateWindow,DirectRun, WaitForIdle);
+	CmdExecute(Str,AlwaysWaitFinish,SeparateWindow,DirectRun, WaitForIdle, Silent);
 }
 
 

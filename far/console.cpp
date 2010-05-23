@@ -36,6 +36,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "imports.hpp"
 #include "config.hpp"
+#include "palette.hpp"
+#include "colors.hpp"
 
 console Console;
 
@@ -356,10 +358,6 @@ bool console::GetCursorInfo(CONSOLE_CURSOR_INFO& ConsoleCursorInfo)
 
 bool console::SetCursorInfo(const CONSOLE_CURSOR_INFO& ConsoleCursorInfo)
 {
-	if(Opt.WindowMode)
-	{
-		ResetPosition();
-	}
 	return SetConsoleCursorInfo(GetOutputHandle(), &ConsoleCursorInfo)!=FALSE;
 }
 
@@ -465,6 +463,16 @@ bool console::ScrollWindow(int Lines)
 		SetWindowRect(csbi.srWindow);
 	}
 	return true;
+}
+
+bool console::ScrollScreenBuffer(int Lines)
+{
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
+	SMALL_RECT ScrollRectangle={0, 0, csbi.dwSize.X-1, csbi.dwSize.Y-1};
+	COORD DestinationOrigin={0,-Lines};
+	CHAR_INFO Fill={L' ', FarColorToReal(COL_COMMANDLINEUSERSCREEN)};
+	return ScrollConsoleScreenBuffer(GetOutputHandle(), &ScrollRectangle, nullptr, DestinationOrigin, &Fill)!=FALSE;
 }
 
 bool console::ResetPosition()

@@ -4363,21 +4363,11 @@ bool FileList::ApplyCommand()
 	string strSelName, strSelShortName;
 	DWORD FileAttr;
 
-	//redraw надо запрещать обязательно.
-	//иначе после выполнения каждой комманды текущая директория перечитывается.
-	//и если выполняемая комманда создаёт файлы в текущей директории,
-	//то возможно неоднократное выполнение комманды для одного и того же файла.
-	RedrawDesktop Redraw(TRUE);
 	SaveSelection();
-	// спорный момент, особено для @set a=b
-	//начинаем вывод с новой строки
-	SHORT X,Y;
-	ScrBuf.GetCursorPos(X,Y);
-	MoveCursor(0,Y);
-	ScrollScreen(1);
+
 	++UpdateDisabled;
 	GetSelName(nullptr,FileAttr);
-
+	CtrlObject->CmdLine->LockUpdatePanel(true);
 	while (GetSelName(&strSelName,FileAttr,&strSelShortName) && !CheckForEsc())
 	{
 		string strListName, strAnotherListName;
@@ -4403,10 +4393,9 @@ bool FileList::ApplyCommand()
 				}
 				else
 				{
-					//SaveScreen SaveScr;
 					CtrlObject->Cp()->LeftPanel->CloseFile();
 					CtrlObject->Cp()->RightPanel->CloseFile();
-					Execute(strConvertedCommand,FALSE,FALSE, 0, 0, ListFileUsed);
+					Execute(strConvertedCommand,FALSE,FALSE, 0, 0, ListFileUsed, true);
 				}
 			}
 
@@ -4426,11 +4415,14 @@ bool FileList::ApplyCommand()
 			apiDeleteFile(strAnotherShortListName);
 	}
 
+	CtrlObject->CmdLine->LockUpdatePanel(false);
+	CtrlObject->CmdLine->Show();
+	if (Opt.ShowKeyBar)
+	{
+		CtrlObject->MainKeyBar->Show();
+	}
 	if (GetSelPosition >= FileCount)
 		ClearSelection();
-
-	GotoXY(0,ScrY);
-	FS<<fmt::Width(ScrX+1)<<L"";
 
 	--UpdateDisabled;
 	return true;
