@@ -891,7 +891,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 
 		if (!dwError)
 		{
-			if(!Silent)
+			if(!Silent && !FolderRun)
 			{
 				Console.ScrollScreenBuffer(2);
 			}
@@ -961,7 +961,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 		if (SeparateWindow)
 			si.lpTitle=(wchar_t*)strFarTitle.CPtr();
 
-		if(!Silent)
+		if(!Silent && !FolderRun)
 		{
 			Console.ScrollScreenBuffer(2);
 		}
@@ -1191,24 +1191,9 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
 	COORD Size0;
 	Console.GetSize(Size0);
 
-	if(!Silent)
-	{
-		ProcessShowClock++;
-		ShowBackground();
-		Show();
-		CmdStr.Show();
-	}
-
-	GotoXY(X2+1,Y1);
-	Text(L" ");
-	MoveCursor(X1,Y1);
-
-	ScrBuf.Flush();
 
 	if (!strCurDir.IsEmpty() && strCurDir.At(1)==L':')
 		FarChDir(strCurDir);
-
-	SetString(L"", FALSE);
 
 	if ((Code=ProcessOSCommands(CmdLine,SeparateWindow)) == TRUE)
 	{
@@ -1216,6 +1201,19 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
 	}
 	else
 	{
+		if(!Silent)
+		{
+			ProcessShowClock++;
+			ShowBackground();
+			Show();
+			CmdStr.Show();
+		}
+
+		GotoXY(X2+1,Y1);
+		Text(L" ");
+		MoveCursor(X1,Y1);
+
+		ScrBuf.Flush();
 		string strTempStr;
 		strTempStr = CmdLine;
 
@@ -1223,7 +1221,15 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
 			ReplaceStrings(strTempStr,L"/",L"\\",-1);
 
 		Code=Execute(strTempStr,AlwaysWaitFinish,SeparateWindow,DirectRun, 0, WaitForIdle, Silent);
+
+		if(!Silent)
+		{
+			SaveBackground();
+			ProcessShowClock--;
+		}
 	}
+
+	SetString(L"", FALSE);
 
 	COORD Size1;
 	Console.GetSize(Size1);
@@ -1234,9 +1240,6 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
 		Text(L" ");
 		CtrlObject->CmdLine->CorrectRealScreenCoord();
 	}
-
-	SaveBackground();
-	ProcessShowClock--;
 
 	if (!Flags.Check(FCMDOBJ_LOCKUPDATEPANEL))
 	{
