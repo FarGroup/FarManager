@@ -3969,7 +3969,7 @@ happens, which is rather expensive).
     When expression "A.*Z" is matched to string
 "AZXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", #.*# captures the whole string, and then
 rolls back symbol by symbol until it finds Z. On the opposite, if the expression
-is "A.*?Z" then Z is found aat once. Not greedy quantifier is also known as
+is "A.*?Z" then Z is found at once. Not greedy quantifier is also known as
 #mininizing#, it captures minimal possible quantity of symbols, and only if
 further match fails it captures more.
 
