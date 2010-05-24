@@ -2722,7 +2722,7 @@ int RegExp::InnerMatch(const prechar str,const prechar strend,PMatch match,int& 
 				{
 					if (OP.bracket.index>=0 && OP.bracket.index<matchcount)
 					{
-						if (inrangebracket)
+						//if (inrangebracket) Mantis#1388
 						{
 							st->op=opOpenBracket;
 							st->pos=op;
@@ -2763,7 +2763,7 @@ int RegExp::InnerMatch(const prechar str,const prechar strend,PMatch match,int& 
 							m2=hmatch->GetPtr((char*)OP.nbracket.name);
 						}
 
-						if (inrangebracket)
+						//if (inrangebracket) Mantis#1388
 						{
 							st->op=opNamedBracket;
 							st->pos=op;
