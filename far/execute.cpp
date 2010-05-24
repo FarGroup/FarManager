@@ -1212,7 +1212,7 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
 		GotoXY(X2+1,Y1);
 		Text(L" ");
 		MoveCursor(X1,Y1);
-
+		ScrBuf.SetLockCount(0);
 		ScrBuf.Flush();
 		string strTempStr;
 		strTempStr = CmdLine;
