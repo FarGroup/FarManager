@@ -1191,29 +1191,35 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
 	COORD Size0;
 	Console.GetSize(Size0);
 
+	if(!Silent)
+	{
+		ProcessShowClock++;
+		ShowBackground();
+		Show();
+		CmdStr.Show();
+	}
+
+	GotoXY(X2+1,Y1);
+	Text(L" ");
+	MoveCursor(X1,Y1);
+	ScrBuf.SetLockCount(0);
+	ScrBuf.Flush();
+	SetString(L"", FALSE);
 
 	if (!strCurDir.IsEmpty() && strCurDir.At(1)==L':')
 		FarChDir(strCurDir);
 
 	if ((Code=ProcessOSCommands(CmdLine,SeparateWindow)) == TRUE)
 	{
+		if(!Silent)
+		{
+			Console.ScrollScreenBuffer(2);
+			ScrBuf.FillBuf();
+		}
 		Code=-1;
 	}
 	else
 	{
-		if(!Silent)
-		{
-			ProcessShowClock++;
-			ShowBackground();
-			Show();
-			CmdStr.Show();
-		}
-
-		GotoXY(X2+1,Y1);
-		Text(L" ");
-		MoveCursor(X1,Y1);
-		ScrBuf.SetLockCount(0);
-		ScrBuf.Flush();
 		string strTempStr;
 		strTempStr = CmdLine;
 
@@ -1221,15 +1227,13 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
 			ReplaceStrings(strTempStr,L"/",L"\\",-1);
 
 		Code=Execute(strTempStr,AlwaysWaitFinish,SeparateWindow,DirectRun, 0, WaitForIdle, Silent);
-
-		if(!Silent)
-		{
-			SaveBackground();
-			ProcessShowClock--;
-		}
 	}
 
-	SetString(L"", FALSE);
+	if(!Silent)
+	{
+		SaveBackground();
+		ProcessShowClock--;
+	}
 
 	COORD Size1;
 	Console.GetSize(Size1);
@@ -1618,7 +1622,6 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 			InitLCIDSort();
 			InitKeysArray();
 			CtrlObject->Cp()->Redraw();
-			ScrBuf.Flush();
 			return TRUE;
 		}
 		else  // про траблы внешн€€ chcp сама скажет ;-)
