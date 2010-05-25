@@ -695,12 +695,12 @@ void Text(const WCHAR *Str)
 		BufPtr[i].Attributes=CurColor;
 	}
 
-	ScrBuf.Write(CurX, CurY, BufPtr, Length);
+	ScrBuf.Write(CurX, CurY, BufPtr, static_cast<int>(Length));
 	if(HeapBuffer)
 	{
 		delete[] HeapBuffer;
 	}
-	CurX+=Length;
+	CurX+=static_cast<int>(Length);
 }
 
 

@@ -255,6 +255,9 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 		case ACTL_GETMEDIATYPE:
 		case ACTL_SETPROGRESSSTATE:
 		case ACTL_SETPROGRESSVALUE:
+		case ACTL_GETFARRECT:
+		case ACTL_GETCURSORPOS:
+		case ACTL_SETCURSORPOS:
 			break;
 		default:
 
@@ -762,12 +765,14 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 
 		case ACTL_SETPROGRESSVALUE:
 		{
+			BOOL Result=FALSE;
 			if(Param)
 			{
 				PROGRESSVALUE* PV=reinterpret_cast<PROGRESSVALUE*>(Param);
 				TBC.SetProgressValue(PV->Completed,PV->Total);
+				Result=TRUE;
 			}
-			return TRUE;
+			return Result;
 		}
 
 		case ACTL_QUIT:
@@ -777,7 +782,58 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 			return TRUE;
 		}
 
+		case ACTL_GETFARRECT:
+			{
+				BOOL Result=FALSE;
+				if(Param)
+				{
+					SMALL_RECT& Rect=*reinterpret_cast<PSMALL_RECT>(Param);
+					if(Opt.WindowMode)
+					{
+						Result=Console.GetWindowRect(Rect);
+					}
+					else
+					{
+						COORD Size;
+						if(Console.GetSize(Size))
+						{
+							Rect.Left=0;
+							Rect.Top=0;
+							Rect.Right=Size.X-1;
+							Rect.Bottom=Size.Y-1;
+							Result=TRUE;
+						}
+					}
+				}
+				return Result;
+			}
+			break;
+
+		case ACTL_GETCURSORPOS:
+			{
+				BOOL Result=FALSE;
+				if(Param)
+				{
+					COORD& Pos=*reinterpret_cast<PCOORD>(Param);
+					Result=Console.GetCursorPosition(Pos);
+				}
+				return Result;
+			}
+			break;
+
+		case ACTL_SETCURSORPOS:
+			{
+				BOOL Result=FALSE;
+				if(Param)
+				{
+					COORD& Pos=*reinterpret_cast<PCOORD>(Param);
+					Result=Console.SetCursorPosition(Pos);
+				}
+				return Result;
+			}
+			break;
 	}
+
 	return FALSE;
 }
 
