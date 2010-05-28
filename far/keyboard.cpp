@@ -1167,9 +1167,9 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 		}
 		else
 		{
-			if(Opt.WindowMode)
+			if(Opt.WindowMode && (PScrX+1>CurSize.X || PScrY+1>CurSize.Y))
 			{
-				Console.ClearExtraRegions(FarColorToReal(COL_COMMANDLINEUSERSCREEN));
+				//Console.ClearExtraRegions(FarColorToReal(COL_COMMANDLINEUSERSCREEN));
 			}
 			PrevScrX=PScrX;
 			PrevScrY=PScrY;

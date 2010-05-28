@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "interf.hpp"
 #include "palette.hpp"
+#include "console.hpp"
 
 SaveScreen::SaveScreen()
 {
@@ -149,7 +150,7 @@ void SaveScreen::AppendArea(SaveScreen *NewArea)
 					Buf[X-X1+(X2-X1+1)*(Y-Y1)]=NewBuf[X-NewArea->X1+(NewArea->X2-NewArea->X1+1)*(Y-NewArea->Y1)];
 }
 
-void SaveScreen::Resize(int NewX,int NewY, DWORD Corner)
+void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 //  Corner definition:
 //  0 --- 1
 //  |     |
@@ -221,6 +222,63 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner)
 		}
 
 		CharCopy(&NewBuf[ToIndex],&ScreenBuf[FromIndex],NewWidth);
+	}
+
+	// achtung, experimental
+	if((Corner&2) && SyncWithConsole)
+	{
+		Console.ResetPosition();
+		if(NewY!=OHe)
+		{
+			COORD Size={Max(NewX,OWi), abs(OHe-NewY)};
+			COORD Coord={0, 0};
+			PCHAR_INFO Tmp=new CHAR_INFO[Size.X*Size.Y];
+			if(NewY>OHe)
+			{
+				SMALL_RECT ReadRegion={0, 0, NewX-1, NewY-OHe};
+				Console.ReadOutput(*Tmp, Size, Coord, ReadRegion);
+				for(int i=0; i<Size.Y;i++)
+				{
+					CharCopy(&NewBuf[i*Size.X],&Tmp[i*Size.X], Size.X);
+				}
+			}
+			else
+			{
+				SMALL_RECT WriteRegion={0, NewY-OHe, NewX-1, -1};
+				for(int i=0; i<Size.Y;i++)
+				{
+					CharCopy(&Tmp[i*Size.X],&ScreenBuf[i*OWi], Size.X);
+				}
+				Console.WriteOutput(*Tmp, Size, Coord, WriteRegion);
+			}
+			delete[] Tmp;
+		}
+
+		if(NewX!=OWi)
+		{
+			COORD Size={abs(NewX-OWi), Max(NewY,OHe)};
+			COORD Coord={0, 0};
+			PCHAR_INFO Tmp=new CHAR_INFO[Size.X*Size.Y];
+			if(NewX>OWi)
+			{
+				SMALL_RECT ReadRegion={OWi, 0, NewX-1, NewY-1};
+				Console.ReadOutput(*Tmp, Size, Coord, ReadRegion);
+				for(int i=0; i<Size.Y;i++)
+				{
+					CharCopy(&NewBuf[i*NewX+OWi],&Tmp[i*Size.X], Size.X);
+				}
+			}
+			else
+			{
+				SMALL_RECT WriteRegion={NewX, NewY-OHe, OWi-1, NewY-1};
+				for(int i=0; i<Size.Y;i++)
+				{
+					CharCopy(&Tmp[i*Size.X],&ScreenBuf[i*OWi+NewX], Size.X);
+				}
+				Console.WriteOutput(*Tmp, Size, Coord, WriteRegion);
+			}
+			delete[] Tmp;
+		}
 	}
 
 	delete [] ScreenBuf;

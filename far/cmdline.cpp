@@ -715,6 +715,6 @@ void CommandLine::CorrectRealScreenCoord()
 
 void CommandLine::ResizeConsole()
 {
-	BackgroundScreen->Resize(ScrX+1,ScrY+1,2);
+	BackgroundScreen->Resize(ScrX+1,ScrY+1,2,Opt.WindowMode!=FALSE);
 //  this->DisplayObject();
 }

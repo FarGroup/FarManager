@@ -804,6 +804,20 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 		return -1;
 	}
 
+
+	int X1, X2, Y1, Y2;
+	CtrlObject->CmdLine->GetPosition(X1, Y1, X2, Y2);
+	if(!Silent)
+	{
+		ProcessShowClock++;
+		CtrlObject->CmdLine->ShowBackground();
+		CtrlObject->CmdLine->Redraw();
+		GotoXY(X2+1,Y1);
+		Text(L" ");
+		CtrlObject->CmdLine->SetString(L"", FALSE);
+		MoveCursor(X1,Y1);
+	}
+
 	int Visible, Size;
 	GetCursorType(Visible,Size);
 	SetInitialCursorType();
@@ -811,6 +825,8 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 	// BUGBUG: если команда начинается с "@", то эта строка херит все начинания
 	// TODO: здесь необходимо подставить виртуальный буфер, а потом его корректно подсунуть в ScrBuf
 	ScrBuf.SetLockCount(0);
+
+	ScrBuf.Flush();
 
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
@@ -963,7 +979,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 
 		if(!Silent && !FolderRun)
 		{
-			Console.ScrollScreenBuffer(2);
+			Console.ScrollScreenBuffer(1);
 		}
 		if (CreateProcess(
 		            nullptr,
@@ -987,6 +1003,9 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 			dwError = GetLastError();
 		}
 	}
+
+	DWORD ErrorCode=0;
+	bool ErrMsg=false;
 
 	if (!dwError)
 	{
@@ -1123,18 +1142,15 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 	}
 	else
 	{
-		string strOutStr;
 
 		if (Opt.ExecuteShowErrorMessage)
 		{
-			SetMessageHelp(L"ErrCannotExecute");
-			strOutStr = strNewCmdStr;
-			Unquote(strOutStr);
-			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotExecute),strOutStr,MSG(MOk));
+			ErrorCode=GetLastError();
+			ErrMsg=true;
 		}
 		else
 		{
-			ScrBuf.Flush();
+			string strOutStr;
 			strOutStr.Format(MSG(MExecuteErrorMessage),strNewCmdStr.CPtr());
 			string strPtrStr=FarFormatText(strOutStr,ScrX,strPtrStr,L"\n",0);
 			Console.Write(strPtrStr, static_cast<DWORD>(strPtrStr.GetLength()));
@@ -1142,6 +1158,21 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 	}
 
 	ScrBuf.FillBuf();
+
+	if(!Silent)
+	{
+		CtrlObject->CmdLine->SaveBackground();
+		ProcessShowClock--;
+	}
+
+	if(ErrMsg)
+	{
+		SetLastError(ErrorCode);
+		SetMessageHelp(L"ErrCannotExecute");
+		string strOutStr = strNewCmdStr;
+		Unquote(strOutStr);
+		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotExecute),strOutStr,MSG(MOk));
+	}
 
 	SetFarConsoleMode(TRUE);
 	/* Принудительная установка курсора, т.к. SetCursorType иногда не спасает
@@ -1191,31 +1222,18 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
 	COORD Size0;
 	Console.GetSize(Size0);
 
-	if(!Silent)
-	{
-		ProcessShowClock++;
-		ShowBackground();
-		Show();
-		CmdStr.Show();
-	}
-
-	GotoXY(X2+1,Y1);
-	Text(L" ");
-	MoveCursor(X1,Y1);
-	ScrBuf.SetLockCount(0);
-	ScrBuf.Flush();
-	SetString(L"", FALSE);
-
 	if (!strCurDir.IsEmpty() && strCurDir.At(1)==L':')
 		FarChDir(strCurDir);
 
 	if ((Code=ProcessOSCommands(CmdLine,SeparateWindow)) == TRUE)
 	{
-		if(!Silent)
-		{
-			Console.ScrollScreenBuffer(2);
-			ScrBuf.FillBuf();
-		}
+		ShowBackground();
+		Redraw();
+		GotoXY(X2+1,Y1);
+		Text(L" ");
+		ScrollScreen(2);
+		SetString(L"", FALSE);
+		SaveBackground();
 		Code=-1;
 	}
 	else
@@ -1227,12 +1245,6 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
 			ReplaceStrings(strTempStr,L"/",L"\\",-1);
 
 		Code=Execute(strTempStr,AlwaysWaitFinish,SeparateWindow,DirectRun, 0, WaitForIdle, Silent);
-	}
-
-	if(!Silent)
-	{
-		SaveBackground();
-		ProcessShowClock--;
 	}
 
 	COORD Size1;
@@ -1530,6 +1542,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 			return FALSE; // отдадимся COMSPEC`у
 
 		ClearScreen(COL_COMMANDLINEUSERSCREEN);
+		SaveBackground();
 		return TRUE;
 	}
 	// PUSHD путь | ..
@@ -1621,7 +1634,8 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 			LocalUpperInit();
 			InitLCIDSort();
 			InitKeysArray();
-			CtrlObject->Cp()->Redraw();
+			ScrBuf.ResetShadow();
+			ScrBuf.Flush();
 			return TRUE;
 		}
 		else  // про траблы внешняя chcp сама скажет ;-)

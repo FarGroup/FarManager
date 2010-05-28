@@ -507,9 +507,28 @@ struct ExecuteStruct
 	bool bUnloaded;
 };
 
+
+static UINT64 OEMApiCnt=0;
+
+void apiSetFileApisToOEM()
+{
+	SetFileApisToOEM();
+	OEMApiCnt++;
+}
+
+void apiRevertFileApis()
+{
+	static UINT64 Cnt=0;
+	OEMApiCnt--;
+	if(!OEMApiCnt)
+	{
+		SetFileApisToANSI();
+	}
+}
+
 #define EXECUTE_FUNCTION(function, es) \
 	{ \
-		SetFileApisToOEM(); \
+		apiSetFileApisToOEM(); \
 		es.nResult = 0; \
 		es.nDefaultResult = 0; \
 		es.bUnloaded = false; \
@@ -530,13 +549,13 @@ struct ExecuteStruct
 		{ \
 			function; \
 		} \
-		SetFileApisToANSI(); \
+		apiRevertFileApis(); \
 	}
 
 
 #define EXECUTE_FUNCTION_EX(function, es) \
 	{ \
-		SetFileApisToOEM(); \
+		apiSetFileApisToOEM(); \
 		es.bUnloaded = false; \
 		es.nResult = 0; \
 		if ( Opt.ExceptRules ) \
@@ -557,7 +576,7 @@ struct ExecuteStruct
 		{ \
 			es.nResult = (INT_PTR)function; \
 		} \
-		SetFileApisToANSI(); \
+		apiRevertFileApis(); \
 	}
 
 

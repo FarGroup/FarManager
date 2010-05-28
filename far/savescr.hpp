@@ -60,7 +60,7 @@ class SaveScreen
 		void Discard();
 		void AppendArea(SaveScreen *NewArea);
 		/*$ 18.05.2001 OT */
-		void Resize(int ScrX,int ScrY,DWORD Corner);
+		void Resize(int ScrX,int ScrY,DWORD Corner, bool SyncWithConsole);
 
 		void DumpBuffer(const wchar_t *Title);
 };
