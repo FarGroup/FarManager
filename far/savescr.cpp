@@ -235,7 +235,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 			PCHAR_INFO Tmp=new CHAR_INFO[Size.X*Size.Y];
 			if(NewY>OHe)
 			{
-				SMALL_RECT ReadRegion={0, 0, NewX-1, NewY-OHe};
+				SMALL_RECT ReadRegion={0, 0, NewX-1, NewY-OHe-1};
 				Console.ReadOutput(*Tmp, Size, Coord, ReadRegion);
 				for(int i=0; i<Size.Y;i++)
 				{

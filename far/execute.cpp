@@ -1225,10 +1225,16 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
 	if (!strCurDir.IsEmpty() && strCurDir.At(1)==L':')
 		FarChDir(strCurDir);
 
+	string strPrevDir=strCurDir;
 	if ((Code=ProcessOSCommands(CmdLine,SeparateWindow)) == TRUE)
 	{
 		ShowBackground();
+
+		string strNewDir=strCurDir;
+		strCurDir=strPrevDir;
 		Redraw();
+		strCurDir=strNewDir;
+
 		GotoXY(X2+1,Y1);
 		Text(L" ");
 		ScrollScreen(2);

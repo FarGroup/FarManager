@@ -731,16 +731,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 			ReloadEnvironment();
 		}
 
-		if(Opt.WindowMode)
-		{
-			SMALL_RECT CurConRect;
-			Console.GetWindowRect(CurConRect);
-			if(CurConRect.Bottom-CurConRect.Top!=ScrY || CurConRect.Right-CurConRect.Left!=ScrX)
-			{
-				GenerateWINDOW_BUFFER_SIZE_EVENT();
-			}
-		}
-
 		Console.PeekInput(*rec, 1, ReadCount);
 
 		/* $ 26.04.2001 VVM
@@ -1152,8 +1142,19 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 	if (EnableShowTime)
 		ShowTime(1);
 
+	bool SizeChanged=false;
+	if(Opt.WindowMode)
+	{
+		SMALL_RECT CurConRect;
+		Console.GetWindowRect(CurConRect);
+		if(CurConRect.Bottom-CurConRect.Top!=ScrY || CurConRect.Right-CurConRect.Left!=ScrX)
+		{
+			SizeChanged=true;
+		}
+	}
+
 	/*& 17.05.2001 OT Изменился размер консоли, генерим клавишу*/
-	if (rec->EventType==WINDOW_BUFFER_SIZE_EVENT)
+	if (rec->EventType==WINDOW_BUFFER_SIZE_EVENT || SizeChanged)
 	{
 		int PScrX=ScrX;
 		int PScrY=ScrY;
