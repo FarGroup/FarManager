@@ -807,16 +807,16 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 
 	int X1, X2, Y1, Y2;
 	CtrlObject->CmdLine->GetPosition(X1, Y1, X2, Y2);
-	if(!Silent)
+	if(!Silent && !FolderRun)
 	{
 		ProcessShowClock++;
 		CtrlObject->CmdLine->ShowBackground();
 		CtrlObject->CmdLine->Redraw();
 		GotoXY(X2+1,Y1);
 		Text(L" ");
-		CtrlObject->CmdLine->SetString(L"", FALSE);
 		MoveCursor(X1,Y1);
 	}
+	CtrlObject->CmdLine->SetString(L"", FALSE);
 
 	int Visible, Size;
 	GetCursorType(Visible,Size);
@@ -1159,7 +1159,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 
 	ScrBuf.FillBuf();
 
-	if(!Silent)
+	if(!Silent && !FolderRun)
 	{
 		CtrlObject->CmdLine->SaveBackground();
 		ProcessShowClock--;
