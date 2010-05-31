@@ -975,7 +975,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
 		if (Link)
 		{
-			ComboList.ItemsNumber=countof(LinkTypeItems);
+			ComboList.ItemsNumber=ARRAYSIZE(LinkTypeItems);
 			ComboList.Items=LinkTypeItems;
 			ComboList.Items[0].Text=MSG(MLinkTypeHardlink);
 			ComboList.Items[1].Text=MSG(MLinkTypeJunction);
@@ -989,7 +989,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		}
 		else
 		{
-			ComboList.ItemsNumber=countof(CopyModeItems);
+			ComboList.ItemsNumber=ARRAYSIZE(CopyModeItems);
 			ComboList.Items=CopyModeItems;
 			ComboList.Items[CM_ASK].Text=MSG(MCopyAsk);
 			ComboList.Items[CM_OVERWRITE].Text=MSG(MCopyOverwrite);
@@ -1008,7 +1008,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		}
 
 		CopyDlg[ID_SC_COMBO].ListItems=&ComboList;
-		Dialog Dlg(CopyDlg,countof(CopyDlg),CopyDlgProc,(LONG_PTR)&CDP);
+		Dialog Dlg(CopyDlg,ARRAYSIZE(CopyDlg),CopyDlgProc,(LONG_PTR)&CDP);
 		Dlg.SetHelp(Link?L"HardSymLink":L"CopyFiles");
 		Dlg.SetPosition(-1,-1,DLG_WIDTH,DLG_HEIGHT);
 //    Dlg.Show();
@@ -3901,7 +3901,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 				string strFullSrcName;
 				ConvertNameToFull(SrcName,strFullSrcName);
 				string *WFN[]={&strFullSrcName,&strDestName,&strRenamedFilesPath};
-				Dialog WarnDlg(WarnCopyDlg,countof(WarnCopyDlg),WarnDlgProc,(LONG_PTR)&WFN);
+				Dialog WarnDlg(WarnCopyDlg,ARRAYSIZE(WarnCopyDlg),WarnDlgProc,(LONG_PTR)&WFN);
 				WarnDlg.SetDialogMode(DMODE_WARNINGSTYLE);
 				WarnDlg.SetPosition(-1,-1,WARN_DLG_WIDTH,WARN_DLG_HEIGHT);
 				WarnDlg.SetHelp(L"CopyAskOverwrite");
@@ -4006,7 +4006,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 					string strSrcName;
 					ConvertNameToFull(SrcData.strFileName,strSrcName);
 					LPCWSTR WFN[2]={strSrcName,DestName};
-					Dialog WarnDlg(WarnCopyDlg,countof(WarnCopyDlg),WarnDlgProc,(LONG_PTR)&WFN);
+					Dialog WarnDlg(WarnCopyDlg,ARRAYSIZE(WarnCopyDlg),WarnDlgProc,(LONG_PTR)&WFN);
 					WarnDlg.SetDialogMode(DMODE_WARNINGSTYLE);
 					WarnDlg.SetPosition(-1,-1,WARN_DLG_WIDTH,WARN_DLG_HEIGHT);
 					WarnDlg.SetHelp(L"CopyFiles");

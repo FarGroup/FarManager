@@ -1002,7 +1002,7 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 			{
 				// try to convert NT path (\Device\HarddiskVolume1) to \\?\Volume{...} path
 				wchar_t VolumeName[cVolumeGuidLen + 1 + 1];
-				HANDLE hEnum = FindFirstVolumeW(VolumeName, countof(VolumeName));
+				HANDLE hEnum = FindFirstVolumeW(VolumeName, ARRAYSIZE(VolumeName));
 				BOOL Res = hEnum != INVALID_HANDLE_VALUE;
 
 				while (Res)
@@ -1019,7 +1019,7 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 						}
 					}
 
-					Res = FindNextVolumeW(hEnum, VolumeName, countof(VolumeName));
+					Res = FindNextVolumeW(hEnum, VolumeName, ARRAYSIZE(VolumeName));
 				}
 
 				if (hEnum != INVALID_HANDLE_VALUE)
@@ -1110,7 +1110,7 @@ bool apiGetVolumeNameForVolumeMountPoint(LPCWSTR VolumeMountPoint,string& strVol
 	WCHAR VolumeName[50];
 	string strVolumeMountPoint(NTPath(VolumeMountPoint).Str);
 	AddEndSlash(strVolumeMountPoint);
-	if(GetVolumeNameForVolumeMountPoint(strVolumeMountPoint,VolumeName,countof(VolumeName)))
+	if(GetVolumeNameForVolumeMountPoint(strVolumeMountPoint,VolumeName,ARRAYSIZE(VolumeName)))
 	{
 		strVolumeName=VolumeName;
 		Result=true;

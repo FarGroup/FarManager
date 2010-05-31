@@ -518,7 +518,6 @@ void apiSetFileApisToOEM()
 
 void apiRevertFileApis()
 {
-	static UINT64 Cnt=0;
 	OEMApiCnt--;
 	if(!OEMApiCnt)
 	{
@@ -960,7 +959,7 @@ int PluginA::GetFiles(
 		UnicodeToOEM(*DestPath,DestA,sizeof(DestA));
 		EXECUTE_FUNCTION_EX(pGetFiles(hPlugin, PanelItemA, ItemsNumber, Move, DestA, OpMode), es);
 		static wchar_t DestW[oldfar::NM];
-		OEMToUnicode(DestA,DestW,countof(DestW));
+		OEMToUnicode(DestA,DestW,ARRAYSIZE(DestW));
 		*DestPath=DestW;
 		FreePanelItemA(PanelItemA,ItemsNumber);
 		nResult = (int)es.nResult;
@@ -1037,7 +1036,7 @@ int PluginA::MakeDirectory(
 		UnicodeToOEM(*Name,NameA,sizeof(NameA));
 		EXECUTE_FUNCTION_EX(pMakeDirectory(hPlugin, NameA, OpMode), es);
 		static wchar_t NameW[oldfar::NM];
-		OEMToUnicode(NameA,NameW,countof(NameW));
+		OEMToUnicode(NameA,NameW,ARRAYSIZE(NameW));
 		*Name=NameW;
 		nResult = (int)es.nResult;
 	}

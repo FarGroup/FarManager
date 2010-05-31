@@ -329,11 +329,11 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 	};
 	HMenuData MainMenu[]=
 	{
-		MSG(MMenuLeftTitle),1,LeftMenu,countof(LeftMenu),L"LeftRightMenu",
-		MSG(MMenuFilesTitle),0,FilesMenu,countof(FilesMenu),L"FilesMenu",
-		MSG(MMenuCommandsTitle),0,CmdMenu,countof(CmdMenu),L"CmdMenu",
-		MSG(MMenuOptionsTitle),0,OptionsMenu,countof(OptionsMenu),L"OptMenu",
-		MSG(MMenuRightTitle),0,RightMenu,countof(RightMenu),L"LeftRightMenu"
+		MSG(MMenuLeftTitle),1,LeftMenu,ARRAYSIZE(LeftMenu),L"LeftRightMenu",
+		MSG(MMenuFilesTitle),0,FilesMenu,ARRAYSIZE(FilesMenu),L"FilesMenu",
+		MSG(MMenuCommandsTitle),0,CmdMenu,ARRAYSIZE(CmdMenu),L"CmdMenu",
+		MSG(MMenuOptionsTitle),0,OptionsMenu,ARRAYSIZE(OptionsMenu),L"OptMenu",
+		MSG(MMenuRightTitle),0,RightMenu,ARRAYSIZE(RightMenu),L"LeftRightMenu"
 	};
 	static int LastHItem=-1,LastVItem=0;
 	int HItem,VItem;
@@ -342,7 +342,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (Opt.Policies.DisabledOptions)
 	{
-		for (size_t I = 0; I < countof(OptionsMenu); ++I)
+		for (size_t I = 0; I < ARRAYSIZE(OptionsMenu); ++I)
 		{
 			if (I >= MENU_OPTIONS_CONFIRMATIONS)
 				OptionsMenu[I].SetGrayed((Opt.Policies.DisabledOptions >> (I-1)) & 1);
@@ -355,7 +355,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 	SetLeftRightMenuChecks(RightMenu, false);
 	// Навигация по меню
 	{
-		HMenu HOptMenu(MainMenu,countof(MainMenu));
+		HMenu HOptMenu(MainMenu,ARRAYSIZE(MainMenu));
 		HOptMenu.SetHelp(L"Menus");
 		HOptMenu.SetPosition(0,0,ScrX,0);
 

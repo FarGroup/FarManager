@@ -386,7 +386,7 @@ void SetColors()
 	};
 	{
 		int GroupsCode;
-		VMenu GroupsMenu(MSG(MSetColorGroupsTitle),Groups,countof(Groups),0);
+		VMenu GroupsMenu(MSG(MSetColorGroupsTitle),Groups,ARRAYSIZE(Groups),0);
 		MenuToRedraw1=&GroupsMenu;
 
 		for (;;)
@@ -415,37 +415,37 @@ void SetColors()
 			switch (GroupsCode)
 			{
 				case 0:
-					SetItemColors(PanelItems,PanelPaletteItems,countof(PanelItems),0);
+					SetItemColors(PanelItems,PanelPaletteItems,ARRAYSIZE(PanelItems),0);
 					break;
 				case 1:
-					SetItemColors(DialogItems,DialogPaletteItems,countof(DialogItems),1);
+					SetItemColors(DialogItems,DialogPaletteItems,ARRAYSIZE(DialogItems),1);
 					break;
 				case 2:
-					SetItemColors(WarnDialogItems,WarnDialogPaletteItems,countof(WarnDialogItems),1);
+					SetItemColors(WarnDialogItems,WarnDialogPaletteItems,ARRAYSIZE(WarnDialogItems),1);
 					break;
 				case 3:
-					SetItemColors(MenuItems,MenuPaletteItems,countof(MenuItems),0);
+					SetItemColors(MenuItems,MenuPaletteItems,ARRAYSIZE(MenuItems),0);
 					break;
 				case 4:
-					SetItemColors(HMenuItems,HMenuPaletteItems,countof(HMenuItems),0);
+					SetItemColors(HMenuItems,HMenuPaletteItems,ARRAYSIZE(HMenuItems),0);
 					break;
 				case 5:
-					SetItemColors(KeyBarItems,KeyBarPaletteItems,countof(KeyBarItems),0);
+					SetItemColors(KeyBarItems,KeyBarPaletteItems,ARRAYSIZE(KeyBarItems),0);
 					break;
 				case 6:
-					SetItemColors(CommandLineItems,CommandLinePaletteItems,countof(CommandLineItems),0);
+					SetItemColors(CommandLineItems,CommandLinePaletteItems,ARRAYSIZE(CommandLineItems),0);
 					break;
 				case 7:
-					SetItemColors(ClockItems,ClockPaletteItems,countof(ClockItems),0);
+					SetItemColors(ClockItems,ClockPaletteItems,ARRAYSIZE(ClockItems),0);
 					break;
 				case 8:
-					SetItemColors(ViewerItems,ViewerPaletteItems,countof(ViewerItems),0);
+					SetItemColors(ViewerItems,ViewerPaletteItems,ARRAYSIZE(ViewerItems),0);
 					break;
 				case 9:
-					SetItemColors(EditorItems,EditorPaletteItems,countof(EditorItems),0);
+					SetItemColors(EditorItems,EditorPaletteItems,ARRAYSIZE(EditorItems),0);
 					break;
 				case 10:
-					SetItemColors(HelpItems,HelpPaletteItems,countof(HelpItems),0);
+					SetItemColors(HelpItems,HelpPaletteItems,ARRAYSIZE(HelpItems),0);
 					break;
 			}
 		}
@@ -482,7 +482,7 @@ static void SetItemColors(MenuDataEx *Items,int *PaletteItems,int Size,int TypeS
 // 2,3 - dialog,warn Combobox
 		if (TypeSub == 1 && PaletteItems[ItemsCode] < 4)
 		{
-			SetItemColors(ListItems,ListPaletteItems[PaletteItems[ItemsCode]],countof(ListItems),2);
+			SetItemColors(ListItems,ListPaletteItems[PaletteItems[ItemsCode]],ARRAYSIZE(ListItems),2);
 			MenuToRedraw3=nullptr;
 		}
 		else
@@ -707,7 +707,7 @@ int GetColorDialog(WORD& Color,bool bCentered,bool bAddTransparent)
 	}
 
 	{
-		Dialog Dlg(ColorDlg,countof(ColorDlg), GetColorDlgProc, (LONG_PTR) &CurColor);
+		Dialog Dlg(ColorDlg,ARRAYSIZE(ColorDlg), GetColorDlgProc, (LONG_PTR) &CurColor);
 
 		if (bCentered)
 			Dlg.SetPosition(-1,-1,39+(bAddTransparent?4:0),15+(bAddTransparent?3:0));

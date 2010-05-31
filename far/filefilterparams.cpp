@@ -191,8 +191,8 @@ void FileFilterParams::SetDate(bool Used, DWORD DateType, FILETIME DateAfter, FI
 void FileFilterParams::SetSize(bool Used, const wchar_t *SizeAbove, const wchar_t *SizeBelow)
 {
 	FSize.Used=Used;
-	xwcsncpy(FSize.SizeAbove,SizeAbove,countof(FSize.SizeAbove));
-	xwcsncpy(FSize.SizeBelow,SizeBelow,countof(FSize.SizeBelow));
+	xwcsncpy(FSize.SizeAbove,SizeAbove,ARRAYSIZE(FSize.SizeAbove));
+	xwcsncpy(FSize.SizeBelow,SizeBelow,ARRAYSIZE(FSize.SizeBelow));
 	FSize.SizeAboveReal=ConvertFileSizeString(FSize.SizeAbove);
 	FSize.SizeBelowReal=ConvertFileSizeString(FSize.SizeBelow);
 }
@@ -465,9 +465,9 @@ void MenuString(string &strDest, FileFilterParams *FF, bool bHighlightType, int 
 		UseDate=FF->GetDate(nullptr,nullptr,nullptr,&RelativeDate);
 	}
 
-	wchar_t Attr[countof(AttrC)*2] = {0};
+	wchar_t Attr[ARRAYSIZE(AttrC)*2] = {0};
 
-	for (size_t i=0; i<countof(AttrF); i++)
+	for (size_t i=0; i<ARRAYSIZE(AttrF); i++)
 	{
 		wchar_t *Ptr=Attr+i*2;
 		*Ptr=AttrC[i];
@@ -1069,7 +1069,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 			FilterDlg[i].Flags|=DIF_DISABLE;
 	}
 
-	Dialog Dlg(FilterDlg,countof(FilterDlg),FileFilterConfigDlgProc,(LONG_PTR)(ColorConfig?&Colors:nullptr));
+	Dialog Dlg(FilterDlg,ARRAYSIZE(FilterDlg),FileFilterConfigDlgProc,(LONG_PTR)(ColorConfig?&Colors:nullptr));
 	Dlg.SetHelp(ColorConfig?L"HighlightEdit":L"Filter");
 	Dlg.SetPosition(-1,-1,FilterDlg[ID_FF_TITLE].X2+4,FilterDlg[ID_FF_TITLE].Y2+2);
 	Dlg.SetAutomation(ID_FF_MATCHMASK,ID_FF_MASKEDIT,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);

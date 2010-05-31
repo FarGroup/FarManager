@@ -869,7 +869,7 @@ int Manager::ProcessKey(DWORD Key)
 			ModalMenu.SetFlags(VMENU_WRAPMODE);
 			ModalMenu.SetPosition(-1,-1,0,0);
 
-			for (size_t I=0; I<countof(ECode); I++)
+			for (size_t I=0; I<ARRAYSIZE(ECode); I++)
 			{
 				ModalMenuItem.strName = ECode[I].Name;
 				ModalMenu.AddItem(&ModalMenuItem);

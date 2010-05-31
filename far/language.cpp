@@ -91,7 +91,7 @@ bool Language::Init(const wchar_t *Path, bool bUnicode, int CountNeed)
 
 	wchar_t ReadStr[1024]={0};
 
-	while (ReadString(LangFile, ReadStr, countof(ReadStr), nCodePage) !=nullptr)
+	while (ReadString(LangFile, ReadStr, ARRAYSIZE(ReadStr), nCodePage) !=nullptr)
 	{
 		string strDestStr;
 		RemoveExternalSpaces(ReadStr);

@@ -49,8 +49,8 @@ string &FormatNumber(const wchar_t *Src, string &strDest, int NumDigits)
 
 	if (first)
 	{
-		GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_STHOUSAND,ThousandSep,countof(ThousandSep));
-		GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_SDECIMAL,DecimalSep,countof(DecimalSep));
+		GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_STHOUSAND,ThousandSep,ARRAYSIZE(ThousandSep));
+		GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_SDECIMAL,DecimalSep,ARRAYSIZE(DecimalSep));
 		DecimalSep[1]=0;  //В винде сепараторы цифр могут быть больше одного символа
 		ThousandSep[1]=0; //но для нас это будет не очень хорошо
 
@@ -1280,7 +1280,7 @@ void Transform(string &strBuffer,const wchar_t *ConvStr,wchar_t TransformType)
 wchar_t GetDecimalSeparator()
 {
 	wchar_t Separator[4];
-	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_SDECIMAL,Separator,countof(Separator));
+	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_SDECIMAL,Separator,ARRAYSIZE(Separator));
 	return *Separator;
 }
 

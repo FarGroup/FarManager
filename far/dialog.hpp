@@ -74,8 +74,8 @@ enum DIALOG_MODES
 //#define DIMODE_REDRAW       0x00000001 // требуется принудительная прорисовка итема?
 
 #define MakeDialogItemsEx(Data,Item) \
-	DialogItemEx Item[countof(Data)]; \
-	DataToItemEx(Data,Item,countof(Data));
+	DialogItemEx Item[ARRAYSIZE(Data)]; \
+	DataToItemEx(Data,Item,ARRAYSIZE(Data));
 
 // Структура, описывающая автоматизацию для DIF_AUTOMATION
 // на первом этапе - примитивная - выставление флагов у элементов для CheckBox

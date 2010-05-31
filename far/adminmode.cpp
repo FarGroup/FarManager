@@ -398,7 +398,7 @@ void AdminApproveDlgSync(LPVOID Param)
 		DI_BUTTON,0,DlgY-3,0,DlgY-3,0,DIF_CENTERGROUP,MSG(MSkip),
 	};
 	MakeDialogItemsEx(AdminApproveDlgData,AdminApproveDlg);
-	Dialog Dlg(AdminApproveDlg,countof(AdminApproveDlg),AdminApproveDlgProc);
+	Dialog Dlg(AdminApproveDlg,ARRAYSIZE(AdminApproveDlg),AdminApproveDlgProc);
 	Dlg.SetHelp(L"ElevationDlg");
 	Dlg.SetPosition(-1,-1,DlgX,DlgY);
 	Dlg.SetDialogMode(DMODE_FULLSHADOW|DMODE_NOPLUGINS);

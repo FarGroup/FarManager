@@ -121,7 +121,7 @@ void ShellMakeDir(Panel *SrcPanel)
 		DI_BUTTON,   0,7, 0,7,0,DIF_CENTERGROUP,MSG(MCancel),
 	};
 	MakeDialogItemsEx(MkDirDlgData,MkDirDlg);
-	Dialog Dlg(MkDirDlg,countof(MkDirDlg),MkDirDlgProc,reinterpret_cast<LONG_PTR>(&DirList));
+	Dialog Dlg(MkDirDlg,ARRAYSIZE(MkDirDlg),MkDirDlgProc,reinterpret_cast<LONG_PTR>(&DirList));
 	Dlg.SetPosition(-1,-1,76,10);
 	Dlg.SetHelp(L"MakeFolder");
 	Dlg.Process();

@@ -546,7 +546,7 @@ int CopyKeyTree(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip)
 	for (int i=0; ; i++)
 	{
 		wchar_t ValueName[200];
-		DWORD Type,NameSize=countof(ValueName),DataSize=AllocDataSize;
+		DWORD Type,NameSize=ARRAYSIZE(ValueName),DataSize=AllocDataSize;
 		int ExitCode=RegEnumValue(hSrcKey,i,ValueName,&NameSize,nullptr,&Type,(BYTE *)ValueData,&DataSize);
 
 		if (ExitCode != ERROR_SUCCESS)
@@ -695,7 +695,7 @@ int DeleteEmptyKey(HKEY hRoot, const wchar_t *FullKeyName)
 			if (ExitCode!=ERROR_SUCCESS)
 			{
 				wchar_t SubName[1];	// no matter
-				DWORD SubSize=countof(SubName);
+				DWORD SubSize=ARRAYSIZE(SubName);
 				ExitCode=RegEnumValue(hKey,0,SubName,&SubSize,nullptr,nullptr,nullptr, nullptr);
 			}
 

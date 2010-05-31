@@ -214,12 +214,12 @@ PluginType IsModulePlugin2(
 					DWORD dwCRC32 = CRC32(0, lpExportName, (unsigned int)strlen(lpExportName));
 
 					// а это вам не фиг знает что, это вам оптимизация, типа 8-)
-					for (size_t j = 0; j < countof(ExportCRC32W); j++)
+					for (size_t j = 0; j < ARRAYSIZE(ExportCRC32W); j++)
 						if (dwCRC32 == ExportCRC32W[j])
 							return UNICODE_PLUGIN;
 
 					if (!bOemExports)
-						for (size_t j = 0; j < countof(ExportCRC32); j++)
+						for (size_t j = 0; j < ARRAYSIZE(ExportCRC32); j++)
 							if (dwCRC32 == ExportCRC32[j])
 								bOemExports=true;
 				}
@@ -1251,7 +1251,7 @@ void PluginManager::ConfigureCurrent(Plugin *pPlugin, int INum)
 		PMode[0]=CtrlObject->Cp()->LeftPanel->GetMode();
 		PMode[1]=CtrlObject->Cp()->RightPanel->GetMode();
 
-		for (size_t I=0; I < countof(PMode); ++I)
+		for (size_t I=0; I < ARRAYSIZE(PMode); ++I)
 		{
 			if (PMode[I] == PLUGIN_PANEL)
 			{
@@ -1731,7 +1731,7 @@ bool PluginManager::SetHotKeyDialog(
 	GetRegKey(RegKey,RegValueName,PluginDlg[2].strData,L"");
 	int ExitCode;
 	{
-		Dialog Dlg(PluginDlg,countof(PluginDlg));
+		Dialog Dlg(PluginDlg,ARRAYSIZE(PluginDlg));
 		Dlg.SetPosition(-1,-1,64,6);
 		Dlg.Process();
 		ExitCode=Dlg.GetExitCode();

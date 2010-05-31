@@ -138,8 +138,6 @@ typedef struct _ADAPTER_OBJECT ADAPTER_OBJECT,*PADAPTER_OBJECT;
 #define __except(a) if(0)
 #endif // __GNUC__
 
-#define countof(a) (sizeof(a)/sizeof(a[0]))
-
 #define NullToEmpty(s) (s?s:L"")
 
 #ifdef  __cplusplus

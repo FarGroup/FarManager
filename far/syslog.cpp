@@ -114,7 +114,7 @@ static FILE* PrintBaner(FILE *fp,const wchar_t *Category,const wchar_t *Title)
 	if (fp)
 	{
 		static wchar_t timebuf[64];
-		fwprintf(fp,L"%s %s(%s) %s\n",PrintTime(timebuf,countof(timebuf)),MakeSpace(),NullToEmpty(Title),NullToEmpty(Category));
+		fwprintf(fp,L"%s %s(%s) %s\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),NullToEmpty(Title),NullToEmpty(Category));
 	}
 
 	return fp;
@@ -181,7 +181,7 @@ void ShowHeap()
 	if (LogStream)
 	{
 		wchar_t timebuf[64];
-		fwprintf(LogStream,L"%s %s%s\n",PrintTime(timebuf,countof(timebuf)),MakeSpace(),L"Heap Status");
+		fwprintf(LogStream,L"%s %s%s\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),L"Heap Status");
 		fwprintf(LogStream,L"   Size   Status\n");
 		fwprintf(LogStream,L"   ----   ------\n");
 		DWORD Sz=0;
@@ -253,14 +253,14 @@ void SysLog(const wchar_t *fmt,...)
 	{
 		va_list argptr;
 		va_start(argptr, fmt);
-		_vsnwprintf(msg, countof(msg)-1, fmt, argptr);
+		_vsnwprintf(msg, MAX_LOG_LINE, fmt, argptr);
 		va_end(argptr);
 		OpenSysLog();
 
 		if (LogStream)
 		{
 			wchar_t timebuf[64];
-			fwprintf(LogStream,L"%s %s%s\n",PrintTime(timebuf,countof(timebuf)),MakeSpace(),msg);
+			fwprintf(LogStream,L"%s %s%s\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),msg);
 			fflush(LogStream);
 		}
 
@@ -296,7 +296,7 @@ void SysLogLastError()
 	{
 		wchar_t timebuf[64];
 		// RemoveUnprintableCharacters(lpMsgBuf);
-		fwprintf(LogStream,L"%s %sGetLastError()=[%d/0x%X] \"%s\"\n",PrintTime(timebuf,countof(timebuf)),MakeSpace(),LastErr,LastErr,lpMsgBuf);
+		fwprintf(LogStream,L"%s %sGetLastError()=[%d/0x%X] \"%s\"\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),LastErr,LastErr,lpMsgBuf);
 		fflush(LogStream);
 	}
 
@@ -328,7 +328,7 @@ void SysLog(int l,const wchar_t *fmt,...)
 	{
 		va_list argptr;
 		va_start(argptr, fmt);
-		_vsnwprintf(msg, countof(msg)-1, fmt, argptr);
+		_vsnwprintf(msg, MAX_LOG_LINE, fmt, argptr);
 		va_end(argptr);
 		OpenSysLog();
 
@@ -337,7 +337,7 @@ void SysLog(int l,const wchar_t *fmt,...)
 			if (l < 0) SysLog(l);
 
 			wchar_t timebuf[64];
-			fwprintf(LogStream,L"%s %s%s\n",PrintTime(timebuf,countof(timebuf)),MakeSpace(),msg);
+			fwprintf(LogStream,L"%s %s%s\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),msg);
 			fflush(LogStream);
 
 			if (l > 0) SysLog(l);
@@ -375,7 +375,7 @@ void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,F
 	{
 		OpenSysLog();
 		fp=LogStream;
-		fwprintf(fp,L"%s %s<%s> [%u bytes]{\n",PrintTime(timebuf,countof(timebuf)),MakeSpace(),NullToEmpty(Title),SizeBuf);
+		fwprintf(fp,L"%s %s<%s> [%u bytes]{\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),NullToEmpty(Title),SizeBuf);
 	}
 
 	if (fp)
@@ -388,7 +388,7 @@ void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,F
 		for (int Y=0; Y < CY; ++Y)
 		{
 			//memset(TmpBuf,' ',16);
-			fwprintf(fp,L"%s %s ",PrintTime(timebuf,countof(timebuf)),MakeSpace());
+			fwprintf(fp,L"%s %s ",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace());
 			fwprintf(fp, L" %08X: ",StartAddress+Y*16);
 
 			for (int X=0; X < 16; ++X)
@@ -409,7 +409,7 @@ void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,F
 			fwprintf(fp,L"| %s\n",TmpBuf);
 		}
 
-		fwprintf(fp,L"%s %s}</%s>\n",PrintTime(timebuf,countof(timebuf)),MakeSpace(),NullToEmpty(Title));
+		fwprintf(fp,L"%s %s}</%s>\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),NullToEmpty(Title));
 		fflush(fp);
 	}
 
@@ -437,7 +437,7 @@ void SaveScreenDumpBuffer(const wchar_t *Title,const CHAR_INFO *Buffer,int X1,in
 		if (fp)
 		{
 			wchar_t timebuf[64];
-			fwprintf(fp,L"%s %s(CHAR_INFO DumpBuffer: '%s')\n",PrintTime(timebuf,countof(timebuf)),MakeSpace(),NullToEmpty(Title));
+			fwprintf(fp,L"%s %s(CHAR_INFO DumpBuffer: '%s')\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),NullToEmpty(Title));
 		}
 	}
 
@@ -774,7 +774,7 @@ void WINAPIV _export FarSysLog(const wchar_t *ModuleName,int l,const wchar_t *fm
 	{
 		va_list argptr;
 		va_start(argptr, fmt);
-		_vsnwprintf(msg, countof(msg)-1, fmt, argptr);
+		_vsnwprintf(msg, MAX_LOG_LINE, fmt, argptr);
 		va_end(argptr);
 		SysLog(l);
 		OpenSysLog();
@@ -782,7 +782,7 @@ void WINAPIV _export FarSysLog(const wchar_t *ModuleName,int l,const wchar_t *fm
 		if (LogStream)
 		{
 			wchar_t timebuf[64];
-			fwprintf(LogStream,L"%s %s%s:: %s\n",PrintTime(timebuf,countof(timebuf)),MakeSpace(),PointToName(ModuleName),msg);
+			fwprintf(LogStream,L"%s %s%s:: %s\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),PointToName(ModuleName),msg);
 			fflush(LogStream);
 		}
 
@@ -897,7 +897,7 @@ string __ECTL_ToName(int Command)
 		DEF_ECTL_(TURNOFFMARKINGBLOCK),
 		DEF_ECTL_(DELETEBLOCK),
 	};
-	return _XXX_ToName(Command,L"ECTL",ECTL,countof(ECTL));
+	return _XXX_ToName(Command,L"ECTL",ECTL,ARRAYSIZE(ECTL));
 #else
 	return L"";
 #endif
@@ -912,7 +912,7 @@ string __EE_ToName(int Command)
 		DEF_EE_(READ),     DEF_EE_(SAVE),     DEF_EE_(REDRAW),     DEF_EE_(CLOSE),
 		DEF_EE_(GOTFOCUS), DEF_EE_(KILLFOCUS),
 	};
-	return _XXX_ToName(Command,L"EE",EE,countof(EE));
+	return _XXX_ToName(Command,L"EE",EE,ARRAYSIZE(EE));
 #else
 	return L"";
 #endif
@@ -926,7 +926,7 @@ string __EEREDRAW_ToName(int Command)
 	{
 		DEF_EEREDRAW_(ALL),  DEF_EEREDRAW_(CHANGE),  DEF_EEREDRAW_(LINE),
 	};
-	return _XXX_ToName(Command,L"EEREDRAW",EEREDRAW,countof(EEREDRAW));
+	return _XXX_ToName(Command,L"EEREDRAW",EEREDRAW,ARRAYSIZE(EEREDRAW));
 #else
 	return L"";
 #endif
@@ -948,7 +948,7 @@ string __ESPT_ToName(int Command)
 		DEF_ESPT_(LOCKMODE),
 		DEF_ESPT_(SETWORDDIV),
 	};
-	return _XXX_ToName(Command,L"ESPT",ESPT,countof(ESPT));
+	return _XXX_ToName(Command,L"ESPT",ESPT,ARRAYSIZE(ESPT));
 #else
 	return L"";
 #endif
@@ -963,7 +963,7 @@ string __VE_ToName(int Command)
 		DEF_VE_(READ),     DEF_VE_(CLOSE),
 		DEF_VE_(GOTFOCUS), DEF_VE_(KILLFOCUS),
 	};
-	return _XXX_ToName(Command,L"VE",VE,countof(VE));
+	return _XXX_ToName(Command,L"VE",VE,ARRAYSIZE(VE));
 #else
 	return L"";
 #endif
@@ -990,7 +990,7 @@ string __FCTL_ToName(int Command)
 		DEF_FCTL_(CHECKPANELSEXIST),      DEF_FCTL_(SETNUMERICSORT),
 		DEF_FCTL_(SETDIRECTORIESFIRST),
 	};
-	return _XXX_ToName(Command,L"FCTL",FCTL,countof(FCTL));
+	return _XXX_ToName(Command,L"FCTL",FCTL,ARRAYSIZE(FCTL));
 #else
 	return L"";
 #endif
@@ -1017,7 +1017,7 @@ string __ACTL_ToName(int Command)
 		DEF_ACTL_(REMOVEMEDIA),            DEF_ACTL_(GETMEDIATYPE),
 		DEF_ACTL_(GETPOLICIES),            DEF_ACTL_(REDRAWALL),
 	};
-	return _XXX_ToName(Command,L"ACTL",ACTL,countof(ACTL));
+	return _XXX_ToName(Command,L"ACTL",ACTL,ARRAYSIZE(ACTL));
 #else
 	return L"";
 #endif
@@ -1038,7 +1038,7 @@ string __VCTL_ToName(int Command)
 		DEF_VCTL_(SELECT),
 		DEF_VCTL_(SETMODE),
 	};
-	return _XXX_ToName(Command,L"VCTL",VCTL,countof(VCTL));
+	return _XXX_ToName(Command,L"VCTL",VCTL,ARRAYSIZE(VCTL));
 #else
 	return L"";
 #endif
@@ -1287,7 +1287,7 @@ string __MCODE_ToName(int OpCode)
 	};
 	string Name;
 
-	for (size_t i=0; i<countof(MCODE); i++)
+	for (size_t i=0; i<ARRAYSIZE(MCODE); i++)
 	{
 		if (MCODE[i].Val == OpCode)
 		{
@@ -1375,7 +1375,7 @@ string __DLGMSG_ToName(int Msg)
 	};
 	string Name;
 
-	for (size_t i=0; i<countof(Message); i++)
+	for (size_t i=0; i<ARRAYSIZE(Message); i++)
 	{
 		if (Message[i].Val == Msg)
 		{
@@ -1480,7 +1480,7 @@ string __VK_KEY_ToName(int VkKey)
 		return Name;
 	}
 	else
-		return _XXX_ToName(VkKey,L"VK",VK,countof(VK));
+		return _XXX_ToName(VkKey,L"VK",VK,ARRAYSIZE(VK));
 
 #else
 	return L"";
@@ -1631,7 +1631,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 		if (fp)
 		{
 			wchar_t timebuf[64];
-			fwprintf(fp,L"%s %s(Number Of Console Input Events = %d)\n",PrintTime(timebuf,countof(timebuf)),MakeSpace(),ReadCount2);
+			fwprintf(fp,L"%s %s(Number Of Console Input Events = %d)\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),ReadCount2);
 		}
 	}
 
@@ -1903,26 +1903,26 @@ void PanelViewSettings_Dump(const wchar_t *Title,const PanelViewSettings &ViewSe
 		fwprintf(fp,L"%*s %s  PanelViewSettings{\n",12,L"",space);
 		fwprintf(fp,L"%*s %s  ColumnType           = [",12,L"",space);
 
-		for (I=0; I < countof(ViewSettings.ColumnType)-1; ++I)
+		for (I=0; I < ARRAYSIZE(ViewSettings.ColumnType)-1; ++I)
 			fwprintf(fp,L"%d, ",ViewSettings.ColumnType[I]);
 
 		fwprintf(fp,L"%d]\n",ViewSettings.ColumnType[I]);
 		fwprintf(fp,L"%*s %s  ColumnWidth          = [",12,L"",space);
 
-		for (I=0; I < countof(ViewSettings.ColumnWidth)-1; ++I)
+		for (I=0; I < ARRAYSIZE(ViewSettings.ColumnWidth)-1; ++I)
 			fwprintf(fp,L"%d, ",ViewSettings.ColumnWidth[I]);
 
 		fwprintf(fp,L"%d]\n",ViewSettings.ColumnWidth[I]);
 		fwprintf(fp,L"%*s %s  ColumnCount          = %d\n",12,L"",space,ViewSettings.ColumnCount);
 		fwprintf(fp,L"%*s %s  StatusColumnType     = [",12,L"",space);
 
-		for (I=0; I < countof(ViewSettings.StatusColumnType)-1; ++I)
+		for (I=0; I < ARRAYSIZE(ViewSettings.StatusColumnType)-1; ++I)
 			fwprintf(fp,L"%08X, ",ViewSettings.StatusColumnType[I]);
 
 		fwprintf(fp,L"%08X]\n",ViewSettings.StatusColumnType[I]);
 		fwprintf(fp,L"%*s %s  StatusColumnWidth    = [",12,L"",space);
 
-		for (I=0; I < countof(ViewSettings.StatusColumnWidth)-1; ++I)
+		for (I=0; I < ARRAYSIZE(ViewSettings.StatusColumnWidth)-1; ++I)
 			fwprintf(fp,L"%d, ",ViewSettings.StatusColumnWidth[I]);
 
 		fwprintf(fp,L"%d]\n",ViewSettings.StatusColumnWidth[I]);

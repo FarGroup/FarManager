@@ -624,7 +624,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 				{&Opt.Dialogs.MouseButton,FDIS_MOUSECLICKOUTSIDECLOSESDIALOG},
 			};
 
-			for (size_t I=0; I < countof(ODlg); ++I)
+			for (size_t I=0; I < ARRAYSIZE(ODlg); ++I)
 				if (*ODlg[I].Opt)
 					Options|=ODlg[I].Flags;
 
@@ -651,7 +651,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 				{&Opt.AutoSaveSetup,FSS_AUTOSAVESETUP},
 			};
 
-			for (size_t I=0; I < countof(OSys); ++I)
+			for (size_t I=0; I < ARRAYSIZE(OSys); ++I)
 				if (*OSys[I].Opt)
 					Options|=OSys[I].Flags;
 
@@ -676,7 +676,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 				{&Opt.ShowSortMode,FPS_SHOWSORTMODELETTER},
 			};
 
-			for (size_t I=0; I < countof(OSys); ++I)
+			for (size_t I=0; I < ARRAYSIZE(OSys); ++I)
 				if (*OSys[I].Opt)
 					Options|=OSys[I].Flags;
 
@@ -698,7 +698,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 				{&Opt.DelOpt.DelShowTotal,FIS_SHOWTOTALDELPROGRESSINDICATOR},
 			};
 
-			for (size_t I=0; I < countof(OSys); ++I)
+			for (size_t I=0; I < ARRAYSIZE(OSys); ++I)
 				if (*OSys[I].Opt)
 					Options|=OSys[I].Flags;
 
@@ -722,7 +722,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 				{&Opt.Confirm.Exit,FCS_EXIT},
 			};
 
-			for (size_t I=0; I < countof(OSys); ++I)
+			for (size_t I=0; I < ARRAYSIZE(OSys); ++I)
 				if (*OSys[I].Opt)
 					Options|=OSys[I].Flags;
 

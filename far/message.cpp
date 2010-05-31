@@ -90,7 +90,7 @@ int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
 	const wchar_t *Str[]={Str1,Str2,Str3,Str4,Str5,Str6,Str7,Str8,Str9,Str10,Str11,Str12,Str13,Str14};
 	int StrCount=0;
 
-	while (StrCount<(int)countof(Str) && Str[StrCount]!=nullptr)
+	while (StrCount<(int)ARRAYSIZE(Str) && Str[StrCount]!=nullptr)
 		StrCount++;
 
 	return Message(Flags,Buttons,Title,Str,StrCount,PluginNumber);
@@ -626,7 +626,7 @@ bool GetErrorString(string &strErrStr)
 
 	DWORD LastError = GetLastError();
 
-	for (size_t i=0; i < countof(ErrMsgs); i++)
+	for (size_t i=0; i < ARRAYSIZE(ErrMsgs); i++)
 	{
 		if (ErrMsgs[i].WinMsg == LastError)
 		{

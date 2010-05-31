@@ -407,7 +407,7 @@ int CommandLine::ProcessKey(int Key)
 					KEY_END,        KEY_NUMPAD1
 				};
 
-				for (size_t I=0; I< countof(UnmarkKeys); I++)
+				for (size_t I=0; I< ARRAYSIZE(UnmarkKeys); I++)
 					if (Key==UnmarkKeys[I])
 					{
 						CmdStr.Select(-1,0);
@@ -524,7 +524,7 @@ void CommandLine::GetPrompt(string &strDestStr)
 				wchar_t Chr=Upper(*++Format);
 				size_t I;
 
-				for (I=0; I < countof(ChrFmt); ++I)
+				for (I=0; I < ARRAYSIZE(ChrFmt); ++I)
 				{
 					if (ChrFmt[I][0] == Chr)
 					{
@@ -533,7 +533,7 @@ void CommandLine::GetPrompt(string &strDestStr)
 					}
 				}
 
-				if (I == countof(ChrFmt))
+				if (I == ARRAYSIZE(ChrFmt))
 				{
 					switch (Chr)
 					{

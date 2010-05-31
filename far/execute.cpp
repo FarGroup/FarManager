@@ -631,7 +631,7 @@ bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 					strFullName=RegPath;
 					strFullName+=Module;
 
-					for (size_t i=0; i<countof(RootFindKey); i++)
+					for (size_t i=0; i<ARRAYSIZE(RootFindKey); i++)
 					{
 						HKEY hKey;
 
@@ -661,7 +661,7 @@ bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 							strFullName+=Module;
 							strFullName+=Ext;
 
-							for (size_t i=0; i<countof(RootFindKey); i++)
+							for (size_t i=0; i<ARRAYSIZE(RootFindKey); i++)
 							{
 								HKEY hKey;
 

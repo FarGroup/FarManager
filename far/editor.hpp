@@ -101,7 +101,7 @@ struct EditorUndoData
 		this->StrPos=StrPos;
 		this->StrNum=StrNum;
 		this->Length=Length;
-		xwcsncpy(EOL,Eol?Eol:L"",countof(EOL)-1);
+		xwcsncpy(EOL,Eol?Eol:L"",ARRAYSIZE(EOL)-1);
 
 		if (this->Str)
 		{

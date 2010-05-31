@@ -2523,7 +2523,7 @@ void VMenu::SetOneColor(int Index, short Color)
 {
 	CriticalSectionLock Lock(CS);
 
-	if (Index < (int)countof(Colors))
+	if (Index < (int)ARRAYSIZE(Colors))
 		Colors[Index] = FarColorToReal(Color);
 }
 

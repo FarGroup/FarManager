@@ -130,7 +130,7 @@ bool dlgOpenEditor(string &strFileName, UINT &codepage)
 	};
 	MakeDialogItemsEx(EditDlgData,EditDlg);
 	EditDlg[ID_OE_FILENAME].strData = strFileName;
-	Dialog Dlg(EditDlg, countof(EditDlg), (FARWINDOWPROC)hndOpenEditor, (LONG_PTR)&codepage);
+	Dialog Dlg(EditDlg, ARRAYSIZE(EditDlg), (FARWINDOWPROC)hndOpenEditor, (LONG_PTR)&codepage);
 	Dlg.SetPosition(-1,-1,76,10);
 	Dlg.SetHelp(L"FileOpenCreate");
 	Dlg.Process();
@@ -274,7 +274,7 @@ bool dlgSaveFileAs(string &strFileName, int &TextFormat, UINT &codepage,bool &Ad
 			EditDlg[ID_SF_FILENAME].strData.SetLength(pos);
 	}
 	EditDlg[ID_SF_DONOTCHANGE+TextFormat].Selected = TRUE;
-	Dialog Dlg(EditDlg, countof(EditDlg), (FARWINDOWPROC)hndSaveFileAs, (LONG_PTR)&codepage);
+	Dialog Dlg(EditDlg, ARRAYSIZE(EditDlg), (FARWINDOWPROC)hndSaveFileAs, (LONG_PTR)&codepage);
 	Dlg.SetPosition(-1,-1,76,17);
 	Dlg.SetHelp(L"FileSaveAs");
 	Dlg.Process();
@@ -1562,8 +1562,8 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 		        )
 		   )
 		{
-			xwcsncpy(m_editor->GlobalEOL,CurEOL,countof(m_editor->GlobalEOL));
-			m_editor->GlobalEOL[countof(m_editor->GlobalEOL)-1]=0;
+			xwcsncpy(m_editor->GlobalEOL,CurEOL,ARRAYSIZE(m_editor->GlobalEOL));
+			m_editor->GlobalEOL[ARRAYSIZE(m_editor->GlobalEOL)-1]=0;
 			LastLineCR=1;
 		}
 
@@ -2267,7 +2267,7 @@ void FileEditor::ShowStatus()
 			/* $ 27.02.2001 SVS
 			Показываем в зависимости от базы */
 			static const wchar_t *FmtWCharCode[]={L"%05o",L"%5d",L"%04Xh"};
-			mprintf(FmtWCharCode[m_editor->EdOpt.CharCodeBase%countof(FmtWCharCode)],Str[CurPos]);
+			mprintf(FmtWCharCode[m_editor->EdOpt.CharCodeBase%ARRAYSIZE(FmtWCharCode)],Str[CurPos]);
 
 			if (!IsUnicodeOrUtfCodePage(m_codepage))
 			{
@@ -2279,7 +2279,7 @@ void FileEditor::ShowStatus()
 				{
 					static const wchar_t *FmtCharCode[]={L"%o",L"%d",L"%Xh"};
 					Text(L" (");
-					mprintf(FmtCharCode[m_editor->EdOpt.CharCodeBase%countof(FmtCharCode)],C);
+					mprintf(FmtCharCode[m_editor->EdOpt.CharCodeBase%ARRAYSIZE(FmtCharCode)],C);
 					Text(L")");
 				}
 			}

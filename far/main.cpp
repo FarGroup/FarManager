@@ -134,7 +134,7 @@ static void show_help()
 	    L" /xd  Enable exception handling.\n"
 #endif
 		;
-	Console.Write(HelpMsg, countof(HelpMsg)-1);
+	Console.Write(HelpMsg, ARRAYSIZE(HelpMsg)-1);
 }
 
 static int MainProcess(
@@ -610,7 +610,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	{
 		ControlObject::ShowCopyright(1);
 		WCHAR LngMsg[]=L"\nError: Cannot load language data.\n\nPress any key...";
-		Console.Write(LngMsg,countof(LngMsg)-1);
+		Console.Write(LngMsg,ARRAYSIZE(LngMsg)-1);
 		Console.FlushInputBuffer();
 		WaitKey(); // А стоит ли ожидать клавишу??? Стоит
 		return 1;

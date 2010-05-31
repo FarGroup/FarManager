@@ -809,7 +809,7 @@ void SetHighlighting()
 	        /* 7 */{Masks[0], 1, 0x0010, 0x1F, 0x3F},
 	    };
 
-	for (size_t I=0; I < countof(StdHighlightData); I++)
+	for (size_t I=0; I < ARRAYSIZE(StdHighlightData); I++)
 	{
 		strRegKey.Format(L"%s\\Group%d",RegColorsHighlight,I);
 		SetRegKey(strRegKey,HLS.Mask,StdHighlightData[I].Mask);

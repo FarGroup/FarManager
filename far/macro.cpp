@@ -270,8 +270,8 @@ TMacroKeywords MKeywordsFlags[] =
 	{1,  L"NoSendKeysToPlugins",MFLAGS_NOSENDKEYSTOPLUGINS,0},
 };
 
-int MKeywordsSize = countof(MKeywords);
-int MKeywordsFlagsSize = countof(MKeywordsFlags);
+int MKeywordsSize = ARRAYSIZE(MKeywords);
+int MKeywordsFlagsSize = ARRAYSIZE(MKeywordsFlags);
 
 // транслирующая таблица - имя <-> код макроклавиши
 static struct TKeyCodeName
@@ -352,7 +352,7 @@ BOOL WINAPI KeyMacroToText(int Key,string &strKeyText0)
 {
 	string strKeyText;
 
-	for (int I=0; I<int(countof(KeyMacroCodes)); I++)
+	for (int I=0; I<int(ARRAYSIZE(KeyMacroCodes)); I++)
 	{
 		if (Key==KeyMacroCodes[I].Key)
 		{
@@ -376,7 +376,7 @@ BOOL WINAPI KeyMacroToText(int Key,string &strKeyText0)
 int WINAPI KeyNameMacroToKey(const wchar_t *Name)
 {
 	// пройдемся по всем модификаторам
-	for (int I=0; I < int(countof(KeyMacroCodes)); ++I)
+	for (int I=0; I < int(ARRAYSIZE(KeyMacroCodes)); ++I)
 		if (!StrCmpNI(Name,KeyMacroCodes[I].Name,KeyMacroCodes[I].Len))
 			return KeyMacroCodes[I].Key;
 
@@ -852,11 +852,11 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 	DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
 
 	// Найдем индекс нужного кейворда
-	for (I=0 ; I < countof(MKeywords) ; ++I)
+	for (I=0 ; I < ARRAYSIZE(MKeywords) ; ++I)
 		if (MKeywords[I].Value == CheckCode)
 			break;
 
-	if (I == countof(MKeywords))
+	if (I == ARRAYSIZE(MKeywords))
 	{
 		Err=1;
 		_KEYMACRO(SysLog(L"return; Err=%d",Err));
@@ -4497,14 +4497,14 @@ done:
 			};
 			int J;
 
-			for (J=0; J < int(countof(MCode2Func)); ++J)
+			for (J=0; J < int(ARRAYSIZE(MCode2Func)); ++J)
 				if (MCode2Func[J].Op == Key)
 				{
 					MCode2Func[J].Func();
 					break;
 				}
 
-			if (J >= int(countof(MCode2Func)))
+			if (J >= int(ARRAYSIZE(MCode2Func)))
 			{
 				DWORD Err=0;
 				tmpVar=FARPseudoVariable(MR->Flags, Key, Err);
@@ -4725,7 +4725,7 @@ void KeyMacro::SaveMacros(BOOL AllSaved)
 			DeleteRegValue(strRegKeyName,L"Description");
 
 		// подсократим кодУ...
-		for (int J=0; J < int(countof(MKeywordsFlags)); ++J)
+		for (int J=0; J < int(ARRAYSIZE(MKeywordsFlags)); ++J)
 		{
 			if (MacroLIB[I].Flags & MKeywordsFlags[J].Value)
 				SetRegKey(strRegKeyName,MKeywordsFlags[J].Name,1);
@@ -5025,7 +5025,7 @@ int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
 		CurMacro.BufferSize=0;
 		CurMacro.Flags=MFlags|(ReadMode&MFLAGS_MODEMASK)|(regType == REG_MULTI_SZ?MFLAGS_REG_MULTI_SZ:0);
 
-		for (J=0; J < int(countof(MKeywordsFlags)); ++J)
+		for (J=0; J < int(ARRAYSIZE(MKeywordsFlags)); ++J)
 			CurMacro.Flags|=GetRegKey(strRegKeyName,MKeywordsFlags[J].Name,0)?MKeywordsFlags[J].Value:0;
 
 		if (ReadMode == MACRO_EDITOR || ReadMode == MACRO_DIALOG || ReadMode == MACRO_VIEWER)
@@ -5207,7 +5207,7 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
 			KEY_CTRLDOWN,KEY_ENTER,KEY_NUMENTER,KEY_ESC,KEY_F1,KEY_CTRLF5,
 		};
 
-		for (size_t i=0; i<countof(PreDefKeyMain); i++)
+		for (size_t i=0; i<ARRAYSIZE(PreDefKeyMain); i++)
 		{
 			KeyToText(PreDefKeyMain[i],strKeyText);
 			SendDlgMessage(hDlg,DM_LISTADDSTR,2,reinterpret_cast<LONG_PTR>(strKeyText.CPtr()));
@@ -5226,11 +5226,11 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
 			0,KEY_CTRL,KEY_SHIFT,KEY_ALT,KEY_CTRLSHIFT,KEY_CTRLALT,KEY_ALTSHIFT,
 		};
 
-		for (size_t i=0; i<countof(PreDefKey); i++)
+		for (size_t i=0; i<ARRAYSIZE(PreDefKey); i++)
 		{
 			SendDlgMessage(hDlg,DM_LISTADDSTR,2,reinterpret_cast<LONG_PTR>(L"\1"));
 
-			for (size_t j=0; j<countof(PreDefModKey); j++)
+			for (size_t j=0; j<ARRAYSIZE(PreDefModKey); j++)
 			{
 				KeyToText(PreDefKey[i]|PreDefModKey[j],strKeyText);
 				SendDlgMessage(hDlg,DM_LISTADDSTR,2,reinterpret_cast<LONG_PTR>(strKeyText.CPtr()));
@@ -5424,7 +5424,7 @@ DWORD KeyMacro::AssignMacroKey()
 	DlgParam Param={this,0,StartMode,0};
 	//_SVS(SysLog(L"StartMode=%d",StartMode));
 	IsProcessAssignMacroKey++;
-	Dialog Dlg(MacroAssignDlg,countof(MacroAssignDlg),AssignMacroDlgProc,(LONG_PTR)&Param);
+	Dialog Dlg(MacroAssignDlg,ARRAYSIZE(MacroAssignDlg),AssignMacroDlgProc,(LONG_PTR)&Param);
 	Dlg.SetPosition(-1,-1,34,6);
 	Dlg.SetHelp(L"KeyMacro");
 	Dlg.Process();
@@ -5651,7 +5651,7 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 	MacroSettingsDlg[MS_EDIT_SEQUENCE].strData=Sequence;
 	xf_free(Sequence);
 	DlgParam Param={this,0,0,0};
-	Dialog Dlg(MacroSettingsDlg,countof(MacroSettingsDlg),ParamMacroDlgProc,(LONG_PTR)&Param);
+	Dialog Dlg(MacroSettingsDlg,ARRAYSIZE(MacroSettingsDlg),ParamMacroDlgProc,(LONG_PTR)&Param);
 	Dlg.SetPosition(-1,-1,73,19);
 	Dlg.SetHelp(L"KeyMacroSetting");
 	FrameManager->GetBottomFrame()->Lock(); // отменим прорисовку фрейма
@@ -6367,7 +6367,7 @@ void KeyMacro::Sort()
 		IndexMode[J][1]++;
 	}
 
-	//_SVS(for(I=0; I < countof(IndexMode); ++I)SysLog(L"IndexMode[%02d.%s]=%d,%d",I,GetSubKey(I),IndexMode[I][0],IndexMode[I][1]));
+	//_SVS(for(I=0; I < ARRAYSIZE(IndexMode); ++I)SysLog(L"IndexMode[%02d.%s]=%d,%d",I,GetSubKey(I),IndexMode[I][0],IndexMode[I][1]));
 }
 
 DWORD KeyMacro::GetOpCode(MacroRecord *MR,int PC)

@@ -434,7 +434,7 @@ void Viewer::SetCRSym()
 	int CRCount=0,LFCount=0;
 	int ReadSize,I;
 	vseek(ViewFile,0,SEEK_SET);
-	ReadSize=vread(Buf,countof(Buf),ViewFile);
+	ReadSize=vread(Buf,ARRAYSIZE(Buf),ViewFile);
 
 	for (I=0; I<ReadSize; I++)
 		switch (Buf[I])
@@ -650,7 +650,7 @@ void Viewer::ShowHex()
 		if (Y==Y1+1 && !feof(ViewFile))
 			SecondPos=vtell(ViewFile);
 
-		_snwprintf(OutStr,countof(OutStr),L"%010I64X: ",(__int64)ftell64(ViewFile));
+		_snwprintf(OutStr,ARRAYSIZE(OutStr),L"%010I64X: ",(__int64)ftell64(ViewFile));
 		TextPos=0;
 		int HexStrStart = (int)wcslen(OutStr);
 		SelStart = HexStrStart;
@@ -721,7 +721,7 @@ void Viewer::ShowHex()
 					}
 
 					int OutStrLen=StrLength(OutStr);
-					_snwprintf(OutStr+OutStrLen,countof(OutStr)-OutStrLen,L"%02X%02X ",HIBYTE(OutChar),LOBYTE(OutChar));
+					_snwprintf(OutStr+OutStrLen,ARRAYSIZE(OutStr)-OutStrLen,L"%02X%02X ",HIBYTE(OutChar),LOBYTE(OutChar));
 
 					if (!Ch)
 					{
@@ -786,7 +786,7 @@ void Viewer::ShowHex()
 					char NewCh;
 					WideCharToMultiByte(VM.CodePage, 0, &Ch,1, &NewCh,1," ",nullptr);
 					int OutStrLen=StrLength(OutStr);
-					_snwprintf(OutStr+OutStrLen,countof(OutStr)-OutStrLen,L"%02X ", NewCh);
+					_snwprintf(OutStr+OutStrLen,ARRAYSIZE(OutStr)-OutStrLen,L"%02X ", NewCh);
 
 					if (Ch==0)
 						Ch=L' ';
@@ -1142,7 +1142,7 @@ int Viewer::ProcessKey(int Key)
 
 	if (!InternalKey && !LastKeyUndo && (FilePos!=UndoData[0].UndoAddr || LeftPos!=UndoData[0].UndoLeft))
 	{
-		for (int i=countof(UndoData)-1; i>0; i--)
+		for (int i=ARRAYSIZE(UndoData)-1; i>0; i--)
 		{
 			UndoData[i].UndoAddr=UndoData[i-1].UndoAddr;
 			UndoData[i].UndoLeft=UndoData[i-1].UndoLeft;
@@ -1282,7 +1282,7 @@ int Viewer::ProcessKey(int Key)
 		case KEY_ALTBS:
 		case KEY_CTRLZ:
 		{
-			for (size_t I=1; I<countof(UndoData); I++)
+			for (size_t I=1; I<ARRAYSIZE(UndoData); I++)
 			{
 				UndoData[I-1].UndoAddr=UndoData[I].UndoAddr;
 				UndoData[I-1].UndoLeft=UndoData[I].UndoLeft;
@@ -1292,8 +1292,8 @@ int Viewer::ProcessKey(int Key)
 			{
 				FilePos=UndoData[0].UndoAddr;
 				LeftPos=UndoData[0].UndoLeft;
-				UndoData[countof(UndoData)-1].UndoAddr=-1;
-				UndoData[countof(UndoData)-1].UndoLeft=-1;
+				UndoData[ARRAYSIZE(UndoData)-1].UndoAddr=-1;
+				UndoData[ARRAYSIZE(UndoData)-1].UndoLeft=-1;
 				Show();
 //        LastSelPos=FilePos;
 			}
@@ -2308,7 +2308,7 @@ void Viewer::Search(int Next,int FirstChar)
 	if (!Next)
 	{
 		SearchFlags.Flags = 0;
-		Dialog Dlg(SearchDlg,countof(SearchDlg),ViewerSearchDlgProc);
+		Dialog Dlg(SearchDlg,ARRAYSIZE(SearchDlg),ViewerSearchDlgProc);
 		Dlg.SetPosition(-1,-1,76,13);
 		Dlg.SetHelp(L"ViewerSearch");
 
@@ -2404,7 +2404,7 @@ void Viewer::Search(int Next,int FirstChar)
 		{
 			wchar_t Buf[8192];
 			__int64 CurPos=LastSelPos;
-			int BufSize=countof(Buf);
+			int BufSize=ARRAYSIZE(Buf);
 
 			if (ReverseSearch)
 			{
@@ -2412,9 +2412,9 @@ void Viewer::Search(int Next,int FirstChar)
 				   Изменёно вычисление CurPos с учётом Whole words
 				*/
 				if (WholeWords)
-					CurPos-=countof(Buf)-SearchLength+1;
+					CurPos-=ARRAYSIZE(Buf)-SearchLength+1;
 				else
-					CurPos-=countof(Buf)-SearchLength;
+					CurPos-=ARRAYSIZE(Buf)-SearchLength;
 
 				if (CurPos<0)
 					BufSize+=(int)CurPos;
@@ -2542,16 +2542,16 @@ void Viewer::Search(int Next,int FirstChar)
 					   Изменёно вычисление CurPos с учётом Whole words
 					*/
 					if (WholeWords)
-						CurPos-=countof(Buf)-SearchLength+1;
+						CurPos-=ARRAYSIZE(Buf)-SearchLength+1;
 					else
-						CurPos-=countof(Buf)-SearchLength;
+						CurPos-=ARRAYSIZE(Buf)-SearchLength;
 				}
 				else
 				{
 					if (WholeWords)
-						CurPos+=countof(Buf)-SearchLength+1;
+						CurPos+=ARRAYSIZE(Buf)-SearchLength+1;
 					else
-						CurPos+=countof(Buf)-SearchLength;
+						CurPos+=ARRAYSIZE(Buf)-SearchLength;
 				}
 			}
 		}
@@ -2899,7 +2899,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
 	{
 		if (ShowDlg)
 		{
-			Dialog Dlg(GoToDlg,countof(GoToDlg));
+			Dialog Dlg(GoToDlg,ARRAYSIZE(GoToDlg));
 			Dlg.SetHelp(L"ViewerGotoPos");
 			Dlg.SetPosition(-1,-1,35,9);
 			Dlg.Process();
@@ -3027,7 +3027,7 @@ void Viewer::AdjustFilePos()
 			GotoLinePos=0;
 
 		vseek(ViewFile,GotoLinePos,SEEK_SET);
-		int ReadSize=(int)Min((__int64)countof(Buf),(__int64)(FilePos-GotoLinePos));
+		int ReadSize=(int)Min((__int64)ARRAYSIZE(Buf),(__int64)(FilePos-GotoLinePos));
 		ReadSize=vread(Buf,ReadSize,ViewFile);
 
 		for (int I=ReadSize-1; I>=0; I--)
@@ -3096,7 +3096,7 @@ void Viewer::SelectText(const __int64 &MatchPos,const __int64 &SearchLength, con
 		SearchLinePos=0;
 
 	vseek(ViewFile,SearchLinePos,SEEK_SET);
-	int ReadSize=(int)Min((__int64)countof(Buf),(__int64)(MatchPos-SearchLinePos));
+	int ReadSize=(int)Min((__int64)ARRAYSIZE(Buf),(__int64)(MatchPos-SearchLinePos));
 	ReadSize=vread(Buf,ReadSize,ViewFile);
 
 	for (int I=ReadSize-1; I>=0; I--)

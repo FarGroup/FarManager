@@ -3535,7 +3535,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 					SelectDlg[0].strData = MSG(MUnselectTitle);
 
 				{
-					Dialog Dlg(SelectDlg,countof(SelectDlg));
+					Dialog Dlg(SelectDlg,ARRAYSIZE(SelectDlg));
 					Dlg.SetHelp(L"SelectFiles");
 					Dlg.SetPosition(-1,-1,55,7);
 
@@ -4200,7 +4200,7 @@ void FileList::SelectSortMode()
 	                        BY_FULLNAME,
 	                       };
 
-	for (size_t I=0; I<countof(SortModes); I++)
+	for (size_t I=0; I<ARRAYSIZE(SortModes); I++)
 		if (SortMode==SortModes[I])
 		{
 			SortMenu[I].SetCheck(SortOrder==1 ? L'+':L'-');
@@ -4214,7 +4214,7 @@ void FileList::SelectSortMode()
 	SortMenu[18].SetCheck(DirectoriesFirst);
 	int SortCode;
 	{
-		VMenu SortModeMenu(MSG(MMenuSortTitle),SortMenu,countof(SortMenu),0);
+		VMenu SortModeMenu(MSG(MMenuSortTitle),SortMenu,ARRAYSIZE(SortMenu),0);
 		SortModeMenu.SetHelp(L"PanelCmdSort");
 		SortModeMenu.SetPosition(X1+4,-1,0,0);
 		SortModeMenu.SetFlags(VMENU_WRAPMODE);
@@ -4224,7 +4224,7 @@ void FileList::SelectSortMode()
 			return;
 	}
 
-	if (SortCode<(int)countof(SortModes))
+	if (SortCode<(int)ARRAYSIZE(SortModes))
 		SetSortMode(SortModes[SortCode]);
 	else
 		switch (SortCode)

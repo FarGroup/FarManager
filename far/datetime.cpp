@@ -49,21 +49,21 @@ int CurLang=-1,WeekFirst=0;
 int GetDateFormat()
 {
 	wchar_t Info[100];
-	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_IDATE,Info,countof(Info));
+	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_IDATE,Info,ARRAYSIZE(Info));
 	return _wtoi(Info);
 }
 
 wchar_t GetDateSeparator()
 {
 	wchar_t Info[100];
-	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_SDATE,Info,countof(Info));
+	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_SDATE,Info,ARRAYSIZE(Info));
 	return *Info;
 }
 
 wchar_t GetTimeSeparator()
 {
 	wchar_t Info[100];
-	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_STIME,Info,countof(Info));
+	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_STIME,Info,ARRAYSIZE(Info));
 	return *Info;
 }
 
@@ -584,8 +584,8 @@ void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int
 	WORD DateN[3]={0},TimeN[4]={0};
 	SYSTEMTIME st={0};
 	// Преобразуем введённые пользователем дату и время
-	GetFileDateAndTime(CDate,DateN,countof(DateN),DateSeparator);
-	GetFileDateAndTime(CTime,TimeN,countof(TimeN),TimeSeparator);
+	GetFileDateAndTime(CDate,DateN,ARRAYSIZE(DateN),DateSeparator);
+	GetFileDateAndTime(CTime,TimeN,ARRAYSIZE(TimeN),TimeSeparator);
 
 	if (!bRelative)
 	{

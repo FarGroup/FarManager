@@ -88,7 +88,7 @@ static int ProcessShortcutRecord(int Command,int ValType,int RecNumber, string *
 		SetRegKey(FolderShortcuts,strValueName,NullToEmpty(*pValue));
 	else if (Command == PSCR_CMDDELALL)
 	{
-		for (size_t I=0; I < countof(RecTypeName); ++I)
+		for (size_t I=0; I < ARRAYSIZE(RecTypeName); ++I)
 		{
 			strValueName.Format(RecTypeName[I],RecNumber);
 			SetRegKey(FolderShortcuts,strValueName,L"");

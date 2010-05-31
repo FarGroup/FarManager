@@ -258,7 +258,7 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 										bool* ParamTimes[]={&DlgParam->OLastWriteTime,&DlgParam->OCreationTime,&DlgParam->OLastAccessTime};
 										const PFILETIME FDTimes[]={&FindData.ftLastWriteTime,&FindData.ftCreationTime,&FindData.ftLastAccessTime};
 
-										for (size_t i=0; i<countof(Items); i++)
+										for (size_t i=0; i<ARRAYSIZE(Items); i++)
 										{
 											if (!*ParamTimes[i])
 											{
@@ -480,8 +480,8 @@ bool ReadFileTime(int Type,const wchar_t *Name,FILETIME& FileTime,const wchar_t 
 	if (apiGetFindDataEx(Name, ffd))
 	{
 		WORD DateN[3]={0},TimeN[4]={0};
-		GetFileDateAndTime(OSrcDate,DateN,countof(DateN),GetDateSeparator());
-		GetFileDateAndTime(OSrcTime,TimeN,countof(TimeN),GetTimeSeparator());
+		GetFileDateAndTime(OSrcDate,DateN,ARRAYSIZE(DateN),GetDateSeparator());
+		GetFileDateAndTime(OSrcTime,TimeN,ARRAYSIZE(TimeN),GetTimeSeparator());
 		FILETIME *OriginalFileTime=nullptr;
 		SYSTEMTIME st={0}, ost={0};
 
@@ -768,7 +768,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 
 					if (FileAttr!=INVALID_FILE_ATTRIBUTES)
 					{
-						for (size_t i=0; i<countof(AP); i++)
+						for (size_t i=0; i<ARRAYSIZE(AP); i++)
 						{
 							AttrDlg[AP[i].Item].Selected=FileAttr&AP[i].Attribute?BSTATE_CHECKED:BSTATE_UNCHECKED;
 						}
@@ -797,7 +797,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 				DWORD LenJunction=DlgParam.Plugin?0:GetReparsePointInfo(strSelName, strLinkName,&ReparseTag);
 				AttrDlg[SA_DOUBLEBOX].Y2++;
 
-				for (size_t i=SA_TEXT_SYMLINK; i<countof(AttrDlgData); i++)
+				for (size_t i=SA_TEXT_SYMLINK; i<ARRAYSIZE(AttrDlgData); i++)
 				{
 					AttrDlg[i].Y1++;
 
@@ -895,7 +895,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 
 			if (FileAttr!=INVALID_FILE_ATTRIBUTES)
 			{
-				for (size_t i=0; i<countof(AP); i++)
+				for (size_t i=0; i<ARRAYSIZE(AP); i++)
 				{
 					AttrDlg[AP[i].Item].Selected=FileAttr&AP[i].Attribute?BSTATE_CHECKED:BSTATE_UNCHECKED;
 				}
@@ -906,7 +906,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 
 			if (DlgParam.Plugin || (!DlgParam.Plugin&&apiGetFindDataEx(strSelName, FindData)))
 			{
-				for (size_t i=0; i<countof(Dates); i++)
+				for (size_t i=0; i<ARRAYSIZE(Dates); i++)
 				{
 					ConvertDate(*TimeValues[i],AttrDlg[Dates[i]].strData,AttrDlg[Times[i]].strData,12,FALSE,FALSE,TRUE,TRUE);
 				}
@@ -923,7 +923,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 		}
 		else
 		{
-			for (size_t i=0; i<countof(AP); i++)
+			for (size_t i=0; i<ARRAYSIZE(AP); i++)
 			{
 				AttrDlg[AP[i].Item].Selected=BSTATE_3STATE;
 			}
@@ -966,7 +966,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 						AttrDlg[SA_CHECKBOX_SUBFOLDERS].Flags&=~DIF_DISABLE;
 					}
 
-					for (size_t i=0; i<countof(AP); i++)
+					for (size_t i=0; i<ARRAYSIZE(AP); i++)
 					{
 						if (FileAttr&AP[i].Attribute)
 						{
@@ -997,7 +997,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 					FolderPresent=true;
 					AttrDlg[SA_CHECKBOX_SUBFOLDERS].Flags&=~DIF_DISABLE;
 				}
-				for (size_t i=0; i<countof(AP); i++)
+				for (size_t i=0; i<ARRAYSIZE(AP); i++)
 				{
 					if (FindData.dwFileAttributes&AP[i].Attribute)
 					{
@@ -1060,7 +1060,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 		DlgParam.OCompressState=static_cast<FARCHECKEDSTATE>(AttrDlg[SA_CHECKBOX_COMPRESSED].Selected);
 		DlgParam.OEncryptState=static_cast<FARCHECKEDSTATE>(AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected);
 
-		Dialog Dlg(AttrDlg,countof(AttrDlgData),SetAttrDlgProc,(LONG_PTR)&DlgParam);
+		Dialog Dlg(AttrDlg,ARRAYSIZE(AttrDlgData),SetAttrDlgProc,(LONG_PTR)&DlgParam);
 		Dlg.SetHelp(L"FileAttrDlg");                 //  ^ - это одиночный диалог!
 
 		if (LinkPresent)
@@ -1092,7 +1092,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 
 				const size_t Times[]={SA_EDIT_MTIME,SA_EDIT_CTIME,SA_EDIT_ATIME};
 
-				for (size_t i=0; i<countof(Times); i++)
+				for (size_t i=0; i<ARRAYSIZE(Times); i++)
 				{
 					LPWSTR TimePtr=AttrDlg[Times[i]].strData.GetBuffer();
 					TimePtr[8]=GetTimeSeparator();
@@ -1107,7 +1107,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 				{
 					DWORD NewAttr=FileAttr&FILE_ATTRIBUTE_DIRECTORY;
 
-					for (size_t i=0; i<countof(AP); i++)
+					for (size_t i=0; i<ARRAYSIZE(AP); i++)
 					{
 						if (AttrDlg[AP[i].Item].Selected)
 						{
@@ -1206,7 +1206,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 					}
 					DWORD SetAttr=0,ClearAttr=0;
 
-					for (size_t i=0; i<countof(AP); i++)
+					for (size_t i=0; i<ARRAYSIZE(AP); i++)
 					{
 						switch (AttrDlg[AP[i].Item].Selected)
 						{

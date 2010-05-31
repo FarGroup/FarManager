@@ -371,7 +371,7 @@ static TMacroFunction macroFunction[]=
 };
 
 /*
-	for(size_t I=0; I < countof(macroFunction); ++I)
+	for(size_t I=0; I < ARRAYSIZE(macroFunction); ++I)
 	{
 		RegisterMacroFunction(macroFunction[I].Name, macroFunction[I].nParam, macroFunction[I].oParam, macroFunction[I].Code, macroFunction[I].fnGUID, macroFunction[I].Src, macroFunction[I].Syntax, macroFunction[I].Description);
 	}
@@ -389,7 +389,7 @@ static DWORD funcLook(const wchar_t *s, int& nParam, int& oParam)
 {
 	oParam=nParam=0;
 
-	for (size_t I=0; I < countof(macroFunction); ++I)
+	for (size_t I=0; I < ARRAYSIZE(macroFunction); ++I)
 	{
 		if (!StrCmpNI(s, macroFunction[I].Name, (int)Max(StrLength(macroFunction[I].Name),StrLength(s))))
 		{
@@ -1362,7 +1362,7 @@ static void printKeyValue(DWORD* k, int& i)
 
 	if (Code >= MCODE_F_NOFUNC && Code <= KEY_MACRO_C_BASE-1)
 	{
-		for (int J=0; J <= countof(macroFunction); ++J)
+		for (int J=0; J <= ARRAYSIZE(macroFunction); ++J)
 			if (macroFunction[J].Code == Code)
 			{
 				cmt=macroFunction[J].Syntax;

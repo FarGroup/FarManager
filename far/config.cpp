@@ -272,9 +272,9 @@ void InfoPanelSettings()
 
 	DialogBuilder Builder(MConfigInfoPanelTitle, L"InfoPanelSettings");
 	Builder.AddText(MConfigInfoPanelCNTitle);
-	Builder.AddComboBox((int *) &Opt.InfoPanel.ComputerNameFormat, 50, CNListItems, countof(CNListItems), DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddComboBox((int *) &Opt.InfoPanel.ComputerNameFormat, 50, CNListItems, ARRAYSIZE(CNListItems), DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
 	Builder.AddText(MConfigInfoPanelUNTitle);
-	Builder.AddComboBox((int *) &Opt.InfoPanel.UserNameFormat, 50, UNListItems, countof(UNListItems), DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddComboBox((int *) &Opt.InfoPanel.UserNameFormat, 50, UNListItems, ARRAYSIZE(UNListItems), DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
 	Builder.AddOKCancel();
 	Builder.ShowDialog();
 }
@@ -817,7 +817,7 @@ void ReadConfig()
 	//Opt.LCIDSort=LOCALE_USER_DEFAULT; // проинициализируем на всякий случай
 	/* *************************************************** </ПРЕПРОЦЕССЫ> */
 
-	for (size_t I=0; I < countof(CFG); ++I)
+	for (size_t I=0; I < ARRAYSIZE(CFG); ++I)
 	{
 		switch (CFG[I].ValType)
 		{
@@ -938,7 +938,7 @@ void ReadConfig()
 				Opt.XLat.Layouts[I]=(HKL)(LONG_PTR)(HIWORD(res) == 0?MAKELONG(res,res):res);
 				++I;
 
-				if (I >= countof(Opt.XLat.Layouts))
+				if (I >= ARRAYSIZE(Opt.XLat.Layouts))
 					break;
 			}
 
@@ -1003,7 +1003,7 @@ void SaveConfig(int Ask)
 	SetRegKey(NKeySystem,L"PersonalPluginsPath",Opt.LoadPlug.strPersonalPluginsPath);
 	SetRegKey(NKeyLanguage,L"Main",Opt.strLanguage);
 
-	for (size_t I=0; I < countof(CFG); ++I)
+	for (size_t I=0; I < ARRAYSIZE(CFG); ++I)
 	{
 		if (CFG[I].IsSave)
 			switch (CFG[I].ValType)

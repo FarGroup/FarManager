@@ -69,7 +69,7 @@ static wchar_t StarSymbol[5][2]=
 
 static void ShowSaver(int Step)
 {
-	for (size_t I=0; I<countof(Star); I++)
+	for (size_t I=0; I<ARRAYSIZE(Star); I++)
 		if (Star[I].Type!=STAR_NONE && (Step%Star[I].Speed)==0)
 		{
 			SetColor(F_LIGHTCYAN|B_BLACK);
@@ -133,14 +133,14 @@ static void ShowSaver(int Step)
 			}
 		}
 
-	for (size_t I=0; I<countof(Star); I++)
+	for (size_t I=0; I<ARRAYSIZE(Star); I++)
 		if (Star[I].Type==STAR_NONE)
 		{
 			static const int Colors[]={F_MAGENTA,F_RED,F_BLUE};
 			Star[I].Type=random(77)<3 ? STAR_PLANET:STAR_NORMAL;
 			Star[I].X=(ScrX/2-ScrX/4+random(ScrX/2))*100;
 			Star[I].Y=(ScrY/2-ScrY/4+random(ScrY/2))*100;
-			Star[I].Color=Colors[random(countof(Colors))];
+			Star[I].Color=Colors[random(ARRAYSIZE(Colors))];
 			Star[I].Speed=(Star[I].Type==STAR_PLANET) ? 1:2;
 			break;
 		}
@@ -173,7 +173,7 @@ int ScreenSaver(int EnableExit)
 		randomize();
 		SetScreen(0,0,ScrX,ScrY,L' ',F_LIGHTGRAY|B_BLACK);
 
-		for (size_t I=0; I<countof(Star); I++)
+		for (size_t I=0; I<ARRAYSIZE(Star); I++)
 		{
 			Star[I].Type=STAR_NONE;
 			Star[I].Color=0;

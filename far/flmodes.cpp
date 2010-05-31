@@ -62,7 +62,7 @@ PanelViewSettings ViewSettingsArray[]=
 	/* 09 */{{NAME_COLUMN,SIZE_COLUMN,NUMLINK_COLUMN},{0,6,3},3,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,1,0,0,0,0,0,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}}
 };
 
-size_t SizeViewSettingsArray=countof(ViewSettingsArray);
+size_t SizeViewSettingsArray=ARRAYSIZE(ViewSettingsArray);
 
 void FileList::SetFilePanelModes()
 {
@@ -92,7 +92,7 @@ void FileList::SetFilePanelModes()
 		int ModeNumber;
 		ModeListMenu[CurMode].SetSelect(1);
 		{
-			VMenu ModeList(MSG(MEditPanelModes),ModeListMenu,countof(ModeListMenu),ScrY-4);
+			VMenu ModeList(MSG(MEditPanelModes),ModeListMenu,ARRAYSIZE(ModeListMenu),ScrY-4);
 			ModeList.SetPosition(-1,-1,0,0);
 			ModeList.SetHelp(L"PanelViewModes");
 			ModeList.SetFlags(VMENU_WRAPMODE);
@@ -173,7 +173,7 @@ void FileList::SetFilePanelModes()
 		ViewSettingsToText(NewSettings.StatusColumnType,NewSettings.StatusColumnWidth,NewSettings.StatusColumnWidthType,
 		                   NewSettings.StatusColumnCount,ModeDlg[6].strData,ModeDlg[8].strData);
 		{
-			Dialog Dlg(ModeDlg,countof(ModeDlg));
+			Dialog Dlg(ModeDlg,ARRAYSIZE(ModeDlg));
 			Dlg.SetPosition(-1,-1,76,18);
 			Dlg.SetHelp(L"PanelViewModes");
 			Dlg.Process();
@@ -280,7 +280,7 @@ void FileList::TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *Col
 {
 	const wchar_t *TextPtr=ColumnTitles;
 
-	for (ColumnCount=0; ColumnCount<(int)countof(ViewSettingsArray[0].ColumnType); ColumnCount++)
+	for (ColumnCount=0; ColumnCount<(int)ARRAYSIZE(ViewSettingsArray[0].ColumnType); ColumnCount++)
 	{
 		string strArgName;
 
@@ -390,7 +390,7 @@ void FileList::TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *Col
 					}
 					else
 					{
-						for (unsigned I=0; I<countof(ColumnSymbol); I++)
+						for (unsigned I=0; I<ARRAYSIZE(ColumnSymbol); I++)
 						{
 							if (StrCmp(strArgName,ColumnSymbol[I])==0)
 							{

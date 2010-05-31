@@ -175,7 +175,7 @@ bool ExcDialog(LPCWSTR ModuleName,LPCWSTR Exception,LPVOID Adress)
 		DI_BUTTON,   0,7, 0,7,0,DIF_CENTERGROUP,MSG(MExcDebugger),
 	};
 	MakeDialogItemsEx(EditDlgData,EditDlg);
-	Dialog Dlg(EditDlg, countof(EditDlg),ExcDlgProc);
+	Dialog Dlg(EditDlg, ARRAYSIZE(EditDlg),ExcDlgProc);
 	Dlg.SetDialogMode(DMODE_WARNINGSTYLE|DMODE_NOPLUGINS);
 	Dlg.SetPosition(-1,-1,66,10);
 	Dlg.Process();
@@ -325,7 +325,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 
 	LPCWSTR Exception=nullptr;
 	// просмотрим "знакомые" FAR`у исключения и обработаем...
-	for (size_t I=0; I < countof(ECode); ++I)
+	for (size_t I=0; I < ARRAYSIZE(ECode); ++I)
 	{
 		if (ECode[I].Code == static_cast<NTSTATUS>(xr->ExceptionCode))
 		{

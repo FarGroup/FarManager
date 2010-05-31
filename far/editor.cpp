@@ -842,7 +842,7 @@ int Editor::ProcessKey(int Key)
 					KEY_CTRLS,
 				};
 
-				for (size_t I=0; I<countof(UnmarkKeys); I++)
+				for (size_t I=0; I<ARRAYSIZE(UnmarkKeys); I++)
 					if (Key==UnmarkKeys[I])
 					{
 						UnmarkBlock();
@@ -3032,7 +3032,7 @@ void Editor::DeleteString(Edit *DelPtr,int DeleteLast,int UndoLine)
 		return;
 	}
 
-	for (size_t I=0; I<countof(SavePos.Line); I++)
+	for (size_t I=0; I<ARRAYSIZE(SavePos.Line); I++)
 		if (SavePos.Line[I]!=POS_NONE && UndoLine<static_cast<int>(SavePos.Line[I]))
 			SavePos.Line[I]--;
 
@@ -3161,7 +3161,7 @@ void Editor::InsertString()
 	CurPos=CurLine->GetCurPos();
 	CurLine->GetSelection(SelStart,SelEnd);
 
-	for (size_t I=0; I<countof(SavePos.Line); I++)
+	for (size_t I=0; I<ARRAYSIZE(SavePos.Line); I++)
 		if (SavePos.Line[I]!=POS_NONE &&
 		        (NumLine<(int)SavePos.Line[I] || (NumLine==(int)SavePos.Line[I] && CurPos==0)))
 			SavePos.Line[I]++;

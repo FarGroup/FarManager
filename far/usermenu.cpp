@@ -527,7 +527,7 @@ int UserMenu::ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t
 		int NumLine=0,ExitCode,FuncPos[24];
 
 		// очистка F-хоткеев
-		for (size_t I=0 ; I < countof(FuncPos) ; I++)
+		for (size_t I=0 ; I < ARRAYSIZE(FuncPos) ; I++)
 			FuncPos[I]=-1;
 
 		string strName,strShortName;
@@ -1123,7 +1123,7 @@ bool UserMenu::EditMenu(const wchar_t *MenuKey,int EditPos,int TotalRecords,bool
 #endif
 		}
 
-		Dialog Dlg(EditDlg,countof(EditDlg),EditMenuDlgProc);
+		Dialog Dlg(EditDlg,ARRAYSIZE(EditDlg),EditMenuDlgProc);
 		Dlg.SetHelp(L"UserMenu");
 		Dlg.SetPosition(-1,-1,DLG_X,DLG_Y);
 		Dlg.Process();

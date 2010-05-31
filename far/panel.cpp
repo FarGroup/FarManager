@@ -546,7 +546,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		int LabelWidth = Max(11,StrLength(MSG(MChangeDriveLabelAbsent)));
 		int DiskTypeWidth=0;
 
-		for (size_t J=0; J < countof(DrTMsg); ++J)
+		for (size_t J=0; J < ARRAYSIZE(DrTMsg); ++J)
 		{
 			DiskTypeWidth = Max(DiskTypeWidth,StrLength(MSG(DrTMsg[J].FarMsg)));
 		}
@@ -571,7 +571,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			{
 				strDiskType.Format(L"%*s",StrLength(MSG(MChangeDriveFixed)),L"");
 
-				for (size_t J=0; J < countof(DrTMsg); ++J)
+				for (size_t J=0; J < ARRAYSIZE(DrTMsg); ++J)
 				{
 					if (DrTMsg[J].DrvType == DriveType)
 					{
@@ -2160,7 +2160,7 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 				};
 				DWORD Flags=0;
 
-				for (size_t I=0; I < countof(PFLAGS); ++I)
+				for (size_t I=0; I < ARRAYSIZE(PFLAGS); ++I)
 					if (*(PFLAGS[I].Opt) != 0)
 						Flags|=PFLAGS[I].Flags;
 
@@ -2437,7 +2437,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 
 	if (Opt.Confirm.RemoveConnection)
 	{
-		Dialog Dlg(DCDlg,countof(DCDlg));
+		Dialog Dlg(DCDlg,ARRAYSIZE(DCDlg));
 		Dlg.SetPosition(-1,-1,DCDlg[0].X2+4,11);
 		Dlg.SetHelp(L"DisconnectDrive");
 		Dlg.Process();

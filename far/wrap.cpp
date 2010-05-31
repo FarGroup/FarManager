@@ -860,7 +860,7 @@ char* WINAPI FarMkTempA(char *Dest, const char *Prefix)
 {
 	string strP(Prefix);
 	wchar_t D[oldfar::NM] = {0};
-	FarMkTemp(D,countof(D),strP);
+	FarMkTemp(D,ARRAYSIZE(D),strP);
 	UnicodeToOEM(D,Dest,sizeof(D));
 	return Dest;
 }
@@ -1267,7 +1267,7 @@ PCHAR_INFO AnsiVBufToUnicode(oldfar::FarDialogItem &diA)
 
 void AnsiListItemToUnicode(oldfar::FarListItem* liA, FarListItem* li)
 {
-	wchar_t* ListItemText=(wchar_t*)xf_malloc(countof(liA->Text)*sizeof(wchar_t));
+	wchar_t* ListItemText=(wchar_t*)xf_malloc(ARRAYSIZE(liA->Text)*sizeof(wchar_t));
 	OEMToUnicode(liA->Text, ListItemText, sizeof(liA->Text)-1);
 	li->Text=ListItemText;
 	li->Flags=0;
@@ -2782,8 +2782,8 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 			{
 				int CmdW=(Command==oldfar::FCTL_GETCMDLINE)?FCTL_GETCMDLINE:FCTL_GETCMDLINESELECTEDTEXT;
 				wchar_t s[1024];
-				FarControl(hPlugin,CmdW,countof(s),(LONG_PTR)s);
-				UnicodeToOEM(s, (char*)Param,countof(s));
+				FarControl(hPlugin,CmdW,ARRAYSIZE(s),(LONG_PTR)s);
+				UnicodeToOEM(s, (char*)Param,ARRAYSIZE(s));
 				return TRUE;
 			}
 

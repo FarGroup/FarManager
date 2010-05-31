@@ -119,7 +119,7 @@ BOOL Clipboard::Empty()
 	{
 		if (InternalClipboardOpen)
 		{
-			for (size_t I=0; I < countof(hInternalClipboard); ++I)
+			for (size_t I=0; I < ARRAYSIZE(hInternalClipboard); ++I)
 			{
 				if (hInternalClipboard[I])
 				{
@@ -144,7 +144,7 @@ HANDLE Clipboard::GetData(UINT uFormat)
 	{
 		if (InternalClipboardOpen)
 		{
-			for (size_t I=0; I < countof(hInternalClipboard); ++I)
+			for (size_t I=0; I < ARRAYSIZE(hInternalClipboard); ++I)
 			{
 				if (uInternalClipboardFormat[I] != 0xFFFF && uInternalClipboardFormat[I] == uFormat)
 				{
@@ -166,11 +166,11 @@ UINT Clipboard::EnumFormats(UINT uFormat)
   {
     if(InternalClipboardOpen)
     {
-      for(size_t I=0; I < countof(hInternalClipboard); ++I)
+      for(size_t I=0; I < ARRAYSIZE(hInternalClipboard); ++I)
       {
         if(uInternalClipboardFormat[I] != 0xFFFF && uInternalClipboardFormat[I] == uFormat)
         {
-          return I+1 < countof(hInternalClipboard)?uInternalClipboardFormat[I+1]:0;
+          return I+1 < ARRAYSIZE(hInternalClipboard)?uInternalClipboardFormat[I+1]:0;
         }
       }
     }
@@ -186,7 +186,7 @@ HANDLE Clipboard::SetData(UINT uFormat,HANDLE hMem)
 	{
 		if (InternalClipboardOpen)
 		{
-			for (size_t I=0; I < countof(hInternalClipboard); ++I)
+			for (size_t I=0; I < ARRAYSIZE(hInternalClipboard); ++I)
 			{
 				if (!hInternalClipboard[I])
 				{
@@ -232,7 +232,7 @@ BOOL Clipboard::IsFormatAvailable(UINT Format)
 {
 	if (UseInternalClipboard)
 	{
-		for (size_t I=0; I < countof(hInternalClipboard); ++I)
+		for (size_t I=0; I < ARRAYSIZE(hInternalClipboard); ++I)
 		{
 			if (uInternalClipboardFormat[I] != 0xFFFF && uInternalClipboardFormat[I]==Format)
 			{

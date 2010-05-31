@@ -678,7 +678,7 @@ void EditCodePageName()
 			DI_BUTTON,    0, 4,  0, 3, 0, DIF_CENTERGROUP, MSG(MGetCodePageResetCodePageName)
 		};
 	MakeDialogItemsEx(EditDialogData, EditDialog);
-	Dialog Dlg(EditDialog, countof(EditDialog), EditDialogProc);
+	Dialog Dlg(EditDialog, ARRAYSIZE(EditDialog), EditDialogProc);
 	Dlg.SetPosition(-1, -1, 54, 7);
 	Dlg.SetHelp(L"EditCodePageNameDlg");
 	Dlg.Process();

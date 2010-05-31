@@ -81,7 +81,7 @@ void ConsoleTitle::Set(const wchar_t *fmt, ...)
 	wchar_t msg[2048];
 	va_list argptr;
 	va_start(argptr, fmt);
-	vsnwprintf(msg, countof(msg)-1, fmt, argptr);
+	vsnwprintf(msg, ARRAYSIZE(msg)-1, fmt, argptr);
 	va_end(argptr);
 	SetFarTitle(msg);
 }

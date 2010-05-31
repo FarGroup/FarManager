@@ -252,7 +252,7 @@ void FileList::ShowFileList(int Fast)
 		                          MMenuSortByFullName
 		                         };
 
-		for (size_t I=0; I<countof(SortModes); I++)
+		for (size_t I=0; I<ARRAYSIZE(SortModes); I++)
 		{
 			if (SortModes[I]==SortMode)
 			{

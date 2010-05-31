@@ -246,7 +246,7 @@ const wchar_t* DizList::GetDizTextAddr(const wchar_t *Name, const wchar_t *Short
 			wchar_t SizeText[30];
 			const wchar_t *DizPtr=DizText;
 			bool SkipSize=true;
-			_snwprintf(SizeText,countof(SizeText),L"%I64u", FileSize);
+			_snwprintf(SizeText,ARRAYSIZE(SizeText),L"%I64u", FileSize);
 
 			for (int I=0; SizeText[I]!=0; DizPtr++)
 			{

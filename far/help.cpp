@@ -826,7 +826,7 @@ void Help::OutString(const wchar_t *Str)
 	const wchar_t *StartTopic=nullptr;
 	int OutPos=0,Highlight=0,Topic=0;
 
-	while (OutPos<(int)(countof(OutStr)-10))
+	while (OutPos<(int)(ARRAYSIZE(OutStr)-10))
 	{
 		if ((Str[0]==L'~' && Str[1]==L'~') ||
 		        (Str[0]==L'#' && Str[1]==L'#') ||

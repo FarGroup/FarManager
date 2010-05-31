@@ -322,7 +322,7 @@ static TFKey3 SpecKeyName[]=
 void InitKeysArray()
 {
 	HKL Layout[10];
-	int LayoutNumber=GetKeyboardLayoutList(countof(Layout),Layout); // возвращает 0! в telnet
+	int LayoutNumber=GetKeyboardLayoutList(ARRAYSIZE(Layout),Layout); // возвращает 0! в telnet
 
 	if (LayoutNumber==0)
 	{
@@ -333,7 +333,7 @@ void InitKeysArray()
 			DWORD dwType, dwIndex, dwDataSize, dwValueSize, dwKeyb;
 			wchar_t SData[16], SValue[16];
 
-			for (dwIndex=0; dwIndex < (int)countof(Layout); dwIndex++)
+			for (dwIndex=0; dwIndex < (int)ARRAYSIZE(Layout); dwIndex++)
 			{
 				dwValueSize=16;
 				dwDataSize=16*sizeof(wchar_t);
@@ -366,7 +366,7 @@ void InitKeysArray()
 	memset(KeyToVKey,0,sizeof(KeyToVKey));
 	memset(VKeyToASCII,0,sizeof(VKeyToASCII));
 
-	if (LayoutNumber && LayoutNumber < (int)countof(Layout))
+	if (LayoutNumber && LayoutNumber < (int)ARRAYSIZE(Layout))
 	{
 		BYTE KeyState[0x100]={0};
 		WCHAR buf[1];
@@ -562,11 +562,11 @@ void ReloadEnvironment()
 	string strOptRegRoot(Opt.strRegRoot);
 	Opt.strRegRoot.Clear();
 	
-	for(size_t i=0; i<countof(Addr); i++)
+	for(size_t i=0; i<ARRAYSIZE(Addr); i++)
 	{
 		SetRegRootKey(Addr[i].Key);
 		DWORD Types[]={REG_SZ,REG_EXPAND_SZ}; // REG_SZ first
-		for(size_t t=0; t<countof(Types); t++) // two passes
+		for(size_t t=0; t<ARRAYSIZE(Types); t++) // two passes
 		{
 			DWORD Type;
 			for(int j=0; EnumRegValueEx(Addr[i].SubKey, j, strName, strData, nullptr, nullptr, &Type); j++)
@@ -1810,7 +1810,7 @@ int WINAPI KeyNameToKey(const wchar_t *Name)
 	int Len=(int)strTmpName.GetLength();
 
 	// пройдемся по всем модификаторам
-	for (Pos=I=0; I < int(countof(ModifKeyName)); ++I)
+	for (Pos=I=0; I < int(ARRAYSIZE(ModifKeyName)); ++I)
 	{
 		if (wcsstr(strTmpName,ModifKeyName[I].UName) && !(Key&ModifKeyName[I].Key))
 		{
@@ -1830,7 +1830,7 @@ int WINAPI KeyNameToKey(const wchar_t *Name)
 		const wchar_t* Ptr=Name+Pos;
 		int PtrLen = Len-Pos;
 
-		for (I=(int)countof(FKeys1)-1; I>=0; I--)
+		for (I=(int)ARRAYSIZE(FKeys1)-1; I>=0; I--)
 		{
 			if (PtrLen == FKeys1[I].Len && !StrCmpI(Ptr,FKeys1[I].Name))
 			{
@@ -1916,7 +1916,7 @@ BOOL WINAPI KeyToText(int Key0, string &strKeyText0)
 	{
 		GetShiftKeyName(strKeyText,Key,Len);
 
-		for (I=0; I<int(countof(FKeys1)); I++)
+		for (I=0; I<int(ARRAYSIZE(FKeys1)); I++)
 		{
 			if (FKey==FKeys1[I].Key)
 			{
@@ -1925,7 +1925,7 @@ BOOL WINAPI KeyToText(int Key0, string &strKeyText0)
 			}
 		}
 
-		if (I  == countof(FKeys1))
+		if (I  == ARRAYSIZE(FKeys1))
 		{
 			if (FKey >= KEY_VK_0xFF_BEGIN && FKey <= KEY_VK_0xFF_END)
 			{
@@ -1942,14 +1942,14 @@ BOOL WINAPI KeyToText(int Key0, string &strKeyText0)
 #if defined(SYSLOG)
 
 				// Этот кусок кода нужен только для того, что "спецклавиши" логировались нормально
-				for (I=0; I<countof(SpecKeyName); I++)
+				for (I=0; I<ARRAYSIZE(SpecKeyName); I++)
 					if (FKey==SpecKeyName[I].Key)
 					{
 						strKeyText += SpecKeyName[I].Name;
 						break;
 					}
 
-				if (I  == countof(SpecKeyName))
+				if (I  == ARRAYSIZE(SpecKeyName))
 #endif
 				{
 					FKey=Upper((wchar_t)Key&0xFFFF);
@@ -1993,7 +1993,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 	             (FShift&KEY_CTRL?PKF_CONTROL:0);
 
 	bool KeyInTable=false;
-	for (size_t i=0; i < countof(Table_KeyToVK); i++)
+	for (size_t i=0; i < ARRAYSIZE(Table_KeyToVK); i++)
 	{
 		if (FKey==Table_KeyToVK[i].Key)
 		{
@@ -2057,7 +2057,7 @@ int IsNavKey(DWORD Key)
 		//!!!!!!!!!!!
 	};
 
-	for (int I=0; I < int(countof(NavKeys)); I++)
+	for (int I=0; I < int(ARRAYSIZE(NavKeys)); I++)
 		if ((!NavKeys[I][0] && Key==NavKeys[I][1]) ||
 		        (NavKeys[I][0] && (Key&0x00FFFFFF)==(NavKeys[I][1]&0x00FFFFFF)))
 			return TRUE;
@@ -2109,7 +2109,7 @@ int IsShiftKey(DWORD Key)
 		KEY_CTRL,
 	};
 
-	for (int I=0; I<int(countof(ShiftKeys)); I++)
+	for (int I=0; I<int(ARRAYSIZE(ShiftKeys)); I++)
 		if (Key==ShiftKeys[I])
 			return TRUE;
 
@@ -2385,7 +2385,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 			//// // _SVS(SysLog(L"2 AltNumPad -> CalcKeyCode -> KeyCode=%s  ScanCode=0x%0X AltValue=0x%0X CtrlState=%X GetAsyncKeyState(VK_SHIFT)=%X",_VK_KEY_ToName(KeyCode),ScanCode,AltValue,CtrlState,GetAsyncKeyState(VK_SHIFT)));
 			static unsigned int ScanCodes[]={82,79,80,81,75,76,77,71,72,73};
 
-			for (int I=0; I<int(countof(ScanCodes)); I++)
+			for (int I=0; I<int(ARRAYSIZE(ScanCodes)); I++)
 			{
 				if (ScanCodes[I]==ScanCode)
 				{

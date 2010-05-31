@@ -203,7 +203,7 @@ int WINAPI GetSearchReplaceString(
 		{
 			HeightDialog-=DeltaCol;
 
-			for (I=10; I < (int)countof(ReplaceDlgData); ++I)
+			for (I=10; I < (int)ARRAYSIZE(ReplaceDlgData); ++I)
 			{
 				ReplaceDlg[I].Y1-=DeltaCol;
 				ReplaceDlg[I].Y2-=DeltaCol;
@@ -213,7 +213,7 @@ int WINAPI GetSearchReplaceString(
 		// нам не нужны 2 разделительных линии
 		if (HeightDialog == 11)
 		{
-			for (I=10; I < (int)countof(ReplaceDlgData); ++I)
+			for (I=10; I < (int)ARRAYSIZE(ReplaceDlgData); ++I)
 			{
 				ReplaceDlg[I].Y1--;
 				ReplaceDlg[I].Y2--;
@@ -221,7 +221,7 @@ int WINAPI GetSearchReplaceString(
 		}
 
 		{
-			Dialog Dlg(ReplaceDlg,countof(ReplaceDlgData));
+			Dialog Dlg(ReplaceDlg,ARRAYSIZE(ReplaceDlgData));
 			Dlg.SetPosition(-1,-1,76,HeightDialog);
 
 			if (HelpTopic && *HelpTopic)
@@ -380,7 +380,7 @@ int WINAPI GetSearchReplaceString(
 		{
 			HeightDialog-=DeltaCol;
 
-			for (I=10; I < (int)countof(SearchDlgData); ++I)
+			for (I=10; I < (int)ARRAYSIZE(SearchDlgData); ++I)
 			{
 				SearchDlg[I].Y1-=DeltaCol;
 				SearchDlg[I].Y2-=DeltaCol;
@@ -390,7 +390,7 @@ int WINAPI GetSearchReplaceString(
 		// нам не нужны 2 разделительных линии
 		if (HeightDialog == 9)
 		{
-			for (I=9; I < (int)countof(SearchDlgData); ++I)
+			for (I=9; I < (int)ARRAYSIZE(SearchDlgData); ++I)
 			{
 				SearchDlg[I].Y1--;
 				SearchDlg[I].Y2--;
@@ -398,7 +398,7 @@ int WINAPI GetSearchReplaceString(
 		}
 
 		{
-			Dialog Dlg(SearchDlg,countof(SearchDlg));
+			Dialog Dlg(SearchDlg,ARRAYSIZE(SearchDlg));
 			Dlg.SetPosition(-1,-1,76,HeightDialog);
 
 			if (HelpTopic && *HelpTopic)
@@ -542,7 +542,7 @@ int WINAPI GetString(
 		StrDlg[2].strData = SrcText;
 
 	{
-		Dialog Dlg(StrDlg,countof(StrDlg)-Substract,GetStringDlgProc);
+		Dialog Dlg(StrDlg,ARRAYSIZE(StrDlg)-Substract,GetStringDlgProc);
 		Dlg.SetPosition(-1,-1,76,offset+((Flags&FIB_BUTTONS)?8:6));
 
 		if (HelpTopic!=nullptr)
@@ -629,7 +629,7 @@ int WINAPI GetNameAndPassword(const wchar_t *Title, string &strUserName, string 
 	MakeDialogItemsEx(PassDlgData,PassDlg);
 
 	{
-		Dialog Dlg(PassDlg,countof(PassDlg));
+		Dialog Dlg(PassDlg,ARRAYSIZE(PassDlg));
 		Dlg.SetPosition(-1,-1,76,10);
 
 		if (HelpTopic!=nullptr)

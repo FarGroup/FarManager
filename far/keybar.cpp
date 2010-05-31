@@ -210,15 +210,15 @@ void KeyBar::ReadRegGroup(const wchar_t *RegGroup, const wchar_t *Language)
 						{ KBL_CTRLALTSHIFT, KEY_CTRL|KEY_ALT|KEY_SHIFT },
 					};
 
-					for (J=0; J < countof(Area); ++J)
+					for (J=0; J < ARRAYSIZE(Area); ++J)
 						if (Area[J][1] == Ctrl)
 							break;
 
-					if (J <= countof(Area))
+					if (J <= ARRAYSIZE(Area))
 					{
 						Key0 -= KEY_F1;
 						int Group=Area[J][0];
-						xwcsncpy(RegKeyTitles[Group][Key0], strValue, countof(KeyTitles[Group][Key0]));
+						xwcsncpy(RegKeyTitles[Group][Key0], strValue, ARRAYSIZE(KeyTitles[Group][Key0]));
 					}
 				}
 			}
@@ -232,7 +232,7 @@ void KeyBar::SetRegGroup(int Group)
 {
 	for (int I=0; I < KEY_COUNT; I++)
 		if (*RegKeyTitles[Group][I])
-			xwcsncpy(KeyTitles[Group][I], RegKeyTitles[Group][I], countof(KeyTitles[Group][I]));
+			xwcsncpy(KeyTitles[Group][I], RegKeyTitles[Group][I], ARRAYSIZE(KeyTitles[Group][I]));
 }
 
 void KeyBar::SetAllRegGroup()
@@ -248,7 +248,7 @@ void KeyBar::SetGroup(int Group,const wchar_t * const *Key,int KeyCount)
 
 	for (int i=0; i<KeyCount && i<KEY_COUNT; i++)
 		if (Key[i])
-			xwcsncpy(KeyTitles[Group][i], Key[i], countof(KeyTitles[Group][i]));
+			xwcsncpy(KeyTitles[Group][i], Key[i], ARRAYSIZE(KeyTitles[Group][i]));
 
 	KeyCounts [Group]=KeyCount;
 }
@@ -263,7 +263,7 @@ void KeyBar::ClearGroup(int Group)
 void KeyBar::Change(int Group,const wchar_t *NewStr,int Pos)
 {
 	if (NewStr)
-		xwcsncpy(KeyTitles[Group][Pos], NewStr, countof(KeyTitles[Group][Pos]));
+		xwcsncpy(KeyTitles[Group][Pos], NewStr, ARRAYSIZE(KeyTitles[Group][Pos]));
 }
 
 
@@ -274,7 +274,7 @@ void KeyBar::SetAllGroup(int Group, int StartIndex, int Count)
 		Count = KEY_COUNT;
 
 	for (int i=0, Index=StartIndex; i<Count; i++, Index++)
-		xwcsncpy(KeyTitles[Group][i], MSG(Index), countof(KeyTitles[Group][i]));
+		xwcsncpy(KeyTitles[Group][i], MSG(Index), ARRAYSIZE(KeyTitles[Group][i]));
 
 	KeyCounts [Group] = Count;
 }

@@ -632,7 +632,7 @@ bool EditTypeRecord(int EditPos,int TotalRecords,bool NewRec)
 		}
 	}
 
-	Dialog Dlg(EditDlg,countof(EditDlg),EditTypeRecordDlgProc);
+	Dialog Dlg(EditDlg,ARRAYSIZE(EditDlg),EditTypeRecordDlgProc);
 	Dlg.SetHelp(FTS.HelpModify);
 	Dlg.SetPosition(-1,-1,DlgX,DlgY);
 	Dlg.Process();

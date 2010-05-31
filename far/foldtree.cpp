@@ -368,8 +368,8 @@ void FolderTree::DrawEdit()
 void FolderTree::InitKeyBar()
 {
 	static const wchar_t *FTreeKeysLabel[]={L"",L"",L"",L"",L"",L"",L"",L"",L"",L"",L"",L""};
-	TreeKeyBar.Set(FTreeKeysLabel,countof(FTreeKeysLabel));
-	TreeKeyBar.SetAlt(FTreeKeysLabel,countof(FTreeKeysLabel));
+	TreeKeyBar.Set(FTreeKeysLabel,ARRAYSIZE(FTreeKeysLabel));
+	TreeKeyBar.SetAlt(FTreeKeysLabel,ARRAYSIZE(FTreeKeysLabel));
 	TreeKeyBar.Change(KBL_MAIN,MSG(MKBFolderTreeF1),1-1);
 	TreeKeyBar.Change(KBL_MAIN,MSG(MKBFolderTreeF2),2-1);
 	TreeKeyBar.Change(KBL_MAIN,MSG(MKBFolderTreeF5),5-1);

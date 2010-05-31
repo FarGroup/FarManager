@@ -447,4 +447,6 @@ public:
 #define SEE_MASK_NOASYNC 0x00000100
 #endif
 
+#define ARRAYSIZE(A) (sizeof(A)/sizeof((A)[0]))
+
 #endif // __ITaskbarList3_INTERFACE_DEFINED__

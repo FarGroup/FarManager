@@ -534,7 +534,7 @@ void InitRecodeOutTable(UINT cp)
 {
 	OutputCP=!cp?Console.GetOutputCodepage():cp;
 
-	for (size_t i=0; i<countof(RecodeOutTable); i++)
+	for (size_t i=0; i<ARRAYSIZE(RecodeOutTable); i++)
 		RecodeOutTable[i]=static_cast<BYTE>(i);
 
 	if (Opt.CleanAscii)
@@ -628,7 +628,7 @@ void InitRecodeOutTable(UINT cp)
 		      Oem2Unicode[0xCD]='=';
 		    }
 		*/
-		for (size_t i=1; i<countof(RecodeOutTable); i++)
+		for (size_t i=1; i<ARRAYSIZE(RecodeOutTable); i++)
 		{
 			if (!Oem2Unicode[i])
 			{
@@ -852,7 +852,7 @@ void mprintf(const WCHAR *fmt,...)
 	va_list argptr;
 	va_start(argptr,fmt);
 	WCHAR OutStr[2048];
-	vsnwprintf(OutStr,countof(OutStr)-1,fmt,argptr);
+	vsnwprintf(OutStr,ARRAYSIZE(OutStr)-1,fmt,argptr);
 	Text(OutStr);
 	va_end(argptr);
 }
@@ -862,7 +862,7 @@ void vmprintf(const WCHAR *fmt,...)
 	va_list argptr;
 	va_start(argptr,fmt);
 	WCHAR OutStr[2048];
-	vsnwprintf(OutStr,countof(OutStr)-1,fmt,argptr);
+	vsnwprintf(OutStr,ARRAYSIZE(OutStr)-1,fmt,argptr);
 	VText(OutStr);
 	va_end(argptr);
 }
@@ -1129,7 +1129,7 @@ WCHAR* MakeSeparator(int Length,WCHAR *DestStr,int Type, const wchar_t* UserSep)
 
 	if (Length>1 && DestStr)
 	{
-		Type%=countof(BoxType);
+		Type%=ARRAYSIZE(BoxType);
 		wmemset(DestStr,BoxType[Type][2],Length);
 		DestStr[0]=BoxType[Type][0];
 		DestStr[Length-1]=BoxType[Type][1];

@@ -48,7 +48,7 @@ static unsigned char LCOrder[256];
 
 void LocalUpperInit()
 {
-	for (unsigned int I=0; I<countof(LowerToUpper); I++)
+	for (unsigned int I=0; I<ARRAYSIZE(LowerToUpper); I++)
 	{
 		char CvtStr[]={I,L'\0'},ReverseCvtStr[2];
 		LowerToUpper[I]=UpperToLower[I]=I;
@@ -81,7 +81,7 @@ void InitLCIDSort()
 {
 	unsigned char LCSortBuffer[256];
 
-	for (size_t i=0; i<countof(LCSortBuffer); i++)
+	for (size_t i=0; i<ARRAYSIZE(LCSortBuffer); i++)
 	{
 		LCSortBuffer[i]=static_cast<BYTE>(i);
 	}
@@ -89,7 +89,7 @@ void InitLCIDSort()
 	Opt.LCIDSort=GetRegKey(L"System",L"LCID",LOCALE_USER_DEFAULT);
 	far_qsort(LCSortBuffer,256,sizeof(LCSortBuffer[0]),LCSort);
 
-	for (size_t i=0; i<countof(LCSortBuffer); i++)
+	for (size_t i=0; i<ARRAYSIZE(LCSortBuffer); i++)
 	{
 		LCOrder[LCSortBuffer[i]]=static_cast<BYTE>(i);
 	}
@@ -98,7 +98,7 @@ void InitLCIDSort()
 	LCOrder[(unsigned)'\\']=1;
 	LCOrder[(unsigned)'.']=2;
 
-	for (size_t i=0; i<countof(LCSortBuffer)-1; i++)
+	for (size_t i=0; i<ARRAYSIZE(LCSortBuffer)-1; i++)
 	{
 		if (LCSort(&LCSortBuffer[i],&LCSortBuffer[i+1])==0)
 		{
@@ -106,7 +106,7 @@ void InitLCIDSort()
 		}
 	}
 
-	for (size_t i=0; i<countof(LCOrder); i++)
+	for (size_t i=0; i<ARRAYSIZE(LCOrder); i++)
 	{
 		LCOrder[i]=LCOrder[UpperToLower[i]];
 	}

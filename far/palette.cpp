@@ -395,8 +395,8 @@ unsigned char BlackPalette[]=
 };
 
 
-int SizeArrayPalette=countof(DefaultPalette);
-unsigned char Palette[countof(DefaultPalette)];
+int SizeArrayPalette=ARRAYSIZE(DefaultPalette);
+unsigned char Palette[ARRAYSIZE(DefaultPalette)];
 
 BYTE FarColorToReal(int FarColor)
 {

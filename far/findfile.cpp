@@ -786,7 +786,7 @@ void AdvancedDialog()
 		DI_BUTTON,0,6,0,6,0,DIF_CENTERGROUP,MSG(MCancel),
 	};
 	MakeDialogItemsEx(AdvancedDlgData,AdvancedDlg);
-	Dialog Dlg(AdvancedDlg,countof(AdvancedDlg),AdvancedDlgProc);
+	Dialog Dlg(AdvancedDlg,ARRAYSIZE(AdvancedDlg),AdvancedDlgProc);
 	Dlg.SetHelp(L"FindFileAdvanced");
 	Dlg.SetPosition(-1,-1,52+4,7+2);
 	Dlg.Process();
@@ -2869,7 +2869,7 @@ bool FindFilesProcess(Vars& v)
 		FindDlg[FD_BUTTON_PANEL].Flags|=DIF_DISABLE;
 	}
 
-	Dialog Dlg=Dialog(FindDlg,countof(FindDlg),FindDlgProc, reinterpret_cast<LONG_PTR>(&v));
+	Dialog Dlg=Dialog(FindDlg,ARRAYSIZE(FindDlg),FindDlgProc, reinterpret_cast<LONG_PTR>(&v));
 //  pDlg->SetDynamicallyBorn();
 	Dlg.SetHelp(L"FindFileResult");
 	Dlg.SetPosition(-1, -1, DlgWidth, DlgHeight);
@@ -3169,7 +3169,7 @@ FindFiles::FindFiles()
 			{0,MSG(MSearchInSelected)},
 		};
 		li[FADC_ALLDISKS+SearchMode].Flags|=LIF_SELECTED;
-		FarList l={countof(li),li};
+		FarList l={ARRAYSIZE(li),li};
 		FindAskDlg[FAD_COMBOBOX_WHERE].ListItems=&l;
 
 		if (v.PluginMode)
@@ -3210,7 +3210,7 @@ FindFiles::FindFiles()
 		FindAskDlg[FAD_CHECKBOX_HEX].Selected=SearchHex;
 		FindAskDlg[FAD_CHECKBOX_FILTER].Selected=UseFilter?BSTATE_CHECKED:BSTATE_UNCHECKED;
 		int ExitCode;
-		Dialog Dlg(FindAskDlg,countof(FindAskDlg),MainDlgProc, reinterpret_cast<LONG_PTR>(&v));
+		Dialog Dlg(FindAskDlg,ARRAYSIZE(FindAskDlg),MainDlgProc, reinterpret_cast<LONG_PTR>(&v));
 		Dlg.SetHelp(L"FindFile");
 		Dlg.SetId(FindFileId);
 		Dlg.SetPosition(-1,-1,78,20);
