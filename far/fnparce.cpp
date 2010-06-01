@@ -340,9 +340,6 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 
 		AddEndSlash(strCurDir);
 
-		if (RealPath)
-			QuoteSpaceOnly(strCurDir);
-
 		CurStr+=2+RealPath;
 
 		if (*CurStr==L'!')
