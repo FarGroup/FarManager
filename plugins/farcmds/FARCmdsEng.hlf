@@ -3,88 +3,63 @@
 
 @Contents
 $^#FAR Commands#
-   The FAR Commands plugin (FARCmds) provides additional features that may
-be used in the User Menu, file associations or the command line.
+   The FAR Commands plugin (FARCmds) provides a number of additional commands.
 
-   ~Syntax~@Syntax@
-   ~"Same Folder" Command~@TheSameFolder@
-   ~Configuring FAR Commands~@Config@
+   Except command ~"Same Folder"~@TheSameCatalogue@, all the rest have to be
+invoked via command line prefixes.
 
-@Syntax
-$^#FARCmds Syntax
-   #Command Line Syntax#
-
-   <prefix>:<command>[<options>] <object>
-
-  or
-
-   <command>:[<options>] <object>
-
-  where
-
-   #<prefix>#    - always #far#
-
-   #<command>#   - one of the following:
-                 ~view~@View@    - Viewer
-                 ~edit~@Edit@    - Editor
-                 ~goto~@Goto@    - Jump to a file or folder
-                 ~clip~@Clip@    - Put data in the clipboard
-                 ~whereis~@WhereIs@ - Locate and jump to an object
-                 ~macro~@Macro@   - Macros
-                 ~link~@Link@      - create links
-                 ~run~@Run@     - execute commands
-                 ~load~@Load@   - load plugin
-                 ~unload~@Unload@ - unload plugin
-
-   #<options>#   - only for the #edit# command; one of the following:
-                 #[line]#
-                 #[line,column]#
-                 The square brackets are mandatory.
-
-   #<object>#    - one of the following:
-                 #filename#  - name of the file to be viewed,
-                             edited or jumped to.
-                 #path#      - file or directory path to jump to.
-                 #<command#  - ~intercept output~@Direction@  of operation
-                             system command.
-                             Symbol #<# is obligatory.
-                 #<<command# - ~intercept output~@Direction@  of operation
-                             system command.
-                             Symbol #<<# is obligatory.
+   Besides ~command line~@:CmdLineCmd@, prefixes may be used in ~User Menu~@:UserMenu@,
+in ~file associations~@:FileAssoc@, as well as in dialog ~Apply Command~@:ApplyCmd@ (#Ctrl-G#)
 
 
-   Note:
+  #Command Line Syntax#
 
-   A command can be executed in a directory different from the
-   current directory if the path is specified before an
-   operating system command enclosed in #'|'# characters.
-   Example: '#edit:<|%TEMP%|dir#'.
+   #command:#[#options#] #object#
 
-   Команды #load# и #unload# доступны только в Unicode-версии (для FAR 2.x)
+   #command# - one of the following:
+             ~view~@View@     - viewer
+             ~edit~@Edit@     - editor
+             ~goto~@Goto@     - jump to a file or folder
+             ~clip~@Clip@     - put data in the clipboard
+             ~whereis~@WhereIs@  - locate and jump to an object
+             ~macro~@Macro@    - macros
+             ~link~@Link@     - create links
+             ~run~@Run@      - execute commands
+             ~load~@Load@     - load plugin (FAR 2 only)
+             ~unload~@Unload@   - unload plugin (FAR 2 only)
 
-   See also: ~Contents~@Contents@ | ~Output Redirection~@Direction@ | ~Notes~@Remark@
+   #options# - optional parameters, see corresponding commands descriptions.
+
+   #object#  - one of the following:
+             #filename# - name of the file to be viewed, edited or jumped to.
+             #path#     - file or directory path to jump to.
+             #<command# - ~intercept output~@Direction@ of operation system command.
+                        Symbol #<# is obligatory.
+
+
+   See also: ~Configuring FAR Commands~@Config@ | ~Notes~@Remark@
 
 @Load
 $ #The Load command#
-   Команда #load# позволяет загрузить плагин #имя_DLL_модуля#.
+   Command #load# allows you to load the plugin #DLL_module_name#.
 
-   #far:load имя_DLL_модуля#
-   #load:имя_DLL_модуля#
+   #load:DLL_module_name#
 
-   Команда доступна только в Unicode-версии (для FAR 2.x)
+   Command is only available in Unicode-version (in FAR 2.x)
 
-   See also: ~unload~@Unload@ | ~Contents~@Contents@ | ~Notes~@Remark@
+
+   See also: ~unload~@Unload@ | ~Notes~@Remark@ | ~Contents~@Contents@
 
 @Unload
 $ #The Unload command#
-   Команда #unload# позволяет загрузить плагин #имя_DLL_модуля#.
+   Command #unload# allows you to unload the plugin #DLL_module_name#.
 
-   #far:unload имя_DLL_модуля#
-   #unload:имя_DLL_модуля#
+   #unload:DLL_module_name#
 
-   Команда доступна только в Unicode-версии (для FAR 2.x)
+   Command is only available in Unicode-version (in FAR 2.x)
 
-   See also: ~Load~@load@ | ~Contents~@Contents@ | ~Notes~@Remark@
+
+   See also: ~load~@Load@ | ~Notes~@Remark@ | ~Contents~@Contents@
 
 @Clip
 $^#The Clip command#
@@ -93,11 +68,10 @@ The data can be the contents of a file or the output of a program.
 The clipboard will contain all the data up to the character with the
 code #0x00# (1 megabyte at most).
 
-   #far:clip filename#
-   or
    #clip:filename#
 
-   See also: ~Output Redirection~@Direction@ | ~Contents~@Contents@ | ~Notes~@Remark@
+
+   See also: ~Output Redirection~@Direction@ | ~Notes~@Remark@ | ~Contents~@Contents@
 
 @Run
 $ #The Run command#
@@ -105,10 +79,10 @@ $ #The Run command#
 its output to the specified file #"filename"#. Output can also be displayed
 on the screen or hidden from the user using ~Output Redirection~@Direction@ modifiers.
 
-   #far:run filename<command#
    #run:filename<command#
 
-   See also: ~Output Redirection~@Direction@ | ~Contents~@Contents@ | ~Remarks~@Remark@
+
+   See also: ~Output Redirection~@Direction@ | ~Remarks~@Remark@ | ~Contents~@Contents@
 
 
 @View
@@ -116,38 +90,28 @@ $^#The View command#
    The #view# command opens the file "#filename#" in the FAR
 built-in ~viewer~@:Viewer@:
 
-   #far:view filename#
-   or
    #view:filename#
 
-   See also: ~Output Redirection~@Direction@ | ~Contents~@Contents@ | ~Notes~@Remark@
+
+   See also: ~edit~@Edit@ | ~Output Redirection~@Direction@ | ~Notes~@Remark@ | ~Contents~@Contents@
 
 @Edit
 $^#The Edit command#
    The #edit# command opens the file "#filename#" for editing
-in the FAR built-in ~editor~@:Editor@. The command may be invoked in three ways:
+in the FAR built-in ~editor~@:Editor@.
 
-   1. Open a file for editing
-
-      #far:edit filename#
-      or
       #edit:filename#
-
-   2. Open a file for editing and go to the line "#<line>#"
-
-      #far:edit[<line>] filename#
-      or
-      #edit:[<line>] filename#
-
-   3. Open a file for editing and go to the given position
-
-      #far:edit[<line>,<column>] filename
-      or
-      #edit:[<line>,<column>] filename#
 
    If the file "#filename#" does not exist, it will be created.
    If the newly created file is not changed before leaving the editor, it will
-be deleted (same behaviour as Shift-F4).
+be deleted (same behaviour as #Shift-F4#).
+
+   When opening a file, you can go directly to a given position. To do this, specify the row and, optionally, the column.
+   The square brackets are mandatory!
+
+      #edit:[line] filename#
+
+      #edit:[line,column] filename#
 
    If the filename contains square brackets (for example: "[1].txt"), then for
 the correct opening of the file in the editor you must provide at least one delimiter
@@ -156,7 +120,8 @@ the correct opening of the file in the editor you must provide at least one deli
    edit: [1].txt
    edit:"[1].txt"
 
-   See also: ~Output Redirection~@Direction@ | ~Contents~@Contents@ | ~Notes~@Remark@
+
+   See also: ~view~@View@ | ~Output Redirection~@Direction@ | ~Notes~@Remark@ | ~Contents~@Contents@
 
 @Goto
 $^#The Goto command#
@@ -165,14 +130,10 @@ $^#The Goto command#
 
    1. Directly as a parameter of the command
 
-      #far:goto path#
-      or
       #goto:path#
 
    2. The path is taken from the file "#filename#"
 
-      #far:goto <filename#
-      or
       #goto: <filename#
 
    If the parameter "#path#" specifies a folder and is terminated with
@@ -186,36 +147,34 @@ the path to a directory or file.
    When panels are turned off, the cursor is not positioned on the requested object,
 only the switching to the required folder occurs.
 
-   See also: ~Contents~@Contents@ | ~Notes~@Remark@
+
+   See also: ~whereis~@WhereIs@ | ~Notes~@Remark@ | ~Contents~@Contents@
 
 @Link
 $ #The Link command#
 
-   The #link# command creates and deletes ~links~@:HardSymLink@
-to files and folders. Hardlinks are created for files, directory junction are
-created for folders. It is possible to mount local disks on file system
-with #link# command (so-called "volume mount points").
+   The #link# command creates ~links~@:HardSymLink@ to files and folders.
+It also allows to mount local disks on file system.
 
-   #link# syntax:
 
-   #far:link [/msg] [/n] [/s] source destination#
-   or
-   #link:[/msg] [/n] [/s] source destination#
+   #link:#[#/msg#] [#/n#] [#/s#] #source destination#
 
-   if "destination" is
+   Depending on the type of source are those types of links:
 
-     a #file#   : hardlink is created
-     a #folder# : symlink is created
-     a #drive#  : drive is mounted in case of a "drive" sequence:
-                  'drive_letter' ':' '\', e.g. "C:\"
+     #file#   : #hard link# is created
+     #folder# : #junction# is created
+     #drive#  : drive is mounted (#volume mount point# is created)
+              "drive" should be a sequence "#drive_letter:\#", e.g. "#C:\#"
 
-   switch #/msg# turns on the output of error messages
+   Switch #/msg# turns on the output of error messages
 
-   switch #/n# disables automatic update of panels after creation of link
+   Switch #/n# disables automatic update of panels after creation of link
 
-   Ключ #/s# создает символическую ссылку-файл (вместо жесткой связи)
-или ссылку-каталог (вместо связи каталогов). Ключ актуален в Windows Vista
-или выше. Игнорируется при монтировании дисков.
+   Switch #/s# allows to make symbolic links (#symlinks#).
+   It's possible to create a file symlink (instead of a hardlink)
+or a folder symlink (instead of folder junction).
+   The switch is relevant to Windows Vista or higher.
+Ignored when mounting drives.
 
    Mounted drives (or volume mount points) is a Windows 2000/XP feature,
 that allows to display specified disks as folders. Example:
@@ -224,21 +183,20 @@ that allows to display specified disks as folders. Example:
 
     After this command the folder C:\cdrom will display the contents of drive E:
 
-   See also: ~Contents~@Contents@ | ~Remarks~@Remark@
+
+   See also: ~Remarks~@Remark@ | ~Contents~@Contents@
 
 @WhereIs
 $ #The WhereIs command#
    The #whereis# command locates the given object and jumps to it if the search was
 successful.
 
-   #far:whereis filename#
-   or
    #whereis:filename#
 
    The search is performed in the following order:
 
    1. Current folder
-   2. Каталог, на который указывает переменная среды %FARHOME%
+   2. The directory pointed to by the environment variable %FARHOME%
    3. Folders in the system environment variable #PATH#
    4. Windows 95: Windows' system folder (SYSTEM)
       Windows NT: 32 bit Windows' system folder (SYSTEM32)
@@ -252,7 +210,8 @@ successful.
    When panels are turned off, the cursor is not positioned on the requested object,
 only the switching to the required folder occurs.
 
-   See also: ~Contents~@Contents@ | ~Notes~@Remark@
+
+   See also: ~goto~@Goto@ | ~Notes~@Remark@ | ~Contents~@Contents@
 
 @Macro
 $ #The Macro command#
@@ -262,20 +221,14 @@ typed from the keyboard.
 
    1. Load macros from the registry:
 
-      #far:macro load#
-      or
       #macro:load#
 
    2. Save macros to the registry:
 
-      #far:macro save#
-      or
       #macro:save#
 
    3. Post a key sequence:
 
-      #far:macro post sequence#
-      or
       #macro:post sequence#
 
       "sequence" is a sequence of key names as they are stored in
@@ -285,150 +238,126 @@ typed from the keyboard.
 
       The sequence is executed only after return the FAR Manager receives control.
 
-   4. Проверить синтаксис макропоследовательности
+   4. Check macrosequence syntax
 
-      #far:macro check sequence#
-      или
       #macro:check sequence#
 
-      В случае ошибок в "sequence" будет выведено сообщение с
-      указанием типа ошибки и позиции в последовательности.
+      In case of error in the "sequence" you receive a message
+      indicating the error type and its position in the sequence.
 
-   Команда #check# доступна только в Unicode-версии (для FAR 2.x)
+   Command #check# is only available in Unicode-version (in FAR 2.x)
 
-   See also: ~Contents~@Contents@, ~Macro~@:KeyMacroCmds@
+
+   See also: ~Macro~@:KeyMacro@, ~Notes~@Remark@ | ~Contents~@Contents@
 
 @Direction
 $ #Output Redirection#
    The plugin can redirect the output of the specified #"<command"# or #"<<command"#.
 
-   #command#   - #[stream][mode][|path|]command#.
+    #command# - #[#stream#][#mode#][#|path|#]#command#.
 
-               #stream# - controls which output stream(s) to redirect.
-                        #1# - redirect only standard output
-                            stream #stdout#.
-                        #2# - redirect only standard output
-                            stream #stderr#.
-                        #*# - redirect #stderr# and #stdout# as
-                            one stream
-                        #?# - redirect #stderr# and #stdout# as
-                            different streams. For commands ~view~@View@
-                            and ~edit~@Edit@ the streams will
-                            be opened in separate windows. For other
-                            commands same behavior as #*#.
+    #stream# - controls which output stream(s) to redirect.
+             #1# - redirect only standard output stream #stdout#.
+             #2# - redirect only standard output stream #stderr#.
+             #*# - redirect #stderr# and #stdout# as one stream.
+             #?# - redirect #stderr# and #stdout# as different streams.
+                 For commands ~view~@View@ and ~edit~@Edit@ the streams will be opened
+                 in separate windows. For other commands same behavior as #*#.
+             Default value of this parameter can be defined in ~config~@Config@.
 
-               #mode#   - controls direct console output
-                          (not via standard streams)
-                        #># - ignore the console output of the
-                            program and display only message
-                            about its execution
-                        #<# - save console output and make it
-                            available for viewing with #Ctrl-O#,
-                        #+# - same as #<#, but displays on the
-                            screen redirected output of the program
-                            along with console output.
+    #mode#   - controls direct console output (not via standard streams)
+             #># - ignore the console output of the program
+                 and display only message about its execution.
+             #<# - save console output and make it available
+                 for viewing with #Ctrl-O#.
+             #+# - same as #<#, but displays on the screen redirected output
+                 of the program along with console output.
+             Default value of this parameter can be defined in ~config~@Config@.
 
-               #|path|# - command can be executed in the folder
-                        different from the current one if this
-                        parameter is present (enclosed in pipes #'|'#).
-                        For example: '#edit:<|%TEMP%|dir#'.
+    #|path|# - command can be executed in the folder different from the
+             current one. To do this specify the path (enclosed in pipes '#|#')
+             For example: #edit:<|%TEMP%|dir#
+
+   Program output can be opened in viewer: #~view~@View@:<command#
+     or in editor:                         #~edit~@Edit@:<command#
+     or can be placed into clipboard:      #~clip~@Clip@:<command#
+     or saved to a user-defined file:      #~run~@Run@:filename<command#
 
 
-   Default values of #stream# and #mode# can be defined in
-~plugin config~@Config@.
+  #Notes:#
 
-   Program output is placed in a temporary file. The output
-   can also be saved to a user-defined file:
+   #1#. The entire string after the symbol '#<#' and optional modifiers
+is sent to the command processor (%COMSPEC%)
 
-       #far:run filename<command#
-       #run:filename<command#
+   #2#. Program output is placed in a temporary file, which is deleted automatically when FAR Manager
+doesn't need it.
 
-     or opened
-
-     in viewer
-
-       #far:view <command#
-       #view:<command#
-
-     or in editor
-
-       #far:edit <command#
-       #edit:<command#
-       #far:edit[line] <command#
-       #edit:[line] <command#
-       #far:edit[line,column] <command#
-       #edit:[line,column] <command#
-
-     or the output can be placed into clipboard
-
-       #far:clip <command#
-       #clip:<command#
-
-   Notes:
-
-   1: The entire string after the symbol '#<#' and optional modifiers
-      is sent to the command processor (%COMSPEC%)
-
-   2. Temporary file is deleted automatically when FAR Manager
-      doesn't need it.
-
-   3. Some programs do not use standard output stream(s), but
-      print directly to the console. To store console output
-      and make it available for viewing with #Ctrl-O#, or to
-      ignore it, use modifiers '#<#', '#>#' and '#+#'.
+   #3#. Some programs do not use standard output stream(s), but
+print directly to the console. To store console output
+and make it available for viewing with #Ctrl-O#
+use modifiers '#<#' and '#+#'. To ignore it - use '#>#'
       You can change default behavior in the ~configuration~@Config@.
 
-   4. If the stream parameter equals 1 or 2 then the start of the
-      command text must be separated from it by some symbol.
+   #4#. If the #stream# parameter equals #1# or #2# then the start of the
+command text must be separated from it by some symbol.
 
-      Example:
-      Execute the command "1" and redirect its output to the editor.
-               edit:<1
-               possible cases with the parameter stream=1
-               edit:<1 1
-               edit:<1"1"
-               edit:<1+1
-               edit:<1|%TEMP%|1
 
-   See also: ~Contents~@Contents@ | ~Syntax~@Syntax@
+  #Examples:#
+
+   Execute the command "#command#" and redirect its output to the editor:
+     #edit:<command#
+
+   Possible cases with the parameter #stream#=#1#:
+     #edit:<1 command#
+     #edit:<1"command"#
+     #edit:<1+command#
+     #edit:<1|%TEMP%|command#
+
+
+   See also: ~Notes~@Remark@ | ~Contents~@Contents@
 
 @TheSameFolder
 $^#Same Folder
    To set the current folder of the passive panel to the same as
-in the active one, choose the item "#Same Directory#" in the ~plugins menu~@:Plugins@
+in the active one, choose the item "#Same Directory#" in the ~plugins menu~@:PluginCommands@
 or in the ~drives menu~@:DriveDlg@.
 
-   See also: ~Contents~@Contents@ | ~Configuration~@Config@
+
+   See also: ~Configuration~@Config@ | ~Contents~@Contents@
 
 @Remark
 $^#Notes#
 
-   1. When using prefix #far# command names may be shortened to
-      their first letters. Example:
-      #far:v# is the same as #far:view# or #view:#
-
-   2. It is possible to enclose parameters #filename#,
+   1. It is possible to enclose parameters #filename#,
       #path# and #command# in quotes.
 
-   3. You can use environment variables.
+   2. You can use environment variables.
 
-   4. If you make a syntax error, the help will pop up.
+   3. If you make a syntax error, the help will pop up.
 
-   5. You can use console aliases as #command#
+   4. You can use console aliases as #command#
       (Console aliases - macros defined by command DOSKEY)
+
+   5. Before each command it's allowed to additionally specify the prefix #far:#
+
+      #command:#[#options#] #object#
+      #far:command# [#options#] #object#
+
+      Both notation forms are equivalent.
+
 
    See also: ~Contents~@Contents@
 
 @Config
 $^#Configuring FAR Commands#
 
- #"Add "Same Folder"#            Adds the ~Same Folder~@TheSameFolder@ command
- #to the Plugins menu"#          to the ~Plugins menu~@:Plugins@.
+ #Add "Same Folder"#            Adds the ~Same Folder~@TheSameFolder@ command
+ #to the Plugins menu#          to the ~Plugins menu~@:PluginCommands@.
 
- #"Add "Same Folder"#            Adds the ~Same Folder~@TheSameFolder@ command
- #to the Disks menu"#            to the ~Disks menu~@:DriveDlg@.
+ #Add "Same Folder"#            Adds the ~Same Folder~@TheSameFolder@ command
+ #to the Disks menu#            to the ~Disks menu~@:DriveDlg@.
 
- #External commands screen output# Control program screen output
+ #External commands screen output# Control program screen ~output~@Direction@:
 
    #Hide external command#       Hides program output. Only a message
    #output#                      with the size of intercepted output
@@ -446,7 +375,7 @@ $^#Configuring FAR Commands#
                                Same as using #<+# instead of #<#.
 
 
- #Intercepting output#           Controlling of program output
+ #Intercepting output#           Controlling of program ~output~@Direction@
                                interception:
 
    #Intercept both#              Intercept standard output stream

@@ -597,7 +597,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 					if (outputtofile)
 						ProcessOSAliases(pCmd,ArraySize(farcmdbuf));
 
-					if (Goto)
+					if (WhereIs || Goto)
 					{
 						if (outputtofile)
 						{
@@ -654,17 +654,22 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 								if (Ptr!=NULL)
 									*Ptr=0;
 							}
-
 						}
 						else
 							lstrcpy(selectItem,pCmd);
+					}
 
+
+					if (Goto)
+					{
 						TCHAR ExpSelectItem[ArraySize(selectItem)];
 						ExpandEnvironmentStr(selectItem,ExpSelectItem,ArraySize(ExpSelectItem));
 						lstrcpy(selectItem,ExpSelectItem);
 					}
 					else if (WhereIs)
 					{
+						TCHAR pCmdCopy[ArraySize(selectItem)];
+						lstrcpy(pCmdCopy,selectItem);
 						TCHAR *Path = NULL, *pFile, temp[MAX_PATH*5], *FARHOMEPath = NULL;
 						int Length=
 #ifndef UNICODE
@@ -675,8 +680,8 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 						    (ArraySize(cmd),cmd);
 						int PathLength=GetEnvironmentVariable(_T("PATH"), Path, 0);
 						int FARHOMELength=GetEnvironmentVariable(_T("FARHOME"), FARHOMEPath, 0);
-						Unquote(pCmd);
-						ExpandEnvironmentStr(pCmd,temp,ArraySize(temp));
+						Unquote(pCmdCopy);
+						ExpandEnvironmentStr(pCmdCopy,temp,ArraySize(temp));
 
 						if (Length+PathLength)
 						{
@@ -704,7 +709,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 
 							for (size_t I=0; I < ArraySize(RootFindKey); ++I)
 							{
-								FarSprintf(FullKeyName,_T("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s"),pCmd);
+								FarSprintf(FullKeyName,_T("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s"),pCmdCopy);
 #ifndef UNICODE
 								OemToChar(FullKeyName, FullKeyName);
 #endif
