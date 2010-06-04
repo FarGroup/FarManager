@@ -50,8 +50,8 @@ inline bool isDevice(const TCHAR* FileName, const TCHAR* dev_begin)
 
 static bool validForView(const TCHAR *FileName, int viewEmpty, int editNew)
 {
-	if (!memcmp(FileName, _T("\\\\.\\"), 4) &&  // бЇҐжЁ «м­ п ®Ўа Ў®вЄ  Ё¬Ґ­
-	        FarIsAlpha(FileName[4]) &&          // ўЁ¤ : \\.\ЎгЄў :
+	if (!memcmp(FileName, _T("\\\\.\\"), 4) &&  // специальная обработка имен
+	        FarIsAlpha(FileName[4]) &&          // вида: \\.\буква:
 	        FileName[5]==_T(':') && FileName[6]==0)
 		return true;
 
@@ -112,7 +112,7 @@ static bool validForView(const TCHAR *FileName, int viewEmpty, int editNew)
 	return false;
 }
 
-// ­ЁвЄ  Ї а ««Ґ«м­®Ј® ўлў®¤  ­  нЄа ­ ¤«п ":<+"
+// нитка параллельного вывода на экран для ":<+"
 
 #define THREADSLEEP  200
 #define THREADREDRAW 10
@@ -273,10 +273,20 @@ static bool MakeTempNames(TCHAR* tempFileName1, TCHAR* tempFileName2, size_t szT
 	}
 	return false;
 }
+/*
+  Возвращает указатель на выделенный кусок, которому после использования сделать free
 
-static TCHAR *loadFile(const TCHAR *fn, TCHAR *buff, DWORD maxSize)
+  fn - имя файла, откуда читать
+  maxSize - сколько максимум прочитать из файла
+  outputtofile - это было перенаправление или...
+  shift - начало "правильных данных" в прочитанном буфере, с учетом кодировок...
+*/
+static TCHAR *loadFile(const TCHAR *fn, DWORD maxSize, BOOL outputtofile, size_t& shift, bool& foundFile)
 {
-	TCHAR *p = NULL, FileName[MAX_PATH*5];
+	foundFile = false;
+	shift=0;
+
+	TCHAR *Ptr = NULL, FileName[MAX_PATH*5];
 	ExpandEnvironmentStr(fn, FileName, ArraySize(FileName));
 	Unquote(FileName);
 
@@ -288,7 +298,7 @@ static TCHAR *loadFile(const TCHAR *fn, TCHAR *buff, DWORD maxSize)
 
 	if (*ptrFileName && FileExists(ptrFileName))
 	{
-
+		foundFile = true;
 		HANDLE Handle = CreateFile(ptrFileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
 
 		if (vh(Handle))
@@ -302,14 +312,9 @@ static TCHAR *loadFile(const TCHAR *fn, TCHAR *buff, DWORD maxSize)
 
 			if (size)
 			{
-				bool dyn = false;
 				DWORD read;
 
-				if (buff == NULL)
-				{
-					buff = (TCHAR *)malloc(size+sizeof(TCHAR));
-					dyn = buff != NULL;
-				}
+				TCHAR *buff = (TCHAR *)malloc(size+sizeof(TCHAR));
 
 				if (buff)
 				{
@@ -325,9 +330,9 @@ static TCHAR *loadFile(const TCHAR *fn, TCHAR *buff, DWORD maxSize)
 
 #endif
 						buff[read/sizeof(TCHAR)] = 0;
-						p = buff;
+						Ptr = buff;
 					}
-					else if (dyn)
+					else
 						free(buff);
 				}
 			}
@@ -337,7 +342,49 @@ static TCHAR *loadFile(const TCHAR *fn, TCHAR *buff, DWORD maxSize)
 
 	}
 
-	return p;
+#ifdef UNICODE
+	if (Ptr)
+	{
+		if (Ptr[0]==SIGN_UNICODE)
+		{
+			shift=1;
+		}
+		else if (Ptr[0]==SIGN_REVERSEBOM)
+		{
+			shift=1;
+			size_t PtrLength=lstrlen(Ptr);
+			swab((char*)Ptr,(char*)Ptr,int(PtrLength*sizeof(TCHAR)));
+		}
+		else
+		{
+			UINT cp=outputtofile?GetConsoleOutputCP():GetACP();
+			if (Ptr[0]==SIGN_UTF8_LO&&(Ptr[1]&0xff)==SIGN_UTF8_HI)
+			{
+				shift=1;
+				cp=CP_UTF8;
+			}
+			size_t PtrLength=MultiByteToWideChar(cp,0,(char*)Ptr,-1,NULL,0);
+			if (PtrLength)
+			{
+				TCHAR* NewPtr=(TCHAR*)malloc(PtrLength*sizeof(TCHAR));
+				if (NewPtr)
+				{
+					if (MultiByteToWideChar(cp,0,(char*)Ptr,-1,NewPtr,(int)PtrLength))
+					{
+						free(Ptr);
+						Ptr=NewPtr;
+					}
+					else
+					{
+						free(NewPtr);
+					}
+				}
+			}
+		}
+	}
+#endif
+
+	return Ptr;
 }
 
 static void ParseCmdSyntax(TCHAR*& pCmd, int& ShowCmdOutput, int& stream)
@@ -370,9 +417,9 @@ static void ParseCmdSyntax(TCHAR*& pCmd, int& ShowCmdOutput, int& stream)
 	FarLTrim(pCmd);
 }
 
-// вҐбвЁагҐв ЇаҐдЁбЄ Pref
-// б¤ўЁЈ Ґв Src, Ґб«Ё ­ иҐ« (­  ¤«Ё­г ЇаҐдЁбЄ )
-// ў®§ўа й Ґв ¤«Ё­г.
+// тестирует префиск Pref
+// сдвигает Src, если нашел (на длину префиска)
+// возвращает длину.
 static int TestPrefix(TCHAR*& Src,const TCHAR *Pref)
 {
 	int lenPref=lstrlen(Pref);
@@ -400,7 +447,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 	} Pref[]=
 	{
 		// far:<command>[<options>]<separator><object>
-		{Far,_T("FAR"),_T("Contents")},  // ќ’Ћ’ б ¬л© ЇҐаўл©!
+		{Far,_T("FAR"),_T("Contents")},  // ЭТОТ самый первый!
 		// view:[<separator>]<object>
 		// view<separator><object>
 		{View,_T("VIEW"),_T("View")},
@@ -448,7 +495,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 		int ShowCmdOutput=Opt.ShowCmdOutput;
 		int stream=Opt.CatchMode;
 		BOOL outputtofile=0, allOK=TRUE;
-		TCHAR *Ptr, *pCmd=NULL;
+		TCHAR *pCmd=NULL;
 
 		for (size_t I=0; I < ArraySize(Pref); ++I)
 		{
@@ -463,7 +510,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 				{
 					//  farcmd = <command>[<options>]<separator><object>
 					//  farcmd = <command><separator><object>
-					continue;  // ¤«п "FAR:" Їа®¤®«¦ Ґ¬
+					continue;  // для "FAR:" продолжаем
 				}
 
 				PrefIdx=I;
@@ -510,7 +557,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 					BracketsOk=TRUE;
 				Far=0;
 			}
-			else if (Run)   // Їпв­Ёж , 26  ЇаҐ«п 2002, 13:50:08
+			else if (Run)   // пятница, 26 апреля 2002, 13:50:08
 			{
 				pCmd = _tcschr(farcmd,_T('<'));
 
@@ -538,8 +585,8 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 			else
 			{
 				/* $ 21.06.2001 SVS
-				   ќв® ¤Ґ« Ґ¬ в®«мЄ®, Ґб«Ё Ўл« ЇаҐдЁЄб "far:",
-				   Ё­ зҐ Ј«®в Ґвбп ЇҐаў®Ґ б«®ў®.
+				   Это делаем только, если был префикс "far:",
+				   иначе глотается первое слово.
 				*/
 				if (Far)
 					pCmd=_tcsstr(farcmd,Opt.Separator);
@@ -594,57 +641,19 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 				{
 					showhelp=FALSE;
 
-					if (outputtofile)
+					if (outputtofile && !(WhereIs || Goto || Link))
 						ProcessOSAliases(pCmd,ArraySize(farcmdbuf));
 
 					if (WhereIs || Goto)
 					{
 						if (outputtofile)
 						{
-							Ptr = loadFile(pCmd, NULL, 1048576/sizeof(TCHAR));
+							size_t shift;
+							bool foundFile;
+							TCHAR *Ptr = loadFile(pCmd, 1048576/sizeof(TCHAR), outputtofile, shift, foundFile);
 
 							if (Ptr)
 							{
-								size_t shift=0;
-#ifdef UNICODE
-								if (Ptr[0]==SIGN_UNICODE)
-								{
-									shift=1;
-								}
-								else if (Ptr[0]==SIGN_REVERSEBOM)
-								{
-									shift=1;
-									size_t PtrLength=lstrlen(Ptr);
-									swab((char*)Ptr,(char*)Ptr,int(PtrLength*sizeof(TCHAR)));
-								}
-								else
-								{
-									UINT cp=outputtofile?GetConsoleOutputCP():GetACP();
-									if (Ptr[0]==SIGN_UTF8_LO&&(Ptr[1]&0xff)==SIGN_UTF8_HI)
-									{
-										shift=1;
-										cp=CP_UTF8;
-									}
-									size_t PtrLength=MultiByteToWideChar(cp,0,(char*)Ptr,-1,NULL,0);
-									if (PtrLength)
-									{
-										TCHAR* NewPtr=(TCHAR*)malloc(PtrLength*sizeof(TCHAR));
-										if (NewPtr)
-										{
-											if (MultiByteToWideChar(cp,0,(char*)Ptr,-1,NewPtr,(int)PtrLength))
-											{
-												free(Ptr);
-												Ptr=NewPtr;
-											}
-											else
-											{
-												free(NewPtr);
-											}
-										}
-									}
-								}
-
-#endif
 								lstrcpyn(selectItem, Ptr+shift, ArraySize(selectItem)-1);
 								free(Ptr);
 
@@ -729,62 +738,93 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 						ActlKeyMacro command;
 
 						if (!LStrnicmp(pCmd,_T("LOAD"),lstrlen(pCmd)))
-						{
 							command.Command=MCMD_LOADALL;
-							Info.AdvControl(Info.ModuleNumber,ACTL_KEYMACRO,&command);
-						}
 						else if (!LStrnicmp(pCmd,_T("SAVE"),lstrlen(pCmd)))
-						{
 							command.Command=MCMD_SAVEALL;
-							Info.AdvControl(Info.ModuleNumber,ACTL_KEYMACRO,&command);
-						}
-
 #ifdef UNICODE
 						else if (!LStrnicmp(pCmd,_T("CHECK"),5))
 						{
-							pCmd+=5;
 							command.Command=MCMD_CHECKMACRO;
+							//command.Param.PlainText.Flags=KSFLAGS_SILENTCHECK;
 							command.Param.PlainText.Flags=0;
-							TCHAR *SequenceText=(TCHAR *)malloc((lstrlen(pCmd)+1)*sizeof(TCHAR));
-
-							if (SequenceText)
-							{
-								//command.Param.PlainText.Flags=KSFLAGS_SILENTCHECK;
-								command.Param.PlainText.SequenceText=SequenceText;
-								lstrcpy((TCHAR*)command.Param.PlainText.SequenceText,pCmd);
-
-								if (!Info.AdvControl(Info.ModuleNumber,ACTL_KEYMACRO,&command))
-								{
-									;
-									//command.Param.MacroResult.ErrPos
-									//command.Param.MacroResult.ErrCode
-									//command.Param.MacroResult.ErrSrc
-								}
-
-								free((void*)SequenceText);
-							}
+							pCmd+=5;
 						}
-
 #endif
 						else if (!LStrnicmp(pCmd,_T("POST"),4))
 						{
-							pCmd+=4;
 							command.Command=MCMD_POSTMACROSTRING;
-							TCHAR *SequenceText=(TCHAR *)malloc((lstrlen(pCmd)+1)*sizeof(TCHAR));
+							command.Param.PlainText.Flags=KSFLAGS_DISABLEOUTPUT;
+							pCmd+=4;
+						}
 
-							if (SequenceText)
-							{
-								command.Param.PlainText.Flags=KSFLAGS_DISABLEOUTPUT;
-								command.Param.PlainText.SequenceText=SequenceText;
-								lstrcpy((TCHAR*)command.Param.PlainText.SequenceText,pCmd);
+						switch(command.Command)
+						{
+							case MCMD_LOADALL:
 								Info.AdvControl(Info.ModuleNumber,ACTL_KEYMACRO,&command);
-								free((void*)SequenceText);
+								break;
+							case MCMD_SAVEALL:
+								Info.AdvControl(Info.ModuleNumber,ACTL_KEYMACRO,&command);
+								break;
+#ifdef UNICODE
+							case MCMD_CHECKMACRO:
+#endif
+							case MCMD_POSTMACROSTRING:
+							{
+								TCHAR *SequenceText=NULL;
+								TCHAR *Ptr=NULL;
+								bool fromFile=false;
+
+								FarLTrim(pCmd);
+								if (*pCmd==_T('<'))
+								{
+									TCHAR *oldCmd=pCmd;
+									pCmd++;
+									while (*pCmd && IsSpace(*pCmd))
+										pCmd++;
+									size_t shift;
+									bool foundFile;
+									Ptr = loadFile(pCmd, 1048576/sizeof(TCHAR), outputtofile, shift, foundFile);
+									if (Ptr)
+									{
+										SequenceText=Ptr+shift;
+										fromFile=true;
+									}
+									else
+									{
+										if (foundFile) // файл есть, но была ошибка чтения: все равно из файла
+											fromFile=true;
+										else
+											pCmd=oldCmd;
+									}
+								}
+
+								if (!fromFile)
+								{
+									SequenceText=(TCHAR *)malloc((lstrlen(pCmd)+1)*sizeof(TCHAR));
+									if (SequenceText)
+										lstrcpy((TCHAR*)SequenceText,pCmd);
+								}
+
+								if (SequenceText)
+								{
+									command.Param.PlainText.SequenceText=SequenceText;
+
+									if (!Info.AdvControl(Info.ModuleNumber,ACTL_KEYMACRO,&command))
+									{
+										;
+									}
+
+									if (Ptr)
+										free((void*)Ptr);
+									else
+										free((void*)SequenceText);
+								}
+								break;
 							}
 						}
 
-						/* SVS $ */
 					}
-					else if (Link) //link [/msg] [/n] Ёбв®з­ЁЄ ­ §­ зҐ­ЁҐ
+					else if (Link) //link [/msg] [/n] источник назначение
 					{
 						bool NeedSymLink=false;
 						DWORD LinkFlags=0;
@@ -931,7 +971,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 						TCHAR ExpTemp[ArraySize(temp)];
 						ExpandEnvironmentStr(temp,ExpTemp,ArraySize(ExpTemp));
 						lstrcpy(temp,ExpTemp);
-						// а §¤Ґ«Ґ­ЁҐ Ї®в®Є®ў
+						// разделение потоков
 						int catchStdOutput = stream != 2;
 						int catchStdError  = stream != 1;
 						int catchSeparate  = (stream == 3) && (View || Edit);
@@ -1057,7 +1097,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 
 									if (ShowCmdOutput == 2)
 									{
-										// ¤ ­­лҐ ¤«п ­ЁвЄЁ Ї а ««Ґ«м­®Ј® ўлў®¤ 
+										// данные для нитки параллельного вывода
 										td = (TThreadData*)malloc(sizeof(TThreadData));
 
 										if (td)
@@ -1137,7 +1177,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 
 									if (Created)
 									{
-										// ­ЁвЄ  Ї а ««Ґ«м­®Ј® ўлў®¤ 
+										// нитка параллельного вывода
 										HANDLE hThread;
 										DWORD dummy;
 
@@ -1334,59 +1374,12 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 								outputtofile=FALSE;
 							else if (Clip)
 							{
-								TCHAR *Ptr = loadFile(TempFileNameOut, NULL, 1048576/sizeof(TCHAR));
+								size_t shift;
+								bool foundFile;
+								TCHAR *Ptr = loadFile(TempFileNameOut, 1048576/sizeof(TCHAR), outputtofile, shift, foundFile);
 
 								if (Ptr)
 								{
-									size_t shift=0;
-#ifdef UNICODE
-									//if(outputtofile)
-									//{
-									//;
-									//}
-									//else
-									if (Ptr[0]==SIGN_UNICODE)
-									{
-										shift=1;
-									}
-									else if (Ptr[0]==SIGN_REVERSEBOM)
-									{
-										shift=1;
-										size_t PtrLength=lstrlen(Ptr);
-										swab((char*)Ptr,(char*)Ptr,int(PtrLength*sizeof(TCHAR)));
-									}
-									else
-									{
-										UINT cp=outputtofile?GetConsoleOutputCP():GetACP();
-
-										if (Ptr[0]==SIGN_UTF8_LO&&(Ptr[1]&0xff)==SIGN_UTF8_HI)
-										{
-											shift=1;
-											cp=CP_UTF8;
-										}
-
-										size_t PtrLength=MultiByteToWideChar(cp,0,(char*)Ptr,-1,NULL,0);
-
-										if (PtrLength)
-										{
-											TCHAR* NewPtr=(TCHAR*)malloc(PtrLength*sizeof(TCHAR));
-
-											if (NewPtr)
-											{
-												if (MultiByteToWideChar(cp,0,(char*)Ptr,-1,NewPtr,(int)PtrLength))
-												{
-													free(Ptr);
-													Ptr=NewPtr;
-												}
-												else
-												{
-													free(NewPtr);
-												}
-											}
-										}
-									}
-
-#endif
 									CopyToClipboard(Ptr+shift);
 									free(Ptr);
 								}
