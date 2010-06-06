@@ -40,9 +40,15 @@ namespace oldfar {
 
 #else
 
+#ifdef _EXTERNAL
+#include "../../common/ascii/plugin.hpp"
+#include "../../common/ascii/farkeys.hpp"
+#include "../../common/ascii/farcolor.hpp"
+#else
 #include "../../../common/ascii/plugin.hpp"
 #include "../../../common/ascii/farkeys.hpp"
 #include "../../../common/ascii/farcolor.hpp"
+#endif
 
 #undef __PLUGIN_HPP__
 #undef __FARKEYS_HPP__
@@ -52,11 +58,13 @@ namespace oldfar {
 #undef FARMANAGERVERSION_MINOR
 #undef FARMANAGERVERSION_BUILD
 
+#ifndef _EXTERNAL
 namespace oldfar {
 #include "../../../common/ascii/plugin.hpp"
 #include "../../../common/ascii/farkeys.hpp"
 #include "../../../common/ascii/farcolor.hpp"
 };
+#endif
 
 #endif
 
