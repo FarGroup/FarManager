@@ -187,12 +187,23 @@ public:
 		return m_short->ItemsNumber;
 	}
 
-	int __stdcall GetType()
+	int GetType()
 	{
 		UpdatePanelShortInfo();
 		return m_short->PanelType;
 	}		
 
+	const RECT* GetRect()
+	{
+		UpdatePanelShortInfo();
+		return m_short->PanelRect;
+	}
+
+	int GetFlags()
+	{
+		UpdatePanelShortInfo();
+		return m_short->Flags;
+	}
 
 	const TCHAR* GetCurrentDirectory()
 	{
