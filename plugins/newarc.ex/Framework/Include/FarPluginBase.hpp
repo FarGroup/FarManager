@@ -18,6 +18,9 @@
 #include "../../../common/unicode/farcolor.hpp"
 #endif
 
+
+#ifndef _EXTERNAL
+
 #define FARMANAGER_MAJOR_SAFE FARMANAGERVERSION_MAJOR
 #define FARMANAGER_MINOR_SAFE FARMANAGERVERSION_MINOR
 #define FARMANAGER_BUILD_SAFE FARMANAGERVERSION_BUILD
@@ -30,7 +33,6 @@
 #undef FARMANAGERVERSION_MINOR
 #undef FARMANAGERVERSION_BUILD
 
-#ifndef _EXTERNAL
 namespace oldfar {
 #include "../../../common/ascii/plugin.hpp"
 #include "../../../common/ascii/farkeys.hpp"
@@ -50,6 +52,9 @@ namespace oldfar {
 #include "../../../common/ascii/farcolor.hpp"
 #endif
 
+
+#ifndef _EXTERNAL
+
 #undef __PLUGIN_HPP__
 #undef __FARKEYS_HPP__
 #undef __FARCOLOR_HPP__
@@ -58,7 +63,6 @@ namespace oldfar {
 #undef FARMANAGERVERSION_MINOR
 #undef FARMANAGERVERSION_BUILD
 
-#ifndef _EXTERNAL
 namespace oldfar {
 #include "../../../common/ascii/plugin.hpp"
 #include "../../../common/ascii/farkeys.hpp"

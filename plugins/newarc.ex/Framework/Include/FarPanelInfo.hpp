@@ -193,10 +193,22 @@ public:
 		return m_short->PanelType;
 	}		
 
-	const RECT* GetRect()
+	const RECT& GetRect()
 	{
 		UpdatePanelShortInfo();
 		return m_short->PanelRect;
+	}
+
+	bool IsVisible()
+	{
+		UpdatePanelShortInfo();
+		return (bool)m_short->Visible;
+	}
+
+	bool IsPlugin()
+	{
+		UpdatePanelShortInfo();
+		return (bool)m_short->Plugin;
 	}
 
 	int GetFlags()
