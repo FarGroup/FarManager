@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "palette.hpp"
 #include "colors.hpp"
+#include "interf.hpp"
 
 console Console;
 
@@ -133,6 +134,21 @@ bool console::GetWindowRect(SMALL_RECT& ConsoleWindow)
 bool console::SetWindowRect(const SMALL_RECT& ConsoleWindow)
 {
 	return SetConsoleWindowInfo(GetOutputHandle(), true, &ConsoleWindow)!=FALSE;
+}
+
+bool console::GetWorkingRect(SMALL_RECT& WorkingRect)
+{
+	bool Result=false;
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	if(GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi))
+	{
+		WorkingRect.Bottom=csbi.dwSize.Y-1;
+		WorkingRect.Left=0;
+		WorkingRect.Right=WorkingRect.Left+ScrX;
+		WorkingRect.Top=WorkingRect.Bottom-ScrY;
+		Result=true;
+	}
+	return Result;
 }
 
 bool console::GetTitle(string &strTitle)

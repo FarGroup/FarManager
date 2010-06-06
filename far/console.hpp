@@ -49,7 +49,9 @@ public:
 
 	bool GetWindowRect(SMALL_RECT& ConsoleWindow);
 	bool SetWindowRect(const SMALL_RECT& ConsoleWindow);
-	
+
+	bool GetWorkingRect(SMALL_RECT& WorkingRect);
+
 	bool GetTitle(string &strTitle);
 	bool SetTitle(LPCWSTR Title);
 	

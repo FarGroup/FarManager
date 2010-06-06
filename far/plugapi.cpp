@@ -790,7 +790,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 					SMALL_RECT& Rect=*reinterpret_cast<PSMALL_RECT>(Param);
 					if(Opt.WindowMode)
 					{
-						Result=Console.GetWindowRect(Rect);
+						Result=Console.GetWorkingRect(Rect);
 					}
 					else
 					{
