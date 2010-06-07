@@ -403,6 +403,10 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	g_strFarPath=g_strFarModuleName;
 	CutToSlash(g_strFarPath,true);
 	SetEnvironmentVariable(L"FARHOME", g_strFarPath);
+
+	// don't inherit from parent process in any case
+	SetEnvironmentVariable(L"FARUSER", nullptr);
+
 	AddEndSlash(g_strFarPath);
 
 	// макросы не дисаблим
