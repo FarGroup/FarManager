@@ -1118,7 +1118,7 @@ static struct FARConfig
 	/* $ 10.06.2002 KM
 	  ! Новые символы, наличие которых в имени файла окавычит его.
 	*/
-	{0, REG_SZ,     NKeySystem,"QuotedSymbols",Opt.QuotedSymbols,sizeof(Opt.QuotedSymbols)," &()[]{}^=;!'+,`"},
+  {0, REG_SZ,     NKeySystem,"QuotedSymbols",Opt.QuotedSymbols,sizeof(Opt.QuotedSymbols)," &()[]{}^=;!'+,`\xFF"},
 	{0, REG_DWORD,  NKeySystem,"QuotedName",&Opt.QuotedName,0xFFFFFFFFU, 0},
 	/* KM $ */
 	//{0, REG_DWORD,  NKeySystem,"CPAJHefuayor",&Opt.CPAJHefuayor,0, 0},
