@@ -3,6 +3,7 @@ setlocal
 :: This batch file cleares the plugins cache
 
 call :clear "hkcu\software\far2\pluginscache"
+for /f %%i in ('reg query "hkcu\software\far2\users"') do call :clear %%i\pluginscache
 
 goto :eof
 
