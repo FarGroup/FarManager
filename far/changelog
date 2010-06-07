@@ -1,3 +1,8 @@
+yjh 07.06.2010 15:41:36 +0300 - build 1580 
+
+1. В список QutedSymbols добавлен oem(0xFF) ("sopft-space") - этого требуют
+   стандартные консольные тулзы (copy/move/etc)
+
 drkns 06.06.2010 22:01:56 +0200 - build 1579
 
 1. Уточнение работы ACTL_GETFARRECT.
