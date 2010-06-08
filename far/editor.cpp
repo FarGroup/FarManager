@@ -4997,6 +4997,10 @@ wchar_t *Editor::VBlock2Text(wchar_t *ptrInitData)
 		wcscpy(CopyData,ptrInitData);
 		xf_free(ptrInitData);
 	}
+	else
+	{
+		*CopyData=0;
+	}
 
 	Edit *CurPtr=VBlockStart;
 
