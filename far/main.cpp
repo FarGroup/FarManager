@@ -378,6 +378,7 @@ int _cdecl main(int Argc, char *Argv[])
 		FAR_OemToChar(FarPath, FarPath);
 		SetEnvironmentVariable("FARHOME",FarPath);
 		FAR_CharToOem(FarPath, FarPath);
+		SetEnvironmentVariable("FARUSER",NULL);     
 	}
 	AddEndSlash(FarPath);
 	// макросы не дисаблим
