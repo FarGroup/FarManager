@@ -317,12 +317,12 @@ bool Language::CheckMsgId(int MsgId)
 			     (раньше имя файла обрезалось справа и приходилось иногда гадать - в
 			     каком же файле ошибка)
 			*/
-			string strMsg1(L"Incorrect or damaged "), strMsg2;
+			string strMsg1(L"Incorrect or damaged ");
 			strMsg1+=strMessageFile;
 			/* IS $ */
-			strMsg2.Format(L"Message %d not found",MsgId);
-
-			if (Message(MSG_WARNING,2,L"Error",strMsg1,strMsg2,L"Ok",L"Quit")==1)
+			FormatString strMsgNotFound;
+			strMsgNotFound<<L"Message "<<MsgId<<L" not found";
+			if (Message(MSG_WARNING,2,L"Error",strMsg1,strMsgNotFound,L"Ok",L"Quit")==1)
 				exit(0);
 		}
 

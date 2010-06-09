@@ -113,7 +113,7 @@ class Viewer:public ScreenObject
 		string strFileName;
 		string strFullFileName;
 
-		FILE *ViewFile;
+		File ViewFile;
 
 		FAR_FIND_DATA_EX ViewFindData;
 
@@ -185,10 +185,10 @@ class Viewer:public ScreenObject
 		void Search(int Next,int FirstChar);
 		void ConvertToHex(char *SearchStr,int &SearchLength);
 		int HexToNum(int Hex);
-		int vread(wchar_t *Buf,int Count,FILE *SrcFile,bool Raw=false);
-		int vseek(FILE *SrcFile,__int64 Offset,int Whence);
-		__int64 vtell(FILE *SrcFile);
-		bool vgetc(FILE *SrcFile,WCHAR& C);
+		int vread(wchar_t *Buf,int Count,File& SrcFile,bool Raw=false);
+		int vseek(File& SrcFile,__int64 Offset,int Whence);
+		__int64 vtell(File& SrcFile);
+		bool vgetc(File& SrcFile,WCHAR& C);
 		void SetFileSize();
 		int GetStrBytesNum(const wchar_t *Str, int Length);
 

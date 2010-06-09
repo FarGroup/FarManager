@@ -120,10 +120,7 @@ File::File():
 
 File::~File()
 {
-	if(Handle != INVALID_HANDLE_VALUE)
-	{
-		Close();
-	}
+	Close();
 }
 
 bool File::Open(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile, bool ForceElevation)
@@ -207,9 +204,22 @@ bool File::IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, L
 
 bool File::Close()
 {
-	bool Result = admin?Admin.fCloseHandle(Handle):CloseHandle(Handle) != FALSE;
-	Handle = INVALID_HANDLE_VALUE;
+	bool Result=true;
+	if(Handle!=INVALID_HANDLE_VALUE)
+	{
+		Result = admin?Admin.fCloseHandle(Handle):CloseHandle(Handle) != FALSE;
+		Handle = INVALID_HANDLE_VALUE;
+	}
 	return Result;
+}
+
+bool File::Eof()
+{
+	INT64 Ptr=0;
+	GetPointer(Ptr);
+	UINT64 Size=0;
+	GetSize(Size);
+	return Ptr==Size;
 }
 
 NTSTATUS GetLastNtStatus()

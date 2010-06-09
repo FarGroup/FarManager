@@ -122,6 +122,12 @@ public:
 	bool GetInformation(BY_HANDLE_FILE_INFORMATION& info);
 	bool IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped = nullptr);
 	bool Close();
+	bool Eof();
+	bool Opened() const {return Handle != INVALID_HANDLE_VALUE;}
+
+	// BUGBUG, for viewer only!
+	const HANDLE GetHandle() const {return Handle;}
+	void SetHandle(HANDLE NewHandle) {Handle=NewHandle;}
 
 private:
 	HANDLE Handle;
