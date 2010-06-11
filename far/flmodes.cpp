@@ -71,23 +71,23 @@ void FileList::SetFilePanelModes()
 	if (CtrlObject->Cp()->ActivePanel->GetType()==FILE_PANEL)
 	{
 		CurMode=CtrlObject->Cp()->ActivePanel->GetViewMode();
-		CurMode=(CurMode==0) ? 9:CurMode-1;
+		CurMode=CurMode?CurMode-1:9;
 	}
 
-	while (1)
+	for(;;)
 	{
 		MenuDataEx ModeListMenu[]=
 		{
-			(const wchar_t *)MEditPanelModesBrief,0,0,
-			(const wchar_t *)MEditPanelModesMedium,0,0,
-			(const wchar_t *)MEditPanelModesFull,0,0,
-			(const wchar_t *)MEditPanelModesWide,0,0,
-			(const wchar_t *)MEditPanelModesDetailed,0,0,
-			(const wchar_t *)MEditPanelModesDiz,0,0,
-			(const wchar_t *)MEditPanelModesLongDiz,0,0,
-			(const wchar_t *)MEditPanelModesOwners,0,0,
-			(const wchar_t *)MEditPanelModesLinks,0,0,
-			(const wchar_t *)MEditPanelModesAlternative,0,0,
+			MSG(MEditPanelModesBrief),0,0,
+			MSG(MEditPanelModesMedium),0,0,
+			MSG(MEditPanelModesFull),0,0,
+			MSG(MEditPanelModesWide),0,0,
+			MSG(MEditPanelModesDetailed),0,0,
+			MSG(MEditPanelModesDiz),0,0,
+			MSG(MEditPanelModesLongDiz),0,0,
+			MSG(MEditPanelModesOwners),0,0,
+			MSG(MEditPanelModesLinks),0,0,
+			MSG(MEditPanelModesAlternative),0,0,
 		};
 		int ModeNumber;
 		ModeListMenu[CurMode].SetSelect(1);
@@ -284,7 +284,7 @@ void FileList::TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *Col
 	{
 		string strArgName;
 
-		if ((TextPtr=GetCommaWord(TextPtr,strArgName))==nullptr)
+		if (!(TextPtr=GetCommaWord(TextPtr,strArgName)))
 			break;
 
 		strArgName.Upper();
@@ -293,7 +293,7 @@ void FileList::TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *Col
 		{
 			unsigned int &ColumnType=ViewColumnTypes[ColumnCount];
 			ColumnType=NAME_COLUMN;
-			const wchar_t *Ptr = (const wchar_t*)strArgName+1;
+			const wchar_t *Ptr = strArgName.CPtr()+1;
 
 			while (*Ptr)
 			{
@@ -319,7 +319,7 @@ void FileList::TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *Col
 			{
 				unsigned int &ColumnType=ViewColumnTypes[ColumnCount];
 				ColumnType=(strArgName.At(0)==L'S') ? SIZE_COLUMN:(strArgName.At(0)==L'P')?PACKED_COLUMN:STREAMSSIZE_COLUMN;
-				const wchar_t *Ptr = (const wchar_t*)strArgName+1;
+				const wchar_t *Ptr = strArgName.CPtr()+1;
 
 				while (*Ptr)
 				{
@@ -344,7 +344,7 @@ void FileList::TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *Col
 			}
 			else
 			{
-				if (StrCmpN(strArgName,L"DM",2)==0 || StrCmpN(strArgName,L"DC",2)==0 || StrCmpN(strArgName,L"DA",2)==0)
+				if (!StrCmpN(strArgName,L"DM",2) || !StrCmpN(strArgName,L"DC",2) || !StrCmpN(strArgName,L"DA",2))
 				{
 					unsigned int &ColumnType=ViewColumnTypes[ColumnCount];
 
@@ -361,7 +361,7 @@ void FileList::TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *Col
 							break;
 					}
 
-					const wchar_t *Ptr = (const wchar_t*)strArgName+2;
+					const wchar_t *Ptr = strArgName.CPtr()+2;
 
 					while (*Ptr)
 					{
@@ -392,7 +392,7 @@ void FileList::TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *Col
 					{
 						for (unsigned I=0; I<ARRAYSIZE(ColumnSymbol); I++)
 						{
-							if (StrCmp(strArgName,ColumnSymbol[I])==0)
+							if (!StrCmp(strArgName,ColumnSymbol[I]))
 							{
 								ViewColumnTypes[ColumnCount]=I;
 								break;
@@ -410,7 +410,7 @@ void FileList::TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *Col
 	{
 		string strArgName;
 
-		if ((TextPtr=GetCommaWord(TextPtr,strArgName))==nullptr)
+		if (!(TextPtr=GetCommaWord(TextPtr,strArgName)))
 			break;
 
 		ViewColumnWidths[I]=_wtoi(strArgName);

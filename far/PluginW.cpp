@@ -158,7 +158,7 @@ static size_t WINAPI FarKeyToName(int Key,wchar_t *KeyText,size_t Size)
 	{
 		if (Size <= len) len = Size-1;
 
-		wmemcpy(KeyText, (const wchar_t*)strKT, len);
+		wmemcpy(KeyText, strKT.CPtr(), len);
 		KeyText[len] = 0;
 	}
 	else if (KeyText) *KeyText = 0;
@@ -217,7 +217,7 @@ bool PluginW::LoadFromCache(const FAR_FIND_DATA_EX &FindData)
 			);
 			GetRegKey(strRegKey, L"ID", strPluginID, L"");
 
-			if (StrCmp(strPluginID, strCurPluginID) != 0)   //одинаковые ли бинарники?
+			if (StrCmp(strPluginID, strCurPluginID) )   //одинаковые ли бинарники?
 				return false;
 		}
 		strRegKey += L"\\Exports";
@@ -320,7 +320,7 @@ bool PluginW::SaveToCache()
 		SetRegKey(strRegKey, wszReg_ProcessDialogEvent, pProcessDialogEventW!=nullptr);
 		SetRegKey(strRegKey, wszReg_ProcessSynchroEvent, pProcessSynchroEventW!=nullptr);
 		SetRegKey(strRegKey, wszReg_Configure, pConfigureW!=nullptr);
-		SetRegKey(strRegKey, wszReg_Analyse, pAnalyseW != nullptr);
+		SetRegKey(strRegKey, wszReg_Analyse, pAnalyseW!=nullptr);
 		return true;
 	}
 
@@ -514,7 +514,7 @@ void CreatePluginStartupInfo(Plugin *pPlugin, PluginStartupInfo *PSI, FarStandar
 
 	if (pPlugin)
 	{
-		PSI->ModuleName = (const wchar_t*)pPlugin->GetModuleName();
+		PSI->ModuleName = pPlugin->GetModuleName().CPtr();
 	}
 }
 
@@ -594,7 +594,7 @@ bool PluginW::SetStartupInfo(bool &bUnloaded)
 		// скорректирем адреса и плагино-зависимые поля
 		strRootKey = Opt.strRegRoot;
 		strRootKey += L"\\Plugins";
-		_info.RootKey = (const wchar_t*)strRootKey;
+		_info.RootKey = strRootKey.CPtr();
 		ExecuteStruct es;
 		es.id = EXCEPT_SETSTARTUPINFO;
 		EXECUTE_FUNCTION(pSetStartupInfoW(&_info), es);

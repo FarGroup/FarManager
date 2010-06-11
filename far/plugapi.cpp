@@ -205,7 +205,7 @@ BOOL WINAPI FarShowHelp(
 			else
 				return FALSE;
 
-			strTopic.Format(HelpFormatLink,(const wchar_t*)strPath,HelpTopic);
+			strTopic.Format(HelpFormatLink,strPath,HelpTopic);
 		}
 		else
 			return FALSE;
@@ -494,7 +494,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 
 						if (CtrlObject->Macro.ProcessKey(Key))
 						{
-							while ((Key=CtrlObject->Macro.GetKey()) != 0)
+							while ((Key=CtrlObject->Macro.GetKey()) )
 							{
 								FrameManager->ProcessKey(Key);
 							}
@@ -532,7 +532,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 				else
 					f=FrameManager->operator[](wi->Pos);
 
-				if (f==nullptr)
+				if (!f)
 					return FALSE;
 
 				if (Command==ACTL_GETWINDOWINFO)
@@ -581,7 +581,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 		case ACTL_SETCURRENTWINDOW:
 		{
 			// Запретим переключение фрэймов, если находимся в модальном редакторе/вьюере.
-			if (FrameManager && !FrameManager->InModalEV() && FrameManager->operator[]((int)(INT_PTR)Param)!=nullptr)
+			if (FrameManager && !FrameManager->InModalEV() && FrameManager->operator[]((int)(INT_PTR)Param))
 			{
 				int TypeFrame=FrameManager->GetCurrentFrame()->GetType();
 
@@ -856,7 +856,7 @@ int WINAPI FarMenuFn(
 		return -1;
 
 	if (DisablePluginsOutput)
-		return(-1);
+		return -1;
 
 	int ExitCode;
 	{
@@ -864,7 +864,7 @@ int WINAPI FarMenuFn(
 		CtrlObject->Macro.SetMode(MACRO_MENU);
 		FarMenu.SetPosition(X,Y,0,0);
 
-		if (BreakCode!=nullptr)
+		if (BreakCode)
 			*BreakCode=-1;
 
 		{
@@ -874,7 +874,7 @@ int WINAPI FarMenuFn(
 				FarMenu.SetHelp(strTopic);
 		}
 
-		if (Bottom!=nullptr)
+		if (Bottom)
 			FarMenu.SetBottomTitle(Bottom);
 
 		// общие флаги меню
@@ -973,9 +973,9 @@ int WINAPI FarMenuFn(
 			}
 			else if (ReadKey!=KEY_NONE)
 			{
-				if (BreakKeys!=nullptr)
+				if (BreakKeys)
 				{
-					for (int I=0; BreakKeys[I]!=0; I++)
+					for (int I=0; BreakKeys[I]; I++)
 					{
 						if (CtrlObject->Macro.IsExecuting())
 						{
@@ -1002,7 +1002,7 @@ int WINAPI FarMenuFn(
 
 							if (f == Flags)
 							{
-								if (BreakCode!=nullptr)
+								if (BreakCode)
 									*BreakCode=I;
 
 								FarMenu.Hide();
@@ -1052,7 +1052,7 @@ static int Except_FarDialogEx()
 
 	Frame *frame;
 
-	if ((frame=FrameManager->GetBottomFrame()) != nullptr)
+	if ((frame=FrameManager->GetBottomFrame()) )
 	{
 		//while(!frame->Refreshable()) // А может все таки нужно???
 		frame->Unlock(); // теперь можно :-)
@@ -1142,7 +1142,7 @@ int WINAPI FarDialogRun(HANDLE hDlg)
 
 	Frame *frame;
 
-	if ((frame=FrameManager->GetBottomFrame()) != nullptr)
+	if ((frame=FrameManager->GetBottomFrame()) )
 		frame->Lock(); // отменим прорисовку фрейма
 
 	int ExitCode=-1;
@@ -1162,7 +1162,7 @@ int WINAPI FarDialogRun(HANDLE hDlg)
 	/* $ 15.05.2002 SKV
 		Однако разлочивать нужно ровно то, что залочили.
 	*/
-	if (frame != nullptr)
+	if (frame )
 		frame->Unlock(); // теперь можно :-)
 
 	//CheckScreenLock();
@@ -1200,10 +1200,10 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,const wchar_t *HelpTopi
 		return -1;
 
 	if (DisablePluginsOutput)
-		return(-1);
+		return -1;
 
 	if ((!(Flags&(FMSG_ALLINONE|FMSG_ERRORTYPE)) && ItemsNumber<2) || !Items)
-		return(-1);
+		return -1;
 
 	wchar_t *SingleItems=nullptr;
 	wchar_t *Msg;
@@ -1213,12 +1213,12 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,const wchar_t *HelpTopi
 	{
 		ItemsNumber=0;
 
-		if ((SingleItems=(wchar_t *)xf_malloc((StrLength((const wchar_t *)Items)+2)*sizeof(wchar_t))) == nullptr)
+		if (!(SingleItems=(wchar_t *)xf_malloc((StrLength((const wchar_t *)Items)+2)*sizeof(wchar_t))))
 			return -1;
 
 		Msg=wcscpy(SingleItems,(const wchar_t *)Items);
 
-		while ((Msg = wcschr(Msg, L'\n')) != nullptr)
+		while ((Msg = wcschr(Msg, L'\n')) )
 		{
 //      *Msg='\0';
 			if (*++Msg == L'\0')
@@ -1235,7 +1235,7 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,const wchar_t *HelpTopi
 	if (!MsgItems)
 	{
 		xf_free(SingleItems);
-		return(-1);
+		return -1;
 	}
 
 	memset(MsgItems,0,sizeof(wchar_t*)*(ItemsNumber+ADDSPACEFORPSTRFORMESSAGE));
@@ -1247,7 +1247,7 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,const wchar_t *HelpTopi
 		// анализ количества строк и разбивка на пункты
 		wchar_t *MsgTemp;
 
-		while ((MsgTemp = wcschr(Msg, L'\n')) != nullptr)
+		while ((MsgTemp = wcschr(Msg, L'\n')) )
 		{
 			*MsgTemp=L'\0';
 			MsgItems[I]=Msg;
@@ -1326,7 +1326,7 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,const wchar_t *HelpTopi
 	// непосредственно... вывод
 	Frame *frame;
 
-	if ((frame=FrameManager->GetBottomFrame()) != nullptr)
+	if ((frame=FrameManager->GetBottomFrame()) )
 		frame->Lock(); // отменим прорисовку фрейма
 
 	int MsgCode=Message(Flags,ButtonsNumber,MsgItems[0],MsgItems+1,ItemsNumber-1,PluginNumber);
@@ -1334,7 +1334,7 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,const wchar_t *HelpTopi
 	/* $ 15.05.2002 SKV
 	  Однако разлочивать надо ровно то, что залочили.
 	*/
-	if (frame != nullptr)
+	if (frame )
 		frame->Unlock(); // теперь можно :-)
 
 	//CheckScreenLock();
@@ -1354,7 +1354,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,int Param1,LONG_PTR Param2)
 	_ALGO(SysLog(L"(hPlugin=0x%08X, Command=%s, Param1=[%d/0x%08X], Param2=[%d/0x%08X])",hPlugin,_FCTL_ToName(Command),(int)Param1,Param1,(int)Param2,Param2));
 
 	if (Command == FCTL_CHECKPANELSEXIST)
-		return Opt.OnlyEditorViewerUsed == 0 ? TRUE : FALSE;
+		return Opt.OnlyEditorViewerUsed? FALSE:TRUE;
 
 	if (Opt.OnlyEditorViewerUsed || !CtrlObject || !FrameManager || FrameManager->ManagerIsDown())
 		return 0;
@@ -1442,7 +1442,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,int Param1,LONG_PTR Param2)
 		case FCTL_SETUSERSCREEN:
 		{
 			if (!FPanels || !FPanels->LeftPanel || !FPanels->RightPanel)
-				return(FALSE);
+				return FALSE;
 
 			KeepUserScreen++;
 			FPanels->LeftPanel->ProcessingPluginCommand++;
@@ -1458,7 +1458,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,int Param1,LONG_PTR Param2)
 			KeepUserScreen--;
 			FPanels->LeftPanel->ProcessingPluginCommand--;
 			FPanels->RightPanel->ProcessingPluginCommand--;
-			return(TRUE);
+			return TRUE;
 		}
 		case FCTL_GETUSERSCREEN:
 		{
@@ -1560,7 +1560,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,int Param1,LONG_PTR Param2)
 		}
 	}
 
-	return(FALSE);
+	return FALSE;
 }
 
 
@@ -1584,7 +1584,7 @@ void WINAPI FarRestoreScreen(HANDLE hScreen)
 	if (DisablePluginsOutput || FrameManager->ManagerIsDown())
 		return;
 
-	if (hScreen==nullptr)
+	if (!hScreen)
 		ScrBuf.FillBuf();
 
 	if (hScreen)
@@ -1620,7 +1620,7 @@ int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pIte
 
 		while (ScTree.GetNextName(&FindData,strFullName))
 		{
-			if ((ItemsNumber & 31)==0)
+			if (!(ItemsNumber & 31))
 			{
 				if (CheckForEsc())
 				{
@@ -1639,7 +1639,7 @@ int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pIte
 
 				ItemsList=(FAR_FIND_DATA*)xf_realloc(ItemsList,sizeof(*ItemsList)*(ItemsNumber+32+1));
 
-				if (ItemsList==nullptr)
+				if (!ItemsList)
 				{
 					return FALSE;
 				}
@@ -1695,7 +1695,7 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
 		return FALSE;
 
 	{
-		if (StrCmp(Dir,L".")==0 || TestParentFolderName(Dir))
+		if (!StrCmp(Dir,L".") || TestParentFolderName(Dir))
 			return FALSE;
 
 		static PluginHandle DirListPlugin;
@@ -1749,7 +1749,7 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
 					OpenPluginInfo NewInfo;
 					CtrlObject->Plugins.GetOpenPluginInfo(hDirListPlugin,&NewInfo);
 
-					if (StrCmpI(strPrevDir, NewInfo.CurDir) !=0)
+					if (StrCmpI(strPrevDir, NewInfo.CurDir) )
 					{
 						PluginPanelItem *PanelData=nullptr;
 						int ItemCount=0;
@@ -1779,7 +1779,7 @@ static void CopyPluginDirItem(PluginPanelItem *CurPanelItem)
 	strFullName += CurPanelItem->FindData.lpwszFileName;
 	wchar_t *lpwszFullName = strFullName.GetBuffer();
 
-	for (int I=0; lpwszFullName[I]!=0; I++)
+	for (int I=0; lpwszFullName[I]; I++)
 		if (lpwszFullName[I]==L'\x1')
 			lpwszFullName[I]=L'\\';
 
@@ -1808,9 +1808,9 @@ void ScanPluginDir()
 	strDirName = strPluginSearchPath;
 	wchar_t *lpwszDirName = strDirName.GetBuffer();
 
-	for (int i=0; lpwszDirName[i]!=0; i++)
+	for (int i=0; lpwszDirName[i]; i++)
 		if (lpwszDirName[i]=='\x1')
-			lpwszDirName[i]=lpwszDirName[i+1]==0 ? 0:L'\\';
+			lpwszDirName[i]=lpwszDirName[i+1]?L'\\':0;
 
 	strDirName.ReleaseBuffer();
 	TruncStr(strDirName,30);
@@ -1832,7 +1832,7 @@ void ScanPluginDir()
 
 	PluginPanelItem *NewList=(PluginPanelItem *)xf_realloc(PluginDirList,1+sizeof(*PluginDirList)*(DirListItemsNumber+ItemCount));
 
-	if (NewList==nullptr)
+	if (!NewList)
 	{
 		StopSearch=TRUE;
 		return;
@@ -1844,7 +1844,7 @@ void ScanPluginDir()
 	{
 		PluginPanelItem *CurPanelItem=PanelData+i;
 
-		if ((CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
+		if (!(CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 			CopyPluginDirItem(CurPanelItem);
 	}
 
@@ -1853,12 +1853,12 @@ void ScanPluginDir()
 		PluginPanelItem *CurPanelItem=PanelData+i;
 
 		if ((CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
-		        StrCmp(CurPanelItem->FindData.lpwszFileName,L".")!=0 &&
+		        StrCmp(CurPanelItem->FindData.lpwszFileName,L".") &&
 		        !TestParentFolderName(CurPanelItem->FindData.lpwszFileName))
 		{
 			PluginPanelItem *NewList=(PluginPanelItem *)xf_realloc(PluginDirList,sizeof(*PluginDirList)*(DirListItemsNumber+1));
 
-			if (NewList==nullptr)
+			if (!NewList)
 			{
 				StopSearch=TRUE;
 				return;
@@ -1913,7 +1913,7 @@ void WINAPI FarFreeDirList(FAR_FIND_DATA *PanelItem, int nItemsNumber)
 
 void WINAPI FarFreePluginDirList(PluginPanelItem *PanelItem, int ItemsNumber)
 {
-	if (PanelItem==nullptr)
+	if (!PanelItem)
 		return;
 
 	for (int I=0; I<ItemsNumber; I++)
@@ -1961,7 +1961,7 @@ int WINAPI FarViewer(const wchar_t *FileName,const wchar_t *Title,
 		if (Flags & (VF_DELETEONCLOSE|VF_DELETEONLYFILEONCLOSE))
 			Viewer->SetTempViewName(FileName,(Flags&VF_DELETEONCLOSE)?TRUE:FALSE);
 
-		Viewer->SetEnableF6((Flags & VF_ENABLE_F6) != 0);
+		Viewer->SetEnableF6((Flags & VF_ENABLE_F6) );
 
 		/* $ 21.05.2002 SKV
 		  Запускаем свой цикл только если не был указан флаг.
@@ -1995,7 +1995,7 @@ int WINAPI FarViewer(const wchar_t *FileName,const wchar_t *Title,
 		if (Flags & (VF_DELETEONCLOSE|VF_DELETEONLYFILEONCLOSE))
 			Viewer.SetTempViewName(FileName,(Flags&VF_DELETEONCLOSE)?TRUE:FALSE);
 
-		Viewer.SetEnableF6((Flags & VF_ENABLE_F6) != 0);
+		Viewer.SetEnableF6((Flags & VF_ENABLE_F6) );
 
 		if (!Viewer.GetExitCode())
 		{
@@ -2003,7 +2003,7 @@ int WINAPI FarViewer(const wchar_t *FileName,const wchar_t *Title,
 		}
 	}
 
-	return(TRUE);
+	return TRUE;
 }
 
 
@@ -2044,7 +2044,7 @@ int WINAPI FarEditor(
 
 	int OpMode=FEOPMODE_QUERY;
 
-	if ((Flags&EF_OPENMODE_MASK) != 0)
+	if ((Flags&EF_OPENMODE_MASK) )
 		OpMode=Flags&EF_OPENMODE_MASK;
 
 	/*$ 15.05.2002 SKV
@@ -2079,7 +2079,7 @@ int WINAPI FarEditor(
 				return editorExitCode;
 			}
 
-			Editor->SetEnableF6((Flags & EF_ENABLE_F6) != 0);
+			Editor->SetEnableF6((Flags & EF_ENABLE_F6) );
 			Editor->SetPluginTitle(Title);
 
 			/* $ 21.05.2002 SKV - Запускаем свой цикл, только если не был указан флаг. */
@@ -2113,7 +2113,7 @@ int WINAPI FarEditor(
 		else
 		{
 			Editor.SetDynamicallyBorn(false);
-			Editor.SetEnableF6((Flags & EF_ENABLE_F6) != 0);
+			Editor.SetEnableF6((Flags & EF_ENABLE_F6) );
 			Editor.SetPluginTitle(Title);
 			/* $ 15.05.2002 SKV
 			  Зафиксируем вход и выход в/из модального редактора.
@@ -2150,7 +2150,7 @@ void WINAPI FarText(int X,int Y,int Color,const wchar_t *Str)
 	if (DisablePluginsOutput || FrameManager->ManagerIsDown())
 		return;
 
-	if (Str==nullptr)
+	if (!Str)
 	{
 		int PrevLockCount=ScrBuf.GetLockCount();
 		ScrBuf.SetLockCount(0);
@@ -2167,7 +2167,7 @@ void WINAPI FarText(int X,int Y,int Color,const wchar_t *Str)
 int WINAPI FarEditorControl(int Command,void *Param)
 {
 	if (FrameManager->ManagerIsDown() || !CtrlObject->Plugins.CurEditor)
-		return(0);
+		return 0;
 
 	return(CtrlObject->Plugins.CurEditor->EditorControl(Command,Param));
 }
@@ -2175,7 +2175,7 @@ int WINAPI FarEditorControl(int Command,void *Param)
 int WINAPI FarViewerControl(int Command,void *Param)
 {
 	if (FrameManager->ManagerIsDown() || !CtrlObject->Plugins.CurViewer)
-		return(0);
+		return 0;
 
 	return(CtrlObject->Plugins.CurViewer->ViewerControl(Command,Param));
 }
@@ -2297,7 +2297,7 @@ int WINAPI farGetReparsePointInfo(const wchar_t *Src,wchar_t *Dest,int DestSize)
 		string strDest;
 		AddEndSlash(strDest);
 		DWORD Size=GetReparsePointInfo(strSrc,strDest,nullptr);
-		_LOGCOPYR(SysLog(L"return -> %d strSrc='%s', strDest='%s'",__LINE__,(const wchar_t *)strSrc,(const wchar_t *)strDest));
+		_LOGCOPYR(SysLog(L"return -> %d strSrc='%s', strDest='%s'",__LINE__,strSrc.CPtr(),strDest.CPtr()));
 
 		if (DestSize && Dest)
 			xwcsncpy(Dest,strDest,DestSize);
@@ -2338,7 +2338,7 @@ int WINAPI farPluginsControl(HANDLE hHandle, int Command, int Param1, LONG_PTR P
 		{
 			if (Param1 == PLT_PATH)
 			{
-				if (Param2 != 0)
+				if (Param2 )
 				{
 					string strPath;
 					ConvertNameToFull((const wchar_t *)Param2, strPath);
@@ -2373,7 +2373,7 @@ int WINAPI farFileFilterControl(HANDLE hHandle, int Command, int Param1, LONG_PT
 	{
 		case FFCTL_CREATEFILEFILTER:
 		{
-			if (Param2 == 0)
+			if (!Param2)
 				break;
 
 			*((HANDLE *)Param2) = INVALID_HANDLE_VALUE;
@@ -2418,7 +2418,7 @@ int WINAPI farFileFilterControl(HANDLE hHandle, int Command, int Param1, LONG_PT
 		}
 		case FFCTL_ISFILEINFILTER:
 		{
-			if (Param2 == 0)
+			if (!Param2)
 				break;
 
 			return Filter->FileInFilter((const FAR_FIND_DATA *)Param2) ? TRUE : FALSE;
@@ -2444,7 +2444,7 @@ int WINAPI farRegExpControl(HANDLE hHandle, int Command, LONG_PTR Param)
 	{
 		case RECTL_CREATE:
 
-			if (Param == 0)
+			if (!Param)
 				break;
 
 			*((HANDLE*)Param) = INVALID_HANDLE_VALUE;

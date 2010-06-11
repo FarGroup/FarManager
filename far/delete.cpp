@@ -101,7 +101,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 	           (SrcPanel->IsDizDisplayed() &&
 	            Opt.Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED));
 
-	if ((SelCount=SrcPanel->GetSelCount())==0)
+	if (!(SelCount=SrcPanel->GetSelCount()))
 		goto done;
 
 	// Удаление в корзину только для  FIXED-дисков
@@ -198,7 +198,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 				goto done;
 			}
 
-			if (Ret != 0)
+			if (Ret )
 				goto done;
 		}
 	}
@@ -240,7 +240,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 
 		SetMessageHelp(L"DeleteFile");
 
-		if (Message(0,2,TitleMsg,DelMsg,strDeleteFilesMsg,MSG(Wipe?MDeleteWipe:MDelete),MSG(MCancel))!=0)
+		if (Message(0,2,TitleMsg,DelMsg,strDeleteFilesMsg,MSG(Wipe?MDeleteWipe:MDelete),MSG(MCancel)))
 		{
 			NeedUpdate=FALSE;
 			goto done;
@@ -254,7 +254,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 		SetMessageHelp(L"DeleteFile");
 
 		if (Message(MSG_WARNING,2,MSG(Wipe?MWipeFilesTitle:MDeleteFilesTitle),MSG(Wipe?MAskWipe:MAskDelete),
-		            strDeleteFilesMsg,MSG(MDeleteFileAll),MSG(MDeleteFileCancel))!=0)
+		            strDeleteFilesMsg,MSG(MDeleteFileAll),MSG(MDeleteFileCancel)))
 		{
 			NeedUpdate=FALSE;
 			goto done;
@@ -342,7 +342,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 		{
 			int Length=(int)strSelName.GetLength();
 
-			if (Length==0 || (strSelName.At(0)==L'\\' && Length<2) ||
+			if (!Length || (strSelName.At(0)==L'\\' && Length<2) ||
 			        (strSelName.At(1)==L':' && Length<4))
 				continue;
 
@@ -393,7 +393,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 					}
 				}
 
-				bool DirSymLink=(FileAttr&FILE_ATTRIBUTE_DIRECTORY && FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)!=0;
+				bool DirSymLink=(FileAttr&FILE_ATTRIBUTE_DIRECTORY && FileAttr&FILE_ATTRIBUTE_REPARSE_POINT);
 
 				if (!DirSymLink && (!Opt.DeleteToRecycleBin || Wipe))
 				{
@@ -654,7 +654,7 @@ int AskDeleteReadOnly(const wchar_t *Name,DWORD Attr,int Wipe)
 {
 	int MsgCode;
 
-	if ((Attr & FILE_ATTRIBUTE_READONLY)==0)
+	if (!(Attr & FILE_ATTRIBUTE_READONLY))
 		return(DELETE_YES);
 
 	if (!Opt.Confirm.RO)
@@ -1002,9 +1002,9 @@ int DeleteFileWithFolder(const wchar_t *FileName)
 
 void DeleteDirTree(const wchar_t *Dir)
 {
-	if (*Dir==0 ||
-	        (IsSlash(Dir[0]) && Dir[1]==0) ||
-	        (Dir[1]==L':' && IsSlash(Dir[2]) && Dir[3]==0))
+	if (!*Dir ||
+	        (IsSlash(Dir[0]) && !Dir[1]) ||
+	        (Dir[1]==L':' && IsSlash(Dir[2]) && !Dir[3]))
 		return;
 
 	string strFullName;

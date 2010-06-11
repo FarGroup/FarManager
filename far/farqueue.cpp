@@ -66,7 +66,7 @@ FarQueue<Object>::~FarQueue()
 template <class Object>
 BOOL FarQueue<Object>::isEmpty() const
 {
-	return CurrentSize == 0;
+	return !CurrentSize;
 }
 
 template <class Object>
@@ -89,7 +89,7 @@ int FarQueue<Object>::Init(int SizeQueue)
 	CurrentSize=0;
 	Front=0;
 	Back=-1;
-	return Size != 0;
+	return Size ;
 }
 
 template <class Object>

@@ -90,7 +90,7 @@ int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
 	const wchar_t *Str[]={Str1,Str2,Str3,Str4,Str5,Str6,Str7,Str8,Str9,Str10,Str11,Str12,Str13,Str14};
 	int StrCount=0;
 
-	while (StrCount<(int)ARRAYSIZE(Str) && Str[StrCount]!=nullptr)
+	while (StrCount<(int)ARRAYSIZE(Str) && Str[StrCount])
 		StrCount++;
 
 	return Message(Flags,Buttons,Title,Str,StrCount,PluginNumber);
@@ -244,7 +244,7 @@ int Message(
 		PtrStr = strErrStr.GetBuffer();
 
 		//BUGBUG: string не преднозначен для хранения строк разделённых \0
-		while ((PtrStr=wcschr(PtrStr,L'\n')) != nullptr)
+		while ((PtrStr=wcschr(PtrStr,L'\n')) )
 		{
 			*PtrStr++=0;
 
@@ -523,7 +523,7 @@ int Message(
 	*/
 	xf_free(Str);
 
-	if (Buttons==0)
+	if (!Buttons)
 	{
 		if (ScrBuf.GetLockCount()>0 && !CtrlObject->Macro.PeekKey())
 			ScrBuf.SetLockCount(0);
@@ -531,7 +531,7 @@ int Message(
 		ScrBuf.Flush();
 	}
 
-	return(0);
+	return 0;
 }
 
 

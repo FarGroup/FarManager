@@ -149,7 +149,7 @@ ControlObject::~ControlObject()
 
 	_OT(SysLog(L"[%p] ControlObject::~ControlObject()", this));
 
-	if (Cp()&&Cp()->ActivePanel!=nullptr)
+	if (Cp()&&Cp()->ActivePanel)
 	{
 		if (Opt.AutoSaveSetup)
 			SaveConfig(0);

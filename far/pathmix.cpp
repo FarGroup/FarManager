@@ -209,7 +209,7 @@ const wchar_t* PointToName(const wchar_t *lpwszPath,const wchar_t *lpwszEndPtr)
 	if (!lpwszPath)
 		return nullptr;
 
-	if (*lpwszPath!=0 && *(lpwszPath+1)==L':') lpwszPath+=2;
+	if (*lpwszPath && *(lpwszPath+1)==L':') lpwszPath+=2;
 
 	const wchar_t *lpwszNamePtr = lpwszEndPtr;
 
@@ -343,7 +343,7 @@ BOOL AddEndSlash(wchar_t *Path, wchar_t TypeSlash)
 		char c=(Slash<BackSlash)?L'/':L'\\';
 		Result=TRUE;
 
-		if (Length==0)
+		if (!Length)
 		{
 			*end=c;
 			end[1]=0;
@@ -629,7 +629,7 @@ size_t GetPathRootLength(const string &Path)
 		IsUNC = true;
 	}
 
-	if ((PrefixLen == 0) && !Path.Equal(1, L':'))
+	if (!PrefixLen && !Path.Equal(1, L':'))
 		return 0;
 
 	size_t p;

@@ -517,7 +517,7 @@ int WINAPI GetString(
 		StrDlg[2].Flags|=DIF_EDITPATH;
 	}
 
-	if (HistoryName!=nullptr)
+	if (HistoryName)
 	{
 		StrDlg[2].History=HistoryName;
 		StrDlg[2].Flags|=DIF_HISTORY|(Flags&FIB_NOUSELASTHISTORY?0:DIF_USELASTHISTORY);
@@ -545,7 +545,7 @@ int WINAPI GetString(
 		Dialog Dlg(StrDlg,ARRAYSIZE(StrDlg)-Substract,GetStringDlgProc);
 		Dlg.SetPosition(-1,-1,76,offset+((Flags&FIB_BUTTONS)?8:6));
 
-		if (HelpTopic!=nullptr)
+		if (HelpTopic)
 			Dlg.SetHelp(HelpTopic);
 
 #if 0
@@ -574,17 +574,17 @@ int WINAPI GetString(
 	if (ExitCode == 2 || ExitCode == 4 || (addCheckBox && ExitCode == 6))
 	{
 		if (!(Flags&FIB_ENABLEEMPTY) && StrDlg[2].strData.IsEmpty())
-			return(FALSE);
+			return FALSE;
 
 		strDestText = StrDlg[2].strData;
 
 		if (addCheckBox)
 			*CheckBoxValue=StrDlg[4].Selected;
 
-		return(TRUE);
+		return TRUE;
 	}
 
-	return(FALSE);
+	return FALSE;
 }
 
 /*
@@ -632,7 +632,7 @@ int WINAPI GetNameAndPassword(const wchar_t *Title, string &strUserName, string 
 		Dialog Dlg(PassDlg,ARRAYSIZE(PassDlg));
 		Dlg.SetPosition(-1,-1,76,10);
 
-		if (HelpTopic!=nullptr)
+		if (HelpTopic)
 			Dlg.SetHelp(HelpTopic);
 
 		Dlg.Process();
@@ -640,12 +640,12 @@ int WINAPI GetNameAndPassword(const wchar_t *Title, string &strUserName, string 
 	}
 
 	if (ExitCode!=6)
-		return(FALSE);
+		return FALSE;
 
 	// запоминаем всегда.
 	strUserName = PassDlg[2].strData;
 	strLastName = strUserName;
 	strPassword = PassDlg[4].strData;
 	strLastPassword = strPassword;
-	return(TRUE);
+	return TRUE;
 }

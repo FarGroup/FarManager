@@ -702,7 +702,7 @@ string &PrepareDriveNameStr(string &strSearchFromRoot)
 bool IsWordDiv(const wchar_t symbol)
 {
 	// Так же разделителем является конец строки и пробельные символы
-	return symbol==0||IsSpace(symbol)||IsEol(symbol)||IsWordDiv(Opt.strWordDiv,symbol);
+	return !symbol||IsSpace(symbol)||IsEol(symbol)||IsWordDiv(Opt.strWordDiv,symbol);
 }
 
 void SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,bool UpdatePanel=false)
@@ -913,7 +913,7 @@ LONG_PTR WINAPI MainDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 					SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 					string strDataStr;
 					Transform(strDataStr,(LPCWSTR)SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,Param2?FAD_EDIT_TEXT:FAD_EDIT_HEX,0),Param2?L'X':L'S');
-					SendDlgMessage(hDlg,DM_SETTEXTPTR,Param2?FAD_EDIT_HEX:FAD_EDIT_TEXT,(LONG_PTR)(const wchar_t*)strDataStr);
+					SendDlgMessage(hDlg,DM_SETTEXTPTR,Param2?FAD_EDIT_HEX:FAD_EDIT_TEXT,(LONG_PTR)strDataStr.CPtr());
 					SendDlgMessage(hDlg,DM_SHOWITEM,FAD_EDIT_TEXT,!Param2);
 					SendDlgMessage(hDlg,DM_SHOWITEM,FAD_EDIT_HEX,Param2);
 					SendDlgMessage(hDlg,DM_ENABLE,FAD_TEXT_CP,!Param2);
@@ -921,7 +921,7 @@ LONG_PTR WINAPI MainDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 					SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_CASE,!Param2);
 					SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_WHOLEWORDS,!Param2);
 					SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_DIRS,!Param2);
-					SendDlgMessage(hDlg,DM_SETTEXTPTR,FAD_TEXT_TEXTHEX,(LONG_PTR)(const wchar_t*)(Param2?MSG(MFindFileHex):MSG(MFindFileText)));
+					SendDlgMessage(hDlg,DM_SETTEXTPTR,FAD_TEXT_TEXTHEX,(LONG_PTR)(Param2?MSG(MFindFileHex):MSG(MFindFileText)));
 
 					if (strDataStr.GetLength()>0)
 					{
@@ -1104,7 +1104,7 @@ bool GetPluginFile(size_t ArcIndex, const FAR_FIND_DATA_EX& FindData, const wcha
 
 			if (!StrCmp(lpFileNameToFind,Item.FindData.lpwszFileName) && !StrCmp(lpFileNameToFindShort,Item.FindData.lpwszAlternateFileName))
 			{
-				nResult=(CtrlObject->Plugins.GetFile(ArcItem.hPlugin,&Item,DestPath,strResultName,OPM_SILENT)!=0);
+				nResult=CtrlObject->Plugins.GetFile(ArcItem.hPlugin,&Item,DestPath,strResultName,OPM_SILENT)!=0;
 				break;
 			}
 		}
@@ -1128,7 +1128,7 @@ const int FindStringBMH(const wchar_t* searchBuffer, size_t searchBufferCount)
 	while (searchBufferCount>=findStringCount)
 	{
 		for (size_t index = lastBufferChar; buffer[index]==findString[index] || (CmpCase ? 0 : buffer[index]==findStringLower[index]); index--)
-			if (index == 0)
+			if (!index)
 				return static_cast<int>(buffer-searchBuffer);
 
 		size_t offset = skipCharsTable[buffer[lastBufferChar]];
@@ -1148,7 +1148,7 @@ const int FindStringBMH(const unsigned char* searchBuffer, size_t searchBufferCo
 	while (searchBufferCount>=hexFindStringSize)
 	{
 		for (size_t index = lastBufferChar; buffer[index]==hexFindString[index]; index--)
-			if (index == 0)
+			if (!index)
 				return static_cast<int>(buffer-searchBuffer);
 
 		size_t offset = skipCharsTable[buffer[lastBufferChar]];
@@ -1168,7 +1168,7 @@ int LookForString(const wchar_t *Name)
 	size_t findStringCount;
 
 	// Если строки поиска пустая, то считаем, что мы всегда что-нибудь найдём
-	if ((findStringCount = strFindStr.GetLength()) == 0)
+	if (!(findStringCount = strFindStr.GetLength()))
 		return (TRUE);
 
 	// Результат поиска
@@ -1218,7 +1218,7 @@ int LookForString(const wchar_t *Name)
 		if (SearchHex)
 		{
 			// Выходим, если ничего не прочитали или прочитали мало
-			if (readBlockSize == 0 || readBlockSize<hexFindStringSize)
+			if (!readBlockSize || readBlockSize<hexFindStringSize)
 				RETURN(FALSE)
 
 				// Ищем
@@ -1244,7 +1244,7 @@ int LookForString(const wchar_t *Name)
 					}
 
 				// Если ничего не прочитали
-				if (readBlockSize == 0)
+				if (!readBlockSize)
 					// Если поиск по словам и в конце предыдущего блока было что-то найдено,
 					// то считаем, что нашли то, что нужно
 					CONTINUE(WholeWords && cpi->WordFound)
@@ -1353,7 +1353,7 @@ int LookForString(const wchar_t *Name)
 					bool firstWordDiv = false;
 
 					// Если мы находимся вначале блока
-					if (index == 0)
+					if (!index)
 					{
 						// Если мы находимся вначале файла, то считаем, что разделитель есть
 						// Если мы находимся вначале блока, то проверяем является
@@ -1433,7 +1433,7 @@ bool IsFileIncluded(PluginPanelItem* FileItem, const wchar_t *FullName, DWORD Fi
 	while (FileFound)
 	{
 		// Если включен режим поиска hex-кодов, тогда папки в поиск не включаем
-		if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && ((Opt.FindOpt.FindFolders==0) || SearchHex))
+		if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (!Opt.FindOpt.FindFolders || SearchHex))
 			return FALSE;
 
 		if (!strFindStr.IsEmpty() && FileFound)
@@ -1511,7 +1511,7 @@ LONG_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 			{
 				string strDataStr;
 				strDataStr.Format(MSG(MFindFound), itd.GetFileCount(), itd.GetDirCount());
-				SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(LONG_PTR)(const wchar_t*)strDataStr);
+				SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(LONG_PTR)strDataStr.CPtr());
 
 				string strSearchStr;
 
@@ -1521,7 +1521,7 @@ LONG_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 					TruncStrFromEnd(strFStr,10);
 					string strTemp(L" \"");
 					strTemp+=strFStr+="\"";
-					strSearchStr.Format(MSG(MFindSearchingIn), (const wchar_t*)strTemp);
+					strSearchStr.Format(MSG(MFindSearchingIn), strTemp.CPtr());
 				}
 				else
 					strSearchStr.Format(MSG(MFindSearchingIn), L"");
@@ -1887,7 +1887,7 @@ LONG_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 																				TruncPathStr(MsgFullFileName,ScrX-16),
 																				MSG(MAskReload),
 																				MSG(MCurrent),MSG(MNewOpen));
-																	if (MsgCode==0)
+																	if (!MsgCode)
 																	{
 																		SwitchTo=TRUE;
 																	}
@@ -2183,7 +2183,7 @@ void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& 
 	}
 	AddEndSlash(strPathName);
 
-	if (StrCmpI(strPathName,strLastDirName)!=0)
+	if (StrCmpI(strPathName,strLastDirName))
 	{
 		if (ListBox->GetItemCount())
 		{
@@ -2206,7 +2206,7 @@ void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& 
 				if (!IsSlash(strPathName.At(0)))
 					AddEndSlash(strArcPathName);
 
-				strArcPathName+=(!StrCmp(strPathName,L".\\")?L"\\":(const wchar_t*)strPathName);
+				strArcPathName+=(!StrCmp(strPathName,L".\\")?L"\\":strPathName.CPtr());
 				strPathName = strArcPathName;
 			}
 		}
@@ -2392,7 +2392,7 @@ void DoScanTree(HANDLE hDlg, string& strRoot)
 			if (!CtrlObject->Cp()->ActivePanel->GetSelName(&strSelName,FileAttr))
 				break;
 
-			if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0 || TestParentFolderName(strSelName) || StrCmp(strSelName,L".")==0)
+			if (!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) || TestParentFolderName(strSelName) || !StrCmp(strSelName,L"."))
 				continue;
 
 			strCurRoot = strRoot;
@@ -2565,7 +2565,7 @@ void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, DWORD Flags, int& RecurseLevel)
 			string strCurName=CurPanelItem->FindData.lpwszFileName;
 			string strFullName;
 
-			if (StrCmp(strCurName,L".")==0 || TestParentFolderName(strCurName))
+			if (!StrCmp(strCurName,L".") || TestParentFolderName(strCurName))
 				continue;
 
 			strFullName = strPluginSearchPath;
@@ -2596,7 +2596,7 @@ void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, DWORD Flags, int& RecurseLevel)
 			string strCurName=CurPanelItem->FindData.lpwszFileName;
 
 			if ((CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
-			        StrCmp(strCurName,L".")!=0 && !TestParentFolderName(strCurName) &&
+			        StrCmp(strCurName,L".") && !TestParentFolderName(strCurName) &&
 			        (!UseFilter || Filter->FileInFilter(&CurPanelItem->FindData)) &&
 			        (SearchMode!=FINDAREA_SELECTED || RecurseLevel!=1 ||
 			         CtrlObject->Cp()->ActivePanel->IsSelected(strCurName)))
@@ -2669,10 +2669,10 @@ void DoPrepareFileList(HANDLE hDlg)
 		if (SearchMode==FINDAREA_ALL ||
 		        SearchMode==FINDAREA_ALL_BUTNETWORK)
 		{
-			if (DiskMask==0)
+			if (!DiskMask)
 				break;
 
-			if ((DiskMask & 1)==0)
+			if (!(DiskMask & 1))
 				continue;
 
 			const wchar_t Root[]={L'A'+CurrentDisk,L':',L'\\',L'\0'};
@@ -2846,7 +2846,7 @@ bool FindFilesProcess(Vars& v)
 		if (itd.GetFindFileArcIndex() == LIST_INDEX_NONE)
 			return false;
 
-		if ((Info.Flags & OPIF_REALNAMES)==0)
+		if (!(Info.Flags & OPIF_REALNAMES))
 		{
 			FindDlg[FD_BUTTON_PANEL].Type=DI_TEXT;
 			FindDlg[FD_BUTTON_PANEL].strData.Clear();
@@ -2907,7 +2907,7 @@ bool FindFilesProcess(Vars& v)
 				size_t ListSize = itd.GetFindListCount();
 				PluginPanelItem *PanelItems=new PluginPanelItem[ListSize];
 
-				if (PanelItems==nullptr)
+				if (!PanelItems)
 					ListSize=0;
 
 				int ItemsNumber=0;
@@ -3046,7 +3046,7 @@ bool FindFilesProcess(Vars& v)
 							strSetName.SetLength(Pos);
 					}
 
-					strFileName.SetLength(NamePtr-(const wchar_t *)strFileName);
+					strFileName.SetLength(NamePtr-strFileName.CPtr());
 					Length=strFileName.GetLength();
 
 					if (Length>1 && IsSlash(strFileName.At(Length-1)) && strFileName.At(Length-2)!=L':')

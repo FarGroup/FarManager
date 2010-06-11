@@ -111,7 +111,7 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
 	SetMaxHeight(MaxHeight);
 	SetColors(nullptr); //”становим цвет по умолчанию
 
-	if (!CheckFlags(VMENU_LISTBOX) && CtrlObject!=nullptr)
+	if (!CheckFlags(VMENU_LISTBOX) && CtrlObject)
 	{
 		PrevMacroMode = CtrlObject->Macro.GetMode();
 
@@ -125,7 +125,7 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
 
 VMenu::~VMenu()
 {
-	if (!CheckFlags(VMENU_LISTBOX) && CtrlObject!=nullptr)
+	if (!CheckFlags(VMENU_LISTBOX) && CtrlObject)
 		CtrlObject->Macro.SetMode(PrevMacroMode);
 
 	bool WasVisible=Flags.Check(FSCROBJ_VISIBLE)!=0;
@@ -147,19 +147,19 @@ VMenu::~VMenu()
 //может иметь фокус
 bool VMenu::ItemCanHaveFocus(DWORD Flags)
 {
-	return (Flags&(LIF_DISABLE|LIF_HIDDEN|LIF_SEPARATOR)) == 0;
+	return !(Flags&(LIF_DISABLE|LIF_HIDDEN|LIF_SEPARATOR));
 }
 
 //может быть выбран
 bool VMenu::ItemCanBeEntered(DWORD Flags)
 {
-	return (Flags&(LIF_DISABLE|LIF_HIDDEN|LIF_GRAYED|LIF_SEPARATOR)) == 0;
+	return !(Flags&(LIF_DISABLE|LIF_HIDDEN|LIF_GRAYED|LIF_SEPARATOR));
 }
 
 //видимый
 bool VMenu::ItemIsVisible(DWORD Flags)
 {
-	return (Flags&(LIF_HIDDEN)) == 0;
+	return !(Flags&(LIF_HIDDEN));
 }
 
 bool VMenu::UpdateRequired()
@@ -440,10 +440,10 @@ int VMenu::AddItem(const MenuItemEx *NewItem,int PosAdd)
 
 	SetFlags(VMENU_UPDATEREQUIRED);
 
-	if ((ItemCount & 255)==0)
+	if (!(ItemCount & 255))
 	{
 		MenuItemEx **NewPtr;
-		if ((NewPtr=(MenuItemEx **)xf_realloc(Item, sizeof(*Item)*(ItemCount+256+1)))==nullptr)
+		if (!(NewPtr=(MenuItemEx **)xf_realloc(Item, sizeof(*Item)*(ItemCount+256+1))))
 			return -1;
 
 		Item=NewPtr;
@@ -526,7 +526,7 @@ int VMenu::DeleteItem(int ID, int Count)
 	if (Count <= 0)
 		return ItemCount;
 
-	if (ID == 0 && Count == ItemCount)
+	if (!ID && Count == ItemCount)
 	{
 		DeleteItems();
 		return ItemCount;
@@ -731,7 +731,7 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_C_EOF:
 			return GetVisualPos(SelectPos)==GetShowItemCount()-1;
 		case MCODE_C_BOF:
-			return GetVisualPos(SelectPos)==0;
+			return !GetVisualPos(SelectPos);
 		case MCODE_C_SELECTED:
 			return ItemCount > 0 && SelectPos >= 0;
 		case MCODE_V_ITEMCOUNT:
@@ -797,7 +797,7 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 					switch (iParam)
 					{
 						case 0: // full compare
-							Res = StrCmpI(strTemp,str)==0;
+							Res = !StrCmpI(strTemp,str);
 							break;
 						case 1: // begin compare
 							p = StrStrI(strTemp,str);
@@ -805,7 +805,7 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							break;
 						case 2: // end compare
 							p = RevStrStrI(strTemp,str);
-							Res = p!=nullptr && *(p+StrLength(str)) == 0;
+							Res = p && !*(p+StrLength(str));
 							break;
 						case 3: // in str
 							Res = StrStrI(strTemp,str)!=nullptr;
@@ -887,7 +887,7 @@ bool VMenu::AddToFilter(const wchar_t *str)
 
 	if (bFilterEnabled && !bFilterLocked)
 	{
-		while ((Key=*str) != 0)
+		while ((Key=*str) )
 		{
 			if( IsFilterEditKey(Key) )
 			{
@@ -935,7 +935,7 @@ int VMenu::ProcessKey(int Key)
 
 	SetFlags(VMENU_UPDATEREQUIRED);
 
-	if (GetShowItemCount()==0)
+	if (!GetShowItemCount())
 	{
 		if ((Key!=KEY_F1 && Key!=KEY_SHIFTF1 && Key!=KEY_F10 && Key!=KEY_ESC && Key!=KEY_ALTF9))
 		{
@@ -1118,7 +1118,7 @@ int VMenu::ProcessKey(int Key)
 			{
 				wchar_t *ClipText=PasteFromClipboard();
 
-				if (ClipText==nullptr)
+				if (!ClipText)
 					return TRUE;
 
 				if ( AddToFilter(ClipText) )
@@ -1170,7 +1170,7 @@ int VMenu::ProcessKey(int Key)
 				}
 				else
 				{
-					if (GetShowItemCount()==0)
+					if (!GetShowItemCount())
 						return TRUE;
 
 					strFilter += (wchar_t)Key;
@@ -1223,13 +1223,13 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 	SetFlags(VMENU_UPDATEREQUIRED);
 
-	if (GetShowItemCount()==0)
+	if (!GetShowItemCount())
 	{
-		if (MouseEvent->dwButtonState && MouseEvent->dwEventFlags==0)
+		if (MouseEvent->dwButtonState && !MouseEvent->dwEventFlags)
 			EndLoop=TRUE;
 
 		Modal::ExitCode=-1;
-		return(FALSE);
+		return FALSE;
 	}
 
 	if (MouseEvent->dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED && MouseEvent->dwEventFlags!=MOUSE_MOVED)
@@ -1262,7 +1262,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			while (IsMouseButtonPressed())
 			{
 				//прокрутка мышью не должна врапить меню
-				if (SelectPos>=0 && GetVisualPos(SelectPos)!=0)
+				if (SelectPos>=0 && GetVisualPos(SelectPos))
 					ProcessKey(KEY_UP);
 
 				ShowMenu(true);
@@ -1347,7 +1347,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 		if (MsPos>=0 && MsPos<ItemCount && ItemCanHaveFocus(Item[MsPos]->Flags))
 		{
-			if (MouseX!=PrevMouseX || MouseY!=PrevMouseY || MouseEvent->dwEventFlags==0)
+			if (MouseX!=PrevMouseX || MouseY!=PrevMouseY || !MouseEvent->dwEventFlags)
 			{
 				/* TODO:
 
@@ -1372,10 +1372,10 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 			/* $ 13.10.2001 VVM
 			  + «апомнить нажатие клавиши мышки и только в этом случае реагировать при отпускании */
-			if (MouseEvent->dwEventFlags==0 && (MouseEvent->dwButtonState & (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED)))
+			if (!MouseEvent->dwEventFlags && (MouseEvent->dwButtonState & (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED)))
 				SetFlags(VMENU_MOUSEDOWN);
 
-			if (MouseEvent->dwEventFlags==0 && (MouseEvent->dwButtonState & (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED))==0 && CheckFlags(VMENU_MOUSEDOWN))
+			if (!MouseEvent->dwEventFlags && (MouseEvent->dwButtonState & !(FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED)) && CheckFlags(VMENU_MOUSEDOWN))
 			{
 				ClearFlags(VMENU_MOUSEDOWN);
 				ProcessKey(KEY_ENTER);
@@ -1384,7 +1384,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 		return TRUE;
 	}
-	else if (BoxType!=NO_BOX && (MouseEvent->dwButtonState & 3) && MouseEvent->dwEventFlags==0)
+	else if (BoxType!=NO_BOX && (MouseEvent->dwButtonState & 3) && !MouseEvent->dwEventFlags)
 	{
 		ProcessKey(KEY_ESC);
 
@@ -1449,7 +1449,7 @@ bool VMenu::ShiftItemShowPos(int Pos, int Direct)
 	else
 		_len = HiStrlen(Item[Pos]->strName);
 
-	if (_len < MaxLineWidth || (Direct < 0 && ItemShowPos==0) || (Direct > 0 && ItemShowPos > _len))
+	if (_len < MaxLineWidth || (Direct < 0 && !ItemShowPos) || (Direct > 0 && ItemShowPos > _len))
 		return false;
 
 	if (VMFlags.Check(VMENU_SHOWAMPERSAND))
@@ -1532,7 +1532,7 @@ void VMenu::Show()
 
 			if (Y1 == -1)
 			{
-				if (MaxHeight!=0 && MaxHeight<GetShowItemCount())
+				if (MaxHeight && MaxHeight<GetShowItemCount())
 					Y1 = (ScrY-MaxHeight-2)/2;
 				else if ((Y1=(ScrY-GetShowItemCount()-2)/2) < 0)
 					Y1 = 0;
@@ -1543,7 +1543,7 @@ void VMenu::Show()
 
 		if (Y2 <= 0)
 		{
-			if (MaxHeight!=0 && MaxHeight<GetShowItemCount())
+			if (MaxHeight && MaxHeight<GetShowItemCount())
 				Y2 = Y1 + MaxHeight + 1;
 			else
 				Y2 = Y1 + GetShowItemCount() + 1;
@@ -1606,7 +1606,7 @@ void VMenu::DisplayObject()
 
 	SetCursorType(0,10);
 
-	if (!CheckFlags(VMENU_LISTBOX) && SaveScr==nullptr)
+	if (!CheckFlags(VMENU_LISTBOX) && !SaveScr)
 	{
 		if (!CheckFlags(VMENU_DISABLEDRAWBACKGROUND) && !(BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX))
 			SaveScr = new SaveScreen(X1-2,Y1-1,X2+4,Y2+2);
@@ -1856,19 +1856,19 @@ void VMenu::ShowMenu(bool IsParent)
 
 				if (I>0 && I<ItemCount-1 && SepWidth>3)
 				{
-					for (unsigned int J=0; Ptr[J+3]!=0; J++)
+					for (unsigned int J=0; Ptr[J+3]; J++)
 					{
 						wchar_t PrevItem = (Item[I-1]->strName.GetLength()>=J) ? Item[I-1]->strName.At(J) : 0;
 						wchar_t NextItem = (Item[I+1]->strName.GetLength()>=J) ? Item[I+1]->strName.At(J) : 0;
 
-						if (PrevItem==0 && NextItem==0)
+						if (!PrevItem && !NextItem)
 							break;
 
 						if (PrevItem==BoxSymbols[BS_V1])
 						{
 							int Correction = 0;
 
-							if (!CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I-1]->strName,L'&',J)!=nullptr)
+							if (!CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I-1]->strName,L'&',J))
 								Correction = 1;
 
 							if (NextItem==BoxSymbols[BS_V1])
@@ -1880,7 +1880,7 @@ void VMenu::ShowMenu(bool IsParent)
 						{
 							int Correction = 0;
 
-							if (!CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I+1]->strName,L'&',J)!=nullptr)
+							if (!CheckFlags(VMENU_SHOWAMPERSAND) && wmemchr(Item[I+1]->strName,L'&',J))
 								Correction = 1;
 
 							Ptr[J-Correction+(BoxType==NO_BOX?1:2)] = BoxSymbols[BS_T_H1V1];
@@ -2182,7 +2182,7 @@ void VMenu::AssignHighlights(int Reverse)
 		const wchar_t *Name = Item[I]->strName.CPtr() + ShowPos;
 		const wchar_t *ChPtr = wcschr(Name, L'&');
 
-		if (ChPtr==nullptr || CheckFlags(VMENU_SHOWAMPERSAND))
+		if (!ChPtr || CheckFlags(VMENU_SHOWAMPERSAND))
 		{
 			// TODO: проверка на LIF_HIDDEN
 			for (int J=0; Name[J]; J++)
@@ -2581,7 +2581,7 @@ void *VMenu::_GetUserData(MenuItemEx *PItem, void *Data, int Size)
 	int DataSize = PItem->UserDataSize;
 	char *PtrData = PItem->UserData; // PtrData содержит: либо указатель на что-то либо sizeof(void*)!
 
-	if (Size > 0 && Data != nullptr)
+	if (Size > 0 && Data )
 	{
 		if (PtrData) // данные есть?
 		{
@@ -2642,7 +2642,7 @@ int VMenu::_SetUserData(MenuItemEx *PItem,
 			if (SizeReal > (int)sizeof(PItem->UserData))
 			{
 				// ...значит выдел€ем нужную пам€ть.
-				if ((PItem->UserData=(char*)xf_malloc(SizeReal)) != nullptr)
+				if ((PItem->UserData=(char*)xf_malloc(SizeReal)) )
 				{
 					PItem->UserDataSize=SizeReal;
 					memcpy(PItem->UserData,Data,SizeReal);
@@ -2776,7 +2776,7 @@ static int __cdecl SortItem(const MenuItemEx **el1, const MenuItemEx **el2, cons
 	RemoveChar(strName1,L'&',TRUE);
 	RemoveChar(strName2,L'&',TRUE);
 	int Res = StrCmpI(strName1.CPtr()+Param->Offset,strName2.CPtr()+Param->Offset);
-	return (Param->Direction==0?Res:(Res<0?1:(Res>0?-1:0)));
+	return (Param->Direction?(Res<0?1:(Res>0?-1:0)):Res);
 }
 
 static int __cdecl SortItemDataDWORD(const MenuItemEx **el1, const MenuItemEx **el2, const SortItemParam *Param)
@@ -2792,7 +2792,7 @@ static int __cdecl SortItemDataDWORD(const MenuItemEx **el1, const MenuItemEx **
 	else
 		Res=-1;
 
-	return (Param->Direction==0?Res:(Res<0?1:(Res>0?-1:0)));
+	return (Param->Direction?(Res<0?1:(Res>0?-1:0)):Res);
 }
 
 // —ортировка элементов списка

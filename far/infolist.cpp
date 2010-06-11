@@ -285,7 +285,7 @@ void InfoList::DisplayObject()
 	MEMORYSTATUSEX ms={sizeof(ms)};
 	if (GlobalMemoryStatusEx(&ms))
 	{
-		if (ms.dwMemoryLoad==0)
+		if (!ms.dwMemoryLoad)
 			ms.dwMemoryLoad=100-ToPercent64(ms.ullAvailPhys+ms.ullAvailPageFile,ms.ullTotalPhys+ms.ullTotalPageFile);
 
 		GotoXY(X1+2,CurY++);
@@ -345,7 +345,7 @@ void InfoList::DisplayObject()
 
 __int64 InfoList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
-	if (DizView!=nullptr)
+	if (DizView)
 		return DizView->VMProcess(OpCode,vParam,iParam);
 
 	switch (OpCode)
@@ -360,10 +360,10 @@ __int64 InfoList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 int InfoList::ProcessKey(int Key)
 {
 	if (!IsVisible())
-		return(FALSE);
+		return FALSE;
 
 	if (ProcessShortcutFolder(Key,FALSE))
-		return(TRUE);
+		return TRUE;
 
 	switch (Key)
 	{
@@ -383,7 +383,7 @@ int InfoList::ProcessKey(int Key)
 			}
 
 			CtrlObject->Cp()->Redraw();
-			return(TRUE);
+			return TRUE;
 		case KEY_F4:
 			/* $ 30.04.2001 DJ
 			не показываем редактор, если ничего не задано в именах файлов;
@@ -404,7 +404,7 @@ int InfoList::ProcessKey(int Key)
 				string strArgName;
 				const wchar_t *p = Opt.InfoPanel.strFolderInfoFiles;
 
-				while ((p = GetCommaWord(p,strArgName)) != nullptr)
+				while ((p = GetCommaWord(p,strArgName)) )
 				{
 					if (!wcspbrk(strArgName, L"*?"))
 					{
@@ -419,16 +419,16 @@ int InfoList::ProcessKey(int Key)
 			Update(0);
 		}
 		CtrlObject->Cp()->Redraw();
-		return(TRUE);
+		return TRUE;
 		case KEY_CTRLR:
 			Redraw();
-			return(TRUE);
+			return TRUE;
 	}
 
 	/* $ 30.04.2001 DJ
 		обновляем кейбар после нажатия F8, F2 или Shift-F2
 	*/
-	if (DizView!=nullptr && Key>=256)
+	if (DizView && Key>=256)
 	{
 		int ret = DizView->ProcessKey(Key);
 
@@ -454,7 +454,7 @@ int InfoList::ProcessKey(int Key)
 		return(ret);
 	}
 
-	return(FALSE);
+	return FALSE;
 }
 
 
@@ -465,7 +465,7 @@ int InfoList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	if (Panel::PanelProcessMouse(MouseEvent,RetCode))
 		return(RetCode);
 
-	if (MouseEvent->dwMousePosition.Y>=14 && DizView!=nullptr)
+	if (MouseEvent->dwMousePosition.Y>=14 && DizView)
 	{
 		_tran(SysLog(L"InfoList::ProcessMouse() DizView = %p",DizView));
 		int DVX1,DVX2,DVY1,DVY2;
@@ -479,22 +479,22 @@ int InfoList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		   )
 		{
 			ProcessKey(KEY_F3);
-			return(TRUE);
+			return TRUE;
 		}
 
 		if (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED)
 		{
 			ProcessKey(KEY_F4);
-			return(TRUE);
+			return TRUE;
 		}
 	}
 
 	SetFocus();
 
-	if (DizView!=nullptr)
+	if (DizView)
 		return(DizView->ProcessMouse(MouseEvent));
 
-	return(TRUE);
+	return TRUE;
 }
 
 
@@ -560,7 +560,7 @@ void InfoList::ShowDirDescription(int YPos)
 		string strArgName;
 		const wchar_t *NamePtr = Opt.InfoPanel.strFolderInfoFiles;
 
-		while ((NamePtr=GetCommaWord(NamePtr,strArgName))!=nullptr)
+		while ((NamePtr=GetCommaWord(NamePtr,strArgName)))
 		{
 			string strFullDizName;
 			strFullDizName = strDizDir;
@@ -619,7 +619,7 @@ void InfoList::ShowPluginDescription()
 		{
 			string strTitle;
 
-			if (InfoLine->Text!=nullptr && *InfoLine->Text)
+			if (InfoLine->Text && *InfoLine->Text)
 				strTitle.Append(L" ").Append(InfoLine->Text).Append(L" ");
 
 			DrawSeparator(Y);
@@ -637,7 +637,7 @@ void InfoList::ShowPluginDescription()
 
 void InfoList::CloseFile()
 {
-	if (DizView!=nullptr)
+	if (DizView)
 	{
 		if (DizView->InRecursion)
 			return;
@@ -659,7 +659,7 @@ int InfoList::OpenDizFile(const wchar_t *DizFile,int YPos)
 	bool bOK=true;
 	_tran(SysLog(L"InfoList::OpenDizFile([%s]",DizFile));
 
-	if (DizView == nullptr)
+	if (!DizView)
 	{
 		DizView=new DizViewer;
 
@@ -680,7 +680,7 @@ int InfoList::OpenDizFile(const wchar_t *DizFile,int YPos)
 	else
 	{
 		//не будем менять внутренности если мы посреди операции со вьювером.
-		bOK = DizView->InRecursion==0;
+		bOK = !DizView->InRecursion;
 	}
 
 	if (bOK)
@@ -689,7 +689,7 @@ int InfoList::OpenDizFile(const wchar_t *DizFile,int YPos)
 		{
 			delete DizView;
 			DizView = nullptr;
-			return(FALSE);
+			return FALSE;
 		}
 
 		strDizFileName = DizFile;
@@ -702,7 +702,7 @@ int InfoList::OpenDizFile(const wchar_t *DizFile,int YPos)
 	GotoXY(X1+(X2-X1-(int)strTitle.GetLength())/2,YPos);
 	SetColor(COL_PANELTEXT);
 	PrintText(strTitle);
-	return(TRUE);
+	return TRUE;
 }
 
 void InfoList::SetFocus()
@@ -719,7 +719,7 @@ void InfoList::KillFocus()
 
 void InfoList::SetMacroMode(int Restore)
 {
-	if (CtrlObject == nullptr)
+	if (!CtrlObject)
 		return;
 
 	if (PrevMacroMode == -1)

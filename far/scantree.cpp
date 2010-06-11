@@ -63,7 +63,7 @@ void ScanTree::SetFindPath(const wchar_t *Path,const wchar_t *Mask, const DWORD 
 
 bool ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
 {
-	if (ScanItems.getCount()==0)
+	if (!ScanItems.getCount())
 		return false;
 
 	bool Done=false;
@@ -81,7 +81,7 @@ bool ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
 		{
 			if (ScanItems.lastItem()->Flags.Check(FSCANTREE_SECONDPASS))
 			{
-				if (!Done && (fdata->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
+				if (!Done && !(fdata->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 					continue;
 			}
 			else
@@ -108,7 +108,7 @@ bool ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
 	{
 		ScanItems.deleteItem(ScanItems.getCount()-1);
 
-		if (ScanItems.getCount()==0)
+		if (!ScanItems.getCount())
 			return false;
 		else
 		{
@@ -125,7 +125,7 @@ bool ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
 
 			CutToSlash(strFindPath);
 			strFindPath += strFindMask;
-			_SVS(SysLog(L"1. FullName='%s'",(const wchar_t*)strFullName));
+			_SVS(SysLog(L"1. FullName='%s'",strFullName.CPtr()));
 
 			if (Flags.Check(FSCANTREE_RETUPDIR))
 			{
@@ -139,7 +139,7 @@ bool ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
 	else
 	{
 		if ((fdata->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && Flags.Check(FSCANTREE_RECUR) &&
-		        ((fdata->dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)==0 || Flags.Check(FSCANTREE_SCANSYMLINK)))
+		        (!(fdata->dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) || Flags.Check(FSCANTREE_SCANSYMLINK)))
 		{
 			string RealPath(ScanItems.lastItem()->RealPath);
 			AddEndSlash(RealPath);
@@ -185,12 +185,12 @@ bool ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
 
 void ScanTree::SkipDir()
 {
-	if (ScanItems.getCount()==0)
+	if (!ScanItems.getCount())
 		return;
 
 	ScanItems.deleteItem(ScanItems.getCount()-1);
 
-	if (ScanItems.getCount()==0)
+	if (!ScanItems.getCount())
 		return;
 
 	if (!ScanItems.lastItem()->Flags.Check(FSCANTREE_INSIDEJUNCTION))

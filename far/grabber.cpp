@@ -174,7 +174,7 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
 			wchar_t *AppendBuf=clip.Paste();
 			int add=0;
 
-			if (AppendBuf!=nullptr)
+			if (AppendBuf)
 			{
 				size_t DataSize=StrLength(AppendBuf);
 
@@ -428,26 +428,26 @@ int Grabber::ProcessKey(int Key)
 	}
 
 	DisplayObject();
-	return(TRUE);
+	return TRUE;
 }
 
 
 int Grabber::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if (MouseEvent->dwEventFlags==DOUBLE_CLICK ||
-	        (MouseEvent->dwEventFlags==0 && (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED)))
+	        (!MouseEvent->dwEventFlags && (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED)))
 	{
 		ProcessKey(KEY_ENTER);
-		return(TRUE);
+		return TRUE;
 	}
 
 	if (MouseButtonState!=FROM_LEFT_1ST_BUTTON_PRESSED)
-		return(FALSE);
+		return FALSE;
 
 	GArea.CurX=Min(Max(static_cast<SHORT>(0),MouseX),ScrX);
 	GArea.CurY=Min(Max(static_cast<SHORT>(0),MouseY),ScrY);
 
-	if (MouseEvent->dwEventFlags==0)
+	if (!MouseEvent->dwEventFlags)
 		ResetArea=TRUE;
 	else if (MouseEvent->dwEventFlags==MOUSE_MOVED)
 	{
@@ -464,7 +464,7 @@ int Grabber::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 	//VerticalBlock=MouseEvent->dwControlKeyState&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED);
 	DisplayObject();
-	return(TRUE);
+	return TRUE;
 }
 
 void Grabber::Reset()

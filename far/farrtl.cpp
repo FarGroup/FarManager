@@ -137,11 +137,11 @@ char * __cdecl xf_strdup(const char * string)
 	{
 		char *memory;
 
-		if ((memory = (char *)xf_malloc(strlen(string) + 1)) != nullptr)
+		if ((memory = (char *)xf_malloc(strlen(string) + 1)) )
 			return strcpy(memory,string);
 	}
 
-	return(nullptr);
+	return nullptr;
 }
 
 wchar_t * __cdecl xf_wcsdup(const wchar_t * string)
@@ -150,11 +150,11 @@ wchar_t * __cdecl xf_wcsdup(const wchar_t * string)
 	{
 		wchar_t *memory;
 
-		if ((memory = (wchar_t *)xf_malloc((wcslen(string)+1)*sizeof(wchar_t))) != nullptr)
+		if ((memory = (wchar_t *)xf_malloc((wcslen(string)+1)*sizeof(wchar_t))) )
 			return wcscpy(memory,string);
 	}
 
-	return(nullptr);
+	return nullptr;
 }
 
 #if defined(_DEBUG) && defined(_MSC_VER)
@@ -206,7 +206,7 @@ static unsigned __int64 strtoxq(
 
 		return 0L;        /* return 0 */
 	}
-	else if (ibase == 0)
+	else if (!ibase)
 	{
 		/* determine base free-lance, based on first two chars of
 		   string */
@@ -293,7 +293,7 @@ static unsigned __int64 strtoxq(
 			number = _I64_MAX;
 	}
 
-	if (endptr != nullptr)
+	if (endptr )
 		/* store pointer to char that stopped the scan */
 		*endptr = p;
 
@@ -370,11 +370,11 @@ static unsigned __int64 __cdecl wcstoxq(
 
 		return 0L;              /* return 0 */
 	}
-	else if (ibase == 0)
+	else if (!ibase)
 	{
 		/* determine base free-lance, based on first two chars of
 		   string */
-		if (_wchartodigit(c) != 0)
+		if (_wchartodigit(c) )
 			ibase = 10;
 		else if (*p == L'x' || *p == L'X')
 			ibase = 16;
@@ -385,7 +385,7 @@ static unsigned __int64 __cdecl wcstoxq(
 	if (ibase == 16)
 	{
 		/* we might have 0x in front of number; remove if there */
-		if (_wchartodigit(c) == 0 && (*p == L'x' || *p == L'X'))
+		if (!_wchartodigit(c) && (*p == L'x' || *p == L'X'))
 		{
 			++p;
 			c = *p++;       /* advance past prefix */
@@ -457,7 +457,7 @@ static unsigned __int64 __cdecl wcstoxq(
 			number = _I64_MAX;
 	}
 
-	if (endptr != nullptr)
+	if (endptr )
 		/* store pointer to wchar_t that stopped the scan */
 		*endptr = p;
 
@@ -602,7 +602,7 @@ void __cdecl qsortex(char *base, size_t nel, size_t width,
 	void (__cdecl  *swap_fp)(void *, void *, size_t);               /* bytes */
 	size_t n_to_swap;
 
-	if ((width % sizeof(int)) != 0)
+	if ((width % sizeof(int)) )
 	{
 		swap_fp = (SWAP_FP)cswap;
 		n_to_swap = width;
@@ -809,7 +809,7 @@ void __cdecl qsort_b(
 	char *lostk[STKSIZ], *histk[STKSIZ];
 	int stkptr;                 /* stack for saving sub-array to be processed */
 
-	if (num < 2 || width == 0)
+	if (num < 2 || !width)
 		return;                 /* nothing to do */
 
 	stkptr = 0;                 /* initialize stack */
@@ -939,7 +939,7 @@ recurse:
 			{
 				higuy -= width;
 			}
-			while (higuy > mid && comp(higuy, mid) == 0);
+			while (higuy > mid && !comp(higuy, mid));
 		}
 
 		if (mid >= higuy)
@@ -948,7 +948,7 @@ recurse:
 			{
 				higuy -= width;
 			}
-			while (higuy > lo && comp(higuy, mid) == 0);
+			while (higuy > lo && !comp(higuy, mid));
 		}
 
 		/* OK, now we have the following:
@@ -1134,7 +1134,7 @@ void __cdecl qsort_m(
 	char* t = (char*)alloca(width);
 	int stkptr;                 /* stack for saving sub-array to be processed */
 
-	if (num < 2 || width == 0)
+	if (num < 2 || !width)
 		return;                 /* nothing to do */
 
 	stkptr = 0;                 /* initialize stack */
@@ -1264,7 +1264,7 @@ recurse:
 			{
 				higuy -= width;
 			}
-			while (higuy > mid && comp(higuy, mid) == 0);
+			while (higuy > mid && !comp(higuy, mid));
 		}
 
 		if (mid >= higuy)
@@ -1273,7 +1273,7 @@ recurse:
 			{
 				higuy -= width;
 			}
-			while (higuy > lo && comp(higuy, mid) == 0);
+			while (higuy > lo && !comp(higuy, mid));
 		}
 
 		/* OK, now we have the following:

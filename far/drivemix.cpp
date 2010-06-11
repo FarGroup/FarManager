@@ -56,7 +56,7 @@ DWORD WINAPI FarGetLogicalDrives()
 	static DWORD LogicalDrivesMask = 0;
 	DWORD NoDrives=0;
 
-	if ((!Opt.RememberLogicalDrives) || (LogicalDrivesMask==0))
+	if ((!Opt.RememberLogicalDrives) || !LogicalDrivesMask)
 		LogicalDrivesMask=GetLogicalDrives();
 
 	if (!Opt.Policies.ShowHiddenDrives)
@@ -97,21 +97,21 @@ int CheckDisksProps(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedTy
 	DestDriveType=FAR_GetDriveType(strDestRoot,nullptr,TRUE);
 
 	if (!apiGetVolumeInformation(strSrcRoot,&strSrcVolumeName,&SrcVolumeNumber,&SrcMaximumComponentLength,&SrcFileSystemFlags,&strSrcFileSystemName))
-		return(FALSE);
+		return FALSE;
 
 	if (!apiGetVolumeInformation(strDestRoot,&strDestVolumeName,&DestVolumeNumber,&DestMaximumComponentLength,&DestFileSystemFlags,&strDestFileSystemName))
-		return(FALSE);
+		return FALSE;
 
 	if (CheckedType == CHECKEDPROPS_ISSAMEDISK)
 	{
-		if (wcspbrk(DestPath,L"\\:")==nullptr)
+		if (!wcspbrk(DestPath,L"\\:"))
 			return TRUE;
 
 		if (((strSrcRoot.At(0)==L'\\' && strSrcRoot.At(1)==L'\\') || (strDestRoot.At(0)==L'\\' && strDestRoot.At(1)==L'\\')) &&
-		        StrCmpI(strSrcRoot,strDestRoot)!=0)
+		        StrCmpI(strSrcRoot,strDestRoot))
 			return FALSE;
 
-		if (*SrcPath == 0 || *DestPath == 0 || (SrcPath[1]!=L':' && DestPath[1]!=L':'))  //????
+		if (!*SrcPath || !*DestPath || (SrcPath[1]!=L':' && DestPath[1]!=L':'))  //????
 			return TRUE;
 
 		if (Upper(strDestRoot.At(0))==Upper(strSrcRoot.At(0)))
@@ -126,9 +126,9 @@ int CheckDisksProps(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedTy
 		if (!apiGetDiskSize(DestPath,&DestTotalSize,&DestTotalFree,&DestUserFree))
 			return FALSE;
 
-		if (!(SrcVolumeNumber!=0 &&
+		if (!(SrcVolumeNumber &&
 		        SrcVolumeNumber==DestVolumeNumber &&
-		        StrCmpI(strSrcVolumeName, strDestVolumeName)==0 &&
+		        !StrCmpI(strSrcVolumeName, strDestVolumeName) &&
 		        SrcTotalSize==DestTotalSize))
 			return FALSE;
 	}

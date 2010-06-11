@@ -102,7 +102,7 @@ bool FindFile::Get(FAR_FIND_DATA_EX& FindData)
 	if(Result && FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY && FindData.strFileName.At(0) == L'.' &&
 		// хитрый способ - у виртуальных папок не бывает SFN, в отличие от.
 		FindData.strAlternateFileName.IsEmpty() &&
-		((FindData.strFileName.At(1) == L'.' && FindData.strFileName.At(2) == 0) || (FindData.strFileName.At(1) == 0)))
+		((FindData.strFileName.At(1) == L'.' && !FindData.strFileName.At(2)) || !FindData.strFileName.At(1)))
 	{
 		Result = Get(FindData);
 	}
@@ -1079,7 +1079,7 @@ bool apiGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 		else
 			FinalFilePath.Clear();
 
-		return Len != 0 && Len <= BufLen;
+		return Len  && Len <= BufLen;
 	}
 
 	return internalNtQueryGetFinalPathNameByHandle(hFile, FinalFilePath);

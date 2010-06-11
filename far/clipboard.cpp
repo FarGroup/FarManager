@@ -168,7 +168,7 @@ UINT Clipboard::EnumFormats(UINT uFormat)
     {
       for(size_t I=0; I < ARRAYSIZE(hInternalClipboard); ++I)
       {
-        if(uInternalClipboardFormat[I] != 0xFFFF && uInternalClipboardFormat[I] == uFormat)
+        if(uInternalClipboardFormat[I] xFFFF && uInternalClipboardFormat[I] == uFormat)
         {
           return I+1 < ARRAYSIZE(hInternalClipboard)?uInternalClipboardFormat[I+1]:0;
         }
@@ -257,9 +257,9 @@ bool Clipboard::Copy(const wchar_t *Data)
 		void *GData;
 		int BufferSize=(StrLength(Data)+1)*sizeof(wchar_t);
 
-		if ((hData=GlobalAlloc(GMEM_MOVEABLE,BufferSize))!=nullptr)
+		if ((hData=GlobalAlloc(GMEM_MOVEABLE,BufferSize)))
 		{
-			if ((GData=GlobalLock(hData))!=nullptr)
+			if ((GData=GlobalLock(hData)))
 			{
 				memcpy(GData,Data,BufferSize);
 				GlobalUnlock(hData);
@@ -282,7 +282,7 @@ bool Clipboard::CopyFormat(const wchar_t *Format, const wchar_t *Data)
 {
 	UINT FormatType=RegisterFormat(Format);
 
-	if (FormatType==0)
+	if (!FormatType)
 		return false;
 
 	if (Data && *Data)
@@ -292,9 +292,9 @@ bool Clipboard::CopyFormat(const wchar_t *Format, const wchar_t *Data)
 
 		int BufferSize=(StrLength(Data)+1)*sizeof(wchar_t);
 
-		if ((hData=GlobalAlloc(GMEM_MOVEABLE,BufferSize))!=nullptr)
+		if ((hData=GlobalAlloc(GMEM_MOVEABLE,BufferSize)))
 		{
-			if ((GData=GlobalLock(hData))!=nullptr)
+			if ((GData=GlobalLock(hData)))
 			{
 				memcpy(GData,Data,BufferSize);
 				GlobalUnlock(hData);
@@ -327,7 +327,7 @@ wchar_t *Clipboard::Paste()
 			BufferSize=StrLength(ClipAddr)+1;
 			ClipText=(wchar_t *)xf_malloc(BufferSize*sizeof(wchar_t));
 
-			if (ClipText!=nullptr)
+			if (ClipText)
 				wcscpy(ClipText, ClipAddr);
 
 			GlobalUnlock(hClipData);
@@ -357,7 +357,7 @@ wchar_t *Clipboard::PasteEx(int max)
 
 			ClipText=(wchar_t *)xf_malloc((BufferSize+1)*sizeof(wchar_t));
 
-			if (ClipText!=nullptr)
+			if (ClipText)
 			{
 				wmemset(ClipText,0,BufferSize+1);
 				xwcsncpy(ClipText,ClipAddr,BufferSize+1);
@@ -375,7 +375,7 @@ wchar_t *Clipboard::PasteFormat(const wchar_t *Format)
 	bool isOEMVBlock=false;
 	UINT FormatType=RegisterFormat(Format);
 
-	if (FormatType==0)
+	if (!FormatType)
 		return nullptr;
 
 	if (!StrCmp(Format,FAR_VerticalBlock_Unicode) && !IsFormatAvailable(FormatType))
@@ -384,7 +384,7 @@ wchar_t *Clipboard::PasteFormat(const wchar_t *Format)
 		isOEMVBlock=true;
 	}
 
-	if (FormatType==0 || !IsFormatAvailable(FormatType))
+	if (!FormatType || !IsFormatAvailable(FormatType))
 		return nullptr;
 
 	wchar_t *ClipText=nullptr;
@@ -405,7 +405,7 @@ wchar_t *Clipboard::PasteFormat(const wchar_t *Format)
 
 			ClipText=(wchar_t *)xf_malloc(BufferSize*sizeof(wchar_t));
 
-			if (ClipText!=nullptr)
+			if (ClipText)
 			{
 				if (isOEMVBlock)
 					MultiByteToWideChar(CP_OEMCP,0,(LPCSTR)ClipAddr,-1,ClipText,(int)BufferSize);

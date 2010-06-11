@@ -186,14 +186,14 @@ int NumStrCmp(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2, bool I
 			}
 
 			// if end of string reached
-			if (l1 == n1 || *s1 == 0 || l2 == n2 || *s2 == 0)
+			if (l1 == n1 || !*s1 || l2 == n2 || !*s2)
 				break;
 
 			// compare numbers
 			int res = 0;
 			while (l1 < n1 && l2 < n2 && iswdigit(*s1) && iswdigit(*s2))
 			{
-				if (res == 0 && *s1 != *s2)
+				if (!res && *s1 != *s2)
 					res = *s1 < *s2 ? -1 : 1;
 
 				s1++; s2++;
@@ -220,7 +220,7 @@ int NumStrCmp(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2, bool I
 		}
 	}
 
-	if ((l1 == n1 || *s1 == 0) && (l2 == n2 || *s2 == 0))
+	if ((l1 == n1 || !*s1) && (l2 == n2 || !*s2))
 	{
 		if (l1 < l2)
 			return -1;
@@ -229,9 +229,9 @@ int NumStrCmp(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2, bool I
 		else
 			return 1;
 	}
-	else if (l1 == n1 || *s1 == 0)
+	else if (l1 == n1 || !*s1)
 		return -1;
-	else if (l2 == n2 || *s2 == 0)
+	else if (l2 == n2 || !*s2)
 		return 1;
 
 	assert(false);
@@ -239,9 +239,9 @@ int NumStrCmp(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2, bool I
 }
 
 SELF_TEST(
-	assert(NumStrCmp(L"", -1, L"", -1, false) == 0);
+	assert(!NumStrCmp(L"", -1, L"", -1, false));
 	assert(NumStrCmp(L"", -1, L"a", -1, false) < 0);
-	assert(NumStrCmp(L"a", -1, L"a", -1, false) == 0);
+	assert(!NumStrCmp(L"a", -1, L"a", -1, false));
 
 	assert(NumStrCmp(L"0", -1, L"1", -1, false) < 0);
 	assert(NumStrCmp(L"0", -1, L"00", -1, false) < 0);
@@ -254,12 +254,12 @@ SELF_TEST(
 	assert(NumStrCmp(L"10a", -1, L"2b", -1, false) > 0);
 	assert(NumStrCmp(L"10a", -1, L"0100b", -1, false) < 0);
 	assert(NumStrCmp(L"a1a", -1, L"a001a", -1, false) < 0);
-	assert(NumStrCmp(L"a1b2c", -1, L"a1b2c", -1, false) == 0);
+	assert(!NumStrCmp(L"a1b2c", -1, L"a1b2c", -1, false));
 	assert(NumStrCmp(L"a01b2c", -1, L"a1b002c", -1, false) < 0);
 	assert(NumStrCmp(L"a01b3c", -1, L"a1b002", -1, false) > 0);
 
 	assert(NumStrCmp(L"10", 2, L"0100", 2, false) > 0);
-	assert(NumStrCmp(L"01", 2, L"0100", 2, false) == 0);
+	assert(!NumStrCmp(L"01", 2, L"0100", 2, false));
 
 	assert(NumStrCmp(L"A1", -1, L"a2", -1, false) > 0);
 	assert(NumStrCmp(L"A1", -1, L"a2", -1, true) < 0);

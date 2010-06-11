@@ -113,7 +113,7 @@ __int64 HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_C_EOF:
 			return SelectPos==ItemCount-1;
 		case MCODE_C_BOF:
-			return SelectPos==0;
+			return !SelectPos;
 		case MCODE_C_SELECTED:
 			return ItemCount > 0 && SelectPos >= 0;
 		case MCODE_V_ITEMCOUNT:
@@ -188,12 +188,12 @@ int HMenu::ProcessKey(int Key)
 		case KEY_NONE:
 		case KEY_IDLE:
 		{
-			return(FALSE);
+			return FALSE;
 		}
 		case KEY_F1:
 		{
 			ShowHelp();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_NUMENTER:
 		case KEY_ENTER:
@@ -211,17 +211,17 @@ int HMenu::ProcessKey(int Key)
 					Modal::ExitCode=SelectPos;
 				}
 
-				return(TRUE);
+				return TRUE;
 			}
 
-			return(FALSE);
+			return FALSE;
 		}
 		case KEY_TAB:
 		{
 			Item[SelectPos].Selected=0;
 
 			/* Кусок для "некрайних" меню - прыжок к меню пассивной панели */
-			if (SelectPos != 0 && SelectPos != ItemCount-1)
+			if (SelectPos  && SelectPos != ItemCount-1)
 			{
 				if (CtrlObject->Cp()->ActivePanel==CtrlObject->Cp()->RightPanel)
 					SelectPos=0;
@@ -231,7 +231,7 @@ int HMenu::ProcessKey(int Key)
 			else
 				/**/
 			{
-				if (SelectPos==0)
+				if (!SelectPos)
 					SelectPos=ItemCount-1;
 				else
 					SelectPos=0;
@@ -239,14 +239,14 @@ int HMenu::ProcessKey(int Key)
 
 			Item[SelectPos].Selected=1;
 			ShowMenu();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_ESC:
 		case KEY_F10:
 		{
 			EndLoop=TRUE;
 			Modal::ExitCode=-1;
-			return(FALSE);
+			return FALSE;
 		}
 		case KEY_HOME:      case KEY_NUMPAD7:
 		case KEY_CTRLHOME:  case KEY_CTRLNUMPAD7:
@@ -256,7 +256,7 @@ int HMenu::ProcessKey(int Key)
 			Item[0].Selected=1;
 			SelectPos=0;
 			ShowMenu();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_END:       case KEY_NUMPAD1:
 		case KEY_CTRLEND:   case KEY_CTRLNUMPAD1:
@@ -266,7 +266,7 @@ int HMenu::ProcessKey(int Key)
 			Item[ItemCount-1].Selected=1;
 			SelectPos=ItemCount-1;
 			ShowMenu();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_LEFT:      case KEY_NUMPAD4:      case KEY_MSWHEEL_LEFT:
 		{
@@ -277,7 +277,7 @@ int HMenu::ProcessKey(int Key)
 
 			Item[SelectPos].Selected=1;
 			ShowMenu();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_RIGHT:     case KEY_NUMPAD6:      case KEY_MSWHEEL_RIGHT:
 		{
@@ -288,7 +288,7 @@ int HMenu::ProcessKey(int Key)
 
 			Item[SelectPos].Selected=1;
 			ShowMenu();
-			return(TRUE);
+			return TRUE;
 		}
 		default:
 		{
@@ -301,7 +301,7 @@ int HMenu::ProcessKey(int Key)
 					SelectPos=i;
 					ShowMenu();
 					ProcessKey(KEY_ENTER);
-					return(TRUE);
+					return TRUE;
 				}
 			}
 
@@ -314,11 +314,11 @@ int HMenu::ProcessKey(int Key)
 					SelectPos=i;
 					ShowMenu();
 					ProcessKey(KEY_ENTER);
-					return(TRUE);
+					return TRUE;
 				}
 			}
 
-			return(FALSE);
+			return FALSE;
 		}
 	}
 
@@ -348,8 +348,8 @@ int HMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		for (int i=0; i<ItemCount; i++)
 			if (MsX>=ItemX[i] && MsX<ItemX[i+1])
 			{
-				if (SubMenu!=nullptr && SelectPos==i)
-					return(FALSE);
+				if (SubMenu && SelectPos==i)
+					return FALSE;
 
 				Item[SelectPos].Selected=0;
 				Item[i].Selected=1;
@@ -358,10 +358,10 @@ int HMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 				ProcessKey(KEY_ENTER);
 			}
 	}
-	else if ((MouseEvent->dwButtonState & 3)==0 && MouseEvent->dwEventFlags==0)
+	else if (!(MouseEvent->dwButtonState & 3) && !MouseEvent->dwEventFlags)
 		ProcessKey(KEY_ESC);
 
-	return(TRUE);
+	return TRUE;
 }
 
 
@@ -375,7 +375,7 @@ void HMenu::GetExitCode(int &ExitCode,int &VExitCode)
 void HMenu::ProcessSubMenu(MenuDataEx *Data,int DataCount,
                            const wchar_t *SubMenuHelp,int X,int Y,int &Position)
 {
-	if (SubMenu!=nullptr)
+	if (SubMenu)
 		delete SubMenu;
 
 	Position=-1;

@@ -92,14 +92,14 @@ static int ReplaceVariables(string &strStr,TSubstData *PSubstData);
 static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstData,string &strOut)
 {
 	// рассмотрим переключатели активности/пассивности панели.
-	if (StrCmpN(CurStr,L"!#",2)==0)
+	if (!StrCmpN(CurStr,L"!#",2))
 	{
 		CurStr+=2;
 		PSubstData->PassivePanel=TRUE;
 		return CurStr;
 	}
 
-	if (StrCmpN(CurStr,L"!^",2)==0)
+	if (!StrCmpN(CurStr,L"!^",2))
 	{
 		CurStr+=2;
 		PSubstData->PassivePanel=FALSE;
@@ -107,7 +107,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 	}
 
 	// !! символ '!'
-	if (StrCmpN(CurStr,L"!!",2)==0 && CurStr[2] != L'?')
+	if (!StrCmpN(CurStr,L"!!",2) && CurStr[2] != L'?')
 	{
 		strOut += L"!";
 		CurStr+=2;
@@ -115,7 +115,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 	}
 
 	// !.!      Длинное имя файла с расширением
-	if (StrCmpN(CurStr,L"!.!",3)==0 && CurStr[3] != L'?')
+	if (!StrCmpN(CurStr,L"!.!",3) && CurStr[3] != L'?')
 	{
 		if (PSubstData->PassivePanel)
 			strOut += PSubstData->strAnotherName;
@@ -127,7 +127,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 	}
 
 	// !~       Короткое имя файла без расширения
-	if (StrCmpN(CurStr,L"!~",2)==0)
+	if (!StrCmpN(CurStr,L"!~",2))
 	{
 		strOut += PSubstData->PassivePanel ? PSubstData->strAnotherShortNameOnly : PSubstData->strShortNameOnly;
 		CurStr+=2;
@@ -135,18 +135,18 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 	}
 
 	// !`  Длинное расширение файла без имени
-	if (StrCmpN(CurStr,L"!`",2)==0)
+	if (!StrCmpN(CurStr,L"!`",2))
 	{
 		const wchar_t *Ext;
 
 		if (CurStr[2] == L'~')
 		{
-			Ext=wcsrchr((PSubstData->PassivePanel ? (const wchar_t *)PSubstData->strAnotherShortName:PSubstData->ShortName),L'.');
+			Ext=wcsrchr((PSubstData->PassivePanel ? PSubstData->strAnotherShortName.CPtr():PSubstData->ShortName),L'.');
 			CurStr+=3;
 		}
 		else
 		{
-			Ext=wcsrchr((PSubstData->PassivePanel ? (const wchar_t *)PSubstData->strAnotherName:PSubstData->Name),L'.');
+			Ext=wcsrchr((PSubstData->PassivePanel ? PSubstData->strAnotherName.CPtr():PSubstData->Name),L'.');
 			CurStr+=2;
 		}
 
@@ -204,7 +204,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 	// Ниже идет совмещение кода для разбора как !@! так и !$!
 	//Вообще-то (по исторической справедливости как бы) - в !$! нужно выбрасывать модификаторы Q и A
 	// Но нафиг нада:)
-	if (StrCmpN(CurStr,L"!@",2)==0 || (StrCmpN(CurStr,L"!$",2)==0))
+	if (!StrCmpN(CurStr,L"!@",2) || !StrCmpN(CurStr,L"!$",2))
 	{
 		string *pListName;
 		string *pAnotherListName;
@@ -227,7 +227,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 		wchar_t Modifers[32]=L"";
 		const wchar_t *Ptr;
 
-		if ((Ptr=wcschr(CurStr+2,L'!')) != nullptr)
+		if ((Ptr=wcschr(CurStr+2,L'!')) )
 		{
 			if (Ptr[1] != L'?')
 			{
@@ -265,7 +265,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 	}
 
 	// !-!      Короткое имя файла с расширением
-	if (StrCmpN(CurStr,L"!-!",3)==0 && CurStr[3] != L'?')
+	if (!StrCmpN(CurStr,L"!-!",3) && CurStr[3] != L'?')
 	{
 		if (PSubstData->PassivePanel)
 			strOut += PSubstData->strAnotherShortName;
@@ -278,7 +278,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 
 	// !+!      Аналогично !-!, но если длинное имя файла утеряно
 	//          после выполнения команды, FAR восстановит его
-	if (StrCmpN(CurStr,L"!+!",3)==0 && CurStr[3] != L'?')
+	if (!StrCmpN(CurStr,L"!+!",3) && CurStr[3] != L'?')
 	{
 		if (PSubstData->PassivePanel)
 			strOut += PSubstData->strAnotherShortName;
@@ -291,7 +291,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 	}
 
 	// !:       Текущий диск
-	if (StrCmpN(CurStr,L"!:",2)==0)
+	if (!StrCmpN(CurStr,L"!:",2))
 	{
 		string strCurDir;
 		string strRootDir;
@@ -313,7 +313,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 	// !\       Текущий путь
 	// !/       Короткое имя текущего пути
 	// Ниже идет совмещение кода для разбора как !\ так и !/
-	if (StrCmpN(CurStr,L"!\\",2)==0 || StrCmpN(CurStr,L"!=\\",3)==0 || (StrCmpN(CurStr,L"!/",2)==0) || StrCmpN(CurStr,L"!=/",3)==0)
+	if (!StrCmpN(CurStr,L"!\\",2) || !StrCmpN(CurStr,L"!=\\",3) || !StrCmpN(CurStr,L"!/",2) || !StrCmpN(CurStr,L"!=/",3))
 	{
 		string strCurDir;
 		bool ShortN0 = FALSE;
@@ -344,7 +344,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 
 		if (*CurStr==L'!')
 		{
-			if (wcspbrk(PSubstData->PassivePanel?(const wchar_t *)PSubstData->strAnotherName:PSubstData->Name,L"\\:")!=nullptr)
+			if (wcspbrk(PSubstData->PassivePanel?PSubstData->strAnotherName.CPtr():PSubstData->Name,L"\\:"))
 				strCurDir.Clear();
 		}
 
@@ -353,7 +353,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 	}
 
 	// !?<title>?<init>!
-	if (StrCmpN(CurStr,L"!?",2)==0 && wcschr(CurStr+2,L'!')!=nullptr)
+	if (!StrCmpN(CurStr,L"!?",2) && wcschr(CurStr+2,L'!'))
 	{
 		int j;
 		int i = IsReplaceVariable(CurStr);
@@ -427,7 +427,7 @@ int SubstFileName(string &strStr,            // результирующая строка
 	PSubstData->pShortListName=pShortListName;  // Короткое имя файла-списка
 	PSubstData->pAnotherShortListName=pAnotherShortListName;  // Короткое имя файла-списка
 	// Если имя текущего каталога не задано...
-	if (CmdLineDir!=nullptr)
+	if (CmdLineDir)
 		PSubstData->strCmdDir = CmdLineDir;
 	else // ...спросим у ком.строки
 		CtrlObject->CmdLine->GetCurDir(PSubstData->strCmdDir);
@@ -543,7 +543,7 @@ int ReplaceVariables(string &strStr,TSubstData *PSubstData)
 		HistoryName[HistoryNumber].Format(L"UserVar%d",HistoryNumber);
 		DlgData[DlgSize+1].History=HistoryName[HistoryNumber];
 
-		if (DlgSize==0)
+		if (!DlgSize)
 		{
 			DlgData[DlgSize+1].DefaultButton=TRUE;
 			DlgData[DlgSize+1].Focus=TRUE;
@@ -654,7 +654,7 @@ int ReplaceVariables(string &strStr,TSubstData *PSubstData)
 		DlgSize+=2;
 	}
 
-	if (DlgSize==0)
+	if (!DlgSize)
 	{
 		delete [] DlgData;
 		return 0;
@@ -684,7 +684,7 @@ int ReplaceVariables(string &strStr,TSubstData *PSubstData)
 
 	string strTmpStr;
 
-	for (Str=StartStr; *Str!=0; Str++)
+	for (Str=StartStr; *Str; Str++)
 	{
 		int Replace=-1;
 		int end_pos=0;
@@ -898,7 +898,7 @@ static int IsReplaceVariable(const wchar_t *str,
 	if (!s)
 		return -1;
 
-	if (StrCmpN(s,L"!?",2) == 0)
+	if (!StrCmpN(s,L"!?",2))
 		s = s + 2;
 	else
 		return -1;
@@ -927,7 +927,7 @@ static int IsReplaceVariable(const wchar_t *str,
 		{
 			count_scob -= 1;
 
-			if (count_scob == 0)
+			if (!count_scob)
 			{
 				if (!end_firstpart_scob)
 					end_firstpart_scob = s;   //remember where is last break
@@ -945,7 +945,7 @@ static int IsReplaceVariable(const wchar_t *str,
 		if (was_quest) break;
 	}
 
-	if (count_scob != 0) return -1;
+	if (count_scob ) return -1;
 
 	scrtxt = s - 1; //remember s for return
 
@@ -972,7 +972,7 @@ static int IsReplaceVariable(const wchar_t *str,
 		{
 			second_count_scob -= 1;
 
-			if (second_count_scob == 0)
+			if (!second_count_scob)
 			{
 				if (!end_secondpart_scob)
 					end_secondpart_scob = s;  //remember where is last break
@@ -990,46 +990,46 @@ static int IsReplaceVariable(const wchar_t *str,
 		if (was_asterics) break;
 	}
 
-	if (second_count_scob != 0) return -1;
+	if (second_count_scob ) return -1;
 
 	//
-	if (scr != nullptr)
+	if (scr )
 		*scr = (int)(scrtxt - str);
 
-	if (end != nullptr)
+	if (end )
 		*end = (int)(s - str) - 1;
 
 	if (in_firstpart_was_scob)
 	{
-		if (beg_scr_break != nullptr)
+		if (beg_scr_break )
 			*beg_scr_break = (int)(beg_firstpart_scob - str);
 
-		if (end_scr_break != nullptr)
+		if (end_scr_break )
 			*end_scr_break = (int)(end_firstpart_scob - str);
 	}
 	else
 	{
-		if (beg_scr_break != nullptr)
+		if (beg_scr_break )
 			*beg_scr_break = -1;
 
-		if (end_scr_break != nullptr)
+		if (end_scr_break )
 			*end_scr_break = -1;
 	}
 
 	if (in_secondpart_was_scob)
 	{
-		if (beg_txt_break != nullptr)
+		if (beg_txt_break )
 			*beg_txt_break = (int)(beg_secondpart_scob - str);
 
-		if (end_txt_break != nullptr)
+		if (end_txt_break )
 			*end_txt_break = (int)(end_secondpart_scob - str);
 	}
 	else
 	{
-		if (beg_txt_break != nullptr)
+		if (beg_txt_break )
 			*beg_txt_break = -1;
 
-		if (end_txt_break != nullptr)
+		if (end_txt_break )
 			*end_txt_break = -1;
 	}
 

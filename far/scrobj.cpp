@@ -197,7 +197,7 @@ void ScreenObject::SavePrevScreen()
 	{
 		Flags.Set(FSCROBJ_VISIBLE);
 
-		if (Flags.Check(FSCROBJ_ENABLERESTORESCREEN) && SaveScr==nullptr)
+		if (Flags.Check(FSCROBJ_ENABLERESTORESCREEN) && !SaveScr)
 			SaveScr=new SaveScreen(X1,Y1,X2,Y2);
 	}
 }
@@ -217,14 +217,14 @@ void ScreenObject::Shadow(bool Full)
 	{
 		if(Full)
 		{
-			if (ShadowSaveScr==nullptr)
+			if (!ShadowSaveScr)
 				ShadowSaveScr=new SaveScreen(0,0,ScrX,ScrY);
 
 			MakeShadow(0,0,ScrX,ScrY);
 		}
 		else
 		{
-			if (ShadowSaveScr==nullptr)
+			if (!ShadowSaveScr)
 				ShadowSaveScr=new SaveScreen(X1,Y1,X2+2,Y2+1);
 
 			MakeShadow(X1+2,Y2+1,X2+1,Y2+1);

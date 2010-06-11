@@ -103,7 +103,7 @@ bool FileFilter::FilterEdit()
 		ListItem.Clear();
 		MenuString(ListItem.strName,FilterData.getItem(i));
 
-		if (i == 0)
+		if (!i)
 			ListItem.Flags|=LIF_SELECTED;
 
 		int Check = GetCheck(FilterData.getItem(i));
@@ -116,7 +116,7 @@ bool FileFilter::FilterEdit()
 
 	ListItem.Clear();
 
-	if (FilterData.getCount()==0)
+	if (!FilterData.getCount())
 		ListItem.Flags|=LIF_SELECTED;
 
 	FilterList.AddItem(&ListItem);
@@ -179,7 +179,7 @@ bool FileFilter::FilterEdit()
 	far_qsort((void *)ExtPtr,ExtCount,MAX_PATH*sizeof(wchar_t),ExtSort);
 	ListItem.Clear();
 
-	for (int i=0, h=L'1'; i<ExtCount; i++, (h==L'9'?h=L'A':(h==L'Z'||h==0?h=0:h++)))
+	for (int i=0, h=L'1'; i<ExtCount; i++, (h==L'9'?h=L'A':(h==L'Z'||h?h++:h=0)))
 	{
 		wchar_t *CurExtPtr=ExtPtr+i*MAX_PATH;
 		MenuString(ListItem.strName,nullptr,false,h,true,CurExtPtr,MSG(MPanelFileType));
@@ -350,8 +350,8 @@ bool FileFilter::FilterEdit()
 					string strQuotedTitle=FilterData.getItem(SelPos)->GetTitle();
 					InsertQuote(strQuotedTitle);
 
-					if (Message(0,2,MSG(MFilterTitle),MSG(MAskDeleteFilter),
-					            strQuotedTitle,MSG(MDelete),MSG(MCancel))==0)
+					if (!Message(0,2,MSG(MFilterTitle),MSG(MAskDeleteFilter),
+					            strQuotedTitle,MSG(MDelete),MSG(MCancel)))
 					{
 						FilterData.deleteItem(SelPos);
 						FilterList.DeleteItem(SelPos);
@@ -373,7 +373,7 @@ bool FileFilter::FilterEdit()
 			{
 				int SelPos=FilterList.GetSelectPos();
 
-				if (SelPos<(int)FilterData.getCount() && !(Key==KEY_CTRLUP && SelPos==0) && !(Key==KEY_CTRLDOWN && SelPos==(int)(FilterData.getCount()-1)))
+				if (SelPos<(int)FilterData.getCount() && !(Key==KEY_CTRLUP && !SelPos) && !(Key==KEY_CTRLDOWN && SelPos==(int)(FilterData.getCount()-1)))
 				{
 					int NewPos = SelPos + (Key == KEY_CTRLDOWN ? 1 : -1);
 					MenuItemEx CurItem  = *FilterList.GetItemPtr(SelPos);
@@ -517,7 +517,7 @@ void FileFilter::ProcessSelection(VMenu *FilterList)
 			strMask1 = Mask;
 			Unquote(strMask1);
 
-			while ((CurFilterData=TempFilterData.getItem(j))!=nullptr)
+			while ((CurFilterData=TempFilterData.getItem(j)))
 			{
 				string strMask2;
 				CurFilterData->GetMask(&FMask);
@@ -616,8 +616,8 @@ bool FileFilter::FileInFilter(const FileListItem *fli,enumFileInFilterType *foun
 	fd.ftLastWriteTime=fli->WriteTime;
 	fd.nFileSize=fli->UnpSize;
 	fd.nPackSize=fli->PackSize;
-	fd.lpwszFileName=(wchar_t *)(const wchar_t *)fli->strName;
-	fd.lpwszAlternateFileName=(wchar_t *)(const wchar_t *)fli->strShortName;
+	fd.lpwszFileName=const_cast<wchar_t*>(fli->strName.CPtr());
+	fd.lpwszAlternateFileName=const_cast<wchar_t*>(fli->strShortName.CPtr());
 	return FileInFilter(&fd,foundType);
 }
 
@@ -630,8 +630,8 @@ bool FileFilter::FileInFilter(const FAR_FIND_DATA_EX *fde,enumFileInFilterType *
 	fd.ftLastWriteTime=fde->ftLastWriteTime;
 	fd.nFileSize=fde->nFileSize;
 	fd.nPackSize=fde->nPackSize;
-	fd.lpwszFileName=(wchar_t *)(const wchar_t *)fde->strFileName;
-	fd.lpwszAlternateFileName=(wchar_t *)(const wchar_t *)fde->strAlternateFileName;
+	fd.lpwszFileName=const_cast<wchar_t*>(fde->strFileName.CPtr());
+	fd.lpwszAlternateFileName=const_cast<wchar_t*>(fde->strAlternateFileName.CPtr());
 	return FileInFilter(&fd,foundType);
 }
 
@@ -966,7 +966,7 @@ int FileFilter::ParseAndAddMasks(wchar_t **ExtPtr,const wchar_t *FileName,DWORD 
 	string strMask;
 
 	// Если маска содержит разделитель (',' или ';'), то возьмем ее в кавычки
-	if (DotPtr==nullptr)
+	if (!DotPtr)
 		strMask = L"*.";
 	else if (wcspbrk(DotPtr,L",;"))
 		strMask.Format(L"\"*%s\"",DotPtr);
@@ -982,7 +982,7 @@ int FileFilter::ParseAndAddMasks(wchar_t **ExtPtr,const wchar_t *FileName,DWORD 
 	// ... а потом уже выделение памяти!
 	wchar_t *NewPtr;
 
-	if ((NewPtr=(wchar_t *)xf_realloc(*ExtPtr,MAX_PATH*(ExtCount+1)*sizeof(wchar_t))) == nullptr)
+	if (!(NewPtr=(wchar_t *)xf_realloc(*ExtPtr,MAX_PATH*(ExtCount+1)*sizeof(wchar_t))))
 		return 0;
 
 	*ExtPtr=NewPtr;

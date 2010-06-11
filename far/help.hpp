@@ -87,7 +87,7 @@ class HelpRecord
 		HelpRecord(const wchar_t *HStr=nullptr)
 		{
 			HelpStr = nullptr;
-			if (HStr != nullptr)
+			if (HStr )
 				HelpStr = xf_wcsdup(HStr);
 		};
 
@@ -103,7 +103,7 @@ class HelpRecord
 
 		bool operator==(const HelpRecord &rhs) const
 		{
-			return StrCmpI(HelpStr,rhs.HelpStr)==0;
+			return !StrCmpI(HelpStr,rhs.HelpStr);
 		};
 
 		int operator<(const HelpRecord &rhs) const

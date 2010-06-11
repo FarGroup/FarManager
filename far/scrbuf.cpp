@@ -132,7 +132,7 @@ void ScreenBuf::Write(int X,int Y,const CHAR_INFO *Text,int TextLength)
 		X=0;
 	}
 
-	if (X>=BufX || Y>=BufY || TextLength==0 || Y<0)
+	if (X>=BufX || Y>=BufY || !TextLength || Y<0)
 		return;
 
 	if (X+TextLength >= BufX)
@@ -187,7 +187,7 @@ void ScreenBuf::ApplyColorMask(int X1,int Y1,int X2,int Y2,WORD ColorMask)
 
 		for (J=0; J < Width; J++, ++PtrBuf)
 		{
-			if ((PtrBuf->Attributes&=~ColorMask) == 0)
+			if (!(PtrBuf->Attributes&=~ColorMask))
 				PtrBuf->Attributes=0x08;
 		}
 	}

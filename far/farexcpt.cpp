@@ -411,7 +411,7 @@ DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp, Plugin *Module,DWORD Flags
 			// Can you do smartly? See REMINDER file, section IA64Stacks
 			static HANDLE hThread = nullptr;
 
-			if ((hThread = CreateThread(nullptr, 0, _xfilter, nullptr, 0, nullptr)) == nullptr)
+			if (!(hThread = CreateThread(nullptr, 0, _xfilter, nullptr, 0, nullptr)))
 			{
 				TerminateProcess(GetCurrentProcess(), 1);
 			}

@@ -140,7 +140,7 @@ bool WINAPI GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &st
 	if(!Owner)
 	{
 		SIDCacheFlush();
-		return(TRUE);
+		return TRUE;
 	}
 	*/
 	strOwner.Clear();

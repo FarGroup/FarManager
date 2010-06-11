@@ -172,20 +172,20 @@ int CommandLine::ProcessKey(int Key)
 		CmdStr.Select(LastCmdPartLength,static_cast<int>(strStr.GetLength()));
 		CmdStr.RevertAC();
 		Show();
-		return(TRUE);
+		return TRUE;
 	}
 
 	if (Key == KEY_UP || Key == KEY_NUMPAD8)
 	{
 		if (CtrlObject->Cp()->LeftPanel->IsVisible() || CtrlObject->Cp()->RightPanel->IsVisible())
-			return(FALSE);
+			return FALSE;
 
 		Key=KEY_CTRLE;
 	}
 	else if (Key == KEY_DOWN || Key == KEY_NUMPAD2)
 	{
 		if (CtrlObject->Cp()->LeftPanel->IsVisible() || CtrlObject->Cp()->RightPanel->IsVisible())
-			return(FALSE);
+			return FALSE;
 
 		Key=KEY_CTRLX;
 	}
@@ -226,7 +226,7 @@ int CommandLine::ProcessKey(int Key)
 				PStr=strStr;
 
 			SetString(PStr);
-			return(TRUE);
+			return TRUE;
 		case KEY_F2:
 		{
 			UserMenu Menu(false);
@@ -253,13 +253,13 @@ int CommandLine::ProcessKey(int Key)
 				}
 			}
 		}
-		return(TRUE);
+		return TRUE;
 		case KEY_SHIFTF9:
 			SaveConfig(1);
-			return(TRUE);
+			return TRUE;
 		case KEY_F10:
 			FrameManager->ExitMainLoop(TRUE);
-			return(TRUE);
+			return TRUE;
 		case KEY_ALTF10:
 		{
 			Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
@@ -291,14 +291,14 @@ int CommandLine::ProcessKey(int Key)
 				}
 			}
 		}
-		return(TRUE);
+		return TRUE;
 		case KEY_F11:
 			CtrlObject->Plugins.CommandsMenu(FALSE,FALSE,0);
-			return(TRUE);
+			return TRUE;
 		case KEY_ALTF11:
 			ShowViewEditHistory();
 			CtrlObject->Cp()->Redraw();
-			return(TRUE);
+			return TRUE;
 		case KEY_ALTF12:
 		{
 			int Type;
@@ -326,11 +326,11 @@ int CommandLine::ProcessKey(int Key)
 				//Type==0 - обычный путь
 				//если путь плагиновый то сначала попробуем запустить его (а вдруг там префикс)
 				//ну а если путь не плагиновый то запускать его точно не надо
-				if (Type==0 || !CtrlObject->Plugins.ProcessCommandLine(strStr,Panel))
+				if (!Type || !CtrlObject->Plugins.ProcessCommandLine(strStr,Panel))
 				{
 					if (Panel->GetMode() == PLUGIN_PANEL || CheckShortcutFolder(&strStr,FALSE))
 					{
-						Panel->SetCurDir(strStr,Type==0 ? TRUE:FALSE);
+						Panel->SetCurDir(strStr,Type ? FALSE:TRUE);
 						Panel->Redraw();
 						CtrlObject->FolderHistory->SetAddMode(true,2,true);
 					}
@@ -339,7 +339,7 @@ int CommandLine::ProcessKey(int Key)
 			else if (SelectType==3)
 				SetString(strStr);
 		}
-		return(TRUE);
+		return TRUE;
 		case KEY_NUMENTER:
 		case KEY_SHIFTNUMENTER:
 		case KEY_ENTER:
@@ -360,14 +360,14 @@ int CommandLine::ProcessKey(int Key)
 
 			ProcessOSAliases(strStr);
 
-			if (!ActivePanel->ProcessPluginEvent(FE_COMMAND,(void *)(const wchar_t *)strStr))
+			if (!ActivePanel->ProcessPluginEvent(FE_COMMAND,(void *)strStr.CPtr()))
 				CmdExecute(strStr,FALSE,Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER,FALSE);
 		}
-		return(TRUE);
+		return TRUE;
 		case KEY_CTRLU:
 			CmdStr.Select(-1,0);
 			CmdStr.Show();
-			return(TRUE);
+			return TRUE;
 		case KEY_OP_XLAT:
 		{
 			// 13.12.2000 SVS - ! Для CmdLine - если нет выделения, преобразуем всю строку (XLat)
@@ -430,10 +430,10 @@ int CommandLine::ProcessKey(int Key)
 				CmdStr.RevertAC();
 			}
 
-			return(TRUE);
+			return TRUE;
 	}
 
-	return(FALSE);
+	return FALSE;
 }
 
 

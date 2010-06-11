@@ -68,7 +68,7 @@ void Frame::SetKeyBar(KeyBar *FrameKeyBar)
 
 void Frame::UpdateKeyBar()
 {
-	if (FrameKeyBar!=nullptr && KeyBarVisible)
+	if (FrameKeyBar && KeyBarVisible)
 		FrameKeyBar->RedrawIfChanged();
 }
 
@@ -236,5 +236,5 @@ bool Frame::HasSaveScreen()
 }
 
 //bool Frame::ifFullConsole() {
-//  return X1==0&&Y1==0&&X2>=ScrX&&Y2>=ScrY-1;
+//  return !X1 && !Y1 && X2>=ScrX && Y2>=ScrY-1;
 //}

@@ -97,7 +97,7 @@ FileViewer::FileViewer(const wchar_t *Name,int EnableSwitch,int DisableHistory,
 	}
 
 	SetPosition(X1,Y1,X2,Y2);
-	FullScreen=(X1==0 && Y1==0 && X2==ScrX && Y2==ScrY);
+	FullScreen=(!X1 && !Y1 && X2==ScrX && Y2==ScrY);
 	View.SetTitle(Title);
 	Init(Name,EnableSwitch,DisableHistory,-1,L"",nullptr,FALSE);
 }
@@ -141,7 +141,7 @@ void FileViewer::Init(const wchar_t *name,int EnableSwitch,int disableHistory, /
 	ExitCode=TRUE;
 	ViewKeyBar.Show();
 
-	if (Opt.ViOpt.ShowKeyBar==0)
+	if (!Opt.ViOpt.ShowKeyBar)
 		ViewKeyBar.Hide0();
 
 	ShowConsoleTitle();
@@ -246,7 +246,7 @@ int FileViewer::ProcessKey(int Key)
 		{
 			if (View.isTemporary())
 			{
-				return(TRUE);
+				return TRUE;
 			}
 
 			SaveScreen Sc;
@@ -287,17 +287,17 @@ int FileViewer::ProcessKey(int Key)
 				}
 			}
 
-			return(TRUE);
+			return TRUE;
 		case KEY_F3:
 		case KEY_NUMPAD5:  case KEY_SHIFTNUMPAD5:
 
 			if (F3KeyOnly)
-				return(TRUE);
+				return TRUE;
 
 		case KEY_ESC:
 		case KEY_F10:
 			FrameManager->DeleteFrame();
-			return(TRUE);
+			return TRUE;
 		case KEY_F6:
 
 			if (!DisableEdit)
@@ -309,7 +309,7 @@ int FileViewer::ProcessKey(int Key)
 				if(!Edit.Open(strViewFileName, GENERIC_READ, FILE_SHARE_READ|(Opt.EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 				{
 					Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),MSG(MEditCannotOpen),strViewFileName,MSG(MOk));
-					return(TRUE);
+					return TRUE;
 				}
 				Edit.Close();
 				// Если переключаемся в редактор, то удалять файл уже не нужно
@@ -329,7 +329,7 @@ int FileViewer::ProcessKey(int Key)
 				ShowTime(2);
 			}
 
-			return(TRUE);
+			return TRUE;
 			// Печать файла с использованием плагина PrintMan
 		case KEY_ALTF5:
 		{
@@ -378,7 +378,7 @@ int FileViewer::ProcessKey(int Key)
 			if (!ViewKeyBar.ProcessKey(Key))
 				return(View.ProcessKey(Key));
 		}
-		return(TRUE);
+		return TRUE;
 	}
 }
 
@@ -389,9 +389,9 @@ int FileViewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (!View.ProcessMouse(MouseEvent))
 		if (!ViewKeyBar.ProcessMouse(MouseEvent))
-			return(FALSE);
+			return FALSE;
 
-	return(TRUE);
+	return TRUE;
 }
 
 
@@ -425,7 +425,7 @@ void FileViewer::OnDestroy()
 {
 	_OT(SysLog(L"[%p] FileViewer::OnDestroy()",this));
 
-	if (!DisableHistory && (CtrlObject->Cp()->ActivePanel!=nullptr || StrCmp(strName, L"-")!=0))
+	if (!DisableHistory && (CtrlObject->Cp()->ActivePanel || StrCmp(strName, L"-")))
 	{
 		string strFullFileName;
 		View.GetFileName(strFullFileName);
@@ -482,7 +482,7 @@ void FileViewer::ShowStatus()
 	strStatus.Format(
 	    lpwszStatusFormat,
 	    NameLength,
-	    (const wchar_t*)strName,
+	    strName.CPtr(),
 	    View.VM.CodePage,
 	    View.FileSize,
 	    MSG(MViewerStatusCol),

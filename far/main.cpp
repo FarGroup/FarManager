@@ -321,7 +321,7 @@ static int MainProcess(
 		MoveRealCursor(0,0);
 	}
 	CloseConsole();
-	return(0);
+	return 0;
 }
 
 int MainProcessSEH(string& strEditName,string& strViewName,string& DestName1,string& DestName2,int StartLine,int StartChar)
@@ -441,7 +441,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 						StartLine=_wtoi(&Argv[I][2]);
 						wchar_t *ChPtr=wcschr(&Argv[I][2],L':');
 
-						if (ChPtr!=nullptr)
+						if (ChPtr)
 							StartChar=_wtoi(ChPtr+1);
 					}
 

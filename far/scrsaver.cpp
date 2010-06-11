@@ -70,7 +70,7 @@ static wchar_t StarSymbol[5][2]=
 static void ShowSaver(int Step)
 {
 	for (size_t I=0; I<ARRAYSIZE(Star); I++)
-		if (Star[I].Type!=STAR_NONE && (Step%Star[I].Speed)==0)
+		if (Star[I].Type!=STAR_NONE && !(Step%Star[I].Speed))
 		{
 			SetColor(F_LIGHTCYAN|B_BLACK);
 			GotoXY(Star[I].X/100,Star[I].Y/100);
@@ -152,14 +152,14 @@ int ScreenSaver(int EnableExit)
 	clock_t WaitTime;
 
 	if (ScreenSaverActive)
-		return(1);
+		return 1;
 
 	ChangePriority ChPriority(THREAD_PRIORITY_IDLE);
 
 	for (WaitTime=clock(); clock()-WaitTime<500;)
 	{
 		if (PeekInputRecord(&rec))
-			return(1);
+			return 1;
 
 		Sleep(100);
 	}
@@ -190,7 +190,7 @@ int ScreenSaver(int EnableExit)
 			        FrameManager->GetFrameCount()==1)
 			{
 				FrameManager->ExitMainLoop(FALSE);
-				return(0);
+				return 0;
 			}
 
 			Sleep(50);

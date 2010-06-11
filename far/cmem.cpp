@@ -154,7 +154,7 @@ void ControlMem::open_r(void)
 	HANDLE hFile;
 	GetNameEXE(n);
 
-	if ((rpt = fopen(n, "wt")) == nullptr)
+	if (!(rpt = fopen(n, "wt")))
 		rpt = stderr;
 
 	fprintf(rpt,
@@ -378,7 +378,7 @@ void  *o_NEW(size_t s)
 	void  *p;
 	s = s ? abs(s) : 1;
 
-	while ((p = malloc(s)) == nullptr && _new_handler != nullptr)
+	while (!(p = malloc(s)) && _new_handler )
 		_new_handler();
 
 	return p;
@@ -550,9 +550,9 @@ void *operator new(size_t size)
 	void *p=nullptr;
 	size=size?size:1;
 
-	while ((p=malloc(size))==nullptr)
+	while (!(p=malloc(size)))
 	{
-		if (_new_handler!=nullptr)_new_handler();
+		if (_new_handler)_new_handler();
 		else break;
 	}
 

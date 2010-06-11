@@ -63,7 +63,7 @@ class UnicodeStringData
 	public:
 		UnicodeStringData(size_t nSize=0, size_t nDelta=0)
 		{
-			m_nDelta = (nDelta == 0 ? __US_DELTA : nDelta);
+			m_nDelta = nDelta? nDelta : __US_DELTA;
 			m_nLength = 0;
 			m_nRefCount = 1;
 			m_pData = AllocData(nSize,&m_nSize);
@@ -216,6 +216,6 @@ typedef class UnicodeString
 		bool PosI(size_t &nPos, const wchar_t *lpwszFind, size_t nStartPos=0) const;
 		bool RPos(size_t &nPos, wchar_t Ch, size_t nStartPos=0) const;
 
-		bool Contains(wchar_t Ch, size_t nStartPos=0) const { return wcschr(m_pData->GetData()+nStartPos,Ch)==nullptr ? false : true; }
-		bool Contains(const wchar_t *lpwszFind, size_t nStartPos=0) const { return wcsstr(m_pData->GetData()+nStartPos,lpwszFind)==nullptr ? false : true; }
+		bool Contains(wchar_t Ch, size_t nStartPos=0) const { return !wcschr(m_pData->GetData()+nStartPos,Ch) ? false : true; }
+		bool Contains(const wchar_t *lpwszFind, size_t nStartPos=0) const { return !wcsstr(m_pData->GetData()+nStartPos,lpwszFind) ? false : true; }
 } string;

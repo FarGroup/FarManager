@@ -84,7 +84,7 @@ static int SetFileCompression(const wchar_t *Name,int State)
 	File file;
 
 	if (!file.Open(Name, FILE_READ_DATA|FILE_WRITE_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
-		return(FALSE);
+		return FALSE;
 
 	USHORT NewState=State ? COMPRESSION_FORMAT_DEFAULT:COMPRESSION_FORMAT_NONE;
 	DWORD Result;
@@ -97,7 +97,7 @@ static int SetFileCompression(const wchar_t *Name,int State)
 
 int ESetFileCompression(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode)
 {
-	if (((FileAttr & FILE_ATTRIBUTE_COMPRESSED)!=0) == State)
+	if (((FileAttr & FILE_ATTRIBUTE_COMPRESSED)) == State)
 		return SETATTR_RET_OK;
 
 	int Ret=SETATTR_RET_OK;
@@ -153,7 +153,7 @@ static int SetFileEncryption(const wchar_t *Name,int State)
 
 int ESetFileEncryption(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode,int Silent)
 {
-	if (((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0) == State)
+	if (((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)) == State)
 		return SETATTR_RET_OK;
 
 	int Ret=SETATTR_RET_OK;
@@ -209,7 +209,7 @@ int ESetFileEncryption(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode
 int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationTime,
                  FILETIME *LastAccessTime,DWORD FileAttr,int SkipMode)
 {
-	if (LastWriteTime==nullptr && CreationTime==nullptr && LastAccessTime==nullptr)
+	if (!LastWriteTime && !CreationTime && !LastAccessTime)
 		return SETATTR_RET_OK;
 
 	while (1)

@@ -308,7 +308,7 @@ bool FileFilterParams::FileInFilter(const FAR_FIND_DATA_EX *fde, unsigned __int6
 bool FileFilterParams::FileInFilter(const FAR_FIND_DATA *fd, unsigned __int64 CurrentTime)
 {
 	// Пустое значение?
-	//if (fd==nullptr)
+	//if (!fd)
 	//return false;
 
 	// Режим проверки атрибутов файла включен?
@@ -452,7 +452,7 @@ void MenuString(string &strDest, FileFilterParams *FF, bool bHighlightType, int 
 	{
 		MarkChar[1]=(wchar_t)FF->GetMarkChar();
 
-		if (MarkChar[1]==0)
+		if (!MarkChar[1])
 			*MarkChar=0;
 
 		Name=FF->GetTitle();
@@ -701,10 +701,10 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
 				int relative = (int)SendDlgMessage(hDlg,DM_GETCHECK,ID_FF_DATERELATIVE,0);
 				int db = relative ? ID_FF_DAYSBEFOREEDIT : ID_FF_DATEBEFOREEDIT;
 				int da = relative ? ID_FF_DAYSAFTEREDIT  : ID_FF_DATEAFTEREDIT;
-				SendDlgMessage(hDlg,DM_SETTEXTPTR,da,(LONG_PTR)(const wchar_t*)strDate);
-				SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT,(LONG_PTR)(const wchar_t*)strTime);
-				SendDlgMessage(hDlg,DM_SETTEXTPTR,db,(LONG_PTR)(const wchar_t*)strDate);
-				SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT,(LONG_PTR)(const wchar_t*)strTime);
+				SendDlgMessage(hDlg,DM_SETTEXTPTR,da,(LONG_PTR)strDate.CPtr());
+				SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT,(LONG_PTR)strTime.CPtr());
+				SendDlgMessage(hDlg,DM_SETTEXTPTR,db,(LONG_PTR)strDate.CPtr());
+				SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT,(LONG_PTR)strTime.CPtr());
 				SendDlgMessage(hDlg,DM_SETFOCUS,da,0);
 				COORD r;
 				r.X=r.Y=0;
@@ -875,12 +875,12 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		DI_DOUBLEBOX,3,1,76,18,0,DIF_SHOWAMPERSAND,MSG(MFileFilterTitle),
 
 		DI_TEXT,5,2,0,2,0,DIF_FOCUS,MSG(MFileFilterName),
-		DI_EDIT,5,2,74,2,(DWORD_PTR)(const wchar_t *)FilterNameHistoryName,DIF_HISTORY,L"",
+		DI_EDIT,5,2,74,2,(DWORD_PTR)FilterNameHistoryName,DIF_HISTORY,L"",
 
 		DI_TEXT,0,3,0,3,0,DIF_SEPARATOR,L"",
 
 		DI_CHECKBOX,5,4,0,4,0,DIF_AUTOMATION,MSG(MFileFilterMatchMask),
-		DI_EDIT,5,4,74,4,(DWORD_PTR)(const wchar_t *)FilterMasksHistoryName,DIF_HISTORY,L"",
+		DI_EDIT,5,4,74,4,(DWORD_PTR)FilterMasksHistoryName,DIF_HISTORY,L"",
 
 		DI_TEXT,0,5,0,5,0,DIF_SEPARATOR,L"",
 
@@ -894,13 +894,13 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		DI_COMBOBOX,26,7,41,7,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,L"",
 		DI_CHECKBOX,26,8,0,8,0,0,MSG(MFileFilterDateRelative),
 		DI_TEXT,49,7,51,7,0,0,MSG(MFileFilterDateBeforeSign),
-		DI_FIXEDIT,52,7,61,7,(DWORD_PTR)(const wchar_t *)strDateMask,DIF_MASKEDIT,L"",
-		DI_FIXEDIT,52,7,61,7,(DWORD_PTR)(const wchar_t *)DaysMask,DIF_MASKEDIT,L"",
-		DI_FIXEDIT,63,7,74,7,(DWORD_PTR)(const wchar_t *)strTimeMask,DIF_MASKEDIT,L"",
+		DI_FIXEDIT,52,7,61,7,(DWORD_PTR)strDateMask.CPtr(),DIF_MASKEDIT,L"",
+		DI_FIXEDIT,52,7,61,7,(DWORD_PTR)DaysMask,DIF_MASKEDIT,L"",
+		DI_FIXEDIT,63,7,74,7,(DWORD_PTR)strTimeMask.CPtr(),DIF_MASKEDIT,L"",
 		DI_TEXT,49,8,51,8,0,0,MSG(MFileFilterDateAfterSign),
-		DI_FIXEDIT,52,8,61,8,(DWORD_PTR)(const wchar_t *)strDateMask,DIF_MASKEDIT,L"",
-		DI_FIXEDIT,52,8,61,8,(DWORD_PTR)(const wchar_t *)DaysMask,DIF_MASKEDIT,L"",
-		DI_FIXEDIT,63,8,74,8,(DWORD_PTR)(const wchar_t *)strTimeMask,DIF_MASKEDIT,L"",
+		DI_FIXEDIT,52,8,61,8,(DWORD_PTR)strDateMask.CPtr(),DIF_MASKEDIT,L"",
+		DI_FIXEDIT,52,8,61,8,(DWORD_PTR)DaysMask,DIF_MASKEDIT,L"",
+		DI_FIXEDIT,63,8,74,8,(DWORD_PTR)strTimeMask.CPtr(),DIF_MASKEDIT,L"",
 		DI_BUTTON,0,6,0,6,0,DIF_BTNNOCLOSE,MSG(MFileFilterCurrent),
 		DI_BUTTON,0,6,74,6,0,DIF_BTNNOCLOSE,MSG(MFileFilterBlank),
 
@@ -948,7 +948,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		DI_BUTTON,0,17,0,17,0,DIF_CENTERGROUP,MSG(MFileFilterCancel),
 		DI_BUTTON,0,17,0,17,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(MFileFilterMakeTransparent),
 	};
-	FilterDlgData[0].Data=(const wchar_t *)(ColorConfig?MFileHilightTitle:MFileFilterTitle);
+	FilterDlgData[0].Data=MSG(ColorConfig?MFileHilightTitle:MFileFilterTitle);
 	MakeDialogItemsEx(FilterDlgData,FilterDlg);
 
 	if (ColorConfig)

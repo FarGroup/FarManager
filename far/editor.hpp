@@ -108,11 +108,11 @@ struct EditorUndoData
 			delete[] this->Str;
 		}
 
-		if (Str!=nullptr)
+		if (Str)
 		{
 			this->Str=new wchar_t[Length+1];
 
-			if (this->Str!=nullptr)
+			if (this->Str)
 				wmemmove(this->Str,Str,Length);
 		}
 		else

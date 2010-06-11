@@ -85,7 +85,7 @@ UnicodeString& UnicodeString::Replace(size_t Pos, size_t Len, const wchar_t* Dat
 	assert(!(Data < m_pData->GetData() && Data + DataLen > m_pData->GetData()));
 	assert(!(Data < m_pData->GetData() + m_pData->GetLength() && Data + DataLen > m_pData->GetData() + m_pData->GetLength()));
 
-	if ((Len == 0) && (DataLen == 0))
+	if (!Len && !DataLen)
 		return *this;
 
 	size_t NewLength = m_pData->GetLength() + DataLen - Len;
@@ -194,7 +194,7 @@ bool UnicodeString::Equal(size_t Pos, size_t Len, const wchar_t* Data, size_t Da
 	if (Len != DataLen)
 		return false;
 
-	return wmemcmp(m_pData->GetData() + Pos, Data, Len) == 0;
+	return !wmemcmp(m_pData->GetData() + Pos, Data, Len);
 }
 
 const UnicodeString operator+(const UnicodeString &strSrc1, const UnicodeString &strSrc2)

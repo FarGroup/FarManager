@@ -93,7 +93,7 @@ static wchar_t * WINAPI InsertCustomQuote(wchar_t *Str,wchar_t QuoteChar)
 		*Str=QuoteChar;
 	}
 
-	if ((l-1) == 0 || Str[l-1] != QuoteChar)
+	if (l==1 || Str[l-1] != QuoteChar)
 	{
 		Str[l++] = QuoteChar;
 		Str[l] = 0;
@@ -112,7 +112,7 @@ static string& InsertCustomQuote(string &strStr,wchar_t QuoteChar)
 		l++;
 	}
 
-	if ((l-1) == 0 || strStr.At(l-1) != QuoteChar)
+	if (l==1 || strStr.At(l-1) != QuoteChar)
 	{
 		strStr += QuoteChar;
 	}
@@ -127,7 +127,7 @@ wchar_t * WINAPI InsertQuote(wchar_t *Str)
 
 wchar_t * WINAPI InsertRegexpQuote(wchar_t *Str)
 {
-	if (Str!=nullptr && *Str != L'/')
+	if (Str && *Str != L'/')
 		return InsertCustomQuote(Str,L'/');
 	else          //выражение вида /regexp/i не дополняем слэшем
 		return Str;
@@ -135,7 +135,7 @@ wchar_t * WINAPI InsertRegexpQuote(wchar_t *Str)
 
 wchar_t* WINAPI QuoteSpace(wchar_t *Str)
 {
-	if (wcspbrk(Str, Opt.strQuotedSymbols) != nullptr)
+	if (wcspbrk(Str, Opt.strQuotedSymbols) )
 		InsertQuote(Str);
 
 	return Str;
@@ -157,7 +157,7 @@ string& InsertRegexpQuote(string &strStr)
 
 string &QuoteSpace(string &strStr)
 {
-	if (wcspbrk(strStr, Opt.strQuotedSymbols) != nullptr)
+	if (wcspbrk(strStr, Opt.strQuotedSymbols) )
 		InsertQuote(strStr);
 
 	return strStr;
@@ -166,7 +166,7 @@ string &QuoteSpace(string &strStr)
 
 wchar_t*  WINAPI QuoteSpaceOnly(wchar_t *Str)
 {
-	if (wcschr(Str,L' ')!=nullptr)
+	if (wcschr(Str,L' '))
 		InsertQuote(Str);
 
 	return Str;
@@ -311,11 +311,11 @@ wchar_t* WINAPI TruncPathStr(wchar_t *Str, int MaxLength)
 			{
 				if ((Str[0] == L'\\') && (Str[1] == L'\\'))
 				{
-					if ((lpStart = const_cast<wchar_t*>(FirstSlash(Str+2))) != nullptr)
+					if ((lpStart = const_cast<wchar_t*>(FirstSlash(Str+2))) )
 					{
 						wchar_t *lpStart2=lpStart;
 
-						if ((lpStart-Str < nLength) && ((lpStart=const_cast<wchar_t*>(FirstSlash(lpStart2+1)))!=nullptr))
+						if ((lpStart-Str < nLength) && ((lpStart=const_cast<wchar_t*>(FirstSlash(lpStart2+1)))))
 							lpStart++;
 					}
 				}
@@ -447,7 +447,7 @@ string &RemoveChar(string &strStr,wchar_t Target,BOOL Dup)
 	wchar_t *Ptr = strStr.GetBuffer();
 	wchar_t *Str = Ptr, Chr;
 
-	while ((Chr=*Str++) != 0)
+	while ((Chr=*Str++) )
 	{
 		if (Chr == Target)
 		{
@@ -494,16 +494,16 @@ string& CenterStr(const wchar_t *Src, string &strDest, int Length)
 
 const wchar_t *GetCommaWord(const wchar_t *Src, string &strWord,wchar_t Separator)
 {
-	if (*Src==0)
+	if (!*Src)
 		return nullptr;
 
 	const wchar_t *StartPtr = Src;
 	size_t WordLen;
 	bool SkipBrackets=false;
 
-	for (WordLen=0; *Src!=0; Src++,WordLen++)
+	for (WordLen=0; *Src; Src++,WordLen++)
 	{
-		if (*Src==L'[' && wcschr(Src+1,L']')!=nullptr)
+		if (*Src==L'[' && wcschr(Src+1,L']'))
 			SkipBrackets=true;
 
 		if (*Src==L']')
@@ -635,7 +635,7 @@ string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Wid
 	int IndexDiv, IndexB;
 
 	// подготовительные мероприятия
-	if (UnitStr[0][0][0] == 0)
+	if (!UnitStr[0][0][0])
 	{
 		PrepareUnitStr();
 	}
@@ -675,7 +675,7 @@ string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Wid
 			Divider64F2  = Divider64F2*Divider64F2_mul;
 		}
 
-		if (IndexB==0)
+		if (!IndexB)
 			strStr.Format(L"%d", (DWORD)Sz);
 		else
 		{
@@ -701,12 +701,12 @@ string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Wid
 				Width=0;
 
 			if (Economic)
-				strDestStr.Format(L"%*.*s%1.1s",Width,Width,(const wchar_t *)strStr,UnitStr[IndexB][IndexDiv]);
+				strDestStr.Format(L"%*.*s%1.1s",Width,Width,strStr.CPtr(),UnitStr[IndexB][IndexDiv]);
 			else
-				strDestStr.Format(L"%*.*s %1.1s",Width,Width,(const wchar_t *)strStr,UnitStr[IndexB][IndexDiv]);
+				strDestStr.Format(L"%*.*s %1.1s",Width,Width,strStr.CPtr(),UnitStr[IndexB][IndexDiv]);
 		}
 		else
-			strDestStr.Format(L"%*.*s",Width,Width,(const wchar_t *)strStr);
+			strDestStr.Format(L"%*.*s",Width,Width,strStr.CPtr());
 
 		return strDestStr;
 	}
@@ -726,12 +726,12 @@ string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Wid
 				Width=0;
 
 			if (Economic)
-				strDestStr.Format(L"%*.*s%1.1s",Width,Width,(const wchar_t *)strStr,UnitStr[0][IndexDiv]);
+				strDestStr.Format(L"%*.*s%1.1s",Width,Width,strStr.CPtr(),UnitStr[0][IndexDiv]);
 			else
-				strDestStr.Format(L"%*.*s %1.1s",Width,Width,(const wchar_t *)strStr,UnitStr[0][IndexDiv]);
+				strDestStr.Format(L"%*.*s %1.1s",Width,Width,strStr.CPtr(),UnitStr[0][IndexDiv]);
 		}
 		else
-			strDestStr.Format(L"%*.*s",Width,Width,(const wchar_t *)strStr);
+			strDestStr.Format(L"%*.*s",Width,Width,strStr.CPtr());
 	}
 	else
 	{
@@ -756,9 +756,9 @@ string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Wid
 		while ((UseMinSizeIndex && IndexB<MinSizeIndex) || strStr.GetLength() > static_cast<size_t>(Width));
 
 		if (Economic)
-			strDestStr.Format(L"%*.*s%1.1s",Width,Width,(const wchar_t*)strStr,UnitStr[IndexB][IndexDiv]);
+			strDestStr.Format(L"%*.*s%1.1s",Width,Width,strStr.CPtr(),UnitStr[IndexB][IndexDiv]);
 		else
-			strDestStr.Format(L"%*.*s %1.1s",Width,Width,(const wchar_t*)strStr,UnitStr[IndexB][IndexDiv]);
+			strDestStr.Format(L"%*.*s %1.1s",Width,Width,strStr.CPtr(),UnitStr[IndexB][IndexDiv]);
 	}
 
 	return strDestStr;
@@ -803,7 +803,7 @@ int ReplaceStrings(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr,
 	{
 		int Res=IgnoreCase?StrCmpNI(&strStr[I], FindStr, LenFindStr):StrCmpN(&strStr[I], FindStr, LenFindStr);
 
-		if (Res == 0)
+		if (!Res)
 		{
 			wchar_t *Str;
 			if (L+Delta+1 > strStr.GetSize())
@@ -913,7 +913,7 @@ string& WINAPI FarFormatText(const wchar_t *SrcText,     // источник
 	/* Special case for a single-character break as it needs no
 	   additional storage space */
 
-	if (breakcharlen == 1 && docut == 0)
+	if (breakcharlen == 1 && !docut)
 	{
 		newtext = xf_wcsdup(text);
 
@@ -1000,7 +1000,7 @@ string& WINAPI FarFormatText(const wchar_t *SrcText,     // источник
 			{
 				if (text[i+l] == breakchar[0])
 				{
-					if (breakcharlen == 1 || StrCmpN(text+i+l, breakchar, breakcharlen)==0)
+					if (breakcharlen == 1 || !StrCmpN(text+i+l, breakchar, breakcharlen))
 						break;
 				}
 
@@ -1033,7 +1033,7 @@ string& WINAPI FarFormatText(const wchar_t *SrcText,     // источник
 
 					while (l <= pgr)
 					{
-						if (docut == 0)
+						if (!docut)
 						{
 							if (text[i+l] == L' ')
 							{

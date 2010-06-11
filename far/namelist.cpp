@@ -60,12 +60,12 @@ bool NamesList::GetNextName(string &strName, string &strShortName)
 	const OneName *pName=Names.Next(CurrentName);
 
 	if (!pName)
-		return(false);
+		return false;
 
 	strName = pName->Value.strName;
 	strShortName = pName->Value.strShortName;
 	CurrentName=pName;
-	return(true);
+	return true;
 }
 
 
@@ -74,12 +74,12 @@ bool NamesList::GetPrevName(string &strName, string &strShortName)
 	const OneName *pName=Names.Prev(CurrentName);
 
 	if (!pName)
-		return(false);
+		return false;
 
 	strName = pName->Value.strName;
 	strShortName = pName->Value.strShortName;
 	CurrentName=pName;
-	return(true);
+	return true;
 }
 
 

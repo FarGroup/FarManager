@@ -413,7 +413,7 @@ void Edit::FastShow()
 			}
 			else
 			{
-				if (*p == 0)
+				if (!*p)
 					OutStr[OutStrLength]=L' ';
 				else
 					OutStr[OutStrLength]=*p;
@@ -573,13 +573,13 @@ __int64 Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	switch (OpCode)
 	{
 		case MCODE_C_EMPTY:
-			return (__int64)(GetLength()==0);
+			return (__int64)!GetLength();
 		case MCODE_C_SELECTED:
 			return (__int64)(SelStart != -1 && SelStart < SelEnd);
 		case MCODE_C_EOF:
 			return (__int64)(CurPos >= StrSize);
 		case MCODE_C_BOF:
-			return (__int64)(CurPos==0);
+			return (__int64)!CurPos;
 		case MCODE_V_ITEMCOUNT:
 			return (__int64)StrSize;
 		case MCODE_V_CURPOS:
@@ -616,7 +616,7 @@ __int64 Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							case 0: // begin block (FirstLine & FirstPos)
 							case 1: // end block (LastLine & LastPos)
 							{
-								SetTabCurPos(iParam==0?SelStart:SelEnd);
+								SetTabCurPos(iParam?SelEnd:SelStart);
 								Show();
 								return 1;
 							}
@@ -720,7 +720,7 @@ int Edit::ProcessKey(int Key)
 	{
 		DeleteBlock();
 		Show();
-		return(TRUE);
+		return TRUE;
 	}
 
 	int _Macro_IsExecuting=CtrlObject->Macro.IsExecuting();
@@ -744,7 +744,7 @@ int Edit::ProcessKey(int Key)
 			/* $ 12.11.2002 DJ
 			   зачем рисоваться, если ничего не изменилось?
 			*/
-			if (SelStart != -1 || SelEnd != 0)
+			if (SelStart != -1 || SelEnd )
 			{
 				PrevSelStart=SelStart;
 				PrevSelEnd=SelEnd;
@@ -831,7 +831,7 @@ int Edit::ProcessKey(int Key)
 				Show();
 			}
 
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_SHIFTRIGHT: case KEY_SHIFTNUMPAD6:
 		{
@@ -852,7 +852,7 @@ int Edit::ProcessKey(int Key)
 				AddSelect(CurPos,CurPos+1);
 
 			RecurseProcessKey(KEY_RIGHT);
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_CTRLSHIFTLEFT: case KEY_CTRLSHIFTNUMPAD4:
 		{
@@ -876,12 +876,12 @@ int Edit::ProcessKey(int Key)
 			}
 
 			Show();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_CTRLSHIFTRIGHT: case KEY_CTRLSHIFTNUMPAD6:
 		{
 			if (CurPos>=StrSize)
-				return(FALSE);
+				return FALSE;
 
 			RecurseProcessKey(KEY_SHIFTRIGHT);
 
@@ -898,7 +898,7 @@ int Edit::ProcessKey(int Key)
 			}
 
 			Show();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_SHIFTHOME:  case KEY_SHIFTNUMPAD7:
 		{
@@ -909,7 +909,7 @@ int Edit::ProcessKey(int Key)
 
 			Unlock();
 			Show();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_SHIFTEND:  case KEY_SHIFTNUMPAD1:
 		{
@@ -920,7 +920,7 @@ int Edit::ProcessKey(int Key)
 			{
 				wchar_t *ShortStr=new wchar_t[StrSize+1];
 
-				if (ShortStr==nullptr)
+				if (!ShortStr)
 					return FALSE;
 
 				xwcsncpy(ShortStr,Str,StrSize+1);
@@ -943,12 +943,12 @@ int Edit::ProcessKey(int Key)
 
 			Unlock();
 			Show();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_BS:
 		{
 			if (CurPos<=0)
-				return(FALSE);
+				return FALSE;
 
 			PrevCurPos=CurPos;
 			CurPos--;
@@ -964,7 +964,7 @@ int Edit::ProcessKey(int Key)
 			if (!RecurseProcessKey(KEY_DEL))
 				Show();
 
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_CTRLSHIFTBS:
 		{
@@ -978,7 +978,7 @@ int Edit::ProcessKey(int Key)
 			DC.Restore();
 			Changed(true);
 			Show();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_CTRLBS:
 		{
@@ -1002,7 +1002,7 @@ int Edit::ProcessKey(int Key)
 
 				RecurseProcessKey(KEY_BS);
 
-				if (CurPos==0 || StopDelete)
+				if (!CurPos || StopDelete)
 					break;
 
 				if (IsWordDiv(WordDiv(),Str[CurPos-1]))
@@ -1013,7 +1013,7 @@ int Edit::ProcessKey(int Key)
 			DC.Restore();
 			Changed(true);
 			Show();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_CTRLQ:
 		{
@@ -1025,7 +1025,7 @@ int Edit::ProcessKey(int Key)
 			ProcessCtrlQ();
 			Unlock();
 			Show();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_OP_SELWORD:
 		{
@@ -1076,7 +1076,7 @@ int Edit::ProcessKey(int Key)
 		case KEY_CTRLDECIMAL:
 		{
 			if (CurPos>=StrSize)
-				return(FALSE);
+				return FALSE;
 
 			Lock();
 			DisableCallback DC(m_Callback.Active);
@@ -1122,7 +1122,7 @@ int Edit::ProcessKey(int Key)
 			DC.Restore();
 			Changed(true);
 			Show();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_CTRLY:
 		{
@@ -1137,7 +1137,7 @@ int Edit::ProcessKey(int Key)
 			Select(-1,0);
 			Changed();
 			Show();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_CTRLK:
 		{
@@ -1145,7 +1145,7 @@ int Edit::ProcessKey(int Key)
 				return (TRUE);
 
 			if (CurPos>=StrSize)
-				return(FALSE);
+				return FALSE;
 
 			if (!Flags.Check(FEDITLINE_EDITBEYONDEND))
 			{
@@ -1164,7 +1164,7 @@ int Edit::ProcessKey(int Key)
 			Str=(wchar_t *)xf_realloc(Str,(StrSize+1)*sizeof(wchar_t));
 			Changed();
 			Show();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_HOME:        case KEY_NUMPAD7:
 		case KEY_CTRLHOME:    case KEY_CTRLNUMPAD7:
@@ -1172,7 +1172,7 @@ int Edit::ProcessKey(int Key)
 			PrevCurPos=CurPos;
 			CurPos=0;
 			Show();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_END:         case KEY_NUMPAD1:
 		case KEY_CTRLEND:     case KEY_CTRLNUMPAD1:
@@ -1184,7 +1184,7 @@ int Edit::ProcessKey(int Key)
 			{
 				wchar_t *ShortStr=new wchar_t[StrSize+1];
 
-				if (ShortStr==nullptr)
+				if (!ShortStr)
 					return FALSE;
 
 				xwcsncpy(ShortStr,Str,StrSize+1);
@@ -1195,7 +1195,7 @@ int Edit::ProcessKey(int Key)
 				CurPos=StrSize;
 
 			Show();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_LEFT:        case KEY_NUMPAD4:        case KEY_MSWHEEL_LEFT:
 		case KEY_CTRLS:
@@ -1207,7 +1207,7 @@ int Edit::ProcessKey(int Key)
 				Show();
 			}
 
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_RIGHT:       case KEY_NUMPAD6:        case KEY_MSWHEEL_RIGHT:
 		case KEY_CTRLD:
@@ -1218,7 +1218,7 @@ int Edit::ProcessKey(int Key)
 			{
 				wchar_t *ShortStr=new wchar_t[StrSize+1];
 
-				if (ShortStr==nullptr)
+				if (!ShortStr)
 					return FALSE;
 
 				xwcsncpy(ShortStr,Str,StrSize+1);
@@ -1232,13 +1232,13 @@ int Edit::ProcessKey(int Key)
 				CurPos++;
 
 			Show();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_INS:         case KEY_NUMPAD0:
 		{
 			Flags.Swap(FEDITLINE_OVERTYPE);
 			Show();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_NUMDEL:
 		case KEY_DEL:
@@ -1247,7 +1247,7 @@ int Edit::ProcessKey(int Key)
 				return (TRUE);
 
 			if (CurPos>=StrSize)
-				return(FALSE);
+				return FALSE;
 
 			if (SelStart!=-1)
 			{
@@ -1292,7 +1292,7 @@ int Edit::ProcessKey(int Key)
 
 			Changed(true);
 			Show();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_CTRLLEFT:  case KEY_CTRLNUMPAD4:
 		{
@@ -1314,12 +1314,12 @@ int Edit::ProcessKey(int Key)
 			}
 
 			Show();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_CTRLRIGHT:   case KEY_CTRLNUMPAD6:
 		{
 			if (CurPos>=StrSize)
-				return(FALSE);
+				return FALSE;
 
 			PrevCurPos=CurPos;
 			int Len;
@@ -1328,7 +1328,7 @@ int Edit::ProcessKey(int Key)
 			{
 				wchar_t *ShortStr=new wchar_t[StrSize+1];
 
-				if (ShortStr==nullptr)
+				if (!ShortStr)
 					return FALSE;
 
 				xwcsncpy(ShortStr,Str,StrSize+1);
@@ -1354,19 +1354,19 @@ int Edit::ProcessKey(int Key)
 			}
 
 			Show();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_SHIFTNUMDEL:
 		case KEY_SHIFTDECIMAL:
 		case KEY_SHIFTDEL:
 		{
 			if (SelStart==-1 || SelStart>=SelEnd)
-				return(FALSE);
+				return FALSE;
 
 			RecurseProcessKey(KEY_CTRLINS);
 			DeleteBlock();
 			Show();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_CTRLINS:     case KEY_CTRLNUMPAD0:
 		{
@@ -1378,7 +1378,7 @@ int Edit::ProcessKey(int Key)
 					{
 						wchar_t *ShortStr=new wchar_t[StrSize+1];
 
-						if (ShortStr==nullptr)
+						if (!ShortStr)
 							return FALSE;
 
 						xwcsncpy(ShortStr,Str,StrSize+1);
@@ -1400,7 +1400,7 @@ int Edit::ProcessKey(int Key)
 				}
 			}
 
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_SHIFTINS:    case KEY_SHIFTNUMPAD0:
 		{
@@ -1411,8 +1411,8 @@ int Edit::ProcessKey(int Key)
 			else
 				ClipText=PasteFromClipboardEx(MaxLength);
 
-			if (ClipText==nullptr)
-				return(TRUE);
+			if (!ClipText)
+				return TRUE;
 
 			if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
 			{
@@ -1430,7 +1430,7 @@ int Edit::ProcessKey(int Key)
 					if (IsEol(ClipText[i+1]))
 						wmemmove(&ClipText[i],&ClipText[i+1],StrLength(&ClipText[i+1])+1);
 
-					if (ClipText[i+1]==0)
+					if (!ClipText[i+1])
 						ClipText[i]=0;
 					else
 						ClipText[i]=L' ';
@@ -1452,7 +1452,7 @@ int Edit::ProcessKey(int Key)
 				xf_free(ClipText);
 
 			Show();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_SHIFTTAB:
 		{
@@ -1463,7 +1463,7 @@ int Edit::ProcessKey(int Key)
 
 			SetTabCurPos(CursorPos);
 			Show();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_SHIFTSPACE:
 			Key = KEY_SPACE;
@@ -1487,11 +1487,11 @@ int Edit::ProcessKey(int Key)
 			if (InsertKey(Key))
 				Show();
 
-			return(TRUE);
+			return TRUE;
 		}
 	}
 
-	return(FALSE);
+	return FALSE;
 }
 
 // обработка Ctrl-Q
@@ -1566,7 +1566,7 @@ int Edit::InsertKey(int Key)
 		PrevCurPos=CurPos;
 		CursorPos+=TabSize - (CursorPos % TabSize);
 		SetTabCurPos(CursorPos);
-		return(TRUE);
+		return TRUE;
 	}
 
 	if (Mask && *Mask)
@@ -1625,8 +1625,8 @@ int Edit::InsertKey(int Key)
 		{
 			if (CurPos>=StrSize)
 			{
-				if ((NewStr=(wchar_t *)xf_realloc(Str,(CurPos+2)*sizeof(wchar_t)))==nullptr)
-					return(FALSE);
+				if (!(NewStr=(wchar_t *)xf_realloc(Str,(CurPos+2)*sizeof(wchar_t))))
+					return FALSE;
 
 				Str=NewStr;
 				_snwprintf(&Str[StrSize],CurPos+2,L"%*s",CurPos-StrSize,L"");
@@ -1643,8 +1643,8 @@ int Edit::InsertKey(int Key)
 				return TRUE;
 			}
 
-			if ((NewStr=(wchar_t *)xf_realloc(Str,(StrSize+1)*sizeof(wchar_t)))==nullptr)
-				return(TRUE);
+			if (!(NewStr=(wchar_t *)xf_realloc(Str,(StrSize+1)*sizeof(wchar_t))))
+				return TRUE;
 
 			Str=NewStr;
 
@@ -1683,7 +1683,7 @@ int Edit::InsertKey(int Key)
 
 	if (changed) Changed();
 
-	return(TRUE);
+	return TRUE;
 }
 
 void Edit::SetObjectColor(int Color,int SelColor,int ColorUnChanged)
@@ -1838,17 +1838,17 @@ void Edit::SetBinaryString(const wchar_t *Str,int Length)
 			i++;
 		}
 
-		/* Здесь необходимо условие (*Str==0), т.к. для очистки строки
+		/* Здесь необходимо условие (!*Str), т.к. для очистки строки
 		   обычно вводится нечто вроде SetBinaryString("",0)
 		   Т.е. таким образом мы добиваемся "инициализации" строки с маской
 		*/
-		RefreshStrByMask(*Str==0);
+		RefreshStrByMask(!*Str);
 	}
 	else
 	{
 		wchar_t *NewStr=(wchar_t *)xf_realloc_nomove(this->Str,(Length+1)*sizeof(wchar_t));
 
-		if (NewStr==nullptr)
+		if (!NewStr)
 			return;
 
 		this->Str=NewStr;
@@ -1870,7 +1870,7 @@ void Edit::GetBinaryString(const wchar_t **Str,const wchar_t **EOL,int &Length)
 {
 	*Str=this->Str;
 
-	if (EOL!=nullptr)
+	if (EOL)
 		*EOL=EOL_TYPE_CHARS[EndType];
 
 	Length=StrSize; //???
@@ -1882,7 +1882,7 @@ int Edit::GetSelString(wchar_t *Str, int MaxSize)
 	        SelStart>=StrSize)
 	{
 		*Str=0;
-		return(FALSE);
+		return FALSE;
 	}
 
 	int CopyLength;
@@ -1893,7 +1893,7 @@ int Edit::GetSelString(wchar_t *Str, int MaxSize)
 		CopyLength=Min(MaxSize,SelEnd-SelStart+1);
 
 	xwcsncpy(Str,this->Str+SelStart,CopyLength);
-	return(TRUE);
+	return TRUE;
 }
 
 int Edit::GetSelString(string &strStr)
@@ -1902,7 +1902,7 @@ int Edit::GetSelString(string &strStr)
 	        SelStart>=StrSize)
 	{
 		strStr.Clear();
-		return(FALSE);
+		return FALSE;
 	}
 
 	int CopyLength;
@@ -1910,7 +1910,7 @@ int Edit::GetSelString(string &strStr)
 	wchar_t *lpwszStr = strStr.GetBuffer(CopyLength+1);
 	xwcsncpy(lpwszStr,this->Str+SelStart,CopyLength);
 	strStr.ReleaseBuffer();
-	return(TRUE);
+	return TRUE;
 }
 
 
@@ -1996,7 +1996,7 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 		{
 			if (CurPos>StrSize)
 			{
-				if ((NewStr=(wchar_t *)xf_realloc(this->Str,(CurPos+1)*sizeof(wchar_t)))==nullptr)
+				if (!(NewStr=(wchar_t *)xf_realloc(this->Str,(CurPos+1)*sizeof(wchar_t))))
 					return;
 
 				this->Str=NewStr;
@@ -2014,7 +2014,7 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 			wmemcpy(TmpStr,&this->Str[CurPos],TmpSize);
 			StrSize+=Length;
 
-			if ((NewStr=(wchar_t *)xf_realloc(this->Str,(StrSize+1)*sizeof(wchar_t)))==nullptr)
+			if (!(NewStr=(wchar_t *)xf_realloc(this->Str,(StrSize+1)*sizeof(wchar_t))))
 			{
 				delete[] TmpStr;
 				return;
@@ -2053,7 +2053,7 @@ void Edit::SetInputMask(const wchar_t *InputMask)
 
 	if (InputMask && *InputMask)
 	{
-		if ((Mask=xf_wcsdup(InputMask)) == nullptr)
+		if (!(Mask=xf_wcsdup(InputMask)))
 			return;
 
 		RefreshStrByMask(TRUE);
@@ -2074,7 +2074,7 @@ void Edit::RefreshStrByMask(int InitMode)
 		{
 			wchar_t *NewStr=(wchar_t *)xf_realloc(Str,(MaskLen+1)*sizeof(wchar_t));
 
-			if (NewStr==nullptr)
+			if (!NewStr)
 				return;
 
 			Str=NewStr;
@@ -2100,12 +2100,12 @@ void Edit::RefreshStrByMask(int InitMode)
 
 int Edit::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
-	if ((MouseEvent->dwButtonState & 3)==0)
-		return(FALSE);
+	if (!(MouseEvent->dwButtonState & 3))
+		return FALSE;
 
 	if (MouseEvent->dwMousePosition.X<X1 || MouseEvent->dwMousePosition.X>X2 ||
 	        MouseEvent->dwMousePosition.Y!=Y1)
-		return(FALSE);
+		return FALSE;
 
 	//SetClearFlag(0); // пусть едитор сам заботится о снятии клеар-текста?
 	SetTabCurPos(MouseEvent->dwMousePosition.X - X1 + LeftPos);
@@ -2142,7 +2142,7 @@ int Edit::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	}
 
 	Show();
-	return(TRUE);
+	return TRUE;
 }
 
 
@@ -2162,10 +2162,10 @@ int Edit::Search(const string& Str,string& ReplaceStr,int Position,int Case,int 
 			Position=StrSize-1;
 
 		if (Position<0)
-			return(FALSE);
+			return FALSE;
 	}
 
-	if ((Position<StrSize || (Position==0 && StrSize==0)) && !Str.IsEmpty())
+	if ((Position<StrSize || (!Position && !StrSize)) && !Str.IsEmpty())
 	{
 		if (!Reverse && Regexp)
 		{
@@ -2179,7 +2179,7 @@ int Edit::Search(const string& Str,string& ReplaceStr,int Position,int Case,int 
 				int n = re.GetBracketsCount();
 				SMatch *m = (SMatch *)xf_malloc(n*sizeof(SMatch));
 
-				if (m == nullptr)
+				if (!m)
 					return FALSE;
 
 				if (re.SearchEx(this->Str,this->Str+Position,this->Str+StrSize,m,n))
@@ -2205,10 +2205,10 @@ int Edit::Search(const string& Str,string& ReplaceStr,int Position,int Case,int 
 		{
 			for (int J=0;; J++)
 			{
-				if (Str[J]==0)
+				if (!Str[J])
 				{
 					CurPos=I;
-					return(TRUE);
+					return TRUE;
 				}
 
 				if (WholeWords)
@@ -2219,14 +2219,14 @@ int Edit::Search(const string& Str,string& ReplaceStr,int Position,int Case,int 
 					ChLeft=this->Str[I-1];
 
 					if (I>0)
-						locResultLeft=(IsSpace(ChLeft) || wcschr(WordDiv(),ChLeft)!=nullptr);
+						locResultLeft=(IsSpace(ChLeft) || wcschr(WordDiv(),ChLeft));
 					else
 						locResultLeft=TRUE;
 
 					if (I+Length<StrSize)
 					{
 						ChRight=this->Str[I+Length];
-						locResultRight=(IsSpace(ChRight) || wcschr(WordDiv(),ChRight)!=nullptr);
+						locResultRight=(IsSpace(ChRight) || wcschr(WordDiv(),ChRight));
 					}
 					else
 					{
@@ -2253,7 +2253,7 @@ int Edit::Search(const string& Str,string& ReplaceStr,int Position,int Case,int 
 		}
 	}
 
-	return(FALSE);
+	return FALSE;
 }
 
 void Edit::InsertTab()
@@ -2302,7 +2302,7 @@ void Edit::ReplaceTabs()
 
 	bool changed=false;
 
-	while ((TabPtr=(wchar_t *)wmemchr(Str+Pos,L'\t',StrSize-Pos))!=nullptr)
+	while (TabPtr=(wchar_t *)wmemchr(Str+Pos,L'\t',StrSize-Pos))
 	{
 		changed=true;
 		Pos=(int)(TabPtr-Str);
@@ -2352,7 +2352,7 @@ void Edit::SetTabCurPos(int NewPos)
 	{
 		wchar_t *ShortStr=new wchar_t[StrSize+1];
 
-		if (ShortStr==nullptr)
+		if (!ShortStr)
 			return;
 
 		xwcsncpy(ShortStr,Str,StrSize+1);
@@ -2595,7 +2595,7 @@ void Edit::DeleteBlock()
 
 void Edit::AddColor(ColorItem *col)
 {
-	if ((ColorCount & 15)==0)
+	if (!(ColorCount & 15))
 		ColorList=(ColorItem *)xf_realloc(ColorList,(ColorCount+16)*sizeof(*ColorList));
 
 	ColorList[ColorCount++]=*col;
@@ -2606,8 +2606,8 @@ int Edit::DeleteColor(int ColorPos)
 {
 	int Src;
 
-	if (ColorCount==0)
-		return(FALSE);
+	if (!ColorCount)
+		return FALSE;
 
 	int Dest=0;
 
@@ -2623,23 +2623,23 @@ int Edit::DeleteColor(int ColorPos)
 	int DelCount=ColorCount-Dest;
 	ColorCount=Dest;
 
-	if (ColorCount==0)
+	if (!ColorCount)
 	{
 		xf_free(ColorList);
 		ColorList=nullptr;
 	}
 
-	return(DelCount!=0);
+	return(DelCount);
 }
 
 
 int Edit::GetColor(ColorItem *col,int Item)
 {
 	if (Item >= ColorCount)
-		return(FALSE);
+		return FALSE;
 
 	*col=ColorList[Item];
-	return(TRUE);
+	return TRUE;
 }
 
 
@@ -2790,7 +2790,7 @@ void Edit::ApplyColor()
 void Edit::Xlat(BOOL All)
 {
 	//   Для CmdLine - если нет выделения, преобразуем всю строку
-	if (All && SelStart == -1 && SelEnd == 0)
+	if (All && SelStart == -1 && !SelEnd)
 	{
 		::Xlat(Str,0,StrLength(Str),Opt.XLat.Flags);
 		Changed();
@@ -2876,7 +2876,7 @@ int Edit::CheckCharMask(wchar_t Chr)
 void Edit::SetDialogParent(DWORD Sets)
 {
 	if ((Sets&(FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE)) == (FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE) ||
-	        (Sets&(FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE)) == 0)
+	        !(Sets&(FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE)))
 		Flags.Clear(FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE);
 	else if (Sets&FEDITLINE_PARENT_SINGLELINE)
 	{
@@ -2917,7 +2917,7 @@ int __stdcall SystemCPEncoder::AddRef()
 
 int __stdcall SystemCPEncoder::Release()
 {
-	if (--m_nRefCount == 0)
+	if (!(--m_nRefCount))
 	{
 		delete this;
 		return 0;
@@ -2995,7 +2995,7 @@ EditControl::EditControl(ScreenObject *pOwner,Callback* aCallback,bool bAllocate
 	pList=iList;
 	Selection=false;
 	SelectionStart=-1;
-	ACState=ECFlags.Check(EC_ENABLEAUTOCOMPLETE)!=0;
+	ACState=ECFlags.Check(EC_ENABLEAUTOCOMPLETE)!=FALSE;
 }
 
 void EditControl::Show()
@@ -3310,12 +3310,12 @@ int EditControl::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 void EditControl::EnableAC(bool Permanent)
 {
-	ACState=Permanent?true:ECFlags.Check(EC_ENABLEAUTOCOMPLETE)!=0;
+	ACState=Permanent?true:ECFlags.Check(EC_ENABLEAUTOCOMPLETE)!=FALSE;
 	ECFlags.Set(EC_ENABLEAUTOCOMPLETE);
 }
 
 void EditControl::DisableAC(bool Permanent)
 {
-	ACState=Permanent?false:ECFlags.Check(EC_ENABLEAUTOCOMPLETE)!=0;
+	ACState=Permanent?false:ECFlags.Check(EC_ENABLEAUTOCOMPLETE)!=FALSE;
 	ECFlags.Clear(EC_ENABLEAUTOCOMPLETE);
 }

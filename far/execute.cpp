@@ -330,8 +330,8 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
 	Error = ERROR_SUCCESS;
 	ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
 
-	if ((ExtPtr=wcsrchr(FileName,L'.'))==nullptr)
-		return(nullptr);
+	if (!(ExtPtr=wcsrchr(FileName,L'.')))
+		return nullptr;
 
 	if (!GetShellType(ExtPtr, strValue))
 		return nullptr;
@@ -350,7 +350,7 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
 	strValue += L"\\shell";
 
 	if (RegOpenKey(HKEY_CLASSES_ROOT,strValue,&hKey)!=ERROR_SUCCESS)
-		return(nullptr);
+		return nullptr;
 
 	static string strAction;
 	int RetQuery = RegQueryStringValueEx(hKey,L"",strAction,L"");
@@ -363,12 +363,12 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
 		const wchar_t *ActionPtr;
 		LONG RetEnum = ERROR_SUCCESS;
 
-		if (RetPtr != nullptr && ActionList.Set(strAction))
+		if (RetPtr  && ActionList.Set(strAction))
 		{
 			HKEY hOpenKey;
 			ActionList.Reset();
 
-			while (RetEnum == ERROR_SUCCESS && (ActionPtr = ActionList.GetNext()) != nullptr)
+			while (RetEnum == ERROR_SUCCESS && (ActionPtr = ActionList.GetNext()) )
 			{
 				strNewValue = strValue;
 				strNewValue += ActionPtr;
@@ -401,7 +401,7 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
 
 	// ≈сли RetPtr==nullptr - мы не нашли default action.
 	// ѕосмотрим - есть ли вообще что-нибудь у этого расширени€
-	if (RetPtr==nullptr)
+	if (!RetPtr)
 	{
 		LONG RetEnum = ERROR_SUCCESS;
 		DWORD dwIndex = 0;
@@ -445,7 +445,7 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
 
 	RegCloseKey(hKey);
 
-	if (RetPtr != nullptr)
+	if (RetPtr )
 	{
 		strValue += command_action;
 
@@ -465,7 +465,7 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
 				{
 					wchar_t *QPtr = wcschr(Ptr + 1,L'\"');
 
-					if (QPtr!=nullptr)
+					if (QPtr)
 					{
 						*QPtr=0;
 						wmemmove(Ptr, Ptr + 1, QPtr-Ptr);
@@ -473,7 +473,7 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
 				}
 				else
 				{
-					if ((Ptr=wcspbrk(Ptr,L" \t/"))!=nullptr)
+					if ((Ptr=wcspbrk(Ptr,L" \t/")))
 						*Ptr=0;
 				}
 
@@ -864,7 +864,7 @@ int Execute(const wchar_t *CmdStr,    //  ом.строка дл€ исполнени€
 			if (strNewCmdStr.RPos(pos,L'.'))
 			{
 				const wchar_t *ExtPtr=strNewCmdStr.CPtr()+pos;
-				if (!(StrCmpI(ExtPtr,L".exe")==0 || StrCmpI(ExtPtr,L".com")==0 || IsBatchExtType(ExtPtr)))
+				if (!(!StrCmpI(ExtPtr,L".exe") || !StrCmpI(ExtPtr,L".com") || IsBatchExtType(ExtPtr)))
 				{
 					lpVerb=GetShellAction(strNewCmdStr,dwSubSystem2,Error);
 
@@ -1015,7 +1015,7 @@ int Execute(const wchar_t *CmdStr,    //  ом.строка дл€ исполнени€
 
 			if (AlwaysWaitFinish || !SeparateWindow)
 			{
-				if (Opt.ConsoleDetachKey == 0)
+				if (!Opt.ConsoleDetachKey)
 				{
 					WaitForSingleObject(hProcess,INFINITE);
 					if(!Silent)
@@ -1058,7 +1058,7 @@ int Execute(const wchar_t *CmdStr,    //  ом.строка дл€ исполнени€
 									dwControlKeyState = pir->Event.KeyEvent.dwControlKeyState;
 									bAlt = (dwControlKeyState & LEFT_ALT_PRESSED) || (dwControlKeyState & RIGHT_ALT_PRESSED);
 									bCtrl = (dwControlKeyState & LEFT_CTRL_PRESSED) || (dwControlKeyState & RIGHT_CTRL_PRESSED);
-									bShift = (dwControlKeyState & SHIFT_PRESSED) != 0;
+									bShift = (dwControlKeyState & SHIFT_PRESSED)!=0;
 
 									if (vkey==pir->Event.KeyEvent.wVirtualKeyCode &&
 									        (alt ?bAlt:!bAlt) &&
@@ -1105,10 +1105,10 @@ int Execute(const wchar_t *CmdStr,    //  ом.строка дл€ исполнени€
 												ExtractIconEx(g_strFarModuleName,0,&hLargeIcon,&hSmallIcon,1);
 											}
 
-											if (hLargeIcon != nullptr)
+											if (hLargeIcon )
 												SendMessage(hWnd,WM_SETICON,1,(LPARAM)hLargeIcon);
 
-											if (hSmallIcon != nullptr)
+											if (hSmallIcon )
 												SendMessage(hWnd,WM_SETICON,0,(LPARAM)hSmallIcon);
 										}
 
@@ -1215,7 +1215,7 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
 			ScrBuf.Flush();
 		}
 
-		return(-1);
+		return -1;
 	}
 
 	int Code;
@@ -1331,7 +1331,7 @@ const wchar_t *PrepareOSIfExist(const wchar_t *CmdLine)
 		if (!*PtrCmd)
 			break;
 
-		if (StrCmpNI(PtrCmd,L"NOT ",4)==0)
+		if (!StrCmpNI(PtrCmd,L"NOT ",4))
 		{
 			Not=TRUE;
 
@@ -1376,8 +1376,8 @@ const wchar_t *PrepareOSIfExist(const wchar_t *CmdLine)
 				strCmd.Copy(CmdStart,PtrCmd-CmdStart);
 				Unquote(strCmd);
 
-//_SVS(SysLog(L"Cmd='%s'",(const wchar_t *)strCmd));
-				if (apiExpandEnvironmentStrings(strCmd,strExpandedStr)!=0)
+//_SVS(SysLog(L"Cmd='%s'", strCmd.CPtr()));
+				if (apiExpandEnvironmentStrings(strCmd,strExpandedStr))
 				{
 					string strFullPath;
 
@@ -1488,7 +1488,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 		strCmdLine.LShift(1);
 	}
 
-	if (!SeparateWindow && strCmdLine.At(0) && strCmdLine.At(1)==L':' && strCmdLine.At(2)==0)
+	if (!SeparateWindow && strCmdLine.At(0) && strCmdLine.At(1)==L':' && !strCmdLine.At(2))
 	{
 		if(!FarChDir(strCmdLine))
 		{
@@ -1498,7 +1498,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 			}
 		}
 		SetPanel->ChangeDirToCurrent();
-		return(TRUE);
+		return TRUE;
 	}
 	// SET [переменна€=[строка]]
 	else if (!StrCmpNI(strCmdLine,L"SET",3) && IsSpaceOrEos(strCmdLine.At(3)))
@@ -1525,7 +1525,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 		{
 			string strExpandedStr;
 
-			if (apiExpandEnvironmentStrings(strCmdLine.CPtr()+pos+1,strExpandedStr) != 0)
+			if (apiExpandEnvironmentStrings(strCmdLine.CPtr()+pos+1,strExpandedStr) )
 			{
 				strCmdLine.SetLength(pos);
 				SetEnvironmentVariable(strCmdLine,strExpandedStr);
@@ -1621,7 +1621,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 
 		wchar_t Chr;
 
-		while ((Chr=*Ptr) != 0)
+		while ((Chr=*Ptr) )
 		{
 			if (!iswdigit(Chr))
 				break;
@@ -1669,7 +1669,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 		return FALSE;
 	}
 	// пропускаем обработку, если нажат Shift-Enter
-	else if (!SeparateWindow && (StrCmpNI(strCmdLine,L"CD",Length=2)==0 || StrCmpNI(strCmdLine,L"CHDIR",Length=5)==0))
+	else if (!SeparateWindow && (!StrCmpNI(strCmdLine,L"CD",Length=2) || !StrCmpNI(strCmdLine,L"CHDIR",Length=5)))
 	{
 		if (!IsSpaceOrEos(strCmdLine.At(Length)))
 		{
@@ -1682,7 +1682,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 
 		//проигнорируем /D
 		//мы и так всегда мен€ем диск а некоторые в алайсах или по привычке набирают этот ключ
-		if (StrCmpNI(strCmdLine,L"/D",2)==0 && IsSpaceOrEos(strCmdLine.At(2)))
+		if (!StrCmpNI(strCmdLine,L"/D",2) && IsSpaceOrEos(strCmdLine.At(2)))
 		{
 			strCmdLine.LShift(2);
 			RemoveLeadingSpaces(strCmdLine);
@@ -1703,7 +1703,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 		return TRUE;
 	}
 
-	return(FALSE);
+	return FALSE;
 }
 
 bool CommandLine::CheckCmdLineForHelp(const wchar_t *CmdLine)
@@ -1799,7 +1799,7 @@ BOOL CommandLine::IntChDir(const wchar_t *CmdLine,int ClosePlugin,bool Selent)
 	  GotoXY(X1,Y1);
 	  FS<<fmt::Width(X2-X1+1)<<L"";
 	  Show();
-	  return(TRUE);
+	  return TRUE;
 	}
 	*/
 	strExpandedDir.ReleaseBuffer();
@@ -1807,7 +1807,7 @@ BOOL CommandLine::IntChDir(const wchar_t *CmdLine,int ClosePlugin,bool Selent)
 	if (SetPanel->GetType()==FILE_PANEL && SetPanel->GetMode()==PLUGIN_PANEL)
 	{
 		SetPanel->SetCurDir(strExpandedDir,ClosePlugin);
-		return(TRUE);
+		return TRUE;
 	}
 
 	if (FarChDir(strExpandedDir))

@@ -88,7 +88,7 @@ int PrepareHotKey(string &strHotKey)
 	if (strHotKey.GetLength() > 1)
 	{
 		// если хоткей больше 1 символа, считаем это случаем "F?", причем при кривизне всегда будет "F1"
-		FuncNum=_wtoi((const wchar_t*)strHotKey+1);
+		FuncNum=_wtoi(strHotKey.CPtr()+1);
 
 		if (FuncNum < 1 || FuncNum > 24)
 		{
@@ -175,7 +175,7 @@ void MenuFileToReg(const wchar_t *MenuKey, File& MenuFile, GetFileString& GetStr
 
 		RemoveTrailingSpaces(MenuStr);
 
-		if (*MenuStr==0)
+		if (!*MenuStr)
 			continue;
 
 		if (*MenuStr==L'{' && KeyNumber>=0)
@@ -191,7 +191,7 @@ void MenuFileToReg(const wchar_t *MenuKey, File& MenuFile, GetFileString& GetStr
 		{
 			wchar_t *ChPtr=nullptr;
 
-			if ((ChPtr=wcschr(MenuStr,L':'))==nullptr)
+			if (!(ChPtr=wcschr(MenuStr,L':')))
 				continue;
 
 			if (!SingleItemMenu)
@@ -259,7 +259,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 		if (EditChoice<0 || EditChoice==2)
 			return;
 
-		if (EditChoice==0)
+		if (!EditChoice)
 		{
 			MenuMode=MM_FAR;
 			strMenuFilePath = g_strFarPath;
@@ -348,7 +348,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 						int AskOverwrite;
 						AskOverwrite=Message(MSG_WARNING,2,MSG(MUserMenuTitle),LocalMenuFileName,MSG(MEditRO),MSG(MEditOvr),MSG(MYes),MSG(MNo));
 
-						if (AskOverwrite==0)
+						if (!AskOverwrite)
 							apiSetFileAttributes(strMenuFileFullPath,FileAttr & ~FILE_ATTRIBUTE_READONLY);
 					}
 
@@ -704,7 +704,7 @@ int UserMenu::ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t
 								if (Key == KEY_ALTSHIFTF4) // для тукущего пункта меню закрывать ненадо
 									break;
 
-								return(0);
+								return 0;
 							}
 						}
 						DeleteKeyTree(strCurrentKey);
@@ -718,7 +718,7 @@ int UserMenu::ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t
 						if (Key == KEY_ALTSHIFTF4) // для тукущего пункта меню закрывать ненадо
 							break;
 
-						return(0); // Закрыть меню
+						return 0; // Закрыть меню
 					}
 					/* $ 28.06.2000 tran
 					выход из пользовательского меню по ShiftF10 из любого уровня
@@ -1194,14 +1194,14 @@ int UserMenu::DeleteMenuRecord(const wchar_t *MenuKey,int DeletePos)
 	string strItemName=strRecText;
 	InsertQuote(strItemName);
 
-	if (Message(MSG_WARNING,2,MSG(MUserMenuTitle),MSG(!SubMenu?MAskDeleteMenuItem:MAskDeleteSubMenuItem),strItemName,MSG(MDelete),MSG(MCancel))!=0)
-		return(FALSE);
+	if (Message(MSG_WARNING,2,MSG(MUserMenuTitle),MSG(!SubMenu?MAskDeleteMenuItem:MAskDeleteSubMenuItem),strItemName,MSG(MDelete),MSG(MCancel)))
+		return FALSE;
 
 	MenuModified=MenuNeedRefresh=true;
 	strRegKey.Clear();
 	strRegKey<<MenuKey<<L"\\Item%d";
 	DeleteKeyRecord(strRegKey,DeletePos);
-	return(TRUE);
+	return TRUE;
 }
 
 bool UserMenu::MoveMenuItem(const wchar_t *MenuKey,int Pos,int NewPos)

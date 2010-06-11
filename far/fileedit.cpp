@@ -354,7 +354,7 @@ FileEditor::FileEditor(
 	}
 
 	ScreenObject::SetPosition(X1,Y1,X2,Y2);
-	Flags.Change(FFILEEDIT_FULLSCREEN,(X1==0 && Y1==0 && X2==ScrX && Y2==ScrY));
+	Flags.Change(FFILEEDIT_FULLSCREEN,(!X1 && !Y1 && X2==ScrX && Y2==ScrY));
 	Init(Name,codepage, Title,InitFlags,StartLine,StartChar,L"",DeleteOnClose,OpenModeExstFile);
 }
 
@@ -373,7 +373,7 @@ FileEditor::~FileEditor()
 	//AY: флаг оповещающий закрытие редактора.
 	m_bClosing = true;
 
-	if (m_editor->EdOpt.SavePos && CtrlObject!=nullptr)
+	if (m_editor->EdOpt.SavePos && CtrlObject)
 		SaveToCache();
 
 	BitFlags FEditFlags=m_editor->Flags;
@@ -472,7 +472,7 @@ void FileEditor::Init(
 	// $ 17.08.2001 KM - Добавлено для поиска по AltF7. При редактировании найденного файла из архива для клавиши F2 сделать вызов ShiftF2.
 	Flags.Change(FFILEEDIT_SAVETOSAVEAS,(BlankFileName?TRUE:FALSE));
 
-	if (*Name==0)
+	if (!*Name)
 	{
 		ExitCode=XC_OPEN_ERROR;
 		return;
@@ -668,7 +668,7 @@ void FileEditor::Init(
 	EditKeyBar.SetPosition(X1,Y2,X2,Y2);
 	InitKeyBar();
 
-	if (Opt.EdOpt.ShowKeyBar==0)
+	if (!Opt.EdOpt.ShowKeyBar)
 		EditKeyBar.Hide0();
 
 	MacroMode=MACRO_EDITOR;
@@ -723,7 +723,7 @@ void FileEditor::InitKeyBar()
 
 void FileEditor::SetNamesList(NamesList *Names)
 {
-	if (EditNamesList == nullptr)
+	if (!EditNamesList)
 		EditNamesList = new NamesList;
 
 	Names->MoveData(*EditNamesList);
@@ -893,7 +893,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					ShowTime(2);
 				}
 
-				return(TRUE);
+				return TRUE;
 			}
 
 			break; // отдадим F6 плагинам, если есть запрет на переключение
@@ -940,7 +940,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			case KEY_F1:
 			{
 				Help Hlp(L"Editor");
-				return(TRUE);
+				return TRUE;
 			}
 			/* $ 25.04.2001 IS
 			     ctrl+f - вставить в строку полное имя редактируемого файла
@@ -988,7 +988,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					Show();
 				}
 
-				return(TRUE);
+				return TRUE;
 			}
 			case KEY_F2:
 			case KEY_SHIFTF2:
@@ -1046,7 +1046,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 						apiExpandEnvironmentStrings(strSaveAsName, strSaveAsName);
 						Unquote(strSaveAsName);
-						NameChanged=StrCmpI(strSaveAsName, (Flags.Check(FFILEEDIT_SAVETOSAVEAS)?strFullFileName:strFileName))!=0;
+						NameChanged=StrCmpI(strSaveAsName, (Flags.Check(FFILEEDIT_SAVETOSAVEAS)?strFullFileName:strFileName));
 
 						if (!NameChanged)
 							FarChDir(strStartDir); // ПОЧЕМУ? А нужно ли???
@@ -1056,7 +1056,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 							if (!AskOverwrite(strSaveAsName))
 							{
 								FarChDir(strOldCurDir);
-								return(TRUE);
+								return TRUE;
 							}
 						}
 
@@ -1087,7 +1087,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 						SetLastError(SysErrorCode);
 
 						if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MEditTitle),MSG(MEditCannotSave),
-						            strFileName,MSG(MRetry),MSG(MCancel))!=0)
+						            strFileName,MSG(MRetry),MSG(MCancel)))
 						{
 							Done=TRUE;
 							break;
@@ -1131,7 +1131,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					}
 				}
 
-				return(TRUE);
+				return TRUE;
 			}
 			// $ 30.05.2003 SVS - Shift-F4 в редакторе/вьювере позволяет открывать другой редактор/вьювер (пока только редактор)
 			case KEY_SHIFTF4:
@@ -1146,7 +1146,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			{
 				if (isTemporary())
 				{
-					return(TRUE);
+					return TRUE;
 				}
 
 				string strFullFileNameTemp = strFullFileName;
@@ -1255,7 +1255,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				if (!ProcessQuitKey(FirstSave,NeedQuestion))
 					return FALSE;
 
-				return(TRUE);
+				return TRUE;
 			}
 			case KEY_F8:
 			{
@@ -1309,7 +1309,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			}
 		}
 	}
-	return(TRUE);
+	return TRUE;
 }
 
 
@@ -1362,7 +1362,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 		SetLastError(SysErrorCode);
 
 		if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MEditTitle),MSG(MEditCannotSave),
-		            strFileName,MSG(MRetry),MSG(MCancel))!=0)
+		            strFileName,MSG(MRetry),MSG(MCancel)))
 			break;
 
 		FirstSave=0;
@@ -1508,7 +1508,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	EditFile.GetSize(FileSize);
 	DWORD StartTime=GetTickCount();
 
-	while ((GetCode=GetStr.GetString(&Str, m_codepage, StrLength))!=0)
+	while ((GetCode=GetStr.GetString(&Str, m_codepage, StrLength)))
 	{
 		if (GetCode == -1)
 		{
@@ -1557,8 +1557,8 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 
 		if (!LastLineCR &&
 		        (
-		            (CurEOL = wmemchr(Str+Offset,L'\r',StrLength-Offset)) != nullptr ||
-		            (CurEOL = wmemchr(Str+Offset,L'\n',StrLength-Offset)) != nullptr
+		            (CurEOL = wmemchr(Str+Offset,L'\r',StrLength-Offset))  ||
+		            (CurEOL = wmemchr(Str+Offset,L'\n',StrLength-Offset)) 
 		        )
 		   )
 		{
@@ -1678,7 +1678,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 			int AskOverwrite=Message(MSG_WARNING,2,MSG(MEditTitle),Name,MSG(MEditRO),
 			                         MSG(MEditOvr),MSG(MYes),MSG(MNo));
 
-			if (AskOverwrite!=0)
+			if (AskOverwrite)
 				return SAVEFILE_CANCEL;
 
 			apiSetFileAttributes(Name,FileAttributes & ~FILE_ATTRIBUTE_READONLY); // сняты атрибуты
@@ -1729,7 +1729,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
 	int RetCode=SAVEFILE_SUCCESS;
 
-	if (TextFormat!=0)
+	if (TextFormat)
 		m_editor->Flags.Set(FEDITOR_WASCHANGED);
 
 	switch (TextFormat)
@@ -1784,7 +1784,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 				{
 					//SetMessageHelp(L"EditorDataLostWarning")
 					int Result=Message(MSG_WARNING,3,MSG(MWarning),MSG(MEditorSaveCPWarn1),MSG(MEditorSaveCPWarn2),MSG(MEditorSaveNotRecommended),MSG(MOk),MSG(MEditorSaveCPWarnShow),MSG(MCancel));
-					if (Result==0)
+					if (!Result)
 					{
 						BadSaveConfirmed=true;
 						break;
@@ -1897,10 +1897,10 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
 			CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
 
-			if (*EndSeq==0 && CurPtr->m_next!=nullptr)
+			if (!*EndSeq && CurPtr->m_next)
 				EndSeq=*m_editor->GlobalEOL ? m_editor->GlobalEOL:DOS_EOL_fmt;
 
-			if (TextFormat!=0 && *EndSeq!=0)
+			if (TextFormat && *EndSeq)
 			{
 				EndSeq=m_editor->GlobalEOL;
 				CurPtr->SetEOL(EndSeq);
@@ -2036,9 +2036,9 @@ int FileEditor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	if (!EditKeyBar.ProcessMouse(MouseEvent))
 		if (!ProcessEditorInput(FrameManager->GetLastInputRecord()))
 			if (!m_editor->ProcessMouse(MouseEvent))
-				return(FALSE);
+				return FALSE;
 
-	return(TRUE);
+	return TRUE;
 }
 
 
@@ -2320,7 +2320,7 @@ BOOL FileEditor::UpdateFileList()
 	const wchar_t *FileName = PointToName(strFullFileName);
 	string strFilePath, strPanelPath;
 	strFilePath = strFullFileName;
-	strFilePath.SetLength(FileName - (const wchar_t*)strFullFileName);
+	strFilePath.SetLength(FileName - strFullFileName.CPtr());
 	ActivePanel->GetCurDir(strPanelPath);
 	AddEndSlash(strPanelPath);
 	AddEndSlash(strFilePath);
@@ -2534,15 +2534,15 @@ int FileEditor::EditorControl(int Command, void *Param)
 
 				if (*esf->FileName) strName=esf->FileName;
 
-				if (esf->FileEOL!=nullptr)
+				if (esf->FileEOL)
 				{
-					if (StrCmp(esf->FileEOL,DOS_EOL_fmt)==0)
+					if (!StrCmp(esf->FileEOL,DOS_EOL_fmt))
 						EOL=1;
-					else if (StrCmp(esf->FileEOL,UNIX_EOL_fmt)==0)
+					else if (!StrCmp(esf->FileEOL,UNIX_EOL_fmt))
 						EOL=2;
-					else if (StrCmp(esf->FileEOL,MAC_EOL_fmt)==0)
+					else if (!StrCmp(esf->FileEOL,MAC_EOL_fmt))
 						EOL=3;
-					else if (StrCmp(esf->FileEOL,WIN_EOL_fmt)==0)
+					else if (!StrCmp(esf->FileEOL,WIN_EOL_fmt))
 						EOL=4;
 				}
 
@@ -2575,7 +2575,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 		{
 			FrameManager->DeleteFrame(this);
 			SetExitCode(SAVEFILE_ERROR); // что-то меня терзают смутные сомнения ...???
-			return(TRUE);
+			return TRUE;
 		}
 		case ECTL_READINPUT:
 		{
@@ -2627,7 +2627,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 				INPUT_RECORD *rec=(INPUT_RECORD *)Param;
 
 				if (ProcessEditorInput(rec))
-					return(TRUE);
+					return TRUE;
 
 				if (rec->EventType==MOUSE_EVENT)
 					ProcessMouse(&rec->Event.MouseEvent);

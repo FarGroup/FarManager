@@ -367,7 +367,7 @@ void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,F
 		return;
 
 	int CY=(SizeBuf+15)/16;
-	int InternalLog=fp==nullptr?TRUE:FALSE;
+	int InternalLog=fp?FALSE:TRUE;
 	static wchar_t timebuf[64];
 //  char msg[MAX_LOG_LINE];
 
@@ -394,7 +394,7 @@ void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,F
 			for (int X=0; X < 16; ++X)
 			{
 				int I=Y*16+X;
-				if ((I < SizeBuf) != 0)
+				if ((I < SizeBuf) )
 					fwprintf(fp,L"%02X ",Buf[Y*16+X]&0xFF);
 				else
 					fwprintf(fp,L"   ");
@@ -427,7 +427,7 @@ void SaveScreenDumpBuffer(const wchar_t *Title,const CHAR_INFO *Buffer,int X1,in
 	if (!IsLogON())
 		return;
 
-	int InternalLog=fp==nullptr?TRUE:FALSE;
+	int InternalLog=fp?FALSE:TRUE;
 
 	if (InternalLog)
 	{
@@ -488,7 +488,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 	if (!IsLogON())
 		return;
 
-	int InternalLog=fp==nullptr?TRUE:FALSE;
+	int InternalLog=fp?FALSE:TRUE;
 
 	if (InternalLog)
 	{
@@ -536,7 +536,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 				         ListItems[I].PrevSortOrder,
 				         ListItems[I].PrevNumericSort,
 				         ListItems[I].PrevDirectoriesFirst,
-				         (const wchar_t*)ListItems[I].strHostFile);
+				         ListItems[I].strHostFile.CPtr());
 		}
 
 		fwprintf(fp,L"\n");
@@ -556,7 +556,7 @@ void GetOpenPluginInfo_Dump(const wchar_t *Title,const OpenPluginInfo *Info,FILE
 	if (!IsLogON())
 		return;
 
-	int InternalLog=fp==nullptr?TRUE:FALSE;
+	int InternalLog=fp?FALSE:TRUE;
 
 	if (InternalLog)
 	{
@@ -629,7 +629,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 	if (!IsLogON())
 		return;
 
-	int InternalLog=fp==nullptr?TRUE:FALSE;
+	int InternalLog=fp?FALSE:TRUE;
 
 	if (InternalLog)
 	{
@@ -639,7 +639,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 
 	if (fp)
 	{
-		const Manager *Man=(m==nullptr?FrameManager:m);
+		const Manager *Man=m?m:FrameManager;
 //StartSysLog
 		string Type,Name;
 		fwprintf(fp,L"**** Queue modal frames ***\nFrameListSize=%d, FramePos=%d, FrameCount=%d\n",Man->FrameListSize,Man->FramePos,Man->FrameCount);
@@ -651,7 +651,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 				if (Man->FrameList[i])
 				{
 					Man->FrameList[i]->GetTypeAndName(Type,Name);
-					fwprintf(fp,L"\tFrameList[%d] %p  Type='%s' Name='%s'\n",i,Man->FrameList[i],(const wchar_t*)Type,(const wchar_t*)Name);
+					fwprintf(fp,L"\tFrameList[%d] %p  Type='%s' Name='%s'\n",i,Man->FrameList[i],Type.CPtr(),Name.CPtr());
 				}
 				else
 					fwprintf(fp,L"\tFrameList[%d] nullptr\n",i);
@@ -670,7 +670,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 				{
 					Man->ModalStack[i]->GetTypeAndName(Type,Name);
 					fwprintf(fp,L"\tModalStack[%d] %p  Type='%s' Name='%s'\n",
-					         i,Man->ModalStack[i],(const wchar_t*)Type,(const wchar_t*)Name);
+					         i,Man->ModalStack[i],Type.CPtr(),Name.CPtr());
 				}
 				else
 					fwprintf(fp,L"\tModalStack[%d] nullptr\n",i);
@@ -687,7 +687,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 			Man->InsertedFrame->GetTypeAndName(Type,Name);
 
 		fwprintf(fp,L"\tInsertedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, который будет добавлен в конец немодальной очереди
-		         Man->InsertedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
+		         Man->InsertedFrame,Type.CPtr(),Name.CPtr());
 
 		if (!Man->DeletedFrame)
 			Type.Clear(), Name.Clear();
@@ -695,7 +695,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 			Man->DeletedFrame->GetTypeAndName(Type,Name);
 
 		fwprintf(fp,L"\tDeletedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, предназначен для удаления из модальной очереди, из модального стека, либо одиночный (которого нет ни там, ни там)
-		         Man->DeletedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
+		         Man->DeletedFrame,Type.CPtr(),Name.CPtr());
 
 		if (!Man->ActivatedFrame)
 			Type.Clear(), Name.Clear();
@@ -703,7 +703,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 			Man->ActivatedFrame->GetTypeAndName(Type,Name);
 
 		fwprintf(fp,L"\tActivatedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, который необходимо активировать после каких ни будь изменений
-		         Man->ActivatedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
+		         Man->ActivatedFrame,Type.CPtr(),Name.CPtr());
 
 		if (!Man->RefreshedFrame)
 			Type.Clear(), Name.Clear();
@@ -711,7 +711,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 			Man->RefreshedFrame->GetTypeAndName(Type,Name);
 
 		fwprintf(fp,L"\tRefreshedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, который нужно просто освежить, т.е. перерисовать
-		         Man->RefreshedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
+		         Man->RefreshedFrame,Type.CPtr(),Name.CPtr());
 
 		if (!Man->ModalizedFrame)
 			Type.Clear(), Name.Clear();
@@ -719,7 +719,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 			Man->ModalizedFrame->GetTypeAndName(Type,Name);
 
 		fwprintf(fp,L"\tModalizedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, который становится в 'очередь' к текущему немодальному фрейму
-		         Man->ModalizedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
+		         Man->ModalizedFrame,Type.CPtr(),Name.CPtr());
 
 		if (!Man->UnmodalizedFrame)
 			Type.Clear(), Name.Clear();
@@ -727,7 +727,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 			Man->UnmodalizedFrame->GetTypeAndName(Type,Name);
 
 		fwprintf(fp,L"\tUnmodalizedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, убирающийся из 'очереди' немодального фрейма
-		         Man->UnmodalizedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
+		         Man->UnmodalizedFrame,Type.CPtr(),Name.CPtr());
 
 		if (!Man->DeactivatedFrame)
 			Type.Clear(), Name.Clear();
@@ -735,7 +735,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 			Man->DeactivatedFrame->GetTypeAndName(Type,Name);
 
 		fwprintf(fp,L"\tDeactivatedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, который указывает на предыдущий активный фрейм
-		         Man->DeactivatedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
+		         Man->DeactivatedFrame,Type.CPtr(),Name.CPtr());
 
 		if (!Man->ExecutedFrame)
 			Type.Clear(), Name.Clear();
@@ -743,7 +743,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 			Man->ExecutedFrame->GetTypeAndName(Type,Name);
 
 		fwprintf(fp,L"\tExecutedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, которого вскорости нужно будет поставить на вершину модального стека
-		         Man->ExecutedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
+		         Man->ExecutedFrame,Type.CPtr(),Name.CPtr());
 
 		if (!Man->CurrentFrame)
 			Type.Clear(), Name.Clear();
@@ -751,7 +751,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 			Man->CurrentFrame->GetTypeAndName(Type,Name);
 
 		fwprintf(fp,L"\tCurrentFrame=%p (Type='%s' Name='%s')\n", //  - текущий фрейм. Он может находиться как в немодальной очереди, так и в модальном стеке
-		         Man->CurrentFrame,(const wchar_t*)Type,(const wchar_t*)Name);
+		         Man->CurrentFrame,Type.CPtr(),Name.CPtr());
 		fwprintf(fp,L"\n");
 		fflush(fp);
 	}
@@ -1312,7 +1312,7 @@ string __FARKEY_ToName(int Key)
 	{
 		string tmp;
 		InsertQuote(Name);
-		tmp.Format(L"%s [%u/0x%08X]",(const wchar_t*)Name,Key,Key);
+		tmp.Format(L"%s [%u/0x%08X]",Name.CPtr(),Key,Key);
 		Name = tmp;
 		return Name;
 	}
@@ -1615,7 +1615,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 	if (!IsLogON())
 		return;
 
-	int InternalLog=fp==nullptr?TRUE:FALSE;
+	int InternalLog=fp?FALSE:TRUE;
 	DWORD ReadCount2;
 	// берем количество оставшейся порции эвентов
 	Console.GetNumberOfInputEvents(ReadCount2);
@@ -1692,7 +1692,7 @@ void GetVolumeInformation_Dump(const wchar_t *Title,LPCWSTR lpRootPathName,LPCWS
 	if (!IsLogON())
 		return;
 
-	int InternalLog=fp==nullptr?TRUE:FALSE;
+	int InternalLog=fp?FALSE:TRUE;
 	const wchar_t *space=MakeSpace();
 
 	if (InternalLog)
@@ -1776,7 +1776,7 @@ void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &wfd,FILE *
 	if (!IsLogON())
 		return;
 
-	int InternalLog=fp==nullptr?TRUE:FALSE;
+	int InternalLog=fp?FALSE:TRUE;
 	const wchar_t *space=MakeSpace();
 
 	if (InternalLog)
@@ -1888,7 +1888,7 @@ void PanelViewSettings_Dump(const wchar_t *Title,const PanelViewSettings &ViewSe
 	if (!IsLogON())
 		return;
 
-	int InternalLog=fp==nullptr?TRUE:FALSE;
+	int InternalLog=fp?FALSE:TRUE;
 	const wchar_t *space=MakeSpace();
 
 	if (InternalLog)

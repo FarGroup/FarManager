@@ -149,7 +149,7 @@ void SystemSettings()
 void PanelSettings()
 {
 	DialogBuilder Builder(MConfigPanelTitle, L"PanelSettings");
-	BOOL AutoUpdate = (Opt.AutoUpdateLimit != 0);
+	BOOL AutoUpdate = (Opt.AutoUpdateLimit );
 
 	Builder.AddCheckbox(MConfigHidden, &Opt.ShowHidden);
 	Builder.AddCheckbox(MConfigHighlight, &Opt.Highlight);
@@ -293,7 +293,7 @@ void DialogSettings()
 
 	if (Builder.ShowDialog())
 	{
-		if (Opt.Dialogs.MouseButton != 0)
+		if (Opt.Dialogs.MouseButton )
 			Opt.Dialogs.MouseButton = 0xFFFF;
 	}
 }
@@ -813,7 +813,7 @@ void ReadConfig()
 	OptPolicies_DisabledOptions=GetRegKey(NKeyPolicies,L"DisabledOptions",0);
 	SetRegRootKey(HKEY_CURRENT_USER);
 	GetRegKey(NKeySystem,L"PersonalPluginsPath",Opt.LoadPlug.strPersonalPluginsPath, strPersonalPluginsPath);
-	bool ExplicitWindowMode=Opt.WindowMode!=0;
+	bool ExplicitWindowMode=Opt.WindowMode!=FALSE;
 	//Opt.LCIDSort=LOCALE_USER_DEFAULT; // проинициализируем на всякий случай
 	/* *************************************************** </ПРЕПРОЦЕССЫ> */
 
@@ -935,7 +935,7 @@ void ReadConfig()
 			while (nullptr!=(ValPtr=DestList.GetNext()))
 			{
 				DWORD res=(DWORD)wcstoul(ValPtr, &endptr, 16);
-				Opt.XLat.Layouts[I]=(HKL)(LONG_PTR)(HIWORD(res) == 0?MAKELONG(res,res):res);
+				Opt.XLat.Layouts[I]=(HKL)(LONG_PTR)(HIWORD(res)? res : MAKELONG(res,res));
 				++I;
 
 				if (I >= ARRAYSIZE(Opt.XLat.Layouts))
@@ -955,7 +955,7 @@ void SaveConfig(int Ask)
 	if (Opt.Policies.DisabledOptions&0x20000) // Bit 17 - Сохранить параметры
 		return;
 
-	if (Ask && Message(0,2,MSG(MSaveSetupTitle),MSG(MSaveSetupAsk1),MSG(MSaveSetupAsk2),MSG(MSaveSetup),MSG(MCancel))!=0)
+	if (Ask && Message(0,2,MSG(MSaveSetupTitle),MSG(MSaveSetupAsk1),MSG(MSaveSetupAsk2),MSG(MSaveSetup),MSG(MCancel)))
 		return;
 
 	string strTemp;

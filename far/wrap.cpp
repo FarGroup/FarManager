@@ -600,7 +600,7 @@ char* WINAPI RemoveLeadingSpacesA(char *Str)
 {
 	char *ChPtr;
 
-	if ((ChPtr=Str) == 0)
+	if (!(ChPtr=Str))
 		return nullptr;
 
 	for (; IsSpaceA(*ChPtr); ChPtr++)
@@ -658,8 +658,8 @@ char* WINAPI TruncPathStrA(char *Str, int MaxLength)
 			{
 				if ((Str[0] == '\\') && (Str[1] == '\\'))
 				{
-					if ((lpStart = const_cast<char*>(FirstSlashA(Str+2))) != nullptr)
-						if ((lpStart = const_cast<char*>(FirstSlashA(lpStart+1)))!=nullptr)
+					if ((lpStart = const_cast<char*>(FirstSlashA(Str+2))) )
+						if ((lpStart = const_cast<char*>(FirstSlashA(lpStart+1))))
 							lpStart++;
 				}
 			}
@@ -697,7 +697,7 @@ char *InsertQuoteA(char *Str)
 
 char* WINAPI QuoteSpaceOnlyA(char *Str)
 {
-	if (Str && strchr(Str,' ')!=nullptr)
+	if (Str && strchr(Str,' '))
 		InsertQuoteA(Str);
 
 	return(Str);
@@ -742,7 +742,7 @@ BOOL AddEndSlashA(char *Path,char TypeSlash)
 		char c=(Slash<BackSlash)?'/':'\\';
 		Result=TRUE;
 
-		if (Length==0)
+		if (!Length)
 		{
 			*end=c;
 			end[1]=0;
@@ -780,7 +780,7 @@ void WINAPI GetPathRootA(const char *Path, char *Root)
 
 int WINAPI CopyToClipboardA(const char *Data)
 {
-	wchar_t *p = Data!=nullptr?AnsiToUnicode(Data):nullptr;
+	wchar_t *p = Data?AnsiToUnicode(Data):nullptr;
 	int ret = CopyToClipboard(p);
 
 	if (p) xf_free(p);
@@ -2192,7 +2192,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 			if (!Param2) return FALSE;
 
 			oldfar::FarListTitles *ltA = (oldfar::FarListTitles *)Param2;
-			FarListTitles lt = {0,ltA->Title!=nullptr?AnsiToUnicode(ltA->Title):nullptr,0,ltA->Bottom!=nullptr?AnsiToUnicode(ltA->Bottom):nullptr};
+			FarListTitles lt = {0,ltA->Title?AnsiToUnicode(ltA->Title):nullptr,0,ltA->Bottom?AnsiToUnicode(ltA->Bottom):nullptr};
 			Param2 = (LONG_PTR)&lt;
 			LONG_PTR ret = FarSendDlgMessage(hDlg, DM_LISTSETTITLES, Param1, Param2);
 
@@ -3711,7 +3711,7 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 					case oldfar::ESPT_TABSIZE:					newsp.Type = ESPT_TABSIZE; break;
 					case oldfar::ESPT_CHARTABLE: //BUGBUG, недоделано в фаре
 					{
-						if (oldsp->Param.iParam==0) return FALSE;
+						if (!oldsp->Param.iParam) return FALSE;
 
 						newsp.Type = ESPT_CODEPAGE;
 

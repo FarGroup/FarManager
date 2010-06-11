@@ -143,7 +143,7 @@ void KeyBar::DisplayObject()
 			if (i<KeyCounts [KBL_ALT])
 				Label=KeyTitles [KBL_ALT][i];
 		}
-		else if (i<KeyCounts [KBL_MAIN] && (DisableMask & (1<<i))==0)
+		else if (i<KeyCounts [KBL_MAIN] && !(DisableMask & (1<<i)))
 			Label=KeyTitles [KBL_MAIN][i];
 
 		FS<<fmt::LeftAlign()<<fmt::Width(LabelWidth)<<fmt::Precision(LabelWidth)<<Label;
@@ -286,10 +286,10 @@ int KeyBar::ProcessKey(int Key)
 		case KEY_KILLFOCUS:
 		case KEY_GOTFOCUS:
 			RedrawIfChanged();
-			return(TRUE);
+			return TRUE;
 	} /* switch */
 
-	return(FALSE);
+	return FALSE;
 }
 
 int KeyBar::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
@@ -298,14 +298,14 @@ int KeyBar::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	int Key;
 
 	if (!IsVisible())
-		return(FALSE);
+		return FALSE;
 
-	if ((MouseEvent->dwButtonState & 3)==0 || MouseEvent->dwEventFlags!=0)
-		return(FALSE);
+	if (!(MouseEvent->dwButtonState & 3) || MouseEvent->dwEventFlags)
+		return FALSE;
 
 	if (MouseEvent->dwMousePosition.X<X1 || MouseEvent->dwMousePosition.X>X2 ||
 	        MouseEvent->dwMousePosition.Y!=Y1)
-		return(FALSE);
+		return FALSE;
 
 	int KeyWidth=(X2-X1-1)/12;
 
@@ -323,14 +323,14 @@ int KeyBar::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	{
 		GetInputRecord(&rec);
 
-		if (rec.EventType==MOUSE_EVENT && (rec.Event.MouseEvent.dwButtonState & 3)==0)
+		if (rec.EventType==MOUSE_EVENT && !(rec.Event.MouseEvent.dwButtonState & 3))
 			break;
 	}
 
 	if (rec.Event.MouseEvent.dwMousePosition.X<X1 ||
 	        rec.Event.MouseEvent.dwMousePosition.X>X2 ||
 	        rec.Event.MouseEvent.dwMousePosition.Y!=Y1)
-		return(FALSE);
+		return FALSE;
 
 	int NewKey,NewX=MouseEvent->dwMousePosition.X-X1;
 
@@ -340,7 +340,7 @@ int KeyBar::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		NewKey=9+(NewX-KeyWidth*9)/(KeyWidth+1);
 
 	if (Key!=NewKey)
-		return(FALSE);
+		return FALSE;
 
 	if (Key>11)
 		Key=11;
@@ -370,7 +370,7 @@ int KeyBar::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	//if (Owner)
 	//Owner->ProcessKey(Key);
 	FrameManager->ProcessKey(Key);
-	return(TRUE);
+	return TRUE;
 }
 
 

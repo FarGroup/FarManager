@@ -163,7 +163,7 @@ void MixToFullPath(string& strPath)
 	for (int m = 0; pstPath[m];)
 	{
 		//fragment "."
-		if (IsDot(pstPath[m]) && (m == 0 || IsSlash(pstPath[m - 1])))
+		if (IsDot(pstPath[m]) && (!m || IsSlash(pstPath[m - 1])))
 		{
 			LPCWSTR pstSrc;
 			LPWSTR pstDst;
@@ -534,7 +534,7 @@ void ConvertNameToUNC(string &strFileName)
 		{
 			const wchar_t *NamePtr=FirstSlash(strFileName);
 
-			if (NamePtr != nullptr)
+			if (NamePtr )
 			{
 				AddEndSlash(strTemp);
 				strTemp += &NamePtr[1];

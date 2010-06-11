@@ -263,29 +263,29 @@ void FilePanels::SetPanelPositions(int LeftFullScreen,int RightFullScreen)
 
 	if (LeftFullScreen)
 	{
-		LeftPanel->SetPosition(0,Opt.ShowMenuBar?1:0,ScrX,ScrY-1-(Opt.ShowKeyBar!=0)-Opt.LeftHeightDecrement);
+		LeftPanel->SetPosition(0,Opt.ShowMenuBar?1:0,ScrX,ScrY-1-(Opt.ShowKeyBar)-Opt.LeftHeightDecrement);
 		LeftPanel->ViewSettings.FullScreen=1;
 	}
 	else
 	{
-		LeftPanel->SetPosition(0,Opt.ShowMenuBar?1:0,ScrX/2-Opt.WidthDecrement,ScrY-1-(Opt.ShowKeyBar!=0)-Opt.LeftHeightDecrement);
+		LeftPanel->SetPosition(0,Opt.ShowMenuBar?1:0,ScrX/2-Opt.WidthDecrement,ScrY-1-(Opt.ShowKeyBar)-Opt.LeftHeightDecrement);
 	}
 
 	if (RightFullScreen)
 	{
-		RightPanel->SetPosition(0,Opt.ShowMenuBar?1:0,ScrX,ScrY-1-(Opt.ShowKeyBar!=0)-Opt.RightHeightDecrement);
+		RightPanel->SetPosition(0,Opt.ShowMenuBar?1:0,ScrX,ScrY-1-(Opt.ShowKeyBar)-Opt.RightHeightDecrement);
 		RightPanel->ViewSettings.FullScreen=1;
 	}
 	else
 	{
-		RightPanel->SetPosition(ScrX/2+1-Opt.WidthDecrement,Opt.ShowMenuBar?1:0,ScrX,ScrY-1-(Opt.ShowKeyBar!=0)-Opt.RightHeightDecrement);
+		RightPanel->SetPosition(ScrX/2+1-Opt.WidthDecrement,Opt.ShowMenuBar?1:0,ScrX,ScrY-1-(Opt.ShowKeyBar)-Opt.RightHeightDecrement);
 	}
 }
 
 void FilePanels::SetScreenPosition()
 {
 	_OT(SysLog(L"[%p] FilePanels::SetScreenPosition() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
-	CtrlObject->CmdLine->SetPosition(0,ScrY-(Opt.ShowKeyBar!=0),ScrX-1,ScrY-(Opt.ShowKeyBar!=0));
+	CtrlObject->CmdLine->SetPosition(0,ScrY-(Opt.ShowKeyBar),ScrX-1,ScrY-(Opt.ShowKeyBar));
 	TopMenuBar.SetPosition(0,0,ScrX,0);
 	MainKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
 	SetPanelPositions(LeftPanel->IsFullScreen(),RightPanel->IsFullScreen());
@@ -328,7 +328,7 @@ Panel* FilePanels::CreatePanel(int Type)
 
 void FilePanels::DeletePanel(Panel *Deleted)
 {
-	if (Deleted==nullptr)
+	if (!Deleted)
 		return;
 
 	if (Deleted==LastLeftFilePanel)
@@ -413,7 +413,7 @@ __int64 FilePanels::VMProcess(int OpCode,void *vParam,__int64 iParam)
 int FilePanels::ProcessKey(int Key)
 {
 	if (!Key)
-		return(TRUE);
+		return TRUE;
 
 	if ((Key==KEY_CTRLLEFT || Key==KEY_CTRLRIGHT || Key==KEY_CTRLNUMPAD4 || Key==KEY_CTRLNUMPAD6
 	        /* || Key==KEY_CTRLUP   || Key==KEY_CTRLDOWN || Key==KEY_CTRLNUMPAD8 || Key==KEY_CTRLNUMPAD2 */) &&
@@ -421,7 +421,7 @@ int FilePanels::ProcessKey(int Key)
 	         (!LeftPanel->IsVisible() && !RightPanel->IsVisible())))
 	{
 		CtrlObject->CmdLine->ProcessKey(Key);
-		return(TRUE);
+		return TRUE;
 	}
 
 	switch (Key)
@@ -433,7 +433,7 @@ int FilePanels::ProcessKey(int Key)
 				Help Hlp(L"Contents");
 			}
 
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_TAB:
 		{
@@ -598,7 +598,7 @@ int FilePanels::ProcessKey(int Key)
 		case KEY_CTRLI:
 		{
 			ActivePanel->EditFilter();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_CTRLU:
 		{
@@ -731,7 +731,7 @@ int FilePanels::ProcessKey(int Key)
 		}
 		case KEY_CTRLCLEAR:
 		{
-			if (Opt.WidthDecrement!=0)
+			if (Opt.WidthDecrement)
 			{
 				Opt.WidthDecrement=0;
 				SetScreenPosition();
@@ -743,12 +743,12 @@ int FilePanels::ProcessKey(int Key)
 		case KEY_CTRLALTCLEAR:
 		{
 			bool Set=false;
-			if (Opt.LeftHeightDecrement!=0)
+			if (Opt.LeftHeightDecrement)
 			{
 				Opt.LeftHeightDecrement=0;
 				Set=true;
 			}
-			if (Opt.RightHeightDecrement!=0)
+			if (Opt.RightHeightDecrement)
 			{
 				Opt.RightHeightDecrement=0;
 				Set=true;
@@ -764,12 +764,12 @@ int FilePanels::ProcessKey(int Key)
 		case KEY_F9:
 		{
 			ShellOptions(0,nullptr);
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_SHIFTF10:
 		{
 			ShellOptions(1,nullptr);
-			return(TRUE);
+			return TRUE;
 		}
 		default:
 		{
@@ -782,7 +782,7 @@ int FilePanels::ProcessKey(int Key)
 		}
 	}
 
-	return(TRUE);
+	return TRUE;
 }
 
 int FilePanels::ChangePanelViewMode(Panel *Current,int Mode,BOOL RefreshFrame)
@@ -899,7 +899,7 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 		}
 	}
 
-	if (!CreateNew && NewType==FILE_PANEL && LastFilePanel!=nullptr)
+	if (!CreateNew && NewType==FILE_PANEL && LastFilePanel)
 	{
 		int LastX1,LastY1,LastX2,LastY2;
 		LastFilePanel->GetPosition(LastX1,LastY1,LastX2,LastY2);
@@ -918,7 +918,7 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 			{
 				Panel *AnotherPanel=GetAnotherPanel(Current);
 
-				if (SaveScr!=nullptr && AnotherPanel->IsVisible() &&
+				if (SaveScr && AnotherPanel->IsVisible() &&
 				        AnotherPanel->GetType()==FILE_PANEL && AnotherPanel->IsFullScreen())
 					SaveScr->Discard();
 
@@ -1030,7 +1030,7 @@ void FilePanels::OnChangeFocus(int f)
 
 void FilePanels::DisplayObject()
 {
-//  if ( Focus==0 )
+//  if ( !Focus )
 //      return;
 	_OT(SysLog(L"[%p] FilePanels::Redraw() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
 	CtrlObject->CmdLine->ShowBackground();
@@ -1107,7 +1107,7 @@ int  FilePanels::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			if (!MainKeyBar.ProcessMouse(MouseEvent))
 				CtrlObject->CmdLine->ProcessMouse(MouseEvent);
 
-	return(TRUE);
+	return TRUE;
 }
 
 void FilePanels::ShowConsoleTitle()
@@ -1171,8 +1171,8 @@ void FilePanels::GoToFile(const wchar_t *FileName)
 		     панелях, тем самым добиваемся того, что выделение с элементов
 		     панелей не сбрасывается.
 		*/
-		BOOL AExist=(ActiveMode==NORMAL_PANEL) && (StrCmpI(ADir,strNameDir)==0);
-		BOOL PExist=(PassiveMode==NORMAL_PANEL) && (StrCmpI(PDir,strNameDir)==0);
+		BOOL AExist=(ActiveMode==NORMAL_PANEL) && !StrCmpI(ADir,strNameDir);
+		BOOL PExist=(PassiveMode==NORMAL_PANEL) && !StrCmpI(PDir,strNameDir);
 
 		// если нужный путь есть на пассивной панели
 		if (!AExist && PExist)

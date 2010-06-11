@@ -65,7 +65,7 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,i
 	//TopScreen=new SaveScreen;
 	SetCoords();
 
-	if ((Tree=new TreeList(FALSE))!=nullptr)
+	if ((Tree=new TreeList(FALSE)))
 	{
 		CtrlObject->Macro.SetMode(MACRO_FINDFOLDER);
 		MacroMode = MACRO_FINDFOLDER;
@@ -82,7 +82,7 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,i
 		// если было прерывание в процессе сканирования и это было дерево копира...
 		if (Tree->GetExitCode())
 		{
-			if ((FindEdit=new Edit)==nullptr)
+			if (!(FindEdit=new Edit))
 			{
 				SetExitCode(XC_OPEN_ERROR);
 				return;
@@ -230,7 +230,7 @@ int FolderTree::ProcessKey(int Key)
 		case KEY_F5:
 			IsFullScreen=!IsFullScreen;
 			ResizeConsole();
-			return(TRUE);
+			return TRUE;
 		case KEY_CTRLR:
 		case KEY_F2:
 			Tree->ProcessKey(KEY_CTRLR);
@@ -304,7 +304,7 @@ int FolderTree::ProcessKey(int Key)
 			break;
 	}
 
-	return(TRUE);
+	return TRUE;
 }
 
 
@@ -316,7 +316,7 @@ int FolderTree::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	if (MouseEvent->dwEventFlags==DOUBLE_CLICK)
 	{
 		ProcessKey(KEY_ENTER);
-		return(TRUE);
+		return TRUE;
 	}
 
 	int MsX=MouseEvent->dwMousePosition.X;
@@ -329,7 +329,7 @@ int FolderTree::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		else if (!(MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && (PrevMouseButtonState&RIGHTMOST_BUTTON_PRESSED) && (Opt.Dialogs.MouseButton&DMOUSEBUTTON_RIGHT))
 			ProcessKey(KEY_ENTER);
 
-		return(TRUE);
+		return TRUE;
 	}
 
 	if (MsY == Y2-2)
@@ -342,7 +342,7 @@ int FolderTree::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			DrawEdit();
 	}
 
-	return(TRUE);
+	return TRUE;
 }
 
 

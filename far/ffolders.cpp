@@ -116,7 +116,7 @@ int GetShortcutFolder(int Key,string *pDestFolder,
                       string *pPluginData)
 {
 	if (Key<KEY_RCTRL0 || Key>KEY_RCTRL9)
-		return(FALSE);
+		return FALSE;
 
 	string strFolder;
 	Key-=KEY_RCTRL0;
@@ -142,14 +142,14 @@ int SaveFolderShortcut(int Key,string *pSrcFolder,
                        string *pPluginData)
 {
 	if (Key<KEY_CTRLSHIFT0 || Key>KEY_CTRLSHIFT9)
-		return(FALSE);
+		return FALSE;
 
 	Key-=KEY_CTRLSHIFT0;
 	ProcessShortcutRecord(PSCR_CMDSET,PSCR_RT_SHORTCUT,Key,pSrcFolder);
 	ProcessShortcutRecord(PSCR_CMDSET,PSCR_RT_PLUGINMODULE,Key,pPluginModule);
 	ProcessShortcutRecord(PSCR_CMDSET,PSCR_RT_PLUGINFILE,Key,pPluginFile);
 	ProcessShortcutRecord(PSCR_CMDSET,PSCR_RT_PLUGINDATA,Key,pPluginData);
-	return(TRUE);
+	return TRUE;
 }
 
 
@@ -191,7 +191,7 @@ static int ShowFolderShortcutMenu(int Pos)
 					strFolderName = MSG(MShortcutPlugin);
 			}
 
-			ListItem.strName.Format(L"%s+&%d   %s", MSG(MRightCtrl),I,(const wchar_t*)strFolderName);
+			ListItem.strName.Format(L"%s+&%d   %s", MSG(MRightCtrl),I,strFolderName.CPtr());
 			ListItem.SetSelect(I == Pos);
 			FolderList.AddItem(&ListItem);
 		}
@@ -249,7 +249,7 @@ static int ShowFolderShortcutMenu(int Pos)
 
 					if (GetString(MSG(MFolderShortcutsTitle),MSG(MEnterShortcut),nullptr,
 					              strNewDir,strNewDir,HelpFolderShortcuts,FIB_BUTTONS|FIB_EDITPATH) &&
-					        StrCmp(strNewDir,strOldNewDir) != 0)
+					        StrCmp(strNewDir,strOldNewDir) )
 					{
 						Unquote(strNewDir);
 
@@ -262,7 +262,7 @@ static int ShowFolderShortcutMenu(int Pos)
 						if (apiGetFileAttributes(strOldNewDir) == INVALID_FILE_ATTRIBUTES)
 						{
 							SetLastError(ERROR_PATH_NOT_FOUND);
-							Saved=(Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), strNewDir, MSG(MSaveThisShortcut), MSG(MYes), MSG(MNo)) == 0);
+							Saved=!Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), strNewDir, MSG(MSaveThisShortcut), MSG(MYes), MSG(MNo));
 						}
 
 						if (Saved)
@@ -290,5 +290,5 @@ static int ShowFolderShortcutMenu(int Pos)
 		CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_RCTRL0+ExitCode);
 	}
 
-	return(-1);
+	return -1;
 }

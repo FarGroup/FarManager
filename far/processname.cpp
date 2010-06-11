@@ -55,7 +55,7 @@ int WINAPI ProcessName(const wchar_t *param1, wchar_t *param2, DWORD size, DWORD
 		const wchar_t *MaskPtr;
 		MaskPtr=param1;
 
-		while ((MaskPtr=GetCommaWord(MaskPtr,strFileMask))!=nullptr)
+		while ((MaskPtr=GetCommaWord(MaskPtr,strFileMask)))
 		{
 			if (CmpName(strFileMask,param2,skippath))
 			{
@@ -95,13 +95,13 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 	wchar_t *DestNamePtr = (wchar_t*)PointToName(DestName);
 	string strWildName = DestNamePtr;
 
-	if (wcschr(strWildName, L'*')==nullptr && wcschr(strWildName, L'?')==nullptr)
+	if (!wcschr(strWildName, L'*') && !wcschr(strWildName, L'?'))
 	{
 		//strDest.ReleaseBuffer (); не надо так как строка не поменялась
-		return(FALSE);
+		return FALSE;
 	}
 
-	if (SelectedFolderNameLength!=0)
+	if (SelectedFolderNameLength)
 	{
 		strPartAfterFolderName = ((const wchar_t *)strSrc+SelectedFolderNameLength);
 		strSrc.SetLength(SelectedFolderNameLength);
@@ -137,7 +137,7 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 
 				while (*SrcNamePtr)
 				{
-					if (*CurWildPtr==L'.' && SrcNameDot!=nullptr && wcschr(CurWildPtr+1,L'.')==nullptr)
+					if (*CurWildPtr==L'.' && SrcNameDot && !wcschr(CurWildPtr+1,L'.'))
 					{
 						if (SrcNamePtr==SrcNameDot)
 							break;
@@ -155,7 +155,7 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 				CurWildPtr++;
 				*(DestNamePtr++)=L'.';
 
-				if (wcspbrk(CurWildPtr,L"*?")!=nullptr)
+				if (wcspbrk(CurWildPtr,L"*?"))
 					while (*SrcNamePtr)
 						if (*(SrcNamePtr++)==L'.')
 							break;
@@ -181,11 +181,11 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 	if (*PartBeforeName)
 		strDest = PartBeforeName+strDest;
 
-	if (SelectedFolderNameLength!=0)
+	if (SelectedFolderNameLength)
 		strDest += strPartAfterFolderName; //BUGBUG???, was src in 1.7x
 
 	xf_free(PartBeforeName);
-	return(TRUE);
+	return TRUE;
 }
 
 
@@ -208,17 +208,17 @@ static int CmpName_Body(const wchar_t *pattern,const wchar_t *str, bool CmpNameS
 		switch (patternc)
 		{
 			case 0:
-				return(stringc==0);
+				return !stringc;
 			case L'?':
 
-				if (stringc == 0)
-					return(FALSE);
+				if (!stringc)
+					return FALSE;
 
 				break;
 			case L'*':
 
 				if (!*pattern)
-					return(TRUE);
+					return TRUE;
 
 				/* $ 01.05.2001 DJ
 				   оптимизированная ветка работает и для имен с несколькими
@@ -226,23 +226,23 @@ static int CmpName_Body(const wchar_t *pattern,const wchar_t *str, bool CmpNameS
 				*/
 				if (*pattern==L'.')
 				{
-					if (pattern[1]==L'*' && pattern[2]==0)
-						return(TRUE);
+					if (pattern[1]==L'*' && !pattern[2])
+						return TRUE;
 
-					if (wcspbrk(pattern, L"*?[") == nullptr)
+					if (!wcspbrk(pattern, L"*?["))
 					{
 						const wchar_t *dot = wcsrchr(str, L'.');
 
-						if (pattern[1] == 0)
-							return (dot==nullptr || dot[1]==0);
+						if (!pattern[1])
+							return (!dot || !dot[1]);
 
 						const wchar_t *patdot = wcschr(pattern+1, L'.');
 
-						if (patdot != nullptr && dot == nullptr)
-							return(FALSE);
+						if (patdot  && !dot)
+							return FALSE;
 
-						if (patdot == nullptr && dot != nullptr)
-							return(StrCmpI(pattern+1,dot+1) == 0);
+						if (!patdot && dot )
+							return !StrCmpI(pattern+1,dot+1);
 					}
 				}
 
@@ -253,10 +253,10 @@ static int CmpName_Body(const wchar_t *pattern,const wchar_t *str, bool CmpNameS
 				}
 				while (*str++);
 
-				return(FALSE);
+				return FALSE;
 			case L'[':
 
-				if (wcschr(pattern,L']')==nullptr)
+				if (!wcschr(pattern,L']'))
 				{
 					if (patternc != stringc)
 						return (FALSE);
@@ -267,7 +267,7 @@ static int CmpName_Body(const wchar_t *pattern,const wchar_t *str, bool CmpNameS
 				if (*pattern && *(pattern+1)==L']')
 				{
 					if (*pattern!=*str)
-						return(FALSE);
+						return FALSE;
 
 					pattern+=2;
 					break;
@@ -275,14 +275,14 @@ static int CmpName_Body(const wchar_t *pattern,const wchar_t *str, bool CmpNameS
 
 				match = 0;
 
-				while ((rangec = Upper(*pattern++))!=0)
+				while ((rangec = Upper(*pattern++)))
 				{
 					if (rangec == L']')
 					{
 						if (match)
 							break;
 						else
-							return(FALSE);
+							return FALSE;
 					}
 
 					if (match)
@@ -298,18 +298,18 @@ static int CmpName_Body(const wchar_t *pattern,const wchar_t *str, bool CmpNameS
 						match = (stringc == rangec);
 				}
 
-				if (rangec == 0)
-					return(FALSE);
+				if (!rangec)
+					return FALSE;
 
 				break;
 			default:
 
 				if (patternc != stringc)
 				{
-					if (patternc==L'.' && stringc==0 && !CmpNameSearchMode)
+					if (patternc==L'.' && !stringc && !CmpNameSearchMode)
 						return(*pattern!=L'.' && CmpName(pattern,str,true,CmpNameSearchMode));
 					else
-						return(FALSE);
+						return FALSE;
 				}
 
 				break;

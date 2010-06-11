@@ -127,7 +127,7 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
 
 			string strArgName;
 
-			if ((NamePtr=GetCommaWord(NamePtr,strArgName))==nullptr)
+			if (!(NamePtr=GetCommaWord(NamePtr,strArgName)))
 				break;
 
 			AddEndSlash(strDizFileName);
@@ -149,7 +149,7 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
 
 			while (GetStr.GetString(&DizText, CodePage, DizLength) > 0)
 			{
-				if ((DizCount & 127)==0 && clock()-StartTime>1000)
+				if (!(DizCount & 127) && clock()-StartTime>1000)
 				{
 					SetCursorType(FALSE,0);
 					PR_ReadingMsg();
@@ -170,7 +170,7 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
 			return;
 		}
 
-		if (DizName!=nullptr)
+		if (DizName)
 			break;
 	}
 
@@ -183,7 +183,7 @@ bool DizList::AddRecord(const wchar_t *DizText)
 {
 	DizRecord *NewDizData=DizData;
 
-	if ((DizCount & 15)==0)
+	if (!(DizCount & 15))
 		NewDizData=(DizRecord *)xf_realloc(DizData,(DizCount+16+1)*sizeof(*DizData));
 
 	if (!NewDizData)
@@ -248,7 +248,7 @@ const wchar_t* DizList::GetDizTextAddr(const wchar_t *Name, const wchar_t *Short
 			bool SkipSize=true;
 			_snwprintf(SizeText,ARRAYSIZE(SizeText),L"%I64u", FileSize);
 
-			for (int I=0; SizeText[I]!=0; DizPtr++)
+			for (int I=0; SizeText[I]; DizPtr++)
 			{
 				if (*DizPtr!=L',' && *DizPtr!=L'.')
 				{
@@ -307,7 +307,7 @@ int DizList::GetDizPosEx(const wchar_t *Name, const wchar_t *ShortName, int *Tex
 
 int DizList::GetDizPos(const wchar_t *Name, int *TextPos)
 {
-	if (DizData==nullptr || !*Name)
+	if (!DizData || !*Name)
 		return -1;
 
 	if (NeedRebuild)
@@ -317,9 +317,9 @@ int DizList::GetDizPos(const wchar_t *Name, int *TextPos)
 	DizSearchKey Key={Name, StrLength(Name)};
 	int *DestIndex=(int *)bsearch(&Key,IndexData,IndexCount,sizeof(*IndexData),SortDizSearch);
 
-	if (DestIndex!=nullptr)
+	if (DestIndex)
 	{
-		if (TextPos!=nullptr)
+		if (TextPos)
 		{
 			*TextPos=DizData[*DestIndex].NameStart+DizData[*DestIndex].NameLength;
 
@@ -341,7 +341,7 @@ void DizList::BuildIndex()
 		if (IndexData)
 			xf_free(IndexData);
 
-		if ((IndexData=(int *)xf_malloc(DizCount*sizeof(int)))==nullptr)
+		if (!(IndexData=(int *)xf_malloc(DizCount*sizeof(int))))
 		{
 			Reset();
 			return;
@@ -367,7 +367,7 @@ int _cdecl SortDizIndex(const void *el1,const void *el2)
 	int Len2=SearchDizData[*(int *)el2].NameLength;
 	int CmpCode = StrCmpNI(Diz1,Diz2,Min(Len1,Len2));
 
-	if (CmpCode==0)
+	if (!CmpCode)
 	{
 		if (Len1>Len2)
 			return 1;
@@ -398,7 +398,7 @@ int _cdecl SortDizSearch(const void *key,const void *elem)
 	int NameLength=((DizSearchKey *)key)->Len;
 	int CmpCode=StrCmpNI(SearchName,DizName,Min(DizNameLength,NameLength));
 
-	if (CmpCode==0)
+	if (!CmpCode)
 	{
 		if (NameLength>DizNameLength)
 			return 1;
@@ -448,13 +448,13 @@ bool DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
 	if (!Modified)
 		return true;
 
-	if (DizName!=nullptr)
+	if (DizName)
 	{
 		strDizFileName = DizName;
 	}
 	else if (strDizFileName.IsEmpty())
 	{
-		if (DizData==nullptr || Path==nullptr)
+		if (!DizData || !Path)
 			return false;
 
 		strDizFileName = Path;

@@ -170,7 +170,7 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 					break;
 			}
 
-			if (SrcPanel!=nullptr)
+			if (SrcPanel)
 			{
 				if (Key == KEY_SHIFTENTER || Key == KEY_CTRLSHIFTENTER || Key == KEY_SHIFTNUMENTER || Key == KEY_CTRLSHIFTNUMENTER)
 				{
@@ -184,7 +184,7 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 				{
 					/* TODO: «десь нужно учесть, что у TreeList тоже есть путь :-) */
 					if (!(SrcPanel->GetType()==FILE_PANEL || SrcPanel->GetType()==TREE_PANEL))
-						return(FALSE);
+						return FALSE;
 
 					SrcPanel->GetCurDir(strPathName);
 

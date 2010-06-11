@@ -185,7 +185,7 @@ void SetLeftRightMenuChecks(MenuDataEx *pMenu, bool bLeft)
 
 			if (MenuLine <= MENU_LEFT_ALTERNATIVEVIEW)
 			{
-				if (MenuLine == 0)
+				if (!MenuLine)
 					pMenu[MENU_LEFT_ALTERNATIVEVIEW].SetCheck(1);
 				else
 					pMenu[MenuLine-1].SetCheck(1);
@@ -393,7 +393,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 			}
 		}
 
-		if (MouseEvent!=nullptr)
+		if (MouseEvent)
 		{
 			ChangeMacroMode MacroMode(MACRO_MAINMENU);
 			HOptMenu.Show();

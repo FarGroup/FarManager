@@ -98,7 +98,7 @@ void LoadFilterFromReg(FileFilterParams *HData, const wchar_t *RegKey, const wch
 	if (bSortGroup)
 		HData->SetMask(GetRegKey(RegKey,HLS.UseMask,1)!=0, Mask);
 	else
-		HData->SetMask(GetRegKey(RegKey,HLS.IgnoreMask,0)==0, Mask);
+		HData->SetMask(!GetRegKey(RegKey,HLS.IgnoreMask,0), Mask);
 
 	FILETIME DateAfter, DateBefore;
 	GetRegKey(RegKey,HLS.DateAfter,(BYTE *)&DateAfter,nullptr,sizeof(DateAfter));
@@ -382,7 +382,7 @@ void HighlightFiles::FillMenu(VMenu *HiMenu,int MenuPos)
 
 		if (j<3)
 		{
-			if (j==0)
+			if (!j)
 				HiMenuItem.strName = MSG(MHighlightUpperSortGroup);
 			else if (j==1)
 				HiMenuItem.strName = MSG(MHighlightLowerSortGroup);
@@ -472,7 +472,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 
 					if (Message(MSG_WARNING,2,MSG(MHighlightTitle),
 					            MSG(MHighlightWarning),MSG(MHighlightAskRestore),
-					            MSG(MYes),MSG(MCancel))!=0)
+					            MSG(MYes),MSG(MCancel)))
 						break;
 
 					DeleteKeyTree(RegColorsHighlight);
@@ -495,7 +495,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 
 						if (Message(MSG_WARNING,2,MSG(MHighlightTitle),
 						            MSG(MHighlightAskDel),Mask,
-						            MSG(MDelete),MSG(MCancel))!=0)
+						            MSG(MDelete),MSG(MCancel)))
 							break;
 
 						HiData.deleteItem(RealSelectPos);
@@ -739,14 +739,14 @@ void HighlightFiles::SaveHiData()
 			strRegKey+=L"\\"+strGroupName;
 			FileFilterParams *CurHiData=HiData.getItem(i);
 
-			if (j!=0 && j!=3)
+			if (j && j!=3)
 			{
 				const wchar_t *Mask;
 				CurHiData->GetMask(&Mask);
 				SetRegKey(KeyNames[j],strGroupName,Mask);
 			}
 
-			SaveFilterToReg(CurHiData,strRegKey,(j==0 || j==3?false:true));
+			SaveFilterToReg(CurHiData,strRegKey,(!j || j==3?false:true));
 		}
 
 		for (int i=0; i<5; i++)
@@ -755,7 +755,7 @@ void HighlightFiles::SaveHiData()
 			strRegKey=KeyNames[j];
 			strRegKey+=L"\\"+strGroupName;
 
-			if (j!=0 && j!=3)
+			if (j && j!=3)
 				DeleteRegValue(KeyNames[j],strGroupName);
 
 			DeleteRegKey(strRegKey);

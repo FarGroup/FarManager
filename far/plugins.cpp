@@ -175,7 +175,7 @@ PluginType IsModulePlugin2(
 		if (pPEHeader->Signature != IMAGE_NT_SIGNATURE)
 			return NOT_PLUGIN;
 
-		if ((pPEHeader->FileHeader.Characteristics & IMAGE_FILE_DLL) == 0)
+		if (!(pPEHeader->FileHeader.Characteristics & IMAGE_FILE_DLL))
 			return NOT_PLUGIN;
 
 		if (pPEHeader->FileHeader.Machine!=
@@ -410,7 +410,7 @@ int PluginManager::UnloadPlugin(Plugin *pPlugin, DWORD dwException, bool bRemove
 		CurPluginItem=nullptr;
 		Frame *frame;
 
-		if ((frame = FrameManager->GetBottomFrame()) != nullptr)
+		if ((frame = FrameManager->GetBottomFrame()) )
 			frame->Unlock();
 
 		if (Flags.Check(PSIF_DIALOG))   // BugZ#52 exception handling for floating point incorrect
@@ -547,7 +547,7 @@ void PluginManager::LoadPlugins()
 			// ...и пройдемся по нему
 			while (ScTree.GetNextName(&FindData,strFullName))
 			{
-				if (CmpName(L"*.dll",FindData.strFileName,false) && (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
+				if (CmpName(L"*.dll",FindData.strFileName,false) && !(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 				{
 					LoadPlugin(strFullName, FindData);
 				}
@@ -1054,7 +1054,7 @@ int PluginManager::GetFile(
 	int Found=FALSE;
 	KeepUserScreen=FALSE;
 
-	if ((OpMode & OPM_FIND)==0)
+	if (!(OpMode & OPM_FIND))
 		SaveScr = new SaveScreen; //???
 
 	UndoGlobalSaveScrPtr UndSaveScr(SaveScr);
@@ -1202,7 +1202,7 @@ void PluginManager::GetOpenPluginInfo(
 	PluginHandle *ph = (PluginHandle*)hPlugin;
 	ph->pPlugin->GetOpenPluginInfo(ph->hPlugin, Info);
 
-	if (Info->CurDir == nullptr)  //хмм...
+	if (!Info->CurDir)  //хмм...
 		Info->CurDir = L"";
 
 	if ((Info->Flags & OPIF_REALNAMES) && (CtrlObject->Cp()->ActivePanel->GetPluginHandle() == hPlugin) && *Info->CurDir && !IsNetworkServerPath(Info->CurDir))
@@ -1255,7 +1255,7 @@ void PluginManager::ConfigureCurrent(Plugin *pPlugin, int INum)
 		{
 			if (PMode[I] == PLUGIN_PANEL)
 			{
-				Panel *pPanel=(I==0?CtrlObject->Cp()->LeftPanel:CtrlObject->Cp()->RightPanel);
+				Panel *pPanel=(I?CtrlObject->Cp()->RightPanel:CtrlObject->Cp()->LeftPanel);
 				pPanel->Update(UPDATE_KEEP_SELECTION);
 				pPanel->SetViewMode(pPanel->GetViewMode());
 				pPanel->Redraw();
@@ -1345,9 +1345,9 @@ void PluginManager::Configure(int StartPos)
 						if (!HotKeysPresent)
 							ListItem.strName = strName;
 						else if (!strHotKey.IsEmpty())
-							ListItem.strName.Format(L"&%c%s  %s",strHotKey.At(0),(strHotKey.At(0)==L'&'?L"&":L""), (const wchar_t*)strName);
+							ListItem.strName.Format(L"&%c%s  %s",strHotKey.At(0),(strHotKey.At(0)==L'&'?L"&":L""), strName.CPtr());
 						else
-							ListItem.strName.Format(L"   %s", (const wchar_t*)strName);
+							ListItem.strName.Format(L"   %s", strName.CPtr());
 
 						//ListItem.SetSelect(MenuItemNumber++ == StartPos);
 						MenuItemNumber++;
@@ -1394,7 +1394,7 @@ void PluginManager::Configure(int StartPos)
 						{
 							string strName00;
 							int nOffset = HotKeysPresent?3:0;
-							strName00 = (const wchar_t*)PluginList.GetItemPtr()->strName+nOffset;
+							strName00 = PluginList.GetItemPtr()->strName.CPtr()+nOffset;
 							RemoveExternalSpaces(strName00);
 							GetHotKeyRegKey(item->pPlugin, item->nItem,strRegKey);
 
@@ -1489,9 +1489,9 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 						IFlags = Info.Flags;
 					}
 
-					if ((Editor && (IFlags & PF_EDITOR)==0) ||
-					        (Viewer && (IFlags & PF_VIEWER)==0) ||
-					        (Dialog && (IFlags & PF_DIALOG)==0) ||
+					if ((Editor && !(IFlags & PF_EDITOR)) ||
+					        (Viewer && !(IFlags & PF_VIEWER)) ||
+					        (Dialog && !(IFlags & PF_DIALOG)) ||
 					        (!Editor && !Viewer && !Dialog && (IFlags & PF_DISABLEPANELS)))
 						continue;
 
@@ -1522,9 +1522,9 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 						if (!HotKeysPresent)
 							ListItem.strName = strName;
 						else if (!strHotKey.IsEmpty())
-							ListItem.strName.Format(L"&%c%s  %s",strHotKey.At(0),(strHotKey.At(0)==L'&'?L"&":L""), (const wchar_t*)strName);
+							ListItem.strName.Format(L"&%c%s  %s",strHotKey.At(0),(strHotKey.At(0)==L'&'?L"&":L""), strName.CPtr());
 						else
-							ListItem.strName.Format(L"   %s", (const wchar_t*)strName);
+							ListItem.strName.Format(L"   %s", strName.CPtr());
 
 						//ListItem.SetSelect(MenuItemNumber++ == StartPos);
 						MenuItemNumber++;
@@ -1565,7 +1565,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 						{
 							string strName00;
 							int nOffset = HotKeysPresent?3:0;
-							strName00 = (const wchar_t*)PluginList.GetItemPtr()->strName+nOffset;
+							strName00 = PluginList.GetItemPtr()->strName.CPtr()+nOffset;
 							RemoveExternalSpaces(strName00);
 							GetHotKeyRegKey(item->pPlugin, item->nItem, strRegKey);
 
@@ -1622,7 +1622,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 		if (ExitCode<0)
 		{
 			CtrlObject->Macro.SetMode(PrevMacroMode);
-			return(FALSE);
+			return FALSE;
 		}
 
 		ScrBuf.Flush();
@@ -1657,7 +1657,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 		if (ActivePanel->ProcessPluginEvent(FE_CLOSE,nullptr))
 		{
 			ClosePlugin(hPlugin);
-			return(FALSE);
+			return FALSE;
 		}
 
 		Panel *NewPanel=CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
@@ -1667,7 +1667,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 	}
 
 	CtrlObject->Macro.SetMode(PrevMacroMode);
-	return(TRUE);
+	return TRUE;
 }
 
 void PluginManager::GetHotKeyRegKey(Plugin *pPlugin,int ItemNumber,string &strRegKey)
@@ -1801,8 +1801,8 @@ int PluginManager::UseFarCommand(HANDLE hPlugin,int CommandType)
 	OpenPluginInfo Info;
 	GetOpenPluginInfo(hPlugin,&Info);
 
-	if ((Info.Flags & OPIF_REALNAMES)==0)
-		return(FALSE);
+	if (!(Info.Flags & OPIF_REALNAMES))
+		return FALSE;
 
 	PluginHandle *ph = (PluginHandle*)hPlugin;
 
@@ -1819,7 +1819,7 @@ int PluginManager::UseFarCommand(HANDLE hPlugin,int CommandType)
 			return(!ph->pPlugin->HasMakeDirectory() || (Info.Flags & OPIF_EXTERNALMKDIR));
 	}
 
-	return(TRUE);
+	return TRUE;
 }
 
 
@@ -1879,8 +1879,8 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 	{
 		wchar_t Ch=strCommand.At(PrefixLength);
 
-		if (Ch==0 || IsSpace(Ch) || Ch==L'/' || PrefixLength>64)
-			return(FALSE);
+		if (!Ch || IsSpace(Ch) || Ch==L'/' || PrefixLength>64)
+			return FALSE;
 
 		if (Ch==L':' && PrefixLength>0)
 			break;
@@ -1927,11 +1927,11 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 		for (;;)
 		{
 			const wchar_t *PrEnd = wcschr(PrStart, L':');
-			size_t Len=PrEnd==nullptr ? StrLength(PrStart):(PrEnd-PrStart);
+			size_t Len=PrEnd ? (PrEnd-PrStart):StrLength(PrStart);
 
 			if (Len<PrefixLength)Len=PrefixLength;
 
-			if (StrCmpNI(strPrefix, PrStart, (int)Len)==0)
+			if (!StrCmpNI(strPrefix, PrStart, (int)Len))
 			{
 				if (PluginsData[I]->Load() && PluginsData[I]->HasOpenPlugin())
 				{
@@ -1943,7 +1943,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 				}
 			}
 
-			if (PrEnd == nullptr)
+			if (!PrEnd)
 				break;
 
 			PrStart = ++PrEnd;
@@ -1954,13 +1954,13 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 	}
 
 	if (!items.getCount())
-		return(FALSE);
+		return FALSE;
 
 	Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 	Panel *CurPanel=(Target)?Target:ActivePanel;
 
 	if (CurPanel->ProcessPluginEvent(FE_CLOSE,nullptr))
-		return(FALSE);
+		return FALSE;
 
 	PluginData* PData=nullptr;
 
@@ -2004,7 +2004,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 		CtrlObject->CmdLine->SetString(L"");
 		string strPluginCommand=strCommand.CPtr()+(PData->PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1);
 		RemoveTrailingSpaces(strPluginCommand);
-		HANDLE hPlugin=OpenPlugin(PData->pPlugin,OPEN_COMMANDLINE,(INT_PTR)(const wchar_t*)strPluginCommand); //BUGBUG
+		HANDLE hPlugin=OpenPlugin(PData->pPlugin,OPEN_COMMANDLINE,(INT_PTR)strPluginCommand.CPtr()); //BUGBUG
 
 		if (hPlugin!=INVALID_HANDLE_VALUE)
 		{
@@ -2015,7 +2015,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 		}
 	}
 
-	return(TRUE);
+	return TRUE;
 }
 
 
@@ -2079,7 +2079,7 @@ int PluginManager::CallPlugin(DWORD SysID,int OpenFrom, void *Data)
 
 Plugin *PluginManager::FindPlugin(DWORD SysID)
 {
-	if (SysID != 0 && SysID != 0xFFFFFFFFUl) // не допускается 0 и -1
+	if (SysID  && SysID != 0xFFFFFFFFUl) // не допускается 0 и -1
 	{
 		Plugin *PData;
 

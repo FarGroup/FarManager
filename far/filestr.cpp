@@ -175,7 +175,7 @@ int OldGetFileString::GetAnsiString(char **DestStr, int &Length)
 			{
 				if (!(ReadSize = (int)fread(ReadBuf, 1, sizeof(ReadBuf), SrcFile)))
 				{
-					if (CurLength==0)
+					if (!CurLength)
 						ExitCode=0;
 
 					break;
@@ -229,7 +229,7 @@ int OldGetFileString::GetAnsiString(char **DestStr, int &Length)
 			{
 				char *NewStr = (char *)xf_realloc(Str, m_nStrLength + (DELTA << x));
 
-				if (NewStr == nullptr)
+				if (!NewStr)
 					return (-1);
 
 				Str = NewStr;
@@ -272,7 +272,7 @@ int OldGetFileString::GetUnicodeString(wchar_t **DestStr, int &Length, bool bBig
 			{
 				if (!(ReadSize = (int)fread(wReadBuf, 1, sizeof(wReadBuf), SrcFile)))
 				{
-					if (CurLength==0)
+					if (!CurLength)
 						ExitCode=0;
 
 					break;
@@ -329,7 +329,7 @@ int OldGetFileString::GetUnicodeString(wchar_t **DestStr, int &Length, bool bBig
 			{
 				wchar_t *NewStr = (wchar_t *)xf_realloc(wStr, (m_nwStrLength + (DELTA << x)) * sizeof(wchar_t));
 
-				if (NewStr == nullptr)
+				if (!NewStr)
 					return (-1);
 
 				wStr = NewStr;

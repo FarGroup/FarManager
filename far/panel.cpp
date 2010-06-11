@@ -428,7 +428,7 @@ static int AddPluginItems(VMenu &ChDisk, int Pos, int DiskCount, bool ShowSpecia
 		item->Item.strName = strMenuText;
 		ChDiskPluginItem *pResult = nullptr;
 
-		if (!item->Item.strName.IsEmpty() && ((pResult = MPItems.addItem(*item)) != nullptr))
+		if (!item->Item.strName.IsEmpty() && ((pResult = MPItems.addItem(*item)) ))
 		{
 			pResult->Item.UserData = (char*)item->Item.UserData; //BUGBUG, это фантастика просто. Исправить!!!! связано с работой TArray
 			pResult->Item.UserDataSize = item->Item.UserDataSize;
@@ -527,7 +527,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	DWORD NetworkMask = 0;
 	AddSavedNetworkDisks(Mask, NetworkMask);
 
-	for (DiskMask=Mask,DiskCount=0; DiskMask!=0; DiskMask>>=1)
+	for (DiskMask=Mask,DiskCount=0; DiskMask; DiskMask>>=1)
 		DiskCount+=DiskMask & 1;
 
 	PanelMenuItem Item, *mitem=0;
@@ -553,9 +553,9 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		/* $ 02.04.2001 VVM
 		! Попытка не будить спящие диски... */
-		for (DiskMask=Mask,MenuLine=I=0; DiskMask!=0; DiskMask>>=1,I++)
+		for (DiskMask=Mask,MenuLine=I=0; DiskMask; DiskMask>>=1,I++)
 		{
-			if ((DiskMask & 1) == 0)   //нету диска
+			if (!(DiskMask & 1))   //нету диска
 				continue;
 
 			wchar_t Drv[]={L'&',L'A'+I,L':',L'\\',L'\0'};
@@ -620,13 +620,13 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				if (Opt.ChangeDriveMode & DRIVE_SHOW_LABEL)
 				{
 					TruncStrFromEnd(strVolumeName,LabelWidth);
-					strTemp.Format(L"%c%-*s",BoxSymbols[BS_V1],LabelWidth,(const wchar_t*)strVolumeName);
+					strTemp.Format(L"%c%-*s",BoxSymbols[BS_V1],LabelWidth,strVolumeName.CPtr());
 					strMenuText += strTemp;
 				}
 
 				if (Opt.ChangeDriveMode & DRIVE_SHOW_FILESYSTEM)
 				{
-					strTemp.Format(L"%c%-8.8s",BoxSymbols[BS_V1],(const wchar_t*)strFileSystemName);
+					strTemp.Format(L"%c%-8.8s",BoxSymbols[BS_V1],strFileSystemName.CPtr());
 					strMenuText += strTemp;
 				}
 			}
@@ -653,7 +653,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				}
 
 				string strTemp;
-				strTemp.Format(L"%c%-9s%c%-9s",BoxSymbols[BS_V1],(const wchar_t*)strTotalText,BoxSymbols[BS_V1],(const wchar_t*)strFreeText);
+				strTemp.Format(L"%c%-9s%c%-9s",BoxSymbols[BS_V1],strTotalText.CPtr(),BoxSymbols[BS_V1],strFreeText.CPtr());
 				strMenuText += strTemp;
 			}
 
@@ -914,7 +914,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			if (ChDisk.Done() &&
 			        (ChDisk.Modal::GetExitCode() < 0) &&
 			        !strCurDir.IsEmpty() &&
-			        (StrCmpN(strCurDir,L"\\\\",2) != 0))
+			        (StrCmpN(strCurDir,L"\\\\",2) ))
 			{
 				const wchar_t RootDir[4] = {strCurDir.At(0),L':',L'\\',L'\0'};
 
@@ -995,7 +995,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			            strMsgStr,
 			            MSG(MRetry),
 			            MSG(MCancel)
-			        ) != 0)
+			        ) )
 			{
 				return -1;
 			}
@@ -1102,7 +1102,7 @@ int Panel::DisconnectDrive(PanelMenuItem *item, VMenu &ChDisk)
 					                strMsgText,
 					                MSG(MRetry),
 					                MSG(MCancel)
-					            ) != 0;
+					            ) ;
 				}
 				else
 					DoneEject=TRUE;
@@ -1124,7 +1124,7 @@ void Panel::RemoveHotplugDevice(PanelMenuItem *item, VMenu &ChDisk)
 {
 	int Code = ProcessRemoveHotplugDevice(item->cDrive, EJECT_NOTIFY_AFTERREMOVE);
 
-	if (Code == 0)
+	if (!Code)
 	{
 		// запоминаем состояние панелей
 		int CMode=GetMode();
@@ -1147,7 +1147,7 @@ void Panel::RemoveHotplugDevice(PanelMenuItem *item, VMenu &ChDisk)
 			// очередная попытка извлечения без вывода сообщения
 			Code = ProcessRemoveHotplugDevice(item->cDrive, EJECT_NO_MESSAGE|EJECT_NOTIFY_AFTERREMOVE);
 
-			if (Code == 0)
+			if (!Code)
 			{
 				// восстановим пути - это избавит нас от левых данных в панели.
 				if (AMode != PLUGIN_PANEL)
@@ -1167,7 +1167,7 @@ void Panel::RemoveHotplugDevice(PanelMenuItem *item, VMenu &ChDisk)
 				                strMsgText,
 				                MSG(MHRetry),
 				                MSG(MHCancel)
-				            ) != 0;
+				            ) ;
 			}
 			else
 				DoneEject=TRUE;
@@ -1216,7 +1216,7 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
 		{
 			strMsgText.Format(MSG(MChangeSUBSTDisconnectDriveQuestion),Drive);
 
-			if (Message(MSG_WARNING,2,MSG(MChangeSUBSTDisconnectDriveTitle),strMsgText,MSG(MYes),MSG(MNo))!=0)
+			if (Message(MSG_WARNING,2,MSG(MChangeSUBSTDisconnectDriveTitle),strMsgText,MSG(MYes),MSG(MNo)))
 				return DRIVE_DEL_FAIL;
 		}
 
@@ -1229,9 +1229,9 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
 
 			if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
 			{
-				if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),strMsgText,
+				if (!Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),strMsgText,
 				            L"\x1",MSG(MChangeDriveOpenFiles),
-				            MSG(MChangeDriveAskDisconnect),MSG(MOk),MSG(MCancel))==0)
+				            MSG(MChangeDriveAskDisconnect),MSG(MOk),MSG(MCancel)))
 				{
 					if (DelSubstDrive(DiskLetter))
 						return DRIVE_DEL_SUCCESS;
@@ -1257,9 +1257,9 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
 
 			if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
 			{
-				if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),strMsgText,
+				if (!Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),strMsgText,
 				            L"\x1",MSG(MChangeDriveOpenFiles),
-				            MSG(MChangeDriveAskDisconnect),MSG(MOk),MSG(MCancel))==0)
+				            MSG(MChangeDriveAskDisconnect),MSG(MOk),MSG(MCancel)))
 				{
 					if (WNetCancelConnection2(DiskLetter,UpdateProfile,TRUE)==NO_ERROR)
 						return DRIVE_DEL_SUCCESS;
@@ -1375,7 +1375,7 @@ void Panel::FastFind(int FirstKey)
 
 				if (rec.EventType==MOUSE_EVENT)
 				{
-					if ((rec.Event.MouseEvent.dwButtonState & 3)==0)
+					if (!(rec.Event.MouseEvent.dwButtonState & 3))
 						continue;
 					else
 						Key=KEY_ESC;
@@ -1589,29 +1589,29 @@ int  Panel::PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 {
 	RetCode=TRUE;
 
-	if (!ModalMode && MouseEvent->dwMousePosition.Y==0)
+	if (!ModalMode && !MouseEvent->dwMousePosition.Y)
 	{
 		if (MouseEvent->dwMousePosition.X==ScrX)
 		{
-			if (Opt.ScreenSaver && (MouseEvent->dwButtonState & 3)==0)
+			if (Opt.ScreenSaver && !(MouseEvent->dwButtonState & 3))
 			{
 				EndDrag();
 				ScreenSaver(TRUE);
-				return(TRUE);
+				return TRUE;
 			}
 		}
 		else
 		{
-			if ((MouseEvent->dwButtonState & 3)!=0 && MouseEvent->dwEventFlags==0)
+			if ((MouseEvent->dwButtonState & 3) && !MouseEvent->dwEventFlags)
 			{
 				EndDrag();
 
-				if (MouseEvent->dwMousePosition.X==0)
+				if (!MouseEvent->dwMousePosition.X)
 					CtrlObject->Cp()->ProcessKey(KEY_CTRLO);
 				else
 					ShellOptions(0,MouseEvent);
 
-				return(TRUE);
+				return TRUE;
 			}
 		}
 	}
@@ -1621,33 +1621,33 @@ int  Panel::PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 	         MouseEvent->dwMousePosition.Y<Y1 || MouseEvent->dwMousePosition.Y>Y2))
 	{
 		RetCode=FALSE;
-		return(TRUE);
+		return TRUE;
 	}
 
 	if (DragX!=-1)
 	{
-		if ((MouseEvent->dwButtonState & 3)==0)
+		if (!(MouseEvent->dwButtonState & 3))
 		{
 			EndDrag();
 
-			if (MouseEvent->dwEventFlags==0 && SrcDragPanel!=this)
+			if (!MouseEvent->dwEventFlags && SrcDragPanel!=this)
 			{
 				MoveToMouse(MouseEvent);
 				Redraw();
 				SrcDragPanel->ProcessKey(DragMove ? KEY_DRAGMOVE:KEY_DRAGCOPY);
 			}
 
-			return(TRUE);
+			return TRUE;
 		}
 
 		if (MouseEvent->dwMousePosition.Y<=Y1 || MouseEvent->dwMousePosition.Y>=Y2 ||
 		        !CtrlObject->Cp()->GetAnotherPanel(SrcDragPanel)->IsVisible())
 		{
 			EndDrag();
-			return(TRUE);
+			return TRUE;
 		}
 
-		if ((MouseEvent->dwButtonState & 2) && MouseEvent->dwEventFlags==0)
+		if ((MouseEvent->dwButtonState & 2) && !MouseEvent->dwEventFlags)
 			DragMove=!DragMove;
 
 		if (MouseEvent->dwButtonState & 1)
@@ -1655,14 +1655,14 @@ int  Panel::PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 			if ((abs(MouseEvent->dwMousePosition.X-DragX)>15 || SrcDragPanel!=this) &&
 			        !ModalMode)
 			{
-				if (SrcDragPanel->GetSelCount()==1 && DragSaveScr==nullptr)
+				if (SrcDragPanel->GetSelCount()==1 && !DragSaveScr)
 				{
 					SrcDragPanel->GoToFile(strDragName);
 					SrcDragPanel->Show();
 				}
 
 				DragMessage(MouseEvent->dwMousePosition.X,MouseEvent->dwMousePosition.Y,DragMove);
-				return(TRUE);
+				return TRUE;
 			}
 			else
 			{
@@ -1672,10 +1672,10 @@ int  Panel::PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 		}
 	}
 
-	if ((MouseEvent->dwButtonState & 3)==0)
-		return(TRUE);
+	if (!(MouseEvent->dwButtonState & 3))
+		return TRUE;
 
-	if ((MouseEvent->dwButtonState & 1) && MouseEvent->dwEventFlags==0 &&
+	if ((MouseEvent->dwButtonState & 1) && !MouseEvent->dwEventFlags &&
 	        X2-X1<ScrX)
 	{
 		DWORD FileAttr;
@@ -1691,13 +1691,13 @@ int  Panel::PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 		}
 	}
 
-	return(FALSE);
+	return FALSE;
 }
 
 
 int  Panel::IsDragging()
 {
-	return(DragSaveScr!=nullptr);
+	return DragSaveScr!=nullptr;
 }
 
 
@@ -1714,7 +1714,7 @@ void Panel::DragMessage(int X,int Y,int Move)
 	string strDragMsg, strSelName;
 	int SelCount,MsgX,Length;
 
-	if ((SelCount=SrcDragPanel->GetSelCount())==0)
+	if (!(SelCount=SrcDragPanel->GetSelCount()))
 		return;
 
 	if (SelCount==1)
@@ -1731,9 +1731,9 @@ void Panel::DragMessage(int X,int Y,int Move)
 		strSelName.Format(MSG(MDragFiles), SelCount);
 
 	if (Move)
-		strDragMsg.Format(MSG(MDragMove), (const wchar_t*)strSelName);
+		strDragMsg.Format(MSG(MDragMove), strSelName.CPtr());
 	else
-		strDragMsg.Format(MSG(MDragCopy), (const wchar_t*)strSelName);
+		strDragMsg.Format(MSG(MDragCopy), strSelName.CPtr());
 
 	if ((Length=(int)strDragMsg.GetLength())+X>ScrX)
 	{
@@ -1981,7 +1981,7 @@ void Panel::DrawSeparator(int Y)
 
 void Panel::ShowScreensCount()
 {
-	if (Opt.ShowScreensNumber && X1==0)
+	if (Opt.ShowScreensNumber && !X1)
 	{
 		int Viewers=FrameManager->GetFrameCountByType(MODALTYPE_VIEWER);
 		int Editors=FrameManager->GetFrameCountByType(MODALTYPE_EDITOR);
@@ -2161,7 +2161,7 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 				DWORD Flags=0;
 
 				for (size_t I=0; I < ARRAYSIZE(PFLAGS); ++I)
-					if (*(PFLAGS[I].Opt) != 0)
+					if (*(PFLAGS[I].Opt) )
 						Flags|=PFLAGS[I].Flags;
 
 				Flags|=GetSortOrder()<0?PFLAGS_REVERSESORTORDER:0;
@@ -2355,7 +2355,7 @@ int Panel::GetCurName(string &strName, string &strShortName)
 {
 	strName.Clear();
 	strShortName.Clear();
-	return(FALSE);
+	return FALSE;
 }
 
 
@@ -2363,7 +2363,7 @@ int Panel::GetCurBaseName(string &strName, string &strShortName)
 {
 	strName.Clear();
 	strShortName.Clear();
-	return(FALSE);
+	return FALSE;
 }
 
 static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
@@ -2456,7 +2456,7 @@ BOOL Panel::NeedUpdatePanel(Panel *AnotherPanel)
 {
 	/* Обновить, если обновление разрешено и пути совпадают */
 	if ((!Opt.AutoUpdateLimit || static_cast<DWORD>(GetFileCount()) <= Opt.AutoUpdateLimit) &&
-	        StrCmpI(AnotherPanel->strCurDir,strCurDir)==0)
+	        !StrCmpI(AnotherPanel->strCurDir,strCurDir))
 		return TRUE;
 
 	return FALSE;
@@ -2492,7 +2492,7 @@ int Panel::ProcessShortcutFolder(int Key,BOOL ProcTreePanel)
 			}
 		}
 
-		return(TRUE);
+		return TRUE;
 	}
 
 	return FALSE;

@@ -571,7 +571,7 @@ bool GetDeviceProperty(
 		               0
 		           );
 
-		if (dwSize == 0)
+		if (!dwSize)
 		{
 			if (bSearchChild)
 			{

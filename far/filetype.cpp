@@ -96,7 +96,7 @@ bool ExtractIfExistCommand(string &strCommandText)
 		}
 		else
 		{
-			size_t offset = wPtrCmd-(const wchar_t*)strCommandText;
+			size_t offset = wPtrCmd-strCommandText.CPtr();
 			wchar_t *CommandText = strCommandText.GetBuffer();
 			wchar_t *PtrCmd = CommandText+offset;
 			// прокинем "if exist"
@@ -131,7 +131,7 @@ int GetDescriptionWidth(const wchar_t *Name=nullptr,const wchar_t *ShortName=nul
 		GetRegKey(strRegKey,FTS.Desc,strDescription,L"");
 		int CurWidth;
 
-		if (Name == nullptr)
+		if (!Name)
 			CurWidth = HiStrlen(strDescription);
 		else
 		{
@@ -271,7 +271,7 @@ bool ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode
 		TruncStr(strCommandText,ScrX-DizWidth-14);
 		strMenuText += strCommandText;
 		TypesMenuItem.strName = strMenuText;
-		TypesMenuItem.SetSelect(I==0);
+		TypesMenuItem.SetSelect(!I);
 		TypesMenu.SetUserData(strCommand.CPtr(),0,TypesMenu.AddItem(&TypesMenuItem));
 	}
 

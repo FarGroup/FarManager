@@ -145,19 +145,19 @@ class Panel:public ScreenObject
 
 		virtual int GetCurDir(string &strCurDir);
 
-		virtual int GetSelCount() {return(0);};
-		virtual int GetRealSelCount() {return(0);};
-		virtual int GetSelName(string *strName,DWORD &FileAttr,string *ShortName=nullptr,FAR_FIND_DATA_EX *fd=nullptr) {return(FALSE);};
+		virtual int GetSelCount() {return 0;};
+		virtual int GetRealSelCount() {return 0;};
+		virtual int GetSelName(string *strName,DWORD &FileAttr,string *ShortName=nullptr,FAR_FIND_DATA_EX *fd=nullptr) {return FALSE;};
 		virtual void UngetSelName() {};
 		virtual void ClearLastGetSelection() {};
 		virtual unsigned __int64 GetLastSelectedSize() {return (unsigned __int64)(-1);};
-		virtual int GetLastSelectedItem(struct FileListItem *LastItem) {return(0);};
+		virtual int GetLastSelectedItem(struct FileListItem *LastItem) {return 0;};
 
 		virtual int GetCurName(string &strName, string &strShortName);
 		virtual int GetCurBaseName(string &strName, string &strShortName);
-		virtual int GetFileName(string &strName,int Pos,DWORD &FileAttr) {return(FALSE);};
+		virtual int GetFileName(string &strName,int Pos,DWORD &FileAttr) {return FALSE;};
 
-		virtual int GetCurrentPos() {return(0);};
+		virtual int GetCurrentPos() {return 0;};
 		virtual void SetFocus();
 		virtual void KillFocus();
 		virtual void Update(int Mode) {};
@@ -165,7 +165,7 @@ class Panel:public ScreenObject
 		  ѕараметр дл€ игнорировани€ времени последнего Update.
 		  »спользуетс€ дл€ Update после исполнени€ команды.
 		*/
-		virtual int UpdateIfChanged(int UpdateMode) {return(0);};
+		virtual int UpdateIfChanged(int UpdateMode) {return 0;};
 		/* $ 19.03.2002 DJ
 		   UpdateIfRequired() - обновить, если апдейт был пропущен из-за того,
 		   что панель невидима
@@ -173,14 +173,14 @@ class Panel:public ScreenObject
 		virtual void UpdateIfRequired() {};
 
 		virtual void CloseChangeNotification() {};
-		virtual int FindPartName(const wchar_t *Name,int Next,int Direct=1,int ExcludeSets=0) {return(FALSE);}
+		virtual int FindPartName(const wchar_t *Name,int Next,int Direct=1,int ExcludeSets=0) {return FALSE;}
 
-		virtual int GoToFile(long idxItem) {return(TRUE);};
-		virtual int GoToFile(const wchar_t *Name,BOOL OnlyPartName=FALSE) {return(TRUE);};
+		virtual int GoToFile(long idxItem) {return TRUE;};
+		virtual int GoToFile(const wchar_t *Name,BOOL OnlyPartName=FALSE) {return TRUE;};
 		virtual long FindFile(const wchar_t *Name,BOOL OnlyPartName=FALSE) {return -1;};
 
-		virtual int IsSelected(const wchar_t *Name) {return(FALSE);};
-		virtual int IsSelected(long indItem) {return(FALSE);};
+		virtual int IsSelected(const wchar_t *Name) {return FALSE;};
+		virtual int IsSelected(long indItem) {return FALSE;};
 
 		virtual long FindFirst(const wchar_t *Name) {return -1;}
 		virtual long FindNext(int StartPos, const wchar_t *Name) {return -1;}
@@ -231,15 +231,15 @@ class Panel:public ScreenObject
 		virtual void FlushDiz() {};
 		virtual void CopyDiz(const wchar_t *Name,const wchar_t *ShortName,const wchar_t *DestName, const wchar_t *DestShortName,DizList *DestDiz) {};
 		virtual int IsFullScreen() {return ViewSettings.FullScreen;};
-		virtual int IsDizDisplayed() {return(FALSE);};
-		virtual int IsColumnDisplayed(int Type) {return(FALSE);};
+		virtual int IsDizDisplayed() {return FALSE;};
+		virtual int IsColumnDisplayed(int Type) {return FALSE;};
 		virtual int GetColumnsCount() { return 1;};
 		virtual void SetReturnCurrentFile(int Mode) {};
 		virtual void QViewDelTempName() {};
 		virtual void GetOpenPluginInfo(struct OpenPluginInfo *Info) {};
 		virtual void SetPluginMode(HANDLE hPlugin,const wchar_t *PluginFile,bool SendOnFocus=false) {};
 		virtual void SetPluginModified() {};
-		virtual int ProcessPluginEvent(int Event,void *Param) {return(FALSE);};
+		virtual int ProcessPluginEvent(int Event,void *Param) {return FALSE;};
 		virtual HANDLE GetPluginHandle() {return(INVALID_HANDLE_VALUE);};
 		virtual void SetTitle();
 		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);

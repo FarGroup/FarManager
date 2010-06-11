@@ -244,7 +244,7 @@ bool UserDefinedList::Set(const wchar_t *List, bool AddToList)
 								}
 							}
 
-							if (AddAsterisk && wcspbrk(item.Str,L"?*.")==nullptr)
+							if (AddAsterisk && !wcspbrk(item.Str,L"?*."))
 							{
 								Length=StrLength(item.Str);
 								/* $ 18.09.2002 DJ
@@ -359,7 +359,7 @@ const wchar_t *UserDefinedList::Skip(const wchar_t *Str, int &Length, int &RealL
 	bool InBrackets=false, InQoutes = (*cur==L'\"');
 
 	if (!InQoutes) // если мы в кавычках, то обработка будет позже и чуть сложнее
-		while (*cur) // важно! проверка *cur!=0 должна стоять первой
+		while (*cur) // важно! проверка *cur должна стоять первой
 		{
 			if (ProcessBrackets)
 			{
@@ -397,7 +397,7 @@ const wchar_t *UserDefinedList::Skip(const wchar_t *Str, int &Length, int &RealL
 		++cur;
 		const wchar_t *QuoteEnd=wcschr(cur, L'\"');
 
-		if (QuoteEnd==nullptr)
+		if (!QuoteEnd)
 		{
 			Error=true;
 			return nullptr;

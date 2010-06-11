@@ -101,7 +101,7 @@ int GetDirInfo(const wchar_t *Title,
 	*/
 	const wchar_t *ShowDirName = DirName;
 
-	if (DirName[0] == L'.' && DirName[1] == 0)
+	if (DirName[0] == L'.' && !DirName[1])
 	{
 		const wchar_t *p = LastSlash(strFullDirName);
 
@@ -145,12 +145,12 @@ int GetDirInfo(const wchar_t *Title,
 				case KEY_ESC:
 				case KEY_BREAK:
 					GetInputRecord(&rec);
-					return(0);
+					return 0;
 				default:
 
 					if (Flags&GETDIRINFO_ENHBREAK)
 					{
-						return(-1);
+						return -1;
 					}
 
 					GetInputRecord(&rec);
@@ -203,7 +203,7 @@ int GetDirInfo(const wchar_t *Title,
 				strCurDirName = strFullName;
 				CutToSlash(strCurDirName); //???
 
-				if (StrCmpI(strCurDirName,strLastDirName)!=0)
+				if (StrCmpI(strCurDirName,strLastDirName))
 				{
 					DirCount++;
 					strLastDirName = strCurDirName;
@@ -237,7 +237,7 @@ int GetDirInfo(const wchar_t *Title,
 		}
 	}
 
-	return(1);
+	return 1;
 }
 
 
@@ -268,7 +268,7 @@ int GetPluginDirInfo(HANDLE hPlugin,const wchar_t *DirName,unsigned long &DirCou
 		}
 	}
 
-	if (PanelItem!=nullptr)
+	if (PanelItem)
 		FarFreePluginDirList(PanelItem, ItemsNumber);
 
 	return(ExitCode);

@@ -202,7 +202,7 @@ bool PluginA::LoadFromCache(const FAR_FIND_DATA_EX &FindData)
 			);
 			GetRegKey(strRegKey, L"ID", strPluginID, L"");
 
-			if (StrCmp(strPluginID, strCurPluginID) != 0)   //одинаковые ли бинарники?
+			if (StrCmp(strPluginID, strCurPluginID) )   //одинаковые ли бинарники?
 				return false;
 		}
 		strRegKey += L"\\Exports";

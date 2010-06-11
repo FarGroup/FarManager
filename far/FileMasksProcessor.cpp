@@ -90,7 +90,7 @@ bool FileMasksProcessor::Set(const wchar_t *masks, DWORD Flags)
 			n = re->GetBracketsCount();
 			m = (SMatch *)xf_malloc(n*sizeof(SMatch));
 
-			if (m == nullptr)
+			if (!m)
 			{
 				n = 0;
 				return false;

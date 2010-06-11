@@ -137,10 +137,10 @@ void InitConsole(int FirstInit)
 		HICON hSmallIcon=nullptr,hLargeIcon=nullptr;
 		ExtractIconEx(g_strFarModuleName,0,&hLargeIcon,&hSmallIcon,1);
 
-		if (hLargeIcon!=nullptr)
+		if (hLargeIcon)
 			hOldLargeIcon=(HICON)SendMessage(hWnd,WM_SETICON,1,(LPARAM)hLargeIcon);
 
-		if (hSmallIcon!=nullptr)
+		if (hSmallIcon)
 			hOldSmallIcon=(HICON)SendMessage(hWnd,WM_SETICON,0,(LPARAM)hSmallIcon);
 	}
 
@@ -157,10 +157,10 @@ void CloseConsole()
 
 	if (hWnd && Opt.SmallIcon)
 	{
-		if (hOldLargeIcon!=nullptr)
+		if (hOldLargeIcon)
 		{
 			SendMessage(hWnd,WM_SETICON,1,(LPARAM)hOldLargeIcon);
-			SendMessage(hWnd,WM_SETICON,0,(LPARAM)(hOldSmallIcon!=nullptr ? hOldSmallIcon:hOldLargeIcon));
+			SendMessage(hWnd,WM_SETICON,0,(LPARAM)(hOldSmallIcon ? hOldSmallIcon:hOldLargeIcon));
 		}
 	}
 
@@ -353,14 +353,14 @@ BOOL __stdcall CtrlHandler(DWORD CtrlType)
 
 		if (CtrlObject && CtrlObject->Cp())
 		{
-			if (CtrlObject->Cp()->LeftPanel!=nullptr && CtrlObject->Cp()->LeftPanel->GetMode()==PLUGIN_PANEL)
+			if (CtrlObject->Cp()->LeftPanel && CtrlObject->Cp()->LeftPanel->GetMode()==PLUGIN_PANEL)
 				CtrlObject->Plugins.ProcessEvent(CtrlObject->Cp()->LeftPanel->GetPluginHandle(),FE_BREAK,(void *)(DWORD_PTR)CtrlType);
 
-			if (CtrlObject->Cp()->RightPanel!=nullptr && CtrlObject->Cp()->RightPanel->GetMode()==PLUGIN_PANEL)
+			if (CtrlObject->Cp()->RightPanel && CtrlObject->Cp()->RightPanel->GetMode()==PLUGIN_PANEL)
 				CtrlObject->Plugins.ProcessEvent(CtrlObject->Cp()->RightPanel->GetPluginHandle(),FE_BREAK,(void *)(DWORD_PTR)CtrlType);
 		}
 
-		return(TRUE);
+		return TRUE;
 	}
 
 	CloseFAR=TRUE;
@@ -373,11 +373,11 @@ BOOL __stdcall CtrlHandler(DWORD CtrlType)
 	*/
 	if (!Opt.CloseConsoleRule)
 	{
-		if ((FileEditor::CurrentEditor!=nullptr && FileEditor::CurrentEditor->IsFileModified()) ||
+		if ((FileEditor::CurrentEditor && FileEditor::CurrentEditor->IsFileModified()) ||
 		        (FrameManager && FrameManager->IsAnyFrameModified(FALSE)))
-			return(TRUE);
+			return TRUE;
 
-		return(FALSE);
+		return FALSE;
 	}
 
 	return TRUE;
@@ -787,9 +787,9 @@ void HiText(const wchar_t *Str,int HiColor,int isVertText)
 				ReplaceStrings(strText,L"&&",L"&",-1);
 
 				if (isVertText)
-					VText((const wchar_t*)strText+1);
+					VText(strText.CPtr()+1);
 				else
-					Text((const wchar_t*)strText+1);
+					Text(strText.CPtr()+1);
 			}
 		}
 		else
@@ -1155,7 +1155,7 @@ string& HiText2Str(string& strDest, const wchar_t *Str)
 	const wchar_t *ChPtr;
 	strDest = Str;
 
-	if ((ChPtr=wcschr(Str,L'&')) != nullptr)
+	if ((ChPtr=wcschr(Str,L'&')) )
 	{
 		/*
 		   &&      = '&'
@@ -1182,7 +1182,7 @@ string& HiText2Str(string& strDest, const wchar_t *Str)
 				strDest+=Chr;
 				string strText = (ChPtr+1);
 				ReplaceStrings(strText,L"&&",L"&",-1);
-				strDest+=(const wchar_t*)strText+1;
+				strDest+=strText.CPtr()+1;
 			}
 		}
 		else

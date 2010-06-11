@@ -207,7 +207,7 @@ class Manager
 		*/
 		void EnterModalEV() {ModalEVCount++;}
 		void ExitModalEV() {ModalEVCount--;}
-		BOOL InModalEV() {return ModalEVCount!=0;}
+		BOOL InModalEV() {return ModalEVCount;}
 
 		void ResizeAllFrame();
 

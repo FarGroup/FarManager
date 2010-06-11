@@ -93,7 +93,7 @@ class TPreRedrawFunc
 		// очистить стек
 		void Free();
 
-		bool isEmpty() const {return Total==0;};
+		bool isEmpty() const {return !Total;}
 
 
 	private:

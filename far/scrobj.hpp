@@ -69,8 +69,8 @@ class ScreenObject
 		virtual ~ScreenObject();
 
 	public:
-		virtual int ProcessKey(int Key) { return(0); };
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) { return(0); };
+		virtual int ProcessKey(int Key) { return 0; };
+		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) { return 0; };
 
 		virtual void Hide();
 		virtual void Hide0();   // 15.07.2000 tran - dirty hack :(

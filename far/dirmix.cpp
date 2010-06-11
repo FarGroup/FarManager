@@ -51,14 +51,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
 {
-	if (!NewDir || *NewDir == 0)
+	if (!NewDir || !*NewDir)
 		return FALSE;
 
 	BOOL rc=FALSE;
 	wchar_t Drive[4]=L"=A:";
 	string strCurDir;
 
-	if (*NewDir && NewDir[1]==L':' && NewDir[2]==0)// если указана только
+	if (*NewDir && NewDir[1]==L':' && !NewDir[2])// если указана только
 	{                                                     // буква диска, то путь
 		Drive[1]=Upper(*NewDir);                          // возьмем из переменной
 
@@ -203,7 +203,7 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 		{
 			SetLastError(ERROR_PATH_NOT_FOUND);
 
-			if (Silent || Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), strTarget, MSG(MNeedNearPath), MSG(MHYes),MSG(MHNo)) == 0)
+			if (Silent || !Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), strTarget, MSG(MNeedNearPath), MSG(MHYes),MSG(MHNo)))
 			{
 				string strTestPathTemp = *pTestPath;
 
@@ -218,7 +218,7 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 
 						if (ChkFld > TSTFLD_ERROR && ChkFld < TSTFLD_NOTFOUND)
 						{
-							if (!(pTestPath->At(0) == L'\\' && pTestPath->At(1) == L'\\' && strTestPathTemp.At(1) == 0))
+							if (!(pTestPath->At(0) == L'\\' && pTestPath->At(1) == L'\\' && !strTestPathTemp.At(1)))
 							{
 								*pTestPath = strTestPathTemp;
 
@@ -253,9 +253,9 @@ void CreatePath(string &strPath)
 
 	for (;;)
 	{
-		if ((*ChPtr == 0) || IsSlash(*ChPtr))
+		if (!*ChPtr || IsSlash(*ChPtr))
 		{
-			if (*ChPtr == 0)
+			if (!*ChPtr)
 				bEnd = TRUE;
 
 			*ChPtr = 0;

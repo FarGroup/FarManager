@@ -97,7 +97,7 @@ class CallBackStack
 
 	public:
 		void ClearStack();
-		BOOL isEmpty() const {return topOfStack==nullptr;};
+		BOOL isEmpty() const {return !topOfStack;}
 
 		void Push(const StackHelpData *Data);
 		int Pop(StackHelpData *Data=nullptr);
@@ -208,13 +208,13 @@ int Help::ReadHelp(const wchar_t *Mask)
 
 	if (StackData.strHelpTopic.At(0)==HelpBeginLink)
 	{
-		strPath = (const wchar_t*)StackData.strHelpTopic+1;
+		strPath = StackData.strHelpTopic.CPtr()+1;
 		size_t pos;
 
 		if (!strPath.Pos(pos,HelpEndLink))
 			return FALSE;
 
-		StackData.strHelpTopic = (const wchar_t *)strPath + pos + 1;
+		StackData.strHelpTopic = strPath.CPtr() + pos + 1;
 		strPath.SetLength(pos);
 		DeleteEndSlash(strPath,true);
 		AddEndSlash(strPath);
@@ -235,7 +235,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 	UINT nCodePage = CP_OEMCP;
 	FILE *HelpFile=Language::OpenLangFile(strPath,(!*Mask?HelpFileMask:Mask),Opt.strHelpLanguage,strFullHelpPathName, nCodePage);
 
-	if (HelpFile==nullptr)
+	if (!HelpFile)
 	{
 		ErrorHelp=TRUE;
 
@@ -415,14 +415,14 @@ int Help::ReadHelp(const wchar_t *Mask)
 		{
 			if (TopicFound)
 			{
-				if (StrCmp(strReadStr,L"@+")==0)
+				if (!StrCmp(strReadStr,L"@+"))
 				{
 					Formatting=TRUE;
 					PrevSymbol=0;
 					continue;
 				}
 
-				if (StrCmp(strReadStr,L"@-")==0)
+				if (!StrCmp(strReadStr,L"@-"))
 				{
 					Formatting=FALSE;
 					PrevSymbol=0;
@@ -439,7 +439,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 
 				break;
 			}
-			else if (StrCmpI(strReadStr.CPtr()+1,StackData.strHelpTopic)==0)
+			else if (!StrCmpI(strReadStr.CPtr()+1,StackData.strHelpTopic))
 			{
 				TopicFound=1;
 				NearTopicFound=1;
@@ -483,7 +483,7 @@ m1:
 				{
 					NearTopicFound=0;
 
-					if (strReadStr.At(0)==0 || !Formatting)
+					if (!strReadStr.At(0) || !Formatting)
 					{
 						if (!strSplitLine.IsEmpty())
 						{
@@ -623,7 +623,7 @@ m1:
 
 	AddLine(L"");
 	fclose(HelpFile);
-	FixSize=FixCount+(FixCount!=0);
+	FixSize=FixCount+(FixCount);
 	ErrorHelp=FALSE;
 
 	if (IsNewTopic)
@@ -632,7 +632,7 @@ m1:
 		StackData.TopStr=0;
 	}
 
-	return TopicFound != 0;
+	return TopicFound ;
 }
 
 
@@ -678,7 +678,7 @@ void Help::HighlightsCorrection(string &strStr)
 {
 	int I,Count;
 
-	for (I=0,Count=0; strStr.At(I) != 0; I++)
+	for (I=0,Count=0; strStr.At(I) ; I++)
 		if (strStr.At(I) == L'#')
 			Count++;
 
@@ -839,7 +839,7 @@ void Help::OutString(const wchar_t *Str)
 			continue;
 		}
 
-		if (*Str==L'~' || ((*Str==L'#' || *Str == strCtrlColorChar.At(0)) && !Topic) /*|| *Str==HelpBeginLink*/ || *Str==0)
+		if (*Str==L'~' || ((*Str==L'#' || *Str == strCtrlColorChar.At(0)) && !Topic) /*|| *Str==HelpBeginLink*/ || !*Str)
 		{
 			OutStr[OutPos]=0;
 
@@ -875,7 +875,7 @@ void Help::OutString(const wchar_t *Str)
 
 							EndPtr=wcschr(EndPtr,L'@');
 
-							if (EndPtr!=nullptr)
+							if (EndPtr)
 								*EndPtr=0;
 
 							StackData.strSelTopic.ReleaseBuffer();
@@ -908,7 +908,7 @@ void Help::OutString(const wchar_t *Str)
 			OutPos=0;
 		}
 
-		if (*Str==0)
+		if (!*Str)
 			break;
 
 		if (*Str==L'~')
@@ -1108,14 +1108,14 @@ int Help::ProcessKey(int Key)
 		{
 			Opt.FullScreenHelp=!Opt.FullScreenHelp;
 			ResizeConsole();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_ESC:
 		case KEY_F10:
 		{
 			FrameManager->DeleteFrame();
 			SetExitCode(XC_QUIT);
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_HOME:        case KEY_NUMPAD7:
 		case KEY_CTRLHOME:    case KEY_CTRLNUMPAD7:
@@ -1128,7 +1128,7 @@ int Help::ProcessKey(int Key)
 			if (StackData.strSelTopic.IsEmpty())
 				MoveToReference(1,1);
 
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_END:         case KEY_NUMPAD1:
 		case KEY_CTRLEND:     case KEY_CTRLNUMPAD1:
@@ -1145,7 +1145,7 @@ int Help::ProcessKey(int Key)
 				MoveToReference(0,1);
 			}
 
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_UP:          case KEY_NUMPAD8:
 		{
@@ -1167,7 +1167,7 @@ int Help::ProcessKey(int Key)
 			else
 				ProcessKey(KEY_SHIFTTAB);
 
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_DOWN:        case KEY_NUMPAD2:
 		{
@@ -1187,7 +1187,7 @@ int Help::ProcessKey(int Key)
 			else
 				ProcessKey(KEY_TAB);
 
-			return(TRUE);
+			return TRUE;
 		}
 		/* $ 26.07.2001 VVM
 		  + С альтом скролим по 1 */
@@ -1223,7 +1223,7 @@ int Help::ProcessKey(int Key)
 				MoveToReference(1,1);
 			}
 
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_PGDN:      case KEY_NUMPAD3:
 		{
@@ -1235,31 +1235,31 @@ int Help::ProcessKey(int Key)
 				if (StackData.TopStr==PrevTopStr)
 				{
 					ProcessKey(KEY_CTRLPGDN);
-					return(TRUE);
+					return TRUE;
 				}
 				else
 					StackData.CurX=StackData.CurY=0;
 
 				MoveToReference(1,1);
 			}
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_RIGHT:   case KEY_NUMPAD6:   case KEY_MSWHEEL_RIGHT:
 		case KEY_TAB:
 		{
 			MoveToReference(1,0);
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_LEFT:    case KEY_NUMPAD4:   case KEY_MSWHEEL_LEFT:
 		case KEY_SHIFTTAB:
 		{
 			MoveToReference(0,0);
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_F1:
 		{
 			// не поганим SelTopic, если и так в Help on Help
-			if (StrCmpI(StackData.strHelpTopic,HelpOnHelpTopic)!=0)
+			if (StrCmpI(StackData.strHelpTopic,HelpOnHelpTopic))
 			{
 				Stack->Push(&StackData);
 				IsNewTopic=TRUE;
@@ -1268,12 +1268,12 @@ int Help::ProcessKey(int Key)
 				ErrorHelp=FALSE;
 			}
 
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_SHIFTF1:
 		{
 			//   не поганим SelTopic, если и так в теме Contents
-			if (StrCmpI(StackData.strHelpTopic,HelpContents)!=0)
+			if (StrCmpI(StackData.strHelpTopic,HelpContents))
 			{
 				Stack->Push(&StackData);
 				IsNewTopic=TRUE;
@@ -1282,12 +1282,12 @@ int Help::ProcessKey(int Key)
 				IsNewTopic=FALSE;
 			}
 
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_SHIFTF2:
 		{
 			//   не поганим SelTopic, если и так в PluginContents
-			if (StrCmpI(StackData.strHelpTopic,PluginContents)!=0)
+			if (StrCmpI(StackData.strHelpTopic,PluginContents))
 			{
 				Stack->Push(&StackData);
 				IsNewTopic=TRUE;
@@ -1296,7 +1296,7 @@ int Help::ProcessKey(int Key)
 				IsNewTopic=FALSE;
 			}
 
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_ALTF1:
 		case KEY_BS:
@@ -1307,7 +1307,7 @@ int Help::ProcessKey(int Key)
 				Stack->Pop(&StackData);
 				JumpTopic(StackData.strHelpTopic);
 				ErrorHelp=FALSE;
-				return(TRUE);
+				return TRUE;
 			}
 
 			return ProcessKey(KEY_ESC);
@@ -1315,7 +1315,7 @@ int Help::ProcessKey(int Key)
 		case KEY_NUMENTER:
 		case KEY_ENTER:
 		{
-			if (!StackData.strSelTopic.IsEmpty() && StrCmpI(StackData.strHelpTopic,StackData.strSelTopic)!=0)
+			if (!StackData.strSelTopic.IsEmpty() && StrCmpI(StackData.strHelpTopic,StackData.strSelTopic))
 			{
 				Stack->Push(&StackData);
 				IsNewTopic=TRUE;
@@ -1330,11 +1330,11 @@ int Help::ProcessKey(int Key)
 				IsNewTopic=FALSE;
 			}
 
-			return(TRUE);
+			return TRUE;
 		}
 	}
 
-	return(FALSE);
+	return FALSE;
 }
 
 int Help::JumpTopic(const wchar_t *JumpTopic)
@@ -1355,21 +1355,21 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 	// вычислить абсолютный путь, то сделаем это
 	if (StackData.strSelTopic.At(0)==HelpBeginLink
 	        && StackData.strSelTopic.Pos(pos,HelpEndLink,2)
-	        && !IsAbsolutePath((const wchar_t *)StackData.strSelTopic+1)
+	        && !IsAbsolutePath(StackData.strSelTopic.CPtr()+1)
 	        && !StackData.strHelpPath.IsEmpty())
 	{
 		string strFullPath;
 		wchar_t *lpwszHelpTopic = strNewTopic.GetBuffer(pos);
-		xwcsncpy(lpwszHelpTopic, (const wchar_t *)StackData.strSelTopic+1,pos);
+		xwcsncpy(lpwszHelpTopic, StackData.strSelTopic.CPtr()+1,pos);
 		strNewTopic.ReleaseBuffer();
 		strFullPath = StackData.strHelpPath;
 		// уберем _все_ конечные слеши и добавим один
 		DeleteEndSlash(strFullPath, true);
 		strFullPath += L"\\";
-		strFullPath += (const wchar_t *)strNewTopic+(IsSlash(strNewTopic.At(0))?1:0);
+		strFullPath += strNewTopic.CPtr()+(IsSlash(strNewTopic.At(0))?1:0);
 		BOOL addSlash=DeleteEndSlash(strFullPath);
 		ConvertNameToFull(strFullPath,strNewTopic);
-		strFullPath.Format(addSlash?HelpFormatLink:HelpFormatLinkModule, (const wchar_t*)strNewTopic, wcschr((const wchar_t*)StackData.strSelTopic+2, HelpEndLink)+1);
+		strFullPath.Format(addSlash?HelpFormatLink:HelpFormatLinkModule, strNewTopic.CPtr(), wcschr(StackData.strSelTopic.CPtr()+2, HelpEndLink)+1);
 		StackData.strSelTopic = strFullPath;
 	}
 
@@ -1387,7 +1387,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 			if (RunURL(lpwszNewTopic, lpwszTopic))
 			{
 				StackData.strSelTopic.ReleaseBuffer();
-				return(FALSE);
+				return FALSE;
 			}
 			else
 			{
@@ -1401,21 +1401,21 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 	// а вот теперь попробуем...
 
 	//_SVS(SysLog(L"JumpTopic() = SelTopic=%s, StackData.HelpPath=%s",StackData.SelTopic,StackData.HelpPath));
-	if (!StackData.strHelpPath.IsEmpty() && StackData.strSelTopic.At(0) !=HelpBeginLink && StrCmp(StackData.strSelTopic,HelpOnHelpTopic)!=0)
+	if (!StackData.strHelpPath.IsEmpty() && StackData.strSelTopic.At(0) !=HelpBeginLink && StrCmp(StackData.strSelTopic,HelpOnHelpTopic))
 	{
 		if (StackData.strSelTopic.At(0)==L':')
 		{
-			strNewTopic = (const wchar_t*)StackData.strSelTopic+1;
+			strNewTopic = StackData.strSelTopic.CPtr()+1;
 			StackData.Flags&=~FHELP_CUSTOMFILE;
 		}
 		else if (StackData.Flags&FHELP_CUSTOMFILE)
 			strNewTopic = StackData.strSelTopic;
 		else
-			strNewTopic.Format(HelpFormatLink,(const wchar_t*)StackData.strHelpPath,(const wchar_t*)StackData.strSelTopic);
+			strNewTopic.Format(HelpFormatLink,StackData.strHelpPath.CPtr(),StackData.strSelTopic.CPtr());
 	}
 	else
 	{
-		strNewTopic = (const wchar_t*)StackData.strSelTopic;
+		strNewTopic = StackData.strSelTopic.CPtr();
 	}
 
 	// удалим ссылку на .DLL
@@ -1554,7 +1554,7 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		if (MouseEvent->dwButtonState)
 			Flags.Set(HELPMODE_CLICKOUTSIDE);
 
-		return(TRUE);
+		return TRUE;
 	}
 
 	if (MouseX==X2 && (MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED))
@@ -1567,7 +1567,7 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			while (IsMouseButtonPressed())
 				ProcessKey(KEY_UP);
 
-			return(TRUE);
+			return TRUE;
 		}
 
 		if (MouseY==ScrollY+Height-1)
@@ -1575,7 +1575,7 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			while (IsMouseButtonPressed())
 				ProcessKey(KEY_DOWN);
 
-			return(TRUE);
+			return TRUE;
 		}
 	}
 
@@ -1609,7 +1609,7 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	        MouseEvent->dwMousePosition.Y<Y1+1+FixSize)
 	{
 		ProcessKey(KEY_F5);
-		return(TRUE);
+		return TRUE;
 	}
 
 	if (MouseEvent->dwMousePosition.Y<Y1+1+FixSize)
@@ -1617,7 +1617,7 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		while (IsMouseButtonPressed() && MouseY<Y1+1+FixSize)
 			ProcessKey(KEY_UP);
 
-		return(TRUE);
+		return TRUE;
 	}
 
 	if (MouseEvent->dwMousePosition.Y>=Y2)
@@ -1625,17 +1625,17 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		while (IsMouseButtonPressed() && MouseY>=Y2)
 			ProcessKey(KEY_DOWN);
 
-		return(TRUE);
+		return TRUE;
 	}
 
 	/* $ 26.11.2001 VVM
 	  + Запомнить нажатие клавиши мышки и только в этом случае реагировать при отпускании */
-	if (MouseEvent->dwEventFlags==0 &&
+	if (!MouseEvent->dwEventFlags &&
 	        (MouseEvent->dwButtonState & (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED)))
 		MouseDown = TRUE;
 
-	if (MouseEvent->dwEventFlags==0 &&
-	        (MouseEvent->dwButtonState & (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED))==0 &&
+	if (!MouseEvent->dwEventFlags &&
+	        !(MouseEvent->dwButtonState & (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED)) &&
 	        MouseDown &&
 	        !StackData.strSelTopic.IsEmpty())
 	{
@@ -1668,7 +1668,7 @@ int Help::IsReferencePresent()
 
 	const HelpRecord *rec=GetHelpItem(StrPos);
 	wchar_t *OutStr=rec?rec->HelpStr:nullptr;
-	return (OutStr != nullptr && wcschr(OutStr,L'@') != nullptr && wcschr(OutStr,L'~') != nullptr);
+	return (OutStr  && wcschr(OutStr,L'@')  && wcschr(OutStr,L'~') );
 }
 
 const HelpRecord* Help::GetHelpItem(int Pos)
@@ -1694,7 +1694,7 @@ void Help::MoveToReference(int Forward,int CurScreen)
 
 			if (Forward)
 			{
-				if (StackData.CurX==0 && !ReferencePresent)
+				if (!StackData.CurX && !ReferencePresent)
 					StackData.CurX=X2-X1-2;
 
 				if (++StackData.CurX >= X2-X1-2)
@@ -1808,16 +1808,16 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 				UINT nCodePage = CP_OEMCP;
 				FILE *HelpFile=Language::OpenLangFile(strPath,HelpFileMask,Opt.strHelpLanguage,strFullFileName, nCodePage);
 
-				if (HelpFile!=nullptr)
+				if (HelpFile)
 				{
 					string strEntryName, strHelpLine, strSecondParam;
 
 					if (Language::GetLangParam(HelpFile,ContentsName,&strEntryName,&strSecondParam, nCodePage))
 					{
 						if (!strSecondParam.IsEmpty())
-							strHelpLine.Format(L"   ~%s,%s~@" HelpFormatLink L"@", (const wchar_t*)strEntryName, (const wchar_t*)strSecondParam, (const wchar_t*)strPath,HelpContents);
+							strHelpLine.Format(L"   ~%s,%s~@" HelpFormatLink L"@", strEntryName.CPtr(), strSecondParam.CPtr(), strPath.CPtr(),HelpContents);
 						else
-							strHelpLine.Format(L"   ~%s~@" HelpFormatLink L"@",(const wchar_t*)strEntryName, (const wchar_t*)strPath,HelpContents);
+							strHelpLine.Format(L"   ~%s~@" HelpFormatLink L"@",strEntryName.CPtr(), strPath.CPtr(),HelpContents);
 
 						AddLine(strHelpLine);
 					}
@@ -1854,11 +1854,7 @@ string &Help::MkTopic(INT_PTR PluginNumber,const wchar_t *HelpTopic,string &strT
 
 			if (PluginNumber != -1 && pPlugin && *HelpTopic!=HelpBeginLink)
 			{
-				strTopic.Format(
-				    HelpFormatLinkModule,
-				    (const wchar_t*)pPlugin->GetModuleName(),
-				    HelpTopic
-				);
+				strTopic.Format(HelpFormatLinkModule, pPlugin->GetModuleName().CPtr(), HelpTopic);
 			}
 			else
 			{
@@ -1870,7 +1866,7 @@ string &Help::MkTopic(INT_PTR PluginNumber,const wchar_t *HelpTopic,string &strT
 				wchar_t *Ptr, *Ptr2;
 				wchar_t *lpwszTopic = strTopic.GetBuffer(strTopic.GetLength()*2); //BUGBUG
 
-				if ((Ptr=wcschr(lpwszTopic,HelpEndLink)) == nullptr)
+				if (!(Ptr=wcschr(lpwszTopic,HelpEndLink)))
 				{
 					*lpwszTopic=0;
 				}
@@ -1890,7 +1886,7 @@ string &Help::MkTopic(INT_PTR PluginNumber,const wchar_t *HelpTopic,string &strT
 					if (!IsSlash(*Ptr2)) // Это имя модуля?
 					{
 						// значит удалим это чертово имя :-)
-						if ((Ptr2=const_cast<wchar_t*>(LastSlash(lpwszTopic))) == nullptr) // ВО! Фигня какая-то :-(
+						if (!(Ptr2=const_cast<wchar_t*>(LastSlash(lpwszTopic)))) // ВО! Фигня какая-то :-(
 							*lpwszTopic=0;
 					}
 
@@ -1995,7 +1991,7 @@ static int RunURL(const wchar_t *Protocol, wchar_t *URLPath)
 					// удалим два идущих в подряд ~~
 					wchar_t *Ptr=URLPath;
 
-					while (*Ptr && (Ptr=wcsstr(Ptr,L"~~")) != nullptr)
+					while (*Ptr && (Ptr=wcsstr(Ptr,L"~~")) )
 					{
 						wmemmove(Ptr,Ptr+1,StrLength(Ptr+1)+1);
 						Ptr++;
@@ -2004,7 +2000,7 @@ static int RunURL(const wchar_t *Protocol, wchar_t *URLPath)
 					// удалим два идущих в подряд ##
 					Ptr=URLPath;
 
-					while (*Ptr && (Ptr=wcsstr(Ptr,L"##")) != nullptr)
+					while (*Ptr && (Ptr=wcsstr(Ptr,L"##")) )
 					{
 						wmemmove(Ptr,Ptr+1,StrLength(Ptr+1)+1);
 						++Ptr;
@@ -2026,7 +2022,7 @@ static int RunURL(const wchar_t *Protocol, wchar_t *URLPath)
 
 					EditCode=2; // Все Ok!
 
-					if (Disposition == 0)
+					if (!Disposition)
 					{
 						/*
 						СЮДЫ НУЖНО ВПИНДЮЛИТЬ МЕНЮХУ С ВОЗМОЖНОСТЬЮ ВЫБОРА
@@ -2059,7 +2055,7 @@ static int RunURL(const wchar_t *Protocol, wchar_t *URLPath)
 							si.cb=sizeof(si);
 							strAction+=URLPath;
 
-							if (!CreateProcess(nullptr,(wchar_t*)(const wchar_t*)strAction,nullptr,nullptr,TRUE,0,nullptr,strCurDir,&si,&pi))
+							if (!CreateProcess(nullptr,const_cast<wchar_t*>(strAction.CPtr()),nullptr,nullptr,TRUE,0,nullptr,strCurDir,&si,&pi))
 							{
 								EditCode=1;
 							}
@@ -2142,7 +2138,7 @@ int CallBackStack::Pop(StackHelpData *Dest)
 		ListNode *oldTop = topOfStack;
 		topOfStack = topOfStack->Next;
 
-		if (Dest!=nullptr)
+		if (Dest)
 		{
 			Dest->strHelpTopic = oldTop->strHelpTopic;
 			Dest->strHelpPath = oldTop->strHelpPath;
@@ -2176,7 +2172,7 @@ void CallBackStack::PrintStack(const wchar_t *Title)
 
 	while (Ptr)
 	{
-		SysLog(L"%03d HelpTopic='%s' HelpPath='%s' HelpMask='%s'",I++,(const wchar_t*)Ptr->strHelpTopic,(const wchar_t*)Ptr->strHelpPath,(const wchar_t*)Ptr->strHelpMask);
+		SysLog(L"%03d HelpTopic='%s' HelpPath='%s' HelpMask='%s'",I++,Ptr->strHelpTopic.CPtr(),Ptr->strHelpPath.CPtr(),Ptr->strHelpMask.CPtr());
 		Ptr=Ptr->Next;
 	}
 

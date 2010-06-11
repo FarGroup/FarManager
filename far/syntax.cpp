@@ -210,7 +210,7 @@ static void putstr(const wchar_t *s)
 	int nSize = Length/sizeof(DWORD);
 	memmove(&exprBuff[exprBuffSize],s,Length);
 
-	if (Length == sizeof(wchar_t) || (Length % sizeof(DWORD)) != 0)    // дополнение до sizeof(DWORD) нулями.
+	if (Length == sizeof(wchar_t) || (Length % sizeof(DWORD)) )    // дополнение до sizeof(DWORD) нулями.
 		nSize++;
 
 	memset(&exprBuff[exprBuffSize],0,nSize*sizeof(DWORD));
@@ -265,7 +265,7 @@ static int getNextChar()
 	{
 		int ch;
 
-		while (((ch = *(sSrcString++)) != 0) && iswspace(ch))
+		while (((ch = *(sSrcString++)) ) && iswspace(ch))
 			;
 
 		return ch ? ch : EOFCH;
@@ -1306,7 +1306,7 @@ static const wchar_t *__GetNextWord(const wchar_t *BufPtr,string &strCurKeyText,
 		BufPtr++;
 	}
 
-	if (*BufPtr==0)
+	if (!*BufPtr)
 		return nullptr;
 
 	const wchar_t *CurBufPtr=BufPtr;
@@ -1379,7 +1379,7 @@ static void printKeyValue(DWORD* k, int& i)
 		while ((Code=k[i]) != MCODE_OP_ENDKEYS)
 		{
 			if (KeyToText(Code, strTmp))
-				SysLog(L"%08X: %08X | Key: '%s'", i,Code,(const wchar_t*)strTmp);
+				SysLog(L"%08X: %08X | Key: '%s'", i,Code,strTmp.CPtr());
 			else
 				SysLog(L"%08X: %08X | ???", i,Code);
 
@@ -1392,7 +1392,7 @@ static void printKeyValue(DWORD* k, int& i)
 
 	if (Code >= KEY_MACRO_BASE && Code <= KEY_MACRO_ENDBASE)
 	{
-		SysLog(L"%08X: %s  %s%s", i,_mcodename.CPtr(),(!cmt.IsEmpty()?L"# ":L""),(!cmt.IsEmpty()?(const wchar_t*)cmt:L""));
+		SysLog(L"%08X: %s  %s%s", i,_mcodename.CPtr(),(!cmt.IsEmpty()?L"# ":L""),(!cmt.IsEmpty()?cmt.CPtr():L""));
 	}
 
 	int ii = i;
@@ -1484,7 +1484,7 @@ static void printKeyValue(DWORD* k, int& i)
 			string strTmp;
 
 			if (KeyToText(k[i], strTmp))
-				SysLog(L"%08X: %08X | Key: '%s'", ii,Code,(const wchar_t*)strTmp);
+				SysLog(L"%08X: %08X | Key: '%s'", ii,Code,strTmp.CPtr());
 			else if (!cmt.IsEmpty())
 				SysLog(L"%08X: %08X | ???", ii,Code);
 		}
@@ -1508,7 +1508,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 	inloop = 0;
 	/*pSrcString = */oSrcString = sSrcString = emptyString;
 
-	if (BufPtr == nullptr || !*BufPtr)
+	if (!BufPtr || !*BufPtr)
 	{
 		keyMacroParseError(err_ZeroLengthMacro);
 		return FALSE;
@@ -1523,7 +1523,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 
 	//{
 	//	_SVS(SysLog(L"MacroSrcList.GetTotal()=%d",MacroSrcList.GetTotal()));
-	//	while((NewBufPtr=MacroSrcList.GetNext()) != nullptr)
+	//	while((NewBufPtr=MacroSrcList.GetNext()) )
 	//		_SVS(SysLog(L"[%s]",NewBufPtr));
 	//	MacroSrcList.Reset();
 	//}
@@ -1535,7 +1535,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 	//- AN ----------------------------------------------
 	DWORD *dwExprBuff = (DWORD*)xf_malloc(SizeCurKeyText*sizeof(DWORD));
 
-	if (dwExprBuff == nullptr)
+	if (!dwExprBuff)
 		return FALSE;
 
 	TExec exec;
@@ -1553,7 +1553,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 		int SizeVarName = 0;
 		const wchar_t *oldBufPtr = BufPtr;
 
-		if ((BufPtr = __GetNextWord(BufPtr, strCurrKeyText, _macro_nLine)) == nullptr)
+		if (!(BufPtr = __GetNextWord(BufPtr, strCurrKeyText, _macro_nLine)))
 		{
 			if(!useUDL)
 				break;
@@ -1567,7 +1567,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 		_SVS(SysLog(L"_macro_nLine   = [%d]",_macro_nLine));
 		_SVS(SysLog(L"BufPtr         = [%s]",BufPtr));
 		_SVS(SysLog(L"pSrcString     = [%s]",pSrcString));
-		_SVS(SysLog(L"strCurrKeyText = [%s]",(const wchar_t*)strCurrKeyText));
+		_SVS(SysLog(L"strCurrKeyText = [%s]",strCurrKeyText.CPtr()));
 
 		//- AN ----------------------------------------------
 		//  Проверка на строковый литерал
@@ -1606,7 +1606,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 				memset(varName, 0, sizeof(varName));
 				KeyCode = MCODE_OP_SAVE;
 				wchar_t* p = varName;
-				const wchar_t* s = (const wchar_t*)strCurrKeyText+1;
+				const wchar_t* s = strCurrKeyText.CPtr()+1;
 
 				if (*s == L'%')
 					*p++ = *s++;
@@ -1622,7 +1622,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 				// строка должна быть выровнена на 4
 				SizeVarName = Length/sizeof(DWORD);
 
-				if (Length == sizeof(wchar_t) || (Length % sizeof(DWORD)) != 0)    // дополнение до sizeof(DWORD) нулями.
+				if (Length == sizeof(wchar_t) || (Length % sizeof(DWORD)) )    // дополнение до sizeof(DWORD) нулями.
 					SizeVarName++;
 
 				_SVS(SysLog(L"BufPtr=%s",BufPtr));
@@ -1709,7 +1709,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 					//keyMacroParseError(err_Unrecognized_keyword, strCurrKeyText, strCurrKeyText,strCurrKeyText);
 					keyMacroParseError(err_Unrecognized_keyword, oldBufPtr, pSrcString, strCurrKeyText);
 
-				if (CurMacro_Buffer != nullptr)
+				if (CurMacro_Buffer )
 				{
 					xf_free(CurMacro_Buffer);
 					CurMacroBuffer = nullptr;
@@ -1787,7 +1787,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 
 				if (!exec.add(emmThen, CurMacroBufferSize+Size))
 				{
-					if (CurMacro_Buffer != nullptr)
+					if (CurMacro_Buffer )
 					{
 						xf_free(CurMacro_Buffer);
 						CurMacroBuffer = nullptr;
@@ -1826,7 +1826,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 
 				if (!exec.add(emmRep, CurMacroBufferSize+Size, CurMacroBufferSize+Size+4))   //??? 3
 				{
-					if (CurMacro_Buffer != nullptr)
+					if (CurMacro_Buffer )
 					{
 						xf_free(CurMacro_Buffer);
 						CurMacroBuffer = nullptr;
@@ -1857,7 +1857,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 
 				if (!exec.add(emmWhile, CurMacroBufferSize, CurMacroBufferSize+Size))
 				{
-					if (CurMacro_Buffer != nullptr)
+					if (CurMacro_Buffer )
 					{
 						xf_free(CurMacro_Buffer);
 						CurMacroBuffer = nullptr;
@@ -1897,7 +1897,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 
 		if (_macro_nErr)
 		{
-			if (CurMacro_Buffer != nullptr)
+			if (CurMacro_Buffer )
 			{
 				xf_free(CurMacro_Buffer);
 				CurMacroBuffer = nullptr;
@@ -1908,13 +1908,13 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 			return FALSE;
 		}
 
-		if (BufPtr == nullptr)   // ???
+		if (!BufPtr)   // ???
 			break;
 
 		// код найден, добавим этот код в буфер последовательности.
 		CurMacro_Buffer = (DWORD *)xf_realloc(CurMacro_Buffer,sizeof(*CurMacro_Buffer)*(CurMacroBufferSize+Size+SizeVarName));
 
-		if (CurMacro_Buffer == nullptr)
+		if (!CurMacro_Buffer)
 		{
 			CurMacroBuffer = nullptr;
 			CurMacroBufferSize = 0;
@@ -1975,7 +1975,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 				{
 					keyMacroParseError(err_Not_expected_ELSE, BufPtr, pSrcString); // strCurrKeyText
 
-					if (CurMacro_Buffer != nullptr)
+					if (CurMacro_Buffer )
 					{
 						xf_free(CurMacro_Buffer);
 						CurMacroBuffer = nullptr;
@@ -1995,7 +1995,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 				{
 					keyMacroParseError(err_Continue_Outside_The_Loop, oldBufPtr, pSrcString);//BufPtr, pSrcString); // strCurrKeyText
 
-					if (CurMacro_Buffer != nullptr)
+					if (CurMacro_Buffer )
 					{
 						xf_free(CurMacro_Buffer);
 						CurMacroBuffer = nullptr;
@@ -2018,7 +2018,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 						// тут $end и не предвиделось :-/
 						keyMacroParseError(err_Not_expected_END, BufPtr, pSrcString); // strCurrKeyText
 
-						if (CurMacro_Buffer != nullptr)
+						if (CurMacro_Buffer )
 						{
 							xf_free(CurMacro_Buffer);
 							CurMacroBuffer = nullptr;
@@ -2055,7 +2055,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 
 				if (!exec.del())    // Вообще-то этого быть не должно,  но подстрахуемся
 				{
-					if (CurMacro_Buffer != nullptr)
+					if (CurMacro_Buffer )
 					{
 						xf_free(CurMacro_Buffer);
 						CurMacroBuffer = nullptr;
@@ -2086,7 +2086,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 	{
 		CurMacro_Buffer = (DWORD *)xf_realloc(CurMacro_Buffer,sizeof(*CurMacro_Buffer)*(CurMacroBufferSize+1));
 
-		if (CurMacro_Buffer == nullptr)
+		if (!CurMacro_Buffer)
 		{
 			CurMacroBuffer = nullptr;
 			CurMacroBufferSize = 0;

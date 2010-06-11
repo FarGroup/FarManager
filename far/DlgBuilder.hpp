@@ -76,7 +76,7 @@ struct CheckBoxBinding: public DialogItemBinding<T>
 
 		virtual void SaveValue(T *Item, int RadioGroupIndex)
 		{
-			if (Mask == 0)
+			if (!Mask)
 			{
 				*Value = Item->Selected;
 			}
@@ -176,7 +176,7 @@ class DialogBuilderBase
 			// чтобы все нормальные диалоги помещались без реаллокации
 			// TODO хорошо бы, чтобы они вообще не инвалидировались
 			DialogItemsAllocated += 32;
-			if (DialogItems == nullptr)
+			if (!DialogItems)
 			{
 				DialogItems = new T[DialogItemsAllocated];
 				Bindings = new DialogItemBinding<T> * [DialogItemsAllocated];
@@ -386,10 +386,10 @@ class DialogBuilderBase
 			T *Item = AddDialogItem(DI_CHECKBOX, GetLangString(TextMessageId));
 			SetNextY(Item);
 			Item->X2 = Item->X1 + ItemWidth(*Item);
-			if (Mask == 0)
+			if (!Mask)
 				Item->Selected = *Value;
 			else
-				Item->Selected = (*Value & Mask) != 0;
+				Item->Selected = (*Value & Mask) ;
 			SetLastItemBinding(CreateCheckBoxBinding(Value, Mask));
 			return Item;
 		}
@@ -402,7 +402,7 @@ class DialogBuilderBase
 				T *Item = AddDialogItem(DI_RADIOBUTTON, GetLangString(MessageIDs[i]));
 				SetNextY(Item);
 				Item->X2 = Item->X1 + ItemWidth(*Item);
-				if (i == 0)
+				if (!i)
 					Item->Flags |= DIF_GROUP;
 				if (*Value == i)
 					Item->Selected = TRUE;
@@ -558,7 +558,7 @@ public:
 	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
 	{
 		BOOL Selected = static_cast<BOOL>(Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, 0));
-		if (Mask == 0)
+		if (!Mask)
 		{
 			*Value = Selected;
 		}

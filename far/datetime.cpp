@@ -125,8 +125,8 @@ static int atime(string &strDest,const tm *tmPtr)
 {
 	// Thu Oct 07 12:37:32 1999
 	return strDest.Format(L"%s %s %02d %02d:%02d:%02d %4d",
-	                      (const wchar_t*)AWeekday[CurLang][!WeekFirst?((tmPtr->tm_wday+6)%7):(!(tmPtr->tm_wday)?6:tmPtr->tm_wday-1)],
-	                      (const wchar_t*)AMonth[CurLang][tmPtr->tm_mon],
+	                      AWeekday[CurLang][!WeekFirst?((tmPtr->tm_wday+6)%7):(!(tmPtr->tm_wday)?6:tmPtr->tm_wday-1)].CPtr(),
+	                      AMonth[CurLang][tmPtr->tm_mon].CPtr(),
 	                      tmPtr->tm_mday,
 	                      tmPtr->tm_hour,
 	                      tmPtr->tm_min,
@@ -141,7 +141,7 @@ static int st_time(string &strDest,const tm *tmPtr,const wchar_t chr)
 
 	if (chr==L'v')
 	{
-		res=strDest.Format(L"%2d-%3.3s-%4d",range(1,tmPtr->tm_mday,31),(const wchar_t*)AMonth[CurLang][range(0, tmPtr->tm_mon,11)],tmPtr->tm_year+1900);
+		res=strDest.Format(L"%2d-%3.3s-%4d",range(1,tmPtr->tm_mday,31),AMonth[CurLang][range(0, tmPtr->tm_mon,11)].CPtr(),tmPtr->tm_year+1900);
 		strDest.Upper(3,3);
 	}
 	else
@@ -442,7 +442,7 @@ size_t WINAPI StrFTime(string &strDest, const wchar_t *Format,const tm *t)
 				{
 					int I=t->tm_wday-(t->tm_yday%7);
 
-					//I = (chr == 'W'?(!WeekFirst?((t->tm_wday+6)%7):(t->tm_wday == 0?6:t->tm_wday-1)):(t->tm_wday)) - (t->tm_yday % 7);
+					//I = (chr == 'W'?(!WeekFirst?((t->tm_wday+6)%7):(t->tm_wday? t->tm_wday-1:6)):(t->tm_wday)) - (t->tm_yday % 7);
 					if (I<0)
 						I+=7;
 
@@ -690,7 +690,7 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 	SYSTEMTIME st;
 	FILETIME ct;
 
-	if (ft.dwHighDateTime==0)
+	if (!ft.dwHighDateTime)
 	{
 		strDateText.Clear();
 		strTimeText.Clear();
@@ -710,7 +710,7 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 			if (st.wHour>12)
 				st.wHour-=12;
 
-			if (st.wHour==0)
+			if (!st.wHour)
 				st.wHour=12;
 		}
 
@@ -721,7 +721,7 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 			string strFullTime;
 			strFullTime.Format(L"%02d%c%02d%c%02d%c%03d",st.wHour,TimeSeparator,
 			                   st.wMinute,TimeSeparator,st.wSecond,DecimalSeparator,st.wMilliseconds);
-			strTimeText.Format(L"%.*s",TimeLength, (const wchar_t*)strFullTime);
+			strTimeText.Format(L"%.*s",TimeLength, strFullTime.CPtr());
 		}
 	}
 	//if ( !strDateText.IsEmpty() )

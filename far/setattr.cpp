@@ -692,7 +692,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 			FileAttr=FindData.dwFileAttributes;
 		}
 
-		if (SelCount==0 || (SelCount==1 && TestParentFolderName(strSelName)))
+		if (!SelCount || (SelCount==1 && TestParentFolderName(strSelName)))
 			return false;
 
 		wchar_t DateSeparator=GetDateSeparator();

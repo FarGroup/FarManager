@@ -110,9 +110,9 @@ void PrintFiles(Panel *SrcPanel)
 	long DirsCount=0;
 	int SelCount=SrcPanel->GetSelCount();
 
-	if (SelCount==0)
+	if (!SelCount)
 	{
-		_ALGO(SysLog(L"Error: SelCount==0"));
+		_ALGO(SysLog(L"Error: !SelCount"));
 		return;
 	}
 
@@ -155,7 +155,7 @@ void PrintFiles(Panel *SrcPanel)
 			TruncStr(strName,50);
 			strSelName=strName;
 			InsertQuote(strSelName);
-			strTitle.Format(MSG(MPrintTo), (const wchar_t*)strSelName);
+			strTitle.Format(MSG(MPrintTo), strSelName.CPtr());
 		}
 		else
 		{
@@ -186,7 +186,7 @@ void PrintFiles(Panel *SrcPanel)
 
 	HANDLE hPrinter;
 
-	if (!OpenPrinter((wchar_t*)(const wchar_t*)strPrinterName,&hPrinter,nullptr))
+	if (!OpenPrinter((wchar_t*)strPrinterName.CPtr(),&hPrinter,nullptr))
 	{
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MPrintTitle),MSG(MCannotOpenPrinter),
 		        strPrinterName,MSG(MOk));
@@ -272,7 +272,7 @@ void PrintFiles(Panel *SrcPanel)
 			else
 			{
 				if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MPrintTitle),MSG(MCannotPrint),
-				            strSelName,MSG(MSkip),MSG(MCancel))!=0)
+				            strSelName,MSG(MSkip),MSG(MCancel)))
 					break;
 			}
 		}

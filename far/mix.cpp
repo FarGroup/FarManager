@@ -47,8 +47,8 @@ int ToPercent(unsigned long N1,unsigned long N2)
 		N2/=100;
 	}
 
-	if (N2==0)
-		return(0);
+	if (!N2)
+		return 0;
 
 	if (N2<N1)
 		return(100);
@@ -64,7 +64,7 @@ int ToPercent64(unsigned __int64 N1, unsigned __int64 N2)
 		N2/=100;
 	}
 
-	if (N2==0)
+	if (!N2)
 		return 0;
 
 	if (N2<N1)
@@ -102,7 +102,7 @@ void WINAPI FarRecursiveSearch(const wchar_t *InitDir,const wchar_t *Mask,FRSUSE
 				FAR_FIND_DATA fdata;
 				apiFindDataExToData(&FindData, &fdata);
 
-				if (Func(&fdata,strFullName,Param) == 0)
+				if (!Func(&fdata,strFullName,Param))
 				{
 					apiFreeFindData(&fdata);
 					break;

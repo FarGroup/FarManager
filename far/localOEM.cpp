@@ -100,7 +100,7 @@ void InitLCIDSort()
 
 	for (size_t i=0; i<ARRAYSIZE(LCSortBuffer)-1; i++)
 	{
-		if (LCSort(&LCSortBuffer[i],&LCSortBuffer[i+1])==0)
+		if (!LCSort(&LCSortBuffer[i],&LCSortBuffer[i+1]))
 		{
 			LCOrder[LCSortBuffer[i+1]]=LCOrder[LCSortBuffer[i]];
 		}
@@ -125,7 +125,7 @@ int WINAPI LocalIsupper(unsigned Ch)
 int WINAPI LocalIsalpha(unsigned Ch)
 {
 	if (Ch>=256)
-		return(FALSE);
+		return FALSE;
 
 	char CvtCh=Ch;
 	OemToCharBuffA(&CvtCh,&CvtCh,1);
@@ -135,7 +135,7 @@ int WINAPI LocalIsalpha(unsigned Ch)
 int WINAPI LocalIsalphanum(unsigned Ch)
 {
 	if (Ch>=256)
-		return(FALSE);
+		return FALSE;
 
 	char CvtCh=Ch;
 	OemToCharBuffA(&CvtCh,&CvtCh,1);
@@ -251,13 +251,13 @@ int __cdecl LocalStricmp(const char *s1,const char *s2)
 		if (UpperToLower[(unsigned)*s1] != UpperToLower[(unsigned)*s2])
 			return (UpperToLower[(unsigned)*s1] < UpperToLower[(unsigned)*s2]) ? -1 : 1;
 
-		if (*(s1++) == 0)
+		if (!*(s1++))
 			break;
 
 		s2++;
 	}
 
-	return(0);
+	return 0;
 }
 
 int __cdecl LocalStrnicmp(const char *s1,const char *s2,int n)
@@ -267,13 +267,13 @@ int __cdecl LocalStrnicmp(const char *s1,const char *s2,int n)
 		if (UpperToLower[(unsigned)*s1] != UpperToLower[(unsigned)*s2])
 			return (UpperToLower[(unsigned)*s1] < UpperToLower[(unsigned)*s2]) ? -1 : 1;
 
-		if (*(s1++) == 0)
+		if (!*(s1++))
 			break;
 
 		s2++;
 	}
 
-	return(0);
+	return 0;
 }
 
 int WINAPI LStricmp(const char *s1,const char *s2)

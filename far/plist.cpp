@@ -98,7 +98,7 @@ void ShowProcessList()
 
 				HWND ProcWnd=(HWND)ProcList.GetUserData(nullptr,0);
 
-				if (ProcWnd!=nullptr)
+				if (ProcWnd)
 				{
 					wchar_t *lpwszTitle=0;
 					int LenTitle=GetWindowTextLength(ProcWnd);
@@ -107,15 +107,15 @@ void ShowProcessList()
 					{
 						lpwszTitle=(wchar_t *)xf_malloc((LenTitle+1)*sizeof(wchar_t));
 
-						if (lpwszTitle!=nullptr && (LenTitle=GetWindowText(ProcWnd,lpwszTitle,LenTitle+1)))
+						if (lpwszTitle && (LenTitle=GetWindowText(ProcWnd,lpwszTitle,LenTitle+1)))
 							lpwszTitle[LenTitle]=0;
 					}
 
 					DWORD ProcID;
 					GetWindowThreadProcessId(ProcWnd,&ProcID);
 
-					if (Message(MSG_WARNING,2,MSG(MKillProcessTitle),MSG(MAskKillProcess),
-					            lpwszTitle?lpwszTitle:L"",MSG(MKillProcessWarning),MSG(MKillProcessKill),MSG(MCancel))==0)
+					if (!Message(MSG_WARNING,2,MSG(MKillProcessTitle),MSG(MAskKillProcess),
+					            lpwszTitle?lpwszTitle:L"",MSG(MKillProcessWarning),MSG(MKillProcessKill),MSG(MCancel)))
 					{
 						if (KillProcess(ProcID))
 						{
@@ -145,7 +145,7 @@ void ShowProcessList()
 	{
 		HWND ProcWnd=(HWND)ProcList.GetUserData(nullptr,0);
 
-		if (ProcWnd!=nullptr)
+		if (ProcWnd)
 		{
 			//SetForegroundWindow(ProcWnd);
 			// Allow SetForegroundWindow on Win98+.
@@ -175,13 +175,13 @@ BOOL KillProcess(DWORD dwPID)
 {
 	// Полиция 21
 	if (Opt.Policies.DisabledOptions&FFPOL_KILLTASK)
-		return(FALSE);
+		return FALSE;
 
 	HANDLE hProcess;
 	BOOL bRet;
 	hProcess=OpenProcess(PROCESS_TERMINATE,FALSE,dwPID);
 
-	if (hProcess!=nullptr)
+	if (hProcess)
 	{
 		bRet=TerminateProcess(hProcess,0xFFFFFFFF);
 
@@ -202,7 +202,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 	VMenu *ProcList=(VMenu *)lParam;
 
 	if (IsWindowVisible(hwnd) ||
-	        (IsIconic(hwnd) && (GetWindowLong(hwnd,GWL_STYLE) & WS_DISABLED)==0))
+	        (IsIconic(hwnd) && !(GetWindowLong(hwnd,GWL_STYLE) & WS_DISABLED)))
 	{
 		int LenTitle=GetWindowTextLength(hwnd);
 
@@ -210,9 +210,9 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 		{
 			wchar_t *lpwszTitle=(wchar_t *)xf_malloc((LenTitle+1)*sizeof(wchar_t));
 
-			if (lpwszTitle!=nullptr)
+			if (lpwszTitle)
 			{
-				if ((LenTitle=GetWindowText(hwnd,lpwszTitle,LenTitle+1))!=0)
+				if ((LenTitle=GetWindowText(hwnd,lpwszTitle,LenTitle+1)))
 				{
 					lpwszTitle[LenTitle]=0;
 					MenuItemEx ListItem;
@@ -226,5 +226,5 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 		}
 	}
 
-	return(TRUE);
+	return TRUE;
 }

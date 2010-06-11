@@ -203,7 +203,7 @@ void FileList::DeleteListData(FileListItem **(&ListData),int &FileCount)
 	{
 		for (int I=0; I<FileCount; I++)
 		{
-			if (ListData[I]->CustomColumnNumber>0 && ListData[I]->CustomColumnData!=nullptr)
+			if (ListData[I]->CustomColumnNumber>0 && ListData[I]->CustomColumnData)
 			{
 				for (int J=0; J < ListData[I]->CustomColumnNumber; J++)
 					delete[] ListData[I]->CustomColumnData[J];
@@ -259,7 +259,7 @@ void FileList::Scroll(int Count)
 
 void FileList::CorrectPosition()
 {
-	if (FileCount==0)
+	if (!FileCount)
 	{
 		CurFile=CurTopFile=0;
 		return;
@@ -328,10 +328,10 @@ int _cdecl SortList(const void *el1,const void *el2)
 	SPtr2=((FileListItem **)el2)[0];
 
 	if (SPtr1->strName.GetLength() == 2 && SPtr1->strName.At(0)==L'.' && SPtr1->strName.At(1)==L'.')
-		return(-1);
+		return -1;
 
 	if (SPtr2->strName.GetLength() == 2 && SPtr2->strName.At(0)==L'.' && SPtr2->strName.At(1)==L'.')
-		return(1);
+		return 1;
 
 	if (ListSortMode==UNSORTED)
 	{
@@ -344,10 +344,10 @@ int _cdecl SortList(const void *el1,const void *el2)
 	if (ListDirectoriesFirst)
 	{
 		if ((SPtr1->FileAttr & FILE_ATTRIBUTE_DIRECTORY) < (SPtr2->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-			return(1);
+			return 1;
 
 		if ((SPtr1->FileAttr & FILE_ATTRIBUTE_DIRECTORY) > (SPtr2->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-			return(-1);
+			return -1;
 	}
 
 	if (ListSelectedFirst && SPtr1->Selected!=SPtr2->Selected)
@@ -357,7 +357,7 @@ int _cdecl SortList(const void *el1,const void *el2)
 	        SPtr1->SortGroup!=SPtr2->SortGroup)
 		return(SPtr1->SortGroup<SPtr2->SortGroup ? -1:1);
 
-	if (hSortPlugin!=nullptr)
+	if (hSortPlugin)
 	{
 		DWORD SaveFlags1,SaveFlags2;
 		SaveFlags1=SPtr1->UserFlags;
@@ -387,13 +387,13 @@ int _cdecl SortList(const void *el1,const void *el2)
 				Ext1=PointToExt(SPtr1->strName);
 				Ext2=PointToExt(SPtr2->strName);
 
-				if (*Ext1==0 && *Ext2==0)
+				if (!*Ext1 && !*Ext2)
 					break;
 
-				if (*Ext1==0)
+				if (!*Ext1)
 					return(-ListSortOrder);
 
-				if (*Ext2==0)
+				if (!*Ext2)
 					return(ListSortOrder);
 
 				RetCode=ListSortOrder*StrCmpI(Ext1+1,Ext2+1);
@@ -404,19 +404,19 @@ int _cdecl SortList(const void *el1,const void *el2)
 				break;
 			case BY_MTIME:
 
-				if ((RetCode64=FileTimeDifference(&SPtr1->WriteTime,&SPtr2->WriteTime)) == 0)
+				if (!(RetCode64=FileTimeDifference(&SPtr1->WriteTime,&SPtr2->WriteTime)))
 					break;
 
 				return -ListSortOrder*(RetCode64<0?-1:1);
 			case BY_CTIME:
 
-				if ((RetCode64=FileTimeDifference(&SPtr1->CreationTime,&SPtr2->CreationTime)) == 0)
+				if (!(RetCode64=FileTimeDifference(&SPtr1->CreationTime,&SPtr2->CreationTime)))
 					break;
 
 				return -ListSortOrder*(RetCode64<0?-1:1);
 			case BY_ATIME:
 
-				if ((RetCode64=FileTimeDifference(&SPtr1->AccessTime,&SPtr2->AccessTime)) == 0)
+				if (!(RetCode64=FileTimeDifference(&SPtr1->AccessTime,&SPtr2->AccessTime)))
 					break;
 
 				return -ListSortOrder*(RetCode64<0?-1:1);
@@ -428,15 +428,15 @@ int _cdecl SortList(const void *el1,const void *el2)
 				return((SPtr1->UnpSize > SPtr2->UnpSize) ? -ListSortOrder : ListSortOrder);
 			case BY_DIZ:
 
-				if (SPtr1->DizText==nullptr)
+				if (!SPtr1->DizText)
 				{
-					if (SPtr2->DizText==nullptr)
+					if (!SPtr2->DizText)
 						break;
 					else
 						return(ListSortOrder);
 				}
 
-				if (SPtr2->DizText==nullptr)
+				if (!SPtr2->DizText)
 					return(-ListSortOrder);
 
 				RetCode=ListSortOrder*StrCmpI(SPtr1->DizText,SPtr2->DizText);
@@ -482,7 +482,7 @@ int _cdecl SortList(const void *el1,const void *el2)
 					const wchar_t *Name1 = PointToName(SPtr1->strName);
 					const wchar_t *Name2 = PointToName(SPtr2->strName);
 					NameCmp = ListCaseSensitive ? StrCmpNN(Path1, static_cast<int>(Name1-Path1), Path2, static_cast<int>(Name2-Path2)) : StrCmpNNI(Path1, static_cast<int>(Name1-Path1), Path2, static_cast<int>(Name2-Path2));
-					if (NameCmp == 0)
+					if (!NameCmp)
 						NameCmp = ListCaseSensitive ? NumStrCmp(Name1, Name2) : NumStrCmpI(Name1, Name2);
 					else
 						NameCmp = ListCaseSensitive ? StrCmp(Path1, Path2) : StrCmpI(Path1, Path2);
@@ -490,7 +490,7 @@ int _cdecl SortList(const void *el1,const void *el2)
 				else
 					NameCmp = ListCaseSensitive ? StrCmp(SPtr1->strName, SPtr2->strName) : StrCmpI(SPtr1->strName, SPtr2->strName);
 				NameCmp *= ListSortOrder;
-				if (NameCmp == 0)
+				if (!NameCmp)
 					NameCmp = SPtr1->Position > SPtr2->Position ? ListSortOrder : -ListSortOrder;
 				return NameCmp;
 		}
@@ -524,7 +524,7 @@ int _cdecl SortList(const void *el1,const void *el2)
 	else
 		NameCmp=ListCaseSensitive?StrCmpNN(Name1,static_cast<int>(Ext1-Name1),Name2,static_cast<int>(Ext2-Name2)):StrCmpNNI(Name1,static_cast<int>(Ext1-Name1),Name2,static_cast<int>(Ext2-Name2));
 
-	if (NameCmp == 0)
+	if (!NameCmp)
 	{
 		if (ListNumericSort)
 			NameCmp=ListCaseSensitive?NumStrCmp(Ext1,Ext2):NumStrCmpI(Ext1,Ext2);
@@ -534,7 +534,7 @@ int _cdecl SortList(const void *el1,const void *el2)
 
 	NameCmp*=ListSortOrder;
 
-	if (NameCmp==0)
+	if (!NameCmp)
 		NameCmp=SPtr1->Position>SPtr2->Position ? ListSortOrder:-ListSortOrder;
 
 	return NameCmp;
@@ -573,7 +573,7 @@ int FileList::SendKeyToPlugin(DWORD Key,BOOL Pred)
 			ProcessPluginCommand();
 
 			if (ProcessCode)
-				return(TRUE);
+				return TRUE;
 		}
 	}
 
@@ -590,7 +590,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			{
 				OpenPluginInfo Info;
 				CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
-				return (__int64)(*NullToEmpty(Info.CurDir)==0);
+				return (__int64)(!*NullToEmpty(Info.CurDir));
 			}
 			else
 			{
@@ -607,7 +607,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_C_EOF:
 			return (CurFile == FileCount-1);
 		case MCODE_C_BOF:
-			return (CurFile==0);
+			return !CurFile;
 		case MCODE_C_SELECTED:
 			return (GetRealSelCount()>1);
 		case MCODE_V_ITEMCOUNT:
@@ -684,7 +684,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							int Pos;
 							Result=0;
 
-							while((namePtr=itemsList->GetNext()) != nullptr)
+							while((namePtr=itemsList->GetNext()) )
 							{
 								if ((Pos=FindFile(PointToName(namePtr),TRUE)) != -1)
 								{
@@ -720,7 +720,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							int Pos;
 							Result=0;
 
-							while((namePtr=itemsList->GetNext()) != nullptr)
+							while((namePtr=itemsList->GetNext()) )
 							{
 								if ((Pos=FindFile(PointToName(namePtr),TRUE)) != -1)
 								{
@@ -756,7 +756,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 							int Pos;
 							Result=0;
 
-							while((namePtr=itemsList->GetNext()) != nullptr)
+							while((namePtr=itemsList->GetNext()) )
 							{
 								if ((Pos=FindFile(PointToName(namePtr),TRUE)) != -1)
 								{
@@ -809,7 +809,7 @@ int FileList::ProcessKey(int Key)
 	if (IsVisible())
 	{
 		if (!InternalProcessKey)
-			if ((!(Key==KEY_ENTER||Key==KEY_NUMENTER) && !(Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER)) || CmdLength==0)
+			if ((!(Key==KEY_ENTER||Key==KEY_NUMENTER) && !(Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER)) || !CmdLength)
 				if (SendKeyToPlugin(Key))
 					return TRUE;
 	}
@@ -849,7 +849,7 @@ int FileList::ProcessKey(int Key)
 				        break;
 				*/
 			default:
-				return(FALSE);
+				return FALSE;
 		}
 	}
 
@@ -893,7 +893,7 @@ int FileList::ProcessKey(int Key)
 
 		if (SaveFolderShortcut(Key,&strShortcutFolder,&strPluginModule,&strPluginFile,&strPluginData))
 		{
-			return(TRUE);
+			return TRUE;
 		}
 
 		if (GetShortcutFolder(Key,&strShortcutFolder,&strPluginModule,&strPluginFile,&strPluginData))
@@ -952,11 +952,11 @@ int FileList::ProcessKey(int Key)
 					{
 						Plugin *pPlugin = CtrlObject->Plugins.GetPlugin(I);
 
-						if (StrCmpI(pPlugin->GetModuleName(),strPluginModule)==0)
+						if (!StrCmpI(pPlugin->GetModuleName(),strPluginModule))
 						{
 							if (pPlugin->HasOpenPlugin())
 							{
-								HANDLE hNewPlugin=CtrlObject->Plugins.OpenPlugin(pPlugin,OPEN_SHORTCUT,(INT_PTR)(const wchar_t *)strPluginData);
+								HANDLE hNewPlugin=CtrlObject->Plugins.OpenPlugin(pPlugin,OPEN_SHORTCUT,(INT_PTR)strPluginData.CPtr());
 
 								if (hNewPlugin!=INVALID_HANDLE_VALUE)
 								{
@@ -987,7 +987,7 @@ int FileList::ProcessKey(int Key)
 					*/
 				}
 
-				return(TRUE);
+				return TRUE;
 			}
 
 			switch (CheckShortcutFolder(&strShortcutFolder,FALSE))
@@ -1004,7 +1004,7 @@ int FileList::ProcessKey(int Key)
 				CtrlObject->Cp()->GetAnotherPanel(this)->Show();
 
 			Show();
-			return(TRUE);
+			return TRUE;
 		}
 	}
 
@@ -1012,7 +1012,7 @@ int FileList::ProcessKey(int Key)
 	    [*] В панели с одной колонкой Shift-Left/Right аналогично нажатию
 	        Shift-PgUp/PgDn.
 	*/
-	if (Columns==1 && CmdLength==0)
+	if (Columns==1 && !CmdLength)
 	{
 		if (Key == KEY_SHIFTLEFT || Key == KEY_SHIFTNUMPAD4)
 			Key=KEY_SHIFTPGUP;
@@ -1028,9 +1028,9 @@ int FileList::ProcessKey(int Key)
 			_ALGO(SysLog(L"%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
 
 			if (PanelMode==PLUGIN_PANEL && PluginPanelHelp(hPlugin))
-				return(TRUE);
+				return TRUE;
 
-			return(FALSE);
+			return FALSE;
 		}
 		case KEY_ALTSHIFTF9:
 		{
@@ -1048,7 +1048,7 @@ int FileList::ProcessKey(int Key)
 			SaveSelection();
 			ClearSelection();
 			Redraw();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_SHIFTADD:
 		{
@@ -1060,7 +1060,7 @@ int FileList::ProcessKey(int Key)
 				{
 					CurPtr = ListData[I];
 
-					if ((CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0 || Opt.SelectFolders)
+					if (!(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY) || Opt.SelectFolders)
 						Select(CurPtr,1);
 				}
 			}
@@ -1069,46 +1069,46 @@ int FileList::ProcessKey(int Key)
 				SortFileList(TRUE);
 
 			Redraw();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_ADD:
 			SelectFiles(SELECT_ADD);
-			return(TRUE);
+			return TRUE;
 		case KEY_SUBTRACT:
 			SelectFiles(SELECT_REMOVE);
-			return(TRUE);
+			return TRUE;
 		case KEY_CTRLADD:
 			SelectFiles(SELECT_ADDEXT);
-			return(TRUE);
+			return TRUE;
 		case KEY_CTRLSUBTRACT:
 			SelectFiles(SELECT_REMOVEEXT);
-			return(TRUE);
+			return TRUE;
 		case KEY_ALTADD:
 			SelectFiles(SELECT_ADDNAME);
-			return(TRUE);
+			return TRUE;
 		case KEY_ALTSUBTRACT:
 			SelectFiles(SELECT_REMOVENAME);
-			return(TRUE);
+			return TRUE;
 		case KEY_MULTIPLY:
 			SelectFiles(SELECT_INVERT);
-			return(TRUE);
+			return TRUE;
 		case KEY_CTRLMULTIPLY:
 			SelectFiles(SELECT_INVERTALL);
-			return(TRUE);
+			return TRUE;
 		case KEY_ALTLEFT:     // Прокрутка длинных имен и описаний
 		case KEY_ALTHOME:     // Прокрутка длинных имен и описаний - в начало
 			LeftPos=(Key == KEY_ALTHOME)?-0x7fff:LeftPos-1;
 			Redraw();
-			return(TRUE);
+			return TRUE;
 		case KEY_ALTRIGHT:    // Прокрутка длинных имен и описаний
 		case KEY_ALTEND:     // Прокрутка длинных имен и описаний - в конец
 			LeftPos=(Key == KEY_ALTEND)?0x7fff:LeftPos+1;
 			Redraw();
-			return(TRUE);
+			return TRUE;
 		case KEY_CTRLINS:      case KEY_CTRLNUMPAD0:
 
 			if (CmdLength>0)
-				return(FALSE);
+				return FALSE;
 
 		case KEY_CTRLSHIFTINS: case KEY_CTRLSHIFTNUMPAD0:  // копировать имена
 		case KEY_CTRLALTINS:   case KEY_CTRLALTNUMPAD0:    // копировать UNC-имена
@@ -1117,7 +1117,7 @@ int FileList::ProcessKey(int Key)
 			SetCurPath();
 			CopyNames(Key == KEY_CTRLALTINS || Key == KEY_ALTSHIFTINS || Key == KEY_CTRLALTNUMPAD0 || Key == KEY_ALTSHIFTNUMPAD0,
 			          (Key&(KEY_CTRL|KEY_ALT))==(KEY_CTRL|KEY_ALT));
-			return(TRUE);
+			return TRUE;
 			/* $ 14.02.2001 VVM
 			  + Ctrl: вставляет имя файла с пассивной панели.
 			  + CtrlAlt: вставляет UNC-имя файла с пассивной панели */
@@ -1135,7 +1135,7 @@ int FileList::ProcessKey(int Key)
 			SrcPanel->ProcessKey(NewKey);
 			SrcPanel->SetVisible(OldState);
 			SetCurPath();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_CTRLNUMENTER:
 		case KEY_CTRLSHIFTNUMENTER:
@@ -1239,7 +1239,7 @@ int FileList::ProcessKey(int Key)
 				CtrlObject->CmdLine->InsertString(strFileName);
 			}
 
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_CTRLALTBRACKET:       // Вставить сетевое (UNC) путь из левой панели
 		case KEY_CTRLALTBACKBRACKET:   // Вставить сетевое (UNC) путь из правой панели
@@ -1255,7 +1255,7 @@ int FileList::ProcessKey(int Key)
 			if (_MakePath1(Key,strPanelDir, L""))
 				CtrlObject->CmdLine->InsertString(strPanelDir);
 
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_CTRLA:
 		{
@@ -1267,7 +1267,7 @@ int FileList::ProcessKey(int Key)
 				Show();
 			}
 
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_CTRLG:
 		{
@@ -1288,14 +1288,14 @@ int FileList::ProcessKey(int Key)
 					AnotherPanel->Redraw();
 				}
 
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_CTRLZ:
 
 			if (FileCount>0 && PanelMode==NORMAL_PANEL && SetCurPath())
 				DescribeFiles();
 
-			return(TRUE);
+			return TRUE;
 		case KEY_CTRLH:
 		{
 			Opt.ShowHidden=!Opt.ShowHidden;
@@ -1304,12 +1304,12 @@ int FileList::ProcessKey(int Key)
 			Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
 			AnotherPanel->Update(UPDATE_KEEP_SELECTION);//|UPDATE_SECONDARY);
 			AnotherPanel->Redraw();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_CTRLM:
 		{
 			RestoreSelection();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_CTRLR:
 		{
@@ -1330,7 +1330,7 @@ int FileList::ProcessKey(int Key)
 		{
 			ShowShortNames=!ShowShortNames;
 			Redraw();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_NUMENTER:
 		case KEY_SHIFTNUMENTER:
@@ -1346,11 +1346,11 @@ int FileList::ProcessKey(int Key)
 			if (CmdLength)
 			{
 				CtrlObject->CmdLine->ProcessKey(Key);
-				return(TRUE);
+				return TRUE;
 			}
 
 			ProcessEnter(1,Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER);
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_CTRLBACKSLASH:
 		{
@@ -1364,7 +1364,7 @@ int FileList::ProcessKey(int Key)
 				OpenPluginInfo Info;
 				CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
 
-				if (!Info.CurDir || *Info.CurDir == 0)
+				if (!Info.CurDir || !*Info.CurDir)
 				{
 					ChangeDir(L"..");
 					NeedChangeDir=FALSE;
@@ -1380,7 +1380,7 @@ int FileList::ProcessKey(int Key)
 				ChangeDir(L"\\");
 
 			CtrlObject->Cp()->ActivePanel->Show();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_SHIFTF1:
 		{
@@ -1390,7 +1390,7 @@ int FileList::ProcessKey(int Key)
 			if (FileCount>0 && PanelMode!=PLUGIN_PANEL && SetCurPath())
 				PluginPutFilesToNew();
 
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_SHIFTF2:
 		{
@@ -1404,25 +1404,25 @@ int FileList::ProcessKey(int Key)
 					OpenPluginInfo Info;
 					CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
 
-					if (Info.HostFile!=nullptr && *Info.HostFile!=0)
+					if (Info.HostFile && *Info.HostFile)
 						ProcessKey(KEY_F5);
 					else if ((Info.Flags & OPIF_REALNAMES) == OPIF_REALNAMES)
 						PluginHostGetFiles();
 
-					return(TRUE);
+					return TRUE;
 				}
 
 				PluginHostGetFiles();
 			}
 
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_SHIFTF3:
 		{
 			_ALGO(CleverSysLog clv(L"Shift-F3"));
 			_ALGO(SysLog(L"%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
 			ProcessHostFile();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_F3:
 		case KEY_NUMPAD5:      case KEY_SHIFTNUMPAD5:
@@ -1487,7 +1487,7 @@ int FileList::ProcessKey(int Key)
 						               512, //BUGBUG
 						               L"Editor",
 						               FIB_BUTTONS|FIB_EXPANDENV|FIB_EDITPATH|FIB_ENABLEEMPTY))
-						  return(FALSE);*/
+						  return FALSE;*/
 
 						if (!strLastFileName.IsEmpty())
 						{
@@ -1503,7 +1503,7 @@ int FileList::ProcessKey(int Key)
 							size_t pos;
 
 							// проверим путь к файлу
-							if (FindLastSlash(pos,strFileName) && pos!=0)
+							if (FindLastSlash(pos,strFileName) && pos)
 							{
 								if (!(HasPathPrefix(strFileName) && pos==3))
 								{
@@ -1520,7 +1520,7 @@ int FileList::ProcessKey(int Key)
 													MSG(MEditNewPath1),
 													MSG(MEditNewPath2),
 													MSG(MEditNewPath3),
-													MSG(MHYes),MSG(MHNo))!=0)
+													MSG(MHYes),MSG(MHNo)))
 											return FALSE;
 									}
 
@@ -1535,8 +1535,8 @@ int FileList::ProcessKey(int Key)
 
 							if (Message(MSG_WARNING,2,MSG(MWarning),
 							            MSG(MEditNewPlugin1),
-							            MSG(MEditNewPath3),MSG(MCancel))!=0)
-								return(FALSE);
+							            MSG(MEditNewPath3),MSG(MCancel)))
+								return FALSE;
 						}
 						else
 						{
@@ -1555,7 +1555,7 @@ int FileList::ProcessKey(int Key)
 							return ProcessKey(KEY_CTRLA);
 
 						CountDirSize(Info.Flags);
-						return(TRUE);
+						return TRUE;
 					}
 
 					strFileName = CurPtr->strName;
@@ -1572,7 +1572,7 @@ int FileList::ProcessKey(int Key)
 				if (PluginMode)
 				{
 					if (!FarMkTempEx(strTempDir))
-						return(TRUE);
+						return TRUE;
 
 					apiCreateDirectory(strTempDir,nullptr);
 					strTempName=strTempDir+L"\\"+PointToName(strFileName);
@@ -1600,7 +1600,7 @@ int FileList::ProcessKey(int Key)
 						if (!Result)
 						{
 							apiRemoveDirectory(strTempDir);
-							return(TRUE);
+							return TRUE;
 						}
 					}
 
@@ -1672,7 +1672,7 @@ int FileList::ProcessKey(int Key)
 											NamesList EditList;
 
 											for (int I=0; I<FileCount; I++)
-												if ((ListData[I]->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
+												if (!(ListData[I]->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 													EditList.AddName(ListData[I]->strName, ListData[I]->strShortName);
 
 											EditList.SetCurDir(strCurDir);
@@ -1718,7 +1718,7 @@ int FileList::ProcessKey(int Key)
 								if (PutCode==1 || PutCode==2)
 									SetPluginModified();
 
-								if (PutCode==0)
+								if (!PutCode)
 									UploadFailed=TRUE;
 							}
 
@@ -1751,7 +1751,7 @@ int FileList::ProcessKey(int Key)
 								if (!PluginMode)
 								{
 									for (int I=0; I<FileCount; I++)
-										if ((ListData[I]->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
+										if (!(ListData[I]->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 											ViewList.AddName(ListData[I]->strName,ListData[I]->strShortName);
 
 									ViewList.SetCurDir(strCurDir);
@@ -1823,7 +1823,7 @@ int FileList::ProcessKey(int Key)
 			   потому что этот viewer, editor могут нам неверно восстановить
 			   */
 //      CtrlObject->Cp()->Redraw();
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_F5:
 		case KEY_F6:
@@ -1837,7 +1837,7 @@ int FileList::ProcessKey(int Key)
 			if (FileCount>0 && SetCurPath())
 				ProcessCopyKeys(Key);
 
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_ALTF5:  // Печать текущего/выбранных файла/ов
 		{
@@ -1850,7 +1850,7 @@ int FileList::ProcessKey(int Key)
 			else if (FileCount>0 && SetCurPath())
 				PrintFiles(this);
 
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_SHIFTF5:
 		case KEY_SHIFTF6:
@@ -1892,7 +1892,7 @@ int FileList::ProcessKey(int Key)
 				}
 			}
 
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_F7:
 		{
@@ -1933,7 +1933,7 @@ int FileList::ProcessKey(int Key)
 					ShellMakeDir(this);
 			}
 
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_F8:
 		case KEY_SHIFTDEL:
@@ -1970,17 +1970,17 @@ int FileList::ProcessKey(int Key)
 					ReturnCurrentFile=FALSE;
 			}
 
-			return(TRUE);
+			return TRUE;
 		}
 		// $ 26.07.2001 VVM  С альтом скролим всегда по 1
 		case KEY_MSWHEEL_UP:
 		case(KEY_MSWHEEL_UP | KEY_ALT):
 			Scroll(Key & KEY_ALT?-1:-Opt.MsWheelDelta);
-			return(TRUE);
+			return TRUE;
 		case KEY_MSWHEEL_DOWN:
 		case(KEY_MSWHEEL_DOWN | KEY_ALT):
 			Scroll(Key & KEY_ALT?1:Opt.MsWheelDelta);
-			return(TRUE);
+			return TRUE;
 		case KEY_MSWHEEL_LEFT:
 		case(KEY_MSWHEEL_LEFT | KEY_ALT):
 		{
@@ -2003,50 +2003,50 @@ int FileList::ProcessKey(int Key)
 		}
 		case KEY_HOME:         case KEY_NUMPAD7:
 			Up(0x7fffff);
-			return(TRUE);
+			return TRUE;
 		case KEY_END:          case KEY_NUMPAD1:
 			Down(0x7fffff);
-			return(TRUE);
+			return TRUE;
 		case KEY_UP:           case KEY_NUMPAD8:
 			Up(1);
-			return(TRUE);
+			return TRUE;
 		case KEY_DOWN:         case KEY_NUMPAD2:
 			Down(1);
-			return(TRUE);
+			return TRUE;
 		case KEY_PGUP:         case KEY_NUMPAD9:
 			N=Columns*Height-1;
 			CurTopFile-=N;
 			Up(N);
-			return(TRUE);
+			return TRUE;
 		case KEY_PGDN:         case KEY_NUMPAD3:
 			N=Columns*Height-1;
 			CurTopFile+=N;
 			Down(N);
-			return(TRUE);
+			return TRUE;
 		case KEY_LEFT:         case KEY_NUMPAD4:
 
-			if ((Columns==1 && Opt.ShellRightLeftArrowsRule == 1) || Columns>1 || CmdLength==0)
+			if ((Columns==1 && Opt.ShellRightLeftArrowsRule == 1) || Columns>1 || !CmdLength)
 			{
 				if (CurTopFile>=Height && CurFile-CurTopFile<Height)
 					CurTopFile-=Height;
 
 				Up(Height);
-				return(TRUE);
+				return TRUE;
 			}
 
-			return(FALSE);
+			return FALSE;
 		case KEY_RIGHT:        case KEY_NUMPAD6:
 
-			if ((Columns==1 && Opt.ShellRightLeftArrowsRule == 1) || Columns>1 || CmdLength==0)
+			if ((Columns==1 && Opt.ShellRightLeftArrowsRule == 1) || Columns>1 || !CmdLength)
 			{
 				if (CurFile+Height<FileCount && CurFile-CurTopFile>=(Columns-1)*(Height))
 					CurTopFile+=Height;
 
 				Down(Height);
-				return(TRUE);
+				return TRUE;
 			}
 
-			return(FALSE);
+			return FALSE;
 			/* $ 25.04.2001 DJ
 			   оптимизация Shift-стрелок для Selected files first: делаем сортировку
 			   один раз
@@ -2067,7 +2067,7 @@ int FileList::ProcessKey(int Key)
 				SortFileList(TRUE);
 
 			ShowFileList(TRUE);
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_SHIFTEND:     case KEY_SHIFTNUMPAD1:
 		{
@@ -2085,7 +2085,7 @@ int FileList::ProcessKey(int Key)
 				SortFileList(TRUE);
 
 			ShowFileList(TRUE);
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_SHIFTPGUP:    case KEY_SHIFTNUMPAD9:
 		case KEY_SHIFTPGDN:    case KEY_SHIFTNUMPAD3:
@@ -2104,13 +2104,13 @@ int FileList::ProcessKey(int Key)
 				SortFileList(TRUE);
 
 			ShowFileList(TRUE);
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_SHIFTLEFT:    case KEY_SHIFTNUMPAD4:
 		case KEY_SHIFTRIGHT:   case KEY_SHIFTNUMPAD6:
 		{
-			if (FileCount==0)
-				return(TRUE);
+			if (!FileCount)
+				return TRUE;
 
 			if (Columns>1)
 			{
@@ -2133,16 +2133,16 @@ int FileList::ProcessKey(int Key)
 					SortFileList(TRUE);
 
 				ShowFileList(TRUE);
-				return(TRUE);
+				return TRUE;
 			}
 
-			return(FALSE);
+			return FALSE;
 		}
 		case KEY_SHIFTUP:      case KEY_SHIFTNUMPAD8:
 		case KEY_SHIFTDOWN:    case KEY_SHIFTNUMPAD2:
 		{
-			if (FileCount==0)
-				return(TRUE);
+			if (!FileCount)
+				return TRUE;
 
 			CurPtr=ListData[CurFile];
 
@@ -2166,12 +2166,12 @@ int FileList::ProcessKey(int Key)
 				SortFileList(TRUE);
 
 			ShowFileList(TRUE);
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_INS:          case KEY_NUMPAD0:
 		{
-			if (FileCount==0)
-				return(TRUE);
+			if (!FileCount)
+				return TRUE;
 
 			CurPtr=ListData[CurFile];
 			Select(CurPtr,!CurPtr->Selected);
@@ -2181,38 +2181,38 @@ int FileList::ProcessKey(int Key)
 				SortFileList(TRUE);
 
 			ShowFileList(TRUE);
-			return(TRUE);
+			return TRUE;
 		}
 		case KEY_CTRLF3:
 			SetSortMode(BY_NAME);
-			return(TRUE);
+			return TRUE;
 		case KEY_CTRLF4:
 			SetSortMode(BY_EXT);
-			return(TRUE);
+			return TRUE;
 		case KEY_CTRLF5:
 			SetSortMode(BY_MTIME);
-			return(TRUE);
+			return TRUE;
 		case KEY_CTRLF6:
 			SetSortMode(BY_SIZE);
-			return(TRUE);
+			return TRUE;
 		case KEY_CTRLF7:
 			SetSortMode(UNSORTED);
-			return(TRUE);
+			return TRUE;
 		case KEY_CTRLF8:
 			SetSortMode(BY_CTIME);
-			return(TRUE);
+			return TRUE;
 		case KEY_CTRLF9:
 			SetSortMode(BY_ATIME);
-			return(TRUE);
+			return TRUE;
 		case KEY_CTRLF10:
 			SetSortMode(BY_DIZ);
-			return(TRUE);
+			return TRUE;
 		case KEY_CTRLF11:
 			SetSortMode(BY_OWNER);
-			return(TRUE);
+			return TRUE;
 		case KEY_CTRLF12:
 			SelectSortMode();
-			return(TRUE);
+			return TRUE;
 		case KEY_SHIFTF11:
 			SortGroups=!SortGroups;
 
@@ -2221,12 +2221,12 @@ int FileList::ProcessKey(int Key)
 
 			SortFileList(TRUE);
 			Show();
-			return(TRUE);
+			return TRUE;
 		case KEY_SHIFTF12:
 			SelectedFirst=!SelectedFirst;
 			SortFileList(TRUE);
 			Show();
-			return(TRUE);
+			return TRUE;
 		case KEY_CTRLPGUP:     case KEY_CTRLNUMPAD9:
 		{
 			//"this" может быть удалён в ChangeDir
@@ -2240,7 +2240,7 @@ int FileList::ProcessKey(int Key)
 
 			NewActivePanel->Show();
 		}
-		return(TRUE);
+		return TRUE;
 		case KEY_CTRLPGDN:
 		case KEY_CTRLNUMPAD3:
 		case KEY_CTRLSHIFTPGDN:
@@ -2276,10 +2276,10 @@ int FileList::ProcessKey(int Key)
 			else
 				break;
 
-			return(TRUE);
+			return TRUE;
 	}
 
-	return(FALSE);
+	return FALSE;
 }
 
 
@@ -2290,7 +2290,7 @@ void FileList::Select(FileListItem *SelPtr,int Selection)
 		CacheSelIndex=-1;
 		CacheSelClearIndex=-1;
 
-		if ((SelPtr->Selected=Selection)!=0)
+		if ((SelPtr->Selected=Selection))
 		{
 			SelFileCount++;
 			SelFileSize += SelPtr->UnpSize;
@@ -2359,7 +2359,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 		{
 			int CheckFullScreen=IsFullScreen();
 
-			if (PanelMode==PLUGIN_PANEL || wcschr(CurPtr->strName,L'?')==nullptr ||
+			if (PanelMode==PLUGIN_PANEL || !wcschr(CurPtr->strName,L'?') ||
 			        CurPtr->strShortName.IsEmpty())
 			{
 				ChangeDir(CurPtr->strName);
@@ -2419,9 +2419,9 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 		ExtPtr=wcsrchr(strFileName,L'.');
 		int ExeType=FALSE,BatType=FALSE;
 
-		if (ExtPtr!=nullptr)
+		if (ExtPtr)
 		{
-			ExeType=StrCmpI(ExtPtr,L".exe")==0 || StrCmpI(ExtPtr,L".com")==0;
+			ExeType=!StrCmpI(ExtPtr,L".exe") || !StrCmpI(ExtPtr,L".com");
 			BatType=IsBatchExtType(ExtPtr);
 		}
 
@@ -2518,7 +2518,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 		FarChDir(strCurDir);
 
 	strSetDir = NewDir;
-	bool dot2Present = StrCmp(strSetDir, L"..")==0;
+	bool dot2Present = !StrCmp(strSetDir, L"..");
 
 	if (PanelMode!=PLUGIN_PANEL)
 	{
@@ -2530,7 +2530,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 		        !StrCmpN(&strCurDir[5], L":\\",2))
 		{
 			if (!strCurDir.At(7))
-				strSetDir = (const wchar_t*)strCurDir+4;
+				strSetDir = strCurDir.CPtr()+4;
 			else
 			{
 				strSetDir = strCurDir;
@@ -2544,7 +2544,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 			AddEndSlash(strSetDir);
 	}
 
-	if (!dot2Present && StrCmp(strSetDir,L"\\")!=0)
+	if (!dot2Present && StrCmp(strSetDir,L"\\"))
 		UpperFolderTopFile=CurTopFile;
 
 	if (SelFileCount>0)
@@ -2571,7 +2571,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 		if (dot2Present && strInfoCurDir.IsEmpty())
 		{
 			if (ProcessPluginEvent(FE_CLOSE,nullptr))
-				return(TRUE);
+				return TRUE;
 
 			PluginClosed=TRUE;
 			strFindDir = strInfoHostFile;
@@ -2650,7 +2650,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 			string strFullNewDir;
 			ConvertNameToFull(strSetDir, strFullNewDir);
 
-			if (StrCmpI(strFullNewDir, strCurDir)!=0)
+			if (StrCmpI(strFullNewDir, strCurDir))
 				CtrlObject->FolderHistory->AddToHistory(strCurDir);
 		}
 
@@ -2661,7 +2661,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 			AddEndSlash(strTempDir);
 			GetPathRoot(strTempDir, strRootDir);
 
-			if ((strCurDir.At(0) == L'\\' && strCurDir.At(1) == L'\\' && StrCmp(strTempDir,strRootDir)==0) || IsLocalRootPath(strCurDir))
+			if ((strCurDir.At(0) == L'\\' && strCurDir.At(1) == L'\\' && !StrCmp(strTempDir,strRootDir)) || IsLocalRootPath(strCurDir))
 			{
 				string strDirName;
 				strDirName = strCurDir;
@@ -2691,7 +2691,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 					if (PtrS1 && !FirstSlash(PtrS1+1))
 					{
 						if (CtrlObject->Plugins.CallPlugin(SYSID_NETWORK,OPEN_FILEPANEL,(void*)strNewCurDir.CPtr())) // NetWork Plugin :-)
-							return(FALSE);
+							return FALSE;
 					}
 				}
 			}
@@ -2788,7 +2788,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	FileListItem *CurPtr;
 	int RetCode;
 
-	if (IsVisible() && Opt.ShowColumnTitles && MouseEvent->dwEventFlags==0 &&
+	if (IsVisible() && Opt.ShowColumnTitles && !MouseEvent->dwEventFlags &&
 	        MouseEvent->dwMousePosition.Y==Y1+1 &&
 	        MouseEvent->dwMousePosition.X>X1 && MouseEvent->dwMousePosition.X<X1+3)
 	{
@@ -2800,7 +2800,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 				SelectSortMode();
 		}
 
-		return(TRUE);
+		return TRUE;
 	}
 
 	if (IsVisible() && Opt.ShowPanelScrollbar && MouseX==X2 &&
@@ -2814,7 +2814,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 				ProcessKey(KEY_UP);
 
 			SetFocus();
-			return(TRUE);
+			return TRUE;
 		}
 
 		if (MouseY==ScrollY+Height-1)
@@ -2823,7 +2823,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 				ProcessKey(KEY_DOWN);
 
 			SetFocus();
-			return(TRUE);
+			return TRUE;
 		}
 
 		if (MouseY>ScrollY && MouseY<ScrollY+Height-1 && Height>2)
@@ -2835,7 +2835,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 				SetFocus();
 			}
 
-			return(TRUE);
+			return TRUE;
 		}
 	}
 
@@ -2866,8 +2866,8 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	{
 		SetFocus();
 
-		if (FileCount==0)
-			return(TRUE);
+		if (!FileCount)
+			return TRUE;
 
 		MoveToMouse(MouseEvent);
 		CurPtr=ListData[CurFile];
@@ -2882,7 +2882,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 				ProcessPluginCommand();
 
 				if (ProcessCode)
-					return(TRUE);
+					return TRUE;
 			}
 
 			/*$ 21.02.2001 SKV
@@ -2896,8 +2896,8 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			*/
 			ShowFileList(TRUE);
 			FlushInputBuffer();
-			ProcessEnter(1,ShiftPressed!=0);
-			return(TRUE);
+			ProcessEnter(true,ShiftPressed!=0);
+			return TRUE;
 		}
 		else
 		{
@@ -2906,7 +2906,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			*/
 			if ((MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && !IsEmpty)
 			{
-				if (MouseEvent->dwEventFlags==0 || MouseEvent->dwEventFlags==DOUBLE_CLICK)
+				if (!MouseEvent->dwEventFlags || MouseEvent->dwEventFlags==DOUBLE_CLICK)
 					MouseSelection=!CurPtr->Selected;
 
 				Select(CurPtr,MouseSelection);
@@ -2917,15 +2917,15 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		}
 
 		ShowFileList(TRUE);
-		return(TRUE);
+		return TRUE;
 	}
 
 	if (MouseEvent->dwMousePosition.Y<=Y1+1)
 	{
 		SetFocus();
 
-		if (FileCount==0)
-			return(TRUE);
+		if (!FileCount)
+			return TRUE;
 
 		while (IsMouseButtonPressed() && MouseY<=Y1+1)
 		{
@@ -2941,15 +2941,15 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		if (SelectedFirst)
 			SortFileList(TRUE);
 
-		return(TRUE);
+		return TRUE;
 	}
 
 	if (MouseEvent->dwMousePosition.Y>=Y2-2)
 	{
 		SetFocus();
 
-		if (FileCount==0)
-			return(TRUE);
+		if (!FileCount)
+			return TRUE;
 
 		while (IsMouseButtonPressed() && MouseY>=Y2-2)
 		{
@@ -2965,10 +2965,10 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		if (SelectedFirst)
 			SortFileList(TRUE);
 
-		return(TRUE);
+		return TRUE;
 	}
 
-	return(FALSE);
+	return FALSE;
 }
 
 
@@ -2998,7 +2998,7 @@ void FileList::MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		Level++;
 	}
 
-//  if (CurColumn==0)
+//  if (!CurColumn)
 //    CurColumn=1;
 	int OldCurFile=CurFile;
 	CurFile=CurTopFile+MouseEvent->dwMousePosition.Y-Y1-1-Opt.ShowColumnTitles;
@@ -3102,7 +3102,7 @@ void FileList::SetViewMode(int ViewMode)
 //    SetScreenPosition();
 		ViewSettingsToText(ViewSettings.ColumnType,ViewSettings.ColumnWidth,ViewSettings.ColumnWidthType,
 		                   ViewSettings.ColumnCount,strColumnTypes,strColumnWidths);
-		ProcessPluginEvent(FE_CHANGEVIEWMODE,(void*)(const wchar_t*)strColumnTypes);
+		ProcessPluginEvent(FE_CHANGEVIEWMODE,(void*)strColumnTypes.CPtr());
 	}
 
 	if (ResortRequired)
@@ -3170,10 +3170,10 @@ long FileList::FindFile(const wchar_t *Name,BOOL OnlyPartName)
 	{
 		const wchar_t *CurPtrName=OnlyPartName?PointToName(ListData[I]->strName):ListData[I]->strName.CPtr();
 
-		if (StrCmp(Name,CurPtrName)==0)
+		if (!StrCmp(Name,CurPtrName))
 			return I;
 
-		if (StrCmpI(Name,CurPtrName)==0)
+		if (!StrCmpI(Name,CurPtrName))
 			return I;
 	}
 
@@ -3202,13 +3202,13 @@ long FileList::FindNext(int StartPos, const wchar_t *Name)
 int FileList::IsSelected(const wchar_t *Name)
 {
 	long Pos=FindFile(Name);
-	return(Pos!=-1 && (ListData[Pos]->Selected || (SelFileCount==0 && Pos==CurFile)));
+	return(Pos!=-1 && (ListData[Pos]->Selected || (!SelFileCount && Pos==CurFile)));
 }
 
 int FileList::IsSelected(long idxItem)
 {
 	if ((DWORD)idxItem < (DWORD)FileCount)
-		return(ListData[idxItem]->Selected); //  || (SelFileCount==0 && idxItem==CurFile) ???
+		return(ListData[idxItem]->Selected); //  || (Sel!FileCount && idxItem==CurFile) ???
 	return FALSE;
 }
 
@@ -3253,7 +3253,7 @@ int FileList::FindPartName(const wchar_t *Name,int Next,int Direct,int ExcludeSe
 					CurFile=I;
 					CurTopFile=CurFile-(Y2-Y1)/2;
 					ShowFileList(TRUE);
-					return(TRUE);
+					return TRUE;
 				}
 			}
 		}
@@ -3270,13 +3270,13 @@ int FileList::FindPartName(const wchar_t *Name,int Next,int Direct,int ExcludeSe
 					CurFile=I;
 					CurTopFile=CurFile-(Y2-Y1)/2;
 					ShowFileList(TRUE);
-					return(TRUE);
+					return TRUE;
 				}
 			}
 		}
 	}
 
-	return(FALSE);
+	return FALSE;
 }
 
 
@@ -3293,21 +3293,21 @@ int FileList::GetRealSelCount()
 
 int FileList::GetSelName(string *strName,DWORD &FileAttr,string *strShortName,FAR_FIND_DATA_EX *fd)
 {
-	if (strName==nullptr)
+	if (!strName)
 	{
 		GetSelPosition=0;
 		LastSelPosition=-1;
-		return(TRUE);
+		return TRUE;
 	}
 
-	if (SelFileCount==0 || ReturnCurrentFile)
+	if (!SelFileCount || ReturnCurrentFile)
 	{
-		if (GetSelPosition==0 && CurFile<FileCount)
+		if (!GetSelPosition && CurFile<FileCount)
 		{
 			GetSelPosition=1;
 			*strName = ListData[CurFile]->strName;
 
-			if (strShortName!=nullptr)
+			if (strShortName)
 			{
 				*strShortName = ListData[CurFile]->strShortName;
 
@@ -3330,10 +3330,10 @@ int FileList::GetSelName(string *strName,DWORD &FileAttr,string *strShortName,FA
 				fd->strAlternateFileName = ListData[CurFile]->strShortName;
 			}
 
-			return(TRUE);
+			return TRUE;
 		}
 		else
-			return(FALSE);
+			return FALSE;
 	}
 
 	while (GetSelPosition<FileCount)
@@ -3341,7 +3341,7 @@ int FileList::GetSelName(string *strName,DWORD &FileAttr,string *strShortName,FA
 		{
 			*strName = ListData[GetSelPosition-1]->strName;
 
-			if (strShortName!=nullptr)
+			if (strShortName)
 			{
 				*strShortName = ListData[GetSelPosition-1]->strShortName;
 
@@ -3364,10 +3364,10 @@ int FileList::GetSelName(string *strName,DWORD &FileAttr,string *strShortName,FA
 				fd->strAlternateFileName = ListData[GetSelPosition-1]->strShortName;
 			}
 
-			return(TRUE);
+			return TRUE;
 		}
 
-	return(FALSE);
+	return FALSE;
 }
 
 
@@ -3398,19 +3398,19 @@ int FileList::GetLastSelectedItem(FileListItem *LastItem)
 	if (LastSelPosition>=0 && LastSelPosition<FileCount)
 	{
 		*LastItem=*ListData[LastSelPosition];
-		return(TRUE);
+		return TRUE;
 	}
 
-	return(FALSE);
+	return FALSE;
 }
 
 int FileList::GetCurName(string &strName, string &strShortName)
 {
-	if (FileCount==0)
+	if (!FileCount)
 	{
 		strName.Clear();
 		strShortName.Clear();
-		return(FALSE);
+		return FALSE;
 	}
 
 	strName = ListData[CurFile]->strName;
@@ -3419,16 +3419,16 @@ int FileList::GetCurName(string &strName, string &strShortName)
 	if (strShortName.IsEmpty())
 		strShortName = strName;
 
-	return(TRUE);
+	return TRUE;
 }
 
 int FileList::GetCurBaseName(string &strName, string &strShortName)
 {
-	if (FileCount==0)
+	if (!FileCount)
 	{
 		strName.Clear();
 		strShortName.Clear();
-		return(FALSE);
+		return FALSE;
 	}
 
 	if (PanelMode==PLUGIN_PANEL && !PluginsList.Empty()) // для плагинов
@@ -3444,7 +3444,7 @@ int FileList::GetCurBaseName(string &strName, string &strShortName)
 	if (strShortName.IsEmpty())
 		strShortName = strName;
 
-	return(TRUE);
+	return TRUE;
 }
 
 long FileList::SelectFiles(int Mode,const wchar_t *Mask)
@@ -3497,7 +3497,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 		if (strCurName.RPos(pos,L'.'))
 		{
 			// Учтем тот момент, что расширение может содержать символы-разделители
-			strRawMask.Format(L"\"*.%s\"", (const wchar_t *)strCurName+pos+1);
+			strRawMask.Format(L"\"*.%s\"", strCurName.CPtr()+pos+1);
 			WrapBrackets=true;
 		}
 		else
@@ -3637,8 +3637,8 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 						break;
 				}
 
-				if (bUseFilter || (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0 || Opt.SelectFolders ||
-				        Selection==0 || RawSelection || Mode==SELECT_INVERTALL || Mode==SELECT_INVERTMASK)
+				if (bUseFilter || !(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY) || Opt.SelectFolders ||
+				        !Selection || RawSelection || Mode==SELECT_INVERTALL || Mode==SELECT_INVERTMASK)
 				{
 					Select(CurPtr,Selection);
 					workCount++;
@@ -3673,7 +3673,7 @@ void FileList::UpdateViewPanel()
 			else
 				ViewPanel->ShowFile(CurPtr->strName,FALSE,nullptr);
 		}
-		else if ((CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
+		else if (!(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 		{
 			string strTempDir,strFileName;
 			strFileName = CurPtr->strName;
@@ -3728,14 +3728,14 @@ void FileList::CompareDir()
 	// помечаем ВСЕ, кроме каталогов на активной панели
 	for (int I=0; I < FileCount; I++)
 	{
-		if ((ListData[I]->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
+		if (!(ListData[I]->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 			Select(ListData[I],TRUE);
 	}
 
 	// помечаем ВСЕ, кроме каталогов на пассивной панели
 	for (int J=0; J < Another->FileCount; J++)
 	{
-		if ((Another->ListData[J]->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
+		if (!(Another->ListData[J]->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 			Another->Select(Another->ListData[J],TRUE);
 	}
 
@@ -3772,7 +3772,7 @@ void FileList::CompareDir()
 
 		if (apiGetVolumeInformation(strRoot1,nullptr,nullptr,nullptr,nullptr,&strFileSystemName1) &&
 		        apiGetVolumeInformation(strRoot2,nullptr,nullptr,nullptr,nullptr,&strFileSystemName2))
-			if (StrCmpI(strFileSystemName1,strFileSystemName2)!=0)
+			if (StrCmpI(strFileSystemName1,strFileSystemName2))
 				CompareFatTime=TRUE;
 	}
 
@@ -3787,8 +3787,8 @@ void FileList::CompareDir()
 #if 0
 			PtrTempName1=ListData[I]->Name;
 			PtrTempName2=Another->ListData[J]->Name;
-			int fp1=strpbrk(ListData[I]->Name,":\\/")!=nullptr;
-			int fp2=strpbrk(Another->ListData[J]->Name,":\\/")!=nullptr;
+			int fp1=strpbrk(ListData[I]->Name,":\\/");
+			int fp2=strpbrk(Another->ListData[J]->Name,":\\/");
 
 			if (fp1 && !fp2 && strcmp(PtrTempName2,".."))
 			{
@@ -3816,7 +3816,7 @@ void FileList::CompareDir()
 			PtrTempName2=PointToName(Another->ListData[J]->strName);
 #endif
 
-			if (StrCmpI(PtrTempName1,PtrTempName2)==0)
+			if (!StrCmpI(PtrTempName1,PtrTempName2))
 			{
 				if (CompareFatTime)
 				{
@@ -3839,7 +3839,7 @@ void FileList::CompareDir()
 					Cmp=!RetCompare?0:(RetCompare > 0?1:-1);
 				}
 
-				if (Cmp==0 && (ListData[I]->UnpSize != Another->ListData[J]->UnpSize))
+				if (!Cmp && (ListData[I]->UnpSize != Another->ListData[J]->UnpSize))
 					continue;
 
 				if (Cmp < 1 && ListData[I]->Selected)
@@ -3860,7 +3860,7 @@ void FileList::CompareDir()
 	Redraw();
 	Another->Redraw();
 
-	if (SelFileCount==0 && Another->SelFileCount==0)
+	if (!SelFileCount && !Another->SelFileCount)
 		Message(0,1,MSG(MCompareTitle),MSG(MCompareSameFolders1),MSG(MCompareSameFolders2),MSG(MOk));
 }
 
@@ -3974,7 +3974,7 @@ void FileList::CopyNames(int FillPathName,int UNC)
 		int Length=(int)strQuotedName.GetLength();
 		wchar_t *NewPtr=(wchar_t *)xf_realloc(CopyData, (DataSize+Length+3)*sizeof(wchar_t));
 
-		if (NewPtr==nullptr)
+		if (!NewPtr)
 		{
 			if (CopyData)
 			{
@@ -4016,7 +4016,7 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
 
 	  const wchar_t *NamePtr = wcsrchr(strFileName, L'\\');
 
-	  if(NamePtr != nullptr)
+	  if(NamePtr )
 	    NamePtr++;
 	  else
 	    NamePtr=strFileName;
@@ -4145,11 +4145,11 @@ void FileList::RestoreSelection()
 int FileList::GetFileName(string &strName,int Pos,DWORD &FileAttr)
 {
 	if (Pos>=FileCount)
-		return(FALSE);
+		return FALSE;
 
 	strName = ListData[Pos]->strName;
 	FileAttr=ListData[Pos]->FileAttr;
-	return(TRUE);
+	return TRUE;
 }
 
 
@@ -4161,7 +4161,7 @@ int FileList::GetCurrentPos()
 
 void FileList::EditFilter()
 {
-	if (Filter==nullptr)
+	if (!Filter)
 		Filter=new FileFilter(this,FFT_PANEL);
 
 	Filter->FilterEdit();
@@ -4172,25 +4172,25 @@ void FileList::SelectSortMode()
 {
 	MenuDataEx SortMenu[]=
 	{
-		/* 00 */(const wchar_t *)MMenuSortByName,LIF_SELECTED,KEY_CTRLF3,
-		/* 01 */(const wchar_t *)MMenuSortByExt,0,KEY_CTRLF4,
-		/* 02 */(const wchar_t *)MMenuSortByModification,0,KEY_CTRLF5,
-		/* 03 */(const wchar_t *)MMenuSortBySize,0,KEY_CTRLF6,
-		/* 04 */(const wchar_t *)MMenuUnsorted,0,KEY_CTRLF7,
-		/* 05 */(const wchar_t *)MMenuSortByCreation,0,KEY_CTRLF8,
-		/* 06 */(const wchar_t *)MMenuSortByAccess,0,KEY_CTRLF9,
-		/* 07 */(const wchar_t *)MMenuSortByDiz,0,KEY_CTRLF10,
-		/* 08 */(const wchar_t *)MMenuSortByOwner,0,KEY_CTRLF11,
-		/* 09 */(const wchar_t *)MMenuSortByCompressedSize,0,0,
-		/* 10 */(const wchar_t *)MMenuSortByNumLinks,0,0,
-		/* 11 */(const wchar_t *)MMenuSortByNumStreams,0,0,
-		/* 12 */(const wchar_t *)MMenuSortByStreamsSize,0,0,
-		/* 13 */(const wchar_t *)MMenuSortByFullName,0,0,
+		/* 00 */MSG(MMenuSortByName),LIF_SELECTED,KEY_CTRLF3,
+		/* 01 */MSG(MMenuSortByExt),0,KEY_CTRLF4,
+		/* 02 */MSG(MMenuSortByModification),0,KEY_CTRLF5,
+		/* 03 */MSG(MMenuSortBySize),0,KEY_CTRLF6,
+		/* 04 */MSG(MMenuUnsorted),0,KEY_CTRLF7,
+		/* 05 */MSG(MMenuSortByCreation),0,KEY_CTRLF8,
+		/* 06 */MSG(MMenuSortByAccess),0,KEY_CTRLF9,
+		/* 07 */MSG(MMenuSortByDiz),0,KEY_CTRLF10,
+		/* 08 */MSG(MMenuSortByOwner),0,KEY_CTRLF11,
+		/* 09 */MSG(MMenuSortByCompressedSize),0,0,
+		/* 10 */MSG(MMenuSortByNumLinks),0,0,
+		/* 11 */MSG(MMenuSortByNumStreams),0,0,
+		/* 12 */MSG(MMenuSortByStreamsSize),0,0,
+		/* 13 */MSG(MMenuSortByFullName),0,0,
 		/* 14 */L"",LIF_SEPARATOR,0,
-		/* 15 */(const wchar_t *)MMenuSortUseNumeric,0,0,
-		/* 16 */(const wchar_t *)MMenuSortUseGroups,0,KEY_SHIFTF11,
-		/* 17 */(const wchar_t *)MMenuSortSelectedFirst,0,KEY_SHIFTF12,
-		/* 18 */(const wchar_t *)MMenuSortDirectoriesFirst,0,0,
+		/* 15 */MSG(MMenuSortUseNumeric),0,0,
+		/* 16 */MSG(MMenuSortUseGroups),0,KEY_SHIFTF11,
+		/* 17 */MSG(MMenuSortSelectedFirst),0,KEY_SHIFTF12,
+		/* 18 */MSG(MMenuSortDirectoriesFirst),0,0,
 	};
 	static int SortModes[]={BY_NAME,   BY_EXT,    BY_MTIME,
 	                        BY_SIZE,   UNSORTED,  BY_CTIME,
@@ -4297,7 +4297,7 @@ void FileList::DescribeFiles()
 		   Для Ctrl-Z ненужно брать предыдущее значение!
 		*/
 		if (!GetString(MSG(MDescribeFiles),strMsg,L"DizText",
-		               PrevText!=nullptr ? PrevText:L"",strDizText,
+		               PrevText ? PrevText:L"",strDizText,
 		               L"FileDiz",FIB_ENABLEEMPTY|(!DizCount?FIB_NOUSELASTHISTORY:0)|FIB_BUTTONS))
 			break;
 
@@ -4356,7 +4356,7 @@ bool FileList::ApplyCommand()
 
 	if (strCommand.At(0) == L'@')
 	{
-		strCommand=(const wchar_t*)strCommand+1;
+		strCommand.LShift(1);
 		isSilent=true;
 	}
 
@@ -4514,7 +4514,7 @@ void FileList::CountDirSize(DWORD PluginFlags)
 		}
 	}
 
-	if (SelDirCount==0)
+	if (!SelDirCount)
 	{
 		if ((PanelMode==PLUGIN_PANEL && !(PluginFlags & OPIF_REALNAMES) &&
 		        GetPluginDirInfo(hPlugin,ListData[CurFile]->strName,DirCount,DirFileCount,FileSize,CompressedFileSize))
@@ -4673,7 +4673,7 @@ void FileList::ProcessCopyKeys(int Key)
 								OpenPluginInfo Info;
 								CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
 
-								if (Info.HostFile!=nullptr && *Info.HostFile!=0)
+								if (Info.HostFile && *Info.HostFile)
 								{
 									size_t pos;
 									strDestPath = PointToName(Info.HostFile);
@@ -4768,13 +4768,13 @@ int FileList::PluginPanelHelp(HANDLE hPlugin)
 	UINT nCodePage = CP_OEMCP;
 	FILE *HelpFile=Language::OpenLangFile(strPath,HelpFileMask,Opt.strHelpLanguage,strFileName, nCodePage);
 
-	if (HelpFile==nullptr)
-		return(FALSE);
+	if (!HelpFile)
+		return FALSE;
 
 	fclose(HelpFile);
-	strStartTopic.Format(HelpFormatLink,(const wchar_t*)strPath,L"Contents");
+	strStartTopic.Format(HelpFormatLink,strPath.CPtr(),L"Contents");
 	Help PanelHelp(strStartTopic);
-	return(TRUE);
+	return TRUE;
 }
 
 /* $ 19.11.2001 IS

@@ -105,7 +105,7 @@ static TypeString checkTypeString(const wchar_t *TestStr)
 			}
 		}
 
-		while ((ch=*ptrTestStr++) != 0)
+		while ((ch=*ptrTestStr++) )
 		{
 			switch (ch)
 			{
@@ -142,7 +142,7 @@ static TypeString checkTypeString(const wchar_t *TestStr)
 
 					isPoint=true;
 
-					if (!(iswdigit(ptrTestStr[1]) || ptrTestStr[1] == L'e' || ptrTestStr[1] == L'E' || ptrTestStr[1] == 0))
+					if (!(iswdigit(ptrTestStr[1]) || ptrTestStr[1] == L'e' || ptrTestStr[1] == L'E' || !ptrTestStr[1]))
 					{
 						isNum=false;
 						break;
@@ -460,7 +460,7 @@ static int _cmp_Ne(TVarType vt,const void *a, const void *b)
 	{
 		case vtInteger: r = *(__int64*)a != *(__int64*)b?1:0; break;
 		case vtDouble:  r = *(double*)a != *(double*)b?1:0; break;
-		case vtString:  r = StrCmp((const wchar_t*)a, (const wchar_t*)b) != 0; break;
+		case vtString:  r = StrCmp((const wchar_t*)a, (const wchar_t*)b) ; break;
 	}
 
 	return r;
@@ -474,7 +474,7 @@ static int _cmp_Eq(TVarType vt,const void *a, const void *b)
 	{
 		case vtInteger: r = *(__int64*)a == *(__int64*)b?1:0; break;
 		case vtDouble:  r = *(double*)a == *(double*)b?1:0; break;
-		case vtString:  r = StrCmp((const wchar_t*)a, (const wchar_t*)b) == 0; break;
+		case vtString:  r = !StrCmp((const wchar_t*)a, (const wchar_t*)b); break;
 	}
 
 	return r;
@@ -1638,7 +1638,7 @@ void deleteVTable(TVarTable table)
 {
 	for (int i = 0 ; i < V_TABLE_SIZE ; i++)
 	{
-		while (table[i] != nullptr)
+		while (table[i] )
 		{
 			TVarSet *n = ((TVarSet*)(table[i]->next));
 			table[i]->next = nullptr;

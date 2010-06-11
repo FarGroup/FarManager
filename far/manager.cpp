@@ -181,10 +181,10 @@ BOOL Manager::IsAnyFrameModified(int Activate)
 				Commit();
 			}
 
-			return(TRUE);
+			return TRUE;
 		}
 
-	return(FALSE);
+	return FALSE;
 }
 
 void Manager::InsertFrame(Frame *Inserted, int Index)
@@ -409,7 +409,7 @@ Frame *Manager::FrameMenu()
 			//TruncPathStr(strName,ScrX-24);
 			ReplaceStrings(strName,L"&",L"&&",-1);
 			/*  добавляется "*" если файл изменен */
-			ModalMenuItem.strName.Format(L"%s%-10.10s %c %s", (const wchar_t*)strNumText, (const wchar_t*)strType,(FrameList[I]->IsFileModified()?L'*':L' '), (const wchar_t*)strName);
+			ModalMenuItem.strName.Format(L"%s%-10.10s %c %s", strNumText.CPtr(), strType.CPtr(),(FrameList[I]->IsFileModified()?L'*':L' '), strName.CPtr());
 			ModalMenuItem.SetSelect(I==FramePos);
 			ModalMenu.AddItem(&ModalMenuItem);
 		}
@@ -484,12 +484,12 @@ int  Manager::FindFrameByFile(int ModalType,const wchar_t *FileName, const wchar
 		{
 			FrameList[I]->GetTypeAndName(strType, strName);
 
-			if (StrCmpI(strName, strFullFileName)==0)
+			if (!StrCmpI(strName, strFullFileName))
 				return(I);
 		}
 	}
 
-	return(-1);
+	return -1;
 }
 
 BOOL Manager::ShowBackground()
@@ -724,7 +724,7 @@ void Manager::ExitMainLoop(int Ask)
 		CloseFARMenu=TRUE;
 	};
 
-	if (!Ask || !Opt.Confirm.Exit || Message(0,2,MSG(MQuit),MSG(MAskQuit),MSG(MYes),MSG(MNo))==0)
+	if (!Ask || !Opt.Confirm.Exit || !Message(0,2,MSG(MQuit),MSG(MAskQuit),MSG(MYes),MSG(MNo)))
 	{
 		/* $ 29.12.2000 IS
 		   + Проверяем, сохранены ли все измененные файлы. Если нет, то не выходим
@@ -736,7 +736,7 @@ void Manager::ExitMainLoop(int Ask)
 			//      глюки, например, при перезагрузке
 			FilePanels *cp;
 
-			if ((cp = CtrlObject->Cp()) == nullptr
+			if (!(cp = CtrlObject->Cp())
 			        || (!cp->LeftPanel->ProcessPluginEvent(FE_CLOSE,nullptr) && !cp->RightPanel->ProcessPluginEvent(FE_CLOSE,nullptr)))
 				EndLoop=TRUE;
 		}
@@ -974,7 +974,7 @@ int Manager::ProcessKey(DWORD Key)
 
 				case KEY_CTRLW:
 					ShowProcessList();
-					return(TRUE);
+					return TRUE;
 				case KEY_F11:
 					PluginsMenu();
 					FrameManager->RefreshFrame();
@@ -1192,7 +1192,7 @@ BOOL Manager::IsPanelsActive()
 
 Frame *Manager::operator[](int Index)
 {
-	if (Index<0 || Index>=FrameCount || FrameList==0)
+	if (Index<0 || Index>=FrameCount || !FrameList)
 	{
 		return nullptr;
 	}
@@ -1318,7 +1318,7 @@ void Manager::DeactivateCommit()
 
 	if (!ActivatedFrame)
 	{
-		_MANAGER("WARNING! ActivatedFrame == nullptr");
+		_MANAGER("WARNING! !ActivatedFrame");
 	}
 
 	if (DeactivatedFrame)

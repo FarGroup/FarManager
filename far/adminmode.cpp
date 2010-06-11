@@ -464,7 +464,7 @@ bool AdminMode::fCreateDirectory(LPCWSTR Object, LPSECURITY_ATTRIBUTES Attribute
 						{
 							if(ReceiveLastError())
 							{
-								Result = OpResult !=0;
+								Result = OpResult != 0;
 							}
 						}
 					}
@@ -534,7 +534,7 @@ bool AdminMode::fDeleteFile(LPCWSTR Object)
 						{
 							if(ReceiveLastError())
 							{
-								Result = OpResult !=0;
+								Result = OpResult != 0;
 							}
 						}
 					}
@@ -672,7 +672,7 @@ bool AdminMode::fMoveFileEx(LPCWSTR From, LPCWSTR To, DWORD Flags)
 								{
 									if(ReceiveLastError())
 									{
-										Result = OpResult !=0;
+										Result = OpResult != 0;
 									}
 								}
 							}
@@ -746,7 +746,7 @@ bool AdminMode::fSetFileAttributes(LPCWSTR Object, DWORD FileAttributes)
 							{
 								if(ReceiveLastError())
 								{
-									Result = OpResult !=0;
+									Result = OpResult != 0;
 								}
 							}
 						}
@@ -825,7 +825,7 @@ bool AdminMode::fCreateSymbolicLink(LPCWSTR Object, LPCWSTR Target, DWORD Flags)
 								{
 									if(ReceiveLastError())
 									{
-										Result = OpResult !=0;
+										Result = OpResult != 0;
 									}
 								}
 							}
@@ -1014,7 +1014,7 @@ bool AdminMode::fSetOwner(LPCWSTR Object, LPCWSTR Owner)
 							{
 								if(ReceiveLastError())
 								{
-									Result = OpResult !=0;
+									Result = OpResult != 0;
 								}
 							}
 						}

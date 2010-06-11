@@ -4,7 +4,7 @@
 DList.hpp
 Шаблон работы с двусвязным списком.
 Type должен иметь конструктор по умолчанию, если используются методы
-Push, Unshift, InsertBefore или InsertAfter с item!=nullptr должен так же
+Push, Unshift, InsertBefore или InsertAfter с item должен так же
 существовать оператор копирования:
       const Type& operator=(const Type &)
 */
@@ -58,7 +58,7 @@ class CDList
 	public:
 		void Clear();
 		size_t Count()const {return count;};
-		bool Empty()const {return count==0;};
+		bool Empty()const {return !count;};
 };
 
 template <typename Type>

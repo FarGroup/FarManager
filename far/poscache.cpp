@@ -62,7 +62,7 @@ FilePositionCache::FilePositionCache():
 
 	Names=new string[Opt.MaxPositionCache];
 
-	if (Names != nullptr)
+	if (Names )
 	{
 		Param=(BYTE*)xf_malloc(MSIZE_PARAM);
 		Position=(BYTE*)xf_malloc(MSIZE_POSITION);
@@ -189,7 +189,7 @@ int FilePositionCache::FindPosition(const wchar_t *FullName)
 		else
 			CmpRes = StrCmpI(Names[Pos],FullName);
 
-		if (CmpRes == 0)
+		if (!CmpRes)
 			return Pos;
 	}
 

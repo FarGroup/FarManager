@@ -732,8 +732,8 @@ int GetColorDialog(WORD& Color,bool bCentered,bool bAddTransparent)
 		else
 			Color&=0x0FFF;
 
-		return(TRUE);
+		return TRUE;
 	}
 
-	return(FALSE);
+	return FALSE;
 }

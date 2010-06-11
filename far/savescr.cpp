@@ -140,7 +140,7 @@ void SaveScreen::AppendArea(SaveScreen *NewArea)
 {
 	CHAR_INFO *Buf=ScreenBuf,*NewBuf=NewArea->ScreenBuf;
 
-	if (Buf==nullptr || NewBuf==nullptr)
+	if (!Buf || !NewBuf)
 		return;
 
 	for (int X=X1; X<=X2; X++)

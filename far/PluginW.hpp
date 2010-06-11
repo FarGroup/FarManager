@@ -169,7 +169,7 @@ class PluginW: public Plugin
 		bool HasProcessViewerEvent() { return pProcessViewerEventW!=nullptr; }
 		bool HasProcessDialogEvent() { return pProcessDialogEventW!=nullptr; }
 		bool HasProcessSynchroEvent() { return pProcessSynchroEventW!=nullptr; }
-		bool HasAnalyse() { return pAnalyseW != nullptr; }
+		bool HasAnalyse() { return pAnalyseW!=nullptr; }
 
 		const string &GetModuleName() { return m_strModuleName; }
 		const wchar_t *GetCacheName() { return m_strCacheName; }

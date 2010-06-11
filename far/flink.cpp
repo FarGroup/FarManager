@@ -579,7 +579,7 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 		else
 			++PtrSelName;
 
-		if (SelName[1] == L':' && (SelName[2] == 0 || (IsSlash(SelName[2]) && SelName[3] == 0))) // C: или C:/
+		if (SelName[1] == L':' && (!SelName[2] || (IsSlash(SelName[2]) && !SelName[3]))) // C: или C:/
 		{
 //      if(Flags&FCOPY_VOLMOUNT)
 			{
@@ -657,7 +657,7 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 							if (LinkType==RP_VOLMOUNT)
 							{
 								strMsgBuf.Format(MSG(MCopyMountVolFailed), SelName);
-								strMsgBuf2.Format(MSG(MCopyMountVolFailed2), (const wchar_t *)strDestFullName);
+								strMsgBuf2.Format(MSG(MCopyMountVolFailed2), strDestFullName.CPtr());
 								Message(MSG_WARNING,1,MSG(MError),
 								        strMsgBuf,
 								        strMsgBuf2,

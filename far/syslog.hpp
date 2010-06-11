@@ -43,35 +43,35 @@ void ShowHeap();
 void CheckHeap(int NumLine);
 
 string __FARKEY_ToName(int Key);
-#define _FARKEY_ToName(K) (const wchar_t*)__FARKEY_ToName(K)
+#define _FARKEY_ToName(K) __FARKEY_ToName(K).CPtr()
 string __MCODE_ToName(int OpCode);
-#define _MCODE_ToName(K) (const wchar_t*)__MCODE_ToName(K)
+#define _MCODE_ToName(K) __MCODE_ToName(K).CPtr()
 string __VK_KEY_ToName(int VkKey);
-#define _VK_KEY_ToName(K) (const wchar_t*)__VK_KEY_ToName(K)
+#define _VK_KEY_ToName(K) __VK_KEY_ToName(K).CPtr()
 string __ECTL_ToName(int Command);
-#define _ECTL_ToName(K) (const wchar_t*)__ECTL_ToName(K)
+#define _ECTL_ToName(K) __ECTL_ToName(K).CPtr()
 string __EE_ToName(int Command);
-#define _EE_ToName(K) (const wchar_t*)__EE_ToName(K)
+#define _EE_ToName(K) __EE_ToName(K).CPtr()
 string __EEREDRAW_ToName(int Command);
-#define _EEREDRAW_ToName(K) (const wchar_t*)__EEREDRAW_ToName(K)
+#define _EEREDRAW_ToName(K) __EEREDRAW_ToName(K).CPtr()
 string __ESPT_ToName(int Command);
-#define _ESPT_ToName(K) (const wchar_t*)__ESPT_ToName(K)
+#define _ESPT_ToName(K) __ESPT_ToName(K).CPtr()
 string __VE_ToName(int Command);
-#define _VE_ToName(K) (const wchar_t*)__VE_ToName(K)
+#define _VE_ToName(K) __VE_ToName(K).CPtr()
 string __FCTL_ToName(int Command);
-#define _FCTL_ToName(K) (const wchar_t*)__FCTL_ToName(K)
+#define _FCTL_ToName(K) __FCTL_ToName(K).CPtr()
 string __DLGMSG_ToName(int Msg);
-#define _DLGMSG_ToName(K) (const wchar_t*)__DLGMSG_ToName(K)
+#define _DLGMSG_ToName(K) __DLGMSG_ToName(K).CPtr()
 string __ACTL_ToName(int Command);
-#define _ACTL_ToName(K) (const wchar_t*)__ACTL_ToName(K)
+#define _ACTL_ToName(K) __ACTL_ToName(K).CPtr()
 string __VCTL_ToName(int Command);
-#define _VCTL_ToName(K) (const wchar_t*)__VCTL_ToName(K)
+#define _VCTL_ToName(K) __VCTL_ToName(K).CPtr()
 string __INPUT_RECORD_Dump(INPUT_RECORD *Rec);
-#define _INPUT_RECORD_Dump(K) (const wchar_t*)__INPUT_RECORD_Dump(K)
+#define _INPUT_RECORD_Dump(K) __INPUT_RECORD_Dump(K).CPtr()
 string __MOUSE_EVENT_RECORD_Dump(MOUSE_EVENT_RECORD *Rec);
-#define _MOUSE_EVENT_RECORD_Dump(K) (const wchar_t*)__MOUSE_EVENT_RECORD_Dump(K)
+#define _MOUSE_EVENT_RECORD_Dump(K) __MOUSE_EVENT_RECORD_Dump(K).CPtr()
 string __SysLog_LinearDump(LPBYTE Buf,int SizeBuf);
-#define _SysLog_LinearDump(B,S) (const wchar_t*)__SysLog_LinearDump((B),(S))
+#define _SysLog_LinearDump(B,S) __SysLog_LinearDump((B),(S)).CPtr()
 
 void GetOpenPluginInfo_Dump(const wchar_t *Title,const struct OpenPluginInfo *Info,FILE *fp);
 void INPUT_RECORD_DumpBuffer(FILE *fp=nullptr);
