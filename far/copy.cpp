@@ -1939,7 +1939,9 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 				}
 
 				if ((UseFilter || !SameDisk) || ((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (Flags&FCOPY_COPYSYMLINKCONTENTS)))
+				{
 					CopyCode=COPY_FAILURE;
+				}
 				else
 				{
 					do

@@ -263,8 +263,9 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	//BUGBUG!!! // что это?
 	::FindFile Find(L"*");
 	DWORD FindErrorCode = ERROR_SUCCESS;
-	bool UseFilter=Filter && Filter->IsEnabledOnPanel();
-	while(Find.Get(fdata))
+	bool UseFilter=Filter->IsEnabledOnPanel();
+
+	while (Find.Get(fdata))
 	{
 		FindErrorCode = GetLastError();
 
@@ -740,6 +741,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	CtrlObject->HiFiles->UpdateCurrentTime();
 	int DotsPresent=FALSE;
 	int FileListCount=0;
+	bool UseFilter=Filter->IsEnabledOnPanel();
 
 	for (int i=0; i < FileCount; i++)
 	{
@@ -747,8 +749,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 		FileListItem *CurListData=ListData[FileListCount];
 		CurListData->Clear();
 
-		if (Info.Flags & OPIF_USEFILTER)
-
+		if (UseFilter && (Info.Flags & OPIF_USEFILTER))
 			//if (!(CurPanelData->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 			if (!Filter->FileInFilter(&PanelData[i].FindData))
 				continue;
