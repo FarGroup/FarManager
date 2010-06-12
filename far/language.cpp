@@ -380,7 +380,7 @@ FILE* Language::OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar
 		{
 			OldGetFileFormat(LangFile, nCodePage, nullptr, false);
 
-			if (!GetLangParam(LangFile,L"Language",&strLangName,nullptr, nCodePage) && StrCmpI(strLangName,Language))
+			if (GetLangParam(LangFile,L"Language",&strLangName,nullptr, nCodePage) && !StrCmpI(strLangName,Language))
 				break;
 
 			fclose(LangFile);
