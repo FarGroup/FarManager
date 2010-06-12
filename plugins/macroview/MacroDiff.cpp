@@ -68,7 +68,7 @@ LONG_PTR WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
     case DN_RESIZECONSOLE:
     {
       COORD coord=(*(COORD*)Param2);
-      Macro->csbi.dwSize=coord;
+      Macro->ConsoleSize=coord;
 //      Macro->SaveBar=Info.SaveScreen(0,0,-1,-1);
       Macro->WriteKeyBar(KB_COMMON);
       Macro->FillMenu(hDlg,FALSE);
@@ -1043,6 +1043,27 @@ TMacroView::~TMacroView()
   }
 }
 
+void __fastcall TMacroView::ReadConsoleSize()
+{
+  SHORT x=80, y=25;
+#ifndef UNICODE
+  CONSOLE_SCREEN_BUFFER_INFO csbi;
+  if (GetConsoleScreenBufferInfo(hOut,&csbi))
+  {
+    x=csbi.dwSize.X;
+    y=csbi.dwSize.Y;
+  }
+#else
+  SMALL_RECT console_rect;
+  if (Info.AdvControl(Info.ModuleNumber,ACTL_GETFARRECT,(void*)&console_rect))
+  {
+    x=console_rect.Right-console_rect.Left+1;
+    y=console_rect.Bottom-console_rect.Top+1;
+  }
+#endif
+  ConsoleSize.X=x;
+  ConsoleSize.Y=y;
+}
 
 void __fastcall TMacroView::InitMacroAreas()
 {
@@ -1257,7 +1278,7 @@ void __fastcall TMacroView::InitData()
   EditX1=EditY1=EditX2=EditY2=0;
   *Group=*Key=0;
 
-  GetConsoleScreenBufferInfo(hOut,&csbi);
+  ReadConsoleSize();
   ReadConfig();
 
   if (MacroData)
@@ -1304,12 +1325,12 @@ void __fastcall TMacroView::InitData()
 void __fastcall TMacroView::WriteKeyBar(int kbType)
 {
   SMALL_RECT rect;
-  GetConsoleScreenBufferInfo(hOut,&csbi);
+  ReadConsoleSize();
 
   if (MenuDlg)
   {
     Info.SendDlgMessage(MenuDlg,DM_GETDLGRECT,0,(LONG_PTR)&rect);
-    if (rect.Bottom>=csbi.dwSize.Y-1)
+    if (rect.Bottom>=ConsoleSize.Y-1)
       return;
     if (HelpActivated)
       return;
@@ -1317,13 +1338,11 @@ void __fastcall TMacroView::WriteKeyBar(int kbType)
   if (EditDlg)
   {
     Info.SendDlgMessage(EditDlg,DM_GETDLGRECT,0,(LONG_PTR)&rect);
-    if (rect.Bottom>=csbi.dwSize.Y-1)
+    if (rect.Bottom>=ConsoleSize.Y-1)
       return;
     if (HelpActivated)
       return;
   }
-  if ((csbi.dwCursorPosition.Y==csbi.dwSize.Y-1) && (OpenFrom==OPEN_PLUGINSMENU))
-    return;
 
   TCHAR *KeyBarCommon[12]={GetMsg(MMacroKBHelp),
     GetMsg(MMacroKBSave),NULL,GetMsg(MMacroKBEdit),
@@ -1364,7 +1383,7 @@ void __fastcall TMacroView::WriteKeyBar(int kbType)
   TCHAR *KeyBar[12];
 
   //Узнаем ширину экрана консоли
-  //int ScrWidth=csbi.dwSize.X+1;
+  //int ScrWidth=ConsoleSize.X+1;
 
   switch(kbType)
   {
@@ -1389,18 +1408,18 @@ void __fastcall TMacroView::WriteKeyBar(int kbType)
   }
 
   int i,j,k;
-  CHAR_INFO *chi=new CHAR_INFO[csbi.dwSize.X];
+  CHAR_INFO *chi=new CHAR_INFO[ConsoleSize.X];
 
   COORD Size,Coord;
   SMALL_RECT Region;
-  Size.X=csbi.dwSize.X;
+  Size.X=ConsoleSize.X;
   Size.Y=1;
   Coord.X=0;
   Coord.Y=0;
   Region.Left=0;
-  Region.Top=csbi.dwSize.Y-1;
-  Region.Right=csbi.dwSize.X-1;
-  Region.Bottom=csbi.dwSize.Y-1;
+  Region.Top=ConsoleSize.Y-1;
+  Region.Right=ConsoleSize.X-1;
+  Region.Bottom=ConsoleSize.Y-1;
 
   ReadConsoleOutput(hOut,chi,Size,Coord,&Region);
 
@@ -1413,12 +1432,12 @@ void __fastcall TMacroView::WriteKeyBar(int kbType)
 #endif
   if (chi[0].Char._CH==_T('1') && chi[0].Attributes==ColDigit && chi[1].Attributes==ColText)
   {
-    for (i=0,j=1;j<csbi.dwSize.X;i++)
+    for (i=0,j=1;j<ConsoleSize.X;i++)
     {
       if (KeyBar[i] && *KeyBar[i])
       {
         k=0;
-        while (chi[j].Attributes==ColText && j<csbi.dwSize.X)
+        while (chi[j].Attributes==ColText && j<ConsoleSize.X)
         {
           if (KeyBar[i][k]!=0)
             chi[j++].Char._CH=KeyBar[i][k++];
@@ -1428,14 +1447,14 @@ void __fastcall TMacroView::WriteKeyBar(int kbType)
       }
       else
       {
-        while (chi[j].Attributes==ColText && j<csbi.dwSize.X)
+        while (chi[j].Attributes==ColText && j<ConsoleSize.X)
         {
           chi[j++].Char._CH=_T(' ');
         }
       }
 #undef _CH
 
-      while(chi[j].Attributes!=ColText && j<csbi.dwSize.X)
+      while(chi[j].Attributes!=ColText && j<ConsoleSize.X)
         j++;
     }
 
@@ -2706,7 +2725,7 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
         CheckLen(Str,KeyWidth);
         lstrcat(Str,_T(":"));
         FSF.sprintf(S,_T("%-*s  \"%s\""),KeyWidth+1,Str,(Key[0]==_T('~') && lstrlen(Key)>1)?&Key[1]:Key);
-        CheckLen(S,(csbi.dwSize.X-12>MAXMENULEN) ? MAXMENULEN : csbi.dwSize.X-12);
+        CheckLen(S,(ConsoleSize.X-12>MAXMENULEN) ? MAXMENULEN : ConsoleSize.X-12);
         if (Key[0]==_T('~') && lstrlen(Key)>1)
         {
           Str[0]=_T('~');
@@ -2795,7 +2814,7 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
           ListItems/*[i]*/.Flags=(S[0]==_T('~'))?LIF_CHECKED|_T('-'):0;
           if (S[0]==_T('~'))
             memmove(S,&S[1],sizeof(S)-sizeof(S[0]));
-          CheckLen(S,(csbi.dwSize.X-12>MAXMENULEN)?MAXMENULEN:csbi.dwSize.X-12);
+          CheckLen(S,(ConsoleSize.X-12>MAXMENULEN)?MAXMENULEN:ConsoleSize.X-12);
 #ifndef UNICODE
           lstrcpy(ListItems/*[i]*/.Text,S);
 #else
@@ -2849,8 +2868,8 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
     ListPos.TopPos=TopPos;
   }
 
-  MenuW=(MaxMenuItemLen+8>csbi.dwSize.X)?csbi.dwSize.X-10:MaxMenuItemLen+8;
-  MenuH=(MenuItemsNumber+10>csbi.dwSize.Y)?csbi.dwSize.Y-6:MenuItemsNumber+4;
+  MenuW=(MaxMenuItemLen+8>ConsoleSize.X)?ConsoleSize.X-10:MaxMenuItemLen+8;
+  MenuH=(MenuItemsNumber+10>ConsoleSize.Y)?ConsoleSize.Y-6:MenuItemsNumber+4;
   if (MenuH<5)
     MenuH=5;
 
@@ -2871,8 +2890,8 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
 
 /*  if (MenuX==-1 && MenuY==-1) // MenuX и MenuY равны -1, значит первый вызов и диалог центрируется.
   {
-    MenuX=(csbi.dwSize.X-MenuW)/2;
-    MenuY=(csbi.dwSize.Y-MenuH)/2;
+    MenuX=(ConsoleSize.X-MenuW)/2;
+    MenuY=(ConsoleSize.Y-MenuH)/2;
   }*/
 
   Coord.X=MenuX;
@@ -3318,8 +3337,8 @@ INSERT_RETRY:
   ActiveMode=MAC_EDITACTIVE;
   EditMode=EM_INSERT;
 
-  EditX1=(csbi.dwSize.X-DIALOGWID)/2;
-  EditY1=(csbi.dwSize.Y-1-DIALOGHGT)/2;
+  EditX1=(ConsoleSize.X-DIALOGWID)/2;
+  EditY1=(ConsoleSize.Y-1-DIALOGHGT)/2;
   EditX2=EditX1+DIALOGWID-1;
   EditY2=EditY1+DIALOGHGT-1;
 
@@ -3786,8 +3805,8 @@ EDIT_RETRY:
       ActiveMode=MAC_EDITACTIVE;
       EditMode=EM_EDIT;
 
-      EditX1=(csbi.dwSize.X-DIALOGWID)/2;
-      EditY1=(csbi.dwSize.Y-1-DIALOGHGT)/2;
+      EditX1=(ConsoleSize.X-DIALOGWID)/2;
+      EditY1=(ConsoleSize.Y-1-DIALOGHGT)/2;
       EditX2=EditX1+DIALOGWID-1;
       EditY2=EditY1+DIALOGHGT-1;
 

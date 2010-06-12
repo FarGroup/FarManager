@@ -243,7 +243,7 @@ class TMacroView
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
     WIN32_FIND_DATA fData;
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    COORD ConsoleSize;
 
     TCHAR         S[MAX_PATH_LEN],
                   Str[MAX_PATH_LEN],
@@ -319,6 +319,7 @@ class TMacroView
     void          __fastcall SetFocus(int Focus);
     BOOL          __fastcall InsertMacro();
     BOOL          __fastcall EditMacro();
+    void          __fastcall ReadConsoleSize();
 };
 
 TReg *Reg=NULL;
