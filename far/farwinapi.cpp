@@ -219,7 +219,7 @@ bool File::Eof()
 	GetPointer(Ptr);
 	UINT64 Size=0;
 	GetSize(Size);
-	return Ptr==Size;
+	return static_cast<UINT64>(Ptr)==Size;
 }
 
 NTSTATUS GetLastNtStatus()

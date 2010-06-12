@@ -97,7 +97,7 @@ static int SetFileCompression(const wchar_t *Name,int State)
 
 int ESetFileCompression(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode)
 {
-	if (((FileAttr & FILE_ATTRIBUTE_COMPRESSED)) == State)
+	if (((FileAttr & FILE_ATTRIBUTE_COMPRESSED)!=0) == State)
 		return SETATTR_RET_OK;
 
 	int Ret=SETATTR_RET_OK;
@@ -153,7 +153,7 @@ static int SetFileEncryption(const wchar_t *Name,int State)
 
 int ESetFileEncryption(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode,int Silent)
 {
-	if (((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)) == State)
+	if (((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0) == State)
 		return SETATTR_RET_OK;
 
 	int Ret=SETATTR_RET_OK;

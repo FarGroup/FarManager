@@ -2302,7 +2302,7 @@ void Edit::ReplaceTabs()
 
 	bool changed=false;
 
-	while (TabPtr=(wchar_t *)wmemchr(Str+Pos,L'\t',StrSize-Pos))
+	while ((TabPtr=(wchar_t *)wmemchr(Str+Pos,L'\t',StrSize-Pos)))
 	{
 		changed=true;
 		Pos=(int)(TabPtr-Str);

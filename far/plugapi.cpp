@@ -205,7 +205,7 @@ BOOL WINAPI FarShowHelp(
 			else
 				return FALSE;
 
-			strTopic.Format(HelpFormatLink,strPath,HelpTopic);
+			strTopic.Format(HelpFormatLink,strPath.CPtr(),HelpTopic);
 		}
 		else
 			return FALSE;

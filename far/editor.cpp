@@ -3873,7 +3873,7 @@ void Editor::Paste(const wchar_t *Src)
 		if (!clip.Open())
 			return;
 
-		if (ClipText=clip.PasteFormat(FAR_VerticalBlock_Unicode))
+		if ((ClipText=clip.PasteFormat(FAR_VerticalBlock_Unicode)))
 		{
 			VPaste(ClipText);
 			clip.Close();

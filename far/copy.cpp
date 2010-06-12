@@ -2363,7 +2363,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				string strOldPath, strNewPath;
 				const wchar_t *path=PathPtr,*p1=nullptr;
 
-				while (p1=FirstSlash(path))
+				while ((p1=FirstSlash(path)))
 				{
 					DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
 					FAR_FIND_DATA_EX FileData;
