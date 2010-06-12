@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 2.0 build 1547
+  Plugin API for FAR Manager 2.0 build 1587
 */
 
 /*
@@ -42,7 +42,7 @@ other possible license with no implications from the above license on them.
 
 #define FARMANAGERVERSION_MAJOR 2
 #define FARMANAGERVERSION_MINOR 0
-#define FARMANAGERVERSION_BUILD 1547
+#define FARMANAGERVERSION_BUILD 1587
 
 #ifndef RC_INVOKED
 
@@ -945,6 +945,9 @@ enum ADVANCED_CONTROL_COMMANDS
 	ACTL_SETPROGRESSSTATE     = 29,
 	ACTL_SETPROGRESSVALUE     = 30,
 	ACTL_QUIT                 = 31,
+	ACTL_GETFARRECT           = 32,
+	ACTL_GETCURSORPOS         = 33,
+	ACTL_SETCURSORPOS         = 34,
 };
 
 
