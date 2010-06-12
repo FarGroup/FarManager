@@ -52,6 +52,7 @@ class FileEditor;
 class Viewer;
 class Frame;
 class Panel;
+struct FileListItem;
 
 enum
 {
@@ -250,6 +251,8 @@ class PluginManager
 		int ProcessEditorEvent(int Event,void *Param);
 		int ProcessViewerEvent(int Event,void *Param);
 		int ProcessDialogEvent(int Event,void *Param);
+
+		void GetCustomData(FileListItem *ListItem);
 
 		friend class Plugin;
 };

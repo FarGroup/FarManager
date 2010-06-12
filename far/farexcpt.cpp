@@ -66,38 +66,41 @@ LPCWSTR GetFunctionName(int ExceptFunctionType)
 {
 	switch(ExceptFunctionType)
 	{
-	case EXCEPT_KERNEL: return L"";
-	case EXCEPT_SETSTARTUPINFO: return L"SetStartupInfo";
-	case EXCEPT_GETVIRTUALFINDDATA: return L"GetVirtualFindData";
-	case EXCEPT_OPENPLUGIN: return L"OpenPlugin";
-	case EXCEPT_OPENFILEPLUGIN: return L"OpenFilePlugin";
-	case EXCEPT_CLOSEPLUGIN: return L"ClosePlugin";
-	case EXCEPT_GETPLUGININFO: return L"GetPluginInfo";
-	case EXCEPT_GETOPENPLUGININFO: return L"GetOpenPluginInfo";
-	case EXCEPT_GETFINDDATA: return L"GetFindData";
-	case EXCEPT_FREEFINDDATA: return L"FreeFindData";
-	case EXCEPT_FREEVIRTUALFINDDATA: return L"FreeVitrualFindData";
-	case EXCEPT_SETDIRECTORY: return L"SetDirectory";
-	case EXCEPT_GETFILES: return L"GetFiles";
-	case EXCEPT_PUTFILES: return L"PutFiles";
-	case EXCEPT_DELETEFILES: return L"DeleteFiles";
-	case EXCEPT_MAKEDIRECTORY: return L"MakeDirectory";
-	case EXCEPT_PROCESSHOSTFILE: return L"ProcessHostFile";
-	case EXCEPT_SETFINDLIST: return L"SetFindList";
-	case EXCEPT_CONFIGURE: return L"Configure";
-	case EXCEPT_EXITFAR: return L"ExitFAR";
-	case EXCEPT_PROCESSKEY: return L"ProcessKey";
-	case EXCEPT_PROCESSEVENT: return L"ProcessEvent";
-	case EXCEPT_PROCESSEDITOREVENT: return L"ProcessEditorEvent";
-	case EXCEPT_COMPARE: return L"Compare";
-	case EXCEPT_PROCESSEDITORINPUT: return L"ProcessEditorInput";
-	case EXCEPT_MINFARVERSION: return L"GetMinFarVersion";
-	case EXCEPT_PROCESSVIEWEREVENT: return L"ProcessViewerEvent";
-	case EXCEPT_PROCESSVIEWERINPUT: return L"ProcessViewerInput";
-	case EXCEPT_PROCESSDIALOGEVENT: return L"ProcessDialogEvent";
-	case EXCEPT_PROCESSSYNCHROEVENT: return L"ProcessSynchroEvent";
-	case EXCEPT_ANALYSE: return L"Analyse";
+		case EXCEPT_KERNEL: return L"";
+		case EXCEPT_SETSTARTUPINFO: return L"SetStartupInfo";
+		case EXCEPT_GETVIRTUALFINDDATA: return L"GetVirtualFindData";
+		case EXCEPT_OPENPLUGIN: return L"OpenPlugin";
+		case EXCEPT_OPENFILEPLUGIN: return L"OpenFilePlugin";
+		case EXCEPT_CLOSEPLUGIN: return L"ClosePlugin";
+		case EXCEPT_GETPLUGININFO: return L"GetPluginInfo";
+		case EXCEPT_GETOPENPLUGININFO: return L"GetOpenPluginInfo";
+		case EXCEPT_GETFINDDATA: return L"GetFindData";
+		case EXCEPT_FREEFINDDATA: return L"FreeFindData";
+		case EXCEPT_FREEVIRTUALFINDDATA: return L"FreeVitrualFindData";
+		case EXCEPT_SETDIRECTORY: return L"SetDirectory";
+		case EXCEPT_GETFILES: return L"GetFiles";
+		case EXCEPT_PUTFILES: return L"PutFiles";
+		case EXCEPT_DELETEFILES: return L"DeleteFiles";
+		case EXCEPT_MAKEDIRECTORY: return L"MakeDirectory";
+		case EXCEPT_PROCESSHOSTFILE: return L"ProcessHostFile";
+		case EXCEPT_SETFINDLIST: return L"SetFindList";
+		case EXCEPT_CONFIGURE: return L"Configure";
+		case EXCEPT_EXITFAR: return L"ExitFAR";
+		case EXCEPT_PROCESSKEY: return L"ProcessKey";
+		case EXCEPT_PROCESSEVENT: return L"ProcessEvent";
+		case EXCEPT_PROCESSEDITOREVENT: return L"ProcessEditorEvent";
+		case EXCEPT_COMPARE: return L"Compare";
+		case EXCEPT_PROCESSEDITORINPUT: return L"ProcessEditorInput";
+		case EXCEPT_MINFARVERSION: return L"GetMinFarVersion";
+		case EXCEPT_PROCESSVIEWEREVENT: return L"ProcessViewerEvent";
+		case EXCEPT_PROCESSVIEWERINPUT: return L"ProcessViewerInput";
+		case EXCEPT_PROCESSDIALOGEVENT: return L"ProcessDialogEvent";
+		case EXCEPT_PROCESSSYNCHROEVENT: return L"ProcessSynchroEvent";
+		case EXCEPT_ANALYSE: return L"Analyse";
+		case EXCEPT_GETCUSTOMDATA: return L"GetCustomData";
+		case EXCEPT_FREECUSTOMDATA: return L"FreeCustomData";
 	}
+
 	return L"";
 };
 

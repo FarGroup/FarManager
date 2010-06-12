@@ -264,6 +264,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	::FindFile Find(L"*");
 	DWORD FindErrorCode = ERROR_SUCCESS;
 	bool UseFilter=Filter->IsEnabledOnPanel();
+	bool ReadCustomData=IsColumnDisplayed(CUSTOM_COLUMN0)!=0;
 
 	while (Find.Get(fdata))
 	{
@@ -340,6 +341,9 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 			{
 				EnumStreams(TestParentFolderName(fdata.strFileName)?strCurDir:fdata.strFileName,NewPtr->StreamsSize,NewPtr->NumberOfStreams);
 			}
+
+			if (ReadCustomData)
+				CtrlObject->Plugins.GetCustomData(NewPtr);
 
 			if (NeedHighlight)
 				CtrlObject->HiFiles->GetHiColor(&NewPtr,1);

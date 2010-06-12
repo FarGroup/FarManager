@@ -130,7 +130,7 @@ void FileList::SetFilePanelModes()
 		} ;
 		DialogDataEx ModeDlgData[]=
 		{
-			DI_DOUBLEBOX, 3, 1,72,16,0,0,MSG((int)(DWORD_PTR)ModeListMenu[ModeNumber].Name),
+			DI_DOUBLEBOX, 3, 1,72,16,0,0,ModeListMenu[ModeNumber].Name,
 			DI_TEXT,      5, 2, 0, 2,0,0,MSG(MEditPanelModeTypes),
 			DI_EDIT,      5, 3,35, 3,0,DIF_FOCUS,L"",
 			DI_TEXT,      5, 4, 0, 4,0,0,MSG(MEditPanelModeWidths),

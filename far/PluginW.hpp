@@ -36,8 +36,6 @@ class PluginManager;
 #include "plclass.hpp"
 
 
-typedef int (WINAPI *PLUGINANALYSEW)(const AnalyseData *pData);
-
 typedef void (WINAPI *PLUGINCLOSEPLUGINW)(HANDLE hPlugin);
 typedef int (WINAPI *PLUGINCOMPAREW)(HANDLE hPlugin,const PluginPanelItem *Item1,const PluginPanelItem *Item2,unsigned int Mode);
 typedef int (WINAPI *PLUGINCONFIGUREW)(int ItemNumber);
@@ -66,8 +64,9 @@ typedef void (WINAPI *PLUGINSETSTARTUPINFOW)(const PluginStartupInfo *Info);
 typedef int (WINAPI *PLUGINPROCESSVIEWEREVENTW)(int Event,void *Param); //* $ 27.09.2000 SVS -  События во вьювере
 typedef int (WINAPI *PLUGINPROCESSDIALOGEVENTW)(int Event,void *Param);
 typedef int (WINAPI *PLUGINPROCESSSYNCHROEVENTW)(int Event,void *Param);
-
-
+typedef int (WINAPI *PLUGINANALYSEW)(const AnalyseData *pData);
+typedef int (WINAPI *PLUGINGETCUSTOMDATAW)(const wchar_t *FilePath, wchar_t **CustomData);
+typedef void (WINAPI *PLUGINFREECUSTOMDATAW)(wchar_t *CustomData);
 
 
 class PluginW: public Plugin
@@ -124,6 +123,8 @@ class PluginW: public Plugin
 		PLUGINPROCESSDIALOGEVENTW    pProcessDialogEventW;
 		PLUGINPROCESSSYNCHROEVENTW   pProcessSynchroEventW;
 		PLUGINANALYSEW               pAnalyseW;
+		PLUGINGETCUSTOMDATAW         pGetCustomDataW;
+		PLUGINFREECUSTOMDATAW        pFreeCustomDataW;
 
 	public:
 
@@ -170,6 +171,8 @@ class PluginW: public Plugin
 		bool HasProcessDialogEvent() { return pProcessDialogEventW!=nullptr; }
 		bool HasProcessSynchroEvent() { return pProcessSynchroEventW!=nullptr; }
 		bool HasAnalyse() { return pAnalyseW!=nullptr; }
+		bool HasGetCustomData()  { return pGetCustomDataW!=nullptr; }
+		bool HasFreeCustomData() { return pFreeCustomDataW!=nullptr; }
 
 		const string &GetModuleName() { return m_strModuleName; }
 		const wchar_t *GetCacheName() { return m_strCacheName; }
@@ -204,6 +207,9 @@ class PluginW: public Plugin
 		int ProcessKey(HANDLE hPlugin, int Key, unsigned int dwControlState);
 		int ProcessEvent(HANDLE hPlugin, int Event, PVOID Param);
 		int Compare(HANDLE hPlugin, const PluginPanelItem *Item1, const PluginPanelItem *Item2, unsigned long Mode);
+
+		int GetCustomData(const wchar_t *FilePath, wchar_t **CustomData);
+		void FreeCustomData(wchar_t *CustomData);
 
 		void GetOpenPluginInfo(HANDLE hPlugin, OpenPluginInfo *Info);
 		void FreeFindData(HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber);

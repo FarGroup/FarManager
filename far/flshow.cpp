@@ -930,7 +930,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 						ColumnData=ListData[ListPos]->CustomColumnData[ColumnNumber];
 
 					if (!ColumnData)
-						ColumnData=L"";
+						ColumnData=ListData[ListPos]->strCustomData;//L"";
 
 					int CurLeftPos=0;
 
@@ -949,6 +949,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								MaxLeftPos=CurLeftPos;
 						}
 					}
+
 					FS<<fmt::LeftAlign()<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<ColumnData+CurLeftPos;
 				}
 				else

@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "processname.hpp"
 #include "interf.hpp"
+#include "filelist.hpp"
 
 const wchar_t *FmtPluginsCache_PluginS=L"PluginsCache\\%s";
 const wchar_t *FmtDiskMenuStringD=L"DiskMenuString%d";
@@ -2108,4 +2109,26 @@ HANDLE PluginManager::OpenPlugin(Plugin *pPlugin,int OpenFrom,INT_PTR Item)
 	}
 
 	return hPlugin;
+}
+
+void PluginManager::GetCustomData(FileListItem *ListItem)
+{
+	string FilePath(NTPath(ListItem->strName).Str);
+
+	for (int i=0; i<PluginsCount; i++)
+	{
+		Plugin *pPlugin = PluginsData[i];
+
+		wchar_t *CustomData = NULL;
+
+		if (pPlugin->HasGetCustomData() && pPlugin->GetCustomData(FilePath.CPtr(), &CustomData))
+		{
+			if (!ListItem->strCustomData.IsEmpty())
+				ListItem->strCustomData += L" ";
+			ListItem->strCustomData += CustomData;
+
+			if (pPlugin->HasFreeCustomData())
+				pPlugin->FreeCustomData(CustomData);
+		}
+	}
 }

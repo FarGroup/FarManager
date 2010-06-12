@@ -170,6 +170,8 @@ class PluginA: public Plugin
 		bool HasProcessDialogEvent() { return pProcessDialogEvent!=nullptr; }
 		bool HasProcessSynchroEvent() { return false; }
 		bool HasAnalyse() { return false; }
+		bool HasGetCustomData()  { return false; }
+		bool HasFreeCustomData() { return false; }
 
 		const string &GetModuleName() { return m_strModuleName; }
 		const wchar_t *GetCacheName() { return m_strCacheName; }
@@ -203,6 +205,9 @@ class PluginA: public Plugin
 		int ProcessEvent(HANDLE hPlugin, int Event, PVOID Param);
 		int Compare(HANDLE hPlugin, const PluginPanelItem *Item1, const PluginPanelItem *Item2, unsigned long Mode);
 
+		int GetCustomData(const wchar_t *FilePath, wchar_t **CustomData) { return 0; }
+		void FreeCustomData(wchar_t *CustomData) {}
+
 		void GetOpenPluginInfo(HANDLE hPlugin, OpenPluginInfo *Info);
 		void FreeFindData(HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber);
 		void FreeVirtualFindData(HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber);
@@ -212,8 +217,9 @@ class PluginA: public Plugin
 		int ProcessEditorEvent(int Event, PVOID Param);
 		int ProcessViewerEvent(int Event, PVOID Param);
 		int ProcessDialogEvent(int Event, PVOID Param);
+		int ProcessSynchroEvent(int Event, PVOID Param) { return 0; }
 
-		int ProcessSynchroEvent(int Event, PVOID Param) {return 0;};
+		int Analyse(const AnalyseData *pData) { return FALSE; }
 
 		bool GetPluginInfo(PluginInfo *pi);
 		int Configure(int MenuItem);

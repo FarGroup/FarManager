@@ -44,7 +44,7 @@ class Plugin
 {
 	public:
 
-		virtual ~Plugin() { }
+		virtual ~Plugin() {}
 
 		virtual bool IsOemPlugin() = 0;
 
@@ -86,6 +86,8 @@ class Plugin
 		virtual bool HasProcessDialogEvent() = 0;
 		virtual bool HasProcessSynchroEvent() = 0;
 		virtual bool HasAnalyse() = 0;
+		virtual bool HasGetCustomData() = 0;
+		virtual bool HasFreeCustomData() = 0;
 
 		virtual const string &GetModuleName() = 0;
 		virtual const wchar_t *GetCacheName() = 0;
@@ -116,6 +118,9 @@ class Plugin
 		virtual int ProcessEvent(HANDLE hPlugin, int Event, PVOID Param) = 0;
 		virtual int Compare(HANDLE hPlugin, const PluginPanelItem *Item1, const PluginPanelItem *Item2, unsigned long Mode) = 0;
 
+		virtual int GetCustomData(const wchar_t *FilePath, wchar_t **CustomData) = 0;
+		virtual void FreeCustomData(wchar_t *CustomData) = 0;
+
 		virtual void GetOpenPluginInfo(HANDLE hPlugin, OpenPluginInfo *Info) = 0;
 		virtual void FreeFindData(HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber) = 0;
 		virtual void FreeVirtualFindData(HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber) = 0;
@@ -127,7 +132,7 @@ class Plugin
 		virtual int ProcessDialogEvent(int Event, PVOID Param) = 0;
 		virtual int ProcessSynchroEvent(int Event, PVOID Param) = 0;
 
-		virtual int Analyse(const AnalyseData *pData) { return FALSE; };
+		virtual int Analyse(const AnalyseData *pData) = 0;
 
 		virtual bool GetPluginInfo(PluginInfo *pi) = 0;
 		virtual int Configure(int MenuItem) = 0;

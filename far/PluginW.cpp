@@ -96,6 +96,8 @@ static const wchar_t wszReg_ProcessEvent[]=L"ProcessEventW";
 static const wchar_t wszReg_Compare[]=L"CompareW";
 static const wchar_t wszReg_GetMinFarVersion[]=L"GetMinFarVersionW";
 static const wchar_t wszReg_Analyse[] = L"AnalyseW";
+static const wchar_t wszReg_GetCustomData[] = L"GetCustomDataW";
+static const wchar_t wszReg_FreeCustomData[] = L"FreeCustomDataW";
 
 static const char NFMP_OpenPlugin[]="OpenPluginW";
 static const char NFMP_OpenFilePlugin[]="OpenFilePluginW";
@@ -126,6 +128,8 @@ static const char NFMP_ProcessEvent[]="ProcessEventW";
 static const char NFMP_Compare[]="CompareW";
 static const char NFMP_GetMinFarVersion[]="GetMinFarVersionW";
 static const char NFMP_Analyse[]="AnalyseW";
+static const char NFMP_GetCustomData[]="GetCustomDataW";
+static const char NFMP_FreeCustomData[]="FreeCustomDataW";
 
 
 static BOOL PrepareModulePath(const wchar_t *ModuleName)
@@ -232,6 +236,7 @@ bool PluginW::LoadFromCache(const FAR_FIND_DATA_EX &FindData)
 		pProcessSynchroEventW=(PLUGINPROCESSSYNCHROEVENTW)(INT_PTR)GetRegKey(strRegKey,wszReg_ProcessSynchroEvent,0);
 		pConfigureW=(PLUGINCONFIGUREW)(INT_PTR)GetRegKey(strRegKey,wszReg_Configure,0);
 		pAnalyseW=(PLUGINANALYSEW)(INT_PTR)GetRegKey(strRegKey, wszReg_Analyse, 0);
+		pGetCustomDataW=(PLUGINGETCUSTOMDATAW)(INT_PTR)GetRegKey(strRegKey, wszReg_GetCustomData, 0);
 		WorkFlags.Set(PIWF_CACHED); //too much "cached" flags
 		return true;
 	}
@@ -250,7 +255,8 @@ bool PluginW::SaveToCache()
 	        pProcessViewerEventW ||
 	        pProcessDialogEventW ||
 	        pProcessSynchroEventW ||
-	        pAnalyseW
+	        pAnalyseW ||
+	        pGetCustomDataW
 	   )
 	{
 		PluginInfo Info;
@@ -321,6 +327,7 @@ bool PluginW::SaveToCache()
 		SetRegKey(strRegKey, wszReg_ProcessSynchroEvent, pProcessSynchroEventW!=nullptr);
 		SetRegKey(strRegKey, wszReg_Configure, pConfigureW!=nullptr);
 		SetRegKey(strRegKey, wszReg_Analyse, pAnalyseW!=nullptr);
+		SetRegKey(strRegKey, wszReg_GetCustomData, pGetCustomDataW!=nullptr);
 		return true;
 	}
 
@@ -401,6 +408,8 @@ bool PluginW::Load()
 	pProcessSynchroEventW=(PLUGINPROCESSSYNCHROEVENTW)GetProcAddress(m_hModule,NFMP_ProcessSynchroEvent);
 	pMinFarVersionW=(PLUGINMINFARVERSIONW)GetProcAddress(m_hModule,NFMP_GetMinFarVersion);
 	pAnalyseW=(PLUGINANALYSEW)GetProcAddress(m_hModule, NFMP_Analyse);
+	pGetCustomDataW=(PLUGINGETCUSTOMDATAW)GetProcAddress(m_hModule, NFMP_GetCustomData);
+	pFreeCustomDataW=(PLUGINFREECUSTOMDATAW)GetProcAddress(m_hModule, NFMP_FreeCustomData);
 	bool bUnloaded = false;
 
 	if (!CheckMinFarVersion(bUnloaded) || !SetStartupInfo(bUnloaded))
@@ -1232,6 +1241,31 @@ bool PluginW::GetPluginInfo(PluginInfo *pi)
 	return false;
 }
 
+int PluginW::GetCustomData(const wchar_t *FilePath, wchar_t **CustomData)
+{
+	if (Load() && pGetCustomDataW && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_GETCUSTOMDATA;
+		es.bDefaultResult = 0;
+		es.bResult = 0;
+		EXECUTE_FUNCTION_EX(pGetCustomDataW(FilePath, CustomData), es);
+		return es.bResult;
+	}
+
+	return 0;
+}
+
+void PluginW::FreeCustomData(wchar_t *CustomData)
+{
+	if (Load() && pFreeCustomDataW && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_FREECUSTOMDATA;
+		EXECUTE_FUNCTION(pFreeCustomDataW(CustomData), es);
+	}
+}
+
 void PluginW::ExitFAR()
 {
 	if (pExitFARW && !ProcessException)
@@ -1273,4 +1307,6 @@ void PluginW::ClearExports()
 	pProcessSynchroEventW=0;
 	pMinFarVersionW=0;
 	pAnalyseW = 0;
+	pGetCustomDataW = 0;
+	pFreeCustomDataW = 0;
 }
