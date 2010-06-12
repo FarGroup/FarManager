@@ -153,8 +153,6 @@ extern "C"
   long __cdecl wcstol(const wchar_t *nptr, wchar_t **endptr, int ibase);
   unsigned long __cdecl strtoul(const char *nptr, char **endptr, int ibase);
   unsigned long __cdecl wcstoul(const wchar_t *nptr, wchar_t **endptr, int ibase);
-  int __cdecl _stricmp(const char *first, const char *last);
-  int __cdecl _wcsicmp(const wchar_t *first, const wchar_t *last);
   void __cdecl swab
 #ifdef __GNUC__
                    (const char* b1,char* b2,size_t length);
