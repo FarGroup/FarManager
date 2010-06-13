@@ -1180,7 +1180,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 	*/
 	SetCursorType(Visible,Size);
 	SetRealCursorType(Visible,Size);
-	
+
 	COORD ConSize;
 	Console.GetSize(ConSize);
 	if(ConSize.X!=ScrX+1 || ConSize.Y!=ScrY+1)
@@ -1226,7 +1226,8 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
 		FarChDir(strCurDir);
 
 	string strPrevDir=strCurDir;
-	if ((Code=ProcessOSCommands(CmdLine,SeparateWindow)) == TRUE)
+	bool PrintCommand=true;
+	if ((Code=ProcessOSCommands(CmdLine,SeparateWindow,PrintCommand)) == TRUE)
 	{
 		ShowBackground();
 
@@ -1235,9 +1236,13 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
 		Redraw();
 		strCurDir=strNewDir;
 
-		GotoXY(X2+1,Y1);
-		Text(L" ");
-		ScrollScreen(2);
+		if (PrintCommand)
+		{
+			GotoXY(X2+1,Y1);
+			Text(L" ");
+			ScrollScreen(2);
+		}
+
 		SetString(L"", FALSE);
 		SaveBackground();
 		Code=-1;
@@ -1469,12 +1474,12 @@ const wchar_t *PrepareOSIfExist(const wchar_t *CmdLine)
 	return Exist?PtrCmd:nullptr;
 }
 
-int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
+int CommandLine::ProcessOSCommands(const wchar_t *CmdLine, int SeparateWindow, bool &PrintCommand)
 {
-	Panel *SetPanel;
 	int Length;
 	string strCmdLine = CmdLine;
-	SetPanel=CtrlObject->Cp()->ActivePanel;
+	Panel *SetPanel=CtrlObject->Cp()->ActivePanel;
+	PrintCommand=true;
 
 	if (SetPanel->GetType()!=FILE_PANEL && CtrlObject->Cp()->GetAnotherPanel(SetPanel)->GetType()==FILE_PANEL)
 		SetPanel=CtrlObject->Cp()->GetAnotherPanel(SetPanel);
@@ -1549,6 +1554,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 
 		ClearScreen(COL_COMMANDLINEUSERSCREEN);
 		SaveBackground();
+		PrintCommand=false;
 		return TRUE;
 	}
 	// PUSHD путь | ..
