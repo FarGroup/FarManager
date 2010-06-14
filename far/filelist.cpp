@@ -336,9 +336,9 @@ int _cdecl SortList(const void *el1,const void *el2)
 	if (ListSortMode==UNSORTED)
 	{
 		if (ListSelectedFirst && SPtr1->Selected!=SPtr2->Selected)
-			return(SPtr1->Selected>SPtr2->Selected ? -1:1);
+			return SPtr1->Selected>SPtr2->Selected ? -1 : 1;
 
-		return((SPtr1->Position>SPtr2->Position) ? ListSortOrder:-ListSortOrder);
+		return (SPtr1->Position>SPtr2->Position) ? ListSortOrder : -ListSortOrder;
 	}
 
 	if (ListDirectoriesFirst)
@@ -351,11 +351,11 @@ int _cdecl SortList(const void *el1,const void *el2)
 	}
 
 	if (ListSelectedFirst && SPtr1->Selected!=SPtr2->Selected)
-		return(SPtr1->Selected>SPtr2->Selected ? -1:1);
+		return SPtr1->Selected>SPtr2->Selected ? -1 : 1;
 
 	if (ListSortGroups && (ListSortMode==BY_NAME || ListSortMode==BY_EXT || ListSortMode==BY_FULLNAME) &&
 	        SPtr1->SortGroup!=SPtr2->SortGroup)
-		return(SPtr1->SortGroup<SPtr2->SortGroup ? -1:1);
+		return SPtr1->SortGroup<SPtr2->SortGroup ? -1 : 1;
 
 	if (hSortPlugin)
 	{
@@ -373,7 +373,7 @@ int _cdecl SortList(const void *el1,const void *el2)
 		FileList::FreePluginPanelItem(&pi2);
 
 		if (RetCode!=-2)
-			return(ListSortOrder*RetCode);
+			return ListSortOrder*RetCode;
 	}
 
 	// ÍÅ ÑÎÐÒÈÐÓÅÌ ÊÀÒÀËÎÃÈ Â ÐÅÆÈÌÅ "ÏÎ ÐÀÑØÈÐÅÍÈÞ" (Îïöèîíàëüíî!)
@@ -383,6 +383,7 @@ int _cdecl SortList(const void *el1,const void *el2)
 		{
 			case BY_NAME:
 				break;
+
 			case BY_EXT:
 				Ext1=PointToExt(SPtr1->strName);
 				Ext2=PointToExt(SPtr2->strName);
@@ -400,80 +401,79 @@ int _cdecl SortList(const void *el1,const void *el2)
 
 				if (RetCode)
 					return RetCode;
-
 				break;
-			case BY_MTIME:
 
+			case BY_MTIME:
 				if (!(RetCode64=FileTimeDifference(&SPtr1->WriteTime,&SPtr2->WriteTime)))
 					break;
 
 				return -ListSortOrder*(RetCode64<0?-1:1);
-			case BY_CTIME:
 
+			case BY_CTIME:
 				if (!(RetCode64=FileTimeDifference(&SPtr1->CreationTime,&SPtr2->CreationTime)))
 					break;
 
 				return -ListSortOrder*(RetCode64<0?-1:1);
-			case BY_ATIME:
 
+			case BY_ATIME:
 				if (!(RetCode64=FileTimeDifference(&SPtr1->AccessTime,&SPtr2->AccessTime)))
 					break;
 
 				return -ListSortOrder*(RetCode64<0?-1:1);
-			case BY_SIZE:
 
+			case BY_SIZE:
 				if (SPtr1->UnpSize==SPtr2->UnpSize)
 					break;
 
-				return((SPtr1->UnpSize > SPtr2->UnpSize) ? -ListSortOrder : ListSortOrder);
-			case BY_DIZ:
+				return ((SPtr1->UnpSize > SPtr2->UnpSize) ? -ListSortOrder : ListSortOrder);
 
+			case BY_DIZ:
 				if (!SPtr1->DizText)
 				{
 					if (!SPtr2->DizText)
 						break;
 					else
-						return(ListSortOrder);
+						return ListSortOrder;
 				}
 
 				if (!SPtr2->DizText)
-					return(-ListSortOrder);
+					return -ListSortOrder;
 
 				RetCode=ListSortOrder*StrCmpI(SPtr1->DizText,SPtr2->DizText);
 
 				if (RetCode)
 					return RetCode;
-
 				break;
+
 			case BY_OWNER:
 				RetCode=ListSortOrder*StrCmpI(SPtr1->strOwner,SPtr2->strOwner);
-
 				if (RetCode)
 					return RetCode;
-
 				break;
-			case BY_COMPRESSEDSIZE:
-				return((SPtr1->PackSize > SPtr2->PackSize) ? -ListSortOrder : ListSortOrder);
-			case BY_NUMLINKS:
 
+			case BY_COMPRESSEDSIZE:
+				return (SPtr1->PackSize > SPtr2->PackSize) ? -ListSortOrder : ListSortOrder;
+
+			case BY_NUMLINKS:
 				if (SPtr1->NumberOfLinks==SPtr2->NumberOfLinks)
 					break;
 
-				return((SPtr1->NumberOfLinks > SPtr2->NumberOfLinks) ? -ListSortOrder : ListSortOrder);
-			case BY_NUMSTREAMS:
+				return (SPtr1->NumberOfLinks > SPtr2->NumberOfLinks) ? -ListSortOrder : ListSortOrder;
 
+			case BY_NUMSTREAMS:
 				if (SPtr1->NumberOfStreams==SPtr2->NumberOfStreams)
 					break;
 
-				return((SPtr1->NumberOfStreams > SPtr2->NumberOfStreams) ? -ListSortOrder : ListSortOrder);
-			case BY_STREAMSSIZE:
+				return (SPtr1->NumberOfStreams > SPtr2->NumberOfStreams) ? -ListSortOrder : ListSortOrder;
 
+			case BY_STREAMSSIZE:
 				if (SPtr1->StreamsSize==SPtr2->StreamsSize)
 					break;
 
-				return((SPtr1->StreamsSize > SPtr2->StreamsSize) ? -ListSortOrder : ListSortOrder);
-			case BY_FULLNAME:
+				return (SPtr1->StreamsSize > SPtr2->StreamsSize) ? -ListSortOrder : ListSortOrder;
 
+			case BY_FULLNAME:
+			{
 				int NameCmp;
 				if (ListNumericSort)
 				{
@@ -488,11 +488,32 @@ int _cdecl SortList(const void *el1,const void *el2)
 						NameCmp = ListCaseSensitive ? StrCmp(Path1, Path2) : StrCmpI(Path1, Path2);
 				}
 				else
+				{
 					NameCmp = ListCaseSensitive ? StrCmp(SPtr1->strName, SPtr2->strName) : StrCmpI(SPtr1->strName, SPtr2->strName);
+				}
 				NameCmp *= ListSortOrder;
 				if (!NameCmp)
 					NameCmp = SPtr1->Position > SPtr2->Position ? ListSortOrder : -ListSortOrder;
 				return NameCmp;
+			}
+
+			case BY_CUSTOMDATA:
+				if (SPtr1->strCustomData.IsEmpty())
+				{
+					if (SPtr2->strCustomData.IsEmpty())
+						break;
+					else
+						return ListSortOrder;
+				}
+
+				if (SPtr2->strCustomData.IsEmpty())
+					return -ListSortOrder;
+
+				RetCode = ListSortOrder*StrCmp(SPtr1->strCustomData,SPtr2->strCustomData);
+
+				if (RetCode)
+					return RetCode;
+				break;
 		}
 	}
 
@@ -4186,18 +4207,19 @@ void FileList::SelectSortMode()
 		/* 11 */MSG(MMenuSortByNumStreams),0,0,
 		/* 12 */MSG(MMenuSortByStreamsSize),0,0,
 		/* 13 */MSG(MMenuSortByFullName),0,0,
-		/* 14 */L"",LIF_SEPARATOR,0,
-		/* 15 */MSG(MMenuSortUseNumeric),0,0,
-		/* 16 */MSG(MMenuSortUseGroups),0,KEY_SHIFTF11,
-		/* 17 */MSG(MMenuSortSelectedFirst),0,KEY_SHIFTF12,
-		/* 18 */MSG(MMenuSortDirectoriesFirst),0,0,
+		/* 14 */MSG(MMenuSortByCustomData),0,0,
+		/* 15 */L"",LIF_SEPARATOR,0,
+		/* 16 */MSG(MMenuSortUseNumeric),0,0,
+		/* 17 */MSG(MMenuSortUseGroups),0,KEY_SHIFTF11,
+		/* 18 */MSG(MMenuSortSelectedFirst),0,KEY_SHIFTF12,
+		/* 19 */MSG(MMenuSortDirectoriesFirst),0,0,
 	};
 	static int SortModes[]={BY_NAME,   BY_EXT,    BY_MTIME,
 	                        BY_SIZE,   UNSORTED,  BY_CTIME,
 	                        BY_ATIME,  BY_DIZ,    BY_OWNER,
 	                        BY_COMPRESSEDSIZE,BY_NUMLINKS,
 	                        BY_NUMSTREAMS,BY_STREAMSSIZE,
-	                        BY_FULLNAME,
+	                        BY_FULLNAME, BY_CUSTOMDATA
 	                       };
 
 	for (size_t I=0; I<ARRAYSIZE(SortModes); I++)
@@ -4208,10 +4230,10 @@ void FileList::SelectSortMode()
 		}
 
 	int SG=GetSortGroups();
-	SortMenu[15].SetCheck(NumericSort);
-	SortMenu[16].SetCheck(SG);
-	SortMenu[17].SetCheck(SelectedFirst);
-	SortMenu[18].SetCheck(DirectoriesFirst);
+	SortMenu[16].SetCheck(NumericSort);
+	SortMenu[17].SetCheck(SG);
+	SortMenu[18].SetCheck(SelectedFirst);
+	SortMenu[19].SetCheck(DirectoriesFirst);
 	int SortCode;
 	{
 		VMenu SortModeMenu(MSG(MMenuSortTitle),SortMenu,ARRAYSIZE(SortMenu),0);
@@ -4229,16 +4251,16 @@ void FileList::SelectSortMode()
 	else
 		switch (SortCode)
 		{
-			case 15:
+			case 16:
 				ChangeNumericSort(NumericSort?0:1);
 				break;
-			case 16:
+			case 17:
 				ProcessKey(KEY_SHIFTF11);
 				break;
-			case 17:
+			case 18:
 				ProcessKey(KEY_SHIFTF12);
 				break;
-			case 18:
+			case 19:
 				ChangeDirectoriesFirst(DirectoriesFirst?0:1);
 				break;
 		}

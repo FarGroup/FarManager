@@ -510,7 +510,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 			DEF_SORTMODE_(BY_SIZE),   DEF_SORTMODE_(BY_DIZ),   DEF_SORTMODE_(BY_OWNER),
 			DEF_SORTMODE_(BY_COMPRESSEDSIZE),DEF_SORTMODE_(BY_NUMLINKS),
 			DEF_SORTMODE_(BY_NUMSTREAMS),DEF_SORTMODE_(BY_STREAMSSIZE),
-			DEF_SORTMODE_(BY_FULLNAME),
+			DEF_SORTMODE_(BY_FULLNAME),DEF_SORTMODE_(BY_CUSTOMDATA)
 		};
 
 		if (!ListItems || !ItemNumber)
@@ -532,7 +532,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 				         (ListItems[I].Modified?L"True ":L"False"),
 				         ListItems[I].PrevViewMode,
 				         ListItems[I].PrevSortMode,
-				         (ListItems[I].PrevSortMode<BY_FULLNAME?__SORT[ListItems[I].PrevSortMode].Name:L"<Unknown>"),
+				         (ListItems[I].PrevSortMode<BY_CUSTOMDATA?__SORT[ListItems[I].PrevSortMode].Name:L"<Unknown>"),
 				         ListItems[I].PrevSortOrder,
 				         ListItems[I].PrevNumericSort,
 				         ListItems[I].PrevDirectoriesFirst,

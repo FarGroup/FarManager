@@ -243,13 +243,13 @@ void FileList::ShowFileList(int Fast)
 		                        BY_ATIME,BY_SIZE,BY_DIZ,BY_OWNER,
 		                        BY_COMPRESSEDSIZE,BY_NUMLINKS,
 		                        BY_NUMSTREAMS,BY_STREAMSSIZE,
-		                        BY_FULLNAME
+		                        BY_FULLNAME,BY_CUSTOMDATA
 		                       };
 		static int SortStrings[]={MMenuUnsorted,MMenuSortByName,
 		                          MMenuSortByExt,MMenuSortByModification,MMenuSortByCreation,
 		                          MMenuSortByAccess,MMenuSortBySize,MMenuSortByDiz,MMenuSortByOwner,
 		                          MMenuSortByCompressedSize,MMenuSortByNumLinks,MMenuSortByNumStreams,MMenuSortByStreamsSize,
-		                          MMenuSortByFullName
+		                          MMenuSortByFullName,MMenuSortByCustomData
 		                         };
 
 		for (size_t I=0; I<ARRAYSIZE(SortModes); I++)

@@ -9785,19 +9785,19 @@ MMenuSortByNumLinks
 
 MMenuSortByNumStreams
 "Количество &потоков"
-"Number of s&treams"
-upd:"Number of s&treams"
-upd:"Number of s&treams"
+"Number of st&reams"
+upd:"Number of st&reams"
+upd:"Number of st&reams"
 "Stream-e&k száma"
-upd:"Number of s&treams"
+upd:"Number of st&reams"
 
 MMenuSortByStreamsSize
 "Размер по&токов"
-"Size of st&reams"
-upd:"Size of st&reams"
-upd:"Size of st&reams"
+"Si&ze of streams"
+upd:"Si&ze of streams"
+upd:"Si&ze of streams"
 "Stream-ek m&érete"
-upd:"Size of st&reams"
+upd:"Si&ze of streams"
 
 MMenuSortByFullName
 "&Полное имя"
@@ -9806,6 +9806,14 @@ upd:"&Full name"
 upd:"&Full name"
 upd:"&Full name"
 upd:"&Full name"
+
+MMenuSortByCustomData
+upd:"Cus&tom data"
+"Cus&tom data"
+upd:"Cus&tom data"
+upd:"Cus&tom data"
+upd:"Cus&tom data"
+upd:"Cus&tom data"
 
 MMenuSortUseGroups
 "Использовать &группы сортировки   Shift-F11"
