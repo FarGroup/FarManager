@@ -623,7 +623,7 @@ m1:
 
 	AddLine(L"");
 	fclose(HelpFile);
-	FixSize=FixCount+(FixCount);
+	FixSize=FixCount?FixCount+1:0;
 	ErrorHelp=FALSE;
 
 	if (IsNewTopic)

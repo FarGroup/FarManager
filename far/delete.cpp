@@ -626,7 +626,7 @@ void ShellDeleteMsg(const wchar_t *Name,int Wipe,int Percent)
 
 		if (Progress)
 		{
-			size_t CurPos=Percent*(Length)/100;
+			size_t CurPos=Min(Percent,100)*Length/100;
 			wmemset(Progress,BoxSymbols[BS_X_DB],CurPos);
 			wmemset(Progress+(CurPos),BoxSymbols[BS_X_B0],Length-CurPos);
 			strProgress.ReleaseBuffer(Length);
