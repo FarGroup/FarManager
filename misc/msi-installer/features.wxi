@@ -202,6 +202,14 @@
       <ComponentRef Id="Plugins.Review.txt_1" />
       <ComponentRef Id="TechInfo.txt_1" />
     </Feature>
+    <Feature Id="Enc" Level="2" Title="!(loc.Feature.Title.Enc)" AllowAdvertise="no" Description="!(loc.Feature.Description.Enc)">
+<?if $(var.Branch) = 1 ?>
+      <ComponentRef Id="FarEncyclopedia.en.chm" />
+    </Feature>
+    <Feature Id="Enc.Russian" Level="2" Display="hidden" AllowAdvertise="no">
+<?endif?>
+      <ComponentRef Id="FarEncyclopedia.ru.chm" />
+    </Feature>
 <?if $(var.Platform) = x86 ?>
     <Feature Id="FExcept" Level="1" Title="!(loc.Feature.Title.FExcept)" AllowAdvertise="no" Description="!(loc.Feature.Description.FExcept)">
       <ComponentRef Id="FExceptReg" />
@@ -216,8 +224,8 @@
       <ComponentRef Id="changelog_1" />
     </Feature>
 <?endif?>
-    <Feature Id="Languages" Level="2" Title="!(loc.Feature.Title.Languages)" AllowAdvertise="no" Description="!(loc.Feature.Description.Languages)">
-      <Feature Id="Russian" Level="2" Title="!(loc.Feature.Title.Russian)" AllowAdvertise="no">
+    <Feature Id="Languages" Level="1" Title="!(loc.Feature.Title.Languages)" AllowAdvertise="no" Description="!(loc.Feature.Description.Languages)">
+      <Feature Id="Russian" Level="1" Title="!(loc.Feature.Title.Russian)" AllowAdvertise="no">
         <ComponentRef Id="FarRus.hlf" />
         <ComponentRef Id="FarRus.lng" />
       </Feature>
@@ -279,14 +287,6 @@
       <ComponentRef Id="farcolor.hpp" />
       <ComponentRef Id="farkeys.hpp" />
       <ComponentRef Id="plugin.hpp" />
-      <Feature Id="Enc" Level="2" Title="!(loc.Feature.Title.Enc)" AllowAdvertise="no" Description="!(loc.Feature.Description.Enc)">
-<?if $(var.Branch) = 1 ?>
-        <ComponentRef Id="FarEncyclopedia.en.chm" />
-      </Feature>
-      <Feature Id="Enc.Russian" Level="2" Display="hidden" AllowAdvertise="no">
-<?endif?>
-        <ComponentRef Id="FarEncyclopedia.ru.chm" />
-      </Feature>
       <Feature Id="Pascal" Level="2" Title="!(loc.Feature.Title.Pascal)" AllowAdvertise="no">
 <?if $(var.Branch) = 1 ?>
         <ComponentRef Id="farcolor.pas" />

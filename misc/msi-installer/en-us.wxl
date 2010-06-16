@@ -79,7 +79,7 @@
 <String Id="Feature.Description.AppPaths">Registers Far.exe under "App Paths" registry key.</String>
 <String Id="Feature.Description.FarHere">Adds "Far Here" shell menu item to drives and directories.</String>
 <String Id="Feature.Description.SDK">SDK for plugin developers.</String>
-<String Id="Feature.Description.Enc">Encyclopedia for developers.</String>
+<String Id="Feature.Description.Enc">Encyclopedia for plugin and macro developers.</String>
 <String Id="Feature.Description.Plugins">Standard plugins.</String>
 <String Id="Feature.Description.Editor">Editor plugins.</String>
 <String Id="Feature.Description.Align">Text block formatter.</String>
