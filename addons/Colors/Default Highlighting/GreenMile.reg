@@ -87,7 +87,7 @@ REGEDIT4
 "ContinueProcessing"=dword:00000000
 
 [HKEY_CURRENT_USER\Software\far\Colors\Highlight\Group3]
-"Mask"="*.exe,*.com,*.bat,*.cmd,%PATHEXT%"
+"Mask"="*.exe,*.com,*.bat,*.cmd"
 "IgnoreMask"=dword:00000000
 "IncludeAttributes"=dword:00000000
 "NormalColor"=dword:0000002e
@@ -112,7 +112,7 @@ REGEDIT4
 "ContinueProcessing"=dword:00000000
 
 [HKEY_CURRENT_USER\Software\far\Colors\Highlight\Group4]
-"Mask"="*.rar,*.r[0-9][0-9],*.ar[cj],*.a[0-9][0-9],*.j,*.ac[bei],*.zip,*.$z,*.z,*.jar,*.ice,*.lha,*.lzh,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.cab,*.chz,*.ha,*.h[ay]p,*.hpk,*.lim,*.[lw]sz,*.pa[ck],*.rk,*.rkv,*.rpm,*.sqz,*.bz,*.bz2,*.bzip,*.gz,*.tar,*.t[ag]z,*.uc2,*.x2,*.zoo,*.hqx,*.sea,*.sit,*.uue,*.xxe,*.dir,*.ddi,*.tdr,*.xdf,*.wad,*.7z"
+"Mask"="*.rar,*.r[0-9][0-9],*.arj,*.zip,*.zip.*,*.jar,*.lha,*.lzh,*.cab,*.gz,*.gz.*,*.tar,*.tar.*,*.7z,*.7z.*,*.bz2,*.bz2.*,*.xz,*.xz.*"
 "IgnoreMask"=dword:00000000
 "IncludeAttributes"=dword:00000000
 "NormalColor"=dword:00000025
