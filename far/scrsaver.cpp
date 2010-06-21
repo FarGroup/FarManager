@@ -165,7 +165,8 @@ int ScreenSaver(int EnableExit)
 	}
 
 	ScreenSaverActive=TRUE;
-	int CursorVisible, CursorSize;
+	bool CursorVisible;
+	DWORD CursorSize;
 	GetRealCursorType(CursorVisible, CursorSize);
 	{
 		SaveScreen SaveScr;

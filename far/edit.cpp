@@ -254,16 +254,16 @@ void Edit::DisplayObject()
 }
 
 
-void Edit::SetCursorType(int Visible,int Size)
+void Edit::SetCursorType(bool Visible, DWORD Size)
 {
 	Flags.Change(FEDITLINE_CURSORVISIBLE,Visible);
 	CursorSize=Size;
 	::SetCursorType(Visible,Size);
 }
 
-void Edit::GetCursorType(int &Visible,int &Size)
+void Edit::GetCursorType(bool& Visible, DWORD& Size)
 {
-	Visible=Flags.Check(FEDITLINE_CURSORVISIBLE);
+	Visible=Flags.Check(FEDITLINE_CURSORVISIBLE)!=FALSE;
 	Size=CursorSize;
 }
 
@@ -2787,7 +2787,7 @@ void Edit::ApplyColor()
 /* $ 24.09.2000 SVS $
   Функция Xlat - перекодировка по принципу QWERTY <-> ЙЦУКЕН
 */
-void Edit::Xlat(BOOL All)
+void Edit::Xlat(bool All)
 {
 	//   Для CmdLine - если нет выделения, преобразуем всю строку
 	if (All && SelStart == -1 && !SelEnd)
@@ -2818,7 +2818,7 @@ void Edit::Xlat(BOOL All)
 		   находится левее позиции курсора на 1 символ
 		*/
 		int start=CurPos, end, StrSize=StrLength(Str);
-		BOOL DoXlat=TRUE;
+		bool DoXlat=true;
 
 		if (IsWordDiv(Opt.XLat.strWordDivForXlat,Str[start]))
 		{

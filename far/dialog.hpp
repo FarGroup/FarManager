@@ -91,10 +91,16 @@ class DlgUserControl
 {
 	public:
 		COORD CursorPos;
-		int   CursorVisible,CursorSize;
+		bool CursorVisible;
+		DWORD CursorSize;
 
 	public:
-		DlgUserControl() {CursorSize=CursorPos.X=CursorPos.Y=-1; CursorVisible=0;}
+		DlgUserControl():
+			CursorVisible(false),
+			CursorSize(static_cast<DWORD>(-1))
+		{
+			CursorPos.X=CursorPos.Y=-1;
+		}
 		~DlgUserControl() {};
 };
 

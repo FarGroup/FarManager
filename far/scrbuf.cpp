@@ -530,7 +530,7 @@ void ScreenBuf::GetCursorPos(SHORT& X,SHORT& Y)
 }
 
 
-void ScreenBuf::SetCursorType(int Visible,int Size)
+void ScreenBuf::SetCursorType(bool Visible, DWORD Size)
 {
 	/* $ 09.01.2001 SVS
 	   По наводке ER - в SetCursorType не дергать раньше
@@ -544,7 +544,7 @@ void ScreenBuf::SetCursorType(int Visible,int Size)
 	}
 }
 
-void ScreenBuf::GetCursorType(int &Visible,int &Size)
+void ScreenBuf::GetCursorType(bool& Visible, DWORD& Size)
 {
 	Visible=CurVisible;
 	Size=CurSize;

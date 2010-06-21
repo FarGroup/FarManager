@@ -286,11 +286,11 @@ class Edit:public ScreenObject
 		int   DeleteColor(int ColorPos);
 		int   GetColor(ColorItem *col,int Item);
 
-		void Xlat(BOOL All=FALSE);
+		void Xlat(bool All=false);
 
 		void SetDialogParent(DWORD Sets);
-		void SetCursorType(int Visible,int Size);
-		void GetCursorType(int &Visible,int &Size);
+		void SetCursorType(bool Visible, DWORD Size);
+		void GetCursorType(bool& Visible, DWORD& Size);
 		int  GetReadOnly() {return Flags.Check(FEDITLINE_READONLY);}
 		void SetReadOnly(int NewReadOnly) {Flags.Change(FEDITLINE_READONLY,NewReadOnly);}
 		int  GetDropDownBox() {return Flags.Check(FEDITLINE_DROPDOWNBOX);}

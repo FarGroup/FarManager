@@ -39,7 +39,8 @@ class SaveScreen
 	private:
 		PCHAR_INFO ScreenBuf;
 		SHORT CurPosX,CurPosY;
-		int CurVisible,CurSize;
+		bool CurVisible;
+		DWORD CurSize;
 		int X1,Y1,X2,Y2;
 
 		void CleanupBuffer(PCHAR_INFO Buffer, size_t BufSize);

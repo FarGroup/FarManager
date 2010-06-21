@@ -131,10 +131,10 @@ class DlgEdit: public ScreenObject
 		void  Select(int Start,int End);           // TODO: не учтено для multiline!
 		void  GetSelection(int &Start,int &End);   // TODO: не учтено для multiline!
 
-		void Xlat(BOOL All=FALSE);
+		void Xlat(bool All=false);
 
-		void SetCursorType(int Visible,int Size);
-		void GetCursorType(int &Visible,int &Size);
+		void SetCursorType(bool Visible, DWORD Size);
+		void GetCursorType(bool& Visible, DWORD& Size);
 
 		int  GetReadOnly();
 		void SetReadOnly(int NewReadOnly);

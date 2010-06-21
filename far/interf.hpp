@@ -129,13 +129,13 @@ int WhereX();
 int WhereY();
 void MoveCursor(int X,int Y);
 void GetCursorPos(SHORT& X,SHORT& Y);
-void SetCursorType(int Visible,int Size);
+void SetCursorType(bool Visible, DWORD Size);
 void SetInitialCursorType();
-void GetCursorType(int &Visible,int &Size);
+void GetCursorType(bool& Visible, DWORD& Size);
 void MoveRealCursor(int X,int Y);
 void GetRealCursorPos(SHORT& X,SHORT& Y);
-void SetRealCursorType(int Visible,int Size);
-void GetRealCursorType(int &Visible,int &Size);
+void SetRealCursorType(bool Visible, DWORD Size);
+void GetRealCursorType(bool& Visible,DWORD& Size);
 void ScrollScreen(int Count);
 
 void Text(int X, int Y, int Color, const WCHAR *Str);

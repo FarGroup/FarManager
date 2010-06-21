@@ -1727,7 +1727,8 @@ void Dialog::ShowDialog(unsigned ID)
 	   контрола тоже нужна прорисовка.
 	*/
 	{
-		int CursorVisible=0,CursorSize=0;
+		bool CursorVisible=false;
+		DWORD CursorSize=0;
 
 		if (ID != (unsigned)-1 && FocusPos != ID)
 		{
@@ -2117,13 +2118,14 @@ void Dialog::ShowDialog(unsigned ID)
 						CurItem->ListPtr->SetColors(&ListColors);
 
 					// Курсор запоминаем...
-					int CurSorVisible,CurSorSize;
-					GetCursorType(CurSorVisible,CurSorSize);
+					bool CursorVisible=false;
+					DWORD CursorSize=0;
+					GetCursorType(CursorVisible,CursorSize);
 					CurItem->ListPtr->Show();
 
 					// .. а теперь восстановим!
 					if (FocusPos != I)
-						SetCursorType(CurSorVisible,CurSorSize);
+						SetCursorType(CursorVisible,CursorSize);
 				}
 
 				break;
@@ -5542,7 +5544,8 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 		{
 			if (IsEdit(Type) && CurItem->ObjPtr)
 			{
-				int Visible,Size;
+				bool Visible;
+				DWORD Size;
 				((DlgEdit *)(CurItem->ObjPtr))->GetCursorType(Visible,Size);
 				return MAKELONG(Visible,Size);
 			}
@@ -5558,18 +5561,19 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 		//   Return MAKELONG(OldVisible,OldSize)
 		case DM_SETCURSORSIZE:
 		{
-			int Visible=0,Size=0;
+			bool Visible;
+			DWORD Size;
 
 			if (IsEdit(Type) && CurItem->ObjPtr)
 			{
 				((DlgEdit *)(CurItem->ObjPtr))->GetCursorType(Visible,Size);
-				((DlgEdit *)(CurItem->ObjPtr))->SetCursorType(LOWORD(Param2),HIWORD(Param2));
+				((DlgEdit *)(CurItem->ObjPtr))->SetCursorType(LOWORD(Param2)!=0,HIWORD(Param2));
 			}
 			else if (Type == DI_USERCONTROL && CurItem->UCData)
 			{
 				Visible=CurItem->UCData->CursorVisible;
 				Size=CurItem->UCData->CursorSize;
-				CurItem->UCData->CursorVisible=LOWORD(Param2);
+				CurItem->UCData->CursorVisible=LOWORD(Param2)!=0;
 				CurItem->UCData->CursorSize=HIWORD(Param2);
 				int CCX=CurItem->UCData->CursorPos.X;
 				int CCY=CurItem->UCData->CursorPos.Y;

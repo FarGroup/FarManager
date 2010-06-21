@@ -1569,7 +1569,8 @@ DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 */
 DWORD WaitKey(DWORD KeyWait,DWORD delayMS,bool ExcludeMacro)
 {
-	int Visible=0,Size=0;
+	bool Visible=false;
+	DWORD Size=0;
 
 	if (KeyWait == KEY_CTRLALTSHIFTRELEASE || KeyWait == KEY_RCTRLALTSHIFTRELEASE)
 	{

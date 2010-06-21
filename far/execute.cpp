@@ -818,7 +818,8 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 	}
 	CtrlObject->CmdLine->SetString(L"", FALSE);
 
-	int Visible, Size;
+	bool Visible=false;
+	DWORD Size=0;
 	GetCursorType(Visible,Size);
 	SetInitialCursorType();
 

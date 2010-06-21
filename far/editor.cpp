@@ -6829,12 +6829,12 @@ void Editor::SetCurPos(int NewCol, int NewRow)
 	Unlock();
 }
 
-void Editor::SetCursorType(int Visible,int Size)
+void Editor::SetCursorType(bool Visible, DWORD Size)
 {
 	CurLine->SetCursorType(Visible,Size); //???
 }
 
-void Editor::GetCursorType(int &Visible,int &Size)
+void Editor::GetCursorType(bool& Visible,DWORD& Size)
 {
 	CurLine->GetCursorType(Visible,Size); //???
 }

@@ -50,7 +50,8 @@ class ScreenBuf
 
 		SHORT BufX,BufY;
 		SHORT CurX,CurY;
-		int CurVisible,CurSize;
+		bool CurVisible;
+		DWORD CurSize;
 
 		int LockCount;
 
@@ -69,8 +70,8 @@ class ScreenBuf
 		void ResetShadow();
 		void MoveCursor(int X,int Y);
 		void GetCursorPos(SHORT& X,SHORT& Y);
-		void SetCursorType(int Visible,int Size);
-		void GetCursorType(int &Visible,int &Size);
+		void SetCursorType(bool Visible, DWORD Size);
+		void GetCursorType(bool& Visible, DWORD& Size);
 
 	public:
 		void FillBuf();

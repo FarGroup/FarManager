@@ -208,8 +208,8 @@ class VMenu: public Modal
 		int MaxHeight;
 		int MaxLength;
 		int BoxType;
-		int PrevCursorVisible;
-		int PrevCursorSize;
+		bool PrevCursorVisible;
+		DWORD PrevCursorSize;
 		int PrevMacroMode;
 
 		// переменная, отвечающая за отображение scrollbar в DI_LISTBOX & DI_COMBOBOX

@@ -566,7 +566,7 @@ void DlgEdit::GetSelection(int &Start,int &End)
 		lineEdit->GetSelection(Start,End);
 }
 
-void DlgEdit::Xlat(BOOL All)
+void DlgEdit::Xlat(bool All)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -588,7 +588,7 @@ int  DlgEdit::GetStrSize(int Row)
 		return lineEdit->StrSize;
 }
 
-void DlgEdit::SetCursorType(int Visible,int Size)
+void DlgEdit::SetCursorType(bool Visible, DWORD Size)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -599,7 +599,7 @@ void DlgEdit::SetCursorType(int Visible,int Size)
 		lineEdit->SetCursorType(Visible,Size);
 }
 
-void DlgEdit::GetCursorType(int &Visible,int &Size)
+void DlgEdit::GetCursorType(bool& Visible, DWORD& Size)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 

@@ -57,7 +57,8 @@ static int CurColor;
 
 static int OutputCP;
 static BYTE RecodeOutTable[256];
-static int InitCurVisible,InitCurSize;
+static bool InitCurVisible;
+static DWORD InitCurSize;
 
 static SMALL_RECT windowholder_rect;
 
@@ -453,7 +454,7 @@ void GetCursorPos(SHORT& X,SHORT& Y)
 }
 
 
-void SetCursorType(int Visible,int Size)
+void SetCursorType(bool Visible, DWORD Size)
 {
 	if (Size==-1 || !Visible)
 		Size=IsFullscreen()?
@@ -469,7 +470,7 @@ void SetInitialCursorType()
 }
 
 
-void GetCursorType(int &Visible,int &Size)
+void GetCursorType(bool& Visible, DWORD& Size)
 {
 	ScrBuf.GetCursorType(Visible,Size);
 }
@@ -491,19 +492,19 @@ void GetRealCursorPos(SHORT& X,SHORT& Y)
 }
 
 
-void SetRealCursorType(int Visible,int Size)
+void SetRealCursorType(bool Visible, DWORD Size)
 {
 	CONSOLE_CURSOR_INFO cci={Size, Visible};
 	Console.SetCursorInfo(cci);
 }
 
 
-void GetRealCursorType(int &Visible,int &Size)
+void GetRealCursorType(bool& Visible, DWORD& Size)
 {
 	CONSOLE_CURSOR_INFO cci;
 	Console.GetCursorInfo(cci);
 	Size=cci.dwSize;
-	Visible=cci.bVisible;
+	Visible=cci.bVisible!=FALSE;
 }
 
 static BOOL DetectTTFFont()

@@ -55,7 +55,8 @@ Grabber::Grabber()
 	CtrlObject->Macro.SetMode(MACRO_OTHER);
 	memset(&GArea,0,sizeof(GArea));
 	memset(&PrevArea,0,sizeof(PrevArea));
-	int Visible,Size;
+	bool Visible=false;
+	DWORD Size=0;
 	GetCursorType(Visible,Size);
 
 	if (Visible)

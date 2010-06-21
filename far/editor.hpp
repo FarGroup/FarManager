@@ -387,10 +387,10 @@ class Editor:public ScreenObject
 		int  GetClearFlag();
 
 		int  GetCurCol();
-		int  GetCurRow() {return NumLine;};
+		int  GetCurRow() {return NumLine;}
 		void SetCurPos(int NewCol, int NewRow=-1);
-		void SetCursorType(int Visible,int Size);
-		void GetCursorType(int &Visible,int &Size);
+		void SetCursorType(bool Visible, DWORD Size);
+		void GetCursorType(bool& Visible, DWORD& Size);
 		void SetObjectColor(int Color,int SelColor,int ColorUnChanged);
 		void DrawScrollbar();
 };
