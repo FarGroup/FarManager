@@ -486,7 +486,7 @@ Plugin *PluginManager::GetPlugin(int PluginNumber)
 
 void PluginManager::LoadPlugins()
 {
-	TaskBar TB;
+	TaskBar TB(false);
 	Flags.Clear(PSIF_PLUGINSLOADDED);
 
 	if (Opt.LoadPlug.PluginsCacheOnly)  // $ 01.09.2000 tran  '/co' switch

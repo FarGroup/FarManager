@@ -71,7 +71,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "processname.hpp"
 #include "constitle.hpp"
 #include "syslog.hpp"
-#include "CachedWrite.hpp"
+#include "cache.hpp"
 #include "filestr.hpp"
 
 static int _cdecl SortList(const void *el1,const void *el2);

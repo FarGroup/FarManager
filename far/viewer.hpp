@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 #include "poscache.hpp"
 #include "config.hpp"
+#include "cache.hpp"
 
 /* $ 10.07.2000 tran
    ! modified MAXSCRY from 120 to 300
@@ -114,6 +115,7 @@ class Viewer:public ScreenObject
 		string strFullFileName;
 
 		File ViewFile;
+		CachedRead Reader;
 
 		FAR_FIND_DATA_EX ViewFindData;
 
@@ -185,10 +187,10 @@ class Viewer:public ScreenObject
 		void Search(int Next,int FirstChar);
 		void ConvertToHex(char *SearchStr,int &SearchLength);
 		int HexToNum(int Hex);
-		int vread(wchar_t *Buf,int Count,File& SrcFile,bool Raw=false);
-		int vseek(File& SrcFile,__int64 Offset,int Whence);
-		__int64 vtell(File& SrcFile);
-		bool vgetc(File& SrcFile,WCHAR& C);
+		int vread(wchar_t *Buf,int Count, bool Raw=false);
+		int vseek(__int64 Offset,int Whence);
+		__int64 vtell();
+		bool vgetc(WCHAR& C);
 		void SetFileSize();
 		int GetStrBytesNum(const wchar_t *Str, int Length);
 

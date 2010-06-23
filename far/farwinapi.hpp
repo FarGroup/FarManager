@@ -131,7 +131,6 @@ public:
 
 private:
 	HANDLE Handle;
-	bool eof;
 	bool admin;
 };
 

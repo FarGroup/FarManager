@@ -61,7 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "syslog.hpp"
 #include "interf.hpp"
-#include "CachedWrite.hpp"
+#include "cache.hpp"
 
 #if defined(PROJECT_DI_MEMOEDIT)
 /*
@@ -121,9 +121,9 @@ void MenuRegToFile(const wchar_t *MenuKey, File& MenuFile, CachedWrite& CW, bool
 		GetRegKey(strItemKey,L"HotKey",strHotKey,L"");
 		BOOL SubMenu;
 		GetRegKey(strItemKey,L"Submenu",SubMenu,0);
-		CW.Write(strHotKey.CPtr(), strHotKey.GetLength()*sizeof(WCHAR));
+		CW.Write(strHotKey.CPtr(), static_cast<DWORD>(strHotKey.GetLength()*sizeof(WCHAR)));
 		CW.Write(L":  ", 3*sizeof(WCHAR));
-		CW.Write(strLabel.CPtr(), strLabel.GetLength()*sizeof(WCHAR));
+		CW.Write(strLabel.CPtr(), static_cast<DWORD>(strLabel.GetLength()*sizeof(WCHAR)));
 		CW.Write(L"\r\n", 2*sizeof(WCHAR));
 
 		if (SubMenu)
@@ -143,7 +143,7 @@ void MenuRegToFile(const wchar_t *MenuKey, File& MenuFile, CachedWrite& CW, bool
 				if (!GetRegKey(strItemKey,strLineName,strCommand,L""))
 					break;
 				CW.Write(L"    ", 4*sizeof(WCHAR));
-				CW.Write(strCommand.CPtr(), strCommand.GetLength()*sizeof(WCHAR));
+				CW.Write(strCommand.CPtr(), static_cast<DWORD>(strCommand.GetLength()*sizeof(WCHAR)));
 				CW.Write(L"\r\n", 2*sizeof(WCHAR));
 			}
 		}

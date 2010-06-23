@@ -4,8 +4,8 @@ array.hpp
 BaseFileMask.hpp
 bitflags.hpp
 BlockExtKey.hpp
-CachedWrite.cpp
-CachedWrite.hpp
+cache.cpp
+cache.hpp
 cddrv.cpp
 cddrv.hpp
 CFileMask.cpp

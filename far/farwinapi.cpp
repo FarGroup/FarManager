@@ -114,7 +114,6 @@ bool FindFile::Get(FAR_FIND_DATA_EX& FindData)
 
 File::File():
 	Handle(INVALID_HANDLE_VALUE),
-	eof(false),
 	admin(false)
 {
 }
@@ -155,14 +154,7 @@ bool File::Open(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY
 
 bool File::Read(LPVOID Buffer, DWORD NumberOfBytesToRead, LPDWORD NumberOfBytesRead, LPOVERLAPPED Overlapped)
 {
-	DWORD BytesRead=0;
-	bool Result=admin?Admin.fReadFile(Handle, Buffer, NumberOfBytesToRead, &BytesRead, Overlapped):ReadFile(Handle, Buffer, NumberOfBytesToRead, &BytesRead, Overlapped) != FALSE;
-	if(NumberOfBytesRead)
-	{
-		*NumberOfBytesRead=BytesRead;
-	}
-	eof = Result && !BytesRead;
-	return Result;
+	return admin?Admin.fReadFile(Handle, Buffer, NumberOfBytesToRead, NumberOfBytesRead, Overlapped):ReadFile(Handle, Buffer, NumberOfBytesToRead, NumberOfBytesRead, Overlapped) != FALSE;
 }
 
 bool File::Write(LPCVOID Buffer, DWORD NumberOfBytesToWrite, LPDWORD NumberOfBytesWritten, LPOVERLAPPED Overlapped) const
@@ -223,7 +215,11 @@ bool File::Close()
 
 bool File::Eof()
 {
-	return eof;
+	INT64 Ptr=0;
+	GetPointer(Ptr);
+	UINT64 Size=0;
+	GetSize(Size);
+	return static_cast<UINT64>(Ptr)==Size;
 }
 
 NTSTATUS GetLastNtStatus()

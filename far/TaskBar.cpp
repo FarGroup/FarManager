@@ -104,7 +104,7 @@ void TaskBarCore::Flash()
 	{
 		if (WI.dwWindowStatus!=WS_ACTIVECAPTION)
 		{
-			FLASHWINFO FWI={sizeof(FWI),Console.GetWindow(),FLASHW_ALL|FLASHW_TIMERNOFG,0,0};
+			FLASHWINFO FWI={sizeof(FWI),Console.GetWindow(),FLASHW_ALL|FLASHW_TIMERNOFG,5,0};
 			FlashWindowEx(&FWI);
 		}
 	}

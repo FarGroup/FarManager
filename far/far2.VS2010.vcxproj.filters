@@ -35,7 +35,7 @@
     <ClCompile Include="adminmode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CachedWrite.cpp">
+    <ClCompile Include="cache.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cddrv.cpp">
@@ -514,7 +514,7 @@
     <ClInclude Include="BlockExtKey.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CachedWrite.hpp">
+    <ClInclude Include="cache.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cddrv.hpp">

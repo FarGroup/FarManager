@@ -48,7 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "filestr.hpp"
 #include "codepage.hpp"
-#include "CachedWrite.hpp"
+#include "cache.hpp"
 
 static DizRecord *SearchDizData;
 static int _cdecl SortDizIndex(const void *el1,const void *el2);

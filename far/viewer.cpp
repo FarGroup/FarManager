@@ -75,6 +75,7 @@ static int ViewerID=0;
 
 Viewer::Viewer(bool bQuickView, UINT aCodePage):
 	ViOpt(Opt.ViOpt),
+	Reader(ViewFile),
 	m_bQuickView(bQuickView)
 {
 	_OT(SysLog(L"[%p] Viewer::Viewer()", this));
@@ -249,7 +250,6 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 		//after reading from the pipe, redirect stdin to the real console stdin
 		NewViewFile.Open(L"CONIN$",GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ,0,OPEN_EXISTING);
 		SetStdHandle(STD_INPUT_HANDLE,NewViewFile.GetHandle());
-		vseek(NewViewFile,0,SEEK_SET);
 		ReadStdin=TRUE;
 	}
 	else
@@ -410,8 +410,8 @@ void Viewer::SetCRSym()
 	wchar_t Buf[2048];
 	int CRCount=0,LFCount=0;
 	int ReadSize,I;
-	vseek(ViewFile,0,SEEK_SET);
-	ReadSize=vread(Buf,ARRAYSIZE(Buf),ViewFile);
+	vseek(0,SEEK_SET);
+	ReadSize=vread(Buf,ARRAYSIZE(Buf));
 
 	for (I=0; I<ReadSize; I++)
 		switch (Buf[I])
@@ -455,7 +455,7 @@ void Viewer::ShowPage(int nMode)
 	if (HideCursor)
 		SetCursorType(0,10);
 
-	vseek(ViewFile,FilePos,SEEK_SET);
+	vseek(FilePos,SEEK_SET);
 
 	if (!SelectSize)
 		SelectPos=FilePos;
@@ -471,10 +471,10 @@ void Viewer::ShowPage(int nMode)
 
 			for (I=0,Y=Y1; Y<=Y2; Y++,I++)
 			{
-				Strings[I]->nFilePos = vtell(ViewFile);
+				Strings[I]->nFilePos = vtell();
 
 				if (Y==Y1+1 && !ViewFile.Eof())
-					SecondPos=vtell(ViewFile);
+					SecondPos=vtell();
 
 				ReadString(Strings[I],-1,MAX_VIEWLINEB);
 			}
@@ -508,9 +508,9 @@ void Viewer::ShowPage(int nMode)
 
 			FilePos = Strings[0]->nFilePos;
 			SecondPos = Strings[1]->nFilePos;
-			vseek(ViewFile, Strings[Y2-Y1]->nFilePos, SEEK_SET);
+			vseek(Strings[Y2-Y1]->nFilePos, SEEK_SET);
 			ReadString(Strings[Y2-Y1],-1,MAX_VIEWLINEB);
-			Strings[Y2-Y1]->nFilePos = vtell(ViewFile);
+			Strings[Y2-Y1]->nFilePos = vtell();
 			ReadString(Strings[Y2-Y1],-1,MAX_VIEWLINEB);
 			break;
 	}
@@ -625,7 +625,7 @@ void Viewer::ShowHex()
 		}
 
 		if (Y==Y1+1 && !ViewFile.Eof())
-			SecondPos=vtell(ViewFile);
+			SecondPos=vtell();
 
 		INT64 Ptr=0;
 		ViewFile.GetPointer(Ptr);
@@ -634,7 +634,7 @@ void Viewer::ShowHex()
 		int HexStrStart = (int)wcslen(OutStr);
 		SelStart = HexStrStart;
 		SelEnd = SelStart;
-		__int64 fpos = vtell(ViewFile);
+		__int64 fpos = vtell();
 
 		if (fpos > SelectPos)
 			bSelStartFound = true;
@@ -651,7 +651,7 @@ void Viewer::ShowHex()
 		{
 			for (X=0; X<8; X++)
 			{
-				__int64 fpos = vtell(ViewFile);
+				__int64 fpos = vtell();
 
 				if (SelectSize>0 && (SelectPos == fpos))
 				{
@@ -673,7 +673,7 @@ void Viewer::ShowHex()
 					SelSize=SelectSize;
 				}
 
-				if (!vgetc(ViewFile,Ch))
+				if (!vgetc(Ch))
 				{
 					/* $ 28.06.2000 tran
 					   убираем показ пустой строки, если длина
@@ -719,7 +719,7 @@ void Viewer::ShowHex()
 		{
 			for (X=0; X<16; X++)
 			{
-				__int64 fpos = vtell(ViewFile);
+				__int64 fpos = vtell();
 
 				if (SelectSize>0 && (SelectPos == fpos))
 				{
@@ -741,7 +741,7 @@ void Viewer::ShowHex()
 					SelSize=SelectSize;
 				}
 
-				if (!vgetc(ViewFile,Ch))
+				if (!vgetc(Ch))
 				{
 					/* $ 28.06.2000 tran
 					   убираем показ пустой строки, если длина
@@ -889,14 +889,14 @@ void Viewer::ReadString(ViewerString *pString, int MaxSize, int StrSize)
 
 	if (VM.Hex)
 	{
-		OutPtr=vread(pString->lpData,IsUnicodeCodePage(VM.CodePage) ? 8:16,ViewFile);
+		OutPtr=vread(pString->lpData,IsUnicodeCodePage(VM.CodePage) ? 8:16);
 		pString->lpData[IsUnicodeCodePage(VM.CodePage) ? 8:16]=0;
 	}
 	else
 	{
 		bool CRSkipped=false;
 
-		if (SelectSize && vtell(ViewFile) > SelectPos)
+		if (SelectSize && vtell() > SelectPos)
 		{
 			pString->nSelStart = 0;
 			bSelStartFound = true;
@@ -914,12 +914,12 @@ void Viewer::ReadString(ViewerString *pString, int MaxSize, int StrSize)
 			{
 				/* $ 11.07.2000 tran
 				   + warp are now WORD-WRAP */
-				__int64 SavePos=vtell(ViewFile);
+				__int64 SavePos=vtell();
 				WCHAR TmpChar=0;
 
-				if (vgetc(ViewFile,Ch) && Ch!=CRSym && (Ch!=L'\r' || (vgetc(ViewFile,TmpChar) && TmpChar!=CRSym)))
+				if (vgetc(Ch) && Ch!=CRSym && (Ch!=L'\r' || (vgetc(TmpChar) && TmpChar!=CRSym)))
 				{
-					vseek(ViewFile,SavePos,SEEK_SET);
+					vseek(SavePos,SEEK_SET);
 
 					if (VM.WordWrap)
 					{
@@ -949,8 +949,7 @@ void Viewer::ReadString(ViewerString *pString, int MaxSize, int StrSize)
 
 							if (OutPtr)
 							{
-								vseek(ViewFile,OutPtr-SavePtr,SEEK_CUR);
-								//
+								vseek(OutPtr-SavePtr,SEEK_CUR);
 							}
 							else
 								OutPtr=SavePtr;
@@ -958,25 +957,25 @@ void Viewer::ReadString(ViewerString *pString, int MaxSize, int StrSize)
 
 						/* $ 13.09.2000 tran
 						   remove space at WWrap */
-						__int64 savepos=vtell(ViewFile);
+						__int64 savepos=vtell();
 
 						while (IsSpace(Ch))
 						{
-							if (!vgetc(ViewFile,Ch))
+							if (!vgetc(Ch))
 							{
 								break;
 							}
 						}
 
-						if (vtell(ViewFile)!=savepos)
-							vseek(ViewFile,-1,SEEK_CUR);
+						if (vtell()!=savepos)
+							vseek(-1,SEEK_CUR);
 					}// wwrap
 				}
 
 				break;
 			}
 
-			if (SelectSize > 0 && SelectPos==vtell(ViewFile))
+			if (SelectSize > 0 && SelectPos==vtell())
 			{
 				pString->nSelStart = OutPtr+(CRSkipped?1:0);;
 				bSelStartFound = true;
@@ -985,7 +984,7 @@ void Viewer::ReadString(ViewerString *pString, int MaxSize, int StrSize)
 			if (!(MaxSize--))
 				break;
 
-			if (!vgetc(ViewFile,Ch))
+			if (!vgetc(Ch))
 				break;
 
 			if (Ch==CRSym)
@@ -1020,15 +1019,15 @@ void Viewer::ReadString(ViewerString *pString, int MaxSize, int StrSize)
 
 				if (OutPtr>=XX2-X1)
 				{
-					__int64 SavePos=vtell(ViewFile);
+					__int64 SavePos=vtell();
 					WCHAR nextCh=0;
 
-					if (vgetc(ViewFile,nextCh) && nextCh!=CRSym)
+					if (vgetc(nextCh) && nextCh!=CRSym)
 					{
 						CRSkipped=false;
 					}
 
-					vseek(ViewFile,SavePos,SEEK_SET);
+					vseek(SavePos,SEEK_SET);
 				}
 
 				if (CRSkipped)
@@ -1041,7 +1040,7 @@ void Viewer::ReadString(ViewerString *pString, int MaxSize, int StrSize)
 			pString->lpData[(int)OutPtr++]=Ch;
 			pString->lpData[(int)OutPtr]=0;
 
-			if (SelectSize > 0 && (SelectPos+SelectSize)==vtell(ViewFile))
+			if (SelectSize > 0 && (SelectPos+SelectSize)==vtell())
 			{
 				pString->nSelEnd = OutPtr;
 				bSelEndFound = true;
@@ -1051,7 +1050,7 @@ void Viewer::ReadString(ViewerString *pString, int MaxSize, int StrSize)
 
 	pString->lpData[(int)OutPtr]=0;
 
-	if (!bSelEndFound && SelectSize && vtell(ViewFile) < SelectPos+SelectSize)
+	if (!bSelEndFound && SelectSize && vtell() < SelectPos+SelectSize)
 	{
 		bSelEndFound = true;
 		pString->nSelEnd = wcslen(pString->lpData);
@@ -1183,16 +1182,16 @@ int Viewer::ProcessKey(int Key)
 			{
 				wchar_t *SelData;
 				size_t DataSize = (size_t)SelectSize+(IsUnicodeCodePage(VM.CodePage)?sizeof(wchar_t):1);
-				__int64 CurFilePos=vtell(ViewFile);
+				__int64 CurFilePos=vtell();
 
 				if ((SelData=(wchar_t*)xf_malloc(DataSize*sizeof(wchar_t))) )
 				{
 					wmemset(SelData, 0, DataSize);
-					vseek(ViewFile,SelectPos,SEEK_SET);
-					vread(SelData, (int)SelectSize, ViewFile);
+					vseek(SelectPos,SEEK_SET);
+					vread(SelData, (int)SelectSize);
 					CopyToClipboard(SelData);
 					xf_free(SelData);
-					vseek(ViewFile,CurFilePos,SEEK_SET);
+					vseek(CurFilePos,SEEK_SET);
 				}
 			}
 
@@ -1226,8 +1225,8 @@ int Viewer::ProcessKey(int Key)
 						return TRUE;
 
 					ViewFile.FlushBuffers();
-					vseek(ViewFile,0,SEEK_END);
-					__int64 CurFileSize=vtell(ViewFile);
+					vseek(0,SEEK_END);
+					__int64 CurFileSize=vtell();
 
 					if (ViewFindData.ftLastWriteTime.dwLowDateTime!=NewViewFindData.ftLastWriteTime.dwLowDateTime ||
 					        ViewFindData.ftLastWriteTime.dwHighDateTime!=NewViewFindData.ftLastWriteTime.dwHighDateTime ||
@@ -1549,7 +1548,7 @@ int Viewer::ProcessKey(int Key)
 				return TRUE;
 			}
 
-			vseek(ViewFile,FilePos,SEEK_SET);
+			vseek(FilePos,SEEK_SET);
 
 			for (int i=Y1; i<Y2; i++)
 			{
@@ -1562,7 +1561,7 @@ int Viewer::ProcessKey(int Key)
 				}
 			}
 
-			FilePos=vtell(ViewFile);
+			FilePos=vtell();
 
 			for (int i=Y1; i<=Y2; i++)
 				ReadString(&vString,-1, MAX_VIEWLINEB);
@@ -1735,17 +1734,17 @@ int Viewer::ProcessKey(int Key)
 				unsigned int max_counter=Y2-Y1;
 
 				if (VM.Hex)
-					vseek(ViewFile,0,SEEK_END);
+					vseek(0,SEEK_END);
 				else
 				{
-					vseek(ViewFile,-1,SEEK_END);
+					vseek(-1,SEEK_END);
 					WCHAR LastSym=0;
 
-					if (vgetc(ViewFile,LastSym) && LastSym!=CRSym)
+					if (vgetc(LastSym) && LastSym!=CRSym)
 						++max_counter;
 				}
 
-				FilePos=vtell(ViewFile);
+				FilePos=vtell();
 
 				/*
 				        {
@@ -1960,8 +1959,8 @@ void Viewer::Up()
 		return;
 	}
 
-	vseek(ViewFile,FilePos-(__int64)BufSize,SEEK_SET);
-	BufSize = vread(Buf,BufSize,ViewFile);
+	vseek(FilePos-(__int64)BufSize,SEEK_SET);
+	BufSize = vread(Buf,BufSize);
 	Skipped=0;
 
 	if (BufSize>0 && Buf[BufSize-1]==(unsigned int)CRSym)
@@ -2376,7 +2375,7 @@ void Viewer::Search(int Next,int FirstChar)
 				SearchFlags.Set(SEARCH_MODE2);
 		}
 
-		vseek(ViewFile,LastSelPos,SEEK_SET);
+		vseek(LastSelPos,SEEK_SET);
 		Match=0;
 
 		if (SearchLength>0 && (!ReverseSearch || LastSelPos>0))
@@ -2401,7 +2400,7 @@ void Viewer::Search(int Next,int FirstChar)
 
 			int ReadSize;
 			TaskBar TB;
-			INT64 StartPos=vtell(ViewFile);
+			INT64 StartPos=vtell();
 			DWORD StartTime=GetTickCount();
 
 			while (!Match)
@@ -2414,9 +2413,9 @@ void Viewer::Search(int Next,int FirstChar)
 				if (CurPos<0)
 					CurPos=0;
 
-				vseek(ViewFile,CurPos,SEEK_SET);
+				vseek(CurPos,SEEK_SET);
 
-				if ((ReadSize=vread(Buf,BufSize,ViewFile,SearchHex!=0))<=0)
+				if ((ReadSize=vread(Buf,BufSize,SearchHex!=0))<=0)
 					break;
 
 				DWORD CurTime=GetTickCount();
@@ -2706,7 +2705,7 @@ void Viewer::SetNamesList(NamesList *List)
 }
 
 
-int Viewer::vread(wchar_t *Buf,int Count,File& SrcFile,bool Raw)
+int Viewer::vread(wchar_t *Buf,int Count, bool Raw)
 {
 	if (IsUnicodeCodePage(VM.CodePage))
 	{
@@ -2717,7 +2716,7 @@ int Viewer::vread(wchar_t *Buf,int Count,File& SrcFile,bool Raw)
 			return -1;
 
 		DWORD ReadSize=0;
-		SrcFile.Read(TmpBuf, Count*2, &ReadSize);
+		Reader.Read(TmpBuf, Count*2, &ReadSize);
 		TmpBuf[ReadSize]=0;
 		/* $ 20.10.2000 tran
 		   обратный порядок байтов */
@@ -2746,7 +2745,7 @@ int Viewer::vread(wchar_t *Buf,int Count,File& SrcFile,bool Raw)
 			return -1;
 
 		DWORD ReadSize=0;
-		SrcFile.Read(TmpBuf, Count, &ReadSize);
+		Reader.Read(TmpBuf, Count, &ReadSize);
 		int ConvertSize=ReadSize;
 
 		if (Count == 1)
@@ -2769,7 +2768,7 @@ int Viewer::vread(wchar_t *Buf,int Count,File& SrcFile,bool Raw)
 				while ((c&0xC0) == 0x80)
 				{
 					DWORD Readed=0;
-					if(!(SrcFile.Read(TmpBuf, 1, &Readed) && Readed==1))
+					if(!(Reader.Read(TmpBuf, 1, &Readed) && Readed==1))
 						break;
 
 					ReadSize++;
@@ -2786,7 +2785,7 @@ int Viewer::vread(wchar_t *Buf,int Count,File& SrcFile,bool Raw)
 					cc = 3;
 
 				DWORD CurRead=0;
-				SrcFile.Read(TmpBuf+1, cc, &CurRead);
+				Reader.Read(TmpBuf+1, cc, &CurRead);
 				ReadSize += CurRead;
 				ConvertSize = Min(cc+1,ReadSize);
 			}
@@ -2810,16 +2809,16 @@ int Viewer::vread(wchar_t *Buf,int Count,File& SrcFile,bool Raw)
 }
 
 
-int Viewer::vseek(File& SrcFile,__int64 Offset,int Whence)
+int Viewer::vseek(__int64 Offset,int Whence)
 {
-	return SrcFile.SetPointer(Offset*(IsUnicodeCodePage(VM.CodePage)?2:1), nullptr, Whence);
+	return ViewFile.SetPointer(Offset*(IsUnicodeCodePage(VM.CodePage)?2:1), nullptr, Whence);
 }
 
 
-__int64 Viewer::vtell(File& SrcFile)
+__int64 Viewer::vtell()
 {
 	INT64 Ptr=0;
-	SrcFile.GetPointer(Ptr);
+	ViewFile.GetPointer(Ptr);
 	if (IsUnicodeCodePage(VM.CodePage))
 	{
 		Ptr=(Ptr+(Ptr&1))/2;
@@ -2828,11 +2827,11 @@ __int64 Viewer::vtell(File& SrcFile)
 }
 
 
-bool Viewer::vgetc(File& SrcFile,WCHAR& C)
+bool Viewer::vgetc(WCHAR& C)
 {
 	bool Result=false;
 
-	if (vread(&C,1,SrcFile))
+	if (vread(&C,1))
 	{
 		Result=true;
 	}
@@ -2995,9 +2994,9 @@ void Viewer::AdjustFilePos()
 		if (GotoLinePos<0)
 			GotoLinePos=0;
 
-		vseek(ViewFile,GotoLinePos,SEEK_SET);
+		vseek(GotoLinePos,SEEK_SET);
 		int ReadSize=(int)Min((__int64)ARRAYSIZE(Buf),(__int64)(FilePos-GotoLinePos));
-		ReadSize=vread(Buf,ReadSize,ViewFile);
+		ReadSize=vread(Buf,ReadSize);
 
 		for (int I=ReadSize-1; I>=0; I--)
 			if (Buf[I]==(unsigned int)CRSym)
@@ -3006,7 +3005,7 @@ void Viewer::AdjustFilePos()
 				break;
 			}
 
-		vseek(ViewFile,FilePos+1,SEEK_SET);
+		vseek(FilePos+1,SEEK_SET);
 
 		if (VM.Hex)
 			FilePos&=~(IsUnicodeCodePage(VM.CodePage) ? 0x7:0xf);
@@ -3059,9 +3058,9 @@ void Viewer::SelectText(const __int64 &MatchPos,const __int64 &SearchLength, con
 	if (SearchLinePos<0)
 		SearchLinePos=0;
 
-	vseek(ViewFile,SearchLinePos,SEEK_SET);
+	vseek(SearchLinePos,SEEK_SET);
 	int ReadSize=(int)Min((__int64)ARRAYSIZE(Buf),(__int64)(MatchPos-SearchLinePos));
-	ReadSize=vread(Buf,ReadSize,ViewFile);
+	ReadSize=vread(Buf,ReadSize);
 
 	for (int I=ReadSize-1; I>=0; I--)
 		if (Buf[I]==(unsigned int)CRSym)
@@ -3071,7 +3070,7 @@ void Viewer::SelectText(const __int64 &MatchPos,const __int64 &SearchLength, con
 		}
 
 //MessageBeep(0);
-	vseek(ViewFile,MatchPos+1,SEEK_SET);
+	vseek(MatchPos+1,SEEK_SET);
 	SelectPos=FilePos=MatchPos;
 	SelectSize=SearchLength;
 	SelectFlags=Flags;

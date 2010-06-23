@@ -1,9 +1,9 @@
 #pragma once
 
 /*
-CachedWrite.hpp
+cache.hpp
 
-Кеширование записи в файл
+Кеширование записи в файл/чтения из файла
 */
 /*
 Copyright (c) 2009 Far Group
@@ -32,19 +32,37 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+class CachedRead
+{
+public:
+	CachedRead(File& file);
+	~CachedRead();
+	bool Read(LPVOID Data, DWORD DataSize, LPDWORD BytesRead);
+	bool FillBuffer();
+
+private:
+	LPBYTE Buffer;
+	File& file;
+	enum {BufferSize=0x10000};
+	DWORD ReadSize;
+	DWORD BytesLeft;
+	INT64 LastPtr;
+};
+
+
 class CachedWrite
 {
 public:
 	CachedWrite(File& file);
 	~CachedWrite();
-	bool Write(LPCVOID Data,size_t DataSize);
+	bool Write(LPCVOID Data, DWORD DataSize);
 	bool Flush();
 
 private:
 	LPBYTE Buffer;
 	File& file;
 	enum {BufferSize=0x10000};
-	size_t FreeSize;
+	DWORD FreeSize;
 	bool Flushed;
 
 };

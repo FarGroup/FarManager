@@ -632,7 +632,7 @@
 				>
 			</File>
 			<File
-				RelativePath="CachedWrite.cpp"
+				RelativePath="cache.cpp"
 				>
 			</File>
 			<File
@@ -2677,7 +2677,7 @@
 				>
 			</File>
 			<File
-				RelativePath="CachedWrite.hpp"
+				RelativePath="cache.hpp"
 				>
 			</File>
 			<File

@@ -24,7 +24,7 @@ DEPFILE = bootstrap/far.gcc.dep
 
 SRCS = \
 	adminmode.cpp \
-	CachedWrite.cpp \
+	cache.cpp \
 	cddrv.cpp \
 	CFileMask.cpp \
 	chgmmode.cpp \

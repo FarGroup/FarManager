@@ -68,7 +68,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dirmix.hpp"
 #include "strmix.hpp"
 #include "exitcode.hpp"
-#include "CachedWrite.hpp"
+#include "cache.hpp"
 #include "constitle.hpp"
 
 enum enumOpenEditor

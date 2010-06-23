@@ -1,7 +1,7 @@
 /*
-CachedWrite.cpp
+cache.cpp
 
-Кеширование записи в файл
+Кеширование записи в файл/чтения из файла
 */
 /*
 Copyright (c) 2009 Far Group
@@ -33,7 +33,111 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "CachedWrite.hpp"
+#include "cache.hpp"
+
+CachedRead::CachedRead(File& file):
+	Buffer(reinterpret_cast<LPBYTE>(xf_malloc(BufferSize))),
+	file(file),
+	ReadSize(0),
+	BytesLeft(0),
+	LastPtr(0)
+{
+}
+
+CachedRead::~CachedRead()
+{
+	if (Buffer)
+	{
+		xf_free(Buffer);
+	}
+}
+
+bool CachedRead::Read(LPVOID Data, DWORD DataSize, LPDWORD BytesRead)
+{
+	INT64 Ptr=0;
+	file.GetPointer(Ptr);
+
+	if(Ptr!=LastPtr)
+	{
+		INT64 MaxValidPtr=LastPtr+BytesLeft, MinValidPtr=MaxValidPtr-ReadSize;
+		if(Ptr>=MinValidPtr && Ptr<=MaxValidPtr)
+		{
+			BytesLeft-=static_cast<int>(Ptr-LastPtr);
+		}
+		else
+		{
+			BytesLeft=0;
+		}
+	}
+	bool Result=true;
+	*BytesRead=0;
+	if(DataSize<BufferSize)
+	{
+		if (Buffer)
+		{
+			if(!BytesLeft)
+			{
+				FillBuffer();
+			}
+
+			if(BytesLeft)
+			{
+				DWORD Actual=Min(BytesLeft, DataSize);
+				memcpy(Data, &Buffer[ReadSize-BytesLeft], Actual);
+				BytesLeft-=Actual;
+
+				file.SetPointer(Actual, &LastPtr, FILE_CURRENT);
+				*BytesRead=Actual;
+				DataSize-=Actual;
+				if(BytesLeft<DataSize)
+				{
+					FillBuffer();
+					if(BytesLeft)
+					{
+						Actual=Min(BytesLeft, DataSize);
+						memcpy(Data, &Buffer[ReadSize-BytesLeft], Actual);
+						BytesLeft-=Actual;
+						file.SetPointer(Actual, &LastPtr, FILE_CURRENT);
+						*BytesRead=Actual;
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		Result = file.Read(Data, DataSize, BytesRead);
+	}
+	return Result;
+}
+
+bool CachedRead::FillBuffer()
+{
+	bool Result=false;
+	if(!file.Eof())
+	{
+		INT64 Pointer=0;
+		file.GetPointer(Pointer);
+		bool Bidirection=false;
+		if(Pointer>BufferSize/2)
+		{
+			Bidirection=true;
+			file.SetPointer(-BufferSize/2, nullptr, FILE_CURRENT);
+		}
+		Result = file.Read(Buffer, BufferSize, &ReadSize);
+		if(Result)
+		{
+			BytesLeft = ReadSize;
+			if(Bidirection && BytesLeft>BufferSize/2)
+			{
+				BytesLeft-=BufferSize/2;
+			}
+			file.SetPointer(Pointer, nullptr, FILE_BEGIN);
+		}
+	}
+	return Result;
+}
+
 
 CachedWrite::CachedWrite(File& file):
 	Buffer(reinterpret_cast<LPBYTE>(xf_malloc(BufferSize))),
@@ -53,7 +157,7 @@ CachedWrite::~CachedWrite()
 	}
 }
 
-bool CachedWrite::Write(LPCVOID Data,size_t DataSize)
+bool CachedWrite::Write(LPCVOID Data, DWORD DataSize)
 {
 	bool Result=false;
 	bool SuccessFlush=true;
@@ -71,7 +175,7 @@ bool CachedWrite::Write(LPCVOID Data,size_t DataSize)
 			{
 				DWORD WrittenSize=0;
 
-				if (file.Write(Data,static_cast<DWORD>(DataSize),&WrittenSize,nullptr) && DataSize==WrittenSize)
+				if (file.Write(Data, DataSize,&WrittenSize) && DataSize==WrittenSize)
 				{
 					Result=true;
 				}
@@ -96,7 +200,7 @@ bool CachedWrite::Flush()
 		{
 			DWORD WrittenSize=0;
 
-			if (file.Write(Buffer,static_cast<DWORD>(BufferSize-FreeSize),&WrittenSize,nullptr) && BufferSize-FreeSize==WrittenSize)
+			if (file.Write(Buffer, BufferSize-FreeSize, &WrittenSize, nullptr) && BufferSize-FreeSize==WrittenSize)
 			{
 				Flushed=true;
 				FreeSize=BufferSize;
