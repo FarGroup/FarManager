@@ -13,7 +13,7 @@
 CPPFLAGS = -nologo -D_WIN32_WINNT=0x0400
 LINKFLAGS = -nologo -incremental:no -machine:$(PLATFORM)
 CANDLEFLAGS = -nologo -dSourceDir="$(SOURCE_DIR)" -dBranch=$(VER_MAJOR) -dPlatform=$(PLATFORM) -dVersion=$(VER_MAJOR).$(VER_MINOR).$(VER_BUILD)
-LIGHTFLAGS = -nologo -cultures:en-us -spdb -sval
+LIGHTFLAGS = -nologo -spdb -sval
 
 !ifdef RELEASE
 OUTDIR = Release
@@ -38,8 +38,18 @@ LIGHTFLAGS = $(LIGHTFLAGS) -sh
 MSI_NAME = $(OUTDIR)\far.msi
 !endif
 
-$(MSI_NAME): $(OUTDIR) $(WIXOBJ) en-us.wxl ui_en-us.wxl $(OUTDIR)\customact.dll
-  light $(LIGHTFLAGS) -loc en-us.wxl -loc ui_en-us.wxl -out $@ $(WIXOBJ)
+$(MSI_NAME): $(OUTDIR) $(OUTDIR)\1033.msi $(OUTDIR)\1049
+  copy /y $(OUTDIR)\1033.msi $(MSI_NAME)
+  msidb -d $(MSI_NAME) -r $(OUTDIR)\1049
+
+$(OUTDIR)\1033.msi: $(WIXOBJ) en-us.wxl ui_en-us.wxl $(OUTDIR)\customact.dll
+  light $(LIGHTFLAGS) -cultures:en-us -loc en-us.wxl -loc ui_en-us.wxl -out $@ $(WIXOBJ)
+
+$(OUTDIR)\1049.msi: $(WIXOBJ) ru-ru.wxl ui_ru-ru.wxl $(OUTDIR)\customact.dll
+  light $(LIGHTFLAGS) -cultures:ru-ru -loc ru-ru.wxl -loc ui_ru-ru.wxl -out $@ $(WIXOBJ)
+
+$(OUTDIR)\1049: $(OUTDIR)\1033.msi $(OUTDIR)\1049.msi
+  torch -nologo -t language $(OUTDIR)\1033.msi $(OUTDIR)\1049.msi -out $@
 
 $(OUTDIR)\customact.dll: customact.cpp customact.def $(OUTDIR)\customact.res
   cl $(CPPFLAGS) -EHsc customact.cpp -link $(LINKFLAGS) -dll -out:$@ -def:customact.def $(OUTDIR)\customact.res msi.lib shell32.lib rpcrt4.lib
