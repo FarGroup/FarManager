@@ -1235,7 +1235,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 					}
 					TaskBar TB;
 					bool Cancel=false;
-					DWORD LastTime=GetTickCount();
+					DWORD LastTime=0;
 
 					bool SingleFileDone=false;
 					while (SrcPanel?SrcPanel->GetSelName(&strSelName,FileAttr,nullptr,&FindData):!SingleFileDone && !Cancel)
