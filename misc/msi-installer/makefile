@@ -30,7 +30,7 @@ OUTDIR = $(OUTDIR).$(PLATFORM).$(VER_MAJOR)
 CPPFLAGS = -Fo$(OUTDIR)\ $(CPPFLAGS)
 CANDLEFLAGS = -out $(OUTDIR)\ $(CANDLEFLAGS)
 
-WIXOBJ = $(OUTDIR)\installer.wixobj $(OUTDIR)\ui.wixobj
+WIXOBJ = $(OUTDIR)\installer.wixobj $(OUTDIR)\files.wixobj $(OUTDIR)\features.wixobj $(OUTDIR)\shortcuts.wixobj $(OUTDIR)\ui.wixobj
 !ifdef NIGHTLY
 MSI_NAME = $(SOURCE_DIR)\final.msi
 LIGHTFLAGS = $(LIGHTFLAGS) -sh
@@ -60,11 +60,7 @@ $(OUTDIR)\customact.res: customact.rc $(OUTDIR)\consize.exe
 $(OUTDIR)\consize.exe: consize.cpp
   cl $(CPPFLAGS) -GS- consize.cpp -link $(LINKFLAGS) -nodefaultlib -entry:main -out:$@ kernel32.lib
 
-$(WIXOBJ): params.mak
-
-installer.wxs: files.wxi features.wxi shortcuts.wxi defines.wxi guids_$(VER_MAJOR)_$(PLATFORM).wxi
-
-ui.wxs: defines.wxi
+$(WIXOBJ): params.mak defines.wxi guids_$(VER_MAJOR)_$(PLATFORM).wxi
 
 .wxs{$(OUTDIR)}.wixobj::
   candle $(CANDLEFLAGS) $<

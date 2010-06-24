@@ -36,7 +36,6 @@
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="$(var.ProgramFiles)">
         <Directory Id="INSTALLDIR" Name="$(var.DefMachineInstallDir)">
-<?include files.wxi ?>
           <Component Id="InstallDir" Guid="$(var.Guid.InstallDir)" Win64="$(var.Win64)">
             <RegistryValue Root="HKMU" Key="Software\$(var.RegKey)" Name="$(var.InstallDir)" Value="[INSTALLDIR]" Type="string" KeyPath="yes" />
           </Component>
@@ -66,9 +65,8 @@
           </Component>
         </Directory>
       </Directory>
-<?include shortcuts.wxi ?>
     </Directory>
-<?include features.wxi ?>
+    <FeatureRef Id="Far" />
     <Upgrade Id="$(var.Guid.UpgradeCode)">
       <UpgradeVersion Property="PREVIOUSVERSIONSINSTALLED" MigrateFeatures="yes" Minimum="0.0.0" />
     </Upgrade>
