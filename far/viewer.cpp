@@ -217,6 +217,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 	OpenFailed=false;
 
 	ViewFile.Close();
+	Reader.Clear();
 
 	SelectSize = 0; // —бросим выделение
 	strFileName = Name;
@@ -272,11 +273,11 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 
 	CodePageChangedByUser=FALSE;
 	ViewFile=NewViewFile;
-	
+
 	// BUGBUG
 	// prevent closing ViewFile.Handle in ~NewViewFile()
 	NewViewFile.SetHandle(INVALID_HANDLE_VALUE);
-	
+
 	ConvertNameToFull(strFileName,strFullFileName);
 	apiGetFindDataEx(strFileName, ViewFindData);
 	UINT CachedCodePage=0;

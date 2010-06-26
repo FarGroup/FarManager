@@ -52,6 +52,13 @@ CachedRead::~CachedRead()
 	}
 }
 
+void CachedRead::Clear()
+{
+	ReadSize=0;
+	BytesLeft=0;
+	LastPtr=0;
+}
+
 bool CachedRead::Read(LPVOID Data, DWORD DataSize, LPDWORD BytesRead)
 {
 	INT64 Ptr=0;
