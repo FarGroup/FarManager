@@ -1105,7 +1105,7 @@ MHistoryEdit
 "Edytuj"
 
 MHistoryExt
-"Внешний "
+"Внешний"
 "Ext."
 "Rozšíření"
 "Ext."

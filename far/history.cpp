@@ -752,7 +752,9 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 			if (!SelectedRecord)
 				return -1;
 
-			if (RetCode != 3 && ((TypeHistory == HISTORYTYPE_FOLDER && !SelectedRecord->Type) || TypeHistory == HISTORYTYPE_VIEW) && apiGetFileAttributes(SelectedRecord->strName) == INVALID_FILE_ATTRIBUTES)
+			//BUGUBUG: eliminate those magic numbers!
+			if (SelectedRecord->Type != 2 && SelectedRecord->Type != 3 // ignore external
+				&& RetCode != 3 && ((TypeHistory == HISTORYTYPE_FOLDER && !SelectedRecord->Type) || TypeHistory == HISTORYTYPE_VIEW) && apiGetFileAttributes(SelectedRecord->strName) == INVALID_FILE_ATTRIBUTES)
 			{
 				SetLastError(ERROR_FILE_NOT_FOUND);
 
