@@ -38,9 +38,8 @@ LIGHTFLAGS = $(LIGHTFLAGS) -sh
 MSI_NAME = $(OUTDIR)\far.msi
 !endif
 
-$(MSI_NAME): $(OUTDIR) $(OUTDIR)\1033.msi $(OUTDIR)\1049
+$(MSI_NAME): $(OUTDIR) $(OUTDIR)\1033.msi
   copy /y $(OUTDIR)\1033.msi $(MSI_NAME)
-  msidb -d $(MSI_NAME) -r $(OUTDIR)\1049
 
 $(OUTDIR)\1033.msi: $(WIXOBJ) en-us.wxl ui_en-us.wxl $(OUTDIR)\customact.dll
   light $(LIGHTFLAGS) -cultures:en-us -loc en-us.wxl -loc ui_en-us.wxl -out $@ $(WIXOBJ)
