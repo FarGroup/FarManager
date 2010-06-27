@@ -456,7 +456,7 @@ void GetCursorPos(SHORT& X,SHORT& Y)
 
 void SetCursorType(bool Visible, DWORD Size)
 {
-	if (Size==-1 || !Visible)
+	if (Size==(DWORD)-1 || !Visible)
 		Size=IsFullscreen()?
 		     (Opt.CursorSize[1]?Opt.CursorSize[1]:InitCurSize):
 				     (Opt.CursorSize[0]?Opt.CursorSize[0]:InitCurSize);

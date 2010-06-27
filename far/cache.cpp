@@ -105,7 +105,7 @@ bool CachedRead::Read(LPVOID Data, DWORD DataSize, LPDWORD BytesRead)
 						memcpy(Data, &Buffer[ReadSize-BytesLeft], Actual);
 						BytesLeft-=Actual;
 						file.SetPointer(Actual, &LastPtr, FILE_CURRENT);
-						*BytesRead=Actual;
+						*BytesRead+=Actual;
 					}
 				}
 			}
