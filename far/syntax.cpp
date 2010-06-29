@@ -429,7 +429,10 @@ static void calcFunc()
 
 					expr();
 
-					if (currTok != ((i == nParam-1) ? tRp : tComma))
+					if (oParam > 0 && currTok == tRp && !foundparam)
+						break;
+
+					if ( currTok != ((i == nParam-1) ? tRp : tComma) )
 					{
 						if (oParam > 0 &&  currTok != tEnd)  // если опциональные параметры есть и...
 							break;
@@ -458,7 +461,7 @@ static void calcFunc()
 				}
 
 				// добьем нулями опциональные параметры
-				for (; i < nParam-1; ++i)
+				for (; i < nParam-(!foundparam?0:1); ++i)
 				{
 					put(MCODE_OP_PUSHINT);
 

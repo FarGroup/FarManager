@@ -561,7 +561,7 @@ void ReloadEnvironment()
 	string strName, strData;
 	string strOptRegRoot(Opt.strRegRoot);
 	Opt.strRegRoot.Clear();
-	
+
 	for(size_t i=0; i<ARRAYSIZE(Addr); i++)
 	{
 		SetRegRootKey(Addr[i].Key);
@@ -705,7 +705,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 	SetFarConsoleMode();
 	BOOL ZoomedState=IsZoomed(Console.GetWindow());
 	BOOL IconicState=IsIconic(Console.GetWindow());
-	
+
 	bool FullscreenState=IsFullscreen();
 
 	for (;;)
@@ -1593,7 +1593,7 @@ DWORD WaitKey(DWORD KeyWait,DWORD delayMS,bool ExcludeMacro)
 
 		if (KeyWait == (DWORD)-1)
 		{
-			if ((Key&(~KEY_CTRLMASK)) < KEY_END_FKEY || IS_INTERNAL_KEY_REAL(Key))
+			if ((Key&(~KEY_CTRLMASK)) < KEY_END_FKEY || IS_INTERNAL_KEY_REAL(Key&(~KEY_CTRLMASK)))
 				break;
 		}
 		else if (Key == KeyWait)
