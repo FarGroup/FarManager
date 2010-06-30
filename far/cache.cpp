@@ -67,7 +67,7 @@ bool CachedRead::Read(LPVOID Data, DWORD DataSize, LPDWORD BytesRead)
 	if(Ptr!=LastPtr)
 	{
 		INT64 MaxValidPtr=LastPtr+BytesLeft, MinValidPtr=MaxValidPtr-ReadSize;
-		if(Ptr>=MinValidPtr && Ptr<=MaxValidPtr)
+		if(Ptr>=MinValidPtr && Ptr<MaxValidPtr)
 		{
 			BytesLeft-=static_cast<int>(Ptr-LastPtr);
 		}
@@ -75,40 +75,31 @@ bool CachedRead::Read(LPVOID Data, DWORD DataSize, LPDWORD BytesRead)
 		{
 			BytesLeft=0;
 		}
+		LastPtr=Ptr;
 	}
-	bool Result=true;
+	bool Result=false;
 	*BytesRead=0;
-	if(DataSize<BufferSize)
+	if(DataSize<=BufferSize && Buffer)
 	{
-		if (Buffer)
+		while (DataSize)
 		{
-			if(!BytesLeft)
+			if (!BytesLeft)
 			{
 				FillBuffer();
+
+				if (!BytesLeft)
+					break;
 			}
 
-			if(BytesLeft)
-			{
-				DWORD Actual=Min(BytesLeft, DataSize);
-				memcpy(Data, &Buffer[ReadSize-BytesLeft], Actual);
-				BytesLeft-=Actual;
+			Result=true;
 
-				file.SetPointer(Actual, &LastPtr, FILE_CURRENT);
-				*BytesRead=Actual;
-				DataSize-=Actual;
-				if(BytesLeft<DataSize)
-				{
-					FillBuffer();
-					if(BytesLeft)
-					{
-						Actual=Min(BytesLeft, DataSize);
-						memcpy(Data, &Buffer[ReadSize-BytesLeft], Actual);
-						BytesLeft-=Actual;
-						file.SetPointer(Actual, &LastPtr, FILE_CURRENT);
-						*BytesRead+=Actual;
-					}
-				}
-			}
+			DWORD Actual=Min(BytesLeft, DataSize);
+			memcpy(Data, &Buffer[ReadSize-BytesLeft], Actual);
+			Data=((LPBYTE)Data)+Actual;
+			BytesLeft-=Actual;
+			file.SetPointer(Actual, &LastPtr, FILE_CURRENT);
+			*BytesRead+=Actual;
+			DataSize-=Actual;
 		}
 	}
 	else
@@ -135,11 +126,18 @@ bool CachedRead::FillBuffer()
 		if(Result)
 		{
 			BytesLeft = ReadSize;
-			if(Bidirection && BytesLeft>BufferSize/2)
+			if(Bidirection && BytesLeft>=BufferSize/2)
 			{
 				BytesLeft-=BufferSize/2;
 			}
 			file.SetPointer(Pointer, nullptr, FILE_BEGIN);
+		}
+		else
+		{
+			if (Bidirection)
+				file.SetPointer(Pointer, nullptr, FILE_BEGIN);
+			ReadSize=0;
+			BytesLeft=0;
 		}
 	}
 	return Result;
