@@ -267,6 +267,7 @@ viewer.cpp
 viewer.hpp
 vmenu.cpp
 vmenu.hpp
+wakeful.hpp
 window.cpp
 window.hpp
 wrap.cpp

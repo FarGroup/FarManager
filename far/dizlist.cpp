@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "savescr.hpp"
 #include "TPreRedrawFunc.hpp"
-#include "TaskBar.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
 #include "message.hpp"

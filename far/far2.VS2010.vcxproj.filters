@@ -991,6 +991,9 @@
     <ClInclude Include="vmenu.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="wakeful.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="xlat.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

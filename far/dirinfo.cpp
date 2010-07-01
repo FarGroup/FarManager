@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "flink.hpp"
 #include "pathmix.hpp"
 #include "strmix.hpp"
+#include "wakeful.hpp"
 
 static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name,const UINT64 Size)
 {
@@ -91,6 +92,7 @@ int GetDirInfo(const wchar_t *Title,
 	UndoGlobalSaveScrPtr UndSaveScr(&SaveScr);
 	TPreRedrawFuncGuard preRedrawFuncGuard(PR_DrawGetDirInfoMsg);
 	TaskBar TB(MsgWaitTime!=-1);
+	wakeful W;
 	ScanTree ScTree(FALSE,TRUE,(Flags&GETDIRINFO_SCANSYMLINKDEF?(DWORD)-1:(Flags&GETDIRINFO_SCANSYMLINK)));
 	FAR_FIND_DATA_EX FindData;
 	clock_t StartTime=clock();

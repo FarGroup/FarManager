@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "palette.hpp"
 #include "FarDlgBuilder.hpp"
+#include "wakeful.hpp"
 
 static int ReplaceMode,ReplaceAll;
 
@@ -3583,6 +3584,7 @@ BOOL Editor::Search(int Next)
 		DWORD StartTime=GetTickCount();
 		int StartLine=NumLine;
 		TaskBar TB;
+		wakeful W;
 
 		while (CurPtr)
 		{

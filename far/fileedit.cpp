@@ -70,6 +70,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exitcode.hpp"
 #include "cache.hpp"
 #include "constitle.hpp"
+#include "wakeful.hpp"
 
 enum enumOpenEditor
 {
@@ -1379,6 +1380,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	TPreRedrawFuncGuard preRedrawFuncGuard(Editor::PR_EditorShowMsg);
 	TaskBar TB;
+	wakeful W;
 	int LastLineCR = 0;
 	EditorCacheParams cp;
 	UserBreak = 0;
@@ -1603,6 +1605,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 	}
 
 	TaskBar TB;
+	wakeful W;
 
 	if (m_editor->Flags.Check(FEDITOR_LOCKMODE) && !m_editor->Flags.Check(FEDITOR_MODIFIED) && !bSaveAs)
 		return SAVEFILE_SUCCESS;

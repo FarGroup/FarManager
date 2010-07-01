@@ -57,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "network.hpp"
 #include "fileowner.hpp"
 #include "privilege.hpp"
+#include "wakeful.hpp"
 
 enum SETATTRDLG
 {
@@ -1234,6 +1235,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 						SrcPanel->GetSelName(nullptr,FileAttr);
 					}
 					TaskBar TB;
+					wakeful W;
 					bool Cancel=false;
 					DWORD LastTime=0;
 

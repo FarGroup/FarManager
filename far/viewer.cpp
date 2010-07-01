@@ -65,6 +65,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "constitle.hpp"
 #include "console.hpp"
+#include "wakeful.hpp"
 
 static void PR_ViewerSearchMsg();
 static void ViewerSearchMsg(const wchar_t *Name,int Percent);
@@ -2401,6 +2402,7 @@ void Viewer::Search(int Next,int FirstChar)
 
 			int ReadSize;
 			TaskBar TB;
+			wakeful W;
 			INT64 StartPos=vtell();
 			DWORD StartTime=GetTickCount();
 

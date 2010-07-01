@@ -3415,6 +3415,10 @@
 				>
 			</File>
 			<File
+				RelativePath="wakeful.hpp"
+				>
+			</File>
+			<File
 				RelativePath="window.hpp"
 				>
 			</File>

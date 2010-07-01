@@ -73,6 +73,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "event.hpp"
 #include "console.hpp"
+#include "wakeful.hpp"
 
 const int CHAR_TABLE_SIZE=5;
 const int LIST_DELTA=64;
@@ -2885,6 +2886,7 @@ bool FindFilesProcess(Vars& v)
 	if (Thread)
 	{
 		v.TB=new TaskBar;
+		wakeful W;
 		IsProcessAssignMacroKey++; // отключим все спец. клавиши
 		Dlg.Process();
 		IsProcessAssignMacroKey--;
