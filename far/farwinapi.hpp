@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "plugin.hpp"
 #include "UnicodeString.hpp"
+#include "noncopyable.hpp"
 
 #define NT_MAX_PATH 32768
 
@@ -90,7 +91,7 @@ struct FAR_FIND_DATA_EX
 	}
 };
 
-class FindFile
+class FindFile: private NonCopyable
 {
 public:
 	FindFile(LPCWSTR Object, bool ScanSymLink = true);
@@ -104,7 +105,7 @@ private:
 	WIN32_FIND_DATA W32FindData;
 };
 
-class File
+class File: private NonCopyable
 {
 public:
 	File();
@@ -124,10 +125,6 @@ public:
 	bool Close();
 	bool Eof();
 	bool Opened() const {return Handle != INVALID_HANDLE_VALUE;}
-
-	// BUGBUG, for viewer only!
-	const HANDLE GetHandle() const {return Handle;}
-	void SetHandle(HANDLE NewHandle) {Handle=NewHandle;}
 
 private:
 	HANDLE Handle;

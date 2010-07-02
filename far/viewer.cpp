@@ -214,7 +214,6 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 {
 	VM.CodePage=DefCodePage;
 	DefCodePage=CP_AUTODETECT;
-	File NewViewFile;
 	OpenFailed=false;
 
 	ViewFile.Close();
@@ -233,11 +232,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 			return FALSE;
 		}
 
-		HANDLE OutHandle=apiCreateFile(strTempName,GENERIC_READ|GENERIC_WRITE,
-		                        FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,CREATE_ALWAYS,
-		                        FILE_ATTRIBUTE_TEMPORARY|FILE_FLAG_DELETE_ON_CLOSE);
-
-		if (OutHandle==INVALID_HANDLE_VALUE)
+		if (!ViewFile.Open(strTempName,GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,CREATE_ALWAYS,FILE_ATTRIBUTE_TEMPORARY|FILE_FLAG_DELETE_ON_CLOSE))
 		{
 			OpenFailed=true;
 			return FALSE;
@@ -247,19 +242,21 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 		DWORD ReadSize,WrittenSize;
 
 		while (ReadFile(Console.GetInputHandle(),ReadBuf,sizeof(ReadBuf),&ReadSize,nullptr))
-			WriteFile(OutHandle,ReadBuf,ReadSize,&WrittenSize,nullptr);
+		{
+			ViewFile.Write(ReadBuf,ReadSize,&WrittenSize);
+		}
+		ViewFile.SetPointer(0, nullptr, FILE_BEGIN);
 
 		//after reading from the pipe, redirect stdin to the real console stdin
-		NewViewFile.Open(L"CONIN$",GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ,0,OPEN_EXISTING);
-		SetStdHandle(STD_INPUT_HANDLE,NewViewFile.GetHandle());
+		SetStdHandle(STD_INPUT_HANDLE,apiCreateFile(L"CONIN$",GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ,nullptr,OPEN_EXISTING,0));
 		ReadStdin=TRUE;
 	}
 	else
 	{
-		NewViewFile.Open(strFileName, GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING);
+		ViewFile.Open(strFileName, GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING);
 	}
 
-	if (!NewViewFile.Opened())
+	if (!ViewFile.Opened())
 	{
 		/* $ 04.07.2000 tran
 		   + 'warning' flag processing, in QuickView it is FALSE
@@ -273,11 +270,6 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 	}
 
 	CodePageChangedByUser=FALSE;
-	ViewFile=NewViewFile;
-
-	// BUGBUG
-	// prevent closing ViewFile.Handle in ~NewViewFile()
-	NewViewFile.SetHandle(INVALID_HANDLE_VALUE);
 
 	ConvertNameToFull(strFileName,strFullFileName);
 	apiGetFindDataEx(strFileName, ViewFindData);

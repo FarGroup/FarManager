@@ -210,6 +210,7 @@ bool File::Close()
 		Result = admin?Admin.fCloseHandle(Handle):CloseHandle(Handle) != FALSE;
 		Handle = INVALID_HANDLE_VALUE;
 	}
+	admin=false;
 	return Result;
 }
 
@@ -1109,7 +1110,7 @@ bool apiQueryDosDevice(const wchar_t *DeviceName, string &Path) {
 		Res = QueryDosDeviceW(DeviceName, Path.GetBuffer(NT_MAX_PATH), NT_MAX_PATH);
 	}
 	if (!Res || GetLastError() != NO_ERROR)
-		return false;	
+		return false;
 	Path.ReleaseBuffer();
 	return true;
 }
