@@ -209,7 +209,8 @@ enum MACRO_OP_CODE
 	MCODE_F_PRINT,                    // N=Print(Str)
 	MCODE_F_MMODE,                    // N=MMode(Action[,Value])
 	MCODE_F_EDITOR_SETTITLE,          // N=Editor.SetTitle([Title])
-	MCODE_F_MENU_GETVALUE,            // N=Menu.GetValue([N])
+	MCODE_F_MENU_GETVALUE,            // S=Menu.GetValue([N])
+	MCODE_F_MENU_ITEMSTATUS,          // N=Menu.ItemStatus([N])
 
 	/* ************************************************************************* */
 	// булевые переменные - различные состояния

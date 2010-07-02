@@ -428,6 +428,8 @@ void KeyMacro::InitInternalLIBVars()
 
 	if (RecBuffer)
 		xf_free(RecBuffer);
+	RecBuffer=nullptr;
+	RecBufferSize=0;
 
 	memset(&IndexMode,0,sizeof(IndexMode));
 	MacroLIBCount=0;
@@ -609,6 +611,7 @@ int KeyMacro::ProcessKey(int Key)
 				{
 					xf_free(RecBuffer);
 					RecBuffer=nullptr;
+					RecBufferSize=0;
 				}
 			}
 			else
@@ -698,7 +701,10 @@ int KeyMacro::ProcessKey(int Key)
 			RecBuffer=(DWORD *)xf_realloc(RecBuffer,sizeof(*RecBuffer)*(RecBufferSize+3));
 
 			if (!RecBuffer)
+			{
+				RecBufferSize=0;
 				return FALSE;
+			}
 
 			if (ReturnAltValue) // "подтасовка" фактов ;-)
 				Key|=KEY_ALTDIGIT;
@@ -734,9 +740,9 @@ int KeyMacro::ProcessKey(int Key)
 
 		if (RecBuffer)
 			xf_free(RecBuffer);
-
 		RecBuffer=nullptr;
 		RecBufferSize=0;
+
 		RecSrc=nullptr;
 		ScrBuf.ResetShadow();
 		ScrBuf.Flush();
@@ -4181,6 +4187,9 @@ done:
 						GetCurRecord(&RBuf,&KeyPos);
 						PushState(true);
 
+						if (!(MR->Flags&MFLAGS_DISABLEOUTPUT))
+							RBuf.Flags &= ~MFLAGS_DISABLEOUTPUT;
+
 						if (!PostNewMacro(Val.toString(),RBuf.Flags&(~MFLAGS_REG_MULTI_SZ),RBuf.Key))
 							PopState();
 						else
@@ -4287,7 +4296,8 @@ done:
 			goto begin;
 		}
 
-		case MCODE_F_MENU_GETVALUE:  // N=Menu.GetValue([N])
+		case MCODE_F_MENU_ITEMSTATUS:     // N=Menu.ItemStatus([N])
+		case MCODE_F_MENU_GETVALUE:       // S=Menu.GetValue([N])
 		case MCODE_F_MENU_GETHOTKEY:      // S=gethotkey([N])
 		{
 			_KEYMACRO(CleverSysLog Clev(Key == MCODE_F_MENU_GETHOTKEY?L"MCODE_F_MENU_GETHOTKEY":L"MCODE_F_MENU_GETVALUE"));
@@ -4316,9 +4326,10 @@ done:
 
 				if (f)
 				{
+					__int64 MenuItemPos=tmpVar.i()-1;
 					if (Key == MCODE_F_MENU_GETHOTKEY)
 					{
-						if ((Result=f->VMProcess(Key,nullptr,tmpVar.i()-1)) )
+						if ((Result=f->VMProcess(Key,nullptr,MenuItemPos)) )
 						{
 
 							const wchar_t _value[]={static_cast<wchar_t>(Result),0};
@@ -4327,10 +4338,10 @@ done:
 						else
 							tmpVar=L"";
 					}
-					else
+					else if (Key == MCODE_F_MENU_GETVALUE)
 					{
 						string NewStr;
-						if (f->VMProcess(Key,&NewStr,tmpVar.i()-1))
+						if (f->VMProcess(Key,&NewStr,MenuItemPos))
 						{
 							HiText2Str(NewStr, NewStr);
 							RemoveExternalSpaces(NewStr);
@@ -4338,6 +4349,10 @@ done:
 						}
 						else
 							tmpVar=L"";
+					}
+					else if (Key == MCODE_F_MENU_ITEMSTATUS)
+					{
+						tmpVar=f->VMProcess(Key,nullptr,MenuItemPos);
 					}
 				}
 				else
@@ -6315,7 +6330,7 @@ int KeyMacro::GetCurRecord(MacroRecord* RBuf,int *KeyPos)
 		{
 			if (Work.Executing)
 			{
-				*RBuf=MacroLIB[Work.MacroPC]; //????
+				*RBuf=*Work.MacroWORK;   //MacroLIB[Work.MacroPC]; //????
 				return Work.Executing;
 			}
 
@@ -6325,6 +6340,7 @@ int KeyMacro::GetCurRecord(MacroRecord* RBuf,int *KeyPos)
 
 		RBuf->BufferSize=RecBufferSize;
 		RBuf->Buffer=RecBuffer;
+
 		return Recording==MACROMODE_RECORDING?MACROMODE_RECORDING:MACROMODE_RECORDING_COMMON;
 	}
 

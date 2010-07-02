@@ -825,24 +825,9 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 			return 0;
 		}
+
 		case MCODE_F_MENU_GETHOTKEY:
-		{
-			int Param = (int)iParam;
-
-			if (Param == -1)
-				Param = SelectPos;
-			else
-				Param = VisualPosToReal(Param);
-
-			iParam = Param;
-
-			if (Param>=0 && Param<ItemCount)
-				return GetHighlights(GetItemPtr(Param));
-
-			return 0;
-		}
-
-		case MCODE_F_MENU_GETVALUE: // N=Menu.GetValue([N])
+		case MCODE_F_MENU_GETVALUE: // S=Menu.GetValue([N])
 		{
 			int Param = (int)iParam;
 
@@ -856,12 +841,42 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				MenuItemEx *menuEx = GetItemPtr(Param);
 				if (menuEx)
 				{
-					*(string *)vParam = menuEx->strName;
-					return 1;
+					if (OpCode == MCODE_F_MENU_GETVALUE)
+					{
+						*(string *)vParam = menuEx->strName;
+						return 1;
+					}
+					else
+					{
+						return GetHighlights(menuEx);
+					}
 				}
 			}
 
 			return 0;
+		}
+
+		case MCODE_F_MENU_ITEMSTATUS: // N=Menu.ItemStatus([N])
+		{
+			__int64 RetValue=-1;
+			int Param = (int)iParam;
+
+			if (Param == -1)
+				Param = SelectPos;
+
+			MenuItemEx *menuEx = GetItemPtr(Param);
+
+			if (menuEx)
+			{
+				RetValue=menuEx->Flags;
+
+				if (Param == SelectPos)
+					RetValue |= LIF_SELECTED;
+
+				RetValue >>= 16;
+			}
+
+			return RetValue;
 		}
 
 		case MCODE_V_MENU_VALUE: // Menu.Value
@@ -876,6 +891,7 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 			return 0;
 		}
+
 	}
 
 	return 0;

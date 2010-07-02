@@ -126,27 +126,41 @@ __int64 HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			return (__int64)(CheckHighlights((WORD)*str, (int)iParam)+1);
 		}
 		case MCODE_F_MENU_GETHOTKEY:
-		{
-			if (iParam == -1)
-				iParam=SelectPos;
-
-			if ((int)iParam < ItemCount)
-				return (__int64)((DWORD)GetHighlights((const HMenuData *)(Item+(int)iParam)));
-
-			return 0;
-		}
-		case MCODE_F_MENU_GETVALUE: // N=Menu.GetValue([N])
+		case MCODE_F_MENU_GETVALUE: // S=Menu.GetValue([N])
 		{
 			if (iParam == -1)
 				iParam=SelectPos;
 
 			if ((int)iParam < ItemCount)
 			{
-				*(string *)vParam=Item[(int)iParam].Name;
-				return 1;
+				if (OpCode == MCODE_F_MENU_GETVALUE)
+				{
+					*(string *)vParam=Item[(int)iParam].Name;
+					return 1;
+				}
+				else
+				{
+					return (__int64)((DWORD)GetHighlights((const HMenuData *)(Item+(int)iParam)));
+				}
 			}
 
 			return 0;
+		}
+		case MCODE_F_MENU_ITEMSTATUS: // N=Menu.ItemStatus([N])
+		{
+			__int64 RetValue=-1;
+
+			if (iParam == -1)
+				iParam=SelectPos;
+
+			if ((int)iParam < ItemCount)
+			{
+				RetValue=0;
+				if (Item[(int)iParam].Selected)
+					RetValue |= 1;
+			}
+
+			return RetValue;
 		}
 		case MCODE_V_MENU_VALUE: // Menu.Value
 		{
