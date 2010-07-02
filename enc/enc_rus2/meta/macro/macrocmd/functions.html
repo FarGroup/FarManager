@@ -756,10 +756,27 @@ $End</pre>
   <tr class="cont">
     <td class="cont" width="40%">S=<dfn><a name="menu.getvalue">menu.getvalue</a></dfn>([N])</td>
     <td class="cont" width="60%">Возвращает текст пункта меню для заданной позиции <em>N</em>.<br>
-      Если текущий &quot;объект&quot; не меню и позиция <em>N</em> не валидна (меньше 0 или больше количества пунктов в меню), то возвращается пустая строка.<br>
+      Если текущий &quot;объект&quot; не меню или позиция <em>N</em> не валидна (меньше 0 или больше количества пунктов в меню), то возвращается пустая строка.<br>
       Если <em>N</em> не указан или равен 0, то действие аналогично применению <a href="states.html#Menu.Value">Menu.Value</a>.<br>
       Позиция меню не меняется.
     </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="menu.itemstatus">menu.itemstatus</a></dfn>([N])</td>
+    <td class="cont" width="60%">Возвращает состояние пункта меню с позицией <em>N</em> (текущая позиция - <em>N</em> не указан или равен 0):
+       <table class="cont">
+        <tr class="cont"><th class="cont" width="40%">Состояние</th><th class="cont" width="60%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="40%">0x00000001</td><td class="cont" width="60%">Признак активности пункта меню. Только один пункт может быть активным.</td></tr>
+        <tr class="cont"><td class="cont" width="40%">0x00000002</td><td class="cont" width="60%">Признак отмеченного пункта меню. Перед текстом будет отображаться метка выбора.</td></tr>
+        <tr class="cont"><td class="cont" width="40%">0x00000004</td><td class="cont" width="60%">Пункт меню отображается как разделитель.</td></tr>
+        <tr class="cont"><td class="cont" width="40%">0x00000008</td><td class="cont" width="60%">Пункт меню недоступен</td></tr>
+        <tr class="cont"><td class="cont" width="40%">0x00000010</td><td class="cont" width="60%">Если флаг установлен, то пункт меню доступен в навигации, но не доступен для выбора.</td></tr>
+        <tr class="cont"><td class="cont" width="40%">0x00000020</td><td class="cont" width="60%">Если флаг установлен, то пункт меню не выводится на экран.</td></tr>
+
+        <tr class="cont"><td class="cont" width="40%">0xFFFFFFFF</td><td class="cont" width="60%">Ошибка. Текущий &quot;объект&quot; не меню или позиция <em>N</em> не валидна (меньше 0 или больше количества пунктов в меню)</td></tr>
+       </table>
+       Функция работает со всеми пунктами меню.
+  </td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="menu.select">menu.select</a></dfn>(S[,N[,Dir]])</td>
