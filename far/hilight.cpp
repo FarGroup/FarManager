@@ -769,9 +769,6 @@ void SetHighlighting()
 		return;
 
 	string strRegKey;
-	// сразу пропишем %PATHEXT%, а FileFilterParams::SetMask() сам подстановку
-	// сделает.
-	string strCmdExt = L"*.exe,*.com,*.bat,*.cmd,%PATHEXT%";
 	static const wchar_t *Masks[]=
 	{
 		/* 0 */ L"*.*",
@@ -801,7 +798,7 @@ void SetHighlighting()
 	        /* 1 */{Masks[0], 0, 0x0004, 0x13, 0x38},
 	        /* 2 */{Masks[3], 0, 0x0010, 0x1F, 0x3F},
 	        /* 3 */{Masks[4], 0, 0x0010, 0x00, 0x00},
-	        /* 4 */{strCmdExt,0, 0x0000, 0x1A, 0x3A},
+	        /* 4 */{L"*.exe,*.com,*.bat,*.cmd,%PATHEXT%",0, 0x0000, 0x1A, 0x3A},
 	        /* 5 */{Masks[1], 0, 0x0000, 0x1D, 0x3D},
 	        /* 6 */{Masks[2], 0, 0x0000, 0x16, 0x36},
 	        // это настройка для каталогов на тех панелях, которые должны раскрашиваться
