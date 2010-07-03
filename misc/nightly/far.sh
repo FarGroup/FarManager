@@ -47,6 +47,7 @@ if [ $4 -eq 0 ]; then
   gawk -f changelog2.awk $2/changelog > $BINDIR/changelog
 else
   cp -f $2/changelog $BINDIR/
+  cp -f $2/changelog_eng $BINDIR/
 fi
 }
 
