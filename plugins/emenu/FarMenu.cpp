@@ -184,20 +184,41 @@ void CFarMenu::GetCursorXY(int* pnX, int* pnY)
     else
     {
       RECT rc;
-      CONSOLE_SCREEN_BUFFER_INFO csbi;
-      HANDLE hStdOutput=GetStdHandle(STD_OUTPUT_HANDLE);
-      if (!GetClientRect(hFarWnd, &rc)
-        || INVALID_HANDLE_VALUE==hStdOutput
-        || !GetConsoleScreenBufferInfo(hStdOutput, &csbi))
-      {
+      if (!GetClientRect(hFarWnd, &rc))
         assert(0);
-      }
-      else
-      {
-        if (pt.x>=rc.left && pt.x<=rc.right && pt.y>=rc.top && pt.y<=rc.bottom)
+      else {
+        bool success=false;
+        COORD console_size;
+#ifndef UNICODE
+        CONSOLE_SCREEN_BUFFER_INFO csbi;
+        HANDLE hStdOutput=GetStdHandle(STD_OUTPUT_HANDLE);
+        if (INVALID_HANDLE_VALUE!=hStdOutput
+          && GetConsoleScreenBufferInfo(hStdOutput, &csbi))
         {
-          *pnX=int(csbi.dwSize.X*pt.x/(rc.right-rc.left));
-          *pnY=int(csbi.dwSize.Y*pt.y/(rc.bottom-rc.top));
+          success=true;
+          console_size.X=csbi.dwSize.X;
+          console_size.Y=csbi.dwSize.Y;
+        }
+#else
+        SMALL_RECT console_rect;
+        if (thePlug->AdvControl(ACTL_GETFARRECT,(void*)&console_rect))
+        {
+          success=true;
+          console_size.X=console_rect.Right-console_rect.Left+1;
+          console_size.Y=console_rect.Bottom-console_rect.Top+1;
+        }
+#endif
+        if (!success)
+        {
+          assert(0);
+        }
+        else
+        {
+          if (pt.x>=rc.left && pt.x<=rc.right && pt.y>=rc.top && pt.y<=rc.bottom)
+          {
+            *pnX=int(console_size.X*pt.x/(rc.right-rc.left));
+            *pnY=int(console_size.Y*pt.y/(rc.bottom-rc.top));
+          }
         }
       }
     }
