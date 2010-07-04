@@ -7,14 +7,19 @@
       <Component Id="changelog" Guid="$(var.Guid.changelog)" Win64="$(var.Win64)">
         <File Id="changelog" KeyPath="yes" Source="$(var.SourceDir)\changelog" />
       </Component>
+<?if $(var.Branch) = 2 ?>
+      <Component Id="changelog_eng" Guid="$(var.Guid.changelog_eng)" Win64="$(var.Win64)">
+        <File Id="changelog_eng" KeyPath="yes" Source="$(var.SourceDir)\changelog_eng" />
+      </Component>
+<?endif?>
       <Component Id="Far.exe" Guid="$(var.Guid.Far.exe)" Win64="$(var.Win64)">
         <File Id="Far.exe" KeyPath="yes" Source="$(var.SourceDir)\Far.exe" />
       </Component>
-    <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
       <Component Id="far.map" Guid="$(var.Guid.far.map)" Win64="$(var.Win64)">
         <File Id="far.map" KeyPath="yes" Source="$(var.SourceDir)\far.map" />
       </Component>
-    <?endif?>
+<?endif?>
       <Component Id="FarEng.hlf" Guid="$(var.Guid.FarEng.hlf)" Win64="$(var.Win64)">
         <File Id="FarEng.hlf" KeyPath="yes" Source="$(var.SourceDir)\FarEng.hlf" />
       </Component>
@@ -30,7 +35,7 @@
       <Component Id="File_id.diz" Guid="$(var.Guid.File_id.diz)" Win64="$(var.Win64)">
         <File Id="File_id.diz" KeyPath="yes" Source="$(var.SourceDir)\File_id.diz" />
       </Component>
-    <?if $(var.Branch) = 1 ?>
+<?if $(var.Branch) = 1 ?>
       <Component Id="Descript.ion" Guid="$(var.Guid.Descript.ion)" Win64="$(var.Win64)">
         <File Id="Descript.ion" KeyPath="yes" Source="$(var.SourceDir)\Descript.ion" />
       </Component>
@@ -43,8 +48,8 @@
       <Component Id="SaveSettings.bat" Guid="$(var.Guid.SaveSettings.bat)" Win64="$(var.Win64)">
         <File Id="SaveSettings.cmd" KeyPath="yes" Source="$(var.SourceDir)\SaveSettings.bat" />
       </Component>
-    <?endif?>
-    <?if $(var.Branch) = 2 ?>
+<?endif?>
+<?if $(var.Branch) = 2 ?>
       <Component Id="FarCze.lng" Guid="$(var.Guid.FarCze.lng)" Win64="$(var.Win64)">
         <File Id="FarCze.lng" KeyPath="yes" Source="$(var.SourceDir)\FarCze.lng" />
       </Component>
@@ -69,7 +74,7 @@
       <Component Id="SaveSettings.cmd" Guid="$(var.Guid.SaveSettings.cmd)" Win64="$(var.Win64)">
         <File Id="SaveSettings.cmd" KeyPath="yes" Source="$(var.SourceDir)\SaveSettings.cmd" />
       </Component>
-    <?endif?>
+<?endif?>
       <Directory Id="Addons" Name="Addons">
         <Component Id="Descript.ion_1" Guid="$(var.Guid.Descript.ion_1)" Win64="$(var.Win64)">
           <File Id="Descript.ion_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Descript.ion" />
@@ -364,11 +369,11 @@
           <Component Id="Executor.CMD.reg" Guid="$(var.Guid.Executor.CMD.reg)" Win64="$(var.Win64)">
             <File Id="Executor.CMD.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\Executor.CMD.reg" />
           </Component>
-    <?if $(var.Branch) = 1 ?>
+<?if $(var.Branch) = 1 ?>
           <Component Id="Executor.COMMAND.reg" Guid="$(var.Guid.Executor.COMMAND.reg)" Win64="$(var.Win64)">
             <File Id="Executor.COMMAND.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\Executor.COMMAND.reg" />
           </Component>
-    <?endif?>
+<?endif?>
           <Component Id="WindowsGUI.reg" Guid="$(var.Guid.WindowsGUI.reg)" Win64="$(var.Win64)">
             <File Id="WindowsGUI.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\WindowsGUI.reg" />
           </Component>
@@ -381,7 +386,7 @@
             <File Id="FARHere.inf" KeyPath="yes" Source="$(var.SourceDir)\Addons\Shell\FARHere.inf" />
           </Component>
         </Directory>
-    <?if $(var.Branch) = 1 ?>
+<?if $(var.Branch) = 1 ?>
         <Directory Id="Tables" Name="Tables">
           <Component Id="Descript.ion_9" Guid="$(var.Guid.Descript.ion_9)" Win64="$(var.Win64)">
             <File Id="Descript.ion_9" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Descript.ion" />
@@ -496,7 +501,7 @@
             </Component>
           </Directory>
         </Directory>
-    <?endif?>
+<?endif?>
         <Directory Id="XLat" Name="XLat">
           <Component Id="Descript.ion_15" Guid="$(var.Guid.Descript.ion_15)" Win64="$(var.Win64)">
             <File Id="Descript.ion_15" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Descript.ion" />
@@ -531,11 +536,11 @@
           <Component Id="Bug.Report.txt" Guid="$(var.Guid.Bug.Report.txt)" Win64="$(var.Win64)">
             <File Id="Bug.Report.txt" KeyPath="yes" Source="$(var.SourceDir)\Documentation\eng\Bug.Report.txt" />
           </Component>
-    <?if $(var.Branch) = 1 ?>
+<?if $(var.Branch) = 1 ?>
           <Component Id="Descript.ion_17" Guid="$(var.Guid.Descript.ion_17)" Win64="$(var.Win64)">
             <File Id="Descript.ion_17" KeyPath="yes" Source="$(var.SourceDir)\Documentation\eng\Descript.ion" />
           </Component>
-    <?endif?>
+<?endif?>
           <Component Id="Far.FAQ.txt" Guid="$(var.Guid.Far.FAQ.txt)" Win64="$(var.Win64)">
             <File Id="Far.FAQ.txt" KeyPath="yes" Source="$(var.SourceDir)\Documentation\eng\Far.FAQ.txt" />
           </Component>
@@ -556,11 +561,11 @@
           <Component Id="Bug.Report.txt_1" Guid="$(var.Guid.Bug.Report.txt_1)" Win64="$(var.Win64)">
             <File Id="Bug.Report.txt_1" KeyPath="yes" Source="$(var.SourceDir)\Documentation\rus\Bug.Report.txt" />
           </Component>
-    <?if $(var.Branch) = 1 ?>
+<?if $(var.Branch) = 1 ?>
           <Component Id="Descript.ion_18" Guid="$(var.Guid.Descript.ion_18)" Win64="$(var.Win64)">
             <File Id="Descript.ion_18" KeyPath="yes" Source="$(var.SourceDir)\Documentation\rus\Descript.ion" />
           </Component>
-    <?endif?>
+<?endif?>
           <Component Id="Far.FAQ.txt_1" Guid="$(var.Guid.Far.FAQ.txt_1)" Win64="$(var.Win64)">
             <File Id="Far.FAQ.txt_1" KeyPath="yes" Source="$(var.SourceDir)\Documentation\rus\Far.FAQ.txt" />
           </Component>
@@ -576,16 +581,16 @@
         </Directory>
       </Directory>
       <Directory Id="Encyclopedia" Name="Encyclopedia">
-    <?if $(var.Branch) = 1 ?>
+<?if $(var.Branch) = 1 ?>
         <Component Id="FarEncyclopedia.en.chm" Guid="$(var.Guid.FarEncyclopedia.en.chm)" Win64="$(var.Win64)">
           <File Id="FarEncyclopedia.en.chm" KeyPath="yes" Source="$(var.SourceDir)\Encyclopedia\FarEncyclopedia.en.chm" />
         </Component>
-    <?endif?>
+<?endif?>
         <Component Id="FarEncyclopedia.ru.chm" Guid="$(var.Guid.FarEncyclopedia.ru.chm)" Win64="$(var.Win64)">
           <File Id="FarEncyclopedia.ru.chm" KeyPath="yes" Source="$(var.SourceDir)\Encyclopedia\FarEncyclopedia.ru.chm" />
         </Component>
       </Directory>
-    <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
       <Directory Id="FExcept" Name="FExcept">
         <Component Id="changelog_1" Guid="$(var.Guid.changelog_1)" Win64="$(var.Win64)">
           <File Id="changelog_1" KeyPath="yes" Source="$(var.SourceDir)\FExcept\changelog" />
@@ -603,17 +608,17 @@
           <File Id="SetFarExceptionHandler.reg" KeyPath="yes" Source="$(var.SourceDir)\FExcept\SetFarExceptionHandler.reg" />
         </Component>
       </Directory>
-    <?endif?>
+<?endif?>
       <Directory Id="Plugins" Name="Plugins">
         <Directory Id="Align" Name="Align">
           <Component Id="Align.dll" Guid="$(var.Guid.Align.dll)" Win64="$(var.Win64)">
             <File Id="Align.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Align\Align.dll" />
           </Component>
-    <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
           <Component Id="Align.map" Guid="$(var.Guid.Align.map)" Win64="$(var.Win64)">
             <File Id="Align.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Align\Align.map" />
           </Component>
-    <?endif?>
+<?endif?>
           <Component Id="AlignEng.lng" Guid="$(var.Guid.AlignEng.lng)" Win64="$(var.Win64)">
             <File Id="AlignEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Align\AlignEng.lng" />
           </Component>
@@ -628,11 +633,11 @@
           <Component Id="AutoWrap.dll" Guid="$(var.Guid.AutoWrap.dll)" Win64="$(var.Win64)">
             <File Id="AutoWrap.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\AutoWrap\AutoWrap.dll" />
           </Component>
-    <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
           <Component Id="AutoWrap.map" Guid="$(var.Guid.AutoWrap.map)" Win64="$(var.Win64)">
             <File Id="AutoWrap.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\AutoWrap\AutoWrap.map" />
           </Component>
-    <?endif?>
+<?endif?>
           <Component Id="changelog_3" Guid="$(var.Guid.changelog_3)" Win64="$(var.Win64)">
             <File Id="changelog_3" KeyPath="yes" Source="$(var.SourceDir)\Plugins\AutoWrap\changelog" />
           </Component>
@@ -659,11 +664,11 @@
           <Component Id="Brackets.dll" Guid="$(var.Guid.Brackets.dll)" Win64="$(var.Win64)">
             <File Id="Brackets.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\Brackets.dll" />
           </Component>
-    <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
           <Component Id="Brackets.map" Guid="$(var.Guid.Brackets.map)" Win64="$(var.Win64)">
             <File Id="Brackets.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\Brackets.map" />
           </Component>
-    <?endif?>
+<?endif?>
           <Component Id="BrackRus.hlf" Guid="$(var.Guid.BrackRus.hlf)" Win64="$(var.Win64)">
             <File Id="BrackRus.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackRus.hlf" />
           </Component>
@@ -690,11 +695,11 @@
           <Component Id="Compare.dll" Guid="$(var.Guid.Compare.dll)" Win64="$(var.Win64)">
             <File Id="Compare.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Compare\Compare.dll" />
           </Component>
-    <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
           <Component Id="Compare.map" Guid="$(var.Guid.Compare.map)" Win64="$(var.Win64)">
             <File Id="Compare.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Compare\Compare.map" />
           </Component>
-    <?endif?>
+<?endif?>
           <Component Id="CompEng.lng" Guid="$(var.Guid.CompEng.lng)" Win64="$(var.Win64)">
             <File Id="CompEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Compare\CompEng.lng" />
           </Component>
@@ -715,11 +720,11 @@
           <Component Id="DrawLine.dll" Guid="$(var.Guid.DrawLine.dll)" Win64="$(var.Win64)">
             <File Id="DrawLine.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\DrawLine\DrawLine.dll" />
           </Component>
-    <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
           <Component Id="DrawLine.map" Guid="$(var.Guid.DrawLine.map)" Win64="$(var.Win64)">
             <File Id="DrawLine.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\DrawLine\DrawLine.map" />
           </Component>
-    <?endif?>
+<?endif?>
           <Component Id="DrawRus.hlf" Guid="$(var.Guid.DrawRus.hlf)" Win64="$(var.Win64)">
             <File Id="DrawRus.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\DrawLine\DrawRus.hlf" />
           </Component>
@@ -746,11 +751,11 @@
           <Component Id="EditCase.dll" Guid="$(var.Guid.EditCase.dll)" Win64="$(var.Win64)">
             <File Id="EditCase.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EditCase\EditCase.dll" />
           </Component>
-    <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
           <Component Id="EditCase.map" Guid="$(var.Guid.EditCase.map)" Win64="$(var.Win64)">
             <File Id="EditCase.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EditCase\EditCase.map" />
           </Component>
-    <?endif?>
+<?endif?>
         </Directory>
         <Directory Id="EMenu" Name="EMenu">
           <Component Id="changelog_8" Guid="$(var.Guid.changelog_8)" Win64="$(var.Win64)">
@@ -759,11 +764,11 @@
           <Component Id="EMenu.dll" Guid="$(var.Guid.EMenu.dll)" Win64="$(var.Win64)">
             <File Id="EMenu.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\EMenu.dll" />
           </Component>
-    <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
           <Component Id="EMenu.map" Guid="$(var.Guid.EMenu.map)" Win64="$(var.Win64)">
             <File Id="EMenu.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\EMenu.map" />
           </Component>
-    <?endif?>
+<?endif?>
           <Component Id="EMenuDel.reg" Guid="$(var.Guid.EMenuDel.reg)" Win64="$(var.Win64)">
             <File Id="EMenuDel.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\EMenuDel.reg" />
           </Component>
@@ -796,11 +801,11 @@
           <Component Id="FARCmds.dll" Guid="$(var.Guid.FARCmds.dll)" Win64="$(var.Win64)">
             <File Id="FARCmds.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarCmds\FARCmds.dll" />
           </Component>
-    <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
           <Component Id="FARCmds.map" Guid="$(var.Guid.FARCmds.map)" Win64="$(var.Win64)">
             <File Id="FARCmds.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarCmds\FARCmds.map" />
           </Component>
-    <?endif?>
+<?endif?>
           <Component Id="FARCmdsEng.hlf" Guid="$(var.Guid.FARCmdsEng.hlf)" Win64="$(var.Win64)">
             <File Id="FARCmdsEng.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarCmds\FARCmdsEng.hlf" />
           </Component>
@@ -833,11 +838,11 @@
           <Component Id="FileCase.dll" Guid="$(var.Guid.FileCase.dll)" Win64="$(var.Win64)">
             <File Id="FileCase.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FileCase\FileCase.dll" />
           </Component>
-    <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
           <Component Id="FileCase.map" Guid="$(var.Guid.FileCase.map)" Win64="$(var.Win64)">
             <File Id="FileCase.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FileCase\FileCase.map" />
           </Component>
-    <?endif?>
+<?endif?>
         </Directory>
         <Directory Id="FTP" Name="FTP">
           <Component Id="changelog_11" Guid="$(var.Guid.changelog_11)" Win64="$(var.Win64)">
@@ -846,11 +851,11 @@
           <Component Id="FarFtp.dll" Guid="$(var.Guid.FarFtp.dll)" Win64="$(var.Win64)">
             <File Id="FarFtp.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\FarFtp.dll" />
           </Component>
-    <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
           <Component Id="FarFtp.map" Guid="$(var.Guid.FarFtp.map)" Win64="$(var.Win64)">
             <File Id="FarFtp.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\FarFtp.map" />
           </Component>
-    <?endif?>
+<?endif?>
           <Component Id="FtpCmds.txt" Guid="$(var.Guid.FtpCmds.txt)" Win64="$(var.Win64)">
             <File Id="FtpCmds.txt" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\FtpCmds.txt" />
           </Component>
@@ -888,14 +893,14 @@
             <Component Id="ftpProgress.fll" Guid="$(var.Guid.ftpProgress.fll)" Win64="$(var.Win64)">
               <File Id="ftpProgress.fll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\lib\ftpProgress.fll" />
             </Component>
-    <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
             <Component Id="ftpDirList.map" Guid="$(var.Guid.ftpDirList.map)" Win64="$(var.Win64)">
               <File Id="ftpDirList.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\lib\ftpDirList.map" />
             </Component>
             <Component Id="ftpProgress.map" Guid="$(var.Guid.ftpProgress.map)" Win64="$(var.Win64)">
               <File Id="ftpProgress.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\lib\ftpProgress.map" />
             </Component>
-    <?endif?>
+<?endif?>
             <Component Id="Progress_FarCopy.reg" Guid="$(var.Guid.Progress_FarCopy.reg)" Win64="$(var.Win64)">
               <File Id="Progress_FarCopy.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\lib\Progress_FarCopy.reg" />
             </Component>
@@ -917,11 +922,11 @@
           <Component Id="HlfViewer.dll" Guid="$(var.Guid.HlfViewer.dll)" Win64="$(var.Win64)">
             <File Id="HlfViewer.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\HlfViewer\HlfViewer.dll" />
           </Component>
-    <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
           <Component Id="HlfViewer.map" Guid="$(var.Guid.HlfViewer.map)" Win64="$(var.Win64)">
             <File Id="HlfViewer.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\HlfViewer\HlfViewer.map" />
           </Component>
-    <?endif?>
+<?endif?>
           <Component Id="HlfViewerEng.hlf" Guid="$(var.Guid.HlfViewerEng.hlf)" Win64="$(var.Win64)">
             <File Id="HlfViewerEng.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\HlfViewer\HlfViewerEng.hlf" />
           </Component>
@@ -954,11 +959,11 @@
           <Component Id="MacroView.dll" Guid="$(var.Guid.MacroView.dll)" Win64="$(var.Win64)">
             <File Id="MacroView.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MacroView\MacroView.dll" />
           </Component>
-    <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
           <Component Id="MacroView.map" Guid="$(var.Guid.MacroView.map)" Win64="$(var.Win64)">
             <File Id="MacroView.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MacroView\MacroView.map" />
           </Component>
-    <?endif?>
+<?endif?>
         </Directory>
         <Directory Id="MultiArc" Name="MultiArc">
           <Component Id="arceng.hlf" Guid="$(var.Guid.arceng.hlf)" Win64="$(var.Win64)">
@@ -979,11 +984,11 @@
           <Component Id="MultiArc.dll" Guid="$(var.Guid.MultiArc.dll)" Win64="$(var.Win64)">
             <File Id="MultiArc.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\MultiArc.dll" />
           </Component>
-    <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
           <Component Id="MultiArc.map" Guid="$(var.Guid.MultiArc.map)" Win64="$(var.Win64)">
             <File Id="MultiArc.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\MultiArc.map" />
           </Component>
-    <?endif?>
+<?endif?>
           <Directory Id="Formats" Name="Formats">
             <Component Id="Ace.fmt" Guid="$(var.Guid.Ace.fmt)" Win64="$(var.Win64)">
               <File Id="Ace.fmt" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\Formats\Ace.fmt" />
@@ -1018,7 +1023,7 @@
             <Component Id="Zip.fmt" Guid="$(var.Guid.Zip.fmt)" Win64="$(var.Win64)">
               <File Id="Zip.fmt" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\Formats\Zip.fmt" />
             </Component>
-    <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
             <Component Id="Ace.map" Guid="$(var.Guid.Ace.map)" Win64="$(var.Win64)">
               <File Id="Ace.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\Formats\Ace.map" />
             </Component>
@@ -1049,7 +1054,7 @@
             <Component Id="Zip.map" Guid="$(var.Guid.Zip.map)" Win64="$(var.Win64)">
               <File Id="Zip.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\Formats\Zip.map" />
             </Component>
-    <?endif?>
+<?endif?>
           </Directory>
         </Directory>
         <Directory Id="Network" Name="Network">
@@ -1071,11 +1076,11 @@
           <Component Id="Network.dll" Guid="$(var.Guid.Network.dll)" Win64="$(var.Win64)">
             <File Id="Network.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Network\Network.dll" />
           </Component>
-    <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
           <Component Id="Network.map" Guid="$(var.Guid.Network.map)" Win64="$(var.Win64)">
             <File Id="Network.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Network\Network.map" />
           </Component>
-    <?endif?>
+<?endif?>
         </Directory>
         <Directory Id="ProcList" Name="ProcList">
           <Component Id="changelog_16" Guid="$(var.Guid.changelog_16)" Win64="$(var.Win64)">
@@ -1090,11 +1095,11 @@
           <Component Id="Proclist.dll" Guid="$(var.Guid.Proclist.dll)" Win64="$(var.Win64)">
             <File Id="Proclist.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ProcList\Proclist.dll" />
           </Component>
-    <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
           <Component Id="Proclist.map" Guid="$(var.Guid.Proclist.map)" Win64="$(var.Win64)">
             <File Id="Proclist.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ProcList\Proclist.map" />
           </Component>
-    <?endif?>
+<?endif?>
           <Component Id="ProcRus.hlf" Guid="$(var.Guid.ProcRus.hlf)" Win64="$(var.Win64)">
             <File Id="ProcRus.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ProcList\ProcRus.hlf" />
           </Component>
@@ -1133,11 +1138,11 @@
           <Component Id="TmpPanel.dll" Guid="$(var.Guid.TmpPanel.dll)" Win64="$(var.Win64)">
             <File Id="TmpPanel.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\TmpPanel.dll" />
           </Component>
-    <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
           <Component Id="TmpPanel.map" Guid="$(var.Guid.TmpPanel.map)" Win64="$(var.Win64)">
             <File Id="TmpPanel.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\TmpPanel.map" />
           </Component>
-    <?endif?>
+<?endif?>
           <Component Id="TmpRus.hlf" Guid="$(var.Guid.TmpRus.hlf)" Win64="$(var.Win64)">
             <File Id="TmpRus.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\TmpRus.hlf" />
           </Component>
@@ -1147,7 +1152,7 @@
         </Directory>
       </Directory>
       <Directory Id="PluginSDK" Name="PluginSDK">
-    <?if $(var.Branch) = 1 ?>
+<?if $(var.Branch) = 1 ?>
         <Component Id="Descript.ion_19" Guid="$(var.Guid.Descript.ion_19)" Win64="$(var.Win64)">
           <File Id="Descript.ion_19" KeyPath="yes" Source="$(var.SourceDir)\PluginSDK\Descript.ion" />
         </Component>
@@ -1160,7 +1165,7 @@
         <Component Id="VCReadme.txt" Guid="$(var.Guid.VCReadme.txt)" Win64="$(var.Win64)">
           <File Id="VCReadme.txt" KeyPath="yes" Source="$(var.SourceDir)\PluginSDK\VCReadme.txt" />
         </Component>
-    <?endif?>
+<?endif?>
         <Directory Id="Headers.c" Name="Headers.c">
           <Component Id="farcolor.hpp" Guid="$(var.Guid.farcolor.hpp)" Win64="$(var.Win64)">
             <File Id="farcolor.hpp" KeyPath="yes" Source="$(var.SourceDir)\PluginSDK\Headers.c\farcolor.hpp" />
@@ -1173,7 +1178,7 @@
           </Component>
         </Directory>
         <Directory Id="Headers.pas" Name="Headers.pas">
-    <?if $(var.Branch) = 1 ?>
+<?if $(var.Branch) = 1 ?>
           <Component Id="farcolor.pas" Guid="$(var.Guid.farcolor.pas)" Win64="$(var.Win64)">
             <File Id="farcolor.pas" KeyPath="yes" Source="$(var.SourceDir)\PluginSDK\Headers.pas\farcolor.pas" />
           </Component>
@@ -1183,8 +1188,8 @@
           <Component Id="plugin.pas" Guid="$(var.Guid.plugin.pas)" Win64="$(var.Win64)">
             <File Id="plugin.pas" KeyPath="yes" Source="$(var.SourceDir)\PluginSDK\Headers.pas\plugin.pas" />
           </Component>
-    <?endif?>
-    <?if $(var.Branch) = 2 ?>
+<?endif?>
+<?if $(var.Branch) = 2 ?>
           <Component Id="FarColorW.pas" Guid="$(var.Guid.FarColorW.pas)" Win64="$(var.Win64)">
             <File Id="FarColorW.pas" KeyPath="yes" Source="$(var.SourceDir)\PluginSDK\Headers.pas\FarColorW.pas" />
           </Component>
@@ -1194,7 +1199,7 @@
           <Component Id="PluginW.pas" Guid="$(var.Guid.PluginW.pas)" Win64="$(var.Win64)">
             <File Id="PluginW.pas" KeyPath="yes" Source="$(var.SourceDir)\PluginSDK\Headers.pas\PluginW.pas" />
           </Component>
-    <?endif?>
+<?endif?>
         </Directory>
       </Directory>
     </DirectoryRef>

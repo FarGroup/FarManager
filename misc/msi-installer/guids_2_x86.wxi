@@ -19,6 +19,7 @@
 <?define Guid.RussianEncShortcut = "68F52B29-A7F9-42AE-B4E9-F8395AD1B94E" ?>
 <!-- files -->
 <?define Guid.changelog = "5B1914E3-9E7D-468C-90CD-AD9966EE7EBE" ?>
+<?define Guid.changelog_eng = "3786EEF3-92BE-4147-AEBD-9E2DF9E08F4B" ?>
 <?define Guid.Far.exe = "400D4E9A-1B0F-4E65-A95F-A1606160F24A" ?>
 <?define Guid.far.map = "A83A0389-605B-495B-B3CB-78A9983B07C1" ?>
 <?define Guid.FarEng.hlf = "45499D92-1451-4822-81BB-A1B07237E2BA" ?>

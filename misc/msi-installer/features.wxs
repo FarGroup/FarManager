@@ -8,17 +8,17 @@
       <ComponentRef Id="FarEng.hlf" />
       <ComponentRef Id="FarEng.lng" />
       <ComponentRef Id="File_id.diz" />
-  <?if $(var.Branch) = 1 ?>
+<?if $(var.Branch) = 1 ?>
       <ComponentRef Id="Descript.ion" />
       <ComponentRef Id="ClearPluginsCache.bat" />
       <ComponentRef Id="RestoreSettings.bat" />
       <ComponentRef Id="SaveSettings.bat" />
-  <?endif?>
-  <?if $(var.Branch) = 2 ?>
+<?endif?>
+<?if $(var.Branch) = 2 ?>
       <ComponentRef Id="ClearPluginsCache.cmd" />
       <ComponentRef Id="RestoreSettings.cmd" />
       <ComponentRef Id="SaveSettings.cmd" />
-  <?endif?>
+<?endif?>
       <Feature Id="Addons" Level="2" Title="!(loc.Feature.Title.Addons)" AllowAdvertise="no" Description="!(loc.Feature.Description.Addons)">
         <ComponentRef Id="Descript.ion_1" />
         <ComponentRef Id="README.TXT_1" />
@@ -121,16 +121,16 @@
           <ComponentRef Id="Descript.ion_7" />
           <ComponentRef Id="Executor.4NT.reg" />
           <ComponentRef Id="Executor.CMD.reg" />
-  <?if $(var.Branch) = 1 ?>
+<?if $(var.Branch) = 1 ?>
           <ComponentRef Id="Executor.COMMAND.reg" />
-  <?endif?>
+<?endif?>
           <ComponentRef Id="WindowsGUI.reg" />
         </Feature>
         <Feature Id="Shell" Level="2" Title="!(loc.Feature.Title.Shell)" AllowAdvertise="no" Description="!(loc.Feature.Description.Shell)">
           <ComponentRef Id="Descript.ion_8" />
           <ComponentRef Id="FARHere.inf" />
         </Feature>
-  <?if $(var.Branch) = 1 ?>
+<?if $(var.Branch) = 1 ?>
         <Feature Id="Tables" Level="2" Title="!(loc.Feature.Title.Tables)" AllowAdvertise="no" Description="!(loc.Feature.Description.Tables)">
           <ComponentRef Id="Descript.ion_9" />
           <ComponentRef Id="README.TXT_2" />
@@ -167,7 +167,7 @@
           <ComponentRef Id="Macintosh_Standard.reg_1" />
           <ComponentRef Id="Windows_1252.reg" />
         </Feature>
-  <?endif?>
+<?endif?>
         <Feature Id="XLat" Level="2" Title="!(loc.Feature.Title.XLat)" AllowAdvertise="no" Description="!(loc.Feature.Description.XLat)">
           <ComponentRef Id="Descript.ion_15" />
           <ComponentRef Id="AltR.reg" />
@@ -180,13 +180,16 @@
       </Feature>
       <Feature Id="Changelogs" Level="2" Title="!(loc.Feature.Title.Changelogs)" AllowAdvertise="no" Description="!(loc.Feature.Description.Changelogs)">
         <ComponentRef Id="changelog" />
+<?if $(var.Branch) = 2 ?>
+        <ComponentRef Id="changelog_eng" />
+<?endif?>
       </Feature>
       <Feature Id="Docs" Level="1" Title="!(loc.Feature.Title.Docs)" AllowAdvertise="no" Description="!(loc.Feature.Description.Docs)">
         <ComponentRef Id="Arc.Support.txt" />
         <ComponentRef Id="Bug.Report.txt" />
-  <?if $(var.Branch) = 1 ?>
+<?if $(var.Branch) = 1 ?>
         <ComponentRef Id="Descript.ion_17" />
-  <?endif?>
+<?endif?>
         <ComponentRef Id="Far.FAQ.txt" />
         <ComponentRef Id="Plugins.Install.txt" />
         <ComponentRef Id="Plugins.Review.txt" />
@@ -195,23 +198,23 @@
       <Feature Id="Docs.Russian" Level="1" Display="hidden" AllowAdvertise="no">
         <ComponentRef Id="Arc.Support.txt_1" />
         <ComponentRef Id="Bug.Report.txt_1" />
-  <?if $(var.Branch) = 1 ?>
+<?if $(var.Branch) = 1 ?>
         <ComponentRef Id="Descript.ion_18" />
-  <?endif?>
+<?endif?>
         <ComponentRef Id="Far.FAQ.txt_1" />
         <ComponentRef Id="Plugins.Install.txt_1" />
         <ComponentRef Id="Plugins.Review.txt_1" />
         <ComponentRef Id="TechInfo.txt_1" />
       </Feature>
       <Feature Id="Enc" Level="2" Title="!(loc.Feature.Title.Enc)" AllowAdvertise="no" Description="!(loc.Feature.Description.Enc)">
-  <?if $(var.Branch) = 1 ?>
+<?if $(var.Branch) = 1 ?>
         <ComponentRef Id="FarEncyclopedia.en.chm" />
       </Feature>
       <Feature Id="Enc.Russian" Level="2" Display="hidden" AllowAdvertise="no">
-  <?endif?>
+<?endif?>
         <ComponentRef Id="FarEncyclopedia.ru.chm" />
       </Feature>
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
       <Feature Id="FExcept" Level="1" Title="!(loc.Feature.Title.FExcept)" AllowAdvertise="no" Description="!(loc.Feature.Description.FExcept)">
         <ComponentRef Id="FExceptReg" />
         <ComponentRef Id="demangle32.dll" />
@@ -224,13 +227,13 @@
       <Feature Id="Changelogs.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
         <ComponentRef Id="changelog_1" />
       </Feature>
-  <?endif?>
+<?endif?>
       <Feature Id="Languages" Level="1" Title="!(loc.Feature.Title.Languages)" AllowAdvertise="no" Description="!(loc.Feature.Description.Languages)">
         <Feature Id="Russian" Level="1" Title="!(loc.Feature.Title.Russian)" AllowAdvertise="no">
           <ComponentRef Id="FarRus.hlf" />
           <ComponentRef Id="FarRus.lng" />
         </Feature>
-  <?if $(var.Branch) = 2 ?>
+<?if $(var.Branch) = 2 ?>
         <Feature Id="Czech" Level="2" Title="!(loc.Feature.Title.Czech)" AllowAdvertise="no">
           <ComponentRef Id="FarCze.lng" />
         </Feature>
@@ -244,7 +247,7 @@
         <Feature Id="Polish" Level="2" Title="!(loc.Feature.Title.Polish)" AllowAdvertise="no">
           <ComponentRef Id="FarPol.lng" />
         </Feature>
-  <?endif?>
+<?endif?>
       </Feature>
       <Feature Id="FarShortcuts" Level="1" Title="!(loc.Feature.Title.FarShortcuts)" AllowAdvertise="no">
         <Feature Id="FarProgramsShortcut" Level="1" Title="!(loc.Feature.Title.FarProgramsShortcut)" AllowAdvertise="no">
@@ -252,11 +255,11 @@
           <ComponentRef Id="UninstallProduct" />
           <ComponentRef Id="Scripts" />
           <Feature Id="FarProgramsShortcut.Enc" Level="2" Display="hidden" AllowAdvertise="no">
-  <?if $(var.Branch) = 1 ?>
+<?if $(var.Branch) = 1 ?>
             <ComponentRef Id="EnglishEncShortcut" />
           </Feature>
           <Feature Id="FarProgramsShortcut.Enc.Russian" Level="2" Display="hidden" AllowAdvertise="no">
-  <?endif?>
+<?endif?>
             <ComponentRef Id="RussianEncShortcut" />
           </Feature>
         </Feature>
@@ -279,26 +282,26 @@
         </Feature>
       </Feature>
       <Feature Id="SDK" Level="2" Title="!(loc.Feature.Title.SDK)" AllowAdvertise="no" Description="!(loc.Feature.Description.SDK)">
-  <?if $(var.Branch) = 1 ?>
+<?if $(var.Branch) = 1 ?>
         <ComponentRef Id="Descript.ion_19" />
         <ComponentRef Id="GCCReadme.txt" />
         <ComponentRef Id="README.TXT_4" />
         <ComponentRef Id="VCReadme.txt" />
-  <?endif?>
+<?endif?>
         <ComponentRef Id="farcolor.hpp" />
         <ComponentRef Id="farkeys.hpp" />
         <ComponentRef Id="plugin.hpp" />
         <Feature Id="Pascal" Level="2" Title="!(loc.Feature.Title.Pascal)" AllowAdvertise="no">
-  <?if $(var.Branch) = 1 ?>
+<?if $(var.Branch) = 1 ?>
           <ComponentRef Id="farcolor.pas" />
           <ComponentRef Id="farkeys.pas" />
           <ComponentRef Id="plugin.pas" />
-  <?endif?>
-  <?if $(var.Branch) = 2 ?>
+<?endif?>
+<?if $(var.Branch) = 2 ?>
           <ComponentRef Id="FarColorW.pas" />
           <ComponentRef Id="FarKeysW.pas" />
           <ComponentRef Id="PluginW.pas" />
-  <?endif?>
+<?endif?>
         </Feature>
       </Feature>
       <Feature Id="Plugins" Level="1" Display="expand" Title="!(loc.Feature.Title.Plugins)" AllowAdvertise="no" Description="!(loc.Feature.Description.Plugins)">
@@ -309,11 +312,11 @@
             <Feature Id="Align.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="AlignRus.lng" />
             </Feature>
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
             <Feature Id="Align.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="Align.map" />
             </Feature>
-  <?endif?>
+<?endif?>
             <Feature Id="Align.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="changelog_2" />
             </Feature>
@@ -324,11 +327,11 @@
             <Feature Id="AutoWrap.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="WrapRus.lng" />
             </Feature>
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
             <Feature Id="AutoWrap.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="AutoWrap.map" />
             </Feature>
-  <?endif?>
+<?endif?>
             <Feature Id="AutoWrap.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="changelog_3" />
             </Feature>
@@ -344,11 +347,11 @@
               <ComponentRef Id="BrackRus.lng" />
               <ComponentRef Id="BrackRus.reg" />
             </Feature>
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
             <Feature Id="Brackets.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="Brackets.map" />
             </Feature>
-  <?endif?>
+<?endif?>
             <Feature Id="Brackets.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="changelog_4" />
             </Feature>
@@ -361,11 +364,11 @@
               <ComponentRef Id="DrawRus.hlf" />
               <ComponentRef Id="DrawRus.lng" />
             </Feature>
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
             <Feature Id="DrawLine.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="DrawLine.map" />
             </Feature>
-  <?endif?>
+<?endif?>
             <Feature Id="DrawLine.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="changelog_6" />
             </Feature>
@@ -378,11 +381,11 @@
               <ComponentRef Id="ECaseRus.hlf" />
               <ComponentRef Id="ECaseRus.lng" />
             </Feature>
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
             <Feature Id="EditCase.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="EditCase.map" />
             </Feature>
-  <?endif?>
+<?endif?>
             <Feature Id="EditCase.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="changelog_7" />
             </Feature>
@@ -396,11 +399,11 @@
             <ComponentRef Id="CmpRus.hlf" />
             <ComponentRef Id="CompRus.lng" />
           </Feature>
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
           <Feature Id="Compare.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="Compare.map" />
           </Feature>
-  <?endif?>
+<?endif?>
           <Feature Id="Compare.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="changelog_5" />
           </Feature>
@@ -417,11 +420,11 @@
             <ComponentRef Id="EMenuRus.hlf" />
             <ComponentRef Id="EMenuRus.lng" />
           </Feature>
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
           <Feature Id="EMenu.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="EMenu.map" />
           </Feature>
-  <?endif?>
+<?endif?>
           <Feature Id="EMenu.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="changelog_8" />
           </Feature>
@@ -434,11 +437,11 @@
             <ComponentRef Id="FARCmdsRus.hlf" />
             <ComponentRef Id="FARCmdsRus.lng" />
           </Feature>
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
           <Feature Id="FARCmds.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="FARCmds.map" />
           </Feature>
-  <?endif?>
+<?endif?>
           <Feature Id="FARCmds.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="changelog_9" />
           </Feature>
@@ -451,11 +454,11 @@
             <ComponentRef Id="CaseRus.hlf" />
             <ComponentRef Id="CaseRus.lng" />
           </Feature>
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
           <Feature Id="FileCase.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="FileCase.map" />
           </Feature>
-  <?endif?>
+<?endif?>
           <Feature Id="FileCase.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="changelog_10" />
           </Feature>
@@ -469,11 +472,11 @@
           <ComponentRef Id="TechInfo.reg" />
           <Feature Id="ftpDirList" Level="1" Title="!(loc.Feature.Title.ftpDirList)" AllowAdvertise="no" Description="!(loc.Feature.Description.ftpDirList)">
             <ComponentRef Id="ftpDirList.fll" />
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
             <Feature Id="ftpDirList.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="ftpDirList.map" />
             </Feature>
-  <?endif?>
+<?endif?>
           </Feature>
           <Feature Id="ftpProgress" Level="1" Title="!(loc.Feature.Title.ftpProgress)" AllowAdvertise="no" Description="!(loc.Feature.Description.ftpProgress)">
             <ComponentRef Id="ftpProgress.fll" />
@@ -481,11 +484,11 @@
             <ComponentRef Id="Progress_JM.reg" />
             <ComponentRef Id="Progress_Wesha.reg" />
             <ComponentRef Id="Progress_ZeMA.reg" />
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
             <Feature Id="ftpProgress.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="ftpProgress.map" />
             </Feature>
-  <?endif?>
+<?endif?>
           </Feature>
           <Feature Id="FarFtp.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="FtpCmds_rus.txt" />
@@ -494,11 +497,11 @@
             <ComponentRef Id="Notes_rus.txt" />
             <ComponentRef Id="TechInfo_rus.reg" />
           </Feature>
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
           <Feature Id="FarFtp.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="FarFtp.map" />
           </Feature>
-  <?endif?>
+<?endif?>
           <Feature Id="FarFtp.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="changelog_11" />
           </Feature>
@@ -511,11 +514,11 @@
             <ComponentRef Id="HlfViewerRus.hlf" />
             <ComponentRef Id="HlfViewerRus.lng" />
           </Feature>
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
           <Feature Id="HlfViewer.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="HlfViewer.map" />
           </Feature>
-  <?endif?>
+<?endif?>
           <Feature Id="HlfViewer.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="changelog_12" />
           </Feature>
@@ -528,11 +531,11 @@
             <ComponentRef Id="MacroRus.hlf" />
             <ComponentRef Id="MacroRus.lng" />
           </Feature>
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
           <Feature Id="MacroView.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="MacroView.map" />
           </Feature>
-  <?endif?>
+<?endif?>
           <Feature Id="MacroView.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="changelog_13" />
           </Feature>
@@ -543,94 +546,94 @@
           <ComponentRef Id="MultiArc.dll" />
           <Feature Id="Ace" Level="1" Title="!(loc.Feature.Title.Ace)" AllowAdvertise="no">
             <ComponentRef Id="Ace.fmt" />
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
             <Feature Id="Ace.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="Ace.map" />
             </Feature>
-  <?endif?>
+<?endif?>
           </Feature>
           <Feature Id="Arc" Level="1" Title="!(loc.Feature.Title.Arc)" AllowAdvertise="no">
             <ComponentRef Id="Arc.fmt" />
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
             <Feature Id="Arc.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="Arc.map" />
             </Feature>
-  <?endif?>
+<?endif?>
           </Feature>
           <Feature Id="Arj" Level="1" Title="!(loc.Feature.Title.Arj)" AllowAdvertise="no">
             <ComponentRef Id="Arj.fmt" />
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
             <Feature Id="Arj.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="Arj.map" />
             </Feature>
-  <?endif?>
+<?endif?>
           </Feature>
           <Feature Id="Cab" Level="1" Title="!(loc.Feature.Title.Cab)" AllowAdvertise="no">
             <ComponentRef Id="Cab.fmt" />
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
             <Feature Id="Cab.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="Cab.map" />
             </Feature>
-  <?endif?>
+<?endif?>
           </Feature>
           <Feature Id="Custom" Level="1" Title="!(loc.Feature.Title.Custom)" AllowAdvertise="no">
             <ComponentRef Id="Custom.fmt" />
             <ComponentRef Id="custom.ini" />
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
             <Feature Id="Custom.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="Custom.map" />
             </Feature>
-  <?endif?>
+<?endif?>
           </Feature>
           <Feature Id="Ha" Level="1" Title="!(loc.Feature.Title.Ha)" AllowAdvertise="no">
             <ComponentRef Id="Ha.fmt" />
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
             <Feature Id="Ha.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="Ha.map" />
             </Feature>
-  <?endif?>
+<?endif?>
           </Feature>
           <Feature Id="Lzh" Level="1" Title="!(loc.Feature.Title.Lzh)" AllowAdvertise="no">
             <ComponentRef Id="Lzh.fmt" />
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
             <Feature Id="Lzh.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="Lzh.map" />
             </Feature>
-  <?endif?>
+<?endif?>
           </Feature>
           <Feature Id="Rar" Level="1" Title="!(loc.Feature.Title.Rar)" AllowAdvertise="no">
             <ComponentRef Id="Rar.fmt" />
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
             <Feature Id="Rar.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="Rar.map" />
             </Feature>
-  <?endif?>
+<?endif?>
           </Feature>
           <Feature Id="TarGz" Level="1" Title="!(loc.Feature.Title.TarGz)" AllowAdvertise="no">
             <ComponentRef Id="TarGz.fmt" />
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
             <Feature Id="TarGz.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="TarGz.map" />
             </Feature>
-  <?endif?>
+<?endif?>
           </Feature>
           <Feature Id="Zip" Level="1" Title="!(loc.Feature.Title.Zip)" AllowAdvertise="no">
             <ComponentRef Id="Zip.fmt" />
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
             <Feature Id="Zip.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="Zip.map" />
             </Feature>
-  <?endif?>
+<?endif?>
           </Feature>
           <Feature Id="MultiArc.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="arcrus.hlf" />
             <ComponentRef Id="arcrus.lng" />
           </Feature>
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
           <Feature Id="MultiArc.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="MultiArc.map" />
           </Feature>
-  <?endif?>
+<?endif?>
           <Feature Id="MultiArc.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="changelog_14" />
           </Feature>
@@ -643,11 +646,11 @@
             <ComponentRef Id="NetRus.hlf" />
             <ComponentRef Id="NetRus.lng" />
           </Feature>
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
           <Feature Id="Network.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="Network.map" />
           </Feature>
-  <?endif?>
+<?endif?>
           <Feature Id="Network.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="changelog_15" />
           </Feature>
@@ -660,11 +663,11 @@
             <ComponentRef Id="ProcRus.hlf" />
             <ComponentRef Id="ProcRus.lng" />
           </Feature>
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
           <Feature Id="Proclist.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="Proclist.map" />
           </Feature>
-  <?endif?>
+<?endif?>
           <Feature Id="Proclist.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="changelog_16" />
           </Feature>
@@ -683,11 +686,11 @@
             <ComponentRef Id="TmpRus.hlf" />
             <ComponentRef Id="TmpRus.lng" />
           </Feature>
-  <?if $(var.Platform) = x86 ?>
+<?if $(var.Platform) = x86 ?>
           <Feature Id="TmpPanel.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="TmpPanel.map" />
           </Feature>
-  <?endif?>
+<?endif?>
           <Feature Id="TmpPanel.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="changelog_17" />
           </Feature>
