@@ -3,6 +3,16 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 05.07.2010 11:00:00 +0200 - build 1604
+
+1. Another "type" of symbolic links is available at link creation dialog,
+   with no explicit notation whether it is a file or a directory.
+   The necessary option is chosen automatically according to the attributes of 
+   referred object.
+
+2  FLINK_SYMLINK flag is available in FSF.MkLink, it enables automatic 
+   selection of symbolic link type.
+
 drkns 02.07.2010 16:17:18 +0200 - build 1603
 
 1. Mantis#0001425: a bug at files highlighting settings reset
