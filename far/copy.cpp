@@ -973,7 +973,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	if (Ask)
 	{
 		FarList ComboList;
-		FarListItem LinkTypeItems[4]={0},CopyModeItems[8]={0};
+		FarListItem LinkTypeItems[5]={0},CopyModeItems[8]={0};
 
 		if (Link)
 		{
@@ -981,8 +981,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 			ComboList.Items=LinkTypeItems;
 			ComboList.Items[0].Text=MSG(MLinkTypeHardlink);
 			ComboList.Items[1].Text=MSG(MLinkTypeJunction);
-			ComboList.Items[2].Text=MSG(MLinkTypeSymlinkFile);
-			ComboList.Items[3].Text=MSG(MLinkTypeSymlinkDirectory);
+			ComboList.Items[2].Text=MSG(MLinkTypeSymlink);
+			ComboList.Items[3].Text=MSG(MLinkTypeSymlinkFile);
+			ComboList.Items[4].Text=MSG(MLinkTypeSymlinkDirectory);
 
 			if (CDP.FilesPresent)
 				ComboList.Items[0].Flags|=LIF_SELECTED;
@@ -1117,9 +1118,12 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 				RPT=RP_JUNCTION;
 				break;
 			case 2:
-				RPT=RP_SYMLINKFILE;
+				RPT=RP_SYMLINK;
 				break;
 			case 3:
+				RPT=RP_SYMLINKFILE;
+				break;
+			case 4:
 				RPT=RP_SYMLINKDIR;
 				break;
 		}
@@ -1875,13 +1879,22 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 
 			KeepPathPos=(int)(PointToName(strSelName)-strSelName.CPtr());
 
-			if (RPT==RP_JUNCTION || RPT==RP_SYMLINKDIR)
+			if (RPT==RP_JUNCTION || RPT==RP_SYMLINK || RPT==RP_SYMLINKFILE || RPT==RP_SYMLINKDIR)
 			{
-				SrcData.dwFileAttributes=FILE_ATTRIBUTE_DIRECTORY;
-			}
-			else if(RPT==RP_SYMLINKFILE)
-			{
-				SrcData.dwFileAttributes=0;
+				switch (MkSymLink(strSelName,strDest,RPT,Flags))
+				{
+					case 2:
+						break;
+					case 1:
+
+						// Отметим (Ins) несколько каталогов, ALT-F6 Enter - выделение с папок не снялось.
+						if ((!(Flags&FCOPY_CURRENTONLY)) && (Flags&FCOPY_COPYLASTTIME))
+							SrcPanel->ClearLastGetSelection();
+
+						continue;
+					case 0:
+						return COPY_FAILURE;
+				}
 			}
 			else
 			{
@@ -1901,30 +1914,6 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 				}
 			}
 
-			// Если это каталог и трэба создать связь...
-			if (RPT==RP_SYMLINKFILE || ((SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && (RPT==RP_JUNCTION || RPT==RP_SYMLINKDIR)))
-			{
-				/*
-				ЭТОТ кусок, если хотим не делать ссылку на ссылку!
-				char SrcRealName[NM*2];
-				ConvertNameToReal(SelName,SrcRealName,sizeof(SrcRealName));
-				switch(MkSymLink(SrcRealName,Dest,Flags))
-				*/
-				switch (MkSymLink(strSelName,strDest,RPT,Flags))
-				{
-					case 2:
-						break;
-					case 1:
-
-						// Отметим (Ins) несколько каталогов, ALT-F6 Enter - выделение с папок не снялось.
-						if ((!(Flags&FCOPY_CURRENTONLY)) && (Flags&FCOPY_COPYLASTTIME))
-							SrcPanel->ClearLastGetSelection();
-
-						continue;
-					case 0:
-						return COPY_FAILURE;
-				}
-			}
 
 			//KeepPathPos=PointToName(SelName)-SelName;
 

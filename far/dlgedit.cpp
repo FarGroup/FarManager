@@ -66,7 +66,7 @@ DlgEdit::DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type):
 			if(pOwner)
 			{
 				DialogItemEx* CurItem=pOwner->Item[Index];
-				if(Opt.Dialogs.AutoComplete && CurItem->Flags&(DIF_HISTORY|DIF_EDITPATH) && !(CurItem->Flags&DIF_NOAUTOCOMPLETE))
+				if(Opt.Dialogs.AutoComplete && CurItem->Flags&(DIF_HISTORY|DIF_EDITPATH) && !(CurItem->Flags&DIF_DROPDOWNLIST) && !(CurItem->Flags&DIF_NOAUTOCOMPLETE))
 				{
 					iFlags=EditControl::EC_ENABLEAUTOCOMPLETE;
 				}

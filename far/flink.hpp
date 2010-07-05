@@ -39,6 +39,7 @@ enum ReparsePointTypes
 	RP_HARDLINK,    // жёсткая ссылка
 	RP_JUNCTION,    // связь
 	RP_VOLMOUNT,    // монтированный том
+	RP_SYMLINK, // ссылка, NT>=6
 	RP_SYMLINKFILE, // файл-ссылка, NT>=6
 	RP_SYMLINKDIR,  // каталог-ссылка, NT>=6
 };

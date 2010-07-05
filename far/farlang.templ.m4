@@ -2257,6 +2257,14 @@ MLinkTypeHardlink
 "&Hardlink"
 "link &trwały"
 
+MLinkTypeSymlink
+"символическая ссылка"
+"symbolic link"
+"symbolický link"
+"Symbolischer Link"
+"Szimbolikus link"
+"link symboliczny"
+
 MLinkTypeSymlinkFile
 "символическая ссылка (&файл)"
 "symbolic link (&file)"

@@ -17,13 +17,7 @@ FILETYPE VFT_APP
 		{
 			VALUE "CompanyName", "Eugene Roshal & FAR Group"
 			VALUE "FileDescription", "File and archive manager"
-#if __FARBIT__ == 32
-			VALUE "FileVersion", "`v'FULLVERSION32"
-#elif __FARBIT__ == 64
-			VALUE "FileVersion", "`v'FULLVERSION64"
-#else
-			VALUE "FileVersion", "`v'FULLVERSIONIA64"
-#endif
+			VALUE "FileVersion", "`v'FULLVERSION"
 			VALUE "InternalName", "Far"
 			VALUE "LegalCopyright", "© Eugene Roshal, 1996-2000. © FAR Group, COPYRIGHTYEARS"
 			VALUE "OriginalFilename", "Far.exe"

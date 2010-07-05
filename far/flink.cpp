@@ -154,9 +154,14 @@ bool WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,DWOR
 			case RP_EXACTCOPY:
 				Result=DuplicateReparsePoint(Target,Object);
 				break;
+			case RP_SYMLINK:
 			case RP_SYMLINKFILE:
 			case RP_SYMLINKDIR:
-
+				if(Type == RP_SYMLINK)
+				{
+					DWORD Attr = apiGetFileAttributes(Target);
+					Type = ((Attr != INVALID_FILE_ATTRIBUTES) && (Attr&FILE_ATTRIBUTE_DIRECTORY)? RP_SYMLINKDIR : RP_SYMLINKFILE);
+				}
 				if (ifn.pfnCreateSymbolicLink)
 				{
 					Result=apiCreateSymbolicLink(Object,Target,Type==RP_SYMLINKDIR?SYMBOLIC_LINK_FLAG_DIRECTORY:0)!=FALSE;
@@ -527,6 +532,9 @@ int WINAPI FarMkLink(const wchar_t *Src,const wchar_t *Dest,DWORD Flags)
 					case FLINK_VOLMOUNT:
 						LinkType=RP_VOLMOUNT;
 						break;
+					case FLINK_SYMLINK:
+						LinkType=RP_SYMLINK;
+						break;
 					case FLINK_SYMLINKFILE:
 						LinkType=RP_SYMLINKFILE;
 						break;
@@ -696,7 +704,7 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 		}
 		else
 		{
-			if (LinkType==RP_SYMLINKFILE || LinkType==RP_SYMLINKDIR)
+			if (LinkType==RP_SYMLINK || LinkType==RP_SYMLINKFILE || LinkType==RP_SYMLINKDIR)
 			{
 				// в этом случае создается путь, но не сам каталог
 				string strPath=strDestFullName;
