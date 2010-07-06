@@ -6392,6 +6392,20 @@ DWORD KeyMacro::GetOpCode(MacroRecord *MR,int PC)
 	return OpCode;
 }
 
+// function for Mantis#0000968
+bool KeyMacro::CheckWaitKeyFunc()
+{
+	if (InternalInput || !Work.MacroWORK || Work.Executing == MACROMODE_NOMACRO)
+		return false;
+
+	MacroRecord *MR=Work.MacroWORK;
+
+	if (Work.ExecLIBPos >= MR->BufferSize || Work.ExecLIBPos <= 0)
+		return false;
+
+	return (GetOpCode(MR,Work.ExecLIBPos-1) == MCODE_F_WAITKEY)?true:false;
+}
+
 // кинуть OpCode в буфер. Возвращает предыдущее значение
 DWORD KeyMacro::SetOpCode(MacroRecord *MR,int PC,DWORD OpCode)
 {

@@ -230,6 +230,7 @@ class KeyMacro
 		int GetKey();
 		int PeekKey();
 		bool IsOpCode(DWORD p);
+		bool CheckWaitKeyFunc();
 
 		int PushState(bool CopyLocalVars=FALSE);
 		int PopState();

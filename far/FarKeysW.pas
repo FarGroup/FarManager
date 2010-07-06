@@ -46,12 +46,12 @@ uses
 { BaseDefKeyboard }
 
 const
+   KEY_CTRLMASK            = $FFF00000;
    KEY_CTRL                = $01000000;
    KEY_ALT                 = $02000000;
    KEY_SHIFT               = $04000000;
    KEY_RCTRL               = $10000000;
    KEY_RALT                = $20000000;
-   KEY_CTRLMASK            = $FF000000;
 
    KEY_BRACKET             = Byte('[');
    KEY_BACKBRACKET         = Byte(']');
@@ -190,6 +190,10 @@ const
 
    KEY_NONE                = INTERNAL_KEY_BASE_2+1;
    KEY_IDLE                = INTERNAL_KEY_BASE_2+2;
+
+   KEY_KILLFOCUS           = INTERNAL_KEY_BASE_2+6;
+   KEY_GOTFOCUS            = INTERNAL_KEY_BASE_2+7;
+   KEY_CONSOLE_BUFFER_RESIZE = INTERNAL_KEY_BASE_2+8;
 
    KEY_END_SKEY            = $0003FFFF;
    KEY_LAST_BASE           = KEY_END_SKEY;
@@ -640,6 +644,8 @@ const
    KEY_CTRLSLASH            = KEY_CTRL or KEY_SLASH;
    KEY_CTRLBACKSLASH        = KEY_CTRL or KEY_BACKSLASH;
    KEY_CTRLCLEAR            = KEY_CTRL or KEY_CLEAR;
+   KEY_CTRLSHIFTCLEAR       = KEY_CTRL or KEY_SHIFT or KEY_CLEAR;
+   KEY_CTRLALTCLEAR         = KEY_CTRL or KEY_ALT or KEY_CLEAR;
    KEY_CTRLADD              = KEY_CTRL or KEY_ADD;
    KEY_SHIFTADD             = KEY_SHIFT or KEY_ADD;
 

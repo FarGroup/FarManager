@@ -2370,6 +2370,11 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 					_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessKey(KEY_INS|KEY_ALT)",__LINE__));
 					CtrlObject->Macro.ProcessKey(KEY_INS|KEY_ALT);
 				}
+
+				// макрос проигрывается и мы "сейчас" в состоянии выполнения функции waitkey? (Mantis#0000968: waitkey() пропускает AltIns)
+				if (CtrlObject->Macro.IsExecuting() && CtrlObject->Macro.CheckWaitKeyFunc())
+					return KEY_INS|KEY_ALT;
+
 				RunGraber();
 				return(KEY_NONE);
 			}
