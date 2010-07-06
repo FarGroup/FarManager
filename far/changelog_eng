@@ -3,6 +3,17 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 06.07.2010 22:36:48 +0200 - build 1606
+
+1. CD drive was opened with read/write access at drive type detection, for some reason.
+
+svs 06.07.2010 18:00:12 +0300 - build 1605
+
+1. Mantis#0000986: Far 2 API - pascal
+   FarColorW.pas, FarKeysW.pas and PluginW.pas are updated.
+
+2. Mantis#0000968: waitkey() skips AltIns
+
 drkns 05.07.2010 11:00:00 +0200 - build 1604
 
 1. Another "type" of symbolic links is available at link creation dialog,
