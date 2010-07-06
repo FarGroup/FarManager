@@ -328,7 +328,7 @@ UINT FAR_GetDriveType(const wchar_t *RootDir, CDROM_DeviceCaps *Caps, DWORD Dete
 			VolumePath.Insert(0, L"\\\\.\\");
 
 		File Device;
-		if(Device.Open(VolumePath, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
+		if(Device.Open(VolumePath, GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 		{
 			caps = GetCDDeviceCaps(Device);
 			Device.Close();
