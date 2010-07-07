@@ -731,6 +731,9 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	FileCount=PluginFileCount;
 	ListData=(FileListItem**)xf_malloc(sizeof(FileListItem*)*(FileCount+1));
 
+	if (CurFile >= FileCount)
+		CurFile=0;
+
 	if (!ListData)
 	{
 		FileCount=0;
