@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+t-rex 08.07.2010 00:34:21 +0200 - build 1608
+
+1. From Max Moysyuk: Mantis#1419: Very slow switching to local disk (AltF1/AltF2)
+
+t-rex 08.07.2010 00:12:29 +0200 - build 1607
+
+1. Mantis#1428: Crash when FCTL_SETNUMERICSORT is set.
+
 drkns 06.07.2010 22:36:48 +0200 - build 1606
 
 1. CD drive was opened with read/write access at drive type detection, for some reason.
