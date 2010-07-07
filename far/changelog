@@ -1,3 +1,7 @@
+t-rex 08.07.2010 00:34:21 +0200 - build 1608
+
+1. From Max Moysyuk: Mantis#1419: Очень длительный переход на локальный диск (AltF1/AltF2)
+
 t-rex 08.07.2010 00:12:29 +0200 - build 1607
 
 1. Mantis#1428: Падение при FCTL_SETNUMERICSORT.

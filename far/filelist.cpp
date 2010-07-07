@@ -2535,7 +2535,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 	Panel *AnotherPanel;
 	string strFindDir, strSetDir;
 
-	if (!TestCurrentDirectory(strCurDir))
+	if (PanelMode!=PLUGIN_PANEL && !IsAbsolutePath(NewDir) && !TestCurrentDirectory(strCurDir))
 		FarChDir(strCurDir);
 
 	strSetDir = NewDir;
@@ -2551,7 +2551,9 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 		        !StrCmpN(&strCurDir[5], L":\\",2))
 		{
 			if (!strCurDir.At(7))
+			{
 				strSetDir = strCurDir.CPtr()+4;
+			}
 			else
 			{
 				strSetDir = strCurDir;
