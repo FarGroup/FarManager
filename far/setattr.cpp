@@ -1240,7 +1240,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 					DWORD LastTime=0;
 
 					bool SingleFileDone=false;
-					while (SrcPanel?SrcPanel->GetSelName(&strSelName,FileAttr,nullptr,&FindData):!SingleFileDone && !Cancel)
+					while ((SrcPanel?SrcPanel->GetSelName(&strSelName,FileAttr,nullptr,&FindData):!SingleFileDone) && !Cancel)
 					{
 						if(!SrcPanel)
 						{
@@ -1276,7 +1276,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 						int SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strSelName,LastWriteTime,AttrDlg[SA_EDIT_MDATE].strData,AttrDlg[SA_EDIT_MTIME].strData);
 						int SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strSelName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
 						int SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strSelName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
-						RetCode=SkipMode==-1?ESetFileTime(strSelName,SetWriteTime?&LastWriteTime:nullptr,SetCreationTime?&CreationTime:nullptr,SetLastAccessTime?&LastAccessTime:nullptr,FileAttr,SkipMode):SkipMode;
+						RetCode=ESetFileTime(strSelName,SetWriteTime?&LastWriteTime:nullptr,SetCreationTime?&CreationTime:nullptr,SetLastAccessTime?&LastAccessTime:nullptr,FileAttr,SkipMode);
 
 						if (RetCode == SETATTR_RET_ERROR)
 							break;

@@ -64,6 +64,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <dbt.h>
 #define SECURITY_WIN32
 #include <security.h>
+#include <Shlobj.h>
 
 #undef WIN32_NO_STATUS
 

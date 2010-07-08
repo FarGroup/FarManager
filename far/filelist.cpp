@@ -3887,6 +3887,68 @@ void FileList::CompareDir()
 		Message(0,1,MSG(MCompareTitle),MSG(MCompareSameFolders1),MSG(MCompareSameFolders2),MSG(MOk));
 }
 
+void FileList::CopyFiles()
+{
+	bool RealNames=false;
+	if (PanelMode==PLUGIN_PANEL)
+	{
+		OpenPluginInfo Info;
+		CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+		RealNames = (Info.Flags&OPIF_REALNAMES) == OPIF_REALNAMES;
+	}
+
+	if (PanelMode!=PLUGIN_PANEL || RealNames)
+	{
+		LPWSTR CopyData=nullptr;
+		size_t DataSize=0;
+		string strSelName, strSelShortName;
+		DWORD FileAttr;
+		GetSelName(nullptr,FileAttr);
+		while (GetSelName(&strSelName, FileAttr, &strSelShortName))
+		{
+			if (TestParentFolderName(strSelName) && TestParentFolderName(strSelShortName))
+			{
+				strSelName.SetLength(1);
+				strSelShortName.SetLength(1);
+			}
+			if (!CreateFullPathName(strSelName,strSelShortName,FileAttr,strSelName,FALSE))
+			{
+				if (CopyData)
+				{
+					xf_free(CopyData);
+					CopyData=nullptr;
+				}
+				break;
+			}
+			size_t Length=strSelName.GetLength()+1;
+			wchar_t *NewPtr=static_cast<wchar_t *>(xf_realloc(CopyData, (DataSize+Length+1)*sizeof(wchar_t)));
+			if (!NewPtr)
+			{
+				if (CopyData)
+				{
+					xf_free(CopyData);
+					CopyData=nullptr;
+				}
+				break;
+			}
+			CopyData=NewPtr;
+			wcscpy(CopyData+DataSize, strSelName);
+			DataSize+=Length;
+			CopyData[DataSize]=0;
+		}
+
+		if(CopyData)
+		{
+			DataSize++;
+			Clipboard clip;
+			clip.Open();
+			clip.CopyHDROP(CopyData, DataSize*sizeof(WCHAR));
+			clip.Close();
+			xf_free(CopyData);
+		}
+	}
+}
+
 void FileList::CopyNames(int FillPathName,int UNC)
 {
 	OpenPluginInfo Info={0};
@@ -4016,6 +4078,8 @@ void FileList::CopyNames(int FillPathName,int UNC)
 
 	CopyToClipboard(CopyData);
 	xf_free(CopyData);
+
+	CopyFiles();
 }
 
 string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortName,DWORD FileAttr, string &strDest, int UNC,int ShortNameAsIs)

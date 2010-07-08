@@ -268,6 +268,7 @@ class FileList:public Panel
 
 		void PushPlugin(HANDLE hPlugin,const wchar_t *HostFile);
 		int PopPlugin(int EnableRestoreViewMode);
+		void CopyFiles();
 		void CopyNames(int FillPathName=FALSE,int UNC=FALSE);
 		void SelectSortMode();
 		bool ApplyCommand();

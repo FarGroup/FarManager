@@ -312,6 +312,40 @@ bool Clipboard::CopyFormat(const wchar_t *Format, const wchar_t *Data)
 	return true;
 }
 
+bool Clipboard::CopyHDROP(LPVOID NamesArray, size_t NamesArraySize)
+{
+	bool Result=false;
+	if (NamesArray && NamesArraySize)
+	{
+		HGLOBAL hMemory=GlobalAlloc(GMEM_MOVEABLE, sizeof(DROPFILES)+NamesArraySize);
+		if (hMemory)
+		{
+			LPDROPFILES Drop = reinterpret_cast<LPDROPFILES>(GlobalLock(hMemory));
+			if(Drop)
+			{
+				Drop->pFiles=static_cast<DWORD>(sizeof(DROPFILES));
+				Drop->pt.x=0;
+				Drop->pt.y=0;
+				Drop->fNC = TRUE;
+				Drop->fWide = TRUE;
+				memcpy(Drop+1,NamesArray,NamesArraySize);
+				GlobalUnlock(hMemory);
+
+				Result = SetClipboardData(CF_HDROP, hMemory);
+				if(!Result)
+				{
+					GlobalFree(hMemory);
+				}
+			}
+			else
+			{
+				GlobalFree(hMemory);
+			}
+		}
+	}
+	return Result;
+}
+
 wchar_t *Clipboard::Paste()
 {
 	wchar_t *ClipText=nullptr;
