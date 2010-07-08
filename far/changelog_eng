@@ -3,6 +3,28 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+t-rex 08.07.2010 20:10:14 +0200 - build 1612
+
+1. Fix of 1607 (http://forum.farmanager.com/viewtopic.php?p=65440#p65440).
+
+t-rex 08.07.2010 19:29:44 +0200 - build 1611
+
+1. And once more, Mantis#1429: Incorrect work after launch as "... | far.exe /v -"
+   apiCreateFile() adds flags (perhaps this has to be removed as it is not clear at all?),
+   and CONIN$ can be opened with some special flags only.
+
+drkns 06.07.2010 16:47:23 +0200 - build 1610
+
+1. More of 1609: CF_HDROP buffer content can be pasted in editor/text fields as a text.
+
+drkns 06.07.2010 13:55:22 +0200 - build 1609
+
+1. A couple of bugs at attributes setup.
+
+2. Experimental: file names are copied from panel into clipboard in additional CF_HDROP format,
+   which allows "paste" the files from clipboard to other applications (Explorer etc.).
+   Reverse operation (copy "there" and paste "here") is not supported so far, buf everything's possible.
+
 t-rex 08.07.2010 00:34:21 +0200 - build 1608
 
 1. From Max Moysyuk: Mantis#1419: Very slow switching to local disk (AltF1/AltF2)
