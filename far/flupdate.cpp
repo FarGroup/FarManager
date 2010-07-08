@@ -731,9 +731,6 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	FileCount=PluginFileCount;
 	ListData=(FileListItem**)xf_malloc(sizeof(FileListItem*)*(FileCount+1));
 
-	if (CurFile >= FileCount)
-		CurFile=0;
-
 	if (!ListData)
 	{
 		FileCount=0;
@@ -822,6 +819,9 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
 		FileCount++;
 	}
+
+	if (CurFile >= FileCount)
+		CurFile = FileCount ? FileCount-1 : 0;
 
 	/* $ 25.02.2001 VVM
 	    ! Не считывать повторно список файлов с панели плагина */
