@@ -331,8 +331,11 @@ bool Clipboard::CopyHDROP(LPVOID NamesArray, size_t NamesArraySize)
 				memcpy(Drop+1,NamesArray,NamesArraySize);
 				GlobalUnlock(hMemory);
 
-				Result = SetClipboardData(CF_HDROP, hMemory);
-				if(!Result)
+				if(SetClipboardData(CF_HDROP, hMemory))
+				{
+					Result = true;
+				}
+				else
 				{
 					GlobalFree(hMemory);
 				}
@@ -367,7 +370,54 @@ wchar_t *Clipboard::Paste()
 			GlobalUnlock(hClipData);
 		}
 	}
-
+	else
+	{
+		hClipData=GetData(CF_HDROP);
+		if (hClipData)
+		{
+			LPDROPFILES Files=reinterpret_cast<LPDROPFILES>(GlobalLock(hClipData));
+			if (Files)
+			{
+				LPCSTR StartA=reinterpret_cast<LPCSTR>(Files)+Files->pFiles;
+				LPCWSTR Start=reinterpret_cast<LPCWSTR>(StartA);
+				string strClipText;
+				if(Files->fWide)
+				{
+					while(*Start)
+					{
+						size_t l1=strClipText.GetLength();
+						strClipText+=Start;
+						Start+=strClipText.GetLength()-l1;
+						Start++;
+						if(*Start)
+						{
+							strClipText+=L"\r\n";
+						}
+					}
+				}
+				else
+				{
+					while(*StartA)
+					{
+						size_t l1=strClipText.GetLength();
+						strClipText+=StartA;
+						StartA+=strClipText.GetLength()-l1;
+						StartA++;
+						if(*StartA)
+						{
+							strClipText+=L"\r\n";
+						}
+					}
+				}
+				if(!strClipText.IsEmpty())
+				{
+					ClipText=reinterpret_cast<LPWSTR>(xf_malloc((strClipText.GetLength()+1)*sizeof(WCHAR)));
+					wcscpy(ClipText, strClipText);
+				}
+				GlobalUnlock(hClipData);
+			}
+		}
+	}
 	return ClipText;
 }
 
