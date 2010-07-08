@@ -211,6 +211,9 @@ az előző példánál maradva a "dir" parancsot elhagyjuk), akkor a FAR a
 végtelenségig fog várakozni a bemenő adatfolyam végére. Ezt a hibát a FAR
 egy későbbi verziójában a szerzők valószínűleg ki fogják javítani.
 
+  #/w#
+  Stretch to console window instead of console buffer.
+
   #/x#    ^<wrap>Letiltja a kivételek kezelését. Ezt a lehetőséget
 a szerzők a pluginek fejlesztői részére tervezték, ezért nem ajánlott normál
 használat közben alkalmazni.

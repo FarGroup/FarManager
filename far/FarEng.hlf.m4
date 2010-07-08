@@ -205,6 +205,9 @@ before running FAR Manager.
 the "dir" command in the provided example), FAR will wait forever for the end of data
 in the input stream. This will probably be fixed in a later version of FAR.
 
+  #/w#
+  Stretch to console window instead of console buffer.
+
   #/x#
   Disable exception handling. This option has been designed for plugin developers,
 and it is not recommended to specify it during normal operation.
