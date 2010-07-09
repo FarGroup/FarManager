@@ -154,9 +154,6 @@ static int MainProcess(
 		SetRealColor(COL_COMMANDLINEUSERSCREEN);
 		GetSystemInfo(&SystemInfo);
 
-		if( Opt.IsUserAdmin )
-			SetEnvironmentVariable(L"FARADMINMODE", L"1");
-
 		if (*lpwszEditName || *lpwszViewName)
 		{
 			Opt.OnlyEditorViewerUsed=1;
@@ -403,11 +400,12 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	g_strFarPath=g_strFarModuleName;
 	CutToSlash(g_strFarPath,true);
 	SetEnvironmentVariable(L"FARHOME", g_strFarPath);
+	AddEndSlash(g_strFarPath);
 
 	// don't inherit from parent process in any case
 	SetEnvironmentVariable(L"FARUSER", nullptr);
 
-	AddEndSlash(g_strFarPath);
+	SetEnvironmentVariable(L"FARADMINMODE", Opt.IsUserAdmin?L"1":nullptr);
 
 	// макросы не дисаблим
 	Opt.Macro.DisableMacro=0;
