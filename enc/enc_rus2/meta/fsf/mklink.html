@@ -28,6 +28,7 @@ int WINAPI MkLink(
 </pre>
 
 <h3>Параметры</h3>
+
 <div class=descr>
   <div class=dfn>Src</div>
   <div class=dfndescr>Имя файлового объекта, на который создаётся ссылка.
@@ -40,40 +41,48 @@ int WINAPI MkLink(
   <div class=dfn>Flags</div>
   <div class=dfndescr>Тип операции. Одно из (перечисление <a name="MKLINKOP">MKLINKOP</a>):
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Операция</th><th class="cont" width="60%">Описание</th></tr>
-  <tr class="cont"><td class="cont" width="40%"><a name="FLINK_HARDLINK">FLINK_HARDLINK</a></td>
-  <td class="cont" width="60%">Создать жёсткую ссылку (hardlink).
-    </td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a name="FLINK_JUNCTION">FLINK_JUNCTION</a></td>
-  <td class="cont" width="60%">Создать связь каталогов (junction).
-    </td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a name="FLINK_VOLMOUNT">FLINK_VOLMOUNT</a></td>
-  <td class="cont" width="60%">монтировать локальный диск на файловую систему.
-    </td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a name="FLINK_SYMLINKFILE">FLINK_SYMLINKFILE</a></td>
-  <td class="cont" width="60%">Создать символическую ссылку-файл.
-    </td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a name="FLINK_SYMLINKDIR">FLINK_SYMLINKDIR</a></td>
-  <td class="cont" width="60%">Создать символическую ссылку-каталог.
-    </td></tr>
+<tr class="cont"><th class="cont" width="40%">Операция</th><th class="cont" width="60%">Описание</th>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="FLINK_HARDLINK">FLINK_HARDLINK</a></td>
+<td class="cont" width="60%">создать жёсткую ссылку (hardlink)</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="FLINK_JUNCTION">FLINK_JUNCTION</a></td>
+<td class="cont" width="60%">создать связь каталогов (junction)</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="FLINK_VOLMOUNT">FLINK_VOLMOUNT</a></td>
+<td class="cont" width="60%">монтировать локальный диск на файловую систему</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="FLINK_SYMLINKFILE">FLINK_SYMLINKFILE</a></td>
+<td class="cont" width="60%">создать символическую ссылку-файл</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="FLINK_SYMLINKDIR">FLINK_SYMLINKDIR</a></td>
+<td class="cont" width="60%">создать символическую ссылку-каталог</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="FLINK_SYMLINK">FLINK_SYMLINK</a></td>
+<td class="cont" width="60%">автоматически выбрать тип создаваемой символической ссылки</td>
+</tr>
 </table>
 
 <p>В дополнении к вышеуказанным операциям можно указать флаг:</p>
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-  <tr class="cont"><td class="cont" width="40%"><a name="FLINK_SHOWERRMSG">FLINK_SHOWERRMSG</a></td>
-  <td class="cont" width="60%">Выводить сообщения об ошибках.
-    </td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a name="FLINK_DONOTUPDATEPANEL">FLINK_DONOTUPDATEPANEL</a></td>
-  <td class="cont" width="60%">После создания ссылки не обновлять панели.
-    </td></tr>
+<tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="FLINK_SHOWERRMSG">FLINK_SHOWERRMSG</a></td>
+<td class="cont" width="60%">выводить сообщения об ошибках</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="FLINK_DONOTUPDATEPANEL">FLINK_DONOTUPDATEPANEL</a></td>
+<td class="cont" width="60%">после создания ссылки не обновлять панели</td>
+</tr>
 </table>
-  </div>
+</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
