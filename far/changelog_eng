@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 09.07.2010 13:04:33 +0200 - build 1613
+
+1. "faradminmode" variable was inherited from parent process.
+
 t-rex 08.07.2010 20:10:14 +0200 - build 1612
 
 1. Fix of 1607 (http://forum.farmanager.com/viewtopic.php?p=65440#p65440).
