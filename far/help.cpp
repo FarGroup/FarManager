@@ -107,7 +107,7 @@ class CallBackStack
 
 
 static const wchar_t *PluginContents=L"__PluginContents__";
-static const wchar_t *HelpOnHelpTopic=L"Help";
+static const wchar_t *HelpOnHelpTopic=L":Help";
 static const wchar_t *HelpContents=L"Contents";
 
 static int RunURL(const wchar_t *Protocol, wchar_t *URLPath);
@@ -1415,7 +1415,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 	}
 	else
 	{
-		strNewTopic = StackData.strSelTopic.CPtr();
+		strNewTopic = StackData.strSelTopic.CPtr()+(!StrCmp(StackData.strSelTopic,HelpOnHelpTopic)?1:0);
 	}
 
 	// удалим ссылку на .DLL
