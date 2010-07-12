@@ -3,6 +3,19 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 12.07.2010 19:38:29 +0200 - build 1616
+
+1. Drive change error dialog functionality is extended, it is possible now
+   to select another drive without leaving the dialog.
+
+t-rex 12.07.2010 10:45:46 +0200 - build 1615
+
+1. Mantis#1432: gcc build problems.
+
+svs 12.07.2010 10:44:28 +0300 - build 1614
+
+1. Mantis#0001412: F1 when viewing *.hlf
+
 drkns 09.07.2010 13:04:33 +0200 - build 1613
 
 1. "faradminmode" variable was inherited from parent process.
