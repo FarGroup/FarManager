@@ -985,17 +985,42 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				}
 			}
 
-			string strMsgStr;
-			strMsgStr.Format(MSG(MChangeDriveCannotReadDisk), mitem->cDrive);
-
-			if (Message(
-			            MSG_WARNING|MSG_ERRORTYPE,
-			            2,
-			            MSG(MError),
-			            strMsgStr,
-			            MSG(MRetry),
-			            MSG(MCancel)
-			        ) )
+			enum
+			{
+				CHDISKERROR_DOUBLEBOX,
+				CHDISKERROR_TEXT0,
+				CHDISKERROR_TEXT1,
+				CHDISKERROR_FIXEDIT,
+				CHDISKERROR_TEXT2,
+				CHDISKERROR_SEPARATOR,
+				CHDISKERROR_BUTTON_OK,
+				CHDISKERROR_BUTTON_CANCEL,
+			};
+			const int DX=Max(StrLength(MSG(MChangeDriveCannotReadDisk))+13,40),DY=8;
+			const wchar_t Drive[]={mitem->cDrive,L'\0'};
+			string strError;
+			GetErrorString(strError);
+			const DialogDataEx ChDiskData[]=
+			{
+				DI_DOUBLEBOX,3,1,DX-4,DY-2,0,0,MSG(MError),
+				DI_TEXT,5,2,DX-6,2,0,DIF_CENTERTEXT,strError.CPtr(),
+				DI_TEXT,5,3,DX-9,3,0,0,MSG(MChangeDriveCannotReadDisk),
+				DI_FIXEDIT,DX-7,3,DX-7,3,0,DIF_FOCUS,Drive,
+				DI_TEXT,DX-6,3,DX-6,3,0,0,L":",
+				DI_TEXT,3,DY-4,0,DY-4,0,DIF_SEPARATOR,L"",
+				DI_BUTTON,0,DY-3,0,DY-3,0,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MRetry),
+				DI_BUTTON,0,DY-3,0,DY-3,0,DIF_CENTERGROUP,MSG(MCancel),
+			};
+			MakeDialogItemsEx(ChDiskData,ChDiskDlg);
+			Dialog Dlg(ChDiskDlg,ARRAYSIZE(ChDiskData));
+			Dlg.SetPosition(-1,-1,DX,DY);
+			Dlg.SetDialogMode(DMODE_WARNINGSTYLE);
+			Dlg.Process();
+			if(Dlg.GetExitCode()==CHDISKERROR_BUTTON_OK)
+			{
+				mitem->cDrive=ChDiskDlg[CHDISKERROR_FIXEDIT].strData.At(0);
+			}
+			else
 			{
 				return -1;
 			}

@@ -331,7 +331,7 @@ size_t ConvertItemEx2(FarDialogItem *Item,DialogItemEx *Data)
 	return size;
 }
 
-void DataToItemEx(DialogDataEx *Data,DialogItemEx *Item,int Count)
+void DataToItemEx(const DialogDataEx *Data,DialogItemEx *Item,int Count)
 {
 	if (!Item || !Data)
 		return;

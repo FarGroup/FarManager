@@ -9977,12 +9977,12 @@ MChangeDriveLabelAbsent
 "niedostępny"
 
 MChangeDriveCannotReadDisk
-"Ошибка чтения диска в дисководе %c:"
-"Cannot read the disk in drive %c:"
-"Nelze přečíst disk v jednotce %c:"
-"Datenträge in Laufwerk %c: kann nicht gelesen werden."
-"%c: meghajtó lemeze nem olvasható"
-"Nie mogę odczytać dysku w napędzie %c:"
+"Ошибка чтения диска в дисководе"
+"Cannot read the disk in drive"
+"Nelze přečíst disk v jednotce"
+"Kann nicht gelesen werden datenträge in Laufwerk"
+"Meghajtó lemeze nem olvasható"
+"Nie mogę odczytać dysku w napędzie"
 
 MChangeDriveCannotDisconnect
 "Не удаётся отсоединиться от %s"
