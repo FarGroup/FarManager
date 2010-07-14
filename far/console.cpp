@@ -268,37 +268,43 @@ bool console::WriteInput(INPUT_RECORD& Buffer, DWORD Length, DWORD& NumberOfEven
 }
 
 // пишем/читаем порциями по 32 K, иначе проблемы.
-#define MAXSIZE 0x8000
+const int MAXSIZE=0x8000;
 
 bool console::ReadOutput(CHAR_INFO& Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& ReadRegion)
 {
 	bool Result=false;
 	int Delta=Opt.WindowMode?GetDelta():0;
+	ReadRegion.Top+=Delta;
+	ReadRegion.Bottom+=Delta;
+
+	// skip unused region
+	PCHAR_INFO BufferStart=&Buffer+BufferCoord.Y*BufferSize.X;
+	BufferSize.Y-=BufferCoord.Y;
+	BufferCoord.Y=0;
+
 	if(BufferSize.X*BufferSize.Y*sizeof(CHAR_INFO)>MAXSIZE)
 	{
-		BufferCoord.Y=0;
-		int ReadY2=ReadRegion.Bottom;
-		for (int yy=ReadRegion.Top; yy<=ReadY2;)
+		BufferSize.Y=static_cast<SHORT>(Max(MAXSIZE/(BufferSize.X*sizeof(CHAR_INFO)),1u));
+		int Height=ReadRegion.Bottom-ReadRegion.Top+1;
+		int Start=ReadRegion.Top;
+		SMALL_RECT SavedWriteRegion=ReadRegion;
+		for(int i=0;i<Height;i+=BufferSize.Y)
 		{
-			ReadRegion.Top=yy;
-			PCHAR_INFO BufPtr=&Buffer+yy*BufferSize.X;
-			BufferSize.Y=Min(Max(MAXSIZE/static_cast<int>(BufferSize.X*sizeof(CHAR_INFO)),1),ReadY2-yy+1);
-			yy+=BufferSize.Y;
-			ReadRegion.Bottom=yy-1;
-			ReadRegion.Top+=Delta;
-			ReadRegion.Bottom+=Delta;
+			ReadRegion=SavedWriteRegion;
+			ReadRegion.Top=Start+i;
+			PCHAR_INFO BufPtr=BufferStart+i*BufferSize.X;
 			Result=ReadConsoleOutput(GetOutputHandle(), BufPtr, BufferSize, BufferCoord, &ReadRegion)!=FALSE;
-			if(!Result)
-			{
-				break;
-			}
 		}
 	}
 	else
 	{
-		ReadRegion.Top+=Delta;
-		ReadRegion.Bottom+=Delta;
-		Result=ReadConsoleOutput(GetOutputHandle(), &Buffer, BufferSize, BufferCoord, &ReadRegion)!=FALSE;
+		Result=ReadConsoleOutput(GetOutputHandle(), BufferStart, BufferSize, BufferCoord, &ReadRegion)!=FALSE;
+	}
+
+	if(Opt.WindowMode)
+	{
+		ReadRegion.Top-=Delta;
+		ReadRegion.Bottom-=Delta;
 	}
 
 	return Result;
@@ -308,36 +314,35 @@ bool console::WriteOutput(const CHAR_INFO& Buffer, COORD BufferSize, COORD Buffe
 {
 	bool Result=false;
 	int Delta=Opt.WindowMode?GetDelta():0;
+	WriteRegion.Top+=Delta;
+	WriteRegion.Bottom+=Delta;
+
+	// skip unused region
+	const CHAR_INFO* BufferStart=&Buffer+BufferCoord.Y*BufferSize.X;
+	BufferSize.Y-=BufferCoord.Y;
+	BufferCoord.Y=0;
+
 	if(BufferSize.X*BufferSize.Y*sizeof(CHAR_INFO)>MAXSIZE)
 	{
-		BufferCoord.Y=0;
-		int WriteY2=WriteRegion.Bottom;
-		for (int yy=WriteRegion.Top; yy<=WriteY2;)
+		BufferSize.Y=static_cast<SHORT>(Max(MAXSIZE/(BufferSize.X*sizeof(CHAR_INFO)),1u));
+		int Height=WriteRegion.Bottom-WriteRegion.Top+1;
+		int Start=WriteRegion.Top;
+		SMALL_RECT SavedWriteRegion=WriteRegion;
+		for(int i=0;i<Height;i+=BufferSize.Y)
 		{
-			WriteRegion.Top=yy;
-			const CHAR_INFO* BufPtr=&Buffer+yy*BufferSize.X;
-			BufferSize.Y=Min(Max(MAXSIZE/static_cast<int>(BufferSize.X*sizeof(CHAR_INFO)),1),WriteY2-yy+1);
-			yy+=BufferSize.Y;
-			WriteRegion.Bottom=yy-1;
-			WriteRegion.Top+=Delta;
-			WriteRegion.Bottom+=Delta;
+			WriteRegion=SavedWriteRegion;
+			WriteRegion.Top=Start+i;
+			const CHAR_INFO* BufPtr=BufferStart+i*BufferSize.X;
 			Result=WriteConsoleOutput(GetOutputHandle(), BufPtr, BufferSize, BufferCoord, &WriteRegion)!=FALSE;
-			if(!Result)
-			{
-				break;
-			}
 		}
 	}
 	else
 	{
-		WriteRegion.Top+=Delta;
-		WriteRegion.Bottom+=Delta;
-		Result=WriteConsoleOutput(GetOutputHandle(), &Buffer, BufferSize, BufferCoord, &WriteRegion)!=FALSE;
+		Result=WriteConsoleOutput(GetOutputHandle(), BufferStart, BufferSize, BufferCoord, &WriteRegion)!=FALSE;
 	}
 
 	if(Opt.WindowMode)
 	{
-		int Delta=GetDelta();
 		WriteRegion.Top-=Delta;
 		WriteRegion.Bottom-=Delta;
 	}
