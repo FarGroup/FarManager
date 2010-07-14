@@ -3,9 +3,13 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 14.07.2010 18:04:04 +0200 - build 1617
+
+1. Specification of console block read/write algorithm.
+
 drkns 12.07.2010 19:38:29 +0200 - build 1616
 
-1. Drive change error dialog functionality is extended, it is possible now
+1. Drive selection error dialog functionality is extended, it is possible now
    to select another drive without leaving the dialog.
 
 t-rex 12.07.2010 10:45:46 +0200 - build 1615
