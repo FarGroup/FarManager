@@ -284,7 +284,7 @@ bool console::ReadOutput(CHAR_INFO& Buffer, COORD BufferSize, COORD BufferCoord,
 
 	if(BufferSize.X*BufferSize.Y*sizeof(CHAR_INFO)>MAXSIZE)
 	{
-		BufferSize.Y=static_cast<SHORT>(Max(MAXSIZE/(BufferSize.X*sizeof(CHAR_INFO)),1u));
+		BufferSize.Y=static_cast<SHORT>(Max(static_cast<int>(MAXSIZE/(BufferSize.X*sizeof(CHAR_INFO))),1));
 		int Height=ReadRegion.Bottom-ReadRegion.Top+1;
 		int Start=ReadRegion.Top;
 		SMALL_RECT SavedWriteRegion=ReadRegion;
@@ -324,7 +324,7 @@ bool console::WriteOutput(const CHAR_INFO& Buffer, COORD BufferSize, COORD Buffe
 
 	if(BufferSize.X*BufferSize.Y*sizeof(CHAR_INFO)>MAXSIZE)
 	{
-		BufferSize.Y=static_cast<SHORT>(Max(MAXSIZE/(BufferSize.X*sizeof(CHAR_INFO)),1u));
+		BufferSize.Y=static_cast<SHORT>(Max(static_cast<int>(MAXSIZE/(BufferSize.X*sizeof(CHAR_INFO))),1));
 		int Height=WriteRegion.Bottom-WriteRegion.Top+1;
 		int Start=WriteRegion.Top;
 		SMALL_RECT SavedWriteRegion=WriteRegion;
