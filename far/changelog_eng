@@ -3,6 +3,24 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 15.07.2010 13:47:00 +0200 - build 1620
+
+1. Settings shake-up:
+   "Plugin selection" dialog has grown into "Plugins manager", "Path for 
+   personal plugins" has also moved there and a couple of new options is added:
+   "OEM plugins support" - old plugins on/off global switching;
+   "Scan symbolic links" - load or don't load plugins at symbolic links.
+
+2. Specification of 1616.1.
+
+drkns 15.07.2010 10:00:00 +0200 - build 1619
+
+1. x64.
+
+drkns 15.07.2010 10:00:00 +0200 - build 1618
+
+1. ScreenBuf::MoveCursor() is optimized slightly.
+
 drkns 14.07.2010 18:04:04 +0200 - build 1617
 
 1. Specification of console block read/write algorithm.
