@@ -137,8 +137,6 @@ void SystemSettings()
 	Builder.AddCheckbox(MConfigSaveViewHistory, &Opt.SaveViewHistory);
 	Builder.AddCheckbox(MConfigRegisteredTypes, &Opt.UseRegisteredTypes);
 	Builder.AddCheckbox(MConfigCloseCDGate, &Opt.CloseCDGate);
-	Builder.AddText(MConfigPersonalPath);
-	Builder.AddEditField(&Opt.LoadPlug.strPersonalPluginsPath, 45, L"PersPath", DIF_EDITPATH);
 	Builder.AddCheckbox(MConfigAutoSave, &Opt.AutoSaveSetup);
 	Builder.AddOKCancel();
 
@@ -340,20 +338,26 @@ void SetConfirmations()
 	Builder.ShowDialog();
 }
 
-void SetPluginConfirmations()
+void PluginsManagerSettings()
 {
-	DialogBuilder Builder(MSetPluginConfirmationTitle, L"ChoosePluginDlg");
+	DialogBuilder Builder(MPluginsManagerSettingsTitle, L"PluginsManagerSettings");
 
-	DialogItemEx *ConfirmOFP = Builder.AddCheckbox(MSetPluginConfirmationOFP, &Opt.PluginConfirm.OpenFilePlugin);
-	DialogItemEx *StandardAssoc = Builder.AddCheckbox(MSetPluginConfirmationStdAssoc, &Opt.PluginConfirm.StandardAssociation);
-	DialogItemEx *EvenIfOnlyOne = Builder.AddCheckbox(MSetPluginConfirmationEvenOne, &Opt.PluginConfirm.EvenIfOnlyOnePlugin);
+	Builder.AddCheckbox(MPluginsManagerOEMPluginsSupport, &Opt.LoadPlug.OEMPluginsSupport);
+	Builder.AddCheckbox(MPluginsManagerScanSymlinks, &Opt.LoadPlug.ScanSymlinks);
+	Builder.AddText(MPluginsManagerPersonalPath);
+	Builder.AddEditField(&Opt.LoadPlug.strPersonalPluginsPath, 45, L"PersPath", DIF_EDITPATH);
+
+	Builder.AddSeparator(MPluginConfirmationTitle);
+	DialogItemEx *ConfirmOFP = Builder.AddCheckbox(MPluginsManagerOFP, &Opt.PluginConfirm.OpenFilePlugin);
+	DialogItemEx *StandardAssoc = Builder.AddCheckbox(MPluginsManagerStdAssoc, &Opt.PluginConfirm.StandardAssociation);
+	DialogItemEx *EvenIfOnlyOne = Builder.AddCheckbox(MPluginsManagerEvenOne, &Opt.PluginConfirm.EvenIfOnlyOnePlugin);
 	StandardAssoc->Indent(2);
 	EvenIfOnlyOne->Indent(2);
 	Builder.LinkFlags(ConfirmOFP, StandardAssoc, DIF_DISABLE);
 	Builder.LinkFlags(ConfirmOFP, EvenIfOnlyOne, DIF_DISABLE);
 
-	Builder.AddCheckbox(MSetPluginConfirmationSFL, &Opt.PluginConfirm.SetFindList);
-	Builder.AddCheckbox(MSetPluginConfirmationPF, &Opt.PluginConfirm.Prefix);
+	Builder.AddCheckbox(MPluginsManagerSFL, &Opt.PluginConfirm.SetFindList);
+	Builder.AddCheckbox(MPluginsManagerPF, &Opt.PluginConfirm.Prefix);
 	Builder.AddOKCancel();
 
 	Builder.ShowDialog();
@@ -652,6 +656,8 @@ static struct FARConfig
 	{0, REG_DWORD,  NKeySystem,L"MaxPositionCache",&Opt.MaxPositionCache,MAX_POSITIONS, 0},
 	{0, REG_SZ,     NKeySystem,L"ConsoleDetachKey", &strKeyNameConsoleDetachKey, 0, L"CtrlAltTab"},
 	{0, REG_DWORD,  NKeySystem,L"SilentLoadPlugin",  &Opt.LoadPlug.SilentLoadPlugin, 0, 0},
+	{1, REG_DWORD,  NKeySystem,L"OEMPluginsSupport",  &Opt.LoadPlug.OEMPluginsSupport, 1, 0},
+	{1, REG_DWORD,  NKeySystem,L"ScanSymlinks",  &Opt.LoadPlug.ScanSymlinks, 1, 0},
 	{1, REG_DWORD,  NKeySystem,L"MultiMakeDir",&Opt.MultiMakeDir,0, 0},
 	{0, REG_DWORD,  NKeySystem,L"FlagPosixSemantics", &Opt.FlagPosixSemantics, 1, 0},
 	{0, REG_DWORD,  NKeySystem,L"MsWheelDelta", &Opt.MsWheelDelta, 1, 0},

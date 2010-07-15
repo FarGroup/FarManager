@@ -335,6 +335,8 @@ struct LoadPluginsOptions
 	string strCustomPluginsPath;  // путь для поиска плагинов, указанный в /p
 	string strPersonalPluginsPath;
 	int SilentLoadPlugin; // при загрузке плагина с кривым...
+	int OEMPluginsSupport;
+	int ScanSymlinks;
 };
 
 struct FindFileOptions
@@ -633,7 +635,7 @@ void InterfaceSettings();
 void DialogSettings();
 void CmdlineSettings();
 void SetConfirmations();
-void SetPluginConfirmations();
+void PluginsManagerSettings();
 void SetDizConfig();
 void ViewerConfig(ViewerOptions &ViOpt,bool Local=false);
 void EditorConfig(EditorOptions &EdOpt,bool Local=false);

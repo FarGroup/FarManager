@@ -219,7 +219,7 @@ PluginType IsModulePlugin2(
 						if (dwCRC32 == ExportCRC32W[j])
 							return UNICODE_PLUGIN;
 
-					if (!bOemExports)
+					if (!bOemExports && Opt.LoadPlug.OEMPluginsSupport)
 						for (size_t j = 0; j < ARRAYSIZE(ExportCRC32); j++)
 							if (dwCRC32 == ExportCRC32[j])
 								bOemExports=true;
@@ -495,7 +495,7 @@ void PluginManager::LoadPlugins()
 	}
 	else if (Opt.LoadPlug.MainPluginDir || !Opt.LoadPlug.strCustomPluginsPath.IsEmpty() || (Opt.LoadPlug.PluginsPersonal && !Opt.LoadPlug.strPersonalPluginsPath.IsEmpty()))
 	{
-		ScanTree ScTree(FALSE,TRUE);
+		ScanTree ScTree(FALSE,TRUE,Opt.LoadPlug.ScanSymlinks);
 		UserDefinedList PluginPathList;  // хранение списка каталогов
 		string strPluginsDir;
 		string strFullName;
@@ -733,7 +733,7 @@ HANDLE PluginManager::OpenFilePlugin(
 	{
 		if ((items.getCount() > 1) || (Opt.PluginConfirm.OpenFilePlugin && (Opt.PluginConfirm.StandardAssociation || Opt.PluginConfirm.EvenIfOnlyOnePlugin)))
 		{
-			VMenu menu(MSG(MMenuPluginConfirmationTitle), nullptr, 0, ScrY-4);
+			VMenu menu(MSG(MPluginConfirmationTitle), nullptr, 0, ScrY-4);
 			menu.SetPosition(-1, -1, 0, 0);
 			menu.SetHelp(L"ChoosePluginMenu");
 			menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
@@ -841,7 +841,7 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, int I
 	{
 		if (items.getCount()>1)
 		{
-			VMenu menu(MSG(MMenuPluginConfirmationTitle), nullptr, 0, ScrY-4);
+			VMenu menu(MSG(MPluginConfirmationTitle), nullptr, 0, ScrY-4);
 			menu.SetPosition(-1, -1, 0, 0);
 			menu.SetHelp(L"ChoosePluginMenu");
 			menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
@@ -1967,7 +1967,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 
 	if (items.getCount()>1)
 	{
-		VMenu menu(MSG(MMenuPluginConfirmationTitle), nullptr, 0, ScrY-4);
+		VMenu menu(MSG(MPluginConfirmationTitle), nullptr, 0, ScrY-4);
 		menu.SetPosition(-1, -1, 0, 0);
 		menu.SetHelp(L"ChoosePluginMenu");
 		menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);

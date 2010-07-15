@@ -1250,14 +1250,6 @@ MConfigCloseCDGate
 "CD tálca a&utomatikus behúzása"
 "&Montuj CD automatycznie"
 
-MConfigPersonalPath
-"Путь к персональным п&лагинам:"
-"&Path for personal plugins:"
-"&Cesta k vlastním pluginům:"
-"&Pfad für eigene Plugins:"
-"Saját plu&ginek útvonala:"
-"Ś&cieżka do własnych pluginów:"
-
 MConfigAutoSave
 "Автозапись кон&фигурации"
 "Auto &save setup"
@@ -9501,6 +9493,14 @@ MMenuPluginsConfig
 "Pl&ugin beállítások"
 "Konfiguracja p&luginów"
 
+MMenuPluginsManagerSettings
+"Параметры менеджера внешних модулей"
+"Plugins manager settings"
+upd:"Plugins manager settings"
+upd:"Plugins manager settings"
+upd:"Plugins manager settings"
+upd:"Plugins manager settings"
+
 MMenuDialogSettings
 "Настройки &диалогов"
 "Di&alog settings"
@@ -9540,30 +9540,6 @@ MMenuConfirmation
 "Bestätigu&ngen"
 "Meg&erősítések"
 "P&otwierdzenia"
-
-MMenuPluginConfirmation
-"Выбор п&лагина"
-"Plugin sele&ction"
-upd:"Plugin selection"
-upd:"Plugin selection"
-"Plugin választás"
-upd:"Plugin selection"
-
-MMenuPluginConfirmationTitle
-"Выбор плагина"
-"Plugin selection"
-upd:"Plugin selection"
-upd:"Plugin selection"
-"Plugin választás"
-upd:"Plugin selection"
-
-MMenuPluginStdAssociation
-"Стандартная ассоциация"
-"Standard association"
-upd:"Standard association"
-upd:"Standard association"
-"Szabvány társítás"
-upd:"Standard association"
 
 MMenuFilePanelModes
 "Режим&ы панели файлов"
@@ -11876,16 +11852,40 @@ MSetConfirmExit
 "K&ilépés a FAR-ból"
 "&Wyjście"
 
-MSetPluginConfirmationTitle
+MPluginsManagerSettingsTitle
 l:
-"Выбор плагина"
-"Plugin selection"
-upd:"Plugin selection"
-upd:"Plugin selection"
-"Plugin választás"
-upd:"Plugin selection"
+"Параметры менеджера внешних модулей"
+"Plugins manager settings"
+upd:"Plugins manager settings"
+upd:"Plugins manager settings"
+upd:"Plugins manager settings"
+upd:"Plugins manager settings"
 
-MSetPluginConfirmationOFP
+MPluginsManagerOEMPluginsSupport
+"Поддержка OEM-плагинов"
+"OEM plugins support"
+upd:"OEM plugins support"
+upd:"OEM plugins support"
+upd:"OEM plugins support"
+upd:"OEM plugins support"
+
+MPluginsManagerScanSymlinks
+"Ск&анировать символические ссылки"
+"Scan s&ymbolic links"
+"Prohledávat s&ymbolické linky"
+"S&ymbolische Links scannen"
+"Szimbolikus linkek &vizsgálata"
+"Skanuj linki s&ymboliczne"
+
+MPluginsManagerPersonalPath
+"Путь к персональным п&лагинам:"
+"&Path for personal plugins:"
+"&Cesta k vlastním pluginům:"
+"&Pfad für eigene Plugins:"
+"Saját plu&ginek útvonala:"
+"Ś&cieżka do własnych pluginów:"
+
+MPluginsManagerOFP
 "Обработка &файла (OpenFilePlugin)"
 "&File processing (OpenFilePlugin)"
 upd:"&File processing (OpenFilePlugin)"
@@ -11893,7 +11893,7 @@ upd:"&File processing (OpenFilePlugin)"
 "&Fájl feldolgozása (OpenFilePlugin)"
 upd:"&File processing (OpenFilePlugin)"
 
-MSetPluginConfirmationStdAssoc
+MPluginsManagerStdAssoc
 "Пункт вызова стандартной &ассоциации"
 "Show standard &association item"
 upd:"Show standard &association item"
@@ -11901,7 +11901,7 @@ upd:"Show standard &association item"
 "Szabvány társítás megjelenítése"
 upd:"Show standard &association item"
 
-MSetPluginConfirmationEvenOne
+MPluginsManagerEvenOne
 "Даже если найден всего &один плагин"
 "Even if only &one plugin found"
 upd:"Even if only &one plugin found"
@@ -11909,7 +11909,7 @@ upd:"Even if only &one plugin found"
 "Akkor is, ha csak egy plugin van"
 upd:"Even if only &one plugin found"
 
-MSetPluginConfirmationSFL
+MPluginsManagerSFL
 "&Результаты поиска (SetFindList)"
 "Search &results (SetFindList)"
 upd:"Search &results (SetFindList)"
@@ -11917,13 +11917,29 @@ upd:"Search &results (SetFindList)"
 "Keresés eredménye (SetFindList)"
 upd:"Search &results (SetFindList)"
 
-MSetPluginConfirmationPF
+MPluginsManagerPF
 "Обработка &префикса"
 "&Prefix processing"
 upd:"&Prefix processing"
 upd:"&Prefix processing"
 "Előtag feldolgozása"
 upd:"&Prefix processing"
+
+MPluginConfirmationTitle
+"Выбор плагина"
+"Plugin selection"
+upd:"Plugin selection"
+upd:"Plugin selection"
+"Plugin választás"
+upd:"Plugin selection"
+
+MMenuPluginStdAssociation
+"Стандартная ассоциация"
+"Standard association"
+upd:"Standard association"
+upd:"Standard association"
+"Szabvány társítás"
+upd:"Standard association"
 
 MFindFolderTitle
 l:

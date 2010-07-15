@@ -152,13 +152,13 @@ enum enumOptionsMenu
 	MENU_OPTIONS_INTERFACESETTINGS,
 	MENU_OPTIONS_LANGUAGES,
 	MENU_OPTIONS_PLUGINSCONFIG,
+	MENU_OPTIONS_PLUGINSMANAGERSETTINGS,
 	MENU_OPTIONS_DIALOGSETTINGS,
 	MENU_OPTIONS_CMDLINESETTINGS,
 	MENU_OPTIONS_AUTOCOMPLETESETTINGS,
 	MENU_OPTIONS_INFOPANELSETTINGS,
 	MENU_OPTIONS_SEPARATOR1,
 	MENU_OPTIONS_CONFIRMATIONS,
-	MENU_OPTIONS_PLUGINCONFIRMATIONS,
 	MENU_OPTIONS_FILEPANELMODES,
 	MENU_OPTIONS_FILEDESCRIPTIONS,
 	MENU_OPTIONS_FOLDERINFOFILES,
@@ -284,13 +284,13 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 		MSG(MMenuInterface),0,0,
 		MSG(MMenuLanguages),0,0,
 		MSG(MMenuPluginsConfig),0,0,
+		MSG(MMenuPluginsManagerSettings),0, 0,
 		MSG(MMenuDialogSettings),0,0,
 		MSG(MMenuCmdlineSettings),0,0,
 		MSG(MMenuAutoCompleteSettings),0,0,
 		MSG(MMenuInfoPanelSettings),0,0,
 		L"",LIF_SEPARATOR,0,
 		MSG(MMenuConfirmation),0,0,
-		MSG(MMenuPluginConfirmation),0, 0,
 		MSG(MMenuFilePanelModes),0,0,
 		MSG(MMenuFileDescriptions),0,0,
 		MSG(MMenuFolderInfoFiles),0,0,
@@ -620,6 +620,9 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 				case MENU_OPTIONS_PLUGINSCONFIG:   // Plugins configuration
 					CtrlObject->Plugins.Configure();
 					break;
+				case MENU_OPTIONS_PLUGINSMANAGERSETTINGS:
+					PluginsManagerSettings();
+					break;
 				case MENU_OPTIONS_DIALOGSETTINGS:   // Dialog settings (police=5)
 					DialogSettings();
 					break;
@@ -634,9 +637,6 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 					break;
 				case MENU_OPTIONS_CONFIRMATIONS:   // Confirmations
 					SetConfirmations();
-					break;
-				case MENU_OPTIONS_PLUGINCONFIRMATIONS:
-					SetPluginConfirmations();
 					break;
 				case MENU_OPTIONS_FILEPANELMODES:   // File panel modes
 					FileList::SetFilePanelModes();

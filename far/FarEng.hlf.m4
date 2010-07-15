@@ -178,7 +178,7 @@ without this switch. If the cache is empty, no plugins will be loaded.
 will be loaded from cache;
   - ^<wrap>/co is ignored, if /p is given;
   - ^<wrap>if /p and /co are not given, then plugins will be loaded from the main folder,
-and from the path given at the "~Path for personal plugins~@SystemSettings@" parameter.
+and from the path given at the "~Path for personal plugins~@PluginsManagerSettings@" parameter.
 
   #/rc#
   Upon closing, allows to restore console window title and size that were set
@@ -1332,9 +1332,14 @@ following operations:
     - exit from FAR.
 
 
-@ChoosePluginDlg
-$ #Plugin selection menu#
+@PluginsManagerSettings
+$ #Plugins manager#
 
+  #Path for personal plugins#
+  Enter here the full path, where FAR will search for "personal" plugins in addition to the "main"
+plugins. Several search paths may be given separated by ';'. Environment variables can be entered in the
+search path. Personal plugins will not be loaded, if the switches /p or /co are given in the
+~command line~@CmdLine@.
 
 @ChoosePluginMenu
 $ #Plugin selection menu#
@@ -2044,12 +2049,6 @@ registered to process this file type will be executed.
   When a CD-ROM drive is selected from the ~drive menu~@DriveDlg@, FAR will close the open
 tray of a CD drive. Turn off this option if automatic CD-ROM mounting does not work
 correctly (this can happen because of bugs in the drivers of some CD-ROM drives).
-
-  #Path for personal plugins#
-  Enter here the full path, where FAR will search for "personal" plugins in addition to the "main"
-plugins. Several search paths may be given separated by ';'. Environment variables can be entered in the
-search path. Personal plugins will not be loaded, if the switches /p or /co are given in the
-~command line~@CmdLine@.
 
   #Auto save setup#
   If checked, FAR will save setup automatically. The current folders for both panels will be also saved.

@@ -996,17 +996,20 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				CHDISKERROR_BUTTON_OK,
 				CHDISKERROR_BUTTON_CANCEL,
 			};
-			const int DX=Max(StrLength(MSG(MChangeDriveCannotReadDisk))+13,40),DY=8;
 			const wchar_t Drive[]={mitem->cDrive,L'\0'};
 			string strError;
 			GetErrorString(strError);
+			int Len1=static_cast<int>(strError.GetLength());
+			int Len2=StrLength(MSG(MChangeDriveCannotReadDisk));
+			int MaxMsg=Max(Len1,Len2);
+			const int DX=Max(MaxMsg+13,40),DY=8;
 			const DialogDataEx ChDiskData[]=
 			{
 				DI_DOUBLEBOX,3,1,DX-4,DY-2,0,0,MSG(MError),
 				DI_TEXT,5,2,DX-6,2,0,DIF_CENTERTEXT,strError.CPtr(),
 				DI_TEXT,5,3,DX-9,3,0,0,MSG(MChangeDriveCannotReadDisk),
-				DI_FIXEDIT,DX-7,3,DX-7,3,0,DIF_FOCUS,Drive,
-				DI_TEXT,DX-6,3,DX-6,3,0,0,L":",
+				DI_FIXEDIT,5+Len2+1,3,5+Len2+1,3,0,DIF_FOCUS,Drive,
+				DI_TEXT,5+Len2+2,3,5+Len2+2,3,0,0,L":",
 				DI_TEXT,3,DY-4,0,DY-4,0,DIF_SEPARATOR,L"",
 				DI_BUTTON,0,DY-3,0,DY-3,0,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MRetry),
 				DI_BUTTON,0,DY-3,0,DY-3,0,DIF_CENTERGROUP,MSG(MCancel),
