@@ -513,13 +513,16 @@ void ScreenBuf::ResetShadow()
 void ScreenBuf::MoveCursor(int X,int Y)
 {
 	CriticalSectionLock Lock(CS);
-	CurX=X;
-	CurY=Y;
+	if(X!=CurX || Y!=CurY)
+	{
+		CurX=X;
+		CurY=Y;
 
-	if (CurX<0||CurY<0||CurX>ScrX||CurY>ScrY)
-		CurVisible=FALSE;
+		if (CurX<0||CurY<0||CurX>ScrX||CurY>ScrY)
+			CurVisible=FALSE;
 
-	SBFlags.Clear(SBFLAGS_FLUSHEDCURPOS);
+		SBFlags.Clear(SBFLAGS_FLUSHEDCURPOS);
+	}
 }
 
 
