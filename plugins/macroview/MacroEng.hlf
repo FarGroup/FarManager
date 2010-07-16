@@ -162,96 +162,6 @@ $ #Special macros#
 automatically while in macro recording phase, but must be entered manually in
 the #Sequence# field of ~macro parameters~@MacroParams@ window:
 
- #$Date ["format"]#
-   The current time is converted to a string according to the
-format "format". If the "format" argument is not specified,
-FAR will use the format string "%a %b %d %H:%M:%S %Z %Y".
-This format is similar to the one used by the Unix 'date' utility. $Date
-supports the following date format specification (similar
-to the format used by the strftime function):
-
-        %%   Percent sign
-        %a   Abbreviated weekday name (Sun)
-        %A   Full weekday name (Monday)
-        %b   Abbreviated month name (Jan)
-        %B   Full month name (January)
-        %c   Date and time representation in the format
-             "WDay Mnt Day HH:MM:SS yyyy"
-             (Mon Jan 10 04:11:54 2000)
-        %C   Century as a decimal number (00 - 99). 1992 => 19
-        %d   Day of the month as decimal number (01 - 31)
-        %D   Synonym for %x
-        %e   Synonym for %d, but the leading zero is replaced
-             with a space
-        %h   Synonym for %b
-        %H   Hour in 24-hour format (00 - 23)
-        %I   Hour in 12-hour format (01 - 12)
-        %j   Day of year as decimal number (001 - 366)
-        %k   Synonym for %H, but the leading zero is replaced
-             with a space
-        %l   Synonym for %I, but the leading zero is replaced
-             with a space
-        %L   Trigger for switching the language of month and weekday
-             names - English/localized.
-             FAR requests two sets of names from the system:
-             1) English names of months and weekdays
-             2) names according to the settings of the current user
-             (LOCALE_USER_DEFAULT).
-             By default the English names are used.
-        %m   Month as decimal number (1 - 12)
-        %m0  Similar to %m, but with a leading zero (01 - 12)
-        %mh  Current month as hexadecimal number (1 - C)
-        %M   Minute as decimal number (00 - 59)
-        %n   Line break `\\n'
-             Note: When using this in editor macros, auto-indent
-             will not work.
-        %p   AM or PM
-        %r   Synonym for %I:%M:%S %p
-        %R   Synonym for %H:%M
-        %S   Second as decimal number (00 - 59)
-        %t   Tab character `\\t'
-        %T   Synonym for %X
-        %U   Week of year as decimal number, with Sunday as first
-             day of week (00 - 53)
-        %v   Date in the format dd-mmm-yyyy (the month name is
-             uppercased)
-        %V   Week of year according to ISO 8601:
-             "If the week number containing January 1st has >= 4
-             days in the new year, then it is week 1; otherwise,
-             it is the last numbered week of the previous year
-             (52 or 53)"
-        %w   Week day as decimal number (0 - 6, Sunday is 0)
-        %U   Week of year as decimal number, with Monday as first
-             day of week (00 - 53)
-        %x   Date in the format dd<sep>mm<sep>yyyy (the separator
-             <sep> and the order of day, month and year are
-             determined by the regional settings)
-        %X   Time in the format HH<sep>MM<sep>SS (the separator
-             <sep> is determined by the regional settings)
-        %y   Year without century, as decimal number (00 - 99)
-        %Y   Year with century, as decimal number (19yy-20yy)
-        %Z   Time-zone name or abbreviation; no characters if
-             time zone is unknown
-
-   Arbitrary text in the format string must be in the OEM codepage.
-
-   The following escape sequences are allowed:
-
-        \"   The '"' character
-        \\   The '\\' character
-        \%   The '%' character (same as '%%')
-        \n   New line '\n' (same as '%n')
-        \t   Tab '\t' (same as '%t')
-        \a   bell
-        \b   '\b'
-        \f   '\f'
-        \v   '\v'
-        \N   Octal code of characters in the OEM code page
-        \NN  --//--//--//--
-        \NNN --//--//--//--
-        \xNN Hex code of characters in the OEM code page
-
-
  #$Text "string"#
    Intended for insertion of arbitrary text.
 The inserted text 'string' must be in the OEM code page.
@@ -273,17 +183,6 @@ The following escape sequences are allowed inside the 'string' argument:
    The '$Text' macro is helpful when manually writing a macro
 sequence containing lengths of arbitrary text and will also lower memory
 usage in such macro sequences.
-
- #$IClip#
-    By default FAR Manager works with the Windows Clipboard for
-copy/paste operations. The '$IClip' macro allows to switch,
-within the limits of a macro sequence, the internal FAR mechanism for
-working with/without the Windows Clipboard.
-
- #$MMode 1#
-     Toggles macro mode. Changes the screen output mode
-("DisableOutput"). This macro is working as
-a trigger.
 
  #$Exit#
    Special macro '$Exit' stops the playback of a macro sequence.

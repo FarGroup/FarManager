@@ -58,11 +58,11 @@ const wchar_t *Users_KEY=L"\\Software\\Far2\\Users";
 //----
 const TCHAR *MacroGroupShort[]=
 {
-  _T("Dialog"),_T("Disks"),_T("Editor"),_T("Help"),_T("Info"),_T("MainMenu"),
-  _T("Menu"),_T("QView"),_T("Search"),_T("Shell"),_T("Tree"),_T("Viewer"),
-  _T("Other"),_T("Common"),_T("FindFolder"),_T("UserMenu"),
+	_T("Dialog"),_T("Disks"),_T("Editor"),_T("Help"),_T("Info"),_T("MainMenu"),
+	_T("Menu"),_T("QView"),_T("Search"),_T("Shell"),_T("Tree"),_T("Viewer"),
+	_T("Other"),_T("Common"),_T("FindFolder"),_T("UserMenu"),
 #ifdef UNICODE
-  _T("AutoCompletion"),
+	_T("AutoCompletion"),
 #endif
 };
 
@@ -73,9 +73,9 @@ const TCHAR *MacroGroupShort[]=
 // плагин
 int GroupIndex[]=
 {
-  -1,9,-1,-1,-1,2,11,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+	-1,9,-1,-1,-1,2,11,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 #ifdef UNICODE
-  -1,
+	-1,
 #endif
 };
 
@@ -83,79 +83,79 @@ int GroupIndex[]=
 //----
 enum GroupNameConvert
 {
-  GRP_TOLONGNAME,
-  GRP_TOSHORTNAME,
+	GRP_TOLONGNAME,
+	GRP_TOSHORTNAME,
 };
 
 enum
 {
-  DM_NONE,
-  DM_DELETED,
-  DM_DEACTIVATED,
+	DM_NONE,
+	DM_DELETED,
+	DM_DEACTIVATED,
 };
 
 enum
 {
-  KB_COMMON,
-  KB_ALT,
-  KB_CTRL,
-  KB_SHIFT,
-  KB_DIALOG,
-  KB_SHIFTDIALOG,
+	KB_COMMON,
+	KB_ALT,
+	KB_CTRL,
+	KB_SHIFT,
+	KB_DIALOG,
+	KB_SHIFTDIALOG,
 };
 
 enum
 {
-  MAC_MENUACTIVE,
-  MAC_EDITACTIVE,
-  MAC_DELETEACTIVE,
-  MAC_EXPORTACTIVE,
-  MAC_COPYACTIVE,
-  MAC_ERRORACTIVE,
+	MAC_MENUACTIVE,
+	MAC_EDITACTIVE,
+	MAC_DELETEACTIVE,
+	MAC_EXPORTACTIVE,
+	MAC_COPYACTIVE,
+	MAC_ERRORACTIVE,
 };
 
 enum EditMode
 {
-  EM_NONE,
-  EM_INSERT,
-  EM_EDIT,
+	EM_NONE,
+	EM_INSERT,
+	EM_EDIT,
 };
 
 
 //----
 struct InitDialogItem
 {
-  int Type;
-  int X1,Y1,X2,Y2;
-  int Focus;
-  DWORD_PTR Selected;
-  int Flags;
-  int DefaultButton;
-  const TCHAR *Data;
+	int Type;
+	int X1,Y1,X2,Y2;
+	int Focus;
+	DWORD_PTR Selected;
+	int Flags;
+	int DefaultButton;
+	const TCHAR *Data;
 };
 
 
 struct Config
 {
-  int AddDescription;
-  int AutomaticSave;
-  int ViewShell;
-  int ViewViewer;
-  int ViewEditor;
-  int UseHighlight;
-  int StartDependentSort;
-  int LongGroupNames;
-  int MenuCycle;
-  int DblClick;
-  int GroupDivider;
-  int SaveOnStart;
+	int AddDescription;
+	int AutomaticSave;
+	int ViewShell;
+	int ViewViewer;
+	int ViewEditor;
+	int UseHighlight;
+	int StartDependentSort;
+	int LongGroupNames;
+	int MenuCycle;
+	int DblClick;
+	int GroupDivider;
+	int SaveOnStart;
 };
 
 
 struct MenuData
 {
-  TCHAR Group[ArraySize(MacroGroupShort)];
-  TCHAR Key[32];
+	TCHAR Group[ArraySize(MacroGroupShort)];
+	TCHAR Key[32];
 };
 
 
@@ -192,134 +192,142 @@ int   __fastcall CmpStr(const TCHAR *String1,const TCHAR *String2,int ln1=-1,int
 //----
 class TMacroView
 {
-  friend LONG_PTR WINAPI MacroDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2);
-  friend LONG_PTR WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2);
-  friend LONG_PTR WINAPI DefKeyDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2);
-  friend LONG_PTR WINAPI CopyDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2);
-  friend BOOL WINAPI myReadConsoleInputA(HANDLE hConsole,PINPUT_RECORD ir,DWORD nNumber,LPDWORD nNumberOfRead);
-  friend BOOL WINAPI myReadConsoleInputW(HANDLE hConsole,PINPUT_RECORD ir,DWORD nNumber,LPDWORD nNumberOfRead);
-  friend BOOL WINAPI myPeekConsoleInputA(HANDLE hConsole,PINPUT_RECORD ir,DWORD nNumber,LPDWORD nNumberOfRead);
-  friend BOOL WINAPI myPeekConsoleInputW(HANDLE hConsole,PINPUT_RECORD ir,DWORD nNumber,LPDWORD nNumberOfRead);
-//  friend BOOL WINAPI ProcessKey(PINPUT_RECORD ir);
-  friend BOOL __fastcall ProcessPeekKey(PINPUT_RECORD ir);
-  friend void __fastcall FlushInputBuffer();
+		friend LONG_PTR WINAPI MacroDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2);
+		friend LONG_PTR WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2);
+		friend LONG_PTR WINAPI DefKeyDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2);
+		friend LONG_PTR WINAPI CopyDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2);
+		friend BOOL WINAPI myReadConsoleInputA(HANDLE hConsole,PINPUT_RECORD ir,DWORD nNumber,LPDWORD nNumberOfRead);
+		friend BOOL WINAPI myReadConsoleInputW(HANDLE hConsole,PINPUT_RECORD ir,DWORD nNumber,LPDWORD nNumberOfRead);
+		friend BOOL WINAPI myPeekConsoleInputA(HANDLE hConsole,PINPUT_RECORD ir,DWORD nNumber,LPDWORD nNumberOfRead);
+		friend BOOL WINAPI myPeekConsoleInputW(HANDLE hConsole,PINPUT_RECORD ir,DWORD nNumber,LPDWORD nNumberOfRead);
+//		friend BOOL WINAPI ProcessKey(PINPUT_RECORD ir);
+		friend BOOL __fastcall ProcessPeekKey(PINPUT_RECORD ir);
+		friend void __fastcall FlushInputBuffer();
 
-  private:
-    const TCHAR  *MacroText,
-                 *MacroCmdHistory,
-                 *MacroKeyHistory,
-                 *MacroDescrHistory,
-                 *MacroExpHistory,
-                 *MacroCopyHistory;
+	private:
+		const TCHAR *MacroText;
+		const TCHAR *MacroCmdHistory;
+		const TCHAR *MacroKeyHistory;
+		const TCHAR *MacroDescrHistory;
+		const TCHAR *MacroExpHistory;
+		const TCHAR *MacroCopyHistory;
 
-    Config        Conf;
-    FarDialogItem EditDialog[32];
-    FarDialogItem MenuDialog[2];
-    FarDialogItem DefKeyDialog[2];
-    FarListItem   GroupItems[ArraySize(MacroGroupShort)];
-    FarList       GroupList,ConfList;
-
-    BOOL          CtrlDotPressed,
-                  WaitForKeyToMacro,
-                  AltInsPressed,
-                  HelpInvoked,
-                  HelpActivated,
-                  EditInMove,
-                  MultiLine;
-    HANDLE        hand,
-                  EditDlg,
-                  MenuDlg,
-                  DefDlg,
-                  SaveScr,
-                  /*SaveBar,*/
-                  hOut,
-                  hIn;
-    TStrList     *NameList,
-                 *MacNameList,
-                 *DescrList,
-                 *ValueList,
-                 *MenuList;
-
-    STARTUPINFO si;
-    PROCESS_INFORMATION pi;
-    WIN32_FIND_DATA fData;
-    COORD ConsoleSize;
-
-    TCHAR         S[MAX_PATH_LEN],
-                  Str[MAX_PATH_LEN],
-                  TempPath[MAX_PATH_LEN],
-                  TempFileName[MAX_PATH_LEN],
-                  Group[MAX_KEY_LEN],
-                  Key[MAX_KEY_LEN];
-
-    TCHAR         OldCaption[CAPTIONLEN],
-                  NewCaption[CAPTIONLEN],
-                  MenuTitle[TITLELEN],
-                  MenuBottom[TITLELEN];
-
-    TCHAR         *MacroData;
-
-    int           Deactivated;
-    int           ActiveMode;
-    int           EditMode;
-    int           MenuItemsNumber;
-    int           MacroGroupsSize;
-    int           KeyWidth;
-    int           GroupKeyLen;
-    int           MaxMenuItemLen;
-    int           SelectPos;
-    int           TopPos;
-    int           GroupPos;
-    int           UserConfPos;
-    int           LastFocus;
-    int           MenuX,MenuY,MenuH,MenuW;
-    int           EditX1,EditY1,EditX2,EditY2;
+		Config        Conf;
 #ifdef UNICODE
-    // for EditDialog
-    wchar_t       _Button[/*BUTTONLEN*/64];
-    wchar_t       _Group[MAX_KEY_LEN]; //длинное название текущего раздела макроса
-    wchar_t       _Data[MAX_PATH_LEN];
-    wchar_t      *_DataPtr;
-    size_t        _DataPtrSize;
-    wchar_t       _Descr[MAX_PATH_LEN];
-#endif
-
-  public:
-    TMacroView();
-    ~TMacroView();
-    BOOL          __fastcall Configure();
-    void          __fastcall ReadConfig();
-    int           MacroList();
-
-  private:
-    void          __fastcall InitData();
-    void          __fastcall InitMacroAreas();
-    void          __fastcall InitDialogs();
-//    void          __fastcall ParseMenuItem(FarListGetItem *List);
-    void          __fastcall WriteKeyBar(int kbType);
-    BOOL          __fastcall CreateDirs(TCHAR *Dir);
-    TCHAR         *ConvertGroupName(TCHAR *Group,int nWhere);
-    void          InitDialogItems(InitDialogItem *Init,FarDialogItem *Item,int ItemsNumber);
-    void          __fastcall InsertMacroToEditor(BOOL AllMacros);
-    void          __fastcall ExportMacroToFile(BOOL AllMacros=FALSE);
-    void          SwitchOver(const TCHAR *Group,const TCHAR *Key);
-    int           DeletingMacro(const TCHAR **Items,int ItemsSize,const TCHAR *HelpTopic);
-    BOOL          __fastcall CopyMoveMacro(int Op);
-    void          MoveTildeInKey(TStrList *&NameList,BOOL doit=FALSE);
-    void          PrepareDependentSort(TStrList *&NameList,BOOL doit=FALSE);
-    void          __fastcall FillMenu(HANDLE hDlg,int RebuildList=TRUE);
-#ifndef UNICODE
-    void          WriteRegValues(FarDialogItem *DialogItems);
+#define EDITDIALOGCOUNT 33
 #else
-    void          WriteRegValues(FarDialogItem *DialogItems,HANDLE hDlg);
+#define EDITDIALOGCOUNT 32
 #endif
-    BOOL          __fastcall CopyMacro(int vKey);
-    void          __fastcall ExportMacro(BOOL AllMacros=FALSE);
-    BOOL          __fastcall DeleteMacro();
-    void          __fastcall SetFocus(int Focus);
-    BOOL          __fastcall InsertMacro();
-    BOOL          __fastcall EditMacro();
-    void          __fastcall ReadConsoleSize();
+		FarDialogItem EditDialog[EDITDIALOGCOUNT];
+		FarDialogItem MenuDialog[2];
+		FarDialogItem DefKeyDialog[2];
+		FarListItem   GroupItems[ArraySize(MacroGroupShort)];
+		FarList       GroupList,ConfList;
+
+		BOOL         CtrlDotPressed;
+		BOOL         WaitForKeyToMacro;
+		BOOL         AltInsPressed;
+		BOOL         HelpInvoked;
+		BOOL         HelpActivated;
+		BOOL         EditInMove;
+		BOOL         MultiLine;
+		HANDLE       hand;
+		HANDLE       EditDlg;
+		HANDLE       MenuDlg;
+		HANDLE       DefDlg;
+		HANDLE       SaveScr;
+		/*SaveBar,*/
+		HANDLE       hOut;
+		HANDLE       hIn;
+
+		TStrList    *NameList;
+		TStrList    *MacNameList;
+		TStrList    *DescrList;
+		TStrList    *ValueList;
+		TStrList    *MenuList;
+
+		STARTUPINFO si;
+		PROCESS_INFORMATION pi;
+		WIN32_FIND_DATA fData;
+		COORD ConsoleSize;
+
+		TCHAR       S[MAX_PATH_LEN];
+		TCHAR       Str[MAX_PATH_LEN];
+		TCHAR       TempPath[MAX_PATH_LEN];
+		TCHAR       TempFileName[MAX_PATH_LEN];
+		TCHAR       Group[MAX_KEY_LEN];
+		TCHAR       Key[MAX_KEY_LEN];
+
+		TCHAR       OldCaption[CAPTIONLEN];
+		TCHAR       NewCaption[CAPTIONLEN];
+		TCHAR       MenuTitle[TITLELEN];
+		TCHAR       MenuBottom[TITLELEN];
+
+		TCHAR         *MacroData;
+
+		int           Deactivated;
+		int           ActiveMode;
+		int           EditMode;
+		int           MenuItemsNumber;
+		int           MacroGroupsSize;
+		int           KeyWidth;
+		int           GroupKeyLen;
+		int           MaxMenuItemLen;
+		int           SelectPos;
+		int           TopPos;
+		int           GroupPos;
+		int           UserConfPos;
+		int           LastFocus;
+		int           MenuX,MenuY,MenuH,MenuW;
+		int           EditX1,EditY1,EditX2,EditY2;
+#ifdef UNICODE
+		// for EditDialog
+		wchar_t       _Button[/*BUTTONLEN*/70];
+		wchar_t       _Group[MAX_KEY_LEN]; //длинное название текущего раздела макроса
+		wchar_t       _Data[MAX_PATH_LEN];
+		wchar_t      *_DataPtr;
+		size_t        _DataPtrSize;
+		wchar_t       _Descr[MAX_PATH_LEN];
+#endif
+
+	private:
+		void          __fastcall InitData();
+		void          __fastcall InitMacroAreas();
+		void          __fastcall InitDialogs();
+//		void          __fastcall ParseMenuItem(FarListGetItem *List);
+		void          __fastcall WriteKeyBar(int kbType);
+		BOOL          __fastcall CreateDirs(TCHAR *Dir);
+		TCHAR         *ConvertGroupName(TCHAR *Group,int nWhere);
+		void          InitDialogItems(InitDialogItem *Init,FarDialogItem *Item,int ItemsNumber);
+		void          __fastcall InsertMacroToEditor(BOOL AllMacros);
+		void          __fastcall ExportMacroToFile(BOOL AllMacros=FALSE);
+		void          SwitchOver(const TCHAR *Group,const TCHAR *Key);
+		int           DeletingMacro(const TCHAR **Items,int ItemsSize,const TCHAR *HelpTopic);
+		BOOL          __fastcall CopyMoveMacro(int Op);
+		void          MoveTildeInKey(TStrList *&NameList,BOOL doit=FALSE);
+		void          PrepareDependentSort(TStrList *&NameList,BOOL doit=FALSE);
+		void          __fastcall FillMenu(HANDLE hDlg,int RebuildList=TRUE);
+#ifndef UNICODE
+		void          WriteRegValues(FarDialogItem *DialogItems);
+#else
+		void          WriteRegValues(FarDialogItem *DialogItems,HANDLE hDlg);
+#endif
+		BOOL          __fastcall CopyMacro(int vKey);
+		void          __fastcall ExportMacro(BOOL AllMacros=FALSE);
+		BOOL          __fastcall DeleteMacro();
+		void          __fastcall SetFocus(int Focus);
+		BOOL          __fastcall InsertMacro();
+		BOOL          __fastcall EditMacro();
+		void          __fastcall ReadConsoleSize();
+
+	public:
+		TMacroView();
+		~TMacroView();
+
+	public:
+		BOOL          __fastcall Configure();
+		void          __fastcall ReadConfig();
+		int           MacroList();
 };
 
 TReg *Reg=NULL;
