@@ -2118,20 +2118,8 @@
                                          <param name="Local" value="html/macro/macrocmd/akey.html">
                                          </OBJECT>
                                  <LI> <OBJECT type="text/sitemap">
-                                         <param name="Name" value="$Date">
-                                         <param name="Local" value="html/macro/macrocmd/date.html">
-                                         </OBJECT>
-                                 <LI> <OBJECT type="text/sitemap">
                                          <param name="Name" value="$Text">
                                          <param name="Local" value="html/macro/macrocmd/text.html">
-                                         </OBJECT>
-                                 <LI> <OBJECT type="text/sitemap">
-                                         <param name="Name" value="$IClip">
-                                         <param name="Local" value="html/macro/macrocmd/iclip.html">
-                                         </OBJECT>
-                                 <LI> <OBJECT type="text/sitemap">
-                                         <param name="Name" value="$MMode">
-                                         <param name="Local" value="html/macro/macrocmd/mmode.html">
                                          </OBJECT>
                                  <LI> <OBJECT type="text/sitemap">
                                          <param name="Name" value="$Exit">
