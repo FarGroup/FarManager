@@ -1051,7 +1051,6 @@ int Edit::ProcessKey(int Key)
 			Show();
 			return TRUE;
 		}
-		case KEY_OP_DATE:
 		case KEY_OP_PLAINTEXT:
 		{
 			if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
@@ -1062,10 +1061,7 @@ int Edit::ProcessKey(int Key)
 
 			const wchar_t *S = eStackAsString();
 
-			if (Key == KEY_OP_DATE)
-				ProcessInsDate(S);
-			else
-				ProcessInsPlainText(S);
+			ProcessInsPlainText(S);
 
 			Show();
 			return TRUE;
@@ -1527,19 +1523,6 @@ int Edit::ProcessCtrlQ()
 	  EditOutDisabled--;
 	*/
 	return InsertKey(rec.Event.KeyEvent.uChar.AsciiChar);
-}
-
-int Edit::ProcessInsDate(const wchar_t *Fmt)
-{
-	string strTStr;
-
-	if (MkStrFTime(strTStr,Fmt))
-	{
-		InsertString(strTStr);
-		return TRUE;
-	}
-
-	return FALSE;
 }
 
 int Edit::ProcessInsPlainText(const wchar_t *str)

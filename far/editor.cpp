@@ -2526,7 +2526,6 @@ int Editor::ProcessKey(int Key)
 			Show();
 			return TRUE;
 		}
-		case KEY_OP_DATE:
 		case KEY_OP_PLAINTEXT:
 		{
 			if (!Flags.Check(FEDITOR_LOCKMODE))
@@ -2534,40 +2533,36 @@ int Editor::ProcessKey(int Key)
 				const wchar_t *Fmt = eStackAsString();
 				string strTStr;
 
-				if (Key == KEY_OP_PLAINTEXT)
-					strTStr = Fmt;
+				strTStr = Fmt;
 
-				if (Key == KEY_OP_PLAINTEXT || MkStrFTime(strTStr, Fmt))
+				wchar_t *Ptr=strTStr.GetBuffer();
+
+				while (*Ptr) // заменим L'\n' на L'\r' по правилам Paset ;-)
 				{
-					wchar_t *Ptr=strTStr.GetBuffer();
+					if (*Ptr == L'\n')
+						*Ptr=L'\r';
 
-					while (*Ptr) // заменим L'\n' на L'\r' по правилам Paset ;-)
-					{
-						if (*Ptr == L'\n')
-							*Ptr=L'\r';
-
-						++Ptr;
-					}
-
-					strTStr.ReleaseBuffer();
-					Pasting++;
-					//_SVS(SysLogDump(Fmt,0,TStr,strlen(TStr),nullptr));
-					TextChanged(1);
-					BOOL IsBlock=VBlockStart || BlockStart;
-
-					if (!EdOpt.PersistentBlocks && IsBlock)
-					{
-						Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
-						DeleteBlock();
-					}
-
-					//AddUndoData(UNDO_EDIT,CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,CurLine->GetCurPos(),CurLine->GetLength());
-					Paste(strTStr);
-					//if (!EdOpt.PersistentBlocks && IsBlock)
-					UnmarkBlock();
-					Pasting--;
-					Show();
+					++Ptr;
 				}
+
+				strTStr.ReleaseBuffer();
+				Pasting++;
+				//_SVS(SysLogDump(Fmt,0,TStr,strlen(TStr),nullptr));
+				TextChanged(1);
+				BOOL IsBlock=VBlockStart || BlockStart;
+
+				if (!EdOpt.PersistentBlocks && IsBlock)
+				{
+					Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+					DeleteBlock();
+				}
+
+				//AddUndoData(UNDO_EDIT,CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,CurLine->GetCurPos(),CurLine->GetLength());
+				Paste(strTStr);
+				//if (!EdOpt.PersistentBlocks && IsBlock)
+				UnmarkBlock();
+				Pasting--;
+				Show();
 			}
 
 			return TRUE;

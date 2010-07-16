@@ -132,12 +132,9 @@ enum MACRO_OP_CODE
 	MCODE_OP_CONTINUE,                // $continue
 
 	MCODE_OP_XLAT,
-	MCODE_OP_DATE,
 	MCODE_OP_PLAINTEXT,
 
-	MCODE_OP_MACROMODE,               // сменить режим блокировки вывода на экран
 	MCODE_OP_SWITCHKBD,               // переключить раскладку клавиатуры
-	MCODE_OP_ICLIP,                   // внутренний или внешний клипборд
 	MCODE_OP_AKEY,                    // $AKey - клавиша, которой вызвали макрос
 	MCODE_OP_SELWORD,                 // $SelWord - выделить "слово"
 
@@ -214,9 +211,7 @@ enum MACRO_OP_CODE
 
 	/* ************************************************************************* */
 	// булевые переменные - различные состояния
-	MCODE_C_DISABLEOUTPUT=KEY_MACRO_C_BASE,// вывод запрещен?
-
-	MCODE_C_AREA_OTHER,               // Режим копирования текста с экрана, вертикальные меню
+	MCODE_C_AREA_OTHER=KEY_MACRO_C_BASE,// Режим копирования текста с экрана, вертикальные меню
 	MCODE_C_AREA_SHELL,               // Файловые панели
 	MCODE_C_AREA_VIEWER,              // Внутренняя программа просмотра
 	MCODE_C_AREA_EDITOR,              // Редактор
@@ -239,7 +234,6 @@ enum MACRO_OP_CODE
 	MCODE_C_EOF,                      // конец файла/активного каталога?
 	MCODE_C_EMPTY,                    // ком.строка пуста?
 	MCODE_C_SELECTED,                 // выделенный блок есть?
-	MCODE_C_ICLIP,                    // внутренний или внешний клипборд
 	MCODE_C_ROOTFOLDER,               // аналог MCODE_C_APANEL_ROOT для активной панели
 
 	MCODE_C_APANEL_BOF,               // начало активного  каталога?

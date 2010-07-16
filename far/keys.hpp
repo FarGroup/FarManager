@@ -261,7 +261,6 @@ enum BaseDefKeyboard
 #ifdef FAR_USE_INTERNALS
 	KEY_OP_BASE              =INTERNAL_KEY_BASE_2+0x100,
 	KEY_OP_XLAT              =KEY_OP_BASE+0,
-	KEY_OP_DATE              =KEY_OP_BASE+1,
 	KEY_OP_PLAINTEXT         =KEY_OP_BASE+2,
 	KEY_OP_SELWORD           =KEY_OP_BASE+3,
 	KEY_OP_ENDBASE           =INTERNAL_KEY_BASE_2+0x1FF,

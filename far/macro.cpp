@@ -109,9 +109,7 @@ TMacroKeywords MKeywords[] =
 	{2,  L"Bof",                MCODE_C_BOF,0},
 	{2,  L"Eof",                MCODE_C_EOF,0},
 	{2,  L"Empty",              MCODE_C_EMPTY,0},
-	{2,  L"DisableOutput",      MCODE_C_DISABLEOUTPUT,0},
 	{2,  L"Selected",           MCODE_C_SELECTED,0},
-	{2,  L"IClip",              MCODE_C_ICLIP,0},
 
 	{2,  L"Far.Width",          MCODE_V_FAR_WIDTH,0},
 	{2,  L"Far.Height",         MCODE_V_FAR_HEIGHT,0},
@@ -283,14 +281,11 @@ static struct TKeyCodeName
 {
 	{ MCODE_OP_AKEY,                 5, L"$AKey"      }, // клавиша, которой вызвали макрос
 	{ MCODE_OP_CONTINUE,             9, L"$Continue"  },
-	{ MCODE_OP_DATE,                 5, L"$Date"      }, // $Date "%d-%a-%Y"
 	{ MCODE_OP_ELSE,                 5, L"$Else"      },
 	{ MCODE_OP_END,                  4, L"$End"       },
 	{ MCODE_OP_EXIT,                 5, L"$Exit"      },
-	{ MCODE_OP_ICLIP,                6, L"$IClip"     },
 	{ MCODE_OP_IF,                   3, L"$If"        },
 	{ MCODE_OP_SWITCHKBD,           10, L"$KbdSwitch" },
-	{ MCODE_OP_MACROMODE,            6, L"$MMode"     },
 	{ MCODE_OP_REP,                  4, L"$Rep"       },
 	{ MCODE_OP_SELWORD,              8, L"$SelWord"   },
 	{ MCODE_OP_PLAINTEXT,            5, L"$Text"      }, // $Text "Plain Text"
@@ -907,17 +902,11 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 				case MCODE_V_MACROAREA:
 					Cond=GetSubKey(CtrlObject->Macro.GetMode());
 					break;
-				case MCODE_C_DISABLEOUTPUT: // DisableOutput?
-					Cond=LockScr?1:0;
-					break;
 				case MCODE_C_FULLSCREENMODE: // Fullscreen?
 					Cond=IsFullscreen();
 					break;
 				case MCODE_C_ISUSERADMIN: // IsUserAdmin?
 					Cond=(__int64)Opt.IsUserAdmin;
-					break;
-				case MCODE_C_ICLIP:
-					Cond=(__int64)Clipboard::GetUseInternalClipboardState();
 					break;
 				case MCODE_V_DRVSHOWPOS: // Drv.ShowPos
 					Cond=(__int64)Macro_DskShowPosType;
@@ -3664,11 +3653,6 @@ done:
 		{
 			return KEY_OP_SELWORD;
 		}
-		case MCODE_OP_DATE:               // $Date ["format"]
-		{
-			VMStack.Pop(__varTextDate);
-			return KEY_OP_DATE;
-		}
 		case MCODE_F_PRINT:               // N=Print(Str)
 		case MCODE_OP_PLAINTEXT:          // $Text "Text"
 		{
@@ -3718,14 +3702,6 @@ done:
 			return aKey;
 		}
 
-		/* $IClip
-			0: MCODE_OP_ICLIP
-		*/
-		case MCODE_OP_ICLIP:              // $IClip
-		{
-			Clipboard::SetUseInternalClipboardState(!Clipboard::GetUseInternalClipboardState());
-			goto begin;
-		}
 		case MCODE_OP_SWITCHKBD:          // $KbdSwitch
 		{
 			HWND hWnd = Console.GetWindow();
@@ -3797,13 +3773,6 @@ done:
 			goto begin;
 		}
 
-		/* $MMode 1
-			0: MCODE_OP_MACROMODE   - в стеке ожидается число
-		*/
-		case MCODE_OP_MACROMODE:          // $MMode 1
-			if (Work.ExecLIBPos >= MR->BufferSize)
-				break;
-
 		case MCODE_F_MMODE:               // N=MMode(Action[,Value])
 		{
 			__int64 nValue = (__int64)VMStack.Pop().getInteger();
@@ -3818,9 +3787,6 @@ done:
 				case 1: // DisableOutput
 				{
 					Result=LockScr?1:0;
-
-					if (Key == MCODE_OP_MACROMODE)
-						nValue=2;
 
 					if (nValue == 2) // изменяет режим отображения ("DisableOutput").
 					{
@@ -3847,9 +3813,6 @@ done:
 							break;
 					}
 
-					if (Key == MCODE_OP_MACROMODE)
-						goto begin;
-
 					break;
 				}
 				//
@@ -3858,41 +3821,6 @@ done:
 			VMStack.Push(Result);
 			break;
 		}
-#if 0
-		/* $MMode 1
-			0: MCODE_OP_MACROMODE   - в стеке ожидается число
-		*/
-		case MCODE_OP_MACROMODE:          // $MMode 1
-		{
-			if (Work.ExecLIBPos<MR->BufferSize)
-			{
-				if (VMStack.Pop().getInteger() ==1) // Изменяет режим отображения ("DisableOutput").
-				{
-					DWORD Flags=MR->Flags;
-
-					if (Flags&MFLAGS_DISABLEOUTPUT) // если был - удалим
-					{
-						if (LockScr) delete LockScr;
-
-						LockScr=nullptr;
-					}
-
-					SwitchFlags(MR->Flags,MFLAGS_DISABLEOUTPUT);
-
-					if (MR->Flags&MFLAGS_DISABLEOUTPUT) // если стал - залочим
-					{
-						if (LockScr) delete LockScr;
-
-						LockScr=new LockScreen;
-					}
-				}
-
-				goto begin;
-			}
-
-			break;
-		}
-#endif
 
 		case MCODE_OP_DUP:        // продублировать верхнее значение в стеке
 			tmpVar=VMStack.Peek();

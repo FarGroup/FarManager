@@ -304,7 +304,6 @@ static TFKey3 SpecKeyName[]=
 	{ KEY_GOTFOCUS              ,8, L"GotFocus", L"GOTFOCUS"},
 	{ KEY_DRAGCOPY             , 8, L"DragCopy", L"DRAGCOPY"},
 	{ KEY_DRAGMOVE             , 8, L"DragMove", L"DRAGMOVE"},
-	{ KEY_OP_DATE              , 7, L"OP_Date", L"OP_DATE"},
 	{ KEY_OP_PLAINTEXT         , 7, L"OP_Text", L"OP_TEXT"},
 	{ KEY_OP_XLAT              , 7, L"OP_Xlat", L"OP_XLAT"},
 	{ KEY_NONE                 , 4, L"None", L"NONE"},

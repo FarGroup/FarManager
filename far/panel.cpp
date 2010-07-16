@@ -1438,7 +1438,7 @@ void Panel::FastFind(int FirstKey)
 						FastFindShow(FindX,FindY);
 						continue;
 					}
-					else if (Key == KEY_OP_DATE || Key == KEY_OP_PLAINTEXT)
+					else if (Key == KEY_OP_PLAINTEXT)
 					{
 						string strTempName;
 						FindEdit.ProcessKey(Key);

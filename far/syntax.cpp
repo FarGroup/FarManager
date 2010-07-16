@@ -1454,10 +1454,6 @@ static void printKeyValue(DWORD* k, int& i)
 		SysLog(L"%08X: %08X |   %08X (%s)", i,k[i],k[i],((DWORD)k[i]<(DWORD)i?L"up":L"down"));
 	}
 	/*
-	  else if ( Code == MCODE_OP_DATE )
-	  {
-	    //sprint(ii, L"$date ''");
-	  }
 	  else if ( Code == MCODE_OP_PLAINTEXT )
 	  {
 	    //sprint(ii, L"$text ''");
@@ -1732,39 +1728,11 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 
 		switch (KeyCode)
 		{
-			// $Date
-			// -------------------------------------
-			//            MCODE_OP_DATE
-			//            0
-			// или
-			//            MCODE_OP_DATE
-			//            <expr>
-			case MCODE_OP_DATE:
-			{
-				while (*BufPtr && IsSpace(*BufPtr))
-					BufPtr++;
-
-				if (*BufPtr == L'\"' && BufPtr[1])
-					Size += parseExpr(BufPtr, dwExprBuff, 0, 0);
-				else // Опциональность аргумента
-				{
-					Size += 2;
-					dwExprBuff[0] = MCODE_OP_PUSHSTR;
-					dwExprBuff[1] = 0;
-				}
-
-				break;
-			}
 			// $Text
 			// -------------------------------------
 			//            MCODE_OP_PLAINTEXT
 			//            <expr>
-			// $MMode
-			// -------------------------------------
-			//            MCODE_OP_MACROMODE
-			//            <expr>
 			case MCODE_OP_PLAINTEXT:
-			case MCODE_OP_MACROMODE:
 			{
 				Size += parseExpr(BufPtr, dwExprBuff, 0, 0);
 				break;
@@ -1928,9 +1896,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 
 		switch (KeyCode)
 		{
-			case MCODE_OP_DATE:
 			case MCODE_OP_PLAINTEXT:
-			case MCODE_OP_MACROMODE:
 			{
 				_SVS(SysLog(L"[%d] Size=%u",__LINE__,Size));
 				memcpy(CurMacro_Buffer+CurMacroBufferSize, dwExprBuff, Size*sizeof(DWORD));
