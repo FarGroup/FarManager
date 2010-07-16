@@ -3,6 +3,29 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+t-rex 16.07.2010 20:13:36 +0200 - build 1622.
+
+1. "Show total copy progress indicator" on by default.
+
+svs 16.07.2010 10:03:22 +0300 - build 1621
+
+1. The "ACHTUNG"s have started at macros (see comments on 1454 and 1455).
+
+   * $Date command is removed
+       replace it with print(Date(blablabla_or_nothing))
+   
+   * $MMode command is removed
+       replace it with mmode(1,2)
+   
+   * IClip state is removed
+       replace it with clip(5,-1) (notice that clip() returns 1 or 2)
+   
+   * $IClip command is removed
+       replace it with clip(5,0) or just clip(5)
+
+   * DisableOutput state is removed (not the macro flag!)
+       replace it with mmode(1,-1) function call
+
 drkns 15.07.2010 13:47:00 +0200 - build 1620
 
 1. Settings shake-up:
@@ -255,7 +278,7 @@ drkns 29.05.2010 13:08:42 +0200 - build 1576
 
 1. Panels were not redrawn after ShiftEnter on a folder.
 
-2. Specifications of 256- и 16-color variants of far.ico.
+2. Specifications of 256- and 16-color variants of far.ico.
 
 drkns 29.05.2010 12:14:02 +0200 - build 1575
 
@@ -451,7 +474,7 @@ drkns 06.05.2010 22:21:32 +0200 - build 1540
 
 1. Milliseconds were not diaplayed in filters by relative time.
 
-2. С форума: "В билде 1539 появилось странное: после Ctrl-O в углу остаётся кусок рамки".
+2. Forum: "Something strange has appeared at build 1539: a piece of frame remains in the corner after Ctrl-O".
 
 drkns 05.05.2010 23:16:12 +0200 - build 1539
 
@@ -535,7 +558,7 @@ http://forum.farmanager.com/viewtopic.php?f=15&t=5257
   eval("Shell/CtrlP",2) - call a macro assigned to CtrlP in Shell area
   eval("CtrlP",2) - call a macro assigned to CtrlP in current macro area or in Common area if CtrlP is not found in current macro area
  eval("./CtrlP",2) - call a macro assigned to CtrlP in current macro area only
- eval("Shell/Alt/",2) - call a macro assigned to Alt/ из области Shell
+ eval("Shell/Alt/",2) - call a macro assigned to Alt/ in Shell area
  eval("Alt/",2) - call a macro assigned to Alt/ in current macro area or Common if Alt/ is not found in current macro area
  eval("./Alt/",2) - call a macro assigned to Alt/in current macro area only
 
@@ -610,7 +633,7 @@ drkns 22.04.2010 21:11:09 +0200 - build 1518
 drkns 21.04.2010 14:47:00 +0200 - build 1517
 
 1. Mantis#0001347: Remove dot in autocompletion.
-  Items "." и".." which are returned by FindFile sometimes are now thrown away at FindFile class level, not in a lot of different places.
+  Items "." and ".." which are returned by FindFile sometimes are now thrown away at FindFile class level, not in a lot of different places.
   Code which uses FindFile must NOT assume these items presence and fight with them.
 
 2. A portion of warnings from VS2010 static analyzer.
@@ -847,7 +870,7 @@ svs 02.04.2010 10:29:40 +0300 - build 1475
 drkns 01.04.2010 20:00:00 +0200 - build 1474
 
 1. Mantis#0001321: DM_MOVEDIALOG: limited range of dialog moving.
-  For relativ moving, the coordinates which are equal to -1 do not center the dialog anymore.
+  For relative moving, the coordinates which are equal to -1 do not center the dialog anymore.
 
 2. More compact search dialog items placement.
 
@@ -957,7 +980,7 @@ garry 26.03.2010 15:28:59 +0300 - build 1456
 
 svs 26.03.2010 11:57:54 +0300 - build 1455
 
-1. Bug: far /e имя_файла ShiftEnter AltF9 --> trap.
+1. Bug: far /e filename ShiftEnter AltF9 --> trap.
 
 2. Macro: Clip(N,V) function is provided with the 5-th mode (first parameter) - work with clipboard modes.
 N=5
@@ -983,7 +1006,7 @@ V:
 svs 25.03.2010 18:38:53 +0300 - build 1454
 
 1. Macro: RCounter constant is added, it contains the current value of $Rep loop operator.
-  Visible in current $Rep (current loop, for nested $Rep), for example
+  It is visible in current $Rep (current loop, for nested $Rep), for example
 
 RCounter = undefined
 $rep(%i)
@@ -1225,8 +1248,8 @@ svs 01.03.2010 19:00:24 +0300 - build 1429
 3. Macro: "$Continue" is added for loops.
 
 4. A bug with shortcuts in editor/viewer:
-  а) LCtrl- (where is unassigned shortcut) jumped to the very beginning of the file.
-  б) Saving of shortcuts in registry was only possible if 0th element (RCtrl-0) was assigned .
+  a) LCtrl- (where is unassigned shortcut) jumped to the very beginning of the file.
+  b) Saving of shortcuts in registry was only possible if 0th element (RCtrl-0) was assigned .
 
   Here's the Achtung!
   Due to quite old bugs in registry, the content of shortcuts filled with zeros could be saved.
@@ -1906,7 +1929,7 @@ drkns 08.01.2010 01:30:08 +0200 - build 1319
 
 zg 07.01.2010 18:21:09 +0200 - build 1318
 
-1. LIF_USETEXTPTR и MIF_USETEXTPTR are removed.
+1. LIF_USETEXTPTR and MIF_USETEXTPTR are removed.
 
 zg 07.01.2010 17:44:21 +0200 - build 1317
 
@@ -2574,9 +2597,9 @@ drkns 16.11.2009 17:57:38 +0200 - build 1207
 t-rex 16.11.2009 15:47:38 +0200 - build 1206
 
 1. Unicode in descriptions:
-а. If description file has BOM then it is read in appropriate encoding.
-б. If there's no BOM then it's assumed that description file is OEM or ANSI according to new setting "ANSI by default".
-с. Description file is saved in either:
+a. If description file has BOM then it is read in appropriate encoding.
+b. If there's no BOM then it's assumed that description file is OEM or ANSI according to new setting "ANSI by default".
+c. Description file is saved in either:
 - OEM or ANSI, according to "ANSI by default".
 - UTF8 + BOM if another new setting "Save in UTF8" is on.
 
@@ -2913,7 +2936,7 @@ chupakabra 05.10.2009 20:49:00 +0200 - build 1157
 
 svs 05.10.2009 17:12:13 +0300 - build 1156
 
-1. Mantis#0000956: some plugins are marked with letter "А"; nevertheless, help doesn't tell a word about this.
+1. Mantis#0000956: some plugins are marked with letter "A"; nevertheless, help doesn't tell a word about this.
 from igor_yudincev.
 
 2. Mantis#0001095: `Title' state (current object's header) is empty when called from panels
@@ -3022,7 +3045,7 @@ drkns 27.09.2009 08:56:45 +0200 - build 1146
 
 1. Take into account that if prefix \\?\ is used in paths then Windows' AI which replaces '/' to '\' is switched off, so you have to do it yourself.
 
-2. At start, inner strCurrentDirectory is initialized with process' current directory, for those /e и /p to work.
+2. At start, inner strCurrentDirectory is initialized with process' current directory, for those /e and /p to work.
 
 drkns 27.09.2009 01:05:56 +0200 - build 1145
 
@@ -3178,9 +3201,9 @@ svs 15.09.2009 20:37:40 +0300 - build 1127
 4. Macro: Menu.Value - contains current menu item text as it is displayed on screen (w/o &)
 
 5. Macro: added type double
-Was __int64 и wchar_t*, now double is added. Actually, there's nothing to say more, but:
+Was __int64 and wchar_t*, now double is added. Actually, there's nothing to say more, but:
 * fraction part divider is `.' (point);
-* there's no functions like sin, cos, tan, etc. - this is for Mantis#0000466 и Mantis#0000018;
+* there's no functions like sin, cos, tan, etc. - this is for Mantis#0000466 and Mantis#0000018;
 * the number occupies 8 bytes in memory;
 * registry constants (branch "KeyMacro\Const") with REG_SZ type (according to (2) Far translates them to double on launch) this is lame (maybe it would be smart to store them as REG_BINARY);
 * double-to-string translation follows the format "KeyMacro/CONVFMT:REG_SZ" (default is "%.6g")
@@ -3237,7 +3260,7 @@ In logical OR and AND the operands are compared as is, strings are not translate
 
 10. If Far is given keys /e or /v, the macros from the following regions are not loaded: Shell, Search, Disks, MainMenu, InfoPanel, QviewPanel, TreePanel, FindFolder
 
-11. Mantis#0001057: Far Manager версия 1.75 build 2605, x86 Crash when choosing Alt+F1/Alt+F2 -> Process List
+11. Mantis#0001057: Far Manager version 1.75 build 2605, x86 Crash when choosing Alt+F1/Alt+F2 -> Process List
 If plugin has nonsense in registry value StartPanelMode, then panel mode 0 is forced
 (this hack is for a while, until static array is removed)
 
@@ -3449,7 +3472,7 @@ svs 28.08.2009 19:01:31 +0300 - build 1094
 
 zg 28.08.2009 16:10:30 +0200 - build 1093
 
-1. Mantis#0001025: FAR v2.0.1091 ( и v2.0.981) cuts records in descript.ion when F5 or F6, up to 260 characters.
+1. Mantis#0001025: FAR v2.0.1091 (and v2.0.981) cuts records in descript.ion when F5 or F6, up to 260 characters.
 
 2. gcc warnings.
 
