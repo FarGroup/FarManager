@@ -48,13 +48,13 @@
 ;пусто/непусто в cmdline и сколько выделено на панели файлов
 
 [HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlAltLeft]
-"Sequence"="$IClip $If (((Bof &amp;&amp; APanel.Root) || !Bof) &amp;&amp; PPanel.Visible)
+"Sequence"="clip(5) $If (((Bof &amp;&amp; APanel.Root) || !Bof) &amp;&amp; PPanel.Visible)
 $If (fexist(PPanel.Path+\"\\\\\"+APanel.Current) == 1) F5 ShiftEnter
 CtrlIns Esc Tab Home Alt< ShiftIns Esc $End $End"
 "DisableOutput"=dword:00000001
 
 [HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlAltRight]
-"Sequence"="$IClip $If (((Bof &amp;&amp; APanel.Root) || !Bof) &amp;&amp; PPanel.Visible)
+"Sequence"="clip(5) $If (((Bof &amp;&amp; APanel.Root) || !Bof) &amp;&amp; PPanel.Visible)
 $If (fexist(PPanel.Path+\"\\\\\"+APanel.Current) == 1) F5 ShiftEnter CtrlIns
 Esc Tab Home Alt< ShiftIns Esc $End $End"
 "DisableOutput"=dword:00000001
@@ -82,7 +82,7 @@ $If (!APanel.Root) Down $End $Exit $End $End Up"
 ;работает в области Dialog
 
 [HKEY_CURRENT_USER\Software\Far2\KeyMacros\Dialog\AltP]
-"Sequence"="$IClip AltIns CtrlHome ShiftEnd ShiftPgDn Enter Esc
+"Sequence"="clip(5) AltIns CtrlHome ShiftEnd ShiftPgDn Enter Esc
 $If (!Shell) Esc $End $If (Shell &amp;&amp; !APanel.Plugin) ShiftF4 CtrlY
 \"far-screen.out\" Enter ShiftIns Enter Enter F2 Esc $End"
 "DisableOutput"=dword:00000001</pre>
@@ -127,7 +127,7 @@ panel.setpos(ACTIVEPANEL,%Name+\"_files\") $end $if (%Ext==\".files\" || %Ext==\
 panel.setpos(ACTIVEPANEL,%Name+\".htm\") panel.setpos(ACTIVEPANEL,%Name+\".html\") $End
 $if (APanel.Current!=%Current) $If(!panelitem(ACTIVEPANEL,0,PANELITEM_SELECTED)) Ins $End
 panel.setpos(ACTIVEPANEL,%Current) $If(!panelitem(ACTIVEPANEL,0,PANELITEM_SELECTED))
-Ins $End $End $MMode 1 $MMode 1"
+Ins $End $End mmode(1,2) mmode(1,2)"
 "DisableOutput"=dword:00000001
 
 ;ѕри непустой командной строке макрос не вызываетс€ чтобы можно пользоватьс€ первоначальной
