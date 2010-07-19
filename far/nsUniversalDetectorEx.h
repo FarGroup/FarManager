@@ -30,9 +30,9 @@ class nsUniversalDetectorEx : public nsUniversalDetector
 			else if (!strcmp(aCharset, "windows-1255"))
 				m_codepage = 1255;
 			else if (!strcmp(aCharset, "UTF16-LE"))
-				m_codepage = 1200;
+				m_codepage = CP_UNICODE;
 			else if (!strcmp(aCharset, "UTF16-BE"))
-				m_codepage = 65534;
+				m_codepage = CP_REVERSEBOM;
 			else if (!strcmp(aCharset, "UTF-8"))
 				m_codepage = CP_UTF8;
 			else if (!strcmp(aCharset, "IBM855"))

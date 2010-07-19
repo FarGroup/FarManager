@@ -1,4 +1,8 @@
-t-rex 16.07.2010 20:13:36 +0200 - build 1622.
+drkns 20.07.2010 01:21:33 +0200 - build 1623
+
+1. Аттракцион невиданной щедрости. Цикличный вызов ECTL_GETSTRING работает в 100500 раз быстрее. Просто так, без ритуальных приседаний с ECTL_SETPOSITION + ECTL_GETSTRING(-1).
+
+t-rex 16.07.2010 20:13:36 +0200 - build 1622
 
 1. "Show total copy progress indicator" on by default.
 

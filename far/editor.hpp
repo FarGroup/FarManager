@@ -176,6 +176,8 @@ class Editor:public ScreenObject
 		Edit *EndList;
 		Edit *TopScreen;
 		Edit *CurLine;
+		Edit *LastGetLine;
+		int LastGetLineNumber;
 
 		DList<EditorUndoData> UndoData;
 		EditorUndoData *UndoPos;
@@ -234,7 +236,7 @@ class Editor:public ScreenObject
 	private:
 		virtual void DisplayObject();
 		void ShowEditor(int CurLineOnly);
-		void DeleteString(Edit *DelPtr,int DeleteLast,int UndoLine);
+		void DeleteString(Edit *DelPtr,int LineNumber,int DeleteLast,int UndoLine);
 		void InsertString();
 		void Up();
 		void Down();
@@ -375,7 +377,7 @@ class Editor:public ScreenObject
 		void FreeAllocatedData(bool FreeUndo=true);
 
 		Edit *CreateString(const wchar_t *lpwszStr, int nLength);
-		Edit *InsertString(const wchar_t *lpwszStr, int nLength, Edit *pAfter = nullptr);
+		Edit *InsertString(const wchar_t *lpwszStr, int nLength, Edit *pAfter = nullptr, int AfterLineNumber=-1);
 
 		void SetDialogParent(DWORD Sets);
 		void SetReadOnly(int NewReadOnly) {Flags.Change(FEDITOR_LOCKMODE,NewReadOnly);};

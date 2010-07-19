@@ -1623,7 +1623,7 @@ int Editor::ProcessKey(int Key)
 							CurLine->InsertBinaryString(Str,NextLength);
 							CurLine->SetEOL(CurLine->m_next->GetEOL());
 							CurLine->SetCurPos(CurPos);
-							DeleteString(CurLine->m_next,TRUE,NumLine+1);
+							DeleteString(CurLine->m_next,NumLine+1,TRUE,NumLine+1);
 
 							if (!NextLength)
 								CurLine->SetEOL(L"");
@@ -1955,7 +1955,7 @@ int Editor::ProcessKey(int Key)
 		}
 		case KEY_CTRLY:
 		{
-			DeleteString(CurLine,FALSE,NumLine);
+			DeleteString(CurLine,NumLine,FALSE,NumLine);
 			Show();
 			return TRUE;
 		}
@@ -2998,7 +2998,7 @@ int Editor::CalcDistance(Edit *From, Edit *To,int MaxDist)
 
 
 
-void Editor::DeleteString(Edit *DelPtr,int DeleteLast,int UndoLine)
+void Editor::DeleteString(Edit *DelPtr, int LineNumber, int DeleteLast,int UndoLine)
 {
 	if (Flags.Check(FEDITOR_LOCKMODE))
 		return;
@@ -3056,6 +3056,10 @@ void Editor::DeleteString(Edit *DelPtr,int DeleteLast,int UndoLine)
 	}
 
 	NumLastLine--;
+	if(LineNumber<LastGetLineNumber)
+	{
+		LastGetLineNumber--;
+	}
 
 	if (CurLine==DelPtr)
 	{
@@ -3136,7 +3140,7 @@ void Editor::InsertString()
 	int SelStart,SelEnd;
 	int CurPos;
 	int NewLineEmpty=TRUE;
-	NewString = InsertString(nullptr, 0, CurLine);
+	NewString = InsertString(nullptr, 0, CurLine, NumLine);
 
 	if (!NewString)
 		return;
@@ -4081,7 +4085,7 @@ void Editor::DeleteBlock()
 	Edit *CurPtr=BlockStart;
 	AddUndoData(UNDO_BEGIN);
 
-	while (CurPtr)
+	for(int i=BlockStartLine;CurPtr;i++)
 	{
 		TextChanged(1);
 		int StartSel,EndSel;
@@ -4099,7 +4103,7 @@ void Editor::DeleteBlock()
 		if (!StartSel && EndSel==-1)
 		{
 			Edit *NextLine=CurPtr->m_next;
-			DeleteString(CurPtr,FALSE,BlockStartLine);
+			DeleteString(CurPtr,i,FALSE,BlockStartLine);
 
 			if (BlockStartLine<NumLine)
 				NumLine--;
@@ -4197,7 +4201,7 @@ void Editor::DeleteBlock()
 				TopScreen=CurPtr;
 			}
 
-			DeleteString(CurPtr->m_next,FALSE,BlockStartLine+1);
+			DeleteString(CurPtr->m_next,i,FALSE,BlockStartLine+1);
 
 			if (BlockStartLine+1<NumLine)
 				NumLine--;
@@ -4583,7 +4587,7 @@ void Editor::Undo(int redo)
 		{
 			case UNDO_INSSTR:
 				ud->SetData(UNDO_DELSTR,CurLine->GetStringAddr(),CurLine->GetEOL(),ud->StrNum,ud->StrPos,CurLine->GetLength());
-				DeleteString(CurLine,TRUE,NumLine>0 ? NumLine-1:NumLine);
+				DeleteString(CurLine,NumLine,TRUE,NumLine>0 ? NumLine-1:NumLine);
 				break;
 			case UNDO_DELSTR:
 				ud->Type=UNDO_INSSTR;
@@ -5390,7 +5394,7 @@ int Editor::EditorControl(int Command,void *Param)
 				return FALSE;
 			}
 
-			DeleteString(CurLine,FALSE,NumLine);
+			DeleteString(CurLine,NumLine,FALSE,NumLine);
 			return TRUE;
 		}
 		case ECTL_DELETECHAR:
@@ -6190,54 +6194,54 @@ int Editor::GetStackBookmarks(EditorBookMarks *Param)
 Edit * Editor::GetStringByNumber(int DestLine)
 {
 	if (DestLine==NumLine || DestLine<0)
-		return(CurLine);
+	{
+		LastGetLine = CurLine;
+		LastGetLineNumber = NumLine;
+		return CurLine;
+	}
 
 	if (DestLine>NumLastLine)
 		return nullptr;
 
-	if (DestLine>NumLine)
+	Edit *CurPtr = CurLine;
+	int StartLine = NumLine;
+
+	if(LastGetLine)
 	{
-		Edit *CurPtr=CurLine;
-
-		for (int Line=NumLine; Line<DestLine; Line++)
-		{
-			CurPtr=CurPtr->m_next;
-
-			if (!CurPtr)
-				return nullptr;
-		}
-
-		return(CurPtr);
+		CurPtr = LastGetLine;
+		StartLine = LastGetLineNumber;
 	}
 
-	if (DestLine<NumLine && DestLine>NumLine/2)
+	bool Forward = (DestLine>StartLine && DestLine<StartLine+(NumLastLine-StartLine)/2) || (DestLine<StartLine/2);
+
+	if(DestLine>StartLine)
 	{
-		Edit *CurPtr=CurLine;
-
-		for (int Line=NumLine; Line>DestLine; Line--)
+		if(!Forward)
 		{
-			CurPtr=CurPtr->m_prev;
-
-			if (!CurPtr)
-				return nullptr;
+			StartLine = NumLastLine-1;
+			CurPtr = EndList;
 		}
-
-		return(CurPtr);
+	}
+	else
+	{
+		if(Forward)
+		{
+			StartLine = 0;
+			CurPtr = TopList;
+		}
 	}
 
+	for (int Line=StartLine; Line!=DestLine; Forward?Line++:Line--)
 	{
-		Edit *CurPtr=TopList;
-
-		for (int Line=0; Line<DestLine; Line++)
+		CurPtr=(Forward?CurPtr->m_next:CurPtr->m_prev);
+		if (!CurPtr)
 		{
-			CurPtr=CurPtr->m_next;
-
-			if (!CurPtr)
-				return nullptr;
+			return nullptr;
 		}
-
-		return(CurPtr);
 	}
+	LastGetLine = CurPtr;
+	LastGetLineNumber = DestLine;
+	return CurPtr;
 }
 
 void Editor::SetReplaceMode(int Mode)
@@ -6634,7 +6638,7 @@ Edit *Editor::CreateString(const wchar_t *lpwszStr, int nLength)
   return true;
 }*/
 
-Edit *Editor::InsertString(const wchar_t *lpwszStr, int nLength, Edit *pAfter)
+Edit *Editor::InsertString(const wchar_t *lpwszStr, int nLength, Edit *pAfter, int AfterLineNumber)
 {
 	Edit *pNewEdit = CreateString(lpwszStr, nLength);
 
@@ -6654,10 +6658,17 @@ Edit *Editor::InsertString(const wchar_t *lpwszStr, int nLength, Edit *pAfter)
 				pNext->m_prev = pNewEdit;
 
 			if (!pAfter)
+			{
 				EndList = pNewEdit;
+				AfterLineNumber = NumLastLine-1;
+			}
 		}
 
 		NumLastLine++;
+		if(AfterLineNumber<LastGetLineNumber)
+		{
+			LastGetLineNumber++;
+		}
 	}
 
 	return pNewEdit;
