@@ -1137,7 +1137,7 @@ int FileList::ProcessKey(int Key)
 			//if (FileCount>0 && SetCurPath()) // ?????
 			SetCurPath();
 			CopyNames(Key == KEY_CTRLALTINS || Key == KEY_ALTSHIFTINS || Key == KEY_CTRLALTNUMPAD0 || Key == KEY_ALTSHIFTNUMPAD0,
-			          (Key&(KEY_CTRL|KEY_ALT))==(KEY_CTRL|KEY_ALT));
+			          (Key&(KEY_CTRL|KEY_ALT))==(KEY_CTRL|KEY_ALT), Key==KEY_CTRLINS || Key==KEY_CTRLNUMPAD0);
 			return TRUE;
 			/* $ 14.02.2001 VVM
 			  + Ctrl: вставляет имя файла с пассивной панели.
@@ -3949,7 +3949,7 @@ void FileList::CopyFiles()
 	}
 }
 
-void FileList::CopyNames(int FillPathName,int UNC)
+void FileList::CopyNames(bool FillPathName,bool UNC, bool HDrop)
 {
 	OpenPluginInfo Info={0};
 	wchar_t *CopyData=nullptr;
@@ -4079,7 +4079,10 @@ void FileList::CopyNames(int FillPathName,int UNC)
 	CopyToClipboard(CopyData);
 	xf_free(CopyData);
 
-	CopyFiles();
+	if(HDrop)
+	{
+		CopyFiles();
+	}
 }
 
 string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortName,DWORD FileAttr, string &strDest, int UNC,int ShortNameAsIs)

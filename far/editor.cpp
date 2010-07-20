@@ -70,6 +70,7 @@ static int EditorID=0;
 enum {UNDO_EDIT=1,UNDO_INSSTR,UNDO_DELSTR,UNDO_BEGIN,UNDO_END};
 
 Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
+	LastGetLine(nullptr),
 	UndoPos(nullptr),
 	UndoSavePos(nullptr),
 	UndoSkipLevel(0),
@@ -3056,9 +3057,17 @@ void Editor::DeleteString(Edit *DelPtr, int LineNumber, int DeleteLast,int UndoL
 	}
 
 	NumLastLine--;
-	if(LineNumber<LastGetLineNumber)
+
+	if(LastGetLine)
 	{
-		LastGetLineNumber--;
+		if(LineNumber<=LastGetLineNumber)
+		{
+			if(LineNumber==LastGetLineNumber)
+			{
+				LastGetLine=LastGetLine->m_prev;
+			}
+			LastGetLineNumber--;
+		}
 	}
 
 	if (CurLine==DelPtr)
@@ -6236,6 +6245,8 @@ Edit * Editor::GetStringByNumber(int DestLine)
 		CurPtr=(Forward?CurPtr->m_next:CurPtr->m_prev);
 		if (!CurPtr)
 		{
+			LastGetLine = Forward?TopList:EndList;
+			LastGetLineNumber = Forward?NumLastLine-1:0;
 			return nullptr;
 		}
 	}
@@ -6665,10 +6676,12 @@ Edit *Editor::InsertString(const wchar_t *lpwszStr, int nLength, Edit *pAfter, i
 		}
 
 		NumLastLine++;
+
 		if(AfterLineNumber<LastGetLineNumber)
 		{
 			LastGetLineNumber++;
 		}
+
 	}
 
 	return pNewEdit;
