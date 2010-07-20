@@ -3,6 +3,17 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 20.07.2010 22:08:47 +0200 - build 1624
+
+1. Mantis#0001437: Far 2.0.1623: Example of editor behavior change.
+
+2. Correction of 1609.2: CF_HDROP is used for "standard" CtrlIns only, <CtrlShift|CtrlAlt|AltShift>Ins keys just copy text.
+
+drkns 20.07.2010 01:21:33 +0200 - build 1623
+
+1. A Stunning Generosity Show: ECTL_GETSTRING cyclic call is sped up dramatically, 
+   so ECTL_SETPOSITION + ECTL_GETSTRING(-1) trick is no longer needed.
+
 t-rex 16.07.2010 20:13:36 +0200 - build 1622.
 
 1. "Show total copy progress indicator" on by default.
@@ -3525,3 +3536,65 @@ svs 24.08.2009 19:15:12 +0300 - build 1088
   + some formatting in InfoList::DisplayObject()
 
   in the largest accounts, visualization form has to be assigned (dialog? techinfo?).
+
+drkns 22.08.2009 00:44:39 +0200 - build 1087
+
+1. Attributes dialog shake-up. Downsizing, optimization, formatting, as usual.
+   Bonuses:
+   - a few tiny bugs are fixed;
+   - reparse point editing possibility is added. Highly experimental.
+
+2. Corrections in reparse points creation.
+
+3. FAR_USE_INTERNALS are removed from wrapper.
+
+4. Progressbars redraw timeouts are now controlled with a single variable.
+
+5. Translation for "Standard association".
+
+svs 19.08.2009 11:42:58 +0300 - build 1086
+
+1. Mantis#0000905: Changes in "eval"
+   eval("",1) variant returns error 12 ("Zero-length macro")
+   Considering empty macro sequences illegal.
+
+svs 17.08.2009 12:26:34 +0300 - build 
+
+1. Mantis#0000986: Far 2 API - pascal 
+    from: max rusov 
+      PluginW.pas: FAR_USE_INTERNALS are removed
+
+drkns 16.08.2009 09:05:05 +0200 - build 1085
+
+1. gcc.
+
+drkns 15.08.2009 20:13:55 +0200 - build 1084
+
+1. Corrections in previous build.
+   pointer_array is replaced with TPointerArray.
+
+drkns 14.08.2009 23:38:43 +0200 - build 1083
+
+1. Plugin selection for "SetFindList" and "prefix" is completed, more or less.
+   Localization of settings dialog.
+   All plugin selection menus are off by default.
+
+svs 14.08.2009 11:51:50 +0300 - build 
+
+1. Mantis#0000986: Far 2 API - pascal 
+    from: max rusov 
+      PluginW.pas: x64 support is added. Tested under FreePascal 2.3.1
+
+t-rex 12.08.2009 12:01:41 +0200 - build 1082
+
+1. From Evgeny Zhirnov: Mantis#1006: Add "explicit" to UnicodeString::UnicodeString(size_t, size_t=0) constructor.
+
+svs 11.08.2009 18:55:01 +0300 - build 1081
+
+1. Ctrl-Home/End on numeric keypad do not work.
+   from: Alexey Samlyukov
+
+drkns 09.08.2009 17:21:34 +0200 - build 1080
+
+1. If a single object was selected on panel and cursor was on "..", then PanelInfo.SelectedItemsNumber contained 0.
+
