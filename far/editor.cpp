@@ -6246,7 +6246,7 @@ Edit * Editor::GetStringByNumber(int DestLine)
 		if (!CurPtr)
 		{
 			LastGetLine = Forward?TopList:EndList;
-			LastGetLineNumber = Forward?NumLastLine-1:0;
+			LastGetLineNumber = Forward?0:NumLastLine-1;
 			return nullptr;
 		}
 	}
