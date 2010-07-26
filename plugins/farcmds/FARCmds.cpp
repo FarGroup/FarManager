@@ -61,8 +61,16 @@ FARSTDLOCALISALPHA FarIsAlpha;
 FARCONVERTPATH FarConvertPath;
 #endif
 
-struct RegistryStr REGStr={_T("Add2PlugMenu"),_T("Add2DisksMenu"),_T("Separator"),
-	_T("DisksMenuDigit"), _T("ShowCmdOutput"), _T("CatchMode"), _T("ViewZeroFiles"), _T("EditNewFiles")
+struct RegistryStr REGStr={
+	_T("Add2PlugMenu"),
+	_T("Add2DisksMenu"),
+	_T("Separator"),
+	_T("DisksMenuDigit"),
+	_T("ShowCmdOutput"),
+	_T("CatchMode"),
+	_T("ViewZeroFiles"),
+	_T("EditNewFiles"),
+	_T("MaxDataSize"),
 };
 
 static struct PluginStartupInfo Info;
@@ -136,7 +144,7 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *psInfo)
 
 void WINAPI EXP_NAME(ExitFAR)()
 {
-  free(PluginRootKey);
+	free(PluginRootKey);
 }
 
 HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
@@ -146,12 +154,12 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 #else
 	Info.Control(PANEL_ACTIVE,FCTL_GETPANELINFO,0,(LONG_PTR)&PInfo);
 #endif
-//  tempFileNameOut[0]=tempFileNameErr[0]=FileNameOut[0]=FileNameErr[0]=
+//	tempFileNameOut[0]=tempFileNameErr[0]=FileNameOut[0]=FileNameErr[0]=
 	fullcmd[0]=cmd[0]=selectItem[0]=_T('\0');
 #ifndef UNICODE
 	int _GETPANELINFO=FCTL_GETPANELINFO,
-	                  _SETPANELDIR=FCTL_SETPANELDIR,
-	                               _REDRAWPANEL=FCTL_REDRAWPANEL;
+		_SETPANELDIR=FCTL_SETPANELDIR,
+		_REDRAWPANEL=FCTL_REDRAWPANEL;
 #define _PANEL_HANDLE INVALID_HANDLE_VALUE
 #else
 	HANDLE _PANEL_HANDLE = PANEL_ACTIVE;
@@ -194,8 +202,8 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 #endif
 #ifndef UNICODE
 		_GETPANELINFO=FCTL_GETANOTHERPANELINFO,
-		              _SETPANELDIR=FCTL_SETANOTHERPANELDIR,
-		                           _REDRAWPANEL=FCTL_REDRAWANOTHERPANEL;
+		_SETPANELDIR=FCTL_SETANOTHERPANELDIR,
+		_REDRAWPANEL=FCTL_REDRAWANOTHERPANEL;
 #else
 		_PANEL_HANDLE=PANEL_PASSIVE;
 #endif
@@ -324,51 +332,64 @@ int WINAPI EXP_NAME(Configure)(int /*ItemNumber*/)
 	struct InitDialogItem InitItems[]=
 	{
 		//       Type           X1 Y1 X2 Y2 Fo Se Fl               DB Data
-		/*00*/ { DI_DOUBLEBOX,   3, 1,69,20, 0, 0, DIF_BOXCOLOR,    0, (TCHAR *)MConfig},
-		/*01*/ { DI_CHECKBOX,    5, 2, 0, 0, 1, 0, 0,               0, (TCHAR *)MAddSetPassiveDir2PlugMenu},
-		/*02*/ { DI_TEXT,        0, 3, 0, 3, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR,   0,_T("")},
-		/*03*/ { DI_CHECKBOX,    5, 4, 0, 0, 0, 0, 0,               0, (TCHAR *)MAddToDisksMenu},
-		/*04*/ { DI_FIXEDIT,     7, 5, 7, 0, 0, 0, DIF_BOXCOLOR|DIF_MASKEDIT,    0, _T("")},
-		/*05*/ { DI_TEXT,        9, 5, 0, 0, 0, 0, 0,               0, (TCHAR *)MDisksMenuDigit},
-		/*06*/ { DI_TEXT,        0, 6, 0, 6, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR,   0,_T("")},
-		/*07*/ { DI_RADIOBUTTON, 5, 7, 0, 0, 0, 0, DIF_GROUP,       0, (TCHAR *)MHideCmdOutput},
-		/*08*/ { DI_RADIOBUTTON, 5, 8, 0, 0, 0, 0, 0,               0, (TCHAR *)MKeepCmdOutput},
-		/*09*/ { DI_RADIOBUTTON, 5, 9, 0, 0, 0, 0, 0,               0, (TCHAR *)MEchoCmdOutput},
-		/*10*/ { DI_TEXT,        0,10, 0,10, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR,   0,_T("")},
-		/*11*/ { DI_RADIOBUTTON, 5,11, 0, 0, 0, 0, DIF_GROUP,       0, (TCHAR *)MCatchAllInOne},
-		/*12*/ { DI_RADIOBUTTON, 5,12, 0, 0, 0, 0, 0,               0, (TCHAR *)MCatchStdOutput},
-		/*13*/ { DI_RADIOBUTTON, 5,13, 0, 0, 0, 0, 0,               0, (TCHAR *)MCatchStdError},
-		/*14*/ { DI_RADIOBUTTON, 5,14, 0, 0, 0, 0, 0,               0, (TCHAR *)MCatchSeparate},
-		/*15*/ { DI_TEXT,        0,15, 0,15, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR,   0,_T("")},
-		/*16*/ { DI_CHECKBOX,    5,16, 0, 0, 0, 0, 0,               0, (TCHAR *)MViewZeroFiles},
-		/*17*/ { DI_CHECKBOX,    5,17, 0, 0, 0, 0, 0,               0, (TCHAR *)MEditNewFiles},
-		/*18*/ { DI_TEXT,        0,18, 0,18, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR,   0,_T("")},
-		/*19*/ { DI_BUTTON,      0,19, 0, 0, 0, 0, DIF_CENTERGROUP, 1, (TCHAR *)MOk},
-		/*20*/ { DI_BUTTON,      0,19, 0, 0, 0, 0, DIF_CENTERGROUP, 0, (TCHAR *)MCancel},
+		/*00*/ { DI_DOUBLEBOX,   3, 1,69,21, 0, 0, DIF_BOXCOLOR,    0, (TCHAR *)MConfig},
+		/*01*/ { DI_CHECKBOX,    5, 2, 0, 2, 1, 0, 0,               0, (TCHAR *)MAddSetPassiveDir2PlugMenu},
+		/*02*/ { DI_CHECKBOX,    5, 3, 0, 3, 0, 0, 0,               0, (TCHAR *)MAddToDisksMenu},
+		/*03*/ { DI_FIXEDIT,     7, 4, 7, 4, 0, 0, DIF_BOXCOLOR|DIF_MASKEDIT,    0, _T("")},
+		/*04*/ { DI_TEXT,        9, 4, 0, 4, 0, 0, 0,               0, (TCHAR *)MDisksMenuDigit},
+		/*05*/ { DI_TEXT,        0, 5, 0, 5, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR,   0,_T("")},
+		/*06*/ { DI_RADIOBUTTON, 5, 6, 0, 6, 0, 0, DIF_GROUP,       0, (TCHAR *)MHideCmdOutput},
+		/*07*/ { DI_RADIOBUTTON, 5, 7, 0, 7, 0, 0, 0,               0, (TCHAR *)MKeepCmdOutput},
+		/*08*/ { DI_RADIOBUTTON, 5, 8, 0, 8, 0, 0, 0,               0, (TCHAR *)MEchoCmdOutput},
+		/*09*/ { DI_TEXT,        0, 9, 0, 9, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR,   0,_T("")},
+		/*10*/ { DI_RADIOBUTTON, 5,10, 0,10, 0, 0, DIF_GROUP,       0, (TCHAR *)MCatchAllInOne},
+		/*11*/ { DI_RADIOBUTTON, 5,11, 0,11, 0, 0, 0,               0, (TCHAR *)MCatchStdOutput},
+		/*12*/ { DI_RADIOBUTTON, 5,12, 0,12, 0, 0, 0,               0, (TCHAR *)MCatchStdError},
+		/*13*/ { DI_RADIOBUTTON, 5,13, 0,13, 0, 0, 0,               0, (TCHAR *)MCatchSeparate},
+		/*14*/ { DI_TEXT,        0,14, 0,14, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR,   0,_T("")},
+		/*15*/ { DI_CHECKBOX,    5,15, 0,15, 0, 0, 0,               0, (TCHAR *)MViewZeroFiles},
+		/*16*/ { DI_CHECKBOX,    5,16, 0,16, 0, 0, 0,               0, (TCHAR *)MEditNewFiles},
+
+		/*17*/ { DI_TEXT,        0,17, 0,17, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR,   0,_T("")},
+		/*18*/ { DI_TEXT,        5,18, 0,18, 0, 0, 0,               0, (TCHAR *)MMaxDataSize},
+		/*19*/ { DI_FIXEDIT,     5,18, 0,18, 0, 0, DIF_BOXCOLOR|DIF_MASKEDIT,    0, _T("")},
+
+		/*20*/ { DI_TEXT,        0,19, 0,19, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR,   0,_T("")},
+		/*21*/ { DI_BUTTON,      0,20, 0,20, 0, 0, DIF_CENTERGROUP, 1, (TCHAR *)MOk},
+		/*22*/ { DI_BUTTON,      0,20, 0,20, 0, 0, DIF_CENTERGROUP, 0, (TCHAR *)MCancel},
 	};
+
 	BOOL ret=FALSE;
 	struct FarDialogItem DialogItems[ArraySize(InitItems)];
 	InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
-	DialogItems[4].Mask=_T("9");
+	DialogItems[3].Mask=_T("9");
 	DialogItems[1].Selected=Opt.Add2PlugMenu;
-	DialogItems[3].Selected=Opt.Add2DisksMenu;
-	DialogItems[7+Opt.ShowCmdOutput].Selected = 1;
-	DialogItems[11+Opt.CatchMode].Selected = 1;
-	DialogItems[16].Selected = Opt.ViewZeroFiles;
-	DialogItems[17].Selected = Opt.EditNewFiles;
+	DialogItems[2].Selected=Opt.Add2DisksMenu;
+	DialogItems[6+Opt.ShowCmdOutput].Selected = 1;
+	DialogItems[10+Opt.CatchMode].Selected = 1;
+	DialogItems[15].Selected = Opt.ViewZeroFiles;
+	DialogItems[16].Selected = Opt.EditNewFiles;
+
 #ifdef UNICODE
 	wchar_t numstr[32];
-	DialogItems[4].PtrData = numstr;
+	DialogItems[3].PtrData = numstr;
 	FarItoa(Opt.DisksMenuDigit,numstr,10);
+
+	DialogItems[19].PtrData = numstr;
+	FarItoa(Opt.MaxDataSize,numstr,10);
+	DialogItems[19].X1=DialogItems[18].X1+lstrlen(DialogItems[18].PtrData)+1;
 #else
-	FarItoa(Opt.DisksMenuDigit,(TCHAR *)DialogItems[4].Data,10);
+	FarItoa(Opt.DisksMenuDigit,(TCHAR *)DialogItems[3].Data,10);
+	FarItoa(Opt.MaxDataSize,(TCHAR *)DialogItems[19].Data,10);
+	DialogItems[19].X1=DialogItems[18].X1+lstrlen(DialogItems[18].Data)+1;
 #endif
+	DialogItems[19].X2=DialogItems[19].X1+10;
+	DialogItems[19].Mask=_T("9999999999");
+
 #ifndef UNICODE
-	int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,73,22,"Config",
-	                         DialogItems,ArraySize(InitItems));
+	int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,73,23,"Config",DialogItems,ArraySize(InitItems));
 #else
-	HANDLE hDlg=Info.DialogInit(Info.ModuleNumber,-1,-1,73,22,L"Config",
-	                            DialogItems,ArraySize(InitItems),0,0,NULL,0);
+	HANDLE hDlg=Info.DialogInit(Info.ModuleNumber,-1,-1,73,23,L"Config",DialogItems,ArraySize(InitItems),0,0,NULL,0);
 
 	if (hDlg == INVALID_HANDLE_VALUE)
 		return ret;
@@ -376,24 +397,25 @@ int WINAPI EXP_NAME(Configure)(int /*ItemNumber*/)
 	int ExitCode=Info.DialogRun(hDlg);
 #endif
 
-	if (19 == ExitCode)
+	if (21 == ExitCode)
 	{
 		Opt.Add2PlugMenu=GetCheck(1);
-		Opt.Add2DisksMenu=GetCheck(3);
-		Opt.DisksMenuDigit=FarAtoi(GetDataPtr(4));
-		Opt.ViewZeroFiles = GetCheck(16);
-		Opt.EditNewFiles = GetCheck(17);
+		Opt.Add2DisksMenu=GetCheck(2);
+		Opt.DisksMenuDigit=FarAtoi(GetDataPtr(3));
+		Opt.ViewZeroFiles = GetCheck(15);
+		Opt.EditNewFiles = GetCheck(16);
 		Opt.CatchMode = Opt.ShowCmdOutput = 0;
+		Opt.MaxDataSize=FarAtoi(GetDataPtr(19));
 
 		for (int i = 0 ; i < 3 ; i++)
-			if (GetCheck(7+i))
+			if (GetCheck(6+i))
 			{
 				Opt.ShowCmdOutput = i;
 				break;
 			}
 
 		for (int j = 0 ; j < 4 ; j++)
-			if (GetCheck(11+j))
+			if (GetCheck(10+j))
 			{
 				Opt.CatchMode = j;
 				break;
@@ -406,6 +428,7 @@ int WINAPI EXP_NAME(Configure)(int /*ItemNumber*/)
 		SetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.CatchMode,Opt.CatchMode);
 		SetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.ViewZeroFiles,Opt.ViewZeroFiles);
 		SetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.EditNewFiles,Opt.EditNewFiles);
+		SetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.MaxDataSize,Opt.MaxDataSize);
 		ret=TRUE;
 	}
 

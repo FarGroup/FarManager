@@ -16,6 +16,7 @@
 "Intercept stdout &and stderr separately"
 "View/edit e&mpty files"
 "Edit &new files"
+"The &size of read data"
 "<stdout>:"
 "<stderr>:"
 

@@ -1,5 +1,6 @@
 .Language=English,English (English)
 .PluginContents=FAR Commands
+.Options CtrlStartPosChar=^<wrap>
 
 @Contents
 $^#FAR Commands#
@@ -66,7 +67,9 @@ $^#The Clip command#
    The #clip# command puts data into the Windows clipboard.
 The data can be the contents of a file or the output of a program.
 The clipboard will contain all the data up to the character with the
-code #0x00# (1 megabyte at most).
+code #0x00#.
+Размер помещаемых данных можно задавать в диалоге конфигурации плагина. По
+умолчанию - 1 Mb.
 
    #clip:filename#
 
@@ -191,7 +194,11 @@ $ #The WhereIs command#
    The #whereis# command locates the given object and jumps to it if the search was
 successful.
 
-   #whereis:filename#
+   #whereis:object#
+
+   Второй способ - имя объекта поиска берётся из заданного файла "#имяфайла#"
+
+      #whereis: <имяфайла#
 
    The search is performed in the following order:
 
@@ -244,6 +251,11 @@ typed from the keyboard.
 
       In case of error in the "sequence" you receive a message
       indicating the error type and its position in the sequence.
+
+   Команды #post# и #check# так же могут брать последовательность из #имяфайла#:
+
+      #macro:post <имяфайла#
+      #macro:check <имяфайла#
 
    Command #check# is only available in Unicode-version (in FAR 2.x)
 
@@ -405,5 +417,10 @@ $^#Configuring FAR Commands#
  #Edit new files#                Allows to open the editor with non
                                existing files.
 
+ #The size of read data#         ^<wrap>Позволяет задавать максимальный размер
+считываемых из файла данных в командах ~clip~@clip@, ~goto~@goto@, ~whereis~@whereis@,
+~macro:post~@macro@ и ~macro:check~@macro@.
+                               По умолчанию - 1 Mb.
+                               Максимальное значение - 4Gb.
 
    See also: ~Contents~@Contents@
