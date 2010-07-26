@@ -206,11 +206,20 @@ int CommandLine::ProcessKey(int Key)
 	{
 		case KEY_CTRLE:
 		case KEY_CTRLX:
-
-			if (Key == KEY_CTRLE)
-				CtrlObject->CmdHistory->GetPrev(strStr);
-			else
-				CtrlObject->CmdHistory->GetNext(strStr);
+			{
+				if (Key == KEY_CTRLE)
+				{
+					CtrlObject->CmdHistory->GetPrev(strStr);
+				}
+				else
+				{
+					CtrlObject->CmdHistory->GetNext(strStr);
+				}
+				CmdStr.DisableAC();
+				SetString(strStr);
+				CmdStr.RevertAC();
+			}
+			return TRUE;
 
 		case KEY_ESC:
 

@@ -2014,6 +2014,8 @@ LONG_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 						delete v->TB;
 						v->TB=nullptr;
 					}
+					// for mouse emulated "goto"
+					Dlg->SetExitCode(Param1);
 					return FALSE;
 				}
 				break;
