@@ -33,7 +33,7 @@ REGEDIT4
 [-HKEY_CURRENT_USER\Software\Far\KeyMacros\Editor\F5]
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Editor\F5]
 "Description"="Editor: Time/Date"
-"Sequence"="$Date \"%R %x\""
+"Sequence"="print(date(\"%R %x\"))"
 "DisableOutput"=dword:00000001
 
 [-HKEY_CURRENT_USER\Software\Far\KeyMacros\Editor\CtrlN]
