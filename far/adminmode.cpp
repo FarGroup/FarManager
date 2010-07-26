@@ -806,7 +806,7 @@ bool AdminMode::fCreateSymbolicLink(LPCWSTR Object, LPCWSTR Target, DWORD Flags)
 		if(Opt.IsUserAdmin)
 		{
 			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
-			Result = CreateSymbolicLinkInternal(Object, Target, Flags) != FALSE;
+			Result = CreateSymbolicLinkInternal(Object, Target, Flags);
 		}
 		else
 		{

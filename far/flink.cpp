@@ -164,7 +164,7 @@ bool WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,DWOR
 				}
 				if (ifn.pfnCreateSymbolicLink)
 				{
-					Result=apiCreateSymbolicLink(Object,Target,Type==RP_SYMLINKDIR?SYMBOLIC_LINK_FLAG_DIRECTORY:0)!=FALSE;
+					Result=apiCreateSymbolicLink(Object,Target,Type==RP_SYMLINKDIR?SYMBOLIC_LINK_FLAG_DIRECTORY:0);
 				}
 				else
 				{

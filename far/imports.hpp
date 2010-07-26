@@ -117,7 +117,7 @@ typedef CONFIGRET(__stdcall *PCMREQUESTDEVICEEJECT)(
 typedef BOOL (__stdcall *PGETCONSOLEKEYBOARDLAYOUTNAME)(wchar_t*);
 
 
-typedef BOOL (WINAPI *PCREATESYMBOLICLINK)(
+typedef BOOLEAN (WINAPI *PCREATESYMBOLICLINK)(
     const wchar_t *lpSymlinkFileName,
     const wchar_t *lpTargetFileName,
     DWORD dwFlags);

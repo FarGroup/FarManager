@@ -296,9 +296,9 @@ BOOL apiSetCurrentDirectory(
 );
 
 // for AdminMode only, dont' use outside.
-BOOL CreateSymbolicLinkInternal(LPCWSTR Object,LPCWSTR Target, DWORD dwFlags);
+bool CreateSymbolicLinkInternal(LPCWSTR Object,LPCWSTR Target, DWORD dwFlags);
 
-BOOL apiCreateSymbolicLink(
+bool apiCreateSymbolicLink(
     LPCWSTR lpSymlinkFileName,
     LPCWSTR lpTargetFileName,
     DWORD dwFlags

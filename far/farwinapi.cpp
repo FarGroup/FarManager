@@ -770,16 +770,16 @@ BOOL apiSetFileAttributes(LPCWSTR lpFileName,DWORD dwFileAttributes)
 
 }
 
-BOOL CreateSymbolicLinkInternal(LPCWSTR Object,LPCWSTR Target, DWORD dwFlags)
+bool CreateSymbolicLinkInternal(LPCWSTR Object,LPCWSTR Target, DWORD dwFlags)
 {
 	return ifn.pfnCreateSymbolicLink?
-		ifn.pfnCreateSymbolicLink(Object, Target, dwFlags):
+		ifn.pfnCreateSymbolicLink(Object, Target, dwFlags) != FALSE:
 		CreateReparsePoint(Target, Object, dwFlags&SYMBOLIC_LINK_FLAG_DIRECTORY?RP_SYMLINKDIR:RP_SYMLINKFILE);
 }
 
-BOOL apiCreateSymbolicLink(LPCWSTR lpSymlinkFileName,LPCWSTR lpTargetFileName,DWORD dwFlags)
+bool apiCreateSymbolicLink(LPCWSTR lpSymlinkFileName,LPCWSTR lpTargetFileName,DWORD dwFlags)
 {
-	BOOL Result=FALSE;
+	bool Result=false;
 	string strSymlinkFileName(NTPath(lpSymlinkFileName).Str);
 	Result=CreateSymbolicLinkInternal(strSymlinkFileName, lpTargetFileName, dwFlags);
 	if (!Result)
