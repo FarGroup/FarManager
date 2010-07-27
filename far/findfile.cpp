@@ -2014,8 +2014,6 @@ LONG_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 						delete v->TB;
 						v->TB=nullptr;
 					}
-					// for mouse emulated "goto"
-					Dlg->SetExitCode(Param1);
 					return FALSE;
 				}
 				break;
@@ -2982,6 +2980,7 @@ bool FindFilesProcess(Vars& v)
 				break;
 			}
 			case FD_BUTTON_GOTO:
+			case FD_LISTBOX:
 			{
 				FINDLIST FindItem;
 				itd.GetFindListItem(v.FindExitIndex, FindItem);
