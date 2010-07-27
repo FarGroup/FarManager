@@ -1949,6 +1949,10 @@ static bool dateFunc()
 {
 	TVar Val;
 	VMStack.Pop(Val);
+
+	if (Val.isInteger() && !Val.i())
+		Val=L"";
+
 	const wchar_t *s = Val.toString();
 	bool Ret=false;
 	string strTStr;
