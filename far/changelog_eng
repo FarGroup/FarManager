@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 27.07.2010 17:44:36 +0200 - build 1629
+
+1. Mantis#0001447: Freeze when positioning to a file after search
+
+svs 27.07.2010 14:18:55 +0300 - build 1628
+
+1. Mantis#0001446: Date() returns 0
+
 drkns 26.07.2010 21:21:04 +0200 - build 1627
 
 1. Symbolic links creation from restricted account was broken in 64-bit OS.
