@@ -1782,7 +1782,7 @@ the main menu and the user menu by pressing #Shift-F2#. Also you may call the
 user menu of the parent folder by pressing #BS#.
 
     You may add command separators to the user menu. To do this, you should add
-a new menu command and define "#-#" as "hot key". To delete a menu separator,you
+a new menu command and define "#--#" as "hot key". To delete a menu separator,you
 must switch to file mode with #Alt-F4# key.
 
     To execute a user menu command, select it with cursor keys and press #Enter#.
