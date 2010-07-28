@@ -2452,12 +2452,12 @@ MCMLItemsS
 
 MCopyIncorrectTargetList
 l:
-"Указан некорректный список целей!"
-"Incorrect target list!"
-"Nesprávný seznam cílů!"
-"Ungültige Liste von Zielen!"
-"Érvénytelen céllista!"
-"Błędna lista wynikowa!"
+"Указан некорректный список целей"
+"Incorrect target list"
+"Nesprávný seznam cílů"
+"Ungültige Liste von Zielen"
+"Érvénytelen céllista"
+"Błędna lista wynikowa"
 
 MCopyCopyingTitle
 l:
@@ -3024,7 +3024,7 @@ l:
 "Disk full. Insert next"
 "Disk je plný. Vložte dalšíí"
 "Datenträger voll. Bitte nächsten einlegen"
-"A lemez megtelt, kérem a következőt!"
+"A lemez megtelt, kérem a következőt"
 "Dysk pełny. Włóż następny"
 
 MDeleteTitle
@@ -8259,12 +8259,12 @@ MHighlightAskDel
 "Czy chcesz usunąć wyróżnianie dla"
 
 MHighlightWarning
-"Будут потеряны все Ваши настройки!"
-"You will lose all changes!"
-"Všechny změny budou ztraceny!"
-"Sie verlieren jegliche Änderungen!"
-"Minden változtatás elvész!"
-"Wszystkie zmiany zostaną utracone!"
+"Будут потеряны все Ваши настройки"
+"You will lose all changes"
+"Všechny změny budou ztraceny"
+"Sie verlieren jegliche Änderungen"
+"Minden változtatás elvész"
+"Wszystkie zmiany zostaną utracone"
 
 MHighlightAskRestore
 "Вы хотите восстановить раскраску файлов по умолчанию?"
@@ -8964,15 +8964,6 @@ MErrorNoAssociation
 "Diesem Dateityp und dieser Aktion ist kein Programm zugewiesen."
 "A fájlhoz nincs társítva program"
 "Z tą operacją dla pliku nie jest skojarzona żadna aplikacja"
-
-MErrorFullPathNameLong
-l:
-"Полный путь к файлу имеет слишком большую длину"
-"The full pathname is too long"
-"Plná cesta k souboru je příliš dlouhá"
-"Der volle Name des Pfades ist zu lang"
-"A teljes elérési út túl hosszú"
-"Pełna ścieżka jest zbyt długa"
 
 MCannotExecute
 l:
@@ -9978,11 +9969,11 @@ MChangeDriveCannotDelSubst
 
 MChangeDriveOpenFiles
 "Если вы не закроете открытые файлы, данные могут быть утеряны"
-"If you do not close the open files, data may be lost."
-"Pokud neuzavřete otevřené soubory, mohou být tato data ztracena."
-"Wenn Sie offene Dateien nicht schließen könnten Daten verloren gehen."
-"Ha a nyitott fájlokat nem zárja be, az adatok elveszhetnek!"
-"Jeśli nie zamkniesz otwartych plików, możesz utracić dane."
+"If you do not close the open files, data may be lost"
+"Pokud neuzavřete otevřené soubory, mohou být tato data ztracena"
+"Wenn Sie offene Dateien nicht schließen könnten Daten verloren gehen"
+"Ha a nyitott fájlokat nem zárja be, az adatok elveszhetnek"
+"Jeśli nie zamkniesz otwartych plików, możesz utracić dane"
 
 MChangeSUBSTDisconnectDriveTitle
 l:
@@ -10054,8 +10045,8 @@ MChangeHotPlugNotify2
 "может быть безопасно извлечено из компьютера"
 "can now be safely removed"
 "může být nyní bezpečně odebráno"
-"kann nun vom Computer getrennt werden."
-"már biztonságosan eltávolítható!"
+"kann nun vom Computer getrennt werden"
+"már biztonságosan eltávolítható"
 "można teraz bezpiecznie odłączyć"
 
 MHotPlugListTitle
@@ -10347,8 +10338,8 @@ MKillProcessWarning
 "Вы потеряете всю несохраненную информацию этой программы"
 "You will lose any unsaved information in this program"
 "V tomto programu budou ztraceny neuložené informace"
-"Alle ungespeicherten Daten dieses Programmes gehen verloren."
-"A program minden mentetlen adata elvész!"
+"Alle ungespeicherten Daten dieses Programmes gehen verloren"
+"A program minden mentetlen adata elvész"
 "Utracisz wszystkie niezapisane dane w tym programie"
 
 MKillProcessKill
@@ -12108,20 +12099,20 @@ MAskDeleteSubMenuItem
 "Czy usunąć podmenu"
 
 MUserMenuInvalidInputLabel
-"Неправильный формат метки меню!"
-"Invalid format for UserMenu Label!"
-"Neplatný formát pro název Uživatelského menu!"
-"Invalid format for UserMenu Label!"
-"A felhasználói menü névformátuma érvénytelen!"
-"Błędny format etykiety menu użytkownika!"
+"Неправильный формат метки меню"
+"Invalid format for UserMenu Label"
+"Neplatný formát pro název Uživatelského menu"
+"Invalid format for UserMenu Label"
+"A felhasználói menü névformátuma érvénytelen"
+"Błędny format etykiety menu użytkownika"
 
 MUserMenuInvalidInputHotKey
-"Неправильный формат горячей клавиши!"
-"Invalid format for Hot Key!"
-"Neplatný formát pro klávesovou zkratku!"
-"Invalid format for Hot Key!"
-"A gyorsbillentyű formátuma érvénytelen!"
-"Błędny format klawisza skrótu!"
+"Неправильный формат горячей клавиши"
+"Invalid format for Hot Key"
+"Neplatný formát pro klávesovou zkratku"
+"Invalid format for Hot Key"
+"A gyorsbillentyű formátuma érvénytelen"
+"Błędny format klawisza skrótu"
 
 MEditMenuTitle
 l:
@@ -12886,7 +12877,7 @@ MDefineMacro
 "Press the desired key"
 "Stiskněte požadovanou klávesu"
 "Tastenkombination:"
-"Nyomja le a billentyűt!"
+"Nyomja le a billentyűt"
 "Naciśnij żądany klawisz"
 
 MMacroReDefinedKey
@@ -12982,7 +12973,7 @@ MMacroDisAnotherKey
 "Try another key"
 "Zkusit jinou klávesu"
 "Neue Kombination"
-"Adjon meg másik billentyűt!"
+"Adjon meg másik billentyűt"
 "Spróbuj inny klawisz"
 
 MMacroSettingsTitle
@@ -13360,7 +13351,7 @@ MPluginHotKey
 "Enter hot key (letter or digit)"
 "Zadejte horkou klávesu (písmeno nebo číslici)"
 "Buchstabe oder Ziffer:"
-"Nyomja le a billentyűt (betű vagy szám)!"
+"Nyomja le a billentyűt (betű vagy szám)"
 "Podaj klawisz skrótu (litera lub cyfra)"
 
 MPluginHotKeyBottom
@@ -13648,23 +13639,6 @@ MPlgLoadPluginError
 "Plugin betöltési hiba"
 "Błąd ładowania modułu plugina"
 
-MBuffSizeTooSmall_1
-l:
-"Буфер, размещённый под имя файла, слишком мал."
-"Buffer allocated for file name is too small."
-"Buffer alokovaný pro jméno souboru je příliš malý."
-"Reservierter Puffer für Dateiname ist zu klein."
-"A fájlnév puffere túl kicsi."
-"Bufor zaalokowany dla nazwy pliku jest zbyt mały."
-
-MBuffSizeTooSmall_2
-"Требуется %d байт, а имеется только %d"
-"%d bytes are required, but only %d bytes were allocated."
-"Požadováno %d bytů, ale alokováno pouze %d."
-"%d Bytes werden benötigt aber nur %d Bytes wurden reserviert."
-"%d bájt kell, de csak %d van lefoglalva."
-"Wymagano %d bajtów, a zaalokowano tylko %d."
-
 MCheckBox2State
 l:
 "?"
@@ -13673,22 +13647,6 @@ l:
 "?"
 "?"
 "?"
-
-MEditInputSize1
-"Длина поля"
-"Field"
-"Pole"
-"Feld"
-"A mező"
-"Pole"
-
-MEditInputSize2
-"будет уменьшена до %d байт."
-"will be truncated to %d bytes."
-"bude oseknuto na %d bytů."
-"wird gekürzt auf %d Bytes."
-" %d bájtra rövidül."
-"będzie obcięte do %d bajtów."
 
 MHelpTitle
 l:
@@ -16995,12 +16953,12 @@ MVMenuType
 
 MIncorrectMask
 l:
-"Некорректная маска файлов!"
-"File-mask string contains errors!"
-"Řetězec masky souboru obsahuje chyby!"
-"Zeichenkette mit Dateimaske enthält Fehler!"
-"A fájlmaszk hibás!"
-"Maska pliku zawiera błędy!"
+"Некорректная маска файлов"
+"File-mask string contains errors"
+"Řetězec masky souboru obsahuje chyby"
+"Zeichenkette mit Dateimaske enthält Fehler"
+"A fájlmaszk hibás"
+"Maska pliku zawiera błędy"
 
 MPanelBracketsForLongName
 l:
@@ -17013,12 +16971,12 @@ l:
 
 MComspecNotFound
 l:
-"Переменная окружения %COMSPEC% не определена!"
-"Environment variable %COMSPEC% not defined!"
-"Proměnná prostředí %COMSPEC% není definována!"
-"Umgebungsvariable %COMSPEC% nicht definiert!"
-"A %COMSPEC% környezeti változó nincs definiálva!"
-"Nie zdefiniowano zmiennej środowiskowej %COMSPEC%!"
+"Переменная окружения %COMSPEC% не определена"
+"Environment variable %COMSPEC% not defined"
+"Proměnná prostředí %COMSPEC% není definována"
+"Umgebungsvariable %COMSPEC% nicht definiert"
+"A %COMSPEC% környezeti változó nincs definiálva"
+"Nie zdefiniowano zmiennej środowiskowej %COMSPEC%"
 
 MExecuteErrorMessage
 "'%s' не является внутренней или внешней командой, исполняемой программой или пакетным файлом.\n"
@@ -17303,12 +17261,12 @@ MFileFilterMakeTransparent
 "Ustaw jako przezroczysty"
 
 MBadFileSizeFormat
-"Неправильно заполнено поле размера!"
-"File size field is incorrectly filled!"
-"Velikost souboru neobsahuje správnou hodnotu!"
-"Angabe der Dateigröße ist fehlerhaft!"
-"A fájlméret mező rosszul van kitöltve!"
-"Rozmiar pliku jest niepoprawny!"
+"Неправильно заполнено поле размера"
+"File size field is incorrectly filled"
+"Velikost souboru neobsahuje správnou hodnotu"
+"Angabe der Dateigröße ist fehlerhaft"
+"A fájlméret mező rosszul van kitöltve"
+"Rozmiar pliku jest niepoprawny"
 
 MFarTitleAddonsAdmin
 l:

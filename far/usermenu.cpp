@@ -469,8 +469,8 @@ int FillUserMenu(VMenu& UserMenu,const wchar_t *MenuKey,int MenuPos,int *FuncPos
 		GetRegKey(strItemKey,L"Label",strLabel,L"");
 		int FuncNum=0;
 
-		// сепаратором является случай, когда хоткей == "-"
-		if (!StrCmp(strHotKey,L"-"))
+		// сепаратором является случай, когда хоткей == "--"
+		if (!StrCmp(strHotKey,L"--"))
 		{
 			UserMenuItem.Flags|=LIF_SEPARATOR;
 			UserMenuItem.Flags&=~LIF_SELECTED;
@@ -980,20 +980,23 @@ LONG_PTR WINAPI EditMenuDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 				LPCWSTR Label=reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,EM_LABEL_EDIT,0));
 				int FocusPos=-1;
 
-				if (!*Label && StrCmp(HotKey,L"-"))
+				if(StrCmp(HotKey,L"--"))
 				{
-					FocusPos=EM_LABEL_EDIT;
-				}
-				else if (StrLength(HotKey)>1)
-				{
-					FocusPos=EM_HOTKEY_EDIT;
-
-					if (Upper(*HotKey)==L'F')
+					if (!*Label)
 					{
-						int FuncNum=_wtoi(HotKey+1);
+						FocusPos=EM_LABEL_EDIT;
+					}
+					else if (StrLength(HotKey)>1)
+					{
+						FocusPos=EM_HOTKEY_EDIT;
 
-						if (FuncNum > 0 && FuncNum < 25)
-							FocusPos=-1;
+						if (Upper(*HotKey)==L'F')
+						{
+							int FuncNum=_wtoi(HotKey+1);
+
+							if (FuncNum > 0 && FuncNum < 25)
+								FocusPos=-1;
+						}
 					}
 				}
 
