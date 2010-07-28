@@ -5760,8 +5760,8 @@ MLocalMenuTitle
 "Local menu"
 
 MMainMenuBottomTitle
-"Редактирование: Del,Ins,F4"
-"Edit: Del,Ins,F4"
+"Редактирование: Del,Ins,F4,Alt-F4"
+"Edit: Del,Ins,F4,Alt-F4"
 
 MAskDeleteMenuItem
 "Вы хотите удалить пункт меню"
