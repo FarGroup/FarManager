@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 28.07.2010 10:00:00 +0200 - build 1630
+
+1. Changes in usermenu.
+   - in order to be considered as a divider, an item must be assigned the "--" hotkey and any label.
+   - "-" hotkey is functional now.
+
+2. The number of exclamations!!!111 in language files is slightly reduced.
+
 drkns 27.07.2010 17:44:36 +0200 - build 1629
 
 1. Mantis#0001447: Freeze when positioning to a file after search
