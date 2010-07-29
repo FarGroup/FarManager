@@ -3,6 +3,16 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 29.07.2010 21:09:20 +0200 - build 1631
+
+1. Mantis#0001443: Inconvenient reaction to mouse click in a search window.
+
+2. Mantis#0001449: Drive change error message does not fit into a console.
+
+3. "Go to", "View" and "Panel" buttons in search dialog get blocked if nothing is found.
+
+4. "Filter" button in copy and search dialogs get blocked if "[ ] Use filter" option is off.
+
 drkns 28.07.2010 10:00:00 +0200 - build 1630
 
 1. Changes in usermenu.
