@@ -687,18 +687,16 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		DI_CHECKBOX,    5, 8, 0, 8,0,0,(wchar_t *)MCopySymLinkContents,
 		DI_CHECKBOX,    5, 9, 0, 9,0,0,(wchar_t *)MCopyMultiActions,
 		DI_TEXT,        3,10, 0,10,0,DIF_SEPARATOR,L"",
-		DI_CHECKBOX,    5,11, 0,11,0,0,(wchar_t *)MCopyUseFilter,
+		DI_CHECKBOX,    5,11, 0,11,UseFilter?BSTATE_CHECKED:BSTATE_UNCHECKED,DIF_AUTOMATION,(wchar_t *)MCopyUseFilter,
 		DI_TEXT,        3,12, 0,12,0,DIF_SEPARATOR,L"",
 		DI_BUTTON,      0,13, 0,13,0,DIF_DEFAULT|DIF_CENTERGROUP,(wchar_t *)MCopyDlgCopy,
 		DI_BUTTON,      0,13, 0,13,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,(wchar_t *)MCopyDlgTree,
-		DI_BUTTON,      0,13, 0,13,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,(wchar_t *)MCopySetFilter,
+		DI_BUTTON,      0,13, 0,13,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE|DIF_AUTOMATION|(UseFilter?0:DIF_DISABLE),(wchar_t *)MCopySetFilter,
 		DI_BUTTON,      0,13, 0,13,0,DIF_CENTERGROUP,(wchar_t *)MCopyDlgCancel,
 		DI_TEXT,        5, 2, 0, 2,0,DIF_SHOWAMPERSAND,L"",
 	};
 	MakeDialogItemsEx(CopyDlgData,CopyDlg);
 	CopyDlg[ID_SC_MULTITARGET].Selected=Opt.CMOpt.MultiCopy;
-	// Использовать фильтр. KM
-	CopyDlg[ID_SC_USEFILTER].Selected=UseFilter;
 	{
 		const wchar_t *Str = MSG(MCopySecurity);
 		CopyDlg[ID_SC_ACLEAVE].X1 = CopyDlg[ID_SC_ACTITLE].X1 + StrLength(Str) - (wcschr(Str, L'&')?1:0) + 1;
@@ -1014,6 +1012,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		Dialog Dlg(CopyDlg,ARRAYSIZE(CopyDlg),CopyDlgProc,(LONG_PTR)&CDP);
 		Dlg.SetHelp(Link?L"HardSymLink":L"CopyFiles");
 		Dlg.SetPosition(-1,-1,DLG_WIDTH,DLG_HEIGHT);
+		Dlg.SetAutomation(ID_SC_USEFILTER,ID_SC_BTNFILTER,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 //    Dlg.Show();
 		// $ 02.06.2001 IS + Проверим список целей и поднимем тревогу, если он содержит ошибки
 		int DlgExitCode;

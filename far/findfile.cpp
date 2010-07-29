@@ -2023,12 +2023,20 @@ LONG_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 
 	case DN_CLOSE:
 		{
+			BOOL Result = TRUE;
 			if (Param1==FD_LISTBOX)
 			{
-				FindDlgProc(hDlg,DN_BTNCLICK,FD_BUTTON_GOTO,0); // emulates a [ Go to ] button pressing;
+				if(ListBox->GetItemCount())
+				{
+					FindDlgProc(hDlg,DN_BTNCLICK,FD_BUTTON_GOTO,0); // emulates a [ Go to ] button pressing;
+				}
+				else
+				{
+					Result = FALSE;
+				}
 			}
 			StopEvent.Set();
-			return TRUE;
+			return Result;
 		}
 		break;
 
@@ -2114,6 +2122,14 @@ void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& 
 		return;
 
 	VMenu *ListBox=reinterpret_cast<Dialog*>(hDlg)->GetAllItem()[FD_LISTBOX]->ListPtr;
+
+
+	if(!ListBox->GetItemCount())
+	{
+		SendDlgMessage(hDlg, DM_ENABLE, FD_BUTTON_GOTO, TRUE);
+		SendDlgMessage(hDlg, DM_ENABLE, FD_BUTTON_VIEW, TRUE);
+		SendDlgMessage(hDlg, DM_ENABLE, FD_BUTTON_PANEL, TRUE);
+	}
 
 	MenuItemEx ListItem = {};
 
@@ -2828,9 +2844,9 @@ bool FindFilesProcess(Vars& v)
 		DI_TEXT,DlgWidth-9,DlgHeight-5,DlgWidth-6,DlgHeight-5,0,(strFindStr.IsEmpty()?DIF_HIDDEN:0),L"",
 		DI_TEXT,0,DlgHeight-4,0,DlgHeight-4,0,DIF_SEPARATOR,L"",
 		DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,DIF_FOCUS|DIF_DEFAULT|DIF_CENTERGROUP,MSG(MFindNewSearch),
-		DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,DIF_CENTERGROUP,MSG(MFindGoTo),
-		DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,DIF_CENTERGROUP,MSG(MFindView),
-		DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,DIF_CENTERGROUP,MSG(MFindPanel),
+		DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,DIF_CENTERGROUP|DIF_DISABLE,MSG(MFindGoTo),
+		DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,DIF_CENTERGROUP|DIF_DISABLE,MSG(MFindView),
+		DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,DIF_CENTERGROUP|DIF_DISABLE,MSG(MFindPanel),
 		DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,DIF_CENTERGROUP,MSG(MFindStop),
 	};
 	MakeDialogItemsEx(FindDlgData,FindDlg);
@@ -3148,11 +3164,11 @@ FindFiles::FindFiles()
 			DI_VTEXT,38,9,0,9,0,DIF_BOXCOLOR,VSeparator,
 			DI_TEXT,5,14,0,14,0,0,MSG(MSearchWhere),
 			DI_COMBOBOX,5,15,36,15,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,L"",
-			DI_CHECKBOX,40,15,0,15,0,0,MSG(MFindUseFilter),
+			DI_CHECKBOX,40,15,0,15,UseFilter?BSTATE_CHECKED:BSTATE_UNCHECKED,DIF_AUTOMATION,MSG(MFindUseFilter),
 			DI_TEXT,3,16,0,16,0,DIF_SEPARATOR,L"",
 			DI_BUTTON,0,17,0,17,0,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MFindFileFind),
 			DI_BUTTON,0,17,0,17,0,DIF_CENTERGROUP,MSG(MFindFileDrive),
-			DI_BUTTON,0,17,0,17,0,DIF_CENTERGROUP,MSG(MFindFileSetFilter),
+			DI_BUTTON,0,17,0,17,0,DIF_CENTERGROUP|DIF_AUTOMATION|(UseFilter?0:DIF_DISABLE),MSG(MFindFileSetFilter),
 			DI_BUTTON,0,17,0,17,0,DIF_CENTERGROUP,MSG(MFindFileAdvanced),
 			DI_BUTTON,0,17,0,17,0,DIF_CENTERGROUP,MSG(MCancel),
 		};
@@ -3211,9 +3227,9 @@ FindFiles::FindFiles()
 		FindAskDlg[FAD_CHECKBOX_CASE].Selected=CmpCase;
 		FindAskDlg[FAD_CHECKBOX_WHOLEWORDS].Selected=WholeWords;
 		FindAskDlg[FAD_CHECKBOX_HEX].Selected=SearchHex;
-		FindAskDlg[FAD_CHECKBOX_FILTER].Selected=UseFilter?BSTATE_CHECKED:BSTATE_UNCHECKED;
 		int ExitCode;
 		Dialog Dlg(FindAskDlg,ARRAYSIZE(FindAskDlg),MainDlgProc, reinterpret_cast<LONG_PTR>(&v));
+		Dlg.SetAutomation(FAD_CHECKBOX_FILTER,FAD_BUTTON_FILTER,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 		Dlg.SetHelp(L"FindFile");
 		Dlg.SetId(FindFileId);
 		Dlg.SetPosition(-1,-1,78,20);

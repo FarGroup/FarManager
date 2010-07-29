@@ -77,6 +77,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarDlgBuilder.hpp"
 #include "setattr.hpp"
 #include "window.hpp"
+#include "palette.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;
@@ -502,6 +503,23 @@ static void ConfigureChangeDriveMode()
 	}
 }
 
+
+LONG_PTR WINAPI ChDiskDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
+{
+	switch (Msg)
+	{
+		case DN_CTLCOLORDLGITEM:
+		{
+			if (Param1 == 1) // BUGBUG, magic number
+			{
+				int Color=FarColorToReal(COL_WARNDIALOGTEXT);
+				return ((Param2&0xFF00FF00)|(Color<<16)|Color);
+			}
+		}
+		break;
+	}
+	return DefDlgProc(hDlg,Msg,Param1,Param2);
+}
 
 int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 {
@@ -1001,12 +1019,12 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			GetErrorString(strError);
 			int Len1=static_cast<int>(strError.GetLength());
 			int Len2=StrLength(MSG(MChangeDriveCannotReadDisk));
-			int MaxMsg=Max(Len1,Len2);
+			int MaxMsg=Min(Max(Len1,Len2), static_cast<int>(MAX_WIDTH_MESSAGE));
 			const int DX=Max(MaxMsg+13,40),DY=8;
 			const DialogDataEx ChDiskData[]=
 			{
 				DI_DOUBLEBOX,3,1,DX-4,DY-2,0,0,MSG(MError),
-				DI_TEXT,5,2,DX-6,2,0,DIF_CENTERTEXT,strError.CPtr(),
+				DI_EDIT,5,2,DX-6,2,0,DIF_READONLY,strError.CPtr(),
 				DI_TEXT,5,3,DX-9,3,0,0,MSG(MChangeDriveCannotReadDisk),
 				DI_FIXEDIT,5+Len2+1,3,5+Len2+1,3,0,DIF_FOCUS,Drive,
 				DI_TEXT,5+Len2+2,3,5+Len2+2,3,0,0,L":",
@@ -1015,7 +1033,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				DI_BUTTON,0,DY-3,0,DY-3,0,DIF_CENTERGROUP,MSG(MCancel),
 			};
 			MakeDialogItemsEx(ChDiskData,ChDiskDlg);
-			Dialog Dlg(ChDiskDlg,ARRAYSIZE(ChDiskData));
+			Dialog Dlg(ChDiskDlg, ARRAYSIZE(ChDiskData), ChDiskDlgProc, 0);
 			Dlg.SetPosition(-1,-1,DX,DY);
 			Dlg.SetDialogMode(DMODE_WARNINGSTYLE);
 			Dlg.Process();
