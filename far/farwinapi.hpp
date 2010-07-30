@@ -279,6 +279,12 @@ BOOL apiCreateDirectory(
     LPSECURITY_ATTRIBUTES lpSecurityAttributes
 );
 
+BOOL apiCreateDirectoryEx(
+    LPCWSTR TemplateDirectory,
+    LPCWSTR NewDirectory,
+    LPSECURITY_ATTRIBUTES SecurityAttributes
+);
+
 DWORD apiGetFileAttributes(
     LPCWSTR lpFileName
 );

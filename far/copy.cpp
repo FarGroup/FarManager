@@ -2052,9 +2052,6 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 			        )
 			   )
 			{
-				// Признак, по которому в дальнейшем узнаем: было копирование одного пустого
-				// каталога при включенном фильтре или было копирование каталога с содержимым.
-				int TryToCopyTree=FALSE,FilesInDir=0;
 				int SubCopyCode;
 				string strSubName;
 				string strFullName;
@@ -2070,37 +2067,6 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 
 				while (ScTree.GetNextName(&SrcData,strFullName))
 				{
-					// Была попытка скопировать каталог с содержимым при включенном фильтре
-					TryToCopyTree=TRUE;
-
-					/* 23.04.2005 KM
-					   Находясь в фильтре каталоги не копируем, ибо скопируешь его, а файл
-					   из-за действия фильтра не скопируется и получится, что у нас останется
-					   пустой и никому не нужный каталог. А создавать каталоги будем в ShellCopyOneFile,
-					   вырезанием пути из имени попавшего в фильтр файла.
-					*/
-					if (UseFilter && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-					{
-						// Просто пропустить каталог недостаточно - если каталог помечен в
-						// фильтре как некопируемый, то следует пропускать и его и всё его
-						// содержимое.
-						if (!Filter->FileInFilter(&SrcData))
-						{
-							ScTree.SkipDir();
-							continue;
-						}
-						else
-						{
-							// Из-за этих пропусков при Move полностью скопированный каталог не
-							// удаляется обычным методом, а пустые каталоги не копируются даже
-							// в случае когда фильтр это разрешает
-							if (!(Flags&FCOPY_MOVE) || (!UseFilter && SameDisk) || !ScTree.IsDirSearchDone())
-								continue;
-
-							if (FilesInDir) goto remove_moved_directory;
-						}
-					}
-
 					{
 						int AttemptToMove=FALSE;
 
@@ -2129,7 +2095,6 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 								}
 								case COPY_SUCCESS_MOVE:
 								{
-									FilesInDir++;
 									continue;
 								}
 								case COPY_SUCCESS:
@@ -2139,7 +2104,6 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 										unsigned __int64 CurSize = SrcData.nFileSize;
 										TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
 										TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
-										FilesInDir++;
 										continue;     // ...  т.к. мы ЭТО не мувили, а скопировали, то все, на этом закончим бадаться с этим файлов
 									}
 							}
@@ -2184,8 +2148,6 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 									if (SrcData.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
 										apiSetFileAttributes(strFullName,FILE_ATTRIBUTE_NORMAL);
 
-remove_moved_directory:
-
 									if (apiRemoveDirectory(strFullName))
 										TreeList::DelTreeName(strFullName);
 								}
@@ -2198,8 +2160,6 @@ remove_moved_directory:
 									return COPY_CANCEL;
 							}
 						}
-
-						FilesInDir++;
 					}
 				}
 
@@ -2215,17 +2175,6 @@ remove_moved_directory:
 						if (!strDestDizPath.IsEmpty())
 							SrcPanel->DeleteDiz(strSelName,strSelShortName);
 					}
-				}
-
-				/* $ 23.04.2005 KM
-				   Была проведена попытка копирования каталога с содержимым при
-				   включенном фильтре, но не было скопировано ни одного файла,
-				   поэтому удалим SelName в каталоге-приёмнике.
-				*/
-				if (UseFilter && TryToCopyTree && !FilesInDir)
-				{
-					strDestPath = strSelName;
-					apiRemoveDirectory(strDestPath);
 				}
 			}
 			else if ((Flags&FCOPY_MOVE) && CopyCode==COPY_SUCCESS)
@@ -2340,76 +2289,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 			if (IsSlash(*PathPtr))
 				PathPtr++;
-
-			/* $ 23.04.2005 KM
-			    Поскольку находясь в фильтре приходится пропускать копирование каталогов,
-			    чтобы не плодить пустые каталоги из-за непопавших в фильтр файлов,
-			    то создание каталога будем производить при копировании файла, попавшего
-			    в фильтр, а для этого возьмём атрибуты копируемого каталога и установим
-			    их на создаваемый каталог.
-			*/
-			if (UseFilter)
-			{
-				string strOldPath, strNewPath;
-				const wchar_t *path=PathPtr,*p1=nullptr;
-
-				while ((p1=FirstSlash(path)))
-				{
-					DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
-					FAR_FIND_DATA_EX FileData;
-					strOldPath = Src;
-					strOldPath.SetLength(p1-Src);
-					apiGetFindDataEx(strOldPath,FileData);
-					FileAttr=FileData.dwFileAttributes;
-					// Создадим имя каталога, который теперь нужно создать, если конечно его ещё нет
-					strNewPath = strDestPath+string(PathPtr,p1 - PathPtr);
-
-					// Такого каталога ещё нет, создадим его
-					if (!apiGetFindDataEx(strNewPath,FileData))
-					{
-						int CopySecurity = Flags&FCOPY_COPYSECURITY;
-						SECURITY_ATTRIBUTES sa;
-
-						if ((CopySecurity) && !GetSecurity(strOldPath,sa))
-							CopySecurity = FALSE;
-
-						// Собственно создание каталога
-						if (apiCreateDirectory(strNewPath,CopySecurity?&sa:nullptr))
-						{
-							// Нормально, создали каталог
-							if (FileAttr!=INVALID_FILE_ATTRIBUTES)
-								// Теперь установим атрибуты. Взаимоисключающие атрибуты не проверяем
-								// ибо эти атрибуты "живые", то есть получены у реального каталога
-								ShellSetAttr(strNewPath,FileAttr);
-						}
-						else
-						{
-							// Ай-ай-ай. Каталог не смогли создать! Значит будем ругаться!
-							int MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
-							                MSG(MCopyCannotCreateFolder),strNewPath,MSG(MCopyRetry),
-							                MSG(MCopySkip),MSG(MCopyCancel));
-
-							if (MsgCode)
-							{
-								// Ну что ж, раз дали отмену или пропуск создания каталога, выходим отсюда
-								return((MsgCode==-2 || MsgCode==2) ? COPY_CANCEL:COPY_NEXT);
-							}
-
-							// Сказали хотим продолжить попытку создания каталога. Ну тогда в добрый путь
-							continue;
-						}
-					}
-
-					// Мы стоим на слэше
-					if (IsSlash(*p1))
-						p1++;
-
-					// Возьмём следующий адрес в имени каталога за слэшем,
-					// для того чтобы проверить и, возможно, создать следующий каталог,
-					// находящийся в копируемом имени файла.
-					path=p1;
-				}
-			}
 
 			strDestPath += PathPtr;
 
@@ -2552,7 +2431,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 			if (RPT!=RP_SYMLINKFILE && SrcData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
 			{
-				while (!apiCreateDirectory(strDestPath,(Flags&FCOPY_COPYSECURITY) ? &sa:nullptr))
+				while (!apiCreateDirectoryEx(Src,strDestPath,(Flags&FCOPY_COPYSECURITY) ? &sa:nullptr))
 				{
 					int MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
 					                MSG(MCopyCannotCreateFolder),strDestPath,MSG(MCopyRetry),

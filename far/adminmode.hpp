@@ -43,7 +43,7 @@ enum ELEVATION_MODE
 enum ADMIN_COMMAND
 {
 	C_SERVICE_EXIT,
-	C_FUNCTION_CREATEDIRECTORY,
+	C_FUNCTION_CREATEDIRECTORYEX,
 	C_FUNCTION_REMOVEDIRECTORY,
 	C_FUNCTION_DELETEFILE,
 	C_FUNCTION_COPYFILEEX,
@@ -81,7 +81,7 @@ public:
 	void ResetApprove();
 	bool Elevated(){return Elevation;}
 
-	bool fCreateDirectory(LPCWSTR Object, LPSECURITY_ATTRIBUTES Attributes);
+	bool fCreateDirectoryEx(LPCWSTR TemplateObject, LPCWSTR Object, LPSECURITY_ATTRIBUTES Attributes);
 	bool fRemoveDirectory(LPCWSTR Object);
 	bool fDeleteFile(LPCWSTR Object);
 	void fCallbackRoutine() const;

@@ -439,7 +439,7 @@ bool AdminMode::AdminApproveDlg(int Why, LPCWSTR Object)
 	return Approve;
 }
 
-bool AdminMode::fCreateDirectory(LPCWSTR Object, LPSECURITY_ATTRIBUTES Attributes)
+bool AdminMode::fCreateDirectoryEx(LPCWSTR TemplateObject, LPCWSTR Object, LPSECURITY_ATTRIBUTES Attributes)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -448,23 +448,26 @@ bool AdminMode::fCreateDirectory(LPCWSTR Object, LPSECURITY_ATTRIBUTES Attribute
 		if(Opt.IsUserAdmin)
 		{
 			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
-			Result = CreateDirectory(Object, Attributes) != FALSE;
+			Result = TemplateObject?CreateDirectoryEx(TemplateObject, Object, Attributes):CreateDirectory(Object, Attributes) != FALSE;
 		}
 		else
 		{
 			if(Initialize())
 			{
-				if(SendCommand(C_FUNCTION_CREATEDIRECTORY))
+				if(SendCommand(C_FUNCTION_CREATEDIRECTORYEX))
 				{
-					if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
+					if(WriteData(TemplateObject,TemplateObject?(StrLength(TemplateObject)+1)*sizeof(WCHAR):0))
 					{
-						// BUGBUG: SecurityAttributes ignored
-						int OpResult=0;
-						if(ReadInt(OpResult))
+						if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
 						{
-							if(ReceiveLastError())
+							// BUGBUG: SecurityAttributes ignored
+							int OpResult=0;
+							if(ReadInt(OpResult))
 							{
-								Result = OpResult != 0;
+								if(ReceiveLastError())
+								{
+									Result = OpResult != 0;
+								}
 							}
 						}
 					}
@@ -1601,17 +1604,22 @@ DWORD WINAPI AdminCopyProgressRoutine(LARGE_INTEGER TotalFileSize, LARGE_INTEGER
 	return Result;
 }
 
-void CreateDirectoryHandler()
+void CreateDirectoryExHandler()
 {
-	AutoObject Object;
-	if(ReadPipeData(Pipe, Object))
+	MessageBox(0,0,0,0);
+	AutoObject TemplateObject;
+	if(ReadPipeData(Pipe, TemplateObject))
 	{
-		// BUGBUG, SecurityAttributes ignored
-		int Result = CreateDirectory(Object.GetStr(), nullptr);
-		int LastError = GetLastError();
-		if(WritePipeInt(Pipe, Result))
+		AutoObject Object;
+		if(ReadPipeData(Pipe, Object))
 		{
-			WritePipeInt(Pipe, LastError);
+			// BUGBUG, SecurityAttributes ignored
+			int Result = TemplateObject.GetStr()?CreateDirectoryEx(TemplateObject.GetStr(), Object.GetStr(), nullptr):CreateDirectory(Object.GetStr(), nullptr);
+			int LastError = GetLastError();
+			if(WritePipeInt(Pipe, Result))
+			{
+				WritePipeInt(Pipe, LastError);
+			}
 		}
 	}
 }
@@ -2174,8 +2182,8 @@ bool Process(int Command)
 		Exit = true;
 		break;
 
-	case C_FUNCTION_CREATEDIRECTORY:
-		CreateDirectoryHandler();
+	case C_FUNCTION_CREATEDIRECTORYEX:
+		CreateDirectoryExHandler();
 		break;
 
 	case C_FUNCTION_REMOVEDIRECTORY:

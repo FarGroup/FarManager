@@ -738,11 +738,17 @@ BOOL apiFindNextFileName(HANDLE hFindStream,string& strLinkName)
 
 BOOL apiCreateDirectory(LPCWSTR lpPathName,LPSECURITY_ATTRIBUTES lpSecurityAttributes)
 {
-	string strNtName(NTPath(lpPathName).Str);
-	BOOL Result = CreateDirectory(strNtName,lpSecurityAttributes);
+	return apiCreateDirectoryEx(nullptr, lpPathName, lpSecurityAttributes);
+}
+
+BOOL apiCreateDirectoryEx(LPCWSTR TemplateDirectory, LPCWSTR NewDirectory, LPSECURITY_ATTRIBUTES SecurityAttributes)
+{
+	string strNtTemplateDirectory(NTPath(TemplateDirectory).Str);
+	string strNtNewDirectory(NTPath(NewDirectory).Str);
+	BOOL Result = TemplateDirectory?CreateDirectoryEx(strNtTemplateDirectory, strNtNewDirectory, SecurityAttributes):CreateDirectory(strNtNewDirectory, SecurityAttributes);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
-		Result = Admin.fCreateDirectory(strNtName,lpSecurityAttributes);
+		Result = Admin.fCreateDirectoryEx(TemplateDirectory?strNtTemplateDirectory.CPtr():nullptr, strNtNewDirectory, SecurityAttributes);
 	}
 	return Result;
 }
