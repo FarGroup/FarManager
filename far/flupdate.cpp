@@ -597,7 +597,14 @@ void FileList::CloseChangeNotification()
 {
 	if (hListChange!=INVALID_HANDLE_VALUE)
 	{
-		FindCloseChangeNotification(hListChange);
+		DWORD nTID;
+		HANDLE hCloseThread = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)FindCloseChangeNotification, hListChange, 0, &nTID);
+
+		if (hCloseThread)
+			CloseHandle(hCloseThread);
+		else
+			FindCloseChangeNotification(hListChange);
+
 		hListChange=INVALID_HANDLE_VALUE;
 	}
 }

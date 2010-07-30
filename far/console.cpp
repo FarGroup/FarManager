@@ -268,7 +268,7 @@ bool console::WriteInput(INPUT_RECORD& Buffer, DWORD Length, DWORD& NumberOfEven
 }
 
 // пишем/читаем порциями по 32 K, иначе проблемы.
-const int MAXSIZE=0x8000;
+const unsigned int MAXSIZE=0x8000;
 
 bool console::ReadOutput(CHAR_INFO& Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& ReadRegion)
 {
