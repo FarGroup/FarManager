@@ -448,7 +448,7 @@ bool AdminMode::fCreateDirectoryEx(LPCWSTR TemplateObject, LPCWSTR Object, LPSEC
 		if(Opt.IsUserAdmin)
 		{
 			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
-			Result = TemplateObject?CreateDirectoryEx(TemplateObject, Object, Attributes):CreateDirectory(Object, Attributes) != FALSE;
+      Result = (TemplateObject?CreateDirectoryEx(TemplateObject, Object, Attributes):CreateDirectory(Object, Attributes)) != FALSE;
 		}
 		else
 		{
