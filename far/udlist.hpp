@@ -52,6 +52,7 @@ enum UDL_FLAGS
 	ULF_SORT           =0x00000020, // отсортировать (с учетом регистра)
 	ULF_NOTTRIM        =0x00000040, // не удалять пробелы
 	ULF_NOTUNQUOTES    =0x00000080, // не раскавычивать
+	ULF_ACCOUNTEMPTYLINE=0x00000100, // учитывать пустые "строки"
 };
 
 
@@ -76,6 +77,7 @@ class UserDefinedList : private NonCopyable
 		unsigned int CurrentItem;
 		WORD Separator1, Separator2;
 		bool ProcessBrackets, AddAsterisk, PackAsterisks, Unique, Sort, IsTrim, IsUnQuotes;
+		bool AccountEmptyLine;
 
 	private:
 		bool CheckSeparators() const; // проверка разделителей на корректность

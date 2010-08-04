@@ -159,7 +159,7 @@ bool UserDefinedList::SetParameters(WORD separator1, WORD separator2,
 	Sort=(Flags & ULF_SORT)?true:false;
 	IsTrim=(Flags & ULF_NOTTRIM)?false:true;
 	IsUnQuotes=(Flags & ULF_NOTUNQUOTES)?false:true;
-
+	AccountEmptyLine=(Flags & ULF_ACCOUNTEMPTYLINE)?true:false;
 
 	if (!Separator1 && Separator2)
 	{
@@ -272,7 +272,10 @@ bool UserDefinedList::Set(const wchar_t *List, bool AddToList)
 					CurList+=RealLength;
 				}
 				else
-					Error=true;
+				{
+					if (!AccountEmptyLine)
+						Error=true;
+				}
 
 				++item.index;
 			}

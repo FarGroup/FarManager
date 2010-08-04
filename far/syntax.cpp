@@ -223,6 +223,13 @@ static void keyMacroParseError(int err, const wchar_t *s, const wchar_t *p, cons
 	if (!_macro_nErr++)
 	{
 		_macro_ErrCode=err;
+
+		while (*s && iswspace(*s))
+		{
+			// TODO: здесь нужно развернуть табуляции на заданное (чем?) количество пробелов
+			s++;
+		}
+
 		int oPos = 0, ePos = (int)(s-p);
 		ErrMessage[0]=ErrMessage[1]=ErrMessage[2]=ErrMessage[3]=L"";
 
@@ -1517,7 +1524,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 	bool useUDL=true;
 	const wchar_t *NewBufPtr;
 
-	UserDefinedList MacroSrcList(L'\n',L'\r',ULF_NOTTRIM|ULF_NOTUNQUOTES);
+	UserDefinedList MacroSrcList(L'\n',L'\r',ULF_NOTTRIM|ULF_NOTUNQUOTES|ULF_ACCOUNTEMPTYLINE);
 	if(!MacroSrcList.Set(BufPtr))
 		useUDL=false; // все в одну строку!
 
