@@ -6,7 +6,6 @@ CtrlDel.reg Ctrl-Del removes selected editor block
 CtrlF10.reg Quit from editor/viewer and position to the current file
 descript.ion File descriptions
 Dialog.AltDown.reg Open combobox and history list (as Ctrl-Down pressed)
-Edit.Notepad.reg Editor: like Notepad
 Edit.SaveAndExit.reg Editor: Save File and Exit
 Edit.SaveFile.reg Editor: Save File
 F3.reg Use internal editor as viewer
@@ -40,3 +39,5 @@ View.PgDn.reg Viewer: PgDn at the end of file works as in Far Manager 1.70 beta 
 View.ShiftInsSearch.reg Viewer: Use Shift-Ins to search text from clipboard in internal viewer
 View.Space.reg Viewer: Use Space for listing in the viewer (like in Outlook Express or The Bat!)
 WheelScreenSwitch.reg Use Shift-MsWheel to switch between screens
+Edit.Notepad.2.reg Editor: like Notepad (Far 2.x)
+Edit.Notepad.reg Editor: like Notepad (Far 1.7x)
