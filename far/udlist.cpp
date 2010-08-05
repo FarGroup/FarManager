@@ -273,7 +273,7 @@ bool UserDefinedList::Set(const wchar_t *List, bool AddToList)
 				}
 				else
 				{
-					if (!AccountEmptyLine)
+					if (!AccountEmptyLine || (AccountEmptyLine && CurList==List && !item.index))
 						Error=true;
 				}
 
