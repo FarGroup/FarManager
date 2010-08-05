@@ -339,6 +339,8 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 {
 	ifn.Load();
 
+	GetVersionEx(&WinVer);
+
 	if (apiGetModuleFileName(nullptr, g_strFarModuleName))
 	{
 		ConvertNameToLong(g_strFarModuleName, g_strFarModuleName);
@@ -366,8 +368,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	int StartLine=-1,StartChar=-1;
 	bool RestoreConsole=false;
 	int CntDestName=0; // количество параметров-имен каталогов
-	WinVer.dwOSVersionInfoSize=sizeof(WinVer);
-	GetVersionEx(&WinVer);
 	/*$ 18.04.2002 SKV
 	  Попользуем floating point что бы проинициализировался vc-ный fprtl.
 	*/

@@ -357,7 +357,8 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 				}
 
 				File MenuFile;
-				if (MenuFile.Open(strMenuFileFullPath,GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS))
+				// Don't use CreationDisposition=CREATE_ALWAYS here - it's kills alternate streams
+				if (MenuFile.Open(strMenuFileFullPath,GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr==INVALID_FILE_ATTRIBUTES?CREATE_NEW:TRUNCATE_EXISTING))
 				{
 					CachedWrite CW(MenuFile);
 					WCHAR Data = SIGN_UNICODE;
@@ -373,7 +374,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 					{
 						apiDeleteFile(strMenuFileFullPath);
 					}
-					else
+					else if (FileAttr!=INVALID_FILE_ATTRIBUTES)
 					{
 						apiSetFileAttributes(strMenuFileFullPath,FileAttr);
 					}

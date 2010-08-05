@@ -1825,7 +1825,8 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 		CtrlObject->Plugins.ProcessEditorEvent(EE_SAVE,nullptr);
 		File EditFile;
 		DWORD dwWritten=0;
-		if(!EditFile.Open(Name, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN))
+		// Don't use CreationDisposition=CREATE_ALWAYS here - it's kills alternate streams
+		if(!EditFile.Open(Name, GENERIC_WRITE, FILE_SHARE_READ, nullptr, Flags.Check(FFILEEDIT_NEW)?CREATE_NEW:TRUNCATE_EXISTING, FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN))
 		{
 			//_SVS(SysLogLastError();SysLog(L"Name='%s',FileAttributes=%d",Name,FileAttributes));
 			RetCode=SAVEFILE_ERROR;

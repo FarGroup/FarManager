@@ -2035,7 +2035,10 @@ LONG_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 					Result = FALSE;
 				}
 			}
-			StopEvent.Set();
+			if(Result)
+			{
+				StopEvent.Set();
+			}
 			return Result;
 		}
 		break;
@@ -2129,6 +2132,7 @@ void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& 
 		SendDlgMessage(hDlg, DM_ENABLE, FD_BUTTON_GOTO, TRUE);
 		SendDlgMessage(hDlg, DM_ENABLE, FD_BUTTON_VIEW, TRUE);
 		SendDlgMessage(hDlg, DM_ENABLE, FD_BUTTON_PANEL, TRUE);
+		SendDlgMessage(hDlg, DM_ENABLE, FD_LISTBOX, TRUE);
 	}
 
 	MenuItemEx ListItem = {};
@@ -2838,7 +2842,7 @@ bool FindFilesProcess(Vars& v)
 	DialogDataEx FindDlgData[]=
 	{
 		DI_DOUBLEBOX,3,1,DlgWidth-4,DlgHeight-2,0,DIF_SHOWAMPERSAND,strTitle,
-		DI_LISTBOX,4,2,DlgWidth-5,DlgHeight-7,0,DIF_LISTNOBOX,0,
+		DI_LISTBOX,4,2,DlgWidth-5,DlgHeight-7,0,DIF_LISTNOBOX|DIF_DISABLE,0,
 		DI_TEXT,0,DlgHeight-6,0,DlgHeight-6,0,DIF_SEPARATOR2,L"",
 		DI_TEXT,5,DlgHeight-5,DlgWidth-(strFindStr.IsEmpty()?6:12),DlgHeight-5,0,DIF_SHOWAMPERSAND,strSearchStr,
 		DI_TEXT,DlgWidth-9,DlgHeight-5,DlgWidth-6,DlgHeight-5,0,(strFindStr.IsEmpty()?DIF_HIDDEN:0),L"",

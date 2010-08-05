@@ -884,7 +884,7 @@ int AdminMode::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 	return Result;
 }
 
-HANDLE AdminMode::fFindFirstFile(LPCWSTR Object, PWIN32_FIND_DATA W32FindData)
+HANDLE AdminMode::fFindFirstFileEx(LPCWSTR Object, FINDEX_INFO_LEVELS InfoLevelId, LPVOID FindFileData, FINDEX_SEARCH_OPS SearchOp, LPVOID lpSearchFilter, DWORD AdditionalFlags)
 {
 	CriticalSectionLock Lock(CS);
 	HANDLE Result=INVALID_HANDLE_VALUE;
@@ -893,28 +893,39 @@ HANDLE AdminMode::fFindFirstFile(LPCWSTR Object, PWIN32_FIND_DATA W32FindData)
 		if(Opt.IsUserAdmin)
 		{
 			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
-			Result = FindFirstFile(Object, W32FindData);
+			Result = FindFirstFileEx(Object, InfoLevelId, FindFileData, SearchOp, lpSearchFilter, AdditionalFlags);
 		}
 		else
 		{
 			if(Initialize())
 			{
-				if(SendCommand(C_FUNCTION_FINDFIRSTFILE))
+				if(SendCommand(C_FUNCTION_FINDFIRSTFILEEX))
 				{
 					if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
 					{
-						AutoObject OpResult;
-						if(ReadData(OpResult))
+						if(WriteInt(InfoLevelId))
 						{
-							AutoObject FindData;
-							if(ReadData(FindData))
+							if(WriteInt(SearchOp))
 							{
-								if(ReceiveLastError())
+								// BUGBUG: SearchFilter ignored
+								if(WriteInt(AdditionalFlags))
 								{
-									Result = *reinterpret_cast<PHANDLE>(OpResult.Get());
-									if(Result!=INVALID_HANDLE_VALUE && W32FindData)
+									AutoObject OpResult;
+									if(ReadData(OpResult))
 									{
-										*W32FindData = *reinterpret_cast<PWIN32_FIND_DATA>(FindData.Get());
+										AutoObject FindData;
+										if(ReadData(FindData))
+										{
+											if(ReceiveLastError())
+											{
+												Result = *reinterpret_cast<PHANDLE>(OpResult.Get());
+												if(Result!=INVALID_HANDLE_VALUE && FindFileData)
+												{
+													// BUGBUG: check InfoLevelId
+													*reinterpret_cast<PWIN32_FIND_DATA>(FindFileData) = *reinterpret_cast<PWIN32_FIND_DATA>(FindData.Get());
+												}
+											}
+										}
 									}
 								}
 							}
@@ -1801,19 +1812,33 @@ void MoveToRecycleBinHandler()
 	}
 }
 
-void FindFirstFileHandler()
+void FindFirstFileExHandler()
 {
 	AutoObject Object;
 	if(ReadPipeData(Pipe, Object))
 	{
-		WIN32_FIND_DATA W32FindData;
-		HANDLE Result = FindFirstFile(Object.GetStr(), &W32FindData);
-		int LastError = GetLastError();
-		if(WritePipeData(Pipe, &Result, sizeof(Result)))
+		int InfoLevelId;
+		if(ReadPipeInt(Pipe, InfoLevelId))
 		{
-			if(WritePipeData(Pipe, &W32FindData, sizeof(WIN32_FIND_DATA)))
+			int SearchOp;
+			if(ReadPipeInt(Pipe, SearchOp))
 			{
-				WritePipeInt(Pipe, LastError);
+				int AdditionalFlags;
+				if(ReadPipeInt(Pipe, AdditionalFlags))
+				{
+					//BUGBUG: Check InfoLevelId
+					//BUGBUG: SearchFilter ignored
+					WIN32_FIND_DATA W32FindData;
+					HANDLE Result = FindFirstFileEx(Object.GetStr(), static_cast<FINDEX_INFO_LEVELS>(InfoLevelId), &W32FindData, static_cast<FINDEX_SEARCH_OPS>(SearchOp), nullptr, AdditionalFlags);
+					int LastError = GetLastError();
+					if(WritePipeData(Pipe, &Result, sizeof(Result)))
+					{
+						if(WritePipeData(Pipe, &W32FindData, sizeof(WIN32_FIND_DATA)))
+						{
+							WritePipeInt(Pipe, LastError);
+						}
+					}
+				}
 			}
 		}
 	}
@@ -2222,8 +2247,8 @@ bool Process(int Command)
 		MoveToRecycleBinHandler();
 		break;
 
-	case C_FUNCTION_FINDFIRSTFILE:
-		FindFirstFileHandler();
+	case C_FUNCTION_FINDFIRSTFILEEX:
+		FindFirstFileExHandler();
 		break;
 
 	case C_FUNCTION_FINDNEXTFILE:

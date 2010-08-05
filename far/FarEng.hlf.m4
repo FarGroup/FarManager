@@ -2007,10 +2007,8 @@ Bin can be performed only for local hard disks.
   #Use system copy routine#
   Use the file copy functions provided by the operating system instead of internal
 file copy implementation. It may be useful on NTFS, because the system function
-(CopyFileEx) performs a more rational disk space allocation and copies file extended
-attributes. On the other hand, when using the system function, the possibility to
-split files when ~copying~@CopyFiles@ or moving is not
-available.
+(CopyFileEx) copies file extended attributes. On the other hand, when using the system
+function, the possibility to split files when ~copying~@CopyFiles@ or moving is not available.
 
   #Copy files opened for writing#
   Allows to copy files that are opened by other programs for writing. This mode

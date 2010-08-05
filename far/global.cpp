@@ -43,7 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "bootstrap/farversion.inc"
 
-OSVERSIONINFO WinVer={0};
+OSVERSIONINFO WinVer={sizeof(WinVer)};
 
 // идет процесс назначения клавиши в макросе?
 BOOL IsProcessAssignMacroKey=FALSE;

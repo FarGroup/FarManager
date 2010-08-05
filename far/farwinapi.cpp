@@ -46,8 +46,20 @@ FindFile::FindFile(LPCWSTR Object, bool ScanSymLink):
 	empty(false),
 	admin(false)
 {
+	FINDEX_INFO_LEVELS InfoLevel = FindExInfoStandard;
+	FINDEX_SEARCH_OPS SearchOpt = FindExSearchNameMatch;
+	DWORD AdditionalFlags = 0;
+
+	if(WinVer.dwMajorVersion>6 || (WinVer.dwMajorVersion==6 && WinVer.dwMinorVersion>0))
+	{
+		// Uses a larger buffer for directory queries, which can increase performance of the find operation.
+		// Not supported until Windows Server 2008 R2 and Windows 7.
+		AdditionalFlags = FIND_FIRST_EX_LARGE_FETCH;
+
+		// fil = FindExInfoBasic; // does not query the short file name, improving overall enumeration speed.
+	}
 	string strName(NTPath(Object).Str);
-	Handle = FindFirstFile(strName, &W32FindData);
+	Handle = FindFirstFileEx(strName, InfoLevel, &W32FindData, SearchOpt, nullptr, AdditionalFlags);
 
 	if (Handle == INVALID_HANDLE_VALUE && ElevationRequired(ELEVATION_READ_REQUEST))
 	{
@@ -56,12 +68,12 @@ FindFile::FindFile(LPCWSTR Object, bool ScanSymLink):
 			string strReal;
 			ConvertNameToReal(strName, strReal);
 			strReal = NTPath(strReal);
-			Handle = FindFirstFile(strReal, &W32FindData);
+			Handle = FindFirstFileEx(strReal, InfoLevel, &W32FindData, SearchOpt, nullptr, AdditionalFlags);
 		}
 
 		if (Handle == INVALID_HANDLE_VALUE && ElevationRequired(ELEVATION_READ_REQUEST))
 		{
-			Handle = Admin.fFindFirstFile(strName, &W32FindData);
+			Handle = Admin.fFindFirstFileEx(strName, InfoLevel, &W32FindData, SearchOpt, nullptr, AdditionalFlags);
 			admin = Handle != INVALID_HANDLE_VALUE;
 		}
 	}
