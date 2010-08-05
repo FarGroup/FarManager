@@ -3,11 +3,34 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 05.08.2010 23:30:53 +0200 - build 1638
+
+1. Correction of 1633.2.
+
+svs 05.08.2010 15:50:06 +0300 - build 1637
+
+1. Mantis#0001451: Oddities with MCMD_CHECKMACRO
+   Hang at start for an "empty" macro:
+     "Sequence"="\"\""
+
+drkns 05.08.2010 14:15:16 +0200 - build 1636
+
+1. When < saving a file at the built-in editor | description file refreshing | local menu editing > alternative data streams are not lost.
+
+2. Mantis#0001443: Inconvenient reaction to mouse click in a search window.
+
+3. FindFirstFile -> FindFirstFileEx. In Windows 7/2008 R2, folder view speedup is possible.
+
+svs 04.08.2010 11:45:04 +0300 - build 1635
+
+1. Mantis#0001451: Oddities with MCMD_CHECKMACRO
+   Additions to UserDefinedList.
+
 yjh 31.07.2010 07:09:58 +0300 - build 1634
 
 1. I don't know who's "fixed" BOOL to bool casting diagnostics after
-   a ternary operation, but, as a results, both diagnostics has been left and
-   the result has been malfunctional.
+   a ternary operation, but, as a result, both diagnostics has been left and
+   the resulting construction has been malfunctional.
 
 drkns 30.07.2010 23:47:23 +0200 - build 1633
 
