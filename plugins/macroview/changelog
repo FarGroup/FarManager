@@ -1,3 +1,10 @@
+svs 05.08.2010 23:19:54 +0300 - build 27
+
+1. Mantins#0001453: MacroView портит макросы, записанные как REG_MULTI_SZ
+   from Maximus (частично; с моим уточнением)
+
+2. Корректная запись в формате REG_MULTI_SZ.
+
 svs 16.07.2010 16:31:34 +0300 - build 26
 
 1. Удаление из хелпа $Date, $MMode, IClip, $IClip, DisableOutput

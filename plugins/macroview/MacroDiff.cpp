@@ -3056,27 +3056,31 @@ void TMacroView::WriteRegValues(FarDialogItem *DialogItems
 #endif
                                )
 {
-	if (MacroData)
+	const TCHAR *Src=MacroData?MacroData:GetDataPtr(8);
+
+	if (MultiLine)
 	{
-		if (MultiLine)
+		int LenMacroData=lstrlen(Src)+2;
+		TCHAR *NewMacroData=new TCHAR[LenMacroData];
+
+		if (NewMacroData)
 		{
-			//BUGBUG Reg->PutData(_T("Sequence"),MacroData,,rdMultiString);
-		}
-		else
-		{
-			Reg->WriteString(_T("Sequence"),MacroData);
-		}
+			lstrcpy(NewMacroData,Src);
+
+			for (int J=0; NewMacroData[J]; ++J)
+				if (NewMacroData[J] == _T('\n'))
+					NewMacroData[J]=0;
+
+			NewMacroData[LenMacroData-1]=0;
+
+			Reg->PutData(_T("Sequence"),(const BYTE*)NewMacroData,LenMacroData*sizeof(TCHAR),rdMultiString);
+
+			delete[] NewMacroData;
+    	}
 	}
 	else
-	{
-		Reg->WriteString(_T("Sequence"),GetDataPtr(8));
-	}
+		Reg->WriteString(_T("Sequence"),Src);
 
-	Reg->WriteString(_T("Sequence"),
-#ifndef UNICODE
-	                 (MacroData)?MacroData :
-#endif
-	                 GetDataPtr(8));
 
 	if (GetDataPtr(10)[0])
 		Reg->WriteString(_T("Description"),GetDataPtr(10));
@@ -3730,20 +3734,28 @@ BOOL __fastcall TMacroView::EditMacro()
 						TRegDataType Type;
 						int nSize=Reg->GetData(S,MacroData,DATASIZE,Type);
 
-						if (nSize>0)
+						if (nSize > 0)
 						{
-							if (Type==rdMultiString)
+							if (Type == rdMultiString)
+							{
 								// ћакрос в реестре с типом многострочный
 								MultiLine=TRUE;
+
+								int nLen=(nSize/sizeof(TCHAR))-1;
+								for (int J=0; J < nLen; J++)
+								{
+									if (!MacroData[J])
+									{
+										if (!MacroData[J+1])
+											break;
+										MacroData[J]=_T('\n');
+									}
+								}
+							}
 						}
 						else
 							MacroData[0]=0;
 
-						/*if (Type==rdMultiString)
-						{
-						}
-						else
-						  Reg->ReadString(S,MacroData,DATASIZE);*/
 					}
 					else
 					{
