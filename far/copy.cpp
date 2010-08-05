@@ -2067,6 +2067,17 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 
 				while (ScTree.GetNextName(&SrcData,strFullName))
 				{
+					if (UseFilter && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+					{
+						// ѕросто пропустить каталог недостаточно - если каталог помечен в
+						// фильтре как некопируемый, то следует пропускать и его и всЄ его
+						// содержимое.
+						if (!Filter->FileInFilter(&SrcData))
+						{
+							ScTree.SkipDir();
+							continue;
+						}
+					}
 					{
 						int AttemptToMove=FALSE;
 
