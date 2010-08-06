@@ -3179,6 +3179,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 			{
 				_localLastError=GetLastError();
 				SrcFile.Close();
+				DestFile.SetEnd();
 				DestFile.Close();
 				return COPY_FAILURE;
 			}
@@ -3200,7 +3201,6 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 		}
 	}
 
-//  int64 WrittenSize(0,0);
 	int   AbortOp = FALSE;
 	BOOL SparseQueryResult=TRUE;
 	FILE_ALLOCATED_RANGE_BUFFER queryrange;
@@ -3273,9 +3273,9 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 					if (Append)
 					{
 						DestFile.SetPointer(AppendPos,nullptr,FILE_BEGIN);
-						DestFile.SetEnd();
 					}
 
+					DestFile.SetEnd();
 					DestFile.Close();
 
 					if (!Append)
@@ -3305,9 +3305,9 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 						if (Append)
 						{
 							DestFile.SetPointer(AppendPos,nullptr,FILE_BEGIN);
-							DestFile.SetEnd();
 						}
 
+						DestFile.SetEnd();
 						DestFile.Close();
 
 						if (!Append)
@@ -3461,9 +3461,9 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 							if (Append)
 							{
 								DestFile.SetPointer(AppendPos,nullptr,FILE_BEGIN);
-								DestFile.SetEnd();
 							}
 
+							DestFile.SetEnd();
 							DestFile.Close();
 
 							if (!Append)
