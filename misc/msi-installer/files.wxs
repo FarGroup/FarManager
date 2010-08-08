@@ -322,9 +322,11 @@
           <Component Id="Panel.Numpad.reg" Guid="$(var.Guid.Panel.Numpad.reg)" Win64="$(var.Win64)">
             <File Id="Panel.Numpad.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Numpad.reg" />
           </Component>
+<?if $(var.Branch) = 2 ?>
           <Component Id="Panel.SelectFromClipboard.reg" Guid="$(var.Guid.Panel.SelectFromClipboard.reg)" Win64="$(var.Win64)">
             <File Id="Panel.SelectFromClipboard.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.SelectFromClipboard.reg" />
           </Component>
+<?endif?>
           <Component Id="Panel.SpaceToSelect.reg" Guid="$(var.Guid.Panel.SpaceToSelect.reg)" Win64="$(var.Win64)">
             <File Id="Panel.SpaceToSelect.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.SpaceToSelect.reg" />
           </Component>

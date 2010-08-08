@@ -104,7 +104,9 @@
           <ComponentRef Id="Panel.Lynx_mot.reg" />
           <ComponentRef Id="Panel.MouseWheelTilt.reg" />
           <ComponentRef Id="Panel.Numpad.reg" />
+<?if $(var.Branch) = 2 ?>
           <ComponentRef Id="Panel.SelectFromClipboard.reg" />
+<?endif?>
           <ComponentRef Id="Panel.SpaceToSelect.reg" />
           <ComponentRef Id="ShiftBS.reg" />
           <ComponentRef Id="ShiftF1.reg" />
