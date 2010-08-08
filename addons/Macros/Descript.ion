@@ -39,5 +39,4 @@ View.PgDn.reg Viewer: PgDn at the end of file works as in Far Manager 1.70 beta 
 View.ShiftInsSearch.reg Viewer: Use Shift-Ins to search text from clipboard in internal viewer
 View.Space.reg Viewer: Use Space for listing in the viewer (like in Outlook Express or The Bat!)
 WheelScreenSwitch.reg Use Shift-MsWheel to switch between screens
-Edit.Notepad.2.reg Editor: like Notepad (Far 2.x)
-Edit.Notepad.reg Editor: like Notepad (Far 1.7x)
+Edit.Notepad.reg Editor: like Notepad
