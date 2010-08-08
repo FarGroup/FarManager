@@ -33,7 +33,7 @@ plugins\common\convert.exe addons\Macros\OpeningLastFile.reg addons\Macros\Panel
 plugins\common\convert.exe addons\Macros\Panel.CtrlIns...reg addons\Macros\Panel.CtrlLeft.reg addons\Macros\Panel.CtrlQ.reg addons\Macros\Panel.CtrlRight.reg %1\Addons\Macros\
 plugins\common\convert.exe addons\Macros\Panel.CtrlShiftBackSlash.reg addons\Macros\Panel.CtrlShiftPgUpDn.reg addons\Macros\Panel.Del.reg addons\Macros\Panel.Esc.reg %1\Addons\Macros\
 plugins\common\convert.exe addons\Macros\Panel.JumpToSelectedFile.reg addons\Macros\Panel.Lynx-mot.reg addons\Macros\Panel.MouseWheelTilt.reg addons\Macros\Panel.Numpad.reg %1\Addons\Macros\
-plugins\common\convert.exe addons\Macros\Panel.SelectFromClipboard.reg addons\Macros\Panel.SpaceToSelect.reg addons\Macros\ShiftBS.reg addons\Macros\ShiftF1.reg %1\Addons\Macros\
+plugins\common\convert.exe addons\Macros\Panel.SpaceToSelect.reg addons\Macros\ShiftBS.reg addons\Macros\ShiftF1.reg %1\Addons\Macros\
 plugins\common\convert.exe addons\Macros\ShiftTab.reg addons\Macros\View.CtrlUpDown.reg addons\Macros\View.NextPrevFile.reg addons\Macros\View.PgDn.reg %1\Addons\Macros\
 plugins\common\convert.exe addons\Macros\View.ShiftInsSearch.reg addons\Macros\View.Space.reg addons\Macros\WheelScreenSwitch.reg addons\Macros\Descript.ion %1\Addons\Macros\
 
