@@ -13,6 +13,7 @@ cp docs/PluginSDK/Descript.ion docs/PluginSDK/GCCReadme.txt docs/PluginSDK/READM
 svn export http://localhost/svn/trunk/addons $1/Addons
 
 rm $1/Addons/XLat/Russian/Qwerty2.reg
+rm $1/Addons/Macros/Edit.Notepad.2.reg
 
 }
 
@@ -34,6 +35,7 @@ wine cmd /c docs.bat $1
 cp docs/ClearPluginsCache.cmd docs/RestoreSettings.cmd docs/SaveSettings.cmd $1/
 
 cp addons/XLat/Russian/Qwerty2.reg $1/Addons/XLat/Russian/Qwerty.reg
+cp addons/Macros/Edit.Notepad.2.reg $1/Macros/Edit.Notepad.reg
 
 }
 

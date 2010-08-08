@@ -27,7 +27,7 @@ plugins\common\convert.exe addons\Colors\Descript.ion addons\Colors\export_color
 plugins\common\convert.exe addons\README.TXT addons\Descript.ion %1\Addons\
 
 plugins\common\convert.exe addons\Macros\AltMenu.reg addons\Macros\AltScreens.reg addons\Macros\AltSearch.reg addons\Macros\AltX.reg addons\Macros\CtrlDel.reg %1\Addons\Macros\
-plugins\common\convert.exe addons\Macros\CtrlF10.reg addons\Macros\Dialog.AltDown.reg addons\Macros\Edit.Notepad.reg addons\Macros\Edit.SaveAndExit.reg %1\Addons\Macros\
+plugins\common\convert.exe addons\Macros\CtrlF10.reg addons\Macros\Dialog.AltDown.reg addons\Macros\Edit.SaveAndExit.reg %1\Addons\Macros\
 plugins\common\convert.exe addons\Macros\Edit.SaveFile.reg addons\Macros\F3.reg addons\Macros\F9DeactivateMenu.reg addons\Macros\F9Table.reg addons\Macros\MacroConsts.reg %1\Addons\Macros\
 plugins\common\convert.exe addons\Macros\OpeningLastFile.reg addons\Macros\Panel.AltBS.reg addons\Macros\Panel.Apps.reg addons\Macros\Panel.BS.reg %1\Addons\Macros\
 plugins\common\convert.exe addons\Macros\Panel.CtrlIns...reg addons\Macros\Panel.CtrlLeft.reg addons\Macros\Panel.CtrlQ.reg addons\Macros\Panel.CtrlRight.reg %1\Addons\Macros\
