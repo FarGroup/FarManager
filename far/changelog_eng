@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 09.08.2010 12:27:32 +0200 - build 1640
+
+1. Some code was left after debugging :)
+
 drkns 07.08.2010 00:20:54 +0200 - build 1639
 
 1. Mantis#0001455: Very long delay when cancelling copy to a network volume.
