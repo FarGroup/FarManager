@@ -586,8 +586,9 @@ bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd,enumFileInFilterType *foundTyp
 	bool bFolder=(fd->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0;
 	FileFilterParams *CurFilterData;
 	DWORD Flags;
+	unsigned int i;
 
-	for (unsigned int i=0; i<FilterData.getCount(); i++)
+	for (i=0; i<FilterData.getCount(); i++)
 	{
 		CurFilterData = FilterData.getItem(i);
 		Flags = CurFilterData->GetFlags(FFFT);
@@ -649,7 +650,7 @@ bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd,enumFileInFilterType *foundTyp
 	}
 
 	//авто-фильтры
-	for (unsigned int i=0; i<TempFilterData.getCount(); i++)
+	for (i=0; i<TempFilterData.getCount(); i++)
 	{
 		CurFilterData = TempFilterData.getItem(i);
 		Flags = CurFilterData->GetFlags(FFFT);

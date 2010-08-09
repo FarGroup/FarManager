@@ -244,14 +244,12 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
 int ConvertNameToFull(const char *Src,char *Dest, int DestSize)
 {
 	int Result = 0;
-//  char *FullName = (char *) alloca (DestSize+32);
-//  char *AnsiName = (char *) alloca (DestSize+32);
-	char *FullName = (char *) xf_malloc(DestSize+32);
+	char *FullName = (char *) xf_malloc(DestSize*2+1);
 
 	if (!FullName)
 		return Result;
 
-	char *AnsiName = (char *) xf_malloc(DestSize+32);
+	char *AnsiName = (char *) xf_malloc(DestSize*2+1);
 
 	if (!AnsiName)
 	{
@@ -261,7 +259,7 @@ int ConvertNameToFull(const char *Src,char *Dest, int DestSize)
 
 	*FullName = 0;
 	*AnsiName = 0;
-//  char FullName[NM],AnsiName[NM],
+
 	char *NamePtr=PointToName(const_cast<char *>(Src));
 	Result+=(int)strlen(Src);
 
@@ -304,9 +302,6 @@ int ConvertNameToFull(const char *Src,char *Dest, int DestSize)
 	SetFileApisTo(APIS2ANSI);
 	FAR_OemToCharBuff(Src,AnsiName,DestSize-1);
 
-	/* $ 08.11.2000 SVS
-	   Вместо DestSize использовался sizeof(FullName)...
-	*/
 	if (GetFullPathName(AnsiName,DestSize,FullName,&NamePtr))
 		FAR_CharToOemBuff(FullName,Dest,DestSize-1);
 	else
@@ -317,7 +312,6 @@ int ConvertNameToFull(const char *Src,char *Dest, int DestSize)
 	if (Src[0] == '/' && Src[1] == '/' && Dest[1] == ':' && Dest[3] == '\\')
 		memmove(Dest,Dest+2,strlen(Dest+2)+1);
 
-	/* SVS $*/
 	SetFileApisTo(APIS2OEM);
 	xf_free(AnsiName);
 	xf_free(FullName);

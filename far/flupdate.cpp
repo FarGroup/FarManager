@@ -767,6 +767,9 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 		FileCount++;
 	}
 
+	if (CurFile >= FileCount)
+		CurFile = FileCount ? FileCount-1 : 0;
+
 	/* $ 25.02.2001 VVM
 	    ! Не считывать повторно список файлов с панели плагина */
 	if (IsColumnDisplayed(DIZ_COLUMN))

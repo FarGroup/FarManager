@@ -1900,10 +1900,6 @@ void Edit::SetBinaryString(const char *Str,int Length)
 	/* $ 15.08.2000 KM
 	   Работа с маской
 	*/
-	/* $ 12.11.2000 KM
-	   Убран кусок кода от SVS проверяющий конец строки.
-	   Он не работал НИКОГДА.
-	*/
 	CurPos=0;
 
 	if (Mask && *Mask)
@@ -1927,7 +1923,8 @@ void Edit::SetBinaryString(const char *Str,int Length)
 
 				j++;
 
-				if (goLoop) continue;
+				if (goLoop)
+					continue;
 			}
 			else
 			{
@@ -1938,14 +1935,12 @@ void Edit::SetBinaryString(const char *Str,int Length)
 			i++;
 		}
 
-		/* KM $ */
 		/* Здесь необходимо условие (*Str==0), т.к. для очистки строки
 		   обычно вводится нечто вроде SetBinaryString("",0)
 		   Т.е. таким образом мы добиваемся "инициализации" строки с маской
 		*/
 		RefreshStrByMask(*Str==0);
 	}
-	/* KM $ */
 	else
 	{
 		char *NewStr=(char *)xf_realloc(Edit::Str,Length+1);
@@ -1965,7 +1960,6 @@ void Edit::SetBinaryString(const char *Str,int Length)
 		CurPos=StrSize;
 	}
 
-	/* KM $ */
 }
 
 
