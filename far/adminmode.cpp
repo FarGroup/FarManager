@@ -1617,7 +1617,6 @@ DWORD WINAPI AdminCopyProgressRoutine(LARGE_INTEGER TotalFileSize, LARGE_INTEGER
 
 void CreateDirectoryExHandler()
 {
-	MessageBox(0,0,0,0);
 	AutoObject TemplateObject;
 	if(ReadPipeData(Pipe, TemplateObject))
 	{
