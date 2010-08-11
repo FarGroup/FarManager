@@ -127,7 +127,7 @@ class ShellCopy
 		void CheckUpdatePanel(); // выставляет флаг FCOPY_UPDATEPPANEL
 	public:
 		ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
-		          int &ToPlugin, const wchar_t *PluginDestPath);
+		          int &ToPlugin, const wchar_t *PluginDestPath, bool ToSubdir=false);
 		~ShellCopy();
 };
 

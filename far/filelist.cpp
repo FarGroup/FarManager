@@ -1855,11 +1855,11 @@ int FileList::ProcessKey(int Key)
 			_ALGO(CleverSysLog clv(L"F5/F6/Alt-F6/DragCopy/DragMove"));
 			_ALGO(SysLog(L"%s, FileCount=%d Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
 
-			if (FileCount>0 && SetCurPath())
-				ProcessCopyKeys(Key);
+			ProcessCopyKeys(Key);
 
 			return TRUE;
 		}
+
 		case KEY_ALTF5:  // Печать текущего/выбранных файла/ов
 		{
 			_ALGO(CleverSysLog clv(L"Alt-F5"));
@@ -4722,12 +4722,6 @@ void FileList::ProcessCopyKeys(int Key)
 			        !TestParentFolderName(AnotherFilePanel->ListData[AnotherFilePanel->CurFile]->strName))
 			{
 				AnotherDir=TRUE;
-
-				if (Drag)
-				{
-					AnotherPanel->ProcessKey(KEY_ENTER);
-					SetCurPath();
-				}
 			}
 		}
 
@@ -4788,14 +4782,11 @@ void FileList::ProcessCopyKeys(int Key)
 			int ToPlugin=AnotherPanel->GetMode()==PLUGIN_PANEL &&
 			             AnotherPanel->IsVisible() && Key!=KEY_ALTF6 &&
 			             !CtrlObject->Plugins.UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES);
-			ShellCopy ShCopy(this,Move,Key==KEY_ALTF6,FALSE,Ask,ToPlugin,nullptr);
+			ShellCopy ShCopy(this,Move,Key==KEY_ALTF6,FALSE,Ask,ToPlugin,nullptr, Drag && AnotherDir);
 
 			if (ToPlugin==1)
 				PluginPutFilesToAnother(Move,AnotherPanel);
 		}
-
-		if (AnotherDir && Drag)
-			AnotherPanel->ProcessKey(KEY_ENTER);
 	}
 }
 

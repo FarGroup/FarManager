@@ -45,18 +45,23 @@ NTPath::NTPath(LPCWSTR Src)
 	if (Src&&*Src)
 	{
 		Str=Src;
-		ReplaceSlashToBSlash(Str);
-
 		if (!HasPathPrefix(Src))
 		{
 			ConvertNameToFull(Str,Str);
 
 			if (!HasPathPrefix(Str))
 			{
+				ReplaceSlashToBSlash(Str);
 				if (IsLocalPath(Str))
+				{
+					while(ReplaceStrings(Str,L"\\\\",L"\\"));
 					Str=string(L"\\\\?\\")+Str;
+				}
 				else
-					Str=string(L"\\\\?\\UNC\\")+&Str[2];
+				{
+					while(ReplaceStrings(Str,L"\\\\",L"\\"));
+					Str=string(L"\\\\?\\UNC")+Str.CPtr();
+				}
 			}
 		}
 	}

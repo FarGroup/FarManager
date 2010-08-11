@@ -614,7 +614,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
                      int CurrentOnly,        // =1 - только текущий файл, под курсором
                      int Ask,                // =1 - выводить диалог?
                      int &ToPlugin,          // =?
-                     const wchar_t *PluginDestPath):
+                     const wchar_t *PluginDestPath,
+                     bool ToSubdir):
 	sddata(nullptr),
 	CopyBuffer(nullptr),
 	RPT(RP_EXACTCOPY)
@@ -852,7 +853,13 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
 	string strDestDir;
 	DestPanel->GetCurDir(strDestDir);
-
+	if(ToSubdir)
+	{
+		AddEndSlash(strDestDir);
+		string strSubdir, strShort;
+		DestPanel->GetCurName(strSubdir, strShort);
+		strDestDir+=strSubdir;
+	}
 	string strSrcDir;
 	SrcPanel->GetCurDir(strSrcDir);
 

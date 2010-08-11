@@ -145,7 +145,6 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	FileListItem *CurPtr=0,**OldData=0;
 	string strCurName, strNextCurName;
 	int OldFileCount=0;
-	clock_t StartTime=clock();
 	CloseChangeNotification();
 
 	if (this!=CtrlObject->Cp()->LeftPanel && this!=CtrlObject->Cp()->RightPanel)
@@ -266,6 +265,8 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	bool UseFilter=Filter->IsEnabledOnPanel();
 	bool ReadCustomData=IsColumnDisplayed(CUSTOM_COLUMN0)!=0;
 
+	DWORD StartTime = GetTickCount();
+
 	while (Find.Get(fdata))
 	{
 		FindErrorCode = GetLastError();
@@ -354,8 +355,10 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 			//memcpy(ListData+FileCount,&NewPtr,sizeof(NewPtr));
 //      FileCount++;
 
-			if (!(FileCount & 0x3f) && clock()-StartTime>1000)
+			DWORD CurTime = GetTickCount();
+			if (CurTime - StartTime > RedrawTimeout)
 			{
+				StartTime = CurTime;
 				if (IsVisible())
 				{
 					string strReadMsg;
@@ -387,7 +390,6 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 				if (CheckForEsc())
 				{
-					Message(MSG_WARNING,1,MSG(MUserBreakTitle),MSG(MOperationNotCompleted),MSG(MOk));
 					break;
 				}
 			}
