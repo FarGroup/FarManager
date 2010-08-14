@@ -3,6 +3,16 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 09.08.2010 13:47:00 +0200 - build 1641
+
+1. Mantis#0001459: a problem with Drag and Drop files
+
+2. Correction in NTPath. Situations similar to M#0001458 must have been eliminated now.
+   Also, paths like "C:\\\\\Dir1////Dir2" are ok.
+
+3. Console redraw and querying at catalog scanning is done like anywhere else - each 200 ms, not after each 64 files. 
+   Ibid.: removed useless message at scanning cancel.
+
 drkns 09.08.2010 12:27:32 +0200 - build 1640
 
 1. Some code was left after debugging :)
