@@ -1,3 +1,10 @@
+drkns 16.08.2010 18:27:26 +0200 - build 1642
+
+1. Доработка меню для OpenFilePlugin:
+   - "Even if only one plugin found" зависит от "Show standard association item";
+   - отдельная настройка для ShiftF1;
+   - для ShiftF1 пункт "standard association" не показывается.
+
 drkns 09.08.2010 13:47:00 +0200 - build 1641
 
 1. Mantis#0001459: проблема с Drag and Drop files

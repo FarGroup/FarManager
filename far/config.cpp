@@ -348,13 +348,15 @@ void PluginsManagerSettings()
 	Builder.AddEditField(&Opt.LoadPlug.strPersonalPluginsPath, 45, L"PersPath", DIF_EDITPATH);
 
 	Builder.AddSeparator(MPluginConfirmationTitle);
+	DialogItemEx *ConfirmOFPNew = Builder.AddCheckbox(MPluginsManagerOFPNew, &Opt.PluginConfirm.OpenFilePluginNew);
 	DialogItemEx *ConfirmOFP = Builder.AddCheckbox(MPluginsManagerOFP, &Opt.PluginConfirm.OpenFilePlugin);
 	DialogItemEx *StandardAssoc = Builder.AddCheckbox(MPluginsManagerStdAssoc, &Opt.PluginConfirm.StandardAssociation);
 	DialogItemEx *EvenIfOnlyOne = Builder.AddCheckbox(MPluginsManagerEvenOne, &Opt.PluginConfirm.EvenIfOnlyOnePlugin);
 	StandardAssoc->Indent(2);
-	EvenIfOnlyOne->Indent(2);
+	EvenIfOnlyOne->Indent(4);
 	Builder.LinkFlags(ConfirmOFP, StandardAssoc, DIF_DISABLE);
 	Builder.LinkFlags(ConfirmOFP, EvenIfOnlyOne, DIF_DISABLE);
+	Builder.LinkFlags(StandardAssoc, EvenIfOnlyOne, DIF_DISABLE);
 
 	Builder.AddCheckbox(MPluginsManagerSFL, &Opt.PluginConfirm.SetFindList);
 	Builder.AddCheckbox(MPluginsManagerPF, &Opt.PluginConfirm.Prefix);
@@ -719,6 +721,7 @@ static struct FARConfig
 	{1, REG_DWORD,  NKeyConfirmations,L"Exit",&Opt.Confirm.Exit,1, 0},
 	{0, REG_DWORD,  NKeyConfirmations,L"EscTwiceToInterrupt",&Opt.Confirm.EscTwiceToInterrupt,0, 0},
 
+	{1, REG_DWORD,  NKeyPluginConfirmations, L"OpenFilePluginNew", &Opt.PluginConfirm.OpenFilePluginNew, 0, 0},
 	{1, REG_DWORD,  NKeyPluginConfirmations, L"OpenFilePlugin", &Opt.PluginConfirm.OpenFilePlugin, 0, 0},
 	{1, REG_DWORD,  NKeyPluginConfirmations, L"StandardAssociation", &Opt.PluginConfirm.StandardAssociation, 0, 0},
 	{1, REG_DWORD,  NKeyPluginConfirmations, L"EvenIfOnlyOnePlugin", &Opt.PluginConfirm.EvenIfOnlyOnePlugin, 0, 0},

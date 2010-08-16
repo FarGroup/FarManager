@@ -11876,6 +11876,14 @@ MPluginsManagerPersonalPath
 "Saját plu&ginek útvonala:"
 "Ś&cieżka do własnych pluginów:"
 
+MPluginsManagerOFPNew
+"Создание файла (OpenFilePlugin)"
+"File creation (OpenFilePlugin)"
+upd:"File creation (OpenFilePlugin)"
+upd:"File creation (OpenFilePlugin)"
+upd:"File creation (OpenFilePlugin)"
+upd:"File creation (OpenFilePlugin)"
+
 MPluginsManagerOFP
 "Обработка &файла (OpenFilePlugin)"
 "&File processing (OpenFilePlugin)"

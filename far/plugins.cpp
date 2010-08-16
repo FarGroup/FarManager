@@ -675,8 +675,9 @@ HANDLE PluginManager::OpenFilePlugin(
 		Name = strFullName;
 	}
 
+	bool ShowMenu = (Name? Opt.PluginConfirm.OpenFilePlugin : Opt.PluginConfirm.OpenFilePluginNew) != 0;
+
 	Plugin *pPlugin = nullptr;
-	bool bFirstFound = false;
 
 	for (int i = 0; i < PluginsCount; i++)
 	{
@@ -685,13 +686,13 @@ HANDLE PluginManager::OpenFilePlugin(
 		if (!pPlugin->HasOpenFilePlugin() && !(pPlugin->HasAnalyse() && pPlugin->HasOpenPlugin()))
 			continue;
 
-		if (Opt.ShowCheckingFile)
-			ct.Set(L"%s - [%s]...",MSG(MCheckingFileInPlugin),PointToName(pPlugin->GetModuleName()));
-
 		HANDLE hPlugin;
 
 		if (pPlugin->HasOpenFilePlugin())
 		{
+			if (Opt.ShowCheckingFile)
+				ct.Set(L"%s - [%s]...",MSG(MCheckingFileInPlugin),PointToName(pPlugin->GetModuleName()));
+
 			hPlugin = pPlugin->OpenFilePlugin(Name, Data, DataSize, OpMode);
 
 			if (hPlugin == (HANDLE)-2)   //сразу на выход, плагин решил нагло обработать все сам (Autorun/PictureView)!!!
@@ -705,7 +706,6 @@ HANDLE PluginManager::OpenFilePlugin(
 				PluginHandle *handle=items.addItem();
 				handle->hPlugin = hPlugin;
 				handle->pPlugin = pPlugin;
-				bFirstFound = true;
 			}
 		}
 		else
@@ -721,17 +721,18 @@ HANDLE PluginManager::OpenFilePlugin(
 				PluginHandle *handle=items.addItem();
 				handle->pPlugin = pPlugin;
 				handle->hPlugin = INVALID_HANDLE_VALUE;
-				bFirstFound = true;
 			}
 		}
 
-		if (bFirstFound && !Opt.PluginConfirm.OpenFilePlugin)
+		if (items.getCount() && !ShowMenu)
 			break;
 	}
 
 	if (items.getCount() && (hResult != (HANDLE)-2))
 	{
-		if ((items.getCount() > 1) || (Opt.PluginConfirm.OpenFilePlugin && (Opt.PluginConfirm.StandardAssociation || Opt.PluginConfirm.EvenIfOnlyOnePlugin)))
+		bool OnlyOne = (items.getCount() == 1) && !(Name && Opt.PluginConfirm.OpenFilePlugin && Opt.PluginConfirm.StandardAssociation && Opt.PluginConfirm.EvenIfOnlyOnePlugin);
+
+		if(!OnlyOne && ShowMenu)
 		{
 			VMenu menu(MSG(MPluginConfirmationTitle), nullptr, 0, ScrY-4);
 			menu.SetPosition(-1, -1, 0, 0);
@@ -747,7 +748,7 @@ HANDLE PluginManager::OpenFilePlugin(
 				menu.SetUserData(handle, sizeof(handle), menu.AddItem(&mitem));
 			}
 
-			if (Opt.PluginConfirm.StandardAssociation)
+			if (Name && Opt.PluginConfirm.StandardAssociation) // !Name == ShiftF1, standard association not required
 			{
 				mitem.Clear();
 				mitem.Flags |= MIF_SEPARATOR;
@@ -814,7 +815,6 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, int I
 	PluginHandle *pResult = nullptr;
 	TPointerArray<PluginHandle> items;
 	Plugin *pPlugin=nullptr;
-	bool bFirstFound=false;
 
 	for (int i = 0; i < PluginsCount; i++)
 	{
@@ -830,10 +830,9 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, int I
 			PluginHandle *handle=items.addItem();
 			handle->hPlugin = hPlugin;
 			handle->pPlugin = pPlugin;
-			bFirstFound = true;
 		}
 
-		if (bFirstFound && !Opt.PluginConfirm.SetFindList)
+		if (items.getCount() && !Opt.PluginConfirm.SetFindList)
 			break;
 	}
 
@@ -1892,7 +1891,6 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 	LoadIfCacheAbsent();
 	string strPrefix(strCommand,PrefixLength);
 	string strPluginPrefix;
-	bool bFirstFound = false;
 	TPointerArray<PluginData> items;
 
 	for (int I=0; I<PluginsCount; I++)
@@ -1936,7 +1934,6 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 			{
 				if (PluginsData[I]->Load() && PluginsData[I]->HasOpenPlugin())
 				{
-					bFirstFound = true;
 					PluginData *pD=items.addItem();
 					pD->pPlugin=PluginsData[I];
 					pD->PluginFlags=PluginFlags;
@@ -1950,7 +1947,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 			PrStart = ++PrEnd;
 		}
 
-		if (bFirstFound && !Opt.PluginConfirm.Prefix)
+		if (items.getCount() && !Opt.PluginConfirm.Prefix)
 			break;
 	}
 
