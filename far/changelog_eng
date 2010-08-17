@@ -3,6 +3,17 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 17.08.2010 20:15:03 +0200 - build 1643
+
+1. "Move to the recycle bin" dialog: confirmation button is labeled "move" (was: "delete").
+
+drkns 16.08.2010 18:27:26 +0200 - build 1642
+
+1. Changes in OpenFilePlugin menu:
+   - "Even if only one plugin found" depends on "Show standard association item";
+   - separate setting for ShiftF1;
+   - "standard association" item is not shown for ShiftF1.
+
 drkns 09.08.2010 13:47:00 +0200 - build 1641
 
 1. Mantis#0001459: a problem with Drag and Drop files
