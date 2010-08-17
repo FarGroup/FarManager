@@ -241,7 +241,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 
 		SetMessageHelp(L"DeleteFile");
 
-		if (Message(0,2,TitleMsg,DelMsg,strDeleteFilesMsg,MSG(Wipe?MDeleteWipe:MDelete),MSG(MCancel)))
+		if (Message(0,2,TitleMsg,DelMsg,strDeleteFilesMsg,MSG(Wipe?MDeleteWipe:Opt.DeleteToRecycleBin?MDeleteRecycle:MDelete),MSG(MCancel)))
 		{
 			NeedUpdate=FALSE;
 			goto done;

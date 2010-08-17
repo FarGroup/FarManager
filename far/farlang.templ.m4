@@ -3061,7 +3061,7 @@ MAskDelete
 "Czy chcesz usunąć"
 
 MAskDeleteRecycleFolder
-"Вы хотите поместить в Корзину папку"
+"Вы хотите переместить в Корзину папку"
 "Do you wish to move to the Recycle Bin the folder"
 "Přejete si přesunout do Koše adresář"
 "Wollen Sie den Ordner in den Papierkorb verschieben"
@@ -3069,7 +3069,7 @@ MAskDeleteRecycleFolder
 "Czy chcesz przenieść katalog do Kosza"
 
 MAskDeleteRecycleFile
-"Вы хотите поместить в Корзину файл"
+"Вы хотите переместить в Корзину файл"
 "Do you wish to move to the Recycle Bin the file"
 "Přejete si přesunout do Koše soubor"
 "Wollen Sie die Datei in den Papierkorb verschieben"
@@ -3077,7 +3077,7 @@ MAskDeleteRecycleFile
 "Czy chcesz przenieść plik do Kosza"
 
 MAskDeleteRecycle
-"Вы хотите поместить в Корзину"
+"Вы хотите переместить в Корзину"
 "Do you wish to move to the Recycle Bin"
 "Přejete si přesunout do Koše"
 "Wollen Sie das Objekt in den Papierkorb verschieben"
@@ -3236,6 +3236,14 @@ MDeleteWipe
 "Sicheres Löschen"
 "Kisöpör"
 "Wymaż"
+
+MDeleteRecycle
+"Переместить"
+"Move"
+upd:"Move"
+upd:"Move"
+upd:"Move"
+upd:"Move"
 
 MDeleteFileDelete
 "&Удалить"

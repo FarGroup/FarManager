@@ -348,7 +348,7 @@ void PluginsManagerSettings()
 	Builder.AddEditField(&Opt.LoadPlug.strPersonalPluginsPath, 45, L"PersPath", DIF_EDITPATH);
 
 	Builder.AddSeparator(MPluginConfirmationTitle);
-	DialogItemEx *ConfirmOFPNew = Builder.AddCheckbox(MPluginsManagerOFPNew, &Opt.PluginConfirm.OpenFilePluginNew);
+	Builder.AddCheckbox(MPluginsManagerOFPNew, &Opt.PluginConfirm.OpenFilePluginNew);
 	DialogItemEx *ConfirmOFP = Builder.AddCheckbox(MPluginsManagerOFP, &Opt.PluginConfirm.OpenFilePlugin);
 	DialogItemEx *StandardAssoc = Builder.AddCheckbox(MPluginsManagerStdAssoc, &Opt.PluginConfirm.StandardAssociation);
 	DialogItemEx *EvenIfOnlyOne = Builder.AddCheckbox(MPluginsManagerEvenOne, &Opt.PluginConfirm.EvenIfOnlyOnePlugin);
