@@ -4034,10 +4034,7 @@ végzett mindennapi munka hatékony segédeszközévé.
 
       Néhány utasítás, felsorolásszerűen:
 
-    #$Date#         - beszúrja az aktuális dátumot/időt
     #$Exit#         - leállítja a makró lejátszását
-    #$IClip#        - vágólap használata
-    #$MMode#        - makró képernyőmód átkapcsoló
     #$Text#         - tetszőleges szöveg beszúrása
     #$XLat#         - transzliteráló funkció
     #$If-$Else#     - feltétel operátor

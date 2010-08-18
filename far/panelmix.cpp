@@ -44,6 +44,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "treelist.hpp"
 #include "filelist.hpp"
 #include "pathmix.hpp"
+#include "panelctype.hpp"
+#include "lang.hpp"
+#include "datetime.hpp"
+
+int ColumnTypeWidth[]={ 0,  6,  6,  8,  5,  14,  14,  14,  6,  0,  0,  3,  3,  6,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   };
+
+static const wchar_t *ColumnSymbol[]={L"N",L"S",L"P",L"D",L"T",L"DM",L"DC",L"DA",L"A",L"Z",L"O",L"LN",L"F",L"G",L"C0",L"C1",L"C2",L"C3",L"C4",L"C5",L"C6",L"C7",L"C8",L"C9"};
+
 
 void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
 {
@@ -230,4 +238,389 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 	}
 
 	return RetCode;
+}
+
+
+void TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *ColumnWidths,
+                                  unsigned int *ViewColumnTypes,int *ViewColumnWidths,int *ViewColumnWidthsTypes,int &ColumnCount)
+{
+	const wchar_t *TextPtr=ColumnTitles;
+
+	for (ColumnCount=0; ColumnCount < PANEL_COLUMNCOUNT; ColumnCount++)
+	{
+		string strArgName;
+
+		if (!(TextPtr=GetCommaWord(TextPtr,strArgName)))
+			break;
+
+		strArgName.Upper();
+
+		if (strArgName.At(0)==L'N')
+		{
+			unsigned int &ColumnType=ViewColumnTypes[ColumnCount];
+			ColumnType=NAME_COLUMN;
+			const wchar_t *Ptr = strArgName.CPtr()+1;
+
+			while (*Ptr)
+			{
+				switch (*Ptr)
+				{
+					case L'M':
+						ColumnType|=COLUMN_MARK;
+						break;
+					case L'O':
+						ColumnType|=COLUMN_NAMEONLY;
+						break;
+					case L'R':
+						ColumnType|=COLUMN_RIGHTALIGN;
+						break;
+				}
+
+				Ptr++;
+			}
+		}
+		else
+		{
+			if (strArgName.At(0)==L'S' || strArgName.At(0)==L'P' || strArgName.At(0)==L'G')
+			{
+				unsigned int &ColumnType=ViewColumnTypes[ColumnCount];
+				ColumnType=(strArgName.At(0)==L'S') ? SIZE_COLUMN:(strArgName.At(0)==L'P')?PACKED_COLUMN:STREAMSSIZE_COLUMN;
+				const wchar_t *Ptr = strArgName.CPtr()+1;
+
+				while (*Ptr)
+				{
+					switch (*Ptr)
+					{
+						case L'C':
+							ColumnType|=COLUMN_COMMAS;
+							break;
+						case L'E':
+							ColumnType|=COLUMN_ECONOMIC;
+							break;
+						case L'F':
+							ColumnType|=COLUMN_FLOATSIZE;
+							break;
+						case L'T':
+							ColumnType|=COLUMN_THOUSAND;
+							break;
+					}
+
+					Ptr++;
+				}
+			}
+			else
+			{
+				if (!StrCmpN(strArgName,L"DM",2) || !StrCmpN(strArgName,L"DC",2) || !StrCmpN(strArgName,L"DA",2))
+				{
+					unsigned int &ColumnType=ViewColumnTypes[ColumnCount];
+
+					switch (strArgName.At(1))
+					{
+						case L'M':
+							ColumnType=MDATE_COLUMN;
+							break;
+						case L'C':
+							ColumnType=CDATE_COLUMN;
+							break;
+						case L'A':
+							ColumnType=ADATE_COLUMN;
+							break;
+					}
+
+					const wchar_t *Ptr = strArgName.CPtr()+2;
+
+					while (*Ptr)
+					{
+						switch (*Ptr)
+						{
+							case L'B':
+								ColumnType|=COLUMN_BRIEF;
+								break;
+							case L'M':
+								ColumnType|=COLUMN_MONTH;
+								break;
+						}
+
+						Ptr++;
+					}
+				}
+				else
+				{
+					if (strArgName.At(0)==L'O')
+					{
+						unsigned int &ColumnType=ViewColumnTypes[ColumnCount];
+						ColumnType=OWNER_COLUMN;
+
+						if (strArgName.At(1)==L'L')
+							ColumnType|=COLUMN_FULLOWNER;
+					}
+					else
+					{
+						for (unsigned I=0; I<ARRAYSIZE(ColumnSymbol); I++)
+						{
+							if (!StrCmp(strArgName,ColumnSymbol[I]))
+							{
+								ViewColumnTypes[ColumnCount]=I;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	TextPtr=ColumnWidths;
+
+	for (int I=0; I<ColumnCount; I++)
+	{
+		string strArgName;
+
+		if (!(TextPtr=GetCommaWord(TextPtr,strArgName)))
+			break;
+
+		ViewColumnWidths[I]=_wtoi(strArgName);
+		ViewColumnWidthsTypes[I]=COUNT_WIDTH;
+
+		if (strArgName.GetLength()>1)
+		{
+			switch (strArgName.At(strArgName.GetLength()-1))
+			{
+				case L'%':
+					ViewColumnWidthsTypes[I]=PERCENT_WIDTH;
+					break;
+			}
+		}
+	}
+}
+
+
+void ViewSettingsToText(unsigned int *ViewColumnTypes,int *ViewColumnWidths,
+                                  int *ViewColumnWidthsTypes,int ColumnCount,string &strColumnTitles,
+                                  string &strColumnWidths)
+{
+	strColumnTitles.Clear();
+	strColumnWidths.Clear();
+
+	for (int I=0; I<ColumnCount; I++)
+	{
+		string strType;
+		int ColumnType=ViewColumnTypes[I] & 0xff;
+		strType = ColumnSymbol[ColumnType];
+
+		if (ColumnType==NAME_COLUMN)
+		{
+			if (ViewColumnTypes[I] & COLUMN_MARK)
+				strType += L"M";
+
+			if (ViewColumnTypes[I] & COLUMN_NAMEONLY)
+				strType += L"O";
+
+			if (ViewColumnTypes[I] & COLUMN_RIGHTALIGN)
+				strType += L"R";
+		}
+
+		if (ColumnType==SIZE_COLUMN || ColumnType==PACKED_COLUMN || ColumnType==STREAMSSIZE_COLUMN)
+		{
+			if (ViewColumnTypes[I] & COLUMN_COMMAS)
+				strType += L"C";
+
+			if (ViewColumnTypes[I] & COLUMN_ECONOMIC)
+				strType += L"E";
+
+			if (ViewColumnTypes[I] & COLUMN_FLOATSIZE)
+				strType += L"F";
+
+			if (ViewColumnTypes[I] & COLUMN_THOUSAND)
+				strType += L"T";
+		}
+
+		if (ColumnType==MDATE_COLUMN || ColumnType==ADATE_COLUMN || ColumnType==CDATE_COLUMN)
+		{
+			if (ViewColumnTypes[I] & COLUMN_BRIEF)
+				strType += L"B";
+
+			if (ViewColumnTypes[I] & COLUMN_MONTH)
+				strType += L"M";
+		}
+
+		if (ColumnType==OWNER_COLUMN)
+		{
+			if (ViewColumnTypes[I] & COLUMN_FULLOWNER)
+				strType += L"L";
+		}
+
+		strColumnTitles += strType;
+		wchar_t *lpwszWidth = strType.GetBuffer(20);
+		_itow(ViewColumnWidths[I],lpwszWidth,10);
+		strType.ReleaseBuffer();
+		strColumnWidths += strType;
+
+		switch (ViewColumnWidthsTypes[I])
+		{
+			case PERCENT_WIDTH:
+				strColumnWidths += L"%";
+				break;
+		}
+
+		if (I<ColumnCount-1)
+		{
+			strColumnTitles += L",";
+			strColumnWidths += L",";
+		}
+	}
+}
+
+const string FormatStr_Attribute(DWORD FileAttributes,int Width)
+{
+	FormatString strResult;
+
+	const wchar_t OutStr[]=
+	{
+		FileAttributes&FILE_ATTRIBUTE_READONLY?L'R':L' ',
+		FileAttributes&FILE_ATTRIBUTE_SYSTEM?L'S':L' ',
+		FileAttributes&FILE_ATTRIBUTE_HIDDEN?L'H':L' ',
+		FileAttributes&FILE_ATTRIBUTE_ARCHIVE?L'A':L' ',
+		FileAttributes&FILE_ATTRIBUTE_REPARSE_POINT?L'L':FileAttributes&FILE_ATTRIBUTE_SPARSE_FILE?L'$':L' ',
+		FileAttributes&FILE_ATTRIBUTE_COMPRESSED?L'C':FileAttributes&FILE_ATTRIBUTE_ENCRYPTED?L'E':L' ',
+		FileAttributes&FILE_ATTRIBUTE_TEMPORARY?L'T':L' ',
+		FileAttributes&FILE_ATTRIBUTE_NOT_CONTENT_INDEXED?L'I':L' ',
+		FileAttributes&FILE_ATTRIBUTE_OFFLINE?L'O':L' ',
+		FileAttributes&FILE_ATTRIBUTE_VIRTUAL?L'V':L' ',
+		0
+	};
+
+	if (Width > 0)
+		strResult<<fmt::Width(Width)<<fmt::Precision(Width);
+
+	strResult<<OutStr;
+
+	return strResult.strValue();
+}
+
+const string FormatStr_DateTime(const FILETIME *FileTime,int ColumnType,DWORD Flags,int Width)
+{
+	FormatString strResult;
+
+	if (Width < 0)
+	{
+		if (ColumnType == DATE_COLUMN)
+			Width=0;
+		else
+			return strResult.strValue();
+	}
+
+	int ColumnWidth=Width;
+	int Brief=Flags & COLUMN_BRIEF;
+	int TextMonth=Flags & COLUMN_MONTH;
+	int FullYear=FALSE;
+
+	switch(ColumnType)
+	{
+		case DATE_COLUMN:
+		case TIME_COLUMN:
+		{
+			Brief=FALSE;
+			TextMonth=FALSE;
+			if (ColumnType == DATE_COLUMN)
+				FullYear=ColumnWidth>9;
+			break;
+		}
+		case MDATE_COLUMN:
+		case CDATE_COLUMN:
+		case ADATE_COLUMN:
+		{
+			if (!Brief)
+			{
+				int CmpWidth=ColumnWidth-TextMonth;
+
+				if (CmpWidth==15 || CmpWidth==16 || CmpWidth==18 || CmpWidth==19 || CmpWidth>21)
+					FullYear=TRUE;
+			}
+			ColumnWidth-=9;
+			break;
+		}
+	}
+
+	string strDateStr,strTimeStr;
+
+	ConvertDate(*FileTime,strDateStr,strTimeStr,ColumnWidth,Brief,TextMonth,FullYear);
+
+	string strOutStr;
+	switch(ColumnType)
+	{
+		case DATE_COLUMN:
+			strOutStr=strDateStr;
+			break;
+		case TIME_COLUMN:
+			strOutStr=strTimeStr;
+			break;
+		default:
+			strOutStr=strDateStr+L" "+strTimeStr;
+			break;
+	}
+
+	strResult<<fmt::Width(Width)<<fmt::Precision(Width)<<strOutStr;
+
+	return strResult.strValue();
+}
+
+const string FormatStr_Size(__int64 UnpSize, __int64 PackSize, __int64 StreamsSize, const string strName,DWORD FileAttributes,DWORD ShowFolderSize,DWORD ReparseTag,int ColumnType,DWORD Flags,int Width)
+{
+	FormatString strResult;
+
+	bool Packed=(ColumnType==PACKED_COLUMN);
+	bool Streams=(ColumnType==STREAMSSIZE_COLUMN);
+
+	if (ShowFolderSize==2)
+	{
+		Width--;
+		strResult<<L"~";
+	}
+
+	if (!Streams && !Packed && (FileAttributes & (FILE_ATTRIBUTE_DIRECTORY|FILE_ATTRIBUTE_REPARSE_POINT)) && !ShowFolderSize)
+	{
+		const wchar_t *PtrName=MSG(MListFolder);
+
+		if (TestParentFolderName(strName))
+		{
+			PtrName=MSG(MListUp);
+		}
+		else
+		{
+			if (FileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
+			{
+				PtrName=MSG(MListSymLink);
+				switch (ReparseTag)
+				{
+					case IO_REPARSE_TAG_SYMLINK:
+						break;
+
+					case IO_REPARSE_TAG_MOUNT_POINT:
+						PtrName=MSG(MListJunction);
+						break;
+
+					//case IO_REPARSE_TAG_DRIVER_EXTENDER:
+						//...
+						//break;
+					//case ...
+				}
+			}
+		}
+
+		string strStr;
+		if (StrLength(PtrName) <= Width-2)
+			strStr.Format(L"<%s>", PtrName);
+		else
+			strStr = PtrName;
+
+		strResult<<fmt::Width(Width)<<fmt::Precision(Width)<<strStr;
+	}
+	else
+	{
+		string strOutStr;
+		strResult<<FileSizeToStr(strOutStr,Packed?PackSize:Streams?StreamsSize:UnpSize,Width,Flags).CPtr();
+	}
+
+	return strResult.strValue();
 }

@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "dirmix.hpp"
 #include "pathmix.hpp"
+#include "panelmix.hpp"
 #include "mix.hpp"
 
 /*

@@ -56,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "stddlg.hpp"
 #include "pathmix.hpp"
+#include "panelmix.hpp"
 #include "strmix.hpp"
 #include "udlist.hpp"
 #include "FarDlgBuilder.hpp"
@@ -648,6 +649,8 @@ static struct FARConfig
 	{0, REG_DWORD,  NKeySystem,L"CollectFiles",&Opt.FindOpt.CollectFiles, 1, 0},
 	{1, REG_SZ,     NKeySystem,L"SearchInFirstSize",&Opt.FindOpt.strSearchInFirstSize, 0, L""},
 	{1, REG_DWORD,  NKeySystem,L"FindAlternateStreams",&Opt.FindOpt.FindAlternateStreams,0,0},
+	{1, REG_SZ,     NKeySystem,L"SearchOutFormat",&Opt.FindOpt.strSearchOutFormat, 0, L"D,S,A"},
+	{1, REG_SZ,     NKeySystem,L"SearchOutFormatWidth",&Opt.FindOpt.strSearchOutFormatWidth, 0, L"14,13,0"},
 	{1, REG_DWORD,  NKeySystem,L"FindFolders",&Opt.FindOpt.FindFolders, 1, 0},
 	{1, REG_DWORD,  NKeySystem,L"FindSymLinks",&Opt.FindOpt.FindSymLinks, 1, 0},
 	{1, REG_DWORD,  NKeySystem,L"UseFilterInSearch",&Opt.FindOpt.UseFilter,0,0},
@@ -813,6 +816,7 @@ void ReadConfig()
 	DWORD OptPolicies_ShowHiddenDrives,  OptPolicies_DisabledOptions;
 	string strKeyNameFromReg;
 	string strPersonalPluginsPath;
+	size_t I;
 
 	/* <ПРЕПРОЦЕССЫ> *************************************************** */
 	// "Вспомним" путь для дополнительного поиска плагинов
@@ -826,7 +830,7 @@ void ReadConfig()
 	//Opt.LCIDSort=LOCALE_USER_DEFAULT; // проинициализируем на всякий случай
 	/* *************************************************** </ПРЕПРОЦЕССЫ> */
 
-	for (size_t I=0; I < ARRAYSIZE(CFG); ++I)
+	for (I=0; I < ARRAYSIZE(CFG); ++I)
 	{
 		switch (CFG[I].ValType)
 		{
@@ -860,7 +864,7 @@ void ReadConfig()
 
 	Opt.HelpTabSize=8; // пока жестко пропишем...
 	//   Уточняем алгоритм "взятия" палитры.
-	for (size_t I=COL_PRIVATEPOSITION_FOR_DIF165ABOVE-COL_FIRSTPALETTECOLOR+1;
+	for (I=COL_PRIVATEPOSITION_FOR_DIF165ABOVE-COL_FIRSTPALETTECOLOR+1;
 	        I < (COL_LASTPALETTECOLOR-COL_FIRSTPALETTECOLOR);
 	        ++I)
 	{
@@ -939,7 +943,7 @@ void ReadConfig()
 			UserDefinedList DestList;
 			DestList.SetParameters(L';',0,ULF_UNIQUE);
 			DestList.Set(strXLatLayouts);
-			size_t I=0;
+			I=0;
 
 			while (nullptr!=(ValPtr=DestList.GetNext()))
 			{
@@ -955,6 +959,22 @@ void ReadConfig()
 				Opt.XLat.Layouts[0]=0;
 		}
 	}
+
+	memset(Opt.FindOpt.OutColumnTypes,0,sizeof(Opt.FindOpt.OutColumnTypes));
+	memset(Opt.FindOpt.OutColumnWidths,0,sizeof(Opt.FindOpt.OutColumnWidths));
+	memset(Opt.FindOpt.OutColumnWidthType,0,sizeof(Opt.FindOpt.OutColumnWidthType));
+	Opt.FindOpt.OutColumnCount=0;
+
+
+	if (!Opt.FindOpt.strSearchOutFormat.IsEmpty())
+	{
+		if (Opt.FindOpt.strSearchOutFormatWidth.IsEmpty())
+			Opt.FindOpt.strSearchOutFormatWidth=L"0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0";
+		TextToViewSettings(Opt.FindOpt.strSearchOutFormat.CPtr(),Opt.FindOpt.strSearchOutFormatWidth.CPtr(),
+                                  Opt.FindOpt.OutColumnTypes,Opt.FindOpt.OutColumnWidths,Opt.FindOpt.OutColumnWidthType,
+                                  Opt.FindOpt.OutColumnCount);
+	}
+
 	/* *************************************************** </ПОСТПРОЦЕССЫ> */
 }
 

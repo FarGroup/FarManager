@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "flink.hpp"
+#include "panelmix.hpp"
 
 extern PanelViewSettings ViewSettingsArray[];
 extern int ColumnTypeWidth[];
@@ -1100,79 +1101,22 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 						case PACKED_COLUMN:
 						case STREAMSSIZE_COLUMN:
 						{
-							bool Packed=(ColumnType==PACKED_COLUMN);
-							bool Streams=(ColumnType==STREAMSSIZE_COLUMN);
-							string strStr;
-							int Width=ColumnWidth;
-
-							if (ListData[ListPos]->ShowFolderSize==2)
-							{
-								Width--;
-								Text(L"~");
-							}
-
-							if (!Streams && !Packed && (ListData[ListPos]->FileAttr & (FILE_ATTRIBUTE_DIRECTORY|FILE_ATTRIBUTE_REPARSE_POINT)) && !ListData[ListPos]->ShowFolderSize)
-							{
-								const wchar_t *PtrName=MSG(MListFolder);
-
-								if (!ListPos && TestParentFolderName(ListData[ListPos]->strName))
-								{
-									PtrName=MSG(MListUp);
-								}
-								else
-								{
-									if (ListData[ListPos]->FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)
-									{
-										PtrName=MSG(MListSymLink);
-										switch (ListData[ListPos]->ReparseTag)
-										{
-											case IO_REPARSE_TAG_SYMLINK:
-												break;
-
-											case IO_REPARSE_TAG_MOUNT_POINT:
-												PtrName=MSG(MListJunction);
-												break;
-
-											//case IO_REPARSE_TAG_DRIVER_EXTENDER:
-												//...
-												//break;
-											//case ...
-										}
-									}
-								}
-
-								if (StrLength(PtrName) <= Width-2)
-									strStr.Format(L"<%s>", PtrName);
-								else
-									strStr = PtrName;
-
-								FS<<fmt::Width(Width)<<fmt::Precision(Width)<<strStr;
-							}
-							else
-							{
-								string strOutStr;
-								// подсократим - весь код по форматированию размера
-								//   в отдельную функцию - FileSizeToStr().
-								Text(FileSizeToStr(strOutStr,
-								                            Packed?ListData[ListPos]->PackSize:Streams?ListData[ListPos]->StreamsSize:ListData[ListPos]->UnpSize,
-								                            Width,ColumnTypes[K]).CPtr());
-							}
+                            Text(FormatStr_Size(
+                            		ListData[ListPos]->UnpSize,
+                            		ListData[ListPos]->PackSize,
+                            		ListData[ListPos]->StreamsSize,
+                            		ListData[ListPos]->strName,
+                            		ListData[ListPos]->FileAttr,
+                            		ListData[ListPos]->ShowFolderSize,
+                            		ListData[ListPos]->ReparseTag,
+                            		ColumnType,
+                            		ColumnTypes[K],
+                            		ColumnWidth).CPtr());
+							break;
 						}
-						break;
+
 						case DATE_COLUMN:
-						{
-							string strOutStr;
-							ConvertDate(ListData[ListPos]->WriteTime,strDateStr,strTimeStr,0,FALSE,FALSE,ColumnWidth>9);
-							FS<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<strDateStr;
-						}
-						break;
 						case TIME_COLUMN:
-						{
-							string strOutStr;
-							ConvertDate(ListData[ListPos]->WriteTime,strDateStr,strTimeStr,ColumnWidth);
-							FS<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<strTimeStr;
-						}
-						break;
 						case MDATE_COLUMN:
 						case CDATE_COLUMN:
 						case ADATE_COLUMN:
@@ -1187,49 +1131,24 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								case ADATE_COLUMN:
 									FileTime=&ListData[ListPos]->AccessTime;
 									break;
-								default: //case MDATE_COLUMN:
+								case DATE_COLUMN:
+								case TIME_COLUMN:
+								case MDATE_COLUMN:
+								default:
 									FileTime=&ListData[ListPos]->WriteTime;
+									break;
 							}
 
-							int TextMonth=(ColumnTypes[K] & COLUMN_MONTH);
-							int Brief=ColumnTypes[K] & COLUMN_BRIEF;
-							int FullYear=FALSE;
-
-							if (!Brief)
-							{
-								int CmpWidth=ColumnWidth-TextMonth;
-
-								if (CmpWidth==15 || CmpWidth==16 || CmpWidth==18 ||
-								        CmpWidth==19 || CmpWidth>21)
-									FullYear=TRUE;
-							}
-
-							string strDateStr, strTimeStr;
-							ConvertDate(*FileTime,strDateStr,strTimeStr,ColumnWidth-9,Brief,TextMonth,FullYear);
-							string strOutStr=strDateStr+L" "+strTimeStr;
-							FS<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<strOutStr;
+							FS<<FormatStr_DateTime(FileTime,ColumnType,ColumnTypes[K],ColumnWidth);
+							break;
 						}
-						break;
+
 						case ATTR_COLUMN:
 						{
-							wchar_t OutStr[]=
-							{
-								(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_READONLY)?L'R':L' ',
-								(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_SYSTEM)?L'S':L' ',
-								(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_HIDDEN)?L'H':L' ',
-								(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_ARCHIVE)?L'A':L' ',
-								(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_REPARSE_POINT)?L'L':((ListData[ListPos]->FileAttr&FILE_ATTRIBUTE_SPARSE_FILE)?L'$':L' '),
-								// $ 20.10.2000 SVS - Encrypted NTFS - Поток может быть либо COMPRESSED (С) либо ENCRYPTED (E)
-								(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_COMPRESSED)?L'C':((ListData[ListPos]->FileAttr&FILE_ATTRIBUTE_ENCRYPTED)?L'E':L' '),
-								(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_TEMPORARY)?L'T':L' ',
-								(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)?L'I':L' ',
-								(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_OFFLINE)?L'O':L' ',
-								(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_VIRTUAL)?L'V':L' ',
-								L'\0',
-							};
-							FS<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<OutStr;
+							FS<<FormatStr_Attribute(ListData[ListPos]->FileAttr,ColumnWidth);
+							break;
 						}
-						break;
+
 						case DIZ_COLUMN:
 						{
 							int CurLeftPos=0;
@@ -1257,8 +1176,9 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								strDizText.SetLength(pos);
 
 							FS<<fmt::LeftAlign()<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<strDizText;
+							break;
 						}
-						break;
+
 						case OWNER_COLUMN:
 						{
 							const wchar_t* Owner=ListData[ListPos]->strOwner;
@@ -1294,18 +1214,21 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							}
 
 							FS<<fmt::LeftAlign()<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<Owner+CurLeftPos;
+							break;
 						}
-						break;
+
 						case NUMLINK_COLUMN:
 						{
 							FS<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<ListData[ListPos]->NumberOfLinks;
+							break;
 						}
-						break;
+
 						case NUMSTREAMS_COLUMN:
 						{
 							FS<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<ListData[ListPos]->NumberOfStreams;
+							break;
 						}
-						break;
+
 					}
 				}
 			}

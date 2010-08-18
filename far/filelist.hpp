@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dizlist.hpp"
 #include "filefilterparams.hpp"
 #include "DList.hpp"
+#include "panelctype.hpp"
 
 class FileFilter;
 
@@ -104,6 +105,7 @@ struct FileListItem
 		memset(&WriteTime, 0, sizeof(WriteTime));
 		UnpSize = 0;
 		PackSize = 0;
+		StreamsSize = 0;
 		strName.Clear();
 		strShortName.Clear();
 		ReparseTag=0;
@@ -137,6 +139,7 @@ struct FileListItem
 			WriteTime=fliCopy.WriteTime;
 			UnpSize = fliCopy.UnpSize;
 			PackSize = fliCopy.PackSize;
+			StreamsSize = fliCopy.StreamsSize;
 			strName = fliCopy.strName;
 			strShortName = fliCopy.strShortName;
 			strCustomData = fliCopy.strCustomData;
@@ -167,16 +170,6 @@ struct PrevDataItem
 	string strPrevName;
 	int PrevTopFile;
 };
-
-enum {NAME_COLUMN=0,SIZE_COLUMN,PACKED_COLUMN,DATE_COLUMN,TIME_COLUMN,
-      MDATE_COLUMN,CDATE_COLUMN,ADATE_COLUMN,ATTR_COLUMN,DIZ_COLUMN,
-      OWNER_COLUMN,NUMLINK_COLUMN,NUMSTREAMS_COLUMN,STREAMSSIZE_COLUMN,
-      CUSTOM_COLUMN0,CUSTOM_COLUMN1,CUSTOM_COLUMN2,CUSTOM_COLUMN3,
-      CUSTOM_COLUMN4,CUSTOM_COLUMN5,CUSTOM_COLUMN6,CUSTOM_COLUMN7,
-      CUSTOM_COLUMN8,CUSTOM_COLUMN9
-     };
-
-enum {COUNT_WIDTH=0, PERCENT_WIDTH};
 
 class FileList:public Panel
 {
@@ -297,12 +290,6 @@ class FileList:public Panel
 		void ReadSortGroups(bool UpdateFilterCurrentTime=true);
 		void AddParentPoint(FileListItem *CurPtr,long CurFilePos,FILETIME* Times=nullptr,string Owner=L"");
 		int  ProcessOneHostFile(int Idx);
-
-		static void TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *ColumnWidths,
-		                               unsigned int *ViewColumnTypes,int *ViewColumnWidths,int *ViewColumnWidthsTypes,int &ColumnCount);
-		static void ViewSettingsToText(unsigned int *ViewColumnTypes,
-		                               int *ViewColumnWidths,int *ViewColumnWidthsTypes,int ColumnCount,string &strColumnTitles,
-		                               string &strColumnWidths);
 
 	public:
 		FileList();

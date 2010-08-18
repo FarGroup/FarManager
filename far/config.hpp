@@ -349,6 +349,13 @@ struct FindFileOptions
 	bool UseFilter;
 	bool FindAlternateStreams;
 	string strSearchInFirstSize;
+
+	string strSearchOutFormat;
+	string strSearchOutFormatWidth;
+	int OutColumnCount;
+	unsigned int OutColumnTypes[20];
+	int OutColumnWidths[20];
+	int OutColumnWidthType[20];
 };
 
 struct InfoPanelOptions

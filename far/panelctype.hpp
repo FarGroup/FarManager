@@ -1,13 +1,12 @@
 #pragma once
 
 /*
-panelmix.hpp
+panelctype.hpp
 
-Misc functions for processing of path names
+Файловая панель - типы панелей
 */
 /*
-Copyright (c) 1996 Eugene Roshal
-Copyright (c) 2000 Far Group
+Copyright (c) 2010 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -33,18 +32,37 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class Panel;
 
-void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir=FALSE);
-int  CheckUpdateAnotherPanel(Panel *SrcPanel,const wchar_t *SelName);
+enum PANEL_COLUMN_TYPE {
+	NAME_COLUMN=0,
+	SIZE_COLUMN,
+	PACKED_COLUMN,
+	DATE_COLUMN,
+	TIME_COLUMN,
+	MDATE_COLUMN,
+	CDATE_COLUMN,
+	ADATE_COLUMN,
+	ATTR_COLUMN,
+	DIZ_COLUMN,
+	OWNER_COLUMN,
+	NUMLINK_COLUMN,
+	NUMSTREAMS_COLUMN,
+	STREAMSSIZE_COLUMN,
+	CUSTOM_COLUMN0,
+	CUSTOM_COLUMN1,
+	CUSTOM_COLUMN2,
+	CUSTOM_COLUMN3,
+	CUSTOM_COLUMN4,
+	CUSTOM_COLUMN5,
+	CUSTOM_COLUMN6,
+	CUSTOM_COLUMN7,
+	CUSTOM_COLUMN8,
+	CUSTOM_COLUMN9
+};
 
-int _MakePath1(DWORD Key,string &strPathName, const wchar_t *Param2,int ShortNameAsIs=TRUE);
+enum {
+	COUNT_WIDTH=0,
+	PERCENT_WIDTH
+};
 
-const string FormatStr_Attribute(DWORD FileAttributes,int Width=-1);
-const string FormatStr_DateTime(const FILETIME *FileTime,int ColumnType,DWORD Flags,int Width);
-const string FormatStr_Size(__int64 UnpSize, __int64 PackSize, __int64 StreamsSize, const string strName,DWORD FileAttributes,DWORD ShowFolderSize,DWORD ReparseTag,int ColumnType,DWORD Flags,int Width);
-void TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *ColumnWidths,
-						unsigned int *ViewColumnTypes,int *ViewColumnWidths,int *ViewColumnWidthsTypes,int &ColumnCount);
-void ViewSettingsToText(unsigned int *ViewColumnTypes,
-						int *ViewColumnWidths,int *ViewColumnWidthsTypes,int ColumnCount,string &strColumnTitles,
-						string &strColumnWidths);
+#define PANEL_COLUMNCOUNT  20

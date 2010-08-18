@@ -34,18 +34,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "scrobj.hpp"
-
-
+#include "panelctype.hpp"
 
 class DizList;
 
 struct PanelViewSettings
 {
-	unsigned int ColumnType[20];
-	int ColumnWidth[20];
+	unsigned int ColumnType[PANEL_COLUMNCOUNT];
+	int ColumnWidth[PANEL_COLUMNCOUNT];
 	int ColumnCount;
-	unsigned int StatusColumnType[20];
-	int StatusColumnWidth[20];
+	unsigned int StatusColumnType[PANEL_COLUMNCOUNT];
+	int StatusColumnWidth[PANEL_COLUMNCOUNT];
 	int StatusColumnCount;
 	int FullScreen;
 	int AlignExtensions;
@@ -54,8 +53,8 @@ struct PanelViewSettings
 	int FileLowerCase;
 	int FileUpperToLowerCase;
 	int CaseSensitiveSort;
-	int ColumnWidthType[20];
-	int StatusColumnWidthType[20];
+	int ColumnWidthType[PANEL_COLUMNCOUNT];
+	int StatusColumnWidthType[PANEL_COLUMNCOUNT];
 };
 
 enum {FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL};

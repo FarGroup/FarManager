@@ -74,6 +74,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "event.hpp"
 #include "console.hpp"
 #include "wakeful.hpp"
+#include "panelmix.hpp"
+#include "setattr.hpp"
 
 const int CHAR_TABLE_SIZE=5;
 const int LIST_DELTA=64;
@@ -384,6 +386,11 @@ enum ADVANCEDDLG
 	AD_EDIT_SEARCHFIRST,
 	AD_CHECKBOX_FINDALTERNATESTREAMS,
 	AD_SEPARATOR1,
+	AD_TEXT_COLUMNSFORMAT,
+	AD_EDIT_COLUMNSFORMAT,
+	AD_TEXT_COLUMNSWIDTH,
+	AD_EDIT_COLUMNSWIDTH,
+	AD_SEPARATOR2,
 	AD_BUTTON_OK,
 	AD_BUTTON_CANCEL,
 };
@@ -778,18 +785,23 @@ void AdvancedDialog()
 {
 	DialogDataEx AdvancedDlgData[]=
 	{
-		DI_DOUBLEBOX,3,1,52,7,0,0,MSG(MFindFileAdvancedTitle),
+		DI_DOUBLEBOX,3,1,52,12,0,0,MSG(MFindFileAdvancedTitle),
 		DI_TEXT,5,2,0,2,0,0,MSG(MFindFileSearchFirst),
 		DI_EDIT,5,3,50,3,0,0,Opt.FindOpt.strSearchInFirstSize,
 		DI_CHECKBOX,5,4,0,4,Opt.FindOpt.FindAlternateStreams,0,MSG(MFindAlternateStreams),
 		DI_TEXT,3,5,0,5,0,DIF_SEPARATOR,L"",
-		DI_BUTTON,0,6,0,6,0,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MOk),
-		DI_BUTTON,0,6,0,6,0,DIF_CENTERGROUP,MSG(MCancel),
+		DI_TEXT,5,6, 0, 6,0,0,MSG(MFindAlternateModeTypes),
+		DI_EDIT,5,7,35, 7,0,0,Opt.FindOpt.strSearchOutFormat,
+		DI_TEXT,5,8, 0, 8,0,0,MSG(MFindAlternateModeWidths),
+		DI_EDIT,5,9,35, 9,0,0,Opt.FindOpt.strSearchOutFormatWidth,
+		DI_TEXT,3,10,0,10,0,DIF_SEPARATOR,L"",
+		DI_BUTTON,0,11,0,11,0,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MOk),
+		DI_BUTTON,0,11,0,11,0,DIF_CENTERGROUP,MSG(MCancel),
 	};
 	MakeDialogItemsEx(AdvancedDlgData,AdvancedDlg);
 	Dialog Dlg(AdvancedDlg,ARRAYSIZE(AdvancedDlg),AdvancedDlgProc);
 	Dlg.SetHelp(L"FindFileAdvanced");
-	Dlg.SetPosition(-1,-1,52+4,7+2);
+	Dlg.SetPosition(-1,-1,52+4,7+7);
 	Dlg.Process();
 	int ExitCode=Dlg.GetExitCode();
 
@@ -797,6 +809,25 @@ void AdvancedDialog()
 	{
 		Opt.FindOpt.strSearchInFirstSize = AdvancedDlg[AD_EDIT_SEARCHFIRST].strData;
 		SearchInFirst=ConvertFileSizeString(Opt.FindOpt.strSearchInFirstSize);
+
+		Opt.FindOpt.strSearchOutFormat = AdvancedDlg[AD_EDIT_COLUMNSFORMAT].strData;
+		Opt.FindOpt.strSearchOutFormatWidth = AdvancedDlg[AD_EDIT_COLUMNSWIDTH].strData;
+
+		memset(Opt.FindOpt.OutColumnTypes,0,sizeof(Opt.FindOpt.OutColumnTypes));
+		memset(Opt.FindOpt.OutColumnWidths,0,sizeof(Opt.FindOpt.OutColumnWidths));
+		memset(Opt.FindOpt.OutColumnWidthType,0,sizeof(Opt.FindOpt.OutColumnWidthType));
+		Opt.FindOpt.OutColumnCount=0;
+
+		if (!Opt.FindOpt.strSearchOutFormat.IsEmpty())
+		{
+			if (Opt.FindOpt.strSearchOutFormatWidth.IsEmpty())
+				Opt.FindOpt.strSearchOutFormatWidth=L"0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0";
+
+			TextToViewSettings(Opt.FindOpt.strSearchOutFormat.CPtr(),Opt.FindOpt.strSearchOutFormatWidth.CPtr(),
+                                  Opt.FindOpt.OutColumnTypes,Opt.FindOpt.OutColumnWidths,Opt.FindOpt.OutColumnWidthType,
+                                  Opt.FindOpt.OutColumnCount);
+        }
+
 		Opt.FindOpt.FindAlternateStreams=(AdvancedDlg[AD_CHECKBOX_FINDALTERNATESTREAMS].Selected==BSTATE_CHECKED);
 	}
 }
@@ -1454,7 +1485,7 @@ bool IsFileIncluded(PluginPanelItem* FileItem, const wchar_t *FullName, DWORD Fi
 					string strTempDir;
 					FarMkTempEx(strTempDir); // ј проверка на nullptr???
 					apiCreateDirectory(strTempDir,nullptr);
-					
+
 					bool GetFileResult=false;
 					{
 						CriticalSectionLock Lock(PluginCS);
@@ -1500,7 +1531,7 @@ LONG_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 
 	static bool Recurse=false;
 	static DWORD ShowTime=0;
-	
+
 	if(!v->Finalized && !Recurse)
 	{
 		Recurse=true;
@@ -1682,6 +1713,28 @@ LONG_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 					return TRUE;
 				}
 				break;
+
+			/*
+			case KEY_CTRLA:
+			{
+				if (!ListBox->GetItemCount())
+				{
+					return TRUE;
+				}
+
+				size_t ItemIndex = reinterpret_cast<size_t>(ListBox->GetUserData(nullptr,0));
+
+				FINDLIST FindItem;
+				itd.GetFindListItem(ItemIndex, FindItem);
+
+				if (ShellSetFileAttributes(NULL,FindItem.FindData.strFileName))
+				{
+					itd.SetFindListItem(ItemIndex, FindItem);
+					SendDlgMessage(hDlg,DM_REDRAW,0,0);
+				}
+				return TRUE;
+			}
+			*/
 
 			case KEY_F3:
 			case KEY_NUMPAD5:
@@ -2126,7 +2179,6 @@ void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& 
 
 	VMenu *ListBox=reinterpret_cast<Dialog*>(hDlg)->GetAllItem()[FD_LISTBOX]->ListPtr;
 
-
 	if(!ListBox->GetItemCount())
 	{
 		SendDlgMessage(hDlg, DM_ENABLE, FD_BUTTON_GOTO, TRUE);
@@ -2139,59 +2191,111 @@ void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& 
 
 	FormatString MenuText;
 
-	// ќтображаем дату последнего изменени€
 	string strDateStr, strTimeStr;
-	ConvertDate(FindData.ftLastWriteTime, strDateStr, strTimeStr, 5);
-	MenuText << L' ' << fmt::Width(8) << fmt::Precision(8) << strDateStr << L' ' << fmt::Width(5) << fmt::Precision(5) << strTimeStr << BoxSymbols[BS_V1];
-
-	MenuText << fmt::Width(13);
-	if (FindData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
-	{
-		LPCWSTR TagType = MSG(MFindFileSymLink);
-		switch (FindData.dwReserved0)
-		{
-		case IO_REPARSE_TAG_SYMLINK:
-			break;
-		case IO_REPARSE_TAG_MOUNT_POINT:
-			TagType = MSG(MFindFileJunction);
-			break;
-		//case ...
-			//break;
-		}
-		MenuText << TagType;
-	}
-	else if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-		MenuText << MSG(MFindFileFolder);
-	else
-		MenuText << FindData.nFileSize;
-	MenuText << BoxSymbols[BS_V1];
-
-	const wchar_t AttrStr[]=
-	{
-		FindData.dwFileAttributes&FILE_ATTRIBUTE_READONLY?L'R':L' ',
-		FindData.dwFileAttributes&FILE_ATTRIBUTE_SYSTEM?L'S':L' ',
-		FindData.dwFileAttributes&FILE_ATTRIBUTE_HIDDEN?L'H':L' ',
-		FindData.dwFileAttributes&FILE_ATTRIBUTE_ARCHIVE?L'A':L' ',
-		FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT?L'L':FindData.dwFileAttributes&FILE_ATTRIBUTE_SPARSE_FILE?L'$':L' ',
-		FindData.dwFileAttributes&FILE_ATTRIBUTE_COMPRESSED?L'C':FindData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED?L'E':L' ',
-		FindData.dwFileAttributes&FILE_ATTRIBUTE_TEMPORARY?L'T':L' ',
-		FindData.dwFileAttributes&FILE_ATTRIBUTE_NOT_CONTENT_INDEXED?L'I':L' ',
-		FindData.dwFileAttributes&FILE_ATTRIBUTE_OFFLINE?L'O':L' ',
-		FindData.dwFileAttributes&FILE_ATTRIBUTE_VIRTUAL?L'V':L' ',
-		0
-	};
-	MenuText << AttrStr << BoxSymbols[BS_V1];
-
 	const wchar_t *DisplayName=FindData.strFileName;
-	
+
+	unsigned int *ColumnType=Opt.FindOpt.OutColumnTypes;
+	int *ColumnWidth=Opt.FindOpt.OutColumnWidths;
+	int ColumnCount=Opt.FindOpt.OutColumnCount;
+	int *ColumnWidthType=Opt.FindOpt.OutColumnWidthType;
+
+	MenuText << L' ';
+
+	for (int Count=0; Count < ColumnCount; ++Count)
+	{
+		unsigned int CurColumnType = ColumnType[Count] & 0xFF;
+
+		switch (CurColumnType)
+		{
+			case DIZ_COLUMN:
+			case OWNER_COLUMN:
+			{
+				// пропускаем, не реализовано
+				break;
+			}
+			case NAME_COLUMN:
+			{
+				// даже если указали, пропускаем, т.к. поле имени об€зательное и идет в конце.
+				break;
+			}
+
+			case ATTR_COLUMN:
+			{
+				MenuText << FormatStr_Attribute(FindData.dwFileAttributes) << BoxSymbols[BS_V1];
+				break;
+			}
+			case NUMSTREAMS_COLUMN:
+			case STREAMSSIZE_COLUMN:
+			case SIZE_COLUMN:
+			case PACKED_COLUMN:
+			case NUMLINK_COLUMN:
+			{
+				UINT64 StreamsSize=0;
+				DWORD StreamsCount=0;
+
+				if (itd.GetFindFileArcIndex() == LIST_INDEX_NONE)
+				{
+					if (CurColumnType == NUMSTREAMS_COLUMN || CurColumnType == STREAMSSIZE_COLUMN)
+						EnumStreams(FindData.strFileName,StreamsSize,StreamsCount);
+					else if(CurColumnType == NUMLINK_COLUMN)
+						StreamsCount=GetNumberOfLinks(FindData.strFileName);
+				}
+
+				MenuText << FormatStr_Size(
+								FindData.nFileSize,
+								FindData.nPackSize,
+								(CurColumnType == NUMSTREAMS_COLUMN || CurColumnType == NUMLINK_COLUMN)?StreamsCount:StreamsSize,
+								DisplayName,
+								FindData.dwFileAttributes,
+								0,
+								FindData.dwReserved0,
+								(CurColumnType == NUMSTREAMS_COLUMN || CurColumnType == NUMLINK_COLUMN)?STREAMSSIZE_COLUMN:CurColumnType,
+								ColumnType[Count],
+								ColumnWidth[Count]);
+
+				MenuText << BoxSymbols[BS_V1];
+				break;
+			}
+
+			case DATE_COLUMN:
+			case TIME_COLUMN:
+			case MDATE_COLUMN:
+			case ADATE_COLUMN:
+			case CDATE_COLUMN:
+			{
+				const FILETIME *FileTime;
+				switch (CurColumnType)
+				{
+					case CDATE_COLUMN:
+						FileTime=&FindData.ftCreationTime;
+						break;
+					case ADATE_COLUMN:
+						FileTime=&FindData.ftLastAccessTime;
+						break;
+					case DATE_COLUMN:
+					case TIME_COLUMN:
+					case MDATE_COLUMN:
+					default:
+						FileTime=&FindData.ftLastWriteTime;
+						break;
+				}
+
+				MenuText << FormatStr_DateTime(FileTime,CurColumnType,ColumnType[Count],ColumnWidth[Count]) << BoxSymbols[BS_V1];
+				break;
+			}
+		}
+	}
+
+
 	// ¬ плагинах принудительно поставим указатель в имени на им€
 	// дл€ корректного его отображени€ в списке, отбросив путь,
 	// т.к. некоторые плагины возвращают им€ вместе с полным путЄм,
 	// к примеру временна€ панель.
 
+	const wchar_t *DisplayName0=DisplayName;
 	if (itd.GetFindFileArcIndex() != LIST_INDEX_NONE)
-		DisplayName = PointToName(DisplayName);
-	MenuText << DisplayName;
+		DisplayName0 = PointToName(DisplayName0);
+	MenuText << DisplayName0;
 
 	string strPathName=FullName;
 	{
@@ -2311,7 +2415,7 @@ void ArchiveSearch(HANDLE hDlg, const wchar_t *ArcName)
 {
 	_ALGO(CleverSysLog clv(L"FindFiles::ArchiveSearch()"));
 	_ALGO(SysLog(L"ArcName='%s'",(ArcName?ArcName:L"nullptr")));
-	
+
 	LPBYTE Buffer=new BYTE[Opt.PluginMaxReadData];
 
 	if (!Buffer)

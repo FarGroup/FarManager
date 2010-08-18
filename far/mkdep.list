@@ -273,3 +273,4 @@ window.hpp
 wrap.cpp
 xlat.cpp
 xlat.hpp
+panelctype.hpp

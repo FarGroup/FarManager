@@ -8127,6 +8127,14 @@ MFindFileSearchFirst
 "Keresés csak az első &x bájtban:"
 "Szukaj wyłącznie w &pierwszych:"
 
+MFindFileSearchOutputFormat
+"&Формат вывода:"
+"&Output format:"
+upd:"&Output format:"
+upd:"&Output format:"
+upd:"&Output format:"
+upd:"&Output format:"
+
 MFindAlternateStreams
 "Обрабатывать &альтернативные потоки данных"
 "Process &alternate data streams"
@@ -8134,6 +8142,22 @@ upd:"Process &alternate data streams"
 upd:"Process &alternate data streams"
 "&Alternatív adatsávok (stream) feldolgozása"
 upd:"Process &alternate data streams"
+
+MFindAlternateModeTypes
+"&Типы колонок"
+"Column &types"
+"&Typ sloupců"
+"Spalten&typen"
+"Oszlop&típusok"
+"&Typy kolumn"
+
+MFindAlternateModeWidths
+"&Ширина колонок"
+"Column &widths"
+"Šíř&ka sloupců"
+"Spalten&breiten"
+"Oszlop&szélességek"
+"&Szerokości kolumn"
 
 MFoldTreeSearch
 l:
