@@ -3,6 +3,22 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 18.08.2010 22:31:22 +0300 - build 1644
+
+1. Mantins#0001305: wish: Show some cols of Find window
+   Columns configuration is located in "Find file advanced options" dialog ("Advanced" button in search window)
+   Column types syntax is the same one as for panels.
+   Differences and limitations are described at help page for "Find file advanced options" dialog.
+
+   To be improved:
+     1. Get the list prepare the output line (now the list is given a previously prepared line)
+     2. after this, add 9 more view modes and remove the limitation on file name column ("always last")
+     4. as a result, we can get dynamic switching of view modes with Ctrl-digit (as in panels)
+   
+2. Meanwhile, a bug was found - garbage was shown in "G" column for "..".
+
+3. ViewSettingsToText() and TextToViewSettings() are not FileList class members anymore.
+
 drkns 17.08.2010 20:15:03 +0200 - build 1643
 
 1. "Move to the recycle bin" dialog: confirmation button is labeled "move" (was: "delete").
