@@ -172,6 +172,7 @@ enum MACRO_OP_CODE
 	MCODE_F_MENU_SELECT,              // N=Menu.Select(S[,N[,Dir]])
 	MCODE_F_MIN,                      // N=min(N1,N2)
 	MCODE_F_MOD,                      // N=mod(a,b) == a %  b
+	MCODE_F_MLOAD,                    // B=mload(var)
 	MCODE_F_MSAVE,                    // B=msave(var)
 	MCODE_F_MSGBOX,                   // N=msgbox(["Title"[,"Text"[,flags]]])
 	MCODE_F_PANEL_FATTR,              // N=Panel.FAttr(panelType,fileMask)

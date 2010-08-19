@@ -744,21 +744,27 @@ int CheckRegKey(const wchar_t *Key)
    Возвращает FALSE, если указанная переменная не содержит данные
    или размер данных равен нулю.
 */
-int CheckRegValue(const wchar_t *Key,const wchar_t *ValueName)
+int CheckRegValue(const wchar_t *Key,const wchar_t *ValueName,DWORD *pType,DWORD *pDataSize)
 {
 	int ExitCode=!ERROR_SUCCESS;
 	DWORD DataSize=0;
 	HKEY hKey=OpenRegKey(Key);
+	DWORD Type=REG_NONE;
 
 	if (hKey)
 	{
-		DWORD Type;
 		ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,nullptr,&DataSize);
 		CloseRegKey(hKey);
 	}
 
 	if (ExitCode!=ERROR_SUCCESS || !DataSize)
 		return FALSE;
+
+	if (pType)
+		*pType=Type;
+
+	if (pDataSize)
+		*pDataSize=DataSize;
 
 	return TRUE;
 }

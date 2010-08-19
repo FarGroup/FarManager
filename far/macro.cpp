@@ -2605,6 +2605,75 @@ static bool editorsetFunc()
 	return Ret.i()==-1;
 }
 
+// b=mload(var)
+static bool mloadFunc()
+{
+	TVar Val;
+	VMStack.Pop(Val);
+	TVarTable *t = &glbVarTable;
+	const wchar_t *Name=Val.s();
+
+	if (!Name || *Name!= L'%')
+	{
+		VMStack.Push(0ll);
+		return false;
+	}
+
+	DWORD Ret=(DWORD)-1;
+	DWORD ValType;
+
+	if (CheckRegValue(L"KeyMacros\\Vars",Name, &ValType))
+	{
+		switch(ValType)
+		{
+			case REG_SZ:
+			case REG_MULTI_SZ:
+			{
+				string strSData;
+				strSData.Clear();
+				GetRegKey(L"KeyMacros\\Vars",Name,strSData,L"");
+
+				if (ValType == REG_MULTI_SZ)
+				{
+					wchar_t *ptrSData = strSData.GetBuffer();
+					for (;;)
+					{
+						ptrSData+=StrLength(ptrSData);
+
+						if (!ptrSData[0] && !ptrSData[1])
+							break;
+
+						*ptrSData=L'\n';
+					}
+					strSData.ReleaseBuffer();
+				}
+
+				varInsert(*t, Name)->value = strSData.CPtr();
+
+				Ret=ERROR_SUCCESS;
+
+				break;
+			}
+			case REG_DWORD:
+			{
+				varInsert(*t, Name)->value = GetRegKey(L"KeyMacros\\Vars",Name,0);
+				Ret=ERROR_SUCCESS;
+				break;
+			}
+			case REG_QWORD:
+			{
+				varInsert(*t, Name)->value = GetRegKey64(L"KeyMacros\\Vars",Name,0);
+				Ret=ERROR_SUCCESS;
+				break;
+			}
+
+		}
+	}
+
+	VMStack.Push(TVar(Ret==ERROR_SUCCESS?1:0));
+	return Ret==ERROR_SUCCESS;
+}
+
 // b=msave(var)
 static bool msaveFunc()
 {
@@ -4423,6 +4492,7 @@ done:
 				{MCODE_F_FSPLIT,fsplitFunc},  // S=fsplit(S,N)
 				{MCODE_F_FATTR,fattrFunc},   // N=fattr(S)
 				{MCODE_F_MSAVE,msaveFunc},   // N=msave(S)
+				{MCODE_F_MLOAD,mloadFunc},   // N=mload(S)
 				{MCODE_F_DLG_GETVALUE,dlggetvalueFunc},        // V=Dlg.GetValue(ID,N)
 				{MCODE_F_EDITOR_POS,editorposFunc},// N=Editor.Pos(Op,What[,Where])
 				{MCODE_F_EDITOR_SEL,editorselFunc}, // V=Editor.Sel(Action[,Opt])

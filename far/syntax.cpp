@@ -351,6 +351,7 @@ static TMacroFunction macroFunction[]=
 	{L"MENU.GETVALUE",    1, 1,   MCODE_F_MENU_GETVALUE,    nullptr, L"S=Menu.GetValue([N])"},
 	{L"MENU.ITEMSTATUS",  1, 1,   MCODE_F_MENU_ITEMSTATUS,  nullptr, L"N=Menu.ItemStatus([N])"},
 	{L"MENU.SELECT",      3, 2,   MCODE_F_MENU_SELECT,      nullptr, L"N=Menu.Select(S[,N[,Dir]])"},
+	{L"MLOAD",            1, 0,   MCODE_F_MLOAD,            nullptr, L"N=MLoad(S)"},
 	{L"MMODE",            2, 1,   MCODE_F_MMODE,            nullptr, L"N=MMode(Action[,Value])"},
 	{L"MOD",              2, 0,   MCODE_F_MOD,              nullptr, L"N=Mod(a,b)"},
 	{L"MSAVE",            1, 0,   MCODE_F_MSAVE,            nullptr, L"N=MSave(S)"},

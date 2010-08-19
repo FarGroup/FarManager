@@ -1129,6 +1129,7 @@ string __MCODE_ToName(int OpCode)
 		DEF_MCODE_(F_MENU_GETHOTKEY),           // S=gethotkey()
 		DEF_MCODE_(F_MIN),
 		DEF_MCODE_(F_MSAVE),
+		DEF_MCODE_(F_MLOAD),
 		DEF_MCODE_(F_MSGBOX),
 		DEF_MCODE_(F_PROMPT),              // S=prompt("Title"[,"Prompt"[,flags[, "Src"[, "History"]]]])
 		DEF_MCODE_(F_NOFUNC),

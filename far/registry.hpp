@@ -85,7 +85,7 @@ void DeleteKeyTree(const wchar_t *KeyName);
 
 int CheckRegKey(const wchar_t *Key);
 
-int CheckRegValue(const wchar_t *Key,const wchar_t *ValueName);
+int CheckRegValue(const wchar_t *Key,const wchar_t *ValueName,DWORD *pType=nullptr,DWORD *pDataSize=nullptr);
 
 int DeleteEmptyKey(HKEY hRoot, const wchar_t *FullKeyName);
 
