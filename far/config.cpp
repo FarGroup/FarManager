@@ -916,9 +916,6 @@ void ReadConfig()
 
 	Opt.EdOpt.strWordDiv = Opt.strWordDiv;
 	FileList::ReadPanelModes();
-	apiGetTempPath(Opt.strTempPath);
-	RemoveTrailingSpaces(Opt.strTempPath);
-	AddEndSlash(Opt.strTempPath);
 	CtrlObject->EditorPosCache->Read(L"Editor\\LastPositions");
 	CtrlObject->ViewerPosCache->Read(L"Viewer\\LastPositions");
 	// уточняем системную политику

@@ -958,19 +958,16 @@ int WipeFile(const wchar_t *Name)
 
 int WipeDirectory(const wchar_t *Name)
 {
-	string strTempName, strSavePath(Opt.strTempPath);
-	BOOL usePath = FALSE;
+	string strTempName, strPath;
 
 	if (FirstSlash(Name))
 	{
-		Opt.strTempPath = Name;
-		DeleteEndSlash(Opt.strTempPath);
-		CutToSlash(Opt.strTempPath);
-		usePath = TRUE;
+		strPath = Name;
+		DeleteEndSlash(strPath);
+		CutToSlash(strPath);
 	}
 
-	FarMkTempEx(strTempName,nullptr,usePath);
-	Opt.strTempPath = strSavePath;
+	FarMkTempEx(strTempName,nullptr, FALSE, strPath.IsEmpty()?nullptr:strPath.CPtr());
 
 	if (!apiMoveFile(Name, strTempName))
 	{

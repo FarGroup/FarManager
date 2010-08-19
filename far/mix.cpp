@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "CFileMask.hpp"
 #include "scantree.hpp"
 #include "config.hpp"
+#include "pathmix.hpp"
 
 int ToPercent(unsigned long N1,unsigned long N2)
 {
@@ -138,15 +139,23 @@ int WINAPI FarMkTemp(wchar_t *Dest, DWORD size, const wchar_t *Prefix)
         |
         +---------- [0A-Z]
 */
-string& FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithPath)
+string& FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithTempPath, const wchar_t *UserTempPath)
 {
 	if (!(Prefix && *Prefix))
 		Prefix=L"FTMP";
 
 	string strPath = L".";
 
-	if (WithPath)
-		strPath = Opt.strTempPath;
+	if (WithTempPath)
+	{
+		apiGetTempPath(strPath);
+	}
+	else if(UserTempPath)
+	{
+		strPath=UserTempPath;
+	}
+
+	AddEndSlash(strPath);
 
 	wchar_t *lpwszDest = strDest.GetBuffer(StrLength(Prefix)+strPath.GetLength()+13);
 	UINT uniq = GetCurrentProcessId(), savePid = uniq;
