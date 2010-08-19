@@ -632,7 +632,18 @@ panel.SetPath(0,"C:\\Program Files","FAR")</pre>
     <td class="cont" width="60%">Сохраняет значение глобальной переменной с именем <em>S</em> в область <dfn>Vars</dfn>.<br>
      Числовые значения с плавающей точкой сохраняются в реестре в виде строки.<br>
      В случае неудачи возвращает 0.<br>
-     Например, <pre class=code>%%GlobalVars="Foo Bar"; %a=msave("%%GlobalVars");</pre>
+     Например, после выполения последовательности <pre class=code>%%GlobalVars="Foo Bar"; %a=msave("%%GlobalVars");</pre>
+     в реестре появится значение %%GlobalVars, содержащее "Foo Bar" (REG_SZ).
+    </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">B=<dfn><a name="mload">mload</a></dfn>(S)</td>
+    <td class="cont" width="60%">Считать значение глобальной переменной с именем <em>S</em> из реестра (область <dfn>Vars</dfn>).<br>
+    Функция вернет 1 - есть такая переменная и она успешно считана в память, 0 - неудача, нет такой переменной в реестре (в этом случае переменная не создается,
+     если переменная была в памяти, а из реестра запись удалили, то значение в памяти не изменяется).<br>
+     Например, в реестре была переменная "%%GlobalVars" со значением 20 (REG_QWORD). После выполения последовательности
+     <pre class=code>%%GlobalVars="Foo Bar"; %a=mload("%%GlobalVars");</pre>
+     %%GlobalVars будет равна 20.
     </td>
   </tr>
   <tr class="cont">
