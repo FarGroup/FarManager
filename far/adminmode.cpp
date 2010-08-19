@@ -2428,7 +2428,6 @@ int AdminMain(int PID)
 			}
 		}
 		CloseHandle(Pipe);
-		CloseHandle(Pipe);
 	}
 	return Result;
 }
