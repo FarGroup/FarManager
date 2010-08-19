@@ -3,6 +3,26 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 19.08.2010 20:21:57 +0200 - build 1647
+
+1. Correction in 1646.
+
+drkns 19.08.2010 19:36:20 +0200 - build 1646
+
+1. Virtual hard drives (VHD) are recognized in drive change menu. Optional is VHD container name displaying.
+   Windows 7/Windows Server 2008 R2 and higher is needed.
+
+2. A few useless "IsProcessAssignMacroKey" and more triffles.
+
+svs 19.08.2010 14:56:31 +0300 - build 1645
+
+1. Macro: a function is added N=mload(S) 
+     it reads variable S from the registry (Vars area).
+     return: 1 - the variable exists and is read successfully.
+             0 - the variable does not exist; a new variable is not created;
+                 if the variable existed in memory but was deleted from the registry, then the value in memory is not changed.
+     the function works with REG_SZ, REG_MULTI_SZ, REG_DWORD and REG_QWORD keys.
+
 svs 18.08.2010 22:31:22 +0300 - build 1644
 
 1. Mantins#0001305: wish: Show some cols of Find window
