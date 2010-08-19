@@ -2857,7 +2857,7 @@ is not a ~file panel~@FilePanel@, it will be changed to the file panel.
 
      - to ~disconnect~@DisconnectDrive@ from network drives.
 
-     - to delete a substituted (virtual) drive.
+     - to delete a substituted (virtual) disk.
 
      - to eject disks from CD-ROM and removable drives.
        Ejecting a disk from a ZIP-drive requires administrative privileges.
@@ -2871,7 +2871,7 @@ card-reader itself will be stopped.
     #Ctrl-1# - #Ctrl-9# switch the display of different information:
 
     Ctrl-1 - disk type;
-    Ctrl-2 - network name (and the path associated with a SUBST drive);
+    Ctrl-2 - network name/path associated with a SUBST disk/path to virtual disk container;
     Ctrl-3 - disk label;
     Ctrl-4 - file system;
     Ctrl-5 - total and free disk size

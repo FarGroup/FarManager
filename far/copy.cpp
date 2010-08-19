@@ -4091,7 +4091,6 @@ DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
 {
 	// // _LOGCOPYR(CleverSysLog clv(L"CopyProgressRoutine"));
 	// // _LOGCOPYR(SysLog(L"dwStreamNumber=%d",dwStreamNumber));
-
 	bool Abort = false;
 	if (CP->Cancelled())
 	{

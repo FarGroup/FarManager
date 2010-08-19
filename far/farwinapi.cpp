@@ -214,6 +214,13 @@ bool File::IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, L
 	return admin?Admin.fDeviceIoControl(Handle, IoControlCode, InBuffer, InBufferSize, OutBuffer, OutBufferSize, BytesReturned, Overlapped):DeviceIoControl(Handle, IoControlCode, InBuffer, InBufferSize, OutBuffer, OutBufferSize, BytesReturned, Overlapped) != FALSE;
 }
 
+bool File::GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed)
+{
+	DWORD Result = ifn.pfnGetStorageDependencyInformation?admin?Admin.fGetStorageDependencyInformation(Handle, Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed):ifn.pfnGetStorageDependencyInformation(Handle, Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed):ERROR_CALL_NOT_IMPLEMENTED;
+	SetLastError(Result);
+	return Result == ERROR_SUCCESS;
+}
+
 bool File::Close()
 {
 	bool Result=true;

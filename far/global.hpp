@@ -61,7 +61,6 @@ extern int DisablePluginsOutput;
 extern const DWORD FAR_VERSION;
 
 extern BOOL IsProcessAssignMacroKey;
-extern BOOL IsProcessVE_FindFile;
 extern BOOL IsRedrawFramesInProcess;
 
 extern const char *Copyright;

@@ -209,11 +209,18 @@ typedef BOOL (WINAPI *HEAPSETINFORMATION)(
     SIZE_T HeapInformationLength
 );
 
+typedef DWORD (WINAPI *GETSTORAGEDEPENDENCYINFORMATION)(
+    HANDLE ObjectHandle,
+    GET_STORAGE_DEPENDENCY_FLAG Flags,
+    ULONG StorageDependencyInfoSize,
+    PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo,
+    PULONG SizeUsed
+);
 
-struct ImportedFunctions
+
+class ImportedFunctions
 {
-
-	//
+public:
 	PCMGETDEVNODEREGISTRYPROPERTY pfnGetDevNodeRegistryProperty;
 	PCMGETDEVNODESTATUS pfnGetDevNodeStatus;
 	PCMGETDEVICEID pfnGetDeviceID;
@@ -253,7 +260,14 @@ struct ImportedFunctions
 
 	HEAPSETINFORMATION pfnHeapSetInformation;
 
-	void Load();
+	GETSTORAGEDEPENDENCYINFORMATION pfnGetStorageDependencyInformation;
+
+	ImportedFunctions();
+	~ImportedFunctions();
+
+private:
+	HMODULE hSetupAPI;
+	HMODULE hVirtDisk;
 };
 
 extern ImportedFunctions ifn;

@@ -745,55 +745,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 				continue;
 			}
 
-			// Эта фигня нужна только в диалоге назначения макро - остальное по барабану - и так работает
-			// ... иначе хреновень с эфектом залипшего шифта проскакивает
-			if (rec->EventType==KEY_EVENT && IsProcessAssignMacroKey)
-			{
-				if (rec->Event.KeyEvent.wVirtualKeyCode == VK_SHIFT)
-				{
-					if (rec->Event.KeyEvent.dwControlKeyState&ENHANCED_KEY)
-					{
-						/*
-						Left Right курсорные расширенные клавиши
-						Dn, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000030 (caSa - cecN)
-						Dn, 1, Vk=0x0025, Scan=0x004B Ctrl=0x00000130 (caSa - cEcN)
-						Up, 1, Vk=0x0025, Scan=0x004B Ctrl=0x00000130 (caSa - cEcN)
-						Dn, 1, Vk=0x0027, Scan=0x004D Ctrl=0x00000130 (caSa - cEcN)
-						Up, 1, Vk=0x0027, Scan=0x004D Ctrl=0x00000130 (caSa - cEcN)
-						Up, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000020 (casa - cecN)
-						*/
-						INPUT_RECORD pinp;
-						DWORD nread;
-						Console.ReadInput(pinp, 1, nread);
-						continue;
-					}
-
-					/* коррекция шифта, т.к.
-					NumLock=ON Shift-Numpad1
-					   Dn, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000030 (caSa - cecN)
-					   Dn, 1, Vk=0x0023, Scan=0x004F Ctrl=0x00000020 (casa - cecN)
-					   Up, 1, Vk=0x0023, Scan=0x004F Ctrl=0x00000020 (casa - cecN)
-					>>>Dn, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000030 (caSa - cecN)
-					   Up, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000020 (casa - cecN)
-					винда вставляет лишний шифт
-					*/
-					if (rec->Event.KeyEvent.bKeyDown)
-					{
-						if (!ShiftState)
-							ShiftState=TRUE;
-						else // Здесь удалим из очереди... этот самый кривой шифт
-						{
-							INPUT_RECORD pinp;
-							DWORD nread;
-							Console.ReadInput(pinp, 1, nread);
-							continue;
-						}
-					}
-					else if (!rec->Event.KeyEvent.bKeyDown)
-						ShiftState=FALSE;
-				}
-			}
-
 			// // _SVS(INPUT_RECORD_DumpBuffer());
 #if 0
 
@@ -1109,34 +1060,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 	}
 
 	Console.ReadInput(*rec, 1, ReadCount);
-#if 0
-	Console.ReadInput(*rec, 1, ReadCount);
-
-	// Эта фигня нужна только в диалоге назначения макро - остальное по барабану - и так работает
-	// ... иначе хреновень с эфектом залипшего шифта проскакивает
-	/* коррекция шифта, т.к.
-	NumLock=ON Shift-Numpad1
-	   Dn, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000030 (caSa - cecN)
-	   Dn, 1, Vk=0x0023, Scan=0x004F Ctrl=0x00000020 (casa - cecN)
-	   Up, 1, Vk=0x0023, Scan=0x004F Ctrl=0x00000020 (casa - cecN)
-	>>>Dn, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000030 (caSa - cecN)
-	   Up, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000020 (casa - cecN)
-	винда вставляет лишний шифт
-	*/
-	if (rec->Event.KeyEvent.wVirtualKeyCode == VK_SHIFT &&
-	        rec->EventType==KEY_EVENT &&
-	        IsProcessAssignMacroKey)
-	{
-		if (rec->Event.KeyEvent.bKeyDown)
-		{
-			if (!ShiftState)
-				ShiftState=TRUE;
-		}
-		else if (!rec->Event.KeyEvent.bKeyDown)
-			ShiftState=FALSE;
-	}
-
-#endif
 
 	if (EnableShowTime)
 		ShowTime(1);
@@ -1717,15 +1640,7 @@ int CheckForEscSilent()
 
 int ConfirmAbortOp()
 {
-//  SaveScreen SaveScr; // НУЖЕН! Избавляет от некоторых подводных багов
-	BOOL rc=TRUE;
-	IsProcessAssignMacroKey++; // запретим спец клавиши
-	// т.е. в этом диалоге нельзя нажать Alt-F9!
-	if (Opt.Confirm.Esc)
-		rc=AbortMessage();
-
-	IsProcessAssignMacroKey--;
-	return rc;
+	return Opt.Confirm.Esc?AbortMessage():TRUE;
 }
 
 /* $ 09.02.2001 IS

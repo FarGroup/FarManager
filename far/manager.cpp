@@ -949,11 +949,9 @@ int Manager::ProcessKey(DWORD Key)
 		}
 
 		/*** ј вот здесь - все остальное! ***/
-		if (!IsProcessAssignMacroKey || IsProcessVE_FindFile)
+		if (!IsProcessAssignMacroKey)
 			// в любом случае если кому-то ненужны все клавиши или
 		{
-			/* ** Ёти клавиши разрешены дл€ работы вьювера/редактора
-			      во врем€ вызова онных из поиска файлов ** */
 			switch (Key)
 			{
 				case KEY_CTRLALTPGUP:
@@ -1031,84 +1029,77 @@ int Manager::ProcessKey(DWORD Key)
 
 					break; // отдадим F12 дальше по цепочке
 				}
-			}
 
-			// а здесь то, что может быть запрещено везде :-)
-			if (!IsProcessVE_FindFile)
-			{
-				switch (Key)
+				case KEY_CTRLALTSHIFTPRESS:
+				case KEY_RCTRLALTSHIFTPRESS:
 				{
-					case KEY_CTRLALTSHIFTPRESS:
-					case KEY_RCTRLALTSHIFTPRESS:
+					if (!(Opt.CASRule&1) && Key == KEY_CTRLALTSHIFTPRESS)
+						break;
+
+					if (!(Opt.CASRule&2) && Key == KEY_RCTRLALTSHIFTPRESS)
+						break;
+
+					if (!Opt.OnlyEditorViewerUsed)
 					{
-						if (!(Opt.CASRule&1) && Key == KEY_CTRLALTSHIFTPRESS)
-							break;
-
-						if (!(Opt.CASRule&2) && Key == KEY_RCTRLALTSHIFTPRESS)
-							break;
-
-						if (!Opt.OnlyEditorViewerUsed)
+						if (CurrentFrame->FastHide())
 						{
-							if (CurrentFrame->FastHide())
+							int isPanelFocus=CurrentFrame->GetType() == MODALTYPE_PANELS;
+
+							if (isPanelFocus)
 							{
-								int isPanelFocus=CurrentFrame->GetType() == MODALTYPE_PANELS;
+								int LeftVisible=CtrlObject->Cp()->LeftPanel->IsVisible();
+								int RightVisible=CtrlObject->Cp()->RightPanel->IsVisible();
+								int CmdLineVisible=CtrlObject->CmdLine->IsVisible();
+								int KeyBarVisible=CtrlObject->Cp()->MainKeyBar.IsVisible();
+								CtrlObject->CmdLine->ShowBackground();
+								CtrlObject->Cp()->LeftPanel->Hide0();
+								CtrlObject->Cp()->RightPanel->Hide0();
 
-								if (isPanelFocus)
+								switch (Opt.PanelCtrlAltShiftRule)
 								{
-									int LeftVisible=CtrlObject->Cp()->LeftPanel->IsVisible();
-									int RightVisible=CtrlObject->Cp()->RightPanel->IsVisible();
-									int CmdLineVisible=CtrlObject->CmdLine->IsVisible();
-									int KeyBarVisible=CtrlObject->Cp()->MainKeyBar.IsVisible();
-									CtrlObject->CmdLine->ShowBackground();
-									CtrlObject->Cp()->LeftPanel->Hide0();
-									CtrlObject->Cp()->RightPanel->Hide0();
-
-									switch (Opt.PanelCtrlAltShiftRule)
-									{
-										case 0:
-											CtrlObject->CmdLine->Show();
-											CtrlObject->Cp()->MainKeyBar.Show();
-											break;
-										case 1:
-											CtrlObject->Cp()->MainKeyBar.Show();
-											break;
-									}
-
-									WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:KEY_RCTRLALTSHIFTRELEASE);
-
-									if (LeftVisible)      CtrlObject->Cp()->LeftPanel->Show();
-
-									if (RightVisible)     CtrlObject->Cp()->RightPanel->Show();
-
-									if (CmdLineVisible)   CtrlObject->CmdLine->Show();
-
-									if (KeyBarVisible)    CtrlObject->Cp()->MainKeyBar.Show();
-								}
-								else
-								{
-									ImmediateHide();
-									WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:KEY_RCTRLALTSHIFTRELEASE);
+									case 0:
+										CtrlObject->CmdLine->Show();
+										CtrlObject->Cp()->MainKeyBar.Show();
+										break;
+									case 1:
+										CtrlObject->Cp()->MainKeyBar.Show();
+										break;
 								}
 
-								FrameManager->RefreshFrame();
+								WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:KEY_RCTRLALTSHIFTRELEASE);
+
+								if (LeftVisible)      CtrlObject->Cp()->LeftPanel->Show();
+
+								if (RightVisible)     CtrlObject->Cp()->RightPanel->Show();
+
+								if (CmdLineVisible)   CtrlObject->CmdLine->Show();
+
+								if (KeyBarVisible)    CtrlObject->Cp()->MainKeyBar.Show();
+							}
+							else
+							{
+								ImmediateHide();
+								WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:KEY_RCTRLALTSHIFTRELEASE);
 							}
 
-							return TRUE;
+							FrameManager->RefreshFrame();
 						}
 
-						break;
-					}
-					case KEY_CTRLTAB:
-					case KEY_CTRLSHIFTTAB:
-
-						if (CurrentFrame->GetCanLoseFocus())
-						{
-							DeactivateFrame(CurrentFrame,Key==KEY_CTRLTAB?1:-1);
-						}
-
-						_MANAGER(SysLog(-1));
 						return TRUE;
+					}
+
+					break;
 				}
+				case KEY_CTRLTAB:
+				case KEY_CTRLSHIFTTAB:
+
+					if (CurrentFrame->GetCanLoseFocus())
+					{
+						DeactivateFrame(CurrentFrame,Key==KEY_CTRLTAB?1:-1);
+					}
+
+					_MANAGER(SysLog(-1));
+					return TRUE;
 			}
 		}
 

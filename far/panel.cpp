@@ -223,9 +223,12 @@ const TypeMessage DrTMsg[]=
 	{DRIVE_DVD_RAM,MChangeDriveDVD_RAM},
 	{DRIVE_BD_ROM,MChangeDriveBD_ROM},
 	{DRIVE_RAMDISK,MChangeDriveRAM},
+	{DRIVE_SUBSTITUTE,MChangeDriveSUBST},
+	{DRIVE_VIRTUAL,MChangeDriveVirtual},
+	{DRIVE_USBDRIVE,MChangeDriveRemovable},
 };
 
-static int AddPluginItems(VMenu &ChDisk, int Pos, int DiskCount, bool ShowSpecial, bool SetSelected)
+static int AddPluginItems(VMenu &ChDisk, int Pos, int DiskCount, bool SetSelected)
 {
 	int UsedNumbers[10]={0};
 	TArray<ChDiskPluginItem> MPItems, MPItemsNoHotkey;
@@ -303,7 +306,7 @@ static int AddPluginItems(VMenu &ChDisk, int Pos, int DiskCount, bool ShowSpecia
 			strMenuText.Clear();
 
 			if (HotKey==WCHAR_MAX)
-				strMenuText = ShowSpecial?strPluginText:L"";
+				strMenuText = strPluginText;
 			else
 			{
 				const wchar_t HotKeyStr[]={L'&',HotKey,L':',L' ',L'\0'};
@@ -311,11 +314,7 @@ static int AddPluginItems(VMenu &ChDisk, int Pos, int DiskCount, bool ShowSpecia
 				if (PluginTextNumber < 10)
 				{
 					strMenuText=HotKeyStr;
-
-					if (ShowSpecial)
-					{
-						strMenuText+=strPluginText;
-					}
+					strMenuText+=strPluginText;
 				}
 				else
 				{
@@ -323,21 +322,15 @@ static int AddPluginItems(VMenu &ChDisk, int Pos, int DiskCount, bool ShowSpecia
 					{
 						strMenuText=HotKeyStr;
 
-						if (ShowSpecial)
-						{
-							strMenuText+=strPluginText;
-						}
+						strMenuText+=strPluginText;
 
 						++AHKPos;
 					}
 					else
 					{
-						if (ShowSpecial)   // IS: не добавляем пустые строки!
-						{
-							HotKey=0;
-							strMenuText=L"   ";
-							strMenuText+=strPluginText;
-						}
+						HotKey=0;
+						strMenuText=L"   ";
+						strMenuText+=strPluginText;
 					}
 				}
 			}
@@ -417,12 +410,9 @@ static int AddPluginItems(VMenu &ChDisk, int Pos, int DiskCount, bool ShowSpecia
 			}
 			else
 			{
-				if (ShowSpecial)   // IS: не добавляем пустые строки!
-				{
-					item->HotKey=0;
-					strMenuText="   ";
-					strMenuText+=item->Item.strName;
-				}
+				item->HotKey=0;
+				strMenuText="   ";
+				strMenuText+=item->Item.strName;
 			}
 		}
 
@@ -540,7 +530,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	DWORD Mask,DiskMask;
 	int DiskCount,Focus;
 	WCHAR I;
-	bool ShowSpecial=false, SetSelected=false;
+	bool SetSelected=false;
 	Mask = FarGetLogicalDrives();
 	DWORD NetworkMask = 0;
 	AddSavedNetworkDisks(Mask, NetworkMask);
@@ -585,9 +575,22 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			if ((1<<I)&NetworkMask)
 				DriveType = DRIVE_REMOTE_NOT_CONNECTED;
 
+			string strAssocPath;
+
 			if (Opt.ChangeDriveMode & DRIVE_SHOW_TYPE)
 			{
 				strDiskType.Format(L"%*s",StrLength(MSG(MChangeDriveFixed)),L"");
+
+				const wchar_t LocalName[]={strRootDir.At(0),L':',L'\0'};
+
+				if (GetSubstName(DriveType, LocalName, strAssocPath))
+				{
+					DriveType=DRIVE_SUBSTITUTE;
+				}
+				else if(GetVHDName(LocalName, strAssocPath))
+				{
+					DriveType=DRIVE_VIRTUAL;
+				}
 
 				for (size_t J=0; J < ARRAYSIZE(DrTMsg); ++J)
 				{
@@ -596,16 +599,6 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 						strDiskType = MSG(DrTMsg[J].FarMsg);
 						break;
 					}
-				}
-
-				const wchar_t LocalName[]={strRootDir.At(0),L':',L'\0'};
-
-				string strSubstName;
-
-				if (GetSubstName(DriveType,LocalName,strSubstName))
-				{
-					strDiskType = MSG(MChangeDriveSUBST);
-					DriveType=DRIVE_SUBSTITUTE;
 				}
 
 				strDiskType.Format(L"%-*s",DiskTypeWidth,strDiskType.CPtr());
@@ -677,17 +670,31 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 			if (Opt.ChangeDriveMode & DRIVE_SHOW_NETNAME)
 			{
-				string strRemoteName;
-				DriveLocalToRemoteName(DriveType,strRootDir.At(0),strRemoteName);
-				//TruncPathStr(strRemoteName,ScrX-(int)strMenuText.GetLength()-12);
-
-				if (!strRemoteName.IsEmpty())
+				switch(DriveType)
 				{
-					strMenuText += L"  ";
-					strMenuText += strRemoteName;
-				}
+				case DRIVE_REMOTE:
+					{
+						string strRemoteName;
+						DriveLocalToRemoteName(DriveType,strRootDir.At(0),strRemoteName);
+						//TruncPathStr(strRemoteName,ScrX-(int)strMenuText.GetLength()-12);
 
-				ShowSpecial=true;
+						if (!strRemoteName.IsEmpty())
+						{
+							strMenuText += L"  ";
+							strMenuText += strRemoteName;
+						}
+					}
+					break;
+
+				case DRIVE_SUBSTITUTE:
+				case DRIVE_VIRTUAL:
+					if(!strAssocPath.IsEmpty())
+					{
+						strMenuText += L"  ";
+						strMenuText += strAssocPath;
+					}
+					break;
+				}
 			}
 
 			ChDiskItem.Clear();
@@ -712,9 +719,6 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 			ChDiskItem.strName = strMenuText;
 
-			if (strMenuText.GetLength()>4)
-				ShowSpecial=true;
-
 			PanelMenuItem item;
 			item.bIsPlugin = false;
 			item.cDrive = L'A'+I;
@@ -727,7 +731,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		if (Opt.ChangeDriveMode & DRIVE_SHOW_PLUGINS)
 		{
-			PluginMenuItemsCount = AddPluginItems(ChDisk, Pos, DiskCount, ShowSpecial, SetSelected);
+			PluginMenuItemsCount = AddPluginItems(ChDisk, Pos, DiskCount, SetSelected);
 		}
 
 		int X=X1+5;

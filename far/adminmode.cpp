@@ -50,9 +50,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "event.hpp"
 
-#define PIPE_NAME L"\\\\.\\pipe\\FarPipe"
+LPCWSTR PIPE_NAME = L"\\\\.\\pipe\\FarPipe";
 
-const int Magic = 0x1DD0D;
 const int CallbackMagic= 0xCA11BAC6;
 
 class AutoObject
@@ -189,7 +188,6 @@ AdminMode::AdminMode():
 	DontAskAgain(false),
 	Approve(false),
 	AskApprove(true),
-	ProgressRoutine(nullptr),
 	Recurse(false)
 {
 }
@@ -548,7 +546,7 @@ bool AdminMode::fDeleteFile(LPCWSTR Object)
 	return Result;
 }
 
-void AdminMode::fCallbackRoutine() const
+void AdminMode::fCallbackRoutine(LPPROGRESS_ROUTINE ProgressRoutine) const
 {
 	if(ProgressRoutine)
 	{
@@ -606,7 +604,6 @@ bool AdminMode::fCopyFileEx(LPCWSTR From, LPCWSTR To, LPPROGRESS_ROUTINE Progres
 			{
 				if(SendCommand(C_FUNCTION_COPYFILEEX))
 				{
-					this->ProgressRoutine=ProgressRoutine;
 					if(WriteData(From, From?(StrLength(From)+1)*sizeof(WCHAR):0))
 					{
 						if(WriteData(To, To?(StrLength(To)+1)*sizeof(WCHAR):0))
@@ -625,7 +622,7 @@ bool AdminMode::fCopyFileEx(LPCWSTR From, LPCWSTR To, LPPROGRESS_ROUTINE Progres
 											{
 												while(OpResult == CallbackMagic)
 												{
-													fCallbackRoutine();
+													fCallbackRoutine(ProgressRoutine);
 													ReadInt(OpResult);
 												}
 											}
@@ -1529,6 +1526,50 @@ bool AdminMode::fDeviceIoControl(HANDLE Handle, DWORD IoControlCode, LPVOID InBu
 	return Result;
 }
 
+DWORD AdminMode::fGetStorageDependencyInformation(HANDLE Handle, GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed)
+{
+	CriticalSectionLock Lock(CS);
+	DWORD Result = 0;
+	if(Opt.IsUserAdmin)
+	{
+		Result = ifn.pfnGetStorageDependencyInformation(Handle, Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed);
+	}
+	else
+	{
+		if(SendCommand(C_FUNCTION_GETSTORAGEDEPENDENCYINFORMATION))
+		{
+			if(WriteData(&Handle,Handle?sizeof(Handle):0))
+			{
+				if(WriteInt(Flags))
+				{
+					if(WriteInt(StorageDependencyInfoSize))
+					{
+						if(WriteData(StorageDependencyInfo, StorageDependencyInfoSize))
+						{
+							int OpResult;
+							if(ReadInt(OpResult))
+							{
+								Result = OpResult;
+								int UsedSize = 0;
+								if(ReadInt(UsedSize))
+								{
+									*SizeUsed = UsedSize;
+									if(Result == ERROR_SUCCESS && UsedSize)
+									{
+										RawReadPipe(Pipe, StorageDependencyInfo, UsedSize);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return Result;
+
+}
+
 bool ElevationRequired(ELEVATION_MODE Mode)
 {
 	bool Result = false;
@@ -2197,6 +2238,38 @@ void DeviceIoControlHandler()
 	}
 }
 
+void GetStorageDependencyInformationHandler()
+{
+	AutoObject Handle;
+	if(ReadPipeData(Pipe, Handle))
+	{
+		int Flags;
+		if(ReadPipeInt(Pipe, Flags))
+		{
+			int StorageDependencyInfoSize;
+			if(ReadPipeInt(Pipe, StorageDependencyInfoSize))
+			{
+				AutoObject StorageDependencyInfo;
+				if(ReadPipeData(Pipe, StorageDependencyInfo))
+				{
+					ULONG SizeUsed = 0;
+					int Result = ifn.pfnGetStorageDependencyInformation(*reinterpret_cast<PHANDLE>(Handle.Get()), static_cast<GET_STORAGE_DEPENDENCY_FLAG>(Flags), StorageDependencyInfoSize, reinterpret_cast<PSTORAGE_DEPENDENCY_INFO>(StorageDependencyInfo.Get()), &SizeUsed);
+					if(WritePipeInt(Pipe, Result))
+					{
+						if(WritePipeInt(Pipe, SizeUsed))
+						{
+							if(Result == ERROR_SUCCESS && SizeUsed)
+							{
+								RawWritePipe(Pipe, StorageDependencyInfo.Get(), SizeUsed);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 bool Process(int Command)
 {
 	bool Exit=false;
@@ -2310,6 +2383,9 @@ bool Process(int Command)
 		DeviceIoControlHandler();
 		break;
 
+	case C_FUNCTION_GETSTORAGEDEPENDENCYINFORMATION:
+		GetStorageDependencyInformationHandler();
+		break;
 	}
 	return Exit;
 }
@@ -2351,6 +2427,8 @@ int AdminMain(int PID)
 				}
 			}
 		}
+		CloseHandle(Pipe);
+		CloseHandle(Pipe);
 	}
 	return Result;
 }

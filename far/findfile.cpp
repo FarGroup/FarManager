@@ -1626,11 +1626,9 @@ LONG_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 					if (!StopEvent.Signaled())
 					{
 						PauseEvent.Reset();
-						IsProcessAssignMacroKey--;
 						bool LocalRes=true;
 						if (Opt.Confirm.Esc)
 							LocalRes=AbortMessage()!=0;
-						IsProcessAssignMacroKey++;
 						PauseEvent.Set();
 						if(LocalRes)
 						{
@@ -1641,15 +1639,12 @@ LONG_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 				}
 				break;
 
-			// Некоторые спец.клавиши все-же обработаем.
 			case KEY_CTRLALTSHIFTPRESS:
 			case KEY_ALTF9:
 			case KEY_F11:
 			case KEY_CTRLW:
 				{
-					IsProcessAssignMacroKey--;
 					FrameManager->ProcessKey((DWORD)Param2);
-					IsProcessAssignMacroKey++;
 					return TRUE;
 				}
 				break;
@@ -1909,11 +1904,9 @@ LONG_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 										ShellViewer.SetSaveToSaveAs(true);
 									}
 								}
-								IsProcessVE_FindFile++;
 								FrameManager->EnterModalEV();
 								FrameManager->ExecuteModal();
 								FrameManager->ExitModalEV();
-								IsProcessVE_FindFile--;
 								// заставляем рефрешится экран
 								FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
 							}
@@ -1966,12 +1959,10 @@ LONG_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 																(*FrameManager)[FramePos]->SetCanLoseFocus(FALSE);
 																(*FrameManager)[FramePos]->SetDynamicallyBorn(FALSE);
 																FrameManager->ActivateFrame(FramePos);
-																IsProcessVE_FindFile++;
 																FrameManager->EnterModalEV();
 																FrameManager->ExecuteModal ();
 																FrameManager->ExitModalEV();
 																// FrameManager->ExecuteNonModal();
-																IsProcessVE_FindFile--;
 																// заставляем рефрешится экран
 																FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
 															}
@@ -1993,11 +1984,9 @@ LONG_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 											ShellEditor.SetSaveToSaveAs(TRUE);
 										}
 									}
-									IsProcessVE_FindFile++;
 									FrameManager->EnterModalEV();
 									FrameManager->ExecuteModal();
 									FrameManager->ExitModalEV();
-									IsProcessVE_FindFile--;
 									// заставляем рефрешится экран
 									FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
 								}
@@ -3011,9 +3000,7 @@ bool FindFilesProcess(Vars& v)
 	{
 		v.TB=new TaskBar;
 		wakeful W;
-		IsProcessAssignMacroKey++; // отключим все спец. клавиши
 		Dlg.Process();
-		IsProcessAssignMacroKey--;
 		WaitForSingleObject(Thread,INFINITE);
 		CloseHandle(Thread);
 

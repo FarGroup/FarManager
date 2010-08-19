@@ -952,7 +952,6 @@ if not exist bootstrap mkdir bootstrap</Command>
     <ClInclude Include="array.hpp" />
     <ClInclude Include="BaseFileMask.hpp" />
     <ClInclude Include="bitflags.hpp" />
-    <ClInclude Include="BlockExtKey.hpp" />
     <ClInclude Include="cache.hpp" />
     <ClInclude Include="cddrv.hpp" />
     <ClInclude Include="CFileMask.hpp" />

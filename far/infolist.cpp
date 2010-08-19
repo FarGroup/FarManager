@@ -217,23 +217,37 @@ void InfoList::DisplayObject()
 
 		LPCWSTR DiskType=(IdxMsgID!=-1)?MSG(IdxMsgID):L"";
 		wchar_t LocalName[]={ExtractPathRoot(strCurDir).At(0),L':',L'\0'}; // strDriveRoot?
-		string strRemoteName;
+		string strAssocPath;
 
-		if (GetSubstName(DriveType,LocalName,strRemoteName))
+		if (GetSubstName(DriveType,LocalName,strAssocPath))
 		{
 			DiskType = MSG(MInfoSUBST);
 			DriveType=DRIVE_SUBSTITUTE;
 		}
+		else if(GetVHDName(LocalName,strAssocPath))
+		{
+			DiskType = MSG(MInfoVirtual);
+			DriveType=DRIVE_VIRTUAL;
+		}
+
 
 		strTitle=string(L" ")+DiskType+L" "+MSG(MInfoDisk)+L" "+((!strDriveRoot.IsEmpty() && strDriveRoot.At(1)==L':')?LocalName:strDriveRoot)+L" ("+strFileSystemName+L") ";
-		if (DriveType==DRIVE_REMOTE)
+		
+		switch(DriveType)
 		{
-			apiWNetGetConnection(LocalName, strRemoteName);
-		}
-		else if (DriveType == DRIVE_SUBSTITUTE)
-		{
-			strTitle += strRemoteName;
-			strTitle += L" ";
+		case DRIVE_REMOTE:
+			{
+				apiWNetGetConnection(LocalName, strAssocPath);
+			}
+			break;
+
+		case DRIVE_SUBSTITUTE:
+		case DRIVE_VIRTUAL:
+			{
+				strTitle += strAssocPath;
+				strTitle += L" ";
+			}
+			break;
 		}
 
 		strDiskNumber.Format(L"%04X-%04X",VolumeNumber>>16,VolumeNumber & 0xffff);

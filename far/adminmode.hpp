@@ -69,6 +69,7 @@ enum ADMIN_COMMAND
 	C_FUNCTION_FLUSHFILEBUFFERS,
 	C_FUNCTION_GETFILEINFORMATIONBYHANDLE,
 	C_FUNCTION_DEVICEIOCONTROL,
+	C_FUNCTION_GETSTORAGEDEPENDENCYINFORMATION,
 };
 
 class AutoObject;
@@ -84,7 +85,7 @@ public:
 	bool fCreateDirectoryEx(LPCWSTR TemplateObject, LPCWSTR Object, LPSECURITY_ATTRIBUTES Attributes);
 	bool fRemoveDirectory(LPCWSTR Object);
 	bool fDeleteFile(LPCWSTR Object);
-	void fCallbackRoutine() const;
+	void fCallbackRoutine(LPPROGRESS_ROUTINE ProgressRoutine) const;
 	bool fCopyFileEx(LPCWSTR From, LPCWSTR To, LPPROGRESS_ROUTINE ProgressRoutine, LPVOID Data, LPBOOL Cancel, DWORD Flags);
 	bool fMoveFileEx(LPCWSTR From, LPCWSTR To, DWORD Flags);
 	DWORD fGetFileAttributes(LPCWSTR Object);
@@ -108,6 +109,7 @@ public:
 	bool fFlushFileBuffers(HANDLE Handle);
 	bool fGetFileInformationByHandle(HANDLE Handle, BY_HANDLE_FILE_INFORMATION& bhfi);
 	bool fDeviceIoControl(HANDLE Handle, DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped);
+	DWORD fGetStorageDependencyInformation(HANDLE Handle, GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed);
 
 private:
 	HANDLE Pipe;
@@ -118,7 +120,6 @@ private:
 	bool DontAskAgain;
 	bool Approve;
 	bool AskApprove;
-	LPPROGRESS_ROUTINE ProgressRoutine;
 	bool Recurse;
 	CriticalSection CS;
 

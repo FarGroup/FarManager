@@ -38,14 +38,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ImportedFunctions ifn;
 
-void ImportedFunctions::Load()
+ImportedFunctions::ImportedFunctions()
 {
 	memset(this,0,sizeof(*this));
 	HMODULE hNtdll = GetModuleHandle(L"ntdll.dll");
 	HMODULE hKernel = GetModuleHandle(L"kernel32.dll");
 	HMODULE hShell = GetModuleHandle(L"shell32.dll");
 	HMODULE hSetupAPI = LoadLibrary(L"setupapi.dll");
-
+	HMODULE hVirtDisk = LoadLibrary(L"virtdisk.dll");
 	if (hSetupAPI)
 	{
 		pfnGetDevNodeRegistryProperty = (PCMGETDEVNODEREGISTRYPROPERTY)GetProcAddress(
@@ -135,5 +135,23 @@ void ImportedFunctions::Load()
 	if (hShell)
 	{
 		pfnSHCreateAssociationRegistration = (PSHCREATEASSOCIATIONREGISTRATION)GetProcAddress(hShell, "SHCreateAssociationRegistration");
+	}
+
+	if(hVirtDisk)
+	{
+		pfnGetStorageDependencyInformation = (GETSTORAGEDEPENDENCYINFORMATION)GetProcAddress(hVirtDisk, "GetStorageDependencyInformation");
+	}
+}
+
+ImportedFunctions::~ImportedFunctions()
+{
+	if(hSetupAPI)
+	{
+		FreeLibrary(hSetupAPI);
+	}
+	
+	if(hVirtDisk)
+	{
+		FreeLibrary(hVirtDisk);
 	}
 }

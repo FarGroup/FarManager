@@ -8540,6 +8540,14 @@ MInfoSUBST
 "Virtuális"
 "Subst"
 
+MInfoVirtual
+"Виртуальный"
+"Virtual"
+upd:"Virtual"
+upd:"Virtual"
+upd:"Virtual"
+upd:"Virtual"
+
 MInfoDisk
 "диск"
 "disk"
@@ -9888,7 +9896,7 @@ MChangeDriveNetwork
 "sieciowy"
 
 MChangeDriveDisconnectedNetwork
-"не подключённый"
+"отключенный"
 "disconnected"
 upd:"disconnected"
 upd:"disconnected"
@@ -9966,6 +9974,14 @@ MChangeDriveSUBST
 "Subst"
 "virtuális"
 "subst"
+
+MChangeDriveVirtual
+"виртуальный"
+"virtual"
+upd:"virtual"
+upd:"virtual"
+upd:"virtual"
+upd:"virtual"
 
 MChangeDriveLabelAbsent
 "недоступен"
@@ -10188,12 +10204,12 @@ upd:"Show disk type"
 upd:"Show disk type"
 
 MChangeDriveShowNetworkName
-"Показывать &сетевое имя"
-"Show &network name"
-upd:"Show &network name"
-upd:"Show &network name"
-upd:"Show &network name"
-upd:"Show &network name"
+"Показывать &сетевое имя/путь SUBST/имя VHD"
+"Show &network name/SUBST path/VHD name"
+upd:"Show &network name/SUBST path/VHD name"
+upd:"Show &network name/SUBST path/VHD name"
+upd:"Show &network name/SUBST path/VHD name"
+upd:"Show &network name/SUBST path/VHD name"
 
 MChangeDriveShowLabel
 "Показывать &метку диска"

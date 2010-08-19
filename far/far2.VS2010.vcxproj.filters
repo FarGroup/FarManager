@@ -497,6 +497,12 @@
     <ClCompile Include="xlat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="console.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="adminmode.hpp">
@@ -509,9 +515,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="bitflags.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BlockExtKey.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cache.hpp">
@@ -995,6 +998,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="xlat.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="console.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="window.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

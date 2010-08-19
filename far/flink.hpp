@@ -57,6 +57,7 @@ bool ModifyReparsePoint(const wchar_t *Object,const wchar_t *NewData);
 DWORD WINAPI GetReparsePointInfo(const wchar_t *Object, string &szDestBuff,LPDWORD lpReparseTag=nullptr);
 
 bool GetSubstName(int DriveType,const wchar_t *DeviceName,string &strTargetPath);
+bool GetVHDName(const wchar_t *DeviceName, string &strVolumePath);
 
 bool DelSubstDrive(const wchar_t *DeviceName);
 void GetPathRoot(const wchar_t *Path, string &strRoot);

@@ -337,8 +337,6 @@ int MainProcessSEH(string& strEditName,string& strViewName,string& DestName1,str
 
 int _cdecl wmain(int Argc, wchar_t *Argv[])
 {
-	ifn.Load();
-
 	GetVersionEx(&WinVer);
 
 	if (apiGetModuleFileName(nullptr, g_strFarModuleName))
