@@ -856,6 +856,11 @@ BOOL WINAPI FarKeyToNameA(int Key,char *KeyText,int Size)
 	return ret;
 }
 
+int WINAPI InputRecordToKeyA(const INPUT_RECORD *r)
+{
+	return KeyToOldKey(InputRecordToKey(r));
+}
+
 char* WINAPI FarMkTempA(char *Dest, const char *Prefix)
 {
 	string strP(Prefix);

@@ -437,7 +437,7 @@ static void CreatePluginStartupInfoA(PluginA *pPlugin, oldfar::PluginStartupInfo
 		StandardFunctions.PasteFromClipboard=PasteFromClipboardA;
 		StandardFunctions.FarKeyToName=FarKeyToNameA;
 		StandardFunctions.FarNameToKey=KeyNameToKeyA;
-		StandardFunctions.FarInputRecordToKey=InputRecordToKey;
+		StandardFunctions.FarInputRecordToKey=InputRecordToKeyA;
 		StandardFunctions.XLat=XlatA;
 		StandardFunctions.GetFileOwner=GetFileOwnerA;
 		StandardFunctions.GetNumberOfLinks=GetNumberOfLinksA;
