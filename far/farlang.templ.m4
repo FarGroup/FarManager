@@ -10040,6 +10040,22 @@ MChangeSUBSTDisconnectDriveQuestion
 "Törli %c: virtuális meghajtót?"
 "Odłączyć dysk SUBST %c:?"
 
+MChangeVHDDisconnectDriveTitle
+"Отсоединение виртуального диска"
+"Virtual disk detaching"
+upd:"Virtual disk detaching"
+upd:"Virtual disk detaching"
+upd:"Virtual disk detaching"
+upd:"Virtual disk detaching"
+
+MChangeVHDDisconnectDriveQuestion
+"Отсоединенить виртуальный диск %c:?"
+"Detach virtual disk %c:?"
+upd:"Detach virtual disk %c:?"
+upd:"Detach virtual disk %c:?"
+upd:"Detach virtual disk %c:?"
+upd:"Detach virtual disk %c:?"
+
 MChangeHotPlugDisconnectDriveTitle
 l:
 "Удаление устройства"
@@ -11858,6 +11874,14 @@ MSetConfirmRemoveSUBST
 "Trennen von &Substlaufwerken"
 "Virt&uális meghajtó törlése"
 "Odłączenie dysku &SUBST"
+
+MSetConfirmDetachVHD
+"Отсоедиение виртуального диска"
+"Detach virtual disk"
+upd:"Detach virtual disk"
+upd:"Detach virtual disk"
+upd:"Detach virtual disk"
+upd:"Detach virtual disk"
 
 MSetConfirmRemoveHotPlug
 "Отключение HotPlug-у&стройства"

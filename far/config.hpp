@@ -134,6 +134,7 @@ struct Confirmation
 	int HistoryClear;
 	int RemoveSUBST;
 	int RemoveHotPlug;
+	int DetachVHD;
 };
 
 struct DizOptions

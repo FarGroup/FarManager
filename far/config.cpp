@@ -330,6 +330,7 @@ void SetConfirmations()
 	Builder.AddCheckbox(MSetConfirmEsc, &Opt.Confirm.Esc);
 	Builder.AddCheckbox(MSetConfirmRemoveConnection, &Opt.Confirm.RemoveConnection);
 	Builder.AddCheckbox(MSetConfirmRemoveSUBST, &Opt.Confirm.RemoveSUBST);
+	Builder.AddCheckbox(MSetConfirmDetachVHD, &Opt.Confirm.DetachVHD);
 	Builder.AddCheckbox(MSetConfirmRemoveHotPlug, &Opt.Confirm.RemoveHotPlug);
 	Builder.AddCheckbox(MSetConfirmAllowReedit, &Opt.Confirm.AllowReedit);
 	Builder.AddCheckbox(MSetConfirmHistoryClear, &Opt.Confirm.HistoryClear);
@@ -718,6 +719,7 @@ static struct FARConfig
 	{1, REG_DWORD,  NKeyConfirmations,L"Esc",&Opt.Confirm.Esc,1, 0},
 	{1, REG_DWORD,  NKeyConfirmations,L"RemoveConnection",&Opt.Confirm.RemoveConnection,1, 0},
 	{1, REG_DWORD,  NKeyConfirmations,L"RemoveSUBST",&Opt.Confirm.RemoveSUBST,1, 0},
+	{1, REG_DWORD,  NKeyConfirmations,L"DetachVHD",&Opt.Confirm.DetachVHD,1, 0},
 	{1, REG_DWORD,  NKeyConfirmations,L"RemoveHotPlug",&Opt.Confirm.RemoveHotPlug,1, 0},
 	{1, REG_DWORD,  NKeyConfirmations,L"AllowReedit",&Opt.Confirm.AllowReedit,1, 0},
 	{1, REG_DWORD,  NKeyConfirmations,L"HistoryClear",&Opt.Confirm.HistoryClear,1, 0},

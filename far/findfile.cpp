@@ -2186,7 +2186,7 @@ void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& 
 	unsigned int *ColumnType=Opt.FindOpt.OutColumnTypes;
 	int *ColumnWidth=Opt.FindOpt.OutColumnWidths;
 	int ColumnCount=Opt.FindOpt.OutColumnCount;
-	int *ColumnWidthType=Opt.FindOpt.OutColumnWidthType;
+	//int *ColumnWidthType=Opt.FindOpt.OutColumnWidthType;
 
 	MenuText << L' ';
 

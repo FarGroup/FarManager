@@ -1236,97 +1236,135 @@ void Panel::RemoveHotplugDevice(PanelMenuItem *item, VMenu &ChDisk)
 int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
 {
 	string strMsgText;
-	int UpdateProfile=CONNECT_UPDATE_PROFILE;
-	BOOL Processed=FALSE;
 	wchar_t DiskLetter[]={Drive,L':',0};
 
-	if (DriveType == DRIVE_REMOTE && MessageRemoveConnection(Drive,UpdateProfile))
-		Processed=TRUE;
-
-	// < ќ—“џЋ№>
-	if (Processed)
+	switch(DriveType)
 	{
-		LockScreen LckScr;
-		// если мы находимс€ на удал€емом диске - уходим с него, чтобы не мешать
-		// удалению
-		IfGoHome(Drive);
-		FrameManager->ResizeAllFrame();
-		FrameManager->GetCurrentFrame()->Show();
-		ChDiskMenu->Show();
-	}
-
-	// </ ќ—“џЋ№>
-
-	/* $ 05.01.2001 SVS
-	   ѕробуем удалить SUBST-драйв.
-	*/
-	if (DriveType == DRIVE_SUBSTITUTE)
-	{
-		if (Opt.Confirm.RemoveSUBST)
+	case DRIVE_SUBSTITUTE:
 		{
-			strMsgText.Format(MSG(MChangeSUBSTDisconnectDriveQuestion),Drive);
-
-			if (Message(MSG_WARNING,2,MSG(MChangeSUBSTDisconnectDriveTitle),strMsgText,MSG(MYes),MSG(MNo)))
-				return DRIVE_DEL_FAIL;
-		}
-
-		if (DelSubstDrive(DiskLetter))
-			return DRIVE_DEL_SUCCESS;
-		else
-		{
-			int LastError=GetLastError();
-			strMsgText.Format(MSG(MChangeDriveCannotDelSubst),DiskLetter);
-
-			if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
+			if (Opt.Confirm.RemoveSUBST)
 			{
-				if (!Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),strMsgText,
-				            L"\x1",MSG(MChangeDriveOpenFiles),
-				            MSG(MChangeDriveAskDisconnect),MSG(MOk),MSG(MCancel)))
+				strMsgText.Format(MSG(MChangeSUBSTDisconnectDriveQuestion),Drive);
+				if (Message(MSG_WARNING,2,MSG(MChangeSUBSTDisconnectDriveTitle),strMsgText,MSG(MYes),MSG(MNo)))
 				{
-					if (DelSubstDrive(DiskLetter))
-						return DRIVE_DEL_SUCCESS;
-				}
-				else
 					return DRIVE_DEL_FAIL;
+				}
 			}
-
-			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),strMsgText,MSG(MOk));
-		}
-
-		return DRIVE_DEL_FAIL; // блин. в прошлый раз забыл про это дело...
-	}
-
-	if (Processed)
-	{
-		if (WNetCancelConnection2(DiskLetter,UpdateProfile,FALSE)==NO_ERROR)
-			return DRIVE_DEL_SUCCESS;
-		else
-		{
-			int LastError=GetLastError();
-			strMsgText.Format(MSG(MChangeDriveCannotDisconnect),DiskLetter);
-
-			if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
+			if (DelSubstDrive(DiskLetter))
 			{
-				if (!Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),strMsgText,
-				            L"\x1",MSG(MChangeDriveOpenFiles),
-				            MSG(MChangeDriveAskDisconnect),MSG(MOk),MSG(MCancel)))
-				{
-					if (WNetCancelConnection2(DiskLetter,UpdateProfile,TRUE)==NO_ERROR)
-						return DRIVE_DEL_SUCCESS;
-				}
-				else
-					return DRIVE_DEL_FAIL;
+				return DRIVE_DEL_SUCCESS;
 			}
-
-			const wchar_t RootDir[]={*DiskLetter,L':',L'\\',L'\0'};
-
-			if (FAR_GetDriveType(RootDir)==DRIVE_REMOTE)
+			else
+			{
+				int LastError=GetLastError();
+				strMsgText.Format(MSG(MChangeDriveCannotDelSubst),DiskLetter);
+				if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
+				{
+					if (!Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),strMsgText,
+								L"\x1",MSG(MChangeDriveOpenFiles),
+								MSG(MChangeDriveAskDisconnect),MSG(MOk),MSG(MCancel)))
+					{
+						if (DelSubstDrive(DiskLetter))
+						{
+							return DRIVE_DEL_SUCCESS;
+						}
+					}
+					else
+					{
+						return DRIVE_DEL_FAIL;
+					}
+				}
 				Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),strMsgText,MSG(MOk));
+			}
+			return DRIVE_DEL_FAIL; // блин. в прошлый раз забыл про это дело...
 		}
+		break;
 
-		return DRIVE_DEL_FAIL;
+	case DRIVE_REMOTE:
+		{
+			int UpdateProfile=CONNECT_UPDATE_PROFILE;
+			if (MessageRemoveConnection(Drive,UpdateProfile))
+			{
+				// < ќ—“џЋ№>
+				LockScreen LckScr;
+				// если мы находимс€ на удал€емом диске - уходим с него, чтобы не мешать
+				// удалению
+				IfGoHome(Drive);
+				FrameManager->ResizeAllFrame();
+				FrameManager->GetCurrentFrame()->Show();
+				ChDiskMenu->Show();
+				// </ ќ—“џЋ№>
+
+				if (WNetCancelConnection2(DiskLetter,UpdateProfile,FALSE)==NO_ERROR)
+				{
+					return DRIVE_DEL_SUCCESS;
+				}
+				else
+				{
+					int LastError=GetLastError();
+					strMsgText.Format(MSG(MChangeDriveCannotDisconnect),DiskLetter);
+					if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
+					{
+						if (!Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),strMsgText,
+									L"\x1",MSG(MChangeDriveOpenFiles),
+									MSG(MChangeDriveAskDisconnect),MSG(MOk),MSG(MCancel)))
+						{
+							if (WNetCancelConnection2(DiskLetter,UpdateProfile,TRUE)==NO_ERROR)
+							{
+								return DRIVE_DEL_SUCCESS;
+							}
+						}
+						else
+						{
+							return DRIVE_DEL_FAIL;
+						}
+					}
+					const wchar_t RootDir[]={*DiskLetter,L':',L'\\',L'\0'};
+					if (FAR_GetDriveType(RootDir)==DRIVE_REMOTE)
+					{
+						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),strMsgText,MSG(MOk));
+					}
+				}
+				return DRIVE_DEL_FAIL;
+			}
+		}
+		break;
+
+	case DRIVE_VIRTUAL:
+		{
+			if (Opt.Confirm.DetachVHD)
+			{
+				strMsgText.Format(MSG(MChangeVHDDisconnectDriveQuestion),Drive);
+				if (Message(MSG_WARNING,2,MSG(MChangeVHDDisconnectDriveTitle),strMsgText,MSG(MYes),MSG(MNo)))
+				{
+					return DRIVE_DEL_FAIL;
+				}
+			}
+			string strVhdPath;
+			if(GetVHDName(DiskLetter, strVhdPath) && !strVhdPath.IsEmpty())
+			{
+				VIRTUAL_STORAGE_TYPE vst;
+				vst.DeviceId=VIRTUAL_STORAGE_TYPE_DEVICE_VHD;
+				const GUID VIRTUAL_STORAGE_TYPE_VENDOR_MICROSOFT={0xec984aec, 0xa0f9, 0x47e9, 0x90, 0x1f, 0x71, 0x41, 0x5a, 0x66, 0x34, 0x5b};
+				vst.VendorId=VIRTUAL_STORAGE_TYPE_VENDOR_MICROSOFT;
+				OPEN_VIRTUAL_DISK_PARAMETERS ovdp = {OPEN_VIRTUAL_DISK_VERSION_1, 0};
+				HANDLE Handle;
+				if(ifn.pfnOpenVirtualDisk(&vst, strVhdPath, VIRTUAL_DISK_ACCESS_DETACH, OPEN_VIRTUAL_DISK_FLAG_NONE, &ovdp, &Handle) == ERROR_SUCCESS)
+				{
+					if(ifn.pfnDetachVirtualDisk(Handle, DETACH_VIRTUAL_DISK_FLAG_NONE, 0) == ERROR_SUCCESS)
+					{
+						return DRIVE_DEL_SUCCESS;
+					}
+					else
+					{
+						return DRIVE_DEL_FAIL;
+					}
+				}
+			}
+		}
+		break;
+
 	}
-
 	return DRIVE_DEL_FAIL;
 }
 
@@ -2490,6 +2528,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 		Dialog Dlg(DCDlg,ARRAYSIZE(DCDlg));
 		Dlg.SetPosition(-1,-1,DCDlg[0].X2+4,11);
 		Dlg.SetHelp(L"DisconnectDrive");
+		Dlg.SetDialogMode(DMODE_WARNINGSTYLE);
 		Dlg.Process();
 		ExitCode=Dlg.GetExitCode();
 	}

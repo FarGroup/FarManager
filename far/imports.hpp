@@ -217,6 +217,20 @@ typedef DWORD (WINAPI *GETSTORAGEDEPENDENCYINFORMATION)(
     PULONG SizeUsed
 );
 
+typedef DWORD (WINAPI *OPENVIRTUALDISK)(
+    PVIRTUAL_STORAGE_TYPE VirtualStorageType,
+    PCWSTR Path,
+    VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask,
+    OPEN_VIRTUAL_DISK_FLAG Flags,
+    POPEN_VIRTUAL_DISK_PARAMETERS Parameters,
+    PHANDLE Handle
+);
+
+typedef DWORD (WINAPI *DETACHVIRTUALDISK)(
+    HANDLE VirtualDiskHandle,
+    DETACH_VIRTUAL_DISK_FLAG Flags,
+    ULONG ProviderSpecificFlags
+);
 
 class ImportedFunctions
 {
@@ -261,6 +275,8 @@ public:
 	HEAPSETINFORMATION pfnHeapSetInformation;
 
 	GETSTORAGEDEPENDENCYINFORMATION pfnGetStorageDependencyInformation;
+	OPENVIRTUALDISK pfnOpenVirtualDisk;
+	DETACHVIRTUALDISK pfnDetachVirtualDisk;
 
 	ImportedFunctions();
 	~ImportedFunctions();

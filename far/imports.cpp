@@ -140,6 +140,8 @@ ImportedFunctions::ImportedFunctions()
 	if(hVirtDisk)
 	{
 		pfnGetStorageDependencyInformation = (GETSTORAGEDEPENDENCYINFORMATION)GetProcAddress(hVirtDisk, "GetStorageDependencyInformation");
+		pfnOpenVirtualDisk = (OPENVIRTUALDISK)GetProcAddress(hVirtDisk, "OpenVirtualDisk");
+		pfnDetachVirtualDisk = (DETACHVIRTUALDISK)GetProcAddress(hVirtDisk, "DetachVirtualDisk");
 	}
 }
 
