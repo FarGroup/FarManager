@@ -2648,7 +2648,7 @@ static bool mloadFunc()
 					strSData.ReleaseBuffer();
 				}
 
-				varInsert(*t, Name)->value = strSData.CPtr();
+				varInsert(*t, Name+1)->value = strSData.CPtr();
 
 				Ret=ERROR_SUCCESS;
 
@@ -2656,13 +2656,13 @@ static bool mloadFunc()
 			}
 			case REG_DWORD:
 			{
-				varInsert(*t, Name)->value = GetRegKey(L"KeyMacros\\Vars",Name,0);
+				varInsert(*t, Name+1)->value = GetRegKey(L"KeyMacros\\Vars",Name,0);
 				Ret=ERROR_SUCCESS;
 				break;
 			}
 			case REG_QWORD:
 			{
-				varInsert(*t, Name)->value = GetRegKey64(L"KeyMacros\\Vars",Name,0);
+				varInsert(*t, Name+1)->value = GetRegKey64(L"KeyMacros\\Vars",Name,0);
 				Ret=ERROR_SUCCESS;
 				break;
 			}

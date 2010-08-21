@@ -1,3 +1,7 @@
+svs 21.08.2010 11:00:41 +0300 - build 1651
+
+1. Macro: не работала функция mload()
+
 zg 20.08.2010 18:10:13 +0200 - build 1650
 
 1. Mantins#0001469: Editor Word Completion перестал понимать нажатие Right.
