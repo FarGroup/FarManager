@@ -556,6 +556,7 @@ static TToken getToken()
 {
 	oSrcString = sSrcString;
 	int ch = getNextChar();
+	bool verbStr=false;
 
 	switch (ch)
 	{
@@ -652,17 +653,40 @@ static TToken getToken()
 				currTok = tNe;
 
 			break;
-		case L'\"':
+
+		case L'@':
+
+			ch = getChar();
+			if (ch != L'"')
+			{
+				putBack(ch);
+				break;
+			}
+			verbStr=true;
+
+    	case L'\"':
 		{
-			//-AN----------------------------------------------
-			// Вообще-то это почти полный аналог ParsePlainText
-			//-AN----------------------------------------------
 			TToken __currTok = tNo;
 			currVar = L"";
 
-			while (((ch = getChar()) != EOFCH) && (ch != L'\"'))
+			while (((ch = getChar()) != EOFCH))
 			{
-				if (ch == L'\\')
+				if (ch == L'\"')
+				{
+					if (verbStr)
+					{
+						ch = getChar();
+						if (ch != L'\"')
+						{
+							putBack(ch);
+							break;
+						}
+					}
+					else
+						break;
+				}
+
+				if (ch == L'\\' && !verbStr)
 				{
 					switch (ch = getChar())
 					{
