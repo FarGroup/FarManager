@@ -224,7 +224,7 @@ void InfoList::DisplayObject()
 			DiskType = MSG(MInfoSUBST);
 			DriveType=DRIVE_SUBSTITUTE;
 		}
-		else if(GetVHDName(LocalName,strAssocPath))
+		else if(DriveType == DRIVE_FIXED && GetVHDName(LocalName,strAssocPath))
 		{
 			DiskType = MSG(MInfoVirtual);
 			DriveType=DRIVE_VIRTUAL;
