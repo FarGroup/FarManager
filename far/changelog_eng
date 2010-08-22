@@ -3,6 +3,38 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 22.08.2010 08:30:54 +0200 - build 1653
+
+1. Virtual drives detection affects hard drives only.
+
+svs 21.08.2010 23:18:55 +0300 - build 1652
+
+1. Macro: an "exact string" term is added (like "verbatim string" in C#).
+   Exact string has @ symbol at the beginning and surrounded with double quotes.
+   Escape-sequences are not processed in it, which allows usage of such a string where
+   the sequence is formed with the use of metacharacters, for example, in UserMenu. 
+   Example: replace all '\' to '/' in a path:
+    print(replace(@"!\!.!", @"\", ""))
+   In order to include double quote character into an "exact string", use the character twice:
+     @"""Word!"" in double quotes."
+
+svs 21.08.2010 11:00:41 +0300 - build 1651
+
+1. Macro: mload() function did not work
+
+zg 20.08.2010 18:10:13 +0200 - build 1650
+
+1. Mantins#0001469: Processing of right arrow keystroke is broken in Editor Word Completion.
+
+drkns 20.08.2010 15:08:21 +0200 - build 1649
+
+1. Virtual drives can be detached at drive selection menu by pressing Del.
+
+drkns 19.08.2010 23:07:06 +0200 - build 1648
+
+1. Somebody implemented a tricky optimization: get the path of temporary folder at start, save it in a variable and use it further.
+   As a result, redefinition of the path did not affect the app.
+
 drkns 19.08.2010 20:21:57 +0200 - build 1647
 
 1. Correction in 1646.
