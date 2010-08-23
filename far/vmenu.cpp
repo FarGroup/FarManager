@@ -2850,18 +2850,19 @@ void EnumFiles(VMenu& Menu, const wchar_t* Str)
 {
 	if(Str && *Str)
 	{
-		string strStr=Str;
+		string strStr;
+		apiExpandEnvironmentStrings(Str,strStr);
 		FAR_FIND_DATA_EX d;
 		FindFile Find(strStr+L"*");
 		bool Separator=false;
 		while(Find.Get(d))
 		{
-			const wchar_t* FileName=PointToName(strStr);
+			const wchar_t* FileName=PointToName(Str);
 			bool NameMatch=!StrCmpNI(FileName,d.strFileName,StrLength(FileName)),AltNameMatch=NameMatch?false:!StrCmpNI(FileName,d.strAlternateFileName,StrLength(FileName));
 			if(NameMatch || AltNameMatch)
 			{
-				string strTmp=strStr;
-				strTmp.SetLength(FileName-strStr.CPtr());
+				string strTmp(Str);
+				strTmp.SetLength(FileName-Str);
 				strTmp+=NameMatch?d.strFileName:d.strAlternateFileName;
 				if(!Separator)
 				{
