@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 23.08.2010 19:54:28 +0200 - build 1654
+
+1. Autocompletion also works for paths like %env%\foo.
+
 drkns 22.08.2010 08:30:54 +0200 - build 1653
 
 1. Virtual drives detection affects hard drives only.
