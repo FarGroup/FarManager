@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 24.08.2010 20:38:59 +0200 - build 1655
+
+1. GUIDS are assigned to the following dialogs:
+   - open a file in editor.
+   - save a file in editor.
+   - create a folder.
+   - set file attributes.
+
 drkns 23.08.2010 19:54:28 +0200 - build 1654
 
 1. Autocompletion also works for paths like %env%\foo.
