@@ -184,7 +184,7 @@ FTP
   DecodeCmdLine + '0'
   1
 */
-  ShortcutData.printf( "FTP:%s\x1%c%c%c%c%d\x1%s\x1%s\x1%s\x1%c%d\x1%c\x1",
+  ShortcutData.printf( "FTP:%s\x1%c%c%c%c%d\x1%s\x1%s\x1%s\x1%c%d\x1%c\x1%c\x1",
                        Host.Host,
                        Host.AskLogin+3, Host.AsciiMode+3, Host.PassiveMode+3, Host.UseFirewall+3, Host.ServerType,
                        Host.HostTable,
