@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileowner.hpp"
 #include "privilege.hpp"
 #include "wakeful.hpp"
+#include "DlgGuid.hpp"
 
 enum SETATTRDLG
 {
@@ -1063,6 +1064,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 
 		Dialog Dlg(AttrDlg,ARRAYSIZE(AttrDlgData),SetAttrDlgProc,(LONG_PTR)&DlgParam);
 		Dlg.SetHelp(L"FileAttrDlg");                 //  ^ - это одиночный диалог!
+		Dlg.SetId(FileAttrDlgId);
 
 		if (LinkPresent)
 		{

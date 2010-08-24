@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "dirmix.hpp"
+#include "DlgGuid.hpp"
 
 enum
 {
@@ -124,6 +125,7 @@ void ShellMakeDir(Panel *SrcPanel)
 	Dialog Dlg(MkDirDlg,ARRAYSIZE(MkDirDlg),MkDirDlgProc,reinterpret_cast<LONG_PTR>(&DirList));
 	Dlg.SetPosition(-1,-1,76,10);
 	Dlg.SetHelp(L"MakeFolder");
+	Dlg.SetId(MakeFolderId);
 	Dlg.Process();
 
 	if (Dlg.GetExitCode()==MKDIR_OK)

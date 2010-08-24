@@ -71,6 +71,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cache.hpp"
 #include "constitle.hpp"
 #include "wakeful.hpp"
+#include "DlgGuid.hpp"
 
 enum enumOpenEditor
 {
@@ -134,6 +135,7 @@ bool dlgOpenEditor(string &strFileName, UINT &codepage)
 	Dialog Dlg(EditDlg, ARRAYSIZE(EditDlg), (FARWINDOWPROC)hndOpenEditor, (LONG_PTR)&codepage);
 	Dlg.SetPosition(-1,-1,76,10);
 	Dlg.SetHelp(L"FileOpenCreate");
+	Dlg.SetId(FileOpenCreateId);
 	Dlg.Process();
 
 	if (Dlg.GetExitCode() == ID_OE_OK)
@@ -278,6 +280,7 @@ bool dlgSaveFileAs(string &strFileName, int &TextFormat, UINT &codepage,bool &Ad
 	Dialog Dlg(EditDlg, ARRAYSIZE(EditDlg), (FARWINDOWPROC)hndSaveFileAs, (LONG_PTR)&codepage);
 	Dlg.SetPosition(-1,-1,76,17);
 	Dlg.SetHelp(L"FileSaveAs");
+	Dlg.SetId(FileSaveAsId);
 	Dlg.Process();
 
 	if ((Dlg.GetExitCode() == ID_SF_OK) && !EditDlg[ID_SF_FILENAME].strData.IsEmpty())
@@ -1560,7 +1563,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 		if (!LastLineCR &&
 		        (
 		            (CurEOL = wmemchr(Str+Offset,L'\r',StrLength-Offset))  ||
-		            (CurEOL = wmemchr(Str+Offset,L'\n',StrLength-Offset)) 
+		            (CurEOL = wmemchr(Str+Offset,L'\n',StrLength-Offset))
 		        )
 		   )
 		{
