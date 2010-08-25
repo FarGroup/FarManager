@@ -2293,10 +2293,14 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 			Result=TRUE;
 			break;
 		}
+		case FCTL_GETPANELHOSTFILE:
+		case FCTL_GETPANELFORMAT:
 		case FCTL_GETPANELDIR:
 		{
-			string strInfoCurDir;
-			GetCurDir(strInfoCurDir);
+			string strTemp;
+
+			if (Command == FCTL_GETPANELDIR)
+				GetCurDir(strTemp);
 
 			if (GetType()==FILE_PANEL)
 			{
@@ -2306,19 +2310,33 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 				if (!Reenter && GetMode()==PLUGIN_PANEL)
 				{
 					Reenter++;
+
 					OpenPluginInfo PInfo;
 					DestFilePanel->GetOpenPluginInfo(&PInfo);
-					strInfoCurDir=PInfo.CurDir;
+
+					switch (Command)
+					{
+						case FCTL_GETPANELHOSTFILE:
+							strTemp=PInfo.HostFile;
+							break;
+						case FCTL_GETPANELFORMAT:
+							strTemp=PInfo.Format;
+							break;
+						case FCTL_GETPANELDIR:
+							strTemp=PInfo.CurDir;
+							break;
+					}
+
 					Reenter--;
 				}
 			}
 
 			if (Param1&&Param2)
-				xwcsncpy((wchar_t*)Param2,strInfoCurDir,Param1);
+				xwcsncpy((wchar_t*)Param2,strTemp,Param1);
 
-			Result=(int)strInfoCurDir.GetLength()+1;
+			Result=(int)strTemp.GetLength()+1;
+			break;
 		}
-		break;
 		case FCTL_GETCOLUMNTYPES:
 		case FCTL_GETCOLUMNWIDTHS:
 

@@ -1,3 +1,8 @@
+svs 25.08.2010 12:40:09 +0300 - build 1657
+
+1. Panel API: добавлены FCTL_GETPANELFORMAT и FCTL_GETPANELHOSTFILE.
+   (Mantis#0001472: ƒобавить FCTL_GETPANELFORMAT, FCTL_GETPANELHOSTFILE)
+
 svs 25.08.2010 11:17:55 +0300 - build 1656
 
 1. Mantis#0001471: QuickView в панели плагина показывает случайную информацию о каталогах
