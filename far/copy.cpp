@@ -1018,6 +1018,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		CopyDlg[ID_SC_COMBO].ListItems=&ComboList;
 		Dialog Dlg(CopyDlg,ARRAYSIZE(CopyDlg),CopyDlgProc,(LONG_PTR)&CDP);
 		Dlg.SetHelp(Link?L"HardSymLink":L"CopyFiles");
+		Dlg.SetId(Link?HardSymLinkId:CopyFilesId);
 		Dlg.SetPosition(-1,-1,DLG_WIDTH,DLG_HEIGHT);
 		Dlg.SetAutomation(ID_SC_USEFILTER,ID_SC_BTNFILTER,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 //    Dlg.Show();
@@ -3899,7 +3900,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 					WarnDlg.SetDialogMode(DMODE_WARNINGSTYLE);
 					WarnDlg.SetPosition(-1,-1,WARN_DLG_WIDTH,WARN_DLG_HEIGHT);
 					WarnDlg.SetHelp(L"CopyFiles");
-					WarnDlg.SetId(CopyOverwriteId);
+					WarnDlg.SetId(CopyReadOnlyId);
 					WarnDlg.Process();
 
 					switch (WarnDlg.GetExitCode())
