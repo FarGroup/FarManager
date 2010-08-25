@@ -131,7 +131,7 @@ class Panel:public ScreenObject
 		void DrawSeparator(int Y);
 		void ShowScreensCount();
 		int  IsDragging();
-		int  ProcessShortcutFolder(int Key,BOOL ProcTreePanel=FALSE);
+		virtual void ClearAllItem(){};
 
 	public:
 		Panel();
@@ -255,6 +255,9 @@ class Panel:public ScreenObject
 
 		virtual long GetFileCount() {return 0;}
 		virtual BOOL GetItem(int,void *) {return FALSE;};
+
+		bool ExecShortcutFolder(int Pos);
+		bool SaveShortcutFolder(int Pos);
 
 		static void EndDrag();
 		virtual void Hide();

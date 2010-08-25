@@ -844,11 +844,18 @@ int TreeList::ProcessKey(int Key)
 
 	string strTemp;
 
-	if (SaveFolderShortcut(Key,&strCurDir,&strTemp,&strTemp,&strTemp))
+	if (Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9)
+	{
+		//SaveFolderShortcut(Key-KEY_CTRLSHIFT0,&strCurDir,&strTemp,&strTemp,&strTemp);
+		SaveShortcutFolder(Key-KEY_CTRLSHIFT0);
 		return TRUE;
+	}
 
-	if (ProcessShortcutFolder(Key,TRUE))
+	if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9)
+	{
+		ExecShortcutFolder(Key-KEY_RCTRL0);
 		return TRUE;
+	}
 
 	switch (Key)
 	{

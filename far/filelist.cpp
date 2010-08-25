@@ -885,146 +885,18 @@ int FileList::ProcessKey(int Key)
 		ShiftSelection=-1;
 	}
 
-	if (!InternalProcessKey && ((Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9) ||
-	                            (Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9)))
+	if ( !InternalProcessKey )
 	{
-		string strShortcutFolder;
-		int SizeFolderNameShortcut=GetShortcutFolderSize(Key);
-		(void)SizeFolderNameShortcut;
-		//char *ShortcutFolder=nullptr;
-		string strPluginModule,strPluginFile,strPluginData;
-
-		if (PanelMode==PLUGIN_PANEL)
+		// Create a folder shortcut?
+		if (Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9)
 		{
-			PluginHandle *ph = (PluginHandle*)hPlugin;
-			strPluginModule = ph->pPlugin->GetModuleName();
-			OpenPluginInfo Info;
-			CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
-			strPluginFile = Info.HostFile;
-			strShortcutFolder = Info.CurDir;
-			strPluginData = Info.ShortcutData;
-		}
-		else
-		{
-			strPluginModule.Clear();
-			strPluginFile.Clear();
-			strPluginData.Clear();
-			strShortcutFolder = strCurDir;
-		}
-
-		if (SaveFolderShortcut(Key,&strShortcutFolder,&strPluginModule,&strPluginFile,&strPluginData))
-		{
+			SaveShortcutFolder(Key-KEY_CTRLSHIFT0);
 			return TRUE;
 		}
-
-		if (GetShortcutFolder(Key,&strShortcutFolder,&strPluginModule,&strPluginFile,&strPluginData))
+		// Jump to a folder shortcut?
+		else if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9)
 		{
-			int CheckFullScreen=IsFullScreen();
-
-			if (!strPluginModule.IsEmpty())
-			{
-				if (!strPluginFile.IsEmpty())
-				{
-					switch (CheckShortcutFolder(&strPluginFile,TRUE))
-					{
-						case 0:
-							//              return FALSE;
-						case -1:
-							return TRUE;
-					}
-
-					/* Своеобразное решение BugZ#50 */
-					string strRealDir;
-					strRealDir = strPluginFile;
-
-					if (CutToSlash(strRealDir))
-					{
-						SetCurDir(strRealDir,TRUE);
-						GoToFile(PointToName(strPluginFile));
-
-						// удалим пред.значение.
-						if (!PrevDataList.Empty())
-						{
-							for(PrevDataItem* i=*PrevDataList.Last();i;i=*PrevDataList.Prev(&i))
-							{
-								DeleteListData(i->PrevListData,i->PrevFileCount);
-							}
-						}
-					}
-
-					OpenFilePlugin(strPluginFile,FALSE);
-
-					if (!strShortcutFolder.IsEmpty())
-							SetCurDir(strShortcutFolder,FALSE);
-
-					Show();
-				}
-				else
-				{
-					switch (CheckShortcutFolder(nullptr,TRUE))
-					{
-						case 0:
-							//              return FALSE;
-						case -1:
-							return TRUE;
-					}
-
-					for (int I=0; I<CtrlObject->Plugins.GetPluginsCount(); I++)
-					{
-						Plugin *pPlugin = CtrlObject->Plugins.GetPlugin(I);
-
-						if (!StrCmpI(pPlugin->GetModuleName(),strPluginModule))
-						{
-							if (pPlugin->HasOpenPlugin())
-							{
-								HANDLE hNewPlugin=CtrlObject->Plugins.OpenPlugin(pPlugin,OPEN_SHORTCUT,(INT_PTR)strPluginData.CPtr());
-
-								if (hNewPlugin!=INVALID_HANDLE_VALUE)
-								{
-									int CurFocus=GetFocus();
-									Panel *NewPanel=CtrlObject->Cp()->ChangePanel(this,FILE_PANEL,TRUE,TRUE);
-									NewPanel->SetPluginMode(hNewPlugin,L"",CurFocus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
-
-									if (!strShortcutFolder.IsEmpty())
-										CtrlObject->Plugins.SetDirectory(hNewPlugin,strShortcutFolder,0);
-
-									NewPanel->Update(0);
-									NewPanel->Show();
-								}
-							}
-
-							break;
-						}
-					}
-
-					/*
-					if(I == CtrlObject->Plugins.PluginsCount)
-					{
-					  char Target[NM*2];
-					  xstrncpy(Target, PluginModule, sizeof(Target));
-					  TruncPathStr(Target, ScrX-16);
-					  Message (MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), Target, MSG (MNeedNearPath), MSG(MOk))
-					}
-					*/
-				}
-
-				return TRUE;
-			}
-
-			switch (CheckShortcutFolder(&strShortcutFolder,FALSE))
-			{
-				case 0:
-					//          return FALSE;
-				case -1:
-					return TRUE;
-			}
-
-			SetCurDir(strShortcutFolder,TRUE);
-
-			if (CheckFullScreen!=IsFullScreen())
-				CtrlObject->Cp()->GetAnotherPanel(this)->Show();
-
-			Show();
+			ExecShortcutFolder(Key-KEY_RCTRL0);
 			return TRUE;
 		}
 	}
@@ -4937,4 +4809,16 @@ BOOL FileList::GetItem(int Index,void *Dest)
 
 	*((FileListItem *)Dest)=*ListData[Index];
 	return TRUE;
+}
+
+void FileList::ClearAllItem()
+{
+	// удалим пред.значение.
+	if (!PrevDataList.Empty()) //???
+	{
+		for(PrevDataItem* i=*PrevDataList.Last();i;i=*PrevDataList.Prev(&i))
+		{
+			DeleteListData(i->PrevListData,i->PrevFileCount); //???
+		}
+	}
 }

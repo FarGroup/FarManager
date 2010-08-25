@@ -232,7 +232,7 @@ void InfoList::DisplayObject()
 
 
 		strTitle=string(L" ")+DiskType+L" "+MSG(MInfoDisk)+L" "+((!strDriveRoot.IsEmpty() && strDriveRoot.At(1)==L':')?LocalName:strDriveRoot)+L" ("+strFileSystemName+L") ";
-		
+
 		switch(DriveType)
 		{
 		case DRIVE_REMOTE:
@@ -376,8 +376,11 @@ int InfoList::ProcessKey(int Key)
 	if (!IsVisible())
 		return FALSE;
 
-	if (ProcessShortcutFolder(Key,FALSE))
+	if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9)
+	{
+		ExecShortcutFolder(Key-KEY_RCTRL0);
 		return TRUE;
+	}
 
 	switch (Key)
 	{

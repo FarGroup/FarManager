@@ -33,7 +33,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-int GetShortcutFolder(int Key,string *pDestFolder, string *pPluginModule=nullptr, string *pPluginFile=nullptr,string *pPluginData=nullptr);
-int SaveFolderShortcut(int Key,string *pSrcFolder,string *pPluginModule=nullptr, string *pPluginFile=nullptr,string *pPluginData=nullptr);
-int GetShortcutFolderSize(int Key);
+int GetShortcutFolder(int Pos,string *pDestFolder, string *pPluginModule=nullptr, string *pPluginFile=nullptr,string *pPluginData=nullptr);
+int SaveFolderShortcut(int Pos,string *pSrcFolder,string *pPluginModule=nullptr, string *pPluginFile=nullptr,string *pPluginData=nullptr);
 void ShowFolderShortcut();

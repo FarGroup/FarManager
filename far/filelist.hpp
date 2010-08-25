@@ -291,6 +291,9 @@ class FileList:public Panel
 		void AddParentPoint(FileListItem *CurPtr,long CurFilePos,FILETIME* Times=nullptr,string Owner=L"");
 		int  ProcessOneHostFile(int Idx);
 
+	protected:
+		virtual void ClearAllItem();
+
 	public:
 		FileList();
 		virtual ~FileList();

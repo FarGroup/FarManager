@@ -3854,7 +3854,7 @@ MShortcutPlugin
 "<plugin>"
 "<plugin>"
 
-MEnterShortcut
+MFSShortcut
 "Введите новую ссылку:"
 "Enter new shortcut:"
 "Zadejte novou zkratku:"

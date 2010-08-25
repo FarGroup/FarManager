@@ -49,6 +49,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "interf.hpp"
+#include "dialog.hpp"
+#include "FarDlgBuilder.hpp"
+#include "plugin.hpp"
+#include "plugins.hpp"
 
 static int ShowFolderShortcutMenu(int Pos);
 static const wchar_t HelpFolderShortcuts[]=L"FolderShortcuts";
@@ -58,7 +62,6 @@ enum PSCR_CMD
 	PSCR_CMDGET,
 	PSCR_CMDSET,
 	PSCR_CMDDELALL,
-	PSCR_CMDGETFILDERSIZE,
 };
 
 enum PSCR_RECTYPE
@@ -80,75 +83,59 @@ static int ProcessShortcutRecord(int Command,int ValType,int RecNumber, string *
 		L"PluginData%d",
 	};
 	string strValueName;
-	strValueName.Format(RecTypeName[ValType], RecNumber);
 
-	if (Command == PSCR_CMDGET)
-		GetRegKey(FolderShortcuts,strValueName,*pValue,L"");
-	else if (Command == PSCR_CMDSET)
-		SetRegKey(FolderShortcuts,strValueName,NullToEmpty(*pValue));
-	else if (Command == PSCR_CMDDELALL)
+	if (Command != PSCR_CMDDELALL)
+		strValueName.Format(RecTypeName[ValType], RecNumber);
+
+	switch(Command)
 	{
-		for (size_t I=0; I < ARRAYSIZE(RecTypeName); ++I)
-		{
-			strValueName.Format(RecTypeName[I],RecNumber);
-			SetRegKey(FolderShortcuts,strValueName,L"");
-		}
+		case PSCR_CMDGET:
+			return GetRegKey(FolderShortcuts,strValueName,*pValue,L"");
+		case PSCR_CMDSET:
+			return SetRegKey(FolderShortcuts,strValueName,NullToEmpty(*pValue));
+		case PSCR_CMDDELALL:
+			for (size_t I=0; I < ARRAYSIZE(RecTypeName); ++I)
+			{
+				strValueName.Format(RecTypeName[I],RecNumber);
+				SetRegKey(FolderShortcuts,strValueName,L"");
+			}
+			return TRUE;
 	}
-	else if (Command == PSCR_CMDGETFILDERSIZE)
-		return GetRegKeySize(FolderShortcuts,strValueName);
 
-	return 0;
+	return FALSE;
 }
 
-int GetShortcutFolderSize(int Key)
-{
-	if (Key<KEY_RCTRL0 || Key>KEY_RCTRL9)
-		return 0;
-
-	Key-=KEY_RCTRL0;
-	return ProcessShortcutRecord(PSCR_CMDGETFILDERSIZE,PSCR_RT_SHORTCUT,Key,nullptr);
-}
-
-
-int GetShortcutFolder(int Key,string *pDestFolder,
+int GetShortcutFolder(int Pos,string *pDestFolder,
                       string *pPluginModule,
                       string *pPluginFile,
                       string *pPluginData)
 {
-	if (Key<KEY_RCTRL0 || Key>KEY_RCTRL9)
-		return FALSE;
-
 	string strFolder;
-	Key-=KEY_RCTRL0;
-	ProcessShortcutRecord(PSCR_CMDGET,PSCR_RT_SHORTCUT,Key,&strFolder);
+	ProcessShortcutRecord(PSCR_CMDGET,PSCR_RT_SHORTCUT,Pos,&strFolder);
 	apiExpandEnvironmentStrings(strFolder, *pDestFolder);
 
 	if (pPluginModule)
-		ProcessShortcutRecord(PSCR_CMDGET,PSCR_RT_PLUGINMODULE,Key,pPluginModule);
+		ProcessShortcutRecord(PSCR_CMDGET,PSCR_RT_PLUGINMODULE,Pos,pPluginModule);
 
 	if (pPluginFile)
-		ProcessShortcutRecord(PSCR_CMDGET,PSCR_RT_PLUGINFILE,Key,pPluginFile);
+		ProcessShortcutRecord(PSCR_CMDGET,PSCR_RT_PLUGINFILE,Pos,pPluginFile);
 
 	if (pPluginData)
-		ProcessShortcutRecord(PSCR_CMDGET,PSCR_RT_PLUGINDATA,Key,pPluginData);
+		ProcessShortcutRecord(PSCR_CMDGET,PSCR_RT_PLUGINDATA,Pos,pPluginData);
 
 	return (!pDestFolder->IsEmpty() || (pPluginModule && !pPluginModule->IsEmpty()));
 }
 
 
-int SaveFolderShortcut(int Key,string *pSrcFolder,
+int SaveFolderShortcut(int Pos,string *pSrcFolder,
                        string *pPluginModule,
                        string *pPluginFile,
                        string *pPluginData)
 {
-	if (Key<KEY_CTRLSHIFT0 || Key>KEY_CTRLSHIFT9)
-		return FALSE;
-
-	Key-=KEY_CTRLSHIFT0;
-	ProcessShortcutRecord(PSCR_CMDSET,PSCR_RT_SHORTCUT,Key,pSrcFolder);
-	ProcessShortcutRecord(PSCR_CMDSET,PSCR_RT_PLUGINMODULE,Key,pPluginModule);
-	ProcessShortcutRecord(PSCR_CMDSET,PSCR_RT_PLUGINFILE,Key,pPluginFile);
-	ProcessShortcutRecord(PSCR_CMDSET,PSCR_RT_PLUGINDATA,Key,pPluginData);
+	ProcessShortcutRecord(PSCR_CMDSET,PSCR_RT_SHORTCUT,Pos,pSrcFolder);
+	ProcessShortcutRecord(PSCR_CMDSET,PSCR_RT_PLUGINMODULE,Pos,pPluginModule);
+	ProcessShortcutRecord(PSCR_CMDSET,PSCR_RT_PLUGINFILE,Pos,pPluginFile);
+	ProcessShortcutRecord(PSCR_CMDSET,PSCR_RT_PLUGINDATA,Pos,pPluginData);
 	return TRUE;
 }
 
@@ -166,6 +153,7 @@ static int ShowFolderShortcutMenu(int Pos)
 {
 	int ExitCode=-1;
 	{
+		int I;
 		MenuItemEx ListItem;
 		VMenu FolderList(MSG(MFolderShortcutsTitle),nullptr,0,ScrY-4);
 		FolderList.SetFlags(VMENU_WRAPMODE); // VMENU_SHOWAMPERSAND|
@@ -173,7 +161,7 @@ static int ShowFolderShortcutMenu(int Pos)
 		FolderList.SetPosition(-1,-1,0,0);
 		FolderList.SetBottomTitle(MSG(MFolderShortcutBottom));
 
-		for (int I=0; I<10; I++)
+		for (I=0; I<10; I++)
 		{
 			string strFolderName;
 			string strValueName;
@@ -238,18 +226,19 @@ static int ShowFolderShortcutMenu(int Pos)
 				}
 				case KEY_F4:
 				{
-					/* Пока оставим именно так:
-					   Редактирование по F4 - считаем что ЭТО абс.файловый путь!
-					   TODO: потом добавим и работу с плагинами (возможно :-)
-					*/
-					string strOldNewDir;
 					string strNewDir;
-					ProcessShortcutRecord(PSCR_CMDGET,PSCR_RT_SHORTCUT,SelPos,&strNewDir);
-					strOldNewDir = strNewDir;
+					string strTemp;
 
-					if (GetString(MSG(MFolderShortcutsTitle),MSG(MEnterShortcut),nullptr,
-					              strNewDir,strNewDir,HelpFolderShortcuts,FIB_BUTTONS|FIB_EDITPATH) &&
-					        StrCmp(strNewDir,strOldNewDir) )
+					ProcessShortcutRecord(PSCR_CMDGET,PSCR_RT_SHORTCUT,SelPos,&strNewDir);
+					strTemp = strNewDir;
+
+					DialogBuilder Builder(MFolderShortcutsTitle, HelpFolderShortcuts);
+					Builder.AddText(MFSShortcut);
+					Builder.AddEditField(&strNewDir, 50, L"FS_Path", DIF_EDITPATH);
+					//...
+					Builder.AddOKCancel();
+
+					if (Builder.ShowDialog())
 					{
 						Unquote(strNewDir);
 
@@ -257,9 +246,9 @@ static int ShowFolderShortcutMenu(int Pos)
 							DeleteEndSlash(strNewDir);
 
 						BOOL Saved=TRUE;
-						apiExpandEnvironmentStrings(strNewDir,strOldNewDir);
+						apiExpandEnvironmentStrings(strNewDir,strTemp);
 
-						if (apiGetFileAttributes(strOldNewDir) == INVALID_FILE_ATTRIBUTES)
+						if (apiGetFileAttributes(strTemp) == INVALID_FILE_ATTRIBUTES)
 						{
 							SetLastError(ERROR_PATH_NOT_FOUND);
 							Saved=!Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), strNewDir, MSG(MSaveThisShortcut), MSG(MYes), MSG(MNo));
@@ -287,7 +276,7 @@ static int ShowFolderShortcutMenu(int Pos)
 
 	if (ExitCode>=0)
 	{
-		CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_RCTRL0+ExitCode);
+		CtrlObject->Cp()->ActivePanel->ExecShortcutFolder(ExitCode);
 	}
 
 	return -1;

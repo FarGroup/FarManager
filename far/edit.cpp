@@ -534,7 +534,7 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
 	{
 		string strPluginModule, strPluginFile, strPluginData;
 
-		if (GetShortcutFolder(Key,&strPathName,&strPluginModule,&strPluginFile,&strPluginData))
+		if (GetShortcutFolder(Key-KEY_RCTRL0,&strPathName,&strPluginModule,&strPluginFile,&strPluginData))
 			RetCode=TRUE;
 	}
 	else // Пути/имена?

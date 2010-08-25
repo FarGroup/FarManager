@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "mix.hpp"
 #include "constitle.hpp"
+#include "syslog.hpp"
 
 static int LastWrapMode = -1;
 static int LastWrapType = -1;
@@ -266,8 +267,11 @@ int QuickView::ProcessKey(int Key)
 	if (!IsVisible())
 		return FALSE;
 
-	if (ProcessShortcutFolder(Key,FALSE))
+	if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9)
+	{
+		ExecShortcutFolder(Key-KEY_RCTRL0);
 		return TRUE;
+	}
 
 	if (Key == KEY_F1)
 	{
@@ -354,7 +358,7 @@ void QuickView::Update(int Mode)
 
 void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
 {
-	DWORD FileAttr;
+	DWORD FileAttr=0;
 	CloseFile();
 	QView=nullptr;
 
@@ -394,7 +398,7 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
 		// Не показывать тип файла для каталогов в "Быстром просмотре"
 		strCurFileType.Clear();
 
-		if (SameFile)
+		if (SameFile && !hDirPlugin)
 		{
 			Directory=1;
 		}
@@ -402,7 +406,6 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
 		{
 			int ExitCode=GetPluginDirInfo(hDirPlugin,strCurFileName,DirCount,
 			                              FileCount,FileSize,CompressedFileSize);
-
 			if (ExitCode)
 				Directory=4;
 			else
