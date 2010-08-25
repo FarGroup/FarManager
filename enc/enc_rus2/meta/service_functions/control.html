@@ -105,12 +105,27 @@ int WINAPI Control(
        </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETPANELDIR">FCTL_GETPANELDIR</a></td>
-      <td class="cont" width="60%"> Получить текущий каталог панели.<br>
-      <var>Param1</var> размер буфера. Указывает максимальное количество символов, которые могут
-  быть записаны в <var>Param2</var>, включая '\0'. <br>
+      <td class="cont" width="60%">Получить текущий каталог панели.<br>
+      <var>Param1</var> размер буфера. Указывает максимальное количество символов, которые могут быть записаны в <var>Param2</var>, включая '\0'. <br>
        <var>Param2</var> указывает на буфер, выделяемый плагином, в который будет помещено имя каталога. <br>
         Функция возвращает необходимый размер буфера, если <var>Param2</var>= NULL.
-       </td></tr>
+      </td></tr>
+
+      <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETPANELFORMAT">FCTL_GETPANELFORMAT</a></td>
+      <td class="cont" width="60%">Получить формат панели (см. <a href="../structures/openplugininfo.html">OpenPluginInfo, поле Format</a>).<br>
+      <var>Param1</var> размер буфера. Указывает максимальное количество символов, которые могут быть записаны в <var>Param2</var>, включая '\0'. <br>
+       <var>Param2</var> указывает на буфер, выделяемый плагином, в который будет помещен формат панели. <br>
+       Если панель не принадлежит плагину, то функция вернет пустую строку.<br>
+       Функция возвращает необходимый размер буфера, если <var>Param2</var>= NULL.
+      </td></tr>
+
+      <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETPANELHOSTFILE">FCTL_GETPANELHOSTFILE</a></td>
+      <td class="cont" width="60%">Получить имя файла на эмулируемой файловой системе (см. <a href="../structures/openplugininfo.html">OpenPluginInfo, поле HostFile</a>).<br>
+      <var>Param1</var> размер буфера. Указывает максимальное количество символов, которые могут быть записаны в <var>Param2</var>, включая '\0'. <br>
+       <var>Param2</var> указывает на буфер, выделяемый плагином, в который будет помещено имя хост-файла. <br>
+       Если панель не принадлежит плагину, то функция вернет пустую строку.<br>
+        Функция возвращает необходимый размер буфера, если <var>Param2</var>= NULL.
+      </td></tr>
 
      <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETPANELITEM">FCTL_GETPANELITEM</a></td>
       <td class="cont" width="60%"> Получить файловый элемент панели.<br>
