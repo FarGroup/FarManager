@@ -3,9 +3,32 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 25.08.2010 12:12:25 +0200 - build 1658
+
+1. GUIDs are assigned to the following dialogs:
+   - r/o file rewrite query. The former GUID matched the regular rewrite dialog.
+   - copy a file.
+   - create a hard link.
+
+svs 25.08.2010 12:40:09 +0300 - build 1657
+
+1. Panel API: FCTL_GETPANELFORMAT and FCTL_GETPANELHOSTFILE are added.
+   (Mantis#0001472: Add FCTL_GETPANELFORMAT, FCTL_GETPANELHOSTFILE)
+
+svs 25.08.2010 11:17:55 +0300 - build 1656
+
+1. Mantis#0001471: QuickView in plugin panel displays random info on folders
+   Display of some folder properties is disabled for plugins (garbage was shown)
+
+2. The first stage of FolderShortcuts reconstruction
+    - Functions GetShortcutFolder() and SaveFolderShortcut() don't know what a "key" is.
+    - RCtrl[Shift]-0..9 processing algorithm is moved out of FileList::ProcessKey() 
+      into Panel class as ExecShortcutFolder() and SaveShortcutFolder() functions.
+    - GetShortcutFolderSize() function is removed.
+
 zg 24.08.2010 20:38:59 +0200 - build 1655
 
-1. GUIDS are assigned to the following dialogs:
+1. GUIDs are assigned to the following dialogs:
    - open a file in editor.
    - save a file in editor.
    - create a folder.
