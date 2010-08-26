@@ -1,3 +1,7 @@
+drkns 26.08.2010 15:31:12 +0200 - build 36
+
+1. Опция "Show message after execution" по умолчанию отключена.
+
 t-rex 03.07.2010 20:12:08 +0200 - build 35
 
 1. From Igor Yudincev: Mantis#1406: Плагин не работает с большим буфером консоли.

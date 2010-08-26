@@ -87,7 +87,7 @@ CPlugin::CPlugin(const PluginStartupInfo *Info)
 
 void CPlugin::ReadRegValues()
 {
-  m_WaitToContinue=GetRegKey(REG_WaitToContinue, 1);
+  m_WaitToContinue=GetRegKey(REG_WaitToContinue, 0);
   m_UseGUI=GetRegKey(REG_UseGUI, 2);
   m_DelUsingFar=GetRegKey(REG_DelUsingFar, 0);
   m_ClearSel=GetRegKey(REG_ClearSel, 1);
