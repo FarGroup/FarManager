@@ -3,6 +3,29 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+chupakabra 26.08.2010 22:54:00 +0200 - build 1661
+
+1. GetFilesW is always called with a full path given.
+
+chupakabra 26.08.2010 22:22:00 +0200 - build 1660
+
+1. ACTL_PROGRESSNOTIFY - Far performs standard notification of operation completion (flashing button in taskbar).
+
+drkns 26.08.2010 21:02:33 +0200 - build 1659
+
+1. Correction of DN_GETDIALOGINFO.
+
+2. Makeup in hotplug.cpp.
+
+drkns 27.08.2010 09:50:32 +0200
+
+1. Spanish translation (lng file) from Mauro72.
+
+svs 26.08.2010 07:50:23 +0300 - build 
+
+1. Mantis#0000986: Far 2 API - pascal
+   PluginW.pas is updated.
+
 zg 25.08.2010 12:12:25 +0200 - build 1658
 
 1. GUIDs are assigned to the following dialogs:
