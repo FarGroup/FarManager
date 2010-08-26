@@ -711,15 +711,9 @@ void FileList::PluginHostGetFiles()
 
 	AnotherPanel->GetCurDir(strDestPath);
 
-	if (((!AnotherPanel->IsVisible() || AnotherPanel->GetType()!=FILE_PANEL) &&
-	        !SelFileCount) || strDestPath.IsEmpty())
+	if (AnotherPanel->GetType()!=FILE_PANEL || strDestPath.IsEmpty())
 	{
-		strDestPath = PointToName(strSelName);
-		// SVS: ј зачем здесь велс€ поиск точки с начала?
-		size_t pos;
-
-		if (strDestPath.RPos(pos,L'.'))
-			strDestPath.SetLength(pos);
+		apiGetCurrentDirectory(strDestPath);
 	}
 
 	int OpMode=OPM_TOPLEVEL,ExitLoop=FALSE;
