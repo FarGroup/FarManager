@@ -535,15 +535,12 @@ void Dialog::InitDialog()
 
 		// все объекты проинициализированы!
 		DialogMode.Set(DMODE_INITOBJECTS);
-		DialogInfo di={0};
+		DialogInfo di={sizeof(di)};
 
 		if (DlgProc(reinterpret_cast<HANDLE>(this),DN_GETDIALOGINFO,0,reinterpret_cast<LONG_PTR>(&di)))
 		{
-			if (static_cast<size_t>(di.StructSize)>=offsetof(DialogInfo,Id)+sizeof(di.Id))
-			{
-				Id=di.Id;
-				IdExist=true;
-			}
+			Id=di.Id;
+			IdExist=true;
 		}
 
 		DlgProc((HANDLE)this,DN_GOTFOCUS,InitFocus,0);

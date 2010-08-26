@@ -48,9 +48,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "window.hpp"
 
-DEFINE_GUID(GUID_DEVINTERFACE_VOLUME,0x53f5630dL,0xb6bf,0x11d0,0x94,0xf2,0x00,0xa0,0xc9,0x1e,0xfb,0x8b)=
-    {0x53f5630dL,0xb6bf,0x11d0,0x94,0xf2,0x00,0xa0,0xc9,0x1e,0xfb,0x8b};
-
 struct DeviceInfo
 {
 	DEVINST hDevInst; // device instance
@@ -330,21 +327,24 @@ DWORD DriveMaskFromVolumeName(const wchar_t *lpwszVolumeName)
 DWORD GetDriveMaskFromMountPoints(DEVINST hDevInst)
 {
 	DWORD dwMask = 0;
-	wchar_t szDeviceID [MAX_DEVICE_ID_LEN];
+	wchar_t szDeviceID[MAX_DEVICE_ID_LEN];
 
 	if (ifn.pfnGetDeviceID(
 	            hDevInst,
 	            szDeviceID,
-	            sizeof(szDeviceID)/sizeof(wchar_t),
+	            ARRAYSIZE(szDeviceID),
 	            0
 	        ) == CR_SUCCESS)
 	{
 		DWORD dwSize = 0;
 
+
+		GUID GUID_DEVINTERFACE_VOLUME = {0x53f5630dL,0xb6bf,0x11d0,0x94,0xf2,0x00,0xa0,0xc9,0x1e,0xfb,0x8b};
+
 		if (ifn.pfnGetDeviceInterfaceListSize(
 		            &dwSize,
-		            (LPGUID)&GUID_DEVINTERFACE_VOLUME,
-		            (DEVINSTID_W)&szDeviceID,
+		            &GUID_DEVINTERFACE_VOLUME,
+		            szDeviceID,
 		            0
 		        ) == CR_SUCCESS)
 		{
@@ -353,8 +353,8 @@ DWORD GetDriveMaskFromMountPoints(DEVINST hDevInst)
 				wchar_t *lpwszDeviceInterfaceList = (wchar_t*)xf_malloc(dwSize*sizeof(wchar_t));
 
 				if (ifn.pfnGetDeviceInterfaceList(
-				            (LPGUID)&GUID_DEVINTERFACE_VOLUME,
-				            (DEVINSTID_W)&szDeviceID,
+				            &GUID_DEVINTERFACE_VOLUME,
+				            szDeviceID,
 				            lpwszDeviceInterfaceList,
 				            dwSize,
 				            0
@@ -364,19 +364,15 @@ DWORD GetDriveMaskFromMountPoints(DEVINST hDevInst)
 
 					while (*p)
 					{
-						wchar_t *lpwszMountPoint = (wchar_t*)xf_malloc((wcslen(p)+1+1)*sizeof(wchar_t));    //for trailing slash
-						wcscpy(lpwszMountPoint, p);
-
-						if (!FirstSlash(p+4))
-							wcscat(lpwszMountPoint, L"\\");
-
+						string strMountPoint(p);
+						size_t Length = strMountPoint.GetLength();
+						AddEndSlash(strMountPoint);
 						string strVolumeName;
-
-						if (apiGetVolumeNameForVolumeMountPoint(lpwszMountPoint,strVolumeName))
-							dwMask |= DriveMaskFromVolumeName(strVolumeName);
-
-						xf_free(lpwszMountPoint);
-						p += wcslen(p)+1;
+						if (apiGetVolumeNameForVolumeMountPoint(strMountPoint,strVolumeName))
+						{
+								dwMask |= DriveMaskFromVolumeName(strVolumeName);
+						}
+						p += Length + 1;
 					}
 				}
 
