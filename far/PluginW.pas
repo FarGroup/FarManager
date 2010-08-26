@@ -52,7 +52,7 @@ uses Windows;
 const
   FARMANAGERVERSION_MAJOR = 2;
   FARMANAGERVERSION_MINOR = 0;
-  FARMANAGERVERSION_BUILD = 1363;
+  FARMANAGERVERSION_BUILD = 1658;
 
 type
 //TFarChar = AnsiChar;
@@ -1087,9 +1087,10 @@ const
   FCTL_ENDSELECTION             = 29;
   FCTL_CLEARSELECTION           = 30;
   FCTL_SETDIRECTORIESFIRST      = 31;
+  FCTL_GETPANELFORMAT           = 32;
+  FCTL_GETPANELHOSTFILE         = 33;
 
-
-
+  
 type
 (*
 typedef int (WINAPI *FARAPICONTROL)(
@@ -2478,8 +2479,11 @@ type
 
 const
   FLINK_HARDLINK         = 1;
-  FLINK_SYMLINK          = 2;
+  FLINK_JUNCTION         = 2;
   FLINK_VOLMOUNT         = 3;
+  FLINK_SYMLINKFILE      = 4;
+  FLINK_SYMLINKDIR       = 5;
+  FLINK_SYMLINK          = 6;
 
   FLINK_SHOWERRMSG       = $10000;
   FLINK_DONOTUPDATEPANEL = $20000;
@@ -3166,7 +3170,18 @@ function DlgList_SortDown(const Info :TPluginStartupInfo; hDlg :THandle; ID :Int
 function DlgList_GetItemData(const Info :TPluginStartupInfo; hDlg :THandle; ID :Integer; Index :Integer) :Integer;
 function DlgList_SetItemStrAsData(const Info :TPluginStartupInfo; hDlg :THandle; ID :Integer; Index :Integer; Str :PFarChar) :Integer;
 
+const
+  FindFileId        :TGUID = '{8C9EAD29-910F-4b24-A669-EDAFBA6ED964}';
+  CopyOverwriteId   :TGUID = '{9FBCB7E1-ACA2-475d-B40D-0F7365B632FF}';
+  FileOpenCreateId  :TGUID = '{1D07CEE2-8F4F-480a-BE93-069B4FF59A2B}';
+  FileSaveAsId      :TGUID = '{9162F965-78B8-4476-98AC-D699E5B6AFE7}';
+  MakeFolderId      :TGUID = '{FAD00DBE-3FFF-4095-9232-E1CC70C67737}';
+  FileAttrDlgId     :TGUID = '{80695D20-1085-44d6-8061-F3C41AB5569C}';
+  CopyReadOnlyId    :TGUID = '{879A8DE6-3108-4beb-80DE-6F264991CE98}';
+  CopyFilesId       :TGUID = '{FCEF11C4-5490-451d-8B4A-62FA03F52759}';
+  HardSymLinkId     :TGUID = '{5EB266F4-980D-46af-B3D2-2C50E64BCA81}';
 
+  
 {******************************************************************************}
 {******************************} implementation {******************************}
 {******************************************************************************}
