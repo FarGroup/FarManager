@@ -56,7 +56,7 @@ has finished working. This message may be needed under Windows 9x where
 problems can arise if you execute some context menu commands in parallel
 to working with FAR.
 
-    Default value: #enabled#.
+    Default value: #disabled#.
 
 ^#Show GUI menu#
 
