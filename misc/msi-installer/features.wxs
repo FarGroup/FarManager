@@ -249,6 +249,9 @@
         <Feature Id="Polish" Level="2" Title="!(loc.Feature.Title.Polish)" AllowAdvertise="no">
           <ComponentRef Id="FarPol.lng" />
         </Feature>
+        <Feature Id="Spanish" Level="2" Title="!(loc.Feature.Title.Spanish)" AllowAdvertise="no">
+          <ComponentRef Id="FarSpa.lng" />
+        </Feature>
 <?endif?>
       </Feature>
       <Feature Id="FarShortcuts" Level="1" Title="!(loc.Feature.Title.FarShortcuts)" AllowAdvertise="no">

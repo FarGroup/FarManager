@@ -36,6 +36,7 @@
 <?define Guid.FarHun.hlf = "75707563-9703-44BF-9F8B-3266746E2F30" ?>
 <?define Guid.FarHun.lng = "443ABF95-0F54-44B8-AE54-50EAC7185FB5" ?>
 <?define Guid.FarPol.lng = "F4F69F69-2EF1-4CCA-9C2A-1A9045D1A3B2" ?>
+<?define Guid.FarSpa.lng = "170666E5-1C8B-4F5D-AE51-5A8B0D13C52D" ?>
 <?define Guid.ClearPluginsCache.cmd = "1FA87BCD-C82C-4286-9610-7FAE8FC779CD" ?>
 <?define Guid.RestoreSettings.cmd = "05FEB3C8-BE10-49C1-BF16-F7A2AF771D00" ?>
 <?define Guid.SaveSettings.cmd = "76010CEB-0416-4419-9C78-D9AE57E690EE" ?>

@@ -65,6 +65,9 @@
       <Component Id="FarPol.lng" Guid="$(var.Guid.FarPol.lng)" Win64="$(var.Win64)">
         <File Id="FarPol.lng" KeyPath="yes" Source="$(var.SourceDir)\FarPol.lng" />
       </Component>
+      <Component Id="FarSpa.lng" Guid="$(var.Guid.FarSpa.lng)" Win64="$(var.Win64)">
+        <File Id="FarSpa.lng" KeyPath="yes" Source="$(var.SourceDir)\FarSpa.lng" />
+      </Component>
       <Component Id="ClearPluginsCache.cmd" Guid="$(var.Guid.ClearPluginsCache.cmd)" Win64="$(var.Win64)">
         <File Id="ClearPluginsCache.cmd" KeyPath="yes" Source="$(var.SourceDir)\ClearPluginsCache.cmd" />
       </Component>
