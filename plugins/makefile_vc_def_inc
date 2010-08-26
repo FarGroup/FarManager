@@ -51,15 +51,17 @@
 #  or
 #CPU=IA64 - for IA64 build
 #
+#(we try to autodetect if not set)
+#
 #VC8 - set to build with VC8, VC9 intended by default
 #
 
-!if defined(AMD64) || "$(CPU)" == "AMD64"
+!if defined(AMD64) || "$(CPU)" == "AMD64" || "$(PLATFORM)" == "X64" || "$(PLATFORM)" == "x64"
 !undef AMD64
 !undef CPU
 AMD64=1
 CPU=AMD64
-!elseif defined(IA64) || "$(CPU)" == "IA64"
+!elseif defined(IA64) || "$(CPU)" == "IA64" || "$(PLATFORM)" == "Itanium"
 !undef IA64
 !undef CPU
 IA64=1
