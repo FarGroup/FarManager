@@ -258,6 +258,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 		case ACTL_GETFARRECT:
 		case ACTL_GETCURSORPOS:
 		case ACTL_SETCURSORPOS:
+		case ACTL_PROGRESSNOTIFY:
 			break;
 		default:
 
@@ -832,6 +833,13 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 				return Result;
 			}
 			break;
+
+		case ACTL_PROGRESSNOTIFY:
+		{
+			TBC.Flash();
+			return TRUE;
+		}
+
 	}
 
 	return FALSE;

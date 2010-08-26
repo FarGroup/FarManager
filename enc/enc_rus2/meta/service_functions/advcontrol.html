@@ -252,6 +252,11 @@ LOWORD:  HIBYTE = major version (FAR 1.70.387 = 0x01)
       </LI></UL>
       </td></tr>
 
+      <tr class="cont"><td class="cont" width="40%"><a name="ACTL_PROGRESSNOTIFY">ACTL_PROGRESSNOTIFY</a></td>
+      <td class="cont" width="60%">Far выполняет стандартное оповещение о завершении операции (мерцание кнопкой в таскбаре).<br>
+      <var>Param</var> = 0 (не используется). Функция возвращает <code>TRUE</code>.
+      </td></tr>
+
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_SYNCHRO">ACTL_SYNCHRO</a></td>
       <td class="cont" width="60%">Позволяет потоку, запущенному плагином выполнить код в контексте главного потока FAR Manager посредством вызова функции                                                                                                                                                                                            	<a href="../exported_functions/processsynchroeventw.html">ProcessSynchroEventW</a> .<br>
       <var>Param</var> - указатель на данные передающиеся в функцию <dfn>ProcessSynchroEventW</dfn>, может быть NULL.<br>
