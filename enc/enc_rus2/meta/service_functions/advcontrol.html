@@ -208,7 +208,7 @@ LOWORD:  HIBYTE = major version (FAR 1.70.387 = 0x01)
       <td class="cont" width="60%">Позволяет переключиться в конкретное окно FAR Manager.<br>
       <var>Param</var> - целое число типа <em>int</em>, задающее номер активного окна (нумерация начинается с 0).<br>
       Функция возвращает <code>TRUE</code>, если переключение состоялось и <code>FALSE</code> при неудаче (не существует требуемого окна).<br>
-      <p class=note><img src="../../images/note.gif" alt="Замечание для ACTL_COMMIT" width="10" height="10"> Внимание!</p>
+      <p class=note><img src="../../images/note.gif" alt="Замечание для ACTL_SETCURRENTWINDOW" width="10" height="10"> Внимание!</p>
       <UL class=note><LI>
       Переключение не произойдёт до тех пор, пока не будет вызван <dfn>ACTL_COMMIT</dfn> или пока FAR не получит управление.
       </LI></UL>
@@ -221,7 +221,7 @@ LOWORD:  HIBYTE = major version (FAR 1.70.387 = 0x01)
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_SETPROGRESSSTATE">ACTL_SETPROGRESSSTATE</a></td>
-      <td class="cont" width="60%">Устанавливает тип и состояние индикатора прогресса на кнопке FAR'а в тескбаре.<br>
+      <td class="cont" width="60%">Устанавливает тип и состояние индикатора прогресса на кнопке Far в панели задач.<br>
       <var>Param</var> может принимать одно из следующих значений:
         <table class="cont"><tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
             <tr class="cont"><td class="cont" width="40%"><a name="PS_NOPROGRESS">PS_NOPROGRESS</a></td>
@@ -236,17 +236,17 @@ LOWORD:  HIBYTE = major version (FAR 1.70.387 = 0x01)
             <td class="cont" width="60%"> </td></tr>
         </table>
       Функция возвращает <code>TRUE</code>.
-      <p class=note><img src="../../images/note.gif" alt="Замечание для ACTL_COMMIT" width="10" height="10"> Внимание!</p>
+      <p class=note><img src="../../images/note.gif" alt="Замечание для ACTL_SETPROGRESSSTATE" width="10" height="10"> Внимание!</p>
       <UL class=note><LI>
       Работает в Windows 7 и выше. Для подробностей см. <a href="http://msdn.microsoft.com/" target="_blank">http://msdn.microsoft.com</a> - метод <dfn>ITaskbarList3::SetProgressStat</dfn>
       </LI></UL>
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_SETPROGRESSVALUE">ACTL_SETPROGRESSVALUE</a></td>
-      <td class="cont" width="60%">Отображает и корректирует прогресс операции на кнопке FAR'а в тескбаре.<br>
+      <td class="cont" width="60%">Отображает и корректирует прогресс операции на кнопке Far в панели задач.<br>
       <var>Param</var> = указатель на структуру <a href="../structures/progressvalue.html">PROGRESSVALUE</a>.
       Функция возвращает <code>TRUE</code>.
-      <p class=note><img src="../../images/note.gif" alt="Замечание для ACTL_COMMIT" width="10" height="10"> Внимание!</p>
+      <p class=note><img src="../../images/note.gif" alt="Замечание для ACTL_SETPROGRESSVALUE" width="10" height="10"> Внимание!</p>
       <UL class=note><LI>
       Работает в Windows 7 и выше. Для подробностей см. <a href="http://msdn.microsoft.com/" target="_blank">http://msdn.microsoft.com</a> - метод <dfn>ITaskbarList3::SetProgressValue</dfn>
       </LI></UL>
@@ -254,17 +254,18 @@ LOWORD:  HIBYTE = major version (FAR 1.70.387 = 0x01)
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_PROGRESSNOTIFY">ACTL_PROGRESSNOTIFY</a></td>
       <td class="cont" width="60%">Far выполняет стандартное оповещение о завершении операции
-      (при неактивном окне приложения кратковременное мерцание кнопкой в таскбаре и последующая подсветка её до получения окном фокуса).<br>
+      (при неактивном окне приложения кратковременное мерцание кнопкой Far в панели задач и последующая подсветка её до получения окном фокуса).<br>
       <var>Param</var> = 0 (не используется). Функция возвращает <code>TRUE</code>.
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_SYNCHRO">ACTL_SYNCHRO</a></td>
-      <td class="cont" width="60%">Позволяет потоку, запущенному плагином выполнить код в контексте главного потока FAR Manager посредством вызова функции                                                                                                                                                                                            	<a href="../exported_functions/processsynchroeventw.html">ProcessSynchroEventW</a> .<br>
-      <var>Param</var> - указатель на данные передающиеся в функцию <dfn>ProcessSynchroEventW</dfn>, может быть NULL.<br>
+      <td class="cont" width="60%">Позволяет потоку, запущенному плагином, выполнить код в контексте главного потока FAR Manager посредством вызова функции
+      <a href="../exported_functions/processsynchroeventw.html">ProcessSynchroEventW</a> .<br>
+      <var>Param</var> - указатель на данные, передающиеся в функцию <dfn>ProcessSynchroEventW</dfn>, может быть NULL.<br>
       Функция всегда возвращает 0.<br>
       <p class=note><img src="../../images/note.gif" alt="Замечание для ACTL_SYNCHRO" width="10" height="10"> Внимание!</p>
       <UL class=note><LI>
-      Проверка на вызов функции <dfn>ProcessSynchroEventW</dfn> проводится в  <dfn>GetInputRecord</dfn>, т.е. гарантированного времени отклика нет, но должен быть достаточно быстрым.
+      Проверка на вызов функции <dfn>ProcessSynchroEventW</dfn> проводится в  <dfn>GetInputRecord</dfn>, т.е. гарантированного времени отклика нет, но должно быть достаточно быстро.
       </LI></UL>
       </td></tr>
 
