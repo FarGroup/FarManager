@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 30.08.2010 01:25:01 +0200 - build 1662
+
+1. A separate GUID is assigned to a move/rename dialog. Earlier, the copy dialog's GUID was used.
+
 chupakabra 26.08.2010 22:54:00 +0200 - build 1661
 
 1. GetFilesW is always called with a full path given.
