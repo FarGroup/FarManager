@@ -337,8 +337,6 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 	};
 	static int LastHItem=-1,LastVItem=0;
 	int HItem,VItem;
-	// дисаблим
-	CmdMenu[MENU_COMMANDS_HOTPLUGLIST].SetGrayed(!ifn.bSetupAPIFunctions);
 
 	if (Opt.Policies.DisabledOptions)
 	{

@@ -44,69 +44,6 @@ ImportedFunctions::ImportedFunctions()
 	HMODULE hNtdll = GetModuleHandle(L"ntdll.dll");
 	HMODULE hKernel = GetModuleHandle(L"kernel32.dll");
 	HMODULE hShell = GetModuleHandle(L"shell32.dll");
-	HMODULE hSetupAPI = LoadLibrary(L"setupapi.dll");
-	HMODULE hVirtDisk = LoadLibrary(L"virtdisk.dll");
-	if (hSetupAPI)
-	{
-		pfnGetDevNodeRegistryProperty = (PCMGETDEVNODEREGISTRYPROPERTY)GetProcAddress(
-		                                    hSetupAPI,
-		                                    "CM_Get_DevNode_Registry_PropertyW"
-		                                );
-		pfnGetDevNodeStatus = (PCMGETDEVNODESTATUS)GetProcAddress(
-		                          hSetupAPI,
-		                          "CM_Get_DevNode_Status"
-		                      );
-		pfnGetDeviceID = (PCMGETDEVICEID)GetProcAddress(
-		                     hSetupAPI,
-		                     "CM_Get_Device_IDW"
-		                 );
-		pfnGetDeviceIDListSize = (PCMGETDEVICEIDLISTSIZE)GetProcAddress(
-		                             hSetupAPI,
-		                             "CM_Get_Device_ID_List_SizeW"
-		                         );
-		pfnGetDeviceIDList = (PCMGETDEVICEIDLIST)GetProcAddress(
-		                         hSetupAPI,
-		                         "CM_Get_Device_ID_ListW"
-		                     );
-		pfnGetDeviceInterfaceListSize = (PCMGETDEVICEINTERFACELISTSIZE)GetProcAddress(
-		                                    hSetupAPI,
-		                                    "CM_Get_Device_Interface_List_SizeW"
-		                                );
-		pfnGetDeviceInterfaceList = (PCMGETDEVICEINTERFACELIST)GetProcAddress(
-		                                hSetupAPI,
-		                                "CM_Get_Device_Interface_ListW"
-		                            );
-		pfnLocateDevNode = (PCMLOCATEDEVNODE)GetProcAddress(
-		                       hSetupAPI,
-		                       "CM_Locate_DevNodeW"
-		                   );
-		pfnGetChild = (PCMGETCHILD)GetProcAddress(
-		                  hSetupAPI,
-		                  "CM_Get_Child"
-		              );
-		pfnGetSibling  = (PCMGETCHILD)GetProcAddress(
-		                     hSetupAPI,
-		                     "CM_Get_Sibling"
-		                 );
-		pfnRequestDeviceEject = (PCMREQUESTDEVICEEJECT)GetProcAddress(
-		                            hSetupAPI,
-		                            "CM_Request_Device_EjectW"
-		                        );
-	}
-
-	bSetupAPIFunctions = (
-	                         pfnGetDevNodeRegistryProperty &&
-	                         pfnGetDevNodeStatus &&
-	                         pfnGetDeviceID &&
-	                         pfnGetDeviceIDListSize &&
-	                         pfnGetDeviceIDList &&
-	                         pfnGetDeviceInterfaceListSize &&
-	                         pfnGetDeviceInterfaceList &&
-	                         pfnLocateDevNode &&
-	                         pfnGetChild &&
-	                         pfnGetSibling &&
-	                         pfnRequestDeviceEject
-	                     );
 
 	if (hKernel)
 	{
@@ -147,11 +84,6 @@ ImportedFunctions::ImportedFunctions()
 
 ImportedFunctions::~ImportedFunctions()
 {
-	if(hSetupAPI)
-	{
-		FreeLibrary(hSetupAPI);
-	}
-	
 	if(hVirtDisk)
 	{
 		FreeLibrary(hVirtDisk);

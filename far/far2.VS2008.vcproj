@@ -82,7 +82,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="mpr.lib secur32.lib"
+				AdditionalDependencies="mpr.lib secur32.lib setupapi.lib"
 				OutputFile="$(OutDir)\far.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -182,7 +182,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="mpr.lib secur32.lib"
+				AdditionalDependencies="mpr.lib secur32.lib setupapi.lib"
 				OutputFile="$(OutDir)\far.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -281,7 +281,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="mpr.lib secur32.lib"
+				AdditionalDependencies="mpr.lib secur32.lib setupapi.lib"
 				OutputFile="$(OutDir)\far.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -381,7 +381,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="mpr.lib secur32.lib"
+				AdditionalDependencies="mpr.lib secur32.lib setupapi.lib"
 				OutputFile="$(OutDir)\far.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -481,7 +481,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="mpr.lib secur32.lib"
+				AdditionalDependencies="mpr.lib secur32.lib setupapi.lib"
 				OutputFile="$(OutDir)\far.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -581,7 +581,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="mpr.lib secur32.lib"
+				AdditionalDependencies="mpr.lib secur32.lib setupapi.lib"
 				OutputFile="$(OutDir)\far.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"

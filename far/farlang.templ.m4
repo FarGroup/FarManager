@@ -14086,7 +14086,7 @@ MCfgDizListNames
 "Nombres de &listas de descripción delimitado con comas:"
 
 MCfgDizSetHidden
-"Устанавливать &атрибут ""Hidden"" на новые списки описаний"
+"Устанавливать &атрибут ""Скрытый"" на новые списки описаний"
 "Set ""&Hidden"" attribute to new description lists"
 "Novým souborům s popisy nastavit atribut ""&Skrytý"""
 "Setze das '&Versteckt'-Attribut für neu angelegte Dateien"
@@ -14140,21 +14140,21 @@ MCfgDizAlwaysUpdate
 "&Actualizar siempre"
 
 MCfgDizAnsiByDefault
-"ANSI by default"
-"ANSI by default"
-"ANSI by default"
-"ANSI by default"
-"ANSI by default"
-"ANSI by default"
-"ANSI por defecto"
+"&Использовать кодовую страницу ANSI по умолчанию"
+"Use ANS&I code page by default"
+upd:"Automaticky otevírat soubory ve &WIN kódování"
+upd:"Dateien standardmäßig mit Windows-Kod&ierung öffnen"
+"Fájlok eredeti megnyitása ANS&I kódlappal"
+"&Otwieraj pliki w kodowaniu Windows"
+"Usar código ANS&I por defecto"
 
 MCfgDizSaveInUTF
+"Сохранять в UTF8"
 "Save in UTF8"
-"Save in UTF8"
-"Save in UTF8"
-"Save in UTF8"
-"Save in UTF8"
-"Save in UTF8"
+upd:"Save in UTF8"
+upd:"Save in UTF8"
+upd:"Save in UTF8"
+upd:"Save in UTF8"
 "Guardar en UTF8"
 
 MReadingTitleFiles
@@ -14175,16 +14175,6 @@ MReadingFiles
 " %d fájl olvasása"
 "Czytam: %d plików"
 "Leyendo: %d archivos"
-
-MUserBreakTitle
-l:
-"Прекращено пользователем"
-"User break"
-"Přerušeno uživatelem"
-"Unterbochen durch Benutzer"
-"A felhasználó megszakította"
-"Przerwane przez użytkownika"
-"Cancelado por usuario"
 
 MOperationNotCompleted
 "Операция не завершена"
@@ -19124,7 +19114,7 @@ l:
 "Zeichenkette mit Dateimaske enthält Fehler"
 "A fájlmaszk hibás"
 "Maska pliku zawiera błędy"
-"Cadena de máscara de archivos contiene errores!"
+"Cadena de máscara de archivos contiene errores"
 
 MPanelBracketsForLongName
 l:
@@ -19144,7 +19134,7 @@ l:
 "Umgebungsvariable %COMSPEC% nicht definiert"
 "A %COMSPEC% környezeti változó nincs definiálva"
 "Nie zdefiniowano zmiennej środowiskowej %COMSPEC%"
-"Variable de entorno %COMSPEC% no definida!"
+"Variable de entorno %COMSPEC% no definida"
 
 MExecuteErrorMessage
 "'%s' не является внутренней или внешней командой, исполняемой программой или пакетным файлом.\n"
@@ -19470,7 +19460,7 @@ MBadFileSizeFormat
 "Angabe der Dateigröße ist fehlerhaft"
 "A fájlméret mező rosszul van kitöltve"
 "Rozmiar pliku jest niepoprawny"
-"Campo de tamaño de archivo no está correctamente llenado!"
+"Campo de tamaño de archivo no está correctamente llenado"
 
 MFarTitleAddonsAdmin
 l:
@@ -19634,7 +19624,6 @@ upd:"Do not ask again in the current session"
 upd:"Do not ask again in the current session"
 upd:"Do not ask again in the current session"
 "No preguntar nuevamente en la sesión actual"
-#Must be the last
 
 #Must be the last
 MNewFileName

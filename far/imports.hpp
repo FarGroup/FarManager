@@ -36,85 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-typedef DWORD (__stdcall *PCMGETDEVNODEREGISTRYPROPERTY)(
-    DEVINST dnDevInst,
-    ULONG ulProperty,
-    PULONG pulRegDataType,
-    PVOID Buffer,
-    PULONG pulLength,
-    ULONG ulFlags
-);
-
-typedef CONFIGRET(__stdcall *PCMGETDEVNODESTATUS)(
-    PULONG pulStatus,
-    PULONG pulProblemNumber,
-    DEVINST dnDevInst,
-    ULONG ulFlags
-);
-
-typedef CONFIGRET(__stdcall *PCMGETDEVICEID)(
-    DEVINST dnDevInst,
-    wchar_t *Buffer,
-    ULONG BufferLen,
-    ULONG ulFlags
-);
-
-typedef CONFIGRET(__stdcall *PCMGETDEVICEIDLISTSIZE)(
-    PULONG pulLen,
-    const wchar_t *pszFilter,
-    ULONG ulFlags
-);
-
-typedef CONFIGRET(__stdcall *PCMGETDEVICEIDLIST)(
-    const wchar_t *pszFilter,
-    wchar_t *Buffer,
-    ULONG BufferLen,
-    ULONG ulFlags
-);
-
-typedef CONFIGRET(__stdcall *PCMGETDEVICEINTERFACELISTSIZE)(
-    PULONG pulLen,
-    LPGUID InterfaceClassGuid,
-    DEVINSTID_W pDeviceID,
-    ULONG ulFlags
-);
-
-typedef CONFIGRET(__stdcall *PCMGETDEVICEINTERFACELIST)(
-    LPGUID InterfaceClassGuid,
-    DEVINSTID_W pDeviceID,
-    wchar_t *Buffer,
-    ULONG BufferLen,
-    ULONG ulFlags
-);
-
-typedef CONFIGRET(__stdcall *PCMLOCATEDEVNODE)(
-    PDEVINST pdnDevInst,
-    DEVINSTID_W pDeviceID,
-    ULONG ulFlags
-);
-
-typedef CONFIGRET(__stdcall *PCMGETCHILD)(
-    PDEVINST pdnDevInst,
-    DEVINST DevInst,
-    ULONG ulFlags
-);
-
-
-typedef CONFIGRET(__stdcall *PCMGETSIBLING)(
-    PDEVINST pdnDevInst,
-    DEVINST DevInst,
-    ULONG ulFlags
-);
-
-typedef CONFIGRET(__stdcall *PCMREQUESTDEVICEEJECT)(
-    DEVINST dnDevInst,
-    PPNP_VETO_TYPE pVetoType,
-    wchar_t *pszVetoName,
-    ULONG ulNameLength,
-    ULONG ulFlags
-);
-
-typedef BOOL (__stdcall *PGETCONSOLEKEYBOARDLAYOUTNAME)(wchar_t*);
+typedef BOOL (WINAPI *PGETCONSOLEKEYBOARDLAYOUTNAME)(wchar_t*);
 
 
 typedef BOOLEAN (WINAPI *PCREATESYMBOLICLINK)(
@@ -235,20 +157,6 @@ typedef DWORD (WINAPI *DETACHVIRTUALDISK)(
 class ImportedFunctions
 {
 public:
-	PCMGETDEVNODEREGISTRYPROPERTY pfnGetDevNodeRegistryProperty;
-	PCMGETDEVNODESTATUS pfnGetDevNodeStatus;
-	PCMGETDEVICEID pfnGetDeviceID;
-	PCMGETDEVICEIDLISTSIZE pfnGetDeviceIDListSize;
-	PCMGETDEVICEIDLIST pfnGetDeviceIDList;
-	PCMGETDEVICEINTERFACELISTSIZE pfnGetDeviceInterfaceListSize;
-	PCMGETDEVICEINTERFACELIST pfnGetDeviceInterfaceList;
-	PCMLOCATEDEVNODE pfnLocateDevNode;
-	PCMGETCHILD pfnGetChild;
-	PCMGETSIBLING pfnGetSibling;
-	PCMREQUESTDEVICEEJECT pfnRequestDeviceEject;
-
-	bool bSetupAPIFunctions;
-	//
 	PGETCONSOLEKEYBOARDLAYOUTNAME pfnGetConsoleKeyboardLayoutName;
 
 	PCREATESYMBOLICLINK pfnCreateSymbolicLink;
@@ -282,7 +190,6 @@ public:
 	~ImportedFunctions();
 
 private:
-	HMODULE hSetupAPI;
 	HMODULE hVirtDisk;
 };
 

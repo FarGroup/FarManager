@@ -1916,7 +1916,7 @@ int Panel::SetCurPath()
 		}
 	}
 
-	if (!FarChDir(strCurDir)||(!(HasPathPrefix(strCurDir)&&(!StrCmpNI(&strCurDir[4],L"pipe",4)||!StrCmpNI(&strCurDir[4],L"nul",3)))&&apiGetFileAttributes(strCurDir)==INVALID_FILE_ATTRIBUTES))
+	if (!FarChDir(strCurDir))
 	{
 		// здесь на выбор :-)
 #if 1
