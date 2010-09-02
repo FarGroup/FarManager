@@ -1151,7 +1151,7 @@ the main help file, that is actual for the current FAR Manager version.
            установленных в системе раскладок.
       16 -  онвертировать всю командную строку при отсутствии выделенного
            блока.
-   The default value is 1 (switch the keyboard layout).
+   The default value is 0x00010001 (switch the keyboard layout).
 
 1.9.1.(TechInfo #16)
 ~~~~~~~~~~~~~~~~~~~~
