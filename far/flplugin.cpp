@@ -788,27 +788,41 @@ void FileList::PluginPutFilesToNew()
 
 		if (rc!=2 && FileCount==PrevFileCount+1)
 		{
-			int LastPos=0;
-			/* Место, где вычисляются координаты вновьсозданного файла
+			int LastPos = 0;
+			/* Место, где вычисляются координаты вновь созданного файла
 			   Позиционирование происходит на файл с максимальной датой
 			   создания файла. Посему, если какой-то злобный буратино поимел
 			   в текущем каталоге файло с датой создания поболее текущей,
-			   то корреткного позиционирования не произойдет!
+			   то корректного позиционирования не произойдет!
 			*/
-			FileListItem *PtrListData, *PtrLastPos=ListData[0];
+			FileListItem *PtrListData, *PtrLastPos = nullptr;
 
-			for (int I=1; I < FileCount; I++)
+			for (int i = 0; i < FileCount; i++)
 			{
-				PtrListData = ListData[I];
-
-				if (FileTimeDifference(&PtrListData->CreationTime,&PtrLastPos->CreationTime) > 0)
+				PtrListData = ListData[i];
+				if ((PtrListData->FileAttr & FILE_ATTRIBUTE_DIRECTORY) == 0)
 				{
-					PtrLastPos=ListData[LastPos=I];
+					if (PtrLastPos)
+					{
+						if (FileTimeDifference(&PtrListData->CreationTime, &PtrLastPos->CreationTime) > 0)
+						{
+							LastPos = i;
+							PtrLastPos = PtrListData;
+						}
+					}
+					else
+					{
+						LastPos = i;
+						PtrLastPos = PtrListData;
+					}
 				}
 			}
 
-			CurFile=LastPos;
-			Redraw();
+			if (PtrLastPos)
+			{
+				CurFile = LastPos;
+				Redraw();
+			}
 		}
 	}
 }
