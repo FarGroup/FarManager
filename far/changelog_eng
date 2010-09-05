@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+chupakabra 05.09.2010 14:33:00 +0200 - build 1665
+
+1. When PutFilesW()=1, the cursor is not set on directories.
+
 chupakabra 02.09.2010 19:41:00 +0200 - build 1664
 
 1. Rollback of 1661.
@@ -12,7 +16,7 @@ drkns 31.08.2010 12:40:01 +0200 - build 1663
 1. setupapi.dll is ubiquitous, so we link it statically.
    Ibid: a few CM_* functions are replaced with recommended SetupDi* analogs.
 
-2. Коррекция lng.
+2. Correction of lng.
 
 zg 30.08.2010 01:25:01 +0200 - build 1662
 
