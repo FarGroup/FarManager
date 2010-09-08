@@ -163,7 +163,12 @@ int ObserverPlugin::GetStorageItem(INT_PTR* hArchive, int nIndex, ArchiveItem* p
 		WIN32_FIND_DATAW fdata;
 		wchar_t wszTempBuffer[4096];
 
-		if ( m_pfnGetStorageItem(hArchive, nIndex, &fdata, wszTempBuffer, sizeof(wszTempBuffer)) )
+		nResult = m_pfnGetStorageItem(hArchive, nIndex, &fdata, wszTempBuffer, sizeof(wszTempBuffer));
+
+		if ( nResult == GET_ITEM_NOMOREITEMS )
+			return E_EOF;
+
+		if ( nResult == GET_ITEM_OK )
 		{
 			memset(pItem, 0, sizeof(ArchiveItem));
 
@@ -198,8 +203,9 @@ int ObserverPlugin::ExtractItem(
 		)
 {
 	ExtractOperationParams params;
-	memset(&params, 0, sizeof(params));
 
+
+	memset(&params, 0, sizeof(params));
 	memcpy(&params.callbacks, pCallbacks, sizeof(ExtractProcessCallbacks));
 
 #ifdef UNICODE
@@ -208,7 +214,7 @@ int ObserverPlugin::ExtractItem(
 	wchar_t* lpDestPathCopy = AnsiToUnicode(lpDestPath);
 #endif
 
-	params.dest_path = lpDestPathCopy;
+	params.destFilePath = lpDestPathCopy;
 	params.flags = 0;
 	params.item = nIndex;
 

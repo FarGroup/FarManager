@@ -1,5 +1,11 @@
 #include "observer.h"
 
+/*
+struct ObserverHandle {
+	INT_PTR* hArchive;
+	ObserverArchive pArchive;
+};
+*/
 
 class ObserverArchive {
 
@@ -8,6 +14,7 @@ public:
 	GUID m_uid;
 
 	ObserverPlugin* m_pPlugin;
+	StorageGeneralInfo m_Info;
 
 	INT_PTR* m_hArchive;
 	string m_strFileName;
@@ -57,8 +64,6 @@ private:
 	bool Open();
 	void Close();
 
-	static int __stdcall OnExtractStart(ProgressContext* pContext);
-	static int __stdcall OnExtractProgress(ProgressContext* pContext);
-	static void __stdcall OnExtractEnd(ProgressContext* pContext);
+	static int __stdcall OnExtractProgress(ProgressContextEx* pContext);
 };
 

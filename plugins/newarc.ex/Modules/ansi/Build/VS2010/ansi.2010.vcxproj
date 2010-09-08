@@ -61,22 +61,22 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>..\..\..\..\Bin\$(Configuration)\Modules\</OutDir>
+    <OutDir>..\..\..\..\Bin\$(Configuration)\Modules\ma\</OutDir>
     <IntDir>..\..\Bin\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Unicode|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>..\..\..\..\Bin\$(Configuration)\Modules\</OutDir>
+    <OutDir>..\..\..\..\Bin\$(Configuration)\Modules\ma\</OutDir>
     <IntDir>..\..\Bin\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\..\..\..\Bin\$(Configuration)\Modules\</OutDir>
+    <OutDir>..\..\..\..\Bin\$(Configuration)\Modules\ma\</OutDir>
     <IntDir>..\..\Bin\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Unicode|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\..\..\..\Bin\$(Configuration)\Modules\</OutDir>
+    <OutDir>..\..\..\..\Bin\$(Configuration)\Modules\ma\</OutDir>
     <IntDir>..\..\Bin\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

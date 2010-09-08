@@ -11,18 +11,14 @@ typedef void (CALLBACK *ExtractEndFunc)(HANDLE);
 struct ExtractProcessCallbacks
 {
 	HANDLE signalContext;
-	ExtractStartFunc FileStart;
 	ExtractProgressFunc FileProgress;
-	ExtractEndFunc FileEnd;
 };
 
 struct ProgressContext
 {
-	HANDLE hStorage;
-	HANDLE hScreen;
-
 	char szFilePath[MAX_PATH];
-	int nCurrentFileIndex;
+	wchar_t wszFilePath[MAX_PATH];
+
 	int nCurrentFileNumber;
 	int nTotalFiles;
 	__int64 nProcessedBytes;
@@ -31,10 +27,7 @@ struct ProgressContext
 
 	ProgressContext()
 	{
-		hStorage = NULL;
-		hScreen = NULL;
 		memset(szFilePath, 0, MAX_PATH);
-		nCurrentFileIndex = 0;
 		nCurrentFileNumber = 0;
 		nTotalFiles = 0;
 		nTotalSize = 0;
@@ -44,7 +37,7 @@ struct ProgressContext
 };
 
 #define STORAGE_FORMAT_NAME_MAX_LEN 16
-#define STORAGE_PARAM_MAX_LEN 32
+#define STORAGE_PARAM_MAX_LEN 64
 
 struct StorageGeneralInfo
 {
@@ -52,14 +45,13 @@ struct StorageGeneralInfo
 	wchar_t Compression[STORAGE_PARAM_MAX_LEN];
 	wchar_t Comment[STORAGE_PARAM_MAX_LEN];
 	FILETIME Created;
-	DWORD NumRealItems;		// Number of items which should be queried from submodule (usually NumFiles + NumDirectories)
 };
 
 struct ExtractOperationParams 
 {
 	int item;
 	int flags;
-	const wchar_t* dest_path;
+	const wchar_t* destFilePath;
 	ExtractProcessCallbacks callbacks;
 };
 
@@ -68,6 +60,11 @@ typedef int (MODULE_EXPORT *OpenStorageFunc)(const wchar_t*, INT_PTR**, StorageG
 typedef void (MODULE_EXPORT *CloseStorageFunc)(INT_PTR*);
 typedef int (MODULE_EXPORT *GetItemFunc)(INT_PTR*, int, LPWIN32_FIND_DATAW, wchar_t*, size_t);
 typedef int (MODULE_EXPORT *ExtractFunc)(INT_PTR*, ExtractOperationParams params);
+
+// Item retrieval result
+#define GET_ITEM_ERROR 0
+#define GET_ITEM_OK 1
+#define GET_ITEM_NOMOREITEMS 2
 
 // Extract operation flags
 #define SEP_ASKOVERWRITE 1

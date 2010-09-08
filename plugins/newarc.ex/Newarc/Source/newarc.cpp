@@ -218,6 +218,9 @@ int __stdcall EXP_NAME(PutFiles) (
 		PluginPanelItem *PanelItem,
 		int ItemsNumber,
 		int Move,
+#ifdef UNICODE
+		const wchar_t *SrcPath,
+#endif
 		int OpMode
 		)
 {

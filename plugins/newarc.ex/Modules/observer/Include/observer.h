@@ -8,6 +8,12 @@
 //observer
 #include "Observer/ModuleDef.h"
 
+struct ProgressContextEx {
+	ProgressContext ctx;
+	HANDLE filler;
+	HANDLE hArchive;
+};
+
 //newarc
 #include "../../API/module.hpp"
 
