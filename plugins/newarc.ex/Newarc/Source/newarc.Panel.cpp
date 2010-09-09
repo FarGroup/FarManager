@@ -480,11 +480,12 @@ int ArchivePanel::pPutFiles(
 
 			for (int el = 0; el < nCount; el++)
 			{
-
 				if ( bSeparately )
 				{
 					PluginPanelItem Item;
 					info.GetSelectedItem(el, &Item);
+
+					items.reset(); //???
 
 					GetPanelItemsToProcess(&Item, 1, items);
 

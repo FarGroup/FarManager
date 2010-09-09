@@ -113,6 +113,7 @@ void apiCreateDirectoryEx(const TCHAR* lpDirectory)
 	free (lpCopy);
 }
 
+
 void apiCreateDirectoryForFile(const TCHAR* lpFileName)
 {
 	string strNameCopy = lpFileName;
