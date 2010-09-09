@@ -7,9 +7,9 @@ bool IsFileInFolder (const TCHAR *lpCurrentPath, const TCHAR *lpFileName)
 	bool bResult = nLength && !_tcsncmp(lpCurrentPath, lpFileName, nLength); //вопрос, нужно ли здесь тоже игнорировать регистр
 	
 	return bResult && (
-			(lpCurrentPath[nLength] == 0) || 
-			(lpCurrentPath[nLength] == '/') || 
-			(lpCurrentPath[nLength] == '\\')
+			(lpFileName[nLength] == 0) || 
+			(lpFileName[nLength] == '/') || 
+			(lpFileName[nLength] == '\\')
 			);
 }
 
