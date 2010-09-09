@@ -1,5 +1,19 @@
 #include "newarc.h"
 
+bool IsFileInFolder (const TCHAR *lpCurrentPath, const TCHAR *lpFileName)
+{
+	int nLength = StrLength(lpCurrentPath);
+
+	bool bResult = nLength && !_tcsncmp(lpCurrentPath, lpFileName, nLength); //вопрос, нужно ли здесь тоже игнорировать регистр
+	
+	return bResult && (
+			(lpCurrentPath[nLength] == 0) || 
+			(lpCurrentPath[nLength] == '/') || 
+			(lpCurrentPath[nLength] == '\\')
+			);
+}
+
+
 bool CheckForEsc ()
 {
 	bool EC = false;
@@ -143,14 +157,16 @@ int ArchivePanel::pGetFindData(
 
 		bIsFolder = false;
 
-		if ( m_strPathInArchive.IsEmpty() || !_tcsncmp(pItem->lpFileName, m_strPathInArchive, m_strPathInArchive.GetLength()) ) 
+		bool bFileInFolder = IsFileInFolder(m_strPathInArchive, pItem->lpFileName);
+
+		if ( m_strPathInArchive.IsEmpty() || bFileInFolder ) 
 		{
 			const TCHAR* lpRealName = pItem->lpFileName+m_strPathInArchive.GetLength();
 
 			if ( !*lpRealName )
 				continue;
 
-			if ( *lpRealName == '\\' )
+			if ( bFileInFolder )
 				lpRealName++;
 
 			TCHAR* lpFileName = StrDuplicate(lpRealName);
@@ -172,9 +188,11 @@ int ArchivePanel::pGetFindData(
 				if ( (item->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY )
 				{
 #ifdef UNICODE
-					if ( !_tcscmp(item->FindData.lpwszFileName, lpFileName) )
+					if ( IsFileInFolder(item->FindData.lpwszFileName, lpFileName) )
+					//if ( !_tcscmp(item->FindData.lpwszFileName, lpFileName) )
 #else
-					if ( !_tcscmp(item->FindData.cFileName, lpFileName) )
+					if ( IsFileInFolder(item->FindData.cFileName, lpFileName) )
+					//if ( !_tcscmp(item->FindData.cFileName, lpFileName) )
 #endif
 					{
 						bSkip = true;
@@ -274,12 +292,6 @@ void ArchivePanel::pGetOpenPluginInfo (
 	}
 }
 
-bool IsFileInFolder (const TCHAR *lpCurrentPath, const TCHAR *lpFileName)
-{
-	int nLength = StrLength (lpCurrentPath);
-
-	return !_tcsncmp(lpCurrentPath, lpFileName, nLength); //вопрос, нужно ли здесь тоже игнорировать регистр
-}
 
 
 void ArchivePanel::GetArchiveItemsToProcess (
