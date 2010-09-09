@@ -76,6 +76,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "wakeful.hpp"
 #include "panelmix.hpp"
 #include "setattr.hpp"
+#include "udlist.hpp"
 
 const int CHAR_TABLE_SIZE=5;
 const int LIST_DELTA=64;
@@ -2756,28 +2757,18 @@ void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, DWORD Flags, int& RecurseLevel)
 void DoPrepareFileList(HANDLE hDlg)
 {
 	string strRoot;
-	wchar_t *Ptr=nullptr;
-	DWORD DiskMask=FarGetLogicalDrives();
-	//string strRoot; //BUGBUG
 	CtrlObject->CmdLine->GetCurDir(strRoot);
+
+	UserDefinedList List(L';',L';',ULF_UNIQUE);
 
 	if (SearchMode==FINDAREA_INPATH)
 	{
 		string strPathEnv;
 		apiGetEnvironmentVariable(L"PATH",strPathEnv);
-		strPathEnv.Append(L'\0');
-		wchar_t* PathEnv = strPathEnv.GetBuffer();
-		Ptr = PathEnv;
-
-		while (*PathEnv)
-		{
-			if (*PathEnv==L';')
-				*PathEnv=0;
-
-			++PathEnv;
-		}
+		List.Set(strPathEnv);
 	}
 
+	DWORD DiskMask=FarGetLogicalDrives();
 	for (WCHAR CurrentDisk=0;; CurrentDisk++,DiskMask>>=1)
 	{
 		if (SearchMode==FINDAREA_ALL ||
@@ -2808,11 +2799,10 @@ void DoPrepareFileList(HANDLE hDlg)
 		}
 		else if (SearchMode==FINDAREA_INPATH)
 		{
-			if (!*Ptr)
+			if (List.IsEmpty())
 				break;
 
-			strRoot = Ptr;
-			Ptr+=StrLength(Ptr)+1;
+			strRoot = List.GetNext();
 		}
 
 		DoScanTree(hDlg, strRoot);
