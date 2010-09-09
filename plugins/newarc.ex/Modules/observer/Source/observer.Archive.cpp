@@ -16,12 +16,12 @@ ObserverArchive::ObserverArchive(
 	m_hCallback = hCallback;
 	m_pfnCallback = pfnCallback;
 
-	m_nItemsNumber = 0;
 	m_bOpened = false;
 
 	m_bArchiveInfoAdded = false;
 
 	m_nIndex = 0;
+	m_uNumberOfFiles = 0;
 }
 
 const GUID& ObserverArchive::GetUID()
@@ -88,12 +88,10 @@ bool ObserverArchive::EndOperation(int nOperation, bool bInternal)
 	
 int ObserverArchive::GetArchiveItem(ArchiveItem *pItem)
 {
-	int nResult = m_pPlugin->GetStorageItem(m_hArchive, ++m_nIndex, pItem);
+	int nResult = m_pPlugin->GetStorageItem(m_hArchive, m_nIndex++, pItem, m_uNumberOfFiles);
 
 	if ( nResult == E_EOF )
 	{
-		m_nItemsNumber = m_nIndex-1;
-
 		if ( !m_bArchiveInfoAdded )
 		{
 			ArchiveInfoItem* item;
@@ -153,7 +151,7 @@ int ObserverArchive::GetArchiveItem(ArchiveItem *pItem)
 			item = m_pArchiveInfo.add();
 			item->lpName = StrDuplicate(_T("Number of files"));
 
-			strValue.Format(_T("%d"), m_nItemsNumber);
+			strValue.Format(_T("%d"), m_uNumberOfFiles);
 			item->lpValue = StrDuplicate(strValue);
 
 			m_bArchiveInfoAdded = true;

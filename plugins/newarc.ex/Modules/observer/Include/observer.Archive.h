@@ -22,9 +22,9 @@ public:
 	ARCHIVECALLBACK m_pfnCallback;
 	HANDLE m_hCallback;
 
-	int m_nItemsNumber;
-	int m_nIndex;
+	unsigned int m_uNumberOfFiles;
 
+	int m_nIndex;
 	bool m_bOpened;
 
 	Array<ArchiveInfoItem> m_pArchiveInfo;

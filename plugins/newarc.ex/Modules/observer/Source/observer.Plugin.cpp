@@ -154,7 +154,7 @@ ObserverPlugin::~ObserverPlugin()
 		FreeLibrary(m_hModule);
 }
 
-int ObserverPlugin::GetStorageItem(INT_PTR* hArchive, int nIndex, ArchiveItem* pItem)
+int ObserverPlugin::GetStorageItem(INT_PTR* hArchive, int nIndex, ArchiveItem* pItem, unsigned int& uNumberOfFiles)
 {
 	int nResult = E_BROKEN;
 
@@ -185,6 +185,9 @@ int ObserverPlugin::GetStorageItem(INT_PTR* hArchive, int nIndex, ArchiveItem* p
 			memcpy(&pItem->ftLastWriteTime, &fdata.ftLastWriteTime, sizeof(FILETIME));
 			
 		    pItem->UserData = nIndex+1; 
+
+			if ( !OptionIsOn(pItem->dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) )
+				uNumberOfFiles++;
 
 		    nResult = E_SUCCESS;
 		}

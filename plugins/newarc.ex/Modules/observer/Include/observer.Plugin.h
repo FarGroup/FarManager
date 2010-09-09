@@ -41,7 +41,7 @@ public:
 	INT_PTR* OpenStorage(const TCHAR* lpFileName, StorageGeneralInfo* pInfo);
 	
 	void CloseStorage(INT_PTR* hArchive);
-	int GetStorageItem(INT_PTR* hArchive, int nIndex, ArchiveItem* pItem);
+	int GetStorageItem(INT_PTR* hArchive, int nIndex, ArchiveItem* pItem, unsigned int& uNumberOfFiles);
 	
 	int ExtractItem(
 			INT_PTR* hArchive, 
