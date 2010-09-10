@@ -69,7 +69,7 @@ int WINAPI ProcessName(const wchar_t *param1, wchar_t *param2, DWORD size, DWORD
 
 	if (flags&PN_GENERATENAME)
 	{
-		string strResult;
+		string strResult = param2;
 		int nResult = ConvertWildcards(param1, strResult, (flags&0xFFFF)|(skippath?PN_SKIPPATH:0));
 		xwcsncpy(param2, strResult, size);
 		return nResult;

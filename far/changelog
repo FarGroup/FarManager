@@ -1,3 +1,8 @@
+warp 10.09.2010 23:39:00 +0300 - build 1668
+
+1. Исправление в ProcessName(PN_GENERATENAME), теперь должен работать ProxyFTP через 
+   враппер (при соотвествующей версии враппера).
+
 drkns 10.09.2010 19:45:44 +0200 - build 1667
 
 1. Mantis#0001497: EditorControl (ECTL_GETBOOKMARKS) работает неправильно.
