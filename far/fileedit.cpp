@@ -2427,20 +2427,26 @@ int FileEditor::EditorControl(int Command, void *Param)
 		{
 			if (!Flags.Check(FFILEEDIT_OPENFAILED) && Param)
 			{
-				EditorBookMarks *ebm = (EditorBookMarks*)Param;
-
-				if (ebm->Line)
-					memcpy(ebm->Line, m_editor->SavePos.Line, BOOKMARK_COUNT*sizeof(long));
-
-				if (ebm->Cursor)
-					memcpy(ebm->Cursor,m_editor->SavePos.Cursor,BOOKMARK_COUNT*sizeof(long));
-
-				if (ebm->ScreenLine)
-					memcpy(ebm->ScreenLine, m_editor->SavePos.ScreenLine, BOOKMARK_COUNT*sizeof(long));
-
-				if (ebm->LeftPos)
-					memcpy(ebm->LeftPos, m_editor->SavePos.LeftPos, BOOKMARK_COUNT*sizeof(long));
-
+				EditorBookMarks *ebm = reinterpret_cast<EditorBookMarks*>(Param);
+				for(size_t i = 0; i < BOOKMARK_COUNT; i++)
+				{
+					if (ebm->Line)
+					{
+						ebm->Line[i] = static_cast<long>(m_editor->SavePos.Line[i]);
+					}
+					if (ebm->Cursor)
+					{
+						ebm->Cursor[i] = static_cast<long>(m_editor->SavePos.Cursor[i]);
+					}
+					if (ebm->ScreenLine)
+					{
+						ebm->ScreenLine[i] = static_cast<long>(m_editor->SavePos.ScreenLine[i]);
+					}
+					if (ebm->LeftPos)
+					{
+						ebm->LeftPos[i] = static_cast<long>(m_editor->SavePos.LeftPos[i]);
+					}
+				}
 				return TRUE;
 			}
 
