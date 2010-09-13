@@ -44,7 +44,7 @@ ImportedFunctions::ImportedFunctions()
 	HMODULE hNtdll = GetModuleHandle(L"ntdll.dll");
 	HMODULE hKernel = GetModuleHandle(L"kernel32.dll");
 	HMODULE hShell = GetModuleHandle(L"shell32.dll");
-	HMODULE hVirtDisk = LoadLibrary(L"virtdisk.dll");
+	hVirtDisk = LoadLibrary(L"virtdisk.dll");
 
 	if (hKernel)
 	{
