@@ -1,3 +1,7 @@
+drkns 13.09.2010 11:28:01 +0200 - build 1669
+
+1. Потерялась строка в imports.cpp
+
 warp 10.09.2010 23:39:00 +0300 - build 1668
 
 1. Исправление в ProcessName(PN_GENERATENAME), теперь должен работать ProxyFTP через 
