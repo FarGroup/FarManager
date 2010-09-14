@@ -568,7 +568,7 @@ int ReplaceVariables(string &strStr,TSubstData *PSubstData)
 					HistoryName[HistoryNumber].Copy(p,p1-p);
 					DlgData[DlgSize+1].History=HistoryName[HistoryNumber];
 					strTitle = ++p1;
-					hist_correct = p1 - p;
+					hist_correct = p1 - p + 1;
 				}
 			}
 		}
