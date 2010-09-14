@@ -2118,36 +2118,40 @@
                                          <param name="Local" value="html/macro/macrocmd/akey.html">
                                          </OBJECT>
                                  <LI> <OBJECT type="text/sitemap">
-                                         <param name="Name" value="$Text">
-                                         <param name="Local" value="html/macro/macrocmd/text.html">
+                                         <param name="Name" value="$Continue">
+                                         <param name="Local" value="html/macro/macrocmd/continue.html">
                                          </OBJECT>
                                  <LI> <OBJECT type="text/sitemap">
                                          <param name="Name" value="$Exit">
                                          <param name="Local" value="html/macro/macrocmd/exit.html">
                                          </OBJECT>
                                  <LI> <OBJECT type="text/sitemap">
-                                         <param name="Name" value="$XLat">
-                                         <param name="Local" value="html/macro/macrocmd/xlat.html">
+                                         <param name="Name" value="$If">
+                                         <param name="Local" value="html/macro/macrocmd/if.html">
                                          </OBJECT>
                                  <LI> <OBJECT type="text/sitemap">
                                          <param name="Name" value="$KbdSwitch">
                                          <param name="Local" value="html/macro/macrocmd/kbdswitch.html">
                                          </OBJECT>
                                  <LI> <OBJECT type="text/sitemap">
+                                         <param name="Name" value="$Rep">
+                                         <param name="Local" value="html/macro/macrocmd/rep.html">
+                                         </OBJECT>
+                                 <LI> <OBJECT type="text/sitemap">
                                          <param name="Name" value="$SelWord">
                                          <param name="Local" value="html/macro/macrocmd/selword.html">
                                          </OBJECT>
                                  <LI> <OBJECT type="text/sitemap">
-                                         <param name="Name" value="$If">
-                                         <param name="Local" value="html/macro/macrocmd/if.html">
+                                         <param name="Name" value="$Text">
+                                         <param name="Local" value="html/macro/macrocmd/text.html">
                                          </OBJECT>
                                  <LI> <OBJECT type="text/sitemap">
                                          <param name="Name" value="$While">
                                          <param name="Local" value="html/macro/macrocmd/while.html">
                                          </OBJECT>
                                  <LI> <OBJECT type="text/sitemap">
-                                         <param name="Name" value="$Rep">
-                                         <param name="Local" value="html/macro/macrocmd/rep.html">
+                                         <param name="Name" value="$XLat">
+                                         <param name="Local" value="html/macro/macrocmd/xlat.html">
                                          </OBJECT>
                         </UL>
                         <LI> <OBJECT type="text/sitemap">
