@@ -1153,3 +1153,22 @@ bool apiGetVolumeNameForVolumeMountPoint(LPCWSTR VolumeMountPoint,string& strVol
 	}
 	return Result;
 }
+
+void apiEnableLowFragmentationHeap()
+{
+	if (ifn.pfnHeapSetInformation) {
+		DWORD NumHeaps = GetProcessHeaps(0, nullptr);
+		if (NumHeaps == 0)
+			return;
+		HANDLE* Heaps = new HANDLE[NumHeaps];
+		if (Heaps == nullptr)
+			return;
+		NumHeaps = GetProcessHeaps(NumHeaps, Heaps);
+		for (DWORD i = 0; i < NumHeaps; i++)
+		{
+			ULONG HeapFragValue = 2;
+			ifn.pfnHeapSetInformation(Heaps[i], HeapCompatibilityInformation, &HeapFragValue, sizeof(HeapFragValue));
+		}
+		delete[] Heaps;
+	}
+}

@@ -337,6 +337,8 @@ int MainProcessSEH(string& strEditName,string& strViewName,string& DestName1,str
 
 int _cdecl wmain(int Argc, wchar_t *Argv[])
 {
+	apiEnableLowFragmentationHeap();
+
 	GetVersionEx(&WinVer);
 
 	if (apiGetModuleFileName(nullptr, g_strFarModuleName))
@@ -350,12 +352,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	if(Argc==3 && !StrCmp(Argv[1], L"/admin")) // /admin PID
 	{
 		return AdminMain(_wtoi(Argv[2]));
-	}
-
-	if (ifn.pfnHeapSetInformation) {
-		// enable low fragmentation heap
-		ULONG HeapFragValue = 2;
-		ifn.pfnHeapSetInformation(GetProcessHeap(), HeapCompatibilityInformation, &HeapFragValue, sizeof(HeapFragValue));
 	}
 
 	InitCurrentDirectory();

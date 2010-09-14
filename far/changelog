@@ -1,3 +1,7 @@
+chupakabra 14.09.2010 21:33:00 +0200 - build 1672
+
+1. Mantis#0000840: включаем Low-fragmentation Heap для CRT heap.
+
 drkns 14.09.2010 09:58:33 +0200 - build 1671
 
 1. Неправильно обрабатывались метасимволы вида !?$history$(!.!)?!

@@ -359,3 +359,6 @@ bool apiGetVolumeNameForVolumeMountPoint(
 	LPCWSTR VolumeMountPoint,
 	string& strVolumeName
 );
+
+void apiEnableLowFragmentationHeap(
+);
