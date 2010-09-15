@@ -3,6 +3,37 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+chupakabra 14.09.2010 21:33:00 +0200 - build 1672
+
+1. Mantis#0000840: Low-fragmentation Heap is on for CRT heap.
+
+drkns 14.09.2010 09:58:33 +0200 - build 1671
+
+1. Metacharacters !?$history$(!.!)?! were handled incorrectly.
+
+drkns 13.09.2010 11:30:02 +0200 - build 1670
+
+1. Correction of 1669 :)
+
+drkns 13.09.2010 11:28:01 +0200 - build 1669
+
+1. A line was lost in imports.cpp
+
+warp 10.09.2010 23:39:00 +0300 - build 1668
+
+1. Fix in ProcessName(PN_GENERATENAME), ProxyFTP must have been functional now with
+   the use of a wrapper (the wrapper must have a corresponding version).
+
+drkns 10.09.2010 19:45:44 +0200 - build 1667
+
+1. Mantis#0001497: EditorControl (ECTL_GETBOOKMARKS) works incorrectly.
+
+2. Mantis#0001498: Cursor is not hidden if the dialog is dragged beyond the screen borders.
+
+drkns 09.09.2010 09:50:09 +0200 - build 1666
+
+1. Mantis#0001495: Error in search (AltF7) in %PATH%.
+
 chupakabra 05.09.2010 14:33:00 +0200 - build 1665
 
 1. When PutFilesW()=1, the cursor is not set on directories.
