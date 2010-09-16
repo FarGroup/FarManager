@@ -178,6 +178,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
         break;
     }
   }
+  Info.EditorControl(ECTL_SETTITLE,NULL);
   Info.EditorControl(ECTL_SETKEYBAR,NULL);
   Reenter=FALSE;
   return(INVALID_HANDLE_VALUE);
