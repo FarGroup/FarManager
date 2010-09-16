@@ -1218,7 +1218,6 @@ string __MCODE_ToName(int OpCode)
 		DEF_MCODE_(OP_SAVEREPCOUNT),
 		DEF_MCODE_(OP_SELWORD),
 		DEF_MCODE_(OP_SUB),
-		DEF_MCODE_(OP_SWITCHKBD),
 		DEF_MCODE_(OP_WHILE),
 		DEF_MCODE_(OP_XLAT),
 		DEF_MCODE_(OP_CONTINUE),
@@ -1300,6 +1299,9 @@ string __MCODE_ToName(int OpCode)
 		DEF_MCODE_(V_APANEL_PREFIX),
 		DEF_MCODE_(V_PPANEL_PREFIX),
 		DEF_MCODE_(F_MENU_GETVALUE), //N=Menu.GetValue([N])
+		DEF_MCODE_(F_BEEP),                     // N=beep([N])
+		DEF_MCODE_(F_KBDLAYOUT),                // N=kbdLayout([N])
+
 
 	};
 	string Name;

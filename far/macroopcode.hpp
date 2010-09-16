@@ -134,7 +134,6 @@ enum MACRO_OP_CODE
 	MCODE_OP_XLAT,
 	MCODE_OP_PLAINTEXT,
 
-	MCODE_OP_SWITCHKBD,               // переключить раскладку клавиатуры
 	MCODE_OP_AKEY,                    // $AKey - клавиша, которой вызвали макрос
 	MCODE_OP_SELWORD,                 // $SelWord - выделить "слово"
 
@@ -209,6 +208,8 @@ enum MACRO_OP_CODE
 	MCODE_F_EDITOR_SETTITLE,          // N=Editor.SetTitle([Title])
 	MCODE_F_MENU_GETVALUE,            // S=Menu.GetValue([N])
 	MCODE_F_MENU_ITEMSTATUS,          // N=Menu.ItemStatus([N])
+	MCODE_F_BEEP,                     // N=beep([N])
+	MCODE_F_KBDLAYOUT,                // N=kbdLayout([N])
 
 	/* ************************************************************************* */
 	// булевые переменные - различные состояния

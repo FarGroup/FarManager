@@ -76,6 +76,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constitle.hpp"
 #include "dirmix.hpp"
 #include "console.hpp"
+#include "imports.hpp"
 
 // для диалога назначения клавиши
 struct DlgParam
@@ -285,7 +286,6 @@ static struct TKeyCodeName
 	{ MCODE_OP_END,                  4, L"$End"       },
 	{ MCODE_OP_EXIT,                 5, L"$Exit"      },
 	{ MCODE_OP_IF,                   3, L"$If"        },
-	{ MCODE_OP_SWITCHKBD,           10, L"$KbdSwitch" },
 	{ MCODE_OP_REP,                  4, L"$Rep"       },
 	{ MCODE_OP_SELWORD,              8, L"$SelWord"   },
 	{ MCODE_OP_PLAINTEXT,            5, L"$Text"      }, // $Text "Plain Text"
@@ -1975,6 +1975,106 @@ static bool xlatFunc()
 	bool Ret=::Xlat(Str,0,StrLength(Str),Opt.XLat.Flags)?true:false;
 	VMStack.Push(TVar(Str));
 	return Ret;
+}
+
+// N=beep([N])
+static bool beepFunc()
+{
+	TVar Val;
+	VMStack.Pop(Val);
+	/*
+		MB_ICONASTERISK = 0x00000040
+			Звук Звездочка
+		MB_ICONEXCLAMATION = 0x00000030
+		    Звук Восклицание
+		MB_ICONHAND = 0x00000010
+		    Звук Критическая ошибка
+		MB_ICONQUESTION = 0x00000020
+		    Звук Вопрос
+		MB_OK = 0x0
+		    Стандартный звук
+		SIMPLE_BEEP = 0xffffffff
+		    Встроенный динамик
+	*/
+	bool Ret=MessageBeep((UINT)Val.i())?true:false;
+
+	/*
+		http://msdn.microsoft.com/en-us/library/dd743680%28VS.85%29.aspx
+		BOOL PlaySound(
+	    	LPCTSTR pszSound,
+	    	HMODULE hmod,
+	    	DWORD fdwSound
+		);
+
+		http://msdn.microsoft.com/en-us/library/dd798676%28VS.85%29.aspx
+		BOOL sndPlaySound(
+	    	LPCTSTR lpszSound,
+	    	UINT fuSound
+		);
+	*/
+
+	VMStack.Push(Ret?1:0);
+	return Ret;
+}
+
+/*
+Res=kbdLayout([N])
+
+Параметр N:
+а) конкретика: 0x0409 или 0x0419 или...
+б) 1 - следующую системную (по кругу)
+в) -1 - предыдущую системную (по кругу)
+г) 0 или не указан - вернуть текущую раскладку.
+
+Возвращает предыдущую раскладку (для N=0 текущую)
+*/
+// N=kbdLayout([N])
+static bool kbdLayoutFunc()
+{
+	DWORD dwLayout = (DWORD)VMStack.Pop().getInteger();
+
+	BOOL Ret=TRUE;
+	HKL  Layout=(HKL)0, RetLayout=(HKL)0;
+
+	if (ifn.pfnGetConsoleKeyboardLayoutName)
+	{
+		wchar_t LayoutName[1024]; // BUGBUG!!!
+		if (ifn.pfnGetConsoleKeyboardLayoutName(LayoutName))
+		{
+			wchar_t *endptr;
+			DWORD res=(DWORD)wcstoul(LayoutName, &endptr, 16);
+			RetLayout=(HKL)(LONG_PTR)(HIWORD(res)? res : MAKELONG(res,res));
+		}
+	}
+
+	HWND hWnd = Console.GetWindow();
+
+	if (hWnd && dwLayout)
+	{
+		WPARAM wParam;
+
+		if ((long)dwLayout == -1)
+		{
+			wParam=INPUTLANGCHANGE_BACKWARD;
+			Layout=(HKL)HKL_PREV;
+		}
+		else if (dwLayout == 1)
+		{
+			wParam=INPUTLANGCHANGE_FORWARD;
+			Layout=(HKL)HKL_NEXT;
+		}
+		else
+		{
+			wParam=0;
+			Layout=(HKL)(LONG_PTR)(HIWORD(dwLayout)? dwLayout : MAKELONG(dwLayout,dwLayout));
+		}
+
+		Ret=PostMessage(hWnd,WM_INPUTLANGCHANGEREQUEST, wParam, (LPARAM)Layout);
+	}
+
+	VMStack.Push(Ret?TVar((__int64)(long)RetLayout):0);
+
+	return Ret?true:false;
 }
 
 // S=prompt("Title"[,"Prompt"[,flags[, "Src"[, "History"]]]])
@@ -3775,19 +3875,6 @@ done:
 			return aKey;
 		}
 
-		case MCODE_OP_SWITCHKBD:          // $KbdSwitch
-		{
-			HWND hWnd = Console.GetWindow();
-
-			if (hWnd)
-			{
-				PostMessage(hWnd,WM_INPUTLANGCHANGEREQUEST, INPUTLANGCHANGE_FORWARD, 0);
-				//if(Flags & XLAT_SWITCHKEYBBEEP)
-				//MessageBeep(0);
-			}
-
-			goto begin;
-		}
 		// $Rep (expr) ... $End
 		// -------------------------------------
 		//            <expr>
@@ -4511,6 +4598,8 @@ done:
 				{MCODE_F_REPLACE,replaceFunc}, // Result=replace(Str,Find,Replace[,Cnt[,Mode]])
 				{MCODE_F_KEY,keyFunc}, // S=key(V)
 				{MCODE_F_TESTFOLDER,testfolderFunc}, // N=testfolder(S)
+				{MCODE_F_BEEP,beepFunc},             // N=beep([N])
+				{MCODE_F_KBDLAYOUT,kbdLayoutFunc},   // N=kbdLayout([N])
 			};
 			int J;
 

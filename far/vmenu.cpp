@@ -873,7 +873,7 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				if (Param == SelectPos)
 					RetValue |= LIF_SELECTED;
 
-				RetValue >>= 16;
+				RetValue = MAKELONG(HIWORD(RetValue),LOWORD(RetValue));
 			}
 
 			return RetValue;
