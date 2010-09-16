@@ -3,6 +3,70 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 16.09.2010 20:12:34 +0200 - build 1674
+
+1. A correction of 1511: the editor caption stays changed for Unicode plugins only.
+
+svs 16.09.2010 17:50:23 +0300 - build 1673
+
+1. Mantis#0001504: Provide an ability of emitting a sound dependent on a keyboard layout
+   Functions (macro) are added:
+	N=beep([N])
+	  Here, the parameter is (like in WinAPI MessageBeep function):
+		MB_ICONASTERISK = 0x00000040
+			Asterisk sound
+		MB_ICONEXCLAMATION = 0x00000030
+			Exclamation sound
+		MB_ICONHAND = 0x00000010
+			Critical error sound
+		MB_ICONQUESTION = 0x00000020
+			Question sound
+		MB_OK = 0x0
+			Standard sound
+		SIMPLE_BEEP = 0xffffffff
+			Built-in speaker
+	  Returned value is 1 or 0 (in case of failure)
+
+	other bells and whistles to be done with plugins (after Mantis#0000466 "solution")
+
+	N=kbdLayout([N])
+	  Dealing with keyboard layouts
+	  Parameter N:
+		à) the value itself: 0x0409 or 0x0419 or...
+		á) 1 - the next system one (round-robin)
+		â) -1 - the previous system one (round-robin)
+		ã) 0 or unspecified - return the current layout.
+ 
+	  Returned value is 0 in case of an error or the previous layout (the current one if N=0)
+	  Errors: cannot define current layout name for the console or failed to get console window handle.
+
+	  When non-existing layout is specified the function returns the current layout without an error.
+
+	For example,
+	  print(itoa(kbdLayout(0x421),16))
+	    If Russian layout is the current one, the function returns 4190419
+	  print(itoa(kbdLayout(),16))
+	    If Russian layout is the current one, the function returns 4190419
+	  print(itoa(kbdLayout(0x409),16))
+	    If Russian layout is the current one, the function returns 4190419 and switches to English layout
+	  print(itoa(kbdLayout(1),16))
+	    If Russian layout is the current one, the function returns 4190419 and cycles to the next layout
+
+2. Macro: $KbdSwitch macro command is removed
+   <ACHTUNG>
+
+     Replace $KbdSwitch with kbdLayout(1) in your macros
+   
+   </ACHTUNG>
+
+3. Mantis#0001423 - Get menu item state
+   More specific on Checked state.
+
+   Now Menu.ItemStatus() function returns a mark character (U+XXXX) in the high word of the result
+   If flag 0x2 is set and the high word is 0, then Far uses its own character (0x221A)
+   If flag 0x2 is set and the high word isn't 0, then Far uses the mark character from the high word
+   If flag 0x2 is NOT set and the high word isn't 0, this means nothing
+
 chupakabra 14.09.2010 21:33:00 +0200 - build 1672
 
 1. Mantis#0000840: Low-fragmentation Heap is on for CRT heap.
