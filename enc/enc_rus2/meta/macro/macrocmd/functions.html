@@ -870,6 +870,31 @@ $End
     </td>
   </tr>
 
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="kbdlayout">kbdlayout</a></dfn>([N])</td>
+    <td class="cont" width="60%">Управление раскладкой клавиатуры.<br>
+      Параметр <em>N</em>:
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Значение</th><th class="cont" width="90%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">Вернуть текущее значение раскладки</td></tr>
+        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">Переключиться на следующую раскладку (по кругу)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">-1</td><td class="cont" width="90%">Переключиться на предыдущую раскладку (по кругу)</td></tr>
+       </table>
+       Прочие значение <em>N</em> - переключиться в конкретную раскладку (например, 0x0409 или 0x4090409- английская, 0x0419 или 0x04190419 - русская)<br>
+       В случае указания не существующей раскладки функция ошибку не выдаст и просто вернет текущую раскладку.<br>
+       Функция возвращает предыдущее значение раскладки или 0 в случае ошибки (не удалось определить имя текущей раскладки для консоли или не удалось получить описатель консольного окна).<br>
+       Например,
+        <pre class=code>print(itoa(kbdLayout(0x421),16))</pre>
+        при текущей русской раскладке просто вернет 4190419
+        <pre class=code>print(itoa(kbdLayout(),16))</pre>
+        при текущей русской раскладке вернет 4190419
+        <pre class=code>print(itoa(kbdLayout(0x409),16))</pre>
+        при текущей русской раскладке вернет 4190419 и переключит рaскладку на английскую
+        <pre class=code>print(itoa(kbdLayout(1),16))</pre>
+        при текущей русской раскладке вернет 4190419 и переключит на следующую рaскладку (по кругу)
+    </td>
+  </tr>
+
   <!-- -------------------------------------- -->
   <tr class="cont"><th class="cont" colspan=2>Взаимодействие с пользователем</th></tr>
   <tr class="cont">
@@ -948,6 +973,21 @@ $If (!panel.fexist(0,%Folder))
 $End</pre>
     </td>
   </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="beep">beep</a></dfn>([N])</td>
+    <td class="cont" width="60%">Воспроизвести один из системных звуковых сигналов <em>N</em>.
+      <table class="cont">
+        <tr class="cont"><th class="cont" width="10%">Значение</th><th class="cont" width="90%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000040</td><td class="cont" width="90%">Звук Звездочка</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000030</td><td class="cont" width="90%">Звук Восклицание</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000010</td><td class="cont" width="90%">Звук Критическая ошибка</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000020</td><td class="cont" width="90%">Звук Вопрос</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x0</td><td class="cont" width="90%">Стандартный звук</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0xffffffff</td><td class="cont" width="90%">Стандартный звук на встроенный динамик</td></tr>
+      </table>
+       Функция возвращает 1 или 0 (в случае неудачи).<br>
+    </td>
+  </tr>
 
 
   <!-- -------------------------------------- -->
@@ -987,7 +1027,7 @@ $End</pre>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="menu.itemstatus">menu.itemstatus</a></dfn>([N])</td>
-    <td class="cont" width="60%">Возвращает состояние пункта меню с позицией <em>N</em> (текущая позиция - <em>N</em> не указан или равен 0):
+    <td class="cont" width="60%">Возвращает в младшем слове состояние пункта меню с позицией <em>N</em> (текущая позиция - <em>N</em> не указан или равен 0):
        <table class="cont">
         <tr class="cont"><th class="cont" width="40%">Состояние</th><th class="cont" width="60%">Описание</th></tr>
         <tr class="cont"><td class="cont" width="40%">0x00000001</td><td class="cont" width="60%">Признак активности пункта меню. Только один пункт может быть активным.</td></tr>
@@ -997,6 +1037,10 @@ $End</pre>
         <tr class="cont"><td class="cont" width="40%">0x00000010</td><td class="cont" width="60%">Если флаг установлен, то пункт меню доступен в навигации, но не доступен для выбора.</td></tr>
         <tr class="cont"><td class="cont" width="40%">0x00000020</td><td class="cont" width="60%">Если флаг установлен, то пункт меню не выводится на экран.</td></tr>
        </table>
+       В старшем слове - код символа пометки (U+XXXX).<br>
+       Если выставлен флаг 0x2 и старшее слово равно 0, то Far использует символ пометки U+221A.<br>
+       Если выставлен флаг 0x2 и старшее слово не равно 0, то Far использует символ пометки из старшего слова.<br>
+       <!-- Если флаг 0x2 не выставлен и старшее слово не равно 0, то это нишиша не обозначает -->
        Функция работает со всеми пунктами меню.<br>
        Если текущий &quot;объект&quot; не меню или позиция <em>N</em> не валидна (меньше 0 или больше количества пунктов в меню), то функция возвращает значение -1 (все биты установлены).
   </td>
