@@ -1666,6 +1666,12 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 		NewPanel->Show();
 	}
 
+	// restore title for old plugins only.
+	if (item.pPlugin->IsOemPlugin() && Editor && CurEditor)
+	{
+		CurEditor->SetPluginTitle(nullptr);
+	}
+
 	CtrlObject->Macro.SetMode(PrevMacroMode);
 	return TRUE;
 }
