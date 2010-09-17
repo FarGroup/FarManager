@@ -3019,6 +3019,11 @@ void FileList::SetSortMode(int SortMode)
 	else
 		SortOrder=1;
 
+	SetSortMode0(SortMode);
+}
+
+void FileList::SetSortMode0(int SortMode)
+{
 	FileList::SortMode=SortMode;
 
 	if (FileCount>0)
@@ -4163,7 +4168,9 @@ void FileList::SelectSortMode()
 	                        BY_FULLNAME, BY_CUSTOMDATA
 	                       };
 
-	for (size_t I=0; I<ARRAYSIZE(SortModes); I++)
+	size_t I;
+
+	for (I=0; I<ARRAYSIZE(SortModes); I++)
 		if (SortMode==SortModes[I])
 		{
 			SortMenu[I].SetCheck(SortOrder==1 ? L'+':L'-');
@@ -4175,20 +4182,124 @@ void FileList::SelectSortMode()
 	SortMenu[17].SetCheck(SG);
 	SortMenu[18].SetCheck(SelectedFirst);
 	SortMenu[19].SetCheck(DirectoriesFirst);
-	int SortCode;
+	int SortCode=-1;
+	bool setSortMode0=false;
+
 	{
 		VMenu SortModeMenu(MSG(MMenuSortTitle),SortMenu,ARRAYSIZE(SortMenu),0);
 		SortModeMenu.SetHelp(L"PanelCmdSort");
 		SortModeMenu.SetPosition(X1+4,-1,0,0);
 		SortModeMenu.SetFlags(VMENU_WRAPMODE);
-		SortModeMenu.Process();
+		//SortModeMenu.Process();
+		bool MenuNeedRefresh=true;
+
+		while (!SortModeMenu.Done())
+		{
+			if (MenuNeedRefresh)
+			{
+				SortModeMenu.Hide(); // спр€чем
+				// заставим манагер менюхи корректно отрисовать ширину и
+				// высоту, а заодно и скорректировать вертикальные позиции
+				SortModeMenu.SetPosition(-1,-1,-1,-1);
+				SortModeMenu.Show();
+				MenuNeedRefresh=false;
+			}
+
+			int Key=SortModeMenu.ReadInput();
+			int MenuPos=SortModeMenu.GetSelectPos();
+
+			if (Key == KEY_SUBTRACT)
+				Key=L'-';
+			else if (Key == KEY_ADD)
+				Key=L'+';
+			else if (Key == KEY_MULTIPLY)
+				Key=L'*';
+
+			if (MenuPos < (int)ARRAYSIZE(SortModes) && (Key == L'+' || Key == L'-' || Key == L'*'))
+			{
+				// clear check
+				for (I=0; I<ARRAYSIZE(SortModes); I++)
+					SortModeMenu.SetCheck(0,I);
+			}
+
+			switch (Key)
+			{
+				case L'*':
+					setSortMode0=false;
+					SortModeMenu.SetExitCode(MenuPos);
+					break;
+
+				case L'+':
+					if (MenuPos<(int)ARRAYSIZE(SortModes))
+					{
+						SortOrder=1;
+						setSortMode0=true;
+					}
+					else
+					{
+						switch (MenuPos)
+						{
+							case 16:
+								NumericSort=0;
+								break;
+							case 17:
+								SortGroups=0;
+								break;
+							case 18:
+								SelectedFirst=0;
+								break;
+							case 19:
+								DirectoriesFirst=0;
+								break;
+						}
+					}
+					SortModeMenu.SetExitCode(MenuPos);
+					break;
+
+				case L'-':
+					if (MenuPos<(int)ARRAYSIZE(SortModes))
+					{
+						SortOrder=-1;
+						setSortMode0=true;
+					}
+					else
+					{
+						switch (MenuPos)
+						{
+							case 16:
+								NumericSort=1;
+								break;
+							case 17:
+								SortGroups=1;
+								break;
+							case 18:
+								SelectedFirst=1;
+								break;
+							case 19:
+								DirectoriesFirst=1;
+								break;
+						}
+					}
+					SortModeMenu.SetExitCode(MenuPos);
+					break;
+
+				default:
+					SortModeMenu.ProcessInput();
+					break;
+			}
+		}
 
 		if ((SortCode=SortModeMenu.Modal::GetExitCode())<0)
 			return;
 	}
 
 	if (SortCode<(int)ARRAYSIZE(SortModes))
-		SetSortMode(SortModes[SortCode]);
+	{
+		if (setSortMode0)
+			SetSortMode0(SortModes[SortCode]);
+		else
+			SetSortMode(SortModes[SortCode]);
+	}
 	else
 		switch (SortCode)
 		{

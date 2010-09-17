@@ -323,6 +323,7 @@ class FileList:public Panel
 		virtual void SortFileList(int KeepPosition);
 		virtual void SetViewMode(int ViewMode);
 		virtual void SetSortMode(int SortMode);
+		void SetSortMode0(int SortMode);
 		virtual void ChangeSortOrder(int NewOrder);
 		virtual void ChangeNumericSort(int Mode);
 		virtual void ChangeDirectoriesFirst(int Mode);

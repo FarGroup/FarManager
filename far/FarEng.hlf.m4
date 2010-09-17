@@ -367,6 +367,10 @@ active panel. The following sort modes are available:
   Sort files by description                                 #Ctrl-F10#
   Sort files by file owner                                  #Ctrl-F11#
 
+  Клавиша #+# устанавливает прямую сортировку.
+  Клавиша #-# устанавливает обратную сортировку.
+  Клавиша #*# меняет сортировку на обратную.
+
   Use group sorting                                        #Shift-F11#
   Show selected files first                                #Shift-F12#
   Use numeric sort.
