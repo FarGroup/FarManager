@@ -2916,24 +2916,6 @@ MCopyCancel
 "&Anuluj"
 "&Cancelar"
 
-MCopyDecrypt
-"Рас&шифровать"
-"&Decrypt"
-"&Dešifrovat"
-"Ent&schlüsseln"
-"&Titk. felold"
-"&Deszyfruj"
-"&Descifrar"
-
-MCopyDecryptAll
-"&Все"
-"Decrypt &all"
-"Deš&ifrovat vše"
-"Alle e&ntschlüsseln"
-"&Mind"
-"Deszyfruj ws&zystkie"
-"Descifrar &Todo"
-
 MCopyCannotCreateLink
 l:
 "Ошибка создания ссылки"

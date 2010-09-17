@@ -2813,85 +2813,35 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			strMsg2 = strDestPath;
 			InsertQuote(strMsg1);
 			InsertQuote(strMsg2);
+
+			int MsgCode;
+
+			if (SkipMode!=-1)
+				MsgCode=SkipMode;
+			else
 			{
-				int MsgCode;
-
-				if ((SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED))
-				{
-					if (SkipEncMode!=-1)
-					{
-						MsgCode=SkipEncMode;
-
-						if (SkipEncMode == 1)
-							Flags|=FCOPY_DECRYPTED_DESTINATION;
-					}
-					else
-					{
-						if (_localLastError == ERROR_ACCESS_DENIED)
-						{
-							SetLastError(_localLastError=ERROR_ENCRYPTION_FAILED);
-						}
-
-						MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,5,MSG(MError),
-						                MSG(MsgMCannot),
-						                strMsg1,
-						                MSG(MCannotCopyTo),
-						                strMsg2,
-						                MSG(MCopyDecrypt),
-						                MSG(MCopyDecryptAll),
-						                MSG(MCopySkip),
-						                MSG(MCopySkipAll),
-						                MSG(MCopyCancel));
-					}
-					switch (MsgCode)
-					{
-						case 1:
-							SkipEncMode=1;
-						case 0:
-							Flags|=FCOPY_DECRYPTED_DESTINATION;
-							break;
-
-						case 3:
-							SkipEncMode=3;
-						case 2:
-							return COPY_NEXT;
-
-						case -1:
-						case -2:
-						case 4:
-							return COPY_CANCEL;
-					}
-				}
-				else
-				{
-					if (SkipMode!=-1)
-						MsgCode=SkipMode;
-					else
-					{
-						MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
-						                MSG(MsgMCannot),
-						                strMsg1,
-						                MSG(MCannotCopyTo),
-						                strMsg2,
-						                MSG(MCopyRetry),MSG(MCopySkip),
-						                MSG(MCopySkipAll),MSG(MCopyCancel));
-					}
-
-					switch (MsgCode)
-					{
-						case -1:
-						case  1:
-							return COPY_NEXT;
-						case  2:
-							SkipMode=1;
-							return COPY_NEXT;
-						case -2:
-						case  3:
-							return COPY_CANCEL;
-					}
-				}
+				MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+						        MSG(MsgMCannot),
+						        strMsg1,
+						        MSG(MCannotCopyTo),
+						        strMsg2,
+						        MSG(MCopyRetry),MSG(MCopySkip),
+						        MSG(MCopySkipAll),MSG(MCopyCancel));
 			}
-//    CurCopiedSize=SaveCopiedSize;
+
+			switch (MsgCode)
+			{
+				case -1:
+				case  1:
+					return COPY_NEXT;
+				case  2:
+					SkipMode=1;
+					return COPY_NEXT;
+				case -2:
+				case  3:
+					return COPY_CANCEL;
+			}
+
 			TotalCopiedSize=SaveTotalSize;
 			int RetCode;
 			string strNewName;
