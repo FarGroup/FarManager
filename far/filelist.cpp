@@ -4168,12 +4168,10 @@ void FileList::SelectSortMode()
 	                        BY_FULLNAME, BY_CUSTOMDATA
 	                       };
 
-	size_t I;
-
-	for (I=0; I<ARRAYSIZE(SortModes); I++)
-		if (SortMode==SortModes[I])
+	for (size_t i=0; i<ARRAYSIZE(SortModes); i++)
+		if (SortModes[i]==SortMode)
 		{
-			SortMenu[I].SetCheck(SortOrder==1 ? L'+':L'-');
+			SortMenu[i].SetCheck(SortOrder==1 ? L'+':L'-');
 			break;
 		}
 
@@ -4200,7 +4198,7 @@ void FileList::SelectSortMode()
 				SortModeMenu.Hide(); // спр€чем
 				// заставим манагер менюхи корректно отрисовать ширину и
 				// высоту, а заодно и скорректировать вертикальные позиции
-				SortModeMenu.SetPosition(-1,-1,-1,-1);
+				SortModeMenu.SetPosition(X1+4,-1,0,0);
 				SortModeMenu.Show();
 				MenuNeedRefresh=false;
 			}
@@ -4218,8 +4216,8 @@ void FileList::SelectSortMode()
 			if (MenuPos < (int)ARRAYSIZE(SortModes) && (Key == L'+' || Key == L'-' || Key == L'*'))
 			{
 				// clear check
-				for (I=0; I<ARRAYSIZE(SortModes); I++)
-					SortModeMenu.SetCheck(0,I);
+				for (size_t i=0; i<ARRAYSIZE(SortModes); i++)
+					SortModeMenu.SetCheck(0,static_cast<int>(i));
 			}
 
 			switch (Key)

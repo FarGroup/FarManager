@@ -1892,7 +1892,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 
 			oldfar::FarDialogItemData* didA = (oldfar::FarDialogItemData*)Param2;
 			if (!didA->PtrLength) //вот такой хреновый API!!!
-				didA->PtrLength = FarSendDlgMessage(hDlg, DM_GETTEXT, Param1, 0);
+				didA->PtrLength = static_cast<int>(FarSendDlgMessage(hDlg, DM_GETTEXT, Param1, 0));
 			wchar_t* text = (wchar_t*) xf_malloc((didA->PtrLength+1)*sizeof(wchar_t));
 			//BUGBUG: если didA->PtrLength=0, то вернЄтс€ с учЄтом '\0', в Ёнц написано, что без, хз как правильно.
 			FarDialogItemData did = {didA->PtrLength, text};

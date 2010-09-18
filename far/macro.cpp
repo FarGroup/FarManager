@@ -2072,7 +2072,7 @@ static bool kbdLayoutFunc()
 		Ret=PostMessage(hWnd,WM_INPUTLANGCHANGEREQUEST, wParam, (LPARAM)Layout);
 	}
 
-	VMStack.Push(Ret?TVar((__int64)(long)RetLayout):0);
+	VMStack.Push(Ret?TVar(static_cast<INT64>(reinterpret_cast<INT_PTR>(RetLayout))):0);
 
 	return Ret?true:false;
 }

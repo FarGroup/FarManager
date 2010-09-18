@@ -782,7 +782,7 @@ __int64 FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		MacroEditState|=m_editor->Flags.Flags&FEDITOR_CURPOSCHANGEDBYPLUGIN?0x00000100:0;
 		MacroEditState|=m_editor->Flags.Flags&FEDITOR_LOCKMODE?0x00000200:0;
 		MacroEditState|=m_editor->EdOpt.PersistentBlocks?0x00000400:0;
-		MacroEditState|=Opt.OnlyEditorViewerUsed?0x08000000:0;
+		MacroEditState|=Opt.OnlyEditorViewerUsed?0x08000000|0x00000800:0;
 		MacroEditState|=!GetCanLoseFocus()?0x00000800:0;
 		return (__int64)MacroEditState;
 	}

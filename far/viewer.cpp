@@ -1086,7 +1086,7 @@ __int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			MacroViewerState|=VM.Wrap?0x00000008:0;
 			MacroViewerState|=VM.WordWrap?0x00000010:0;
 			MacroViewerState|=VM.Hex?0x00000020:0;
-			MacroViewerState|=Opt.OnlyEditorViewerUsed?0x08000000:0;
+			MacroViewerState|=Opt.OnlyEditorViewerUsed?0x08000000|0x00000800:0;
 			MacroViewerState|=HostFileViewer && !HostFileViewer->GetCanLoseFocus()?0x00000800:0;
 			return (__int64)MacroViewerState;
 		}
