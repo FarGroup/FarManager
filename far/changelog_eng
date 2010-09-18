@@ -3,6 +3,32 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 18.09.2010 19:11:51 +0200 - build 1678
+
+1. From svs:  on Mantis#0000928. "Modal" state in macros is also set in editor and viewer.
+
+2. From svs: incorrect menu positioning on CtrlF12.
+
+3. XLAT_USEKEYBLAYOUTNAME and XLAT_CONVERTALLCMDLINE flags are uncommented in plugin.hpp.
+
+4. x64 warnings.
+
+svs 17.09.2010 17:13:31 +0300 - build 1677
+
+1. Mantis#0001502: Items selection in sorting modes menu (Ctrl-F12)
+     #+# key switches to regular sorting.
+     #-# key switches to reverse sorting.
+     #*# key toggles the current sorting mode.
+
+t-rex 17.09.2010 12:49:19 +0200 - build 1676
+
+1. oldfar::DM_GETTEXT incorrect handling if oldfar::FarDialogItemData.PtrLength==0.
+   This behavior has to be removed from 2.0 API.
+
+drkns 17.09.2010 10:53:53 +0200 - build 1675
+
+1. Error in files decryption logic when copying.
+
 drkns 16.09.2010 20:12:34 +0200 - build 1674
 
 1. A correction of 1511: the editor caption stays changed for Unicode plugins only.
