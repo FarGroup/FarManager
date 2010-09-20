@@ -827,7 +827,7 @@ int WINAPI ProcessNameA(const char *Param1,char *Param2,DWORD Flags)
 	}
 	else if (Flags&oldfar::PN_GENERATENAME)
 	{
-		newFlags|=PN_GENERATENAME;//|(Flags&0xFF);
+		newFlags|=PN_GENERATENAME|(Flags&0xFF);
 	}
 
 	int ret = ProcessName(strP1,p,size,newFlags);
@@ -2986,8 +2986,6 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 			    //и не ниже 1.70.1
 			    LOWORD(OldFarVer)>=0x0146 && HIWORD(OldFarVer)>=0x1)
 				FarVer=OldFarVer;
-
-			FarVer = MAKEFARVERSION(1, 70, 1200);
 
 			if (Param)
 				*(DWORD*)Param=FarVer;
