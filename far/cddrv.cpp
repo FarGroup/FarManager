@@ -39,28 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "flink.hpp"
 #include "pathmix.hpp"
 
-static CDROM_DeviceCaps getCapsUsingMediaType(File& Device)
-{
-	UCHAR buffer[2048]; // Must be big enough hold DEVICE_MEDIA_INFO
-	ULONG returned;
-
-	if (!Device.IoControl(IOCTL_STORAGE_GET_MEDIA_TYPES_EX, nullptr, 0, buffer, sizeof(buffer), &returned))
-	{
-		return CDDEV_CAPS_NONE;
-	}
-
-	switch (((PGET_MEDIA_TYPES)buffer)->DeviceType)
-	{
-		case FILE_DEVICE_CD_ROM:
-			return CDDEV_CAPS_GENERIC_CD;
-		case FILE_DEVICE_DVD:
-			return CDDEV_CAPS_GENERIC_DVD;
-		default:
-			return CDDEV_CAPS_NONE;
-	}
-}
-
-static CDROM_DeviceCaps getCapsUsingProductId(const char *prodID)
+static CDROM_DeviceCapabilities getCapsUsingProductId(const char* prodID)
 {
 	char productID[1024];
 	int idx = 0;
@@ -76,149 +55,195 @@ static CDROM_DeviceCaps getCapsUsingProductId(const char *prodID)
 	}
 
 	productID[idx] = 0;
-	int caps = CDDEV_CAPS_NONE;
 
-	if (strstr(productID, "CD"))
-	{
-		caps |= CDDEV_CAPS_GENERIC_CD;
-	}
+	int caps = CAPABILITIES_NONE;
 
-	if (strstr(productID, "CDRW"))
-	{
-		caps |= CDDEV_CAPS_GENERIC_CDRW;
-	}
+	if ( strstr(productID, "CD") )
+		caps |= CAPABILITIES_GENERIC_CDROM;
 
-	if (strstr(productID, "DVD"))
-	{
-		caps |= CDDEV_CAPS_GENERIC_DVD;
-	}
+	if ( strstr(productID, "CDRW") )
+		caps |= (CAPABILITIES_GENERIC_CDROM | CAPABILITIES_GENERIC_CDRW);
 
-	if (strstr(productID, "DVDRW"))
-	{
-		caps |= CDDEV_CAPS_GENERIC_DVDRW;
-	}
+	if ( strstr(productID, "DVD") )
+		caps |= (CAPABILITIES_GENERIC_CDROM | CAPABILITIES_GENERIC_DVDROM);
 
-	if (strstr(productID, "DVDRAM"))
-	{
-		caps |= CDDEV_CAPS_GENERIC_DVDRAM;
-	}
+	if ( strstr(productID, "DVDRW") )
+		caps |= (CAPABILITIES_GENERIC_CDROM | CAPABILITIES_GENERIC_DVDROM | CAPABILITIES_GENERIC_DVDRW);
 
-	if (strstr(productID, "BDROM"))
-	{
-		caps |= CDDEV_CAPS_GENERIC_BDROM;
-	}
+	if ( strstr(productID, "DVDRAM") )
+		caps |= (CAPABILITIES_GENERIC_CDROM | CAPABILITIES_GENERIC_DVDROM | CAPABILITIES_GENERIC_DVDRW | CAPABILITIES_GENERIC_DVDRAM);
 
-	return (CDROM_DeviceCaps)caps;
+	if ( strstr(productID, "BDROM") )
+		caps |= (CAPABILITIES_GENERIC_CDROM | CAPABILITIES_GENERIC_DVDROM | CAPABILITIES_GENERIC_BDROM);
+
+	if ( strstr(productID, "HDDVD") )
+		caps |= (CAPABILITIES_GENERIC_CDROM | CAPABILITIES_GENERIC_DVDROM | CAPABILITIES_GENERIC_HDDVD);
+
+	return (CDROM_DeviceCapabilities)caps;
 }
 
-
-static CDROM_DeviceCaps getCapsUsingSCSIPassThrough(File& Device)
+static void InitSCSIPassThrough(SCSI_PASS_THROUGH_WITH_BUFFERS* pSptwb)
 {
-	SCSI_PASS_THROUGH_WITH_BUFFERS sptwb={0};
-	sptwb.Spt.Length = sizeof(SCSI_PASS_THROUGH);
-	sptwb.Spt.PathId = 0;
-	sptwb.Spt.TargetId = 1;
-	sptwb.Spt.Lun = 0;
-	sptwb.Spt.CdbLength = 6;
-	sptwb.Spt.SenseInfoLength = 24;
-	sptwb.Spt.DataIn = SCSI_IOCTL_DATA_IN;
-	sptwb.Spt.DataTransferLength = 192;
-	sptwb.Spt.TimeOutValue = 2;
-	sptwb.Spt.DataBufferOffset = offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS,DataBuf);
-	sptwb.Spt.SenseInfoOffset = offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS,SenseBuf);
-	ULONG length = offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS,DataBuf) + sptwb.Spt.DataTransferLength;
-	// If device supports SCSI-3, then we can get the CD drive capabilities, i.e. ability to
-	// read/write to CD-ROM/R/RW or/and read/write to DVD-ROM/R/RW.
-	// Use the previous spti structure, only modify the command to "mode sense"
+	memset(pSptwb, 0, sizeof(SCSI_PASS_THROUGH_WITH_BUFFERS));
+
+	unsigned short sDataLength = sizeof(pSptwb->DataBuf);
+
+	pSptwb->Spt.PathId = 0;
+	pSptwb->Spt.TargetId = 1;
+	pSptwb->Spt.Length = sizeof(SCSI_PASS_THROUGH);
+	pSptwb->Spt.SenseInfoLength = 24;
+	pSptwb->Spt.SenseInfoOffset = offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS, SenseBuf);
+	pSptwb->Spt.DataTransferLength = sDataLength;
+	pSptwb->Spt.DataBufferOffset = offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS, DataBuf);
+	pSptwb->Spt.DataIn = SCSI_IOCTL_DATA_IN;
+	pSptwb->Spt.TimeOutValue = 2; 
+
+	memset(pSptwb->DataBuf, 0, sDataLength);
+	memset(pSptwb->Spt.Cdb, 0, sizeof(pSptwb->Spt.Cdb));
+}
+
+static CDROM_DeviceCapabilities getCapsUsingMagic(File& Device)
+{
+	int caps = CAPABILITIES_NONE;
+
+	SCSI_PASS_THROUGH_WITH_BUFFERS sptwb;
+	unsigned short sDataLength = sizeof(sptwb.DataBuf);
+
+	InitSCSIPassThrough(&sptwb);
+
+	//MODE SENSE FIRST
 	sptwb.Spt.Cdb[0] = SCSIOP_MODE_SENSE;
 	sptwb.Spt.Cdb[1] = 0x08;                    // target shall not return any block descriptors
 	sptwb.Spt.Cdb[2] = MODE_PAGE_CAPABILITIES;
 	sptwb.Spt.Cdb[4] = 192;
-	DWORD returned;
-	BOOL status = Device.IoControl(IOCTL_SCSI_PASS_THROUGH, &sptwb, sizeof(sptwb), &sptwb, length, &returned);
+	sptwb.Spt.CdbLength = 6;
+	
+	DWORD returned = 0;
 
-	if (status)
+	if ( Device.IoControl(
+			IOCTL_SCSI_PASS_THROUGH, 
+			&sptwb, 
+			sizeof(SCSI_PASS_THROUGH_WITH_BUFFERS), 
+			&sptwb, 
+			sizeof(SCSI_PASS_THROUGH_WITH_BUFFERS), 
+			&returned
+			) && (sptwb.Spt.ScsiStatus == 0) )
 	{
-		if (!sptwb.Spt.ScsiStatus)
-		{
-			// Notes:
-			// 1. The header of 6-byte MODE commands is 4 bytes long.
-			// 2. No Block Descriptors returned before parameter page as was specified when building the Mode command.
-			// 3. First two bytes of a parameter page are the Page Code and Page Length bytes.
-			// Therefore, our useful data starts at the 7th byte in the data buffer.
-			int caps = CDDEV_CAPS_READ_CDROM;
+		// Notes:
+		// 1. The header of 6-byte MODE commands is 4 bytes long.
+		// 2. No Block Descriptors returned before parameter page as was specified when building the Mode command.
+		// 3. First two bytes of a parameter page are the Page Code and Page Length bytes.
+		// Therefore, our useful data starts at the 7th byte in the data buffer.
+		caps = CAPABILITIES_READ_CDROM;
 
-			if (sptwb.DataBuf[6] & 0x01)
-				caps |= CDDEV_CAPS_READ_CDR;
+		if ( sptwb.DataBuf[6] & 0x01 )
+			caps |= CAPABILITIES_READ_CDR;
 
-			if (sptwb.DataBuf[6] & 0x02)
-				caps |= CDDEV_CAPS_READ_CDRW;
+		if ( sptwb.DataBuf[6] & 0x02 )
+			caps |= CAPABILITIES_READ_CDRW;
 
-			if (sptwb.DataBuf[6] & 0x08)
-				caps |= CDDEV_CAPS_READ_DVDROM;
+		if ( sptwb.DataBuf[6] & 0x08 )
+			caps |= CAPABILITIES_READ_DVDROM;
 
-			if (sptwb.DataBuf[6] & 0x10)
-				caps |= CDDEV_CAPS_READ_DVDR | CDDEV_CAPS_READ_DVDRW;
+		if ( sptwb.DataBuf[6] & 0x10 )
+			caps |= (CAPABILITIES_READ_DVDR | CAPABILITIES_READ_DVDRW);
 
-			if (sptwb.DataBuf[6] & 0x20)
-				caps |= CDDEV_CAPS_READ_DVDRAM;
+		if ( sptwb.DataBuf[6] & 0x20 )
+			caps |= CAPABILITIES_READ_DVDRAM;
 
-			if (sptwb.DataBuf[7] & 0x01)
-				caps |= CDDEV_CAPS_WRITE_CDR;
+		if ( sptwb.DataBuf[7] & 0x01 )
+			caps |= CAPABILITIES_WRITE_CDR;
 
-			if (sptwb.DataBuf[7] & 0x02)
-				caps |= CDDEV_CAPS_WRITE_CDRW;
+		if ( sptwb.DataBuf[7] & 0x02 )
+			caps |= CAPABILITIES_WRITE_CDRW;
 
-			if (sptwb.DataBuf[7] & 0x10)
-				caps |= CDDEV_CAPS_WRITE_DVDR | CDDEV_CAPS_WRITE_DVDRW;
+		if ( sptwb.DataBuf[7] & 0x10 )
+			caps |= (CAPABILITIES_WRITE_DVDR | CAPABILITIES_WRITE_DVDRW);
 
-			if (sptwb.DataBuf[7] & 0x20)
-				caps |= CDDEV_CAPS_WRITE_DVDRAM;
-
-			if (caps != CDDEV_CAPS_NONE)
-				return (CDROM_DeviceCaps)caps;
-		}
+		if ( sptwb.DataBuf[7] & 0x20 )
+			caps |= CAPABILITIES_WRITE_DVDRAM;
 	}
 
-#if 0
-	/* $ 24.07.2004 VVM Выключим этот кусок.
-	    Тормозит и портит болванки при записи на SCSI/IDE писалках
-	*/
-	sptwb.Spt.Cdb[0] = SCSIOP_INQUIRY;
-	sptwb.Spt.Cdb[1] = 0;
-	sptwb.Spt.Cdb[2] = 0;
-	sptwb.Spt.Cdb[4] = 192;
-	status = DeviceIoControl(hDevice,
-	                         IOCTL_SCSI_PASS_THROUGH,
-	                         &sptwb,
-	                         sizeof(SCSI_PASS_THROUGH),
-	                         &sptwb,
-	                         length,
-	                         &returned,
-	                         FALSE);
+	// GET CONFIGURATION NOW
+	InitSCSIPassThrough(&sptwb);
 
-	if (status)
+	sptwb.Spt.Cdb[0] = 0x46; //GET CONFIGURATION	
+	sptwb.Spt.Cdb[7] = static_cast<unsigned char>(sDataLength >> 8);	// Allocation length (MSB).
+	sptwb.Spt.Cdb[8] = static_cast<unsigned char>(sDataLength & 0xff);	// Allocation length (LSB).
+	sptwb.Spt.Cdb[9] = 0x00;		
+	sptwb.Spt.CdbLength = 10;
+
+	returned = 0;
+
+	if ( Device.IoControl(
+			IOCTL_SCSI_PASS_THROUGH, 
+			&sptwb, 
+			sizeof(SCSI_PASS_THROUGH_WITH_BUFFERS), 
+			&sptwb, 
+			sizeof(SCSI_PASS_THROUGH_WITH_BUFFERS), 
+			&returned
+			) && (sptwb.Spt.ScsiStatus == 0) )
 	{
-		if (!sptwb.Spt.ScsiStatus)
+		unsigned char *ptr = sptwb.DataBuf;
+		unsigned char *ptr_end = &sptwb.DataBuf[sDataLength];
+	
+		ptr += 8;	
+		
+		while ( ptr < ptr_end )
 		{
-			char productID[17];
-			int idx = 0;
+			unsigned short feature_code = (static_cast<unsigned short>(ptr[0]) << 8) | ptr[1];
 
-			for (int i = 16; i <= 31; i++)
+			switch ( feature_code )
 			{
-				productID[idx++] = sptwb.DataBuf[i];
+				//USEFULL ONLY IF MODE SENSE FAILED
+				case MMC_FEATURE_CD_READ:
+					caps |= CAPABILITIES_READ_CDROM; //useless junk
+					break;
+
+				case MMC_FEATURE_DVDPLUSRW:
+					caps |= CAPABILITIES_READ_DVDRW; //if we have write support, it was determined by mode sense
+					break;
+
+				case MMC_FEATURE_DVDPLUSR:
+					caps |= CAPABILITIES_READ_DVDR; //if we have write support, it was determined by mode sense
+					break;
+
+				case MMC_FEATURE_DVDPLUSRW_DL:
+					caps |= CAPABILITIES_READ_DVDRW; //if we have write support, it was determined by mode sense
+					break;
+
+				case MMC_FEATURE_DVDPLUSR_DL:
+					caps |= CAPABILITIES_READ_DVDR; //if we have write support, it was determined by mode sense
+					break;
+
+				//REALLY USEFUL
+				case MMC_FEATURE_BD_READ:
+					caps |= CAPABILITIES_READ_BDROM;
+					break;
+
+				case MMC_FEATURE_BD_WRITE:
+					caps |= CAPABILITIES_WRITE_BDROM;
+					break;
+
+				case MMC_FEATURE_HDDVD_READ:
+					caps |= CAPABILITIES_READ_HDDVD;
+					break;
+
+				case MMC_FEATURE_HDDVD_WRITE:
+					caps |= CAPABILITIES_WRITE_HDDVD;
+					break;
+
 			}
 
-			productID[idx] = 0;
-			return getCapsUsingProductId(productID);
+			ptr += ptr[3];
+			ptr += 4;
 		}
 	}
 
-#endif
-	return CDDEV_CAPS_NONE;
+	return (CDROM_DeviceCapabilities)caps;
 }
 
-static CDROM_DeviceCaps getCapsUsingDeviceProps(File& Device)
+static CDROM_DeviceCapabilities getCapsUsingDeviceProps(File& Device)
 {
 	PSTORAGE_DEVICE_DESCRIPTOR      devDesc;
 	BOOL                            status;
@@ -248,44 +273,51 @@ static CDROM_DeviceCaps getCapsUsingDeviceProps(File& Device)
 		}
 	}
 
-	return CDDEV_CAPS_NONE;
+	return CAPABILITIES_NONE;
 }
 
-
-CDROM_DeviceCaps GetCDDeviceCaps(File& Device)
+CDROM_DeviceCapabilities GetDeviceCapabilities(File& Device)
 {
-	CDROM_DeviceCaps caps;
+	CDROM_DeviceCapabilities caps = CAPABILITIES_NONE;
 
-	if ((caps = getCapsUsingSCSIPassThrough(Device)) !=  CDDEV_CAPS_NONE)
-		return caps;
+	caps = getCapsUsingMagic(Device);
 
-	if ((caps = getCapsUsingDeviceProps(Device)) != CDDEV_CAPS_NONE)
-		return caps;
+	if ( caps == CAPABILITIES_NONE )
+		caps = getCapsUsingDeviceProps(Device);
 
-	return getCapsUsingMediaType(Device);
+	return caps;
 }
 
-UINT GetCDDeviceTypeByCaps(CDROM_DeviceCaps caps)
+UINT GetDeviceTypeByCaps(CDROM_DeviceCapabilities caps)
 {
-	if (caps & CDDEV_CAPS_READ_BDROM)
+	if ( caps & CAPABILITIES_GENERIC_BDRW )
+		return DRIVE_BD_RW;
+
+	if ( caps & CAPABILITIES_GENERIC_BDROM )
 		return DRIVE_BD_ROM;
 
-	if (caps & CDDEV_CAPS_WRITE_DVDRAM)
+	if ( caps & CAPABILITIES_GENERIC_HDDVDRW )
+		return DRIVE_HDDVD_RW;
+
+	if ( caps & CAPABILITIES_GENERIC_HDDVD )
+		return DRIVE_HDDVD_ROM;
+
+	if (caps & CAPABILITIES_GENERIC_DVDRAM )
 		return DRIVE_DVD_RAM;
 
-	if (caps & CDDEV_CAPS_WRITE_DVDRW)
+	if (caps & CAPABILITIES_GENERIC_DVDRW)
 		return DRIVE_DVD_RW;
 
-	if ((caps & CDDEV_CAPS_WRITE_CDRW) && (caps & CDDEV_CAPS_READ_DVDROM))
+	if ((caps & CAPABILITIES_GENERIC_CDRW) && (caps & CAPABILITIES_GENERIC_DVDROM))
 		return DRIVE_CD_RWDVD;
 
-	if (caps & CDDEV_CAPS_READ_DVDROM)
+	if (caps & CAPABILITIES_GENERIC_DVDROM)
 		return DRIVE_DVD_ROM;
 
-	if (caps & CDDEV_CAPS_WRITE_CDRW)
+	if (caps & CAPABILITIES_GENERIC_CDRW)
 		return DRIVE_CD_RW;
 
-	if (caps & CDDEV_CAPS_READ_CDROM)
+	if (caps & CAPABILITIES_GENERIC_CDROM)
 		return DRIVE_CDROM;
 
 	return DRIVE_UNKNOWN;
@@ -293,11 +325,11 @@ UINT GetCDDeviceTypeByCaps(CDROM_DeviceCaps caps)
 
 bool IsDriveTypeCDROM(UINT DriveType)
 {
-	return DriveType == DRIVE_CDROM || (DriveType >= DRIVE_CD_RW && DriveType <= DRIVE_BD_ROM);
+	return DriveType == DRIVE_CDROM || (DriveType >= DRIVE_CD_RW && DriveType <= DRIVE_HDDVD_RW);
 }
 
 
-UINT FAR_GetDriveType(const wchar_t *RootDir, CDROM_DeviceCaps *Caps, DWORD Detect)
+UINT FAR_GetDriveType(const wchar_t *RootDir, CDROM_DeviceCapabilities *Caps, DWORD Detect)
 {
 	string strRootDir;
 
@@ -313,7 +345,9 @@ UINT FAR_GetDriveType(const wchar_t *RootDir, CDROM_DeviceCaps *Caps, DWORD Dete
 	}
 
 	AddEndSlash(strRootDir);
-	CDROM_DeviceCaps caps = CDDEV_CAPS_NONE;
+
+	CDROM_DeviceCapabilities caps = CAPABILITIES_NONE;
+
 	UINT DrvType = GetDriveType(strRootDir);
 
 	// анализ CD-привода
@@ -328,11 +362,12 @@ UINT FAR_GetDriveType(const wchar_t *RootDir, CDROM_DeviceCaps *Caps, DWORD Dete
 			VolumePath.Insert(0, L"\\\\.\\");
 
 		File Device;
-		if(Device.Open(VolumePath, GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
+		if(Device.Open(VolumePath, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 		{
-			caps = GetCDDeviceCaps(Device);
+			caps = GetDeviceCapabilities(Device);
 			Device.Close();
-			DrvType = GetCDDeviceTypeByCaps(caps);
+
+			DrvType = GetDeviceTypeByCaps(caps);
 		}
 
 		if (DrvType == DRIVE_UNKNOWN) // фигня могла кака-нить произойти, посему...

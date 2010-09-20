@@ -11160,6 +11160,34 @@ MChangeDriveBD_ROM
 "BD-ROM"
 "BD-ROM"
 
+MChangeDriveBD_RW
+"BD-RW"
+"BD-RW"
+"BD-RW"
+"BD-RW"
+"BD-RW"
+"BD-RW"
+"BD-RW"
+
+MChangeDriveHDDVD_ROM
+"HDDVD-ROM"
+"HDDVD-ROM"
+"HDDVD-ROM"
+"HDDVD-ROM"
+"HDDVD-ROM"
+"HDDVD-ROM"
+"HDDVD-ROM"
+
+MChangeDriveHDDVD_RW
+"HDDVD-RW"
+"HDDVD-RW"
+"HDDVD-RW"
+"HDDVD-RW"
+"HDDVD-RW"
+"HDDVD-RW"
+"HDDVD-RW"
+
+
 MChangeDriveRAM
 "RAM диск"
 "RAM disk"
