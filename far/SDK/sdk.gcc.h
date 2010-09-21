@@ -195,6 +195,10 @@ extern "C" {
 #define INPUTLANGCHANGE_FORWARD 0x0002
 #endif
 
+#ifndef INPUTLANGCHANGE_BACKWARD
+#define INPUTLANGCHANGE_BACKWARD 0x0004
+#endif
+
 typedef enum _STREAM_INFO_LEVELS
 {
 	FindStreamInfoStandard,
