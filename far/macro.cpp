@@ -4547,66 +4547,99 @@ done:
 		{
 			static struct TMCode2Func
 			{
+				bool IntInp;
 				DWORD Op;
 				bool (*Func)();
 			} MCode2Func[]=
 			{
-				{MCODE_F_WAITKEY,waitkeyFunc},  // V=waitkey([N,[T]])
-				{MCODE_F_ITOA,itowFunc}, // S=itoa(N[,radix])
-				{MCODE_F_ATOI,atoiFunc}, // N=atoi(S[,radix])
-				{MCODE_F_MIN,minFunc},  // N=min(N1,N2)
-				{MCODE_F_MOD,modFunc},  // N=mod(N1,N2)
-				{MCODE_F_MAX,maxFunc},  // N=max(N1,N2)
-				{MCODE_F_IIF,iifFunc},  // V=iif(Condition,V1,V2)
-				{MCODE_F_SUBSTR,substrFunc}, // S=substr(S,N1,N2)
-				{MCODE_F_TRIM,trimFunc}, // S=trim(S[,N])
-				{MCODE_F_RINDEX,rindexFunc}, // S=rindex(S1,S2[,Mode])
-				{MCODE_F_INDEX,indexFunc}, // S=index(S1,S2[,Mode])
-				{MCODE_F_PANELITEM,panelitemFunc},  // V=panelitem(Panel,Index,TypeInfo)
-				{MCODE_F_PANEL_SETPOS,panelsetposFunc}, // N=Panel.SetPos(panelType,fileName)
-				{MCODE_F_PANEL_SETPATH,panelsetpathFunc}, // N=panel.SetPath(panelType,pathName,fileName)
-				{MCODE_F_PANEL_SETPOSIDX,panelsetposidxFunc}, // N=Panel.SetPosIdx(panelType,Idx[,InSelection])
-				{MCODE_F_PANEL_FATTR,panelfattrFunc},         // N=Panel.FAttr(panelType,fileMask)
-				{MCODE_F_PANEL_FEXIST,panelfexistFunc},        // N=Panel.FExist(panelType,fileMask)
-				{MCODE_F_PANEL_SELECT,panelselectFunc}, // V=Panel.Select(panelType,Action[,Mode[,Items]])
-				{MCODE_F_SLEEP,sleepFunc}, // N=Sleep(N)
-				{MCODE_F_ENVIRON,environFunc}, // S=env(S)
-				{MCODE_F_LEN,lenFunc},  // N=len(S)
-				{MCODE_F_UCASE,ucaseFunc}, // S=ucase(S1)
-				{MCODE_F_LCASE,lcaseFunc}, // S=lcase(S1)
-				{MCODE_F_FEXIST,fexistFunc},  // S=fexist(S)
-				{MCODE_F_FLOCK,flockFunc},  // N=FLock(N,N)
-				{MCODE_F_FSPLIT,fsplitFunc},  // S=fsplit(S,N)
-				{MCODE_F_FATTR,fattrFunc},   // N=fattr(S)
-				{MCODE_F_MSAVE,msaveFunc},   // N=msave(S)
-				{MCODE_F_MLOAD,mloadFunc},   // N=mload(S)
-				{MCODE_F_DLG_GETVALUE,dlggetvalueFunc},        // V=Dlg.GetValue(ID,N)
-				{MCODE_F_EDITOR_POS,editorposFunc},// N=Editor.Pos(Op,What[,Where])
-				{MCODE_F_EDITOR_SEL,editorselFunc}, // V=Editor.Sel(Action[,Opt])
-				{MCODE_F_EDITOR_SET,editorsetFunc}, // N=Editor.Set(N,Var)
-				{MCODE_F_EDITOR_UNDO,editorundoFunc}, // V=Editor.Undo(N)
-				{MCODE_F_EDITOR_SETTITLE,editorsettitleFunc}, // N=Editor.SetTitle([Title])
-				{MCODE_F_STRING,stringFunc},  // S=string(V)
-				{MCODE_F_CLIP,clipFunc}, // V=Clip(N[,S])
-				{MCODE_F_FLOAT,floatFunc}, // N=float(V)
-				{MCODE_F_INT,intFunc}, // N=int(V)
-				{MCODE_F_DATE,dateFunc},  // // S=date([S])
-				{MCODE_F_XLAT,xlatFunc}, // S=xlat(S)
-				{MCODE_F_ABS,absFunc}, // N=abs(N)
-				{MCODE_F_ASC,ascFunc}, // N=asc(S)
-				{MCODE_F_CHR,chrFunc}, // S=chr(N)
-				{MCODE_F_REPLACE,replaceFunc}, // Result=replace(Str,Find,Replace[,Cnt[,Mode]])
-				{MCODE_F_KEY,keyFunc}, // S=key(V)
-				{MCODE_F_TESTFOLDER,testfolderFunc}, // N=testfolder(S)
-				{MCODE_F_BEEP,beepFunc},             // N=beep([N])
-				{MCODE_F_KBDLAYOUT,kbdLayoutFunc},   // N=kbdLayout([N])
+				{false,MCODE_F_WAITKEY,waitkeyFunc},  // V=waitkey([N,[T]])
+				{false,MCODE_F_ITOA,itowFunc}, // S=itoa(N[,radix])
+				{false,MCODE_F_ATOI,atoiFunc}, // N=atoi(S[,radix])
+				{false,MCODE_F_MIN,minFunc},  // N=min(N1,N2)
+				{false,MCODE_F_MOD,modFunc},  // N=mod(N1,N2)
+				{false,MCODE_F_MAX,maxFunc},  // N=max(N1,N2)
+				{false,MCODE_F_IIF,iifFunc},  // V=iif(Condition,V1,V2)
+				{false,MCODE_F_SUBSTR,substrFunc}, // S=substr(S,N1,N2)
+				{false,MCODE_F_TRIM,trimFunc}, // S=trim(S[,N])
+				{false,MCODE_F_RINDEX,rindexFunc}, // S=rindex(S1,S2[,Mode])
+				{false,MCODE_F_INDEX,indexFunc}, // S=index(S1,S2[,Mode])
+				{false,MCODE_F_PANELITEM,panelitemFunc},  // V=panelitem(Panel,Index,TypeInfo)
+				{true, MCODE_F_PANEL_SETPOS,panelsetposFunc}, // N=Panel.SetPos(panelType,fileName)
+				{true, MCODE_F_PANEL_SETPATH,panelsetpathFunc}, // N=panel.SetPath(panelType,pathName,fileName)
+				{true, MCODE_F_PANEL_SETPOSIDX,panelsetposidxFunc}, // N=Panel.SetPosIdx(panelType,Idx[,InSelection])
+				{false,MCODE_F_PANEL_FATTR,panelfattrFunc},         // N=Panel.FAttr(panelType,fileMask)
+				{false,MCODE_F_PANEL_FEXIST,panelfexistFunc},        // N=Panel.FExist(panelType,fileMask)
+				{false,MCODE_F_PANEL_SELECT,panelselectFunc}, // V=Panel.Select(panelType,Action[,Mode[,Items]])
+				{false,MCODE_F_SLEEP,sleepFunc}, // N=Sleep(N)
+				{false,MCODE_F_ENVIRON,environFunc}, // S=env(S)
+				{false,MCODE_F_LEN,lenFunc},  // N=len(S)
+				{false,MCODE_F_UCASE,ucaseFunc}, // S=ucase(S1)
+				{false,MCODE_F_LCASE,lcaseFunc}, // S=lcase(S1)
+				{false,MCODE_F_FEXIST,fexistFunc},  // S=fexist(S)
+				{false,MCODE_F_FLOCK,flockFunc},  // N=FLock(N,N)
+				{false,MCODE_F_FSPLIT,fsplitFunc},  // S=fsplit(S,N)
+				{false,MCODE_F_FATTR,fattrFunc},   // N=fattr(S)
+				{false,MCODE_F_MSAVE,msaveFunc},   // N=msave(S)
+				{false,MCODE_F_MLOAD,mloadFunc},   // N=mload(S)
+				{false,MCODE_F_DLG_GETVALUE,dlggetvalueFunc},        // V=Dlg.GetValue(ID,N)
+				{false,MCODE_F_EDITOR_POS,editorposFunc},// N=Editor.Pos(Op,What[,Where])
+				{false,MCODE_F_EDITOR_SEL,editorselFunc}, // V=Editor.Sel(Action[,Opt])
+				{false,MCODE_F_EDITOR_SET,editorsetFunc}, // N=Editor.Set(N,Var)
+				{false,MCODE_F_EDITOR_UNDO,editorundoFunc}, // V=Editor.Undo(N)
+				{false,MCODE_F_EDITOR_SETTITLE,editorsettitleFunc}, // N=Editor.SetTitle([Title])
+				{false,MCODE_F_STRING,stringFunc},  // S=string(V)
+				{false,MCODE_F_CLIP,clipFunc}, // V=Clip(N[,S])
+				{false,MCODE_F_FLOAT,floatFunc}, // N=float(V)
+				{false,MCODE_F_INT,intFunc}, // N=int(V)
+				{false,MCODE_F_DATE,dateFunc},  // // S=date([S])
+				{false,MCODE_F_XLAT,xlatFunc}, // S=xlat(S)
+				{false,MCODE_F_ABS,absFunc}, // N=abs(N)
+				{false,MCODE_F_ASC,ascFunc}, // N=asc(S)
+				{false,MCODE_F_CHR,chrFunc}, // S=chr(N)
+				{false,MCODE_F_REPLACE,replaceFunc}, // Result=replace(Str,Find,Replace[,Cnt[,Mode]])
+				{false,MCODE_F_KEY,keyFunc}, // S=key(V)
+				{false,MCODE_F_TESTFOLDER,testfolderFunc}, // N=testfolder(S)
+				{false,MCODE_F_BEEP,beepFunc},             // N=beep([N])
+				{false,MCODE_F_KBDLAYOUT,kbdLayoutFunc},   // N=kbdLayout([N])
 			};
 			int J;
 
 			for (J=0; J < int(ARRAYSIZE(MCode2Func)); ++J)
 				if (MCode2Func[J].Op == Key)
 				{
+					DWORD Flags=MR->Flags;
+
+					if (MCode2Func[J].IntInp)
+					{
+						// <Lock?>
+						// см. замечание в changelog для build 1681
+						if (Flags&MFLAGS_DISABLEOUTPUT) // если был - удалим
+						{
+							if (LockScr) delete LockScr;
+
+							LockScr=nullptr;
+						}
+						// </Lock?>
+
+						InternalInput++;
+					}
+
 					MCode2Func[J].Func();
+
+					if (MCode2Func[J].IntInp)
+					{
+						InternalInput--;
+
+						// <Lock?>
+						// см. замечание в changelog для build 1681
+						if (Flags&MFLAGS_DISABLEOUTPUT) // если стал - залочим
+						{
+							if (LockScr) delete LockScr;
+
+							LockScr=new LockScreen;
+						}
+						// </Lock?>
+					}
 					break;
 				}
 
