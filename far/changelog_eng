@@ -3,6 +3,37 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 23.09.2010 00:26:57 +0300 - build 1681
+
+1. Mantis#0001508: Far crash when executing a macro on a slowly refreshing panel
+   During the call of macro function Panel.SetPos(), panel.SetPath() and Panel.SetPosIdx() the macros
+   are frozen until the functions are done: on "big" directories (like network ones, with large amount
+   of file objects and/or slow channels) these functions can display messages about file/folder data 
+   collecting process, with the possibility of cancellation on Esc.
+
+   TODO: Now the code is appended with snippets which remove screen lock before work (and set it back
+         after execution) - see them between tags <Lock?> and </Lock?>.
+         This decision lets "see" the very message about data collecting process.
+         Here is an "obscurity" - are the snippets really needed?
+         * if they are, then a situation takes place for the case when the message has appeared and
+           user has cancelled the scanning... an unfinished transaction
+         * if they are not, then we have a contrary situation - for the macro, user sees 
+           non-responding Far (until directory scanning is done)
+
+drkns 21.09.2010 20:38:32 +0200
+
+1. Another flaw in gcc headers.
+
+warp 21.09.2010 00:30:00 +0100 build 1680
+
+1. Some unnecessary stuff got into the wrapper. Returned.
+
+warp 21.09.2010 00:15:00 +0100 build 1679
+
+1. Experimental. The support of detection is added for BD-ROM (it was buggy), BD-RW, HDDVD, HDDVD-RW.
+
+2. Removed function which did drive type detection based on disk format. This is a sort of black magic.
+
 drkns 18.09.2010 19:11:51 +0200 - build 1678
 
 1. From svs:  on Mantis#0000928. "Modal" state in macros is also set in editor and viewer.
