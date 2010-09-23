@@ -287,7 +287,7 @@ int FarDialog::Run(const TCHAR *lpHelpTopic)
 void FarDialog::Done()
 {
 #ifdef UNICODE
-	for (int i = 0; i < m_items.count(); i++)
+	for (unsigned int i = 0; i < m_items.count(); i++)
 		StrFree((void*)m_items[i].PtrData);
 
 	if ( m_hDlg != INVALID_HANDLE_VALUE )

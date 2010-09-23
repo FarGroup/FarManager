@@ -74,7 +74,7 @@ bool MaModule::Load()
 
 	m_pPluginInfo = new ArchivePluginInfo[m_Plugins.count()];
 
-	for (int i = 0; i < m_Plugins.count(); i++)
+	for (unsigned int i = 0; i < m_Plugins.count(); i++)
 	{
 		MaPlugin *pPlugin = m_Plugins[i];
 		ArchivePluginInfo *info = &m_pPluginInfo[i];
@@ -93,7 +93,7 @@ MaModule::~MaModule()
 {
 	if ( m_pPluginInfo )
 	{
-		for (int i = 0; i < m_Plugins.count(); i++)
+		for (unsigned int i = 0; i < m_Plugins.count(); i++)
 			StrFree((void*)m_pPluginInfo[i].lpModuleName);
 
 		delete m_pPluginInfo;
@@ -117,7 +117,7 @@ const ArchiveQueryResult* MaModule::QueryArchive(const QueryArchiveStruct* pQAS,
 		}
 		else
 		{
-			for (int i = 0; i < m_Plugins.count(); i++)
+			for (unsigned int i = 0; i < m_Plugins.count(); i++)
 				m_Plugins[i]->QueryArchives(pQAS->pBuffer, pQAS->dwBufferSize, pQAS->lpFileName, m_QueryPool);
 		}
 	}
@@ -196,7 +196,7 @@ int __stdcall MaModule::LoadMaPlugins(
 
 MaPlugin* MaModule::GetPlugin(const GUID& uid)
 {
-	for (int i = 0; i < m_Plugins.count(); i++)
+	for (unsigned int i = 0; i < m_Plugins.count(); i++)
 	{
 		if ( m_Plugins[i]->GetUID() == uid )
 			return m_Plugins[i];

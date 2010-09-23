@@ -122,7 +122,7 @@ unsigned int MaPlugin::GetNumberOfFormats()
 
 MaPlugin::~MaPlugin()
 {
-	for (int i = 0; i < m_pFormatInfo.count(); i++)
+	for (unsigned int i = 0; i < m_pFormatInfo.count(); i++)
 	{
 		StrFree((void*)m_pFormatInfo[i].lpName);
 		StrFree((void*)m_pFormatInfo[i].lpDefaultExtention);
@@ -179,7 +179,7 @@ void MaPlugin::CloseArchive(MaArchive* pArchive)
 
 bool MaPlugin::GetDefaultCommand(const GUID& uid, int nCommand, const TCHAR** ppCommand)
 {
-	for (int i = 0; i < m_pFormatInfo.count(); i++)
+	for (unsigned int i = 0; i < m_pFormatInfo.count(); i++)
 	{
 		if ( m_pFormatInfo[i].uid == uid )
 		{

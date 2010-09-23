@@ -21,7 +21,7 @@ bool WcxModule::Load()
 
 	m_pPluginInfo = new ArchivePluginInfo[m_Plugins.count()];
 
-	for (int i = 0; i < m_Plugins.count(); i++)
+	for (unsigned int i = 0; i < m_Plugins.count(); i++)
 	{
 		ArchivePluginInfo* info = &m_pPluginInfo[i];
 		memset(info, 0, sizeof(ArchivePluginInfo));
@@ -42,7 +42,7 @@ WcxModule::~WcxModule()
 {
 	if ( m_pPluginInfo )
 	{
-		for (int i = 0; i < m_Plugins.count(); i++)
+		for (unsigned int i = 0; i < m_Plugins.count(); i++)
 			StrFree((void*)m_pPluginInfo[i].lpModuleName);
 
 		delete [] m_pPluginInfo;			
@@ -107,7 +107,7 @@ const ArchiveQueryResult* WcxModule::QueryArchive(const QueryArchiveStruct* pQAS
 		}
 		else
 		{
-			for (int i = 0; i < m_Plugins.count(); i++)
+			for (unsigned int i = 0; i < m_Plugins.count(); i++)
 				m_Plugins[i]->QueryArchive(pQAS->lpFileName, m_QueryPool);
 		}
 	}
@@ -168,7 +168,7 @@ bool WcxModule::GetDefaultCommand(const GUID &uid, int nCommand, TCHAR* lpComman
 
 WcxPlugin* WcxModule::GetPlugin(const GUID& uid)
 {
-	for (int i = 0; i < m_Plugins.count(); i++)
+	for (unsigned int i = 0; i < m_Plugins.count(); i++)
 	{
 		if ( m_Plugins[i]->GetUID() == uid )
 			return m_Plugins[i];

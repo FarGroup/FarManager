@@ -8,7 +8,7 @@ ArchivePlugin::ArchivePlugin(ArchiveModule* pModule, const ArchivePluginInfo* pI
 	m_uid = pInfo->uid;
 	m_dwFlags = pInfo->dwFlags;
 
-	for (int i = 0; i < pInfo->uFormats; i++)
+	for (unsigned int i = 0; i < pInfo->uFormats; i++)
 		m_pFormats.add(new ArchiveFormat(this, &pInfo->pFormats[i]));
 }
 

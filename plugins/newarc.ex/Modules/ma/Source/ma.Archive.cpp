@@ -28,7 +28,7 @@ const GUID& MaArchive::GetUID()
 
 MaArchive::~MaArchive()
 {
-	for (int i = 0; i < m_pArchiveInfo.count(); i++)
+	for (unsigned int i = 0; i < m_pArchiveInfo.count(); i++)
 	{
 		StrFree((void*)m_pArchiveInfo[i].lpName);
 		StrFree((void*)m_pArchiveInfo[i].lpValue);

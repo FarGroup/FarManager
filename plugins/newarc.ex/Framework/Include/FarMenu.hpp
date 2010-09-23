@@ -22,7 +22,7 @@ public:
 		m_lpTitle = StrDuplicate(lpTitle);
 	}
 
-	int Add(const TCHAR *lpStr, DWORD dwFlags = 0, void *UserData = NULL)
+	unsigned int Add(const TCHAR *lpStr, DWORD dwFlags = 0, void *UserData = NULL)
 	{
 		FarMenuItemEx *item = m_items.add();
 
@@ -53,7 +53,7 @@ public:
 			return m_items.count()-1;
 		}
 
-		return -1;
+		return (unsigned int)-1;
 	}
 
 	int Run()
@@ -74,7 +74,7 @@ public:
 				);
 	}
 
-	void* GetData(int item)
+	void* GetData(unsigned int item)
 	{
 		if ( item < m_items.count() )
 		{
@@ -87,7 +87,7 @@ public:
 
 	void Done()
 	{
-		for (int i = 0; i < m_items.count(); i++)
+		for (unsigned int i = 0; i < m_items.count(); i++)
 		{
 			if ( m_items[i].UserData )
 			{

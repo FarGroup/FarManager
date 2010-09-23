@@ -7,7 +7,7 @@
 typedef int (__cdecl *SORTFUNC) (const void *, const void *, void *);
 
 #define DEFAULT_ARRAY_DELTA		 5
-#define INVALID_INDEX			-1
+#define INVALID_INDEX			(unsigned int)-1
 
 template <typename type> 
 class Array {
@@ -16,19 +16,19 @@ protected:
 
 	type *m_data;
 
-	int m_nCount;
-	int m_nAllocatedCount;
+	unsigned int m_uCount;
+	unsigned int m_uAllocatedCount;
 
-	int m_nDelta;
+	unsigned int m_uDelta;
 	bool m_bCreated;
 
 public:
 
-	Array(int delta = DEFAULT_ARRAY_DELTA);
+	Array(unsigned int delta = DEFAULT_ARRAY_DELTA);
 
 	virtual ~Array ();
 
-	void create(int delta = DEFAULT_ARRAY_DELTA);
+	void create(unsigned int delta = DEFAULT_ARRAY_DELTA);
 	void free();
 	void reset();
 
@@ -36,15 +36,15 @@ public:
 	type *add();
 
 	bool remove(const type& item, bool freeitem = true);
-	bool remove(int index, bool freeitem = true);
+	bool remove(unsigned int index, bool freeitem = true);
 	bool remove(); //removes last item
 
-	type& at(int index) const;
-	int indexof(const type& item) const;
+	type& at(unsigned int index) const;
+	unsigned int indexof(const type& item) const;
 
-	type& operator [] (int index) const { return at(index); }
+	type& operator [] (unsigned int index) const { return at(index); }
 
-	int count() const { return m_nCount; }
+	unsigned int count() const { return m_uCount; }
 
 	void sort (void *SortFunc, void *Param = NULL);
 
@@ -52,9 +52,9 @@ public:
 
 protected:
 
-	bool SetLimit (int limit);
+	bool SetLimit (unsigned int limit);
 
-	virtual void FreeItem(int index) 
+	virtual void FreeItem(unsigned int index) 
 	{ 
 		(void)index; //BUGBUG
 	} 
@@ -68,7 +68,7 @@ protected:
 
 
 template <typename type>
-Array<type>::Array (int delta)
+Array<type>::Array (unsigned int delta)
 {
 	create(delta);
 }
@@ -84,33 +84,33 @@ template <typename type>
 void Array<type>::reset()
 {
 	free();
-	create(m_nDelta);
+	create(m_uDelta);
 }
 
 template <typename type>
-void Array<type>::create (int delta)
+void Array<type>::create(unsigned int delta)
 {
-	delta ? m_nDelta = delta : m_nDelta = DEFAULT_ARRAY_DELTA;
+	delta ? m_uDelta = delta : m_uDelta = DEFAULT_ARRAY_DELTA;
 
-	m_nCount = 0;
-	m_nAllocatedCount = 0;
+	m_uCount = 0;
+	m_uAllocatedCount = 0;
 	m_data = NULL;
 
-	m_bCreated = SetLimit(m_nDelta); //??
+	m_bCreated = SetLimit(m_uDelta); //??
 }
 
 
 
 template <typename type>
-void Array<type>::free ()
+void Array<type>::free()
 {
 	if ( m_bCreated )
 	{
-		for (int i = 0; i < m_nCount; i++)
+		for (unsigned int i = 0; i < m_uCount; i++)
 			FreeItem (i);
 
-		m_nCount = 0;
-		m_nAllocatedCount = 0;
+		m_uCount = 0;
+		m_uAllocatedCount = 0;
 
 		FreeData();
 
@@ -120,19 +120,19 @@ void Array<type>::free ()
 
 
 template <typename type>
-type *Array<type>::add (const type& item)
+type *Array<type>::add(const type& item)
 {
     bool bResult = true;
 
-	if ( m_nAllocatedCount == m_nCount )
-		bResult = SetLimit (m_nAllocatedCount+m_nDelta);
+	if ( m_uAllocatedCount == m_uCount )
+		bResult = SetLimit(m_uAllocatedCount+m_uDelta);
 
 	if ( bResult )
 	{
-		memcpy (&m_data[m_nCount], &item, sizeof (type));
+		memcpy (&m_data[m_uCount], &item, sizeof (type));
 
-		type *pResult = &m_data[m_nCount];
-		m_nCount++;
+		type *pResult = &m_data[m_uCount];
+		m_uCount++;
 
 		return pResult;
 	}
@@ -141,17 +141,17 @@ type *Array<type>::add (const type& item)
 }
 
 template <typename type>
-type* Array<type>::add ()
+type* Array<type>::add()
 {
 	bool bResult = true;
 
-	if ( m_nAllocatedCount == m_nCount )
-		bResult = SetLimit (m_nAllocatedCount+m_nDelta);
+	if ( m_uAllocatedCount == m_uCount )
+		bResult = SetLimit(m_uAllocatedCount+m_uDelta);
 
 	if ( bResult )
 	{
-		type *pResult = &m_data[m_nCount];
-		m_nCount++;
+		type *pResult = &m_data[m_uCount];
+		m_uCount++;
 
 		return pResult;
 	}
@@ -162,34 +162,34 @@ type* Array<type>::add ()
 
 
 template <typename type>
-bool Array<type>::remove (const type& item, bool freeitem)
+bool Array<type>::remove(const type& item, bool freeitem)
 {
-	int index = indexof (item);
+	unsigned int index = indexof(item);
 	return remove(index, freeitem);
 }
 
 template <typename type>
-bool Array<type>::remove ()
+bool Array<type>::remove()
 {
-	return remove(m_nCount-1);
+	return remove(m_uCount-1);
 }
 
 
 template <typename type>
-bool Array<type>::remove (int index, bool freeitem)
+bool Array<type>::remove(unsigned int index, bool freeitem)
 {
-	if ( (index >= 0) && (index < m_nCount) )
+	if ( (index >= 0) && (index < m_uCount) && (index != INVALID_INDEX) )
 	{
 		if ( freeitem )
-			FreeItem (index);
+			FreeItem(index);
 
-		if ( index != (m_nCount-1) )
-			memcpy (&m_data[index], &m_data[index+1], (m_nCount-index-1)*sizeof(type)); //??
+		if ( index != (m_uCount-1) )
+			memcpy(&m_data[index], &m_data[index+1], (m_uCount-index-1)*sizeof(type)); //??
 
-		m_nCount--;
+		m_uCount--;
 
-		if ( (m_nAllocatedCount-m_nCount) == m_nDelta )
-			SetLimit (m_nAllocatedCount-m_nDelta); //shrink, so no error if can't realloc
+		if ( (m_uAllocatedCount-m_uCount) == m_uDelta )
+			SetLimit(m_uAllocatedCount-m_uDelta); //shrink, so no error if can't realloc
 
 		return true;
 	}
@@ -198,11 +198,11 @@ bool Array<type>::remove (int index, bool freeitem)
 }
 
 template <typename type>
-int Array<type>::indexof (const type& item) const
+unsigned int Array<type>::indexof(const type& item) const
 {
-	for (int i = 0; i < m_nCount; i++)
+	for (unsigned int i = 0; i < m_uCount; i++)
 	{
-		if ( !memcmp (&m_data[i], &item, sizeof(type)) )
+		if ( !memcmp(&m_data[i], &item, sizeof(type)) )
 			return i;
 	}
 
@@ -210,31 +210,31 @@ int Array<type>::indexof (const type& item) const
 }
 
 template <typename type>
-type& Array<type>::at (int index) const
+type& Array<type>::at(unsigned int index) const
 {
-	if ( (index >= 0) && (index < m_nCount) )
+	if ( (index >= 0) && (index < m_uCount) )
 		return m_data[index];
 
 	static type result;
 
-	memset (&result, 0, sizeof (type));
+	memset(&result, 0, sizeof (type));
 	return result; //???
 }
 
 
 template <typename type>
-bool Array<type>::SetLimit (int limit)
+bool Array<type>::SetLimit(unsigned int limit)
 {
-	type* newdata = (type*)realloc (m_data, limit*sizeof (type));
+	type* newdata = (type*)realloc(m_data, limit*sizeof(type));
 
 	if ( newdata || !limit )
 	{
 		m_data = newdata;
 
-		if ( limit > m_nAllocatedCount )
-			memset (&m_data[m_nAllocatedCount], 0, (limit-m_nAllocatedCount)*sizeof (type));
+		if ( limit > m_uAllocatedCount )
+			memset (&m_data[m_uAllocatedCount], 0, (limit-m_uAllocatedCount)*sizeof(type));
 
-		m_nAllocatedCount = limit;
+		m_uAllocatedCount = limit;
 
 		return true;
 	}
@@ -248,41 +248,42 @@ struct sort_param {
 	SORTFUNC fcmp;
 };
 
-inline int __cdecl SortFunction (
+inline int __cdecl SortFunction(
 		const void **p1,
 		const void **p2,
 		void *Param
 		)
 {
 	sort_param *IP = (sort_param *)Param;
-	return IP->fcmp (*p1, *p2, IP->Param);
+	return IP->fcmp(*p1, *p2, IP->Param);
 }
 
 
 
-static void iswap (int *a, int *b,unsigned int n_to_swap)  /* swap ints */
+static void iswap (int *a, int *b, unsigned int n_to_swap)  /* swap ints */
 {
-  int tmp;
+	int tmp;
 
-  do
-  {
-    tmp = *a;
-    *a = *b;
-    *b = tmp;
-    a++; b++;
-  } while (--n_to_swap);
+	do
+	{
+		tmp = *a;
+		*a = *b;
+		*b = tmp;
+		a++; b++;
+	} while (--n_to_swap);
 }
 
-static void cswap (char *a, char *b,unsigned int n_to_swap)    /* swap chars */
+static void cswap (char *a, char *b, unsigned int n_to_swap)    /* swap chars */
 {
-  char tmp;
-  do
-  {
-    tmp = *a;
-    *a = *b;
-    *b = tmp;
-    a++; b++;
-  } while (--n_to_swap);
+	char tmp;
+	
+	do
+	{
+		tmp = *a;
+		*a = *b;
+		*b = tmp;
+		a++; b++;
+	} while (--n_to_swap);
 }
 
 
@@ -417,16 +418,15 @@ static void __cdecl qsortex (
 
 
 template <typename type>
-void Array<type>::sort (void *SortFunc, void *Param)
+void Array<type>::sort(void* SortFunc, void* Param)
 {
 	sort_param IP;
 
 	IP.Param = Param;
 	IP.fcmp  = (SORTFUNC)SortFunc;
 
-	qsortex ((char*)m_data, m_nCount, sizeof (type), (SORTFUNC)SortFunction, &IP);
+	qsortex((char*)m_data, m_uCount, sizeof(type), (SORTFUNC)SortFunction, &IP);
 }
-
 
 
 ///////////////////////
@@ -435,12 +435,12 @@ class PointerArray : public Array<type> {
 
 public:
 
-	PointerArray(int delta = DEFAULT_ARRAY_DELTA) : Array<type>(delta) { };
+	PointerArray(unsigned int delta = DEFAULT_ARRAY_DELTA) : Array<type>(delta) { };
 	virtual ~PointerArray() { free(); }
 
 protected:
 
-	virtual void FreeItem (int index)
+	virtual void FreeItem(unsigned int index)
 	{
 		::free(this->m_data[index]);
 	}
@@ -452,12 +452,12 @@ template <typename type>
 class ObjectArray : public Array<type> {
 public:
 
-	ObjectArray(int delta = DEFAULT_ARRAY_DELTA) : Array<type>(delta) { };
+	ObjectArray(unsigned int delta = DEFAULT_ARRAY_DELTA) : Array<type>(delta) { };
 	virtual ~ObjectArray() { free(); }
 
 protected:
 
-	virtual void FreeItem (int index)
+	virtual void FreeItem(unsigned int index)
 	{
 		delete this->m_data[index];
 	}
@@ -468,10 +468,10 @@ template <typename type>
 class ConstArray : public Array<type> {
 public:
 
-	ConstArray(int delta = DEFAULT_ARRAY_DELTA) : Array<type>(delta) { };
+	ConstArray(unsigned int delta = DEFAULT_ARRAY_DELTA) : Array<type>(delta) { };
 	virtual ~ConstArray() { free(); }; //or virtual methods will be called wrong
 
 protected:
 
-	virtual void FreeData () { }; //keep data
+	virtual void FreeData() { }; //keep data
 };
