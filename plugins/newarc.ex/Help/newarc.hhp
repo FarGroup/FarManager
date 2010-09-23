@@ -1,0 +1,19 @@
+[OPTIONS]
+Compatibility=1.1 or later
+Compiled file=newarc.chm
+Default Window=Navigation Pane
+Default topic=html\structures\ArchiveItem.html
+Display compile progress=No
+Full-text search=Yes
+Index file=newarc.hhk
+Language=0x419 Русский (Россия)
+
+[WINDOWS]
+Navigation Pane=,,"newarc.hhk","html\structures\ArchiveItem.html",,,,,,0x23420,,0x3006,,,,,,1,,0
+
+
+[FILES]
+html\structures\ArchiveItem.html
+
+[INFOTYPES]
+
