@@ -10,14 +10,14 @@
 
 const size_t MIN_HEADER_LEN = 4;
 
-int IsMachoHeader(const unsigned char *Data, unsigned int DataSize)
+int IsMachoHeader(const unsigned char* pData, unsigned int uDataSize)
 {
-	if ( (size_t)DataSize < MIN_HEADER_LEN )
+	if ( (size_t)uDataSize < MIN_HEADER_LEN )
 		return -1;
 
-	DWORD sig = *((DWORD *)Data);
+	DWORD dwSignature = *((DWORD*)pData);
 
-	if (sig == 0xCEFAEDFE || sig == 0xCFFAEDFE || sig == 0xFEEDFACE || sig == 0xFEEDFACF)
+	if ( (dwSignature == 0xCEFAEDFE) || (dwSignature == 0xCFFAEDFE) || (dwSignature == 0xFEEDFACE) || (dwSignature == 0xFEEDFACF) )
 		return 0;
 
 	return -1;

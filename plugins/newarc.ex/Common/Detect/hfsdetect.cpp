@@ -8,21 +8,21 @@
   #pragma pack(push,1)
 #endif
 
-const size_t MIN_HEADER_LEN = 1024 + 512;
+const size_t MIN_HEADER_LEN = 1024+512;
 
-int IsHfsHeader(const unsigned char *Data, unsigned int DataSize)
+int IsHfsHeader(const unsigned char* pData, unsigned int uDataSize)
 {
-	if ( (size_t)DataSize < MIN_HEADER_LEN )
+	if ( (size_t)uDataSize < MIN_HEADER_LEN )
 		return -1;
 
-  for (int i = 0; i < 1024; i++)
-    if (Data[i] != 0)
-      return -1;
+	for (unsigned int i = 0; i < 1024; i++)
+		if ( pData[i] != 0)
+			return -1;
 
-  Data += 1024;
+	pData += 1024;
 
-  if (Data[0] != 'H' || (Data[1] != '+' && Data[1] != 'X'))
-    return -1;
+	if ( pData[0] != 'H' || (pData[1] != '+' && pData[1] != 'X'))
+		return -1;
 
 	return 0;
 }

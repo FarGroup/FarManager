@@ -8,20 +8,20 @@
   #pragma pack(push,1)
 #endif
 
-const size_t MIN_HEADER_LEN = sizeof (IMAGE_DOS_HEADER);
+const size_t MIN_HEADER_LEN = sizeof(IMAGE_DOS_HEADER);
 
-int IsPEHeader(const unsigned char *Data, unsigned int DataSize)
+int IsPEHeader(const unsigned char* pData, unsigned int uDataSize)
 {
-	if ( (size_t)DataSize < MIN_HEADER_LEN )
+	if ( (size_t)uDataSize < MIN_HEADER_LEN )
 		return -1;
 
-	PIMAGE_DOS_HEADER pDOSHeader = (PIMAGE_DOS_HEADER)Data;
+	PIMAGE_DOS_HEADER pDOSHeader = (PIMAGE_DOS_HEADER)pData;
 
-	if (    pDOSHeader->e_magic != IMAGE_DOS_SIGNATURE
-	     || (size_t)DataSize < pDOSHeader->e_lfanew + sizeof(IMAGE_NT_HEADERS))
+	if ( (pDOSHeader->e_magic != IMAGE_DOS_SIGNATURE) || 
+		 (size_t)uDataSize < pDOSHeader->e_lfanew+sizeof(IMAGE_NT_HEADERS) )
 		return -1;
 
-	PIMAGE_NT_HEADERS pPEHeader = (PIMAGE_NT_HEADERS)&Data[pDOSHeader->e_lfanew];
+	PIMAGE_NT_HEADERS pPEHeader = (PIMAGE_NT_HEADERS)&pData[pDOSHeader->e_lfanew];
 
 	if ( pPEHeader->Signature != IMAGE_NT_SIGNATURE )
 		return -1;

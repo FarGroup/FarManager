@@ -61,7 +61,7 @@ bool ArchiveModule::Load(const TCHAR *lpModuleName, const TCHAR *lpLanguage)
             	    m_dwFlags = info.dwFlags;
             	    m_uid = info.uid;
 
-					for (int i = 0; i < info.uPlugins; i++)
+					for (unsigned int i = 0; i < info.uPlugins; i++)
 						m_pPlugins.add(new ArchivePlugin(this, &info.pPlugins[i]));
 				
 					return true;
@@ -491,7 +491,7 @@ void ArchiveModule::Configure(const GUID& uid)
 {
 	ConfigureStruct CF;
 
-	CF.uid = uid;
+	//CF.uid = uid;
 
 	m_pfnModuleEntry(FID_CONFIGURE, (void*)&CF);
 }

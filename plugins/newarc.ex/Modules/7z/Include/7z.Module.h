@@ -15,6 +15,8 @@ public:
 	SevenZipModule();
 	virtual ~SevenZipModule();
 
+	bool Load();
+
 	const GUID& GetUID();
 	SevenZipPlugin* GetPlugin(const GUID& uid);
 

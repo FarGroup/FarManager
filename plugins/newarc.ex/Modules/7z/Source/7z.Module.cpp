@@ -6,13 +6,49 @@ MY_DEFINE_GUID(CLSID_ModuleSevenZip, 0x4329ae19, 0xda56, 0x4d1b, 0x8d, 0xb9, 0xd
 SevenZipModule::SevenZipModule()
 {
 	m_nCurrentQuery = 0;
+	m_pPluginInfo = NULL;
+}
 
+bool SevenZipModule::Load()
+{
 	string strPluginsPath = Info.ModuleName;
 	
 	CutToSlash(strPluginsPath);
 	strPluginsPath += _T("Formats");
 
-	FSF.FarRecursiveSearch(strPluginsPath, _T("*.dll"), (FRSUSERFUNC)LoadSevenZipPlugins, FRS_RECUR, this);
+	FSF.FarRecursiveSearch(
+			strPluginsPath, 
+			_T("*.dll"), 
+			(FRSUSERFUNC)LoadSevenZipPlugins, 
+			FRS_RECUR, 
+			this
+			);
+
+	if ( m_Plugins.count() == 0 ) //load from 7-zip directory, if any
+	{
+		HKEY hKey;
+
+		if ( RegOpenKey(
+				HKEY_CURRENT_USER,
+				_T("Software\\7-zip"),
+				&hKey
+				) == ERROR_SUCCESS )
+		{
+			strPluginsPath = _T("");
+			
+			strPluginsPath = apiRegQueryStringValue(hKey, _T("Path"), strPluginsPath);
+
+			FSF.FarRecursiveSearch(
+					strPluginsPath, 
+					_T("*.dll"), 
+					(FRSUSERFUNC)LoadSevenZipPlugins, 
+					FRS_RECUR, 
+					this
+					);
+
+			RegCloseKey(hKey);
+		}
+	}
 
 	m_pPluginInfo = new ArchivePluginInfo[m_Plugins.count()];
 
@@ -29,6 +65,8 @@ SevenZipModule::SevenZipModule()
 		info->uFormats = pPlugin->GetNumberOfFormats();
 		info->pFormats = pPlugin->GetFormats();
 	}
+
+	return m_Plugins.count() > 0;
 }
 
 SevenZipModule::~SevenZipModule()
@@ -114,7 +152,7 @@ const ArchiveQueryResult* SevenZipModule::QueryArchive(const QueryArchiveStruct*
 
 	const ArchiveQueryResult* pResult = NULL;
 	bMoreArchives = false;
-	              
+	
 	if ( m_nCurrentQuery < nQueryCount )
 	{
 		pResult = m_QueryPool[m_nCurrentQuery];

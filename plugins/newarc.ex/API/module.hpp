@@ -364,8 +364,16 @@ struct ArchiveFileInfoStruct {
 };
 
 
-struct ConfigureStruct {
-	GUID uid;
+struct ConfigureStruct { //to change
+	DWORD dwStructVersion;
+};
+
+struct ConfigureFormatStruct {
+	DWORD dwStructVersion;
+
+	GUID uidFormat;
+	GUID uidPlugin;
+	
 	char *lpResult;
 };
 
@@ -391,8 +399,8 @@ struct StartupInfo {
 #define FID_TEST				16
 #define FID_GETARCHIVEMODULEINFO	17	//param - ArchivePluginInfo
 #define FID_DELETE				18 //param - DeleteStruct
-#define FID_ADD                 19 //param - AddStruct
-#define FID_CONFIGURE		20 //param - ConfigureFormatStruct
+#define FID_ADD					19 //param - AddStruct
+#define FID_CONFIGURE			20 //param - ConfigureFormatStruct
 #define FID_GETARCHIVEINFO  200
 #define FID_GETARCHIVEFILEINFO 300
 
@@ -418,7 +426,7 @@ struct OverwriteStruct {
 extern "C" {
 #endif
 
-int __stdcall ModuleEntry (int nFunctionID, void *pParams);
+int __stdcall ModuleEntry(int nFunctionID, void *pParams);
 
 #ifdef __cplusplus
 }

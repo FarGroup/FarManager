@@ -9,7 +9,7 @@ bool MultiExPlugin::Load(const TCHAR* lpModuleName)
 {
 	m_strModuleName = lpModuleName;
 
-	m_hModule = LoadLibraryEx (
+	m_hModule = LoadLibraryEx(
 			lpModuleName,
 			NULL,
 			LOAD_WITH_ALTERED_SEARCH_PATH

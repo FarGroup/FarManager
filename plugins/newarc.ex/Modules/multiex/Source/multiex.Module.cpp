@@ -92,7 +92,7 @@ const ArchiveQueryResult* MultiExModule::QueryArchive(const QueryArchiveStruct* 
 
 	const ArchiveQueryResult* pResult = NULL;
 	bMoreArchives = false;
-	              
+
 	if ( m_nCurrentQuery < nQueryCount )
 	{
 		pResult = m_QueryPool[m_nCurrentQuery];

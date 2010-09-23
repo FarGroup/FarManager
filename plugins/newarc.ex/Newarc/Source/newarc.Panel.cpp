@@ -1,16 +1,19 @@
 #include "newarc.h"
 
-bool IsFileInFolder (const TCHAR *lpCurrentPath, const TCHAR *lpFileName)
+bool IsFileInFolder(const TCHAR *lpCurrentPath, const TCHAR *lpFileName)
 {
 	int nLength = StrLength(lpCurrentPath);
 
 	bool bResult = nLength && !_tcsncmp(lpCurrentPath, lpFileName, nLength); //вопрос, нужно ли здесь тоже игнорировать регистр
-	
-	return bResult && (
+	                                                  
+	return bResult && ((
 			(lpFileName[nLength] == 0) || 
 			(lpFileName[nLength] == '/') || 
 			(lpFileName[nLength] == '\\')
-			);
+			) || (
+			(lpCurrentPath[nLength-1] == '\\') ||
+			(lpCurrentPath[nLength-1] == '/')
+			));
 }
 
 
@@ -501,7 +504,12 @@ int ArchivePanel::pPutFiles(
 
 					GetPanelItemsToProcess(&Item, 1, items);
 
+#ifdef UNICODE
 					strArchiveName = FSF.PointToName(Item.FindData.lpwszFileName);
+#else
+					strArchiveName = FSF.PointToName(Item.FindData.cFileName);
+#endif
+
 				
 					if ( (Item.FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY )
 						CutTo(strArchiveName, _T('.'), true);

@@ -411,7 +411,7 @@ int WcxPlugin::GetArchiveItem(HANDLE hArchive, ArchiveItem* pItem)
 			pItem->dwCRC32 = HeaderData.FileCRC;
 
 			memcpy(pItem, pItem, sizeof(ArchiveItem));
-		                                         
+
 			return E_SUCCESS;
 		}
 	}
@@ -569,6 +569,6 @@ void WcxPlugin::ConfigurePacker()
 
 	HWND hwnd = (HWND)Info.AdvControl(Info.ModuleNumber, ACTL_GETFARHWND, 0);
 
-	if ( m_pfnConfigurePacker )                               
-		m_pfnConfigurePacker(hwnd, m_hModule); 		
+	if ( m_pfnConfigurePacker )
+		m_pfnConfigurePacker(hwnd, m_hModule);
 }

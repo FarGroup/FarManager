@@ -113,11 +113,45 @@ void apiCreateDirectoryEx(const TCHAR* lpDirectory)
 	free (lpCopy);
 }
 
-
 void apiCreateDirectoryForFile(const TCHAR* lpFileName)
 {
 	string strNameCopy = lpFileName;
 
 	CutToSlash(strNameCopy);
 	apiCreateDirectoryEx(strNameCopy);
+}
+
+bool apiSetFilePointer(
+		HANDLE hFile,
+		__int64 nDistanceToMove,
+		__int64* pNewFilePointer,
+		DWORD dwMoveMethod
+		)
+{
+	LONG nHighPart = (nDistanceToMove >> 32);
+	LONG nLowPart = (LONG)nDistanceToMove;
+
+	nLowPart = SetFilePointer(hFile, nLowPart, &nHighPart, dwMoveMethod);
+
+	if ( (nLowPart == INVALID_SET_FILE_POINTER) && (GetLastError() != NO_ERROR) )
+		return false;
+
+	if ( pNewFilePointer ) 
+		*pNewFilePointer = ((__int64)nHighPart << 32) + nLowPart;
+
+	return true;
+}                      
+
+bool apiGetFileSize(HANDLE hFile, unsigned __int64 *pSize)
+{
+	DWORD dwHighPart = 0;
+	DWORD dwLowPart = GetFileSize(hFile, &dwHighPart);
+
+	if ( (dwLowPart == INVALID_FILE_SIZE) && (GetLastError() != NO_ERROR) )
+		return false;
+
+	if ( *pSize )
+		*pSize = ((unsigned __int64)dwHighPart << 32) + dwLowPart;
+
+	return true;
 }

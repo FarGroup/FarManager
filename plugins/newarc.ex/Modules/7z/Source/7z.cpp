@@ -10,7 +10,8 @@ int OnInitialize (StartupInfo *pInfo)
 	Info = pInfo->Info;
 	FSF = *pInfo->Info.FSF;
 
-	pModule = new SevenZipModule();
+	pModule = new SevenZipModule;
+	pModule->Load();
 
 	return NAERROR_SUCCESS;
 }
