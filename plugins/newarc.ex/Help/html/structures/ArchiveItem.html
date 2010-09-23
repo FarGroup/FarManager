@@ -18,7 +18,8 @@
 		<h1>ArchiveItem</h1>
 
 		<div class="short_description">
-			Структура <dfn>ArchiveItem</dfn> описывает один элемент архива.
+			Структура <dfn>ArchiveItem</dfn> описывает один элемент архива. Элементами архива
+			являются файлы и папки.
 		</div>
 
 		<pre class="syntax">
@@ -49,37 +50,72 @@
 		<div class="description">
 
 		<div class="field">dwFlags</div>
-		<div class="field_description"></div>
+		<div class="field_description">
+
+			Флаги описывают дополнительные свойства элемента архива.
+
+			<table class="flags">
+				<tr>
+					<th width="40%">Флаг</th>
+					<th width="60%">Описание</th>
+				</tr>
+				<tr>
+					<td>AIF_CRYPTED</td>
+					<td>Элемент архива зашифрован.</td>
+				</tr>
+			<table>
+		</div>
 
 		<div class="field">dwFileAttributes</div>
-		<div class="field_description"></div>
+		<div class="field_description">
+			Атрибуты хранящегося в архиве файла. Значения соответствуют атрибутам файлов Windows.
+		</div>
 
 		<div class="field">ftCreationTime</div>
-		<div class="field_description"></div>
+		<div class="field_description">
+			Время создания файла.
+		</div>
 
 		<div class="field">ftLastAccessTime</div>
-		<div class="field_description"></div>
+		<div class="field_description">
+			Время последнего доступа к файлу.
+		</div>
 
 		<div class="field">ftLastWriteTime</div>
-		<div class="field_description"></div>
+		<div class="field_description">
+			Время последней модификации файла.
+		</div>
 
 		<div class="field">nFileSize</div>
-		<div class="field_description"></div>
+		<div class="field_description">
+			Размер элемента архива в виде 64-разрядного целого.
+		</div>
 
 		<div class="field">nPackSize</div>
-		<div class="field_description"></div>
+		<div class="field_description">
+			Размер элемента архива после упаковки в виде 64-разрядного целого.
+		</div>
 
 		<div class="field">lpFileName</div>
-		<div class="field_description"></div>
+		<div class="field_description">
+			Имя файла или папки.
+		</div>
 
 		<div class="field">lpAlternateFileName</div>
-		<div class="field_description"></div>
+		<div class="field_description">
+			Короткое имя (в формате 8.3) файла или папки.
+		</div>
 
 		<div class="field">dwCRC32</div>
-		<div class="field_description"></div>
+		<div class="field_description">
+			Контрольная сумма данных элемента архива (если доступно).
+		</div>
 
 		<div class="field">UserData</div>
-		<div class="field_description"></div>
+		<div class="field_description">
+			Пользовательские данные. Не используются NewArc непосредственно, но позволяют передвать
+			дополнительные данные между вызовами архивных модулей.
+		</div>
 
 	</body>
 </html>
