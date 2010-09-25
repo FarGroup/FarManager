@@ -153,7 +153,7 @@ void CreateListFile (
 
 	if ( hListFile != INVALID_HANDLE_VALUE )
 	{
-		for (int i = 0; i < items.count(); i++)
+		for (unsigned int i = 0; i < items.count(); i++)
 		{
 			const ArchiveItem *item = &items[i];
 
