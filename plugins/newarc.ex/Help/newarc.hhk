@@ -15,5 +15,10 @@
 		<param name="Name" value="ArchiveFormatInfo">
 		<param name="Local" value="html\structures\ArchiveFormatInfo.html">
 		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="ArchivePluginInfo">
+		<param name="Name" value="ArchivePluginInfo">
+		<param name="Local" value="html\structures\ArchivePluginInfo.html">
+		</OBJECT>
 </UL>
 </BODY></HTML>

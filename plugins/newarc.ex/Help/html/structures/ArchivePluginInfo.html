@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+	<head>
+		<title>ArchivePluginInfo</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../styles/vs.css">
+		<link rel="stylesheet" type="text/css" href="../../styles/default.css">
+		
+		<script language="javascript" src="../highlight.pack.js" type="text/javascript"></script>
+	
+		<script>
+			hljs.tabReplace = '    ';
+			hljs.initHighlightingOnLoad();
+		</script>
+	
+	</head>
+	<body>
+
+		<h1>ArchivePluginInfo</h1>
+
+		<div class="short_description">
+			Структура <dfn>ArchivePluginInfo</dfn> описывает один плагин модуля. Модуль может полностью 
+			включать в себя функциональность плагина (как модуль rar.module) или реализовывать ее посредством 
+			внешних сущностей (как модуль ma.module). В приведенных примерах в терминах NewArc плагинами 
+			являются сам модуль rar.module и fmt-субплагины MultiArc соответственно.
+		</div>
+
+		<pre class="syntax">
+			<code>
+	struct ArchivePluginInfo {
+		DWORD dwStructVersion;
+	
+		GUID uid;
+		DWORD dwFlags;
+
+		const TCHAR* lpModuleName;
+
+		unsigned int uFormats;
+		const ArchiveFormatInfo* pFormats;
+	};
+			</code>
+		</pre>
+
+		<h3>Элементы</h3>
+	
+		<div class="field">dwStructVersion</div>
+		<div class="field_description">
+			Версия структуры <dfn>ArchivePluginInfo</dfn>. В настоящее время поле не используется.
+		</div>
+
+		<div class="field">uid</div>
+		<div class="field_description">
+			Уникальный идентификатор плагина. Идентификатор плагина должен быть уникален как в
+			рамках модуля, так и в рамках всего пространства плагинов NewArc.
+		</div>
+
+		<div class="field">dwFlags</div>
+		<div class="field_description">
+			Флаги, описывающие поведение плагина.
+
+			<table class="flags">
+				<tr>
+					<th width="40%">Флаг</th>
+					<th width="60%">Описание</th>
+				</tr>
+				<tr>
+					<td>APF_SUPPORT_SINGLE_FORMAT_QUERY</td>
+					<td>
+						Данный флаг устанавливается, когда плагин позволяет проверить 
+						принадлежность файла определенному формату, заданному по уникальному 
+						идентификатору (формата). Отсутствие данного флага указывает на то, что плагин 
+						может лишь вернуть для заданного файла список подходящих форматов.
+					</td>
+				</tr>
+			</table>
+
+		</div>
+
+		<div class="field">uFormats</div>
+		<div class="field_description">
+			Количество поддерживаемых плагином форматов.
+		</div>
+
+		<div class="field">pFormats</div>
+		<div class="field_description">
+			Набор структур типа <a class="name" href="ArchiveFormatInfo.html">ArchiveFormatInfo</a>, описывающих поддерживаемые плагином форматы.
+		</div>
+
+	</body>
+</html>
