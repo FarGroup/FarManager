@@ -4,6 +4,7 @@
 		<title>ArchiveItem</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<link rel="stylesheet" type="text/css" href="../../styles/vs.css">
+		<link rel="stylesheet" type="text/css" href="../../styles/default.css">
 		
 		<script language="javascript" src="../highlight.pack.js" type="text/javascript"></script>
 	
@@ -22,26 +23,26 @@
 			являются файлы и папки.
 		</div>
 
-		<pre class="syntax">
+		<pre>
 			<code>
-			struct ArchiveItem
-			{
-				DWORD dwFlags;
+	struct ArchiveItem
+	{
+		DWORD dwFlags;
 
-				DWORD dwFileAttributes;
-				FILETIME ftCreationTime;
-				FILETIME ftLastAccessTime;
-				FILETIME ftLastWriteTime;
-				unsigned __int64 nFileSize;
-				unsigned __int64 nPackSize;
+		DWORD dwFileAttributes;
+		FILETIME ftCreationTime;
+		FILETIME ftLastAccessTime;
+		FILETIME ftLastWriteTime;
+		unsigned __int64 nFileSize;
+		unsigned __int64 nPackSize;
 
-				const TCHAR* lpFileName;
-				const TCHAR* lpAlternateFileName;
+		const TCHAR* lpFileName;
+		const TCHAR* lpAlternateFileName;
 
-				DWORD dwCRC32;
+		DWORD dwCRC32;
 
-				DWORD_PTR UserData; //for internal transitions
-			}
+		DWORD_PTR UserData; //for internal transitions
+	}
 			</code>
 		</pre>
 
@@ -63,7 +64,7 @@
 					<td>AIF_CRYPTED</td>
 					<td>Элемент архива зашифрован.</td>
 				</tr>
-			<table>
+			</table>
 		</div>
 
 		<div class="field">dwFileAttributes</div>

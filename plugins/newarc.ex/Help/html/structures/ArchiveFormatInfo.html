@@ -4,6 +4,7 @@
 		<title>ArchiveFormatInfo</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<link rel="stylesheet" type="text/css" href="../../styles/vs.css">
+		<link rel="stylesheet" type="text/css" href="../../styles/default.css">
 		
 		<script language="javascript" src="../highlight.pack.js" type="text/javascript"></script>
 	
@@ -25,18 +26,18 @@
 
 		<pre class="syntax">
 			<code>
-				struct ArchiveFormatInfo {
-					DWORD dwStructVersion;
+	struct ArchiveFormatInfo {
+		DWORD dwStructVersion;
 
-					GUID uid; //format uid
+		GUID uid; //format uid
 
-					DWORD dwFlags;
+		DWORD dwFlags;
 
-					const TCHAR* lpName;
-					const TCHAR* lpDefaultExtention;
+		const TCHAR* lpName;
+		const TCHAR* lpDefaultExtention;
 
-					const TCHAR* lpDescription;
-				};
+		const TCHAR* lpDescription;
+	};
 			</code>
 		</pre>
 
@@ -90,9 +91,7 @@
 						или освободить файл архива, если он занят.
 					</td>
 				</tr>
-
-
-			<table>
+			</table>
 
 		</div>
 
