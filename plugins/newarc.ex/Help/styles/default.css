@@ -1,6 +1,14 @@
-h1 { font-family: Verdana; }
-h2 { font-family: Verdana; }
-.short_description { font-size: 10px; }
-.field { font-weight: bold; }
-.field_description { font-size: 10px; }
+body { 
+	font-family: Verdana; 
+	font-size: 15px;
+}
 
+.field { margin: 10 0 10 0; font-weight: bold; }
+.flags { margin: 10 0 10 0; border: 1px solid black; border-collapse: collapse; font-size: 13px; }
+.flags td { border: 1px solid black; }
+.flags th { background: lightgrey; text-align: left; border: 1px solid black; font-weight: bold; }
+
+dfn { 
+	font-style: normal;
+	font-weight: bold;
+}
