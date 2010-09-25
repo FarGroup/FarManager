@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+	<head>
+		<title>ArchiveModuleInfo</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../styles/vs.css">
+		<link rel="stylesheet" type="text/css" href="../../styles/default.css">
+		
+		<script language="javascript" src="../highlight.pack.js" type="text/javascript"></script>
+	
+		<script>
+			hljs.tabReplace = '    ';
+			hljs.initHighlightingOnLoad();
+		</script>
+	
+	</head>
+	<body>
+
+		<h1>ArchiveModuleInfo</h1>
+
+		<div class="short_description">
+			Структура <dfn>ArchiveModuleInfo</dfn> описывает модуль.
+		</div>
+
+		<pre class="syntax">
+			<code>
+	struct ArchiveModuleInfo {
+		DWORD dwStructVersion;
+
+		GUID uid; //module uid
+		DWORD dwFlags;
+
+		const TCHAR* lpDescription;
+		const TCHAR* lpAuthor;
+
+		ArchiveModuleVersion Version;
+
+		unsigned int uPlugins;
+		const ArchivePluginInfo* pPlugins;
+	};
+			</code>
+		</pre>
+
+		<h3>Элементы</h3>
+	
+		<div class="field">dwStructVersion</div>
+		<div class="field_description">
+			Версия структуры <dfn>ArchiveModuleInfo</dfn>. В настоящее время поле не используется.
+		</div>
+
+		<div class="field">uid</div>
+		<div class="field_description">
+			Уникальный идентификатор модуля. Идентификатор модуля должен быть уникален в рамках всего 
+			пространства модулей NewArc.
+		</div>
+
+		<div class="field">dwFlags</div>
+		<div class="field_description">
+			Флаги, описывающие поведение модуля.
+
+			<table class="flags">
+				<tr>
+					<th width="40%">Флаг</th>
+					<th width="60%">Описание</th>
+				</tr>
+				<tr>
+					<td>APF_SUPPORT_SINGLE_PLUGIN_QUERY</td>
+					<td>
+						Данный флаг устанавливается, когда модуль позволяет проверить 
+						принадлежность файла одному из форматов плагина, заданного по уникальному 
+						идентификатору. Отсутствие данного флага указывает на то, что модуль 
+						может лишь вернуть для заданного файла список всех подходящих форматов для всех 
+						входящих в модуль плагинов.
+					</td>
+				</tr>
+			</table>
+
+		</div>
+
+		<div class="field">lpDescription</div>
+		<div class="field_description">
+			Краткое описание модуля.
+		</div>
+
+		<div class="field">lpAuthor</div>
+		<div class="field_description">
+			Автор плагина.
+		</div>
+
+		<div class="field">Version</div>
+		<div class="field_description">
+			Структура типа <a class="name" href="ArchiveModuleVersion.html">ArchiveModuleVersion</a>, описывающая 
+			версию модуля.
+		</div>
+
+		<div class="field">uPlugins</div>
+		<div class="field_description">
+			Количество плагинов модуля.
+		</div>
+
+		<div class="field">pPlugins</div>
+		<div class="field_description">
+			Набор структур типа <a class="name" href="ArchivePluginInfo.html">ArchivePluginInfo</a>, 
+			описывающих плагины модуля.
+		</div>
+
+	</body>
+</html>

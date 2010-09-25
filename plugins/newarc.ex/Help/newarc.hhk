@@ -20,5 +20,15 @@
 		<param name="Name" value="ArchivePluginInfo">
 		<param name="Local" value="html\structures\ArchivePluginInfo.html">
 		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="ArchiveModuleInfo">
+		<param name="Name" value="ArchiveModuleInfo">
+		<param name="Local" value="html\structures\ArchiveModuleInfo.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="ArchiveModuleVersion">
+		<param name="Name" value="ArchiveModuleVersion">
+		<param name="Local" value="html\structures\ArchiveModuleVersion.html">
+		</OBJECT>
 </UL>
 </BODY></HTML>

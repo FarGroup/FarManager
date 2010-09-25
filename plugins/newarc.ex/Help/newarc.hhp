@@ -16,6 +16,8 @@ Navigation Pane=,,"newarc.hhk","html\structures\ArchiveItem.html",,,,,,0x23420,,
 html\structures\ArchiveItem.html
 html\structures\ArchiveFormatInfo.html
 html\structures\ArchivePluginInfo.html
+html\structures\ArchiveModuleInfo.html
+html\structures\ArchiveModuleVersion.html
 
 [INFOTYPES]
 
