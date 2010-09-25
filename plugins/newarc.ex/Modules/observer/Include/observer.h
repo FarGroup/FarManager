@@ -5,8 +5,22 @@
 #include "debug.h"
 #include "makeguid.h"
 
+#if defined(_MSC_VER)
+#pragma pack(push,8)
+#else
+#pragma pack(8)
+#endif
+
 //observer
 #include "Observer/ModuleDef.h"
+
+#if defined(_MSC_VER)
+#pragma pack(pop)
+#else
+#pragma pack()
+#endif
+
+
 
 struct ProgressContextEx {
 	ProgressContext ctx;

@@ -20,7 +20,7 @@ LONG_PTR __stdcall hndAddEditTemplate (
 		
 		pManager->GetFormats(formats);
 
-		for (int i = 0; i < formats.count(); i++)
+		for (unsigned int i = 0; i < formats.count(); i++)
 		{
 			ArchiveFormat* pFormat = formats[i];
 

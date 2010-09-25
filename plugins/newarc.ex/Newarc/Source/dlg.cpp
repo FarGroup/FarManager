@@ -103,15 +103,15 @@ void OperationDialog::SetIndicator(bool bTotal, double dRatio)
 	if ( dRatio > 1 )
 		dRatio = 1;
 
-    DWORD dwPercent = dRatio*40;
-    DWORD dwRealPercent = dRatio*100;
+    DWORD dwPercent = (DWORD)(dRatio*40);
+    DWORD dwRealPercent = (DWORD)(dRatio*100);
 
 	TCHAR *lpTemp = new TCHAR[100];
 
-	for (int i = 0; i < 40; i++)
+	for (unsigned int i = 0; i < 40; i++)
 		lpTemp[i] = cIndicator[0];
 
-	for (int i = 0; i < dwPercent; i++)
+	for (unsigned int i = 0; i < dwPercent; i++)
 		lpTemp[i] = cIndicator[2];
 
 	lpTemp[40] = 0;
@@ -149,10 +149,14 @@ void OperationDialog::Show(const TCHAR* lpTitle)
 {
 	CONSOLE_SCREEN_BUFFER_INFO SInfo;
 
-	GetConsoleScreenBufferInfo (GetStdHandle(STD_OUTPUT_HANDLE), &SInfo);
+	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &SInfo);
 
-	m_Coord.X = SInfo.dwSize.X/2-28;
-	m_Coord.Y = SInfo.dwSize.Y/2-4;
+
+	SHORT sWidth = SInfo.srWindow.Right-SInfo.srWindow.Left+1;
+	SHORT sHeight = SInfo.srWindow.Bottom-SInfo.srWindow.Top+1;
+
+	m_Coord.X = sWidth/2-28;
+	m_Coord.Y = sHeight/2-5;
 
 	doFrame (m_Coord.X, m_Coord.Y, 55, 10, lpTitle, true);
 

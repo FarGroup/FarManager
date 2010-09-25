@@ -103,7 +103,7 @@ ArchiveModule::~ArchiveModule()
 
 ArchivePlugin* ArchiveModule::GetPlugin(const GUID& uid)
 {
-	for (int i = 0; i < m_pPlugins.count(); i++)
+	for (unsigned int i = 0; i < m_pPlugins.count(); i++)
 		if ( m_pPlugins[i]->GetUID() == uid )
 			return m_pPlugins[i];
 
@@ -117,7 +117,7 @@ Array<ArchivePlugin*>& ArchiveModule::GetPlugins()
 
 int ArchiveModule::GetPlugins(Array<ArchivePlugin*>& plugins)
 {
-	for (int i = 0; i < m_pPlugins.count(); i++)
+	for (unsigned int i = 0; i < m_pPlugins.count(); i++)
 		plugins.add(m_pPlugins[i]);
 
 	return 0;
@@ -126,7 +126,7 @@ int ArchiveModule::GetPlugins(Array<ArchivePlugin*>& plugins)
 
 int ArchiveModule::GetFormats(Array<ArchiveFormat*>& formats)
 {
-	for (int i = 0; i < m_pPlugins.count(); i++)
+	for (unsigned int i = 0; i < m_pPlugins.count(); i++)
 		m_pPlugins[i]->GetFormats(formats);
 
 	return 0;
@@ -388,7 +388,7 @@ bool ArchiveModule::StartOperation(
 		HANDLE hArchive,
 		int nOperation,
 		bool bInternal
-		)                                                     
+		)
 {
 	OperationStruct SOS;
 

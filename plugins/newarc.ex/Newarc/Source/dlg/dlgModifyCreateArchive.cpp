@@ -90,7 +90,7 @@ LONG_PTR __stdcall hndModifyCreateArchive (
 
 		pManager->GetFormats(formats);
 
-		for (int i = 0; i < formats.count(); i++)
+		for (unsigned int i = 0; i < formats.count(); i++)
 		{
 			ArchiveFormat* pFormat = formats[i];
 
@@ -104,7 +104,7 @@ LONG_PTR __stdcall hndModifyCreateArchive (
 			}
 		}
 
-		for (int i = 0; i < templates.count(); i++)
+		for (unsigned int i = 0; i < templates.count(); i++)
 			D->ListAddStr (7, templates[i]->GetName());
 
 		SetTemplate(D);

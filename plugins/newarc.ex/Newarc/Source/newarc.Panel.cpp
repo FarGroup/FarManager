@@ -94,7 +94,7 @@ int ArchivePanel::pGetFindData(
 
 				string strText;
 
-				for (int i = 0; i < m_pFormats.count(); i++)
+				for (unsigned int i = 0; i < m_pFormats.count(); i++)
 				{
 					const ArchiveFormat* pFormat = m_pFormats[i];
 
@@ -119,7 +119,7 @@ int ArchivePanel::pGetFindData(
 
 	if ( m_pArchive->WasUpdated() )
 	{
-		for (int i = 0; i < m_pArchiveFiles.count(); i++)
+		for (unsigned int i = 0; i < m_pArchiveFiles.count(); i++)
 			m_pArchive->FreeArchiveItem(&m_pArchiveFiles[i]);
 
 		m_pArchiveFiles.reset();
@@ -154,7 +154,7 @@ int ArchivePanel::pGetFindData(
 
 	bool bIsFolder;
 
-	for (int i = 0; i < m_pArchiveFiles.count(); i++)
+	for (unsigned int i = 0; i < m_pArchiveFiles.count(); i++)
 	{
 		ArchiveItem* pItem = &m_pArchiveFiles[i];
 
@@ -184,7 +184,7 @@ int ArchivePanel::pGetFindData(
 
 			bool bSkip = false;
 
-			for (int j = 0; j < pPanelItems.count(); j++)
+			for (unsigned int j = 0; j < pPanelItems.count(); j++)
 			{
 				PluginPanelItem* item = &pPanelItems[j];
 
@@ -355,7 +355,7 @@ void ArchivePanel::GetArchiveItemsToProcess (
 			strPath += FINDDATA_GET_NAME_PTR(data);
 			strPath += _T("\\");
 
-			for (int k = 0; k < m_pArchiveFiles.count(); k++)
+			for (unsigned int k = 0; k < m_pArchiveFiles.count(); k++)
 			{
 				ArchiveItem *src = &m_pArchiveFiles[k];
 
@@ -669,7 +669,7 @@ int ArchivePanel::pSetDirectory (
 		if ( nCurDirLength )
 			nCurDirLength++;
 
-		for (int i = 0; i < m_pArchiveFiles.count(); i++)
+		for (unsigned int i = 0; i < m_pArchiveFiles.count(); i++)
 		{
 			ArchiveItem *item = &m_pArchiveFiles[i];
 
@@ -703,7 +703,7 @@ int ArchivePanel::pSetDirectory (
 
 void ArchivePanel::pClosePlugin ()
 {
-	for (int i = 0; i < m_pArchiveFiles.count(); i++)
+	for (unsigned int i = 0; i < m_pArchiveFiles.count(); i++)
 		m_pArchive->FreeArchiveItem(&m_pArchiveFiles[i]);
 
 	if ( m_pArchive )
@@ -1009,7 +1009,7 @@ int ArchivePanel::OnProcessFile(ProcessFileStruct *pfs)
 
 	if ( m_OS.bFirstFile )
 	{
-		if ( !OptionIsOn (m_OS.nMode, OPM_SILENT) )
+		//if ( !OptionIsOn (m_OS.nMode, OPM_SILENT) )
 		{
 			if ( m_OS.nOperation == OPERATION_EXTRACT )
 				m_OS.Dlg.Show(_M(MProcessFileExtractionTitle)/*, _M(MProcessFileExtraction)*/);
@@ -1027,7 +1027,7 @@ int ArchivePanel::OnProcessFile(ProcessFileStruct *pfs)
 		m_OS.uTotalProcessedSize = 0;
 	}
 
-	if ( !OptionIsOn(m_OS.nMode, OPM_SILENT) )
+	//if ( !OptionIsOn(m_OS.nMode, OPM_SILENT) )
 	{
 		m_OS.Dlg.SetFileName(false, m_OS.pCurrentItem->lpFileName);
 
@@ -1068,6 +1068,8 @@ int ArchivePanel::OnProcessData(ProcessDataStruct* pDS)
 		div = 1;
 
 	m_OS.Dlg.SetIndicator(true, div);
+
+	Info.Text(0, 0, 0, 0);
 
 	if ( CheckForEsc () )
 	{
