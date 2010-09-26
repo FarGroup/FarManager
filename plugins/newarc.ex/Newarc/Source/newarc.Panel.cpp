@@ -5,7 +5,7 @@ bool IsFileInFolder(const TCHAR *lpCurrentPath, const TCHAR *lpFileName)
 	int nLength = StrLength(lpCurrentPath);
 
 	bool bResult = nLength && !_tcsncmp(lpCurrentPath, lpFileName, nLength); //вопрос, нужно ли здесь тоже игнорировать регистр
-	                                                  
+	
 	return bResult && ((
 			(lpFileName[nLength] == 0) || 
 			(lpFileName[nLength] == '/') || 
@@ -427,7 +427,7 @@ void ArchivePanel::GetPanelItemsToProcess(
 	m_OS.uTotalFiles = 0;
 	m_OS.uTotalSize = 0;
 
-	ScanStruct ss;       
+	ScanStruct ss;
 
 	ss.pOS = &m_OS;
 	ss.lpSourcePath = info.GetCurrentDirectory();

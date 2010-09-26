@@ -38,7 +38,6 @@ void ArchiveFilter::AddFilter(ArchiveFilterEntry* pFE)
 }
 
 
-
 int ArchiveFilter::GetFilters(Array<ArchiveFilterEntry*>& filters)
 {
 	for (int i = 0; i < m_pFilters.count(); i++)

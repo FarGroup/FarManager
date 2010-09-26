@@ -1,6 +1,7 @@
 [OPTIONS]
 Compatibility=1.1 or later
 Compiled file=newarc.chm
+Contents file=newarc.hhc
 Default Window=Navigation Pane
 Default topic=html\structures\ArchiveItem.html
 Display compile progress=No
@@ -9,7 +10,7 @@ Index file=newarc.hhk
 Language=0x419 Русский (Россия)
 
 [WINDOWS]
-Navigation Pane=,,"newarc.hhk","html\structures\ArchiveItem.html",,,,,,0x23420,,0x3006,,,,,,1,,0
+Navigation Pane=,"newarc.hhc","newarc.hhk","html\structures\ArchiveItem.html",,,,,,0x23420,,0x3006,,,,,,1,,0
 
 
 [FILES]
@@ -18,6 +19,7 @@ html\structures\ArchiveFormatInfo.html
 html\structures\ArchivePluginInfo.html
 html\structures\ArchiveModuleInfo.html
 html\structures\ArchiveModuleVersion.html
+html\structures\QueryArchiveStruct.html
 
 [INFOTYPES]
 

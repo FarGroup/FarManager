@@ -10,6 +10,13 @@
 #define MY_DEFINE_GUID(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
   MY_EXTERN_C const GUID name = { l, w1, w2, { b1, b2,  b3,  b4,  b5,  b6,  b7,  b8 } }
 
+/*
+#define RESULT_ERROR			0
+#define RESULT_SUCCESS			1
+#define RESULT_PARTIAL			2
+#define RESULT_CANCEL			3
+*/
+
 #define NAERROR_SUCCESS			0
 #define NAERROR_NOT_SUPPORTED	2
 #define NAERROR_NOTIMPLEMENTED NAERROR_NOT_SUPPORTED //to remove
@@ -208,9 +215,10 @@ struct QueryArchiveStruct {
 	GUID uidPlugin;
 
 	const TCHAR *lpFileName;
-	const unsigned char *pBuffer;
 
+	const unsigned char *pBuffer;
 	DWORD dwBufferSize;
+
 	DWORD dwFlags;
 
 	bool bResult;

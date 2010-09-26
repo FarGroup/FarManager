@@ -225,7 +225,7 @@ IInArchive* SevenZipArchive::GetArchive()
 
 SevenZipArchive::~SevenZipArchive()
 {
-	for (int i = 0; i < m_pArchiveInfo.count(); i++)
+	for (unsigned int i = 0; i < m_pArchiveInfo.count(); i++)
 	{
 		StrFree((void*)m_pArchiveInfo[i].lpName);
 		StrFree((void*)m_pArchiveInfo[i].lpValue);
@@ -599,7 +599,7 @@ bool SevenZipArchive::AddFiles(
 						}
 					}
 
-					if ( !FSF.LStricmp (strArchiveFileName, strCheckName) )
+					if ( !FSF.LStricmp(strArchiveFileName, strCheckName) ) //где-то тут бред
 					{
 						bFound = true;
 
@@ -648,7 +648,7 @@ bool SevenZipArchive::AddFiles(
 					const wchar_t** pNames = new const wchar_t*[properties.count()];
 					PROPVARIANT* pValues = new PROPVARIANT[properties.count()];
 
-					for (int i = 0; i < properties.count(); i++)
+					for (unsigned int i = 0; i < properties.count(); i++)
 					{
 						pNames[i] = properties[i]->GetName();
 						pValues[i] = properties[i]->GetValue();
@@ -662,50 +662,55 @@ bool SevenZipArchive::AddFiles(
 					if ( hr != S_OK )
 						__debug(_T("%d"), hr);
 				}
+				else 
+					bResult = false;
 
 				delete pCfg;
 			}
-
 					
 			setProperties->Release ();  //oops
 		}
-	
+
 		string strTempName;
 		CreateTempName (m_strFileName, strTempName);
 
-		TCHAR szPassword[512];
-		memset(szPassword, 0, 512);
-
-		OnPasswordOperation(PASSWORD_COMPRESSION, szPassword, 512);
-
-		COutFile* pFile = new COutFile(strTempName);
-
-		if ( pFile )
+		if ( bResult )
 		{
-			CArchiveUpdateCallback Callback(this, szPassword, &indicies, lpSourceDiskPath, lpPathInArchive);
 
-			if ( pFile->Open () )
+			TCHAR szPassword[512];
+			memset(szPassword, 0, 512);
+
+			OnPasswordOperation(PASSWORD_COMPRESSION, szPassword, 512);
+
+			COutFile* pFile = new COutFile(strTempName);
+
+			if ( pFile )
 			{
-				if ( outArchive->UpdateItems (
-						(ISequentialOutStream*)pFile,
-						indicies.count(),
-						&Callback
-						) == S_OK )
-					bResult = true;
-			}
+				CArchiveUpdateCallback Callback(this, szPassword, &indicies, lpSourceDiskPath, lpPathInArchive);
 
-			pFile->Release();
+				if ( pFile->Open () )
+				{
+					if ( outArchive->UpdateItems (
+							(ISequentialOutStream*)pFile,
+							indicies.count(),
+							&Callback
+							) == S_OK )
+						bResult = true;
+				}
+
+				pFile->Release();
+			}
 		}
 
-		outArchive->Release();
+		outArchive->Release(); //ниже не переносить!!
 
 		if ( bResult )
 		{
 			Close();
-			MoveFileEx (strTempName, m_strFileName, MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING);
+			MoveFileEx(strTempName, m_strFileName, MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING);
 		}
 		else
-			DeleteFile (strTempName);
+			DeleteFile(strTempName);
 
 	}
 

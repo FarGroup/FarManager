@@ -254,7 +254,7 @@ DWORD GetDefaultDictionarySize(int nMethod, int nLevel)
 	case kLZMA:
 	case kLZMA2:
 
-        if ( nLevel >= 9 )
+		if ( nLevel >= 9 )
 			dwDefaultSize = (1 << 26);
 		else
 		
@@ -275,22 +275,22 @@ DWORD GetDefaultDictionarySize(int nMethod, int nLevel)
 
 	case kPPMd:
 
-        if ( nLevel >= 9 )
+		if ( nLevel >= 9 )
 			dwDefaultSize = (192 << 20);
 		else 
 			
 		if ( nLevel >= 7 ) 
 			dwDefaultSize = (64 << 20);
-        else 
+		else 
 			
 		if ( nLevel >= 5 ) 
 			dwDefaultSize = (16 << 20);
-        else
+		else
 			dwDefaultSize = (4 << 20);
 
 		break;
 
-    case kDeflate:
+	case kDeflate:
 		dwDefaultSize = (32 << 10);
 		break;
 	
@@ -301,7 +301,7 @@ DWORD GetDefaultDictionarySize(int nMethod, int nLevel)
 	case kBZip2:
 		if ( nLevel >= 5 )
 			dwDefaultSize = (900 << 10);
-        else 
+		else 
 		
 		if ( nLevel >= 3 )
 			dwDefaultSize = (500 << 10);
@@ -320,17 +320,18 @@ void UpdateDictionarySize(FarDialog *D, int nMethod)
 	{
 		case kLZMA:
 		case kLZMA2:
-    	{
+		{
  			AddDictionarySize(D, 1 << 16);
 
 		  	for (int i = 20; i <= 30; i++)
 			{
-        		for (int j = 0; j < 2; j++)
-        		{
-          			if (i == 20 && j > 0)
-            			continue;
-    	      		DWORD dictionary = (1 << i) + (j << (i - 1));
-          		
+				for (int j = 0; j < 2; j++)
+				{
+					if (i == 20 && j > 0)
+						continue;
+
+					DWORD dictionary = (1 << i) + (j << (i - 1));
+
 					if (dictionary >
 #ifdef _WIN64
 						(1 << 30)
@@ -341,7 +342,7 @@ void UpdateDictionarySize(FarDialog *D, int nMethod)
 						continue;
 				
 					AddDictionarySize(D, dictionary);
-			  		///check max ram usage as 7z
+					///check max ram usage as 7z
 				}
 			}
 
@@ -349,7 +350,7 @@ void UpdateDictionarySize(FarDialog *D, int nMethod)
 		}
 
 		case kPPMd:
-    	{
+		{
 			for (int i = 20; i < 31; i++)
 			{
 				for (int j = 0; j < 2; j++)
@@ -367,30 +368,30 @@ void UpdateDictionarySize(FarDialog *D, int nMethod)
 			}
 
 			break;
-    	}
+		}
 
-    	case kDeflate:
+		case kDeflate:
 		{
 			AddDictionarySize(D, 32 << 10);
 			break;
-    	}
+		}
 
-    	case kDeflate64:
-    	{
+		case kDeflate64:
+		{
 			AddDictionarySize(D, 64 << 10);
 			break;
-    	}
+		}
 
-    	case kBZip2:
-    	{
+		case kBZip2:
+		{
 			for (int i = 1; i <= 9; i++)
 			{
 				DWORD dictionary = (i * 100) << 10;
 				AddDictionarySize(D, dictionary);
 			}
 			break;
-    	}
-  	}
+		}
+	}
 }
 
 LONG_PTR __stdcall hndConfigureFormat(FarDialog* D, int nMsg, int Param1, LONG_PTR Param2)
@@ -428,7 +429,7 @@ LONG_PTR __stdcall hndConfigureFormat(FarDialog* D, int nMsg, int Param1, LONG_P
 			D->ListGetCurrentPos(8, &pos);
 			pCfg->uDictionarySize = (unsigned int)D->ListGetData(8, pos.SelectPos);
 
-			return TRUE;			
+			return TRUE;
 		}
 	}
 

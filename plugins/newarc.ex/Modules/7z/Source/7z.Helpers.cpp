@@ -102,7 +102,7 @@ HRESULT CArchiveExtractCallback::SetCompleted(const unsigned __int64* completeVa
 
 
 
-int GetItemIndex (CArchiveExtractCallback *pcb, int index)
+int GetItemIndex(CArchiveExtractCallback *pcb, int index)
 {
 	for (int i = 0; i < pcb->m_nItemsNumber; i++)
 	{
@@ -236,7 +236,7 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream(
 				*outStream = file;
 			}
 			else
-                delete file;
+				delete file;
 		}
 	}
 	else
@@ -252,10 +252,29 @@ HRESULT __stdcall CArchiveExtractCallback::PrepareOperation(int askExtractMode)
 
 HRESULT __stdcall CArchiveExtractCallback::SetOperationResult(int resultEOperationResult)
 {
+	FarMessage msg(FMSG_WARNING);
+
 	switch( resultEOperationResult )
 	{
+		case NArchive::NExtract::NOperationResult::kDataError:
+
+			//remove to callback if possible
+			msg.Add(_T("File data error"));
+			msg.AddButton(_T("Ok"));
+
+			msg.Run();
+
+			return S_OK;
+
 		case NArchive::NExtract::NOperationResult::kCRCError:
 			m_pArchive->OnPasswordOperation(PASSWORD_RESET, NULL, 0);
+
+			//remove to callback if possible
+			msg.Add(_T("File CRC error"));
+			msg.AddButton(_T("Ok"));
+
+			msg.Run();
+			
 			return E_FAIL;
 	}
 
@@ -314,7 +333,6 @@ HRESULT __stdcall CCryptoGetTextPassword::CryptoGetTextPassword(BSTR *password)
 	if ( m_pArchive->OnPasswordOperation(PASSWORD_FILE, szPassword, 512) ) //not that good
 	{
 		string strPassword = szPassword;
-
 		*password = strPassword.ToBSTR();
 	}
 
@@ -456,14 +474,14 @@ HRESULT __stdcall CArchiveOpenCallback::SetCompleted(const UInt64 *files, const 
 
 		strFileCount.Format(_T("%I64u файлов"), *files);
 
-	   	message.Add(_T("Подождите"));
-   		message.Add(_T("Чтение архива [7z.all]"));
+		message.Add(_T("Подождите"));
+		message.Add(_T("Чтение архива [7z.all]"));
 		message.Add(m_pArchive->GetFileName());
-	   	message.Add(strFileCount);
+		message.Add(strFileCount);
 
-	   	message.Run();
+		message.Run();
 
-	   	m_bProgressMessage = true;
+		m_bProgressMessage = true;
 	}
 
 	return S_OK;
@@ -815,23 +833,23 @@ HRESULT __stdcall CArchiveUpdateCallback::GetStream(unsigned int index, ISequent
 	return S_OK;
 }
 
-HRESULT __stdcall CArchiveUpdateCallback::SetOperationResult (int operationResult)
+HRESULT __stdcall CArchiveUpdateCallback::SetOperationResult(int operationResult)
 {
 	return S_OK;
 }
 
-HRESULT __stdcall CArchiveUpdateCallback::GetVolumeSize (unsigned int index, unsigned __int64 *size)
+HRESULT __stdcall CArchiveUpdateCallback::GetVolumeSize(unsigned int index, unsigned __int64 *size)
 {
 	return S_OK;
 }
 
-HRESULT __stdcall CArchiveUpdateCallback::GetVolumeStream (unsigned int index, ISequentialOutStream **volumeStream)
+HRESULT __stdcall CArchiveUpdateCallback::GetVolumeStream(unsigned int index, ISequentialOutStream **volumeStream)
 {
 	return S_OK;
 }
 
 
-HRESULT __stdcall CArchiveUpdateCallback::CryptoGetTextPassword2 (int *passwordIsDefined, BSTR *password)
+HRESULT __stdcall CArchiveUpdateCallback::CryptoGetTextPassword2(int *passwordIsDefined, BSTR *password)
 {
 	if ( passwordIsDefined )
 		*passwordIsDefined = !m_strPassword.IsEmpty();

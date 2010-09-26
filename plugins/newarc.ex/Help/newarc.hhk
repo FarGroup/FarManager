@@ -30,5 +30,10 @@
 		<param name="Name" value="ArchiveModuleVersion">
 		<param name="Local" value="html\structures\ArchiveModuleVersion.html">
 		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="QueryArchiveStruct">
+		<param name="Name" value="QueryArchiveStruct">
+		<param name="Local" value="html\structures\QueryArchiveStruct.html">
+		</OBJECT>
 </UL>
 </BODY></HTML>
