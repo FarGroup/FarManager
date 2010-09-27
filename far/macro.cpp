@@ -265,7 +265,6 @@ TMacroKeywords MKeywordsFlags[] =
 	{1,  L"PSelection",         MFLAGS_PSELECTION,0},
 	{1,  L"NoPSelection",       MFLAGS_PNOSELECTION,0},
 
-	{1,  L"ReuseMacro",         MFLAGS_REUSEMACRO,0},
 	{1,  L"NoSendKeysToPlugins",MFLAGS_NOSENDKEYSTOPLUGINS,0},
 };
 
@@ -3975,7 +3974,15 @@ done:
 
 					break;
 				}
-				//
+
+				case 2: // Get MacroRecord Flags
+				{
+					Result=(__int64)MR->Flags;
+					if ((Result&MFLAGS_MODEMASK) == MACRO_COMMON)
+						Result|=0x00FF; // ...что бы Common был всегда последним.
+					break;
+				}
+
 			}
 
 			VMStack.Push(Result);
@@ -5258,8 +5265,6 @@ void KeyMacro::RunStartMacro()
 	if (IsRunStartMacro)
 		return;
 
-	IsRunStartMacro=TRUE;
-
 	if (!IndexMode[MACRO_SHELL][1])
 		return;
 
@@ -5279,6 +5284,8 @@ void KeyMacro::RunStartMacro()
 				PostNewMacro(MR+I);
 		}
 	}
+
+	IsRunStartMacro=TRUE;
 
 #else
 	static int AutoRunMacroStarted=FALSE;
