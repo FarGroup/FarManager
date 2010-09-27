@@ -3,6 +3,64 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 27.09.2010 16:59:30 +0300 - build 1682
+
+1. Mantis#0001512: auto-starting macros did not work
+
+2. Macro: mmode(2) - returns information (macro area and flags) on starting conditions 
+   for "this" macro sequence (being executed).
+   The lower byte of the return code is the macro area index from which the macro has started:
+
+         0 - Other           -  Text copying mode from screen, vertical menus
+         1 - Shell           -  File panels
+         2 - Viewer          -  Inner viewer
+         3 - Editor          -  Editor
+         4 - Dialog          -  Dialogs
+         5 - Search          -  Quick search in panels
+         6 - Disks           -  Drive selection menu
+         7 - MainMenu        -  Main menu
+         8 - Menu            -  Other menus
+         9 - Help            -  Help system
+        10 - Info            -  Info panel
+        11 - QView           -  Quick view panel
+        12 - Tree            -  Folder tree panel
+        13 - FindFolder      -  Folder search
+        14 - UserMenu        -  User menu
+        15 - AutoCompletion  -  AutoCompletion list
+       255 - Common          -  Common area
+
+    Other values are the start conditions flags (including some service flags)
+
+       Start conditions:
+         0x00000200 - do NOT pass keys to plugins while recording/playing a macro
+         0x00000800 - the macro is started at FAR start
+         0x00001000 - run if the command line is empty
+         0x00002000 - run if the command line is not empty
+         0x00004000 - run if selection is present in editor
+         0x00008000 - run if no selection is present in editor
+         0x00010000 - active:  run if selection is present
+         0x00020000 - passive: run if selection is present
+         0x00040000 - active:  run if no selection is present
+         0x00080000 - passive: run if no selection is present
+         0x00100000 - active:  run if there is a plugin panel
+         0x00200000 - passive: run if there is a plugin panel
+         0x00400000 - active:  run if there is a file panel
+         0x00800000 - passive: run if there is a file panel
+         0x01000000 - active:  run if current object is "file"
+         0x02000000 - passive: run if current object is "file"
+         0x04000000 - active:  run if current object is "directory"
+         0x08000000 - passive: run if current object is "directory"
+                                                                                              
+       Additional information:
+         0x00000100 - suppress screen redraw while running the macro
+         0x10000000 - multi-line text of the macro (REG_MULTI_SZ)
+         0x40000000 - the macro must be saved when saving macros
+         0x80000000 - the macro is switched off (macros marked with this flag are not run - neither from a keyboard, nor from eval())
+
+       TODO: last 2 flags can be done without ReadOnly limitation
+
+    Also, MACROFLAGS_MFLAGS values are rearranged, unused MFLAGS_REUSEMACRO is removed.
+
 svs 23.09.2010 00:26:57 +0300 - build 1681
 
 1. Mantis#0001508: Far crash when executing a macro on a slowly refreshing panel
@@ -32,7 +90,7 @@ warp 21.09.2010 00:15:00 +0100 build 1679
 
 1. Experimental. The support of detection is added for BD-ROM (it was buggy), BD-RW, HDDVD, HDDVD-RW.
 
-2. Removed function which did drive type detection based on disk format. This is a sort of black magic.
+2. Removed function which did drive type detection based on removable media format. This was a sort of black magic.
 
 drkns 18.09.2010 19:11:51 +0200 - build 1678
 
