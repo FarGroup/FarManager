@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 28.09.2010 13:47:00 +0200 - build 1683
+
+1. Editor hotkey F4 which performs "exit", similar to viewer.
+
+2. A couple of things regarding to elevation.
+
 svs 27.09.2010 16:59:30 +0300 - build 1682
 
 1. Mantis#0001512: auto-starting macros did not work
