@@ -2651,7 +2651,7 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
    #Alt-F8#                  ~Go to~@EditorGotoPos@ specified line and column
    #Alt-F9#                  Toggles the size of the FAR console window
    #Alt-Shift-F9#            Call ~Editor settings~@EditorSettings@ dialog
-   #F10, Esc#                Quit
+   #F10, F4, Esc#            Quit
    #Shift-F10#               Save and quit
    #Ctrl-F10#                Position to the current file
    #F11#                     Call "~Plugin commands~@Plugins@" menu
