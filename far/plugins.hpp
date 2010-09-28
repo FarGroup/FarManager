@@ -136,7 +136,7 @@ enum PLUGINSETFLAGS
 {
 	PSIF_ENTERTOOPENPLUGIN        = 0x00000001, // ввалились в плагин OpenPlugin
 	PSIF_DIALOG                   = 0x00000002, // была бадяга с диалогом
-	PSIF_PLUGINSLOADDED           = 0x80000000, // пагины загружены
+	PSIF_PLUGINSLOADDED           = 0x80000000, // плагины загружены
 };
 
 struct PluginHandle

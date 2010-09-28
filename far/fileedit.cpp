@@ -678,6 +678,8 @@ void FileEditor::Init(
 	MacroMode=MACRO_EDITOR;
 	CtrlObject->Macro.SetMode(MACRO_EDITOR);
 
+	F4KeyOnly=true;
+
 	if (Flags.Check(FFILEEDIT_ENABLEF6))
 		FrameManager->InsertFrame(this);
 	else
@@ -807,6 +809,9 @@ int FileEditor::ProcessKey(int Key)
 
 int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 {
+	if (Key!=KEY_F4 && Key!=KEY_IDLE)
+		F4KeyOnly=false;
+
 	DWORD FNAttr;
 
 	if (Flags.Check(FFILEEDIT_REDRAWTITLE) && (((unsigned int)Key & 0x00ffffff) < KEY_END_FKEY || IS_INTERNAL_KEY_REAL((unsigned int)Key & 0x00ffffff)))
@@ -1204,6 +1209,9 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				if (!ProcessKey(KEY_F2)) // учтем факт того, что могли отказаться от сохранения
 					return FALSE;
 
+			case KEY_F4:
+				if (F4KeyOnly)
+					return TRUE;
 			case KEY_ESC:
 			case KEY_F10:
 			{

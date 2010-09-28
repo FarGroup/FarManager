@@ -111,6 +111,7 @@ class FileEditor : public Frame
 		Editor *m_editor;
 		KeyBar EditKeyBar;
 		NamesList *EditNamesList;
+		bool F4KeyOnly;
 		string strFileName;
 		string strFullFileName;
 		string strStartDir;

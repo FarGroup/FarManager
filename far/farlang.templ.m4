@@ -4362,13 +4362,13 @@ MEditF3
 ""
 
 MEditF4
-""
-""
-""
-""
-""
-""
-""
+"Выход"
+"Quit"
+"Konec"
+"Ende"
+"Kilép"
+"Koniec"
+"Salir"
 
 MEditF5
 ""
@@ -5253,13 +5253,13 @@ MSingleEditF3
 ""
 
 MSingleEditF4
-""
-""
-""
-""
-""
-""
-""
+"Выход"
+"Quit"
+"Konec"
+"Ende"
+"Kilép"
+"Koniec"
+"Salir"
 
 MSingleEditF5
 ""

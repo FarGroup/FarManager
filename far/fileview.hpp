@@ -45,7 +45,7 @@ class FileViewer:public Frame
 		Viewer View;
 		int RedrawTitle;
 		KeyBar ViewKeyBar;
-		int F3KeyOnly;
+		bool F3KeyOnly;
 		int FullScreen;
 		int DisableEdit;
 		int DisableHistory;

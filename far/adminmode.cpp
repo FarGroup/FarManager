@@ -270,9 +270,7 @@ bool AdminMode::Initialize()
 	{
 		if(Process)
 		{
-			DWORD ExitCode = 0;
-			GetExitCodeProcess(Process, &ExitCode);
-			if(ExitCode == STILL_ACTIVE)
+			if(WaitForSingleObject(Process, 0) == WAIT_TIMEOUT)
 			{
 				Result = true;
 			}
@@ -305,7 +303,7 @@ bool AdminMode::Initialize()
 				Event AEvent;
 				Overlapped.hEvent = AEvent.Handle();
 				ConnectNamedPipe(Pipe, &Overlapped);
-				if(AEvent.Wait(5000))
+				if(AEvent.Wait(15000))
 				{
 					DWORD NumberOfBytesTransferred;
 					if(GetOverlappedResult(Pipe, &Overlapped, &NumberOfBytesTransferred, FALSE))
@@ -318,9 +316,7 @@ bool AdminMode::Initialize()
 				}
 				if(!Result)
 				{
-					DWORD ExitCode = 0;
-					GetExitCodeProcess(Process, &ExitCode);
-					if(ExitCode == STILL_ACTIVE)
+					if(WaitForSingleObject(Process, 0) == WAIT_TIMEOUT)
 					{
 						TerminateProcess(Process, 0);
 						CloseHandle(Process);

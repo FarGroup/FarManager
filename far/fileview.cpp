@@ -145,7 +145,7 @@ void FileViewer::Init(const wchar_t *name,int EnableSwitch,int disableHistory, /
 		ViewKeyBar.Hide0();
 
 	ShowConsoleTitle();
-	F3KeyOnly=TRUE;
+	F3KeyOnly=true;
 
 	if (EnableSwitch)
 	{
@@ -222,8 +222,8 @@ int FileViewer::ProcessKey(int Key)
 	if (RedrawTitle && (((unsigned int)Key & 0x00ffffff) < KEY_END_FKEY || IS_INTERNAL_KEY_REAL((unsigned int)Key & 0x00ffffff)))
 		ShowConsoleTitle();
 
-	if (Key!=KEY_F3 && !(Key==KEY_NUMPAD5||Key==KEY_SHIFTNUMPAD5))
-		F3KeyOnly=FALSE;
+	if (Key!=KEY_F3 && Key!=KEY_IDLE)
+		F3KeyOnly=false;
 
 	switch (Key)
 	{
@@ -385,8 +385,6 @@ int FileViewer::ProcessKey(int Key)
 
 int FileViewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
-	F3KeyOnly=FALSE;
-
 	if (!View.ProcessMouse(MouseEvent))
 		if (!ViewKeyBar.ProcessMouse(MouseEvent))
 			return FALSE;
