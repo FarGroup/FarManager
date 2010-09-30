@@ -1012,18 +1012,8 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 		if (Res == STATUS_SUCCESS)
 		{
 			// simple way to handle network paths
-			const wchar_t* cLanMan = L"\\Device\\LanmanRedirector";
-			const wchar_t* cWinDfs = L"\\Device\\WinDfs";
-			const wchar_t* LanDev;
-			if (NtPath.Equal(0, cLanMan))
-				LanDev = cLanMan;
-			else if (NtPath.Equal(0, cWinDfs))
-				LanDev = cWinDfs;
-			else
-				LanDev = nullptr;
-
-			if (LanDev)
-				FinalFilePath = NtPath.Replace(0, wcslen(LanDev), L'\\');
+			if (NtPath.Equal(0, L"\\Device\\LanmanRedirector"))
+				FinalFilePath = NtPath.Replace(0, 24, L'\\');
 
 			if (FinalFilePath.IsEmpty())
 			{
@@ -1042,7 +1032,10 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 
 						if (Len)
 						{
-							FinalFilePath = NtPath.Replace(0, Len, DiskName);
+							if (NtPath.Equal(0, L"\\Device\\WinDfs"))
+								FinalFilePath = NtPath.Replace(0, Len, L'\\');
+							else
+								FinalFilePath = NtPath.Replace(0, Len, DiskName);
 							break;
 						}
 

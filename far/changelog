@@ -1,3 +1,7 @@
+chupakabra 30.09.2010 21:33:00 +0200 - build 1685
+
+1. Поправка для 1684
+
 chupakabra 30.09.2010 21:16:00 +0200 - build 1684
 
 1. Mantis#0001514: Некорректная работа ConvertPath(CPM_REAL, ...) на DFS
