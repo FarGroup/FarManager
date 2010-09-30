@@ -1,3 +1,8 @@
+chupakabra 30.09.2010 21:16:00 +0200 - build 1684
+
+1. Mantis#0001514: Некорректная работа ConvertPath(CPM_REAL, ...) на DFS
+   В internalNtQueryGetFinalPathNameByHandle() добавлена простая обработка сетевых путей.
+
 drkns 28.09.2010 13:47:00 +0200 - build 1683
 
 1. Хоткей для редактора F4 == "выход", по аналогии с вьювером.

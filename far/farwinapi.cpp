@@ -1011,26 +1011,43 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 
 		if (Res == STATUS_SUCCESS)
 		{
-			// try to convert NT path (\Device\HarddiskVolume1) to drive letter
-			string DriveStrings;
+			// simple way to handle network paths
+			const wchar_t* cLanMan = L"\\Device\\LanmanRedirector";
+			const wchar_t* cWinDfs = L"\\Device\\WinDfs";
+			const wchar_t* LanDev;
+			if (NtPath.Equal(0, cLanMan))
+				LanDev = cLanMan;
+			else if (NtPath.Equal(0, cWinDfs))
+				LanDev = cWinDfs;
+			else
+				LanDev = nullptr;
 
-			if (apiGetLogicalDriveStrings(DriveStrings))
+			if (LanDev)
+				FinalFilePath = NtPath.Replace(0, wcslen(LanDev), L'\\');
+
+			if (FinalFilePath.IsEmpty())
 			{
-				wchar_t DiskName[3] = L"A:";
-				const wchar_t* Drive = DriveStrings.CPtr();
+				// try to convert NT path (\Device\HarddiskVolume1) to drive letter
+				string DriveStrings;
 
-				while (*Drive)
+				if (apiGetLogicalDriveStrings(DriveStrings))
 				{
-					DiskName[0] = *Drive;
-					int Len = MatchNtPathRoot(NtPath, DiskName);
+					wchar_t DiskName[3] = L"A:";
+					const wchar_t* Drive = DriveStrings.CPtr();
 
-					if (Len)
+					while (*Drive)
 					{
-						FinalFilePath = NtPath.Replace(0, Len, DiskName);
-						break;
-					}
+						DiskName[0] = *Drive;
+						int Len = MatchNtPathRoot(NtPath, DiskName);
 
-					Drive += StrLength(Drive) + 1;
+						if (Len)
+						{
+							FinalFilePath = NtPath.Replace(0, Len, DiskName);
+							break;
+						}
+
+						Drive += StrLength(Drive) + 1;
+					}
 				}
 			}
 
