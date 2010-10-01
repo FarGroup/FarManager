@@ -574,7 +574,7 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 				{
 					wchar_t *Dst=Src;
 
-					for (wchar_t c=*Src;; Src++,c=*Src)
+					for (wchar_t c=*Src; ; Src++,c=*Src)
 					{
 						if (!c || IsSlash(c))
 						{
@@ -592,7 +592,7 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 								{
 									size_t dSrc=Src-lpwszPath,dDst=Dst-lpwszPath;
 									strPath.ReleaseBuffer(FullLen);
-									lpwszPath=strPath.GetBuffer(int(FullLen+n1+1));
+									lpwszPath=strPath.GetBuffer(FullLen+n1+1);
 									Src=lpwszPath+dSrc;
 									Dst=lpwszPath+dDst;
 								}
@@ -609,8 +609,7 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 
 							if (c)
 							{
-								Src++;
-								Dst=Src;
+								Dst=Src+1;
 							}
 						}
 
