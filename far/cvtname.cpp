@@ -559,7 +559,8 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 			if (CheckFullPath)
 			{
 				ConvertNameToFull(strPath,strPath);
-				wchar_t *lpwszPath=strPath.GetBuffer(),*Src=lpwszPath,*Dst=lpwszPath;
+				size_t FullLen=strPath.GetLength();
+				wchar_t *lpwszPath=strPath.GetBuffer(),*Src=lpwszPath;
 
 				if (IsLocalPath(lpwszPath))
 				{
@@ -567,18 +568,15 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 
 					if (IsSlash(*Src))
 						Src++;
-
-					Dst+=2;
-
-					if (IsSlash(*Dst))
-						Dst++;
 				}
 
 				if (*Src)
 				{
+					wchar_t *Dst=Src;
+
 					for (wchar_t c=*Src;; Src++,c=*Src)
 					{
-						if (!c||IsSlash(c))
+						if (!c || IsSlash(c))
 						{
 							*Src=0;
 							FAR_FIND_DATA_EX fd;
@@ -588,36 +586,31 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 							if (find)
 							{
 								size_t n=fd.strFileName.GetLength();
-								size_t n1 = n-(Src-Dst);
+								int n1=(int)(n-(Src-Dst));
 
-								if ((int)n1>0)
+								if (n1>0)
 								{
 									size_t dSrc=Src-lpwszPath,dDst=Dst-lpwszPath;
-									strPath.ReleaseBuffer();
-									lpwszPath=strPath.GetBuffer(int(strPath.GetLength()+n1));
+									strPath.ReleaseBuffer(FullLen);
+									lpwszPath=strPath.GetBuffer(int(FullLen+n1+1));
 									Src=lpwszPath+dSrc;
 									Dst=lpwszPath+dDst;
-									wmemmove(Src+n1,Src,StrLength(Src)+1);
+								}
+
+								if (n1)
+								{
+									wmemmove(Src+n1,Src,FullLen-(Src-lpwszPath)+1);
 									Src+=n1;
+									FullLen+=n1;
 								}
 
-								wcsncpy(Dst,fd.strFileName,n);
-								Dst+=n;
-								wcscpy(Dst,Src);
-
-								if (c)
-								{
-									Dst++;
-									Src=Dst;
-								}
+								wmemcpy(Dst,fd.strFileName,n);
 							}
-							else
+
+							if (c)
 							{
-								if (c)
-								{
-									Src++;
-									Dst=Src;
-								}
+								Src++;
+								Dst=Src;
 							}
 						}
 
@@ -626,7 +619,7 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 					}
 				}
 
-				strPath.ReleaseBuffer();
+				strPath.ReleaseBuffer(FullLen);
 			}
 
 			wchar_t *lpwszPath = strPath.GetBuffer();
@@ -653,7 +646,7 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 				lpwszPath[0]=Upper(lpwszPath[0]);
 			}
 
-			strPath.ReleaseBuffer();
+			strPath.ReleaseBuffer(strPath.GetLength());
 		}
 	}
 
