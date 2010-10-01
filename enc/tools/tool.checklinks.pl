@@ -2,50 +2,46 @@
 
 #######################################
 # проверяет ссылки по всем html-ям
+use strict;
 
-$toolpath           = "";
+my $toolpath = "";
 if($^O eq "MSWin32"){
   $toolpath="./tools/";
 }
 
-$dir = "../enc_rus/meta";
-srch($dir);
-
-$dir = "../enc_eng/meta";
-srch($dir);
-
-$dir = "../enc_rus2/meta";
-srch($dir);
+my @dirs=("../enc_rus/meta","../enc_eng/meta","../enc_rus2/meta");
+foreach my $dir (@dirs) {
+  srch($dir);
+}
 
 #$dir = "../enc_eng2/meta";
 #srch($dir);
 
 sub srch
 {
- local($dr1) = @_[0];
- local($dr)=$dr1."/";
+ my $dr1 = shift;
+ my $dr=$dr1."/";
  #printf "$dr1\n";
- $ls=$toolpath."ls --ignore=.svn ".$dr1;
- foreach(`$ls`){
-   chomp;
-   if (-d $dr.$_){
-     srch("$dr$_");
-   }
-   if (/\.html$/){
-     $fn = $_;
-     open F, $dr.$_;
-     @FData = <F>;
-     close F;
-     foreach(@FData){
+ my $ls=$toolpath."ls --ignore=.svn ".$dr1;
+ foreach my $fn (`$ls`){
+   chomp($fn);
+   my $ffn=$dr.$fn;
+   if (-d $ffn) {
+     srch($ffn);
+   } elsif ($fn=~/\.html$/) {
+     open my $f, '<', $ffn;
+     my @FData = <$f>;
+     close $f;
+     foreach (@FData) {
        if (/(href|src)=["'] ([^\'\"\#]+?) [\'\"\#]/xi){
-         $ff = $2;
+         my $ff = $2;
          unless($ff=~/http|mailto|ftp|news/ || -r $dr.$ff){
            if(!($ff =~ /win32\//)){
-             print "! $dr$fn - $ff\n";
-           };
-         };
-       };
-     };
-   };
- };
-};
+             print "! $ffn - $ff\n";
+           }
+         }
+       }
+     }
+   }
+ }
+}
