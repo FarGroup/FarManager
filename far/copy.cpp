@@ -2450,7 +2450,11 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 			if (RPT!=RP_SYMLINKFILE && SrcData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
 			{
-				while (!apiCreateDirectoryEx(Src,strDestPath,(Flags&FCOPY_COPYSECURITY) ? &sa:nullptr))
+				while (!apiCreateDirectoryEx(
+					// CreateDirectoryEx preserves reparse points,
+					// so we shouldn't use template when copying with content
+					((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (Flags&FCOPY_COPYSYMLINKCONTENTS))? nullptr : Src,
+					strDestPath,(Flags&FCOPY_COPYSECURITY) ? &sa:nullptr))
 				{
 					int MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
 					                MSG(MCopyCannotCreateFolder),strDestPath,MSG(MCopyRetry),
@@ -2545,14 +2549,12 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				}
 			}
 
-			// для источника, имеющего суть симлинка - создадим симлинк
-			// Если [ ] Copy contents of symbolic links
-			if (SrcData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT && !(Flags&FCOPY_COPYSYMLINKCONTENTS) && RPT==RP_EXACTCOPY)
+			// [ ] Copy contents of symbolic links
+			// For file symbolic links only!!!
+			// Directory symbolic links and junction points are handled by CreateDirectoryEx.
+			if (!(SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && SrcData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT && !(Flags&FCOPY_COPYSYMLINKCONTENTS) && RPT==RP_EXACTCOPY)
 			{
-				string strSrcRealName;
-				ConvertNameToFull(Src,strSrcRealName);
-
-				switch (MkSymLink(strSrcRealName, strDestPath,RPT,0))
+				switch (MkSymLink(Src, strDestPath,RPT,0))
 				{
 					case 2:
 						return COPY_CANCEL;
