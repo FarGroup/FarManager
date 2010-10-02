@@ -1234,10 +1234,10 @@ bool AdminMode::fSetFilePointerEx(HANDLE Handle, INT64 DistanceToMove, PINT64 Ne
 										*NewFilePointer = NewPtr;
 									}
 								}
-								if(ReceiveLastError())
-								{
-									Result = OpResult != FALSE;
-								}
+							}
+							if(ReceiveLastError())
+							{
+								Result = OpResult != FALSE;
 							}
 						}
 					}

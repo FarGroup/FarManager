@@ -1,3 +1,7 @@
+drkns 03.10.2010 00:28:13 +0200 - build 1690
+
+1. Ошибка в обработке elevation-варианта SetFilePointerEx.
+
 drkns 02.10.2010 23:36:23 +0200 - build 1689
 
 1. Mantis#0001525: Copy folders with symbolic links (to other folders) inside
