@@ -3,6 +3,38 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 03.10.2010 00:28:13 +0200 - build 1690
+
+1. Error in processing of SetFilePointerEx "elevation-aware" version.
+
+drkns 02.10.2010 23:36:23 +0200 - build 1689
+
+1. Mantis#0001525: Copy folders with symbolic links (to other folders) inside
+
+t-rex 01.10.2010 20:30:56 +0200 - build 1688
+
+1. Mantis#1522: Excessive slash in panel caption.
+   The bug has slightly another nature. Of course, we can process (delete) these slashes but it is pointless,
+   and the bug is exactly about some of them have been deleted.
+
+t-rex 01.10.2010 08:21:10 +0200 - build 1687
+
+1. Mantis#1520: crash on cd %tmp%
+   Heap corruption in PrepareDiskPath(). Ibid, slight optimization is done.
+
+t-rex 01.10.2010 04:17:16 +0200 - build 1686
+
+1. In case of "preloaded" plugin requiring newer FAR (GetMinFarVersion), a loading error message was shown twice.
+
+chupakabra 30.09.2010 21:33:00 +0200 - build 1685
+
+1. Fix for 1684
+
+chupakabra 30.09.2010 21:16:00 +0200 - build 1684
+
+1. Mantis#0001514: Incorrect ConvertPath(CPM_REAL, ...) functionality on DFS
+   Simple processing of network paths is added to internalNtQueryGetFinalPathNameByHandle().
+
 drkns 28.09.2010 13:47:00 +0200 - build 1683
 
 1. Editor hotkey F4 which performs "exit", similar to viewer.
