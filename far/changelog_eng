@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 03.10.2010 14:28:31 +0200 - build 1691
+
+1. Correction of 1683.
+
 drkns 03.10.2010 00:28:13 +0200 - build 1690
 
 1. Error in processing of SetFilePointerEx "elevation-aware" version.
@@ -14,7 +18,7 @@ drkns 02.10.2010 23:36:23 +0200 - build 1689
 t-rex 01.10.2010 20:30:56 +0200 - build 1688
 
 1. Mantis#1522: Excessive slash in panel caption.
-   The bug has slightly another nature. Of course, we can process (delete) these slashes but it is pointless,
+   The bug has slightly another nature. Of course, we can process (delete) these slashes but this is pointless,
    and the bug is exactly about some of them have been deleted.
 
 t-rex 01.10.2010 08:21:10 +0200 - build 1687
