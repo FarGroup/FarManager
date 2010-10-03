@@ -385,6 +385,7 @@ int FileViewer::ProcessKey(int Key)
 
 int FileViewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
+	F3KeyOnly = false;
 	if (!View.ProcessMouse(MouseEvent))
 		if (!ViewKeyBar.ProcessMouse(MouseEvent))
 			return FALSE;

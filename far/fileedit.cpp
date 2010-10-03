@@ -2048,6 +2048,7 @@ end:
 
 int FileEditor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
+	F4KeyOnly = false;
 	if (!EditKeyBar.ProcessMouse(MouseEvent))
 		if (!ProcessEditorInput(FrameManager->GetLastInputRecord()))
 			if (!m_editor->ProcessMouse(MouseEvent))
