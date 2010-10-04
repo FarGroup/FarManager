@@ -4,7 +4,7 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Product Id="*" Language="!(loc.Language)" Codepage="1252" Name="$(var.Product)" Version="$(var.Version)" Manufacturer="$(var.Manufacturer)" UpgradeCode="$(var.Guid.UpgradeCode)">
     <Package Id="*" Platform="$(var.Platform)" Compressed="yes" Manufacturer="$(var.Manufacturer)" Description="$(var.Product) $(var.Version)" InstallerVersion="200" SummaryCodepage="!(loc.Codepage)" />
-    <Property Id="INSTALLDIR">
+    <Property Id="MACHINEINSTALLDIR">
       <RegistrySearch Id="InstallDir" Root="HKLM" Key="Software\$(var.RegKey)" Name="$(var.InstallDir)" Type="directory" Win64="$(var.Win64)" />
     </Property>
     <Property Id="USERINSTALLDIR">
@@ -30,7 +30,10 @@
     <CustomAction Id="SetARPINSTALLLOCATION" Property="ARPINSTALLLOCATION" Value="[INSTALLDIR]" />
     <CustomAction Id="SetUserInstallScope" Property="InstallScope" Value="User" Execute="firstSequence" />
     <CustomAction Id="SetUserInstallDir" Property="INSTALLDIR" Value="[USERINSTALLDIR]" Execute="firstSequence" />
-    <CustomAction Id="SetALLUSERS" Property="ALLUSERS" Value="" Execute="firstSequence" />
+    <CustomAction Id="SetMachineInstallDir" Property="INSTALLDIR" Value="[MACHINEINSTALLDIR]" Execute="firstSequence" />
+    <CustomAction Id="SetInstallPath" Property="INSTALLDIR" Value="[INSTALLPATH]" Execute="firstSequence" />
+    <CustomAction Id="ResetALLUSERS" Property="ALLUSERS" Value="" Execute="firstSequence" />
+    <CustomAction Id="SetALLUSERS1" Property="ALLUSERS" Value="1" Execute="firstSequence" />
     <CustomAction Id="SetALLUSERS2" Property="ALLUSERS" Value="2" Execute="firstSequence" />
     <CustomAction Id="SetMSIINSTALLPERUSER" Property="MSIINSTALLPERUSER" Value="1" Execute="firstSequence" />
     <Directory Id="TARGETDIR" Name="SourceDir">
@@ -71,8 +74,11 @@
       <UpgradeVersion Property="PREVIOUSVERSIONSINSTALLED" MigrateFeatures="yes" Minimum="0.0.0" />
     </Upgrade>
     <InstallExecuteSequence>
-      <Custom Action="SetUserInstallDir" Before="FindRelatedProducts">USERINSTALLDIR</Custom>
-      <Custom Action="SetALLUSERS" Before="FindRelatedProducts">USERINSTALLDIR</Custom>
+      <Custom Action="SetUserInstallDir" Before="FindRelatedProducts">USERINSTALLDIR AND NOT INSTALLPATH</Custom>
+      <Custom Action="SetMachineInstallDir" Before="FindRelatedProducts">MACHINEINSTALLDIR AND NOT INSTALLPATH</Custom>
+      <Custom Action="SetInstallPath" Before="FindRelatedProducts">INSTALLPATH</Custom>
+      <Custom Action="ResetALLUSERS" Before="FindRelatedProducts">USERINSTALLDIR</Custom>
+      <Custom Action="SetALLUSERS1" Before="FindRelatedProducts">MACHINEINSTALLDIR</Custom>
       <FindRelatedProducts After="AppSearch" />
       <Custom Action="UpdateFeatureState" Before="InstallValidate" />
       <Custom Action="SetARPINSTALLLOCATION" After="InstallValidate" />
@@ -84,8 +90,11 @@
     <InstallUISequence>
       <LaunchConditions Before="AppSearch" />
       <Custom Action="SetUserInstallScope" After="LaunchConditions">NOT Privileged</Custom>
-      <Custom Action="SetUserInstallDir" Before="FindRelatedProducts">USERINSTALLDIR</Custom>
-      <Custom Action="SetALLUSERS" Before="FindRelatedProducts">USERINSTALLDIR</Custom>
+      <Custom Action="SetUserInstallDir" Before="FindRelatedProducts">USERINSTALLDIR AND NOT INSTALLPATH</Custom>
+      <Custom Action="SetMachineInstallDir" Before="FindRelatedProducts">MACHINEINSTALLDIR AND NOT INSTALLPATH</Custom>
+      <Custom Action="SetInstallPath" Before="FindRelatedProducts">INSTALLPATH</Custom>
+      <Custom Action="ResetALLUSERS" Before="FindRelatedProducts">USERINSTALLDIR</Custom>
+      <Custom Action="SetALLUSERS1" Before="FindRelatedProducts">MACHINEINSTALLDIR</Custom>
       <FindRelatedProducts After="AppSearch" />
       <Custom Action="SetMSIINSTALLPERUSER" Before="SetALLUSERS2"><![CDATA[NOT ALLUSERS AND VersionMsi >= "5.00"]]></Custom>
       <Custom Action="SetALLUSERS2" Before="ExecuteAction"><![CDATA[NOT ALLUSERS AND VersionMsi >= "5.00"]]></Custom>
