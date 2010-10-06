@@ -182,7 +182,7 @@ NOENTRY = /noentry
 !ifndef NEEDDEFLIB
 NODEFLIB = /nodefaultlib
 !endif
-LINK_FLAGS=/nologo /dll /release /merge:.rdata=.text $(NOWIN98) $(NOENTRY) $(NODEFLIB) $(ENV_LIB_OPT) /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)"
+LINK_FLAGS=/nologo /dll /release /dynamicbase /merge:.rdata=.text $(NOWIN98) $(NOENTRY) $(NODEFLIB) $(ENV_LIB_OPT) /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)"
 !else
 LINK_DEBUG=-v
 CPP_DEBUG=/Z7
