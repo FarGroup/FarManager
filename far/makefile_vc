@@ -275,7 +275,7 @@ DEFINES=\
 
 # common
 CPPFLAGS=/nologo $(MP) /W3 $(FARSYSLOG) /EHs-c- $(DEFINES) /GS- /GR- /Gy /GF /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /c
-LINKFLAGS=/nologo /subsystem:console /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" /pdb:"$(OUTDIR)\far.pdb" /release /nxcompat /largeaddressaware
+LINKFLAGS=/nologo /subsystem:console /release /nxcompat /largeaddressaware /dynamicbase /def:"$(DEF_FILE)" /map:"$(OUTDIR)\far.map" /pdb:"$(OUTDIR)\far.pdb" /out:"$(OUTDIR)\Far.exe"
 ULINKFLAGS=-q -m- -ap -Gz -O- -o- -Gh -Gh- -GF:LARGEADDRESSAWARE
 RFLAGS=/D__FARBIT__=$(DIRBIT) /l 0x409 /fo"$(RES_FILE)" /d $(USEDEBUG)
 
