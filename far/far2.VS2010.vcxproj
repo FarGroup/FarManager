@@ -173,8 +173,6 @@ if not exist bootstrap mkdir bootstrap</Command>
       <GenerateMapFile>true</GenerateMapFile>
       <MapFileName>$(OutDir)far.map</MapFileName>
       <SubSystem>Console</SubSystem>
-      <RandomizedBaseAddress>
-      </RandomizedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <LargeAddressAware>true</LargeAddressAware>
     </Link>
@@ -222,8 +220,6 @@ if not exist bootstrap mkdir bootstrap</Command>
       <GenerateMapFile>true</GenerateMapFile>
       <MapFileName>$(OutDir)far.map</MapFileName>
       <SubSystem>Console</SubSystem>
-      <RandomizedBaseAddress>
-      </RandomizedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <LargeAddressAware>true</LargeAddressAware>
     </Link>
@@ -271,8 +267,6 @@ if not exist bootstrap mkdir bootstrap</Command>
       <GenerateMapFile>true</GenerateMapFile>
       <MapFileName>$(OutDir)far.map</MapFileName>
       <SubSystem>Console</SubSystem>
-      <RandomizedBaseAddress>
-      </RandomizedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <LargeAddressAware>true</LargeAddressAware>
     </Link>
@@ -322,8 +316,6 @@ if not exist bootstrap mkdir bootstrap</Command>
       <GenerateMapFile>true</GenerateMapFile>
       <MapFileName>$(OutDir)far.map</MapFileName>
       <SubSystem>Console</SubSystem>
-      <RandomizedBaseAddress>
-      </RandomizedBaseAddress>
       <LargeAddressAware>true</LargeAddressAware>
     </Link>
   </ItemDefinitionGroup>
@@ -372,8 +364,6 @@ if not exist bootstrap mkdir bootstrap</Command>
       <GenerateMapFile>true</GenerateMapFile>
       <MapFileName>$(OutDir)far.map</MapFileName>
       <SubSystem>Console</SubSystem>
-      <RandomizedBaseAddress>
-      </RandomizedBaseAddress>
       <LargeAddressAware>true</LargeAddressAware>
     </Link>
   </ItemDefinitionGroup>
@@ -422,8 +412,6 @@ if not exist bootstrap mkdir bootstrap</Command>
       <GenerateMapFile>true</GenerateMapFile>
       <MapFileName>$(OutDir)far.map</MapFileName>
       <SubSystem>Console</SubSystem>
-      <RandomizedBaseAddress>
-      </RandomizedBaseAddress>
       <LargeAddressAware>true</LargeAddressAware>
     </Link>
   </ItemDefinitionGroup>
