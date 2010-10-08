@@ -623,6 +623,8 @@ bool SevenZipArchive::AddFiles(
 			}
 		}
 
+		bool bAddDialogOk = true;
+
 		ISetProperties *setProperties;
 
 		if ( outArchive->QueryInterface (
@@ -663,7 +665,7 @@ bool SevenZipArchive::AddFiles(
 						__debug(_T("%d"), hr);
 				}
 				else 
-					bResult = false;
+					bAddDialogOk = false;
 
 				delete pCfg;
 			}
@@ -674,9 +676,8 @@ bool SevenZipArchive::AddFiles(
 		string strTempName;
 		CreateTempName (m_strFileName, strTempName);
 
-		if ( bResult )
+		if ( bAddDialogOk )
 		{
-
 			TCHAR szPassword[512];
 			memset(szPassword, 0, 512);
 
