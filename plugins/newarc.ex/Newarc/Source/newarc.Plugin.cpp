@@ -38,7 +38,7 @@ ArchiveModule* ArchivePlugin::GetModule()
 
 ArchiveFormat* ArchivePlugin::GetFormat(const GUID& uid)
 {
-	for (int i = 0; i < m_pFormats.count(); i++)
+	for (unsigned int i = 0; i < m_pFormats.count(); i++)
 		if ( m_pFormats[i]->GetUID() == uid )
 			return m_pFormats[i];
 
@@ -47,7 +47,7 @@ ArchiveFormat* ArchivePlugin::GetFormat(const GUID& uid)
 
 int ArchivePlugin::GetFormats(Array<ArchiveFormat*>& formats)
 {
-	for (int i = 0; i < m_pFormats.count(); i++)
+	for (unsigned int i = 0; i < m_pFormats.count(); i++)
 		formats.add(m_pFormats[i]);
 
 	return 0;

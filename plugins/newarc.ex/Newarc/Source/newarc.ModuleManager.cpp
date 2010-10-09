@@ -79,7 +79,7 @@ void ArchiveModuleManager::SetCurrentLanguage(const TCHAR* lpLanguage)
 {
 	if ( FSF.LStricmp(lpLanguage, m_strCurrentLanguage) )
 	{
-		for (int i = 0; i < m_pModules.count(); i++)
+		for (unsigned int i = 0; i < m_pModules.count(); i++)
 			m_pModules[i]->ReloadLanguage (lpLanguage);
 
 		m_strCurrentLanguage = lpLanguage;
@@ -102,7 +102,7 @@ int ArchiveModuleManager::QueryArchives(
 	m_pFilter->Reset();
 	m_pFilter->QueryFilters(lpFileName, filters, bStopped);
 
-	for (int i = 0; i < filters.count(); i++)
+	for (unsigned int i = 0; i < filters.count(); i++)
 	{
 		ArchiveFilterEntry* pFE = filters[i];
 		ArchiveModule* pModule = pFE->pModule;
@@ -116,7 +116,7 @@ int ArchiveModuleManager::QueryArchives(
 			{
 				Array<ArchivePlugin*>& plugins = pModule->GetPlugins();
 
-				for (int i = 0; i < plugins.count(); i++)
+				for (unsigned int i = 0; i < plugins.count(); i++)
 				{
 					ArchivePlugin* pPlugin = plugins[i];
 
@@ -160,7 +160,7 @@ int ArchiveModuleManager::QueryArchives(
 					{
 						Array<ArchiveFormat*>& formats = pPlugin->GetFormats();
 
-						for (int i = 0; i < formats.count(); i++)
+						for (unsigned int i = 0; i < formats.count(); i++)
 						{
 							ArchiveFormat* pFormat = formats[i];
 
@@ -197,7 +197,7 @@ int ArchiveModuleManager::QueryArchives(
 
 	if ( !bStopped && m_pFilter->UseRemaining() )
 	{
-		for (int i = 0; i < m_pModules.count(); i++)
+		for (unsigned int i = 0; i < m_pModules.count(); i++)
 		{
 			bool bNoPluginsFiltered = true;
 			bool bNoFormatsFiltered = true;
@@ -249,7 +249,7 @@ int ArchiveModuleManager::QueryArchives(
 
 ArchiveModule* ArchiveModuleManager::GetModule(const GUID &uid)
 {
-	for (int i = 0; i < m_pModules.count(); i++)
+	for (unsigned int i = 0; i < m_pModules.count(); i++)
 	{
 		if ( m_pModules[i]->GetUID() == uid )
 			return m_pModules[i];
@@ -260,7 +260,7 @@ ArchiveModule* ArchiveModuleManager::GetModule(const GUID &uid)
 
 int ArchiveModuleManager::GetPlugins(Array<ArchivePlugin*>& plugins)
 {
-	for (int i = 0; i < m_pModules.count(); i++)
+	for (unsigned int i = 0; i < m_pModules.count(); i++)
 		m_pModules[i]->GetPlugins(plugins);
 
 	return 0;
@@ -279,7 +279,7 @@ ArchiveFormat* ArchiveModuleManager::GetFormat(const GUID& uidModule, const GUID
 
 int ArchiveModuleManager::GetFormats(Array<ArchiveFormat*>& formats)
 {
-	for (int i = 0; i < m_pModules.count(); i++)
+	for (unsigned int i = 0; i < m_pModules.count(); i++)
 		m_pModules[i]->GetFormats(formats);
 
 	return 0;
@@ -344,7 +344,7 @@ bool ArchiveModuleManager::LoadTemplates(const TCHAR* lpFileName)
 		lpName += _tcslen (lpName)+1;
 	}
 
-	for (int i = 0; i < names.count(); i++)
+	for (unsigned int i = 0; i < names.count(); i++)
 	{
 		string strName = names[i];
 		string strParams;
@@ -379,7 +379,7 @@ bool ArchiveModuleManager::SaveTemplates(const TCHAR* lpFileName)
 	CutToSlash(strFileName);
 	strFileName += lpFileName;
 
-	for (int i = 0; i < m_pTemplates.count(); i++)
+	for (unsigned int i = 0; i < m_pTemplates.count(); i++)
 	{
 		ArchiveTemplate* pAT = m_pTemplates[i];
 

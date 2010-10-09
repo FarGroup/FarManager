@@ -6,7 +6,7 @@ void mnuCommandLinesAndParams()
 
 	FarMenu menu(_M(MCommandLinesAndParamsArchiveFormat));
 
-	for (int i = 0; i < formats.count(); i++)
+	for (unsigned int i = 0; i < formats.count(); i++)
 	{
 		ArchiveFormat* pFormat = formats[i];
 

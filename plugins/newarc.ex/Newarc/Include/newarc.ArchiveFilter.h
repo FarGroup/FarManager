@@ -4,7 +4,7 @@
 
 struct ArchiveFilterEntry {
 
-    bool bExcludeFilter;
+	bool bExcludeFilter;
 	
 	bool bInvalid;
 	bool bEnabled;
@@ -71,7 +71,7 @@ struct ArchiveFilterEntry {
 };
 
 
-class ArchiveFilter {                                       
+class ArchiveFilter {
 
 private:
 

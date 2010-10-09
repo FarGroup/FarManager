@@ -27,7 +27,7 @@ bool ArchiveModule::Load(const TCHAR *lpModuleName, const TCHAR *lpLanguage)
 	{
 		// global
 
-		m_pfnModuleEntry = (MODULEENTRY)GetProcAddress (m_hModule, "ModuleEntry");
+		m_pfnModuleEntry = (MODULEENTRY)GetProcAddress(m_hModule, "ModuleEntry");
 
 		if ( m_pfnModuleEntry )
 		{

@@ -137,7 +137,6 @@ int ArchivePanel::pGetFindData(
 		m_pArchiveInfo = new InfoPanelLine[m_nArchiveInfoItems];
 		memset(m_pArchiveInfo, 0, sizeof(InfoPanelLine)*m_nArchiveInfoItems);
 
-
 		for (int i = 0; i < m_nArchiveInfoItems; i++)
 		{
 #ifdef UNICODE

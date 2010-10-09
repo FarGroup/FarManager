@@ -58,10 +58,10 @@ struct OperationStructEx {
 		uProcessedSize = 0;
 		uTotalSize = 0;
 		uTotalProcessedSize = 0;
-        uTotalFiles = 0;
-        uTotalProcessedFiles = 0;
+		uTotalFiles = 0;
+		uTotalProcessedFiles = 0;
 
-        overwrite = RESULT_UNKNOWN;
+		overwrite = RESULT_UNKNOWN;
 	}
 
 };

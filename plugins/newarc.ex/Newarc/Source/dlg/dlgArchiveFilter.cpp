@@ -19,7 +19,7 @@ void UpdateFormats(FarDialog* D, ArchivePlugin* pPlugin, ArchiveFilterEntry* pFE
 			Array<ArchiveFormat*> formats;
     		pPlugin->GetFormats(formats);  //BUGBUG
     
-			for (int i = 0; i < formats.count(); i++)
+			for (unsigned int i = 0; i < formats.count(); i++)
 			{
 				ArchiveFormat* pFormat = formats[i];
 
@@ -56,7 +56,7 @@ void UpdatePlugins(FarDialog* D, ArchiveModule* pModule, ArchiveFilterEntry* pFE
 
 		if ( pModule->QueryCapability(AMF_SUPPORT_SINGLE_PLUGIN_QUERY) )
 		{
-			for (int i = 0; i < plugins.count(); i++)
+			for (unsigned int i = 0; i < plugins.count(); i++)
 			{
 				ArchivePlugin* pPlugin = plugins[i];
 
@@ -184,7 +184,7 @@ LONG_PTR __stdcall hndFilterOneFormat(FarDialog* D, int nMsg, int nParam1, LONG_
 
 		Array<ArchiveModule*>& modules = pManager->GetModules();
 
-		for (int i = 0; i < modules.count(); i++)
+		for (unsigned int i = 0; i < modules.count(); i++)
 		{
 			const ArchiveModule* pModule = modules[i];
 
@@ -348,7 +348,7 @@ LONG_PTR __stdcall hndArchiveFilter(FarDialog* D, int nMsg, int nParam1, LONG_PT
 
 		pFilter->GetFilters(filters);
 
-		for (int i = 0; i < filters.count(); i++)
+		for (unsigned int i = 0; i < filters.count(); i++)
 		{
 			ArchiveFilterEntry* pFE = filters[i];
 

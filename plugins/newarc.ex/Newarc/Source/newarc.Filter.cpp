@@ -119,8 +119,8 @@ bool ArchiveFilter::Load(const TCHAR* lpFileName)
 		lpName += _tcslen (lpName)+1;
 	}
 
-    for (int i = 0; i < names.count(); i++)
-    {                                                                         
+	for (unsigned int i = 0; i < names.count(); i++)
+	{
 		ArchiveFilterEntry *pFE = new ArchiveFilterEntry;
 
 		pFE->bAllModules = true;
@@ -147,10 +147,10 @@ bool ArchiveFilter::Load(const TCHAR* lpFileName)
 			GetPrivateProfileString (pFE->strName, _T("ModuleUID"), _T(""), szGUID, 64, lpFileName);
 
 			pFE->uidModule = STR2GUID(szGUID);
-        	pFE->pModule = m_pManager->GetModule(pFE->uidModule);
+			pFE->pModule = m_pManager->GetModule(pFE->uidModule);
 
-        	if ( !pFE->pModule )
-        		pFE->bInvalid = true;
+			if ( !pFE->pModule )
+				pFE->bInvalid = true;
 			
 			pFE->bAllPlugins = GetPrivateProfileInt(pFE->strName, _T("AllPlugins"), 0, lpFileName);
 
@@ -193,7 +193,7 @@ bool ArchiveFilter::Save(const TCHAR* lpFileName)
 {
 	DeleteFile(lpFileName);
 
-	for (int i = 0; i < m_pFilters.count(); i++)
+	for (unsigned int i = 0; i < m_pFilters.count(); i++)
 	{
 		TCHAR sz[32];
 		ArchiveFilterEntry* pFE = m_pFilters[i];
