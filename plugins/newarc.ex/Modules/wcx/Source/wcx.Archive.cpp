@@ -323,23 +323,37 @@ int WcxArchive::OnChangeVol(const char* ArcName, int Mode)
 
 int WcxArchive::OnProcessDataW(const wchar_t* FileName, int Size)
 {
-	if ( m_pfnCallback /*&& bProcessDataProc*/ )
+	if ( m_pfnCallback /*&& bProcessDataProc*/ )  //???
 	{
-		/*ProcessDataStruct DS;
+	/*	ProcessDataStruct DS;
+		bool bResult = true;
 
-		DS.uProcessedSize = Size;
-
-		if ( (Size < 0) && (Size > -1000) ) //percents
+		if ( (Size <= -1) && (Size >= -100) ) //first percent
 		{
-			int nRealSize = 0;//(__x*abs(Size))/100;
-
-			return (int)m_pfnCallback (m_hCallback, AM_PROCESS_DATA, 0, (LONG_PTR)&DS);
+			DS.nMode = PROGRESS_PERCENTS;
+			DS.cPercents = (char)(-Size);
+			DS.cTotalPercents = -1;
 		}
+		else
 
-		if ( Size >= 0 )
+		if ( (Size <= -1000) && (Size >= -1100) ) //second percent
 		{
-			return (int)m_pfnCallback (m_hCallback, AM_PROCESS_DATA, 0, (LONG_PTR)&DS);
-		}*/
+			DS.nMode = PROGRESS_PERCENTS;
+			DS.cPercents = -1;
+			DS.cTotalPercents = (char)(-Size-1000);
+		}
+		else
+
+		if ( Size > 0 )
+		{
+			DS.nMode = PROGRESS_PROCESSED_DIFF;
+			DS.uProcessedDiff = (unsigned __int64)Size;
+		}
+		else
+			bResult = false;
+
+		if ( bResult )
+			return (int)m_pfnCallback (m_hCallback, AM_PROCESS_DATA, 0, (LONG_PTR)&DS);  */
 	}
 
 	return 1;
