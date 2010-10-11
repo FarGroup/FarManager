@@ -27,9 +27,9 @@ static inline BOOL IsValidHeader (const unsigned char *Data)
 {
 	SevenZipHeader *header = (SevenZipHeader*)Data;
 
-	DWORD crc = CRC32 (0, (const char*)&header->uNextHeaderOffset, sizeof (header->uNextHeaderOffset));
-	crc = CRC32 (crc, (const char*)&header->uNextHeaderSize, sizeof (header->uNextHeaderSize));
-	crc = CRC32 (crc, (const char*)&header->dwNextHeaderCRC, sizeof (header->dwNextHeaderCRC));
+	DWORD crc = CRC32(0, (const char*)&header->uNextHeaderOffset, sizeof (header->uNextHeaderOffset));
+	crc = CRC32(crc, (const char*)&header->uNextHeaderSize, sizeof (header->uNextHeaderSize));
+	crc = CRC32(crc, (const char*)&header->dwNextHeaderCRC, sizeof (header->dwNextHeaderCRC));
 
 	return !memcmp (&header->Signature, &sevenzip_signature, sizeof (sevenzip_signature)) && (crc == header->dwHeaderCRC);
 }

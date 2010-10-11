@@ -530,6 +530,8 @@ bool dlgSevenZipPluginConfigure(SevenZipCompressionConfig* pCfg)
 		D.Separator(Y++);
 
 		D.Button (-1, Y, _T("Ok"));
+		D.DefaultButton();
+
 		D.Button (-1, Y, _T("Cancel"));
 
 		D.SetPosition(-1, -1, 60, Y+3);
