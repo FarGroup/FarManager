@@ -96,6 +96,8 @@ HRESULT CArchiveExtractCallback::SetCompleted(const unsigned __int64* completeVa
 
 		m_uProcessedBytes = *completeValue;
 	}
+	else
+		m_uProcessedBytes = 0;
 
 	return S_OK;
 }
@@ -174,8 +176,8 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream(
 		}
 
 		//а это что за бред?
-		if ( m_uProcessedBytes == (unsigned __int64)-1 )
-			m_uProcessedBytes = 0;
+		//if ( m_uProcessedBytes == (unsigned __int64)-1 )
+		//	m_uProcessedBytes = 0;
 
    		FILETIME ftCreationTime, ftLastAccessTime, ftLastWriteTime;
    		DWORD dwFileAttributes = 0;
