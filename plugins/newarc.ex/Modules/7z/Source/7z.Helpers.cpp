@@ -96,8 +96,6 @@ HRESULT CArchiveExtractCallback::SetCompleted(const unsigned __int64* completeVa
 
 		m_uProcessedBytes = *completeValue;
 	}
-	else
-		m_uProcessedBytes = 0;
 
 	return S_OK;
 }
@@ -176,8 +174,8 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream(
 		}
 
 		//а это что за бред?
-		//if ( m_uProcessedBytes == (unsigned __int64)-1 )
-		//	m_uProcessedBytes = 0;
+		if ( m_uProcessedBytes == (unsigned __int64)-1 )
+			m_uProcessedBytes = 0;
 
    		FILETIME ftCreationTime, ftLastAccessTime, ftLastWriteTime;
    		DWORD dwFileAttributes = 0;
@@ -678,7 +676,7 @@ HRESULT __stdcall CArchiveUpdateCallback::QueryInterface(const IID &iid, void **
 
 HRESULT __stdcall CArchiveUpdateCallback::SetTotal(unsigned __int64 total)
 {
-	m_uProcessedBytes = 0;
+	m_uProcessedBytes = (unsigned __int64)-1;
 	m_pArchive->OnStartOperation(OPERATION_ADD, 1, total);
 
 	return S_OK;
@@ -686,12 +684,15 @@ HRESULT __stdcall CArchiveUpdateCallback::SetTotal(unsigned __int64 total)
 
 HRESULT __stdcall CArchiveUpdateCallback::SetCompleted(const unsigned __int64* completeValue)
 {
-	unsigned __int64 diff = *completeValue-m_uProcessedBytes;
+	if ( m_uProcessedBytes != (unsigned __int64)-1 )
+	{
+		unsigned __int64 diff = *completeValue-m_uProcessedBytes;
 
-	if ( !m_pArchive->OnProcessData((unsigned int)diff) )
-		return E_ABORT;
+		if ( !m_pArchive->OnProcessData((unsigned int)diff) )
+			return E_ABORT;
 
-	m_uProcessedBytes = *completeValue;
+		m_uProcessedBytes = *completeValue;
+	}
 
 	return S_OK;
 }
@@ -825,6 +826,12 @@ HRESULT __stdcall CArchiveUpdateCallback::GetStream(unsigned int index, ISequent
 			if ( file->Open () )
 			{
 				m_pArchive->OnProcessFile(pitem, strFullName);
+
+		//а это что за бред?
+				if ( m_uProcessedBytes == (unsigned __int64)-1 )
+					m_uProcessedBytes = 0;
+
+
 				*inStream = file;
 			}
 			else
