@@ -476,7 +476,7 @@ bool SevenZipPlugin::GetDefaultCommand(const GUID& uid, int nCommand, const TCHA
 		*ppCommand = pCAB[nCommand];
 	else
 
-    if ( uid == CLSID_CLzhHandler )
+	if ( uid == CLSID_CLzhHandler )
 		*ppCommand = pLZH[nCommand];
 	else
 	

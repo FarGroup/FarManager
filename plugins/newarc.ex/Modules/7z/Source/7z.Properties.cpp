@@ -400,7 +400,7 @@ LONG_PTR __stdcall hndConfigureFormat(FarDialog* D, int nMsg, int Param1, LONG_P
 
 	if ( nMsg == DN_LISTCHANGE )
 	{
-		if ( Param1 == 2 )
+		if ( Param1 == 6 )
 		{
 			FarListPos pos;
 
