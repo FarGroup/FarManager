@@ -1,4 +1,4 @@
-int mnuChooseOperation ()
+int mnuChooseOperation()
 {
 	FarMenu menu(_T("Архивные комманды"));
 

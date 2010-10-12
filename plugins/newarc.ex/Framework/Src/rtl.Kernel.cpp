@@ -1,10 +1,10 @@
 #include <Rtl.Base.h>
 
-HANDLE RtlCreateEvent (
+HANDLE RtlCreateEvent(
 		const TCHAR* EventName
 		)
 {
-	return CreateEvent (
+	return CreateEvent(
 			NULL, 
 			false, 
 			false, 
@@ -12,31 +12,31 @@ HANDLE RtlCreateEvent (
 			);
 }
 
-HANDLE RtlCreateThread (
+HANDLE RtlCreateThread(
 		PVOID ThreadProc, 
 		PVOID Param
 		)
 {
 	DWORD dwThreadId;
 
-	return CreateThread (
-    		NULL,
-    		0,
-    		(LPTHREAD_START_ROUTINE)ThreadProc,
-    		Param,
-    		0,
-    		&dwThreadId
-    		);
+	return CreateThread(
+			NULL,
+			0,
+			(LPTHREAD_START_ROUTINE)ThreadProc,
+			Param,
+			0,
+			&dwThreadId
+			);
 }
 
 
-VOID RtlWaitAndCloseThread (
+VOID RtlWaitAndCloseThread(
 		HANDLE hThread,
 		int WaitInterval
 		)
 {
-	WaitForSingleObject (hThread, WaitInterval);
-	CloseHandle (hThread);
+	WaitForSingleObject(hThread, WaitInterval);
+	CloseHandle(hThread);
 }
 
 

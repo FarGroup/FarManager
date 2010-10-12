@@ -126,7 +126,7 @@ const ArchiveQueryResult* MaModule::QueryArchive(const QueryArchiveStruct* pQAS,
 
 	const ArchiveQueryResult* pResult = NULL;
 	bMoreArchives = false;
-	              
+	
 	if ( m_nCurrentQuery < nQueryCount )
 	{
 		pResult = m_QueryPool[m_nCurrentQuery];

@@ -102,6 +102,8 @@ void SevenZipArchive::QueryArchiveInfo()
 	BSTR bstrName;
 	VARTYPE vt;
 
+	__debug(_T("%d"), uProperties);
+
 	for (unsigned int i = 0; i < uProperties; i++)
 	{
 		if ( m_pArchive->GetArchivePropertyInfo(i, &bstrName, &propId, &vt) == S_OK )
@@ -119,6 +121,9 @@ void SevenZipArchive::QueryArchiveInfo()
 
 			if ( !strName.IsEmpty() )
 			{
+				__debug(_T("%s"), strName.GetString());
+
+
 				CPropVariant value;
 
 				if ( m_pArchive->GetArchiveProperty(propId, &value) == S_OK && (value.vt != VT_EMPTY) )

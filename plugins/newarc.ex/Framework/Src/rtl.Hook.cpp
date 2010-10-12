@@ -74,7 +74,7 @@ PROC RtlHookImportTable(
 			return pfnResult;
 		}
 		
-        pFirstThunk++;
+		pFirstThunk++;
 		pOriginalThunk++;
 	}
 

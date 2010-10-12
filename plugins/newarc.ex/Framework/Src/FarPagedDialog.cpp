@@ -2,24 +2,24 @@
 
 #ifdef PAGED_DIALOGS
 
-FarPagedDialog::FarPagedDialog (int X1, int Y1, int X2, int Y2) : FarDialog (X1, Y1, X2, Y2)
+FarPagedDialog::FarPagedDialog(int X1, int Y1, int X2, int Y2) : FarDialog (X1, Y1, X2, Y2)
 {
 	m_Pages = new pointer_array<PageInfo*>(ARRAY_OPTIONS_DELETE);
 	m_CurrentPage = 0;
 }
 
-FarPagedDialog::~FarPagedDialog ()
+FarPagedDialog::~FarPagedDialog()
 {
 	m_Pages->free ();
 	delete m_Pages;
 }
 
-void FarPagedDialog::NewPage (int nItems)
+void FarPagedDialog::NewPage(int nItems)
 {
 	PageInfo *Info = new PageInfo;
 
 	Info->StartItem = count();
-	Info->nItems     = nItems;
+	Info->nItems = nItems;
 
 	m_Pages->add (Info);
 }
@@ -66,7 +66,7 @@ void FarPagedDialogHandler::PreparePage (bool bDirect)
 
 		EnableRedraw (false);
 
-		for (int Page = 0; Page < Pages->count(); Page++)
+		for (unsigned int Page = 0; Page < Pages->count(); Page++)
 		{
 			PageInfo *Info = (*Pages)[Page];
 

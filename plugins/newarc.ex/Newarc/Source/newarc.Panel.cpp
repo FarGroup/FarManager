@@ -342,7 +342,7 @@ void ArchivePanel::GetArchiveItemsToProcess (
 			dest->UserData = 0;
 		}
 
-        m_OS.uTotalSize += FINDDATA_GET_SIZE_PTR(data);
+		m_OS.uTotalSize += FINDDATA_GET_SIZE_PTR(data);
 
 		if ( OptionIsOn(data->dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) )
 		{
@@ -465,7 +465,7 @@ int ArchivePanel::pPutFiles(
 		int ItemsNumber,
 		int Move,
 		int OpMode
-        )
+		)
 {
 	bool bResult = false;
 
@@ -487,7 +487,7 @@ int ArchivePanel::pPutFiles(
 
 			int nSelectedCount = info.GetSelectedItemsCount();
 
-            bool bSeparately = params.bSeparateArchives && (nSelectedCount > 1);
+			bool bSeparately = params.bSeparateArchives && (nSelectedCount > 1);
 			int	nCount = (bSeparately)?nSelectedCount:1;
 
 			string strArchiveName;
@@ -543,20 +543,19 @@ int ArchivePanel::pPutFiles(
 
 				strFullArchiveName += strArchiveName;
 				
-				Archive* pArchive = pManager->OpenCreateArchive(params.pFormat, strFullArchiveName, this, Callback, true);
+				//Archive* pArchive = pManager->OpenCreateArchive(params.pFormat, strFullArchiveName, this, Callback, true);
+				//BADBAD, надо убедиться, что отсюда сразу в ClosePlugin попадаем
+				m_pArchive = pManager->OpenCreateArchive(params.pFormat, strFullArchiveName, this, Callback, true);
 
-				if ( pArchive )
-				{
-					bResult = pArchive->AddFiles(items, info.GetCurrentDirectory());
-					pManager->CloseArchive(pArchive);
-				}
+				if ( m_pArchive )
+					bResult = AddFiles(items, info.GetCurrentDirectory());
 			}
 		}
 	}
 	else
 	{
 		GetPanelItemsToProcess(PanelItem, ItemsNumber, items);
-		bResult = m_pArchive->AddFiles(items, info.GetCurrentDirectory());
+		bResult = AddFiles(items, info.GetCurrentDirectory());
 	}
 
 	return bResult;
@@ -585,15 +584,14 @@ int ArchivePanel::pGetFiles(
 	{
 		farPrepareFileName(strDestPath);
 
-
 		ArchiveItemArray items; //100??
 
 		GetArchiveItemsToProcess(PanelItem, ItemsNumber, items);
 
-		bResult = m_pArchive->Extract(items, strDestPath, (OpMode == OPM_VIEW) || (OpMode == OPM_EDIT));
+		bResult = Extract(items, strDestPath, (OpMode == OPM_VIEW) || (OpMode == OPM_EDIT));
 
 		if ( Move && bResult )
-			bResult = m_pArchive->Delete(items);
+			bResult = Delete(items);
 	}
 
 	return bResult;
@@ -602,8 +600,8 @@ int ArchivePanel::pGetFiles(
 
 #include "msg/msgDeleteFiles.cpp"
 
-int ArchivePanel::pDeleteFiles (
-		const PluginPanelItem *PanelItem,
+int ArchivePanel::pDeleteFiles(
+		const PluginPanelItem* PanelItem,
 		int ItemsNumber,
 		int OpMode
 		)
@@ -616,7 +614,7 @@ int ArchivePanel::pDeleteFiles (
 
 		//m_pArchive->SetOperationStruct(&os);
 
-		return m_pArchive->Delete(items);
+		return Delete(items);
 	}
 
 	return false;
@@ -636,7 +634,7 @@ void ArchivePanel::pFreeFindData (
 #endif
 }
 
-int ArchivePanel::pSetDirectory (
+int ArchivePanel::pSetDirectory(
 		const TCHAR *Dir,
 		int nOpMode
 		)
@@ -1012,12 +1010,14 @@ int ArchivePanel::OnProcessFile(ProcessFileStruct *pfs)
 		{
 			if ( m_OS.nOperation == OPERATION_EXTRACT )
 				m_OS.Dlg.Show(_M(MProcessFileExtractionTitle)/*, _M(MProcessFileExtraction)*/);
-
+			else
 			if ( m_OS.nOperation == OPERATION_ADD )
 				m_OS.Dlg.Show(_M(MProcessFileAdditionTitle)/*, _M(MProcessFileAddition)*/);
-
+			else
 			if ( m_OS.nOperation == OPERATION_DELETE )
 				m_OS.Dlg.Show(_M(MProcessFileDeletionTitle)/*, _M(MProcessFileDeletion)*/);
+			else
+				__debug(_T("BAD OPERATION"));
 
 			Info.Text(0, 0, 0, 0); //BUGBUG
 		}
@@ -1083,3 +1083,32 @@ int ArchivePanel::OnProcessData(ProcessDataStruct* pDS)
 
 	return TRUE;
 }
+
+bool ArchivePanel::Extract(
+		const ArchiveItemArray& items, 
+		const TCHAR *lpDestDiskPath, 
+		bool bWithoutPath
+		)
+{
+	OnStartOperation(OPERATION_EXTRACT, nullptr);
+	return m_pArchive->Extract(items, lpDestDiskPath, bWithoutPath);
+}
+
+bool ArchivePanel::Delete(const ArchiveItemArray& items)
+{
+	OnStartOperation(OPERATION_DELETE, nullptr);
+	return m_pArchive->Delete(items);
+}
+
+bool ArchivePanel::AddFiles(const ArchiveItemArray& items, const TCHAR* lpSourceDiskPath)
+{
+	OnStartOperation(OPERATION_ADD, nullptr);
+	return m_pArchive->AddFiles(items, lpSourceDiskPath);
+}
+
+bool ArchivePanel::Test(const ArchiveItemArray& items)
+{
+	OnStartOperation(OPERATION_TEST, nullptr);
+	return m_pArchive->Test(items);
+}
+

@@ -13,11 +13,11 @@ void mnuConfigSelect()
 		int nResult = menu.Run();
 
 		if ( nResult == 0 )
-			dlgConfigure ();
+			dlgConfigure();
 		else
 		
 		if ( nResult == 1 )
-			mnuCommandLinesAndParams ();
+			mnuCommandLinesAndParams();
 		else
 
 		if ( nResult == 2 )
@@ -33,7 +33,7 @@ void mnuConfigSelect()
 			}
 		}
 		else
-		    break;
+			break;
 	}
 		
 }

@@ -344,9 +344,9 @@ int FindFormats(const unsigned char* pBuffer, DWORD dwBufferSize, const TCHAR *l
 
 int __cdecl SortFormats (
 		FormatPosition *pos1,
-	    FormatPosition *pos2,
-    	void *pParam
-    	)
+		FormatPosition *pos2,
+		void *pParam
+		)
 {
 	if ( pos1->position > pos2->position )
 		return 1;

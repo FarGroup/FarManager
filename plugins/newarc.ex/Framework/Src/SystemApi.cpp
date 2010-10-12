@@ -140,7 +140,7 @@ bool apiSetFilePointer(
 		*pNewFilePointer = ((__int64)nHighPart << 32) + nLowPart;
 
 	return true;
-}                      
+}
 
 bool apiGetFileSize(HANDLE hFile, unsigned __int64 *pSize)
 {

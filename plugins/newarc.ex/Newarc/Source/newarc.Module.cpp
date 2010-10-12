@@ -49,17 +49,17 @@ bool ArchiveModule::Load(const TCHAR *lpModuleName, const TCHAR *lpLanguage)
 			_si.Info.ModuleNumber = (INT_PTR)this;
 			_si.Info.GetMsg = GetMsg;
 
-            if ( m_pfnModuleEntry(FID_INITIALIZE, (void*)&_si) == NAERROR_SUCCESS )
-            {
-            	ArchiveModuleInfo info;
+			if ( m_pfnModuleEntry(FID_INITIALIZE, (void*)&_si) == NAERROR_SUCCESS )
+			{
+				ArchiveModuleInfo info;
 				memset(&info, 0, sizeof(ArchiveModuleInfo));
 
-            	if ( m_pfnModuleEntry(FID_GETARCHIVEMODULEINFO, (void*)&info) == NAERROR_SUCCESS )
-            	{
-            	    ReloadLanguage(lpLanguage);
+				if ( m_pfnModuleEntry(FID_GETARCHIVEMODULEINFO, (void*)&info) == NAERROR_SUCCESS )
+				{
+					ReloadLanguage(lpLanguage);
 
-            	    m_dwFlags = info.dwFlags;
-            	    m_uid = info.uid;
+					m_dwFlags = info.dwFlags;
+					m_uid = info.uid;
 
 					for (unsigned int i = 0; i < info.uPlugins; i++)
 						m_pPlugins.add(new ArchivePlugin(this, &info.pPlugins[i]));

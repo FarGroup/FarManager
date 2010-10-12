@@ -57,12 +57,12 @@ bool MaPlugin::Load(const TCHAR* lpModuleName, oldfar::PluginStartupInfo* pInfo,
 			int index = 0;
 			char Name[100];
 			char DefaultExtention[100];  
-			                                  
+
 			while ( true )
 			{
 				*Name = 0;
 				*DefaultExtention = 0;
-				                            
+
 				if ( m_pfnGetFormatName(index, Name, DefaultExtention) )
 				{
 					ArchiveFormatInfo info;

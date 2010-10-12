@@ -1,6 +1,6 @@
 #include "FarPluginBase.hpp"
 
-unsigned int cstrlen (const TCHAR *str)
+unsigned int cstrlen(const TCHAR *str)
 {
 	return StrLength(str)-(_tcschr (str, _T('&')) != NULL);
 }
@@ -62,7 +62,7 @@ void FarDialog::SetPosition(int X1, int Y1, int X2, int Y2)
 	m_Y2 = Y2;
 }
 
-int FarDialog::SetFlags (int Flags, int nCounter)
+int FarDialog::SetFlags(int Flags, int nCounter)
 {
 	if ( nCounter == CURRENT_ITEM )
 		nCounter = m_items.count()-1;
@@ -72,7 +72,7 @@ int FarDialog::SetFlags (int Flags, int nCounter)
 	return m_items[nCounter].Flags;
 }
 
-void FarDialog::Focus (int nCounter)
+void FarDialog::Focus(int nCounter)
 {
 	if ( nCounter == CURRENT_ITEM )
 		nCounter = m_items.count()-1;
@@ -80,7 +80,7 @@ void FarDialog::Focus (int nCounter)
 	m_items[nCounter].Focus = TRUE;
 }
 
-void FarDialog::DefaultButton (int nCounter)
+void FarDialog::DefaultButton(int nCounter)
 {
 	if ( nCounter == CURRENT_ITEM )
 		nCounter = m_items.count()-1;
@@ -203,7 +203,7 @@ int FarDialog::Button (int X, int Y, const TCHAR *Caption, int CaptionLength)
 		m_nFirstButton = m_items.count()-1;
 
 	if ( X == -1 ) // TO MAKE ButtonEx?
-		SetFlags (DIF_CENTERGROUP);
+		SetFlags(DIF_CENTERGROUP);
 
 	return X+Length+4; // ?
 }
@@ -222,13 +222,13 @@ void FarDialog::Edit (int X, int Y, int Length, const TCHAR *Data, int DataLengt
 
 }
 
-void FarDialog::PswEdit (int X, int Y, int Length, const TCHAR *Data, int DataLength)
+void FarDialog::PswEdit(int X, int Y, int Length, const TCHAR *Data, int DataLength)
 {
 	Edit (X, Y, Length, Data, DataLength, NULL);
 	m_items[m_items.count()-1].Type = DI_PSWEDIT;
 }
 
-void FarDialog::FixEdit (int X, int Y, int Length, const TCHAR *Data, int DataLength, const TCHAR *History, const TCHAR *Mask)
+void FarDialog::FixEdit(int X, int Y, int Length, const TCHAR *Data, int DataLength, const TCHAR *History, const TCHAR *Mask)
 {
 	Edit (X, Y, Length, Data, DataLength, History);
 
@@ -269,7 +269,7 @@ int FarDialog::Run(const TCHAR *lpHelpTopic)
 
 #else
 
-	nResult = m_Info->Dialog (
+	nResult = m_Info->Dialog(
 			m_Info->ModuleNumber,
 			m_X1,
 			m_Y1,
@@ -358,11 +358,11 @@ int FarDialog::Run(
 			(LONG_PTR)this
 			);
 
-	nResult = m_Info->DialogRun (m_hDlg);
+	nResult = m_Info->DialogRun(m_hDlg);
 
 #else
 	
-	nResult = m_Info->DialogEx (
+	nResult = m_Info->DialogEx(
 			m_Info->ModuleNumber,
 			m_X1,
 			m_Y1,
