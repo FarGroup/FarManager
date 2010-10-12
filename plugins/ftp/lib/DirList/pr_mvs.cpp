@@ -111,6 +111,15 @@ PO U
   KCFCRST2  09B798 002C25          00 FO             RN RU            31    ANY
   KCFSASDL  001828 004316          00 FO                              31    ANY
   L$CLEAI   001828 004316 KCFSASDL 00 FO                              31    ANY
+
+*/
+/*
+JES responce
+            1         2         3         4         5         6         7
+  01234567890123456789012345678901234567890123456789012345678901234567890123456789
+  FTPMOL0   JOB07136  OUTPUT    4 Spool Files
+
+  No jobs found on Held queue
 */
 
 /*
@@ -147,6 +156,7 @@ BOOL DECLSPEC idPRParceMVS( const PFTPServerInfo Server, PFTPFileInfo p, char *e
     if(strncmp(entry,"Volume Unit    Referred Ext Used Recfm Lrecl BlkSz Dsorg Dsname",63)==0) return FALSE;
     if(strncmp(entry," Name     VV.MM   Created       Changed      Size  Init   Mod   Id",66)==0) return FALSE;
     if(strncmp(entry," Name      Size   TTR   Alias-of AC --------- Attributes --------- Amode Rmode",78)==0) return FALSE;
+    if(strncmp(entry,"No jobs found on Held queue",27)==0) return FALSE;
 
     if(strlen(entry)>51&&(strncmp(entry+51," PO ",4)==0))
       ei.FileType = NET_DIRECTORY;
@@ -241,11 +251,16 @@ BOOL DECLSPEC idPRParceMVS( const PFTPServerInfo Server, PFTPFileInfo p, char *e
           sscanf(entry+44,"%d",&ei.size);
           sscanf(entry+62,"%s",ei.FTPOwner);
         }
-        else               // PO U
+        else if(entry[19]!=' ') // PO U
         {
           sscanf(entry+10,"%X",&ei.size);
           if(entry[24]!=' ')
             sscanf(entry+24,"%s",ei.Link);
+        }
+        else               // JES
+        {
+          sscanf(entry+30,"%X",&ei.size);
+          entry+=10;
         }
       }
       entry[8]=0;
