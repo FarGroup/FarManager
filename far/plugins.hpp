@@ -167,9 +167,7 @@ class PluginManager
 		void LoadIfCacheAbsent();
 		void ReadUserBackgound(SaveScreen *SaveScr);
 
-		void GetHotKeyRegKey(Plugin *pPlugin,int ItemNumber,string &strRegKey);
 		void GetPluginHotKey(Plugin *pPlugin,int ItemNumber,const wchar_t *HotKeyType,string &strHotKey);
-		bool SetHotKeyDialog(const wchar_t *DlgPluginTitle,const wchar_t *RegKey,const wchar_t *RegValueName);
 
 		bool TestPluginInfo(Plugin *Item,PluginInfo *Info);
 		bool TestOpenPluginInfo(Plugin *Item,OpenPluginInfo *Info);
@@ -211,12 +209,15 @@ class PluginManager
 		void Configure(int StartPos=0);
 		void ConfigureCurrent(Plugin *pPlugin,int INum);
 		int CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName=nullptr);
-		bool GetDiskMenuItem(Plugin *pPlugin,int PluginItem,bool &ItemPresent, int &PluginTextNumber, string &strPluginText);
+		bool GetDiskMenuItem(Plugin *pPlugin,int PluginItem,bool &ItemPresent, wchar_t& PluginHotkey, string &strPluginText);
 
 		int UseFarCommand(HANDLE hPlugin,int CommandType);
 		void ReloadLanguage();
 		void DiscardCache();
 		int ProcessCommandLine(const wchar_t *Command,Panel *Target=nullptr);
+
+		bool SetHotKeyDialog(const wchar_t *DlgPluginTitle,const wchar_t *RegKey,const wchar_t *RegValueName);
+		void GetHotKeyRegKey(Plugin *pPlugin,int ItemNumber,string &strRegKey);
 
 		// $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
 		int CallPlugin(DWORD SysID,int OpenFrom, void *Data);

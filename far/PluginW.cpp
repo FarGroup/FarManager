@@ -291,12 +291,6 @@ bool PluginW::SaveToCache()
 			string strValue;
 			strValue.Format(FmtDiskMenuStringD, i);
 			SetRegKey(strRegKey, strValue, Info.DiskMenuStrings[i]);
-
-			if (Info.DiskMenuNumbers)
-			{
-				strValue.Format(FmtDiskMenuNumberD, i);
-				SetRegKey(strRegKey, strValue, Info.DiskMenuNumbers[i]);
-			}
 		}
 
 		for (int i = 0; i < Info.PluginMenuStringsNumber; i++)

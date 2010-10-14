@@ -1763,11 +1763,15 @@ bool PluginManager::GetDiskMenuItem(
      Plugin *pPlugin,
      int PluginItem,
      bool &ItemPresent,
-     int &PluginTextNumber,
+     wchar_t& PluginHotkey,
      string &strPluginText
 )
 {
 	LoadIfCacheAbsent();
+
+	string strHotKey;
+	GetPluginHotKey(pPlugin,PluginItem,L"DriveMenuHotkey",strHotKey);
+	PluginHotkey = strHotKey.At(0);
 
 	if (pPlugin->CheckWorkFlags(PIWF_CACHED))
 	{
@@ -1776,7 +1780,6 @@ bool PluginManager::GetDiskMenuItem(
 		strValue.Format(FmtDiskMenuStringD,PluginItem);
 		GetRegKey(strRegKey,strValue,strPluginText,L"");
 		strValue.Format(FmtDiskMenuNumberD,PluginItem);
-		GetRegKey(strRegKey,strValue,PluginTextNumber,0);
 		ItemPresent=!strPluginText.IsEmpty();
 
 		return true;
@@ -1790,11 +1793,6 @@ bool PluginManager::GetDiskMenuItem(
 	}
 	else
 	{
-		if (Info.DiskMenuNumbers)
-			PluginTextNumber=Info.DiskMenuNumbers[PluginItem];
-		else
-			PluginTextNumber=0;
-
 		strPluginText = Info.DiskMenuStrings[PluginItem];
 		ItemPresent=true;
 	}

@@ -11570,15 +11570,6 @@ MChangeDriveMenuFooter
 "Del,Shift-Del,F4,F9"
 "Del,Shift-Del,F4,F9"
 
-MAdditionalHotKey
-"#!$%*+-/(),."
-"#!$%*+-/(),."
-"#!$%*+-/(),."
-"#!$%*+-/(),."
-"#!$%*+-/(),."
-"#!$%*+-/(),."
-"#!$%*+-/(),."
-
 MSearchFileTitle
 l:
 " Поиск "

@@ -265,12 +265,6 @@ bool PluginA::SaveToCache()
 			string strValue;
 			strValue.Format(FmtDiskMenuStringD, i);
 			SetRegKey(strRegKey, strValue, Info.DiskMenuStrings[i]);
-
-			if (Info.DiskMenuNumbers)
-			{
-				strValue.Format(FmtDiskMenuNumberD, i);
-				SetRegKey(strRegKey, strValue, Info.DiskMenuNumbers[i]);
-			}
 		}
 
 		for (int i = 0; i < Info.PluginMenuStringsNumber; i++)
@@ -1412,7 +1406,6 @@ void PluginA::ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest)
 			p[i] = AnsiToUnicode(Src.DiskMenuStrings[i]);
 
 		PI.DiskMenuStrings = p;
-		PI.DiskMenuNumbers = Src.DiskMenuNumbers;
 		PI.DiskMenuStringsNumber = Src.DiskMenuStringsNumber;
 	}
 

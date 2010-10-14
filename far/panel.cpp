@@ -100,20 +100,9 @@ class ChDiskPluginItem
 
 		void Clear() { HotKey = 0; Item.Clear(); }
 		bool operator==(const ChDiskPluginItem &rhs) const { return HotKey==rhs.HotKey && !StrCmpI(Item.strName,rhs.Item.strName) && Item.UserData==rhs.Item.UserData; }
-		int operator<(const ChDiskPluginItem &rhs) const;
+		int operator<(const ChDiskPluginItem &rhs) const {return StrCmpI(Item.strName,rhs.Item.strName)<0;}
 		const ChDiskPluginItem& operator=(const ChDiskPluginItem &rhs);
 };
-
-int ChDiskPluginItem::operator<(const ChDiskPluginItem &rhs) const
-{
-	if (HotKey==rhs.HotKey)
-		return StrCmpI(Item.strName,rhs.Item.strName)<0;
-
-	if (HotKey && rhs.HotKey)
-		return HotKey < rhs.HotKey;
-
-	return HotKey && !rhs.HotKey;
-}
 
 const ChDiskPluginItem& ChDiskPluginItem::operator=(const ChDiskPluginItem &rhs)
 {
@@ -233,16 +222,10 @@ const TypeMessage DrTMsg[]=
 
 static int AddPluginItems(VMenu &ChDisk, int Pos, int DiskCount, bool SetSelected)
 {
-	int UsedNumbers[10]={0};
-	TArray<ChDiskPluginItem> MPItems, MPItemsNoHotkey;
+	TArray<ChDiskPluginItem> MPItems;
 	ChDiskPluginItem OneItem;
 	// Список дополнительных хоткеев, для случая, когда плагинов, добавляющих пункт в меню, больше 9.
-	const wchar_t *AdditionalHotKey=MSG(MAdditionalHotKey);
-	int AHKPos = 0; // индекс в списке хоткеев
-	int AHKSize = StrLength(AdditionalHotKey); // для предотвращения выхода за границу массива
 	int PluginItem, PluginNumber = 0; // IS: счетчики - плагинов и пунктов плагина
-	int PluginTextNumber;
-	WCHAR HotKey;
 	bool ItemPresent,Done=false;
 	string strMenuText;
 	string strPluginText;
@@ -260,11 +243,12 @@ static int AddPluginItems(VMenu &ChDisk, int Pos, int DiskCount, bool SetSelecte
 
 			Plugin *pPlugin = CtrlObject->Plugins.GetPlugin(PluginNumber);
 
+			WCHAR HotKey = 0;
 			if (!CtrlObject->Plugins.GetDiskMenuItem(
 			            pPlugin,
 			            PluginItem,
 			            ItemPresent,
-			            PluginTextNumber,
+			            HotKey,
 			            strPluginText
 			        ))
 			{
@@ -275,70 +259,9 @@ static int AddPluginItems(VMenu &ChDisk, int Pos, int DiskCount, bool SetSelecte
 			if (!ItemPresent)
 				break;
 
-			if (!PluginTextNumber)   // IS: автохоткей, назначим потом
-				HotKey = WCHAR_MAX; // "-1" -  признак автохоткея
-			else
-			{
-				if (PluginTextNumber < 10)   // IS: хотей указан явно
-				{
-					// IS: проверим, а не занят ли хоткей
-					// IS: если занят, то будем искать его с самого начала - нуля,
-					// IS: а не со следующего
-					if (UsedNumbers[PluginTextNumber])
-					{
-						PluginTextNumber=0;
+			strMenuText = strPluginText;
 
-						while (PluginTextNumber<10 && UsedNumbers[PluginTextNumber])
-							PluginTextNumber++;
-					}
-
-					UsedNumbers[PluginTextNumber%10]=1;
-				}
-
-				if (PluginTextNumber < 10)
-					HotKey = PluginTextNumber+L'0';
-				else
-				{
-					if (AHKPos < AHKSize)
-						HotKey = AdditionalHotKey[AHKPos];
-					else
-						HotKey = 0;
-				}
-			}
-
-			strMenuText.Clear();
-
-			if (HotKey==WCHAR_MAX)
-				strMenuText = strPluginText;
-			else
-			{
-				const wchar_t HotKeyStr[]={L'&',HotKey,L':',L' ',L'\0'};
-
-				if (PluginTextNumber < 10)
-				{
-					strMenuText=HotKeyStr;
-					strMenuText+=strPluginText;
-				}
-				else
-				{
-					if (AHKPos<AHKSize)
-					{
-						strMenuText=HotKeyStr;
-
-						strMenuText+=strPluginText;
-
-						++AHKPos;
-					}
-					else
-					{
-						HotKey=0;
-						strMenuText=L"   ";
-						strMenuText+=strPluginText;
-					}
-				}
-			}
-
-			if (!strMenuText.IsEmpty() || (HotKey==WCHAR_MAX))
+			if (!strMenuText.IsEmpty())
 			{
 				OneItem.Clear();
 				PanelMenuItem *item = new PanelMenuItem;
@@ -353,7 +276,7 @@ static int AddPluginItems(VMenu &ChDisk, int Pos, int DiskCount, bool SetSelecte
 				OneItem.Item.UserDataSize=sizeof(PanelMenuItem);
 				OneItem.Item.UserData=(char*)item;
 				OneItem.HotKey=HotKey;
-				ChDiskPluginItem *pResult = (HotKey==WCHAR_MAX)?MPItemsNoHotkey.addItem(OneItem):MPItems.addItem(OneItem);
+				ChDiskPluginItem *pResult = MPItems.addItem(OneItem);
 
 				if (pResult)
 				{
@@ -372,61 +295,6 @@ static int AddPluginItems(VMenu &ChDisk, int Pos, int DiskCount, bool SetSelecte
 		} // END: for (PluginItem=0;;++PluginItem)
 
 		++PluginNumber;
-	}
-
-	// IS: теперь произведем назначение автохоткеев
-	PluginTextNumber=0;
-
-	for (int i=0;; ++i)
-	{
-		ChDiskPluginItem *item = MPItemsNoHotkey.getItem(i);
-
-		if (!item)
-			break;
-
-		if (UsedNumbers[PluginTextNumber])
-		{
-			while (PluginTextNumber < 10 && UsedNumbers[PluginTextNumber])
-				PluginTextNumber++;
-		}
-
-		UsedNumbers[PluginTextNumber%10]=1;
-		strMenuText.Clear();
-		wchar_t HotKeyStr[]={L'&',L' ',L':',L' ',L'\0'};
-
-		if (PluginTextNumber<10)
-		{
-			item->HotKey=static_cast<WCHAR>(PluginTextNumber+'0');
-			HotKeyStr[1]=item->HotKey;
-			strMenuText=HotKeyStr;
-			strMenuText+=item->Item.strName;
-		}
-		else
-		{
-			if (AHKPos < AHKSize)
-			{
-				item->HotKey=AdditionalHotKey[AHKPos];
-				HotKeyStr[1]=item->HotKey;
-				strMenuText=HotKeyStr;
-				strMenuText+=item->Item.strName;
-				++AHKPos;
-			}
-			else
-			{
-				item->HotKey=0;
-				strMenuText="   ";
-				strMenuText+=item->Item.strName;
-			}
-		}
-
-		item->Item.strName = strMenuText;
-		ChDiskPluginItem *pResult = nullptr;
-
-		if (!item->Item.strName.IsEmpty() && ((pResult = MPItems.addItem(*item)) ))
-		{
-			pResult->Item.UserData = (char*)item->Item.UserData; //BUGBUG, это фантастика просто. Исправить!!!! связано с работой TArray
-			pResult->Item.UserDataSize = item->Item.UserDataSize;
-		}
 	}
 
 	MPItems.Sort();
@@ -452,8 +320,10 @@ static int AddPluginItems(VMenu &ChDisk, int Pos, int DiskCount, bool SetSelecte
 				if (!SetSelected)
 					SetSelected=DiskCount+I+1==Pos;
 			}
-
+			const wchar_t HotKeyStr[]={MPItems.getItem(I)->HotKey?L'&':L' ',MPItems.getItem(I)->HotKey?MPItems.getItem(I)->HotKey:L' ',L' ',MPItems.getItem(I)->HotKey?L' ':L'\0',L'\0'};
+			MPItems.getItem(I)->Item.strName = string(HotKeyStr) + MPItems.getItem(I)->Item.strName;
 			ChDisk.AddItem(&MPItems.getItem(I)->Item);
+
 			delete(PanelMenuItem*)MPItems.getItem(I)->Item.UserData;  //ммда...
 		}
 	}
@@ -827,13 +697,24 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				case KEY_CTRLA:
 				case KEY_F4:
 				{
-					if (item && !item->bIsPlugin)
+					if (item)
 					{
-						wchar_t DeviceName[]={item->cDrive,L':',L'\\',L'\0'};
-						ShellSetFileAttributes(nullptr,DeviceName);
-						ChDisk.Redraw();
+						if (!item->bIsPlugin)
+						{
+							wchar_t DeviceName[]={item->cDrive,L':',L'\\',L'\0'};
+							ShellSetFileAttributes(nullptr,DeviceName);
+							ChDisk.Redraw();
+						}
+						else
+						{
+							string strRegKey;
+							CtrlObject->Plugins.GetHotKeyRegKey(item->pPlugin, item->nItem,strRegKey);
+							if(CtrlObject->Plugins.SetHotKeyDialog(ChDisk.GetItemPtr(SelPos)->strName + 4, strRegKey, L"DriveMenuHotkey"))
+							{
+								return SelPos;
+							}
+						}
 					}
-
 					break;
 				}
 				case KEY_SHIFTNUMDEL:
