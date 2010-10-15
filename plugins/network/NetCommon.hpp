@@ -36,7 +36,9 @@ extern struct Options
 {
   int AddToDisksMenu;
   int AddToPluginsMenu;
+#ifndef UNICODE
   int DisksMenuDigit;
+#endif
   int NTGetHideShare;
   BOOL ShowPrinters;
   BOOL LocalNetwork;

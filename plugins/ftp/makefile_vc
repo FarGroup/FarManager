@@ -132,8 +132,8 @@ _fictive_:
 
 $(FLLLIST): $(FICTIVE)
 !ifndef INSTALL
-	$(MAKE) /f makefile_vc_fll $(_MKDO_)FLL=$@ $(_MDEFS)
+	$(MAKE) /nologo /f makefile_vc_fll $(_MKDO_)FLL=$@ $(_MDEFS)
 !else
-	$(MAKE) /f makefile_vc_fll $(_MKDO_)FLL=$@ $(_MDEFS) INSTALL=$(INSTALL)
+	$(MAKE) /nologo /f makefile_vc_fll $(_MKDO_)FLL=$@ $(_MDEFS) INSTALL=$(INSTALL)
 !endif
 

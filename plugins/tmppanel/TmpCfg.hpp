@@ -19,7 +19,9 @@ typedef struct options_s
   TCHAR ColumnWidths[64];
   TCHAR StatusColumnTypes[64];
   TCHAR StatusColumnWidths[64];
+#ifndef UNICODE
   TCHAR DisksMenuDigit[1];
+#endif
   TCHAR Mask[512];
   TCHAR Prefix[16];
 } options_t;

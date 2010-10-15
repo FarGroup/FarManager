@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 2.0 build 1661
+  Plugin API for FAR Manager 2.0 build 1694
 */
 
 /*
@@ -42,7 +42,7 @@ other possible license with no implications from the above license on them.
 
 #define FARMANAGERVERSION_MAJOR 2
 #define FARMANAGERVERSION_MINOR 0
-#define FARMANAGERVERSION_BUILD 1661
+#define FARMANAGERVERSION_BUILD 1694
 
 #ifndef RC_INVOKED
 
@@ -1628,6 +1628,8 @@ enum XLATMODE
 {
 	XLAT_SWITCHKEYBLAYOUT  = 0x00000001UL,
 	XLAT_SWITCHKEYBBEEP    = 0x00000002UL,
+	XLAT_USEKEYBLAYOUTNAME = 0x00000004UL,
+	XLAT_CONVERTALLCMDLINE = 0x00010000UL,
 };
 
 typedef size_t (WINAPI *FARSTDKEYTOKEYNAME)(int Key,wchar_t *KeyText,size_t Size);
@@ -1797,7 +1799,7 @@ struct PluginInfo
 	int StructSize;
 	DWORD Flags;
 	const wchar_t * const *DiskMenuStrings;
-	int *DiskMenuNumbers;
+	int *Reserved0;
 	int DiskMenuStringsNumber;
 	const wchar_t * const *PluginMenuStrings;
 	int PluginMenuStringsNumber;

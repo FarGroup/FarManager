@@ -65,7 +65,7 @@ $(FICTIVE):
 libcrt: $(FICTIVE)
 	@echo ===========CRT library
         @cd common\CRT
-        @$(MAKE) -s -f makefile_lib_vc $(_MDEFS)
+        @$(MAKE) /nologo -s -f makefile_lib_vc $(_MDEFS)
         @cd ..\..
 
 #######
@@ -100,9 +100,9 @@ $(ALLDIRS): $(FICTIVE) $(OUTPATH)
 	@echo ===========$@
         @cd $@
 !ifndef INSTALL
-        @$(MAKE) -s -f makefile_vc $(_MDEFS)
+        @$(MAKE) /nologo -s -f makefile_vc $(_MDEFS)
 !else
-        @$(MAKE) -s -f makefile_vc $(_MDEFS) $(_MKDO_)INSTALL=..\$(OUTPATH)\$@
+        @$(MAKE) /nologo -s -f makefile_vc $(_MDEFS) $(_MKDO_)INSTALL=..\$(OUTPATH)\$@
 !endif
         @cd ..
 

@@ -241,11 +241,14 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
     Info->PluginMenuStringsNumber=ArraySize(PluginMenuStrings);
   }
 
-  static TCHAR *DiskMenuStrings[1];
+#ifndef UNICODE
   static int DiskMenuNumbers[1];
-  DiskMenuStrings[0]=GetMsg(MPlistPanel);
   DiskMenuNumbers[0]=Opt.DisksMenuDigit;
   Info->DiskMenuNumbers=DiskMenuNumbers;
+#endif
+
+  static TCHAR *DiskMenuStrings[1];
+  DiskMenuStrings[0]=GetMsg(MPlistPanel);
   Info->DiskMenuStrings=DiskMenuStrings;
   Info->DiskMenuStringsNumber=Opt.AddToDisksMenu ? 1:0;
 

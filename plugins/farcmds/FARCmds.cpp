@@ -65,7 +65,9 @@ struct RegistryStr REGStr={
 	_T("Add2PlugMenu"),
 	_T("Add2DisksMenu"),
 	_T("Separator"),
+#ifndef UNICODE
 	_T("DisksMenuDigit"),
+#endif
 	_T("ShowCmdOutput"),
 	_T("CatchMode"),
 	_T("ViewZeroFiles"),
@@ -129,7 +131,9 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *psInfo)
 	GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.Separator,Opt.Separator,_T(" "),3);
 	Opt.Add2PlugMenu=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.Add2PlugMenu,0);
 	Opt.Add2DisksMenu=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.Add2DisksMenu,0);
+#ifndef UNICODE
 	Opt.DisksMenuDigit=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.DisksMenuDigit,0);
+#endif
 	Opt.ShowCmdOutput=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.ShowCmdOutput,0);
 	Opt.CatchMode=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.CatchMode,0);
 	Opt.ViewZeroFiles=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.ViewZeroFiles,1);
@@ -309,7 +313,9 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
 		DiskMenuStrings[0]=(TCHAR*)GetMsg(MSetPassiveDir);
 		Info->DiskMenuStrings=DiskMenuStrings;
 		Info->DiskMenuStringsNumber=1;
+#ifndef UNICODE
 		Info->DiskMenuNumbers=&Opt.DisksMenuDigit;
+#endif
 	}
 	else
 	{
@@ -335,8 +341,16 @@ int WINAPI EXP_NAME(Configure)(int /*ItemNumber*/)
 		/*00*/ { DI_DOUBLEBOX,   3, 1,69,21, 0, 0, DIF_BOXCOLOR,    0, (TCHAR *)MConfig},
 		/*01*/ { DI_CHECKBOX,    5, 2, 0, 2, 1, 0, 0,               0, (TCHAR *)MAddSetPassiveDir2PlugMenu},
 		/*02*/ { DI_CHECKBOX,    5, 3, 0, 3, 0, 0, 0,               0, (TCHAR *)MAddToDisksMenu},
-		/*03*/ { DI_FIXEDIT,     7, 4, 7, 4, 0, 0, DIF_BOXCOLOR|DIF_MASKEDIT,    0, _T("")},
-		/*04*/ { DI_TEXT,        9, 4, 0, 4, 0, 0, 0,               0, (TCHAR *)MDisksMenuDigit},
+		/*03*/ { DI_FIXEDIT,     7, 4, 7, 4, 0, 0, DIF_BOXCOLOR|DIF_MASKEDIT
+#ifdef UNICODE
+		                                                                    |DIF_HIDDEN
+#endif
+		                                                                               ,    0, _T("")},
+		/*04*/ { DI_TEXT,        9, 4, 0, 4, 0, 0, 0
+#ifdef UNICODE
+		                                            |DIF_HIDDEN
+#endif
+		                                                       , 0, (TCHAR *)MDisksMenuDigit},
 		/*05*/ { DI_TEXT,        0, 5, 0, 5, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR,   0,_T("")},
 		/*06*/ { DI_RADIOBUTTON, 5, 6, 0, 6, 0, 0, DIF_GROUP,       0, (TCHAR *)MHideCmdOutput},
 		/*07*/ { DI_RADIOBUTTON, 5, 7, 0, 7, 0, 0, 0,               0, (TCHAR *)MKeepCmdOutput},
@@ -372,9 +386,6 @@ int WINAPI EXP_NAME(Configure)(int /*ItemNumber*/)
 
 #ifdef UNICODE
 	wchar_t numstr[32];
-	DialogItems[3].PtrData = numstr;
-	FarItoa(Opt.DisksMenuDigit,numstr,10);
-
 	DialogItems[19].PtrData = numstr;
 	FarItoa(Opt.MaxDataSize,numstr,10);
 	DialogItems[19].X1=DialogItems[18].X1+lstrlen(DialogItems[18].PtrData)+1;
@@ -401,7 +412,9 @@ int WINAPI EXP_NAME(Configure)(int /*ItemNumber*/)
 	{
 		Opt.Add2PlugMenu=GetCheck(1);
 		Opt.Add2DisksMenu=GetCheck(2);
+#ifndef UNICODE
 		Opt.DisksMenuDigit=FarAtoi(GetDataPtr(3));
+#endif
 		Opt.ViewZeroFiles = GetCheck(15);
 		Opt.EditNewFiles = GetCheck(16);
 		Opt.CatchMode = Opt.ShowCmdOutput = 0;
@@ -423,7 +436,9 @@ int WINAPI EXP_NAME(Configure)(int /*ItemNumber*/)
 
 		SetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.Add2PlugMenu,Opt.Add2PlugMenu);
 		SetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.Add2DisksMenu,Opt.Add2DisksMenu);
+#ifndef UNICODE
 		SetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.DisksMenuDigit,Opt.DisksMenuDigit);
+#endif
 		SetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.ShowCmdOutput,Opt.ShowCmdOutput);
 		SetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.CatchMode,Opt.CatchMode);
 		SetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.ViewZeroFiles,Opt.ViewZeroFiles);

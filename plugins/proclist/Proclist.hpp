@@ -60,7 +60,9 @@ class WMIConnection;
 extern struct _Opt
 {
   int AddToDisksMenu;
+#ifndef UNICODE
   int DisksMenuDigit;
+#endif
   int AddToPluginsMenu;
   int ExportEnvironment;
   int ExportModuleInfo;

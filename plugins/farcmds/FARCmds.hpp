@@ -3,7 +3,9 @@ struct RegistryStr
 	const TCHAR *Add2PlugMenu;
 	const TCHAR *Add2DisksMenu;
 	const TCHAR *Separator;
+#ifndef UNICODE
 	const TCHAR *DisksMenuDigit;
+#endif
 	const TCHAR *ShowCmdOutput;
 	const TCHAR *CatchMode;
 	const TCHAR *ViewZeroFiles;
@@ -38,7 +40,9 @@ struct Options
 {
 	int Add2PlugMenu;
 	int Add2DisksMenu;
+#ifndef UNICODE
 	int DisksMenuDigit;
+#endif
 	int ShowCmdOutput;
 	int CatchMode;
 	int ViewZeroFiles;
@@ -49,7 +53,9 @@ struct Options
 {
 	0,
 	0,
+#ifndef UNICODE
 	0,
+#endif
 	0,
 	0,
 	1,

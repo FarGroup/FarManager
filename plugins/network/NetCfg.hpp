@@ -4,7 +4,9 @@
 
 extern const TCHAR *StrAddToDisksMenu;
 extern const TCHAR *StrAddToPluginsMenu;
+#ifndef UNICODE
 extern const TCHAR *StrDisksMenuDigit;
+#endif
 extern const TCHAR *StrHelpNetBrowse;
 extern const TCHAR *StrNTHiddenShare;
 extern const TCHAR *StrShowPrinters;

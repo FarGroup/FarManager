@@ -5,7 +5,9 @@
 
 const TCHAR *StrAddToDisksMenu=_T("AddToDisksMenu");
 const TCHAR *StrAddToPluginsMenu=_T("AddToPluginsMenu");
+#ifndef UNICODE
 const TCHAR *StrDisksMenuDigit=_T("DisksMenuDigit");
+#endif
 const TCHAR *StrHelpNetBrowse=_T("Contents");
 const TCHAR *StrNTHiddenShare=_T("NTHiddenShare");
 const TCHAR *StrShowPrinters=_T("ShowPrinters");
@@ -24,8 +26,16 @@ int Config()
   struct InitDialogItem InitItems[]={
   /*  0 */{DI_DOUBLEBOX,3,1,72,17,0,0,0,0,(TCHAR *)MConfigTitle},
   /*  1 */{DI_CHECKBOX,5,2,0,0,0,0,0,0,(TCHAR *)MConfigAddToDisksMenu},
-  /*  2 */{DI_FIXEDIT,7,3,7,3,1,0,0,0,_T("")},
-  /*  3 */{DI_TEXT,9,3,0,0,0,0,0,0,(TCHAR *)MConfigDisksMenuDigit},
+  /*  2 */{DI_FIXEDIT,7,3,7,3,1,0,0
+#ifdef UNICODE
+                                   |DIF_HIDDEN
+#endif
+                                              ,0,_T("")},
+  /*  3 */{DI_TEXT,9,3,0,0,0,0,0
+#ifdef UNICODE
+                                |DIF_HIDDEN
+#endif
+                                           ,0,(TCHAR *)MConfigDisksMenuDigit},
   /*  4 */{DI_CHECKBOX,5,4,0,0,0,0,0,0,(TCHAR *)MConfigAddToPluginMenu},
   /*  5 */{DI_CHECKBOX,5,5,0,0,0,0,0,0,(TCHAR *)MNoRootDoublePoint},
   /*  6 */{DI_TEXT,5,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,_T("")},
@@ -47,16 +57,10 @@ int Config()
   DialogItems[1].Selected=Opt.AddToDisksMenu;
   DialogItems[4].Selected=Opt.AddToPluginsMenu;
   DialogItems[5].Selected=!Opt.NoRootDoublePoint;
-#ifdef UNICODE
-  wchar_t digstr[32];
-  digstr[0] = 0;
-  DialogItems[2].PtrData = digstr;
-#define Data  PtrData
-#endif
+#ifndef UNICODE
   if (Opt.DisksMenuDigit)
     FSF.sprintf((TCHAR *)DialogItems[2].Data,_T("%d"),Opt.DisksMenuDigit);
-#undef Data
-
+#endif
   DialogItems[7].Selected=Opt.LocalNetwork;
   DialogItems[8].Selected=Opt.NTGetHideShare;
   DialogItems[9].Selected=Opt.ShowPrinters;
@@ -83,7 +87,9 @@ int Config()
     Opt.AddToDisksMenu=GetCheck(1);
     Opt.AddToPluginsMenu=GetCheck(4);
     Opt.NoRootDoublePoint=!GetCheck(5);
+#ifndef UNICODE
     Opt.DisksMenuDigit=FSF.atoi(GetDataPtr(2));
+#endif
     Opt.LocalNetwork=GetCheck(7);
     Opt.NTGetHideShare=GetCheck(8);
     Opt.ShowPrinters=GetCheck(9);
@@ -101,7 +107,9 @@ int Config()
 
     SetRegKey(HKEY_CURRENT_USER,_T(""),StrAddToDisksMenu,Opt.AddToDisksMenu);
     SetRegKey(HKEY_CURRENT_USER,_T(""),StrAddToPluginsMenu,Opt.AddToPluginsMenu);
+#ifndef UNICODE
     SetRegKey(HKEY_CURRENT_USER,_T(""),StrDisksMenuDigit,Opt.DisksMenuDigit);
+#endif
     SetRegKey(HKEY_CURRENT_USER,_T(""),StrLocalNetwork,Opt.LocalNetwork);
     SetRegKey(HKEY_CURRENT_USER,_T(""),StrNTHiddenShare,Opt.NTGetHideShare);
     SetRegKey(HKEY_CURRENT_USER,_T(""),StrShowPrinters,Opt.ShowPrinters);
@@ -124,10 +132,12 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
   0;
   static TCHAR *DiskMenuStrings[1];
   DiskMenuStrings[0]=GetMsg(MDiskMenuString);
-  static int DiskMenuNumbers[1];
   Info->DiskMenuStrings=DiskMenuStrings;
+#ifndef UNICODE
+  static int DiskMenuNumbers[1];
   DiskMenuNumbers[0]=Opt.DisksMenuDigit;
   Info->DiskMenuNumbers=DiskMenuNumbers;
+#endif
   Info->DiskMenuStringsNumber=Opt.AddToDisksMenu ? 1:0;
   if(Opt.AddToPluginsMenu)
   {

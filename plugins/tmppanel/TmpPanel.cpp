@@ -607,9 +607,11 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
   static const TCHAR *DiskMenuStrings[1];
   DiskMenuStrings[0]=GetMsg(MDiskMenuString);
   Info->DiskMenuStrings=DiskMenuStrings;
+#ifndef UNICODE
   static int DiskMenuNumbers[1];
   DiskMenuNumbers[0]=FSF.atoi(Opt.DisksMenuDigit);
   Info->DiskMenuNumbers=DiskMenuNumbers;
+#endif
   Info->DiskMenuStringsNumber=Opt.AddToDisksMenu?ArraySize(DiskMenuStrings):0;
   static const TCHAR *PluginMenuStrings[1];
   PluginMenuStrings[0]=GetMsg(MTempPanel);

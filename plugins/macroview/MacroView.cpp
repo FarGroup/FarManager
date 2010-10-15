@@ -157,7 +157,6 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
 	Info->StructSize=sizeof(*Info);
 	Info->Flags=PF_EDITOR|PF_VIEWER;
 	Info->DiskMenuStrings=NULL;
-	Info->DiskMenuNumbers=NULL;
 	Info->DiskMenuStringsNumber=0;
 	static TCHAR *PluginMenuStrings[1];
 	PluginMenuStrings[0]=GetMsg(MMacroMenu);

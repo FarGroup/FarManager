@@ -31,7 +31,9 @@ enum
   ColumnWidths,
   StatusColumnTypes,
   StatusColumnWidths,
+#ifndef UNICODE
   DisksMenuDigit,
+#endif
   Mask,
   Prefix
 };
@@ -74,7 +76,9 @@ static const struct COptionsList OptionsList[]={
   {Opt.StatusColumnTypes  , _T("NR,SC,D,T") , 19},
   {Opt.StatusColumnWidths , _T("0,8,0,5")   , 21},
 
+#ifndef UNICODE
   {Opt.DisksMenuDigit     , _T("1")         ,  2},
+#endif
   {Opt.Mask               , _T("*.temp")    , 25},
   {Opt.Prefix             , _T("tmp")       , 27},
 };
@@ -119,8 +123,16 @@ int Config()
   /* 0*/ {DI_DOUBLEBOX, 3, 1,  DIALOG_WIDTH-4,DIALOG_HEIGHT-2, 0, MConfigTitle},
 
   /* 1*/ {DI_CHECKBOX,  5, 2,  0, 0, 0, MConfigAddToDisksMenu},
-  /* 2*/ {DI_FIXEDIT,   7, 3,  7, 3, 0, -1},
-  /* 3*/ {DI_TEXT,      9, 3,  0, 0, 0, MConfigDisksMenuDigit},
+  /* 2*/ {DI_FIXEDIT,   7, 3,  7, 3, 0
+#ifdef UNICODE
+                                      |DIF_HIDDEN
+#endif
+                                                 , -1},
+  /* 3*/ {DI_TEXT,      9, 3,  0, 0, 0
+#ifdef UNICODE
+                                      |DIF_HIDDEN
+#endif
+                                                 , MConfigDisksMenuDigit},
   /* 4*/ {DI_CHECKBOX, DC, 2,  0, 0, 0, MConfigAddToPluginsMenu},
   /* 5*/ {DI_TEXT,      5, 4,  0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, -1},
 

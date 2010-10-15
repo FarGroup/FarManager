@@ -46,8 +46,16 @@ int Config()
   InitDialogItem InitItems[]={
   /*  0 */{DI_DOUBLEBOX,3,1,72,14,0,0,0,0,(TCHAR *)MConfigPlistPanel},
   /*  1 */{DI_CHECKBOX,5,2,0,0,0,0,0,0,(TCHAR *)MConfigAddToDisksMenu},
-  /*  2 */{DI_FIXEDIT,7,3,7,3,1,0,0,0,_T("")},
-  /*  3 */{DI_TEXT,9,3,0,0,0,0,0,0,(TCHAR *)MConfigDisksMenuDigit},
+  /*  2 */{DI_FIXEDIT,7,3,7,3,1,0,0
+#ifdef UNICODE
+                                   |DIF_HIDDEN
+#endif
+                                              ,0,_T("")},
+  /*  3 */{DI_TEXT,9,3,0,0,0,0,0
+#ifdef UNICODE
+                                |DIF_HIDDEN
+#endif
+                                           ,0,(TCHAR *)MConfigDisksMenuDigit},
   /*  4 */{DI_CHECKBOX,5,4,0,0,0,0,0,0,(TCHAR *)MConfigAddToPluginMenu},
   /*  5 */{DI_TEXT,5,5,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,_T("")},
           {DI_TEXT,5,12,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,_T("")},
@@ -72,17 +80,11 @@ int Config()
 
   DialogItems[1].Selected = Opt.AddToDisksMenu;
   DialogItems[4].Selected = Opt.AddToPluginsMenu;
+
 #ifndef UNICODE
-#define _N2   DialogItems[2].Data
-#else
-  wchar_t tmpstr[64];
-  tmpstr[0] = 0;
-  DialogItems[2].PtrData = tmpstr;
-#define _N2 tmpstr
-#endif
   if (Opt.DisksMenuDigit)
-    FSF.itoa(Opt.DisksMenuDigit,_N2,10);
-#undef _N2
+    FSF.itoa(Opt.DisksMenuDigit,DialogItems[2].Data,10);
+#endif
 
   int bRet = FALSE;
 #ifndef UNICODE
@@ -102,7 +104,9 @@ int Config()
   if (ExitCode == ArraySize(DialogItems) - 2)
   {
     Opt.AddToDisksMenu = GetCheck(_REF, 1);
+#ifndef UNICODE
     Opt.DisksMenuDigit = FSF.atoi(GetPtr(_REF, 2));
+#endif
 #undef Data
     Opt.AddToPluginsMenu = GetCheck(_REF, 4);
     GetViewOptions(_REF, NITEMS-NVIEWITEMS-2, ::Opt);
@@ -125,7 +129,9 @@ done:
 void _Opt::Write()
 {
   SETKEY(AddToDisksMenu)
+#ifndef UNICODE
   SETKEY(DisksMenuDigit)
+#endif
   SETKEY(AddToPluginsMenu)
   SETKEY(ExportEnvironment)
   SETKEY(ExportModuleInfo)
@@ -141,7 +147,9 @@ void _Opt::Read()
 {
   GETKEY(AddToDisksMenu, 1)
   GETKEY(AddToPluginsMenu, 1)
+#ifndef UNICODE
   GETKEY(DisksMenuDigit, 0)
+#endif
   GETKEY(ExportEnvironment, 1)
   GETKEY(ExportModuleInfo, 1)
   GETKEY(ExportModuleVersion, 0)
