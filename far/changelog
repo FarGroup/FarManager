@@ -1,3 +1,7 @@
+drkns 15.10.2010 13:23:23 +0200 - build 1694
+
+1. PluginInfo::DiskMenuNumbers -> PluginInfo::Reserved0.
+
 drkns 15.10.2010 09:22:33 +0200 - build 1693
 
 1. Уточнение 1692.

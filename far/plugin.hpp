@@ -1978,7 +1978,7 @@ struct PluginInfo
 	int StructSize;
 	DWORD Flags;
 	const wchar_t * const *DiskMenuStrings;
-	int *DiskMenuNumbers;
+	int *Reserved0;
 	int DiskMenuStringsNumber;
 	const wchar_t * const *PluginMenuStrings;
 	int PluginMenuStringsNumber;
