@@ -709,7 +709,9 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 						{
 							string strRegKey;
 							CtrlObject->Plugins.GetHotKeyRegKey(item->pPlugin, item->nItem,strRegKey);
-							if(CtrlObject->Plugins.SetHotKeyDialog(ChDisk.GetItemPtr(SelPos)->strName + 4, strRegKey, L"DriveMenuHotkey"))
+							string strName = ChDisk.GetItemPtr(SelPos)->strName + 3;
+							RemoveExternalSpaces(strName);
+							if(CtrlObject->Plugins.SetHotKeyDialog(strName, strRegKey, L"DriveMenuHotkey"))
 							{
 								return SelPos;
 							}
