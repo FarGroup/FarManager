@@ -24,7 +24,7 @@ struct PluginInfo
   int StructSize;
   DWORD Flags;
   const wchar_t * const *DiskMenuStrings;
-  int *DiskMenuNumbers;
+  int *Reserved0;
   int DiskMenuStringsNumber;
   const wchar_t * const *PluginMenuStrings;
   int PluginMenuStringsNumber;
@@ -74,10 +74,8 @@ struct PluginInfo
     <div class=dfn>DiskMenuStrings</div>
     <div class=dfndescr>≈сли плагин добавл€ет строки в меню <i>ƒиск</i>, это поле должно быть равным адресу
       массива указателей на строки меню, в противном случае, установите его в NULL.</div>
-    <div class=dfn>DiskMenuNumbers</div>
-    <div class=dfndescr>«адаЄт номера гор€чих клавиш дл€ экспортированных строк в меню <i>ƒиск</i>. ≈сли вы хотите
-      позволить FAR'у самому назначить их, установите DiskMenuNumbers в NULL или в 0.</div>
-    <div class=dfndescr>≈сли указанный номер уже используетс€ другим плагином, FAR изменит его сам.</div>
+    <div class=dfn>Reserved0</div>
+    <div class=dfndescr>Ќе используетс€ и должно быть равно NULL.</div>
     <div class=dfn>DiskMenuStringsNumber</div>
     <div class=dfndescr>„исло добавл€емых в меню <i>ƒиск</i> строк.</div>
     <div class=dfn>PluginMenuStrings</div>
