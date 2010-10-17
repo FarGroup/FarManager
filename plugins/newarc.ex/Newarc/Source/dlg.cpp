@@ -81,18 +81,14 @@ static char cIndicator[] = {177, 0, 219, 0};
 
 void OperationDialog::SetFileName(bool bTotal, const TCHAR* lpFileName)
 {
-	TCHAR *lpTemp = new TCHAR[100];
+	string strTemp;
 
-	_tcscpy(lpTemp, lpFileName);
-
-	FSF.TruncPathStr (lpTemp, 45);
+	strTemp.Format(_T("%-45s"), FSF.TruncPathStr(lpFileName, 45));
 
 	if ( bTotal )
-		Info.Text(m_Coord.X+5, m_Coord.Y+3, FarGetColor (COL_DIALOGTEXT), lpTemp);
+		Info.Text(m_Coord.X+5, m_Coord.Y+3, FarGetColor(COL_DIALOGTEXT), strTemp);
 	else
-		Info.Text(m_Coord.X+5, m_Coord.Y+5, FarGetColor (COL_DIALOGTEXT), lpTemp);
-    
-    delete lpTemp;
+		Info.Text(m_Coord.X+5, m_Coord.Y+5, FarGetColor(COL_DIALOGTEXT), strTemp);
 }
 
 void OperationDialog::SetIndicator(bool bTotal, double dRatio)
