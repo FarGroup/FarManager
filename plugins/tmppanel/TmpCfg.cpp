@@ -40,14 +40,17 @@ enum
 
 options_t Opt;
 
-static const TCHAR REGStr[17][8]=
+static const TCHAR REGStr[][8]=
 {
  _T("InDisks"), _T("InPlug"),
  _T("Common"),  _T("Safe"),   _T("Any"),    _T("Contens"),
  _T("Mode"),    _T("Menu"),   _T("NewP"),
  _T("Full"),
  _T("ColT"),    _T("ColW"),   _T("StatT"),  _T("StatW"),
- _T("DigitV"),  _T("Mask"),   _T("Prefix")
+#ifndef UNICODE
+ _T("DigitV"),
+#endif
+ _T("Mask"),   _T("Prefix")
 };
 
 struct COptionsList
