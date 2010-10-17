@@ -3,6 +3,24 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 15.10.2010 13:23:23 +0200 - build 1694
+
+1. PluginInfo::DiskMenuNumbers -> PluginInfo::Reserved0.
+
+drkns 15.10.2010 09:22:33 +0200 - build 1693
+
+1. Correction of 1692.
+
+drkns 14.10.2010 20:01:32 +0200 - build 1692
+
+1. Experimental:
+   - plugin hotkeys in drive selection menu are now set by user with F4, not by plugins.
+   - hotkey can be a digit or any other Unicode character.
+
+drkns 06.10.2010 19:59:59 +0200
+
+1. ASLR.
+
 drkns 03.10.2010 14:28:31 +0200 - build 1691
 
 1. Correction of 1683.
