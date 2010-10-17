@@ -491,7 +491,7 @@ bool Archive::ExecuteCommand(
 		QuoteSpaceOnly(psParam.strTempPath);
 		QuoteSpaceOnly(psParam.strListFileName);
 		QuoteSpaceOnly(strFileName);
-		QuoteSpaceOnly(strPath);
+		//QuoteSpaceOnly(strPath); oops!
 		
 		psParam.strArchiveName = strFileName;
 		psParam.strShortArchiveName = strFileName;
