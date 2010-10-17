@@ -134,7 +134,11 @@ void SevenZipArchive::QueryArchiveInfo()
 					else
 		
 					if ( vt == VT_BSTR )
+#ifdef UNICODE
 						strValue = value.bstrVal;
+#else
+						strValue.SetData(value.bstrVal);
+#endif
 					else
 
 					if ( vt == VT_BOOL )
