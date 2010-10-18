@@ -293,7 +293,7 @@ bool FindFormat(const unsigned char* pBuffer, DWORD dwBufferSize, const FormatIn
 	{
 		int nPosition = pInfo->pDetectArchive(pBuffer, dwBufferSize);
 
-		if ( nPosition  != -1 )
+		if ( nPosition != -1 )
 		{
 			if ( !pInfo->bPosZero || (nPosition == 0) )
 			{

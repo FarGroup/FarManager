@@ -179,7 +179,8 @@ bool SevenZipArchive::Open()
 
 		if ( m_pFile->Open() )
 		{
-			unsigned __int64 max = 1 << 16;
+			unsigned __int64 max = Info.AdvControl(Info.ModuleNumber, ACTL_GETPLUGINMAXREADDATA, 0);
+			//unsigned __int64 max = 1 << 16;
 
 			CArchiveOpenCallback Callback(this);
 
