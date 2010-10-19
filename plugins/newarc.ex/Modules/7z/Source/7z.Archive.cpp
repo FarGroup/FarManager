@@ -192,7 +192,12 @@ bool SevenZipArchive::Open()
 
 				return true;
 			}
+
+			m_pFile->Close();
 		}
+
+		m_pFile->Release();
+		m_pArchive->Release();
 	} 
 
 	return false;

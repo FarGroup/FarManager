@@ -698,7 +698,7 @@ int ArchivePanel::pSetDirectory(
 }
 
 
-void ArchivePanel::pClosePlugin ()
+void ArchivePanel::pClosePlugin()
 {
 	for (unsigned int i = 0; i < m_pArchiveFiles.count(); i++)
 		m_pArchive->FreeArchiveItem(&m_pArchiveFiles[i]);
@@ -719,16 +719,15 @@ void ArchivePanel::pClosePlugin ()
 	}
 }
 
-/*
-#define OPERATION_TEST					0
-#define OPERATION_ADD_ARCHIVE_COMMENT	1
-#define OPERATION_ADD_FILE_COMMENT		2
-#define OPERATION_CONVERT_TO_SFX		3
-#define OPERATION_RECOVER				4
-#define OPERATION_ADD_RECOVERY_RECORD	5
-#define OPERATION_LOCK					6
+#include "mnu\\mnuChooseOperation.cpp"
 
-  */
+#define MENU_OPERATION_TEST					0
+#define MENU_OPERATION_ADD_ARCHIVE_COMMENT	1
+#define MENU_OPERATION_ADD_FILE_COMMENT		2
+#define MENU_OPERATION_CONVERT_TO_SFX		3
+#define MENU_OPERATION_RECOVER				4
+#define MENU_OPERATION_ADD_RECOVERY_RECORD	5
+#define MENU_OPERATION_LOCK					6
 
 int ArchivePanel::pProcessHostFile(
 		const PluginPanelItem *PanelItem,
@@ -736,9 +735,8 @@ int ArchivePanel::pProcessHostFile(
 		int OpMode
 		)
 {
-	return FALSE;
+	//return FALSE;
 
-/*
 	int nResult = mnuChooseOperation ();
 
 	if ( nResult != -1 )
@@ -747,35 +745,37 @@ int ArchivePanel::pProcessHostFile(
 
 		switch ( nResult ) {
 
-		case OPERATION_TEST:
+		case MENU_OPERATION_TEST:
 			nCommand = COMMAND_TEST;
 			break;
 
-		case OPERATION_ADD_ARCHIVE_COMMENT:
+		case MENU_OPERATION_ADD_ARCHIVE_COMMENT:
 			nCommand = COMMAND_ARCHIVE_COMMENT;
 			break;
 
-		case OPERATION_ADD_FILE_COMMENT:
+		case MENU_OPERATION_ADD_FILE_COMMENT:
 			nCommand = COMMAND_FILE_COMMENT;
 			break;
 
-		case OPERATION_CONVERT_TO_SFX:
+		case MENU_OPERATION_CONVERT_TO_SFX:
 			nCommand = COMMAND_CONVERT_TO_SFX;
 			break;
 
-		case OPERATION_RECOVER:
+		case MENU_OPERATION_RECOVER:
 			nCommand = COMMAND_RECOVER;
 			break;
 
-		case OPERATION_ADD_RECOVERY_RECORD:
+		case MENU_OPERATION_ADD_RECOVERY_RECORD:
 			nCommand = COMMAND_ADD_RECOVERY_RECORD;
 			break;
 
-		case OPERATION_LOCK:
+		case MENU_OPERATION_LOCK:
 			nCommand = COMMAND_LOCK;
 			break;
 		};
-*/
+	}
+
+	
 	/*	ArchiveItemArray items;
 		OperationStruct os;
 
@@ -806,8 +806,9 @@ int ArchivePanel::pProcessHostFile(
 	*/
 /*		return TRUE;
 	}
+	*/
 
-	return FALSE; */
+	return FALSE; 
 }
 
 int ArchivePanel::pMakeDirectory(const TCHAR* lpDirectory, int nOpMode)
@@ -842,7 +843,7 @@ int ArchivePanel::pProcessKey (
 
 			return FALSE;
 		}
-	}   
+	}
 
 	return FALSE;
 }
@@ -936,33 +937,33 @@ int ArchivePanel::OnStartOperation(int nOperation, StartOperationStruct *pOS)
 
 int ArchivePanel::OnQueryPassword(int nMode, PasswordStruct* pPassword)
 {
-   	if ( nMode == PASSWORD_RESET )
-   	{
-   		m_bPasswordSet = false;
+	if ( nMode == PASSWORD_RESET )
+	{
+		m_bPasswordSet = false;
 		m_strPassword = NULL;
 		return TRUE;
-   	}
+	}
 
-   	bool bResult = true;
+	bool bResult = true;
 
-   	if ( !m_bPasswordSet )
-   	{
-   		TCHAR *buffer = m_strPassword.GetBuffer(512);
+	if ( !m_bPasswordSet )
+	{
+		TCHAR *buffer = m_strPassword.GetBuffer(512);
 
-   		bResult = Info.InputBox (
-   				(nMode == PASSWORD_LIST)?_M(MQueryPasswordFileList):_M(MQueryPasswordContents),
-   				_M(MQueryPasswordEnterPassword),
-   				NULL,
-   				NULL,
-   				buffer,
-   				512,
-   				NULL,
-   				0
-   				);
+		bResult = Info.InputBox (
+				(nMode == PASSWORD_LIST)?_M(MQueryPasswordFileList):_M(MQueryPasswordContents),
+				_M(MQueryPasswordEnterPassword),
+				NULL,
+				NULL,
+				buffer,
+				512,
+				NULL,
+				0
+				);
 
 		m_strPassword.ReleaseBuffer();
-    
-       	if ( !bResult )
+
+		if ( !bResult )
 			m_strPassword = NULL;
 		else
 		{
@@ -971,15 +972,15 @@ int ArchivePanel::OnQueryPassword(int nMode, PasswordStruct* pPassword)
 			if ( m_pArchive )
 				m_pArchive->SetPassword(m_strPassword);
 		}
-   	}
+	}
 
-   	if ( m_bPasswordSet && bResult )
-   	{
-   		_tcscpy (pPassword->lpBuffer, m_strPassword);
-   		return TRUE;
-   	}
+	if ( m_bPasswordSet && bResult )
+	{
+		_tcscpy (pPassword->lpBuffer, m_strPassword);
+		return TRUE;
+	}
 
-   	return FALSE;
+	return FALSE;
 }
 
 int ArchivePanel::OnProcessFile(ProcessFileStruct *pfs)

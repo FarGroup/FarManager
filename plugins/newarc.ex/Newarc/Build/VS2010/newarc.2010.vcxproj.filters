@@ -25,6 +25,9 @@
     <Filter Include="Locale">
       <UniqueIdentifier>{8ac2a670-30ac-41af-be71-6e32fbd356d8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Menus">
+      <UniqueIdentifier>{0c0e5f67-80a3-40d8-aa6a-764a6b96963a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Framework\Src\debug.cpp">
@@ -113,6 +116,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\newarc.Plugin.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mnu\mnuChooseOperation.cpp">
+      <Filter>Source Files\Menus</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
