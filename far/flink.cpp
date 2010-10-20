@@ -342,7 +342,7 @@ int WINAPI GetNumberOfLinks(const wchar_t *Name)
 {
 	int NumberOfLinks=1;
 	File file;
-	if(file.Open(Name, 0, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
+	if(file.Open(Name, 0, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
 	{
 		BY_HANDLE_FILE_INFORMATION bhfi;
 		if (file.GetInformation(bhfi))
