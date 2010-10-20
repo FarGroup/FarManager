@@ -631,7 +631,7 @@ struct Options
 	bool IsUserAdmin;
 	string strTitleAddons;
 
-	DWORD ElevationMode;
+	int ElevationMode;
 	BOOL WindowMode;
 };
 

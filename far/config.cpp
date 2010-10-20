@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "udlist.hpp"
 #include "FarDlgBuilder.hpp"
+#include "adminmode.hpp"
 
 Options Opt={0};
 
@@ -138,6 +139,9 @@ void SystemSettings()
 	Builder.AddCheckbox(MConfigSaveViewHistory, &Opt.SaveViewHistory);
 	Builder.AddCheckbox(MConfigRegisteredTypes, &Opt.UseRegisteredTypes);
 	Builder.AddCheckbox(MConfigCloseCDGate, &Opt.CloseCDGate);
+	Builder.AddText(MConfigElevation);
+	Builder.AddCheckbox(MConfigElevationModify, &Opt.ElevationMode, ELEVATION_MODIFY_REQUEST)->Indent(2);
+	Builder.AddCheckbox(MConfigElevationRead, &Opt.ElevationMode, ELEVATION_READ_REQUEST)->Indent(2);
 	Builder.AddCheckbox(MConfigAutoSave, &Opt.AutoSaveSetup);
 	Builder.AddOKCancel();
 

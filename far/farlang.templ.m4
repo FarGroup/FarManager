@@ -1409,6 +1409,33 @@ MConfigAutoSave
 "Automatycznie &zapisuj ustawienia"
 "Auto&guardar configuración"
 
+MConfigElevation
+"Временное повышение прав пользователя для:"
+"Enable temporary elevation of user rights for:"
+upd:"Enable temporary elevation of user rights for:"
+upd:"Enable temporary elevation of user rights for:"
+upd:"Enable temporary elevation of user rights for:"
+upd:"Enable temporary elevation of user rights for:"
+upd:"Enable temporary elevation of user rights for:"
+
+MConfigElevationModify
+"изменения"
+"modification"
+upd:"modification"
+upd:"modification"
+upd:"modification"
+upd:"modification"
+upd:"modification"
+
+MConfigElevationRead
+"чтения"
+"read"
+upd:"read"
+upd:"read"
+upd:"read"
+upd:"read"
+upd:"read"
+
 MConfigPanelTitle
 l:
 "Настройки панели"
