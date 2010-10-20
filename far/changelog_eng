@@ -3,6 +3,16 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 20.10.2010 11:42:42 +0200 - build 1696
+
+1. Privileges elevation dialogs enabling/disabling is implemented in UI.
+
+drkns 20.10.2010 10:45:45 +0200 - build 1695
+
+1. Mantis#0001557: Incorrect displaying of symlink attributes
+
+2. Incorrect displaying of attributes dialog when the element is a hardlink and a symbolic link at the same time.
+
 drkns 15.10.2010 13:23:23 +0200 - build 1694
 
 1. PluginInfo::DiskMenuNumbers -> PluginInfo::Reserved0.
