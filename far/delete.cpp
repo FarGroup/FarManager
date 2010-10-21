@@ -914,7 +914,7 @@ int WipeFile(const wchar_t *Name)
 	unsigned __int64 FileSize;
 	apiSetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
 	File WipeFile;
-	if(!WipeFile.Open(Name, GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN))
+	if(!WipeFile.Open(Name, GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT|FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN))
 	{
 		return FALSE;
 	}
@@ -925,31 +925,30 @@ int WipeFile(const wchar_t *Name)
 		return FALSE;
 	}
 
-	const int BufSize=65536;
-
-	char *Buf=new char[BufSize];
-
-	memset(Buf,(BYTE)Opt.WipeSymbol,BufSize); // используем символ заполнитель
-
-	DWORD Written;
-
-	while (FileSize>0)
+	if(FileSize)
 	{
-		DWORD WriteSize=(DWORD)Min((unsigned __int64)BufSize,FileSize);
-		WipeFile.Write(Buf,WriteSize,&Written);
-		FileSize-=WriteSize;
+		const int BufSize=65536;
+		LPBYTE Buf=new BYTE[BufSize];
+		memset(Buf, Opt.WipeSymbol, BufSize); // используем символ заполнитель
+		DWORD Written;
+		while (FileSize>0)
+		{
+			DWORD WriteSize=(DWORD)Min((unsigned __int64)BufSize,FileSize);
+			WipeFile.Write(Buf,WriteSize,&Written);
+			FileSize-=WriteSize;
+		}
+		WipeFile.Write(Buf,BufSize,&Written);
+		delete[] Buf;
+		WipeFile.SetPointer(0,nullptr,FILE_BEGIN);
+		WipeFile.SetEnd();
 	}
 
-	WipeFile.Write(Buf,BufSize,&Written);
-	delete[] Buf;
-	WipeFile.SetPointer(0,nullptr,FILE_BEGIN);
-	WipeFile.SetEnd();
 	WipeFile.Close();
 	string strTempName;
 	FarMkTempEx(strTempName,nullptr,FALSE);
 
 	if (apiMoveFile(Name,strTempName))
-		return(apiDeleteFile(strTempName)); //BUGBUG
+		return apiDeleteFile(strTempName);
 
 	SetLastError((_localLastError = GetLastError()));
 	return FALSE;
