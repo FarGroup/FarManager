@@ -2550,8 +2550,8 @@ MLinkTypeHardlink
 "enlace duro"
 
 MLinkTypeSymlink
-"символическая ссылка"
-"symbolic link"
+"си&мволическая ссылка"
+"&symbolic link"
 "symbolický link"
 "Symbolischer Link"
 "Szimbolikus link"
