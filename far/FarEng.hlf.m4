@@ -155,8 +155,7 @@ and line position.
   For example: far /e70:2 readme.
 
   #/i#
-  Set small (16x16) icon for FAR console window. In some configurations this switch
-may lead to unstable work.
+  Set small (16x16) icon for FAR console window.
 
   #/p[<path>]#
   Search for "main" plugins in the folder given in <path>.
@@ -2856,6 +2855,8 @@ the item with the plugin name to create a new plugin panel. If the panel type
 is not a ~file panel~@FilePanel@, it will be changed to the file panel.
 
     #Ctrl-A#, #F4# hotkeys invoke the ~file attributes~@FileAttrDlg@.
+
+    #F4# key can be used to assign a hotkey to plugin item.
 
     #Del# key can be used:
 
