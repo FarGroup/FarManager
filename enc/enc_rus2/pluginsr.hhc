@@ -2130,10 +2130,6 @@
                                          <param name="Local" value="html/macro/macrocmd/if.html">
                                          </OBJECT>
                                  <LI> <OBJECT type="text/sitemap">
-                                         <param name="Name" value="$KbdSwitch">
-                                         <param name="Local" value="html/macro/macrocmd/kbdswitch.html">
-                                         </OBJECT>
-                                 <LI> <OBJECT type="text/sitemap">
                                          <param name="Name" value="$Rep">
                                          <param name="Local" value="html/macro/macrocmd/rep.html">
                                          </OBJECT>
