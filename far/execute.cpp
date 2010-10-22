@@ -1019,10 +1019,6 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 				if (!Opt.ConsoleDetachKey)
 				{
 					WaitForSingleObject(hProcess,INFINITE);
-					if(!Silent)
-					{
-						Console.ScrollScreenBuffer(Opt.ShowKeyBar?2:1);
-					}
 				}
 				else
 				{
@@ -1123,11 +1119,39 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 								break;
 						}
 					}
-					if(!Silent)
+				}
+
+				if(!Silent)
+				{
+					bool SkipScroll = false;
+					COORD Size;
+					if(Console.GetSize(Size))
+					{
+						COORD BufferSize = {Size.X, Opt.ShowKeyBar?3:2};
+						PCHAR_INFO Buffer = new CHAR_INFO[BufferSize.X * BufferSize.Y];
+						COORD BufferCoord = {};
+						SMALL_RECT ReadRegion = {0, Size.Y - BufferSize.Y, Size.X, Size.Y};
+						if(Console.ReadOutput(*Buffer, BufferSize, BufferCoord, ReadRegion))
+						{
+							WORD Attributes = Buffer[BufferSize.X*BufferSize.Y-1].Attributes;
+							SkipScroll = true;
+							for(int i = 0; i < BufferSize.X*BufferSize.Y; i++)
+							{
+								if(Buffer[i].Char.UnicodeChar != L' ' || Buffer[i].Attributes != Attributes)
+								{
+									SkipScroll = false;
+									break;
+								}
+							}
+							delete[] Buffer;
+						}
+					}
+					if(!SkipScroll)
 					{
 						Console.ScrollScreenBuffer(Opt.ShowKeyBar?2:1);
 					}
 				}
+
 			}
 			if(WaitForIdle)
 			{
