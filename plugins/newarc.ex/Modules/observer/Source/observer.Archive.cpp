@@ -182,7 +182,8 @@ bool ObserverArchive::Extract(
 	ProgressContextEx pc;
 
 	pc.hArchive = this; ///AAAA!!!
-	pc.ctx.nProcessedBytes = 0;
+	pc.ctx.nTotalProcessedBytes = 0;
+	pc.ctx.nProcessedFileBytes = 0;
 
 	m_uProcessedBytes = 0;
 
@@ -250,7 +251,7 @@ LONG_PTR ObserverArchive::Callback(int nMsg, int nParam1, LONG_PTR nParam2)
 
 //
 
-int __stdcall ObserverArchive::OnExtractProgress(ProgressContextEx* pContext)
+int __stdcall ObserverArchive::OnExtractProgress(ProgressContextEx* pContext, unsigned __int64 uProcessedBytes)
 {
 	ObserverArchive* pArchive = (ObserverArchive*)pContext->hArchive;
 
@@ -258,7 +259,7 @@ int __stdcall ObserverArchive::OnExtractProgress(ProgressContextEx* pContext)
 
 	memset(&PD, 0, sizeof(ProcessDataStruct));
 
-	PD.uProcessedSize = pContext->ctx.nProcessedBytes-pArchive->m_uProcessedBytes;
+	PD.uProcessedSize = uProcessedBytes;//-pArchive->m_uProcessedBytes;
 
 	pArchive->m_uProcessedBytes += PD.uProcessedSize;
 

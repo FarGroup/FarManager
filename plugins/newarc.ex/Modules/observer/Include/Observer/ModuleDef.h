@@ -3,10 +3,36 @@
 
 #define MODULE_EXPORT __stdcall
 
+//from ObserverUni.cpp
+
+struct ProgressContext
+{
+	wchar_t wszFilePath[MAX_PATH];
+	int nCurrentFileNumber;
+	__int64 nCurrentFileSize;
+	
+	int nTotalFiles;
+	__int64 nTotalSize;
+
+	__int64 nProcessedFileBytes;
+	__int64 nTotalProcessedBytes;
+	int nCurrentProgress;
+	
+	ProgressContext()
+	{
+		memset(wszFilePath, 0, sizeof(wszFilePath));
+		nCurrentFileNumber = 0;
+		nTotalFiles = 0;
+		nTotalSize = 0;
+		nProcessedFileBytes = 0;
+		nCurrentFileSize = 0;
+		nTotalProcessedBytes = 0;
+		nCurrentProgress = -1;
+	}
+};
+
 // Extract progress callbacks
-typedef int (CALLBACK *ExtractStartFunc)(HANDLE);
-typedef int (CALLBACK *ExtractProgressFunc)(HANDLE);
-typedef void (CALLBACK *ExtractEndFunc)(HANDLE);
+typedef int (CALLBACK *ExtractProgressFunc)(HANDLE, __int64);
 
 struct ExtractProcessCallbacks
 {
@@ -14,29 +40,7 @@ struct ExtractProcessCallbacks
 	ExtractProgressFunc FileProgress;
 };
 
-struct ProgressContext
-{
-	char szFilePath[MAX_PATH];
-	wchar_t wszFilePath[MAX_PATH];
-
-	int nCurrentFileNumber;
-	int nTotalFiles;
-	__int64 nProcessedBytes;
-	__int64 nTotalSize;
-	int nCurrentFileProgress;
-
-	ProgressContext()
-	{
-		memset(szFilePath, 0, MAX_PATH);
-		nCurrentFileNumber = 0;
-		nTotalFiles = 0;
-		nTotalSize = 0;
-		nProcessedBytes = 0;
-		nCurrentFileProgress = 0;
-	}
-};
-
-#define STORAGE_FORMAT_NAME_MAX_LEN 16
+#define STORAGE_FORMAT_NAME_MAX_LEN 32
 #define STORAGE_PARAM_MAX_LEN 64
 
 struct StorageGeneralInfo

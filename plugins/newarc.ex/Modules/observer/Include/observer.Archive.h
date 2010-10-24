@@ -64,6 +64,6 @@ private:
 	bool Open();
 	void Close();
 
-	static int __stdcall OnExtractProgress(ProgressContextEx* pContext);
+	static int __stdcall OnExtractProgress(ProgressContextEx* pContext, unsigned __int64 uProcessedBytes);
 };
 

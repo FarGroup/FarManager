@@ -207,7 +207,6 @@ int ObserverPlugin::ExtractItem(
 {
 	ExtractOperationParams params;
 
-
 	memset(&params, 0, sizeof(params));
 	memcpy(&params.callbacks, pCallbacks, sizeof(ExtractProcessCallbacks));
 
