@@ -1410,31 +1410,40 @@ MConfigAutoSave
 "Auto&guardar configuración"
 
 MConfigElevation
-"Временное повышение прав пользователя для:"
-"Enable temporary elevation of user rights for:"
-upd:"Enable temporary elevation of user rights for:"
-upd:"Enable temporary elevation of user rights for:"
-upd:"Enable temporary elevation of user rights for:"
-upd:"Enable temporary elevation of user rights for:"
-upd:"Enable temporary elevation of user rights for:"
+"Запрос прав администратора:"
+"Request administrator rights:"
+upd:"request administrator rights:"
+upd:"request administrator rights:"
+upd:"request administrator rights:"
+upd:"request administrator rights:"
+upd:"request administrator rights:"
 
 MConfigElevationModify
-"изменения"
-"modification"
-upd:"modification"
-upd:"modification"
-upd:"modification"
-upd:"modification"
-upd:"modification"
+"для изменения"
+"for modification"
+upd:"for modification"
+upd:"for modification"
+upd:"for modification"
+upd:"for modification"
+upd:"for modification"
 
 MConfigElevationRead
-"чтения"
-"read"
-upd:"read"
-upd:"read"
-upd:"read"
-upd:"read"
-upd:"read"
+"для чтения"
+"for read"
+upd:"for read"
+upd:"for read"
+upd:"for read"
+upd:"for read"
+upd:"for read"
+
+MConfigElevationUsePrivileges
+"использовать дополнительные привилегии"
+"use additional privileges"
+upd:"use additional privileges"
+upd:"use additional privileges"
+upd:"use additional privileges"
+upd:"use additional privileges"
+upd:"use additional privileges"
 
 MConfigPanelTitle
 l:

@@ -408,7 +408,10 @@ void AdminApproveDlgSync(LPVOID Param)
 
 bool AdminMode::AdminApproveDlg(int Why, LPCWSTR Object)
 {
-	if(FrameManager && !FrameManager->ManagerIsDown() && AskApprove && !DontAskAgain && !Recurse)
+	if(!(Opt.IsUserAdmin && !(Opt.ElevationMode&ELEVATION_USE_PRIVILEGES)) &&
+		AskApprove && !DontAskAgain &&
+		!Recurse &&
+		FrameManager && !FrameManager->ManagerIsDown())
 	{
 		Recurse = true;
 		GuardLastError error;
@@ -442,7 +445,7 @@ bool AdminMode::fCreateDirectoryEx(LPCWSTR TemplateObject, LPCWSTR Object, LPSEC
 		if(Opt.IsUserAdmin)
 		{
 			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
-      Result = (TemplateObject?CreateDirectoryEx(TemplateObject, Object, Attributes):CreateDirectory(Object, Attributes)) != FALSE;
+			Result = (TemplateObject?CreateDirectoryEx(TemplateObject, Object, Attributes):CreateDirectory(Object, Attributes)) != FALSE;
 		}
 		else
 		{
@@ -2393,8 +2396,8 @@ int AdminMain(int PID)
 	SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
 
 	Privilege
-		BackupPrivilege(SE_BACKUP_NAME),
-		RestorePrivilege(SE_RESTORE_NAME),
+		BackupPrivilege(Opt.ElevationMode&ELEVATION_USE_PRIVILEGES?SE_BACKUP_NAME:nullptr),
+		RestorePrivilege(Opt.ElevationMode&ELEVATION_USE_PRIVILEGES?SE_RESTORE_NAME:nullptr),
 		TakeOwnershipPrivilege(SE_TAKE_OWNERSHIP_NAME),
 		CreateSymbolicLinkPrivilege(SE_CREATE_SYMBOLIC_LINK_NAME);
 
