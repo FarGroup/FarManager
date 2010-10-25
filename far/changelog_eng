@@ -3,6 +3,34 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 25.10.2010 21:39:28 +0200 - build 1701
+
+1. Rollback of 1699.
+
+drkns 25.10.2010 11:56:14 +0200 - build 1700
+
+1. VCTL_GETINFO returned incorrect value of ViewerInfo::WindowSizeY.
+
+drkns 24.10.2010 20:35:03 +0200 - build 1699
+
+1. A separate option for controlling of extra privileges use.
+
+drkns 23.10.2010 00:21:14 +0200 - build 1698
+
+1. At the following .BAT file launch:
+
+@echo off
+cls
+echo 1
+echo 2
+echo 3
+
+the first two items were not displayed.
+
+drkns 21.10.2010 11:57:27 +0200 - build 1697
+
+1. Symlink wipe led to damaged target file.
+
 drkns 20.10.2010 11:42:42 +0200 - build 1696
 
 1. Privileges elevation dialogs enabling/disabling is implemented in UI.
