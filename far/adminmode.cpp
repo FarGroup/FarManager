@@ -408,8 +408,8 @@ void AdminApproveDlgSync(LPVOID Param)
 
 bool AdminMode::AdminApproveDlg(int Why, LPCWSTR Object)
 {
-	if(AskApprove && !DontAskAgain &&
-		!Recurse &&
+	if(!(Opt.IsUserAdmin && !(Opt.ElevationMode&ELEVATION_USE_PRIVILEGES)) &&
+		AskApprove && !DontAskAgain &&		!Recurse &&
 		FrameManager && !FrameManager->ManagerIsDown())
 	{
 		Recurse = true;
@@ -2395,8 +2395,8 @@ int AdminMain(int PID)
 	SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
 
 	Privilege
-		BackupPrivilege(SE_BACKUP_NAME),
-		RestorePrivilege(SE_RESTORE_NAME),
+		BackupPrivilege(Opt.ElevationMode&ELEVATION_USE_PRIVILEGES?SE_BACKUP_NAME:nullptr),
+		RestorePrivilege(Opt.ElevationMode&ELEVATION_USE_PRIVILEGES?SE_RESTORE_NAME:nullptr),
 		TakeOwnershipPrivilege(SE_TAKE_OWNERSHIP_NAME),
 		CreateSymbolicLinkPrivilege(SE_CREATE_SYMBOLIC_LINK_NAME);
 

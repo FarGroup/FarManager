@@ -1436,6 +1436,15 @@ upd:"for read"
 upd:"for read"
 upd:"for read"
 
+MConfigElevationUsePrivileges
+"использовать дополнительные привилегии"
+"use additional privileges"
+upd:"use additional privileges"
+upd:"use additional privileges"
+upd:"use additional privileges"
+upd:"use additional privileges"
+upd:"use additional privileges"
+
 MConfigPanelTitle
 l:
 "Настройки панели"
