@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Privilege::Privilege(LPCWSTR PrivilegeName):hToken(INVALID_HANDLE_VALUE),Changed(false)
 {
-	if (PrivilegeName && OpenProcessToken(GetCurrentProcess(),TOKEN_ADJUST_PRIVILEGES|TOKEN_QUERY,&hToken))
+	if (OpenProcessToken(GetCurrentProcess(),TOKEN_ADJUST_PRIVILEGES|TOKEN_QUERY,&hToken))
 	{
 		TOKEN_PRIVILEGES NewState={1};
 		if (LookupPrivilegeValue(nullptr,PrivilegeName,&NewState.Privileges->Luid))

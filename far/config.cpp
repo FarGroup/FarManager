@@ -142,7 +142,6 @@ void SystemSettings()
 	Builder.AddText(MConfigElevation);
 	Builder.AddCheckbox(MConfigElevationModify, &Opt.ElevationMode, ELEVATION_MODIFY_REQUEST)->Indent(4);
 	Builder.AddCheckbox(MConfigElevationRead, &Opt.ElevationMode, ELEVATION_READ_REQUEST)->Indent(4);
-	Builder.AddCheckbox(MConfigElevationUsePrivileges, &Opt.ElevationMode, ELEVATION_USE_PRIVILEGES)->Indent(4);
 	Builder.AddCheckbox(MConfigAutoSave, &Opt.AutoSaveSetup);
 	Builder.AddOKCancel();
 
