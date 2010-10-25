@@ -1,4 +1,4 @@
-drkns 24.10.2010 20:35:03 +0200 - build 1700
+drkns 25.10.2010 11:56:14 +0200 - build 1700
 
 1. При VCTL_GETINFO возвращалось некорректное значение ViewerInfo::WindowSizeY.
 
