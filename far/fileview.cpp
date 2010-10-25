@@ -184,7 +184,7 @@ void FileViewer::InitKeyBar()
 	ViewKeyBar.ReadRegGroup(L"Viewer",Opt.strLanguage);
 	ViewKeyBar.SetAllRegGroup();
 	SetKeyBar(&ViewKeyBar);
-	View.SetPosition(X1,Y1,X2,Y2-(Opt.ViOpt.ShowKeyBar?1:0));
+	View.SetPosition(X1,Y1+(Opt.ViOpt.ShowTitleBar?1:0),X2,Y2-(Opt.ViOpt.ShowKeyBar?1:0));
 	View.SetViewKeyBar(&ViewKeyBar);
 }
 
