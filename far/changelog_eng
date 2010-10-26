@@ -3,6 +3,18 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 26.10.2010 12:25:02 +0300 - build 1703
+
+1. The first iteration of Mantis#0000466. It is wrapped temporarily in PROCPLUGINMACROFUNC (unavailable in a regular build)
+
+2. Code exchange between macro.cpp and syntax.cpp
+   An inner entity is introduced: "registration of a function".
+
+drkns 26.10.2010 00:45:47 +0200 - build 1702
+
+1. At users' wish, the rollback is rolled back.
+   Privileges option is restored and it is off by default.
+
 drkns 25.10.2010 21:39:28 +0200 - build 1701
 
 1. Rollback of 1699.
