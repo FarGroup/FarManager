@@ -111,7 +111,9 @@ enum PLUGINITEMCALLFUNCFLAGS
 	PICFF_PROCESSVIEWEREVENT   = 0x04000000, //
 	PICFF_PROCESSDIALOGEVENT   = 0x08000000, //
 	PICFF_PROCESSSYNCHROEVENT  = 0x10000000, //
-
+#if defined(PROCPLUGINMACROFUNC)
+	PICFF_PROCESSMACROFUNC     = 0x20000000, //
+#endif
 	// PICFF_PANELPLUGIN - первая попытка определиться с понятием "это панель"
 	PICFF_PANELPLUGIN          = PICFF_OPENFILEPLUGIN|
 	PICFF_GETFINDDATA|
@@ -252,7 +254,9 @@ class PluginManager
 		int ProcessEditorEvent(int Event,void *Param);
 		int ProcessViewerEvent(int Event,void *Param);
 		int ProcessDialogEvent(int Event,void *Param);
-
+#if defined(PROCPLUGINMACROFUNC)
+		int ProcessMacroFunc(const wchar_t *Name, const FarMacroValue *Params, int nParams, FarMacroValue **Results, int *nResults);
+#endif
 		void GetCustomData(FileListItem *ListItem);
 
 		friend class Plugin;

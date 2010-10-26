@@ -169,6 +169,9 @@ class PluginA: public Plugin
 		bool HasProcessViewerEvent() { return pProcessViewerEvent!=nullptr; }
 		bool HasProcessDialogEvent() { return pProcessDialogEvent!=nullptr; }
 		bool HasProcessSynchroEvent() { return false; }
+#if defined(PROCPLUGINMACROFUNC)
+		bool HasProcessMacroFunc() { return false; }
+#endif
 		bool HasAnalyse() { return false; }
 		bool HasGetCustomData()  { return false; }
 		bool HasFreeCustomData() { return false; }
@@ -218,6 +221,9 @@ class PluginA: public Plugin
 		int ProcessViewerEvent(int Event, PVOID Param);
 		int ProcessDialogEvent(int Event, PVOID Param);
 		int ProcessSynchroEvent(int Event, PVOID Param) { return 0; }
+#if defined(PROCPLUGINMACROFUNC)
+		int ProcessMacroFunc(const wchar_t *Name, const FarMacroValue *Params, int nParams, FarMacroValue **Results, int *nResults) {return 0;}
+#endif
 
 		int Analyse(const AnalyseData *pData) { return FALSE; }
 

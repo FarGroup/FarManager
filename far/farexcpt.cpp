@@ -99,6 +99,9 @@ LPCWSTR GetFunctionName(int ExceptFunctionType)
 		case EXCEPT_ANALYSE: return L"Analyse";
 		case EXCEPT_GETCUSTOMDATA: return L"GetCustomData";
 		case EXCEPT_FREECUSTOMDATA: return L"FreeCustomData";
+#if defined(PROCPLUGINMACROFUNC)
+		case EXCEPT_PROCESSMACROFUNC: return L"ProcessMacroFunc";
+#endif
 	}
 
 	return L"";
@@ -260,6 +263,9 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 						PlugRec.FuncFlags|=Module->HasProcessViewerEvent()?PICFF_PROCESSVIEWEREVENT:0;
 						PlugRec.FuncFlags|=Module->HasProcessDialogEvent()?PICFF_PROCESSDIALOGEVENT:0;
 						PlugRec.FuncFlags|=Module->HasProcessSynchroEvent()?PICFF_PROCESSSYNCHROEVENT:0;
+#if defined(PROCPLUGINMACROFUNC)
+						PlugRec.FuncFlags|=Module->HasProcessMacroFunc()?PICFF_PROCESSMACROFUNC:0;
+#endif
 					}
 
 					Res=p(xp,(Module?&PlugRec:nullptr),&LocalStartupInfo,&Result);

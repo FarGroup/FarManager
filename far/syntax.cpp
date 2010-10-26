@@ -292,121 +292,27 @@ static inline int getChar()
 	return EOFCH;
 }
 
-struct TMacroFunction
-{
-	const wchar_t *Name;             // имя функции
-	int nParam;                      // количество параметров
-	int oParam;                      // необязательные параметры
-	TMacroOpCode Code;               // байткод функции
-	const wchar_t *fnGUID;           // GUID обработчика функции
-	/*
-	int    BufferSize;               // Размер буфера компилированной последовательности
-	DWORD *Buffer;                   // компилированная последовательность (OpCode) макроса
-	wchar_t  *Src;                   // оригинальный "текст" макроса
-	wchar_t  *Description;           // описание макроса
-	*/
-	const wchar_t *Syntax;           // Синтаксис функции
-};
-
-static TMacroFunction macroFunction[]=
-{
-	{L"ABS",              1, 0,   MCODE_F_ABS,              nullptr, L"N=Abs(N)"},
-	{L"AKEY",             2, 1,   MCODE_F_AKEY,             nullptr, L"V=Akey(Mode[,Type])"},
-	{L"ASC",              1, 0,   MCODE_F_ASC,              nullptr, L"N=Asc(N)"},
-	{L"ATOI",             2, 1,   MCODE_F_ATOI,             nullptr, L"N=Atoi(S[,radix])"},
-	{L"BEEP",             1, 1,   MCODE_F_BEEP,             nullptr, L"N=Beep([N])"},
-	{L"BM.ADD",           0, 0,   MCODE_F_BM_ADD,           nullptr, L"N=BM.Add()"},
-	{L"BM.CLEAR",         0, 0,   MCODE_F_BM_CLEAR,         nullptr, L"N=BM.Clear()"},
-	{L"BM.DEL",           1, 1,   MCODE_F_BM_DEL,           nullptr, L"N=BM.Del([Idx])"},
-	{L"BM.GET",           2, 0,   MCODE_F_BM_GET,           nullptr, L"N=BM.Get(Idx,M)"},
-	{L"BM.NEXT",          0, 0,   MCODE_F_BM_NEXT,          nullptr, L"N=BM.Next()"},
-	{L"BM.PREV",          0, 0,   MCODE_F_BM_PREV,          nullptr, L"N=BM.Prev()"},
-	{L"BM.STAT",          1, 1,   MCODE_F_BM_STAT,          nullptr, L"N=BM.Stat([N])"},
-	{L"CHECKHOTKEY",      2, 1,   MCODE_F_MENU_CHECKHOTKEY, nullptr, L"N=checkhotkey(S[,N])"},
-	{L"CALLPLUGIN",       2, 1,   MCODE_F_CALLPLUGIN,       nullptr, L"V=CallPlugin(SysID[,param])"},
-	{L"CHR",              1, 0,   MCODE_F_CHR,              nullptr, L"S=Chr(N)"},
-	{L"CLIP",             2, 1,   MCODE_F_CLIP,             nullptr, L"V=Clip(N[,V])"},
-	{L"DATE",             1, 1,   MCODE_F_DATE,             nullptr, L"S=Date([S])"},
-	{L"DLG.GETVALUE",     2, 0,   MCODE_F_DLG_GETVALUE,     nullptr, L"V=Dlg.GetValue(ID,N)"},
-	{L"EDITOR.POS",       3, 1,   MCODE_F_EDITOR_POS,       nullptr, L"N=Editor.Pos(Op,What[,Where])"},
-	{L"EDITOR.SEL",       2, 1,   MCODE_F_EDITOR_SEL,       nullptr, L"V=Editor.Sel(Action[,Opt])"},
-	{L"EDITOR.SET",       2, 0,   MCODE_F_EDITOR_SET,       nullptr, L"N=Editor.Set(N,Var)"},
-	{L"EDITOR.SETTITLE",  1, 1,   MCODE_F_EDITOR_SETTITLE,  nullptr, L"N=Editor.SetTitle([Title])"},
-	{L"EDITOR.UNDO",      1, 0,   MCODE_F_EDITOR_UNDO,      nullptr, L"V=Editor.Undo(N)"},
-	{L"ENV",              1, 0,   MCODE_F_ENVIRON,          nullptr, L"S=Env(S)"},
-	{L"EVAL",             2, 1,   MCODE_F_EVAL,             nullptr, L"N=Eval(S[,N])"},
-	{L"FATTR",            1, 0,   MCODE_F_FATTR,            nullptr, L"N=FAttr(S)"},
-	{L"FEXIST",           1, 0,   MCODE_F_FEXIST,           nullptr, L"N=FExist(S)"},
-	{L"FLOAT",            1, 0,   MCODE_F_FLOAT,            nullptr, L"N=Float(V)"},
-	{L"FLOCK",            2, 0,   MCODE_F_FLOCK,            nullptr, L"N=FLock(N,N)"},
-	{L"FSPLIT",           2, 0,   MCODE_F_FSPLIT,           nullptr, L"S=FSplit(S,N)"},
-	{L"GETHOTKEY",        1, 1,   MCODE_F_MENU_GETHOTKEY,   nullptr, L"S=GetHotkey([N])"},
-	{L"IIF",              3, 0,   MCODE_F_IIF,              nullptr, L"V=Iif(Condition,V1,V2)"},
-	{L"INDEX",            3, 1,   MCODE_F_INDEX,            nullptr, L"S=Index(S1,S2[,Mode])"},
-	{L"INT",              1, 0,   MCODE_F_INT,              nullptr, L"N=Int(V)"},
-	{L"ITOA",             2, 1,   MCODE_F_ITOA,             nullptr, L"S=Itoa(N[,radix])"},
-	{L"LCASE",            1, 0,   MCODE_F_LCASE,            nullptr, L"S=LCase(S1)"},
-	{L"KBDLAYOUT",        1, 1,   MCODE_F_KBDLAYOUT,        nullptr, L"N=kbdLayout([N])"},
-	{L"KEY",              1, 0,   MCODE_F_KEY,              nullptr, L"S=Key(V)"},
-	{L"LEN",              1, 0,   MCODE_F_LEN,              nullptr, L"N=Len(S)"},
-	{L"MAX",              2, 0,   MCODE_F_MAX,              nullptr, L"N=Max(N1,N2)"},
-	{L"MENU.GETVALUE",    1, 1,   MCODE_F_MENU_GETVALUE,    nullptr, L"S=Menu.GetValue([N])"},
-	{L"MENU.ITEMSTATUS",  1, 1,   MCODE_F_MENU_ITEMSTATUS,  nullptr, L"N=Menu.ItemStatus([N])"},
-	{L"MENU.SELECT",      3, 2,   MCODE_F_MENU_SELECT,      nullptr, L"N=Menu.Select(S[,N[,Dir]])"},
-	{L"MLOAD",            1, 0,   MCODE_F_MLOAD,            nullptr, L"N=MLoad(S)"},
-	{L"MMODE",            2, 1,   MCODE_F_MMODE,            nullptr, L"N=MMode(Action[,Value])"},
-	{L"MOD",              2, 0,   MCODE_F_MOD,              nullptr, L"N=Mod(a,b)"},
-	{L"MSAVE",            1, 0,   MCODE_F_MSAVE,            nullptr, L"N=MSave(S)"},
-	{L"MSGBOX",           3, 3,   MCODE_F_MSGBOX,           nullptr, L"N=MsgBox([Title[,Text[,flags]]])"},
-	{L"MIN",              2, 0,   MCODE_F_MIN,              nullptr, L"N=Min(N1,N2)"},
-	{L"PANEL.FATTR",      2, 0,   MCODE_F_PANEL_FATTR,      nullptr, L"N=Panel.FAttr(panelType,fileMask)"},
-	{L"PANEL.FEXIST",     2, 0,   MCODE_F_PANEL_FEXIST,     nullptr, L"N=Panel.FExist(panelType,fileMask)"},
-	{L"PANEL.ITEM",       3, 0,   MCODE_F_PANELITEM,        nullptr, L"V=Panel.Item(Panel,Index,TypeInfo)"},
-	{L"PANEL.SELECT",     4, 2,   MCODE_F_PANEL_SELECT,     nullptr, L"V=Panel.Select(panelType,Action[,Mode[,Items]])"},
-	{L"PANEL.SETPATH",    3, 1,   MCODE_F_PANEL_SETPATH,    nullptr, L"N=panel.SetPath(panelType,pathName[,fileName])"},
-	{L"PANEL.SETPOS",     2, 0,   MCODE_F_PANEL_SETPOS,     nullptr, L"N=panel.SetPos(panelType,fileName)"},
-	{L"PANEL.SETPOSIDX",  3, 1,   MCODE_F_PANEL_SETPOSIDX,  nullptr, L"N=Panel.SetPosIdx(panelType,Idx[,InSelection])"},
-	{L"PANELITEM",        3, 0,   MCODE_F_PANELITEM,        nullptr, L"V=PanelItem(Panel,Index,TypeInfo)"},
-	{L"PRINT",            1, 0,   MCODE_F_PRINT,            nullptr, L"N=Print(Str)"},
-	{L"PROMPT",           5, 4,   MCODE_F_PROMPT,           nullptr, L"S=Prompt(Title[,Prompt[,flags[,Src[,HistoryName]]]])"},
-	{L"REPLACE",          5, 2,   MCODE_F_REPLACE,          nullptr, L"S=Replace(Str,Find,Replace[,Cnt[,Mode]])"},
-	{L"RINDEX",           3, 1,   MCODE_F_RINDEX,           nullptr, L"S=RIndex(S1,S2[,Mode])"},
-	{L"SLEEP",            1, 0,   MCODE_F_SLEEP,            nullptr, L"N=Sleep(N)"},
-	{L"STRING",           1, 0,   MCODE_F_STRING,           nullptr, L"S=String(V)"},
-	{L"SUBSTR",           3, 1,   MCODE_F_SUBSTR,           nullptr, L"S=SubStr(S,N1[,N2])"},
-	{L"TESTFOLDER",       1, 0,   MCODE_F_TESTFOLDER,       nullptr, L"N=testfolder(S)"},
-	{L"TRIM",             2, 1,   MCODE_F_TRIM,             nullptr, L"S=Trim(S[,N])"},
-	{L"UCASE",            1, 0,   MCODE_F_UCASE,            nullptr, L"S=UCase(S1)"},
-	{L"WAITKEY",          2, 2,   MCODE_F_WAITKEY,          nullptr, L"V=Waitkey([N,[T]])"},
-	{L"XLAT",             1, 0,   MCODE_F_XLAT,             nullptr, L"S=Xlat(S)"},
-};
-
-/*
-	for(size_t I=0; I < ARRAYSIZE(macroFunction); ++I)
-	{
-		RegisterMacroFunction(macroFunction[I].Name, macroFunction[I].nParam, macroFunction[I].oParam, macroFunction[I].Code, macroFunction[I].fnGUID, macroFunction[I].Src, macroFunction[I].Syntax, macroFunction[I].Description);
-	}
-
-
-bool KeyMacro::RegisterMacroFunction(const wchar_t *Name, int nParam, int oParam, DWORD OpCode, const wchar_t *fnGUID, const wchar_t *Src, const wchar_t *Syntax, const wchar_t *Description)
-{
-	if ( !OpCode ) // получить временный OpCode относительно KEY_MACRO_U_BASE
-		OpCode=GetNewOpCode();
-	...
-}
-*/
-
 static DWORD funcLook(const wchar_t *s, int& nParam, int& oParam)
 {
+	static bool InitedInternalFuncs=false;
+	if (!InitedInternalFuncs)
+	{
+		KeyMacro::RegisterMacroIntFunction();
+		InitedInternalFuncs=true;
+	}
+
 	oParam=nParam=0;
 
-	for (size_t I=0; I < ARRAYSIZE(macroFunction); ++I)
+	size_t CountMacroFunction=KeyMacro::GetCountMacroFunction();
+
+	for (size_t I=0; I < CountMacroFunction; ++I)
 	{
-		if (!StrCmpNI(s, macroFunction[I].Name, (int)Max(StrLength(macroFunction[I].Name),StrLength(s))))
+		const TMacroFunction *mFunc=KeyMacro::GetMacroFunction(I);
+		if (!StrCmpNI(s, mFunc->Name, (int)Max(StrLength(mFunc->Name),StrLength(s))))
 		{
-			nParam = macroFunction[I].nParam;
-			oParam = macroFunction[I].oParam;
-			return (DWORD)macroFunction[I].Code;
+			nParam = mFunc->nParam;
+			oParam = mFunc->oParam;
+			return (DWORD)mFunc->Code;
 		}
 	}
 
@@ -1398,14 +1304,18 @@ static void printKeyValue(DWORD* k, int& i)
 	string _mcodename=_MCODE_ToName(Code);
 	string cmt;
 
-	if (Code >= MCODE_F_NOFUNC && Code <= KEY_MACRO_C_BASE-1)
+	if (Code >= MCODE_F_NOFUNC && Code <= KEY_MACRO_C_BASE-1 || Code >= KEY_MACRO_U_BASE && Code <= KEY_MACRO_ENDBASE-1)
 	{
-		for (int J=0; J <= ARRAYSIZE(macroFunction); ++J)
-			if (macroFunction[J].Code == Code)
+		size_t CountMacroFunction=KeyMacro::GetCountMacroFunction();
+		for (size_t J=0; J < CountMacroFunction; ++J)
+		{
+			const TMacroFunction *mFunc=KeyMacro::GetMacroFunction(J);
+			if (mFunc[J].Code == Code)
 			{
-				cmt=macroFunction[J].Syntax;
+				cmt=mFunc[J].Syntax;
 				break;
 			}
+		}
 	}
 
 	if (Code == MCODE_OP_KEYS)

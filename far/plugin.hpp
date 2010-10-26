@@ -1268,6 +1268,28 @@ struct ActlKeyMacro
 	} Param;
 };
 
+#ifdef FAR_USE_INTERNALS
+#if defined(PROCPLUGINMACROFUNC)
+enum FARMACROVARTYPE
+{
+	FMVT_INTEGER                = 0,
+	FMVT_STRING                 = 1,
+	FMVT_DOUBLE                 = 2,
+};
+
+struct FarMacroValue
+{
+	FARMACROVARTYPE type;
+	union
+	{
+		__int64  i;
+		double   d;
+		const wchar_t *s;
+	} v;
+};
+#endif
+#endif // END FAR_USE_INTERNALS
+
 enum FARCOLORFLAGS
 {
 	FCLR_REDRAW                 = 0x00000001,
@@ -1990,6 +2012,7 @@ struct PluginInfo
 #else // ELSE FAR_USE_INTERNALS
 	DWORD Reserved;
 #endif // END FAR_USE_INTERNALS
+	const wchar_t *MacroNamespace;
 };
 
 
@@ -2224,6 +2247,11 @@ extern "C"
 	int    WINAPI _export ProcessEventW(HANDLE hPlugin,int Event,void *Param);
 	int    WINAPI _export ProcessHostFileW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
 	int    WINAPI _export ProcessKeyW(HANDLE hPlugin,int Key,unsigned int ControlState);
+#ifdef FAR_USE_INTERNALS
+	#if defined(PROCPLUGINMACROFUNC)
+	int    WINAPI _export ProcessMacroFuncW(const wchar_t *Name, const FarMacroValue *Params, int nParams, FarMacroValue **Results, int *nResults);
+	#endif
+#endif // END FAR_USE_INTERNALS
 	int    WINAPI _export ProcessSynchroEventW(int Event,void *Param);
 	int    WINAPI _export ProcessViewerEventW(int Event,void *Param);
 	int    WINAPI _export PutFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t *SrcPath,int OpMode);

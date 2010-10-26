@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "syntax.hpp"
 #include "tvar.hpp"
+#include "macroopcode.hpp"
 
 enum MACRODISABLEONLOAD
 {
@@ -116,6 +117,33 @@ enum MACRORECORDANDEXECUTETYPE
 
 class Panel;
 
+struct TMacroFunction;
+typedef bool (*INTMACROFUNC)(const TMacroFunction*);
+
+enum INTMF_FLAGS{
+	IMFF_UNLOCKSCREEN               =0x00000001,
+	IMFF_DISABLEINTINPUT            =0x00000002,
+};
+
+struct TMacroFunction
+{
+	const wchar_t *Name;             // имя функции
+	int nParam;                      // количество параметров
+	int oParam;                      // необязательные параметры
+	TMacroOpCode Code;               // байткод функции
+	const wchar_t *fnGUID;           // GUID обработчика функции
+
+	int    BufferSize;               // Размер буфера компилированной последовательности
+	DWORD *Buffer;                   // компилированная последовательность (OpCode) макроса
+	//wchar_t  *Src;                   // оригинальный "текст" макроса
+	//wchar_t  *Description;           // описание макроса
+
+	const wchar_t *Syntax;           // Синтаксис функции
+
+	DWORD IntFlags;                  // флаги из INTMF_FLAGS (в основном отвечающие "как вызывать функцию")
+	INTMACROFUNC Func;               // функция
+};
+
 struct MacroRecord
 {
 	DWORD  Flags;         // Флаги макропоследовательности
@@ -164,7 +192,13 @@ class KeyMacro
 {
 	private:
 		DWORD MacroVersion;
-		DWORD LastOpCodeUF; // последний не занятый OpCode для UserFunction (относительно KEY_MACRO_U_BASE)
+
+		static DWORD LastOpCodeUF; // последний не занятый OpCode для UserFunction (относительно KEY_MACRO_U_BASE)
+		// для функций
+		static size_t CMacroFunction;
+		static size_t AllocatedFuncCount;
+		static TMacroFunction *AMacroFunction;
+
 		// тип записи - с вызовом диалога настроек или...
 		// 0 - нет записи, 1 - простая запись, 2 - вызов диалога настроек
 		int Recording;
@@ -215,7 +249,6 @@ class KeyMacro
 		TVar FARPseudoVariable(DWORD Flags,DWORD Code,DWORD& Err);
 		DWORD GetOpCode(struct MacroRecord *MR,int PC);
 		DWORD SetOpCode(struct MacroRecord *MR,int PC,DWORD OpCode);
-		DWORD GetNewOpCode();
 
 	private:
 		static LONG_PTR WINAPI AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
@@ -283,6 +316,13 @@ class KeyMacro
 		BOOL GetMacroParseError(string *Err1, string *Err2, string *Err3, string *Err4);
 
 		static void SetMacroConst(const wchar_t *ConstName, const TVar Value);
+		static DWORD GetNewOpCode();
+
+		static size_t GetCountMacroFunction();
+		static const TMacroFunction *GetMacroFunction(size_t Index);
+		static void RegisterMacroIntFunction();
+		static TMacroFunction *RegisterMacroFunction(const TMacroFunction *tmfunc);
+		static bool UnregMacroFunction(size_t Index);
 };
 
 BOOL WINAPI KeyMacroToText(int Key,string &strKeyText0);

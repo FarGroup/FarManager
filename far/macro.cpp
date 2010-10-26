@@ -268,9 +268,6 @@ TMacroKeywords MKeywordsFlags[] =
 	{1,  L"NoSendKeysToPlugins",MFLAGS_NOSENDKEYSTOPLUGINS,0},
 };
 
-int MKeywordsSize = ARRAYSIZE(MKeywords);
-int MKeywordsFlagsSize = ARRAYSIZE(MKeywordsFlags);
-
 // транслирующая таблица - имя <-> код макроклавиши
 static struct TKeyCodeName
 {
@@ -292,6 +289,145 @@ static struct TKeyCodeName
 	{ MCODE_OP_XLAT,                 5, L"$XLat"      },
 };
 
+bool absFunc(const TMacroFunction*);
+bool ascFunc(const TMacroFunction*);
+bool atoiFunc(const TMacroFunction*);
+bool beepFunc(const TMacroFunction*);
+bool callpluginFunc(const TMacroFunction*);
+bool chrFunc(const TMacroFunction*);
+bool clipFunc(const TMacroFunction*);
+bool dateFunc(const TMacroFunction*);
+bool dlggetvalueFunc(const TMacroFunction*);
+bool editorposFunc(const TMacroFunction*);
+bool editorselFunc(const TMacroFunction*);
+bool editorsetFunc(const TMacroFunction*);
+bool editorsettitleFunc(const TMacroFunction*);
+bool editorundoFunc(const TMacroFunction*);
+bool environFunc(const TMacroFunction*);
+bool fattrFunc(const TMacroFunction*);
+bool fexistFunc(const TMacroFunction*);
+bool floatFunc(const TMacroFunction*);
+bool flockFunc(const TMacroFunction*);
+bool fsplitFunc(const TMacroFunction*);
+bool iifFunc(const TMacroFunction*);
+bool indexFunc(const TMacroFunction*);
+bool intFunc(const TMacroFunction*);
+bool itowFunc(const TMacroFunction*);
+bool lcaseFunc(const TMacroFunction*);
+bool kbdLayoutFunc(const TMacroFunction*);
+bool keyFunc(const TMacroFunction*);
+bool lenFunc(const TMacroFunction*);
+bool maxFunc(const TMacroFunction*);
+bool mloadFunc(const TMacroFunction*);
+bool modFunc(const TMacroFunction*);
+bool msaveFunc(const TMacroFunction*);
+bool msgBoxFunc(const TMacroFunction*);
+bool minFunc(const TMacroFunction*);
+bool panelfattrFunc(const TMacroFunction*);
+bool panelfexistFunc(const TMacroFunction*);
+bool panelitemFunc(const TMacroFunction*);
+bool panelselectFunc(const TMacroFunction*);
+bool panelsetpathFunc(const TMacroFunction*);
+bool panelsetposFunc(const TMacroFunction*);
+bool panelsetposidxFunc(const TMacroFunction*);
+bool panelitemFunc(const TMacroFunction*);
+bool promptFunc(const TMacroFunction*);
+bool replaceFunc(const TMacroFunction*);
+bool rindexFunc(const TMacroFunction*);
+bool sleepFunc(const TMacroFunction*);
+bool stringFunc(const TMacroFunction*);
+bool substrFunc(const TMacroFunction*);
+bool testfolderFunc(const TMacroFunction*);
+bool trimFunc(const TMacroFunction*);
+bool ucaseFunc(const TMacroFunction*);
+bool waitkeyFunc(const TMacroFunction*);
+bool xlatFunc(const TMacroFunction*);
+bool pluginsFunc(const TMacroFunction*);
+bool usersFunc(const TMacroFunction*);
+
+static TMacroFunction intMacroFunction[]=
+{
+	{L"ABS",              1, 0,   MCODE_F_ABS,              nullptr, 0,nullptr,L"N=Abs(N)",0,absFunc},
+	{L"AKEY",             2, 1,   MCODE_F_AKEY,             nullptr, 0,nullptr,L"V=Akey(Mode[,Type])",0,usersFunc},
+	{L"ASC",              1, 0,   MCODE_F_ASC,              nullptr, 0,nullptr,L"N=Asc(N)",0,ascFunc},
+	{L"ATOI",             2, 1,   MCODE_F_ATOI,             nullptr, 0,nullptr,L"N=Atoi(S[,Radix])",0,atoiFunc},
+	{L"BEEP",             1, 1,   MCODE_F_BEEP,             nullptr, 0,nullptr,L"N=Beep([N])",0,beepFunc},
+	{L"BM.ADD",           0, 0,   MCODE_F_BM_ADD,           nullptr, 0,nullptr,L"N=BM.Add()",0,usersFunc},
+	{L"BM.CLEAR",         0, 0,   MCODE_F_BM_CLEAR,         nullptr, 0,nullptr,L"N=BM.Clear()",0,usersFunc},
+	{L"BM.DEL",           1, 1,   MCODE_F_BM_DEL,           nullptr, 0,nullptr,L"N=BM.Del([Idx])",0,usersFunc},
+	{L"BM.GET",           2, 0,   MCODE_F_BM_GET,           nullptr, 0,nullptr,L"N=BM.Get(Idx,M)",0,usersFunc},
+	{L"BM.NEXT",          0, 0,   MCODE_F_BM_NEXT,          nullptr, 0,nullptr,L"N=BM.Next()",0,usersFunc},
+	{L"BM.PREV",          0, 0,   MCODE_F_BM_PREV,          nullptr, 0,nullptr,L"N=BM.Prev()",0,usersFunc},
+	{L"BM.STAT",          1, 1,   MCODE_F_BM_STAT,          nullptr, 0,nullptr,L"N=BM.Stat([N])",0,usersFunc},
+	{L"CHECKHOTKEY",      2, 1,   MCODE_F_MENU_CHECKHOTKEY, nullptr, 0,nullptr,L"N=CheckHotkey(S[,N])",0,usersFunc},
+	{L"CALLPLUGIN",       2, 1,   MCODE_F_CALLPLUGIN,       nullptr, 0,nullptr,L"V=CallPlugin(SysID[,param])",0,callpluginFunc},
+	{L"CHR",              1, 0,   MCODE_F_CHR,              nullptr, 0,nullptr,L"S=Chr(N)",0,chrFunc},
+	{L"CLIP",             2, 1,   MCODE_F_CLIP,             nullptr, 0,nullptr,L"V=Clip(N[,V])",0,clipFunc},
+	{L"DATE",             1, 1,   MCODE_F_DATE,             nullptr, 0,nullptr,L"S=Date([S])",0,dateFunc},
+	{L"DLG.GETVALUE",     2, 0,   MCODE_F_DLG_GETVALUE,     nullptr, 0,nullptr,L"V=Dlg.GetValue(ID,N)",0,dlggetvalueFunc},
+	{L"EDITOR.POS",       3, 1,   MCODE_F_EDITOR_POS,       nullptr, 0,nullptr,L"N=Editor.Pos(Op,What[,Where])",0,editorposFunc},
+	{L"EDITOR.SEL",       2, 1,   MCODE_F_EDITOR_SEL,       nullptr, 0,nullptr,L"V=Editor.Sel(Action[,Opt])",0,editorselFunc},
+	{L"EDITOR.SET",       2, 0,   MCODE_F_EDITOR_SET,       nullptr, 0,nullptr,L"N=Editor.Set(N,Var)",0,editorsetFunc},
+	{L"EDITOR.SETTITLE",  1, 1,   MCODE_F_EDITOR_SETTITLE,  nullptr, 0,nullptr,L"N=Editor.SetTitle([Title])",0,editorsettitleFunc},
+	{L"EDITOR.UNDO",      1, 0,   MCODE_F_EDITOR_UNDO,      nullptr, 0,nullptr,L"V=Editor.Undo(N)",0,editorundoFunc},
+	{L"ENV",              1, 0,   MCODE_F_ENVIRON,          nullptr, 0,nullptr,L"S=Env(S)",0,environFunc},
+	{L"EVAL",             2, 1,   MCODE_F_EVAL,             nullptr, 0,nullptr,L"N=Eval(S[,N])",0,usersFunc},
+	{L"FATTR",            1, 0,   MCODE_F_FATTR,            nullptr, 0,nullptr,L"N=FAttr(S)",0,fattrFunc},
+	{L"FEXIST",           1, 0,   MCODE_F_FEXIST,           nullptr, 0,nullptr,L"N=FExist(S)",0,fexistFunc},
+	{L"FLOAT",            1, 0,   MCODE_F_FLOAT,            nullptr, 0,nullptr,L"N=Float(V)",0,floatFunc},
+	{L"FLOCK",            2, 0,   MCODE_F_FLOCK,            nullptr, 0,nullptr,L"N=FLock(N,N)",0,flockFunc},
+	{L"FSPLIT",           2, 0,   MCODE_F_FSPLIT,           nullptr, 0,nullptr,L"S=FSplit(S,N)",0,fsplitFunc},
+	{L"GETHOTKEY",        1, 1,   MCODE_F_MENU_GETHOTKEY,   nullptr, 0,nullptr,L"S=GetHotkey([N])",0,usersFunc},
+	{L"IIF",              3, 0,   MCODE_F_IIF,              nullptr, 0,nullptr,L"V=Iif(Condition,V1,V2)",0,iifFunc},
+	{L"INDEX",            3, 1,   MCODE_F_INDEX,            nullptr, 0,nullptr,L"S=Index(S1,S2[,Mode])",0,indexFunc},
+	{L"INT",              1, 0,   MCODE_F_INT,              nullptr, 0,nullptr,L"N=Int(V)",0,intFunc},
+	{L"ITOA",             2, 1,   MCODE_F_ITOA,             nullptr, 0,nullptr,L"S=Itoa(N[,radix])",0,itowFunc},
+	{L"LCASE",            1, 0,   MCODE_F_LCASE,            nullptr, 0,nullptr,L"S=LCase(S1)",0,lcaseFunc},
+	{L"KBDLAYOUT",        1, 1,   MCODE_F_KBDLAYOUT,        nullptr, 0,nullptr,L"N=kbdLayout([N])",0,kbdLayoutFunc},
+	{L"KEY",              1, 0,   MCODE_F_KEY,              nullptr, 0,nullptr,L"S=Key(V)",0,keyFunc},
+	{L"LEN",              1, 0,   MCODE_F_LEN,              nullptr, 0,nullptr,L"N=Len(S)",0,lenFunc},
+	{L"MAX",              2, 0,   MCODE_F_MAX,              nullptr, 0,nullptr,L"N=Max(N1,N2)",0,maxFunc},
+	{L"MENU.GETVALUE",    1, 1,   MCODE_F_MENU_GETVALUE,    nullptr, 0,nullptr,L"S=Menu.GetValue([N])",0,usersFunc},
+	{L"MENU.ITEMSTATUS",  1, 1,   MCODE_F_MENU_ITEMSTATUS,  nullptr, 0,nullptr,L"N=Menu.ItemStatus([N])",0,usersFunc},
+	{L"MENU.SELECT",      3, 2,   MCODE_F_MENU_SELECT,      nullptr, 0,nullptr,L"N=Menu.Select(S[,N[,Dir]])",0,usersFunc},
+	{L"MLOAD",            1, 0,   MCODE_F_MLOAD,            nullptr, 0,nullptr,L"N=MLoad(S)",0,mloadFunc},
+	{L"MMODE",            2, 1,   MCODE_F_MMODE,            nullptr, 0,nullptr,L"N=MMode(Action[,Value])",0,usersFunc},
+	{L"MOD",              2, 0,   MCODE_F_MOD,              nullptr, 0,nullptr,L"N=Mod(a,b)",0,modFunc},
+	{L"MSAVE",            1, 0,   MCODE_F_MSAVE,            nullptr, 0,nullptr,L"N=MSave(S)",0,msaveFunc},
+	{L"MSGBOX",           3, 3,   MCODE_F_MSGBOX,           nullptr, 0,nullptr,L"N=MsgBox([Title[,Text[,flags]]])",IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT,msgBoxFunc},
+	{L"MIN",              2, 0,   MCODE_F_MIN,              nullptr, 0,nullptr,L"N=Min(N1,N2)",0,minFunc},
+	{L"PANEL.FATTR",      2, 0,   MCODE_F_PANEL_FATTR,      nullptr, 0,nullptr,L"N=Panel.FAttr(panelType,fileMask)",0,panelfattrFunc},
+	{L"PANEL.FEXIST",     2, 0,   MCODE_F_PANEL_FEXIST,     nullptr, 0,nullptr,L"N=Panel.FExist(panelType,fileMask)",0,panelfexistFunc},
+	{L"PANEL.ITEM",       3, 0,   MCODE_F_PANELITEM,        nullptr, 0,nullptr,L"V=Panel.Item(Panel,Index,TypeInfo)",0,panelitemFunc},
+	{L"PANEL.SELECT",     4, 2,   MCODE_F_PANEL_SELECT,     nullptr, 0,nullptr,L"V=Panel.Select(panelType,Action[,Mode[,Items]])",0,panelselectFunc},
+	{L"PANEL.SETPATH",    3, 1,   MCODE_F_PANEL_SETPATH,    nullptr, 0,nullptr,L"N=panel.SetPath(panelType,pathName[,fileName])",IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT,panelsetpathFunc},
+	{L"PANEL.SETPOS",     2, 0,   MCODE_F_PANEL_SETPOS,     nullptr, 0,nullptr,L"N=panel.SetPos(panelType,fileName)",IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT,panelsetposFunc},
+	{L"PANEL.SETPOSIDX",  3, 1,   MCODE_F_PANEL_SETPOSIDX,  nullptr, 0,nullptr,L"N=Panel.SetPosIdx(panelType,Idx[,InSelection])",IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT,panelsetposidxFunc},
+	{L"PANELITEM",        3, 0,   MCODE_F_PANELITEM,        nullptr, 0,nullptr,L"V=PanelItem(Panel,Index,TypeInfo)",0,panelitemFunc},
+	{L"PRINT",            1, 0,   MCODE_F_PRINT,            nullptr, 0,nullptr,L"N=Print(Str)",0,usersFunc},
+	{L"PROMPT",           5, 4,   MCODE_F_PROMPT,           nullptr, 0,nullptr,L"S=Prompt(Title[,Prompt[,flags[,Src[,History]]]])",IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT,promptFunc},
+	{L"REPLACE",          5, 2,   MCODE_F_REPLACE,          nullptr, 0,nullptr,L"S=Replace(Str,Find,Replace[,Cnt[,Mode]])",0,replaceFunc},
+	{L"RINDEX",           3, 1,   MCODE_F_RINDEX,           nullptr, 0,nullptr,L"S=RIndex(S1,S2[,Mode])",0,rindexFunc},
+	{L"SLEEP",            1, 0,   MCODE_F_SLEEP,            nullptr, 0,nullptr,L"N=Sleep(N)",0,sleepFunc},
+	{L"STRING",           1, 0,   MCODE_F_STRING,           nullptr, 0,nullptr,L"S=String(V)",0,stringFunc},
+	{L"SUBSTR",           3, 1,   MCODE_F_SUBSTR,           nullptr, 0,nullptr,L"S=SubStr(S,N1[,N2])",0,substrFunc},
+	{L"TESTFOLDER",       1, 0,   MCODE_F_TESTFOLDER,       nullptr, 0,nullptr,L"N=testfolder(S)",0,testfolderFunc},
+	{L"TRIM",             2, 1,   MCODE_F_TRIM,             nullptr, 0,nullptr,L"S=Trim(S[,N])",0,trimFunc},
+	{L"UCASE",            1, 0,   MCODE_F_UCASE,            nullptr, 0,nullptr,L"S=UCase(S1)",0,ucaseFunc},
+	{L"WAITKEY",          2, 2,   MCODE_F_WAITKEY,          nullptr, 0,nullptr,L"V=Waitkey([N,[T]])",0,waitkeyFunc},
+	{L"XLAT",             1, 0,   MCODE_F_XLAT,             nullptr, 0,nullptr,L"S=Xlat(S)",0,xlatFunc},
+
+	{0}
+};
+
+
+int MKeywordsSize = ARRAYSIZE(MKeywords);
+int MKeywordsFlagsSize = ARRAYSIZE(MKeywordsFlags);
+
+DWORD KeyMacro::LastOpCodeUF=KEY_MACRO_U_BASE;
+size_t KeyMacro::CMacroFunction=0;
+size_t KeyMacro::AllocatedFuncCount=0;
+TMacroFunction *KeyMacro::AMacroFunction=nullptr;
 
 TVarTable glbVarTable;
 TVarTable glbConstTable;
@@ -379,7 +515,6 @@ int WINAPI KeyNameMacroToKey(const wchar_t *Name)
 
 KeyMacro::KeyMacro():
 	MacroVersion(GetRegKey(L"KeyMacros",L"MacroVersion",0)),
-	LastOpCodeUF(KEY_MACRO_U_BASE),
 	Recording(MACROMODE_NOMACRO),
 	Mode(MACRO_SHELL),
 	CurPCStack(-1),
@@ -399,6 +534,8 @@ KeyMacro::~KeyMacro()
 
 	if (Work.AllocVarTable && Work.locVarTable)
 		xf_free(Work.locVarTable);
+
+	UnregMacroFunction(-1);
 }
 
 void KeyMacro::InitInternalLIBVars()
@@ -428,7 +565,7 @@ void KeyMacro::InitInternalLIBVars()
 	memset(&IndexMode,0,sizeof(IndexMode));
 	MacroLIBCount=0;
 	MacroLIB=nullptr;
-	LastOpCodeUF=KEY_MACRO_U_BASE;
+	//LastOpCodeUF=KEY_MACRO_U_BASE;
 }
 
 // инициализация всех переменных
@@ -1558,7 +1695,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 
 
 // S=trim(S[,N])
-static bool trimFunc()
+static bool trimFunc(const TMacroFunction*)
 {
 	int  mode = (int) VMStack.Pop().getInteger();
 	TVar Val;
@@ -1579,7 +1716,7 @@ static bool trimFunc()
 }
 
 // S=substr(S,N1[,N2])
-static bool substrFunc()
+static bool substrFunc(const TMacroFunction*)
 {
 	int  p2 = (int)VMStack.Pop().getInteger();
 	int  p1 = (int)VMStack.Pop().getInteger();
@@ -1722,7 +1859,7 @@ static BOOL SplitFileName(const wchar_t *lpFullName,string &strDest,int nFlags)
 
 
 // S=fsplit(S,N)
-static bool fsplitFunc()
+static bool fsplitFunc(const TMacroFunction*)
 {
 	int m = (int)VMStack.Pop().getInteger();
 	TVar Val;
@@ -1742,7 +1879,7 @@ static bool fsplitFunc()
 
 #if 0
 // S=Meta("!.!") - в макросах юзаем ФАРовы метасимволы
-static bool metaFunc()
+static bool metaFunc(const TMacroFunction*)
 {
 	TVar Val;
 	VMStack.Pop(Val);
@@ -1763,7 +1900,7 @@ static bool metaFunc()
 
 
 // N=atoi(S[,radix])
-static bool atoiFunc()
+static bool atoiFunc(const TMacroFunction*)
 {
 	bool Ret=true;
 	wchar_t *endptr;
@@ -1775,7 +1912,7 @@ static bool atoiFunc()
 }
 
 // S=itoa(N[,radix])
-static bool itowFunc()
+static bool itowFunc(const TMacroFunction*)
 {
 	bool Ret=false;
 	TVar R, N;
@@ -1799,7 +1936,7 @@ static bool itowFunc()
 }
 
 // N=sleep(N)
-static bool sleepFunc()
+static bool sleepFunc(const TMacroFunction*)
 {
 	long Period=(long)VMStack.Pop().getInteger();
 
@@ -1815,7 +1952,7 @@ static bool sleepFunc()
 }
 
 // S=key(V)
-static bool keyFunc()
+static bool keyFunc(const TMacroFunction*)
 {
 	TVar VarKey;
 	VMStack.Pop(VarKey);
@@ -1840,7 +1977,7 @@ static bool keyFunc()
 }
 
 // V=waitkey([N,[T]])
-static bool waitkeyFunc()
+static bool waitkeyFunc(const TMacroFunction*)
 {
 	long Type=(long)VMStack.Pop().getInteger();
 	long Period=(long)VMStack.Pop().getInteger();
@@ -1866,7 +2003,7 @@ static bool waitkeyFunc()
 }
 
 // n=min(n1,n2)
-static bool minFunc()
+static bool minFunc(const TMacroFunction*)
 {
 	TVar V2, V1;
 	VMStack.Pop(V2);
@@ -1876,7 +2013,7 @@ static bool minFunc()
 }
 
 // n=max(n1.n2)
-static bool maxFunc()
+static bool maxFunc(const TMacroFunction*)
 {
 	TVar V2, V1;
 	VMStack.Pop(V2);
@@ -1885,8 +2022,8 @@ static bool maxFunc()
 	return true;
 }
 
-// n=modFunc(n1,n2)
-static bool modFunc()
+// n=mod(n1,n2)
+static bool modFunc(const TMacroFunction*)
 {
 	TVar V2, V1;
 	VMStack.Pop(V2);
@@ -1904,7 +2041,7 @@ static bool modFunc()
 }
 
 // n=iif(expression,n1,n2)
-static bool iifFunc()
+static bool iifFunc(const TMacroFunction*)
 {
 	TVar V2, V1;
 	VMStack.Pop(V2);
@@ -1914,7 +2051,7 @@ static bool iifFunc()
 }
 
 // N=index(S1,S2[,Mode])
-static bool indexFunc()
+static bool indexFunc(const TMacroFunction*)
 {
 	TVar Mode;  VMStack.Pop(Mode);
 	TVar S2;    VMStack.Pop(S2);
@@ -1929,7 +2066,7 @@ static bool indexFunc()
 }
 
 // S=rindex(S1,S2[,Mode])
-static bool rindexFunc()
+static bool rindexFunc(const TMacroFunction*)
 {
 	TVar Mode;  VMStack.Pop(Mode);
 	TVar S2;    VMStack.Pop(S2);
@@ -1944,7 +2081,7 @@ static bool rindexFunc()
 }
 
 // S=date([S])
-static bool dateFunc()
+static bool dateFunc(const TMacroFunction*)
 {
 	TVar Val;
 	VMStack.Pop(Val);
@@ -1966,7 +2103,7 @@ static bool dateFunc()
 }
 
 // S=xlat(S)
-static bool xlatFunc()
+static bool xlatFunc(const TMacroFunction*)
 {
 	TVar Val;
 	VMStack.Pop(Val);
@@ -1977,7 +2114,7 @@ static bool xlatFunc()
 }
 
 // N=beep([N])
-static bool beepFunc()
+static bool beepFunc(const TMacroFunction*)
 {
 	TVar Val;
 	VMStack.Pop(Val);
@@ -2028,7 +2165,7 @@ Res=kbdLayout([N])
 Возвращает предыдущую раскладку (для N=0 текущую)
 */
 // N=kbdLayout([N])
-static bool kbdLayoutFunc()
+static bool kbdLayoutFunc(const TMacroFunction*)
 {
 	DWORD dwLayout = (DWORD)VMStack.Pop().getInteger();
 
@@ -2077,7 +2214,7 @@ static bool kbdLayoutFunc()
 }
 
 // S=prompt("Title"[,"Prompt"[,flags[, "Src"[, "History"]]]])
-static bool promptFunc()
+static bool promptFunc(const TMacroFunction*)
 {
 	TVar ValHistory;
 	VMStack.Pop(ValHistory);
@@ -2124,7 +2261,7 @@ static bool promptFunc()
 }
 
 // N=msgbox(["Title"[,"Text"[,flags]]])
-static bool msgBoxFunc()
+static bool msgBoxFunc(const TMacroFunction*)
 {
 	DWORD Flags = (DWORD)VMStack.Pop().getInteger();
 	TVar ValB, ValT;
@@ -2158,7 +2295,7 @@ static bool msgBoxFunc()
 
 
 // S=env(S)
-static bool environFunc()
+static bool environFunc(const TMacroFunction*)
 {
 	TVar S;
 	VMStack.Pop(S);
@@ -2175,7 +2312,7 @@ static bool environFunc()
 }
 
 // V=Panel.Select(panelType,Action[,Mode[,Items]])
-static bool panelselectFunc()
+static bool panelselectFunc(const TMacroFunction*)
 {
 	TVar ValItems;  VMStack.Pop(ValItems);
 	int Mode=(int)VMStack.Pop().getInteger();
@@ -2279,25 +2416,25 @@ static bool _fattrFunc(int Type)
 }
 
 // N=fattr(S)
-static bool fattrFunc()
+static bool fattrFunc(const TMacroFunction*)
 {
 	return _fattrFunc(0);
 }
 
 // N=fexist(S)
-static bool fexistFunc()
+static bool fexistFunc(const TMacroFunction*)
 {
 	return _fattrFunc(2);
 }
 
 // N=panel.fattr(S)
-static bool panelfattrFunc()
+static bool panelfattrFunc(const TMacroFunction*)
 {
 	return _fattrFunc(1);
 }
 
 // N=panel.fexist(S)
-static bool panelfexistFunc()
+static bool panelfexistFunc(const TMacroFunction*)
 {
 	return _fattrFunc(3);
 }
@@ -2315,7 +2452,7 @@ static bool panelfexistFunc()
      1 on
      2 flip
 */
-static bool flockFunc()
+static bool flockFunc(const TMacroFunction*)
 {
 	TVar Ret(-1);
 	int stateFLock=(int)VMStack.Pop().getInteger();
@@ -2345,7 +2482,7 @@ static bool flockFunc()
 }
 
 // V=Dlg.GetValue(ID,N)
-static bool dlggetvalueFunc()
+static bool dlggetvalueFunc(const TMacroFunction*)
 {
 	TVar Ret(-1);
 	int TypeInf=(int)VMStack.Pop().getInteger();
@@ -2467,7 +2604,7 @@ static bool dlggetvalueFunc()
 
 // N=Editor.Pos(Op,What[,Where])
 // Op: 0 - get, 1 - set
-static bool editorposFunc()
+static bool editorposFunc(const TMacroFunction*)
 {
 	TVar Ret(-1);
 	int Where = (int)VMStack.Pop().getInteger();
@@ -2579,7 +2716,7 @@ static bool editorposFunc()
 }
 
 // OldVar=Editor.Set(Idx,Var)
-static bool editorsetFunc()
+static bool editorsetFunc(const TMacroFunction*)
 {
 	TVar Ret(-1);
 	TVar _longState;
@@ -2705,7 +2842,7 @@ static bool editorsetFunc()
 }
 
 // b=mload(var)
-static bool mloadFunc()
+static bool mloadFunc(const TMacroFunction*)
 {
 	TVar Val;
 	VMStack.Pop(Val);
@@ -2774,7 +2911,7 @@ static bool mloadFunc()
 }
 
 // b=msave(var)
-static bool msaveFunc()
+static bool msaveFunc(const TMacroFunction*)
 {
 	TVar Val;
 	VMStack.Pop(Val);
@@ -2824,7 +2961,7 @@ static bool msaveFunc()
 }
 
 // V=Clip(N[,V])
-static bool clipFunc()
+static bool clipFunc(const TMacroFunction*)
 {
 	TVar Val;
 	VMStack.Pop(Val);
@@ -2945,7 +3082,7 @@ static bool clipFunc()
 // N=Panel.SetPosIdx(panelType,Idx[,InSelection])
 /*
 */
-static bool panelsetposidxFunc()
+static bool panelsetposidxFunc(const TMacroFunction*)
 {
 	int InSelection=(int)VMStack.Pop().getInteger();
 	long idxItem=(long)VMStack.Pop().getInteger();
@@ -3064,7 +3201,7 @@ static bool panelsetposidxFunc()
 }
 
 // N=panel.SetPath(panelType,pathName[,fileName])
-static bool panelsetpathFunc()
+static bool panelsetpathFunc(const TMacroFunction*)
 {
 	TVar ValFileName;  VMStack.Pop(ValFileName);
 	TVar Val;          VMStack.Pop(Val);
@@ -3109,7 +3246,7 @@ static bool panelsetpathFunc()
 }
 
 // N=Panel.SetPos(panelType,fileName)
-static bool panelsetposFunc()
+static bool panelsetposFunc(const TMacroFunction*)
 {
 	TVar Val; VMStack.Pop(Val);
 	int typePanel=(int)VMStack.Pop().getInteger();
@@ -3163,7 +3300,7 @@ Mode:
       1 - case sensitive
 
 */
-static bool replaceFunc()
+static bool replaceFunc(const TMacroFunction*)
 {
 	int Mode=(int)VMStack.Pop().getInteger();
 	TVar Count; VMStack.Pop(Count);
@@ -3220,7 +3357,7 @@ static bool replaceFunc()
 }
 
 // V=Panel.Item(typePanel,Index,TypeInfo)
-static bool panelitemFunc()
+static bool panelitemFunc(const TMacroFunction*)
 {
 	TVar P2; VMStack.Pop(P2);
 	TVar P1; VMStack.Pop(P1);
@@ -3352,7 +3489,7 @@ static bool panelitemFunc()
 }
 
 // N=len(V)
-static bool lenFunc()
+static bool lenFunc(const TMacroFunction*)
 {
 	TVar Val;
 	VMStack.Pop(Val);
@@ -3360,7 +3497,7 @@ static bool lenFunc()
 	return true;
 }
 
-static bool ucaseFunc()
+static bool ucaseFunc(const TMacroFunction*)
 {
 	TVar Val; VMStack.Pop(Val);
 	StrUpper((wchar_t *)Val.toString());
@@ -3368,7 +3505,7 @@ static bool ucaseFunc()
 	return true;
 }
 
-static bool lcaseFunc()
+static bool lcaseFunc(const TMacroFunction*)
 {
 	TVar Val; VMStack.Pop(Val);
 	StrLower((wchar_t *)Val.toString());
@@ -3376,7 +3513,7 @@ static bool lcaseFunc()
 	return true;
 }
 
-static bool stringFunc()
+static bool stringFunc(const TMacroFunction*)
 {
 	TVar Val;
 	VMStack.Pop(Val);
@@ -3385,7 +3522,7 @@ static bool stringFunc()
 	return true;
 }
 
-static bool intFunc()
+static bool intFunc(const TMacroFunction*)
 {
 	TVar Val;
 	VMStack.Pop(Val);
@@ -3394,7 +3531,7 @@ static bool intFunc()
 	return true;
 }
 
-static bool floatFunc()
+static bool floatFunc(const TMacroFunction*)
 {
 	TVar Val;
 	VMStack.Pop(Val);
@@ -3403,7 +3540,7 @@ static bool floatFunc()
 	return true;
 }
 
-static bool absFunc()
+static bool absFunc(const TMacroFunction*)
 {
 	TVar tmpVar;
 	VMStack.Pop(tmpVar);
@@ -3415,7 +3552,7 @@ static bool absFunc()
 	return true;
 }
 
-static bool ascFunc()
+static bool ascFunc(const TMacroFunction*)
 {
 	TVar tmpVar;
 	VMStack.Pop(tmpVar);
@@ -3430,7 +3567,7 @@ static bool ascFunc()
 	return true;
 }
 
-static bool chrFunc()
+static bool chrFunc(const TMacroFunction*)
 {
 	TVar tmpVar;
 	VMStack.Pop(tmpVar);
@@ -3448,7 +3585,7 @@ static bool chrFunc()
 
 
 // V=Editor.Sel(Action[,Opt])
-static bool editorselFunc()
+static bool editorselFunc(const TMacroFunction*)
 {
 	/*
 	 MCODE_F_EDITOR_SEL
@@ -3498,7 +3635,7 @@ static bool editorselFunc()
 }
 
 // V=Editor.Undo(N)
-static bool editorundoFunc()
+static bool editorundoFunc(const TMacroFunction*)
 {
 	TVar Ret(0ll);
 	TVar Action; VMStack.Pop(Action);
@@ -3515,7 +3652,7 @@ static bool editorundoFunc()
 }
 
 // N=Editor.SetTitle([Title])
-static bool editorsettitleFunc()
+static bool editorsettitleFunc(const TMacroFunction*)
 {
 	TVar Ret(0ll);
 	TVar Title; VMStack.Pop(Title);
@@ -3535,7 +3672,7 @@ static bool editorsettitleFunc()
 }
 
 // V=callplugin(SysID[,param])
-static bool callpluginFunc()
+static bool callpluginFunc(const TMacroFunction*)
 {
 	__int64 Ret=0;
 	TVar Param; VMStack.Pop(Param);
@@ -3594,7 +3731,7 @@ TSTFLD_EMPTY      (0) - пусто
 TSTFLD_NOTACCESS (-1) - нет доступа
 TSTFLD_ERROR     (-2) - ошибка (кривые параметры или нехватило памяти для выделения промежуточных буферов)
 */
-static bool testfolderFunc()
+static bool testfolderFunc(const TMacroFunction*)
 {
 	TVar tmpVar;
 	VMStack.Pop(tmpVar);
@@ -3608,6 +3745,113 @@ static bool testfolderFunc()
 	VMStack.Push(Ret);
 	return Ret?true:false;
 }
+
+// вызов плагиновой функции
+static bool pluginsFunc(const TMacroFunction *thisFunc)
+{
+	TVar V;
+	bool Ret=false;
+	int nParam=(int)thisFunc->nParam;
+/*
+enum FARMACROVARTYPE
+{
+	FMVT_INTEGER                = 0,
+	FMVT_STRING                 = 1,
+	FMVT_DOUBLE                 = 2,
+};
+
+struct FarMacroValue
+{
+	FARMACROVARTYPE type;
+	union
+	{
+		__int64  i;
+		double   d;
+		const wchar_t *s;
+	} v;
+};
+*/
+#if defined(PROCPLUGINMACROFUNC)
+	int I;
+
+	FarMacroValue *vParams=new FarMacroValue[nParam];
+	if (vParams)
+	{
+		memset(vParams,0,sizeof(FarMacroValue) * nParam);
+
+		for (I=nParam-1; I >= 0; --I)
+		{
+			VMStack.Pop(V);
+			(vParams+I)->type=(FARMACROVARTYPE)V.type();
+			switch(V.type())
+			{
+				case vtInteger:
+					(vParams+I)->v.i=V.i();
+					break;
+				case vtString:
+					(vParams+I)->v.s=xf_wcsdup(V.s());
+					break;
+				case vtDouble:
+					(vParams+I)->v.d=V.d();
+					break;
+			}
+		}
+
+		FarMacroValue *Results;
+		int nResults=0;
+		// fnGUID ???
+		if (CtrlObject->Plugins.ProcessMacroFunc(thisFunc->Name,vParams,thisFunc->nParam,&Results,&nResults))
+		{
+			if (Results)
+			{
+				for (I=0; I < nResults; ++I)
+				//for (I=nResults-1; I >= 0; --I)
+				{
+					//V.type()=(TVarType)(Results+I)->type;
+					switch((Results+I)->type)
+					{
+						case FMVT_INTEGER:
+							V=(Results+I)->v.i;
+							break;
+						case FMVT_STRING:
+							V=(Results+I)->v.s;
+							break;
+						case FMVT_DOUBLE:
+							V=(Results+I)->v.d;
+							break;
+					}
+					VMStack.Push(V);
+				}
+			}
+		}
+
+		for (I=0; I < nParam; ++I)
+			if((vParams+I)->type == vtString && (vParams+I)->v.s)
+				xf_free((void*)(vParams+I)->v.s);
+
+		delete[] vParams;
+	}
+	else
+		VMStack.Push(0);
+#else
+	/* времянка */ while(--nParam >= 0) VMStack.Pop(V);
+#endif
+	return Ret;
+}
+
+// вызов пользовательской функции
+static bool usersFunc(const TMacroFunction *thisFunc)
+{
+	TVar V;
+	bool Ret=false;
+
+	int nParam=thisFunc->nParam;
+	/* времянка */ while(--nParam >= 0) VMStack.Pop(V);
+
+	VMStack.Push(0);
+	return Ret;
+}
+
 
 const wchar_t *eStackAsString(int)
 {
@@ -4179,6 +4423,7 @@ done:
 		case MCODE_OP_BITSHR: VMStack.Pop(tmpVar); VMStack.Push(VMStack.Pop() >> tmpVar); goto begin;
 		case MCODE_OP_BITSHL: VMStack.Pop(tmpVar); VMStack.Push(VMStack.Pop() << tmpVar); goto begin;
 		case MCODE_OP_BITNOT: VMStack.Pop(tmpVar); VMStack.Push(~tmpVar); goto begin;
+
 		case MCODE_OP_ADDEQ:                   // a +=  b
 		{
 			GetPlainText(value);
@@ -4300,8 +4545,26 @@ done:
 						break;
 					}
 
-					case 2:
+					case 2: // программный вызов макроса, назначенный на кнопкосочетание
 					{
+						/*
+						   Для этого:
+						   а) второй параметр функции установить в 2
+						   б) первым параметром указать строку в формате "Area/Key"
+						      здесь:
+						        "Area" - область, из которой хотим вызвать макрос
+						        "/" - разделитель
+						        "Key" - название клавиши
+						      "Area/" можно не указывать, в этом случае поиск "Key" будет вестись в текущей активной макрообласти,
+						         если в текущей области "Key" не найден, то поиск продолжится в области Common.
+						         Что бы отключить поиск в области Common (ограничится только "этой" областью),
+						         необходимо в качестве "Area" указать точку.
+
+						   Для режима 2 функция вернет
+						     -1 - ошибка
+						     -2 - нет макроса, заданного кпопкосочетанием (или макрос заблокирован)
+						      0 - Ok
+						*/
 						int _Mode;
 						bool UseCommon=true;
 						string strVal=Val.toString();
@@ -4505,152 +4768,50 @@ done:
 			VMStack.Push(Result);
 			goto begin;
 		}
-		case MCODE_F_PROMPT:  // S=prompt("Title"[,"Prompt"[,flags[, "Src"[, "History"]]]])
-		case MCODE_F_MSGBOX:  // N=msgbox("Title","Text",flags)
-		{
-			_KEYMACRO(CleverSysLog Clev(Key == MCODE_F_PROMPT?L"MCODE_F_PROMPT":L"MCODE_F_MSGBOX"));
-			DWORD Flags=MR->Flags;
-
-			if (Flags&MFLAGS_DISABLEOUTPUT) // если был - удалим
-			{
-				if (LockScr) delete LockScr;
-
-				LockScr=nullptr;
-			}
-
-			InternalInput++; // InternalInput - ограничитель того, чтобы макрос не продолжал свое исполнение
-
-			if (Key == MCODE_F_PROMPT)
-				promptFunc();
-			else
-				msgBoxFunc();
-
-			InternalInput--;
-
-			if (Flags&MFLAGS_DISABLEOUTPUT) // если стал - залочим
-			{
-				if (LockScr) delete LockScr;
-
-				LockScr=new LockScreen;
-			}
-
-			goto begin;
-		}
-        /* *************************************************************** */
-		case MCODE_F_CALLPLUGIN:
-		{
-			if(!Opt.Macro.CallPluginRules)
-				InternalInput++; // в процессе работы функций макросы отключаются
-
-			callpluginFunc();
-
-			if(!Opt.Macro.CallPluginRules)
-				InternalInput--;
-
-			goto begin;
-		}
 
 		default:
 		{
-			static struct TMCode2Func
-			{
-				bool IntInp;
-				DWORD Op;
-				bool (*Func)();
-			} MCode2Func[]=
-			{
-				{false,MCODE_F_WAITKEY,waitkeyFunc},  // V=waitkey([N,[T]])
-				{false,MCODE_F_ITOA,itowFunc}, // S=itoa(N[,radix])
-				{false,MCODE_F_ATOI,atoiFunc}, // N=atoi(S[,radix])
-				{false,MCODE_F_MIN,minFunc},  // N=min(N1,N2)
-				{false,MCODE_F_MOD,modFunc},  // N=mod(N1,N2)
-				{false,MCODE_F_MAX,maxFunc},  // N=max(N1,N2)
-				{false,MCODE_F_IIF,iifFunc},  // V=iif(Condition,V1,V2)
-				{false,MCODE_F_SUBSTR,substrFunc}, // S=substr(S,N1,N2)
-				{false,MCODE_F_TRIM,trimFunc}, // S=trim(S[,N])
-				{false,MCODE_F_RINDEX,rindexFunc}, // S=rindex(S1,S2[,Mode])
-				{false,MCODE_F_INDEX,indexFunc}, // S=index(S1,S2[,Mode])
-				{false,MCODE_F_PANELITEM,panelitemFunc},  // V=panelitem(Panel,Index,TypeInfo)
-				{true, MCODE_F_PANEL_SETPOS,panelsetposFunc}, // N=Panel.SetPos(panelType,fileName)
-				{true, MCODE_F_PANEL_SETPATH,panelsetpathFunc}, // N=panel.SetPath(panelType,pathName,fileName)
-				{true, MCODE_F_PANEL_SETPOSIDX,panelsetposidxFunc}, // N=Panel.SetPosIdx(panelType,Idx[,InSelection])
-				{false,MCODE_F_PANEL_FATTR,panelfattrFunc},         // N=Panel.FAttr(panelType,fileMask)
-				{false,MCODE_F_PANEL_FEXIST,panelfexistFunc},        // N=Panel.FExist(panelType,fileMask)
-				{false,MCODE_F_PANEL_SELECT,panelselectFunc}, // V=Panel.Select(panelType,Action[,Mode[,Items]])
-				{false,MCODE_F_SLEEP,sleepFunc}, // N=Sleep(N)
-				{false,MCODE_F_ENVIRON,environFunc}, // S=env(S)
-				{false,MCODE_F_LEN,lenFunc},  // N=len(S)
-				{false,MCODE_F_UCASE,ucaseFunc}, // S=ucase(S1)
-				{false,MCODE_F_LCASE,lcaseFunc}, // S=lcase(S1)
-				{false,MCODE_F_FEXIST,fexistFunc},  // S=fexist(S)
-				{false,MCODE_F_FLOCK,flockFunc},  // N=FLock(N,N)
-				{false,MCODE_F_FSPLIT,fsplitFunc},  // S=fsplit(S,N)
-				{false,MCODE_F_FATTR,fattrFunc},   // N=fattr(S)
-				{false,MCODE_F_MSAVE,msaveFunc},   // N=msave(S)
-				{false,MCODE_F_MLOAD,mloadFunc},   // N=mload(S)
-				{false,MCODE_F_DLG_GETVALUE,dlggetvalueFunc},        // V=Dlg.GetValue(ID,N)
-				{false,MCODE_F_EDITOR_POS,editorposFunc},// N=Editor.Pos(Op,What[,Where])
-				{false,MCODE_F_EDITOR_SEL,editorselFunc}, // V=Editor.Sel(Action[,Opt])
-				{false,MCODE_F_EDITOR_SET,editorsetFunc}, // N=Editor.Set(N,Var)
-				{false,MCODE_F_EDITOR_UNDO,editorundoFunc}, // V=Editor.Undo(N)
-				{false,MCODE_F_EDITOR_SETTITLE,editorsettitleFunc}, // N=Editor.SetTitle([Title])
-				{false,MCODE_F_STRING,stringFunc},  // S=string(V)
-				{false,MCODE_F_CLIP,clipFunc}, // V=Clip(N[,S])
-				{false,MCODE_F_FLOAT,floatFunc}, // N=float(V)
-				{false,MCODE_F_INT,intFunc}, // N=int(V)
-				{false,MCODE_F_DATE,dateFunc},  // // S=date([S])
-				{false,MCODE_F_XLAT,xlatFunc}, // S=xlat(S)
-				{false,MCODE_F_ABS,absFunc}, // N=abs(N)
-				{false,MCODE_F_ASC,ascFunc}, // N=asc(S)
-				{false,MCODE_F_CHR,chrFunc}, // S=chr(N)
-				{false,MCODE_F_REPLACE,replaceFunc}, // Result=replace(Str,Find,Replace[,Cnt[,Mode]])
-				{false,MCODE_F_KEY,keyFunc}, // S=key(V)
-				{false,MCODE_F_TESTFOLDER,testfolderFunc}, // N=testfolder(S)
-				{false,MCODE_F_BEEP,beepFunc},             // N=beep([N])
-				{false,MCODE_F_KBDLAYOUT,kbdLayoutFunc},   // N=kbdLayout([N])
-			};
-			int J;
+			size_t J;
 
-			for (J=0; J < int(ARRAYSIZE(MCode2Func)); ++J)
-				if (MCode2Func[J].Op == Key)
+			for (J=0; J < CMacroFunction; ++J)
+			{
+				const TMacroFunction *MFunc = KeyMacro::GetMacroFunction(J);
+				if (MFunc->Code == (TMacroOpCode)Key && MFunc->Func)
 				{
 					DWORD Flags=MR->Flags;
 
-					if (MCode2Func[J].IntInp)
+					if (MFunc->IntFlags&IMFF_UNLOCKSCREEN)
 					{
-						// <Lock?>
-						// см. замечание в changelog для build 1681
 						if (Flags&MFLAGS_DISABLEOUTPUT) // если был - удалим
 						{
 							if (LockScr) delete LockScr;
 
 							LockScr=nullptr;
 						}
-						// </Lock?>
-
-						InternalInput++;
 					}
 
-					MCode2Func[J].Func();
+					if (MFunc->IntFlags&IMFF_DISABLEINTINPUT)
+						InternalInput++;
 
-					if (MCode2Func[J].IntInp)
-					{
+					MFunc->Func(MFunc);
+
+					if (MFunc->IntFlags&IMFF_DISABLEINTINPUT)
 						InternalInput--;
 
-						// <Lock?>
-						// см. замечание в changelog для build 1681
+					if (MFunc->IntFlags&IMFF_UNLOCKSCREEN)
+					{
 						if (Flags&MFLAGS_DISABLEOUTPUT) // если стал - залочим
 						{
 							if (LockScr) delete LockScr;
 
 							LockScr=new LockScreen;
 						}
-						// </Lock?>
 					}
 					break;
 				}
+			}
 
-			if (J >= int(ARRAYSIZE(MCode2Func)))
+			if (J >= CMacroFunction)
 			{
 				DWORD Err=0;
 				tmpVar=FARPseudoVariable(MR->Flags, Key, Err);
@@ -4997,13 +5158,34 @@ void KeyMacro::SetMacroConst(const wchar_t *ConstName, const TVar Value)
 int KeyMacro::ReadMacroFunction(int ReadMode, string& strBuffer)
 {
 	/*
+	 В реестре держать раздел "KeyMacros\Funcs" - библиотека макрофункций, экспортируемых плагинами (ProcessMacroW)
+     Имя подраздела - это имя "функции"
+     Значения у каждого подраздела:
+       Syntax:reg_sz - синтаксис функции (на будущее - в качестве подсказки)
+       Params:reg_dword - количество параметров у функции
+       OParams:reg_dword - необязательные параметры функции
+       Sequence:reg_sz - тело функции
+       Flags:reg_dword - флаги
+       GUID:reg_sz - GUID или путь к плагину в терминах PluginsCache (зависит от Flags)
+       Description:reg_sz - необязательное описание
+
+     Flags - набор битов
+       0: в GUID путь к плагину, как в PluginsCache иначе GUID
+       1: использовать Sequence вместо плагина; оно же будет юзаться, если GUID пуст
+       2: ...
+
+
+     Обращение к такой функции, как к обычной abs, mix, len, etc.
+     Если Plugin не пуст, Sequence игнорируется.
+     Plugin - имя подраздела из ветки PluginsCache
+
 	[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Funcs\math.sin]
 	"Syntax"="d=sin(V)"
-	"Params"=dword:1
-	"OParams"=dword:0
+	"nParams"=dword:1
+	"oParams"=dword:0
 	"Sequence"=""
 	"Flags"=dword:0
-	"GUID"=""
+	"GUID"="C:/Program Files/Far2/Plugins/Calc/bin/calc.dll"
 	"Description"="Вычисление значения синуса в военное время"
 
 	Flags:
@@ -5014,16 +5196,16 @@ int KeyMacro::ReadMacroFunction(int ReadMode, string& strBuffer)
 
 	$1, $2, $3 - параметры
 	*/
-	if (ReadMode == MACRO_FUNCS) // пока так :-)
+	if (ReadMode == MACRO_FUNCS)
 	{
-#if 0
-		int I, J;
+#if 1
+		int I;
 		string strUpKeyName=L"KeyMacros\\Funcs";
 		string strRegKeyName;
-		string strKeyText;
+		string strFuncName;
 		string strSyntax;
-		DWORD  Params;
-		DWORD  OParams;
+		DWORD  nParams;
+		DWORD  oParams;
 		DWORD  Flags;
 		string strGUID;
 		string strDescription;
@@ -5033,6 +5215,12 @@ int KeyMacro::ReadMacroFunction(int ReadMode, string& strBuffer)
 		{
 			if (!EnumRegKey(strUpKeyName,I,strRegKeyName))
 				break;
+
+			size_t pos;
+
+			strRegKeyName.RPos(pos,L'\\');
+			strFuncName = strRegKeyName;
+			strFuncName.LShift(pos+1);
 
 			if (GetRegKey(strRegKeyName,L"Sequence",strBuffer,L"",&regType) && regType == REG_MULTI_SZ)
 			{
@@ -5052,9 +5240,10 @@ int KeyMacro::ReadMacroFunction(int ReadMode, string& strBuffer)
 			}
 
 			RemoveExternalSpaces(strBuffer);
-			Params=GetRegKey(strRegKeyName,L"Params",0);
-			OParams=GetRegKey(strRegKeyName,L"OParams",0);
+			nParams=GetRegKey(strRegKeyName,L"nParams",0);
+			oParams=GetRegKey(strRegKeyName,L"oParams",0);
 			Flags=GetRegKey(strRegKeyName,L"Flags",0);
+
 			regType=0;
 
 			if (GetRegKey(strRegKeyName,L"GUID",strGUID,L"",&regType))
@@ -5070,12 +5259,39 @@ int KeyMacro::ReadMacroFunction(int ReadMode, string& strBuffer)
 			if (GetRegKey(strRegKeyName,L"Description",strDescription,L"",&regType))
 				RemoveExternalSpaces(strDescription);
 
+			MacroRecord mr={0};
+			bool UsePluginFunc=true;
 			if (!strBuffer.IsEmpty())
 			{
-				// компиляция, если GUID пуст
+				if (!ParseMacroString(&mr,strBuffer.CPtr()))
+					mr.Buffer=0;
+			}
+
+			// использовать Sequence вместо плагина; оно же будет юзаться, если GUID пуст
+			if ((Flags & 2) && (mr.Buffer || strGUID.IsEmpty()))
+			{
+				UsePluginFunc=false;
 			}
 
 			// зарегистрировать функцию
+			TMacroFunction MFunc={
+				strFuncName.CPtr(),
+				(int)nParams,
+				(int)oParams,
+				MCODE_F_NOFUNC,
+				strGUID.CPtr(),
+				mr.BufferSize,
+				mr.Buffer,
+				strSyntax.CPtr(),
+				0,
+				(UsePluginFunc?pluginsFunc:usersFunc)
+			};
+
+			KeyMacro::RegisterMacroFunction(&MFunc);
+
+			if (mr.Buffer)
+				xf_free(mr.Buffer);
+
 		}
 
 #endif
@@ -5083,6 +5299,122 @@ int KeyMacro::ReadMacroFunction(int ReadMode, string& strBuffer)
 	}
 
 	return FALSE;
+}
+
+void KeyMacro::RegisterMacroIntFunction()
+{
+	static bool InitedInternalFuncs=false;
+
+	if (!InitedInternalFuncs)
+	{
+		for(size_t I=0; intMacroFunction[I].Name; ++I)
+		{
+			if (intMacroFunction[I].Code == MCODE_F_CALLPLUGIN)
+			{
+				if(!Opt.Macro.CallPluginRules)
+					intMacroFunction[I].IntFlags |= IMFF_DISABLEINTINPUT;
+			}
+
+			KeyMacro::RegisterMacroFunction(intMacroFunction+I);
+		}
+
+		InitedInternalFuncs=true;
+	}
+}
+
+TMacroFunction *KeyMacro::RegisterMacroFunction(const TMacroFunction *tmfunc)
+{
+	if (!tmfunc->Name || !tmfunc->Name[0])
+		return nullptr;
+
+	TMacroOpCode Code = tmfunc->Code;
+	if ( !Code || Code == MCODE_F_NOFUNC) // получить временный OpCode относительно KEY_MACRO_U_BASE
+		Code=(TMacroOpCode)GetNewOpCode();
+
+	TMacroFunction *pTemp;
+
+	if (CMacroFunction >= AllocatedFuncCount)
+	{
+		AllocatedFuncCount=AllocatedFuncCount+64;
+
+		if (!(pTemp=(TMacroFunction *)xf_realloc(AMacroFunction,AllocatedFuncCount*sizeof(TMacroFunction))))
+			return false;
+
+		AMacroFunction=pTemp;
+	}
+
+	pTemp=AMacroFunction+CMacroFunction;
+
+	pTemp->Name=xf_wcsdup(tmfunc->Name);
+	pTemp->fnGUID=tmfunc->fnGUID?xf_wcsdup(tmfunc->fnGUID):nullptr;
+	pTemp->Syntax=tmfunc->Syntax?xf_wcsdup(tmfunc->Syntax):nullptr;
+	//pTemp->Src=tmfunc->Src?xf_wcsdup(tmfunc->Src):nullptr;
+	//pTemp->Description=tmfunc->Description?xf_wcsdup(tmfunc->Description):nullptr;
+	pTemp->nParam=tmfunc->nParam;
+	pTemp->oParam=tmfunc->oParam;
+	pTemp->Code=Code;
+	pTemp->BufferSize=tmfunc->BufferSize;
+
+	if (tmfunc->BufferSize > 0)
+	{
+		pTemp->Buffer=(DWORD *)xf_malloc(sizeof(DWORD)*tmfunc->BufferSize);
+		if (pTemp->Buffer)
+			memmove(pTemp->Buffer,tmfunc->Buffer,sizeof(DWORD)*tmfunc->BufferSize);
+	}
+	else
+		pTemp->Buffer=nullptr;
+	pTemp->IntFlags=tmfunc->IntFlags;
+	pTemp->Func=tmfunc->Func;
+
+	CMacroFunction++;
+	return pTemp;
+}
+
+bool KeyMacro::UnregMacroFunction(size_t Index)
+{
+	if (Index < 0)
+	{
+		if (AMacroFunction)
+		{
+			TMacroFunction *pTemp;
+			for (size_t I=0; I < CMacroFunction; ++I)
+			{
+				pTemp=AMacroFunction+I;
+				if (pTemp->Name)        xf_free((void*)pTemp->Name);        pTemp->Name=nullptr;
+				if (pTemp->fnGUID)      xf_free((void*)pTemp->fnGUID);      pTemp->fnGUID=nullptr;
+				if (pTemp->Syntax)      xf_free((void*)pTemp->Syntax);      pTemp->Syntax=nullptr;
+				if (pTemp->Buffer)      xf_free((void*)pTemp->Buffer);      pTemp->Buffer=nullptr;
+				//if (pTemp->Src)         xf_free((void*)pTemp->Src);         pTemp->Src=nullptr;
+				//if (pTemp->Description) xf_free((void*)pTemp->Description); pTemp->Description=nullptr;
+			}
+			CMacroFunction=0;
+			AllocatedFuncCount=0;
+			xf_free(AMacroFunction);
+			AMacroFunction=nullptr;
+		}
+	}
+	else
+	{
+		if (AMacroFunction && Index >=0 && Index < CMacroFunction)
+			AMacroFunction[Index].Code=MCODE_F_NOFUNC;
+		else
+			return false;
+	}
+
+	return true;
+}
+
+const TMacroFunction *KeyMacro::GetMacroFunction(size_t Index)
+{
+	if (AMacroFunction && Index >= 0 && Index < CMacroFunction)
+		return AMacroFunction+Index;
+
+	return nullptr;
+}
+
+size_t KeyMacro::GetCountMacroFunction()
+{
+	return CMacroFunction;
 }
 
 DWORD KeyMacro::GetNewOpCode()

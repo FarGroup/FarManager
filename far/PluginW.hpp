@@ -64,6 +64,9 @@ typedef void (WINAPI *PLUGINSETSTARTUPINFOW)(const PluginStartupInfo *Info);
 typedef int (WINAPI *PLUGINPROCESSVIEWEREVENTW)(int Event,void *Param); //* $ 27.09.2000 SVS -  События во вьювере
 typedef int (WINAPI *PLUGINPROCESSDIALOGEVENTW)(int Event,void *Param);
 typedef int (WINAPI *PLUGINPROCESSSYNCHROEVENTW)(int Event,void *Param);
+#if defined(PROCPLUGINMACROFUNC)
+typedef int (WINAPI *PLUGINPROCESSMACROFUNCW)(const wchar_t *Name, const FarMacroValue *Params, int nParams, FarMacroValue **Results, int *nResults);
+#endif
 typedef int (WINAPI *PLUGINANALYSEW)(const AnalyseData *pData);
 typedef int (WINAPI *PLUGINGETCUSTOMDATAW)(const wchar_t *FilePath, wchar_t **CustomData);
 typedef void (WINAPI *PLUGINFREECUSTOMDATAW)(wchar_t *CustomData);
@@ -122,6 +125,9 @@ class PluginW: public Plugin
 		PLUGINPROCESSVIEWEREVENTW    pProcessViewerEventW;
 		PLUGINPROCESSDIALOGEVENTW    pProcessDialogEventW;
 		PLUGINPROCESSSYNCHROEVENTW   pProcessSynchroEventW;
+#if defined(PROCPLUGINMACROFUNC)
+		PLUGINPROCESSMACROFUNCW      pProcessMacroFuncW;
+#endif
 		PLUGINANALYSEW               pAnalyseW;
 		PLUGINGETCUSTOMDATAW         pGetCustomDataW;
 		PLUGINFREECUSTOMDATAW        pFreeCustomDataW;
@@ -170,6 +176,9 @@ class PluginW: public Plugin
 		bool HasProcessViewerEvent() { return pProcessViewerEventW!=nullptr; }
 		bool HasProcessDialogEvent() { return pProcessDialogEventW!=nullptr; }
 		bool HasProcessSynchroEvent() { return pProcessSynchroEventW!=nullptr; }
+#if defined(PROCPLUGINMACROFUNC)
+		bool HasProcessMacroFunc() { return pProcessMacroFuncW!=nullptr; }
+#endif
 		bool HasAnalyse() { return pAnalyseW!=nullptr; }
 		bool HasGetCustomData()  { return pGetCustomDataW!=nullptr; }
 		bool HasFreeCustomData() { return pFreeCustomDataW!=nullptr; }
@@ -221,6 +230,9 @@ class PluginW: public Plugin
 		int ProcessViewerEvent(int Event, PVOID Param);
 		int ProcessDialogEvent(int Event, PVOID Param);
 		int ProcessSynchroEvent(int Event, PVOID Param);
+#if defined(PROCPLUGINMACROFUNC)
+		int ProcessMacroFunc(const wchar_t *Name, const FarMacroValue *Params, int nParams, FarMacroValue **Results, int *nResults);
+#endif
 
 		bool GetPluginInfo(PluginInfo *pi);
 		int Configure(int MenuItem);

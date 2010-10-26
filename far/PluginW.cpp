@@ -75,6 +75,9 @@ static const wchar_t wszReg_ProcessEditorEvent[]=L"ProcessEditorEventW";
 static const wchar_t wszReg_ProcessViewerEvent[]=L"ProcessViewerEventW";
 static const wchar_t wszReg_ProcessDialogEvent[]=L"ProcessDialogEventW";
 static const wchar_t wszReg_ProcessSynchroEvent[]=L"ProcessSynchroEventW";
+#if defined(PROCPLUGINMACROFUNC)
+static const wchar_t wszReg_ProcessMacroFunc[]=L"ProcessMacroFuncW";
+#endif
 static const wchar_t wszReg_SetStartupInfo[]=L"SetStartupInfoW";
 static const wchar_t wszReg_ClosePlugin[]=L"ClosePluginW";
 static const wchar_t wszReg_GetPluginInfo[]=L"GetPluginInfoW";
@@ -107,6 +110,9 @@ static const char NFMP_ProcessEditorEvent[]="ProcessEditorEventW";
 static const char NFMP_ProcessViewerEvent[]="ProcessViewerEventW";
 static const char NFMP_ProcessDialogEvent[]="ProcessDialogEventW";
 static const char NFMP_ProcessSynchroEvent[]="ProcessSynchroEventW";
+#if defined(PROCPLUGINMACROFUNC)
+static const char NFMP_ProcessMacroFunc[]="ProcessMacroFuncW";
+#endif
 static const char NFMP_SetStartupInfo[]="SetStartupInfoW";
 static const char NFMP_ClosePlugin[]="ClosePluginW";
 static const char NFMP_GetPluginInfo[]="GetPluginInfoW";
@@ -234,6 +240,9 @@ bool PluginW::LoadFromCache(const FAR_FIND_DATA_EX &FindData)
 		pProcessViewerEventW=(PLUGINPROCESSVIEWEREVENTW)(INT_PTR)GetRegKey(strRegKey,wszReg_ProcessViewerEvent,0);
 		pProcessDialogEventW=(PLUGINPROCESSDIALOGEVENTW)(INT_PTR)GetRegKey(strRegKey,wszReg_ProcessDialogEvent,0);
 		pProcessSynchroEventW=(PLUGINPROCESSSYNCHROEVENTW)(INT_PTR)GetRegKey(strRegKey,wszReg_ProcessSynchroEvent,0);
+#if defined(PROCPLUGINMACROFUNC)
+		pProcessMacroFuncW=(PLUGINPROCESSMACROFUNCW)(INT_PTR)GetRegKey(strRegKey,wszReg_ProcessMacroFunc,0);
+#endif
 		pConfigureW=(PLUGINCONFIGUREW)(INT_PTR)GetRegKey(strRegKey,wszReg_Configure,0);
 		pAnalyseW=(PLUGINANALYSEW)(INT_PTR)GetRegKey(strRegKey, wszReg_Analyse, 0);
 		pGetCustomDataW=(PLUGINGETCUSTOMDATAW)(INT_PTR)GetRegKey(strRegKey, wszReg_GetCustomData, 0);
@@ -255,6 +264,9 @@ bool PluginW::SaveToCache()
 	        pProcessViewerEventW ||
 	        pProcessDialogEventW ||
 	        pProcessSynchroEventW ||
+#if defined(PROCPLUGINMACROFUNC)
+	        pProcessMacroFuncW ||
+#endif
 	        pAnalyseW ||
 	        pGetCustomDataW
 	   )
@@ -319,6 +331,9 @@ bool PluginW::SaveToCache()
 		SetRegKey(strRegKey, wszReg_ProcessViewerEvent, pProcessViewerEventW!=nullptr);
 		SetRegKey(strRegKey, wszReg_ProcessDialogEvent, pProcessDialogEventW!=nullptr);
 		SetRegKey(strRegKey, wszReg_ProcessSynchroEvent, pProcessSynchroEventW!=nullptr);
+#if defined(PROCPLUGINMACROFUNC)
+		SetRegKey(strRegKey, wszReg_ProcessMacroFunc, pProcessMacroFuncW!=nullptr);
+#endif
 		SetRegKey(strRegKey, wszReg_Configure, pConfigureW!=nullptr);
 		SetRegKey(strRegKey, wszReg_Analyse, pAnalyseW!=nullptr);
 		SetRegKey(strRegKey, wszReg_GetCustomData, pGetCustomDataW!=nullptr);
@@ -400,6 +415,9 @@ bool PluginW::Load()
 	pProcessViewerEventW=(PLUGINPROCESSVIEWEREVENTW)GetProcAddress(m_hModule,NFMP_ProcessViewerEvent);
 	pProcessDialogEventW=(PLUGINPROCESSDIALOGEVENTW)GetProcAddress(m_hModule,NFMP_ProcessDialogEvent);
 	pProcessSynchroEventW=(PLUGINPROCESSSYNCHROEVENTW)GetProcAddress(m_hModule,NFMP_ProcessSynchroEvent);
+#if defined(PROCPLUGINMACROFUNC)
+	pProcessMacroFuncW=(PLUGINPROCESSMACROFUNCW)GetProcAddress(m_hModule,NFMP_ProcessMacroFunc);
+#endif
 	pMinFarVersionW=(PLUGINMINFARVERSIONW)GetProcAddress(m_hModule,NFMP_GetMinFarVersion);
 	pAnalyseW=(PLUGINANALYSEW)GetProcAddress(m_hModule, NFMP_Analyse);
 	pGetCustomDataW=(PLUGINGETCUSTOMDATAW)GetProcAddress(m_hModule, NFMP_GetCustomData);
@@ -411,7 +429,7 @@ bool PluginW::Load()
 		if (!bUnloaded)
 			Unload();
 
-		//ўЄюс эх я√ЄрЄ№ё  чруЁєчшЄ№ юя Є№ р Єю ю°шсър сєфхЄ яюёЄю ээю яюърч√трЄ№ё .
+		//чтоб не пытаться загрузить опять а то ошибка будет постоянно показываться.
 		WorkFlags.Set(PIWF_DONTLOADAGAIN);
 
 		return false;
@@ -898,6 +916,30 @@ int PluginW::ProcessSynchroEvent(
 	return 0; //oops, again!
 }
 
+#if defined(PROCPLUGINMACROFUNC)
+int PluginW::ProcessMacroFunc(
+    const wchar_t *Name,
+    const FarMacroValue *Params,
+    int nParams,
+    FarMacroValue **Results,
+    int *nResults
+)
+{
+	int nResult = 0;
+
+	if (Load() && pProcessMacroFuncW && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_PROCESSMACROFUNC;
+		es.nDefaultResult = 0;
+		EXECUTE_FUNCTION_EX(pProcessMacroFuncW(Name,Params,nParams,Results,nResults), es);
+		nResult = (int)es.nResult;
+	}
+
+	return nResult;
+}
+#endif
+
 int PluginW::GetVirtualFindData(
     HANDLE hPlugin,
     PluginPanelItem **pPanelItem,
@@ -1302,6 +1344,9 @@ void PluginW::ClearExports()
 	pProcessViewerEventW=0;
 	pProcessDialogEventW=0;
 	pProcessSynchroEventW=0;
+#if defined(PROCPLUGINMACROFUNC)
+	pProcessMacroFuncW=0;
+#endif
 	pMinFarVersionW=0;
 	pAnalyseW = 0;
 	pGetCustomDataW = 0;

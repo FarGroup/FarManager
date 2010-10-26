@@ -42,9 +42,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 enum TVarType
 {
-	vtInteger,
-	vtString,
-	vtDouble,
+	vtInteger = 0,
+	vtString  = 1,
+	vtDouble  = 2,
 };
 
 typedef int (*TVarFuncCmp)(TVarType vt,const void *, const void *);

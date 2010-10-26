@@ -978,6 +978,24 @@ int PluginManager::ProcessDialogEvent(int Event, void *Param)
 	return FALSE;
 }
 
+#if defined(PROCPLUGINMACROFUNC)
+int PluginManager::ProcessMacroFunc(const wchar_t *Name, const FarMacroValue *Params, int nParams, FarMacroValue **Results, int *nResults)
+{
+	int nResult = 0;
+
+	for (int i=0; i<PluginsCount; i++)
+	{
+		Plugin *pPlugin = PluginsData[i];
+
+		if (pPlugin->HasProcessMacroFunc())
+			if ((nResult = pPlugin->ProcessMacroFunc(Name,Params,nParams,Results,nResults)) != 0)
+				break;
+	}
+
+	return nResult;
+}
+#endif
+
 int PluginManager::GetFindData(
     HANDLE hPlugin,
     PluginPanelItem **pPanelData,
