@@ -1287,6 +1287,16 @@ struct FarMacroValue
 		const wchar_t *s;
 	} v;
 };
+
+struct FarMacroFunction
+{
+	DWORD Flags;
+	const wchar_t *Name;
+	int nParam;
+	int oParam;
+	const wchar_t *Syntax;
+	const wchar_t *Description;
+};
 #endif
 #endif // END FAR_USE_INTERNALS
 
@@ -2012,7 +2022,12 @@ struct PluginInfo
 #else // ELSE FAR_USE_INTERNALS
 	DWORD Reserved;
 #endif // END FAR_USE_INTERNALS
-	const wchar_t *MacroNamespace;
+#ifdef FAR_USE_INTERNALS
+#if defined(PROCPLUGINMACROFUNC)
+	int MacroFunctionNumber;
+	const FarMacroFunction *MacroFunctions;
+#endif
+#endif // END FAR_USE_INTERNALS
 };
 
 

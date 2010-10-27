@@ -1091,62 +1091,41 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 				}
 				case MCODE_C_SELECTED:    // Selected?
 				{
-#if 1
-					int NeedType = Mode == MACRO_EDITOR?MODALTYPE_EDITOR:(Mode == MACRO_VIEWER?MODALTYPE_VIEWER:(Mode == MACRO_DIALOG?MODALTYPE_DIALOG:MODALTYPE_PANELS));
+					int NeedType = Mode == MACRO_EDITOR? MODALTYPE_EDITOR : (Mode == MACRO_VIEWER? MODALTYPE_VIEWER : (Mode == MACRO_DIALOG? MODALTYPE_DIALOG : MODALTYPE_PANELS));
 
-					if (CurFrame && CurFrame->GetType()==NeedType)
+					if (!(Mode == MACRO_USERMENU || Mode == MACRO_MAINMENU || Mode == MACRO_MENU) && CurFrame && CurFrame->GetType()==NeedType)
 					{
 						int CurSelected;
 
 						if (Mode==MACRO_SHELL && CtrlObject->CmdLine->IsVisible())
-							CurSelected=(int)CtrlObject->CmdLine->VMProcess(MCODE_C_SELECTED);
+							CurSelected=(int)CtrlObject->CmdLine->VMProcess(CheckCode);
 						else
-							CurSelected=(int)CurFrame->VMProcess(MCODE_C_SELECTED);
+							CurSelected=(int)CurFrame->VMProcess(CheckCode);
 
 						Cond=CurSelected?1:0;
 					}
+					else
+					{
+						Frame *f=FrameManager->GetTopModal();
 
-#else
-					Frame *f=FrameManager->GetTopModal();
-
-					if (f)
-						Cond=(__int64)f->VMProcess(CheckCode);
-
-#endif
+						if (f)
+							Cond=(__int64)f->VMProcess(CheckCode);
+					}
 					break;
 				}
 				case MCODE_C_EMPTY:   // Empty
-				{
-#if 1
-					int CurMMode=CtrlObject->Macro.GetMode();
-
-					if (CurFrame && CurFrame->GetType() == MODALTYPE_PANELS && !(CurMMode == MACRO_INFOPANEL || CurMMode == MACRO_QVIEWPANEL || CurMMode == MACRO_TREEPANEL))
-						Cond=CtrlObject->CmdLine->GetLength()?0:1;
-					else
-					{
-						Frame *f=FrameManager->GetTopModal();
-
-						if (f)
-							Cond=f->VMProcess(CheckCode);
-					}
-
-#else
-					Frame *f=FrameManager->GetTopModal();
-
-					if (f)
-						Cond=f->VMProcess(CheckCode);
-
-#endif
-					break;
-				}
 				case MCODE_C_BOF:
 				case MCODE_C_EOF:
 				{
-#if 1
 					int CurMMode=CtrlObject->Macro.GetMode();
 
-					if (CurFrame && CurFrame->GetType() == MODALTYPE_PANELS && !(CurMMode == MACRO_INFOPANEL || CurMMode == MACRO_QVIEWPANEL || CurMMode == MACRO_TREEPANEL))
-						Cond=CtrlObject->CmdLine->VMProcess(CheckCode);
+					if (!(Mode == MACRO_USERMENU || Mode == MACRO_MAINMENU || Mode == MACRO_MENU) && CurFrame && CurFrame->GetType() == MODALTYPE_PANELS && !(CurMMode == MACRO_INFOPANEL || CurMMode == MACRO_QVIEWPANEL || CurMMode == MACRO_TREEPANEL))
+					{
+						if (CheckCode == MCODE_C_EMPTY)
+							Cond=CtrlObject->CmdLine->GetLength()?0:1;
+						else
+							Cond=CtrlObject->CmdLine->VMProcess(CheckCode);
+					}
 					else
 					{
 						Frame *f=FrameManager->GetTopModal();
@@ -1155,13 +1134,6 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 							Cond=f->VMProcess(CheckCode);
 					}
 
-#else
-					Frame *f=FrameManager->GetTopModal();
-
-					if (f)
-						Cond=f->VMProcess(CheckCode);
-
-#endif
 					break;
 				}
 				case MCODE_V_DLGITEMCOUNT: // Dlg.ItemCount
