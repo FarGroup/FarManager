@@ -2332,6 +2332,12 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 			if (Param2)
 			{
 				Result = SetCurDir((const wchar_t *)Param2,TRUE);
+				// restore current directory to active panel path
+				Panel* ActivePanel = CtrlObject->Cp()->ActivePanel;
+				if (Result && this != ActivePanel)
+				{
+					ActivePanel->SetCurPath();
+				}
 			}
 
 			break;

@@ -1,3 +1,7 @@
+drkns 28.10.2010 16:48:32 +0200 - build 1706
+
+1. Mantis#0001559: Ошибка Cannot find the file после смены папки из истории папок
+
 svs 27.10.2010 13:23:28 +0300 - build 1705
 
 1. Macro: коррекция поведения Selected, Bof, Eof, Empty.

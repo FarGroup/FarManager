@@ -340,6 +340,11 @@ int CommandLine::ProcessKey(int Key)
 					if (Panel->GetMode() == PLUGIN_PANEL || CheckShortcutFolder(&strStr,FALSE))
 					{
 						Panel->SetCurDir(strStr,Type ? FALSE:TRUE);
+						// restore current directory to active panel path
+						if(SelectType == 6)
+						{
+							CtrlObject->Cp()->ActivePanel->SetCurPath();
+						}
 						Panel->Redraw();
 						CtrlObject->FolderHistory->SetAddMode(true,2,true);
 					}
