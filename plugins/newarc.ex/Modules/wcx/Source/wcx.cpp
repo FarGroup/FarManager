@@ -100,7 +100,7 @@ int OnExtract(ExtractStruct *pES)
 {
 	WcxArchive *pArchive = (WcxArchive *)pES->hArchive;
 
-	pES->bResult = pArchive->Extract (
+	pES->nResult = pArchive->Extract(
 			pES->pItems,
 			pES->nItemsNumber,
 			pES->lpDestPath,

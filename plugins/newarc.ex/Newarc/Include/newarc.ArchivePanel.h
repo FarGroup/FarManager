@@ -85,7 +85,7 @@ private:
 
 private:
 
-	bool Extract(const ArchiveItemArray& items, const TCHAR *lpDestDiskPath, bool bWithoutPath);
+	int Extract(const ArchiveItemArray& items, const TCHAR *lpDestDiskPath, bool bWithoutPath);
 	bool Delete(const ArchiveItemArray& items);
 	bool AddFiles(const ArchiveItemArray& items, const TCHAR *lpSourceDiskPath);
 	bool Test(const ArchiveItemArray& items);

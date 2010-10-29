@@ -58,7 +58,7 @@ public:
 
 	bool Test(const ArchiveItem* pItems, int nItemsNumber);
 	bool Delete(const ArchiveItem *pItems, int nItemsNumber);
-	bool Extract(const ArchiveItem *pItems, int nItemsNumber, const TCHAR* lpDestDiskPath, const TCHAR* lpPathInArchive);
+	int Extract(const ArchiveItem *pItems, int nItemsNumber, const TCHAR* lpDestDiskPath, const TCHAR* lpPathInArchive);
 	bool AddFiles(const ArchiveItem* pItems, int nItemsNumber, const TCHAR* lpSourceDiskPath, const TCHAR* lpPathInArchive);
 
 	LONG_PTR OnStartOperation(int nOperation, unsigned __int64 uTotalSize, unsigned __int64 uTotalFiles);

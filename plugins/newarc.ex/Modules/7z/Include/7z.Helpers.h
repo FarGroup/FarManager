@@ -76,6 +76,8 @@ public:
 	CCryptoGetTextPassword* m_pGetTextPassword;
 
 	bool m_bUserAbort;
+	int m_nSuccessCount;
+	bool m_bExtractMode;
 
 public:
 
@@ -105,6 +107,7 @@ public:
 	virtual HRESULT __stdcall PrepareOperation(int askExtractMode);
 	virtual HRESULT __stdcall SetOperationResult(int resultEOperationResult);
 
+	int GetResult();
 };
 
 

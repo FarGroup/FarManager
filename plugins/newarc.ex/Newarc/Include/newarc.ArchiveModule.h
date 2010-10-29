@@ -80,7 +80,7 @@ public:
 	int GetArchiveItem(HANDLE hArchive, ArchiveItem* pItem);
 	bool FreeArchiveItem(HANDLE hArchive, ArchiveItem* pItem);
 
-	bool Extract(HANDLE hArchive, const ArchiveItemArray& items, const TCHAR* lpDestDiskPath, const TCHAR* lpFolderInArchive);
+	int Extract(HANDLE hArchive, const ArchiveItemArray& items, const TCHAR* lpDestDiskPath, const TCHAR* lpFolderInArchive);
 	bool AddFiles(HANDLE hArchive, const ArchiveItemArray& items, const TCHAR* lpSourceDiskPath, const TCHAR* lpFolderInArchive);
 	bool Delete(HANDLE hArchive, const ArchiveItemArray& items);
 	bool Test(HANDLE hArchive, const ArchiveItemArray& items);

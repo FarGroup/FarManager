@@ -134,14 +134,14 @@ Archive::~Archive ()
 {
 }
 
-bool Archive::Extract(
+int Archive::Extract(
 		const ArchiveItemArray& items,
 		const TCHAR *lpDestDiskPath,
 		bool bWithoutPath
 		)
 {
-    bool bInternalFailed = true;
-    bool bResult = false;
+	bool bInternalFailed = true;
+	int nResult = false;
 
 	string strDestDiskPath = lpDestDiskPath;
 	AddEndSlash(strDestDiskPath);
@@ -150,8 +150,7 @@ bool Archive::Extract(
 	{
 		if ( StartOperation(OPERATION_EXTRACT, true) )
 		{
-
-			bResult = m_pModule->Extract(
+			nResult = m_pModule->Extract(
 						m_hArchive, 
 						items, 
 						strDestDiskPath, 
@@ -168,20 +167,17 @@ bool Archive::Extract(
 	{
 		if ( StartOperation(OPERATION_EXTRACT, false) )
 		{
-			bResult = ExecuteCommand(
+			nResult = ExecuteCommand(
 					items, 
 					bWithoutPath?COMMAND_EXTRACT_WITHOUT_PATH:COMMAND_EXTRACT,
 					strDestDiskPath
-					);
+					)?RESULT_SUCCESS:RESULT_ERROR; //BADBAD
 
 			EndOperation(OPERATION_EXTRACT, false);
 		}
 	}
 
-	if ( !bResult )
-		msgError(_T("Extract error!"));
-
-	return bResult;
+	return nResult;
 }
 
 bool Archive::Test(const ArchiveItemArray& items)

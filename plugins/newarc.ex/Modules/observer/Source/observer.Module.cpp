@@ -21,7 +21,7 @@ bool ObserverModule::Load()
 
 	m_pPluginInfo = new ArchivePluginInfo[m_Plugins.count()];
 
-	for (int i = 0; i < m_Plugins.count(); i++)
+	for (unsigned int i = 0; i < m_Plugins.count(); i++)
 	{
 		ArchivePluginInfo* info = &m_pPluginInfo[i];
 		memset(info, 0, sizeof(ArchivePluginInfo));
@@ -42,7 +42,7 @@ ObserverModule::~ObserverModule()
 {
 	if ( m_pPluginInfo )
 	{
-		for (int i = 0; i < m_Plugins.count(); i++)
+		for (unsigned int i = 0; i < m_Plugins.count(); i++)
 			StrFree((void*)m_pPluginInfo[i].lpModuleName);
 
 		delete [] m_pPluginInfo;			
@@ -81,7 +81,7 @@ const ArchiveQueryResult* ObserverModule::QueryArchive(const QueryArchiveStruct*
 		}
 		else
 		{
-			for (int i = 0; i < m_Plugins.count(); i++)
+			for (unsigned int i = 0; i < m_Plugins.count(); i++)
 				m_Plugins[i]->QueryArchives(pQAS->lpFileName, m_QueryPool);
 		}
 	}
@@ -161,7 +161,7 @@ int __stdcall ObserverModule::LoadObserverPlugins(
 
 ObserverPlugin* ObserverModule::GetPlugin(const GUID& uid)
 {
-	for (int i = 0; i < m_Plugins.count(); i++)
+	for (unsigned int i = 0; i < m_Plugins.count(); i++)
 	{
 		if ( m_Plugins[i]->GetUID() == uid )
 			return m_Plugins[i];

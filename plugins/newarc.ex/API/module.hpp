@@ -10,12 +10,10 @@
 #define MY_DEFINE_GUID(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
   MY_EXTERN_C const GUID name = { l, w1, w2, { b1, b2,  b3,  b4,  b5,  b6,  b7,  b8 } }
 
-/*
 #define RESULT_ERROR			0
 #define RESULT_SUCCESS			1
 #define RESULT_PARTIAL			2
 #define RESULT_CANCEL			3
-*/
 
 #define NAERROR_SUCCESS			0
 #define NAERROR_NOT_SUPPORTED	2
@@ -53,19 +51,19 @@ struct ArchiveItem
 {
 	DWORD dwFlags;
 
-    DWORD dwFileAttributes;
-    FILETIME ftCreationTime;
-    FILETIME ftLastAccessTime;
-    FILETIME ftLastWriteTime;
-    unsigned __int64 nFileSize;
-    unsigned __int64 nPackSize;
+	DWORD dwFileAttributes;
+	FILETIME ftCreationTime;
+	FILETIME ftLastAccessTime;
+	FILETIME ftLastWriteTime;
+	unsigned __int64 nFileSize;
+	unsigned __int64 nPackSize;
 
-    const TCHAR* lpFileName;
-    const TCHAR* lpAlternateFileName;
+	const TCHAR* lpFileName;
+	const TCHAR* lpAlternateFileName;
 
-    DWORD dwCRC32;
+	DWORD dwCRC32;
 
-    DWORD_PTR UserData; //for internal transitions
+	DWORD_PTR UserData; //for internal transitions
 };
 
 
@@ -117,6 +115,10 @@ struct ProcessDataStruct {
 		};
 	};
 };
+
+#define PROCESS_CANCEL		0
+#define PROCESS_SKIP		1
+#define PROCESS_OVERWRITE	2
 
 struct ProcessFileStruct {
 	const TCHAR* lpDestFileName;
@@ -248,7 +250,8 @@ struct ExtractStruct {
 	const TCHAR *lpDestPath;
 	const TCHAR *lpCurrentPath;
 
-	bool bResult;
+	//bool bResult;
+	int nResult; //NEW!!!
 };
 
 struct OpenCreateArchiveStruct {
@@ -409,17 +412,12 @@ struct StartupInfo {
 #define FID_DELETE				18 //param - DeleteStruct
 #define FID_ADD					19 //param - AddStruct
 #define FID_CONFIGURE			20 //param - ConfigureFormatStruct
+
 #define FID_GETARCHIVEINFO  200
 #define FID_GETARCHIVEFILEINFO 300
+#define FID_GETLASTERROR		400
 
 //XPERIMENTAL
-
-
-#define AM_FILE_ALREADY_EXISTS 100
-
-#define RESULT_CANCEL 0
-#define RESULT_SKIP 1
-#define RESULT_OVERWRITE 2
 
 struct OverwriteStruct {
 	const ArchiveItem* pItem;

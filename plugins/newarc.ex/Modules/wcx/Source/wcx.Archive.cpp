@@ -165,12 +165,12 @@ bool WcxArchive::Extract(
 					pfs.pItem = &pItems[i];
 					pfs.lpDestFileName = strDestName;
 
-					int nOverwrite = Callback (AM_PROCESS_FILE, 0, (LONG_PTR)&pfs);
+					int nOverwrite = Callback(AM_PROCESS_FILE, 0, (LONG_PTR)&pfs);
 
-					if ( nOverwrite == RESULT_CANCEL )
+					if ( nOverwrite == PROCESS_CANCEL )
 						goto l_1;
 
-					if ( nOverwrite == RESULT_OVERWRITE )
+					if ( nOverwrite == PROCESS_OVERWRITE )
 					{
 						int nProcessResult = 0;
 

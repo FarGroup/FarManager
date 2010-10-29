@@ -22,6 +22,8 @@ CArchiveExtractCallback::CArchiveExtractCallback(
 	m_pGetTextPassword = NULL;
 
 	m_bUserAbort = false;
+	m_nSuccessCount = 0;
+	m_bExtractMode = false;
 
 	///???
 	m_pArchive->OnStartOperation(OPERATION_EXTRACT, 0, 0);
@@ -31,7 +33,7 @@ CArchiveExtractCallback::CArchiveExtractCallback(
 CArchiveExtractCallback::~CArchiveExtractCallback()
 {
 	if ( m_pGetTextPassword )
-		m_pGetTextPassword->Release ();
+		m_pGetTextPassword->Release();
 }
 
 ULONG __stdcall CArchiveExtractCallback::AddRef()
@@ -155,20 +157,23 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream(
 		else
 			strFullName += strArcFileName;
 
-		int itemindex = GetItemIndex (this, index);
+		int itemindex = GetItemIndex(this, index);
 		const ArchiveItem* item = m_pItems[itemindex].pItem;
 
 		int nOverwrite = m_pArchive->OnProcessFile(item, strFullName);
 
-		if ( nOverwrite == RESULT_CANCEL )
+		if ( nOverwrite == PROCESS_CANCEL )
 		{
 			m_bUserAbort = true;
+
 			*outStream = NULL;
 			return S_OK;
 		}
 
-		if ( nOverwrite == RESULT_SKIP )
+		if ( nOverwrite == PROCESS_SKIP )
 		{
+			m_nSuccessCount++;
+
 			*outStream = NULL;
 			return S_OK;
 		}
@@ -177,43 +182,43 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream(
 		if ( m_uProcessedBytes == (unsigned __int64)-1 )
 			m_uProcessedBytes = 0;
 
-   		FILETIME ftCreationTime, ftLastAccessTime, ftLastWriteTime;
-   		DWORD dwFileAttributes = 0;
+		FILETIME ftCreationTime, ftLastAccessTime, ftLastWriteTime;
+		DWORD dwFileAttributes = 0;
 
-   		memset (&ftCreationTime, 0, sizeof (FILETIME));
-   		memset (&ftLastAccessTime, 0, sizeof (FILETIME));
-   		memset (&ftLastWriteTime, 0, sizeof (FILETIME));
+		memset (&ftCreationTime, 0, sizeof (FILETIME));
+		memset (&ftLastAccessTime, 0, sizeof (FILETIME));
+		memset (&ftLastWriteTime, 0, sizeof (FILETIME));
 
-   		if ( pArchive->GetProperty(index, kpidAttrib, &value) == S_OK )
-   		{
-   			if ( value.vt == VT_UI4 )
-   				dwFileAttributes = value.ulVal;
-   		}
+		if ( pArchive->GetProperty(index, kpidAttrib, &value) == S_OK )
+		{
+			if ( value.vt == VT_UI4 )
+			dwFileAttributes = value.ulVal;
+		}
 
-   		if ( pArchive->GetProperty(index, kpidCTime, &value) == S_OK )
-   		{
-   			if ( value.vt == VT_FILETIME )
-   				memcpy (&ftCreationTime, &value.filetime, sizeof (FILETIME));
-   		}
+		if ( pArchive->GetProperty(index, kpidCTime, &value) == S_OK )
+		{
+			if ( value.vt == VT_FILETIME )
+				memcpy (&ftCreationTime, &value.filetime, sizeof (FILETIME));
+		}
 
-   		if ( pArchive->GetProperty(index, kpidATime, &value) == S_OK )
-   		{
-   			if ( value.vt == VT_FILETIME )
-   				memcpy (&ftLastAccessTime, &value.filetime, sizeof (FILETIME));
-   		}
+		if ( pArchive->GetProperty(index, kpidATime, &value) == S_OK )
+		{
+			if ( value.vt == VT_FILETIME )
+				memcpy (&ftLastAccessTime, &value.filetime, sizeof (FILETIME));
+		}
 
-   		if ( pArchive->GetProperty(index, kpidMTime, &value) == S_OK )
-   		{
-   			if ( value.vt == VT_FILETIME )
-   				memcpy (&ftLastWriteTime, &value.filetime, sizeof (FILETIME));
-   		}
+		if ( pArchive->GetProperty(index, kpidMTime, &value) == S_OK )
+		{
+			if ( value.vt == VT_FILETIME )
+				memcpy (&ftLastWriteTime, &value.filetime, sizeof (FILETIME));
+		}
 
-   		bool bIsFolder = false;
+		bool bIsFolder = false;
 
-   		if ( pArchive->GetProperty(index, kpidIsDir, &value) == S_OK )
-   		{
-   			if (value.vt == VT_BOOL)
-   				bIsFolder = (value.boolVal == VARIANT_TRUE);
+		if ( pArchive->GetProperty(index, kpidIsDir, &value) == S_OK )
+		{
+			if (value.vt == VT_BOOL)
+				bIsFolder = (value.boolVal == VARIANT_TRUE);
 		}
 
 		if ( bIsFolder ||
@@ -247,6 +252,9 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream(
 
 HRESULT __stdcall CArchiveExtractCallback::PrepareOperation(int askExtractMode)
 {
+	if ( askExtractMode == 0 )
+		m_bExtractMode = true;
+
 	return S_OK;
 }
 
@@ -256,6 +264,13 @@ HRESULT __stdcall CArchiveExtractCallback::SetOperationResult(int resultEOperati
 
 	switch( resultEOperationResult )
 	{
+		case NArchive::NExtract::NOperationResult::kOK:
+			
+			if ( m_bExtractMode )
+				m_nSuccessCount++;
+
+			return S_OK;
+
 		case NArchive::NExtract::NOperationResult::kDataError:
 
 			//remove to callback if possible
@@ -264,7 +279,7 @@ HRESULT __stdcall CArchiveExtractCallback::SetOperationResult(int resultEOperati
 
 			msg.Run();
 
-			return S_OK;
+			return S_OK; //??
 
 		case NArchive::NExtract::NOperationResult::kCRCError:
 			m_pArchive->OnPasswordOperation(PASSWORD_RESET, NULL, 0);
@@ -275,12 +290,28 @@ HRESULT __stdcall CArchiveExtractCallback::SetOperationResult(int resultEOperati
 
 			msg.Run();
 			
-			return E_FAIL;
+			return S_OK; //??
 	}
 
 	return S_OK;
 }
 
+int CArchiveExtractCallback::GetResult()
+{
+	if ( m_bUserAbort )
+		return RESULT_CANCEL;
+
+	if ( m_nSuccessCount > m_nItemsNumber )
+		__debug(_T("LOGIC ERROR, PLEASE REPORT"));
+
+	if ( m_nSuccessCount == 0 )
+		return RESULT_ERROR;
+
+	if ( m_nSuccessCount < m_nItemsNumber )
+		return RESULT_PARTIAL;
+
+	return RESULT_SUCCESS;
+}
 
 CCryptoGetTextPassword::CCryptoGetTextPassword(
 		SevenZipArchive* pArchive,

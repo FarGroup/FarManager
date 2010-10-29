@@ -884,31 +884,31 @@ LONG_PTR __stdcall ArchivePanel::Callback(HANDLE hPanel, int nMsg, int nParam1, 
 
 int ArchivePanel::OnFileAlreadyExists(OverwriteStruct* pOS)
 {
-	if ( m_OS.overwrite == RESULT_OVERWRITE_ALL )
-		return RESULT_OVERWRITE;
+	if ( m_OS.overwrite == PROCESS_OVERWRITE_ALL )
+		return PROCESS_OVERWRITE;
 	
-	if ( m_OS.overwrite == RESULT_SKIP_ALL )
-		return RESULT_SKIP;
+	if ( m_OS.overwrite == PROCESS_SKIP_ALL )
+		return PROCESS_SKIP;
 	
-	if ( m_OS.overwrite == RESULT_CANCEL )
-		return RESULT_CANCEL;
+	if ( m_OS.overwrite == PROCESS_CANCEL )
+		return PROCESS_CANCEL;
 	
 	if ( GetFileAttributes(pOS->lpFileName) != INVALID_FILE_ATTRIBUTES )
 	{
 		m_OS.overwrite = msgFileAlreadyExists(pOS->lpFileName, pOS->pItem);
 
-		if ( (m_OS.overwrite == RESULT_OVERWRITE_ALL) || (m_OS.overwrite == RESULT_OVERWRITE) )
-			return RESULT_OVERWRITE;
+		if ( (m_OS.overwrite == PROCESS_OVERWRITE_ALL) || (m_OS.overwrite == PROCESS_OVERWRITE) )
+			return PROCESS_OVERWRITE;
 
-		if ( m_OS.overwrite == RESULT_CANCEL )
-			return RESULT_CANCEL;
+		if ( m_OS.overwrite == PROCESS_CANCEL )
+			return PROCESS_CANCEL;
 
 		m_OS.uTotalSize -= pOS->pItem->nFileSize; //he?
 
-		return RESULT_SKIP;
+		return PROCESS_SKIP;
 	}
 
-	return RESULT_OVERWRITE;
+	return PROCESS_OVERWRITE;
 }
 
 int ArchivePanel::OnStartOperation(int nOperation, StartOperationStruct *pOS)
@@ -924,7 +924,7 @@ int ArchivePanel::OnStartOperation(int nOperation, StartOperationStruct *pOS)
 
 	m_OS.nOperation = nOperation;
 	m_OS.bFirstFile = true;
-	m_OS.overwrite = RESULT_UNKNOWN;
+	m_OS.overwrite = PROCESS_UNKNOWN;
 
 	return 1;
 }
@@ -982,7 +982,7 @@ int ArchivePanel::OnProcessFile(ProcessFileStruct *pfs)
 	if ( !pfs )
 		__debug(_T("ERROR, EMPTY PFS!"));
 
-	int nOverwrite = RESULT_OVERWRITE;
+	int nOverwrite = PROCESS_OVERWRITE;
 
 	if ( m_OS.nOperation == OPERATION_EXTRACT )
 	{
@@ -994,7 +994,7 @@ int ArchivePanel::OnProcessFile(ProcessFileStruct *pfs)
 		nOverwrite = OnFileAlreadyExists(&OS);
 	}
 
-	if ( nOverwrite != RESULT_CANCEL )
+	if ( nOverwrite != PROCESS_CANCEL )
 	{
 		m_OS.pCurrentItem = pfs?pfs->pItem:NULL;
 
@@ -1082,14 +1082,29 @@ int ArchivePanel::OnProcessData(ProcessDataStruct* pDS)
 	return TRUE;
 }
 
-bool ArchivePanel::Extract(
+int ArchivePanel::Extract(
 		const ArchiveItemArray& items, 
 		const TCHAR *lpDestDiskPath, 
 		bool bWithoutPath
 		)
 {
 	OnStartOperation(OPERATION_EXTRACT, nullptr);
-	return m_pArchive->Extract(items, lpDestDiskPath, bWithoutPath);
+
+	int nResult = m_pArchive->Extract(items, lpDestDiskPath, bWithoutPath);
+
+	if ( nResult == RESULT_ERROR )
+		msgError(_T("Extract failed"));
+
+	if ( nResult == RESULT_PARTIAL )
+		msgError(_T("Extract succeded partially"));
+
+	if ( nResult == RESULT_CANCEL )
+		msgError(_T("Extract was aborted by user"));
+
+	if ( nResult == RESULT_SUCCESS )
+		msgError(_T("Extract success"));
+
+	return nResult;
 }
 
 bool ArchivePanel::Delete(const ArchiveItemArray& items)

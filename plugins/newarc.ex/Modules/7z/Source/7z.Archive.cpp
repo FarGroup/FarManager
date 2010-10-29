@@ -498,14 +498,14 @@ bool SevenZipArchive::Test(
 	return false;
 }
 
-bool SevenZipArchive::Extract(
+int SevenZipArchive::Extract(
 		const ArchiveItem* pItems,
 		int nItemsNumber,
 		const TCHAR* lpDestDiskPath,
 		const TCHAR* lpPathInArchive
 		)
 {
-	bool bResult = false;
+	int nResult = RESULT_ERROR;
 
 	unsigned int* indices = new unsigned int[nItemsNumber];
 	ArchiveItemEx* items = new ArchiveItemEx[nItemsNumber];
@@ -525,7 +525,7 @@ bool SevenZipArchive::Extract(
 		}
 	}
 
-	FSF.qsort (indices, lastitem, sizeof(unsigned int), CompareIndicies);
+	FSF.qsort(indices, lastitem, sizeof(unsigned int), CompareIndicies);
 
 	CArchiveExtractCallback Callback(this, items, lastitem, lpDestDiskPath, lpPathInArchive);
 
@@ -535,12 +535,12 @@ bool SevenZipArchive::Extract(
 			0,
 			&Callback
 			) == S_OK )
-		bResult = true;
+		nResult = Callback.GetResult();
 
 	delete [] indices;
 	delete [] items;
 
-	return bResult;
+	return nResult;
 }
 
 #include "7z.Properties.cpp"

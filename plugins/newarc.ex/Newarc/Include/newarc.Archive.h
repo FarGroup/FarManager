@@ -2,12 +2,12 @@
 #include "newarc.h"
 
 
-#define RESULT_CANCEL 0
-#define RESULT_SKIP 1
-#define RESULT_OVERWRITE 2
-#define RESULT_OVERWRITE_ALL 3
-#define RESULT_SKIP_ALL 4
-#define RESULT_UNKNOWN 100
+#define PROCESS_CANCEL 0
+#define PROCESS_SKIP 1
+#define PROCESS_OVERWRITE 2
+#define PROCESS_OVERWRITE_ALL 3
+#define PROCESS_SKIP_ALL 4
+#define PROCESS_UNKNOWN 100
 
 class OperationDialog {
 
@@ -61,7 +61,7 @@ struct OperationStructEx {
 		uTotalFiles = 0;
 		uTotalProcessedFiles = 0;
 
-		overwrite = RESULT_UNKNOWN;
+		overwrite = PROCESS_UNKNOWN;
 	}
 
 };
@@ -122,7 +122,7 @@ public:
 	void SetCurrentDirectory(const TCHAR* lpPathInArchive);
 	void SetPassword(const TCHAR* lpPassword);
 
-	bool Extract(const ArchiveItemArray& items, const TCHAR *lpDestDiskPath, bool bWithoutPath);
+	int Extract(const ArchiveItemArray& items, const TCHAR *lpDestDiskPath, bool bWithoutPath);
 	bool Delete(const ArchiveItemArray& items);
 	bool AddFiles(const ArchiveItemArray& items, const TCHAR *lpSourceDiskPath);
 	bool Test(const ArchiveItemArray& items);

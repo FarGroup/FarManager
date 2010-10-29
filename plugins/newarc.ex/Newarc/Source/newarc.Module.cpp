@@ -307,7 +307,7 @@ void ArchiveModule::ReloadLanguage(
 
 
 
-bool ArchiveModule::Extract(
+int ArchiveModule::Extract(
 		HANDLE hArchive,
 		const ArchiveItemArray& items, 
 		const TCHAR* lpDestDiskPath, 
@@ -323,7 +323,7 @@ bool ArchiveModule::Extract(
 	ES.lpCurrentPath = lpPathInArchive;
 
 	if ( m_pfnModuleEntry (FID_EXTRACT, (void*)&ES) == NAERROR_SUCCESS )
-		return ES.bResult;
+		return ES.nResult;
 
 	return false;
 }

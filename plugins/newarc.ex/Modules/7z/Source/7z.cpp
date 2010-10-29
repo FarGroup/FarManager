@@ -110,7 +110,7 @@ int OnExtract(ExtractStruct *pES)
 {
 	SevenZipArchive* pArchive = (SevenZipArchive*)pES->hArchive;
 
-	pES->bResult = pArchive->Extract (
+	pES->nResult = pArchive->Extract (
 			pES->pItems,
 			pES->nItemsNumber,
 			pES->lpDestPath,

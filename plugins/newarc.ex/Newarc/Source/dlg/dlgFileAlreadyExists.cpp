@@ -48,7 +48,7 @@ int msgFileAlreadyExists(const TCHAR* lpFileName, const ArchiveItem* pItem)
 	GetFileInfo(lpFileName, &fdata);
 
 	if ( (fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY )
-		return RESULT_OVERWRITE;
+		return PROCESS_OVERWRITE;
 
 	FarDialog D(-1, -1, 72, 13);
 
@@ -103,14 +103,14 @@ int msgFileAlreadyExists(const TCHAR* lpFileName, const ArchiveItem* pItem)
 		int nIndex = D.FirstButton();
 
 		if ( nResult == nIndex+0 )
-			return bAll?RESULT_OVERWRITE_ALL:RESULT_OVERWRITE;
+			return bAll?PROCESS_OVERWRITE_ALL:PROCESS_OVERWRITE;
 
 		if ( nResult == nIndex+1 )
-			return bAll?RESULT_SKIP_ALL:RESULT_SKIP;
+			return bAll?PROCESS_SKIP_ALL:PROCESS_SKIP;
 
 		if ( nResult == nIndex+2 )
-			return RESULT_CANCEL;
+			return PROCESS_CANCEL;
 	}
 
-	return RESULT_CANCEL;
+	return PROCESS_CANCEL;
 }

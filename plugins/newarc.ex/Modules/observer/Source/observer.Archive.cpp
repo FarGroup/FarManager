@@ -208,7 +208,7 @@ bool ObserverArchive::Extract(
 
 		int nOverwrite = Callback(AM_PROCESS_FILE, 0, (LONG_PTR)&PF);
 
-		if ( nOverwrite == RESULT_OVERWRITE )
+		if ( nOverwrite == PROCESS_OVERWRITE )
 		{
 			if ( (pItems[i].dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY )
 				apiCreateDirectoryEx(strDestName);
@@ -222,7 +222,7 @@ bool ObserverArchive::Extract(
 			}
 		}
 
-		if ( m_bUserAbort || (nOverwrite == RESULT_CANCEL) )
+		if ( m_bUserAbort || (nOverwrite == PROCESS_CANCEL) )
 			break;
 	}		
 		

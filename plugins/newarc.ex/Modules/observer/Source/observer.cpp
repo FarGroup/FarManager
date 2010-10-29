@@ -88,7 +88,7 @@ int OnExtract (ExtractStruct *pES)
 {
 	ObserverArchive *pArchive = (ObserverArchive *)pES->hArchive;
 
-	pES->bResult = pArchive->Extract(
+	pES->nResult = pArchive->Extract(
 			pES->pItems,
 			pES->nItemsNumber,
 			pES->lpDestPath,
