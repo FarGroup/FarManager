@@ -126,7 +126,7 @@ int ArchiveModuleManager::QueryArchives(
 						{
 							Array<ArchiveFormat*>& formats = pPlugin->GetFormats();
 
-				    		for (int j = 0; j < formats.count(); j++)
+				    		for (unsigned int j = 0; j < formats.count(); j++)
 				    		{
 				    			ArchiveFormat* pFormat = formats[i];
         

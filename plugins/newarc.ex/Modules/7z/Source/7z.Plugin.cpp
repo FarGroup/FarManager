@@ -177,7 +177,7 @@ ArchiveFormatInfo* SevenZipPlugin::GetFormats()
 
 SevenZipPlugin::~SevenZipPlugin()
 {
-	for (int i = 0; i < m_pFormatInfo.count(); i++)
+	for (unsigned int i = 0; i < m_pFormatInfo.count(); i++)
 	{
 		ArchiveFormatInfo* info = &m_pFormatInfo[i];
 
@@ -402,7 +402,7 @@ int SevenZipPlugin::QueryArchives(
 
 	formats.sort((void*)SortFormats, NULL);
 
-	for (int i = 0; i < formats.count(); i++)
+	for (unsigned int i = 0; i < formats.count(); i++)
 	{
 		ArchiveQueryResult* pResult = new ArchiveQueryResult;
 

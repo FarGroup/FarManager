@@ -484,6 +484,7 @@ int ArchivePanel::pPutFiles(
 				) )
 		{
 			m_bPasswordSet = true;
+			m_strPassword = params.strPassword;
 
 			int nSelectedCount = info.GetSelectedItemsCount();
 
@@ -737,7 +738,7 @@ int ArchivePanel::pProcessHostFile(
 {
 	//return FALSE;
 
-	int nResult = mnuChooseOperation ();
+	int nResult = mnuChooseOperation();
 
 	if ( nResult != -1 )
 	{
@@ -773,42 +774,35 @@ int ArchivePanel::pProcessHostFile(
 			nCommand = COMMAND_LOCK;
 			break;
 		};
+
+		//экспериментальный бред
+		FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
+
+		if ( !m_pArchive )
+			__debug(_T("FATAL ERROR, PLEASE REPORT"));
+
+		string strCommand;
+		string strAllFilesMask;
+
+		m_pArchive->GetDefaultCommand(nCommand, strCommand);
+		m_pArchive->GetDefaultCommand(nCommand, strAllFilesMask);
+
+		string strPassword;
+  
+		//здесь должен быть код, уточняющий, что текущий архив многотомный!!!
+
+		//здесь должен быть код, получающий _при надобности_ пароль!!!
+
+		ArchiveItemArray items;
+
+		GetArchiveItemsToProcess(PanelItem, ItemsNumber, items);
+
+		m_pArchive->SetPassword(strPassword);
+		m_pArchive->ExecuteCommand(items, nCommand); 
+
 	}
 
-	
-	/*	ArchiveItemArray items;
-		OperationStruct os;
-
-		GetArchiveItemsToProcess (
-				PanelItem,
-				ItemsNumber,
-				items,
-				&os
-				);
-
-		m_pArchive->SetOperationStruct(&os);
-
-		if ( nCommand == COMMAND_TEST )
-		{
-			if ( m_pArchive->StartOperation(OPERATION_TEST) )
-			{
-				m_pArchive->Test(items);
-				m_pArchive->EndOperation(OPERATION_TEST);
-			}
-		}
-		else
-			ExecuteCommand (
-					items,
-					nCommand,
-					NULL,
-					NULL
-					);
-	*/
-/*		return TRUE;
-	}
-	*/
-
-	return FALSE; 
+	return TRUE;
 }
 
 int ArchivePanel::pMakeDirectory(const TCHAR* lpDirectory, int nOpMode)
@@ -1002,47 +996,50 @@ int ArchivePanel::OnProcessFile(ProcessFileStruct *pfs)
 
 	if ( nOverwrite != RESULT_CANCEL )
 	{
+		m_OS.pCurrentItem = pfs?pfs->pItem:NULL;
 
-	m_OS.pCurrentItem = pfs?pfs->pItem:NULL;
-
-	if ( m_OS.bFirstFile )
-	{
-		//if ( !OptionIsOn (m_OS.nMode, OPM_SILENT) )
+		if ( m_OS.bFirstFile )
 		{
-			if ( m_OS.nOperation == OPERATION_EXTRACT )
-				m_OS.Dlg.Show(_M(MProcessFileExtractionTitle)/*, _M(MProcessFileExtraction)*/);
-			else
-			if ( m_OS.nOperation == OPERATION_ADD )
-				m_OS.Dlg.Show(_M(MProcessFileAdditionTitle)/*, _M(MProcessFileAddition)*/);
-			else
-			if ( m_OS.nOperation == OPERATION_DELETE )
-				m_OS.Dlg.Show(_M(MProcessFileDeletionTitle)/*, _M(MProcessFileDeletion)*/);
-			else
-				__debug(_T("BAD OPERATION"));
+			//if ( !OptionIsOn (m_OS.nMode, OPM_SILENT) )
+			{
+				if ( m_OS.nOperation == OPERATION_EXTRACT )
+					m_OS.Dlg.Show(_M(MProcessFileExtractionTitle)/*, _M(MProcessFileExtraction)*/);
+				else
+				{
+					if ( m_OS.nOperation == OPERATION_ADD )
+						m_OS.Dlg.Show(_M(MProcessFileAdditionTitle)/*, _M(MProcessFileAddition)*/);
+					else
+					{
+						if ( m_OS.nOperation == OPERATION_DELETE )
+							m_OS.Dlg.Show(_M(MProcessFileDeletionTitle)/*, _M(MProcessFileDeletion)*/);
+						else
+							__debug(_T("BAD OPERATION"));
+					}
+				}
 
-			Info.Text(0, 0, 0, 0); //BUGBUG
+				Info.Text(0, 0, 0, 0); //BUGBUG
+			}
+
+			m_OS.bFirstFile = false;
+			m_OS.uTotalProcessedSize = 0;
 		}
 
-		m_OS.bFirstFile = false;
-		m_OS.uTotalProcessedSize = 0;
-	}
+		//if ( !OptionIsOn(m_OS.nMode, OPM_SILENT) )
+		{
+			m_OS.Dlg.SetFileName(false, m_OS.pCurrentItem->lpFileName);
 
-	//if ( !OptionIsOn(m_OS.nMode, OPM_SILENT) )
-	{
-		m_OS.Dlg.SetFileName(false, m_OS.pCurrentItem->lpFileName);
+			if ( pfs && pfs->lpDestFileName )
+				m_OS.Dlg.SetFileName(true, pfs->lpDestFileName);
 
-		if ( pfs && pfs->lpDestFileName )
-			m_OS.Dlg.SetFileName(true, pfs->lpDestFileName);
+			Info.Text(0, 0, 0, 0);
+		}
 
-		Info.Text(0, 0, 0, 0);
-	}
+		if ( m_OS.pCurrentItem )
+			m_OS.uFileSize = m_OS.pCurrentItem->nFileSize;
+		else
+			m_OS.uFileSize = m_OS.uTotalSize;
 
-	if ( m_OS.pCurrentItem )
-		m_OS.uFileSize = m_OS.pCurrentItem->nFileSize;
-	else
-		m_OS.uFileSize = m_OS.uTotalSize;
-
-	m_OS.uProcessedSize = 0;
+		m_OS.uProcessedSize = 0;
 	}
 
 	return nOverwrite;

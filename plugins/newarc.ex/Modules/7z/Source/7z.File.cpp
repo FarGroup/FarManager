@@ -301,7 +301,7 @@ CVolumeOutFile::~CVolumeOutFile()
 
 void CVolumeOutFile::Close()
 {
-	for (int i = 0; i < m_streams.count(); i++)
+	for (unsigned int i = 0; i < m_streams.count(); i++)
 	{
 		VolumeInfo* pVolume = m_streams[i];
 
@@ -422,7 +422,7 @@ HRESULT __stdcall CVolumeOutFile::SetSize(__int64 newSize)
 	if ( newSize < 0 )
 		return E_INVALIDARG;
 
-	for (int i = 0; i < m_streams.count(); i++)
+	for (unsigned int i = 0; i < m_streams.count(); i++)
 	{
 		VolumeInfo* pVolume = m_streams[i];
 
@@ -436,7 +436,7 @@ HRESULT __stdcall CVolumeOutFile::SetSize(__int64 newSize)
 		newSize -= pVolume->realSize;
 	}
 
-	for (int i = 0; i < m_streams.count(); i++)
+	for (unsigned int i = 0; i < m_streams.count(); i++)
 		DeleteFile(m_streams[i]->strFileName);
 
 	m_streams.reset();

@@ -59,7 +59,7 @@ int msgFileAlreadyExists(const TCHAR* lpFileName, const ArchiveItem* pItem)
 	D.Text(5, 2, 66, _T("File already exists")); //1
 	D.SetFlags(DIF_CENTERTEXT);
 
-	D.Text(5, 3, 66, pItem->lpFileName); //2
+	D.Text(5, 3, 66, lpFileName); //2
 	D.SetFlags(DIF_CENTERTEXT);
 
 	D.Separator(4); //3
@@ -70,29 +70,29 @@ int msgFileAlreadyExists(const TCHAR* lpFileName, const ArchiveItem* pItem)
 
 	TimeToStr(pItem->ftLastWriteTime, strTime);
 	strSize.Format(_T("%I64u"), pItem->nFileSize);
-	strTemp.Format(_T("%-17s %25.25s %s"), _T("New"), strSize.GetString(), strTime.GetString());
+	strTemp.Format(_T("%-17s %25.25s %s"), _T("&New"), strSize.GetString(), strTime.GetString());
 	
 	D.Text(5, 5, strTemp); //4
 
 	TimeToStr(fdata.ftLastWriteTime, strTime);
 	strSize.Format(_T("%I64u"), ((unsigned __int64)fdata.nFileSizeHigh << 32)+(unsigned __int64)fdata.nFileSizeLow);
-	strTemp.Format(_T("%-17s %25.25s %s"), _T("Existing"), strSize.GetString(), strTime.GetString());
+	strTemp.Format(_T("%-17s %25.25s %s"), _T("E&xisting"), strSize.GetString(), strTime.GetString());
 	D.Text(5, 6, strTemp); //5
 
 	D.Separator(7); //6
 
-	D.CheckBox(5, 8, false, _T("Remember choice")); //7
+	D.CheckBox(5, 8, false, _T("&Remember choice")); //7
 
 	D.Separator(9); //8
 
-	D.Button(0, 10, _T("Overwrite"));
+	D.Button(0, 10, _T("&Overwrite"));
 	D.SetFlags(DIF_CENTERGROUP);
 	D.DefaultButton();
 
-	D.Button(0, 10, _T("Skip"));
+	D.Button(0, 10, _T("&Skip"));
 	D.SetFlags(DIF_CENTERGROUP);
 
-	D.Button(0, 10, _T("Cancel"));
+	D.Button(0, 10, _T("&Cancel"));
 	D.SetFlags(DIF_CENTERGROUP);
 	
 	int nResult = D.Run();

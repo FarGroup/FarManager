@@ -40,7 +40,7 @@ void ArchiveFilter::AddFilter(ArchiveFilterEntry* pFE)
 
 int ArchiveFilter::GetFilters(Array<ArchiveFilterEntry*>& filters)
 {
-	for (int i = 0; i < m_pFilters.count(); i++)
+	for (unsigned int i = 0; i < m_pFilters.count(); i++)
 		filters.add(m_pFilters[i]);
 
 	return 0;
@@ -50,7 +50,7 @@ int ArchiveFilter::QueryFilters(const TCHAR* lpFileName, ArchiveFilterArray& fil
 {
 	bStopped = false;
 
-	for (int i = 0; i < m_pFilters.count(); i++)
+	for (unsigned int i = 0; i < m_pFilters.count(); i++)
 	{
 		ArchiveFilterEntry* pFE = m_pFilters[i];
 
@@ -82,7 +82,7 @@ int ArchiveFilter::QueryFilters(const TCHAR* lpFileName, ArchiveFilterArray& fil
 
 bool ArchiveFilter::Filtered(const GUID* puidModule, const GUID* puidPlugin, const GUID* puidFormat)
 {
-	for (int i = 0; i < m_pStopFilters.count(); i++)
+	for (unsigned int i = 0; i < m_pStopFilters.count(); i++)
 	{
 		ArchiveFilterEntry* pFE = m_pStopFilters[i];
 
