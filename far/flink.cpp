@@ -118,6 +118,11 @@ bool SetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
 
 		bool ForceElevation=false;
 
+		DWORD Attributes = apiGetFileAttributes(Object);
+		if(Attributes&FILE_ATTRIBUTE_READONLY)
+		{
+			apiSetFileAttributes(Object, Attributes&~FILE_ATTRIBUTE_READONLY);
+		}
 		for(size_t i=0;i<2;i++)
 		{
 			if (fObject.Open(Object,GENERIC_WRITE,0,nullptr,OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT,nullptr,ForceElevation))
@@ -128,7 +133,6 @@ bool SetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
 					Result=true;
 				}
 				fObject.Close();
-
 				// Open() success, but IoControl() fails. We can't handle this automatically :(
 				if(!i && !Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 				{
@@ -138,6 +142,11 @@ bool SetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
 				break;
 			}
 		}
+		if(Attributes&FILE_ATTRIBUTE_READONLY)
+		{
+			apiSetFileAttributes(Object, Attributes);
+		}
+
 	}
 
 	return Result;
