@@ -171,7 +171,7 @@ const ArchiveQueryResult* SevenZipModule::QueryArchive(const QueryArchiveStruct*
 
 SevenZipPlugin* SevenZipModule::GetPlugin(const GUID& uid)
 {
-	for (int i = 0; i < m_Plugins.count(); i++)
+	for (unsigned int i = 0; i < m_Plugins.count(); i++)
 	{
 		SevenZipPlugin* pPlugin = m_Plugins[i];
 

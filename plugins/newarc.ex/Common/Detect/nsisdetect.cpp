@@ -22,25 +22,26 @@ struct NSISHeader //об€зан быть на позиции в файле, кратной 512 байт (перед ним 
 const size_t MIN_HEADER_LEN = sizeof (NSISHeader);
 
 
-static inline BOOL IsValidHeader (const unsigned char *Data)
+static inline BOOL IsValidHeader(const unsigned char* pData)
 {
-	NSISHeader *header = (NSISHeader*)Data;
+	NSISHeader *header = (NSISHeader*)pData;
 	return !memcmp (&header->Signature, &nsis_signature, sizeof (nsis_signature));
 }
 
-int IsNSISHeader(const unsigned char *Data, unsigned int DataSize)
+int IsNSISHeader(const unsigned char* pData, unsigned int uDataSize)
 {
-	if ( (size_t)DataSize < MIN_HEADER_LEN )
+	if ( (size_t)uDataSize < MIN_HEADER_LEN )
 		return -1;
 
-	const unsigned char *MaxData=Data+DataSize-MIN_HEADER_LEN;
+	const unsigned char* pMaxData = pData+uDataSize-MIN_HEADER_LEN;
 
-	for (const unsigned char *CurData=Data; CurData<MaxData; CurData++)
+	for (const unsigned char* pCurData = pData; pCurData < pMaxData; pCurData++)
 	{
-		int position = (int)(CurData-Data);
+		unsigned int position = (unsigned int)(pCurData-pData);
 
-		if ( !(position%512) && IsValidHeader (CurData) )
+		if ( !(position%512) && IsValidHeader(pCurData) )
 			return position;
 	}
+
 	return -1;
 }

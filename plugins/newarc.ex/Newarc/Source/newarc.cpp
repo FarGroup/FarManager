@@ -330,7 +330,7 @@ void __stdcall EXP_NAME(GetPluginInfo) (
 	pi->PluginConfigStrings = (const TCHAR *const*)&PluginConfigStrings;
 	pi->PluginConfigStringsNumber = 1;
 
-   	string strLanguage;
+	string strLanguage;
 	apiGetEnvironmentVariable (_T("FARLANG"), strLanguage);
 
 	pManager->SetCurrentLanguage(strLanguage);

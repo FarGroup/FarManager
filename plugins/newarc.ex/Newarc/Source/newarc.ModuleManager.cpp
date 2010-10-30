@@ -109,7 +109,7 @@ int ArchiveModuleManager::QueryArchives(
 
 		bool bNoPluginsFiltered = true;
 		bool bNoFormatsFiltered = true;
-		       
+
 		if ( !m_pFilter->Filtered(&pModule->GetUID(), NULL, NULL) )
 		{
 			if ( pFE->bAllPlugins )
@@ -126,21 +126,21 @@ int ArchiveModuleManager::QueryArchives(
 						{
 							Array<ArchiveFormat*>& formats = pPlugin->GetFormats();
 
-				    		for (unsigned int j = 0; j < formats.count(); j++)
-				    		{
-				    			ArchiveFormat* pFormat = formats[i];
-        
-	        		    		if ( !m_pFilter->Filtered(&pModule->GetUID(), &pPlugin->GetUID(), &pFormat->GetUID()) )
-					    		{
-					    			if ( pPlugin->QueryCapability(APF_SUPPORT_SINGLE_FORMAT_QUERY) )
+							for (unsigned int j = 0; j < formats.count(); j++)
+							{
+								ArchiveFormat* pFormat = formats[i];
+
+								if ( !m_pFilter->Filtered(&pModule->GetUID(), &pPlugin->GetUID(), &pFormat->GetUID()) )
+								{
+									if ( pPlugin->QueryCapability(APF_SUPPORT_SINGLE_FORMAT_QUERY) )
 										pModule->QueryArchives(&pPlugin->GetUID(), &pFormat->GetUID(), lpFileName, pBuffer, dwBufferSize, result);
 								}
 								else
 									bNoFormatsFiltered = false;
-				    		}
+							}
 
-				    		if ( bNoFormatsFiltered && !pPlugin->QueryCapability(APF_SUPPORT_SINGLE_FORMAT_QUERY) )
-				    			pModule->QueryArchives(&pPlugin->GetUID(), NULL, lpFileName, pBuffer, dwBufferSize, result);
+							if ( bNoFormatsFiltered && !pPlugin->QueryCapability(APF_SUPPORT_SINGLE_FORMAT_QUERY) )
+								pModule->QueryArchives(&pPlugin->GetUID(), NULL, lpFileName, pBuffer, dwBufferSize, result);
 						}
 						else
 							bNoPluginsFiltered = false;
@@ -154,7 +154,7 @@ int ArchiveModuleManager::QueryArchives(
 			{
 				if ( pFE->bAllFormats )
 				{
-			    	ArchivePlugin* pPlugin = pFE->pPlugin;
+					ArchivePlugin* pPlugin = pFE->pPlugin;
 				
 					if ( !m_pFilter->Filtered(&pModule->GetUID(), &pPlugin->GetUID(), NULL) )
 					{
@@ -175,7 +175,7 @@ int ArchiveModuleManager::QueryArchives(
 						}
 
 						if ( bNoFormatsFiltered && !pPlugin->QueryCapability(APF_SUPPORT_SINGLE_FORMAT_QUERY) )
-			    			pModule->QueryArchives(&pPlugin->GetUID(), NULL, lpFileName, pBuffer, dwBufferSize, result);
+							pModule->QueryArchives(&pPlugin->GetUID(), NULL, lpFileName, pBuffer, dwBufferSize, result);
 					}
 				}
 				else
@@ -183,7 +183,7 @@ int ArchiveModuleManager::QueryArchives(
 					ArchiveFormat* pFormat = pFE->pFormat;
 					ArchivePlugin* pPlugin = pFE->pPlugin;
 
-					if  ( !m_pFilter->Filtered(&pModule->GetUID(), &pPlugin->GetUID(), &pFormat->GetUID()) )
+					if ( !m_pFilter->Filtered(&pModule->GetUID(), &pPlugin->GetUID(), &pFormat->GetUID()) )
 					{
 						if ( pPlugin->QueryCapability(APF_SUPPORT_SINGLE_FORMAT_QUERY) )
 							pModule->QueryArchives(&pPlugin->GetUID(), &pFormat->GetUID(), lpFileName, pBuffer, dwBufferSize, result);
@@ -192,7 +192,7 @@ int ArchiveModuleManager::QueryArchives(
 			}
 		}
 
-		m_pFilter->AddStopFilter(filters[i]);						
+		m_pFilter->AddStopFilter(filters[i]);
 	}
 
 	if ( !bStopped && m_pFilter->UseRemaining() )

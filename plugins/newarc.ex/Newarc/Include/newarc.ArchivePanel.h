@@ -66,7 +66,7 @@ public:
 
 private:
 
-	void Update();	
+	void Update();
 
 private:
 
@@ -80,6 +80,7 @@ private:
 	int OnQueryPassword(int nMode, PasswordStruct* pPS);
 	int OnProcessFile(ProcessFileStruct* pfs);
 	int OnProcessData(ProcessDataStruct* pDS);
+	int OnReportError(ReportErrorStruct* pRS);
 
 	int OnFileAlreadyExists(OverwriteStruct* pOS);
 

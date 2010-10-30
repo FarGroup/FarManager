@@ -227,7 +227,6 @@ bool Archive::AddFiles(
 	{
 		if ( StartOperation(OPERATION_ADD, true) )
 		{
-
 			bResult = m_pModule->AddFiles(
 					m_hArchive, 
 					items, 
@@ -365,15 +364,15 @@ bool Archive::Delete(const ArchiveItemArray& items)
 
 bool Archive::StartOperation(int nOperation, bool bInternal)
 {
-    bool bResult = true;
+	bool bResult = true;
 	
-    if ( m_hArchive ) //dummy archive has m_hArchive == 0
-    {
+	if ( m_hArchive ) //dummy archive has m_hArchive == 0
+	{
 		if ( bInternal || m_pFormat->QueryCapability(AFF_NEED_EXTERNAL_NOTIFICATIONS) )
-	    	bResult = m_pModule->StartOperation(m_hArchive, nOperation, bInternal);
-    	                                                                        
-    	if ( bResult )
-    		m_pModule->GetArchiveFormat(m_hArchive, &m_uid); //уточним, а вдруг это другой формат )))
+			bResult = m_pModule->StartOperation(m_hArchive, nOperation, bInternal);
+
+		if ( bResult )
+			m_pModule->GetArchiveFormat(m_hArchive, &m_uid); //уточним, а вдруг это другой формат )))
 	}
 	
 	return bResult;

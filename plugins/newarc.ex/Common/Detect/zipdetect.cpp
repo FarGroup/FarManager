@@ -39,14 +39,17 @@ static inline BOOL IsValidHeader(const unsigned char *Data, const unsigned char 
 
 int IsZipHeader(const unsigned char *Data, unsigned int DataSize)
 {
+	if ((size_t)DataSize<MIN_HEADER_LEN)
+		return -1;
+
 	if (DataSize>=4 && Data[0]=='P' && Data[1]=='K' && Data[2]==5 && Data[3]==6)
 	{
 		return 0;
 	}
-	if ((size_t)DataSize<MIN_HEADER_LEN)
-		return -1;
+
 	const unsigned char *MaxData=Data+DataSize-MIN_HEADER_LEN;
 	const unsigned char *DataEnd=Data+DataSize;
+
 	for (const unsigned char *CurData=Data; CurData<MaxData; CurData++)
 	{
 		if (IsValidHeader(CurData, DataEnd))

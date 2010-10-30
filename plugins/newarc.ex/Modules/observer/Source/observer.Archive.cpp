@@ -253,7 +253,7 @@ int ObserverArchive::Extract(
 			break;
 	}		
 		
-	return GetResult(nSuccessCount, nItemsNumber, bUserAbort); //observer supports real abort, so no need in m_bUserAbort!!!
+	return GetResult(nSuccessCount, nItemsNumber, bUserAbort);
 }
 
 int ObserverArchive::GetArchiveInfo(const ArchiveInfoItem** pItems)

@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <limits.h>
 
 #if defined(__BORLANDC__)
   #pragma option -a1
@@ -8,44 +9,50 @@
   #pragma pack(push,1)
 #endif
 
-typedef BYTE u1;
-typedef WORD u2;
-typedef DWORD u4;
-
 struct CFHEADER
 {
-  u4 signature;
-  u4 reserved1;
-  u4 cbCabinet;
-  u4 reserved2;
-  u4 coffFiles;
-  u4 nFiles;
-  u1 versionMinor;
-  u1 versionMajor;
-  u2 cFolders;
-  u2 cFiles;
-  u2 flags;
-  u2 setID;
-  u2 iCabinet;
+	BYTE signature[4];    /* cabinet file signature */
+	DWORD reserved1;        /* reserved */
+	DWORD cbCabinet;        /* size of this cabinet file in bytes */
+	DWORD reserved2;        /* reserved */
+	DWORD coffFiles;        /* offset of the first CFFILE entry */
+	DWORD reserved3;        /* reserved */
+	BYTE versionMinor;    /* cabinet file format version, minor */
+	BYTE versionMajor;    /* cabinet file format version, major */
+	WORD cFolders;        /* number of CFFOLDER entries in this cabinet */
+	WORD cFiles;            /* number of CFFILE entries in this cabinet */
+	WORD flags;            /* cabinet file option indicators */
+	WORD setID;            /* must be the same for all cabinets in a set */
+	WORD iCabinet;        /* number of this cabinet file in a set */
 };
 
-int IsCabHeader(const unsigned char *Data, unsigned int DataSize)
-{
-  int I;
+const size_t MIN_HEADER_LEN = sizeof(CFHEADER);
 
-  for( I=0; I <= (int)(DataSize-sizeof(struct CFHEADER)); I++ )
-  {
-    const unsigned char *D=Data+I;
-    if (D[0]=='M' && D[1]=='S' && D[2]=='C' && D[3]=='F')
-    {
-      struct CFHEADER *Header=(struct CFHEADER *)(Data+I);
-      if (Header->cbCabinet>sizeof(Header) && Header->coffFiles>sizeof(Header) &&
-          Header->coffFiles<0xffff && Header->versionMajor>0 &&
-          Header->versionMajor<0x10 && Header->cFolders>0)
-      {
-        return I;
-      }
-    }
-  }
-  return -1;
+int IsCabHeader(const unsigned char* pData, unsigned int uDataSize)
+{
+	if ( (size_t)uDataSize < MIN_HEADER_LEN )
+		return -1;
+
+	const unsigned char* pMaxData = pData+uDataSize-MIN_HEADER_LEN;
+
+	for (const unsigned char* pCurData = pData; pCurData < pMaxData; pCurData++)
+	{
+		CFHEADER* pHeader = (CFHEADER*)pCurData;
+
+		if ( (pHeader->signature[0] == 'M') && 
+			 (pHeader->signature[1] == 'S') && 
+			 (pHeader->signature[2] == 'C') && 
+			 (pHeader->signature[3] == 'F') )
+		{
+			if ( (pHeader->cbCabinet > sizeof(CFHEADER)) && 
+				 (pHeader->coffFiles > sizeof(CFHEADER)) &&
+				 (pHeader->coffFiles < 0xFFFF) && 
+				 (pHeader->versionMajor > 0) &&
+				 (pHeader->versionMajor < 0x10) && 
+				 (pHeader->cFolders > 0) )
+				return (int)(pCurData-pData);
+		}
+	}
+
+	return -1;
 }

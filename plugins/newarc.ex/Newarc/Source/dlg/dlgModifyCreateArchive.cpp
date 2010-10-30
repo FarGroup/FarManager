@@ -233,25 +233,25 @@ LONG_PTR __stdcall hndModifyCreateArchive (
 	{
 		if ( nParam1 == ID_MCA_ADDCONFIRM )
 		{
-	  		string strPassword1, strPassword2;
+			string strPassword1, strPassword2;
 
-  			strPassword1 = D->GetConstTextPtr (ID_MCA_PASSWORDEDIT);
-	  		strPassword2 = D->GetConstTextPtr (ID_MCA_CONFIRMEDIT);
+			strPassword1 = D->GetConstTextPtr (ID_MCA_PASSWORDEDIT);
+			strPassword2 = D->GetConstTextPtr (ID_MCA_CONFIRMEDIT);
 
-	  		if ( strPassword1 != strPassword2 )
-	  		{
-	  			msgError(_T("passwords dont'match"));
-	  			return FALSE;
+			if ( strPassword1 != strPassword2 )
+			{
+				msgError(_T("passwords dont'match"));
+				return FALSE;
 			}
 
-  			ArchiveTemplate *ptpl = (ArchiveTemplate*)D->GetDlgData ();
+			ArchiveTemplate *ptpl = (ArchiveTemplate*)D->GetDlgData ();
 
-  			if ( D->GetCheck(ID_MCA_TEMPLATE) == BSTATE_CHECKED )
-  			{
-	  			int pos = D->ListGetCurrentPos (ID_MCA_TEMPLATELIST, NULL);
+			if ( D->GetCheck(ID_MCA_TEMPLATE) == BSTATE_CHECKED )
+			{
+				int pos = D->ListGetCurrentPos (ID_MCA_TEMPLATELIST, NULL);
 
-	  			if ( pos != -1 )
-	  			{
+				if ( pos != -1 )
+				{
 					ArchiveTemplate *pSrc = templates[pos];
 
 					ptpl->SetData(
@@ -263,19 +263,19 @@ LONG_PTR __stdcall hndModifyCreateArchive (
 							pSrc->GetFormatUID()
 							);
 				}
-  			}
-  			else
-  			{
+			}
+			else
+			{
 				int pos = D->ListGetCurrentPos(ID_MCA_FORMATLIST, NULL);
 
 				if ( pos != -1 )
 				{
-	  				ptpl->SetName(NULL);
-  					ptpl->SetParams(D->GetConstTextPtr(ID_MCA_PARAMSEDIT));
+					ptpl->SetName(NULL);
+					ptpl->SetParams(D->GetConstTextPtr(ID_MCA_PARAMSEDIT));
 
-  					ArchiveFormat* pFormat = (ArchiveFormat*)D->ListGetData(ID_MCA_FORMATLIST, pos);
+					ArchiveFormat* pFormat = (ArchiveFormat*)D->ListGetData(ID_MCA_FORMATLIST, pos);
 
-  					ptpl->SetFormat(pFormat);
+					ptpl->SetFormat(pFormat);
 				}
 			}
 
@@ -285,9 +285,9 @@ LONG_PTR __stdcall hndModifyCreateArchive (
 				return FALSE;
 			}
 
-  			return TRUE;
+			return TRUE;
 		}
-	} 
+	}
 
 	return D->DefDlgProc (nMsg, nParam1, nParam2);
 }

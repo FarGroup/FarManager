@@ -24,20 +24,26 @@ struct ACEHEADER
 	BYTE  Reserved[8];  // 8 bytes reserved for the future
 };
 
+const size_t MIN_HEADER_LEN = sizeof(ACEHEADER);
 
 //too simple
 bool IsAceHeader(const unsigned char* pData, unsigned int uDataSize)
 {
-	for (int i = 0; i < uDataSize-sizeof(ACEHEADER); i++)
+	if ( (size_t)uDataSize < MIN_HEADER_LEN )
+		return -1;
+
+	const unsigned char* pMaxData = pData+uDataSize-MIN_HEADER_LEN;
+
+	for (const unsigned char* pCurData = pData; pCurData < pMaxData; pCurData++)
 	{
-		ACEHEADER* pHeader = (ACEHEADER*)(pData+i);
+		ACEHEADER* pHeader = (ACEHEADER*)pCurData;
 
 		if ( !memcmp(pHeader, "**ACE**", 7) )
 		{
 			if ( pHeader->HeaderType == 0 )
-				return true;
+				return (int)(pCurData-pData);
 		}
 	}
 
-	return false;
+	return -1;
 }

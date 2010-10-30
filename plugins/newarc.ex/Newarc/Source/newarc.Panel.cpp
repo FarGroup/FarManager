@@ -69,7 +69,7 @@ Array<ArchiveFormat*>& ArchivePanel::GetFormats()
 	return m_pFormats;
 }
 
-ArchivePanel::~ArchivePanel ()
+ArchivePanel::~ArchivePanel()
 {
 }
 
@@ -1108,8 +1108,8 @@ int ArchivePanel::Extract(
 	if ( nResult == RESULT_CANCEL )
 		msgError(_T("Extract was aborted by user"));
 
-	if ( nResult == RESULT_SUCCESS )
-		msgError(_T("Extract success"));
+//	if ( nResult == RESULT_SUCCESS )
+//		msgError(_T("Extract success"));
 
 	return nResult;
 }

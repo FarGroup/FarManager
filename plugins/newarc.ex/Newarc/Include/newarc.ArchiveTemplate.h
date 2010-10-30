@@ -81,7 +81,7 @@ public:
 
 		m_pFormat = pManager->GetFormat(uidModule, uidPlugin, uidFormat);
 
-        m_bInvalid = (m_pFormat == NULL);
+		m_bInvalid = (m_pFormat == NULL);
 	}
 
 	ArchiveTemplate(

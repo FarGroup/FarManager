@@ -49,8 +49,8 @@ typedef Array<ArchiveFilterEntry*> ArchiveFilterArray;
 
 #define _M(id) (TCHAR*)Info.GetMsg (Info.ModuleNumber, id)
 
-extern const TCHAR *GUID2STR (const GUID &uid);
-extern const GUID& STR2GUID (const TCHAR *lpStr);
+extern const TCHAR *GUID2STR(const GUID &uid);
+extern const GUID& STR2GUID(const TCHAR *lpStr);
 
 extern void FindDataToArchiveItem(const FAR_FIND_DATA *src, ArchiveItem *dest);
 

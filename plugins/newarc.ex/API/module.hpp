@@ -25,7 +25,6 @@
 #define NAERROR_BAD_CRC			7
 #define NAERROR_START_FAILED	8
 
-
 #define E_SUCCESS			0
 #define E_EOF				1
 #define E_BROKEN			2
@@ -72,17 +71,13 @@ struct ArchiveItem
 #define AM_START_OPERATION		2
 #define AM_PROCESS_FILE			3
 #define AM_PROCESS_DATA			4
+#define AM_REPORT_ERROR			5
 
 #define OPERATION_LIST			1
 #define OPERATION_EXTRACT		2
 #define OPERATION_ADD			3
 #define OPERATION_DELETE		4
 #define OPERATION_TEST			5
-
-#define PASSWORD_RESET		 0
-#define PASSWORD_LIST		 1
-#define PASSWORD_FILE		 2
-#define PASSWORD_COMPRESSION 3
 
 #define OS_FLAG_TOTALSIZE	1
 #define OS_FLAG_TOTALFILES	2
@@ -92,6 +87,11 @@ struct StartOperationStruct {
 	unsigned __int64 uTotalSize;
 	unsigned __int64 uTotalFiles;
 };
+
+#define PASSWORD_RESET		 0
+#define PASSWORD_LIST		 1
+#define PASSWORD_FILE		 2
+#define PASSWORD_COMPRESSION 3
 
 struct PasswordStruct {
 	DWORD dwBufferSize;
@@ -123,6 +123,11 @@ struct ProcessDataStruct {
 struct ProcessFileStruct {
 	const TCHAR* lpDestFileName;
 	const ArchiveItem* pItem;
+};
+
+struct ReportErrorStruct {
+	const ArchiveItem* pItem;
+	int nReservedForError;
 };
 
 typedef LONG_PTR (__stdcall *ARCHIVECALLBACK)(HANDLE hPlugin, int nMsg, int nParam1, LONG_PTR nParam2);
@@ -394,15 +399,15 @@ struct StartupInfo {
 };
 
 
-#define FID_INITIALIZE			 1	//param - StartupInfo
-#define FID_FINALIZE			 2	//param - NULL
-#define FID_QUERYARCHIVE    	 3	//param - QueryArchiveStruct
-#define FID_FREEARCHIVEITEM		 5  //param - FreeArchiveFormatStruct, I know, I know
-#define FID_GETDEFAULTCOMMAND	 7	//param - GetDefaultCommandStruct
-#define FID_GETARCHIVEFORMAT	100
-#define FID_EXTRACT				 9	//param - ExtractStruct
-#define FID_OPENARCHIVE			 10
-#define FID_CREATEARCHIVE    	11 //param - CreateArchiveStruct
+#define FID_INITIALIZE            1 //param - StartupInfo
+#define FID_FINALIZE              2 //param - NULL
+#define FID_QUERYARCHIVE          3 //param - QueryArchiveStruct
+#define FID_FREEARCHIVEITEM       5  //param - FreeArchiveFormatStruct, I know, I know
+#define FID_GETDEFAULTCOMMAND     7//param - GetDefaultCommandStruct
+#define FID_GETARCHIVEFORMAT     100
+#define FID_EXTRACT               9	//param - ExtractStruct
+#define FID_OPENARCHIVE          10
+#define FID_CREATEARCHIVE        11 //param - CreateArchiveStruct
 #define FID_STARTOPERATION		12
 #define FID_ENDOPERATION		13
 #define FID_CLOSEARCHIVE		 14

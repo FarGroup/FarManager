@@ -23,9 +23,22 @@ public:
 	void Show(const TCHAR* lpTitle);
 };
 
+class OperationErrorList {
+
+private:
+
+	PointerArray<TCHAR*> m_pErrors;
+
+public:
+
+	void AddError(const TCHAR* lpFileName);
+	void Show();
+};
+
 struct OperationStructEx {
 
 	OperationDialog Dlg;
+	OperationErrorList ErrorList;
 
 	int nMode;
 

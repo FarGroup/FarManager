@@ -29,32 +29,43 @@ Level 0
 */
 };
 
-BOOL CheckLZHHeader(struct LZH_Level0 *lzh)
+const size_t MIN_HEADER_LEN = sizeof(LZH_Level0)+2; //2 bytes, lengths
+
+bool CheckLZHHeader(LZH_Level0 *lzh)
 {
-  return (lzh->HeadID[0]=='-' && lzh->HeadID[1]=='l' && (lzh->HeadID[2]=='h' || lzh->HeadID[2]=='z') &&
-         ((lzh->Method>='0' && lzh->Method<='9') || lzh->Method=='d' || lzh->Method=='s') &&
-         lzh->free1 == '-' && lzh->FLevel <= 2);
+	return (
+			(lzh->HeadID[0] == '-') && 
+			(lzh->HeadID[1] == 'l') && 
+			(lzh->HeadID[2] == 'h' || lzh->HeadID[2] == 'z') &&
+			((lzh->Method >= '0' && lzh->Method <= '9') || (lzh->Method == 'd') || (lzh->Method == 's')) &&
+			(lzh->free1 == '-') && 
+			(lzh->FLevel <= 2)
+			);
 }
 
-
-int IsLzhHeader(const unsigned char *Data, unsigned int DataSize)
+int IsLzhHeader(const unsigned char* pData, unsigned int uDataSize)
 {
-  for (int I=0;I<DataSize-5;I++)
-  {
-    struct LZH_Level0 *lzh=(struct LZH_Level0*)(Data+I);
-    if(CheckLZHHeader(lzh))
-    {
-      const unsigned char *D=Data+I;
-      if(lzh->FLevel == 0 && D[21] > 0 && D[22] != 0 && (lzh->HeadSize-2-(int)D[21]) == sizeof(struct LZH_Level0)-1)
-      {
-        return I;
-      }
+	if ( (size_t)uDataSize < MIN_HEADER_LEN )
+		return -1;
 
-      if((lzh->FLevel == 1) || (lzh->FLevel == 2)) // !TODO:
-      {
-        return I;
-      }
-    }
-  }
-  return -1;
+	const unsigned char* pMaxData = pData+uDataSize-MIN_HEADER_LEN;
+
+	for (const unsigned char* pCurData = pData; pCurData < pMaxData; pCurData++)
+	{
+		LZH_Level0* lzh = (LZH_Level0*)pCurData;
+		
+		if ( CheckLZHHeader(lzh) )
+		{
+			if ( (lzh->FLevel == 0) && 
+				 (pCurData[21] > 0) && 
+				 (pCurData[22] != 0) && 
+				 ((lzh->HeadSize-2-(int)pCurData[21]) == sizeof(LZH_Level0)-1) )
+				return (int)(pCurData-pData);
+
+			if ( (lzh->FLevel == 1) || (lzh->FLevel == 2) ) // !TODO:
+				return (int)(pCurData-pData);
+		}
+	}
+
+	return -1;
 }
