@@ -1045,6 +1045,13 @@ int ArchivePanel::OnProcessFile(ProcessFileStruct *pfs)
 	return nOverwrite;
 }
 
+int ArchivePanel::OnReportError(ReportErrorStruct* pRE)
+{
+	m_OS.ErrorList.AddError(pRE->pItem->lpFileName);
+
+	return 0;
+}
+
 int ArchivePanel::OnProcessData(ProcessDataStruct* pDS)
 {
 	m_OS.uTotalProcessedSize += pDS->uProcessedSize;
