@@ -3,7 +3,7 @@
 #include "msg/msgError.cpp"
 
 
-bool GetFileInfo (
+bool GetFileInfo(
 		const TCHAR *lpFileName,
 		FILETIME *pAccessTime,
 		FILETIME *pWriteTime,

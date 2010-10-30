@@ -383,7 +383,7 @@ struct ScanStruct {
 };
 
 
-int __stdcall ScanDirectory (
+int __stdcall ScanDirectory(
 		const FAR_FIND_DATA *fdata,
 		const TCHAR *lpFullName,
 		ScanStruct *pSS
@@ -623,7 +623,7 @@ int ArchivePanel::pDeleteFiles(
 
 
 
-void ArchivePanel::pFreeFindData (
+void ArchivePanel::pFreeFindData(
 		PluginPanelItem *pPanelItem,
 		int nItemsNumber
 		)
