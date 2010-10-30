@@ -39,20 +39,23 @@ bool MaModule::Load()
 
 	bool bAnsiModuleLoaded = false;
 
-	HMODULE hAnsiModule = LoadLibraryEx(
-			strPluginsPath,
-			NULL,
-			LOAD_WITH_ALTERED_SEARCH_PATH
-			);
-
-	if ( hAnsiModule )
+	//if ( Info.PluginsControl(INVALID_HANDLE_VALUE, PCTL_LOADPLUGIN, PLT_PATH, (LONG_PTR)strPluginsPath.GetString()) )
 	{
-		GETPLUGINSSTARTUPINFO pfnGetPluginStartupInfo = (GETPLUGINSSTARTUPINFO)GetProcAddress(hAnsiModule, "GetPluginStartupInfo");
+		HMODULE hAnsiModule = LoadLibraryEx (
+				strPluginsPath, 
+				NULL, 
+				LOAD_WITH_ALTERED_SEARCH_PATH
+				);
 
-		if ( pfnGetPluginStartupInfo && pfnGetPluginStartupInfo(&m_pInfo, &m_pFSF) )
-			bAnsiModuleLoaded = true;
+		if ( hAnsiModule )
+		{
+			GETPLUGINSSTARTUPINFO pfnGetPluginStartupInfo = (GETPLUGINSSTARTUPINFO)GetProcAddress(hAnsiModule, "GetPluginStartupInfo");
 
-		FreeLibrary(hAnsiModule);
+			if ( pfnGetPluginStartupInfo && pfnGetPluginStartupInfo(&m_pInfo, &m_pFSF) )
+				bAnsiModuleLoaded = true;
+
+			FreeLibrary(hAnsiModule);
+		}
 	}
 
 	if ( !bAnsiModuleLoaded )
