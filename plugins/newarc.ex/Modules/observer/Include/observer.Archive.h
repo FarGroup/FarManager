@@ -31,7 +31,6 @@ public:
 	bool m_bArchiveInfoAdded;
 
 	unsigned __int64 m_uProcessedBytes;
-	bool m_bUserAbort;
 
 public:
 
@@ -53,13 +52,15 @@ public:
 	int GetArchiveItem(ArchiveItem *pItem);
 	bool FreeArchiveItem(ArchiveItem* pItem);
 	
-	bool Extract(const ArchiveItem *pItems, int nItemsNumber, const TCHAR *lpDestPath, const TCHAR *lpCurrentFolder);
+	int Extract(const ArchiveItem *pItems, int nItemsNumber, const TCHAR *lpDestPath, const TCHAR *lpCurrentFolder);
 
-	LONG_PTR Callback (int nMsg, int nParam1, LONG_PTR nParam2);
+	LONG_PTR Callback(int nMsg, int nParam1, LONG_PTR nParam2);
 
 	int GetArchiveInfo(const ArchiveInfoItem** pItems);
 
 private:
+
+	int GetResult(int nSuccessCount, int nItemsNumber, bool bUserAbort);
 
 	bool Open();
 	void Close();

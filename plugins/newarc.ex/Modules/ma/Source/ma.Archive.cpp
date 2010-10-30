@@ -159,7 +159,7 @@ void MaArchive::FreeArchiveItem(ArchiveItem *pItem)
 }
 
 
-LONG_PTR MaArchive::Callback (int nMsg, int nParam1, LONG_PTR nParam2)
+LONG_PTR MaArchive::Callback(int nMsg, int nParam1, LONG_PTR nParam2)
 {
 	if ( m_pfnCallback )
 		return m_pfnCallback (m_hCallback, nMsg, nParam1, nParam2);

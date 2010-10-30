@@ -9,3 +9,5 @@
 при распаковке observer/msi не создаются папки
 
 не работает unpack without paths
+
+сделать возврат ошибок в d5d/multiex!!!

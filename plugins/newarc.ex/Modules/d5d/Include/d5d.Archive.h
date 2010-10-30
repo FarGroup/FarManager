@@ -29,12 +29,14 @@ public:
 	bool StartOperation(int nOperation, bool bInternal);
 	bool EndOperation(int nOperation, bool bInternal);
 
-	bool Extract(const ArchiveItem *pItems, int nItemsNumber, const TCHAR *lpDestPath, const TCHAR *lpCurrentFolder);
+	int Extract(const ArchiveItem *pItems, int nItemsNumber, const TCHAR *lpDestPath, const TCHAR *lpCurrentFolder);
 
 	int GetArchiveItem(ArchiveItem *pItem);
 	void FreeArchiveItem(ArchiveItem* pItem);
 
 private:
+
+	int GetResult(int nSuccessCount, int nItemsNumber, bool bUserAbort);
 
 	bool Open();
 	void Close();

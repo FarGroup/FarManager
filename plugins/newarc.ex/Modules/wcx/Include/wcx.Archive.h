@@ -21,6 +21,9 @@ class WcxArchive {
 	ARCHIVECALLBACK m_pfnCallback;
 	HANDLE m_hCallback;
 
+	bool m_bUserAbort;
+	int m_nSuccessCount;
+
 public:
 
 	WcxArchive (
@@ -41,7 +44,7 @@ public:
 	bool StartOperation(int nOperation, bool bInternal);
 	bool EndOperation(int nOperation, bool bInternal);
 
-	bool Extract(const ArchiveItem* pItems, int nItemsNumber, const TCHAR *lpDestDiskPath, const TCHAR* lpPathInArchive);
+	int Extract(const ArchiveItem* pItems, int nItemsNumber, const TCHAR *lpDestDiskPath, const TCHAR* lpPathInArchive);
 	//virtual bool __stdcall pTest (PluginPanelItem *pItems, int nItemsNumber);
 
 	int GetArchiveItem (ArchiveItem* pItem);
@@ -52,6 +55,8 @@ public:
 
 
 private: 
+
+	int GetResult(int nItemsNumber);
 
 	int __stdcall OnProcessData(const char *FileName, int Size);
 	int __stdcall OnChangeVol(const char *ArcName, int Mode);

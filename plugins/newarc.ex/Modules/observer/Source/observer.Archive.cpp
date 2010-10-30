@@ -169,14 +169,33 @@ bool ObserverArchive::FreeArchiveItem(ArchiveItem *pItem)
 	return true;
 }
 
+int ObserverArchive::GetResult(int nSuccessCount, int nItemsNumber, bool bUserAbort)
+{
+	if ( bUserAbort )
+		return RESULT_CANCEL;
 
-bool ObserverArchive::Extract(
+	if ( nSuccessCount > nItemsNumber )
+		__debug(_T("LOGIC ERROR, PLEASE REPORT"));
+
+	if ( nSuccessCount == 0 )
+		return RESULT_ERROR;
+
+	if ( nSuccessCount < nItemsNumber )
+		return RESULT_PARTIAL;
+
+	return RESULT_SUCCESS;
+}
+
+int ObserverArchive::Extract(
 		const ArchiveItem *pItems, 
 		int nItemsNumber, 
 		const TCHAR *lpDestPath, 
 		const TCHAR *lpCurrentFolder
 		)
 {
+	int nSuccessCount = 0;
+	bool bUserAbort = false;
+
 	ExtractProcessCallbacks callbacks;
 
 	ProgressContextEx pc;
@@ -191,8 +210,6 @@ bool ObserverArchive::Extract(
 	callbacks.signalContext = &pc;
 
 	Callback(AM_START_OPERATION, OPERATION_EXTRACT, NULL);
-
-	m_bUserAbort = false;
 
 	for (int i = 0; i < nItemsNumber; i++)
 	{
@@ -210,23 +227,33 @@ bool ObserverArchive::Extract(
 
 		if ( nOverwrite == PROCESS_OVERWRITE )
 		{
-			if ( (pItems[i].dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY )
-				apiCreateDirectoryEx(strDestName);
-			else
+			if ( pItems[i].UserData )
 			{
-				apiCreateDirectoryForFile(strDestName);
+				if ( (pItems[i].dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY )
+					apiCreateDirectoryEx(strDestName);
+				else
+				{
+					apiCreateDirectoryForFile(strDestName);
 
-				if ( pItems[i].UserData )
-					m_pPlugin->ExtractItem(m_hArchive, pItems[i].UserData-1, strDestName, &callbacks);
+					int nResult = m_pPlugin->ExtractItem(m_hArchive, pItems[i].UserData-1, strDestName, &callbacks);
+					
+					if ( nResult == SER_SUCCESS)
+						nSuccessCount++;
 
+					if ( nResult == SER_USERABORT )
+						bUserAbort = true;
+				}
 			}
 		}
 
-		if ( m_bUserAbort || (nOverwrite == PROCESS_CANCEL) )
+		if ( nOverwrite == PROCESS_CANCEL )
+			bUserAbort = true;
+
+		if ( bUserAbort )
 			break;
 	}		
 		
-	return true;
+	return GetResult(nSuccessCount, nItemsNumber, bUserAbort); //observer supports real abort, so no need in m_bUserAbort!!!
 }
 
 int ObserverArchive::GetArchiveInfo(const ArchiveInfoItem** pItems)
@@ -264,10 +291,7 @@ int __stdcall ObserverArchive::OnExtractProgress(ProgressContextEx* pContext, un
 	pArchive->m_uProcessedBytes += PD.uProcessedSize;
 
 	if ( !pArchive->Callback(AM_PROCESS_DATA, 0, (LONG_PTR)&PD) )
-	{
-		pArchive->m_bUserAbort = true;
 		return FALSE;
-	}
 
 	return TRUE;
 }

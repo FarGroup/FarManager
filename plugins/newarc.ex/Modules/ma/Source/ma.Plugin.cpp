@@ -267,7 +267,7 @@ void MaPlugin::FreeArchiveItem(ArchiveItem* pItem)
 }
 
 
-int MaPlugin::ConvertResult (int nResult)
+int MaPlugin::ConvertResult(int nResult)
 {
 	switch (nResult)
 	{

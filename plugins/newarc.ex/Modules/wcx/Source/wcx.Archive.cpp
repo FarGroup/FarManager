@@ -110,16 +110,33 @@ void WcxArchive::FreeArchiveItem(ArchiveItem *pItem)
 
 
 
+int WcxArchive::GetResult(int nItemsNumber)
+{
+	if ( m_bUserAbort )
+		return RESULT_CANCEL;
 
-bool WcxArchive::Extract(
+	if ( m_nSuccessCount > nItemsNumber )
+		__debug(_T("LOGIC ERROR, PLEASE REPORT"));
+
+	if ( m_nSuccessCount == 0 )
+		return RESULT_ERROR;
+
+	if ( m_nSuccessCount < nItemsNumber )
+		return RESULT_PARTIAL;
+
+	return RESULT_SUCCESS;
+}
+
+
+int WcxArchive::Extract(
 		const ArchiveItem* pItems,
 		int nItemsNumber,
 		const TCHAR* lpDestPath,
 		const TCHAR* lpCurrentFolder
 		)
 {
-	int nProcessed = 0;
-	int nResult = 0;
+	m_nSuccessCount = 0;
+	m_bUserAbort = false;
 
 	bool bFound;
 
@@ -127,92 +144,90 @@ bool WcxArchive::Extract(
 
 	Callback (AM_START_OPERATION, OPERATION_EXTRACT, 0);
 
-	while ( /*m_hArchive &&*/ nResult == 0 )
+	while ( true )
 	{
-		ArchiveItem item;
+		int nProcessResult = 0;
 
-		nResult = m_pPlugin->GetArchiveItem(m_hArchive, &item); //do not free this item!!!
+		ArchiveItem item; //???
 
-		if ( nResult == 0 )
+		if ( m_pPlugin->GetArchiveItem(m_hArchive, &item) != 0 )  //do not free this item!!!
+			break; 
+
+		strCurrentFileName = item.lpFileName;
+
+		bFound = false;
+
+		for (int i = 0; i < nItemsNumber; i++)
 		{
-			strCurrentFileName = item.lpFileName;
-
-			bFound = false;
-
-			for (int i = 0; i < nItemsNumber; i++)
+			if ( !_tcscmp(pItems[i].lpFileName, strCurrentFileName) )
 			{
-				if ( !_tcscmp (pItems[i].lpFileName, strCurrentFileName) )
+				string strDestName = lpDestPath;
+
+				AddEndSlash(strDestName);
+
+				const TCHAR* lpName = strCurrentFileName;
+
+				if ( *lpCurrentFolder /*&& !strncmp (
+						lpCurrentFolder,
+						strlen (lpCurrentFolder)
+						)*/ )
+					lpName += _tcslen(lpCurrentFolder);
+
+				if ( *lpName == _T('\\') )
+					lpName++;
+
+				strDestName += lpName;
+
+				ProcessFileStruct pfs;
+
+				pfs.pItem = &pItems[i];
+				pfs.lpDestFileName = strDestName;
+
+				int nOverwrite = Callback(AM_PROCESS_FILE, 0, (LONG_PTR)&pfs);
+
+				if ( nOverwrite == PROCESS_CANCEL )
 				{
-					string strDestName = lpDestPath;
-
-					AddEndSlash (strDestName);
-
-					const TCHAR* lpName = strCurrentFileName;
-
-					if ( *lpCurrentFolder /*&& !strncmp (
-							lpCurrentFolder,
-							strlen (lpCurrentFolder)
-							)*/ )
-						lpName += _tcslen(lpCurrentFolder);
-
-					if ( *lpName == _T('\\') )
-						lpName++;
-
-					strDestName += lpName;
-
-					ProcessFileStruct pfs;
-
-					pfs.pItem = &pItems[i];
-					pfs.lpDestFileName = strDestName;
-
-					int nOverwrite = Callback(AM_PROCESS_FILE, 0, (LONG_PTR)&pfs);
-
-					if ( nOverwrite == PROCESS_CANCEL )
-						goto l_1;
-
-					if ( nOverwrite == PROCESS_OVERWRITE )
-					{
-						int nProcessResult = 0;
-
-						bProcessDataProc = true;
-		
-						if ( (item.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY )
-						{
-							apiCreateDirectoryEx(strDestName);
-							nProcessResult = m_pPlugin->ProcessFile (m_hArchive, PK_SKIP, NULL, NULL);
-						}
-						else
-						{
-							apiCreateDirectoryForFile(strDestName);
-							nProcessResult = m_pPlugin->ProcessFile (m_hArchive, PK_EXTRACT, NULL, strDestName);
-						}
-
-						bProcessDataProc = false;
-
-						if ( nProcessResult == E_SUCCESS )
-							nProcessed++;
-
-						if ( /*m_bAborted ||*/ (nProcessResult != E_SUCCESS) || (nProcessed == nItemsNumber) )
-							goto l_1;
-					}	
-
-					bFound = true;
-
-					break;
+					m_bUserAbort = true;
+					goto l_1;
 				}
-			}
 
-			if ( !bFound )
-				m_pPlugin->ProcessFile (m_hArchive, PK_SKIP, NULL, NULL);
+				if ( nOverwrite == PROCESS_OVERWRITE )
+				{
+					bProcessDataProc = true;
+		
+					if ( (item.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY )
+					{
+						apiCreateDirectoryEx(strDestName);
+						nProcessResult = m_pPlugin->ProcessFile(m_hArchive, PK_SKIP, NULL, NULL);
+					}
+					else
+					{
+						apiCreateDirectoryForFile(strDestName);
+						nProcessResult = m_pPlugin->ProcessFile(m_hArchive, PK_EXTRACT, NULL, strDestName);
+					}
+
+					bProcessDataProc = false;
+				}	
+
+				bFound = true;
+				break;
+			}
 		}
+
+		if ( !bFound )
+			nProcessResult = m_pPlugin->ProcessFile(m_hArchive, PK_SKIP, NULL, NULL);
+
+		if ( nProcessResult == E_SUCCESS )
+			m_nSuccessCount++;
+
 	}
 
 l_1:
 
-	return nProcessed!=0;
+	return GetResult(nItemsNumber);
 }
 
-LONG_PTR WcxArchive::Callback (int nMsg, int nParam1, LONG_PTR nParam2)
+LONG_PTR WcxArchive::Callback(int nMsg, int nParam1, LONG_PTR nParam2)
 {
 	if ( m_pfnCallback )
 		return m_pfnCallback (m_hCallback, nMsg, nParam1, nParam2);
