@@ -3051,7 +3051,17 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 			if(!DelBlock && Opt.AutoComplete.AppendCompletion && (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS) || Opt.AutoComplete.ShowList))
 			{
 				int SelStart=GetLength();
-				InsertString(ComplMenu.GetItemPtr(0)->strName+GetLength());
+
+				// magic
+				if(IsSlash(Str[SelStart-1]) && Str[SelStart-2] == L'"' && IsSlash(ComplMenu.GetItemPtr(0)->strName.At(SelStart-2)))
+				{
+					Str[SelStart-2] = Str[SelStart-1];
+					StrSize--;
+					SelStart--;
+					CurPos--;
+				}
+
+				InsertString(ComplMenu.GetItemPtr(0)->strName+SelStart);
 				Select(SelStart, GetLength());
 				Show();
 			}
@@ -3129,8 +3139,18 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 									if(MenuKey!=KEY_BS && MenuKey!=KEY_DEL && MenuKey!=KEY_NUMDEL && Opt.AutoComplete.AppendCompletion)
 									{
 										int SelStart=GetLength();
+
+										// magic
+										if(IsSlash(Str[SelStart-1]) && Str[SelStart-2] == L'"' && IsSlash(ComplMenu.GetItemPtr(0)->strName.At(SelStart-2)))
+										{
+											Str[SelStart-2] = Str[SelStart-1];
+											StrSize--;
+											SelStart--;
+											CurPos--;
+										}
+
 										DisableCallback DC(m_Callback.Active);
-										InsertString(ComplMenu.GetItemPtr(0)->strName+GetLength());
+										InsertString(ComplMenu.GetItemPtr(0)->strName+SelStart);
 										if(X2-X1>GetLength())
 											SetLeftPos(0);
 										Select(SelStart, GetLength());
@@ -3161,20 +3181,31 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 							// навигация по строке ввода
 							case KEY_LEFT:
 							case KEY_NUMPAD4:
+							case KEY_CTRLS:
 							case KEY_RIGHT:
 							case KEY_NUMPAD6:
-							case KEY_CTRLS:
 							case KEY_CTRLD:
-							case KEY_HOME:
-							case KEY_NUMPAD7:
-							case KEY_END:
-							case KEY_NUMPAD1:
+							case KEY_CTRLLEFT:
+							case KEY_CTRLRIGHT:
+							case KEY_CTRLHOME:
 								{
-									ProcessKey(MenuKey);
+									if(MenuKey == KEY_LEFT || MenuKey == KEY_NUMPAD4)
+									{
+										MenuKey = KEY_CTRLS;
+									}
+									else if(MenuKey == KEY_RIGHT || MenuKey == KEY_NUMPAD6)
+									{
+										MenuKey = KEY_CTRLD;
+									}
+									pOwner->ProcessKey(MenuKey);
 									break;
 								}
 
 							// навигация по списку
+							case KEY_HOME:
+							case KEY_NUMPAD7:
+							case KEY_END:
+							case KEY_NUMPAD1:
 							case KEY_IDLE:
 							case KEY_NONE:
 							case KEY_ESC:
