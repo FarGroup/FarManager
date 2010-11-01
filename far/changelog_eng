@@ -3,6 +3,28 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 31.10.2010 22:24:07 +0200 - build 1708
+
+1. Experimental:
+   - completion can append paths in the middle of the command line ("cd c:\wi").
+
+drkns 30.10.2010 20:37:40 +0200 - build 1707
+
+1. Copying of symlinks with "read only" attribute did not work.
+
+drkns 28.10.2010 16:48:32 +0200 - build 1706
+
+1. Mantis#0001559: "Cannot find the file" error on folder change from folders history
+
+svs 27.10.2010 13:23:28 +0300 - build 1705
+
+1. Macro: correction of Selected, Bof, Eof, Empty behavior.
+   Now they meet the specification.
+
+zg 27.10.2010 12:47:55 +0200 - build 1704
+
+1. gcc build.
+
 svs 26.10.2010 12:25:02 +0300 - build 1703
 
 1. The first iteration of Mantis#0000466. It is wrapped temporarily in PROCPLUGINMACROFUNC (unavailable in a regular build)
