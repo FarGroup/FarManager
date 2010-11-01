@@ -20,6 +20,9 @@ html\structures\ArchivePluginInfo.html
 html\structures\ArchiveModuleInfo.html
 html\structures\ArchiveModuleVersion.html
 html\structures\QueryArchiveStruct.html
+html\structures\ExtractStruct.html
+html\structures\AddStruct.html
+html\structures\DeleteStruct.html
 
 [INFOTYPES]
 

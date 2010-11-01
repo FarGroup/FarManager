@@ -239,7 +239,9 @@ struct GetDefaultCommandStruct {
 	GUID uidFormat;
 
 	int nCommand;
+
 	const TCHAR* lpCommand;
+	bool bEnabledByDefault;
 
 	bool bResult;
 };
@@ -416,7 +418,9 @@ struct StartupInfo {
 #define FID_GETARCHIVEMODULEINFO	17	//param - ArchivePluginInfo
 #define FID_DELETE				18 //param - DeleteStruct
 #define FID_ADD					19 //param - AddStruct
+
 #define FID_CONFIGURE			20 //param - ConfigureFormatStruct
+#define FID_DELETECONFIGUREDATA 21
 
 #define FID_GETARCHIVEINFO  200
 #define FID_GETARCHIVEFILEINFO 300

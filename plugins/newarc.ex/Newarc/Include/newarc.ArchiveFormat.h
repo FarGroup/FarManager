@@ -29,7 +29,7 @@ public:
 
 	bool QueryCapability(DWORD dwFlags) const;
 
-	bool GetDefaultCommand(int nCommand, string& strCommand);
+	bool GetDefaultCommand(int nCommand, string& strCommand, bool& bEnabledByDefault);
 };
 
 

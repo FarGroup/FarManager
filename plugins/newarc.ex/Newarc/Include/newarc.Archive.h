@@ -142,7 +142,7 @@ public:
 
 	bool MakeDirectory(const TCHAR* lpDirectory);
 
-	bool GetDefaultCommand(int nCommand, string &strCommand);
+	bool GetDefaultCommand(int nCommand, string &strCommand, bool& bEnabledByDefault);
 
 	bool ExecuteCommand(
 			const ArchiveItemArray& items, 

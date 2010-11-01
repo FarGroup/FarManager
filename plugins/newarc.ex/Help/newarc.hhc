@@ -37,6 +37,22 @@
 			<param name="Name" value="QueryArchiveStruct">
 			<param name="Local" value="html\structures\QueryArchiveStruct.html">
 			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="GetDefaultCommandStruct">
+			<param name="Local" value="html\structures\GetDefaultCommandStruct.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="ExtractStruct">
+			<param name="Local" value="html\structures\ExtractStruct.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="AddStruct">
+			<param name="Local" value="html\structures\AddStruct.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="DeleteStruct">
+			<param name="Local" value="html\structures\DeleteStruct.html">
+			</OBJECT>
 	</UL>
 </UL>
 </BODY></HTML>

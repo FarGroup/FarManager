@@ -269,23 +269,29 @@ bool ArchiveModule::GetDefaultCommand(
 		const GUID& uidPlugin, 
 		const GUID& uidFormat, 
 		int nCommand, 
-		string &strCommand
+		string& strCommand,
+		bool& bEnabledByDefault
 		)
 {
 	GetDefaultCommandStruct GDC;
 
 	GDC.nCommand = nCommand;
 	GDC.lpCommand = NULL;
+	GDC.bEnabledByDefault = false;
 	GDC.uidPlugin = uidPlugin;
 	GDC.uidFormat = uidFormat;
+
 
 	if ( (m_pfnModuleEntry (FID_GETDEFAULTCOMMAND, (void*)&GDC) == NAERROR_SUCCESS) && GDC.bResult )
 	{
 		strCommand = GDC.lpCommand;
+		bEnabledByDefault = GDC.bEnabledByDefault;
 		return true;
 	}
 
 	strCommand = NULL;
+	bEnabledByDefault = false;
+
 	return false;
 }
 

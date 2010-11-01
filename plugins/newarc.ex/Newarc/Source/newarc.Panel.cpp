@@ -783,9 +783,10 @@ int ArchivePanel::pProcessHostFile(
 
 		string strCommand;
 		string strAllFilesMask;
+		bool bEnabled;
 
-		m_pArchive->GetDefaultCommand(nCommand, strCommand);
-		m_pArchive->GetDefaultCommand(nCommand, strAllFilesMask);
+		m_pArchive->GetDefaultCommand(nCommand, strCommand, bEnabled);
+		m_pArchive->GetDefaultCommand(nCommand, strAllFilesMask, bEnabled);
 
 		string strPassword;
   

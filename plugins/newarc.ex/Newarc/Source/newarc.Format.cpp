@@ -43,7 +43,7 @@ ArchiveModule* ArchiveFormat::GetModule()
 	return m_pPlugin->GetModule();
 }
 
-bool ArchiveFormat::GetDefaultCommand(int nCommand, string& strCommand)
+bool ArchiveFormat::GetDefaultCommand(int nCommand, string& strCommand, bool& bEnabledByDefault)
 {
-	return GetModule()->GetDefaultCommand(GetPlugin()->GetUID(), GetUID(), nCommand, strCommand);
+	return GetModule()->GetDefaultCommand(GetPlugin()->GetUID(), GetUID(), nCommand, strCommand, bEnabledByDefault);
 }

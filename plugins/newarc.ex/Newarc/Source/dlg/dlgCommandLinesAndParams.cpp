@@ -1,23 +1,26 @@
 #define DECLARE_COMMAND(str, command) \
 	{\
-		D.Text (5, Y, str); \
-		pFormat->GetDefaultCommand(command, strCommand); \
-		D.Edit (29, Y++, 42, strCommand); \
+		pFormat->GetDefaultCommand(command, strCommand, bEnabled); \
+		D.CheckBox(5, Y, bEnabled); \
+		D.Text (9, Y, str); \
+		D.Edit (33, Y++, 42, strCommand); \
 	}
 
-void dlgCommandLinesAndParams (ArchiveFormat* pFormat)
+void dlgCommandLinesAndParams(ArchiveFormat* pFormat)
 {
 	int nHeight = 19;
 	int Y = 2;
 
+	bool bEnabled;
+
 	string strCommand;
 	string strTitle;
 
-	FarDialog D(-1, -1, 76, nHeight);
+	FarDialog D(-1, -1, 79, nHeight);
 
 	strTitle.Format(_M(MCommandLinesAndParamsTitleDialog), pFormat->GetName());
 
-	D.DoubleBox (3, 1, 72, nHeight-2, strTitle); //0
+	D.DoubleBox (3, 1, 75, nHeight-2, strTitle); //0
 
 	for (int i = 0; i < 11; i++)
 		DECLARE_COMMAND (_M(MSG_dlgCLAP_S_EXTRACT+i), i);

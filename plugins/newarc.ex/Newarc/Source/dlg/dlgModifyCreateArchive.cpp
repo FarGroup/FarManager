@@ -129,7 +129,9 @@ LONG_PTR __stdcall hndModifyCreateArchive (
 			ArchiveFormat* pFormat = formats[i];
 
 			string strCommand;
-			pFormat->GetDefaultCommand(COMMAND_ADD, strCommand);
+			bool bEnabled;
+
+			pFormat->GetDefaultCommand(COMMAND_ADD, strCommand, bEnabled);
 
 			if ( pFormat->QueryCapability(AFF_SUPPORT_INTERNAL_CREATE) || !strCommand.IsEmpty() )
 			{

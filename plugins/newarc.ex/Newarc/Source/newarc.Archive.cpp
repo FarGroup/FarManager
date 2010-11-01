@@ -108,15 +108,15 @@ bool Archive::ReadArchive(ArchiveItemArray& items)
 }
 
 
-bool Archive::WasUpdated ()
+bool Archive::WasUpdated()
 {
 	FILETIME NewAccessTime;
 	FILETIME NewWriteTime;
 	DWORD dwFileSizeLow;
 
-	GetFileInfo (m_strFileName, &NewAccessTime, &NewWriteTime, &dwFileSizeLow);
+	GetFileInfo(m_strFileName, &NewAccessTime, &NewWriteTime, &dwFileSizeLow);
 
-	bool bResult = CompareFileTime (&NewAccessTime, &m_ArchiveLastAccessTime) ||
+	bool bResult = CompareFileTime(&NewAccessTime, &m_ArchiveLastAccessTime) ||
 			CompareFileTime(&NewWriteTime, &m_ArchiveLastWriteTime) ||
 			(dwFileSizeLow != m_dwArchiveFileSizeLow);
 
@@ -426,10 +426,11 @@ ArchivePlugin* Archive::GetPlugin()
 
 bool Archive::GetDefaultCommand(
 		int nCommand,
-		string &strCommand
+		string &strCommand,
+		bool& bEnabledByDefault
 		)
 {
-	return m_pModule->GetDefaultCommand(GetPlugin()->GetUID(), m_uid, nCommand, strCommand);
+	return m_pModule->GetDefaultCommand(GetPlugin()->GetUID(), m_uid, nCommand, strCommand, bEnabledByDefault);
 }
 
 
@@ -454,8 +455,9 @@ bool Archive::ExecuteCommand(
 	bool bResult = false;
 
 	string strCommand;
+	bool bEnabledByDefault;
 
-	if ( GetDefaultCommand(nCommand, strCommand) && !strCommand.IsEmpty() )
+	if ( GetDefaultCommand(nCommand, strCommand, bEnabledByDefault) && !strCommand.IsEmpty() && bEnabledByDefault )
 	{
 		ParamStruct psParam;
 		FarPanelInfo info;
