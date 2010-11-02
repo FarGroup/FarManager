@@ -21,11 +21,10 @@
 		<h1>ExtractStruct</h1>
 
 		<div class="short_description">
-			Структура <dfn>QueryArchiveStruct</dfn> является параметром вызова функции 
+			Структура <dfn>ExtractStruct</dfn> передается в качестве параметра функции 
 			<a class="name" href="../functions/ModuleEntry.html">ModuleEntry</a> с идентификатором 
-			<dfn>FID_QUERYARCHIVE</dfn> и служит для передачи параметров обрабатывающей
-			запрос функции и для возврата сведений о форматах, под который подпадает
-			указанный файл.
+			<dfn>FID_EXTRACT</dfn> и передает в обрабатывающую функцию параметры для извлечения объектов 
+			из архива.
 		</div>
 
 		<pre class="syntax">
@@ -51,93 +50,38 @@
 	
 		<div class="field">dwStructVersion</div>
 		<div class="field_description">
-			Версия структуры <dfn>QueryArchiveStruct</dfn>. В настоящее время поле не используется.
+			Версия структуры <dfn>ExtractStruct</dfn>. В настоящее время поле не используется.
 		</div>
 
-		<div class="field">uidFormat</div>
+		<div class="field">hArchive</div>
 		<div class="field_description">
-			Уникальный идентификатор формата.
-			
-			[in] Если в поле <dfn>dwFlags</dfn> указаны флаги QUERY_FLAG_PLUGIN_UID_READY и
-			QUERY_FLAG_FORMAT_UID_READY, то при вызове функции это поле содержит уникальный идентификатор формата,
-			а модуль должен только подтвердить, что файл с указанными параметрами действительно имеет
-			данный формат.
-
-			[out] По заверешнии работы функции это поле должно содержать уникальный идентификатор
-			формата, которому соотвествует указанный файл.
+			Параметр, определяющий обрабатываемый архив. Соответствует параметру <dfn>hResult</dfn> 
+			функций <dfn>FID_OPENARCHIVE</dfn> и <dfn>FID_CREATEARCHIVE</dfn>.
 		</div>
 
-		<div class="field">uidPlugin</div>
+		<div class="field">pItems</div>
 		<div class="field_description">
-			Уникальный идентификатор плагина.
-			
-			[in] Если в поле <dfn>dwFlags</dfn> указан флаг QUERY_FLAG_PLUGIN_UID_READY, то при вызове функции это 
-			поле содержит уникальный идентификатор плагина (в рамках данного модуля), а модулю необходимо
-			осуществлять поиск форматов только в рамках указанного плагина.
-
-			[out] По заверешнии работы функции это поле должно содержать уникальный идентификатор
-			плагина, одному из форматов которого соотвествует указанный файл.
+			Набор структур типа <dfn>ArchiveItem</dfn>, описывающих параметры извлекаемых файлов.
 		</div>
 
-		<div class="field">lpFileName</div>
+		<div class="field">nItemsNumber</div>
 		<div class="field_description">
-			Имя файла, формат (или форматы) которого определяются.
+			Количество файлов для извлечения.
 		</div>
 
-		<div class="field">pBuffer</div>
+		<div class="field">lpDestPath</div>
 		<div class="field_description">
-			Буффер, размером <dfn>dwBufferSize</dfn> байт, содержащий данные из начала файла.
+			Путь, по которому необходимо извлечь файлы.
 		<div>
 
-		<div class="field">dwBufferSize</div>
+		<div class="field">lpCurrentPath</div>
 		<div class="field_description">
-			Размер данных в pBuffer.
+			Текущий путь в архиве.
 		<div>
 
-		<div class="field">dwFlags</div>
+		<div class="field">nResult</div>
 		<div class="field_description">
-			Флаги, описывающие параметры вызова функции ModulEntry с идентификатором FID_QUERYARCHIVE 
-			и результаты определения формата файла.
-
-			<table class="flags">
-				<tr>
-					<th width="40%">Флаг</th>
-					<th width="60%">Описание</th>
-				</tr>
-				<tr>
-					<td>QUERY_FLAG_FORMAT_UID_READY</td>
-					<td>
-						При вызове функции заранее известен искомый формат файла. Он передается 
-						в параметре uidFormat. Требуется лишь проверить файл на соотвествие указанному 
-						формату и указать результат в поле <dfn>pResult</dfn>. При этом флаг QUERY_FLAG_PLUGIN_UID_READY 
-						также установлен.
-					</td>
-				</tr>
-				<tr>
-					<td>QUERY_FLAG_PLUGIN_UID_READY</td>
-					<td>
-						При вызове функции заранее известен плагин, который должен обрабатывать файл.
-						Его идентификатор передается в параметре <dfn>uidPlugin</dfn>. Необходимо проверить
-						файл на соответствие всем форматам указанного плагина.
-					</td>
-				</tr>
-				<tr>
-					<td>QUERY_FLAG_MORE_ARCHIVES</td>
-					<td>
-						Если указанному файлу соответствует несколько форматов с данными параметрами,
-						то необходимо вернуть сведения о первом из них (заполнить поля uidPlugin и uidFormat),
-						установить поле bResult в значение true и указать данный флаг. Функция ModuleEntry
-						с идентификатором FID_QUERYARCHIVE будет вызываться до тех пор, пока не будут
-						получены все необходимые форматы.
-					</td>
-				</tr>
-			</table>
 		</div>
 
-		<div class="field">bResult</div>
-		<div class="field_description">
-			В этом поле необходимо указать результат выполнения функции. Поле должно иметь значение true,
-			если удалось определить или подтвердить формат файла и значение false, если формат файла неизвестен.
-		</div>
 	</body>
 </html>
