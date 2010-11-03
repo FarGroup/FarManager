@@ -1324,8 +1324,27 @@ $end</pre>
        </table>
     </td>
   </tr>
-  <tr class="cont"><td class="cont" colspan=2>Пример работы с закладками:<pre class=code>
-
+  <tr class="cont"><td class="cont" colspan=2>Пример работы с закладками.<br>
+Для редактируемого файла newarc.ModuleManager.cpp вставляет в начало<br>
+<code>#ifndef __NEWARC_MODULEMANAGER_CPP__<br>
+#define __NEWARC_MODULEMANAGER_CPP__</code><br>
+в конец<br>
+<code>#endif //! __NEWARC_MODULEMANAGER_CPP__</code><br>
+при наличии строки "#pragma once" в начале файла, строки вставляются после неё.
+  <pre class=code>
+%d = "__" + UCase(Replace(FSplit(Editor.FileName,12),".","_"))+"__";
+bm.add()
+CtrlHome
+$If (LCase(Trim(Editor.Value))=="#pragma once")
+  Down
+$End
+print("#ifndef " + %d + "\n\t#define " + %d + "\n")
+CtrlEnd
+Enter
+Home
+print("#endif //! " + %d + "\n")
+bm.next()
+bm.del()
   </pre></td></tr>
 
 </table>
