@@ -2898,35 +2898,38 @@ void EnumFiles(VMenu& Menu, const wchar_t* Str)
 		string strStart(strStr,Pos);
 		strStr.LShift(Pos);
 		Unquote(strStr);
-		FAR_FIND_DATA_EX d;
-		string strExp;
-		apiExpandEnvironmentStrings(strStr,strExp);
-		FindFile Find(strExp+L"*");
-		bool Separator=false;
-		while(Find.Get(d))
+		if(!strStr.IsEmpty())
 		{
-			const wchar_t* FileName=PointToName(strStr);
-			bool NameMatch=!StrCmpNI(FileName,d.strFileName,StrLength(FileName)),AltNameMatch=NameMatch?false:!StrCmpNI(FileName,d.strAlternateFileName,StrLength(FileName));
-			if(NameMatch || AltNameMatch)
+			FAR_FIND_DATA_EX d;
+			string strExp;
+			apiExpandEnvironmentStrings(strStr,strExp);
+			FindFile Find(strExp+L"*");
+			bool Separator=false;
+			while(Find.Get(d))
 			{
-				strStr.SetLength(FileName-strStr);
-				string strTmp(strStart+strStr);
-				strTmp+=NameMatch?d.strFileName:d.strAlternateFileName;
-				if(!Separator)
+				const wchar_t* FileName=PointToName(strStr);
+				bool NameMatch=!StrCmpNI(FileName,d.strFileName,StrLength(FileName)),AltNameMatch=NameMatch?false:!StrCmpNI(FileName,d.strAlternateFileName,StrLength(FileName));
+				if(NameMatch || AltNameMatch)
 				{
-					if(Menu.GetItemCount())
+					strStr.SetLength(FileName-strStr);
+					string strTmp(strStart+strStr);
+					strTmp+=NameMatch?d.strFileName:d.strAlternateFileName;
+					if(!Separator)
 					{
-						MenuItemEx Item={0};
-						Item.Flags=LIF_SEPARATOR;
-						Menu.AddItem(&Item);
+						if(Menu.GetItemCount())
+						{
+							MenuItemEx Item={0};
+							Item.Flags=LIF_SEPARATOR;
+							Menu.AddItem(&Item);
+						}
+						Separator=true;
 					}
-					Separator=true;
+					if(StartQuote)
+					{
+						strTmp+=L'"';
+					}
+					Menu.AddItem(strTmp);
 				}
-				if(StartQuote)
-				{
-					strTmp+=L'"';
-				}
-				Menu.AddItem(strTmp);
 			}
 		}
 	}
