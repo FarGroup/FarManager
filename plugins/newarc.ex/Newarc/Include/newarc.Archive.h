@@ -136,9 +136,9 @@ public:
 	void SetPassword(const TCHAR* lpPassword);
 
 	int Extract(const ArchiveItemArray& items, const TCHAR *lpDestDiskPath, bool bWithoutPath);
-	bool Delete(const ArchiveItemArray& items);
-	bool AddFiles(const ArchiveItemArray& items, const TCHAR *lpSourceDiskPath);
-	bool Test(const ArchiveItemArray& items);
+	int Delete(const ArchiveItemArray& items);
+	int AddFiles(const ArchiveItemArray& items, const TCHAR *lpSourceDiskPath);
+	int Test(const ArchiveItemArray& items);
 
 	bool MakeDirectory(const TCHAR* lpDirectory);
 

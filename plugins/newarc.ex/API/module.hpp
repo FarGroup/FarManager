@@ -325,7 +325,7 @@ struct TestStruct {
 	const ArchiveItem *pItems;
 	int nItemsNumber;
 
-	bool bResult;
+	int nResult;
 };
 
 struct DeleteStruct {
@@ -336,7 +336,7 @@ struct DeleteStruct {
 	const ArchiveItem *pItems;
 	int nItemsNumber;
 	
-	bool bResult;
+	int nResult;
 };
 
 struct AddStruct {
@@ -350,7 +350,7 @@ struct AddStruct {
 	const ArchiveItem *pItems;
 	int nItemsNumber;
 	
-	bool bResult;
+	int nResult;
 };
 
 struct ArchiveInfoItem {

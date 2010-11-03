@@ -37,5 +37,5 @@ public:
 	ArchivePluginInfo* GetPlugins();
 
 
-    static int __stdcall LoadSevenZipPlugins(const FAR_FIND_DATA* pFindData, const TCHAR* lpFullName, SevenZipModule *pModule);
+	static int __stdcall LoadSevenZipPlugins(const FAR_FIND_DATA* pFindData, const TCHAR* lpFullName, SevenZipModule *pModule);
 };

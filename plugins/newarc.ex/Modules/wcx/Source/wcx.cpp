@@ -25,13 +25,13 @@ int OnFinalize ()
 	return NAERROR_SUCCESS;
 }
 
-int OnQueryArchive (QueryArchiveStruct *pQAS)
+int OnQueryArchive(QueryArchiveStruct *pQAS)
 {
 	bool bMoreArchives = false;
 
 	const ArchiveQueryResult* pResult = pModule->QueryArchive(pQAS, bMoreArchives);
-    
-    if ( pResult )
+
+	if ( pResult )
 	{
 		pQAS->uidFormat = pResult->uidFormat;
 		pQAS->uidPlugin = pResult->uidPlugin;
@@ -67,7 +67,7 @@ int OnCloseArchive(CloseArchiveStruct *pCAS)
 }
 
 
-int OnGetArchiveModuleInfo (ArchiveModuleInfo *ai)
+int OnGetArchiveModuleInfo(ArchiveModuleInfo *ai)
 {
 	ai->dwFlags = AMF_SUPPORT_SINGLE_PLUGIN_QUERY;
 	ai->pPlugins = pModule->GetPlugins();
@@ -76,7 +76,7 @@ int OnGetArchiveModuleInfo (ArchiveModuleInfo *ai)
 	return NAERROR_SUCCESS;
 }
 
-int OnGetArchiveItem (GetArchiveItemStruct *pGAI)
+int OnGetArchiveItem(GetArchiveItemStruct *pGAI)
 {
 	WcxArchive *pArchive = (WcxArchive*)pGAI->hArchive;
 	pGAI->nResult = pArchive->GetArchiveItem (pGAI->pItem);
@@ -128,7 +128,7 @@ int OnAdd(AddStruct *pAS)
 {
 	WcxArchive *pArchive = (WcxArchive*)pAS->hArchive;
 
-	pAS->bResult = pArchive->AddFiles(
+	pAS->nResult = pArchive->AddFiles(
 			pAS->pItems,
 			pAS->nItemsNumber,
 			pAS->lpSourcePath,
@@ -142,7 +142,7 @@ int OnDelete(DeleteStruct *pDS)
 {
 	WcxArchive *pArchive = (WcxArchive*)pDS->hArchive;
 
-	pDS->bResult = pArchive->Delete(
+	pDS->nResult = pArchive->Delete(
 			pDS->pItems,
 			pDS->nItemsNumber
 			);

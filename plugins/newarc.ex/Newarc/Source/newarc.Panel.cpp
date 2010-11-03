@@ -1115,19 +1115,19 @@ int ArchivePanel::Extract(
 	return nResult;
 }
 
-bool ArchivePanel::Delete(const ArchiveItemArray& items)
+int ArchivePanel::Delete(const ArchiveItemArray& items)
 {
 	OnStartOperation(OPERATION_DELETE, nullptr);
 	return m_pArchive->Delete(items);
 }
 
-bool ArchivePanel::AddFiles(const ArchiveItemArray& items, const TCHAR* lpSourceDiskPath)
+int ArchivePanel::AddFiles(const ArchiveItemArray& items, const TCHAR* lpSourceDiskPath)
 {
 	OnStartOperation(OPERATION_ADD, nullptr);
 	return m_pArchive->AddFiles(items, lpSourceDiskPath);
 }
 
-bool ArchivePanel::Test(const ArchiveItemArray& items)
+int ArchivePanel::Test(const ArchiveItemArray& items)
 {
 	OnStartOperation(OPERATION_TEST, nullptr);
 	return m_pArchive->Test(items);

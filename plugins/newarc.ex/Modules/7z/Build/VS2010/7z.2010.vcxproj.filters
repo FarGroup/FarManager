@@ -19,6 +19,9 @@
     <Filter Include="Source Files\Framework">
       <UniqueIdentifier>{e3a1af0c-6d08-41b4-92d1-d9dcf9ad15ec}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Helpers">
+      <UniqueIdentifier>{32223930-e943-4c26-a56d-17072ff4f584}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Common\Detect\7zdetect.cpp">
@@ -117,9 +120,6 @@
     <ClCompile Include="..\..\Source\7z.File.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\7z.Helpers.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\7z.Module.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -128,6 +128,21 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\PropVariant.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Helpers\7z.ArchiveExtractCallback.cpp">
+      <Filter>Source Files\Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Helpers\7z.ArchiveOpenCallback.cpp">
+      <Filter>Source Files\Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Helpers\7z.ArchiveOpenVolumeCallback.cpp">
+      <Filter>Source Files\Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Helpers\7z.ArchiveUpdateCallback.cpp">
+      <Filter>Source Files\Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Helpers\7z.CryptoGetTextPassword.cpp">
+      <Filter>Source Files\Helpers</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -20,26 +20,43 @@ class SevenZipPlugin;
 class SevenZipArchive;
 
 extern "C" const GUID CLSID_CZipHandler;
-extern "C" const GUID CLSID_CBZip2Handler;  
-extern "C" const GUID CLSID_CRarHandler;    
-extern "C" const GUID CLSID_CArjHandler;    
-extern "C" const GUID CLSID_CZHandler;      
-extern "C" const GUID CLSID_CLzhHandler;    
-extern "C" const GUID CLSID_CFormat7z;      
-extern "C" const GUID CLSID_CCabHandler;    
-extern "C" const GUID CLSID_CNsisHandler;   
-extern "C" const GUID CLSID_CLzmaHandler;   
-extern "C" const GUID CLSID_CLzma86Handler; 
+extern "C" const GUID CLSID_CBZip2Handler;
+extern "C" const GUID CLSID_CRarHandler;
+extern "C" const GUID CLSID_CArjHandler;
+extern "C" const GUID CLSID_CZHandler;
+extern "C" const GUID CLSID_CLzhHandler;
+extern "C" const GUID CLSID_CFormat7z;
+extern "C" const GUID CLSID_CCabHandler;
+extern "C" const GUID CLSID_CNsisHandler;
+extern "C" const GUID CLSID_CLzmaHandler;
+extern "C" const GUID CLSID_CLzma86Handler;
 extern "C" const GUID CLSID_CXzHandler;
 extern "C" const GUID CLSID_CTarHandler;
 extern "C" const GUID CLSID_CGZipHandler;
+
+struct ArchiveItemEx {
+	unsigned int nIndex;
+	const ArchiveItem *pItem;
+};
 
 
 #include "7z.Commands.h"
 #include "7z.Module.h"
 #include "7z.DetectArchive.h"
 #include "7z.File.h"
-#include "7z.Helpers.h"
+
+class CArchiveExtractCallback;
+class CArchiveOpenCallback;
+class CArchiveOpenVolumeCallback;
+class CArchiveUpdateCallback;
+class CCryptoGetTextPassword;
+
+#include "Helpers/7z.ArchiveExtractCallback.h"
+#include "Helpers/7z.ArchiveOpenCallback.h"
+#include "Helpers/7z.ArchiveOpenVolumeCallback.h"
+#include "Helpers/7z.ArchiveUpdateCallback.h"
+#include "Helpers/7z.CryptoGetTextPassword.h"
+
 #include "7z.Plugin.h"
 #include "7z.Archive.h"
 #include "PropVariant.h"

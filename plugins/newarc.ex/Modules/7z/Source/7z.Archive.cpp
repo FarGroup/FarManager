@@ -386,7 +386,7 @@ bool SevenZipArchive::FreeArchiveItem(ArchiveItem *pItem)
 	return true;
 }
 
-void CreateTempName (const TCHAR *lpArchiveName, string& strResultName) 
+void CreateTempName(const TCHAR *lpArchiveName, string& strResultName) 
 {
 	int i = 0;
 
@@ -396,11 +396,11 @@ void CreateTempName (const TCHAR *lpArchiveName, string& strResultName)
 }
 
 
-bool SevenZipArchive::Delete(const ArchiveItem* pItems, int nItemsNumber)
+int SevenZipArchive::Delete(const ArchiveItem* pItems, int nItemsNumber)
 {
 	IOutArchive *outArchive;
 
-	bool bResult = false;
+	int nResult = RESULT_ERROR;
 
 	if ( m_pArchive->QueryInterface(
 			IID_IOutArchive,
@@ -440,7 +440,7 @@ bool SevenZipArchive::Delete(const ArchiveItem* pItems, int nItemsNumber)
 		memset(szPassword, 0, 512);
 
 		OnPasswordOperation(PASSWORD_LIST, szPassword, 512);
-		CArchiveUpdateCallback Callback(this, szPassword, &indicies, NULL, NULL);
+		CArchiveUpdateCallback Callback(this, szPassword, indicies, NULL, NULL);
 
 		COutFile* pFile = new COutFile(strTempName);
 
@@ -448,12 +448,12 @@ bool SevenZipArchive::Delete(const ArchiveItem* pItems, int nItemsNumber)
 		{
 			if ( pFile->Open () )
 			{
-				if ( outArchive->UpdateItems (
+				if ( outArchive->UpdateItems(
 						(ISequentialOutStream*)pFile,
 						indicies.count(),
 						&Callback
 						) == S_OK )
-					bResult = true;
+					nResult = Callback.GetResult();
 			}
 
 			delete pFile;
@@ -461,7 +461,7 @@ bool SevenZipArchive::Delete(const ArchiveItem* pItems, int nItemsNumber)
 
 		outArchive->Release ();
 
-		if ( bResult )
+		if ( (nResult == RESULT_SUCCESS) || (nResult == RESULT_PARTIAL) ) //???partial too
 		{
 			Close();
 			MoveFileEx(strTempName, m_strFileName, MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING);
@@ -471,7 +471,7 @@ bool SevenZipArchive::Delete(const ArchiveItem* pItems, int nItemsNumber)
 
 	}
 
-	return bResult;
+	return nResult;
 }
 
 
@@ -490,12 +490,12 @@ int __cdecl CompareIndicies(const void *p1, const void *p2)
 	return 0;
 }
 
-bool SevenZipArchive::Test(
+int SevenZipArchive::Test(
 		const ArchiveItem* pItems,
 		int nItemsNumber
 		)
 {
-	return false;
+	return RESULT_ERROR;
 }
 
 int SevenZipArchive::Extract(
@@ -545,7 +545,7 @@ int SevenZipArchive::Extract(
 
 #include "7z.Properties.cpp"
 
-bool SevenZipArchive::AddFiles(
+int SevenZipArchive::AddFiles(
 		const ArchiveItem* pItems,
 		int nItemsNumber,
 		const TCHAR* lpSourceDiskPath,
@@ -553,7 +553,7 @@ bool SevenZipArchive::AddFiles(
 		)
 {
 	IOutArchive *outArchive;
-	bool bResult = false;
+	int nResult = RESULT_ERROR;
 
 	HRESULT hr;
 
@@ -576,7 +576,7 @@ bool SevenZipArchive::AddFiles(
 				item->index = i;
 				item->bNewFile = false;
 
-				indicies.add (item);
+				indicies.add(item);
 			}
 		}
 
@@ -697,7 +697,7 @@ bool SevenZipArchive::AddFiles(
 
 			if ( pFile )
 			{
-				CArchiveUpdateCallback Callback(this, szPassword, &indicies, lpSourceDiskPath, lpPathInArchive);
+				CArchiveUpdateCallback Callback(this, szPassword, indicies, lpSourceDiskPath, lpPathInArchive);
 
 				if ( pFile->Open () )
 				{
@@ -706,7 +706,7 @@ bool SevenZipArchive::AddFiles(
 							indicies.count(),
 							&Callback
 							) == S_OK )
-						bResult = true;
+						nResult = Callback.GetResult();
 				}
 
 				pFile->Release();
@@ -715,7 +715,7 @@ bool SevenZipArchive::AddFiles(
 
 		outArchive->Release(); //ниже не переносить!!
 
-		if ( bResult )
+		if ( (nResult == RESULT_SUCCESS) || (nResult == RESULT_PARTIAL) )
 		{
 			Close();
 			MoveFileEx(strTempName, m_strFileName, MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING);
@@ -725,7 +725,7 @@ bool SevenZipArchive::AddFiles(
 
 	}
 
-	return bResult;
+	return nResult;
 }
 
 LONG_PTR SevenZipArchive::Callback(int nMsg, int nParam1, LONG_PTR nParam2)

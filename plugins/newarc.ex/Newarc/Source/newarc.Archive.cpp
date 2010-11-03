@@ -141,7 +141,7 @@ int Archive::Extract(
 		)
 {
 	bool bInternalFailed = true;
-	int nResult = false;
+	int nResult = RESULT_ERROR;
 
 	string strDestDiskPath = lpDestDiskPath;
 	AddEndSlash(strDestDiskPath);
@@ -180,16 +180,16 @@ int Archive::Extract(
 	return nResult;
 }
 
-bool Archive::Test(const ArchiveItemArray& items)
+int Archive::Test(const ArchiveItemArray& items)
 {
-	bool bResult = false;
+	int nResult = RESULT_ERROR;
 	bool bInternalFailed = true;
 
 	if ( QueryCapability(AFF_SUPPORT_INTERNAL_TEST) && m_hArchive )
 	{
 		if ( StartOperation(OPERATION_TEST, true) )
 		{
-			bResult = m_pModule->Test(m_hArchive, items);
+			nResult = m_pModule->Test(m_hArchive, items);
 
 			EndOperation(OPERATION_TEST, false);
 
@@ -201,23 +201,20 @@ bool Archive::Test(const ArchiveItemArray& items)
 	{
 		if ( StartOperation(OPERATION_TEST, false) )
 		{
-			bResult = ExecuteCommand(items, COMMAND_TEST);
+			nResult = ExecuteCommand(items, COMMAND_TEST)?RESULT_SUCCESS:RESULT_ERROR;
 			EndOperation(OPERATION_TEST, false);
 		}
 	}
 
-	if ( !bResult )
-		msgError(_T("Test error!"));
-
-	return bResult;
+	return nResult;
 }
 
-bool Archive::AddFiles(
+int Archive::AddFiles(
 		const ArchiveItemArray& items,
 		const TCHAR *lpSourceDiskPath
 		)
 {
-	bool bResult = false;
+	int nResult = false;
 	bool bInternalFailed = true;
 
 	string strSourceDiskPath = lpSourceDiskPath;
@@ -227,7 +224,7 @@ bool Archive::AddFiles(
 	{
 		if ( StartOperation(OPERATION_ADD, true) )
 		{
-			bResult = m_pModule->AddFiles(
+			nResult = m_pModule->AddFiles(
 					m_hArchive, 
 					items, 
 					strSourceDiskPath, 
@@ -244,20 +241,17 @@ bool Archive::AddFiles(
 	{
 		if ( StartOperation(OPERATION_ADD, false) )
 		{
-			bResult = ExecuteCommand(
+			nResult = ExecuteCommand(
 					items, 
 					COMMAND_ADD, 
 					strSourceDiskPath
-					);
+					)?RESULT_SUCCESS:RESULT_ERROR;
 
 			EndOperation(OPERATION_ADD, false);
 		}
 	}
 
-	if ( !bResult )
-		msgError(_T("Add error!"));
-	
-	return bResult;
+	return nResult;
 }
 
 
@@ -327,16 +321,16 @@ bool Archive::MakeDirectory(const TCHAR* lpDirectory)
 	return bResult;
 }
 
-bool Archive::Delete(const ArchiveItemArray& items)
+int Archive::Delete(const ArchiveItemArray& items)
 {
-	bool bResult = false;
+	int nResult = false;
 	bool bInternalFailed = true;
 
 	if ( QueryCapability(AFF_SUPPORT_INTERNAL_DELETE) && m_hArchive )
 	{
 		if ( StartOperation(OPERATION_DELETE, true) )
 		{
-			bResult = m_pModule->Delete(
+			nResult = m_pModule->Delete(
 					m_hArchive,
 					items
 					);
@@ -351,15 +345,12 @@ bool Archive::Delete(const ArchiveItemArray& items)
 	{
 		if ( StartOperation(OPERATION_DELETE, false) )
 		{
-			bResult = ExecuteCommand(items, COMMAND_DELETE);
+			nResult = ExecuteCommand(items, COMMAND_DELETE)?RESULT_SUCCESS:RESULT_ERROR;
 			EndOperation(OPERATION_DELETE, false);
 		}
 	}
 
-	if ( !bResult )
-		msgError(_T("Delete error!"));
-
-	return bResult;
+	return nResult;
 }
 
 bool Archive::StartOperation(int nOperation, bool bInternal)

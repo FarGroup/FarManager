@@ -236,7 +236,7 @@ LONG_PTR WcxArchive::Callback(int nMsg, int nParam1, LONG_PTR nParam2)
 }
 
 
-bool WcxArchive::Delete(const ArchiveItem *pItems, int nItemsNumber)
+int WcxArchive::Delete(const ArchiveItem *pItems, int nItemsNumber)
 {
 	void* list = NULL;
 
@@ -251,14 +251,14 @@ bool WcxArchive::Delete(const ArchiveItem *pItems, int nItemsNumber)
 	Callback(AM_START_OPERATION, OPERATION_DELETE, (LONG_PTR)&SO);
 	//Callback(AM_PROCESS_FILE, 0, 0);
 
-	bool bResult = m_pPlugin->DeleteFiles(m_strFileName, list) == E_SUCCESS; //rave!!!
+	int nResult = (m_pPlugin->DeleteFiles(m_strFileName, list) == E_SUCCESS)?RESULT_SUCCESS:RESULT_ERROR; //rave!!!
 
 	free(list);
 
-	return bResult;
+	return nResult;
 }
 
-bool WcxArchive::AddFiles(
+int WcxArchive::AddFiles(
 		const ArchiveItem *pItems, 
 		int nItemsNumber, 
 		const TCHAR *lpSourcePath, 
@@ -277,18 +277,18 @@ bool WcxArchive::AddFiles(
 
 	Callback(AM_START_OPERATION, OPERATION_ADD, (LONG_PTR)&SO);
 
-	bool bResult = m_pPlugin->PackFiles(
+	int nResult = (m_pPlugin->PackFiles(
 			m_strFileName, 
 			lpCurrentPath, 
 			lpSourcePath, 
 			list,
 			0
-			) == E_SUCCESS;
+			) == E_SUCCESS)?RESULT_SUCCESS:RESULT_ERROR;
 
 
 	free(list);
 
-	return bResult;
+	return nResult;
 }
 
 

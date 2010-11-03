@@ -331,10 +331,10 @@ int ArchiveModule::Extract(
 	if ( m_pfnModuleEntry (FID_EXTRACT, (void*)&ES) == NAERROR_SUCCESS )
 		return ES.nResult;
 
-	return false;
+	return RESULT_ERROR;
 }
 
-bool ArchiveModule::AddFiles(
+int ArchiveModule::AddFiles(
 		HANDLE hArchive,
 		const ArchiveItemArray& items,
 		const TCHAR* lpSourceDiskPath,
@@ -350,13 +350,13 @@ bool ArchiveModule::AddFiles(
 	AS.nItemsNumber = items.count();
 
 	if ( m_pfnModuleEntry (FID_ADD, (void*)&AS) == NAERROR_SUCCESS )
-		return AS.bResult;
+		return AS.nResult;
 
-	return false;
+	return RESULT_ERROR;
 }
 
 
-bool ArchiveModule::Test(
+int ArchiveModule::Test(
 		HANDLE hArchive,
 		const ArchiveItemArray& items
 		)
@@ -368,12 +368,12 @@ bool ArchiveModule::Test(
 	TS.nItemsNumber = items.count();
 
 	if ( m_pfnModuleEntry(FID_TEST, (void*)&TS) == NAERROR_SUCCESS )
-		return TS.bResult;
+		return TS.nResult;
 
-	return false;
+	return RESULT_ERROR;
 }
 
-bool ArchiveModule::Delete(
+int ArchiveModule::Delete(
 		HANDLE hArchive,
 		const ArchiveItemArray& items
 		)
@@ -385,9 +385,9 @@ bool ArchiveModule::Delete(
 	DS.nItemsNumber = items.count();
 
 	if ( m_pfnModuleEntry (FID_DELETE, (void*)&DS) == NAERROR_SUCCESS )
-		return DS.bResult;
+		return DS.nResult;
 
-	return false;
+	return RESULT_ERROR;
 }
 
 bool ArchiveModule::StartOperation(

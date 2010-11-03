@@ -20,7 +20,7 @@ public:
 	unsigned int GetNumberOfPlugins();
 	const ArchivePluginInfo* GetPlugins();
 
-	const ArchiveQueryResult* QueryArchive(const QueryArchiveStruct* pQAS, bool& bMoreArchives);                
+	const ArchiveQueryResult* QueryArchive(const QueryArchiveStruct* pQAS, bool& bMoreArchives);
 
 	WcxArchive* OpenCreateArchive(
 			const GUID& uidPlugin, 

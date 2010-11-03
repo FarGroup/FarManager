@@ -26,7 +26,7 @@ class WcxArchive {
 
 public:
 
-	WcxArchive (
+	WcxArchive(
 			WcxPlugin *pPlugin, 
 			const GUID& uid, 
 			const TCHAR *lpFileName, 
@@ -35,7 +35,7 @@ public:
 			bool bCreate
 			);
 
-	virtual ~WcxArchive ();
+	virtual ~WcxArchive();
 
 	const GUID& GetUID();
 
@@ -44,14 +44,13 @@ public:
 	bool StartOperation(int nOperation, bool bInternal);
 	bool EndOperation(int nOperation, bool bInternal);
 
-	int Extract(const ArchiveItem* pItems, int nItemsNumber, const TCHAR *lpDestDiskPath, const TCHAR* lpPathInArchive);
-	//virtual bool __stdcall pTest (PluginPanelItem *pItems, int nItemsNumber);
-
 	int GetArchiveItem (ArchiveItem* pItem);
 	void FreeArchiveItem(ArchiveItem* pItem);
-	
-	bool Delete(const ArchiveItem *pItems, int nItemsNumber);
-	bool AddFiles(const ArchiveItem *pItems, int nItemsNumber, const TCHAR* lpSourceDiskPath, const TCHAR* lpPathInArchive);
+
+	int Extract(const ArchiveItem* pItems, int nItemsNumber, const TCHAR *lpDestDiskPath, const TCHAR* lpPathInArchive);
+	//virtual bool __stdcall pTest (PluginPanelItem *pItems, int nItemsNumber);
+	int Delete(const ArchiveItem *pItems, int nItemsNumber);
+	int AddFiles(const ArchiveItem *pItems, int nItemsNumber, const TCHAR* lpSourceDiskPath, const TCHAR* lpPathInArchive);
 
 
 private: 

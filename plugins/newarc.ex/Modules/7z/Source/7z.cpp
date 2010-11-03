@@ -125,7 +125,7 @@ int OnTest(TestStruct *pTS)
 {
 	SevenZipArchive *pArchive = (SevenZipArchive *)pTS->hArchive;
 
-	pTS->bResult = pArchive->Test (
+	pTS->nResult = pArchive->Test(
 			pTS->pItems,
 			pTS->nItemsNumber
 			);
@@ -137,7 +137,7 @@ int OnAdd(AddStruct* pAS)
 {
 	SevenZipArchive* pArchive = (SevenZipArchive* )pAS->hArchive;
 
-	pAS->bResult = pArchive->AddFiles (
+	pAS->nResult = pArchive->AddFiles(
 			pAS->pItems,
 			pAS->nItemsNumber,
 			pAS->lpSourcePath,
@@ -164,7 +164,7 @@ int OnDelete(DeleteStruct *pDS)
 {
 	SevenZipArchive *pArchive = (SevenZipArchive *)pDS->hArchive;
 
-	pDS->bResult = pArchive->Delete (
+	pDS->nResult = pArchive->Delete(
 			pDS->pItems,
 			pDS->nItemsNumber
 			);
