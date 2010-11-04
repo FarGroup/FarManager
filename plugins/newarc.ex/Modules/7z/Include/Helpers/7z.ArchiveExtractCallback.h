@@ -10,7 +10,7 @@ public:
 	SevenZipArchive* m_pArchive;
 
 	ArchiveItemEx* m_pItems;
-	int m_uItemsNumber;
+	unsigned int m_uItemsNumber;
 
 	string m_strDestDiskPath;
 	string m_strPathInArchive;
@@ -20,7 +20,7 @@ public:
 	CCryptoGetTextPassword* m_pGetTextPassword;
 
 	bool m_bUserAbort;
-	int m_uSuccessCount;
+	unsigned int m_uSuccessCount;
 	bool m_bExtractMode;
 
 public:

@@ -260,8 +260,6 @@ HRESULT __stdcall CArchiveExtractCallback::PrepareOperation(int askExtractMode)
 
 HRESULT __stdcall CArchiveExtractCallback::SetOperationResult(int resultEOperationResult)
 {
-	FarMessage msg(FMSG_WARNING);
-
 	switch( resultEOperationResult )
 	{
 		case NArchive::NExtract::NOperationResult::kOK:
@@ -274,23 +272,21 @@ HRESULT __stdcall CArchiveExtractCallback::SetOperationResult(int resultEOperati
 		case NArchive::NExtract::NOperationResult::kDataError:
 
 			//remove to callback if possible
-			msg.Add(_T("File data error"));
-			msg.AddButton(_T("Ok"));
-
-			msg.Run();
-
+			m_pArchive->OnReportError(nullptr, EXTRACT_ERROR_DATA);
 			return S_OK; //??
 
 		case NArchive::NExtract::NOperationResult::kCRCError:
-			m_pArchive->OnPasswordOperation(PASSWORD_RESET, NULL, 0);
 
 			//remove to callback if possible
-			msg.Add(_T("File CRC error"));
-			msg.AddButton(_T("Ok"));
 
-			msg.Run();
+			m_pArchive->OnPasswordOperation(PASSWORD_RESET, NULL, 0);
+			m_pArchive->OnReportError(nullptr, EXTRACT_ERROR_CRC);
 			
 			return S_OK; //??
+
+		default:
+			m_pArchive->OnReportError(nullptr, EXTRACT_ERROR_UNKNOWN);
+			return S_OK;
 	}
 
 	return S_OK;

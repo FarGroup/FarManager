@@ -799,6 +799,17 @@ LONG_PTR SevenZipArchive::OnPasswordOperation(
 	return Callback(AM_NEED_PASSWORD, nType, (LONG_PTR)&PS);
 }
 
+LONG_PTR SevenZipArchive::OnReportError(const ArchiveItem* pItem, int nError)
+{
+	ReportErrorStruct RE;
+
+	RE.pItem = pItem;
+	RE.nError = nError;
+
+	return Callback(AM_REPORT_ERROR, 0, (LONG_PTR)&RE);
+}
+
+
 int SevenZipArchive::GetArchiveInfo(const ArchiveInfoItem** pItems)
 {
 	if ( m_pArchiveInfo.count() )

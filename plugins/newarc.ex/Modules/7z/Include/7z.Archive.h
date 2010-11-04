@@ -65,6 +65,7 @@ public:
 	LONG_PTR OnProcessFile(const ArchiveItem* pItem, const TCHAR* lpDestName);
 	LONG_PTR OnProcessData(unsigned __int64 uSize);
 	LONG_PTR OnPasswordOperation(int nType, TCHAR* lpBuffer, DWORD dwBufferSize);
+	LONG_PTR OnReportError(const ArchiveItem* pItem, int nError);
 
 private:
 

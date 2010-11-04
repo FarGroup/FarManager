@@ -228,7 +228,7 @@ HRESULT __stdcall CArchiveUpdateCallback::GetProperty(unsigned int index, PROPID
 		}
 	}
 	else
-		return m_pArchive->GetArchive()->GetProperty (item->index, propID, value);
+		return m_pArchive->GetArchive()->GetProperty(item->index, propID, value);
 
 	return S_OK;
 }
@@ -277,6 +277,8 @@ HRESULT __stdcall CArchiveUpdateCallback::SetOperationResult(int operationResult
 {
 	if ( operationResult == NArchive::NUpdate::NOperationResult::kOK )
 		m_uSuccessCount++; //BUGBUG, to check errors
+	else
+		m_pArchive->OnReportError(nullptr, ADD_ERROR_UNKNOWN);
 
 	return S_OK;
 }

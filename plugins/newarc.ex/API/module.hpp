@@ -125,9 +125,16 @@ struct ProcessFileStruct {
 	const ArchiveItem* pItem;
 };
 
+#define DELETE_ERROR_UNKNOWN	100
+#define ADD_ERROR_UNKNOWN		200
+
+#define EXTRACT_ERROR_UNKNOWN	1
+#define EXTRACT_ERROR_CRC		2
+#define EXTRACT_ERROR_DATA		3
+
 struct ReportErrorStruct {
 	const ArchiveItem* pItem;
-	int nReservedForError;
+	int nError;
 };
 
 typedef LONG_PTR (__stdcall *ARCHIVECALLBACK)(HANDLE hPlugin, int nMsg, int nParam1, LONG_PTR nParam2);
@@ -424,7 +431,6 @@ struct StartupInfo {
 
 #define FID_GETARCHIVEINFO  200
 #define FID_GETARCHIVEFILEINFO 300
-#define FID_GETLASTERROR		400
 
 //XPERIMENTAL
 

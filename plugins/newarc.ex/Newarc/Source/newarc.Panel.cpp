@@ -874,6 +874,8 @@ LONG_PTR __stdcall ArchivePanel::Callback(HANDLE hPanel, int nMsg, int nParam1, 
 		if ( nMsg == AM_PROCESS_DATA )
 			nResult = pPanel->OnProcessData((ProcessDataStruct*)nParam2);
 
+		if ( nMsg == AM_REPORT_ERROR )
+			nResult = pPanel->OnReportError((ReportErrorStruct*)nParam2);
 		//if ( nMsg == AM_FILE_ALREADY_EXISTS )
 		//	nResult = pPanel->OnFileAlreadyExists((OverwriteStruct*)nParam2);
 	}
@@ -1048,7 +1050,9 @@ int ArchivePanel::OnProcessFile(ProcessFileStruct *pfs)
 
 int ArchivePanel::OnReportError(ReportErrorStruct* pRE)
 {
-	m_OS.ErrorList.AddError(pRE->pItem->lpFileName);
+	__debug(_T("Error - %s, %d"), _T("filename"), pRE->nError);
+
+//	m_OS.ErrorList.AddError(pRE->pItem->lpFileName);
 
 	return 0;
 }
