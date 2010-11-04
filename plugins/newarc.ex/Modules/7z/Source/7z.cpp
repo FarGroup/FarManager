@@ -110,9 +110,9 @@ int OnExtract(ExtractStruct *pES)
 {
 	SevenZipArchive* pArchive = (SevenZipArchive*)pES->hArchive;
 
-	pES->nResult = pArchive->Extract (
+	pES->nResult = pArchive->Extract(
 			pES->pItems,
-			pES->nItemsNumber,
+			pES->uItemsNumber,
 			pES->lpDestPath,
 			pES->lpCurrentPath
 			);
@@ -127,7 +127,7 @@ int OnTest(TestStruct *pTS)
 
 	pTS->nResult = pArchive->Test(
 			pTS->pItems,
-			pTS->nItemsNumber
+			pTS->uItemsNumber
 			);
 
 	return NAERROR_SUCCESS;
@@ -139,7 +139,7 @@ int OnAdd(AddStruct* pAS)
 
 	pAS->nResult = pArchive->AddFiles(
 			pAS->pItems,
-			pAS->nItemsNumber,
+			pAS->uItemsNumber,
 			pAS->lpSourcePath,
 			pAS->lpCurrentPath
 			);
@@ -166,7 +166,7 @@ int OnDelete(DeleteStruct *pDS)
 
 	pDS->nResult = pArchive->Delete(
 			pDS->pItems,
-			pDS->nItemsNumber
+			pDS->uItemsNumber
 			);
 
 	return NAERROR_SUCCESS;

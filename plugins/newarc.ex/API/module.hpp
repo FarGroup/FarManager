@@ -252,7 +252,7 @@ struct ExtractStruct {
 	HANDLE hArchive;
 	
 	const ArchiveItem *pItems;
-	int nItemsNumber;
+	unsigned int uItemsNumber;
 	
 	const TCHAR *lpDestPath;
 	const TCHAR *lpCurrentPath;
@@ -302,7 +302,7 @@ struct GetArchiveItemStruct {
 	DWORD dwStructVersion;
 
 	HANDLE hArchive;
-	ArchiveItem *pItem;
+	ArchiveItem* pItem;
 
 	int nResult;
 };
@@ -311,7 +311,7 @@ struct FreeArchiveItemStruct {
 	DWORD dwStructVersion;
 
 	HANDLE hArchive;
-	ArchiveItem *pItem;
+	ArchiveItem* pItem;
 
 	bool bResult;
 };
@@ -322,8 +322,8 @@ struct TestStruct {
 
 	HANDLE hArchive;
 
-	const ArchiveItem *pItems;
-	int nItemsNumber;
+	const ArchiveItem* pItems;
+	unsigned int uItemsNumber;
 
 	int nResult;
 };
@@ -333,8 +333,8 @@ struct DeleteStruct {
 
 	HANDLE hArchive;
 	
-	const ArchiveItem *pItems;
-	int nItemsNumber;
+	const ArchiveItem* pItems;
+	unsigned int uItemsNumber;
 	
 	int nResult;
 };
@@ -347,8 +347,8 @@ struct AddStruct {
 	const TCHAR *lpSourcePath;
 	const TCHAR *lpCurrentPath;
 	
-	const ArchiveItem *pItems;
-	int nItemsNumber;
+	const ArchiveItem* pItems;
+	unsigned int uItemsNumber;
 	
 	int nResult;
 };

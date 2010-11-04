@@ -90,7 +90,7 @@ int OnExtract (ExtractStruct *pES)
 
 	pES->nResult = pArchive->Extract(
 			pES->pItems,
-			pES->nItemsNumber,
+			pES->uItemsNumber,
 			pES->lpDestPath,
 			pES->lpCurrentPath
 			);

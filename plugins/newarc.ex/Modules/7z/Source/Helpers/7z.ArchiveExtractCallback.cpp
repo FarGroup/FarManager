@@ -4,7 +4,7 @@
 CArchiveExtractCallback::CArchiveExtractCallback(
 		SevenZipArchive* pArchive,
 		ArchiveItemEx *pItems,
-		int nItemsNumber,
+		unsigned int uItemsNumber,
 		const TCHAR *lpDestDiskPath,
 		const TCHAR *lpPathInArchive
 		)
@@ -14,7 +14,7 @@ CArchiveExtractCallback::CArchiveExtractCallback(
 	m_nRefCount = 1;
 
 	m_pItems = pItems;
-	m_nItemsNumber = nItemsNumber;
+	m_uItemsNumber = uItemsNumber;
 
 	m_strDestDiskPath = lpDestDiskPath;
 	m_strPathInArchive = lpPathInArchive;
@@ -22,7 +22,7 @@ CArchiveExtractCallback::CArchiveExtractCallback(
 	m_pGetTextPassword = NULL;
 
 	m_bUserAbort = false;
-	m_nSuccessCount = 0;
+	m_uSuccessCount = 0;
 	m_bExtractMode = false;
 
 	///???
@@ -106,7 +106,7 @@ HRESULT CArchiveExtractCallback::SetCompleted(const unsigned __int64* completeVa
 
 int GetItemIndex(CArchiveExtractCallback *pcb, int index)
 {
-	for (int i = 0; i < pcb->m_nItemsNumber; i++)
+	for (unsigned int i = 0; i < pcb->m_uItemsNumber; i++)
 	{
 		if ( (int)pcb->m_pItems[i].nIndex == index )
 			return i;
@@ -172,7 +172,7 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream(
 
 		if ( nOverwrite == PROCESS_SKIP )
 		{
-			m_nSuccessCount++;
+			m_uSuccessCount++;
 
 			*outStream = NULL;
 			return S_OK;
@@ -267,7 +267,7 @@ HRESULT __stdcall CArchiveExtractCallback::SetOperationResult(int resultEOperati
 		case NArchive::NExtract::NOperationResult::kOK:
 			
 			if ( m_bExtractMode )
-				m_nSuccessCount++;
+				m_uSuccessCount++;
 
 			return S_OK;
 
@@ -301,13 +301,13 @@ int CArchiveExtractCallback::GetResult()
 	if ( m_bUserAbort )
 		return RESULT_CANCEL;
 
-	if ( m_nSuccessCount > m_nItemsNumber )
+	if ( m_uSuccessCount > m_uItemsNumber )
 		__debug(_T("LOGIC ERROR, PLEASE REPORT"));
 
-	if ( m_nSuccessCount == 0 )
+	if ( m_uSuccessCount == 0 )
 		return RESULT_ERROR;
 
-	if ( m_nSuccessCount < m_nItemsNumber )
+	if ( m_uSuccessCount < m_uItemsNumber )
 		return RESULT_PARTIAL;
 
 	return RESULT_SUCCESS;

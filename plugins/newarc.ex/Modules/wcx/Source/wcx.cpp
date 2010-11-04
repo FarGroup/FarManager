@@ -102,7 +102,7 @@ int OnExtract(ExtractStruct *pES)
 
 	pES->nResult = pArchive->Extract(
 			pES->pItems,
-			pES->nItemsNumber,
+			pES->uItemsNumber,
 			pES->lpDestPath,
 			pES->lpCurrentPath
 			);
@@ -130,7 +130,7 @@ int OnAdd(AddStruct *pAS)
 
 	pAS->nResult = pArchive->AddFiles(
 			pAS->pItems,
-			pAS->nItemsNumber,
+			pAS->uItemsNumber,
 			pAS->lpSourcePath,
 			pAS->lpCurrentPath
 			);
@@ -144,7 +144,7 @@ int OnDelete(DeleteStruct *pDS)
 
 	pDS->nResult = pArchive->Delete(
 			pDS->pItems,
-			pDS->nItemsNumber
+			pDS->uItemsNumber
 			);
 
 	return NAERROR_SUCCESS;

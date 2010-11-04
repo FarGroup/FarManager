@@ -324,7 +324,7 @@ int ArchiveModule::Extract(
 
 	ES.hArchive = hArchive;
 	ES.pItems = items.data();
-	ES.nItemsNumber = items.count();
+	ES.uItemsNumber = items.count();
 	ES.lpDestPath = lpDestDiskPath;
 	ES.lpCurrentPath = lpPathInArchive;
 
@@ -347,7 +347,7 @@ int ArchiveModule::AddFiles(
 	AS.lpSourcePath = lpSourceDiskPath;
 	AS.lpCurrentPath = lpPathInArchive;
 	AS.pItems = items.data();
-	AS.nItemsNumber = items.count();
+	AS.uItemsNumber = items.count();
 
 	if ( m_pfnModuleEntry (FID_ADD, (void*)&AS) == NAERROR_SUCCESS )
 		return AS.nResult;
@@ -365,7 +365,7 @@ int ArchiveModule::Test(
 
 	TS.hArchive = hArchive;
 	TS.pItems = items.data();
-	TS.nItemsNumber = items.count();
+	TS.uItemsNumber = items.count();
 
 	if ( m_pfnModuleEntry(FID_TEST, (void*)&TS) == NAERROR_SUCCESS )
 		return TS.nResult;
@@ -382,7 +382,7 @@ int ArchiveModule::Delete(
 
 	DS.hArchive = hArchive;
 	DS.pItems = items.data();
-	DS.nItemsNumber = items.count();
+	DS.uItemsNumber = items.count();
 
 	if ( m_pfnModuleEntry (FID_DELETE, (void*)&DS) == NAERROR_SUCCESS )
 		return DS.nResult;
