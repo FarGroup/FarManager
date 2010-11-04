@@ -25,8 +25,8 @@ private:
 
 	CCryptoGetTextPassword* m_pGetTextPassword;
 
-	int m_nSuccessCount;
-	int m_nItemsNumber;
+	unsigned int m_uSuccessCount;
+	unsigned int m_uItemsNumber;
 
 public:
 

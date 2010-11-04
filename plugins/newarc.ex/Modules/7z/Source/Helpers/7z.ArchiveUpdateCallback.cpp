@@ -20,7 +20,7 @@ CArchiveUpdateCallback::CArchiveUpdateCallback(
 	m_strSourceDiskPath = lpSourceDiskPath;
 	m_strPathInArchive = lpPathInArchive;
 
-	m_nItemsNumber = indicies.count();
+	m_uItemsNumber = indicies.count();
 }
 
 CArchiveUpdateCallback::~CArchiveUpdateCallback()
@@ -32,13 +32,13 @@ int CArchiveUpdateCallback::GetResult()
 ///	if ( m_bUserAbort )
 //		return RESULT_CANCEL;
 
-	if ( m_nSuccessCount > m_nItemsNumber )
+	if ( m_uSuccessCount > m_uItemsNumber )
 		__debug(_T("LOGIC ERROR, PLEASE REPORT"));
 
-	if ( m_nSuccessCount == 0 )
+	if ( m_uSuccessCount == 0 )
 		return RESULT_ERROR;
 
-	if ( m_nSuccessCount < m_nItemsNumber )
+	if ( m_uSuccessCount < m_uItemsNumber )
 		return RESULT_PARTIAL;
 
 	return RESULT_SUCCESS;
@@ -276,7 +276,7 @@ HRESULT __stdcall CArchiveUpdateCallback::GetStream(unsigned int index, ISequent
 HRESULT __stdcall CArchiveUpdateCallback::SetOperationResult(int operationResult)
 {
 	if ( operationResult == NArchive::NUpdate::NOperationResult::kOK )
-		m_nSuccessCount++; //BUGBUG, to check errors
+		m_uSuccessCount++; //BUGBUG, to check errors
 
 	return S_OK;
 }
