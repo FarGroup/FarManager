@@ -36,8 +36,25 @@ FAR желает получить информацию о вашем диалоге.
 
 <h3>Пример</h3>
 <div class=descr>
-</div>
+<pre class=code>
+// Некоторый сгенерированный GUID, например - {66ffe4cf-ee00-4b45-b91a-163f7c57d084}
+static const GUID DlgGUID={0x66ffe4cf,0xee00,0x4b45,{0xb9,0x1a,0x16,0x3f,0x7c,0x57,0xd0,0x84}};
 
+// Заполняем...
+LONG_PTR WINAPI MyDialogProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
+{
+  switch(Msg)
+  {
+    case DN_GETDIALOGINFO:
+      if (((DialogInfo*)(Param2))->StructSize != sizeof(DialogInfo))
+        return FALSE;
+      ((DialogInfo*)(Param2))->Id=DlgGUID;
+      return TRUE;
+  }
+  return Info.DefDlgProc(hDlg,Msg,Param1,Param2);
+}
+</pre>
+</div>
 
 <div class=see>Смотрите также:</div><div class=seecont>
 <a href="../dialoginit.html">DialogInit</a><br>
