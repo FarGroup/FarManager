@@ -273,13 +273,21 @@ class Editor:public ScreenObject
 		int SetBookmark(DWORD Pos);
 		int GotoBookmark(DWORD Pos);
 
-		int AddStackBookmark();
+		int ClearStackBookmarks();
+		int DeleteStackBookmark(InternalEditorStackBookMark *sb_delete);
 		int RestoreStackBookmark();
+		int AddStackBookmark(BOOL blNewPos=TRUE);
+		InternalEditorStackBookMark* PointerToFirstStackBookmark(int *piCount=nullptr);
+		InternalEditorStackBookMark* PointerToLastStackBookmark(int *piCount=nullptr);
+		InternalEditorStackBookMark* PointerToStackBookmark(int iIdx);
+		int FirstStackBookmark();
 		int PrevStackBookmark();
 		int NextStackBookmark();
-		int ClearStackBookmarks();
-		InternalEditorStackBookMark* PointerToStackBookmark(int iIdx);
-		int DeleteStackBookmark(InternalEditorStackBookMark *sb_delete);
+		int LastStackBookmark();
+		int GotoStackBookmark(int iIdx);
+		int PushStackBookMark();
+		int PopStackBookMark();
+		int CurrentStackBookmarkIdx();
 		int GetStackBookmark(int iIdx,EditorBookMarks *Param);
 		int GetStackBookmarks(EditorBookMarks *Param);
 

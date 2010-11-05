@@ -355,12 +355,17 @@ static TMacroFunction intMacroFunction[]=
 	{L"BM.ADD",           0, 0,   MCODE_F_BM_ADD,           nullptr, 0,nullptr,L"N=BM.Add()",0,usersFunc},
 	{L"BM.CLEAR",         0, 0,   MCODE_F_BM_CLEAR,         nullptr, 0,nullptr,L"N=BM.Clear()",0,usersFunc},
 	{L"BM.DEL",           1, 1,   MCODE_F_BM_DEL,           nullptr, 0,nullptr,L"N=BM.Del([Idx])",0,usersFunc},
+	{L"BM.FIRST",         0, 0,   MCODE_F_BM_FIRST,         nullptr, 0,nullptr,L"N=BM.first()",0,usersFunc},
 	{L"BM.GET",           2, 0,   MCODE_F_BM_GET,           nullptr, 0,nullptr,L"N=BM.Get(Idx,M)",0,usersFunc},
+	{L"BM.GOTO",          1, 1,   MCODE_F_BM_GOTO,          nullptr, 0,nullptr,L"N=BM.goto([N])",0,usersFunc},
+	{L"BM.LAST",          0, 0,   MCODE_F_BM_LAST,          nullptr, 0,nullptr,L"N=BM.last()",0,usersFunc},
 	{L"BM.NEXT",          0, 0,   MCODE_F_BM_NEXT,          nullptr, 0,nullptr,L"N=BM.Next()",0,usersFunc},
+	{L"BM.POP",           0, 0,   MCODE_F_BM_POP,           nullptr, 0,nullptr,L"N=BM.pop()",0,usersFunc},
 	{L"BM.PREV",          0, 0,   MCODE_F_BM_PREV,          nullptr, 0,nullptr,L"N=BM.Prev()",0,usersFunc},
+	{L"BM.PUSH",          0, 0,   MCODE_F_BM_PUSH,          nullptr, 0,nullptr,L"N=BM.push()",0,usersFunc},
 	{L"BM.STAT",          1, 1,   MCODE_F_BM_STAT,          nullptr, 0,nullptr,L"N=BM.Stat([N])",0,usersFunc},
-	{L"CHECKHOTKEY",      2, 1,   MCODE_F_MENU_CHECKHOTKEY, nullptr, 0,nullptr,L"N=CheckHotkey(S[,N])",0,usersFunc},
 	{L"CALLPLUGIN",       2, 1,   MCODE_F_CALLPLUGIN,       nullptr, 0,nullptr,L"V=CallPlugin(SysID[,param])",0,callpluginFunc},
+	{L"CHECKHOTKEY",      2, 1,   MCODE_F_MENU_CHECKHOTKEY, nullptr, 0,nullptr,L"N=CheckHotkey(S[,N])",0,usersFunc},
 	{L"CHR",              1, 0,   MCODE_F_CHR,              nullptr, 0,nullptr,L"S=Chr(N)",0,chrFunc},
 	{L"CLIP",             2, 1,   MCODE_F_CLIP,             nullptr, 0,nullptr,L"V=Clip(N[,V])",0,clipFunc},
 	{L"DATE",             1, 1,   MCODE_F_DATE,             nullptr, 0,nullptr,L"S=Date([S])",0,dateFunc},
@@ -382,20 +387,20 @@ static TMacroFunction intMacroFunction[]=
 	{L"INDEX",            3, 1,   MCODE_F_INDEX,            nullptr, 0,nullptr,L"S=Index(S1,S2[,Mode])",0,indexFunc},
 	{L"INT",              1, 0,   MCODE_F_INT,              nullptr, 0,nullptr,L"N=Int(V)",0,intFunc},
 	{L"ITOA",             2, 1,   MCODE_F_ITOA,             nullptr, 0,nullptr,L"S=Itoa(N[,radix])",0,itowFunc},
-	{L"LCASE",            1, 0,   MCODE_F_LCASE,            nullptr, 0,nullptr,L"S=LCase(S1)",0,lcaseFunc},
 	{L"KBDLAYOUT",        1, 1,   MCODE_F_KBDLAYOUT,        nullptr, 0,nullptr,L"N=kbdLayout([N])",0,kbdLayoutFunc},
 	{L"KEY",              1, 0,   MCODE_F_KEY,              nullptr, 0,nullptr,L"S=Key(V)",0,keyFunc},
+	{L"LCASE",            1, 0,   MCODE_F_LCASE,            nullptr, 0,nullptr,L"S=LCase(S1)",0,lcaseFunc},
 	{L"LEN",              1, 0,   MCODE_F_LEN,              nullptr, 0,nullptr,L"N=Len(S)",0,lenFunc},
 	{L"MAX",              2, 0,   MCODE_F_MAX,              nullptr, 0,nullptr,L"N=Max(N1,N2)",0,maxFunc},
 	{L"MENU.GETVALUE",    1, 1,   MCODE_F_MENU_GETVALUE,    nullptr, 0,nullptr,L"S=Menu.GetValue([N])",0,usersFunc},
 	{L"MENU.ITEMSTATUS",  1, 1,   MCODE_F_MENU_ITEMSTATUS,  nullptr, 0,nullptr,L"N=Menu.ItemStatus([N])",0,usersFunc},
 	{L"MENU.SELECT",      3, 2,   MCODE_F_MENU_SELECT,      nullptr, 0,nullptr,L"N=Menu.Select(S[,N[,Dir]])",0,usersFunc},
+	{L"MIN",              2, 0,   MCODE_F_MIN,              nullptr, 0,nullptr,L"N=Min(N1,N2)",0,minFunc},
 	{L"MLOAD",            1, 0,   MCODE_F_MLOAD,            nullptr, 0,nullptr,L"N=MLoad(S)",0,mloadFunc},
 	{L"MMODE",            2, 1,   MCODE_F_MMODE,            nullptr, 0,nullptr,L"N=MMode(Action[,Value])",0,usersFunc},
 	{L"MOD",              2, 0,   MCODE_F_MOD,              nullptr, 0,nullptr,L"N=Mod(a,b)",0,modFunc},
 	{L"MSAVE",            1, 0,   MCODE_F_MSAVE,            nullptr, 0,nullptr,L"N=MSave(S)",0,msaveFunc},
 	{L"MSGBOX",           3, 3,   MCODE_F_MSGBOX,           nullptr, 0,nullptr,L"N=MsgBox([Title[,Text[,flags]]])",IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT,msgBoxFunc},
-	{L"MIN",              2, 0,   MCODE_F_MIN,              nullptr, 0,nullptr,L"N=Min(N1,N2)",0,minFunc},
 	{L"PANEL.FATTR",      2, 0,   MCODE_F_PANEL_FATTR,      nullptr, 0,nullptr,L"N=Panel.FAttr(panelType,fileMask)",0,panelfattrFunc},
 	{L"PANEL.FEXIST",     2, 0,   MCODE_F_PANEL_FEXIST,     nullptr, 0,nullptr,L"N=Panel.FExist(panelType,fileMask)",0,panelfexistFunc},
 	{L"PANEL.ITEM",       3, 0,   MCODE_F_PANELITEM,        nullptr, 0,nullptr,L"V=Panel.Item(Panel,Index,TypeInfo)",0,panelitemFunc},
@@ -4598,13 +4603,18 @@ done:
 		case MCODE_F_BM_STAT:             // N=BM.Stat([N])
 		case MCODE_F_BM_DEL:              // N=BM.Del([Idx]) - удаляет закладку с указанным индексом (x=0...), -1 - удаляет текущую закладку
 		case MCODE_F_BM_GET:              // N=BM.Get(Idx,M) - возвращает координаты строки (M==0) или колонки (M==1) закладки с индексом (Idx=0...)
+		case MCODE_F_BM_FIRST:            // N=BM.first() - переход на первую закладку
+		case MCODE_F_BM_LAST:             // N=BM.last() - переход на последнюю закладку
+		case MCODE_F_BM_GOTO:             // N=BM.goto([n]) - переход на закладку с указанным индексом (0 --> текущую)
+		case MCODE_F_BM_PUSH:             // N=BM.push() - сохранить текущую позицию в виде закладки в конце стека
+		case MCODE_F_BM_POP:              // N=BM.pop() - восстановить текущую позицию из закладки в конце стека и удалить закладку
 		{
 			TVar p1, p2;
 
 			if (Key == MCODE_F_BM_GET)
 				VMStack.Pop(p2);
 
-			if (Key == MCODE_F_BM_GET || Key == MCODE_F_BM_DEL || Key == MCODE_F_BM_GET)
+			if (Key == MCODE_F_BM_GET || Key == MCODE_F_BM_DEL || Key == MCODE_F_BM_GET || Key == MCODE_F_BM_GOTO)
 				VMStack.Pop(p1);
 
 			__int64 Result=0;
