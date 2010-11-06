@@ -596,8 +596,8 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			{
 				case 0: // BM.Stat(0) возвращает количество
 					return GetStackBookmarks(nullptr);
-				case 1: // индекс текущей закладки (-1 если закладок нет)
-					return CurrentStackBookmarkIdx();
+				case 1: // индекс текущей закладки (0 если закладок нет)
+					return CurrentStackBookmarkIdx()+1;
 			}
 			return 0;
 		}
@@ -6138,7 +6138,7 @@ InternalEditorStackBookMark* Editor::PointerToLastStackBookmark(int *piCount)
 	return sb_temp;
 }
 
-InternalEditorStackBookMark* Editor::PointerToStackBookmark(int iIdx)
+InternalEditorStackBookMark* Editor::PointerToStackBookmark(int iIdx) // Returns null_ptr if failed!
 {
 	InternalEditorStackBookMark *sb_temp=StackPos;
 
@@ -6219,8 +6219,12 @@ int Editor::GotoStackBookmark(int iIdx)
 {
 	if (StackPos)
 	{
-		StackPos = PointerToStackBookmark(iIdx);
-		return RestoreStackBookmark();
+		InternalEditorStackBookMark *sb_temp = PointerToStackBookmark(iIdx);
+		if (sb_temp)
+		{
+			StackPos=sb_temp;
+			return RestoreStackBookmark();
+		}
 	}
 
 	return FALSE;
