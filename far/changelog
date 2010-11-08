@@ -1,3 +1,9 @@
+drkns 08.11.2010 16:10:32 +0200 - build 1712
+
+1. Обход идиотского бага древних Windows:
+   Конструкция ExpandEnvironmentStringsW(L"%__CD__%", NULL, 0); вызывала AV в ntdll:RtlExpandEnvironmentStrings_U.
+   Плюс немного оптимизации.
+
 ts 06.11.2010 20:45:04 +0200 - build 1711
 
 1. Уточнение 1710.

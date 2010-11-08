@@ -152,7 +152,7 @@ DWORD apiGetModuleFileName(
     string &strFileName
 );
 
-DWORD apiExpandEnvironmentStrings(
+bool apiExpandEnvironmentStrings(
     const wchar_t *src,
     string &strDest
 );

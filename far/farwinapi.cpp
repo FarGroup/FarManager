@@ -486,20 +486,27 @@ DWORD apiGetModuleFileName(HMODULE hModule, string &strFileName)
 	return dwSize;
 }
 
-DWORD apiExpandEnvironmentStrings(const wchar_t *src, string &strDest)
+bool apiExpandEnvironmentStrings(const wchar_t *src, string &strDest)
 {
-	string strSrc = src;
-	DWORD length = ExpandEnvironmentStrings(strSrc, nullptr, 0);
-
-	if (length)
+	bool Result = false;
+	WCHAR Buffer[MAX_PATH];
+	DWORD Size = ExpandEnvironmentStrings(src, Buffer, ARRAYSIZE(Buffer));
+	if (Size)
 	{
-		wchar_t *lpwszDest = strDest.GetBuffer(length);
-		ExpandEnvironmentStrings(strSrc, lpwszDest, length);
-		strDest.ReleaseBuffer();
-		length = (DWORD)strDest.GetLength();
+		if (Size > ARRAYSIZE(Buffer))
+		{
+			string strSrc(src); //src can point to strDest data
+			wchar_t *lpwszDest = strDest.GetBuffer(Size);
+			strDest.ReleaseBuffer(ExpandEnvironmentStrings(strSrc, lpwszDest, Size)-1);
+		}
+		else
+		{
+			strDest.Copy(Buffer, Size-1);
+		}
+		Result = true;
 	}
 
-	return length;
+	return Result;
 }
 
 DWORD apiWNetGetConnection(const wchar_t *lpwszLocalName, string &strRemoteName)
