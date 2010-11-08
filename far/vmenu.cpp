@@ -731,7 +731,7 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_C_EOF:
 			return GetVisualPos(SelectPos)==GetShowItemCount()-1;
 		case MCODE_C_BOF:
-			return !GetVisualPos(SelectPos);
+			return GetVisualPos(SelectPos)<=0;
 		case MCODE_C_SELECTED:
 			return ItemCount > 0 && SelectPos >= 0;
 		case MCODE_V_ITEMCOUNT:

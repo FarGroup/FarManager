@@ -280,7 +280,6 @@ class Editor:public ScreenObject
 		InternalEditorStackBookMark* PointerToFirstStackBookmark(int *piCount=nullptr);
 		InternalEditorStackBookMark* PointerToLastStackBookmark(int *piCount=nullptr);
 		InternalEditorStackBookMark* PointerToStackBookmark(int iIdx);
-		int FirstStackBookmark();
 		int PrevStackBookmark();
 		int NextStackBookmark();
 		int LastStackBookmark();

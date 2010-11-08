@@ -601,10 +601,6 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			}
 			return 0;
 		}
-		case MCODE_F_BM_FIRST:            // N=BM.first() - переход на первую закладку
-			return FirstStackBookmark();
-		case MCODE_F_BM_LAST:             // N=BM.last() - переход на последнюю закладку
-			return LastStackBookmark();
 		case MCODE_F_BM_PUSH:             // N=BM.push() - сохранить текущую позицию в виде закладки в конце стека
 			return PushStackBookMark();
 		case MCODE_F_BM_POP:              // N=BM.pop() - восстановить текущую позицию из закладки в конце стека и удалить закладку
@@ -6152,17 +6148,6 @@ InternalEditorStackBookMark* Editor::PointerToStackBookmark(int iIdx) // Returns
 	}
 
 	return sb_temp;
-}
-
-int Editor::FirstStackBookmark()
-{
-	if (StackPos)
-	{
-		StackPos=PointerToFirstStackBookmark();
-		return RestoreStackBookmark();
-	}
-
-	return FALSE;
 }
 
 int Editor::PrevStackBookmark()

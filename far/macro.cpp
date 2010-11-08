@@ -355,10 +355,8 @@ static TMacroFunction intMacroFunction[]=
 	{L"BM.ADD",           0, 0,   MCODE_F_BM_ADD,           nullptr, 0,nullptr,L"N=BM.Add()",0,usersFunc},
 	{L"BM.CLEAR",         0, 0,   MCODE_F_BM_CLEAR,         nullptr, 0,nullptr,L"N=BM.Clear()",0,usersFunc},
 	{L"BM.DEL",           1, 1,   MCODE_F_BM_DEL,           nullptr, 0,nullptr,L"N=BM.Del([Idx])",0,usersFunc},
-	{L"BM.FIRST",         0, 0,   MCODE_F_BM_FIRST,         nullptr, 0,nullptr,L"N=BM.first()",0,usersFunc},
 	{L"BM.GET",           2, 0,   MCODE_F_BM_GET,           nullptr, 0,nullptr,L"N=BM.Get(Idx,M)",0,usersFunc},
 	{L"BM.GOTO",          1, 1,   MCODE_F_BM_GOTO,          nullptr, 0,nullptr,L"N=BM.goto([N])",0,usersFunc},
-	{L"BM.LAST",          0, 0,   MCODE_F_BM_LAST,          nullptr, 0,nullptr,L"N=BM.last()",0,usersFunc},
 	{L"BM.NEXT",          0, 0,   MCODE_F_BM_NEXT,          nullptr, 0,nullptr,L"N=BM.Next()",0,usersFunc},
 	{L"BM.POP",           0, 0,   MCODE_F_BM_POP,           nullptr, 0,nullptr,L"N=BM.pop()",0,usersFunc},
 	{L"BM.PREV",          0, 0,   MCODE_F_BM_PREV,          nullptr, 0,nullptr,L"N=BM.Prev()",0,usersFunc},
@@ -1111,10 +1109,30 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 					}
 					else
 					{
+					#if 1
+						Frame *f=FrameManager->GetCurrentFrame(), *fo=nullptr;
+
+						//f=f->GetTopModal();
+						while (f)
+						{
+							fo=f;
+							f=f->GetTopModal();
+						}
+
+						if (!f)
+							f=fo;
+
+						if (f)
+						{
+							Cond=f->VMProcess(CheckCode);
+						}
+					#else
+
 						Frame *f=FrameManager->GetTopModal();
 
 						if (f)
 							Cond=(__int64)f->VMProcess(CheckCode);
+					#endif
 					}
 					break;
 				}
@@ -1133,10 +1151,25 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 					}
 					else
 					{
-						Frame *f=FrameManager->GetTopModal();
+						//if (IsMenuArea(CurMMode) || CurMMode == MACRO_DIALOG)
+						{
+							Frame *f=FrameManager->GetCurrentFrame(), *fo=nullptr;
 
-						if (f)
-							Cond=f->VMProcess(CheckCode);
+							//f=f->GetTopModal();
+							while (f)
+							{
+								fo=f;
+								f=f->GetTopModal();
+							}
+
+							if (!f)
+								f=fo;
+
+							if (f)
+							{
+								Cond=f->VMProcess(CheckCode);
+							}
+						}
 					}
 
 					break;
@@ -1530,7 +1563,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 					int CurMMode=GetMode();
 					Cond=L"";
 
-					if (IsMenuArea(CurMMode))
+					if (IsMenuArea(CurMMode) || CurMMode == MACRO_DIALOG)
 					{
 						Frame *f=FrameManager->GetCurrentFrame(), *fo=nullptr;
 
@@ -1562,24 +1595,30 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 				case MCODE_V_ITEMCOUNT: // ItemCount - число элементов в текущем объекте
 				case MCODE_V_CURPOS: // CurPos - текущий индекс в текущем объекте
 				{
-					Frame *f=FrameManager->GetTopModal();
+					#if 1
+						Frame *f=FrameManager->GetCurrentFrame(), *fo=nullptr;
 
-					if (f)
-					{
-						/*
-						if(f->GetType() == MODALTYPE_VIEWER)
+						//f=f->GetTopModal();
+						while (f)
 						{
-							if(CheckCode == MCODE_V_ITEMCOUNT)
-								Cond=(__int64)((FileViewer*)f)->GetViewFileSize();
-							else if(CheckCode == MCODE_V_CURPOS)
-								Cond=(__int64)((FileViewer*)f)->GetViewFilePos()+1;
+							fo=f;
+							f=f->GetTopModal();
 						}
-						else
-							Cond=(__int64)f->VMProcess(CheckCode);
-						*/
-						Cond=f->VMProcess(CheckCode);
-					}
 
+						if (!f)
+							f=fo;
+
+						if (f)
+						{
+							Cond=f->VMProcess(CheckCode);
+						}
+					#else
+
+						Frame *f=FrameManager->GetTopModal();
+
+						if (f)
+							Cond=(__int64)f->VMProcess(CheckCode);
+					#endif
 					break;
 				}
 				// *****************
@@ -4603,8 +4642,6 @@ done:
 		case MCODE_F_BM_STAT:             // N=BM.Stat([N])
 		case MCODE_F_BM_DEL:              // N=BM.Del([Idx]) - удаляет закладку с указанным индексом (x=0...), -1 - удаляет текущую закладку
 		case MCODE_F_BM_GET:              // N=BM.Get(Idx,M) - возвращает координаты строки (M==0) или колонки (M==1) закладки с индексом (Idx=0...)
-		case MCODE_F_BM_FIRST:            // N=BM.first() - переход на первую закладку
-		case MCODE_F_BM_LAST:             // N=BM.last() - переход на последнюю закладку
 		case MCODE_F_BM_GOTO:             // N=BM.goto([n]) - переход на закладку с указанным индексом (0 --> текущую)
 		case MCODE_F_BM_PUSH:             // N=BM.push() - сохранить текущую позицию в виде закладки в конце стека
 		case MCODE_F_BM_POP:              // N=BM.pop() - восстановить текущую позицию из закладки в конце стека и удалить закладку
@@ -4648,7 +4685,7 @@ done:
 
 			int CurMMode=CtrlObject->Macro.GetMode();
 
-			if (IsMenuArea(CurMMode))
+			if (IsMenuArea(CurMMode) || CurMMode == MACRO_DIALOG)
 			{
 				Frame *f=FrameManager->GetCurrentFrame(), *fo=nullptr;
 

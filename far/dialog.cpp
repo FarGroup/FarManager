@@ -992,7 +992,7 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
 
 			/* $ 18.03.2000 SVS
 			   Если это ComBoBox и данные не установлены, то берем из списка
-			   при условии, что хоть один из пунктов имеет Selected 
+			   при условии, что хоть один из пунктов имеет Selected
 			*/
 
 			if (Type==DI_COMBOBOX && CurItem->strData.IsEmpty() && CurItem->ListItems)
@@ -2357,6 +2357,11 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	switch (OpCode)
 	{
 		case MCODE_F_MENU_CHECKHOTKEY:
+		case MCODE_F_MENU_GETHOTKEY:
+		case MCODE_F_MENU_SELECT:
+		case MCODE_F_MENU_GETVALUE:
+		case MCODE_F_MENU_ITEMSTATUS:
+		case MCODE_V_MENU_VALUE:
 		{
 			const wchar_t *str = (const wchar_t *)vParam;
 
@@ -2365,7 +2370,7 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				if (Item[FocusPos]->ListPtr)
 					return Item[FocusPos]->ListPtr->VMProcess(OpCode,vParam,iParam);
 			}
-			else
+			else if (OpCode == MCODE_F_MENU_CHECKHOTKEY)
 				return (__int64)(CheckHighlights(*str,(int)iParam) + 1);
 
 			return 0;
@@ -2380,7 +2385,12 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_C_EMPTY:
 		{
 			if (IsEdit(Item[FocusPos]->Type))
-				return ((DlgEdit *)(Item[FocusPos]->ObjPtr))->VMProcess(OpCode,vParam,iParam);
+			{
+				if (Item[FocusPos]->Type == DI_COMBOBOX && GetDropDownOpened())
+					return Item[FocusPos]->ListPtr->VMProcess(OpCode,vParam,iParam);
+				else
+					return ((DlgEdit *)(Item[FocusPos]->ObjPtr))->VMProcess(OpCode,vParam,iParam);
+			}
 			else if (Item[FocusPos]->Type == DI_LISTBOX && OpCode != MCODE_C_SELECTED)
 				return Item[FocusPos]->ListPtr->VMProcess(OpCode,vParam,iParam);
 
