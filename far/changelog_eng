@@ -3,6 +3,53 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 08.11.2010 18:07:58 +0300 - build 1713
+
+1. Macro: BM.first() and BM.last() are removed because of functional redundancy...
+
+   <ACHTUNG>
+
+     BM.first must be replaced with BM.goto(1) 
+     BM.last  must be replaced with BM.goto(BM.stat(0))
+   
+   </ACHTUNG>
+
+2. Macro: fix of Menu.XXX malfunction in dialogs with lists.
+
+drkns 08.11.2010 16:10:32 +0200 - build 1712
+
+1. Circumvention of old Windows' stupid bug:
+   ExpandEnvironmentStringsW(L"%__CD__%", NULL, 0); construction caused AV in ntdll:RtlExpandEnvironmentStrings_U.
+   In addition, some optimization.
+
+ts 06.11.2010 20:45:04 +0200 - build 1711
+
+1. Correction of 1710.
+
+svs 05.11.2010 16:50:49 +0300 - build 1710
+
+1. Macro: addition to bookmarks (from: Tim Sobolev)
+    N=BM.first() - go to first bookmark
+    N=BM.last() - go to last bookmark
+    N=BM.goto([pos]) - go to bookmark with index given (pos=0 or unspecified --> the current one)
+    N=BM.push() - store current position as a bookmark at the top of bookmarks stack
+    N=BM.pop() - restore current position from a bookmark at the top of the stack and remove the bookmark
+
+  Addition to BM.stat(I) - for I=1 the index of the current bookmark is returned (-1 if there is no bookmarks)
+
+  Note for BM.add() and BM.prev()
+
+  If the sequence of BM.add() and BM.prev() has been called, the following actions take part:
+
+  a) If editor's current position matches the position saved with BM.add(), 
+  then go to bookmark previously created with BM.add().
+  b) If editor's current position does not match the position saved with BM.add(), 
+  then save the current position and go to bookmark created with BM.add().
+
+drkns 03.11.2010 10:15:20 +0200 - build 1709
+
+1. Correction of 1708.
+
 drkns 31.10.2010 22:24:07 +0200 - build 1708
 
 1. Experimental:
