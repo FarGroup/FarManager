@@ -590,6 +590,8 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			return NextStackBookmark();
 		case MCODE_F_BM_PREV:
 			return PrevStackBookmark();
+		case MCODE_F_BM_BACK:
+			return BackStackBookmark();
 		case MCODE_F_BM_STAT:
 		{
 			switch (iParam)
@@ -6150,7 +6152,7 @@ InternalEditorStackBookMark* Editor::PointerToStackBookmark(int iIdx) // Returns
 	return sb_temp;
 }
 
-int Editor::PrevStackBookmark()
+int Editor::BackStackBookmark()
 {
 	if (StackPos)
 	{
@@ -6163,6 +6165,16 @@ int Editor::PrevStackBookmark()
 				AddStackBookmark(FALSE);
 		}
 
+		return PrevStackBookmark();
+	}
+
+	return FALSE;
+}
+
+int Editor::PrevStackBookmark()
+{
+	if (StackPos)
+	{
 		if (StackPos->prev) // If not first bookmark - go
 		{
 			StackPos=StackPos->prev;

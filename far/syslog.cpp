@@ -1170,12 +1170,13 @@ string __MCODE_ToName(int OpCode)
 		DEF_MCODE_(F_BM_CLEAR),            // N=BM.Clear()
 		DEF_MCODE_(F_BM_NEXT),             // N=BM.Next()
 		DEF_MCODE_(F_BM_PREV),             // N=BM.Prev()
+		DEF_MCODE_(F_BM_BACK),             // N=BM.Back()
 		DEF_MCODE_(F_BM_STAT),             // N=BM.Stat()
 		DEF_MCODE_(F_BM_GET),
 		DEF_MCODE_(F_BM_DEL),
-		DEF_MCODE_(F_BM_GOTO),                  // N=BM.goto(n) - переход на закладку с указанным индексом (-1 --> текущую)
-		DEF_MCODE_(F_BM_PUSH),                  // N=BM.push() - сохранить текущую позицию в виде закладки в конце стека
-		DEF_MCODE_(F_BM_POP),                   // N=BM.pop() - восстановить текущую позицию из закладки в конце стека и удалить закладку
+		DEF_MCODE_(F_BM_GOTO),                  // N=BM.Goto(n) - переход на закладку с указанным индексом (0 --> текущую)
+		DEF_MCODE_(F_BM_PUSH),                  // N=BM.Push() - сохранить текущую позицию в виде закладки в конце стека
+		DEF_MCODE_(F_BM_POP),                   // N=BM.Pop() - восстановить текущую позицию из закладки в конце стека и удалить закладку
 		DEF_MCODE_(OP_ADD),
 		DEF_MCODE_(OP_AKEY),
 		DEF_MCODE_(OP_AND),
