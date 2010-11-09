@@ -3,6 +3,11 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+ts 09.11.2010 22:43:29 +0200 - build 1714
+
+1. Macro: BM.back() is now given functionality implemented earlier with BM.prev()
+   BM.prev() only returns to previous bookmark, as expected.
+
 svs 08.11.2010 18:07:58 +0300 - build 1713
 
 1. Macro: BM.first() and BM.last() are removed because of functional redundancy...
