@@ -114,13 +114,13 @@ unsigned char DefaultPalette[]=
 	F_BLACK|B_CYAN,                         // COL_HELPBOXTITLE,
 
 	F_YELLOW|B_CYAN,                        // COL_PANELDRAGTEXT,
-	F_DARKGRAY|B_CYAN,                      // COL_DIALOGEDITUNCHANGED,
+	F_LIGHTGRAY|B_CYAN,                      // COL_DIALOGEDITUNCHANGED,
 	F_LIGHTCYAN|B_BLUE,                     // COL_PANELSCROLLBAR,
 	F_BLACK|B_CYAN,                         // COL_HELPSCROLLBAR,
 	F_LIGHTCYAN|B_BLUE,                     // COL_PANELBOX,
 	F_LIGHTCYAN|B_BLACK,                    // COL_PANELSCREENSNUMBER,
 	F_WHITE|B_BLACK,                        // COL_DIALOGEDITSELECTED,
-	F_BLACK|B_LIGHTGRAY,                    // COL_COMMANDLINESELECTED,
+	F_BLACK|B_CYAN,                         // COL_COMMANDLINESELECTED,
 	F_YELLOW|B_BLUE,                        // COL_VIEWERARROWS,
 
 	0,                                      // COL_RESERVED0                   // Служебная позиция: 1 - это есть default color
@@ -148,7 +148,7 @@ unsigned char DefaultPalette[]=
 	F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGLISTBOX,
 
 	F_WHITE|B_BLACK,                        // COL_WARNDIALOGEDITSELECTED,
-	F_DARKGRAY|B_CYAN,                      // COL_WARNDIALOGEDITUNCHANGED,
+	F_LIGHTGRAY|B_CYAN,                     // COL_WARNDIALOGEDITUNCHANGED,
 
 	F_WHITE|B_CYAN,                         // COL_DIALOGCBOXTEXT,
 	F_WHITE|B_BLACK,                        // COL_DIALOGCBOXSELECTEDTEXT,

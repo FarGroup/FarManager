@@ -2430,7 +2430,7 @@ void Viewer::Search(int Next,int FirstChar)
 					}
 
 					INT64 Total=ReverseSearch?StartPos:FileSize-StartPos;
-					INT64 Current=_abs64(CurPos-StartPos);
+					INT64 Current=llabs(CurPos-StartPos);
 					int Percent=Total>0?static_cast<int>(Current*100/Total):-1;
 					// В случае если файл увеличивается размере, то количество
 					// процентов может быть больше 100. Обрабатываем эту ситуацию.

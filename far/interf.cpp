@@ -853,7 +853,7 @@ void mprintf(const WCHAR *fmt,...)
 	va_list argptr;
 	va_start(argptr,fmt);
 	WCHAR OutStr[2048];
-	vsnwprintf(OutStr,ARRAYSIZE(OutStr)-1,fmt,argptr);
+	_vsnwprintf(OutStr,ARRAYSIZE(OutStr)-1,fmt,argptr);
 	Text(OutStr);
 	va_end(argptr);
 }
@@ -863,7 +863,7 @@ void vmprintf(const WCHAR *fmt,...)
 	va_list argptr;
 	va_start(argptr,fmt);
 	WCHAR OutStr[2048];
-	vsnwprintf(OutStr,ARRAYSIZE(OutStr)-1,fmt,argptr);
+	_vsnwprintf(OutStr,ARRAYSIZE(OutStr)-1,fmt,argptr);
 	VText(OutStr);
 	va_end(argptr);
 }

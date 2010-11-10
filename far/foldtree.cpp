@@ -197,7 +197,7 @@ int FolderTree::GetTypeAndName(string &strType, string &strName)
 int FolderTree::ProcessKey(int Key)
 {
 	if (Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+255)
-		Key=tolower(Key-KEY_ALT_BASE);
+		Key=Lower(Key-KEY_ALT_BASE);
 
 	switch (Key)
 	{

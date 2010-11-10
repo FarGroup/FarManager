@@ -587,7 +587,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	InitKeysArray();
 	WaitForInputIdle(GetCurrentProcess(),0);
 	ConsoleRestore __ConsoleRestore(RestoreConsole);
-	std::set_new_handler(0);
+	std::set_new_handler(nullptr);
 
 	if (!Opt.LoadPlug.MainPluginDir) //если есть ключ /p то он отменяет /co
 		Opt.LoadPlug.PluginsCacheOnly=FALSE;

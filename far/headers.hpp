@@ -33,6 +33,25 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <new>
+#include <cstdlib>
+#include <cstdio>
+#include <cassert>
+#include <cwchar>
+#include <ctime>
+#include <cmath>
+
+#ifdef __GNUC__
+#include <cctype>
+#include <climits>
+
+#include <malloc.h>
+#endif //__GNUC__
+
+#include <search.h>
+#include <share.h>
+
+
 #ifdef _MSC_VER
 #include <sdkddkver.h>
 #if _WIN32_WINNT<0x0601
@@ -68,7 +87,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #undef WIN32_NO_STATUS
 
-
 #ifdef _MSC_VER
 #include <ntstatus.h>
 #include <shobjidl.h>
@@ -99,50 +117,18 @@ typedef struct _ADAPTER_OBJECT ADAPTER_OBJECT,*PADAPTER_OBJECT;
 #include "SDK/sdk.gcc.h"
 #endif // __GNUC__
 
-
-
-#ifdef __cplusplus
-#include <new>
-#endif // __cplusplus
-
-#include <malloc.h>
-#include <fcntl.h>
-#include <io.h>
-#include <process.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <stdarg.h>
-#include <share.h>
-#include <search.h>
-#include <wchar.h>
-#include <assert.h>
-#include <math.h>
-
 #ifdef __GNUC__
-#include <ctype.h>
-#include <limits.h>
-#endif  //__GNUC__
-
-#define vsnprintf _vsnprintf
-#define vsnwprintf _vsnwprintf
-
-#define _export
-
-#ifdef __GNUC__
-#define _strtoi64 strtoll
 #define _wcstoi64 wcstoll
-#define _abs64 llabs
 #endif // __GNUC__
 
 #ifdef __GNUC__
 #define __try
-#define __except(a) if(0)
+#define __except(a) if(false)
 #endif // __GNUC__
+
 
 #define NullToEmpty(s) (s?s:L"")
 
-#ifdef  __cplusplus
 template <class T>
 inline const T&Min(const T &a, const T &b) { return a<b?a:b; }
 
@@ -151,7 +137,6 @@ inline const T&Max(const T &a, const T &b) { return a>b?a:b; }
 
 template <class T>
 inline const T Round(const T &a, const T &b) { return a/b+(a%b*2>b?1:0); }
-#endif // __cplusplus
 
 #define IsPtr(x) ((DWORD_PTR)x>(DWORD_PTR)SystemInfo.lpMinimumApplicationAddress && (DWORD_PTR)x<(DWORD_PTR)SystemInfo.lpMaximumApplicationAddress)
 
@@ -159,15 +144,11 @@ inline const T Round(const T &a, const T &b) { return a/b+(a%b*2>b?1:0); }
 #define SIGN_REVERSEBOM 0xFFFE
 #define SIGN_UTF8       0xBFBBEF
 
-//#include <crtdbg.h>
-
 #if (defined(__GNUC__)) || (defined(_MSC_VER) && _MSC_VER<1600)
 #define nullptr NULL
 #endif
 
 #include "farrtl.hpp"
-
-#ifdef  __cplusplus
 #include "UnicodeString.hpp"
 #include "format.hpp"
 #include "global.hpp"
@@ -175,7 +156,6 @@ inline const T Round(const T &a, const T &b) { return a/b+(a%b*2>b?1:0); }
 #include "plugin.hpp"
 #include "farwinapi.hpp"
 #include "cvtname.hpp"
-#endif // __cplusplus
 
 #ifdef _DEBUG
 #define SELF_TEST(code) \

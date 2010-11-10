@@ -674,26 +674,26 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	};
 	DialogDataEx CopyDlgData[]=
 	{
-		DI_DOUBLEBOX,   3, 1,DLG_WIDTH-4,DLG_HEIGHT-2,0,0,(wchar_t *)MCopyDlgTitle,
-		DI_TEXT,        5, 2, 0, 2,0,0,(wchar_t *)MCMLTargetTO,
-		DI_EDIT,        5, 3,70, 3,(DWORD_PTR)L"Copy",DIF_FOCUS|DIF_HISTORY|DIF_EDITEXPAND|DIF_USELASTHISTORY|DIF_EDITPATH,L"",
+		DI_DOUBLEBOX,   3, 1,DLG_WIDTH-4,DLG_HEIGHT-2,0,0,MSG(MCopyDlgTitle),
+		DI_TEXT,        5, 2, 0, 2,0,0,MSG(Link?MCMLTargetIN:MCMLTargetTO),
+		DI_EDIT,        5, 3,70, 3,reinterpret_cast<DWORD_PTR>(L"Copy"),DIF_FOCUS|DIF_HISTORY|DIF_EDITEXPAND|DIF_USELASTHISTORY|DIF_EDITPATH,L"",
 		DI_TEXT,        3, 4, 0, 4,0,DIF_SEPARATOR,L"",
-		DI_TEXT,        5, 5, 0, 5,0,0,(wchar_t *)MCopySecurity,
-		DI_RADIOBUTTON, 5, 5, 0, 5,0,DIF_GROUP,(wchar_t *)MCopySecurityLeave,
-		DI_RADIOBUTTON, 5, 5, 0, 5,0,0,(wchar_t *)MCopySecurityCopy,
-		DI_RADIOBUTTON, 5, 5, 0, 5,0,0,(wchar_t *)MCopySecurityInherit,
+		DI_TEXT,        5, 5, 0, 5,0,0,MSG(MCopySecurity),
+		DI_RADIOBUTTON, 5, 5, 0, 5,0,DIF_GROUP,MSG(MCopySecurityLeave),
+		DI_RADIOBUTTON, 5, 5, 0, 5,0,0,MSG(MCopySecurityCopy),
+		DI_RADIOBUTTON, 5, 5, 0, 5,0,0,MSG(MCopySecurityInherit),
 		DI_TEXT,        3, 6, 0, 6,0,DIF_SEPARATOR,L"",
-		DI_TEXT,        5, 7, 0, 7,0,0,(wchar_t *)MCopyIfFileExist,
+		DI_TEXT,        5, 7, 0, 7,0,0,MSG(MCopyIfFileExist),
 		DI_COMBOBOX,   29, 7,70, 7,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND|DIF_LISTWRAPMODE,L"",
-		DI_CHECKBOX,    5, 8, 0, 8,0,0,(wchar_t *)MCopySymLinkContents,
-		DI_CHECKBOX,    5, 9, 0, 9,0,0,(wchar_t *)MCopyMultiActions,
+		DI_CHECKBOX,    5, 8, 0, 8,0,0,MSG(MCopySymLinkContents),
+		DI_CHECKBOX,    5, 9, 0, 9,0,0,MSG(MCopyMultiActions),
 		DI_TEXT,        3,10, 0,10,0,DIF_SEPARATOR,L"",
 		DI_CHECKBOX,    5,11, 0,11,UseFilter?BSTATE_CHECKED:BSTATE_UNCHECKED,DIF_AUTOMATION,(wchar_t *)MCopyUseFilter,
 		DI_TEXT,        3,12, 0,12,0,DIF_SEPARATOR,L"",
-		DI_BUTTON,      0,13, 0,13,0,DIF_DEFAULT|DIF_CENTERGROUP,(wchar_t *)MCopyDlgCopy,
-		DI_BUTTON,      0,13, 0,13,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,(wchar_t *)MCopyDlgTree,
-		DI_BUTTON,      0,13, 0,13,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE|DIF_AUTOMATION|(UseFilter?0:DIF_DISABLE),(wchar_t *)MCopySetFilter,
-		DI_BUTTON,      0,13, 0,13,0,DIF_CENTERGROUP,(wchar_t *)MCopyDlgCancel,
+		DI_BUTTON,      0,13, 0,13,0,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MCopyDlgCopy),
+		DI_BUTTON,      0,13, 0,13,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(MCopyDlgTree),
+		DI_BUTTON,      0,13, 0,13,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE|DIF_AUTOMATION|(UseFilter?0:DIF_DISABLE),MSG(MCopySetFilter),
+		DI_BUTTON,      0,13, 0,13,0,DIF_CENTERGROUP,MSG(MCopyDlgCancel),
 		DI_TEXT,        5, 2, 0, 2,0,DIF_SHOWAMPERSAND,L"",
 	};
 	MakeDialogItemsEx(CopyDlgData,CopyDlg);
@@ -948,6 +948,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	if (Link) // рулесы по поводу линков (предварительные!)
 	{
 		// задисаблим опцию про копирование права.
+		CopyDlg[ID_SC_ACTITLE].Flags|=DIF_DISABLE;
 		CopyDlg[ID_SC_ACCOPY].Flags|=DIF_DISABLE;
 		CopyDlg[ID_SC_ACINHERIT].Flags|=DIF_DISABLE;
 		CopyDlg[ID_SC_ACLEAVE].Flags|=DIF_DISABLE;

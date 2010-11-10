@@ -2713,13 +2713,13 @@ upd:"átnevezése-mozgatása"
 "Renombrar o mover"
 
 MLinkFile
-"Создать ссылку"
-"Link"
-"Linkovat"
-"Verlinke"
-upd:"linkelése"
-"Dowiąż"
-"Enlace"
+"Создать ссылку на"
+"Create link to"
+upd:"Create link to"
+upd:"Create link to"
+upd:"Create link to"
+upd:"Create link to"
+upd:"Create link to"
 
 MCopyFiles
 "Копировать %d элемент%s"
@@ -2740,13 +2740,13 @@ MMoveFiles
 "Renombrar o mover %d ítem%s"
 
 MLinkFiles
-"Создать ссылки %d элемент%s"
-"Link %d item%s"
-"Linkovat %d polož%s"
-"Verlinke %d Objekt%s"
-" %d elem linkelése"
-"Dowiąż %d plików"
-"Enlace %d ítem%s"
+"Создать ссылки на %d элемент%s"
+"Create links to %d item%s"
+upd:"Create links to %d item%s"
+upd:"Create links to %d item%s"
+upd:"Create links to %d item%s"
+upd:"Create links to %d item%s"
+upd:"Create links to %d item%s"
 
 MCMLTargetTO
 " &в:"
@@ -2756,6 +2756,15 @@ MCMLTargetTO
 " ide:"
 " d&o:"
 " &hacia:"
+
+MCMLTargetIN
+" &в:"
+" in:"
+upd:" &in:"
+upd:" &in:"
+upd:" &in:"
+upd:" &in:"
+upd:" &in:"
 
 MCMLItems0
 ""
