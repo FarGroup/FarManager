@@ -1880,14 +1880,21 @@ void ConvertNameToUNC(char *FileName, int Size)
 
 	DWORD uniSize = sizeof(Temp);
 
+	bool process=true;
+
 	// применяем WNetGetUniversalName для чего угодно, только не для Novell`а
-	if (stricmp(FileSystemName,"NWFS") != 0 &&
-	        WNetGetUniversalName(FileName, UNIVERSAL_NAME_INFO_LEVEL, &Temp, &uniSize) == NO_ERROR)
+	if (stricmp(FileSystemName,"NWFS") != 0)
 	{
-		xstrncpy(FileName,((UNIVERSAL_NAME_INFO*)Temp)->lpUniversalName,Size-1);
+		FAR_OemToChar(FileName,FileName);
+		if(WNetGetUniversalName(FileName, UNIVERSAL_NAME_INFO_LEVEL, &Temp, &uniSize) == NO_ERROR)
+		{
+			xstrncpy(FileName,((UNIVERSAL_NAME_INFO*)Temp)->lpUniversalName,Size-1);
+			process=false;
+		}
 		FAR_CharToOem(FileName,FileName);
 	}
-	else if (FileName[1] == ':')
+
+	if (process && FileName[1] == ':')
 	{
 		// BugZ#449 - Неверная работа CtrlAltF с ресурсами Novell DS
 		// Здесь, если не получилось получить UniversalName и если это
