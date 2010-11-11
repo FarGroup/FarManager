@@ -186,10 +186,6 @@ extern "C" {
 }
 #endif
 
-#ifndef MAPVK_VK_TO_CHAR
-#define MAPVK_VK_TO_CHAR 2
-#endif
-
 // winuser.h
 #ifndef INPUTLANGCHANGE_FORWARD
 #define INPUTLANGCHANGE_FORWARD 0x0002
@@ -269,6 +265,10 @@ OBJECT_INFORMATION_CLASS;
 #define MAPVK_VK_TO_VSC 0
 #endif
 
+#ifndef MAPVK_VK_TO_CHAR
+#define MAPVK_VK_TO_CHAR 2
+#endif
+
 // wincon.h
 #ifndef MOUSE_HWHEELED
 #define MOUSE_HWHEELED 0x0008
@@ -283,14 +283,6 @@ OBJECT_INFORMATION_CLASS;
 #endif
 
 // winbase.h
-#ifndef COPY_FILE_ALLOW_DECRYPTED_DESTINATION
-#define COPY_FILE_ALLOW_DECRYPTED_DESTINATION 0x00000008
-#endif
-
-#ifndef SYMBOLIC_LINK_FLAG_DIRECTORY
-#define SYMBOLIC_LINK_FLAG_DIRECTORY 0x1
-#endif
-
 #ifndef GetComputerNameEx
 #define GetComputerNameEx GetComputerNameExW
 #endif
@@ -360,22 +352,6 @@ typedef enum _FILE_INFORMATION_CLASS
 	FileStreamInformation=22,
 }
 FILE_INFORMATION_CLASS, *PFILE_INFORMATION_CLASS;
-
-#ifndef STATUS_SUCCESS
-#define STATUS_SUCCESS                   ((NTSTATUS)0x00000000L)
-#endif
-
-#ifndef STATUS_BUFFER_OVERFLOW
-#define STATUS_BUFFER_OVERFLOW           ((NTSTATUS)0x80000005L)
-#endif
-
-#ifndef STATUS_BUFFER_TOO_SMALL
-#define STATUS_BUFFER_TOO_SMALL          ((NTSTATUS)0xC0000023L)
-#endif
-
-#ifndef VOLUME_NAME_GUID
-#define VOLUME_NAME_GUID 0x1
-#endif
 
 // ShObjIdl.h
 typedef enum tagASSOCIATIONLEVEL

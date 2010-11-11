@@ -61,8 +61,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef __GNUC__
 #include <w32api.h>
-#if __W32API_MAJOR_VERSION<3 || (__W32API_MAJOR_VERSION==3&&(__W32API_MINOR_VERSION<13))
-#error w32api-3.13 (or higher) required
+#if __W32API_MAJOR_VERSION<3 || (__W32API_MAJOR_VERSION==3 && (__W32API_MINOR_VERSION<15))
+#error w32api-3.15 (or higher) required
 #endif
 #endif // __GNUC__
 
@@ -72,20 +72,24 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define _WIN32_IE    0x0601
 #endif // __GNUC__
 
-#define WIN32_NO_STATUS //exclude ntstatus.h macros from winnt.h
 
+#define WIN32_LEAN_AND_MEAN
+#define VC_EXTRALEAN
+
+#define WIN32_NO_STATUS //exclude ntstatus.h macros from winnt.h
 #include <windows.h>
+#undef WIN32_NO_STATUS
 #include <winioctl.h>
 #include <mmsystem.h>
 #include <wininet.h>
+#include <winspool.h>
 #include <setupapi.h>
 #include <aclapi.h>
 #include <dbt.h>
 #define SECURITY_WIN32
 #include <security.h>
 #include <shlobj.h>
-
-#undef WIN32_NO_STATUS
+#include <shellapi.h>
 
 #ifdef _MSC_VER
 #include <ntstatus.h>
