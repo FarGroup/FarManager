@@ -113,9 +113,21 @@ void History::AddToHistoryLocal(const wchar_t *Str, const wchar_t *Prefix, int T
 		}
 	}
 
-	if (HistoryList.Count()==HistoryCount)
+	if (HistoryList.Count()>=HistoryCount)
 	{
-		HistoryList.Delete(HistoryList.First());
+		for (HistoryRecord *HistoryItem=HistoryList.First(); HistoryItem && HistoryList.Count()>=HistoryCount; )
+		{
+			if (!HistoryItem->Lock)
+			{
+				HistoryRecord *tmp = HistoryItem;
+				HistoryItem=HistoryList.Next(HistoryItem);
+				HistoryList.Delete(tmp);
+			}
+			else
+			{
+				HistoryItem=HistoryList.Next(HistoryItem);
+		    }
+		}
 	}
 
 	GetSystemTimeAsFileTime(&AddRecord.Timestamp); // in UTC
@@ -132,6 +144,23 @@ bool History::SaveHistory()
 	{
 		DeleteRegKey(strRegKey);
 		return true;
+	}
+
+	//for dialogs, locked items should show first (be last in the list)
+	if (TypeHistory == HISTORYTYPE_DIALOG)
+	{
+		for (const HistoryRecord *HistoryItem=HistoryList.First(), *LastItem=HistoryList.Last(); HistoryItem; )
+		{
+			const HistoryRecord *tmp = HistoryItem;
+
+			HistoryItem=HistoryList.Next(HistoryItem);
+
+			if (tmp->Lock)
+				HistoryList.MoveAfter(HistoryList.Last(), tmp);
+
+			if (tmp == LastItem)
+				break;
+		}
 	}
 
 	wchar_t *TypesBuffer=nullptr;

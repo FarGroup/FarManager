@@ -89,6 +89,25 @@ void *CDList::CInsertAfter(void *a, void *item)
 	Node *After=a ? (Node*)((BYTE*)a-sizeof(Node)) : &root;
 	return CInsertBefore((BYTE*)After->next+sizeof(Node), item);
 }
+void CDList::CMoveBefore(void *b, void *item)
+{
+	if (!item) return;
+	if (item == b) return;
+	Node *Before=b ? (Node*)((BYTE*)b-sizeof(Node)) : &root;
+	Node *node=(Node*)((BYTE*)item-sizeof(Node));
+	node->prev->next = node->next;
+	node->next->prev = node->prev;
+	node->prev=Before->prev;
+	node->next=Before;
+	Before->prev->next=node;
+	Before->prev=node;
+}
+void CDList::CMoveAfter(void *a, void *item)
+{
+	if (item == a) return;
+	Node *After=a ? (Node*)((BYTE*)a-sizeof(Node)) : &root;
+	CMoveBefore((BYTE*)After->next+sizeof(Node), item);
+}
 void *CDList::CDelete(void *item)
 {
 	Node *node=(Node*)((BYTE*)item-sizeof(Node));

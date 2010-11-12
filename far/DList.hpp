@@ -47,7 +47,9 @@ class CDList
 		};
 		CDList();
 		void *CInsertBefore(void *b, void *item);
-		void *CInsertAfter(void *b, void *item);
+		void *CInsertAfter(void *a, void *item);
+		void CMoveBefore(void *b, void *item);
+		void CMoveAfter(void *a, void *item);
 		void *CDelete(void *item);
 		void CSwap(CDList &l);
 		Node root;
@@ -72,7 +74,7 @@ class DList : public CDList
 		Node *AllocNode(void *key) {return new TNode((Type*)key);}
 		void DeleteNode(Node *node) {delete(TNode*)node;}
 
-		Type *Node2Type(Node *node) {return node!=&root ? (Type*)((BYTE*)node+sizeof(Node)) : 0;}
+		Type *Node2Type(Node *node) {return node!=&root ? (Type*)((BYTE*)node+sizeof(Node)) : nullptr;}
 		Node *Type2Node(const Type *item) {return item ? (Node*)((BYTE*)item-sizeof(Node)) : &root;}
 
 	public:
@@ -95,6 +97,9 @@ class DList : public CDList
 		//если after==nullptr элемент помещается в начало списка
 		//возвращает указатель на созданный элемент
 		Type *InsertAfter(const Type *after, const Type *item=nullptr) {return (Type*)CInsertAfter((void*)after, (void*)item);}
+
+		void MoveBefore(const Type *before, const Type *item) {CMoveBefore((void*)before, (void*)item);}
+		void MoveAfter(const Type *after, const Type *item) {CMoveAfter((void*)after, (void*)item);}
 
 		//удалить элемент item из списка, возвращается указатель на предыдущий элемент,
 		//если удалялся первый элемент возвращается nullptr
