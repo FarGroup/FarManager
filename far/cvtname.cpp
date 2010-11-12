@@ -555,10 +555,16 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 {
 	if (!strPath.IsEmpty())
 	{
-		ReplaceSlashToBSlash(strPath);
-		while(ReplaceStrings(strPath,L"\\\\",L"\\"));
-		if (((IsAlpha(strPath.At(0)) && strPath.At(1)==L':') || (strPath.At(0)==L'\\' && strPath.At(1)==L'\\')))
+		if (strPath.At(1)==L':' || (strPath.At(0)==L'\\' && strPath.At(1)==L'\\'))
 		{
+			ReplaceSlashToBSlash(strPath);
+			bool DoubleSlash = strPath.At(1)==L'\\';
+			while(ReplaceStrings(strPath,L"\\\\",L"\\"));
+			if(DoubleSlash)
+			{
+				strPath = "\\"+strPath;
+			}
+
 			if (CheckFullPath)
 			{
 				ConvertNameToFull(strPath,strPath);
