@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "drivemix.hpp"
 #include "network.hpp"
 #include "imports.hpp"
+#include "strmix.hpp"
 
 #define IsColon(str)         (str == L':')
 #define IsDot(str)           (str == L'.')
@@ -554,6 +555,8 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 {
 	if (!strPath.IsEmpty())
 	{
+		ReplaceSlashToBSlash(strPath);
+		while(ReplaceStrings(strPath,L"\\\\",L"\\"));
 		if (((IsAlpha(strPath.At(0)) && strPath.At(1)==L':') || (strPath.At(0)==L'\\' && strPath.At(1)==L'\\')))
 		{
 			if (CheckFullPath)
@@ -576,7 +579,7 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 
 					for (wchar_t c=*Src; ; Src++,c=*Src)
 					{
-						if (!c || IsSlash(c))
+						if (IsSlash(c) || (!c && !IsSlash(*(Src-1))))
 						{
 							*Src=0;
 							FAR_FIND_DATA_EX fd;
