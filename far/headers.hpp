@@ -122,6 +122,7 @@ typedef struct _ADAPTER_OBJECT ADAPTER_OBJECT,*PADAPTER_OBJECT;
 #endif // __GNUC__
 
 #ifdef __GNUC__
+#define _abs64 llabs
 #define _wcstoi64 wcstoll
 #endif // __GNUC__
 
