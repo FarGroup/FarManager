@@ -3,6 +3,36 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+t-rex 12.11.2010 21:32:19 +0200 - build 1720
+
+1. Mantis#1527: Selected items in input history do not stay at the top of drop-down list 
+   and can get removed when outdated.
+
+drkns 12.11.2010 19:39:44 +0200 - build 1719
+
+1. Correction of 1718.
+
+drkns 12.11.2010 13:47:00 +0200 - build 1718
+
+1. Mantis#0001587: far:goto "c:\long path" was broken
+
+drkns 12.11.2010 07:53:51 +0200 - build 1717
+
+1. Correction of 1715.3.
+
+drkns 11.11.2010 11:11:11 +0200 - build 1716
+
+1. Sequel of 1715.3. w32api minimal version for gcc is now 3.15.
+
+drkns 10.11.2010 20:50:52 +0200 - build 1715
+
+1. Correction of text in links creation dialog
+
+2. Mantis#0000329: Change default colors for Unchanged text
+   Also, selection in command line is now cyan, instead of gray, for uniformity.
+
+3. Removed junk from headers.hpp.
+
 ts 09.11.2010 22:43:29 +0200 - build 1714
 
 1. Macro: BM.back() is now given functionality implemented earlier with BM.prev()
