@@ -4,95 +4,135 @@
 #include "ftp_Int.h"
 
 /* ANY state */
-BOOL FTP::ExecCmdLineANY( CONSTSTR str, BOOL Prefix )
-  {  BOOL             iscmd = ShowHosts || Prefix;
-     FTPUrl           ui;
-     QueueExecOptions op;
+BOOL FTP::ExecCmdLineANY(LPCSTR str, BOOL Prefix)
+{
+	BOOL             iscmd = ShowHosts || Prefix;
+	FTPUrl           ui;
+	QueueExecOptions op;
 
 //Help
-    if ( (iscmd && StrCmpI( str,"HELP" ) == 0) || StrCmpI( str,"?" ) == 0 ) {
-      FP_Info->ShowHelp( FP_Info->ModuleName,"FTPCommandLineHelp",FHELP_SELFHELP );
-      return TRUE;
-    } else
+	if((iscmd && StrCmpI(str,"HELP") == 0) || StrCmpI(str,"?") == 0)
+	{
+		FP_Info->ShowHelp(FP_Info->ModuleName,"FTPCommandLineHelp",FHELP_SELFHELP);
+		return TRUE;
+	}
+	else
+
 //Add to queue
-    if ( iscmd && StrNCmpI( str,"QADD ",5 ) == 0 ) {
-      UrlInit( &ui );
-      for( str += 5; *str && isspace(*str); str++ );
-      if ( *str ) {
-        ui.SrcPath = str;
-        if ( EditUrlItem(&ui) )
-          AddToQueque( &ui );
-      }
-      return TRUE;
-    } else
+		if(iscmd && StrNCmpI(str,"QADD ",5) == 0)
+		{
+			UrlInit(&ui);
+
+			for(str += 5; *str && isspace(*str); str++);
+
+			if(*str)
+			{
+				ui.SrcPath = str;
+
+				if(EditUrlItem(&ui))
+					AddToQueque(&ui);
+			}
+
+			return TRUE;
+		}
+		else
+
 //Add and execute
-    if ( iscmd && StrNCmpI( str,"XADD ",5 ) == 0 ) {
-      UrlInit( &ui );
-      for( str += 5; *str && isspace(*str); str++ );
-      if ( *str ) {
-        ui.SrcPath = str;
-        if ( EditUrlItem(&ui) )
-          AddToQueque( &ui );
-      }
+			if(iscmd && StrNCmpI(str,"XADD ",5) == 0)
+			{
+				UrlInit(&ui);
 
-      SetupQOpt( &op );
-      if ( QuequeSize &&
-           WarnExecuteQueue(&op) ) {
-        ExecuteQueue(&op);
-        if ( QuequeSize ) QuequeMenu();
-      }
-      return TRUE;
-    } else
+				for(str += 5; *str && isspace(*str); str++);
+
+				if(*str)
+				{
+					ui.SrcPath = str;
+
+					if(EditUrlItem(&ui))
+						AddToQueque(&ui);
+				}
+
+				SetupQOpt(&op);
+
+				if(QuequeSize &&
+				        WarnExecuteQueue(&op))
+				{
+					ExecuteQueue(&op);
+
+					if(QuequeSize) QuequeMenu();
+				}
+
+				return TRUE;
+			}
+			else
+
 //Show queue
-    if ( iscmd && StrCmpI( str,"Q" ) == 0 ) {
-      QuequeMenu();
-    } else
+				if(iscmd && StrCmpI(str,"Q") == 0)
+				{
+					QuequeMenu();
+				}
+				else
+
 //Execute queue
-    if ( iscmd && StrCmpI( str,"QX" ) == 0 ) {
-      SetupQOpt( &op );
-      if ( QuequeSize &&
-           WarnExecuteQueue(&op) ) {
-        ExecuteQueue(&op);
-        if ( QuequeSize ) QuequeMenu();
-      }
-      return TRUE;
-    }
+					if(iscmd && StrCmpI(str,"QX") == 0)
+					{
+						SetupQOpt(&op);
 
+						if(QuequeSize &&
+						        WarnExecuteQueue(&op))
+						{
+							ExecuteQueue(&op);
 
- return FALSE;
+							if(QuequeSize) QuequeMenu();
+						}
+
+						return TRUE;
+					}
+
+	return FALSE;
 }
 
 /* HOSTS state */
-BOOL FTP::ExecCmdLineHOST( CONSTSTR str, BOOL Prefix )
-  {
+BOOL FTP::ExecCmdLineHOST(LPCSTR str, BOOL Prefix)
+{
 //Exit
-    if ( StrCmpI( str,"EXIT" ) == 0 ||
-         StrCmpI( str,"QUIT" ) == 0 ) {
+	if(StrCmpI(str,"EXIT") == 0 ||
+	        StrCmpI(str,"QUIT") == 0)
+	{
+		CurrentState = fcsClose;
+		FP_Info->Control(this,FCTL_CLOSEPLUGIN,NULL);
+		return TRUE;
+	}
+	else
 
-      CurrentState = fcsClose;
-      FP_Info->Control( this,FCTL_CLOSEPLUGIN,NULL );
-      return TRUE;
-    } else
 //Connect to ftp
-    if ( str[0] == '/' && str[1] == '/' )  {
-      Host.Init();
-      Host.SetHostName( Message("ftp:%s",str),NULL,NULL );
-      FullConnect();
-      return TRUE;
-    } else
+		if(str[0] == '/' && str[1] == '/')
+		{
+			Host.Init();
+			Host.SetHostName(Message("ftp:%s",str),NULL,NULL);
+			FullConnect();
+			return TRUE;
+		}
+		else
+
 //Connect to http
-    if ( StrNCmpI( str, "HTTP://", 7 ) == 0 )  {
-      Host.Init();
-      Host.SetHostName( str,NULL,NULL );
-      FullConnect();
-      return TRUE;
-    } else
+			if(StrNCmpI(str, "HTTP://", 7) == 0)
+			{
+				Host.Init();
+				Host.SetHostName(str,NULL,NULL);
+				FullConnect();
+				return TRUE;
+			}
+			else
+
 //Change dir
-    if ( StrNCmpI( str,"CD ",3 ) == 0 ) {
-      str += 3;
-      return SetDirectory( str,0 );
-    }
- return FALSE;
+				if(StrNCmpI(str,"CD ",3) == 0)
+				{
+					str += 3;
+					return SetDirectory(str,0);
+				}
+
+	return FALSE;
 }
 
 #define FCMD_SINGLE_COMMAND 0
@@ -101,268 +141,307 @@ BOOL FTP::ExecCmdLineHOST( CONSTSTR str, BOOL Prefix )
 #define FCMD_SHOW_MSG       0x0001
 #define FCMD_SHOW_EMSG      0x0002
 
-BOOL FTP::DoCommand( CONSTSTR str, int type, DWORD flags )
-  {  FP_Screen _scr;
-     BOOL ext = hConnect->Host.ExtCmdView,
-          dex = Opt.DoNotExpandErrors;
-     int  rc=0;
-     char *m;
+BOOL FTP::DoCommand(LPCSTR str, int type, DWORD flags)
+{
+	FP_Screen _scr;
+	BOOL ext = hConnect->Host.ExtCmdView,
+	     dex = Opt.DoNotExpandErrors;
+	int  rc=0;
+	char *m;
+	hConnect->Host.ExtCmdView = TRUE;
+	Opt.DoNotExpandErrors     = FALSE;
 
-     hConnect->Host.ExtCmdView = TRUE;
-     Opt.DoNotExpandErrors     = FALSE;
+	if(hConnect->Host.DecodeCmdLine)
+		m = hConnect->FromOEMDup(str);
+	else
+		m = (char*)str;
 
-     if ( hConnect->Host.DecodeCmdLine )
-       m = hConnect->FromOEMDup(str);
-      else
-       m = (char*)str;
+	//Process command types
+	switch(type)
+	{
+		case FCMD_SINGLE_COMMAND: rc = hConnect->command("%s", m);
 
-   //Process command types
-     switch( type ) {
-       case FCMD_SINGLE_COMMAND: rc = hConnect->command( "%s", m );
-                                 if ( rc == RPL_PRELIM )
-                                   while( (rc=hConnect->getreply(0)) == RPL_PRELIM );
-                                 rc = rc == RPL_COMPLETE ||
-                                      rc == RPL_OK;
-                             break;
+			if(rc == RPL_PRELIM)
+				while((rc=hConnect->getreply(0)) == RPL_PRELIM);
 
-       case   FCMD_FULL_COMMAND: //Convert string quoting to '\x1'
-                                 for( rc = 0; m[rc]; rc++ )
-                                   if ( m[rc] == '\\' )
-                                     rc++;
-                                    else
-                                   if ( m[rc] == '\"' )
-                                     m[rc] = '\x1';
+			rc = rc == RPL_COMPLETE ||
+			     rc == RPL_OK;
+			break;
+		case   FCMD_FULL_COMMAND: //Convert string quoting to '\x1'
 
-                                 rc = hConnect->ProcessCommand( m );
-                             break;
-     }
+			for(rc = 0; m[rc]; rc++)
+				if(m[rc] == '\\')
+					rc++;
+				else if(m[rc] == '\"')
+					m[rc] = '\x1';
 
-     if ( (rc && IS_FLAG(flags,FCMD_SHOW_MSG)) ||
-          (!rc && IS_FLAG(flags,FCMD_SHOW_EMSG)) )
-       hConnect->ConnectMessage( MOk,"",rc ? MOk : (-MOk) );
+			rc = hConnect->ProcessCommand(m);
+			break;
+	}
 
-   //Special process of known commands
-     if ( type == FCMD_SINGLE_COMMAND ) {
-       if ( StrNCmpI(str,"CWD ",4) == 0 ) {
-         ResetCache = TRUE;
-       }
-     }
+	if((rc && IS_FLAG(flags,FCMD_SHOW_MSG)) ||
+	        (!rc && IS_FLAG(flags,FCMD_SHOW_EMSG)))
+		hConnect->ConnectMessage(MOk,"",rc ? MOk : (-MOk));
 
-     hConnect->Host.ExtCmdView = ext;
-     Opt.DoNotExpandErrors     = dex;
- return rc;
+	//Special process of known commands
+	if(type == FCMD_SINGLE_COMMAND)
+	{
+		if(StrNCmpI(str,"CWD ",4) == 0)
+		{
+			ResetCache = TRUE;
+		}
+	}
+
+	hConnect->Host.ExtCmdView = ext;
+	Opt.DoNotExpandErrors     = dex;
+	return rc;
 }
 
 /* FTP state */
-BOOL FTP::ExecCmdLineFTP( CONSTSTR str, BOOL Prefix )
-  {  PROC(( "FTP::ExecCmdLineFTP", "[%s],%d", str, Prefix ))
+BOOL FTP::ExecCmdLineFTP(LPCSTR str, BOOL Prefix)
+{
+	PROC(("FTP::ExecCmdLineFTP", "[%s],%d", str, Prefix))
 
-    if ( Prefix && *str == '/' ) {
-      FTPHost tmp;
-      tmp.Assign( &Host );
-      if ( StrCmp(str,"FTP:",4,FALSE) != 0 )
-        str = Message( "ftp:%s",str );
-      if ( tmp.SetHostName( str,NULL,NULL ) ) {
-        if ( Host.CmpConnected(&tmp) ) {
-          SetDirectory( tmp.Home,0 );
-          return TRUE;
-        }
-        Host.Assign( &tmp );
-        FullConnect();
-        return TRUE;
-      }
-    }
+	if(Prefix && *str == '/')
+	{
+		FTPHost tmp;
+		tmp.Assign(&Host);
+
+		if(StrCmp(str,"FTP:",4,FALSE) != 0)
+			str = Message("ftp:%s",str);
+
+		if(tmp.SetHostName(str,NULL,NULL))
+		{
+			if(Host.CmpConnected(&tmp))
+			{
+				SetDirectory(tmp.Home,0);
+				return TRUE;
+			}
+
+			Host.Assign(&tmp);
+			FullConnect();
+			return TRUE;
+		}
+	}
 
 //Switch to hosts
-    if ( StrCmpI(str,"TOHOSTS") == 0 ) {
-      hConnect->disconnect();
-      return TRUE;
-    }
+	if(StrCmpI(str,"TOHOSTS") == 0)
+	{
+		hConnect->disconnect();
+		return TRUE;
+	}
 
 //DIRFILE
-    if ( StrNCmpI(str,"DIRFILE ",8) == 0 ) {
-      for( str+=7; *str && *str == ' '; str++ );
-      if ( *str )
-        StrCpy( hConnect->DirFile, str, sizeof(hConnect->DirFile) );
-       else
-        hConnect->DirFile[0] = 0;
-      return TRUE;
-    }
+	if(StrNCmpI(str,"DIRFILE ",8) == 0)
+	{
+		for(str+=7; *str && *str == ' '; str++);
+
+		if(*str)
+			StrCpy(hConnect->DirFile, str, sizeof(hConnect->DirFile));
+		else
+			hConnect->DirFile[0] = 0;
+
+		return TRUE;
+	}
 
 //CMD
-    if ( StrNCmpI(str,"CMD ",4) == 0 ) {
-      for( str+=4; *str && *str == ' '; str++ );
-      if ( *str )
-        DoCommand( str, FCMD_FULL_COMMAND, FCMD_SHOW_MSG|FCMD_SHOW_EMSG );
-      return TRUE;
-    }
+	if(StrNCmpI(str,"CMD ",4) == 0)
+	{
+		for(str+=4; *str && *str == ' '; str++);
 
-    Log(( "ProcessCmd=%d", Host.ProcessCmd ));
-    if ( !Host.ProcessCmd )
-      return FALSE;
+		if(*str)
+			DoCommand(str, FCMD_FULL_COMMAND, FCMD_SHOW_MSG|FCMD_SHOW_EMSG);
+
+		return TRUE;
+	}
+
+	Log(("ProcessCmd=%d", Host.ProcessCmd));
+
+	if(!Host.ProcessCmd)
+		return FALSE;
 
 //CD
-    if ( StrNCmpI(str,"CD ",3) == 0 ) {
-      str+=3;
-      if ( *str ) {
-        SetDirectory( str,0 );
-        return TRUE;
-      }
-    }
+	if(StrNCmpI(str,"CD ",3) == 0)
+	{
+		str+=3;
+
+		if(*str)
+		{
+			SetDirectory(str,0);
+			return TRUE;
+		}
+	}
 
 //Manual command line to server
-    if ( !Prefix ) {
-      DoCommand( str, FCMD_SINGLE_COMMAND, FCMD_SHOW_MSG|FCMD_SHOW_EMSG );
-      return TRUE;
-    }
+	if(!Prefix)
+	{
+		DoCommand(str, FCMD_SINGLE_COMMAND, FCMD_SHOW_MSG|FCMD_SHOW_EMSG);
+		return TRUE;
+	}
 
- return FALSE;
+	return FALSE;
 }
 
-BOOL FTP::ExecCmdLine( CONSTSTR _str, BOOL WasPrefix )
-  {  PROC(( "ExecCmdLine","%s",_str ))
-     String    buff;
-     BOOL      isConn = hConnect && hConnect->connected;
-     FP_Screen _scr;
+BOOL FTP::ExecCmdLine(LPCSTR _str, BOOL WasPrefix)
+{
+	PROC(("ExecCmdLine","%s",_str))
+	String    buff;
+	BOOL      isConn = hConnect && hConnect->connected;
+	FP_Screen _scr;
 
-    if ( !_str || !_str[0] ) return FALSE;
+	if(!_str || !_str[0]) return FALSE;
 
 //Trim spaces
-    //Remove start
-    while( *_str && isspace(*_str) ) _str++;
-    if ( !_str[0] ) return FALSE;
+	//Remove start
+	while(*_str && isspace(*_str)) _str++;
+
+	if(!_str[0]) return FALSE;
 
 //Split command
-    BOOL Prefix = StrCmp( _str,"FTP:",4,FALSE) == 0;
-    if (Prefix) _str += 4; else Prefix = WasPrefix;
-    buff = _str;
+	BOOL Prefix = StrCmp(_str,"FTP:",4,FALSE) == 0;
+	if(Prefix) _str += 4; else Prefix = WasPrefix;
 
-    do{
-     //Any state
-     if ( ExecCmdLineANY(buff.c_str(),Prefix) ) break;
+	buff = _str;
 
-     //HOSTS state
-     if ( ShowHosts &&
-          ExecCmdLineHOST(buff.c_str(),Prefix) )
-       break;
+	do
+	{
+		//Any state
+		if(ExecCmdLineANY(buff.c_str(),Prefix)) break;
 
-     //CONNECTED state
-     if ( !ShowHosts && hConnect &&
-          ExecCmdLineFTP(buff.c_str(),Prefix) )
-       break;
+		//HOSTS state
+		if(ShowHosts &&
+		        ExecCmdLineHOST(buff.c_str(),Prefix))
+			break;
 
-     //Unprocessed
-     if ( Prefix ) {
-       FP_Info->Control( this,FCTL_SETCMDLINE,(void*)"" );
-       FP_Info->ShowHelp( FP_Info->ModuleName,"FTPCommandLineHelp",FHELP_SELFHELP );
-       return TRUE;
-     } else
-       return FALSE;
-    }while( 0 );
+		//CONNECTED state
+		if(!ShowHosts && hConnect &&
+		        ExecCmdLineFTP(buff.c_str(),Prefix))
+			break;
+
+		//Unprocessed
+		if(Prefix)
+		{
+			FP_Info->Control(this,FCTL_SETCMDLINE,(void*)"");
+			FP_Info->ShowHelp(FP_Info->ModuleName,"FTPCommandLineHelp",FHELP_SELFHELP);
+			return TRUE;
+		}
+		else
+			return FALSE;
+	}
+	while(0);
 
 //processed
-    FP_Info->Control( this,FCTL_SETCMDLINE,(void*)"" );
+	FP_Info->Control(this,FCTL_SETCMDLINE,(void*)"");
 
-    if ( isConn && (!hConnect || !hConnect->connected) )
-      BackToHosts();
+	if(isConn && (!hConnect || !hConnect->connected))
+		BackToHosts();
 
-    if ( CurrentState != fcsClose )
-      Invalidate();
-     else
-      FP_Info->Control(0,FCTL_REDRAWPANEL,NULL);
+	if(CurrentState != fcsClose)
+		Invalidate();
+	else
+		FP_Info->Control(0,FCTL_REDRAWPANEL,NULL);
 
- return TRUE;
+	return TRUE;
 }
 
 //------------------------------------------------
 int FTP::ProcessCommandLine(char *CommandLine)
-  {  PROC(( "ProcessCommandLine","%s",CommandLine ))
-     BOOL isHostName;
+{
+	PROC(("ProcessCommandLine","%s",CommandLine))
+	BOOL isHostName;
 
-    if ( !CommandLine )
-      return FALSE;
+	if(!CommandLine)
+		return FALSE;
 
-    //Trim spaces from start
-    while( *CommandLine && *CommandLine == ' ' ) CommandLine++;
-    if ( !CommandLine[0] ) return TRUE;
+	//Trim spaces from start
+	while(*CommandLine && *CommandLine == ' ') CommandLine++;
 
-    isHostName = *CommandLine != '/';
+	if(!CommandLine[0]) return TRUE;
 
-    while( *CommandLine && *CommandLine == '/' ) CommandLine++;
-    if ( !CommandLine[0] ) return TRUE;
+	isHostName = *CommandLine != '/';
 
-    //Trim at end
-    for( char *m = CommandLine + strLen(CommandLine) - 1;
-         m >= CommandLine && isspace(*m);
-         m-- )
-      *m = 0;
-    if ( !CommandLine[0] ) return TRUE;
+	while(*CommandLine && *CommandLine == '/') CommandLine++;
 
-  //Dymmy call with "."
-    if ( CommandLine[0] == '.' && !CommandLine[1] )
-      return TRUE;
+	if(!CommandLine[0]) return TRUE;
 
-  //Hosts
-    if ( isHostName )
-      return ExecCmdLine(CommandLine,TRUE);
+	//Trim at end
+	for(char *m = CommandLine + strLen(CommandLine) - 1;
+	        m >= CommandLine && isspace(*m);
+	        m--)
+		*m = 0;
 
-  //Connect
-    FTPUrl            ui;
-    QueueExecOptions  op;
-    char             *UrlName = ( CommandLine[ strlen(CommandLine)-1 ] != '/' &&
-                                  strchr(CommandLine,'/') != NULL )
-                                 ? strrchr( CommandLine,'/' )
-                                 : NULL;
+	if(!CommandLine[0]) return TRUE;
 
-    Host.Init();
-    UrlInit( &ui );
-    SetupQOpt( &op );
+	//Dymmy call with "."
+	if(CommandLine[0] == '.' && !CommandLine[1])
+		return TRUE;
 
-    if ( UrlName )
-      ui.SrcPath.printf( "ftp://%s", CommandLine );
+	//Hosts
+	if(isHostName)
+		return ExecCmdLine(CommandLine,TRUE);
 
-  //Get URL
-    if ( ui.SrcPath.Length() ) {
+	//Connect
+	FTPUrl            ui;
+	QueueExecOptions  op;
+	char             *UrlName = (CommandLine[ strlen(CommandLine)-1 ] != '/' &&
+	                             strchr(CommandLine,'/') != NULL)
+	                            ? strrchr(CommandLine,'/')
+	                            : NULL;
+	Host.Init();
+	UrlInit(&ui);
+	SetupQOpt(&op);
 
-      if ( !EditUrlItem(&ui) ) {
-         static CONSTSTR itms[] = { FMSG(MRejectTitle), FMSG(MQItemCancelled), FMSG(MYes), FMSG(MNo) };
-         if ( FMessage( FMSG_WARNING,NULL,itms,ARRAY_SIZE(itms),2 ) != 0 )
-           return FALSE;
-         *UrlName = 0;
-         UrlName++;
-      } else {
-      //User confirm downloading: execute queque
-        AddToQueque( &ui );
+	if(UrlName)
+		ui.SrcPath.printf("ftp://%s", CommandLine);
 
-        if ( QuequeSize &&
-             WarnExecuteQueue(&op) ) {
-          ExecuteQueue(&op);
-          return TRUE;
-        }
+	//Get URL
+	if(ui.SrcPath.Length())
+	{
+		if(!EditUrlItem(&ui))
+		{
+			static LPCSTR itms[] = { FMSG(MRejectTitle), FMSG(MQItemCancelled), FMSG(MYes), FMSG(MNo) };
 
-        delete UrlsList;
-        UrlsList = UrlsTail = NULL;
-        QuequeSize = 0;
+			if(FMessage(FMSG_WARNING,NULL,itms,ARRAY_SIZE(itms),2) != 0)
+				return FALSE;
 
-        return FALSE;
-      }
-    }
+			*UrlName = 0;
+			UrlName++;
+		}
+		else
+		{
+			//User confirm downloading: execute queque
+			AddToQueque(&ui);
 
-  //Connect to host
-    ClearQueue();
+			if(QuequeSize &&
+			        WarnExecuteQueue(&op))
+			{
+				ExecuteQueue(&op);
+				return TRUE;
+			}
 
-    //Fill`n`Connect
-    Host.SetHostName(CommandLine,NULL,NULL);
+			delete UrlsList;
+			UrlsList = UrlsTail = NULL;
+			QuequeSize = 0;
+			return FALSE;
+		}
+	}
 
-    if ( !FullConnect() )        return FALSE;
-    FP_Screen::FullRestore();
+	//Connect to host
+	ClearQueue();
+	//Fill`n`Connect
+	Host.SetHostName(CommandLine,NULL,NULL);
 
-    do{
-      if ( !UrlName || ShowHosts ) break;
+	if(!FullConnect())        return FALSE;
 
-      SelectFile = UrlName;
+	FP_Screen::FullRestore();
 
-    }while( 0 );
+	do
+	{
+		if(!UrlName || ShowHosts) break;
 
- return TRUE;
+		SelectFile = UrlName;
+	}
+	while(0);
+
+	return TRUE;
 }

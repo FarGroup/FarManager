@@ -3,254 +3,300 @@
 
 #include "ftp_Int.h"
 
-BOOL FTP::SetDirectoryStepped( CONSTSTR Dir, BOOL update )
-  {  PROC(( "SetDirectoryStepped","%s",Dir ))
+BOOL FTP::SetDirectoryStepped(LPCSTR Dir, BOOL update)
+{
+	PROC(("SetDirectoryStepped","%s",Dir))
 
-    if ( ShowHosts || !hConnect ) {
-      SetLastError( ERROR_INVALID_PARAMETER );
-      return FALSE;
-    }
+	if(ShowHosts || !hConnect)
+	{
+		SetLastError(ERROR_INVALID_PARAMETER);
+		return FALSE;
+	}
 
-  //Empty dir
-    if ( !Dir[0] )
-      return TRUE;
+	//Empty dir
+	if(!Dir[0])
+		return TRUE;
 
-  //Try direct change
-    if ( FtpSetCurrentDirectory(hConnect,Dir) ) {
-      if (update) Invalidate();
-      if ( ShowHosts || !hConnect ) {
-        SetLastError( ERROR_CANCELLED );
-        return FALSE;
-      }
-      return TRUE;
-    }
+	//Try direct change
+	if(FtpSetCurrentDirectory(hConnect,Dir))
+	{
+		if(update) Invalidate();
 
-  //dir name contains only one name
-    if ( strchr( Dir, '/' ) == NULL ) {
+		if(ShowHosts || !hConnect)
+		{
+			SetLastError(ERROR_CANCELLED);
+			return FALSE;
+		}
 
-      //Cancel
-      return FALSE;
-    }
+		return TRUE;
+	}
 
-  //Cancel changes in automatic mode
-    if ( IS_SILENT(FP_LastOpMode) )
-      return FALSE;
+	//dir name contains only one name
+	if(strchr(Dir, '/') == NULL)
+	{
+		//Cancel
+		return FALSE;
+	}
 
-  //Ask user
-    {  static CONSTSTR MsgItems[] = {
-          FMSG(MAttention),
-          FMSG(MAskDir1),
-          NULL,
-          FMSG(MAskDir3),
-          FMSG(MYes), FMSG(MNo) };
+	//Cancel changes in automatic mode
+	if(IS_SILENT(FP_LastOpMode))
+		return FALSE;
 
-       MsgItems[2] = Dir;
-       if ( FMessage( FMSG_WARNING|FMSG_LEFTALIGN, NULL, MsgItems, ARRAY_SIZE(MsgItems),2 ) != 0 ) {
-         SetLastError( ERROR_CANCELLED );
-         return FALSE;
-       }
-    }
+	//Ask user
+	{
+		static LPCSTR MsgItems[] =
+		{
+			FMSG(MAttention),
+			FMSG(MAskDir1),
+			NULL,
+			FMSG(MAskDir3),
+			FMSG(MYes), FMSG(MNo)
+		};
+		MsgItems[2] = Dir;
 
-  //Try change to directory one-by-one
-    char     str[ FAR_MAX_PATHSIZE ];
-    CONSTSTR m = NULL;
-    int      num;
+		if(FMessage(FMSG_WARNING|FMSG_LEFTALIGN, NULL, MsgItems, ARRAY_SIZE(MsgItems),2) != 0)
+		{
+			SetLastError(ERROR_CANCELLED);
+			return FALSE;
+		}
+	}
+	//Try change to directory one-by-one
+	char     str[MAX_PATH];
+	LPCSTR m = NULL;
+	int      num;
 
-    do{
-      if ( *Dir == '/' ) {
-        Dir++;
-        if ( *Dir == 0 ) break;
-        str[0] = '/';
-        str[1] = 0;
-      } else {
-        m = strchr( Dir, '/' );
-        if ( m ) {
-          num = Min( (int)sizeof(str)-1, (int)(m-Dir) );
-          strncpy( str, Dir, num ); str[num] = 0;
-          Dir = m+1;
-        } else
-          StrCpy( str, Dir, sizeof(str) );
-      }
+	do
+	{
+		if(*Dir == '/')
+		{
+			Dir++;
 
-      Log(( "Dir: [%s]",str ));
-      if ( !FtpSetCurrentDirectory(hConnect,str) )
-        return FALSE;
+			if(*Dir == 0) break;
 
-      if (update) Invalidate();
-      if ( ShowHosts || !hConnect ) {
-        SetLastError( ERROR_CANCELLED );
-        return FALSE;
-      }
+			str[0] = '/';
+			str[1] = 0;
+		}
+		else
+		{
+			m = strchr(Dir, '/');
 
-    }while( m );
+			if(m)
+			{
+				num = Min((int)sizeof(str)-1, (int)(m-Dir));
+				strncpy(str, Dir, num); str[num] = 0;
+				Dir = m+1;
+			}
+			else
+				StrCpy(str, Dir, sizeof(str));
+		}
 
- return TRUE;
+		Log(("Dir: [%s]",str));
+
+		if(!FtpSetCurrentDirectory(hConnect,str))
+			return FALSE;
+
+		if(update) Invalidate();
+
+		if(ShowHosts || !hConnect)
+		{
+			SetLastError(ERROR_CANCELLED);
+			return FALSE;
+		}
+	}
+	while(m);
+
+	return TRUE;
 }
 
-int FTP::SetDirectoryFAR( CONSTSTR _Dir,int OpMode)
-  {  FP_Screen _scr;
- return SetDirectory( _Dir, OpMode );
+int FTP::SetDirectoryFAR(LPCSTR _Dir,int OpMode)
+{
+	FP_Screen _scr;
+	return SetDirectory(_Dir, OpMode);
 }
 
-BOOL FTP::CheckDotsBack( const String& OldDir,const String& CmdDir )
-  {  String str;
+BOOL FTP::CheckDotsBack(const String& OldDir,const String& CmdDir)
+{
+	String str;
 
-     if ( !Opt.CloseDots || !CmdDir.Cmp("..") )
-       return FALSE;
+	if(!Opt.CloseDots || !CmdDir.Cmp(".."))
+		return FALSE;
 
-     GetCurPath( str );
-     DelEndSlash( str,'/' );
+	GetCurPath(str);
+	DelEndSlash(str,'/');
+	Log(("UPDIR: [%s] [%s] %d",str.c_str(), OldDir.c_str(), str == OldDir));
 
-     Log(( "UPDIR: [%s] [%s] %d",str.c_str(), OldDir.c_str(), str == OldDir ));
+	if(str == OldDir)
+	{
+		BackToHosts();
+		return TRUE;
+	}
 
-     if ( str == OldDir ) {
-       BackToHosts();
-       return TRUE;
-     }
-
- return FALSE;
+	return FALSE;
 }
 
-int FTP::SetDirectory( CONSTSTR Dir,int OpMode )
-  {  char   *Slash;
-     String  OldDir;
-     int     rc;
-
-     GetCurPath( OldDir );
-
-     Log(( "FTP::SetDirectory [%s] -> [%s]",OldDir.c_str(),Dir ));
+int FTP::SetDirectory(LPCSTR Dir,int OpMode)
+{
+	char   *Slash;
+	String  OldDir;
+	int     rc;
+	GetCurPath(OldDir);
+	Log(("FTP::SetDirectory [%s] -> [%s]",OldDir.c_str(),Dir));
 
 //Hosts
-  if (ShowHosts) {
-    do{
-      //Up
-      if ( StrCmp(Dir,"..") == 0 ) {
-        if ( !OldDir[0] || (OldDir[0] == '\\' && !OldDir[1]) ) {
-          Log(( "Close plugin" ));
-          CurrentState = fcsClose;
-          FP_Info->Control( (HANDLE)this, FCTL_CLOSEPLUGIN, NULL );
-          return TRUE;
-        }
+	if(ShowHosts)
+	{
+		do
+		{
+			//Up
+			if(StrCmp(Dir,"..") == 0)
+			{
+				if(!OldDir[0] || (OldDir[0] == '\\' && !OldDir[1]))
+				{
+					Log(("Close plugin"));
+					CurrentState = fcsClose;
+					FP_Info->Control((HANDLE)this, FCTL_CLOSEPLUGIN, NULL);
+					return TRUE;
+				}
 
-        Slash = strrchr(HostsPath,'\\');
-        if ( Slash )
-          *Slash=0;
-         else
-          *HostsPath=0;
-        Log(( "DirBack" ));
-        break;
-      } else
-      //Root
-      if ( *Dir == 0 || (*Dir == '\\' && Dir[1] == 0) ) {
-        HostsPath[0] = 0;
-        Log(( "Set to root" ));
-        break;
-      } else
-      //Directory
-      if ( FTPHost::CheckHostFolder( HostsPath, Dir ) ) {
-        TAddEndSlash( HostsPath,'\\' );
-        TStrCat( HostsPath, Dir );
-        Log(( "InDir" ));
-        break;
-      }
-    }while(0);
+				Slash = strrchr(HostsPath,'\\');
 
-    if ( !HostsPath[0] ) {
-      HostsPath[0] = '\\';
-      HostsPath[1] = 0;
-    }
-    Log(( "HostsDir set to [%s]",HostsPath ));
+				if(Slash)
+					*Slash=0;
+				else
+					*HostsPath=0;
 
-    //Save old directory
-    FP_SetRegKey( "LastHostsPath",HostsPath );
+				Log(("DirBack"));
+				break;
+			}
+			else
 
-    return TRUE;
-  }
+				//Root
+				if(*Dir == 0 || (*Dir == '\\' && Dir[1] == 0))
+				{
+					HostsPath[0] = 0;
+					Log(("Set to root"));
+					break;
+				}
+				else
+
+					//Directory
+					if(FTPHost::CheckHostFolder(HostsPath, Dir))
+					{
+						TAddEndSlash(HostsPath,'\\');
+						TStrCat(HostsPath, Dir);
+						Log(("InDir"));
+						break;
+					}
+		}
+		while(0);
+
+		if(!HostsPath[0])
+		{
+			HostsPath[0] = '\\';
+			HostsPath[1] = 0;
+		}
+
+		Log(("HostsDir set to [%s]",HostsPath));
+		//Save old directory
+		FP_SetRegKey("LastHostsPath",HostsPath);
+		return TRUE;
+	}
 
 //FTP
-  /* Back to prev directory.
-     Directories allways separated by '/'!
-  */
-  if ( StrCmp(Dir,"..") == 0 ) {
 
-    //Back from root
-    if ( Opt.CloseDots &&
-         ( OldDir[0] == '/' || OldDir[0] == '*' ) && OldDir[1] == 0 ) {
-      if ( !IS_SILENT(OpMode) )
-        BackToHosts();
-      return FALSE;
-    }
+	/* Back to prev directory.
+	   Directories allways separated by '/'!
+	*/
+	if(StrCmp(Dir,"..") == 0)
+	{
+		//Back from root
+		if(Opt.CloseDots &&
+		        (OldDir[0] == '/' || OldDir[0] == '*') && OldDir[1] == 0)
+		{
+			if(!IS_SILENT(OpMode))
+				BackToHosts();
 
-    //Del last slash if any
-    DelEndSlash( OldDir, '/' );
+			return FALSE;
+		}
 
-    //Locate prev slash
-     FTPDirList    dl;
-     FTPServerInfo si;
-     String        Line;
-     si.ServerType = Host.ServerType;
-     TStrCpy( si.ServerInfo, hConnect->SystemInfo );
-     WORD idx = dl.DetectStringType( &si, Line.c_str(), Line.Length() );
-     PFTPType tp = dl.GetType( idx );
+		//Del last slash if any
+		DelEndSlash(OldDir, '/');
+		//Locate prev slash
+		FTPDirList    dl;
+		FTPServerInfo si;
+		String        Line;
+		si.ServerType = Host.ServerType;
+		TStrCpy(si.ServerInfo, hConnect->SystemInfo);
+		WORD idx = dl.DetectStringType(&si, Line.c_str(), Line.Length());
 
-    if(idx!=FTP_TYPE_MVS)
-      Slash = strrchr( OldDir.c_str(),'/');
-    else
-      Slash = strrchr( OldDir.c_str(),'.');
+		if(idx!=FTP_TYPE_MVS)
+			Slash = strrchr(OldDir.c_str(),'/');
+		else
+			Slash = strrchr(OldDir.c_str(),'.');
 
-    //Set currently leaving directory to select in panel
-    if ( Slash != NULL )
-    {
-      SelectFile = Slash+1;
-      if(idx==FTP_TYPE_MVS&&SelectFile[1]==0)
-      {
-        char* s1 = Slash;
-        *s1=0;
-        Slash = strrchr( OldDir.c_str(),'.');
-        *s1='.';
-        if ( Slash != NULL )
-          SelectFile = Slash+1;
-      }
-    }
-  }
+		//Set currently leaving directory to select in panel
+		if(Slash != NULL)
+		{
+			SelectFile = Slash+1;
 
-  //Change directory
-  rc = TRUE;
-  do{
-    if ( !hConnect ) {
-      rc = FALSE;
-      break;
-    }
+			if(idx==FTP_TYPE_MVS&&SelectFile[1]==0)
+			{
+				char* s1 = Slash;
+				*s1=0;
+				Slash = strrchr(OldDir.c_str(),'.');
+				*s1='.';
 
-    if ( SetDirectoryStepped(Dir,FALSE) ) {
-      if ( !IS_SILENT(OpMode) )
-        CheckDotsBack( OldDir,Dir );
-      break;
-    }
+				if(Slash != NULL)
+					SelectFile = Slash+1;
+			}
+		}
+	}
 
-    if ( !hConnect ||
-         GetLastError() == ERROR_CANCELLED ) {
-      rc = FALSE;
-      break;
-    }
+	//Change directory
+	rc = TRUE;
 
-    if ( !hConnect->ConnectMessageTimeout( MChangeDirError,Dir,-MRetry ) ) {
+	do
+	{
+		if(!hConnect)
+		{
+			rc = FALSE;
+			break;
+		}
 
-      rc = FALSE;
-      break;
-    }
+		if(SetDirectoryStepped(Dir,FALSE))
+		{
+			if(!IS_SILENT(OpMode))
+				CheckDotsBack(OldDir,Dir);
 
-    if ( FtpCmdLineAlive(hConnect) &&
-         FtpKeepAlive(hConnect) )
-      continue;
+			break;
+		}
 
-    SaveUsedDirNFile();
-    if ( !FullConnect() ) {
-      rc = FALSE;
-      break;
-    }
+		if(!hConnect ||
+		        GetLastError() == ERROR_CANCELLED)
+		{
+			rc = FALSE;
+			break;
+		}
 
-  }while( 1 );
+		if(!hConnect->ConnectMessageTimeout(MChangeDirError,Dir,-MRetry))
+		{
+			rc = FALSE;
+			break;
+		}
 
- return rc;
+		if(FtpCmdLineAlive(hConnect) &&
+		        FtpKeepAlive(hConnect))
+			continue;
+
+		SaveUsedDirNFile();
+
+		if(!FullConnect())
+		{
+			rc = FALSE;
+			break;
+		}
+	}
+	while(1);
+
+	return rc;
 }

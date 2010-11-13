@@ -4,7 +4,7 @@
 #include "fstdlib.h"
 
 /** @ingroup GetMsg
-    @fn CONSTSTR FP_GetMsg( int MsgId )
+    @fn LPCSTR FP_GetMsg( int MsgId )
     @brief Retrive text message by it number.
 
     @param MsgId Index of message in LNG file.
@@ -14,10 +14,10 @@
 */
 
 /** @ingroup GetMsg
-    @fn CONSTSTR FP_GetMsg( CONSTSTR Msg )
+    @fn LPCSTR FP_GetMsg( LPCSTR Msg )
     @brief Retrive text message by it number.
 
-    @param Msg Index of message in LNG file. Index can be converted to CONSTSTR using FMSG parameter.
+    @param Msg Index of message in LNG file. Index can be converted to LPCSTR using FMSG parameter.
                You can set this parameter to real local string pointer.
 
     @return Text message from language file if parameter is message index or
@@ -37,35 +37,35 @@
 */
 
 /** @def FMSG( v )
-    @brief Create CONSTSTR data from parameter.
+    @brief Create LPCSTR data from parameter.
 
     Parameter may be a real string or index of messssage in language file.
 */
 
-static CONSTSTR DECLSPEC _FP_GetMsgINT(int MsgId)
-  {
-    CHK_INITED
+static LPCSTR WINAPI _FP_GetMsgINT(int MsgId)
+{
+	CHK_INITED
+	MsgId = Abs(MsgId);
 
-    MsgId = Abs(MsgId);
-    if ( MsgId < FAR_MAX_LANGID )
-      return FP_Info->GetMsg(FP_Info->ModuleNumber,MsgId);
-    else
-      return NULL;
+	if(MsgId < FAR_MAX_LANGID)
+		return FP_Info->GetMsg(FP_Info->ModuleNumber,MsgId);
+	else
+		return NULL;
 }
 
-static CONSTSTR DECLSPEC _FP_GetMsgSTR( CONSTSTR String )
-  {  CONSTSTR res;
+static LPCSTR WINAPI _FP_GetMsgSTR(LPCSTR String)
+{
+	LPCSTR res;
+	CHK_INITED
 
-    CHK_INITED
+	if(!String) return "";
 
-    if ( !String ) return "";
+	if(!FISMSG(String))
+		res = FP_Info->GetMsg(FP_Info->ModuleNumber,FGETID(String));
+	else
+		res = String;
 
-    if ( !FISMSG(String) )
-      res = FP_Info->GetMsg(FP_Info->ModuleNumber,FGETID(String));
-    else
-      res = String;
-
- return res;
+	return res;
 }
 
 /** @var FP_GetMsgINT
@@ -75,6 +75,6 @@ FP_GetMsgINT_t FP_GetMsgINT = _FP_GetMsgINT;
 
 /** @var FP_GetMsgSTR
     @ingroup GetMsg
-    @brief Callback function for get language message specified by CONSTSTR identifer.
+    @brief Callback function for get language message specified by LPCSTR identifer.
 */
 FP_GetMsgSTR_t FP_GetMsgSTR = _FP_GetMsgSTR;

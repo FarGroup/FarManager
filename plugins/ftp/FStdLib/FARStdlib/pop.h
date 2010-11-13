@@ -1,14 +1,14 @@
 #if defined(__BORLAND)
-  #pragma nopackwarning
-  #pragma pack(pop)
+#pragma nopackwarning
+#pragma pack(pop)
 #else
 #if defined(__SC__) || defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100))
-  #pragma pack()
+#pragma pack()
 #else
 #if defined(__MSOFT)
-  #pragma pack(pop)
+#pragma pack(pop)
 #else
-  #pragma pack(__pop)
+#pragma pack(__pop)
 #endif
 #endif
 #endif

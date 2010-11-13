@@ -41,35 +41,35 @@ int FARINProc::Counter = 0;
 
     @return <nothing>
 */
-FARINProc::FARINProc( CONSTSTR Name,CONSTSTR Format,... )
-    : Name(Name)
-  {  va_list  ap;
-     char     str[500];
+FARINProc::FARINProc(LPCSTR Name,LPCSTR Format,...)
+	: Name(Name)
+{
+	va_list  ap;
+	char     str[500];
+	Sprintf(str, "%*c%s(", Counter*2,' ',Name);
 
-    Sprintf( str, "%*c%s(", Counter*2,' ',Name );
+	if(Format)
+	{
+		va_start(ap,Format);
+		StrCat(str,MessageV(Format,ap),sizeof(str));
+		va_end(ap);
+	}
 
-    if ( Format ) {
-      va_start( ap,Format );
-        StrCat( str,MessageV(Format,ap),sizeof(str) );
-      va_end(ap);
-    }
-    StrCat( str,") {",sizeof(str) );
-    FP_FILELog( "%s",str );
-
-    Counter++;
+	StrCat(str,") {",sizeof(str));
+	FP_FILELog("%s",str);
+	Counter++;
 }
 
 FARINProc::~FARINProc()
-  {
-    Counter--;
-
-    FP_FILELog( "%*c}<%s>", Counter*2,' ',Name );
+{
+	Counter--;
+	FP_FILELog("%*c}<%s>", Counter*2,' ',Name);
 }
 
-void DECLSPEC FARINProc::Say( CONSTSTR s,... )
-  {  va_list ap;
-
-    va_start( ap,s );
-      FP_FILELog( "%*c%s", Counter*2,' ', MessageV(s,ap) );
-    va_end(ap);
+void WINAPI FARINProc::Say(LPCSTR s,...)
+{
+	va_list ap;
+	va_start(ap,s);
+	FP_FILELog("%*c%s", Counter*2,' ', MessageV(s,ap));
+	va_end(ap);
 }

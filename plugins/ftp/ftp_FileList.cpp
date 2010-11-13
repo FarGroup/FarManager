@@ -4,353 +4,414 @@
 #include "ftp_Int.h"
 
 //------------------------------------------------------------------------
-CONSTSTR UType2Str( sliTypes tp )
-  {
-    switch( tp ) {
-      case sltUrlList: return "URLS_LIST";
-      case    sltTree: return "URLS_TREE";
-      case   sltGroup: return "URLS_GROUP";
-              default: HAbort( "Url type not supported" );
-                       return NULL;
-    }
+LPCSTR UType2Str(sliTypes tp)
+{
+	switch(tp)
+	{
+		case sltUrlList: return "URLS_LIST";
+		case    sltTree: return "URLS_TREE";
+		case   sltGroup: return "URLS_GROUP";
+		default: HAbort("Url type not supported");
+			return NULL;
+	}
 }
-sliTypes Str2UType( CONSTSTR s )
-  {
-    if ( StrCmpI( s,"URLS_LIST" ) == 0 ) return sltUrlList;
-    if ( StrCmpI( s,"URLS_TREE" ) == 0 ) return sltTree;
-    if ( StrCmpI( s,"URLS_GROUP" ) == 0 ) return sltGroup;
- return sltNone;
+sliTypes Str2UType(LPCSTR s)
+{
+	if(StrCmpI(s,"URLS_LIST") == 0) return sltUrlList;
+
+	if(StrCmpI(s,"URLS_TREE") == 0) return sltTree;
+
+	if(StrCmpI(s,"URLS_GROUP") == 0) return sltGroup;
+
+	return sltNone;
 }
 //------------------------------------------------------------------------
-CONSTSTR GetOtherPath( char *path )
-  {  PanelInfo pi;
+LPCSTR GetOtherPath(char *path)
+{
+	PanelInfo pi;
 
-     do{
-       if ( FP_Info->Control( INVALID_HANDLE_VALUE, FCTL_GETANOTHERPANELSHORTINFO, &pi ) &&
-            pi.PanelType == PTYPE_FILEPANEL &&
-            !pi.Plugin )
-         break;
+	do
+	{
+		if(FP_Info->Control(INVALID_HANDLE_VALUE, FCTL_GETANOTHERPANELSHORTINFO, &pi) &&
+		        pi.PanelType == PTYPE_FILEPANEL &&
+		        !pi.Plugin)
+			break;
 
-       if ( FP_Info->Control( INVALID_HANDLE_VALUE, FCTL_GETPANELSHORTINFO, &pi ) &&
-            pi.PanelType == PTYPE_FILEPANEL &&
-            !pi.Plugin )
-         break;
+		if(FP_Info->Control(INVALID_HANDLE_VALUE, FCTL_GETPANELSHORTINFO, &pi) &&
+		        pi.PanelType == PTYPE_FILEPANEL &&
+		        !pi.Plugin)
+			break;
 
-       return FMSG(MFLErrGetInfo);
-     }while(0);
+		return FMSG(MFLErrGetInfo);
+	}
+	while(0);
 
-     StrCpy( path, pi.CurDir, FAR_MAX_PATHSIZE );
-     AddEndSlash( path,'\\',FAR_MAX_PATHSIZE );
- return NULL;
+	StrCpy(path, pi.CurDir, MAX_PATH);
+	AddEndSlash(path,'\\',MAX_PATH);
+	return NULL;
 }
 
-void SayOutError( CONSTSTR m,int tp = 0 )
-  {  CONSTSTR itms[] = { FMSG(MFLErrCReate), NULL, FMSG(MOk) };
-     itms[1] = m;
-     FMessage( tp + FMSG_WARNING,NULL,itms,3,1 );
+void SayOutError(LPCSTR m,int tp = 0)
+{
+	LPCSTR itms[] = { FMSG(MFLErrCReate), NULL, FMSG(MOk) };
+	itms[1] = m;
+	FMessage(tp + FMSG_WARNING,NULL,itms,3,1);
 }
 
-void FTP::SaveList( PFP_SizeItemList il )
-  {  CONSTSTR m;
+void FTP::SaveList(FP_SizeItemList* il)
+{
+	LPCSTR m;
 
-     if ( (m=GetOtherPath(Opt.sli.path)) != NULL ) {
-       SayOutError( m );
-       return;
-     }
+	if((m=GetOtherPath(Opt.sli.path)) != NULL)
+	{
+		SayOutError(m);
+		return;
+	}
 
-     StrCat( Opt.sli.path,"ftplist.lst" );
+	StrCat(Opt.sli.path,"ftplist.lst");
 
-     if ( !AskSaveList(&Opt.sli) )
-       return;
+	if(!AskSaveList(&Opt.sli))
+		return;
 
-     FILE *f = fopen( Opt.sli.path, Opt.sli.Append ? "a" : "w" );
-     if ( !f ) {
-       SayOutError( FMSG(MFLErrCReate),FMSG_ERRORTYPE );
-       return;
-     }
+	FILE *f = fopen(Opt.sli.path, Opt.sli.Append ? "a" : "w");
 
-     PPluginPanelItem p;
-     int              n;
-     int              level;
-     char             str[1024+2],
-                      BasePath[1024+2],
-                      CurrentUrlPath[1024+2];
+	if(!f)
+	{
+		SayOutError(FMSG(MFLErrCReate),FMSG_ERRORTYPE);
+		return;
+	}
 
-     CurrentUrlPath[0] = 0;
-     SNprintf( BasePath, sizeof(BasePath),
-               "%s%s%s%s",
-               Opt.sli.AddPrefix ? "ftp://" : "",
-               Opt.sli.AddPasswordAndUser ? Message( "%s:%s@",hConnect->UserName,hConnect->UserPassword ) : "",
-               hConnect->hostname,
-               hConnect->CurDir.c_str() );
-     TAddEndSlash( BasePath,'/' );
+	PluginPanelItem* p;
+	int              n;
+	int              level;
+	char             str[1024+2],
+	   BasePath[1024+2],
+	   CurrentUrlPath[1024+2];
+	CurrentUrlPath[0] = 0;
+	SNprintf(BasePath, sizeof(BasePath),
+	         "%s%s%s%s",
+	         Opt.sli.AddPrefix ? "ftp://" : "",
+	         Opt.sli.AddPasswordAndUser ? Message("%s:%s@",hConnect->UserName,hConnect->UserPassword) : "",
+	         hConnect->hostname,
+	         hConnect->CurDir.c_str());
+	TAddEndSlash(BasePath,'/');
 
-     if ( Opt.sli.ListType == sltTree )
-       fprintf( f,"BASE: \"%s\"\n",BasePath );
+	if(Opt.sli.ListType == sltTree)
+		fprintf(f,"BASE: \"%s\"\n",BasePath);
 
-     for( n = 0; n < il->Count(); n++ ) {
-       p = il->Item(n);
+	for(n = 0; n < il->Count(); n++)
+	{
+		p = il->Item(n);
 
-       if ( p->FindData.dwReserved1 == MAX_DWORD )
-         continue;
+		if(p->FindData.dwReserved1 == MAX_DWORD)
+			continue;
 
-     //URLS --------------------------------------
-       if ( Opt.sli.ListType == sltUrlList ) {
-         if ( IS_FLAG(p->FindData.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY) )
-           continue;
+		//URLS --------------------------------------
+		if(Opt.sli.ListType == sltUrlList)
+		{
+			if(IS_FLAG(p->FindData.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY))
+				continue;
 
-         FixFTPSlash( FTP_FILENAME(p) );
-         SNprintf( str,sizeof(str),"%s%s",BasePath,FTP_FILENAME(p) );
-         if ( Opt.sli.Quote ) QuoteStr( str );
+			FixFTPSlash(FTP_FILENAME(p));
+			SNprintf(str,sizeof(str),"%s%s",BasePath,FTP_FILENAME(p));
 
-         fprintf( f,"%s\n",str );
-       } else
-     //TREE --------------------------------------
-       if ( Opt.sli.ListType == sltTree ) {
-         TStrCpy( str, FTP_FILENAME(p) );
+			if(Opt.sli.Quote) QuoteStr(str);
 
-         FixFTPSlash( str );
-         for( m = str,level = 0;
-              (m=strchr(m,'/')) != NULL;
-              m++,level++ );
+			fprintf(f,"%s\n",str);
+		}
+		else
 
-         fprintf( f,"%*c", level*2+2, ' ' );
-         m = strrchr( str,'/' );
+			//TREE --------------------------------------
+			if(Opt.sli.ListType == sltTree)
+			{
+				TStrCpy(str, FTP_FILENAME(p));
+				FixFTPSlash(str);
 
-         if (m) m++; else m = str;
+				for(m = str,level = 0;
+				        (m=strchr(m,'/')) != NULL;
+				        m++,level++);
 
-         fprintf( f,"%c%s",
-                  IS_FLAG(p->FindData.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY) ? '/' : ' ', m );
+				fprintf(f,"%*c", level*2+2, ' ');
+				m = strrchr(str,'/');
+				if(m) m++; else m = str;
 
-         if ( Opt.sli.Size ) {
-           level = Max( 1, Opt.sli.RightBound - 10 - level*2 - 2 - 1 - (int)strlen(m) );
-           fprintf( f,"%*c",level,' ' );
+				fprintf(f,"%c%s",
+				        IS_FLAG(p->FindData.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY) ? '/' : ' ', m);
 
-           if ( IS_FLAG(p->FindData.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY) )
-             fprintf( f,"<DIR>" );
-            else
-             fprintf( f,"%10I64u", ((__int64)p->FindData.nFileSizeHigh) << 32 | p->FindData.nFileSizeLow );
-         }
-         fprintf( f,"\n" );
+				if(Opt.sli.Size)
+				{
+					level = Max(1, Opt.sli.RightBound - 10 - level*2 - 2 - 1 - (int)strlen(m));
+					fprintf(f,"%*c",level,' ');
 
-       } else
-     //GROUPS ------------------------------------
-       if ( Opt.sli.ListType == sltGroup ) {
-         if ( IS_FLAG(p->FindData.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY) )
-           continue;
+					if(IS_FLAG(p->FindData.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY))
+						fprintf(f,"<DIR>");
+					else
+						fprintf(f,"%10I64u", ((__int64)p->FindData.nFileSizeHigh) << 32 | p->FindData.nFileSizeLow);
+				}
 
-         FixFTPSlash( FTP_FILENAME(p) );
-         SNprintf( str, sizeof(str), "%s%s", BasePath, FTP_FILENAME(p) );
-         if ( !IS_FLAG(p->FindData.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY) )
-           *strrchr( str,'/' ) = 0;
+				fprintf(f,"\n");
+			}
+			else
 
-         if ( StrCmp(CurrentUrlPath,str,-1,FALSE) != 0 ) {
-           StrCpy( CurrentUrlPath, str, sizeof(CurrentUrlPath) );
-           fprintf( f,"\n[%s]\n", CurrentUrlPath );
-         }
-         TStrCpy( str, FTP_FILENAME(p) );
-         FixFTPSlash( str );
-         m = strrchr(str,'/');
-         if (m) m++; else m = str;
-         fprintf( f," %s", m );
+				//GROUPS ------------------------------------
+				if(Opt.sli.ListType == sltGroup)
+				{
+					if(IS_FLAG(p->FindData.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY))
+						continue;
 
-         if ( Opt.sli.Size ) {
-           level = Max( 1, Opt.sli.RightBound - 10 - (int)strlen(m) - 1 );
-           fprintf( f,"%*c%10I64u",
-                    level,' ',
-                    ((__int64)p->FindData.nFileSizeHigh) << 32 | p->FindData.nFileSizeLow );
-         }
-         fprintf( f,"\n" );
-       }
-     }
-     fclose(f);
+					FixFTPSlash(FTP_FILENAME(p));
+					SNprintf(str, sizeof(str), "%s%s", BasePath, FTP_FILENAME(p));
 
-     CONSTSTR itms[] = { FMSG(MFLDoneTitle), FMSG(MFLFile), Opt.sli.path, FMSG(MFLDone), FMSG(MOk) };
-     FMessage( FMSG_LEFTALIGN,NULL,itms,5,1 );
+					if(!IS_FLAG(p->FindData.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY))
+						*strrchr(str,'/') = 0;
+
+					if(StrCmp(CurrentUrlPath,str,-1,FALSE) != 0)
+					{
+						StrCpy(CurrentUrlPath, str, sizeof(CurrentUrlPath));
+						fprintf(f,"\n[%s]\n", CurrentUrlPath);
+					}
+
+					TStrCpy(str, FTP_FILENAME(p));
+					FixFTPSlash(str);
+					m = strrchr(str,'/');
+					if(m) m++; else m = str;
+
+					fprintf(f," %s", m);
+
+					if(Opt.sli.Size)
+					{
+						level = Max(1, Opt.sli.RightBound - 10 - (int)strlen(m) - 1);
+						fprintf(f,"%*c%10I64u",
+						        level,' ',
+						        ((__int64)p->FindData.nFileSizeHigh) << 32 | p->FindData.nFileSizeLow);
+					}
+
+					fprintf(f,"\n");
+				}
+	}
+
+	fclose(f);
+	LPCSTR itms[] = { FMSG(MFLDoneTitle), FMSG(MFLFile), Opt.sli.path, FMSG(MFLDone), FMSG(MOk) };
+	FMessage(FMSG_LEFTALIGN,NULL,itms,5,1);
 }
 //------------------------------------------------------------------------
 #define MNUM( v ) ( ((int*)(v).Text)[ 128/sizeof(int) - 1] )
 #define MSZ       (128-(int)sizeof(int))
 
-BOOL FTP::ShowFilesList( PFP_SizeItemList il )
-  {  int              cn,n,i,w,
-                      num;
-     int              Breaks[] = { VK_INSERT, VK_F2, 0 },
-                      BNumber;
-     char             str[ 500 ];
-     PluginPanelItem *p;
-     FarMenuItem     *mi = NULL;
-     char            *m,*nm;
+BOOL FTP::ShowFilesList(FP_SizeItemList* il)
+{
+	int              cn,n,i,w,
+	  num;
+	int              Breaks[] = { VK_INSERT, VK_F2, 0 },
+	                            BNumber;
+	char             str[ 500 ];
+	PluginPanelItem *p;
+	FarMenuItem     *mi = NULL;
+	char            *m,*nm;
 
-     if ( !il || !il->Count() )
-       return FALSE;
+	if(!il || !il->Count())
+		return FALSE;
 
-     //Create|Recreate
-     mi = (FarMenuItem *)_Realloc( mi,il->Count()*sizeof(FarMenuItem) );
-     MemSet( mi, 0, il->Count()*sizeof(FarMenuItem) );
+	//Create|Recreate
+	mi = (FarMenuItem *)_Realloc(mi,il->Count()*sizeof(FarMenuItem));
+	memset(mi, 0, il->Count()*sizeof(FarMenuItem));
+	//Scan number of items
+	w = cn = 0;
 
-     //Scan number of items
-     w = cn = 0;
-     for ( i = n = 0; n < il->Count(); n++ ) {
-       p = il->Item(n);
-       p->NumberOfLinks        = StrSlashCount( FTP_FILENAME(p) );
-       p->FindData.dwReserved1 = 0;
+	for(i = n = 0; n < il->Count(); n++)
+	{
+		p = il->Item(n);
+		p->NumberOfLinks        = StrSlashCount(FTP_FILENAME(p));
+		p->FindData.dwReserved1 = 0;
+		w = Max(w,strLen(PointToName(FTP_FILENAME(p))) + (int)p->NumberOfLinks + 1);
+		cn++;
+		MNUM(mi[i++]) = n;
+	}
 
-       w = Max( w,strLen(PointToName(FTP_FILENAME(p))) + (int)p->NumberOfLinks + 1 );
-       cn++;
-       MNUM(mi[i++]) = n;
-     }
-     w = Min( Max(60,Min(w,MSZ)),FP_ConWidth()-8 );
+	w = Min(Max(60,Min(w,MSZ)),FP_ConWidth()-8);
 
-     if ( !cn ) return FALSE;
+	if(!cn) return FALSE;
 
-     //Calc length of size and count digits
-     int szSize = 0,
-         szCount = 0;
+	//Calc length of size and count digits
+	int szSize = 0,
+	    szCount = 0;
 
-     for ( n = 0; n < cn; n++ ) {
-       p = il->Item( MNUM(mi[n]) );
-       FDigit( str, ((__int64)p->FindData.nFileSizeHigh) << 32 | p->FindData.nFileSizeLow, -1 );
-       szSize = Max( strLen(str),szSize );
+	for(n = 0; n < cn; n++)
+	{
+		p = il->Item(MNUM(mi[n]));
+		FDigit(str, ((__int64)p->FindData.nFileSizeHigh) << 32 | p->FindData.nFileSizeLow, -1);
+		szSize = Max(strLen(str),szSize);
 
-       if ( IS_FLAG(p->FindData.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY) ) {
-         FDigit( str,p->FindData.dwReserved0,-1 );
-         szCount = Max( strLen(str),szCount );
-       }
-     }
+		if(IS_FLAG(p->FindData.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY))
+		{
+			FDigit(str,p->FindData.dwReserved0,-1);
+			szCount = Max(strLen(str),szCount);
+		}
+	}
 
-     //Filename width
-     w -= szSize + szCount + 6;
+	//Filename width
+	w -= szSize + szCount + 6;
 
-     //Set menu item text
-     for ( n = 0; n < cn; n++ ) {
-       p = il->Item( MNUM(mi[n]) );
+	//Set menu item text
+	for(n = 0; n < cn; n++)
+	{
+		p = il->Item(MNUM(mi[n]));
+		m = mi[n].Text;
 
-       m = mi[n].Text;
-       for ( i = 0; i < (int)p->NumberOfLinks; i++ ) {
-         *(m++) = ' ';
-         *(m++) = ' ';
-       }
+		for(i = 0; i < (int)p->NumberOfLinks; i++)
+		{
+			*(m++) = ' ';
+			*(m++) = ' ';
+		}
 
-       nm = PointToName( FTP_FILENAME(p) );
-       for ( i = (int)(m - mi[n].Text); i < w; i++ )
-         if ( *nm )
-           *(m++) = *(nm++);
-          else
-           *(m++) = ' ';
+		nm = PointToName(FTP_FILENAME(p));
 
-       *(m++) = (*nm) ? FAR_SBMENU_CHAR : ' ';
+		for(i = (int)(m - mi[n].Text); i < w; i++)
+			if(*nm)
+				*(m++) = *(nm++);
+			else
+				*(m++) = ' ';
 
-       if ( szSize ) {
-         *(m++) = ' ';
-         *(m++) = FAR_VERT_CHAR;
-         *(m++) = ' ';
-         FDigit( str, ((__int64)p->FindData.nFileSizeHigh) << 32 | p->FindData.nFileSizeLow, -1 );
-         m += Sprintf( m,"%*s",szSize,str );
-       }
+		*(m++) = (*nm) ? FAR_SBMENU_CHAR : ' ';
 
-       if ( szCount ) {
-         *(m++) = ' ';
-         *(m++) = FAR_VERT_CHAR;
-         *(m++) = ' ';
-         if ( IS_FLAG(p->FindData.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY) )
-           FDigit( str,p->FindData.dwReserved0,-1 );
-          else
-           str[0] = 0;
-         m += Sprintf( m,"%*s",szCount,str );
-       }
+		if(szSize)
+		{
+			*(m++) = ' ';
+			*(m++) = FAR_VERT_CHAR;
+			*(m++) = ' ';
+			FDigit(str, ((__int64)p->FindData.nFileSizeHigh) << 32 | p->FindData.nFileSizeLow, -1);
+			m += Sprintf(m,"%*s",szSize,str);
+		}
 
-       *m = 0;
-     }
+		if(szCount)
+		{
+			*(m++) = ' ';
+			*(m++) = FAR_VERT_CHAR;
+			*(m++) = ' ';
 
-     num = -1;
-     do{
-       //Set selected
-       for ( n = 0; n < cn; n++ )
-         mi[n].Checked = il->Items()[ MNUM(mi[n]) ].FindData.dwReserved1 != MAX_DWORD;
+			if(IS_FLAG(p->FindData.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY))
+				FDigit(str,p->FindData.dwReserved0,-1);
+			else
+				str[0] = 0;
 
-       //Title
-       __int64 tsz = 0,tcn = 0;
-       for ( n = 0; n < cn; n++ ) {
-         p = il->Item( MNUM(mi[n]) );
-         if ( p->FindData.dwReserved1 != MAX_DWORD &&
-              !IS_FLAG(p->FindData.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY) ) {
-           tsz += ((__int64)p->FindData.nFileSizeHigh) << 32 | p->FindData.nFileSizeLow;
-           tcn++;
-         }
-       }
+			m += Sprintf(m,"%*s",szCount,str);
+		}
 
-       StrCpy( str,FP_GetMsg(FMSG(MListTitle)),sizeof(str) );
-       StrCat( str," (",sizeof(str) );
-       StrCat( str,FDigit(NULL,tsz,-1),sizeof(str) );
-       if ( il->TotalFullSize != tsz ) {
-         StrCat( str,"{",sizeof(str) );
-         StrCat( str,FDigit(NULL,il->TotalFullSize,-1),sizeof(str) );
-         StrCat( str,"}",sizeof(str) );
-       }
-       StrCat( str,"/",sizeof(str) );
-       StrCat( str,FDigit(NULL,tcn,-1),sizeof(str) );
-       if ( tcn != il->TotalFiles ) {
-         StrCat( str,"{",sizeof(str) );
-         StrCat( str,FDigit(NULL,il->TotalFiles,-1),sizeof(str) );
-         StrCat( str,"}",sizeof(str) );
-       }
-       StrCat( str,")",sizeof(str) );
+		*m = 0;
+	}
 
-       //Menu
-       n = FP_Info->Menu( FP_Info->ModuleNumber,-1,-1,0,FMENU_SHOWAMPERSAND,
-                          str,
-                          FP_GetMsg(FMSG(MListFooter)),
-                          "FTPFilesList", Breaks, &BNumber, mi,cn );
-       //key ESC
-       if ( n == -1 )       { num = FALSE; break; }
-       //key Enter
-       if ( BNumber == -1 ) { num = TRUE; break; }
+	num = -1;
 
-       //Set selected
-       if ( num != -1 ) mi[num].Selected = FALSE;
-       num = n;
-       mi[num].Selected = TRUE;
+	do
+	{
+		//Set selected
+		for(n = 0; n < cn; n++)
+			mi[n].Checked = il->Items()[ MNUM(mi[n])].FindData.dwReserved1 != MAX_DWORD;
 
-       //Process keys
-       bool set;
-       switch( BNumber ) {
-         /*INS*/
-         case 0: //Current
-                 p = il->Item( MNUM(mi[num]) );
-                 //Next item
-                 n = num+1;
-                 //Switch selected
-                 set = p->FindData.dwReserved1 != MAX_DWORD;
-                 p->FindData.dwReserved1 = set ? MAX_DWORD : 0;
+		//Title
+		__int64 tsz = 0,tcn = 0;
 
-                 //Switch all nested
-                 if ( IS_FLAG(p->FindData.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY) ) {
-                   i = StrSlashCount( FTP_FILENAME(p) );
-                   for ( ; n < cn; n++ ) {
-                     p = il->Item( MNUM(mi[n]) );
-                     if ( StrSlashCount( FTP_FILENAME(p) ) <= i )
-                       break;
-                     p->FindData.dwReserved1 = set ? MAX_DWORD : 0;
-                   }
-                 }
-                 //INS-moves-down
-                 if ( n < cn ) {
-                   mi[num].Selected = FALSE;
-                   mi[n].Selected   = TRUE;
-                   num = n;
-                 }
-              break;
-         /*F2*/
-         case 1: SaveList( il );
-              break;
-       }
+		for(n = 0; n < cn; n++)
+		{
+			p = il->Item(MNUM(mi[n]));
 
-     }while( 1 );
+			if(p->FindData.dwReserved1 != MAX_DWORD &&
+			        !IS_FLAG(p->FindData.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY))
+			{
+				tsz += ((__int64)p->FindData.nFileSizeHigh) << 32 | p->FindData.nFileSizeLow;
+				tcn++;
+			}
+		}
 
-     _Del(mi);
-     if ( !num )
-       return FALSE;
+		StrCpy(str,FP_GetMsg(FMSG(MListTitle)),sizeof(str));
+		StrCat(str," (",sizeof(str));
+		StrCat(str,FDigit(NULL,tsz,-1),sizeof(str));
 
- return TRUE;
+		if(il->TotalFullSize != tsz)
+		{
+			StrCat(str,"{",sizeof(str));
+			StrCat(str,FDigit(NULL,il->TotalFullSize,-1),sizeof(str));
+			StrCat(str,"}",sizeof(str));
+		}
+
+		StrCat(str,"/",sizeof(str));
+		StrCat(str,FDigit(NULL,tcn,-1),sizeof(str));
+
+		if(tcn != il->TotalFiles)
+		{
+			StrCat(str,"{",sizeof(str));
+			StrCat(str,FDigit(NULL,il->TotalFiles,-1),sizeof(str));
+			StrCat(str,"}",sizeof(str));
+		}
+
+		StrCat(str,")",sizeof(str));
+		//Menu
+		n = FP_Info->Menu(FP_Info->ModuleNumber,-1,-1,0,FMENU_SHOWAMPERSAND,
+		                  str,
+		                  FP_GetMsg(FMSG(MListFooter)),
+		                  "FTPFilesList", Breaks, &BNumber, mi,cn);
+
+		//key ESC
+		if(n == -1)       { num = FALSE; break; }
+
+		//key Enter
+		if(BNumber == -1) { num = TRUE; break; }
+
+		//Set selected
+		if(num != -1) mi[num].Selected = FALSE;
+
+		num = n;
+		mi[num].Selected = TRUE;
+		//Process keys
+		bool set;
+
+		switch(BNumber)
+		{
+				/*INS*/
+			case 0: //Current
+				p = il->Item(MNUM(mi[num]));
+				//Next item
+				n = num+1;
+				//Switch selected
+				set = p->FindData.dwReserved1 != MAX_DWORD;
+				p->FindData.dwReserved1 = set ? MAX_DWORD : 0;
+
+				//Switch all nested
+				if(IS_FLAG(p->FindData.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY))
+				{
+					i = StrSlashCount(FTP_FILENAME(p));
+
+					for(; n < cn; n++)
+					{
+						p = il->Item(MNUM(mi[n]));
+
+						if(StrSlashCount(FTP_FILENAME(p)) <= i)
+							break;
+
+						p->FindData.dwReserved1 = set ? MAX_DWORD : 0;
+					}
+				}
+
+				//INS-moves-down
+				if(n < cn)
+				{
+					mi[num].Selected = FALSE;
+					mi[n].Selected   = TRUE;
+					num = n;
+				}
+
+				break;
+				/*F2*/
+			case 1: SaveList(il);
+				break;
+		}
+	}
+	while(1);
+
+	_Del(mi);
+
+	if(!num)
+		return FALSE;
+
+	return TRUE;
 }

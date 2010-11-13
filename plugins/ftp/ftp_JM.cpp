@@ -20,99 +20,101 @@
 // DEBUG ONLY
 //------------------------------------------------------------------------
 #if defined(__FILELOG__)
-void LogPanelItems( struct PluginPanelItem *pi,int cn )
-  {
-    Log(( "Items in list %p: %d", pi, cn ));
-    if ( pi )
-      for( int n = 0; n < cn; n++ ) {
-        Log(( "%2d) [%s] attr: %08X (%s)",
-              n+1, FTP_FILENAME( &pi[n] ),
-              pi[n].FindData.dwFileAttributes, IS_FLAG(pi[n].FindData.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY)?"DIR":"FILE"
-           ));
-      }
+void LogPanelItems(struct PluginPanelItem *pi,int cn)
+{
+	Log(("Items in list %p: %d", pi, cn));
+
+	if(pi)
+		for(int n = 0; n < cn; n++)
+		{
+			Log(("%2d) [%s] attr: %08X (%s)",
+			     n+1, FTP_FILENAME(&pi[n]),
+			     pi[n].FindData.dwFileAttributes, IS_FLAG(pi[n].FindData.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY)?"DIR":"FILE"
+			    ));
+		}
 }
 #endif
 
 //------------------------------------------------------------------------
 int FARINProc::Counter = 0;
 
-FARINProc::FARINProc( CONSTSTR nm,CONSTSTR s,... )
-    : Name(nm)
-  {  va_list  ap;
-     char     str[500];
-     DWORD    err = GetLastError();
+FARINProc::FARINProc(LPCSTR nm,LPCSTR s,...)
+	: Name(nm)
+{
+	va_list  ap;
+	char     str[500];
+	DWORD    err = GetLastError();
 
-     if ( s ) {
-       va_start( ap,s );
-       SNprintf( str, sizeof(str), "%*c%s(%s) {",
-                 Counter*2,' ', nm, MessageV(s,ap) );
-       va_end(ap);
-     } else
-       SNprintf( str, sizeof(str), "%*c%s() {",
-                 Counter*2,' ', nm );
+	if(s)
+	{
+		va_start(ap,s);
+		SNprintf(str, sizeof(str), "%*c%s(%s) {",
+		         Counter*2,' ', nm, MessageV(s,ap));
+		va_end(ap);
+	}
+	else
+		SNprintf(str, sizeof(str), "%*c%s() {",
+		         Counter*2,' ', nm);
 
-    LogCmd( str, ldInt );
-
-    Counter++;
-    SetLastError(err);
+	LogCmd(str, ldInt);
+	Counter++;
+	SetLastError(err);
 }
 
 FARINProc::~FARINProc()
-  {  DWORD err = GetLastError();
-     char  str[500];
-
-    Counter--;
-
-    SNprintf( str, sizeof(str), "%*c}<%s>", Counter*2,' ',Name );
-    LogCmd( str,ldInt );
-
-    SetLastError(err);
+{
+	DWORD err = GetLastError();
+	char  str[500];
+	Counter--;
+	SNprintf(str, sizeof(str), "%*c}<%s>", Counter*2,' ',Name);
+	LogCmd(str,ldInt);
+	SetLastError(err);
 }
 
-void DECLSPEC_PT FARINProc::Say( CONSTSTR s,... )
-  {  va_list ap;
-     char    str[500];
-     int     rc;
-     DWORD   err = GetLastError();
+void _cdecl FARINProc::Say(LPCSTR s,...)
+{
+	va_list ap;
+	char    str[500];
+	int     rc;
+	DWORD   err = GetLastError();
+	va_start(ap,s);
+	rc = SNprintf(str, sizeof(str), "%*c", Counter*2,' ');
 
-    va_start( ap,s );
-      rc = SNprintf( str, sizeof(str), "%*c", Counter*2,' ' );
-      if ( rc < (int)sizeof(str) )
-        VSNprintf( str+rc, sizeof(str)-rc, s,ap );
-    va_end(ap);
+	if(rc < (int)sizeof(str))
+		VSNprintf(str+rc, sizeof(str)-rc, s,ap);
 
-    LogCmd( str,ldInt );
-
-    SetLastError(err);
+	va_end(ap);
+	LogCmd(str,ldInt);
+	SetLastError(err);
 }
 //------------------------------------------------------------------------
 //------------------------------------------------------------------------
-char *DECLSPEC FixFileNameChars( String& fnm,BOOL slashes )
-  {
- return FixFileNameChars( (char*)fnm.c_str(), slashes );
+char *WINAPI FixFileNameChars(String& fnm,BOOL slashes)
+{
+	return FixFileNameChars((char*)fnm.c_str(), slashes);
 }
 
-char *DECLSPEC FixFileNameChars( char *fnm,BOOL slashes )
-  {  char *m;
-     char *src,
-          *inv = Opt.InvalidSymbols,
-          *cor = Opt.CorrectedSymbols;
-     static char buff[ FAR_MAX_PATHSIZE ];
+char *WINAPI FixFileNameChars(char *fnm,BOOL slashes)
+{
+	char *m;
+	char *src,
+	     *inv = Opt.InvalidSymbols,
+	      *cor = Opt.CorrectedSymbols;
+	static char buff[MAX_PATH];
 
-     if ( !inv[0] ) return fnm;
+	if(!inv[0]) return fnm;
 
-     StrCpy( buff, fnm, sizeof(buff) );
+	StrCpy(buff, fnm, sizeof(buff));
 
-     for( src = buff; *src; src++ )
-       if ( (m=strchr(inv,*src)) != NULL )
-         *src = cor[ m-inv ];
+	for(src = buff; *src; src++)
+		if((m=strchr(inv,*src)) != NULL)
+			*src = cor[ m-inv ];
 
-     if ( slashes )
-       for( src = buff; *src; src++ )
-         if ( *src == '\\' ) *src = '_'; else
-         if ( *src == ':' )  *src = '!';
+	if(slashes)
+		for(src = buff; *src; src++)
+					if(*src == '\\') *src = '_'; else if(*src == ':')  *src = '!';
 
- return buff;
+	return buff;
 }
 //------------------------------------------------------------------------
 /*
@@ -121,85 +123,88 @@ char *DECLSPEC FixFileNameChars( char *fnm,BOOL slashes )
 
    Windows has no way to create string by socket error, so make it inside plugin
 */
-static struct {
-  int   Code;
-  int   MCode;
-} stdSockErrors[] = {
-/* Windows Sockets definitions of regular Microsoft C error constants */
-       { WSAEINTR,            MWSAEINTR },
-       { WSAEBADF,            MWSAEBADF },
-       { WSAEACCES,           MWSAEACCES },
-       { WSAEFAULT,           MWSAEFAULT },
-       { WSAEINVAL,           MWSAEINVAL },
-       { WSAEMFILE,           MWSAEMFILE },
-/* Windows Sockets definitions of regular Berkeley error constants */
-       { WSAEWOULDBLOCK,      MWSAEWOULDBLOCK },
-       { WSAEINPROGRESS,      MWSAEINPROGRESS },
-       { WSAEALREADY,         MWSAEALREADY },
-       { WSAENOTSOCK,         MWSAENOTSOCK },
-       { WSAEDESTADDRREQ,     MWSAEDESTADDRREQ },
-       { WSAEMSGSIZE,         MWSAEMSGSIZE },
-       { WSAEPROTOTYPE,       MWSAEPROTOTYPE },
-       { WSAENOPROTOOPT,      MWSAENOPROTOOPT },
-       { WSAEPROTONOSUPPORT,  MWSAEPROTONOSUPPORT },
-       { WSAESOCKTNOSUPPORT,  MWSAESOCKTNOSUPPORT },
-       { WSAEOPNOTSUPP,       MWSAEOPNOTSUPP },
-       { WSAEPFNOSUPPORT,     MWSAEPFNOSUPPORT },
-       { WSAEAFNOSUPPORT,     MWSAEAFNOSUPPORT },
-       { WSAEADDRINUSE,       MWSAEADDRINUSE },
-       { WSAEADDRNOTAVAIL,    MWSAEADDRNOTAVAIL },
-       { WSAENETDOWN,         MWSAENETDOWN },
-       { WSAENETUNREACH,      MWSAENETUNREACH },
-       { WSAENETRESET,        MWSAENETRESET },
-       { WSAECONNABORTED,     MWSAECONNABORTED },
-       { WSAECONNRESET,       MWSAECONNRESET },
-       { WSAENOBUFS,          MWSAENOBUFS },
-       { WSAEISCONN,          MWSAEISCONN },
-       { WSAENOTCONN,         MWSAENOTCONN },
-       { WSAESHUTDOWN,        MWSAESHUTDOWN },
-       { WSAETOOMANYREFS,     MWSAETOOMANYREFS },
-       { WSAETIMEDOUT,        MWSAETIMEDOUT },
-       { WSAECONNREFUSED,     MWSAECONNREFUSED },
-       { WSAELOOP,            MWSAELOOP },
-       { WSAENAMETOOLONG,     MWSAENAMETOOLONG },
-       { WSAEHOSTDOWN,        MWSAEHOSTDOWN },
-       { WSAEHOSTUNREACH,     MWSAEHOSTUNREACH },
-       { WSAENOTEMPTY,        MWSAENOTEMPTY },
-       { WSAEPROCLIM,         MWSAEPROCLIM },
-       { WSAEUSERS,           MWSAEUSERS },
-       { WSAEDQUOT,           MWSAEDQUOT },
-       { WSAESTALE,           MWSAESTALE },
-       { WSAEREMOTE,          MWSAEREMOTE },
-/* Extended Windows Sockets error constant definitions */
-       { WSASYSNOTREADY,      MWSASYSNOTREADY },
-       { WSAVERNOTSUPPORTED,  MWSAVERNOTSUPPORTED },
-       { WSANOTINITIALISED,   MWSANOTINITIALISED },
-       { WSAEDISCON,          MWSAEDISCON },
-       { WSAHOST_NOT_FOUND,   MWSAHOST_NOT_FOUND },
-       { WSATRY_AGAIN,        MWSATRY_AGAIN },
-       { WSANO_RECOVERY,      MWSANO_RECOVERY },
-       { WSANO_DATA,          MWSANO_DATA },
-       { WSANO_ADDRESS,       MWSANO_ADDRESS },
-       { 0, MNone__ }
+static struct
+{
+	int   Code;
+	int   MCode;
+} stdSockErrors[] =
+{
+	/* Windows Sockets definitions of regular Microsoft C error constants */
+	{ WSAEINTR,            MWSAEINTR },
+	{ WSAEBADF,            MWSAEBADF },
+	{ WSAEACCES,           MWSAEACCES },
+	{ WSAEFAULT,           MWSAEFAULT },
+	{ WSAEINVAL,           MWSAEINVAL },
+	{ WSAEMFILE,           MWSAEMFILE },
+	/* Windows Sockets definitions of regular Berkeley error constants */
+	{ WSAEWOULDBLOCK,      MWSAEWOULDBLOCK },
+	{ WSAEINPROGRESS,      MWSAEINPROGRESS },
+	{ WSAEALREADY,         MWSAEALREADY },
+	{ WSAENOTSOCK,         MWSAENOTSOCK },
+	{ WSAEDESTADDRREQ,     MWSAEDESTADDRREQ },
+	{ WSAEMSGSIZE,         MWSAEMSGSIZE },
+	{ WSAEPROTOTYPE,       MWSAEPROTOTYPE },
+	{ WSAENOPROTOOPT,      MWSAENOPROTOOPT },
+	{ WSAEPROTONOSUPPORT,  MWSAEPROTONOSUPPORT },
+	{ WSAESOCKTNOSUPPORT,  MWSAESOCKTNOSUPPORT },
+	{ WSAEOPNOTSUPP,       MWSAEOPNOTSUPP },
+	{ WSAEPFNOSUPPORT,     MWSAEPFNOSUPPORT },
+	{ WSAEAFNOSUPPORT,     MWSAEAFNOSUPPORT },
+	{ WSAEADDRINUSE,       MWSAEADDRINUSE },
+	{ WSAEADDRNOTAVAIL,    MWSAEADDRNOTAVAIL },
+	{ WSAENETDOWN,         MWSAENETDOWN },
+	{ WSAENETUNREACH,      MWSAENETUNREACH },
+	{ WSAENETRESET,        MWSAENETRESET },
+	{ WSAECONNABORTED,     MWSAECONNABORTED },
+	{ WSAECONNRESET,       MWSAECONNRESET },
+	{ WSAENOBUFS,          MWSAENOBUFS },
+	{ WSAEISCONN,          MWSAEISCONN },
+	{ WSAENOTCONN,         MWSAENOTCONN },
+	{ WSAESHUTDOWN,        MWSAESHUTDOWN },
+	{ WSAETOOMANYREFS,     MWSAETOOMANYREFS },
+	{ WSAETIMEDOUT,        MWSAETIMEDOUT },
+	{ WSAECONNREFUSED,     MWSAECONNREFUSED },
+	{ WSAELOOP,            MWSAELOOP },
+	{ WSAENAMETOOLONG,     MWSAENAMETOOLONG },
+	{ WSAEHOSTDOWN,        MWSAEHOSTDOWN },
+	{ WSAEHOSTUNREACH,     MWSAEHOSTUNREACH },
+	{ WSAENOTEMPTY,        MWSAENOTEMPTY },
+	{ WSAEPROCLIM,         MWSAEPROCLIM },
+	{ WSAEUSERS,           MWSAEUSERS },
+	{ WSAEDQUOT,           MWSAEDQUOT },
+	{ WSAESTALE,           MWSAESTALE },
+	{ WSAEREMOTE,          MWSAEREMOTE },
+	/* Extended Windows Sockets error constant definitions */
+	{ WSASYSNOTREADY,      MWSASYSNOTREADY },
+	{ WSAVERNOTSUPPORTED,  MWSAVERNOTSUPPORTED },
+	{ WSANOTINITIALISED,   MWSANOTINITIALISED },
+	{ WSAEDISCON,          MWSAEDISCON },
+	{ WSAHOST_NOT_FOUND,   MWSAHOST_NOT_FOUND },
+	{ WSATRY_AGAIN,        MWSATRY_AGAIN },
+	{ WSANO_RECOVERY,      MWSANO_RECOVERY },
+	{ WSANO_DATA,          MWSANO_DATA },
+	{ WSANO_ADDRESS,       MWSANO_ADDRESS },
+	{ 0, MNone__ }
 };
 
-CONSTSTR DECLSPEC GetSocketErrorSTR( void )
-  {
- return GetSocketErrorSTR( WSAGetLastError() );
+LPCSTR WINAPI GetSocketErrorSTR(void)
+{
+	return GetSocketErrorSTR(WSAGetLastError());
 }
 
-CONSTSTR DECLSPEC GetSocketErrorSTR( int err )
-  {  static char estr[70];
+LPCSTR WINAPI GetSocketErrorSTR(int err)
+{
+	static char estr[70];
 
-     if ( !err )
-       return FP_GetMsg(MWSAENoError);
+	if(!err)
+		return FP_GetMsg(MWSAENoError);
 
-     for ( int n = 0; stdSockErrors[n].MCode != MNone__; n++ )
-       if ( stdSockErrors[n].Code == err )
-         return FP_GetMsg( stdSockErrors[n].MCode );
+	for(int n = 0; stdSockErrors[n].MCode != MNone__; n++)
+		if(stdSockErrors[n].Code == err)
+			return FP_GetMsg(stdSockErrors[n].MCode);
 
-     Sprintf( estr,"%s: %d",FP_GetMsg(MWSAEUnknown),err );
- return estr;
+	Sprintf(estr,"%s: %d",FP_GetMsg(MWSAEUnknown),err);
+	return estr;
 }
 //------------------------------------------------------------------------
 /*
@@ -210,30 +215,35 @@ CONSTSTR DECLSPEC GetSocketErrorSTR( int err )
    truncated at right.
    If size set to -1 the whole value will be output to ctring.
 */
-char *DECLSPEC PDigit( char *buff,__int64 val,int sz /*=-1*/ )
-  {  static char lbuff[100];
-     char str[ 100 ];
-     int pos = sizeof(str)-1;
+char *WINAPI PDigit(char *buff,__int64 val,int sz /*=-1*/)
+{
+	static char lbuff[100];
+	char str[ 100 ];
+	int pos = sizeof(str)-1;
 
-     if ( !buff ) buff = lbuff;
+	if(!buff) buff = lbuff;
 
-     str[pos] = 0;
-     if ( !val )
-       str[--pos] = '0';
-      else
-     for ( ; pos && val; val /= 10 )
-       str[--pos] = (char)('0'+val%10);
+	str[pos] = 0;
 
-     if ( sz != -1 ) {
-       if ( ((int)sizeof(str))-1-pos > sz ) {
-         str[ pos+sz-1 ] = FAR_RIGHT_CHAR;
-       }
-     }
-     if ( pos <= 0 )
-       str[0] = FAR_LEFT_CHAR;
+	if(!val)
+		str[--pos] = '0';
+	else
+		for(; pos && val; val /= 10)
+			str[--pos] = (char)('0'+val%10);
 
-     StrCpy( buff,str+pos,sz == -1 ? (-1) : (sz+1) );
- return buff;
+	if(sz != -1)
+	{
+		if(((int)sizeof(str))-1-pos > sz)
+		{
+			str[ pos+sz-1 ] = FAR_RIGHT_CHAR;
+		}
+	}
+
+	if(pos <= 0)
+		str[0] = FAR_LEFT_CHAR;
+
+	StrCpy(buff,str+pos,sz == -1 ? (-1) : (sz+1));
+	return buff;
 }
 /*
    Output digit to string
@@ -243,103 +253,117 @@ char *DECLSPEC PDigit( char *buff,__int64 val,int sz /*=-1*/ )
    If digit less then `sz` in will be added by ' ' at left
    If digit more then buffer digit will be truncated at left
 */
-char *DECLSPEC FDigit( char *buff,__int64 val,int sz )
-  {  static char lbuff[100];
-     char str[FAR_MAX_PATHSIZE];
-     int  len,n,d;
-     char *s;
+char *WINAPI FDigit(char *buff,__int64 val,int sz)
+{
+	static char lbuff[100];
+	char str[MAX_PATH];
+	int  len,n,d;
+	char *s;
 
-     if ( !buff ) buff = lbuff;
-     *buff = 0;
+	if(!buff) buff = lbuff;
 
-     if (!sz) return buff;
+	*buff = 0;
 
-     if ( !Opt.dDelimit || !Opt.dDelimiter ) {
-       PDigit( buff,val,sz );
-       return buff;
-     }
+	if(!sz) return buff;
 
-     PDigit( str,val,sz );
-     len = (int)strlen(str);
-     s   = str + len-1;
-     if (sz == -1)
-       sz = len + len/3 - ((len%3) == 0);
-     d = sz;
-     buff[d--] = 0;
+	if(!Opt.dDelimit || !Opt.dDelimiter)
+	{
+		PDigit(buff,val,sz);
+		return buff;
+	}
 
-     for ( n = 0; d >= 0 && n < sz && n < len; n++ ) {
-       if ( n && (n%3) == 0 ) {
-         buff[d--] = Opt.dDelimiter;
-         sz--;
-       }
-       if (d >= 0)
-         buff[d--] = *(s--);
-     }
+	PDigit(str,val,sz);
+	len = (int)strlen(str);
+	s   = str + len-1;
 
-     if ( n > sz )
-       buff[0] = FAR_LEFT_CHAR;
+	if(sz == -1)
+		sz = len + len/3 - ((len%3) == 0);
 
-     if ( d >= 0 )
-       for( ; d >= 0; d-- ) buff[d] = ' ';
+	d = sz;
+	buff[d--] = 0;
 
- return buff;
+	for(n = 0; d >= 0 && n < sz && n < len; n++)
+	{
+		if(n && (n%3) == 0)
+		{
+			buff[d--] = Opt.dDelimiter;
+			sz--;
+		}
+
+		if(d >= 0)
+			buff[d--] = *(s--);
+	}
+
+	if(n > sz)
+		buff[0] = FAR_LEFT_CHAR;
+
+	if(d >= 0)
+		for(; d >= 0; d--) buff[d] = ' ';
+
+	return buff;
 }
 //------------------------------------------------------------------------
 /*
     Show `Message` with attention caption and query user to select YES or NO
     Returns nonzero if user select YES
 */
-int DECLSPEC AskYesNoMessage( CONSTSTR LngMsgNum )
-  {  static CONSTSTR MsgItems[] = {
-        FMSG(MAttention),
-        NULL,
-        FMSG(MYes), FMSG(MNo) };
-
-     MsgItems[1] = LngMsgNum;
-
- return FMessage( FMSG_WARNING, NULL, MsgItems, ARRAY_SIZE(MsgItems),2 );
+int WINAPI AskYesNoMessage(LPCSTR LngMsgNum)
+{
+	static LPCSTR MsgItems[] =
+	{
+		FMSG(MAttention),
+		NULL,
+		FMSG(MYes), FMSG(MNo)
+	};
+	MsgItems[1] = LngMsgNum;
+	return FMessage(FMSG_WARNING, NULL, MsgItems, ARRAY_SIZE(MsgItems),2);
 }
 
-BOOL DECLSPEC AskYesNo( CONSTSTR LngMsgNum )
-  {
- return AskYesNoMessage(LngMsgNum) == 0;
+BOOL WINAPI AskYesNo(LPCSTR LngMsgNum)
+{
+	return AskYesNoMessage(LngMsgNum) == 0;
 }
 /*
     Show void `Message` with attention caption
 */
-void DECLSPEC SayMsg( CONSTSTR LngMsgNum )
-  {  CONSTSTR MsgItems[]={
-        FMSG(MAttention),
-        LngMsgNum,
-        FMSG(MOk) };
-
-    FMessage( FMSG_WARNING, NULL, MsgItems,ARRAY_SIZE(MsgItems),1 );
+void WINAPI SayMsg(LPCSTR LngMsgNum)
+{
+	LPCSTR MsgItems[]=
+	{
+		FMSG(MAttention),
+		LngMsgNum,
+		FMSG(MOk)
+	};
+	FMessage(FMSG_WARNING, NULL, MsgItems,ARRAY_SIZE(MsgItems),1);
 }
 //------------------------------------------------------------------------
-BOOL DECLSPEC IsCmdLogFile( void )
-  {
- return Opt.CmdLogFile[0] != 0;
+BOOL WINAPI IsCmdLogFile(void)
+{
+	return Opt.CmdLogFile[0] != 0;
 }
 
-CONSTSTR DECLSPEC GetCmdLogFile( void )
-  {  static char str[FAR_MAX_PATHSIZE] = {0};
-     HMODULE m;
+LPCSTR WINAPI GetCmdLogFile(void)
+{
+	static char str[MAX_PATH] = {0};
+	HMODULE m;
 
-     if ( Opt.CmdLogFile[0] ) {
-       if ( Opt.CmdLogFile[0] && Opt.CmdLogFile[1] == ':' )
-         return Opt.CmdLogFile;
-        else
-       if ( str[0] )
-         return str;
-        else {
-         m = GetModuleHandle( FP_GetPluginName() );
-         str[GetModuleFileName( m,str,sizeof(str) )] = 0;
-         StrRChr( str,SLASH_CHAR )[1] = 0;
-         StrCat( str,Opt.CmdLogFile,sizeof(str) );
-         return str;
-        }
-     } else
-       return "";
+	if(Opt.CmdLogFile[0])
+	{
+		if(Opt.CmdLogFile[0] && Opt.CmdLogFile[1] == ':')
+			return Opt.CmdLogFile;
+		else if(str[0])
+			return str;
+		else
+		{
+			m = GetModuleHandle(FP_GetPluginName());
+			str[GetModuleFileName(m,str,sizeof(str))] = 0;
+			strrchr(str,SLASH_CHAR)[1] = 0;
+			StrCat(str,Opt.CmdLogFile,sizeof(str));
+			return str;
+		}
+	}
+	else
+		return "";
 }
 /*
    Writes one string to log file
@@ -350,191 +374,205 @@ CONSTSTR DECLSPEC GetCmdLogFile( void )
 
 static HANDLE LogFile = NULL;
 
-void DECLSPEC LogCmd( CONSTSTR src,CMDOutputDir out,DWORD Size )
-  {  CONSTSTR   m;
+void WINAPI LogCmd(LPCSTR src,CMDOutputDir out,DWORD Size)
+{
+	LPCSTR   m;
 
 //File opened and fail
-    if ( LogFile == INVALID_HANDLE_VALUE )
-      return;
+	if(LogFile == INVALID_HANDLE_VALUE)
+		return;
 
 //Params
-    if ( !IsCmdLogFile() || !src )
-      return;
+	if(!IsCmdLogFile() || !src)
+		return;
 
-    src = FP_GetMsg( src );
+	src = FP_GetMsg(src);
 
-    if ( out == ldRaw && (!Size || Size == MAX_DWORD) )
-      return;
-     else
-    if ( !src[0] )
-      return;
+	if(out == ldRaw && (!Size || Size == MAX_DWORD))
+		return;
+	else if(!src[0])
+		return;
 
 //Open file
-    //Name
-    m = GetCmdLogFile();
-    if ( !m || !m[0] )
-      return;
+	//Name
+	m = GetCmdLogFile();
 
-    //Open
-    LogFile = Fopen( m, !LogFile && Opt.TruncateLogFile ? "w" : "w+" );
-    if ( !LogFile ) {
-      LogFile = INVALID_HANDLE_VALUE;
-      return;
-    }
+	if(!m || !m[0])
+		return;
 
-    //Check limitations
-    if ( Opt.CmdLogLimit &&
-         Fsize(LogFile) >= (__int64)Opt.CmdLogLimit*1000 )
-      Ftrunc(LogFile,FILE_BEGIN);
+	//Open
+	LogFile = Fopen(m, !LogFile && Opt.TruncateLogFile ? "w" : "w+");
+
+	if(!LogFile)
+	{
+		LogFile = INVALID_HANDLE_VALUE;
+		return;
+	}
+
+	//Check limitations
+	if(Opt.CmdLogLimit &&
+	        Fsize(LogFile) >= (__int64)Opt.CmdLogLimit*1000)
+		Ftrunc(LogFile,FILE_BEGIN);
 
 //-- USED DATA
-    static SYSTEMTIME stOld = { 0 };
-
-    SYSTEMTIME st;
-    char       tmstr[ 100 ];
+	static SYSTEMTIME stOld = { 0 };
+	SYSTEMTIME st;
+	char       tmstr[ 100 ];
 
 //-- RAW
-    if ( out == ldRaw ) {
-      SNprintf( tmstr, sizeof(tmstr), "%d ", PluginUsed() );
-      Fwrite( LogFile,tmstr,strLen(tmstr) );
+	if(out == ldRaw)
+	{
+		SNprintf(tmstr, sizeof(tmstr), "%d ", PluginUsed());
+		Fwrite(LogFile,tmstr,strLen(tmstr));
+		signed n;
 
-      signed n;
-      for( n = ((int)Size)-1; n > 0 && strchr( "\n\r",src[n]); n-- );
-      if ( n > 0 ) {
-        Fwrite( LogFile,"--- RAW ---\r\n",13 );
-        Fwrite( LogFile,src,Size );
-        Fwrite( LogFile,"\r\n--- RAW ---\r\n",15 );
-      }
-      Fclose(LogFile);
-      return;
-    }
+		for(n = ((int)Size)-1; n > 0 && strchr("\n\r",src[n]); n--);
+
+		if(n > 0)
+		{
+			Fwrite(LogFile,"--- RAW ---\r\n",13);
+			Fwrite(LogFile,src,Size);
+			Fwrite(LogFile,"\r\n--- RAW ---\r\n",15);
+		}
+
+		Fclose(LogFile);
+		return;
+	}
 
 //-- TEXT
 
 //Replace PASW
-    if ( !Opt._ShowPassword && StrCmp(src,"PASS ",5,TRUE) == 0 )
-      src = "PASS *hidden*";
+	if(!Opt._ShowPassword && StrCmp(src,"PASS ",5,TRUE) == 0)
+		src = "PASS *hidden*";
 
 //Write multiline to log
-    do{
-       //Plugin
-       SNprintf( tmstr, sizeof(tmstr), "%d ", PluginUsed() );
-       Fwrite( LogFile,tmstr,strLen(tmstr) );
+	do
+	{
+		//Plugin
+		SNprintf(tmstr, sizeof(tmstr), "%d ", PluginUsed());
+		Fwrite(LogFile,tmstr,strLen(tmstr));
+		//Time
+		GetLocalTime(&st);
+		SNprintf(tmstr,sizeof(tmstr),
+		         "%4d.%02d.%02d %02d:%02d:%02d:%04d",
+		         st.wYear, st.wMonth,  st.wDay,
+		         st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
+		Fwrite(LogFile,tmstr,(int)strlen(tmstr));
 
-       //Time
-       GetLocalTime( &st );
-       SNprintf( tmstr,sizeof(tmstr),
-                 "%4d.%02d.%02d %02d:%02d:%02d:%04d",
-                 st.wYear, st.wMonth,  st.wDay,
-                 st.wHour, st.wMinute, st.wSecond, st.wMilliseconds );
-       Fwrite( LogFile,tmstr,(int)strlen(tmstr) );
+		//Delay
+		if(!stOld.wYear)
+			Sprintf(tmstr," ----");
+		else
+			Sprintf(tmstr," %04d",
+			        (st.wSecond-stOld.wSecond)*1000 + (st.wMilliseconds-stOld.wMilliseconds));
 
-       //Delay
-       if ( !stOld.wYear )
-          Sprintf( tmstr," ----" );
-         else
-          Sprintf( tmstr," %04d",
-                   (st.wSecond-stOld.wSecond)*1000 + (st.wMilliseconds-stOld.wMilliseconds) );
-       Fwrite( LogFile,tmstr,(int)strlen(tmstr) );
+		Fwrite(LogFile,tmstr,(int)strlen(tmstr));
+		stOld = st;
 
-       stOld = st;
+		//Direction
+		if(out == ldInt)
+			Fwrite(LogFile,"| ",2);
+		else
+			Fwrite(LogFile,(out == ldOut) ? "|->" : "|<-",3);
 
-       //Direction
-       if ( out == ldInt )
-         Fwrite( LogFile,"| ",2 );
-        else
-         Fwrite( LogFile,(out == ldOut) ? "|->" : "|<-",3 );
+		//Message
+		for(; *src && !strchr("\r\n",*src); src++)
+			Fwrite(LogFile,src,1);
 
-       //Message
-       for ( ; *src && !strchr("\r\n",*src); src++ )
-         Fwrite( LogFile,src,1 );
-       Fwrite( LogFile,"\n",1 );
+		Fwrite(LogFile,"\n",1);
 
-       while( *src && strchr("\r\n",*src) ) src++;
-    }while( *src );
+		while(*src && strchr("\r\n",*src)) src++;
+	}
+	while(*src);
 
-    Fclose( LogFile );
+	Fclose(LogFile);
 }
 
 //------------------------------------------------------------------------
 //  Connection
 //------------------------------------------------------------------------
-void Connection::InitIOBuff( void )
-  {
-    CloseIOBuff();
-    IOBuff = (char*)_Alloc( Host.IOBuffSize+1 );
+void Connection::InitIOBuff(void)
+{
+	CloseIOBuff();
+	IOBuff = (char*)_Alloc(Host.IOBuffSize+1);
 }
-void Connection::CloseIOBuff( void )
-  {
-    _Del( IOBuff ); IOBuff = NULL;
+void Connection::CloseIOBuff(void)
+{
+	_Del(IOBuff); IOBuff = NULL;
 }
 
 /*
    Initialize CMD buffer data
 */
-void Connection::InitCmdBuff( void )
-  {
-    if ( CmdBuff )
-      CloseCmdBuff();
+void Connection::InitCmdBuff(void)
+{
+	if(CmdBuff)
+		CloseCmdBuff();
 
-    hIdle        = Opt.IdleShowPeriod ? FP_PeriodCreate(Opt.IdleShowPeriod) : NULL;
-    CmdVisible   = TRUE;
-    cmdLineSize  = Opt.CmdLine;
-    cmdSize      = Opt.CmdLength;
-    RetryCount   = 0;
-    CmdBuff      = (FCmdLine*)_Alloc( sizeof(FCmdLine)*(cmdSize+1) );
-    RplBuff      = (FCmdLine*)_Alloc( sizeof(FCmdLine)*(cmdSize+1) );
-  //Command lines (length + 0)
-    for ( int n = 0; n < cmdSize; n++ ) {
-      CmdBuff[n] = (char*)_Alloc( cmdLineSize+1 );
-      RplBuff[n] = (char*)_Alloc( 1024+1 );
-    }
-  //Command lines + status command
-    CmdMsg       = (CONSTSTR*)_Alloc( sizeof(CONSTSTR)*(cmdSize+NBUTTONSADDON) );
-    ResetCmdBuff();
+	hIdle        = Opt.IdleShowPeriod ? FP_PeriodCreate(Opt.IdleShowPeriod) : NULL;
+	CmdVisible   = TRUE;
+	cmdLineSize  = Opt.CmdLine;
+	cmdSize      = Opt.CmdLength;
+	RetryCount   = 0;
+	CmdBuff      = (char **)_Alloc(sizeof(char *)*(cmdSize+1));
+	RplBuff      = (char **)_Alloc(sizeof(char *)*(cmdSize+1));
+
+	//Command lines (length + 0)
+	for(int n = 0; n < cmdSize; n++)
+	{
+		CmdBuff[n] = (char*)_Alloc(cmdLineSize+1);
+		RplBuff[n] = (char*)_Alloc(1024+1);
+	}
+
+	//Command lines + status command
+	CmdMsg       = (LPCSTR*)_Alloc(sizeof(LPCSTR)*(cmdSize+NBUTTONSADDON));
+	ResetCmdBuff();
 }
 /*
    Free initialize CMD buffer data
 */
-void Connection::CloseCmdBuff( void )
-  {
-    if (CmdBuff)
-      for ( int n = 0; n < cmdSize; n++ ) {
-        _Del( CmdBuff[n] );
-        _Del( RplBuff[n] );
-      }
-    _Del( CmdBuff );
-    _Del( RplBuff );
-    _Del( CmdMsg );
+void Connection::CloseCmdBuff(void)
+{
+	if(CmdBuff)
+		for(int n = 0; n < cmdSize; n++)
+		{
+			_Del(CmdBuff[n]);
+			_Del(RplBuff[n]);
+		}
 
-    CmdBuff = NULL;
-    RplBuff = NULL;
-    CmdMsg  = NULL;
-    IOBuff  = NULL;
-    FP_PeriodDestroy(hIdle);
+	_Del(CmdBuff);
+	_Del(RplBuff);
+	_Del(CmdMsg);
+	CmdBuff = NULL;
+	RplBuff = NULL;
+	CmdMsg  = NULL;
+	IOBuff  = NULL;
+	FP_PeriodDestroy(hIdle);
 }
 //------------------------------------------------------------------------
 /*
    Output message about internal plugin error
 */
-void Connection::InternalError( void )
-  {  CONSTSTR MsgItems[] = {
-       FMSG(MFtpTitle),
-       FMSG(MIntError),
-       FMSG(MOk) };
-
-     FMessage( FMSG_WARNING, NULL, MsgItems, ARRAY_SIZE(MsgItems), 1 );
+void Connection::InternalError(void)
+{
+	LPCSTR MsgItems[] =
+	{
+		FMSG(MFtpTitle),
+		FMSG(MIntError),
+		FMSG(MOk)
+	};
+	FMessage(FMSG_WARNING, NULL, MsgItems, ARRAY_SIZE(MsgItems), 1);
 }
 /*
    Set CMD buffer data to zero state
 
    Used just after new connection established
 */
-void Connection::ResetCmdBuff( void )
-  {
-    hostname[0]     = 0;
-    LastHost[0]     = 0;
-    LastMsg[0]      = 0;
+void Connection::ResetCmdBuff(void)
+{
+	hostname[0]     = 0;
+	LastHost[0]     = 0;
+	LastMsg[0]      = 0;
 }
 
 //------------------------------------------------------------------------
@@ -548,43 +586,50 @@ void Connection::ResetCmdBuff( void )
    IF out == -1
      `src` placed as is - do not resize to `sz`; do not add direction text
 */
-void Connection::SetCmdLine( char *dest, CONSTSTR src, int sz, int out )
-  {  int l,off;
-     char *m;
+void Connection::SetCmdLine(char *dest, LPCSTR src, int sz, int out)
+{
+	int l,off;
+	char *m;
 
-    if ( !Opt._ShowPassword &&
-         StrCmp(src,Opt.cmdPass,strLen(Opt.cmdPass),TRUE) == 0 )
-      src = "PASS *hidden*";
-     else
-    if ( ((BYTE)src[0]) == (BYTE)ffDM &&
-         (strncmp( src+1,"ABOR",4 ) == 0 || strncmp( src,"ABOR",4 ) == 0) )
-      src = "<ABORT>";
+	if(!Opt._ShowPassword &&
+	        StrCmp(src,Opt.cmdPass,strLen(Opt.cmdPass),TRUE) == 0)
+		src = "PASS *hidden*";
+	else if(((BYTE)src[0]) == (BYTE)ffDM &&
+	        (strncmp(src+1,"ABOR",4) == 0 || strncmp(src,"ABOR",4) == 0))
+		src = "<ABORT>";
 
-    if (out != -1) {
-      dest[0] = out?'-':'<';
-      dest[1] = out?'>':'-';
-      dest[2] = ' ';
-      off = 3;
-    } else
-      off = 0;
+	if(out != -1)
+	{
+		dest[0] = out?'-':'<';
+		dest[1] = out?'>':'-';
+		dest[2] = ' ';
+		off = 3;
+	}
+	else
+		off = 0;
 
-    sz--;
-    StrCpy( dest+off, src, sz-off );
-    if ( (m=StrChr(dest,'\r')) != NULL ) *m = 0;
-    if ( (m=StrChr(dest,'\n')) != NULL ) *m = 0;
+	sz--;
+	StrCpy(dest+off, src, sz-off);
 
-    if ( out != -1 ) {
-      for ( l = strLen(dest); l < sz; l++ )
-        dest[l] = ' ';
-      dest[l] = 0;
+	if((m=strchr(dest,'\r')) != NULL) *m = 0;
 
-      if ( Host.CodeCmd ) {
-        if ( out )
-          ToOEM( dest );
-         else
-          ToOEM( dest );
-      }
-    }
+	if((m=strchr(dest,'\n')) != NULL) *m = 0;
+
+	if(out != -1)
+	{
+		for(l = strLen(dest); l < sz; l++)
+			dest[l] = ' ';
+
+		dest[l] = 0;
+
+		if(Host.CodeCmd)
+		{
+			if(out)
+				ToOEM(dest);
+			else
+				ToOEM(dest);
+		}
+	}
 }
 /*
    Add a string to `RPL buffer` and `CMD buffer`
@@ -596,47 +641,55 @@ void Connection::SetCmdLine( char *dest, CONSTSTR src, int sz, int out )
    IF `str` == NULL
      Place to buffer last response string
 */
-void Connection::AddCmdLine( CONSTSTR str )
-  {  int  n;
-     char buff[512];
+void Connection::AddCmdLine(LPCSTR str)
+{
+	int  n;
+	char buff[512];
 
-     if ( str ) {
-       str = FP_GetMsg( str );
-       //Skip IAC
-       if ( ((BYTE)str[0]) == ffIAC && ((BYTE)str[1]) == ffIP )
-         return;
+	if(str)
+	{
+		str = FP_GetMsg(str);
 
-       //Skip empty
-       while( *str && strchr("\n\r",*str) != NULL ) str++;
-       if ( !str[0] )
-         return;
-     }
+		//Skip IAC
+		if(((BYTE)str[0]) == ffIAC && ((BYTE)str[1]) == ffIP)
+			return;
 
-     TStrCpy( buff, str ? str : reply_string.c_str() );
+		//Skip empty
+		while(*str && strchr("\n\r",*str) != NULL) str++;
+
+		if(!str[0])
+			return;
+	}
+
+	TStrCpy(buff, str ? str : reply_string.c_str());
 
 //Remove overflow lines
-     for( ; cmdCount >= cmdSize; cmdCount-- )
-       for ( n = 1; n < cmdCount; n++ ) {
-         StrCpy( CmdBuff[n-1], CmdBuff[n], cmdLineSize );
-         StrCpy( RplBuff[n-1], RplBuff[n], 1024        );
-       }
+	for(; cmdCount >= cmdSize; cmdCount--)
+		for(n = 1; n < cmdCount; n++)
+		{
+			StrCpy(CmdBuff[n-1], CmdBuff[n], cmdLineSize);
+			StrCpy(RplBuff[n-1], RplBuff[n], 1024);
+		}
 
 //Add new line
-     LogCmd( buff, (str != NULL) ? ldOut : ldIn );
-     SetCmdLine( CmdBuff[cmdCount], buff, cmdLineSize, str != NULL );
-     SetCmdLine( RplBuff[cmdCount], buff, 1024,        str != NULL );
-     cmdCount++;
+	LogCmd(buff, (str != NULL) ? ldOut : ldIn);
+	SetCmdLine(CmdBuff[cmdCount], buff, cmdLineSize, str != NULL);
+	SetCmdLine(RplBuff[cmdCount], buff, 1024,        str != NULL);
+	cmdCount++;
 
 //Start
-    if ( !StartReply.Length() && !str ) {
-      CONSTSTR m = reply_string.c_str();
-      while( *m && (isdigit(*m) || strchr(" \b\t", *m) != NULL) )
-        m++;
-      StartReply = m;
-      ToOEM( StartReply );
-    }
+	if(!StartReply.Length() && !str)
+	{
+		LPCSTR m = reply_string.c_str();
 
-    ConnectMessage();
+		while(*m && (isdigit(*m) || strchr(" \b\t", *m) != NULL))
+			m++;
+
+		StartReply = m;
+		ToOEM(StartReply);
+	}
+
+	ConnectMessage();
 }
 //------------------------------------------------------------------------
 /*
@@ -653,214 +706,231 @@ void Connection::AddCmdLine( CONSTSTR str )
 */
 static WORD Keys[] = { VK_ESCAPE, 'C', 'R', VK_RETURN };
 
-BOOL Connection::ConnectMessageTimeout( int Msg /*= MNone__*/,CONSTSTR HostName /*= NULL*/,int BtnMsg /*= MNone__*/ )
-  {  char              str[ FAR_MAX_PATHSIZE ];
-     char              host[ FAR_MAX_PATHSIZE ];
-     BOOL              rc,
-                       first = TRUE;
-     TIME_TYPE         b,e;
-     CMP_TIME_TYPE     diff;
-     int               secNum;
+BOOL Connection::ConnectMessageTimeout(int Msg /*= MNone__*/,LPCSTR HostName /*= NULL*/,int BtnMsg /*= MNone__*/)
+{
+	char              str[MAX_PATH];
+	char              host[MAX_PATH];
+	BOOL              rc,
+	   first = TRUE;
+	TIME_TYPE         b,e;
+	CMP_TIME_TYPE     diff;
+	int               secNum;
 
-     if ( IS_FLAG(FP_LastOpMode,OPM_FIND) ||
-          !Opt.RetryTimeout ||
-          (BtnMsg != -MRetry && BtnMsg != -MRestore) )
-       return ConnectMessage( Msg, HostName, BtnMsg );
+	if(IS_FLAG(FP_LastOpMode,OPM_FIND) ||
+	        !Opt.RetryTimeout ||
+	        (BtnMsg != -MRetry && BtnMsg != -MRestore))
+		return ConnectMessage(Msg, HostName, BtnMsg);
 
-     TStrCpy( host, LastHost );
+	TStrCpy(host, LastHost);
+	secNum = 0;
+	GET_TIME(b);
 
-     secNum = 0;
-     GET_TIME( b );
-     do{
-       switch( CheckForKeyPressed( Keys,ARRAY_SIZE(Keys) ) ) {
-         case 1:
-         case 2: SetLastError( ERROR_CANCELLED );
-                 return FALSE;
-         case 3:
-         case 4: return TRUE;
-       }
+	do
+	{
+		switch(CheckForKeyPressed(Keys,ARRAY_SIZE(Keys)))
+		{
+			case 1:
+			case 2: SetLastError(ERROR_CANCELLED);
+				return FALSE;
+			case 3:
+			case 4: return TRUE;
+		}
 
-       GET_TIME( e );
-       diff = CMP_TIME( e,b );
-       if ( first || diff > 1.0 ) {
-         first = FALSE;
-         SNprintf( str, sizeof(str), "\"%s\" %s %2d%s %s",
-                   HostName,
-                   FP_GetMsg(MAutoRetryText),
-                   Opt.RetryTimeout-secNum,
-                   FP_GetMsg(MSeconds),FP_GetMsg(MRetryText) );
-         ConnectMessage( Msg,str );
+		GET_TIME(e);
+		diff = CMP_TIME(e,b);
 
-         SNprintf( str, sizeof(str), "%s %s %d%s",
-                   FP_GetMsg(Msg),
-                   FP_GetMsg(MAutoRetryText), Opt.RetryTimeout-secNum, FP_GetMsg(MSeconds) );
-         SaveConsoleTitle::Text( str );
+		if(first || diff > 1.0)
+		{
+			first = FALSE;
+			SNprintf(str, sizeof(str), "\"%s\" %s %2d%s %s",
+			         HostName,
+			         FP_GetMsg(MAutoRetryText),
+			         Opt.RetryTimeout-secNum,
+			         FP_GetMsg(MSeconds),FP_GetMsg(MRetryText));
+			ConnectMessage(Msg,str);
+			SNprintf(str, sizeof(str), "%s %s %d%s",
+			         FP_GetMsg(Msg),
+			         FP_GetMsg(MAutoRetryText), Opt.RetryTimeout-secNum, FP_GetMsg(MSeconds));
+			SaveConsoleTitle::Text(str);
+			secNum++;
+			b = e;
+		}
 
-         secNum++;
-         b = e;
-       }
+		if(secNum > Opt.RetryTimeout)
+		{
+			rc = TRUE;
+			break;
+		}
 
-       if ( secNum > Opt.RetryTimeout ) {
-         rc = TRUE;
-         break;
-       }
+		Sleep(100);
+	}
+	while(1);
 
-       Sleep(100);
-     }while( 1 );
-
-     TStrCpy( LastHost, host );
-
- return rc;
+	TStrCpy(LastHost, host);
+	return rc;
 }
 
-int Connection::ConnectMessage( int Msg /*= MNone__*/,CONSTSTR HostName /*= NULL*/,
-                                int btn /*= MNone__*/,int btn1 /*= MNone__*/,int btn2 /*= MNone__*/ )
-  {  //PROC(( "ConnectMessage", "%d,%s,%d,%d,%d", Msg, HostName, btn, btn1, btn2 ))
-     int               num,n;
-     BOOL              res;
-     CONSTSTR          m;
-     BOOL              exCmd;
+int Connection::ConnectMessage(int Msg /*= MNone__*/,LPCSTR HostName /*= NULL*/,
+                               int btn /*= MNone__*/,int btn1 /*= MNone__*/,int btn2 /*= MNone__*/)
+{
+	//PROC(( "ConnectMessage", "%d,%s,%d,%d,%d", Msg, HostName, btn, btn1, btn2 ))
+	int               num,n;
+	BOOL              res;
+	LPCSTR          m;
+	BOOL              exCmd;
 
-     if ( btn < 0 && Opt.DoNotExpandErrors )
-       exCmd = FALSE;
-      else
-       exCmd = Host.ExtCmdView;
+	if(btn < 0 && Opt.DoNotExpandErrors)
+		exCmd = FALSE;
+	else
+		exCmd = Host.ExtCmdView;
 
-     //Called for update CMD window but it disabled
-     if ( Msg == MNone__ && !HostName && !exCmd )
-       return TRUE;
+	//Called for update CMD window but it disabled
+	if(Msg == MNone__ && !HostName && !exCmd)
+		return TRUE;
 
-     if ( Msg != MNone__ )          SetCmdLine( LastMsg,  FP_GetMsg(Msg), sizeof(LastMsg),  -1 );
-     if ( HostName && HostName[0] ) SetCmdLine( LastHost, HostName,       sizeof(LastHost), -1 );
+	if(Msg != MNone__)          SetCmdLine(LastMsg,  FP_GetMsg(Msg), sizeof(LastMsg),  -1);
 
-     if ( btn == MNone__ )
-       if ( IS_FLAG(FP_LastOpMode,OPM_FIND)                       ||  //called from find
-            !CmdVisible                                           ||  //Window disabled
-            (IS_SILENT(FP_LastOpMode) && !Opt.ShowSilentProgress) ) { //show silent processing disabled
-         if ( HostName ) {
-           SetLastError( ERROR_SUCCESS );
-           IdleMessage( HostName, Opt.ProcessColor );
-         }
-         return FALSE;
-       }
+	if(HostName && HostName[0]) SetCmdLine(LastHost, HostName,       sizeof(LastHost), -1);
+
+	if(btn == MNone__)
+		if(IS_FLAG(FP_LastOpMode,OPM_FIND)                       ||    //called from find
+		        !CmdVisible                                           ||  //Window disabled
+		        (IS_SILENT(FP_LastOpMode) && !Opt.ShowSilentProgress))    //show silent processing disabled
+		{
+			if(HostName)
+			{
+				SetLastError(ERROR_SUCCESS);
+				IdleMessage(HostName, Opt.ProcessColor);
+			}
+
+			return FALSE;
+		}
 
 #define ADD_CMD(v)  do{ Assert( num < (cmdSize+NBUTTONSADDON) ); CmdMsg[num++] = v; }while(0)
+	//First line
+	num = 0;
+	//Title
+	String str;
+	m = FP_GetMsg(MFtpTitle);
 
-   //First line
-     num = 0;
+	if(hostname[0])
+	{
+		if(UserPassword[0])
+			str.printf("%s \"%s:*@%s\"",m,UserName,hostname);
+		else
+			str.printf("%s \"%s:%s\"",m,UserName,hostname);
+	}
+	else
+		str = m;
 
-   //Title
-     String str;
+	str.SetLength(cmdLineSize);
+	ADD_CMD(str.c_str());
 
-     m = FP_GetMsg(MFtpTitle);
-     if ( hostname[0] ) {
-       if ( UserPassword[0] )
-         str.printf( "%s \"%s:*@%s\"",m,UserName,hostname );
-        else
-         str.printf( "%s \"%s:%s\"",m,UserName,hostname );
-     } else
-       str = m;
-     str.SetLength( cmdLineSize );
-     ADD_CMD( str.c_str() );
+	//Error delimiter
+	if(btn != MNone__ && btn < 0)
+		switch(GetLastError())
+		{
+			case   ERROR_SUCCESS:
+			case ERROR_CANCELLED: break;
+			default: ADD_CMD("\x1");
+		}
 
-   //Error delimiter
-     if (btn != MNone__ && btn < 0 )
-       switch( GetLastError() ) {
-         case   ERROR_SUCCESS:
-         case ERROR_CANCELLED: break;
-                      default: ADD_CMD( "\x1" );
-       }
+	if(GetLastError() == ERROR_CANCELLED)
+		SetLastError(ERROR_SUCCESS);
 
-     if ( GetLastError() == ERROR_CANCELLED )
-       SetLastError( ERROR_SUCCESS );
+	//Commands
+	if(exCmd)
+		for(n = 0; n < cmdCount; n++)
+			ADD_CMD(CmdBuff[n]);
 
-   //Commands
-     if ( exCmd )
-       for ( n = 0; n < cmdCount; n++ )
-         ADD_CMD( CmdBuff[n] );
+	//Message
+	String msg;
 
-   //Message
-     String msg;
+	if(Msg != MOk && LastMsg[0])
+	{
+		if(exCmd && cmdCount)
+			ADD_CMD("\x1");
 
-     if ( Msg != MOk && LastMsg[0] ) {
-       if (exCmd && cmdCount)
-         ADD_CMD( "\x1" );
+		if(exCmd)
+		{
+			SYSTEMTIME st;
+			GetLocalTime(&st);
+			msg.printf("%02d:%02d:%02d \"%s\"", st.wHour, st.wMinute, st.wSecond, LastMsg);
+		}
+		else
+			msg = LastMsg;
 
-       if ( exCmd ) {
-         SYSTEMTIME st;
-         GetLocalTime( &st );
-         msg.printf( "%02d:%02d:%02d \"%s\"", st.wHour, st.wMinute, st.wSecond, LastMsg );
-       } else
-         msg = LastMsg;
+		msg.SetLength(cmdLineSize);
+		ADD_CMD(msg.c_str());
+		Log(("CMSG: %s", LastMsg));
+	}
 
-       msg.SetLength( cmdLineSize );
-       ADD_CMD( msg.c_str() );
-       Log(( "CMSG: %s", LastMsg ));
-     }
+	//Host
+	String lh;
 
-   //Host
-     String lh;
-     if ( LastHost[0] && (!HostName || HostName[0]) ) {
-       lh = LastHost;
-       lh.SetLength( cmdLineSize );
-       ADD_CMD( lh.c_str() );
-     }
+	if(LastHost[0] && (!HostName || HostName[0]))
+	{
+		lh = LastHost;
+		lh.SetLength(cmdLineSize);
+		ADD_CMD(lh.c_str());
+	}
 
-   //Buttons
+	//Buttons
 #define ADD_BTN(v)  do{ ADD_CMD(v); btnAddon++; }while(0)
+	int btnAddon = 0;
 
-     int btnAddon = 0;
+	if(btn != MNone__)
+	{
+		ADD_CMD("\x1");
+		ADD_BTN(FP_GetMsg(Abs(btn)));
 
-     if ( btn != MNone__ ) {
-       ADD_CMD( "\x1" );
-       ADD_BTN( FP_GetMsg(Abs(btn)) );
+		if(btn1 != MNone__) ADD_BTN(FP_GetMsg(btn1));
 
-       if ( btn1 != MNone__ ) ADD_BTN( FP_GetMsg(btn1) );
-       if ( btn2 != MNone__ ) ADD_BTN( FP_GetMsg(btn2) );
+		if(btn2 != MNone__) ADD_BTN(FP_GetMsg(btn2));
 
-       if ( btn < 0 && btn != -MOk )
-         ADD_BTN( FP_GetMsg(MCancel) );
-     }
+		if(btn < 0 && btn != -MOk)
+			ADD_BTN(FP_GetMsg(MCancel));
+	}
 
-   //Display error in title
-     if ( btn < 0 && btn != MNone__ && FP_Screen::isSaved() ) {
-       char errStr[FAR_MAX_PATHSIZE];
-       SNprintf( errStr,sizeof(errStr),"%s \"%s\"",LastMsg,LastHost );
-       SaveConsoleTitle::Text( errStr );
-     }
+	//Display error in title
+	if(btn < 0 && btn != MNone__ && FP_Screen::isSaved())
+	{
+		char errStr[MAX_PATH];
+		SNprintf(errStr,sizeof(errStr),"%s \"%s\"",LastMsg,LastHost);
+		SaveConsoleTitle::Text(errStr);
+	}
 
-   //Message
-     BOOL isErr = (btn != MNone__ || btn < 0) && GetLastError() != ERROR_SUCCESS,
-          isWarn = btn != MNone__ && btn < 0;
+	//Message
+	BOOL isErr = (btn != MNone__ || btn < 0) && GetLastError() != ERROR_SUCCESS,
+	     isWarn = btn != MNone__ && btn < 0;
+	res = FMessage((isErr ? FMSG_ERRORTYPE : 0) | (isWarn ? FMSG_WARNING : 0) | (exCmd ? FMSG_LEFTALIGN : 0),
+	               NULL, CmdMsg, num,
+	               btnAddon);
+	Log(("CMSG: rc=%d", res));
+	//Del auto-added `cancel`
+	btnAddon -= btn < 0 && btn != -MOk;
 
-     res = FMessage( (isErr ? FMSG_ERRORTYPE : 0) | (isWarn ? FMSG_WARNING : 0) | (exCmd ? FMSG_LEFTALIGN : 0),
-                     NULL, CmdMsg, num,
-                     btnAddon );
-     Log(( "CMSG: rc=%d", res ));
+	//If has user buttons: return number of pressed button
+	if(btnAddon > 1)
+		return res;
 
-     //Del auto-added `cancel`
-     btnAddon -= btn < 0 && btn != -MOk;
-
-     //If has user buttons: return number of pressed button
-     if ( btnAddon > 1 )
-       return res;
-
-     //If single button: return TRUE if button was selected
-     return btn != MNone__ && res == 0;
+	//If single button: return TRUE if button was selected
+	return btn != MNone__ && res == 0;
 }
 
-void DECLSPEC OperateHidden( CONSTSTR fnm, BOOL set )
-  {
-     if ( !Opt.SetHiddenOnAbort ) return;
-     Log(( "%s hidden", set ? "Set" : "Clr" ));
+void WINAPI OperateHidden(LPCSTR fnm, BOOL set)
+{
+	if(!Opt.SetHiddenOnAbort) return;
 
-     DWORD dw = GetFileAttributes( fnm );
-     if ( dw == MAX_DWORD ) return;
+	Log(("%s hidden", set ? "Set" : "Clr"));
+	DWORD dw = GetFileAttributes(fnm);
 
-     if ( set )
-       SET_FLAG( dw, FILE_ATTRIBUTE_HIDDEN );
-      else
-       CLR_FLAG( dw, FILE_ATTRIBUTE_HIDDEN );
+	if(dw == MAX_DWORD) return;
 
-     SetFileAttributes( fnm, dw );
+	if(set)
+		SET_FLAG(dw, FILE_ATTRIBUTE_HIDDEN);
+	else
+		CLR_FLAG(dw, FILE_ATTRIBUTE_HIDDEN);
+
+	SetFileAttributes(fnm, dw);
 }

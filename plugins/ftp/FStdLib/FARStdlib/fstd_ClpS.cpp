@@ -3,84 +3,108 @@
 
 #include "fstdlib.h"
 
-BOOL DECLSPEC FP_CopyToClipboard( LPVOID Data, SIZE_T DataSize )
-  {  HGLOBAL  hData;
-     void    *GData;
-     BOOL     rc = FALSE;
+BOOL WINAPI FP_CopyToClipboard(LPVOID Data, SIZE_T DataSize)
+{
+	HGLOBAL  hData;
+	void    *GData;
+	BOOL     rc = FALSE;
 
-    if ( !Data || !DataSize ||
-         !OpenClipboard(NULL) )
-      return FALSE;
+	if(!Data || !DataSize ||
+	        !OpenClipboard(NULL))
+		return FALSE;
 
-    EmptyClipboard();
-    do{
-      if ( (hData=GlobalAlloc(GMEM_MOVEABLE|GMEM_DDESHARE,DataSize+1))!=NULL ) {
-        if ((GData=GlobalLock(hData))!=NULL) {
-          MemCpy(GData,Data,DataSize+1);
-          GlobalUnlock(hData);
-          SetClipboardData(CF_OEMTEXT,(HANDLE)hData);
-          rc = TRUE;
-        } else {
-          GlobalFree(hData);
-          break;
-        }
-      }
-      if ((hData=GlobalAlloc(GMEM_MOVEABLE|GMEM_DDESHARE,DataSize+1))!=NULL) {
-        if ((GData=GlobalLock(hData))!=NULL) {
-          MemCpy(GData,Data,DataSize+1);
-          OemToChar((LPCSTR)GData,(LPTSTR)GData);
-          GlobalUnlock(hData);
-          SetClipboardData(CF_TEXT,(HANDLE)hData);
-          rc = TRUE;
-        } else {
-          GlobalFree(hData);
-          break;
-        }
-      }
-      if ((hData=GlobalAlloc(GMEM_MOVEABLE|GMEM_DDESHARE,DataSize*2+2))!=NULL) {
-        if ((GData=GlobalLock(hData))!=NULL) {
-          MultiByteToWideChar(CP_OEMCP,0,(LPCSTR)Data,-1,(LPWSTR)GData,(int)DataSize);
-          GlobalUnlock(hData);
-          SetClipboardData(CF_UNICODETEXT,(HANDLE)hData);
-          rc = TRUE;
-        } else {
-          GlobalFree(hData);
-          break;
-        }
-      }
-    }while(0);
+	EmptyClipboard();
 
-    CloseClipboard();
-  return rc;
+	do
+	{
+		if((hData=GlobalAlloc(GMEM_MOVEABLE|GMEM_DDESHARE,DataSize+1))!=NULL)
+		{
+			if((GData=GlobalLock(hData))!=NULL)
+			{
+				memcpy(GData,Data,DataSize+1);
+				GlobalUnlock(hData);
+				SetClipboardData(CF_OEMTEXT,(HANDLE)hData);
+				rc = TRUE;
+			}
+			else
+			{
+				GlobalFree(hData);
+				break;
+			}
+		}
+
+		if((hData=GlobalAlloc(GMEM_MOVEABLE|GMEM_DDESHARE,DataSize+1))!=NULL)
+		{
+			if((GData=GlobalLock(hData))!=NULL)
+			{
+				memcpy(GData,Data,DataSize+1);
+				OemToChar((LPCSTR)GData,(LPTSTR)GData);
+				GlobalUnlock(hData);
+				SetClipboardData(CF_TEXT,(HANDLE)hData);
+				rc = TRUE;
+			}
+			else
+			{
+				GlobalFree(hData);
+				break;
+			}
+		}
+
+		if((hData=GlobalAlloc(GMEM_MOVEABLE|GMEM_DDESHARE,DataSize*2+2))!=NULL)
+		{
+			if((GData=GlobalLock(hData))!=NULL)
+			{
+				MultiByteToWideChar(CP_OEMCP,0,(LPCSTR)Data,-1,(LPWSTR)GData,(int)DataSize);
+				GlobalUnlock(hData);
+				SetClipboardData(CF_UNICODETEXT,(HANDLE)hData);
+				rc = TRUE;
+			}
+			else
+			{
+				GlobalFree(hData);
+				break;
+			}
+		}
+	}
+	while(0);
+
+	CloseClipboard();
+	return rc;
 }
 
-BOOL DECLSPEC FP_GetFromClipboard( LPVOID& Data, SIZE_T& DataSize )
-  {  HANDLE   hData;
-     void    *GData;
-     BOOL     rc = FALSE;
+BOOL WINAPI FP_GetFromClipboard(LPVOID& Data, SIZE_T& DataSize)
+{
+	HANDLE   hData;
+	void    *GData;
+	BOOL     rc = FALSE;
+	Data     = NULL;
+	DataSize = 0;
 
-    Data     = NULL;
-    DataSize = 0;
-    if ( !OpenClipboard(NULL) ) return FALSE;
+	if(!OpenClipboard(NULL)) return FALSE;
 
-    do{
-      hData = GetClipboardData(CF_TEXT);
-      if ( !hData )
-        break;
+	do
+	{
+		hData = GetClipboardData(CF_TEXT);
 
-      DataSize = GlobalSize( hData );
-      if ( !DataSize )
-        break;
+		if(!hData)
+			break;
 
-      GData = GlobalLock( hData );
-      if ( !GData )
-        break;
+		DataSize = GlobalSize(hData);
 
-      Data = _Alloc( DataSize+1 );
-      memcpy( Data,GData,DataSize );
-      rc = TRUE;
-    }while(0);
+		if(!DataSize)
+			break;
 
-    CloseClipboard();
-  return rc;
+		GData = GlobalLock(hData);
+
+		if(!GData)
+			break;
+
+		Data = _Alloc(DataSize+1);
+		memcpy(Data,GData,DataSize);
+		rc = TRUE;
+	}
+	while(0);
+
+	CloseClipboard();
+	return rc;
 }

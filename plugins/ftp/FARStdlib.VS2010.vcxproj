@@ -346,7 +346,6 @@
     <ClCompile Include="FStdLib\FARStdlib\fstd_SCol.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_scr.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_stdlibCS.cpp" />
-    <ClCompile Include="FStdLib\FARStdlib\fstd_stdlibME.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_stdlibSP.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_stdlibST.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_SText.cpp" />
@@ -359,8 +358,6 @@
     <ClInclude Include="FStdLib\FARStdlib\fstd_String.h" />
     <ClInclude Include="FStdLib\FARStdlib\funi.h" />
     <ClInclude Include="FStdLib\FARStdlib\pack1.h" />
-    <ClInclude Include="FStdLib\FARStdlib\pack2.h" />
-    <ClInclude Include="FStdLib\FARStdlib\pack4.h" />
     <ClInclude Include="FStdLib\FARStdlib\pop.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

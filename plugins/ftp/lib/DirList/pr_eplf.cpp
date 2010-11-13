@@ -13,59 +13,63 @@
  * seconds since the Unix epoch), s for size, r for
  * (readable) file, and / for (listable) directory.
  */
-BOOL DECLSPEC idPRParceEPLF( const PFTPServerInfo Server, PFTPFileInfo p, char *entry, int entry_len )
-  {  char *tab;
-     char *begin, *end;
-     NET_FileEntryInfo entry_info;
+BOOL WINAPI idPRParceEPLF(const FTPServerInfo* Server, FTPFileInfo* p, char *entry, int entry_len)
+{
+	char *tab;
+	char *begin, *end;
+	NET_FileEntryInfo entry_info;
 
-     if ( entry[0] != '+' ||
-          StrChr(entry,' ') ||
-          (tab = StrChr(entry, '\t')) == NULL )
-       return FALSE;
+	if(entry[0] != '+' ||
+	        strchr(entry,' ') ||
+	        (tab = strchr(entry, '\t')) == NULL)
+		return FALSE;
 
-     for( begin = &entry[1]; begin < tab; begin = end+1 ) {
-         end = StrChr(begin, ',');
-         if( !end || end > tab )
-           break;
+	for(begin = &entry[1]; begin < tab; begin = end+1)
+	{
+		end = strchr(begin, ',');
 
-         switch( *begin ) {
-           case 'm':  { time_t tt = AtoI( begin+1,(time_t)0 );
-                        if ( !tt ) { entry_info.date = 0; break; }
+		if(!end || end > tab)
+			break;
 
-                        struct tm *t = localtime( &tt );
-                        if ( !t ) { entry_info.date = 0; break; }
+		switch(*begin)
+		{
+			case 'm':
+			{
+				time_t tt = AtoI(begin+1,(time_t)0);
 
-                        SYSTEMTIME st;
+				if(!tt) { entry_info.date = 0; break; }
 
-                        st.wYear       = t->tm_year+1900;
-                        st.wMonth      = t->tm_mon+1;
-                        st.wDayOfWeek  = 0;
-                        st.wDay        = t->tm_mday;
-                        st.wHour       = t->tm_hour;
-                        st.wMinute     = t->tm_min;
-                        st.wSecond     = t->tm_sec;
-                        st.wMilliseconds = 0;
+				struct tm *t = localtime(&tt);
 
-                        if ( !SystemTimeToFileTime( &st, entry_info.date ) )
-                          entry_info.date = 0;
-                      }
-               break;
+				if(!t) { entry_info.date = 0; break; }
 
-           case 's':  entry_info.size = AtoI( begin+1,(__int64)-1 );
-                      if ( entry_info.size == (__int64)-1 )
-                        return FALSE;
-               break;
+				SYSTEMTIME st;
+				st.wYear       = t->tm_year+1900;
+				st.wMonth      = t->tm_mon+1;
+				st.wDayOfWeek  = 0;
+				st.wDay        = t->tm_mday;
+				st.wHour       = t->tm_hour;
+				st.wMinute     = t->tm_min;
+				st.wSecond     = t->tm_sec;
+				st.wMilliseconds = 0;
 
-           case 'r':  entry_info.FileType = NET_FILE_TYPE; break;
+				if(!SystemTimeToFileTime(&st, entry_info.date))
+					entry_info.date = 0;
+			}
+			break;
+			case 's':  entry_info.size = AtoI(begin+1,(__int64)-1);
 
-           case '/':  entry_info.FileType = NET_DIRECTORY; break;
+				if(entry_info.size == (__int64)-1)
+					return FALSE;
 
-           default:
-               break;
-         }
-     }
+				break;
+			case 'r':  entry_info.FileType = NET_FILE_TYPE; break;
+			case '/':  entry_info.FileType = NET_DIRECTORY; break;
+			default:
+				break;
+		}
+	}
 
-     StrCpy( entry_info.FindData.cFileName, tab+1, sizeof(entry_info.FindData.cFileName) );
-
- return ConvertEntry( &entry_info,p );
+	StrCpy(entry_info.FindData.cFileName, tab+1, sizeof(entry_info.FindData.cFileName));
+	return ConvertEntry(&entry_info,p);
 }

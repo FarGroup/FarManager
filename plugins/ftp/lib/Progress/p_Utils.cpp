@@ -9,16 +9,19 @@
 
    Input values must be equal signed or result will be undefined
 */
-double ToPercent( __int64 N1,__int64 N2 )
-  {
-    while( N1 > 10000 || N2 > 10000 ) {
-      N1/=100;
-      N2/=100;
-    }
-    if ( N2==0 ) return 0;
-    if ( N2<N1 ) return 100;
+double ToPercent(__int64 N1,__int64 N2)
+{
+	while(N1 > 10000 || N2 > 10000)
+	{
+		N1/=100;
+		N2/=100;
+	}
 
- return ((double)N1) * 100.0 / ((double)N2);
+	if(N2==0) return 0;
+
+	if(N2<N1) return 100;
+
+	return ((double)N1) * 100.0 / ((double)N2);
 }
 
 /*
@@ -27,27 +30,33 @@ double ToPercent( __int64 N1,__int64 N2 )
    The digit returns string with variable sizes from 1 to 5
    symbols in length.
 */
-CONSTSTR FCps4( char *buff,double val )
-  {  static char Names[] = { 'M', 'K', '\x0' };
-     int Letter;
+LPCSTR FCps4(char *buff,double val)
+{
+	static char Names[] = { 'M', 'K', '\x0' };
+	int Letter;
 
 //1M
-    if ( val >= 10000000. ) {
-      Letter = 0;
-      val   /= 1000000;
-    } else
+	if(val >= 10000000.)
+	{
+		Letter = 0;
+		val   /= 1000000;
+	}
+	else
+
 //1K
-    if ( val >= 10000. ) {
-      Letter = 1;
-      val   /= 1000;
-    } else {
+		if(val >= 10000.)
+		{
+			Letter = 1;
+			val   /= 1000;
+		}
+		else
+		{
 //<1K
-      Letter = 2;
-    }
+			Letter = 2;
+		}
 
-    Sprintf( buff,"%d%c",(int)val,Names[Letter] );
-
- return buff;
+	Sprintf(buff,"%d%c",(int)val,Names[Letter]);
+	return buff;
 }
 
 /*
@@ -58,40 +67,45 @@ CONSTSTR FCps4( char *buff,double val )
     Do not check `x` and `x1` fit at string; do not chage any part of
     string outside of x..x1 bounds
 */
-void PPercent( char *str,int x,int x1,int percent )
-  {
-    if ( x1-x < 1 )
-      return;
-    if ( percent == 0 ) {
-      memset( str+x,FAR_SHADOW_CHAR,x1-x+1 );
-      return;
-    }
-    if ( percent == 100 ) {
-      memset( str+x,FAR_FULL_CHAR,x1-x+1 );
-      return;
-    }
+void PPercent(char *str,int x,int x1,int percent)
+{
+	if(x1-x < 1)
+		return;
 
-    percent = Min( 100,Max(0,percent) );
-    percent = x + (x1-x)*percent/99;
-    for ( ; x < percent; x++ ) str[x] = FAR_FULL_CHAR;
-    for ( ; x <= x1; x++ )     str[x] = FAR_SHADOW_CHAR;
+	if(percent == 0)
+	{
+		memset(str+x,FAR_SHADOW_CHAR,x1-x+1);
+		return;
+	}
+
+	if(percent == 100)
+	{
+		memset(str+x,FAR_FULL_CHAR,x1-x+1);
+		return;
+	}
+
+	percent = Min(100,Max(0,percent));
+	percent = x + (x1-x)*percent/99;
+
+	for(; x < percent; x++) str[x] = FAR_FULL_CHAR;
+
+	for(; x <= x1; x++)     str[x] = FAR_SHADOW_CHAR;
 }
 
-void StrYTime( char *str,struct tm *tm )
-  {
-     Assert( tm != NULL );
+void StrYTime(char *str,struct tm *tm)
+{
+	Assert(tm != NULL);
+	char tmp[10],*m;
+	StrCpy(tmp, (char*)FTP_Info->GetOpt()->Months[tm->tm_mon], sizeof(tmp));
 
-     char tmp[10],*m;
-     StrCpy( tmp, (char*)FTP_Info->GetOpt()->Months[tm->tm_mon], sizeof(tmp) );
-     if ( (m=strchr(tmp,';')) != NULL ) *m = 0;
+	if((m=strchr(tmp,';')) != NULL) *m = 0;
 
-     Sprintf( str,"%02d-%s", tm->tm_mday, tmp );
+	Sprintf(str,"%02d-%s", tm->tm_mday, tmp);
 }
 
-void StrTTime( char *str,struct tm *tm )
-  {
-     Assert( tm != NULL );
-
-     Sprintf( str,"%02d:%02d:%02d",
-              tm->tm_hour,tm->tm_min,tm->tm_sec );
+void StrTTime(char *str,struct tm *tm)
+{
+	Assert(tm != NULL);
+	Sprintf(str,"%02d:%02d:%02d",
+	        tm->tm_hour,tm->tm_min,tm->tm_sec);
 }

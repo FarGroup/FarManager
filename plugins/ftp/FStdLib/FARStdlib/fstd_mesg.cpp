@@ -8,35 +8,36 @@
 static char *messbuff = NULL;
 static AbortProc ExitProc;
 
-static void RTL_CALLBACK MSG_DelBuff( void )
-  {
-    if ( messbuff ) {
-      delete[] messbuff;
-      messbuff = NULL;
-    }
-    if ( ExitProc )
-      ExitProc();
+static void _cdecl MSG_DelBuff(void)
+{
+	if(messbuff)
+	{
+		delete[] messbuff;
+		messbuff = NULL;
+	}
+
+	if(ExitProc)
+		ExitProc();
 }
 
-CONSTSTR DECLSPEC_PT Message( CONSTSTR patt,... )
-  {  va_list  a;
-     CONSTSTR m;
-
-     va_start( a, patt );
-       m = MessageV( patt,a );
-     va_end( a );
-
- return m;
+LPCSTR _cdecl Message(LPCSTR patt,...)
+{
+	va_list  a;
+	LPCSTR m;
+	va_start(a, patt);
+	m = MessageV(patt,a);
+	va_end(a);
+	return m;
 }
 
-CONSTSTR DECLSPEC MessageV( CONSTSTR patt,va_list a )
-  {
-     if ( !messbuff ) {
-       ExitProc = AtExit( MSG_DelBuff );
-       messbuff = new char[MSG_BUFFSIZE];
-     }
+LPCSTR WINAPI MessageV(LPCSTR patt,va_list a)
+{
+	if(!messbuff)
+	{
+		ExitProc = AtExit(MSG_DelBuff);
+		messbuff = new char[MSG_BUFFSIZE];
+	}
 
-     VSNprintf( messbuff,MSG_BUFFSIZE,patt,a );
-
- return messbuff;
+	VSNprintf(messbuff,MSG_BUFFSIZE,patt,a);
+	return messbuff;
 }

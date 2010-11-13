@@ -9,63 +9,65 @@
 #define PLUGIN_NOTIFY    2
 
 //------------------------------------------------------------------------
-STRUCT( FTPPluginHolder )
-   HMODULE             Module;
-   PFTPPluginInterface Interface;
+struct FTPPluginHolder
+{
+	HMODULE             Module;
+	FTPPluginInterface* Interface;
 
-   virtual BOOL Assign( HMODULE m,PFTPPluginInterface Interface );
-   virtual void Destroy( void );
+	virtual BOOL Assign(HMODULE m,FTPPluginInterface* Interface);
+	virtual void Destroy(void);
 };
 
-extern BOOL             InitPlugins( void );
-extern void             FreePlugins( void );
-extern PFTPPluginHolder GetPluginHolder( WORD Number );
-extern BOOL             PluginAvailable( WORD Number );
+extern BOOL             InitPlugins(void);
+extern void             FreePlugins(void);
+extern FTPPluginHolder* GetPluginHolder(WORD Number);
+extern BOOL             PluginAvailable(WORD Number);
 
 //------------------------------------------------------------------------
-template <class Cl, WORD Index> struct FTPPlugin {
-   PFTPPluginHolder Holder;
+template <class Cl, WORD Index> struct FTPPlugin
+{
+	FTPPluginHolder* Holder;
 
-   FTPPlugin( void )    { Holder = GetPluginHolder(Index); }
-   virtual ~FTPPlugin() { Holder = NULL; }
+	FTPPlugin(void)    { Holder = GetPluginHolder(Index); }
+	virtual ~FTPPlugin() { Holder = NULL; }
 
-   Cl Interface( void ) { Assert( Holder ); Assert( Holder->Interface ); return (Cl)Holder->Interface; }
+	Cl Interface(void) { Assert(Holder); Assert(Holder->Interface); return (Cl)Holder->Interface; }
 };
 //------------------------------------------------------------------------
-typedef struct FTPProgress *PFTPProgress;
-struct FTPProgress : public FTPPlugin<PProgressInterface,PLUGIN_PROGRESS> {
-   HANDLE Object;
+struct FTPProgress : public FTPPlugin<ProgressInterface*,PLUGIN_PROGRESS>
+{
+	HANDLE Object;
 
-   FTPProgress( void ) { Object = NULL; }
-   ~FTPProgress()      { if (Object) { Interface()->DestroyObject(Object); Object = NULL; } }
+	FTPProgress(void) { Object = NULL; }
+	~FTPProgress()      { if(Object) { Interface()->DestroyObject(Object); Object = NULL; } }
 
-   void Resume( CONSTSTR LocalFileName );
-   void Resume( __int64 size );
-   BOOL Callback( int Size );
-   void Init( HANDLE Connection,int tMsg,int OpMode,PFP_SizeItemList il );
-   void InitFile( __int64 sz, CONSTSTR SrcName, CONSTSTR DestName );
-   void InitFile( PluginPanelItem *pi, CONSTSTR SrcName, CONSTSTR DestName );
-   void InitFile( LPFAR_FIND_DATA pi, CONSTSTR SrcName, CONSTSTR DestName );
-   void Skip( void );
-   void Waiting( time_t paused );
-   void SetConnection( HANDLE Connection );
-};
-
-//------------------------------------------------------------------------
-typedef struct FTPDirList *PFTPDirList;
-struct FTPDirList : public FTPPlugin<PDirListInterface,PLUGIN_DIRLIST> {
-
-   WORD     DetectStringType( const PFTPServerInfo Server,char *ListingString, int ListingLength );
-   WORD     DetectDirStringType( const PFTPServerInfo Server,CONSTSTR ListingString );
-   WORD     GetNumberOfSupportedTypes( void );
-   PFTPType GetType( WORD Index );
+	void Resume(LPCSTR LocalFileName);
+	void Resume(__int64 size);
+	BOOL Callback(int Size);
+	void Init(HANDLE Connection,int tMsg,int OpMode,FP_SizeItemList* il);
+	void InitFile(__int64 sz, LPCSTR SrcName, LPCSTR DestName);
+	void InitFile(PluginPanelItem *pi, LPCSTR SrcName, LPCSTR DestName);
+	void InitFile(FAR_FIND_DATA* pi, LPCSTR SrcName, LPCSTR DestName);
+	void Skip(void);
+	void Waiting(time_t paused);
+	void SetConnection(HANDLE Connection);
 };
 
 //------------------------------------------------------------------------
-typedef struct FTPNotify *PFTPNotify;
-struct FTPNotify : public FTPPlugin<PNotifyInterface,PLUGIN_NOTIFY> {
+struct FTPDirList : public FTPPlugin<DirListInterface*,PLUGIN_DIRLIST>
+{
 
-   void     Notify( const PFTNNotify p );
+	WORD     DetectStringType(FTPServerInfo* const Server,char *ListingString, int ListingLength);
+	WORD     DetectDirStringType(FTPServerInfo* const Server,LPCSTR ListingString);
+	WORD     GetNumberOfSupportedTypes(void);
+	FTPType* GetType(WORD Index);
+};
+
+//------------------------------------------------------------------------
+struct FTPNotify : public FTPPlugin<NotifyInterface*,PLUGIN_NOTIFY>
+{
+
+	void     Notify(const FTNNotify* p);
 };
 
 #endif

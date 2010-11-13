@@ -171,9 +171,6 @@
     <ClCompile Include="FStdLib\FARStdlib\fstd_stdlibCS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FStdLib\FARStdlib\fstd_stdlibME.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FStdLib\FARStdlib\fstd_stdlibSP.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -203,16 +200,10 @@
     <ClInclude Include="FStdLib\FARStdlib\funi.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FStdLib\FARStdlib\pack1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FStdLib\FARStdlib\pack2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FStdLib\FARStdlib\pack4.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="FStdLib\FARStdlib\pop.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FStdLib\FARStdlib\pack1.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

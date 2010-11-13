@@ -11,7 +11,7 @@
   May-05-2003  14:20:44
   May-05-2003  14:20:58
 */
-BOOL parse_vxdos_date_time( pchar& line, Time_t& decoded )
+BOOL parse_vxdos_date_time( LPSTR& line, Time_t& decoded )
   {
     if ( !line[0] ||
          line[3] != '-' || line[6] != '-' ||
@@ -70,12 +70,12 @@ BOOL parse_vxdos_date_time( pchar& line, Time_t& decoded )
      29336    Aug-19-1994  12:00:00   FDISK.EXE
 */
 
-static CONSTSTR vx_skips[] = {
+static LPCSTR vx_skips[] = {
   "  size          date  ",
   "--------       ------  ",
   NULL };
 
-BOOL DECLSPEC idPRParceVX_DOS( const PFTPServerInfo Server, PFTPFileInfo p, char *entry, int entry_len )
+BOOL WINAPI idPRParceVX_DOS( const FTPServerInfo* Server, FTPFileInfo* p, char *entry, int entry_len )
   {  NET_FileEntryInfo ei;
 
      if ( entry_len < 36 )

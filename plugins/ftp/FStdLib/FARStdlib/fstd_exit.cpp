@@ -5,16 +5,18 @@
 
 static AbortProc CTAbortProc = NULL;
 
-AbortProc DECLSPEC AtExit( AbortProc p )
-  {  AbortProc old = CTAbortProc;
-     CTAbortProc = p;
- return old;
+AbortProc WINAPI AtExit(AbortProc p)
+{
+	AbortProc old = CTAbortProc;
+	CTAbortProc = p;
+	return old;
 }
 
-void DECLSPEC CallAtExit( void )
-  {
-    if ( CTAbortProc ) {
-      CTAbortProc();
-      CTAbortProc = NULL;
-    }
+void WINAPI CallAtExit(void)
+{
+	if(CTAbortProc)
+	{
+		CTAbortProc();
+		CTAbortProc = NULL;
+	}
 }

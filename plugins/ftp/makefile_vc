@@ -58,7 +58,7 @@ $(OBJLIB)\fstd_RegGB.obj $(OBJLIB)\fstd_RegGI.obj $(OBJLIB)\fstd_RegOp.obj \
 $(OBJLIB)\fstd_RegRn.obj $(OBJLIB)\fstd_RegSB.obj $(OBJLIB)\fstd_RegSC.obj \
 $(OBJLIB)\fstd_RegSI.obj $(OBJLIB)\fstd_SCol.obj $(OBJLIB)\fstd_scr.obj \
 $(OBJLIB)\fstd_String.obj $(OBJLIB)\fstd_stdlibCS.obj \
-$(OBJLIB)\fstd_stdlibME.obj $(OBJLIB)\fstd_stdlibSP.obj \
+$(OBJLIB)\fstd_stdlibSP.obj \
 $(OBJLIB)\fstd_stdlibST.obj $(OBJLIB)\fstd_SText.obj \
 $(OBJLIB)\fstd_exit.obj $(OBJLIB)\fstd_HotKey.obj $(OBJLIB)\fstd_Con.obj \
 $(OBJLIB)\fstd_FMsg.obj $(OBJLIB)\fstd_CharDraw.obj $(OBJLIB)\fstd_OEM.obj \

@@ -3,10 +3,11 @@
 
 #include "fstdlib.h"
 
-STRUCT( PRPeriod )
-  TIME_TYPE b,e;
-  DWORD     Period;
-  DWORD     LastDiff;
+struct PRPeriod
+{
+	TIME_TYPE b,e;
+	DWORD     Period;
+	DWORD     LastDiff;
 };
 
 /** @brief Create time period.
@@ -15,37 +16,48 @@ STRUCT( PRPeriod )
 
     @return handle of new period or NULL on error.
 */
-HANDLE DECLSPEC FP_PeriodCreate( DWORD ms )
-  {  PPRPeriod p = new PRPeriod;
-     GET_TIME( p->b );
-     p->Period = ms;
- return (HANDLE)p;
+HANDLE WINAPI FP_PeriodCreate(DWORD ms)
+{
+	PRPeriod* p = new PRPeriod;
+	GET_TIME(p->b);
+	p->Period = ms;
+	return (HANDLE)p;
 }
 
-void DECLSPEC FP_PeriodDestroy( HANDLE& _p )
-  {
-  delete ((PPRPeriod)_p);
-  _p = NULL;
+void WINAPI FP_PeriodDestroy(HANDLE& _p)
+{
+	delete((PRPeriod*)_p);
+	_p = NULL;
 }
 
-BOOL DECLSPEC FP_PeriodEnd( HANDLE _p )
-  {  PPRPeriod p = (PPRPeriod)_p;
-     BOOL      res;
-     if (!p) return FALSE;
-     GET_TIME( p->e );
-     p->LastDiff = (DWORD)(CMP_TIME(p->e,p->b)*1000.);
-     res = p->LastDiff >= p->Period;
-     if (res) p->b = p->e;
-  return res;
+BOOL WINAPI FP_PeriodEnd(HANDLE _p)
+{
+	PRPeriod* p = (PRPeriod*)_p;
+	BOOL      res;
+
+	if(!p) return FALSE;
+
+	GET_TIME(p->e);
+	p->LastDiff = (DWORD)(CMP_TIME(p->e,p->b)*1000.);
+	res = p->LastDiff >= p->Period;
+
+	if(res) p->b = p->e;
+
+	return res;
 }
 
-DWORD DECLSPEC FP_PeriodTime( HANDLE _p )
-  {  PPRPeriod p = (PPRPeriod)_p;
-     if (!p) return 0;
-  return p->LastDiff;
+DWORD WINAPI FP_PeriodTime(HANDLE _p)
+{
+	PRPeriod* p = (PRPeriod*)_p;
+
+	if(!p) return 0;
+
+	return p->LastDiff;
 }
 
-void DECLSPEC FP_PeriodReset( HANDLE _p )
-  {  PPRPeriod p = (PPRPeriod)_p;
-     if (p) GET_TIME( p->b );
+void WINAPI FP_PeriodReset(HANDLE _p)
+{
+	PRPeriod* p = (PRPeriod*)_p;
+
+	if(p) GET_TIME(p->b);
 }

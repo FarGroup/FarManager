@@ -3,42 +3,21 @@
 
 #include "fstdlib.h"
 
-char *DECLSPEC StrChr( CONSTSTR s, char ch )
-  {
-  return (char*)strchr( s,ch );
+int WINAPI strLen(LPCSTR str)
+{
+	return str ? (int)strlen(str) : 0;
 }
 
-char *DECLSPEC StrChr( CONSTSTR str,CONSTSTR test )
-  {  CONSTSTR m;
+char *WINAPI StrDup(LPCSTR m)
+{
+	char *rc;
 
-     if ( !str || !test )
-       return NULL;
+	if(!m) m = "";
 
-     for( ; *test; test++ )
-       if ( (m=strchr(str,*test)) != NULL )
-         return (char*)m;
+	rc = (char*)_Alloc(strLen(m)+1);
 
- return NULL;
-}
+	if(rc)
+		StrCpy(rc,m);
 
-
-char *DECLSPEC StrRChr( CONSTSTR s, char ch )
-  {
-  return (char*)strrchr( s,ch );
-}
-
-int DECLSPEC strLen( CONSTSTR str )
-  {
-  return str ? (int)strlen(str) : 0;
-}
-
-char *DECLSPEC StrDup( CONSTSTR m )
-  {  char *rc;
-
-     if ( !m ) m = "";
-
-     rc = (char*)_Alloc( strLen(m)+1 );
-     if ( rc )
-       StrCpy( rc,m );
- return rc;
+	return rc;
 }

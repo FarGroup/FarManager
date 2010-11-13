@@ -12,53 +12,55 @@
   07/05/06 06:08:14
   07/05/06 06:08:14
 */
-BOOL parse_os400_date_time( pchar& line, Time_t& decoded )
-  {
-    if ( !line[0] ||
-         line[2] != '/' || line[5] != '/' ||
-         line[8] != ' ' ||
-         line[11] != ':' || line[14] != ':' )
-      return FALSE;
+BOOL parse_os400_date_time(LPSTR& line, Time_t& decoded)
+{
+	if(!line[0] ||
+	        line[2] != '/' || line[5] != '/' ||
+	        line[8] != ' ' ||
+	        line[11] != ':' || line[14] != ':')
+		return FALSE;
 
-    SYSTEMTIME st;
-    GetSystemTime(&st);
-    st.wMilliseconds = 0;
-
+	SYSTEMTIME st;
+	GetSystemTime(&st);
+	st.wMilliseconds = 0;
 //mon
-    TwoDigits( line, st.wMonth );
-    if ( st.wMonth == MAX_WORD )
-      return FALSE;
-    line += 3;
+	TwoDigits(line, st.wMonth);
 
+	if(st.wMonth == MAX_WORD)
+		return FALSE;
+
+	line += 3;
 //mday
-    TwoDigits( line, st.wDay );
-    if ( st.wDay == MAX_WORD )
-      return FALSE;
-    line += 3;
+	TwoDigits(line, st.wDay);
 
+	if(st.wDay == MAX_WORD)
+		return FALSE;
+
+	line += 3;
 //year
-    TwoDigits( line, st.wYear );
-    if ( st.wYear == MAX_WORD )
-      return FALSE;
-    if ( st.wYear < 50 )
-      st.wYear += 100;
-    st.wYear += 1900;
-    line += 3;
+	TwoDigits(line, st.wYear);
 
+	if(st.wYear == MAX_WORD)
+		return FALSE;
+
+	if(st.wYear < 50)
+		st.wYear += 100;
+
+	st.wYear += 1900;
+	line += 3;
 //Time
-    TwoDigits( line+0, st.wHour );
-    TwoDigits( line+3, st.wMinute );
-    TwoDigits( line+6, st.wSecond );
-    if ( st.wHour   == MAX_WORD ||
-         st.wMinute == MAX_WORD ||
-         st.wSecond == MAX_WORD )
-      return FALSE;
+	TwoDigits(line+0, st.wHour);
+	TwoDigits(line+3, st.wMinute);
+	TwoDigits(line+6, st.wSecond);
 
-    line += 8;
+	if(st.wHour   == MAX_WORD ||
+	        st.wMinute == MAX_WORD ||
+	        st.wSecond == MAX_WORD)
+		return FALSE;
 
-    st.wDayOfWeek = 0;
-
- return SystemTimeToFileTime( &st, decoded );
+	line += 8;
+	st.wDayOfWeek = 0;
+	return SystemTimeToFileTime(&st, decoded);
 }
 
 /*
@@ -85,67 +87,63 @@ QSYS            12288 07/07/06 23:24:53 *DIR       tmp/
 MUELLERJ      1282232 01/18/06 11:40:23 *STMF      PARCELST.TXT
 MUELLERJ           58 01/03/06 11:29:17 *STMF      UNTITLED.TXT
 */
-BOOL net_parse_ls_line( char *line, PNET_FileEntryInfo entry_info )
-  {  char *e;
-     int   len;
-     static Time_t savedate;
-
+BOOL net_parse_ls_line(char *line, NET_FileEntryInfo* entry_info)
+{
+	char *e;
+	int   len;
+	static Time_t savedate;
 //Owner
-    e = SkipNSpace( line );
-    CHECK( (*e == 0), FALSE )
-    len = Min( (int)sizeof(entry_info->FTPOwner)-1, (int)(e-line) );
-    StrCpy( entry_info->FTPOwner, line, len+1 );
+	e = SkipNSpace(line);
+	CHECK((*e == 0), FALSE)
+	len = Min((int)sizeof(entry_info->FTPOwner)-1, (int)(e-line));
+	StrCpy(entry_info->FTPOwner, line, len+1);
+	line = SkipSpace(e);
 
-    line = SkipSpace( e );
-    if ( line[0] != '*' )
-    {
-      //Size
-        e = SkipNSpace( line );
+	if(line[0] != '*')
+	{
+		//Size
+		e = SkipNSpace(line);
+		CHECK((*e == 0), FALSE)
+		*e = 0;
+		entry_info->size = AtoI(line, (__int64)-1);
+		*e = ' ';
+		CHECK((entry_info->size == (__int64)-1), FALSE)
+		//Date
+		line = SkipSpace(e);
+		CHECK((!parse_os400_date_time(line,entry_info->date)), FALSE)
+		//save date of *FILE for *MEM members
+		savedate = entry_info->date;
+		line = SkipSpace(line);
+		CHECK((*line == 0), FALSE)
+	}
+	else
+	{
+		entry_info->size = 0;
+		entry_info->date = savedate;
+	}
 
-        CHECK( (*e == 0), FALSE )
-        *e = 0;
-        entry_info->size = AtoI( line, (__int64)-1 );
-        *e = ' ';
-        CHECK( (entry_info->size == (__int64)-1), FALSE )
-
-      //Date
-        line = SkipSpace(e);
-        CHECK( (!parse_os400_date_time( line,entry_info->date )), FALSE )
-
-        //save date of *FILE for *MEM members
-        savedate = entry_info->date;
-
-        line = SkipSpace( line );
-        CHECK( (*line == 0), FALSE )
-    }
-    else
-    {
-        entry_info->size = 0;
-        entry_info->date = savedate;
-    }
-
-    line = SkipNSpace( line );
-
+	line = SkipNSpace(line);
 //File name
-    line = SkipSpace( line );
-    CHECK( (*line == 0), FALSE )
-    StrCpy( entry_info->FindData.cFileName, line, sizeof(entry_info->FindData.cFileName) );
+	line = SkipSpace(line);
+	CHECK((*line == 0), FALSE)
+	StrCpy(entry_info->FindData.cFileName, line, sizeof(entry_info->FindData.cFileName));
+	len = strLen(entry_info->FindData.cFileName);
 
-    len = strLen(entry_info->FindData.cFileName);
-    if ( entry_info->FindData.cFileName[len-1] == '/' )
-    {
-        entry_info->FindData.cFileName[len-1] = 0;
-        entry_info->FileType = NET_DIRECTORY;
-    }
+	if(entry_info->FindData.cFileName[len-1] == '/')
+	{
+		entry_info->FindData.cFileName[len-1] = 0;
+		entry_info->FileType = NET_DIRECTORY;
+	}
 
- return TRUE;
+	return TRUE;
 }
 
-BOOL DECLSPEC idPRParceOS400( const PFTPServerInfo Server, PFTPFileInfo p, char *entry, int entry_len )
-  {  NET_FileEntryInfo entry_info;
+BOOL WINAPI idPRParceOS400(const FTPServerInfo* Server, FTPFileInfo* p, char *entry, int entry_len)
+{
+	NET_FileEntryInfo entry_info;
 
-    if ( !net_parse_ls_line(entry, &entry_info) )
-      return FALSE;
+	if(!net_parse_ls_line(entry, &entry_info))
+		return FALSE;
 
- return ConvertEntry( &entry_info,p );
+	return ConvertEntry(&entry_info,p);
 }

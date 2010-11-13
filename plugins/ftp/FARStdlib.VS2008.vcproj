@@ -680,10 +680,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\FStdLib\FARStdlib\fstd_stdlibME.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\FStdLib\FARStdlib\fstd_stdlibSP.cpp"
 				>
 			</File>
@@ -727,14 +723,6 @@
 			</File>
 			<File
 				RelativePath=".\FStdLib\FARStdlib\pack1.h"
-				>
-			</File>
-			<File
-				RelativePath=".\FStdLib\FARStdlib\pack2.h"
-				>
-			</File>
-			<File
-				RelativePath=".\FStdLib\FARStdlib\pack4.h"
 				>
 			</File>
 			<File
