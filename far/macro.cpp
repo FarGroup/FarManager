@@ -6153,9 +6153,16 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 	Dialog Dlg(MacroSettingsDlg,ARRAYSIZE(MacroSettingsDlg),ParamMacroDlgProc,(LONG_PTR)&Param);
 	Dlg.SetPosition(-1,-1,73,19);
 	Dlg.SetHelp(L"KeyMacroSetting");
-	FrameManager->GetBottomFrame()->Lock(); // отменим прорисовку фрейма
+	Frame* BottomFrame = FrameManager->GetBottomFrame();
+	if(BottomFrame)
+	{
+		BottomFrame->Lock(); // отменим прорисовку фрейма
+	}
 	Dlg.Process();
-	FrameManager->GetBottomFrame()->Unlock(); // теперь можно :-)
+	if(BottomFrame)
+	{
+		BottomFrame->Unlock(); // теперь можно :-)
+	}
 
 	if (Dlg.GetExitCode()!=MS_BUTTON_OK)
 		return FALSE;
