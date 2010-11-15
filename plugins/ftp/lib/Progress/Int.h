@@ -2,7 +2,7 @@
 #define __FTP_PROGRESS_INTERNAL
 
 #include "fstdlib.h"         //FAR plugin stdlib
-#include "../ftp_Plugin.h"
+#include "../Plugin.h"
 
 #define MAX_TRAF_LINES    20
 #define MAX_TRAF_WIDTH    200
