@@ -20,18 +20,18 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="lib\Notify\nt_Main.cpp">
+    <ClCompile Include="lib\Notify\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lib\p_All.cpp">
+    <ClCompile Include="lib\All.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="lib\fp_Notify.h">
+    <ClInclude Include="lib\Notify.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="lib\Notify\p_Int.h">
+    <ClInclude Include="lib\Notify\Int.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

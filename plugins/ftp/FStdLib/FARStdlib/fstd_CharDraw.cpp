@@ -167,7 +167,7 @@ int HCharDrawing::TextV(int x, int y, int color, LPCSTR fmt,va_list argptr)
 {
 	int rc;
 
-	if((rc=VSNprintf(StrBuff, MAX_STR_SIZE, fmt, argptr)) >= MAX_STR_SIZE)
+	if((rc=vsnprintf(StrBuff, MAX_STR_SIZE, fmt, argptr)) >= MAX_STR_SIZE)
 		StrBuff[rc = MAX_STR_SIZE] = 0;
 
 	TypeText(x, y, color);

@@ -554,11 +554,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\lib\Notify\nt_Main.cpp"
+				RelativePath=".\lib\Notify\Main.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\lib\p_All.cpp"
+				RelativePath=".\lib\All.cpp"
 				>
 			</File>
 		</Filter>
@@ -568,11 +568,11 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\lib\fp_Notify.h"
+				RelativePath=".\lib\Notify.h"
 				>
 			</File>
 			<File
-				RelativePath=".\lib\Notify\p_Int.h"
+				RelativePath=".\lib\Notify\Int.h"
 				>
 			</File>
 		</Filter>

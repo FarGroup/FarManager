@@ -1,11 +1,11 @@
 NAME = FarFtp
-SRCS = ftp_AskOver.cpp ftp_Cfg.cpp ftp_CmdLine.cpp ftp_cnDownload.cpp ftp_cnInit.cpp \
-       ftp_cnUpload.cpp ftp_Connect.cpp ftp_ConnectCmds.cpp ftp_ConnectIO.cpp ftp_ConnectMain.cpp \
-       ftp_ConnectNB.cpp ftp_ConnectSock.cpp ftp_DeleteFile.cpp ftp_EnumHost.cpp ftp_Event.cpp \
-       ftp_FAR.cpp ftp_FGet.cpp ftp_FileList.cpp ftp_FPut.cpp ftp_Ftp.cpp ftp_FtpAPI.cpp ftp_FTPBlock.cpp \
-       ftp_FTPConnect.cpp ftp_FtpDlg.cpp ftp_FTPHost.cpp ftp_fUtils.cpp ftp_GetOpenInfo.cpp ftp_HGet.cpp \
-       ftp_HPut.cpp ftp_JM.cpp ftp_Key.cpp ftp_MakeDir.cpp ftp_Mem.cpp ftp_Mix.cpp ftp_Plugin.cpp ftp_Queque.cpp \
-       ftp_SetDir.cpp ftp_Shortcut.cpp ftp_sock.cpp ftp_Url.cpp
+SRCS = AskOver.cpp Cfg.cpp CmdLine.cpp cnDownload.cpp cnInit.cpp \
+       cnUpload.cpp Connect.cpp ConnectCmds.cpp ConnectIO.cpp ConnectMain.cpp \
+       ConnectNB.cpp ConnectSock.cpp DeleteFile.cpp EnumHost.cpp Event.cpp \
+       FAR.cpp FGet.cpp FileList.cpp FPut.cpp Ftp.cpp FtpAPI.cpp FTPBlock.cpp \
+       FTPConnect.cpp FtpDlg.cpp FTPHost.cpp fUtils.cpp GetOpenInfo.cpp HGet.cpp \
+       HPut.cpp JM.cpp Key.cpp MakeDir.cpp Mem.cpp Mix.cpp Plugin.cpp Queque.cpp \
+       SetDir.cpp Shortcut.cpp sock.cpp Url.cpp
 DOCS = FtpEng.hlf FtpRus.hlf FtpEng.lng FtpRus.lng TechInfo.reg TechInfo_rus.reg FtpCmds.txt FtpCmds_rus.txt Notes.txt Notes_rus.txt
 
 NEEDDEFLIB=1
@@ -28,7 +28,7 @@ fstdlib:
 
 all: fll
 
-$(RES): ftpversion.hpp
+$(RES): version.hpp
 
 .PHONY: fll
 fll:

@@ -1,4 +1,4 @@
-#include "ftpversion.hpp"
+#include "version.hpp"
 
 #define PLUGIN_BUILD FTP_BUILD
 #define PLUGIN_DESC "FTP client for FAR Manager"

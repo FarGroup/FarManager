@@ -14,7 +14,7 @@ void _cdecl __WinAbort(LPCSTR msg,...)
 
 //Message
 	va_start(a,msg);
-	VSNprintf(str,sizeof(str),msg,a);
+	vsnprintf(str,sizeof(str),msg,a);
 	va_end(a);
 //Plugin name
 	strcpy(pnm,"Assertion in \"");

@@ -20,19 +20,19 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="lib\p_All.cpp">
+    <ClCompile Include="lib\All.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lib\Progress\p_cbFmt.cpp">
+    <ClCompile Include="lib\Progress\cbFmt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lib\Progress\p_Main.cpp">
+    <ClCompile Include="lib\Progress\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lib\Progress\p_TraficCB.cpp">
+    <ClCompile Include="lib\Progress\TraficCB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lib\Progress\p_Utils.cpp">
+    <ClCompile Include="lib\Progress\Utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -40,7 +40,7 @@
     <ClInclude Include="lib\fp_Progress.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="lib\Progress\p_Int.h">
+    <ClInclude Include="lib\Progress\Int.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

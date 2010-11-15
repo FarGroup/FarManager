@@ -89,7 +89,7 @@
 #include <conio.h>              // getch
 #include <process.h>            // system,signal
 #include <ctype.h>              // isprint
-#include <stdio.h>              // Sprintf
+#include <stdio.h>              // sprintf
 #include <stdlib.h>             // atexit
 #include <string.h>             // strXXX
 #include <fcntl.h>              // O_RDWR,xxx
@@ -372,9 +372,6 @@ typedef DWORD                        ATTR_TYPE;
 #define FIO_SETERRORN(v)             SetLastError( (DWORD)(v) )
 #define FIO_ALLFILES                 (FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_DIREC | FA_ARCH)
 
-#define snprintf                     _snprintf
-#define vsnprintf                    _vsnprintf
-
 #define EZERO         0             /*0    Error 0                          */
 #define EINVFNC       EPERM         /*1    Invalid function number          */
 #ifndef ENOFILE
@@ -468,11 +465,6 @@ extern BOOL   WINAPI _HeapCheck(void);
 
 //str
 extern int     WINAPI strLen(LPCSTR str);
-//sprintf
-extern int     _cdecl Sprintf(char *Buff,LPCSTR Fmt,...);
-extern int     _cdecl SNprintf(char *Buff,size_t cn,LPCSTR Fmt,...);
-extern int     WINAPI    VSNprintf(char *Buff,size_t cn,LPCSTR Fmt,va_list arglist);
-extern int     WINAPI    VSprintf(char *Buff,LPCSTR Fmt,va_list arglist);
 //string extension
 inline char             ToUpperI(char c) { return (char)((c) + 'A' - 'a'); }
 inline char             ToLowerI(char c) { return (char)((c) + 'a' - 'A'); }

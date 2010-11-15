@@ -363,25 +363,25 @@
     <None Include="lib\def.vc.def" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="lib\p_All.cpp" />
-    <ClCompile Include="lib\DirList\p_Main.cpp" />
-    <ClCompile Include="lib\DirList\pr_cms.cpp" />
-    <ClCompile Include="lib\DirList\pr_dos.cpp" />
-    <ClCompile Include="lib\DirList\pr_eplf.cpp" />
-    <ClCompile Include="lib\DirList\pr_mvs.cpp" />
-    <ClCompile Include="lib\DirList\pr_netware.cpp" />
-    <ClCompile Include="lib\DirList\pr_os2.cpp" />
-    <ClCompile Include="lib\DirList\pr_os400.cpp" />
-    <ClCompile Include="lib\DirList\pr_pctcp.cpp" />
-    <ClCompile Include="lib\DirList\pr_skirdin.cpp" />
-    <ClCompile Include="lib\DirList\pr_tcpc.cpp" />
-    <ClCompile Include="lib\DirList\pr_unix.cpp" />
-    <ClCompile Include="lib\DirList\pr_vms.cpp" />
-    <ClCompile Include="lib\DirList\pr_vx.cpp" />
+    <ClCompile Include="lib\All.cpp" />
+    <ClCompile Include="lib\DirList\Main.cpp" />
+    <ClCompile Include="lib\DirList\cms.cpp" />
+    <ClCompile Include="lib\DirList\dos.cpp" />
+    <ClCompile Include="lib\DirList\eplf.cpp" />
+    <ClCompile Include="lib\DirList\mvs.cpp" />
+    <ClCompile Include="lib\DirList\netware.cpp" />
+    <ClCompile Include="lib\DirList\os2.cpp" />
+    <ClCompile Include="lib\DirList\os400.cpp" />
+    <ClCompile Include="lib\DirList\pctcp.cpp" />
+    <ClCompile Include="lib\DirList\skirdin.cpp" />
+    <ClCompile Include="lib\DirList\tcpc.cpp" />
+    <ClCompile Include="lib\DirList\unix.cpp" />
+    <ClCompile Include="lib\DirList\vms.cpp" />
+    <ClCompile Include="lib\DirList\vx.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="lib\fp_DirList.h" />
-    <ClInclude Include="lib\DirList\p_Int.h" />
+    <ClInclude Include="lib\DirList.h" />
+    <ClInclude Include="lib\DirList\Int.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="lib\DirList\res.rc">

@@ -95,9 +95,9 @@ LPCSTR WINAPI FCps(char *buff,double val)
 		}
 
 	if(Letter == 'b')
-		Sprintf(str,"%db",(int)val);
+		sprintf(str,"%db",(int)val);
 	else
-		Sprintf(str,"%3.3lf%c",val,Letter);
+		sprintf(str,"%3.3lf%c",val,Letter);
 
 	int sz;
 

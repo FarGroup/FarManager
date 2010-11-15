@@ -171,9 +171,6 @@
     <ClCompile Include="FStdLib\FARStdlib\fstd_stdlibCS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FStdLib\FARStdlib\fstd_stdlibSP.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FStdLib\FARStdlib\fstd_stdlibST.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

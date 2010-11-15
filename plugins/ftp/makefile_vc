@@ -22,22 +22,22 @@ FLLLIST = $(FLLLIST) Notify
 ##########
 
 LINK_OBJS = \
-$(OBJDIR)\ftp_AskOver.obj $(OBJDIR)\ftp_Cfg.obj $(OBJDIR)\ftp_CmdLine.obj \
-$(OBJDIR)\ftp_cnDownload.obj $(OBJDIR)\ftp_cnInit.obj \
-$(OBJDIR)\ftp_cnUpload.obj $(OBJDIR)\ftp_Connect.obj \
-$(OBJDIR)\ftp_ConnectCmds.obj $(OBJDIR)\ftp_ConnectIO.obj \
-$(OBJDIR)\ftp_ConnectMain.obj $(OBJDIR)\ftp_ConnectNB.obj \
-$(OBJDIR)\ftp_ConnectSock.obj $(OBJDIR)\ftp_DeleteFile.obj \
-$(OBJDIR)\ftp_EnumHost.obj $(OBJDIR)\ftp_Event.obj $(OBJDIR)\ftp_FAR.obj \
-$(OBJDIR)\ftp_FGet.obj $(OBJDIR)\ftp_FileList.obj $(OBJDIR)\ftp_FPut.obj \
-$(OBJDIR)\ftp_Ftp.obj $(OBJDIR)\ftp_FtpAPI.obj $(OBJDIR)\ftp_FTPBlock.obj \
-$(OBJDIR)\ftp_FTPConnect.obj $(OBJDIR)\ftp_FtpDlg.obj \
-$(OBJDIR)\ftp_FTPHost.obj $(OBJDIR)\ftp_fUtils.obj \
-$(OBJDIR)\ftp_GetOpenInfo.obj $(OBJDIR)\ftp_HGet.obj $(OBJDIR)\ftp_HPut.obj \
-$(OBJDIR)\ftp_JM.obj $(OBJDIR)\ftp_Key.obj $(OBJDIR)\ftp_MakeDir.obj \
-$(OBJDIR)\ftp_Mem.obj $(OBJDIR)\ftp_Mix.obj $(OBJDIR)\ftp_Plugin.obj \
-$(OBJDIR)\ftp_SetDir.obj $(OBJDIR)\ftp_Shortcut.obj $(OBJDIR)\ftp_sock.obj \
-$(OBJDIR)\ftp_Queque.obj $(OBJDIR)\ftp_Url.obj
+$(OBJDIR)\AskOver.obj $(OBJDIR)\Cfg.obj $(OBJDIR)\CmdLine.obj \
+$(OBJDIR)\cnDownload.obj $(OBJDIR)\cnInit.obj \
+$(OBJDIR)\cnUpload.obj $(OBJDIR)\Connect.obj \
+$(OBJDIR)\ConnectCmds.obj $(OBJDIR)\ConnectIO.obj \
+$(OBJDIR)\ConnectMain.obj $(OBJDIR)\ConnectNB.obj \
+$(OBJDIR)\ConnectSock.obj $(OBJDIR)\DeleteFile.obj \
+$(OBJDIR)\EnumHost.obj $(OBJDIR)\Event.obj $(OBJDIR)\FAR.obj \
+$(OBJDIR)\FGet.obj $(OBJDIR)\FileList.obj $(OBJDIR)\FPut.obj \
+$(OBJDIR)\Ftp.obj $(OBJDIR)\FtpAPI.obj $(OBJDIR)\FTPBlock.obj \
+$(OBJDIR)\FTPConnect.obj $(OBJDIR)\FtpDlg.obj \
+$(OBJDIR)\FTPHost.obj $(OBJDIR)\fUtils.obj \
+$(OBJDIR)\GetOpenInfo.obj $(OBJDIR)\HGet.obj $(OBJDIR)\HPut.obj \
+$(OBJDIR)\JM.obj $(OBJDIR)\Key.obj $(OBJDIR)\MakeDir.obj \
+$(OBJDIR)\Mem.obj $(OBJDIR)\Mix.obj $(OBJDIR)\Plugin.obj \
+$(OBJDIR)\SetDir.obj $(OBJDIR)\Shortcut.obj $(OBJDIR)\sock.obj \
+$(OBJDIR)\Queque.obj $(OBJDIR)\Url.obj
 
 ##########
 
@@ -58,15 +58,14 @@ $(OBJLIB)\fstd_RegGB.obj $(OBJLIB)\fstd_RegGI.obj $(OBJLIB)\fstd_RegOp.obj \
 $(OBJLIB)\fstd_RegRn.obj $(OBJLIB)\fstd_RegSB.obj $(OBJLIB)\fstd_RegSC.obj \
 $(OBJLIB)\fstd_RegSI.obj $(OBJLIB)\fstd_SCol.obj $(OBJLIB)\fstd_scr.obj \
 $(OBJLIB)\fstd_String.obj $(OBJLIB)\fstd_stdlibCS.obj \
-$(OBJLIB)\fstd_stdlibSP.obj \
 $(OBJLIB)\fstd_stdlibST.obj $(OBJLIB)\fstd_SText.obj \
 $(OBJLIB)\fstd_exit.obj $(OBJLIB)\fstd_HotKey.obj $(OBJLIB)\fstd_Con.obj \
 $(OBJLIB)\fstd_FMsg.obj $(OBJLIB)\fstd_CharDraw.obj $(OBJLIB)\fstd_OEM.obj \
 $(OBJLIB)\fstd_Utils.obj $(OBJLIB)\fstd_FUtils.obj
 
 
-DEP_HDR=ftp_int.h FStdLib\fstdlib.h lib/ftp_Plugin.h ftp_Plugins.h ftp_Cfg.h \
-ftp_JM.h ftp_var.h ftp_Connect.h ftp_FtpAPI.h ftp_Ftp.h
+DEP_HDR=int.h FStdLib\fstdlib.h lib/Plugin.h Plugins.h Cfg.h \
+JM.h var.h Connect.h FtpAPI.h Ftp.h
 
 ##########
 
@@ -116,7 +115,7 @@ $(LIB_OBJS)
 	@$(CC) $(CFLAGS_NO) /Fo$(OBJLIB)\ { $< } 
 !endif
 
-$(RES): ftpversion.hpp
+$(RES): version.hpp
 
 ##########
 flls: $(FLLLIST)

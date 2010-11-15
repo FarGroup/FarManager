@@ -351,15 +351,15 @@
     <None Include="lib\def.vc.def" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="lib\p_All.cpp" />
-    <ClCompile Include="lib\Progress\p_cbFmt.cpp" />
-    <ClCompile Include="lib\Progress\p_Main.cpp" />
-    <ClCompile Include="lib\Progress\p_TraficCB.cpp" />
-    <ClCompile Include="lib\Progress\p_Utils.cpp" />
+    <ClCompile Include="lib\All.cpp" />
+    <ClCompile Include="lib\Progress\cbFmt.cpp" />
+    <ClCompile Include="lib\Progress\Main.cpp" />
+    <ClCompile Include="lib\Progress\TraficCB.cpp" />
+    <ClCompile Include="lib\Progress\Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="lib\fp_Progress.h" />
-    <ClInclude Include="lib\Progress\p_Int.h" />
+    <ClInclude Include="lib\Progress.h" />
+    <ClInclude Include="lib\Progress\Int.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="lib\Progress\res.rc">

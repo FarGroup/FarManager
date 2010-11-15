@@ -36,9 +36,9 @@ int String::printf(LPCSTR fmt,...)
 
 int String::vprintf(LPCSTR fmt,va_list list)
 {
-	int sz = VSNprintf(NULL,0,fmt,list);
+	int sz = vsnprintf(NULL,0,fmt,list);
 	Alloc(sz+1);
-	return len = VSNprintf(str,maxchar,fmt,list);
+	return len = vsnprintf(str,maxchar,fmt,list);
 }
 
 void String::BeginSet(size_t sz)
@@ -138,7 +138,7 @@ void String::vcat(LPCSTR s,va_list a)
 
 	if(!s || !s[0]) return;
 
-	slen = VSNprintf(NULL,0,s,a);
+	slen = vsnprintf(NULL,0,s,a);
 
 	if(!slen) return;
 

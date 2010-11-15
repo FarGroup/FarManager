@@ -10,9 +10,9 @@ HKEY WINAPI FP_OpenRegKey(const char *Key)
 	CHK_INITED
 
 	if(Key && *Key)
-		SNprintf(name,sizeof(name),"%s" SLASH_STR "%s",FP_PluginRootKey,Key);
+		_snprintf(name,sizeof(name),"%s" SLASH_STR "%s",FP_PluginRootKey,Key);
 	else
-		SNprintf(name,sizeof(name),"%s",FP_PluginRootKey);
+		_snprintf(name,sizeof(name),"%s",FP_PluginRootKey);
 
 	if(RegOpenKey(HKEY_CURRENT_USER,name,&hKey) != ERROR_SUCCESS)
 		return NULL;

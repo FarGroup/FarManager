@@ -49,7 +49,7 @@ static LONG_PTR WINAPI CDLG_WndProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
 			else if(Param1 >= cdlgBK && Param1 < cdlgBK+16)
 				ColorBk = Param1 - cdlgBK;
 
-			Sprintf(str,"%s(%3d 0x%02X %03o)",
+			sprintf(str,"%s(%3d 0x%02X %03o)",
 			        Title,
 			        FAR_COLOR(ColorFore,ColorBk),
 			        FAR_COLOR(ColorFore,ColorBk),
@@ -111,7 +111,7 @@ int WINAPI FP_GetColorDialog(int color,FLngColorDialog* p,LPCSTR Help)
 	DialogItems[ cdlgFORE+ColorFore ].Selected = TRUE; DialogItems[ cdlgFORE+ColorFore ].Focus = TRUE;
 	DialogItems[ cdlgBK+ColorBk ].Selected     = TRUE;
 	StrCpy(Title,DialogItems[0].Data,sizeof(Title));
-	Sprintf(str,"(%3d 0x%02X %03o)",
+	sprintf(str,"(%3d 0x%02X %03o)",
 	        FAR_COLOR(ColorFore,ColorBk),
 	        FAR_COLOR(ColorFore,ColorBk),
 	        FAR_COLOR(ColorFore,ColorBk));

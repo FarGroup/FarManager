@@ -605,163 +605,163 @@
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_AskOver.cpp"
+				RelativePath=".\AskOver.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_Cfg.cpp"
+				RelativePath=".\Cfg.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_CmdLine.cpp"
+				RelativePath=".\CmdLine.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_cnDownload.cpp"
+				RelativePath=".\cnDownload.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_cnInit.cpp"
+				RelativePath=".\cnInit.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_cnUpload.cpp"
+				RelativePath=".\cnUpload.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_Connect.cpp"
+				RelativePath=".\Connect.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_ConnectCmds.cpp"
+				RelativePath=".\ConnectCmds.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_ConnectIO.cpp"
+				RelativePath=".\ConnectIO.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_ConnectMain.cpp"
+				RelativePath=".\ConnectMain.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_ConnectNB.cpp"
+				RelativePath=".\ConnectNB.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_ConnectSock.cpp"
+				RelativePath=".\ConnectSock.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_DeleteFile.cpp"
+				RelativePath=".\DeleteFile.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_EnumHost.cpp"
+				RelativePath=".\EnumHost.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_Event.cpp"
+				RelativePath=".\Event.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_FAR.cpp"
+				RelativePath=".\FAR.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_FGet.cpp"
+				RelativePath=".\FGet.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_FileList.cpp"
+				RelativePath=".\FileList.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_FPut.cpp"
+				RelativePath=".\FPut.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_Ftp.cpp"
+				RelativePath=".\Ftp.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_FtpAPI.cpp"
+				RelativePath=".\FtpAPI.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_FTPBlock.cpp"
+				RelativePath=".\FTPBlock.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_FTPConnect.cpp"
+				RelativePath=".\FTPConnect.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_FtpDlg.cpp"
+				RelativePath=".\FtpDlg.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_FTPHost.cpp"
+				RelativePath=".\FTPHost.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_fUtils.cpp"
+				RelativePath=".\fUtils.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_GetOpenInfo.cpp"
+				RelativePath=".\GetOpenInfo.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_HGet.cpp"
+				RelativePath=".\HGet.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_HPut.cpp"
+				RelativePath=".\HPut.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_JM.cpp"
+				RelativePath=".\JM.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_Key.cpp"
+				RelativePath=".\Key.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_MakeDir.cpp"
+				RelativePath=".\MakeDir.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_Mem.cpp"
+				RelativePath=".\Mem.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_Mix.cpp"
+				RelativePath=".\Mix.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_Plugin.cpp"
+				RelativePath=".\Plugin.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_Queque.cpp"
+				RelativePath=".\Queque.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_SetDir.cpp"
+				RelativePath=".\SetDir.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_Shortcut.cpp"
+				RelativePath=".\Shortcut.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_sock.cpp"
+				RelativePath=".\sock.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_Url.cpp"
+				RelativePath=".\Url.cpp"
 				>
 			</File>
 		</Filter>
@@ -771,39 +771,39 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\ftp_Cfg.h"
+				RelativePath=".\Cfg.h"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_Connect.h"
+				RelativePath=".\Connect.h"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_Ftp.h"
+				RelativePath=".\Ftp.h"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_FtpAPI.h"
+				RelativePath=".\FtpAPI.h"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_Int.h"
+				RelativePath=".\Int.h"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_JM.h"
+				RelativePath=".\JM.h"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_Plugins.h"
+				RelativePath=".\Plugins.h"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_pwd.h"
+				RelativePath=".\pwd.h"
 				>
 			</File>
 			<File
-				RelativePath=".\ftp_var.h"
+				RelativePath=".\var.h"
 				>
 			</File>
 		</Filter>

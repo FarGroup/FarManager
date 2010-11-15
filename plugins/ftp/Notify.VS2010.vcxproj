@@ -345,12 +345,12 @@
     <None Include="lib\def.vc.def" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="lib\Notify\nt_Main.cpp" />
-    <ClCompile Include="lib\p_All.cpp" />
+    <ClCompile Include="lib\Notify\Main.cpp" />
+    <ClCompile Include="lib\All.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="lib\fp_Notify.h" />
-    <ClInclude Include="lib\Notify\p_Int.h" />
+    <ClInclude Include="lib\Notify.h" />
+    <ClInclude Include="lib\Notify\Int.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="lib\Notify\res.rc">

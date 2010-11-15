@@ -38,6 +38,6 @@ LPCSTR WINAPI MessageV(LPCSTR patt,va_list a)
 		messbuff = new char[MSG_BUFFSIZE];
 	}
 
-	VSNprintf(messbuff,MSG_BUFFSIZE,patt,a);
+	vsnprintf(messbuff,MSG_BUFFSIZE,patt,a);
 	return messbuff;
 }

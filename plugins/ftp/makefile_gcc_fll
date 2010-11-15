@@ -26,4 +26,4 @@ DEF = ./lib/def.gcc.def
 
 include ../makefile_gcc_target_inc
 
-$(RES): ftpversion.hpp
+$(RES): version.hpp

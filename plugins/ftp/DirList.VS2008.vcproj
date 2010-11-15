@@ -560,63 +560,63 @@
 				>
 			</File>
 			<File
-				RelativePath=".\lib\p_All.cpp"
+				RelativePath=".\lib\All.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\lib\DirList\p_Main.cpp"
+				RelativePath=".\lib\DirList\Main.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\lib\DirList\pr_cms.cpp"
+				RelativePath=".\lib\DirList\cms.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\lib\DirList\pr_dos.cpp"
+				RelativePath=".\lib\DirList\dos.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\lib\DirList\pr_eplf.cpp"
+				RelativePath=".\lib\DirList\eplf.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\lib\DirList\pr_mvs.cpp"
+				RelativePath=".\lib\DirList\mvs.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\lib\DirList\pr_netware.cpp"
+				RelativePath=".\lib\DirList\netware.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\lib\DirList\pr_os2.cpp"
+				RelativePath=".\lib\DirList\os2.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\lib\DirList\pr_os400.cpp"
+				RelativePath=".\lib\DirList\os400.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\lib\DirList\pr_pctcp.cpp"
+				RelativePath=".\lib\DirList\pctcp.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\lib\DirList\pr_skirdin.cpp"
+				RelativePath=".\lib\DirList\skirdin.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\lib\DirList\pr_tcpc.cpp"
+				RelativePath=".\lib\DirList\tcpc.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\lib\DirList\pr_unix.cpp"
+				RelativePath=".\lib\DirList\unix.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\lib\DirList\pr_vms.cpp"
+				RelativePath=".\lib\DirList\vms.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\lib\DirList\pr_vx.cpp"
+				RelativePath=".\lib\DirList\vx.cpp"
 				>
 			</File>
 		</Filter>
@@ -626,11 +626,11 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\lib\fp_DirList.h"
+				RelativePath=".\lib\DirList.h"
 				>
 			</File>
 			<File
-				RelativePath=".\lib\DirList\p_Int.h"
+				RelativePath=".\lib\DirList\Int.h"
 				>
 			</File>
 		</Filter>

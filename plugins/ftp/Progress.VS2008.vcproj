@@ -560,23 +560,23 @@
 				>
 			</File>
 			<File
-				RelativePath=".\lib\p_All.cpp"
+				RelativePath=".\lib\All.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\lib\Progress\p_cbFmt.cpp"
+				RelativePath=".\lib\Progress\cbFmt.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\lib\Progress\p_Main.cpp"
+				RelativePath=".\lib\Progress\Main.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\lib\Progress\p_TraficCB.cpp"
+				RelativePath=".\lib\Progress\TraficCB.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\lib\Progress\p_Utils.cpp"
+				RelativePath=".\lib\Progress\Utils.cpp"
 				>
 			</File>
 		</Filter>

@@ -1,8 +1,8 @@
 #include <all_lib.h>
 #pragma hdrstop
 
-#include "ftp_pwd.h"
-#include "ftp_Crypt.inc"
+#include "pwd.h"
+#include "Crypt.inc"
 
 void PPwd(LPBYTE b)
 {

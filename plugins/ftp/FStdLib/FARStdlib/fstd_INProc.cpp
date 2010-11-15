@@ -46,7 +46,7 @@ FARINProc::FARINProc(LPCSTR Name,LPCSTR Format,...)
 {
 	va_list  ap;
 	char     str[500];
-	Sprintf(str, "%*c%s(", Counter*2,' ',Name);
+	sprintf(str, "%*c%s(", Counter*2,' ',Name);
 
 	if(Format)
 	{

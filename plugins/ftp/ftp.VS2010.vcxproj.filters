@@ -33,153 +33,153 @@
     <None Include="changelog" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ftp_AskOver.cpp">
+    <ClCompile Include="AskOver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_Cfg.cpp">
+    <ClCompile Include="Cfg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_CmdLine.cpp">
+    <ClCompile Include="CmdLine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_cnDownload.cpp">
+    <ClCompile Include="cnDownload.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_cnInit.cpp">
+    <ClCompile Include="cnInit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_cnUpload.cpp">
+    <ClCompile Include="cnUpload.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_Connect.cpp">
+    <ClCompile Include="Connect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_ConnectCmds.cpp">
+    <ClCompile Include="ConnectCmds.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_ConnectIO.cpp">
+    <ClCompile Include="ConnectIO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_ConnectMain.cpp">
+    <ClCompile Include="ConnectMain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_ConnectNB.cpp">
+    <ClCompile Include="ConnectNB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_ConnectSock.cpp">
+    <ClCompile Include="ConnectSock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_DeleteFile.cpp">
+    <ClCompile Include="DeleteFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_EnumHost.cpp">
+    <ClCompile Include="EnumHost.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_Event.cpp">
+    <ClCompile Include="Event.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_FAR.cpp">
+    <ClCompile Include="FAR.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_FGet.cpp">
+    <ClCompile Include="FGet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_FileList.cpp">
+    <ClCompile Include="FileList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_FPut.cpp">
+    <ClCompile Include="FPut.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_Ftp.cpp">
+    <ClCompile Include="Ftp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_FtpAPI.cpp">
+    <ClCompile Include="FtpAPI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_FTPBlock.cpp">
+    <ClCompile Include="FTPBlock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_FTPConnect.cpp">
+    <ClCompile Include="FTPConnect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_FtpDlg.cpp">
+    <ClCompile Include="FtpDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_FTPHost.cpp">
+    <ClCompile Include="FTPHost.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_fUtils.cpp">
+    <ClCompile Include="fUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_GetOpenInfo.cpp">
+    <ClCompile Include="GetOpenInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_HGet.cpp">
+    <ClCompile Include="HGet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_HPut.cpp">
+    <ClCompile Include="HPut.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_JM.cpp">
+    <ClCompile Include="JM.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_Key.cpp">
+    <ClCompile Include="Key.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_MakeDir.cpp">
+    <ClCompile Include="MakeDir.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_Mem.cpp">
+    <ClCompile Include="Mem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_Mix.cpp">
+    <ClCompile Include="Mix.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_Plugin.cpp">
+    <ClCompile Include="Plugin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_Queque.cpp">
+    <ClCompile Include="Queque.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_SetDir.cpp">
+    <ClCompile Include="SetDir.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_Shortcut.cpp">
+    <ClCompile Include="Shortcut.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_sock.cpp">
+    <ClCompile Include="sock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ftp_Url.cpp">
+    <ClCompile Include="Url.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ftp_Cfg.h">
+    <ClInclude Include="Cfg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ftp_Connect.h">
+    <ClInclude Include="Connect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ftp_Ftp.h">
+    <ClInclude Include="Ftp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ftp_FtpAPI.h">
+    <ClInclude Include="FtpAPI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ftp_Int.h">
+    <ClInclude Include="Int.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ftp_JM.h">
+    <ClInclude Include="JM.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ftp_Plugins.h">
+    <ClInclude Include="Plugins.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ftp_pwd.h">
+    <ClInclude Include="pwd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ftp_var.h">
+    <ClInclude Include="var.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
