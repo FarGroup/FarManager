@@ -153,68 +153,13 @@ extern LPCSTR WINAPI FP_GetPluginName(void);
     @{
     Usefull tools for define and set arrays of FAR dialog items.
 */
-#define FFDI_FOCUSED   0x0100UL
-#define FFDI_SELECTED  0x0200UL
-#define FFDI_DEFAULT   0x0400UL
-#define FFDI_GRAYED    0x0800UL
-#define FFDI_MASKED    0x1000UL
-#define FFDI_HISTORY   0x2000UL
 
 #define FFDI_MASK      0xFFUL
-#define FFDI_NONE      0xFFFFUL
-
-#define        FDI_CONTROL( tp,x,y,x1,y1,fl,txt )    { tp,x,y,x1,y1,fl,txt },
-#define          FDI_LABEL( x,y,txt )                FDI_CONTROL( DI_TEXT,x,y,0,0,0,txt )
-#define        FDI_LABELFL( x,y,fl,txt )             FDI_CONTROL( DI_TEXT,x,y,0,0,fl,txt )
-#define          FDI_HLINE( x,y )                    FDI_CONTROL( DI_TEXT,x,y,x,y,DIF_BOXCOLOR|DIF_SEPARATOR,NULL )
-#define         FDI_HSLINE( x,y,txt )                FDI_CONTROL( DI_TEXT,x,y,x,y,DIF_BOXCOLOR|DIF_SEPARATOR,txt )
-#define           FDI_SBOX( x,y,x1,y1,txt )          FDI_CONTROL( DI_SINGLEBOX,x,y,x1,y1,DIF_BOXCOLOR|DIF_LEFTTEXT,txt )
-#define           FDI_DBOX( x,y,x1,y1,txt )          FDI_CONTROL( DI_DOUBLEBOX,x,y,x1,y1,DIF_BOXCOLOR|DIF_LEFTTEXT,txt )
-#define        FDI_SBORDER( x,y,x1,y1,txt )          FDI_CONTROL( DI_SINGLEBOX,x,y,x1,y1,DIF_BOXCOLOR,txt )
-#define        FDI_DBORDER( x,y,x1,y1,txt )          FDI_CONTROL( DI_DOUBLEBOX,x,y,x1,y1,DIF_BOXCOLOR,txt )
-#define     FDI_COLORLABEL( x,y,clr,txt )            FDI_CONTROL( DI_TEXT,x,y,0,0,DIF_SETCOLOR|(clr),txt )
-#define           FDI_EDIT( x,y,x1 )                 FDI_CONTROL( DI_EDIT,x,y,x1,y,0,NULL )
-#define         FDI_EDITOR( x,y,x1 )                 FDI_CONTROL( DI_EDIT,x,y,x1,y,DIF_EDITOR,NULL )
-#define       FDI_HISTEDIT( x,y,x1,hist )            FDI_CONTROL( DI_EDIT|FFDI_HISTORY,x,y,x1,y,0,hist )
-#define        FDI_PSWEDIT( x,y,x1 )                 FDI_CONTROL( DI_PSWEDIT,x,y,x1,y,0,NULL )
-#define        FDI_FIXEDIT( x,y,x1 )                 FDI_CONTROL( DI_FIXEDIT,x,y,x1,y,0,NULL )
-#define       FDI_MASKEDIT( x,y,x1,msk )             FDI_CONTROL( DI_FIXEDIT|FFDI_MASKED,x,y,x1,y,DIF_MASKEDIT,msk )
-#define   FDI_DISABLEDEDIT( x,y,x1 )                 FDI_CONTROL( DI_EDIT,x,y,x1,y,DIF_DISABLE,NULL )
-#define          FDI_CHECK( x,y,txt )                FDI_CONTROL( DI_CHECKBOX,x,y,0,0,0,txt )
-#define  FDI_DISABLEDCHECK( x,y,txt )                FDI_CONTROL( DI_CHECKBOX|FFDI_GRAYED,x,y,0,0,0,txt )
-#define          FDI_RADIO( x,y,txt )                FDI_CONTROL( DI_RADIOBUTTON,x,y,0,0,0,txt )
-#define  FDI_DISABLEDRADIO( x,y,txt )                FDI_CONTROL( DI_RADIOBUTTON|FFDI_GRAYED,x,y,0,0,0,txt )
-#define     FDI_STARTRADIO( x,y,txt )                FDI_CONTROL( DI_RADIOBUTTON,x,y,0,0,DIF_GROUP,txt )
-#define         FDI_BUTTON( x,y,txt )                FDI_CONTROL( DI_BUTTON,x,y,0,0,0,txt )
-#define FDI_DISABLEDBUTTON( x,y,txt )                FDI_CONTROL( DI_BUTTON|FFDI_GRAYED,x,y,0,0,0,txt )
-#define      FDI_DEFBUTTON( x,y,txt )                FDI_CONTROL( DI_BUTTON|FFDI_DEFAULT,x,y,0,0,0,txt )
-#define         FDI_GBUTTON( x,y,txt )               FDI_CONTROL( DI_BUTTON,x,y,0,0,DIF_CENTERGROUP,txt )
-#define FDI_GDISABLEDBUTTON( x,y,txt )               FDI_CONTROL( DI_BUTTON|FFDI_GRAYED,x,y,0,0,DIF_CENTERGROUP,txt )
-#define      FDI_GDEFBUTTON( x,y,txt )               FDI_CONTROL( DI_BUTTON|FFDI_DEFAULT,x,y,0,0,DIF_CENTERGROUP,txt )
 
 // ------------------------------------------------------------------------
 #include <FARStdlib/fstd_String.h>
 
 // ------------------------------------------------------------------------
-/** @brief
-    [fstd_Dlg.cpp]
-*/
-struct FP_DialogItem
-{
-	WORD     Type;
-	short    X1,Y1,X2,Y2;
-	DWORD    Flags;
-	LPCSTR Text;
-};
-
-#if !defined(__FP_NOT_FUNCTIONS__)
-extern void WINAPI FP_InitDialogItems(const FP_DialogItem *Init,FarDialogItem *Items);
-extern void WINAPI FP_InitDialogItem(const FP_DialogItem *Init,FarDialogItem *Items);
-#endif
-/**@}*/
-
-extern int WINAPI FP_ShowMsg(LPCSTR Text, UINT Flags = FMSG_MB_OK, LPCSTR Help = NULL);
-extern int WINAPI FP_ShowDialog(int w, int h,FarDialogItem* itms,int cn, LPCSTR Help = NULL);
 extern int WINAPI FP_Message(unsigned int Flags,LPCSTR HelpTopic,LPCSTR *Items,int ItemsNumber,int ButtonsNumber, LPBOOL Delayed = NULL);
 
 // --------------------------------------------------------------
@@ -271,7 +216,6 @@ extern BOOL  WINAPI FP_CheckRegKeyFull(LPCSTR Key);      //!!Do not uses FP_Plug
 
 extern BOOL  WINAPI FP_CopyRegKeyAll(HKEY TargetBase, LPCSTR TargetSubkeyName,
                                        HKEY SrcBase,    LPCSTR SrcSubkeyName);
-extern BOOL  WINAPI FP_RenameRegKeyAll(HKEY hParentKey, LPCSTR Dest, LPCSTR Src);
 extern BOOL  WINAPI FP_DeleteRegKeyAll(HKEY BaseKey, LPCSTR SubKeyName);
 extern BOOL  WINAPI FP_DeleteRegKeyAll(LPCSTR hParentKey,LPCSTR Key);                 // HKCU + hParentKey + Key
 extern BOOL  WINAPI FP_DeleteRegKeyAll(LPCSTR Key);                                     // HKCU + PluginKey + Key

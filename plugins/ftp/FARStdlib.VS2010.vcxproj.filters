@@ -21,15 +21,9 @@
     <ClCompile Include="FStdLib\FARStdlib\fstd_asrt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FStdLib\FARStdlib\fstd_cDialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FStdLib\FARStdlib\fstd_CharDraw.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FStdLib\FARStdlib\fstd_ClpS.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
+   </ClCompile>
     <ClCompile Include="FStdLib\FARStdlib\fstd_Con.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -40,12 +34,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FStdLib\FARStdlib\fstd_Dialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FStdLib\FARStdlib\fstd_Dlg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FStdLib\FARStdlib\fstd_Editor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FStdLib\FARStdlib\fstd_err.cpp">
@@ -111,9 +99,6 @@
     <ClCompile Include="FStdLib\FARStdlib\fstd_Msg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FStdLib\FARStdlib\fstd_Multiline.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FStdLib\FARStdlib\fstd_OEM.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -150,9 +135,6 @@
     <ClCompile Include="FStdLib\FARStdlib\fstd_RegOp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FStdLib\FARStdlib\fstd_RegRn.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FStdLib\FARStdlib\fstd_RegSB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -185,22 +167,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FStdLib\FARStdlib\fstd_CharDraw.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FStdLib\FARStdlib\fstd_Multiline.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="FStdLib\FARStdlib\fstd_String.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FStdLib\FARStdlib\funi.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FStdLib\FARStdlib\pop.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FStdLib\FARStdlib\pack1.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

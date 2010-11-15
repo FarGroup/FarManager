@@ -159,7 +159,8 @@ BOOL FTP::DoCommand(LPCSTR str, int type, DWORD flags)
 	//Process command types
 	switch(type)
 	{
-		case FCMD_SINGLE_COMMAND: rc = hConnect->command("%s", m);
+		case FCMD_SINGLE_COMMAND:
+			rc = hConnect->command("%s", m);
 
 			if(rc == RPL_PRELIM)
 				while((rc=hConnect->getreply(0)) == RPL_PRELIM);
@@ -299,7 +300,9 @@ BOOL FTP::ExecCmdLine(LPCSTR _str, BOOL WasPrefix)
 
 //Split command
 	BOOL Prefix = StrCmp(_str,"FTP:",4,FALSE) == 0;
-	if(Prefix) _str += 4; else Prefix = WasPrefix;
+
+	if(Prefix) _str += 4;
+	else Prefix = WasPrefix;
 
 	buff = _str;
 

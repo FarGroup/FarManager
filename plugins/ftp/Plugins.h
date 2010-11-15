@@ -28,18 +28,39 @@ template <class Cl, WORD Index> struct FTPPlugin
 {
 	FTPPluginHolder* Holder;
 
-	FTPPlugin(void)    { Holder = GetPluginHolder(Index); }
-	virtual ~FTPPlugin() { Holder = NULL; }
+	FTPPlugin(void)
+	{
+		Holder = GetPluginHolder(Index);
+	}
+	virtual ~FTPPlugin()
+	{
+		Holder = NULL;
+	}
 
-	Cl Interface(void) { Assert(Holder); Assert(Holder->Interface); return (Cl)Holder->Interface; }
+	Cl Interface(void)
+	{
+		Assert(Holder);
+		Assert(Holder->Interface);
+		return (Cl)Holder->Interface;
+	}
 };
 //------------------------------------------------------------------------
 struct FTPProgress : public FTPPlugin<ProgressInterface*,PLUGIN_PROGRESS>
 {
 	HANDLE Object;
 
-	FTPProgress(void) { Object = NULL; }
-	~FTPProgress()      { if(Object) { Interface()->DestroyObject(Object); Object = NULL; } }
+	FTPProgress(void)
+	{
+		Object = NULL;
+	}
+	~FTPProgress()
+	{
+		if(Object)
+		{
+			Interface()->DestroyObject(Object);
+			Object = NULL;
+		}
+	}
 
 	void Resume(LPCSTR LocalFileName);
 	void Resume(__int64 size);

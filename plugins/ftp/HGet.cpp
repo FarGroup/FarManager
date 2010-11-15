@@ -6,35 +6,34 @@
 int FTP::GetHostFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,String& DestPath,int OpMode)
 {
 	PROC(("FTP::GetHostFiles","%d [%s] %s %08X",ItemsNumber,DestPath.c_str(),Move?"MOVE":"COPY",OpMode))
-	static FP_DialogItem InitItems[]=
+	InitDialogItem InitItems[]=
 	{
-		/*00*/    FDI_CONTROL(DI_DOUBLEBOX, 3, 1,72,6, 0, NULL)
-		/*01*/      FDI_LABEL(5, 2,   NULL)
-		/*02*/      FDI_EDIT(5, 3,70)
-		/*03*/      FDI_HLINE(3, 4)
-		/*06*/ FDI_GDEFBUTTON(0, 5,   FMSG(MCopy))
-		/*07*/    FDI_GBUTTON(0, 5,   FMSG(MCancel))
-		{FFDI_NONE,0,0,0,0,0,NULL}
+		{DI_DOUBLEBOX, 3, 1,72,6, 0,0,0,0, NULL},
+		{DI_TEXT,5, 2,0,0,0,0,0,0,   NULL},
+		{DI_EDIT,5, 3,70, 3,0,0,0,0,NULL},
+		{DI_TEXT,3, 4,3, 4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,NULL },
+		{DI_BUTTON,0, 5,0,0,0,0,DIF_CENTERGROUP,  1, FMSG(MCopy)},
+		{DI_BUTTON,0, 5,0,0,0,0,DIF_CENTERGROUP, 0,  FMSG(MCancel)},
 	};
-	FarDialogItem    DialogItems[(sizeof(InitItems)/sizeof(InitItems[0])-1)];
+	FarDialogItem    DialogItems[ARRAYSIZE(InitItems)];
 	FP_SizeItemList  il;
 
 	if(!IS_SILENT(OpMode))
 	{
 		if(Move)
 		{
-			InitItems[0].Text = FMSG(MMoveHostTitle);
-			InitItems[1].Text = FMSG(MMoveHostTo);
+			InitItems[0].Data = FMSG(MMoveHostTitle);
+			InitItems[1].Data = FMSG(MMoveHostTo);
 		}
 		else
 		{
-			InitItems[0].Text = FMSG(MCopyHostTitle);
-			InitItems[1].Text = FMSG(MCopyHostTo);
+			InitItems[0].Data = FMSG(MCopyHostTitle);
+			InitItems[1].Data = FMSG(MCopyHostTo);
 		}
 
-		FP_InitDialogItems(InitItems,DialogItems);
+		InitDialogItems(InitItems,DialogItems,ARRAYSIZE(DialogItems));
 		StrCpy(DialogItems[2].Data, DestPath.c_str(), sizeof(DialogItems[2].Data));
-		int AskCode = FDialog(76,8,"FTPCmd",DialogItems,(sizeof(InitItems)/sizeof(InitItems[0])-1));
+		int AskCode = FDialog(76,8,"FTPCmd",DialogItems,ARRAYSIZE(DialogItems));
 
 		if(AskCode != 4)
 			return -1;
@@ -65,7 +64,9 @@ int FTP::GetHostFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,int Move
 		{
 			StrCpy(CheckKey,HostsPath,sizeof(CheckKey));
 			char *m = strrchr(CheckKey,'\\');
-			if(m) m[1] = 0; else CheckKey[0] = 0;
+
+			if(m) m[1] = 0;
+			else CheckKey[0] = 0;
 
 			Rename = TRUE;
 		}

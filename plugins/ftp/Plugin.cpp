@@ -6,14 +6,29 @@
 // ------------------------------------------------------------------------
 // FTPNotify
 // ------------------------------------------------------------------------
-void FTPNotify::Notify(const FTNNotify* p) { Interface()->Notify(p); }
+void FTPNotify::Notify(const FTNNotify* p)
+{
+	Interface()->Notify(p);
+}
 // ------------------------------------------------------------------------
 // FTPDirList
 // ------------------------------------------------------------------------
-WORD     FTPDirList::DetectStringType(FTPServerInfo * const Server,char *ListingString, int ListingLength) { return Interface()->DetectStringType(Server,ListingString,ListingLength); }
-WORD     FTPDirList::GetNumberOfSupportedTypes(void)                                                      { return Interface()->GetNumberOfSupportedTypes(); }
-FTPType* FTPDirList::GetType(WORD Index)                                                                  { return Interface()->GetType(Index); }
-WORD     FTPDirList::DetectDirStringType(FTPServerInfo * const Server,LPCSTR ListingString)              { return Interface()->DetectDirStringType(Server,ListingString); }
+WORD     FTPDirList::DetectStringType(FTPServerInfo * const Server,char *ListingString, int ListingLength)
+{
+	return Interface()->DetectStringType(Server,ListingString,ListingLength);
+}
+WORD     FTPDirList::GetNumberOfSupportedTypes(void)
+{
+	return Interface()->GetNumberOfSupportedTypes();
+}
+FTPType* FTPDirList::GetType(WORD Index)
+{
+	return Interface()->GetType(Index);
+}
+WORD     FTPDirList::DetectDirStringType(FTPServerInfo * const Server,LPCSTR ListingString)
+{
+	return Interface()->DetectDirStringType(Server,ListingString);
+}
 
 //------------------------------------------------------------------------
 static FTPInterface Interface;
@@ -30,8 +45,14 @@ HANDLE _cdecl idProcStart(LPCSTR FunctionName,LPCSTR Format,...)
 	return new FARINProc(FunctionName,str.c_str());
 }
 
-void           WINAPI idProcEnd(HANDLE proc)    { delete((FARINProc*)proc); }
-OptionsPlugin* WINAPI idGetOpt(void)            { return &Opt; }
+void           WINAPI idProcEnd(HANDLE proc)
+{
+	delete((FARINProc*)proc);
+}
+OptionsPlugin* WINAPI idGetOpt(void)
+{
+	return &Opt;
+}
 
 int WINAPI idFtpCmdBlock(int block /*TRUE,FALSE,-1*/)
 {
@@ -158,8 +179,9 @@ BOOL InitPlugins(void)
 	{
 		//FAR root
 		str[ GetModuleFileName(NULL,str,sizeof(str))] = 0;
+		tmp = strrchr(str,'\\');
 
-		tmp = strrchr(str,'\\'); if(tmp) tmp[1] = 0;
+		if(tmp) tmp[1] = 0;
 
 		StrCat(str, StdPlugins[n].Name, sizeof(str));
 		m = LoadLibrary(str);
@@ -228,13 +250,13 @@ BOOL InitPlugins(void)
 			FreeLibrary(m);
 
 		_snprintf(str,sizeof(str),
-		         "Error loading...\n"
-		         "FTP plugin: \"%s\"\n"
-		         " With name: \"%s\"\n"
-		         "    Plugin: %s.\n"
-		         "You can not use FTP plugin.",
-		         StdPlugins[n].Description, StdPlugins[n].Name,
-		         m ? "is not valid FTP plugin" : "can not be found");
+		          "Error loading...\n"
+		          "FTP plugin: \"%s\"\n"
+		          " With name: \"%s\"\n"
+		          "    Plugin: %s.\n"
+		          "You can not use FTP plugin.",
+		          StdPlugins[n].Description, StdPlugins[n].Name,
+		          m ? "is not valid FTP plugin" : "can not be found");
 		FP_Info->Message(0, FMSG_WARNING | FMSG_DOWN | FMSG_LEFTALIGN | FMSG_MB_OK | FMSG_ALLINONE,
 		                 NULL, (LPCSTR  const *)str, 0, 0);
 		FreePlugins();
@@ -290,13 +312,34 @@ void FTPPluginHolder::Destroy(void)
 //------------------------------------------------------------------------
 #define CH_OBJ if (!Object) Object = Interface()->CreateObject();
 
-void FTPProgress::Resume(LPCSTR LocalFileName)                                     { CH_OBJ Interface()->ResumeFile(Object,LocalFileName); }
-void FTPProgress::Resume(__int64 size)                                                 { CH_OBJ Interface()->Resume(Object,size); }
-BOOL FTPProgress::Callback(int Size)                                                 { CH_OBJ return Interface()->Callback(Object,Size); }
-void FTPProgress::Init(HANDLE Connection,int tMsg,int OpMode,FP_SizeItemList* il)        { CH_OBJ Interface()->Init(Object,Connection,tMsg,OpMode,il); }
-void FTPProgress::Skip(void)                                                         { CH_OBJ Interface()->Skip(Object); }
-void FTPProgress::Waiting(time_t paused)                                             { CH_OBJ Interface()->Waiting(Object,paused); }
-void FTPProgress::SetConnection(HANDLE Connection)                                   { CH_OBJ Interface()->SetConnection(Object,Connection); }
+void FTPProgress::Resume(LPCSTR LocalFileName)
+{
+	CH_OBJ Interface()->ResumeFile(Object,LocalFileName);
+}
+void FTPProgress::Resume(__int64 size)
+{
+	CH_OBJ Interface()->Resume(Object,size);
+}
+BOOL FTPProgress::Callback(int Size)
+{
+	CH_OBJ return Interface()->Callback(Object,Size);
+}
+void FTPProgress::Init(HANDLE Connection,int tMsg,int OpMode,FP_SizeItemList* il)
+{
+	CH_OBJ Interface()->Init(Object,Connection,tMsg,OpMode,il);
+}
+void FTPProgress::Skip(void)
+{
+	CH_OBJ Interface()->Skip(Object);
+}
+void FTPProgress::Waiting(time_t paused)
+{
+	CH_OBJ Interface()->Waiting(Object,paused);
+}
+void FTPProgress::SetConnection(HANDLE Connection)
+{
+	CH_OBJ Interface()->SetConnection(Object,Connection);
+}
 
 void FTPProgress::InitFile(PluginPanelItem *pi, LPCSTR SrcName, LPCSTR DestName)
 {

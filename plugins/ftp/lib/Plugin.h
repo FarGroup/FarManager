@@ -1,7 +1,11 @@
 #ifndef __FAR_FTP_PLUGIN
 #define __FAR_FTP_PLUGIN
 
-#include <FARStdlib/pack1.h>
+#ifdef __GNUC__
+#pragma pack(1)
+#else
+#pragma pack(push,1)
+#endif
 
 //------------------------------------------------------------------------
 // TYPES
@@ -211,5 +215,9 @@ typedef FTPPluginInterface*(WINAPI *FTPQueryInterface_t)(FTPInterface* FTPInfo);
 #include "../lib/DirList.h"
 #include "../lib/Notify.h"
 
-#include <FARStdlib/pop.h>
+#ifdef __GNUC__
+#pragma pack()
+#else
+#pragma pack(pop)
+#endif
 #endif

@@ -112,31 +112,30 @@ BOOL PreFill(FTPUrl* p)
 
 BOOL FTP::EditUrlItem(FTPUrl* p)
 {
-	static FP_DialogItem InitItems[]=
+	InitDialogItem InitItems[]=
 	{
-		/*00*/    FDI_CONTROL(DI_DOUBLEBOX, 3, 1,72,12, 0, FMSG(MUrlItem))
+		{DI_DOUBLEBOX, 3, 1,72,12, 0,0,0,0, FMSG(MUrlItem)},
 
-		/*01*/      FDI_LABEL(5, 2,    FMSG(MCopyFrom))
-		/*02*/   FDI_HISTEDIT(5, 3,70, "FTPUrl")
-		/*03*/      FDI_LABEL(5, 4,    FMSG(MCopyTo))
-		/*04*/   FDI_HISTEDIT(5, 5,70, "FTPUrl")
-		/*05*/      FDI_LABEL(5, 6,    FMSG(MFileName))
-		/*06*/   FDI_HISTEDIT(5, 7,70, "FTPFileName")
+		{DI_TEXT,5, 2,0,0,0,   0,0,0, FMSG(MCopyFrom)},
+		{DI_EDIT,5, 3,70, 3,0,(DWORD_PTR)"FTPUrl" ,DIF_HISTORY,0, NULL},
+		{DI_TEXT,5, 4,0,0,0,  0,0,0,  FMSG(MCopyTo)},
+		{DI_EDIT,5, 5,70, 5,0,(DWORD_PTR)"FTPUrl",DIF_HISTORY,0, NULL},
+		{DI_TEXT,5, 6,0,0,0,  0,0,0,  FMSG(MFileName)},
+		{DI_EDIT,5, 7,70, 7,0, (DWORD_PTR)"FTPFileName",DIF_HISTORY,0,NULL},
 
-		/*07*/      FDI_HLINE(3, 8)
+		{DI_TEXT,3, 8,3, 8,DIF_BOXCOLOR|DIF_SEPARATOR,NULL },
 
-		/*08*/      FDI_CHECK(5, 9,    FMSG(MUDownlioad))
+		{DI_CHECKBOX,5, 9,0,0,0,  0,0,0,  FMSG(MUDownlioad)},
 
-		/*09*/      FDI_HLINE(3,10)
-		/*10*/    FDI_GBUTTON(0,11,    FMSG(MUHost))
-		/*11*/ FDI_GDEFBUTTON(0,11,    FMSG(MOk))
-		/*12*/    FDI_GBUTTON(0,11,    FMSG(MCancel))
-		/*13*/    FDI_GBUTTON(0,11,    FMSG(MUError))
-		{FFDI_NONE,0,0,0,0,0,NULL}
+		{DI_TEXT,3,10,3,10,DIF_BOXCOLOR|DIF_SEPARATOR,NULL },
+		{DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP, 0,   FMSG(MUHost)},
+		{DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP, 1,   FMSG(MOk)},
+		{DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,  0,  FMSG(MCancel)},
+		{DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,  0,  FMSG(MUError)},
 	};
-	FarDialogItem  DialogItems[(sizeof(InitItems)/sizeof(InitItems[0])-1)];
+	FarDialogItem DialogItems[ARRAYSIZE(InitItems)];
 //Create items
-	FP_InitDialogItems(InitItems,DialogItems);
+	InitDialogItems(InitItems,DialogItems,ARRAYSIZE(DialogItems));
 	PreFill(p);
 
 	do
@@ -157,8 +156,12 @@ BOOL FTP::EditUrlItem(FTPUrl* p)
 //Dialog
 		do
 		{
-			int rc = FDialog(76,14,"FTPQueueItemEdit",DialogItems,(sizeof(InitItems)/sizeof(InitItems[0])-1));
-			if(rc == -1 || rc == 12) return FALSE;                               else if(rc == 11)             break;                                      else if(rc == 10)             GetHost(MEditFtpTitle, &p->Host, FALSE);  else if(rc == 13)             ShowHostError(p);
+			int rc = FDialog(76,14,"FTPQueueItemEdit",DialogItems,ARRAYSIZE(DialogItems));
+
+			if(rc == -1 || rc == 12) return FALSE;
+			else if(rc == 11)             break;
+			else if(rc == 10)             GetHost(MEditFtpTitle, &p->Host, FALSE);
+			else if(rc == 13)             ShowHostError(p);
 		}
 		while(true);
 

@@ -342,7 +342,8 @@ int FTP::GetFilesInterface(struct PluginPanelItem *PanelItem,int ItemsNumber,int
 			case      ocOver:
 			case      ocSkip:
 			case    ocResume:
-			case     ocNewer: ci.MsgCode = ocNone;
+			case     ocNewer:
+				ci.MsgCode = ocNone;
 				break;
 		}
 
@@ -356,22 +357,27 @@ int FTP::GetFilesInterface(struct PluginPanelItem *PanelItem,int ItemsNumber,int
 			switch(ci.MsgCode)
 			{
 				case   ocOverAll:
-				case      ocOver: break;
+				case      ocOver:
+					break;
 				case      ocSkip:
-				case   ocSkipAll: hConnect->TrafficInfo->Skip();
+				case   ocSkipAll:
+					hConnect->TrafficInfo->Skip();
 					continue;
 				case    ocResume:
-				case ocResumeAll: break;
+				case ocResumeAll:
+					break;
 				case     ocNewer:
+				case  ocNewerAll:
 
-				case  ocNewerAll: if(CompareFileTime(&CurTime, &DestTime) <= 0)
+					if(CompareFileTime(&CurTime, &DestTime) <= 0)
 					{
 						hConnect->TrafficInfo->Skip();
 						continue;
 					}
 
 					break;
-				case    ocCancel: return -1;
+				case    ocCancel:
+					return -1;
 			}
 		}
 

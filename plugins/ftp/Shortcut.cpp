@@ -45,14 +45,21 @@ int FTP::ProcessShortcutLine(char *Line)
 		Host.Init();
 		StrCpy(Host.Host,     Line, Min((int)(m-Line), (int)sizeof(Host.Host)));
 		StrCpy(Host.HostName, Host.Host);
+		Host.AskLogin    = *(m++) - '\x3';
 
-		Host.AskLogin    = *(m++) - '\x3'; if(*m == 0) return FALSE;
+		if(*m == 0) return FALSE;
 
-		Host.AsciiMode   = *(m++) - '\x3'; if(*m == 0) return FALSE;
+		Host.AsciiMode   = *(m++) - '\x3';
 
-		Host.PassiveMode = *(m++) - '\x3'; if(*m == 0) return FALSE;
+		if(*m == 0) return FALSE;
 
-		Host.UseFirewall = *(m++) - '\x3'; if(*m == 0) return FALSE;
+		Host.PassiveMode = *(m++) - '\x3';
+
+		if(*m == 0) return FALSE;
+
+		Host.UseFirewall = *(m++) - '\x3';
+
+		if(*m == 0) return FALSE;
 
 		m1 = m;
 		m = strchr(m1,'\x1');

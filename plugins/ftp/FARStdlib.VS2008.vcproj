@@ -480,14 +480,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\FStdLib\FARStdlib\fstd_cDialog.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\FStdLib\FARStdlib\fstd_CharDraw.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\FStdLib\FARStdlib\fstd_ClpS.cpp"
 				>
 			</File>
@@ -505,14 +497,6 @@
 			</File>
 			<File
 				RelativePath=".\FStdLib\FARStdlib\fstd_Dialog.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\FStdLib\FARStdlib\fstd_Dlg.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\FStdLib\FARStdlib\fstd_Editor.cpp"
 				>
 			</File>
 			<File
@@ -600,10 +584,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\FStdLib\FARStdlib\fstd_Multiline.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\FStdLib\FARStdlib\fstd_OEM.cpp"
 				>
 			</File>
@@ -649,10 +629,6 @@
 			</File>
 			<File
 				RelativePath=".\FStdLib\FARStdlib\fstd_RegOp.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\FStdLib\FARStdlib\fstd_RegRn.cpp"
 				>
 			</File>
 			<File
@@ -702,27 +678,11 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\FStdLib\FARStdlib\fstd_CharDraw.h"
-				>
-			</File>
-			<File
-				RelativePath=".\FStdLib\FARStdlib\fstd_Multiline.h"
-				>
-			</File>
-			<File
 				RelativePath=".\FStdLib\FARStdlib\fstd_String.h"
 				>
 			</File>
 			<File
 				RelativePath=".\FStdLib\FARStdlib\funi.h"
-				>
-			</File>
-			<File
-				RelativePath=".\FStdLib\FARStdlib\pack1.h"
-				>
-			</File>
-			<File
-				RelativePath=".\FStdLib\FARStdlib\pop.h"
 				>
 			</File>
 		</Filter>

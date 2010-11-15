@@ -22,6 +22,10 @@
 #include "FtpAPI.h"    //FtpXXX API
 #include "Ftp.h"       //class Ftp
 
+#ifndef ARRAYSIZE
+#define ARRAYSIZE(A) (sizeof(A)/sizeof((A)[0]))
+#endif
+
 //[ftp_FAR.cpp]
 extern FTP     *WINAPI OtherPlugin(FTP *p);
 extern int      WINAPI PluginPanelNumber(FTP *p);
@@ -69,10 +73,9 @@ extern BOOL     WINAPI FTestFind(LPCSTR nm,FAR_FIND_DATA* ufd = NULL);
 extern BOOL     WINAPI FRealFile(LPCSTR nm,FAR_FIND_DATA* ufd = NULL);
 
 extern int      WINAPI FMessage(unsigned int Flags,LPCSTR HelpTopic,LPCSTR *Items,
-                                  int ItemsNumber,int ButtonsNumber);
+                                int ItemsNumber,int ButtonsNumber);
 extern int      WINAPI FDialog(int X2,int Y2,LPCSTR HelpTopic,struct FarDialogItem *Item,int ItemsNumber);
-extern int      WINAPI FDialogEx(int X2,int Y2,LPCSTR HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
-                                   DWORD Flags = 0,FARWINDOWPROC DlgProc = (FARWINDOWPROC)(size_t)-1,LONG_PTR Param = 0);
+extern int      WINAPI FDialogEx(int X2,int Y2,LPCSTR HelpTopic,struct FarDialogItem *Item,int ItemsNumber, DWORD Flags = 0,FARWINDOWPROC DlgProc = (FARWINDOWPROC)(size_t)-1,LONG_PTR Param = 0);
 
 extern void     WINAPI IdleMessage(LPCSTR str,int color);
 extern int      WINAPI StrSlashCount(LPCSTR m);        //Rets number af any slash chars in string
@@ -119,9 +122,19 @@ struct FHandle
 	public:
 		FHandle(void)     : Handle(NULL) {}
 		FHandle(HANDLE h) : Handle(h)    {}
-		~FHandle()                         { Close(); }
+		~FHandle()
+		{
+			Close();
+		}
 
-		void Close(void)                 { if(Handle) { Fclose(Handle); Handle = NULL; } }
+		void Close(void)
+		{
+			if(Handle)
+			{
+				Fclose(Handle);
+				Handle = NULL;
+			}
+		}
 };
 
 //[ftp_FAR.cpp]
@@ -132,4 +145,16 @@ extern int            SocketInitializeError;
 extern FTP           *LastUsedPlugin;
 extern char           DialogEditBuffer[];
 
+struct InitDialogItem
+{
+	int Type;
+	int X1,Y1,X2,Y2;
+	int Focus;
+	DWORD_PTR Selected;
+	DWORD Flags;
+	int DefaultButton;
+	const TCHAR *Data;
+};
+
+void InitDialogItems(const InitDialogItem *Init,FarDialogItem *Item, int ItemsNumber);
 #endif

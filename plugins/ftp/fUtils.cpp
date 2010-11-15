@@ -324,7 +324,9 @@ int FTP::ExpandListINT(PluginPanelItem *pi,int icn,FP_SizeItemList* il,BOOL From
 //DIR
 		//Get name
 		m = strrchr(CurName, FromPlugin ? '/' : '\\');
-		if(m) m = m+1; else m = CurName;
+
+		if(m) m = m+1;
+		else m = CurName;
 
 		//Remember current
 		GetCurPath(curp);

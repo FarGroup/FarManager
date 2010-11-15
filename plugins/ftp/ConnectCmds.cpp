@@ -26,9 +26,18 @@ BOOL Connection::settype(ftTypes Mode,LPCSTR Arg)
 		return FALSE;
 }
 
-BOOL Connection::setascii()  { return settype(TYPE_A,NULL); }
-BOOL Connection::setbinary() { return settype(TYPE_I,NULL); }
-BOOL Connection::setebcdic() { return settype(TYPE_E,NULL); }
+BOOL Connection::setascii()
+{
+	return settype(TYPE_A,NULL);
+}
+BOOL Connection::setbinary()
+{
+	return settype(TYPE_I,NULL);
+}
+BOOL Connection::setebcdic()
+{
+	return settype(TYPE_E,NULL);
+}
 
 /*
  * Connect to peer server and auto-login, if possible.

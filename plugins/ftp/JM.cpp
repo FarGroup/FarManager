@@ -49,12 +49,12 @@ FARINProc::FARINProc(LPCSTR nm,LPCSTR s,...)
 	{
 		va_start(ap,s);
 		_snprintf(str, sizeof(str), "%*c%s(%s) {",
-		         Counter*2,' ', nm, MessageV(s,ap));
+		          Counter*2,' ', nm, MessageV(s,ap));
 		va_end(ap);
 	}
 	else
 		_snprintf(str, sizeof(str), "%*c%s() {",
-		         Counter*2,' ', nm);
+		          Counter*2,' ', nm);
 
 	LogCmd(str, ldInt);
 	Counter++;
@@ -112,7 +112,8 @@ char *WINAPI FixFileNameChars(char *fnm,BOOL slashes)
 
 	if(slashes)
 		for(src = buff; *src; src++)
-					if(*src == '\\') *src = '_'; else if(*src == ':')  *src = '!';
+			if(*src == '\\') *src = '_';
+			else if(*src == ':')  *src = '!';
 
 	return buff;
 }
@@ -454,9 +455,9 @@ void WINAPI LogCmd(LPCSTR src,CMDOutputDir out,DWORD Size)
 		//Time
 		GetLocalTime(&st);
 		_snprintf(tmstr,sizeof(tmstr),
-		         "%4d.%02d.%02d %02d:%02d:%02d:%04d",
-		         st.wYear, st.wMonth,  st.wDay,
-		         st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
+		          "%4d.%02d.%02d %02d:%02d:%02d:%04d",
+		          st.wYear, st.wMonth,  st.wDay,
+		          st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
 		Fwrite(LogFile,tmstr,(int)strlen(tmstr));
 
 		//Delay
@@ -498,7 +499,8 @@ void Connection::InitIOBuff(void)
 }
 void Connection::CloseIOBuff(void)
 {
-	_Del(IOBuff); IOBuff = NULL;
+	_Del(IOBuff);
+	IOBuff = NULL;
 }
 
 /*
@@ -730,10 +732,12 @@ BOOL Connection::ConnectMessageTimeout(int Msg /*= MNone__*/,LPCSTR HostName /*=
 		switch(CheckForKeyPressed(Keys,ARRAY_SIZE(Keys)))
 		{
 			case 1:
-			case 2: SetLastError(ERROR_CANCELLED);
+			case 2:
+				SetLastError(ERROR_CANCELLED);
 				return FALSE;
 			case 3:
-			case 4: return TRUE;
+			case 4:
+				return TRUE;
 		}
 
 		GET_TIME(e);
@@ -743,14 +747,14 @@ BOOL Connection::ConnectMessageTimeout(int Msg /*= MNone__*/,LPCSTR HostName /*=
 		{
 			first = FALSE;
 			_snprintf(str, sizeof(str), "\"%s\" %s %2d%s %s",
-			         HostName,
-			         FP_GetMsg(MAutoRetryText),
-			         Opt.RetryTimeout-secNum,
-			         FP_GetMsg(MSeconds),FP_GetMsg(MRetryText));
+			          HostName,
+			          FP_GetMsg(MAutoRetryText),
+			          Opt.RetryTimeout-secNum,
+			          FP_GetMsg(MSeconds),FP_GetMsg(MRetryText));
 			ConnectMessage(Msg,str);
 			_snprintf(str, sizeof(str), "%s %s %d%s",
-			         FP_GetMsg(Msg),
-			         FP_GetMsg(MAutoRetryText), Opt.RetryTimeout-secNum, FP_GetMsg(MSeconds));
+			          FP_GetMsg(Msg),
+			          FP_GetMsg(MAutoRetryText), Opt.RetryTimeout-secNum, FP_GetMsg(MSeconds));
 			SaveConsoleTitle::Text(str);
 			secNum++;
 			b = e;
@@ -831,8 +835,10 @@ int Connection::ConnectMessage(int Msg /*= MNone__*/,LPCSTR HostName /*= NULL*/,
 		switch(GetLastError())
 		{
 			case   ERROR_SUCCESS:
-			case ERROR_CANCELLED: break;
-			default: ADD_CMD("\x1");
+			case ERROR_CANCELLED:
+				break;
+			default:
+				ADD_CMD("\x1");
 		}
 
 	if(GetLastError() == ERROR_CANCELLED)

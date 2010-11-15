@@ -249,27 +249,25 @@ void WINAPI WriteCfg(void)
 //------------------------------------------------------------------------
 void ExtendedConfig(void)
 {
-	static FP_DialogItem InitItems[]=
+	InitDialogItem InitItems[]=
 	{
-		/*00*/    FDI_CONTROL(DI_DOUBLEBOX, 3, 1,72,17, 0, FMSG(METitle))
+		{DI_DOUBLEBOX, 3, 1,72,17, 0,0,0,0, FMSG(METitle)},
+		{DI_CHECKBOX,5, 2,0,0,0,  0,0,0,  FMSG(MDupFF)},
+		{DI_CHECKBOX,5, 3,0,0,0,  0,0,0,  FMSG(MUndupFF)},
+		{DI_CHECKBOX,5, 4,0,0,0,  0,0,0,  FMSG(MEShowProgress)},
+		{DI_CHECKBOX,5, 5,0,0,0,  0,0,0,  FMSG(MEBackup)},
+		{DI_CHECKBOX,5, 6,0,0,0,  0,0,0,  FMSG(MESendCmd)},
+		{DI_CHECKBOX,5, 7,0,0,0,  0,0,0,  FMSG(MEDontError)},
+		{DI_CHECKBOX,5, 8,0,0,0,  0,0,0,  FMSG(MEAskLoginAtFail)},
+		{DI_CHECKBOX,5, 9,0,0,0,  0,0,0,  FMSG(MEAutoAn)},
+		{DI_CHECKBOX,5,10,0,0,0,  0,0,0,  FMSG(MECloseDots)},
+		{DI_CHECKBOX,5,11,0,0,0,  0,0,0,  FMSG(MQuoteClipboardNames)},
+		{DI_CHECKBOX,5,12,0,0,0,   0,0,0, FMSG(MSetHiddenOnAbort)},
 
-		/*01*/      FDI_CHECK(5, 2,    FMSG(MDupFF))
-		/*02*/      FDI_CHECK(5, 3,    FMSG(MUndupFF))
-		/*03*/      FDI_CHECK(5, 4,    FMSG(MEShowProgress))
-		/*04*/      FDI_CHECK(5, 5,    FMSG(MEBackup))
-		/*05*/      FDI_CHECK(5, 6,    FMSG(MESendCmd))
-		/*06*/      FDI_CHECK(5, 7,    FMSG(MEDontError))
-		/*07*/      FDI_CHECK(5, 8,    FMSG(MEAskLoginAtFail))
-		/*08*/      FDI_CHECK(5, 9,    FMSG(MEAutoAn))
-		/*09*/      FDI_CHECK(5,10,    FMSG(MECloseDots))
-		/*10*/      FDI_CHECK(5,11,    FMSG(MQuoteClipboardNames))
-		/*11*/      FDI_CHECK(5,12,    FMSG(MSetHiddenOnAbort))
+		{DI_TEXT,3,15,3,15,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,NULL },
 
-		/*12*/      FDI_HLINE(3,15)
-
-		/*13*/ FDI_GDEFBUTTON(0,16,    FMSG(MOk))
-		/*14*/    FDI_GBUTTON(0,16,    FMSG(MCancel))
-		{FFDI_NONE,0,0,0,0,0,NULL}
+		{DI_BUTTON,0,16,0,0,0,0,DIF_CENTERGROUP, 1,   FMSG(MOk)},
+		{DI_BUTTON,0,16,0,0,0,0,DIF_CENTERGROUP, 0,   FMSG(MCancel)},
 	};
 	enum
 	{
@@ -288,8 +286,8 @@ void ExtendedConfig(void)
 		dOk           = 13
 	};
 	int           rc;
-	FarDialogItem DialogItems[(sizeof(InitItems)/sizeof(InitItems[0])-1)];
-	FP_InitDialogItems(InitItems,DialogItems);
+	FarDialogItem DialogItems[ARRAYSIZE(InitItems)];
+	InitDialogItems(InitItems,DialogItems,ARRAYSIZE(DialogItems));
 	DialogItems[dDupFF].Selected        = Opt.FFDup;
 	DialogItems[dUndupFF].Selected      = Opt.UndupFF;
 	DialogItems[dShowProgress].Selected = Opt.ShowSilentProgress;
@@ -304,7 +302,7 @@ void ExtendedConfig(void)
 
 	do
 	{
-		rc = FDialog(76,19,"FTPExtGlobal",DialogItems,(sizeof(InitItems)/sizeof(InitItems[0])-1));
+		rc = FDialog(76,19,"FTPExtGlobal",DialogItems,ARRAYSIZE(DialogItems));
 
 		if(rc == -1)
 			return;
@@ -330,6 +328,17 @@ void ExtendedConfig(void)
 }
 
 //------------------------------------------------------------------------
+
+struct FLngColorDialog
+{
+	LPCSTR MTitle;         ///< Message for dialog title (Default text: "Colors").
+	LPCSTR MFore;          ///< Message for foreground label (Default text: "Fore").
+	LPCSTR MBk;            ///< Message for background label (Default text: "Back").
+	LPCSTR MSet;           ///< Message for set button (Default text: "Set").
+	LPCSTR MCancel;        ///< Message for cancel button (Default text: "Cancel").
+	LPCSTR MText;          ///< Message for sample text (Default text: "text text text").
+};
+
 static FLngColorDialog ColorLangs =
 {
 	/*MTitle*/    FMSG(MColorTitle),
@@ -340,72 +349,217 @@ static FLngColorDialog ColorLangs =
 	/*MText*/     FMSG(MColorText)
 };
 
+//--------------------------------------------------------------------------------
+//-- Color dialog
+//--------------------------------------------------------------------------------
+#define cdlgFORE 2
+#define cdlgBK   19
+#define cdlgTEXT 35
+#define cdlgOK   39
+
+
+static int  ColorFore;
+static int  ColorBk;
+static char Title[FAR_MAX_CAPTION];
+
+static LONG_PTR WINAPI CDLG_WndProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
+{
+	FarDialogItemData id;
+	char str[FAR_MAX_CAPTION+50];
+
+	switch(Msg)
+	{
+		case        DN_BTNCLICK:
+
+			if(Param1 >= cdlgFORE && Param1 < cdlgFORE+16)
+				ColorFore = Param1 - cdlgFORE;
+			else if(Param1 >= cdlgBK && Param1 < cdlgBK+16)
+				ColorBk = Param1 - cdlgBK;
+
+			sprintf(str,"%s(%3d 0x%02X %03o)",
+			        Title,
+			        FAR_COLOR(ColorFore,ColorBk),
+			        FAR_COLOR(ColorFore,ColorBk),
+			        FAR_COLOR(ColorFore,ColorBk));
+			//set caption
+			id.PtrLength = strLen(str);
+			id.PtrData   = str;
+			FP_Info->SendDlgMessage(hDlg,DM_SETTEXT,0,(LONG_PTR)(&id));
+			//Invalidate
+			FP_Info->SendDlgMessage(hDlg,DM_SETREDRAW,0,0);
+			break;
+		case DN_CTLCOLORDLGITEM:
+
+			if(Param1 >= cdlgTEXT && Param1 < cdlgTEXT+3)
+				return FAR_COLOR(ColorFore,ColorBk);
+
+			break;
+	}
+
+	return FP_Info->DefDlgProc(hDlg,Msg,Param1,Param2);
+}
+
+int WINAPI FP_GetColorDialog(int color,FLngColorDialog* p,LPCSTR Help)
+{
+	InitDialogItem InitItems[]=
+	{
+		{DI_DOUBLEBOX,3, 1,35,13,0,0,DIF_BOXCOLOR, 0,NULL},
+		{DI_SINGLEBOX,5, 2,18, 7,0,0,DIF_BOXCOLOR|DIF_LEFTTEXT,0, NULL},
+		{DI_RADIOBUTTON,6,3,0,0,0,0,DIF_GROUP|DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~0)&0x7, 0)),0,NULL},
+		{DI_RADIOBUTTON,6,4,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~1)&0x7, 1)),0,NULL},
+		{DI_RADIOBUTTON,6,5,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~2)&0x7, 2)),0,NULL},
+		{DI_RADIOBUTTON,6,6,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~3)&0x7, 3)),0,NULL},
+		{DI_RADIOBUTTON,9,3,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~4)&0x7, 4)),0,NULL},
+		{DI_RADIOBUTTON,9,4,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~5)&0x7, 5)),0,NULL},
+		{DI_RADIOBUTTON,9,5,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~6)&0x7, 6)),0,NULL},
+		{DI_RADIOBUTTON,9,6,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~7)&0x7, 7)),0,NULL},
+		{DI_RADIOBUTTON,12,3,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~8)&0x7, 8)),0,NULL},
+		{DI_RADIOBUTTON,12,4,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~9)&0x7, 9)),0,NULL},
+		{DI_RADIOBUTTON,12,5,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~10)&0x7,10)),0,NULL},
+		{DI_RADIOBUTTON,12,6,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~11)&0x7,11)),0,NULL},
+		{DI_RADIOBUTTON,15,3,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~12)&0x7,12)),0,NULL},
+		{DI_RADIOBUTTON,15,4,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~13)&0x7,13)),0,NULL},
+		{DI_RADIOBUTTON,15,5,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~14)&0x7,14)),0,NULL},
+		{DI_RADIOBUTTON,15,6,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~15)&0x7,15)),0,NULL},
+		{DI_SINGLEBOX,20, 2,33, 7,0,0,DIF_BOXCOLOR|DIF_LEFTTEXT, 0,NULL},
+		{DI_RADIOBUTTON,21,3,0,0,0,0,DIF_GROUP|DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~0)&0x7, 0)),0,NULL},
+		{DI_RADIOBUTTON,21,4,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~1)&0x7, 1)),0,NULL},
+		{DI_RADIOBUTTON,21,5,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~2)&0x7, 2)),0,NULL},
+		{DI_RADIOBUTTON,21,6,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~3)&0x7, 3)),0,NULL},
+		{DI_RADIOBUTTON,24,3,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~4)&0x7, 4)),0,NULL},
+		{DI_RADIOBUTTON,24,4,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~5)&0x7, 5)),0,NULL},
+		{DI_RADIOBUTTON,24,5,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~6)&0x7, 6)),0,NULL},
+		{DI_RADIOBUTTON,24,6,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~7)&0x7, 7)),0,NULL},
+		{DI_RADIOBUTTON,27,3,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~8)&0x7, 8)),0,NULL},
+		{DI_RADIOBUTTON,27,4,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~9)&0x7, 9)),0,NULL},
+		{DI_RADIOBUTTON,27,5,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~10)&0x7,10)),0,NULL},
+		{DI_RADIOBUTTON,27,6,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~11)&0x7,11)),0,NULL},
+		{DI_RADIOBUTTON,30,3,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~12)&0x7,12)),0,NULL},
+		{DI_RADIOBUTTON,30,4,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~13)&0x7,13)),0,NULL},
+		{DI_RADIOBUTTON,30,5,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~14)&0x7,14)),0,NULL},
+		{DI_RADIOBUTTON,30,6,0,0,0,0,DIF_MOVESELECT|DIF_SETCOLOR|(FAR_COLOR((~15)&0x7,15)),0,NULL},
+		{DI_TEXT,5, 8,0,0,0,0,DIF_SETCOLOR|FAR_COLOR(fccYELLOW,fccGREEN), 0,NULL},
+		{DI_TEXT,5, 9,0,0,0,0,DIF_SETCOLOR|FAR_COLOR(fccYELLOW,fccGREEN), 0,NULL},
+		{DI_TEXT,5,10,0,0,0,0,DIF_SETCOLOR|FAR_COLOR(fccYELLOW,fccGREEN), 0,NULL},
+		{DI_TEXT,3,11,3,11,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,NULL },
+		{DI_BUTTON,0,12,0,0,0,0,DIF_CENTERGROUP, 1, NULL},
+		{DI_BUTTON,0,12,0,0,0,0,DIF_CENTERGROUP, 0,NULL},
+	};
+	FarDialogItem DialogItems[ARRAYSIZE(InitItems)];
+	static FLngColorDialog base =
+	{
+		FMSG("Color"),
+		FMSG("&Foreground"),
+		FMSG("&Background"),
+		FMSG("&Set"),
+		FMSG("&Cancel"),
+		FMSG("Text Text Text Text Text Text")
+	};
+
+	if(!p) p = &base;
+
+	char str[FAR_MAX_CAPTION+50];
+	int  n;
+	InitDialogItems(InitItems,DialogItems,ARRAYSIZE(DialogItems));
+	StrCpy(DialogItems[ 0].Data,         FP_GetMsg(p->MTitle?p->MTitle:base.MTitle),    FAR_MAX_CAPTION);
+	StrCpy(DialogItems[ 1].Data,         FP_GetMsg(p->MFore?p->MFore:base.MFore),       FAR_MAX_CAPTION);
+	StrCpy(DialogItems[18].Data,         FP_GetMsg(p->MBk?p->MBk:base.MBk),             FAR_MAX_CAPTION);
+	StrCpy(DialogItems[39].Data,         FP_GetMsg(p->MSet?p->MSet:base.MSet),          FAR_MAX_CAPTION);
+	StrCpy(DialogItems[40].Data,         FP_GetMsg(p->MCancel?p->MCancel:base.MCancel), FAR_MAX_CAPTION);
+	StrCpy(DialogItems[cdlgTEXT].Data,   FP_GetMsg(p->MText?p->MText:base.MText),       FAR_MAX_CAPTION);
+	StrCpy(DialogItems[cdlgTEXT+1].Data, DialogItems[cdlgTEXT].Data);
+	StrCpy(DialogItems[cdlgTEXT+2].Data, DialogItems[cdlgTEXT].Data);
+	ColorFore = FAR_COLOR_FORE(color);
+	ColorBk   = FAR_COLOR_BK(color);
+
+	for(n = 0; n < 16; n++)
+	{
+		DialogItems[cdlgFORE+n].Selected = FALSE;
+		DialogItems[cdlgBK+n].Selected   = FALSE;
+		DialogItems[cdlgFORE+n].Focus    = FALSE;
+		DialogItems[cdlgBK+n].Focus      = FALSE;
+	}
+
+	DialogItems[ cdlgFORE+ColorFore ].Selected = TRUE;
+	DialogItems[ cdlgFORE+ColorFore ].Focus = TRUE;
+	DialogItems[ cdlgBK+ColorBk ].Selected     = TRUE;
+	StrCpy(Title,DialogItems[0].Data,sizeof(Title));
+	sprintf(str,"(%3d 0x%02X %03o)",
+	        FAR_COLOR(ColorFore,ColorBk),
+	        FAR_COLOR(ColorFore,ColorBk),
+	        FAR_COLOR(ColorFore,ColorBk));
+	StrCat(DialogItems[0].Data,str,512);
+	n = FP_Info->DialogEx(FP_Info->ModuleNumber,-1,-1,39,15,Help,DialogItems,ARRAYSIZE(DialogItems),0,0,CDLG_WndProc,0);
+
+	if(n == cdlgOK)
+		color = FAR_COLOR(ColorFore,ColorBk);
+
+	StrCpy(DialogItems[0].Data,Title,FAR_MAX_CAPTION);
+	return color;
+}
+
 int WINAPI Config(void)
 {
-	static FP_DialogItem InitItems[]=
+	InitDialogItem InitItems[]=
 	{
-		/*00*/   FDI_CONTROL(DI_DOUBLEBOX, 3, 1,72,21, 0, FMSG(MConfigTitle))
+		{DI_DOUBLEBOX, 3, 1,72,21, 0,0,0,0, FMSG(MConfigTitle)},
+		{DI_CHECKBOX,5, 2,0,0,0, 0,0,0,  FMSG(MConfigAddToDisksMenu)},      //Add to Disks menu
+		{DI_FIXEDIT,35, 2,37, 2,0,0,0,0,NULL},
+		{DI_CHECKBOX,5, 3,0,0,0, 0,0,0,  FMSG(MConfigAddToPluginsMenu)},    //Add to Plugins menu
+		{DI_TEXT,9, 4,0,0,0, 0,0,0,  FMSG(MHostsMode)},                 //Hosts panel mode
+		{DI_FIXEDIT,5, 4, 7, 4,0,0,0,0,NULL},
+		{DI_CHECKBOX,5, 5,0,0,0,  0,0,0, FMSG(MConfigReadDiz)},             //Read descriptions
+		{DI_CHECKBOX,5, 6,0,0,0, 0,0,0,  FMSG(MConfigUpdateDiz)},           //Update descriptions
+		{DI_CHECKBOX,5, 7,0,0,0, 0,0,0,  FMSG(MConfigUploadLowCase)},       //Upload upper in lowercase
+		{DI_CHECKBOX,5, 8,0,0,0, 0,0,0,  FMSG(MConfigUploadDialog)},        //Show upload options dialog
+		{DI_CHECKBOX,5, 9,0,0,0, 0,0,0,  FMSG(MConfigDefaultResume)},       //Default button is 'Resume'
+		{DI_CHECKBOX,5,10,0,0,0, 0,0,0,  FMSG(MAskAbort)},                  //Confirm abort
+		{DI_CHECKBOX,5,11,0,0,0, 0,0,0,  FMSG(MShowIdle)},                  //Show idle
+		{DI_BUTTON,21,11,0,0,0, 0,0,0,  FMSG(MColor)},                    //Color
+		{DI_RADIOBUTTON,32,11,0,0,0,0,DIF_GROUP, 0,  FMSG(MScreen)},                   //( ) 1.Screen
+		{DI_RADIOBUTTON,44,11,0,0,0,  0,0,0, FMSG(MCaption)},                  //( ) 2.Caption
+		{DI_RADIOBUTTON,58,11,0,0,0,  0,0,0, FMSG(MBoth)},                     //( ) 3.Both
 
-		/*01*/     FDI_CHECK(5, 2,   FMSG(MConfigAddToDisksMenu))      //Add to Disks menu
-		/*02*/   FDI_FIXEDIT(35, 2,37)
-		/*03*/     FDI_CHECK(5, 3,   FMSG(MConfigAddToPluginsMenu))    //Add to Plugins menu
-		/*04*/     FDI_LABEL(9, 4,   FMSG(MHostsMode))                 //Hosts panel mode
-		/*05*/   FDI_FIXEDIT(5, 4, 7)
-		/*06*/     FDI_CHECK(5, 5,   FMSG(MConfigReadDiz))             //Read descriptions
-		/*07*/     FDI_CHECK(5, 6,   FMSG(MConfigUpdateDiz))           //Update descriptions
-		/*08*/     FDI_CHECK(5, 7,   FMSG(MConfigUploadLowCase))       //Upload upper in lowercase
-		/*09*/     FDI_CHECK(5, 8,   FMSG(MConfigUploadDialog))        //Show upload options dialog
-		/*10*/     FDI_CHECK(5, 9,   FMSG(MConfigDefaultResume))       //Default button is 'Resume'
-		/*11*/     FDI_CHECK(5,10,   FMSG(MAskAbort))                  //Confirm abort
-		/*12*/     FDI_CHECK(5,11,   FMSG(MShowIdle))                  //Show idle
-		/*13*/    FDI_BUTTON(21,11,   FMSG(MColor))                    //Color
-		/*14*/FDI_STARTRADIO(32,11,   FMSG(MScreen))                   //( ) 1.Screen
-		/*15*/     FDI_RADIO(44,11,   FMSG(MCaption))                  //( ) 2.Caption
-		/*16*/     FDI_RADIO(58,11,   FMSG(MBoth))                     //( ) 3.Both
+		{DI_CHECKBOX,40, 2,0,0,0, 0,0,0,  FMSG(MKeepAlive)},                //Keepalive packet
+		{DI_EDIT,67, 2,70, 2,0,0,0,0,NULL},
+		{DI_TEXT,71, 2,0,0,0, 0,0,0,  FMSG(MSec)},                      //s
+		{DI_CHECKBOX,40, 3,0,0,0, 0,0,0,  FMSG(MAutoRetry)},                //AutoRetry
+		{DI_EDIT,67, 3,70, 3,0,0,0,0,NULL},
+		{DI_CHECKBOX,40, 4,0,0,0, 0,0,0,  FMSG(MLongOp)},                   //Long operation beep
+		{DI_EDIT,67, 4,70, 4,0,0,0,0,NULL},
+		{DI_TEXT,71, 4,0,0,0,  0,0,0, FMSG(MSec)},                      //s
+		{DI_TEXT,40, 5,0,0,0, 0,0,0,  FMSG(MWaitTimeout)},              //Server reply timeout (s)
+		{DI_EDIT,67, 5,70, 5,0,0,0,0,NULL},
+		{DI_CHECKBOX,40, 6,0,0,0, 0,0,0,  FMSG(MDigitDelimit)},             //Digits grouping symbol
+		{DI_EDIT,69, 6,70, 6,0,0,0,0,NULL},
+		{DI_CHECKBOX,40, 7,0,0,0, 0,0,0,  FMSG(MExtWindow)},                //Show FTP command log
+		{DI_TEXT,40, 8,0,0,0,  0,0,0, FMSG(MExtSize)},                  //Log window size
+		{DI_EDIT,60, 8,63, 8,0,0,0,0,NULL},
+		{DI_TEXT,64, 8,0,0,0,0,0,0,   " x "},
+		{DI_EDIT,67, 8,70, 8,0,0,0,0,NULL},
+		{DI_TEXT,40, 9,0,0,0,  0,0,0, FMSG(MHostIOSize)},               //I/O buffer size
+		{DI_EDIT,60, 9,70, 9,0,0,0,0,NULL},
+		{DI_TEXT,40,10,0,0,0,  0,0,0, FMSG(MSilentText)},               //Alert text
+		{DI_BUTTON,60,10,0,0,0,0,0,0,   FMSG(MColor)},
 
-		/*17*/     FDI_CHECK(40, 2,   FMSG(MKeepAlive))                //Keepalive packet
-		/*18*/      FDI_EDIT(67, 2,70)
-		/*19*/     FDI_LABEL(71, 2,   FMSG(MSec))                      //s
-		/*20*/     FDI_CHECK(40, 3,   FMSG(MAutoRetry))                //AutoRetry
-		/*21*/      FDI_EDIT(67, 3,70)
-		/*22*/     FDI_CHECK(40, 4,   FMSG(MLongOp))                   //Long operation beep
-		/*23*/      FDI_EDIT(67, 4,70)
-		/*24*/     FDI_LABEL(71, 4,   FMSG(MSec))                      //s
-		/*25*/     FDI_LABEL(40, 5,   FMSG(MWaitTimeout))              //Server reply timeout (s)
-		/*26*/      FDI_EDIT(67, 5,70)
-		/*27*/     FDI_CHECK(40, 6,   FMSG(MDigitDelimit))             //Digits grouping symbol
-		/*28*/      FDI_EDIT(69, 6,70)
-		/*29*/     FDI_CHECK(40, 7,   FMSG(MExtWindow))                //Show FTP command log
-		/*30*/     FDI_LABEL(40, 8,   FMSG(MExtSize))                  //Log window size
-		/*31*/      FDI_EDIT(60, 8,63)
-		/*32*/     FDI_LABEL(64, 8,   " x ")
-		/*33*/      FDI_EDIT(67, 8,70)
-		/*34*/     FDI_LABEL(40, 9,   FMSG(MHostIOSize))               //I/O buffer size
-		/*35*/      FDI_EDIT(60, 9,70)
-		/*36*/     FDI_LABEL(40,10,   FMSG(MSilentText))               //Alert text
-		/*37*/    FDI_BUTTON(60,10,   FMSG(MColor))
+		{DI_TEXT,5,12,5,12,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,NULL },
 
-		/*38*/     FDI_HLINE(5,12)
-
-		/*39*/     FDI_LABEL(5,13,   FMSG(MConfigDizNames))            //Dis names
-		/*40*/      FDI_EDIT(5,14,70)
-		/*41*/     FDI_LABEL(5,15,   FMSG(MConfigDefPassword))         //Def pass
-		/*42*/   FDI_PSWEDIT(5,16,34)
-		/*43*/     FDI_LABEL(5,17,   FMSG(MConfigFirewall))            //Firewall
-		/*44*/      FDI_EDIT(5,18,34)
-		/*45*/     FDI_LABEL(40,15,   FMSG(MLogFilename))              //Log filename
-		/*46*/      FDI_EDIT(66,15,70)
-		/*47*/     FDI_LABEL(71,15,   FMSG(MKBytes))
-		/*48*/      FDI_EDIT(40,16,70)
-		/*49*/     FDI_CHECK(40,17,   FMSG(MLogDir))                   //Log DIR contents
-		/*50*/     FDI_CHECK(40,18,   FMSG(MConfigPassiveMode))
-
-		/*51*/     FDI_HLINE(5,19)
-
-		/*52*/FDI_GDEFBUTTON(0,20,   FMSG(MOk))
-		/*53*/   FDI_GBUTTON(0,20,   FMSG(MCancel))
-		/*54*/   FDI_GBUTTON(0,20,   FMSG(MExtOpt))
-		{FFDI_NONE,0,0,0,0,0,NULL}
+		{DI_TEXT,5,13,0,0,0, 0,0,0,  FMSG(MConfigDizNames)},            //Dis names
+		{DI_EDIT,5,14,70,14,0,0,0,0,NULL},
+		{DI_TEXT,5,15,0,0,0, 0,0,0,  FMSG(MConfigDefPassword)},         //Def pass
+		{DI_PSWEDIT,5,16,34,16,0,0,0,0,NULL},
+		{DI_TEXT,5,17,0,0,0, 0,0,0,  FMSG(MConfigFirewall)},            //Firewall
+		{DI_EDIT,5,18,34,18,0,0,0,0,NULL},
+		{DI_TEXT,40,15,0,0,0, 0,0,0,  FMSG(MLogFilename)},              //Log filename
+		{DI_EDIT,66,15,70,15,0,0,0,0,NULL},
+		{DI_TEXT,71,15,0,0,0, 0,0,0,  FMSG(MKBytes)},
+		{DI_EDIT,40,16,70,16,0,0,0,0,NULL},
+		{DI_CHECKBOX,40,17,0,0,0,  0,0,0, FMSG(MLogDir)},                   //Log DIR contents
+		{DI_CHECKBOX,40,18,0,0,0, 0,0,0,  FMSG(MConfigPassiveMode)},
+		{DI_TEXT,5,19,5,19,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,NULL },
+		{DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP, 1,  FMSG(MOk)},
+		{DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP, 0,  FMSG(MCancel)},
+		{DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP, 0,  FMSG(MExtOpt)},
 	};
 #define CFG_ADDDISK       1
 #define CFG_DIGIT         2
@@ -446,11 +600,11 @@ int WINAPI Config(void)
 #define CFG_OK            52
 #define CFG_CANCEL        53
 #define CFG_EXTBTN        54
-	FarDialogItem DialogItems[(sizeof(InitItems)/sizeof(InitItems[0])-1)];
+	FarDialogItem DialogItems[ARRAYSIZE(InitItems)];
 	int           IdleColor    = Opt.IdleColor,
 	              ProcessColor = Opt.ProcessColor;
 	int           rc;
-	FP_InitDialogItems(InitItems,DialogItems);
+	InitDialogItems(InitItems,DialogItems,ARRAYSIZE(DialogItems));
 	DialogItems[CFG_ADDDISK].Selected = Opt.AddToDisksMenu;
 	sprintf(DialogItems[CFG_DIGIT].Data,"%d",Opt.DisksMenuDigit);
 	DialogItems[CFG_ADDPLUGINS].Selected  = Opt.AddToPluginsMenu;
@@ -488,7 +642,7 @@ int WINAPI Config(void)
 
 	do
 	{
-		rc = FDialog(76,23,"Config",DialogItems,(sizeof(InitItems)/sizeof(InitItems[0])-1));
+		rc = FDialog(76,23,"Config",DialogItems,ARRAYSIZE(DialogItems));
 
 		if(rc == CFG_OK)
 			break;
@@ -519,8 +673,10 @@ int WINAPI Config(void)
 	Opt.ResumeDefault      = DialogItems[CFG_RESDEF].Selected;
 	Opt.WaitTimeout        = atoi(DialogItems[CFG_WAITTIMEOUT].Data);
 	Opt.ShowIdle           = DialogItems[CFG_SHOWIDLE].Selected;
-	if(DialogItems[CFG_IDLE_SCREEN].Selected)  Opt.IdleMode = IDLE_CONSOLE; else if(DialogItems[CFG_IDLE_CAPTION].Selected) Opt.IdleMode = IDLE_CAPTION; else
 
+	if(DialogItems[CFG_IDLE_SCREEN].Selected)  Opt.IdleMode = IDLE_CONSOLE;
+	else if(DialogItems[CFG_IDLE_CAPTION].Selected) Opt.IdleMode = IDLE_CAPTION;
+	else
 		Opt.IdleMode = IDLE_CONSOLE | IDLE_CAPTION;
 
 	if(DialogItems[CFG_KEEPALIVE].Selected)

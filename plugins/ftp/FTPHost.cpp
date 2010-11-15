@@ -100,7 +100,10 @@ BOOL HexToPassword_2740(char *HexStr,char *Password)
 	return TRUE;
 }
 
-inline BOOL HexToPassword_CUR(char *HexStr,char *Password) { return HexToPassword_2740(HexStr,Password); }
+inline BOOL HexToPassword_CUR(char *HexStr,char *Password)
+{
+	return HexToPassword_2740(HexStr,Password);
+}
 
 //---------------------------------------------------------------------------------
 void FTPHost::Init(void)
@@ -450,7 +453,9 @@ BOOL FTPHost::Read(LPCSTR nm)
 	}
 
 	m = strrchr(RegKey,'\\');
-	if(!m) m = RegKey; else m++;
+
+	if(!m) m = RegKey;
+	else m++;
 
 	if(!FP_GetRegKey(RegKey,"HostName",hnm,"",sizeof(hnm)))
 		return FALSE;
@@ -593,8 +598,10 @@ BOOL FTPHost::ReadINI(LPCSTR nm)
 	if(!hst[0])
 		return FALSE;
 
-	usr[0] = '1'; usr[1] = 0;
-	hex[0] = '2'; hex[1] = 0;
+	usr[0] = '1';
+	usr[1] = 0;
+	hex[0] = '2';
+	hex[1] = 0;
 	GetPrivateProfileString("FarFTP", "User",     "", usr, sizeof(usr), nm);
 	GetPrivateProfileString("FarFTP", "Password", "", hex, sizeof(hex), nm);
 

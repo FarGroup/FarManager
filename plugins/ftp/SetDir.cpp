@@ -83,7 +83,8 @@ BOOL FTP::SetDirectoryStepped(LPCSTR Dir, BOOL update)
 			if(m)
 			{
 				num = Min((int)sizeof(str)-1, (int)(m-Dir));
-				strncpy(str, Dir, num); str[num] = 0;
+				strncpy(str, Dir, num);
+				str[num] = 0;
 				Dir = m+1;
 			}
 			else

@@ -47,7 +47,10 @@ struct ConnectionState
 	int       Passive;
 	HANDLE    Object;
 
-	ConnectionState(void) { Inited = FALSE; }
+	ConnectionState(void)
+	{
+		Inited = FALSE;
+	}
 };
 
 struct Connection
@@ -258,44 +261,94 @@ struct Connection
 
 		int            command(const char *fmt, ...);
 		int            ProcessCommand(LPCSTR LineToProcess);
-		int            ProcessCommand(String& s) { return ProcessCommand(s.c_str()); }
+		int            ProcessCommand(String& s)
+		{
+			return ProcessCommand(s.c_str());
+		}
 		void           CheckResume(void);
 		void           AbortAllRequest(int brkFlag);
 
 		void           GetOutput(String& s);
-		void           GetReply(BYTE *Line,int MaxLength)             { StrCpy((char*)Line, reply_string.c_str(), MaxLength); }
-		void           GetReply(String& s)                           { s = reply_string; }
-		LPCSTR       GetStartReply(void)                           { return StartReply.c_str(); }
+		void           GetReply(BYTE *Line,int MaxLength)
+		{
+			StrCpy((char*)Line, reply_string.c_str(), MaxLength);
+		}
+		void           GetReply(String& s)
+		{
+			s = reply_string;
+		}
+		LPCSTR       GetStartReply(void)
+		{
+			return StartReply.c_str();
+		}
 
 		void           CacheReset();
 		int            CacheGet();
 		void           CacheAdd();
 
-		void           SetTable(int Table)          { TableNum = Table; }
-		int            GetTable(void)               { return TableNum; }
+		void           SetTable(int Table)
+		{
+			TableNum = Table;
+		}
+		int            GetTable(void)
+		{
+			return TableNum;
+		}
 
 		int            FromOEM(BYTE *Line,int sz = -1, int fsz = -1);
-		int            FromOEM(char *Line)              { return FromOEM((LPBYTE)Line,-1,-1); }
-		int            FromOEM(String& s)               { s.Alloc(s.Length()*3+1); int ret = FromOEM((LPBYTE)s.c_str(),-1,s.Length()*3); s.SetLength(ret); return ret;}
+		int            FromOEM(char *Line)
+		{
+			return FromOEM((LPBYTE)Line,-1,-1);
+		}
+		int            FromOEM(String& s)
+		{
+			s.Alloc(s.Length()*3+1);
+			int ret = FromOEM((LPBYTE)s.c_str(),-1,s.Length()*3);
+			s.SetLength(ret);
+			return ret;
+		}
 
 		int            ToOEM(BYTE *Line,int sz = -1);
-		int            ToOEM(char *Line)                { return ToOEM((LPBYTE)Line,-1); }
-		int            ToOEM(String& s)                 { int ret = ToOEM((LPBYTE)s.c_str(),-1); s.SetLength(ret); return ret; }
+		int            ToOEM(char *Line)
+		{
+			return ToOEM((LPBYTE)Line,-1);
+		}
+		int            ToOEM(String& s)
+		{
+			int ret = ToOEM((LPBYTE)s.c_str(),-1);
+			s.SetLength(ret);
+			return ret;
+		}
 
 		char          *FromOEMDup(LPCSTR str,int num = 0);
 		char          *ToOEMDup(LPCSTR str,int num = 0);
 		String         SFromOEM(LPCSTR str);
 		String         SToOEM(LPCSTR str);
-		String         SFromOEM(const String& str) { return FromOEMDup(str.c_str()); }
-		String         SToOEM(const String& str)   { return ToOEMDup(str.c_str()); }
+		String         SFromOEM(const String& str)
+		{
+			return FromOEMDup(str.c_str());
+		}
+		String         SToOEM(const String& str)
+		{
+			return ToOEMDup(str.c_str());
+		}
 
 		void           GetState(ConnectionState* p);
 		void           SetState(ConnectionState* p);
 
 		BOOL           GetExitCode();
-		int            GetResultCode(void)          { return code; }
-		int            GetErrorCode(void)           { return ErrorCode; }
-		BOOL           SysErr(void)                 { return SysError; }
+		int            GetResultCode(void)
+		{
+			return code;
+		}
+		int            GetErrorCode(void)
+		{
+			return ErrorCode;
+		}
+		BOOL           SysErr(void)
+		{
+			return SysError;
+		}
 
 		void           AddCmdLine(LPCSTR str);
 		int            ConnectMessage(int Msg = MNone__,LPCSTR HostName = NULL,int BtnMsg = MNone__,int btn1 = MNone__, int btn2 = MNone__);

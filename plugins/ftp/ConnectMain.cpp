@@ -177,7 +177,8 @@ S0:
 			goto OUT1;
 		case ' ':
 		case '\t':
-			sb++; goto S0;
+			sb++;
+			goto S0;
 		default:
 
 			switch(slrflag)
@@ -205,9 +206,11 @@ S1:
 		case '\0':
 			goto OUT1;      /* end of token */
 		case '\\':
-			sb++; goto S2;  /* slurp next character */
+			sb++;
+			goto S2;  /* slurp next character */
 		case '\x1':
-			sb++; goto S3;  /* slurp quoted string */
+			sb++;
+			goto S3;  /* slurp quoted string */
 		default:
 			*ap++ = *sb++;  /* add character to token */
 			got_one = 1;
@@ -233,7 +236,8 @@ S3:
 		case '\0':
 			goto OUT1;
 		case '\x1':
-			sb++; goto S1;
+			sb++;
+			goto S1;
 		default:
 			*ap++ = *sb++;
 			got_one = 1;

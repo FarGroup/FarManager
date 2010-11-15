@@ -8,9 +8,12 @@ BOOL Connection::SetType(int type)
 {
 	switch(type)
 	{
-		case TYPE_A: return setascii();
-		case TYPE_I: return setbinary();
-		case TYPE_E: return setebcdic();
+		case TYPE_A:
+			return setascii();
+		case TYPE_I:
+			return setbinary();
+		case TYPE_E:
+			return setebcdic();
 	}
 
 	return FALSE;
@@ -427,11 +430,15 @@ abort:
 
 		fprintfSocket(cout,"ABOR\r\n");
 		FD_ZERO(&mask);
-		/*!*/FD_SET(cin, &mask); // Chris: Need to correct this...
+		/*!*/
+		FD_SET(cin, &mask); // Chris: Need to correct this...
 
 		if((nfnd = empty(&mask,10)) <= 0)
 		{
-			if(nfnd < 0) { Log(("abort")); }
+			if(nfnd < 0)
+			{
+				Log(("abort"));
+			}
 
 			lostpeer();
 		}
@@ -468,11 +475,15 @@ abort:
 
 				fprintfSocket(cout,"ABOR\r\n");
 				FD_ZERO(&mask);
-				/*!*/FD_SET(cin, &mask); // Chris:
+				/*!*/
+				FD_SET(cin, &mask); // Chris:
 
 				if((nfnd = empty(&mask,10)) <= 0)
 				{
-					if(nfnd < 0) { Log(("abort")); }
+					if(nfnd < 0)
+					{
+						Log(("abort"));
+					}
 
 					lostpeer();
 				}
@@ -505,11 +516,15 @@ abort:
 
 		fprintfSocket(cout,"ABOR\r\n");
 		FD_ZERO(&mask);
-		/*!*/FD_SET(cin, &mask);
+		/*!*/
+		FD_SET(cin, &mask);
 
 		if((nfnd = empty(&mask,10)) <= 0)
 		{
-			if(nfnd < 0) { Log(("abort")); }
+			if(nfnd < 0)
+			{
+				Log(("abort"));
+			}
 
 			lostpeer();
 		}
@@ -528,7 +543,8 @@ abort:
 	if(cpend)
 	{
 		FD_ZERO(&mask);
-		/*!*/FD_SET(cin, &mask); // Chris:
+		/*!*/
+		FD_SET(cin, &mask); // Chris:
 
 		if((nfnd = empty(&mask,10)) <= 0)
 		{

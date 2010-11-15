@@ -296,15 +296,11 @@
   <ItemGroup>
     <ClCompile Include="FStdLib\FARStdlib\fstd_Arg.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_asrt.cpp" />
-    <ClCompile Include="FStdLib\FARStdlib\fstd_cDialog.cpp" />
-    <ClCompile Include="FStdLib\FARStdlib\fstd_CharDraw.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_ClpS.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_Con.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_crc32.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_Dbg.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_Dialog.cpp" />
-    <ClCompile Include="FStdLib\FARStdlib\fstd_Dlg.cpp" />
-    <ClCompile Include="FStdLib\FARStdlib\fstd_Editor.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_err.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_exit.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_exSCAT.cpp" />
@@ -326,7 +322,6 @@
     <ClCompile Include="FStdLib\FARStdlib\fstd_mesg.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_mklog.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_Msg.cpp" />
-    <ClCompile Include="FStdLib\FARStdlib\fstd_Multiline.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_OEM.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_Patt.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_per.cpp" />
@@ -339,7 +334,6 @@
     <ClCompile Include="FStdLib\FARStdlib\fstd_RegGB.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_RegGI.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_RegOp.cpp" />
-    <ClCompile Include="FStdLib\FARStdlib\fstd_RegRn.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_RegSB.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_RegSC.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_RegSI.cpp" />
@@ -352,12 +346,8 @@
     <ClCompile Include="FStdLib\FARStdlib\fstd_Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FStdLib\FARStdlib\fstd_CharDraw.h" />
-    <ClInclude Include="FStdLib\FARStdlib\fstd_Multiline.h" />
     <ClInclude Include="FStdLib\FARStdlib\fstd_String.h" />
     <ClInclude Include="FStdLib\FARStdlib\funi.h" />
-    <ClInclude Include="FStdLib\FARStdlib\pack1.h" />
-    <ClInclude Include="FStdLib\FARStdlib\pop.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

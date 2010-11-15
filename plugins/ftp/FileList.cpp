@@ -8,10 +8,14 @@ LPCSTR UType2Str(sliTypes tp)
 {
 	switch(tp)
 	{
-		case sltUrlList: return "URLS_LIST";
-		case    sltTree: return "URLS_TREE";
-		case   sltGroup: return "URLS_GROUP";
-		default: HAbort("Url type not supported");
+		case sltUrlList:
+			return "URLS_LIST";
+		case    sltTree:
+			return "URLS_TREE";
+		case   sltGroup:
+			return "URLS_GROUP";
+		default:
+			HAbort("Url type not supported");
 			return NULL;
 	}
 }
@@ -89,11 +93,11 @@ void FTP::SaveList(FP_SizeItemList* il)
 	   CurrentUrlPath[1024+2];
 	CurrentUrlPath[0] = 0;
 	_snprintf(BasePath, sizeof(BasePath),
-	         "%s%s%s%s",
-	         Opt.sli.AddPrefix ? "ftp://" : "",
-	         Opt.sli.AddPasswordAndUser ? Message("%s:%s@",hConnect->UserName,hConnect->UserPassword) : "",
-	         hConnect->hostname,
-	         hConnect->CurDir.c_str());
+	          "%s%s%s%s",
+	          Opt.sli.AddPrefix ? "ftp://" : "",
+	          Opt.sli.AddPasswordAndUser ? Message("%s:%s@",hConnect->UserName,hConnect->UserPassword) : "",
+	          hConnect->hostname,
+	          hConnect->CurDir.c_str());
 	AddEndSlash(BasePath,'/',sizeof(BasePath));
 
 	if(Opt.sli.ListType == sltTree)
@@ -133,7 +137,9 @@ void FTP::SaveList(FP_SizeItemList* il)
 
 				fprintf(f,"%*c", level*2+2, ' ');
 				m = strrchr(str,'/');
-				if(m) m++; else m = str;
+
+				if(m) m++;
+				else m = str;
 
 				fprintf(f,"%c%s",
 				        IS_FLAG(p->FindData.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY) ? '/' : ' ', m);
@@ -174,7 +180,9 @@ void FTP::SaveList(FP_SizeItemList* il)
 					TStrCpy(str, FTP_FILENAME(p));
 					FixFTPSlash(str);
 					m = strrchr(str,'/');
-					if(m) m++; else m = str;
+
+					if(m) m++;
+					else m = str;
 
 					fprintf(f," %s", m);
 
@@ -352,10 +360,18 @@ BOOL FTP::ShowFilesList(FP_SizeItemList* il)
 		                  "FTPFilesList", Breaks, &BNumber, mi,cn);
 
 		//key ESC
-		if(n == -1)       { num = FALSE; break; }
+		if(n == -1)
+		{
+			num = FALSE;
+			break;
+		}
 
 		//key Enter
-		if(BNumber == -1) { num = TRUE; break; }
+		if(BNumber == -1)
+		{
+			num = TRUE;
+			break;
+		}
 
 		//Set selected
 		if(num != -1) mi[num].Selected = FALSE;
@@ -402,7 +418,8 @@ BOOL FTP::ShowFilesList(FP_SizeItemList* il)
 
 				break;
 				/*F2*/
-			case 1: SaveList(il);
+			case 1:
+				SaveList(il);
 				break;
 		}
 	}

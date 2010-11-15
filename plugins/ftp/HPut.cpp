@@ -20,9 +20,12 @@ BOOL SayNotReadedTerminates(LPCSTR fnm,BOOL& SkipAll)
 
 	switch(FMessage(FMSG_WARNING|FMSG_DOWN|FMSG_ERRORTYPE, NULL, MsgItems, ARRAY_SIZE(MsgItems), 3))
 	{
-		case  1: SkipAll = TRUE;
-		case  0: break;
-		default: return TRUE;
+		case  1:
+			SkipAll = TRUE;
+		case  0:
+			break;
+		default:
+			return TRUE;
 	}
 
 	return FALSE;

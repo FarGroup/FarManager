@@ -47,7 +47,11 @@
 #include <farcolor.hpp>
 #include <farkeys.hpp>
 
-#include <FARStdlib/pack1.h>
+#ifdef __GNUC__
+#pragma pack(1)
+#else
+#pragma pack(push,1)
+#endif
 
 // --------------------------------------------------------------
 #include <FARStdlib/funi.h>
@@ -281,75 +285,6 @@ typedef FP_MenuTyped<FMenuItem>   *PFP_Menu;
 
 typedef FP_MenuTyped<FMenuItemEx>  FP_MenuEx;
 typedef FP_MenuTyped<FMenuItemEx> *PFP_MenuEx;
-// ------------------------------------------------------------------------
-/** @brief FP_EditorSelect
-    [fstd_Editor.cpp]
-*/
-struct FP_EditorSelect: public EditorSelect
-{
-
-	int   X(void)       const;
-	int   Y(void)       const;
-	int   X1(void)      const;
-	int   Y1(void)      const;
-	int   Width(void)   const { return (BlockType==BTYPE_NONE) ? 0 : (X1()-X()); }
-	int   Height(void)  const { return (BlockType==BTYPE_NONE) ? 0 : (Y1()-Y()); }
-
-	void  Set(int tp)                                 { if(tp!=-1) Set(X(),Y(),X1(),Y1(),tp); }
-	void  Set(int x,int y,int x1,int y1,int tp = -1);
-};
-
-// ------------------------------------------------------------------------
-/** @brief FP_EditorSetPosition
-    [inline]
-*/
-struct FP_EditorSetPosition: public EditorSetPosition
-{
-
-	int   X(void)           const { return CurPos; }
-	int   Y(void)           const { return CurLine; }
-	bool  isInsert(void)    const { return Overtype == 0; }
-	bool  isOverwrite(void) const { return Overtype == 1; }
-};
-
-// ------------------------------------------------------------------------
-/** @brief FP_Editor
-    [fstd_Editor.cpp]
-*/
-class FP_Editor
-{
-	public:
-		EditorInfo EInfo;
-		bool       Assigned;
-	protected:
-		bool Fresh(void);
-	public:
-		FP_Editor(void);
-
-		bool            Strings(int num,EditorGetString* gs = NULL);
-		bool            CurString(EditorGetString* gs = NULL)        { return Strings(FE_CURSTRING,gs); }
-
-		LPCSTR        GetString(int num = FE_CURSTRING,int *StringSize = NULL);
-		bool            SetString(LPCSTR Text,int num = FE_CURSTRING,int StringSize = -1);
-
-		void            MoveTo(int x,int y);
-		void            MoveToY(int v)                               { MoveTo(CurX(),v); }
-		void            MoveToX(int v)                               { MoveTo(v,CurY()); }
-
-		int             CurX(void)  const;
-		int             CurY(void)  const;
-		int             CurSX(void) const;
-		int             CurSY(void) const;
-
-		int             Cursor2String(int x,int y = -1) const;
-		int             String2Cursor(int x,int y = -1) const;
-
-		bool            Selection(EditorSelect* p);
-		void            SetSelection(const EditorSelect& p);
-		void            Send(INPUT_RECORD *p);
-		void            Write(char *txt);
-		void            Redraw(void);
-};
 
 // ------------------------------------------------------------------------
 /** @brief FP_Dialog
@@ -448,61 +383,10 @@ struct FP_SizeItemList: public FP_ItemList
 		}
 };
 
-// --------------------------------------------------------------
-/** @defgroup ExtendedControls Extended dialog controls
-    @{
-
-    Here is extented, changed or new controls you can yse in FAR dialogs as standart.
-    Extended controls has some new functions.
-
-    Available extended controls:
-      - @ref FP_Multiline Multiline editor control for FAR dialog.
-*/
-
-// MULTILINE EDITOR
-#if !defined(__FP_NOT_FUNCTIONS__)
-#include <FARStdlib/fstd_Multiline.h>
-#include <FARStdlib/fstd_CharDraw.h>
+#ifdef __GNUC__
+#pragma pack()
+#else
+#pragma pack(pop)
 #endif
-
-/**@} ExtendedControls*/
-
-// --------------------------------------------------------------
-/** @defgroup Dialogs Dialogs
-    @{
-
-    Dialogs:
-      - Color selection @ref FP_GetColorDialog dialog.
-*/
-/** @brief
-
-    Structure contains all text labels for Color @ref FP_GetColorDialog dialog.
-*/
-struct FLngColorDialog
-{
-	LPCSTR MTitle;         ///< Message for dialog title (Default text: "Colors").
-	LPCSTR MFore;          ///< Message for foreground label (Default text: "Fore").
-	LPCSTR MBk;            ///< Message for background label (Default text: "Back").
-	LPCSTR MSet;           ///< Message for set button (Default text: "Set").
-	LPCSTR MCancel;        ///< Message for cancel button (Default text: "Cancel").
-	LPCSTR MText;          ///< Message for sample text (Default text: "text text text").
-};
-
-/** @brief Shows modal color selection dialog.
-    Shows modal color selection dialog, looks exactly like as the same FAR dialog.
-
-    @param CurrentColor       Current color. Dialog set controls to this value at dialog start
-    @param LngDescriptions    Structure contains descriptions of language-specific text used by dialog.
-    @param Help               Name of FAR help topic associated with dialog.
-
-    @return Selected color value of -1 if user cancels selection.
-*/
-#if !defined(__FP_NOT_FUNCTIONS__)
-extern int WINAPI FP_GetColorDialog(int CurrentColor,FLngColorDialog* LngDescriptions,LPCSTR Help);
-#endif
-
-/**@} Dialogs*/
-
-#include <FARStdlib/pop.h>
 
 #endif

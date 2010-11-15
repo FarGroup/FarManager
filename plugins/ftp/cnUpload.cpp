@@ -180,8 +180,9 @@ void Connection::sendrequestINT(char *cmd, char *local, char *remote)
 	{
 		case TYPE_I:
 		case TYPE_L:
+		case TYPE_A:
 
-		case TYPE_A: if(fsz != 0)
+			if(fsz != 0)
 			{
 				unsigned rsz = Host.IOBuffSize;
 

@@ -86,97 +86,167 @@ void Connection::ExecCmdTab(struct cmd *c,int argc,char *argv[])
 		{
 			switch(I)
 			{
-				case  0: account(argc,argv);  break;
+				case  0:
+					account(argc,argv);
+					break;
+				case  1:
 
-				case  1: if(argc>2) argv[2] = FromOEMDup(argv[2]);
+					if(argc>2) argv[2] = FromOEMDup(argv[2]);
 
 					put(argc,argv);
 					break;
-				case  2: setascii();          break;
-				case  3: setbinary();         break;
-				case  4: quit();              break;
-				case  5: argv[1] = FromOEMDup(argv[1]);
+				case  2:
+					setascii();
+					break;
+				case  3:
+					setbinary();
+					break;
+				case  4:
+					quit();
+					break;
+				case  5:
+					argv[1] = FromOEMDup(argv[1]);
 					cd(argc,argv);
 					break;
-				case  6: cdup();              break;
-				case  7: do_chmod(argc,argv); break;
-				case  8: disconnect();        break;
-				case  9: argv[1] = FromOEMDup(argv[1]);
+				case  6:
+					cdup();
+					break;
+				case  7:
+					do_chmod(argc,argv);
+					break;
+				case  8:
+					disconnect();
+					break;
+				case  9:
+					argv[1] = FromOEMDup(argv[1]);
 					deleteFile(argc,argv);
 					break;
+				case 10:
 
-				case 10: if(argc > 1)
+					if(argc > 1)
 						argv[1] = FromOEMDup(argv[1]);
 
 					ls(argc,argv);
 					break;
-				case 11: disconnect();
+				case 11:
+					disconnect();
 					break;
-				case 12: argv[1] = FromOEMDup(argv[1]);
+				case 12:
+					argv[1] = FromOEMDup(argv[1]);
 					get(argc,argv);
 					break;
-				case 13: idle(argc,argv); break;
-				case 14: setbinary();     break;
+				case 13:
+					idle(argc,argv);
+					break;
+				case 14:
+					setbinary();
+					break;
+				case 15:
 
-				case 15: if(argc>1) argv[1] = FromOEMDup(argv[1]);
+					if(argc>1) argv[1] = FromOEMDup(argv[1]);
 
 					ls(argc,argv);
 					break;
-				case 16: argv[1] = FromOEMDup(argv[1]);
+				case 16:
+					argv[1] = FromOEMDup(argv[1]);
 					makedir(argc,argv);
 					break;
-				case 17: modtime(argc,argv); break;
-				case 18: newer(argc,argv); break;
+				case 17:
+					modtime(argc,argv);
+					break;
+				case 18:
+					newer(argc,argv);
+					break;
+				case 19:
 
-				case 19: if(argc>1) argv[1] = FromOEMDup(argv[1]);
+					if(argc>1) argv[1] = FromOEMDup(argv[1]);
 
 					ls(argc,argv);
 					break;
-				case 20: setpeer(argc,argv); break;
-				case 21: doproxy(argc,argv); break;
-				case 22: setport(); break;
+				case 20:
+					setpeer(argc,argv);
+					break;
+				case 21:
+					doproxy(argc,argv);
+					break;
+				case 22:
+					setport();
+					break;
+				case 23:
 
-				case 23: if(argc>2) argv[2] = FromOEMDup(argv[2]);
+					if(argc>2) argv[2] = FromOEMDup(argv[2]);
 
 					put(argc,argv);
 					break;
-				case 24: pwd(); break;
-				case 25: quit(); break;
-				case 26: quote(argc,argv); break;
-				case 27: argv[1] = FromOEMDup(argv[1]);
+				case 24:
+					pwd();
+					break;
+				case 25:
+					quit();
+					break;
+				case 26:
+					quote(argc,argv);
+					break;
+				case 27:
+					argv[1] = FromOEMDup(argv[1]);
 					get(argc,argv);
 					break;
-				case 28: argv[1] = FromOEMDup(argv[1]);
+				case 28:
+					argv[1] = FromOEMDup(argv[1]);
 					reget(argc,argv);
 					break;
-				case 29: rmtstatus(argc,argv); break;
-				case 30: rmthelp(argc,argv); break;
+				case 29:
+					rmtstatus(argc,argv);
+					break;
+				case 30:
+					rmthelp(argc,argv);
+					break;
+				case 31:
 
-				case 31: if(argc>1) argv[1] = FromOEMDup(argv[1]);
+					if(argc>1) argv[1] = FromOEMDup(argv[1]);
 
 					if(argc>2) argv[2] = FromOEMDup(argv[2],1);
 
 					renamefile(argc,argv);
 					break;
-				case 32: reset(); break;
-				case 33: restart(argc,argv); break;
-				case 34: argv[1] = FromOEMDup(argv[1]);
+				case 32:
+					reset();
+					break;
+				case 33:
+					restart(argc,argv);
+					break;
+				case 34:
+					argv[1] = FromOEMDup(argv[1]);
 					removedir(argc,argv);
 					break;
-				case 35: setrunique(); break;
+				case 35:
+					setrunique();
+					break;
+				case 36:
 
-				case 36: if(argc>2) argv[2] = FromOEMDup(argv[2]);
+					if(argc>2) argv[2] = FromOEMDup(argv[2]);
 
 					put(argc,argv);
 					break;
-				case 37: site(argc,argv); break;
-				case 38: argv[1] = FromOEMDup(argv[1]);
+				case 37:
+					site(argc,argv);
+					break;
+				case 38:
+					argv[1] = FromOEMDup(argv[1]);
 					sizecmd(argc,argv);
 					break;
-				case 39: syst(); break;
-				case 40: setsunique(); break;
-				case 41: user(argc,argv); break;
-				case 42: do_umask(argc,argv); break;
+				case 39:
+					syst();
+					break;
+				case 40:
+					setsunique();
+					break;
+				case 41:
+					user(argc,argv);
+					break;
+				case 42:
+					do_umask(argc,argv);
+					break;
 			}
 
 			break;
@@ -387,7 +457,8 @@ void Connection::CacheAdd()
 		return;
 
 	ListCache[ListCachePos].ListingSize = OutputSize;
-	memcpy(ListCache[ListCachePos].Listing, Output, OutputSize); ListCache[ListCachePos].Listing[OutputSize] = 0;
+	memcpy(ListCache[ListCachePos].Listing, Output, OutputSize);
+	ListCache[ListCachePos].Listing[OutputSize] = 0;
 	StrCpy(ListCache[ListCachePos].DirName, CurDir.c_str(), sizeof(ListCache[ListCachePos].DirName));
 	ListCachePos++;
 
@@ -522,7 +593,8 @@ int Connection::FromOEM(BYTE *Line,int _sz,int fsz)
 
 	switch(TabNum)
 	{
-		case 0: OemToCharBuff((LPCSTR)Line, (char *)Line, sz);
+		case 0:
+			OemToCharBuff((LPCSTR)Line, (char *)Line, sz);
 			break;
 		case 1:
 			break;
@@ -534,8 +606,9 @@ int Connection::FromOEM(BYTE *Line,int _sz,int fsz)
 			_Del(tmp);
 			break;
 		}
+		default:
 
-		default: for(int I=0; I < sz; I++)
+			for(int I=0; I < sz; I++)
 				Line[I] = (BYTE)TableSet.EncodeTable[ Line[I] ];
 
 			break;
@@ -653,7 +726,8 @@ int Connection::ToOEM(BYTE *Line,int _sz)
 
 	switch(TabNum)
 	{
-		case 0: CharToOemBuff((LPCSTR)Line, (char *)Line, sz);
+		case 0:
+			CharToOemBuff((LPCSTR)Line, (char *)Line, sz);
 			break;
 		case 1:
 			break;
@@ -669,8 +743,9 @@ int Connection::ToOEM(BYTE *Line,int _sz)
 			_Del(tmp);
 			break;
 		}
+		default:
 
-		default: for(int I=0; I < sz; I++)
+			for(int I=0; I < sz; I++)
 				Line[I] = (BYTE)TableSet.DecodeTable[ Line[I] ];
 
 			break;

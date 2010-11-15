@@ -18,7 +18,7 @@ void MkFileInfo(char *buff,int bsz,LPCSTR title,FAR_FIND_DATA* p)
 		//Time
 		FileTimeToSystemTime(&p->ftLastWriteTime,&tm);
 		_snprintf(str,sizeof(str)," %02d.%02d.%04d %02d:%02d:%02d",
-		         tm.wDay, tm.wMonth, tm.wYear, tm.wHour, tm.wMinute, tm.wSecond);
+		          tm.wDay, tm.wMonth, tm.wYear, tm.wHour, tm.wMinute, tm.wSecond);
 		StrCat(buff,str,bsz);
 	}
 }
@@ -28,32 +28,31 @@ overCode FTP::AskOverwrite(int title, BOOL Download,FAR_FIND_DATA* dest,FAR_FIND
 	if(!hConnect)
 		return ocCancel;
 
-	static FP_DialogItem InitItems[]=
+	InitDialogItem InitItems[]=
 	{
-		/*00*/    FDI_CONTROL(DI_DOUBLEBOX, 3, 1,68,11, 0, NULL)
+		{DI_DOUBLEBOX, 3, 1,68,11, 0,0,0,0, NULL},
 
-		/*01*/      FDI_LABEL(5, 2,    FMSG(MAlreadyExist))
-		/*02*/      FDI_LABEL(5, 3,    NULL)
+		{DI_TEXT,5, 2,0,0,0,  0,0,0,  FMSG(MAlreadyExist)},
+		{DI_TEXT,5, 3,0,0,0,  0,0,0,  NULL},
 
-		/*03*/      FDI_HLINE(3, 4)
+		{DI_TEXT,3, 4,3, 4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,NULL },
 
-		/*04*/      FDI_LABEL(4, 5,    NULL)
-		/*05*/      FDI_LABEL(4, 6,    NULL)
+		{DI_TEXT,4, 5,0,0,0, 0,0,0,   NULL},
+		{DI_TEXT,4, 6,0,0,0, 0,0,0,   NULL},
 
-		/*06*/      FDI_HLINE(3, 7)
+		{DI_TEXT,3, 7,3, 7,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,NULL },
 
-		/*07*/      FDI_CHECK(5, 8,    FMSG(MBtnRemember))
+		{DI_CHECKBOX,5, 8,0,0,0,  0,0,0,  FMSG(MBtnRemember)},
 
-		/*08*/      FDI_HLINE(3, 9)
+		{DI_TEXT,3, 9,3, 9,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,NULL },
 
-		/*09*/ FDI_GDEFBUTTON(0,10,    FMSG(MBtnOverwrite))
-		/*10*/    FDI_GBUTTON(0,10,    FMSG(MBtnCopySkip))
-		/*11*/    FDI_GBUTTON(0,10,    FMSG(MBtnCopyResume))
-		/*12*/    FDI_GBUTTON(0,10,    FMSG(MBtnCopyNewer))
-		/*13*/    FDI_GBUTTON(0,10,    FMSG(MBtnCopyCancel))
-		{FFDI_NONE,0,0,0,0,0,NULL}
+		{DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP, 1,   FMSG(MBtnOverwrite)},
+		{DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,  0,  FMSG(MBtnCopySkip)},
+		{DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP, 0,   FMSG(MBtnCopyResume)},
+		{DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP, 0,   FMSG(MBtnCopyNewer)},
+		{DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP, 0,   FMSG(MBtnCopyCancel)},
 	};
-	FarDialogItem  DialogItems[(sizeof(InitItems)/sizeof(InitItems[0])-1)];
+	FarDialogItem DialogItems[ARRAYSIZE(InitItems)];
 
 	if(last == ocOverAll || last == ocSkipAll || last == ocNewerAll)
 		return last;
@@ -63,9 +62,9 @@ overCode FTP::AskOverwrite(int title, BOOL Download,FAR_FIND_DATA* dest,FAR_FIND
 
 //Set values
 	//Title
-	InitItems[ 0].Text = FMSG(title);
+	InitItems[ 0].Data = FMSG(title);
 //Create items
-	FP_InitDialogItems(InitItems,DialogItems);
+	InitDialogItems(InitItems,DialogItems,ARRAYSIZE(DialogItems));
 //Set flags
 	//File name
 	StrCpy(DialogItems[2].Data, dest->cFileName, sizeof(DialogItems[0].Data));
@@ -86,7 +85,7 @@ overCode FTP::AskOverwrite(int title, BOOL Download,FAR_FIND_DATA* dest,FAR_FIND
 	MkFileInfo(DialogItems[4].Data, sizeof(DialogItems[0].Data), FMSG(MBtnCopyNew),      src);
 	MkFileInfo(DialogItems[5].Data, sizeof(DialogItems[0].Data), FMSG(MBtnCopyExisting), dest);
 //Dialog
-	int rc = FDialogEx(72,13,NULL,DialogItems,(sizeof(InitItems)/sizeof(InitItems[0])-1),FDLG_WARNING,NULL);
+	int rc = FDialogEx(72,13,NULL,DialogItems,ARRAYSIZE(DialogItems),FDLG_WARNING,NULL);
 	int remember = DialogItems[7].Selected;
 
 	if(LongBeep)
@@ -94,10 +93,15 @@ overCode FTP::AskOverwrite(int title, BOOL Download,FAR_FIND_DATA* dest,FAR_FIND
 
 	switch(rc)
 	{
-		case 9: return (remember?ocOverAll:ocOver);
-		case 10: return (remember?ocSkipAll:ocSkip);
-		case 11: return (remember?ocResumeAll:ocResume);
-		case 12: return (remember?ocNewerAll:ocNewer);
-		default: return ocCancel;
+		case 9:
+			return (remember?ocOverAll:ocOver);
+		case 10:
+			return (remember?ocSkipAll:ocSkip);
+		case 11:
+			return (remember?ocResumeAll:ocResume);
+		case 12:
+			return (remember?ocNewerAll:ocNewer);
+		default:
+			return ocCancel;
 	}
 }

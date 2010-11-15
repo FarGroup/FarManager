@@ -361,7 +361,7 @@ __int64 FtpFileSize(Connection *Connect,LPCSTR fnm)
 	else
 	{
 		Connect->GetReply(Line,sizeof(Line));
-		return AtoI( (LPCSTR)(Line+4),(__int64)-1 );
+		return AtoI((LPCSTR)(Line+4),(__int64)-1);
 	}
 }
 
@@ -648,8 +648,8 @@ WORD FTP::SelectServerType(WORD Type)
 	{
 		FTPType* tp = dl.GetType(n);
 		_snprintf(MenuItems[n+2].Text, sizeof(MenuItems[0].Text),
-		         "%s %c %s",
-		         tp->TypeName, FAR_VERT_CHAR, tp->TypeDescription);
+		          "%s %c %s",
+		          tp->TypeName, FAR_VERT_CHAR, tp->TypeDescription);
 	}
 
 	if(Type >= n)

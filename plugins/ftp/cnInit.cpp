@@ -341,8 +341,8 @@ noport:
 			{
 				char Msg[30];
 				_snprintf(Msg, sizeof(Msg),
-				         "[%s -> %s]",
-				         inet_ntoa(hisctladdr.sin_addr), inet_ntoa(data_addr.sin_addr));
+				          "[%s -> %s]",
+				          inet_ntoa(hisctladdr.sin_addr), inet_ntoa(data_addr.sin_addr));
 				ConnectMessage(0,Msg,0);
 			}
 		}

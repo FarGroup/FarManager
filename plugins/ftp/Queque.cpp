@@ -30,30 +30,29 @@ void FTP::ClearQueue(void)
 
 BOOL FTP::WarnExecuteQueue(QueueExecOptions* op)
 {
-	static FP_DialogItem InitItems[]=
+	InitDialogItem InitItems[]=
 	{
-		/*00*/    FDI_CONTROL(DI_DOUBLEBOX, 3, 1,72, 9, 0, FMSG(MQueueParam))
+		{DI_DOUBLEBOX, 3, 1,72, 9, 0, 0,0,0,FMSG(MQueueParam)},
 
-		/*01*/      FDI_CHECK(5, 3,    FMSG(MQRestore))
-		/*02*/      FDI_CHECK(5, 4,    FMSG(MQRemove))
+		{DI_CHECKBOX,5, 3,0,0,0,    0,0,0,FMSG(MQRestore)},
+		{DI_CHECKBOX,5, 4,0,0,0,    0,0,0,FMSG(MQRemove)},
 
-		/*03*/      FDI_CHECK(5, 6,    FMSG(MQSave))
+		{DI_CHECKBOX,5, 6,0,0,0,    0,0,0,FMSG(MQSave)},
 
-		/*04*/      FDI_HLINE(3, 7)
-		/*05*/ FDI_GDEFBUTTON(0, 8,    FMSG(MOk))
-		/*06*/    FDI_GBUTTON(0, 8,    FMSG(MCancel))
-		{FFDI_NONE,0,0,0,0,0,NULL}
+		{DI_TEXT,3, 7,3, 7,DIF_BOXCOLOR|DIF_SEPARATOR,0,0,0,NULL },
+		{DI_BUTTON,0, 8,0,0,DIF_CENTERGROUP, 0,0,1,   FMSG(MOk)},
+		{DI_BUTTON,0, 8,0,0,DIF_CENTERGROUP, 0,0,0,   FMSG(MCancel)},
 	};
-	FarDialogItem  DialogItems[(sizeof(InitItems)/sizeof(InitItems[0])-1)];
+	FarDialogItem  DialogItems[ARRAYSIZE(InitItems)];
 //Create items
-	FP_InitDialogItems(InitItems,DialogItems);
+	InitDialogItems(InitItems,DialogItems,ARRAYSIZE(DialogItems));
 //Set flags
 	//Flags
 	DialogItems[ 1].Selected = op->RestoreState;
 	DialogItems[ 2].Selected = op->RemoveCompleted;
 
 //Dialog
-	if(FDialog(76,11,"FTPProcessQueue",DialogItems,(sizeof(InitItems)/sizeof(InitItems[0])-1)) != 5)
+	if(FDialog(76,11,"FTPProcessQueue",DialogItems,ARRAYSIZE(DialogItems)) != 5)
 		return FALSE;
 
 //Get paras
@@ -147,9 +146,9 @@ void FTP::InsertToQueue(void)
 {
 	static LPCSTR strings[] =
 	{
-		/*00*/ FMSG(MQISingle),
-		/*01*/ FMSG(MQIFTP),
-		/*02*/ FMSG(MQIAnother),
+		FMSG(MQISingle),
+		FMSG(MQIFTP),
+		FMSG(MQIAnother),
 		NULL
 	};
 	FP_Menu  mnu(strings);
@@ -168,7 +167,8 @@ void FTP::InsertToQueue(void)
 
 		switch(sel)
 		{
-			case 0: UrlInit(&tmp);
+			case 0:
+				UrlInit(&tmp);
 
 				if(EditUrlItem(&tmp))
 				{
@@ -177,12 +177,14 @@ void FTP::InsertToQueue(void)
 				}
 
 				break;
-			case 1: err = InsertCurrentToQueue();
+			case 1:
+				err = InsertCurrentToQueue();
 
 				if(!err && GetLastError() != ERROR_CANCELLED) return;
 
 				break;
-			case 2: err = InsertAnotherToQueue();
+			case 2:
+				err = InsertAnotherToQueue();
 
 				if(!err && GetLastError() != ERROR_CANCELLED) return;
 
@@ -225,11 +227,11 @@ void FTP::QuequeMenu(void)
 			StrCpy(str2, p->DestPath.c_str(),   20);
 			StrCpy(str3, p->FileName.cFileName, 20);
 			_snprintf(mi[n].Text, sizeof(mi[n].Text),
-			         "%c%c %-20s%c%-20s%c%-20s",
-			         p->Download ? '-' : '<', p->Download ? '>' : '-',
-			         str1, FAR_VERT_CHAR,
-			         str2, FAR_VERT_CHAR,
-			         str3);
+			          "%c%c %-20s%c%-20s%c%-20s",
+			          p->Download ? '-' : '<', p->Download ? '>' : '-',
+			          str1, FAR_VERT_CHAR,
+			          str2, FAR_VERT_CHAR,
+			          str3);
 
 			if(p->Error[0])
 				mi[n].Checked = TRUE;
@@ -268,34 +270,41 @@ void FTP::QuequeMenu(void)
 		switch(BNumber)
 		{
 				/*DEL*/
+			case 0:
 
-			case 0: if(QuequeSize)
+				if(QuequeSize)
 					switch(AskDeleteQueue())
 					{
 						case -1:
-						case  2: break;
-						case  0: p = UrlItem(n, &p1);
+						case  2:
+							break;
+						case  0:
+							p = UrlItem(n, &p1);
 							DeleteUrlItem(p, p1);
 							break;
-						case  1: ClearQueue();
+						case  1:
+							ClearQueue();
 							break;
 					}
 
 				break;
 				/*Ins*/
-			case 1: InsertToQueue();
+			case 1:
+				InsertToQueue();
 				break;
 				/*F4*/
-			case 2: p = UrlItem(n, NULL);
+			case 2:
+				p = UrlItem(n, NULL);
 
 				if(p)
 					EditUrlItem(p);
 
 				break;
 				/*Return*/
+			case 3:
 
-			case 3: if(QuequeSize &&
-				           WarnExecuteQueue(&exOp))
+				if(QuequeSize &&
+				        WarnExecuteQueue(&exOp))
 				{
 					ExecuteQueue(&exOp);
 
@@ -584,13 +593,17 @@ void FTP::ExecuteQueueINT(QueueExecOptions* op)
 				switch(ci.MsgCode)
 				{
 					case   ocOverAll:
-					case      ocOver: break;
+					case      ocOver:
+						break;
 					case      ocSkip:
-					case   ocSkipAll: goto Skip;
+					case   ocSkipAll:
+						goto Skip;
 					case    ocResume:
-					case ocResumeAll: break;
+					case ocResumeAll:
+						break;
 					case     ocNewer:
-					case  ocNewerAll: goto Skip;
+					case  ocNewerAll:
+						goto Skip;
 				}
 
 				if(ci.MsgCode == ocCancel)
@@ -634,13 +647,17 @@ void FTP::ExecuteQueueINT(QueueExecOptions* op)
 				switch(ci.MsgCode)
 				{
 					case   ocOverAll:
-					case      ocOver: break;
+					case      ocOver:
+						break;
 					case      ocSkip:
-					case   ocSkipAll: goto Skip;
+					case   ocSkipAll:
+						goto Skip;
 					case    ocResume:
-					case ocResumeAll: break;
+					case ocResumeAll:
+						break;
 					case     ocNewer:
-					case  ocNewerAll: goto Skip;
+					case  ocNewerAll:
+						goto Skip;
 				}
 
 				if(ci.MsgCode == ocCancel)

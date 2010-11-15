@@ -73,10 +73,18 @@ int FTP::ProcessKey(int Key,unsigned int ControlState)
 
 				switch(Key)
 				{
-					case   VK_END: ri.CurrentItem = pi.ItemsNumber-1;   break;
-					case  VK_HOME: ri.CurrentItem = 0;                  break;
-					case    VK_UP: ri.CurrentItem = pi.CurrentItem - 1; break;
-					case  VK_DOWN: ri.CurrentItem = pi.CurrentItem + 1; break;
+					case   VK_END:
+						ri.CurrentItem = pi.ItemsNumber-1;
+						break;
+					case  VK_HOME:
+						ri.CurrentItem = 0;
+						break;
+					case    VK_UP:
+						ri.CurrentItem = pi.CurrentItem - 1;
+						break;
+					case  VK_DOWN:
+						ri.CurrentItem = pi.CurrentItem + 1;
+						break;
 				}
 
 				//Move cursor
@@ -131,19 +139,19 @@ int FTP::ProcessKey(int Key,unsigned int ControlState)
 	{
 		static LPCSTR strings[] =
 		{
-			/*00*/ NULL,
-			/*01*/ "",
-			/*02*/ FMSG(MHostParams),
-			/*03*/ FMSG(MCloseConnection),
-			/*04*/ FMSG(MUtilsDir),
-			/*05*/ FMSG(MUtilsCmd),
-			/*06*/ "",
-			/*07*/ FMSG(MUtilsLog),
-			/*08*/ NULL, //Sites list
-			/*09*/ FMSG(MShowQueue),
+			NULL,
+			"",
+			FMSG(MHostParams),
+			FMSG(MCloseConnection),
+			FMSG(MUtilsDir),
+			FMSG(MUtilsCmd),
+			"",
+			FMSG(MUtilsLog),
+			NULL, //Sites list
+			FMSG(MShowQueue),
 #if defined(__DEBUG__)
-			/*10*/ "",
-			/*11*/ FMSG("Generate DIVIDE BY ZERO &Bug (Plugin traps!)"),
+			"",
+			FMSG("Generate DIVIDE BY ZERO &Bug (Plugin traps!)"),
 #endif
 			NULL
 		};
@@ -189,13 +197,15 @@ int FTP::ProcessKey(int Key,unsigned int ControlState)
 
 			switch(sel)
 			{
-				case -1: return TRUE;
+				case -1:
+					return TRUE;
 //Version
 				case  0:
 					break;
 //Host parameters
+				case  2:
 
-				case  2: if(ShowHosts || !hConnect) break;
+					if(ShowHosts || !hConnect) break;
 
 					do
 					{
@@ -227,15 +237,17 @@ int FTP::ProcessKey(int Key,unsigned int ControlState)
 
 					return TRUE;
 //Switch to hosts
+				case  3:
 
-				case  3: if(ShowHosts || !hConnect) break;
+					if(ShowHosts || !hConnect) break;
 
 					BackToHosts();
 					Invalidate();
 					return TRUE;
 //Dir listing
+				case  4:
 
-				case  4: if(ShowHosts || !hConnect)
+					if(ShowHosts || !hConnect)
 						break;
 
 					{
@@ -259,8 +271,9 @@ int FTP::ProcessKey(int Key,unsigned int ControlState)
 					}
 					return TRUE;
 //Show CMD
+				case  5:
 
-				case  5: if(ShowHosts || !hConnect) break;
+					if(ShowHosts || !hConnect) break;
 
 					file = hConnect->Host.ExtCmdView;
 					hConnect->Host.ExtCmdView = TRUE;
@@ -270,25 +283,29 @@ int FTP::ProcessKey(int Key,unsigned int ControlState)
 					return TRUE;
 					// ------------------------------------------------------------
 //Show LOG
+				case  7:
 
-				case  7: if(IsCmdLogFile())
+					if(IsCmdLogFile())
 						FP_Info->Viewer(GetCmdLogFile(),FP_GetMsg(MLogTitle),0,0,-1,-1,VF_NONMODAL|VF_ENABLE_F6);
 
 					return TRUE;
 //Add\Remove sites list
+				case  8:
 
-				case  8: if(isBackup())
+					if(isBackup())
 						DeleteFromBackup();
 					else
 						AddToBackup();
 
 					return TRUE;
 //FTP queque
-				case  9: QuequeMenu();
+				case  9:
+					QuequeMenu();
 					return TRUE;
 #if defined(__DEBUG__)
 					// ------------------------------------------------------------
-				case 11: ProcError();
+				case 11:
+					ProcError();
 					break;
 #endif
 			}

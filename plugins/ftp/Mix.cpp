@@ -145,7 +145,9 @@ DWORD WINAPI Str2Size(char *str)
 		str[rc] = 0;
 
 	sz = atof(str);
-	if(letter == 'K') sz *= SIZE_K; else if(letter == 'M') sz *= SIZE_M;
+
+	if(letter == 'K') sz *= SIZE_K;
+	else if(letter == 'M') sz *= SIZE_M;
 
 	return (DWORD)sz;
 }
@@ -674,7 +676,10 @@ BOOL WINAPI IsDirExist(LPCSTR nm)
 	return res;
 }
 
-void WINAPI FixFTPSlash(String& s) { FixFTPSlash((char*)s.c_str()); }
+void WINAPI FixFTPSlash(String& s)
+{
+	FixFTPSlash((char*)s.c_str());
+}
 void WINAPI FixFTPSlash(char *s)
 {
 	if(!s) return;
@@ -683,7 +688,10 @@ void WINAPI FixFTPSlash(char *s)
 		if(*s == '\\') *s = '/';
 }
 
-void WINAPI FixLocalSlash(String& s) { FixLocalSlash((char*)s.c_str()); }
+void WINAPI FixLocalSlash(String& s)
+{
+	FixLocalSlash((char*)s.c_str());
+}
 void WINAPI FixLocalSlash(char *s)
 {
 	if(!s) return;

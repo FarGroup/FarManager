@@ -18,9 +18,14 @@ void SetTitles(char *cols[], LPCSTR fmt,int cn)
 
 			switch(*fmt)
 			{
-				case '0': cols[n] = (char*)FP_GetMsg(MFileMode); break;
-				case '1': cols[n] = (char*)FP_GetMsg(MLink); break;
-				default: cols[n] = (char*)"<unk>";
+				case '0':
+					cols[n] = (char*)FP_GetMsg(MFileMode);
+					break;
+				case '1':
+					cols[n] = (char*)FP_GetMsg(MLink);
+					break;
+				default:
+					cols[n] = (char*)"<unk>";
 			}
 		}
 		else
@@ -75,11 +80,11 @@ void FTP::GetOpenPluginInfo(struct OpenPluginInfo *pi)
 
 	if(ShowHosts)
 		_snprintf(PanelTitle, sizeof(PanelTitle),
-		         " FTP: %s ", pi->CurDir);
+		          " FTP: %s ", pi->CurDir);
 	else
 		_snprintf(PanelTitle, sizeof(PanelTitle),
-		         (hConnect&&hConnect->Host.ServerType==FTP_TYPE_MVS)? " FTP: %s@%s/%s ": " FTP: %s@%s%s ",
-		         Host.User, Host.Host, pi->CurDir);
+		          (hConnect&&hConnect->Host.ServerType==FTP_TYPE_MVS)? " FTP: %s@%s/%s ": " FTP: %s@%s%s ",
+		          Host.User, Host.Host, pi->CurDir);
 
 	if(inside > 1)
 	{
@@ -125,7 +130,9 @@ void FTP::GetOpenPluginInfo(struct OpenPluginInfo *pi)
 	else
 		InfoLines[5].Data[0] = 0;
 
-	m = strpbrk(InfoLines[5].Data,"\n\r"); if(m) *m = 0;
+	m = strpbrk(InfoLines[5].Data,"\n\r");
+
+	if(m) *m = 0;
 
 	StrCpy(InfoLines[6].Text, FP_GetMsg(MResmResume), sizeof(InfoLines[0].Text));
 

@@ -43,14 +43,18 @@ BOOL idDeleteCB(PluginPanelItem* p,LPVOID dt)
 			switch(rres)
 			{
 					/*ESC*/
-				case -1: return FALSE;
+				case -1:
+					return FALSE;
 					/*Del*/
-				case  0: break;
+				case  0:
+					break;
 					/*DelAll*/
-				case  1: ((DeleteData*)dt)->DeleteAllFolders = TRUE;
+				case  1:
+					((DeleteData*)dt)->DeleteAllFolders = TRUE;
 					break;
 					/*Cancel*/
-				case  2: return FALSE;
+				case  2:
+					return FALSE;
 			}
 		}
 	}
@@ -102,12 +106,16 @@ BOOL idDeleteCB(PluginPanelItem* p,LPVOID dt)
 
 		switch(rres)
 		{
-			/*skip*/     case 0: Log(("Skip"));
+			/*skip*/     case 0:
+				Log(("Skip"));
 				return TRUE;
-			/*skip all*/ case 1: ((DeleteData*)dt)->SkipAll = TRUE;
+				/*skip all*/
+			case 1:
+				((DeleteData*)dt)->SkipAll = TRUE;
 				Log(("SkipAll"));
 				return TRUE;
-			default: Log(("Other"));
+			default:
+				Log(("Other"));
 				SetLastError(ERROR_CANCELLED);
 				return FALSE;
 		}

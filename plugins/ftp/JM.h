@@ -41,7 +41,10 @@ struct FTPHost: public FTPHostPlugin
 	static BOOL     CheckHost(LPCSTR Path,LPCSTR Name);
 	static BOOL     CheckHostFolder(LPCSTR Path,LPCSTR Name);
 	static LPCSTR MkHost(LPCSTR Path,LPCSTR Name);
-	static FTPHost* Convert(const PluginPanelItem *p) { return (p && p->UserData && p->PackSizeHigh == FTP_HOSTID)?((FTPHost*)p->UserData):NULL; }
+	static FTPHost* Convert(const PluginPanelItem *p)
+	{
+		return (p && p->UserData && p->PackSizeHigh == FTP_HOSTID)?((FTPHost*)p->UserData):NULL;
+	}
 };
 
 //------------------------------------------------------------------------
@@ -54,7 +57,10 @@ class EnumHost
 		int  HostPos;
 	public:
 		EnumHost(char *HostsPath);
-		EnumHost(void) { hEnum = NULL; }
+		EnumHost(void)
+		{
+			hEnum = NULL;
+		}
 		~EnumHost();
 
 		BOOL Assign(char *HostsPath);

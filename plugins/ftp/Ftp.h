@@ -147,8 +147,14 @@ class FTP
 
 		void      LongBeepEnd(BOOL DoNotBeep = FALSE);
 		void      LongBeepCreate(void);
-		BOOL      HostsMode(void)         { return ShowHosts && !SwitchingToFTP; }
-		BOOL      FTPMode(void)           { return !HostsMode() && hConnect; }
+		BOOL      HostsMode(void)
+		{
+			return ShowHosts && !SwitchingToFTP;
+		}
+		BOOL      FTPMode(void)
+		{
+			return !HostsMode() && hConnect;
+		}
 
 		static FTP *Backups[ FTP_MAXBACKUPS ];
 		static int  BackupCount;

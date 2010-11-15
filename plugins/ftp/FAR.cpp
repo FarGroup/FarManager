@@ -4,9 +4,18 @@
 #include "Int.h"
 #include <mem.inc>
 
-LPCSTR WINAPI FP_GetPluginName(void)         { return "FarFtp.dll"; }
-LPCSTR WINAPI FP_GetPluginLogName(void)      { return "farftp.log"; }
-BOOL     WINAPI FP_PluginStartup(DWORD Reason) { return TRUE; }
+LPCSTR WINAPI FP_GetPluginName(void)
+{
+	return "FarFtp.dll";
+}
+LPCSTR WINAPI FP_GetPluginLogName(void)
+{
+	return "farftp.log";
+}
+BOOL     WINAPI FP_PluginStartup(DWORD Reason)
+{
+	return TRUE;
+}
 
 //------------------------------------------------------------------------
 Options       Opt;
@@ -221,8 +230,8 @@ extern "C" void WINAPI GetPluginInfo(struct PluginInfo *Info)
 		{
 			p = &ftp->Host;
 			_snprintf(DiskStrings[1+n], sizeof(DiskStrings[0]),
-			         "FTP: %-*s %-*s %s",
-			         uLen, p->User, hLen, p->Host, str);
+			          "FTP: %-*s %-*s %s",
+			          uLen, p->User, hLen, p->Host, str);
 		}
 		else
 			_snprintf(DiskStrings[1+n], sizeof(DiskStrings[0]), "FTP: %s", str);
@@ -250,8 +259,9 @@ extern "C" int WINAPI Configure(int ItemNumber)
 
 	switch(ItemNumber)
 	{
+		case 0:
 
-		case 0: if(!Config())
+			if(!Config())
 				return FALSE;
 	}
 
@@ -440,14 +450,22 @@ extern "C" int WINAPI Compare(HANDLE hPlugin,const PluginPanelItem *i,const Plug
 
 	switch(Mode)
 	{
-		case   SM_EXT: n = CMP(p->Home,p1->Home);           break;
-		case SM_DESCR: n = CMP(p->HostDescr,p1->HostDescr); break;
-		case SM_OWNER: n = CMP(p->User,p1->User);           break;
+		case   SM_EXT:
+			n = CMP(p->Home,p1->Home);
+			break;
+		case SM_DESCR:
+			n = CMP(p->HostDescr,p1->HostDescr);
+			break;
+		case SM_OWNER:
+			n = CMP(p->User,p1->User);
+			break;
 		case SM_MTIME:
 		case SM_CTIME:
-		case SM_ATIME: n = (int)CompareFileTime(&p1->LastWrite, &p->LastWrite);
+		case SM_ATIME:
+			n = (int)CompareFileTime(&p1->LastWrite, &p->LastWrite);
 			break;
-		default: n = CMP(p->Host,p1->Host);
+		default:
+			n = CMP(p->Host,p1->Host);
 			break;
 	}
 
@@ -475,4 +493,38 @@ extern "C" int WINAPI Compare(HANDLE hPlugin,const PluginPanelItem *i,const Plug
 		return (n>0)?1:(-1);
 	else
 		return 0;
+}
+
+void InitDialogItems(const InitDialogItem *Init,FarDialogItem *Item, int ItemsNumber)
+{
+	for(int i=0; i<ItemsNumber; i++)
+	{
+		Item[i].Type=Init[i].Type;
+		Item[i].X1=Init[i].X1;
+		Item[i].Y1=Init[i].Y1;
+		Item[i].X2=Init[i].X2;
+		Item[i].Y2=Init[i].Y2;
+		Item[i].Focus=Init[i].Focus;
+		Item[i].History=(const TCHAR *)Init[i].Selected;
+		Item[i].Flags=Init[i].Flags;
+		Item[i].DefaultButton=Init[i].DefaultButton;
+#ifdef UNICODE
+		Item[i].MaxLen=0;
+#endif
+
+		if((DWORD_PTR)Init[i].Data<2000)
+#ifndef UNICODE
+			lstrcpy(Item[i].Data,FP_GetMsg((unsigned int)(DWORD_PTR)Init[i].Data));
+
+#else
+			Item[i].PtrData = FP_GetMsg((unsigned int)(DWORD_PTR)Init[i].Data);
+#endif
+		else
+#ifndef UNICODE
+			lstrcpy(Item[i].Data,Init[i].Data);
+
+#else
+			Item[i].PtrData = Init[i].Data;
+#endif
+	}
 }
