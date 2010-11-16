@@ -3,6 +3,26 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 17.11.2010 00:12:50 +0200 - build 1723
+
+1. Mistype in 1722.
+
+drkns 16.11.2010 19:14:24 +0200 - build 1722
+
+1. file to its SFN rename support is removed from copier - its implementation leads to bugs at ordinary renaming.
+
+2. Attempt of renaming to the same name is now considered successful and doesn't cause "Cannot copy the file onto itself" error.
+
+3. Correct character case of SFN is shown in panels.
+
+4. At users' request - FarRecursiveSearch does not search on SFN.
+
+5. Optimization of several api* wrappers.
+
+drkns 15.11.2010 13:47:00 +0200 - build 1721
+
+1. Forum: "Problem when writing a macro".
+
 t-rex 12.11.2010 21:32:19 +0200 - build 1720
 
 1. Mantis#1527: Selected items in input history do not stay at the top of drop-down list 
