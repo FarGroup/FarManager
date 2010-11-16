@@ -479,13 +479,21 @@ void ConvertNameToShort(const wchar_t *Src, string &strDest)
 void ConvertNameToLong(const wchar_t *Src, string &strDest)
 {
 	string strCopy = Src;
-	int nSize = GetLongPathName(strCopy, nullptr, 0);
+	WCHAR Buffer[MAX_PATH];
+	int nSize = GetLongPathName(strCopy, Buffer, ARRAYSIZE(Buffer));
 
 	if (nSize)
 	{
-		wchar_t *lpwszDest = strDest.GetBuffer(nSize);
-		GetLongPathName(strCopy, lpwszDest, nSize);
-		strDest.ReleaseBuffer();
+		if (nSize>ARRAYSIZE(Buffer))
+		{
+			wchar_t *lpwszDest = strDest.GetBuffer(nSize);
+			GetLongPathName(strCopy, lpwszDest, nSize);
+			strDest.ReleaseBuffer();
+		}
+		else
+		{
+			strDest = Buffer;
+		}
 	}
 	else
 	{

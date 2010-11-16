@@ -1053,14 +1053,14 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 							if (!ShowStatus)
 							{
-								if (!ShowShortNames && ViewSettings.FileUpperToLowerCase)
+								if (ViewSettings.FileUpperToLowerCase)
 									if (!(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(NameCopy))
 										strName.Lower();
 
-								if ((ShowShortNames || ViewSettings.FolderUpperCase) && (ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+								if ((ViewSettings.FolderUpperCase) && (ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 									strName.Upper();
 
-								if ((ShowShortNames || ViewSettings.FileLowerCase) && !(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+								if ((ViewSettings.FileLowerCase) && !(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 									strName.Lower();
 							}
 

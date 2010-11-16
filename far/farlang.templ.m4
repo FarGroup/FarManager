@@ -2641,12 +2641,12 @@ MCopyDlgRename
 
 MCopyDlgLink
 "&Создать ссылку"
-"&Link"
-"&Linkovat"
-"Ver&linken"
-"&Linkel"
-"D&owiąż"
-"&Enlaces"
+"Create &link"
+upd:"Create &link"
+upd:"Create &link"
+upd:"Create &link"
+upd:"Create &link"
+upd:"Create &link"
 
 MCopyDlgTotal
 "Всего"

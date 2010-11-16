@@ -361,30 +361,23 @@ BOOL apiMoveFileEx(
 	return Result;
 }
 
-
-BOOL apiMoveFileThroughTemp(const wchar_t *Src, const wchar_t *Dest)
-{
-	string strTemp;
-	BOOL rc = FALSE;
-
-	if (FarMkTempEx(strTemp, nullptr, FALSE))
-	{
-		if (apiMoveFile(Src, strTemp))
-			rc = apiMoveFile(strTemp, Dest);
-	}
-
-	return rc;
-}
-
 DWORD apiGetEnvironmentVariable(const wchar_t *lpwszName, string &strBuffer)
 {
-	int nSize = GetEnvironmentVariable(lpwszName, nullptr, 0);
+	WCHAR Buffer[MAX_PATH];
+	int nSize = GetEnvironmentVariable(lpwszName, Buffer, ARRAYSIZE(Buffer));
 
 	if (nSize)
 	{
-		wchar_t *lpwszBuffer = strBuffer.GetBuffer(nSize);
-		nSize = GetEnvironmentVariable(lpwszName, lpwszBuffer, nSize);
-		strBuffer.ReleaseBuffer();
+		if(nSize>ARRAYSIZE(Buffer))
+		{
+			wchar_t *lpwszBuffer = strBuffer.GetBuffer(nSize);
+			nSize = GetEnvironmentVariable(lpwszName, lpwszBuffer, nSize);
+			strBuffer.ReleaseBuffer();
+		}
+		else
+		{
+			strBuffer = Buffer;
+		}
 	}
 
 	return nSize;
@@ -399,13 +392,24 @@ string& strCurrentDirectory()
 void InitCurrentDirectory()
 {
 	//get real curdir:
-	DWORD Size=GetCurrentDirectory(0,nullptr);
-	string strInitCurDir;
-	LPWSTR InitCurDir=strInitCurDir.GetBuffer(Size);
-	GetCurrentDirectory(Size,InitCurDir);
-	strInitCurDir.ReleaseBuffer(Size-1);
-	//set virtual curdir:
-	apiSetCurrentDirectory(strInitCurDir);
+	WCHAR Buffer[MAX_PATH];
+	DWORD Size=GetCurrentDirectory(ARRAYSIZE(Buffer),Buffer);
+	if(Size)
+	{
+		string strInitCurDir;
+		if(Size>ARRAYSIZE(Buffer))
+		{
+			LPWSTR InitCurDir=strInitCurDir.GetBuffer(Size);
+			GetCurrentDirectory(Size,InitCurDir);
+			strInitCurDir.ReleaseBuffer(Size-1);
+		}
+		else
+		{
+			strInitCurDir = Buffer;
+		}
+		//set virtual curdir:
+		apiSetCurrentDirectory(strInitCurDir);
+	}
 }
 
 DWORD apiGetCurrentDirectory(string &strCurDir)
@@ -457,11 +461,22 @@ BOOL apiSetCurrentDirectory(LPCWSTR lpPathName, bool Validate)
 
 DWORD apiGetTempPath(string &strBuffer)
 {
-	DWORD dwSize = GetTempPath(0, nullptr);
-	wchar_t *lpwszBuffer = strBuffer.GetBuffer(dwSize);
-	dwSize = GetTempPath(dwSize, lpwszBuffer);
-	strBuffer.ReleaseBuffer();
-	return dwSize;
+	WCHAR Buffer[MAX_PATH];
+	DWORD Size = GetTempPath(sizeof(Buffer), Buffer);
+	if(Size)
+	{
+		if(Size>ARRAYSIZE(Buffer))
+		{
+			wchar_t *lpwszBuffer = strBuffer.GetBuffer(Size);
+			Size = GetTempPath(Size, lpwszBuffer);
+			strBuffer.ReleaseBuffer(Size-1);
+		}
+		else
+		{
+			strBuffer = Buffer;
+		}
+	}
+	return Size;
 };
 
 

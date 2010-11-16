@@ -244,11 +244,6 @@ int apiRegEnumKeyEx(
     PFILETIME lpftLastWriteTime=nullptr
 );
 
-BOOL apiMoveFileThroughTemp(
-    const wchar_t *Src,
-    const wchar_t *Dest
-);
-
 BOOL apiIsDiskInDrive(
     const wchar_t *Root
 );

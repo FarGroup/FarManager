@@ -481,8 +481,7 @@ CopyProgress *CP;
  ! Оптимизация - "велосипед" заменен на DeleteEndSlash
  ! Убираем всю самодеятельность по проверке имен с разным
    регистром из функции прочь, потому что это нужно делать только при
-   переименовании, а функция вызывается и при копировании тоже. Все это
-   должно обрабатываться не в ней, а там же, где и RenameToShortName.
+   переименовании, а функция вызывается и при копировании тоже.
    Теперь функция вернет 1, для случая имен src=path\filename,
    dest=path\filename (раньше возвращала 2 - т.е. сигнал об ошибке).
 */
@@ -498,11 +497,8 @@ int CmpFullNames(const wchar_t *Src,const wchar_t *Dest)
 	DeleteEndSlash(strDestFullName);
 
 	// избавимся от коротких имен
-	if (IsLocalPath(strSrcFullName))
-		ConvertNameToLong(strSrcFullName, strSrcFullName);
-
-	if (IsLocalPath(strDestFullName))
-		ConvertNameToLong(strDestFullName, strDestFullName);
+	ConvertNameToLong(strSrcFullName, strSrcFullName);
+	ConvertNameToLong(strDestFullName, strDestFullName);
 
 	return !StrCmpI(strSrcFullName,strDestFullName);
 }
@@ -2266,9 +2262,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			DestAttr=DestData.dwFileAttributes;
 	}
 
-	/* RenameToShortName - дополняет SameName и становится больше нуля тогда,
-	     когда объект переименовывается в его же _короткое_ имя.  */
-	int SameName=0, RenameToShortName=0, Append=0;
+	int SameName=0, Append=0;
 
 	if (DestAttr!=INVALID_FILE_ATTRIBUTES && (DestAttr & FILE_ATTRIBUTE_DIRECTORY))
 	{
@@ -2281,9 +2275,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			if (Rename)
 			{
 				CmpCode=!StrCmp(PointToName(Src),PointToName(strDestPath));
-
-				if (!CmpCode)
-					RenameToShortName = !StrCmpI(strDestPath,SrcData.strAlternateFileName);
 			}
 
 			if (CmpCode==1)
@@ -2344,7 +2335,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			if (!Rename)
 				strCopiedName = PointToName(strDestPath);
 
-			if (DestAttr!=INVALID_FILE_ATTRIBUTES && !RenameToShortName)
+			if (DestAttr!=INVALID_FILE_ATTRIBUTES)
 			{
 				if ((DestAttr & FILE_ATTRIBUTE_DIRECTORY) && !SameName)
 				{
@@ -2393,7 +2384,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				// Пытаемся переименовать, пока не отменят
 				for (;;)
 				{
-					BOOL SuccessMove=RenameToShortName?apiMoveFileThroughTemp(Src,strDestPath):apiMoveFile(Src,strDestPath);
+					BOOL SuccessMove=apiMoveFile(Src,strDestPath);
 
 					if (SuccessMove)
 					{
@@ -2572,52 +2563,46 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 		if (DestAttr!=INVALID_FILE_ATTRIBUTES && !(DestAttr & FILE_ATTRIBUTE_DIRECTORY))
 		{
-			if (!RenameToShortName)
+			if (SrcData.nFileSize==DestData.nFileSize)
 			{
-				if (SrcData.nFileSize==DestData.nFileSize)
-				{
-					int CmpCode=CmpFullNames(Src,strDestPath);
+				int CmpCode=CmpFullNames(Src,strDestPath);
 
-					if (CmpCode==1) // TODO: error check
+				if (CmpCode==1) // TODO: error check
+				{
+					SameName=1;
+
+					if (Rename)
 					{
-						SameName=1;
-
-						if (Rename)
-						{
-							CmpCode=!StrCmp(PointToName(Src),PointToName(strDestPath));
-
-							if (!CmpCode)
-								RenameToShortName = !StrCmpI(strDestPath,SrcData.strAlternateFileName);
-						}
-
-						if (CmpCode==1)
-						{
-							Message(MSG_WARNING,1,MSG(MError),MSG(MCannotCopyFileToItself1),
-							        Src,MSG(MCannotCopyFileToItself2),MSG(MOk));
-							return(COPY_CANCEL);
-						}
-					}
-				}
-
-				int RetCode=0;
-				string strNewName;
-
-				if (!AskOverwrite(SrcData,Src,strDestPath,DestAttr,SameName,Rename,((Flags&FCOPY_LINK)?0:1),Append,strNewName,RetCode))
-				{
-					return((COPY_CODES)RetCode);
-				}
-
-				if (RetCode==COPY_RETRY)
-				{
-					strDest=strNewName;
-
-					if (CutToSlash(strNewName) && apiGetFileAttributes(strNewName)==INVALID_FILE_ATTRIBUTES)
-					{
-						CreatePath(strNewName);
+						CmpCode=!StrCmp(PointToName(Src),PointToName(strDestPath));
 					}
 
-					return COPY_RETRY;
+					if (CmpCode==1 && !Rename)
+					{
+						Message(MSG_WARNING,1,MSG(MError),MSG(MCannotCopyFileToItself1),
+							    Src,MSG(MCannotCopyFileToItself2),MSG(MOk));
+						return(COPY_CANCEL);
+					}
 				}
+			}
+
+			int RetCode=0;
+			string strNewName;
+
+			if (!AskOverwrite(SrcData,Src,strDestPath,DestAttr,SameName,Rename,((Flags&FCOPY_LINK)?0:1),Append,strNewName,RetCode))
+			{
+				return((COPY_CODES)RetCode);
+			}
+
+			if (RetCode==COPY_RETRY)
+			{
+				strDest=strNewName;
+
+				if (CutToSlash(strNewName) && apiGetFileAttributes(strNewName)==INVALID_FILE_ATTRIBUTES)
+				{
+					CreatePath(strNewName);
+				}
+
+				return COPY_RETRY;
 			}
 		}
 	}
@@ -2641,8 +2626,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				int MoveCode=FALSE,AskDelete;
 
 				if ((!StrCmp(strDestFSName,L"NWFS")) && !Append &&
-				        DestAttr!=INVALID_FILE_ATTRIBUTES && !SameName &&
-				        !RenameToShortName) // !!!
+				        DestAttr!=INVALID_FILE_ATTRIBUTES && !SameName)
 				{
 					apiDeleteFile(strDestPath); //BUGBUG
 				}
@@ -2675,15 +2659,10 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 							IsSetSecuty=TRUE;
 					}
 
-					if (RenameToShortName)
-						MoveCode=apiMoveFileThroughTemp(strSrcFullName, strDestPath);
+					if (!StrCmp(strDestFSName,L"NWFS"))
+						MoveCode=apiMoveFile(strSrcFullName,strDestPath);
 					else
-					{
-						if (!StrCmp(strDestFSName,L"NWFS"))
-							MoveCode=apiMoveFile(strSrcFullName,strDestPath);
-						else
-							MoveCode=apiMoveFileEx(strSrcFullName,strDestPath,SameName ? MOVEFILE_COPY_ALLOWED:MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING);
-					}
+						MoveCode=apiMoveFileEx(strSrcFullName,strDestPath,SameName ? MOVEFILE_COPY_ALLOWED:MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING);
 
 					if (!MoveCode)
 					{
