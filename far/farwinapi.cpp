@@ -462,7 +462,7 @@ BOOL apiSetCurrentDirectory(LPCWSTR lpPathName, bool Validate)
 DWORD apiGetTempPath(string &strBuffer)
 {
 	WCHAR Buffer[MAX_PATH];
-	DWORD Size = GetTempPath(sizeof(Buffer), Buffer);
+	DWORD Size = GetTempPath(ARRAYSIZE(Buffer), Buffer);
 	if(Size)
 	{
 		if(Size>ARRAYSIZE(Buffer))
