@@ -480,7 +480,7 @@ void ConvertNameToLong(const wchar_t *Src, string &strDest)
 {
 	string strCopy = Src;
 	WCHAR Buffer[MAX_PATH];
-	int nSize = GetLongPathName(strCopy, Buffer, ARRAYSIZE(Buffer));
+	DWORD nSize = GetLongPathName(strCopy, Buffer, ARRAYSIZE(Buffer));
 
 	if (nSize)
 	{

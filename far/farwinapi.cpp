@@ -61,7 +61,7 @@ FindFile::FindFile(LPCWSTR Object, bool ScanSymLink):
 	string strName(NTPath(Object).Str);
 	Handle = FindFirstFileEx(strName, InfoLevel, &W32FindData, SearchOpt, nullptr, AdditionalFlags);
 
-	if (Handle == INVALID_HANDLE_VALUE && ElevationRequired(ELEVATION_READ_REQUEST))
+	if (Handle == INVALID_HANDLE_VALUE && GetLastError() == ERROR_ACCESS_DENIED)
 	{
 		if(ScanSymLink)
 		{
@@ -376,7 +376,7 @@ DWORD apiGetEnvironmentVariable(const wchar_t *lpwszName, string &strBuffer)
 		}
 		else
 		{
-			strBuffer = Buffer;
+			strBuffer.Copy(Buffer, nSize);
 		}
 	}
 
@@ -405,7 +405,7 @@ void InitCurrentDirectory()
 		}
 		else
 		{
-			strInitCurDir = Buffer;
+			strInitCurDir.Copy(Buffer, Size);
 		}
 		//set virtual curdir:
 		apiSetCurrentDirectory(strInitCurDir);
@@ -473,7 +473,7 @@ DWORD apiGetTempPath(string &strBuffer)
 		}
 		else
 		{
-			strBuffer = Buffer;
+			strBuffer.Copy(Buffer, Size);
 		}
 	}
 	return Size;
@@ -495,7 +495,7 @@ DWORD apiGetModuleFileName(HMODULE hModule, string &strFileName)
 	while (dwSize && (dwSize >= dwBufferSize));
 
 	if (dwSize)
-		strFileName = lpwszFileName;
+		strFileName.Copy(lpwszFileName, dwSize);
 
 	xf_free(lpwszFileName);
 	return dwSize;
