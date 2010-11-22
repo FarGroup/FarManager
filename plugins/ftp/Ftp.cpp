@@ -260,9 +260,9 @@ AskConnect:
 		if((*pItemsNumber % 1024) == 0)
 		{
 			if(!NewPanelItem)
-				NewPanelItem = (PluginPanelItem *)_Alloc((1024+1)*sizeof(PluginPanelItem));
+				NewPanelItem = (PluginPanelItem *)malloc((1024+1)*sizeof(PluginPanelItem));
 			else
-				NewPanelItem = (PluginPanelItem *)_Realloc(NewPanelItem,(*pItemsNumber+1024+1)*sizeof(PluginPanelItem));
+				NewPanelItem = (PluginPanelItem *)realloc(NewPanelItem,(*pItemsNumber+1024+1)*sizeof(PluginPanelItem));
 
 			if(NewPanelItem == NULL)
 			{
@@ -281,7 +281,7 @@ AskConnect:
 		{
 			CurItem->CustomColumnNumber             = FTP_COL_MAX;
 			CurItem->Owner                          = FileInfo.FTPOwner[0] ? StrDup(FileInfo.FTPOwner) : NULL;
-			CurItem->CustomColumnData               = (LPSTR*)_Alloc(sizeof(LPSTR*)*FTP_COL_MAX);
+			CurItem->CustomColumnData               = (LPSTR*)malloc(sizeof(LPSTR*)*FTP_COL_MAX);
 			CurItem->CustomColumnData[FTP_COL_MODE] = StrDup(FileInfo.UnixMode);
 			CurItem->CustomColumnData[FTP_COL_LINK] = StrDup(FileInfo.Link);
 			hConnect->ToOEM(CurItem->CustomColumnData[FTP_COL_LINK]);

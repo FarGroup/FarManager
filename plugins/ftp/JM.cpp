@@ -495,11 +495,11 @@ void WINAPI LogCmd(LPCSTR src,CMDOutputDir out,DWORD Size)
 void Connection::InitIOBuff(void)
 {
 	CloseIOBuff();
-	IOBuff = (char*)_Alloc(Host.IOBuffSize+1);
+	IOBuff = (char*)malloc(Host.IOBuffSize+1);
 }
 void Connection::CloseIOBuff(void)
 {
-	_Del(IOBuff);
+	free(IOBuff);
 	IOBuff = NULL;
 }
 
@@ -516,18 +516,18 @@ void Connection::InitCmdBuff(void)
 	cmdLineSize  = Opt.CmdLine;
 	cmdSize      = Opt.CmdLength;
 	RetryCount   = 0;
-	CmdBuff      = (char **)_Alloc(sizeof(char *)*(cmdSize+1));
-	RplBuff      = (char **)_Alloc(sizeof(char *)*(cmdSize+1));
+	CmdBuff      = (char **)malloc(sizeof(char *)*(cmdSize+1));
+	RplBuff      = (char **)malloc(sizeof(char *)*(cmdSize+1));
 
 	//Command lines (length + 0)
 	for(int n = 0; n < cmdSize; n++)
 	{
-		CmdBuff[n] = (char*)_Alloc(cmdLineSize+1);
-		RplBuff[n] = (char*)_Alloc(1024+1);
+		CmdBuff[n] = (char*)malloc(cmdLineSize+1);
+		RplBuff[n] = (char*)malloc(1024+1);
 	}
 
 	//Command lines + status command
-	CmdMsg       = (LPCSTR*)_Alloc(sizeof(LPCSTR)*(cmdSize+NBUTTONSADDON));
+	CmdMsg       = (LPCSTR*)malloc(sizeof(LPCSTR)*(cmdSize+NBUTTONSADDON));
 	ResetCmdBuff();
 }
 /*
@@ -538,13 +538,13 @@ void Connection::CloseCmdBuff(void)
 	if(CmdBuff)
 		for(int n = 0; n < cmdSize; n++)
 		{
-			_Del(CmdBuff[n]);
-			_Del(RplBuff[n]);
+			free(CmdBuff[n]);
+			free(RplBuff[n]);
 		}
 
-	_Del(CmdBuff);
-	_Del(RplBuff);
-	_Del(CmdMsg);
+	free(CmdBuff);
+	free(RplBuff);
+	free(CmdMsg);
 	CmdBuff = NULL;
 	RplBuff = NULL;
 	CmdMsg  = NULL;

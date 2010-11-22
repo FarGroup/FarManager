@@ -83,8 +83,6 @@ $(OBJLIB)\fstd_exSPS.obj \
 $(OBJLIB)\fstd_ilist.obj \
 $(OBJLIB)\fstd_INProc.obj \
 $(OBJLIB)\fstd_log.obj \
-$(OBJLIB)\fstd_mems.obj \
-$(OBJLIB)\fstd_memh.obj \
 $(OBJLIB)\fstd_menu.obj \
 $(OBJLIB)\fstd_mesg.obj \
 $(OBJLIB)\fstd_mklog.obj \
@@ -110,7 +108,6 @@ $(OBJLIB)\fstd_stdlibCS.obj \
 $(OBJLIB)\fstd_stdlibST.obj \
 $(OBJLIB)\fstd_SText.obj \
 $(OBJLIB)\fstd_exit.obj \
-$(OBJLIB)\fstd_HotKey.obj \
 $(OBJLIB)\fstd_Con.obj \
 $(OBJLIB)\fstd_FMsg.obj \
 $(OBJLIB)\fstd_OEM.obj \
@@ -123,7 +120,7 @@ JM.h var.h Connect.h FtpAPI.h Ftp.h
 
 ##########
 
-USERCPP=/I.\FStdLib /D__NOMEM__=1 /D__HEAP_MEMORY__=1 /D__USEASSERT__=1 /D_CONSOLE=1
+USERCPP=/I.\FStdLib /D__NOMEM__=1 /D__USEASSERT__=1
 !ifdef DEBUG
 USERCPP=$(USERCPP) /D__FILELOG__=1 /D__DEBUG__=1
 !endif

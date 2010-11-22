@@ -218,7 +218,7 @@ void FTP::QuequeMenu(void)
 
 	do
 	{
-		mi = (FarMenuItem *)_Realloc(mi, (QuequeSize+1)*sizeof(FarMenuItem));
+		mi = (FarMenuItem *)realloc(mi, (QuequeSize+1)*sizeof(FarMenuItem));
 		memset(mi, 0, QuequeSize*sizeof(FarMenuItem));
 
 		for(p = UrlsList,n = 0; p; p = p->Next, n++)
@@ -318,7 +318,7 @@ void FTP::QuequeMenu(void)
 	while(true);
 
 Done:
-	_Del(mi);
+	free(mi);
 }
 
 void FTP::AddToQueque(FTPUrl* item,int pos/*-1*/)

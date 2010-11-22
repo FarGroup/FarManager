@@ -69,9 +69,6 @@
     <ClCompile Include="FStdLib\FARStdlib\fstd_FUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FStdLib\FARStdlib\fstd_HotKey.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FStdLib\FARStdlib\fstd_ilist.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -79,12 +76,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FStdLib\FARStdlib\fstd_log.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FStdLib\FARStdlib\fstd_memh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FStdLib\FARStdlib\fstd_mems.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FStdLib\FARStdlib\fstd_menu.cpp">

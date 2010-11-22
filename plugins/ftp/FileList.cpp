@@ -221,7 +221,7 @@ BOOL FTP::ShowFilesList(FP_SizeItemList* il)
 		return FALSE;
 
 	//Create|Recreate
-	mi = (FarMenuItem *)_Realloc(mi,il->Count()*sizeof(FarMenuItem));
+	mi = (FarMenuItem *)realloc(mi,il->Count()*sizeof(FarMenuItem));
 	memset(mi, 0, il->Count()*sizeof(FarMenuItem));
 	//Scan number of items
 	w = cn = 0;
@@ -425,7 +425,7 @@ BOOL FTP::ShowFilesList(FP_SizeItemList* il)
 	}
 	while(true);
 
-	_Del(mi);
+	free(mi);
 
 	if(!num)
 		return FALSE;

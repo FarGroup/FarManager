@@ -65,25 +65,6 @@
 #define Log(v)
 #endif
 
-// ------------------------------------------------------------------------
-/** [fstd_menu.cpp]
-    @brief
-*/
-#define FHK_NUMHOTKEYS (FHK_NUMALPHAS + FHK_NUMDIGITS)
-#define FHK_NUMALPHAS  ('Z'-'A'+1)
-#define FHK_NUMDIGITS  ('9'-'0'+1)
-
-struct FHotKey
-{
-	BOOL Alpha;
-	int  Key;
-
-	FHotKey(BOOL AlphaFirst = TRUE) { Alpha = AlphaFirst; Key = 0; }
-
-	char Next(void);
-
-	static char MkHotKey(int Number,bool UseDigitOnly = false);
-};
 
 // ------------------------------------------------------------------------
 /** [fstd_menu.cpp]
@@ -222,9 +203,9 @@ template <class T> class FP_MenuTyped
 	/**/
 
 	/**/    if(!List)
-		/**/      List = (T*)_Alloc(sizeof(T)*MaxCount);
+		/**/      List = (T*)malloc(sizeof(T)*MaxCount);
 	/**/     else
-		/**/      List = (T*)_Realloc(List,sizeof(T)*MaxCount);
+		/**/      List = (T*)realloc(List,sizeof(T)*MaxCount);
 
 	/**/
 
@@ -258,7 +239,7 @@ template <class T> class FP_MenuTyped
 		/**/      return;
 
 	/**/
-	/**/    _Del(List);
+	/**/    free(List);
 	/**/    List       = NULL;
 	/**/    ItemsCount = 0;
 	/**/    MaxCount   = 0;

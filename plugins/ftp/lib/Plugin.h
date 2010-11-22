@@ -159,12 +159,6 @@ struct FTPInterface
 	char*(WINAPI    *GetRegKeyStr)(LPCSTR ValueName,char *ValueData,LPCSTR Default,DWORD DataMaxSize);
 
 //Std
-	LPVOID (WINAPI    *Alloc)(SIZE_T sz);
-	void (WINAPI    *Del)(LPVOID ptr);
-	LPVOID (WINAPI    *Realloc)(LPVOID ptr,SIZE_T sz);
-	SIZE_T(WINAPI    *PtrSize)(LPVOID ptr);
-	BOOL (WINAPI    *HeapCheck)(void);
-
 	int (WINAPI    *StrCmp)(LPCSTR str,LPCSTR str1,int maxlen /*= -1*/, BOOL isCaseSens /*= TRUE*/);
 	char*(WINAPI    *StrCpy)(char *dest,LPCSTR src,int dest_sz /*=-1*/);
 	char*(WINAPI    *StrCat)(char *dest,LPCSTR src,int dest_sz /*=-1*/);

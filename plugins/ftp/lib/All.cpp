@@ -71,27 +71,6 @@ void WINAPI _RTLCheck(LPCSTR fnm)
 }
 #endif
 
-
-void __cdecl operator delete(void *ptr)           { RTLCheck("delete")      FTP_Info->Del(ptr); }
-void *__cdecl operator new(size_t sz)             { RTLCheck("new")         return FTP_Info->Alloc(sz); }
-
-#if defined(__BORLANDC__)
-#if sizeof(size_t) < sizeof(long)
-void *operator new(unsigned long sz)            { RTLCheck("new(long)")   return FTP_Info->Alloc(sz); }
-#endif
-#endif
-
-#if defined( __HWIN__ ) || defined( __QNX__ )
-void __cdecl operator delete[](void *ptr)      { RTLCheck("delete[]")    FTP_Info->Del(ptr); }
-void *__cdecl operator new[](size_t sz)        { RTLCheck("new[]")       return FTP_Info->Alloc(sz); }
-#endif
-
-LPVOID WINAPI _Alloc(SIZE_T sz)              { RTLCheck("_Alloc")      return FTP_Info->Alloc(sz); }
-void   WINAPI _Del(LPVOID ptr)               { RTLCheck("_Del")        FTP_Info->Del(ptr); }
-LPVOID WINAPI _Realloc(LPVOID ptr,SIZE_T sz) { RTLCheck("_Realloc")    return FTP_Info->Realloc(ptr,sz); }
-SIZE_T WINAPI _PtrSize(LPVOID ptr)           { RTLCheck("_PtrSize")    return FTP_Info->PtrSize(ptr); }
-BOOL   WINAPI _HeapCheck(void)               { RTLCheck("_HeapCheck")  return FTP_Info->HeapCheck(); }
-
 /*******************************************************************
    String functions
  *******************************************************************/
@@ -138,7 +117,7 @@ char *WINAPI StrCpy(char *dest,LPCSTR src,int dest_sz)
 char *WINAPI StrDup(LPCSTR m)
 {
 	char *rc;
-	rc = (char*)_Alloc(strLen(m)+1);
+	rc = (char*)malloc(strLen(m)+1);
 	Assert(rc);
 	return StrCpy(rc,m);
 }

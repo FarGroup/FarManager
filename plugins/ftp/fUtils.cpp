@@ -253,7 +253,7 @@ void FTP::FTP_FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber,BOOL FromP
 		if(FromPlugin)
 			FreeFindData(PanelItem,ItemsNumber);
 		else
-			_Del(PanelItem);
+			free(PanelItem);
 	}
 }
 

@@ -6,7 +6,7 @@
 /************************************
             String
  ************************************/
-String::~String()                  { if(str) { _Del(str); str = NULL; } }
+String::~String()                  { if(str) { free(str); str = NULL; } }
 
 String::String(void)             { BeginSet(); }
 String::String(const String& s)  { BeginSet(s.Length()); Alloc(s.c_str()); }
@@ -43,7 +43,7 @@ int String::vprintf(LPCSTR fmt,va_list list)
 
 void String::BeginSet(size_t sz)
 {
-	str = (char*)_Alloc(maxchar = (int)Max((size_t)DEF_STR_ALLOC, sz));
+	str = (char*)malloc(maxchar = (int)Max((size_t)DEF_STR_ALLOC, sz));
 	str[len = 0] = 0;
 }
 
@@ -71,7 +71,7 @@ LPCSTR String::Alloc(int t)
 	if(t < maxchar)
 		return str;
 
-	str = (char*)_Realloc(str,maxchar = Max(DEF_STR_ALLOC,t));
+	str = (char*)realloc(str,maxchar = Max(DEF_STR_ALLOC,t));
 	return str;
 }
 

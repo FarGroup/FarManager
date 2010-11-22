@@ -23,9 +23,9 @@ BOOL FP_ItemList::Realloc(int NewSize)
 	MaxCount = NewSize;
 
 	if(!List)
-		List = (PluginPanelItem*)_Alloc(sizeof(PluginPanelItem)*MaxCount);
+		List = (PluginPanelItem*)malloc(sizeof(PluginPanelItem)*MaxCount);
 	else
-		List = (PluginPanelItem *)_Realloc(List,sizeof(PluginPanelItem)*MaxCount);
+		List = (PluginPanelItem *)realloc(List,sizeof(PluginPanelItem)*MaxCount);
 
 	if(!List)
 	{
@@ -74,7 +74,7 @@ void FP_ItemList::Copy(PluginPanelItem *dest,const PluginPanelItem *src,int cn)
 
 			if(sz && !IsBadReadPtr((void*)src->UserData,sz))
 			{
-				dest->UserData = (DWORD_PTR)_Alloc(sz+1);
+				dest->UserData = (DWORD_PTR)malloc(sz+1);
 				memmove((char*)dest->UserData,(char*)src->UserData,sz);
 			}
 			else
@@ -87,7 +87,7 @@ void FP_ItemList::Copy(PluginPanelItem *dest,const PluginPanelItem *src,int cn)
 		//CustomColumn
 		if(src->CustomColumnNumber)
 		{
-			dest->CustomColumnData = (LPSTR*)_Alloc(sizeof(LPSTR*)*src->CustomColumnNumber);
+			dest->CustomColumnData = (LPSTR*)malloc(sizeof(LPSTR*)*src->CustomColumnNumber);
 
 			for(int n = 0; n < src->CustomColumnNumber; n++)
 			{
@@ -107,7 +107,7 @@ void FP_ItemList::Copy(PluginPanelItem *dest,const PluginPanelItem *src,int cn)
 		if(FPIL_ADDEXIST(src))
 		{
 			DWORD  sz  = FPIL_ADDSIZE(src);
-			LPVOID ptr = _Alloc(sz);
+			LPVOID ptr = malloc(sz);
 
 			if(ptr)
 			{
@@ -129,33 +129,33 @@ void FP_ItemList::Free(PluginPanelItem *List,int count)
 		//UserData
 		if(IS_FLAG(List->Flags,PPIF_USERDATA))
 		{
-			_Del((char*)List->UserData);
+			free((char*)List->UserData);
 			List->UserData = 0;
 		}
 
 		//CustomColumn
 		for(int n = 0; n < List->CustomColumnNumber; n++)
-			_Del(List->CustomColumnData[n]);
+			free(List->CustomColumnData[n]);
 
 		if(List->CustomColumnData)
-			_Del(List->CustomColumnData);
+			free(List->CustomColumnData);
 
 		//Description
 		if(List->Description)
-			_Del(List->Description), List->Description = NULL;
+			free(List->Description), List->Description = NULL;
 
 		//Owner
 		if(List->Owner)
-			_Del(List->Owner), List->Owner = NULL;
+			free(List->Owner), List->Owner = NULL;
 
 		//Additionals
 		if(FPIL_ADDEXIST(List))
 		{
-			_Del(FPIL_ADDDATA(List));
+			free(FPIL_ADDDATA(List));
 			List->Reserved[0] = 0;
 			List->Reserved[1] = 0;
 		}
 	}
 
-	_Del(p);
+	free(p);
 }

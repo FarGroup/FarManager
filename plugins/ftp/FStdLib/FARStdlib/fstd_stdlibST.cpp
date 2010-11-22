@@ -14,7 +14,7 @@ char *WINAPI StrDup(LPCSTR m)
 
 	if(!m) m = "";
 
-	rc = (char*)_Alloc(strLen(m)+1);
+	rc = (char*)malloc(strLen(m)+1);
 
 	if(rc)
 		StrCpy(rc,m);

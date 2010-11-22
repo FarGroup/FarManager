@@ -12,7 +12,7 @@ NEEDDEFLIB=1
 NEEDENTRY=1
 EXCLUDECRT=1
 
-USERCPP = -I ./FStdLib -D__NOMEM__=1 -D__HEAP_MEMORY__=1 -D__USEASSERT__=1 -D_CONSOLE=1 -Wno-unknown-pragmas -Wno-switch -Wno-missing-braces -Wno-parentheses
+USERCPP = -I ./FStdLib -D__NOMEM__=1 -D__USEASSERT__=1 -Wno-unknown-pragmas -Wno-switch -Wno-missing-braces -Wno-parentheses
 USERLIBSFIRST = -L $(OBJDIR) -lFARStd
 USERLIBS = -lwsock32 -lwinmm
 

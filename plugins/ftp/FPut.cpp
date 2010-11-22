@@ -12,7 +12,7 @@ void SetupFileTimeNDescription(int OpMode,Connection *hConnect,LPCSTR nm)
 	if(!SrcFile) return;
 
 	int   FileSize = (int)Fsize(SrcFile);
-	BYTE *Buf      = (BYTE*)_Alloc(sizeof(BYTE)*FileSize*3+1);
+	BYTE *Buf      = (BYTE*)malloc(sizeof(BYTE)*FileSize*3+1);
 	int   ReadSize = (int)fread(Buf,1,FileSize,SrcFile);
 	int WriteSize = hConnect->FromOEM(Buf,ReadSize,sizeof(BYTE)*FileSize*3+1);
 	fflush(SrcFile);
@@ -21,7 +21,7 @@ void SetupFileTimeNDescription(int OpMode,Connection *hConnect,LPCSTR nm)
 	fwrite(Buf,1,WriteSize,SrcFile);
 	fflush(SrcFile);
 	fclose(SrcFile);
-	_Del(Buf);
+	free(Buf);
 }
 
 /****************************************

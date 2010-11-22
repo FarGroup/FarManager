@@ -2,7 +2,6 @@
 #pragma hdrstop
 
 #include "Int.h"
-#include <mem.inc>
 
 LPCSTR WINAPI FP_GetPluginName(void)
 {
@@ -83,7 +82,7 @@ void _cdecl CloseUp(void)
 	Log(("CloseUp.Delete Opt data"));
 
 	for(n = 0; n < 12; n++)
-		_Del(Opt.Months[n]);
+		free(Opt.Months[n]);
 
 	memset(Opt.Months, 0, sizeof(Opt.Months));
 

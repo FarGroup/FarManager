@@ -99,7 +99,7 @@ BOOL WINAPI FP_GetFromClipboard(LPVOID& Data, SIZE_T& DataSize)
 		if(!GData)
 			break;
 
-		Data = _Alloc(DataSize+1);
+		Data = malloc(DataSize+1);
 		memcpy(Data,GData,DataSize);
 		rc = TRUE;
 	}

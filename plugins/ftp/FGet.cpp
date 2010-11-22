@@ -19,13 +19,13 @@ void SetupFileTimeNDescription(int OpMode,Connection *hConnect,LPCSTR nm,FILETIM
 	if(IS_FLAG(OpMode,OPM_DESCR) &&
 	        (FileSize=GetFileSize(SrcFile,NULL)) != 0xFFFFFFFFUL)
 	{
-		Buf      = (BYTE*)_Alloc(sizeof(BYTE)*FileSize);
+		Buf      = (BYTE*)malloc(sizeof(BYTE)*FileSize);
 		ReadFile(SrcFile,Buf,FileSize,&FileSize,NULL);
 		DWORD WriteSize = hConnect->ToOEM(Buf,FileSize);
 		SetFilePointer(SrcFile,0,NULL,FILE_BEGIN);
 		WriteFile(SrcFile,Buf,WriteSize,&WriteSize,NULL);
 		SetEndOfFile(SrcFile);
-		_Del(Buf);
+		free(Buf);
 	}
 
 	if(tm)

@@ -149,6 +149,20 @@ struct Connection
 		void       ResetOutput();
 		void       AddOutput(BYTE *Data,int Size);
 
+	protected:
+		int            cmdLineSize;
+		int            cmdSize;
+		String         StartReply;
+		String         reply_string;
+		char *      *CmdBuff;               //[cmdSize+1][cmdLineSize+1]
+		char *      *RplBuff;               //[cmdSize+1][1024+1]
+		const char*     *CmdMsg;
+		int            cmdCount;
+		char           LastHost[MAX_PATH];
+		char           LastMsg[MAX_PATH];
+		char          *IOBuff;
+		HANDLE         hIdle;
+	public:
 		comvars       proxstruct, tmpstruct;
 		sockaddr_in   hisctladdr;
 		sockaddr_in   data_addr;
@@ -189,7 +203,6 @@ struct Connection
 
 		FFtpCacheItem ListCache[16];
 		int           ListCachePos;
-	public:
 		char          UserName[FAR_MAX_NAME];
 		char          UserPassword[FAR_MAX_NAME];
 		BYTE         *Output;
@@ -207,28 +220,7 @@ struct Connection
 		int           ErrorCode;
 		BOOL          SysError;
 		BOOL          Breakable;
-	public:
-//
-// Host options
-//
 		FTPHostPlugin Host;
-	protected:
-//
-//JM added
-//
-		int            cmdLineSize;
-		int            cmdSize;
-		String         StartReply;
-		String         reply_string;
-		char *      *CmdBuff;               //[cmdSize+1][cmdLineSize+1]
-		char *      *RplBuff;               //[cmdSize+1][1024+1]
-		const char*     *CmdMsg;
-		int            cmdCount;
-		char           LastHost[MAX_PATH];
-		char           LastMsg[MAX_PATH];
-		char          *IOBuff;
-		HANDLE         hIdle;
-	public:
 		FTPCurrentStates CurrentState;
 		char           DirFile[MAX_PATH];
 		int            RetryCount;
@@ -238,13 +230,17 @@ struct Connection
 		BOOL           IOCallback;
 		//Completitions
 		BOOL           LoginComplete;
-//
-//JM added END
-//
-	protected:
-		void           InternalError(void);
+
+
+
+
+
+
+
+
 
 	protected:
+		void           InternalError(void);
 		void           CloseCmdBuff(void);
 		void           CloseIOBuff(void);
 		void           ResetCmdBuff(void);

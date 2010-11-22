@@ -30,11 +30,6 @@
     Different macroses globally affected to sources.
      - __DEBUG__         Defined if debug compilling turned ON.
      - __HCONSOLE__      Allways defined on current FAR platform.
-
-    @section fsdMem Memory management
-     - __HEAP_MEMORY__   If defined the memory allocator will use HeapXXX windows API functions for
-                         memory allocations.
-     - __STD_MEMORY__    If defined the memory allocator will use RTL malloc\free for memory allocations.
 */
 
 // --------------------------------------------------------------
@@ -456,13 +451,6 @@ struct FPPeriod
     Wrapers for stdlib functions and some usefull extended stdlib functions.
 */
 #if !defined(__FP_NOT_FUNCTIONS__)
-//Allocators [fstd_mem.inc]
-extern LPVOID WINAPI _Alloc(SIZE_T sz);
-extern LPVOID WINAPI _Realloc(LPVOID ptr,SIZE_T sz);
-extern void   WINAPI _Del(LPVOID ptr);
-extern SIZE_T WINAPI _PtrSize(LPVOID ptr);
-extern BOOL   WINAPI _HeapCheck(void);
-
 //str
 extern int     WINAPI strLen(LPCSTR str);
 //string extension

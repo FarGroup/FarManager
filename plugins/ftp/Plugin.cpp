@@ -107,11 +107,6 @@ void CreateFTPInterface(void)
 	Interface.GetRegKeyInt      = FP_GetRegKey;
 	Interface.GetRegKeyStr      = FP_GetRegKey;
 //Std
-	Interface.Alloc     = _Alloc;
-	Interface.Del       = _Del;
-	Interface.Realloc   = _Realloc;
-	Interface.PtrSize   = _PtrSize;
-	Interface.HeapCheck = _HeapCheck;
 	Interface.StrCmp    = StrCmp;
 	Interface.StrCpy    = StrCpy;
 	Interface.StrCat    = StrCat;

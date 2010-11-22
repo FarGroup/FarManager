@@ -113,7 +113,7 @@ void WINAPI ReadCfg(void)
 		Log(("month %d [%s]=[%s]",n,Opt.Months[n],str));
 
 		if(Opt.Months[n])
-			_Del(Opt.Months[n]);
+			free(Opt.Months[n]);
 
 		Opt.Months[n] = StrDup(str);
 	}

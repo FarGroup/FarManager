@@ -53,6 +53,71 @@ cmd cmdtabdata[] =
 
 Connection::Connection()
 {
+	cmdLineSize = 0;
+	cmdSize = 0;
+	CmdBuff = NULL;
+	RplBuff = NULL;
+	CmdMsg = NULL;
+	cmdCount = 0;;
+	*LastHost = 0;
+	*LastMsg = 0;
+	IOBuff = NULL;
+	hIdle = NULL;
+	memset(&proxstruct, 0, sizeof(proxstruct));
+	memset(&tmpstruct, 0, sizeof(tmpstruct));
+	brk_flag = FALSE;
+	restart_point = 0;
+	cin = 0;
+	cout = 0;
+	*hostname = 0;
+	slrflag = 0;
+	portnum = 0;
+
+	sendport = 0;
+	proxy = 0;
+	proxflag = 0;
+	sunique = 0;
+	runique = 0;
+	code = 0;
+	*pasv = 0;
+	altarg = NULL;
+
+	stru = 0;
+	*bytename=0;
+	bytesize=0;
+
+	stringbase = NULL;
+	argbase = NULL;
+	margc = 0;
+	cpend = 0;
+	mflag = 0;
+	memset(ListCache,0,sizeof(ListCache));
+	ListCachePos = 0;
+	*UserName = 0;
+	*UserPassword = 0;
+	Output = NULL;
+	OutputSize = 0;
+	OutputPos = 0;
+	LastUsedTableNum = 0;
+	connected = 0;
+	cmd_peer = 0;
+	data_peer = 0;
+	SocketError = 0;
+	*SystemInfo = 0;
+	SystemInfoFilled = 0;
+	TableNum = 0;
+	ErrorCode = 0;
+	SysError = FALSE;
+	Breakable = FALSE;
+	*DirFile = 0;
+	RetryCount = 0;
+	TrafficInfo = NULL;
+	CmdVisible = FALSE;
+	ResumeSupport = FALSE;
+	IOCallback = FALSE;
+	LoginComplete = FALSE;
+
+
 	SocketError      = (int)INVALID_SOCKET;
 	sendport         = -1;
 	cmd_peer         = INVALID_SOCKET;
@@ -321,7 +386,7 @@ void Connection::AddOutput(BYTE *Data,int Size)
 {
 	if(Size==0) return;
 
-	BYTE *NewOutput=(BYTE*)_Realloc(Output,OutputSize+Size+1);
+	BYTE *NewOutput=(BYTE*)realloc(Output,OutputSize+Size+1);
 
 	if(NewOutput==NULL)
 	{
@@ -380,7 +445,7 @@ void Connection::GetOutput(String& s)
 void Connection::ResetOutput()
 {
 	if(Output)
-		_Del(Output);
+		free(Output);
 
 	Output=NULL;
 	OutputSize=0;
@@ -393,7 +458,7 @@ void Connection::CacheReset()
 	for(size_t I=0; I<sizeof(ListCache)/sizeof(ListCache[0]); I++)
 	{
 		if(ListCache[I].Listing)
-			_Del(ListCache[I].Listing);
+			free(ListCache[I].Listing);
 
 		ListCache[I].Listing=NULL;
 		ListCache[I].ListingSize=0;
@@ -413,7 +478,7 @@ int Connection::CacheGet()
 		{
 			ResetOutput();
 			OutputSize = (DWORD)Fsize(f);
-			Output     = (BYTE*)_Alloc(OutputSize+1);
+			Output     = (BYTE*)malloc(OutputSize+1);
 
 			if(!Output)
 				return FALSE;
@@ -429,7 +494,7 @@ int Connection::CacheGet()
 		        CurDir.Cmp(ListCache[I].DirName))
 		{
 			ResetOutput();
-			BYTE *NewOutput=(BYTE*)_Alloc(ListCache[I].ListingSize+1);
+			BYTE *NewOutput=(BYTE*)malloc(ListCache[I].ListingSize+1);
 
 			if(NewOutput==NULL)
 				return FALSE;
@@ -448,10 +513,10 @@ int Connection::CacheGet()
 void Connection::CacheAdd()
 {
 	if(ListCache[ListCachePos].Listing)
-		_Del(ListCache[ListCachePos].Listing);
+		free(ListCache[ListCachePos].Listing);
 
 	ListCache[ListCachePos].ListingSize = 0;
-	ListCache[ListCachePos].Listing     = (char*)_Alloc(OutputSize+1);
+	ListCache[ListCachePos].Listing     = (char*)malloc(OutputSize+1);
 
 	if(ListCache[ListCachePos].Listing ==NULL)
 		return;
@@ -600,10 +665,10 @@ int Connection::FromOEM(BYTE *Line,int _sz,int fsz)
 			break;
 		case 3:
 		{
-			WCHAR *tmp = (WCHAR *)_Alloc(sz*sizeof(WCHAR));
+			WCHAR *tmp = (WCHAR *)malloc(sz*sizeof(WCHAR));
 			MultiByteToWideChar(CP_OEMCP, 0, (LPCSTR)Line, sz, tmp, sz);
 			ret = encode_UTF8(tmp, sz, (char *)Line, fsz);
-			_Del(tmp);
+			free(tmp);
 			break;
 		}
 		default:
@@ -733,14 +798,14 @@ int Connection::ToOEM(BYTE *Line,int _sz)
 			break;
 		case 3:
 		{
-			WCHAR *tmp = (WCHAR *)_Alloc(sz*sizeof(WCHAR));
+			WCHAR *tmp = (WCHAR *)malloc(sz*sizeof(WCHAR));
 			ret = decode_UTF8(Line, sz, tmp, sz);
 			WideCharToMultiByte(CP_OEMCP, 0, tmp, ret, (LPSTR)Line, ret, NULL, NULL);
 
 			for(int i=ret; i<sz; i++)
 				Line[i] = 0;
 
-			_Del(tmp);
+			free(tmp);
 			break;
 		}
 		default:
