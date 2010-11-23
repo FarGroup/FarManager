@@ -19,6 +19,11 @@ FLLLIST = DirList Progress
 !ifndef INSTALL
 FLLLIST = $(FLLLIST) Notify
 !endif
+
+All: dirs libdir
+
+!include ..\makefile_vc_def_inc
+
 ##########
 
 LINK_OBJS = \
@@ -112,8 +117,10 @@ $(OBJLIB)\fstd_Con.obj \
 $(OBJLIB)\fstd_FMsg.obj \
 $(OBJLIB)\fstd_OEM.obj \
 $(OBJLIB)\fstd_Utils.obj \
-$(OBJLIB)\fstd_FUtils.obj
-
+$(OBJLIB)\fstd_FUtils.obj \
+!if "$(VC)"=="10" && !defined(CPU)
+$(OBJLIB)\vc10.obj
+!endif
 
 DEP_HDR=int.h FStdLib\fstdlib.h lib/Plugin.h Plugins.h Cfg.h \
 JM.h var.h Connect.h FtpAPI.h Ftp.h
@@ -125,11 +132,8 @@ USERCPP=/I.\FStdLib /D__NOMEM__=1 /D__USEASSERT__=1
 USERCPP=$(USERCPP) /D__FILELOG__=1 /D__DEBUG__=1
 !endif
 
-All: dirs libdir
-
-!include ..\makefile_vc_def_inc
-
 LIBS=$(FSTDLIB) $(LIBS) wsock32.lib winmm.lib
+
 
 !include ..\makefile_vc_target_inc
 
@@ -164,6 +168,9 @@ $(LIB_OBJS)
 {$(LIBSRC)}.cpp{$(OBJLIB)}.obj:
 	@$(CC) $(CFLAGS_NO) /Fo$(OBJLIB)\ { $< } 
 !endif
+
+{$(LIBSRC)}.asm{$(OBJLIB)}.obj:
+	ml /nologo /c /Fo$@ $<
 
 $(RES): version.hpp
 

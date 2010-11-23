@@ -37,7 +37,7 @@ USERCPP=/I.\lib\$(FLL) /I.\lib /I.\FstdLib /D__USE_TRAPLOGER__=1
 
 !include ..\makefile_vc_def_inc
 
-LIBS=$(LIBS) $(FLL_LIBS)
+LIBS=$(OBJDIR)\..\FsdLib.lib $(LIBS) $(FLL_LIBS)
 
 !include ..\makefile_vc_target_inc
 

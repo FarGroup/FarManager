@@ -23,7 +23,7 @@
     </ClCompile>
     <ClCompile Include="FStdLib\FARStdlib\fstd_ClpS.cpp">
       <Filter>Source Files</Filter>
-   </ClCompile>
+    </ClCompile>
     <ClCompile Include="FStdLib\FARStdlib\fstd_Con.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -164,5 +164,10 @@
     <ClInclude Include="FStdLib\FARStdlib\funi.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="FStdLib\FARStdlib\vc10.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
   </ItemGroup>
 </Project>
