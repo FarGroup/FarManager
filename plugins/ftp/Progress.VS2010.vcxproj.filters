@@ -37,10 +37,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="lib\fp_Progress.h">
+    <ClInclude Include="lib\Progress\Int.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="lib\Progress\Int.h">
+    <ClInclude Include="lib\Progress.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

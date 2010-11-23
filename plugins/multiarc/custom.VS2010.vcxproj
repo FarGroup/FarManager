@@ -176,6 +176,7 @@
       <NoEntryPoint>true</NoEntryPoint>
       <MergeSections>.rdata=.text</MergeSections>
       <TargetMachine>MachineX86</TargetMachine>
+      <MinimumRequiredVersion>5.0</MinimumRequiredVersion>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y .\custom.ini "$(OutDir)"\</Command>
@@ -268,6 +269,7 @@
       <NoEntryPoint>true</NoEntryPoint>
       <MergeSections>.rdata=.text</MergeSections>
       <TargetMachine>MachineX86</TargetMachine>
+      <MinimumRequiredVersion>5.0</MinimumRequiredVersion>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y .\custom.ini "$(OutDir)"\</Command>

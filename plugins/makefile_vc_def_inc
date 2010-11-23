@@ -182,7 +182,12 @@ NOENTRY = /noentry
 !ifndef NEEDDEFLIB
 NODEFLIB = /nodefaultlib
 !endif
-LINK_FLAGS=/nologo /dll /release /dynamicbase /merge:.rdata=.text $(NOWIN98) $(NOENTRY) $(NODEFLIB) $(ENV_LIB_OPT) /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)"
+
+!if !defined(CPU) && defined (WIDE)
+SUBSYSTEM=/subsystem:windows,5.0
+!endif
+
+LINK_FLAGS=$(SUBSYSTEM) /nologo /dll /release /dynamicbase /merge:.rdata=.text $(NOWIN98) $(NOENTRY) $(NODEFLIB) $(ENV_LIB_OPT) /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)"
 !else
 LINK_DEBUG=-v
 CPP_DEBUG=/Z7

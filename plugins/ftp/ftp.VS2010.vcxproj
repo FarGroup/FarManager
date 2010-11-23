@@ -177,6 +177,7 @@
       <NoEntryPoint>false</NoEntryPoint>
       <MergeSections>.rdata=.text</MergeSections>
       <TargetMachine>MachineX86</TargetMachine>
+      <MinimumRequiredVersion>5.0</MinimumRequiredVersion>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -300,6 +301,7 @@
       <NoEntryPoint>false</NoEntryPoint>
       <MergeSections>.rdata=.text</MergeSections>
       <TargetMachine>MachineX86</TargetMachine>
+      <MinimumRequiredVersion>5.0</MinimumRequiredVersion>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
