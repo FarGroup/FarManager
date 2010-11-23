@@ -104,7 +104,6 @@ LINK_OBJS = \
 	"$(INTDIR)\chgprior.obj" \
 	"$(INTDIR)\clipboard.obj" \
 	"$(INTDIR)\cmdline.obj" \
-	"$(INTDIR)\cmem.obj" \
 	"$(INTDIR)\codepage.obj" \
 	"$(INTDIR)\config.obj" \
 	"$(INTDIR)\console.obj" \

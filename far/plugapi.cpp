@@ -1711,12 +1711,12 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
 		static PluginHandle DirListPlugin;
 
 		// А не хочет ли плагин посмотреть на текущую панель?
-		if (hPlugin==INVALID_HANDLE_VALUE)
+		if (hPlugin==PANEL_ACTIVE || hPlugin==PANEL_PASSIVE)
 		{
 			/* $ 30.11.2001 DJ
 			   А плагиновая ли это панель?
 			*/
-			HANDLE Handle = CtrlObject->Cp()->ActivePanel->GetPluginHandle();
+			HANDLE Handle = ((hPlugin==PANEL_ACTIVE)?CtrlObject->Cp()->ActivePanel:CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel))->GetPluginHandle();
 
 			if (!Handle || Handle == INVALID_HANDLE_VALUE)
 				return FALSE;

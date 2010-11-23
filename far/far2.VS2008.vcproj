@@ -660,10 +660,6 @@
 				>
 			</File>
 			<File
-				RelativePath="cmem.cpp"
-				>
-			</File>
-			<File
 				RelativePath="codepage.cpp"
 				>
 			</File>

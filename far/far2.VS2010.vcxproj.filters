@@ -56,9 +56,6 @@
     <ClCompile Include="cmdline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cmem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="codepage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

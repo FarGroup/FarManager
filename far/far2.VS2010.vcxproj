@@ -427,7 +427,6 @@ if not exist bootstrap mkdir bootstrap</Command>
     <ClCompile Include="chgprior.cpp" />
     <ClCompile Include="clipboard.cpp" />
     <ClCompile Include="cmdline.cpp" />
-    <ClCompile Include="cmem.cpp" />
     <ClCompile Include="codepage.cpp" />
     <ClCompile Include="config.cpp" />
     <ClCompile Include="console.cpp" />

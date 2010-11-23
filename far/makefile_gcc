@@ -31,7 +31,6 @@ SRCS = \
 	chgprior.cpp \
 	clipboard.cpp \
 	cmdline.cpp \
-	cmem.cpp \
 	codepage.cpp \
 	config.cpp \
 	console.cpp \

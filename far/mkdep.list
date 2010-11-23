@@ -17,7 +17,6 @@ clipboard.cpp
 clipboard.hpp
 cmdline.cpp
 cmdline.hpp
-cmem.cpp
 colors.hpp
 config.cpp
 config.hpp
