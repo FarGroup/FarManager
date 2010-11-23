@@ -36,9 +36,9 @@ int WINAPI GetPluginDirList(
      <a href="../exported_functions/setstartupinfow.html">SetStartupInfoW</a>.</div>
   <div class=dfn>hPlugin</div>
   <div class=dfndescr>Текущий описатель плагина. Если описатель плагина
-    равен INVALID_HANDLE_VALUE, то значение параметра PluginNumber
+    равен PANEL_ACTIVE (или PANEL_PASSIVE), то значение параметра PluginNumber
     игнорируется и используется номер плагина, которому принадлежит
-    активная панель.</div>
+    активная (или пассивная) панель.</div>
   <div class=dfn>Dir</div>
   <div class=dfndescr>Имя обрабатываемой директории. Должно быть в
     форме, приемлемой для функции плагина <a href="../exported_functions/setdirectoryw.html">SetDirectoryW</a>.
