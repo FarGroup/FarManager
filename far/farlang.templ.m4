@@ -11334,7 +11334,7 @@ upd:"Virtual disk detaching"
 upd:"Virtual disk detaching"
 
 MChangeVHDDisconnectDriveQuestion
-"Отсоединенить виртуальный диск %c:?"
+"Отсоединить виртуальный диск %c:?"
 "Detach virtual disk %c:?"
 upd:"Detach virtual disk %c:?"
 upd:"Detach virtual disk %c:?"
