@@ -238,7 +238,7 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
     static TCHAR *PluginMenuStrings[1];
     PluginMenuStrings[0]=GetMsg(MPlistPanel);
     Info->PluginMenuStrings=PluginMenuStrings;
-    Info->PluginMenuStringsNumber=ArraySize(PluginMenuStrings);
+    Info->PluginMenuStringsNumber=ARRAYSIZE(PluginMenuStrings);
   }
 
 #ifndef UNICODE
@@ -255,7 +255,7 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
   static TCHAR *PluginCfgStrings[1];
   PluginCfgStrings[0]=GetMsg(MPlistPanel);
   Info->PluginConfigStrings=PluginCfgStrings;
-  Info->PluginConfigStringsNumber=ArraySize(PluginCfgStrings);
+  Info->PluginConfigStringsNumber=ARRAYSIZE(PluginCfgStrings);
   Info->CommandPrefix = _T("plist");
 }
 

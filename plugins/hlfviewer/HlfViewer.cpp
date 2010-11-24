@@ -53,7 +53,7 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
 	GetPathRoot=::FSF.GetPathRoot;
 	AddEndSlash=::FSF.AddEndSlash;
 	FarSprintf=::FSF.sprintf;
-	GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.EditorKey,KeyNameFromReg,_T("F1"),ArraySize(KeyNameFromReg)-1);
+	GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.EditorKey,KeyNameFromReg,_T("F1"),ARRAYSIZE(KeyNameFromReg)-1);
 	Opt.Key=::FSF.FarNameToKey(KeyNameFromReg);
 	Opt.ProcessEditorInput=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.ProcessEditorInput,1);
 	Opt.Style=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.Style,0);
@@ -151,7 +151,7 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
 	static const TCHAR * PluginMenuStrings[1], *PluginConfigStrings[1];
 	PluginConfigStrings[0]=GetMsg(MTitle);
 	Info->PluginConfigStrings=PluginConfigStrings;
-	Info->PluginConfigStringsNumber=ArraySize(PluginConfigStrings);
+	Info->PluginConfigStringsNumber=ARRAYSIZE(PluginConfigStrings);
 
 	if (Opt.ProcessEditorInput)
 	{
@@ -162,7 +162,7 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
 	{
 		PluginMenuStrings[0]=GetMsg(MShowHelpTopic);
 		Info->PluginMenuStrings=PluginMenuStrings;
-		Info->PluginMenuStringsNumber=ArraySize(PluginMenuStrings);
+		Info->PluginMenuStringsNumber=ARRAYSIZE(PluginMenuStrings);
 	}
 
 	Info->CommandPrefix=_T("HLF");
@@ -285,7 +285,7 @@ void ShowHelpFromTempFile()
 	wchar_t fname[MAX_PATH];
 	esf.FileName = fname;
 
-	if (FSF.MkTemp(fname, ArraySize(fname)-4,_T("HLF"))>1)
+	if (FSF.MkTemp(fname, ARRAYSIZE(fname)-4,_T("HLF"))>1)
 #else
 	if (FSF.MkTemp(esf.FileName,_T("HLF")))
 #endif
@@ -336,7 +336,7 @@ int WINAPI EXP_NAME(ProcessEditorEvent)(int Event, void * /*Param*/)
 {
 	if (Event==EE_READ || Event==EE_SAVE)
 	{
-		GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.EditorKey,KeyNameFromReg,_T("F1"),ArraySize(KeyNameFromReg)-1);
+		GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.EditorKey,KeyNameFromReg,_T("F1"),ARRAYSIZE(KeyNameFromReg)-1);
 		Opt.Key=FSF.FarNameToKey(KeyNameFromReg);
 		Opt.ProcessEditorInput=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.ProcessEditorInput,1);
 		Opt.Style=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.Style,0);
@@ -348,7 +348,7 @@ int WINAPI EXP_NAME(ProcessEditorEvent)(int Event, void * /*Param*/)
 
 int WINAPI EXP_NAME(Configure)(int ItemNumber)
 {
-	GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.EditorKey,KeyNameFromReg,_T("F1"),ArraySize(KeyNameFromReg)-1);
+	GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.EditorKey,KeyNameFromReg,_T("F1"),ARRAYSIZE(KeyNameFromReg)-1);
 	static struct InitDialogItem InitItems[]=
 	{
 		/*00*/{DI_DOUBLEBOX,3,1,70,10,0,0,0,0,(TCHAR *)MTitle},
@@ -363,8 +363,8 @@ int WINAPI EXP_NAME(Configure)(int ItemNumber)
 		/*09*/{DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,1,(TCHAR *)MOk},
 		/*10*/{DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,0,(TCHAR *)MCancel}
 	};
-	struct FarDialogItem DialogItems[ArraySize(InitItems)];
-	InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
+	struct FarDialogItem DialogItems[ARRAYSIZE(InitItems)];
+	InitDialogItems(InitItems,DialogItems,ARRAYSIZE(InitItems));
 	int ret=FALSE;
 	DialogItems[1].Selected=Opt.ProcessEditorInput=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.ProcessEditorInput,1);
 	DialogItems[2].X1+=lstrlen(GetMsg(MProcessEditorInput));
@@ -373,10 +373,10 @@ int WINAPI EXP_NAME(Configure)(int ItemNumber)
 	DialogItems[5+(Opt.Style>2?0:Opt.Style)].Selected=1;
 #ifndef UNICODE
 	int ExitCode = Info.Dialog(Info.ModuleNumber,-1,-1,74,12, HlfId.Config,
-	                           DialogItems,ArraySize(InitItems));
+	                           DialogItems,ARRAYSIZE(InitItems));
 #else
 	HANDLE hDlg = Info.DialogInit(Info.ModuleNumber,-1,-1,74,12, HlfId.Config,
-	                              DialogItems,ArraySize(InitItems),0,0,NULL,0);
+	                              DialogItems,ARRAYSIZE(InitItems),0,0,NULL,0);
 
 	if (hDlg == INVALID_HANDLE_VALUE)
 		return ret;
@@ -390,7 +390,7 @@ int WINAPI EXP_NAME(Configure)(int ItemNumber)
 
 		if ((Opt.Key=FSF.FarNameToKey(GetDataPtr(2)))==-1) Opt.Key=KEY_F1;
 
-		FSF.FarKeyToName(Opt.Key,KeyNameFromReg,ArraySize(KeyNameFromReg)-1);
+		FSF.FarKeyToName(Opt.Key,KeyNameFromReg,ARRAYSIZE(KeyNameFromReg)-1);
 		Opt.Style=(GetCheck(6)!=0)+((GetCheck(7)!=0)<<1);
 		SetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.ProcessEditorInput,Opt.ProcessEditorInput);
 		SetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.EditorKey,KeyNameFromReg);

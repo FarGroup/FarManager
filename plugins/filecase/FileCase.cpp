@@ -49,7 +49,7 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
 	Opt.SkipMixedCase=GetRegKey(HKEY_CURRENT_USER,_T(""),_T("SkipMixedCase"),1);
 	Opt.ProcessSubDir=GetRegKey(HKEY_CURRENT_USER,_T(""),_T("ProcessSubDir"),0);
 	Opt.ProcessDir=GetRegKey(HKEY_CURRENT_USER,_T(""),_T("ProcessDir"),0);
-	GetRegKey(HKEY_CURRENT_USER,_T(""),_T("WordDiv"),Opt.WordDiv,_T(" _"),ArraySize(Opt.WordDiv));
+	GetRegKey(HKEY_CURRENT_USER,_T(""),_T("WordDiv"),Opt.WordDiv,_T(" _"),ARRAYSIZE(Opt.WordDiv));
 	Opt.WordDivLen=lstrlen(Opt.WordDiv);
 }
 
@@ -67,5 +67,5 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
 	static TCHAR *PluginMenuStrings[1];
 	PluginMenuStrings[0]=(TCHAR*)GetMsg(MFileCase);
 	Info->PluginMenuStrings=PluginMenuStrings;
-	Info->PluginMenuStringsNumber=ArraySize(PluginMenuStrings);
+	Info->PluginMenuStringsNumber=ARRAYSIZE(PluginMenuStrings);
 }

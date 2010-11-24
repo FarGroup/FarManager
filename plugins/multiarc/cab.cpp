@@ -280,7 +280,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     /*Move files and folders*/"MsCab -r0 -i0 -dirs {-ap%%R} {-p%%P} {%%S} m %%A @%%LNMA",
     /*"All files" mask      */"*"
     };
-    if (Command < (int)(ArraySize(Commands)))
+    if (Command < (int)(ARRAYSIZE(Commands)))
     {
       lstrcpy(Dest,Commands[Command]);
       return(TRUE);

@@ -64,7 +64,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
   memset(MenuItems,0,sizeof(MenuItems));
   int Msgs[]={MCaseLower, MCaseTitle, MCaseUpper, MCaseToggle, MCaseCyclic};
 
-  for(MenuItem=MenuItems,i=0; i < ArraySize(MenuItems); ++i, ++MenuItem)
+  for(MenuItem=MenuItems,i=0; i < ARRAYSIZE(MenuItems); ++i, ++MenuItem)
   {
       MenuItem->Selected=MenuItem->Checked=MenuItem->Separator=0;
 #ifndef UNICODE
@@ -80,7 +80,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
   // Show menu
   int MenuCode=Info.Menu(Info.ModuleNumber,-1,-1,0,FMENU_AUTOHIGHLIGHT|FMENU_WRAPMODE,
                          GetMsg(MCaseConversion),NULL,_T("Contents"),NULL,NULL,
-                         MenuItems,ArraySize(MenuItems));
+                         MenuItems,ARRAYSIZE(MenuItems));
   switch(MenuCode)
   {
       // If menu Escaped
@@ -250,7 +250,7 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
   // Text in Plugins menu
   PluginMenuStrings[0]=GetMsg(MCaseConversion);
   Info->PluginMenuStrings=PluginMenuStrings;
-  Info->PluginMenuStringsNumber=ArraySize(PluginMenuStrings);
+  Info->PluginMenuStringsNumber=ARRAYSIZE(PluginMenuStrings);
 };
 
 const TCHAR *GetMsg(int MsgId)

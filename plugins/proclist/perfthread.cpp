@@ -61,9 +61,9 @@ PerfThread::PerfThread(Plist& plist, LPCTSTR hostname, LPCTSTR pUser, LPCTSTR pP
     memset(this, 0, sizeof(*this));
     dwRefreshMsec = 500;
     if(pUser && *pUser) {
-        lstrcpyn(UserName, pUser, ArraySize(UserName));
+        lstrcpyn(UserName, pUser, ARRAYSIZE(UserName));
         if(pPasw)
-            lstrcpyn(Password, pPasw, ArraySize(Password));
+            lstrcpyn(Password, pPasw, ARRAYSIZE(Password));
     }
 
     hMutex = CreateMutex(0, FALSE, 0);
@@ -71,7 +71,7 @@ PerfThread::PerfThread(Plist& plist, LPCTSTR hostname, LPCTSTR pUser, LPCTSTR pP
 
     DWORD rc;
     if( hostname ) {
-        lstrcpyn(HostName, hostname, ArraySize(HostName));
+        lstrcpyn(HostName, hostname, ARRAYSIZE(HostName));
         if((rc=RegConnectRegistry(hostname, HKEY_LOCAL_MACHINE, &hHKLM))!=ERROR_SUCCESS ||
            (rc=RegConnectRegistry(hostname, HKEY_PERFORMANCE_DATA, &hPerf))!=ERROR_SUCCESS)
            {
@@ -332,8 +332,8 @@ void PerfThread::Refresh()
           HANDLE hProcess = *HostName || Task.dwProcessId<=8 ? 0 :
                 OpenProcessForced(&token, PROCESS_QUERY_INFORMATION|PROCESS_VM_READ|READ_CONTROL, Task.dwProcessId);
           if(hProcess) {
-            GetOpenProcessDataNT(hProcess, Task.ProcessName, ArraySize(Task.ProcessName),
-                Task.FullPath, ArraySize(Task.FullPath), Task.CommandLine, ArraySize(Task.CommandLine));
+            GetOpenProcessDataNT(hProcess, Task.ProcessName, ARRAYSIZE(Task.ProcessName),
+                Task.FullPath, ARRAYSIZE(Task.FullPath), Task.CommandLine, ARRAYSIZE(Task.CommandLine));
             FILETIME ftExit,ftKernel,ftUser;
             GetProcessTimes(hProcess,&Task.ftCreation,&ftExit,&ftKernel,&ftUser);
 
@@ -358,7 +358,7 @@ void PerfThread::Refresh()
             else
 #else
             lstrcpyn(Task.ProcessName, (LPCWSTR)((DWORD_PTR)pInst + pInst->NameOffset),
-                     ArraySize(Task.ProcessName) - 5);
+                     ARRAYSIZE(Task.ProcessName) - 5);
 #endif
                 if(Task.dwProcessId>8)
                     lstrcat( Task.ProcessName, _T(".exe") );
@@ -411,7 +411,7 @@ DWORD WINAPI PerfThread::ThreadProc()
         }
         if(WMI)
             RefreshWMIData();
-        if(WaitForMultipleObjects(ArraySize(handles), handles, 0, dwRefreshMsec)==WAIT_OBJECT_0)
+        if(WaitForMultipleObjects(ARRAYSIZE(handles), handles, 0, dwRefreshMsec)==WAIT_OBJECT_0)
             break;
     }
     WMI.Disconnect();

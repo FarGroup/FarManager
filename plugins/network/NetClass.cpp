@@ -34,7 +34,7 @@ void NetBrowser::LogData(TCHAR * Data)
 {
   _ftprintf(LogFile,_T("%s\n"), Data);
   TCHAR buffer[MAX_PATH];
-  FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), 0, buffer, ArraySize(buffer), NULL);
+  FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), 0, buffer, ARRAYSIZE(buffer), NULL);
   _ftprintf(LogFile,_T("GetLastError returns: %s\n"), buffer);
 }
 #endif
@@ -141,7 +141,7 @@ BOOL NetResourceList::Enumerate (DWORD dwScope, DWORD dwType, DWORD dwUsage,
   for(;;)
   {
     NETRESOURCE nr[1024];
-    DWORD NetSize=sizeof(nr),NetCount=ArraySize(nr);
+    DWORD NetSize=sizeof(nr),NetCount=ARRAYSIZE(nr);
     DWORD EnumCode=WNetEnumResource(hEnum,&NetCount,nr,&NetSize);
     if (EnumCode!=NO_ERROR)
     {
@@ -234,7 +234,7 @@ BOOL NetBrowser::EnumerateNetList()
     if (PCurResource == NULL)
     {
       const TCHAR *MsgItems[]={GetMsg(MError),GetMsg(MNetCannotBrowse),GetMsg(MOk)};
-      Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ArraySize(MsgItems),1);
+      Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
       return(FALSE);
     }
     else {
@@ -352,7 +352,7 @@ int NetBrowser::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int O
     if (!ConnectedList.Enumerate (RESOURCE_CONNECTED,RESOURCETYPE_DISK,0,NULL))
     {
       const TCHAR *MsgItems[]={GetMsg(MError),GetMsg(MNetCannotBrowse),GetMsg(MOk)};
-      Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ArraySize(MsgItems),1);
+      Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
       ReenterGetFindData--;
       return FALSE;
     }
@@ -513,7 +513,7 @@ BOOL NetBrowser::CancelConnection (const TCHAR *RemoteName)
     if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
     {
       const TCHAR *MsgItems[]={GetMsg(MError),MsgText,_T("\x1"),GetMsg(MOpenFiles),GetMsg(MAskDisconnect),GetMsg(MOk),GetMsg(MCancel)};
-      if (Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ArraySize(MsgItems),2)==0)
+      if (Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ARRAYSIZE(MsgItems),2)==0)
         // всегда рвать соединение
         if (WNetCancelConnection2(LocalName,UpdateProfile,TRUE)!=NO_ERROR)
           Failed=TRUE;
@@ -523,7 +523,7 @@ BOOL NetBrowser::CancelConnection (const TCHAR *RemoteName)
     if (Failed)
     {
       const TCHAR *MsgItems[]={GetMsg(MError),MsgText,GetMsg(MOk)};
-      Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ArraySize(MsgItems),1);
+      Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
       return FALSE;
     }
   }
@@ -588,7 +588,7 @@ BOOL NetBrowser::ConfirmCancelConnection (TCHAR *LocalName, TCHAR *RemoteName, i
     /* 7 */ { DI_BUTTON,    0, 8,  0, 0, 1, 0, DIF_CENTERGROUP,  1, (TCHAR*)MYes },
     /* 8 */ { DI_BUTTON,    0, 8,  0, 0, 0, 0, DIF_CENTERGROUP,  0, (TCHAR*)MCancel }
   };
-  struct FarDialogItem DialogItems[ArraySize(InitItems)];
+  struct FarDialogItem DialogItems[ARRAYSIZE(InitItems)];
 
   BOOL IsPersistent = TRUE;
   // Check if this was a permanent connection or not.
@@ -605,7 +605,7 @@ BOOL NetBrowser::ConfirmCancelConnection (TCHAR *LocalName, TCHAR *RemoteName, i
 
 
   size_t Len1 = FSF.sprintf(MsgText,GetMsg(MConfirmDisconnectQuestion),LocalName);
-  InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
+  InitDialogItems(InitItems,DialogItems,ARRAYSIZE(InitItems));
 
 #ifdef UNICODE
   TCHAR tmp[MAX_PATH];
@@ -647,10 +647,10 @@ BOOL NetBrowser::ConfirmCancelConnection (TCHAR *LocalName, TCHAR *RemoteName, i
 #ifndef UNICODE
     ExitCode = Info.Dialog (Info.ModuleNumber, -1, -1, DialogItems [0].X2+4, 11,
                             _T("DisconnectDrive"),
-                            DialogItems, ArraySize(DialogItems));
+                            DialogItems, ARRAYSIZE(DialogItems));
 #else
     HANDLE hDlg=Info.DialogInit (Info.ModuleNumber, -1, -1, DialogItems [0].X2+4, 11,
-                            _T("DisconnectDrive"),DialogItems, ArraySize(DialogItems),0,0,NULL,0);
+                            _T("DisconnectDrive"),DialogItems, ARRAYSIZE(DialogItems),0,0,NULL,0);
     if (hDlg==INVALID_HANDLE_VALUE)
       return FALSE;
 
@@ -681,12 +681,12 @@ BOOL NetBrowser::NeedConfirmCancelConnection()
 BOOL NetBrowser::HandsOffDisconnectDrive (const TCHAR *LocalName)
 {
   TCHAR DirBuf [MAX_PATH];
-  GetCurrentDirectory (ArraySize(DirBuf)-1, DirBuf);
+  GetCurrentDirectory (ARRAYSIZE(DirBuf)-1, DirBuf);
   if (FSF.LUpper (DirBuf [0]) != FSF.LUpper (LocalName [0]))
     return FALSE;
 
   // change to the root of the drive where network.dll resides
-  if (!GetModuleFileName (NULL, DirBuf, ArraySize(DirBuf)-1))
+  if (!GetModuleFileName (NULL, DirBuf, ARRAYSIZE(DirBuf)-1))
     return FALSE;
 
   DirBuf [3] = _T('\0');   // truncate to "X:\\"
@@ -755,7 +755,7 @@ void NetBrowser::GetOpenPluginInfo(struct OpenPluginInfo *Info)
   PanelModesArray[5].FullScreen=TRUE;
 
   Info->PanelModesArray=PanelModesArray;
-  Info->PanelModesNumber=ArraySize(PanelModesArray);
+  Info->PanelModesNumber=ARRAYSIZE(PanelModesArray);
   Info->StartPanelMode=PanelMode[0];
   static struct KeyBarTitles KeyBar={
     {NULL,NULL,(TCHAR *)_T(""),(TCHAR *)_T(""),(TCHAR *)_T(""),(TCHAR *)_T(""),(TCHAR *)_T(""),(TCHAR *)_T(""),NULL,NULL,NULL,NULL},
@@ -861,7 +861,7 @@ int NetBrowser::SetDirectory(const TCHAR *Dir,int OpMode)
         {
 #ifdef NETWORK_LOGGING
           TCHAR szErrBuff[MAX_PATH*2];
-          _sntprintf(szErrBuff, ArraySize(szErrBuff), _T("GetLastError = %d at line %d, file %s"), GetLastError(), __LINE__, __FILE__);
+          _sntprintf(szErrBuff, ARRAYSIZE(szErrBuff), _T("GetLastError = %d at line %d, file %s"), GetLastError(), __LINE__, __FILE__);
           LogData(szErrBuff);
 #endif
           Info.Message (Info.ModuleNumber, FMSG_WARNING | FMSG_ERRORTYPE | FMSG_MB_OK | FMSG_ALLINONE,
@@ -1237,7 +1237,7 @@ BOOL NetBrowser::EditFavorites()
 #ifndef UNICODE
   OemToChar(PInfo.CurDir, szPath);
 #else
-  Info.Control(this, FCTL_GETPANELDIR,ArraySize(szPath),(LONG_PTR)szPath);
+  Info.Control(this, FCTL_GETPANELDIR,ARRAYSIZE(szPath),(LONG_PTR)szPath);
 #endif
   TCHAR *p = szPath + lstrlen(szPath);
   *p++ = _T('\\');
@@ -1451,14 +1451,14 @@ BOOL NetBrowser::MapNetworkDrive (const TCHAR *RemoteName, BOOL AskDrive, BOOL P
             if (*NewLocalName==0)
             {
               const TCHAR *MsgItems[]={GetMsg(MError),GetMsg(MNoFreeLetters),GetMsg(MOk)};
-              Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ArraySize(MsgItems),1);
+              Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
               return FALSE;
             }
           }
           else
           {
             const TCHAR *MsgItems[]={GetMsg(MError),GetMsg(MAlreadyRemembered),GetMsg(MOk)};
-            Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ArraySize(MsgItems),1);
+            Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
             return FALSE;
           }
         }
@@ -1467,7 +1467,7 @@ BOOL NetBrowser::MapNetworkDrive (const TCHAR *RemoteName, BOOL AskDrive, BOOL P
           TCHAR MsgText[300];
           FSF.sprintf(MsgText,GetMsg(MNetCannotConnect),RemoteName,NewLocalName);
           const TCHAR *MsgItems[]={GetMsg(MError),MsgText,GetMsg(MOk)};
-          Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ArraySize(MsgItems),1);
+          Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
           return FALSE;
         }
     }
@@ -1475,7 +1475,7 @@ BOOL NetBrowser::MapNetworkDrive (const TCHAR *RemoteName, BOOL AskDrive, BOOL P
   else
   {
     const TCHAR *MsgItems[]={GetMsg(MError),GetMsg(MNoFreeLetters),GetMsg(MOk)};
-    Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ArraySize(MsgItems),1);
+    Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
     return FALSE;
   }
   return TRUE;
@@ -1491,8 +1491,8 @@ BOOL NetBrowser::AskMapDrive (TCHAR *NewLocalName, BOOL &Permanent)
     int MenuItemsNumber=0;
     memset(MenuItems,0,sizeof(MenuItems));
 #ifdef UNICODE
-    wchar_t umname[ArraySize(MenuItems)][4];
-    for(size_t n = 0; n < ArraySize(MenuItems); n++)
+    wchar_t umname[ARRAYSIZE(MenuItems)][4];
+    for(size_t n = 0; n < ARRAYSIZE(MenuItems); n++)
       MenuItems[n].Text = umname[n];
 #endif
     DWORD DriveMask=GetLogicalDrives();
@@ -1622,7 +1622,7 @@ int NetBrowser::AddConnectionWithLogon(NETRESOURCE *nr, TCHAR *Name, TCHAR *Pass
       TCHAR *p = nr->lpRemoteName;
       int n = (int)(PointToName(p) - p);
       if(n <= 2)
-        lstrcpyn(szServer, p + n, ArraySize(szServer));
+        lstrcpyn(szServer, p + n, ARRAYSIZE(szServer));
       else
       {
         while(*++p == _T('\\')) n--;
@@ -1651,9 +1651,9 @@ int NetBrowser::AddConnectionFromFavorites(NETRESOURCE *nr,int Remember)
       nr->lpRemoteName,
         lstrlen(nr->lpRemoteName),
         Name,
-        ArraySize(Name),
+        ARRAYSIZE(Name),
         Pass,
-        ArraySize(Pass)
+        ARRAYSIZE(Pass)
     };
 
     if(ReadFavoriteItem(&Item))
@@ -1771,8 +1771,8 @@ int NetBrowser::GetNameAndPassword(NameAndPassInfo* passInfo)
     InitItems[6].Flags &= ~DIF_DISABLE;
     InitItems[6].Selected = *passInfo->pRemember;//*pRemember;
   }
-  struct FarDialogItem DialogItems[ArraySize(InitItems)];
-  InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
+  struct FarDialogItem DialogItems[ARRAYSIZE(InitItems)];
+  InitDialogItems(InitItems,DialogItems,ARRAYSIZE(InitItems));
   int ret=FALSE;
 
   if (passInfo->Title!=NULL)
@@ -1780,20 +1780,20 @@ int NetBrowser::GetNameAndPassword(NameAndPassInfo* passInfo)
     CharToOem(passInfo->Title,DialogItems[0].Data);
 #else
     DialogItems[0].PtrData = passInfo->Title;
-  DialogItems[2].MaxLen = ArraySize(LastName)-1;
-  DialogItems[4].MaxLen = ArraySize(LastPassword)-1;
+  DialogItems[2].MaxLen = ARRAYSIZE(LastName)-1;
+  DialogItems[4].MaxLen = ARRAYSIZE(LastPassword)-1;
 #endif
 #ifndef UNICODE
   int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,12,
-                           StrHelpNetBrowse,DialogItems,ArraySize(DialogItems));
+                           StrHelpNetBrowse,DialogItems,ARRAYSIZE(DialogItems));
 #else
   HANDLE hDlg=Info.DialogInit(Info.ModuleNumber,-1,-1,76,12,
-                           StrHelpNetBrowse,DialogItems,ArraySize(DialogItems),0,0,NULL,0);
+                           StrHelpNetBrowse,DialogItems,ARRAYSIZE(DialogItems),0,0,NULL,0);
   if (hDlg == INVALID_HANDLE_VALUE)
     return ret;
   int ExitCode=Info.DialogRun(hDlg);
 #endif
-  if (ExitCode==(ArraySize(DialogItems)-2))
+  if (ExitCode==(ARRAYSIZE(DialogItems)-2))
   {
     if (passInfo->pRemember)
       *passInfo->pRemember = GetCheck(6);
@@ -2167,7 +2167,7 @@ void NetBrowser::RemoveItems()
   Msg[3] = GetMsg(MCancel);
 
   if(0 != Info.Message(Info.ModuleNumber, FMSG_WARNING, _T("RemoveItemFav"), Msg,
-                       ArraySize(Msg), 2))
+                       ARRAYSIZE(Msg), 2))
   {
     return; // User canceled deletion
   }
@@ -2205,7 +2205,7 @@ void NetBrowser::CreateFavSubFolder()
   if(!CheckFavoriteItem(PCurResource))
     return;
   TCHAR buff[MAX_PATH];
-  if(DlgCreateFolder(buff, ArraySize(buff)))
+  if(DlgCreateFolder(buff, ARRAYSIZE(buff)))
   {
     if(!CreateSubFolder(PCurResource->lpRemoteName, buff))
     {

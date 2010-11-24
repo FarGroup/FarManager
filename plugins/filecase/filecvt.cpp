@@ -52,8 +52,8 @@ void CaseConvertion()
   /* 24 */{DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,1,(TCHAR *)MOk},
   /* 25 */{DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(TCHAR *)MCancel}
   };
-  struct FarDialogItem DialogItems[ArraySize(InitItems)];
-  InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
+  struct FarDialogItem DialogItems[ARRAYSIZE(InitItems)];
+  InitDialogItems(InitItems,DialogItems,ARRAYSIZE(InitItems));
 
   DialogItems[21].Param.History=History;
   DialogItems[3+Opt.ConvertMode].Focus=DialogItems[3+Opt.ConvertMode].Param.Selected=TRUE;
@@ -70,7 +70,7 @@ void CaseConvertion()
 #else
   HANDLE hDlg=Info.DialogInit
 #endif
-    (Info.ModuleNumber,-1,-1,66,21,_T("Contents"),DialogItems,ArraySize(DialogItems),0,0,DlgProc,0)
+    (Info.ModuleNumber,-1,-1,66,21,_T("Contents"),DialogItems,ARRAYSIZE(DialogItems),0,0,DlgProc,0)
 #ifdef UNICODE
     ;
   if ( hDlg == INVALID_HANDLE_VALUE )
@@ -113,7 +113,7 @@ void CaseConvertion()
 #endif
       HANDLE hScreen=Info.SaveScreen(0,0,-1,-1);
       const TCHAR *MsgItems[]={GetMsg(MFileCase),GetMsg(MConverting)};
-      Info.Message(Info.ModuleNumber,0,NULL,MsgItems,ArraySize(MsgItems),0);
+      Info.Message(Info.ModuleNumber,0,NULL,MsgItems,ARRAYSIZE(MsgItems),0);
 
       TCHAR FullName[MAX_PATH];
 

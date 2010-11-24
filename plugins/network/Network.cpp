@@ -78,7 +78,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
       {
           TCHAR PathCopy[MAX_PATH];
           lstrcpy(PathCopy, Path);
-          ExpandEnvironmentStrings(PathCopy, Path, ArraySize(Path));
+          ExpandEnvironmentStrings(PathCopy, Path, ARRAYSIZE(Path));
       }
       Browser->SetOpenFromCommandLine (Path);
     }
@@ -103,9 +103,9 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
   IsFirstRun = FALSE;
 
   TCHAR szCurrDir[MAX_PATH];
-  if (GetCurrentDirectory(ArraySize(szCurrDir), szCurrDir))
+  if (GetCurrentDirectory(ARRAYSIZE(szCurrDir), szCurrDir))
   {
-    if (*szCurrDir == _T('\\') && GetSystemDirectory(szCurrDir, ArraySize(szCurrDir)))
+    if (*szCurrDir == _T('\\') && GetSystemDirectory(szCurrDir, ARRAYSIZE(szCurrDir)))
     {
       szCurrDir[2] = _T('\0');
       SetCurrentDirectory(szCurrDir);

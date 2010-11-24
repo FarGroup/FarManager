@@ -107,7 +107,7 @@ void GetOptions(void)
     else
     {
       Type=REG_SZ;
-      Size=sizeof(CHAR)*ArraySize(StrValueData);
+      Size=sizeof(CHAR)*ARRAYSIZE(StrValueData);
       lstrcpy((TCHAR*)OptionsList[i].Option,
         RegQueryValueEx(hKey,REGStr[i],0,&Type,(BYTE*)StrValueData,&Size)==ERROR_SUCCESS?
         (TCHAR*)StrValueData:OptionsList[i].pStr);
@@ -173,9 +173,9 @@ int Config()
   };
 
   int i;
-  struct FarDialogItem DialogItems[ArraySize(InitItems)];
+  struct FarDialogItem DialogItems[ARRAYSIZE(InitItems)];
 
-  InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
+  InitDialogItems(InitItems,DialogItems,ARRAYSIZE(InitItems));
   DialogItems[29].DefaultButton=1;
   DialogItems[2].Focus=1;
 
@@ -192,17 +192,17 @@ int Config()
 
 #ifndef UNICODE
   int Ret=Info.Dialog(Info.ModuleNumber,-1,-1,DIALOG_WIDTH,DIALOG_HEIGHT,"Config",
-                      DialogItems,ArraySize(DialogItems));
+                      DialogItems,ARRAYSIZE(DialogItems));
 #else
   HANDLE hDlg=Info.DialogInit(Info.ModuleNumber,-1,-1,DIALOG_WIDTH,DIALOG_HEIGHT,
-                      L"Config",DialogItems,ArraySize(DialogItems),0,0,NULL,0);
+                      L"Config",DialogItems,ARRAYSIZE(DialogItems),0,0,NULL,0);
   if (hDlg == INVALID_HANDLE_VALUE)
     return FALSE;
 
   int Ret=Info.DialogRun(hDlg);
 #endif
 
-  if((unsigned)Ret >= ArraySize(InitItems)-1) goto done;
+  if((unsigned)Ret >= ARRAYSIZE(InitItems)-1) goto done;
 
   for(i=AddToDisksMenu;i<=Prefix;i++)
   {
@@ -228,11 +228,11 @@ int Config()
      StartupOptCommonPanel!=Opt.CommonPanel)
   {
     const TCHAR *MsgItems[]={GetMsg(MTempPanel),GetMsg(MConfigNewOption),GetMsg(MOk)};
-    Info.Message(Info.ModuleNumber,0,NULL,MsgItems,ArraySize(MsgItems),1);
+    Info.Message(Info.ModuleNumber,0,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
   }
 done:
 #ifdef UNICODE
   Info.DialogFree(hDlg);
 #endif
-  return((unsigned)Ret<ArraySize(InitItems));
+  return((unsigned)Ret<ARRAYSIZE(InitItems));
 }

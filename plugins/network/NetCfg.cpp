@@ -52,8 +52,8 @@ int Config()
   /* 17 */{DI_BUTTON,0,16,0,0,0,0,DIF_CENTERGROUP,0,(TCHAR *)MCancel}
   };
 
-  struct FarDialogItem DialogItems[ArraySize(InitItems)];
-  InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
+  struct FarDialogItem DialogItems[ARRAYSIZE(InitItems)];
+  InitDialogItems(InitItems,DialogItems,ARRAYSIZE(InitItems));
   DialogItems[1].Selected=Opt.AddToDisksMenu;
   DialogItems[4].Selected=Opt.AddToPluginsMenu;
   DialogItems[5].Selected=!Opt.NoRootDoublePoint;
@@ -73,10 +73,10 @@ int Config()
 
 #ifndef UNICODE
   int ExitCode=Info.Dialog(Info.ModuleNumber, -1, -1, 76, 19,_T("Config"),
-                           DialogItems, ArraySize(DialogItems));
+                           DialogItems, ARRAYSIZE(DialogItems));
 #else
   HANDLE hDlg=Info.DialogInit(Info.ModuleNumber, -1, -1, 76, 19,_T("Config"),
-                           DialogItems, ArraySize(DialogItems),0,0,NULL,0);
+                           DialogItems, ARRAYSIZE(DialogItems),0,0,NULL,0);
   if (hDlg == INVALID_HANDLE_VALUE)
     return ret;
   int ExitCode=Info.DialogRun(hDlg);
@@ -144,12 +144,12 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
     static TCHAR *PluginMenuStrings[1];
     PluginMenuStrings[0]=GetMsg(MNetMenu);
     Info->PluginMenuStrings=PluginMenuStrings;
-    Info->PluginMenuStringsNumber=ArraySize(PluginMenuStrings);
+    Info->PluginMenuStringsNumber=ARRAYSIZE(PluginMenuStrings);
   }
   static TCHAR *PluginCfgStrings[1];
   PluginCfgStrings[0]=GetMsg(MNetMenu);
   Info->PluginConfigStrings=PluginCfgStrings;
-  Info->PluginConfigStringsNumber=ArraySize(PluginCfgStrings);
+  Info->PluginConfigStringsNumber=ARRAYSIZE(PluginCfgStrings);
   Info->CommandPrefix=_T("net:netg");
   /* The line below is an UNDOCUMENTED and UNSUPPORTED EXPERIMENTAL
      mechanism supported ONLY in FAR 1.70 beta 6. It will NOT be supported

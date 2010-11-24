@@ -295,10 +295,10 @@ int CPlugin::Configure()
   int ret = 0;
 #ifndef UNICODE
   int ExitCode = DialogEx(-1, -1, nWidth, nHeight, g_szTopicConfig, DlgItems,
-                   ArraySize(DlgItems), 0, 0, CfgDlgProcStatic, reinterpret_cast<LONG_PTR>(this));
+                   ARRAYSIZE(DlgItems), 0, 0, CfgDlgProcStatic, reinterpret_cast<LONG_PTR>(this));
 #else
   HANDLE hDlg = DialogInit(-1, -1, nWidth, nHeight, g_szTopicConfig, DlgItems,
-                   ArraySize(DlgItems), 0, 0, CfgDlgProcStatic, reinterpret_cast<LONG_PTR>(this));
+                   ARRAYSIZE(DlgItems), 0, 0, CfgDlgProcStatic, reinterpret_cast<LONG_PTR>(this));
 
   if (hDlg == INVALID_HANDLE_VALUE)
     return ret;
@@ -351,28 +351,28 @@ HANDLE CPlugin::OpenPlugin(int nOpenFrom, INT_PTR nItem)
     {
       MsgItems[1]=GetMsg(LNG_ERR_DIFFERENT_FOLDERS);
       Message(FMSG_WARNING|FMSG_MB_OK, g_szTopicError0, MsgItems
-        , ArraySize(MsgItems), 0);
+        , ARRAYSIZE(MsgItems), 0);
     }
     break;
   case DOMNU_ERR_SHOW:
     {
       MsgItems[1]=GetMsg(LNG_ERR_SHOW);
       Message(FMSG_WARNING|FMSG_MB_OK, g_szTopicError1, MsgItems
-        , ArraySize(MsgItems), 0);
+        , ARRAYSIZE(MsgItems), 0);
     }
     break;
   case DOMNU_ERR_INVOKE:
     {
       MsgItems[1]=GetMsg(LNG_ERR_INVOKE);
       Message(FMSG_WARNING|FMSG_MB_OK, g_szTopicError2, MsgItems
-        , ArraySize(MsgItems), 0);
+        , ARRAYSIZE(MsgItems), 0);
     }
     break;
   case DOMNU_OK:
     if (m_WaitToContinue)
     {
       MsgItems[1]=GetMsg(LNG_CLOSE);
-      Message(FMSG_MB_OK, g_szTopicClose, MsgItems, ArraySize(MsgItems), 0);
+      Message(FMSG_MB_OK, g_szTopicClose, MsgItems, ARRAYSIZE(MsgItems), 0);
     }
     bSuccess=true;
     break;
@@ -436,29 +436,29 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPTSTR szCmdLine)
     int UseGUISav=m_UseGUI;
     LPTSTR szParams=NULL;
     EAutoItem enAutoItem=AI_NONE;
-    if (0==m_fsf.LStrnicmp(szCmdLine, PFX_RCLK _T(":"), ArraySize(PFX_RCLK)))
+    if (0==m_fsf.LStrnicmp(szCmdLine, PFX_RCLK _T(":"), ARRAYSIZE(PFX_RCLK)))
     {
-      szParams=szCmdLine+ArraySize(PFX_RCLK);
+      szParams=szCmdLine+ARRAYSIZE(PFX_RCLK);
     }
-    else if (0==m_fsf.LStrnicmp(szCmdLine, PFX_RCLK_TXT _T(":"), ArraySize(PFX_RCLK_TXT)))
+    else if (0==m_fsf.LStrnicmp(szCmdLine, PFX_RCLK_TXT _T(":"), ARRAYSIZE(PFX_RCLK_TXT)))
     {
-      szParams=szCmdLine+ArraySize(PFX_RCLK_TXT);
+      szParams=szCmdLine+ARRAYSIZE(PFX_RCLK_TXT);
       m_UseGUI=0;
     }
-    else if (0==m_fsf.LStrnicmp(szCmdLine, PFX_RCLK_GUI _T(":"), ArraySize(PFX_RCLK_GUI)))
+    else if (0==m_fsf.LStrnicmp(szCmdLine, PFX_RCLK_GUI _T(":"), ARRAYSIZE(PFX_RCLK_GUI)))
     {
-      szParams=szCmdLine+ArraySize(PFX_RCLK_GUI);
+      szParams=szCmdLine+ARRAYSIZE(PFX_RCLK_GUI);
       m_UseGUI=1;
     }
-    else if (0==m_fsf.LStrnicmp(szCmdLine, PFX_RCLK_CMD _T(":"), ArraySize(PFX_RCLK_CMD)))
+    else if (0==m_fsf.LStrnicmp(szCmdLine, PFX_RCLK_CMD _T(":"), ARRAYSIZE(PFX_RCLK_CMD)))
     {
-      szParams=szCmdLine+ArraySize(PFX_RCLK_CMD);
+      szParams=szCmdLine+ARRAYSIZE(PFX_RCLK_CMD);
       m_UseGUI=0;
       enAutoItem=AI_VERB;
     }
-    else if (0==m_fsf.LStrnicmp(szCmdLine, PFX_RCLK_ITEM _T(":"), ArraySize(PFX_RCLK_ITEM)))
+    else if (0==m_fsf.LStrnicmp(szCmdLine, PFX_RCLK_ITEM _T(":"), ARRAYSIZE(PFX_RCLK_ITEM)))
     {
-      szParams=szCmdLine+ArraySize(PFX_RCLK_ITEM);
+      szParams=szCmdLine+ARRAYSIZE(PFX_RCLK_ITEM);
       m_UseGUI=0;
       enAutoItem=AI_ITEM;
     }
@@ -1063,7 +1063,7 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* pPiids
     int nId=nCmd-MENUID_CMDOFFSET;
     CHAR szVerb[100];
     if (FAILED(pPreferredMenu->GetCommandString(nId, GCS_VERBA, NULL, szVerb
-      , ArraySize(szVerb))))
+      , ARRAYSIZE(szVerb))))
     {
       szVerb[0]=_T('\0');
     }
@@ -1199,7 +1199,7 @@ bool CPlugin::GetAdditionalString(IContextMenu* pContextMenu, UINT nID
   }
   WCHAR szwAddInfo[200]=L"\0";
   if (FAILED(pContextMenu->GetCommandString(nID, nType, NULL
-    , reinterpret_cast<LPSTR>(szwAddInfo), ArraySize(szwAddInfo))))
+    , reinterpret_cast<LPSTR>(szwAddInfo), ARRAYSIZE(szwAddInfo))))
   {
     return false;
   }

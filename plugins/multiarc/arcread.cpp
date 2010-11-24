@@ -119,7 +119,7 @@ int PluginClass::ReadArchive(char *Name)
         const char *MsgItems[]={GetMsg(MArcReadTitle),GetMsg(MArcReading),NameMsg,FilesMsg};
         FSF.TruncPathStr(lstrcpyn(NameMsg,Name,sizeof(NameMsg)),MAX_WIDTH_MESSAGE);
         Info.Message(Info.ModuleNumber,WaitMessage ? FMSG_KEEPBACKGROUND:0,NULL,MsgItems,
-                   ArraySize(MsgItems),0);
+                   ARRAYSIZE(MsgItems),0);
         WaitMessage=TRUE;
       }
     }
@@ -255,7 +255,7 @@ int PluginClass::ReadArchive(char *Name)
     char NameMsg[NM];
     const char *MsgItems[]={GetMsg(MError),NameMsg,GetMsg(GetItemCode),GetMsg(MOk)};
     FSF.TruncPathStr(lstrcpyn(NameMsg,Name,sizeof(NameMsg)),MAX_WIDTH_MESSAGE);
-    Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,ArraySize(MsgItems),1);
+    Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
     return FALSE; // Mantis#0001241
   }
 
@@ -435,9 +435,9 @@ bool PluginClass::FarLangChanged()
   char tmplang[100];
 
   *tmplang=0;
-  DWORD res=GetEnvironmentVariable("FARLANG",tmplang,ArraySize(tmplang));
+  DWORD res=GetEnvironmentVariable("FARLANG",tmplang,ARRAYSIZE(tmplang));
 
-  if (!(res && res<ArraySize(tmplang)))
+  if (!(res && res<ARRAYSIZE(tmplang)))
     lstrcpy(tmplang,"English");
 
   if (!lstrcmp(tmplang,farlang))
@@ -564,13 +564,13 @@ void PluginClass::GetOpenPluginInfo(struct OpenPluginInfo *Info)
   Info->Format=Format;
   Info->KeyBar=&KeyBar;
   Info->InfoLines=InfoLines;
-  Info->InfoLinesNumber=ArraySize(InfoLines);
+  Info->InfoLinesNumber=ARRAYSIZE(InfoLines);
 
   lstrcpy(DescrFilesString,Opt.DescriptionNames);
   size_t DescrFilesNumber=0;
   char *NamePtr=DescrFilesString;
 
-  while (DescrFilesNumber<ArraySize(DescrFiles))
+  while (DescrFilesNumber<ARRAYSIZE(DescrFiles))
   {
     while (__isspace(*NamePtr))
       NamePtr++;

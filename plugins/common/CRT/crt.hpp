@@ -175,7 +175,9 @@ extern "C"
 #define _tmemmove(b,c,n) wmemmove(b,c,n)
 #endif
 
-#define ArraySize(a)  (sizeof(a)/sizeof(a[0]))
+#ifdef __GNUC__
+#define ARRAYSIZE(a)  (sizeof(a)/sizeof(a[0]))
+#endif
 
 // macros for plugin's
 

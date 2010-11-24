@@ -91,7 +91,7 @@ int ArcCommand::ProcessCommand(char *Command,int CommandType,int IgnoreErrors,
         FSF.sprintf(ErrMsg,(char *)GetMsg(MArcNonZero),ExecCode);
         const char *MsgItems[]={GetMsg(MError),NameMsg,ErrMsg,GetMsg(MOk)};
         FSF.TruncPathStr(lstrcpyn(NameMsg,ArcName,sizeof(NameMsg)),MAX_WIDTH_MESSAGE);
-        Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,ArraySize(MsgItems),1);
+        Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
       }
       return FALSE;
     }
@@ -101,7 +101,7 @@ int ArcCommand::ProcessCommand(char *Command,int CommandType,int IgnoreErrors,
     if(!Silent)
     {
       const char *MsgItems[]={GetMsg(MError),GetMsg(MArcCommandNotFound),GetMsg(MOk)};
-      Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,ArraySize(MsgItems),1);
+      Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
     }
     return FALSE;
   }
@@ -508,7 +508,7 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
       char NameMsg[NM];
       const char *MsgItems[]={GetMsg(MError),GetMsg(MCannotCreateListFile),NameMsg,GetMsg(MOk)};
       FSF.TruncPathStr(lstrcpyn(NameMsg,ListFileName,sizeof(NameMsg)),MAX_WIDTH_MESSAGE);
-      Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,ArraySize(MsgItems),1);
+      Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
     }
 /* $ 25.07.2001 AA
     if(ListFile != INVALID_HANDLE_VALUE)
@@ -612,7 +612,7 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
       if(!Silent)
       {
         const char *MsgItems[]={GetMsg(MError),GetMsg(MCannotCreateListFile),GetMsg(MOk)};
-        Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,ArraySize(MsgItems),1);
+        Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
       }
       return FALSE;
     }
@@ -628,7 +628,7 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
     if(!Silent)
     {
       char *MsgItems[]={GetMsg(MError),GetMsg(MCannotCreateListFile),GetMsg(MOk)};
-      Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,ArraySize(MsgItems),1);
+      Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
     }
     return FALSE;
   }

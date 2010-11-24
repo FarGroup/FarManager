@@ -152,7 +152,7 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
         hScreen=Info.SaveScreen(0,0,-1,-1);
         const char *MsgItems[]={"",GetMsg(MWaitForExternalProgram)};
         Info.Message(Info.ModuleNumber,0,NULL,MsgItems,
-                      ArraySize(MsgItems),0);
+                      ARRAYSIZE(MsgItems),0);
       }
     }
     else
@@ -227,7 +227,7 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
     FSF.sprintf(Msg,GetMsg(MCannotFindArchivator),NameMsg);
     const char *MsgItems[]={GetMsg(MError),Msg, GetMsg(MOk)};
     Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,
-                 NULL,MsgItems,ArraySize(MsgItems),1);
+                 NULL,MsgItems,ARRAYSIZE(MsgItems),1);
     ExitCode=RETEXEC_ARCNOTFOUND;
   }
 

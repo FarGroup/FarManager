@@ -204,7 +204,7 @@ static void ShowMessage(const TCHAR *Name1, const TCHAR *Name2)
   };
   Info.Message(Info.ModuleNumber, bStart ? FMSG_LEFTALIGN :
                FMSG_LEFTALIGN|FMSG_KEEPBACKGROUND,
-               NULL, MsgItems, ArraySize(MsgItems), 0);
+               NULL, MsgItems, ARRAYSIZE(MsgItems), 0);
   bStart = false;
 }
 
@@ -293,10 +293,10 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
     /*19*/ { DI_BUTTON,       0, 19,  0,  0, MOK,                      0, NULL,                      DIF_CENTERGROUP, NULL },
     /*20*/ { DI_BUTTON,       0, 19,  0,  0, MCancel,                  0, NULL,                      DIF_CENTERGROUP, NULL }
   };
-  struct FarDialogItem DialogItems[ArraySize(InitItems)];
+  struct FarDialogItem DialogItems[ARRAYSIZE(InitItems)];
   TCHAR Mask[] = _T("99999");
 #ifdef UNICODE
-  wchar_t tmpnum[ArraySize(InitItems)][32];
+  wchar_t tmpnum[ARRAYSIZE(InitItems)][32];
 #endif
 
   memset(DialogItems,0,sizeof(DialogItems));
@@ -309,7 +309,7 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
   size_t DlgData=0;
   bool bNoFocus = true;
   size_t i;
-  for (i = 0; i < ArraySize(InitItems); i++)
+  for (i = 0; i < ARRAYSIZE(InitItems); i++)
   {
     DWORD dwRegValue;
     DWORD dwSize                  = sizeof(DWORD);
@@ -443,11 +443,11 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
 
 #ifndef UNICODE
   int ExitCode = Info.DialogEx(Info.ModuleNumber, -1, -1, 66, 22, _T("Contents"),
-                               DialogItems, ArraySize(DialogItems), 0, 0,
+                               DialogItems, ARRAYSIZE(DialogItems), 0, 0,
                                ShowDialogProc, DlgData);
 #else
   HANDLE hDlg = Info.DialogInit(Info.ModuleNumber, -1, -1, 66, 22, _T("Contents"),
-                               DialogItems, ArraySize(DialogItems), 0, 0,
+                               DialogItems, ARRAYSIZE(DialogItems), 0, 0,
                                ShowDialogProc, DlgData);
   if (hDlg == INVALID_HANDLE_VALUE)
     return false;
@@ -455,9 +455,9 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
   int ExitCode = Info.DialogRun(hDlg);
 #endif
 
-  if (ExitCode == (ArraySize(InitItems) - 2))
+  if (ExitCode == (ARRAYSIZE(InitItems) - 2))
   {
-    for (i = 0; i < ArraySize(InitItems); i++)
+    for (i = 0; i < ARRAYSIZE(InitItems); i++)
       if (InitItems[i].StoreTo)
       {
         if (InitItems[i].Type == DI_CHECKBOX || InitItems[i].Type == DI_RADIOBUTTON)
@@ -474,7 +474,7 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
         RegCreateKeyEx(HKEY_CURRENT_USER, PluginRootKey, 0, NULL, REG_OPTION_NON_VOLATILE,
         KEY_ALL_ACCESS, NULL, &hKey, &dwDisposition) == ERROR_SUCCESS)
     {
-      for (i = 0; i < ArraySize(InitItems); i++)
+      for (i = 0; i < ARRAYSIZE(InitItems); i++)
         if (!(CheckDisabled((int)i)) && InitItems[i].SelectedRegValue)
         {
           DWORD dwValue = *InitItems[i].StoreTo;
@@ -540,7 +540,7 @@ static bool CheckForEsc(void)
           GetMsg(MCancel)
         };
         if ( !Info.Message(Info.ModuleNumber, FMSG_WARNING, NULL,
-                           MsgItems, ArraySize(MsgItems), 2) )
+                           MsgItems, ARRAYSIZE(MsgItems), 2) )
           return bBrokenByEsc = true;
       }
       else
@@ -656,7 +656,7 @@ static int GetDirList(OwnPanelInfo *PInfo, const TCHAR *Dir)
   int *pItemsNumber = &PInfo->ItemsNumber;
   {
     size_t dirLen = lstrlen(Dir);
-    if(   dirLen > ArraySize(cPathMask) - sizeof("\\*")
+    if(   dirLen > ARRAYSIZE(cPathMask) - sizeof("\\*")
 #ifndef UNICODE
        || dirLen >= MAX_PATH
 #endif
@@ -1036,7 +1036,7 @@ static bool CompareDirs(const OwnPanelInfo *AInfo, const OwnPanelInfo *PInfo, bo
       GetMsg(MOK)
     };
     Info.Message(Info.ModuleNumber, FMSG_WARNING, NULL,
-                 MsgItems, ArraySize(MsgItems), 1);
+                 MsgItems, ARRAYSIZE(MsgItems), 1);
     bBrokenByEsc = true;
     FreePanelIndex(&sfiA);
     FreePanelIndex(&sfiP);
@@ -1141,7 +1141,7 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
       GetMsg(MOK)
     };
     ::Info.Message(::Info.ModuleNumber, FMSG_WARNING, NULL,
-                   MsgItems, ArraySize(MsgItems), 1);
+                   MsgItems, ARRAYSIZE(MsgItems), 1);
   }
 }
 
@@ -1157,7 +1157,7 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
   Info->DiskMenuStrings         = NULL;
   PluginMenuStrings[0]          = GetMsg(MCompare);
   Info->PluginMenuStrings       = PluginMenuStrings;
-  Info->PluginMenuStringsNumber = ArraySize(PluginMenuStrings);
+  Info->PluginMenuStringsNumber = ARRAYSIZE(PluginMenuStrings);
   Info->PluginConfigStrings     = NULL;
   Info->CommandPrefix           = NULL;
 }
@@ -1301,7 +1301,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
       GetMsg(MOK)
     };
     Info.Message(Info.ModuleNumber, FMSG_WARNING, NULL,
-                 MsgItems, ArraySize(MsgItems), 1);
+                 MsgItems, ARRAYSIZE(MsgItems), 1);
     FreePanelItems(AInfo,PInfo);
     return INVALID_HANDLE_VALUE;
   }
@@ -1429,7 +1429,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
         GetMsg(MOpenErrorBody),
         GetMsg(MOK),
       };
-      Info.Message(Info.ModuleNumber, FMSG_WARNING, NULL, MsgItems, ArraySize(MsgItems), 1);
+      Info.Message(Info.ModuleNumber, FMSG_WARNING, NULL, MsgItems, ARRAYSIZE(MsgItems), 1);
     }
     if (bDifferenceNotFound && Opt.MessageWhenNoDiff)
     {
@@ -1439,7 +1439,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
         GetMsg(MOK)
       };
       Info.Message(Info.ModuleNumber, 0, NULL,
-                   MsgItems, ArraySize(MsgItems), 1);
+                   MsgItems, ARRAYSIZE(MsgItems), 1);
     }
   }
   // Восстановим заголовок консоли ФАРа...

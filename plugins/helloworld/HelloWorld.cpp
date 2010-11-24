@@ -69,7 +69,7 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *pi)
 
   PluginMenuStrings[0]=GetMsg(MTitle);
   pi->PluginMenuStrings=PluginMenuStrings;
-  pi->PluginMenuStringsNumber=ArraySize(PluginMenuStrings);
+  pi->PluginMenuStringsNumber=ARRAYSIZE(PluginMenuStrings);
 }
 
 /*
@@ -92,7 +92,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR item)
                FMSG_WARNING|FMSG_LEFTALIGN,  /* Flags */
                _T("Contents"),               /* HelpTopic */
                Msg,                          /* Items */
-               ArraySize(Msg),               /* ItemsNumber */
+               ARRAYSIZE(Msg),               /* ItemsNumber */
                1);                           /* ButtonsNumber */
 
   return  INVALID_HANDLE_VALUE;

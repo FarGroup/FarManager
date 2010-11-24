@@ -53,7 +53,7 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
 	if (ptr)
 		lstrcpyn(FarKey,Info->RootKey,(unsigned)(ptr-Info->RootKey)+1);
 	else
-		lstrcpyn(FarKey,Default_KEY,ArraySize(FarKey));
+		lstrcpyn(FarKey,Default_KEY,ARRAYSIZE(FarKey));
 
 	CheckFirstBackSlash(FarKey,TRUE);
 	ptr=_tcsstr(FarKey,Users_KEY);
@@ -70,7 +70,7 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
 	else
 		*FarUserName=0;
 
-	lstrcpyn(FarUsersKey,Users_KEY,ArraySize(FarUsersKey));
+	lstrcpyn(FarUsersKey,Users_KEY,ARRAYSIZE(FarUsersKey));
 	CheckFirstBackSlash(FarUsersKey,TRUE);
 	wsprintf(KeyMacros,_T("%s\\%s"),FarKey,KeyMacros_KEY);
 	CheckFirstBackSlash(KeyMacros,TRUE);
@@ -161,9 +161,9 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
 	static TCHAR *PluginMenuStrings[1];
 	PluginMenuStrings[0]=GetMsg(MMacroMenu);
 	Info->PluginMenuStrings=PluginMenuStrings;
-	Info->PluginMenuStringsNumber=ArraySize(PluginMenuStrings);
+	Info->PluginMenuStringsNumber=ARRAYSIZE(PluginMenuStrings);
 	static TCHAR *PluginConfigStrings[1];
 	PluginConfigStrings[0]=GetMsg(MMacroMenu);
 	Info->PluginConfigStrings=PluginConfigStrings;
-	Info->PluginConfigStringsNumber=ArraySize(PluginConfigStrings);
+	Info->PluginConfigStringsNumber=ARRAYSIZE(PluginConfigStrings);
 }

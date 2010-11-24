@@ -21,14 +21,14 @@ public:
 ui64Table::ui64Table()
 {
     unsigned __int64 n = 1;
-    for(size_t i=0; i<ArraySize(Table); i++,n*=10)
+    for(size_t i=0; i<ARRAYSIZE(Table); i++,n*=10)
         Table[i] = n;
 }
 
 unsigned __int64 ui64Table::tenpow(unsigned n)
 {
-    if(n>=ArraySize(Table))
-        n = ArraySize(Table) - 1;
+    if(n>=ARRAYSIZE(Table))
+        n = ARRAYSIZE(Table) - 1;
     return Table[n];
 }
 
@@ -138,8 +138,8 @@ void Plist::InitializePanelModes()
 
             FSF.sprintf(name, _T("Mode%d"), iMode);
 
-            GetRegKey(name, _T("ColumnsLocal"), ProcPanelModesLocal[iMode], NT ? DefaultModesNT[iMode].Cols : DefaultModes9x[iMode].Cols, ArraySize(ProcPanelModesLocal[iMode]));
-            GetRegKey(name, _T("ColumnsRemote"), ProcPanelModesRemote[iMode], DefaultModesRemoteNT[iMode].Cols, ArraySize(ProcPanelModesRemote[iMode]));
+            GetRegKey(name, _T("ColumnsLocal"), ProcPanelModesLocal[iMode], NT ? DefaultModesNT[iMode].Cols : DefaultModes9x[iMode].Cols, ARRAYSIZE(ProcPanelModesLocal[iMode]));
+            GetRegKey(name, _T("ColumnsRemote"), ProcPanelModesRemote[iMode], DefaultModesRemoteNT[iMode].Cols, ARRAYSIZE(ProcPanelModesRemote[iMode]));
             GetRegKey(name, _T("WidthsLocal"), (LPTSTR)PanelModesLocal[iMode].ColumnWidths, NT ? DefaultModesNT[iMode].Width : DefaultModes9x[iMode].Width, MAX_MODE_STR-1);
             GetRegKey(name, _T("WidthsRemote"), (LPTSTR)PanelModesRemote[iMode].ColumnWidths, DefaultModesRemoteNT[iMode].Width, MAX_MODE_STR-1);
             GetRegKey(name, _T("FullScreenLocal"), PanelModesLocal[iMode].FullScreen, iMode==5 && NT ? 1 : 0);
@@ -246,7 +246,7 @@ static void GenerateTitles(TCHAR ProcPanelModes[][MAX_MODE_STR],
     TCHAR buf[80];
     for(int i=0; i<NPANELMODES; i++) {
         if(*ProcPanelModes[i]) {
-            lstrcpyn(buf, ProcPanelModes[i], ArraySize(buf));
+            lstrcpyn(buf, ProcPanelModes[i], ARRAYSIZE(buf));
             int ii=0;
             for(StrTok tok(buf,_T(",")); tok; ++tok) {
                 int id=0;
@@ -403,7 +403,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
                 break;
             case _T('W'):
                 if(ewdata.hWnd)
-                    GetWindowText(ewdata.hWnd, Title, ArraySize(Title));
+                    GetWindowText(ewdata.hWnd, Title, ARRAYSIZE(Title));
                 pDesc = Title;
                 break;
             case _T('D'):
@@ -579,14 +579,14 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
         }
         // may be 0 if called from FindFile
         TCHAR FileName[MAX_PATH];
-        lstrcpyn(FileName, WDEREF DestPath, ArraySize(FileName));
+        lstrcpyn(FileName, WDEREF DestPath, ARRAYSIZE(FileName));
         if(!(OpMode&0x10000)) {
             FSF.AddEndSlash(FileName);
 #ifdef UNICODE
 #define cFileName lpwszFileName
 #endif
-            _tcsncat(FileName,CurItem.FindData.cFileName,ArraySize(FileName)-lstrlen(FileName)-1);
-            _tcsncat(FileName,_T(".txt"),ArraySize(FileName)-lstrlen(FileName)-1);
+            _tcsncat(FileName,CurItem.FindData.cFileName,ARRAYSIZE(FileName)-lstrlen(FileName)-1);
+            _tcsncat(FileName,_T(".txt"),ARRAYSIZE(FileName)-lstrlen(FileName)-1);
         }
         // Replace "invalid" chars by underscores
         TCHAR* pname = _tcsrchr(FileName, _T('\\'));
@@ -706,7 +706,7 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
         if(!*HostName && pdata->hwnd)
         {
             TCHAR Title[MAX_PATH]; *Title=0;
-            GetWindowText(pdata->hwnd, Title, ArraySize(Title));
+            GetWindowText(pdata->hwnd, Title, ARRAYSIZE(Title));
 #ifndef UNICODE
             CharToOem(Title,Title);
 #endif
@@ -758,13 +758,13 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
             TCHAR StyleStr[1024], ExtStyleStr[1024];
             *StyleStr = *ExtStyleStr=0;
             size_t i;
-            for (i=0; i<ArraySize(Styles); i++)
+            for (i=0; i<ARRAYSIZE(Styles); i++)
                 if (Style & Styles[i])
                 {
                     lstrcat(StyleStr, _T(" "));
                     lstrcat(StyleStr, StrStyles[i]);
                 }
-            for (i=0; i<ArraySize(ExtStyles); i++)
+            for (i=0; i<ARRAYSIZE(ExtStyles); i++)
                 if (Style & ExtStyles[i])
                 {
                     lstrcat(ExtStyleStr, _T(" "));
@@ -804,7 +804,7 @@ int Plist::DeleteFiles(PluginPanelItem *PanelItem,int ItemsNumber,
     {
         //cannot kill remote process
         const TCHAR *MsgItems[]={GetMsg(MCannotDeleteProc),GetMsg(MCannotKillRemote),GetMsg(MOk)};
-        Message(FMSG_WARNING,NULL,MsgItems,ArraySize(MsgItems));
+        Message(FMSG_WARNING,NULL,MsgItems,ARRAYSIZE(MsgItems));
         return FALSE;
     }
 
@@ -820,14 +820,14 @@ int Plist::DeleteFiles(PluginPanelItem *PanelItem,int ItemsNumber,
         FSF.sprintf(Msg,GetMsg(MDeleteProcess),PanelItem[0].FindData.cFileName);
         MsgItems[1]=Msg;
     }
-    if (Message(0,NULL,MsgItems,ArraySize(MsgItems),2)!=0)
+    if (Message(0,NULL,MsgItems,ARRAYSIZE(MsgItems),2)!=0)
         return FALSE;
     if (ItemsNumber>1)
     {
         TCHAR Msg[512];
         FSF.sprintf(Msg,GetMsg(MDeleteNumberOfProcesses),ItemsNumber);
         MsgItems[1]=Msg;
-        if (Message(FMSG_WARNING,NULL,MsgItems,ArraySize(MsgItems),2)!=0)
+        if (Message(FMSG_WARNING,NULL,MsgItems,ARRAYSIZE(MsgItems),2)!=0)
             return FALSE;
     }
     for (int I=0;I<ItemsNumber;I++)
@@ -864,7 +864,7 @@ int Plist::DeleteFiles(PluginPanelItem *PanelItem,int ItemsNumber,
             FSF.sprintf(Msg,GetMsg(MCannotDelete),CurItem.FindData.cFileName);
 #undef cFileName
             const TCHAR *MsgItems[]={GetMsg(MDeleteTitle),Msg, 0, GetMsg(MOk)};
-            int nItems = ArraySize(MsgItems);
+            int nItems = ARRAYSIZE(MsgItems);
             if(MsgId)
                 MsgItems[2] = GetMsg(MsgId);
             else {
@@ -953,8 +953,8 @@ void Plist::PutToCmdLine(TCHAR* tmp)
 
 bool Plist::Connect(LPCTSTR pMachine, LPCTSTR pUser, LPCTSTR pPasw)
 {
-    TCHAR Machine[ArraySize(HostName)];
-    lstrcpyn(Machine, pMachine, ArraySize(Machine));
+    TCHAR Machine[ARRAYSIZE(HostName)];
+    lstrcpyn(Machine, pMachine, ARRAYSIZE(Machine));
 
     // Add "\\" if missing
     if(!NORM_M_PREFIX(Machine)) {
@@ -1098,16 +1098,16 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         }
         InitDialogItem InitItems[]={ {DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(TCHAR *)MViewWithOptions}, };
         FarDialogItem DialogItems[NVIEWITEMS + 1];
-        InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
+        InitDialogItems(InitItems,DialogItems,ARRAYSIZE(InitItems));
         _Opt LocalOpt = Opt;
         MakeViewOptions(DialogItems+1, LocalOpt, 2);
 #ifndef UNICODE
         int ExitCode = Info.Dialog(Info.ModuleNumber,-1,-1,76,NVIEWITEMS+3,_T("Config"),
-                                   DialogItems,ArraySize(DialogItems));
+                                   DialogItems,ARRAYSIZE(DialogItems));
 #define _REF  DialogItems
 #else
         HANDLE hDlg = Info.DialogInit(Info.ModuleNumber,-1,-1,76,NVIEWITEMS+3,_T("Config"),
-                                DialogItems,ArraySize(DialogItems),0,0,NULL,0);
+                                DialogItems,ARRAYSIZE(DialogItems),0,0,NULL,0);
         if(hDlg == INVALID_HANDLE_VALUE)
         {
           return TRUE;
@@ -1129,7 +1129,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
 #ifndef UNICODE
         FSF.MkTemp(FileName, _T("prc"));
 #else
-        FSF.MkTemp(FileName, ArraySize(FileName), _T("prc"));
+        FSF.MkTemp(FileName, ARRAYSIZE(FileName), _T("prc"));
 #endif
 
         WCONST TCHAR *lpFileName=FileName;
@@ -1167,8 +1167,8 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
             { DI_PSWEDIT,26,7,42,0, 0,0, 0, 0, _T("")},
             { DI_TEXT, 5,8, 0,0, 0,0,0,0, GetMsg(MEmptyForCurrent)},
         };
-        FarDialogItem FarItems[ArraySize(Items)];
-        InitDialogItems(Items, FarItems, ArraySize(Items));
+        FarDialogItem FarItems[ARRAYSIZE(Items)];
+        InitDialogItems(Items, FarItems, ARRAYSIZE(Items));
 
         //Loop until successful connect or user cancel in dialog
         for(bool stop = false; ; )
@@ -1176,11 +1176,11 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
           const TCHAR *compname;
 #ifndef UNICODE
           if(Info.Dialog(Info.ModuleNumber, -1,-1, 48, 11, _T("Contents"),
-                         FarItems, ArraySize(Items)) == -1) break;
+                         FarItems, ARRAYSIZE(Items)) == -1) break;
 #define _REF  FarItems
 #else
           HANDLE hDlg=Info.DialogInit(Info.ModuleNumber, -1,-1, 48, 11, _T("Contents"),
-                                      FarItems, ArraySize(Items),0,0,NULL,0);
+                                      FarItems, ARRAYSIZE(Items),0,0,NULL,0);
           if(hDlg==INVALID_HANDLE_VALUE) break;
 #define _REF  hDlg
           if(Info.DialogRun(hDlg)==-1)
@@ -1220,7 +1220,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         if(!Opt.EnableWMI)
             return TRUE;
         const TCHAR *MsgItems[]={/*GetMsg(MAttachDebugger)*/_T("Attach Debugger"),/*GetMsg(MConfirmAttachDebugger)*/_T("Do you want to attach debugger to this process?"),GetMsg(MYes),GetMsg(MNo)};
-        if(Message(0,NULL,MsgItems,ArraySize(MsgItems),2)!=0)
+        if(Message(0,NULL,MsgItems,ARRAYSIZE(MsgItems),2)!=0)
             return TRUE;
         PanelInfo pi;
         Control(FCTL_GETPANELINFO,&pi);
@@ -1237,7 +1237,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
                     TCHAR buf[80];
                     FSF.sprintf(buf,_T("Return code: %d"), i);
                     const TCHAR *MsgItems[]={/*GetMsg(MAttachDebugger)*/_T("Attach Debugger"),buf,GetMsg(MOk)};
-                    Message(FMSG_WARNING,0,MsgItems,ArraySize(MsgItems));
+                    Message(FMSG_WARNING,0,MsgItems,ARRAYSIZE(MsgItems));
                     /*3 The user does not have sufficient privilege.
                     8 Unknown failure.
                     9 The path specified does not exist.
@@ -1259,7 +1259,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         if(PInfo.SelectedItemsNumber>1)
         {
             const TCHAR *MsgItems[]={GetMsg(MChangePriority),GetMsg(MConfirmChangePriority),GetMsg(MYes),GetMsg(MNo)};
-            if(Message(0,NULL,MsgItems,ArraySize(MsgItems),2)!=0)
+            if(Message(0,NULL,MsgItems,ARRAYSIZE(MsgItems),2)!=0)
             {
                 return TRUE;
             }
@@ -1279,7 +1279,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
             { IDLE_PRIORITY_CLASS, BELOW_NORMAL_PRIORITY_CLASS,
               NORMAL_PRIORITY_CLASS, ABOVE_NORMAL_PRIORITY_CLASS,
               HIGH_PRIORITY_CLASS, REALTIME_PRIORITY_CLASS};
-        const int N = bNewPri ? ArraySize(PrClasses2k) : ArraySize(PrClasses);
+        const int N = bNewPri ? ARRAYSIZE(PrClasses2k) : ARRAYSIZE(PrClasses);
 
         DebugToken token;
         for(int i=0; i<PInfo.SelectedItemsNumber; i++)
@@ -1329,7 +1329,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
                         WmiError();
                         continue;
                     }
-                    static const BYTE Pr2K[ArraySize(PrClasses2k)] = {4,6,8,10,13,24};
+                    static const BYTE Pr2K[ARRAYSIZE(PrClasses2k)] = {4,6,8,10,13,24};
                     for(int i=0; i<N; i++)
                         if( dwPriorityClass==Pr2K[i] ) {
                             bool bChange = false;
@@ -1409,12 +1409,12 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
                 //      {MUseSortGroups,0}, {MShowSelectedFirst,-1}
         };
 
-#define NSTATICITEMS (ArraySize(StaticItems))
+#define NSTATICITEMS (ARRAYSIZE(StaticItems))
 #ifndef UNICODE
 #define LASTBYTE(_array) ((_array)[sizeof(_array) - 1])
 #endif
 
-        int nMoreData = pPerfThread ? ArraySize(Counters) + 1 : 0;
+        int nMoreData = pPerfThread ? ARRAYSIZE(Counters) + 1 : 0;
 
         PanelInfo pi;
 #ifndef UNICODE
@@ -1429,7 +1429,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         struct {
             BYTE  m;
             BYTE  a;
-        }Flags[ArraySize(Counters)*2 + NSTATICITEMS + 1] = { {0} };
+        }Flags[ARRAYSIZE(Counters)*2 + NSTATICITEMS + 1] = { {0} };
 #endif
         DWORD i;
         for(i=0; i<NSTATICITEMS; i++)
@@ -1453,10 +1453,10 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         if(pPerfThread) {
             Items[nItems++].Separator = 1;
             const PerfLib* pl = pPerfThread->GetPerfLib();
-            for(i=0; i<ArraySize(Counters); i++)
+            for(i=0; i<ARRAYSIZE(Counters); i++)
                 if(pl->dwCounterTitles[i]) {
 #ifndef UNICODE
-                    lstrcpyn(Items[nItems].Text, GetMsg(Counters[i].idName), ArraySize(Items[0].Text));
+                    lstrcpyn(Items[nItems].Text, GetMsg(Counters[i].idName), ARRAYSIZE(Items[0].Text));
                     LASTBYTE(Items[nItems].Text) = (char)(SM_PERFCOUNTER+i);
 #else
                     Items[nItems].Text = GetMsg(Counters[i].idName);

@@ -118,7 +118,7 @@ get_from_me32:
 #else
 #define GET tmpStr
 #endif
-          if (!GetModuleNameFromExe(pe32.szExeFile,GET,ArraySize(GET)))
+          if (!GetModuleNameFromExe(pe32.szExeFile,GET,ARRAYSIZE(GET)))
               goto get_from_me32;
 #undef GET
 #ifdef UNICODE

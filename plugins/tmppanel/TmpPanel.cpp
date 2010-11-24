@@ -236,7 +236,7 @@ static HANDLE OpenPanelFromOutput (TCHAR *argv WITH_ANSI_PARAM)
     }
 
     TCHAR consoleTitle[255];
-    DWORD tlen = GetConsoleTitle(consoleTitle, ArraySize(consoleTitle));
+    DWORD tlen = GetConsoleTitle(consoleTitle, ARRAYSIZE(consoleTitle));
     SetConsoleTitle(argv);
 
     BOOL Created=CreateProcess(NULL,fullcmd,NULL,NULL,TRUE,0,NULL,workDir,&si,&pi);
@@ -470,7 +470,7 @@ void ShowMenuFromList(TCHAR *Name)
     TCHAR Title[128]; //BUGBUG
     FSF.ProcessName(FSF.PointToName(Name),lstrcpy(Title,_T("*.")),
 #ifdef UNICODE
-                    ArraySize(Title),
+                    ARRAYSIZE(Title),
 #endif
                     PN_GENERATENAME);
     FSF.TruncPathStr(Title,64);
@@ -612,15 +612,15 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
   DiskMenuNumbers[0]=FSF.atoi(Opt.DisksMenuDigit);
   Info->DiskMenuNumbers=DiskMenuNumbers;
 #endif
-  Info->DiskMenuStringsNumber=Opt.AddToDisksMenu?ArraySize(DiskMenuStrings):0;
+  Info->DiskMenuStringsNumber=Opt.AddToDisksMenu?ARRAYSIZE(DiskMenuStrings):0;
   static const TCHAR *PluginMenuStrings[1];
   PluginMenuStrings[0]=GetMsg(MTempPanel);
   Info->PluginMenuStrings=Opt.AddToPluginsMenu?PluginMenuStrings:NULL;
-  Info->PluginMenuStringsNumber=Opt.AddToPluginsMenu?ArraySize(PluginMenuStrings):0;
+  Info->PluginMenuStringsNumber=Opt.AddToPluginsMenu?ARRAYSIZE(PluginMenuStrings):0;
   static const TCHAR *PluginCfgStrings[1];
   PluginCfgStrings[0]=GetMsg(MTempPanel);
   Info->PluginConfigStrings=PluginCfgStrings;
-  Info->PluginConfigStringsNumber=ArraySize(PluginCfgStrings);
+  Info->PluginConfigStringsNumber=ARRAYSIZE(PluginCfgStrings);
   Info->CommandPrefix=Opt.Prefix;
 }
 

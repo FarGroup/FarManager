@@ -439,7 +439,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   }
 
   // OS ID - Host OS
-  for(I=0; I < ArraySize(OSID); ++I)
+  for(I=0; I < ARRAYSIZE(OSID); ++I)
   {
     if(OSID[I].Type == OsId)
     {
@@ -450,7 +450,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
 
   // Dictionary size
   Info->DictSize=0;
-  for(I=0; I < ArraySize(DictSize); ++I)
+  for(I=0; I < ARRAYSIZE(DictSize); ++I)
   {
     if(DictSize[I].Type[0] == LzhHeader.l0.HeadID[2] &&
        DictSize[I].Type[1] == LzhHeader.l0.Method)
@@ -510,7 +510,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     /*Move files and folders*/"lha a -a -r -x -p -m {-w%%W} {%%S} %%a @%%lM",
     /*"All files" mask      */"*.*"
     };
-    if (Command < (int)(ArraySize(Commands)))
+    if (Command < (int)(ARRAYSIZE(Commands)))
     {
       lstrcpy(Dest,Commands[Command]);
       return(TRUE);

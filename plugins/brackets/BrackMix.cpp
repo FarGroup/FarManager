@@ -60,7 +60,7 @@ int ShowMenu(int Type)
     if((Ret=Info.Menu(Info.ModuleNumber,
              -1,-1,0,FMENU_WRAPMODE,GetMsg(MTitle),NULL,
              HelpTopic[Type&1],NULL,NULL,shMenu,
-             ArraySize(shMenu))) == 3)
+             ARRAYSIZE(shMenu))) == 3)
       Config();
     else
       break;

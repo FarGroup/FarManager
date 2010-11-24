@@ -31,8 +31,8 @@ int Config()
   /*16*/  {DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(TCHAR *)MCancel}
   };
 
-  struct FarDialogItem DialogItems[ArraySize(InitItems)];
-  InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
+  struct FarDialogItem DialogItems[ARRAYSIZE(InitItems)];
+  InitDialogItems(InitItems,DialogItems,ARRAYSIZE(InitItems));
 
   DialogItems[2].Param.Selected=Opt.IgnoreQuotes;
   DialogItems[3].Param.Selected=Opt.IgnoreAfter;
@@ -51,10 +51,10 @@ int Config()
   BOOL result = FALSE;
 #ifndef UNICODE
   int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,61,21,_T("Config"),
-                           DialogItems,ArraySize(DialogItems));
+                           DialogItems,ARRAYSIZE(DialogItems));
 #else
   HANDLE hDlg = Info.DialogInit(Info.ModuleNumber,-1,-1,61,21,_T("Config"),
-                                DialogItems,ArraySize(DialogItems),0,0,NULL,0);
+                                DialogItems,ARRAYSIZE(DialogItems),0,0,NULL,0);
 
   if (hDlg == INVALID_HANDLE_VALUE)
     return(FALSE);

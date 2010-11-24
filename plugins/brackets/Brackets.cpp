@@ -69,12 +69,12 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
   Info->StructSize=sizeof(*Info);
   Info->Flags=PF_EDITOR|PF_DISABLEPANELS;
   Info->PluginMenuStrings=PluginMenuStrings;
-  Info->PluginMenuStringsNumber=ArraySize(PluginMenuStrings);
+  Info->PluginMenuStringsNumber=ARRAYSIZE(PluginMenuStrings);
   Info->DiskMenuStringsNumber=0;
   static const TCHAR *PluginCfgStrings[1];
   PluginCfgStrings[0]=GetMsg(MTitle);
   Info->PluginConfigStrings=PluginCfgStrings;
-  Info->PluginConfigStringsNumber=ArraySize(PluginCfgStrings);
+  Info->PluginConfigStringsNumber=ARRAYSIZE(PluginCfgStrings);
 }
 
 

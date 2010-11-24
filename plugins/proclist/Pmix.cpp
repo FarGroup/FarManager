@@ -89,7 +89,7 @@ int WinError(TCHAR* pSourceModule)
           if(lpMsgBuf[i]==_T(' ')) { lpMsgBuf[i] = _T('\n'); break; }
   items[1] = _tcstok(lpMsgBuf,_T("\r\n"));
   items[2] = _tcstok(NULL,_T("\r\n")); if(!items[2]) items[2] = items[3];
-  int rc = Message(FMSG_WARNING,0,items,(int)(ArraySize(items) - (items[2]==items[3])));
+  int rc = Message(FMSG_WARNING,0,items,(int)(ARRAYSIZE(items) - (items[2]==items[3])));
   if(bAllocated) LocalFree( lpMsgBuf );
   return rc;
 }

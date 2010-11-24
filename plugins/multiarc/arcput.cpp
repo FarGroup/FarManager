@@ -224,7 +224,7 @@ LONG_PTR WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
         if (lstrcmp(Password1,Password2))
         {
           const char *MsgItems[]={GetMsg(MError),GetMsg(MAddPswNotMatch),GetMsg(MOk)};
-          Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,ArraySize(MsgItems),1);
+          Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
           return TRUE;
         }
         break;*/
@@ -282,7 +282,7 @@ LONG_PTR WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
       if(lstrcmp(Password1,Password2))
       {
         const char *MsgItems[]={GetMsg(MError),GetMsg(MAddPswNotMatch),GetMsg(MOk)};
-        Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,ArraySize(MsgItems),1);
+        Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
         return FALSE;
       }
       return TRUE;
@@ -503,8 +503,8 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       /*21*/{DI_BUTTON,0,14,0,0,0,0,DIF_CENTERGROUP|DIF_DISABLE,0,(char *)MAddSave},
       /*22*/{DI_BUTTON,0,14,0,0,0,0,DIF_CENTERGROUP,0,(char *)MAddCancel},
     };
-    struct FarDialogItem DialogItems[ArraySize(InitItems)];
-    InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
+    struct FarDialogItem DialogItems[ARRAYSIZE(InitItems)];
+    InitDialogItems(InitItems,DialogItems,ARRAYSIZE(InitItems));
 
 /*    if(OLD_DIALOG_STYLE)
     {
@@ -516,7 +516,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
 
     // <Prior>
     FarListItem ListPriorItem[5];
-    for(size_t I=0; I < ArraySize(ListPriorItem); ++I)
+    for(size_t I=0; I < ARRAYSIZE(ListPriorItem); ++I)
     {
       ListPriorItem[I].Flags=0;
       lstrcpy(ListPriorItem[I].Text,GetMsg((int)(MIdle_Priority_Class+I)));
@@ -528,7 +528,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       ListPriorItem[MAbove_Normal_Priority_Class-MIdle_Priority_Class].Flags=LIF_DISABLE;
     }
     FarList ListPrior;
-    ListPrior.ItemsNumber=ArraySize(ListPriorItem);
+    ListPrior.ItemsNumber=ARRAYSIZE(ListPriorItem);
     ListPrior.Items=&ListPriorItem[0];
     DialogItems[PDI_PRIORCBOX].ListItems=&ListPrior;
     // </Prior>
@@ -613,7 +613,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     if ((OpMode & OPM_SILENT)==0)
     {
       int AskCode=Info.DialogEx(Info.ModuleNumber,-1,-1,76,17,"AddToArc",
-                  DialogItems,ArraySize(DialogItems),
+                  DialogItems,ARRAYSIZE(DialogItems),
                   0,0,PluginClass::PutDlgProc,(LONG_PTR)&pdd);
 
       lstrcpy(pdd.Password1,DialogItems[PDI_PASS0WEDT].Data);
@@ -674,7 +674,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     {
       const char *MsgItems[]={GetMsg(MWarning),GetMsg(MCannotPutToFolder),
                         GetMsg(MPutToRoot),GetMsg(MOk),GetMsg(MCancel)};
-      if (Info.Message(Info.ModuleNumber,0,NULL,MsgItems,ArraySize(MsgItems),2)!=0)
+      if (Info.Message(Info.ModuleNumber,0,NULL,MsgItems,ARRAYSIZE(MsgItems),2)!=0)
       {
         Opt.PriorityClass=2;
         return -1;

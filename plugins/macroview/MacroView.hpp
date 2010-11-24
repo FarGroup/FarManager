@@ -154,7 +154,7 @@ struct Config
 
 struct MenuData
 {
-	TCHAR Group[ArraySize(MacroGroupShort)];
+	TCHAR Group[ARRAYSIZE(MacroGroupShort)];
 	TCHAR Key[32];
 };
 
@@ -221,7 +221,7 @@ class TMacroView
 		FarDialogItem EditDialog[EDITDIALOGCOUNT];
 		FarDialogItem MenuDialog[2];
 		FarDialogItem DefKeyDialog[2];
-		FarListItem   GroupItems[ArraySize(MacroGroupShort)];
+		FarListItem   GroupItems[ARRAYSIZE(MacroGroupShort)];
 		FarList       GroupList,ConfList;
 
 		BOOL         CtrlDotPressed;

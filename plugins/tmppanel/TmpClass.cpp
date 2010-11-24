@@ -79,7 +79,7 @@ void TmpPanel::GetOpenPluginInfo(struct OpenPluginInfo *Info)
   PanelModesArray[4].CaseConversion=TRUE;
 
   Info->PanelModesArray=PanelModesArray;
-  Info->PanelModesNumber=ArraySize(PanelModesArray);
+  Info->PanelModesNumber=ARRAYSIZE(PanelModesArray);
   Info->StartPanelMode=_T('4');
   static struct KeyBarTitles KeyBar;
   memset(&KeyBar,0,sizeof(KeyBar));
@@ -137,7 +137,7 @@ HANDLE TmpPanel::BeginPutFiles()
 
   HANDLE hScreen=Info.SaveScreen(0,0,-1,-1);
   const TCHAR *MsgItems[]={GetMsg(MTempPanel),GetMsg(MTempSendFiles)};
-  Info.Message(Info.ModuleNumber,0,NULL,MsgItems,ArraySize(MsgItems),0);
+  Info.Message(Info.ModuleNumber,0,NULL,MsgItems,ARRAYSIZE(MsgItems),0);
   return hScreen;
 }
 
@@ -157,7 +157,7 @@ int TmpPanel::PutDirectoryContents(const TCHAR* Path)
   {
     const TCHAR *MsgItems[]={GetMsg(MWarning),GetMsg(MCopyContensMsg)};
     Opt.SelectedCopyContents=!Info.Message(Info.ModuleNumber,FMSG_MB_YESNO,_T("Config"),
-                              MsgItems,ArraySize(MsgItems),0);
+                              MsgItems,ARRAYSIZE(MsgItems),0);
   }
   if (Opt.SelectedCopyContents)
   {
@@ -410,7 +410,7 @@ void TmpPanel::UpdateItems(int ShowOwners,int ShowLinks)
   }
   HANDLE hScreen=Info.SaveScreen(0,0,-1,-1);
   const TCHAR *MsgItems[]={GetMsg(MTempPanel),GetMsg(MTempUpdate)};
-  Info.Message(Info.ModuleNumber,0,NULL,MsgItems,ArraySize(MsgItems),0);
+  Info.Message(Info.ModuleNumber,0,NULL,MsgItems,ARRAYSIZE(MsgItems),0);
   LastOwnersRead=ShowOwners;
   LastLinksRead=ShowLinks;
   struct PluginPanelItem *CurItem=TmpPanelItem;

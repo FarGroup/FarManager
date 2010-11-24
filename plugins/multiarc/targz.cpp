@@ -559,7 +559,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
        "*"
      },
    };
-   if (Type >= TAR_FORMAT && Type <= BZ_FORMAT && Command < (int)(ArraySize(Commands[Type])))
+   if (Type >= TAR_FORMAT && Type <= BZ_FORMAT && Command < (int)(ARRAYSIZE(Commands[Type])))
    {
      lstrcpy(Dest,Commands[Type][Command]);
      return(TRUE);

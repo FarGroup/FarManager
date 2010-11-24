@@ -304,7 +304,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
       DosDateTimeToFileTime(HIWORD(HeaderData.FileTime),LOWORD(HeaderData.FileTime),&lft);
       LocalFileTimeToFileTime(&lft,&Item->FindData.ftLastWriteTime);
 
-      if (HeaderData.HostOS<ArraySize(RarOS))
+      if (HeaderData.HostOS<ARRAYSIZE(RarOS))
         lstrcpy(Info->HostOS,RarOS[HeaderData.HostOS]);
       Info->Solid=Flags & 8;
       Info->Comment=HeaderData.Flags & 8;
@@ -483,14 +483,14 @@ struct RARHeaderDataEx
         int Length=lstrlen(FileName);
         if (Length == RarHeader.NameSize)
         {
-          UtfToWide(FileName,FileNameW,ArraySize(FileNameW)-1);
-          UnicodeToOEM(FileNameW,FileName,ArraySize(FileName)-1);
+          UtfToWide(FileName,FileNameW,ARRAYSIZE(FileNameW)-1);
+          UnicodeToOEM(FileNameW,FileName,ARRAYSIZE(FileName)-1);
         }
         else
         {
           Length++;
-          DecodeFileName(FileName,(BYTE *)FileName+Length,RarHeader.NameSize-Length,FileNameW,ArraySize(FileNameW));
-          UnicodeToOEM(FileNameW,FileName,ArraySize(FileName)-1);
+          DecodeFileName(FileName,(BYTE *)FileName+Length,RarHeader.NameSize-Length,FileNameW,ARRAYSIZE(FileNameW));
+          UnicodeToOEM(FileNameW,FileName,ARRAYSIZE(FileName)-1);
         }
       }
 
@@ -547,7 +547,7 @@ arctime
         }
       }
 
-      if (RarHeader.HostOS<ArraySize(RarOS))
+      if (RarHeader.HostOS<ARRAYSIZE(RarOS))
         lstrcpy(Info->HostOS,RarOS[RarHeader.HostOS]);
       Info->Solid=Flags & 8;
       Info->Comment=RarHeader.Flags & 8;
@@ -625,7 +625,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     /*Move files and folders*/"rar m -r0 -y {-p%%P} {-ap%%R} {-w%%W} {%%S} -- %%A @%%LN",
     /*"All files" mask      */"*.*"
     };
-    if (Command<(int)(ArraySize(Commands)))
+    if (Command<(int)(ARRAYSIZE(Commands)))
     {
       lstrcpy(Dest,Commands[Command]);
       return(TRUE);

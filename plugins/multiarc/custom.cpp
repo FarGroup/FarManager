@@ -735,7 +735,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type, int Command, char *Dest)
         "Add", "Move", "AddRecurse", "MoveRecurse", "AllFilesMask"
     };
 
-    if(Command < (int)(ArraySize(CmdNames)))
+    if(Command < (int)(ARRAYSIZE(CmdNames)))
     {
         GetIniString(TypeName, CmdNames[Command], "", Dest, 512);
         return (TRUE);

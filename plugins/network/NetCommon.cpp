@@ -152,10 +152,10 @@ BOOL DlgCreateFolder(TCHAR* lpBuffer, int nBufferSize)
 //    /* 6 */ { DI_BUTTON,    0, 7,  0, 0, 0, 0,                      DIF_CENTERGROUP,  1,(TCHAR*)MOk },
 //    /* 7 */ { DI_BUTTON,    0, 7,  0, 0, 0, 0,                      DIF_CENTERGROUP,  0,(TCHAR*)MCancel }
 //  };
-//  struct FarDialogItem DialogItems[ArraySize(InitItems)];
-//  InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
+//  struct FarDialogItem DialogItems[ARRAYSIZE(InitItems)];
+//  InitDialogItems(InitItems,DialogItems,ARRAYSIZE(InitItems));
 //  BOOL res = 6 == Info.Dialog (Info.ModuleNumber, -1, -1, DialogItems [0].X2+4, 10,
-//    _T("CreateFolder"), DialogItems, ArraySize(DialogItems));
+//    _T("CreateFolder"), DialogItems, ARRAYSIZE(DialogItems));
 //  if(res && lpBuffer && nBufferSize)
 //  {
 //    lstrcpyn(lpBuffer, DialogItems[2].Data, nBufferSize);

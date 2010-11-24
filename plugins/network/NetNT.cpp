@@ -24,9 +24,9 @@ void NetBrowser::GetHideShareNT()
     DWORD er=0,tr=0,resume=0,rrsiz;
 
 #ifndef UNICODE
-    MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,lpszServer,-1,(LPWSTR)lpwsNetPath,ArraySize(lpwsNetPath));
+    MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,lpszServer,-1,(LPWSTR)lpwsNetPath,ARRAYSIZE(lpwsNetPath));
 #else
-    lstrcpyn(lpwsNetPath,lpszServer,ArraySize(lpwsNetPath));
+    lstrcpyn(lpwsNetPath,lpszServer,ARRAYSIZE(lpwsNetPath));
 #endif
     do
     {
@@ -45,9 +45,9 @@ void NetBrowser::GetHideShareNT()
           {
             size_t pos = lstrlen(szResPath);
 #ifndef UNICODE
-            WideCharToMultiByte(CP_ACP,0,(LPWSTR)p->shi1_netname,-1,&szResPath[pos],(int)(ArraySize(szResPath)-pos),NULL,NULL);
+            WideCharToMultiByte(CP_ACP,0,(LPWSTR)p->shi1_netname,-1,&szResPath[pos],(int)(ARRAYSIZE(szResPath)-pos),NULL,NULL);
 #else
-            lstrcpyn(&szResPath[pos], p->shi1_netname, (int)(ArraySize(szResPath)-pos));
+            lstrcpyn(&szResPath[pos], p->shi1_netname, (int)(ARRAYSIZE(szResPath)-pos));
 #endif
           }
           if(szResPath[lstrlen(szResPath)-1] == _T('$') &&

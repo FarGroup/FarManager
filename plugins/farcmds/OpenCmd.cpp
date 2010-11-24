@@ -246,7 +246,7 @@ DWORD WINAPI ThreadWhatUpdateScreen(LPVOID par)
 					*buff = 0;
 
 				const TCHAR *MsgItems[] = { td->title, td->cmd, buff };
-				Info.Message(Info.ModuleNumber, 0, NULL, MsgItems, ArraySize(MsgItems), 0);
+				Info.Message(Info.ModuleNumber, 0, NULL, MsgItems, ARRAYSIZE(MsgItems), 0);
 			}
 		}
 	}
@@ -302,11 +302,11 @@ static TCHAR *loadFile(const TCHAR *fn, DWORD maxSize, BOOL outputtofile, size_t
 	shift=0;
 
 	TCHAR *Ptr = NULL, FileName[MAX_PATH*5];
-	ExpandEnvironmentStr(fn, FileName, ArraySize(FileName));
+	ExpandEnvironmentStr(fn, FileName, ARRAYSIZE(FileName));
 	Unquote(FileName);
 
 #ifdef UNICODE
-	FarConvertPath(CPM_NATIVE, FileName, FileName, ArraySize(FileName));
+	FarConvertPath(CPM_NATIVE, FileName, FileName, ARRAYSIZE(FileName));
 #endif
 
 	TCHAR *ptrFileName=FileName;
@@ -515,7 +515,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 		BOOL outputtofile=0, allOK=TRUE;
 		TCHAR *pCmd=NULL;
 
-		for (size_t I=0; I < ArraySize(Pref); ++I)
+		for (size_t I=0; I < ARRAYSIZE(Pref); ++I)
 		{
 			Pref[I].Pref=TestPrefix(farcmd,Pref[I].Name);
 
@@ -660,7 +660,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 					showhelp=FALSE;
 
 					if (outputtofile && !(WhereIs || Goto || Link))
-						ProcessOSAliases(pCmd,ArraySize(farcmdbuf));
+						ProcessOSAliases(pCmd,ARRAYSIZE(farcmdbuf));
 
 					if (WhereIs || Goto)
 					{
@@ -672,7 +672,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 
 							if (Ptr)
 							{
-								lstrcpyn(selectItem, Ptr+shift, ArraySize(selectItem)-1);
+								lstrcpyn(selectItem, Ptr+shift, ARRAYSIZE(selectItem)-1);
 								free(Ptr);
 
 								if (NULL==(Ptr=_tcschr(selectItem,_T('\r'))))
@@ -689,24 +689,24 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 
 					if (Goto)
 					{
-						TCHAR ExpSelectItem[ArraySize(selectItem)];
-						ExpandEnvironmentStr(selectItem,ExpSelectItem,ArraySize(ExpSelectItem));
+						TCHAR ExpSelectItem[ARRAYSIZE(selectItem)];
+						ExpandEnvironmentStr(selectItem,ExpSelectItem,ARRAYSIZE(ExpSelectItem));
 						lstrcpy(selectItem,ExpSelectItem);
 					}
 					else if (WhereIs)
 					{
-						TCHAR pCmdCopy[ArraySize(selectItem)];
+						TCHAR pCmdCopy[ARRAYSIZE(selectItem)];
 						lstrcpy(pCmdCopy,selectItem);
 						TCHAR *Path = NULL, *pFile, temp[MAX_PATH*5], *FARHOMEPath = NULL;
 #ifndef UNICODE
-						int Length=GetCurrentDirectory(ArraySize(cmd),cmd);
+						int Length=GetCurrentDirectory(ARRAYSIZE(cmd),cmd);
 #else
-						int Length=FSF.GetCurrentDirectory(ArraySize(cmd),cmd);
+						int Length=FSF.GetCurrentDirectory(ARRAYSIZE(cmd),cmd);
 #endif
 						int PathLength=GetEnvironmentVariable(_T("PATH"), Path, 0);
 						int FARHOMELength=GetEnvironmentVariable(_T("FARHOME"), FARHOMEPath, 0);
 						Unquote(pCmdCopy);
-						ExpandEnvironmentStr(pCmdCopy,temp,ArraySize(temp));
+						ExpandEnvironmentStr(pCmdCopy,temp,ARRAYSIZE(temp));
 
 						if (Length+PathLength)
 						{
@@ -716,7 +716,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 								GetEnvironmentVariable(_T("FARHOME"), Path+lstrlen(Path), FARHOMELength);
 								lstrcat(Path,_T(";"));
 								GetEnvironmentVariable(_T("PATH"), Path+lstrlen(Path), PathLength);
-								SearchPath(Path, temp, NULL, ArraySize(selectItem), selectItem, &pFile);
+								SearchPath(Path, temp, NULL, ARRAYSIZE(selectItem), selectItem, &pFile);
 #ifndef UNICODE
 								CharToOem(selectItem, selectItem);
 #endif
@@ -724,7 +724,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 							}
 
 							if (*selectItem==0)
-								SearchPath(NULL, temp, NULL, ArraySize(selectItem), selectItem, &pFile);
+								SearchPath(NULL, temp, NULL, ARRAYSIZE(selectItem), selectItem, &pFile);
 						}
 
 						if (*selectItem==0)
@@ -732,7 +732,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 							HKEY RootFindKey[2]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE},hKey;
 							TCHAR FullKeyName[512];
 
-							for (size_t I=0; I < ArraySize(RootFindKey); ++I)
+							for (size_t I=0; I < ARRAYSIZE(RootFindKey); ++I)
 							{
 								FarSprintf(FullKeyName,_T("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s"),pCmdCopy);
 #ifndef UNICODE
@@ -914,7 +914,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 
 #ifdef UNICODE
 						TCHAR temp[MAX_PATH*5];
-						FSF.ConvertPath(CPM_FULL, pCmd, temp, ArraySize(temp));
+						FSF.ConvertPath(CPM_FULL, pCmd, temp, ARRAYSIZE(temp));
 						DWORD FTAttr=GetFileAttributes(temp);
 #else
 						DWORD FTAttr=GetFileAttributes(pCmd);
@@ -949,7 +949,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 					{
 						TCHAR temp[MAX_PATH*5];
 						Unquote(pCmd);
-						ExpandEnvironmentStr(pCmd,temp,ArraySize(temp));
+						ExpandEnvironmentStr(pCmd,temp,ARRAYSIZE(temp));
 
 						if (Load)
 							Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_LOADPLUGIN,PLT_PATH,(LONG_PTR)temp);
@@ -961,7 +961,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 					else
 					{
 						TCHAR *tempDir = NULL, temp[MAX_PATH*5];
-						TCHAR TempFileNameOut[MAX_PATH*5], TempFileNameErr[ArraySize(TempFileNameOut)];
+						TCHAR TempFileNameOut[MAX_PATH*5], TempFileNameErr[ARRAYSIZE(TempFileNameOut)];
 						TempFileNameOut[0] = TempFileNameErr[0] = 0;
 
 						if (outputtofile)
@@ -984,8 +984,8 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 						else
 							Unquote(lstrcpy(temp,pCmd));
 
-						TCHAR ExpTemp[ArraySize(temp)];
-						ExpandEnvironmentStr(temp,ExpTemp,ArraySize(ExpTemp));
+						TCHAR ExpTemp[ARRAYSIZE(temp)];
+						ExpandEnvironmentStr(temp,ExpTemp,ARRAYSIZE(ExpTemp));
 						lstrcpy(temp,ExpTemp);
 						// разделение потоков
 						int catchStdOutput = stream != 2;
@@ -1000,13 +1000,13 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 								if (*runFile)
 								{
 									Unquote(runFile);
-									ExpandEnvironmentStr(runFile,TempFileNameErr,ArraySize(TempFileNameErr));
+									ExpandEnvironmentStr(runFile,TempFileNameErr,ARRAYSIZE(TempFileNameErr));
 									lstrcpy(TempFileNameOut,TempFileNameErr);
 									allOK = TRUE;
 								}
 							}
 							else
-								allOK = MakeTempNames(TempFileNameOut, TempFileNameErr, ArraySize(TempFileNameOut));
+								allOK = MakeTempNames(TempFileNameOut, TempFileNameErr, ARRAYSIZE(TempFileNameOut));
 
 							if (allOK)
 							{
@@ -1017,7 +1017,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 									lstrcat(cmd, _T("\""));
 
 								lstrcat(cmd, temp);
-								ExpandEnvironmentStr(cmd, fullcmd, ArraySize(fullcmd));
+								ExpandEnvironmentStr(cmd, fullcmd, ARRAYSIZE(fullcmd));
 								lstrcpy(cmd, temp);
 
 								if (catchStdOutput && catchStdError)
@@ -1165,8 +1165,8 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 
 									if (tempDir)
 									{
-										GetCurrentDirectory(ArraySize(SaveDir),SaveDir);
-										ExpandEnvironmentStr(tempDir,workDir,ArraySize(workDir));
+										GetCurrentDirectory(ARRAYSIZE(SaveDir),SaveDir);
+										ExpandEnvironmentStr(tempDir,workDir,ARRAYSIZE(workDir));
 										SetCurrentDirectory(workDir);
 									}
 
@@ -1301,7 +1301,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 						else
 						{
 #ifdef UNICODE
-							FSF.ConvertPath(CPM_FULL, temp, TempFileNameOut, ArraySize(TempFileNameOut));
+							FSF.ConvertPath(CPM_FULL, temp, TempFileNameOut, ARRAYSIZE(TempFileNameOut));
 #else
 							lstrcpy(TempFileNameOut, temp);
 #endif

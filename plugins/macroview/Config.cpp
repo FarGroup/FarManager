@@ -121,7 +121,7 @@ BOOL _fastcall TMacroView::Configure()
 		/* 16 */ {DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,1,(TCHAR *)MMacroSave},
 		/* 17 */ {DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,0,(TCHAR *)MMacroCancel},
 	};
-	int size=ArraySize(InitItems);
+	int size=ARRAYSIZE(InitItems);
 	FarDialogItem *DialogItems=new FarDialogItem[size];
 	InitDialogItems(InitItems,DialogItems,size);
 	Reg->CreateKey(PluginRootKey);
@@ -184,7 +184,7 @@ BOOL _fastcall TMacroView::Configure()
 			lstrcpy(ItemsErrorWrite[2],PluginRootKey);
 			QuoteText(ItemsErrorWrite[2]);
 			Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,ItemsErrorWrite,
-			             ArraySize(ItemsErrorWrite),1);
+			             ARRAYSIZE(ItemsErrorWrite),1);
 			Result=FALSE;
 		}
 	}

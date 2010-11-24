@@ -30,8 +30,8 @@ int ConfigGeneral()
   /* 16 */{DI_BUTTON,0,16,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel},
   };
 
-  struct FarDialogItem DialogItems[ArraySize(InitItems)];
-  InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
+  struct FarDialogItem DialogItems[ARRAYSIZE(InitItems)];
+  InitDialogItems(InitItems,DialogItems,ARRAYSIZE(InitItems));
   DialogItems[1].Selected=(Opt.HideOutput==0);
   DialogItems[2].Selected=(Opt.HideOutput==1);
   DialogItems[3].Selected=(Opt.HideOutput==2);
@@ -45,7 +45,7 @@ int ConfigGeneral()
   DialogItems[13].Selected=Opt.ReadDescriptions;
   DialogItems[14].Selected=Opt.UpdateDescriptions;
   int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,19,"ArcSettings1",DialogItems,
-                           ArraySize(DialogItems));
+                           ARRAYSIZE(DialogItems));
   if (ExitCode==17 || ExitCode < 0)
     return FALSE;
   if (DialogItems[1].Selected)
@@ -178,9 +178,9 @@ int ConfigCommands(char *ArcFormat,int IDFocus,BOOL FastAccess,int PluginNumber,
   /* 36 */{DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MReset},
   };
 
-  struct FarDialogItem DialogItems[ArraySize(InitItems)];
+  struct FarDialogItem DialogItems[ARRAYSIZE(InitItems)];
   int Length,MaxLength=0,I,J;
-  InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
+  InitDialogItems(InitItems,DialogItems,ARRAYSIZE(InitItems));
 
   DialogItems[IDFocus].Focus=1;
 
@@ -198,7 +198,7 @@ int ConfigCommands(char *ArcFormat,int IDFocus,BOOL FastAccess,int PluginNumber,
   FormatInfo.PluginType = PluginType;
 
   int ExitCode=Info.DialogEx(Info.ModuleNumber,-1,-1,76,22,"ArcSettings2",
-               DialogItems,ArraySize(DialogItems),
+               DialogItems,ARRAYSIZE(DialogItems),
                0,0,CfgCmdProc,(LONG_PTR)&FormatInfo);
 
   if(ExitCode==35 || ExitCode < 0)

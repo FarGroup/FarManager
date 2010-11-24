@@ -207,7 +207,7 @@ void WINAPI _export GetPluginInfo(struct PluginInfo *Info)
   static const char *PluginCfgStrings[1];
   PluginCfgStrings[0]=(char*)GetMsg(MCfgLine0);
   Info->PluginConfigStrings=PluginCfgStrings;
-  Info->PluginConfigStringsNumber=ArraySize(PluginCfgStrings);
+  Info->PluginConfigStringsNumber=ARRAYSIZE(PluginCfgStrings);
   static char CommandPrefix[sizeof(Opt.CommandPrefix1)];
   lstrcpy(CommandPrefix,Opt.CommandPrefix1);
   Info->CommandPrefix=CommandPrefix;
@@ -246,7 +246,7 @@ int WINAPI _export Configure(int ItemNumber)
   do{
     ItemNumber=Info.Menu(Info.ModuleNumber,-1,-1,0,FMENU_WRAPMODE,
                        GetMsg(MCfgLine0),NULL,"Config",NULL,NULL,MenuItems,
-                       ArraySize(MenuItems));
+                       ARRAYSIZE(MenuItems));
     switch(ItemNumber)
     {
       case -1:

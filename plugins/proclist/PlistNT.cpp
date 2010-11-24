@@ -281,8 +281,8 @@ bool GetPDataNT(ProcessDataNT& DATA, ProcessPerfData& pd)
     if(*(DWORD*)pFullPath==0x3F005C && ((DWORD*)pFullPath)[1]==0x5C003F) // "\??\"
 #endif
       pFullPath += 4;
-    lstrcpyn(DATA.FullPath, pFullPath, ArraySize(DATA.FullPath));
-    lstrcpyn(DATA.CommandLine, pd.CommandLine, ArraySize(DATA.CommandLine));
+    lstrcpyn(DATA.FullPath, pFullPath, ARRAYSIZE(DATA.FullPath));
+    lstrcpyn(DATA.CommandLine, pd.CommandLine, ARRAYSIZE(DATA.CommandLine));
     return true;
 }
 
@@ -310,7 +310,7 @@ BOOL GetListNT(PluginPanelItem* &pPanelItem,int &ItemsNumber,PerfThread& Thread)
 
       CurItem.Flags|=PPIF_USERDATA;
 #ifndef UNICODE
-      lstrcpyn(CurItem.FindData.cFileName,pd.ProcessName,ArraySize(CurItem.FindData.cFileName));
+      lstrcpyn(CurItem.FindData.cFileName,pd.ProcessName,ARRAYSIZE(CurItem.FindData.cFileName));
 #else
       delete CurItem.FindData.lpwszFileName;  // ???
       CurItem.FindData.lpwszFileName = wcsdup(pd.ProcessName);
@@ -593,7 +593,7 @@ BOOL KillProcessNT(DWORD pid,HWND hwnd)
       GetMsg(MNo)
     };
 
-    if(Message(FMSG_WARNING,NULL,MsgItems,ArraySize(MsgItems),2)==0)
+    if(Message(FMSG_WARNING,NULL,MsgItems,ARRAYSIZE(MsgItems),2)==0)
     {
       if (token.Enable())
         hProcess = OpenProcess( PROCESS_TERMINATE, FALSE, pid );
@@ -648,12 +648,12 @@ void DumpNTCounters(HANDLE InfoFile, PerfThread& Thread, DWORD dwPid, DWORD dwTh
       return;
     const PerfLib* pf = Thread.GetPerfLib();
 
-    for(size_t i=0; i<ArraySize(Counters); i++)
+    for(size_t i=0; i<ARRAYSIZE(Counters); i++)
     {
       if(!pf->dwCounterTitles[i]) // counter is absent
           continue;
       TCHAR buf[28];
-      lstrcpyn(buf,GetMsg(Counters[i].idName),ArraySize(buf)-2);
+      lstrcpyn(buf,GetMsg(Counters[i].idName),ARRAYSIZE(buf)-2);
       lstrcat(buf,_T(":"));
       fprintf(InfoFile, _T("%-24s "), buf);
 

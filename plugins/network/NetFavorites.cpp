@@ -40,7 +40,7 @@ BOOL GetFavorites(LPNETRESOURCE pNR, NetResourceList *pList)
       TCHAR szSubKey[MAX_PATH];
       szSubKey[0] = 0;
       for(DWORD dwIndex = 0;
-          ERROR_SUCCESS == RegEnumKey(hKey,dwIndex,szSubKey,ArraySize(szSubKey));
+          ERROR_SUCCESS == RegEnumKey(hKey,dwIndex,szSubKey,ARRAYSIZE(szSubKey));
           dwIndex++)
       {
         int bTmp; LONG cData = sizeof(bTmp);
@@ -169,7 +169,7 @@ BOOL GetResourceKey(TCHAR* lpRemoteName, const TCHAR* rootKey, TCHAR* lpResource
       KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS)))
     {
       for(DWORD dwIndex = 0;
-          ERROR_SUCCESS == RegEnumKey(hKey, dwIndex, szKey, ArraySize(szKey));
+          ERROR_SUCCESS == RegEnumKey(hKey, dwIndex, szKey, ARRAYSIZE(szKey));
           dwIndex++)
       {
         int bTmp = 0;
@@ -201,7 +201,7 @@ BOOL GetResourceKey(TCHAR* lpRemoteName, const TCHAR* rootKey, TCHAR* lpResource
 void WriteFavoriteItem(LPFAVORITEITEM lpFavItem, TCHAR* /*szFolder*/)
 {
   TCHAR szResourceKey[MAX_PATH];
-  size_t cSize = ArraySize(szResourceKey);
+  size_t cSize = ARRAYSIZE(szResourceKey);
   GetResourceKey(lpFavItem->lpRemoteName, SZ_FAVORITES, szResourceKey, &cSize);
   SetRegKey(HKEY_CURRENT_USER, szResourceKey, SZ_USERNAME, lpFavItem->lpUserName);
   SetRegKey(HKEY_CURRENT_USER, szResourceKey, SZ_USERPASS, lpFavItem->lpPassword);
@@ -210,7 +210,7 @@ void WriteFavoriteItem(LPFAVORITEITEM lpFavItem, TCHAR* /*szFolder*/)
 BOOL ReadFavoriteItem(LPFAVORITEITEM lpFavItem)
 {
   TCHAR resKey[MAX_PATH];
-  size_t cData = ArraySize(resKey);
+  size_t cData = ARRAYSIZE(resKey);
   if(lpFavItem && GetResourceKey(lpFavItem->lpRemoteName, SZ_FAVORITES, resKey, &cData))
   {
     GetRegKey(HKEY_CURRENT_USER, resKey, SZ_USERNAME, lpFavItem->lpUserName,
@@ -254,7 +254,7 @@ BOOL GetFavoritesParent(NETRESOURCE& SrcRes, LPNETRESOURCE lpParent)
 
 
   TCHAR szResourceKey[MAX_PATH];
-  size_t cSize = ArraySize(szResourceKey);
+  size_t cSize = ARRAYSIZE(szResourceKey);
   if(GetResourceKey(SrcRes.lpRemoteName, SZ_FAVORITES, szResourceKey, &cSize))
   {
     p = (TCHAR*)PointToName(szResourceKey);
@@ -292,7 +292,7 @@ BOOL GetFavoriteResource(TCHAR *SrcName, LPNETRESOURCE DstNetResource)
   TCHAR *p1, *p = SrcName;
   while(*p == _T('\\')) ++p;
   TCHAR szKey[MAX_PATH];
-  size_t cSize = ArraySize(szKey);
+  size_t cSize = ARRAYSIZE(szKey);
   int dwKey = 0;
   szKey[0] = 0;
   if(GetResourceKey(p, SZ_FAVORITES, szKey, &cSize))
@@ -421,7 +421,7 @@ EliminateSubKey( HKEY hkey, LPTSTR strSubKey )
     for( ; ; )
     {
       TCHAR Buffer[MAX_PATH];
-      DWORD dw = ArraySize(Buffer);
+      DWORD dw = ARRAYSIZE(Buffer);
       FILETIME ft;
 
       lreturn = RegEnumKeyEx( hk

@@ -69,8 +69,8 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
     {DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,0,(TCHAR *)MCancel}
   };
 
-  struct FarDialogItem DialogItems[ArraySize(InitItems)];
-  InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
+  struct FarDialogItem DialogItems[ARRAYSIZE(InitItems)];
+  InitDialogItems(InitItems,DialogItems,ARRAYSIZE(InitItems));
   int RightMargin=GetRegKey(HKEY_CURRENT_USER,_T(""),_T("RightMargin"),75);
   int Reformat=GetRegKey(HKEY_CURRENT_USER,_T(""),_T("Reformat"),TRUE);
   int SmartMode=GetRegKey(HKEY_CURRENT_USER,_T(""),_T("SmartMode"),FALSE);
@@ -87,10 +87,10 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
   DialogItems[5].Selected=Justify;
 #ifndef UNICODE
   int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,10,NULL,DialogItems,
-                           ArraySize(DialogItems));
+                           ARRAYSIZE(DialogItems));
 #else
   HANDLE hDlg=Info.DialogInit(Info.ModuleNumber,-1,-1,76,10,NULL,DialogItems,
-                              ArraySize(DialogItems),0,0,NULL,0);
+                              ARRAYSIZE(DialogItems),0,0,NULL,0);
   if (hDlg == INVALID_HANDLE_VALUE)
     return INVALID_HANDLE_VALUE;
 
@@ -398,6 +398,6 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
   static const TCHAR *PluginMenuStrings[1];
   PluginMenuStrings[0]=GetMsg(MAlign);
   Info->PluginMenuStrings=PluginMenuStrings;
-  Info->PluginMenuStringsNumber=ArraySize(PluginMenuStrings);
+  Info->PluginMenuStringsNumber=ARRAYSIZE(PluginMenuStrings);
   Info->PluginConfigStringsNumber=0;
 }

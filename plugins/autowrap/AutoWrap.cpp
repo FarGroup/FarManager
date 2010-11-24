@@ -39,8 +39,8 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
   lstrcat(PluginRootKey,_T("\\AutoWrap"));
   Opt.Wrap=GetRegKey(HKEY_CURRENT_USER,_T(""),_T("Wrap"),0);
   Opt.RightMargin=GetRegKey(HKEY_CURRENT_USER,_T(""),_T("RightMargin"),75);
-  GetRegKey(HKEY_CURRENT_USER,_T(""),_T("FileMasks"),Opt.FileMasks,_T("*.*"),ArraySize(Opt.FileMasks));
-  GetRegKey(HKEY_CURRENT_USER,_T(""),_T("ExcludeFileMasks"),Opt.ExcludeFileMasks,_T(""),ArraySize(Opt.ExcludeFileMasks));
+  GetRegKey(HKEY_CURRENT_USER,_T(""),_T("FileMasks"),Opt.FileMasks,_T("*.*"),ARRAYSIZE(Opt.FileMasks));
+  GetRegKey(HKEY_CURRENT_USER,_T(""),_T("ExcludeFileMasks"),Opt.ExcludeFileMasks,_T(""),ARRAYSIZE(Opt.ExcludeFileMasks));
 }
 
 
@@ -52,9 +52,9 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
   Builder.AddTextAfter(RightMargin, MRightMargin);
   Builder.AddSeparator();
   Builder.AddText(MFileMasks);
-  Builder.AddEditField(Opt.FileMasks, ArraySize(Opt.FileMasks), 65);
+  Builder.AddEditField(Opt.FileMasks, ARRAYSIZE(Opt.FileMasks), 65);
   Builder.AddText(MExcludeFileMasks);
-  Builder.AddEditField(Opt.ExcludeFileMasks, ArraySize(Opt.ExcludeFileMasks), 65);
+  Builder.AddEditField(Opt.ExcludeFileMasks, ARRAYSIZE(Opt.ExcludeFileMasks), 65);
   Builder.AddOKCancel(MOk, MCancel);
   if (Builder.ShowDialog())
   {
@@ -256,6 +256,6 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
   static const TCHAR *PluginMenuStrings[1];
   PluginMenuStrings[0]=GetMsg(MAutoWrap);
   Info->PluginMenuStrings=PluginMenuStrings;
-  Info->PluginMenuStringsNumber=ArraySize(PluginMenuStrings);
+  Info->PluginMenuStringsNumber=ARRAYSIZE(PluginMenuStrings);
   Info->PluginConfigStringsNumber=0;
 }

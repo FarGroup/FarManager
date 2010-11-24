@@ -70,10 +70,10 @@ int Config()
   if(!Plist::PanelModesInitialized())
       Plist::InitializePanelModes();
 
-#define NITEMS (ArraySize(InitItems) + NVIEWITEMS)
+#define NITEMS (ARRAYSIZE(InitItems) + NVIEWITEMS)
 
   FarDialogItem DialogItems[NITEMS];
-  InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
+  InitDialogItems(InitItems,DialogItems,ARRAYSIZE(InitItems));
   memcpy(DialogItems+NITEMS-2, DialogItems+NITEMS-NVIEWITEMS-2, sizeof(*DialogItems) * 2);
 
   MakeViewOptions(DialogItems+NITEMS-NVIEWITEMS-2, ::Opt, NITEMS-NVIEWITEMS-3);
@@ -89,19 +89,19 @@ int Config()
   int bRet = FALSE;
 #ifndef UNICODE
   int ExitCode = Info.Dialog(Info.ModuleNumber,-1,-1,76,16,_T("Config"),
-                             DialogItems,ArraySize(DialogItems));
+                             DialogItems,ARRAYSIZE(DialogItems));
 #define _REF  DialogItems
 #else
   int ExitCode;
   HANDLE hDlg = Info.DialogInit(Info.ModuleNumber,-1,-1,76,16,_T("Config"),
-                                DialogItems,ArraySize(DialogItems),0,0,NULL,0);
+                                DialogItems,ARRAYSIZE(DialogItems),0,0,NULL,0);
   if(hDlg == INVALID_HANDLE_VALUE)
     goto done;
 
   ExitCode = Info.DialogRun(hDlg);
 #define _REF  hDlg
 #endif
-  if (ExitCode == ArraySize(DialogItems) - 2)
+  if (ExitCode == ARRAYSIZE(DialogItems) - 2)
   {
     Opt.AddToDisksMenu = GetCheck(_REF, 1);
 #ifndef UNICODE

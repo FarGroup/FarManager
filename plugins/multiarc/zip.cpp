@@ -310,7 +310,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
                         "OS/2","Mac-OS","Z-System","CP/M","TOPS-20",
                         "Win32","SMS/QDOS","Acorn RISC OS","Win32 VFAT","MVS",
                         "BeOS","Tandem"};
-  if (ZipHeader.PackOS<ArraySize(ZipOS))
+  if (ZipHeader.PackOS<ARRAYSIZE(ZipOS))
     lstrcpy(Info->HostOS,ZipOS[ZipHeader.PackOS]);
 
   if (ZipHeader.PackOS==11 && ZipHeader.PackVer>20 && ZipHeader.PackVer<25)
@@ -493,7 +493,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     /*Move files and folders*/"pkzipc -add -move -attr=all -dir -nozip {-pass=%%P} {-temp=%%W} %%A @%%LNMA",
     /*"All files" mask      */"*.*"
     };
-    if (Command<(int)(ArraySize(Commands)))
+    if (Command<(int)(ARRAYSIZE(Commands)))
     {
       lstrcpy(Dest,Commands[Command]);
       return(TRUE);

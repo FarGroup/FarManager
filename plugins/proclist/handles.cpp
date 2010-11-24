@@ -232,7 +232,7 @@ static TCHAR const * const constStrTypes[] = {
 
 static WORD GetTypeFromTypeToken(LPCTSTR typeToken)
 {
-    for ( WORD i = 1; i < ArraySize(constStrTypes); i++ )
+    for ( WORD i = 1; i < ARRAYSIZE(constStrTypes); i++ )
         if ( !FSF.LStricmp(constStrTypes[i], typeToken) )
             return i;
     return OB_TYPE_UNKNOWN;
@@ -241,7 +241,7 @@ static WORD GetTypeFromTypeToken(LPCTSTR typeToken)
 static WORD GetType( HANDLE h)
 {
     TCHAR strType[256];
-    return GetTypeToken(h, strType, ArraySize(strType)) ? GetTypeFromTypeToken(strType) : OB_TYPE_UNKNOWN;
+    return GetTypeToken(h, strType, ARRAYSIZE(strType)) ? GetTypeFromTypeToken(strType) : OB_TYPE_UNKNOWN;
 }
 
 static bool PrintNameByType(HANDLE handle, WORD type, HANDLE file, PerfThread* pThread=0)
@@ -292,24 +292,24 @@ static bool PrintNameByType(HANDLE handle, WORD type, HANDLE file, PerfThread* p
             if(((UNICODE_STRING*)lpBuffer)->Length) {
                 wchar_t *ws = ((UNICODE_STRING*)lpBuffer)->Buffer;
                 if(type==OB_TYPE_KEY && !_memicmp(ws, REGISTRY, sizeof(REGISTRY)-2) ) {
-                    wchar_t *ws1 = ws + ArraySize(REGISTRY) - 1;
+                    wchar_t *ws1 = ws + ARRAYSIZE(REGISTRY) - 1;
                     const TCHAR *s0 = 0;
                     if(!_memicmp(ws1, USER, sizeof(USER)-2)) {
-                            ws1 += ArraySize(USER) - 1;
+                            ws1 += ARRAYSIZE(USER) - 1;
                             size_t l  = lstrlenW(pUserAccountID);
                             if(l>0 && !_memicmp(ws1,pUserAccountID,l*2)) {
                                 s0 = _T("HKCU");
                                 ws1 += l;
                                 if(!_memicmp(ws1,_CLASSES,sizeof(_CLASSES)-2)) {
                                     s0 = _T("HKCU\\Classes");
-                                    ws1 += ArraySize(_CLASSES) - 1;
+                                    ws1 += ARRAYSIZE(_CLASSES) - 1;
                                 }
                             }
                             else
                                 s0 = _T("HKU");
                     }
-                    else if(!_memicmp(ws1, CLASSES, sizeof(CLASSES)-2)) { s0 = _T("HKCR"); ws1+=ArraySize(CLASSES) - 1;}
-                    else if(!_memicmp(ws1, MACHINE, sizeof(MACHINE)-2)) { s0 = _T("HKLM"); ws1+=ArraySize(MACHINE) - 1;}
+                    else if(!_memicmp(ws1, CLASSES, sizeof(CLASSES)-2)) { s0 = _T("HKCR"); ws1+=ARRAYSIZE(CLASSES) - 1;}
+                    else if(!_memicmp(ws1, MACHINE, sizeof(MACHINE)-2)) { s0 = _T("HKLM"); ws1+=ARRAYSIZE(MACHINE) - 1;}
                     if(s0) {
                         fprintf(file, _T("%s"), s0);
                         ws = ws1;
@@ -342,7 +342,7 @@ static bool PrintNameAndType(HANDLE h, DWORD dwPID, HANDLE file, PerfThread* pTh
         handle = h;
 
     WORD type = GetType(handle);
-    if(type < ArraySize(constStrTypes))
+    if(type < ARRAYSIZE(constStrTypes))
         fprintf(file, _T("%-13s "), constStrTypes[type]);
     bool ret = type!=OB_TYPE_UNKNOWN &&
             PrintNameByType( handle, type, file, pThread);
@@ -419,7 +419,7 @@ bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread*
             pSysHandleInformation->Handles[i].HandleAttributes = (UCHAR)(pSysHandleInformation->Handles[i].HandleAttributes & 0xff);
             fprintf(file, _T("%5X  %08X "),
                 pSysHandleInformation->Handles[i].HandleValue,
-                /*dwType< ArraySize(constStrTypes) ?
+                /*dwType< ARRAYSIZE(constStrTypes) ?
                     constStrTypes[dwType] : _T("(Unknown)"),*/
 //              pSysHandleInformation->Handles[i].KernelAddress,
                 pSysHandleInformation->Handles[i].GrantedAccess);
@@ -506,7 +506,7 @@ static BOOL ConvertSid(PSID pSid, LPWSTR pszSidText, LPDWORD dwBufferLen)
 static const wchar_t *GetUserAccountID()
 {
    static TCHAR UserAccountID[256];
-   DWORD size = ArraySize(UserAccountID);
+   DWORD size = ARRAYSIZE(UserAccountID);
    SID_NAME_USE eUse;
    DWORD cbSid=0,cbDomainName=0;
 
@@ -520,7 +520,7 @@ static const wchar_t *GetUserAccountID()
    PSID pSid = (PSID)new char[cbSid];
    TCHAR* pDomainName = new TCHAR[cbDomainName+1];
    pLookupAccountName(0,UserAccountID,pSid,&cbSid, pDomainName,&cbDomainName, &eUse);
-   size = ArraySize(UserAccountID);
+   size = ARRAYSIZE(UserAccountID);
    if(!ConvertSid(pSid, (wchar_t*)UserAccountID, &size)) *UserAccountID = 0;
    delete (char *)pSid;
    delete pDomainName;

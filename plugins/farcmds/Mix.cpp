@@ -236,15 +236,15 @@ BOOL ProcessOSAliases(TCHAR *Str,int SizeStr)
 	TCHAR NewCmdPar[4096];
 	*NewCmdStr=0;
 	*NewCmdPar=0;
-	PartCmdLine(Str,NewCmdStr,ArraySize(NewCmdStr),NewCmdPar,ArraySize(NewCmdPar));
+	PartCmdLine(Str,NewCmdStr,ARRAYSIZE(NewCmdStr),NewCmdPar,ARRAYSIZE(NewCmdPar));
 	TCHAR ModuleName[MAX_PATH];
-	GetModuleFileName(NULL,ModuleName,ArraySize(ModuleName));
+	GetModuleFileName(NULL,ModuleName,ARRAYSIZE(ModuleName));
 	TCHAR* ExeName=(TCHAR*)PointToName(ModuleName);
 	int ret=pGetConsoleAlias(NewCmdStr,NewCmdStr,sizeof(NewCmdStr),ExeName);
 
 	if (!ret)
 	{
-		if (ExpandEnvironmentStr(_T("%COMSPEC%"),ModuleName,ArraySize(ModuleName)))
+		if (ExpandEnvironmentStr(_T("%COMSPEC%"),ModuleName,ARRAYSIZE(ModuleName)))
 		{
 			ExeName=(TCHAR*)PointToName(ModuleName);
 			ret=pGetConsoleAlias(NewCmdStr,NewCmdStr,sizeof(NewCmdStr),ExeName);

@@ -379,7 +379,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     /*Move files and folders*/"arc32 m{%%S}{g%%P} %%a %%FMQ",
     /*"All files" mask      */"*.*"
     };
-    if (Command<(int)(ArraySize(Commands)))
+    if (Command<(int)(ARRAYSIZE(Commands)))
     {
       lstrcpy(Dest,Commands[Command]);
       return(TRUE);

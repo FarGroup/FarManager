@@ -185,7 +185,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 #ifndef UNICODE
 		lstrcpy(selectItem,PInfo.CurDir);
 #else
-		Info.Control(PANEL_ACTIVE,FCTL_GETPANELDIR,ArraySize(selectItem),(LONG_PTR)selectItem);
+		Info.Control(PANEL_ACTIVE,FCTL_GETPANELDIR,ARRAYSIZE(selectItem),(LONG_PTR)selectItem);
 #endif
 
 		if (lstrlen(selectItem))
@@ -300,7 +300,7 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
 	{
 		PluginMenuStrings[0]=(TCHAR*)GetMsg(MSetPassiveDir);
 		Info->PluginMenuStrings=PluginMenuStrings;
-		Info->PluginMenuStringsNumber=ArraySize(PluginMenuStrings);
+		Info->PluginMenuStringsNumber=ARRAYSIZE(PluginMenuStrings);
 	}
 	else
 	{
@@ -325,7 +325,7 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
 
 	PluginConfigStrings[0]=(TCHAR*)GetMsg(MConfig);
 	Info->PluginConfigStrings=PluginConfigStrings;
-	Info->PluginConfigStringsNumber=ArraySize(PluginConfigStrings);
+	Info->PluginConfigStringsNumber=ARRAYSIZE(PluginConfigStrings);
 #ifndef UNICODE
 	Info->CommandPrefix=_T("far:view:edit:goto:clip:whereis:macro:link:run");
 #else
@@ -374,8 +374,8 @@ int WINAPI EXP_NAME(Configure)(int /*ItemNumber*/)
 	};
 
 	BOOL ret=FALSE;
-	struct FarDialogItem DialogItems[ArraySize(InitItems)];
-	InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
+	struct FarDialogItem DialogItems[ARRAYSIZE(InitItems)];
+	InitDialogItems(InitItems,DialogItems,ARRAYSIZE(InitItems));
 	DialogItems[3].Mask=_T("9");
 	DialogItems[1].Selected=Opt.Add2PlugMenu;
 	DialogItems[2].Selected=Opt.Add2DisksMenu;
@@ -398,9 +398,9 @@ int WINAPI EXP_NAME(Configure)(int /*ItemNumber*/)
 	DialogItems[19].Mask=_T("9999999999");
 
 #ifndef UNICODE
-	int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,73,23,"Config",DialogItems,ArraySize(InitItems));
+	int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,73,23,"Config",DialogItems,ARRAYSIZE(InitItems));
 #else
-	HANDLE hDlg=Info.DialogInit(Info.ModuleNumber,-1,-1,73,23,L"Config",DialogItems,ArraySize(InitItems),0,0,NULL,0);
+	HANDLE hDlg=Info.DialogInit(Info.ModuleNumber,-1,-1,73,23,L"Config",DialogItems,ARRAYSIZE(InitItems),0,0,NULL,0);
 
 	if (hDlg == INVALID_HANDLE_VALUE)
 		return ret;
