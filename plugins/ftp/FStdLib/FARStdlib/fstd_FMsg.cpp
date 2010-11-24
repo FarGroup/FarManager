@@ -13,7 +13,7 @@ int WINAPI FP_Message(unsigned int Flags,LPCSTR HelpTopic,
 	static int CMsgWidth  = 0;
 	static int CMsgHeight = 0;
 	//Check width and set repaint flag
-	int  width = 0;
+	size_t width = 0;
 
 	//If all lines in one (text)
 	if(IS_FLAG(Flags,FMSG_ALLINONE))
@@ -22,7 +22,7 @@ int WINAPI FP_Message(unsigned int Flags,LPCSTR HelpTopic,
 		      *e;
 
 		for(ItemsNumber = 0; (e=strchr(b,'\n')) != NULL; ItemsNumber++, b = e+1)
-			width = Max(width,(int)(e-b));
+			width = Max(width,(size_t)(e-b));
 	}
 	else
 
@@ -34,12 +34,12 @@ int WINAPI FP_Message(unsigned int Flags,LPCSTR HelpTopic,
 			else
 				litems[rc] = Items[rc];
 
-			width = Max(width,strLen(litems[rc]));
+			width = Max(width,strlen(litems[rc]));
 		}
 
 	//Calc if message need to be redrawn with smaller dimentions
 	if(!CMsgWidth        ||
-	        width < CMsgWidth ||
+	        (int)width < CMsgWidth ||
 	        !CMsgHeight       ||
 	        ItemsNumber < CMsgHeight)
 
@@ -55,7 +55,7 @@ int WINAPI FP_Message(unsigned int Flags,LPCSTR HelpTopic,
 	if(Delayed)
 		*Delayed = ButtonsNumber || (Flags&FMSG_MB_MASK) != 0;
 
-	CMsgWidth  = width;
+	CMsgWidth  = (int)width;
 	CMsgHeight = ItemsNumber;
 	return rc;
 }

@@ -543,7 +543,7 @@ void WINAPI AddEndSlash(char *Path,char slash, size_t ssz)
 
 	if(!Path || !Path[0]) return;
 
-	Length = strLen(Path)-1;
+	Length = strlen(Path)-1;
 
 	if(Length <= 0 || Length >= ssz) return;
 
@@ -568,18 +568,22 @@ void WINAPI DelEndSlash(String& p,char shash)
 
 void WINAPI DelEndSlash(char *Path,char shash)
 {
-	int len;
 
-	if(Path && (len=strLen(Path)-1) >= 0 &&
-	        Path[len] == shash)
-		Path[len] = 0;
+	if(Path && *Path)
+	{
+		size_t len=strlen(Path);
+		if(Path[len-1] == shash)
+		{
+			Path[len-1] = 0;
+		}
+	}
 }
 
 char* WINAPI TruncStr(char *Str,int MaxLength)
 {
 	int Length;
 
-	if((Length=strLen(Str))>MaxLength)
+	if((Length=static_cast<int>(strlen(Str)))>MaxLength)
 		if(MaxLength>3)
 		{
 			char *TmpStr=new char[MaxLength+5];
@@ -665,7 +669,7 @@ BOOL WINAPI IsDirExist(LPCSTR nm)
 	char            str[MAX_PATH];
 	StrCpy(str,nm);
 
-	if((l=strLen(str)-1) > 0 && str[l] == SLASH_CHAR) str[l] = 0;
+	if((l=static_cast<int>(strlen(str)-1)) > 0 && str[l] == SLASH_CHAR) str[l] = 0;
 
 	h = FindFirstFile(str,&wfd);
 

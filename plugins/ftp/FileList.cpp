@@ -231,7 +231,7 @@ BOOL FTP::ShowFilesList(FP_SizeItemList* il)
 		p = il->Item(n);
 		p->NumberOfLinks        = StrSlashCount(FTP_FILENAME(p));
 		p->FindData.dwReserved1 = 0;
-		w = Max(w,strLen(PointToName(FTP_FILENAME(p))) + (int)p->NumberOfLinks + 1);
+		w = Max(w,static_cast<int>(strlen(PointToName(FTP_FILENAME(p)))) + (int)p->NumberOfLinks + 1);
 		cn++;
 		MNUM(mi[i++]) = n;
 	}
@@ -248,12 +248,12 @@ BOOL FTP::ShowFilesList(FP_SizeItemList* il)
 	{
 		p = il->Item(MNUM(mi[n]));
 		FDigit(str, ((__int64)p->FindData.nFileSizeHigh) << 32 | p->FindData.nFileSizeLow, -1);
-		szSize = Max(strLen(str),szSize);
+		szSize = Max(static_cast<int>(strlen(str)),szSize);
 
 		if(IS_FLAG(p->FindData.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY))
 		{
 			FDigit(str,p->FindData.dwReserved0,-1);
-			szCount = Max(strLen(str),szCount);
+			szCount = Max(static_cast<int>(strlen(str)),szCount);
 		}
 	}
 

@@ -328,7 +328,7 @@ BOOL WINAPI idPRParceUnix(const FTPServerInfo* Server, FTPFileInfo* p, char *ent
 					{
 						entry[i-3] = '\0';
 						StrCpy(entry_info.Link, entry + i + 1, sizeof(entry_info.Link));
-						i = strLen(entry_info.Link);
+						i = static_cast<int>(strlen(entry_info.Link));
 
 						if(i)
 						{

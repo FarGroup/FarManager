@@ -205,12 +205,12 @@ void TrafficInformation::DrawInfos(time_t tm)
 	int w;
 
 	for(w = n = 0; n < LineCount; n++)
-		w = Max(w,strLen(Lines[n]));
+		w = Max(w,static_cast<int>(strlen(Lines[n])));
 
 	for(n = 0; n < LineCount; n++)
 		if(Lines[n][0] != '\x1' && Lines[n][0] != '\x2')
 		{
-			for(i = strLen(Lines[n]); i < w; i++)
+			for(i = static_cast<int>(strlen(Lines[n])); i < w; i++)
 				Lines[n][i] = ' ';
 
 			Lines[n][i] = 0;
@@ -224,7 +224,7 @@ void TrafficInformation::DrawInfos(time_t tm)
 		else if(Items[n].Align == tRightFill)
 			Items[n].Size = w - Items[n].Pos;
 
-		if(strLen(Lines[Items[n].Line]) > Items[n].Pos)
+		if(static_cast<int>(strlen(Lines[Items[n].Line])) > Items[n].Pos)
 			DrawInfo(&Items[n],tm);
 	}
 

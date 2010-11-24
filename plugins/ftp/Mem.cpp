@@ -28,9 +28,9 @@ void ShowMemInfo(void)
 	HANDLE                     h = GetStdHandle(STD_OUTPUT_HANDLE);
 	DWORD                      dw;
 	sprintf(str,"%6ld in %-6ld ",MemUsage,MemCount);
-	ci.dwSize.X = FP_ConWidth() - strLen(str);
+	ci.dwSize.X = FP_ConWidth() - strlen(str);
 	ci.dwSize.Y = 0;
-	WriteConsoleOutputCharacter(h,str,strLen(str),ci.dwSize,&dw);
+	WriteConsoleOutputCharacter(h,str,strlen(str),ci.dwSize,&dw);
 	into = FALSE;
 }
 

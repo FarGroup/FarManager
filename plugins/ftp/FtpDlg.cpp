@@ -220,7 +220,7 @@ BOOL FTP::CopyAskDialog(BOOL Move, BOOL Download, FTPCopyInfo* ci)
 	while(*m && isspace(*m)) m++;
 
 	TStrCpy(IncludeMask, m);
-	m = IncludeMask + strLen(IncludeMask)-1;
+	m = IncludeMask + strlen(IncludeMask)-1;
 
 	while(m > IncludeMask && isspace(*m))
 	{
@@ -234,7 +234,7 @@ BOOL FTP::CopyAskDialog(BOOL Move, BOOL Download, FTPCopyInfo* ci)
 	while(*m && isspace(*m)) m++;
 
 	TStrCpy(ExcludeMask, m);
-	m = ExcludeMask + strLen(ExcludeMask)-1;
+	m = ExcludeMask + strlen(ExcludeMask)-1;
 
 	while(m > IncludeMask && isspace(*m))
 	{

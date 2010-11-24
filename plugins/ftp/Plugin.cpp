@@ -110,7 +110,6 @@ void CreateFTPInterface(void)
 	Interface.StrCmp    = StrCmp;
 	Interface.StrCpy    = StrCpy;
 	Interface.StrCat    = StrCat;
-	Interface.strLen    = strLen;
 //Utilities
 	Interface.Message          = Message;
 	Interface.MessageV         = MessageV;

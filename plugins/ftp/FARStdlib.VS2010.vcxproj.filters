@@ -144,9 +144,6 @@
     <ClCompile Include="FStdLib\FARStdlib\fstd_stdlibCS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FStdLib\FARStdlib\fstd_stdlibST.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FStdLib\FARStdlib\fstd_SText.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

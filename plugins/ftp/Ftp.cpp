@@ -280,10 +280,10 @@ AskConnect:
 		if(!IS_SILENT(OpMode))
 		{
 			CurItem->CustomColumnNumber             = FTP_COL_MAX;
-			CurItem->Owner                          = FileInfo.FTPOwner[0] ? StrDup(FileInfo.FTPOwner) : NULL;
+			CurItem->Owner                          = FileInfo.FTPOwner[0] ? strdup(FileInfo.FTPOwner) : NULL;
 			CurItem->CustomColumnData               = (LPSTR*)malloc(sizeof(LPSTR*)*FTP_COL_MAX);
-			CurItem->CustomColumnData[FTP_COL_MODE] = StrDup(FileInfo.UnixMode);
-			CurItem->CustomColumnData[FTP_COL_LINK] = StrDup(FileInfo.Link);
+			CurItem->CustomColumnData[FTP_COL_MODE] = strdup(FileInfo.UnixMode);
+			CurItem->CustomColumnData[FTP_COL_LINK] = strdup(FileInfo.Link);
 			hConnect->ToOEM(CurItem->CustomColumnData[FTP_COL_LINK]);
 		}
 

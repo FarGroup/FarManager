@@ -99,7 +99,7 @@ BOOL WINAPI idPRParceSkirdin(const FTPServerInfo* Server, FTPFileInfo* p, char *
 	entry[++entry_len] = 0;
 //File name
 	entry += 53;
-	int len = strLen(entry);
+	size_t len = strlen(entry);
 
 	if(len > 4)
 	{

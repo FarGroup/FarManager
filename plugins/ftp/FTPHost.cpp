@@ -193,7 +193,7 @@ char *FTPHost::MkINIFile(char *DestName,LPCSTR Path,LPCSTR DestPath)
 
 		AddEndSlash(DestName,'\\',MAX_PATH);
 		// Add from "Hosts\Folder\Item0" "Folder\Item0" part
-		StrCat(DestName, RegKey + 6 /*the sizeof("Hosts\\")*/ + strLen(Path), MAX_PATH);
+		StrCat(DestName, RegKey + 6 /*the sizeof("Hosts\\")*/ + strlen(Path), MAX_PATH);
 		// Remove trailing "\Item0"
 		m = strrchr(DestName,'\\');
 
@@ -204,7 +204,7 @@ char *FTPHost::MkINIFile(char *DestName,LPCSTR Path,LPCSTR DestPath)
 	//Correct bad characters and add possible to DestName
 	BOOL  bad,
 	   curBad;
-	m   = DestName + strLen(DestName);    //ptr to add at
+	m   = DestName + strlen(DestName);    //ptr to add at
 	m1  = HostName[0] ? HostName : Host;  //Source to translate
 	bad = TRUE;                           //Do not add `bad` an start
 
@@ -354,7 +354,7 @@ BOOL FTPHost::SetHostName(LPCSTR hnm,LPCSTR usr,LPCSTR pwd)
 	if(m)
 	{
 		StrCpy(Home,m,sizeof(Home));
-		int Length = strLen(Home);
+		size_t Length = strlen(Home);
 
 		if(Length>1 && Home[Length-1]=='/') Home[Length-1] = 0;
 

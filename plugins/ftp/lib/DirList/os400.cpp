@@ -127,7 +127,7 @@ BOOL net_parse_ls_line(char *line, NET_FileEntryInfo* entry_info)
 	line = SkipSpace(line);
 	CHECK((*line == 0), FALSE)
 	StrCpy(entry_info->FindData.cFileName, line, sizeof(entry_info->FindData.cFileName));
-	len = strLen(entry_info->FindData.cFileName);
+	len = static_cast<int>(strlen(entry_info->FindData.cFileName));
 
 	if(entry_info->FindData.cFileName[len-1] == '/')
 	{

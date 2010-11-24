@@ -319,7 +319,7 @@ struct FP_Dialog
 
     PluginPanelItem Reserved and can be used to store additional data.
     This data will be correctly copyed and deleted in FP_ItemList.
-    You MUST use _Alloc or StrDup to allocate data space.
+    You MUST use _Alloc or strdup to allocate data space.
     Data CAT NOT BE zero sized.
 */
 inline BOOL   FPIL_ADDEXIST(const PluginPanelItem *p) { return ((p)->Reserved[0] && (p)->Reserved[1]); }

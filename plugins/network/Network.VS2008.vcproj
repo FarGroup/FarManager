@@ -1305,7 +1305,7 @@
 					>
 					<Tool
 						Name="VCResourceCompilerTool"
-						AdditionalIncludeDirectories="..\common\ascii"
+						AdditionalIncludeDirectories="..\common\unicode"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1313,7 +1313,7 @@
 					>
 					<Tool
 						Name="VCResourceCompilerTool"
-						AdditionalIncludeDirectories="..\common\ascii"
+						AdditionalIncludeDirectories="..\common\unicode"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1321,7 +1321,7 @@
 					>
 					<Tool
 						Name="VCResourceCompilerTool"
-						AdditionalIncludeDirectories="..\common\ascii"
+						AdditionalIncludeDirectories="..\common\unicode"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1329,7 +1329,7 @@
 					>
 					<Tool
 						Name="VCResourceCompilerTool"
-						AdditionalIncludeDirectories="..\common\ascii"
+						AdditionalIncludeDirectories="..\common\unicode"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1337,7 +1337,7 @@
 					>
 					<Tool
 						Name="VCResourceCompilerTool"
-						AdditionalIncludeDirectories="..\common\ascii"
+						AdditionalIncludeDirectories="..\common\unicode"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1345,7 +1345,7 @@
 					>
 					<Tool
 						Name="VCResourceCompilerTool"
-						AdditionalIncludeDirectories="..\common\ascii"
+						AdditionalIncludeDirectories="..\common\unicode"
 					/>
 				</FileConfiguration>
 			</File>

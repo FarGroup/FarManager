@@ -451,8 +451,6 @@ struct FPPeriod
     Wrapers for stdlib functions and some usefull extended stdlib functions.
 */
 #if !defined(__FP_NOT_FUNCTIONS__)
-//str
-extern int     WINAPI strLen(LPCSTR str);
 //string extension
 inline char             ToUpperI(char c) { return (char)((c) + 'A' - 'a'); }
 inline char             ToLowerI(char c) { return (char)((c) + 'a' - 'A'); }
@@ -463,8 +461,6 @@ extern int     WINAPI StrCmp(LPCSTR str,LPCSTR str1,int maxlen = -1, BOOL isCase
 inline int              StrCmpI(LPCSTR str,LPCSTR str1)                  { return StrCmp(str,str1,-1,FALSE); }
 inline int              StrNCmp(LPCSTR str,LPCSTR str1,int maxlen)       { return StrCmp(str,str1,maxlen,TRUE); }
 inline int              StrNCmpI(LPCSTR str,LPCSTR str1,int maxlen)      { return StrCmp(str,str1,maxlen,FALSE); }
-
-extern char   *WINAPI StrDup(LPCSTR m);
 
 extern char   *WINAPI StrCpy(char *dest,LPCSTR src,int dest_sz = -1);
 extern char   *WINAPI StrCat(char *dest,LPCSTR src,int dest_sz = -1);

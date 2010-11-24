@@ -338,7 +338,6 @@
     <ClCompile Include="FStdLib\FARStdlib\fstd_SCol.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_scr.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_stdlibCS.cpp" />
-    <ClCompile Include="FStdLib\FARStdlib\fstd_stdlibST.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_SText.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_String.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_Utils.cpp" />

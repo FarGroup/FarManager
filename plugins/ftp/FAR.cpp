@@ -216,8 +216,8 @@ extern "C" void WINAPI GetPluginInfo(struct PluginInfo *Info)
 			continue;
 
 		p = &ftp->Host;
-		uLen = Max(uLen, strLen(p->User));
-		hLen = Max(hLen, strLen(p->Host));
+		uLen = Max(uLen, static_cast<int>(strlen(p->User)));
+		hLen = Max(hLen, static_cast<int>(strlen(p->Host)));
 	}
 
 	for(n = 0; n < FTP::BackupCount; n++)

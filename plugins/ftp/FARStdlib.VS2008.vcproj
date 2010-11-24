@@ -644,10 +644,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\FStdLib\FARStdlib\fstd_stdlibST.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\FStdLib\FARStdlib\fstd_SText.cpp"
 				>
 			</File>

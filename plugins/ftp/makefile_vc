@@ -110,7 +110,6 @@ $(OBJLIB)\fstd_SCol.obj \
 $(OBJLIB)\fstd_scr.obj \
 $(OBJLIB)\fstd_String.obj \
 $(OBJLIB)\fstd_stdlibCS.obj \
-$(OBJLIB)\fstd_stdlibST.obj \
 $(OBJLIB)\fstd_SText.obj \
 $(OBJLIB)\fstd_exit.obj \
 $(OBJLIB)\fstd_Con.obj \

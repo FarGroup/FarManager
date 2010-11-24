@@ -5,9 +5,9 @@
 
 LPSTR WINAPI AddLastSlash(char *path, char Slash)
 {
-	int len;
+	size_t len;
 
-	if((len=strLen(path)) != 0 && path[len-1] != Slash)
+	if((len=strlen(path)) != 0 && path[len-1] != Slash)
 	{
 		path[len]   = Slash;
 		path[len+1] = 0;
@@ -18,9 +18,9 @@ LPSTR WINAPI AddLastSlash(char *path, char Slash)
 
 LPSTR WINAPI DelLastSlash(char *path, char Slash)
 {
-	int len;
+	size_t len;
 
-	if(path && path[0] && path[len=(strLen(path)-1)] == Slash)
+	if(path && path[0] && path[len=(strlen(path)-1)] == Slash)
 		path[len] = 0;
 
 	return path;
@@ -101,7 +101,7 @@ LPCSTR WINAPI FCps(char *buff,double val)
 
 	int sz;
 
-	for(sz = 8 - strLen(str); sz > 0; buff++,sz--) *buff = ' ';
+	for(sz = 8 - (int)strlen(str); sz > 0; buff++,sz--) *buff = ' ';
 
 	for(sz = 0; str[sz]; buff++,sz++) *buff = str[sz];
 

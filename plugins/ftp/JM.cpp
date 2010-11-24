@@ -424,7 +424,7 @@ void WINAPI LogCmd(LPCSTR src,CMDOutputDir out,DWORD Size)
 	if(out == ldRaw)
 	{
 		_snprintf(tmstr, sizeof(tmstr), "%d ", PluginUsed());
-		Fwrite(LogFile,tmstr,strLen(tmstr));
+		Fwrite(LogFile,tmstr,static_cast<int>(strlen(tmstr)));
 		signed n;
 
 		for(n = ((int)Size)-1; n > 0 && strchr("\n\r",src[n]); n--);
@@ -451,14 +451,14 @@ void WINAPI LogCmd(LPCSTR src,CMDOutputDir out,DWORD Size)
 	{
 		//Plugin
 		_snprintf(tmstr, sizeof(tmstr), "%d ", PluginUsed());
-		Fwrite(LogFile,tmstr,strLen(tmstr));
+		Fwrite(LogFile,tmstr,static_cast<int>(strlen(tmstr)));
 		//Time
 		GetLocalTime(&st);
 		_snprintf(tmstr,sizeof(tmstr),
 		          "%4d.%02d.%02d %02d:%02d:%02d:%04d",
 		          st.wYear, st.wMonth,  st.wDay,
 		          st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
-		Fwrite(LogFile,tmstr,(int)strlen(tmstr));
+		Fwrite(LogFile,tmstr,static_cast<int>(strlen(tmstr)));
 
 		//Delay
 		if(!stOld.wYear)
@@ -594,7 +594,7 @@ void Connection::SetCmdLine(char *dest, LPCSTR src, int sz, int out)
 	char *m;
 
 	if(!Opt._ShowPassword &&
-	        StrCmp(src,Opt.cmdPass,strLen(Opt.cmdPass),TRUE) == 0)
+	        StrCmp(src,Opt.cmdPass,static_cast<int>(strlen(Opt.cmdPass)),TRUE) == 0)
 		src = "PASS *hidden*";
 	else if(((BYTE)src[0]) == (BYTE)ffDM &&
 	        (strncmp(src+1,"ABOR",4) == 0 || strncmp(src,"ABOR",4) == 0))
@@ -619,7 +619,7 @@ void Connection::SetCmdLine(char *dest, LPCSTR src, int sz, int out)
 
 	if(out != -1)
 	{
-		for(l = strLen(dest); l < sz; l++)
+		for(l = static_cast<int>(strlen(dest)); l < sz; l++)
 			dest[l] = ' ';
 
 		dest[l] = 0;

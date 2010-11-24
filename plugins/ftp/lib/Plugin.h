@@ -162,7 +162,6 @@ struct FTPInterface
 	int (WINAPI    *StrCmp)(LPCSTR str,LPCSTR str1,int maxlen /*= -1*/, BOOL isCaseSens /*= TRUE*/);
 	char*(WINAPI    *StrCpy)(char *dest,LPCSTR src,int dest_sz /*=-1*/);
 	char*(WINAPI    *StrCat)(char *dest,LPCSTR src,int dest_sz /*=-1*/);
-	int (WINAPI    *strLen)(LPCSTR str);
 
 //Utilities
 	LPCSTR(_cdecl *Message)(LPCSTR patt,...);

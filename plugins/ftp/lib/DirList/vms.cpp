@@ -158,7 +158,7 @@ BOOL net_parse_vms_dir_entry(char *line, NET_FileEntryInfo* entry_info)
 	}
 
 //Attr
-	int len = strLen(entry_info->FindData.cFileName);
+	size_t len = strlen(entry_info->FindData.cFileName);
 
 	if(len > 4)
 	{
@@ -188,7 +188,7 @@ BOOL WINAPI idPRParceVMS(const FTPServerInfo* Server, FTPFileInfo* p, char *entr
 		return FALSE;
 
 	/** Trim off VMS directory extensions **/
-	int len = strLen(entry_info.FindData.cFileName);
+	size_t len = strlen(entry_info.FindData.cFileName);
 
 	if((len > 4) && StrCmp(&entry_info.FindData.cFileName[len-4], ".dir") == 0)
 	{

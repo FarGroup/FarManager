@@ -16,7 +16,7 @@ void WINAPI CTArgInit(int argc, char **argv,BOOL CaseSensitive)
 #if defined(__QNX__)
 
 	if(strchr(argv[0],SLASH_CHAR) == NULL)
-		CT_argv[0] = StrDup(MakePathName(GetCurDir(),argv[0]).Text());
+		CT_argv[0] = strdup(MakePathName(GetCurDir(),argv[0]).Text());
 
 #endif
 }
@@ -63,7 +63,7 @@ char *WINAPI CTArgGet(LPCSTR name)
 			{
 				m = StrGetCol(name,i,";");
 
-				if(StrCmp(CT_argv[n]+1,m,len=strLen(m),CT_CaseSensitive) == 0 &&
+				if(StrCmp(CT_argv[n]+1,m,len=(int)strlen(m),CT_CaseSensitive) == 0 &&
 				        CT_argv[n][1+len] == '=') return CT_argv[n]+1+len+1;
 			}
 

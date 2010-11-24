@@ -46,7 +46,7 @@ BOOL Connection::fputsSocket(LPCSTR str, SOCKET s)
 
 	if(!Host.FFDup)
 	{
-		int len = strLen(str);
+		int len = static_cast<int>(strlen(str));
 		return nb_send(&s, str, len, 0) == len;
 	}
 

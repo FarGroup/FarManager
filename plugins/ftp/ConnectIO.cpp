@@ -277,7 +277,7 @@ void Connection::pswitch(int flag)
 	if(hostname)
 	{
 		StrCpy(ip->name, hostname, sizeof(ip->name) - 1);
-		ip->name[strLen(ip->name)] = '\0';
+		ip->name[strlen(ip->name)] = '\0';
 	}
 	else
 		ip->name[0] = 0;

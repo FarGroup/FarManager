@@ -75,11 +75,10 @@ void WINAPI _RTLCheck(LPCSTR fnm)
    String functions
  *******************************************************************/
 #if defined( __FP_INFO_FUNCTIONS__ )
-int   WINAPI strLen(LPCSTR str)            { RTLCheck("strLen")  return FTP_Info->strLen(str); }
 int   WINAPI StrCmp(LPCSTR str,LPCSTR str1,int maxlen, BOOL isCaseSens) { RTLCheck("StrCmp")  return FTP_Info->StrCmp(str,str1,maxlen,isCaseSens); }
 char* WINAPI StrCpy(char *dest,LPCSTR src,int dest_sz) { RTLCheck("StrCpy")  return FTP_Info->StrCpy(dest,src,dest_sz); }
 #else
-int   WINAPI strLen(LPCSTR s)              { return s ? strlen(s) : 0; }
+int   WINAPI strlen(LPCSTR s)              { return s ? strlen(s) : 0; }
 
 int WINAPI StrCmp(LPCSTR str,LPCSTR str1,int maxlen /*= -1*/, BOOL isCaseSens /*= FALSE*/)
 {
@@ -113,11 +112,3 @@ char *WINAPI StrCpy(char *dest,LPCSTR src,int dest_sz)
 	return dest;
 }
 #endif
-
-char *WINAPI StrDup(LPCSTR m)
-{
-	char *rc;
-	rc = (char*)malloc(strLen(m)+1);
-	Assert(rc);
-	return StrCpy(rc,m);
-}

@@ -99,7 +99,7 @@ void FTP::FTP_FixPaths(LPCSTR base, PluginPanelItem *p, int cn, BOOL FromPlugin)
 		TStrCpy(p->FindData.cFileName, str.c_str());
 
 		if(str.Length() >= (int)sizeof(p->FindData.cFileName))
-			FPIL_ADDSET(p, str.Length()+1, StrDup(str.c_str()));
+			FPIL_ADDSET(p, str.Length()+1, strdup(str.c_str()));
 		else
 			FPIL_ADDSET(p, 0, NULL);
 	}
@@ -458,7 +458,7 @@ void FTP::CopyNamesToClipboard(void)
 	for(CopySize = n = 0; n < pi.SelectedItemsNumber; n++)
 		CopySize += FullName.Length() +
 		            1/* / */ +
-		            strLen(FTP_FILENAME(&pi.SelectedItems[n])) +
+		            static_cast<int>(strlen(FTP_FILENAME(&pi.SelectedItems[n]))) +
 		            2/*quote*/ +
 		            2/* \r\n */;
 

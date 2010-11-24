@@ -70,7 +70,7 @@ WORD NET_MonthNo(LPCSTR month)
 
 		if(e == NULL)
 		{
-			if(StrNCmpI(month,str,strLen(str)) == 0)
+			if(StrNCmpI(month,str,static_cast<int>(strlen(str))) == 0)
 				return n+1;
 
 			continue;
@@ -80,7 +80,7 @@ WORD NET_MonthNo(LPCSTR month)
 		{
 			StrCpy(mn, b, Min((int)sizeof(mn),(int)(e-b+1)));
 
-			if(StrNCmpI(month,mn,strLen(mn)) == 0)
+			if(StrNCmpI(month,mn,static_cast<int>(strlen(mn))) == 0)
 				return n+1;
 
 			b = e+1;

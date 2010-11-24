@@ -12,7 +12,7 @@ SRCS = fstd_Arg.cpp fstd_asrt.cpp fstd_ClpS.cpp fstd_Con.cpp \
        fstd_menu.cpp fstd_mesg.cpp fstd_mklog.cpp fstd_Msg.cpp \
        fstd_OEM.cpp fstd_Patt.cpp fstd_per.cpp fstd_plg.cpp fstd_RegCh.cpp fstd_RegCp.cpp fstd_RegCr.cpp fstd_RegDl.cpp \
        fstd_RegDla.cpp fstd_RegGB.cpp fstd_RegGI.cpp fstd_RegOp.cpp fstd_RegSB.cpp fstd_RegSC.cpp fstd_RegSI.cpp \
-       fstd_SCol.cpp fstd_scr.cpp fstd_stdlibCS.cpp fstd_stdlibST.cpp fstd_SText.cpp \
+       fstd_SCol.cpp fstd_scr.cpp fstd_stdlibCS.cpp fstd_SText.cpp \
        fstd_String.cpp fstd_Utils.cpp
 
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS)))

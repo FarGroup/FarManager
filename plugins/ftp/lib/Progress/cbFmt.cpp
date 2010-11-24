@@ -356,7 +356,7 @@ void TrafficInformation::DrawInfo(InfoItem* it,time_t tm)
 
 	if(it->Type)
 	{
-		len = FTP_Info->strLen(str);
+		len = static_cast<int>(strlen(str));
 
 		if(!it->Size && it->Align == tCenter)
 			it->Pos -= len/2;

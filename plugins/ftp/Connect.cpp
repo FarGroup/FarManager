@@ -640,7 +640,7 @@ int Connection::FromOEM(BYTE *Line,int _sz,int fsz)
 	if(!Line || !sz) return 0;
 
 	if(sz == -1)
-		sz = strLen((char*)Line);
+		sz = static_cast<int>(strlen((char*)Line));
 	else
 		sz--;
 
@@ -764,7 +764,7 @@ int Connection::ToOEM(BYTE *Line,int _sz)
 	if(!Line || !sz) return 0;
 
 	if(sz == -1)
-		sz = strLen((char*)Line);
+		sz = static_cast<int>(strlen((char*)Line));
 	else
 		sz--;
 

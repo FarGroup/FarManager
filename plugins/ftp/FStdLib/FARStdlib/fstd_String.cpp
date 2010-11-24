@@ -17,7 +17,7 @@ String::String(LPCSTR fmt)
 		BeginSet();
 	else
 	{
-		int sz = strLen(fmt);
+		int sz = (int)strlen(fmt);
 		BeginSet(Max(DEF_STR_ALLOC, sz+1));
 		StrCpy(str, fmt, maxchar);
 		len = sz;
@@ -50,7 +50,7 @@ void String::BeginSet(size_t sz)
 LPCSTR String::Alloc(LPCSTR s,int maxLen)
 {
 	if(maxLen == -1)
-		maxLen = strLen(s);
+		maxLen = (int)strlen(s);
 
 	Alloc(maxLen+1);
 
@@ -62,7 +62,7 @@ LPCSTR String::Alloc(LPCSTR s,int maxLen)
 
 	strncpy(str, s, maxLen);
 	str[ maxLen ] = 0;
-	len = strLen(str);
+	len = (int)strlen(str);
 	return c_str();
 }
 
@@ -85,7 +85,7 @@ String& String::Add(const String& s)
 
 String& String::Add(LPCSTR s)
 {
-	int slen = strLen(s);
+	int slen = (int)strlen(s);
 
 	if(slen)
 	{
@@ -107,7 +107,7 @@ String& String::Add(LPCSTR s, int from, int to /*-1*/)
 
 	Alloc(len+(to-from+1));
 	StrCpy(str+len, s+from, to-from);
-	len = strLen(str);
+	len = (int)strlen(str);
 	return *this;
 }
 
@@ -214,7 +214,7 @@ char String::SetChar(int num,char ch)
 	if(ch && num == len)
 		str[++len] = 0;
 	else if(!ch && num < len)
-		len = strLen(str);
+		len = (int)strlen(str);
 
 	return ch;
 }
@@ -263,7 +263,7 @@ LPCSTR String::Set(LPCSTR s, int from, int to)
 
 	Alloc(to-from+1);
 	StrCpy(str, s+from, to-from+1);
-	len = strLen(str);
+	len = (int)strlen(str);
 	return c_str();
 }
 

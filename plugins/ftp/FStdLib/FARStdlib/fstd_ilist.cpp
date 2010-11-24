@@ -91,17 +91,17 @@ void FP_ItemList::Copy(PluginPanelItem *dest,const PluginPanelItem *src,int cn)
 
 			for(int n = 0; n < src->CustomColumnNumber; n++)
 			{
-				dest->CustomColumnData[n] = StrDup(src->CustomColumnData[n]);
+				dest->CustomColumnData[n] = strdup(src->CustomColumnData[n]);
 			}
 		}
 
 		//Description
 		if(src->Description)
-			dest->Description = StrDup(src->Description);
+			dest->Description = strdup(src->Description);
 
 		//Owner
 		if(src->Owner)
-			dest->Owner = StrDup(src->Owner);
+			dest->Owner = strdup(src->Owner);
 
 		//Additionals
 		if(FPIL_ADDEXIST(src))

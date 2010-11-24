@@ -115,7 +115,7 @@ void WINAPI ReadCfg(void)
 		if(Opt.Months[n])
 			free(Opt.Months[n]);
 
-		Opt.Months[n] = StrDup(str);
+		Opt.Months[n] = strdup(str);
 	}
 
 //CMD`s
@@ -382,7 +382,7 @@ static LONG_PTR WINAPI CDLG_WndProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
 			        FAR_COLOR(ColorFore,ColorBk),
 			        FAR_COLOR(ColorFore,ColorBk));
 			//set caption
-			id.PtrLength = strLen(str);
+			id.PtrLength = static_cast<int>(strlen(str));
 			id.PtrData   = str;
 			FP_Info->SendDlgMessage(hDlg,DM_SETTEXT,0,(LONG_PTR)(&id));
 			//Invalidate

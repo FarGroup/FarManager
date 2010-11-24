@@ -368,7 +368,7 @@ int FTP::ProcessCommandLine(char *CommandLine)
 	if(!CommandLine[0]) return TRUE;
 
 	//Trim at end
-	for(char *m = CommandLine + strLen(CommandLine) - 1;
+	for(char *m = CommandLine + strlen(CommandLine) - 1;
 	        m >= CommandLine && isspace(*m);
 	        m--)
 		*m = 0;
