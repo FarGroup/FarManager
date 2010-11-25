@@ -97,7 +97,7 @@ struct PluginPanelItem
     и позже передать её плагину в списках <i>PluginPanelItem</i>. В функции <a href="../exported_functions/freefinddataw.html">FreeFindDataW</a> плагин должен освободить память,
     занятую такими дополнительными структурами.</div>
   <div class=dfn>CRC32</div>
-  <div class=dfndescr>Контрольная сумма. FAR не использует это поле.</div>
+  <div class=dfndescr>Контрольная сумма. FAR не использует это поле. Если плагин использует это поле, необходимо выставить флаг <a href="openplugininfo.html">OPIF_USECRC32</a>.</div>
   <div class=dfn>Reserved</div>
   <div class=dfndescr>Зарезервировано для будущего использования. Установите в 0.</div>
 </div>
