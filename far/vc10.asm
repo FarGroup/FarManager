@@ -28,18 +28,20 @@
 ;THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+.486
 .model flat
-
-.data
-__imp__EncodePointer@4 dd dummy
-__imp__DecodePointer@4 dd dummy
-EXTERNDEF __imp__EncodePointer@4 : DWORD
-EXTERNDEF __imp__DecodePointer@4 : DWORD
 
 .code
 dummy proc
-mov eax, [esp+4]
-ret 4
+        mov eax, [esp+4]
+        ret 4
 dummy endp
+
+.const
+	align 4
+__imp__EncodePointer@4 label dword
+__imp__DecodePointer@4 label dword
+        dd   dummy
+public __imp__EncodePointer@4, __imp__DecodePointer@4
 
 end
