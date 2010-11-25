@@ -58,6 +58,7 @@ ImportedFunctions::ImportedFunctions()
 		pfnGetVolumePathNamesForVolumeName = (GETVOLUMEPATHNAMESFORVOLUMENAME)GetProcAddress(hKernel, "GetVolumePathNamesForVolumeNameW");
 		pfnGetPhysicallyInstalledSystemMemory = (GETPHYSICALLYINSTALLEDSYSTEMMEMORY)GetProcAddress(hKernel, "GetPhysicallyInstalledSystemMemory");
 		pfnHeapSetInformation = (HEAPSETINFORMATION)GetProcAddress(hKernel, "HeapSetInformation");
+		pfnIsWow64Process = (ISWOW64PROCESS)GetProcAddress(hKernel, "IsWow64Process");
 	}
 
 	if (hNtdll)

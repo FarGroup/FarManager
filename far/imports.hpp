@@ -131,6 +131,11 @@ typedef BOOL (WINAPI *HEAPSETINFORMATION)(
     SIZE_T HeapInformationLength
 );
 
+typedef BOOL (WINAPI *ISWOW64PROCESS)(
+    HANDLE hProcess,
+    PBOOL Wow64Process
+);
+
 typedef DWORD (WINAPI *GETSTORAGEDEPENDENCYINFORMATION)(
     HANDLE ObjectHandle,
     GET_STORAGE_DEPENDENCY_FLAG Flags,
@@ -181,6 +186,8 @@ public:
 	GETVOLUMEPATHNAMESFORVOLUMENAME pfnGetVolumePathNamesForVolumeName;
 
 	HEAPSETINFORMATION pfnHeapSetInformation;
+
+	ISWOW64PROCESS pfnIsWow64Process;
 
 	GETSTORAGEDEPENDENCYINFORMATION pfnGetStorageDependencyInformation;
 	OPENVIRTUALDISK pfnOpenVirtualDisk;
