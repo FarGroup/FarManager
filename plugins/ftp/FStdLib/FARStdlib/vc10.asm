@@ -1,4 +1,4 @@
-;vc20.asm
+;vc10.asm
 
 ;Workaround for VC2010 and old Windows
 
