@@ -712,6 +712,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
 	}
 	else if (Move) // секци€ про перенос
 	{
+		CopyDlg[ID_SC_MULTITARGET].Selected = 0;
+		CopyDlg[ID_SC_MULTITARGET].Flags |= DIF_DISABLE;
+
 		//   2 - Default
 		//   1 - Copy access rights
 		//   0 - Inherit access rights
@@ -864,7 +867,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
 		//   ѕри копировании только элемента под курсором берем его им€ в кавычки, если оно содержит разделители.
 		CopyDlg[ID_SC_TARGETEDIT].strData = strSelName;
 
-		if (wcspbrk(CopyDlg[ID_SC_TARGETEDIT].strData,L",;"))
+		if (!Move && wcspbrk(CopyDlg[ID_SC_TARGETEDIT].strData,L",;"))
 		{
 			Unquote(CopyDlg[ID_SC_TARGETEDIT].strData);     // уберем все лишние кавычки
 			InsertQuote(CopyDlg[ID_SC_TARGETEDIT].strData); // возьмем в кавычки, т.к. могут быть разделители
@@ -888,7 +891,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
 				   ≈сли цель содержит разделители, то возьмем ее в кавычки, дабы не получить
 				   ерунду при F5, Enter в панел€х, когда пользователь включит MultiCopy
 				*/
-				if (wcspbrk(CopyDlg[ID_SC_TARGETEDIT].strData,L",;"))
+				if (!Move && wcspbrk(CopyDlg[ID_SC_TARGETEDIT].strData,L",;"))
 				{
 					Unquote(CopyDlg[ID_SC_TARGETEDIT].strData);     // уберем все лишние кавычки
 					InsertQuote(CopyDlg[ID_SC_TARGETEDIT].strData); // возьмем в кавычки, т.к. могут быть разделители
@@ -1037,7 +1040,10 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
 				   состо€ни€ опции мультикопировани€
 				*/
 				strCopyDlgValue = CopyDlg[ID_SC_TARGETEDIT].strData;
-				Opt.CMOpt.MultiCopy=CopyDlg[ID_SC_MULTITARGET].Selected;
+				if(!Move)
+				{
+					Opt.CMOpt.MultiCopy=CopyDlg[ID_SC_MULTITARGET].Selected;
+				}
 
 				if (!Opt.CMOpt.MultiCopy || !wcspbrk(strCopyDlgValue,L",;")) // отключено multi*
 				{
