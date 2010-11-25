@@ -1,0 +1,22 @@
+EXPORTS
+   ClosePlugin
+   Configure
+   DeleteFiles
+   FreeFindData
+   GetFiles
+   GetFindData
+   GetOpenPluginInfo
+   GetPluginInfo
+   MakeDirectory
+   OpenPlugin
+   ProcessEvent
+   ProcessKey
+   PutFiles
+   SetDirectory
+   SetStartupInfo
+   Compare
+   ExitFAR
+
+IMPORTS
+   kernel32.EncodePointer
+   kernel32.DecodePointer
