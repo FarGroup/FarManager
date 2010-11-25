@@ -142,4 +142,4 @@ void AdminApproveDlgSync(LPVOID Param);
 
 bool ElevationRequired(ELEVATION_MODE Mode);
 bool IsUserAdmin();
-int AdminMain(int PID);
+int AdminMain(int PID, bool UsePrivileges);

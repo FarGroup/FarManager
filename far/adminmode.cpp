@@ -285,7 +285,7 @@ bool AdminMode::Initialize()
 			TaskBar TB;
 			DisconnectNamedPipe(Pipe);
 			FormatString strParam;
-			strParam << L"/admin " << GetCurrentProcessId();
+			strParam << L"/admin " << GetCurrentProcessId() << L" " << ((Opt.ElevationMode&ELEVATION_USE_PRIVILEGES) != 0);
 			SHELLEXECUTEINFO info=
 			{
 				sizeof(info),
@@ -2388,15 +2388,15 @@ bool Process(int Command)
 	return Exit;
 }
 
-int AdminMain(int PID)
+int AdminMain(int PID, bool UsePrivileges)
 {
 	int Result = ERROR_SUCCESS;
 
 	SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
 
 	Privilege
-		BackupPrivilege(Opt.ElevationMode&ELEVATION_USE_PRIVILEGES?SE_BACKUP_NAME:nullptr),
-		RestorePrivilege(Opt.ElevationMode&ELEVATION_USE_PRIVILEGES?SE_RESTORE_NAME:nullptr),
+		BackupPrivilege(UsePrivileges?SE_BACKUP_NAME:nullptr),
+		RestorePrivilege(UsePrivileges?SE_RESTORE_NAME:nullptr),
 		TakeOwnershipPrivilege(SE_TAKE_OWNERSHIP_NAME),
 		CreateSymbolicLinkPrivilege(SE_CREATE_SYMBOLIC_LINK_NAME);
 
