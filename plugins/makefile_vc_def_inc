@@ -117,9 +117,9 @@ EXT = dll
 DLLNAME = $(NAME).$(EXT)
 DLLFULLNAME = $(OUTDIR)$(ADDOUTDIR)\$(DLLNAME)
 !ifndef WIDE
-DEF = $(DEF_NAME).vc.def
+DEF = $(DEF_NAME).vc$(ULN_DEF).def
 !else
-DEF = $(DEF_NAME)W.vc.def
+DEF = $(DEF_NAME)W.vc$(ULN_DEF).def
 !endif
 MAP = $(OUTDIR)$(ADDOUTDIR)\$(NAME).map
 RES = $(OBJDIR)\$(NAME).res
@@ -198,7 +198,7 @@ NOENTRY = -e-
 !ifndef NEEDDEFLIB
 NODEFLIB = -n
 !endif
-LINK_FLAGS=-q $(ULOUT) -Gz -m- -Gh -Gh- $(NOENTRY) $(NODEFLIB) /ZD:"$(DEF)" /ZM:"$(MAP)" /ZO:"$(DLLFULLNAME)" $(ENV_LIB_OPT)
+LINK_FLAGS=-q $(ULOUT) $(ULN_DELAY) -Gz -m- -Gh -Gh- $(NOENTRY) $(NODEFLIB) /ZD:"$(DEF)" /ZM:"$(MAP)" /ZO:"$(DLLFULLNAME)" $(ENV_LIB_OPT)
 !endif
 
 !ifndef DEBUG

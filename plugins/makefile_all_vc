@@ -48,6 +48,19 @@ ALLDIRS = $(ALLDIRS) \
 INSTALL=$(DEFINSTALL)
 !endif
 
+!if !defined(VC) && defined(_NMAKE_VER)
+!if "$(_NMAKE_VER)">"9"
+VC=9
+!elseif "$(_NMAKE_VER)">"8"
+VC=8
+!elseif "$(_NMAKE_VER)">"10"
+VC=10
+!endif
+
+!ifndef VC
+!error "VC must be defined (in make_vc_defs)"
+!endif
+
 !include ./makefile_vc_getmode
 
 ##########################
@@ -65,7 +78,7 @@ $(FICTIVE):
 libcrt: $(FICTIVE)
 	@echo ===========CRT library
         @cd common\CRT
-        @$(MAKE) /nologo -s -f makefile_lib_vc $(_MDEFS)
+        @$(MAKE) -s -f makefile_lib_vc $(_MDEFS)
         @cd ..\..
 
 #######
@@ -100,9 +113,9 @@ $(ALLDIRS): $(FICTIVE) $(OUTPATH)
 	@echo ===========$@
         @cd $@
 !ifndef INSTALL
-        @$(MAKE) /nologo -s -f makefile_vc $(_MDEFS)
+        @$(MAKE) -s -f makefile_vc $(_MDEFS)
 !else
-        @$(MAKE) /nologo -s -f makefile_vc $(_MDEFS) $(_MKDO_)INSTALL=..\$(OUTPATH)\$@
+        @$(MAKE) -s -f makefile_vc $(_MDEFS) $(_MKDO_)INSTALL=..\$(OUTPATH)\$@
 !endif
         @cd ..
 

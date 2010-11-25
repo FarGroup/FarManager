@@ -23,3 +23,7 @@ _MDEFS=$(_MDEFS) $(_MKDO_)AMD64=1
 !ifdef IA64
 _MDEFS=$(_MDEFS) $(_MKDO_)IA64=1
 !endif
+
+!ifdef VC
+_MDEFS=$(_MDEFS) $(_MKDO_)VC=$(VC)
+!endif
