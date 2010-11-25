@@ -620,22 +620,25 @@ bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 					}
 				}
 
-				// третий проход - лезим в реестр в "App Paths"
+        // третий проход - лезем в реестр в "App Paths"
 				if (!Result && Opt.ExecuteUseAppPath && !strFullName.Contains(L'\\'))
 				{
-					LPCWSTR RegPath=L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
+          static const WCHAR RegPath[] =
+                  L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
 					// В строке Module заменить исполняемый модуль на полный путь, который
 					// берется из SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths
 					// Сначала смотрим в HKCU, затем - в HKLM
 					HKEY RootFindKey[]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE};
+          DWORD redirect = 0;
 					strFullName=RegPath;
 					strFullName+=Module;
 
-					for (size_t i=0; i<ARRAYSIZE(RootFindKey); i++)
+          for (size_t i=0; ; )
 					{
 						HKEY hKey;
 
-						if (RegOpenKeyEx(RootFindKey[i],strFullName,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS)
+            if (RegOpenKeyEx(RootFindKey[i],strFullName,0, KEY_QUERY_VALUE|redirect,
+                             &hKey)==ERROR_SUCCESS)
 						{
 							int RegResult=RegQueryStringValueEx(hKey,L"",strFullName,L"");
 							RegCloseKey(hKey);
@@ -648,6 +651,43 @@ bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 								break;
 							}
 						}
+            //В Win64 HKEY_LOCAL_MACHINE просматриваем в двух вариантах
+            if (++i == ARRAYSIZE(RootFindKey))
+            {
+              if (redirect)
+              {       // second pass
+                break;
+              }
+#ifdef _WIN64
+              redirect = KEY_WOW64_32KEY;
+#else
+              {
+                static char inWin64;
+                if (inWin64 <= 0)
+                {
+                  if (!inWin64)
+                  {
+                    typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS)(HANDLE, PBOOL);
+
+                    BOOL isWow64 = FALSE;
+                    LPFN_ISWOW64PROCESS pIsWow64Process = (LPFN_ISWOW64PROCESS)
+                        GetProcAddress(GetModuleHandle(L"kernel32"),
+                                       "IsWow64Process");
+                    if (   !pIsWow64Process
+                        || !pIsWow64Process(GetCurrentProcess(), &isWow64)
+                        || !isWow64)
+                    {
+                      --inWin64;
+                      break;
+                    }
+                    ++inWin64;
+                  }
+                }
+              }
+              redirect = KEY_WOW64_64KEY;
+#endif
+              --i;  // repeat HKEY_LOCAL_MACHINE
+            }
 					}
 
 					if (!Result)
