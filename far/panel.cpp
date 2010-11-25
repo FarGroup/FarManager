@@ -2167,6 +2167,9 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 					if (!(PInfo.Flags & OPIF_USEHIGHLIGHTING))
 						Info->Flags &= ~PFLAGS_HIGHLIGHT;
 
+					if (PInfo.Flags & OPIF_USECRC32)
+						Info->Flags |= PFLAGS_USECRC32;
+
 					Reenter--;
 				}
 

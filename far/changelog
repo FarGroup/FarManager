@@ -1,3 +1,7 @@
+drkns 25.11.2010 21:15:37 +0200 - build 1733
+
+1. From Alexey Samlyukov: флаги PFLAGS_USECRC32/OPIF_USECRC32, явно определяющие, что у элементов плагиновой панели заполнено поле CRC32.
+
 drkns 25.11.2010 15:07:10 +0200 - build 1732
 
 1. Уточнение 1730.1 - В Windows 7 и выше "App Paths" один.
