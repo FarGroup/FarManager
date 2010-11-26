@@ -663,11 +663,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	// ***********************************************************************
 	// *** Prepare Dialog Controls
 	// ***********************************************************************
-	enum
-	{
-		DLG_HEIGHT=16,
-		DLG_WIDTH=76,
-	};
+	int DLG_HEIGHT=16, DLG_WIDTH=76;
+
 	DialogDataEx CopyDlgData[]=
 	{
 		DI_DOUBLEBOX,   3, 1,DLG_WIDTH-4,DLG_HEIGHT-2,0,0,MSG(MCopyDlgTitle),
@@ -707,7 +704,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	{
 		CopyDlg[ID_SC_COMBOTEXT].strData=MSG(MLinkType);
 		CopyDlg[ID_SC_COPYSYMLINK].Selected=0;
-		CopyDlg[ID_SC_COPYSYMLINK].Flags|=DIF_DISABLE;
+		CopyDlg[ID_SC_COPYSYMLINK].Flags|=DIF_DISABLE|DIF_HIDDEN;
 		CDP.CopySecurity=1;
 	}
 	else if (Move) // секция про перенос
@@ -947,10 +944,24 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	if (Link) // рулесы по поводу линков (предварительные!)
 	{
 		// задисаблим опцию про копирование права.
-		CopyDlg[ID_SC_ACTITLE].Flags|=DIF_DISABLE;
-		CopyDlg[ID_SC_ACCOPY].Flags|=DIF_DISABLE;
-		CopyDlg[ID_SC_ACINHERIT].Flags|=DIF_DISABLE;
-		CopyDlg[ID_SC_ACLEAVE].Flags|=DIF_DISABLE;
+		CopyDlg[ID_SC_ACTITLE].Flags|=DIF_DISABLE|DIF_HIDDEN;
+		CopyDlg[ID_SC_ACCOPY].Flags|=DIF_DISABLE|DIF_HIDDEN;
+		CopyDlg[ID_SC_ACINHERIT].Flags|=DIF_DISABLE|DIF_HIDDEN;
+		CopyDlg[ID_SC_ACLEAVE].Flags|=DIF_DISABLE|DIF_HIDDEN;
+		CopyDlg[ID_SC_SEPARATOR2].Flags|=DIF_HIDDEN;
+
+		for(int i=ID_SC_SEPARATOR2;i<=ID_SC_COMBO;i++)
+		{
+			CopyDlg[i].Y1-=2;
+			CopyDlg[i].Y2-=2;
+		}
+		for(int i=ID_SC_MULTITARGET;i<=ID_SC_BTNCANCEL;i++)
+		{
+			CopyDlg[i].Y1-=3;
+			CopyDlg[i].Y2-=3;
+		}
+		CopyDlg[ID_SC_TITLE].Y2-=3;
+		DLG_HEIGHT-=3;
 	}
 
 	// корректирем позицию " to"

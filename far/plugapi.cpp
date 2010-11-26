@@ -2388,7 +2388,7 @@ int WINAPI farFileFilterControl(HANDLE hHandle, int Command, int Param1, LONG_PT
 
 			*((HANDLE *)Param2) = INVALID_HANDLE_VALUE;
 
-			if (hHandle != PANEL_ACTIVE && hHandle != PANEL_PASSIVE)
+			if (hHandle != PANEL_ACTIVE && hHandle != PANEL_PASSIVE && hHandle != PANEL_NONE)
 				break;
 
 			switch (Param1)
@@ -2397,6 +2397,7 @@ int WINAPI farFileFilterControl(HANDLE hHandle, int Command, int Param1, LONG_PT
 				case FFT_FINDFILE:
 				case FFT_COPY:
 				case FFT_SELECT:
+				case FFT_CUSTOM:
 					break;
 				default:
 					return FALSE;

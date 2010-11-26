@@ -51,6 +51,7 @@ enum enumFileFilterFlagsType
 	FFFT_FINDFILE,
 	FFFT_COPY,
 	FFFT_SELECT,
+	FFFT_CUSTOM,
 
 	FFFT_COUNT, //обязан быть последним
 };

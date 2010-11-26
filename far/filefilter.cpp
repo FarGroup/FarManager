@@ -120,74 +120,79 @@ bool FileFilter::FilterEdit()
 		ListItem.Flags|=LIF_SELECTED;
 
 	FilterList.AddItem(&ListItem);
-	wchar_t *ExtPtr=nullptr;
-	int ExtCount=0;
-	{
-		enumFileFilterFlagsType FFFT = GetFFFT();
 
-		for (unsigned int i=0; i<TempFilterData.getCount(); i++)
+	if (m_FilterType != FFT_CUSTOM)
+	{
+		wchar_t *ExtPtr=nullptr;
+		int ExtCount=0;
 		{
-			//AY: Будем показывать только те выбранные авто фильтры
-			//(для которых нету файлов на панели) которые выбраны в области данного меню
-			if (!TempFilterData.getItem(i)->GetFlags(FFFT))
-				continue;
+			enumFileFilterFlagsType FFFT = GetFFFT();
 
-			const wchar_t *FMask;
-			TempFilterData.getItem(i)->GetMask(&FMask);
-			string strMask = FMask;
-			Unquote(strMask);
+			for (unsigned int i=0; i<TempFilterData.getCount(); i++)
+			{
+				//AY: Будем показывать только те выбранные авто фильтры
+				//(для которых нету файлов на панели) которые выбраны в области данного меню
+				if (!TempFilterData.getItem(i)->GetFlags(FFFT))
+					continue;
 
-			if (!ParseAndAddMasks(&ExtPtr,strMask,0,ExtCount,GetCheck(TempFilterData.getItem(i))))
-				break;
+				const wchar_t *FMask;
+				TempFilterData.getItem(i)->GetMask(&FMask);
+				string strMask = FMask;
+				Unquote(strMask);
+
+				if (!ParseAndAddMasks(&ExtPtr,strMask,0,ExtCount,GetCheck(TempFilterData.getItem(i))))
+					break;
+			}
 		}
+		ListItem.Clear();
+		ListItem.Flags|=LIF_SEPARATOR;
+		FilterList.AddItem(&ListItem);
+		ListItem.Clear();
+		FoldersFilter.SetTitle(MSG(MFolderFileType));
+		MenuString(ListItem.strName,&FoldersFilter,false,L'0');
+		int Check = GetCheck(&FoldersFilter);
+
+		if (Check)
+			ListItem.SetCheck(Check);
+
+		FilterList.AddItem(&ListItem);
+
+		if (GetHostPanel()->GetMode()==NORMAL_PANEL)
+		{
+			string strCurDir, strFileName;
+			FAR_FIND_DATA_EX fdata;
+			GetHostPanel()->GetCurDir(strCurDir);
+			ScanTree ScTree(FALSE,FALSE);
+			ScTree.SetFindPath(strCurDir,L"*");
+
+			while (ScTree.GetNextName(&fdata,strFileName))
+				if (!ParseAndAddMasks(&ExtPtr,fdata.strFileName,fdata.dwFileAttributes,ExtCount,0))
+					break;
+		}
+		else
+		{
+			string strFileName;
+			DWORD FileAttr;
+
+			for (int i=0; GetHostPanel()->GetFileName(strFileName,i,FileAttr); i++)
+				if (!ParseAndAddMasks(&ExtPtr,strFileName,FileAttr,ExtCount,0))
+					break;
+		}
+
+		far_qsort((void *)ExtPtr,ExtCount,MAX_PATH*sizeof(wchar_t),ExtSort);
+		ListItem.Clear();
+
+		for (int i=0, h=L'1'; i<ExtCount; i++, (h==L'9'?h=L'A':(h==L'Z'||h?h++:h=0)))
+		{
+			wchar_t *CurExtPtr=ExtPtr+i*MAX_PATH;
+			MenuString(ListItem.strName,nullptr,false,h,true,CurExtPtr,MSG(MPanelFileType));
+			ListItem.SetCheck(CurExtPtr[StrLength(CurExtPtr)+1]);
+			FilterList.SetUserData(CurExtPtr,0,FilterList.AddItem(&ListItem));
+		}
+
+		xf_free(ExtPtr);
 	}
-	ListItem.Clear();
-	ListItem.Flags|=LIF_SEPARATOR;
-	FilterList.AddItem(&ListItem);
-	ListItem.Clear();
-	FoldersFilter.SetTitle(MSG(MFolderFileType));
-	MenuString(ListItem.strName,&FoldersFilter,false,L'0');
-	int Check = GetCheck(&FoldersFilter);
 
-	if (Check)
-		ListItem.SetCheck(Check);
-
-	FilterList.AddItem(&ListItem);
-
-	if (GetHostPanel()->GetMode()==NORMAL_PANEL)
-	{
-		string strCurDir, strFileName;
-		FAR_FIND_DATA_EX fdata;
-		GetHostPanel()->GetCurDir(strCurDir);
-		ScanTree ScTree(FALSE,FALSE);
-		ScTree.SetFindPath(strCurDir,L"*");
-
-		while (ScTree.GetNextName(&fdata,strFileName))
-			if (!ParseAndAddMasks(&ExtPtr,fdata.strFileName,fdata.dwFileAttributes,ExtCount,0))
-				break;
-	}
-	else
-	{
-		string strFileName;
-		DWORD FileAttr;
-
-		for (int i=0; GetHostPanel()->GetFileName(strFileName,i,FileAttr); i++)
-			if (!ParseAndAddMasks(&ExtPtr,strFileName,FileAttr,ExtCount,0))
-				break;
-	}
-
-	far_qsort((void *)ExtPtr,ExtCount,MAX_PATH*sizeof(wchar_t),ExtSort);
-	ListItem.Clear();
-
-	for (int i=0, h=L'1'; i<ExtCount; i++, (h==L'9'?h=L'A':(h==L'Z'||h?h++:h=0)))
-	{
-		wchar_t *CurExtPtr=ExtPtr+i*MAX_PATH;
-		MenuString(ListItem.strName,nullptr,false,h,true,CurExtPtr,MSG(MPanelFileType));
-		ListItem.SetCheck(CurExtPtr[StrLength(CurExtPtr)+1]);
-		FilterList.SetUserData(CurExtPtr,0,FilterList.AddItem(&ListItem));
-	}
-
-	xf_free(ExtPtr);
 	FilterList.Show();
 
 	while (!FilterList.Done())
@@ -455,11 +460,11 @@ enumFileFilterFlagsType FileFilter::GetFFFT()
 	{
 		return FFFT_FINDFILE;
 	}
-
-//  else if (m_FilterType == FFT_SELECT)
-//  {
-	return FFFT_SELECT;
-//  }
+	else if (m_FilterType == FFT_SELECT)
+	{
+		return FFFT_SELECT;
+	}
+	return FFFT_CUSTOM;
 }
 
 int FileFilter::GetCheck(FileFilterParams *FFP)
@@ -681,6 +686,7 @@ bool FileFilter::FileInFilter(const FAR_FIND_DATA *fd,enumFileInFilterType *foun
 	}
 
 	//авто-фильтр папки
+	if (FFFT != FFFT_CUSTOM)
 	{
 		Flags = FoldersFilter.GetFlags(FFFT);
 
