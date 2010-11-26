@@ -122,9 +122,9 @@ int Connection::setpeer(int argc, char *argv[])
 		UserName[0]     = 0;
 		UserPassword[0] = 0;
 
-		if(argc > 3) TStrCpy(UserName,     argv[3]);
+		if(argc > 3) StrCpy(UserName, argv[3], ARRAYSIZE(UserName));
 
-		if(argc > 4) TStrCpy(UserPassword, argv[4]);
+		if(argc > 4) StrCpy(UserPassword, argv[4], ARRAYSIZE(UserPassword));
 
 		if(!login())
 		{
@@ -426,12 +426,12 @@ void Connection::quote(int argc, char *argv[])
 		return;
 	}
 
-	StrCpy(buf, argv[1]);
+	strcpy(buf, argv[1]);
 
 	for(i = 2; i < argc; i++)
 	{
-		StrCat(buf, " ");
-		StrCat(buf, argv[i]);
+		strcat(buf, " ");
+		strcat(buf, argv[i]);
 	}
 
 	if(command(buf) == RPL_PRELIM)
@@ -456,14 +456,14 @@ void Connection::site(int argc, char *argv[])
 		return;
 	}
 
-	StrCpy(buf, Opt.cmdSite);
-	StrCat(buf, " ");
-	StrCat(buf, argv[1]);
+	strcpy(buf, Opt.cmdSite);
+	strcat(buf, " ");
+	strcat(buf, argv[1]);
 
 	for(i = 2; i < argc; i++)
 	{
-		StrCat(buf, " ");
-		StrCat(buf, argv[i]);
+		strcat(buf, " ");
+		strcat(buf, argv[i]);
 	}
 
 	if(command(buf) == RPL_PRELIM)

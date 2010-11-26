@@ -300,7 +300,6 @@
     <ClCompile Include="FStdLib\FARStdlib\fstd_ClpS.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_Con.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_crc32.cpp" />
-    <ClCompile Include="FStdLib\FARStdlib\fstd_Dbg.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_Dialog.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_err.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_exit.cpp" />
@@ -324,17 +323,7 @@
     <ClCompile Include="FStdLib\FARStdlib\fstd_Patt.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_per.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_plg.cpp" />
-    <ClCompile Include="FStdLib\FARStdlib\fstd_RegCh.cpp" />
-    <ClCompile Include="FStdLib\FARStdlib\fstd_RegCp.cpp" />
-    <ClCompile Include="FStdLib\FARStdlib\fstd_RegCr.cpp" />
-    <ClCompile Include="FStdLib\FARStdlib\fstd_RegDl.cpp" />
-    <ClCompile Include="FStdLib\FARStdlib\fstd_RegDla.cpp" />
-    <ClCompile Include="FStdLib\FARStdlib\fstd_RegGB.cpp" />
-    <ClCompile Include="FStdLib\FARStdlib\fstd_RegGI.cpp" />
-    <ClCompile Include="FStdLib\FARStdlib\fstd_RegOp.cpp" />
-    <ClCompile Include="FStdLib\FARStdlib\fstd_RegSB.cpp" />
-    <ClCompile Include="FStdLib\FARStdlib\fstd_RegSC.cpp" />
-    <ClCompile Include="FStdLib\FARStdlib\fstd_RegSI.cpp" />
+    <ClCompile Include="FStdLib\FARStdlib\fstd_Reg.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_SCol.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_scr.cpp" />
     <ClCompile Include="FStdLib\FARStdlib\fstd_stdlibCS.cpp" />

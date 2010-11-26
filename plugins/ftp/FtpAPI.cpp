@@ -453,9 +453,9 @@ BOOL FtpSystemInfo(Connection *Connect,char *Buffer,int MaxSize)
 				*ChPtr=0;
 
 			if(isdigit(tmp[0]) && isdigit(tmp[1]) && isdigit(tmp[2]))
-				StrCpy(Connect->SystemInfo,tmp+4,sizeof(Connect->SystemInfo));
+				StrCpy(Connect->SystemInfo,tmp+4,ARRAYSIZE(Connect->SystemInfo));
 			else
-				StrCpy(Connect->SystemInfo,tmp,sizeof(Connect->SystemInfo));
+				StrCpy(Connect->SystemInfo,tmp,ARRAYSIZE(Connect->SystemInfo));
 		}
 		else
 		{
@@ -466,7 +466,7 @@ BOOL FtpSystemInfo(Connection *Connect,char *Buffer,int MaxSize)
 		FTPServerInfo si;
 		String        Line;
 		si.ServerType = Connect->Host.ServerType;
-		TStrCpy(si.ServerInfo, Connect->SystemInfo);
+		StrCpy(si.ServerInfo, Connect->SystemInfo, ARRAYSIZE(si.ServerInfo));
 		WORD idx = dl.DetectStringType(&si, Line.c_str(), Line.Length());
 
 		if(idx==FTP_TYPE_MVS)
@@ -510,7 +510,7 @@ BOOL FtpGetFtpDirectory(Connection *Connect)
 	{
 		//Detect if unknown
 		si.ServerType = Connect->Host.ServerType;
-		TStrCpy(si.ServerInfo, Connect->SystemInfo);
+		StrCpy(si.ServerInfo, Connect->SystemInfo, ARRAYSIZE(si.ServerInfo));
 		idx = Connect->Host.ServerType;
 
 		if(idx == FTP_TYPE_DETECT || idx == FTP_TYPE_INVALID)
@@ -640,14 +640,14 @@ WORD FTP::SelectServerType(WORD Type)
 	FTPDirList  dl;
 	WORD        n,cn;
 	memset(MenuItems, 0, sizeof(MenuItems));
-	StrCpy(MenuItems[0].Text, FP_GetMsg(MTableAuto), sizeof(MenuItems[0].Text));
+	StrCpy(MenuItems[0].Text, FP_GetMsg(MTableAuto), ARRAYSIZE(MenuItems[0].Text));
 	MenuItems[1].Separator = TRUE;
 	cn = dl.GetNumberOfSupportedTypes();
 
 	for(n = 0; n < ARRAY_SIZE(MenuItems) && n < cn; n++)
 	{
 		FTPType* tp = dl.GetType(n);
-		_snprintf(MenuItems[n+2].Text, sizeof(MenuItems[0].Text),
+		_snprintf(MenuItems[n+2].Text, ARRAYSIZE(MenuItems[0].Text),
 		          "%s %c %s",
 		          tp->TypeName, FAR_VERT_CHAR, tp->TypeDescription);
 	}
@@ -717,7 +717,7 @@ BOOL ParseDirLine(Connection *Connect,BOOL AllFiles,FTPFileInfo* p)
 		//Set start detect info
 		memset(p, 0, sizeof(*p));
 		si.ServerType = Connect->Host.ServerType;
-		StrCpy(si.ServerInfo, Connect->SystemInfo, sizeof(si.ServerInfo));
+		StrCpy(si.ServerInfo, Connect->SystemInfo, ARRAYSIZE(si.ServerInfo));
 		//Use temp buffer
 		Line1 = Line;
 		//Detect

@@ -276,13 +276,13 @@ void Connection::pswitch(int flag)
 
 	if(hostname)
 	{
-		StrCpy(ip->name, hostname, sizeof(ip->name) - 1);
+		StrCpy(ip->name, hostname, ARRAYSIZE(ip->name) - 1);
 		ip->name[strlen(ip->name)] = '\0';
 	}
 	else
 		ip->name[0] = 0;
 
-	StrCpy(hostname,op->name,sizeof(hostname));
+	StrCpy(hostname,op->name,ARRAYSIZE(hostname));
 	ip->hctl = hisctladdr;
 	hisctladdr = op->hctl;
 	ip->mctl = myctladdr;

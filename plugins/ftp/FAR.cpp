@@ -198,9 +198,9 @@ extern "C" void WINAPI GetPluginInfo(struct PluginInfo *Info)
 	static LPCSTR PluginCfgStrings[1];
 	static char     MenuString[MAX_PATH];
 	static char     CfgString[MAX_PATH];
-	_snprintf(MenuString,     sizeof(MenuString),     "%s", FP_GetMsg(MFtpMenu));
-	_snprintf(DiskStrings[0], sizeof(DiskStrings[0]), "%s", FP_GetMsg(MFtpDiskMenu));
-	_snprintf(CfgString,      sizeof(CfgString),      "%s", FP_GetMsg(MFtpMenu));
+	_snprintf(MenuString,     ARRAYSIZE(MenuString),     "%s", FP_GetMsg(MFtpMenu));
+	_snprintf(DiskStrings[0], ARRAYSIZE(DiskStrings[0]), "%s", FP_GetMsg(MFtpDiskMenu));
+	_snprintf(CfgString,      ARRAYSIZE(CfgString),      "%s", FP_GetMsg(MFtpMenu));
 	FTPHost* p;
 	int      n,
 	  uLen = 0,
@@ -223,17 +223,17 @@ extern "C" void WINAPI GetPluginInfo(struct PluginInfo *Info)
 	for(n = 0; n < FTP::BackupCount; n++)
 	{
 		ftp = FTP::Backups[n];
-		ftp->GetCurPath(str,sizeof(str));
+		ftp->GetCurPath(str,ARRAYSIZE(str));
 
 		if(ftp->FTPMode())
 		{
 			p = &ftp->Host;
-			_snprintf(DiskStrings[1+n], sizeof(DiskStrings[0]),
+			_snprintf(DiskStrings[1+n], ARRAYSIZE(DiskStrings[0]),
 			          "FTP: %-*s %-*s %s",
 			          uLen, p->User, hLen, p->Host, str);
 		}
 		else
-			_snprintf(DiskStrings[1+n], sizeof(DiskStrings[0]), "FTP: %s", str);
+			_snprintf(DiskStrings[1+n], ARRAYSIZE(DiskStrings[0]), "FTP: %s", str);
 	}
 
 	DiskMenuNumbers[0]   = Opt.DisksMenuDigit;
@@ -245,9 +245,9 @@ extern "C" void WINAPI GetPluginInfo(struct PluginInfo *Info)
 	Info->DiskMenuNumbers           = DiskMenuNumbers;
 	Info->DiskMenuStringsNumber     = Opt.AddToDisksMenu ? (1+FTP::BackupCount) : 0;
 	Info->PluginMenuStrings         = PluginMenuStrings;
-	Info->PluginMenuStringsNumber   = Opt.AddToPluginsMenu ? (sizeof(PluginMenuStrings)/sizeof(PluginMenuStrings[0])):0;
+	Info->PluginMenuStringsNumber   = Opt.AddToPluginsMenu ? ARRAYSIZE(PluginMenuStrings):0;
 	Info->PluginConfigStrings       = PluginCfgStrings;
-	Info->PluginConfigStringsNumber = sizeof(PluginCfgStrings)/sizeof(PluginCfgStrings[0]);
+	Info->PluginConfigStringsNumber = ARRAYSIZE(PluginCfgStrings);
 	Info->CommandPrefix             = FTP_CMDPREFIX;
 }
 

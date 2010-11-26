@@ -33,9 +33,9 @@ BOOL FTP::DoFtpConnect(int blocked)
 	do
 	{
 		hConnect->Host.ExtCmdView = Host.ExtCmdView;
-		StrCpy(hst, Host.Host,     sizeof(hst));
-		StrCpy(usr, Host.User,     sizeof(usr));
-		StrCpy(pwd, Host.Password, sizeof(pwd));
+		StrCpy(hst, Host.Host,     ARRAYSIZE(hst));
+		StrCpy(usr, Host.User,     ARRAYSIZE(usr));
+		StrCpy(pwd, Host.Password, ARRAYSIZE(pwd));
 
 		if(!hConnect->LoginComplete)
 			if(!GetLoginData(usr, pwd, Host.AskLogin || askPwd))
@@ -44,9 +44,9 @@ BOOL FTP::DoFtpConnect(int blocked)
 		//Firewall
 		if(Host.UseFirewall && *Opt.Firewall)
 		{
-			StrCat(usr,"@");
-			StrCat(usr,hst,sizeof(usr));
-			StrCpy(hst,Opt.Firewall,sizeof(hst));
+			strcat(usr,"@");
+			StrCat(usr,hst,ARRAYSIZE(usr));
+			StrCpy(hst,Opt.Firewall,ARRAYSIZE(hst));
 		}
 
 		// Find port

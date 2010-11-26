@@ -60,7 +60,7 @@ int FTP::PutHostsFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,int Mov
 		if(IS_FLAG(SrcAttr,FILE_ATTRIBUTE_DIRECTORY))
 		{
 			h.Folder = TRUE;
-			TStrCpy(h.Host, CurName.c_str());
+			StrCpy(h.Host, CurName.c_str(), ARRAYSIZE(h.Host));
 			h.Write(HostsPath);
 			continue;
 		}

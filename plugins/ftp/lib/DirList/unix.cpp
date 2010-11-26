@@ -180,7 +180,7 @@ BOOL net_parse_ls_line(char *line, NET_FileEntryInfo* entry_info, BOOL nLinks)
 //Owner
 	e = SkipNSpace(line);
 	CHECK((*e == 0), FALSE)
-	len = Min((int)sizeof(entry_info->FTPOwner)-1, (int)(e-line));
+	len = Min((int)ARRAYSIZE(entry_info->FTPOwner)-1, (int)(e-line));
 	StrCpy(entry_info->FTPOwner, line, len+1);
 //Delimiter
 	entry_info->FTPOwner[len++] = ':';
@@ -194,7 +194,7 @@ BOOL net_parse_ls_line(char *line, NET_FileEntryInfo* entry_info, BOOL nLinks)
 	CHECK((*e == 0), FALSE)
 	StrCpy(entry_info->FTPOwner+len,
 	       line,
-	       Min((int)sizeof(entry_info->FTPOwner) - len, (int)(e-line+1)));
+	       Min((int)ARRAYSIZE(entry_info->FTPOwner) - len, (int)(e-line+1)));
 //Size
 	line = SkipSpace(e);
 
@@ -230,7 +230,7 @@ BOOL net_parse_ls_line(char *line, NET_FileEntryInfo* entry_info, BOOL nLinks)
 		if(!host || !host->UseStartSpaces)
 			line = SkipSpace(line);
 
-		StrCpy(entry_info->FindData.cFileName, line, sizeof(entry_info->FindData.cFileName));
+		StrCpy(entry_info->FindData.cFileName, line, ARRAYSIZE(entry_info->FindData.cFileName));
 	}
 	else
 	{
@@ -271,7 +271,7 @@ BOOL WINAPI idPRParceUnix(const FTPServerInfo* Server, FTPFileInfo* p, char *ent
 	entry += off;
 	entry_len -= off;
 	first = NET_TO_UPPER(*entry);
-	StrCpy(entry_info.UnixMode, entry, sizeof(entry_info.UnixMode));
+	StrCpy(entry_info.UnixMode, entry, ARRAYSIZE(entry_info.UnixMode));
 	entry += 10;
 	entry_len-=10;
 
@@ -327,7 +327,7 @@ BOOL WINAPI idPRParceUnix(const FTPServerInfo* Server, FTPFileInfo* p, char *ent
 					if(i > 3)
 					{
 						entry[i-3] = '\0';
-						StrCpy(entry_info.Link, entry + i + 1, sizeof(entry_info.Link));
+						StrCpy(entry_info.Link, entry + i + 1, ARRAYSIZE(entry_info.Link));
 						i = static_cast<int>(strlen(entry_info.Link));
 
 						if(i)

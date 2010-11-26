@@ -15,7 +15,7 @@ void MakeCryptPassword(LPCSTR Src,BYTE Dest[FTP_PWD_LEN])
 		CurDest = Dest;
 		CurDest[0] = (BYTE)((Random+I)|0x80);
 		CurDest[1] = (BYTE)((Random>>8)|0x80);
-		StrCpy(((char*)CurDest)+2,Src);
+		strcpy(((char*)CurDest)+2,Src);
 		XorMask  = (CurDest[0]^CurDest[1])|80;
 		CurDest += 2;
 		Done     = TRUE;

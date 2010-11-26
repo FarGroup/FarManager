@@ -47,7 +47,7 @@ void PasswordToHex(char *Password,char *HexStr)
 	int  n;
 	BYTE pwd[FTP_PWD_LEN];
 	MakeCryptPassword(Password,pwd);
-	StrCpy(HexStr,"hex:");
+	strcpy(HexStr,"hex:");
 
 	for(n = 0,HexStr += 4; n < FTP_PWD_LEN && pwd[n]; Password++,n++)
 	{
@@ -120,7 +120,7 @@ void FTPHost::Init(void)
 	UndupFF      = Opt.UndupFF;
 	DecodeCmdLine= TRUE;
 	ServerType   = FTP_TYPE_DETECT;
-	TStrCpy(ListCMD,  "LIST -la");
+	StrCpy(ListCMD, "LIST -la", ARRAYSIZE(ListCMD));
 }
 
 void FTPHost::Assign(FTPHost* p)
@@ -185,7 +185,7 @@ char *FTPHost::MkINIFile(char *DestName,LPCSTR Path,LPCSTR DestPath)
 {
 	PROC(("FTPHost::MkINIFile","{%s,%s} [%s] [%s]",RegKey,Host,Path,DestPath))
 	char *m,*m1;
-	StrCpy(DestName,DestPath);
+	strcpy(DestName,DestPath);
 
 	if(Path)
 	{
@@ -193,7 +193,7 @@ char *FTPHost::MkINIFile(char *DestName,LPCSTR Path,LPCSTR DestPath)
 
 		AddEndSlash(DestName,'\\',MAX_PATH);
 		// Add from "Hosts\Folder\Item0" "Folder\Item0" part
-		StrCat(DestName, RegKey + 6 /*the sizeof("Hosts\\")*/ + strlen(Path), MAX_PATH);
+		StrCat(DestName, RegKey + 6 /*the ARRAYSIZE("Hosts\\")*/ + strlen(Path), MAX_PATH);
 		// Remove trailing "\Item0"
 		m = strrchr(DestName,'\\');
 
@@ -240,7 +240,7 @@ char *FTPHost::MkINIFile(char *DestName,LPCSTR Path,LPCSTR DestPath)
 
 	//Add extension
 	if(!Folder)
-		StrCat(DestName,".ftp");
+		strcat(DestName,".ftp");
 
 	Log(("rc: [%s]",DestName));
 	return DestName;
@@ -250,7 +250,7 @@ LPCSTR FTPHost::MkHost(LPCSTR Path,LPCSTR Name)
 {
 	PROC(("FTPHost::MkHost","[%s] [%s]",Path,Name))
 	static char key[FAR_MAX_REG];
-	TStrCpy(key,"Hosts");
+	StrCpy(key,"Hosts", ARRAYSIZE(key));
 
 	if(Path)
 	{
@@ -261,8 +261,8 @@ LPCSTR FTPHost::MkHost(LPCSTR Path,LPCSTR Name)
 
 		if(Path[0])
 		{
-			AddEndSlash(key, '\\',sizeof(key));
-			TStrCat(key, Path);
+			AddEndSlash(key, '\\',ARRAYSIZE(key));
+			StrCat(key, Path, ARRAYSIZE(key));
 		}
 	}
 
@@ -272,8 +272,8 @@ LPCSTR FTPHost::MkHost(LPCSTR Path,LPCSTR Name)
 
 		if(Name[0])
 		{
-			AddEndSlash(key, '\\',sizeof(key));
-			TStrCat(key, Name);
+			AddEndSlash(key, '\\',ARRAYSIZE(key));
+			StrCat(key, Name, ARRAYSIZE(key));
 		}
 	}
 
@@ -324,7 +324,7 @@ BOOL FTPHost::SetHostName(LPCSTR hnm,LPCSTR usr,LPCSTR pwd)
 
 	User[0]     = 0;
 	Password[0] = 0;
-	StrCpy(HostName,hnm,sizeof(HostName));
+	StrCpy(HostName,hnm,ARRAYSIZE(HostName));
 //ftp.xx
 	m = StrNCmpI(m,"ftp://",6) == 0 ? (m+6) : m;
 	m = StrNCmpI(m,"http://",7) == 0 ? (m+7) : m;
@@ -334,26 +334,26 @@ BOOL FTPHost::SetHostName(LPCSTR hnm,LPCSTR usr,LPCSTR pwd)
 	if(m)
 	{
 //xx@ftp.xx
-		StrCpy(Host,m+1,sizeof(Host));
-		StrCpy(User,mHost,Min((int)(m-mHost+1),(int)sizeof(User)));
+		StrCpy(Host,m+1,ARRAYSIZE(Host));
+		StrCpy(User,mHost,Min((int)(m-mHost+1),(int)ARRAYSIZE(User)));
 		m = FindLastBefore(User,':','/');
 
 		if(m)
 		{
 //xx:xx@ftp.xx
-			StrCpy(Password,m+1);
+			strcpy(Password,m+1);
 			m[0] = 0;
 		}
 	}
 	else
-		StrCpy(Host,mHost);
+		strcpy(Host,mHost);
 
 //Home
 	m = strchr(Host,'/');
 
 	if(m)
 	{
-		StrCpy(Home,m,sizeof(Home));
+		StrCpy(Home,m,ARRAYSIZE(Home));
 		size_t Length = strlen(Home);
 
 		if(Length>1 && Home[Length-1]=='/') Home[Length-1] = 0;
@@ -366,11 +366,11 @@ BOOL FTPHost::SetHostName(LPCSTR hnm,LPCSTR usr,LPCSTR pwd)
 
 //User
 	if(usr && usr[0])
-		StrCpy(User,usr,sizeof(User));
+		StrCpy(User,usr,ARRAYSIZE(User));
 
 //Psw
 	if(pwd && pwd[0])
-		StrCpy(Password,pwd,sizeof(Password));
+		StrCpy(Password,pwd,ARRAYSIZE(Password));
 
 	return HostName[0] != 0;
 }
@@ -395,7 +395,7 @@ void FTPHost::MakeFreeKey(LPCSTR Hosts)
 	char str[MAX_PATH];
 	char key[MAX_PATH];
 	int  n;
-	StrCpy(RegKey, MkHost(NULL,Hosts));
+	strcpy(RegKey, MkHost(NULL,Hosts));
 	Log(("BaseReg: [%s]",RegKey));
 
 	if(Folder)
@@ -407,9 +407,9 @@ void FTPHost::MakeFreeKey(LPCSTR Hosts)
 
 	for(n = 0; 1 ; n++)
 	{
-		StrCpy(key, RegKey,                sizeof(key));
-		StrCat(key, Message("\\Item%d",n), sizeof(key));
-		FP_GetRegKey(key,"HostName",str,NULL,sizeof(str));
+		StrCpy(key, RegKey,                ARRAYSIZE(key));
+		StrCat(key, Message("\\Item%d",n), ARRAYSIZE(key));
+		FP_GetRegKey(key,"HostName",str,NULL,ARRAYSIZE(str));
 
 		if(str[0] == 0)
 		{
@@ -435,7 +435,7 @@ BOOL FTPHost::Read(LPCSTR nm)
 	//Init();
 
 	if(nm && nm[0])
-		StrCpy(RegKey,nm,sizeof(RegKey));
+		StrCpy(RegKey,nm,ARRAYSIZE(RegKey));
 
 	Log(("RegKey: %s",RegKey));
 	Folder = FP_GetRegKey(RegKey,"Folder",0);
@@ -446,9 +446,9 @@ BOOL FTPHost::Read(LPCSTR nm)
 		User[0]      = 0;
 		Password[0]  = 0;
 		Home[0]      = 0;
-		FP_GetRegKey(RegKey,"Description", HostDescr, NULL,sizeof(HostDescr));
-		StrCpy(Host,strrchr(RegKey,'\\')+1);
-		StrCpy(HostName,Host);
+		FP_GetRegKey(RegKey,"Description", HostDescr, NULL,ARRAYSIZE(HostDescr));
+		strcpy(Host,strrchr(RegKey,'\\')+1);
+		strcpy(HostName,Host);
 		return TRUE;
 	}
 
@@ -457,7 +457,7 @@ BOOL FTPHost::Read(LPCSTR nm)
 	if(!m) m = RegKey;
 	else m++;
 
-	if(!FP_GetRegKey(RegKey,"HostName",hnm,"",sizeof(hnm)))
+	if(!FP_GetRegKey(RegKey,"HostName",hnm,"",ARRAYSIZE(hnm)))
 		return FALSE;
 
 	oldFmt = hnm[0] == 0;
@@ -465,8 +465,8 @@ BOOL FTPHost::Read(LPCSTR nm)
 	if(!oldFmt)
 		m = hnm;
 
-	FP_GetRegKey(RegKey, "User",     usr, NULL, sizeof(usr));
-	FP_GetRegKey(RegKey, "Password", psw, NULL, sizeof(psw));
+	FP_GetRegKey(RegKey, "User",     usr, NULL, ARRAYSIZE(usr));
+	FP_GetRegKey(RegKey, "Password", psw, NULL, ARRAYSIZE(psw));
 
 	if(psw[0])
 		DecryptPassword(psw,pwd);
@@ -474,8 +474,8 @@ BOOL FTPHost::Read(LPCSTR nm)
 		pwd[0] = 0;
 
 	SetHostName(m,usr,pwd);
-	FP_GetRegKey(RegKey,"Description",HostDescr, NULL,sizeof(HostDescr));
-	FP_GetRegKey(RegKey,"Table",      HostTable, NULL,sizeof(HostTable));
+	FP_GetRegKey(RegKey,"Description",HostDescr, NULL,ARRAYSIZE(HostDescr));
+	FP_GetRegKey(RegKey,"Table",      HostTable, NULL,ARRAYSIZE(HostTable));
 	ProcessCmd    = FP_GetRegKey(RegKey,"ProcessCmd",        TRUE);
 	AskLogin      = FP_GetRegKey(RegKey,"AskLogin",          FALSE);
 	PassiveMode   = FP_GetRegKey(RegKey,"PassiveMode",       FALSE);
@@ -485,7 +485,7 @@ BOOL FTPHost::Read(LPCSTR nm)
 	ExtList       = FP_GetRegKey(RegKey,"ExtList",           FALSE);
 	ServerType    = FP_GetRegKey(RegKey,"ServerType",        FTP_TYPE_DETECT);
 	CodeCmd       = FP_GetRegKey(RegKey,"CodeCmd",           TRUE);
-	FP_GetRegKey(RegKey,"ListCMD",ListCMD, "LIST -la",sizeof(ListCMD));
+	FP_GetRegKey(RegKey,"ListCMD",ListCMD, "LIST -la",ARRAYSIZE(ListCMD));
 	IOBuffSize    = FP_GetRegKey(RegKey,"IOBuffSize",        Opt.IOBuffSize);
 	FFDup         = FP_GetRegKey(RegKey,"FFDup",             Opt.FFDup);
 	UndupFF       = FP_GetRegKey(RegKey,"UndupFF",           Opt.UndupFF);
@@ -526,7 +526,7 @@ BOOL FTPHost::Write(LPCSTR nm)
 		Log(("pwdc: [%s]", psw));
 		rc = FP_SetRegKey(RegKey,"HostName",      HostName) &&
 		     FP_SetRegKey(RegKey,"User",          User) &&
-		     FP_SetRegKey(RegKey,"Password",      psw,sizeof(psw)) &&
+		     FP_SetRegKey(RegKey,"Password",      psw,ARRAYSIZE(psw)) &&
 		     FP_SetRegKey(RegKey,"Table",         HostTable)      &&
 		     FP_SetRegKey(RegKey,"AskLogin",      AskLogin)      &&
 		     FP_SetRegKey(RegKey,"PassiveMode",   PassiveMode)      &&
@@ -561,7 +561,7 @@ BOOL FTPHost::ReadINI(LPCSTR nm)
 	   pwd[MAX_PATH];
 	HexToPassword_cb DecodeProc = NULL;
 	Init();
-	GetPrivateProfileString("FarFTP","Version","",hst,sizeof(hst),nm);
+	GetPrivateProfileString("FarFTP","Version","",hst,ARRAYSIZE(hst),nm);
 
 	if(hst[0] == '1')
 	{
@@ -593,7 +593,7 @@ BOOL FTPHost::ReadINI(LPCSTR nm)
 		DecodeProc = HexToPassword_CUR;
 	}
 
-	GetPrivateProfileString("FarFTP","Url","",hst,sizeof(hst),nm);
+	GetPrivateProfileString("FarFTP","Url","",hst,ARRAYSIZE(hst),nm);
 
 	if(!hst[0])
 		return FALSE;
@@ -602,14 +602,14 @@ BOOL FTPHost::ReadINI(LPCSTR nm)
 	usr[1] = 0;
 	hex[0] = '2';
 	hex[1] = 0;
-	GetPrivateProfileString("FarFTP", "User",     "", usr, sizeof(usr), nm);
-	GetPrivateProfileString("FarFTP", "Password", "", hex, sizeof(hex), nm);
+	GetPrivateProfileString("FarFTP", "User",     "", usr, ARRAYSIZE(usr), nm);
+	GetPrivateProfileString("FarFTP", "Password", "", hex, ARRAYSIZE(hex), nm);
 
 	if(!DecodeProc(hex,pwd) ||
 	        !SetHostName(hst,usr,pwd))
 		return FALSE;
 
-	GetPrivateProfileString("FarFTP","Description","",HostDescr,sizeof(HostDescr),nm);
+	GetPrivateProfileString("FarFTP","Description","",HostDescr,ARRAYSIZE(HostDescr),nm);
 	AskLogin    = GetPrivateProfileInt("FarFTP","AskLogin",    0,nm);
 	AsciiMode   = GetPrivateProfileInt("FarFTP","AsciiMode",   0,nm);
 	PassiveMode = GetPrivateProfileInt("FarFTP","PassiveMode", Opt.PassiveMode,nm);
@@ -619,14 +619,14 @@ BOOL FTPHost::ReadINI(LPCSTR nm)
 	ServerType  = GetPrivateProfileInt("FarFTP","ServerType",  Opt.ServerType,nm);
 	ProcessCmd  = GetPrivateProfileInt("FarFTP","ProcessCmd",  TRUE,nm);
 	CodeCmd     = GetPrivateProfileInt("FarFTP","CodeCmd",     TRUE,nm);
-	GetPrivateProfileString("FarFTP","ListCMD",ListCMD,ListCMD,sizeof(ListCMD),  nm);
+	GetPrivateProfileString("FarFTP","ListCMD",ListCMD,ListCMD,ARRAYSIZE(ListCMD),  nm);
 	IOBuffSize  = GetPrivateProfileInt("FarFTP","IOBuffSize",  Opt.IOBuffSize,   nm);
 	FFDup       = GetPrivateProfileInt("FarFTP","FFDup",       Opt.FFDup,        nm);
 	UndupFF     = GetPrivateProfileInt("FarFTP","UndupFF",     Opt.UndupFF,      nm);
 	DecodeCmdLine = GetPrivateProfileInt("FarFTP","DecodeCmdLine", TRUE,         nm);
 	SendAllo    = GetPrivateProfileInt("FarFTP","SendAllo",    FALSE,            nm);
 	UseStartSpaces = GetPrivateProfileInt("FarFTP","UseStartSpaces",    TRUE,            nm);
-	GetPrivateProfileString("FarFTP","CharTable","",HostTable,sizeof(HostTable), nm);
+	GetPrivateProfileString("FarFTP","CharTable","",HostTable,ARRAYSIZE(HostTable), nm);
 	IOBuffSize = Max(FTR_MINBUFFSIZE,IOBuffSize);
 	return TRUE;
 }
@@ -640,7 +640,7 @@ BOOL FTPHost::WriteINI(LPCSTR nm)
 
 	if(m)
 	{
-		StrCpy(HexStr,nm,sizeof(HexStr));
+		StrCpy(HexStr,nm,ARRAYSIZE(HexStr));
 		m = strrchr(HexStr,SLASH_CHAR);
 		*m = 0;
 

@@ -309,7 +309,7 @@ BOOL WINAPI idPRParceMVS(const FTPServerInfo* Server, FTPFileInfo* p, char *entr
 
 	if(*entry=='\'') entry++;
 
-	StrCpy(ei.FindData.cFileName, entry, sizeof(ei.FindData.cFileName));
+	StrCpy(ei.FindData.cFileName, entry, ARRAYSIZE(ei.FindData.cFileName));
 	size_t le = strlen(ei.FindData.cFileName);
 
 	if(le&&ei.FindData.cFileName[le-1]=='\'')ei.FindData.cFileName[le-1]=0;

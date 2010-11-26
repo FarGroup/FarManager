@@ -455,7 +455,7 @@ void Connection::ResetOutput()
 
 void Connection::CacheReset()
 {
-	for(size_t I=0; I<sizeof(ListCache)/sizeof(ListCache[0]); I++)
+	for(size_t I=0; I<ARRAYSIZE(ListCache); I++)
 	{
 		if(ListCache[I].Listing)
 			free(ListCache[I].Listing);
@@ -489,7 +489,7 @@ int Connection::CacheGet()
 		}
 	}
 
-	for(size_t I=0; I < sizeof(ListCache)/sizeof(ListCache[0]); I++)
+	for(size_t I=0; I < ARRAYSIZE(ListCache); I++)
 		if(ListCache[I].ListingSize > 0 &&
 		        CurDir.Cmp(ListCache[I].DirName))
 		{
@@ -524,10 +524,10 @@ void Connection::CacheAdd()
 	ListCache[ListCachePos].ListingSize = OutputSize;
 	memcpy(ListCache[ListCachePos].Listing, Output, OutputSize);
 	ListCache[ListCachePos].Listing[OutputSize] = 0;
-	StrCpy(ListCache[ListCachePos].DirName, CurDir.c_str(), sizeof(ListCache[ListCachePos].DirName));
+	StrCpy(ListCache[ListCachePos].DirName, CurDir.c_str(), ARRAYSIZE(ListCache[ListCachePos].DirName));
 	ListCachePos++;
 
-	if(ListCachePos >= (int)(sizeof(ListCache)/sizeof(ListCache[0])))
+	if(ListCachePos >= (int)(ARRAYSIZE(ListCache)))
 		ListCachePos=0;
 }
 
@@ -572,7 +572,7 @@ BOOL Connection::GetExitCode()
 		return FALSE;
 	}
 
-	for(size_t I=0; I < sizeof(FtpErrCodes)/sizeof(FtpErrCodes[0]); I++)
+	for(size_t I=0; I < ARRAYSIZE(FtpErrCodes); I++)
 		if(FtpErrCodes[I].Code == code)
 		{
 			if(FtpErrCodes[I].WCode)

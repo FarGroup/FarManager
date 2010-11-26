@@ -153,7 +153,7 @@ BOOL net_parse_vms_dir_entry(char *line, NET_FileEntryInfo* entry_info)
 	{
 		line++;
 		e = SkipNX(line,']');
-		StrCpy(entry_info->FTPOwner, line, Min((int)sizeof(entry_info->FTPOwner), (int)(e-line+1)));
+		StrCpy(entry_info->FTPOwner, line, Min((int)ARRAYSIZE(entry_info->FTPOwner), (int)(e-line+1)));
 		line = SkipSpace(e+1);
 	}
 

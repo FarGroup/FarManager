@@ -84,7 +84,6 @@ $(OBJLIB)\fstd_Arg.obj \
 $(OBJLIB)\fstd_asrt.obj \
 $(OBJLIB)\fstd_ClpS.obj \
 $(OBJLIB)\fstd_crc32.obj \
-$(OBJLIB)\fstd_Dbg.obj \
 $(OBJLIB)\fstd_Dialog.obj \
 $(OBJLIB)\fstd_err.obj \
 $(OBJLIB)\fstd_exSCAT.obj \
@@ -104,17 +103,7 @@ $(OBJLIB)\fstd_Msg.obj \
 $(OBJLIB)\fstd_Patt.obj \
 $(OBJLIB)\fstd_per.obj \
 $(OBJLIB)\fstd_plg.obj \
-$(OBJLIB)\fstd_RegCh.obj \
-$(OBJLIB)\fstd_RegCp.obj \
-$(OBJLIB)\fstd_RegCr.obj \
-$(OBJLIB)\fstd_RegDl.obj \
-$(OBJLIB)\fstd_RegDla.obj \
-$(OBJLIB)\fstd_RegGB.obj \
-$(OBJLIB)\fstd_RegGI.obj \
-$(OBJLIB)\fstd_RegOp.obj \
-$(OBJLIB)\fstd_RegSB.obj \
-$(OBJLIB)\fstd_RegSC.obj \
-$(OBJLIB)\fstd_RegSI.obj \
+$(OBJLIB)\fstd_Reg.obj \
 $(OBJLIB)\fstd_SCol.obj \
 $(OBJLIB)\fstd_scr.obj \
 $(OBJLIB)\fstd_String.obj \

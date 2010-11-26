@@ -492,10 +492,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\FStdLib\FARStdlib\fstd_Dbg.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\FStdLib\FARStdlib\fstd_Dialog.cpp"
 				>
 			</File>
@@ -588,47 +584,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\FStdLib\FARStdlib\fstd_RegCh.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\FStdLib\FARStdlib\fstd_RegCp.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\FStdLib\FARStdlib\fstd_RegCr.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\FStdLib\FARStdlib\fstd_RegDl.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\FStdLib\FARStdlib\fstd_RegDla.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\FStdLib\FARStdlib\fstd_RegGB.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\FStdLib\FARStdlib\fstd_RegGI.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\FStdLib\FARStdlib\fstd_RegOp.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\FStdLib\FARStdlib\fstd_RegSB.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\FStdLib\FARStdlib\fstd_RegSC.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\FStdLib\FARStdlib\fstd_RegSI.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_Reg.cpp"
 				>
 			</File>
 			<File

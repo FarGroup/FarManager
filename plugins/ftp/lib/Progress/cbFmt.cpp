@@ -109,24 +109,24 @@ void TrafficInformation::DrawInfo(InfoItem* it,time_t tm)
 		case 00:
 			break;
 			//01 "SrcPathname" ---- Source filename
-		case 01: FTP_Info->StrCpy(str,SrcFileName,sizeof(str));
+		case 01: FTP_Info->StrCpy(str,SrcFileName,ARRAYSIZE(str));
 			break;
 			//02 "SrcPath",
-		case 02: FTP_Info->StrCpy(str,SrcFileName,sizeof(str));
+		case 02: FTP_Info->StrCpy(str,SrcFileName,ARRAYSIZE(str));
 			FTP_Info->PointToName(str)[0] = 0;
 			break;
 			//03 "SrcName",
-		case 03: FTP_Info->StrCpy(str,FTP_Info->PointToName(SrcFileName),sizeof(str));
+		case 03: FTP_Info->StrCpy(str,FTP_Info->PointToName(SrcFileName),ARRAYSIZE(str));
 			break;
 			//04 "DestPathname" ---- Target filename
-		case 04: FTP_Info->StrCpy(str,DestFileName,sizeof(str));
+		case 04: FTP_Info->StrCpy(str,DestFileName,ARRAYSIZE(str));
 			break;
 			//05 "DestPath",
-		case 05: FTP_Info->StrCpy(str,DestFileName,sizeof(str));
+		case 05: FTP_Info->StrCpy(str,DestFileName,ARRAYSIZE(str));
 			FTP_Info->PointToName(str)[0] = 0;
 			break;
 			//06 "DestName",
-		case 06: FTP_Info->StrCpy(str,FTP_Info->PointToName(DestFileName),sizeof(str));
+		case 06: FTP_Info->StrCpy(str,FTP_Info->PointToName(DestFileName),ARRAYSIZE(str));
 			break;
 			//07 "CurSize" ---- Current processed size
 		case 07: FTP_Info->FDigit(str,CurrentSz(),-1);
@@ -141,7 +141,7 @@ void TrafficInformation::DrawInfo(InfoItem* it,time_t tm)
 			break;
 			//11 "CurTime" ---- Time from start of current file
 		case 11: cn = (int)(tm - FileStartTime);
-			_snprintf(str,sizeof(str), "%02d:%02d:%02d", cn/3600, (cn/60)%60, cn%60);
+			_snprintf(str,ARRAYSIZE(str), "%02d:%02d:%02d", cn/3600, (cn/60)%60, cn%60);
 			break;
 			//12 "CurFTime" ---- Full time to process current file
 		case 12: db = Cps;
@@ -152,7 +152,7 @@ void TrafficInformation::DrawInfo(InfoItem* it,time_t tm)
 				cn = 0;
 
 			cn = Max(cn,0);
-			_snprintf(str,sizeof(str), "%02d:%02d:%02d", cn/3600, (cn/60)%60, cn%60);
+			_snprintf(str,ARRAYSIZE(str), "%02d:%02d:%02d", cn/3600, (cn/60)%60, cn%60);
 			break;
 			//13 "CurRTime" ---- Remain time to process current file
 		case 13: db = Cps;
@@ -163,7 +163,7 @@ void TrafficInformation::DrawInfo(InfoItem* it,time_t tm)
 				cn = 0;
 
 			cn = Max(cn,0);
-			_snprintf(str,sizeof(str), "%02d:%02d:%02d", cn/3600, (cn/60)%60, cn%60);
+			_snprintf(str,ARRAYSIZE(str), "%02d:%02d:%02d", cn/3600, (cn/60)%60, cn%60);
 			break;
 			//14 "CurETime" ---- End time to process current file
 		case 14: db = Cps;
@@ -202,7 +202,7 @@ void TrafficInformation::DrawInfo(InfoItem* it,time_t tm)
 			break;
 			//20 "TotTime" ---- Time from start of current file
 		case 20: cn = (int)(tm - TotalStartTime);
-			_snprintf(str,sizeof(str), "%02d:%02d:%02d", cn/3600, (cn/60)%60, cn%60);
+			_snprintf(str,ARRAYSIZE(str), "%02d:%02d:%02d", cn/3600, (cn/60)%60, cn%60);
 			break;
 			//21 "TotFTime" ---- Full time to process current file
 		case 21: db = (AvCps[0] + AvCps[1] + AvCps[2])/3;
@@ -213,7 +213,7 @@ void TrafficInformation::DrawInfo(InfoItem* it,time_t tm)
 				cn = 0;
 
 			cn = Max(cn,0);
-			_snprintf(str,sizeof(str), "%02d:%02d:%02d", cn/3600, (cn/60)%60, cn%60);
+			_snprintf(str,ARRAYSIZE(str), "%02d:%02d:%02d", cn/3600, (cn/60)%60, cn%60);
 			break;
 			//22 "TotRTime" ----- Remain time to process current file
 		case 22: db = (AvCps[0] + AvCps[1] + AvCps[2])/3;
@@ -224,7 +224,7 @@ void TrafficInformation::DrawInfo(InfoItem* it,time_t tm)
 				cn = 0;
 
 			cn = Max(cn,0);
-			_snprintf(str,sizeof(str), "%02d:%02d:%02d", cn/3600, (cn/60)%60, cn%60);
+			_snprintf(str,ARRAYSIZE(str), "%02d:%02d:%02d", cn/3600, (cn/60)%60, cn%60);
 			break;
 			//23 "TotETime" ---- End time to process all files
 		case 23: db = TotalCps;

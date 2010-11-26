@@ -8,7 +8,7 @@ static unsigned get_cluster_size(const char *fname)
 {
 	char root[MAX_PATH];
 
-	if(GetFullPathName(fname, sizeof(root), root, NULL)
+	if(GetFullPathName(fname, ARRAYSIZE(root), root, NULL)
 	        && root[1] == ':' && root[2] == '\\')
 	{
 		DWORD t1, t2, bps = 0, spc = 0;
@@ -48,11 +48,11 @@ void Connection::recvrequestINT(char *cmd, char *local, char *remote, const char
 	ni.Success      = TRUE;
 	ni.RestartPoint = restart_point;
 	ni.Port         = ntohs(portnum);
-	ni.Password[0] = 0; //TStrCpy( ni.Password,   UserPassword );
-	TStrCpy(ni.User,       UserName);
-	TStrCpy(ni.HostName,   hostname);
-	TStrCpy(ni.LocalFile,  local);
-	TStrCpy(ni.RemoteFile, remote);
+	ni.Password[0] = 0; //StrCpy( ni.Password,   UserPassword, ARRAYSIZE(ni.Password));
+	StrCpy(ni.User,       UserName, ARRAYSIZE(ni.User));
+	StrCpy(ni.HostName,   hostname, ARRAYSIZE(ni.HostName));
+	StrCpy(ni.LocalFile,  local, ARRAYSIZE(ni.LocalFile));
+	StrCpy(ni.RemoteFile, remote, ARRAYSIZE(ni.RemoteFile));
 
 	if(local[0] == '-' && local[1] == 0)
 	{

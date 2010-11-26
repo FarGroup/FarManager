@@ -48,12 +48,12 @@ FARINProc::FARINProc(LPCSTR nm,LPCSTR s,...)
 	if(s)
 	{
 		va_start(ap,s);
-		_snprintf(str, sizeof(str), "%*c%s(%s) {",
+		_snprintf(str, ARRAYSIZE(str), "%*c%s(%s) {",
 		          Counter*2,' ', nm, MessageV(s,ap));
 		va_end(ap);
 	}
 	else
-		_snprintf(str, sizeof(str), "%*c%s() {",
+		_snprintf(str, ARRAYSIZE(str), "%*c%s() {",
 		          Counter*2,' ', nm);
 
 	LogCmd(str, ldInt);
@@ -66,7 +66,7 @@ FARINProc::~FARINProc()
 	DWORD err = GetLastError();
 	char  str[500];
 	Counter--;
-	_snprintf(str, sizeof(str), "%*c}<%s>", Counter*2,' ',Name);
+	_snprintf(str, ARRAYSIZE(str), "%*c}<%s>", Counter*2,' ',Name);
 	LogCmd(str,ldInt);
 	SetLastError(err);
 }
@@ -78,10 +78,10 @@ void _cdecl FARINProc::Say(LPCSTR s,...)
 	int     rc;
 	DWORD   err = GetLastError();
 	va_start(ap,s);
-	rc = _snprintf(str, sizeof(str), "%*c", Counter*2,' ');
+	rc = _snprintf(str, ARRAYSIZE(str), "%*c", Counter*2,' ');
 
-	if(rc < (int)sizeof(str))
-		vsnprintf(str+rc, sizeof(str)-rc, s,ap);
+	if(rc < (int)ARRAYSIZE(str))
+		vsnprintf(str+rc, ARRAYSIZE(str)-rc, s,ap);
 
 	va_end(ap);
 	LogCmd(str,ldInt);
@@ -104,7 +104,7 @@ char *WINAPI FixFileNameChars(char *fnm,BOOL slashes)
 
 	if(!inv[0]) return fnm;
 
-	StrCpy(buff, fnm, sizeof(buff));
+	StrCpy(buff, fnm, ARRAYSIZE(buff));
 
 	for(src = buff; *src; src++)
 		if((m=strchr(inv,*src)) != NULL)
@@ -220,7 +220,7 @@ char *WINAPI PDigit(char *buff,__int64 val,int sz /*=-1*/)
 {
 	static char lbuff[100];
 	char str[ 100 ];
-	int pos = sizeof(str)-1;
+	int pos = ARRAYSIZE(str)-1;
 
 	if(!buff) buff = lbuff;
 
@@ -234,7 +234,7 @@ char *WINAPI PDigit(char *buff,__int64 val,int sz /*=-1*/)
 
 	if(sz != -1)
 	{
-		if(((int)sizeof(str))-1-pos > sz)
+		if(((int)ARRAYSIZE(str))-1-pos > sz)
 		{
 			str[ pos+sz-1 ] = FAR_RIGHT_CHAR;
 		}
@@ -357,9 +357,9 @@ LPCSTR WINAPI GetCmdLogFile(void)
 		else
 		{
 			m = GetModuleHandle(FP_GetPluginName());
-			str[GetModuleFileName(m,str,sizeof(str))] = 0;
+			str[GetModuleFileName(m,str,ARRAYSIZE(str))] = 0;
 			strrchr(str,SLASH_CHAR)[1] = 0;
-			StrCat(str,Opt.CmdLogFile,sizeof(str));
+			StrCat(str,Opt.CmdLogFile,ARRAYSIZE(str));
 			return str;
 		}
 	}
@@ -423,7 +423,7 @@ void WINAPI LogCmd(LPCSTR src,CMDOutputDir out,DWORD Size)
 //-- RAW
 	if(out == ldRaw)
 	{
-		_snprintf(tmstr, sizeof(tmstr), "%d ", PluginUsed());
+		_snprintf(tmstr, ARRAYSIZE(tmstr), "%d ", PluginUsed());
 		Fwrite(LogFile,tmstr,static_cast<int>(strlen(tmstr)));
 		signed n;
 
@@ -450,11 +450,11 @@ void WINAPI LogCmd(LPCSTR src,CMDOutputDir out,DWORD Size)
 	do
 	{
 		//Plugin
-		_snprintf(tmstr, sizeof(tmstr), "%d ", PluginUsed());
+		_snprintf(tmstr, ARRAYSIZE(tmstr), "%d ", PluginUsed());
 		Fwrite(LogFile,tmstr,static_cast<int>(strlen(tmstr)));
 		//Time
 		GetLocalTime(&st);
-		_snprintf(tmstr,sizeof(tmstr),
+		_snprintf(tmstr,ARRAYSIZE(tmstr),
 		          "%4d.%02d.%02d %02d:%02d:%02d:%04d",
 		          st.wYear, st.wMonth,  st.wDay,
 		          st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
@@ -663,7 +663,7 @@ void Connection::AddCmdLine(LPCSTR str)
 			return;
 	}
 
-	TStrCpy(buff, str ? str : reply_string.c_str());
+	StrCpy(buff, str ? str : reply_string.c_str(), ARRAYSIZE(buff));
 
 //Remove overflow lines
 	for(; cmdCount >= cmdSize; cmdCount--)
@@ -723,7 +723,7 @@ BOOL Connection::ConnectMessageTimeout(int Msg /*= MNone__*/,LPCSTR HostName /*=
 	        (BtnMsg != -MRetry && BtnMsg != -MRestore))
 		return ConnectMessage(Msg, HostName, BtnMsg);
 
-	TStrCpy(host, LastHost);
+	StrCpy(host, LastHost, ARRAYSIZE(host));
 	secNum = 0;
 	GET_TIME(b);
 
@@ -746,13 +746,13 @@ BOOL Connection::ConnectMessageTimeout(int Msg /*= MNone__*/,LPCSTR HostName /*=
 		if(first || diff > 1.0)
 		{
 			first = FALSE;
-			_snprintf(str, sizeof(str), "\"%s\" %s %2d%s %s",
+			_snprintf(str, ARRAYSIZE(str), "\"%s\" %s %2d%s %s",
 			          HostName,
 			          FP_GetMsg(MAutoRetryText),
 			          Opt.RetryTimeout-secNum,
 			          FP_GetMsg(MSeconds),FP_GetMsg(MRetryText));
 			ConnectMessage(Msg,str);
-			_snprintf(str, sizeof(str), "%s %s %d%s",
+			_snprintf(str, ARRAYSIZE(str), "%s %s %d%s",
 			          FP_GetMsg(Msg),
 			          FP_GetMsg(MAutoRetryText), Opt.RetryTimeout-secNum, FP_GetMsg(MSeconds));
 			SaveConsoleTitle::Text(str);
@@ -770,7 +770,7 @@ BOOL Connection::ConnectMessageTimeout(int Msg /*= MNone__*/,LPCSTR HostName /*=
 	}
 	while(true);
 
-	TStrCpy(LastHost, host);
+	StrCpy(LastHost, host, ARRAYSIZE(LastHost));
 	return rc;
 }
 
@@ -792,9 +792,9 @@ int Connection::ConnectMessage(int Msg /*= MNone__*/,LPCSTR HostName /*= NULL*/,
 	if(Msg == MNone__ && !HostName && !exCmd)
 		return TRUE;
 
-	if(Msg != MNone__)          SetCmdLine(LastMsg,  FP_GetMsg(Msg), sizeof(LastMsg),  -1);
+	if(Msg != MNone__)          SetCmdLine(LastMsg,  FP_GetMsg(Msg), ARRAYSIZE(LastMsg),  -1);
 
-	if(HostName && HostName[0]) SetCmdLine(LastHost, HostName,       sizeof(LastHost), -1);
+	if(HostName && HostName[0]) SetCmdLine(LastHost, HostName,       ARRAYSIZE(LastHost), -1);
 
 	if(btn == MNone__)
 		if(IS_FLAG(FP_LastOpMode,OPM_FIND)                       ||    //called from find
@@ -902,7 +902,7 @@ int Connection::ConnectMessage(int Msg /*= MNone__*/,LPCSTR HostName /*= NULL*/,
 	if(btn < 0 && btn != MNone__ && FP_Screen::isSaved())
 	{
 		char errStr[MAX_PATH];
-		_snprintf(errStr,sizeof(errStr),"%s \"%s\"",LastMsg,LastHost);
+		_snprintf(errStr,ARRAYSIZE(errStr),"%s \"%s\"",LastMsg,LastHost);
 		SaveConsoleTitle::Text(errStr);
 	}
 

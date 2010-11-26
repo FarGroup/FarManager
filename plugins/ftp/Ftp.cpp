@@ -18,7 +18,7 @@ FTP::FTP()
 	UrlsList          = NULL;
 	QuequeSize        = 0;
 	CallLevel         = 0;
-	FP_GetRegKey("LastHostsPath",HostsPath,NULL,sizeof(HostsPath));
+	FP_GetRegKey("LastHostsPath",HostsPath,NULL,ARRAYSIZE(HostsPath));
 	RereadRequired    = FALSE;
 	CurrentState      = fcsNormal;
 	KeepAlivePeriod   = Opt.KeepAlive ? FP_PeriodCreate(Opt.KeepAlive*1000) : NULL;
@@ -100,7 +100,7 @@ int FTP::GetFindData(PluginPanelItem **pPanelItem, int *pItemsNumber, int OpMode
 		if(!IS_SILENT(OpMode))
 		{
 			memset(&tmp, 0, sizeof(tmp));
-			StrCpy(tmp.FindData.cFileName,"..");
+			strcpy(tmp.FindData.cFileName,"..");
 			tmp.FindData.dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
 
 			if(!IS_SILENT(OpMode))
@@ -242,7 +242,7 @@ AskConnect:
 
 			if(CMP_TIME(e,b) > 0.5)
 			{
-				_snprintf(str,sizeof(str),"%s%d", FP_GetMsg(MReaded), *pItemsNumber);
+				_snprintf(str,ARRAYSIZE(str),"%s%d", FP_GetMsg(MReaded), *pItemsNumber);
 				SetLastError(ERROR_SUCCESS);
 				IdleMessage(str,Opt.ProcessColor);
 				b = e;

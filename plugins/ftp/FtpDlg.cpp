@@ -34,7 +34,7 @@ BOOL WINAPI AskSaveList(SaveListInfo* sli)
 	};
 	FarDialogItem DialogItems[ARRAYSIZE(InitItems)];
 	InitDialogItems(InitItems,DialogItems,ARRAYSIZE(DialogItems));
-	StrCpy(DialogItems[ 2].Data, sli->path, sizeof(DialogItems[0].Data));
+	StrCpy(DialogItems[ 2].Data, sli->path, ARRAYSIZE(DialogItems[0].Data));
 	DialogItems[ 4].Selected = sli->ListType == sltUrlList;
 	DialogItems[ 5].Selected = sli->ListType == sltTree;
 	DialogItems[ 6].Selected = sli->ListType == sltGroup;
@@ -159,9 +159,9 @@ BOOL FTP::CopyAskDialog(BOOL Move, BOOL Download, FTPCopyInfo* ci)
 	di[MID_PATH].Ptr.PtrData   = DialogEditBuffer;
 	StrCpy(DialogEditBuffer, ci->DestPath.c_str(), DIALOG_EDIT_SIZE);
 	//Include
-	TStrCpy(di[MID_INC].Data,  "*");
+	StrCpy(di[MID_INC].Data, "*", ARRAYSIZE(di[MID_INC].Data));
 	//Exclude
-	StrCpy(di[MID_EXC].Data,  "");
+	*di[MID_EXC].Data = 0;
 	//Flags
 	di[MID_ASCII].Selected = ci->asciiMode;
 	di[MID_UPPER].Selected = ci->UploadLowCase;
@@ -219,7 +219,7 @@ BOOL FTP::CopyAskDialog(BOOL Move, BOOL Download, FTPCopyInfo* ci)
 
 	while(*m && isspace(*m)) m++;
 
-	TStrCpy(IncludeMask, m);
+	StrCpy(IncludeMask, m, ARRAYSIZE(IncludeMask));
 	m = IncludeMask + strlen(IncludeMask)-1;
 
 	while(m > IncludeMask && isspace(*m))
@@ -233,7 +233,7 @@ BOOL FTP::CopyAskDialog(BOOL Move, BOOL Download, FTPCopyInfo* ci)
 
 	while(*m && isspace(*m)) m++;
 
-	TStrCpy(ExcludeMask, m);
+	StrCpy(ExcludeMask, m, ARRAYSIZE(ExcludeMask));
 	m = ExcludeMask + strlen(ExcludeMask)-1;
 
 	while(m > IncludeMask && isspace(*m))
@@ -397,17 +397,17 @@ BOOL FTP::GetHost(int title,FTPHost* p,BOOL ToDescription)
 	FTPHost       tmp;
 	tmp = *p;
 	InitDialogItems(InitItems,di,ARRAYSIZE(di));
-	StrCpy(di[0].Data, FP_GetMsg(title));
+	strcpy(di[0].Data, FP_GetMsg(title));
 
 	if(ToDescription)
 		di[dDESC].Focus = TRUE;
 	else
 		di[dHOST].Focus = TRUE;
 
-	StrCpy(di[dHOST].Data,p->HostName);
-	StrCpy(di[dUSER].Data,p->User);
-	StrCpy(di[dPSWD].Data,p->Password);
-	StrCpy(di[dDESC].Data,p->HostDescr);
+	strcpy(di[dHOST].Data,p->HostName);
+	strcpy(di[dUSER].Data,p->User);
+	strcpy(di[dPSWD].Data,p->Password);
+	strcpy(di[dDESC].Data,p->HostDescr);
 	Size2Str(di[dIOSIZE].Data,p->IOBuffSize);
 	di[dLOGIN].Selected   = p->AskLogin;
 	di[dASCII].Selected   = p->AsciiMode;
@@ -416,8 +416,8 @@ BOOL FTP::GetHost(int title,FTPHost* p,BOOL ToDescription)
 	di[dEXTCMD].Selected  = p->ExtCmdView;
 	di[dEXTLIST].Selected = p->ExtList;
 	di[dCODECMD].Selected = p->CodeCmd;
-	StrCpy(di[dLISTCMD].Data,p->ListCMD);
-	StrCpy(TableName,p->HostTable);
+	strcpy(di[dLISTCMD].Data,p->ListCMD);
+	strcpy(TableName,p->HostTable);
 
 	do
 	{
@@ -474,8 +474,8 @@ BOOL FTP::GetHost(int title,FTPHost* p,BOOL ToDescription)
 	p->SetHostName(Name,
 	               di[dUSER].Data,
 	               di[dPSWD].Data);
-	StrCpy(p->HostDescr,di[dDESC].Data,sizeof(p->HostDescr));
-	StrCpy(p->HostTable,TableName);
+	StrCpy(p->HostDescr,di[dDESC].Data,ARRAYSIZE(p->HostDescr));
+	strcpy(p->HostTable,TableName);
 	p->AskLogin    = di[dLOGIN].Selected;
 	p->AsciiMode   = di[dASCII].Selected;
 	p->PassiveMode = di[dPASV].Selected;
@@ -484,7 +484,7 @@ BOOL FTP::GetHost(int title,FTPHost* p,BOOL ToDescription)
 	p->ExtList     = di[dEXTLIST].Selected;
 	p->CodeCmd     = di[dCODECMD].Selected;
 	p->IOBuffSize  = Max((DWORD)FTR_MINBUFFSIZE,Str2Size(di[dIOSIZE].Data));
-	StrCpy(p->ListCMD,di[dLISTCMD].Data,sizeof(p->ListCMD));
+	StrCpy(p->ListCMD,di[dLISTCMD].Data,ARRAYSIZE(p->ListCMD));
 
 	if(rc == dCONNECT)
 	{
@@ -522,7 +522,7 @@ BOOL FTP::EditDirectory(String& Name,char *Desc,BOOL newDir)
 
 	//Description
 	if(Desc)
-		StrCpy(di[4].Data,Desc);
+		strcpy(di[4].Data,Desc);
 	else
 	{
 		SET_FLAG(di[3].Flags, DIF_DISABLE);
@@ -538,7 +538,7 @@ BOOL FTP::EditDirectory(String& Name,char *Desc,BOOL newDir)
 	//Fields -> Data
 	Name = DialogEditBuffer;
 
-	if(Desc) StrCpy(Desc,di[4].Data);
+	if(Desc) strcpy(Desc,di[4].Data);
 
 	return TRUE;
 }
@@ -577,20 +577,20 @@ void FTP::SelectTable()
 	struct FarMenuItem MenuItems[16];
 	memset(MenuItems, 0, sizeof(MenuItems));
 	MenuItems[hConnect->TableNum].Selected = TRUE;
-	StrCpy(MenuItems[0].Text,"Windows");
-	StrCpy(MenuItems[1].Text,"DOS");
-	StrCpy(MenuItems[2].Text,FP_GetMsg(MTableAuto));
-	StrCpy(MenuItems[3].Text,"UTF-8");
+	strcpy(MenuItems[0].Text,"Windows");
+	strcpy(MenuItems[1].Text,"DOS");
+	strcpy(MenuItems[2].Text,FP_GetMsg(MTableAuto));
+	strcpy(MenuItems[3].Text,"UTF-8");
 	int TableNum=4;
 
-	while(TableNum < (int)(sizeof(MenuItems)/sizeof(MenuItems[0])))
+	while(TableNum < (int)(ARRAYSIZE(MenuItems)))
 	{
 		CharTableSet TableSet;
 
 		if(FP_Info->CharTable(TableNum-4,(char*)&TableSet,sizeof(TableSet))==-1)
 			break;
 
-		StrCpy(MenuItems[TableNum++].Text,TableSet.TableName);
+		strcpy(MenuItems[TableNum++].Text,TableSet.TableName);
 	}
 
 	int ExitCode=FP_Info->Menu(FP_Info->ModuleNumber,-1,-1,0,FMENU_AUTOHIGHLIGHT,
@@ -607,19 +607,19 @@ void FTP::SelectTable()
 	switch(ExitCode)
 	{
 		case 0:
-			StrCpy(TableName,".win");
+			strcpy(TableName,".win");
 			break;
 		case 1:
-			StrCpy(TableName,".dos");
+			strcpy(TableName,".dos");
 			break;
 		case 2:
-			StrCpy(TableName,".auto");
+			strcpy(TableName,".auto");
 			break;
 		case 3:
-			StrCpy(TableName,".utf8");
+			strcpy(TableName,".utf8");
 			break;
 		default:
-			StrCpy(TableName,MenuItems[ExitCode].Text);
+			strcpy(TableName,MenuItems[ExitCode].Text);
 			break;
 	}
 
@@ -630,11 +630,11 @@ void FTP::SelectFileTable(char *TableName)
 {
 	struct FarMenuItem MenuItems[50];
 	memset(MenuItems, 0, sizeof(MenuItems));
-	StrCpy(MenuItems[0].Text,FP_GetMsg(MTableDefault));
-	StrCpy(MenuItems[1].Text,"Windows");
-	StrCpy(MenuItems[2].Text,"DOS");
-	StrCpy(MenuItems[3].Text,FP_GetMsg(MTableAuto));
-	StrCpy(MenuItems[4].Text,"UTF-8");
+	strcpy(MenuItems[0].Text,FP_GetMsg(MTableDefault));
+	strcpy(MenuItems[1].Text,"Windows");
+	strcpy(MenuItems[2].Text,"DOS");
+	strcpy(MenuItems[3].Text,FP_GetMsg(MTableAuto));
+	strcpy(MenuItems[4].Text,"UTF-8");
 
 	if(StrCmp(TableName,".win")==0)
 		MenuItems[1].Selected=TRUE;
@@ -660,7 +660,7 @@ void FTP::SelectFileTable(char *TableName)
 		if(StrCmp(TableName,TableSet.TableName)==0)
 			MenuItems[TableNum].Selected=TRUE;
 
-		StrCpy(MenuItems[TableNum++].Text,TableSet.TableName);
+		strcpy(MenuItems[TableNum++].Text,TableSet.TableName);
 	}
 
 	int ExitCode=FP_Info->Menu(FP_Info->ModuleNumber,-1,-1,0,FMENU_AUTOHIGHLIGHT,
@@ -675,19 +675,19 @@ void FTP::SelectFileTable(char *TableName)
 			*TableName=0;
 			break;
 		case 1:
-			StrCpy(TableName,".win");
+			strcpy(TableName,".win");
 			break;
 		case 2:
-			StrCpy(TableName,".dos");
+			strcpy(TableName,".dos");
 			break;
 		case 3:
-			StrCpy(TableName,".auto");
+			strcpy(TableName,".auto");
 			break;
 		case 4:
-			StrCpy(TableName,".utf8");
+			strcpy(TableName,".utf8");
 			break;
 		default:
-			StrCpy(TableName,MenuItems[ExitCode].Text);
+			strcpy(TableName,MenuItems[ExitCode].Text);
 			break;
 	}
 }
@@ -786,7 +786,7 @@ BOOL WINAPI GetLoginData(char *User, char *Password, BOOL forceAsk)
 
 	//Default user
 	if(!User[0] && Opt.AutoAnonymous)
-		StrCpy(User,"anonymous");
+		strcpy(User,"anonymous");
 
 	//Default passw
 	if(!Password[0] && stricmp(User,"anonymous") == 0)
@@ -803,8 +803,8 @@ BOOL WINAPI GetLoginData(char *User, char *Password, BOOL forceAsk)
 	else
 		di[4].Focus = TRUE;
 
-	StrCpy(di[2].Data, User);
-	StrCpy(di[4].Data, Password);
+	strcpy(di[2].Data, User);
+	strcpy(di[4].Data, Password);
 
 	do
 	{

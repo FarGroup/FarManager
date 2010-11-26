@@ -95,7 +95,7 @@ BOOL net_parse_ls_line(char *line, NET_FileEntryInfo* entry_info)
 //Owner
 	e = SkipNSpace(line);
 	CHECK((*e == 0), FALSE)
-	len = Min((int)sizeof(entry_info->FTPOwner)-1, (int)(e-line));
+	len = Min((int)ARRAYSIZE(entry_info->FTPOwner)-1, (int)(e-line));
 	StrCpy(entry_info->FTPOwner, line, len+1);
 	line = SkipSpace(e);
 
@@ -126,7 +126,7 @@ BOOL net_parse_ls_line(char *line, NET_FileEntryInfo* entry_info)
 //File name
 	line = SkipSpace(line);
 	CHECK((*line == 0), FALSE)
-	StrCpy(entry_info->FindData.cFileName, line, sizeof(entry_info->FindData.cFileName));
+	StrCpy(entry_info->FindData.cFileName, line, ARRAYSIZE(entry_info->FindData.cFileName));
 	len = static_cast<int>(strlen(entry_info->FindData.cFileName));
 
 	if(entry_info->FindData.cFileName[len-1] == '/')

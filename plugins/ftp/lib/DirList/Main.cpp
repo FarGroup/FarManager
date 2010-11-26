@@ -64,7 +64,7 @@ WORD NET_MonthNo(LPCSTR month)
 
 	for(WORD n = 0; n < 12; n++)
 	{
-		StrCpy(str, (char*)FTP_Info->GetOpt()->Months[n], sizeof(str));
+		StrCpy(str, (char*)FTP_Info->GetOpt()->Months[n], ARRAYSIZE(str));
 		b = str;
 		e = strchr(str, ';');
 
@@ -78,7 +78,7 @@ WORD NET_MonthNo(LPCSTR month)
 
 		while(e)
 		{
-			StrCpy(mn, b, Min((int)sizeof(mn),(int)(e-b+1)));
+			StrCpy(mn, b, Min((int)ARRAYSIZE(mn),(int)(e-b+1)));
 
 			if(StrNCmpI(month,mn,static_cast<int>(strlen(mn))) == 0)
 				return n+1;

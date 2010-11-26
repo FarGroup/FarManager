@@ -96,7 +96,7 @@ void StrYTime(char *str,struct tm *tm)
 {
 	Assert(tm != NULL);
 	char tmp[10],*m;
-	StrCpy(tmp, (char*)FTP_Info->GetOpt()->Months[tm->tm_mon], sizeof(tmp));
+	StrCpy(tmp, (char*)FTP_Info->GetOpt()->Months[tm->tm_mon], ARRAYSIZE(tmp));
 
 	if((m=strchr(tmp,';')) != NULL) *m = 0;
 

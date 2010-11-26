@@ -16,7 +16,7 @@ void WINAPI idNotify(const FTNNotify* p)
 	if(!File)
 	{
 		char fnm[ MAX_PATH_SIZE ];
-		fnm[ GetModuleFileName(FTP_Module,fnm,sizeof(fnm))] = 0;
+		fnm[ GetModuleFileName(FTP_Module,fnm,ARRAYSIZE(fnm))] = 0;
 		FTP_Info->StrCpy(strrchr(fnm,'\\')+1, "notify.log", -1);
 		File = fopen(fnm,"a");
 

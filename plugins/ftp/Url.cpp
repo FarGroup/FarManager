@@ -103,7 +103,7 @@ BOOL PreFill(FTPUrl* p)
 		if(num <= 0)
 			return FALSE;
 
-		TStrCpy(p->FileName.cFileName, p->SrcPath.c_str()+num+1);
+		StrCpy(p->FileName.cFileName, p->SrcPath.c_str()+num+1, ARRAYSIZE(p->FileName.cFileName));
 		p->SrcPath.SetLength(num);
 	}
 
@@ -142,11 +142,11 @@ BOOL FTP::EditUrlItem(FTPUrl* p)
 	{
 //Set flags
 		//From
-		TStrCpy(DialogItems[2].Data, p->SrcPath.c_str());
+		StrCpy(DialogItems[2].Data, p->SrcPath.c_str(), ARRAYSIZE(DialogItems[2].Data));
 		//To
-		TStrCpy(DialogItems[4].Data, p->DestPath.c_str());
+		StrCpy(DialogItems[4].Data, p->DestPath.c_str(), ARRAYSIZE(DialogItems[4].Data));
 		//Name
-		TStrCpy(DialogItems[6].Data, p->FileName.cFileName);
+		StrCpy(DialogItems[6].Data, p->FileName.cFileName, ARRAYSIZE(DialogItems[6].Data));
 		//Flags
 		DialogItems[ 8].Selected = p->Download;
 
@@ -171,7 +171,7 @@ BOOL FTP::EditUrlItem(FTPUrl* p)
 		//To
 		p->DestPath = DialogItems[4].Data;
 		//Name
-		TStrCpy(p->FileName.cFileName, DialogItems[6].Data);
+		StrCpy(p->FileName.cFileName, DialogItems[6].Data, ARRAYSIZE(p->FileName.cFileName));
 		//Flags
 		p->Download = DialogItems[ 8].Selected;
 

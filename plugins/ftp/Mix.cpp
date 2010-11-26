@@ -43,7 +43,7 @@ void WINAPI QuoteStr(char *str)
 	src = str;
 	*m++ = '\"';
 
-	for(size_t n = 0; n < sizeof(buff)-3 && *src; n++)
+	for(size_t n = 0; n < ARRAYSIZE(buff)-3 && *src; n++)
 		if(*src == '\"')
 		{
 			*m++ = '\"';
@@ -187,7 +187,7 @@ BOOL WINAPI FRealFile(LPCSTR nm,FAR_FIND_DATA* fd)
 
 	if(rc && fd)
 	{
-		StrCpy(fd->cFileName, nm);
+		strcpy(fd->cFileName, nm);
 		fd->dwFileAttributes = GetFileAttributes(nm);
 		fd->nFileSizeLow     = GetFileSize(f, &fd->nFileSizeHigh);
 		GetFileTime(f, &fd->ftCreationTime, &fd->ftLastAccessTime, &fd->ftLastWriteTime);
@@ -437,9 +437,9 @@ void DMessage(LPCSTR str,BOOL full,int color,int y)
 
 	if(full)
 	{
-		TStrCpy(err, str);
+		StrCpy(err, str, ARRAYSIZE(err));
 		int len = (int)strlen(err),
-		    w   = Min((int)sizeof(err)-1, FP_ConWidth()-4);
+		    w   = Min((int)ARRAYSIZE(err)-1, FP_ConWidth()-4);
 
 		while(len < w) err[len++] = ' ';
 
@@ -588,7 +588,7 @@ char* WINAPI TruncStr(char *Str,int MaxLength)
 		{
 			char *TmpStr=new char[MaxLength+5];
 			sprintf(TmpStr,"...%s",Str+Length-MaxLength+3);
-			StrCpy(Str,TmpStr);
+			strcpy(Str,TmpStr);
 			delete[] TmpStr;
 		}
 		else
@@ -667,7 +667,7 @@ BOOL WINAPI IsDirExist(LPCSTR nm)
 	int             l;
 	BOOL            res;
 	char            str[MAX_PATH];
-	StrCpy(str,nm);
+	strcpy(str,nm);
 
 	if((l=static_cast<int>(strlen(str)-1)) > 0 && str[l] == SLASH_CHAR) str[l] = 0;
 

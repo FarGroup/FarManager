@@ -82,13 +82,13 @@ BOOL FTP::SetDirectoryStepped(LPCSTR Dir, BOOL update)
 
 			if(m)
 			{
-				num = Min((int)sizeof(str)-1, (int)(m-Dir));
+				num = Min((int)ARRAYSIZE(str)-1, (int)(m-Dir));
 				strncpy(str, Dir, num);
 				str[num] = 0;
 				Dir = m+1;
 			}
 			else
-				StrCpy(str, Dir, sizeof(str));
+				StrCpy(str, Dir, ARRAYSIZE(str));
 		}
 
 		Log(("Dir: [%s]",str));
@@ -183,8 +183,8 @@ int FTP::SetDirectory(LPCSTR Dir,int OpMode)
 					//Directory
 					if(FTPHost::CheckHostFolder(HostsPath, Dir))
 					{
-						AddEndSlash(HostsPath,'\\',sizeof(HostsPath));
-						TStrCat(HostsPath, Dir);
+						AddEndSlash(HostsPath,'\\',ARRAYSIZE(HostsPath));
+						StrCat(HostsPath, Dir, ARRAYSIZE(HostsPath));
 						Log(("InDir"));
 						break;
 					}
@@ -227,7 +227,7 @@ int FTP::SetDirectory(LPCSTR Dir,int OpMode)
 		FTPServerInfo si;
 		String        Line;
 		si.ServerType = Host.ServerType;
-		TStrCpy(si.ServerInfo, hConnect->SystemInfo);
+		StrCpy(si.ServerInfo, hConnect->SystemInfo, ARRAYSIZE(si.ServerInfo));
 		WORD idx = dl.DetectStringType(&si, Line.c_str(), Line.Length());
 
 		if(idx!=FTP_TYPE_MVS)

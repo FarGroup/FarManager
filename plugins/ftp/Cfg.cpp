@@ -19,7 +19,7 @@ void WINAPI ReadCfg(void)
 {
 	char str[ FAR_MAX_NAME ],*m;
 	int  val,n;
-#define GCMD( fnm,nm,v ) FP_GetRegKey( fnm,Opt.v,nm,sizeof(Opt.v) ); if (TrimLen(Opt.v) == 0) StrCpy( Opt.v,nm );
+#define GCMD( fnm,nm,v ) FP_GetRegKey( fnm,Opt.v,nm,ARRAYSIZE(Opt.v) ); if (TrimLen(Opt.v) == 0) strcpy( Opt.v,nm );
 	Opt.AddToDisksMenu     = FP_GetRegKey("AddToDisksMenu",     1);
 	Opt.AddToPluginsMenu   = FP_GetRegKey("AddToPluginsMenu",   1);
 	Opt.DisksMenuDigit     = FP_GetRegKey("DisksMenuDigit",     2);
@@ -29,10 +29,10 @@ void WINAPI ReadCfg(void)
 	Opt.ResumeDefault      = FP_GetRegKey("ResumeDefault",      0);
 	Opt.UpdateDescriptions = FP_GetRegKey("UpdateDescriptions", 0);
 	Opt.PassiveMode        = FP_GetRegKey("PassiveMode",        0);
-	FP_GetRegKey("CharTable",        Opt.Table,NULL,sizeof(Opt.Table));
-	FP_GetRegKey("DescriptionNames", Opt.DescriptionNames,"00_index.txt,0index,0index.txt",sizeof(Opt.DescriptionNames));
-	FP_GetRegKey("Firewall",Opt.Firewall,NULL,sizeof(Opt.Firewall));
-	FP_GetRegKey("DefaultPassword", (BYTE *)str,(BYTE *)NULL,sizeof(str));
+	FP_GetRegKey("CharTable",        Opt.Table,NULL,ARRAYSIZE(Opt.Table));
+	FP_GetRegKey("DescriptionNames", Opt.DescriptionNames,"00_index.txt,0index,0index.txt",ARRAYSIZE(Opt.DescriptionNames));
+	FP_GetRegKey("Firewall",Opt.Firewall,NULL,ARRAYSIZE(Opt.Firewall));
+	FP_GetRegKey("DefaultPassword", (BYTE *)str,(BYTE *)NULL,ARRAYSIZE(str));
 	DecryptPassword((BYTE*)str,Opt.DefaultPassword);
 //JM
 	Opt.CmdLength          =       Max(5,Min(FP_ConHeight()-5,FP_GetRegKey("CmdLength",7)));
@@ -72,8 +72,8 @@ void WINAPI ReadCfg(void)
 	Opt.FFDup              =       FP_GetRegKey("FFDup",              FALSE);
 	Opt.UndupFF            =       FP_GetRegKey("UndupFF",            FALSE);
 	Opt.ShowSilentProgress =       FP_GetRegKey("ShowSilentProgress", FALSE);
-	FP_GetRegKey("InvalidSymbols",     Opt.InvalidSymbols,   "<>|?*\"", sizeof(Opt.InvalidSymbols));
-	FP_GetRegKey("CorrectedSymbols",   Opt.CorrectedSymbols, "()!__\'", sizeof(Opt.CorrectedSymbols));
+	FP_GetRegKey("InvalidSymbols",     Opt.InvalidSymbols,   "<>|?*\"", ARRAYSIZE(Opt.InvalidSymbols));
+	FP_GetRegKey("CorrectedSymbols",   Opt.CorrectedSymbols, "()!__\'", ARRAYSIZE(Opt.CorrectedSymbols));
 
 	for(n = 0; Opt.InvalidSymbols[n] && Opt.CorrectedSymbols[n]; n++);
 
@@ -84,7 +84,7 @@ void WINAPI ReadCfg(void)
 	if(Opt.PluginColumnMode < 0 || Opt.PluginColumnMode >= 10)
 		Opt.PluginColumnMode = -1;
 
-	FP_GetRegKey("CmdLogFile", Opt.CmdLogFile,"",sizeof(Opt.CmdLogFile));
+	FP_GetRegKey("CmdLogFile", Opt.CmdLogFile,"",ARRAYSIZE(Opt.CmdLogFile));
 //Queue
 	Opt.RestoreState           = FP_GetRegKey("QueueRestoreState",    TRUE);
 	Opt.RemoveCompleted        = FP_GetRegKey("QueueRemoveCompleted", TRUE);
@@ -103,7 +103,7 @@ void WINAPI ReadCfg(void)
 
 	for(n = 0; n < 12; n++)
 	{
-		FP_GetRegKey(Months[n], str, Months[n], sizeof(str));
+		FP_GetRegKey(Months[n], str, Months[n], ARRAYSIZE(str));
 
 		while((m=strpbrk(str,"\n\r\b")) != NULL) *m = 0;
 
@@ -163,7 +163,7 @@ void WINAPI ReadCfg(void)
 //dDelimit && dDelimiter
 	if(Opt.dDelimit && Opt.dDelimiter == 0)
 	{
-		if(GetLocaleInfo(GetThreadLocale(),LOCALE_STHOUSAND,str,sizeof(str)))
+		if(GetLocaleInfo(GetThreadLocale(),LOCALE_STHOUSAND,str,ARRAYSIZE(str)))
 		{
 			CharToOemBuff(str,str,2);
 			Opt.dDelimiter = str[0];
@@ -212,7 +212,7 @@ void WINAPI WriteCfg(void)
 	FP_SetRegKey("DescriptionNames",     Opt.DescriptionNames);
 	BYTE CryptedPassword[FTP_PWD_LEN];
 	MakeCryptPassword(Opt.DefaultPassword,CryptedPassword);
-	FP_SetRegKey("DefaultPassword", CryptedPassword,sizeof(CryptedPassword)-1);
+	FP_SetRegKey("DefaultPassword", CryptedPassword,ARRAYSIZE(CryptedPassword)-1);
 	FP_SetRegKey("Firewall",            Opt.Firewall);
 	FP_SetRegKey("CmdLogLimit",         Opt.CmdLogLimit);
 	FP_SetRegKey("CmdLogFile",          Opt.CmdLogFile);
@@ -467,8 +467,8 @@ int WINAPI FP_GetColorDialog(int color,FLngColorDialog* p,LPCSTR Help)
 	StrCpy(DialogItems[39].Data,         FP_GetMsg(p->MSet?p->MSet:base.MSet),          FAR_MAX_CAPTION);
 	StrCpy(DialogItems[40].Data,         FP_GetMsg(p->MCancel?p->MCancel:base.MCancel), FAR_MAX_CAPTION);
 	StrCpy(DialogItems[cdlgTEXT].Data,   FP_GetMsg(p->MText?p->MText:base.MText),       FAR_MAX_CAPTION);
-	StrCpy(DialogItems[cdlgTEXT+1].Data, DialogItems[cdlgTEXT].Data);
-	StrCpy(DialogItems[cdlgTEXT+2].Data, DialogItems[cdlgTEXT].Data);
+	strcpy(DialogItems[cdlgTEXT+1].Data, DialogItems[cdlgTEXT].Data);
+	strcpy(DialogItems[cdlgTEXT+2].Data, DialogItems[cdlgTEXT].Data);
 	ColorFore = FAR_COLOR_FORE(color);
 	ColorBk   = FAR_COLOR_BK(color);
 
@@ -483,7 +483,7 @@ int WINAPI FP_GetColorDialog(int color,FLngColorDialog* p,LPCSTR Help)
 	DialogItems[ cdlgFORE+ColorFore ].Selected = TRUE;
 	DialogItems[ cdlgFORE+ColorFore ].Focus = TRUE;
 	DialogItems[ cdlgBK+ColorBk ].Selected     = TRUE;
-	StrCpy(Title,DialogItems[0].Data,sizeof(Title));
+	StrCpy(Title,DialogItems[0].Data,ARRAYSIZE(Title));
 	sprintf(str,"(%3d 0x%02X %03o)",
 	        FAR_COLOR(ColorFore,ColorBk),
 	        FAR_COLOR(ColorFore,ColorBk),
@@ -632,9 +632,9 @@ int WINAPI Config(void)
 	sprintf(DialogItems[CFG_EXT_W].Data,"%d",Opt.CmdLine);
 	sprintf(DialogItems[CFG_EXT_H].Data,"%d",Opt.CmdLength);
 	Size2Str(DialogItems[CFG_BUFFSIZE].Data,Opt.IOBuffSize);
-	StrCpy(DialogItems[CFG_DESC].Data,Opt.DescriptionNames);
-	StrCpy(DialogItems[CFG_PASS].Data,Opt.DefaultPassword);
-	StrCpy(DialogItems[CFG_FIRE].Data,Opt.Firewall);
+	strcpy(DialogItems[CFG_DESC].Data,Opt.DescriptionNames);
+	strcpy(DialogItems[CFG_PASS].Data,Opt.DefaultPassword);
+	strcpy(DialogItems[CFG_FIRE].Data,Opt.Firewall);
 	sprintf(DialogItems[CFG_LOGLIMIT].Data,"%d",Opt.CmdLogLimit);
 	sprintf(DialogItems[CFG_LOGFILE].Data,"%s",Opt.CmdLogFile);
 	DialogItems[CFG_LOGDIR].Selected      = Opt.LogOutput;
@@ -699,11 +699,11 @@ int WINAPI Config(void)
 	Opt.CmdLine            = Max(10,Min(FP_ConWidth()-9,atoi(DialogItems[CFG_EXT_W].Data)));
 	Opt.CmdLength          = Max(5,Min(FP_ConHeight()-5,atoi(DialogItems[CFG_EXT_H].Data)));
 	Opt.IOBuffSize         = Max((DWORD)FTR_MINBUFFSIZE,Str2Size(DialogItems[CFG_BUFFSIZE].Data));
-	StrCpy(Opt.DescriptionNames,DialogItems[CFG_DESC].Data);
-	StrCpy(Opt.DefaultPassword,DialogItems[CFG_PASS].Data);
-	StrCpy(Opt.Firewall,DialogItems[CFG_FIRE].Data);
+	strcpy(Opt.DescriptionNames,DialogItems[CFG_DESC].Data);
+	strcpy(Opt.DefaultPassword,DialogItems[CFG_PASS].Data);
+	strcpy(Opt.Firewall,DialogItems[CFG_FIRE].Data);
 	Opt.CmdLogLimit        = atoi(DialogItems[CFG_LOGLIMIT].Data);
-	StrCpy(Opt.CmdLogFile, DialogItems[CFG_LOGFILE].Data);
+	strcpy(Opt.CmdLogFile, DialogItems[CFG_LOGFILE].Data);
 	Opt.LogOutput          = DialogItems[CFG_LOGDIR].Selected;
 	Opt.PassiveMode        = DialogItems[CFG_PASV].Selected;
 //Write to REG

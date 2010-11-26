@@ -125,6 +125,6 @@ BOOL WINAPI idPRParceDos(const FTPServerInfo* Server, FTPFileInfo* p, char *entr
 		CHECK((entry_info.size == -1), FALSE)
 	}
 
-	StrCpy(entry_info.FindData.cFileName, m, sizeof(entry_info.FindData.cFileName));
+	StrCpy(entry_info.FindData.cFileName, m, ARRAYSIZE(entry_info.FindData.cFileName));
 	return ConvertEntry(&entry_info,p);
 }

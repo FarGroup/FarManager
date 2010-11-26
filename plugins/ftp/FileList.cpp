@@ -72,7 +72,7 @@ void FTP::SaveList(FP_SizeItemList* il)
 		return;
 	}
 
-	StrCat(Opt.sli.path,"ftplist.lst");
+	strcat(Opt.sli.path,"ftplist.lst");
 
 	if(!AskSaveList(&Opt.sli))
 		return;
@@ -92,13 +92,13 @@ void FTP::SaveList(FP_SizeItemList* il)
 	   BasePath[1024+2],
 	   CurrentUrlPath[1024+2];
 	CurrentUrlPath[0] = 0;
-	_snprintf(BasePath, sizeof(BasePath),
+	_snprintf(BasePath, ARRAYSIZE(BasePath),
 	          "%s%s%s%s",
 	          Opt.sli.AddPrefix ? "ftp://" : "",
 	          Opt.sli.AddPasswordAndUser ? Message("%s:%s@",hConnect->UserName,hConnect->UserPassword) : "",
 	          hConnect->hostname,
 	          hConnect->CurDir.c_str());
-	AddEndSlash(BasePath,'/',sizeof(BasePath));
+	AddEndSlash(BasePath,'/',ARRAYSIZE(BasePath));
 
 	if(Opt.sli.ListType == sltTree)
 		fprintf(f,"BASE: \"%s\"\n",BasePath);
@@ -117,7 +117,7 @@ void FTP::SaveList(FP_SizeItemList* il)
 				continue;
 
 			FixFTPSlash(FTP_FILENAME(p));
-			_snprintf(str,sizeof(str),"%s%s",BasePath,FTP_FILENAME(p));
+			_snprintf(str,ARRAYSIZE(str),"%s%s",BasePath,FTP_FILENAME(p));
 
 			if(Opt.sli.Quote) QuoteStr(str);
 
@@ -128,7 +128,7 @@ void FTP::SaveList(FP_SizeItemList* il)
 			//TREE --------------------------------------
 			if(Opt.sli.ListType == sltTree)
 			{
-				TStrCpy(str, FTP_FILENAME(p));
+				StrCpy(str, FTP_FILENAME(p), ARRAYSIZE(str));
 				FixFTPSlash(str);
 
 				for(m = str,level = 0;
@@ -166,18 +166,18 @@ void FTP::SaveList(FP_SizeItemList* il)
 						continue;
 
 					FixFTPSlash(FTP_FILENAME(p));
-					_snprintf(str, sizeof(str), "%s%s", BasePath, FTP_FILENAME(p));
+					_snprintf(str, ARRAYSIZE(str), "%s%s", BasePath, FTP_FILENAME(p));
 
 					if(!IS_FLAG(p->FindData.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY))
 						*strrchr(str,'/') = 0;
 
 					if(StrCmp(CurrentUrlPath,str,-1,FALSE) != 0)
 					{
-						StrCpy(CurrentUrlPath, str, sizeof(CurrentUrlPath));
+						StrCpy(CurrentUrlPath, str, ARRAYSIZE(CurrentUrlPath));
 						fprintf(f,"\n[%s]\n", CurrentUrlPath);
 					}
 
-					TStrCpy(str, FTP_FILENAME(p));
+					StrCpy(str, FTP_FILENAME(p), ARRAYSIZE(str));
 					FixFTPSlash(str);
 					m = strrchr(str,'/');
 
@@ -331,28 +331,28 @@ BOOL FTP::ShowFilesList(FP_SizeItemList* il)
 			}
 		}
 
-		StrCpy(str,FP_GetMsg(FMSG(MListTitle)),sizeof(str));
-		StrCat(str," (",sizeof(str));
-		StrCat(str,FDigit(NULL,tsz,-1),sizeof(str));
+		StrCpy(str,FP_GetMsg(FMSG(MListTitle)),ARRAYSIZE(str));
+		StrCat(str," (",ARRAYSIZE(str));
+		StrCat(str,FDigit(NULL,tsz,-1),ARRAYSIZE(str));
 
 		if(il->TotalFullSize != tsz)
 		{
-			StrCat(str,"{",sizeof(str));
-			StrCat(str,FDigit(NULL,il->TotalFullSize,-1),sizeof(str));
-			StrCat(str,"}",sizeof(str));
+			StrCat(str,"{",ARRAYSIZE(str));
+			StrCat(str,FDigit(NULL,il->TotalFullSize,-1),ARRAYSIZE(str));
+			StrCat(str,"}",ARRAYSIZE(str));
 		}
 
-		StrCat(str,"/",sizeof(str));
-		StrCat(str,FDigit(NULL,tcn,-1),sizeof(str));
+		StrCat(str,"/",ARRAYSIZE(str));
+		StrCat(str,FDigit(NULL,tcn,-1),ARRAYSIZE(str));
 
 		if(tcn != il->TotalFiles)
 		{
-			StrCat(str,"{",sizeof(str));
-			StrCat(str,FDigit(NULL,il->TotalFiles,-1),sizeof(str));
-			StrCat(str,"}",sizeof(str));
+			StrCat(str,"{",ARRAYSIZE(str));
+			StrCat(str,FDigit(NULL,il->TotalFiles,-1),ARRAYSIZE(str));
+			StrCat(str,"}",ARRAYSIZE(str));
 		}
 
-		StrCat(str,")",sizeof(str));
+		StrCat(str,")",ARRAYSIZE(str));
 		//Menu
 		n = FP_Info->Menu(FP_Info->ModuleNumber,-1,-1,0,FMENU_SHOWAMPERSAND,
 		                  str,

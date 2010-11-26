@@ -79,10 +79,10 @@ void FTP::GetOpenPluginInfo(struct OpenPluginInfo *pi)
 	pi->PanelTitle = PanelTitle;
 
 	if(ShowHosts)
-		_snprintf(PanelTitle, sizeof(PanelTitle),
+		_snprintf(PanelTitle, ARRAYSIZE(PanelTitle),
 		          " FTP: %s ", pi->CurDir);
 	else
-		_snprintf(PanelTitle, sizeof(PanelTitle),
+		_snprintf(PanelTitle, ARRAYSIZE(PanelTitle),
 		          (hConnect&&hConnect->Host.ServerType==FTP_TYPE_MVS)? " FTP: %s@%s/%s ": " FTP: %s@%s%s ",
 		          Host.User, Host.Host, pi->CurDir);
 
@@ -107,26 +107,26 @@ void FTP::GetOpenPluginInfo(struct OpenPluginInfo *pi)
 	char *m;
 	memset(InfoLines, 0, sizeof(InfoLines));
 //Client
-	StrCpy(InfoLines[0].Text,FP_GetMsg(MFtpInfoFTPClient),sizeof(InfoLines[0].Text));
+	StrCpy(InfoLines[0].Text,FP_GetMsg(MFtpInfoFTPClient),ARRAYSIZE(InfoLines[0].Text));
 	InfoLines[0].Separator = TRUE;
-	StrCpy(InfoLines[1].Text,FP_GetMsg(MFtpInfoHostName),sizeof(InfoLines[0].Text));
-	StrCpy(InfoLines[1].Data,Host.HostName,sizeof(InfoLines[0].Data));
-	StrCpy(InfoLines[2].Text,FP_GetMsg(MFtpInfoHostDescr),sizeof(InfoLines[0].Text));
-	StrCpy(InfoLines[2].Data,Host.HostDescr,sizeof(InfoLines[0].Data));
-	StrCpy(InfoLines[3].Text,FP_GetMsg(MFtpInfoHostType),sizeof(InfoLines[0].Text));
+	StrCpy(InfoLines[1].Text,FP_GetMsg(MFtpInfoHostName),ARRAYSIZE(InfoLines[0].Text));
+	StrCpy(InfoLines[1].Data,Host.HostName,ARRAYSIZE(InfoLines[0].Data));
+	StrCpy(InfoLines[2].Text,FP_GetMsg(MFtpInfoHostDescr),ARRAYSIZE(InfoLines[0].Text));
+	StrCpy(InfoLines[2].Data,Host.HostDescr,ARRAYSIZE(InfoLines[0].Data));
+	StrCpy(InfoLines[3].Text,FP_GetMsg(MFtpInfoHostType),ARRAYSIZE(InfoLines[0].Text));
 
 	if(hConnect)
-		FtpSystemInfo(hConnect,InfoLines[3].Data,sizeof(InfoLines[0].Data));
+		FtpSystemInfo(hConnect,InfoLines[3].Data,ARRAYSIZE(InfoLines[0].Data));
 	else
 		InfoLines[3].Data[0] = 0;
 
 //Titles
-	StrCpy(InfoLines[4].Text,FP_GetMsg(MFtpInfoFtpTitle),sizeof(InfoLines[0].Text));
+	StrCpy(InfoLines[4].Text,FP_GetMsg(MFtpInfoFtpTitle),ARRAYSIZE(InfoLines[0].Text));
 	InfoLines[4].Separator=TRUE;
 	InfoLines[5].Text[0] = 0;
 
 	if(hConnect)
-		TStrCpy(InfoLines[5].Data, hConnect->GetStartReply());
+		StrCpy(InfoLines[5].Data, hConnect->GetStartReply(), ARRAYSIZE(InfoLines[5].Data));
 	else
 		InfoLines[5].Data[0] = 0;
 
@@ -134,19 +134,19 @@ void FTP::GetOpenPluginInfo(struct OpenPluginInfo *pi)
 
 	if(m) *m = 0;
 
-	StrCpy(InfoLines[6].Text, FP_GetMsg(MResmResume), sizeof(InfoLines[0].Text));
+	StrCpy(InfoLines[6].Text, FP_GetMsg(MResmResume), ARRAYSIZE(InfoLines[0].Text));
 
 	if(hConnect)
-		StrCpy(InfoLines[6].Data, FP_GetMsg(FtpIsResume(hConnect)?MResmSupport:MResmNotSupport), sizeof(InfoLines[0].Data));
+		StrCpy(InfoLines[6].Data, FP_GetMsg(FtpIsResume(hConnect)?MResmSupport:MResmNotSupport), ARRAYSIZE(InfoLines[0].Data));
 	else
-		StrCpy(InfoLines[6].Data, FP_GetMsg(MResmNotConnected), sizeof(InfoLines[0].Data));
+		StrCpy(InfoLines[6].Data, FP_GetMsg(MResmNotConnected), ARRAYSIZE(InfoLines[0].Data));
 
 	pi->InfoLines       = InfoLines;
 	pi->InfoLinesNumber = 7;
 //---------------- DESCR
 	static char *DescrFiles[32],
 	       DescrFilesString[256];
-	StrCpy(DescrFilesString, Opt.DescriptionNames, sizeof(DescrFilesString));
+	StrCpy(DescrFilesString, Opt.DescriptionNames, ARRAYSIZE(DescrFilesString));
 	int   DescrFilesNumber = 0;
 	char *NamePtr          = DescrFilesString;
 
@@ -317,7 +317,7 @@ void FTP::GetOpenPluginInfo(struct OpenPluginInfo *pi)
 
 		PanelModesArray[3].ColumnTitles  = ColumnTitles2;
 		pi->PanelModesArray  = PanelModesArray;
-		pi->PanelModesNumber = sizeof(PanelModesArray)/sizeof(PanelModesArray[0]);
+		pi->PanelModesNumber = ARRAYSIZE(PanelModesArray);
 		pi->StartPanelMode   = 0;
 
 		for(n = 1; n <= 3; n++)
@@ -344,7 +344,7 @@ void FTP::GetOpenPluginInfo(struct OpenPluginInfo *pi)
 		PanelModesArray[0].ColumnTitles = ColumnTitles1;
 		PanelModesArray[0].FullScreen   = atoi(FP_GetMsg(MFullScreen0));
 		pi->PanelModesArray  = PanelModesArray;
-		pi->PanelModesNumber = sizeof(PanelModesArray)/sizeof(PanelModesArray[0]);
+		pi->PanelModesNumber = ARRAYSIZE(PanelModesArray);
 	}
 
 //---------------- KEYBAR

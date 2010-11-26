@@ -104,7 +104,7 @@ BOOL WINAPI idPRParceVX_DOS( const FTPServerInfo* Server, FTPFileInfo* p, char *
 
 //Name
      entry = SkipSpace( e );
-     StrCpy( ei.FindData.cFileName, entry, sizeof(ei.FindData.cFileName) );
+     StrCpy( ei.FindData.cFileName, entry, ARRAYSIZE(ei.FindData.cFileName) );
      XP_StripLine( ei.FindData.cFileName );
 
      if ( (e=strstr( ei.FindData.cFileName,"<DIR>" )) != NULL ) {

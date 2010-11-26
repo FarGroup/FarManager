@@ -30,9 +30,6 @@
     <ClCompile Include="FStdLib\FARStdlib\fstd_crc32.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FStdLib\FARStdlib\fstd_Dbg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FStdLib\FARStdlib\fstd_Dialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -102,37 +99,7 @@
     <ClCompile Include="FStdLib\FARStdlib\fstd_plg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FStdLib\FARStdlib\fstd_RegCh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FStdLib\FARStdlib\fstd_RegCp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FStdLib\FARStdlib\fstd_RegCr.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FStdLib\FARStdlib\fstd_RegDl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FStdLib\FARStdlib\fstd_RegDla.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FStdLib\FARStdlib\fstd_RegGB.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FStdLib\FARStdlib\fstd_RegGI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FStdLib\FARStdlib\fstd_RegOp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FStdLib\FARStdlib\fstd_RegSB.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FStdLib\FARStdlib\fstd_RegSC.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FStdLib\FARStdlib\fstd_RegSI.cpp">
+    <ClCompile Include="FStdLib\FARStdlib\fstd_Reg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FStdLib\FARStdlib\fstd_SCol.cpp">

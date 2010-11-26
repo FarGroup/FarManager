@@ -31,11 +31,11 @@ void Connection::sendrequestINT(char *cmd, char *local, char *remote)
 	ni.Success      = TRUE;
 	ni.RestartPoint = restart_point;
 	ni.Port         = ntohs(portnum);
-	ni.Password[0] = 0; //TStrCpy( ni.Password,   UserPassword );
-	TStrCpy(ni.User,       UserName);
-	TStrCpy(ni.HostName,   hostname);
-	TStrCpy(ni.LocalFile,  local);
-	TStrCpy(ni.RemoteFile, remote);
+	ni.Password[0] = 0; //StrCpy( ni.Password, UserPassword, ARRAYSIZE(ni.Password));
+	StrCpy(ni.User, UserName, ARRAYSIZE(ni.User));
+	StrCpy(ni.HostName, hostname, ARRAYSIZE(ni.HostName));
+	StrCpy(ni.LocalFile, local, ARRAYSIZE(ni.LocalFile));
+	StrCpy(ni.RemoteFile, remote, ARRAYSIZE(ni.RemoteFile));
 
 	if(proxy)
 	{

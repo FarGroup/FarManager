@@ -91,7 +91,7 @@ BOOL WINAPI idPRParceOS2(const FTPServerInfo* Server, FTPFileInfo* p, char *entr
 		return FALSE;
 
 	//Name
-	StrCpy(entry_info.FindData.cFileName, entry+53, sizeof(entry_info.FindData.cFileName));
+	StrCpy(entry_info.FindData.cFileName, entry+53, ARRAYSIZE(entry_info.FindData.cFileName));
 	//Size
 	start = SkipSpace(entry);
 	m     = SkipNSpace(start);

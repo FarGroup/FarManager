@@ -226,7 +226,7 @@ void FTP::QuequeMenu(void)
 			StrCpy(str1, p->SrcPath.c_str(),    20);
 			StrCpy(str2, p->DestPath.c_str(),   20);
 			StrCpy(str3, p->FileName.cFileName, 20);
-			_snprintf(mi[n].Text, sizeof(mi[n].Text),
+			_snprintf(mi[n].Text, ARRAYSIZE(mi[n].Text),
 			          "%c%c %-20s%c%-20s%c%-20s",
 			          p->Download ? '-' : '<', p->Download ? '>' : '-',
 			          str1, FAR_VERT_CHAR,
@@ -239,7 +239,7 @@ void FTP::QuequeMenu(void)
 
 		//Title
 		char title[MAX_PATH];
-		_snprintf(title, sizeof(title), "%s: %d %s", FP_GetMsg(MQMenuTitle), n, FP_GetMsg(MQMenuItems));
+		_snprintf(title, ARRAYSIZE(title), "%s: %d %s", FP_GetMsg(MQMenuTitle), n, FP_GetMsg(MQMenuItems));
 
 		//Menu
 		if(num != -1 && num < QuequeSize) mi[num].Selected = TRUE;
@@ -388,13 +388,13 @@ void FTP::AddToQueque(FAR_FIND_DATA* FileName, LPCSTR Path, BOOL Download)
 
 	if(num != -1)
 	{
-		TStrCpy(p->FileName.cFileName, str.c_str()+num+1);
+		StrCpy(p->FileName.cFileName, str.c_str()+num+1, ARRAYSIZE(p->FileName.cFileName));
 		str.SetLength(num);
 		p->SrcPath = str;
 	}
 	else
 	{
-		TStrCpy(p->FileName.cFileName, str.c_str());
+		StrCpy(p->FileName.cFileName, str.c_str(), ARRAYSIZE(p->FileName.cFileName));
 		p->SrcPath.Null();
 	}
 
@@ -431,7 +431,7 @@ void FTP::ExecuteQueue(QueueExecOptions* op)
 	FTPHost   oHost = Host;
 	BOOL      oShowHosts = ShowHosts;
 	char      oDir[MAX_PATH];
-	GetCurPath(oDir, sizeof(oDir));
+	GetCurPath(oDir, ARRAYSIZE(oDir));
 	OverrideMsgCode = ocNone;
 	ExecuteQueueINT(op);
 	OverrideMsgCode = ocNone;

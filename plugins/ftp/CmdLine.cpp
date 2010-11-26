@@ -238,7 +238,7 @@ BOOL FTP::ExecCmdLineFTP(LPCSTR str, BOOL Prefix)
 		for(str+=7; *str && *str == ' '; str++);
 
 		if(*str)
-			StrCpy(hConnect->DirFile, str, sizeof(hConnect->DirFile));
+			StrCpy(hConnect->DirFile, str, ARRAYSIZE(hConnect->DirFile));
 		else
 			hConnect->DirFile[0] = 0;
 

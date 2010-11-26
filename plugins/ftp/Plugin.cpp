@@ -172,12 +172,12 @@ BOOL InitPlugins(void)
 	for(n = 0; StdPlugins[n].Magic; n++)
 	{
 		//FAR root
-		str[ GetModuleFileName(NULL,str,sizeof(str))] = 0;
+		str[ GetModuleFileName(NULL,str,ARRAYSIZE(str))] = 0;
 		tmp = strrchr(str,'\\');
 
 		if(tmp) tmp[1] = 0;
 
-		StrCat(str, StdPlugins[n].Name, sizeof(str));
+		StrCat(str, StdPlugins[n].Name, ARRAYSIZE(str));
 		m = LoadLibrary(str);
 
 		if(!m)
@@ -188,17 +188,17 @@ BOOL InitPlugins(void)
 			if(!m)
 			{
 				//Plugin path
-				StrCpy(str, FP_PluginStartPath, sizeof(str));
-				StrCat(str, "\\",               sizeof(str));
-				StrCat(str, StdPlugins[n].Name, sizeof(str));
+				StrCpy(str, FP_PluginStartPath, ARRAYSIZE(str));
+				StrCat(str, "\\",               ARRAYSIZE(str));
+				StrCat(str, StdPlugins[n].Name, ARRAYSIZE(str));
 				m = LoadLibrary(str);
 
 				if(!m)
 				{
 					//Plugin lib path
-					StrCpy(str, FP_PluginStartPath, sizeof(str));
-					StrCat(str, "\\Lib\\",            sizeof(str));
-					StrCat(str, StdPlugins[n].Name, sizeof(str));
+					StrCpy(str, FP_PluginStartPath, ARRAYSIZE(str));
+					StrCat(str, "\\Lib\\",          ARRAYSIZE(str));
+					StrCat(str, StdPlugins[n].Name, ARRAYSIZE(str));
 					m = LoadLibrary(str);
 
 					if(!m)
@@ -243,7 +243,7 @@ BOOL InitPlugins(void)
 		if(m)
 			FreeLibrary(m);
 
-		_snprintf(str,sizeof(str),
+		_snprintf(str,ARRAYSIZE(str),
 		          "Error loading...\n"
 		          "FTP plugin: \"%s\"\n"
 		          " With name: \"%s\"\n"

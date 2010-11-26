@@ -43,8 +43,8 @@ int FTP::ProcessShortcutLine(char *Line)
 
 		m++;
 		Host.Init();
-		StrCpy(Host.Host,     Line, Min((int)(m-Line), (int)sizeof(Host.Host)));
-		StrCpy(Host.HostName, Host.Host);
+		StrCpy(Host.Host,     Line, Min((int)(m-Line), (int)ARRAYSIZE(Host.Host)));
+		strcpy(Host.HostName, Host.Host);
 		Host.AskLogin    = *(m++) - '\x3';
 
 		if(*m == 0) return FALSE;
@@ -138,7 +138,7 @@ int FTP::ProcessShortcutLine(char *Line)
 	else if(StrCmp(Line,"HOST:",5) == 0)
 	{
 		Line += 5;
-		StrCpy(HostsPath,Line);
+		strcpy(HostsPath,Line);
 		return 1;
 	}
 

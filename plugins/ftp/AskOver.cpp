@@ -17,7 +17,7 @@ void MkFileInfo(char *buff,int bsz,LPCSTR title,FAR_FIND_DATA* p)
 		StrCat(buff,str,bsz);
 		//Time
 		FileTimeToSystemTime(&p->ftLastWriteTime,&tm);
-		_snprintf(str,sizeof(str)," %02d.%02d.%04d %02d:%02d:%02d",
+		_snprintf(str,ARRAYSIZE(str)," %02d.%02d.%04d %02d:%02d:%02d",
 		          tm.wDay, tm.wMonth, tm.wYear, tm.wHour, tm.wMinute, tm.wSecond);
 		StrCat(buff,str,bsz);
 	}
@@ -67,7 +67,7 @@ overCode FTP::AskOverwrite(int title, BOOL Download,FAR_FIND_DATA* dest,FAR_FIND
 	InitDialogItems(InitItems,DialogItems,ARRAYSIZE(DialogItems));
 //Set flags
 	//File name
-	StrCpy(DialogItems[2].Data, dest->cFileName, sizeof(DialogItems[0].Data));
+	StrCpy(DialogItems[2].Data, dest->cFileName, ARRAYSIZE(DialogItems[0].Data));
 	DialogItems[2].Data[60] = 0;
 
 	//Gray resume
@@ -82,8 +82,8 @@ overCode FTP::AskOverwrite(int title, BOOL Download,FAR_FIND_DATA* dest,FAR_FIND
 	}
 
 	//Info
-	MkFileInfo(DialogItems[4].Data, sizeof(DialogItems[0].Data), FMSG(MBtnCopyNew),      src);
-	MkFileInfo(DialogItems[5].Data, sizeof(DialogItems[0].Data), FMSG(MBtnCopyExisting), dest);
+	MkFileInfo(DialogItems[4].Data, ARRAYSIZE(DialogItems[0].Data), FMSG(MBtnCopyNew),      src);
+	MkFileInfo(DialogItems[5].Data, ARRAYSIZE(DialogItems[0].Data), FMSG(MBtnCopyExisting), dest);
 //Dialog
 	int rc = FDialogEx(72,13,NULL,DialogItems,ARRAYSIZE(DialogItems),FDLG_WARNING,NULL);
 	int remember = DialogItems[7].Selected;

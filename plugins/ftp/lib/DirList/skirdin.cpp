@@ -112,7 +112,7 @@ BOOL WINAPI idPRParceSkirdin(const FTPServerInfo* Server, FTPFileInfo* p, char *
 		}
 	}
 
-	StrCpy(entry_info.FindData.cFileName, entry, sizeof(entry_info.FindData.cFileName));
+	StrCpy(entry_info.FindData.cFileName, entry, ARRAYSIZE(entry_info.FindData.cFileName));
 	return ConvertEntry(&entry_info,p);
 }
 

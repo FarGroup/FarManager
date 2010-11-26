@@ -12,7 +12,7 @@ BOOL Connection::Init(LPCSTR Host, LPCSTR Port, LPCSTR User, LPCSTR Password)
 	SetLastError(ERROR_SUCCESS);
 	/* Set up defaults for FTP. */
 	type = TYPE_A;
-	StrCpy(bytename, "8"), bytesize = 8;
+	strcpy(bytename, "8"), bytesize = 8;
 	cpend = 0;  /* no pending replies */
 	proxy = 0;      /* proxy not active */
 	ResetCmdBuff();
@@ -78,7 +78,7 @@ BOOL Connection::hookup(char *host, int port)
 
 //Read startup message from server
 		cin = cout = sock;
-		TStrCpy(hostname, host);
+		StrCpy(hostname, host, ARRAYSIZE(hostname));
 		portnum = port;
 		ConnectMessage(MWaitingForResponse,NULL);
 		int repl = getreply(0);
@@ -340,7 +340,7 @@ noport:
 			if(data_addr.sin_addr.s_addr != hisctladdr.sin_addr.s_addr)
 			{
 				char Msg[30];
-				_snprintf(Msg, sizeof(Msg),
+				_snprintf(Msg, ARRAYSIZE(Msg),
 				          "[%s -> %s]",
 				          inet_ntoa(hisctladdr.sin_addr), inet_ntoa(data_addr.sin_addr));
 				ConnectMessage(0,Msg,0);

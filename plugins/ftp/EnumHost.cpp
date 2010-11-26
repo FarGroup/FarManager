@@ -29,7 +29,7 @@ BOOL EnumHost::Assign(char *HostsPath)
 {
 	PROC(("EnumHost::Assign","%s",HostsPath))
 	HostPos = 0;
-	StrCpy(RootKey, FTPHost::MkHost(NULL,HostsPath), sizeof(RootKey));
+	StrCpy(RootKey, FTPHost::MkHost(NULL,HostsPath), ARRAYSIZE(RootKey));
 	hEnum = FP_OpenRegKey(RootKey);
 	Log(("rc = %d",hEnum != NULL));
 	return hEnum != NULL;
@@ -52,7 +52,7 @@ BOOL EnumHost::GetNextHost(FTPHost* p)
 	}
 
 	p->Init();
-	StrCpy(p->RegKey, p->MkHost(RootKey,SubKey));
+	strcpy(p->RegKey, p->MkHost(RootKey,SubKey));
 	p->LastWrite = lw;
 	HostPos++;
 	Log(("SetKey %p to: %s", p, p->RegKey));

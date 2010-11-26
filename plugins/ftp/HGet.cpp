@@ -73,7 +73,7 @@ int FTP::GetHostFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,int Move
 	}
 	else
 	{
-		TStrCpy(CheckKey, DestPath.c_str());
+		StrCpy(CheckKey, DestPath.c_str(), ARRAYSIZE(CheckKey));
 
 		if(strpbrk(DestPath.c_str(),":\\")==NULL && !FP_CheckRegKey(CheckKey))
 		{
@@ -81,7 +81,7 @@ int FTP::GetHostFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,int Move
 		}
 		else if(FP_GetRegKey(CheckKey,"Folder",0))
 		{
-			AddEndSlash(CheckKey,'\\',sizeof(CheckKey));
+			AddEndSlash(CheckKey,'\\',ARRAYSIZE(CheckKey));
 			Rename=TRUE;
 		}
 	}
@@ -153,7 +153,7 @@ int FTP::GetHostFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,int Move
 					/*3*/FMSG(MCopySkipAll),
 					/*4*/FMSG(MCopyCancel)
 				};
-				int MsgCode = FMessage(FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),5);
+				int MsgCode = FMessage(FMSG_WARNING,NULL,MsgItems,ARRAYSIZE(MsgItems),5);
 
 				switch(MsgCode)
 				{
@@ -199,7 +199,7 @@ int FTP::GetHostFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,int Move
 					DestName,
 					FMSG(MOk)
 				};
-				FMessage(FMSG_WARNING|FMSG_DOWN|FMSG_ERRORTYPE,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
+				FMessage(FMSG_WARNING|FMSG_DOWN|FMSG_ERRORTYPE,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
 				return(0);
 			}
 		}//INI

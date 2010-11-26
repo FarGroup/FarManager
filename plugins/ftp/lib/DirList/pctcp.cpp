@@ -70,7 +70,7 @@ BOOL WINAPI idPRParcePCTCP(const FTPServerInfo* Server, FTPFileInfo* p, char *en
 	entry[30] = 0;
 	e = SkipSpace(entry+11);
 	CHECK((e[0]==0), FALSE)
-	StrCpy(entry_info.FindData.cFileName, e, sizeof(entry_info.FindData.cFileName));
+	StrCpy(entry_info.FindData.cFileName, e, ARRAYSIZE(entry_info.FindData.cFileName));
 
 	// размер или признак директория
 	if(StrCmp(entry, "<dir> ",6,FALSE) == 0)

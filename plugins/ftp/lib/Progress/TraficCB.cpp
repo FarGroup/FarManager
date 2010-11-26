@@ -57,7 +57,7 @@ void TrafficInformation::FormatLine(int num,LPCSTR line,time_t tm)
 		{
 			line++;
 
-			for(cn = 0; *line && strchr("0123456789",*line) && cn < (int)(sizeof(str)-1); cn++,line++)
+			for(cn = 0; *line && strchr("0123456789",*line) && cn < (int)(ARRAYSIZE(str)-1); cn++,line++)
 				str[cn] = *line;
 
 			str[cn] = 0;
@@ -65,7 +65,7 @@ void TrafficInformation::FormatLine(int num,LPCSTR line,time_t tm)
 
 			if(!cn || *line != '%')
 			{
-				StrCpy(Lines[num]+n,"<badCmd>");
+				strcpy(Lines[num]+n,"<badCmd>");
 				n += 8;
 				break;
 			}
@@ -100,14 +100,14 @@ void TrafficInformation::FormatLine(int num,LPCSTR line,time_t tm)
 
 			if(*line != '%')
 			{
-				StrCpy(Lines[num]+n,"<badCmd>");
+				strcpy(Lines[num]+n,"<badCmd>");
 				n += 8;
 				break;
 			}
 
 			if(Count >= MAX_TRAF_ITEMS)
 			{
-				StrCpy(Lines[num]+n,"<many>");
+				strcpy(Lines[num]+n,"<many>");
 				break;
 			}
 
@@ -122,7 +122,7 @@ void TrafficInformation::FormatLine(int num,LPCSTR line,time_t tm)
 		//Size
 		if(isdigit(*line))
 		{
-			for(cn = 0; *line && strchr("+-0123456789",*line) && cn < (int)(sizeof(str)-1); cn++,line++)
+			for(cn = 0; *line && strchr("+-0123456789",*line) && cn < (int)(ARRAYSIZE(str)-1); cn++,line++)
 				str[cn] = *line;
 
 			str[cn] = 0;
@@ -130,7 +130,7 @@ void TrafficInformation::FormatLine(int num,LPCSTR line,time_t tm)
 		}
 
 		//Type
-		for(cn = 0; *line && *line != '%' && cn < (int)(sizeof(str)-1); cn++,line++)
+		for(cn = 0; *line && *line != '%' && cn < (int)(ARRAYSIZE(str)-1); cn++,line++)
 			str[cn] = *line;
 
 		str[cn] = 0;
@@ -141,7 +141,7 @@ void TrafficInformation::FormatLine(int num,LPCSTR line,time_t tm)
 
 		if(*line == 0 || !StdCommands[cn])
 		{
-			StrCpy(Lines[num]+n,"<badCmd>");
+			strcpy(Lines[num]+n,"<badCmd>");
 			n += 8;
 			break;
 		}
@@ -153,7 +153,7 @@ void TrafficInformation::FormatLine(int num,LPCSTR line,time_t tm)
 		{
 			if(Count >= MAX_TRAF_ITEMS)
 			{
-				StrCpy(Lines[num]+n,"<many>");
+				strcpy(Lines[num]+n,"<many>");
 				break;
 			}
 
@@ -175,12 +175,12 @@ void TrafficInformation::DrawInfos(time_t tm)
 	char key[ MAX_TRAF_WIDTH+1 ];
 	int  n,i;
 	Count = 0;
-	_snprintf(key,sizeof(key),"CopyDialog\\%s",FTP_Info->GetMsg(MLanguage));
+	_snprintf(key,ARRAYSIZE(key),"CopyDialog\\%s",FTP_Info->GetMsg(MLanguage));
 	LineCount = Min(MAX_TRAF_LINES,FTP_Info->GetRegKeyFullInt(key,"Count", 0));
 
 	if(!LineCount)
 	{
-		LineCount = sizeof(StdDialogLines) / sizeof(StdDialogLines[0]);
+		LineCount = ARRAYSIZE(StdDialogLines);
 
 		for(i = 0; i < LineCount; i++)
 			FormatLine(i,StdDialogLines[i],tm);
@@ -189,7 +189,7 @@ void TrafficInformation::DrawInfos(time_t tm)
 	{
 		for(i = 0; i < LineCount; i++)
 		{
-			FTP_Info->GetRegKeyFullStr(key, FTP_Info->Message("Line%02d",i+1), str,"",sizeof(str));
+			FTP_Info->GetRegKeyFullStr(key, FTP_Info->Message("Line%02d",i+1), str,"",ARRAYSIZE(str));
 
 			if(!str[0]) break;
 
@@ -285,8 +285,8 @@ void TrafficInformation::InitFile(__int64 sz,LPCSTR SrcName,LPCSTR DestName)
 	FileWaitTime       = 0;
 	AvCps[0] = 0; AvCps[1] = 0; AvCps[2] = 0;
 	GET_TIME(LastTime);
-	StrCpy(SrcFileName,  SrcName,  sizeof(SrcFileName));
-	StrCpy(DestFileName, DestName, sizeof(DestFileName));
+	StrCpy(SrcFileName,  SrcName,  ARRAYSIZE(SrcFileName));
+	StrCpy(DestFileName, DestName, ARRAYSIZE(DestFileName));
 }
 
 void TrafficInformation::Skip(void)
@@ -385,7 +385,7 @@ BOOL TrafficInformation::Callback(int Size)
 //Show QUIET progressing
 	if(!ShowStatus)
 	{
-		_snprintf(str,sizeof(str),
+		_snprintf(str,ARRAYSIZE(str),
 		         "{%2.1lf%%} %s: %.26s",
 		         TotalPercent,
 		         FTP_Info->GetMsg(TitleMsg),
@@ -396,11 +396,11 @@ BOOL TrafficInformation::Callback(int Size)
 
 //Window caption
 	if(FTP_Info->FtpGetRetryCount())
-		_snprintf(str,sizeof(str),"%d: {%2.1lf%%} %s - Far",
+		_snprintf(str,ARRAYSIZE(str),"%d: {%2.1lf%%} %s - Far",
 		         FTP_Info->FtpGetRetryCount(), TotalPercent,
 		         FTP_Info->GetMsg(TitleMsg));
 	else
-		_snprintf(str,sizeof(str),"{%2.1lf%%} %s - Far",
+		_snprintf(str,ARRAYSIZE(str),"{%2.1lf%%} %s - Far",
 		         TotalPercent,FTP_Info->GetMsg(TitleMsg));
 
 	if(StrCmp(str,ConsoleTitle,-1,TRUE) != 0)
@@ -409,7 +409,7 @@ BOOL TrafficInformation::Callback(int Size)
 			OemToChar(str,str);
 
 		SetConsoleTitle(str);
-		StrCpy(ConsoleTitle,str,sizeof(ConsoleTitle));
+		StrCpy(ConsoleTitle,str,ARRAYSIZE(ConsoleTitle));
 	}
 
 //Mark CMD window invisible
@@ -419,9 +419,9 @@ BOOL TrafficInformation::Callback(int Size)
 	DrawInfos(tmt);
 
 	if(FTP_Info->FtpGetRetryCount())
-		_snprintf(str,sizeof(str),"%d: %s",FTP_Info->FtpGetRetryCount(),FTP_Info->GetMsg(TitleMsg));
+		_snprintf(str,ARRAYSIZE(str),"%d: %s",FTP_Info->FtpGetRetryCount(),FTP_Info->GetMsg(TitleMsg));
 	else
-		StrCpy(str,FTP_Info->GetMsg(TitleMsg),sizeof(str));
+		StrCpy(str,FTP_Info->GetMsg(TitleMsg),ARRAYSIZE(str));
 
 	MsgItems[0] = str;
 	int n;

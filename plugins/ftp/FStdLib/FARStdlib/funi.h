@@ -212,10 +212,7 @@ extern HKEY  WINAPI FP_OpenRegKey(LPCSTR Key);
 extern BOOL  WINAPI FP_DeleteRegKey(LPCSTR Key);
 extern BOOL  WINAPI FP_CheckRegKey(LPCSTR Key);
 extern BOOL  WINAPI FP_DeleteRegKeyFull(LPCSTR Key);     //!!Do not uses FP_PluginRootKey - absolute path from HKCU
-extern BOOL  WINAPI FP_CheckRegKeyFull(LPCSTR Key);      //!!Do not uses FP_PluginRootKey - absolute path from HKCU
 
-extern BOOL  WINAPI FP_CopyRegKeyAll(HKEY TargetBase, LPCSTR TargetSubkeyName,
-                                       HKEY SrcBase,    LPCSTR SrcSubkeyName);
 extern BOOL  WINAPI FP_DeleteRegKeyAll(HKEY BaseKey, LPCSTR SubKeyName);
 extern BOOL  WINAPI FP_DeleteRegKeyAll(LPCSTR hParentKey,LPCSTR Key);                 // HKCU + hParentKey + Key
 extern BOOL  WINAPI FP_DeleteRegKeyAll(LPCSTR Key);                                     // HKCU + PluginKey + Key
@@ -266,8 +263,6 @@ extern int WINAPI FP_ConHeight(void);
     - []
     Debug functions and helpers
 
-    -# GetDMStr Returns DM_x and DN_x text name
-
     @def CHK_INITED
       Assertly checks if FSTD initialized.
 
@@ -287,7 +282,6 @@ inline BOOL     isFARWinNT(void) { return FP_WinVerDW < 0x80000000UL; }
 
 extern BOOL     WINAPI FP_InPattern(LPCSTR ListOfPatterns,LPCSTR NameToFitInPattern);
 extern int      WINAPI FP_CheckKeyPressed(int *keys = NULL);
-extern LPCSTR WINAPI GetDMStr(int Msg);
 
 #define OPM_NODIALOG 0x1000
 #define OPM_USER     0x2000

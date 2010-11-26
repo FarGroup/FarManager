@@ -103,9 +103,9 @@ int FTP::MakeDirectory(String& Name,int OpMode)
 
 		char str[MAX_PATH];
 		h.Folder = TRUE;
-		TStrCpy(h.Host, Name.c_str());
+		StrCpy(h.Host, Name.c_str(), ARRAYSIZE(h.Host));
 		h.MkINIFile(str,NULL,"");
-		TStrCpy(h.Host, str);
+		StrCpy(h.Host, str, ARRAYSIZE(h.Host));
 		h.Write(HostsPath);
 		SelectFile=Name;
 		return TRUE;

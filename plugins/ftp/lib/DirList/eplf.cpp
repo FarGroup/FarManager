@@ -70,6 +70,6 @@ BOOL WINAPI idPRParceEPLF(const FTPServerInfo* Server, FTPFileInfo* p, char *ent
 		}
 	}
 
-	StrCpy(entry_info.FindData.cFileName, tab+1, sizeof(entry_info.FindData.cFileName));
+	StrCpy(entry_info.FindData.cFileName, tab+1, ARRAYSIZE(entry_info.FindData.cFileName));
 	return ConvertEntry(&entry_info,p);
 }

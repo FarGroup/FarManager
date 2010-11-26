@@ -37,7 +37,7 @@ void FTP::SaveUsedDirNFile(void)
 	{
 		String s;
 		FtpGetCurrentDirectory(hConnect,s);
-		TStrCpy(Host.Home, s.c_str());
+		StrCpy(Host.Home, s.c_str(), ARRAYSIZE(Host.Home));
 	}
 
 	//Save current file to restore
@@ -96,9 +96,9 @@ void FTP::FTP_FixPaths(LPCSTR base, PluginPanelItem *p, int cn, BOOL FromPlugin)
 			continue;
 
 		str.printf("%s%c%s", base, FromPlugin ? '/' : '\\', CurName);
-		TStrCpy(p->FindData.cFileName, str.c_str());
+		StrCpy(p->FindData.cFileName, str.c_str(), ARRAYSIZE(p->FindData.cFileName));
 
-		if(str.Length() >= (int)sizeof(p->FindData.cFileName))
+		if(str.Length() >= (int)ARRAYSIZE(p->FindData.cFileName))
 			FPIL_ADDSET(p, str.Length()+1, strdup(str.c_str()));
 		else
 			FPIL_ADDSET(p, 0, NULL);
@@ -159,7 +159,7 @@ int FTP::ExpandList(PluginPanelItem *pi,int icn,FP_SizeItemList* il,BOOL FromPlu
 			if(Host.Home[0])
 			{
 				char str[MAX_PATH];
-				GetCurPath(str, sizeof(str));
+				GetCurPath(str, ARRAYSIZE(str));
 
 				if(StrCmpI(str, Host.Home) != 0)
 					SetDirectory(Host.Home,FP_LastOpMode);
@@ -204,7 +204,7 @@ BOOL FTP::FTP_GetFindData(PluginPanelItem **PanelItem,int *ItemsNumber,BOOL From
 	{
 #if defined(__FILELOG__)
 		char path[MAX_PATH];
-		path[GetCurrentDirectory(sizeof(path),path)] = 0;
+		path[GetCurrentDirectory(ARRAYSIZE(path),path)] = 0;
 		Log(("Files in [%s] not found: %s", path, FIO_ERROR));
 #endif
 		*PanelItem   = NULL;
@@ -215,7 +215,7 @@ BOOL FTP::FTP_GetFindData(PluginPanelItem **PanelItem,int *ItemsNumber,BOOL From
 	{
 #if defined(__FILELOG__)
 		char path[MAX_PATH];
-		path[GetCurrentDirectory(sizeof(path),path)] = 0;
+		path[GetCurrentDirectory(ARRAYSIZE(path),path)] = 0;
 		Log(("Files in [%s] are found", path));
 #endif
 	}

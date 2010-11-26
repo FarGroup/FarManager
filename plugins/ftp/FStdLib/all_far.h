@@ -462,15 +462,13 @@ inline int              StrCmpI(LPCSTR str,LPCSTR str1)                  { retur
 inline int              StrNCmp(LPCSTR str,LPCSTR str1,int maxlen)       { return StrCmp(str,str1,maxlen,TRUE); }
 inline int              StrNCmpI(LPCSTR str,LPCSTR str1,int maxlen)      { return StrCmp(str,str1,maxlen,FALSE); }
 
-extern char   *WINAPI StrCpy(char *dest,LPCSTR src,int dest_sz = -1);
-extern char   *WINAPI StrCat(char *dest,LPCSTR src,int dest_sz = -1);
+extern char   *WINAPI StrCpy(char *dest,LPCSTR src,int dest_sz);
+extern char   *WINAPI StrCat(char *dest,LPCSTR src,int dest_sz);
 extern int     WINAPI StrNChr(LPCSTR str,char ch,int maxlen = -1);
 extern int     WINAPI strchrCount(LPCSTR str,char ch,int maxlen = -1);
 extern int     WINAPI StrPosChr(LPCSTR str,char ch,int pos = 0);
 extern int     WINAPI StrPosStr(LPCSTR str,LPCSTR s,int pos = 0);
 
-#define TStrCpy( d, s ) StrCpy( d, s, sizeof(d) )
-#define TStrCat( d, s ) StrCat( d, s, sizeof(d) )
 #endif
 
 // --------------------------------------------------------------

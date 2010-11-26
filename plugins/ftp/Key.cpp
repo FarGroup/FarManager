@@ -254,8 +254,8 @@ int FTP::ProcessKey(int Key,unsigned int ControlState)
 						char str[MAX_PATH];  //Must be static buff because of MkTemp
 						FP_FSF->MkTemp(str,"FTP");
 						CreateDirectory(str,NULL);
-						AddEndSlash(str,'\\',sizeof(str));
-						TStrCat(str, "FTPDir.txt");
+						AddEndSlash(str,'\\',ARRAYSIZE(str));
+						StrCat(str, "FTPDir.txt", ARRAYSIZE(str));
 						file = FIO_CREAT(str,0);
 
 						if(file == -1)
@@ -470,7 +470,7 @@ int FTP::ProcessKey(int Key,unsigned int ControlState)
 			if(!EditDirectory(s,p->HostDescr,FALSE))
 				return TRUE;
 
-			TStrCpy(p->Host, s.c_str());
+			StrCpy(p->Host, s.c_str(), ARRAYSIZE(p->Host));
 		}
 		else
 		{
