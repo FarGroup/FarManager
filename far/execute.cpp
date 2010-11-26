@@ -631,6 +631,7 @@ bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 					strFullName=RegPath;
 					strFullName+=Module;
 
+          DWORD samDesired = KEY_QUERY_VALUE;
 					DWORD RedirectionFlag = 0;
 					// App Paths key is shared in Windows 7 and above
 					if (WinVer.dwMajorVersion < 6 || WinVer.dwMajorVersion == 6 && WinVer.dwMinorVersion < 1)
@@ -647,7 +648,6 @@ bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 					}
 					for (size_t i=0; i<ARRAYSIZE(RootFindKey); i++)
 					{
-						DWORD samDesired = KEY_QUERY_VALUE;
 						if (i==ARRAYSIZE(RootFindKey)-1)
 						{
 							if(RedirectionFlag)
