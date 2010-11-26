@@ -3,6 +3,73 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 26.11.2010 23:25:10 +0200 - build 1736
+
+1. Incorrect processing of ';'-separated masks list containing "%pathext%".
+
+drkns 26.11.2010 20:44:41 +0200 - build 1735
+
+1. Mantis#0001591: Addition to FileFilterControl: Custom filters
+
+2. Hiding useless elements in link creation dialog.
+
+yjh 26.11.2010 11:00:23 +0300 - build 1734
+
+1. Fixed error in 1732
+
+drkns 25.11.2010 21:15:37 +0200 - build 1733
+
+1. From Alexey Samlyukov: PFLAGS_USECRC32/OPIF_USECRC32 flags define explicitly that the plugin fills in its panel elements' CRC32 field.
+
+drkns 25.11.2010 15:07:10 +0200 - build 1732
+
+1. Correction of 1730.1 - In Windows 7 and higher, there is a single "App Paths".
+
+drkns 25.11.2010 13:52:52 +0200 - build 1731
+
+1. "[x] use additional privileges" option didn't work
+
+yjh 25.11.2010 14:50:16 +0300 - build 1730
+
+1. In win64, 'App Paths' registry key must be accessed in "two versions", for
+   32- and 64-bit processes (they differ :)
+
+drkns 25.11.2010 10:30:48 +0200 - build 1729
+
+1. At rename/move, "[ ] Process multiple destinations" option is off and unused.
+
+yjh 25.11.2010 08:55:14 +0300 - build 1728
+
+1. ulink's def file was committed in its "debug" form
+
+yjh 25.11.2010 04:42:51 +0300 - build 1727
+
+1. vc10.asm is redesigned to take a little less space :).
+
+2. At the case of linking with ulink, vc10 is not used - instead,
+   these 2 routines are done in "delayload" mode and "substituted" only in
+   situation when they have not imported.
+     The difference in behavior has 3 causes: this variant is more correct,
+   ulink forbids "direct usage" of names' __imp_ prefixes (this is a rare
+   exotics, although such mistakes do happen), and finally, ms-link doesn't 
+   support partial delay load.
+
+drkns 23.11.2010 20:39:55 +0200 - build 1726
+
+1. From Alexey Samlyukov: malfunctional FreePluginDirList.
+
+2. From Alexey Samlyukov: GetPluginDirList can process the passive panel.
+
+drkns 22.11.2010 22:20:00 +0200 - build 1725
+
+1. Minimal system requirements for VC2010 build are now 2k SP4 + KB816542, instead of XP SP3.
+
+drkns 22.11.2010 14:27:37 +0200 - build 1724
+
+1. Mantis#0001600: No entry in 'C:\Users\<User>\Application Data'
+
+2. A couple of trivia.
+
 drkns 17.11.2010 00:12:50 +0200 - build 1723
 
 1. Mistype in 1722.
@@ -381,10 +448,10 @@ svs 16.09.2010 17:50:23 +0300 - build 1673
 	N=kbdLayout([N])
 	  Dealing with keyboard layouts
 	  Parameter N:
-		à) the value itself: 0x0409 or 0x0419 or...
-		á) 1 - the next system one (round-robin)
-		â) -1 - the previous system one (round-robin)
-		ã) 0 or unspecified - return the current layout.
+		a) the value itself: 0x0409 or 0x0419 or...
+		b) 1 - the next system one (round-robin)
+		c) -1 - the previous system one (round-robin)
+		d) 0 or unspecified - return the current layout.
  
 	  Returned value is 0 in case of an error or the previous layout (the current one if N=0)
 	  Errors: cannot define current layout name for the console or failed to get console window handle.
