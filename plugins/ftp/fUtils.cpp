@@ -205,7 +205,7 @@ BOOL FTP::FTP_GetFindData(PluginPanelItem **PanelItem,int *ItemsNumber,BOOL From
 #if defined(__FILELOG__)
 		char path[MAX_PATH];
 		path[GetCurrentDirectory(ARRAYSIZE(path),path)] = 0;
-		Log(("Files in [%s] not found: %s", path, FIO_ERROR));
+		Log(("Files in [%s] not found: %s", path, __WINError()));
 #endif
 		*PanelItem   = NULL;
 		*ItemsNumber = 0;

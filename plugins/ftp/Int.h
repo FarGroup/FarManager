@@ -1,16 +1,6 @@
 #ifndef __FAR_PLUGIN_FTP
 #define __FAR_PLUGIN_FTP
 
-#if defined(__DEBUG__) && defined(__BCWIN32__) && !defined(__JM__)
-#define __JM__ 1
-#endif
-
-#if !defined(SD_BOTH)
-#define SD_RECEIVE      0x00
-#define SD_SEND         0x01
-#define SD_BOTH         0x02
-#endif
-
 #include "fstdlib.h"         //FAR plugin stdlib
 #include "lib/Plugin.h"  //Plugin
 
@@ -21,10 +11,6 @@
 #include "Connect.h"   //class Connection
 #include "FtpAPI.h"    //FtpXXX API
 #include "Ftp.h"       //class Ftp
-
-#ifndef ARRAYSIZE
-#define ARRAYSIZE(A) (sizeof(A)/sizeof((A)[0]))
-#endif
 
 //[ftp_FAR.cpp]
 extern FTP     *WINAPI OtherPlugin(FTP *p);
@@ -107,7 +93,7 @@ extern BOOL     WINAPI scValid(SOCKET sock);
 extern SOCKET   WINAPI scCreate(short addr_type = AF_INET);
 extern SOCKET   WINAPI scAccept(SOCKET *peer, struct sockaddr FAR* addr, int* addrlen);
 
-#if defined( __DEBUG__ )
+#ifdef _DEBUG
 void ShowMemInfo(void);
 void LogPanelItems(struct PluginPanelItem *PanelItem,int ItemsNumber);
 #else

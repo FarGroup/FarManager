@@ -220,7 +220,7 @@ void Connection::sendrequestINT(char *cmd, char *local, char *remote)
 				CurrentState = fcsProcessFile;
 				//-------- READ
 				DWORD ind = 0;
-				TIME_TYPE b,e;
+				DWORD b,e;
 				GET_TIME(b);
 
 				while(true)

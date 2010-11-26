@@ -404,7 +404,7 @@ int FTP::ProcessCommandLine(char *CommandLine)
 		{
 			static LPCSTR itms[] = { FMSG(MRejectTitle), FMSG(MQItemCancelled), FMSG(MYes), FMSG(MNo) };
 
-			if(FMessage(FMSG_WARNING,NULL,itms,ARRAY_SIZE(itms),2) != 0)
+			if(FMessage(FMSG_WARNING,NULL,itms,ARRAYSIZE(itms),2) != 0)
 				return FALSE;
 
 			*UrlName = 0;

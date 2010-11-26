@@ -22,7 +22,7 @@ BOOL WINAPI LOGInit(void)
 
 LPCSTR WINAPI FP_GetLogFullFileName(void)
 {
-	static char str[MAX_PATH_SIZE] = "";
+	static char str[MAX_PATH] = "";
 	LPCSTR  m;
 	char     *tmp;
 
@@ -34,7 +34,7 @@ LPCSTR WINAPI FP_GetLogFullFileName(void)
 			return "";
 
 		str[ GetModuleFileName(FP_HModule,str,sizeof(str))] = 0;
-		tmp = strrchr(str,SLASH_CHAR);
+		tmp = strrchr(str,'\\');
 
 		if(tmp)
 		{

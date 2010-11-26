@@ -317,7 +317,7 @@ int WINAPI AskYesNoMessage(LPCSTR LngMsgNum)
 		FMSG(MYes), FMSG(MNo)
 	};
 	MsgItems[1] = LngMsgNum;
-	return FMessage(FMSG_WARNING, NULL, MsgItems, ARRAY_SIZE(MsgItems),2);
+	return FMessage(FMSG_WARNING, NULL, MsgItems, ARRAYSIZE(MsgItems),2);
 }
 
 BOOL WINAPI AskYesNo(LPCSTR LngMsgNum)
@@ -335,7 +335,7 @@ void WINAPI SayMsg(LPCSTR LngMsgNum)
 		LngMsgNum,
 		FMSG(MOk)
 	};
-	FMessage(FMSG_WARNING, NULL, MsgItems,ARRAY_SIZE(MsgItems),1);
+	FMessage(FMSG_WARNING, NULL, MsgItems,ARRAYSIZE(MsgItems),1);
 }
 //------------------------------------------------------------------------
 BOOL WINAPI IsCmdLogFile(void)
@@ -358,7 +358,7 @@ LPCSTR WINAPI GetCmdLogFile(void)
 		{
 			m = GetModuleHandle(FP_GetPluginName());
 			str[GetModuleFileName(m,str,ARRAYSIZE(str))] = 0;
-			strrchr(str,SLASH_CHAR)[1] = 0;
+			strrchr(str,'\\')[1] = 0;
 			StrCat(str,Opt.CmdLogFile,ARRAYSIZE(str));
 			return str;
 		}
@@ -563,7 +563,7 @@ void Connection::InternalError(void)
 		FMSG(MIntError),
 		FMSG(MOk)
 	};
-	FMessage(FMSG_WARNING, NULL, MsgItems, ARRAY_SIZE(MsgItems), 1);
+	FMessage(FMSG_WARNING, NULL, MsgItems, ARRAYSIZE(MsgItems), 1);
 }
 /*
    Set CMD buffer data to zero state
@@ -714,8 +714,8 @@ BOOL Connection::ConnectMessageTimeout(int Msg /*= MNone__*/,LPCSTR HostName /*=
 	char              host[MAX_PATH];
 	BOOL              rc,
 	   first = TRUE;
-	TIME_TYPE         b,e;
-	CMP_TIME_TYPE     diff;
+	DWORD         b,e;
+	double     diff;
 	int               secNum;
 
 	if(IS_FLAG(FP_LastOpMode,OPM_FIND) ||
@@ -729,7 +729,7 @@ BOOL Connection::ConnectMessageTimeout(int Msg /*= MNone__*/,LPCSTR HostName /*=
 
 	do
 	{
-		switch(CheckForKeyPressed(Keys,ARRAY_SIZE(Keys)))
+		switch(CheckForKeyPressed(Keys,ARRAYSIZE(Keys)))
 		{
 			case 1:
 			case 2:

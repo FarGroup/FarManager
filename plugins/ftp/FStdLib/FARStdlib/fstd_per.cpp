@@ -5,7 +5,7 @@
 
 struct PRPeriod
 {
-	TIME_TYPE b,e;
+	DWORD b,e;
 	DWORD     Period;
 	DWORD     LastDiff;
 };

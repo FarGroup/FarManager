@@ -66,7 +66,7 @@ void Connection::recvrequestINT(char *cmd, char *local, char *remote, const char
 		{
 			ErrorCode = GetLastError();
 			SysError = TRUE;
-			Log(("!Fopen [%s] %s",mode,FIO_ERROR));
+			Log(("!Fopen [%s] %s",mode,__WINError()));
 
 			if(!ConnectMessage(MErrorOpenFile,local,-MRetry))
 				ErrorCode = ERROR_CANCELLED;
@@ -193,7 +193,7 @@ void Connection::recvrequestINT(char *cmd, char *local, char *remote, const char
 			if(fout.Handle && PluginAvailable(PLUGIN_NOTIFY))
 				FTPNotify().Notify(&ni);
 
-			TIME_TYPE b,e,bw;
+			DWORD b,e,bw;
 			__int64 totalValue;
 			int b_done;
 			DWORD ind;

@@ -251,7 +251,7 @@ WORD WINAPI idPRSDetectString(FTPServerInfo* const Server,char *ListingString, i
 	{
 		n = ParseSystemInfo(Server->ServerInfo);
 
-		if(n < ARRAY_SIZE(ListingTypes))
+		if(n < ARRAYSIZE(ListingTypes))
 		{
 			Log(("DETECT: by SYST [%s] to %d",Server->ServerInfo,n));
 			Server->ServerType = n;
@@ -275,13 +275,13 @@ WORD WINAPI idPRSDetectString(FTPServerInfo* const Server,char *ListingString, i
 		Server->ServerType = FTP_TYPE_EPLF;
 	}
 
-	if(Server->ServerType < ARRAY_SIZE(ListingTypes))
+	if(Server->ServerType < ARRAYSIZE(ListingTypes))
 		return Server->ServerType;
 
 //Try all parcers
 	char *tmp = new char[ ListingLength+1 ];
 
-	for(n = 0; n < ARRAY_SIZE(ListingTypes); n++)
+	for(n = 0; n < ARRAYSIZE(ListingTypes); n++)
 	{
 		StrCpy(tmp, ListingString, ListingLength+1);
 
@@ -309,12 +309,12 @@ WORD WINAPI idDetectDirStringType(const FTPServerInfo* Server,LPCSTR String)
 
 WORD WINAPI idPRSTypesCount(void)
 {
-	return ARRAY_SIZE(ListingTypes);
+	return ARRAYSIZE(ListingTypes);
 }
 
 FTPType* WINAPI idPRSTypeGet(WORD Index)
 {
-	return Index < ARRAY_SIZE(ListingTypes) ? (&ListingTypes[Index]) : NULL;
+	return Index < ARRAYSIZE(ListingTypes) ? (&ListingTypes[Index]) : NULL;
 }
 
 // ------------------------------------------------------------------------

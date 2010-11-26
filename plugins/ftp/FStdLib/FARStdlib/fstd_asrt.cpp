@@ -6,7 +6,7 @@
 void _cdecl __WinAbort(LPCSTR msg,...)
 {
 	va_list a;
-	char    pnm[MAX_PATH_SIZE],
+	char    pnm[MAX_PATH],
 	   str[ 1000 ];
 	int     l;
 

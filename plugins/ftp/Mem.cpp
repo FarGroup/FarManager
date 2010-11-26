@@ -5,7 +5,7 @@
 
 #define LLog(v) if ( FP_Info ) Log( v )
 
-#if defined( __DEBUG__ )
+#ifdef _DEBUG
 
 #if defined(__NOMEM__)
 void ShowMemInfo(void)
@@ -119,7 +119,7 @@ namespace std
 			ShowMemInfo();
 		}
 		else
-			LLog(("!realloc %p[%d] -> %p[%d] [%s]",ptr,sz,ptrnew,size,FIO_ERROR));
+			LLog(("!realloc %p[%d] -> %p[%d] [%s]",ptr,sz,ptrnew,size,__WINError()));
 
 		return ptrnew;
 	}

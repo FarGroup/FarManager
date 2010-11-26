@@ -146,7 +146,7 @@ void Connection::ExecCmdTab(struct cmd *c,int argc,char *argv[])
 {
 	PROC(("ExecCmdTab","%d [%s,%s,%s]",argc,(argc>=1)?argv[0]:"nil",(argc>=2)?argv[1]:"nil",(argc>=3)?argv[2]:"nil"));
 
-	for(size_t I=0; I < ARRAY_SIZE(cmdtabdata); I++)
+	for(size_t I=0; I < ARRAYSIZE(cmdtabdata); I++)
 		if(c==&cmdtabdata[I])
 		{
 			switch(I)

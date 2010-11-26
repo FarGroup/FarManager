@@ -48,9 +48,9 @@ void SaveConsoleTitle::Using(void)
 	Log(("TITLE: Use[%d]",Usage));
 }
 
-CMP_TIME_TYPE SaveConsoleTitle::Changed(void)
+double SaveConsoleTitle::Changed(void)
 {
-	TIME_TYPE t;
+	DWORD t;
 	GET_TIME(t);
 	return CMP_TIME(t,LastChange);
 }

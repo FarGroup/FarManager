@@ -334,8 +334,8 @@ void TrafficInformation::Waiting(time_t tm)
  ****************************************/
 BOOL TrafficInformation::Callback(int Size)
 {
-	CMP_TIME_TYPE tmDiff;
-	TIME_TYPE     tm;
+	double tmDiff;
+	DWORD     tm;
 	time_t        tmt;
 	char          str[MAX_PATH];
 	double        TotalPercent,db;

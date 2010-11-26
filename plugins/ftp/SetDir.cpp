@@ -54,7 +54,7 @@ BOOL FTP::SetDirectoryStepped(LPCSTR Dir, BOOL update)
 		};
 		MsgItems[2] = Dir;
 
-		if(FMessage(FMSG_WARNING|FMSG_LEFTALIGN, NULL, MsgItems, ARRAY_SIZE(MsgItems),2) != 0)
+		if(FMessage(FMSG_WARNING|FMSG_LEFTALIGN, NULL, MsgItems, ARRAYSIZE(MsgItems),2) != 0)
 		{
 			SetLastError(ERROR_CANCELLED);
 			return FALSE;

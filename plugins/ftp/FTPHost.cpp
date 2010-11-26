@@ -36,7 +36,7 @@ BOOL WarnOldFormat(FTPHost* h)
 		FMSG(MOldHostConvert), FMSG(MCancel)
 	};
 	items[2] = h->HostName;
-	return FMessage(FMSG_WARNING | FMSG_LEFTALIGN, "WarnOldFmt", items, ARRAY_SIZE(items), 2) == 0;
+	return FMessage(FMSG_WARNING | FMSG_LEFTALIGN, "WarnOldFmt", items, ARRAYSIZE(items), 2) == 0;
 }
 
 //---------------------------------------------------------------------------------
@@ -589,7 +589,7 @@ BOOL FTPHost::ReadINI(LPCSTR nm)
 			FMSG(MNoVersion_txt2),
 			FMSG(MOk)
 		};
-		FMessage(FMSG_WARNING,NULL,msgs,ARRAY_SIZE(msgs),1);
+		FMessage(FMSG_WARNING,NULL,msgs,ARRAYSIZE(msgs),1);
 		DecodeProc = HexToPassword_CUR;
 	}
 
@@ -636,12 +636,12 @@ BOOL FTPHost::WriteINI(LPCSTR nm)
 	char HexStr[MAX_PATH*2];
 	BOOL res;
 //CreateDirectory
-	char *m = (char*)strrchr(nm,SLASH_CHAR); // BUGBUG
+	char *m = (char*)strrchr(nm,'\\'); // BUGBUG
 
 	if(m)
 	{
 		StrCpy(HexStr,nm,ARRAYSIZE(HexStr));
-		m = strrchr(HexStr,SLASH_CHAR);
+		m = strrchr(HexStr,'\\');
 		*m = 0;
 
 		if(!DoCreateDirectory(HexStr))

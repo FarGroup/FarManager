@@ -149,7 +149,7 @@ void RemovePlugin(FTP *ftp)
 
 		itms[2] = rejectReason;
 
-		if(FMessage(FMSG_LEFTALIGN|FMSG_WARNING,"CloseQueryReject",itms,ARRAY_SIZE(itms),2) != 1)
+		if(FMessage(FMSG_LEFTALIGN|FMSG_WARNING,"CloseQueryReject",itms,ARRAYSIZE(itms),2) != 1)
 			break;
 
 		ftp->AddToBackup();
@@ -425,7 +425,7 @@ extern "C" int WINAPI ProcessEvent(HANDLE hPlugin,int Event,void *Param)
 	static LPCSTR evts[] = { "CHANGEVIEWMODE", "REDRAW", "IDLE", "CLOSE", "BREAK", "COMMAND" };
 	PROC(("FAR.ProcessEvent","%p,%s[%08X]",
 	      hPlugin,
-	      (Event < ARRAY_SIZE(evts)) ? evts[Event] : Message("<unk>%d",Event),Param))
+	      (Event < ARRAYSIZE(evts)) ? evts[Event] : Message("<unk>%d",Event),Param))
 #endif
 	p->Call();
 	int rc = p->ProcessEvent(Event,Param);

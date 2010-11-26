@@ -3,8 +3,6 @@
 
 #include "fstdlib.h"
 
-#if defined(__SYMANTEC) || defined(__BORLAND) || defined(__MSOFT) || defined(__GNU)
-
 const char *_cdecl __WINError(void)
 {
 	static char *WinEBuff = NULL;
@@ -27,9 +25,3 @@ const char *_cdecl __WINError(void)
 	CharToOem(WinEBuff, WinEBuff);
 	return WinEBuff;
 }
-
-#else
-
-#error "Compiller for __WINError use not defined"
-
-#endif

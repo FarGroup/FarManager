@@ -18,7 +18,7 @@ int WINAPI StrColCount(LPCSTR str,LPCSTR seps)
 
 LPCSTR WINAPI StrGetCol(LPCSTR str,int number,LPCSTR seps)
 {
-	static char resStr[ MAX_PATH_SIZE ];
+	static char resStr[MAX_PATH];
 	int res;
 	int num;
 

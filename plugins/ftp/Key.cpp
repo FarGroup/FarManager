@@ -3,7 +3,7 @@
 
 #include "Int.h"
 
-#if defined(__DEBUG__)
+#ifdef _DEBUG
 void ProcError(int v = 0)
 {
 	int sel;
@@ -149,25 +149,16 @@ int FTP::ProcessKey(int Key,unsigned int ControlState)
 			FMSG(MUtilsLog),
 			NULL, //Sites list
 			FMSG(MShowQueue),
-#if defined(__DEBUG__)
+#ifdef _DEBUG
 			"",
 			FMSG("Generate DIVIDE BY ZERO &Bug (Plugin traps!)"),
 #endif
 			NULL
 		};
-#if defined(__MSOFT)
-#define CCNAME "MSC"
+#ifdef _DEBUG
+		strings[ 0] = Message("%s \"" __DATE__ "\" " __TIME__ " (DEBUG) ", FP_GetMsg(MVersionTitle));
 #else
-#if defined(__GNU)
-#define CCNAME "GCC"
-#else
-#define CCNAME "Unknown"
-#endif
-#endif
-#if defined(__DEBUG__)
-		strings[ 0] = Message("%s \"" __DATE__ "\" " __TIME__ " (DEBUG) " CCNAME, FP_GetMsg(MVersionTitle));
-#else
-		strings[ 0] = Message("%s \"" __DATE__ "\" " __TIME__ " " CCNAME, FP_GetMsg(MVersionTitle));
+		strings[ 0] = Message("%s \"" __DATE__ "\" " __TIME__ " ", FP_GetMsg(MVersionTitle));
 #endif
 		strings[ 8] = isBackup() ? FMSG(MRemoveFromites) : FMSG(MAddToSites);
 		//
@@ -256,16 +247,15 @@ int FTP::ProcessKey(int Key,unsigned int ControlState)
 						CreateDirectory(str,NULL);
 						AddEndSlash(str,'\\',ARRAYSIZE(str));
 						StrCat(str, "FTPDir.txt", ARRAYSIZE(str));
-						file = FIO_CREAT(str,0);
+						file = _creat(str,_S_IREAD|_S_IWRITE);
 
 						if(file == -1)
 						{
 							hConnect->ConnectMessage(MErrorTempFile,str,-MOk);
 							return TRUE;
 						}
-
-						FIO_WRITE(file,hConnect->Output,hConnect->OutputSize);
-						FIO_CLOSE(file);
+						write(file,hConnect->Output,hConnect->OutputSize);
+						close(file);
 						FP_Info->Viewer(str,Message("%s: %s {%s}",FP_GetMsg(MDirTitle),PanelTitle,str),
 						                0,0,-1,-1,VF_NONMODAL|VF_DELETEONCLOSE);
 					}
@@ -302,7 +292,7 @@ int FTP::ProcessKey(int Key,unsigned int ControlState)
 				case  9:
 					QuequeMenu();
 					return TRUE;
-#if defined(__DEBUG__)
+#ifdef _DEBUG
 					// ------------------------------------------------------------
 				case 11:
 					ProcError();

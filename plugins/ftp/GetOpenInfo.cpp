@@ -150,7 +150,7 @@ void FTP::GetOpenPluginInfo(struct OpenPluginInfo *pi)
 	int   DescrFilesNumber = 0;
 	char *NamePtr          = DescrFilesString;
 
-	while(DescrFilesNumber < (int)ARRAY_SIZE(DescrFiles))
+	while(DescrFilesNumber < (int)ARRAYSIZE(DescrFiles))
 	{
 		while(isspace(*NamePtr)) NamePtr++;
 
@@ -332,13 +332,13 @@ void FTP::GetOpenPluginInfo(struct OpenPluginInfo *pi)
 		static struct PanelMode PanelModesArray[10];
 		memset(PanelModesArray, 0, sizeof(PanelModesArray));
 		static char *ColumnTitles[10];
-		SetTitles(ColumnTitles, FP_GetMsg(MColumn9), ARRAY_SIZE(ColumnTitles));
+		SetTitles(ColumnTitles, FP_GetMsg(MColumn9), ARRAYSIZE(ColumnTitles));
 		PanelModesArray[9].ColumnTypes  = (char*)FP_GetMsg(MColumn9);
 		PanelModesArray[9].ColumnWidths = (char*)FP_GetMsg(MSizes9);
 		PanelModesArray[9].ColumnTitles = ColumnTitles;
 		PanelModesArray[9].FullScreen   = atoi(FP_GetMsg(MFullScreen9));
 		static char *ColumnTitles1[10];
-		SetTitles(ColumnTitles1, FP_GetMsg(MColumn0), ARRAY_SIZE(ColumnTitles));
+		SetTitles(ColumnTitles1, FP_GetMsg(MColumn0), ARRAYSIZE(ColumnTitles));
 		PanelModesArray[0].ColumnTypes  = (char*)FP_GetMsg(MColumn0);
 		PanelModesArray[0].ColumnWidths = (char*)FP_GetMsg(MSizes0);
 		PanelModesArray[0].ColumnTitles = ColumnTitles1;

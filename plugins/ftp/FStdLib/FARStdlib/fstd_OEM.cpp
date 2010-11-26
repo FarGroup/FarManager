@@ -5,9 +5,9 @@
 
 LPSTR WINAPI StrFromOEMDup(LPCSTR str,int num /*0|1*/)
 {
-	static char nm[2][ MAX_PATH_SIZE ];
+	static char nm[2][MAX_PATH];
 
-	if(num < 0 || num >= (int)ARRAY_SIZE(nm)) return (LPSTR)str;
+	if(num < 0 || num >= (int)ARRAYSIZE(nm)) return (LPSTR)str;
 
 	OemToCharBuff(str, nm[num], sizeof(nm[0])-1);
 	return nm[num];
@@ -15,9 +15,9 @@ LPSTR WINAPI StrFromOEMDup(LPCSTR str,int num /*0|1*/)
 
 LPSTR WINAPI StrToOEMDup(LPCSTR str,int num /*0|1*/)
 {
-	static char nm[2][ MAX_PATH_SIZE ];
+	static char nm[2][MAX_PATH];
 
-	if(num < 0 || num >= (int)ARRAY_SIZE(nm)) return (LPSTR)str;
+	if(num < 0 || num >= (int)ARRAYSIZE(nm)) return (LPSTR)str;
 
 	CharToOemBuff(str, nm[num], sizeof(nm[0])-1);
 	return nm[num];

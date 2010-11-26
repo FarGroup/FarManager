@@ -27,7 +27,7 @@ void AddWait(time_t tm)
 BOOL WINAPI IsAbsolutePath(LPCSTR path)
 {
 	return path[0] && path[1] && path[2] &&
-	       path[1] == ':' && path[2] == SLASH_CHAR;
+	       path[1] == ':' && path[2] == '\\';
 }
 //------------------------------------------------------------------------
 const char quotes[] = " \"%,;[]";
@@ -267,7 +267,7 @@ BOOL WINAPI DoCreateDirectory(char *directoryPath)
 
 	if(isUncPath)
 	{
-		directoriesPath = strchr(directoriesPath, SLASH_CHAR);
+		directoriesPath = strchr(directoriesPath, '\\');
 
 		if(!directoriesPath)
 		{
@@ -275,7 +275,7 @@ BOOL WINAPI DoCreateDirectory(char *directoryPath)
 			return FALSE;
 		}
 
-		directoriesPath = strchr(++directoriesPath, SLASH_CHAR);
+		directoriesPath = strchr(++directoriesPath, '\\');
 
 		if(!directoriesPath)
 		{
@@ -294,7 +294,7 @@ BOOL WINAPI DoCreateDirectory(char *directoryPath)
 
 	do
 	{
-		directoriesPath = strchr(++directoriesPath, SLASH_CHAR);
+		directoriesPath = strchr(++directoriesPath, '\\');
 
 		if(directoriesPath)
 		{
@@ -485,7 +485,7 @@ void WINAPI IdleMessage(LPCSTR str,int color)
 		DMessage(msg, err, color, 0);
 
 		if(err)
-			DMessage(FIO_ERROR, err, color, 1);
+			DMessage(__WINError(), err, color, 1);
 
 		FP_Info->Text(0,0,0,NULL);
 	}
@@ -669,7 +669,7 @@ BOOL WINAPI IsDirExist(LPCSTR nm)
 	char            str[MAX_PATH];
 	strcpy(str,nm);
 
-	if((l=static_cast<int>(strlen(str)-1)) > 0 && str[l] == SLASH_CHAR) str[l] = 0;
+	if((l=static_cast<int>(strlen(str)-1)) > 0 && str[l] == '\\') str[l] = 0;
 
 	h = FindFirstFile(str,&wfd);
 

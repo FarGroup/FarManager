@@ -10,7 +10,7 @@ extern CRITICAL_SECTION PLOG_cs;
 
 /** @brief Length of text with std error writen to log file.
 
-    Length of left part log string with description of FIO_ERROR in moment of write log call.
+    Length of left part log string with description of __WINError() in moment of write log call.
     Default value 30 characters.
     Set this value to 0 to disable write error description.
 */
@@ -23,7 +23,7 @@ void WINAPI FP_FILELog(LPCSTR msg,...)
 	BOOL    first;
 	va_list argptr;
 	char    str[3000],*m;
-	DWORD   err = FIO_ERRORN;
+	DWORD   err = GetLastError();
 
 	if(!msg) return;
 
@@ -53,8 +53,8 @@ void WINAPI FP_FILELog(LPCSTR msg,...)
 		//Error
 		if(FP_LogErrorStringLength)
 		{
-			FIO_SETERRORN(err);
-			StrCpy(str,FIO_ERROR,FP_LogErrorStringLength);
+			SetLastError(err);
+			StrCpy(str,__WINError(),FP_LogErrorStringLength);
 
 			if((m=strchr(str,'\n')) != NULL) *m = 0;
 
@@ -81,5 +81,5 @@ void WINAPI FP_FILELog(LPCSTR msg,...)
 	}
 
 	LeaveCriticalSection(&PLOG_cs);
-	FIO_SETERRORN(err);
+	SetLastError(err);
 }

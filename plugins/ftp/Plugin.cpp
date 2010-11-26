@@ -278,13 +278,13 @@ void FreePlugins(void)
 
 FTPPluginHolder* GetPluginHolder(WORD Number)
 {
-	Assert(Number < ARRAY_SIZE(StdPlugins)-1);
+	Assert(Number < ARRAYSIZE(StdPlugins)-1);
 	return StdPlugins[Number].Holder;
 }
 
 BOOL PluginAvailable(WORD Number)
 {
-	return Number < ARRAY_SIZE(StdPlugins)-1 &&
+	return Number < ARRAYSIZE(StdPlugins)-1 &&
 	       StdPlugins[Number].Holder;
 }
 

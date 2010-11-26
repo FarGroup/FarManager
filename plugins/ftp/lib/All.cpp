@@ -27,20 +27,6 @@ extern "C" FTPPluginInterface* WINAPI FTPQueryInterface(FTPInterface* Info)
 /*******************************************************************
    INTERFACE
  *******************************************************************/
-#if defined(__BORLAND)
-BOOL WINAPI DllEntryPoint(HINSTANCE hinst, DWORD reason, LPVOID ptr)
-{
-	BOOL rc;
-	FTP_Module = (HMODULE)hinst;
-	rc = FTP_PluginStartup(reason);
-
-	if(reason == DLL_PROCESS_DETACH)
-		FTP_Info = NULL;
-
-	return rc;
-}
-#else
-#if defined(__MSOFT) || defined(__GNU)
 BOOL WINAPI DllMain(HINSTANCE hinst, DWORD reason, LPVOID ptr)
 {
 	BOOL rc = FTP_PluginStartup(reason);
@@ -50,10 +36,6 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD reason, LPVOID ptr)
 
 	return rc;
 }
-#else
-#error "Define plugin DLL entry point procedure for your  compiller"
-#endif
-#endif
 
 /*******************************************************************
    CPP MEMORY

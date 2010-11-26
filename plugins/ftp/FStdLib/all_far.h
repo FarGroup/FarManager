@@ -1,77 +1,8 @@
 #ifndef __FAR_PLUGINS_STD_HEADERS
 #define __FAR_PLUGINS_STD_HEADERS
 
-/** @page fsdMacro Global macroses
-    @ingroup FSTDLib
+#define WIN32_LEAN_AND_MEAN
 
-    Library define some macroses for identify used compiller, platform
-    (currently only Win32) and compile enviropment. \n
-    During porting to other compillers or targets, please add new macro
-    names and change sources used this macroses.
-
-    @section fsdPlatform Platform macroses
-    Macroses define on witch platform cources compilled.
-     - __HWIN__ Defined on win32 platform.
-
-    @section fsdCompiller Compiller macroses
-    Macroses define witch compiller used to compile sources.
-     - __MSOFT     Defined if compilled by Visual C compiller.
-     - __GNU       Defined if compilled by GCC compiller.
-
-    @section fsdCompillerType Macroses for compiller types
-    Macroses define witch type of compiller used to compile sources.
-     - __BCWIN32__ Defined if used Borland C/CPP compiller on Win32 platform.
-     - __BCB1__    Defined if used Borland C Builder version 1.x.
-     - __MSWIN32__ Defined if used Visual C compiller on Win32 platform.
-     - __SCWIN32__ Defined if used Symantec C compiller on Win32 platform.
-     - __GWIN32__  Defined if used GCC compiller on Win32 platform.
-
-    @section fsdOther Different macroses
-    Different macroses globally affected to sources.
-     - __DEBUG__         Defined if debug compilling turned ON.
-     - __HCONSOLE__      Allways defined on current FAR platform.
-*/
-
-// --------------------------------------------------------------
-//Global compiller types
-#undef __MSOFT      //Microsoft
-#undef __DMC        //Digital Mars Compoller
-#undef __INTEL      //Intel compiller
-#undef __GNU        //GCC
-
-//Global targets models
-#undef __HWIN__
-
-//! MS 6.0
-#if defined(_MSC_VER)
-#define __HWIN__     1
-#define __MSOFT      1
-#define __MSWIN32__  1
-#endif
-
-#if defined(__GNUC__) && defined( __WIN32__ )
-#define __HWIN__     1
-#define __GNU        1
-#define __GWIN32__   1
-#endif
-
-//- DEBUG
-#if defined(_DEBUG)           //BCB debug flag
-#undef __DEBUG__
-#define __DEBUG__ 1
-#endif
-#ifdef _DEBUG                 //VC debug flag
-#undef __DEBUG__
-#define __DEBUG__ 1
-#endif
-#ifdef NDEBUG                 //VC release
-#undef __DEBUG__
-#endif
-#if defined(NDEBUG)
-#undef __DEBUG__
-#endif
-
-//! HEADERS
 #include <windows.h>
 
 #include <direct.h>             // _chdir
@@ -93,62 +24,25 @@
 #include <errno.h>              // errors
 #include <stdarg.h>             // va_list
 #include <time.h>               // timespec
-#include <winsock.h>
+#include <winsock2.h>
+#include <wininet.h>
+#include <mmsystem.h>
+
+
+#ifndef ARRAYSIZE
+#define ARRAYSIZE(A) (sizeof(A)/sizeof((A)[0]))
+#endif
 
 //- MACROSES
 #define MAX_DWORD                 ((DWORD)0xFFFFFFFFUL)
 #define MAX_WORD                  ((WORD)0xFFFFU)
 #define MAX_BYTE                  ((WORD)0xFFU)
 
-//- TYPES
-typedef double        CMP_TIME_TYPE;
-typedef DWORD         TIME_TYPE;
-
-// --------------------------------------------------------------
-#ifndef Max
-#if defined(__cplusplus)
-/**@brief Returns maximal value.*/
 template <class T> inline T Max(T a,T b) { return (a>b)?a:b; }
-#else
-#define Max(a,b) (((a)>(b))?(a):(b))
-#endif
-#endif
-#ifndef Min
-#if defined(__cplusplus)
-/**@brief Returns minimal value.*/
 template <class T> inline T Min(T a,T b) { return (a<b)?a:b; }
-#else
-#define Min(a,b) (((a)<(b))?(a):(b))
-#endif
-#endif
-#ifndef Abs
-#if defined(__cplusplus)
-/**@brief Returns absolute value.*/
 template <class T> inline T Abs(T v) { return (v>0)?v:(-v); }
-#else
-#define Abs(v) (((v)<0)?(-(v)):(v))
-#endif
-#endif
-#ifndef Between
-#if defined(__cplusplus)
-/**@brief Check if value between boud values.*/
 template <class T> inline BOOL Between(T val,T a,T b) { return (val >= a && val <= b)?TRUE:FALSE; }
-#else
-#define Between(val,a,b) (((val) >= (a) && (val) <= (b))?TRUE:FALSE)
-#endif
-#endif
-#ifndef Swap
-#if defined(__cplusplus)
-/**@brief Swapt variables values.*/
 template <class T> void Swap(T& a,T& b) { T tmp = a; a = b; b = tmp; }
-#else
-//??
-#endif
-#endif
-
-#if !defined( ARRAY_SIZE )
-#define ARRAY_SIZE( v )  (sizeof(v) / sizeof( (v)[0] ))
-#endif
 
 /** @def SET_HI_WORD( dw,w ) Sets high subword in DWORD value. */
 /** @def SET_LO_WORD( dw,w ) Sets low subword in DWORD value. */
@@ -195,209 +89,6 @@ template <class T> void Swap(T& a,T& b) { T tmp = a; a = b; b = tmp; }
 #define Assert( p )
 #endif
 
-// --------------------------------------------------------------
-/** @defgroup DiskIO Platform-independed file IO routines
-    @{
-*/
-#if !defined(SEEK_CUR)
-#define SEEK_SET    0  ///<Seeks from beginning of file
-#define SEEK_CUR    1  ///<Seeks from current position
-#define SEEK_END    2  ///<Seeks from end of file
-#endif
-
-#if !defined(R_OK)
-#define R_OK        4
-#define W_OK        2
-#define F_OK        0
-#define X_OK        1
-#endif
-
-#if !defined( S_ISDIR )
-#define S_ISDIR(v) IS_FLAG(v,S_IFDIR)
-#endif
-
-/** @brief File pointer move types. */
-enum seekTypes
-{
-	seekBEGIN = SEEK_SET,   ///< Move file pointer from start of file.
-	seekCUR   = SEEK_CUR,   ///< Move file pointer from current position.
-	seekEND   = SEEK_END    ///< Move file pointer from end of file.
-};
-
-/** @brief Type of possible file access type. */
-enum accTypes
-{
-	accREAD    = R_OK,      ///< Check file for \a read posibility
-	accWRITE   = W_OK,      ///< Check file for \a write posibility
-	accEXIST   = F_OK,      ///< Check file for \a existings
-	accEXECUTE = X_OK       ///< Check file for \a execute
-};
-
-#if defined(__QNX__)
-#define flDirectory                  _S_IFDIR
-#define ALL_FILES                    "*"
-#define SLASH_CHAR                   '/'
-#define SLASH_STR                    "/"
-#define MAX_PATH_SIZE                (_MAX_PATH + FILENAME_MAX + 1)
-#define MAX_CMD_SIZE                 1024
-#define FIO_DEF_ATTR                 0640
-typedef int                          ATTR_TYPE;
-
-#define FIO_EOF( f )                 eof( f )
-#define FIO_OPEN( fname,omode )      open( fname,omode )
-#define FIO_CREAT( fname,attr)       creat( fname,attr )
-#define FIO_READ( f,buff,count)      read( f,buff,count )
-#define FIO_WRITE( f,buff,count)     write( f,buff,count )
-#define FIO_CLOSE( f)                close( f )
-#define FIO_SEEK( f,off,from)        lseek ( f,off,from )
-#define FIO_TELL( f )                tell( f )
-#define FIO_TRUNC( f,size )          chsize( f,size )
-#define FIO_ACCESS( f,m )            (access( f,m ) == 0)
-#define FIO_CHMOD( f,at )            (chmod(f,at) != -1)
-#define FIO_STAT( f,st )             (lstat(f,st) == 0)
-#define FIO_HSTAT( f,st )            (fstat(f,st) == 0)
-#define FIO_CHOWN( f,u,g )           (chown( f,u,g ) == 0)
-#define FIO_CHDIR                    chdir
-#define FIO_GETUID                   getuid()
-#define FIO_GETGID                   getgid()
-#define FIO_ERROR                    strerror( errno )
-#define FIO_ERRORN                   ((DWORD)errno)
-#define FIO_SETERRORN(v)             errno = (int)(v)
-#define FIO_ALLFILES                 0xFFFF
-#else
-#if defined(__SCWIN32__)
-#define ALL_FILES                    "*.*"
-#define SLASH_CHAR                   '\\'
-#define SLASH_STR                    "\\"
-#define MAX_PATH_SIZE                (MAXPATH+1)
-#define MAX_CMD_SIZE                 1024
-#define flDirectory                  FILE_ATTRIBUTE_DIRECTORY
-typedef DWORD                        ATTR_TYPE;
-#define FIO_DEF_ATTR                 0
-
-#define FIO_EOF( f )                 eof( f )
-#define FIO_OPEN( fname,omode )      _open( fname,omode )
-#define FIO_CREAT( fname,attr)       _creat( fname,attr )
-#define FIO_READ( f,buff,count)      _read( f,buff,count )
-#define FIO_WRITE( f,buff,count)     _write( f,buff,count )
-#define FIO_CLOSE( f)                _close( f )
-#define FIO_SEEK( f,off,from)        lseek ( f,off,from )
-#define FIO_TELL( f )                tell( f )
-#define FIO_TRUNC( f,size )          chsize( f,size )
-#define FIO_ACCESS( f,m )            (access( f,m ) == 0)
-#define FIO_CHMOD( f,at )            (chmod(f,at) == 0)
-#define FIO_STAT( f,st )             (stat(f,st) == 0)
-#define FIO_HSTAT( f,st )            (fstat(f,st) == 0)
-#define FIO_CHOWN( f,g,u )           1
-#define FIO_CHDIR                    chdir
-#define FIO_GETUID                   1
-#define FIO_GETGID                   1
-#define FIO_ERROR                    __WINError()
-#define FIO_ERRORN                   GetLastError()
-#define FIO_SETERRORN(v)             SetLastError( (DWORD)(v) )
-#define FIO_ALLFILES                 (FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_DIREC | FA_ARCH)
-#else
-#if defined(__BORLAND)
-#define ALL_FILES                    "*.*"
-#define SLASH_CHAR                   '\\'
-#define SLASH_STR                    "\\"
-#define MAX_PATH_SIZE                (MAXPATH+1)
-#define MAX_CMD_SIZE                 1024
-#define flDirectory                  FILE_ATTRIBUTE_DIRECTORY
-typedef DWORD ATTR_TYPE;
-#define FIO_DEF_ATTR                 0
-
-#define FIO_EOF( f )                 eof( f )
-#define FIO_OPEN( fname,omode )      _rtl_open( fname,omode )
-#define FIO_CREAT( fname,attr)       _rtl_creat( fname,attr )
-#define FIO_READ( f,buff,count)      _rtl_read( f,buff,count )
-#define FIO_WRITE( f,buff,count)     _rtl_write( f,buff,count )
-#define FIO_CLOSE( f)                _rtl_close( f )
-#define FIO_SEEK( f,off,from)        lseek ( f,off,from )
-#define FIO_TELL( f )                tell( f )
-#define FIO_TRUNC( f,size )          chsize( f,size )
-#define FIO_ACCESS( f,m )            (access( f,m ) == 0)
-#define FIO_CHMOD( f,at )            (chmod(f,at) == 0)
-#define FIO_STAT( f,st )             (stat(f,st) == 0)
-#define FIO_HSTAT( f,st )            (fstat(f,st) == 0)
-#define FIO_CHOWN( f,g,u )           1
-#define FIO_CHDIR                    chdir
-#define FIO_GETUID                   1
-#define FIO_GETGID                   1
-#define FIO_ERROR                    __WINError()
-#define FIO_ERRORN                   GetLastError()
-#define FIO_ERRORN_IO                _doserrno
-#define FIO_SETERRORN(v)             SetLastError( (DWORD)(v) )
-#define FIO_ALLFILES                 (FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_DIREC | FA_ARCH)
-#else
-#if defined(__MSOFT) || defined(__INTEL) || defined(__GNU)
-#define ALL_FILES                    "*.*"
-#define SLASH_CHAR                   '\\'
-#define SLASH_STR                    "\\"
-#define MAX_PATH_SIZE                (_MAX_PATH+1)
-#define MAX_CMD_SIZE                 1024
-#define flDirectory                  FILE_ATTRIBUTE_DIRECTORY
-typedef DWORD                        ATTR_TYPE;
-#define FIO_DEF_ATTR                 0
-
-#undef O_BINARY
-#define O_BINARY        _O_BINARY
-
-#define FIO_EOF( f )                 eof( f )
-#define FIO_OPEN( fname,omode )      open( fname,omode )
-#define FIO_CREAT( fname,attr)       _creat( fname,_S_IREAD|_S_IWRITE )
-#define FIO_READ( f,buff,count)      read( f,buff,count )
-#define FIO_WRITE( f,buff,count)     write( f,buff,count )
-#define FIO_CLOSE( f)                close( f )
-#define FIO_SEEK( f,off,from)        lseek ( f,off,from )
-#define FIO_TELL( f )                tell( f )
-#define FIO_TRUNC( f,size )          chsize( f,size )
-#define FIO_ACCESS( f,m )            (_access( f,m ) == 0)
-#define FIO_CHMOD( f,at )            (_chmod(f,at) == 0)
-#define FIO_STAT( f,st )             (stat(f,st) == 0)
-#define FIO_HSTAT( f,st )            (fstat(f,st) == 0)
-#define FIO_CHOWN( f,g,u )           1
-#define FIO_CHDIR                    _chdir
-#define FIO_GETUID                   1
-#define FIO_GETGID                   1
-
-#define FIO_ERROR                    __WINError()
-#define FIO_ERRORN                   GetLastError()
-#define FIO_ERRORN_IO                GetLastError()
-#define FIO_SETERRORN(v)             SetLastError( (DWORD)(v) )
-#define FIO_ALLFILES                 (FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_DIREC | FA_ARCH)
-
-#define EZERO         0             /*0    Error 0                          */
-#define EINVFNC       EPERM         /*1    Invalid function number          */
-#ifndef ENOFILE
-#define ENOFILE       ENOENT        /*2    File not found                   */
-#endif
-#define ENOPATH       ESRCH         /*3    Path not found                   */
-#define ECONTR        E2BIG         /*7    Memory blocks destroyed          */
-#define EINVMEM       EBADF         /*9    Invalid memory block address     */
-#define EINVENV       ECHILD        /*10    Invalid environment              */
-#define EINVFMT       EAGAIN        /*11    Invalid format                   */
-#define EINVACC       ENOMEM        /*12    Invalid access code              */
-#define EINVDAT       EACCES        /*13    Invalid data                     */
-#define EINVDRV       15            /*15    Invalid drive specified          */
-#define ECURDIR       EBUSY         /*16    Attempt to remove CurDir         */
-#define ENOTSAM       EEXIST        /*17    Not same device                  */
-#define ENMFILE       EXDEV         /*18    No more files                    */
-#undef  ETXTBSY
-#define ETXTBSY       26            /*26    UNIX - not MSDOS                 */
-#ifndef EDEADLOCK
-#define EDEADLOCK     EDEADLK       /*36    Locking violation                */
-#endif
-#define ENOTBLK       43            /*43    UNIX - not MSDOS                 */
-#define EUCLEAN       47            /*47    UNIX - not MSDOS                 */
-#else
-#error "Unknown platform. Please correct \"fstdlib.h\" for compiller you use"
-#endif //MSOFT
-#endif //BORLAND
-#endif //SCWIN32
-#endif //QNX (WATCOM ??)
-/**@} DiskIO*/
-
 //- ASSERT
 #if !defined(__FP_NOT_FUNCTIONS__)
 //[fstd_asrt.cpp]
@@ -419,8 +110,8 @@ extern void      WINAPI    CallAtExit(void);
     Procedures for get current time, calculate difference and check periods of time.
 */
 #define CMP_TIME_FORMAT       "%3.3lf"
-inline void          GET_TIME(TIME_TYPE& var)                 { var = timeGetTime(); }
-inline CMP_TIME_TYPE CMP_TIME(TIME_TYPE evar, TIME_TYPE bvar) { return ((CMP_TIME_TYPE)evar - (CMP_TIME_TYPE)bvar) / 1000.; }
+inline void          GET_TIME(DWORD& var)                 { var = timeGetTime(); }
+inline double CMP_TIME(DWORD evar, DWORD bvar) { return ((double)evar - (double)bvar) / 1000.; }
 
 extern HANDLE   WINAPI FP_PeriodCreate(DWORD ms);
 extern BOOL     WINAPI FP_PeriodEnd(HANDLE p);
@@ -524,11 +215,11 @@ extern LPCSTR WINAPI    MessageV(LPCSTR patt,va_list a);
 
 //Utils
 extern LPCSTR WINAPI FCps(char *buff,double val);   // Create CPS value string (Allways 3+1+3+1 length)
-extern LPSTR    WINAPI AddLastSlash(char *path, char Slash = SLASH_CHAR);
-extern LPSTR    WINAPI DelLastSlash(char *path, char Slash = SLASH_CHAR);
-extern LPCSTR WINAPI FPath(LPCSTR nm, char Slash = SLASH_CHAR);
-extern LPCSTR WINAPI FName(LPCSTR nm, char Slash = SLASH_CHAR);
-extern LPCSTR WINAPI FExtOnly(LPCSTR nm, char Slash = SLASH_CHAR);
+extern LPSTR    WINAPI AddLastSlash(char *path, char Slash = '\\');
+extern LPSTR    WINAPI DelLastSlash(char *path, char Slash = '\\');
+extern LPCSTR WINAPI FPath(LPCSTR nm, char Slash = '\\');
+extern LPCSTR WINAPI FName(LPCSTR nm, char Slash = '\\');
+extern LPCSTR WINAPI FExtOnly(LPCSTR nm, char Slash = '\\');
 #endif
 
 // --------------------------------------------------------------

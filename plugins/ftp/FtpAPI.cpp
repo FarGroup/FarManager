@@ -644,7 +644,7 @@ WORD FTP::SelectServerType(WORD Type)
 	MenuItems[1].Separator = TRUE;
 	cn = dl.GetNumberOfSupportedTypes();
 
-	for(n = 0; n < ARRAY_SIZE(MenuItems) && n < cn; n++)
+	for(n = 0; n < ARRAYSIZE(MenuItems) && n < cn; n++)
 	{
 		FTPType* tp = dl.GetType(n);
 		_snprintf(MenuItems[n+2].Text, ARRAYSIZE(MenuItems[0].Text),
@@ -700,7 +700,7 @@ BOOL ParseDirLine(Connection *Connect,BOOL AllFiles,FTPFileInfo* p)
 		};
 		BOOL Found = FALSE;
 
-		for(size_t n = 0; n < ARRAY_SIZE(FTPMsg); n++)
+		for(size_t n = 0; n < ARRAYSIZE(FTPMsg); n++)
 			if(strstr(Line.c_str(),FTPMsg[n]))
 			{
 				Found = TRUE;

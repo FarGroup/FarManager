@@ -650,7 +650,7 @@ void FTP::SelectFileTable(char *TableName)
 
 	int TableNum=5;
 
-	while(TableNum < (int)ARRAY_SIZE(MenuItems))
+	while(TableNum < (int)ARRAYSIZE(MenuItems))
 	{
 		CharTableSet TableSet;
 

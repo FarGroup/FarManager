@@ -2,7 +2,7 @@
 #define __FTP_PLUGINS_HOLDERS
 
 //------------------------------------------------------------------------
-/* Number in array of interfaces [ftp_Plugin.cpp]
+/* Number in array of interfaces [Plugin.cpp]
 */
 #define PLUGIN_PROGRESS  0
 #define PLUGIN_DIRLIST   1

@@ -363,7 +363,7 @@ struct SaveConsoleTitle
 		int       Usage;
 
 	public:
-		TIME_TYPE LastChange;
+		DWORD LastChange;
 
 	public:
 		SaveConsoleTitle(BOOL NeedToRestore = TRUE);
@@ -374,7 +374,7 @@ struct SaveConsoleTitle
 		void          Set(LPCSTR Buff);
 		void          Using(void);
 		void          Restore(void);
-		CMP_TIME_TYPE Changed(void);
+		double Changed(void);
 };
 
 // ------------------------------------------------------------------------

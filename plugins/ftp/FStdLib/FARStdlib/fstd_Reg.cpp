@@ -21,7 +21,7 @@ HKEY WINAPI FP_CreateRegKey(const char *Key)
 	CHK_INITED
 
 	if(Key && *Key)
-		sprintf(name,"%s" SLASH_STR "%s",FP_PluginRootKey,Key);
+		sprintf(name,"%s" "\\" "%s",FP_PluginRootKey,Key);
 	else
 		sprintf(name,"%s",FP_PluginRootKey);
 
@@ -43,7 +43,7 @@ BOOL WINAPI FP_DeleteRegKey(const char *Key)
 	if(!Key || !Key[0])
 		return FALSE;
 
-	sprintf(name,"%s" SLASH_STR "%s",FP_PluginRootKey,Key);
+	sprintf(name,"%s" "\\" "%s",FP_PluginRootKey,Key);
 	return FP_DeleteRegKeyFull(name);
 }
 
@@ -64,7 +64,7 @@ BOOL WINAPI FP_DeleteRegKeyAll(LPCSTR hParentKey,LPCSTR Key)
 		return FP_DeleteRegKeyAll(HKEY_CURRENT_USER,Key);
 	else
 	{
-		sprintf(name,"%s" SLASH_STR "%s",hParentKey,Key);
+		sprintf(name,"%s" "\\" "%s",hParentKey,Key);
 		return FP_DeleteRegKeyAll(HKEY_CURRENT_USER,name);
 	}
 }
@@ -77,7 +77,7 @@ BOOL WINAPI FP_DeleteRegKeyAll(LPCSTR Key)
 	if(!Key || !Key[0])
 		return FALSE;
 
-	sprintf(name,"%s" SLASH_STR "%s",FP_PluginRootKey,Key);
+	sprintf(name,"%s" "\\" "%s",FP_PluginRootKey,Key);
 	return FP_DeleteRegKeyAll(HKEY_CURRENT_USER,name);
 }
 
@@ -93,7 +93,7 @@ BOOL WINAPI FP_DeleteRegKeyAll(HKEY hParentKey, LPCSTR szKey)
 	do
 	{
 		nRes = RegOpenKeyEx(hParentKey, szKey, 0, KEY_ENUMERATE_SUB_KEYS|KEY_READ|KEY_WRITE, &hKey);
-		SetLastError(nRes); //Log(( "open [%s] rc: %s",szKey,FIO_ERROR ));
+		SetLastError(nRes); //Log(( "open [%s] rc: %s",szKey,__WINError() ));
 
 		if(nRes != ERROR_SUCCESS) break;
 
@@ -101,7 +101,7 @@ BOOL WINAPI FP_DeleteRegKeyAll(HKEY hParentKey, LPCSTR szKey)
 		{
 			szSubKey[0] = 0;
 			nRes = RegEnumKeyEx(hKey,0,szSubKey, &nSize, 0, NULL, NULL, &tTime);
-			SetLastError(nRes); //Log(( "enum [%s] rc: %s",szSubKey,FIO_ERROR ));
+			SetLastError(nRes); //Log(( "enum [%s] rc: %s",szSubKey,__WINError() ));
 
 			if(nRes == ERROR_NO_MORE_ITEMS)
 			{
@@ -122,7 +122,7 @@ BOOL WINAPI FP_DeleteRegKeyAll(HKEY hParentKey, LPCSTR szKey)
 		if(nRes == ERROR_SUCCESS)
 		{
 			nRes = RegDeleteKey(hParentKey, szKey);
-			SetLastError(nRes); //Log(( "delete rc: %s", FIO_ERROR ));
+			SetLastError(nRes); //Log(( "delete rc: %s", __WINError() ));
 		}
 	}
 	while(0);
@@ -212,7 +212,7 @@ HKEY WINAPI FP_OpenRegKey(const char *Key)
 	CHK_INITED
 
 	if(Key && *Key)
-		_snprintf(name,sizeof(name),"%s" SLASH_STR "%s",FP_PluginRootKey,Key);
+		_snprintf(name,sizeof(name),"%s" "\\" "%s",FP_PluginRootKey,Key);
 	else
 		_snprintf(name,sizeof(name),"%s",FP_PluginRootKey);
 

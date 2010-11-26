@@ -3,7 +3,7 @@
 
 #include "Int.h"
 
-static TIME_TYPE tmWait = {0};
+static DWORD tmWait = 0;
 
 int Connection::nb_waitstate(SOCKET *peer, int state,DWORD tmW)
 {
@@ -12,7 +12,7 @@ int Connection::nb_waitstate(SOCKET *peer, int state,DWORD tmW)
 	fd_set           _excptfds;
 	fd_set           *readfds,*writefds,*excptfds;
 	timeval          timeout;
-	TIME_TYPE        tmB,tmE,tm,tmCheck;
+	DWORD        tmB,tmE,tm,tmCheck;
 	int              res;
 	double           tmDiff;
 	BOOL             rc = FALSE;
@@ -83,7 +83,7 @@ int Connection::nb_waitstate(SOCKET *peer, int state,DWORD tmW)
 		res = select(0/*ignored*/, readfds, writefds, excptfds, &timeout);
 //Idle
 		static bool inIdle = false;
-		static TIME_TYPE idleB;
+		static DWORD idleB;
 
 		if(Opt.WaitIdle && Opt.WaitCounter &&
 		        (!inIdle || CMP_TIME(tmE,idleB) > (1.0 / Opt.WaitCounter)))

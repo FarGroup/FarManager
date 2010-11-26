@@ -27,7 +27,7 @@ int WINAPI FP_Message(unsigned int Flags,LPCSTR HelpTopic,
 	else
 
 		//Array of lines - check if lines are message id
-		for(rc = 0; rc < (int)ARRAY_SIZE(litems) && rc < ItemsNumber; rc++)
+		for(rc = 0; rc < (int)ARRAYSIZE(litems) && rc < ItemsNumber; rc++)
 		{
 			if(!FISMSG(Items[rc]))
 				litems[rc] = FP_GetMsg(FGETID(Items[rc]));

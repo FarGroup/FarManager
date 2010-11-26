@@ -124,7 +124,7 @@ JM.h var.h Connect.h FtpAPI.h Ftp.h
 
 USERCPP=/I.\FStdLib /D__NOMEM__=1 /D__USEASSERT__=1
 !ifdef DEBUG
-USERCPP=$(USERCPP) /D__FILELOG__=1 /D__DEBUG__=1
+USERCPP=$(USERCPP) /D__FILELOG__=1
 !endif
 
 LIBS=$(FSTDLIB) $(LIBS) wsock32.lib winmm.lib

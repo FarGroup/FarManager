@@ -11,7 +11,7 @@ int AskDeleteQueue(void)
 		FMSG(MQDeleteItem),
 		FMSG(MQSingleItem), FMSG(MQEntireList), FMSG(MCancel)
 	};
-	return FMessage(FMSG_WARNING, NULL, MsgItems, ARRAY_SIZE(MsgItems),3);
+	return FMessage(FMSG_WARNING, NULL, MsgItems, ARRAYSIZE(MsgItems),3);
 }
 
 void FTP::ClearQueue(void)
@@ -501,7 +501,7 @@ void FTP::ExecuteQueueINT(QueueExecOptions* op)
 			{
 				if(GetLastError() == ERROR_CANCELLED) break;
 
-				p->Error.printf("%s: %s", FP_GetMsg(MQCanNotConnect), FIO_ERROR);
+				p->Error.printf("%s: %s", FP_GetMsg(MQCanNotConnect), __WINError());
 				goto Skip;
 			}
 
@@ -533,7 +533,7 @@ void FTP::ExecuteQueueINT(QueueExecOptions* op)
 			if(DoCreateDirectory(m))
 				if(SetCurrentDirectory(m)) break;
 
-			p->Error.printf(FP_GetMsg(MQCanNotChangeLocal), m, FIO_ERROR);
+			p->Error.printf(FP_GetMsg(MQCanNotChangeLocal), m, __WINError());
 			goto Skip;
 		}
 		while(0);
@@ -545,7 +545,7 @@ void FTP::ExecuteQueueINT(QueueExecOptions* op)
 		{
 			if(!FRealFile(p->FileName.cFileName, &fd))
 			{
-				p->Error.printf(FP_GetMsg(MQNotFoundSource), p->FileName.cFileName, FIO_ERROR);
+				p->Error.printf(FP_GetMsg(MQNotFoundSource), p->FileName.cFileName, __WINError());
 				goto Skip;
 			}
 		}
@@ -687,9 +687,9 @@ void FTP::ExecuteQueueINT(QueueExecOptions* op)
 		if(!rc)
 		{
 			if(p->Download)
-				p->Error.printf(FP_GetMsg(MQErrDowload), FIO_ERROR);
+				p->Error.printf(FP_GetMsg(MQErrDowload), __WINError());
 			else
-				p->Error.printf(FP_GetMsg(MQErrUpload), FIO_ERROR);
+				p->Error.printf(FP_GetMsg(MQErrUpload), __WINError());
 
 			goto Skip;
 		}

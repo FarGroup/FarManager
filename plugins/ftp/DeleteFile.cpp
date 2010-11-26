@@ -37,7 +37,7 @@ BOOL idDeleteCB(PluginPanelItem* p,LPVOID dt)
 				FP_GetMsg(MDeleteGroupDelete), FP_GetMsg(MDeleteGroupAll), FP_GetMsg(MDeleteGroupCancel)
 			};
 			rres = FMessage(FMSG_WARNING|FMSG_DOWN, NULL,
-			                MsgItems, ARRAY_SIZE(MsgItems),
+			                MsgItems, ARRAYSIZE(MsgItems),
 			                3);
 
 			switch(rres)
@@ -143,7 +143,7 @@ int FTP::DeleteFilesINT(struct PluginPanelItem *PanelItem,int ItemsNumber,int Op
 			FMSG(MDeleteDelete),
 			FMSG(MDeleteCancel)
 		};
-		int rres = FMessage(0, NULL, MsgItems, ARRAY_SIZE(MsgItems), 2);
+		int rres = FMessage(0, NULL, MsgItems, ARRAYSIZE(MsgItems), 2);
 
 		if(rres != 0) return TRUE;
 
@@ -153,7 +153,7 @@ int FTP::DeleteFilesINT(struct PluginPanelItem *PanelItem,int ItemsNumber,int Op
 			Msg.printf(ShowHosts ? FP_GetMsg(MDeleteNumberOfHosts) : FP_GetMsg(MDeleteNumberOfFiles) ,
 			           ItemsNumber);
 			MsgItems[1] = Msg.c_str();
-			rres = FMessage(FMSG_WARNING|FMSG_DOWN,NULL,MsgItems,ARRAY_SIZE(MsgItems),2);
+			rres = FMessage(FMSG_WARNING|FMSG_DOWN,NULL,MsgItems,ARRAYSIZE(MsgItems),2);
 
 			if(rres != 0) return TRUE;
 		}

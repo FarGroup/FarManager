@@ -32,7 +32,7 @@
 struct FTPServerInfo
 {
 	WORD           ServerType;                  // FTP_TYPE_xxx
-	char           ServerInfo[ MAX_PATH_SIZE ]; // SYST reply, "" in not supported
+	char           ServerInfo[MAX_PATH]; // SYST reply, "" in not supported
 };
 
 //------------------------------------------------------------------------
@@ -49,9 +49,9 @@ struct FTPServerInfo
 struct FTPFileInfo: public PluginPanelItem
 {
 	DWORD  FileType;                    // NET_xxx
-	char   FTPOwner[ MAX_PATH_SIZE ];      // File owner (if available)
+	char   FTPOwner[MAX_PATH];      // File owner (if available)
 	char   UnixMode[ 10+1 ];            // Unix mode (if available)
-	char   Link[ MAX_PATH_SIZE ];       // Link (if exist)
+	char   Link[MAX_PATH];       // Link (if exist)
 };
 
 //------------------------------------------------------------------------

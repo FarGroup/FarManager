@@ -14,12 +14,12 @@ struct FTNNotify
 	BOOL            Upload;
 	BOOL            Starting;
 	BOOL            Success;
-	char            HostName[ MAX_PATH_SIZE ];
-	char            User[ MAX_PATH_SIZE ];
-	char            Password[ MAX_PATH_SIZE ];
+	char            HostName[MAX_PATH];
+	char            User[MAX_PATH];
+	char            Password[MAX_PATH];
 	WORD            Port;
-	char            LocalFile[ MAX_PATH_SIZE ];
-	char            RemoteFile[ MAX_PATH_SIZE ];
+	char            LocalFile[MAX_PATH];
+	char            RemoteFile[MAX_PATH];
 };
 
 struct NotifyInterface: public FTPPluginInterface

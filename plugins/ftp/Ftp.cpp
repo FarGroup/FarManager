@@ -84,7 +84,7 @@ LPCSTR FTP::CloseQuery(void)
 int FTP::GetFindData(PluginPanelItem **pPanelItem, int *pItemsNumber, int OpMode)
 {
 	PROC(("FTP::GetFindData",NULL))
-	TIME_TYPE        b,e;
+	DWORD        b,e;
 	char            *Data[3];
 	*pPanelItem   = NULL;
 	*pItemsNumber = 0;

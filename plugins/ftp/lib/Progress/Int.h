@@ -58,7 +58,7 @@ struct TrafficInformation: public ProgressInterface
 
 	int         TitleMsg;
 	BOOL        ShowStatus;
-	TIME_TYPE   LastTime;
+	DWORD   LastTime;
 	__int64     LastSize;
 
 	InfoItem    Items[ MAX_TRAF_ITEMS ];

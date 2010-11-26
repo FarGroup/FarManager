@@ -42,33 +42,13 @@ void WINAPI FP_SetStartupInfo(const PluginStartupInfo *Info,const char *KeyName)
 	StrCat(FP_PluginRootKey,"\\",FAR_MAX_REG);
 	StrCat(FP_PluginRootKey,KeyName,FAR_MAX_REG);
 //Start path
-	FP_PluginStartPath = new char[ MAX_PATH_SIZE+1 ];
-	FP_PluginStartPath[ GetModuleFileName(FP_HModule,FP_PluginStartPath,MAX_PATH_SIZE)] = 0;
+	FP_PluginStartPath = new char[MAX_PATH];
+	FP_PluginStartPath[ GetModuleFileName(FP_HModule,FP_PluginStartPath,MAX_PATH)] = 0;
 	char *m = strrchr(FP_PluginStartPath,'\\');
 
 	if(m) *m = 0;
 }
 
-#if defined(__BORLAND)
-BOOL WINAPI DllEntryPoint(HINSTANCE hinst, DWORD reason, LPVOID ptr)
-{
-	if(reason == DLL_PROCESS_ATTACH)
-	{
-		FP_HModule = GetModuleHandle(FP_GetPluginName());
-		AtExit(idAtExit);
-	}
-
-	BOOL res = FP_PluginStartup(reason);
-
-	if(reason == DLL_PROCESS_DETACH)
-	{
-		CallAtExit();
-	}
-
-	return res;
-}
-#else
-#if defined(__MSOFT)
 BOOL WINAPI DllMain(HINSTANCE hinst, DWORD reason, LPVOID ptr)
 {
 	if(reason == DLL_PROCESS_ATTACH)
@@ -86,27 +66,3 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD reason, LPVOID ptr)
 
 	return res;
 }
-#else
-#if defined(__GNU)
-BOOL WINAPI DllMain(HANDLE hDll,DWORD reason,LPVOID lpReserved)
-{
-	if(reason == DLL_PROCESS_ATTACH)
-	{
-		FP_HModule = GetModuleHandle(FP_GetPluginName());
-		AtExit(idAtExit);
-	}
-
-	BOOL res = FP_PluginStartup(reason);
-
-	if(reason == DLL_PROCESS_DETACH)
-	{
-		CallAtExit();
-	}
-
-	return res;
-}
-#else
-#error "Define plugin DLL entry point procedure for your  compiller"
-#endif
-#endif
-#endif

@@ -15,7 +15,7 @@ void WINAPI CTArgInit(int argc, char **argv,BOOL CaseSensitive)
 	CT_CaseSensitive = CaseSensitive;
 #if defined(__QNX__)
 
-	if(strchr(argv[0],SLASH_CHAR) == NULL)
+	if(strchr(argv[0],'\\') == NULL)
 		CT_argv[0] = strdup(MakePathName(GetCurDir(),argv[0]).Text());
 
 #endif
@@ -29,13 +29,8 @@ char *WINAPI CTArgGet(int num)
 char *WINAPI CTArgGetArg(int num)
 {
 	for(int n = 1; num >= 0 && n < CT_argc && CT_argv[n]; n++)
-		if(
-#if defined(__HDOS__) || defined(__HWIN__)
-		    (CT_argv[n][0] == '-' || CT_argv[n][0] == '/')
-#else
-		    CT_argv[n][0] == '-'
-#endif
-		) continue;
+		if((CT_argv[n][0] == '-' || CT_argv[n][0] == '/'))
+			continue;
 		else
 		{
 			if(!num) return CT_argv[n];
@@ -53,13 +48,8 @@ char *WINAPI CTArgGet(LPCSTR name)
 	LPCSTR m;
 
 	for(n = 1; n < CT_argc && CT_argv[n]; n++)
-		if(
-#if defined(__HDOS__) || defined(__HWIN__)
-		    (CT_argv[n][0] == '-' || CT_argv[n][0] == '/')
-#else
-		    CT_argv[n][0] == '-'
-#endif
-		) for(i = 1; i <= cn; i++)
+		if((CT_argv[n][0] == '-' || CT_argv[n][0] == '/'))
+			for(i = 1; i <= cn; i++)
 			{
 				m = StrGetCol(name,i,";");
 
@@ -77,13 +67,8 @@ BOOL WINAPI CTArgCheck(LPCSTR name)
 	LPCSTR m;
 
 	for(n = 1; n < CT_argc && CT_argv[n]; n++)
-		if(
-#if defined(__HDOS__) || defined(__HWIN__)
-		    (CT_argv[n][0] == '-' || CT_argv[n][0] == '/')
-#else
-		    CT_argv[n][0] == '-'
-#endif
-		) for(i = 1; i <= cn; i++)
+		if((CT_argv[n][0] == '-' || CT_argv[n][0] == '/'))
+			for(i = 1; i <= cn; i++)
 			{
 				m = StrGetCol(name,i,";");
 
