@@ -101,7 +101,7 @@ string &Add_PATHEXT(string &strDest)
 	if (apiGetEnvironmentVariable(L"PATHEXT",strBuf) && MaskList.Set(strBuf))
 	{
 		/* $ 13.10.2002 IS проверка на '|' (маски исключения) */
-		if (!strDest.IsEmpty() && strDest.At(curpos)!=L',' && strDest.At(curpos)!=L'|')
+		if (!strDest.IsEmpty() && (strDest.At(curpos)!=L',' && strDest.At(curpos)!=L';') && strDest.At(curpos)!=L'|')
 			strDest += L",";
 
 		const wchar_t *Ptr;
@@ -118,7 +118,7 @@ string &Add_PATHEXT(string &strDest)
 	// лишняя запятая - в морг!
 	curpos=strDest.GetLength()-1;
 
-	if (strDest.At(curpos) == L',')
+	if (strDest.At(curpos) == L',' || strDest.At(curpos)==L';')
 		strDest.SetLength(curpos);
 
 	return strDest;
@@ -136,7 +136,7 @@ void FileFilterParams::SetMask(bool Used, const wchar_t *Mask)
 	if (strMask.PosI(pos,L"%PATHEXT%"))
 	{
 		{
-			size_t IQ1=(strMask.At(pos+9) == L',')?10:9;
+			size_t IQ1=(strMask.At(pos+9) == L',' || strMask.At(pos+9) == L';')?10:9;
 			wchar_t *Ptr = strMask.GetBuffer();
 			// Если встречается %pathext%, то допишем в конец...
 			wmemmove(Ptr+pos,Ptr+pos+IQ1,strMask.GetLength()-pos-IQ1+1);
