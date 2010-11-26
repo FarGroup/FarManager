@@ -40,6 +40,7 @@ int WINAPI FileFilterControl(
     <tr class="cont"><td class="cont" width="40%"><a name="FFCTL_CREATEFILEFILTER">FFCTL_CREATEFILEFILTER</a></td>
     <td class="cont" width="60%"> Создаёт фильтр для заданной области. <br>
     <var>hHandle</var> должен быть установлен в значение <code>PANEL_ACTIVE</code> или  <code>PANEL_PASSIVE</code>.<br>
+    Для фильтра типа <code>FFT_CUSTOM</code>, описатель должен быть установлен в значение <code>PANEL_NONE</code>.<br>
     <var>Param1</var> в значение типа <code>FAR_FILE_FILTER_TYPE</code>:
            <table class="cont"><tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
             <tr class="cont"><td class="cont" width="40%"><a name="FFT_PANEL">FFT_PANEL</a></td>
@@ -50,6 +51,8 @@ int WINAPI FileFilterControl(
             <td class="cont" width="60%">диалог копирования</td></tr>
             <tr class="cont"><td class="cont" width="40%"><a name="FFT_SELECT">FFT_SELECT</a></td>
             <td class="cont" width="60%">диалог пометки файлов</td></tr>
+            <tr class="cont"><td class="cont" width="40%"><a name="FFT_CUSTOM">FFT_CUSTOM</a></td>
+            <td class="cont" width="60%">пользовательская область (для вызова из плагина)</td></tr>
         </table>
     Созданный фильтр получит настройки заданного типа,
     настройки глобальны и всегда идентичны в любом фильтре этого типа (но левая и правая панели различаются). <br>
