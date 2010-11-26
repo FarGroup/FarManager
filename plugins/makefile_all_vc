@@ -56,6 +56,7 @@ VC=8
 !elseif "$(_NMAKE_VER)">"10"
 VC=10
 !endif
+!endif
 
 !ifndef VC
 !error "VC must be defined (in make_vc_defs)"
