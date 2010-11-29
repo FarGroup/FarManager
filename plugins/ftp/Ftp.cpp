@@ -8,22 +8,31 @@ int  FTP::BackupCount = 0;
 
 FTP::FTP()
 {
+	ResetCache = TRUE;
+	ShowHosts = TRUE;
+	SwitchingToFTP = FALSE;
+	RereadRequired = FALSE;
+	CurrentState = fcsNormal;
+	*IncludeMask = 0;
+	*ExcludeMask = 0;
+	PluginColumnModeSet = FALSE;
+	ActiveColumnMode = 0;
+	NeedToSetActiveMode = FALSE;
+	UrlsList = NULL;
+	UrlsTail = NULL;
+	QuequeSize = 0;
+	OverrideMsgCode = ocNone;
+	LastMsgCode = ocNone;
+	*PanelTitle = 0;
+	LongBeep = NULL;
+	KeepAlivePeriod = Opt.KeepAlive ? FP_PeriodCreate(Opt.KeepAlive*1000) : NULL;
+	hConnect = NULL;
+	CallLevel = 0;
+
 	Host.Init();
-	hConnect          = NULL;
-	ResetCache        = TRUE;
-	ShowHosts         = TRUE;
-	SwitchingToFTP    = FALSE;
-	OverrideMsgCode   = ocNone;
-	LastMsgCode       = ocNone;
-	UrlsList          = NULL;
-	QuequeSize        = 0;
-	CallLevel         = 0;
 	FP_GetRegKey("LastHostsPath",HostsPath,NULL,ARRAYSIZE(HostsPath));
-	RereadRequired    = FALSE;
-	CurrentState      = fcsNormal;
-	KeepAlivePeriod   = Opt.KeepAlive ? FP_PeriodCreate(Opt.KeepAlive*1000) : NULL;
-	LongBeep          = NULL;
-	PanelInfo  pi;
+
+	PanelInfo pi;
 	FP_Info->Control(INVALID_HANDLE_VALUE,FCTL_GETPANELINFO,&pi);
 	StartViewMode = pi.ViewMode;
 }
