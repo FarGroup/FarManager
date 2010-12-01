@@ -1056,7 +1056,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 					Opt.CMOpt.MultiCopy=CopyDlg[ID_SC_MULTITARGET].Selected;
 				}
 
-				if (!Opt.CMOpt.MultiCopy || !wcspbrk(strCopyDlgValue,L",;")) // отключено multi*
+				if (!CopyDlg[ID_SC_MULTITARGET].Selected || !wcspbrk(strCopyDlgValue,L",;")) // отключено multi*
 				{
 					// уберем лишние кавычки
 					Unquote(strCopyDlgValue);
