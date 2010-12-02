@@ -97,7 +97,7 @@ const UserDefinedListItem& UserDefinedListItem::operator=(const wchar_t *rhs)
 	return *this;
 }
 
-wchar_t *UserDefinedListItem::set(const wchar_t *Src, unsigned int size)
+wchar_t *UserDefinedListItem::set(const wchar_t *Src, size_t size)
 {
 	if (Str!=Src)
 	{
@@ -317,7 +317,7 @@ bool UserDefinedList::Set(const wchar_t *List, bool AddToList)
 		else if (!Unique) // чтобы не сортировать уже отсортированное
 			Array.Sort();
 
-		unsigned int i=0, maxI=Array.getSize();
+		size_t i=0, maxI=Array.getSize();
 
 		for (; i<maxI; ++i)
 			Array.getItem(i)->index=i;
@@ -432,7 +432,7 @@ void UserDefinedList::Reset()
 
 bool UserDefinedList::IsEmpty()
 {
-	unsigned int Size=Array.getSize();
+	size_t Size=Array.getSize();
 	return !Size || CurrentItem>=Size;
 }
 

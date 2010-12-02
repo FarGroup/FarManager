@@ -59,14 +59,14 @@ enum UDL_FLAGS
 class UserDefinedListItem
 {
 	public:
-		unsigned int index;
+		size_t index;
 		wchar_t *Str;
 		UserDefinedListItem():index(0), Str(nullptr) {}
 		bool operator==(const UserDefinedListItem &rhs) const;
 		int operator<(const UserDefinedListItem &rhs) const;
 		const UserDefinedListItem& operator=(const UserDefinedListItem &rhs);
 		const UserDefinedListItem& operator=(const wchar_t *rhs);
-		wchar_t *set(const wchar_t *Src, unsigned int size);
+		wchar_t *set(const wchar_t *Src, size_t size);
 		~UserDefinedListItem();
 };
 
@@ -74,7 +74,7 @@ class UserDefinedList : private NonCopyable
 {
 	private:
 		TArray<UserDefinedListItem> Array;
-		unsigned int CurrentItem;
+		size_t CurrentItem;
 		WORD Separator1, Separator2;
 		bool ProcessBrackets, AddAsterisk, PackAsterisks, Unique, Sort, IsTrim, IsUnQuotes;
 		bool AccountEmptyLine;
@@ -136,5 +136,5 @@ class UserDefinedList : private NonCopyable
 		bool IsEmpty();
 
 		// Вернуть количество элементов в списке
-		DWORD GetTotal() const { return Array.getSize(); }
+		size_t GetTotal() const { return Array.getSize(); }
 };

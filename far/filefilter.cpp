@@ -285,11 +285,10 @@ bool FileFilter::FilterEdit()
 			case KEY_INS:
 			case KEY_F5:
 			{
-				int SelPos=FilterList.GetSelectPos();
-				int SelPos2=SelPos+1;
+				size_t SelPos=FilterList.GetSelectPos();
+				size_t SelPos2=SelPos+1;
 
-				if (SelPos>(int)FilterData.getCount())
-					SelPos=FilterData.getCount();
+				SelPos = Min(FilterData.getCount(), SelPos);
 
 				FileFilterParams *NewFilter = FilterData.insertItem(SelPos);
 
@@ -313,7 +312,7 @@ bool FileFilter::FilterEdit()
 					else if (SelPos2 > (int)(FilterData.getCount()+2))
 					{
 						wchar_t Mask[MAX_PATH];
-						FilterList.GetUserData(Mask,sizeof(Mask),SelPos2-1);
+						FilterList.GetUserData(Mask,sizeof(Mask),static_cast<int>(SelPos2-1));
 						NewFilter->SetMask(1,Mask);
 						//Авто фильтры они только для файлов, папки не должны к ним подходить
 						NewFilter->SetAttr(1,0,FILE_ATTRIBUTE_DIRECTORY);
@@ -334,8 +333,8 @@ bool FileFilter::FilterEdit()
 				{
 					ListItem.Clear();
 					MenuString(ListItem.strName,NewFilter);
-					FilterList.AddItem(&ListItem,SelPos);
-					FilterList.SetSelectPos(SelPos,1);
+					FilterList.AddItem(&ListItem,static_cast<int>(SelPos));
+					FilterList.SetSelectPos(static_cast<int>(SelPos),1);
 					FilterList.SetPosition(-1,-1,0,0);
 					FilterList.Show();
 					bNeedUpdate=true;

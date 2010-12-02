@@ -53,15 +53,15 @@ template <class Object>
 class TArray
 {
 	private:
-		unsigned int internalCount, Count, Delta;
+		size_t internalCount, Count, Delta;
 		Object **items;
 
 	private:
 		static int __cdecl CmpItems(const Object **el1, const Object **el2);
-		bool deleteItem(unsigned int index);
+		bool deleteItem(size_t index);
 
 	public:
-		TArray(unsigned int Delta=8);
+		TArray(size_t Delta=8);
 		TArray<Object>(const TArray<Object> &rhs);
 		~TArray() { Free(); }
 
@@ -70,15 +70,15 @@ class TArray
 
 	public:
 		void Free();
-		void setDelta(unsigned int newDelta);
-		bool setSize(unsigned int newSize);
+		void setDelta(size_t newDelta);
+		bool setSize(size_t newSize);
 
-		Object *setItem(unsigned int index, const Object &newItem);
-		Object *getItem(unsigned int index);
+		Object *setItem(size_t index, const Object &newItem);
+		Object *getItem(size_t index);
 		int getIndex(const Object &item, int start=-1);
 
 		// сортировка массива. Offset - сколько первых пунктов пропустить
-		void Sort(TARRAYCMPFUNC user_cmp_func=nullptr,unsigned int Offset=0);
+		void Sort(TARRAYCMPFUNC user_cmp_func=nullptr,size_t Offset=0);
 
 		// упаковать массив - вместо нескольких одинаковых элементов,
 		/*
@@ -90,12 +90,12 @@ class TArray
 		bool Pack();
 
 	public: // inline
-		unsigned int getSize() const { return Count; }
+		size_t getSize() const { return Count; }
 		Object *addItem(const Object &newItem) { return setItem(Count,newItem); }
 };
 
 template <class Object>
-TArray<Object>::TArray(unsigned int delta):
+TArray<Object>::TArray(size_t delta):
 		internalCount(0), Count(0), items(nullptr)
 {
 	setDelta(delta);
@@ -117,7 +117,7 @@ void TArray<Object>::Free()
 }
 
 template <class Object>
-Object *TArray<Object>::setItem(unsigned int index, const Object &newItem)
+Object *TArray<Object>::setItem(size_t index, const Object &newItem)
 {
 	bool set=true;
 
@@ -140,13 +140,13 @@ Object *TArray<Object>::setItem(unsigned int index, const Object &newItem)
 }
 
 template <class Object>
-Object *TArray<Object>::getItem(unsigned int index)
+Object *TArray<Object>::getItem(size_t index)
 {
 	return (index<Count)?items[index]:nullptr;
 }
 
 template <class Object>
-void TArray<Object>::Sort(TARRAYCMPFUNC user_cmp_func,unsigned int Offset)
+void TArray<Object>::Sort(TARRAYCMPFUNC user_cmp_func,size_t Offset)
 {
 	if (Count)
 	{
@@ -162,7 +162,7 @@ bool TArray<Object>::Pack()
 {
 	bool was_changed=false;
 
-	for (unsigned int index=1; index<Count; ++index)
+	for (size_t index=1; index<Count; ++index)
 	{
 		if (*items[index-1]==*items[index])
 		{
@@ -182,7 +182,7 @@ bool TArray<Object>::Pack()
 }
 
 template <class Object>
-bool TArray<Object>::deleteItem(unsigned int index)
+bool TArray<Object>::deleteItem(size_t index)
 {
 	if (index<Count)
 	{
@@ -195,13 +195,13 @@ bool TArray<Object>::deleteItem(unsigned int index)
 }
 
 template <class Object>
-bool TArray<Object>::setSize(unsigned int newSize)
+bool TArray<Object>::setSize(size_t newSize)
 {
 	bool rc=false;
 
 	if (newSize < Count)              // уменьшение размера
 	{
-		for (unsigned int i=newSize; i<Count; ++i)
+		for (size_t i=newSize; i<Count; ++i)
 		{
 			delete items[i];
 			items[i]=nullptr;
@@ -212,7 +212,7 @@ bool TArray<Object>::setSize(unsigned int newSize)
 	}
 	else if (newSize < internalCount) // увеличение, но в рамках имеющегося
 	{
-		for (unsigned int i=Count; i<newSize; ++i)
+		for (size_t i=Count; i<newSize; ++i)
 			items[i]=nullptr;
 
 		Count=newSize;
@@ -220,8 +220,8 @@ bool TArray<Object>::setSize(unsigned int newSize)
 	}
 	else                              // увеличение размера
 	{
-		unsigned int Remainder=newSize%Delta;
-		unsigned int newCount=Remainder?(newSize+Delta)-Remainder:
+		size_t Remainder=newSize%Delta;
+		size_t newCount=Remainder?(newSize+Delta)-Remainder:
 		                      newSize?newSize:Delta;
 		Object **newItems=static_cast<Object**>(xf_malloc(newCount*sizeof(Object*)));
 
@@ -236,7 +236,7 @@ bool TArray<Object>::setSize(unsigned int newSize)
 			items=newItems;
 			internalCount=newCount;
 
-			for (unsigned int i=Count; i<newSize; ++i)
+			for (size_t i=Count; i<newSize; ++i)
 				items[i]=nullptr;
 
 			Count=newSize;
@@ -304,7 +304,7 @@ TArray<Object>& TArray<Object>::operator=(const TArray<Object> &rhs)
 }
 
 template <class Object>
-void TArray<Object>::setDelta(unsigned int newDelta)
+void TArray<Object>::setDelta(size_t newDelta)
 {
 	if (newDelta<4)
 		newDelta=4;
@@ -320,7 +320,7 @@ int TArray<Object>::getIndex(const Object &item, int start)
 	if (start==-1)
 		start=0;
 
-	for (unsigned int i=start; i<Count; ++i)
+	for (size_t i=start; i<Count; ++i)
 	{
 		if (items[i] && item==*items[i])
 		{
@@ -336,11 +336,11 @@ template <class Object>
 class TPointerArray
 {
 	private:
-		unsigned int internalCount, Count, Delta;
+		size_t internalCount, Count, Delta;
 		Object **items;
 
 	private:
-		bool setSize(unsigned int newSize)
+		bool setSize(size_t newSize)
 		{
 			bool rc=false;
 
@@ -351,7 +351,7 @@ class TPointerArray
 			}
 			else if (newSize < internalCount) // увеличение, но в рамках имеющегося
 			{
-				for (unsigned int i=Count; i<newSize; i++)
+				for (size_t i=Count; i<newSize; i++)
 					items[i]=nullptr;
 
 				Count=newSize;
@@ -359,8 +359,8 @@ class TPointerArray
 			}
 			else                              // увеличение размера
 			{
-				unsigned int Remainder=newSize%Delta;
-				unsigned int newCount=Remainder?(newSize+Delta)-Remainder:(newSize?newSize:Delta);
+				size_t Remainder=newSize%Delta;
+				size_t newCount=Remainder?(newSize+Delta)-Remainder:(newSize?newSize:Delta);
 				Object **newItems=static_cast<Object**>(xf_realloc(items,newCount*sizeof(Object*)));
 
 				if (newItems)
@@ -368,7 +368,7 @@ class TPointerArray
 					items=newItems;
 					internalCount=newCount;
 
-					for (unsigned int i=Count; i<newSize; i++)
+					for (size_t i=Count; i<newSize; i++)
 						items[i]=nullptr;
 
 					Count=newSize;
@@ -380,14 +380,14 @@ class TPointerArray
 		}
 
 	public:
-		TPointerArray(unsigned int delta=1) { items=nullptr; Count=internalCount=0; setDelta(delta); }
+		TPointerArray(size_t delta=1) { items=nullptr; Count=internalCount=0; setDelta(delta); }
 		~TPointerArray() { Free(); }
 
 		void Free()
 		{
 			if (items)
 			{
-				for (unsigned int i=0; i<Count; ++i)
+				for (size_t i=0; i<Count; ++i)
 					delete items[i];
 
 				xf_free(items);
@@ -397,15 +397,15 @@ class TPointerArray
 			Count=internalCount=0;
 		}
 
-		void setDelta(unsigned int newDelta) { if (newDelta<1) newDelta=1; Delta=newDelta; }
+		void setDelta(size_t newDelta) { if (newDelta<1) newDelta=1; Delta=newDelta; }
 
-		Object *getItem(unsigned int index) { return (index<Count)?items[index]:nullptr; }
+		Object *getItem(size_t index) { return (index<Count)?items[index]:nullptr; }
 
 		Object *lastItem() { return Count?items[Count-1]:nullptr; }
 
 		Object *addItem() { return insertItem(Count); }
 
-		Object *insertItem(unsigned int index)
+		Object *insertItem(size_t index)
 		{
 			if (index>Count)
 				return nullptr;
@@ -414,7 +414,7 @@ class TPointerArray
 
 			if (newItem && setSize(Count+1))
 			{
-				for (unsigned int i=Count-1; i>index; i--)
+				for (size_t i=Count-1; i>index; i--)
 					items[i]=items[i-1];
 
 				items[index]= newItem;
@@ -427,13 +427,13 @@ class TPointerArray
 			return nullptr;
 		}
 
-		bool deleteItem(unsigned int index)
+		bool deleteItem(size_t index)
 		{
 			if (index<Count)
 			{
 				delete items[index];
 
-				for (unsigned int i=index+1; i<Count; i++)
+				for (size_t i=index+1; i<Count; i++)
 					items[i-1]=items[i];
 
 				setSize(Count-1);
@@ -443,7 +443,7 @@ class TPointerArray
 			return false;
 		}
 
-		bool swapItems(unsigned int index1, unsigned int index2)
+		bool swapItems(size_t index1, size_t index2)
 		{
 			if (index1<Count && index2<Count)
 			{
@@ -456,5 +456,5 @@ class TPointerArray
 			return false;
 		}
 
-		unsigned int getCount() const { return Count; }
+		size_t getCount() const { return Count; }
 };

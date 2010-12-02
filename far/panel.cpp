@@ -220,7 +220,7 @@ const TypeMessage DrTMsg[]=
 	{DRIVE_USBDRIVE,MChangeDriveRemovable},
 };
 
-static int AddPluginItems(VMenu &ChDisk, int Pos, int DiskCount, bool SetSelected)
+static size_t AddPluginItems(VMenu &ChDisk, int Pos, int DiskCount, bool SetSelected)
 {
 	TArray<ChDiskPluginItem> MPItems;
 	ChDiskPluginItem OneItem;
@@ -229,7 +229,7 @@ static int AddPluginItems(VMenu &ChDisk, int Pos, int DiskCount, bool SetSelecte
 	bool ItemPresent,Done=false;
 	string strMenuText;
 	string strPluginText;
-	int PluginMenuItemsCount = 0;
+	size_t PluginMenuItemsCount = 0;
 
 	while (!Done)
 	{
@@ -311,7 +311,7 @@ static int AddPluginItems(VMenu &ChDisk, int Pos, int DiskCount, bool SetSelecte
 		ChDisk.AddItem(&ChDiskItem);
 		ChDiskItem.Flags&=~LIF_SEPARATOR;
 
-		for (int I=0; I < PluginMenuItemsCount; ++I)
+		for (size_t I=0; I < PluginMenuItemsCount; ++I)
 		{
 			if (Pos > DiskCount && !SetSelected)
 			{
@@ -600,7 +600,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			MenuLine++;
 		}
 
-		int PluginMenuItemsCount=0;
+		size_t PluginMenuItemsCount=0;
 
 		if (Opt.ChangeDriveMode & DRIVE_SHOW_PLUGINS)
 		{
@@ -612,7 +612,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		if ((this == CtrlObject->Cp()->RightPanel) && IsFullScreen() && (X2-X1 > 40))
 			X = (X2-X1+1)/2+5;
 
-		int Y = (ScrY+1-(DiskCount+PluginMenuItemsCount+5))/2;
+		int Y = static_cast<int>((ScrY+1-(DiskCount+PluginMenuItemsCount+5))/2);
 
 		if (Y < 1)
 			Y=1;

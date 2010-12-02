@@ -119,7 +119,7 @@ static unsigned __int64 TotalCopySize, TotalCopiedSize; // Общий индикатор копир
 static unsigned __int64 CurCopiedSize;                  // Текущий индикатор копирования
 static unsigned __int64 TotalSkippedSize;               // Общий размер пропущенных файлов
 static unsigned __int64 TotalCopiedSizeEx;
-static int   CountTarget;                    // всего целей.
+static size_t   CountTarget;                    // всего целей.
 static int CopySecurityCopy=-1;
 static int CopySecurityMove=-1;
 static bool ShowTotalCopySize;

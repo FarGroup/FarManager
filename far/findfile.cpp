@@ -550,7 +550,7 @@ void InitInFileSearch()
 							bool isDouble = false;
 
 							for (int j = 0; j<StandardCPCount; j++)
-								if (codePage == codePages[0].CodePage)
+								if (codePage == codePages[j].CodePage)
 								{
 									isDouble =true;
 									break;
