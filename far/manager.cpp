@@ -962,10 +962,26 @@ int Manager::ProcessKey(DWORD Key)
 					}
 					break;
 
+				case KEY_CTRLALTHOME:
+					if(Opt.WindowMode)
+					{
+						while(Console.ScrollWindow(-ScrY));
+						return TRUE;
+					}
+					break;
+
 				case KEY_CTRLALTPGDN:
 					if(Opt.WindowMode)
 					{
 						Console.ScrollWindow(ScrY);
+						return TRUE;
+					}
+					break;
+
+				case KEY_CTRLALTEND:
+					if(Opt.WindowMode)
+					{
+						while(Console.ScrollWindow(ScrY));
 						return TRUE;
 					}
 					break;

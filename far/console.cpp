@@ -482,8 +482,9 @@ bool console::ScrollWindow(int Lines)
 			csbi.srWindow.Bottom=csbi.dwSize.Y-1;
 		}
 		SetWindowRect(csbi.srWindow);
+		return true;
 	}
-	return true;
+	return false;
 }
 
 bool console::ScrollScreenBuffer(int Lines)
