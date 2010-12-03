@@ -464,6 +464,8 @@ void ShowMenuFromList(TCHAR *Name)
 #endif
 
       fmi[i].Separator=!lstrcmp(param,_T("-"));
+			fmi[i].Selected = FALSE;
+			fmi[i].Checked = FALSE;
     }
 //    fmi[0].Selected=TRUE;
 
