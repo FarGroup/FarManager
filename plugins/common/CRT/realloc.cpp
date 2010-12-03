@@ -11,9 +11,9 @@ void * __cdecl realloc(void *block, size_t size)
   }
 
   if (block)
-    return HeapReAlloc(GetProcessHeap(),HEAP_ZERO_MEMORY,block,size);
+    return HeapReAlloc(GetProcessHeap(),0,block,size);
   else
-    return HeapAlloc(GetProcessHeap(),HEAP_ZERO_MEMORY,size);
+    return HeapAlloc(GetProcessHeap(),0,size);
 }
 
 void * __cdecl _recalloc(void *block, size_t num, size_t size)

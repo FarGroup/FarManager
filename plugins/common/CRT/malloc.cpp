@@ -3,5 +3,5 @@
 
 void * __cdecl malloc(size_t size)
 {
-  return HeapAlloc(GetProcessHeap(),HEAP_ZERO_MEMORY,size);
+  return HeapAlloc(GetProcessHeap(),0,size);
 }
