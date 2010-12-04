@@ -612,7 +612,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		if ((this == CtrlObject->Cp()->RightPanel) && IsFullScreen() && (X2-X1 > 40))
 			X = (X2-X1+1)/2+5;
 
-		int Y = static_cast<int>((ScrY+1-(DiskCount+PluginMenuItemsCount+5))/2);
+		int Y = (ScrY+1-(DiskCount+static_cast<int>(PluginMenuItemsCount)+5))/2;
 
 		if (Y < 1)
 			Y=1;

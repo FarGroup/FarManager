@@ -2233,7 +2233,7 @@ void FileEditor::ShowStatus()
 	string strLineStr;
 	string strLocalTitle;
 	GetTitle(strLocalTitle);
-	int NameLength = Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN) ? 19:25;
+	int NameLength = Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN) ? 17:23;
 
 	if (X2 > 80)
 		NameLength += (X2-80);
