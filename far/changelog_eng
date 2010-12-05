@@ -3,6 +3,26 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 04.12.2010 11:11:27 +0200 - build 1740
+
+1. From Tim Sobolev: correction of editor window caption.
+
+2. Correction of 1738.2.
+
+svs 03.12.2010 17:01:42 +0300 - build 1739
+
+1. From Alexey Samlyukov: far.exe /w mode is appended with keys: Ctrl-Alt-Home/End scroll the window to the beginning/end of the buffer
+
+drkns 02.12.2010 20:06:35 +0200 - build 1738
+
+1. Mantis#0001608: A minor bug at codepage duplicates search
+
+2. Types correction.
+
+drkns 01.12.2010 16:08:46 +0200 - build 1737
+
+1. Correction of 1729.1.
+
 drkns 26.11.2010 23:25:10 +0200 - build 1736
 
 1. Incorrect processing of ';'-separated masks list containing "%pathext%".
