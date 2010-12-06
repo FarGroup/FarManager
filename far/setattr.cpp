@@ -332,10 +332,17 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 			}
 			else if (Param1 == SA_BUTTON_CURRENT || Param1 == SA_BUTTON_BLANK)
 			{
-				SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_LASTWRITE,Param1 == SA_BUTTON_CURRENT?-1:0);
-				SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_CREATION,Param1 == SA_BUTTON_CURRENT?-1:0);
-				SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_LASTACCESS,Param1 == SA_BUTTON_CURRENT?-1:0);
-				SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_CHANGE,Param1 == SA_BUTTON_CURRENT?-1:0);
+				LONG_PTR Value = 0;
+				FILETIME CurrentTime;
+				if(Param1 == SA_BUTTON_CURRENT)
+				{
+					GetSystemTimeAsFileTime(&CurrentTime);
+					Value = reinterpret_cast<LONG_PTR>(&CurrentTime);
+				}
+				SendDlgMessage(hDlg, DM_SETATTR, SA_TEXT_LASTWRITE, Value);
+				SendDlgMessage(hDlg, DM_SETATTR, SA_TEXT_CREATION, Value);
+				SendDlgMessage(hDlg, DM_SETATTR, SA_TEXT_LASTACCESS, Value);
+				SendDlgMessage(hDlg, DM_SETATTR, SA_TEXT_CHANGE, Value);
 				DlgParam->OLastWriteTime=DlgParam->OCreationTime=DlgParam->OLastAccessTime=DlgParam->OChangeTime==true;
 				SendDlgMessage(hDlg,DM_SETFOCUS,SA_EDIT_WDATE,0);
 				return TRUE;
