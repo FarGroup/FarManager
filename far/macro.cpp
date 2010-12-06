@@ -3498,6 +3498,15 @@ static bool panelitemFunc(const TMacroFunction*)
 			case 19: // StreamsSize
 				Ret=TVar((__int64)filelistItem.StreamsSize);
 				break;
+			case 20:  // ChangeTime
+				ConvertDate(filelistItem.ChangeTime,strDate,strTime,8,FALSE,FALSE,TRUE,TRUE);
+				strDate += L" ";
+				strDate += strTime;
+				Ret=TVar(strDate.CPtr());
+				break;
+			case 21:  // ChangeTime (FILETIME)
+				Ret=TVar((__int64)FileTimeToUI64(&filelistItem.ChangeTime));
+				break;
 		}
 	}
 

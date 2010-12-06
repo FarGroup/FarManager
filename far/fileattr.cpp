@@ -206,13 +206,12 @@ int ESetFileEncryption(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode
 }
 
 
-int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationTime,
-                 FILETIME *LastAccessTime,DWORD FileAttr,int SkipMode)
+int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationTime,FILETIME *LastAccessTime,FILETIME *ChangeTime,DWORD FileAttr,int SkipMode)
 {
-	if (!LastWriteTime && !CreationTime && !LastAccessTime)
+	if (!LastWriteTime && !CreationTime && !LastAccessTime && !ChangeTime)
 		return SETATTR_RET_OK;
 
-	while (1)
+	for(;;)
 	{
 		if (FileAttr & FILE_ATTRIBUTE_READONLY)
 			apiSetFileAttributes(Name,FileAttr & ~FILE_ATTRIBUTE_READONLY);
@@ -228,7 +227,7 @@ int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationT
 		}
 		else
 		{
-			SetTime=file.SetTime(CreationTime,LastAccessTime,LastWriteTime);
+			SetTime=file.SetTime(CreationTime,LastAccessTime,LastWriteTime, ChangeTime);
 			LastError=GetLastError();
 			file.Close();
 

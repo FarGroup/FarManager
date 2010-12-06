@@ -68,6 +68,7 @@ struct FileListItem
 	FILETIME CreationTime;
 	FILETIME AccessTime;
 	FILETIME WriteTime;
+	FILETIME ChangeTime;
 
 	unsigned __int64 UnpSize;
 	unsigned __int64 PackSize;
@@ -103,6 +104,7 @@ struct FileListItem
 		memset(&CreationTime, 0, sizeof(CreationTime));
 		memset(&AccessTime, 0, sizeof(AccessTime));
 		memset(&WriteTime, 0, sizeof(WriteTime));
+		memset(&ChangeTime, 0, sizeof(ChangeTime));
 		UnpSize = 0;
 		PackSize = 0;
 		StreamsSize = 0;
@@ -137,6 +139,7 @@ struct FileListItem
 			CreationTime=fliCopy.CreationTime;
 			AccessTime=fliCopy.AccessTime;
 			WriteTime=fliCopy.WriteTime;
+			ChangeTime=fliCopy.ChangeTime;
 			UnpSize = fliCopy.UnpSize;
 			PackSize = fliCopy.PackSize;
 			StreamsSize = fliCopy.StreamsSize;
@@ -249,7 +252,7 @@ class FileList:public Panel
 
 		void MoveSelection(FileListItem **FileList,long FileCount,FileListItem **OldList,long OldFileCount);
 		virtual int GetSelCount();
-		virtual int GetSelName(string *strName,DWORD &FileAttr,string *strShortName=nullptr,FAR_FIND_DATA_EX *fd=nullptr);
+		virtual int GetSelName(string *strName,DWORD &FileAttr,string *strShortName=nullptr,FAR_FIND_DATA_EX *fde=nullptr);
 		virtual void UngetSelName();
 		virtual void ClearLastGetSelection();
 

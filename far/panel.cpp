@@ -315,10 +315,10 @@ static size_t AddPluginItems(VMenu &ChDisk, int Pos, int DiskCount, bool SetSele
 		{
 			if (Pos > DiskCount && !SetSelected)
 			{
-				MPItems.getItem(I)->Item.SetSelect(DiskCount+I+1==Pos);
+				MPItems.getItem(I)->Item.SetSelect(DiskCount+static_cast<int>(I)+1==Pos);
 
 				if (!SetSelected)
-					SetSelected=DiskCount+I+1==Pos;
+					SetSelected=DiskCount+static_cast<int>(I)+1==Pos;
 			}
 			const wchar_t HotKeyStr[]={MPItems.getItem(I)->HotKey?L'&':L' ',MPItems.getItem(I)->HotKey?MPItems.getItem(I)->HotKey:L' ',L' ',MPItems.getItem(I)->HotKey?L' ':L'\0',L'\0'};
 			MPItems.getItem(I)->Item.strName = string(HotKeyStr) + MPItems.getItem(I)->Item.strName;

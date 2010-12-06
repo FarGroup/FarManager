@@ -327,6 +327,8 @@ void FileList::PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi)
 	fi->WriteTime=pi->FindData.ftLastWriteTime;
 	fi->CreationTime=pi->FindData.ftCreationTime;
 	fi->AccessTime=pi->FindData.ftLastAccessTime;
+	fi->ChangeTime.dwHighDateTime = 0;
+	fi->ChangeTime.dwLowDateTime = 0;
 	fi->NumberOfLinks=pi->NumberOfLinks;
 	fi->NumberOfStreams=1;
 	fi->UserFlags=pi->Flags;

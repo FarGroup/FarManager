@@ -6431,14 +6431,14 @@ MColumnTime
 "Czas"
 "Hora"
 
-MColumnModified
-"Модификация"
-"Modified"
-"Modifikován"
-"Verändert"
-"Módosítva"
-"Modyfikacja"
-"Modificado"
+MColumnWrited
+"Запись"
+"Write"
+upd:"Write"
+upd:"Write"
+upd:"Write"
+upd:"Write"
+upd:"Write"
 
 MColumnCreated
 "Создание"
@@ -6457,6 +6457,15 @@ MColumnAccessed
 "Hozzáférés"
 "Użycie"
 "Acceso  "
+
+MColumnChanged
+"Изменение"
+upd:"Change"
+upd:"Change"
+upd:"Change"
+upd:"Change"
+upd:"Change"
+upd:"Change"
 
 MColumnAttr
 "Атриб"
@@ -10943,13 +10952,13 @@ MMenuSortByExt
 "ro&zszerzenia                Ctrl-F4"
 "E&xtensión            Ctrl-F4"
 
-MMenuSortByModification
-"Время &модификации                Ctrl-F5"
-"&Modification time      Ctrl-F5"
-"Č&asu modifikace           Ctrl-F5"
-"&Veränderungsdatum      Strg-F5"
-"Módosítás &ideje      Ctrl-F5"
-"czasu &modyfikacji           Ctrl-F5"
+MMenuSortByWrite
+"Время &записи                     Ctrl-F5"
+"&Write time             Ctrl-F5"
+upd:"&Write time             Ctrl-F5"
+upd:"&Write time             Ctrl-F5"
+upd:"&Write time             Ctrl-F5"
+upd:"&Write time             Ctrl-F5"
 "Fecha &modificación   Ctrl-F5"
 
 MMenuSortBySize
@@ -10987,6 +10996,15 @@ MMenuSortByAccess
 "&Hozzáférés ideje     Ctrl-F9"
 "czasu &użycia                Ctrl-F9"
 "Fecha de &acceso      Ctrl-F9"
+
+MMenuSortByChange
+"Время из&менения"
+"C&hange time"
+upd:"Change time"
+upd:"Change time"
+upd:"Change time"
+upd:"Change time"
+upd:"Change time"
 
 MMenuSortByDiz
 "&Описания                         Ctrl-F10"
@@ -12089,31 +12107,40 @@ upd:"(multiple values)"
 "(valores múltiples)"
 
 MSetAttrModification
-"Время &модификации файла:"
-"File &modification time:"
-"Čas &modifikace souboru:"
-"Datei &modifiziert:"
-"&Módosítás dátuma/ideje:"
-"Czas ostatniej &modyfikacji:"
-"Hora de &Modificación:"
+"Время последней &записи:"
+"Last &write time:"
+upd:"Last &write time:"
+upd:"Last &write time:"
+upd:"Last &write time:"
+upd:"Last &write time:"
+upd:"Last &write time:"
 
 MSetAttrCreation
-"Время со&здания файла:"
-"File crea&tion time:"
-"Čas v&ytvoření souboru:"
+"Время со&здания:"
+"Crea&tion time:"
+"Čas v&ytvoření:"
 "Datei erstell&t:"
 "&Létrehozás dátuma/ideje:"
 "Czas u&tworzenia:"
 "Hora de creación:"
 
 MSetAttrLastAccess
-"Время последнего &доступа к файлу:"
-"&Last file access time:"
+"Время последнего &доступа:"
+"&Last access time:"
 "Čas posledního pří&stupu:"
 "&Letzter Zugriff:"
 "&Utolsó hozzáférés dátuma/ideje:"
 "Czas ostatniego &dostępu:"
 "Hora de &último acceso:"
+
+MSetAttrChange
+"Время из&менения:"
+"C&hange time:"
+upd:"Change time:"
+upd:"Change time:"
+upd:"Change time:"
+upd:"Change time:"
+upd:"Change time:"
 
 MSetAttrOriginal
 "Исход&ное"
@@ -19274,13 +19301,13 @@ MFileFilterDate
 "Da&ta/Czas:"
 "&Fecha/Hora:"
 
-MFileFilterModified
-"&модификации"
-"&modification"
-"&modifikace"
-"&Modifikation"
-"&Módosítás"
-"&modyfikacji"
+MFileFilterWrited
+"&записи"
+upd:"&write"
+upd:"&write"
+upd:"&write"
+upd:"&write"
+upd:"&write"
 "&modificación"
 
 MFileFilterCreated
@@ -19300,6 +19327,15 @@ MFileFilterOpened
 "&Hozzáférés"
 "&dostępu"
 "&acceso"
+
+MFileFilterChanged
+"&изменения"
+"c&hange"
+upd:"c&hange"
+upd:"c&hange"
+upd:"c&hange"
+upd:"c&hange"
+upd:"c&hange"
 
 MFileFilterDateRelative
 "Относительна&я"

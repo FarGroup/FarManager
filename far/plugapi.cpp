@@ -2432,7 +2432,7 @@ int WINAPI farFileFilterControl(HANDLE hHandle, int Command, int Param1, LONG_PT
 			if (!Param2)
 				break;
 
-			return Filter->FileInFilter((const FAR_FIND_DATA *)Param2) ? TRUE : FALSE;
+			return Filter->FileInFilter(*(const FAR_FIND_DATA *)Param2) ? TRUE : FALSE;
 		}
 	}
 

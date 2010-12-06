@@ -69,6 +69,7 @@ enum enumFDateType
 	FDATE_MODIFIED=0,
 	FDATE_CREATED,
 	FDATE_OPENED,
+	FDATE_CHANGED,
 
 	FDATE_COUNT, // всегда последний !!!
 };
@@ -152,9 +153,9 @@ class FileFilterParams
 		// попадает ли файл fd под условие установленного фильтра.
 		// ¬озвращает true  - попадает;
 		//            false - не попадает.
-		bool FileInFilter(const FileListItem *fli, unsigned __int64 CurrentTime);
-		bool FileInFilter(const FAR_FIND_DATA_EX *fde, unsigned __int64 CurrentTime);
-		bool FileInFilter(const FAR_FIND_DATA *fd, unsigned __int64 CurrentTime);
+		bool FileInFilter(const FileListItem& fli, unsigned __int64 CurrentTime);
+		bool FileInFilter(const FAR_FIND_DATA_EX& fde, unsigned __int64 CurrentTime);
+		bool FileInFilter(const FAR_FIND_DATA& fd, unsigned __int64 CurrentTime);
 };
 
 bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig=false);

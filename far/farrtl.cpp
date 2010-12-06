@@ -8,6 +8,7 @@ farrtl.cpp
 #pragma hdrstop
 
 #include "savefpos.hpp"
+#include "console.hpp"
 
 #ifdef _MSC_VER
 #pragma intrinsic (memcpy)
@@ -61,12 +62,40 @@ void __cdecl  xf_free(void *__block)
 	free(__block);
 }
 
+
+bool InsufficientMemoryHandler()
+{
+	Console.SetTextAttributes(FOREGROUND_RED|FOREGROUND_INTENSITY);
+	COORD OldPos,Pos={};
+	Console.GetCursorPosition(OldPos);
+	Console.SetCursorPosition(Pos);
+	static WCHAR ErrorMessage[] = L"Not enough memory is available to complete this operation.\nPress Enter to retry or Esc to continue...";
+	Console.Write(ErrorMessage, ARRAYSIZE(ErrorMessage));
+	Console.SetCursorPosition(OldPos);
+	INPUT_RECORD ir={};
+	do
+	{
+		DWORD Read;
+		Console.ReadInput(ir, 1, Read);
+	}
+	while(!(ir.EventType == KEY_EVENT && !ir.Event.KeyEvent.bKeyDown && (ir.Event.KeyEvent.wVirtualKeyCode == VK_RETURN || ir.Event.KeyEvent.wVirtualKeyCode == VK_RETURN || ir.Event.KeyEvent.wVirtualKeyCode == VK_ESCAPE)));
+	return ir.Event.KeyEvent.wVirtualKeyCode == VK_RETURN;
+}
+
+
 void *__cdecl xf_malloc(size_t __size)
 {
-	void *Ptr=malloc(__size);
+	void *Ptr = nullptr;
+	do
+	{
+		Ptr = malloc(__size);
+	}
+	while (!Ptr && InsufficientMemoryHandler());
+
 #if defined(SYSLOG)
 	CallMallocFree++;
 #endif
+
 	return Ptr;
 }
 
@@ -93,13 +122,18 @@ void *__cdecl xf_realloc_nomove(void *__block, size_t __size)
 
 void *__cdecl xf_realloc(void *__block, size_t __size)
 {
-	void *Ptr=realloc(__block,__size);
-#if defined(SYSLOG)
+	void *Ptr = nullptr;
+	do
+	{
+			Ptr = realloc(__block,__size);
+	}
+	while (__size && !Ptr && InsufficientMemoryHandler());
 
+#if defined(SYSLOG)
 	if (!__block)
 		CallMallocFree++;
-
 #endif
+
 	return Ptr;
 }
 

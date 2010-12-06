@@ -248,7 +248,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 		ViewFile.SetPointer(0, nullptr, FILE_BEGIN);
 
 		//after reading from the pipe, redirect stdin to the real console stdin
-		//CONIN$ must be opened with the exact flags as below so apiCreateFile() is not good
+		//CONIN$ must be opened with the exact flags and name as below so apiCreateFile() is not good
 		SetStdHandle(STD_INPUT_HANDLE,CreateFile(L"CONIN$",GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ,nullptr,OPEN_EXISTING,0,nullptr));
 		ReadStdin=TRUE;
 	}

@@ -48,39 +48,42 @@ ImportedFunctions::ImportedFunctions()
 
 	if (hKernel)
 	{
-		pfnGetConsoleKeyboardLayoutName = (PGETCONSOLEKEYBOARDLAYOUTNAME)GetProcAddress(hKernel, "GetConsoleKeyboardLayoutNameW");
-		pfnCreateSymbolicLink = (PCREATESYMBOLICLINK)GetProcAddress(hKernel, "CreateSymbolicLinkW");
-		pfnFindFirstFileNameW = (FINDFIRSTFILENAMEW)GetProcAddress(hKernel, "FindFirstFileNameW");
-		pfnFindNextFileNameW = (FINDNEXTFILENAMEW)GetProcAddress(hKernel, "FindNextFileNameW");
-		pfnFindFirstStreamW = (FINDFIRSTSTREAMW)GetProcAddress(hKernel, "FindFirstStreamW");
-		pfnFindNextStreamW = (FINDNEXTSTREAMW)GetProcAddress(hKernel, "FindNextStreamW");
-		pfnGetFinalPathNameByHandle = (GETFINALPATHNAMEBYHANDLE)GetProcAddress(hKernel, "GetFinalPathNameByHandleW");
-		pfnGetVolumePathNamesForVolumeName = (GETVOLUMEPATHNAMESFORVOLUMENAME)GetProcAddress(hKernel, "GetVolumePathNamesForVolumeNameW");
-		pfnGetPhysicallyInstalledSystemMemory = (GETPHYSICALLYINSTALLEDSYSTEMMEMORY)GetProcAddress(hKernel, "GetPhysicallyInstalledSystemMemory");
-		pfnHeapSetInformation = (HEAPSETINFORMATION)GetProcAddress(hKernel, "HeapSetInformation");
-		pfnIsWow64Process = (ISWOW64PROCESS)GetProcAddress(hKernel, "IsWow64Process");
+		pfnGetConsoleKeyboardLayoutName = reinterpret_cast<PGETCONSOLEKEYBOARDLAYOUTNAME>(GetProcAddress(hKernel, "GetConsoleKeyboardLayoutNameW"));
+		pfnCreateSymbolicLink = reinterpret_cast<PCREATESYMBOLICLINK>(GetProcAddress(hKernel, "CreateSymbolicLinkW"));
+		pfnFindFirstFileNameW = reinterpret_cast<FINDFIRSTFILENAMEW>(GetProcAddress(hKernel, "FindFirstFileNameW"));
+		pfnFindNextFileNameW = reinterpret_cast<FINDNEXTFILENAMEW>(GetProcAddress(hKernel, "FindNextFileNameW"));
+		pfnFindFirstStreamW = reinterpret_cast<FINDFIRSTSTREAMW>(GetProcAddress(hKernel, "FindFirstStreamW"));
+		pfnFindNextStreamW = reinterpret_cast<FINDNEXTSTREAMW>(GetProcAddress(hKernel, "FindNextStreamW"));
+		pfnGetFinalPathNameByHandle = reinterpret_cast<GETFINALPATHNAMEBYHANDLE>(GetProcAddress(hKernel, "GetFinalPathNameByHandleW"));
+		pfnGetVolumePathNamesForVolumeName = reinterpret_cast<GETVOLUMEPATHNAMESFORVOLUMENAME>(GetProcAddress(hKernel, "GetVolumePathNamesForVolumeNameW"));
+		pfnGetPhysicallyInstalledSystemMemory = reinterpret_cast<GETPHYSICALLYINSTALLEDSYSTEMMEMORY>(GetProcAddress(hKernel, "GetPhysicallyInstalledSystemMemory"));
+		pfnHeapSetInformation = reinterpret_cast<HEAPSETINFORMATION>(GetProcAddress(hKernel, "HeapSetInformation"));
+		pfnIsWow64Process = reinterpret_cast<ISWOW64PROCESS>(GetProcAddress(hKernel, "IsWow64Process"));
 	}
 
 	if (hNtdll)
 	{
-		pfnNtQueryInformationFile = (NTQUERYINFORMATIONFILE)GetProcAddress(hNtdll, "NtQueryInformationFile");
-		pfnNtQueryObject = (NTQUERYOBJECT)GetProcAddress(hNtdll, "NtQueryObject");
-		pfnNtOpenSymbolicLinkObject = (NTOPENSYMBOLICLINKOBJECT)GetProcAddress(hNtdll, "NtOpenSymbolicLinkObject");
-		pfnNtQuerySymbolicLinkObject = (NTQUERYSYMBOLICLINKOBJECT)GetProcAddress(hNtdll, "NtQuerySymbolicLinkObject");
-		pfnNtClose = (NTCLOSE)GetProcAddress(hNtdll, "NtClose");
-		pfnRtlGetLastNtStatus = (RTLGETLASTNTSTATUS)GetProcAddress(hNtdll, "RtlGetLastNtStatus");
+		pfnNtQueryDirectoryFile = reinterpret_cast<NTQUERYDIRECTORYFILE>(GetProcAddress(hNtdll, "NtQueryDirectoryFile"));
+		pfnNtQueryInformationFile = reinterpret_cast<NTQUERYINFORMATIONFILE>(GetProcAddress(hNtdll, "NtQueryInformationFile"));
+		pfnNtSetInformationFile = reinterpret_cast<NTSETINFORMATIONFILE>(GetProcAddress(hNtdll, "NtSetInformationFile"));
+		pfnNtQueryObject = reinterpret_cast<NTQUERYOBJECT>(GetProcAddress(hNtdll, "NtQueryObject"));
+		pfnNtOpenSymbolicLinkObject = reinterpret_cast<NTOPENSYMBOLICLINKOBJECT>(GetProcAddress(hNtdll, "NtOpenSymbolicLinkObject"));
+		pfnNtQuerySymbolicLinkObject = reinterpret_cast<NTQUERYSYMBOLICLINKOBJECT>(GetProcAddress(hNtdll, "NtQuerySymbolicLinkObject"));
+		pfnNtClose = reinterpret_cast<NTCLOSE>(GetProcAddress(hNtdll, "NtClose"));
+		pfnRtlGetLastNtStatus = reinterpret_cast<RTLGETLASTNTSTATUS>(GetProcAddress(hNtdll, "RtlGetLastNtStatus"));
+		pfnRtlNtStatusToDosError = reinterpret_cast<RTLNTSTATUSTODOSERROR>(GetProcAddress(hNtdll, "RtlNtStatusToDosError"));
 	}
 
 	if (hShell)
 	{
-		pfnSHCreateAssociationRegistration = (PSHCREATEASSOCIATIONREGISTRATION)GetProcAddress(hShell, "SHCreateAssociationRegistration");
+		pfnSHCreateAssociationRegistration = reinterpret_cast<PSHCREATEASSOCIATIONREGISTRATION>(GetProcAddress(hShell, "SHCreateAssociationRegistration"));
 	}
 
 	if(hVirtDisk)
 	{
-		pfnGetStorageDependencyInformation = (GETSTORAGEDEPENDENCYINFORMATION)GetProcAddress(hVirtDisk, "GetStorageDependencyInformation");
-		pfnOpenVirtualDisk = (OPENVIRTUALDISK)GetProcAddress(hVirtDisk, "OpenVirtualDisk");
-		pfnDetachVirtualDisk = (DETACHVIRTUALDISK)GetProcAddress(hVirtDisk, "DetachVirtualDisk");
+		pfnGetStorageDependencyInformation = reinterpret_cast<GETSTORAGEDEPENDENCYINFORMATION>(GetProcAddress(hVirtDisk, "GetStorageDependencyInformation"));
+		pfnOpenVirtualDisk = reinterpret_cast<OPENVIRTUALDISK>(GetProcAddress(hVirtDisk, "OpenVirtualDisk"));
+		pfnDetachVirtualDisk = reinterpret_cast<DETACHVIRTUALDISK>(GetProcAddress(hVirtDisk, "DetachVirtualDisk"));
 	}
 }
 

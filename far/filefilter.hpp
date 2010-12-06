@@ -68,9 +68,9 @@ class FileFilter
 
 		bool FilterEdit();
 		void UpdateCurrentTime();
-		bool FileInFilter(const FileListItem *fli,enumFileInFilterType *foundType=nullptr);
-		bool FileInFilter(const FAR_FIND_DATA_EX *fde,enumFileInFilterType *foundType=nullptr);
-		bool FileInFilter(const FAR_FIND_DATA *fd,enumFileInFilterType *foundType=nullptr);
+		bool FileInFilter(const FileListItem& fli,enumFileInFilterType *foundType=nullptr);
+		bool FileInFilter(const FAR_FIND_DATA_EX& fde,enumFileInFilterType *foundType=nullptr);
+		bool FileInFilter(const FAR_FIND_DATA& fd,enumFileInFilterType *foundType=nullptr);
 		bool IsEnabledOnPanel();
 
 		static void InitFilter();

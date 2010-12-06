@@ -48,9 +48,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "datetime.hpp"
 
-int ColumnTypeWidth[]={ 0,  6,  6,  8,  5,  14,  14,  14,  6,  0,  0,  3,  3,  6,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   };
+int ColumnTypeWidth[]={0, 6, 6, 8, 5, 14, 14, 14, 14, 6, 0, 0, 3, 3, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-static const wchar_t *ColumnSymbol[]={L"N",L"S",L"P",L"D",L"T",L"DM",L"DC",L"DA",L"A",L"Z",L"O",L"LN",L"F",L"G",L"C0",L"C1",L"C2",L"C3",L"C4",L"C5",L"C6",L"C7",L"C8",L"C9"};
+static const wchar_t *ColumnSymbol[]={L"N",L"S",L"P",L"D",L"T",L"DM",L"DC",L"DA",L"DE",L"A",L"Z",L"O",L"LN",L"F",L"G",L"C0",L"C1",L"C2",L"C3",L"C4",L"C5",L"C6",L"C7",L"C8",L"C9"};
 
 
 void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
@@ -310,20 +310,23 @@ void TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *ColumnWidths,
 			}
 			else
 			{
-				if (!StrCmpN(strArgName,L"DM",2) || !StrCmpN(strArgName,L"DC",2) || !StrCmpN(strArgName,L"DA",2))
+				if (!StrCmpN(strArgName,L"DM",2) || !StrCmpN(strArgName,L"DC",2) || !StrCmpN(strArgName,L"DA",2) || !StrCmpN(strArgName,L"DE",2))
 				{
 					unsigned int &ColumnType=ViewColumnTypes[ColumnCount];
 
 					switch (strArgName.At(1))
 					{
 						case L'M':
-							ColumnType=MDATE_COLUMN;
+							ColumnType=WDATE_COLUMN;
 							break;
 						case L'C':
 							ColumnType=CDATE_COLUMN;
 							break;
 						case L'A':
 							ColumnType=ADATE_COLUMN;
+							break;
+						case L'E':
+							ColumnType=CHDATE_COLUMN;
 							break;
 					}
 
@@ -435,7 +438,7 @@ void ViewSettingsToText(unsigned int *ViewColumnTypes,int *ViewColumnWidths,
 				strType += L"T";
 		}
 
-		if (ColumnType==MDATE_COLUMN || ColumnType==ADATE_COLUMN || ColumnType==CDATE_COLUMN)
+		if (ColumnType==WDATE_COLUMN || ColumnType==ADATE_COLUMN || ColumnType==CDATE_COLUMN  || ColumnType==CHDATE_COLUMN)
 		{
 			if (ViewColumnTypes[I] & COLUMN_BRIEF)
 				strType += L"B";
@@ -526,9 +529,10 @@ const string FormatStr_DateTime(const FILETIME *FileTime,int ColumnType,DWORD Fl
 				FullYear=ColumnWidth>9;
 			break;
 		}
-		case MDATE_COLUMN:
+		case WDATE_COLUMN:
 		case CDATE_COLUMN:
 		case ADATE_COLUMN:
+		case CHDATE_COLUMN:
 		{
 			if (!Brief)
 			{

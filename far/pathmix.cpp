@@ -64,6 +64,10 @@ NTPath::NTPath(LPCWSTR Src)
 				}
 			}
 		}
+		// \\?\C -> \\?\c
+		LPWSTR Buffer = Str.GetBuffer();
+		Buffer[4] = Lower(Buffer[4]);
+		Str.ReleaseBuffer(Str.GetLength());
 	}
 }
 

@@ -40,26 +40,133 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "ctrlobj.hpp"
 #include "adminmode.hpp"
+#include "config.hpp"
+
+struct PSEUDO_HANDLE
+{
+	HANDLE ObjectHandle;
+	PVOID BufferBase;
+	ULONG NextOffset;
+	ULONG BufferSize;
+};
+
+HANDLE FindFirstFileInternal(LPCWSTR Name, FAR_FIND_DATA_EX& FindData)
+{
+	HANDLE Result = INVALID_HANDLE_VALUE;
+	if(Name && *Name && !IsSlash(Name[StrLength(Name)-1]))
+	{
+		PSEUDO_HANDLE* Handle = new PSEUDO_HANDLE;
+		if(Handle)
+		{
+			string strDirectory(Name);
+			CutToSlash(strDirectory);
+			File* Directory = new File;
+			if(Directory && Directory->Open(strDirectory, FILE_LIST_DIRECTORY|SYNCHRONIZE, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
+			{
+				Handle->ObjectHandle =reinterpret_cast<HANDLE>(Directory);
+
+				Handle->BufferSize = 0x100000;
+				Handle->BufferBase = xf_malloc(Handle->BufferSize);
+				if (Handle->BufferBase)
+				{
+					LPCWSTR NamePtr = PointToName(Name);
+					if(Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileBothDirectoryInformation, FALSE, NamePtr, TRUE))
+					{
+						PFILE_BOTH_DIR_INFORMATION DirectoryInfo = reinterpret_cast<PFILE_BOTH_DIR_INFORMATION>(Handle->BufferBase);
+						FindData.dwFileAttributes = DirectoryInfo->FileAttributes;
+						FindData.ftCreationTime.dwLowDateTime = DirectoryInfo->CreationTime.LowPart;
+						FindData.ftCreationTime.dwHighDateTime = DirectoryInfo->CreationTime.HighPart;
+						FindData.ftLastAccessTime.dwLowDateTime = DirectoryInfo->LastAccessTime.LowPart;
+						FindData.ftLastAccessTime.dwHighDateTime = DirectoryInfo->LastAccessTime.HighPart;
+						FindData.ftLastWriteTime.dwLowDateTime = DirectoryInfo->LastWriteTime.LowPart;
+						FindData.ftLastWriteTime.dwHighDateTime = DirectoryInfo->LastWriteTime.HighPart;
+						FindData.ftChangeTime.dwLowDateTime = DirectoryInfo->ChangeTime.LowPart;
+						FindData.ftChangeTime.dwHighDateTime = DirectoryInfo->ChangeTime.HighPart;
+						FindData.nFileSize = DirectoryInfo->EndOfFile.QuadPart;
+						FindData.nPackSize = 0;
+						FindData.dwReserved0 = FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT?DirectoryInfo->EaSize:0;
+						FindData.dwReserved1 = 0;
+						FindData.strFileName.Copy(DirectoryInfo->FileName,DirectoryInfo->FileNameLength/sizeof(WCHAR));
+						FindData.strAlternateFileName.Copy(DirectoryInfo->ShortName,DirectoryInfo->ShortNameLength/sizeof(WCHAR));
+						Handle->NextOffset = DirectoryInfo->NextEntryOffset;
+						Result = reinterpret_cast<HANDLE>(Handle);
+					}
+					else
+					{
+						xf_free(Handle->BufferBase);
+					}
+				}
+			}
+			if(Result == INVALID_HANDLE_VALUE)
+			{
+				delete Directory;
+				delete Handle;
+			}
+		}
+	}
+	return Result;
+}
+
+bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA_EX& FindData)
+{
+	bool Result = false;
+	PSEUDO_HANDLE* Handle = reinterpret_cast<PSEUDO_HANDLE*>(Find);
+	bool Status = true;
+	PFILE_BOTH_DIR_INFORMATION DirectoryInfo = reinterpret_cast<PFILE_BOTH_DIR_INFORMATION>(Handle->BufferBase);
+	if(Handle->NextOffset)
+	{
+		DirectoryInfo = reinterpret_cast<PFILE_BOTH_DIR_INFORMATION>(reinterpret_cast<LPBYTE>(DirectoryInfo)+Handle->NextOffset);
+	}
+	else
+	{
+		File* Directory = reinterpret_cast<File*>(Handle->ObjectHandle);
+		Status = Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileBothDirectoryInformation, FALSE, nullptr, FALSE);
+	}
+
+	if(Status)
+	{
+		FindData.dwFileAttributes = DirectoryInfo->FileAttributes;
+		FindData.ftCreationTime.dwLowDateTime = DirectoryInfo->CreationTime.LowPart;
+		FindData.ftCreationTime.dwHighDateTime = DirectoryInfo->CreationTime.HighPart;
+		FindData.ftLastAccessTime.dwLowDateTime = DirectoryInfo->LastAccessTime.LowPart;
+		FindData.ftLastAccessTime.dwHighDateTime = DirectoryInfo->LastAccessTime.HighPart;
+		FindData.ftLastWriteTime.dwLowDateTime = DirectoryInfo->LastWriteTime.LowPart;
+		FindData.ftLastWriteTime.dwHighDateTime = DirectoryInfo->LastWriteTime.HighPart;
+		FindData.ftChangeTime.dwLowDateTime = DirectoryInfo->ChangeTime.LowPart;
+		FindData.ftChangeTime.dwHighDateTime = DirectoryInfo->ChangeTime.HighPart;
+		FindData.nFileSize = DirectoryInfo->EndOfFile.QuadPart;
+		FindData.nPackSize = 0;
+		FindData.dwReserved0 = FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT?DirectoryInfo->EaSize:0;
+		FindData.dwReserved1 = 0;
+		FindData.strFileName.Copy(DirectoryInfo->FileName,DirectoryInfo->FileNameLength/sizeof(WCHAR));
+		FindData.strAlternateFileName.Copy(DirectoryInfo->ShortName,DirectoryInfo->ShortNameLength/sizeof(WCHAR));
+		Handle->NextOffset = DirectoryInfo->NextEntryOffset?Handle->NextOffset+DirectoryInfo->NextEntryOffset:0;
+		Result = true;
+	}
+	return Result;
+}
+
+bool FindCloseInternal(HANDLE Find)
+{
+	PSEUDO_HANDLE* Handle = reinterpret_cast<PSEUDO_HANDLE*>(Find);
+	xf_free(Handle->BufferBase);
+	File* Directory = reinterpret_cast<File*>(Handle->ObjectHandle);
+	delete Directory;
+	delete Handle;
+	return true;
+}
 
 FindFile::FindFile(LPCWSTR Object, bool ScanSymLink):
 	Handle(INVALID_HANDLE_VALUE),
-	empty(false),
-	admin(false)
+	empty(false)
 {
-	FINDEX_INFO_LEVELS InfoLevel = FindExInfoStandard;
-	FINDEX_SEARCH_OPS SearchOpt = FindExSearchNameMatch;
-	DWORD AdditionalFlags = 0;
-
-	if(WinVer.dwMajorVersion>6 || (WinVer.dwMajorVersion==6 && WinVer.dwMinorVersion>0))
-	{
-		// Uses a larger buffer for directory queries, which can increase performance of the find operation.
-		// Not supported until Windows Server 2008 R2 and Windows 7.
-		AdditionalFlags = FIND_FIRST_EX_LARGE_FETCH;
-
-		// fil = FindExInfoBasic; // does not query the short file name, improving overall enumeration speed.
-	}
 	string strName(NTPath(Object).Str);
-	Handle = FindFirstFileEx(strName, InfoLevel, &W32FindData, SearchOpt, nullptr, AdditionalFlags);
+
+	// temporary disable elevation to try "real" name first
+	DWORD OldElevationMode = Opt.ElevationMode;
+	Opt.ElevationMode = 0;
+	Handle = FindFirstFileInternal(strName, Data);
+	Opt.ElevationMode = OldElevationMode;
 
 	if (Handle == INVALID_HANDLE_VALUE && GetLastError() == ERROR_ACCESS_DENIED)
 	{
@@ -68,13 +175,12 @@ FindFile::FindFile(LPCWSTR Object, bool ScanSymLink):
 			string strReal;
 			ConvertNameToReal(strName, strReal);
 			strReal = NTPath(strReal);
-			Handle = FindFirstFileEx(strReal, InfoLevel, &W32FindData, SearchOpt, nullptr, AdditionalFlags);
+			Handle = FindFirstFileInternal(strReal, Data);
 		}
 
 		if (Handle == INVALID_HANDLE_VALUE && ElevationRequired(ELEVATION_READ_REQUEST))
 		{
-			Handle = Admin.fFindFirstFileEx(strName, InfoLevel, &W32FindData, SearchOpt, nullptr, AdditionalFlags);
-			admin = Handle != INVALID_HANDLE_VALUE;
+			Handle = FindFirstFileInternal(strName, Data);
 		}
 	}
 	empty = Handle == INVALID_HANDLE_VALUE;
@@ -84,7 +190,7 @@ FindFile::~FindFile()
 {
 	if(Handle != INVALID_HANDLE_VALUE)
 	{
-		admin?Admin.fFindClose(Handle):FindClose(Handle);
+		FindCloseInternal(Handle);
 	}
 }
 
@@ -93,21 +199,12 @@ bool FindFile::Get(FAR_FIND_DATA_EX& FindData)
 	bool Result = false;
 	if (!empty)
 	{
-		FindData.dwFileAttributes = W32FindData.dwFileAttributes;
-		FindData.ftCreationTime = W32FindData.ftCreationTime;
-		FindData.ftLastAccessTime = W32FindData.ftLastAccessTime;
-		FindData.ftLastWriteTime = W32FindData.ftLastWriteTime;
-		FindData.nFileSize = W32FindData.nFileSizeHigh*0x100000000ull+W32FindData.nFileSizeLow;
-		FindData.nPackSize = 0;
-		FindData.dwReserved0 = W32FindData.dwReserved0;
-		FindData.dwReserved1 = W32FindData.dwReserved1;
-		FindData.strFileName = W32FindData.cFileName;
-		FindData.strAlternateFileName = W32FindData.cAlternateFileName;
+		FindData = Data;
 		Result = true;
 	}
 	if(Result)
 	{
-		empty = admin?!Admin.fFindNextFile(Handle, &W32FindData):!FindNextFile(Handle, &W32FindData);
+		empty = !FindNextFileInternal(Handle, Data);
 	}
 
 	// skip ".." & "."
@@ -184,14 +281,14 @@ bool File::SetEnd()
 	return admin?Admin.fSetEndOfFile(Handle):SetEndOfFile(Handle) != FALSE;
 }
 
-bool File::GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime)
+bool File::GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime)
 {
-	return admin?Admin.fGetFileTime(Handle, CreationTime, LastAccessTime, LastWriteTime):GetFileTime(Handle, CreationTime, LastAccessTime, LastWriteTime) != FALSE;
+	return admin?Admin.fGetFileTime(Handle, CreationTime, LastAccessTime, LastWriteTime, ChangeTime):GetFileTimeEx(Handle, CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
 }
 
-bool File::SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime)
+bool File::SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime)
 {
-	return admin?Admin.fSetFileTime(Handle, CreationTime, LastAccessTime, LastWriteTime):SetFileTime(Handle, CreationTime, LastAccessTime, LastWriteTime) != FALSE;
+	return admin?Admin.fSetFileTime(Handle, CreationTime, LastAccessTime, LastWriteTime, ChangeTime):SetFileTimeEx(Handle, CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
 }
 
 bool File::GetSize(UINT64& Size)
@@ -219,6 +316,23 @@ bool File::GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, UL
 	DWORD Result = ifn.pfnGetStorageDependencyInformation?admin?Admin.fGetStorageDependencyInformation(Handle, Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed):ifn.pfnGetStorageDependencyInformation(Handle, Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed):ERROR_CALL_NOT_IMPLEMENTED;
 	SetLastError(Result);
 	return Result == ERROR_SUCCESS;
+}
+
+bool File::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, bool ReturnSingleEntry, LPCWSTR FileName, bool RestartScan)
+{
+	IO_STATUS_BLOCK IoStatusBlock;
+	PUNICODE_STRING pNameString = nullptr;
+	UNICODE_STRING NameString;
+	if(FileName && *FileName)
+	{
+		NameString.Buffer = const_cast<LPWSTR>(FileName);
+		NameString.Length = static_cast<USHORT>(StrLength(FileName)*sizeof(WCHAR));
+		NameString.MaximumLength = NameString.Length;
+		pNameString = &NameString;
+	}
+	NTSTATUS Result = ifn.pfnNtQueryDirectoryFile?admin?Admin.fNtQueryDirectoryFile(Handle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, pNameString, RestartScan):ifn.pfnNtQueryDirectoryFile(Handle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, pNameString, RestartScan):STATUS_NOT_IMPLEMENTED;
+	SetLastError(ifn.pfnRtlNtStatusToDosError(Result));
+	return Result == STATUS_SUCCESS;
 }
 
 bool File::Close()
@@ -364,23 +478,23 @@ BOOL apiMoveFileEx(
 DWORD apiGetEnvironmentVariable(const wchar_t *lpwszName, string &strBuffer)
 {
 	WCHAR Buffer[MAX_PATH];
-	int nSize = GetEnvironmentVariable(lpwszName, Buffer, ARRAYSIZE(Buffer));
+	DWORD Size = GetEnvironmentVariable(lpwszName, Buffer, ARRAYSIZE(Buffer));
 
-	if (nSize)
+	if (Size)
 	{
-		if(nSize>ARRAYSIZE(Buffer))
+		if(Size>ARRAYSIZE(Buffer))
 		{
-			wchar_t *lpwszBuffer = strBuffer.GetBuffer(nSize);
-			nSize = GetEnvironmentVariable(lpwszName, lpwszBuffer, nSize);
+			wchar_t *lpwszBuffer = strBuffer.GetBuffer(Size);
+			Size = GetEnvironmentVariable(lpwszName, lpwszBuffer, Size);
 			strBuffer.ReleaseBuffer();
 		}
 		else
 		{
-			strBuffer.Copy(Buffer, nSize);
+			strBuffer.Copy(Buffer, Size);
 		}
 	}
 
-	return nSize;
+	return Size;
 }
 
 string& strCurrentDirectory()
@@ -576,6 +690,8 @@ void apiFindDataToDataEx(const FAR_FIND_DATA *pSrc, FAR_FIND_DATA_EX *pDest)
 	pDest->ftCreationTime = pSrc->ftCreationTime;
 	pDest->ftLastAccessTime = pSrc->ftLastAccessTime;
 	pDest->ftLastWriteTime = pSrc->ftLastWriteTime;
+	pDest->ftChangeTime.dwHighDateTime=0;
+	pDest->ftChangeTime.dwLowDateTime=0;
 	pDest->nFileSize = pSrc->nFileSize;
 	pDest->nPackSize = pSrc->nPackSize;
 	pDest->strFileName = pSrc->lpwszFileName;
@@ -619,7 +735,7 @@ BOOL apiGetFindDataEx(const wchar_t *lpwszFileName, FAR_FIND_DATA_EX& FindData,b
 			File file;
 			if(file.Open(lpwszFileName, FILE_READ_ATTRIBUTES, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
 			{
-				file.GetTime(&FindData.ftCreationTime,&FindData.ftLastAccessTime,&FindData.ftLastWriteTime);
+				file.GetTime(&FindData.ftCreationTime,&FindData.ftLastAccessTime,&FindData.ftLastWriteTime,&FindData.ftChangeTime);
 				file.GetSize(FindData.nFileSize);
 				file.Close();
 			}
@@ -759,7 +875,7 @@ BOOL apiFindNextFileName(HANDLE hFindStream,string& strLinkName)
 {
 	BOOL Ret=FALSE;
 
-	if (ifn.pfnFindNextFileNameW)
+	if (ifn.pfnFindFirstFileNameW)
 	{
 		DWORD StringLength=0;
 
@@ -874,7 +990,6 @@ BOOL apiCreateHardLink(LPCWSTR lpFileName,LPCWSTR lpExistingFileName,LPSECURITY_
 HANDLE apiFindFirstStream(LPCWSTR lpFileName,STREAM_INFO_LEVELS InfoLevel,LPVOID lpFindStreamData,DWORD dwFlags)
 {
 	HANDLE Ret=INVALID_HANDLE_VALUE;
-
 	if (ifn.pfnFindFirstStreamW)
 	{
 		Ret=ifn.pfnFindFirstStreamW(NTPath(lpFileName),InfoLevel,lpFindStreamData,dwFlags);
@@ -883,41 +998,50 @@ HANDLE apiFindFirstStream(LPCWSTR lpFileName,STREAM_INFO_LEVELS InfoLevel,LPVOID
 	{
 		if (InfoLevel==FindStreamInfoStandard && ifn.pfnNtQueryInformationFile)
 		{
-			HANDLE hFile = apiCreateFile(lpFileName,0,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,0);
-
-			if (hFile!=INVALID_HANDLE_VALUE)
+			PSEUDO_HANDLE* Handle=new PSEUDO_HANDLE;
+			if(Handle)
 			{
-				const size_t Size=sizeof(ULONG)+(64<<10);
-				LPBYTE InfoBlock=static_cast<LPBYTE>(xf_malloc(Size));
+				Handle->ObjectHandle = apiCreateFile(lpFileName,0,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,0);
 
-				if (InfoBlock)
+				if (Handle->ObjectHandle!=INVALID_HANDLE_VALUE)
 				{
-					memset(InfoBlock,0,Size);
-					PFILE_STREAM_INFORMATION pStreamInfo=reinterpret_cast<PFILE_STREAM_INFORMATION>(InfoBlock+sizeof(ULONG));
-					IO_STATUS_BLOCK ioStatus;
-					int res=ifn.pfnNtQueryInformationFile(hFile,&ioStatus,pStreamInfo,Size-sizeof(ULONG),FileStreamInformation);
+					Handle->BufferSize = 0x40000;
+					Handle->BufferBase = nullptr;
 
-					if (!res)
+					NTSTATUS Result = STATUS_SEVERITY_ERROR;
+					do
+					{
+						Handle->BufferSize<<=1;
+						Handle->BufferBase=static_cast<LPBYTE>(xf_realloc_nomove(Handle->BufferBase, Handle->BufferSize));
+						if (Handle->BufferBase)
+						{
+							IO_STATUS_BLOCK IoStatusBlock;
+							Result = ifn.pfnNtQueryInformationFile(Handle->ObjectHandle, &IoStatusBlock, Handle->BufferBase, Handle->BufferSize, FileStreamInformation);
+						}
+					}
+					while(Result == STATUS_BUFFER_OVERFLOW || Result == STATUS_BUFFER_TOO_SMALL);
+
+					if (Result == STATUS_SUCCESS)
 					{
 						PWIN32_FIND_STREAM_DATA pFsd=reinterpret_cast<PWIN32_FIND_STREAM_DATA>(lpFindStreamData);
-						*reinterpret_cast<PLONG>(InfoBlock)=pStreamInfo->NextEntryOffset;
-
-						if (pStreamInfo->StreamNameLength)
+						PFILE_STREAM_INFORMATION StreamInfo = reinterpret_cast<PFILE_STREAM_INFORMATION>(Handle->BufferBase);
+						Handle->NextOffset = StreamInfo->NextEntryOffset;
+						if (StreamInfo->StreamNameLength)
 						{
-							memcpy(pFsd->cStreamName,pStreamInfo->StreamName,pStreamInfo->StreamNameLength);
-							pFsd->cStreamName[pStreamInfo->StreamNameLength/sizeof(WCHAR)]=L'\0';
-							pFsd->StreamSize=pStreamInfo->StreamSize;
-							Ret=InfoBlock;
+							memcpy(pFsd->cStreamName,StreamInfo->StreamName,StreamInfo->StreamNameLength);
+							pFsd->cStreamName[StreamInfo->StreamNameLength/sizeof(WCHAR)]=L'\0';
+							pFsd->StreamSize=StreamInfo->StreamSize;
+							Ret=Handle;
 						}
 					}
 
+					CloseHandle(Handle->ObjectHandle);
+
 					if (Ret==INVALID_HANDLE_VALUE)
 					{
-						xf_free(InfoBlock);
+						xf_free(Handle);
 					}
 				}
-
-				CloseHandle(hFile);
 			}
 		}
 		else
@@ -933,7 +1057,7 @@ BOOL apiFindNextStream(HANDLE hFindStream,LPVOID lpFindStreamData)
 {
 	BOOL Ret=FALSE;
 
-	if (ifn.pfnFindNextStreamW)
+	if (ifn.pfnFindFirstStreamW)
 	{
 		Ret=ifn.pfnFindNextStreamW(hFindStream,lpFindStreamData);
 	}
@@ -941,13 +1065,13 @@ BOOL apiFindNextStream(HANDLE hFindStream,LPVOID lpFindStreamData)
 	{
 		if (ifn.pfnNtQueryInformationFile)
 		{
-			ULONG NextEntryOffset=*reinterpret_cast<PULONG>(hFindStream);
+			PSEUDO_HANDLE* Handle = reinterpret_cast<PSEUDO_HANDLE*>(hFindStream);
 
-			if (NextEntryOffset)
+			if (Handle->NextOffset)
 			{
-				PFILE_STREAM_INFORMATION pStreamInfo=reinterpret_cast<PFILE_STREAM_INFORMATION>(reinterpret_cast<LPBYTE>(hFindStream)+sizeof(ULONG)+NextEntryOffset);
+				PFILE_STREAM_INFORMATION pStreamInfo=reinterpret_cast<PFILE_STREAM_INFORMATION>(reinterpret_cast<LPBYTE>(Handle->BufferBase)+Handle->NextOffset);
 				PWIN32_FIND_STREAM_DATA pFsd=reinterpret_cast<PWIN32_FIND_STREAM_DATA>(lpFindStreamData);
-				*reinterpret_cast<PLONG>(hFindStream)=pStreamInfo->NextEntryOffset?NextEntryOffset+pStreamInfo->NextEntryOffset:0;
+				Handle->NextOffset = pStreamInfo->NextEntryOffset?Handle->NextOffset+pStreamInfo->NextEntryOffset:0;
 
 				if (pStreamInfo->StreamNameLength && pStreamInfo->StreamNameLength < sizeof(pFsd->cStreamName))
 				{
@@ -967,17 +1091,19 @@ BOOL apiFindNextStream(HANDLE hFindStream,LPVOID lpFindStreamData)
 	return Ret;
 }
 
-BOOL apiFindStreamClose(HANDLE hFindFile)
+BOOL apiFindStreamClose(HANDLE hFindStream)
 {
 	BOOL Ret=FALSE;
 
-	if (ifn.pfnFindFirstStreamW && ifn.pfnFindNextStreamW)
+	if (ifn.pfnFindFirstStreamW)
 	{
-		Ret=FindClose(hFindFile);
+		Ret=FindClose(hFindStream);
 	}
 	else
 	{
-		xf_free(hFindFile);
+		PSEUDO_HANDLE* Handle = reinterpret_cast<PSEUDO_HANDLE*>(hFindStream);
+		xf_free(Handle->BufferBase);
+		delete Handle;
 		Ret=TRUE;
 	}
 
@@ -1203,4 +1329,76 @@ void apiEnableLowFragmentationHeap()
 		}
 		delete[] Heaps;
 	}
+}
+
+bool GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime)
+{
+	bool Result = false;
+	if(ifn.pfnNtQueryInformationFile)
+	{
+		const ULONG Length = 40;
+		BYTE Buffer[Length] = {};
+		PFILE_BASIC_INFORMATION fbi = reinterpret_cast<PFILE_BASIC_INFORMATION>(Buffer);
+		IO_STATUS_BLOCK IoStatusBlock;
+		if (ifn.pfnNtQueryInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation) == STATUS_SUCCESS)
+		{
+			if(CreationTime)
+			{
+				CreationTime->dwLowDateTime = fbi->CreationTime.LowPart;
+				CreationTime->dwHighDateTime = fbi->CreationTime.HighPart;
+			}
+			if(LastAccessTime)
+			{
+				LastAccessTime->dwLowDateTime = fbi->LastAccessTime.LowPart;
+				LastAccessTime->dwHighDateTime = fbi->LastAccessTime.HighPart;
+			}
+			if(LastWriteTime)
+			{
+				LastWriteTime->dwLowDateTime = fbi->LastWriteTime.LowPart;
+				LastWriteTime->dwHighDateTime = fbi->LastWriteTime.HighPart;
+			}
+			if(ChangeTime)
+			{
+				ChangeTime->dwLowDateTime = fbi->ChangeTime.LowPart;
+				ChangeTime->dwHighDateTime = fbi->ChangeTime.HighPart;
+			}
+			Result = true;
+		}
+	}
+	return Result;
+}
+
+bool SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime)
+{
+	bool Result = false;
+	if(ifn.pfnNtSetInformationFile)
+	{
+		const ULONG Length = 40;
+		BYTE Buffer[Length] = {};
+		PFILE_BASIC_INFORMATION fbi = reinterpret_cast<PFILE_BASIC_INFORMATION>(Buffer);
+
+		if(CreationTime)
+		{
+			fbi->CreationTime.HighPart = CreationTime->dwHighDateTime;
+			fbi->CreationTime.LowPart = CreationTime->dwLowDateTime;
+		}
+		if(LastAccessTime)
+		{
+			fbi->LastAccessTime.HighPart = LastAccessTime->dwHighDateTime;
+			fbi->LastAccessTime.LowPart = LastAccessTime->dwLowDateTime;
+		}
+		if(LastWriteTime)
+		{
+			fbi->LastWriteTime.HighPart = LastWriteTime->dwHighDateTime;
+			fbi->LastWriteTime.LowPart = LastWriteTime->dwLowDateTime;
+		}
+		if(ChangeTime)
+		{
+			fbi->ChangeTime.HighPart = ChangeTime->dwHighDateTime;
+			fbi->ChangeTime.LowPart = ChangeTime->dwLowDateTime;
+		}
+		IO_STATUS_BLOCK IoStatusBlock;
+		Result = ifn.pfnNtSetInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation) == STATUS_SUCCESS;
+	}
+	return Result;
 }

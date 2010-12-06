@@ -71,7 +71,29 @@ typedef BOOL(WINAPI * FINDNEXTSTREAMW)(
     LPVOID lpFindStreamData
 );
 
+typedef NTSTATUS (WINAPI *NTQUERYDIRECTORYFILE)(
+    HANDLE FileHandle,
+    HANDLE Event,
+    PVOID ApcRoutine,
+    PVOID ApcContext,
+    PIO_STATUS_BLOCK IoStatusBlock,
+    PVOID FileInformation,
+    ULONG Length,
+    FILE_INFORMATION_CLASS FileInformationClass,
+    BOOLEAN ReturnSingleEntry,
+    PUNICODE_STRING FileName,
+    BOOLEAN RestartScan
+);
+
 typedef NTSTATUS(WINAPI *NTQUERYINFORMATIONFILE)(
+    HANDLE FileHandle,
+    PIO_STATUS_BLOCK IoStatusBlock,
+    PVOID FileInformation,
+    ULONG Length,
+    FILE_INFORMATION_CLASS FileInformationClass
+);
+
+typedef NTSTATUS(WINAPI *NTSETINFORMATIONFILE)(
     HANDLE FileHandle,
     PIO_STATUS_BLOCK IoStatusBlock,
     PVOID FileInformation,
@@ -84,6 +106,20 @@ typedef DWORD (WINAPI *GETFINALPATHNAMEBYHANDLE)(
     LPTSTR lpszFilePath,
     DWORD cchFilePath,
     DWORD dwFlags
+);
+
+typedef BOOL (WINAPI *GETFILEINFORMATIONBYHANDLEEX)(
+    HANDLE File,
+    FILE_INFO_BY_HANDLE_CLASS FileInformationClass,
+    LPVOID FileInformation,
+    DWORD BufferSize
+);
+
+typedef BOOL (WINAPI *SETFILEINFORMATIONBYHANDLE)(
+    HANDLE File,
+    FILE_INFO_BY_HANDLE_CLASS FileInformationClass,
+    LPVOID FileInformation,
+    DWORD BufferSize
 );
 
 typedef BOOL (WINAPI* GETPHYSICALLYINSTALLEDSYSTEMMEMORY)(
@@ -115,6 +151,10 @@ typedef NTSTATUS(NTAPI *NTCLOSE)(
 );
 
 typedef NTSTATUS(NTAPI *RTLGETLASTNTSTATUS)(
+);
+
+typedef ULONG (NTAPI *RTLNTSTATUSTODOSERROR)(
+    NTSTATUS Status
 );
 
 typedef BOOL (WINAPI *GETVOLUMEPATHNAMESFORVOLUMENAME)(
@@ -174,7 +214,9 @@ public:
 	FINDFIRSTSTREAMW pfnFindFirstStreamW;
 	FINDNEXTSTREAMW pfnFindNextStreamW;
 
+	NTQUERYDIRECTORYFILE pfnNtQueryDirectoryFile;
 	NTQUERYINFORMATIONFILE pfnNtQueryInformationFile;
+	NTSETINFORMATIONFILE pfnNtSetInformationFile;
 
 	GETFINALPATHNAMEBYHANDLE pfnGetFinalPathNameByHandle;
 	GETPHYSICALLYINSTALLEDSYSTEMMEMORY pfnGetPhysicallyInstalledSystemMemory;
@@ -183,6 +225,7 @@ public:
 	NTQUERYSYMBOLICLINKOBJECT pfnNtQuerySymbolicLinkObject;
 	NTCLOSE pfnNtClose;
 	RTLGETLASTNTSTATUS pfnRtlGetLastNtStatus;
+	RTLNTSTATUSTODOSERROR pfnRtlNtStatusToDosError;
 	GETVOLUMEPATHNAMESFORVOLUMENAME pfnGetVolumePathNamesForVolumeName;
 
 	HEAPSETINFORMATION pfnHeapSetInformation;

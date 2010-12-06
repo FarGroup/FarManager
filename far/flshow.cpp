@@ -161,14 +161,17 @@ void FileList::ShowFileList(int Fast)
 				case TIME_COLUMN:
 					IDMessage=MColumnTime;
 					break;
-				case MDATE_COLUMN:
-					IDMessage=MColumnModified;
+				case WDATE_COLUMN:
+						IDMessage=MColumnWrited;
 					break;
 				case CDATE_COLUMN:
 					IDMessage=MColumnCreated;
 					break;
 				case ADATE_COLUMN:
 					IDMessage=MColumnAccessed;
+					break;
+				case CHDATE_COLUMN:
+					IDMessage=MColumnChanged;
 					break;
 				case ATTR_COLUMN:
 					IDMessage=MColumnAttr;
@@ -241,14 +244,14 @@ void FileList::ShowFileList(int Fast)
 	if (Opt.ShowSortMode)
 	{
 		static int SortModes[]={UNSORTED,BY_NAME,BY_EXT,BY_MTIME,BY_CTIME,
-		                        BY_ATIME,BY_SIZE,BY_DIZ,BY_OWNER,
+		                        BY_ATIME,BY_CHTIME,BY_SIZE,BY_DIZ,BY_OWNER,
 		                        BY_COMPRESSEDSIZE,BY_NUMLINKS,
 		                        BY_NUMSTREAMS,BY_STREAMSSIZE,
 		                        BY_FULLNAME,BY_CUSTOMDATA
 		                       };
 		static int SortStrings[]={MMenuUnsorted,MMenuSortByName,
-		                          MMenuSortByExt,MMenuSortByModification,MMenuSortByCreation,
-		                          MMenuSortByAccess,MMenuSortBySize,MMenuSortByDiz,MMenuSortByOwner,
+		                          MMenuSortByExt,MMenuSortByWrite,MMenuSortByCreation,
+		                          MMenuSortByAccess,MMenuSortByChange,MMenuSortBySize,MMenuSortByDiz,MMenuSortByOwner,
 		                          MMenuSortByCompressedSize,MMenuSortByNumLinks,MMenuSortByNumStreams,MMenuSortByStreamsSize,
 		                          MMenuSortByFullName,MMenuSortByCustomData
 		                         };
@@ -719,7 +722,7 @@ int FileList::PrepareColumnWidths(unsigned int *ColumnTypes,int *ColumnWidths,
 			ColumnWidthsTypes[I] = COUNT_WIDTH; //manage all zero-width columns in same way
 			ColumnWidths[I]=ColumnTypeWidth[ColumnType];
 
-			if (ColumnType==MDATE_COLUMN || ColumnType==CDATE_COLUMN || ColumnType==ADATE_COLUMN)
+			if (ColumnType==WDATE_COLUMN || ColumnType==CDATE_COLUMN || ColumnType==ADATE_COLUMN || ColumnType==CHDATE_COLUMN)
 			{
 				if (ColumnTypes[I] & COLUMN_BRIEF)
 					ColumnWidths[I]-=3;
@@ -1117,9 +1120,10 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 						case DATE_COLUMN:
 						case TIME_COLUMN:
-						case MDATE_COLUMN:
+						case WDATE_COLUMN:
 						case CDATE_COLUMN:
 						case ADATE_COLUMN:
+						case CHDATE_COLUMN:
 						{
 							FILETIME *FileTime;
 
@@ -1131,9 +1135,12 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								case ADATE_COLUMN:
 									FileTime=&ListData[ListPos]->AccessTime;
 									break;
+								case CHDATE_COLUMN:
+									FileTime=&ListData[ListPos]->ChangeTime;
+									break;
 								case DATE_COLUMN:
 								case TIME_COLUMN:
-								case MDATE_COLUMN:
+								case WDATE_COLUMN:
 								default:
 									FileTime=&ListData[ListPos]->WriteTime;
 									break;

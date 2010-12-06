@@ -2249,9 +2249,10 @@ void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& 
 
 			case DATE_COLUMN:
 			case TIME_COLUMN:
-			case MDATE_COLUMN:
+			case WDATE_COLUMN:
 			case ADATE_COLUMN:
 			case CDATE_COLUMN:
+			case CHDATE_COLUMN:
 			{
 				const FILETIME *FileTime;
 				switch (CurColumnType)
@@ -2262,9 +2263,12 @@ void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& 
 					case ADATE_COLUMN:
 						FileTime=&FindData.ftLastAccessTime;
 						break;
+					case CHDATE_COLUMN:
+						FileTime=&FindData.ftChangeTime;
+						break;
 					case DATE_COLUMN:
 					case TIME_COLUMN:
-					case MDATE_COLUMN:
+					case WDATE_COLUMN:
 					default:
 						FileTime=&FindData.ftLastWriteTime;
 						break;
@@ -2588,7 +2592,7 @@ void DoScanTree(HANDLE hDlg, string& strRoot)
 				{
 					enumFileInFilterType foundType;
 
-					if (!Filter->FileInFilter(&FindData,&foundType))
+					if (!Filter->FileInFilter(FindData,&foundType))
 					{
 						// сюда заходим, если не попали в фильтр или попали в Exclude-фильтр
 						if ((FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && foundType==FIFT_EXCLUDE)
@@ -2686,7 +2690,7 @@ void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, DWORD Flags, int& RecurseLevel)
 			strFullName = strPluginSearchPath;
 			strFullName += strCurName;
 
-			if (!UseFilter || Filter->FileInFilter(&CurPanelItem->FindData))
+			if (!UseFilter || Filter->FileInFilter(CurPanelItem->FindData))
 			{
 				if (((CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && strFindStr.IsEmpty()) ||
 				        (!(CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && !strFindStr.IsEmpty()))
@@ -2712,7 +2716,7 @@ void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, DWORD Flags, int& RecurseLevel)
 
 			if ((CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
 			        StrCmp(strCurName,L".") && !TestParentFolderName(strCurName) &&
-			        (!UseFilter || Filter->FileInFilter(&CurPanelItem->FindData)) &&
+			        (!UseFilter || Filter->FileInFilter(CurPanelItem->FindData)) &&
 			        (SearchMode!=FINDAREA_SELECTED || RecurseLevel!=1 ||
 			         CtrlObject->Cp()->ActivePanel->IsSelected(strCurName)))
 			{

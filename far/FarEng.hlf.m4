@@ -302,7 +302,7 @@ $ #Panel control commands  #
 
   Sort files in the active panel by name                     #Ctrl-F3#
   Sort files in the active panel by extension                #Ctrl-F4#
-  Sort files in the active panel by modification time        #Ctrl-F5#
+  Sort files in the active panel by last write time          #Ctrl-F5#
   Sort files in the active panel by size                     #Ctrl-F6#
   Keep files in the active panel unsorted                    #Ctrl-F7#
   Sort files in the active panel by creation time            #Ctrl-F8#
@@ -358,7 +358,7 @@ active panel. The following sort modes are available:
 
   Sort files by name                                         #Ctrl-F3#
   Sort files by extension                                    #Ctrl-F4#
-  Sort files by modification time                            #Ctrl-F5#
+  Sort files by last write time                              #Ctrl-F5#
   Sort files by size                                         #Ctrl-F6#
   Keep files unsorted                                        #Ctrl-F7#
   Sort files by creation time                                #Ctrl-F8#
@@ -958,7 +958,7 @@ files and folders, perform different file and archive operations. Read
 
  #Wide#          File names and sizes are displayed.
 
- #Detailed#      File names, sizes, packed sizes, last modification,
+ #Detailed#      File names, sizes, packed sizes, last write,
                creation, access time and attributes are displayed.
                Fullscreen mode.
 
@@ -1129,7 +1129,7 @@ respectively. These menus include the following items:
    #Wide#                 Display file name and size.
 
    #Detailed#             Display file name, size, packed size,
-                        modification, creation and access time,
+                        last write, creation and access time,
                         attributes. Fullscreen mode.
 
    #Descriptions#         File name and ~file description~@FileDiz@.
@@ -1456,36 +1456,43 @@ file will be ignored even if the required sequence exists there.
 производить поиск также в альтернативных именованных потоках, поддерживаемых некоторыми
 файловыми системами (например, #NTFS#).
 
-    #Типы колонок# - позволяет задавать формат вывода результатов поиска.
-Типы колонок кодируются с помощью одной или нескольких букв, разделённых запятыми. 
-Допускаются следующие типы колонок:
 
-    S[C,T,F,E] - размер файла
-    P[C,T,F,E] - упакованный размер файла
-    G[C,T,F,E] - размер потоков файла
-                 где: C - форматировать размер файла;
-                      T - использовать 1000 вместо 1024 как делитель;
-                      F - показывать размер файла в стиле Windows
-                          Explorer (т.е. 999 байт будут показаны
-                          как 999, а 1000 байт как 0.97 K);
-                      E - экономичный режим, не показывать пробел
-                          перед суффиксом размера файла
-                          (т.е. 0.97KB);
+  - #Column types# - позволяет задавать формат вывода результатов поиска.
+Column types are encoded as one or several characters, delimited with commas.
+Allowed column types are:
 
-    D          - дата модификации файла
-    T          - время модификации файла
+    S[C,T,F,E] - file size
+    P[C,T,F,E] - packed file size
+    G[C,T,F,E] - size of file streams
+                 where: C - format file size;
+                        T - use 1000 instead of 1024 as a divider;
+                        F - show file sizes similar to Windows
+                            Explorer (i.e. 999 bytes will be
+                            displayed as 999 and 1000 bytes will
+                            be displayed as 0.97 K);
+                        E - economic mode, no space between file
+                            size and suffix will be shown
+                            (i.e. 0.97K);
 
-    DM[B,M]    - дата и время модификации файла
-    DC[B,M]    - дата и время создания файла
-    DA[B,M]    - дата и время последнего доступа к файлу
-                 где: B - краткий (Unix-стиль) формат времени файла;
-                      M - использование текстовых имён месяцев;
+    D          - file last write date
+    T          - file last write time
 
-    A          - атрибуты файла
+    DM[B,M]    - file last write date and time
+    DC[B,M]    - file creation date and time
+    DA[B,M]    - file last access date and time
+    DE[B,M]    - file change date and time
+                 where: B - brief (Unix style) file time format;
+                        M - use text month names;
 
-    LN         - количество жёстких ссылок
+    A          - file attributes
+    Z          - file descriptions
 
-    F          - количество потоков
+    O[L]       - file owner
+                 where: L - show domain name;
+
+    LN         - number of hard links
+
+    F          - number of streams
 
 
     Атрибуты файла имеют следующие обозначения:
@@ -1638,8 +1645,8 @@ rule sets.
 
    #Date/time#       Starting and ending file date/time.
                    You can specify the date/time of last file
-                   #modification#, file #creation# and last file
-                   #access#.
+                   #write#, file #creation#, last #access#
+                   and #change#.
 
                    The button #Current# allows to fill the date/time
                    fields with the current date/time after which you
@@ -2798,7 +2805,7 @@ file name.
 
 @WarnEditorSavedEx
 $ #Warning: The file was changed by an external program#
-    The modification date and time of the file on the disk are not the same as
+    The write date and time of the file on the disk are not the same as
 those saved by FAR when the file was last accessed. This means that another
 program, another user (or even yourself in a different editor instance) changed
 the contents of the file on the disk.
@@ -3215,13 +3222,15 @@ If this information is not available, then the "#(data not available)#" message 
 
   #File date and time#
 
-    Three different file times are supported:
+    Four different file times are supported:
 
-    - last modification time;
+    - last write time;
 
     - creation time;
 
-    - last access time.
+    - last access time;
+
+    - change time.
 
     On FAT drives the hours, minutes, seconds and milliseconds of the last access time are
 always equal to zero.
@@ -3388,12 +3397,13 @@ characters, delimited with commas. Allowed column types are:
                             size and suffix will be shown
                             (i.e. 0.97K);
 
-    D          - file modification date
-    T          - file modification time
+    D          - file last write date
+    T          - file last write time
 
-    DM[B,M]    - file modification date and time
+    DM[B,M]    - file last write date and time
     DC[B,M]    - file creation date and time
     DA[B,M]    - file last access date and time
+    DE[B,M]    - file change date and time
                  where: B - brief (Unix style) file time format;
                         M - use text month names;
 
@@ -3650,7 +3660,7 @@ of the same name already exists.
     #Overwrite# - all target files will be replaced;
     #Skip# - target files will not be replaced;
     #Append# - target file will be appended with the file being copied;
-    #Only newer file(s)# - only files with newer modification date and time
+    #Only newer file(s)# - only files with newer write date and time
 will be copied;
     #Also ask on R/O files# - controls whether an additional confirmation
 dialog should be displayed for read-only files.

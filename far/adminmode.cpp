@@ -879,6 +879,7 @@ int AdminMode::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 	return Result;
 }
 
+/*
 HANDLE AdminMode::fFindFirstFileEx(LPCWSTR Object, FINDEX_INFO_LEVELS InfoLevelId, LPVOID FindFileData, FINDEX_SEARCH_OPS SearchOp, LPVOID lpSearchFilter, DWORD AdditionalFlags)
 {
 	CriticalSectionLock Lock(CS);
@@ -996,6 +997,7 @@ bool AdminMode::fFindClose(HANDLE Handle)
 	}
 	return Result;
 }
+*/
 
 bool AdminMode::fSetOwner(LPCWSTR Object, LPCWSTR Owner)
 {
@@ -1086,6 +1088,7 @@ HANDLE AdminMode::fCreateFile(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMo
 
 bool AdminMode::fCloseHandle(HANDLE Handle)
 {
+	GuardLastError Error;
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
 	if(Opt.IsUserAdmin)
@@ -1278,13 +1281,13 @@ bool AdminMode::fSetEndOfFile(HANDLE Handle)
 	return Result;
 }
 
-bool AdminMode::fGetFileTime(HANDLE Handle, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime)
+bool AdminMode::fGetFileTime(HANDLE Handle, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
 	if(Opt.IsUserAdmin)
 	{
-		Result = GetFileTime(Handle, CreationTime, LastAccessTime, LastWriteTime) != FALSE;
+		Result = GetFileTimeEx(Handle, CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
 	}
 	else
 	{
@@ -1318,6 +1321,14 @@ bool AdminMode::fGetFileTime(HANDLE Handle, LPFILETIME CreationTime, LPFILETIME 
 									{
 										*LastWriteTime = *reinterpret_cast<LPFILETIME>(AutoLastWriteTime.Get());
 									}
+									AutoObject AutoChangeTime;
+									if(ReadData(AutoChangeTime))
+									{
+										if(ChangeTime)
+										{
+											*ChangeTime = *reinterpret_cast<LPFILETIME>(AutoChangeTime.Get());
+										}
+									}
 								}
 							}
 						}
@@ -1333,13 +1344,13 @@ bool AdminMode::fGetFileTime(HANDLE Handle, LPFILETIME CreationTime, LPFILETIME 
 	return Result;
 }
 
-bool AdminMode::fSetFileTime(HANDLE Handle, const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime)
+bool AdminMode::fSetFileTime(HANDLE Handle, const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
 	if(Opt.IsUserAdmin)
 	{
-		Result = SetFileTime(Handle, CreationTime, LastAccessTime, LastWriteTime) != FALSE;
+		Result = SetFileTimeEx(Handle, CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
 	}
 	else
 	{
@@ -1353,12 +1364,15 @@ bool AdminMode::fSetFileTime(HANDLE Handle, const FILETIME* CreationTime, const 
 					{
 						if(WriteData(LastWriteTime, LastWriteTime?sizeof(*LastWriteTime):0))
 						{
-							int OpResult;
-							if(ReadInt(OpResult))
+							if(WriteData(ChangeTime, ChangeTime?sizeof(*ChangeTime):0))
 							{
-								if(ReceiveLastError())
+								int OpResult;
+								if(ReadInt(OpResult))
 								{
-									Result = OpResult != FALSE;
+									if(ReceiveLastError())
+									{
+										Result = OpResult != FALSE;
+									}
 								}
 							}
 						}
@@ -1555,6 +1569,58 @@ DWORD AdminMode::fGetStorageDependencyInformation(HANDLE Handle, GET_STORAGE_DEP
 									if(Result == ERROR_SUCCESS && UsedSize)
 									{
 										RawReadPipe(Pipe, StorageDependencyInfo, UsedSize);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return Result;
+
+}
+
+NTSTATUS AdminMode::fNtQueryDirectoryFile(HANDLE Handle, HANDLE Event, PVOID ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, BOOLEAN ReturnSingleEntry, PUNICODE_STRING FileName, BOOLEAN RestartScan)
+{
+	CriticalSectionLock Lock(CS);
+	NTSTATUS Result = 0;
+	if(Opt.IsUserAdmin)
+	{
+		Result = ifn.pfnNtQueryDirectoryFile(Handle, Event, ApcRoutine, ApcContext, IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, FileName, RestartScan);
+	}
+	else
+	{
+		if(SendCommand(C_FUNCTION_NTQUERYDIRECTORYFILE))
+		{
+			if(WriteData(&Handle,Handle?sizeof(Handle):0))
+			{
+				// BUGBUG: Event, ApcRoutine, ApcContext, IoStatusBlock ignored
+				if(WriteData(FileInformation, Length))
+				{
+					if(WriteInt(Length))
+					{
+						if(WriteInt(FileInformationClass))
+						{
+							if(WriteInt(ReturnSingleEntry))
+							{
+								if(WriteData(FileName,FileName?sizeof(UNICODE_STRING):0))
+								{
+									if (!FileName || WriteData(FileName->Buffer, FileName->Length))
+									{
+										if(WriteInt(RestartScan))
+										{
+											int OpResult;
+											if(ReadInt(OpResult))
+											{
+												Result = OpResult;
+												if(Result == STATUS_SUCCESS && Length)
+												{
+													RawReadPipe(Pipe, FileInformation, Length);
+												}
+											}
+										}
 									}
 								}
 							}
@@ -1850,6 +1916,7 @@ void MoveToRecycleBinHandler()
 	}
 }
 
+/*
 void FindFirstFileExHandler()
 {
 	AutoObject Object;
@@ -1913,6 +1980,7 @@ void FindCloseHandler()
 		}
 	}
 }
+*/
 
 void SetOwnerHandler()
 {
@@ -2087,8 +2155,8 @@ void GetFileTimeHandler()
 	AutoObject Handle;
 	if(ReadPipeData(Pipe, Handle))
 	{
-		FILETIME CreationTime, LastAccessTime, LastWriteTime;
-		int Result = GetFileTime(*reinterpret_cast<PHANDLE>(Handle.Get()), &CreationTime, &LastAccessTime, &LastWriteTime);
+		FILETIME CreationTime, LastAccessTime, LastWriteTime, ChangeTime;
+		int Result = GetFileTimeEx(*reinterpret_cast<PHANDLE>(Handle.Get()), &CreationTime, &LastAccessTime, &LastWriteTime, &ChangeTime);
 		int LastError = GetLastError();
 		if(WritePipeInt(Pipe, Result))
 		{
@@ -2098,7 +2166,10 @@ void GetFileTimeHandler()
 				{
 					if(WritePipeData(Pipe, &LastAccessTime, sizeof(LastAccessTime)))
 					{
-						WritePipeData(Pipe, &LastWriteTime, sizeof(LastWriteTime));
+						if(WritePipeData(Pipe, &LastWriteTime, sizeof(LastWriteTime)))
+						{
+							WritePipeData(Pipe, &ChangeTime, sizeof(ChangeTime));
+						}
 					}
 				}
 			}
@@ -2121,11 +2192,15 @@ void SetFileTimeHandler()
 				AutoObject LastWriteTime;
 				if(ReadPipeData(Pipe, LastWriteTime))
 				{
-					int Result = SetFileTime(*reinterpret_cast<PHANDLE>(Handle.Get()), reinterpret_cast<PFILETIME>(CreationTime.Get()), reinterpret_cast<PFILETIME>(LastAccessTime.Get()), reinterpret_cast<PFILETIME>(LastWriteTime.Get()));
-					int LastError = GetLastError();
-					if(WritePipeInt(Pipe, Result))
+					AutoObject ChangeTime;
+					if(ReadPipeData(Pipe, ChangeTime))
 					{
-						WritePipeInt(Pipe, LastError);
+						int Result = SetFileTimeEx(*reinterpret_cast<PHANDLE>(Handle.Get()), reinterpret_cast<PFILETIME>(CreationTime.Get()), reinterpret_cast<PFILETIME>(LastAccessTime.Get()), reinterpret_cast<PFILETIME>(LastWriteTime.Get()), reinterpret_cast<PFILETIME>(ChangeTime.Get()));
+						int LastError = GetLastError();
+						if(WritePipeInt(Pipe, Result))
+						{
+							WritePipeInt(Pipe, LastError);
+						}
 					}
 				}
 			}
@@ -2268,6 +2343,58 @@ void GetStorageDependencyInformationHandler()
 	}
 }
 
+
+void NtQueryDirectoryFileHandler()
+{
+	AutoObject Handle;
+	if(ReadPipeData(Pipe, Handle))
+	{
+		// BUGBUG: Event, ApcRoutine, ApcContext, IoStatusBlock ignored
+		AutoObject FileInformation;
+		if(ReadPipeData(Pipe, FileInformation))
+		{
+			int Length;
+			if(ReadPipeInt(Pipe, Length))
+			{
+				int FileInformationClass;
+				if(ReadPipeInt(Pipe, FileInformationClass))
+				{
+					int ReturnSingleEntry;
+					if(ReadPipeInt(Pipe, ReturnSingleEntry))
+					{
+						AutoObject FileName;
+						if(ReadPipeData(Pipe, FileName))
+						{
+							AutoObject FileNameBuffer;
+							if(!FileName.Get() || ReadPipeData(Pipe, FileNameBuffer))
+							{
+								int RestartScan;
+								if(ReadPipeInt(Pipe, RestartScan))
+								{
+									IO_STATUS_BLOCK IoStatusBlock;
+									PUNICODE_STRING FileNameString = reinterpret_cast<PUNICODE_STRING>(FileName.Get());
+									if(FileNameString)
+									{
+										FileNameString->Buffer = const_cast<LPWSTR>(FileNameBuffer.GetStr());
+									}
+									int Result = ifn.pfnNtQueryDirectoryFile(*reinterpret_cast<PHANDLE>(Handle.Get()), nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation.Get(), Length, static_cast<FILE_INFORMATION_CLASS>(FileInformationClass), ReturnSingleEntry, FileNameString, RestartScan);
+									if(WritePipeInt(Pipe, Result))
+									{
+										if(Result == STATUS_SUCCESS && Length)
+										{
+											RawWritePipe(Pipe, FileInformation.Get(), Length);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 bool Process(int Command)
 {
 	bool Exit=false;
@@ -2317,6 +2444,7 @@ bool Process(int Command)
 		MoveToRecycleBinHandler();
 		break;
 
+/*
 	case C_FUNCTION_FINDFIRSTFILEEX:
 		FindFirstFileExHandler();
 		break;
@@ -2328,6 +2456,7 @@ bool Process(int Command)
 	case C_FUNCTION_FINDCLOSE:
 		FindCloseHandler();
 		break;
+*/
 
 	case C_FUNCTION_SETOWNER:
 		SetOwnerHandler();
@@ -2383,6 +2512,10 @@ bool Process(int Command)
 
 	case C_FUNCTION_GETSTORAGEDEPENDENCYINFORMATION:
 		GetStorageDependencyInformationHandler();
+		break;
+
+	case C_FUNCTION_NTQUERYDIRECTORYFILE:
+		NtQueryDirectoryFileHandler();
 		break;
 	}
 	return Exit;

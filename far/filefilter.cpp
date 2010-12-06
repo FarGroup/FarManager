@@ -611,42 +611,29 @@ void FileFilter::UpdateCurrentTime()
 	CurrentTime = current.QuadPart;
 }
 
-bool FileFilter::FileInFilter(const FileListItem *fli,enumFileInFilterType *foundType)
+bool FileFilter::FileInFilter(const FileListItem& fli,enumFileInFilterType *foundType)
 {
-	FAR_FIND_DATA fd;
-	fd.dwFileAttributes=fli->FileAttr;
-	fd.ftCreationTime=fli->CreationTime;
-	fd.ftLastAccessTime=fli->AccessTime;
-	fd.ftLastWriteTime=fli->WriteTime;
-	fd.nFileSize=fli->UnpSize;
-	fd.nPackSize=fli->PackSize;
-	fd.lpwszFileName=const_cast<wchar_t*>(fli->strName.CPtr());
-	fd.lpwszAlternateFileName=const_cast<wchar_t*>(fli->strShortName.CPtr());
-	return FileInFilter(&fd,foundType);
+	FAR_FIND_DATA_EX fde;
+	fde.dwFileAttributes=fli.FileAttr;
+	fde.ftCreationTime=fli.CreationTime;
+	fde.ftLastAccessTime=fli.AccessTime;
+	fde.ftLastWriteTime=fli.WriteTime;
+	fde.ftChangeTime=fli.ChangeTime;
+	fde.nFileSize=fli.UnpSize;
+	fde.nPackSize=fli.PackSize;
+	fde.strFileName=fli.strName;
+	fde.strAlternateFileName=fli.strShortName;
+	return FileInFilter(fde,foundType);
 }
 
-bool FileFilter::FileInFilter(const FAR_FIND_DATA_EX *fde,enumFileInFilterType *foundType)
-{
-	FAR_FIND_DATA fd;
-	fd.dwFileAttributes=fde->dwFileAttributes;
-	fd.ftCreationTime=fde->ftCreationTime;
-	fd.ftLastAccessTime=fde->ftLastAccessTime;
-	fd.ftLastWriteTime=fde->ftLastWriteTime;
-	fd.nFileSize=fde->nFileSize;
-	fd.nPackSize=fde->nPackSize;
-	fd.lpwszFileName=const_cast<wchar_t*>(fde->strFileName.CPtr());
-	fd.lpwszAlternateFileName=const_cast<wchar_t*>(fde->strAlternateFileName.CPtr());
-	return FileInFilter(&fd,foundType);
-}
-
-bool FileFilter::FileInFilter(const FAR_FIND_DATA *fd,enumFileInFilterType *foundType)
+bool FileFilter::FileInFilter(const FAR_FIND_DATA_EX& fde,enumFileInFilterType *foundType)
 {
 	enumFileFilterFlagsType FFFT = GetFFFT();
 	bool bFound=false;
 	bool bAnyIncludeFound=false;
 	bool bAnyFolderIncludeFound=false;
 	bool bInc=false;
-	bool bFolder=(fd->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0;
+	bool bFolder=(fde.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0;
 	FileFilterParams *CurFilterData;
 	DWORD Flags;
 
@@ -669,7 +656,7 @@ bool FileFilter::FileInFilter(const FAR_FIND_DATA *fd,enumFileInFilterType *foun
 					bAnyFolderIncludeFound = bAnyFolderIncludeFound || !(AttrClear&FILE_ATTRIBUTE_DIRECTORY);
 			}
 
-			if (CurFilterData->FileInFilter(fd, CurrentTime))
+			if (CurFilterData->FileInFilter(fde, CurrentTime))
 			{
 				bFound = true;
 
@@ -697,7 +684,7 @@ bool FileFilter::FileInFilter(const FAR_FIND_DATA *fd,enumFileInFilterType *foun
 				bAnyFolderIncludeFound = true;
 			}
 
-			if (bFolder && FoldersFilter.FileInFilter(fd, CurrentTime))
+			if (bFolder && FoldersFilter.FileInFilter(fde, CurrentTime))
 			{
 				bFound = true;
 
@@ -725,7 +712,7 @@ bool FileFilter::FileInFilter(const FAR_FIND_DATA *fd,enumFileInFilterType *foun
 			if (bFolder) //авто-фильтры никогда не могут быть для папок
 				continue;
 
-			if (CurFilterData->FileInFilter(fd, CurrentTime))
+			if (CurFilterData->FileInFilter(fde, CurrentTime))
 			{
 				bFound = true;
 
@@ -761,6 +748,13 @@ final:
 	//Если элемент не попал ни под один фильтр то он будет включен
 	//только если не было ни одного Include фильтра (т.е. были только фильтры исключения).
 	return !bAnyIncludeFound;
+}
+
+bool FileFilter::FileInFilter(const FAR_FIND_DATA& fd,enumFileInFilterType *foundType)
+{
+	FAR_FIND_DATA_EX fde;
+	apiFindDataToDataEx(&fd,&fde);
+	return FileInFilter(fde,foundType);
 }
 
 bool FileFilter::IsEnabledOnPanel()

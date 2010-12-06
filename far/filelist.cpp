@@ -421,6 +421,12 @@ int _cdecl SortList(const void *el1,const void *el2)
 
 				return -ListSortOrder*(RetCode64<0?-1:1);
 
+			case BY_CHTIME:
+				if (!(RetCode64=FileTimeDifference(&SPtr1->ChangeTime, &SPtr2->ChangeTime)))
+					break;
+
+				return -ListSortOrder*(RetCode64<0?-1:1);
+
 			case BY_SIZE:
 				if (SPtr1->UnpSize==SPtr2->UnpSize)
 					break;
@@ -3114,7 +3120,7 @@ int FileList::IsSelected(long idxItem)
 
 bool FileList::FileInFilter(long idxItem)
 {
-	if ( ( (DWORD)idxItem < (DWORD)FileCount ) && ( !Filter || !Filter->IsEnabledOnPanel() || Filter->FileInFilter(ListData[idxItem]) ) )
+	if ( ( (DWORD)idxItem < (DWORD)FileCount ) && ( !Filter || !Filter->IsEnabledOnPanel() || Filter->FileInFilter(*ListData[idxItem]) ) )
 		return true;
 	return false;
 }
@@ -3191,7 +3197,7 @@ int FileList::GetRealSelCount()
 }
 
 
-int FileList::GetSelName(string *strName,DWORD &FileAttr,string *strShortName,FAR_FIND_DATA_EX *fd)
+int FileList::GetSelName(string *strName,DWORD &FileAttr,string *strShortName,FAR_FIND_DATA_EX *fde)
 {
 	if (!strName)
 	{
@@ -3218,16 +3224,17 @@ int FileList::GetSelName(string *strName,DWORD &FileAttr,string *strShortName,FA
 			FileAttr=ListData[CurFile]->FileAttr;
 			LastSelPosition=CurFile;
 
-			if (fd)
+			if (fde)
 			{
-				fd->dwFileAttributes=ListData[CurFile]->FileAttr;
-				fd->ftCreationTime=ListData[CurFile]->CreationTime;
-				fd->ftLastAccessTime=ListData[CurFile]->AccessTime;
-				fd->ftLastWriteTime=ListData[CurFile]->WriteTime;
-				fd->nFileSize=ListData[CurFile]->UnpSize;
-				fd->nPackSize=ListData[CurFile]->PackSize;
-				fd->strFileName = ListData[CurFile]->strName;
-				fd->strAlternateFileName = ListData[CurFile]->strShortName;
+				fde->dwFileAttributes=ListData[CurFile]->FileAttr;
+				fde->ftCreationTime=ListData[CurFile]->CreationTime;
+				fde->ftLastAccessTime=ListData[CurFile]->AccessTime;
+				fde->ftLastWriteTime=ListData[CurFile]->WriteTime;
+				fde->ftChangeTime=ListData[CurFile]->ChangeTime;
+				fde->nFileSize=ListData[CurFile]->UnpSize;
+				fde->nPackSize=ListData[CurFile]->PackSize;
+				fde->strFileName = ListData[CurFile]->strName;
+				fde->strAlternateFileName = ListData[CurFile]->strShortName;
 			}
 
 			return TRUE;
@@ -3252,16 +3259,17 @@ int FileList::GetSelName(string *strName,DWORD &FileAttr,string *strShortName,FA
 			FileAttr=ListData[GetSelPosition-1]->FileAttr;
 			LastSelPosition=GetSelPosition-1;
 
-			if (fd)
+			if (fde)
 			{
-				fd->dwFileAttributes=ListData[GetSelPosition-1]->FileAttr;
-				fd->ftCreationTime=ListData[GetSelPosition-1]->CreationTime;
-				fd->ftLastAccessTime=ListData[GetSelPosition-1]->AccessTime;
-				fd->ftLastWriteTime=ListData[GetSelPosition-1]->WriteTime;
-				fd->nFileSize=ListData[GetSelPosition-1]->UnpSize;
-				fd->nPackSize=ListData[GetSelPosition-1]->PackSize;
-				fd->strFileName = ListData[GetSelPosition-1]->strName;
-				fd->strAlternateFileName = ListData[GetSelPosition-1]->strShortName;
+				fde->dwFileAttributes=ListData[GetSelPosition-1]->FileAttr;
+				fde->ftCreationTime=ListData[GetSelPosition-1]->CreationTime;
+				fde->ftLastAccessTime=ListData[GetSelPosition-1]->AccessTime;
+				fde->ftLastWriteTime=ListData[GetSelPosition-1]->WriteTime;
+				fde->ftChangeTime=ListData[GetSelPosition-1]->ChangeTime;
+				fde->nFileSize=ListData[GetSelPosition-1]->UnpSize;
+				fde->nPackSize=ListData[GetSelPosition-1]->PackSize;
+				fde->strFileName = ListData[GetSelPosition-1]->strName;
+				fde->strAlternateFileName = ListData[GetSelPosition-1]->strShortName;
 			}
 
 			return TRUE;
@@ -3513,7 +3521,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 			else
 			{
 				if (bUseFilter)
-					Match=Filter.FileInFilter(CurPtr);
+					Match=Filter.FileInFilter(*CurPtr);
 				else
 					Match=FileMask.Compare((ShowShortNames && !CurPtr->strShortName.IsEmpty() ? CurPtr->strShortName:CurPtr->strName));
 			}
@@ -4139,34 +4147,47 @@ void FileList::SelectSortMode()
 {
 	MenuDataEx SortMenu[]=
 	{
-		/* 00 */MSG(MMenuSortByName),LIF_SELECTED,KEY_CTRLF3,
-		/* 01 */MSG(MMenuSortByExt),0,KEY_CTRLF4,
-		/* 02 */MSG(MMenuSortByModification),0,KEY_CTRLF5,
-		/* 03 */MSG(MMenuSortBySize),0,KEY_CTRLF6,
-		/* 04 */MSG(MMenuUnsorted),0,KEY_CTRLF7,
-		/* 05 */MSG(MMenuSortByCreation),0,KEY_CTRLF8,
-		/* 06 */MSG(MMenuSortByAccess),0,KEY_CTRLF9,
-		/* 07 */MSG(MMenuSortByDiz),0,KEY_CTRLF10,
-		/* 08 */MSG(MMenuSortByOwner),0,KEY_CTRLF11,
-		/* 09 */MSG(MMenuSortByCompressedSize),0,0,
-		/* 10 */MSG(MMenuSortByNumLinks),0,0,
-		/* 11 */MSG(MMenuSortByNumStreams),0,0,
-		/* 12 */MSG(MMenuSortByStreamsSize),0,0,
-		/* 13 */MSG(MMenuSortByFullName),0,0,
-		/* 14 */MSG(MMenuSortByCustomData),0,0,
-		/* 15 */L"",LIF_SEPARATOR,0,
-		/* 16 */MSG(MMenuSortUseNumeric),0,0,
-		/* 17 */MSG(MMenuSortUseGroups),0,KEY_SHIFTF11,
-		/* 18 */MSG(MMenuSortSelectedFirst),0,KEY_SHIFTF12,
-		/* 19 */MSG(MMenuSortDirectoriesFirst),0,0,
+		MSG(MMenuSortByName),LIF_SELECTED,KEY_CTRLF3,
+		MSG(MMenuSortByExt),0,KEY_CTRLF4,
+		MSG(MMenuSortByWrite),0,KEY_CTRLF5,
+		MSG(MMenuSortBySize),0,KEY_CTRLF6,
+		MSG(MMenuUnsorted),0,KEY_CTRLF7,
+		MSG(MMenuSortByCreation),0,KEY_CTRLF8,
+		MSG(MMenuSortByAccess),0,KEY_CTRLF9,
+		MSG(MMenuSortByChange),0,0,
+		MSG(MMenuSortByDiz),0,KEY_CTRLF10,
+		MSG(MMenuSortByOwner),0,KEY_CTRLF11,
+		MSG(MMenuSortByCompressedSize),0,0,
+		MSG(MMenuSortByNumLinks),0,0,
+		MSG(MMenuSortByNumStreams),0,0,
+		MSG(MMenuSortByStreamsSize),0,0,
+		MSG(MMenuSortByFullName),0,0,
+		MSG(MMenuSortByCustomData),0,0,
+		L"",LIF_SEPARATOR,0,
+		MSG(MMenuSortUseNumeric),0,0,
+		MSG(MMenuSortUseGroups),0,KEY_SHIFTF11,
+		MSG(MMenuSortSelectedFirst),0,KEY_SHIFTF12,
+		MSG(MMenuSortDirectoriesFirst),0,0,
 	};
-	static int SortModes[]={BY_NAME,   BY_EXT,    BY_MTIME,
-	                        BY_SIZE,   UNSORTED,  BY_CTIME,
-	                        BY_ATIME,  BY_DIZ,    BY_OWNER,
-	                        BY_COMPRESSEDSIZE,BY_NUMLINKS,
-	                        BY_NUMSTREAMS,BY_STREAMSSIZE,
-	                        BY_FULLNAME, BY_CUSTOMDATA
-	                       };
+	static int SortModes[]=
+	{
+		BY_NAME,
+		BY_EXT,
+		BY_MTIME,
+		BY_SIZE,
+		UNSORTED,
+		BY_CTIME,
+		BY_ATIME,
+		BY_CHTIME,
+		BY_DIZ,
+		BY_OWNER,
+		BY_COMPRESSEDSIZE,
+		BY_NUMLINKS,
+		BY_NUMSTREAMS,
+		BY_STREAMSSIZE,
+		BY_FULLNAME,
+		BY_CUSTOMDATA
+	};
 
 	for (size_t i=0; i<ARRAYSIZE(SortModes); i++)
 		if (SortModes[i]==SortMode)

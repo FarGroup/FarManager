@@ -45,6 +45,7 @@ struct FAR_FIND_DATA_EX
 	FILETIME ftCreationTime;
 	FILETIME ftLastAccessTime;
 	FILETIME ftLastWriteTime;
+	FILETIME ftChangeTime;
 	unsigned __int64 nFileSize;
 
 	unsigned __int64 nPackSize;
@@ -63,6 +64,7 @@ struct FAR_FIND_DATA_EX
 		memset(&ftCreationTime,0,sizeof(ftCreationTime));
 		memset(&ftLastAccessTime,0,sizeof(ftLastAccessTime));
 		memset(&ftLastWriteTime,0,sizeof(ftLastWriteTime));
+		memset(&ftChangeTime,0,sizeof(ftChangeTime));
 		nFileSize=0;
 		nPackSize=0;
 		dwReserved0=0;
@@ -79,6 +81,7 @@ struct FAR_FIND_DATA_EX
 			ftCreationTime=ffdexCopy.ftCreationTime;
 			ftLastAccessTime=ffdexCopy.ftLastAccessTime;
 			ftLastWriteTime=ffdexCopy.ftLastWriteTime;
+			ftChangeTime=ffdexCopy.ftChangeTime;
 			nFileSize=ffdexCopy.nFileSize;
 			nPackSize=ffdexCopy.nPackSize;
 			dwReserved0=ffdexCopy.dwReserved0;
@@ -101,8 +104,7 @@ public:
 private:
 	HANDLE Handle;
 	bool empty;
-	bool admin;
-	WIN32_FIND_DATA W32FindData;
+	FAR_FIND_DATA_EX Data;
 };
 
 class File: private NonCopyable
@@ -116,13 +118,14 @@ public:
 	bool SetPointer(INT64 DistanceToMove, PINT64 NewFilePointer, DWORD MoveMethod);
 	bool GetPointer(INT64& Pointer){return SetPointer(0, &Pointer, FILE_CURRENT);}
 	bool SetEnd();
-	bool GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime);
-	bool SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime);
+	bool GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime);
+	bool SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime);
 	bool GetSize(UINT64& Size);
 	bool FlushBuffers();
 	bool GetInformation(BY_HANDLE_FILE_INFORMATION& info);
 	bool IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped = nullptr);
 	bool GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed);
+	bool NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, bool ReturnSingleEntry, LPCWSTR FileName, bool RestartScan);
 	bool Close();
 	bool Eof();
 	bool Opened() const {return Handle != INVALID_HANDLE_VALUE;}
@@ -355,5 +358,8 @@ bool apiGetVolumeNameForVolumeMountPoint(
 	string& strVolumeName
 );
 
-void apiEnableLowFragmentationHeap(
-);
+// internal, dont' use outside.
+bool GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime);
+bool SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime);
+
+void apiEnableLowFragmentationHeap();

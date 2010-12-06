@@ -260,7 +260,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 	FileCount = 0;
 	//BUGBUG!!! // что это?
-	::FindFile Find(L"*");
+	::FindFile Find(L"*",true);
 	DWORD FindErrorCode = ERROR_SUCCESS;
 	bool UseFilter=Filter->IsEnabledOnPanel();
 	bool ReadCustomData=IsColumnDisplayed(CUSTOM_COLUMN0)!=0;
@@ -271,7 +271,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	{
 		FindErrorCode = GetLastError();
 
-		if ((Opt.ShowHidden || !(fdata.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))) && (!UseFilter || Filter->FileInFilter(&fdata)))
+		if ((Opt.ShowHidden || !(fdata.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))) && (!UseFilter || Filter->FileInFilter(fdata)))
 		{
 			if (FileCount>=AllocatedCount)
 			{
@@ -291,6 +291,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 			NewPtr->CreationTime = fdata.ftCreationTime;
 			NewPtr->AccessTime = fdata.ftLastAccessTime;
 			NewPtr->WriteTime = fdata.ftLastWriteTime;
+			NewPtr->ChangeTime = fdata.ftChangeTime;
 			NewPtr->UnpSize = fdata.nFileSize;
 			NewPtr->strName = fdata.strFileName;
 			NewPtr->strShortName = fdata.strAlternateFileName;
@@ -429,12 +430,13 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 				GetFileOwner(strComputerName,strCurDir,TwoDotsOwner);
 			}
 
-			FILETIME TwoDotsTimes[3]={0};
+			FILETIME TwoDotsTimes[4]={0};
 			if(apiGetFindDataEx(strCurDir,fdata))
 			{
 				TwoDotsTimes[0]=fdata.ftCreationTime;
 				TwoDotsTimes[1]=fdata.ftLastAccessTime;
 				TwoDotsTimes[2]=fdata.ftLastWriteTime;
+				TwoDotsTimes[3]=fdata.ftChangeTime;
 			}
 
 			AddParentPoint(ListData[FileCount],FileCount,TwoDotsTimes,TwoDotsOwner);
@@ -764,7 +766,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
 		if (UseFilter && (Info.Flags & OPIF_USEFILTER))
 			//if (!(CurPanelData->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-			if (!Filter->FileInFilter(&PanelData[i].FindData))
+			if (!Filter->FileInFilter(PanelData[i].FindData))
 				continue;
 
 		if (!Opt.ShowHidden && (PanelData[i].FindData.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM)))
@@ -823,6 +825,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 				CurPtr->WriteTime=FindData.ftLastWriteTime;
 				CurPtr->CreationTime=FindData.ftCreationTime;
 				CurPtr->AccessTime=FindData.ftLastAccessTime;
+				CurPtr->ChangeTime=FindData.ftChangeTime;
 			}
 		}
 
@@ -978,6 +981,7 @@ void FileList::AddParentPoint(FileListItem *CurPtr,long CurFilePos,FILETIME* Tim
 		CurPtr->CreationTime = Times[0];
 		CurPtr->AccessTime = Times[1];
 		CurPtr->WriteTime = Times[2];
+		CurPtr->ChangeTime = Times[3];
 	}
 
 	CurPtr->strOwner = Owner;

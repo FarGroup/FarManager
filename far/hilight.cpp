@@ -306,12 +306,11 @@ void HighlightFiles::GetHiColor(FileListItem **FileItem,int FileCount,bool UseAt
 		return;
 
 	FileFilterParams *CurHiData;
-	FileListItem *fli;
 
 	for (int FCnt=0; FCnt < FileCount; ++FCnt)
 	{
-		fli = FileItem[FCnt];
-		ApplyDefaultStartingColors(&fli->Colors);
+		FileListItem& fli = *FileItem[FCnt];
+		ApplyDefaultStartingColors(&fli.Colors);
 
 		for (unsigned int i=0; i < HiData.getCount(); i++)
 		{
@@ -324,14 +323,14 @@ void HighlightFiles::GetHiColor(FileListItem **FileItem,int FileCount,bool UseAt
 			{
 				HighlightDataColor TempColors;
 				CurHiData->GetColors(&TempColors);
-				ApplyColors(&fli->Colors,&TempColors);
+				ApplyColors(&fli.Colors,&TempColors);
 
 				if (!CurHiData->GetContinueProcessing())// || !HasTransparent(&fli->Colors))
 					break;
 			}
 		}
 
-		ApplyFinalColors(&fli->Colors);
+		ApplyFinalColors(&fli.Colors);
 	}
 }
 
@@ -341,7 +340,7 @@ int HighlightFiles::GetGroup(const FileListItem *fli)
 	{
 		FileFilterParams *CurGroupData=HiData.getItem(i);
 
-		if (CurGroupData->FileInFilter(fli, CurrentTime))
+		if (CurGroupData->FileInFilter(*fli, CurrentTime))
 			return(CurGroupData->GetSortGroup());
 	}
 
@@ -349,7 +348,7 @@ int HighlightFiles::GetGroup(const FileListItem *fli)
 	{
 		FileFilterParams *CurGroupData=HiData.getItem(i);
 
-		if (CurGroupData->FileInFilter(fli, CurrentTime))
+		if (CurGroupData->FileInFilter(*fli, CurrentTime))
 			return(CurGroupData->GetSortGroup());
 	}
 

@@ -323,7 +323,7 @@ bool Clipboard::CopyHDROP(LPVOID NamesArray, size_t NamesArraySize)
 			LPDROPFILES Drop = reinterpret_cast<LPDROPFILES>(GlobalLock(hMemory));
 			if(Drop)
 			{
-				Drop->pFiles=static_cast<DWORD>(sizeof(DROPFILES));
+				Drop->pFiles=sizeof(DROPFILES);
 				Drop->pt.x=0;
 				Drop->pt.y=0;
 				Drop->fNC = TRUE;

@@ -349,6 +349,8 @@ typedef struct _STORAGE_PROPERTY_QUERY {
 
 typedef enum _FILE_INFORMATION_CLASS
 {
+	FileBothDirectoryInformation=3,
+	FileBasicInformation=4,
 	FileStreamInformation=22,
 }
 FILE_INFORMATION_CLASS, *PFILE_INFORMATION_CLASS;

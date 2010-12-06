@@ -88,15 +88,18 @@ enum SETATTRDLG
 	SA_ATTR_LAST=SA_CHECKBOX_VIRTUAL,
 	SA_SEPARATOR3,
 	SA_TEXT_TITLEDATE,
-	SA_TEXT_MODIFICATION,
-	SA_EDIT_MDATE,
-	SA_EDIT_MTIME,
+	SA_TEXT_LASTWRITE,
+	SA_EDIT_WDATE,
+	SA_EDIT_WTIME,
 	SA_TEXT_CREATION,
 	SA_EDIT_CDATE,
 	SA_EDIT_CTIME,
 	SA_TEXT_LASTACCESS,
 	SA_EDIT_ADATE,
 	SA_EDIT_ATIME,
+	SA_TEXT_CHANGE,
+	SA_EDIT_XDATE,
+	SA_EDIT_XTIME,
 	SA_BUTTON_ORIGINAL,
 	SA_BUTTON_CURRENT,
 	SA_BUTTON_BLANK,
@@ -128,7 +131,7 @@ struct SetAttrDlgParam
 	int OriginalCBAttr2[SA_ATTR_LAST-SA_ATTR_FIRST+1];
 	DWORD OriginalCBFlag[SA_ATTR_LAST-SA_ATTR_FIRST+1];
 	FARCHECKEDSTATE OSubfoldersState, OCompressState, OEncryptState;
-	bool OLastWriteTime,OCreationTime,OLastAccessTime;
+	bool OLastWriteTime, OCreationTime, OLastAccessTime, OChangeTime;
 };
 
 #define DM_SETATTR (DM_USER+1)
@@ -256,9 +259,9 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
 									if (apiGetFindDataEx(DlgParam->strSelName, FindData))
 									{
-										const SETATTRDLG Items[]={SA_TEXT_MODIFICATION,SA_TEXT_CREATION,SA_TEXT_LASTACCESS};
-										bool* ParamTimes[]={&DlgParam->OLastWriteTime,&DlgParam->OCreationTime,&DlgParam->OLastAccessTime};
-										const PFILETIME FDTimes[]={&FindData.ftLastWriteTime,&FindData.ftCreationTime,&FindData.ftLastAccessTime};
+										const SETATTRDLG Items[]={SA_TEXT_LASTWRITE,SA_TEXT_CREATION,SA_TEXT_LASTACCESS};
+										bool* ParamTimes[]={&DlgParam->OLastWriteTime, &DlgParam->OCreationTime, &DlgParam->OLastAccessTime,&DlgParam->OChangeTime};
+										const PFILETIME FDTimes[]={&FindData.ftLastWriteTime,&FindData.ftCreationTime,&FindData.ftLastAccessTime,&FindData.ftChangeTime};
 
 										for (size_t i=0; i<ARRAYSIZE(Items); i++)
 										{
@@ -317,22 +320,24 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
 				if (apiGetFindDataEx(DlgParam->strSelName, FindData))
 				{
-					SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_MODIFICATION,(LONG_PTR)&FindData.ftLastWriteTime);
+					SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_LASTWRITE,(LONG_PTR)&FindData.ftLastWriteTime);
 					SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_CREATION,(LONG_PTR)&FindData.ftCreationTime);
 					SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_LASTACCESS,(LONG_PTR)&FindData.ftLastAccessTime);
-					DlgParam->OLastWriteTime=DlgParam->OCreationTime=DlgParam->OLastAccessTime=false;
+					SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_CHANGE,(LONG_PTR)&FindData.ftChangeTime);
+					DlgParam->OLastWriteTime=DlgParam->OCreationTime=DlgParam->OLastAccessTime=DlgParam->OChangeTime=false;
 				}
 
-				SendDlgMessage(hDlg,DM_SETFOCUS,SA_EDIT_MDATE,0);
+				SendDlgMessage(hDlg,DM_SETFOCUS,SA_EDIT_WDATE,0);
 				return TRUE;
 			}
 			else if (Param1 == SA_BUTTON_CURRENT || Param1 == SA_BUTTON_BLANK)
 			{
-				SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_MODIFICATION,Param1 == SA_BUTTON_CURRENT?-1:0);
+				SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_LASTWRITE,Param1 == SA_BUTTON_CURRENT?-1:0);
 				SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_CREATION,Param1 == SA_BUTTON_CURRENT?-1:0);
 				SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_LASTACCESS,Param1 == SA_BUTTON_CURRENT?-1:0);
-				DlgParam->OLastWriteTime=DlgParam->OCreationTime=DlgParam->OLastAccessTime=true;
-				SendDlgMessage(hDlg,DM_SETFOCUS,SA_EDIT_MDATE,0);
+				SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_CHANGE,Param1 == SA_BUTTON_CURRENT?-1:0);
+				DlgParam->OLastWriteTime=DlgParam->OCreationTime=DlgParam->OLastAccessTime=DlgParam->OChangeTime==true;
+				SendDlgMessage(hDlg,DM_SETFOCUS,SA_EDIT_WDATE,0);
 				return TRUE;
 			}
 
@@ -340,7 +345,7 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 		case DN_MOUSECLICK:
 		{
 			//_SVS(SysLog(L"Msg=DN_MOUSECLICK Param1=%d Param2=%d",Param1,Param2));
-			if (Param1>=SA_TEXT_MODIFICATION && Param1<=SA_EDIT_ATIME)
+			if (Param1>=SA_TEXT_LASTWRITE && Param1<=SA_EDIT_XTIME)
 			{
 				if (reinterpret_cast<MOUSE_EVENT_RECORD*>(Param2)->dwEventFlags==DOUBLE_CLICK)
 				{
@@ -349,7 +354,7 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 					SendDlgMessage(hDlg,DM_SETATTR,Param1,-1);
 				}
 
-				if (Param1 == SA_TEXT_MODIFICATION || Param1 == SA_TEXT_CREATION || Param1 == SA_TEXT_LASTACCESS)
+				if (Param1 == SA_TEXT_LASTWRITE || Param1 == SA_TEXT_CREATION || Param1 == SA_TEXT_LASTACCESS)
 				{
 					Param1++;
 				}
@@ -371,8 +376,8 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 					SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_COMBO_HARDLINK,(LONG_PTR)strTmp.strValue().CPtr());
 				}
 				break;
-				case SA_EDIT_MDATE:
-				case SA_EDIT_MTIME:
+				case SA_EDIT_WDATE:
+				case SA_EDIT_WTIME:
 					DlgParam->OLastWriteTime=true;
 					break;
 				case SA_EDIT_CDATE:
@@ -382,6 +387,10 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 				case SA_EDIT_ADATE:
 				case SA_EDIT_ATIME:
 					DlgParam->OLastAccessTime=true;
+					break;
+				case SA_EDIT_XDATE:
+				case SA_EDIT_XTIME:
+					DlgParam->OChangeTime=true;
 					break;
 			}
 
@@ -413,9 +422,9 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
 			switch (Param1)
 			{
-				case SA_TEXT_MODIFICATION:
-					Set1=SA_EDIT_MDATE;
-					Set2=SA_EDIT_MTIME;
+				case SA_TEXT_LASTWRITE:
+					Set1=SA_EDIT_WDATE;
+					Set2=SA_EDIT_WTIME;
 					DlgParam->OLastWriteTime=true;
 					break;
 				case SA_TEXT_CREATION:
@@ -428,9 +437,15 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 					Set2=SA_EDIT_ATIME;
 					DlgParam->OLastAccessTime=true;
 					break;
-				case SA_EDIT_MDATE:
+				case SA_TEXT_CHANGE:
+					Set1=SA_EDIT_XDATE;
+					Set2=SA_EDIT_XTIME;
+					DlgParam->OChangeTime=true;
+					break;
+				case SA_EDIT_WDATE:
 				case SA_EDIT_CDATE:
 				case SA_EDIT_ADATE:
+				case SA_EDIT_XDATE:
 					Set1=Param1;
 					Set2=-1;
 					break;
@@ -489,14 +504,17 @@ bool ReadFileTime(int Type,const wchar_t *Name,FILETIME& FileTime,const wchar_t 
 
 		switch (Type)
 		{
-			case 0: // Modif
+			case 0: // Write
 				OriginalFileTime=&ffd.ftLastWriteTime;
 				break;
-			case 1: // Creat
+			case 1: // Create
 				OriginalFileTime=&ffd.ftCreationTime;
 				break;
-			case 2: // Last
+			case 2: // Access
 				OriginalFileTime=&ffd.ftLastAccessTime;
+				break;
+			case 3: // Change
+				OriginalFileTime=&ffd.ftChangeTime;
 				break;
 		}
 
@@ -570,7 +588,7 @@ void PR_ShellSetFileAttributesMsg()
 bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-	short DlgX=70,DlgY=25;
+	short DlgX=70,DlgY=26;
 	DialogDataEx AttrDlgData[]=
 	{
 		DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,0,MSG(MSetAttrTitle),
@@ -606,11 +624,15 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 		DI_TEXT,    5,17,0,17,0,0,MSG(MSetAttrLastAccess),
 		DI_FIXEDIT,DlgX-28,17,DlgX-19,17,0,DIF_MASKEDIT,L"",
 		DI_FIXEDIT,DlgX-17,17,DlgX-6,17,0,DIF_MASKEDIT,L"",
-		DI_BUTTON,0,18,0,18,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(MSetAttrOriginal),
-		DI_BUTTON,0,18,0,18,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(MSetAttrCurrent),
-		DI_BUTTON,0,18,0,18,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(MSetAttrBlank),
-		DI_TEXT,3,19,0,19,0,DIF_SEPARATOR,L"",
-		DI_CHECKBOX,5,20,0,20,0,DIF_DISABLE,MSG(MSetAttrSubfolders),
+		DI_TEXT,    5,18,0,18,0,0,MSG(MSetAttrChange),
+		DI_FIXEDIT,DlgX-28,18,DlgX-19,18,0,DIF_MASKEDIT,L"",
+		DI_FIXEDIT,DlgX-17,18,DlgX-6,18,0,DIF_MASKEDIT,L"",
+
+		DI_BUTTON,0,19,0,19,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(MSetAttrOriginal),
+		DI_BUTTON,0,19,0,19,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(MSetAttrCurrent),
+		DI_BUTTON,0,19,0,19,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(MSetAttrBlank),
+		DI_TEXT,3,20,0,20,0,DIF_SEPARATOR,L"",
+		DI_CHECKBOX,5,21,0,21,0,DIF_DISABLE,MSG(MSetAttrSubfolders),
 		DI_TEXT,3,DlgY-4,0,DlgY-4,0,DIF_SEPARATOR,L"",
 		DI_BUTTON,0,DlgY-3,0,DlgY-3,0,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MSetAttrSet),
 		DI_BUTTON,0,DlgY-3,0,DlgY-3,0,DIF_CENTERGROUP|DIF_DISABLE,MSG(MSetAttrSystemDialog),
@@ -720,8 +742,8 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 				break;
 		}
 
-		AttrDlg[SA_EDIT_MDATE].Mask=AttrDlg[SA_EDIT_CDATE].Mask=AttrDlg[SA_EDIT_ADATE].Mask=strDMask;
-		AttrDlg[SA_EDIT_MTIME].Mask=AttrDlg[SA_EDIT_CTIME].Mask=AttrDlg[SA_EDIT_ATIME].Mask=strTMask;
+		AttrDlg[SA_EDIT_WDATE].Mask=AttrDlg[SA_EDIT_CDATE].Mask=AttrDlg[SA_EDIT_ADATE].Mask=AttrDlg[SA_EDIT_XDATE].Mask=strDMask;
+		AttrDlg[SA_EDIT_WTIME].Mask=AttrDlg[SA_EDIT_CTIME].Mask=AttrDlg[SA_EDIT_ATIME].Mask=AttrDlg[SA_EDIT_XTIME].Mask=strTMask;
 		bool FolderPresent=false,LinkPresent=false;
 		string strLinkName;
 		static struct ATTRIBUTEPAIR
@@ -763,9 +785,10 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 				{
 					if (DlgParam.Plugin || apiGetFindDataEx(strSelName, FindData))
 					{
-						ConvertDate(FindData.ftLastWriteTime, AttrDlg[SA_EDIT_MDATE].strData,AttrDlg[SA_EDIT_MTIME].strData,12,FALSE,FALSE,TRUE,TRUE);
+						ConvertDate(FindData.ftLastWriteTime, AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData,12,FALSE,FALSE,TRUE,TRUE);
 						ConvertDate(FindData.ftCreationTime,  AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData,12,FALSE,FALSE,TRUE,TRUE);
 						ConvertDate(FindData.ftLastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData,12,FALSE,FALSE,TRUE,TRUE);
+						ConvertDate(FindData.ftChangeTime,    AttrDlg[SA_EDIT_XDATE].strData,AttrDlg[SA_EDIT_XTIME].strData,12,FALSE,FALSE,TRUE,TRUE);
 					}
 
 					if (FileAttr!=INVALID_FILE_ATTRIBUTES)
@@ -903,8 +926,8 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 				}
 			}
 
-			const SETATTRDLG Dates[]={SA_EDIT_MDATE,SA_EDIT_CDATE,SA_EDIT_ADATE},Times[]={SA_EDIT_MTIME,SA_EDIT_CTIME,SA_EDIT_ATIME};
-			const PFILETIME TimeValues[]={&FindData.ftLastWriteTime,&FindData.ftCreationTime,&FindData.ftLastAccessTime};
+			const SETATTRDLG Dates[]={SA_EDIT_WDATE,SA_EDIT_CDATE,SA_EDIT_ADATE,SA_EDIT_XDATE},Times[]={SA_EDIT_WTIME,SA_EDIT_CTIME,SA_EDIT_ATIME,SA_EDIT_XTIME};
+			const PFILETIME TimeValues[]={&FindData.ftLastWriteTime,&FindData.ftCreationTime,&FindData.ftLastAccessTime,&FindData.ftChangeTime};
 
 			if (DlgParam.Plugin || (!DlgParam.Plugin&&apiGetFindDataEx(strSelName, FindData)))
 			{
@@ -930,12 +953,14 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 				AttrDlg[AP[i].Item].Selected=BSTATE_3STATE;
 			}
 
-			AttrDlg[SA_EDIT_MDATE].strData.Clear();
-			AttrDlg[SA_EDIT_MTIME].strData.Clear();
+			AttrDlg[SA_EDIT_WDATE].strData.Clear();
+			AttrDlg[SA_EDIT_WTIME].strData.Clear();
 			AttrDlg[SA_EDIT_CDATE].strData.Clear();
 			AttrDlg[SA_EDIT_CTIME].strData.Clear();
 			AttrDlg[SA_EDIT_ADATE].strData.Clear();
 			AttrDlg[SA_EDIT_ATIME].strData.Clear();
+			AttrDlg[SA_EDIT_XDATE].strData.Clear();
+			AttrDlg[SA_EDIT_XTIME].strData.Clear();
 			AttrDlg[SA_BUTTON_ORIGINAL].Flags|=DIF_DISABLE;
 			AttrDlg[SA_TEXT_NAME].strData = MSG(MSetAttrSelectedObjects);
 
@@ -1031,12 +1056,14 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 		if (FolderPresent && !Opt.SetAttrFolderRules)
 		{
 			AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected=BSTATE_CHECKED;
-			AttrDlg[SA_EDIT_MDATE].strData.Clear();
-			AttrDlg[SA_EDIT_MTIME].strData.Clear();
+			AttrDlg[SA_EDIT_WDATE].strData.Clear();
+			AttrDlg[SA_EDIT_WTIME].strData.Clear();
 			AttrDlg[SA_EDIT_CDATE].strData.Clear();
 			AttrDlg[SA_EDIT_CTIME].strData.Clear();
 			AttrDlg[SA_EDIT_ADATE].strData.Clear();
 			AttrDlg[SA_EDIT_ATIME].strData.Clear();
+			AttrDlg[SA_EDIT_XDATE].strData.Clear();
+			AttrDlg[SA_EDIT_XTIME].strData.Clear();
 
 			for (size_t i=SA_ATTR_FIRST; i<= SA_ATTR_LAST; i++)
 			{
@@ -1093,7 +1120,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 					}
 				}
 
-				const size_t Times[]={SA_EDIT_MTIME,SA_EDIT_CTIME,SA_EDIT_ATIME};
+				const size_t Times[]={SA_EDIT_WTIME,SA_EDIT_CTIME,SA_EDIT_ATIME,SA_EDIT_XTIME};
 
 				for (size_t i=0; i<ARRAYSIZE(Times); i++)
 				{
@@ -1131,15 +1158,16 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 						}
 					}
 
-					FILETIME LastWriteTime,CreationTime,LastAccessTime;
-					int SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strSelName,LastWriteTime,AttrDlg[SA_EDIT_MDATE].strData,AttrDlg[SA_EDIT_MTIME].strData);
+					FILETIME LastWriteTime,CreationTime,LastAccessTime, ChangeTime;
+					int SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strSelName,LastWriteTime,AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData);
 					int SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strSelName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
 					int SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strSelName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
+					int SetChangeTime=    DlgParam.OChangeTime     && ReadFileTime(3,strSelName,ChangeTime,AttrDlg[SA_EDIT_XDATE].strData,AttrDlg[SA_EDIT_XTIME].strData);
 					//_SVS(SysLog(L"\n\tSetWriteTime=%d\n\tSetCreationTime=%d\n\tSetLastAccessTime=%d",SetWriteTime,SetCreationTime,SetLastAccessTime));
 
-					if (SetWriteTime || SetCreationTime || SetLastAccessTime)
+					if (SetWriteTime || SetCreationTime || SetLastAccessTime || SetChangeTime)
 					{
-						if(ESetFileTime(strSelName,SetWriteTime?&LastWriteTime:nullptr,SetCreationTime?&CreationTime:nullptr,SetLastAccessTime?&LastAccessTime:nullptr,FileAttr,SkipMode)==SETATTR_RET_SKIPALL)
+						if(ESetFileTime(strSelName,SetWriteTime?&LastWriteTime:nullptr,SetCreationTime?&CreationTime:nullptr,SetLastAccessTime?&LastAccessTime:nullptr,SetChangeTime?&ChangeTime:nullptr,FileAttr,SkipMode)==SETATTR_RET_SKIPALL)
 						{
 							SkipMode=SETATTR_RET_SKIP;
 						}
@@ -1274,11 +1302,12 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 							}
 						}
 
-						FILETIME LastWriteTime,CreationTime,LastAccessTime;
-						int SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strSelName,LastWriteTime,AttrDlg[SA_EDIT_MDATE].strData,AttrDlg[SA_EDIT_MTIME].strData);
+						FILETIME LastWriteTime,CreationTime,LastAccessTime, ChangeTime;
+						int SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strSelName,LastWriteTime,AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData);
 						int SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strSelName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
 						int SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strSelName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
-						RetCode=ESetFileTime(strSelName,SetWriteTime?&LastWriteTime:nullptr,SetCreationTime?&CreationTime:nullptr,SetLastAccessTime?&LastAccessTime:nullptr,FileAttr,SkipMode);
+						int SetChangeTime=    DlgParam.OChangeTime     && ReadFileTime(3,strSelName,ChangeTime,AttrDlg[SA_EDIT_XDATE].strData,AttrDlg[SA_EDIT_XTIME].strData);
+						RetCode=ESetFileTime(strSelName,SetWriteTime?&LastWriteTime:nullptr,SetCreationTime?&CreationTime:nullptr,SetLastAccessTime?&LastAccessTime:nullptr,SetChangeTime?&ChangeTime:nullptr,FileAttr,SkipMode);
 
 						if (RetCode == SETATTR_RET_ERROR)
 							break;
@@ -1395,13 +1424,14 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 										}
 									}
 
-									SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strFullName,LastWriteTime,AttrDlg[SA_EDIT_MDATE].strData,AttrDlg[SA_EDIT_MTIME].strData);
+									SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strFullName,LastWriteTime,AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData);
 									SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strFullName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
 									SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strFullName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
+									SetChangeTime=    DlgParam.OChangeTime     && ReadFileTime(3,strFullName,ChangeTime,AttrDlg[SA_EDIT_XDATE].strData,AttrDlg[SA_EDIT_XTIME].strData);
 
-									if (SetWriteTime || SetCreationTime || SetLastAccessTime)
+									if (SetWriteTime || SetCreationTime || SetLastAccessTime || SetChangeTime)
 									{
-										RetCode=ESetFileTime(strFullName,SetWriteTime?&LastWriteTime:nullptr,SetCreationTime?&CreationTime:nullptr,SetLastAccessTime?&LastAccessTime:nullptr,FindData.dwFileAttributes,SkipMode);
+										RetCode=ESetFileTime(strFullName,SetWriteTime?&LastWriteTime:nullptr,SetCreationTime?&CreationTime:nullptr,SetLastAccessTime?&LastAccessTime:nullptr,SetChangeTime?&ChangeTime:nullptr,FindData.dwFileAttributes,SkipMode);
 
 										if (RetCode == SETATTR_RET_ERROR)
 										{

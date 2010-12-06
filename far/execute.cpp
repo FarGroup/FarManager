@@ -634,7 +634,7 @@ bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
           DWORD samDesired = KEY_QUERY_VALUE;
 					DWORD RedirectionFlag = 0;
 					// App Paths key is shared in Windows 7 and above
-					if (WinVer.dwMajorVersion < 6 || WinVer.dwMajorVersion == 6 && WinVer.dwMinorVersion < 1)
+					if (WinVer.dwMajorVersion < 6 || (WinVer.dwMajorVersion == 6 && WinVer.dwMinorVersion < 1))
 					{
 #ifdef _WIN64
 						RedirectionFlag = KEY_WOW64_32KEY;

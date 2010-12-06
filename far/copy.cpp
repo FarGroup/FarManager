@@ -925,7 +925,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
 	{
 		if (UseFilter)
 		{
-			if (!Filter->FileInFilter(&fd))
+			if (!Filter->FileInFilter(fd))
 				continue;
 		}
 
@@ -2094,7 +2094,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 						// ѕросто пропустить каталог недостаточно - если каталог помечен в
 						// фильтре как некопируемый, то следует пропускать и его и всЄ его
 						// содержимое.
-						if (!Filter->FileInFilter(&SrcData))
+						if (!Filter->FileInFilter(SrcData))
 						{
 							ScTree.SkipDir();
 							continue;
@@ -2251,7 +2251,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 	if (UseFilter)
 	{
-		if (!Filter->FileInFilter(&SrcData))
+		if (!Filter->FileInFilter(SrcData))
 			return COPY_NOFILTER;
 	}
 
@@ -3484,7 +3484,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 
 	if (!(Flags&FCOPY_COPYTONUL))
 	{
-		DestFile.SetTime(nullptr,nullptr,&SrcData.ftLastWriteTime);
+		DestFile.SetTime(nullptr, nullptr, &SrcData.ftLastWriteTime, nullptr);
 		SrcFile.Close();
 
 		if (CopySparse)
@@ -4118,7 +4118,7 @@ bool ShellCopy::CalcTotalSize()
 			//  ѕодсчитаем количество файлов
 			if (UseFilter)
 			{
-				if (!Filter->FileInFilter(&fd))
+				if (!Filter->FileInFilter(fd))
 					continue;
 			}
 
