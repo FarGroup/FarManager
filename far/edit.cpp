@@ -1436,8 +1436,8 @@ int Edit::ProcessKey(int Key)
 			if (Flags.Check(FEDITLINE_CLEARFLAG))
 			{
 				LeftPos=0;
-				SetString(ClipText);
 				Flags.Clear(FEDITLINE_CLEARFLAG);
+				SetString(ClipText);
 			}
 			else
 			{
