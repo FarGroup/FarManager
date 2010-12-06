@@ -210,6 +210,13 @@ void MenuFileToReg(const wchar_t *MenuKey, File& MenuFile, GetFileString& GetStr
 			RemoveLeadingSpaces(strLabel);
 			bool SubMenu=(GetStr.PeekString(&MenuStr, MenuCP, MenuStrLength) && *MenuStr==L'{');
 			UseSameRegKey();
+
+			// Support for old 1.x separator format
+			if(MenuCP==CP_OEMCP && strHotKey==L"-" && strLabel.IsEmpty())
+			{
+				strHotKey+=L"-";
+			}
+
 			SetRegKey(strItemKey,L"HotKey",strHotKey);
 			SetRegKey(strItemKey,L"Label",strLabel);
 			SetRegKey(strItemKey,L"Submenu",SubMenu);
