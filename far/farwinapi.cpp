@@ -65,7 +65,7 @@ HANDLE FindFirstFileInternal(LPCWSTR Name, FAR_FIND_DATA_EX& FindData)
 			{
 				Handle->ObjectHandle =reinterpret_cast<HANDLE>(Directory);
 
-				Handle->BufferSize = 0x100000;
+				Handle->BufferSize = 0x10000;
 				Handle->BufferBase = xf_malloc(Handle->BufferSize);
 				if (Handle->BufferBase)
 				{

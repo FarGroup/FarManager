@@ -64,10 +64,13 @@ NTPath::NTPath(LPCWSTR Src)
 				}
 			}
 		}
-		// \\?\C -> \\?\c
-		LPWSTR Buffer = Str.GetBuffer();
-		Buffer[4] = Lower(Buffer[4]);
-		Str.ReleaseBuffer(Str.GetLength());
+		// \\?\C: -> \\?\c:
+		if(Str.At(5) == L':')
+		{
+			LPWSTR Buffer = Str.GetBuffer();
+			Buffer[4] = Lower(Buffer[4]);
+			Str.ReleaseBuffer(Str.GetLength());
+		}
 	}
 }
 
