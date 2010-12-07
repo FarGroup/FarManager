@@ -560,13 +560,13 @@ MCtrlF4
 "Extens"
 
 MCtrlF5
-"Модиф"
-"Modifn"
-"Modifk"
-"Veränd"
-"MódIdő"
-"Modyf"
-"Fecha "
+"Запись"
+"Write"
+upd:"Write"
+upd:"Write"
+upd:"Write"
+upd:"Write"
+upd:"Write"
 
 MCtrlF6
 "Размер"
