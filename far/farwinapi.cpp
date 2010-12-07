@@ -61,45 +61,56 @@ HANDLE FindFirstFileInternal(LPCWSTR Name, FAR_FIND_DATA_EX& FindData)
 			string strDirectory(Name);
 			CutToSlash(strDirectory);
 			File* Directory = new File;
-			if(Directory && Directory->Open(strDirectory, FILE_LIST_DIRECTORY|SYNCHRONIZE, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
+			if(Directory)
 			{
-				Handle->ObjectHandle =reinterpret_cast<HANDLE>(Directory);
-
-				Handle->BufferSize = 0x10000;
-				Handle->BufferBase = xf_malloc(Handle->BufferSize);
-				if (Handle->BufferBase)
+				if(Directory->Open(strDirectory, FILE_LIST_DIRECTORY|SYNCHRONIZE, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 				{
-					LPCWSTR NamePtr = PointToName(Name);
-					if(Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileBothDirectoryInformation, FALSE, NamePtr, TRUE))
+					Handle->ObjectHandle =reinterpret_cast<HANDLE>(Directory);
+
+					Handle->BufferSize = 0x10000;
+					Handle->BufferBase = xf_malloc(Handle->BufferSize);
+					if (Handle->BufferBase)
 					{
-						PFILE_BOTH_DIR_INFORMATION DirectoryInfo = reinterpret_cast<PFILE_BOTH_DIR_INFORMATION>(Handle->BufferBase);
-						FindData.dwFileAttributes = DirectoryInfo->FileAttributes;
-						FindData.ftCreationTime.dwLowDateTime = DirectoryInfo->CreationTime.LowPart;
-						FindData.ftCreationTime.dwHighDateTime = DirectoryInfo->CreationTime.HighPart;
-						FindData.ftLastAccessTime.dwLowDateTime = DirectoryInfo->LastAccessTime.LowPart;
-						FindData.ftLastAccessTime.dwHighDateTime = DirectoryInfo->LastAccessTime.HighPart;
-						FindData.ftLastWriteTime.dwLowDateTime = DirectoryInfo->LastWriteTime.LowPart;
-						FindData.ftLastWriteTime.dwHighDateTime = DirectoryInfo->LastWriteTime.HighPart;
-						FindData.ftChangeTime.dwLowDateTime = DirectoryInfo->ChangeTime.LowPart;
-						FindData.ftChangeTime.dwHighDateTime = DirectoryInfo->ChangeTime.HighPart;
-						FindData.nFileSize = DirectoryInfo->EndOfFile.QuadPart;
-						FindData.nPackSize = 0;
-						FindData.dwReserved0 = FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT?DirectoryInfo->EaSize:0;
-						FindData.dwReserved1 = 0;
-						FindData.strFileName.Copy(DirectoryInfo->FileName,DirectoryInfo->FileNameLength/sizeof(WCHAR));
-						FindData.strAlternateFileName.Copy(DirectoryInfo->ShortName,DirectoryInfo->ShortNameLength/sizeof(WCHAR));
-						Handle->NextOffset = DirectoryInfo->NextEntryOffset;
-						Result = reinterpret_cast<HANDLE>(Handle);
+						LPCWSTR NamePtr = PointToName(Name);
+						if(Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileBothDirectoryInformation, FALSE, NamePtr, TRUE))
+						{
+							PFILE_BOTH_DIR_INFORMATION DirectoryInfo = reinterpret_cast<PFILE_BOTH_DIR_INFORMATION>(Handle->BufferBase);
+							FindData.dwFileAttributes = DirectoryInfo->FileAttributes;
+							FindData.ftCreationTime.dwLowDateTime = DirectoryInfo->CreationTime.LowPart;
+							FindData.ftCreationTime.dwHighDateTime = DirectoryInfo->CreationTime.HighPart;
+							FindData.ftLastAccessTime.dwLowDateTime = DirectoryInfo->LastAccessTime.LowPart;
+							FindData.ftLastAccessTime.dwHighDateTime = DirectoryInfo->LastAccessTime.HighPart;
+							FindData.ftLastWriteTime.dwLowDateTime = DirectoryInfo->LastWriteTime.LowPart;
+							FindData.ftLastWriteTime.dwHighDateTime = DirectoryInfo->LastWriteTime.HighPart;
+							FindData.ftChangeTime.dwLowDateTime = DirectoryInfo->ChangeTime.LowPart;
+							FindData.ftChangeTime.dwHighDateTime = DirectoryInfo->ChangeTime.HighPart;
+							FindData.nFileSize = DirectoryInfo->EndOfFile.QuadPart;
+							FindData.nPackSize = 0;
+							FindData.dwReserved0 = FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT?DirectoryInfo->EaSize:0;
+							FindData.dwReserved1 = 0;
+							FindData.strFileName.Copy(DirectoryInfo->FileName,DirectoryInfo->FileNameLength/sizeof(WCHAR));
+							FindData.strAlternateFileName.Copy(DirectoryInfo->ShortName,DirectoryInfo->ShortNameLength/sizeof(WCHAR));
+							Handle->NextOffset = DirectoryInfo->NextEntryOffset;
+							Result = reinterpret_cast<HANDLE>(Handle);
+						}
+						else
+						{
+							xf_free(Handle->BufferBase);
+						}
 					}
-					else
+				}
+				else
+				{
+					// fix error code if we looking for FILE(S) in non-existent directory, not directory itself
+					if(GetLastError() == ERROR_FILE_NOT_FOUND && *PointToName(Name))
 					{
-						xf_free(Handle->BufferBase);
+						SetLastError(ERROR_PATH_NOT_FOUND);
 					}
+					delete Directory;
 				}
 			}
 			if(Result == INVALID_HANDLE_VALUE)
 			{
-				delete Directory;
 				delete Handle;
 			}
 		}
