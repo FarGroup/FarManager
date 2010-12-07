@@ -65,6 +65,7 @@ NTPath::NTPath(LPCWSTR Src)
 			}
 		}
 		// \\?\C: -> \\?\c:
+		// Some file operations fails on Win2k if a drive letter is in upper case
 		if(Str.At(5) == L':')
 		{
 			LPWSTR Buffer = Str.GetBuffer();

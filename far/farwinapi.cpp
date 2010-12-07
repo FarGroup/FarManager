@@ -67,6 +67,7 @@ HANDLE FindFirstFileInternal(LPCWSTR Name, FAR_FIND_DATA_EX& FindData)
 				{
 					Handle->ObjectHandle =reinterpret_cast<HANDLE>(Directory);
 
+					// for network paths buffer size must be <= 65k
 					Handle->BufferSize = 0x10000;
 					Handle->BufferBase = xf_malloc(Handle->BufferSize);
 					if (Handle->BufferBase)
@@ -106,6 +107,9 @@ HANDLE FindFirstFileInternal(LPCWSTR Name, FAR_FIND_DATA_EX& FindData)
 					{
 						SetLastError(ERROR_PATH_NOT_FOUND);
 					}
+				}
+				if(Result == INVALID_HANDLE_VALUE)
+				{
 					delete Directory;
 				}
 			}
