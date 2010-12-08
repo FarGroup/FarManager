@@ -595,7 +595,7 @@ void PR_ShellSetFileAttributesMsg()
 bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-	short DlgX=70,DlgY=26;
+	short DlgX=70,DlgY=24;
 	DialogDataEx AttrDlgData[]=
 	{
 		DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,0,MSG(MSetAttrTitle),
@@ -638,8 +638,8 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 		DI_BUTTON,0,19,0,19,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(MSetAttrOriginal),
 		DI_BUTTON,0,19,0,19,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(MSetAttrCurrent),
 		DI_BUTTON,0,19,0,19,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(MSetAttrBlank),
-		DI_TEXT,3,20,0,20,0,DIF_SEPARATOR,L"",
-		DI_CHECKBOX,5,21,0,21,0,DIF_DISABLE,MSG(MSetAttrSubfolders),
+		DI_TEXT,3,20,0,20,0,DIF_SEPARATOR|DIF_HIDDEN,L"",
+		DI_CHECKBOX,5,21,0,21,0,DIF_DISABLE|DIF_HIDDEN,MSG(MSetAttrSubfolders),
 		DI_TEXT,3,DlgY-4,0,DlgY-4,0,DIF_SEPARATOR,L"",
 		DI_BUTTON,0,DlgY-3,0,DlgY-3,0,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MSetAttrSet),
 		DI_BUTTON,0,DlgY-3,0,DlgY-3,0,DIF_CENTERGROUP|DIF_DISABLE,MSG(MSetAttrSystemDialog),
@@ -785,8 +785,16 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 				}
 
 				//_SVS(SysLog(L"SelName=%s  FileAttr=0x%08X",SelName,FileAttr));
-				AttrDlg[SA_CHECKBOX_SUBFOLDERS].Flags&=~DIF_DISABLE;
+				AttrDlg[SA_SEPARATOR4].Flags&=~DIF_HIDDEN;
+				AttrDlg[SA_CHECKBOX_SUBFOLDERS].Flags&=~(DIF_DISABLE|DIF_HIDDEN);
 				AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected=Opt.SetAttrFolderRules?BSTATE_UNCHECKED:BSTATE_CHECKED;
+				AttrDlg[SA_DOUBLEBOX].Y2+=2;
+				for(int i=SA_SEPARATOR5;i<=SA_BUTTON_CANCEL;i++)
+				{
+					AttrDlg[i].Y1+=2;
+					AttrDlg[i].Y2+=2;
+				}
+				DlgY+=2;
 
 				if (Opt.SetAttrFolderRules)
 				{
@@ -997,7 +1005,15 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 					if (!FolderPresent&&(FileAttr&FILE_ATTRIBUTE_DIRECTORY))
 					{
 						FolderPresent=true;
-						AttrDlg[SA_CHECKBOX_SUBFOLDERS].Flags&=~DIF_DISABLE;
+						AttrDlg[SA_SEPARATOR4].Flags&=~DIF_HIDDEN;
+						AttrDlg[SA_CHECKBOX_SUBFOLDERS].Flags&=~(DIF_DISABLE|DIF_HIDDEN);
+						AttrDlg[SA_DOUBLEBOX].Y2+=2;
+						for(int i=SA_SEPARATOR5;i<=SA_BUTTON_CANCEL;i++)
+						{
+							AttrDlg[i].Y1+=2;
+							AttrDlg[i].Y2+=2;
+						}
+						DlgY+=2;
 					}
 
 					for (size_t i=0; i<ARRAYSIZE(AP); i++)
@@ -1029,7 +1045,15 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 				if (!FolderPresent&&(FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
 				{
 					FolderPresent=true;
-					AttrDlg[SA_CHECKBOX_SUBFOLDERS].Flags&=~DIF_DISABLE;
+					AttrDlg[SA_SEPARATOR4].Flags&=~DIF_HIDDEN;
+					AttrDlg[SA_CHECKBOX_SUBFOLDERS].Flags&=~(DIF_DISABLE|DIF_HIDDEN);
+					AttrDlg[SA_DOUBLEBOX].Y2+=2;
+					for(int i=SA_SEPARATOR5;i<=SA_BUTTON_CANCEL;i++)
+					{
+						AttrDlg[i].Y1+=2;
+						AttrDlg[i].Y2+=2;
+					}
+					DlgY+=2;
 				}
 				for (size_t i=0; i<ARRAYSIZE(AP); i++)
 				{

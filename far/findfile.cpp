@@ -85,6 +85,8 @@ const DWORD LIST_INDEX_NONE = static_cast<DWORD>(-1);
 const size_t readBufferSizeA=32768;
 const size_t readBufferSize=(readBufferSizeA*sizeof(wchar_t));
 
+bool AnySetFindList=false;
+
 // Список найденных файлов. Индекс из списка хранится в меню.
 struct FINDLIST
 {
@@ -2173,7 +2175,10 @@ void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& 
 	{
 		SendDlgMessage(hDlg, DM_ENABLE, FD_BUTTON_GOTO, TRUE);
 		SendDlgMessage(hDlg, DM_ENABLE, FD_BUTTON_VIEW, TRUE);
-		SendDlgMessage(hDlg, DM_ENABLE, FD_BUTTON_PANEL, TRUE);
+		if(AnySetFindList)
+		{
+			SendDlgMessage(hDlg, DM_ENABLE, FD_BUTTON_PANEL, TRUE);
+		}
 		SendDlgMessage(hDlg, DM_ENABLE, FD_LISTBOX, TRUE);
 	}
 
@@ -2961,8 +2966,7 @@ bool FindFilesProcess(Vars& v)
 		}
 	}
 
-	bool AnySetFindList=false;
-
+	AnySetFindList = false;
 	for (int i=0; i<CtrlObject->Plugins.GetPluginsCount(); i++)
 	{
 		if (CtrlObject->Plugins.GetPlugin(i)->HasSetFindList())
