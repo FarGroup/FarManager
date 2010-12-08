@@ -4197,10 +4197,10 @@ void FileList::SelectSortMode()
 		}
 
 	int SG=GetSortGroups();
-	SortMenu[16].SetCheck(NumericSort);
-	SortMenu[17].SetCheck(SG);
-	SortMenu[18].SetCheck(SelectedFirst);
-	SortMenu[19].SetCheck(DirectoriesFirst);
+	SortMenu[BY_CUSTOMDATA+2].SetCheck(NumericSort);
+	SortMenu[BY_CUSTOMDATA+3].SetCheck(SG);
+	SortMenu[BY_CUSTOMDATA+4].SetCheck(SelectedFirst);
+	SortMenu[BY_CUSTOMDATA+5].SetCheck(DirectoriesFirst);
 	int SortCode=-1;
 	bool setSortMode0=false;
 
@@ -4258,16 +4258,16 @@ void FileList::SelectSortMode()
 					{
 						switch (MenuPos)
 						{
-							case 16:
+							case BY_CUSTOMDATA+2:
 								NumericSort=0;
 								break;
-							case 17:
+							case BY_CUSTOMDATA+3:
 								SortGroups=0;
 								break;
-							case 18:
+							case BY_CUSTOMDATA+4:
 								SelectedFirst=0;
 								break;
-							case 19:
+							case BY_CUSTOMDATA+5:
 								DirectoriesFirst=0;
 								break;
 						}
@@ -4285,16 +4285,16 @@ void FileList::SelectSortMode()
 					{
 						switch (MenuPos)
 						{
-							case 16:
+							case BY_CUSTOMDATA+2:
 								NumericSort=1;
 								break;
-							case 17:
+							case BY_CUSTOMDATA+3:
 								SortGroups=1;
 								break;
-							case 18:
+							case BY_CUSTOMDATA+4:
 								SelectedFirst=1;
 								break;
-							case 19:
+							case BY_CUSTOMDATA+5:
 								DirectoriesFirst=1;
 								break;
 						}
@@ -4322,16 +4322,16 @@ void FileList::SelectSortMode()
 	else
 		switch (SortCode)
 		{
-			case 16:
+			case BY_CUSTOMDATA+2:
 				ChangeNumericSort(NumericSort?0:1);
 				break;
-			case 17:
+			case BY_CUSTOMDATA+3:
 				ProcessKey(KEY_SHIFTF11);
 				break;
-			case 18:
+			case BY_CUSTOMDATA+4:
 				ProcessKey(KEY_SHIFTF12);
 				break;
-			case 19:
+			case BY_CUSTOMDATA+5:
 				ChangeDirectoriesFirst(DirectoriesFirst?0:1);
 				break;
 		}

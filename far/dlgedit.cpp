@@ -78,7 +78,10 @@ DlgEdit::DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type):
 					iHistory=new History(HISTORYTYPE_DIALOG, Opt.DialogsHistoryCount, strHistory, &Opt.Dialogs.EditHistory, false);
 					iHistory->ReadHistory(true);
 				}
-				iList=CurItem->ListItems;
+				if(CurItem->Type == DI_COMBOBOX)
+				{
+					iList=CurItem->ListItems;
+				}
 				if(CurItem->Flags&DIF_EDITPATH)
 				{
 					iFlags|=EditControl::EC_ENABLEFNCOMPLETE;

@@ -187,8 +187,12 @@ FindFile::FindFile(LPCWSTR Object, bool ScanSymLink):
 	{
 		if(ScanSymLink)
 		{
-			string strReal;
-			ConvertNameToReal(strName, strReal);
+			string strReal(strName);
+			// only links in path should be processed, not the object name itself
+			CutToSlash(strReal);
+			ConvertNameToReal(strReal, strReal);
+			AddEndSlash(strReal);
+			strReal+=PointToName(Object);
 			strReal = NTPath(strReal);
 			Handle = FindFirstFileInternal(strReal, Data);
 		}
