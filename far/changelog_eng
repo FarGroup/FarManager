@@ -3,6 +3,64 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+t-rex 10.12.2010 00:06:20 +0200 - build 1751
+
+1. Ctrl-Ins does not copy files to clipboard anymore, now this is bound to Ctrl-C.
+   Ctrl-C - Copy marked files to clipboard (not taking command line state into account).
+
+drkns 08.12.2010 23:50:39 +0200 - build 1750
+
+1. Attributes dialog's option "[ ] Process subfolder" is hidden for files.
+
+2. "[ Panel ]" button blocking is broken in search results if appropriate plugins are missing.
+
+drkns 08.12.2010 19:07:03 +0200 - build 1749
+
+1. Forum: "Show selected first" item in sort mode choose menu is actually "Show directories first", and the last item does not work at all, even the checkbox is not set.
+
+2. Forum: Bug at "C:\Documents and Setting\All Users" folder open
+
+3. Forum: Far crashes if Ctrl+Shift+End is pressed in input field of fixed size (for example, Options - Editor settings - Tab size)
+
+drkns 07.12.2010 18:09:12 +0200 - build 1748
+
+1. Handle leak in previous build.
+
+drkns 07.12.2010 12:41:41 +0200 - build 1747
+
+1. Mantis#0001615: A possibility to open path in panels that doesn't exist on volume or in network
+
+drkns 07.12.2010 11:29:41 +0200 - build 1746
+
+1. Correction of 1741.
+
+drkns 07.12.2010 08:45:22 +0200 - build 1745
+
+1. Another couple of trivia.
+
+drkns 07.12.2010 01:02:52 +0200 - build 1744
+
+1. Mantis#0001408: Paste into autocompleted field leaves the text "grayed" sometimes.
+
+drkns 07.12.2010 00:04:33 +0200 - build 1743
+
+1. Mantis#0001612: Possibility to set current time in file attributes change dialog
+
+drkns 06.12.2010 20:09:35 +0200 - build 1742
+
+1. When Far 1.x local menu files are read, former divider formatting is taken into account.
+
+drkns 06.12.2010 19:42:33 +0200 - build 1741
+
+1. "Change Time" support.
+   Unlike "Last Write Time", it is updated at any manipulations with the file, not only at file contents change.
+
+2. Correction of hlf/lng - "Modification time" -> "Last write time".
+
+3. Simple global protection from memory shortage: at unsuccessful allocation, instead of crash, execution is stopped with repeat or resume capability.
+
+4. gcc warnings.
+
 drkns 04.12.2010 11:11:27 +0200 - build 1740
 
 1. From Tim Sobolev: correction of editor window caption.
