@@ -1,3 +1,9 @@
+drkns 10.12.2010 20:02:21 +0200 - build 1753
+
+1. "[x] Automatic update of environment variables" -> "[ ] Automatic update of environment variables".
+
+2. Уточнение console::Write().
+
 drkns 10.12.2010 10:51:32 +0200 - build 1752
 
 1. Опция "[x] Automatic update of environment variables".

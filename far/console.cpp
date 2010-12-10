@@ -352,7 +352,8 @@ bool console::WriteOutput(const CHAR_INFO& Buffer, COORD BufferSize, COORD Buffe
 
 bool console::Write(LPCWSTR Buffer, DWORD NumberOfCharsToWrite)
 {
-	return WriteConsole(GetOutputHandle(), Buffer, NumberOfCharsToWrite, nullptr, nullptr)!=FALSE;
+	DWORD NumberOfCharsWritten;
+	return WriteConsole(GetOutputHandle(), Buffer, NumberOfCharsToWrite, &NumberOfCharsWritten, nullptr)!=FALSE;
 }
 
 bool console::GetTextAttributes(WORD& Attributes)
