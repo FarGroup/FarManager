@@ -1024,7 +1024,9 @@ HANDLE apiFindFirstStream(LPCWSTR lpFileName,STREAM_INFO_LEVELS InfoLevel,LPVOID
 
 				if (Handle->ObjectHandle!=INVALID_HANDLE_VALUE)
 				{
-					Handle->BufferSize = 0x40000;
+					// for network paths buffer size must be <= 65k
+					// we double it in a first loop, so starting value is 32k
+					Handle->BufferSize = 0x8000;
 					Handle->BufferBase = nullptr;
 
 					NTSTATUS Result = STATUS_SEVERITY_ERROR;
@@ -1034,6 +1036,10 @@ HANDLE apiFindFirstStream(LPCWSTR lpFileName,STREAM_INFO_LEVELS InfoLevel,LPVOID
 						Handle->BufferBase=static_cast<LPBYTE>(xf_realloc_nomove(Handle->BufferBase, Handle->BufferSize));
 						if (Handle->BufferBase)
 						{
+							// sometimes for directories NtQueryInformationFile returns STATUS_SUCCESS but doesn't fill the buffer
+							PFILE_STREAM_INFORMATION StreamInfo = reinterpret_cast<PFILE_STREAM_INFORMATION>(Handle->BufferBase);
+							StreamInfo->StreamNameLength = 0;
+
 							IO_STATUS_BLOCK IoStatusBlock;
 							Result = ifn.pfnNtQueryInformationFile(Handle->ObjectHandle, &IoStatusBlock, Handle->BufferBase, Handle->BufferSize, FileStreamInformation);
 						}
@@ -1058,7 +1064,11 @@ HANDLE apiFindFirstStream(LPCWSTR lpFileName,STREAM_INFO_LEVELS InfoLevel,LPVOID
 
 					if (Ret==INVALID_HANDLE_VALUE)
 					{
-						xf_free(Handle);
+						if(Handle->BufferBase)
+						{
+							xf_free(Handle->BufferBase);
+						}
+						delete Handle;
 					}
 				}
 			}

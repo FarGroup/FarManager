@@ -1,3 +1,7 @@
+drkns 10.12.2010 22:36:15 +0200 - build 1754
+
+1. Уточнение внутренней реализации FindFirstStream.
+
 drkns 10.12.2010 20:02:21 +0200 - build 1753
 
 1. "[x] Automatic update of environment variables" -> "[ ] Automatic update of environment variables".
