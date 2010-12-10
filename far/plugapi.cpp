@@ -2271,7 +2271,7 @@ int WINAPI farConvertPath(CONVERTPATHMODES Mode,const wchar_t *Src, wchar_t *Des
 		switch (Mode)
 		{
 			case CPM_NATIVE:
-				strDest=NTPath(Src).Str;
+				strDest=NTPath(Src).Get();
 				break;
 			case CPM_REAL:
 				ConvertNameToReal(Src, strDest);

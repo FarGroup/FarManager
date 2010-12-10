@@ -2132,7 +2132,7 @@ HANDLE PluginManager::OpenPlugin(Plugin *pPlugin,int OpenFrom,INT_PTR Item)
 
 void PluginManager::GetCustomData(FileListItem *ListItem)
 {
-	string FilePath(NTPath(ListItem->strName).Str);
+	string FilePath(NTPath(ListItem->strName).Get());
 
 	for (int i=0; i<PluginsCount; i++)
 	{

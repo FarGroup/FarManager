@@ -175,7 +175,7 @@ FindFile::FindFile(LPCWSTR Object, bool ScanSymLink):
 	Handle(INVALID_HANDLE_VALUE),
 	empty(false)
 {
-	string strName(NTPath(Object).Str);
+	string strName(NTPath(Object).Get());
 
 	// temporary disable elevation to try "real" name first
 	DWORD OldElevationMode = Opt.ElevationMode;
@@ -253,7 +253,7 @@ File::~File()
 
 bool File::Open(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile, bool ForceElevation)
 {
-	string strObject(NTPath(Object).Str);
+	string strObject(NTPath(Object).Get());
 	FlagsAndAttributes|=FILE_FLAG_BACKUP_SEMANTICS|(CreationDistribution==OPEN_EXISTING?FILE_FLAG_POSIX_SEMANTICS:0);
 	Handle = CreateFile(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
 	if(Handle == INVALID_HANDLE_VALUE)
@@ -382,7 +382,7 @@ NTSTATUS GetLastNtStatus()
 
 BOOL apiDeleteFile(const wchar_t *lpwszFileName)
 {
-	string strNtName(NTPath(lpwszFileName).Str);
+	string strNtName(NTPath(lpwszFileName).Get());
 	BOOL Result = DeleteFile(strNtName);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
@@ -393,7 +393,7 @@ BOOL apiDeleteFile(const wchar_t *lpwszFileName)
 
 BOOL apiRemoveDirectory(const wchar_t *DirName)
 {
-	string strNtName(NTPath(DirName).Str);
+	string strNtName(NTPath(DirName).Get());
 	BOOL Result = RemoveDirectory(strNtName);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
@@ -418,7 +418,7 @@ HANDLE apiCreateFile(
 	}
 
 	dwFlagsAndAttributes|=FILE_FLAG_BACKUP_SEMANTICS;
-	string strName(NTPath(lpwszFileName).Str);
+	string strName(NTPath(lpwszFileName).Get());
 	HANDLE hFile=CreateFile(
 	                 strName,
 	                 dwDesiredAccess,
@@ -456,7 +456,7 @@ BOOL apiCopyFileEx(
     DWORD dwCopyFlags
 )
 {
-	string strFrom(NTPath(lpwszExistingFileName).Str), strTo(NTPath(lpwszNewFileName).Str);
+	string strFrom(NTPath(lpwszExistingFileName).Get()), strTo(NTPath(lpwszNewFileName).Get());
 	BOOL Result = CopyFileEx(strFrom, strTo, lpProgressRoutine, lpData, pbCancel, dwCopyFlags);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
 	{
@@ -470,7 +470,7 @@ BOOL apiMoveFile(
     const wchar_t *lpwszNewFileName   // address of new name for the file
 )
 {
-	string strFrom(NTPath(lpwszExistingFileName).Str), strTo(NTPath(lpwszNewFileName).Str);
+	string strFrom(NTPath(lpwszExistingFileName).Get()), strTo(NTPath(lpwszNewFileName).Get());
 	BOOL Result = MoveFile(strFrom, strTo);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
 	{
@@ -485,7 +485,7 @@ BOOL apiMoveFileEx(
     DWORD dwFlags   // flag to determine how to move file
 )
 {
-	string strFrom(NTPath(lpwszExistingFileName).Str), strTo(NTPath(lpwszNewFileName).Str);
+	string strFrom(NTPath(lpwszExistingFileName).Get()), strTo(NTPath(lpwszNewFileName).Get());
 	BOOL Result = MoveFileEx(strFrom, strTo, dwFlags);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
 	{
@@ -852,7 +852,7 @@ BOOL apiGetDiskSize(const wchar_t *Path,unsigned __int64 *TotalSize, unsigned __
 	uiUserFree=0;
 	uiTotalSize=0;
 	uiTotalFree=0;
-	string strPath(NTPath(Path).Str);
+	string strPath(NTPath(Path).Get());
 	AddEndSlash(strPath);
 	ExitCode=GetDiskFreeSpaceEx(strPath,(PULARGE_INTEGER)&uiUserFree,(PULARGE_INTEGER)&uiTotalSize,(PULARGE_INTEGER)&uiTotalFree);
 
@@ -919,8 +919,8 @@ BOOL apiCreateDirectory(LPCWSTR lpPathName,LPSECURITY_ATTRIBUTES lpSecurityAttri
 
 BOOL apiCreateDirectoryEx(LPCWSTR TemplateDirectory, LPCWSTR NewDirectory, LPSECURITY_ATTRIBUTES SecurityAttributes)
 {
-	string strNtTemplateDirectory(NTPath(TemplateDirectory).Str);
-	string strNtNewDirectory(NTPath(NewDirectory).Str);
+	string strNtTemplateDirectory(NTPath(TemplateDirectory).Get());
+	string strNtNewDirectory(NTPath(NewDirectory).Get());
 	BOOL Result = TemplateDirectory?CreateDirectoryEx(strNtTemplateDirectory, strNtNewDirectory, SecurityAttributes):CreateDirectory(strNtNewDirectory, SecurityAttributes);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
@@ -931,7 +931,7 @@ BOOL apiCreateDirectoryEx(LPCWSTR TemplateDirectory, LPCWSTR NewDirectory, LPSEC
 
 DWORD apiGetFileAttributes(LPCWSTR lpFileName)
 {
-	string strNtName(NTPath(lpFileName).Str);
+	string strNtName(NTPath(lpFileName).Get());
 	DWORD Result = GetFileAttributes(strNtName);
 	if(Result == INVALID_FILE_ATTRIBUTES && ElevationRequired(ELEVATION_READ_REQUEST))
 	{
@@ -942,7 +942,7 @@ DWORD apiGetFileAttributes(LPCWSTR lpFileName)
 
 BOOL apiSetFileAttributes(LPCWSTR lpFileName,DWORD dwFileAttributes)
 {
-	string strNtName(NTPath(lpFileName).Str);
+	string strNtName(NTPath(lpFileName).Get());
 	BOOL Result = SetFileAttributes(strNtName, dwFileAttributes);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
@@ -962,7 +962,7 @@ bool CreateSymbolicLinkInternal(LPCWSTR Object,LPCWSTR Target, DWORD dwFlags)
 bool apiCreateSymbolicLink(LPCWSTR lpSymlinkFileName,LPCWSTR lpTargetFileName,DWORD dwFlags)
 {
 	bool Result=false;
-	string strSymlinkFileName(NTPath(lpSymlinkFileName).Str);
+	string strSymlinkFileName(NTPath(lpSymlinkFileName).Get());
 	Result=CreateSymbolicLinkInternal(strSymlinkFileName, lpTargetFileName, dwFlags);
 	if (!Result)
 	{
@@ -1321,7 +1321,7 @@ bool apiGetVolumeNameForVolumeMountPoint(LPCWSTR VolumeMountPoint,string& strVol
 {
 	bool Result=false;
 	WCHAR VolumeName[50];
-	string strVolumeMountPoint(NTPath(VolumeMountPoint).Str);
+	string strVolumeMountPoint(NTPath(VolumeMountPoint).Get());
 	AddEndSlash(strVolumeMountPoint);
 	if(GetVolumeNameForVolumeMountPoint(strVolumeMountPoint,VolumeName,ARRAYSIZE(VolumeName)))
 	{

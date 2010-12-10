@@ -39,11 +39,16 @@ const size_t cVolumeGuidLen = 48;
 
 class NTPath
 {
-	public:
 		string Str;
+	public:
 		NTPath(LPCWSTR Src);
 
 		operator LPCWSTR() const
+		{
+			return Str;
+		}
+
+		const string Get() const
 		{
 			return Str;
 		}

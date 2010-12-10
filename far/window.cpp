@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "window.hpp"
+#include "config.hpp"
 
 events Events;
 
@@ -81,7 +82,7 @@ LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 
 	case WM_SETTINGCHANGE:
 		{
-			if(lParam && !StrCmp(reinterpret_cast<LPCWSTR>(lParam),L"Environment"))
+			if(Opt.UpdateEnvironment && lParam && !StrCmp(reinterpret_cast<LPCWSTR>(lParam),L"Environment"))
 			{
 				Events.EnvironmentChangeEvent.Set();
 			}

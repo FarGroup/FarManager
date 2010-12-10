@@ -1400,14 +1400,14 @@ MConfigCloseCDGate
 "&Montuj CD automatycznie"
 "CD-ROM: automontar unidad"
 
-MConfigAutoSave
-"Автозапись кон&фигурации"
-"Auto &save setup"
-"Automatické ukládaní &nastavení"
-"Setup automatisch &"speichern"
-"B&eállítások automatikus mentése"
-"Automatycznie &zapisuj ustawienia"
-"Auto&guardar configuración"
+MConfigUpdateEnvironment
+"Автообновление переменных окружения"
+"Automatic update of environment variables"
+upd:"Automatic update of environment variables"
+upd:"Automatic update of environment variables"
+upd:"Automatic update of environment variables"
+upd:"Automatic update of environment variables"
+upd:"Automatic update of environment variables"
 
 MConfigElevation
 "Запрос прав администратора:"
@@ -1444,6 +1444,15 @@ upd:"use additional privileges"
 upd:"use additional privileges"
 upd:"use additional privileges"
 upd:"use additional privileges"
+
+MConfigAutoSave
+"Автозапись кон&фигурации"
+"Auto &save setup"
+"Automatické ukládaní &nastavení"
+"Setup automatisch &"speichern"
+"B&eállítások automatikus mentése"
+"Automatycznie &zapisuj ustawienia"
+"Auto&guardar configuración"
 
 MConfigPanelTitle
 l:

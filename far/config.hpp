@@ -593,6 +593,7 @@ struct Options
 	int ShowCheckingFile;
 	int CloseConsoleRule;
 	int CloseCDGate;       // автомонтирование CD
+	int UpdateEnvironment;
 
 	DWORD LCIDSort;
 	int RestoreCPAfterExecute;

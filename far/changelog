@@ -1,3 +1,7 @@
+drkns 10.12.2010 10:51:32 +0200 - build 1752
+
+1. Опция "[x] Automatic update of environment variables".
+
 t-rex 10.12.2010 00:06:20 +0200 - build 1751
 
 1. Ctrl-Ins больше не копирует файлы в клипбоард, теперь этим занимается Ctrl-C.

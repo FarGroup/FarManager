@@ -1568,7 +1568,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 				seInfo.nShow = SW_SHOW;
 				seInfo.fMask = SEE_MASK_INVOKEIDLIST;
 				// "\\?\c:\" fails on old windows
-				string strFullName(IsLocalRootPath(strSelName)?strSelName:NTPath(strSelName).Str);
+				string strFullName(IsLocalRootPath(strSelName)?strSelName:NTPath(strSelName).Get());
 				if(FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
 				{
 					AddEndSlash(strFullName);
