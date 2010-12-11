@@ -10,6 +10,14 @@
     <String Id="WixUINo">&amp;No</String>
     <String Id="WixUIOK">OK</String>
 
+    <String Id="Install">Install</String>
+    <String Id="Upgrade">Upgrade</String>
+    <String Id="Downgrade">Downgrade</String>
+
+    <String Id="WelcomeInstall">The Setup Wizard will install [ProductName] on your computer.</String>
+    <String Id="WelcomeUpgrade">The Setup Wizard will upgrade [ProductName] on your computer.</String>
+    <String Id="WelcomeDowngrade">The Setup Wizard will downgrade [ProductName] on your computer.</String>
+
     <String Id="BrowseDlg_Title">[ProductName] Setup</String>
     <String Id="BrowseDlgComboLabel">&amp;Look in:</String>
     <String Id="BrowseDlgWixUI_Bmp_Up">WixUI_Bmp_Up</String>
@@ -46,7 +54,7 @@
 
     <String Id="FatalError_Title">[ProductName] Setup</String>
     <String Id="FatalErrorBitmap">WixUI_Bmp_Dialog</String>
-    <String Id="FatalErrorTitle">{\WixUI_Font_Bigger}[ProductName] Setup Wizard ended prematurely</String>
+    <String Id="FatalErrorTitle">{\WixUI_Font_Error}[ProductName] Setup Wizard ended prematurely</String>
     <String Id="FatalErrorDescription1">[ProductName] Setup Wizard ended prematurely because of an error. Your system has not been modified. To install this program at a later time, run Setup Wizard again.</String>
     <String Id="FatalErrorDescription2">Click the Finish button to exit the Setup Wizard.</String>
 
@@ -162,8 +170,8 @@
 
     <String Id="VerifyReadyDlg_Title">[ProductName] Setup</String>
     <String Id="VerifyReadyDlgBannerBitmap">WixUI_Bmp_Banner</String>
-    <String Id="VerifyReadyDlgInstall">&amp;Install</String>
-    <String Id="VerifyReadyDlgInstallText">Click Install to begin the installation. Click Back to review or change any of your installation settings. Click Cancel to exit the wizard.</String>
+    <String Id="VerifyReadyDlgInstall">&amp;[InstallText]</String>
+    <String Id="VerifyReadyDlgInstallText">Click [InstallText] to begin the installation. Click Back to review or change any of your installation settings. Click Cancel to exit the wizard.</String>
     <String Id="VerifyReadyDlgInstallTitle">{\WixUI_Font_Title}Ready to install [ProductName]</String>
     <String Id="VerifyReadyDlgChange">&amp;Change</String>
     <String Id="VerifyReadyDlgChangeText">Click Change to begin the installation. Click Back to review or change any of your installation settings. Click Cancel to exit the wizard.</String>
@@ -183,8 +191,7 @@
 
     <String Id="WelcomeDlg_Title">[ProductName] Setup</String>
     <String Id="WelcomeDlgBitmap">WixUI_Bmp_Dialog</String>
-    <String Id="WelcomeDlgDescription">The Setup Wizard will install [ProductName] on your computer. Click Next to continue or Cancel to exit the Setup Wizard.</String>
-    <String Id="WelcomeDlgUpgradeDescription">The Setup Wizard will upgrade [ProductName] on your computer. Click Next to continue or Cancel to exit the Setup Wizard.</String>
+    <String Id="WelcomeDlgDescription">[WelcomeInstallText] Click Next to continue or Cancel to exit the Setup Wizard.</String>
     <String Id="WelcomeDlgTitle">{\WixUI_Font_Bigger}Welcome to the [ProductName] Setup Wizard</String>
 
     <String Id="ProgressTextInstallValidate">Validating install</String>

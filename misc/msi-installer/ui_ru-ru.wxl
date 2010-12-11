@@ -10,6 +10,14 @@
     <String Id="WixUINo">&amp;Нет</String>
     <String Id="WixUIOK">OK</String>
 
+    <String Id="Install">Установить</String>
+    <String Id="Upgrade">Обновить</String>
+    <String Id="Downgrade">Обновить</String>
+
+    <String Id="WelcomeInstall">Программа установки установит [ProductName] на данный компьютер.</String>
+    <String Id="WelcomeUpgrade">Программа установки выполнит обновление [ProductName] на данном компьютере.</String>
+    <String Id="WelcomeDowngrade">Программа установки выполнит обновление [ProductName] на данном компьютере.</String>
+
     <String Id="BrowseDlg_Title">Программа установки [ProductName]</String>
     <String Id="BrowseDlgComboLabel">&amp;Поиск в папке:</String>
     <String Id="BrowseDlgWixUI_Bmp_Up">WixUI_Bmp_Up</String>
@@ -46,7 +54,7 @@
 
     <String Id="FatalError_Title">Программа установки [ProductName]</String>
     <String Id="FatalErrorBitmap">WixUI_Bmp_Dialog</String>
-    <String Id="FatalErrorTitle">{\WixUI_Font_Bigger}Программа установки [ProductName] завершена ранее, чем была выполнена полная установка.</String>
+    <String Id="FatalErrorTitle">{\WixUI_Font_Error}Программа установки [ProductName] завершена ранее, чем была выполнена полная установка.</String>
     <String Id="FatalErrorDescription1">При установке [ProductName] произошла ошибка, и процесс был прерван до завершения установки. Параметры системы не изменены. В дальнейшем, чтобы установить программу, запустите программу установки еще раз.</String>
     <String Id="FatalErrorDescription2">Нажмите кнопку "Готово" для выхода из программы.</String>
 
@@ -162,8 +170,8 @@
 
     <String Id="VerifyReadyDlg_Title">Программа установки [ProductName]</String>
     <String Id="VerifyReadyDlgBannerBitmap">WixUI_Bmp_Banner</String>
-    <String Id="VerifyReadyDlgInstall">&amp;Установить</String>
-    <String Id="VerifyReadyDlgInstallText">Нажмите кнопку "Установить", чтобы начать установку. Чтобы просмотреть или изменить параметры установки, нажмите кнопку "Назад". Нажмите кнопку "Отмена" для выхода из программы.</String>
+    <String Id="VerifyReadyDlgInstall">&amp;[InstallText]</String>
+    <String Id="VerifyReadyDlgInstallText">Нажмите кнопку "[InstallText]", чтобы начать установку. Чтобы просмотреть или изменить параметры установки, нажмите кнопку "Назад". Нажмите кнопку "Отмена" для выхода из программы.</String>
     <String Id="VerifyReadyDlgInstallTitle">{\WixUI_Font_Title}Программа готова к установке [ProductName].</String>
     <String Id="VerifyReadyDlgChange">&amp;Изменить</String>
     <String Id="VerifyReadyDlgChangeText">Чтобы начать установку, нажмите "Изменить". Чтобы вернуться и просмотреть или изменить параметры установки, нажмите "Назад". Чтобы выйти из программы установки, нажмите "Отмена".</String>
@@ -183,8 +191,7 @@
 
     <String Id="WelcomeDlg_Title">Программа установки [ProductName]</String>
     <String Id="WelcomeDlgBitmap">WixUI_Bmp_Dialog</String>
-    <String Id="WelcomeDlgDescription">Программа установки установит [ProductName] на данный компьютер. Чтобы продолжить, нажмите кнопку "Далее" или нажмите кнопку "Отмена" для завершения установки.</String>
-    <String Id="WelcomeDlgUpgradeDescription">Программа установки выполнит обновление [ProductName] на данном компьютере. Чтобы продолжить, нажмите кнопку "Далее" или нажмите кнопку "Отмена" для завершения установки.</String>
+    <String Id="WelcomeDlgDescription">[WelcomeInstallText] Чтобы продолжить, нажмите кнопку "Далее" или нажмите кнопку "Отмена" для завершения установки.</String>
     <String Id="WelcomeDlgTitle">{\WixUI_Font_Bigger}Вас приветствует программа установки [ProductName].</String>
 
     <String Id="ProgressTextInstallValidate">Проверка установки</String>

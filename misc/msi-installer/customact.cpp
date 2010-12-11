@@ -363,6 +363,7 @@ wstring get_error_message(const _com_error& e) {
 }
 
 void log_message(MSIHANDLE h_install, const wstring& message) {
+  OutputDebugStringW((message + L'\n').c_str());
   PMSIHANDLE h_rec = MsiCreateRecord(0);
   MsiRecordSetStringW(h_rec, 0, message.c_str());
   MsiProcessMessage(h_install, INSTALLMESSAGE_INFO, h_rec);
@@ -382,6 +383,9 @@ void log_message(MSIHANDLE h_install, const wstring& message) {
     } \
     catch (const _com_error& e) { \
       log_message(h_install, get_error_message(e)); \
+    } \
+    catch (...) { \
+      log_message(h_install, L"unknown exception"); \
     } \
   } \
   catch (...) { \

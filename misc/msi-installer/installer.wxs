@@ -71,6 +71,8 @@
     </Directory>
     <FeatureRef Id="Far" />
     <Upgrade Id="$(var.Guid.UpgradeCode)">
+      <UpgradeVersion Property="UPGRADE" OnlyDetect="yes" Maximum="$(var.Version)" />
+      <UpgradeVersion Property="DOWNGRADE" OnlyDetect="yes" Minimum="$(var.Version)" IncludeMinimum="no" />
       <UpgradeVersion Property="PREVIOUSVERSIONSINSTALLED" MigrateFeatures="yes" Minimum="0.0.0" />
     </Upgrade>
     <InstallExecuteSequence>
