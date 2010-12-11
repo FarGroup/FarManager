@@ -4043,10 +4043,19 @@ wchar_t *Editor::Block2Text(wchar_t *ptrInitData)
 		DataSize = wcslen(ptrInitData);
 
 	size_t TotalChars = DataSize;
-	for (Edit *Ptr=BlockStart; Ptr; Ptr=Ptr->m_next)
+	int StartSel, EndSel;
+	for (Edit *Ptr = BlockStart; Ptr; Ptr = Ptr->m_next)
 	{
-		TotalChars += Ptr->GetLength();
-		TotalChars += 2; // CRLF
+		Ptr->GetSelection(StartSel, EndSel);
+		if (StartSel == -1)
+			break;
+		if (EndSel == -1)
+		{
+			TotalChars += Ptr->GetLength() - StartSel;
+			TotalChars += 2; // CRLF
+		}
+		else
+			TotalChars += EndSel - StartSel;
 	}
 	TotalChars++; // '\0'
 
@@ -4070,27 +4079,26 @@ wchar_t *Editor::Block2Text(wchar_t *ptrInitData)
 		*CopyData=0;
 	}
 
-	Edit *CurPtr=BlockStart;
-
-	while (CurPtr)
+	for (Edit *Ptr = BlockStart; Ptr; Ptr = Ptr->m_next)
 	{
-		int StartSel,EndSel;
-		int Length=CurPtr->GetLength()+1;
-		CurPtr->GetSelection(StartSel,EndSel);
-
+		Ptr->GetSelection(StartSel, EndSel);
 		if (StartSel==-1)
 			break;
 
-		CurPtr->GetSelString(CopyData+DataSize,Length);
-		DataSize+=StrLength(CopyData+DataSize);
+		int Length;
+		if (EndSel == -1)
+			Length = Ptr->GetLength() - StartSel;
+		else
+			Length = EndSel - StartSel;
 
-		if (EndSel==-1)
+		Ptr->GetSelString(CopyData + DataSize, Length + 1);
+		DataSize += Length;
+
+		if (EndSel == -1)
 		{
-			wcscpy(CopyData+DataSize,DOS_EOL_fmt);
-			DataSize+=2;
+			wcscpy(CopyData + DataSize, DOS_EOL_fmt);
+			DataSize += 2;
 		}
-
-		CurPtr=CurPtr->m_next;
 	}
 
 	return CopyData;
