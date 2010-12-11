@@ -4181,6 +4181,7 @@ int TMacroView::MacroList()
 		/*0*/  {DI_LISTBOX,   2,1,MenuW-3,MenuH-2,1,0,((Conf.UseHighlight)?DIF_LISTAUTOHIGHLIGHT:0)|((Conf.MenuCycle)?DIF_LISTWRAPMODE:0),0,_T("")},
 
 	};
+	FarDialogItem MenuDialog[1];
 	InitDialogItems(InitItems,MenuDialog,ARRAYSIZE(InitItems));
 #ifndef UNICODE
 	Info.DialogEx(Info.ModuleNumber,MenuX,MenuY,MenuW,MenuH,_T("MacroView"),

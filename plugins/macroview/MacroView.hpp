@@ -219,7 +219,6 @@ class TMacroView
 #define EDITDIALOGCOUNT 32
 #endif
 		FarDialogItem EditDialog[EDITDIALOGCOUNT];
-		FarDialogItem MenuDialog[2];
 		FarDialogItem DefKeyDialog[2];
 		FarListItem   GroupItems[ARRAYSIZE(MacroGroupShort)];
 		FarList       GroupList,ConfList;
