@@ -11124,7 +11124,7 @@ MMenuSortUseNumeric
 "Usar orden num&érico"
 
 MMenuSortUseCaseSensitive
-"Сортировка с учетом регистра"
+"Сортировка с учётом регистра"
 "Use case sensitive sort"
 "Použít řazení citlivé na velikost písmen"
 "Sortierung abhängig von Groß-/Kleinschreibung"
