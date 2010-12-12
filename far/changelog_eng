@@ -3,6 +3,43 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 12.12.2010 20:01:39 +0200 - build 1758
+
+1. Correction of 1757.2.
+
+drkns 12.12.2010 19:43:37 +0200 - build 1757
+
+1. Mantis#0001618: Numeric sort in other columns too.
+
+2. "Case sensitivity" of sorting is now the property of the panel itself, not its mode (similar to numeric sort).
+   The appropriate option moved from panel mode configuration dialog to "Sort by" menu.
+
+3. PFLAGS_CASESENSITIVESORT and FCTL_SETCASESENSITIVESORT are added to API.
+
+4. Checking of malloc()/free(), new/delete, new[]/delete[] pairs is added to debug build for catching bugs like "int* a=new int[10]; delete a;"
+
+drkns 12.12.2010 14:30:26 +0200 - build 1756
+
+1. Some mouse events were not passed to the editor.
+
+chupakabra 11.12.2010 16:02:00 +0200 - build 1755
+
+1. Too much memory allocated in Editor::Block2Text (up to the size of the whole file).
+
+drkns 10.12.2010 22:36:15 +0200 - build 1754
+
+1. Correction of FindFirstStream inner implementation.
+
+drkns 10.12.2010 20:02:21 +0200 - build 1753
+
+1. "[x] Automatic update of environment variables" -> "[ ] Automatic update of environment variables".
+
+2. Correction of console::Write().
+
+drkns 10.12.2010 10:51:32 +0200 - build 1752
+
+1. "[x] Automatic update of environment variables".
+
 t-rex 10.12.2010 00:06:20 +0200 - build 1751
 
 1. Ctrl-Ins does not copy files to clipboard anymore, now this is bound to Ctrl-C.
