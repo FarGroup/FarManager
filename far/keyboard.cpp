@@ -928,8 +928,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 		PressedLastTime=0;
 		Console.ReadInput(*rec, 1, ReadCount);
 		CalcKey=rec->Event.FocusEvent.bSetFocus?KEY_GOTFOCUS:KEY_KILLFOCUS;
-		memset(rec,0,sizeof(*rec)); // Иначе в ProcessEditorInput такая херь приходит - волосы дыбом становятся
-		rec->EventType=KEY_EVENT;
 
 		//чтоб решить баг винды приводящий к появлению скролов и т.п. после потери фокуса
 		if (CalcKey == KEY_GOTFOCUS)
@@ -1335,7 +1333,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 		DWORD BtnState=rec->Event.MouseEvent.dwButtonState;
 		KeyMacro::SetMacroConst(constMsButton,(__int64)rec->Event.MouseEvent.dwButtonState);
 
-		if (MouseEventFlags != MOUSE_MOVED)
+		if (MouseEventFlags != MOUSE_MOVED && MouseEventFlags != MOUSE_WHEELED && MouseEventFlags != MOUSE_HWHEELED)
 		{
 //// // _SVS(SysLog(L"1. CtrlState=%X PrevRButtonPressed=%d,RButtonPressed=%d",CtrlState,PrevRButtonPressed,RButtonPressed));
 			PrevMouseButtonState=MouseButtonState;
@@ -1363,10 +1361,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 			CalcKey |= (CtrlState&SHIFT_PRESSED?KEY_SHIFT:0)|
 			           (CtrlState&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)?KEY_CTRL:0)|
 			           (CtrlState&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)?KEY_ALT:0);
-			/* $ 14.05.2002 VVM
-			  - сбросим тип евента вообще. Иначе бывают глюки (ProcessEditorInput) */
-			memset(rec,0,sizeof(*rec)); // Иначе в ProcessEditorInput такая херь приходит - волосы дыбом становятся
-			rec->EventType = KEY_EVENT;
 		} /* if */
 
 		// Обработка горизонтального колесика (NT>=6)
@@ -1377,13 +1371,11 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 			CalcKey |= (CtrlState&SHIFT_PRESSED?KEY_SHIFT:0)|
 			           (CtrlState&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)?KEY_CTRL:0)|
 			           (CtrlState&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)?KEY_ALT:0);
-			memset(rec,0,sizeof(*rec));
-			rec->EventType = KEY_EVENT;
 		} /* if */
 
 		if (rec->EventType==MOUSE_EVENT && (!ExcludeMacro||ProcessMouse) && CtrlObject && (ProcessMouse || !(CtrlObject->Macro.IsRecording() || CtrlObject->Macro.IsExecuting())))
 		{
-			if (MouseEventFlags != MOUSE_MOVED)
+			if (MouseEventFlags != MOUSE_MOVED && MouseEventFlags != MOUSE_WHEELED && MouseEventFlags != MOUSE_HWHEELED)
 			{
 				DWORD MsCalcKey=0;
 #if 0
@@ -1429,7 +1421,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 						FrameManager->SetLastInputRecord(rec);
 						if (CtrlObject->Macro.ProcessKey(MsCalcKey))
 						{
-							memset(rec,0,sizeof(*rec)); // Иначе в ProcessEditorInput такая херь приходит - волосы дыбом становятся
 							return KEY_NONE;
 						}
 					}
