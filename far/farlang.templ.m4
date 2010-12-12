@@ -11115,13 +11115,22 @@ upd:"Sho&w directories first"
 "Mostrar directorios primero"
 
 MMenuSortUseNumeric
-"Использовать &числовую сортировку"
-"Use num&eric sort"
+"&Числовая сортировка"
+"Num&eric sort"
 "Použít čí&selné řazení"
 "Nu&merische Sortierung"
 "N&umerikus rendezés"
 "Sortuj num&erycznie"
 "Usar orden num&érico"
+
+MMenuSortUseCaseSensitive
+"Сортировка с учетом регистра"
+"Use case sensitive sort"
+"Použít řazení citlivé na velikost písmen"
+"Sortierung abhängig von Groß-/Kleinschreibung"
+"Nagy/kisbetű érzékeny rendezés"
+"Sortuj uwzględniając wielkość liter"
+"Usar orden sensible a min/mayúsc."
 
 MChangeDriveTitle
 l:
@@ -14458,15 +14467,6 @@ MEditPanelModeUpperToLowerCase
 "NAGYBETŰS fájl&nevek kisbetűvel"
 "Wyświetl NAZWY_PLIKÓW &jako nazwy_plików"
 "archivos en mayúsculas mostrarlos con minús&culas"
-
-MEditPanelModeCaseSensitiveSort
-"Использовать р&егистрозависимую сортировку"
-"Use case &sensitive sort"
-"Použít řazení citlivé na velikost pí&smen"
-"&Sortierung abhängig von Groß-/Kleinschreibung"
-"N&agy/kisbetű érzékeny rendezés"
-"S&ortuj uwzględniając wielkość liter"
-"Usar orden &sensible a min/mayúsc."
 
 MEditPanelReadHelp
 " Нажмите F1, чтобы получить информацию по настройке "

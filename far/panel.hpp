@@ -52,7 +52,6 @@ struct PanelViewSettings
 	int FolderUpperCase;
 	int FileLowerCase;
 	int FileUpperToLowerCase;
-	int CaseSensitiveSort;
 	int ColumnWidthType[PANEL_COLUMNCOUNT];
 	int StatusColumnWidthType[PANEL_COLUMNCOUNT];
 };
@@ -129,6 +128,7 @@ class Panel:public ScreenObject
 		int CurFile;
 		int ShowShortNames;
 		int NumericSort;
+		int CaseSensitiveSort;
 		int DirectoriesFirst;
 		int ModalMode;
 		int PluginCommand;
@@ -222,6 +222,10 @@ class Panel:public ScreenObject
 		int GetNumericSort() { return NumericSort; }
 		void SetNumericSort(int Mode) { NumericSort=Mode; }
 		virtual void ChangeNumericSort(int Mode) { SetNumericSort(Mode); }
+		virtual int GetPrevCaseSensitiveSort() {return CaseSensitiveSort;}
+		int GetCaseSensitiveSort() {return CaseSensitiveSort;}
+		void SetCaseSensitiveSort(int Mode) {CaseSensitiveSort = Mode;}
+		virtual void ChangeCaseSensitiveSort(int Mode) {SetCaseSensitiveSort(Mode);}
 		virtual int GetPrevDirectoriesFirst() {return DirectoriesFirst;};
 		int GetDirectoriesFirst() { return DirectoriesFirst; }
 		void SetDirectoriesFirst(int Mode) { DirectoriesFirst=Mode; }

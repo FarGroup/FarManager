@@ -93,7 +93,7 @@ extern size_t SizeViewSettingsArray;
 static int _cdecl SortList(const void *el1,const void *el2);
 
 static int ListSortMode,ListSortOrder,ListSortGroups,ListSelectedFirst,ListDirectoriesFirst;
-static int ListPanelMode,ListCaseSensitive,ListNumericSort;
+static int ListPanelMode,ListNumericSort,ListCaseSensitiveSort;
 static HANDLE hSortPlugin;
 
 enum SELECT_MODES
@@ -168,6 +168,7 @@ FileList::FileList():
 	ViewMode=VIEW_3;
 	ViewSettings=ViewSettingsArray[ViewMode];
 	NumericSort=0;
+	CaseSensitiveSort=0;
 	DirectoriesFirst=1;
 	Columns=PreparePanelView(&ViewSettings);
 	PluginCommand=-1;
@@ -303,8 +304,8 @@ void FileList::SortFileList(int KeepPosition)
 		ListSelectedFirst=SelectedFirst;
 		ListDirectoriesFirst=DirectoriesFirst;
 		ListPanelMode=PanelMode;
-		ListCaseSensitive=ViewSettingsArray[ViewMode].CaseSensitiveSort;
 		ListNumericSort=NumericSort;
+		ListCaseSensitiveSort=CaseSensitiveSort;
 
 		if (KeepPosition)
 			strCurName = ListData[CurFile]->strName;
@@ -397,7 +398,14 @@ int _cdecl SortList(const void *el1,const void *el2)
 				if (!*Ext2)
 					return(ListSortOrder);
 
-				RetCode=ListSortOrder*StrCmpI(Ext1+1,Ext2+1);
+				if (ListNumericSort)
+				{
+					RetCode=ListSortOrder*(ListCaseSensitiveSort?NumStrCmp(Ext1+1,Ext2+1):NumStrCmpI(Ext1+1,Ext2+1));
+				}
+				else
+				{
+					RetCode=ListSortOrder*(ListCaseSensitiveSort?StrCmp(Ext1+1,Ext2+1):StrCmpI(Ext1+1,Ext2+1));
+				}
 
 				if (RetCode)
 					return RetCode;
@@ -445,7 +453,14 @@ int _cdecl SortList(const void *el1,const void *el2)
 				if (!SPtr2->DizText)
 					return -ListSortOrder;
 
-				RetCode=ListSortOrder*StrCmpI(SPtr1->DizText,SPtr2->DizText);
+				if (ListNumericSort)
+				{
+					RetCode=ListSortOrder*(ListCaseSensitiveSort?NumStrCmp(SPtr1->DizText,SPtr2->DizText):NumStrCmpI(SPtr1->DizText,SPtr2->DizText));
+				}
+				else
+				{
+					RetCode=ListSortOrder*(ListCaseSensitiveSort?StrCmp(SPtr1->DizText,SPtr2->DizText):StrCmpI(SPtr1->DizText,SPtr2->DizText));
+				}
 
 				if (RetCode)
 					return RetCode;
@@ -487,15 +502,15 @@ int _cdecl SortList(const void *el1,const void *el2)
 					const wchar_t *Path2 = SPtr2->strName.CPtr();
 					const wchar_t *Name1 = PointToName(SPtr1->strName);
 					const wchar_t *Name2 = PointToName(SPtr2->strName);
-					NameCmp = ListCaseSensitive ? StrCmpNN(Path1, static_cast<int>(Name1-Path1), Path2, static_cast<int>(Name2-Path2)) : StrCmpNNI(Path1, static_cast<int>(Name1-Path1), Path2, static_cast<int>(Name2-Path2));
+					NameCmp = ListCaseSensitiveSort ? StrCmpNN(Path1, static_cast<int>(Name1-Path1), Path2, static_cast<int>(Name2-Path2)) : StrCmpNNI(Path1, static_cast<int>(Name1-Path1), Path2, static_cast<int>(Name2-Path2));
 					if (!NameCmp)
-						NameCmp = ListCaseSensitive ? NumStrCmp(Name1, Name2) : NumStrCmpI(Name1, Name2);
+						NameCmp = ListCaseSensitiveSort ? NumStrCmp(Name1, Name2) : NumStrCmpI(Name1, Name2);
 					else
-						NameCmp = ListCaseSensitive ? StrCmp(Path1, Path2) : StrCmpI(Path1, Path2);
+						NameCmp = ListCaseSensitiveSort ? StrCmp(Path1, Path2) : StrCmpI(Path1, Path2);
 				}
 				else
 				{
-					NameCmp = ListCaseSensitive ? StrCmp(SPtr1->strName, SPtr2->strName) : StrCmpI(SPtr1->strName, SPtr2->strName);
+					NameCmp = ListCaseSensitiveSort ? StrCmp(SPtr1->strName, SPtr2->strName) : StrCmpI(SPtr1->strName, SPtr2->strName);
 				}
 				NameCmp *= ListSortOrder;
 				if (!NameCmp)
@@ -515,7 +530,14 @@ int _cdecl SortList(const void *el1,const void *el2)
 				if (SPtr2->strCustomData.IsEmpty())
 					return -ListSortOrder;
 
-				RetCode = ListSortOrder*StrCmp(SPtr1->strCustomData,SPtr2->strCustomData);
+				if (ListNumericSort)
+				{
+					RetCode=ListSortOrder*(ListCaseSensitiveSort?NumStrCmp(SPtr1->strCustomData, SPtr2->strCustomData):NumStrCmpI(SPtr1->strCustomData, SPtr2->strCustomData));
+				}
+				else
+				{
+					RetCode=ListSortOrder*(ListCaseSensitiveSort?StrCmp(SPtr1->strCustomData, SPtr2->strCustomData):StrCmpI(SPtr1->strCustomData, SPtr2->strCustomData));
+				}
 
 				if (RetCode)
 					return RetCode;
@@ -547,16 +569,16 @@ int _cdecl SortList(const void *el1,const void *el2)
 	const wchar_t *Name2=PointToName(SPtr2->strName);
 
 	if (ListNumericSort)
-		NameCmp=ListCaseSensitive?NumStrCmpN(Name1,static_cast<int>(Ext1-Name1),Name2,static_cast<int>(Ext2-Name2)):NumStrCmpNI(Name1,static_cast<int>(Ext1-Name1),Name2,static_cast<int>(Ext2-Name2));
+		NameCmp=ListCaseSensitiveSort?NumStrCmpN(Name1,static_cast<int>(Ext1-Name1),Name2,static_cast<int>(Ext2-Name2)):NumStrCmpNI(Name1,static_cast<int>(Ext1-Name1),Name2,static_cast<int>(Ext2-Name2));
 	else
-		NameCmp=ListCaseSensitive?StrCmpNN(Name1,static_cast<int>(Ext1-Name1),Name2,static_cast<int>(Ext2-Name2)):StrCmpNNI(Name1,static_cast<int>(Ext1-Name1),Name2,static_cast<int>(Ext2-Name2));
+		NameCmp=ListCaseSensitiveSort?StrCmpNN(Name1,static_cast<int>(Ext1-Name1),Name2,static_cast<int>(Ext2-Name2)):StrCmpNNI(Name1,static_cast<int>(Ext1-Name1),Name2,static_cast<int>(Ext2-Name2));
 
 	if (!NameCmp)
 	{
 		if (ListNumericSort)
-			NameCmp=ListCaseSensitive?NumStrCmp(Ext1,Ext2):NumStrCmpI(Ext1,Ext2);
+			NameCmp=ListCaseSensitiveSort?NumStrCmp(Ext1,Ext2):NumStrCmpI(Ext1,Ext2);
 		else
-			NameCmp=ListCaseSensitive?StrCmp(Ext1,Ext2):StrCmpI(Ext1,Ext2);
+			NameCmp=ListCaseSensitiveSort?StrCmp(Ext1,Ext2):StrCmpI(Ext1,Ext2);
 	}
 
 	NameCmp*=ListSortOrder;
@@ -2942,7 +2964,6 @@ void FileList::SetViewMode(int ViewMode)
 	int OldNumStreams=IsColumnDisplayed(NUMSTREAMS_COLUMN);
 	int OldStreamsSize=IsColumnDisplayed(STREAMSSIZE_COLUMN);
 	int OldDiz=IsColumnDisplayed(DIZ_COLUMN);
-	int OldCaseSensitiveSort=ViewSettings.CaseSensitiveSort;
 	PrepareViewSettings(ViewMode,nullptr);
 	int NewOwner=IsColumnDisplayed(OWNER_COLUMN);
 	int NewPacked=IsColumnDisplayed(PACKED_COLUMN);
@@ -2951,7 +2972,6 @@ void FileList::SetViewMode(int ViewMode)
 	int NewStreamsSize=IsColumnDisplayed(STREAMSSIZE_COLUMN);
 	int NewDiz=IsColumnDisplayed(DIZ_COLUMN);
 	int NewAccessTime=IsColumnDisplayed(ADATE_COLUMN);
-	int NewCaseSensitiveSort=ViewSettings.CaseSensitiveSort;
 	int ResortRequired=FALSE;
 	string strDriveRoot;
 	DWORD FileSystemFlags;
@@ -2968,8 +2988,6 @@ void FileList::SetViewMode(int ViewMode)
 	         (!OldStreamsSize && NewStreamsSize) ||
 	         (AccessTimeUpdateRequired && NewAccessTime)))
 		Update(UPDATE_KEEP_SELECTION);
-	else if (OldCaseSensitiveSort!=NewCaseSensitiveSort)
-		ResortRequired=TRUE;
 
 	if (!OldDiz && NewDiz)
 		ReadDiz();
@@ -3046,6 +3064,13 @@ void FileList::SetSortMode0(int SortMode)
 void FileList::ChangeNumericSort(int Mode)
 {
 	Panel::ChangeNumericSort(Mode);
+	SortFileList(TRUE);
+	Show();
+}
+
+void FileList::ChangeCaseSensitiveSort(int Mode)
+{
+	Panel::ChangeCaseSensitiveSort(Mode);
 	SortFileList(TRUE);
 	Show();
 }
@@ -4165,6 +4190,7 @@ void FileList::SelectSortMode()
 		MSG(MMenuSortByCustomData),0,0,
 		L"",LIF_SEPARATOR,0,
 		MSG(MMenuSortUseNumeric),0,0,
+		MSG(MMenuSortUseCaseSensitive),0,0,
 		MSG(MMenuSortUseGroups),0,KEY_SHIFTF11,
 		MSG(MMenuSortSelectedFirst),0,KEY_SHIFTF12,
 		MSG(MMenuSortDirectoriesFirst),0,0,
@@ -4198,9 +4224,10 @@ void FileList::SelectSortMode()
 
 	int SG=GetSortGroups();
 	SortMenu[BY_CUSTOMDATA+2].SetCheck(NumericSort);
-	SortMenu[BY_CUSTOMDATA+3].SetCheck(SG);
-	SortMenu[BY_CUSTOMDATA+4].SetCheck(SelectedFirst);
-	SortMenu[BY_CUSTOMDATA+5].SetCheck(DirectoriesFirst);
+	SortMenu[BY_CUSTOMDATA+3].SetCheck(CaseSensitiveSort);
+	SortMenu[BY_CUSTOMDATA+4].SetCheck(SG);
+	SortMenu[BY_CUSTOMDATA+5].SetCheck(SelectedFirst);
+	SortMenu[BY_CUSTOMDATA+6].SetCheck(DirectoriesFirst);
 	int SortCode=-1;
 	bool setSortMode0=false;
 
@@ -4262,12 +4289,15 @@ void FileList::SelectSortMode()
 								NumericSort=0;
 								break;
 							case BY_CUSTOMDATA+3:
-								SortGroups=0;
+								CaseSensitiveSort=0;
 								break;
 							case BY_CUSTOMDATA+4:
-								SelectedFirst=0;
+								SortGroups=0;
 								break;
 							case BY_CUSTOMDATA+5:
+								SelectedFirst=0;
+								break;
+							case BY_CUSTOMDATA+6:
 								DirectoriesFirst=0;
 								break;
 						}
@@ -4289,12 +4319,15 @@ void FileList::SelectSortMode()
 								NumericSort=1;
 								break;
 							case BY_CUSTOMDATA+3:
-								SortGroups=1;
+								NumericSort=1;
 								break;
 							case BY_CUSTOMDATA+4:
-								SelectedFirst=1;
+								SortGroups=1;
 								break;
 							case BY_CUSTOMDATA+5:
+								SelectedFirst=1;
+								break;
+							case BY_CUSTOMDATA+6:
 								DirectoriesFirst=1;
 								break;
 						}
@@ -4326,12 +4359,15 @@ void FileList::SelectSortMode()
 				ChangeNumericSort(NumericSort?0:1);
 				break;
 			case BY_CUSTOMDATA+3:
-				ProcessKey(KEY_SHIFTF11);
+				ChangeCaseSensitiveSort(CaseSensitiveSort?0:1);
 				break;
 			case BY_CUSTOMDATA+4:
-				ProcessKey(KEY_SHIFTF12);
+				ProcessKey(KEY_SHIFTF11);
 				break;
 			case BY_CUSTOMDATA+5:
+				ProcessKey(KEY_SHIFTF12);
+				break;
+			case BY_CUSTOMDATA+6:
 				ChangeDirectoriesFirst(DirectoriesFirst?0:1);
 				break;
 		}
@@ -4651,6 +4687,11 @@ int FileList::GetPrevSortOrder()
 int FileList::GetPrevNumericSort()
 {
 	return (PanelMode==PLUGIN_PANEL && !PluginsList.Empty())?(*PluginsList.First())->PrevNumericSort:NumericSort;
+}
+
+int FileList::GetPrevCaseSensitiveSort()
+{
+	return (PanelMode==PLUGIN_PANEL && !PluginsList.Empty())?(*PluginsList.First())->PrevCaseSensitiveSort:CaseSensitiveSort;
 }
 
 int FileList::GetPrevDirectoriesFirst()

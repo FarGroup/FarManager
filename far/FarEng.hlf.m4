@@ -374,7 +374,8 @@ active panel. The following sort modes are available:
 
   Use group sorting                                        #Shift-F11#
   Show selected files first                                #Shift-F12#
-  Use numeric sort.
+  Use numeric sort
+  Use case sensitive sort.
 
   #Remarks on the numeric sort#
 
@@ -3484,8 +3485,6 @@ to always see the real files case, switch it, "Show folders in uppercase"
 and "Show files in lowercase" options off. All these settings only change
 the method of displaying files, when processing files FAR always uses the
 real case.
-
-  - #Use case sensitive sort# - use case sensitive sort for file names.
 
 
 @SortGroups

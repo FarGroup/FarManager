@@ -14,6 +14,213 @@ farrtl.cpp
 #pragma intrinsic (memcpy)
 #endif
 
+bool InsufficientMemoryHandler()
+{
+	Console.SetTextAttributes(FOREGROUND_RED|FOREGROUND_INTENSITY);
+	COORD OldPos,Pos={};
+	Console.GetCursorPosition(OldPos);
+	Console.SetCursorPosition(Pos);
+	static WCHAR ErrorMessage[] = L"Not enough memory is available to complete this operation.\nPress Enter to retry or Esc to continue...";
+	Console.Write(ErrorMessage, ARRAYSIZE(ErrorMessage));
+	Console.SetCursorPosition(OldPos);
+	INPUT_RECORD ir={};
+	do
+	{
+		DWORD Read;
+		Console.ReadInput(ir, 1, Read);
+	}
+	while(!(ir.EventType == KEY_EVENT && !ir.Event.KeyEvent.bKeyDown && (ir.Event.KeyEvent.wVirtualKeyCode == VK_RETURN || ir.Event.KeyEvent.wVirtualKeyCode == VK_RETURN || ir.Event.KeyEvent.wVirtualKeyCode == VK_ESCAPE)));
+	return ir.Event.KeyEvent.wVirtualKeyCode == VK_RETURN;
+}
+
+#ifdef SYSLOG
+#define MEMORY_CHECK
+#endif
+
+#ifdef MEMORY_CHECK
+enum ALLOCATION_TYPE
+{
+	AT_C,
+	AT_CPP,
+	AT_CPPARRAY,
+};
+
+struct MEMINFO
+{
+	ALLOCATION_TYPE AllocationType;
+};
+#endif
+
+void *__cdecl xf_malloc(size_t size)
+{
+#ifdef MEMORY_CHECK
+	size+=sizeof(MEMINFO);
+#endif
+
+	void *Ptr = nullptr;
+	do
+	{
+		Ptr = malloc(size);
+	}
+	while (!Ptr && InsufficientMemoryHandler());
+
+#ifdef MEMORY_CHECK
+	MEMINFO* Info = reinterpret_cast<MEMINFO*>(Ptr);
+	Info->AllocationType = AT_C;
+	Ptr=reinterpret_cast<LPBYTE>(Ptr)+sizeof(MEMINFO);
+#endif
+
+#if defined(SYSLOG)
+	CallMallocFree++;
+#endif
+
+	return Ptr;
+}
+
+void *__cdecl xf_expand(void * block, size_t size)
+{
+#ifdef MEMORY_CHECK
+	block=reinterpret_cast<LPBYTE>(block)-sizeof(MEMINFO);
+	MEMINFO* Info = reinterpret_cast<MEMINFO*>(block);
+	assert(Info->AllocationType == AT_C);
+	size+=sizeof(MEMINFO);
+#endif
+
+	return _expand(block, size);
+}
+
+void *__cdecl xf_realloc_nomove(void * block, size_t size)
+{
+	if (!block)
+	{
+		return xf_malloc(size);
+	}
+#if defined(_MSC_VER)
+	else if (xf_expand(block, size))
+	{
+		return block;
+	}
+#endif
+	else
+	{
+		void *Ptr=xf_malloc(size);
+
+		if (Ptr)
+			xf_free(block);
+
+		return Ptr;
+	}
+}
+
+void *__cdecl xf_realloc(void * block, size_t size)
+{
+#ifdef MEMORY_CHECK
+	if(block)
+	{
+		block=reinterpret_cast<LPBYTE>(block)-sizeof(MEMINFO);
+		MEMINFO* Info = reinterpret_cast<MEMINFO*>(block);
+		assert(Info->AllocationType == AT_C);
+	}
+	size+=sizeof(MEMINFO);
+#endif
+
+	void *Ptr = nullptr;
+	do
+	{
+		Ptr = realloc(block, size);
+	}
+	while (size && !Ptr && InsufficientMemoryHandler());
+
+#ifdef MEMORY_CHECK
+	if (!block)
+	{
+		MEMINFO* Info = reinterpret_cast<MEMINFO*>(Ptr);
+		Info->AllocationType = AT_C;
+	}
+	Ptr=reinterpret_cast<LPBYTE>(Ptr)+sizeof(MEMINFO);
+#endif
+
+#if defined(SYSLOG)
+	if (!block)
+	{
+		CallMallocFree++;
+	}
+#endif
+
+	return Ptr;
+}
+
+void __cdecl xf_free(void * block)
+{
+#ifdef MEMORY_CHECK
+	block=reinterpret_cast<LPBYTE>(block)-sizeof(MEMINFO);
+	MEMINFO* Info = reinterpret_cast<MEMINFO*>(block);
+
+	assert(Info->AllocationType == AT_C);
+#endif
+
+#if defined(SYSLOG)
+	CallMallocFree--;
+#endif
+
+	free(block);
+}
+
+void * __cdecl operator new(size_t size)
+{
+	void * res = xf_malloc(size);
+
+#ifdef MEMORY_CHECK
+	MEMINFO* Info = reinterpret_cast<MEMINFO*>(reinterpret_cast<LPBYTE>(res)-sizeof(MEMINFO));
+	Info->AllocationType = AT_CPP;
+#endif
+
+#if defined(SYSLOG)
+	CallNewDelete++;
+#endif
+
+	return res;
+}
+
+void * __cdecl operator new[] (size_t size)
+{
+	void * res = operator new(size);
+
+#ifdef MEMORY_CHECK
+	MEMINFO* Info = reinterpret_cast<MEMINFO*>(reinterpret_cast<LPBYTE>(res)-sizeof(MEMINFO));
+	Info->AllocationType = AT_CPPARRAY;
+#endif
+
+	return res;
+}
+
+void operator delete(void *ptr)
+{
+
+#ifdef MEMORY_CHECK
+	MEMINFO* Info = reinterpret_cast<MEMINFO*>(reinterpret_cast<LPBYTE>(ptr)-sizeof(MEMINFO));
+	assert(Info->AllocationType == AT_CPP);
+	Info->AllocationType = AT_C;
+#endif
+
+	xf_free(ptr);
+
+#if defined(SYSLOG)
+	CallNewDelete--;
+#endif
+}
+
+void __cdecl operator delete[] (void *ptr)
+{
+#ifdef MEMORY_CHECK
+	MEMINFO* Info = reinterpret_cast<MEMINFO*>(reinterpret_cast<LPBYTE>(ptr)-sizeof(MEMINFO));
+	assert(Info->AllocationType == AT_CPPARRAY);
+	Info->AllocationType = AT_CPP;
+#endif
+
+	operator delete(ptr);
+}
+
 #ifdef _MSC_VER
 extern "C"
 {
@@ -52,117 +259,6 @@ __int64 filelen64(FILE *FPtr)
 	SaveFilePos SavePos(FPtr);
 	fseek64(FPtr,0,SEEK_END);
 	return(ftell64(FPtr));
-}
-
-void __cdecl  xf_free(void *__block)
-{
-#if defined(SYSLOG)
-	CallMallocFree--;
-#endif
-	free(__block);
-}
-
-
-bool InsufficientMemoryHandler()
-{
-	Console.SetTextAttributes(FOREGROUND_RED|FOREGROUND_INTENSITY);
-	COORD OldPos,Pos={};
-	Console.GetCursorPosition(OldPos);
-	Console.SetCursorPosition(Pos);
-	static WCHAR ErrorMessage[] = L"Not enough memory is available to complete this operation.\nPress Enter to retry or Esc to continue...";
-	Console.Write(ErrorMessage, ARRAYSIZE(ErrorMessage));
-	Console.SetCursorPosition(OldPos);
-	INPUT_RECORD ir={};
-	do
-	{
-		DWORD Read;
-		Console.ReadInput(ir, 1, Read);
-	}
-	while(!(ir.EventType == KEY_EVENT && !ir.Event.KeyEvent.bKeyDown && (ir.Event.KeyEvent.wVirtualKeyCode == VK_RETURN || ir.Event.KeyEvent.wVirtualKeyCode == VK_RETURN || ir.Event.KeyEvent.wVirtualKeyCode == VK_ESCAPE)));
-	return ir.Event.KeyEvent.wVirtualKeyCode == VK_RETURN;
-}
-
-
-void *__cdecl xf_malloc(size_t __size)
-{
-	void *Ptr = nullptr;
-	do
-	{
-		Ptr = malloc(__size);
-	}
-	while (!Ptr && InsufficientMemoryHandler());
-
-#if defined(SYSLOG)
-	CallMallocFree++;
-#endif
-
-	return Ptr;
-}
-
-void *__cdecl xf_realloc_nomove(void *__block, size_t __size)
-{
-	if (!__block)
-		return xf_malloc(__size);
-
-#if defined(_MSC_VER)
-	else if (_expand(__block,__size))
-		return __block;
-
-#endif
-	else
-	{
-		void *Ptr=xf_malloc(__size);
-
-		if (Ptr)
-			xf_free(__block);
-
-		return Ptr;
-	}
-}
-
-void *__cdecl xf_realloc(void *__block, size_t __size)
-{
-	void *Ptr = nullptr;
-	do
-	{
-			Ptr = realloc(__block,__size);
-	}
-	while (__size && !Ptr && InsufficientMemoryHandler());
-
-#if defined(SYSLOG)
-	if (!__block)
-		CallMallocFree++;
-#endif
-
-	return Ptr;
-}
-
-void operator delete(void *ptr)
-{
-#if defined(SYSLOG)
-	CallNewDelete--;
-#endif
-	xf_free(ptr);
-}
-
-//#if defined(_MSC_VER)
-/*
-extern _PNH _pnhHeap;
-
-
-extern "C" {
-void * __cdecl  _nh_malloc(size_t, int);
-};
-*/
-
-void * operator new(size_t cb)
-{
-	// здесь херня - что делать - ХЗ (если кто знает - сделайте!!!)
-	void *res = xf_malloc(cb);//_nh_malloc( cb, 1 );
-#if defined(SYSLOG)
-	CallNewDelete++;
-#endif
-	return res;
 }
 
 char * __cdecl xf_strdup(const char * string)

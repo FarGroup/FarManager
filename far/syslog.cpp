@@ -525,6 +525,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 				         L"PrevSortMode=%d/%-17s "
 				         L"PrevSortOrder=%02d "
 				         L"PrevNumericSort=%02d "
+						 L"PrevCaseSensitiveSort=%02d "
 				         L"PrevDirectoriesFirst=%02d "
 				         L"HostFile=%s\n",
 				         I,
@@ -535,6 +536,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 				         (ListItems[I].PrevSortMode<BY_CUSTOMDATA?__SORT[ListItems[I].PrevSortMode].Name:L"<Unknown>"),
 				         ListItems[I].PrevSortOrder,
 				         ListItems[I].PrevNumericSort,
+						 ListItems[I].PrevCaseSensitiveSort,
 				         ListItems[I].PrevDirectoriesFirst,
 				         ListItems[I].strHostFile.CPtr());
 		}
@@ -995,6 +997,7 @@ string __FCTL_ToName(int Command)
 		DEF_FCTL_(GETCMDLINESELECTION),
 		DEF_FCTL_(CHECKPANELSEXIST),
 		DEF_FCTL_(SETNUMERICSORT),
+		DEF_FCTL_(SETCASESENSITIVESORT),
 		DEF_FCTL_(GETUSERSCREEN),
 		DEF_FCTL_(ISACTIVEPANEL),
 		DEF_FCTL_(GETPANELITEM),
@@ -1956,7 +1959,6 @@ void PanelViewSettings_Dump(const wchar_t *Title,const PanelViewSettings &ViewSe
 		fwprintf(fp,L"%*s %s  FolderUpperCase      = %d\n",12,L"",space,ViewSettings.FolderUpperCase);
 		fwprintf(fp,L"%*s %s  FileLowerCase        = %d\n",12,L"",space,ViewSettings.FileLowerCase);
 		fwprintf(fp,L"%*s %s  FileUpperToLowerCase = %d\n",12,L"",space,ViewSettings.FileUpperToLowerCase);
-		fwprintf(fp,L"%*s %s  CaseSensitiveSort    = %d\n",12,L"",space,ViewSettings.CaseSensitiveSort);
 		fwprintf(fp,L"%*s %s  }\n",12,L"",space);
 		fflush(fp);
 	}

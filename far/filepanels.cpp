@@ -114,6 +114,8 @@ void FilePanels::Init()
 	RightPanel->SetSortMode(Opt.RightPanel.SortMode);
 	LeftPanel->SetNumericSort(Opt.LeftPanel.NumericSort);
 	RightPanel->SetNumericSort(Opt.RightPanel.NumericSort);
+	LeftPanel->SetCaseSensitiveSort(Opt.LeftPanel.CaseSensitiveSort);
+	RightPanel->SetCaseSensitiveSort(Opt.RightPanel.CaseSensitiveSort);
 	LeftPanel->SetSortOrder(Opt.LeftPanel.SortOrder);
 	RightPanel->SetSortOrder(Opt.RightPanel.SortOrder);
 	LeftPanel->SetSortGroups(Opt.LeftPanel.SortGroups);
@@ -836,7 +838,7 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 	// OldType не инициализировался...
 	int OldType=Current->GetType(),X1,Y1,X2,Y2;
 	int OldViewMode,OldSortMode,OldSortOrder,OldSortGroups,OldSelectedFirst,OldDirectoriesFirst;
-	int OldShowShortNames,OldPanelMode,LeftPosition,ChangePosition,OldNumericSort;
+	int OldShowShortNames,OldPanelMode,LeftPosition,ChangePosition,OldNumericSort,OldCaseSensitiveSort;
 	int OldFullScreen,OldFocus,UseLastPanel=0;
 	OldPanelMode=Current->GetMode();
 
@@ -848,6 +850,7 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 	OldSortMode=Current->GetPrevSortMode();
 	OldSortOrder=Current->GetPrevSortOrder();
 	OldNumericSort=Current->GetPrevNumericSort();
+	OldCaseSensitiveSort=Current->GetPrevCaseSensitiveSort();
 	OldSortGroups=Current->GetSortGroups();
 	OldShowShortNames=Current->GetShowShortNamesMode();
 	OldFocus=Current->GetFocus();
@@ -974,6 +977,7 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 		NewPanel->SetSortMode(OldSortMode);
 		NewPanel->SetSortOrder(OldSortOrder);
 		NewPanel->SetNumericSort(OldNumericSort);
+		NewPanel->SetCaseSensitiveSort(OldCaseSensitiveSort);
 		NewPanel->SetSortGroups(OldSortGroups);
 		NewPanel->SetShowShortNamesMode(OldShowShortNames);
 		NewPanel->SetPrevViewMode(OldViewMode);

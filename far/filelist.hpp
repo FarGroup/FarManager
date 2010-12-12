@@ -162,6 +162,7 @@ struct PluginsListItem
 	int PrevSortMode;
 	int PrevSortOrder;
 	int PrevNumericSort;
+	int PrevCaseSensitiveSort;
 	int PrevDirectoriesFirst;
 	PanelViewSettings PrevViewSettings;
 };
@@ -329,12 +330,14 @@ class FileList:public Panel
 		void SetSortMode0(int SortMode);
 		virtual void ChangeSortOrder(int NewOrder);
 		virtual void ChangeNumericSort(int Mode);
+		virtual void ChangeCaseSensitiveSort(int Mode);
 		virtual void ChangeDirectoriesFirst(int Mode);
 		virtual BOOL SetCurDir(const wchar_t *NewDir,int ClosePlugin);
 		virtual int GetPrevSortMode();
 		virtual int GetPrevSortOrder();
 		virtual int GetPrevViewMode();
 		virtual int GetPrevNumericSort();
+		virtual int GetPrevCaseSensitiveSort();
 		virtual int GetPrevDirectoriesFirst();
 
 		HANDLE OpenFilePlugin(const wchar_t *FileName,int PushPrev);
@@ -368,7 +371,6 @@ class FileList:public Panel
 		virtual void CopyDiz(const wchar_t *Name, const wchar_t *ShortName, const wchar_t *DestName,
 		                     const wchar_t *DestShortName,DizList *DestDiz);
 		virtual int IsFullScreen();
-		int IsCaseSensitive();
 		virtual int IsDizDisplayed();
 		virtual int IsColumnDisplayed(int Type);
 		virtual int GetColumnsCount() { return Columns;};

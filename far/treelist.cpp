@@ -77,8 +77,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static int _cdecl SortList(const void *el1,const void *el2);
 static int _cdecl SortCacheList(const void *el1,const void *el2);
-static int StaticSortCaseSensitive;
 static int StaticSortNumeric;
+static int StaticSortCaseSensitive;
 static int TreeCmp(const wchar_t *Str1,const wchar_t *Str2, int Numeric, int CaseSensitive);
 static clock_t TreeStartTime;
 static int LastScrX = -1;
@@ -169,8 +169,8 @@ TreeList::TreeList(int IsPanel):
 	TreeCount(0),
 	WorkDir(0),
 	GetSelPosition(0),
-	CaseSensitiveSort(FALSE),
 	NumericSort(FALSE),
+	CaseSensitiveSort(FALSE),
 	ExitCode(1),
 	SaveListData(nullptr)
 {
@@ -222,15 +222,15 @@ void TreeList::DisplayObject()
 
 		if (RootPanel->GetType()==FILE_PANEL)
 		{
-			int RootCaseSensitive=((FileList *)RootPanel)->IsCaseSensitive();
+			int RootCaseSensitiveSort=RootPanel->GetCaseSensitiveSort();
 			int RootNumeric=RootPanel->GetNumericSort();
 
-			if (RootCaseSensitive!=CaseSensitiveSort || RootNumeric != NumericSort)
+			if (RootNumeric != NumericSort || RootCaseSensitiveSort!=CaseSensitiveSort)
 			{
-				CaseSensitiveSort=RootCaseSensitive;
 				NumericSort=RootNumeric;
-				StaticSortCaseSensitive=CaseSensitiveSort;
+				CaseSensitiveSort=RootCaseSensitiveSort;
 				StaticSortNumeric=NumericSort;
+				StaticSortCaseSensitive=CaseSensitiveSort;
 				far_qsort(ListData,TreeCount,sizeof(*ListData),SortList);
 				FillLastData();
 				SyncDir();
@@ -530,7 +530,7 @@ int TreeList::ReadTree()
 		return FALSE;
 	}
 
-	StaticSortCaseSensitive=CaseSensitiveSort=StaticSortNumeric=NumericSort=FALSE;
+	StaticSortNumeric=NumericSort=StaticSortCaseSensitive=CaseSensitiveSort=FALSE;
 	far_qsort(ListData,TreeCount,sizeof(*ListData),SortList);
 
 	if (!FillLastData())
@@ -1542,8 +1542,8 @@ int TreeList::ReadTreeFile()
 	if (!TreeCount)
 		return FALSE;
 
-	CaseSensitiveSort=FALSE;
 	NumericSort=FALSE;
+	CaseSensitiveSort=FALSE;
 	far_qsort(TreeCache.ListName,TreeCache.TreeCount,sizeof(wchar_t*),SortCacheList);
 	return FillLastData();
 }

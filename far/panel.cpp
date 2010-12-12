@@ -122,6 +122,7 @@ Panel::Panel():
 	PanelMode(NORMAL_PANEL),
 	PrevViewMode(VIEW_3),
 	NumericSort(0),
+	CaseSensitiveSort(0),
 	DirectoriesFirst(1),
 	ModalMode(0),
 	ViewSettings(),
@@ -2051,6 +2052,7 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 		case FCTL_SETVIEWMODE:
 			Result=FPanels->ChangePanelViewMode(this,Param1,FPanels->IsTopFrame());
 			break;
+
 		case FCTL_SETSORTMODE:
 		{
 			int Mode=Param1;
@@ -2060,32 +2062,44 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 				SetSortMode(--Mode); // ”меньшим на 1 из-за SM_DEFAULT
 				Result=TRUE;
 			}
+			break;
 		}
-		break;
+
 		case FCTL_SETNUMERICSORT:
 		{
 			ChangeNumericSort(Param1);
 			Result=TRUE;
+			break;
 		}
-		break;
+
+		case FCTL_SETCASESENSITIVESORT:
+		{
+			ChangeCaseSensitiveSort(Param1);
+			Result=TRUE;
+			break;
+		}
+
 		case FCTL_SETSORTORDER:
 		{
 			ChangeSortOrder(Param1?-1:1);
 			Result=TRUE;
+			break;
 		}
-		break;
+
 		case FCTL_SETDIRECTORIESFIRST:
 		{
 			ChangeDirectoriesFirst(Param1);
 			Result=TRUE;
+			break;
 		}
-		break;
+
 		case FCTL_CLOSEPLUGIN:
 			strPluginParam = (const wchar_t *)Param2;
 			Result=TRUE;
 			//if(Opt.CPAJHefuayor)
 			//  CtrlObject->Plugins.ProcessCommandLine((char *)PluginParam);
 			break;
+
 		case FCTL_GETPANELINFO:
 		{
 			if (!Param2)
@@ -2143,6 +2157,7 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 				Flags|=GetSelectedFirstMode()?PFLAGS_SELECTEDFIRST:0;
 				Flags|=GetDirectoriesFirst()?PFLAGS_DIRECTORIESFIRST:0;
 				Flags|=GetNumericSort()?PFLAGS_NUMERICSORT:0;
+				Flags|=GetCaseSensitiveSort()?PFLAGS_CASESENSITIVESORT:0;
 
 				if (CtrlObject->Cp()->LeftPanel == this)
 					Flags|=PFLAGS_PANELLEFT;
@@ -2182,6 +2197,7 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 			Result=TRUE;
 			break;
 		}
+
 		case FCTL_GETPANELHOSTFILE:
 		case FCTL_GETPANELFORMAT:
 		case FCTL_GETPANELDIR:
@@ -2226,6 +2242,7 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 			Result=(int)strTemp.GetLength()+1;
 			break;
 		}
+
 		case FCTL_GETCOLUMNTYPES:
 		case FCTL_GETCOLUMNWIDTHS:
 
@@ -2249,26 +2266,29 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 					Result=(int)strColumnWidths.GetLength()+1;
 				}
 			}
-
 			break;
+
 		case FCTL_GETPANELITEM:
 		{
 			Result=(int)((FileList*)this)->PluginGetPanelItem(Param1,(PluginPanelItem*)Param2);
+			break;
 		}
-		break;
+
 		case FCTL_GETSELECTEDPANELITEM:
 		{
 			Result=(int)((FileList*)this)->PluginGetSelectedPanelItem(Param1,(PluginPanelItem*)Param2);
+			break;
 		}
-		break;
+
 		case FCTL_GETCURRENTPANELITEM:
 		{
 			PanelInfo Info;
 			FileList *DestPanel = ((FileList*)this);
 			DestPanel->PluginGetPanelInfo(Info);
 			Result = (int)DestPanel->PluginGetPanelItem(Info.CurrentItem,(PluginPanelItem*)Param2);
+			break;
 		}
-		break;
+
 		case FCTL_BEGINSELECTION:
 		{
 			if (GetType()==FILE_PANEL)
@@ -2276,8 +2296,9 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 				((FileList *)this)->PluginBeginSelection();
 				Result=TRUE;
 			}
+			break;
 		}
-		break;
+
 		case FCTL_SETSELECTION:
 		{
 			if (GetType()==FILE_PANEL)
@@ -2285,8 +2306,9 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 				((FileList *)this)->PluginSetSelection(Param1,Param2?true:false);
 				Result=TRUE;
 			}
+			break;
 		}
-		break;
+
 		case FCTL_CLEARSELECTION:
 		{
 			if (GetType()==FILE_PANEL)
@@ -2294,8 +2316,9 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 				reinterpret_cast<FileList*>(this)->PluginClearSelection(Param1);
 				Result=TRUE;
 			}
+			break;
 		}
-		break;
+
 		case FCTL_ENDSELECTION:
 		{
 			if (GetType()==FILE_PANEL)
@@ -2303,8 +2326,9 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 				((FileList *)this)->PluginEndSelection();
 				Result=TRUE;
 			}
+			break;
 		}
-		break;
+
 		case FCTL_UPDATEPANEL:
 			Update(Param1?UPDATE_KEEP_SELECTION:0);
 
@@ -2313,6 +2337,7 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 
 			Result=TRUE;
 			break;
+
 		case FCTL_REDRAWPANEL:
 		{
 			PanelRedrawInfo *Info=(PanelRedrawInfo *)Param2;
@@ -2330,6 +2355,7 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 			Result=TRUE;
 			break;
 		}
+
 		case FCTL_SETPANELDIR:
 		{
 			if (Param2)
@@ -2342,9 +2368,9 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 					ActivePanel->SetCurPath();
 				}
 			}
-
 			break;
 		}
+
 	}
 
 	ProcessingPluginCommand--;

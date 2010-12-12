@@ -96,8 +96,8 @@ class TreeList: public Panel
 		long TreeCount;
 		long WorkDir;
 		long GetSelPosition;
-		int CaseSensitiveSort;
 		int NumericSort;
+		int CaseSensitiveSort;
 		int ExitCode; // актуально только для дерева, вызванного из копира!
 
 		struct TreeItem *SaveListData;

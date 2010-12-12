@@ -289,7 +289,7 @@ void FileList::ShowFileList(int Fast)
 	}
 
 	/* <режимы сортировки> */
-	if (GetNumericSort() || GetSortGroups() || GetSelectedFirstMode())
+	if (/*GetNumericSort() || GetCaseSensitiveSort() || GetSortGroups() || */GetSelectedFirstMode())
 	{
 		if (Opt.ShowColumnTitles)
 			GotoXY(NextX1,Y1+1);
@@ -300,7 +300,7 @@ void FileList::ShowFileList(int Fast)
 		wchar_t *PtrOutCharacter=OutCharacter;
 		*PtrOutCharacter=0;
 
-		if (GetSelectedFirstMode())
+		//if (GetSelectedFirstMode())
 			*PtrOutCharacter++=L'^';
 
 		/*
@@ -308,6 +308,12 @@ void FileList::ShowFileList(int Fast)
 		      *PtrOutCharacter++=L'#';
 		    if(GetSortGroups())
 		      *PtrOutCharacter++=L'@';
+		*/
+		/*
+		if(GetCaseSensitiveSort())
+		{
+		
+		}
 		*/
 		*PtrOutCharacter=0;
 		Text(OutCharacter);
@@ -1338,10 +1344,4 @@ int FileList::IsColumnDisplayed(int Type)
 			return TRUE;
 
 	return FALSE;
-}
-
-
-int FileList::IsCaseSensitive()
-{
-	return(ViewSettings.CaseSensitiveSort);
 }
