@@ -126,7 +126,7 @@ void FileList::SetFilePanelModes()
 		} ;
 		DialogDataEx ModeDlgData[]=
 		{
-			DI_DOUBLEBOX, 3, 1,72,16,0,0,ModeListMenu[ModeNumber].Name,
+			DI_DOUBLEBOX, 3, 1,72,15,0,0,ModeListMenu[ModeNumber].Name,
 			DI_TEXT,      5, 2, 0, 2,0,0,MSG(MEditPanelModeTypes),
 			DI_EDIT,      5, 3,35, 3,0,DIF_FOCUS,L"",
 			DI_TEXT,      5, 4, 0, 4,0,0,MSG(MEditPanelModeWidths),
@@ -168,7 +168,7 @@ void FileList::SetFilePanelModes()
 		                   NewSettings.StatusColumnCount,ModeDlg[6].strData,ModeDlg[8].strData);
 		{
 			Dialog Dlg(ModeDlg,ARRAYSIZE(ModeDlg));
-			Dlg.SetPosition(-1,-1,76,18);
+			Dlg.SetPosition(-1,-1,76,17);
 			Dlg.SetHelp(L"PanelViewModes");
 			Dlg.Process();
 			ExitCode=Dlg.GetExitCode();
