@@ -705,7 +705,7 @@ void Manager::ProcessMainLoop()
 		if (EndLoop)
 			return;
 
-		if (LastInputRecord.EventType==MOUSE_EVENT && Key==KEY_NONE)
+		if (LastInputRecord.EventType==MOUSE_EVENT)
 		{
 				// используем копию структуры, т.к. LastInputRecord может внезапно измениться во время выполнения ProcessMouse
 				MOUSE_EVENT_RECORD mer=LastInputRecord.Event.MouseEvent;
