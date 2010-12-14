@@ -302,8 +302,10 @@ PluginManager::~PluginManager()
 		pPlugin->Unload(true);
 		delete pPlugin;
 	}
-
-	xf_free(PluginsData);
+	if(PluginsData)
+	{
+		xf_free(PluginsData);
+	}
 }
 
 bool PluginManager::AddPlugin(Plugin *pPlugin)

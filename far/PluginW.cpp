@@ -429,7 +429,7 @@ bool PluginW::Load()
 		if (!bUnloaded)
 			Unload();
 
-		//чтоб не пытаться загрузить опять а то ошибка будет постоянно показываться.
+		//ўЄюс эх я√ЄрЄ№ё  чруЁєчшЄ№ юя Є№ р Єю ю°шсър сєфхЄ яюёЄю ээю яюърч√трЄ№ё .
 		WorkFlags.Set(PIWF_DONTLOADAGAIN);
 
 		return false;

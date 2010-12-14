@@ -153,10 +153,13 @@ void *__cdecl xf_realloc(void * block, size_t size)
 void __cdecl xf_free(void * block)
 {
 #ifdef MEMORY_CHECK
-	block=reinterpret_cast<LPBYTE>(block)-sizeof(MEMINFO);
-	MEMINFO* Info = reinterpret_cast<MEMINFO*>(block);
+	if(block)
+	{
+		block=reinterpret_cast<LPBYTE>(block)-sizeof(MEMINFO);
+		MEMINFO* Info = reinterpret_cast<MEMINFO*>(block);
 
-	assert(Info->AllocationType == AT_C);
+		assert(Info->AllocationType == AT_C);
+	}
 #endif
 
 #if defined(SYSLOG)
