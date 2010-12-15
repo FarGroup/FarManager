@@ -51,13 +51,10 @@ SaveScreen::SaveScreen(int X1,int Y1,int X2,int Y2)
 {
 	_OT(SysLog(L"[%p] SaveScreen::SaveScreen(X1=%i,Y1=%i,X2=%i,Y2=%i)",this,X1,Y1,X2,Y2));
 
-	if (X1<0) X1=0;
-
-	if (Y1<0) Y1=0;
-
-	if (X2>ScrX) X2=ScrX;
-
-	if (Y2>ScrY) Y2=ScrY;
+	X1=Min(static_cast<int>(ScrX), Max(0, X1));
+	X2=Min(static_cast<int>(ScrX), Max(0, X2));
+	Y1=Min(static_cast<int>(ScrY), Max(0, Y1));
+	Y2=Min(static_cast<int>(ScrY), Max(0, Y2));
 
 	SaveArea(X1,Y1,X2,Y2);
 }

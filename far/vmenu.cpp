@@ -1601,8 +1601,6 @@ void VMenu::Hide()
 		ScreenObject::Hide();
 	}
 
-	Y2 = -1;
-	//X2 = -1;
 	SetFlags(VMENU_UPDATEREQUIRED);
 
 	if (OldTitle)

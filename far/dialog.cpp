@@ -4550,22 +4550,28 @@ int Dialog::FastHide()
 void Dialog::ResizeConsole()
 {
 	CriticalSectionLock Lock(CS);
-	COORD c;
+
 	DialogMode.Set(DMODE_RESIZED);
 
 	if (IsVisible())
+	{
 		Hide();
+	}
 
-	// коррекция относительного положения диалога (чтобы не центрировать :-)
-	c.X=ScrX+1; c.Y=ScrY+1;
-	SendDlgMessage((HANDLE)this,DN_RESIZECONSOLE,0,(LONG_PTR)&c);
-	// !!!!!!!!!!! здесь нужно правильно вычислить положение !!!!!!!!!!!
-	//c.X=((X1*100/PrevScrX)*ScrX)/100;
-	//c.Y=((Y1*100/PrevScrY)*ScrY)/100;
-	// !!!!!!!!!!! здесь нужно правильно вычислить положение !!!!!!!!!!!
-	c.X=c.Y=-1;
-	SendDlgMessage((HANDLE)this,DM_MOVEDIALOG,TRUE,(LONG_PTR)&c);
-	Dialog::SetComboBoxPos();
+	COORD c = {ScrX+1, ScrY+1};
+	SendDlgMessage(reinterpret_cast<HANDLE>(this), DN_RESIZECONSOLE, 0, reinterpret_cast<LONG_PTR>(&c));
+
+	int x1, y1, x2, y2;
+	GetPosition(x1, y1, x2, y2);
+	c.X = Min(x1, ScrX-1);
+	c.Y = Min(y1, ScrY-1);
+	if(c.X!=x1 || c.Y!=y1)
+	{
+		c.X = x1;
+		c.Y = y1;
+		SendDlgMessage(reinterpret_cast<HANDLE>(this), DM_MOVEDIALOG, TRUE, reinterpret_cast<LONG_PTR>(&c));
+		Dialog::SetComboBoxPos();
+	}
 };
 
 //void Dialog::OnDestroy()
