@@ -121,6 +121,20 @@ bplugin2 "$PLDIR" 64 0 "$FILES" "$ADDFILES" $ADDBUILDDIRS $ADDOUTDIR
 popd
 }
 
+function bpluginarclite {
+PLUGIN=arclite
+PLDIR=arclite
+
+pushd $PLUGIN
+
+FILES="7z.dll 7z.sfx 7zCon.sfx 7zS2.sfx 7zS2con.sfx 7zSD.sfx arclite.dll arclite.map arclite_eng.hlf arclite_eng.lng arclite_rus.hlf arclite_rus.lng"
+
+bplugin2 "$PLDIR" 32 1 "$FILES"
+bplugin2 "$PLDIR" 64 1 "$FILES"
+
+popd
+}
+
 function bpluginfe {
 PLUGIN=fexcept
 PLDIR=FExcept
@@ -182,6 +196,7 @@ bplugin "tmppanel" "TmpPanel" "TmpPanel.dll TmpEng.hlf TmpRus.hlf TmpEng.lng Tmp
 
 bpluginftp
 bpluginma
+bpluginarclite
 
 cd ../misc
 

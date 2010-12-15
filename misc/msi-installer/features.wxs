@@ -1,4 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+<?include defines.wxi ?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Fragment>
     <Feature Id="Far" Level="1" Title="!(loc.Feature.Title.Far)" Display="expand" Absent="disallow" AllowAdvertise="no" ConfigurableDirectory="INSTALLDIR">
@@ -396,6 +397,45 @@
             </Feature>
           </Feature>
         </Feature>
+<?if $(var.Branch) = 2 ?>
+        <Feature Id="arclite" Level="1" Title="!(loc.Feature.Title.arclite)" AllowAdvertise="no" Description="!(loc.Feature.Description.arclite)">
+          <ComponentRef Id="arclite.dll" />
+          <ComponentRef Id="arclite_eng.hlf" />
+          <ComponentRef Id="arclite_eng.lng" />
+          <Feature Id="_7z.dll" Level="1" Title="!(loc.Feature.Title._7z.dll)" AllowAdvertise="no" Description="!(loc.Feature.Description._7z.dll)">
+            <ComponentRef Id="_7z.dll" />
+          </Feature>
+          <Feature Id="sfx" Level="1" Title="!(loc.Feature.Title.sfx)" AllowAdvertise="no" Description="!(loc.Feature.Description.sfx)">
+            <Feature Id="_7z.sfx" Level="1" Title="!(loc.Feature.Title._7z.sfx)" AllowAdvertise="no" Description="!(loc.Feature.Description._7z.sfx)">
+              <ComponentRef Id="_7z.sfx" />
+            </Feature>
+            <Feature Id="_7zCon.sfx" Level="1" Title="!(loc.Feature.Title._7zCon.sfx)" AllowAdvertise="no" Description="!(loc.Feature.Description._7zCon.sfx)">
+              <ComponentRef Id="_7zCon.sfx" />
+            </Feature>
+            <Feature Id="_7zSD.sfx" Level="1" Title="!(loc.Feature.Title._7zSD.sfx)" AllowAdvertise="no" Description="!(loc.Feature.Description._7zSD.sfx)">
+              <ComponentRef Id="_7zSD.sfx" />
+            </Feature>
+            <Feature Id="_7zS2.sfx" Level="1" Title="!(loc.Feature.Title._7zS2.sfx)" AllowAdvertise="no" Description="!(loc.Feature.Description._7zS2.sfx)">
+              <ComponentRef Id="_7zS2.sfx" />
+            </Feature>
+            <Feature Id="_7zS2con.sfx" Level="1" Title="!(loc.Feature.Title._7zS2con.sfx)" AllowAdvertise="no" Description="!(loc.Feature.Description._7zS2con.sfx)">
+              <ComponentRef Id="_7zS2con.sfx" />
+            </Feature>
+          </Feature>
+          <Feature Id="arclite.Russian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="arclite_rus.hlf" />
+            <ComponentRef Id="arclite_rus.lng" />
+          </Feature>
+<?if $(var.Platform) = x86 ?>
+          <Feature Id="arclite.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="arclite.map" />
+          </Feature>
+<?endif?>
+          <Feature Id="arclite.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="changelog_18" />
+          </Feature>
+        </Feature>
+<?endif?>
         <Feature Id="Compare" Level="1" Title="!(loc.Feature.Title.Compare)" AllowAdvertise="no" Description="!(loc.Feature.Description.Compare)">
           <ComponentRef Id="CmpEng.hlf" />
           <ComponentRef Id="Compare.dll" />
@@ -545,101 +585,101 @@
             <ComponentRef Id="changelog_13" />
           </Feature>
         </Feature>
-        <Feature Id="MultiArc" Level="1" Title="!(loc.Feature.Title.MultiArc)" AllowAdvertise="no" Description="!(loc.Feature.Description.MultiArc)">
+        <Feature Id="MultiArc" Level="$(var.MultiArcLevel)" Title="!(loc.Feature.Title.MultiArc)" AllowAdvertise="no" Description="!(loc.Feature.Description.MultiArc)">
           <ComponentRef Id="arceng.hlf" />
           <ComponentRef Id="arceng.lng" />
           <ComponentRef Id="MultiArc.dll" />
-          <Feature Id="Ace" Level="1" Title="!(loc.Feature.Title.Ace)" AllowAdvertise="no">
+          <Feature Id="Ace" Level="$(var.MultiArcLevel)" Title="!(loc.Feature.Title.Ace)" AllowAdvertise="no">
             <ComponentRef Id="Ace.fmt" />
 <?if $(var.Platform) = x86 ?>
-            <Feature Id="Ace.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+            <Feature Id="Ace.FExcept" Level="$(var.MultiArcLevel)" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="Ace.map" />
             </Feature>
 <?endif?>
           </Feature>
-          <Feature Id="Arc" Level="1" Title="!(loc.Feature.Title.Arc)" AllowAdvertise="no">
+          <Feature Id="Arc" Level="$(var.MultiArcLevel)" Title="!(loc.Feature.Title.Arc)" AllowAdvertise="no">
             <ComponentRef Id="Arc.fmt" />
 <?if $(var.Platform) = x86 ?>
-            <Feature Id="Arc.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+            <Feature Id="Arc.FExcept" Level="$(var.MultiArcLevel)" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="Arc.map" />
             </Feature>
 <?endif?>
           </Feature>
-          <Feature Id="Arj" Level="1" Title="!(loc.Feature.Title.Arj)" AllowAdvertise="no">
+          <Feature Id="Arj" Level="$(var.MultiArcLevel)" Title="!(loc.Feature.Title.Arj)" AllowAdvertise="no">
             <ComponentRef Id="Arj.fmt" />
 <?if $(var.Platform) = x86 ?>
-            <Feature Id="Arj.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+            <Feature Id="Arj.FExcept" Level="$(var.MultiArcLevel)" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="Arj.map" />
             </Feature>
 <?endif?>
           </Feature>
-          <Feature Id="Cab" Level="1" Title="!(loc.Feature.Title.Cab)" AllowAdvertise="no">
+          <Feature Id="Cab" Level="$(var.MultiArcLevel)" Title="!(loc.Feature.Title.Cab)" AllowAdvertise="no">
             <ComponentRef Id="Cab.fmt" />
 <?if $(var.Platform) = x86 ?>
-            <Feature Id="Cab.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+            <Feature Id="Cab.FExcept" Level="$(var.MultiArcLevel)" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="Cab.map" />
             </Feature>
 <?endif?>
           </Feature>
-          <Feature Id="Custom" Level="1" Title="!(loc.Feature.Title.Custom)" AllowAdvertise="no">
+          <Feature Id="Custom" Level="$(var.MultiArcLevel)" Title="!(loc.Feature.Title.Custom)" AllowAdvertise="no">
             <ComponentRef Id="Custom.fmt" />
             <ComponentRef Id="custom.ini" />
 <?if $(var.Platform) = x86 ?>
-            <Feature Id="Custom.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+            <Feature Id="Custom.FExcept" Level="$(var.MultiArcLevel)" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="Custom.map" />
             </Feature>
 <?endif?>
           </Feature>
-          <Feature Id="Ha" Level="1" Title="!(loc.Feature.Title.Ha)" AllowAdvertise="no">
+          <Feature Id="Ha" Level="$(var.MultiArcLevel)" Title="!(loc.Feature.Title.Ha)" AllowAdvertise="no">
             <ComponentRef Id="Ha.fmt" />
 <?if $(var.Platform) = x86 ?>
-            <Feature Id="Ha.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+            <Feature Id="Ha.FExcept" Level="$(var.MultiArcLevel)" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="Ha.map" />
             </Feature>
 <?endif?>
           </Feature>
-          <Feature Id="Lzh" Level="1" Title="!(loc.Feature.Title.Lzh)" AllowAdvertise="no">
+          <Feature Id="Lzh" Level="$(var.MultiArcLevel)" Title="!(loc.Feature.Title.Lzh)" AllowAdvertise="no">
             <ComponentRef Id="Lzh.fmt" />
 <?if $(var.Platform) = x86 ?>
-            <Feature Id="Lzh.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+            <Feature Id="Lzh.FExcept" Level="$(var.MultiArcLevel)" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="Lzh.map" />
             </Feature>
 <?endif?>
           </Feature>
-          <Feature Id="Rar" Level="1" Title="!(loc.Feature.Title.Rar)" AllowAdvertise="no">
+          <Feature Id="Rar" Level="$(var.MultiArcLevel)" Title="!(loc.Feature.Title.Rar)" AllowAdvertise="no">
             <ComponentRef Id="Rar.fmt" />
 <?if $(var.Platform) = x86 ?>
-            <Feature Id="Rar.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+            <Feature Id="Rar.FExcept" Level="$(var.MultiArcLevel)" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="Rar.map" />
             </Feature>
 <?endif?>
           </Feature>
-          <Feature Id="TarGz" Level="1" Title="!(loc.Feature.Title.TarGz)" AllowAdvertise="no">
+          <Feature Id="TarGz" Level="$(var.MultiArcLevel)" Title="!(loc.Feature.Title.TarGz)" AllowAdvertise="no">
             <ComponentRef Id="TarGz.fmt" />
 <?if $(var.Platform) = x86 ?>
-            <Feature Id="TarGz.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+            <Feature Id="TarGz.FExcept" Level="$(var.MultiArcLevel)" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="TarGz.map" />
             </Feature>
 <?endif?>
           </Feature>
-          <Feature Id="Zip" Level="1" Title="!(loc.Feature.Title.Zip)" AllowAdvertise="no">
+          <Feature Id="Zip" Level="$(var.MultiArcLevel)" Title="!(loc.Feature.Title.Zip)" AllowAdvertise="no">
             <ComponentRef Id="Zip.fmt" />
 <?if $(var.Platform) = x86 ?>
-            <Feature Id="Zip.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+            <Feature Id="Zip.FExcept" Level="$(var.MultiArcLevel)" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="Zip.map" />
             </Feature>
 <?endif?>
           </Feature>
-          <Feature Id="MultiArc.Russian" Level="1" Display="hidden" AllowAdvertise="no">
+          <Feature Id="MultiArc.Russian" Level="$(var.MultiArcLevel)" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="arcrus.hlf" />
             <ComponentRef Id="arcrus.lng" />
           </Feature>
 <?if $(var.Platform) = x86 ?>
-          <Feature Id="MultiArc.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+          <Feature Id="MultiArc.FExcept" Level="$(var.MultiArcLevel)" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="MultiArc.map" />
           </Feature>
 <?endif?>
-          <Feature Id="MultiArc.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
+          <Feature Id="MultiArc.Changelogs" Level="$(var.MultiArcLevel)" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="changelog_14" />
           </Feature>
         </Feature>

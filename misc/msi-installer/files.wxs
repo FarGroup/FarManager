@@ -634,6 +634,49 @@
             <File Id="changelog_2" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Align\changelog" />
           </Component>
         </Directory>
+<?if $(var.Branch) = 2 ?>
+        <Directory Id="arclite" Name="arclite">
+          <Component Id="_7z.dll" Guid="$(var.Guid._7z.dll)" Win64="$(var.Win64)">
+            <File Id="_7z.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\7z.dll" />
+          </Component>
+          <Component Id="_7z.sfx" Guid="$(var.Guid._7z.sfx)" Win64="$(var.Win64)">
+            <File Id="_7z.sfx" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\7z.sfx" />
+          </Component>
+          <Component Id="_7zCon.sfx" Guid="$(var.Guid._7zCon.sfx)" Win64="$(var.Win64)">
+            <File Id="_7zCon.sfx" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\7zCon.sfx" />
+          </Component>
+          <Component Id="_7zS2.sfx" Guid="$(var.Guid._7zS2.sfx)" Win64="$(var.Win64)">
+            <File Id="_7zS2.sfx" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\7zS2.sfx" />
+          </Component>
+          <Component Id="_7zS2con.sfx" Guid="$(var.Guid._7zS2con.sfx)" Win64="$(var.Win64)">
+            <File Id="_7zS2con.sfx" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\7zS2con.sfx" />
+          </Component>
+          <Component Id="_7zSD.sfx" Guid="$(var.Guid._7zSD.sfx)" Win64="$(var.Win64)">
+            <File Id="_7zSD.sfx" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\7zSD.sfx" />
+          </Component>
+          <Component Id="arclite.dll" Guid="$(var.Guid.arclite.dll)" Win64="$(var.Win64)">
+            <File Id="arclite.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\arclite.dll" />
+          </Component>
+          <Component Id="arclite.map" Guid="$(var.Guid.arclite.map)" Win64="$(var.Win64)">
+            <File Id="arclite.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\arclite.map" />
+          </Component>
+          <Component Id="arclite_eng.hlf" Guid="$(var.Guid.arclite_eng.hlf)" Win64="$(var.Win64)">
+            <File Id="arclite_eng.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\arclite_eng.hlf" />
+          </Component>
+          <Component Id="arclite_eng.lng" Guid="$(var.Guid.arclite_eng.lng)" Win64="$(var.Win64)">
+            <File Id="arclite_eng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\arclite_eng.lng" />
+          </Component>
+          <Component Id="arclite_rus.hlf" Guid="$(var.Guid.arclite_rus.hlf)" Win64="$(var.Win64)">
+            <File Id="arclite_rus.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\arclite_rus.hlf" />
+          </Component>
+          <Component Id="arclite_rus.lng" Guid="$(var.Guid.arclite_rus.lng)" Win64="$(var.Win64)">
+            <File Id="arclite_rus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\arclite_rus.lng" />
+          </Component>
+          <Component Id="changelog_18" Guid="$(var.Guid.changelog_18)" Win64="$(var.Win64)">
+            <File Id="changelog_18" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\changelog" />
+          </Component>
+        </Directory>
+<?endif?>
         <Directory Id="AutoWrap" Name="AutoWrap">
           <Component Id="AutoWrap.dll" Guid="$(var.Guid.AutoWrap.dll)" Win64="$(var.Win64)">
             <File Id="AutoWrap.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\AutoWrap\AutoWrap.dll" />

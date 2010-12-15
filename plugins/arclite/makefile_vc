@@ -1,0 +1,126 @@
+!include project.ini
+
+TOOLSDIR = tools
+FARSDK = ..\common\unicode
+
+CPPFLAGS = -nologo -Zi -W3 -Gy -GR -EHsc -MP -c
+DEFINES = -DWIN32_LEAN_AND_MEAN -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1 -D_WIN32_WINNT=0x0500 -DUNICODE -D_UNICODE
+LINKFLAGS = -nologo -debug -incremental:no -map -manifest:no -dynamicbase -nxcompat -largeaddressaware -dll
+RCFLAGS = -nologo
+ASFLAGS = -nologo -c
+
+!if "$(CPU)" == "AMD64" || "$(PLATFORM)" == "x64"
+BITS = 64
+RCFLAGS = $(RCFLAGS) -Dx64
+!else
+BITS = 32
+LINKFLAGS = $(LINKFLAGS) -safeseh -subsystem:windows,5.00 -osversion:5.00
+ASFLAGS = $(ASFLAGS) -safeseh
+!endif
+
+!ifdef DEBUG
+OUTDIR = debug
+DEFINES = $(DEFINES) -DDEBUG
+CPPFLAGS = $(CPPFLAGS) -Od -RTC1 -MTd
+!else
+OUTDIR = final
+DEFINES = $(DEFINES) -DNDEBUG
+CPPFLAGS = $(CPPFLAGS) -O2 -GL -MT
+LINKFLAGS = $(LINKFLAGS) -opt:ref -opt:icf -LTCG
+!endif
+
+OUTDIR = $(OUTDIR).$(BITS)W.vc
+INCLUDES = -I$(OUTDIR) -I7z\h -I$(FARSDK)
+CPPFLAGS = $(CPPFLAGS) -Fo$(OUTDIR)\ -Fd$(OUTDIR)\ $(INCLUDES) $(DEFINES)
+RCFLAGS = $(RCFLAGS) $(INCLUDES) $(DEFINES)
+ASFLAGS = $(ASFLAGS) -Fo$(OUTDIR)\ 
+
+!ifdef BUILD
+!include $(OUTDIR)\far.ini
+!endif
+
+OBJS = $(OUTDIR)\archive.obj $(OUTDIR)\plugin.obj $(OUTDIR)\ui.obj $(OUTDIR)\extract.obj $(OUTDIR)\open.obj \
+  $(OUTDIR)\update.obj $(OUTDIR)\delete.obj $(OUTDIR)\options.obj $(OUTDIR)\msearch.obj $(OUTDIR)\attr.obj \
+  $(OUTDIR)\test.obj $(OUTDIR)\common.obj $(OUTDIR)\sfx.obj $(OUTDIR)\cmdline.obj $(OUTDIR)\rsrc.obj \
+  $(OUTDIR)\farutils.obj $(OUTDIR)\pathutils.obj $(OUTDIR)\strutils.obj $(OUTDIR)\sysutils.obj $(OUTDIR)\numutils.obj
+!if "$(BITS)" == "32"
+OBJS = $(OBJS) $(OUTDIR)\vc10.obj
+!endif
+
+LIBS = user32.lib advapi32.lib ole32.lib oleaut32.lib version.lib
+
+SFX = .\$(OUTDIR)\7z.sfx .\$(OUTDIR)\7zCon.sfx .\$(OUTDIR)\7zS2.sfx .\$(OUTDIR)\7zS2con.sfx .\$(OUTDIR)\7zSD.sfx
+
+project: depfile $(OUTDIR)\far.ini
+  $(MAKE) -nologo -f makefile_vc -$(MAKEFLAGS) build_project BUILD=1
+
+build_project: $(OUTDIR)\$(MODULE).dll $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_eng.hlf $(OUTDIR)\$(MODULE)_rus.hlf $(OUTDIR)\7z.dll $(SFX)
+
+$(OUTDIR)\$(MODULE).dll: $(OUTDIR)\plugin.def $(OBJS) $(OUTDIR)\headers.pch $(OUTDIR)\version.res project.ini
+  link $(LINKFLAGS) -def:$(OUTDIR)\plugin.def -out:$@ $(OBJS) $(OUTDIR)\headers.obj $(OUTDIR)\version.res $(LIBS)
+
+$(OBJS): $(OUTDIR)\headers.pch
+
+.cpp{$(OUTDIR)}.obj::
+  $(CPP) $(CPPFLAGS) -Yuheaders.hpp -FIheaders.hpp -Fp$(OUTDIR)\headers.pch $<
+
+$(OUTDIR)\headers.pch: headers.cpp headers.hpp
+  $(CPP) $(CPPFLAGS) headers.cpp -Ycheaders.hpp -Fp$(OUTDIR)\headers.pch
+
+depfile: $(OUTDIR) $(OUTDIR)\msg.h
+  $(TOOLSDIR)\gendep.exe $(INCLUDES) > $(OUTDIR)\dep.mak
+
+$(OUTDIR)\msg.h $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng: $(OUTDIR) $(OUTDIR)\en.msg $(OUTDIR)\ru.msg
+  $(TOOLSDIR)\msgc -in $(OUTDIR)\en.msg $(OUTDIR)\ru.msg -out $(OUTDIR)\msg.h $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng
+
+$(OUTDIR)\version.res: $(OUTDIR)\version.rc
+  $(RC) $(RCFLAGS) -fo$@ $**
+
+PREPROC = $(TOOLSDIR)\preproc $** $@
+
+$(OUTDIR)\version.rc: project.ini $(OUTDIR)\far.ini version.rc
+  $(PREPROC)
+
+$(OUTDIR)\plugin.def: project.ini plugin.def
+  $(PREPROC)
+
+$(OUTDIR)\en.msg: project.ini en.msg
+  $(PREPROC)
+
+$(OUTDIR)\ru.msg: project.ini ru.msg
+  $(PREPROC)
+
+$(OUTDIR)\$(MODULE)_eng.hlf: project.ini en.hlf
+  $(PREPROC)
+
+$(OUTDIR)\$(MODULE)_rus.hlf: project.ini ru.hlf
+  $(PREPROC)
+
+COPY = copy /y $** $@
+
+$(OUTDIR)\7z.dll: 7z\dll\$(OUTDIR)\7z.dll
+  $(COPY)
+
+{7z\sfx}.sfx{.\$(OUTDIR)}.sfx:
+  $(COPY)
+
+$(OUTDIR)\far.ini: $(FARSDK)\plugin.hpp
+  $(TOOLSDIR)\farver $** $@
+
+.asm{$(OUTDIR)}.obj:
+  $(AS) $(ASFLAGS) $<
+
+$(OUTDIR):
+  if not exist $(OUTDIR) mkdir $(OUTDIR)
+
+!ifdef BUILD
+!include $(OUTDIR)\dep.mak
+!endif
+
+
+clean:
+  if exist $(OUTDIR) rd /s /q $(OUTDIR)
+
+
+.PHONY: project build_project depfile clean
+.SUFFIXES: .sfx

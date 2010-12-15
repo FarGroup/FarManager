@@ -1,0 +1,242 @@
+﻿.Language=English,English
+.PluginContents=<(NAME)>
+
+@Contents
+$^#<(NAME)> <(VER_MAJOR)>.<(VER_MINOR)>.<(VER_PATCH)>#
+	Plugin module performs archive processing.
+	Author: Oleg Makovski
+	E-Mail: ~farplug@@gmail.com~@mailto:farplug@@gmail.com@
+	Web site: ~farplug.googlecode.com~@http://farplug.googlecode.com@
+
+	~Updates~@http://forum.farmanager.com/viewtopic.php?t=5720@
+	~Duscussion~@http://forum.farmanager.com/viewtopic.php?t=5637@
+
+	~Extract archive~@Extract@
+	~Create and update archive~@Update@
+	~Plugin settings~@Config@
+	~Self-extracting archive options~@SfxOptions@
+
+	Plugin command line prefix is ~arc~@Prefix@.
+
+	Archive support comes from 7z.dll library,
+that is a part of ~7-Zip~@http://7-zip.org@ project.
+
+@Extract
+$^#<(NAME)> <(VER_MAJOR)>.<(VER_MINOR)>.<(VER_PATCH)>#
+$ #Extract archive#
+
+	Extract single archive by selecting it and pressing #Shift-F2#.
+	Extract individual files by opening archive using Ctrl+PgDn key,
+selecting files and pressing #F5#.
+	Extract multiple archives by selecting them and executing #Extract archive(s)#
+from plugin menu (#F11#).
+
+	Extraction process can be interrupted by pressing #Escape#, set to low priority by
+pressing #B# and paused by pressing #P#.
+
+	"Extract files" dialog allows you to specify extract path and parameters.
+
+	#Ignore errors# - Do not interrupt extraction when errors occur, just skip faulty files.
+Error log will be shown after extraction process is complete.
+
+	#When destination file exists# - Action to perform when extracting file already exists on disk:
+ask user, overwrite, skip file, automatically rename or append to existing file.
+
+	#Delete files after extraction# - Delete files from archive after successful extraction.
+ 
+	#Password# - Specify password for encrypted files.
+If left blank password will be requested automatically when required.
+
+	#Extract archive into separate directory# - Create a subdirectory inside target directory
+and extract archive into it. If option value is undefined then subdirectory is created only when
+unpacking entire archive and archive's root directory contains more than one element.
+
+	#Delete archive after extraction# - Delete archive file (including all volumes) from disk
+after successful extraction.
+
+@Update
+$^#<(NAME)> <(VER_MAJOR)>.<(VER_MINOR)>.<(VER_PATCH)>#
+$ #Create and update archive#
+
+	In order to create an archive select files and press #Shift-F1# or select #Create archive#
+from plugin menu (#F11#).
+	In order to add files to existing archive open it using #Ctrl-PgDn#,
+selected needed files on disk and press #F5#.
+
+	Archival process can be interrupted by pressing #Escape#, set to low priority by
+pressing #B# and paused by pressing #P#.
+
+	"Create archive" dialog allows you to specify archive path and various archival parameters.
+Reduced version of this dialog is used when updating existing archives.
+
+	#Profile# - Select named collection of archival settings. #Save# button saves profile using current settings.
+#Delete# button deletes selected profile.
+
+	#Archive path# - Full or relative archive path. Far's macro sequences can be used to form path by enclosing them inside
+question marks. Example #archive-?date("%x")?.7z# puts current date into archive name. #Evaluate# button displays final archive path.
+
+	#Select archiver# - Select one of the available archive formats.
+
+	#Compression level# - Compression level determines resulting archive size, processing time, memory consumption during compression
+and number of processor cores used.
+	#Store# - Put files into archive without compression.
+	#Fastest# - Lowest compression level, high speed and low memory consumption.
+	#Normal# - Balanced compression settings.
+	#Maximum# - High compression level, low speed and high memory consumption.
+	#Ultra# - Highest compression level. Note that a large contiguous block of memory is allocated when this level is activated.
+When using 32-bit version it is possible that process address space does not have such block available.
+Compression will stop with "out of memory" error in this case.
+
+	#Compression method# - Data compression algorithm.
+	#LZMA# - standard algorithm for 7z archives.
+	#LZMA2# - improved version able to use multicore processors more efficienlty.
+Older versions of 7-Zip (4.65) cannot open archives created using this algorithm.
+	#PPMD# - this algorithm is recommended for use with text files. Keep in mind that
+it uses equal amounts of memory for compression and decompression.
+
+	#Solid archive# - This option can improve compression ratio by storing all files as one data stream.
+It also makes more difficult to access individual files because when extracting single file
+all preceding files must be extracted too.
+
+	#Advanced parameters# - Additional compression settings described in 7-Zip documentation for -m switch.
+Example: #0=delta:1 1=lzma2:pb0# - enable delta filter (for bitmap compression).
+
+	#Encrypt archive# - Encrypt archived files with password.
+#Encrypt header# option can be used to encrypt archived file names too.
+
+	#Create self-extracting archive# - Attach executable module to archive that is able to extract files.
+Plugin searches for modules with SFX extension inside its directory and inside 7-Zip directory.
+Standard SFX modules can unpack 7z archives only.
+
+	#Split into volumes# - Create multi-volume archive. #Volume size# can have K, M or G suffix.
+
+	#Delete files after archiving# - Delete files from disk after successful archival.
+
+	#Archive files open for writing# - This option value is taken from ~Far system settings~@:SystemSettings@
+
+	#Ignore errors# - Do not interrupt archival when unable to open input files.
+Error log will be shown after archival process is complete.
+
+	#When destination file exists# - Action to perform when file already present in archive:
+ask user, overwrite or skip file.
+
+	#Use filter# - Archive files matching file filter. See ~filters menu~@:FiltersMenu@ for more details.
+Empty directories are not archived when filter is active.
+
+@Config
+$^#<(NAME)> <(VER_MAJOR)>.<(VER_MINOR)>.<(VER_PATCH)>#
+$ #Plugin settings#
+
+	Press #Alt-Shift-F9# to open Settings dialog.
+
+	The following settings are available:
+
+	#Open files matching masks# - Plugin can be configured to open only those files matching list of file masks.
+This option is not considered when calling plugin from F11 menu.
+
+	#Exclude files matching masks# - Do not open files matching list of masks.
+
+	#Generate masks# - Create standard list of masks for #Open files matching masks# field based on
+information from 7z.dll.
+
+	#Enable archive formats# & #Disable archive formats# - Comma separated lists of archive format names that
+will be enabled or disabled when detecting archive format. These options are not active when using plugin menu.
+See #Available Formats# for full list of archive format names you can use.
+
+	Some settings are available via registry only:
+
+	#plugin_prefix# - Plugin command line prefix (string). Default prefix is #arc#.
+
+	#max_check_size# - Maximum number of bytes to load when detecting archive format (DWORD). Default is 1 Mb.
+
+@Prefix
+$^#<(NAME)> <(VER_MAJOR)>.<(VER_MINOR)>.<(VER_PATCH)>#
+$ #Prefix command line format#
+
+	#Open archive#
+	arc:[-d] [-t:<arc_type>] [-p:<password>] <archive>
+	-t = archive type (7z, zip, etc.)
+	-d = detect all available formats and show selection menu
+	-p = specify password for encrypted archive
+	<archive> = archive file name
+
+	#Create or update archive#
+	arc:c [-pr:name] [-t:<arc_type>] [-l:<level>] [-m:<method>] [-s[:(y|n)]] [-p:<password>] [-eh[:(y|n)]] [-sfx[:<module>]] [-v:<volume_size>]
+[-mf[:(y|n)]] [-ie[:(y|n)]] [-adv:<advanced>] <archive> (<file> | @@<filelist>) ...
+	arc:u [-l:<level>] [-m:<method>] [-s[:(y|n)]] [-p:<password>] [-eh[:(y|n)]]
+[-mf[:(y|n)]] [-ie[:(y|n)]] [-o[:(o|s)]] [-adv:<advanced>] <archive> (<file> | @@<filelist>) ...
+	-pr = profile name (other parameters overwrite profile settings)
+	-t = archive type (7z, zip, etc.)
+	-l = compression level (0|1|3|5|7|9)
+	-m = compression method (lzma|lzma2|ppmd)
+	-s = solid archive
+	-p = encrypt archive with password
+	-eh = encrypt archive header (file names)
+	-sfx = create self-extracting archive using specified SFX module (7z.sfx by default)
+	-v = split archive into multiple volumes (example: -v:700M)
+	-mf = delete files after successful archival
+	-ie = ignore errors (skip files with errors)
+	-o = overwrite existing files (o = overwrite, s = skip)
+	-adv = advanced settings (see 7-Zip documentation for -m switch)
+	<archive> = archive file name
+	<file> ... = list of files to archive (masks are allowed)
+	@@<filelist> ... = files containing lists of files to archive
+
+	#Extract archive#
+	arc:x [-ie[:(y|n)]] [-o[:(o|s|r|a)]] [-mf[:(y|n)]] [-p:<password>] [-sd[:(a|y|n)]] [-da[:(y|n)]] <archive> ... <path>
+	-ie = ignore errors (skip files with errors)
+	-o = overwrite existing files (o = overwrite, s = skip, r = rename, a = append)
+	-mf = delete files from archive after successful extraction
+	-p = specify password for encrypted archive
+	-sd = extract archive into separate directory (a = decide automatically)
+	-da = delete archive after successful extraction
+	<archive> ... = list of archives
+	<path> = target path
+
+	#Test archive#
+	arc:t <archive> ...
+	<archive> ... = list of archives
+
+@SfxOptions
+$^#<(NAME)> <(VER_MAJOR)>.<(VER_MINOR)>.<(VER_PATCH)>#
+$ #Self-extracting archive options#
+
+	#Module name# - Select one of the available SFX modules:
+
+		#Standard GUI (7z.sfx)# - Standard GUI SFX module. It supports 7z archives created with the
+following set of codecs: LZMA, LZMA2, PPMD, BCJ, BCJ2, ARM, Copy, AES.
+
+		#Standard console (7zCon.sfx)# - Console equivalent of the above.
+
+		#Installer GUI (7zSD.sfx)# - This module is used to create simple setup programs.
+It extracts archive into temporary directory and then runs specified program and removes
+temporary files after program termination. Additional parameters can be specified under
+#Install configuration# group. Module supports 7z archives created with the
+following set of codecs: LZMA, LZMA2, BCJ, BCJ2, ARM, Copy i.e. encryption and PPMD compression
+are not supported.
+
+		#Small installer GUI (7zS2.sfx)# - Alternative installer module. It features much smaller size,
+has no progress window and does not support installer configuration. It also has higher memory
+requirements because entire solid block is decompressed into RAM (that is entire archive in simplest case).
+		Small SFX uses 3 levels of priorities to select file to execute:
+		1) Files in root directory have higher priority than files in subdirectories.
+		2) File extension priorities (from high to low priority order): bat, exe, inf, msi, html, htm.
+		3) File name priorities (from high to low priority order): setup, install, run, start.
+
+		#Small installer console (7zS2con.sfx)# - Same as above but runs as console application.
+
+	#Replace icon# - Place custom icon (*.ico file) into created executable.
+	
+	#Replace version# - Specify custom version information for created executable.
+#Version# string should be like 1.2.3.4
+
+	#Install configuration# - Configuration for installer module.
+
+		#Title# - Window title.
+		#Begin prompt# - Prompt shown by installer before unpacking archive.
+		#Progress meter# - Show or hide progress indicator.
+		#Run program# - Program from archive to execute after extraction is complete. Default value is setup.exe.
+Special marker %%T will be replaced by path to temporary directory with extracted files.
+		#Execute file# - Name of file to execute. This could be a program or a document from archive
+or any system program.
+		#Execute parameters# - Parameters for #Execute file#.
