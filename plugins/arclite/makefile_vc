@@ -3,9 +3,9 @@
 TOOLSDIR = tools
 FARSDK = ..\common\unicode
 
-CPPFLAGS = -nologo -Zi -W3 -Gy -GR -EHsc -MP -c
+CPPFLAGS = -nologo -W3 -Gy -GR -EHsc -MP -c
 DEFINES = -DWIN32_LEAN_AND_MEAN -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1 -D_WIN32_WINNT=0x0500 -DUNICODE -D_UNICODE
-LINKFLAGS = -nologo -debug -incremental:no -map -manifest:no -dynamicbase -nxcompat -largeaddressaware -dll
+LINKFLAGS = -nologo -incremental:no -map -manifest:no -dynamicbase -nxcompat -largeaddressaware -dll
 RCFLAGS = -nologo
 ASFLAGS = -nologo -c
 
@@ -21,7 +21,8 @@ ASFLAGS = $(ASFLAGS) -safeseh
 !ifdef DEBUG
 OUTDIR = debug
 DEFINES = $(DEFINES) -DDEBUG
-CPPFLAGS = $(CPPFLAGS) -Od -RTC1 -MTd
+CPPFLAGS = $(CPPFLAGS) -Zi -Od -RTC1 -MTd
+LINKFLAGS = $(LINKFLAGS) -debug
 !else
 OUTDIR = final
 DEFINES = $(DEFINES) -DNDEBUG
