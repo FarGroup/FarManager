@@ -870,6 +870,8 @@ void Archive::create(const wstring& src_dir, const vector<wstring>& file_names, 
 
   ArchiveUpdateProgress progress(true, options.arc_path);
   ComObject<IArchiveUpdateCallback> updater(new ArchiveUpdater(src_dir, wstring(), 0, file_index_map, options, ignore_errors, error_log, progress));
+
+  prepare_dst_dir(extract_file_path(options.arc_path));
   UpdateStream* stream_impl;
   if (options.enable_volumes)
     stream_impl = new MultiVolumeUpdateStream(options.arc_path, parse_size_string(options.volume_size), progress);

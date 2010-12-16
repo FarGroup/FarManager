@@ -429,6 +429,8 @@ public:
       options.encrypt_header = triUndef;
       options.password = archive.password;
       options.overwrite = g_options.update_overwrite;
+      if (op_mode & OPM_EDIT)
+        options.overwrite = oaOverwrite;
     }
     options.create_sfx = false;
     options.enable_volumes = false;
@@ -690,6 +692,9 @@ public:
   }
 
   void create_dir(const wchar_t** name, int op_mode) {
+    if (!archive.updatable()) {
+      FAIL_MSG(Far::get_msg(MSG_ERROR_NOT_UPDATABLE));
+    }
     bool show_dialog = (op_mode & (OPM_SILENT | OPM_FIND | OPM_VIEW | OPM_EDIT | OPM_QUICKVIEW)) == 0;
     created_dir = *name;
     if (show_dialog) {
@@ -785,7 +790,7 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item) {
     unsigned extract_menu_id = menu_items.add(Far::get_msg(MSG_MENU_EXTRACT));
     unsigned test_menu_id = menu_items.add(Far::get_msg(MSG_MENU_TEST));
     unsigned sfx_convert_menu_id = menu_items.add(Far::get_msg(MSG_MENU_SFX_CONVERT));
-    unsigned item = Far::menu(Far::get_msg(MSG_PLUGIN_NAME), menu_items);
+    unsigned item = Far::menu(Far::get_msg(MSG_PLUGIN_NAME), menu_items, L"Contents");
     if (item == open_menu_id || item == detect_menu_id) {
       OpenOptions options;
       options.detect = item == detect_menu_id;
@@ -982,7 +987,7 @@ int WINAPI MakeDirectoryW(HANDLE hPlugin, const wchar_t** Name, int OpMode) {
   FAR_ERROR_HANDLER_BEGIN;
   reinterpret_cast<Plugin*>(hPlugin)->create_dir(Name, OpMode);
   return 1;
-  FAR_ERROR_HANDLER_END(return 0, return -1, (OpMode & OPM_SILENT) != 0);
+  FAR_ERROR_HANDLER_END(return -1, return -1, (OpMode & OPM_SILENT) != 0);
 }
 
 int WINAPI ProcessHostFileW(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int ItemsNumber, int OpMode) {

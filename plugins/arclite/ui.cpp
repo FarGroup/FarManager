@@ -283,7 +283,7 @@ public:
     label(Far::get_msg(MSG_OVERWRITE_DLG_SOURCE));
     pad(15);
     if (!src_file_info.is_dir) {
-      label(format_data_size(src_file_info.size, get_size_suffixes()));
+      label(uint_to_str(src_file_info.size));
       pad(25);
     }
     label(format_file_time(src_file_info.mtime));
@@ -296,7 +296,7 @@ public:
     label(Far::get_msg(MSG_OVERWRITE_DLG_DESTINATION));
     pad(15);
     if (!dst_file_info.is_dir) {
-      label(format_data_size(dst_file_info.size, get_size_suffixes()));
+      label(uint_to_str(dst_file_info.size));
       pad(25);
     }
     label(format_file_time(dst_file_info.mtime));

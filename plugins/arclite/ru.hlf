@@ -3,23 +3,15 @@
 
 @Contents
 $^#<(NAME)> <(VER_MAJOR)>.<(VER_MINOR)>.<(VER_PATCH)>#
-	Плагин предназначен для работы с архивами.
-	Автор: Олег Маковский
-	E-Mail: ~farplug@@gmail.com~@mailto:farplug@@gmail.com@
-	Web site: ~farplug.googlecode.com~@http://farplug.googlecode.com@
+	Управление архивами на основе библиотеки 7z.dll из проекта ~7-Zip~@http://7-zip.org@.
 
-	~Новые версии~@http://forum.farmanager.com/viewtopic.php?t=5720@
-	~Обсуждение~@http://forum.farmanager.com/viewtopic.php?t=5637@
+	~Обсуждение плагина~@http://forum.farmanager.com/viewtopic.php?t=5637@
 
 	~Распаковка архива~@Extract@
 	~Создание и обновление архива~@Update@
 	~Настройки плагина~@Config@
 	~Параметры SFX архива~@SfxOptions@
-
-	Префикс для вызова плагины из командной строки ~arc~@Prefix@.
-
-	Поддержка архивных форматов реализована в библиотеке 7z.dll,
-которая является частью проекта ~7-Zip~@http://7-zip.org@.
+	~Параметры командной строки~@Prefix@.
 
 @Extract
 $^#<(NAME)> <(VER_MAJOR)>.<(VER_MINOR)>.<(VER_PATCH)>#

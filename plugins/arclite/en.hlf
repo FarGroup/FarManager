@@ -3,23 +3,15 @@
 
 @Contents
 $^#<(NAME)> <(VER_MAJOR)>.<(VER_MINOR)>.<(VER_PATCH)>#
-	Plugin module performs archive processing.
-	Author: Oleg Makovski
-	E-Mail: ~farplug@@gmail.com~@mailto:farplug@@gmail.com@
-	Web site: ~farplug.googlecode.com~@http://farplug.googlecode.com@
+	Archive management based on 7z.dll from ~7-Zip~@http://7-zip.org@ project.
 
-	~Updates~@http://forum.farmanager.com/viewtopic.php?t=5720@
-	~Duscussion~@http://forum.farmanager.com/viewtopic.php?t=5637@
+	~Plugin duscussion~@http://forum.farmanager.com/viewtopic.php?t=5637@
 
 	~Extract archive~@Extract@
 	~Create and update archive~@Update@
 	~Plugin settings~@Config@
 	~Self-extracting archive options~@SfxOptions@
-
-	Plugin command line prefix is ~arc~@Prefix@.
-
-	Archive support comes from 7z.dll library,
-that is a part of ~7-Zip~@http://7-zip.org@ project.
+	~Command line parameters~@Prefix@
 
 @Extract
 $^#<(NAME)> <(VER_MAJOR)>.<(VER_MINOR)>.<(VER_PATCH)>#
