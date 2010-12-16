@@ -1067,6 +1067,7 @@ private:
       if (param2) {
         options.filter.reset(new Far::FileFilter());
         if (!options.filter->create(PANEL_NONE, FFT_CUSTOM) || !options.filter->menu()) {
+          options.filter.reset();
           DisableEvents de(*this);
           set_check(enable_filter_ctrl_id, false);
         }

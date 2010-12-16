@@ -502,6 +502,7 @@ private:
 
   bool scan_file(const wstring& sub_dir, const FindData& src_find_data, UInt32 dst_dir_index, UInt32& file_index) {
     FAR_FIND_DATA filter_data;
+    memset(&filter_data, 0, sizeof(filter_data));
     filter_data.dwFileAttributes = src_find_data.dwFileAttributes;
     filter_data.ftCreationTime = src_find_data.ftCreationTime;
     filter_data.ftLastAccessTime = src_find_data.ftLastAccessTime;
