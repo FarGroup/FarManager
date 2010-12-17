@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 17.12.2010 18:58:27 +0200 - build 1762
+
+1. There were rumors about incorrect displaying of 5-digit years in the file attributes dialog.
+
 drkns 15.12.2010 22:05:28 +0200 - build 1761
 
 1. Dialogs are not centered on console resize.
