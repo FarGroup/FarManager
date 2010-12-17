@@ -41,16 +41,12 @@ if [ "$PLUGIN" == "FExcept" ]; then
 elif [ $ADD -eq 1 ]; then
   mkdir -p ../../outfinal${PTYPE}${BIT}/Plugins/$PLUGIN
   mkdir -p ../../outfinal${PTYPE}${BIT}/Plugins/${PLUGIN}/$7
-  mkdir -p ../../outfinalnew${BIT}/Plugins/$PLUGIN
-  mkdir -p ../../outfinalnew${BIT}/Plugins/${PLUGIN}/$7
 
   cp -f changelog ../../outfinal${PTYPE}${BIT}/Plugins/$PLUGIN/  
-  cp -f changelog ../../outfinalnew${BIT}/Plugins/$PLUGIN/  
 
   cd $FINAL
   cp -f $FILES ../../../outfinal${PTYPE}${BIT}/Plugins/$PLUGIN/
   COPYOK=$?
-  cp -f $FILES ../../../outfinalnew${BIT}/Plugins/$PLUGIN/
   cd ..
 
   cd $FINAL/$7
@@ -58,8 +54,22 @@ elif [ $ADD -eq 1 ]; then
   if [ $? -ne 0 ]; then
     COPYOK=1
   fi
-  cp -f $5 ../../../../outfinalnew${BIT}/Plugins/${PLUGIN}/$7/
   cd ../..
+
+  if [ "$PLUGIN" == "FTP" ]; then
+    mkdir -p ../../outfinalnew${BIT}/Plugins/$PLUGIN
+    mkdir -p ../../outfinalnew${BIT}/Plugins/${PLUGIN}/$7
+
+    cp -f changelog ../../outfinalnew${BIT}/Plugins/$PLUGIN/  
+
+    cd $FINAL
+    cp -f $FILES ../../../outfinalnew${BIT}/Plugins/$PLUGIN/
+    cd ..
+
+    cd $FINAL/$7
+    cp -f $5 ../../../../outfinalnew${BIT}/Plugins/${PLUGIN}/$7/
+    cd ../..
+  fi
 else
   mkdir -p ../../outfinal${PTYPE}${BIT}/Plugins/$PLUGIN
 

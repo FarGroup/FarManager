@@ -85,6 +85,7 @@
         <Component Id="README.TXT_1" Guid="$(var.Guid.README.TXT_1)" Win64="$(var.Win64)">
           <File Id="README.TXT_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\README.TXT" />
         </Component>
+<?if $(var.Branch) = 1 ?>
         <Directory Id="Archivers" Name="Archivers">
           <Component Id="Arj.reg" Guid="$(var.Guid.Arj.reg)" Win64="$(var.Win64)">
             <File Id="Arj.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Archivers\Arj.reg" />
@@ -126,6 +127,7 @@
             <File Id="WinZipCL.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Archivers\WinZipCL.reg" />
           </Component>
         </Directory>
+<?endif?>
         <Directory Id="Colors" Name="Colors">
           <Component Id="Descript.ion_3" Guid="$(var.Guid.Descript.ion_3)" Win64="$(var.Win64)">
             <File Id="Descript.ion_3" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Descript.ion" />
@@ -657,9 +659,11 @@
           <Component Id="arclite.dll" Guid="$(var.Guid.arclite.dll)" Win64="$(var.Win64)">
             <File Id="arclite.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\arclite.dll" />
           </Component>
+<?if $(var.Platform) = x86 ?>
           <Component Id="arclite.map" Guid="$(var.Guid.arclite.map)" Win64="$(var.Win64)">
             <File Id="arclite.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\arclite.map" />
           </Component>
+<?endif?>
           <Component Id="arclite_eng.hlf" Guid="$(var.Guid.arclite_eng.hlf)" Win64="$(var.Win64)">
             <File Id="arclite_eng.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\arclite_eng.hlf" />
           </Component>
@@ -1013,6 +1017,7 @@
           </Component>
 <?endif?>
         </Directory>
+<?if $(var.Branch) = 1 ?>
         <Directory Id="MultiArc" Name="MultiArc">
           <Component Id="arceng.hlf" Guid="$(var.Guid.arceng.hlf)" Win64="$(var.Win64)">
             <File Id="arceng.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\arceng.hlf" />
@@ -1105,6 +1110,7 @@
 <?endif?>
           </Directory>
         </Directory>
+<?endif?>
         <Directory Id="Network" Name="Network">
           <Component Id="changelog_15" Guid="$(var.Guid.changelog_15)" Win64="$(var.Win64)">
             <File Id="changelog_15" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Network\changelog" />

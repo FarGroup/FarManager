@@ -1,10 +1,6 @@
 plugins\common\convert.exe docs\ENG\Arc.Support.txt docs\ENG\Bug.Report.txt docs\ENG\Far.FAQ.txt docs\ENG\Plugins.Install.txt docs\ENG\Plugins.Review.txt docs\ENG\TechInfo.txt %1\Documentation\eng\
 plugins\common\convert.exe docs\RUS\Arc.Support.txt docs\RUS\Bug.Report.txt docs\RUS\Far.FAQ.txt docs\RUS\Plugins.Install.txt docs\RUS\Plugins.Review.txt docs\RUS\TechInfo.txt %1\Documentation\rus\
 
-plugins\common\convert.exe addons\Archivers\Descript.ion addons\Archivers\FarUC2.reg addons\Archivers\InfoZIP.reg addons\Archivers\LGHA.reg addons\Archivers\Lha32.reg %1\Addons\Archivers\
-plugins\common\convert.exe addons\Archivers\LhArk.reg addons\Archivers\PkZip25.reg addons\Archivers\PkZip25Dos.reg addons\Archivers\Rar20.reg addons\Archivers\WinZipCL.reg %1\Addons\Archivers\
-plugins\common\convert.exe addons\Archivers\Lha32b.reg addons\Archivers\Lha32a.reg addons\Archivers\Arj.reg %1\Addons\Archivers\
-
 plugins\common\convert.exe "addons\Colors\Custom Highlighting\black_from_Fonarev.reg" "addons\Colors\Custom Highlighting\black_from_july.reg" "%1\Addons\Colors\Custom Highlighting"
 plugins\common\convert.exe "addons\Colors\Custom Highlighting\black_from_Myodov.reg" "addons\Colors\Custom Highlighting\Colors_from_admin_essp_ru.reg" "%1\Addons\Colors\Custom Highlighting"
 plugins\common\convert.exe "addons\Colors\Custom Highlighting\Colors_from_Gernichenko.reg" "addons\Colors\Custom Highlighting\Colors_from_Sadovoj.reg" "%1\Addons\Colors\Custom Highlighting"

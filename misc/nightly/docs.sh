@@ -23,7 +23,6 @@ function makedocs2 {
 mkdir -p $1/Documentation/eng
 mkdir -p $1/Documentation/rus
 
-mkdir -p $1/Addons/Archivers
 mkdir -p "$1/Addons/Colors/Custom Highlighting"
 mkdir -p "$1/Addons/Colors/Default Highlighting"
 mkdir -p $1/Addons/Macros

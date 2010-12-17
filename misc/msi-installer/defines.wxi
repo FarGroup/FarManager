@@ -33,11 +33,9 @@
 <?if $(var.Branch) = 1 ?>
   <?define RegKey = "Far" ?>
   <?define DefMachineInstallDir = "Far" ?>
-  <?define MultiArcLevel = "1" ?>
 <?endif?>
 <?if $(var.Branch) = 2 ?>
   <?define RegKey = "Far2" ?>
   <?define DefMachineInstallDir = "Far2" ?>
-  <?define MultiArcLevel = "2" ?>
 <?endif?>
 <Include />
