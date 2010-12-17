@@ -12198,31 +12198,31 @@ MSetAttrSet
 
 MSetAttrTimeTitle1
 l:
-"ММ%cДД%cГГГГ чч%cмм%cсс%cмс"
-"MM%cDD%cYYYY hh%cmm%css%cms"
-upd:"MM%cDD%cRRRR hh%cmm%css%cms"
-upd:"MM%cTT%cJJJJ hh%cmm%css%cms"
-upd:"HH%cNN%cÉÉÉÉ óó%cpp%cmm%cms"
-upd:"MM%cDD%cRRRR gg%cmm%css%cms"
-"MM%cDD%cAAAA hh%cmm%css"
+"ММ%cДД%cГГГГГ чч%cмм%cсс%cмс"
+"MM%cDD%cYYYYY hh%cmm%css%cms"
+upd:"MM%cDD%cRRRRR hh%cmm%css%cms"
+upd:"MM%cTT%cJJJJJ hh%cmm%css%cms"
+upd:"HH%cNN%cÉÉÉÉÉ óó%cpp%cmm%cms"
+upd:"MM%cDD%cRRRRR gg%cmm%css%cms"
+"MM%cDD%cAAAAA hh%cmm%css"
 
 MSetAttrTimeTitle2
-"ДД%cММ%cГГГГ чч%cмм%cсс%cмс"
-"DD%cMM%cYYYY hh%cmm%css%cms"
-upd:"DD%cMM%cRRRR hh%cmm%css%cms"
-upd:"TT%cMM%cJJJJ hh%cmm%css%cms"
-upd:"NN%cHH%cÉÉÉÉ óó%cpp%cmm%cms"
-upd:"DD%cMM%cRRRR gg%cmm%css%cms"
-"DD%cMM%cAAAA hh%cmm%css"
+"ДД%cММ%cГГГГГ чч%cмм%cсс%cмс"
+"DD%cMM%cYYYYY hh%cmm%css%cms"
+upd:"DD%cMM%cRRRRR hh%cmm%css%cms"
+upd:"TT%cMM%cJJJJJ hh%cmm%css%cms"
+upd:"NN%cHH%cÉÉÉÉÉ óó%cpp%cmm%cms"
+upd:"DD%cMM%cRRRRR gg%cmm%css%cms"
+"DD%cMM%cAAAAA hh%cmm%css"
 
 MSetAttrTimeTitle3
-"ГГГГ%cММ%cДД чч%cмм%cсс%cмс"
-"YYYY%cMM%cDD hh%cmm%css%cms"
-upd:"RRRR%cMM%cDD hh%cmm%css%cms"
-upd:"JJJJ%cMM%cTT hh%cmm%css%cms"
-upd:"ÉÉÉÉ%cHH%cNN óó%cpp%cmm%cms"
-upd:"RRRR%cMM%cDD gg%cmm%css%cms"
-"AAAA%cMM%cDD hh%cmm%css"
+"ГГГГГ%cММ%cДД чч%cмм%cсс%cмс"
+"YYYYY%cMM%cDD hh%cmm%css%cms"
+upd:"RRRRR%cMM%cDD hh%cmm%css%cms"
+upd:"JJJJJ%cMM%cTT hh%cmm%css%cms"
+upd:"ÉÉÉÉÉ%cHH%cNN óó%cpp%cmm%cms"
+upd:"RRRRR%cMM%cDD gg%cmm%css%cms"
+"AAAAA%cMM%cDD hh%cmm%css"
 
 MSetAttrSystemDialog
 "Системные свойства"

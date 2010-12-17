@@ -621,18 +621,18 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 		DI_CHECKBOX,DlgX/2,11,0,11,0,DIF_3STATE|DIF_DISABLE,MSG(MSetAttrReparsePoint),
 		DI_CHECKBOX,DlgX/2,12,0,12,0,DIF_3STATE|DIF_DISABLE,MSG(MSetAttrVirtual),
 		DI_TEXT,3,13,0,13,0,DIF_SEPARATOR,L"",
-		DI_TEXT,DlgX-28,14,0,14,0,0,L"",
+		DI_TEXT,DlgX-29,14,0,14,0,0,L"",
 		DI_TEXT,    5,15,0,15,0,0,MSG(MSetAttrModification),
-		DI_FIXEDIT,DlgX-28,15,DlgX-19,15,0,DIF_MASKEDIT,L"",
+		DI_FIXEDIT,DlgX-29,15,DlgX-19,15,0,DIF_MASKEDIT,L"",
 		DI_FIXEDIT,DlgX-17,15,DlgX-6,15,0,DIF_MASKEDIT,L"",
 		DI_TEXT,    5,16,0,16,0,0,MSG(MSetAttrCreation),
-		DI_FIXEDIT,DlgX-28,16,DlgX-19,16,0,DIF_MASKEDIT,L"",
+		DI_FIXEDIT,DlgX-29,16,DlgX-19,16,0,DIF_MASKEDIT,L"",
 		DI_FIXEDIT,DlgX-17,16,DlgX-6,16,0,DIF_MASKEDIT,L"",
 		DI_TEXT,    5,17,0,17,0,0,MSG(MSetAttrLastAccess),
-		DI_FIXEDIT,DlgX-28,17,DlgX-19,17,0,DIF_MASKEDIT,L"",
+		DI_FIXEDIT,DlgX-29,17,DlgX-19,17,0,DIF_MASKEDIT,L"",
 		DI_FIXEDIT,DlgX-17,17,DlgX-6,17,0,DIF_MASKEDIT,L"",
 		DI_TEXT,    5,18,0,18,0,0,MSG(MSetAttrChange),
-		DI_FIXEDIT,DlgX-28,18,DlgX-19,18,0,DIF_MASKEDIT,L"",
+		DI_FIXEDIT,DlgX-29,18,DlgX-19,18,0,DIF_MASKEDIT,L"",
 		DI_FIXEDIT,DlgX-17,18,DlgX-6,18,0,DIF_MASKEDIT,L"",
 
 		DI_BUTTON,0,19,0,19,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(MSetAttrOriginal),
@@ -729,7 +729,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 		wchar_t DateSeparator=GetDateSeparator();
 		wchar_t TimeSeparator=GetTimeSeparator();
 		wchar_t DecimalSeparator=GetDecimalSeparator();
-		LPCWSTR FmtMask1=L"99%c99%c99%c999",FmtMask2=L"99%c99%c9999",FmtMask3=L"9999%c99%c99";
+		LPCWSTR FmtMask1=L"99%c99%c99%c999",FmtMask2=L"99%c99%c99999",FmtMask3=L"99999%c99%c99";
 		string strDMask, strTMask;
 		strTMask.Format(FmtMask1,TimeSeparator,TimeSeparator,DecimalSeparator);
 

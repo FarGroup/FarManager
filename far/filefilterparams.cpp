@@ -848,16 +848,16 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	switch (DateFormat)
 	{
 		case 0:
-			// Маска даты для форматов DD.MM.YYYY и MM.DD.YYYY
-			strDateMask.Format(L"99%c99%c9999",DateSeparator,DateSeparator);
+			// Маска даты для форматов DD.MM.YYYYY и MM.DD.YYYYY
+			strDateMask.Format(L"99%c99%c99999",DateSeparator,DateSeparator);
 			break;
 		case 1:
-			// Маска даты для форматов DD.MM.YYYY и MM.DD.YYYY
-			strDateMask.Format(L"99%c99%c9999",DateSeparator,DateSeparator);
+			// Маска даты для форматов DD.MM.YYYYY и MM.DD.YYYYY
+			strDateMask.Format(L"99%c99%c99999",DateSeparator,DateSeparator);
 			break;
 		default:
-			// Маска даты для формата YYYY.MM.DD
-			strDateMask.Format(L"9999%c99%c99",DateSeparator,DateSeparator);
+			// Маска даты для формата YYYYY.MM.DD
+			strDateMask.Format(L"99999%c99%c99",DateSeparator,DateSeparator);
 			break;
 	}
 
@@ -887,12 +887,12 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		DI_COMBOBOX,26,7,41,7,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,L"",
 		DI_CHECKBOX,26,8,0,8,0,0,MSG(MFileFilterDateRelative),
 		DI_TEXT,49,7,51,7,0,0,MSG(MFileFilterDateBeforeSign),
-		DI_FIXEDIT,52,7,61,7,(DWORD_PTR)strDateMask.CPtr(),DIF_MASKEDIT,L"",
-		DI_FIXEDIT,52,7,61,7,(DWORD_PTR)DaysMask,DIF_MASKEDIT,L"",
+		DI_FIXEDIT,51,7,61,7,(DWORD_PTR)strDateMask.CPtr(),DIF_MASKEDIT,L"",
+		DI_FIXEDIT,51,7,61,7,(DWORD_PTR)DaysMask,DIF_MASKEDIT,L"",
 		DI_FIXEDIT,63,7,74,7,(DWORD_PTR)strTimeMask.CPtr(),DIF_MASKEDIT,L"",
 		DI_TEXT,49,8,51,8,0,0,MSG(MFileFilterDateAfterSign),
-		DI_FIXEDIT,52,8,61,8,(DWORD_PTR)strDateMask.CPtr(),DIF_MASKEDIT,L"",
-		DI_FIXEDIT,52,8,61,8,(DWORD_PTR)DaysMask,DIF_MASKEDIT,L"",
+		DI_FIXEDIT,51,8,61,8,(DWORD_PTR)strDateMask.CPtr(),DIF_MASKEDIT,L"",
+		DI_FIXEDIT,51,8,61,8,(DWORD_PTR)DaysMask,DIF_MASKEDIT,L"",
 		DI_FIXEDIT,63,8,74,8,(DWORD_PTR)strTimeMask.CPtr(),DIF_MASKEDIT,L"",
 		DI_BUTTON,0,6,0,6,0,DIF_BTNNOCLOSE,MSG(MFileFilterCurrent),
 		DI_BUTTON,0,6,74,6,0,DIF_BTNNOCLOSE,MSG(MFileFilterBlank),

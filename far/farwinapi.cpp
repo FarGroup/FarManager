@@ -1369,7 +1369,9 @@ bool GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastAccess
 		BYTE Buffer[Length] = {};
 		PFILE_BASIC_INFORMATION fbi = reinterpret_cast<PFILE_BASIC_INFORMATION>(Buffer);
 		IO_STATUS_BLOCK IoStatusBlock;
-		if (ifn.pfnNtQueryInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation) == STATUS_SUCCESS)
+		NTSTATUS Status = ifn.pfnNtQueryInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation);
+		SetLastError(ifn.pfnRtlNtStatusToDosError(Status));
+		if (Status == STATUS_SUCCESS)
 		{
 			if(CreationTime)
 			{
@@ -1427,7 +1429,9 @@ bool SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* 
 			fbi->ChangeTime.LowPart = ChangeTime->dwLowDateTime;
 		}
 		IO_STATUS_BLOCK IoStatusBlock;
-		Result = ifn.pfnNtSetInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation) == STATUS_SUCCESS;
+		NTSTATUS Status = ifn.pfnNtSetInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation);
+		SetLastError(ifn.pfnRtlNtStatusToDosError(Status));
+		Result = Status == STATUS_SUCCESS;
 	}
 	return Result;
 }
