@@ -192,9 +192,15 @@ private:
 public:
   SfxUpdateStream(const wstring& file_path, const SfxOptions& sfx_options, ArchiveUpdateProgress& progress): UpdateStream(progress) {
     RETRY_OR_IGNORE_BEGIN
-    create_sfx_module(file_path, sfx_options);
-    open(file_path, FILE_WRITE_DATA, FILE_SHARE_READ, OPEN_EXISTING, 0);
-    start_offset = set_pos(0, FILE_END);
+    try {
+      create_sfx_module(file_path, sfx_options);
+      open(file_path, FILE_WRITE_DATA, FILE_SHARE_READ, OPEN_EXISTING, 0);
+      start_offset = set_pos(0, FILE_END);
+    }
+    catch (...) {
+      File::delete_file_nt(file_path);
+      throw;
+    }
     RETRY_END(progress)
   }
 

@@ -152,6 +152,7 @@ sfx_options.dlg.install_config.directory = Director&y:
 sfx_options.dlg.install_config.execute_file = E&xecute file:
 sfx_options.dlg.install_config.execute_parameters = Execute p&arameters:
 sfx_options.dlg.wrong_module = Select SFX module
+sfx_options.dlg.invalid_icon_path = Icon path is invalid
 
 # SFX module description
 sfx_descr.7z = Standard GUI

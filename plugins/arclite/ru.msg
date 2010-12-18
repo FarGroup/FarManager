@@ -152,6 +152,7 @@ sfx_options.dlg.install_config.directory = Ката&лог с программо
 sfx_options.dlg.install_config.execute_file = Запустит&ь произвольный файл:
 sfx_options.dlg.install_config.execute_parameters = Параметр&ы запуска:
 sfx_options.dlg.wrong_module = Необходимо указать SFX модуль
+sfx_options.dlg.invalid_icon_path = ICO файл не найден
 
 # SFX module description
 sfx_descr.7z = Стандартный

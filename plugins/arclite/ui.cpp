@@ -280,11 +280,18 @@ public:
     separator();
     new_line();
 
-    label(Far::get_msg(MSG_OVERWRITE_DLG_SOURCE));
-    pad(15);
+    wstring src_label = Far::get_msg(MSG_OVERWRITE_DLG_SOURCE);
+    wstring dst_label = Far::get_msg(MSG_OVERWRITE_DLG_DESTINATION);
+    unsigned label_pad = max(src_label.size(), dst_label.size()) + 1;
+    wstring src_size = uint_to_str(src_file_info.size);
+    wstring dst_size = uint_to_str(dst_file_info.size);
+    unsigned size_pad = label_pad + max(src_size.size(), dst_size.size()) + 1;
+
+    label(src_label);
+    pad(label_pad);
     if (!src_file_info.is_dir) {
-      label(uint_to_str(src_file_info.size));
-      pad(25);
+      label(src_size);
+      pad(size_pad);
     }
     label(format_file_time(src_file_info.mtime));
     if (CompareFileTime(&src_file_info.mtime, &dst_file_info.mtime) > 0) {
@@ -293,11 +300,11 @@ public:
     }
     new_line();
 
-    label(Far::get_msg(MSG_OVERWRITE_DLG_DESTINATION));
-    pad(15);
+    label(dst_label);
+    pad(label_pad);
     if (!dst_file_info.is_dir) {
-      label(uint_to_str(dst_file_info.size));
-      pad(25);
+      label(dst_size);
+      pad(size_pad);
     }
     label(format_file_time(dst_file_info.mtime));
     if (CompareFileTime(&src_file_info.mtime, &dst_file_info.mtime) < 0) {

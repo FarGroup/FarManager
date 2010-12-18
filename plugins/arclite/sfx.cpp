@@ -201,7 +201,8 @@ private:
       enable(ctrl_id, install_config_enabled && append_install_config);
   }
 
-  void read_controls(SfxOptions& options) {
+  SfxOptions read_controls() {
+    SfxOptions options;
     const SfxModules& sfx_modules = ArcAPI::sfx();
     unsigned sfx_id = get_list_pos(module_ctrl_id);
     if (sfx_id >= sfx_modules.size()) {
@@ -209,8 +210,12 @@ private:
     }
     options.name = extract_file_name(sfx_modules[sfx_id].path);
     options.replace_icon = get_check(replace_icon_ctrl_id);
-    if (options.replace_icon)
+    if (options.replace_icon) {
       options.icon_path = get_text(icon_path_ctrl_id);
+      if (!File::exists(options.icon_path)) {
+        FAIL_MSG(Far::get_msg(MSG_SFX_OPTIONS_DLG_INVALID_ICON_PATH));
+      }
+    }
     else
       options.icon_path.clear();
     options.replace_version = get_check(replace_version_ctrl_id);
@@ -254,6 +259,7 @@ private:
       options.install_config.execute_file.clear();
       options.install_config.execute_parameters.clear();
     }
+    return options;
   }
 
   void write_controls(const SfxOptions& options) {
@@ -291,7 +297,7 @@ private:
 
   LONG_PTR dialog_proc(int msg, int param1, LONG_PTR param2) {
     if (msg == DN_CLOSE && param1 >= 0 && param1 != cancel_ctrl_id) {
-      read_controls(options);
+      options = read_controls();
     }
     else if (msg == DN_INITDIALOG) {
       set_control_state();
@@ -315,7 +321,7 @@ private:
       SfxOptions options;
       bool valid_options = true;
       try {
-        read_controls(options);
+        options = read_controls();
       }
       catch (const Error&) {
         valid_options = false;
