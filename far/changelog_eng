@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 18.12.2010 20:59:54 +0200 - build 1764
+
+1. When "[x] Copy contents of symbolic links" is on, source size is displayed for symlinks in overwrite confirmation dialog.
+
+drkns 18.12.2010 18:20:53 +0200 - build 1763
+
+1. Correction of 1762.1 for "Year-Month-Day"-formatted dates.
+
 drkns 17.12.2010 18:58:27 +0200 - build 1762
 
 1. There were rumors about incorrect displaying of 5-digit years in the file attributes dialog.
