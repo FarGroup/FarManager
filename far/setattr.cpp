@@ -420,7 +420,7 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 					ft=*reinterpret_cast<PFILETIME>(Param2);
 				}
 
-				ConvertDate(ft,strDate,strTime,12,FALSE,FALSE,TRUE,TRUE);
+				ConvertDate(ft,strDate,strTime,12,FALSE,FALSE,2,TRUE);
 			}
 
 			// Глянем на место, где был клик
@@ -800,10 +800,10 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 				{
 					if (DlgParam.Plugin || apiGetFindDataEx(strSelName, FindData))
 					{
-						ConvertDate(FindData.ftLastWriteTime, AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData,12,FALSE,FALSE,TRUE,TRUE);
-						ConvertDate(FindData.ftCreationTime,  AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData,12,FALSE,FALSE,TRUE,TRUE);
-						ConvertDate(FindData.ftLastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData,12,FALSE,FALSE,TRUE,TRUE);
-						ConvertDate(FindData.ftChangeTime,    AttrDlg[SA_EDIT_XDATE].strData,AttrDlg[SA_EDIT_XTIME].strData,12,FALSE,FALSE,TRUE,TRUE);
+						ConvertDate(FindData.ftLastWriteTime, AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData,12,FALSE,FALSE,2,TRUE);
+						ConvertDate(FindData.ftCreationTime,  AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData,12,FALSE,FALSE,2,TRUE);
+						ConvertDate(FindData.ftLastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData,12,FALSE,FALSE,2,TRUE);
+						ConvertDate(FindData.ftChangeTime,    AttrDlg[SA_EDIT_XDATE].strData,AttrDlg[SA_EDIT_XTIME].strData,12,FALSE,FALSE,2,TRUE);
 					}
 
 					if (FileAttr!=INVALID_FILE_ATTRIBUTES)
@@ -948,7 +948,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 			{
 				for (size_t i=0; i<ARRAYSIZE(Dates); i++)
 				{
-					ConvertDate(*TimeValues[i],AttrDlg[Dates[i]].strData,AttrDlg[Times[i]].strData,12,FALSE,FALSE,TRUE,TRUE);
+					ConvertDate(*TimeValues[i],AttrDlg[Dates[i]].strData,AttrDlg[Times[i]].strData,12,FALSE,FALSE,2,TRUE);
 				}
 			}
 

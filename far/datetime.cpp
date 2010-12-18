@@ -751,6 +751,7 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 		else
 		{
 			int p1,p2,p3=Year;
+			int w1=2, w2=2, w3=FullYear==2?5:2;
 
 			switch (CurDateFormat)
 			{
@@ -764,12 +765,15 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 					break;
 				default:
 					p1=Year;
+					w1=w3;
+					w3=2;
 					p2=st.wMonth;
 					p3=st.wDay;
 					break;
 			}
-
-			strDateText.Format(L"%02d%c%02d%c%02d",p1,DateSeparator,p2,DateSeparator,p3);
+			FormatString Fmt;
+			Fmt<<fmt::FillChar(L'0')<<fmt::Width(w1)<<fmt::Precision(w1)<<p1<<DateSeparator<<fmt::FillChar(L'0')<<fmt::Width(w2)<<fmt::Precision(w2)<<p2<<DateSeparator<<fmt::FillChar(L'0')<<fmt::Width(w3)<<fmt::Precision(w3)<<p3;
+			strDateText=Fmt.strValue();
 		}
 	}
 
