@@ -3723,6 +3723,14 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 			{
 				FormatString strSrcFileStr, strDestFileStr;
 				unsigned __int64 SrcSize = SrcData.nFileSize;
+				if(Flags&FCOPY_COPYSYMLINKCONTENTS && SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
+				{
+					string RealName;
+					ConvertNameToReal(SrcName, RealName);
+					FAR_FIND_DATA_EX FindData;
+					apiGetFindDataEx(RealName,FindData);
+					SrcSize=FindData.nFileSize;
+				}
 				FormatString strSrcSizeText;
 				strSrcSizeText<<SrcSize;
 				unsigned __int64 DestSize = DestData.nFileSize;
