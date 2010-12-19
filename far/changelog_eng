@@ -3,6 +3,15 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 19.12.2010 23:49:18 +0200 - build 1766
+
+1. Correction of 1763.
+
+svs 19.12.2010 22:52:53 +0300 - build 1765
+
+1. Mantis#0001623: A new command in FARMACROCOMMAND - MCMD_GETAREA - Get current macro area
+   (from Yegor)
+
 drkns 18.12.2010 20:59:54 +0200 - build 1764
 
 1. When "[x] Copy contents of symbolic links" is on, source size is displayed for symlinks in overwrite confirmation dialog.
