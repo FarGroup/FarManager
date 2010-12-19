@@ -450,6 +450,11 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 					{
 						return Macro.GetCurRecord(nullptr,nullptr);
 					}
+
+					case MCMD_GETAREA:
+					{
+						return Macro.GetMode();
+					}
 #if 0
 					case MCMD_COMPILEMACRO:
 					{

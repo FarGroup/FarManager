@@ -50,6 +50,7 @@ enum MACROMODEAREA
 	MACRO_CONSTS               =  -2,
 	MACRO_VARS                 =  -1,
 
+	// see also plugin.hpp # FARMACROAREA
 	MACRO_OTHER                =   0, // –ежим копировани€ текста с экрана, вертикальные меню
 	MACRO_SHELL                =   1, // ‘айловые панели
 	MACRO_VIEWER               =   2, // ¬нутренн€€ программа просмотра
