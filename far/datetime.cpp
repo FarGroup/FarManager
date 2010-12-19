@@ -772,7 +772,7 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 					break;
 			}
 			FormatString Fmt;
-			Fmt<<fmt::FillChar(L'0')<<fmt::Width(w1)<<fmt::Precision(w1)<<p1<<DateSeparator<<fmt::FillChar(L'0')<<fmt::Width(w2)<<fmt::Precision(w2)<<p2<<DateSeparator<<fmt::FillChar(L'0')<<fmt::Width(w3)<<fmt::Precision(w3)<<p3;
+			Fmt<<fmt::FillChar(L'0')<<fmt::Width(w1)<<p1<<DateSeparator<<fmt::FillChar(L'0')<<fmt::Width(w2)<<p2<<DateSeparator<<fmt::FillChar(L'0')<<fmt::Width(w3)<<p3;
 			strDateText=Fmt.strValue();
 		}
 	}
