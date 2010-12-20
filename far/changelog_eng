@@ -3,6 +3,13 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 20.12.2010 13:46:31 +0200 - build 1767
+
+1. Forum:
+   type `macro:post panel.setpath(1, "C:/")' in command line (to change passive panel path) 
+   and press F5 Enter on any file or folder in active panel. 
+   This results in "Can not find the file" error.
+
 drkns 19.12.2010 23:49:18 +0200 - build 1766
 
 1. Correction of 1763.
