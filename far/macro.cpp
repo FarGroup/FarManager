@@ -3246,6 +3246,8 @@ static bool panelsetpathFunc(const TMacroFunction*)
 		{
 			if (SelPanel->SetCurDir(pathName,TRUE))
 			{
+				//восстановим текущую папку из активной панели.
+				ActivePanel->SetCurPath();
 				// Need PointToName()?
 				SelPanel->GoToFile(fileName); // здесь без проверки, т.к. параметр fileName аля опциональный
 				//SelPanel->Show();
