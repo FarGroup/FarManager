@@ -56,7 +56,7 @@ typedef vector<ArcLib> ArcLibs;
 
 class ArcFormats: public map<ArcType, ArcFormat> {
 public:
-  ArcTypes ArcFormats::get_arc_types() const;
+  ArcTypes get_arc_types() const;
   ArcTypes find_by_name(const wstring& name) const;
   ArcTypes find_by_ext(const wstring& ext) const;
 };
