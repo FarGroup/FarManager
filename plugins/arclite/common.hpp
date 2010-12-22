@@ -80,7 +80,6 @@ private:
 public:
   ProgressSuspend(ProgressMonitor& progress): progress(progress) {
     progress.update_time();
-    Far::adv_control(ACTL_REDRAWALL);
   }
   ~ProgressSuspend() {
     progress.discard_time();

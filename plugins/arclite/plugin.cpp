@@ -925,7 +925,7 @@ HANDLE WINAPI OpenFilePluginW(const wchar_t *Name,const unsigned char *Data,int 
     detect_next_time = triUndef;
     return Plugin::open(options);
   }
-  FAR_ERROR_HANDLER_END(return INVALID_HANDLE_VALUE, return INVALID_HANDLE_VALUE, (OpMode & (OPM_SILENT | OPM_FIND)) != 0);
+  FAR_ERROR_HANDLER_END(return INVALID_HANDLE_VALUE, return reinterpret_cast<HANDLE>(-2), (OpMode & (OPM_SILENT | OPM_FIND)) != 0);
 }
 
 void WINAPI ClosePluginW(HANDLE hPlugin) {
