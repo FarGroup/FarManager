@@ -937,8 +937,7 @@ void Archive::update(const wstring& src_dir, const vector<wstring>& file_names, 
 void Archive::create_dir(const wstring& dir_name, const wstring& dst_dir) {
   FileIndexMap file_index_map;
   FileIndexInfo file_index_info;
-  file_index_info.rel_path = dst_dir;
-  memset(&file_index_info.find_data,0, sizeof(file_index_info.find_data));
+  memset(&file_index_info.find_data, 0, sizeof(file_index_info.find_data));
   file_index_info.find_data.dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
   SYSTEMTIME sys_time;
   GetSystemTime(&sys_time);
