@@ -43,19 +43,50 @@ struct ActlKeyMacro
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Команда</th><th class="cont" width="60%">Описание</th></tr>
 
-<tr class="cont"><td class="cont" width="40%"><a name="MCMD_LOADALL">MCMD_LOADALL</a></td>
-<td class="cont" width="60%">Считать из реестра в память FAR все макросы с затиранием предыдущих значений.
+<tr class="cont"><td class="cont" width="40%"><a name="MCMD_CHECKMACRO">MCMD_CHECKMACRO</a></td>
+<td class="cont" width="60%">Проверяет макропоследовательность Param.PlainText.SequenceText и возвращает результат в Param.MacroResult
+(структура <a href="macroparseresult.html">MacroParseResult</a>). Содержимое Param.PlainText затирается.
 </td></tr>
 
-<tr class="cont"><td class="cont" width="40%"><a name="MCMD_POSTMACROSTRING">MCMD_POSTMACROSTRING</a></td>
-<td class="cont" width="60%">Передать в FAR макрос в текстовом виде (в том виде, как их хранит FAR Manager в реестре).<br>
-Функция <a href="../service_functions/advcontrol.html">AdvControl</a> возвращает TRUE - макрос проанализирован и
-помещены в очередь, и FALSE - ошибка (макропоследовательность содержит ошибки). Макропоследовательность начнёт
-исполняться тогда, когда FAR получит управление.
+<tr class="cont"><td class="cont" width="40%"><a name="MCMD_GETAREA">MCMD_GETAREA</a></td>
+<td class="cont" width="60%">Получить текущую макрообласть.<br>Возвращает одно из значений (перечисление <a name="FARMACROAREA">FARMACROAREA</a>):
+  <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Значение</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_OTHER</a></td>
+    <td class="cont" width="60%">Режим копирования текста с экрана</tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_SHELL</a></td>
+    <td class="cont" width="60%">Файловые панели</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_VIEWER</a></td>
+    <td class="cont" width="60%">Внутренняя программа просмотра</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_EDITOR</a></td>
+    <td class="cont" width="60%">Редактор</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_DIALOG</a></td>
+    <td class="cont" width="60%">Диалоги</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_SEARCH</a></td>
+    <td class="cont" width="60%">Быстрый поиск в панелях</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_DISKS</a></td>
+    <td class="cont" width="60%">Меню выбора дисков</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_MAINMENU</a></td>
+    <td class="cont" width="60%">Основное меню</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_MENU</a></td>
+    <td class="cont" width="60%">Прочие меню</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_HELP</a></td>
+    <td class="cont" width="60%">Система помощи</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_INFOPANEL</a></td>
+    <td class="cont" width="60%">Информационная панель</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_QVIEWPANEL</a></td>
+    <td class="cont" width="60%">Панель быстрого просмотра</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_TREEPANEL</a></td>
+    <td class="cont" width="60%">Панель дерева папок</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_FINDFOLDER</a></td>
+    <td class="cont" width="60%">Панель поиска папок</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_USERMENU</a></td>
+    <td class="cont" width="60%">Пользовательское меню</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_AUTOCOMPLETION</a></td>
+    <td class="cont" width="60%">Список автодополнения</td></tr>
+  </table>
+  Компонента <em>Param</em> игнорируется. Значение возвращается функцией <a href="../service_functions/advcontrol.html">AdvControl</a>.<br>
 </td></tr>
-
-<tr class="cont"><td class="cont" width="40%"><a name="MCMD_SAVEALL">MCMD_SAVEALL</a></td>
-<td class="cont" width="60%">Принудительное сохранение макросов из памяти FAR в реестр.</td></tr>
 
 <tr class="cont"><td class="cont" width="40%"><a name="MCMD_GETSTATE">MCMD_GETSTATE</a></td>
 <td class="cont" width="60%">Получить статус работы макродвижка.<br>Возвращает одно из значений (перечисление <a name="FARMACROSTATE">FARMACROSTATE</a>):
@@ -76,11 +107,19 @@ struct ActlKeyMacro
 
 </td></tr>
 
-<tr class="cont"><td class="cont" width="40%"><a name="MCMD_CHECKMACRO">MCMD_CHECKMACRO</a></td>
-<td class="cont" width="60%">Проверяет макропоследовательность Param.PlainText.SequenceText и возвращает результат в Param.MacroResult
-(структура <a href="macroparseresult.html">MacroParseResult</a>). Содержимое Param.PlainText затирается.
+<tr class="cont"><td class="cont" width="40%"><a name="MCMD_LOADALL">MCMD_LOADALL</a></td>
+<td class="cont" width="60%">Считать из реестра в память FAR все макросы с затиранием предыдущих значений.
 </td></tr>
 
+<tr class="cont"><td class="cont" width="40%"><a name="MCMD_POSTMACROSTRING">MCMD_POSTMACROSTRING</a></td>
+<td class="cont" width="60%">Передать в FAR макрос в текстовом виде (в том виде, как их хранит FAR Manager в реестре).<br>
+Функция <a href="../service_functions/advcontrol.html">AdvControl</a> возвращает TRUE - макрос проанализирован и
+помещены в очередь, и FALSE - ошибка (макропоследовательность содержит ошибки). Макропоследовательность начнёт
+исполняться тогда, когда FAR получит управление.
+</td></tr>
+
+<tr class="cont"><td class="cont" width="40%"><a name="MCMD_SAVEALL">MCMD_SAVEALL</a></td>
+<td class="cont" width="60%">Принудительное сохранение макросов из памяти FAR в реестр.</td></tr>
 
 </table>
     </div>
