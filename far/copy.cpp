@@ -3723,6 +3723,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 			{
 				FormatString strSrcFileStr, strDestFileStr;
 				unsigned __int64 SrcSize = SrcData.nFileSize;
+				FILETIME SrcLastWriteTime = SrcData.ftLastWriteTime;
 				if(Flags&FCOPY_COPYSYMLINKCONTENTS && SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
 				{
 					string RealName;
@@ -3730,6 +3731,8 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 					FAR_FIND_DATA_EX FindData;
 					apiGetFindDataEx(RealName,FindData);
 					SrcSize=FindData.nFileSize;
+					SrcLastWriteTime = FindData.ftLastWriteTime;
+
 				}
 				FormatString strSrcSizeText;
 				strSrcSizeText<<SrcSize;
@@ -3737,7 +3740,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 				FormatString strDestSizeText;
 				strDestSizeText<<DestSize;
 				string strDateText, strTimeText;
-				ConvertDate(SrcData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE,TRUE);
+				ConvertDate(SrcLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE,TRUE);
 				strSrcFileStr<<fmt::LeftAlign()<<fmt::Width(17)<<MSG(MCopySource)<<L" "<<fmt::Width(25)<<fmt::Precision(25)<<strSrcSizeText<<L" "<<strDateText<<L" "<<strTimeText;
 				ConvertDate(DestData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE,TRUE);
 				strDestFileStr<<fmt::LeftAlign()<<fmt::Width(17)<<MSG(MCopyDest)<<L" "<<fmt::Width(25)<<fmt::Precision(25)<<strDestSizeText<<L" "<<strDateText<<L" "<<strTimeText;
