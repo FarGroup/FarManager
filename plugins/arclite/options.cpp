@@ -307,24 +307,27 @@ const bool c_def_profile_open_shared = false;
 const bool c_def_profile_ignore_errors = false;
 const wchar_t* c_def_profile_advanced = L"";
 
-UpdateOptions::UpdateOptions():
-  arc_path(c_def_profile_arc_path),
+ProfileOptions::ProfileOptions():
   arc_type(c_def_profile_arc_type),
   level(c_def_profile_level),
   method(c_def_profile_method),
   solid(c_def_profile_solid),
   password(c_def_profile_password),
-  show_password(c_def_profile_show_password),
   encrypt(c_def_profile_encrypt),
   encrypt_header(c_def_profile_encrypt_header),
   create_sfx(c_def_profile_create_sfx),
   enable_volumes(c_def_profile_enable_volumes),
   volume_size(c_def_profile_volume_size),
   move_files(c_def_profile_move_files),
-  open_shared(c_def_profile_open_shared),
   ignore_errors(c_def_profile_ignore_errors),
-  overwrite(oaAsk),
   advanced(c_def_profile_advanced)
+{}
+
+UpdateOptions::UpdateOptions():
+  arc_path(c_def_profile_arc_path),
+  show_password(c_def_profile_show_password),
+  open_shared(c_def_profile_open_shared),
+  overwrite(oaAsk)
 {}
 
 SfxOptions::SfxOptions():
@@ -349,7 +352,6 @@ void UpdateProfiles::load() {
       GET_VALUE(method, str);
       GET_VALUE(solid, bool);
       GET_VALUE(password, str);
-      GET_VALUE(show_password, bool);
       GET_VALUE(encrypt, bool);
       GET_VALUE(encrypt_header, tri_state);
       GET_VALUE(create_sfx, bool);
@@ -357,7 +359,6 @@ void UpdateProfiles::load() {
       GET_VALUE(enable_volumes, bool);
       GET_VALUE(volume_size, str);
       GET_VALUE(move_files, bool);
-      GET_VALUE(open_shared, bool);
       GET_VALUE(ignore_errors, bool);
       GET_VALUE(advanced, str);
 #undef GET_VALUE
@@ -384,7 +385,6 @@ void UpdateProfiles::save() const {
     SET_VALUE(method, str);
     SET_VALUE(solid, bool);
     SET_VALUE(password, str);
-    SET_VALUE(show_password, bool);
     SET_VALUE(encrypt, bool);
     SET_VALUE(encrypt_header, tri_state);
     SET_VALUE(create_sfx, bool);
@@ -392,7 +392,6 @@ void UpdateProfiles::save() const {
     SET_VALUE(enable_volumes, bool);
     SET_VALUE(volume_size, str);
     SET_VALUE(move_files, bool);
-    SET_VALUE(open_shared, bool);
     SET_VALUE(ignore_errors, bool);
     SET_VALUE(advanced, str);
 #undef SET_VALUE

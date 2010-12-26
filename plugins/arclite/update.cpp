@@ -506,7 +506,7 @@ private:
     update_ui();
   }
 
-  bool scan_file(const wstring& sub_dir, const FindData& src_find_data, UInt32 dst_dir_index, UInt32& file_index) {
+  bool process_file(const wstring& sub_dir, const FindData& src_find_data, UInt32 dst_dir_index, UInt32& file_index) {
     FAR_FIND_DATA filter_data;
     memset(&filter_data, 0, sizeof(filter_data));
     filter_data.dwFileAttributes = src_find_data.dwFileAttributes;
@@ -580,11 +580,17 @@ private:
       if (error_ignored || !more) break;
       UInt32 saved_new_index = new_index;
       UInt32 file_index;
-      if (scan_file(sub_dir, file_enum.data(), dst_dir_index, file_index)) {
+      if (process_file(sub_dir, file_enum.data(), dst_dir_index, file_index)) {
         if (file_enum.data().is_dir()) {
-          if (!scan_dir(add_trailing_slash(sub_dir) + file_enum.data().cFileName, file_index)) {
-            file_index_map.erase(file_index);
-            new_index = saved_new_index;
+          wstring rel_path = add_trailing_slash(sub_dir) + file_enum.data().cFileName;
+          wstring full_path = add_trailing_slash(src_dir) + rel_path;
+          update_progress(full_path);
+          DirList dir_list(full_path);
+          if (!process_file_enum(dir_list, rel_path, file_index)) {
+            if (filter) {
+              file_index_map.erase(file_index);
+              new_index = saved_new_index;
+            }
           }
           else
             not_empty = true;
@@ -594,13 +600,6 @@ private:
       }
     }
     return not_empty;
-  }
-
-  bool scan_dir(const wstring& sub_dir, UInt32 dst_dir_index) {
-    wstring path = add_trailing_slash(src_dir) + sub_dir;
-    update_progress(path);
-    DirList dir_list(path);
-    return process_file_enum(dir_list, sub_dir, dst_dir_index);
   }
 
 public:

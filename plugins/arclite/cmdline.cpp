@@ -21,16 +21,15 @@ CommandArgs parse_command(const wstring& cmd_text) {
   CommandArgs cmd_args;
   cmd_args.cmd = cmdOpen;
   bool is_token = false;
-  bool is_comma = false;
+  bool is_quote = false;
   wstring token;
   for (unsigned i = 0; i < cmd_text.size(); i++) {
     if (is_token) {
-      if (is_comma) {
-        if (cmd_text[i] == L'"')
-          is_comma = false;
+      if (cmd_text[i] == L'"') {
+        is_quote = !is_quote;
         token += cmd_text[i];
       }
-      else if (cmd_text[i] == L' ') {
+      else if (!is_quote && cmd_text[i] == L' ') {
         is_token = false;
         cmd_args.args.push_back(token);
         token.clear();
@@ -41,7 +40,7 @@ CommandArgs parse_command(const wstring& cmd_text) {
     else if (cmd_text[i] != L' ') {
       is_token = true;
       if (cmd_text[i] == L'"')
-        is_comma = true;
+        is_quote = true;
       token += cmd_text[i];
     }
   }
@@ -183,18 +182,14 @@ UpdateCommand parse_update_command(const CommandArgs& ca) {
     Param param = parse_param(args[i]);
     if (param.name == L"pr") {
       CHECK_FMT(ca.cmd == cmdCreate);
-      wstring profile_name = upcase(param.value);
-      for (unsigned j = 0; j < g_profiles.size(); j++) {
-        if (upcase(g_profiles[j].name) == profile_name) {
-          command.options = g_profiles[j].options;
-          command.level_defined = true;
-          command.method_defined = true;
-          command.solid_defined = true;
-          command.encrypt_defined = true;
-          arc_type_spec = true;
-          break;
-        }
-      }
+      unsigned prof_idx = g_profiles.find_by_name(param.value);
+      CHECK_FMT(prof_idx < g_profiles.size());
+      static_cast<ProfileOptions&>(command.options) = g_profiles[prof_idx].options;
+      command.level_defined = true;
+      command.method_defined = true;
+      command.solid_defined = true;
+      command.encrypt_defined = true;
+      arc_type_spec = true;
       break;
     }
   }

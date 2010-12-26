@@ -139,14 +139,12 @@ struct SfxOptions {
   SfxOptions();
 };
 
-struct UpdateOptions {
-  wstring arc_path;
+struct ProfileOptions {
   ArcType arc_type;
   unsigned level;
   wstring method;
   bool solid;
   wstring password;
-  bool show_password;
   bool encrypt;
   TriState encrypt_header;
   bool create_sfx;
@@ -154,20 +152,26 @@ struct UpdateOptions {
   bool enable_volumes;
   wstring volume_size;
   bool move_files;
-  bool open_shared;
   bool ignore_errors;
-  OverwriteAction overwrite;
   wstring advanced;
+  ProfileOptions();
+};
+
+struct UpdateOptions: public ProfileOptions {
+  wstring arc_path;
+  bool show_password;
+  bool open_shared;
+  OverwriteAction overwrite;
   shared_ptr<Far::FileFilter> filter;
   UpdateOptions();
 };
 
-bool operator==(const UpdateOptions& o1, const UpdateOptions& o2);
+bool operator==(const ProfileOptions& o1, const ProfileOptions& o2);
 bool operator==(const SfxOptions& o1, const SfxOptions& o2);
 
 struct UpdateProfile {
   wstring name;
-  UpdateOptions options;
+  ProfileOptions options;
 };
 struct UpdateProfiles: public vector<UpdateProfile> {
   void load();

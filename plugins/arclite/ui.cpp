@@ -557,7 +557,7 @@ bool operator==(const SfxOptions& o1, const SfxOptions& o2) {
   return true;
 }
 
-bool operator==(const UpdateOptions& o1, const UpdateOptions& o2) {
+bool operator==(const ProfileOptions& o1, const ProfileOptions& o2) {
   if (o1.arc_type != o2.arc_type || o1.level != o2.level)
     return false;
   bool is_7z = o1.arc_type == c_7z;
@@ -579,7 +579,7 @@ bool operator==(const UpdateOptions& o1, const UpdateOptions& o2) {
       return false;
     bool is_encrypted = o1.encrypt;
     if (is_encrypted) {
-      if (o1.password != o2.password || o1.show_password != o2.show_password)
+      if (o1.password != o2.password)
         return false;
       if (is_7z) {
         if (o1.encrypt_header != o2.encrypt_header)
@@ -605,7 +605,7 @@ bool operator==(const UpdateOptions& o1, const UpdateOptions& o2) {
         return false;
     }
   }
-  if (o1.move_files != o2.move_files || o1.open_shared != o2.open_shared || o1.ignore_errors != o2.ignore_errors)
+  if (o1.move_files != o2.move_files || o1.ignore_errors != o2.ignore_errors)
     return false;
   return true;
 }
@@ -788,7 +788,6 @@ private:
   }
 
   void read_controls(UpdateOptions& options) {
-    UpdateOptions defaults;
     if (new_arc) {
       for (unsigned i = 0; i < main_formats.size(); i++) {
         if (get_check(main_formats_ctrl_id + i)) {
@@ -834,17 +833,17 @@ private:
           FAIL_MSG(Far::get_msg(MSG_UPDATE_DLG_WRONG_METHOD));
         }
       }
-      else
-        options.method = defaults.method;
     }
     else
       options.method = c_method_copy;
 
-    options.solid = is_7z && is_compressed ? get_check(solid_ctrl_id) : defaults.solid;
+    if (is_7z && is_compressed)
+      options.solid = get_check(solid_ctrl_id);
 
     options.advanced = get_text(advanced_ctrl_id);
 
-    options.encrypt = (is_7z || is_zip) ? get_check(encrypt_ctrl_id) : defaults.encrypt;
+    if (is_7z || is_zip)
+      options.encrypt = get_check(encrypt_ctrl_id);
     if (options.encrypt) {
       options.show_password = get_check(show_password_ctrl_id);
       if (options.show_password) {
@@ -860,12 +859,8 @@ private:
       if (options.password.empty()) {
         FAIL_MSG(Far::get_msg(MSG_UPDATE_DLG_PASSWORD_IS_EMPTY));
       }
-      options.encrypt_header = is_7z ? get_check3(encrypt_header_ctrl_id) : defaults.encrypt_header;
-    }
-    else {
-      options.show_password = defaults.show_password;
-      options.password = defaults.password;
-      options.encrypt_header = defaults.encrypt_header;
+      if (is_7z)
+        options.encrypt_header = get_check3(encrypt_header_ctrl_id);
     }
 
     if (new_arc) {
@@ -880,8 +875,6 @@ private:
         if (options.encrypt && !ArcAPI::sfx()[sfx_id].all_codecs())
           FAIL_MSG(Far::get_msg(MSG_UPDATE_DLG_SFX_NO_ENCRYPT));
       }
-      else
-        options.sfx_options = defaults.sfx_options;
 
       options.enable_volumes = get_check(enable_volumes_ctrl_id);
       if (options.enable_volumes) {
@@ -890,17 +883,9 @@ private:
           FAIL_MSG(Far::get_msg(MSG_UPDATE_DLG_WRONG_VOLUME_SIZE));
         }
       }
-      else
-        options.volume_size = defaults.volume_size;
-    }
-    else {
-      options.create_sfx = defaults.create_sfx;
-      options.sfx_options = defaults.sfx_options;
-      options.enable_volumes = defaults.enable_volumes;
-      options.volume_size = defaults.volume_size;
     }
 
-    options.move_files = !get_check(enable_filter_ctrl_id) ? get_check(move_files_ctrl_id) : defaults.move_files;
+    options.move_files = get_check(enable_filter_ctrl_id) ? false : get_check(move_files_ctrl_id);
     options.open_shared = get_check(open_shared_ctrl_id);
     options.ignore_errors = get_check(ignore_errors_ctrl_id);
 
@@ -910,11 +895,9 @@ private:
       else if (get_check(oa_skip_ctrl_id)) options.overwrite = oaSkip;
       else options.overwrite = oaAsk;
     }
-    else
-      options.overwrite = defaults.overwrite;
   }
 
-  void write_controls(const UpdateOptions& options) {
+  void write_controls(const ProfileOptions& options) {
     DisableEvents de(*this);
     if (new_arc) {
       arc_type = options.arc_type;
@@ -947,7 +930,6 @@ private:
 
     set_check(encrypt_ctrl_id, options.encrypt);
     set_check3(encrypt_header_ctrl_id, options.encrypt_header);
-    set_check(show_password_ctrl_id, options.show_password);
     set_text(password_ctrl_id, options.password);
     set_text(password_verify_ctrl_id, options.password);
     set_text(password_visible_ctrl_id, options.password);
@@ -961,15 +943,7 @@ private:
     }
 
     set_check(move_files_ctrl_id, options.move_files);
-    set_check(open_shared_ctrl_id, options.open_shared);
     set_check(ignore_errors_ctrl_id, options.ignore_errors);
-
-    if (!new_arc) {
-      if (options.overwrite == oaAsk) set_check(oa_ask_ctrl_id);
-      else if (options.overwrite == oaOverwrite) set_check(oa_overwrite_ctrl_id);
-      else if (options.overwrite == oaSkip) set_check(oa_skip_ctrl_id);
-      else set_check(oa_ask_ctrl_id);
-    }
   }
 
   void populate_profile_list() {
