@@ -109,6 +109,7 @@ struct ArcFileInfo {
 typedef vector<ArcFileInfo> FileList;
 
 const UInt32 c_root_index = -1;
+const UInt32 c_dup_index = -2;
 
 typedef vector<UInt32> FileIndex;
 typedef pair<FileIndex::const_iterator, FileIndex::const_iterator> FileIndexRange;

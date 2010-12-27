@@ -420,9 +420,12 @@ void Archive::make_index() {
       dir_info.parent = file_info.parent;
       dir_info.name = file_info.name;
       pair<DirList::iterator, bool> ins_pos = dir_list.insert(dir_info);
-      if (ins_pos.second)
+      if (ins_pos.second) {
         dir_index++;
-      dir_index_map[ins_pos.first->index] = i;
+        dir_index_map[dir_info.index] = i;
+      }
+      else
+        file_info.parent = c_dup_index;
     }
 
     file_list.push_back(file_info);
