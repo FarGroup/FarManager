@@ -493,9 +493,9 @@
         <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Имя файла/каталога</td></tr>
         <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Короткое имя</td></tr>
         <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Файловые атрибуты</td></tr>
-        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Дата/время создания</td></tr>
-        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Дата/время последнего доступа</td></tr>
-        <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Дата/время модификации</td></tr>
+        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Дата/время создания (в строковом представлении)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Дата/время последнего доступа (в строковом представлении)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Дата/время модификации (в строковом представлении)</td></tr>
         <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Размер</td></tr>
         <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Упакованный размер</td></tr>
         <tr class="cont"><td class="cont" width="10%">8</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">"Выделен?"</td></tr>
@@ -505,10 +505,30 @@
         <tr class="cont"><td class="cont" width="10%">12</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Владелец</td></tr>
         <tr class="cont"><td class="cont" width="10%">13</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">CRC32</td></tr>
         <tr class="cont"><td class="cont" width="10%">14</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Позиция элемента в процессе чтения файловой системы</td></tr>
+        <tr class="cont"><td class="cont" width="10%">15</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Дата/время создания (в числовом представлении)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">16</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Дата/время последнего доступа (в числовом представлении)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">17</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Дата/время модификации (в числовом представлении)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">18</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Количество потоков</td></tr>
+        <tr class="cont"><td class="cont" width="10%">19</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Размер потоков</td></tr>
+        <tr class="cont"><td class="cont" width="10%">20</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Дата/время последнего изменения (в строковом представлении)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">21</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Дата/время последнего изменения (в числовом представлении)</td></tr>
        </table>
        Для панели "Дерево папок" возвращается только имя файла (<em>propIndex</em>=0), остальные значения <em>propIndex</em> игнорируются.<br>
-       Дата/время возвращается в формате DD.MM.YYYY HH:MM:SS. Разделители и порядок в дате зависят от региональных настроек.<br>
-       Для получения данных о текущем файле (под курсором) <em>itemIndex</em> должен быть равен 0.
+       Для получения данных о текущем файле (под курсором) <em>itemIndex</em> должен быть равен 0.<br>
+       Дата/время могут возвращаться в форматах:<br>
+       <ol>
+       <li>как строка вида DD.MM.YYYY HH:MM:SS. Разделители и порядок в дате зависят от региональных настроек.</li>
+       <li>как 64-разрядное число. В старших 32-х битах - дата, в младших - время.</li>
+       </ol>
+       Пример - выделить все файлы/папки новее текущего:<br>
+      <pre class=code>%d=Panel.Item(0,0,16);
+%i=1;
+$while (%i<=APanel.ItemCount)
+  $If (panel.item(0,%i,16) > %d)
+    Panel.Select(0,1,1,%i)
+  $End
+  %i=%i+1;
+$End</pre>
     </td>
   </tr>
   <tr class="cont">
