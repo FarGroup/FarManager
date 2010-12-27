@@ -3472,6 +3472,7 @@ static bool panelitemFunc(const TMacroFunction*)
 				break;
 			case 11:  // DizText
 			{
+				SelPanel->ReadDiz();
 				const wchar_t *LPtr=filelistItem.DizText;
 				Ret=TVar(LPtr);
 				break;
