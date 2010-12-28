@@ -954,6 +954,23 @@ int Manager::ProcessKey(DWORD Key)
 		{
 			switch (Key)
 			{
+				// <Удалить после появления макрофункции Scroll>
+				case KEY_CTRLALTUP:
+					if(Opt.WindowMode)
+					{
+						Console.ScrollWindow(-1);
+						return TRUE;
+					}
+					break;
+
+				case KEY_CTRLALTDOWN:
+					if(Opt.WindowMode)
+					{
+						Console.ScrollWindow(1);
+						return TRUE;
+					}
+					break;
+
 				case KEY_CTRLALTPGUP:
 					if(Opt.WindowMode)
 					{
@@ -985,6 +1002,7 @@ int Manager::ProcessKey(DWORD Key)
 						return TRUE;
 					}
 					break;
+				// </Удалить после появления макрофункции Scroll>
 
 				case KEY_CTRLW:
 					ShowProcessList();

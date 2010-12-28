@@ -682,13 +682,14 @@ int KeyMacro::LoadMacros(BOOL InitedRAM,BOOL LoadAll)
 	{
 		// "выведем из строя" ненужные области - будет загружаться только то, что не равно значению MACRO_LAST
 		Areas[MACRO_SHELL]=
-		    Areas[MACRO_SEARCH]=
-		        Areas[MACRO_DISKS]=
-		            Areas[MACRO_MAINMENU]=
-		                Areas[MACRO_INFOPANEL]=
-		                    Areas[MACRO_QVIEWPANEL]=
-		                        Areas[MACRO_TREEPANEL]=
-		                            Areas[MACRO_FINDFOLDER]=MACRO_LAST;
+			Areas[MACRO_SEARCH]=
+			Areas[MACRO_DISKS]=
+			Areas[MACRO_MAINMENU]=
+			Areas[MACRO_INFOPANEL]=
+			Areas[MACRO_QVIEWPANEL]=
+			Areas[MACRO_TREEPANEL]=
+			Areas[MACRO_USERMENU]= // <-- Mantis#0001594
+			Areas[MACRO_FINDFOLDER]=MACRO_LAST;
 	}
 
 	for (int i=MACRO_OTHER; i < MACRO_LAST; i++)
@@ -3423,6 +3424,9 @@ static bool panelitemFunc(const TMacroFunction*)
 	{
 		string strDate, strTime;
 
+		if (TypeInfo == 11)
+			SelPanel->ReadDiz();
+
 		if (!SelPanel->GetItem(Index,&filelistItem))
 			TypeInfo=-1;
 
@@ -3472,7 +3476,6 @@ static bool panelitemFunc(const TMacroFunction*)
 				break;
 			case 11:  // DizText
 			{
-				SelPanel->ReadDiz();
 				const wchar_t *LPtr=filelistItem.DizText;
 				Ret=TVar(LPtr);
 				break;
