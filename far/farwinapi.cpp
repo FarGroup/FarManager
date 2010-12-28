@@ -39,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "mix.hpp"
 #include "ctrlobj.hpp"
-#include "adminmode.hpp"
+#include "elevation.hpp"
 #include "config.hpp"
 
 struct PSEUDO_HANDLE
@@ -271,7 +271,7 @@ bool File::Open(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY
 		{
 			CloseHandle(Handle);
 		}
-		Handle = Admin.fCreateFile(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
+		Handle = Elevation.fCreateFile(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
 		if(Handle != INVALID_HANDLE_VALUE)
 		{
 			admin = true;
@@ -282,57 +282,57 @@ bool File::Open(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY
 
 bool File::Read(LPVOID Buffer, DWORD NumberOfBytesToRead, LPDWORD NumberOfBytesRead, LPOVERLAPPED Overlapped)
 {
-	return admin?Admin.fReadFile(Handle, Buffer, NumberOfBytesToRead, NumberOfBytesRead, Overlapped):ReadFile(Handle, Buffer, NumberOfBytesToRead, NumberOfBytesRead, Overlapped) != FALSE;
+	return admin?Elevation.fReadFile(Handle, Buffer, NumberOfBytesToRead, NumberOfBytesRead, Overlapped):ReadFile(Handle, Buffer, NumberOfBytesToRead, NumberOfBytesRead, Overlapped) != FALSE;
 }
 
 bool File::Write(LPCVOID Buffer, DWORD NumberOfBytesToWrite, LPDWORD NumberOfBytesWritten, LPOVERLAPPED Overlapped) const
 {
-	return admin?Admin.fWriteFile(Handle, Buffer, NumberOfBytesToWrite, NumberOfBytesWritten, Overlapped):WriteFile(Handle, Buffer, NumberOfBytesToWrite, NumberOfBytesWritten, Overlapped) != FALSE;
+	return admin?Elevation.fWriteFile(Handle, Buffer, NumberOfBytesToWrite, NumberOfBytesWritten, Overlapped):WriteFile(Handle, Buffer, NumberOfBytesToWrite, NumberOfBytesWritten, Overlapped) != FALSE;
 }
 
 bool File::SetPointer(INT64 DistanceToMove, PINT64 NewFilePointer, DWORD MoveMethod)
 {
-	return admin?Admin.fSetFilePointerEx(Handle, DistanceToMove, NewFilePointer, MoveMethod):SetFilePointerEx(Handle, *reinterpret_cast<PLARGE_INTEGER>(&DistanceToMove), reinterpret_cast<PLARGE_INTEGER>(NewFilePointer), MoveMethod) != FALSE;
+	return admin?Elevation.fSetFilePointerEx(Handle, DistanceToMove, NewFilePointer, MoveMethod):SetFilePointerEx(Handle, *reinterpret_cast<PLARGE_INTEGER>(&DistanceToMove), reinterpret_cast<PLARGE_INTEGER>(NewFilePointer), MoveMethod) != FALSE;
 }
 
 bool File::SetEnd()
 {
-	return admin?Admin.fSetEndOfFile(Handle):SetEndOfFile(Handle) != FALSE;
+	return admin?Elevation.fSetEndOfFile(Handle):SetEndOfFile(Handle) != FALSE;
 }
 
 bool File::GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime)
 {
-	return admin?Admin.fGetFileTime(Handle, CreationTime, LastAccessTime, LastWriteTime, ChangeTime):GetFileTimeEx(Handle, CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
+	return admin?Elevation.fGetFileTime(Handle, CreationTime, LastAccessTime, LastWriteTime, ChangeTime):GetFileTimeEx(Handle, CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
 }
 
 bool File::SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime)
 {
-	return admin?Admin.fSetFileTime(Handle, CreationTime, LastAccessTime, LastWriteTime, ChangeTime):SetFileTimeEx(Handle, CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
+	return admin?Elevation.fSetFileTime(Handle, CreationTime, LastAccessTime, LastWriteTime, ChangeTime):SetFileTimeEx(Handle, CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
 }
 
 bool File::GetSize(UINT64& Size)
 {
-	return admin?Admin.fGetFileSizeEx(Handle, Size):apiGetFileSizeEx(Handle, Size);
+	return admin?Elevation.fGetFileSizeEx(Handle, Size):apiGetFileSizeEx(Handle, Size);
 }
 
 bool File::FlushBuffers()
 {
-	return admin?Admin.fFlushFileBuffers(Handle):FlushFileBuffers(Handle) != FALSE;
+	return admin?Elevation.fFlushFileBuffers(Handle):FlushFileBuffers(Handle) != FALSE;
 }
 
 bool File::GetInformation(BY_HANDLE_FILE_INFORMATION& info)
 {
-	return admin?Admin.fGetFileInformationByHandle(Handle, info):GetFileInformationByHandle(Handle, &info) != FALSE;
+	return admin?Elevation.fGetFileInformationByHandle(Handle, info):GetFileInformationByHandle(Handle, &info) != FALSE;
 }
 
 bool File::IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped)
 {
-	return admin?Admin.fDeviceIoControl(Handle, IoControlCode, InBuffer, InBufferSize, OutBuffer, OutBufferSize, BytesReturned, Overlapped):DeviceIoControl(Handle, IoControlCode, InBuffer, InBufferSize, OutBuffer, OutBufferSize, BytesReturned, Overlapped) != FALSE;
+	return admin?Elevation.fDeviceIoControl(Handle, IoControlCode, InBuffer, InBufferSize, OutBuffer, OutBufferSize, BytesReturned, Overlapped):DeviceIoControl(Handle, IoControlCode, InBuffer, InBufferSize, OutBuffer, OutBufferSize, BytesReturned, Overlapped) != FALSE;
 }
 
 bool File::GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed)
 {
-	DWORD Result = ifn.pfnGetStorageDependencyInformation?admin?Admin.fGetStorageDependencyInformation(Handle, Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed):ifn.pfnGetStorageDependencyInformation(Handle, Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed):ERROR_CALL_NOT_IMPLEMENTED;
+	DWORD Result = ifn.pfnGetStorageDependencyInformation?admin?Elevation.fGetStorageDependencyInformation(Handle, Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed):ifn.pfnGetStorageDependencyInformation(Handle, Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed):ERROR_CALL_NOT_IMPLEMENTED;
 	SetLastError(Result);
 	return Result == ERROR_SUCCESS;
 }
@@ -349,7 +349,7 @@ bool File::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORM
 		NameString.MaximumLength = NameString.Length;
 		pNameString = &NameString;
 	}
-	NTSTATUS Result = ifn.pfnNtQueryDirectoryFile?admin?Admin.fNtQueryDirectoryFile(Handle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, pNameString, RestartScan):ifn.pfnNtQueryDirectoryFile(Handle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, pNameString, RestartScan):STATUS_NOT_IMPLEMENTED;
+	NTSTATUS Result = ifn.pfnNtQueryDirectoryFile?admin?Elevation.fNtQueryDirectoryFile(Handle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, pNameString, RestartScan):ifn.pfnNtQueryDirectoryFile(Handle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, pNameString, RestartScan):STATUS_NOT_IMPLEMENTED;
 	SetLastError(ifn.pfnRtlNtStatusToDosError(Result));
 	return Result == STATUS_SUCCESS;
 }
@@ -359,7 +359,7 @@ bool File::Close()
 	bool Result=true;
 	if(Handle!=INVALID_HANDLE_VALUE)
 	{
-		Result = admin?Admin.fCloseHandle(Handle):CloseHandle(Handle) != FALSE;
+		Result = admin?Elevation.fCloseHandle(Handle):CloseHandle(Handle) != FALSE;
 		Handle = INVALID_HANDLE_VALUE;
 	}
 	admin=false;
@@ -386,7 +386,7 @@ BOOL apiDeleteFile(const wchar_t *lpwszFileName)
 	BOOL Result = DeleteFile(strNtName);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
-		Result = Admin.fDeleteFile(strNtName);
+		Result = Elevation.fDeleteFile(strNtName);
 	}
 	return Result;
 }
@@ -397,7 +397,7 @@ BOOL apiRemoveDirectory(const wchar_t *DirName)
 	BOOL Result = RemoveDirectory(strNtName);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
-		Result = Admin.fRemoveDirectory(strNtName);
+		Result = Elevation.fRemoveDirectory(strNtName);
 	}
 	return Result;
 }
@@ -460,7 +460,7 @@ BOOL apiCopyFileEx(
 	BOOL Result = CopyFileEx(strFrom, strTo, lpProgressRoutine, lpData, pbCancel, dwCopyFlags);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
 	{
-		Result = Admin.fCopyFileEx(strFrom, strTo, lpProgressRoutine, lpData, pbCancel, dwCopyFlags);
+		Result = Elevation.fCopyFileEx(strFrom, strTo, lpProgressRoutine, lpData, pbCancel, dwCopyFlags);
 	}
 	return Result;
 }
@@ -474,7 +474,7 @@ BOOL apiMoveFile(
 	BOOL Result = MoveFile(strFrom, strTo);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
 	{
-		Result = Admin.fMoveFileEx(strFrom, strTo, 0);
+		Result = Elevation.fMoveFileEx(strFrom, strTo, 0);
 	}
 	return Result;
 }
@@ -489,7 +489,7 @@ BOOL apiMoveFileEx(
 	BOOL Result = MoveFileEx(strFrom, strTo, dwFlags);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
 	{
-		Result = Admin.fMoveFileEx(strFrom, strTo, dwFlags);
+		Result = Elevation.fMoveFileEx(strFrom, strTo, dwFlags);
 	}
 	return Result;
 }
@@ -924,7 +924,7 @@ BOOL apiCreateDirectoryEx(LPCWSTR TemplateDirectory, LPCWSTR NewDirectory, LPSEC
 	BOOL Result = TemplateDirectory?CreateDirectoryEx(strNtTemplateDirectory, strNtNewDirectory, SecurityAttributes):CreateDirectory(strNtNewDirectory, SecurityAttributes);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
-		Result = Admin.fCreateDirectoryEx(TemplateDirectory?strNtTemplateDirectory.CPtr():nullptr, strNtNewDirectory, SecurityAttributes);
+		Result = Elevation.fCreateDirectoryEx(TemplateDirectory?strNtTemplateDirectory.CPtr():nullptr, strNtNewDirectory, SecurityAttributes);
 	}
 	return Result;
 }
@@ -935,7 +935,7 @@ DWORD apiGetFileAttributes(LPCWSTR lpFileName)
 	DWORD Result = GetFileAttributes(strNtName);
 	if(Result == INVALID_FILE_ATTRIBUTES && ElevationRequired(ELEVATION_READ_REQUEST))
 	{
-		Result = Admin.fGetFileAttributes(strNtName);
+		Result = Elevation.fGetFileAttributes(strNtName);
 	}
 	return Result;
 }
@@ -946,7 +946,7 @@ BOOL apiSetFileAttributes(LPCWSTR lpFileName,DWORD dwFileAttributes)
 	BOOL Result = SetFileAttributes(strNtName, dwFileAttributes);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
-		Result = Admin.fSetFileAttributes(strNtName, dwFileAttributes);
+		Result = Elevation.fSetFileAttributes(strNtName, dwFileAttributes);
 	}
 	return Result;
 
@@ -968,7 +968,7 @@ bool apiCreateSymbolicLink(LPCWSTR lpSymlinkFileName,LPCWSTR lpTargetFileName,DW
 	{
 		if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 		{
-			Result=Admin.fCreateSymbolicLink(strSymlinkFileName, lpTargetFileName, dwFlags);
+			Result=Elevation.fCreateSymbolicLink(strSymlinkFileName, lpTargetFileName, dwFlags);
 		}
 	}
 	return Result;
@@ -994,7 +994,7 @@ bool CreateHardLinkInternal(LPCWSTR Object,LPCWSTR Target,LPSECURITY_ATTRIBUTES 
 	bool Result = CreateHardLink(Object, Target, SecurityAttributes) != FALSE;
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
-		Result = Admin.fCreateHardLink(Object, Target, SecurityAttributes);
+		Result = Elevation.fCreateHardLink(Object, Target, SecurityAttributes);
 	}
 	return Result;
 }

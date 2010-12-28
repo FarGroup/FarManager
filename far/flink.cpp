@@ -48,7 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "dirmix.hpp"
 #include "treelist.hpp"
-#include "adminmode.hpp"
+#include "elevation.hpp"
 
 bool WINAPI CreateVolumeMountPoint(const wchar_t *TargetVolume, const wchar_t *Object)
 {

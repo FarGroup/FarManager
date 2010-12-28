@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "DList.hpp"
 #include "privilege.hpp"
-#include "adminmode.hpp"
+#include "elevation.hpp"
 
 static char sddata[64*1024];
 
@@ -217,7 +217,7 @@ bool SetOwner(LPCWSTR Object, LPCWSTR Owner)
 	bool Result = SetOwnerInternal(strNtObject, Owner);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
-		Result = Admin.fSetOwner(strNtObject, Owner);
+		Result = Elevation.fSetOwner(strNtObject, Owner);
 	}
 	return Result;
 }

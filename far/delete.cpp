@@ -59,7 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelmix.hpp"
 #include "mix.hpp"
 #include "dirinfo.hpp"
-#include "adminmode.hpp"
+#include "elevation.hpp"
 #include "wakeful.hpp"
 
 static void ShellDeleteMsg(const wchar_t *Name,int Wipe,int Percent);
@@ -872,7 +872,7 @@ bool MoveToRecycleBinInternal(LPCWSTR Object)
 	if (Result == 0x78 // DE_ACCESSDENIEDSRC == ERROR_ACCESS_DENIED
 		&& Opt.ElevationMode&ELEVATION_MODIFY_REQUEST) // Achtung! ShellAPI doesn't set LastNtStatus, so don't use ElevationRequired() here.
 	{
-		Result = Admin.fMoveToRecycleBin(fop);
+		Result = Elevation.fMoveToRecycleBin(fop);
 	}
 
 	if (Result)

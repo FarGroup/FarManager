@@ -1,9 +1,9 @@
 #pragma once
 
 /*
-adminmode.hpp
+elevation.hpp
 
-Admin mode
+Elevation
 */
 /*
 Copyright (c) 2010 Far Group
@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "CriticalSections.hpp"
+#include "noncopyable.hpp"
 
 enum ELEVATION_MODE
 {
@@ -78,11 +79,20 @@ enum ADMIN_COMMAND
 
 class AutoObject;
 
-class AdminMode
+class DisableElevation : private NonCopyable
 {
 public:
-	AdminMode();
-	~AdminMode();
+	DisableElevation();
+	~DisableElevation();
+private:
+	DWORD Value;
+};
+
+class elevation : private NonCopyable
+{
+public:
+	elevation();
+	~elevation();
 	void ResetApprove();
 	bool Elevated(){return Elevation;}
 
@@ -141,7 +151,7 @@ private:
 	bool AdminApproveDlg(int Why, LPCWSTR Object);
 };
 
-extern AdminMode Admin;
+extern elevation Elevation;
 
 void AdminApproveDlgSync(LPVOID Param);
 

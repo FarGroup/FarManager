@@ -32,7 +32,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="adminmode.cpp">
+    <ClCompile Include="elevation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cache.cpp">
@@ -502,7 +502,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="adminmode.hpp">
+    <ClInclude Include="elevation.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="array.hpp">

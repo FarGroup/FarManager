@@ -60,7 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "udlist.hpp"
 #include "FarDlgBuilder.hpp"
-#include "adminmode.hpp"
+#include "elevation.hpp"
 
 Options Opt={0};
 

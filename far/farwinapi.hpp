@@ -300,7 +300,7 @@ BOOL apiSetCurrentDirectory(
     bool Validate = true
 );
 
-// for AdminMode only, dont' use outside.
+// for elevation only, dont' use outside.
 bool CreateSymbolicLinkInternal(LPCWSTR Object,LPCWSTR Target, DWORD dwFlags);
 
 bool apiCreateSymbolicLink(

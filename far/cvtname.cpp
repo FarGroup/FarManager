@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "network.hpp"
 #include "imports.hpp"
 #include "strmix.hpp"
+#include "elevation.hpp"
 
 #define IsColon(str)         (str == L':')
 #define IsDot(str)           (str == L'.')
@@ -561,6 +562,9 @@ void ConvertNameToUNC(string &strFileName)
 // CheckFullPath используется в FCTL_SET[ANOTHER]PANELDIR
 string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 {
+	// elevation not required during cosmetic operation 
+	DisableElevation de; 
+
 	if (!strPath.IsEmpty())
 	{
 		if (strPath.At(1)==L':' || (strPath.At(0)==L'\\' && strPath.At(1)==L'\\'))

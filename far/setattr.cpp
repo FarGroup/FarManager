@@ -403,6 +403,28 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
 			break;
 		}
+
+		case DN_GOTFOCUS:
+			{
+				if(Param1 == SA_EDIT_WDATE || Param1 == SA_EDIT_CDATE || Param1 == SA_EDIT_ADATE || Param1 == SA_EDIT_XDATE)
+				{
+					if(GetDateFormat()==2)
+					{
+						if(reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, Param1, 0))[0] == L' ')
+						{
+							COORD Pos;
+							SendDlgMessage(hDlg, DM_GETCURSORPOS, Param1, (LONG_PTR)&Pos);
+							if(Pos.X ==0)
+							{
+								Pos.X=1;
+								SendDlgMessage(hDlg, DM_SETCURSORPOS, Param1, (LONG_PTR)&Pos);
+							}
+						}
+					}
+				}
+			}
+			break;
+
 		case DM_SETATTR:
 		{
 			string strDate,strTime;

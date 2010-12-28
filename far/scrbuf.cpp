@@ -42,7 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "palette.hpp"
 #include "config.hpp"
 #include "DList.hpp"
-#include "adminmode.hpp"
+#include "elevation.hpp"
 #include "console.hpp"
 
 enum
@@ -325,7 +325,7 @@ void ScreenBuf::Flush()
 			}
 		}
 
-		if(Admin.Elevated())
+		if(Elevation.Elevated())
 		{
 			ElevationChar=Buf[BufX*BufY-1];
 			ElevationCharUsed=true;

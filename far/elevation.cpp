@@ -1,7 +1,7 @@
 /*
-adminmode.cpp
+elevation.cpp
 
-Admin mode
+Elevation
 */
 /*
 Copyright (c) 2010 Far Group
@@ -33,7 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "adminmode.hpp"
+#include "elevation.hpp"
 #include "config.hpp"
 #include "lang.hpp"
 #include "language.hpp"
@@ -54,7 +54,7 @@ LPCWSTR PIPE_NAME = L"\\\\.\\pipe\\FarPipe";
 
 const int CallbackMagic= 0xCA11BAC6;
 
-class AutoObject
+class AutoObject : private NonCopyable 
 {
 public:
 	AutoObject():
@@ -177,9 +177,20 @@ bool WritePipeData(HANDLE Pipe, LPCVOID Data, int DataSize)
 	return Result;
 }
 
-AdminMode Admin;
+DisableElevation::DisableElevation()
+{
+	Value = Opt.ElevationMode;
+	Opt.ElevationMode = 0;
+}
 
-AdminMode::AdminMode():
+DisableElevation::~DisableElevation()
+{
+	Opt.ElevationMode = Value;
+}
+
+elevation Elevation;
+
+elevation::elevation():
 	Pipe(INVALID_HANDLE_VALUE),
 	Process(nullptr),
 	PID(0),
@@ -192,7 +203,7 @@ AdminMode::AdminMode():
 {
 }
 
-AdminMode::~AdminMode()
+elevation::~elevation()
 {
 	SendCommand(C_SERVICE_EXIT);
 	DisconnectNamedPipe(Pipe);
@@ -200,7 +211,7 @@ AdminMode::~AdminMode()
 	CloseHandle(Pipe);
 }
 
-void AdminMode::ResetApprove()
+void elevation::ResetApprove()
 {
 	if(!DontAskAgain)
 	{
@@ -214,42 +225,42 @@ void AdminMode::ResetApprove()
 	}
 }
 
-bool AdminMode::ReadData(AutoObject& Data) const
+bool elevation::ReadData(AutoObject& Data) const
 {
 	return ReadPipeData(Pipe, Data);
 }
 
-bool AdminMode::WriteData(LPCVOID Data,DWORD DataSize) const
+bool elevation::WriteData(LPCVOID Data,DWORD DataSize) const
 {
 	return WritePipeData(Pipe, Data, DataSize);
 }
 
-bool AdminMode::ReadInt(int& Data) const
+bool elevation::ReadInt(int& Data) const
 {
 	return ReadPipeInt(Pipe, Data);
 }
 
-bool AdminMode::ReadInt64(INT64& Data) const
+bool elevation::ReadInt64(INT64& Data) const
 {
 	return ReadPipeInt64(Pipe, Data);
 }
 
-bool AdminMode::WriteInt(int Data) const
+bool elevation::WriteInt(int Data) const
 {
 	return WritePipeInt(Pipe, Data);
 }
 
-bool AdminMode::WriteInt64(INT64 Data) const
+bool elevation::WriteInt64(INT64 Data) const
 {
 	return WritePipeInt64(Pipe, Data);
 }
 
-bool AdminMode::SendCommand(ADMIN_COMMAND Command) const
+bool elevation::SendCommand(ADMIN_COMMAND Command) const
 {
 	return WritePipeInt(Pipe, Command);
 }
 
-bool AdminMode::ReceiveLastError() const
+bool elevation::ReceiveLastError() const
 {
 	int LastError = ERROR_SUCCESS;
 	bool Result = ReadPipeInt(Pipe, LastError);
@@ -257,7 +268,7 @@ bool AdminMode::ReceiveLastError() const
 	return Result;
 }
 
-bool AdminMode::Initialize()
+bool elevation::Initialize()
 {
 	bool Result=false;
 	if(Pipe==INVALID_HANDLE_VALUE)
@@ -406,7 +417,7 @@ void AdminApproveDlgSync(LPVOID Param)
 	}
 }
 
-bool AdminMode::AdminApproveDlg(int Why, LPCWSTR Object)
+bool elevation::AdminApproveDlg(int Why, LPCWSTR Object)
 {
 	if(!(Opt.IsUserAdmin && !(Opt.ElevationMode&ELEVATION_USE_PRIVILEGES)) &&
 		AskApprove && !DontAskAgain &&		!Recurse &&
@@ -435,7 +446,7 @@ bool AdminMode::AdminApproveDlg(int Why, LPCWSTR Object)
 	return Approve;
 }
 
-bool AdminMode::fCreateDirectoryEx(LPCWSTR TemplateObject, LPCWSTR Object, LPSECURITY_ATTRIBUTES Attributes)
+bool elevation::fCreateDirectoryEx(LPCWSTR TemplateObject, LPCWSTR Object, LPSECURITY_ATTRIBUTES Attributes)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -474,7 +485,7 @@ bool AdminMode::fCreateDirectoryEx(LPCWSTR TemplateObject, LPCWSTR Object, LPSEC
 	return Result;
 }
 
-bool AdminMode::fRemoveDirectory(LPCWSTR Object)
+bool elevation::fRemoveDirectory(LPCWSTR Object)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -509,7 +520,7 @@ bool AdminMode::fRemoveDirectory(LPCWSTR Object)
 	return Result;
 }
 
-bool AdminMode::fDeleteFile(LPCWSTR Object)
+bool elevation::fDeleteFile(LPCWSTR Object)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -544,7 +555,7 @@ bool AdminMode::fDeleteFile(LPCWSTR Object)
 	return Result;
 }
 
-void AdminMode::fCallbackRoutine(LPPROGRESS_ROUTINE ProgressRoutine) const
+void elevation::fCallbackRoutine(LPPROGRESS_ROUTINE ProgressRoutine) const
 {
 	if(ProgressRoutine)
 	{
@@ -585,7 +596,7 @@ void AdminMode::fCallbackRoutine(LPPROGRESS_ROUTINE ProgressRoutine) const
 	}
 }
 
-bool AdminMode::fCopyFileEx(LPCWSTR From, LPCWSTR To, LPPROGRESS_ROUTINE ProgressRoutine, LPVOID Data, LPBOOL Cancel, DWORD Flags)
+bool elevation::fCopyFileEx(LPCWSTR From, LPCWSTR To, LPPROGRESS_ROUTINE ProgressRoutine, LPVOID Data, LPBOOL Cancel, DWORD Flags)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result = false;
@@ -642,7 +653,7 @@ bool AdminMode::fCopyFileEx(LPCWSTR From, LPCWSTR To, LPPROGRESS_ROUTINE Progres
 	return Result;
 }
 
-bool AdminMode::fMoveFileEx(LPCWSTR From, LPCWSTR To, DWORD Flags)
+bool elevation::fMoveFileEx(LPCWSTR From, LPCWSTR To, DWORD Flags)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -683,7 +694,7 @@ bool AdminMode::fMoveFileEx(LPCWSTR From, LPCWSTR To, DWORD Flags)
 	return Result;
 }
 
-DWORD AdminMode::fGetFileAttributes(LPCWSTR Object)
+DWORD elevation::fGetFileAttributes(LPCWSTR Object)
 {
 	CriticalSectionLock Lock(CS);
 	DWORD Result = INVALID_FILE_ATTRIBUTES;
@@ -718,7 +729,7 @@ DWORD AdminMode::fGetFileAttributes(LPCWSTR Object)
 	return Result;
 }
 
-bool AdminMode::fSetFileAttributes(LPCWSTR Object, DWORD FileAttributes)
+bool elevation::fSetFileAttributes(LPCWSTR Object, DWORD FileAttributes)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -756,7 +767,7 @@ bool AdminMode::fSetFileAttributes(LPCWSTR Object, DWORD FileAttributes)
 	return Result;
 }
 
-bool AdminMode::fCreateHardLink(LPCWSTR Object, LPCWSTR Target, LPSECURITY_ATTRIBUTES SecurityAttributes)
+bool elevation::fCreateHardLink(LPCWSTR Object, LPCWSTR Target, LPSECURITY_ATTRIBUTES SecurityAttributes)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -795,7 +806,7 @@ bool AdminMode::fCreateHardLink(LPCWSTR Object, LPCWSTR Target, LPSECURITY_ATTRI
 	return Result;
 }
 
-bool AdminMode::fCreateSymbolicLink(LPCWSTR Object, LPCWSTR Target, DWORD Flags)
+bool elevation::fCreateSymbolicLink(LPCWSTR Object, LPCWSTR Target, DWORD Flags)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -837,7 +848,7 @@ bool AdminMode::fCreateSymbolicLink(LPCWSTR Object, LPCWSTR Target, DWORD Flags)
 }
 
 
-int AdminMode::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
+int elevation::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 {
 	CriticalSectionLock Lock(CS);
 	int Result=0;
@@ -880,7 +891,7 @@ int AdminMode::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 }
 
 /*
-HANDLE AdminMode::fFindFirstFileEx(LPCWSTR Object, FINDEX_INFO_LEVELS InfoLevelId, LPVOID FindFileData, FINDEX_SEARCH_OPS SearchOp, LPVOID lpSearchFilter, DWORD AdditionalFlags)
+HANDLE elevation::fFindFirstFileEx(LPCWSTR Object, FINDEX_INFO_LEVELS InfoLevelId, LPVOID FindFileData, FINDEX_SEARCH_OPS SearchOp, LPVOID lpSearchFilter, DWORD AdditionalFlags)
 {
 	CriticalSectionLock Lock(CS);
 	HANDLE Result=INVALID_HANDLE_VALUE;
@@ -934,7 +945,7 @@ HANDLE AdminMode::fFindFirstFileEx(LPCWSTR Object, FINDEX_INFO_LEVELS InfoLevelI
 	return Result;
 }
 
-bool AdminMode::fFindNextFile(HANDLE Handle, PWIN32_FIND_DATA W32FindData)
+bool elevation::fFindNextFile(HANDLE Handle, PWIN32_FIND_DATA W32FindData)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -970,7 +981,7 @@ bool AdminMode::fFindNextFile(HANDLE Handle, PWIN32_FIND_DATA W32FindData)
 	return Result;
 }
 
-bool AdminMode::fFindClose(HANDLE Handle)
+bool elevation::fFindClose(HANDLE Handle)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -999,7 +1010,7 @@ bool AdminMode::fFindClose(HANDLE Handle)
 }
 */
 
-bool AdminMode::fSetOwner(LPCWSTR Object, LPCWSTR Owner)
+bool elevation::fSetOwner(LPCWSTR Object, LPCWSTR Owner)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -1037,7 +1048,7 @@ bool AdminMode::fSetOwner(LPCWSTR Object, LPCWSTR Owner)
 	return Result;
 }
 
-HANDLE AdminMode::fCreateFile(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile)
+HANDLE elevation::fCreateFile(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile)
 {
 	CriticalSectionLock Lock(CS);
 	HANDLE Result=INVALID_HANDLE_VALUE;
@@ -1086,7 +1097,7 @@ HANDLE AdminMode::fCreateFile(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMo
 	return Result;
 }
 
-bool AdminMode::fCloseHandle(HANDLE Handle)
+bool elevation::fCloseHandle(HANDLE Handle)
 {
 	GuardLastError Error;
 	CriticalSectionLock Lock(CS);
@@ -1115,7 +1126,7 @@ bool AdminMode::fCloseHandle(HANDLE Handle)
 	return Result;
 }
 
-bool AdminMode::fReadFile(HANDLE Handle, LPVOID Buffer, DWORD NumberOfBytesToRead, LPDWORD NumberOfBytesRead, LPOVERLAPPED Overlapped)
+bool elevation::fReadFile(HANDLE Handle, LPVOID Buffer, DWORD NumberOfBytesToRead, LPDWORD NumberOfBytesRead, LPOVERLAPPED Overlapped)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -1162,7 +1173,7 @@ bool AdminMode::fReadFile(HANDLE Handle, LPVOID Buffer, DWORD NumberOfBytesToRea
 	return Result;
 }
 
-bool AdminMode::fWriteFile(HANDLE Handle, LPCVOID Buffer, DWORD NumberOfBytesToWrite, LPDWORD NumberOfBytesWritten, LPOVERLAPPED Overlapped)
+bool elevation::fWriteFile(HANDLE Handle, LPCVOID Buffer, DWORD NumberOfBytesToWrite, LPDWORD NumberOfBytesWritten, LPOVERLAPPED Overlapped)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -1208,7 +1219,7 @@ bool AdminMode::fWriteFile(HANDLE Handle, LPCVOID Buffer, DWORD NumberOfBytesToW
 	return Result;
 }
 
-bool AdminMode::fSetFilePointerEx(HANDLE Handle, INT64 DistanceToMove, PINT64 NewFilePointer, DWORD MoveMethod)
+bool elevation::fSetFilePointerEx(HANDLE Handle, INT64 DistanceToMove, PINT64 NewFilePointer, DWORD MoveMethod)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -1253,7 +1264,7 @@ bool AdminMode::fSetFilePointerEx(HANDLE Handle, INT64 DistanceToMove, PINT64 Ne
 	return Result;
 }
 
-bool AdminMode::fSetEndOfFile(HANDLE Handle)
+bool elevation::fSetEndOfFile(HANDLE Handle)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -1281,7 +1292,7 @@ bool AdminMode::fSetEndOfFile(HANDLE Handle)
 	return Result;
 }
 
-bool AdminMode::fGetFileTime(HANDLE Handle, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime)
+bool elevation::fGetFileTime(HANDLE Handle, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -1344,7 +1355,7 @@ bool AdminMode::fGetFileTime(HANDLE Handle, LPFILETIME CreationTime, LPFILETIME 
 	return Result;
 }
 
-bool AdminMode::fSetFileTime(HANDLE Handle, const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime)
+bool elevation::fSetFileTime(HANDLE Handle, const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -1384,7 +1395,7 @@ bool AdminMode::fSetFileTime(HANDLE Handle, const FILETIME* CreationTime, const 
 	return Result;
 }
 
-bool AdminMode::fGetFileSizeEx(HANDLE Handle, UINT64& Size)
+bool elevation::fGetFileSizeEx(HANDLE Handle, UINT64& Size)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -1418,7 +1429,7 @@ bool AdminMode::fGetFileSizeEx(HANDLE Handle, UINT64& Size)
 	return Result;
 }
 
-bool AdminMode::fFlushFileBuffers(HANDLE Handle)
+bool elevation::fFlushFileBuffers(HANDLE Handle)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result = false;
@@ -1446,7 +1457,7 @@ bool AdminMode::fFlushFileBuffers(HANDLE Handle)
 	return Result;
 }
 
-bool AdminMode::fGetFileInformationByHandle(HANDLE Handle, BY_HANDLE_FILE_INFORMATION& bhfi)
+bool elevation::fGetFileInformationByHandle(HANDLE Handle, BY_HANDLE_FILE_INFORMATION& bhfi)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result = false;
@@ -1482,7 +1493,7 @@ bool AdminMode::fGetFileInformationByHandle(HANDLE Handle, BY_HANDLE_FILE_INFORM
 	return Result;
 }
 
-bool AdminMode::fDeviceIoControl(HANDLE Handle, DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped)
+bool elevation::fDeviceIoControl(HANDLE Handle, DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -1538,7 +1549,7 @@ bool AdminMode::fDeviceIoControl(HANDLE Handle, DWORD IoControlCode, LPVOID InBu
 	return Result;
 }
 
-DWORD AdminMode::fGetStorageDependencyInformation(HANDLE Handle, GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed)
+DWORD elevation::fGetStorageDependencyInformation(HANDLE Handle, GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed)
 {
 	CriticalSectionLock Lock(CS);
 	DWORD Result = 0;
@@ -1582,7 +1593,7 @@ DWORD AdminMode::fGetStorageDependencyInformation(HANDLE Handle, GET_STORAGE_DEP
 
 }
 
-NTSTATUS AdminMode::fNtQueryDirectoryFile(HANDLE Handle, HANDLE Event, PVOID ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, BOOLEAN ReturnSingleEntry, PUNICODE_STRING FileName, BOOLEAN RestartScan)
+NTSTATUS elevation::fNtQueryDirectoryFile(HANDLE Handle, HANDLE Event, PVOID ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, BOOLEAN ReturnSingleEntry, PUNICODE_STRING FileName, BOOLEAN RestartScan)
 {
 	CriticalSectionLock Lock(CS);
 	NTSTATUS Result = 0;

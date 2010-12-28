@@ -59,7 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "dirmix.hpp"
-#include "adminmode.hpp"
+#include "elevation.hpp"
 #include "cmdline.hpp"
 #include "console.hpp"
 

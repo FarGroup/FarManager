@@ -628,7 +628,7 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath="adminmode.cpp"
+				RelativePath="elevation.cpp"
 				>
 			</File>
 			<File
@@ -2653,7 +2653,7 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
-				RelativePath="adminmode.hpp"
+				RelativePath="elevation.hpp"
 				>
 			</File>
 			<File

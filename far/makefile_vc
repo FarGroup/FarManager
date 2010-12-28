@@ -100,7 +100,7 @@ RES_FILE = "$(INTDIR)\far.res"
 PCH_FILE = "$(INTDIR)\headers.pch"
 
 LINK_OBJS = \
-	"$(INTDIR)\adminmode.obj" \
+	"$(INTDIR)\elevation.obj" \
 	"$(INTDIR)\cache.obj" \
 	"$(INTDIR)\cddrv.obj" \
 	"$(INTDIR)\CFileMask.obj" \

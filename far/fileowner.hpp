@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 bool WINAPI GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &strOwner);
 
-// internal, for AdminMode only.
+// internal, for elevation only.
 bool SetOwnerInternal(LPCWSTR Object, LPCWSTR Owner);
 
 bool SetOwner(LPCWSTR Object, LPCWSTR Owner);

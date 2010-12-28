@@ -84,7 +84,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "processname.hpp"
 #include "mix.hpp"
 #include "constitle.hpp"
-#include "adminmode.hpp"
+#include "elevation.hpp"
 
 extern PanelViewSettings ViewSettingsArray[];
 extern size_t SizeViewSettingsArray;
@@ -849,7 +849,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 int FileList::ProcessKey(int Key)
 {
-	Admin.ResetApprove();
+	Elevation.ResetApprove();
 
 	FileListItem *CurPtr=nullptr;
 	int N;
@@ -2711,7 +2711,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 
 int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
-	Admin.ResetApprove();
+	Elevation.ResetApprove();
 
 	FileListItem *CurPtr;
 	int RetCode;

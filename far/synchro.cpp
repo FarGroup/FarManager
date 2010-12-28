@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plclass.hpp"
 #include "plugin.hpp"
 
-#include "adminmode.hpp"
+#include "elevation.hpp"
 
 PluginSynchro PluginSynchroManager;
 
