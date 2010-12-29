@@ -214,6 +214,7 @@ enum MACRO_OP_CODE
 	MCODE_F_MENU_ITEMSTATUS,          // N=Menu.ItemStatus([N])
 	MCODE_F_BEEP,                     // N=beep([N])
 	MCODE_F_KBDLAYOUT,                // N=kbdLayout([N])
+	MCODE_F_SCR_SCROLL,               // N=Scr.Scroll(Lines[,Axis])
 
 	/* ************************************************************************* */
 	// булевые переменные - различные состояния

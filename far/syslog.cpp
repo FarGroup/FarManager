@@ -1308,7 +1308,7 @@ string __MCODE_ToName(int OpCode)
 		DEF_MCODE_(F_MENU_GETVALUE), //N=Menu.GetValue([N])
 		DEF_MCODE_(F_BEEP),                     // N=beep([N])
 		DEF_MCODE_(F_KBDLAYOUT),                // N=kbdLayout([N])
-
+		DEF_MCODE_(F_SCR_SCROLL),               // N=Scr.Scroll(Lines[,Axis])
 
 	};
 	string Name;

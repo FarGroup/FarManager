@@ -344,6 +344,7 @@ static bool waitkeyFunc(const TMacroFunction*);
 static bool xlatFunc(const TMacroFunction*);
 static bool pluginsFunc(const TMacroFunction*);
 static bool usersFunc(const TMacroFunction*);
+static bool scrscrollFunc(const TMacroFunction*);
 
 static TMacroFunction intMacroFunction[]=
 {
@@ -412,6 +413,7 @@ static TMacroFunction intMacroFunction[]=
 	{L"PROMPT",           5, 4,   MCODE_F_PROMPT,           nullptr, 0,nullptr,L"S=Prompt(Title[,Prompt[,flags[,Src[,History]]]])",IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT,promptFunc},
 	{L"REPLACE",          5, 2,   MCODE_F_REPLACE,          nullptr, 0,nullptr,L"S=Replace(Str,Find,Replace[,Cnt[,Mode]])",0,replaceFunc},
 	{L"RINDEX",           3, 1,   MCODE_F_RINDEX,           nullptr, 0,nullptr,L"S=RIndex(S1,S2[,Mode])",0,rindexFunc},
+	{L"SCR.SCROLL",       2, 1,   MCODE_F_SCR_SCROLL,       nullptr, 0,nullptr,L"N=Scr.Scroll(Lines[,Axis])",0,scrscrollFunc},
 	{L"SLEEP",            1, 0,   MCODE_F_SLEEP,            nullptr, 0,nullptr,L"N=Sleep(N)",0,sleepFunc},
 	{L"STRING",           1, 0,   MCODE_F_STRING,           nullptr, 0,nullptr,L"S=String(V)",0,stringFunc},
 	{L"SUBSTR",           3, 1,   MCODE_F_SUBSTR,           nullptr, 0,nullptr,L"S=SubStr(S,N1[,N2])",0,substrFunc},
@@ -1929,6 +1931,38 @@ static bool atoiFunc(const TMacroFunction*)
 	return Ret;
 }
 
+
+// N=Scr.Scroll(Lines[,Axis])
+static bool scrscrollFunc(const TMacroFunction*)
+{
+	bool Ret=false;
+	TVar A, L;
+	VMStack.Pop(A); // 0 - вертикаль (по умолчанию), 1 - горизонталь.
+	VMStack.Pop(L); // Положительное число - вперёд (вниз/вправо), отрицательное - назад (вверх/влево).
+
+	if (Opt.WindowMode)
+	{
+		int Lines=(int)L.i(), Columns=0;
+		L=0;
+		if (A.i())
+		{
+			Columns=Lines;
+			Lines=0;
+		}
+
+		if (Console.ScrollWindow(Lines, Columns))
+		{
+			Ret=true;
+			L=1;
+		}
+	}
+	else
+		L=0;
+
+	VMStack.Push(L);
+	return Ret;
+}
+
 // S=itoa(N[,radix])
 static bool itowFunc(const TMacroFunction*)
 {
@@ -3179,7 +3213,8 @@ static bool panelsetposidxFunc(const TMacroFunction*)
 					{
 						//SelPanel->Show();
 						// <Mantis#0000289> - грозно, но со вкусом :-)
-						ShellUpdatePanels(SelPanel);
+						//ShellUpdatePanels(SelPanel);
+						SelPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);
 						FrameManager->RefreshFrame(FrameManager->GetTopModal());
 						// </Mantis#0000289>
 
@@ -3253,7 +3288,8 @@ static bool panelsetpathFunc(const TMacroFunction*)
 				SelPanel->GoToFile(fileName); // здесь без проверки, т.к. параметр fileName аля опциональный
 				//SelPanel->Show();
 				// <Mantis#0000289> - грозно, но со вкусом :-)
-				ShellUpdatePanels(SelPanel);
+				//ShellUpdatePanels(SelPanel);
+				SelPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);
 				FrameManager->RefreshFrame(FrameManager->GetTopModal());
 				// </Mantis#0000289>
 				Ret=1;
@@ -3296,7 +3332,8 @@ static bool panelsetposFunc(const TMacroFunction*)
 			{
 				//SelPanel->Show();
 				// <Mantis#0000289> - грозно, но со вкусом :-)
-				ShellUpdatePanels(SelPanel);
+				//ShellUpdatePanels(SelPanel);
+				SelPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);
 				FrameManager->RefreshFrame(FrameManager->GetTopModal());
 				// </Mantis#0000289>
 				Ret=(__int64)(SelPanel->GetCurrentPos()+1);

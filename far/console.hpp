@@ -54,20 +54,20 @@ public:
 
 	bool GetTitle(string &strTitle);
 	bool SetTitle(LPCWSTR Title);
-	
+
 	bool GetKeyboardLayoutName(string &strName);
-	
+
 	UINT GetInputCodepage();
 	bool SetInputCodepage(UINT Codepage);
-	
+
 	UINT GetOutputCodepage();
 	bool SetOutputCodepage(UINT Codepage);
-	
+
 	bool SetControlHandler(PHANDLER_ROUTINE HandlerRoutine, bool Add);
-	
+
 	bool GetMode(HANDLE ConsoleHandle, DWORD& Mode);
 	bool SetMode(HANDLE ConsoleHandle, DWORD Mode);
-	
+
 	bool PeekInput(INPUT_RECORD& Buffer, DWORD Length, DWORD& NumberOfEventsRead);
 	bool ReadInput(INPUT_RECORD& Buffer, DWORD Length, DWORD& NumberOfEventsRead);
 	bool WriteInput(INPUT_RECORD& Buffer, DWORD Length, DWORD& NumberOfEventsWritten);
@@ -98,7 +98,7 @@ public:
 
 	bool ClearExtraRegions(WORD Color);
 
-	bool ScrollWindow(int Lines);
+	bool ScrollWindow(int Lines,int Columns=0);
 
 	bool ScrollScreenBuffer(int Lines);
 
