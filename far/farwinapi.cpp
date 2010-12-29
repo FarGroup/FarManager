@@ -91,6 +91,17 @@ HANDLE FindFirstFileInternal(LPCWSTR Name, FAR_FIND_DATA_EX& FindData)
 							FindData.dwReserved1 = 0;
 							FindData.strFileName.Copy(DirectoryInfo->FileName,DirectoryInfo->FileNameLength/sizeof(WCHAR));
 							FindData.strAlternateFileName.Copy(DirectoryInfo->ShortName,DirectoryInfo->ShortNameLength/sizeof(WCHAR));
+
+							// Bug in SharePoint: FileName is zero-terminated and FileNameLength INCLUDES this zero.
+							if(!FindData.strFileName.At(FindData.strFileName.GetLength()-1))
+							{
+								FindData.strFileName.SetLength(FindData.strFileName.GetLength()-1);
+							}
+							if(!FindData.strAlternateFileName.At(FindData.strAlternateFileName.GetLength()-1))
+							{
+								FindData.strAlternateFileName.SetLength(FindData.strAlternateFileName.GetLength()-1);
+							}
+
 							Handle->NextOffset = DirectoryInfo->NextEntryOffset;
 							Result = reinterpret_cast<HANDLE>(Handle);
 						}
@@ -155,6 +166,17 @@ bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA_EX& FindData)
 		FindData.dwReserved1 = 0;
 		FindData.strFileName.Copy(DirectoryInfo->FileName,DirectoryInfo->FileNameLength/sizeof(WCHAR));
 		FindData.strAlternateFileName.Copy(DirectoryInfo->ShortName,DirectoryInfo->ShortNameLength/sizeof(WCHAR));
+
+		// Bug in SharePoint: FileName is zero-terminated and FileNameLength INCLUDES this zero.
+		if(!FindData.strFileName.At(FindData.strFileName.GetLength()-1))
+		{
+			FindData.strFileName.SetLength(FindData.strFileName.GetLength()-1);
+		}
+		if(!FindData.strAlternateFileName.At(FindData.strAlternateFileName.GetLength()-1))
+		{
+			FindData.strAlternateFileName.SetLength(FindData.strAlternateFileName.GetLength()-1);
+		}
+
 		Handle->NextOffset = DirectoryInfo->NextEntryOffset?Handle->NextOffset+DirectoryInfo->NextEntryOffset:0;
 		Result = true;
 	}

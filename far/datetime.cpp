@@ -752,7 +752,7 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 		{
 			int p1,p2,p3=Year;
 			int w1=2, w2=2, w3=2;
-			wchar_t f1=L'0', f2=L'0', f3=L' ';
+			wchar_t f1=L'0', f2=L'0', f3=FullYear==2?L' ':L'0';
 			switch (CurDateFormat)
 			{
 				case 0:
