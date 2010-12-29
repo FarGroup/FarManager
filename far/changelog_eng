@@ -3,6 +3,60 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 29.12.2010 16:09:28 +0300 - build 1773
+
+1. Mantis#0001538: Panel refreshing at some macro commands execution
+
+2. Macro: a function is added N=Scr.Scroll(Lines[,Axis])
+      Lines - positive number - forward (down/right), negative - back (up/left).
+      Axis - optional parameter, 0 - vertical (default), 1 - horizontal.
+
+      The function returns 0 on scrolling failure (for example, Lines was equal to 0), else 1
+
+drkns 29.12.2010 11:30:42 +0200 - build 1772
+
+1. In 1741, SharePoint shares support was broken.
+   It seems that Microsoft ignores its own API.
+
+drkns 28.12.2010 12:55:27 +0200 - build 1771
+
+1. 1763 is continued - years are displayed without leading zero.
+
+2. Changes in DIF_MASKEDIT: Del/BS do not shift the remaining text.
+
+3. At the time of PrepareDiskPath() execution, Elevation is disabled.
+
+svs 28.12.2010 09:49:18 +0300 - build 1770
+
+1. Correction of build 1769
+
+2. Mantis#0001594: FAR being launched in editor or viewer mode loads macros for UserMenu
+   The user menu is temporarily disabled in these modes...
+
+3. Mantis#0001614: Line-by-line scrolling in "far.exe /w" mode
+   (from DAtaMan)
+   Console buffer line-by-line scrolling with Ctrl-Alt-Up/Down keys
+
+   <ACHTUNG>
+
+     After "scroll" macrofunction appear (http://forum.farmanager.com/viewtopic.php?f=15&t=5409),
+     any keys processing for screen buffer scrolling will be removed from manager.
+
+   </ACHTUNG>
+
+4. "&Hidden" è "C&hange time:" hotkeys duplicates in SetAttr dialog.
+   "Change time:" is bound to "g".
+
+svs 27.12.2010 12:45:54 +0300 - build 1769
+
+1. Mantis#0001634: Sometimes panel.item function returns an empty description for a file
+   (from DAtaMan)
+   panel.item(0,0,11) returns an empty value if descriptions mode is off or no CtrlZ was invoked
+
+drkns 24.12.2010 10:37:23 +0200 - build 1768
+
+1. 1764 is continued - write timestamp is also taken from the source.
+
 zg 20.12.2010 13:46:31 +0200 - build 1767
 
 1. Forum:
