@@ -424,8 +424,12 @@ void Archive::make_index() {
         dir_index++;
         dir_index_map[dir_info.index] = i;
       }
-      else
-        file_info.parent = c_dup_index;
+      else {
+        if (dir_index_map.count(ins_pos.first->index))
+          file_info.parent = c_dup_index;
+        else
+          dir_index_map[ins_pos.first->index] = i;
+      }
     }
 
     file_list.push_back(file_info);

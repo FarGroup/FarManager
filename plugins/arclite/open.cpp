@@ -144,7 +144,7 @@ private:
   virtual void do_update_ui() {
     const unsigned c_width = 60;
     wostringstream st;
-    st << volume_file_info.cFileName << L'\n';
+    st << fit_str(volume_file_info.cFileName, c_width) << L'\n';
     st << completed_files << L" / " << total_files << L'\n';
     st << Far::get_progress_bar_str(c_width, completed_files, total_files) << L'\n';
     st << L"\x01\n";
