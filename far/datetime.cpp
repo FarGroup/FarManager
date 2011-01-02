@@ -765,7 +765,7 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 					break;
 				default:
 					p1=Year;
-					w1=5;
+					w1=FullYear==2?5:2;
 					f3=f1;
 					f1=L' ';
 					p2=st.wMonth;
