@@ -210,11 +210,11 @@ void ConvertItemSmall(FarDialogItem *Item,DialogItemEx *Data)
 	{
 		Item->Param.ListPos = Data->ListPtr?Data->ListPtr->GetSelectPos():0;
 	}
-	else if(Item->Flags&DIF_HISTORY)
+	if((Data->Type == DI_EDIT || Data->Type == DI_FIXEDIT) && Data->Flags&DIF_HISTORY)
 	{
 		Item->Param.History = Data->strHistory;
 	}
-	else if(Item->Flags&DIF_MASKEDIT)
+	else if(Data->Type == DI_FIXEDIT && Data->Flags&DIF_MASKEDIT)
 	{
 		Item->Param.Mask = Data->strMask;
 	}
@@ -295,11 +295,11 @@ bool ConvertItemEx(
 				Data->Y2 = Item->Y2;
 				Data->Focus = Item->Focus;
 				Data->Reserved = 0;
-				if(Item->Flags&DIF_HISTORY)
+				if((Item->Type == DI_EDIT || Item->Type == DI_FIXEDIT) && Item->Flags&DIF_HISTORY)
 				{
 					Data->strHistory = Item->Param.History;
 				}
-				else if(Item->Flags&DIF_MASKEDIT)
+				else if(Item->Type == DI_FIXEDIT && Item->Flags&DIF_MASKEDIT)
 				{
 					Data->strMask = Item->Param.Mask;
 				}
@@ -376,11 +376,11 @@ void DataToItemEx(const DialogDataEx *Data,DialogItemEx *Item,int Count)
 		if (Item[i].Y2 < Item[i].Y1) Item[i].Y2=Item[i].Y1;
 
 		Item[i].Focus=Item[i].Type!=DI_SINGLEBOX && Item[i].Type!=DI_DOUBLEBOX && (Data[i].Flags&DIF_FOCUS);
-		if(Data[i].Flags&DIF_HISTORY)
+		if((Data[i].Type == DI_EDIT || Data[i].Type == DI_FIXEDIT) && Data[i].Flags&DIF_HISTORY)
 		{
 			Item[i].strHistory=Data[i].History;
 		}
-		else if(Data[i].Flags&DIF_MASKEDIT)
+		else if(Data[i].Type == DI_FIXEDIT && Data[i].Flags&DIF_MASKEDIT)
 		{
 			Item[i].strMask = Data[i].Mask;
 		}

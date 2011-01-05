@@ -512,7 +512,7 @@ void InitRecodeOutTable(UINT cp)
 
 	for (size_t i=0; i<ARRAYSIZE(Oem2Unicode); i++)
 	{
-		char c = i;
+		char c = static_cast<char>(i);
 		MultiByteToWideChar(CP_OEMCP, MB_USEGLYPHCHARS, &c, 1, &Oem2Unicode[i], 1);
 	}
 
