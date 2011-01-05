@@ -70,11 +70,10 @@ DlgEdit::DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type):
 				{
 					iFlags=EditControl::EC_ENABLEAUTOCOMPLETE;
 				}
-				string strHistory;
-				if(CurItem->Flags&DIF_HISTORY && CurItem->History)
+				if(CurItem->Flags&DIF_HISTORY && !CurItem->strHistory.IsEmpty())
 				{
-					strHistory=fmtSavedDialogHistory;
-					strHistory+=CurItem->History;
+					string strHistory = fmtSavedDialogHistory;
+					strHistory+=CurItem->strHistory;
 					iHistory=new History(HISTORYTYPE_DIALOG, Opt.DialogsHistoryCount, strHistory, &Opt.Dialogs.EditHistory, false);
 					iHistory->ReadHistory(true);
 				}

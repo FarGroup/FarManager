@@ -771,8 +771,8 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 				break;
 		}
 
-		AttrDlg[SA_EDIT_WDATE].Mask=AttrDlg[SA_EDIT_CDATE].Mask=AttrDlg[SA_EDIT_ADATE].Mask=AttrDlg[SA_EDIT_XDATE].Mask=strDMask;
-		AttrDlg[SA_EDIT_WTIME].Mask=AttrDlg[SA_EDIT_CTIME].Mask=AttrDlg[SA_EDIT_ATIME].Mask=AttrDlg[SA_EDIT_XTIME].Mask=strTMask;
+		AttrDlg[SA_EDIT_WDATE].strMask=AttrDlg[SA_EDIT_CDATE].strMask=AttrDlg[SA_EDIT_ADATE].strMask=AttrDlg[SA_EDIT_XDATE].strMask=strDMask;
+		AttrDlg[SA_EDIT_WTIME].strMask=AttrDlg[SA_EDIT_CTIME].strMask=AttrDlg[SA_EDIT_ATIME].strMask=AttrDlg[SA_EDIT_XTIME].strMask=strTMask;
 		bool FolderPresent=false,LinkPresent=false;
 		string strLinkName;
 		static struct ATTRIBUTEPAIR

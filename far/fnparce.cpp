@@ -541,7 +541,7 @@ int ReplaceVariables(string &strStr,TSubstData *PSubstData)
 		DlgData[DlgSize+1].Flags|=DIF_HISTORY|DIF_USELASTHISTORY;
 		int HistoryNumber=DlgSize/2;
 		HistoryName[HistoryNumber].Format(L"UserVar%d",HistoryNumber);
-		DlgData[DlgSize+1].History=HistoryName[HistoryNumber];
+		DlgData[DlgSize+1].strHistory=HistoryName[HistoryNumber];
 
 		if (!DlgSize)
 		{
@@ -566,7 +566,7 @@ int ReplaceVariables(string &strStr,TSubstData *PSubstData)
 				if (p1)
 				{
 					HistoryName[HistoryNumber].Copy(p,p1-p);
-					DlgData[DlgSize+1].History=HistoryName[HistoryNumber];
+					DlgData[DlgSize+1].strHistory=HistoryName[HistoryNumber];
 					strTitle = ++p1;
 					hist_correct = p1 - p + 1;
 				}

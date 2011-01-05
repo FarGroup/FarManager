@@ -420,7 +420,7 @@ void AdminApproveDlgSync(LPVOID Param)
 bool elevation::AdminApproveDlg(int Why, LPCWSTR Object)
 {
 	if(!(Opt.IsUserAdmin && !(Opt.ElevationMode&ELEVATION_USE_PRIVILEGES)) &&
-		AskApprove && !DontAskAgain &&		!Recurse &&
+		AskApprove && !DontAskAgain && !Recurse &&
 		FrameManager && !FrameManager->ManagerIsDown())
 	{
 		Recurse = true;

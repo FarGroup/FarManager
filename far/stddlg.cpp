@@ -117,19 +117,19 @@ int WINAPI GetSearchReplaceString(
 
 		if (!*TextHistoryName)
 		{
-			ReplaceDlg[2].History=0;
+			ReplaceDlg[2].strHistory.Clear();
 			ReplaceDlg[2].Flags&=~DIF_HISTORY;
 		}
 		else
-			ReplaceDlg[2].History=TextHistoryName;
+			ReplaceDlg[2].strHistory=TextHistoryName;
 
 		if (!*ReplaceHistoryName)
 		{
-			ReplaceDlg[4].History=0;
+			ReplaceDlg[4].strHistory.Clear();
 			ReplaceDlg[4].Flags&=~DIF_HISTORY;
 		}
 		else
-			ReplaceDlg[4].History=ReplaceHistoryName;
+			ReplaceDlg[4].strHistory=ReplaceHistoryName;
 
 		ReplaceDlg[2].strData = *pSearchStr;
 
@@ -290,11 +290,11 @@ int WINAPI GetSearchReplaceString(
 
 		if (!*TextHistoryName)
 		{
-			SearchDlg[2].History=0;
+			SearchDlg[2].strHistory.Clear();
 			SearchDlg[2].Flags&=~DIF_HISTORY;
 		}
 		else
-			SearchDlg[2].History=TextHistoryName;
+			SearchDlg[2].strHistory=TextHistoryName;
 
 		SearchDlg[2].strData = *pSearchStr;
 
@@ -519,7 +519,7 @@ int WINAPI GetString(
 
 	if (HistoryName)
 	{
-		StrDlg[2].History=HistoryName;
+		StrDlg[2].strHistory=HistoryName;
 		StrDlg[2].Flags|=DIF_HISTORY|(Flags&FIB_NOUSELASTHISTORY?0:DIF_USELASTHISTORY);
 	}
 

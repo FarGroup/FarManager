@@ -132,7 +132,7 @@ DialogItemEx *DialogBuilder::AddEditField(string *Value, int Width, const wchar_
 	Item->X2 = Item->X1 + Width;
 	if (HistoryID)
 	{
-		Item->History = HistoryID;
+		Item->strHistory = HistoryID;
 		Item->Flags |= DIF_HISTORY;
 	}
 	Item->Flags |= Flags;
@@ -153,7 +153,7 @@ DialogItemEx *DialogBuilder::AddIntEditField(int *Value, int Width)
 	EditFieldIntBinding *Binding = new EditFieldIntBinding(Value, Width);
 	SetLastItemBinding(Binding);
 	Item->Flags |= DIF_MASKEDIT;
-	Item->Mask = Binding->GetMask();
+	Item->strMask = Binding->GetMask();
 	return Item;
 }
 

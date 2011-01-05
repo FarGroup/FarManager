@@ -173,7 +173,9 @@ void DialogItemExToDialogItemEx(DialogItemEx *pSrc, DialogItemEx *pDest)
 	pDest->X2 = pSrc->X2;
 	pDest->Y2 = pSrc->Y2;
 	pDest->Focus = pSrc->Focus;
-	pDest->History = pSrc->History;
+	pDest->Reserved = pSrc->Reserved;
+	pDest->strHistory = pSrc->strHistory;
+	pDest->strMask = pSrc->strMask;
 	pDest->Flags = pSrc->Flags;
 	pDest->DefaultButton = pSrc->DefaultButton;
 	pDest->nMaxLength = 0;
@@ -205,10 +207,21 @@ void ConvertItemSmall(FarDialogItem *Item,DialogItemEx *Data)
 
 	Item->Param.History = nullptr;
 	if (Data->Type==DI_LISTBOX || Data->Type==DI_COMBOBOX)
+	{
 		Item->Param.ListPos = Data->ListPtr?Data->ListPtr->GetSelectPos():0;
+	}
+	else if(Item->Flags&DIF_HISTORY)
+	{
+		Item->Param.History = Data->strHistory;
+	}
+	else if(Item->Flags&DIF_MASKEDIT)
+	{
+		Item->Param.Mask = Data->strMask;
+	}
 	else
-		Item->Param.History = Data->History;
-
+	{
+		Item->Param.Reserved = Data->Reserved;
+	}
 }
 
 size_t ItemStringAndSize(DialogItemEx *Data,string& ItemString)
@@ -281,7 +294,19 @@ bool ConvertItemEx(
 				Data->X2 = Item->X2;
 				Data->Y2 = Item->Y2;
 				Data->Focus = Item->Focus;
-				Data->History = Item->Param.History;
+				Data->Reserved = 0;
+				if(Item->Flags&DIF_HISTORY)
+				{
+					Data->strHistory = Item->Param.History;
+				}
+				else if(Item->Flags&DIF_MASKEDIT)
+				{
+					Data->strMask = Item->Param.Mask;
+				}
+				else
+				{
+					Data->Reserved = Item->Param.Reserved;
+				}
 				Data->Flags = Item->Flags;
 				Data->DefaultButton = Item->DefaultButton;
 				Data->Type = Item->Type;
@@ -351,7 +376,18 @@ void DataToItemEx(const DialogDataEx *Data,DialogItemEx *Item,int Count)
 		if (Item[i].Y2 < Item[i].Y1) Item[i].Y2=Item[i].Y1;
 
 		Item[i].Focus=Item[i].Type!=DI_SINGLEBOX && Item[i].Type!=DI_DOUBLEBOX && (Data[i].Flags&DIF_FOCUS);
-		Item[i].History=Data[i].History;
+		if(Data[i].Flags&DIF_HISTORY)
+		{
+			Item[i].strHistory=Data[i].History;
+		}
+		else if(Data[i].Flags&DIF_MASKEDIT)
+		{
+			Item[i].strMask = Data[i].Mask;
+		}
+		else
+		{
+			Item[i].Reserved = Data[i].Reserved;
+		}
 		Item[i].Flags=Data[i].Flags;
 		Item[i].DefaultButton=Item[i].Type!=DI_TEXT && Item[i].Type!=DI_VTEXT && (Data[i].Flags&DIF_DEFAULT);
 		Item[i].SelStart=-1;
@@ -945,17 +981,15 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
 				*/
 
 				//  Маска не должна быть пустой (строка из пробелов не учитывается)!
-				if ((ItemFlags & DIF_MASKEDIT) && CurItem->Mask)
+				if ((ItemFlags & DIF_MASKEDIT) && !CurItem->strMask.IsEmpty())
 				{
-					const wchar_t*Ptr=CurItem->Mask;
-
-					while (*Ptr && *Ptr == L' ') ++Ptr;
-
-					if (*Ptr)
-						DialogEdit->SetInputMask(CurItem->Mask);
+					RemoveExternalSpaces(CurItem->strMask);
+					if(!CurItem->strMask.IsEmpty())
+					{
+						DialogEdit->SetInputMask(CurItem->strMask);
+					}
 					else
 					{
-						CurItem->Mask=nullptr;
 						ItemFlags&=~DIF_MASKEDIT;
 					}
 				}
@@ -1088,7 +1122,7 @@ void Dialog::ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex)
 	if (strData.IsEmpty())
 	{
 		string strRegKey=fmtSavedDialogHistory;
-		strRegKey+=CurItem->History;
+		strRegKey+=CurItem->strHistory;
 		History::ReadLastItem(strRegKey, strData);
 
 		if (MsgIndex != -1)
@@ -1275,7 +1309,7 @@ BOOL Dialog::GetItemRect(unsigned I,SMALL_RECT& Rect)
 
 bool Dialog::ItemHasDropDownArrow(const DialogItemEx *Item)
 {
-	return ((Item->History && (Item->Flags & DIF_HISTORY) && Opt.Dialogs.EditHistory) ||
+	return ((!Item->strHistory.IsEmpty() && (Item->Flags & DIF_HISTORY) && Opt.Dialogs.EditHistory) ||
 		(Item->Type == DI_COMBOBOX && Item->ListPtr && Item->ListPtr->GetItemCount() > 0));
 }
 
@@ -1362,10 +1396,10 @@ void Dialog::GetDialogObjectsData()
 					if (ExitCode >=0 &&
 					        (IFlags & DIF_HISTORY) &&
 					        !(IFlags & DIF_MANUALADDHISTORY) && // при мануале не добавляем
-					        CurItem->History &&
+							!CurItem->strHistory.IsEmpty() &&
 					        Opt.Dialogs.EditHistory)
 					{
-						AddToEditHistory(strData,CurItem->History);
+						AddToEditHistory(strData,CurItem->strHistory);
 					}
 
 					/* $ 01.08.2000 SVS
@@ -1890,7 +1924,7 @@ void Dialog::ShowDialog(unsigned ID)
 					GotoXY(X1+((CurItem->Flags&DIF_SEPARATORUSER)?X:(!DialogMode.Check(DMODE_SMALLDIALOG)?3:0)),Y1+Y); //????
 					ShowUserSeparator((CurItem->Flags&DIF_SEPARATORUSER)?X2-X1+1:RealWidth-(!DialogMode.Check(DMODE_SMALLDIALOG)?6:0/* -1 */),
 					                  (CurItem->Flags&DIF_SEPARATORUSER)?12:(CurItem->Flags&DIF_SEPARATOR2?3:1),
-					                  CurItem->Mask
+					                  CurItem->strMask
 					                 );
 				}
 
@@ -1961,7 +1995,7 @@ void Dialog::ShowDialog(unsigned ID)
 					GotoXY(X1+X,Y1+ ((CurItem->Flags&DIF_SEPARATORUSER)?Y:(!DialogMode.Check(DMODE_SMALLDIALOG)?1:0)));  //????
 					ShowUserSeparator((CurItem->Flags&DIF_SEPARATORUSER)?Y2-Y1+1:RealHeight-(!DialogMode.Check(DMODE_SMALLDIALOG)?2:0),
 					                  (CurItem->Flags&DIF_SEPARATORUSER)?13:(CurItem->Flags&DIF_SEPARATOR2?7:5),
-					                  CurItem->Mask
+					                  CurItem->strMask
 					                 );
 				}
 
@@ -3618,12 +3652,12 @@ int Dialog::ProcessOpenComboBox(int Type,DialogItemEx *CurItem, unsigned CurFocu
 	if (IsEdit(Type) &&
 	        (CurItem->Flags & DIF_HISTORY) &&
 	        Opt.Dialogs.EditHistory &&
-	        CurItem->History &&
+	        !CurItem->strHistory.IsEmpty() &&
 	        !(CurItem->Flags & DIF_READONLY))
 	{
 		// Передаем то, что в строке ввода в функцию выбора из истории для выделения нужного пункта в истории.
 		CurEditLine->GetString(strStr);
-		SelectFromEditHistory(CurItem,CurEditLine,CurItem->History,strStr);
+		SelectFromEditHistory(CurItem,CurEditLine,CurItem->strHistory,strStr);
 	}
 	// $ 18.07.2000 SVS:  +обработка DI_COMBOBOX - выбор из списка!
 	else if (Type == DI_COMBOBOX && CurItem->ListPtr &&
@@ -5396,7 +5430,7 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 				if (Param2 && *(const wchar_t *)Param2)
 				{
 					CurItem->Flags|=DIF_HISTORY;
-					CurItem->History=(const wchar_t *)Param2;
+					CurItem->strHistory=(const wchar_t *)Param2;
 
 					if (Type==DI_EDIT && (CurItem->Flags&DIF_USELASTHISTORY))
 					{
@@ -5406,7 +5440,7 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 				else
 				{
 					CurItem->Flags&=~DIF_HISTORY;
-					CurItem->History=nullptr;
+					CurItem->strHistory.Clear();
 				}
 
 				if (Dlg->DialogMode.Check(DMODE_SHOW))
@@ -5427,7 +5461,7 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 			        (Type==DI_EDIT || Type==DI_FIXEDIT) &&
 			        (CurItem->Flags & DIF_HISTORY))
 			{
-				return Dlg->AddToEditHistory((const wchar_t*)Param2,CurItem->History);
+				return Dlg->AddToEditHistory((const wchar_t*)Param2,CurItem->strHistory);
 			}
 
 			return FALSE;

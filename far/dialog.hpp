@@ -117,12 +117,12 @@ struct DialogItemEx
 	{
 		DWORD_PTR Reserved;
 		int Selected;
-		const wchar_t *History;
-		const wchar_t *Mask;
 		FarList *ListItems;
 		int  ListPos;
 		CHAR_INFO *VBuf;
 	};
+	string strHistory;
+	string strMask;
 	DWORD Flags;
 	int DefaultButton;
 
@@ -151,7 +151,8 @@ struct DialogItemEx
 		X2=0;
 		Y2=0;
 		Focus=0;
-		History=nullptr;
+		strHistory.Clear();
+		strMask.Clear();
 		Flags=0;
 		DefaultButton=0;
 		strData.Clear();

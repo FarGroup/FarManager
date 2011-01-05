@@ -461,20 +461,26 @@ void ConvertNameToReal(const wchar_t *Src, string &strDest)
 void ConvertNameToShort(const wchar_t *Src, string &strDest)
 {
 	string strCopy = Src;
-	int nSize = GetShortPathName(strCopy, nullptr, 0);
+	WCHAR Buffer[MAX_PATH];
+	DWORD Size = GetShortPathName(strCopy, Buffer, ARRAYSIZE(Buffer));
 
-	if (nSize)
+	if(Size)
 	{
-		wchar_t *lpwszDest = strDest.GetBuffer(nSize);
-		GetShortPathName(strCopy, lpwszDest, nSize);
-		strDest.ReleaseBuffer();
+		if(Size>ARRAYSIZE(Buffer))
+		{
+			wchar_t *lpwszDest = strDest.GetBuffer(Size);
+			GetShortPathName(strCopy, lpwszDest, Size);
+			strDest.ReleaseBuffer();
+		}
+		else
+		{
+			strDest.Copy(Buffer, Size);
+		}
 	}
 	else
 	{
 		strDest = strCopy;
 	}
-
-	strDest.Upper();
 }
 
 void ConvertNameToLong(const wchar_t *Src, string &strDest)
