@@ -309,7 +309,7 @@ static int iso8601wknum(const tm *timeptr)
 
 size_t WINAPI StrFTime(string &strDest, const wchar_t *Format,const tm *t)
 {
-	if (CurLang==-1 && Language::IsLanguageLoaded())
+	if (CurLang==-1 && Lang.IsLanguageLoaded())
 		PrepareStrFTime();
 
 	// меняем язык.

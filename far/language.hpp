@@ -33,56 +33,52 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-class VMenu;
+enum LngErrors
+{
+	LERROR_SUCCESS,
+	LERROR_FILE_NOT_FOUND,
+	LERROR_BAD_FILE,
+};
 
 class Language
 {
-	private:
-		static bool LanguageLoaded;
+public:
+	Language();
+	~Language();
 
-		wchar_t **MsgAddr;
-		wchar_t *MsgList;
+	bool Init(const wchar_t *Path, bool bUnicode, int CountNeed=-1);
+	void Close();
 
-		char **MsgAddrA; //фантастика, да
-		char *MsgListA;
+	const wchar_t* GetMsg(int nID) const;
+	const char* GetMsgA(int nID) const;
 
-		long MsgSize;
+	bool IsLanguageLoaded() const {return LanguageLoaded;}
+	LngErrors GetLastError() const {return LastError;}
 
-		int MsgCount;
+private:
+	LngErrors LastError;
+	bool LanguageLoaded;
+	wchar_t **MsgAddr;
+	wchar_t *MsgList;
+	char **MsgAddrA; //фантастика, да
+	char *MsgListA;
+	long MsgSize;
+	int MsgCount;
+	string strMessageFile;
+	bool m_bUnicode;
 
-		string strMessageFile;
-
-		bool m_bUnicode;
-
-	private:
-		void ConvertString(const wchar_t *Src,string &strDest);
-		bool CheckMsgId(int MsgId);
-		void Free();
-
-	public:
-		Language();
-		~Language();
-
-	public:
-		bool Init(const wchar_t *Path, bool bUnicode, int CountNeed=-1);
-		void Close();
-
-		const wchar_t* GetMsg(int nID);
-		const char* GetMsgA(int nID);
-
-		static FILE* OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language,string &strFileName, UINT &nCodePage, BOOL StrongLang=FALSE, string *pLangName=nullptr);
-		static int GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strParam1, string *strParam2, UINT nCodePage);
-		/*
-		   метод, для получения параметров для .Options
-		    .Options <KeyName>=<Value>
-		*/
-		static int GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strValue, UINT nCodePage);
-		static int Select(int HelpLanguage,VMenu **MenuPtr);
-
-		static bool IsLanguageLoaded() { return LanguageLoaded; }
+	void ConvertString(const wchar_t *Src,string &strDest);
+	bool CheckMsgId(int MsgId) const;
+	void Free();
 };
 
 extern Language Lang;
 
 #define MSG(ID) ::Lang.GetMsg(ID)
+
+class VMenu;
+
+FILE* OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language, string &strFileName, UINT &nCodePage, BOOL StrongLang=FALSE,string *pstrLangName=nullptr);
+int GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strParam1, string *strParam2, UINT nCodePage);
+int GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strValue, UINT nCodePage);
+int Select(int HelpLanguage,VMenu **MenuPtr);

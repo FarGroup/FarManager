@@ -590,7 +590,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 				{
 					VMenu *LangMenu, *HelpMenu;
 
-					if (Language::Select(FALSE, &LangMenu))
+					if (Select(FALSE, &LangMenu))
 					{
 						Lang.Close();
 
@@ -600,7 +600,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 							exit(0);
 						}
 
-						Language::Select(TRUE,&HelpMenu);
+						Select(TRUE,&HelpMenu);
 						delete HelpMenu;
 						LangMenu->Hide();
 						CtrlObject->Plugins.ReloadLanguage();

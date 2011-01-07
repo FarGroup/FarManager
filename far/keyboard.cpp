@@ -1191,7 +1191,10 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 
 			{
 				_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessKey(%s)",__LINE__,_FARKEY_ToName(Key)));
-				FrameManager->SetLastInputRecord(rec);
+				if(FrameManager)
+				{
+					FrameManager->SetLastInputRecord(rec);
+				}
 				if (Key!=-1 && !NotMacros && CtrlObject && CtrlObject->Macro.ProcessKey(Key))
 				{
 					rec->EventType=0;

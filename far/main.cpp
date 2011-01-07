@@ -605,8 +605,20 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	if (!Lang.Init(g_strFarPath,true,MNewFileName))
 	{
 		ControlObject::ShowCopyright(1);
-		WCHAR LngMsg[]=L"\nError: Cannot load language data.\n\nPress any key...";
-		Console.Write(LngMsg,ARRAYSIZE(LngMsg)-1);
+		LPCWSTR LngMsg;
+		switch(Lang.GetLastError())
+		{
+		case LERROR_BAD_FILE:
+			LngMsg = L"\nError: language data is incorrect or damaged.\n\nPress any key to exit...";
+			break;
+		case LERROR_FILE_NOT_FOUND:
+			LngMsg = L"\nError: cannot find language data.\n\nPress any key to exit...";
+			break;
+		default:
+			LngMsg = L"\nError: cannot load language data.\n\nPress any key to exit...";
+			break;
+		}
+		Console.Write(LngMsg,StrLength(LngMsg));
 		Console.FlushInputBuffer();
 		WaitKey(); // А стоит ли ожидать клавишу??? Стоит
 		return 1;

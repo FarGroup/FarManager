@@ -4891,7 +4891,7 @@ int FileList::PluginPanelHelp(HANDLE hPlugin)
 	strPath = ph->pPlugin->GetModuleName();
 	CutToSlash(strPath);
 	UINT nCodePage = CP_OEMCP;
-	FILE *HelpFile=Language::OpenLangFile(strPath,HelpFileMask,Opt.strHelpLanguage,strFileName, nCodePage);
+	FILE *HelpFile=OpenLangFile(strPath,HelpFileMask,Opt.strHelpLanguage,strFileName, nCodePage);
 
 	if (!HelpFile)
 		return FALSE;

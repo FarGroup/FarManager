@@ -233,7 +233,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 	}
 
 	UINT nCodePage = CP_OEMCP;
-	FILE *HelpFile=Language::OpenLangFile(strPath,(!*Mask?HelpFileMask:Mask),Opt.strHelpLanguage,strFullHelpPathName, nCodePage);
+	FILE *HelpFile=OpenLangFile(strPath,(!*Mask?HelpFileMask:Mask),Opt.strHelpLanguage,strFullHelpPathName, nCodePage);
 
 	if (!HelpFile)
 	{
@@ -254,7 +254,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 
 	string strReadStr;
 
-	if (Language::GetOptionsParam(HelpFile,L"TabSize",strReadStr, nCodePage))
+	if (GetOptionsParam(HelpFile,L"TabSize",strReadStr, nCodePage))
 	{
 		CtrlTabSize=_wtoi(strReadStr);
 	}
@@ -262,12 +262,12 @@ int Help::ReadHelp(const wchar_t *Mask)
 	if (CtrlTabSize < 0 || CtrlTabSize > 16)
 		CtrlTabSize=Opt.HelpTabSize;
 
-	if (Language::GetOptionsParam(HelpFile,L"CtrlColorChar",strReadStr, nCodePage))
+	if (GetOptionsParam(HelpFile,L"CtrlColorChar",strReadStr, nCodePage))
 		strCtrlColorChar = strReadStr;
 	else
 		strCtrlColorChar.Clear();
 
-	if (Language::GetOptionsParam(HelpFile,L"CtrlStartPosChar",strReadStr, nCodePage))
+	if (GetOptionsParam(HelpFile,L"CtrlStartPosChar",strReadStr, nCodePage))
 		strCtrlStartPosChar = strReadStr;
 	else
 		strCtrlStartPosChar.Clear();
@@ -275,7 +275,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 	/* $ 29.11.2001 DJ
 	   запомним, чего там написано в PluginContents
 	*/
-	if (!Language::GetLangParam(HelpFile,L"PluginContents",&strCurPluginContents, nullptr, nCodePage))
+	if (!GetLangParam(HelpFile,L"PluginContents",&strCurPluginContents, nullptr, nCodePage))
 		strCurPluginContents.Clear();
 
 	HelpList.Free();
@@ -1806,13 +1806,13 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 				strPath = CtrlObject->Plugins.GetPlugin(I)->GetModuleName();
 				CutToSlash(strPath);
 				UINT nCodePage = CP_OEMCP;
-				FILE *HelpFile=Language::OpenLangFile(strPath,HelpFileMask,Opt.strHelpLanguage,strFullFileName, nCodePage);
+				FILE *HelpFile=OpenLangFile(strPath,HelpFileMask,Opt.strHelpLanguage,strFullFileName, nCodePage);
 
 				if (HelpFile)
 				{
 					string strEntryName, strHelpLine, strSecondParam;
 
-					if (Language::GetLangParam(HelpFile,ContentsName,&strEntryName,&strSecondParam, nCodePage))
+					if (GetLangParam(HelpFile,ContentsName,&strEntryName,&strSecondParam, nCodePage))
 					{
 						if (!strSecondParam.IsEmpty())
 							strHelpLine.Format(L"   ~%s,%s~@" HelpFormatLink L"@", strEntryName.CPtr(), strSecondParam.CPtr(), strPath.CPtr(),HelpContents);
