@@ -3,6 +3,25 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 07.01.2011 22:34:21 +0200 - build 1777
+
+1. Mantis#0001644: Crash after "Cannot load language data".
+
+drkns 05.01.2011 19:21:38 +0200 - build 1776
+
+1. Correction of 1775.
+
+drkns 05.01.2011 10:50:10 +0200 - build 1775
+
+1. Mantis#0001640: Strings must be backed up between DialogInit and DialogFree calls
+   Now FAR makes the inner copies of FarDialogItem.History and FarDialogItem.Mask, there's no need to store them in a plugin.
+
+drkns 02.01.2011 12:57:22 +0200 - build 1774
+
+1. Correction of yyyy-MM-dd formatted dates output.
+
+2. interf.cpp is cleaned a little bit.
+
 svs 29.12.2010 16:09:28 +0300 - build 1773
 
 1. Mantis#0001538: Panel refreshing at some macro commands execution
