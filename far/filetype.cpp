@@ -366,34 +366,19 @@ bool ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode
 }
 
 
-bool ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish)
+void ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish)
 {
-	bool Result=false;
-	const wchar_t *ExtPtr=wcsrchr(Name,L'.');
+	string strFullName;
+	ConvertNameToFull(Name,strFullName);
+	QuoteSpace(strFullName);
+	CtrlObject->CmdLine->ExecString(strFullName,AlwaysWaitFinish,2,FALSE);
 
-	if (ExtPtr)
+	if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTWINASS) && !AlwaysWaitFinish)
 	{
-		string strType;
-
-		if (GetShellType(ExtPtr,strType,AT_FILEEXTENSION))
-		{
-			string strFullName;
-			ConvertNameToFull(Name,strFullName);
-			QuoteSpace(strFullName);
-			CtrlObject->CmdLine->ExecString(strFullName,AlwaysWaitFinish,2,FALSE);
-
-			if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTWINASS) && !AlwaysWaitFinish)
-			{
-				string strQuotedName = Name;
-				QuoteSpace(strQuotedName);
-				CtrlObject->CmdHistory->AddToHistory(strQuotedName);
-			}
-
-			Result=true;
-		}
+		string strQuotedName = Name;
+		QuoteSpace(strQuotedName);
+		CtrlObject->CmdHistory->AddToHistory(strQuotedName);
 	}
-
-	return Result;
 }
 
 /*
