@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 08.01.2011 22:48:50 +0200 - build 1778
+
+1. Fixed: Launch attempt was ignored for files of type unknown to OS.
+
 drkns 07.01.2011 22:34:21 +0200 - build 1777
 
 1. Mantis#0001644: Crash after "Cannot load language data".
