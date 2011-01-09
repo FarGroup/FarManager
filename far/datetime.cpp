@@ -46,11 +46,21 @@ string AMonth[2][12],AWeekday[2][7],Month[2][12],Weekday[2][7];
 
 int CurLang=-1,WeekFirst=0;
 
+DWORD ConvertYearToFull(DWORD ShortYear)
+{
+	DWORD UpperBoundary = 0;
+	if(!GetCalendarInfo(LOCALE_USER_DEFAULT, CAL_GREGORIAN, CAL_ITWODIGITYEARMAX|CAL_RETURN_NUMBER, nullptr, 0, &UpperBoundary))
+	{
+		UpperBoundary = 2029; // Magic, current default value.
+	}
+	return (UpperBoundary/100-(ShortYear<UpperBoundary%100?0:1))*100+ShortYear;
+}
+
 int GetDateFormat()
 {
-	wchar_t Info[100];
-	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_IDATE,Info,ARRAYSIZE(Info));
-	return _wtoi(Info);
+	int Result = 0;
+	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_IDATE|LOCALE_RETURN_NUMBER,reinterpret_cast<LPWSTR>(&Result),sizeof(Result)/sizeof(WCHAR));
+	return Result;
 }
 
 wchar_t GetDateSeparator()
@@ -70,12 +80,8 @@ wchar_t GetTimeSeparator()
 void PrepareStrFTime()
 {
 	DWORD Loc[]={LANG_ENGLISH,LANG_NEUTRAL},ID;
-	string strTemp;
-	int size=GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_IFIRSTDAYOFWEEK,nullptr,0);
-	wchar_t *lpwszTemp=strTemp.GetBuffer(size);
-	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_IFIRSTDAYOFWEEK,lpwszTemp,size);
-	strTemp.ReleaseBuffer();
-	WeekFirst=_wtoi(strTemp);
+
+	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_IFIRSTDAYOFWEEK|LOCALE_RETURN_NUMBER,reinterpret_cast<LPWSTR>(&WeekFirst),sizeof(WeekFirst)/sizeof(WCHAR));
 
 	for (int i=0; i<2; i++)
 	{
@@ -83,8 +89,8 @@ void PrepareStrFTime()
 
 		for (ID=LOCALE_SMONTHNAME1; ID<=LOCALE_SMONTHNAME12; ID++)
 		{
-			size=GetLocaleInfo(CurLCID,ID,nullptr,0);
-			lpwszTemp=Month[i][ID-LOCALE_SMONTHNAME1].GetBuffer(size);
+			int size=GetLocaleInfo(CurLCID,ID,nullptr,0);
+			LPWSTR lpwszTemp=Month[i][ID-LOCALE_SMONTHNAME1].GetBuffer(size);
 			GetLocaleInfo(CurLCID,ID,lpwszTemp,size);
 			*lpwszTemp=Upper(*lpwszTemp);
 			Month[i][ID-LOCALE_SMONTHNAME1].ReleaseBuffer();
@@ -92,8 +98,8 @@ void PrepareStrFTime()
 
 		for (ID=LOCALE_SABBREVMONTHNAME1; ID<=LOCALE_SABBREVMONTHNAME12; ID++)
 		{
-			size=GetLocaleInfo(CurLCID,ID,nullptr,0);
-			lpwszTemp=AMonth[i][ID-LOCALE_SABBREVMONTHNAME1].GetBuffer(size);
+			int size=GetLocaleInfo(CurLCID,ID,nullptr,0);
+			LPWSTR lpwszTemp=AMonth[i][ID-LOCALE_SABBREVMONTHNAME1].GetBuffer(size);
 			GetLocaleInfo(CurLCID,ID,lpwszTemp,size);
 			*lpwszTemp=Upper(*lpwszTemp);
 			AMonth[i][ID-LOCALE_SABBREVMONTHNAME1].ReleaseBuffer();
@@ -101,8 +107,8 @@ void PrepareStrFTime()
 
 		for (ID=LOCALE_SDAYNAME1; ID<=LOCALE_SDAYNAME7; ID++)
 		{
-			size=GetLocaleInfo(CurLCID,ID,nullptr,0);
-			lpwszTemp=Weekday[i][ID-LOCALE_SDAYNAME1].GetBuffer(size);
+			int size=GetLocaleInfo(CurLCID,ID,nullptr,0);
+			LPWSTR lpwszTemp=Weekday[i][ID-LOCALE_SDAYNAME1].GetBuffer(size);
 			GetLocaleInfo(CurLCID,ID,lpwszTemp,size);
 			*lpwszTemp=Upper(*lpwszTemp);
 			Weekday[i][ID-LOCALE_SDAYNAME1].ReleaseBuffer();
@@ -110,8 +116,8 @@ void PrepareStrFTime()
 
 		for (ID=LOCALE_SABBREVDAYNAME1; ID<=LOCALE_SABBREVDAYNAME7; ID++)
 		{
-			size=GetLocaleInfo(CurLCID,ID,nullptr,0);
-			lpwszTemp=AWeekday[i][ID-LOCALE_SABBREVDAYNAME1].GetBuffer(size);
+			int size=GetLocaleInfo(CurLCID,ID,nullptr,0);
+			LPWSTR lpwszTemp=AWeekday[i][ID-LOCALE_SABBREVDAYNAME1].GetBuffer(size);
 			GetLocaleInfo(CurLCID,ID,lpwszTemp,size);
 			*lpwszTemp=Upper(*lpwszTemp);
 			AWeekday[i][ID-LOCALE_SABBREVDAYNAME1].ReleaseBuffer();
@@ -618,10 +624,7 @@ void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int
 
 		if (st.wYear<100)
 		{
-			if (st.wYear<80)
-				st.wYear+=2000;
-			else
-				st.wYear+=1900;
+			st.wYear = static_cast<WORD>(ConvertYearToFull(st.wYear));
 		}
 	}
 	else

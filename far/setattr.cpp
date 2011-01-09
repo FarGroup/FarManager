@@ -521,90 +521,64 @@ void ShellSetFileAttributesMsg(const wchar_t *Name)
 bool ReadFileTime(int Type,const wchar_t *Name,FILETIME& FileTime,const wchar_t *OSrcDate,const wchar_t *OSrcTime)
 {
 	bool Result=false;
-	FAR_FIND_DATA_EX ffd={0};
+	FAR_FIND_DATA_EX ffd={};
 
 	if (apiGetFindDataEx(Name, ffd))
 	{
-		WORD DateN[3]={0},TimeN[4]={0};
-		GetFileDateAndTime(OSrcDate,DateN,ARRAYSIZE(DateN),GetDateSeparator());
-		GetFileDateAndTime(OSrcTime,TimeN,ARRAYSIZE(TimeN),GetTimeSeparator());
-		FILETIME *OriginalFileTime=nullptr;
-		SYSTEMTIME st={0}, ost={0};
-
-		switch (Type)
+		LPFILETIME Times[]={&ffd.ftLastWriteTime, &ffd.ftCreationTime, &ffd.ftLastAccessTime, &ffd.ftChangeTime};
+		LPFILETIME OriginalFileTime=Times[Type];
+		FILETIME oft={};
+		if(FileTimeToLocalFileTime(OriginalFileTime,&oft))
 		{
-			case 0: // Write
-				OriginalFileTime=&ffd.ftLastWriteTime;
-				break;
-			case 1: // Create
-				OriginalFileTime=&ffd.ftCreationTime;
-				break;
-			case 2: // Access
-				OriginalFileTime=&ffd.ftLastAccessTime;
-				break;
-			case 3: // Change
-				OriginalFileTime=&ffd.ftChangeTime;
-				break;
+			SYSTEMTIME ost={};
+			if(FileTimeToSystemTime(&oft,&ost))
+			{
+				WORD DateN[3]={};
+				GetFileDateAndTime(OSrcDate,DateN,ARRAYSIZE(DateN),GetDateSeparator());
+				WORD TimeN[4]={};
+				GetFileDateAndTime(OSrcTime,TimeN,ARRAYSIZE(TimeN),GetTimeSeparator());
+				SYSTEMTIME st={};
+
+				switch (GetDateFormat())
+				{
+					case 0:
+						st.wMonth=DateN[0]!=(WORD)-1?DateN[0]:ost.wMonth;
+						st.wDay  =DateN[1]!=(WORD)-1?DateN[1]:ost.wDay;
+						st.wYear =DateN[2]!=(WORD)-1?DateN[2]:ost.wYear;
+						break;
+					case 1:
+						st.wDay  =DateN[0]!=(WORD)-1?DateN[0]:ost.wDay;
+						st.wMonth=DateN[1]!=(WORD)-1?DateN[1]:ost.wMonth;
+						st.wYear =DateN[2]!=(WORD)-1?DateN[2]:ost.wYear;
+						break;
+					default:
+						st.wYear =DateN[0]!=(WORD)-1?DateN[0]:ost.wYear;
+						st.wMonth=DateN[1]!=(WORD)-1?DateN[1]:ost.wMonth;
+						st.wDay  =DateN[2]!=(WORD)-1?DateN[2]:ost.wDay;
+						break;
+				}
+
+				st.wHour         = TimeN[0]!=(WORD)-1? (TimeN[0]):ost.wHour;
+				st.wMinute       = TimeN[1]!=(WORD)-1? (TimeN[1]):ost.wMinute;
+				st.wSecond       = TimeN[2]!=(WORD)-1? (TimeN[2]):ost.wSecond;
+				st.wMilliseconds = TimeN[3]!=(WORD)-1? (TimeN[3]):ost.wMilliseconds;
+
+				if (st.wYear<100)
+				{
+					st.wYear = static_cast<WORD>(ConvertYearToFull(st.wYear));
+				}
+
+				FILETIME lft={};
+				if (SystemTimeToFileTime(&st,&lft))
+				{
+					if(LocalFileTimeToFileTime(&lft,&FileTime))
+					{
+						Result=CompareFileTime(&FileTime,OriginalFileTime)!=0;
+					}
+				}
+			}
 		}
-
-		SYSTEMTIME s={0};
-
-		if (FileTimeToSystemTime(OriginalFileTime,&s))
-		{
-			SystemTimeToFileTime(&s,OriginalFileTime);
-		}
-
-		FILETIME oft={0};
-
-		if (FileTimeToLocalFileTime(OriginalFileTime,&oft))
-		{
-			FileTimeToSystemTime(&oft,&ost);
-		}
-
-		// "ќформим"
-		switch (GetDateFormat())
-		{
-			case 0:
-				st.wMonth=DateN[0]!=(WORD)-1?DateN[0]:ost.wMonth;
-				st.wDay  =DateN[1]!=(WORD)-1?DateN[1]:ost.wDay;
-				st.wYear =DateN[2]!=(WORD)-1?DateN[2]:ost.wYear;
-				break;
-			case 1:
-				st.wDay  =DateN[0]!=(WORD)-1?DateN[0]:ost.wDay;
-				st.wMonth=DateN[1]!=(WORD)-1?DateN[1]:ost.wMonth;
-				st.wYear =DateN[2]!=(WORD)-1?DateN[2]:ost.wYear;
-				break;
-			default:
-				st.wYear =DateN[0]!=(WORD)-1?DateN[0]:ost.wYear;
-				st.wMonth=DateN[1]!=(WORD)-1?DateN[1]:ost.wMonth;
-				st.wDay  =DateN[2]!=(WORD)-1?DateN[2]:ost.wDay;
-				break;
-		}
-
-		st.wHour         = TimeN[0]!=(WORD)-1? (TimeN[0]):ost.wHour;
-		st.wMinute       = TimeN[1]!=(WORD)-1? (TimeN[1]):ost.wMinute;
-		st.wSecond       = TimeN[2]!=(WORD)-1? (TimeN[2]):ost.wSecond;
-		st.wMilliseconds = TimeN[3]!=(WORD)-1? (TimeN[3]):ost.wMilliseconds;
-
-		if (st.wYear<100)
-		{
-			if (st.wYear<80)
-				st.wYear+=2000;
-			else
-				st.wYear+=1900;
-		}
-
-		// преобразование в "удобоваримый" формат
-		FILETIME lft={0};
-
-		if (SystemTimeToFileTime(&st,&lft))
-		{
-			LocalFileTimeToFileTime(&lft,&FileTime);
-		}
-
-		Result=CompareFileTime(&FileTime,OriginalFileTime)!=0;
 	}
-
 	return Result;
 }
 
@@ -1211,7 +1185,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 						}
 					}
 
-					FILETIME LastWriteTime,CreationTime,LastAccessTime, ChangeTime;
+					FILETIME LastWriteTime={},CreationTime={},LastAccessTime={}, ChangeTime={};
 					int SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strSelName,LastWriteTime,AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData);
 					int SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strSelName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
 					int SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strSelName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
