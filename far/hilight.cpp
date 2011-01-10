@@ -312,7 +312,7 @@ void HighlightFiles::GetHiColor(FileListItem **FileItem,int FileCount,bool UseAt
 		FileListItem& fli = *FileItem[FCnt];
 		ApplyDefaultStartingColors(&fli.Colors);
 
-		for (unsigned int i=0; i < HiData.getCount(); i++)
+		for (size_t i=0; i < HiData.getCount(); i++)
 		{
 			CurHiData = HiData.getItem(i);
 

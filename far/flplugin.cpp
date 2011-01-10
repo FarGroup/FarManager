@@ -367,48 +367,19 @@ void FileList::PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi)
 }
 
 
-HANDLE FileList::OpenPluginForFile(const wchar_t *FileName,DWORD FileAttr)
+HANDLE FileList::OpenPluginForFile(const wchar_t *FileName, DWORD FileAttr)
 {
-	if (!FileName || !*FileName || (FileAttr&FILE_ATTRIBUTE_DIRECTORY))
-		return(INVALID_HANDLE_VALUE);
-
-	SetCurPath();
-	File file;
-	if (!file.Open(FileName,GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
+	HANDLE Result = INVALID_HANDLE_VALUE;
+	if(FileName && *FileName && !(FileAttr&FILE_ATTRIBUTE_DIRECTORY))
 	{
-		//Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),MSG(MCannotOpenFile),FileName,MSG(MOk));
-		Message(MSG_WARNING|MSG_ERRORTYPE,1,L"",MSG(MOpenPluginCannotOpenFile),FileName,MSG(MOk));
-		return(INVALID_HANDLE_VALUE);
+		SetCurPath();
+		_ALGO(SysLog(L"close AnotherPanel file"));
+		CtrlObject->Cp()->GetAnotherPanel(this)->CloseFile();
+		_ALGO(SysLog(L"call Plugins.OpenFilePlugin {"));
+		Result = CtrlObject->Plugins.OpenFilePlugin(FileName, 0);
+		_ALGO(SysLog(L"}"));
 	}
-
-	char *Buffer=new char[Opt.PluginMaxReadData];
-
-	if (Buffer)
-	{
-		DWORD BytesRead;
-		_ALGO(SysLog(L"Read %d byte(s)",Opt.PluginMaxReadData));
-
-		if (file.Read(Buffer,Opt.PluginMaxReadData,&BytesRead))
-		{
-			file.Close();
-			_ALGO(SysLogDump(L"First 128 bytes",0,(LPBYTE)Buffer,128,nullptr));
-			_ALGO(SysLog(L"close AnotherPanel file"));
-			CtrlObject->Cp()->GetAnotherPanel(this)->CloseFile();
-			_ALGO(SysLog(L"call Plugins.OpenFilePlugin {"));
-			HANDLE hNewPlugin=CtrlObject->Plugins.OpenFilePlugin(FileName,(unsigned char *)Buffer,BytesRead,0);
-			_ALGO(SysLog(L"}"));
-			delete[] Buffer;
-			return(hNewPlugin);
-		}
-		else
-		{
-			delete[] Buffer;
-			_ALGO(SysLogLastError());
-		}
-	}
-
-	file.Close();
-	return(INVALID_HANDLE_VALUE);
+	return Result;
 }
 
 
@@ -775,8 +746,8 @@ void FileList::PluginPutFilesToNew()
 {
 	_ALGO(CleverSysLog clv(L"FileList::PluginPutFilesToNew()"));
 	//_ALGO(SysLog(L"FileName='%s'",(FileName?FileName:"(nullptr)")));
-	_ALGO(SysLog(L"call Plugins.OpenFilePlugin(nullptr,nullptr,0)"));
-	HANDLE hNewPlugin=CtrlObject->Plugins.OpenFilePlugin(nullptr,nullptr,0,0);
+	_ALGO(SysLog(L"call Plugins.OpenFilePlugin(nullptr, 0)"));
+	HANDLE hNewPlugin=CtrlObject->Plugins.OpenFilePlugin(nullptr, 0);
 
 	if (hNewPlugin!=INVALID_HANDLE_VALUE && hNewPlugin!=(HANDLE)-2)
 	{

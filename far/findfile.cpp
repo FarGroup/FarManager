@@ -1770,46 +1770,24 @@ LONG_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 							string strFindArcName = ArcItem.strArcName;
 							if(ArcItem.hPlugin == INVALID_HANDLE_VALUE)
 							{
-								LPBYTE Buffer=new BYTE[Opt.PluginMaxReadData];
-
-								if (Buffer)
+								int SavePluginsOutput=DisablePluginsOutput;
+								DisablePluginsOutput=TRUE;
 								{
-									File ProcessFile;
-									if(ProcessFile.Open(strFindArcName, GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
-									{
-										DWORD ReadSize=0;
-										bool Result=ProcessFile.Read(Buffer,Opt.PluginMaxReadData,&ReadSize);
-										ProcessFile.Close();
-
-										if (Result)
-										{
-											int SavePluginsOutput=DisablePluginsOutput;
-											DisablePluginsOutput=TRUE;
-											{
-												CriticalSectionLock Lock(PluginCS);
-												ArcItem.hPlugin = CtrlObject->Plugins.OpenFilePlugin(strFindArcName,Buffer,ReadSize,0);
-											}
-											itd.SetArcListItem(FindItem.ArcIndex, ArcItem);
-											DisablePluginsOutput=SavePluginsOutput;
-											delete[] Buffer;
-
-											if (ArcItem.hPlugin == (HANDLE)-2 ||
-													ArcItem.hPlugin == INVALID_HANDLE_VALUE)
-											{
-												ArcItem.hPlugin = INVALID_HANDLE_VALUE;
-												itd.SetArcListItem(FindItem.ArcIndex, ArcItem);
-												return TRUE;
-											}
-
-											ClosePlugin = true;
-										}
-									}
-									else
-									{
-										delete[] Buffer;
-										return TRUE;
-									}
+									CriticalSectionLock Lock(PluginCS);
+									ArcItem.hPlugin = CtrlObject->Plugins.OpenFilePlugin(strFindArcName, 0);
 								}
+								itd.SetArcListItem(FindItem.ArcIndex, ArcItem);
+								DisablePluginsOutput=SavePluginsOutput;
+
+								if (ArcItem.hPlugin == (HANDLE)-2 ||
+										ArcItem.hPlugin == INVALID_HANDLE_VALUE)
+								{
+									ArcItem.hPlugin = INVALID_HANDLE_VALUE;
+									itd.SetArcListItem(FindItem.ArcIndex, ArcItem);
+									return TRUE;
+								}
+
+								ClosePlugin = true;
 							}
 							FarMkTempEx(strTempDir);
 							apiCreateDirectory(strTempDir, nullptr);
@@ -2415,36 +2393,11 @@ void ArchiveSearch(HANDLE hDlg, const wchar_t *ArcName)
 	_ALGO(CleverSysLog clv(L"FindFiles::ArchiveSearch()"));
 	_ALGO(SysLog(L"ArcName='%s'",(ArcName?ArcName:L"nullptr")));
 
-	LPBYTE Buffer=new BYTE[Opt.PluginMaxReadData];
-
-	if (!Buffer)
-	{
-		_ALGO(SysLog(L"ERROR: alloc buffer (size=%u)",Opt.PluginMaxReadData));
-		return;
-	}
-
-	File ProcessFile;
-	if(!ProcessFile.Open(ArcName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
-	{
-		delete[] Buffer;
-		return;
-	}
-
-	DWORD ReadSize=0;
-	bool Read=ProcessFile.Read(Buffer, Opt.PluginMaxReadData, &ReadSize);
-	ProcessFile.Close();
-	if(!Read||!ReadSize)
-	{
-		delete[] Buffer;
-		return;
-	}
-
 	int SavePluginsOutput=DisablePluginsOutput;
 	DisablePluginsOutput=TRUE;
 	string strArcName = ArcName;
-	HANDLE hArc=CtrlObject->Plugins.OpenFilePlugin(strArcName, Buffer, ReadSize, OPM_FIND);
+	HANDLE hArc=CtrlObject->Plugins.OpenFilePlugin(strArcName, OPM_FIND);
 	DisablePluginsOutput=SavePluginsOutput;
-	delete[] Buffer;
 
 	if (hArc==(HANDLE)-2)
 	{

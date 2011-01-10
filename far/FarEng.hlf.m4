@@ -155,7 +155,7 @@ and line position.
   For example: far /e70:2 readme.
 
   #/i#
-  Set small (16x16) icon for FAR console window.
+  Set icon for FAR console window.
 
   #/p[<path>]#
   Search for "main" plugins in the folder given in <path>.

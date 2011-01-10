@@ -151,7 +151,7 @@ bool ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
 			//recursive symlinks guard
 			bool Recursion = false;
 
-			for (unsigned i = 0; i < ScanItems.getCount() && !Recursion; i++)
+			for (size_t i = 0; i < ScanItems.getCount() && !Recursion; i++)
 				Recursion = ScanItems.getItem(i)->RealPath == RealPath;
 
 			if (!Recursion)

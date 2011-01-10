@@ -232,7 +232,7 @@ class PluginManager
 		Plugin *Analyse(const AnalyseData *pData);
 
 		HANDLE OpenPlugin(Plugin *pPlugin,int OpenFrom,INT_PTR Item);
-		HANDLE OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, int DataSize, int OpMode);
+		HANDLE OpenFilePlugin(const wchar_t *Name, int OpMode);
 		HANDLE OpenFindListPlugin(const PluginPanelItem *PanelItem,int ItemsNumber);
 		void ClosePlugin(HANDLE hPlugin);
 		void GetOpenPluginInfo(HANDLE hPlugin, OpenPluginInfo *Info);

@@ -98,7 +98,7 @@ bool FileFilter::FilterEdit()
 	FilterList.SetBottomTitle(MSG(MFilterBottom));
 	FilterList.SetFlags(/*VMENU_SHOWAMPERSAND|*/VMENU_WRAPMODE);
 
-	for (unsigned int i=0; i<FilterData.getCount(); i++)
+	for (size_t i=0; i<FilterData.getCount(); i++)
 	{
 		ListItem.Clear();
 		MenuString(ListItem.strName,FilterData.getItem(i));
@@ -128,7 +128,7 @@ bool FileFilter::FilterEdit()
 		{
 			enumFileFilterFlagsType FFFT = GetFFFT();
 
-			for (unsigned int i=0; i<TempFilterData.getCount(); i++)
+			for (size_t i=0; i<TempFilterData.getCount(); i++)
 			{
 				//AY: Будем показывать только те выбранные авто фильтры
 				//(для которых нету файлов на панели) которые выбраны в области данного меню
@@ -637,7 +637,7 @@ bool FileFilter::FileInFilter(const FAR_FIND_DATA_EX& fde,enumFileInFilterType *
 	FileFilterParams *CurFilterData;
 	DWORD Flags;
 
-	for (unsigned int i=0; i<FilterData.getCount(); i++)
+	for (size_t i=0; i<FilterData.getCount(); i++)
 	{
 		CurFilterData = FilterData.getItem(i);
 		Flags = CurFilterData->GetFlags(FFFT);
@@ -700,7 +700,7 @@ bool FileFilter::FileInFilter(const FAR_FIND_DATA_EX& fde,enumFileInFilterType *
 	}
 
 	//авто-фильтры
-	for (unsigned int i=0; i<TempFilterData.getCount(); i++)
+	for (size_t i=0; i<TempFilterData.getCount(); i++)
 	{
 		CurFilterData = TempFilterData.getItem(i);
 		Flags = CurFilterData->GetFlags(FFFT);
@@ -764,7 +764,7 @@ bool FileFilter::IsEnabledOnPanel()
 
 	enumFileFilterFlagsType FFFT = GetFFFT();
 
-	for (unsigned int i=0; i<FilterData.getCount(); i++)
+	for (size_t i=0; i<FilterData.getCount(); i++)
 	{
 		if (FilterData.getItem(i)->GetFlags(FFFT))
 			return true;
@@ -773,7 +773,7 @@ bool FileFilter::IsEnabledOnPanel()
 	if (FoldersFilter.GetFlags(FFFT))
 		return true;
 
-	for (unsigned int i=0; i<TempFilterData.getCount(); i++)
+	for (size_t i=0; i<TempFilterData.getCount(); i++)
 	{
 		if (TempFilterData.getItem(i)->GetFlags(FFFT))
 			return true;
@@ -880,7 +880,7 @@ void FileFilter::SaveFilters()
 	DeleteKeyTree(L"Filters");
 	FileFilterParams *CurFilterData;
 
-	for (unsigned int i=0; i<FilterData.getCount(); i++)
+	for (size_t i=0; i<FilterData.getCount(); i++)
 	{
 		strRegKey.Format(L"Filters\\Filter%d",i);
 		CurFilterData = FilterData.getItem(i);
@@ -912,7 +912,7 @@ void FileFilter::SaveFilters()
 		SetRegKey(strRegKey,L"FFlags",(BYTE *)Flags,sizeof(Flags));
 	}
 
-	for (unsigned int i=0; i<TempFilterData.getCount(); i++)
+	for (size_t i=0; i<TempFilterData.getCount(); i++)
 	{
 		strRegKey.Format(L"Filters\\PanelMask%d",i);
 		CurFilterData = TempFilterData.getItem(i);
@@ -947,12 +947,12 @@ void FileFilter::SwapPanelFlags(FileFilterParams *CurFilterData)
 
 void FileFilter::SwapFilter()
 {
-	for (unsigned int i=0; i<FilterData.getCount(); i++)
+	for (size_t i=0; i<FilterData.getCount(); i++)
 		SwapPanelFlags(FilterData.getItem(i));
 
 	SwapPanelFlags(&FoldersFilter);
 
-	for (unsigned int i=0; i<TempFilterData.getCount(); i++)
+	for (size_t i=0; i<TempFilterData.getCount(); i++)
 		SwapPanelFlags(TempFilterData.getItem(i));
 }
 

@@ -118,7 +118,7 @@ static void show_help()
 #endif
 	    L" /e[<line>[:<pos>]] <filename>\n"
 	    L"      Edit the specified file.\n"
-	    L" /i   Set small (16x16) icon for FAR console window.\n"
+	    L" /i   Set icon for FAR console window.\n"
 	    L" /m   Do not load macros.\n"
 	    L" /ma  Do not execute auto run macros.\n"
 	    L" /p[<path>]\n"

@@ -62,6 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "processname.hpp"
 #include "interf.hpp"
 #include "filelist.hpp"
+#include "message.hpp"
 
 const wchar_t *FmtPluginsCache_PluginS=L"PluginsCache\\%s";
 const wchar_t *FmtDiskMenuStringD=L"DiskMenuString%d";
@@ -659,8 +660,6 @@ HANDLE PluginManager::OpenFilePlugin(const wchar_t *Name, const unsigned char *D
 
 HANDLE PluginManager::OpenFilePlugin(
     const wchar_t *Name,
-    const unsigned char *Data,
-    int DataSize,
     int OpMode
 )
 {
@@ -681,12 +680,41 @@ HANDLE PluginManager::OpenFilePlugin(
 
 	Plugin *pPlugin = nullptr;
 
+	File file;
+	LPBYTE Data = nullptr;
+	DWORD DataSize = 0;
+
+	bool DataRead = false;
 	for (int i = 0; i < PluginsCount; i++)
 	{
 		pPlugin = PluginsData[i];
 
 		if (!pPlugin->HasOpenFilePlugin() && !(pPlugin->HasAnalyse() && pPlugin->HasOpenPlugin()))
 			continue;
+
+		if(Name && !DataRead)
+		{
+			if (file.Open(Name, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
+			{
+				Data = new BYTE[Opt.PluginMaxReadData];
+				if (Data)
+				{
+					if (file.Read(Data, Opt.PluginMaxReadData, &DataSize))
+					{
+						DataRead = true;
+					}
+				}
+				file.Close();
+			}
+			if(!DataRead)
+			{
+				if(!OpMode)
+				{
+					Message(MSG_WARNING|MSG_ERRORTYPE, 1, L"", MSG(MOpenPluginCannotOpenFile), Name, MSG(MOk));
+				}
+				break;
+			}
+		}
 
 		HANDLE hPlugin;
 
@@ -730,6 +758,11 @@ HANDLE PluginManager::OpenFilePlugin(
 			break;
 	}
 
+	if(Data)
+	{
+		delete[] Data;
+	}
+
 	if (items.getCount() && (hResult != (HANDLE)-2))
 	{
 		bool OnlyOne = (items.getCount() == 1) && !(Name && Opt.PluginConfirm.OpenFilePlugin && Opt.PluginConfirm.StandardAssociation && Opt.PluginConfirm.EvenIfOnlyOnePlugin);
@@ -742,7 +775,7 @@ HANDLE PluginManager::OpenFilePlugin(
 			menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
 			MenuItemEx mitem;
 
-			for (UINT i = 0; i < items.getCount(); i++)
+			for (size_t i = 0; i < items.getCount(); i++)
 			{
 				PluginHandle *handle = items.getItem(i);
 				mitem.Clear();
@@ -789,7 +822,7 @@ HANDLE PluginManager::OpenFilePlugin(
 		}
 	}
 
-	for (UINT i = 0; i < items.getCount(); i++)
+	for (size_t i = 0; i < items.getCount(); i++)
 	{
 		PluginHandle *handle = items.getItem(i);
 
@@ -848,7 +881,7 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, int I
 			menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
 			MenuItemEx mitem;
 
-			for (UINT i=0; i<items.getCount(); i++)
+			for (size_t i=0; i<items.getCount(); i++)
 			{
 				PluginHandle *handle = items.getItem(i);
 				mitem.Clear();
@@ -885,7 +918,7 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, int I
 		}
 	}
 
-	for (UINT i=0; i<items.getCount(); i++)
+	for (size_t i=0; i<items.getCount(); i++)
 	{
 		PluginHandle *handle=items.getItem(i);
 
@@ -1994,7 +2027,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 		menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
 		MenuItemEx mitem;
 
-		for (UINT i=0; i<items.getCount(); i++)
+		for (size_t i=0; i<items.getCount(); i++)
 		{
 			mitem.Clear();
 			mitem.strName=PointToName(items.getItem(i)->pPlugin->GetModuleName());
