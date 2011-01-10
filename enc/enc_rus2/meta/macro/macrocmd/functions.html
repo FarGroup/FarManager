@@ -984,7 +984,7 @@ $End
       </table>
        Функция возвращает 1.<br>
       Например, создание папки с именем, равным текущей дате:
-      <pre class=code>%Folder=date(\"%d.%m0.%Y\");
+      <pre class=code>%Folder=date("%d.%m0.%Y");
 $If (!panel.fexist(0,%Folder))
   F7
   print(%Folder)
