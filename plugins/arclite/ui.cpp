@@ -374,8 +374,7 @@ private:
 
   LONG_PTR dialog_proc(int msg, int param1, LONG_PTR param2) {
     if ((msg == DN_CLOSE) && (param1 >= 0) && (param1 != cancel_ctrl_id)) {
-      options.dst_dir = get_text(dst_dir_ctrl_id);
-      options.dst_dir = unquote(strip(options.dst_dir));
+      options.dst_dir = del_trailing_slash(unquote(strip(get_text(dst_dir_ctrl_id))));
       options.ignore_errors = get_check(ignore_errors_ctrl_id);
       if (get_check(oa_ask_ctrl_id)) options.overwrite = oaAsk;
       else if (get_check(oa_overwrite_ctrl_id)) options.overwrite = oaOverwrite;
@@ -399,7 +398,7 @@ public:
   bool show() {
     label(Far::get_msg(MSG_EXTRACT_DLG_DST_DIR));
     new_line();
-    dst_dir_ctrl_id = history_edit_box(options.dst_dir, L"arclite.extract_dir", c_client_xs, DIF_EDITPATH);
+    dst_dir_ctrl_id = history_edit_box(add_trailing_slash(options.dst_dir), L"arclite.extract_dir", c_client_xs, DIF_EDITPATH);
     new_line();
     separator();
     new_line();
