@@ -314,11 +314,11 @@ void CopyProgress::CreateBackground()
 	{
 		if (!Time)
 		{
-			Message(MSG_LEFTALIGN,0,MSG(Move?MMoveDlgTitle:MCopyDlgTitle),MSG(Move?MCopyMoving:MCopyCopying),L"",MSG(MCopyTo),L"",Bar);
+			Message(MSG_LEFTALIGN,0,MSG(Move?MMoveDlgTitle:MCopyDlgTitle),MSG(Move?MCopyMoving:MCopyCopying),L"",MSG(MCopyTo),L"",Bar,L"\x1",L"");
 		}
 		else
 		{
-			Message(MSG_LEFTALIGN,0,MSG(Move?MMoveDlgTitle:MCopyDlgTitle),MSG(Move?MCopyMoving:MCopyCopying),L"",MSG(MCopyTo),L"",Bar,L"\x1",L"");
+			Message(MSG_LEFTALIGN,0,MSG(Move?MMoveDlgTitle:MCopyDlgTitle),MSG(Move?MCopyMoving:MCopyCopying),L"",MSG(MCopyTo),L"",Bar,L"\x1",L"",L"\x1",L"");
 		}
 	}
 	else
@@ -353,11 +353,7 @@ void CopyProgress::DrawNames()
 {
 	Text(Rect.Left+5,Rect.Top+3,Color,strSrc);
 	Text(Rect.Left+5,Rect.Top+5,Color,strDst);
-
-	if (Total)
-	{
-		Text(Rect.Left+5,Rect.Top+10,Color,strFiles);
-	}
+	Text(Rect.Left+5,Rect.Top+(Total?10:8),Color,strFiles);
 }
 
 void CopyProgress::SetNames(const wchar_t *Src,const wchar_t *Dst)
@@ -377,6 +373,10 @@ void CopyProgress::SetNames(const wchar_t *Src,const wchar_t *Dst)
 	if (Total)
 	{
 		strFiles.Format(MSG(MCopyProcessedTotal),TotalFiles,TotalFilesToProcess);
+	}
+	else
+	{
+		strFiles.Format(MSG(MCopyProcessed),TotalFiles);
 	}
 
 	DrawNames();
@@ -438,7 +438,7 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 		WorkTime/=1000;
 		CalcTime/=1000;
 
-		if (!OldTotalSize || !WorkTime)
+		if (!WorkTime)
 		{
 			strTime.Format(MSG(MCopyTimeInfo),L" ",L" ",L" ");
 		}
@@ -456,10 +456,15 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 			string strWorkTimeStr,strTimeLeftStr;
 			GetTimeText(WorkTime,strWorkTimeStr);
 			GetTimeText(TimeLeft,strTimeLeftStr);
+			if(strSpeed.At(0)==L' ' && strSpeed.At(strSpeed.GetLength()-1)>=L'0' && strSpeed.At(strSpeed.GetLength()-1)<=L'9')
+			{
+				strSpeed.LShift(1);
+				strSpeed+=L" ";
+			}
 			strTime.Format(MSG(MCopyTimeInfo),strWorkTimeStr.CPtr(),strTimeLeftStr.CPtr(),strSpeed.CPtr());
 		}
 
-		Text(Rect.Left+5,Rect.Top+(Total?12:8),Color,strTime);
+		Text(Rect.Left+5,Rect.Top+(Total?12:10),Color,strTime);
 	}
 
 	Flush();
@@ -1301,11 +1306,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 					TotalFilesToProcess=1;
 				}
 
-				if (Move) // при перемещении "тотал" так же скидывается для "того же диска"
+				if (Move)
 				{
-					if (!UseFilter && CheckDisksProps(strSrcDir,strNameTmp,CHECKEDPROPS_ISSAMEDISK))
-						ShowTotalCopySize=false;
-
 					if (CDP.SelCount==1 && CDP.FolderPresent && CheckUpdateAnotherPanel(SrcPanel,strSelName))
 					{
 						NeedUpdateAPanel=TRUE;
