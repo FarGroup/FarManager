@@ -826,6 +826,11 @@ int Execute(const wchar_t *CmdStr, // Ком.строка для исполнения
 
 	DWORD dwAttr = apiGetFileAttributes(strNewCmdStr);
 
+	if(RunAs)
+	{
+		SeparateWindow = true;
+	}
+
 	if (SeparateWindow)
 	{
 		if (strNewCmdPar.IsEmpty() && dwAttr != INVALID_FILE_ATTRIBUTES && (dwAttr & FILE_ATTRIBUTE_DIRECTORY))
