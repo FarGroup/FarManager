@@ -784,46 +784,61 @@ int PartCmdLine(const wchar_t *CmdStr, string &strNewCmdStr, string &strNewCmdPa
 	return PipeFound;
 }
 
+bool RunAsSupported(LPCWSTR Name)
+{
+	bool Result = false;
+	LPCWSTR Extension = PointToExt(Name);
+	if(Extension)
+	{
+		string strType;
+		if(GetShellType(Extension, strType))
+		{
+			HKEY hKey;
+
+			if (RegOpenKey(HKEY_CLASSES_ROOT,strType+L"\\shell\\runas\\command",&hKey)==ERROR_SUCCESS)
+			{
+				RegCloseKey(hKey);
+				Result = true;
+			}
+		}
+	}
+	return Result;
+}
+
+
 /* Функция-пускатель внешних процессов
    Возвращает -1 в случае ошибки или...
 */
-int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
-            int AlwaysWaitFinish,  // Ждать завершение процесса?
-            int SeparateWindow,    // Выполнить в отдельном окне? =2 для вызова ShellExecuteEx()
-            int DirectRun,         // Выполнять директом? (без CMD)
-            int FolderRun,         // Это фолдер?
+int Execute(const wchar_t *CmdStr, // Ком.строка для исполнения
+            bool AlwaysWaitFinish, // Ждать завершение процесса?
+            bool SeparateWindow,   // Выполнить в отдельном окне?
+            bool DirectRun,        // Выполнять директом? (без CMD)
+            bool FolderRun,        // Это фолдер?
             bool WaitForIdle,      // for list files
-            bool Silent)
+            bool Silent,
+            bool RunAs             // elevation
+            )
 {
 	int nResult = -1;
 	string strNewCmdStr;
 	string strNewCmdPar;
-	string strExecLine;
-
 	PartCmdLine(CmdStr, strNewCmdStr, strNewCmdPar);
-
-	/* $ 05.04.2005 AY: Это не правильно, надо убирать только первый пробел,
-	                    что теперь и делает PartCmdLine.
-	if(*NewCmdPar)
-	  RemoveExternalSpaces(NewCmdPar);
-	AY $ */
 
 	DWORD dwAttr = apiGetFileAttributes(strNewCmdStr);
 
-	if (SeparateWindow == 1)
+	if (SeparateWindow)
 	{
 		if (strNewCmdPar.IsEmpty() && dwAttr != INVALID_FILE_ATTRIBUTES && (dwAttr & FILE_ATTRIBUTE_DIRECTORY))
 		{
 			ConvertNameToFull(strNewCmdStr, strNewCmdStr);
-			SeparateWindow=2;
+			DirectRun = true;
 			FolderRun=TRUE;
 		}
 	}
 
 	string strComspec;
 	apiGetEnvironmentVariable(L"COMSPEC", strComspec);
-
-	if (strComspec.IsEmpty() && (SeparateWindow != 2))
+	if (strComspec.IsEmpty() && !DirectRun)
 	{
 		Message(MSG_WARNING, 1, MSG(MWarning), MSG(MComspecNotFound), MSG(MErrorCancelled), MSG(MOk));
 		return -1;
@@ -871,10 +886,10 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 
 	DWORD dwSubSystem;
 	DWORD dwError = 0;
-	HANDLE hProcess = nullptr, hThread = nullptr;
+	HANDLE hProcess = nullptr;
 	LPCWSTR lpVerb = nullptr;
 
-	if (FolderRun && SeparateWindow==2)
+	if (FolderRun && DirectRun)
 	{
 		AddEndSlash(strNewCmdStr); // НАДА, иначе ShellExecuteEx "возьмет" BAT/CMD/пр.ересь, но не каталог
 	}
@@ -914,44 +929,29 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 		}
 
 		if (dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)
-			SeparateWindow = 2;
+		{
+			DirectRun = true;
+			SeparateWindow = true;
+		}
 	}
 
-	if (SeparateWindow == 2)
+	SHELLEXECUTEINFO seInfo={sizeof(seInfo)};
+	string strCurDir;
+	apiGetCurrentDirectory(strCurDir);
+	seInfo.lpDirectory=strCurDir;
+	seInfo.nShow = SW_SHOWNORMAL;
+
+	string ComSpecParams(L"/C ");
+
+	if (DirectRun)
 	{
-		SHELLEXECUTEINFO seInfo={sizeof(seInfo)};
 		seInfo.lpFile = strNewCmdStr;
 		seInfo.lpParameters = strNewCmdPar;
-		seInfo.nShow = SW_SHOWNORMAL;
-		string strCurDir;
-		apiGetCurrentDirectory(strCurDir);
-		seInfo.lpDirectory=strCurDir;
 		seInfo.lpVerb = (dwAttr&FILE_ATTRIBUTE_DIRECTORY)?nullptr:lpVerb?lpVerb:GetShellAction(strNewCmdStr, dwSubSystem, dwError);
-		//seInfo.lpVerb = "open";
-		seInfo.fMask = SEE_MASK_FLAG_NO_UI|SEE_MASK_NOASYNC|SEE_MASK_NOCLOSEPROCESS;
-
-
-		if (!dwError)
-		{
-			if(!Silent && !FolderRun)
-			{
-				Console.ScrollScreenBuffer(2);
-			}
-			if (ShellExecuteEx(&seInfo))
-			{
-				hProcess = seInfo.hProcess;
-				StartExecTime=clock();
-			}
-			else
-			{
-				dwError = GetLastError();
-			}
-		}
 	}
 	else
 	{
 		string strFarTitle;
-
 		if (!Opt.ExecuteFullTitle)
 		{
 			strFarTitle=CmdStr;
@@ -959,76 +959,57 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 		else
 		{
 			strFarTitle = strNewCmdStr;
-
 			if (!strNewCmdPar.IsEmpty())
 			{
-				strFarTitle += L" ";
-				strFarTitle += strNewCmdPar;
+				strFarTitle.Append(L" ").Append(strNewCmdPar);
 			}
 		}
 
 		Console.SetTitle(strFarTitle);
 
 		QuoteSpace(strNewCmdStr);
-		strExecLine = strComspec;
-		strExecLine += L" /C ";
-		bool bDoubleQ = false;
-
-		if (wcspbrk(strNewCmdStr, L"&<>()@^|=;, "))
-			bDoubleQ = true;
-
+		bool bDoubleQ = wcspbrk(strNewCmdStr, L"&<>()@^|=;, ") != nullptr;
 		if (!strNewCmdPar.IsEmpty() || bDoubleQ)
-			strExecLine += L"\"";
-
-		strExecLine += strNewCmdStr;
-
+		{
+			ComSpecParams += L"\"";
+		}
+		ComSpecParams += strNewCmdStr;
 		if (!strNewCmdPar.IsEmpty())
 		{
-			strExecLine += L" ";
-			strExecLine += strNewCmdPar;
+			ComSpecParams.Append(L" ").Append(strNewCmdPar);
 		}
-
 		if (!strNewCmdPar.IsEmpty() || bDoubleQ)
-			strExecLine += L"\"";
-
-		// // попытка борьбы с синим фоном в 4NT при старте консоль
-		SetRealColor(COL_COMMANDLINEUSERSCREEN);
-
-		string strCurDir;
-		apiGetCurrentDirectory(strCurDir);
-
-		PROCESS_INFORMATION pi;
-		STARTUPINFO si={sizeof(si)};
-
-		if (SeparateWindow)
-			si.lpTitle=(wchar_t*)strFarTitle.CPtr();
-
-		if(!Silent && !FolderRun)
 		{
-			Console.ScrollScreenBuffer(1);
+			ComSpecParams += L"\"";
 		}
-		if (CreateProcess(
-		            nullptr,
-		            (wchar_t*)strExecLine.CPtr(),
-		            nullptr,
-		            nullptr,
-		            false,
-		            SeparateWindow?CREATE_NEW_CONSOLE|CREATE_DEFAULT_ERROR_MODE:CREATE_DEFAULT_ERROR_MODE,
-		            nullptr,
-		            strCurDir,
-		            &si,
-		            &pi
-		        ))
-		{
-			hProcess = pi.hProcess;
-			hThread = pi.hThread;
-			StartExecTime=clock();
-		}
-		else
-		{
-			dwError = GetLastError();
-		}
+
+		seInfo.lpFile = strComspec;
+		seInfo.lpParameters = ComSpecParams;
+		seInfo.lpVerb = nullptr;
 	}
+
+	if(RunAs && RunAsSupported(seInfo.lpFile))
+	{
+		SetCurrentDirectory(seInfo.lpDirectory);
+		seInfo.lpVerb = L"runas";
+	}
+
+	seInfo.fMask = SEE_MASK_NOASYNC|SEE_MASK_NOCLOSEPROCESS|(SeparateWindow?0:SEE_MASK_NO_CONSOLE);
+
+	if(!Silent && !FolderRun)
+	{
+		Console.ScrollScreenBuffer(2);
+	}
+	if (ShellExecuteEx(&seInfo))
+	{
+		hProcess = seInfo.hProcess;
+		StartExecTime=clock();
+	}
+	else
+	{
+		dwError = GetLastError();
+	}
+
 
 	DWORD ErrorCode=0;
 	bool ErrMsg=false;
@@ -1185,9 +1166,6 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 			CloseHandle(hProcess);
 		}
 
-		if (hThread)
-			CloseHandle(hThread);
-
 		nResult = 0;
 	}
 	else
@@ -1229,7 +1207,8 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 	    вследствие своей оптимизации, которая в данном случае выходит боком.
 	*/
 	SetCursorType(Visible,Size);
-	SetRealCursorType(Visible,Size);
+	CONSOLE_CURSOR_INFO cci={Size, Visible};
+	Console.SetCursorInfo(cci);
 
 	COORD ConSize;
 	Console.GetSize(ConSize);
@@ -1249,7 +1228,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 }
 
 
-int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int SeparateWindow,int DirectRun, bool WaitForIdle, bool Silent)
+int CommandLine::CmdExecute(const wchar_t *CmdLine,bool AlwaysWaitFinish,bool SeparateWindow,bool DirectRun, bool WaitForIdle, bool Silent, bool RunAs)
 {
 	LastCmdPartLength=-1;
 
@@ -1305,7 +1284,7 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
 		if (Code == -1)
 			ReplaceStrings(strTempStr,L"/",L"\\",-1);
 
-		Code=Execute(strTempStr,AlwaysWaitFinish,SeparateWindow,DirectRun, 0, WaitForIdle, Silent);
+		Code=Execute(strTempStr,AlwaysWaitFinish,SeparateWindow,DirectRun, 0, WaitForIdle, Silent, RunAs);
 	}
 
 	COORD Size1;
@@ -1524,7 +1503,7 @@ const wchar_t *PrepareOSIfExist(const wchar_t *CmdLine)
 	return Exist?PtrCmd:nullptr;
 }
 
-int CommandLine::ProcessOSCommands(const wchar_t *CmdLine, int SeparateWindow, bool &PrintCommand)
+int CommandLine::ProcessOSCommands(const wchar_t *CmdLine, bool SeparateWindow, bool &PrintCommand)
 {
 	int Length;
 	string strCmdLine = CmdLine;
@@ -1692,7 +1671,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine, int SeparateWindow, b
 
 		if (r1 && r2) // Если все ОБИ, то так  и...
 		{
-			InitRecodeOutTable(cp);
+			InitRecodeOutTable();
 			LocalUpperInit();
 			InitLCIDSort();
 			InitKeysArray();

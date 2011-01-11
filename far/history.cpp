@@ -515,6 +515,7 @@ int History::Select(VMenu &HistoryMenu, int Height, Dialog *Dlg, string &strStr)
    4 - F3
    5 - F4
    6 - Ctrl-Shift-Enter
+   7 - Ctrl-Alt-Enter
 */
 int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMenu, int Height, int &Type, Dialog *Dlg)
 {
@@ -663,13 +664,15 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 				case KEY_CTRLSHIFTENTER:
 				case KEY_CTRLENTER:
 				case KEY_SHIFTENTER:
+				case KEY_CTRLALTENTER:
+				case KEY_CTRLALTNUMENTER:
 				{
 					if (TypeHistory == HISTORYTYPE_DIALOG)
 						break;
 
 					HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
 					Done=true;
-					RetCode=Key==KEY_CTRLSHIFTENTER||Key==KEY_CTRLSHIFTNUMENTER?6:(Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER?2:3);
+					RetCode = Key==KEY_CTRLALTENTER||Key==KEY_CTRLALTNUMENTER?7:(Key==KEY_CTRLSHIFTENTER||Key==KEY_CTRLSHIFTNUMENTER?6:(Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER?2:3));
 					break;
 				}
 				case KEY_F3:
@@ -815,7 +818,7 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 
 	strStr = SelectedRecord->strName;
 
-	if (RetCode < 4 || RetCode == 6)
+	if (RetCode < 4 || RetCode == 6 || RetCode == 7)
 	{
 		Type=SelectedRecord->Type;
 	}

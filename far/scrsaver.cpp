@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "config.hpp"
 #include "scrsaver.hpp"
+#include "console.hpp"
 
 
 #define randomize() srand(67898)
@@ -165,9 +166,8 @@ int ScreenSaver(int EnableExit)
 	}
 
 	ScreenSaverActive=TRUE;
-	bool CursorVisible;
-	DWORD CursorSize;
-	GetRealCursorType(CursorVisible, CursorSize);
+	CONSOLE_CURSOR_INFO CursorInfo;
+	Console.GetCursorInfo(CursorInfo);
 	{
 		SaveScreen SaveScr;
 		SetCursorType(0,10);
@@ -198,7 +198,7 @@ int ScreenSaver(int EnableExit)
 			ShowSaver(Step++);
 		}
 	}
-	SetCursorType(CursorVisible, CursorSize);
+	SetCursorType(CursorInfo.bVisible!=FALSE, CursorInfo.dwSize);
 	ScreenSaverActive=FALSE;
 	FlushInputBuffer();
 	StartIdleTime=clock();

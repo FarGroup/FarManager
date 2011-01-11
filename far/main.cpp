@@ -67,36 +67,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 int DirectRT=0;
 #endif
 
-class ConsoleRestore
-{
-	private:
-		string strOldTitle;
-		SMALL_RECT WindowRect;
-		COORD Size;
-		HANDLE hOutput;
-		bool IsRestoreConsole;
-	public:
-		ConsoleRestore(bool RestoreConsole)
-		{
-			hOutput = Console.GetOutputHandle();
-			Console.GetTitle(strOldTitle);
-			Console.GetWindowRect(WindowRect);
-			Console.GetSize(Size);
-			IsRestoreConsole=RestoreConsole;
-		}
-
-		~ConsoleRestore()
-		{
-			if (IsRestoreConsole)
-			{
-				Console.SetTitle(strOldTitle);
-				Console.SetSize(Size);
-				Console.SetWindowRect(WindowRect);
-				Console.SetSize(Size);
-			}
-		}
-};
-
 static void CopyGlobalSettings();
 
 static void show_help()
@@ -123,7 +93,6 @@ static void show_help()
 	    L" /ma  Do not execute auto run macros.\n"
 	    L" /p[<path>]\n"
 	    L"      Search for \"common\" plugins in the directory, specified by <path>.\n"
-	    L" /rc  Restore console windows settings upon exiting FAR.\n"
 	    L" /u <username>\n"
 	    L"      Allows to have separate settings for different users.\n"
 	    L" /v <filename>\n"
@@ -360,7 +329,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	string strViewName;
 	string DestNames[2];
 	int StartLine=-1,StartChar=-1;
-	bool RestoreConsole=false;
 	int CntDestName=0; // количество параметров-имен каталогов
 	/*$ 18.04.2002 SKV
 	  Попользуем floating point что бы проинициализировался vc-ный fprtl.
@@ -450,19 +418,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 					{
 						strViewName = Argv[I+1];
 						I++;
-					}
-
-					break;
-				case L'R':
-
-					switch (Upper(Argv[I][2]))
-					{
-						case L'C':
-
-							if (!Argv[I][3])
-								RestoreConsole=true;
-
-							break;
 					}
 
 					break;
@@ -586,7 +541,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	//Инициализация массива клавиш. Должна быть после CopyGlobalSettings!
 	InitKeysArray();
 	WaitForInputIdle(GetCurrentProcess(),0);
-	ConsoleRestore __ConsoleRestore(RestoreConsole);
 	std::set_new_handler(nullptr);
 
 	if (!Opt.LoadPlug.MainPluginDir) //если есть ключ /p то он отменяет /co

@@ -55,9 +55,7 @@ BOOL __stdcall CtrlHandler(DWORD CtrlType);
 static int CurX,CurY;
 static int CurColor;
 
-static int OutputCP;
-static bool InitCurVisible;
-static DWORD InitCurSize;
+CONSOLE_CURSOR_INFO InitialCursorInfo;
 
 static SMALL_RECT windowholder_rect;
 
@@ -69,6 +67,9 @@ COORD CurSize={0};
 SHORT ScrX=0,ScrY=0;
 SHORT PrevScrX=-1,PrevScrY=-1;
 DWORD InitialConsoleMode=0;
+string strInitTitle;
+SMALL_RECT InitWindowRect;
+COORD InitialSize;
 
 static HICON hOldLargeIcon=nullptr, hOldSmallIcon=nullptr;
 
@@ -79,7 +80,12 @@ void InitConsole(int FirstInit)
 	InitRecodeOutTable();
 	Console.SetControlHandler(CtrlHandler,TRUE);
 	Console.GetMode(Console.GetInputHandle(),InitialConsoleMode);
-	GetRealCursorType(InitCurVisible,InitCurSize);
+	Console.GetTitle(strInitTitle);
+	Console.GetWindowRect(InitWindowRect);
+	Console.GetSize(InitialSize);
+	CONSOLE_CURSOR_INFO InitCursorInfo;
+	Console.GetCursorInfo(InitCursorInfo);
+
 	GetRegKey(L"Interface",L"Mouse",Opt.Mouse,1);
 
 	// размер клавиатурной очереди = 1024 кода клавиши
@@ -148,8 +154,14 @@ void InitConsole(int FirstInit)
 void CloseConsole()
 {
 	ScrBuf.Flush();
-	SetRealCursorType(InitCurVisible,InitCurSize);
+	Console.SetCursorInfo(InitialCursorInfo);
 	ChangeConsoleMode(InitialConsoleMode);
+
+	Console.SetTitle(strInitTitle);
+	Console.SetSize(InitialSize);
+	Console.SetWindowRect(InitWindowRect);
+	Console.SetSize(InitialSize);
+
 	delete KeyQueue;
 	KeyQueue=nullptr;
 
@@ -457,15 +469,15 @@ void SetCursorType(bool Visible, DWORD Size)
 {
 	if (Size==(DWORD)-1 || !Visible)
 		Size=IsFullscreen()?
-		     (Opt.CursorSize[1]?Opt.CursorSize[1]:InitCurSize):
-				     (Opt.CursorSize[0]?Opt.CursorSize[0]:InitCurSize);
+		     (Opt.CursorSize[1]?Opt.CursorSize[1]:InitialCursorInfo.dwSize):
+				     (Opt.CursorSize[0]?Opt.CursorSize[0]:InitialCursorInfo.dwSize);
 
 	ScrBuf.SetCursorType(Visible,Size);
 }
 
 void SetInitialCursorType()
 {
-	ScrBuf.SetCursorType(InitCurVisible,InitCurSize);
+	ScrBuf.SetCursorType(InitialCursorInfo.bVisible!=FALSE,InitialCursorInfo.dwSize);
 }
 
 
@@ -490,26 +502,8 @@ void GetRealCursorPos(SHORT& X,SHORT& Y)
 	Y=CursorPosition.Y;
 }
 
-
-void SetRealCursorType(bool Visible, DWORD Size)
+void InitRecodeOutTable()
 {
-	CONSOLE_CURSOR_INFO cci={Size, Visible};
-	Console.SetCursorInfo(cci);
-}
-
-
-void GetRealCursorType(bool& Visible, DWORD& Size)
-{
-	CONSOLE_CURSOR_INFO cci;
-	Console.GetCursorInfo(cci);
-	Size=cci.dwSize;
-	Visible=cci.bVisible!=FALSE;
-}
-
-void InitRecodeOutTable(UINT cp)
-{
-	OutputCP=!cp?Console.GetOutputCodepage():cp;
-
 	for (size_t i=0; i<ARRAYSIZE(Oem2Unicode); i++)
 	{
 		char c = static_cast<char>(i);

@@ -134,8 +134,6 @@ void SetInitialCursorType();
 void GetCursorType(bool& Visible, DWORD& Size);
 void MoveRealCursor(int X,int Y);
 void GetRealCursorPos(SHORT& X,SHORT& Y);
-void SetRealCursorType(bool Visible, DWORD Size);
-void GetRealCursorType(bool& Visible,DWORD& Size);
 void ScrollScreen(int Count);
 
 void Text(int X, int Y, int Color, const WCHAR *Str);
@@ -143,7 +141,6 @@ void Text(const WCHAR *Str);
 void Text(int MsgId);
 void VText(const WCHAR *Str);
 void HiText(const WCHAR *Str,int HiColor,int isVertText=0);
-#define HiVText(Str,HiColor) HiText(Str,HiColor,1)
 void mprintf(const WCHAR *fmt,...);
 void vmprintf(const WCHAR *fmt,...);
 void PutText(int X1,int Y1,int X2,int Y2,const void *Src);
@@ -168,7 +165,7 @@ void DrawLine(int Length,int Type, const wchar_t* UserSep=nullptr);
 #define ShowUserSeparator(Length,Type,UserSep) DrawLine(Length,Type,UserSep)
 WCHAR* MakeSeparator(int Length,WCHAR *DestStr,int Type=1, const wchar_t* UserSep=nullptr);
 
-void InitRecodeOutTable(UINT cp=0);
+void InitRecodeOutTable();
 
 int WINAPI TextToCharInfo(const char *Text,WORD Attr, CHAR_INFO *CharInfo, int Length, DWORD Reserved);
 

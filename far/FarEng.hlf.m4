@@ -179,10 +179,6 @@ will be loaded from cache;
   - ^<wrap>if /p and /co are not given, then plugins will be loaded from the main folder,
 and from the path given at the "~Path for personal plugins~@PluginsManagerSettings@" parameter.
 
-  #/rc#
-  Upon closing, allows to restore console window title and size that were set
-before running FAR Manager.
-
   #/m#
   FAR will not load macros from the registry when started.
 
@@ -603,6 +599,7 @@ newly created #d:\folder2\#.
 
   Execute, change folder, enter to an archive                  #Enter#
   Execute in the separate window                         #Shift-Enter#
+  Execute as administrator                            #Ctrl-Alt-Enter#
 
     Pressing #Shift-Enter# on a directory invokes the Windows Explorer and
 shows the selected directory. To show a root directory in the Explorer, you
@@ -1707,9 +1704,11 @@ $ #History #
 Besides the cursor control keys, the following keyboard shortcuts are
 available:
 
-  Execute a previously executed command                         #Enter#
+  Re-execute a command                                          #Enter#
 
-  Execute a previously executed command in a new window   #Shift-Enter#
+  Re-execute a command in a new window                    #Shift-Enter#
+
+  Re-execute a command as administrator                #Ctrl-Alt-Enter#
 
   Copy a command to the command line                       #Ctrl-Enter#
 

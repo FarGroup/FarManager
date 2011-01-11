@@ -167,7 +167,7 @@ int GetDescriptionWidth(const wchar_t *Name=nullptr,const wchar_t *ShortName=nul
    - Убрал непонятный мне запрет на использование маски файлов типа "*.*"
      (был когда-то, вроде, такой баг-репорт)
 */
-bool ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,int AlwaysWaitFinish)
+bool ProcessLocalFileTypes(const wchar_t *Name, const wchar_t *ShortName, int Mode, bool AlwaysWaitFinish)
 {
 	RenumKeyRecord(FTS.Associations,FTS.TypeFmt,FTS.Type0);
 	MenuItemEx TypesMenuItem;
@@ -320,7 +320,7 @@ bool ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode
 
 			if (!isSilent)
 			{
-				CtrlObject->CmdLine->ExecString(strCommand,AlwaysWaitFinish, 0, 0, ListFileUsed);
+				CtrlObject->CmdLine->ExecString(strCommand,AlwaysWaitFinish, false, false, ListFileUsed);
 
 				if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTFARASS) && !AlwaysWaitFinish) //AN
 					CtrlObject->CmdHistory->AddToHistory(strCommand);
@@ -366,12 +366,12 @@ bool ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode
 }
 
 
-void ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish)
+void ProcessGlobalFileTypes(const wchar_t *Name, bool AlwaysWaitFinish, bool RunAs)
 {
 	string strFullName;
 	ConvertNameToFull(Name,strFullName);
 	QuoteSpace(strFullName);
-	CtrlObject->CmdLine->ExecString(strFullName,AlwaysWaitFinish,2,FALSE);
+	CtrlObject->CmdLine->ExecString(strFullName, AlwaysWaitFinish, true, true, false, false, RunAs);
 
 	if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTWINASS) && !AlwaysWaitFinish)
 	{
@@ -384,7 +384,7 @@ void ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish)
 /*
   Используется для запуска внешнего редактора и вьювера
 */
-void ProcessExternal(const wchar_t *Command,const wchar_t *Name,const wchar_t *ShortName,int AlwaysWaitFinish)
+void ProcessExternal(const wchar_t *Command, const wchar_t *Name, const wchar_t *ShortName, bool AlwaysWaitFinish)
 {
 	string strListName, strAnotherListName;
 	string strShortListName, strAnotherShortListName;

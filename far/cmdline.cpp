@@ -246,18 +246,18 @@ int CommandLine::ProcessKey(int Key)
 			int Type;
 			// $ 19.09.2000 SVS - ѕри выборе из History (по Alt-F8) плагин не получал управление!
 			int SelectType=CtrlObject->CmdHistory->Select(MSG(MHistoryTitle),L"History",strStr,Type);
-
-			if (SelectType > 0 && SelectType <= 3)
+			// BUGBUG, magic numbers
+			if (SelectType > 0 && SelectType <= 3 || SelectType == 7)
 			{
-				if(SelectType<3)
+				if(SelectType<3 || SelectType == 7)
 				{
 					CmdStr.DisableAC();
 				}
 				SetString(strStr);
 
-				if (SelectType < 3)
+				if (SelectType < 3 || SelectType == 7)
 				{
-					ProcessKey(SelectType==1?(int)KEY_ENTER:(int)KEY_SHIFTENTER);
+					ProcessKey(SelectType==7?KEY_CTRLALTENTER:(SelectType==1?KEY_ENTER:KEY_SHIFTENTER));
 					CmdStr.RevertAC();
 				}
 			}
@@ -358,6 +358,8 @@ int CommandLine::ProcessKey(int Key)
 		case KEY_SHIFTNUMENTER:
 		case KEY_ENTER:
 		case KEY_SHIFTENTER:
+		case KEY_CTRLALTENTER:
+		case KEY_CTRLALTNUMENTER:
 		{
 			Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 			CmdStr.Select(-1,0);
@@ -375,7 +377,7 @@ int CommandLine::ProcessKey(int Key)
 			ProcessOSAliases(strStr);
 
 			if (!ActivePanel->ProcessPluginEvent(FE_COMMAND,(void *)strStr.CPtr()))
-				CmdExecute(strStr,FALSE,Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER,FALSE);
+				CmdExecute(strStr, false, Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER, false, false, false, Key == KEY_CTRLALTENTER || Key == KEY_CTRLALTNUMENTER);
 		}
 		return TRUE;
 		case KEY_CTRLU:
@@ -483,13 +485,13 @@ void CommandLine::SetString(const wchar_t *Str,BOOL Redraw)
 }
 
 
-void CommandLine::ExecString(const wchar_t *Str,int AlwaysWaitFinish,int SeparateWindow,
-                             int DirectRun, bool WaitForIdle, bool Silent)
+void CommandLine::ExecString(const wchar_t *Str, bool AlwaysWaitFinish,bool SeparateWindow,
+                             bool DirectRun, bool WaitForIdle, bool Silent, bool RunAs)
 {
 	CmdStr.DisableAC();
 	SetString(Str);
 	CmdStr.RevertAC();
-	CmdExecute(Str,AlwaysWaitFinish,SeparateWindow,DirectRun, WaitForIdle, Silent);
+	CmdExecute(Str,AlwaysWaitFinish,SeparateWindow,DirectRun, WaitForIdle, Silent, RunAs);
 }
 
 
@@ -673,14 +675,14 @@ void CommandLine::ShowViewEditHistory()
 			{
 				if (strStr.At(0) !=L'@')
 				{
-					ExecString(strStr,Type-2);
+					ExecString(strStr,Type>2);
 				}
 				else
 				{
 					SaveScreen SaveScr;
 					CtrlObject->Cp()->LeftPanel->CloseFile();
 					CtrlObject->Cp()->RightPanel->CloseFile();
-					Execute(strStr.CPtr()+1,Type-2);
+					Execute(strStr.CPtr()+1,Type>2);
 				}
 
 				break;

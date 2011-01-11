@@ -2006,7 +2006,7 @@ void Dialog::ShowDialog(unsigned ID)
 				if (CurItem->Flags & DIF_SHOWAMPERSAND)
 					VText(strStr);
 				else
-					HiVText(strStr,HIBYTE(LOWORD(Attr)));
+					HiText(strStr,HIBYTE(LOWORD(Attr)), TRUE);
 
 				break;
 			}

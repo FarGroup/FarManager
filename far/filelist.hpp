@@ -241,7 +241,7 @@ class FileList:public Panel
 
 		void Select(FileListItem *SelPtr,int Selection);
 		long SelectFiles(int Mode,const wchar_t *Mask=nullptr);
-		void ProcessEnter(bool EnableExec,bool SeparateWindow, bool EnableAssoc=true);
+		void ProcessEnter(bool EnableExec,bool SeparateWindow, bool EnableAssoc=true, bool RunAs = false);
 		// ChangeDir возвращает FALSE, eсли не смогла выставить заданный путь
 		BOOL ChangeDir(const wchar_t *NewDir,BOOL IsUpdated=TRUE);
 		void CountDirSize(DWORD PluginFlags);

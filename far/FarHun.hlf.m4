@@ -184,9 +184,6 @@ akkor a pluginek csak az alapértelmezett plugin mappából, valamint a
 ~saját pluginek elérési útvonala~@SystemSettings@ által meghatározott
 mappákból töltődnek be.
 
-  #/rc#   ^<wrap>A FAR bezárása után a konzolablak címkéje és mérete
-visszaáll a FAR előtti állapotába.
-
   #/m#    ^<wrap>A FAR induláskor nem tölti be a registryből a makróit.
 
   #/ma#   ^<wrap>A "Futtatás a FAR indítása után" opciójú makrók nem

@@ -37,7 +37,7 @@ bool GetShellType(const wchar_t *Ext, string &strType, ASSOCIATIONTYPE aType=AT_
 
 const wchar_t *GetShellAction(const wchar_t *FileName, DWORD& ImageSubsystem, DWORD& Error);
 
-int Execute(const wchar_t *CmdStr, int AlwaysWaitFinish, int SeparateWindow=FALSE, int DirectRun=FALSE, int FolderRun=FALSE, bool WaitForIdle=false, bool Silent=false);
+int Execute(const wchar_t *CmdStr, bool AlwaysWaitFinish, bool SeparateWindow = false, bool DirectRun = false, bool FolderRun = false, bool WaitForIdle = false, bool Silent = false, bool RunAs = false);
 
 bool IsBatchExtType(const wchar_t *ExtPtr);
 

@@ -1262,6 +1262,8 @@ int FileList::ProcessKey(int Key)
 		case KEY_SHIFTNUMENTER:
 		case KEY_ENTER:
 		case KEY_SHIFTENTER:
+		case KEY_CTRLALTENTER:
+		case KEY_CTRLALTNUMENTER:
 		{
 			_ALGO(CleverSysLog clv(L"Enter/Shift-Enter"));
 			_ALGO(SysLog(L"%s, FileCount=%d Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
@@ -1275,7 +1277,7 @@ int FileList::ProcessKey(int Key)
 				return TRUE;
 			}
 
-			ProcessEnter(1,Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER);
+			ProcessEnter(1,Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER, true, Key == KEY_CTRLALTENTER || Key == KEY_CTRLALTNUMENTER);
 			return TRUE;
 		}
 		case KEY_CTRLBACKSLASH:
@@ -1380,8 +1382,7 @@ int FileList::ProcessKey(int Key)
 				string strShortFileName;
 				string strHostFile=Info.HostFile;
 				string strInfoCurDir=Info.CurDir;
-				int PluginMode=PanelMode==PLUGIN_PANEL &&
-				               !CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
+				bool PluginMode=PanelMode==PLUGIN_PANEL && !CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
 
 				if (PluginMode)
 				{
@@ -2230,7 +2231,7 @@ void FileList::Select(FileListItem *SelPtr,int Selection)
 }
 
 
-void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc)
+void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc, bool RunAs)
 {
 	FileListItem *CurPtr;
 	string strFileName, strShortFileName;
@@ -2279,7 +2280,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			}
 
 			QuoteSpace(strFullPath);
-			Execute(strFullPath,FALSE,SeparateWindow?2:0,TRUE,CurPtr->FileAttr&FILE_ATTRIBUTE_DIRECTORY);
+			Execute(strFullPath, false, SeparateWindow, true, (CurPtr->FileAttr&FILE_ATTRIBUTE_DIRECTORY)!=0);
 		}
 		else
 		{
@@ -2308,8 +2309,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 	}
 	else
 	{
-		int PluginMode=PanelMode==PLUGIN_PANEL &&
-		               !CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
+		bool PluginMode=PanelMode==PLUGIN_PANEL && !CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
 
 		if (PluginMode)
 		{
@@ -2358,8 +2358,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTPANEL) && !PluginMode) //AN
 				CtrlObject->CmdHistory->AddToHistory(strFileName);
 
-			int DirectRun=(strCurDir.At(0)==L'\\' && strCurDir.At(1)==L'\\' && ExeType);
-			CtrlObject->CmdLine->ExecString(strFileName,PluginMode,SeparateWindow,DirectRun);
+			CtrlObject->CmdLine->ExecString(strFileName, PluginMode, SeparateWindow, true, false, false, RunAs);
 
 			if (PluginMode)
 				DeleteFileWithFolder(strFileName);
@@ -2388,7 +2387,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			{
 				if (EnableExec && hOpen!=(HANDLE)-2)
 					if (SeparateWindow || Opt.UseRegisteredTypes)
-						ProcessGlobalFileTypes(strFileName,PluginMode);
+						ProcessGlobalFileTypes(strFileName, PluginMode, RunAs);
 
 				if (PluginMode)
 				{
