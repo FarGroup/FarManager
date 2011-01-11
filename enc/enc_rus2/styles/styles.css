@@ -308,6 +308,14 @@ PRE.syntax
     PADDING-TOP: 2pt;
     FONT-FAMILY: Courier New,Lucida Console, Courier New, Courier, monospace
 }
+CODE
+{
+    FONT-FAMILY: Courier New,Lucida Console, Courier, monospace
+}
+KBD
+{
+    FONT-FAMILY: Courier New, Lucida Console, Courier, monospace;
+}
 P.note
 {
     CLEAR: both;
