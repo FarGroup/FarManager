@@ -6,68 +6,12 @@ BODY
     COLOR: #000000;
     FONT-FAMILY: verdana,arial, tahoma, helvetica
 }
-STRONG
-{
-    BACKGROUND: none transparent scroll repeat 0% 0%
-}
-B
-{
-    BACKGROUND: none transparent scroll repeat 0% 0%
-}
-I
-{
-    BACKGROUND: none transparent scroll repeat 0% 0%
-}
-EM
-{
-    BACKGROUND: none transparent scroll repeat 0% 0%
-}
-VAR
-{
-    BACKGROUND: none transparent scroll repeat 0% 0%;
-    FONT-STYLE: italic;
-    FONT-FAMILY: verdana,arial,tahoma, helvetica
-}
-KBD
-{
-    BACKGROUND: none transparent scroll repeat 0% 0%;
-    FONT-FAMILY: Courier New, Lucida Console, Courier, monospace;
-    TEXT-DECORATION: none
-}
 P
 {
     COLOR: #000000;
-    FONT-FAMILY: verdana, tahoma, arial, helvetica
-}
-DIV
-{
-    COLOR: #000000;
-    FONT-FAMILY: verdana, tahoma, arial, helvetica
-}
-UL
-{
-    COLOR: #000000;
-    FONT-FAMILY: verdana, tahoma, arial, helvetica
-}
-OL
-{
-    COLOR: #000000;
-    FONT-FAMILY: verdana, tahoma, arial, helvetica
-}
-TD
-{
-    COLOR: #000000;
-    FONT-FAMILY: verdana, tahoma, arial, helvetica
-}
-DL
-{
-    COLOR: #000000;
-    FONT-FAMILY: verdana, tahoma, arial, helvetica
-}
-P
-{
     MARGIN-TOP: 8pt;
-    MARGIN-BOTTOM: 6pt
+    MARGIN-BOTTOM: 6pt;
+    FONT-FAMILY: verdana, tahoma, arial, helvetica
 }
 BLOCKQUOTE
 {
@@ -81,21 +25,7 @@ P.just
     TEXT-INDENT: 2%;
     TEXT-ALIGN: justify
 }
-BLOCKQUOTE.just
-{
-    MARGIN-TOP: 6pt;
-    MARGIN-BOTTOM: 4pt;
-    TEXT-INDENT: 2%;
-    TEXT-ALIGN: justify
-}
 P.justi
-{
-    MARGIN-TOP: 6pt;
-    MARGIN-BOTTOM: 4pt;
-    TEXT-INDENT: 2%;
-    TEXT-ALIGN: justify
-}
-BLOCKQUOTE.justi
 {
     MARGIN-TOP: 6pt;
     MARGIN-BOTTOM: 4pt;
@@ -108,26 +38,10 @@ PRE
     FONT-FAMILY: Courier New, Lucida Console, Courier, monospace;
     TEXT-ALIGN: left
 }
-.small
-{
-    FONT-SIZE: 82%
-}
-LI.just
-{
-    TEXT-ALIGN: justify
-}
 P.plain
 {
     MARGIN-TOP: 4pt;
     MARGIN-BOTTOM: 4pt
-}
-TABLE
-{
-}
-TD
-{
-    FONT-SIZE: 80%;
-    VERTICAL-ALIGN: top
 }
 .gray
 {
@@ -139,6 +53,14 @@ TD
 {
     FONT-SIZE: 80%;
     BACKGROUND: #ffffff;
+    VERTICAL-ALIGN: top
+}
+TABLE
+{
+}
+TD
+{
+    FONT-SIZE: 80%;
     VERTICAL-ALIGN: top
 }
 TH
@@ -156,16 +78,6 @@ TABLE.cont
     MARGIN-BOTTOM: 0.3em;
     WIDTH: 90%
 }
-TABLE.cont_w
-{
-    MARGIN-TOP: 0.6em;
-    BACKGROUND: #999999;
-    MARGIN-BOTTOM: 0.3em;
-}
-TR.cont_w
-{
-    VERTICAL-ALIGN: top
-}
 TR.cont
 {
     VERTICAL-ALIGN: top
@@ -181,32 +93,11 @@ TH.cont
     PADDING-TOP: 4px;
     TEXT-ALIGN: left
 }
-TH.cont_w
-{
-    PADDING-RIGHT: 8px;
-    PADDING-LEFT: 8px;
-    FONT-SIZE: 65%;
-    BACKGROUND: #cccccc;
-    PADDING-BOTTOM: 4px;
-    VERTICAL-ALIGN: top;
-    PADDING-TOP: 4px;
-    TEXT-ALIGN: left
-}
 TD.cont
 {
     PADDING-RIGHT: 8px;
     PADDING-LEFT: 8px;
     FONT-SIZE: 70%;
-    BACKGROUND: #ffffff;
-    PADDING-BOTTOM: 4px;
-    VERTICAL-ALIGN: top;
-    PADDING-TOP: 4px
-}
-TD.cont_w
-{
-    PADDING-RIGHT: 8px;
-    PADDING-LEFT: 8px;
-    FONT-SIZE: 65%;
     BACKGROUND: #ffffff;
     PADDING-BOTTOM: 4px;
     VERTICAL-ALIGN: top;
@@ -317,7 +208,7 @@ DIV.dfn
     MARGIN-TOP: 6pt;
     MARGIN-BOTTOM: 2pt;
     MARGIN-LEFT: 0px;
-    FONT-STYLE: italic;
+    FONT-WEIGHT: bold;
     FONT-FAMILY: verdana,arial,tahoma, Lucida console,  helvetica
 }
 DIV.dfndescr
@@ -394,20 +285,6 @@ DIV.articlenotes
     MARGIN-RIGHT: 0pt;
     TEXT-ALIGN: right
 }
-DIV.name
-{
-    MARGIN-TOP: 20pt;
-    FONT-WEIGHT: bold
-}
-DIV.contacts
-{
-    MARGIN-LEFT: 13pt
-}
-DIV.about
-{
-    MARGIN-LEFT: 45pt;
-    WIDTH: 300pt
-}
 PRE.code
 {
     PADDING-RIGHT: 4pt;
@@ -433,142 +310,18 @@ PRE.syntax
 }
 CODE
 {
-    COLOR: #000000;
     FONT-FAMILY: Courier New,Lucida Console, Courier, monospace
 }
-DIV.toptitle
+KBD
 {
-    FONT-WEIGHT: bold;
-    FONT-SIZE: 13pt;
-    FONT-FAMILY: verdana, tahoma, arial, helvetica;
-    TEXT-ALIGN: center
-}
-DIV.top2title
-{
-    FONT-WEIGHT: bold;
-    FONT-SIZE: 8pt;
-    PADDING-BOTTOM: 6pt;
-    TEXT-TRANSFORM: lowercase;
-    PADDING-TOP: 4pt;
-    FONT-FAMILY: verdana, tahoma, arial, helvetica;
-    TEXT-ALIGN: center
-}
-DIV.bottomtitle
-{
-    FONT-SIZE: 8pt;
-    FONT-FAMILY: verdana, tahoma, arial, helvetica;
-    TEXT-ALIGN: center
-}
-DIV.bottom2title
-{
-    FONT-SIZE: 7pt;
-    TEXT-TRANSFORM: lowercase;
-    FONT-FAMILY: verdana, tahoma, arial, helvetica;
-    TEXT-ALIGN: center
-}
-DIV.lang
-{
-    FONT-SIZE: 8pt;
-    LEFT: 2px;
-    FONT-FAMILY: verdana, tahoma, arial, helvetica;
-    POSITION: absolute;
-    TOP: 2px
-}
-.table
-{
-    BACKGROUND: #f0f0f0
-}
-INPUT
-{
-    FONT-SIZE: 10pt;
-    FONT-FAMILY: Lucida Console, Courier New, Courier, verdana, tahoma;
-}
-TEXTAREA
-{
-    FONT-SIZE: 10pt;
-    BORDER-LEFT-COLOR: #c0c0c0;
-    BACKGROUND: #d8d8d8;
-    BORDER-BOTTOM-COLOR: #c0c0c0;
-    BORDER-TOP-STYLE: solid;
-    BORDER-TOP-COLOR: #c0c0c0;
-    FONT-FAMILY: Lucida Console, Courier New, Courier, verdana, tahoma;
-    BORDER-RIGHT-STYLE: solid;
-    BORDER-LEFT-STYLE: solid;
-    BORDER-RIGHT-COLOR: #c0c0c0;
-    BORDER-BOTTOM-STYLE: solid
-}
-SELECT
-{
-    FONT-SIZE: 10pt;
-    BORDER-LEFT-COLOR: #c0c0c0;
-    BACKGROUND: #d8d8d8;
-    BORDER-BOTTOM-COLOR: #c0c0c0;
-    BORDER-TOP-STYLE: solid;
-    BORDER-TOP-COLOR: #c0c0c0;
-    FONT-FAMILY: Lucida Console, Courier New, Courier, verdana, tahoma;
-    BORDER-RIGHT-STYLE: solid;
-    BORDER-LEFT-STYLE: solid;
-    BORDER-RIGHT-COLOR: #c0c0c0;
-    BORDER-BOTTOM-STYLE: solid
-}
-.radio
-{
-    BORDER-LEFT-COLOR: white;
-    BACKGROUND: none transparent scroll repeat 0% 0%;
-    BORDER-BOTTOM-COLOR: white;
-    BORDER-TOP-STYLE: solid;
-    BORDER-TOP-COLOR: white;
-    BORDER-RIGHT-STYLE: solid;
-    BORDER-LEFT-STYLE: solid;
-    BORDER-RIGHT-COLOR: white;
-    BORDER-BOTTOM-STYLE: solid
-}
-.find
-{
-    BACKGROUND: black;
-    COLOR: white
-}
-P.tip
-{
-    CLEAR: both;
-    MARGIN-TOP: 1em;
-    FONT-WEIGHT: bold;
-    MARGIN-BOTTOM: -0.25em
-}
-P.important
-{
-    CLEAR: both;
-    MARGIN-TOP: 1em;
-    FONT-WEIGHT: bold;
-    MARGIN-BOTTOM: -0.25em
-}
-P.caution
-{
-    CLEAR: both;
-    MARGIN-TOP: 1em;
-    FONT-WEIGHT: bold;
-    MARGIN-BOTTOM: -0.25em
-}
-P.warning
-{
-    CLEAR: both;
-    MARGIN-TOP: 1em;
-    FONT-WEIGHT: bold;
-    MARGIN-BOTTOM: -0.25em
-}
-UL.warning
-{
-    FONT-SIZE: 10pt;
-    MARGIN-LEFT: 1.5em;
-    FONT-FAMILY: tahoma, arial, helvetica;
-    LIST-STYLE-TYPE: none
+    FONT-FAMILY: Courier New, Lucida Console, Courier, monospace;
 }
 P.note
 {
     CLEAR: both;
     MARGIN-TOP: 1em;
     FONT-WEIGHT: bold;
-    MARGIN-BOTTOM: -1.5em;
+    MARGIN-BOTTOM: -1.0em;
     FONT-FAMILY: tahoma, arial, helvetica;
     MARGIN-LEFT: 0.1em
 }
@@ -597,3 +350,126 @@ SPAN.faqa
     FONT-FAMILY: verdana, tahoma, arial, helvetica;
     COLOR: #000080
 }
+
+.nobr { white-space:nowrap; }
+
+table p { margin-top: 0em; margin-bottom: 0.364em}
+table ul { margin-top: 0.364em; margin-bottom: 0.364em}
+li p { margin-top: 0em; margin-bottom: 0.364em}
+
+ul.nomarker{list-style:none; margin-left: 0em; padding-left: 1.2em}
+
+code.sample
+{
+    padding: 0.136em 0.238em;
+    background-color: #EEEEEE;
+}
+
+pre.codesample
+{
+    padding: 0.273em;
+    margin: 0.273em 0em 0.273em 1.182em;
+    background-color: #EEEEEE;
+    border: 1px dashed gray;
+
+}
+
+dl.codesamples { margin: 0.3em 0em }
+dl.codesamples dd { margin-bottom: 0.8em }
+dl.codesamples dt { background-color: #EEEEEE; padding: 0.2em }
+
+code a
+{
+    text-decoration: none;
+    border-bottom: 1px solid #0066ff;
+}
+code a:link { color: inherit; }
+code a:visited { color: inherit; border-bottom-color: #996600 }
+code a:hover { border-bottom-color: #cc9900}
+
+
+/* общий класс таблиц*/
+table.cont2
+{
+    margin-top: 0.6em;
+    margin-bottom: 0.3em;
+    border-collapse: collapse;
+}
+
+table.cont2 th, table.cont2 td
+{
+    border: 2px solid #999999;
+    padding: 0.364em 0.727em;
+    font-size: 100%; /* обходим старые правила TD и TH */
+}
+
+table.cont2 th
+{
+    background: #cccccc;
+    text-align: left;
+}
+
+/* таблицы с описаниями значений параметров */
+table.params
+{
+    margin: 0.545em 0em 0.727em;
+}
+
+table.params td, table.params th
+{
+    border-width: 1px;
+    /*padding: 0.364em 0.727em*/
+}
+
+/* облегчённый стиль*/
+table.lite td, table.lite th
+{
+    background:transparent;
+    padding: 0.182em 0.727em;
+}
+
+/* без границ */
+table.tiny
+{
+    border: transparent hidden;
+    width: auto;
+}
+
+table.tiny td, table.tiny th
+{
+    border-style: none;
+}
+
+table.tiny td:first-child, table.tiny th:first-child
+{
+    border-right-style: solid;
+}
+
+/* ширина таблиц */
+table.cont2   {width: 90%}
+table.funcs   {width: 99%}
+table.params  {width: 97%}
+table.tiny {width: auto}
+
+/* ширина колонок в таблицах */
+table.funcs   col.descr {width: 80%}
+table.params  col.value {width: 5%}
+
+/*
+http://riddle.pl/emcalc/
+http://pxtoem.com/
+
+0.5px=0.045em
+0.75px=0.068em
+1px=0.091em
+1.5px=0.136em
+2px=0.182em
+3px=0.273em
+4px=0.364em
+5px=0.455em
+6px=0.545em
+7px=0.636em
+8px=0.727em
+9px=0.818em
+10px=0.909em
+*/
