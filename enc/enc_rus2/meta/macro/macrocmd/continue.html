@@ -1,7 +1,9 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 
 <head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
 <title>$Continue - Макросы</title>
 <meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
@@ -17,32 +19,22 @@
 <a href="cmds.html">Макрокоманды</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Оператор <dfn>$Continue</dfn> приводит к началу следующей итерации текущего цикла:
 для цикла <a href="while.html">$While</a> переход к выполнению проверочной части,
 для цикла <a href="rep.html">$Rep</a> управление передаётся на шаг реинициализации.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 <dfn>$Continue</dfn>
 </pre>
 
-<h3>Параметры</h3>
-<div class=descr>
-Нет.
-</div>
-
 <h3>Замечания</h3>
-<div class=descr>
-<ol>
-<li>Применяется только в циклах <a href="rep.html">$Rep</a> и <a href="while.html">$While</a>.</li>
-<li>Элементы макроязыка невозможно использовать во время <a href="../macrokey/record.html">записи
-    макроса</a> стандартным образом. Добавить элементы языка в макрос можно только путём ручной
-    правки реестра или путём применения специальных программ/плагинов.</li>
-</ol>
+<div class="descr">
+<p>Применяется только в циклах <a href="rep.html">$Rep</a> и <a href="while.html">$While</a>.</p>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class="see">Смотрите также:</div><div class="seecont">
 <a href="rep.html">$Rep</a>,
 <a href="while.html">$While</a>,
 <a href="../examples.html">Примеры</a>

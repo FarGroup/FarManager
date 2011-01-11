@@ -1,7 +1,9 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 
 <head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
 <title>Операции - Макросы</title>
 <meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
@@ -9,175 +11,175 @@
 
 <body>
 
-<h1>Операции</h1>
+<h1><a name="op">Операции</a></h1>
 <div class="navbar">
 <a href="../../index.html">главная</a> |
 <a href="../index.html">Макросы</a> |
 <a href="index.html">Макроязык</a>
 </div>
 
-<a name="op"></a>
 <h3>Введение</h3>
-<p>Над переменными можно производить следующие операции:
+<p>Над значениями можно производить следующие операции:</p>
 
-<table class="cont">
-  <tr class="cont">
-    <th class="cont" width="40%">Операция</th>
-    <th class="cont" width="60%">Описание</th>
+<table class="cont2">
+  <col span="2">
+  <tr>
+    <th>Операция</th>
+    <th>Описание</th>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">+</td>
-    <td class="cont" width="60%">Числовое сложение или сцепление строк</td>
+  <tr>
+    <td>+</td>
+    <td>Числовое сложение или сцепление строк</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">-</td>
-    <td class="cont" width="60%">Числовое вычитание или унарный минус</td>
+  <tr>
+    <td>-</td>
+    <td>Числовое вычитание или унарный минус</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">*</td>
-    <td class="cont" width="60%">Числовое умножение</td>
+  <tr>
+    <td>*</td>
+    <td>Числовое умножение</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">/</td>
-    <td class="cont" width="60%">Числовое деление. FAR прерывает исполнение макроса, если происходит деление на 0</td>
+  <tr>
+    <td>/</td>
+    <td>Числовое деление. FAR прерывает исполнение макроса, если происходит деление на&nbsp;0</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&amp;</td>
-    <td class="cont" width="60%">Битовое умножение</td>
+  <tr>
+    <td>&amp;</td>
+    <td>Битовое умножение</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">^</td>
-    <td class="cont" width="60%">Битовое Исключающее ИЛИ (XOR)</td>
+  <tr>
+    <td>^</td>
+    <td>Битовое Исключающее ИЛИ (XOR)</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">|</td>
-    <td class="cont" width="60%">Битовое сложение</td>
+  <tr>
+    <td>|</td>
+    <td>Битовое сложение</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&lt;&lt;</td>
-    <td class="cont" width="60%">Битовый сдвиг влево</td>
+  <tr>
+    <td>&lt;&lt;</td>
+    <td>Битовый сдвиг влево</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&gt;&gt;</td>
-    <td class="cont" width="60%">Битовый сдвиг вправо</td>
+  <tr>
+    <td>&gt;&gt;</td>
+    <td>Битовый сдвиг вправо</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">!</td>
-    <td class="cont" width="60%">Логическое отрицание</td>
+  <tr>
+    <td>!</td>
+    <td>Логическое отрицание</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">~</td>
-    <td class="cont" width="60%">Битовое отрицание</td>
+  <tr>
+    <td>~</td>
+    <td>Битовое отрицание</td>
   </tr>
 </table>
 
 <h3>Детальное описание</h3>
-Для разбора операций определимся с определениями:
+<p>Для разбора операций определимся с определениями:</p>
 <ul>
-<li>Int - целое число;
-<li>Dbl - вещественное число;
-<li>StrInt - строка, которая полностью преобразуется в Int;
-<li>StrDbl - строка, которая полностью преобразуется в Dbl;
-<li>Str - строка, которая не может быть полностью преобразована в Int или Dbl (собственно, просто набор символов).
+  <li><code>Int</code> - целое число;</li>
+  <li><code>Dbl</code> - вещественное число;</li>
+  <li><code>StrInt</code> - строка, которая полностью преобразуется в <code>Int</code>;</li>
+  <li><code>StrDbl</code> - строка, которая полностью преобразуется в <code>Dbl</code>;</li>
+  <li><code>Str</code> - строка, которая не может быть полностью преобразована в <code>Int</code> или <code>Dbl</code> (собственно, просто набор символов).</li>
 </ul>
 
-В соответствии с этими определениями, там, где это возможно, происходит преобразование строки в число и выполнение операции. Дальше приведены таблицы, показывающие результаты работы операций над значениями A и B:
+<p>В соответствии с этими определениями, там, где это возможно, происходит
+преобразование строки в число и выполнение операции.</p>
+<p>Далее приведены таблицы, показывающие результаты работы операций над значениями A и B:</p>
 
-<table class="cont">
-  <tr class="cont"><th class="cont">+</th><th class="cont">B.Int</th><th class="cont">B.Dbl</th><th class="cont">B.StrInt</th><th class="cont">B.StrDbl</th><th class="cont">B.Str</th></tr>
-  <tr class="cont"><th class="cont">A.Int</th><td class="cont">Int</td><td class="cont">Dbl</td><td class="cont">Int</td><td class="cont">Dbl</td><td class="cont">Str</td></tr>
-  <tr class="cont"><th class="cont">A.Dbl</th><td class="cont">Dbl</td><td class="cont">Dbl</td><td class="cont">Dbl</td><td class="cont">Dbl</td><td class="cont">Str</td></tr>
-  <tr class="cont"><th class="cont">A.StrInt</th><td class="cont">Int</td><td class="cont">Dbl</td><td class="cont">Int</td><td class="cont">Dbl</td><td class="cont">Str</td></tr>
-  <tr class="cont"><th class="cont">A.StrDbl</th><td class="cont">Dbl</td><td class="cont">Dbl</td><td class="cont">Dbl</td><td class="cont">Dbl</td><td class="cont">Str</td></tr>
-  <tr class="cont"><th class="cont">A.Str</th><td class="cont">Str</td><td class="cont">Str</td><td class="cont">Str</td><td class="cont">Str</td><td class="cont">Str</td></tr>
+<table class="cont2">
+  <col width="15%">
+  <col span="5" width="17%">
+  <tr><th>+</th><th>B.Int</th><th>B.Dbl</th><th>B.StrInt</th><th>B.StrDbl</th><th>B.Str</th></tr>
+  <tr><th>A.Int</th><td>Int</td><td>Dbl</td><td>Int</td><td>Dbl</td><td>Str</td></tr>
+  <tr><th>A.Dbl</th><td>Dbl</td><td>Dbl</td><td>Dbl</td><td>Dbl</td><td>Str</td></tr>
+  <tr><th>A.StrInt</th><td>Int</td><td>Dbl</td><td>Int</td><td>Dbl</td><td>Str</td></tr>
+  <tr><th>A.StrDbl</th><td>Dbl</td><td>Dbl</td><td>Dbl</td><td>Dbl</td><td>Str</td></tr>
+  <tr><th>A.Str</th><td>Str</td><td>Str</td><td>Str</td><td>Str</td><td>Str</td></tr>
 </table>
-<p>Здесь Str обозначает конкатенацию двух операндов.
+<p>Здесь Str обозначает конкатенацию двух операндов.</p>
 
-<table class="cont">
-  <tr class="cont"><th class="cont">- * / %</th><th class="cont">B.Int</th><th class="cont">B.Dbl</th><th class="cont">B.StrInt</th><th class="cont">B.StrDbl</th><th class="cont">B.Str</th></tr>
-  <tr class="cont"><th class="cont">A.Int</th><td class="cont">Int</td><td class="cont">Dbl</td><td class="cont">Int</td><td class="cont">Dbl</td><td class="cont">A.Str</td></tr>
-  <tr class="cont"><th class="cont">A.Dbl</th><td class="cont">Dbl</td><td class="cont">Dbl</td><td class="cont">Dbl</td><td class="cont">Dbl</td><td class="cont">A.Str</td></tr>
-  <tr class="cont"><th class="cont">A.StrInt</th><td class="cont">Int</td><td class="cont">Dbl</td><td class="cont">Int</td><td class="cont">Dbl</td><td class="cont">A.Str</td></tr>
-  <tr class="cont"><th class="cont">A.StrDbl</th><td class="cont">Dbl</td><td class="cont">Dbl</td><td class="cont">Dbl</td><td class="cont">Dbl</td><td class="cont">A.Str</td></tr>
-  <tr class="cont"><th class="cont">A.Str</th><td class="cont">A.Str</td><td class="cont">A.Str</td><td class="cont">A.Str</td><td class="cont">A.Str</td><td class="cont">A.Str</td></tr>
+<table class="cont2">
+  <col width="15%">
+  <col span="5" width="17%">
+  <tr><th>- * / %</th><th>B.Int</th><th>B.Dbl</th><th>B.StrInt</th><th>B.StrDbl</th><th>B.Str</th></tr>
+  <tr><th>A.Int</th><td>Int</td><td>Dbl</td><td>Int</td><td>Dbl</td><td>A.Str</td></tr>
+  <tr><th>A.Dbl</th><td>Dbl</td><td>Dbl</td><td>Dbl</td><td>Dbl</td><td>A.Str</td></tr>
+  <tr><th>A.StrInt</th><td>Int</td><td>Dbl</td><td>Int</td><td>Dbl</td><td>A.Str</td></tr>
+  <tr><th>A.StrDbl</th><td>Dbl</td><td>Dbl</td><td>Dbl</td><td>Dbl</td><td>A.Str</td></tr>
+  <tr><th>A.Str</th><td>A.Str</td><td>A.Str</td><td>A.Str</td><td>A.Str</td><td>A.Str</td></tr>
 </table>
-<p>Здесь A.Str - возвращается значение операнда A.
+<p>Здесь A.Str - возвращается значение операнда A.</p>
 
-<p>Для бинарных операций операнды Dbl или StrDbl предварительно преобразуется к Int.
-<table class="cont">
-  <tr class="cont"><th class="cont"><em>| &amp; ^ &lt;&lt; &gt;&gt;</em></th><th class="cont">B.Int</th><th class="cont">B.Dbl</th><th class="cont">B.StrInt</th><th class="cont">B.StrDbl</th><th class="cont">B.Str</th></tr>
-  <tr class="cont"><th class="cont">A.Int</th><td class="cont">Int</td><td class="cont">Int</td><td class="cont">Int</td><td class="cont">Int</td><td class="cont">A.Str</td></tr>
-  <tr class="cont"><th class="cont">A.Dbl</th><td class="cont">Int</td><td class="cont">Int</td><td class="cont">Int</td><td class="cont">Int</td><td class="cont">A.Str</td></tr>
-  <tr class="cont"><th class="cont">A.StrInt</th><td class="cont">Int</td><td class="cont">Int</td><td class="cont">Int</td><td class="cont">Int</td><td class="cont">A.Str</td></tr>
-  <tr class="cont"><th class="cont">A.StrDbl</th><td class="cont">Int</td><td class="cont">Int</td><td class="cont">Int</td><td class="cont">Int</td><td class="cont">A.Str</td></tr>
-  <tr class="cont"><th class="cont">A.Str</th><td class="cont">A.Str</td><td class="cont">A.Str</td><td class="cont">A.Str</td><td class="cont">A.Str</td><td class="cont">A.Str</td></tr>
+<p>Для бинарных операций операнды Dbl или StrDbl предварительно преобразуется к Int.</p>
+<table class="cont2">
+  <col width="15%">
+  <col span="5" width="17%">
+  <tr><th><em>| &amp; ^ &lt;&lt; &gt;&gt;</em></th><th>B.Int</th><th>B.Dbl</th><th>B.StrInt</th><th>B.StrDbl</th><th>B.Str</th></tr>
+  <tr><th>A.Int</th><td>Int</td><td>Int</td><td>Int</td><td>Int</td><td>A.Str</td></tr>
+  <tr><th>A.Dbl</th><td>Int</td><td>Int</td><td>Int</td><td>Int</td><td>A.Str</td></tr>
+  <tr><th>A.StrInt</th><td>Int</td><td>Int</td><td>Int</td><td>Int</td><td>A.Str</td></tr>
+  <tr><th>A.StrDbl</th><td>Int</td><td>Int</td><td>Int</td><td>Int</td><td>A.Str</td></tr>
+  <tr><th>A.Str</th><td>A.Str</td><td>A.Str</td><td>A.Str</td><td>A.Str</td><td>A.Str</td></tr>
 </table>
-<p>Здесь A.Str - возвращается значение операнда A.
+<p>Здесь A.Str - возвращается значение операнда A.</p>
 
-<p>В операциях сравнения (==, !=, &lt;, &lt;=, &gt;, &gt;=) операнды преобразуются (там, где это возможно) и сравниваются.
-<p>В логических OR и AND операнды сравниваются как есть, строки не преобразуются в StrInt и StrDbl, а проверяются на не пустую строку.
+<p>В операциях сравнения (==, !=, &lt;, &lt;=, &gt;, &gt;=) операнды преобразуются (там, где это возможно) и сравниваются.</p>
+<p>В логических OR и AND операнды сравниваются как есть, строки не преобразуются в StrInt и StrDbl, а проверяются на не пустую строку.</p>
 
 <h3>Приоритеты операций в выражениях</h3>
-<table class="cont">
-  <tr class="cont">
-    <th class="cont" width="40%">Операция</th>
-    <th class="cont" width="60%">Описание</th>
+<table class="cont2">
+  <col span="2">
+  <tr>
+    <th>Операция</th>
+    <th>Описание</th>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">!  ~  -</td>
-    <td class="cont" width="60%">Унарные (R-&gt;L)</td>
+  <tr>
+    <td>!  ~  -</td>
+    <td>Унарные (R-&gt;L)</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">* /</td>
-    <td class="cont" width="60%">арифметические</td>
+  <tr>
+    <td>* /</td>
+    <td>арифметические</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">+ -</td>
-    <td class="cont" width="60%">арифметические</td>
+  <tr>
+    <td>+ -</td>
+    <td>арифметические</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&lt;&lt; &gt;&gt;</td>
-    <td class="cont" width="60%">Битовый сдвиг</td>
+  <tr>
+    <td>&lt;&lt; &gt;&gt;</td>
+    <td>Битовый сдвиг</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&lt;  &lt;=  &gt;  =&gt;</td>
-    <td class="cont" width="60%">Логическое сравнение</td>
+  <tr>
+    <td>&lt;  &lt;=  &gt;  =&gt;</td>
+    <td>Логическое сравнение</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">== !=</td>
-    <td class="cont" width="60%">Логическое сравнение</td>
+  <tr>
+    <td>== !=</td>
+    <td>Логическое сравнение</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&amp;</td>
-    <td class="cont" width="60%">Битовая (and)</td>
+  <tr>
+    <td>&amp;</td>
+    <td>Битовая (and)</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">^</td>
-    <td class="cont" width="60%">Битовая (xor)</td>
+  <tr>
+    <td>^</td>
+    <td>Битовая (xor)</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">|</td>
-    <td class="cont" width="60%">Битовая (or)</td>
+  <tr>
+    <td>|</td>
+    <td>Битовая (or)</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&amp;&amp;</td>
-    <td class="cont" width="60%">Логическая</td>
+  <tr>
+    <td>&amp;&amp;</td>
+    <td>Логическая</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">||</td>
-    <td class="cont" width="60%">Логическая</td>
+  <tr>
+    <td>||</td>
+    <td>Логическая</td>
   </tr>
 </table>
 
-<h3>Замечания</h3>
-<div class=descr>
-<ol>
-<li>Именованные клавиши (например, CtrlK) могут участвовать в любых выражениях; в этом случае они считаются как числа.
-<li>Элементы макроязыка невозможно использовать во время <a href="../macrokey/record.html">записи
-    макроса</a> стандартным образом. Добавить элементы языка в макрос можно только путём ручной
-    правки реестра или путём применения специальных программ/плагинов.</li>
-</ol>
-</div>
-
 </body>
+
 </html>

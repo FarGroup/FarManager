@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Свойства и функции зависящие от контекста исполнения - Макросы</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>Свойства и функции зависящие от контекста исполнения</h1>
+<div class="navbar">
+<a href="../../../index.html">главная</a> |
+<a href="../../index.html">Макросы</a> |
+<a href="../index.html">Макроязык</a> |
+<a href="index.html">Свойства и функции: по областям</a>
+</div>
+
+<p>Значение этих свойств и функций зависит от того, в каком контексте исполняется в данный момент макропоследовательность.</p>
+
+<h2>Логические свойства (тип: Boolean)</h2>
+<table class="cont2 funcs">
+  <col>
+  <col class="descr">
+  <tr>
+    <th>Свойство</th>
+    <th>Описание</th>
+  </tr>
+  <tr>
+    <td><a name="bof">Bof</a></td>
+    <td>
+      <ul class="nomarker">
+      <li>в панелях типа <code>QView</code>/<code>Info</code>/<code>Tree</code> - достигнуто начала файла в области просмотра;</li>
+      <li>в файловых панелях (текущая область <code>Shell</code>) - курсор в начале командной строки;</li>
+      <li>в редакторе и программе просмотра - достигнуто начало файла;</li>
+      <li>в строках ввода в диалогах - курсор в начале строки;</li>
+      <li>в списках/меню - указатель установлен на первом пункте (в пустом списке всегда 1).</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td><a name="eof">Eof</a></td>
+    <td>
+      <ul class="nomarker">
+      <li>в панелях типа <code>QView</code>/<code>Info</code>/<code>Tree</code> - достигнут конец файла в области просмотра;</li>
+      <li>в файловых панелях - курсор в конце командной строки;</li>
+      <li>в редакторе и программе просмотра - достигнут конец файла;</li>
+      <li>в строках ввода в диалогах - курсор в конце строки;</li>
+      <li>в списках/меню - указатель установлен на последнем пункте (в пустом списке всегда 1).</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td><a name="empty">Empty</a></td>
+    <td>
+      <ul class="nomarker">
+      <li>в панелях типа <code>QView</code>/<code>Info</code>/<code>Tree</code> - область просмотра пуста;</li>
+      <li>в файловых панелях - командная строка пуста;</li>
+      <li>в редакторе и программе просмотра пустой файл;</li>
+      <li>в строках ввода в диалогах - строка ввода пуста;</li>
+      <li>в списках/меню - список пуст.</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td><a name="selected">Selected</a></td>
+    <td>
+      <ul class="nomarker">
+      <li>в панелях типа <code>QView</code> - выделен блок в области просмотра файла;</li>
+      <li>в панелях типа <code>Info</code> - выделен блок в области просмотра файла описания папки;</li>
+      <li>в панелях типа <code>Tree</code> - не имеет смысла (всегда 0);</li>
+      <li>в файловых панелях - выделен блок в командной строке;</li>
+      <li>в редакторе и программе просмотра - выделен блок;</li>
+      <li>в строках ввода в диалогах - выделен блок.</li>
+      <li>в списках/меню - не имеет смысла (всегда 1, если меню не пустое).</li>
+      </ul>
+      Примечание: В <code>QView</code>, <code>Info</code> и программе просмотра блок может быть выделен при поиске.
+    </td>
+  </tr>
+</table>
+
+<h2>Свойства</h2>
+<table class="cont2 funcs">
+  <col>
+  <col>
+  <col class="descr">
+  <tr><th>Оператор</th><th>Тип</th><th>Описание</th></tr>
+  <tr>
+    <td><a name="ItemCount">ItemCount</a></td>
+    <td>Number</td>
+    <td>число элементов в текущем объекте; в меню разделительная черта тоже учитывается</td>
+  </tr>
+  <tr>
+    <td><a name="CurPos">CurPos</a></td>
+    <td>Number</td>
+    <td>позиция в текущем объекте</td>
+  </tr>
+</table>
+
+<h2>Функции</h2>
+
+<table class="cont2 funcs">
+  <col>
+  <col class="descr">
+  <tr>
+    <th>Функция</th>
+    <th>Описание</th>
+  </tr>
+  <tr>
+    <td>Pos=<dfn>checkhotkey</dfn>(S[,StartPos])</td>
+    <td><p>Функция позволяет проверить и получить позицию элемента, для которого назначена горячая клавиша <var>S</var>.</p>
+    <p>Работает в меню, списках и диалогах.</p>
+    <p>Подробности в описании <a href="menus.html#checkhotkey">свойств и функций для меню и списков</a>.</p>
+   </td>
+  </tr>
+  <tr>
+    <td>V=<dfn>editor.sel</dfn>(Action[,Opt])</td>
+    <td><p>Функция позволяет производить некоторые операции с блоками в тексте (в редакторе, в строках ввода в диалогах, в командной строке).</p>
+    <p>Подробности в описании <a href="editor.html#editor.sel">свойств и функций для редактора</a>.</p>
+    </td>
+  </tr>
+</table>
+
+<div class="see">Смотрите также:</div><div class="seecont">
+<a href="../../examples.html">Примеры</a>
+</div>
+
+</body>
+
+</html>

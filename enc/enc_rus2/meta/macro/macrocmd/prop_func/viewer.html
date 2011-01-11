@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Свойства и функции для работы с внутренней программой просмотра - Макросы</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>Свойства и функции для работы с внутренней программой просмотра</h1>
+<div class="navbar">
+<a href="../../../index.html">главная</a> |
+<a href="../../index.html">Макросы</a> |
+<a href="../index.html">Макроязык</a> |
+<a href="index.html">Свойства и функции: по областям</a>
+</div>
+
+<h2>Свойства</h2>
+<table class="cont2 funcs">
+  <col>
+  <col>
+  <col class="descr">
+  <tr><th>Оператор</th><th>Тип</th><th>Описание</th></tr>
+  <tr>
+    <td><a name="Viewer.FileName">Viewer.FileName</a></td>
+    <td>String</td>
+    <td>полное имя просматриваемого файла</td>
+  </tr>
+  <tr>
+    <td><a name="Viewer.State">Viewer.State</a></td>
+    <td>Number</td>
+    <td>различные состояния текущей программы просмотра -
+      набор битовых флагов:
+      <table class="cont2 params lite tiny">
+        <col class="value">
+        <col>
+        <tr>
+          <th>Флаги</th>
+          <th>Описание</th>
+        </tr>
+        <tr>
+          <td>0x00000001</td>
+          <td>включено автоопределение таблицы символов</td>
+        </tr>
+        <tr>
+          <td>0x00000002</td>
+          <td>не используются таблицы символов и текст в
+            кодировке ANSI</td>
+        </tr>
+        <tr>
+          <td>0x00000004</td>
+          <td>режим Unicode</td>
+        </tr>
+        <tr>
+          <td>0x00000008</td>
+          <td>включён перенос строк</td>
+        </tr>
+        <tr>
+          <td>0x00000010</td>
+          <td>используется перенос строк по словам, а не по
+            буквам</td>
+        </tr>
+        <tr>
+          <td>0x00000020</td>
+          <td>выставлен 16-ричный режим</td>
+        </tr>
+        <tr>
+          <td>0x00000800</td>
+          <td>модальный вьювер</td>
+        </tr>
+        <tr>
+          <td>0x08000000</td>
+          <td>FAR запущен с ключом /v</td>
+        </tr>
+      </table>
+      Например,
+      <pre class="codesample">
+<code>$If (Viewer.State &amp; 0x20) <em>выполнить действия, если выставлен 16-ричный режим</em> $End</code>
+</pre>
+    </td>
+  </tr>
+</table>
+
+<div class="see">Смотрите также:</div><div class="seecont">
+<a href="../../examples.html">Примеры</a>
+</div>
+
+</body>
+
+</html>

@@ -2155,25 +2155,59 @@
                                 <param name="Local" value="html/macro/macrocmd/boolop.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Булевые состояния">
-                                <param name="Local" value="html/macro/macrocmd/boolstate.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Функции">
-                                <param name="Local" value="html/macro/macrocmd/functions.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="Операции">
                                 <param name="Local" value="html/macro/macrocmd/op.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Состояния">
-                                <param name="Local" value="html/macro/macrocmd/states.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="Переменные">
                                 <param name="Local" value="html/macro/macrocmd/vars.html">
                                 </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="Константы">
+                                <param name="Local" value="html/macro/macrocmd/consts.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="Cвойства и функции: по областям">
+                                <param name="Local" value="html/macro/macrocmd/prop_func/index.html">
+                                </OBJECT>
+                        <UL>
+                                <LI> <OBJECT type="text/sitemap">
+                                        <param name="Name" value="Общие">
+                                        <param name="Local" value="html/macro/macrocmd/prop_func/general.html">
+                                        </OBJECT>
+                                <LI> <OBJECT type="text/sitemap">
+                                        <param name="Name" value="Зависящие от контекста исполнения">
+                                        <param name="Local" value="html/macro/macrocmd/prop_func/context_dep.html">
+                                        </OBJECT>
+                                <LI> <OBJECT type="text/sitemap">
+                                        <param name="Name" value="Для панелей">
+                                        <param name="Local" value="html/macro/macrocmd/prop_func/panels.html">
+                                        </OBJECT>
+                                <LI> <OBJECT type="text/sitemap">
+                                        <param name="Name" value="Для командной строки">
+                                        <param name="Local" value="html/macro/macrocmd/prop_func/cmdline.html">
+                                        </OBJECT>
+                                <LI> <OBJECT type="text/sitemap">
+                                        <param name="Name" value="Для редактора">
+                                        <param name="Local" value="html/macro/macrocmd/prop_func/editor.html">
+                                        </OBJECT>
+                                <LI> <OBJECT type="text/sitemap">
+                                        <param name="Name" value="Для внутренней программы просмотра">
+                                        <param name="Local" value="html/macro/macrocmd/prop_func/viewer.html">
+                                        </OBJECT>
+                                <LI> <OBJECT type="text/sitemap">
+                                        <param name="Name" value="Для диалогов">
+                                        <param name="Local" value="html/macro/macrocmd/prop_func/dialog.html">
+                                        </OBJECT>
+                                <LI> <OBJECT type="text/sitemap">
+                                        <param name="Name" value="Для меню и списков">
+                                        <param name="Local" value="html/macro/macrocmd/prop_func/menus.html">
+                                        </OBJECT>
+                                <LI> <OBJECT type="text/sitemap">
+                                        <param name="Name" value="Для системы помощи">
+                                        <param name="Local" value="html/macro/macrocmd/prop_func/help.html">
+                                        </OBJECT>
+                        </UL>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
                         <param name="Name" value="Технические подробности">
