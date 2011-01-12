@@ -43,6 +43,48 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "CriticalSections.hpp"
 #include "console.hpp"
 
+static const string& GetFarTitleAddons()
+{
+	// " - Far%Ver%Admin"
+	/*
+		%Ver      - 2.0
+		%Build    - 1259
+		%Platform - x86
+		%Admin    - MFarTitleAddonsAdmin
+    */
+	static FormatString strVer, strBuild;
+	static bool bFirstRun = true;
+	static string strTitleAddons;
+
+	strTitleAddons.Copy(L" - Far ",7);
+	strTitleAddons += Opt.strTitleAddons;
+
+	if (bFirstRun)
+	{
+		bFirstRun = false;
+		strVer<<HIBYTE(LOWORD(FAR_VERSION))<<L"."<<LOBYTE(LOWORD(FAR_VERSION));
+		strBuild<<HIWORD(FAR_VERSION);
+	}
+
+	ReplaceStrings(strTitleAddons,L"%Ver",strVer,-1,true);
+	ReplaceStrings(strTitleAddons,L"%Build",strBuild,-1,true);
+	ReplaceStrings(strTitleAddons,L"%Platform",
+#ifdef _WIN64
+#ifdef _M_IA64
+	L"IA64",
+#else
+	L"x64",
+#endif
+#else
+	L"x86",
+#endif
+	-1,true);
+	ReplaceStrings(strTitleAddons,L"%Admin",Opt.IsUserAdmin?MSG(MFarTitleAddonsAdmin):L"",-1,true);
+	RemoveTrailingSpaces(strTitleAddons);
+
+	return strTitleAddons;
+}
+
 bool ConsoleTitle::TitleModified = false;
 DWORD ConsoleTitle::ShowTime = 0;
 
@@ -122,46 +164,4 @@ void ConsoleTitle::SetFarTitle(const wchar_t *Title, bool Force)
 		TitleModified=false;
 		//_SVS(SysLog(L"  (nullptr)FarTitle='%s'",FarTitle));
 	}
-}
-
-const string& GetFarTitleAddons()
-{
-	// " - Far%Ver%Admin"
-	/*
-		%Ver      - 2.0
-		%Build    - 1259
-		%Platform - x86
-		%Admin    - MFarTitleAddonsAdmin
-    */
-	static FormatString strVer, strBuild;
-	static bool bFirstRun = true;
-	static string strTitleAddons;
-
-	strTitleAddons.Copy(L" - Far ",7);
-	strTitleAddons += Opt.strTitleAddons;
-
-	if (bFirstRun)
-	{
-		bFirstRun = false;
-		strVer<<HIBYTE(LOWORD(FAR_VERSION))<<L"."<<LOBYTE(LOWORD(FAR_VERSION));
-		strBuild<<HIWORD(FAR_VERSION);
-	}
-
-	ReplaceStrings(strTitleAddons,L"%Ver",strVer,-1,true);
-	ReplaceStrings(strTitleAddons,L"%Build",strBuild,-1,true);
-	ReplaceStrings(strTitleAddons,L"%Platform",
-#ifdef _WIN64
-#ifdef _M_IA64
-	L"IA64",
-#else
-	L"x64",
-#endif
-#else
-	L"x86",
-#endif
-	-1,true);
-	ReplaceStrings(strTitleAddons,L"%Admin",Opt.IsUserAdmin?MSG(MFarTitleAddonsAdmin):L"",-1,true);
-	RemoveTrailingSpaces(strTitleAddons);
-
-	return strTitleAddons;
 }

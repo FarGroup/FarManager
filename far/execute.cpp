@@ -947,12 +947,9 @@ int Execute(const wchar_t *CmdStr, // Ком.строка для исполнения
 	seInfo.lpDirectory=strCurDir;
 	seInfo.nShow = SW_SHOWNORMAL;
 
-	string ComSpecParams(L"/C ");
-
+	string strFarTitle;
 	if(!SeparateWindow)
 	{
-		string strFarTitle(GetFarTitleAddons()+L" - ");
-		strFarTitle.LShift(3); // " - "
 		if (Opt.ExecuteFullTitle)
 		{
 			strFarTitle += strNewCmdStr;
@@ -965,9 +962,10 @@ int Execute(const wchar_t *CmdStr, // Ком.строка для исполнения
 		{
 			strFarTitle+=CmdStr;
 		}
-		Console.SetTitle(strFarTitle);
+		ConsoleTitle::SetFarTitle(strFarTitle);
 	}
 
+	string ComSpecParams(L"/C ");
 	if (DirectRun)
 	{
 		seInfo.lpFile = strNewCmdStr;
