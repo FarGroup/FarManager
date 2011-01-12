@@ -51,3 +51,5 @@ class ConsoleTitle
 		static void SetFarTitle(const wchar_t *Title, bool Force=false);
 		static bool WasTitleModified() { return TitleModified; }
 };
+
+const string& GetFarTitleAddons();

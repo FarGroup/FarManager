@@ -43,8 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "CriticalSections.hpp"
 #include "console.hpp"
 
-static const string& GetFarTitleAddons();
-
 bool ConsoleTitle::TitleModified = false;
 DWORD ConsoleTitle::ShowTime = 0;
 
@@ -126,7 +124,7 @@ void ConsoleTitle::SetFarTitle(const wchar_t *Title, bool Force)
 	}
 }
 
-static const string& GetFarTitleAddons()
+const string& GetFarTitleAddons()
 {
 	// " - Far%Ver%Admin"
 	/*

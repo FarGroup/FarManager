@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "constitle.hpp"
 #include "console.hpp"
+#include "constitle.hpp"
 
 static const wchar_t strSystemExecutor[]=L"System\\Executor";
 
@@ -948,6 +949,25 @@ int Execute(const wchar_t *CmdStr, // Ком.строка для исполнения
 
 	string ComSpecParams(L"/C ");
 
+	if(!SeparateWindow)
+	{
+		string strFarTitle(GetFarTitleAddons()+L" - ");
+		strFarTitle.LShift(3); // " - "
+		if (Opt.ExecuteFullTitle)
+		{
+			strFarTitle += strNewCmdStr;
+			if (!strNewCmdPar.IsEmpty())
+			{
+				strFarTitle.Append(L" ").Append(strNewCmdPar);
+			}
+		}
+		else
+		{
+			strFarTitle+=CmdStr;
+		}
+		Console.SetTitle(strFarTitle);
+	}
+
 	if (DirectRun)
 	{
 		seInfo.lpFile = strNewCmdStr;
@@ -956,22 +976,6 @@ int Execute(const wchar_t *CmdStr, // Ком.строка для исполнения
 	}
 	else
 	{
-		string strFarTitle;
-		if (!Opt.ExecuteFullTitle)
-		{
-			strFarTitle=CmdStr;
-		}
-		else
-		{
-			strFarTitle = strNewCmdStr;
-			if (!strNewCmdPar.IsEmpty())
-			{
-				strFarTitle.Append(L" ").Append(strNewCmdPar);
-			}
-		}
-
-		Console.SetTitle(strFarTitle);
-
 		QuoteSpace(strNewCmdStr);
 		bool bDoubleQ = wcspbrk(strNewCmdStr, L"&<>()@^|=;, ") != nullptr;
 		if (!strNewCmdPar.IsEmpty() || bDoubleQ)
@@ -1003,7 +1007,7 @@ int Execute(const wchar_t *CmdStr, // Ком.строка для исполнения
 
 	if(!Silent && !FolderRun)
 	{
-		Console.ScrollScreenBuffer(2);
+		Console.ScrollScreenBuffer(DirectRun && !SeparateWindow?2:1);
 	}
 	if (ShellExecuteEx(&seInfo))
 	{
