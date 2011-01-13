@@ -344,7 +344,7 @@ static bool waitkeyFunc(const TMacroFunction*);
 static bool xlatFunc(const TMacroFunction*);
 static bool pluginsFunc(const TMacroFunction*);
 static bool usersFunc(const TMacroFunction*);
-static bool scrscrollFunc(const TMacroFunction*);
+static bool windowscrollFunc(const TMacroFunction*);
 
 static TMacroFunction intMacroFunction[]=
 {
@@ -413,7 +413,6 @@ static TMacroFunction intMacroFunction[]=
 	{L"PROMPT",           5, 4,   MCODE_F_PROMPT,           nullptr, 0,nullptr,L"S=Prompt(Title[,Prompt[,flags[,Src[,History]]]])",IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT,promptFunc},
 	{L"REPLACE",          5, 2,   MCODE_F_REPLACE,          nullptr, 0,nullptr,L"S=Replace(Str,Find,Replace[,Cnt[,Mode]])",0,replaceFunc},
 	{L"RINDEX",           3, 1,   MCODE_F_RINDEX,           nullptr, 0,nullptr,L"S=RIndex(S1,S2[,Mode])",0,rindexFunc},
-	{L"SCR.SCROLL",       2, 1,   MCODE_F_SCR_SCROLL,       nullptr, 0,nullptr,L"N=Scr.Scroll(Lines[,Axis])",0,scrscrollFunc},
 	{L"SLEEP",            1, 0,   MCODE_F_SLEEP,            nullptr, 0,nullptr,L"N=Sleep(N)",0,sleepFunc},
 	{L"STRING",           1, 0,   MCODE_F_STRING,           nullptr, 0,nullptr,L"S=String(V)",0,stringFunc},
 	{L"SUBSTR",           3, 1,   MCODE_F_SUBSTR,           nullptr, 0,nullptr,L"S=SubStr(S,N1[,N2])",0,substrFunc},
@@ -421,6 +420,7 @@ static TMacroFunction intMacroFunction[]=
 	{L"TRIM",             2, 1,   MCODE_F_TRIM,             nullptr, 0,nullptr,L"S=Trim(S[,N])",0,trimFunc},
 	{L"UCASE",            1, 0,   MCODE_F_UCASE,            nullptr, 0,nullptr,L"S=UCase(S1)",0,ucaseFunc},
 	{L"WAITKEY",          2, 2,   MCODE_F_WAITKEY,          nullptr, 0,nullptr,L"V=Waitkey([N,[T]])",0,waitkeyFunc},
+	{L"WINDOW.SCROLL",    2, 1,   MCODE_F_WINDOW_SCROLL,    nullptr, 0,nullptr,L"N=Window.Scroll(Lines[,Axis])",0,windowscrollFunc},
 	{L"XLAT",             1, 0,   MCODE_F_XLAT,             nullptr, 0,nullptr,L"S=Xlat(S)",0,xlatFunc},
 
 	{0}
@@ -1932,8 +1932,8 @@ static bool atoiFunc(const TMacroFunction*)
 }
 
 
-// N=Scr.Scroll(Lines[,Axis])
-static bool scrscrollFunc(const TMacroFunction*)
+// N=Window.Scroll(Lines[,Axis])
+static bool windowscrollFunc(const TMacroFunction*)
 {
 	bool Ret=false;
 	TVar A, L;
@@ -3928,6 +3928,32 @@ const wchar_t *eStackAsString(int)
 	return !s?L"":s;
 }
 
+static bool __CheckCondForSkip(DWORD Op)
+{
+	TVar tmpVar=VMStack.Pop();
+	if (tmpVar.isString() && *tmpVar.s())
+		return true;
+
+	__int64 res=tmpVar.getInteger();
+	switch(Op)
+	{
+		case MCODE_OP_JZ:
+			return !res?true:false;
+		case MCODE_OP_JNZ:
+			return res?true:false;
+		case MCODE_OP_JLT:
+			return res < 0?true:false;
+		case MCODE_OP_JLE:
+			return res <= 0?true:false;
+		case MCODE_OP_JGT:
+			return res > 0?true:false;
+		case MCODE_OP_JGE:
+			return res >= 0?true:false;
+	}
+	return false;
+}
+
+
 int KeyMacro::GetKey()
 {
 	MacroRecord *MR;
@@ -4412,54 +4438,20 @@ done:
 		case MCODE_OP_JMP:
 			Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
 			goto begin;
+
 		case MCODE_OP_JZ:
-
-			if (!VMStack.Pop().getInteger())
-				Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
-			else
-				Work.ExecLIBPos++;
-
-			goto begin;
 		case MCODE_OP_JNZ:
-
-			if (VMStack.Pop().getInteger() )
-				Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
-			else
-				Work.ExecLIBPos++;
-
-			goto begin;
 		case MCODE_OP_JLT:
-
-			if (VMStack.Pop().getInteger() < 0)
-				Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
-			else
-				Work.ExecLIBPos++;
-
-			goto begin;
 		case MCODE_OP_JLE:
-
-			if (VMStack.Pop().getInteger() <= 0)
-				Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
-			else
-				Work.ExecLIBPos++;
-
-			goto begin;
 		case MCODE_OP_JGT:
-
-			if (VMStack.Pop().getInteger() > 0)
-				Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
-			else
-				Work.ExecLIBPos++;
-
-			goto begin;
 		case MCODE_OP_JGE:
-
-			if (VMStack.Pop().getInteger() >= 0)
+			if(__CheckCondForSkip(Key))
 				Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
 			else
 				Work.ExecLIBPos++;
 
 			goto begin;
+
 			// операции
 		case MCODE_OP_NEGATE: VMStack.Pop(tmpVar); VMStack.Push(-tmpVar); goto begin;
 		case MCODE_OP_NOT:    VMStack.Pop(tmpVar); VMStack.Push(!tmpVar); goto begin;

@@ -252,9 +252,9 @@ static void keyMacroParseError(int err, const wchar_t *s, const wchar_t *p, cons
 		ErrMessage[1] += p+oPos;
 		//if ( ErrMessage[1][61] ) BUGBUG
 		//	strncpy(&ErrMessage[1][61], "...",sizeof(ErrMessage[1])-62);
-		_macro_nPos = ePos-oPos+(oPos ? 3 : 0);
+		_macro_nPos = ePos;
 		InsertQuote(ErrMessage[1]);
-		ErrMessage[2].Format(L"%*s%c", _macro_nPos+1, L"", L'\x2191');
+		ErrMessage[2].Format(L"%*s%c", ePos-oPos+(oPos ? 3 : 0)+1, L"", L'\x2191');
 		ErrMessage[3].Format(MSG(MMacroPErrorPosition), _macro_nLine+1, _macro_nPos+1);
 	}
 }
@@ -324,6 +324,8 @@ static TToken getToken();
 static void calcFunc()
 {
 	int nParam, oParam;
+	wchar_t nameString0[1024];
+
 	TMacroOpCode nFunc = (TMacroOpCode)funcLook(nameString, nParam, oParam);
 
 	if (nFunc != MCODE_F_NOFUNC)
@@ -339,12 +341,14 @@ static void calcFunc()
 			{
 				for (; i < nParam ; i++)
 				{
+					xwcsncpy(nameString0,nameString,ARRAYSIZE(nameString));
 					getToken();
 
 					if (currTok != tRp)
 						foundparam++;
 
 					expr();
+					xwcsncpy(nameString,nameString0,ARRAYSIZE(nameString));
 
 					if (oParam > 0 && currTok == tRp && !foundparam)
 						break;
@@ -365,8 +369,10 @@ static void calcFunc()
 			}
 			else
 			{
+				xwcsncpy(nameString0,nameString,ARRAYSIZE(nameString));
 				getToken();
 				expr();
+				xwcsncpy(nameString,nameString0,ARRAYSIZE(nameString));
 			}
 
 			if (oParam > 0) //???

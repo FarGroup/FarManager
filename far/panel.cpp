@@ -2015,6 +2015,7 @@ void Panel::SetTitle()
 string &Panel::GetTitle(string &strTitle,int SubLen,int TruncSize)
 {
 	string strTitleDir;
+	bool truncTitle = (SubLen==-1 || TruncSize==0)?false:true;
 
 	if (PanelMode==PLUGIN_PANEL)
 	{
@@ -2022,7 +2023,8 @@ string &Panel::GetTitle(string &strTitle,int SubLen,int TruncSize)
 		GetOpenPluginInfo(&Info);
 		strTitleDir = Info.PanelTitle;
 		RemoveExternalSpaces(strTitleDir);
-		TruncStr(strTitleDir,SubLen-TruncSize);
+		if (truncTitle)
+			TruncStr(strTitleDir,SubLen-TruncSize);
 	}
 	else
 	{
@@ -2031,7 +2033,8 @@ string &Panel::GetTitle(string &strTitle,int SubLen,int TruncSize)
 		else
 			strTitleDir = strCurDir;
 
-		TruncPathStr(strTitleDir,SubLen-TruncSize);
+		if (truncTitle)
+			TruncPathStr(strTitleDir,SubLen-TruncSize);
 	}
 
 	strTitle = L" "+strTitleDir+L" ";
