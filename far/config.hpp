@@ -601,6 +601,7 @@ struct Options
 	int ExecuteShowErrorMessage;
 	int ExecuteUseAppPath;
 	int ExecuteFullTitle;
+	int ExecuteSilentExternal;
 	string strExecuteBatchType;
 
 	DWORD PluginMaxReadData;

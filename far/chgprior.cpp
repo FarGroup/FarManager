@@ -34,10 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#ifndef __CHANGEPRIORITY_HPP__
 #include "chgprior.hpp"
-#endif
-
 
 ChangePriority::ChangePriority(int NewPriority):
 	SavePriority(GetThreadPriority(GetCurrentThread()))

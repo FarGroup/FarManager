@@ -832,13 +832,22 @@ int Execute(const wchar_t *CmdStr, //  ом.строка дл€ исполнени€
 		SeparateWindow = true;
 	}
 
+	if(FolderRun)
+	{
+		Silent = true;
+	}
+
 	if (SeparateWindow)
 	{
+		if(Opt.ExecuteSilentExternal)
+		{
+			Silent = true;
+		}
 		if (strNewCmdPar.IsEmpty() && dwAttr != INVALID_FILE_ATTRIBUTES && (dwAttr & FILE_ATTRIBUTE_DIRECTORY))
 		{
 			ConvertNameToFull(strNewCmdStr, strNewCmdStr);
 			DirectRun = true;
-			FolderRun=TRUE;
+			FolderRun=true;
 		}
 	}
 
@@ -849,46 +858,6 @@ int Execute(const wchar_t *CmdStr, //  ом.строка дл€ исполнени€
 		Message(MSG_WARNING, 1, MSG(MWarning), MSG(MComspecNotFound), MSG(MErrorCancelled), MSG(MOk));
 		return -1;
 	}
-
-
-	int X1, X2, Y1, Y2;
-	CtrlObject->CmdLine->GetPosition(X1, Y1, X2, Y2);
-	if(!Silent && !FolderRun)
-	{
-		ProcessShowClock++;
-		CtrlObject->CmdLine->ShowBackground();
-		CtrlObject->CmdLine->Redraw();
-		GotoXY(X2+1,Y1);
-		Text(L" ");
-		MoveCursor(X1,Y1);
-	}
-	CtrlObject->CmdLine->SetString(L"", FALSE);
-
-	bool Visible=false;
-	DWORD Size=0;
-	GetCursorType(Visible,Size);
-	SetInitialCursorType();
-
-	// BUGBUG: если команда начинаетс€ с "@", то эта строка херит все начинани€
-	// TODO: здесь необходимо подставить виртуальный буфер, а потом его корректно подсунуть в ScrBuf
-	ScrBuf.SetLockCount(0);
-
-	ScrBuf.Flush();
-
-	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-
-	int ConsoleCP = Console.GetInputCodepage();
-	int ConsoleOutputCP = Console.GetOutputCodepage();
-
-	FlushInputBuffer();
-	ChangeConsoleMode(InitialConsoleMode);
-
-	SMALL_RECT ConsoleWindowRect;
-	COORD ConsoleSize;
-	Console.GetWindowRect(ConsoleWindowRect);
-	Console.GetSize(ConsoleSize);
-
-	ConsoleTitle OldTitle;
 
 	DWORD dwSubSystem;
 	DWORD dwError = 0;
@@ -936,10 +905,58 @@ int Execute(const wchar_t *CmdStr, //  ом.строка дл€ исполнени€
 
 		if (dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)
 		{
+			if(DirectRun && Opt.ExecuteSilentExternal)
+			{
+				Silent = true;
+			}
 			DirectRun = true;
 			SeparateWindow = true;
 		}
 	}
+
+	bool Visible=false;
+	DWORD Size=0;
+	SMALL_RECT ConsoleWindowRect;
+	COORD ConsoleSize;
+	int ConsoleCP;
+	int ConsoleOutputCP;
+
+	if(!Silent)
+	{
+		int X1, X2, Y1, Y2;
+		CtrlObject->CmdLine->GetPosition(X1, Y1, X2, Y2);
+		ProcessShowClock++;
+		CtrlObject->CmdLine->ShowBackground();
+		CtrlObject->CmdLine->Redraw();
+		GotoXY(X2+1,Y1);
+		Text(L" ");
+		MoveCursor(X1,Y1);
+		GetCursorType(Visible,Size);
+		SetInitialCursorType();
+	}
+
+	CtrlObject->CmdLine->SetString(L"", Silent);
+
+	if(!Silent)
+	{
+		// BUGBUG: если команда начинаетс€ с "@", то эта строка херит все начинани€
+		// TODO: здесь необходимо подставить виртуальный буфер, а потом его корректно подсунуть в ScrBuf
+		ScrBuf.SetLockCount(0);
+		ScrBuf.Flush();
+	}
+
+	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+
+	if(!Silent)
+	{
+		ConsoleCP = Console.GetInputCodepage();
+		ConsoleOutputCP = Console.GetOutputCodepage();
+		FlushInputBuffer();
+		ChangeConsoleMode(InitialConsoleMode);
+		Console.GetWindowRect(ConsoleWindowRect);
+		Console.GetSize(ConsoleSize);
+	}
+	ConsoleTitle OldTitle;
 
 	SHELLEXECUTEINFO seInfo={sizeof(seInfo)};
 	string strCurDir;
@@ -948,7 +965,7 @@ int Execute(const wchar_t *CmdStr, //  ом.строка дл€ исполнени€
 	seInfo.nShow = SW_SHOWNORMAL;
 
 	string strFarTitle;
-	if(!SeparateWindow)
+	if(!Silent)
 	{
 		if (Opt.ExecuteFullTitle)
 		{
@@ -1001,22 +1018,21 @@ int Execute(const wchar_t *CmdStr, //  ом.строка дл€ исполнени€
 		seInfo.lpVerb = L"runas";
 	}
 
-	seInfo.fMask = SEE_MASK_NOASYNC|SEE_MASK_NOCLOSEPROCESS|(SeparateWindow?0:SEE_MASK_NO_CONSOLE);
+	seInfo.fMask = SEE_MASK_FLAG_NO_UI|SEE_MASK_NOASYNC|SEE_MASK_NOCLOSEPROCESS|(SeparateWindow?0:SEE_MASK_NO_CONSOLE);
 
-	if(!Silent && !FolderRun)
+	if(!Silent)
 	{
-		Console.ScrollScreenBuffer(DirectRun && !SeparateWindow?2:1);
+		Console.ScrollScreenBuffer(!DirectRun && !SeparateWindow?1:2);
 	}
+
 	if (ShellExecuteEx(&seInfo))
 	{
 		hProcess = seInfo.hProcess;
-		StartExecTime=clock();
 	}
 	else
 	{
 		dwError = GetLastError();
 	}
-
 
 	DWORD ErrorCode=0;
 	bool ErrMsg=false;
@@ -1192,10 +1208,9 @@ int Execute(const wchar_t *CmdStr, //  ом.строка дл€ исполнени€
 		}
 	}
 
-	ScrBuf.FillBuf();
-
-	if(!Silent && !FolderRun)
+	if(!Silent)
 	{
+		ScrBuf.FillBuf();
 		CtrlObject->CmdLine->SaveBackground();
 		ProcessShowClock--;
 	}
@@ -1209,28 +1224,30 @@ int Execute(const wchar_t *CmdStr, //  ом.строка дл€ исполнени€
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotExecute),strOutStr,MSG(MOk));
 	}
 
-	SetFarConsoleMode(TRUE);
-	/* ѕринудительна€ установка курсора, т.к. SetCursorType иногда не спасает
-	    вследствие своей оптимизации, котора€ в данном случае выходит боком.
-	*/
-	SetCursorType(Visible,Size);
-	CONSOLE_CURSOR_INFO cci={Size, Visible};
-	Console.SetCursorInfo(cci);
-
-	COORD ConSize;
-	Console.GetSize(ConSize);
-	if(ConSize.X!=ScrX+1 || ConSize.Y!=ScrY+1)
+	if(!Silent)
 	{
-		ChangeVideoMode(ConSize.Y, ConSize.X);
-	}
+		SetFarConsoleMode(TRUE);
+		/* ѕринудительна€ установка курсора, т.к. SetCursorType иногда не спасает
+		    вследствие своей оптимизации, котора€ в данном случае выходит боком.
+		*/
+		SetCursorType(Visible,Size);
+		CONSOLE_CURSOR_INFO cci={Size, Visible};
+		Console.SetCursorInfo(cci);
 
-	if (Opt.RestoreCPAfterExecute)
-	{
-		// восстановим CP-консоли после исполнени€ проги
-		Console.SetInputCodepage(ConsoleCP);
-		Console.SetOutputCodepage(ConsoleOutputCP);
-	}
+		COORD ConSize;
+		Console.GetSize(ConSize);
+		if(ConSize.X!=ScrX+1 || ConSize.Y!=ScrY+1)
+		{
+			ChangeVideoMode(ConSize.Y, ConSize.X);
+		}
 
+		if (Opt.RestoreCPAfterExecute)
+		{
+			// восстановим CP-консоли после исполнени€ проги
+			Console.SetInputCodepage(ConsoleCP);
+			Console.SetOutputCodepage(ConsoleOutputCP);
+		}
+	}
 	return nResult;
 }
 

@@ -822,7 +822,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 		if (!(LoopCount & 15))
 		{
 			clock_t CurTime=clock();
-			clock_t TimeAfterExec=CurTime-StartExecTime;
 
 			if (EnableShowTime)
 				ShowTime(0);
@@ -876,19 +875,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 						UpdateReenter=FALSE;
 					}
 				}
-			}
-
-			if (StartExecTime && TimeAfterExec>2000)
-			{
-				StartExecTime=0;
-
-				if (IsFullscreen() && !Opt.Mouse)
-				{
-					Console.SetMode(Console.GetInputHandle(),ENABLE_WINDOW_INPUT|ENABLE_MOUSE_INPUT);
-					Console.SetMode(Console.GetInputHandle(),ENABLE_WINDOW_INPUT);
-				}
-
-				ConsoleTitle::SetFarTitle(nullptr);//LastFarTitle);
 			}
 
 			if (Opt.ScreenSaver && Opt.ScreenSaverTime>0 &&

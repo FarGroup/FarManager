@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 extern clock_t StartIdleTime;
-extern clock_t StartExecTime;
 
 extern OSVERSIONINFOW WinVer;
 

@@ -368,16 +368,13 @@ bool ProcessLocalFileTypes(const wchar_t *Name, const wchar_t *ShortName, int Mo
 
 void ProcessGlobalFileTypes(const wchar_t *Name, bool AlwaysWaitFinish, bool RunAs)
 {
-	string strFullName;
-	ConvertNameToFull(Name,strFullName);
-	QuoteSpace(strFullName);
-	CtrlObject->CmdLine->ExecString(strFullName, AlwaysWaitFinish, true, true, false, false, RunAs);
+	string strName(Name);
+	QuoteSpace(strName);
+	CtrlObject->CmdLine->ExecString(strName, AlwaysWaitFinish, true, true, false, false, RunAs);
 
 	if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTWINASS) && !AlwaysWaitFinish)
 	{
-		string strQuotedName = Name;
-		QuoteSpace(strQuotedName);
-		CtrlObject->CmdHistory->AddToHistory(strQuotedName);
+		CtrlObject->CmdHistory->AddToHistory(strName);
 	}
 }
 
