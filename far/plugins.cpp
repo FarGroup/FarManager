@@ -349,7 +349,8 @@ bool PluginManager::RemovePlugin(Plugin *pPlugin)
 
 bool PluginManager::LoadPlugin(
     const wchar_t *lpwszModuleName,
-    const FAR_FIND_DATA_EX &FindData
+    const FAR_FIND_DATA_EX &FindData,
+    bool LoadToMem
 )
 {
 	Plugin *pPlugin = nullptr;
@@ -370,7 +371,10 @@ bool PluginManager::LoadPlugin(
 		return false;
 	}
 
-	bool bResult = pPlugin->LoadFromCache(FindData);
+	bool bResult=false;
+
+	if (!LoadToMem)
+		bResult = pPlugin->LoadFromCache(FindData);
 
 	if (!bResult && !Opt.LoadPlug.PluginsCacheOnly)
 	{
@@ -383,25 +387,30 @@ bool PluginManager::LoadPlugin(
 	return bResult;
 }
 
-bool PluginManager::LoadPluginExternal(const wchar_t *lpwszModuleName)
+bool PluginManager::LoadPluginExternal(const wchar_t *lpwszModuleName, bool LoadToMem)
 {
 	Plugin *pPlugin = GetPlugin(lpwszModuleName);
 
 	if (pPlugin)
-		return true;
-
-	FAR_FIND_DATA_EX FindData;
-
-	if (apiGetFindDataEx(lpwszModuleName, FindData))
 	{
-		if (LoadPlugin(lpwszModuleName, FindData))
+		if (LoadToMem && !pPlugin->Load())
 		{
-			far_qsort(PluginsData, PluginsCount, sizeof(*PluginsData), PluginsSort);
-			return true;
+			RemovePlugin(pPlugin);
+			return false;
 		}
 	}
+	else
+	{
+		FAR_FIND_DATA_EX FindData;
 
-	return false;
+		if (apiGetFindDataEx(lpwszModuleName, FindData))
+		{
+			if (!LoadPlugin(lpwszModuleName, FindData, LoadToMem))
+				return false;
+			far_qsort(PluginsData, PluginsCount, sizeof(*PluginsData), PluginsSort);
+		}
+	}
+	return true;
 }
 
 int PluginManager::UnloadPlugin(Plugin *pPlugin, DWORD dwException, bool bRemove)
@@ -553,7 +562,7 @@ void PluginManager::LoadPlugins()
 			{
 				if (CmpName(L"*.dll",FindData.strFileName,false) && !(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 				{
-					LoadPlugin(strFullName, FindData);
+					LoadPlugin(strFullName, FindData, false);
 				}
 			} // end while
 		}
@@ -582,7 +591,7 @@ void PluginManager::LoadPluginsFromCache()
 		FAR_FIND_DATA_EX FindData;
 
 		if (apiGetFindDataEx(strModuleName, FindData))
-			LoadPlugin(strModuleName, FindData);
+			LoadPlugin(strModuleName, FindData, false);
 	}
 }
 

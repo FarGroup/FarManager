@@ -174,7 +174,7 @@ class PluginManager
 		bool TestPluginInfo(Plugin *Item,PluginInfo *Info);
 		bool TestOpenPluginInfo(Plugin *Item,OpenPluginInfo *Info);
 
-		bool LoadPlugin(const wchar_t *lpwszModuleName, const FAR_FIND_DATA_EX &FindData);
+		bool LoadPlugin(const wchar_t *lpwszModuleName, const FAR_FIND_DATA_EX &FindData, bool LoadToMem);
 
 		bool AddPlugin(Plugin *pPlugin);
 		bool RemovePlugin(Plugin *pPlugin);
@@ -191,7 +191,7 @@ class PluginManager
 
 	public:
 
-		bool LoadPluginExternal(const wchar_t *lpwszModuleName);
+		bool LoadPluginExternal(const wchar_t *lpwszModuleName, bool LoadToMem);
 
 		int UnloadPlugin(Plugin *pPlugin, DWORD dwException, bool bRemove = false);
 		int UnloadPluginExternal(const wchar_t *lpwszModuleName);

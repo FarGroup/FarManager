@@ -2351,6 +2351,7 @@ int WINAPI farPluginsControl(HANDLE hHandle, int Command, int Param1, LONG_PTR P
 	{
 		case PCTL_LOADPLUGIN:
 		case PCTL_UNLOADPLUGIN:
+		case PCTL_FORCEDLOADPLUGIN:
 		{
 			if (Param1 == PLT_PATH)
 			{
@@ -2360,7 +2361,9 @@ int WINAPI farPluginsControl(HANDLE hHandle, int Command, int Param1, LONG_PTR P
 					ConvertNameToFull((const wchar_t *)Param2, strPath);
 
 					if (Command == PCTL_LOADPLUGIN)
-						return CtrlObject->Plugins.LoadPluginExternal(strPath);
+						return CtrlObject->Plugins.LoadPluginExternal(strPath, false);
+					else if (Command == PCTL_FORCEDLOADPLUGIN)
+						return CtrlObject->Plugins.LoadPluginExternal(strPath, true);
 					else
 						return CtrlObject->Plugins.UnloadPluginExternal(strPath);
 				}
