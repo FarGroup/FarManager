@@ -346,6 +346,8 @@ static bool pluginsFunc(const TMacroFunction*);
 static bool usersFunc(const TMacroFunction*);
 static bool windowscrollFunc(const TMacroFunction*);
 
+static bool __CheckCondForSkip(DWORD Op);
+
 static TMacroFunction intMacroFunction[]=
 {
 	{L"ABS",              1, 0,   MCODE_F_ABS,              nullptr, 0,nullptr,L"N=Abs(N)",0,absFunc},
@@ -2098,7 +2100,7 @@ static bool iifFunc(const TMacroFunction*)
 	TVar V2, V1;
 	VMStack.Pop(V2);
 	VMStack.Pop(V1);
-	VMStack.Push(VMStack.Pop().getInteger() ? V1 : V2);
+	VMStack.Push(__CheckCondForSkip(MCODE_OP_JZ) ? V2 : V1);
 	return true;
 }
 
@@ -3932,7 +3934,7 @@ static bool __CheckCondForSkip(DWORD Op)
 {
 	TVar tmpVar=VMStack.Pop();
 	if (tmpVar.isString() && *tmpVar.s())
-		return true;
+		return false;
 
 	__int64 res=tmpVar.getInteger();
 	switch(Op)
