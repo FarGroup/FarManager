@@ -59,117 +59,120 @@ class WMIConnection;
 
 extern struct _Opt
 {
-  int AddToDisksMenu;
+	int AddToDisksMenu;
 #ifndef UNICODE
-  int DisksMenuDigit;
+	int DisksMenuDigit;
 #endif
-  int AddToPluginsMenu;
-  int ExportEnvironment;
-  int ExportModuleInfo;
-  int ExportModuleVersion;
-  int ExportPerformance;
-  int ExportHandles;
-  int EnableWMI;
-  static void Read();
-  static void Write();
+	int AddToPluginsMenu;
+	int ExportEnvironment;
+	int ExportModuleInfo;
+	int ExportModuleVersion;
+	int ExportPerformance;
+	int ExportHandles;
+	int EnableWMI;
+	static void Read();
+	static void Write();
 } Opt;
 
 
-inline int Message(unsigned Flags, TCHAR *HelpTopic, LPCTSTR*Items, int nItems, int nButtons=1) {
-    return Info.Message(Info.ModuleNumber, Flags, HelpTopic, Items, nItems, nButtons);
+inline int Message(unsigned Flags, TCHAR *HelpTopic, LPCTSTR*Items, int nItems, int nButtons=1)
+{
+	return Info.Message(Info.ModuleNumber, Flags, HelpTopic, Items, nItems, nButtons);
 }
 
-extern class ui64Table {
-    unsigned __int64 Table[21];
-public:
-    ui64Table();
-    unsigned __int64 tenpow(unsigned n);
+extern class ui64Table
+{
+		unsigned __int64 Table[21];
+	public:
+		ui64Table();
+		unsigned __int64 tenpow(unsigned n);
 } *_ui64Table;
 
 class Plist
 {
-  private:
-    void PrintVersionInfo(HANDLE InfoFile, TCHAR* FullPath);
-    void Reread();
-    void FileTimeToText(FILETIME *CurFileTime,FILETIME *SrcTime,TCHAR *TimeText);
-    void PutToCmdLine(TCHAR* tmp);
+	private:
+		void PrintVersionInfo(HANDLE InfoFile, TCHAR* FullPath);
+		void Reread();
+		void FileTimeToText(FILETIME *CurFileTime,FILETIME *SrcTime,TCHAR *TimeText);
+		void PutToCmdLine(TCHAR* tmp);
 
-    DWORD LastUpdateTime;
-    TCHAR HostName[64];
-    PerfThread* pPerfThread;
-    unsigned StartPanelMode;
-    unsigned SortMode;
+		DWORD LastUpdateTime;
+		TCHAR HostName[64];
+		PerfThread* pPerfThread;
+		unsigned StartPanelMode;
+		unsigned SortMode;
 
-    WMIConnection* pWMI;
-    DWORD dwPluginThread;
+		WMIConnection* pWMI;
+		DWORD dwPluginThread;
 
-    void GeneratePanelModes();
-    int Menu(unsigned int Flags, TCHAR *Title, TCHAR *Bottom, TCHAR *HelpTopic, int *BreakKeys, FarMenuItem *Item, int ItemsNumber)
-    {
-        return (*Info.Menu)(Info.ModuleNumber, -1, -1, 0, Flags, Title, Bottom, HelpTopic, BreakKeys,0, Item, ItemsNumber);
-    }
-    static bool TranslateMode(LPCTSTR src, LPTSTR dest);
-    void PrintOwnerInfo(HANDLE InfoFile, DWORD dwPid);
+		void GeneratePanelModes();
+		int Menu(unsigned int Flags, TCHAR *Title, TCHAR *Bottom, TCHAR *HelpTopic, int *BreakKeys, FarMenuItem *Item, int ItemsNumber)
+		{
+			return (*Info.Menu)(Info.ModuleNumber, -1, -1, 0, Flags, Title, Bottom, HelpTopic, BreakKeys,0, Item, ItemsNumber);
+		}
+		static bool TranslateMode(LPCTSTR src, LPTSTR dest);
+		void PrintOwnerInfo(HANDLE InfoFile, DWORD dwPid);
 
-    bool ConnectWMI();
-    void DisconnectWMI();
-    void WmiError();
+		bool ConnectWMI();
+		void DisconnectWMI();
+		void WmiError();
 
-  public:
-    Plist();
-    ~Plist();
-    bool Connect(LPCTSTR pMachine, LPCTSTR pUser=0, LPCTSTR pPasw=0);
-    int GetFindData(PluginPanelItem* &pPanelItem,int &pItemsNumber,int OpMode);
-    void FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber);
-    void GetOpenPluginInfo(OpenPluginInfo *Info);
-    int SetDirectory(TCHAR *Dir,int OpMode);
-    int GetFiles(PluginPanelItem *PanelItem,int ItemsNumber,
-        int Move,WCONST WTYPE DestPath,int OpMode, _Opt& opt=::Opt);
-    int DeleteFiles(PluginPanelItem *PanelItem,int ItemsNumber,
-                    int OpMode);
-    int ProcessEvent(int Event,void *Param);
-    int Compare(const PluginPanelItem *Item1, const PluginPanelItem *Item2, unsigned int Mode);
-    int ProcessKey(int Key,unsigned int ControlState);
-    PanelMode *PanelModes(int& nModes);
+	public:
+		Plist();
+		~Plist();
+		bool Connect(LPCTSTR pMachine, LPCTSTR pUser=0, LPCTSTR pPasw=0);
+		int GetFindData(PluginPanelItem* &pPanelItem,int &pItemsNumber,int OpMode);
+		void FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber);
+		void GetOpenPluginInfo(OpenPluginInfo *Info);
+		int SetDirectory(TCHAR *Dir,int OpMode);
+		int GetFiles(PluginPanelItem *PanelItem,int ItemsNumber,
+		             int Move,WCONST WTYPE DestPath,int OpMode, _Opt& opt=::Opt);
+		int DeleteFiles(PluginPanelItem *PanelItem,int ItemsNumber,
+		                int OpMode);
+		int ProcessEvent(int Event,void *Param);
+		int Compare(const PluginPanelItem *Item1, const PluginPanelItem *Item2, unsigned int Mode);
+		int ProcessKey(int Key,unsigned int ControlState);
+		PanelMode *PanelModes(int& nModes);
 
-    static TCHAR* PrintTitle(int MsgId);
+		static TCHAR* PrintTitle(int MsgId);
 
-  static bool GetVersionInfo(TCHAR* pFullPath, LPBYTE &pBuffer, TCHAR* &pVersion, TCHAR* &pDesc);
-  static bool bInit;
-  static PanelMode PanelModesLocal[NPANELMODES], PanelModesRemote[NPANELMODES];
-  static TCHAR ProcPanelModesLocal[NPANELMODES][MAX_MODE_STR], ProcPanelModesRemote[NPANELMODES][MAX_MODE_STR];
-  static TCHAR PanelModeBuffer[NPANELMODES*MAX_MODE_STR*4*2];
-  static void SavePanelModes();
-  static void InitializePanelModes();
-  static bool PanelModesInitialized() { return PanelModesLocal[0].ColumnTypes!=0; }
+		static bool GetVersionInfo(TCHAR* pFullPath, LPBYTE &pBuffer, TCHAR* &pVersion, TCHAR* &pDesc);
+		static bool bInit;
+		static PanelMode PanelModesLocal[NPANELMODES], PanelModesRemote[NPANELMODES];
+		static TCHAR ProcPanelModesLocal[NPANELMODES][MAX_MODE_STR], ProcPanelModesRemote[NPANELMODES][MAX_MODE_STR];
+		static TCHAR PanelModeBuffer[NPANELMODES*MAX_MODE_STR*4*2];
+		static void SavePanelModes();
+		static void InitializePanelModes();
+		static bool PanelModesInitialized() { return PanelModesLocal[0].ColumnTypes!=0; }
 };
 
 struct InitDialogItem
 {
-  unsigned char Type;
-  unsigned char X1,Y1,X2,Y2;
-  unsigned char Focus;
-  DWORD_PTR Selected;
-  unsigned int Flags;
-  unsigned char DefaultButton;
-  const TCHAR *Data;
+	unsigned char Type;
+	unsigned char X1,Y1,X2,Y2;
+	unsigned char Focus;
+	DWORD_PTR Selected;
+	unsigned int Flags;
+	unsigned char DefaultButton;
+	const TCHAR *Data;
 };
 
 struct ProcessData
 {
-  DWORD Size;
-  HWND hwnd;
+	DWORD Size;
+	HWND hwnd;
 //  DWORD Threads;
-  DWORD dwPID;
-  DWORD dwParentPID;
-  DWORD dwPrBase;
-  UINT  uAppType;
-  TCHAR FullPath[MAX_PATH];
+	DWORD dwPID;
+	DWORD dwParentPID;
+	DWORD dwPrBase;
+	UINT  uAppType;
+	TCHAR FullPath[MAX_PATH];
 };
 
-struct ProcessDataNT : ProcessData {
-    DWORD dwElapsedTime;
-    TCHAR CommandLine[MAX_CMDLINE];
+struct ProcessDataNT : ProcessData
+{
+	DWORD dwElapsedTime;
+	TCHAR CommandLine[MAX_CMDLINE];
 };
 
 extern int NT, W2K;
@@ -202,35 +205,36 @@ int WinError(TCHAR* pSourceModule=0);
 
 class DebugToken
 {
-    // Debug thread token
-    static volatile HANDLE hDebugToken;
+		// Debug thread token
+		static volatile HANDLE hDebugToken;
 
-    // Saved impersonation token
-    HANDLE hSavedToken;
+		// Saved impersonation token
+		HANDLE hSavedToken;
 
-    bool saved;
-    bool enabled;
+		bool saved;
+		bool enabled;
 
-  public:
-    DebugToken(): hSavedToken(NULL), saved(false), enabled(false) {}
-    ~DebugToken() { Revert(); }
+	public:
+		DebugToken(): hSavedToken(NULL), saved(false), enabled(false) {}
+		~DebugToken() { Revert(); }
 
-    bool Enable();
-    bool Revert();
+		bool Enable();
+		bool Revert();
 
-    static bool CreateToken();
-    static void CloseToken();
+		static bool CreateToken();
+		static void CloseToken();
 };
 
 #ifndef UNICODE
-class OemString {
-        char* pStr;
-    public:
-        OemString(LPCSTR  pAnsi);
-        OemString(LPCWSTR pWide);
-        ~OemString() { delete pStr; }
-        operator char*() { return pStr; }
-        operator unsigned char*() { return (unsigned char*)pStr; }
+class OemString
+{
+		char* pStr;
+	public:
+		OemString(LPCSTR  pAnsi);
+		OemString(LPCWSTR pWide);
+		~OemString() { delete pStr; }
+		operator char*() { return pStr; }
+		operator unsigned char*() { return (unsigned char*)pStr; }
 };
 #define OUT_STRING(p) (const char*)OemString(p)
 #define CURDIR_STR_TYPE OemString
@@ -243,8 +247,8 @@ static inline const wchar_t *__chk_wca(const wchar_t *arg) { return arg; }
 #endif
 
 void GetOpenProcessDataNT(HANDLE hProcess, TCHAR* pProcessName=0, DWORD cbProcessName=0,
-        TCHAR* pFullPath=0, DWORD cbFullPath=0, TCHAR* pCommandLine=0, DWORD cbCommandLine=0,
-        TCHAR** ppEnvStrings=0, CURDIR_STR_TYPE** pCurDir=0);
+                          TCHAR* pFullPath=0, DWORD cbFullPath=0, TCHAR* pCommandLine=0, DWORD cbCommandLine=0,
+                          TCHAR** ppEnvStrings=0, CURDIR_STR_TYPE** pCurDir=0);
 
 HANDLE OpenProcessForced(DebugToken* token, DWORD dwFlags, DWORD dwProcessId, BOOL bInh = FALSE);
 
@@ -277,9 +281,10 @@ void GetViewOptions(REF_TYPE Ref, int base, _Opt& Opt);
 
 //------
 // dynamic binding
-typedef enum _PROCESSINFOCLASS {
-    ProcessBasicInformation = 0,
-    ProcessWow64Information = 26
+typedef enum _PROCESSINFOCLASS
+{
+	ProcessBasicInformation = 0,
+	ProcessWow64Information = 26
 } PROCESSINFOCLASS;
 //
 #ifndef STATUS_NOT_IMPLEMENTED
@@ -289,25 +294,25 @@ typedef enum _PROCESSINFOCLASS {
 #define STATUS_INFO_LENGTH_MISMATCH      ((LONG)0xC0000004L)
 #endif
 //
-typedef LONG (WINAPI *PNtQueryInformationProcess)(HANDLE,PROCESSINFOCLASS,PVOID,ULONG,PULONG);
+typedef LONG(WINAPI *PNtQueryInformationProcess)(HANDLE,PROCESSINFOCLASS,PVOID,ULONG,PULONG);
 extern PNtQueryInformationProcess pNtQueryInformationProcess;
-typedef LONG (WINAPI *PNtQueryInformationThread)(HANDLE, ULONG, PVOID, DWORD, DWORD*);
+typedef LONG(WINAPI *PNtQueryInformationThread)(HANDLE, ULONG, PVOID, DWORD, DWORD*);
 extern PNtQueryInformationThread pNtQueryInformationThread;
-typedef LONG (WINAPI *PNtQueryObject)(HANDLE, DWORD, VOID*, DWORD, VOID*);
+typedef LONG(WINAPI *PNtQueryObject)(HANDLE, DWORD, VOID*, DWORD, VOID*);
 extern PNtQueryObject pNtQueryObject;
-typedef LONG (WINAPI *PNtQuerySystemInformation)(DWORD, VOID*, DWORD, ULONG*);
+typedef LONG(WINAPI *PNtQuerySystemInformation)(DWORD, VOID*, DWORD, ULONG*);
 extern PNtQuerySystemInformation pNtQuerySystemInformation;
-typedef LONG (WINAPI *PNtQueryInformationFile)(HANDLE, PVOID, PVOID, DWORD, DWORD);
+typedef LONG(WINAPI *PNtQueryInformationFile)(HANDLE, PVOID, PVOID, DWORD, DWORD);
 extern PNtQueryInformationFile pNtQueryInformationFile;
-typedef LONG (WINAPI *PNtQueryInformationFile)(HANDLE, PVOID, PVOID, DWORD, DWORD);
+typedef LONG(WINAPI *PNtQueryInformationFile)(HANDLE, PVOID, PVOID, DWORD, DWORD);
 extern PNtQueryInformationFile pNtQueryInformationFile;
 typedef BOOL (WINAPI *PIsValidSid)(PSID);
 extern PIsValidSid pIsValidSid;
-typedef PSID_IDENTIFIER_AUTHORITY (WINAPI *PGetSidIdentifierAuthority)(PSID);
+typedef PSID_IDENTIFIER_AUTHORITY(WINAPI *PGetSidIdentifierAuthority)(PSID);
 extern PGetSidIdentifierAuthority pGetSidIdentifierAuthority;
-typedef PUCHAR (WINAPI *PGetSidSubAuthorityCount)(PSID);
+typedef PUCHAR(WINAPI *PGetSidSubAuthorityCount)(PSID);
 extern PGetSidSubAuthorityCount pGetSidSubAuthorityCount;
-typedef PDWORD (WINAPI *PGetSidSubAuthority)(PSID, DWORD);
+typedef PDWORD(WINAPI *PGetSidSubAuthority)(PSID, DWORD);
 extern PGetSidSubAuthority pGetSidSubAuthority;
 typedef BOOL (WINAPI *PLookupAccountName)(LPCTSTR,LPCTSTR,PSID,LPDWORD,LPTSTR,LPDWORD,PSID_NAME_USE);
 extern PLookupAccountName pLookupAccountName;
@@ -315,7 +320,7 @@ typedef BOOL (WINAPI *PIsWow64Process)(IN HANDLE hProcess, IN PBOOL Wow64Process
 extern PIsWow64Process pIsWow64Process;
 typedef DWORD (WINAPI *PGetGuiResources)(IN HANDLE hProcess, IN DWORD uiFlags);
 extern PGetGuiResources pGetGuiResources;
-typedef HRESULT (WINAPI *PCoInitializeSecurity)(PSECURITY_DESCRIPTOR,LONG,SOLE_AUTHENTICATION_SERVICE*, void*,DWORD,DWORD,SOLE_AUTHENTICATION_LIST*,DWORD,void*);
+typedef HRESULT(WINAPI *PCoInitializeSecurity)(PSECURITY_DESCRIPTOR,LONG,SOLE_AUTHENTICATION_SERVICE*, void*,DWORD,DWORD,SOLE_AUTHENTICATION_LIST*,DWORD,void*);
 extern PCoInitializeSecurity pCoInitializeSecurity;
 //------
 
@@ -323,30 +328,30 @@ extern TCHAR FPRINTFbuffer[];
 #define FPRINTFbufferLen (64*1024)
 
 #define fprintf(FPRINTFstream, FPRINTFformat, ...) \
-{ \
-  int FPRINTFret=0; \
-  HANDLE FPRINTFhFile = (HANDLE)(FPRINTFstream); \
-  DWORD FPRINTFtmp; \
-  if (FPRINTFformat) \
-  { \
-    FPRINTFret=FSF.snprintf(FPRINTFbuffer,FPRINTFbufferLen,FPRINTFformat, __VA_ARGS__); \
-    if (WriteFile(FPRINTFhFile,FPRINTFbuffer,FPRINTFret*sizeof(TCHAR),&FPRINTFtmp,NULL)) \
-      FPRINTFret = (FPRINTFtmp + sizeof(TCHAR)-1) / sizeof(TCHAR); \
-  } \
-}
+	{ \
+		int FPRINTFret=0; \
+		HANDLE FPRINTFhFile = (HANDLE)(FPRINTFstream); \
+		DWORD FPRINTFtmp; \
+		if (FPRINTFformat) \
+		{ \
+			FPRINTFret=FSF.snprintf(FPRINTFbuffer,FPRINTFbufferLen,FPRINTFformat, __VA_ARGS__); \
+			if (WriteFile(FPRINTFhFile,FPRINTFbuffer,FPRINTFret*sizeof(TCHAR),&FPRINTFtmp,NULL)) \
+				FPRINTFret = (FPRINTFtmp + sizeof(TCHAR)-1) / sizeof(TCHAR); \
+		} \
+	}
 
 #define fprintf2(FPRINTFret, FPRINTFstream, FPRINTFformat, ...) \
-{ \
-  FPRINTFret=0; \
-  HANDLE FPRINTFhFile = (HANDLE)(FPRINTFstream); \
-  DWORD FPRINTFtmp; \
-  if (FPRINTFformat) \
-  { \
-    FPRINTFret=FSF.snprintf(FPRINTFbuffer,FPRINTFbufferLen,FPRINTFformat, __VA_ARGS__); \
-    if (WriteFile(FPRINTFhFile,FPRINTFbuffer,FPRINTFret*sizeof(TCHAR),&FPRINTFtmp,NULL)) \
-      FPRINTFret = (FPRINTFtmp + sizeof(TCHAR)-1) / sizeof(TCHAR); \
-  } \
-}
+	{ \
+		FPRINTFret=0; \
+		HANDLE FPRINTFhFile = (HANDLE)(FPRINTFstream); \
+		DWORD FPRINTFtmp; \
+		if (FPRINTFformat) \
+		{ \
+			FPRINTFret=FSF.snprintf(FPRINTFbuffer,FPRINTFbufferLen,FPRINTFformat, __VA_ARGS__); \
+			if (WriteFile(FPRINTFhFile,FPRINTFbuffer,FPRINTFret*sizeof(TCHAR),&FPRINTFtmp,NULL)) \
+				FPRINTFret = (FPRINTFtmp + sizeof(TCHAR)-1) / sizeof(TCHAR); \
+		} \
+	}
 
 int fputc(int c, HANDLE stream);
 
