@@ -141,6 +141,17 @@ enum PLUGINSETFLAGS
 	PSIF_PLUGINSLOADDED           = 0x80000000, // плагины загружены
 };
 
+enum OPENFILEPLUGINTYPE
+{
+	OFP_NORMAL,
+	OFP_ALTERNATIVE,
+	OFP_SEARCH,
+	OFP_SHORTCUT,
+	OFP_CREATE,
+	OFP_EXTRACT,
+	OFP_COMMANDS,
+};
+
 struct PluginHandle
 {
 	HANDLE hPlugin;
@@ -232,7 +243,7 @@ class PluginManager
 		Plugin *Analyse(const AnalyseData *pData);
 
 		HANDLE OpenPlugin(Plugin *pPlugin,int OpenFrom,INT_PTR Item);
-		HANDLE OpenFilePlugin(const wchar_t *Name, int OpMode);
+		HANDLE OpenFilePlugin(const wchar_t *Name, int OpMode, OPENFILEPLUGINTYPE Type);
 		HANDLE OpenFindListPlugin(const PluginPanelItem *PanelItem,int ItemsNumber);
 		void ClosePlugin(HANDLE hPlugin);
 		void GetOpenPluginInfo(HANDLE hPlugin, OpenPluginInfo *Info);

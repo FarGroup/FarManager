@@ -13503,15 +13503,6 @@ MPluginsManagerPersonalPath
 "Ś&cieżka do własnych pluginów:"
 "Ruta para pl&ugins personales:
 
-MPluginsManagerOFPNew
-"Создание файла (OpenFilePlugin)"
-"File creation (OpenFilePlugin)"
-upd:"File creation (OpenFilePlugin)"
-upd:"File creation (OpenFilePlugin)"
-upd:"File creation (OpenFilePlugin)"
-upd:"File creation (OpenFilePlugin)"
-upd:"File creation (OpenFilePlugin)"
-
 MPluginsManagerOFP
 "Обработка &файла (OpenFilePlugin)"
 "&File processing (OpenFilePlugin)"

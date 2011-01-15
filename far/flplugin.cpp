@@ -367,7 +367,7 @@ void FileList::PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi)
 }
 
 
-HANDLE FileList::OpenPluginForFile(const wchar_t *FileName, DWORD FileAttr)
+HANDLE FileList::OpenPluginForFile(const wchar_t *FileName, DWORD FileAttr, OPENFILEPLUGINTYPE Type)
 {
 	HANDLE Result = INVALID_HANDLE_VALUE;
 	if(FileName && *FileName && !(FileAttr&FILE_ATTRIBUTE_DIRECTORY))
@@ -376,7 +376,7 @@ HANDLE FileList::OpenPluginForFile(const wchar_t *FileName, DWORD FileAttr)
 		_ALGO(SysLog(L"close AnotherPanel file"));
 		CtrlObject->Cp()->GetAnotherPanel(this)->CloseFile();
 		_ALGO(SysLog(L"call Plugins.OpenFilePlugin {"));
-		Result = CtrlObject->Plugins.OpenFilePlugin(FileName, 0);
+		Result = CtrlObject->Plugins.OpenFilePlugin(FileName, 0, Type);
 		_ALGO(SysLog(L"}"));
 	}
 	return Result;
@@ -705,7 +705,7 @@ void FileList::PluginHostGetFiles()
 	{
 		HANDLE hCurPlugin;
 
-		if ((hCurPlugin=OpenPluginForFile(strSelName,FileAttr))!=INVALID_HANDLE_VALUE &&
+		if ((hCurPlugin=OpenPluginForFile(strSelName,FileAttr, OFP_EXTRACT))!=INVALID_HANDLE_VALUE &&
 		        hCurPlugin!=(HANDLE)-2)
 		{
 			PluginPanelItem *ItemList;
@@ -747,7 +747,7 @@ void FileList::PluginPutFilesToNew()
 	_ALGO(CleverSysLog clv(L"FileList::PluginPutFilesToNew()"));
 	//_ALGO(SysLog(L"FileName='%s'",(FileName?FileName:"(nullptr)")));
 	_ALGO(SysLog(L"call Plugins.OpenFilePlugin(nullptr, 0)"));
-	HANDLE hNewPlugin=CtrlObject->Plugins.OpenFilePlugin(nullptr, 0);
+	HANDLE hNewPlugin=CtrlObject->Plugins.OpenFilePlugin(nullptr, 0, OFP_CREATE);
 
 	if (hNewPlugin!=INVALID_HANDLE_VALUE && hNewPlugin!=(HANDLE)-2)
 	{
@@ -965,7 +965,7 @@ int FileList::ProcessOneHostFile(int Idx)
 	int Done=-1;
 	_ALGO(SysLog(L"call OpenPluginForFile([Idx=%d] '%s')",Idx,ListData[Idx]->strName.CPtr()));
 	string strName = ListData[Idx]->strName;
-	HANDLE hNewPlugin=OpenPluginForFile(strName,ListData[Idx]->FileAttr);
+	HANDLE hNewPlugin=OpenPluginForFile(strName,ListData[Idx]->FileAttr, OFP_COMMANDS);
 
 	if (hNewPlugin!=INVALID_HANDLE_VALUE && hNewPlugin!=(HANDLE)-2)
 	{

@@ -2172,7 +2172,7 @@ int FileList::ProcessKey(int Key)
 		case KEY_CTRLNUMPAD3:
 		case KEY_CTRLSHIFTPGDN:
 		case KEY_CTRLSHIFTNUMPAD3:
-			ProcessEnter(0,0,!(Key&KEY_SHIFT));
+			ProcessEnter(0,0,!(Key&KEY_SHIFT), false, OFP_ALTERNATIVE);
 			return TRUE;
 		default:
 
@@ -2231,7 +2231,7 @@ void FileList::Select(FileListItem *SelPtr,int Selection)
 }
 
 
-void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc, bool RunAs)
+void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc, bool RunAs, OPENFILEPLUGINTYPE Type)
 {
 	FileListItem *CurPtr;
 	string strFileName, strShortFileName;
@@ -2382,7 +2382,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 				return;
 			}
 
-			if (SeparateWindow || (hOpen=OpenFilePlugin(strFileName,TRUE))==INVALID_HANDLE_VALUE ||
+			if (SeparateWindow || (hOpen=OpenFilePlugin(strFileName,TRUE, Type))==INVALID_HANDLE_VALUE ||
 			        hOpen==(HANDLE)-2)
 			{
 				if (EnableExec && hOpen!=(HANDLE)-2)
@@ -4698,7 +4698,7 @@ int FileList::GetPrevDirectoriesFirst()
 	return (PanelMode==PLUGIN_PANEL && !PluginsList.Empty())?(*PluginsList.First())->PrevDirectoriesFirst:DirectoriesFirst;
 }
 
-HANDLE FileList::OpenFilePlugin(const wchar_t *FileName, int PushPrev)
+HANDLE FileList::OpenFilePlugin(const wchar_t *FileName, int PushPrev, OPENFILEPLUGINTYPE Type)
 {
 	if (!PushPrev && PanelMode==PLUGIN_PANEL)
 	{
@@ -4712,7 +4712,7 @@ HANDLE FileList::OpenFilePlugin(const wchar_t *FileName, int PushPrev)
 		}
 	}
 
-	HANDLE hNewPlugin=OpenPluginForFile(FileName);
+	HANDLE hNewPlugin=OpenPluginForFile(FileName, 0, Type);
 
 	if (hNewPlugin!=INVALID_HANDLE_VALUE && hNewPlugin!=(HANDLE)-2)
 	{

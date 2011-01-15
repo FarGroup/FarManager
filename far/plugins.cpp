@@ -669,7 +669,8 @@ HANDLE PluginManager::OpenFilePlugin(const wchar_t *Name, const unsigned char *D
 
 HANDLE PluginManager::OpenFilePlugin(
     const wchar_t *Name,
-    int OpMode
+    int OpMode,
+    OPENFILEPLUGINTYPE Type
 )
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
@@ -685,7 +686,7 @@ HANDLE PluginManager::OpenFilePlugin(
 		Name = strFullName;
 	}
 
-	bool ShowMenu = (Name? Opt.PluginConfirm.OpenFilePlugin : Opt.PluginConfirm.OpenFilePluginNew) != 0;
+	bool ShowMenu = Opt.PluginConfirm.OpenFilePlugin==BSTATE_3STATE? !(Type == OFP_NORMAL || Type == OFP_SEARCH) : Opt.PluginConfirm.OpenFilePlugin != 0;
 
 	Plugin *pPlugin = nullptr;
 
@@ -792,7 +793,7 @@ HANDLE PluginManager::OpenFilePlugin(
 				menu.SetUserData(handle, sizeof(handle), menu.AddItem(&mitem));
 			}
 
-			if (Name && Opt.PluginConfirm.StandardAssociation) // !Name == ShiftF1, standard association not required
+			if (Opt.PluginConfirm.StandardAssociation && Type == OFP_NORMAL)
 			{
 				mitem.Clear();
 				mitem.Flags |= MIF_SEPARATOR;

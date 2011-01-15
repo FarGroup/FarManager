@@ -2613,7 +2613,7 @@ bool Panel::ExecShortcutFolder(int Pos)
 				}
 
 				if (SrcPanel->GetType() == FILE_PANEL)
-					((FileList*)SrcPanel)->OpenFilePlugin(strPluginFile,FALSE); //???
+					((FileList*)SrcPanel)->OpenFilePlugin(strPluginFile,FALSE, OFP_SHORTCUT); //???
 
 				if (!strShortcutFolder.IsEmpty())
 						SrcPanel->SetCurDir(strShortcutFolder,FALSE);

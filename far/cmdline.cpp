@@ -247,7 +247,7 @@ int CommandLine::ProcessKey(int Key)
 			// $ 19.09.2000 SVS - ѕри выборе из History (по Alt-F8) плагин не получал управление!
 			int SelectType=CtrlObject->CmdHistory->Select(MSG(MHistoryTitle),L"History",strStr,Type);
 			// BUGBUG, magic numbers
-			if (SelectType > 0 && SelectType <= 3 || SelectType == 7)
+			if ((SelectType > 0 && SelectType <= 3) || SelectType == 7)
 			{
 				if(SelectType<3 || SelectType == 7)
 				{
@@ -257,7 +257,7 @@ int CommandLine::ProcessKey(int Key)
 
 				if (SelectType < 3 || SelectType == 7)
 				{
-					ProcessKey(SelectType==7?KEY_CTRLALTENTER:(SelectType==1?KEY_ENTER:KEY_SHIFTENTER));
+					ProcessKey(SelectType==7?static_cast<int>(KEY_CTRLALTENTER):(SelectType==1?static_cast<int>(KEY_ENTER):static_cast<int>(KEY_SHIFTENTER)));
 					CmdStr.RevertAC();
 				}
 			}

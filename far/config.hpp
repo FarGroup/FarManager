@@ -96,7 +96,6 @@ struct AutoCompleteOptions
 
 struct PluginConfirmation
 {
-	int OpenFilePluginNew;
 	int OpenFilePlugin;
 	int StandardAssociation;
 	int EvenIfOnlyOnePlugin;

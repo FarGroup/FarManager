@@ -918,8 +918,8 @@ int Execute(const wchar_t *CmdStr, // Ком.строка для исполнения
 	DWORD Size=0;
 	SMALL_RECT ConsoleWindowRect;
 	COORD ConsoleSize;
-	int ConsoleCP;
-	int ConsoleOutputCP;
+	int ConsoleCP = CP_OEMCP;
+	int ConsoleOutputCP = CP_OEMCP;
 
 	if(!Silent)
 	{

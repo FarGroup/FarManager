@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filefilterparams.hpp"
 #include "DList.hpp"
 #include "panelctype.hpp"
+#include "plugins.hpp"
 
 class FileFilter;
 
@@ -241,7 +242,7 @@ class FileList:public Panel
 
 		void Select(FileListItem *SelPtr,int Selection);
 		long SelectFiles(int Mode,const wchar_t *Mask=nullptr);
-		void ProcessEnter(bool EnableExec,bool SeparateWindow, bool EnableAssoc=true, bool RunAs = false);
+		void ProcessEnter(bool EnableExec,bool SeparateWindow, bool EnableAssoc=true, bool RunAs = false, OPENFILEPLUGINTYPE Type = OFP_NORMAL);
 		// ChangeDir возвращает FALSE, eсли не смогла выставить заданный путь
 		BOOL ChangeDir(const wchar_t *NewDir,BOOL IsUpdated=TRUE);
 		void CountDirSize(DWORD PluginFlags);
@@ -272,7 +273,7 @@ class FileList:public Panel
 		void DescribeFiles();
 		void CreatePluginItemList(PluginPanelItem *(&ItemList),int &ItemNumber,BOOL AddTwoDot=TRUE);
 		void DeletePluginItemList(PluginPanelItem *(&ItemList),int &ItemNumber);
-		HANDLE OpenPluginForFile(const wchar_t *FileName,DWORD FileAttr=0);
+		HANDLE OpenPluginForFile(const wchar_t *FileName,DWORD FileAttr, OPENFILEPLUGINTYPE Type);
 		int PreparePanelView(PanelViewSettings *PanelView);
 		int PrepareColumnWidths(unsigned int *ColumnTypes,int *ColumnWidths,
 		                        int *ColumnWidthsTypes,int &ColumnCount,int FullScreen);
@@ -340,7 +341,7 @@ class FileList:public Panel
 		virtual int GetPrevCaseSensitiveSort();
 		virtual int GetPrevDirectoriesFirst();
 
-		HANDLE OpenFilePlugin(const wchar_t *FileName,int PushPrev);
+		HANDLE OpenFilePlugin(const wchar_t *FileName,int PushPrev, OPENFILEPLUGINTYPE Type);
 		virtual int GetFileName(string &strName,int Pos,DWORD &FileAttr);
 		virtual int GetCurrentPos();
 		virtual int FindPartName(const wchar_t *Name,int Next,int Direct=1,int ExcludeSets=0);
