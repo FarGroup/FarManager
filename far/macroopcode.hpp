@@ -101,6 +101,8 @@ enum MACRO_OP_CODE
 
 	MCODE_OP_AND,                     // a && b
 
+	MCODE_OP_XOR,                     // a ^^ b
+
 	MCODE_OP_OR,                      // a || b
 
 	MCODE_OP_ADDEQ,                   // a +=  b

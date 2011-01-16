@@ -1496,6 +1496,49 @@ TVar operator&&(const TVar& a, const TVar& b)
 	return r;
 };
 
+TVar xor_op(const TVar& a, const TVar& b)
+{
+	TVar r;
+
+	switch (a.vType)
+	{
+		case vtInteger:
+		{
+			switch (b.vType)
+			{
+				case vtInteger: r = (a.inum || b.inum) && (! (a.inum && b.inum))?1:0; break;
+				case vtDouble:  r = (a.inum || b.dnum) && (! (a.inum && b.dnum))?1:0; break;
+				case vtString:  r = (a.inum || *b.str) && (! (a.inum && *b.str))?1:0; break;
+			}
+
+			break;
+		}
+		case vtDouble:
+		{
+			switch (b.vType)
+			{
+				case vtInteger: r = (a.dnum || b.inum) && (! (a.dnum && b.inum))?1:0; break;
+				case vtDouble:  r = (a.dnum || b.dnum) && (! (a.dnum && b.dnum))?1:0; break;
+				case vtString:  r = (a.dnum || *b.str) && (! (a.dnum && *b.str))?1:0; break;
+			}
+
+			break;
+		}
+		case vtString:
+		{
+			switch (b.vType)
+			{
+				case vtInteger: r = (*a.str || b.inum) && (! (*a.str && b.inum))?1:0; break;
+				case vtDouble:  r = (*a.str || b.dnum) && (! (*a.str && b.dnum))?1:0; break;
+				case vtString:  r = (*a.str || *b.str) && (! (*a.str && *b.str))?1:0; break;
+			}
+
+			break;
+		}
+	}
+
+	return r;
+}
 
 TVar TVar::operator+()
 {

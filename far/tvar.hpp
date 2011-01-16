@@ -88,6 +88,7 @@ class TVar
 
 		friend TVar operator&&(const TVar&, const TVar&);
 		friend TVar operator||(const TVar&, const TVar&);
+		friend TVar xor_op(const TVar&, const TVar&);
 
 		TVar& operator=(const TVar&);
 

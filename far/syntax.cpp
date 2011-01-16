@@ -63,7 +63,7 @@ enum TToken
 	tNo, tEnd,  tLet,
 	tVar, tConst, tStr, tInt, tFunc, tFARVar, tFloat,
 	tPlus, tMinus, tMul, tDiv, tLp, tRp, tComma,
-	tBoolAnd, tBoolOr,
+	tBoolAnd, tBoolOr, tBoolXor,
 	tBitAnd, tBitOr, tBitXor, tBitNot, tNot, tBitShl, tBitShr,
 	tEq, tNe, tLt, tLe, tGt, tGe,
 };
@@ -483,7 +483,17 @@ static TToken getToken()
 		case L'/': currTok = tDiv;    break;
 		case L'(': currTok = tLp;     break;
 		case L')': currTok = tRp;     break;
-		case L'^': currTok = tBitXor; break;
+		case L'^':
+
+			if ((ch = getChar()) == L'^')
+				currTok = tBoolXor;
+			else
+			{
+				putBack(ch);
+				currTok = tBitXor;
+			}
+
+			break;
 		case L'~':
 
 			if ((ch = getChar()) != L' ')
@@ -1142,10 +1152,22 @@ static void boolAndPrim()
 		}
 }
 
+static void boolXorPrim()
+{
+	boolAndPrim();
+
+	for (; ;)
+		switch (currTok)
+		{
+			case tBoolXor: getToken(); boolAndPrim(); put(MCODE_OP_XOR);    break;
+			default:
+				return;
+		}
+}
 
 static void expr()
 {
-	boolAndPrim();
+	boolXorPrim();
 
 	for (; ;)
 		switch (currTok)
