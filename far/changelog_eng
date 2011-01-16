@@ -3,6 +3,101 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 16.01.2011 18:02:14 +0300 - build 1791
+
+1. Mantis#0001660: XOR operation for boolean expressions
+   "^^" conditional operation is added - XOR, exclusive OR
+
+drkns 16.01.2011 00:20:57 +0200 - build 1790
+
+1. "[x] File processing (OpenFilePlugin)" switch in plugin manager settings is now 3-positional:
+     [ ] - don't show menu;
+     [?] - show menu everywhere but cases "enter an archive with Enter" and "search in archives";
+     [x] - show menu everywhere.
+
+2. GCC warnings.
+
+svs 14.01.2011 17:39:03 +0300 - build 1789
+
+1. Mantis#0001631: addition in PluginsControl() - PCTL_FORCEDLOADPLUGIN
+   (from: samlyukov)
+   Addition to API: PCTL_FORCEDLOADPLUGIN loads plugin directly into memory instead of cache, which allows 
+                  custom plugins use at inter-plugin interaction.
+
+svs 14.01.2011 17:11:42 +0300 - build 1788
+
+1. Macro: correction for iif regarding the check whether the argument is a string (see build 1786 #3)
+
+2. Macro: correction for $if(string) regarding the check whether the operand is a string (see build 1786 #3)
+
+drkns 13.01.2011 22:33:26 +0200 - build 1787
+
+1. Launcher inofficial testing mode - "do not flash with panels when launching non-console applications".
+   The mode is on if System\Executor\SilentExternal=dword:1.
+
+svs 13.01.2011 11:43:12 +0300 - build 1786
+
+1. Mantis#0001655: Incorrect error message at macro parsing
+
+2. Mantis#0001642: Incorrect error position is returned at macro sequence check
+
+3. Macro: changes in conditions checking behavior for $if/$while
+   String in condition is checked for emptiness.
+     
+     %a="";
+     $if (%a) is not executed $else is executed $end
+     $if ("") is not executed $else is executed $end
+     
+     %a="anything, including 0";
+     $if (%a) is executed $else is not executed $end
+     $if ("anything") is executed $else is not executed $end
+     $if ("0") is executed $else is not executed $end
+
+   + slightly reduce the code size :-)
+
+4. Macro: Scr.Scroll function introduced in build 1773 is renamed to Window.Scroll
+
+5. Mantis#0001656: Debug version crashes in TruncStr
+
+drkns 12.01.2011 16:15:14 +0200 - build 1785
+
+1. And even more.
+
+drkns 12.01.2011 13:14:15 +0200 - build 1784
+
+1. Another pair of corrections in launcher.
+
+drkns 11.01.2011 21:49:13 +0200 - build 1783
+
+1. Correction of 1782.2.
+
+drkns 11.01.2011 21:38:40 +0200 - build 1782
+
+1. /rc key is removed - original console state is always restored.
+
+2. Support for commands run with privileges escalation (aka "Run as administrator") in panels, command line and history. The hotkey is CtrlAltEnter.
+
+3. Changes in launcher because of #2. Everything seems to work, nevertheless be careful.
+
+drkns 10.01.2011 21:27:48 +0200 - build 1781
+
+1. Displaying of number of processed files in copy dialog is back.
+
+2. Common copy process indicator now works during moving within single volume too.
+
+drkns 10.01.2011 14:20:32 +0200 - build 1780
+
+1. Some optimization: if there is no plugins exporting OpenFilePlugin/Analyse, then no excessive actions (file open/read/close)
+   is done at attempt to "enter" the file.
+
+2. A couple of trivia.
+
+drkns 09.01.2011 12:50:26 +0200 - build 1779
+
+1. When an incorrect date was intentionally set, it could be replaced with a random value.
+
+2. More correct 2-digit years interpretation.
+
 drkns 08.01.2011 22:48:50 +0200 - build 1778
 
 1. Fixed: Launch attempt was ignored for files of type unknown to OS.
