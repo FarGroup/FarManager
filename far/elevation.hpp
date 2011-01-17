@@ -55,26 +55,8 @@ enum ADMIN_COMMAND
 	C_FUNCTION_CREATEHARDLINK,
 	C_FUNCTION_CREATESYMBOLICLINK,
 	C_FUNCTION_MOVETORECYCLEBIN,
-	/*
-	C_FUNCTION_FINDFIRSTFILEEX,
-	C_FUNCTION_FINDNEXTFILE,
-	C_FUNCTION_FINDCLOSE,
-	*/
 	C_FUNCTION_SETOWNER,
 	C_FUNCTION_CREATEFILE,
-	C_FUNCTION_CLOSEHANDLE,
-	C_FUNCTION_READFILE,
-	C_FUNCTION_WRITEFILE,
-	C_FUNCTION_SETFILEPOINTEREX,
-	C_FUNCTION_SETENDOFFILE,
-	C_FUNCTION_GETFILETIME,
-	C_FUNCTION_SETFILETIME,
-	C_FUNCTION_GETFILESIZEEX,
-	C_FUNCTION_FLUSHFILEBUFFERS,
-	C_FUNCTION_GETFILEINFORMATIONBYHANDLE,
-	C_FUNCTION_DEVICEIOCONTROL,
-	C_FUNCTION_GETSTORAGEDEPENDENCYINFORMATION,
-	C_FUNCTION_NTQUERYDIRECTORYFILE,
 };
 
 class AutoObject;
@@ -107,26 +89,9 @@ public:
 	bool fCreateHardLink(LPCWSTR Object,LPCWSTR Target,LPSECURITY_ATTRIBUTES SecurityAttributes);
 	bool fCreateSymbolicLink(LPCWSTR Object, LPCWSTR Target, DWORD Flags);
 	int fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct);
-	/*
-	HANDLE fFindFirstFileEx(LPCWSTR Object, FINDEX_INFO_LEVELS InfoLevelId, LPVOID FindFileData, FINDEX_SEARCH_OPS SearchOp, LPVOID lpSearchFilter, DWORD AdditionalFlags);
-	bool fFindNextFile(HANDLE Handle, PWIN32_FIND_DATA W32FindData);
-	bool fFindClose(HANDLE Handle);
-	*/
 	bool fSetOwner(LPCWSTR Object, LPCWSTR Owner);
 	HANDLE fCreateFile(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile);
-	bool fCloseHandle(HANDLE Handle);
-	bool fReadFile(HANDLE Handle, LPVOID Buffer, DWORD NumberOfBytesToRead, LPDWORD NumberOfBytesRead, LPOVERLAPPED Overlapped);
-	bool fWriteFile(HANDLE Handle, LPCVOID Buffer, DWORD NumberOfBytesToWrite, LPDWORD NumberOfBytesWritten, LPOVERLAPPED Overlapped);
-	bool fSetFilePointerEx(HANDLE Handle, INT64 DistanceToMove, PINT64 NewFilePointer, DWORD MoveMethod);
-	bool fSetEndOfFile(HANDLE Handle);
-	bool fGetFileTime(HANDLE Handle, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime);
-	bool fSetFileTime(HANDLE Handle, const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime);
-	bool fGetFileSizeEx(HANDLE Handle, UINT64& Size);
-	bool fFlushFileBuffers(HANDLE Handle);
-	bool fGetFileInformationByHandle(HANDLE Handle, BY_HANDLE_FILE_INFORMATION& bhfi);
-	bool fDeviceIoControl(HANDLE Handle, DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped);
-	DWORD fGetStorageDependencyInformation(HANDLE Handle, GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed);
-	NTSTATUS fNtQueryDirectoryFile(HANDLE Handle, HANDLE Event, PVOID ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, BOOLEAN ReturnSingleEntry, PUNICODE_STRING FileName, BOOLEAN RestartScan);
+
 private:
 	HANDLE Pipe;
 	HANDLE Process;
@@ -157,4 +122,4 @@ void AdminApproveDlgSync(LPVOID Param);
 
 bool ElevationRequired(ELEVATION_MODE Mode);
 bool IsUserAdmin();
-int AdminMain(int PID, bool UsePrivileges);
+int AdminMain(DWORD PID, bool UsePrivileges);

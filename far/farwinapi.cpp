@@ -263,8 +263,7 @@ bool FindFile::Get(FAR_FIND_DATA_EX& FindData)
 
 
 File::File():
-	Handle(INVALID_HANDLE_VALUE),
-	admin(false)
+	Handle(INVALID_HANDLE_VALUE)
 {
 }
 
@@ -294,67 +293,63 @@ bool File::Open(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY
 			CloseHandle(Handle);
 		}
 		Handle = Elevation.fCreateFile(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
-		if(Handle != INVALID_HANDLE_VALUE)
-		{
-			admin = true;
-		}
 	}
 	return Handle != INVALID_HANDLE_VALUE;
 }
 
 bool File::Read(LPVOID Buffer, DWORD NumberOfBytesToRead, LPDWORD NumberOfBytesRead, LPOVERLAPPED Overlapped)
 {
-	return admin?Elevation.fReadFile(Handle, Buffer, NumberOfBytesToRead, NumberOfBytesRead, Overlapped):ReadFile(Handle, Buffer, NumberOfBytesToRead, NumberOfBytesRead, Overlapped) != FALSE;
+	return ReadFile(Handle, Buffer, NumberOfBytesToRead, NumberOfBytesRead, Overlapped) != FALSE;
 }
 
 bool File::Write(LPCVOID Buffer, DWORD NumberOfBytesToWrite, LPDWORD NumberOfBytesWritten, LPOVERLAPPED Overlapped) const
 {
-	return admin?Elevation.fWriteFile(Handle, Buffer, NumberOfBytesToWrite, NumberOfBytesWritten, Overlapped):WriteFile(Handle, Buffer, NumberOfBytesToWrite, NumberOfBytesWritten, Overlapped) != FALSE;
+	return WriteFile(Handle, Buffer, NumberOfBytesToWrite, NumberOfBytesWritten, Overlapped) != FALSE;
 }
 
 bool File::SetPointer(INT64 DistanceToMove, PINT64 NewFilePointer, DWORD MoveMethod)
 {
-	return admin?Elevation.fSetFilePointerEx(Handle, DistanceToMove, NewFilePointer, MoveMethod):SetFilePointerEx(Handle, *reinterpret_cast<PLARGE_INTEGER>(&DistanceToMove), reinterpret_cast<PLARGE_INTEGER>(NewFilePointer), MoveMethod) != FALSE;
+	return SetFilePointerEx(Handle, *reinterpret_cast<PLARGE_INTEGER>(&DistanceToMove), reinterpret_cast<PLARGE_INTEGER>(NewFilePointer), MoveMethod) != FALSE;
 }
 
 bool File::SetEnd()
 {
-	return admin?Elevation.fSetEndOfFile(Handle):SetEndOfFile(Handle) != FALSE;
+	return SetEndOfFile(Handle) != FALSE;
 }
 
 bool File::GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime)
 {
-	return admin?Elevation.fGetFileTime(Handle, CreationTime, LastAccessTime, LastWriteTime, ChangeTime):GetFileTimeEx(Handle, CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
+	return GetFileTimeEx(Handle, CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
 }
 
 bool File::SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime)
 {
-	return admin?Elevation.fSetFileTime(Handle, CreationTime, LastAccessTime, LastWriteTime, ChangeTime):SetFileTimeEx(Handle, CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
+	return SetFileTimeEx(Handle, CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
 }
 
 bool File::GetSize(UINT64& Size)
 {
-	return admin?Elevation.fGetFileSizeEx(Handle, Size):apiGetFileSizeEx(Handle, Size);
+	return apiGetFileSizeEx(Handle, Size);
 }
 
 bool File::FlushBuffers()
 {
-	return admin?Elevation.fFlushFileBuffers(Handle):FlushFileBuffers(Handle) != FALSE;
+	return FlushFileBuffers(Handle) != FALSE;
 }
 
 bool File::GetInformation(BY_HANDLE_FILE_INFORMATION& info)
 {
-	return admin?Elevation.fGetFileInformationByHandle(Handle, info):GetFileInformationByHandle(Handle, &info) != FALSE;
+	return GetFileInformationByHandle(Handle, &info) != FALSE;
 }
 
 bool File::IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped)
 {
-	return admin?Elevation.fDeviceIoControl(Handle, IoControlCode, InBuffer, InBufferSize, OutBuffer, OutBufferSize, BytesReturned, Overlapped):DeviceIoControl(Handle, IoControlCode, InBuffer, InBufferSize, OutBuffer, OutBufferSize, BytesReturned, Overlapped) != FALSE;
+	return DeviceIoControl(Handle, IoControlCode, InBuffer, InBufferSize, OutBuffer, OutBufferSize, BytesReturned, Overlapped) != FALSE;
 }
 
 bool File::GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed)
 {
-	DWORD Result = ifn.pfnGetStorageDependencyInformation?admin?Elevation.fGetStorageDependencyInformation(Handle, Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed):ifn.pfnGetStorageDependencyInformation(Handle, Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed):ERROR_CALL_NOT_IMPLEMENTED;
+	DWORD Result = ifn.pfnGetStorageDependencyInformation?ifn.pfnGetStorageDependencyInformation(Handle, Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed):ERROR_CALL_NOT_IMPLEMENTED;
 	SetLastError(Result);
 	return Result == ERROR_SUCCESS;
 }
@@ -371,7 +366,7 @@ bool File::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORM
 		NameString.MaximumLength = NameString.Length;
 		pNameString = &NameString;
 	}
-	NTSTATUS Result = ifn.pfnNtQueryDirectoryFile?admin?Elevation.fNtQueryDirectoryFile(Handle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, pNameString, RestartScan):ifn.pfnNtQueryDirectoryFile(Handle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, pNameString, RestartScan):STATUS_NOT_IMPLEMENTED;
+	NTSTATUS Result = ifn.pfnNtQueryDirectoryFile?ifn.pfnNtQueryDirectoryFile(Handle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, pNameString, RestartScan):STATUS_NOT_IMPLEMENTED;
 	SetLastError(ifn.pfnRtlNtStatusToDosError(Result));
 	return Result == STATUS_SUCCESS;
 }
@@ -381,10 +376,9 @@ bool File::Close()
 	bool Result=true;
 	if(Handle!=INVALID_HANDLE_VALUE)
 	{
-		Result = admin?Elevation.fCloseHandle(Handle):CloseHandle(Handle) != FALSE;
+		Result = CloseHandle(Handle) != FALSE;
 		Handle = INVALID_HANDLE_VALUE;
 	}
-	admin=false;
 	return Result;
 }
 

@@ -132,7 +132,6 @@ public:
 
 private:
 	HANDLE Handle;
-	bool admin;
 };
 
 NTSTATUS GetLastNtStatus();
