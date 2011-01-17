@@ -49,13 +49,12 @@ ProcessPath::ProcessPath(DWORD dwPID)
 
 WMIConnection::WMIConnection(): pIWbemServices(NULL), hrLast(0)
 {
-	CoInitialize(NULL);
+	token.Enable();
 }
 
 WMIConnection::~WMIConnection()
 {
 	Disconnect();
-	CoUninitialize();
 }
 
 void WMIConnection::GetProcessExecutablePath(DWORD dwPID, TCHAR* pPath)
@@ -282,10 +281,6 @@ bool WMIConnection::Connect(LPCTSTR pMachineName, LPCTSTR pUser, LPCTSTR pPasswo
 		pUser = pPassword = 0; // Empty username means default security
 
 	hrLast = WBEM_S_NO_ERROR;
-	//nt 3.51 dont' have CoInitializeSecurity
-	// It must called per thread, otherwise returns
-	pCoInitializeSecurity(0, -1, 0, 0, RPC_C_AUTHN_LEVEL_DEFAULT,
-	                      RPC_C_IMP_LEVEL_IMPERSONATE, 0, EOAC_NONE, 0);
 	IWbemLocator *pIWbemLocator = NULL;
 
 	if ((hrLast=CoCreateInstance(CLSID_WbemLocator,
@@ -310,8 +305,27 @@ bool WMIConnection::Connect(LPCTSTR pMachineName, LPCTSTR pUser, LPCTSTR pPasswo
 #endif
 
 		if ((hrLast=pIWbemLocator->ConnectServer(Namespace, BStr(pUser), BStr(pPassword),0,0,0,0,
-		            &pIWbemServices)) != S_OK)
+		            &pIWbemServices)) == S_OK)
+		{
+			// We impersonate a token to enable SeDebugPrivilege privilege.
+			// Enable static cloacking here to make sure the server sees it.
+			//
+			// Some privileged information (like the full EXE path) will not be
+			// returned if this call fails. However it is not fatal so the error
+			// can be ignored.
+			pCoSetProxyBlanket(pIWbemServices,
+			                   RPC_C_AUTHN_DEFAULT,
+			                   RPC_C_AUTHN_DEFAULT,
+			                   NULL,
+			                   RPC_C_AUTHN_LEVEL_DEFAULT,
+			                   RPC_C_IMP_LEVEL_IMPERSONATE,
+			                   NULL,
+			                   EOAC_STATIC_CLOAKING);
+		}
+		else
+		{
 			pIWbemServices = 0;
+		}
 
 		pIWbemLocator->Release();
 	}

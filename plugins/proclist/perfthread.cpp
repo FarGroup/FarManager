@@ -440,6 +440,7 @@ DWORD WINAPI PerfThread::ThreadProc()
 {
 	HANDLE handles[2] = {hEvtBreak, hEvtRefresh};
 
+	CoInitialize(NULL);
 	while (1)
 	{
 		Refresh();
@@ -458,6 +459,7 @@ DWORD WINAPI PerfThread::ThreadProc()
 	}
 
 	WMI.Disconnect();
+	CoUninitialize();
 	return 1;
 }
 

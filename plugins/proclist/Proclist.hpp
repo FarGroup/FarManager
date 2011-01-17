@@ -320,8 +320,8 @@ typedef BOOL (WINAPI *PIsWow64Process)(IN HANDLE hProcess, IN PBOOL Wow64Process
 extern PIsWow64Process pIsWow64Process;
 typedef DWORD (WINAPI *PGetGuiResources)(IN HANDLE hProcess, IN DWORD uiFlags);
 extern PGetGuiResources pGetGuiResources;
-typedef HRESULT(WINAPI *PCoInitializeSecurity)(PSECURITY_DESCRIPTOR,LONG,SOLE_AUTHENTICATION_SERVICE*, void*,DWORD,DWORD,SOLE_AUTHENTICATION_LIST*,DWORD,void*);
-extern PCoInitializeSecurity pCoInitializeSecurity;
+typedef HRESULT(WINAPI *PCoSetProxyBlanket)(IUnknown*, DWORD, DWORD, OLECHAR*, DWORD, DWORD, RPC_AUTH_IDENTITY_HANDLE, DWORD);
+extern PCoSetProxyBlanket pCoSetProxyBlanket;
 //------
 
 extern TCHAR FPRINTFbuffer[];

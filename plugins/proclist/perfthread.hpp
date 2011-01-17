@@ -72,6 +72,7 @@ struct IWbemServices;
 class WMIConnection
 {
 
+		DebugToken token;
 		IWbemServices *pIWbemServices;
 		int ExecMethod(DWORD dwPID, PCWSTR wsMethod, PCWSTR wsParamName=0, DWORD dwParam=0);
 		HRESULT hrLast;

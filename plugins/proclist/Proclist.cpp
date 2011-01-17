@@ -100,11 +100,10 @@ static BOOL WINAPI fLookupAccountName(LPCTSTR,LPCTSTR,PSID,LPDWORD,LPTSTR,LPDWOR
 PLookupAccountName pLookupAccountName = fLookupAccountName;
 
 
-static HRESULT WINAPI fCoInitializeSecurity(
-    PSECURITY_DESCRIPTOR, LONG, SOLE_AUTHENTICATION_SERVICE*, void*,
-    DWORD, DWORD, SOLE_AUTHENTICATION_LIST*, DWORD, void*)
+static HRESULT WINAPI fCoSetProxyBlanket(
+    IUnknown*, DWORD, DWORD, OLECHAR*, DWORD, DWORD, RPC_AUTH_IDENTITY_HANDLE, DWORD)
 { return E_FAIL; }
-PCoInitializeSecurity pCoInitializeSecurity = fCoInitializeSecurity;
+PCoSetProxyBlanket pCoSetProxyBlanket = fCoSetProxyBlanket;
 
 #ifndef UNICODE
 #define FUNC_AW_SUFFIX  "A"
@@ -170,8 +169,8 @@ static void dynamic_bind(void)
 
 		if ((h = GetModuleHandle(_T("ole32"))) != NULL)
 		{
-			if ((f = GetProcAddress(h, "CoInitializeSecurity")) != NULL)
-				pCoInitializeSecurity = (PCoInitializeSecurity)f;
+			if ((f = GetProcAddress(h, "CoSetProxyBlanket")) != NULL)
+				pCoSetProxyBlanket = (PCoSetProxyBlanket)f;
 		}
 
 		Inited = TRUE;
