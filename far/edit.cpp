@@ -1938,6 +1938,10 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 				}
 				else
 				{
+					if(Mask[j] == Str[j])
+					{
+						j++;
+					}
 					PrevCurPos=CurPos;
 					CurPos++;
 				}
