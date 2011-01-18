@@ -277,7 +277,37 @@ bool elevation::Initialize()
 	{
 		FormatString strPipe;
 		strPipe << PIPE_NAME << GetCurrentProcessId();
-		Pipe=CreateNamedPipe(strPipe, PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE|PIPE_READMODE_BYTE|PIPE_WAIT, 1, 0, 0, 0, nullptr);
+		SID_IDENTIFIER_AUTHORITY NtAuthority=SECURITY_NT_AUTHORITY;
+		PSID AdminSID;
+		if(AllocateAndInitializeSid(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS, 0, 0, 0, 0, 0, 0, &AdminSID))
+		{
+			PSECURITY_DESCRIPTOR pSD = (PSECURITY_DESCRIPTOR)LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH); 
+			if(pSD)
+			{
+				if (InitializeSecurityDescriptor(pSD, SECURITY_DESCRIPTOR_REVISION)) 
+				{
+					PACL pACL = NULL;
+					EXPLICIT_ACCESS ea={};
+					ea.grfAccessPermissions = GENERIC_READ|GENERIC_WRITE;
+					ea.grfAccessMode = SET_ACCESS;
+					ea.grfInheritance= NO_INHERITANCE;
+					ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
+					ea.Trustee.TrusteeType = TRUSTEE_IS_WELL_KNOWN_GROUP;
+					ea.Trustee.ptstrName  = (LPTSTR)AdminSID;
+					if(SetEntriesInAcl(1, &ea, NULL, &pACL) == ERROR_SUCCESS)
+					{
+						if(SetSecurityDescriptorDacl(pSD, TRUE, pACL, FALSE))
+						{
+							SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), pSD, FALSE};
+							Pipe=CreateNamedPipe(strPipe, PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE|PIPE_READMODE_BYTE|PIPE_WAIT, 1, 0, 0, 0, &sa);
+						}
+						LocalFree(pACL);
+					}
+				}
+				LocalFree(pSD);
+			}
+			FreeSid(AdminSID);
+		}
 	}
 	if(Pipe!=INVALID_HANDLE_VALUE)
 	{
@@ -1368,7 +1398,7 @@ void CreateFileHandler()
 						if(Result!=INVALID_HANDLE_VALUE)
 						{
 							HANDLE ParentProcess = OpenProcess(PROCESS_DUP_HANDLE, FALSE, ParentPID);
-							if(ParentProcess != INVALID_HANDLE_VALUE)
+							if(ParentProcess)
 							{
 								if(!DuplicateHandle(GetCurrentProcess(), Result, ParentProcess, &Result, 0, FALSE, DUPLICATE_CLOSE_SOURCE|DUPLICATE_SAME_ACCESS))
 								{
@@ -1460,6 +1490,7 @@ int AdminMain(DWORD PID, bool UsePrivileges)
 		BackupPrivilege(UsePrivileges?SE_BACKUP_NAME:nullptr),
 		RestorePrivilege(UsePrivileges?SE_RESTORE_NAME:nullptr),
 		TakeOwnershipPrivilege(SE_TAKE_OWNERSHIP_NAME),
+		DebugPrivilege(SE_DEBUG_NAME),
 		CreateSymbolicLinkPrivilege(SE_CREATE_SYMBOLIC_LINK_NAME);
 
 	FormatString strPipe;

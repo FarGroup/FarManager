@@ -274,26 +274,7 @@ File::~File()
 
 bool File::Open(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile, bool ForceElevation)
 {
-	string strObject(NTPath(Object).Get());
-	FlagsAndAttributes|=FILE_FLAG_BACKUP_SEMANTICS|(CreationDistribution==OPEN_EXISTING?FILE_FLAG_POSIX_SEMANTICS:0);
-	Handle = CreateFile(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
-	if(Handle == INVALID_HANDLE_VALUE)
-	{
-		DWORD Error=GetLastError();
-		if(Error==ERROR_FILE_NOT_FOUND||Error==ERROR_PATH_NOT_FOUND)
-		{
-			FlagsAndAttributes&=~FILE_FLAG_POSIX_SEMANTICS;
-			Handle = CreateFile(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
-		}
-	}
-	if((Handle == INVALID_HANDLE_VALUE && ElevationRequired(DesiredAccess&(GENERIC_ALL|GENERIC_WRITE|STANDARD_RIGHTS_ALL|STANDARD_RIGHTS_WRITE|WRITE_OWNER|WRITE_DAC|DELETE|FILE_GENERIC_WRITE)?ELEVATION_MODIFY_REQUEST:ELEVATION_READ_REQUEST)) || ForceElevation)
-	{
-		if(ForceElevation && Handle!=INVALID_HANDLE_VALUE)
-		{
-			CloseHandle(Handle);
-		}
-		Handle = Elevation.fCreateFile(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
-	}
+	Handle = apiCreateFile(Object, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile, ForceElevation);
 	return Handle != INVALID_HANDLE_VALUE;
 }
 
@@ -418,49 +399,33 @@ BOOL apiRemoveDirectory(const wchar_t *DirName)
 	return Result;
 }
 
-HANDLE apiCreateFile(
-    const wchar_t *lpwszFileName,     // pointer to name of the file
-    DWORD dwDesiredAccess,  // access (read-write) mode
-    DWORD dwShareMode,      // share mode
-    LPSECURITY_ATTRIBUTES lpSecurityAttributes, // pointer to security attributes
-    DWORD dwCreationDistribution, // how to create
-    DWORD dwFlagsAndAttributes,   // file attributes
-    HANDLE hTemplateFile          // handle to file with attributes to copy
-)
+HANDLE apiCreateFile(const wchar_t* Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile, bool ForceElevation)
 {
-	if (dwCreationDistribution==OPEN_EXISTING)
-	{
-		dwFlagsAndAttributes|=FILE_FLAG_POSIX_SEMANTICS;
-	}
+	string strObject(NTPath(Object).Get());
+	FlagsAndAttributes|=FILE_FLAG_BACKUP_SEMANTICS|(CreationDistribution==OPEN_EXISTING?FILE_FLAG_POSIX_SEMANTICS:0);
 
-	dwFlagsAndAttributes|=FILE_FLAG_BACKUP_SEMANTICS;
-	string strName(NTPath(lpwszFileName).Get());
-	HANDLE hFile=CreateFile(
-	                 strName,
-	                 dwDesiredAccess,
-	                 dwShareMode,
-	                 lpSecurityAttributes,
-	                 dwCreationDistribution,
-	                 dwFlagsAndAttributes,
-	                 hTemplateFile
-	             );
+	HANDLE Handle=CreateFile(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
 	DWORD Error=GetLastError();
 
-	if (hFile==INVALID_HANDLE_VALUE && (Error==ERROR_FILE_NOT_FOUND||Error==ERROR_PATH_NOT_FOUND))
+	if(Handle == INVALID_HANDLE_VALUE)
 	{
-		dwFlagsAndAttributes&=~FILE_FLAG_POSIX_SEMANTICS;
-		hFile=CreateFile(
-		          strName,
-		          dwDesiredAccess,
-		          dwShareMode,
-		          lpSecurityAttributes,
-		          dwCreationDistribution,
-		          dwFlagsAndAttributes,
-		          hTemplateFile
-		      );
+		DWORD Error=GetLastError();
+		if(Error==ERROR_FILE_NOT_FOUND||Error==ERROR_PATH_NOT_FOUND)
+		{
+			FlagsAndAttributes&=~FILE_FLAG_POSIX_SEMANTICS;
+			Handle = CreateFile(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
+		}
 	}
 
-	return hFile;
+	if((Handle == INVALID_HANDLE_VALUE && ElevationRequired(DesiredAccess&(GENERIC_ALL|GENERIC_WRITE|STANDARD_RIGHTS_ALL|STANDARD_RIGHTS_WRITE|WRITE_OWNER|WRITE_DAC|DELETE|FILE_GENERIC_WRITE)?ELEVATION_MODIFY_REQUEST:ELEVATION_READ_REQUEST)) || ForceElevation)
+	{
+		if(ForceElevation && Handle!=INVALID_HANDLE_VALUE)
+		{
+			CloseHandle(Handle);
+		}
+		Handle = Elevation.fCreateFile(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
+	}
+	return Handle;
 }
 
 BOOL apiCopyFileEx(

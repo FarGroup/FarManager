@@ -210,13 +210,14 @@ BOOL apiRemoveDirectory(
 );
 
 HANDLE apiCreateFile(
-    const wchar_t *lpwszFileName,     // pointer to name of the file
-    DWORD dwDesiredAccess,  // access (read-write) mode
-    DWORD dwShareMode,      // share mode
-    LPSECURITY_ATTRIBUTES lpSecurityAttributes, // pointer to security attributes
-    DWORD dwCreationDistribution, // how to create
-    DWORD dwFlagsAndAttributes,   // file attributes
-    HANDLE hTemplateFile=nullptr          // handle to file with attributes to copy
+    const wchar_t* Object,
+    DWORD DesiredAccess,
+    DWORD ShareMode,
+    LPSECURITY_ATTRIBUTES SecurityAttributes,
+    DWORD CreationDistribution,
+    DWORD FlagsAndAttributes=0,
+    HANDLE TemplateFile=nullptr,
+    bool ForceElevation = false
 );
 
 BOOL apiCopyFileEx(
