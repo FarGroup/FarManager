@@ -2287,6 +2287,11 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 	{
 		int CmpCode=CmpFullNames(Src,strDestPath);
 
+		if(CmpCode && SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT && RPT==RP_EXACTCOPY && !(Flags&FCOPY_COPYSYMLINKCONTENTS))
+		{
+			CmpCode = 0;
+		}
+
 		if (CmpCode==1) // TODO: error check
 		{
 			SameName=1;
@@ -2585,6 +2590,11 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			if (SrcData.nFileSize==DestData.nFileSize)
 			{
 				int CmpCode=CmpFullNames(Src,strDestPath);
+
+				if(CmpCode && SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT && RPT==RP_EXACTCOPY && !(Flags&FCOPY_COPYSYMLINKCONTENTS))
+				{
+					CmpCode = 0;
+				}
 
 				if (CmpCode==1) // TODO: error check
 				{
