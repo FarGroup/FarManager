@@ -88,6 +88,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <dbt.h>
 #define SECURITY_WIN32
 #include <security.h>
+#define PSAPI_VERSION 1
+#include <psapi.h>
 #include <shlobj.h>
 #include <shellapi.h>
 

@@ -318,9 +318,9 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
 	Opt.IsUserAdmin=IsUserAdmin();
 
-	if(Argc==4 && !StrCmp(Argv[1], L"/admin")) // /admin PID UsePrivileges
+	if(Argc==5 && !StrCmp(Argv[1], L"/admin")) // /admin {GUID} PID UsePrivileges
 	{
-		return AdminMain(_wtoi(Argv[2]), *Argv[3]==L'1');
+		return AdminMain(Argv[2], _wtoi(Argv[3]), *Argv[4]==L'1');
 	}
 
 	InitCurrentDirectory();

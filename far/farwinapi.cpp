@@ -405,8 +405,6 @@ HANDLE apiCreateFile(const wchar_t* Object, DWORD DesiredAccess, DWORD ShareMode
 	FlagsAndAttributes|=FILE_FLAG_BACKUP_SEMANTICS|(CreationDistribution==OPEN_EXISTING?FILE_FLAG_POSIX_SEMANTICS:0);
 
 	HANDLE Handle=CreateFile(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
-	DWORD Error=GetLastError();
-
 	if(Handle == INVALID_HANDLE_VALUE)
 	{
 		DWORD Error=GetLastError();
@@ -596,6 +594,11 @@ DWORD apiGetTempPath(string &strBuffer)
 
 DWORD apiGetModuleFileName(HMODULE hModule, string &strFileName)
 {
+	return apiGetModuleFileNameEx(nullptr, hModule, strFileName);
+}
+
+DWORD apiGetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileName)
+{
 	DWORD dwSize = 0;
 	DWORD dwBufferSize = MAX_PATH;
 	wchar_t *lpwszFileName = nullptr;
@@ -604,7 +607,7 @@ DWORD apiGetModuleFileName(HMODULE hModule, string &strFileName)
 	{
 		dwBufferSize <<= 1;
 		lpwszFileName = (wchar_t*)xf_realloc_nomove(lpwszFileName, dwBufferSize*sizeof(wchar_t));
-		dwSize = GetModuleFileName(hModule, lpwszFileName, dwBufferSize);
+		dwSize = hProcess? GetModuleFileNameEx(hProcess, hModule, lpwszFileName, dwBufferSize) : GetModuleFileName(hModule, lpwszFileName, dwBufferSize);
 	}
 	while (dwSize && (dwSize >= dwBufferSize));
 

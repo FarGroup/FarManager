@@ -154,6 +154,12 @@ DWORD apiGetModuleFileName(
     string &strFileName
 );
 
+DWORD apiGetModuleFileNameEx(
+    HANDLE hProcess,
+    HMODULE hModule,
+    string &strFileName
+);
+
 bool apiExpandEnvironmentStrings(
     const wchar_t *src,
     string &strDest

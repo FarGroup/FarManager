@@ -50,8 +50,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "event.hpp"
 
-LPCWSTR PIPE_NAME = L"\\\\.\\pipe\\FarPipe";
-
 const int CallbackMagic= 0xCA11BAC6;
 
 DWORD ParentPID;
@@ -273,40 +271,47 @@ bool elevation::ReceiveLastError() const
 bool elevation::Initialize()
 {
 	bool Result=false;
+	string strPipeID;
 	if(Pipe==INVALID_HANDLE_VALUE)
 	{
-		FormatString strPipe;
-		strPipe << PIPE_NAME << GetCurrentProcessId();
-		SID_IDENTIFIER_AUTHORITY NtAuthority=SECURITY_NT_AUTHORITY;
-		PSID AdminSID;
-		if(AllocateAndInitializeSid(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS, 0, 0, 0, 0, 0, 0, &AdminSID))
+		GUID Id;
+		if(CoCreateGuid(&Id) == S_OK)
 		{
-			PSECURITY_DESCRIPTOR pSD = (PSECURITY_DESCRIPTOR)LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH); 
-			if(pSD)
+			strPipeID.Format(L"{%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}", Id.Data1, Id.Data2, Id.Data3, Id.Data4[0], Id.Data4[1], Id.Data4[2], Id.Data4[3], Id.Data4[4], Id.Data4[5], Id.Data4[6], Id.Data4[7]);
+
+			SID_IDENTIFIER_AUTHORITY NtAuthority=SECURITY_NT_AUTHORITY;
+			PSID AdminSID;
+			if(AllocateAndInitializeSid(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS, 0, 0, 0, 0, 0, 0, &AdminSID))
 			{
-				if (InitializeSecurityDescriptor(pSD, SECURITY_DESCRIPTOR_REVISION)) 
+				PSECURITY_DESCRIPTOR pSD = reinterpret_cast<PSECURITY_DESCRIPTOR>(LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH));
+				if(pSD)
 				{
-					PACL pACL = NULL;
-					EXPLICIT_ACCESS ea={};
-					ea.grfAccessPermissions = GENERIC_READ|GENERIC_WRITE;
-					ea.grfAccessMode = SET_ACCESS;
-					ea.grfInheritance= NO_INHERITANCE;
-					ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
-					ea.Trustee.TrusteeType = TRUSTEE_IS_WELL_KNOWN_GROUP;
-					ea.Trustee.ptstrName  = (LPTSTR)AdminSID;
-					if(SetEntriesInAcl(1, &ea, NULL, &pACL) == ERROR_SUCCESS)
+					if (InitializeSecurityDescriptor(pSD, SECURITY_DESCRIPTOR_REVISION)) 
 					{
-						if(SetSecurityDescriptorDacl(pSD, TRUE, pACL, FALSE))
+						PACL pACL = NULL;
+						EXPLICIT_ACCESS ea={};
+						ea.grfAccessPermissions = GENERIC_READ|GENERIC_WRITE;
+						ea.grfAccessMode = SET_ACCESS;
+						ea.grfInheritance= NO_INHERITANCE;
+						ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
+						ea.Trustee.TrusteeType = TRUSTEE_IS_WELL_KNOWN_GROUP;
+						ea.Trustee.ptstrName  = (LPTSTR)AdminSID;
+						if(SetEntriesInAcl(1, &ea, NULL, &pACL) == ERROR_SUCCESS)
 						{
-							SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), pSD, FALSE};
-							Pipe=CreateNamedPipe(strPipe, PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE|PIPE_READMODE_BYTE|PIPE_WAIT, 1, 0, 0, 0, &sa);
+							if(SetSecurityDescriptorDacl(pSD, TRUE, pACL, FALSE))
+							{
+								SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), pSD, FALSE};
+								string strPipe(L"\\\\.\\pipe\\");
+								strPipe+=strPipeID;
+								Pipe=CreateNamedPipe(strPipe, PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE|PIPE_READMODE_BYTE|PIPE_WAIT, 1, 0, 0, 0, &sa);
+							}
+							LocalFree(pACL);
 						}
-						LocalFree(pACL);
 					}
+					LocalFree(pSD);
 				}
-				LocalFree(pSD);
+				FreeSid(AdminSID);
 			}
-			FreeSid(AdminSID);
 		}
 	}
 	if(Pipe!=INVALID_HANDLE_VALUE)
@@ -328,7 +333,7 @@ bool elevation::Initialize()
 			TaskBar TB;
 			DisconnectNamedPipe(Pipe);
 			FormatString strParam;
-			strParam << L"/admin " << GetCurrentProcessId() << L" " << ((Opt.ElevationMode&ELEVATION_USE_PRIVILEGES) != 0);
+			strParam << L"/admin " << strPipeID << L" " << GetCurrentProcessId() << L" " << ((Opt.ElevationMode&ELEVATION_USE_PRIVILEGES)? L"1" : L"0");
 			SHELLEXECUTEINFO info=
 			{
 				sizeof(info),
@@ -1291,72 +1296,6 @@ void MoveToRecycleBinHandler()
 	}
 }
 
-/*
-void FindFirstFileExHandler()
-{
-	AutoObject Object;
-	if(ReadPipeData(Pipe, Object))
-	{
-		int InfoLevelId;
-		if(ReadPipeInt(Pipe, InfoLevelId))
-		{
-			int SearchOp;
-			if(ReadPipeInt(Pipe, SearchOp))
-			{
-				int AdditionalFlags;
-				if(ReadPipeInt(Pipe, AdditionalFlags))
-				{
-					//BUGBUG: Check InfoLevelId
-					//BUGBUG: SearchFilter ignored
-					WIN32_FIND_DATA W32FindData;
-					HANDLE Result = FindFirstFileEx(Object.GetStr(), static_cast<FINDEX_INFO_LEVELS>(InfoLevelId), &W32FindData, static_cast<FINDEX_SEARCH_OPS>(SearchOp), nullptr, AdditionalFlags);
-					int LastError = GetLastError();
-					if(WritePipeData(Pipe, &Result, sizeof(Result)))
-					{
-						if(WritePipeData(Pipe, &W32FindData, sizeof(WIN32_FIND_DATA)))
-						{
-							WritePipeInt(Pipe, LastError);
-						}
-					}
-				}
-			}
-		}
-	}
-}
-
-void FindNextFileHandler()
-{
-	AutoObject Handle;
-	if(ReadPipeData(Pipe, Handle))
-	{
-		WIN32_FIND_DATA W32FindData;
-		int Result = FindNextFile(*reinterpret_cast<PHANDLE>(Handle.Get()), &W32FindData);
-		int LastError = GetLastError();
-		if(WritePipeInt(Pipe, Result))
-		{
-			if(WritePipeData(Pipe, &W32FindData, sizeof(WIN32_FIND_DATA)))
-			{
-				WritePipeInt(Pipe, LastError);
-			}
-		}
-	}
-}
-
-void FindCloseHandler()
-{
-	AutoObject Handle;
-	if(ReadPipeData(Pipe, Handle))
-	{
-		int Result = FindClose(*reinterpret_cast<PHANDLE>(Handle.Get()));
-		int LastError = GetLastError();
-		if(WritePipeInt(Pipe, Result))
-		{
-			WritePipeInt(Pipe, LastError);
-		}
-	}
-}
-*/
-
 void SetOwnerHandler()
 {
 	AutoObject Object;
@@ -1480,7 +1419,7 @@ bool Process(int Command)
 	return Exit;
 }
 
-int AdminMain(DWORD PID, bool UsePrivileges)
+int AdminMain(LPCWSTR guid, DWORD PID, bool UsePrivileges)
 {
 	int Result = ERROR_SUCCESS;
 
@@ -1493,28 +1432,42 @@ int AdminMain(DWORD PID, bool UsePrivileges)
 		DebugPrivilege(SE_DEBUG_NAME),
 		CreateSymbolicLinkPrivilege(SE_CREATE_SYMBOLIC_LINK_NAME);
 
-	FormatString strPipe;
-	strPipe << PIPE_NAME << PID;
+	string strPipe(L"\\\\.\\pipe\\");
+	strPipe+=guid;
 	WaitNamedPipe(strPipe, NMPWAIT_WAIT_FOREVER);
 	Pipe = CreateFile(strPipe,GENERIC_READ|GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr);
 	if (Pipe != INVALID_HANDLE_VALUE)
 	{
-		if(WritePipeInt(Pipe, GetCurrentProcessId()))
+		ULONG ServerProcessId;
+		if(!ifn.pGetNamedPipeServerProcessId || (ifn.pGetNamedPipeServerProcessId(Pipe, &ServerProcessId) && ServerProcessId == PID))
 		{
-			ParentPID = PID;
-			bool Exit = false;
-			int Command = 0;
-			while(!Exit)
+			HANDLE ParentProcess = OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_VM_READ, FALSE, PID);
+			if(ParentProcess)
 			{
-				if(ReadPipeInt(Pipe, Command))
+				string strCurrentProcess, strParentProcess;
+				bool TrustedServer = apiGetModuleFileName(nullptr, strCurrentProcess) && apiGetModuleFileNameEx(ParentProcess, nullptr, strParentProcess) && (strCurrentProcess == strParentProcess);
+				CloseHandle(ParentProcess);
+				if(TrustedServer)
 				{
-					Exit = Process(Command);
-				}
-				else
-				{
-					if(GetLastError() == ERROR_BROKEN_PIPE)
+					if(WritePipeInt(Pipe, GetCurrentProcessId()))
 					{
-						Exit=true;
+						ParentPID = PID;
+						bool Exit = false;
+						int Command = 0;
+						while(!Exit)
+						{
+							if(ReadPipeInt(Pipe, Command))
+							{
+								Exit = Process(Command);
+							}
+							else
+							{
+								if(GetLastError() == ERROR_BROKEN_PIPE)
+								{
+									Exit=true;
+								}
+							}
+						}
 					}
 				}
 			}
