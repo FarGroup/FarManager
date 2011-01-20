@@ -411,6 +411,7 @@ string TryConvertVolumeGuidToDrivePath(const string& Path)
 */
 void ConvertNameToReal(const wchar_t *Src, string &strDest)
 {
+	DisableElevation de;
 	// Получим сначала полный путь до объекта обычным способом
 	string FullPath;
 	ConvertNameToFull(Src, FullPath);
