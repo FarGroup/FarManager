@@ -3,6 +3,34 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 20.01.2011 20:18:54 +0200 - build 1797
+
+1. Correction of "read"/"modification" access rights separation in apiCreateFile.
+
+drkns 20.01.2011 00:52:42 +0200 - build 1796
+
+1. Links copying/moving did not work in several cases.
+
+drkns 19.01.2011 21:21:30 +0200 - build 1795
+
+1. Some more elevation-related paranoia:
+     - pipe name = GUID;
+     - PID check.
+
+drkns 18.01.2011 14:47:00 +0200 - build 1794
+
+1. Ibid:
+     - correction of 1793;
+     - paranoia mode on: Named pipe is now available for privileged processes only.
+
+drkns 18.01.2011 00:53:26 +0200 - build 1793
+
+1. Changes in elevation, see Mantis#0001670.
+
+drkns 17.01.2011 13:27:27 +0200 - build 1792
+
+1. Mantis#0001667: can't paste hex numbers
+
 svs 16.01.2011 18:02:14 +0300 - build 1791
 
 1. Mantis#0001660: XOR operation for boolean expressions
