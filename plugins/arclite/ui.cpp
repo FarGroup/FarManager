@@ -374,7 +374,7 @@ private:
 
   LONG_PTR dialog_proc(int msg, int param1, LONG_PTR param2) {
     if ((msg == DN_CLOSE) && (param1 >= 0) && (param1 != cancel_ctrl_id)) {
-      options.dst_dir = del_trailing_slash(unquote(strip(get_text(dst_dir_ctrl_id))));
+      options.dst_dir = unquote(strip(get_text(dst_dir_ctrl_id)));
       options.ignore_errors = get_check(ignore_errors_ctrl_id);
       if (get_check(oa_ask_ctrl_id)) options.overwrite = oaAsk;
       else if (get_check(oa_overwrite_ctrl_id)) options.overwrite = oaOverwrite;

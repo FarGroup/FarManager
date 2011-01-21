@@ -675,6 +675,10 @@ public:
   void delete_files(const PluginPanelItem* panel_items, int items_number, int op_mode) {
     if (items_number == 1 && wcscmp(panel_items[0].FindData.lpwszFileName, L"..") == 0) return;
 
+    if (!archive.updatable()) {
+      FAIL_MSG(Far::get_msg(MSG_ERROR_NOT_UPDATABLE));
+    }
+
     bool show_dialog = (op_mode & (OPM_SILENT | OPM_FIND | OPM_VIEW | OPM_EDIT | OPM_QUICKVIEW)) == 0;
     if (show_dialog) {
       if (Far::message(Far::get_msg(MSG_PLUGIN_NAME) + L"\n" + Far::get_msg(MSG_DELETE_DLG_CONFIRM), 0, FMSG_MB_OKCANCEL) != 0)
