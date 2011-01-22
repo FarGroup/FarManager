@@ -271,7 +271,6 @@ bool elevation::ReceiveLastError() const
 bool elevation::Initialize()
 {
 	bool Result=false;
-	string strPipeID;
 	if(Pipe==INVALID_HANDLE_VALUE)
 	{
 		GUID Id;

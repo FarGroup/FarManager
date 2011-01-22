@@ -103,6 +103,7 @@ private:
 	bool AskApprove;
 	bool Recurse;
 	CriticalSection CS;
+	string strPipeID;
 
 	bool ReadData(AutoObject& Data) const;
 	bool WriteData(LPCVOID Data, DWORD DataSize) const;
