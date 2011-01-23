@@ -1444,7 +1444,7 @@ int AdminMain(LPCWSTR guid, DWORD PID, bool UsePrivileges)
 			if(ParentProcess)
 			{
 				string strCurrentProcess, strParentProcess;
-				bool TrustedServer = apiGetModuleFileName(nullptr, strCurrentProcess) && apiGetModuleFileNameEx(ParentProcess, nullptr, strParentProcess) && (strCurrentProcess == strParentProcess);
+				bool TrustedServer = apiGetModuleFileName(nullptr, strCurrentProcess) && apiGetModuleFileNameEx(ParentProcess, nullptr, strParentProcess) && (!StrCmpI(strCurrentProcess, strParentProcess));
 				CloseHandle(ParentProcess);
 				if(TrustedServer)
 				{

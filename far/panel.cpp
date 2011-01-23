@@ -2060,7 +2060,7 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 		{
 			int Mode=Param1;
 
-			if ((Mode>SM_DEFAULT) && (Mode<=SM_FULLNAME))
+			if ((Mode>SM_DEFAULT) && (Mode<=SM_CHTIME))
 			{
 				SetSortMode(--Mode); // ”меньшим на 1 из-за SM_DEFAULT
 				Result=TRUE;
