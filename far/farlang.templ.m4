@@ -11008,7 +11008,7 @@ MMenuSortByAccess
 
 MMenuSortByChange
 "Время из&менения"
-"C&hange time"
+"Chan&ge time"
 upd:"Change time"
 upd:"Change time"
 upd:"Change time"
