@@ -3,6 +3,16 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 23.01.2011 13:02:35 +0200 - build 1799
+
+1. Error in FCTL_SETSORTMODE.
+
+2. #0001670 once more.
+
+drkns 22.01.2011 18:31:13 +0200 - build 1798
+
+1. #0001670 once more.
+
 drkns 20.01.2011 20:18:54 +0200 - build 1797
 
 1. Correction of "read"/"modification" access rights separation in apiCreateFile.
