@@ -3866,9 +3866,13 @@ static bool callpluginFunc(const TMacroFunction*)
 		if( Opt.Macro.CallPluginRules )
 			CtrlObject->Macro.PushState(true);
 
-		Ret=CtrlObject->Plugins.CallPlugin((DWORD)SysID.i(),OpenFrom,
+		int ResultCallPlugin=0;
+
+		if (CtrlObject->Plugins.CallPlugin((DWORD)SysID.i(),OpenFrom,
 		                                   Param.isString() ? (void*)Param.s() :
-		                                   (void*)(size_t)Param.i());
+		                                   (void*)(size_t)Param.i(),&ResultCallPlugin))
+			Ret=(__int64)ResultCallPlugin;
+
 		if( Opt.Macro.CallPluginRules )
 			CtrlObject->Macro.PopState();
 	}

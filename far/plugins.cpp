@@ -2107,7 +2107,7 @@ void PluginManager::ReadUserBackgound(SaveScreen *SaveScr)
   Функция CallPlugin - найти плагин по ID и запустить
   в зачаточном состоянии!
 */
-int PluginManager::CallPlugin(DWORD SysID,int OpenFrom, void *Data)
+int PluginManager::CallPlugin(DWORD SysID,int OpenFrom, void *Data,int *Ret)
 {
 	Plugin *pPlugin = FindPlugin(SysID);
 
@@ -2146,11 +2146,14 @@ int PluginManager::CallPlugin(DWORD SysID,int OpenFrom, void *Data)
 				//NewPanel->Show();
 			}
 
-			return hNewPlugin==INVALID_HANDLE_VALUE?-1:1;
+			if (Ret)
+				*Ret=hNewPlugin==INVALID_HANDLE_VALUE?-1:(hNewPlugin?1:0);
+
+			return TRUE;
 		}
 	}
 
-	return 0;
+	return FALSE;
 }
 
 Plugin *PluginManager::FindPlugin(DWORD SysID)

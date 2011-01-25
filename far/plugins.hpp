@@ -233,7 +233,7 @@ class PluginManager
 		void GetHotKeyRegKey(Plugin *pPlugin,int ItemNumber,string &strRegKey);
 
 		// $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
-		int CallPlugin(DWORD SysID,int OpenFrom, void *Data);
+		int CallPlugin(DWORD SysID,int OpenFrom, void *Data, int *Ret=nullptr);
 		Plugin *FindPlugin(DWORD SysID);
 
 //api functions

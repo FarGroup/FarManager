@@ -1,3 +1,7 @@
+svs 25.01.2011 18:35:03 +0300 - build 1801
+
+1. Macro: Уточнение кода возврата для callplugin
+
 svs 25.01.2011 16:53:18 +0300 - build 1800
 
 1. Mantis#0001673: Добавить флаг OPEN_FROMMACROSTRING к существующему OPEN_FROMMACRO
