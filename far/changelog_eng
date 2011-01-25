@@ -3,6 +3,28 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 25.01.2011 18:35:03 +0300 - build 1801
+
+1. Macro: Correction of return code for callplugin
+
+svs 25.01.2011 16:53:18 +0300 - build 1800
+
+1. Mantis#0001673: Add OPEN_FROMMACROSTRING flag to existing OPEN_FROMMACRO
+   Testing...
+
+   <ACHTUNG>
+
+     Note for OpenPluginW:
+       If OPEN_FROMMACRO flag is set in OpenFrom parameter, then values in least significant word 
+       contain the ID of the current macro area defined in FARMACROAREA, not an identifier from 
+       OPENPLUGIN_OPENFROM enumeration.
+       
+   </ACHTUNG>
+
+
+2. Mantis#0001677: Provide "launching" key code when running a macro with MCMD_POSTMACROSTRING
+   ActlKeyMacro::Param::PlainText structure is appended with "AKey" field.
+   
 drkns 23.01.2011 13:02:35 +0200 - build 1799
 
 1. Error in FCTL_SETSORTMODE.
