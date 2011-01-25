@@ -3743,8 +3743,15 @@ static bool editorsettitleFunc(const TMacroFunction*)
 }
 
 // V=callplugin(SysID[,param])
+#if 0
 static bool callpluginFunc(const TMacroFunction*)
 {
+/*
+Если в OpenPlugin встретился флаг OPEN_FROMMACRO - он приоритетный, говорит о том, что вызов плагина был из макросов.
+OPEN_FROMMACROSTRING уточняющий флаг - переметр Data содержит строку, если этот флаг не указан, то Data содержит число.
+Прочие значения для OpenFrom - рекомендательные... могут отличаться от...
+*/
+
 	__int64 Ret=0;
 	TVar Param; VMStack.Pop(Param);
 	TVar SysID; VMStack.Pop(SysID);
@@ -3757,18 +3764,70 @@ static bool callpluginFunc(const TMacroFunction*)
 		if (frame)
 			switch (frame->GetType())
 			{
-				case MODALTYPE_PANELS:
-					OpenFrom = OPEN_COMMANDLINE | OPEN_FROMMACRO;
-					break;
+	/*
+OPEN_DISKMENU 	Открыт из меню дисков
+OPEN_PLUGINSMENU 	Открыт из меню плагинов (F11)
+OPEN_FINDLIST 	Открыт из диалога "поиска файлов" Этот идентификатор плагин получит только в том случае, если он экспортирует функцию SetFindListW. Последующий вызов функции SetFindListW произойдёт только в том случае, если функция OpenPluginW вернёт значение отличное от INVALID_HANDLE_VALUE.
+OPEN_SHORTCUT 	Открыт через ссылку на папку (Меню Commands|Folder shortcuts)
+OPEN_COMMANDLINE 	Был открыт из командной строки. Этот параметр может использоваться, только если плагин определил вызывающий префикс в функции GetPluginInfoW и этот префикс, с двоеточием после него, был указан в командной строке.
+OPEN_EDITOR 	Открыт из редактора
+OPEN_VIEWER 	Открыт из встроенной программы просмотра
+OPEN_FILEPANEL 	Открыт из панелей
+OPEN_DIALOG 	Открыт из диалога
+OPEN_ANALYSE 	Открыт из ???
+OPEN_FROMMACRO 	Открыт из макрокоманды
+
+
+# Для OPEN_FINDLIST Item всегда 0.
+# Для OPEN_SHORTCUT Item содержит адрес строки, которая была передана
+	в элемент ShortcutData структуры OpenPluginInfo в момент сохранения горячей клавиши.
+	Плагин может использовать это поле для сохранения дополнительной информации о текущем состоянии.
+	Не обязательно сохранять в нём информацию о текущей директории, так как этим занимается сам FAR.
+
+	OPEN_DISKMENU
+	OPEN_PLUGINSMENU
+	OPEN_FINDLIST
+	OPEN_SHORTCUT
+	OPEN_FILEPANEL
+	OPEN_ANALYSE
+    */
+
+				/*
+					Для параметров OPEN_DISKMENU, OPEN_PLUGINSMENU, OPEN_EDITOR и OPEN_VIEWER Item - это номер выбранного
+					пункта в меню из зарегистрированных плагином пунктов. Если плагин экспортирует только один элемент,
+					этот параметр всегда равен нулю.
+				*/
 				case MODALTYPE_EDITOR:
 					OpenFrom = OPEN_EDITOR      | OPEN_FROMMACRO;
 					break;
 				case MODALTYPE_VIEWER:
 					OpenFrom = OPEN_VIEWER      | OPEN_FROMMACRO;
 					break;
-				case MODALTYPE_DIALOG:
-					OpenFrom = OPEN_DIALOG      | OPEN_FROMMACRO;
+				// Для OPEN_COMMANDLINE Item содержит адрес введённого пользователем в командной строке выражения.
+				case MODALTYPE_PANELS:
+					OpenFrom = OPEN_COMMANDLINE | OPEN_FROMMACRO;
 					break;
+				case MODALTYPE_DIALOG:
+					// Для OPEN_DIALOG Item содержит адрес структуры OpenDlgPluginData.
+					OpenFrom = OPEN_DIALOG      | OPEN_FROMMACRO;
+                    /*
+struct OpenDlgPluginData
+{
+	int ItemNumber;
+	HANDLE hDlg;
+};
+                    */
+					break;
+
+				/*
+				*/
+				case MODALTYPE_VMENU:
+				case MODALTYPE_COMBOBOX:
+
+				case MODALTYPE_VIRTUAL:
+				case MODALTYPE_HELP:
+				case MODALTYPE_FINDFOLDER:
+				case MODALTYPE_USER:
 				default:
 					break;
 			}
@@ -3777,12 +3836,13 @@ static bool callpluginFunc(const TMacroFunction*)
 		{
 			if( Opt.Macro.CallPluginRules )
 				CtrlObject->Macro.PushState(true);
-			if (CtrlObject->Plugins.CallPlugin((DWORD)SysID.i(),OpenFrom,
+
+			OpenFrom |= Param.isString() ? OPEN_FROMMACROSTRING : 0;
+
+			Ret=CtrlObject->Plugins.CallPlugin((DWORD)SysID.i(),OpenFrom,
 			                                   Param.isString() ? (void*)Param.s() :
-			                                   (void*)(size_t)Param.i()))
-			{
-				Ret=1;
-			}
+			                                   (void*)(size_t)Param.i());
+
 			if( Opt.Macro.CallPluginRules )
 				CtrlObject->Macro.PopState();
 		}
@@ -3791,6 +3851,32 @@ static bool callpluginFunc(const TMacroFunction*)
 	VMStack.Push(Ret);
 	return Ret?true:false;
 }
+#else
+static bool callpluginFunc(const TMacroFunction*)
+{
+	__int64 Ret=0;
+	TVar Param; VMStack.Pop(Param);
+	TVar SysID; VMStack.Pop(SysID);
+
+	if (CtrlObject->Plugins.FindPlugin((DWORD)SysID.i()))
+	{
+		// OpenFrom => OPEN_FROMMACRO [+OPEN_FROMMACROSTRING] + FARMACROAREA(i)
+		int OpenFrom = OPEN_FROMMACRO | (Param.isString() ? OPEN_FROMMACROSTRING : 0) | CtrlObject->Macro.GetMode();
+
+		if( Opt.Macro.CallPluginRules )
+			CtrlObject->Macro.PushState(true);
+
+		Ret=CtrlObject->Plugins.CallPlugin((DWORD)SysID.i(),OpenFrom,
+		                                   Param.isString() ? (void*)Param.s() :
+		                                   (void*)(size_t)Param.i());
+		if( Opt.Macro.CallPluginRules )
+			CtrlObject->Macro.PopState();
+	}
+
+	VMStack.Push(Ret);
+	return Ret?true:false;
+}
+#endif
 
 // N=testfolder(S)
 /*

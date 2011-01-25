@@ -1,3 +1,22 @@
+svs 25.01.2011 16:53:18 +0300 - build 1800
+
+1. Mantis#0001673: Добавить флаг OPEN_FROMMACROSTRING к существующему OPEN_FROMMACRO
+   Тестим...
+
+   <АХТУНГ>
+
+     Замечание для OpenPluginW:
+       Если в параметре OpenFrom выставлен флаг OPEN_FROMMACRO, то значения в младшем слове 
+       содержат не идентификатор из перечисления OPENPLUGIN_OPENFROM, а номер текущей макрообласти, 
+       определенной в перечислении FARMACROAREA.
+       
+   </АХТУНГ>
+
+
+2. Mantis#0001677: При запуске макроса через MCMD_POSTMACROSTRING задавать код "запускающей" клавиши
+   В структуру ActlKeyMacro::Param::PlainText добавлено поле "AKey".
+   
+
 drkns 23.01.2011 13:02:35 +0200 - build 1799
 
 1. Ошибка в FCTL_SETSORTMODE.

@@ -1217,6 +1217,9 @@ enum FARMACROCOMMAND
 	MCMD_CHECKMACRO        = 4,
 	MCMD_GETSTATE          = 5,
 	MCMD_GETAREA           = 6,
+#ifdef FAR_USE_INTERNALS
+	MCMD_RUNMACROSTRING    = 7,
+#endif // END FAR_USE_INTERNALS
 };
 
 enum FARMACROAREA
@@ -1283,6 +1286,7 @@ struct ActlKeyMacro
 		{
 			const wchar_t *SequenceText;
 			DWORD Flags;
+			DWORD AKey;
 		} PlainText;
 #ifdef FAR_USE_INTERNALS
 		struct KeySequence Compile;
@@ -2170,17 +2174,23 @@ struct OpenPluginInfo
 
 enum OPENPLUGIN_OPENFROM
 {
-	OPEN_DISKMENU     = 0,
-	OPEN_PLUGINSMENU  = 1,
-	OPEN_FINDLIST     = 2,
-	OPEN_SHORTCUT     = 3,
-	OPEN_COMMANDLINE  = 4,
-	OPEN_EDITOR       = 5,
-	OPEN_VIEWER       = 6,
-	OPEN_FILEPANEL    = 7,
-	OPEN_DIALOG       = 8,
-	OPEN_ANALYSE      = 9,
-	OPEN_FROMMACRO    = 0x10000,
+	OPEN_FROM_MASK          = 0x000000FF,
+
+	OPEN_DISKMENU           = 0,
+	OPEN_PLUGINSMENU        = 1,
+	OPEN_FINDLIST           = 2,
+	OPEN_SHORTCUT           = 3,
+	OPEN_COMMANDLINE        = 4,
+	OPEN_EDITOR             = 5,
+	OPEN_VIEWER             = 6,
+	OPEN_FILEPANEL          = 7,
+	OPEN_DIALOG             = 8,
+	OPEN_ANALYSE            = 9,
+
+	OPEN_FROMMACRO_MASK     = 0x000F0000,
+
+	OPEN_FROMMACRO          = 0x00010000,
+	OPEN_FROMMACROSTRING    = 0x00020000,
 };
 
 enum FAR_PKF_FLAGS
