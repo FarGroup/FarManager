@@ -2147,7 +2147,10 @@ int PluginManager::CallPlugin(DWORD SysID,int OpenFrom, void *Data,int *Ret)
 			}
 
 			if (Ret)
-				*Ret=hNewPlugin==INVALID_HANDLE_VALUE?-1:(hNewPlugin?1:0);
+			{
+				PluginHandle *handle=(PluginHandle *)hNewPlugin;
+				*Ret=hNewPlugin == INVALID_HANDLE_VALUE || handle->hPlugin?1:0;
+			}
 
 			return TRUE;
 		}
