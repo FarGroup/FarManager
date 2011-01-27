@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 27.01.2011 13:30:39 +0300 - build 1802
+
+1. Macro: Correction of return code for callplugin
+   callplugin function returns 0 if the called plugin does not exist or it has returned 0. 
+   In other cases, the function returns a non-zero value.
+
 svs 25.01.2011 18:35:03 +0300 - build 1801
 
 1. Macro: Correction of return code for callplugin
