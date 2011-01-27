@@ -73,14 +73,20 @@ HANDLE WINAPI OpenPluginW(
         <td class="cont" width="60%">Открыт из ???</td></tr>
 
         <tr class="cont"><td class="cont" width="40%"><a name="OPEN_FROMMACRO">OPEN_FROMMACRO</a></td>
-        <td class="cont" width="60%">Открыт из макрокоманды</td></tr>
+        <td class="cont" width="60%">Открыт из макрокоманды, <em>Item</em> является числом.</td></tr>
 
+        <tr class="cont"><td class="cont" width="40%"><a name="OPEN_FROMMACROSTRING">OPEN_FROMMACROSTRING</a></td>
+        <td class="cont" width="60%">Открыт из макрокоманды. <em>Item</em> содержит указатель на строку.
+          Этот флаг всегда идет с флагом OPEN_FROMMACRO, уточняет тип значения <em>Item</em>.</td></tr>
 </table>
     </div>
 
     <div class=dfn>Item</div>
     <div class=dfndescr>Интерпретация параметра зависит от <dfn>OpenFrom</dfn>:
       <ul>
+      <li>Если в параметре OpenFrom выставлен флаг OPEN_FROMMACRO, то значения в младшем слове
+       содержат не идентификатор из перечисления OPENPLUGIN_OPENFROM, а номер текущей макрообласти,
+       определенной в перечислении <a href="../structures/actlkeymacro.html#FARMACROAREA">FARMACROAREA</a>.
       <li>Для параметров OPEN_DISKMENU, OPEN_PLUGINSMENU, OPEN_EDITOR и OPEN_VIEWER
       <em>Item </em> - это номер выбранного пункта в меню из зарегистрированных
       плагином пунктов. Если плагин экспортирует только один элемент, этот

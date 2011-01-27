@@ -29,6 +29,7 @@ struct ActlKeyMacro
     {
       const wchar_t *SequenceText;
       DWORD Flags;
+      DWORD AKey;
     } PlainText;
     struct MacroParseResult MacroResult;
     DWORD_PTR Reserved[3];
@@ -156,6 +157,12 @@ struct ActlKeyMacro
      Ётот член структуры используетс€ дл€ команды <dfn>MCMD_POSTMACROSTRING</dfn>.
     </div>
 
+    <div class=dfn>Param.PlainText.AKey</div>
+    <div class=dfndescr>«адает "клавишу" вызова макроса. Ётот код в
+    макропоследовательности вернут  <a href="../macro/macrocmd/akey.html">$AKey</a>
+    и <a href="../macro/macrocmd/prop_func/general.html#akey">akey()</a>.
+
+    </div>
     <div class=dfn>Reserved</div>
     <div class=dfndescr>«арезервировано.</div>
 
