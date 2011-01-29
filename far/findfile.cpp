@@ -2535,6 +2535,7 @@ void DoScanTree(HANDLE hDlg, string& strRoot)
 							strFullStreamName+=sd.cStreamName;
 							FindData.strFileName=strFindDataFileName+sd.cStreamName;
 							FindData.nFileSize=sd.StreamSize.QuadPart;
+							FindData.dwFileAttributes &= ~FILE_ATTRIBUTE_DIRECTORY;
 						}
 					}
 					else
