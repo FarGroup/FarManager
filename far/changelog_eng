@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 29.01.2011 12:31:15 +0200 - build 1803
+
+1. Correction of alternative streams search in folders.
+
 svs 27.01.2011 13:30:39 +0300 - build 1802
 
 1. Macro: Correction of return code for callplugin
