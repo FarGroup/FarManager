@@ -68,7 +68,7 @@ public:
       panel_title += L":" + archive.arc_chain.to_string() + L":" + archive.arc_name();
       if (!current_dir.empty())
         panel_title += L":" + current_dir;
-      host_file = archive.arc_name();
+      host_file = archive.arc_path;
       if (archive.has_crc)
         opi->Flags |= OPIF_USECRC32;
     }
