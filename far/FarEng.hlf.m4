@@ -3846,9 +3846,6 @@ dialog.
 system other than NTFS, you will also lose data - only the main stream will be
 copied.
 
-    If a directory has multiple streams, the additional streams will be copied
-only when the directory is moved (#F6#).
-
 
 @ErrLoadPlugin
 $ #Error: plugin not loaded#

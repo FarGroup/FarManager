@@ -3652,9 +3652,6 @@ menüben a "#Másoláshoz a rendszerrutin használata#" opciót.
 fájlokat, a művelet adatvesztéssel jár: csak a fájlok fő streamje másolódik
 át.
 
-    Ha egy mappa tartalmaz több streamet, többletinformációi csak a mappa
-mozgatásával vihetők át (#F6#).
-
 
 @ErrLoadPlugin
 $ #Hiba: plugin betöltési hiba#
