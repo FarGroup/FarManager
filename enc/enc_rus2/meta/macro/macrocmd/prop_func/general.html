@@ -405,11 +405,37 @@
     <td>ѕеревод значени€ выражени€ <var>V</var> в строку.</td>
   </tr>
   <tr>
-    <td>S=<dfn><a name="substr">substr</a></dfn>(V,N1[,N2])</td>
-    <td><p>¬озвращает подстроку из выражени€ <var>V</var>
-      начина€ с позиции <var>N1</var> длиной <var>N2</var>.</p>
-      <p>≈сли параметр <var>N2</var> не указан или равен -1, то вернЄтс€ подстрока от позиции <var>N1</var> до конца строки.</p>
-      <p>≈сли параметр <var>N2</var> равен 0, то вернЄтс€ пуста€ строка.</p>
+    <td>S=<dfn><a name="substr">substr</a></dfn>(V,start[,length])</td>
+    <td><p>¬озвращает подстроку из выражени€ <var>V</var> начина€ с позиции <var>start</var> длиной <var>length</var>.</p>
+      <p>≈сли <var>start</var> &gt;= 0, то вернЄтс€ подстрока, начина€ с позиции <var>start</var> от начала строки.</p>
+      <p>≈сли <var>start</var> &lt; 0, то вернЄтс€ подстрока, начина€ с позиции <var>start</var> от конца строки.</p>
+      <p>≈сли <var>length</var> &gt; 0, то возвращаема€ подстрока будет состо€ть максимум из <var>length</var> символов исходной строки начина€ с позиции <var>start</var>.</p>
+      <p>≈сли <var>length</var> &lt; 0, то в возвращаемой подстроке будет отсутствовать <var>length</var> символов от конца исходной строки, при том, что она будет начинатьс€ с позиции <var>start</var>.</p>
+      <p>≈сли <var>length</var> = 0, то возвращаетс€ пуста€ строка.</p>
+      <p>ѕримеры</p>
+      <table class="cont2 params lite tiny">
+        <col>
+        <col>
+        <tr>
+          <th>¬ызов</th>
+          <th>–езультат</th>
+        </tr>
+         <tr><td>substr("abcdef", 1)</td><td>возвращает "bcdef"</td></tr>
+         <tr><td>substr("abcdef", 1, 3)</td><td>возвращает "bcd"</td></tr>
+         <tr><td>substr("abcdef", 0, 4)</td><td>возвращает "abcd"</td></tr>
+         <tr><td>substr("abcdef", 0, 8)</td><td>возвращает "abcdef"</td></tr>
+
+         <tr><td>substr("abcdef", -1)</td><td>возвращает "f"</td></tr>
+         <tr><td>substr("abcdef", -2)</td><td>возвращает "ef"</td></tr>
+         <tr><td>substr("abcdef", -3, 1)</td><td>возвращает "d"</td></tr>
+
+         <tr><td>substr("abcdef", 0, -1)</td><td>возвращает "abcde"</td></tr>
+         <tr><td>substr("abcdef", 2, -1)</td><td>возвращает "cde"</td></tr>
+         <tr><td>substr("abcdef", 4, -4)</td><td>возвращает ""</td></tr>
+
+         <tr><td>substr("abcdef", -3, -1)</td><td>возвращает "de"</td></tr>
+      </table>
+
       </td>
   </tr>
   <tr>
