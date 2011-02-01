@@ -120,7 +120,7 @@ int WINAPI Control(
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETPANELHOSTFILE">FCTL_GETPANELHOSTFILE</a></td>
-      <td class="cont" width="60%">Получить имя файла на эмулируемой файловой системе (см. <a href="../structures/openplugininfo.html">OpenPluginInfo, поле HostFile</a>).<br>
+      <td class="cont" width="60%">Получить имя файла, на основе которого эмулирована файловая система на панели (см. <a href="../structures/openplugininfo.html">OpenPluginInfo, поле HostFile</a>).<br>
       <var>Param1</var> размер буфера. Указывает максимальное количество символов, которые могут быть записаны в <var>Param2</var>, включая '\0'. <br>
        <var>Param2</var> указывает на буфер, выделяемый плагином, в который будет помещено имя хост-файла. <br>
        Если панель не принадлежит плагину, то функция вернет пустую строку.<br>
