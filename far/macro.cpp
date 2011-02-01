@@ -417,7 +417,7 @@ static TMacroFunction intMacroFunction[]=
 	{L"RINDEX",           3, 1,   MCODE_F_RINDEX,           nullptr, 0,nullptr,L"S=RIndex(S1,S2[,Mode])",0,rindexFunc},
 	{L"SLEEP",            1, 0,   MCODE_F_SLEEP,            nullptr, 0,nullptr,L"N=Sleep(N)",0,sleepFunc},
 	{L"STRING",           1, 0,   MCODE_F_STRING,           nullptr, 0,nullptr,L"S=String(V)",0,stringFunc},
-	{L"SUBSTR",           3, 1,   MCODE_F_SUBSTR,           nullptr, 0,nullptr,L"S=SubStr(S,N1[,N2])",0,substrFunc},
+	{L"SUBSTR",           3, 1,   MCODE_F_SUBSTR,           nullptr, 0,nullptr,L"S=substr(S,start[,length])",0,substrFunc},
 	{L"TESTFOLDER",       1, 0,   MCODE_F_TESTFOLDER,       nullptr, 0,nullptr,L"N=testfolder(S)",0,testfolderFunc},
 	{L"TRIM",             2, 1,   MCODE_F_TRIM,             nullptr, 0,nullptr,L"S=Trim(S[,N])",0,trimFunc},
 	{L"UCASE",            1, 0,   MCODE_F_UCASE,            nullptr, 0,nullptr,L"S=UCase(S1)",0,ucaseFunc},
@@ -1737,32 +1737,79 @@ static bool trimFunc(const TMacroFunction*)
 	return Ret;
 }
 
-// S=substr(S,N1[,N2])
+// S=substr(S,start[,length])
 static bool substrFunc(const TMacroFunction*)
 {
-	int  p2 = (int)VMStack.Pop().getInteger();
-	int  p1 = (int)VMStack.Pop().getInteger();
-	TVar Val;
-	VMStack.Pop(Val);
-	wchar_t *p = (wchar_t *)Val.toString();
+	/*
+		TODO: http://bugs.farmanager.com/view.php?id=1480
+			если start  >= 0, то вернётся подстрока, начиная со start-символа от начала строки.
+			если start  <  0, то вернётся подстрока, начиная со start-символа от конца строки.
+			если length >  0, то возвращаемая подстрока будет состоять максимум из length символов исходной строки начиная с start
+			если length <  0, то в возвращаемой подстроке будет отсутствовать length символов от конца исходной строки, при том, что она будет начинаться с символа start.
+								Или: length - длина того, что берем (если >=0) или отбрасываем (если <0).
+
+			пустая строка возвращается:
+				если length = 0
+				если ...
+	*/
 	bool Ret=false;
-	int len = StrLength(p);
 
-	if (p2  && p1 >= 0 &&  p1 < len)
+	TVar VarLength;  VMStack.Pop(VarLength);
+	int length=(int)VarLength.getInteger();
+	int  start     = (int)VMStack.Pop().getInteger();
+	TVar Val;        VMStack.Pop(Val);
+
+	wchar_t *p = (wchar_t *)Val.toString();
+	int length_str = StrLength(p);
+
+	// TODO: MCODE_OP_PUSHUNKNOWN!
+	if ((unsigned __int64)VarLength.getInteger() == (((unsigned __int64)1)<<63))
+		length=length_str;
+
+
+	if (length)
 	{
-		if (p1 > 0)
-			p += p1;
+		if (start < 0)
+		{
+			start=length_str+start;
+			if (start < 0)
+				start=0;
+		}
 
-		len = StrLength(p);
+		if (start >= length_str)
+		{
+			length=0;
+		}
+		else
+		{
+			if (length > 0)
+			{
+				if (start+length >= length_str)
+					length=length_str-start;
+			}
+			else
+			{
+				length=length_str-start+length;
 
-		if ((p2 > 0) && (p2 < len))
-			p[p2] = 0;
+				if (length < 0)
+				{
+					length=0;
+				}
+			}
+		}
+	}
 
+	if (!length)
+	{
+		VMStack.Push(L"");
+	}
+	else
+	{
+		p += start;
+		p[length] = 0;
 		Ret=true;
 		VMStack.Push(p);
 	}
-	else
-		VMStack.Push(L"");
 
 	return Ret;
 }
@@ -4276,11 +4323,15 @@ done:
 		case MCODE_F_AKEY:                // V=akey(Mode[,Type])
 		{
 			DWORD aKey=MR->Key;
-			INPUT_RECORD *inRec=&Work.cRec;
-			if (!inRec->EventType)
-				inRec->EventType = KEY_EVENT;
-			if(inRec->EventType == KEY_EVENT || inRec->EventType == FARMACRO_KEY_EVENT)
-				aKey=CalcKeyCode(inRec,TRUE,nullptr);
+
+			if (!aKey) // Mantis#1677 ???
+			{
+				INPUT_RECORD *inRec=&Work.cRec;
+				if (!inRec->EventType)
+					inRec->EventType = KEY_EVENT;
+				if(inRec->EventType == KEY_EVENT || inRec->EventType == FARMACRO_KEY_EVENT)
+					aKey=CalcKeyCode(inRec,TRUE,nullptr);
+			}
 
 			if (Key == MCODE_F_AKEY)
 			{
@@ -4486,12 +4537,15 @@ done:
 			VMStack.Push(*(double*)(void*)&i64);
 			goto begin;
 		}
+		case MCODE_OP_PUSHUNKNOWN:
 		case MCODE_OP_PUSHINT: // Положить целое значение на стек.
 		{
 			LARGE_INTEGER i64;
 			i64.u.HighPart=GetOpCode(MR,Work.ExecLIBPos++);   //???
 			i64.u.LowPart=GetOpCode(MR,Work.ExecLIBPos++);    //???
-			VMStack.Push(i64.QuadPart);
+			TVar *ptrVar=VMStack.Push(i64.QuadPart);
+			if (Key == MCODE_OP_PUSHUNKNOWN)
+				ptrVar->SetType(vtUnknown);
 			goto begin;
 		}
 		case MCODE_OP_PUSHCONST:  // Положить на стек константу.
@@ -4978,6 +5032,11 @@ done:
 					VMStack.Push(tmpVar);
 				else
 				{
+					if (Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE)
+					{
+						// это не клавиша, а неопознанный OpCode, прерываем исполнение макроса
+						goto done;
+					}
 					break; // клавиши будем возвращать
 				}
 			}

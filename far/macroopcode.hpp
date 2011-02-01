@@ -59,6 +59,7 @@ enum MACRO_OP_CODE
 
 	MCODE_OP_SAVE,                    // Присваивание переменной. Имя переменной следующие DWORD (как в $Text).
 	MCODE_OP_SAVEREPCOUNT,
+	MCODE_OP_PUSHUNKNOWN,             // неиницализированное значение (опускаемые параметры функций)
 	MCODE_OP_PUSHINT,                 // Положить значение на стек. Само
 	MCODE_OP_PUSHFLOAT,               // Положить значение на стек. double
 	MCODE_OP_PUSHSTR,                 // значение - следующий DWORD
@@ -187,7 +188,7 @@ enum MACRO_OP_CODE
 	MCODE_F_RINDEX,                   // S=rindex(S1,S2[,Mode])
 	MCODE_F_SLEEP,                    // Sleep(N)
 	MCODE_F_STRING,                   // S=string(V)
-	MCODE_F_SUBSTR,                   // S=substr(s1,s2)
+	MCODE_F_SUBSTR,                   // S=substr(S,start[,length])
 	MCODE_F_UCASE,                    // S=ucase(S1)
 	MCODE_F_WAITKEY,                  // V=waitkey([N,[T]])
 	MCODE_F_XLAT,                     // S=xlat(S)

@@ -599,7 +599,7 @@ void ReloadEnvironment()
 	Opt.strRegRoot=strOptRegRoot;
 }
 
-DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
+DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool AllowSynchro)
 {
 	_KEYMACRO(CleverSysLog Clev(L"GetInputRecord()"));
 	static int LastEventIdle=FALSE;
@@ -608,7 +608,9 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 	DWORD ReadKey=0;
 	int NotMacros=FALSE;
 	static int LastMsClickMacroKey=0;
-	PluginSynchroManager.Process();
+
+	if (AllowSynchro)
+		PluginSynchroManager.Process();
 
 	if (!ExcludeMacro && CtrlObject && CtrlObject->Cp())
 	{
@@ -1593,7 +1595,7 @@ int CheckForEscSilent()
 	{
 		int MMode=CtrlObject->Macro.GetMode();
 		CtrlObject->Macro.SetMode(MACRO_LAST); // чтобы не срабатывали макросы :-)
-		Key=GetInputRecord(&rec);
+		Key=GetInputRecord(&rec,false,false,false);
 		CtrlObject->Macro.SetMode(MMode);
 
 		/*

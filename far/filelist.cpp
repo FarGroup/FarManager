@@ -308,7 +308,10 @@ void FileList::SortFileList(int KeepPosition)
 		ListCaseSensitiveSort=CaseSensitiveSort;
 
 		if (KeepPosition)
+		{
+			assert(CurFile<FileCount);
 			strCurName = ListData[CurFile]->strName;
+		}
 
 		hSortPlugin=(PanelMode==PLUGIN_PANEL && hPlugin && reinterpret_cast<PluginHandle*>(hPlugin)->pPlugin->HasCompare()) ? hPlugin:nullptr;
 
@@ -1082,6 +1085,7 @@ int FileList::ProcessKey(int Key)
 				else
 				{
 					int CurrentPath=FALSE;
+					assert(CurFile<FileCount);
 					CurPtr=ListData[CurFile];
 
 					if (ShowShortNames && !CurPtr->strShortName.IsEmpty())
@@ -1474,6 +1478,7 @@ int FileList::ProcessKey(int Key)
 				}
 				else
 				{
+					assert(CurFile<FileCount);
 					CurPtr=ListData[CurFile];
 
 					if (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)
@@ -1788,6 +1793,7 @@ int FileList::ProcessKey(int Key)
 			if (FileCount>0 && SetCurPath())
 			{
 				int OldFileCount=FileCount,OldCurFile=CurFile;
+				assert(CurFile<FileCount);
 				int OldSelection=ListData[CurFile]->Selected;
 				int ToPlugin=0;
 				int RealName=PanelMode!=PLUGIN_PANEL;
@@ -1811,6 +1817,7 @@ int FileList::ProcessKey(int Key)
 
 				ReturnCurrentFile=FALSE;
 
+				assert(CurFile<FileCount);
 				if (Key!=KEY_SHIFTF5 && FileCount==OldFileCount &&
 				        CurFile==OldCurFile && OldSelection!=ListData[CurFile]->Selected)
 				{
@@ -2048,6 +2055,7 @@ int FileList::ProcessKey(int Key)
 				while (N--)
 					ProcessKey(Key==KEY_SHIFTLEFT || Key==KEY_SHIFTNUMPAD4? KEY_SHIFTUP:KEY_SHIFTDOWN);
 
+				assert(CurFile<FileCount);
 				Select(ListData[CurFile],ShiftSelection);
 
 				if (SelectedFirst)
@@ -2071,6 +2079,7 @@ int FileList::ProcessKey(int Key)
 			if (!FileCount)
 				return TRUE;
 
+			assert(CurFile<FileCount);
 			CurPtr=ListData[CurFile];
 
 			if (ShiftSelection==-1)
@@ -2100,6 +2109,7 @@ int FileList::ProcessKey(int Key)
 			if (!FileCount)
 				return TRUE;
 
+			assert(CurFile<FileCount);
 			CurPtr=ListData[CurFile];
 			Select(CurPtr,!CurPtr->Selected);
 			Down(1);
@@ -2797,6 +2807,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			return TRUE;
 
 		MoveToMouse(MouseEvent);
+		assert(CurFile<FileCount);
 		CurPtr=ListData[CurFile];
 
 		if ((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) &&
@@ -2860,6 +2871,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 			if (MouseButtonState==RIGHTMOST_BUTTON_PRESSED)
 			{
+				assert(CurFile<FileCount);
 				CurPtr=ListData[CurFile];
 				Select(CurPtr,MouseSelection);
 			}
@@ -2884,6 +2896,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 			if (MouseButtonState==RIGHTMOST_BUTTON_PRESSED)
 			{
+				assert(CurFile<FileCount);
 				CurPtr=ListData[CurFile];
 				Select(CurPtr,MouseSelection);
 			}
@@ -3217,6 +3230,7 @@ int FileList::FindPartName(const wchar_t *Name,int Next,int Direct,int ExcludeSe
 
 int FileList::GetSelCount()
 {
+	assert(!FileCount || !(ReturnCurrentFile||!SelFileCount) || (CurFile<FileCount));
 	return FileCount?((ReturnCurrentFile||!SelFileCount)?(TestParentFolderName(ListData[CurFile]->strName)?0:1):SelFileCount):0;
 }
 
@@ -3350,6 +3364,7 @@ int FileList::GetCurName(string &strName, string &strShortName)
 		return FALSE;
 	}
 
+	assert(CurFile<FileCount);
 	strName = ListData[CurFile]->strName;
 	strShortName = ListData[CurFile]->strShortName;
 
@@ -3374,6 +3389,7 @@ int FileList::GetCurBaseName(string &strName, string &strShortName)
 	}
 	else if (PanelMode==NORMAL_PANEL)
 	{
+		assert(CurFile<FileCount);
 		strName = ListData[CurFile]->strName;
 		strShortName = ListData[CurFile]->strShortName;
 	}
@@ -3600,6 +3616,7 @@ void FileList::UpdateViewPanel()
 	        AnotherPanel->GetType()==QVIEW_PANEL && SetCurPath())
 	{
 		QuickView *ViewPanel=(QuickView *)AnotherPanel;
+		assert(CurFile<FileCount);
 		FileListItem *CurPtr=ListData[CurFile];
 
 		if (PanelMode!=PLUGIN_PANEL ||
@@ -4644,6 +4661,7 @@ void FileList::CountDirSize(DWORD PluginFlags)
 
 	if (!SelDirCount)
 	{
+		assert(CurFile<FileCount);
 		if ((PanelMode==PLUGIN_PANEL && !(PluginFlags & OPIF_REALNAMES) &&
 		        GetPluginDirInfo(hPlugin,ListData[CurFile]->strName,DirCount,DirFileCount,FileSize,CompressedFileSize))
 		        ||
@@ -4759,6 +4777,7 @@ void FileList::ProcessCopyKeys(int Key)
 		{
 			FileList *AnotherFilePanel=(FileList *)AnotherPanel;
 
+			assert(AnotherFilePanel->FileCount==0 || AnotherFilePanel->CurFile<AnotherFilePanel->FileCount);
 			if (AnotherFilePanel->FileCount>0 &&
 			        (AnotherFilePanel->ListData[AnotherFilePanel->CurFile]->FileAttr & FILE_ATTRIBUTE_DIRECTORY) &&
 			        !TestParentFolderName(AnotherFilePanel->ListData[AnotherFilePanel->CurFile]->strName))

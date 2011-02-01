@@ -1138,6 +1138,9 @@ HANDLE WINAPI FarDialogInit(INT_PTR PluginNumber, int X1, int Y1, int X2, int Y2
 		if (Flags & FDLG_NODRAWPANEL)
 			FarDialog->SetDialogMode(DMODE_NODRAWPANEL);
 
+		if (Flags & FDLG_KEEPCONSOLETITLE)
+			FarDialog->SetDialogMode(DMODE_KEEPCONSOLETITLE);
+
 		if (Flags & FDLG_NONMODAL)
 			FarDialog->SetCanLoseFocus(TRUE);
 

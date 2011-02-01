@@ -47,28 +47,29 @@ class History;
 // Флаги текущего режима диалога
 enum DIALOG_MODES
 {
-	DMODE_INITOBJECTS  =0x00000001, // элементы инициализарованы?
-	DMODE_CREATEOBJECTS=0x00000002, // объекты (Edit,...) созданы?
-	DMODE_WARNINGSTYLE =0x00000004, // Warning Dialog Style?
-	DMODE_DRAGGED      =0x00000008, // диалог двигается?
-	DMODE_ISCANMOVE    =0x00000010, // можно ли двигать диалог?
-	DMODE_ALTDRAGGED   =0x00000020, // диалог двигается по Alt-Стрелка?
-	DMODE_SMALLDIALOG  =0x00000040, // "короткий диалог"
-	DMODE_DRAWING      =0x00001000, // диалог рисуется?
-	DMODE_KEY          =0x00002000, // Идет посылка клавиш?
-	DMODE_SHOW         =0x00004000, // Диалог виден?
-	DMODE_MOUSEEVENT   =0x00008000, // Нужно посылать MouseMove в обработчик?
-	DMODE_RESIZED      =0x00010000, //
-	DMODE_ENDLOOP      =0x00020000, // Конец цикла обработки диалога?
-	DMODE_BEGINLOOP    =0x00040000, // Начало цикла обработки диалога?
-	//DMODE_OWNSITEMS  =0x00080000, // если TRUE, Dialog освобождает список Item в деструкторе
-	DMODE_NODRAWSHADOW =0x00100000, // не рисовать тень?
-	DMODE_NODRAWPANEL  =0x00200000, // не рисовать подложку?
-	DMODE_FULLSHADOW   =0x00400000,
-	DMODE_NOPLUGINS    =0x00800000,
-	DMODE_CLICKOUTSIDE =0x20000000, // было нажатие мыши вне диалога?
-	DMODE_MSGINTERNAL  =0x40000000, // Внутренняя Message?
-	DMODE_OLDSTYLE     =0x80000000, // Диалог в старом (до 1.70) стиле
+	DMODE_INITOBJECTS           =0x00000001, // элементы инициализарованы?
+	DMODE_CREATEOBJECTS         =0x00000002, // объекты (Edit,...) созданы?
+	DMODE_WARNINGSTYLE          =0x00000004, // Warning Dialog Style?
+	DMODE_DRAGGED               =0x00000008, // диалог двигается?
+	DMODE_ISCANMOVE             =0x00000010, // можно ли двигать диалог?
+	DMODE_ALTDRAGGED            =0x00000020, // диалог двигается по Alt-Стрелка?
+	DMODE_SMALLDIALOG           =0x00000040, // "короткий диалог"
+	DMODE_DRAWING               =0x00001000, // диалог рисуется?
+	DMODE_KEY                   =0x00002000, // Идет посылка клавиш?
+	DMODE_SHOW                  =0x00004000, // Диалог виден?
+	DMODE_MOUSEEVENT            =0x00008000, // Нужно посылать MouseMove в обработчик?
+	DMODE_RESIZED               =0x00010000, //
+	DMODE_ENDLOOP               =0x00020000, // Конец цикла обработки диалога?
+	DMODE_BEGINLOOP             =0x00040000, // Начало цикла обработки диалога?
+	//DMODE_OWNSITEMS           =0x00080000, // если TRUE, Dialog освобождает список Item в деструкторе
+	DMODE_NODRAWSHADOW          =0x00100000, // не рисовать тень?
+	DMODE_NODRAWPANEL           =0x00200000, // не рисовать подложку?
+	DMODE_FULLSHADOW            =0x00400000,
+	DMODE_NOPLUGINS             =0x00800000,
+	DMODE_KEEPCONSOLETITLE      =0x10000000, // не изменять заголовок консоли
+	DMODE_CLICKOUTSIDE          =0x20000000, // было нажатие мыши вне диалога?
+	DMODE_MSGINTERNAL           =0x40000000, // Внутренняя Message?
+	DMODE_OLDSTYLE              =0x80000000, // Диалог в старом (до 1.70) стиле
 };
 
 //#define DIMODE_REDRAW       0x00000001 // требуется принудительная прорисовка итема?
@@ -202,7 +203,7 @@ struct DialogItemEx
 		X2 += Delta;
 	}
 
-	bool AddAutomation(int id, 
+	bool AddAutomation(int id,
 		FarDialogItemFlags UncheckedSet,FarDialogItemFlags UncheckedSkip,
 		FarDialogItemFlags CheckedSet,FarDialogItemFlags CheckedSkip,
 		FarDialogItemFlags Checked3Set,FarDialogItemFlags Checked3Skip)

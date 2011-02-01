@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 enum TVarType
 {
+	vtUnknown = -1,
 	vtInteger = 0,
 	vtString  = 1,
 	vtDouble  = 2,
@@ -119,10 +120,12 @@ class TVar
 		TVar& AppendStr(const TVar&);
 
 		TVarType type() { return vType; };
+		void SetType(TVarType newType) {vType=newType;};
 
 		int isString()   const { return vType == vtString;  }
 		int isInteger()  const { return vType == vtInteger; }
-		int isDouble()  const { return vType == vtDouble;  }
+		int isDouble()   const { return vType == vtDouble;  }
+		int isUnknown()  const { return vType == vtUnknown;  }
 
 		double d()         const;
 		__int64 i()        const;

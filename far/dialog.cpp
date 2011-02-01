@@ -566,7 +566,8 @@ void Dialog::InitDialog()
 				InitFocus=InitDialogObjects(); // InitFocus=????
 			}
 
-			ConsoleTitle::SetFarTitle(GetDialogTitle());
+			if (!DialogMode.Check(DMODE_KEEPCONSOLETITLE))
+				ConsoleTitle::SetFarTitle(GetDialogTitle());
 		}
 
 		// все объекты проинициализированы!
@@ -2214,7 +2215,8 @@ void Dialog::ShowDialog(unsigned ID)
 		   + При каждой перерисовке диалога, кроме режима перемещения, устанавливаем
 		     заголовок консоли, в противном случае он не всегда восстанавливался.
 		*/
-		ConsoleTitle::SetFarTitle(GetDialogTitle());
+		if (!DialogMode.Check(DMODE_KEEPCONSOLETITLE))
+			ConsoleTitle::SetFarTitle(GetDialogTitle());
 	}
 
 	DialogMode.Clear(DMODE_DRAWING);  // конец отрисовки диалога!!!
@@ -6008,7 +6010,8 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
 						if (Dlg->DialogMode.Check(DMODE_SHOW))
 						{
-							ConsoleTitle::SetFarTitle(Dlg->GetDialogTitle());
+							if (!Dlg->DialogMode.Check(DMODE_KEEPCONSOLETITLE))
+								ConsoleTitle::SetFarTitle(Dlg->GetDialogTitle());
 							Dlg->ShowDialog(Param1);
 							ScrBuf.Flush();
 						}
@@ -6097,7 +6100,8 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 				((DlgEdit *)(CurItem->ObjPtr))->SetMaxLength((int)Param2);
 				//if (DialogMode.Check(DMODE_INITOBJECTS)) //???
 				Dlg->InitDialogObjects(Param1); // переинициализируем элементы диалога
-				ConsoleTitle::SetFarTitle(Dlg->GetDialogTitle());
+				if (!Dlg->DialogMode.Check(DMODE_KEEPCONSOLETITLE))
+					ConsoleTitle::SetFarTitle(Dlg->GetDialogTitle());
 				return MaxLen;
 			}
 
@@ -6137,7 +6141,8 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
 			// еще разок, т.к. данные могли быть изменены
 			Dlg->InitDialogObjects(Param1);
-			ConsoleTitle::SetFarTitle(Dlg->GetDialogTitle());
+			if (!Dlg->DialogMode.Check(DMODE_KEEPCONSOLETITLE))
+				ConsoleTitle::SetFarTitle(Dlg->GetDialogTitle());
 
 			if (Dlg->DialogMode.Check(DMODE_SHOW))
 			{

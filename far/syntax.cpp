@@ -386,11 +386,12 @@ static void calcFunc()
 				// добьем нулями опциональные параметры
 				for (; i < nParam-(!foundparam?0:1); ++i)
 				{
+					// TODO: нужен MCODE_OP_PUSHUNKNOWN вместо MCODE_OP_PUSHINT
 					put(MCODE_OP_PUSHINT);
 
 					// исключение для substr
 					if (nFunc == MCODE_F_SUBSTR)
-						put64((unsigned __int64)-1);
+						put64((unsigned __int64)(((unsigned __int64)1)<<63));
 					else
 						put64(0);
 				}
@@ -1172,7 +1173,7 @@ static void expr()
 	for (; ;)
 		switch (currTok)
 		{
-			case tBoolOr:  getToken(); boolAndPrim(); put(MCODE_OP_OR);     break;
+			case tBoolOr:  getToken(); boolXorPrim(); put(MCODE_OP_OR);     break;
 			default:
 				return;
 		}
