@@ -1822,7 +1822,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 
 			if (FindLastSlash(pos,strNewPath))
 			{
-				strNewPath.SetLength(pos);
+				strNewPath.SetLength(pos+1);
 
 				if (Opt.CreateUppercaseFolders && !IsCaseMixed(strNewPath))
 					strNewPath.Upper();

@@ -2730,48 +2730,71 @@ void DoPrepareFileList(HANDLE hDlg)
 		apiGetEnvironmentVariable(L"PATH",strPathEnv);
 		List.Set(strPathEnv);
 	}
-
-	DWORD DiskMask=FarGetLogicalDrives();
-	for (WCHAR CurrentDisk=0;; CurrentDisk++,DiskMask>>=1)
+	else if (SearchMode==FINDAREA_ROOT)
 	{
-		if (SearchMode==FINDAREA_ALL ||
-		        SearchMode==FINDAREA_ALL_BUTNETWORK)
+		GetPathRoot(strRoot,strRoot);
+		List.Set(strRoot);
+	}
+	else if (SearchMode==FINDAREA_ALL || SearchMode==FINDAREA_ALL_BUTNETWORK)
+	{
+		DList<string> Volumes;
+		DWORD DiskMask=FarGetLogicalDrives();
+		for (WCHAR CurrentDisk=0; DiskMask; CurrentDisk++,DiskMask>>=1)
 		{
-			if (!DiskMask)
-				break;
-
 			if (!(DiskMask & 1))
 				continue;
 
 			const wchar_t Root[]={L'A'+CurrentDisk,L':',L'\\',L'\0'};
-			strRoot=Root;
-			int DriveType=FAR_GetDriveType(strRoot);
+			int DriveType=FAR_GetDriveType(Root);
 
-			if (DriveType==DRIVE_REMOVABLE || IsDriveTypeCDROM(DriveType) ||
-			        (DriveType==DRIVE_REMOTE && SearchMode==FINDAREA_ALL_BUTNETWORK))
+			if (DriveType==DRIVE_REMOVABLE || IsDriveTypeCDROM(DriveType) || (DriveType==DRIVE_REMOTE && SearchMode==FINDAREA_ALL_BUTNETWORK))
 			{
-				if (DiskMask==1)
+				continue;
+			}
+			string strGuidVolime;
+			if(apiGetVolumeNameForVolumeMountPoint(Root, strGuidVolime))
+			{
+				Volumes.Push(&strGuidVolime);
+			}
+			List.AddItem(Root);
+		}
+		WCHAR VolumeName[50];
+
+		bool End = false;
+		HANDLE hFind = INVALID_HANDLE_VALUE;
+
+		for(HANDLE hFind = FindFirstVolume(VolumeName, ARRAYSIZE(VolumeName)); hFind != INVALID_HANDLE_VALUE && !End; End = FindNextVolume(hFind, VolumeName, ARRAYSIZE(VolumeName)) == FALSE)
+		{
+			int DriveType=FAR_GetDriveType(VolumeName);
+
+			if (DriveType==DRIVE_REMOVABLE || IsDriveTypeCDROM(DriveType) || (DriveType==DRIVE_REMOTE && SearchMode==FINDAREA_ALL_BUTNETWORK))
+			{
+				continue;
+			}
+			bool Mounted = false;
+			for(string* i = Volumes.First(); i; i = Volumes.Next(i))
+			{
+				if(i->Equal(0,VolumeName))
+				{
+					Mounted = true;
 					break;
-				else
-					continue;
+				}
+			}
+			if(!Mounted)
+			{
+				List.AddItem(VolumeName);
 			}
 		}
-		else if (SearchMode==FINDAREA_ROOT)
+		if (hFind != INVALID_HANDLE_VALUE)
 		{
-			GetPathRoot(strRoot,strRoot);
+			FindVolumeClose(hFind);
 		}
-		else if (SearchMode==FINDAREA_INPATH)
-		{
-			if (List.IsEmpty())
-				break;
+	}
 
-			strRoot = List.GetNext();
-		}
-
+	while(!List.IsEmpty())
+	{
+		strRoot = List.GetNext();
 		DoScanTree(hDlg, strRoot);
-
-		if (SearchMode!=FINDAREA_ALL && SearchMode!=FINDAREA_ALL_BUTNETWORK && SearchMode!=FINDAREA_INPATH)
-			break;
 	}
 
 	itd.SetPercent(0);

@@ -151,6 +151,7 @@ struct DialogItemEx
 		X2=0;
 		Y2=0;
 		Focus=0;
+		Reserved=0;
 		strHistory.Clear();
 		strMask.Clear();
 		Flags=0;
