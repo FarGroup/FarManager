@@ -1799,6 +1799,70 @@ MConfigDialogsMouseButton
 "&Kliknięcie myszy poza oknem zamyka je"
 "Click en ratón afuera del diálogo lo cierra"
 
+MConfigVMenuTitle
+l:
+"Настройки меню"
+"Menu settings"
+upd:"Menu settings"
+upd:"Menu settings"
+upd:"Menu settings"
+upd:"Menu settings"
+upd:"Menu settings"
+
+MConfigVMenuLBtnClick
+"Клик левой кнопки мыши вне меню"
+"Left mouse click outside a menu"
+upd:"Left mouse click outside a menu"
+upd:"Left mouse click outside a menu"
+upd:"Left mouse click outside a menu"
+upd:"Left mouse click outside a menu"
+upd:"Left mouse click outside a menu"
+
+MConfigVMenuRBtnClick
+"Клик правой кнопки мыши вне меню"
+"Right mouse click outside a menu"
+upd:"Right mouse click outside a menu"
+upd:"Right mouse click outside a menu"
+upd:"Right mouse click outside a menu"
+upd:"Right mouse click outside a menu"
+upd:"Right mouse click outside a menu"
+
+MConfigVMenuMBtnClick
+"Клик средней кнопки мыши вне меню"
+"Middle mouse click outside a menu"
+upd:"Middle mouse click outside a menu"
+upd:"Middle mouse click outside a menu"
+upd:"Middle mouse click outside a menu"
+upd:"Middle mouse click outside a menu"
+upd:"Middle mouse click outside a menu"
+
+MConfigVMenuClickCancel
+"Закрыть с отменой"
+"Cancel menu"
+upd:"Cancel menu"
+upd:"Cancel menu"
+upd:"Cancel menu"
+upd:"Cancel menu"
+upd:"Cancel menu"
+
+MConfigVMenuClickApply
+"Выполнить текущий пункт"
+"Execute selected item"
+upd:"Execute selected item"
+upd:"Execute selected item"
+upd:"Execute selected item"
+upd:"Execute selected item"
+upd:"Execute selected item"
+
+MConfigVMenuClickIgnore
+"Ничего не делать"
+"Do nothing"
+upd:"Do nothing"
+upd:"Do nothing"
+upd:"Do nothing"
+upd:"Do nothing"
+upd:"Do nothing"
+
 MConfigCmdlineTitle
 l:
 "Настройки командной строки"
@@ -10751,6 +10815,15 @@ MMenuDialogSettings
 "Pár&beszédablak beállítások"
 "Ustawienia okna &dialogowego"
 "Opciones de di&álogo"
+
+MMenuVMenuSettings
+"Настройки меню"
+"Menu settings"
+upd:"Menu settings"
+upd:"Menu settings"
+upd:"Menu settings"
+upd:"Menu settings"
+upd:"Menu settings"
 
 MMenuCmdlineSettings
 "Настройки &командной строки"

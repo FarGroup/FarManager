@@ -109,6 +109,7 @@ const wchar_t NKeySavedFolderHistory[]=L"SavedFolderHistory";
 const wchar_t NKeySavedDialogHistory[]=L"SavedDialogHistory";
 const wchar_t NKeyCodePages[]=L"CodePages";
 const wchar_t NParamHistoryCount[]=L"HistoryCount";
+const wchar_t NKeyVMenu[]=L"VMenu";
 
 const wchar_t *constBatchExt=L".BAT;.CMD;";
 
@@ -301,6 +302,27 @@ void DialogSettings()
 		if (Opt.Dialogs.MouseButton )
 			Opt.Dialogs.MouseButton = 0xFFFF;
 	}
+}
+
+void VMenuSettings()
+{
+	DialogBuilderListItem CAListItems[]=
+	{
+		{ MConfigVMenuClickCancel, VMENUCLICK_CANCEL },  // Cancel menu
+		{ MConfigVMenuClickApply,  VMENUCLICK_APPLY  },  // Execute selected item
+		{ MConfigVMenuClickIgnore, VMENUCLICK_IGNORE },  // Do nothing
+	};
+
+	DialogBuilder Builder(MConfigVMenuTitle, L"VMenuSettings");
+
+	Builder.AddText(MConfigVMenuLBtnClick);
+	Builder.AddComboBox((int *) &Opt.VMenu.LBtnClick, 40, CAListItems, ARRAYSIZE(CAListItems), DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddText(MConfigVMenuRBtnClick);
+	Builder.AddComboBox((int *) &Opt.VMenu.RBtnClick, 40, CAListItems, ARRAYSIZE(CAListItems), DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddText(MConfigVMenuMBtnClick);
+	Builder.AddComboBox((int *) &Opt.VMenu.MBtnClick, 40, CAListItems, ARRAYSIZE(CAListItems), DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddOKCancel();
+	Builder.ShowDialog();
 }
 
 void CmdlineSettings()
@@ -817,6 +839,10 @@ static struct FARConfig
 	{1, REG_SZ,     NKeySystem,L"FolderInfo",&Opt.InfoPanel.strFolderInfoFiles, 0, L"DirInfo,File_Id.diz,Descript.ion,ReadMe.*,Read.Me"},
 	{1, REG_DWORD,  NKeyPanelInfo,L"InfoComputerNameFormat",&Opt.InfoPanel.ComputerNameFormat, ComputerNamePhysicalNetBIOS, 0},
 	{1, REG_DWORD,  NKeyPanelInfo,L"InfoUserNameFormat",&Opt.InfoPanel.UserNameFormat, NameUserPrincipal, 0},
+
+	{1, REG_DWORD,  NKeyVMenu,L"LBtnClick",&Opt.VMenu.LBtnClick, VMENUCLICK_CANCEL, 0},
+	{1, REG_DWORD,  NKeyVMenu,L"RBtnClick",&Opt.VMenu.RBtnClick, VMENUCLICK_CANCEL, 0},
+	{1, REG_DWORD,  NKeyVMenu,L"MBtnClick",&Opt.VMenu.MBtnClick, VMENUCLICK_APPLY, 0},
 };
 
 void ReadConfig()

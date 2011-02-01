@@ -63,6 +63,11 @@ enum QUOTEDNAMETYPE
 #define DMOUSEBUTTON_LEFT   0x00000001
 #define DMOUSEBUTTON_RIGHT  0x00000002
 
+//Для Opt.VMenu.xBtnClick
+#define VMENUCLICK_IGNORE 0
+#define VMENUCLICK_CANCEL 1
+#define VMENUCLICK_APPLY  2
+
 //Для Opt.Diz.UpdateMode
 enum DIZUPDATETYPE
 {
@@ -304,6 +309,13 @@ struct DialogsOptions
 	int   MouseButton;          // Отключение восприятие правой/левой кнопки мышы как команд закрытия окна диалога
 	int   DelRemovesBlocks;
 	int   CBoxMaxHeight;        // максимальный размер открываемого списка (по умолчанию=8)
+};
+
+struct VMenuOptions
+{
+	int   LBtnClick;
+	int   RBtnClick;
+	int   MBtnClick;
 };
 
 struct CommandLineOptions
@@ -617,6 +629,7 @@ struct Options
 	LoadPluginsOptions LoadPlug;
 
 	DialogsOptions Dialogs;
+	VMenuOptions VMenu;
 	CommandLineOptions CmdLine;
 	PoliciesOptions Policies;
 	NowellOptions Nowell;
@@ -643,6 +656,7 @@ void SystemSettings();
 void PanelSettings();
 void InterfaceSettings();
 void DialogSettings();
+void VMenuSettings();
 void CmdlineSettings();
 void SetConfirmations();
 void PluginsManagerSettings();

@@ -238,7 +238,9 @@ class VMenu: public Modal
 		BYTE Colors[VMENU_COLOR_COUNT];
 
 		int MaxLineWidth;
+		bool bRightBtnPressed;
 
+	private:
 		virtual void DisplayObject();
 		void ShowMenu(bool IsParent=false);
 		void DrawTitles();
@@ -280,6 +282,7 @@ class VMenu: public Modal
 		void FastShow() {ShowMenu();}
 		virtual void Show();
 		virtual void Hide();
+		void ResetCursor();
 
 		void SetTitle(const wchar_t *Title);
 		virtual string &GetTitle(string &strDest,int SubLen=-1,int TruncSize=0);

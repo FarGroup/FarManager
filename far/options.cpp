@@ -154,6 +154,7 @@ enum enumOptionsMenu
 	MENU_OPTIONS_PLUGINSCONFIG,
 	MENU_OPTIONS_PLUGINSMANAGERSETTINGS,
 	MENU_OPTIONS_DIALOGSETTINGS,
+	MENU_OPTIONS_VMENUSETTINGS,
 	MENU_OPTIONS_CMDLINESETTINGS,
 	MENU_OPTIONS_AUTOCOMPLETESETTINGS,
 	MENU_OPTIONS_INFOPANELSETTINGS,
@@ -286,6 +287,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 		MSG(MMenuPluginsConfig),0,0,
 		MSG(MMenuPluginsManagerSettings),0, 0,
 		MSG(MMenuDialogSettings),0,0,
+		MSG(MMenuVMenuSettings),0,0,
 		MSG(MMenuCmdlineSettings),0,0,
 		MSG(MMenuAutoCompleteSettings),0,0,
 		MSG(MMenuInfoPanelSettings),0,0,
@@ -623,6 +625,9 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 					break;
 				case MENU_OPTIONS_DIALOGSETTINGS:   // Dialog settings (police=5)
 					DialogSettings();
+					break;
+				case MENU_OPTIONS_VMENUSETTINGS:    // VMenu settings
+					VMenuSettings();
 					break;
 				case MENU_OPTIONS_CMDLINESETTINGS:   // Command line settings
 					CmdlineSettings();

@@ -87,6 +87,7 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
 	SetFlags(Flags|VMENU_MOUSEREACTION|VMENU_UPDATEREQUIRED);
 	ClearFlags(VMENU_SHOWAMPERSAND|VMENU_MOUSEDOWN);
 	GetCursorType(PrevCursorVisible,PrevCursorSize);
+	bRightBtnPressed = false;
 
 	// инициализируем перед тем, как добавлять айтема
 	UpdateMaxLengthFromTitles();
@@ -142,6 +143,11 @@ VMenu::~VMenu()
 			FrameManager->RefreshFrame();
 		}
 	}
+}
+
+void VMenu::ResetCursor()
+{
+	GetCursorType(PrevCursorVisible,PrevCursorSize);
 }
 
 //может иметь фокус
@@ -1248,14 +1254,23 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		return FALSE;
 	}
 
-	if (MouseEvent->dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED && MouseEvent->dwEventFlags!=MOUSE_MOVED)
-	{
-		ProcessKey(KEY_ENTER);
-		return TRUE;
-	}
-
 	int MsX=MouseEvent->dwMousePosition.X;
 	int MsY=MouseEvent->dwMousePosition.Y;
+
+	// необходимо знать, что RBtn был нажат ПОСЛЕ появления VMenu, а не до
+	if (MouseEvent->dwButtonState&RIGHTMOST_BUTTON_PRESSED && MouseEvent->dwEventFlags==0)
+		bRightBtnPressed=true;
+
+	if (MouseEvent->dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED && MouseEvent->dwEventFlags!=MOUSE_MOVED)
+	{
+		if (((BoxType!=NO_BOX)?
+				(MsX>X1 && MsX<X2 && MsY>Y1 && MsY<Y2):
+				(MsX>=X1 && MsX<=X2 && MsY>=Y1 && MsY<=Y2)))
+		{
+			ProcessKey(KEY_ENTER);
+		}
+		return TRUE;
+	}
 
 	if (MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED&&(MsX==X1+2||MsX==X2-1-((CheckFlags(VMENU_COMBOBOX)||CheckFlags(VMENU_LISTBOX))?0:2)))
 	{
@@ -1402,7 +1417,27 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	}
 	else if (BoxType!=NO_BOX && (MouseEvent->dwButtonState & 3) && !MouseEvent->dwEventFlags)
 	{
-		ProcessKey(KEY_ESC);
+		int ClickOpt = (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) ? Opt.VMenu.LBtnClick : Opt.VMenu.RBtnClick;
+		if (ClickOpt==VMENUCLICK_CANCEL)
+			ProcessKey(KEY_ESC);
+
+		return TRUE;
+	}
+	else if (BoxType!=NO_BOX && !(MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (PrevMouseButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && !MouseEvent->dwEventFlags && (Opt.VMenu.LBtnClick==VMENUCLICK_APPLY))
+	{
+		ProcessKey(KEY_ENTER);
+
+		return TRUE;
+	}
+	else if (BoxType!=NO_BOX && !(MouseEvent->dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED) && (PrevMouseButtonState&FROM_LEFT_2ND_BUTTON_PRESSED) && !MouseEvent->dwEventFlags && (Opt.VMenu.MBtnClick==VMENUCLICK_APPLY))
+	{
+		ProcessKey(KEY_ENTER);
+
+		return TRUE;
+	}
+	else if (BoxType!=NO_BOX && bRightBtnPressed && !(MouseEvent->dwButtonState&RIGHTMOST_BUTTON_PRESSED) && (PrevMouseButtonState&RIGHTMOST_BUTTON_PRESSED) && !MouseEvent->dwEventFlags && (Opt.VMenu.RBtnClick==VMENUCLICK_APPLY))
+	{
+		ProcessKey(KEY_ENTER);
 
 		return TRUE;
 	}

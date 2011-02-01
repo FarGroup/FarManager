@@ -347,6 +347,10 @@ bool ProcessLocalFileTypes(const wchar_t *Name, const wchar_t *ShortName, int Mo
 				CtrlObject->Cp()->Redraw();
 #endif
 			}
+			if (FrameManager->GetCurrentFrame()->GetType()==MODALTYPE_VIEWER)
+			{
+				TypesMenu.ResetCursor();
+			}
 		}
 	}
 

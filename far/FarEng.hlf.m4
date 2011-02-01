@@ -51,6 +51,7 @@ $^#Copyright (C) 1996-2000 Eugene Roshal#
    ~Panel settings~@PanelSettings@
    ~Interface settings~@InterfSettings@
    ~Dialog settings~@DialogSettings@
+   ~Menu settings~@VMenuSettings@
    ~Command line settings~@CmdlineSettings@
 
    ~Files highlighting and sort groups~@Highlight@
@@ -1268,6 +1269,8 @@ $ #Menus: options menu#
 
    #Dialog settings#       Shows ~dialog settings~@DialogSettings@ dialog.
 
+   #Menu settings#         Shows ~menu settings~@VMenuSettings@ dialog.
+
    #Command line settings# Shows ~command line settings~@CmdlineSettings@ dialog.
 
    #Languages#             Select main and help language.
@@ -2304,6 +2307,12 @@ $ #Settings dialog: dialogs#
                           functionality.
 
    See also the list of ~macro keys~@KeyMacroDialogList@, available in dialogs.
+
+@VMenuSettings
+$ #Menu settings#
+  #Left/Right/Middle mouse click outside a menu#
+  You may choose action for mouse buttons, when click occures outside a menu:
+  #Cancel menu#, #Execute selected item# or #Do nothing#.
 
 @CmdlineSettings
 $ #Settings dialog: command line#
@@ -4419,6 +4428,38 @@ by manually editing the registry or by using special tools/plugins.
 
     Description of the macro language can be found in the accompanying
 documentation.
+
+@KeyMacroList@
+$ #Макросы: Список установленных макросов#
+    Ниже приведен список разделов, в которых можно узнать какие ~макросы~@KeyMacro@ 
+действуют в текущей сессии Far Manager.
+
+  ~Список переменных~@KeyMacroVarList@
+  ~Список констант~@KeyMacroConstList@
+
+  ~Общие макросы#~@KeyMacroCommonList@
+
+  ~Панели~@KeyMacroShellList@
+  ~Панель быстрого просмотра~@KeyMacroQViewList@
+  ~Панель папок~@KeyMacroTreeList@
+  ~Информационная панель~@KeyMacroInfoList@
+
+  ~Быстрый поиск в панелях~@KeyMacroSearchList@
+  ~Поиск папки~@KeyMacroFindFolderList@
+
+  ~Диалоги~@KeyMacroDialogList@
+
+  ~Главное меню~@KeyMacroMainMenuList@
+  ~Меню выбора дисков~@KeyMacroDisksList@
+  ~Меню пользователя~@KeyMacroUserMenuList@
+  ~Прочие меню~@KeyMacroMenuList@
+  
+  ~Программа просмотра~@KeyMacroViewerList@
+  ~Редактор~@KeyMacroEditList@
+  
+  ~Файл помощи#~@KeyMacroHelpList@
+  
+  ~Остальные области~@KeyMacroOtherList@
 
 @KeyMacroVarList
 $ #Макросы: Список переменных#
