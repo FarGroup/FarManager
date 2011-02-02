@@ -2790,6 +2790,10 @@ void DoPrepareFileList(HANDLE hDlg)
 			FindVolumeClose(hFind);
 		}
 	}
+	else
+	{
+		List.Set(strRoot);
+	}
 
 	while(!List.IsEmpty())
 	{
