@@ -3,6 +3,52 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 02.02.2011 08:36:12 +0200 - build 1807
+
+1. Correction of 1804.1.
+
+svs 01.02.2011 18:10:02 +0300 - build 1806
+
+1. Mantis#0001418: VMenu reaction to RClick is same as in dialogs
+
+2. A section is added to help files, containing lists of installed macros.
+
+svs 01.02.2011 16:07:38 +0300 - build 1805
+
+1. Mantis#0001690: FDLG_NODTITLE - do not change console caption to dialog caption
+   (from samlyukov)
+   Instead of suggested FDLG_NODTITLE, a FDLG_KEEPCONSOLETITLE dialog flag is added, 
+   which lets switch off the console header change to 0-th dialog element.
+
+2. Macro: correction of build #1791
+
+3. Mantis#0001684: FileList:GetCurName crash at network folder read
+   (from Maximus)
+   The cause is ProcessSynchroEvent call from CheckForEscSilent, while the plugin is calling ACTL_GETWINDOWINFO.
+   FAR hasn't finished directory read, thus CurFile is greater than FileCount.
+   Which leads to the crash.
+
+4. Mantis#0001677: At macro launch, set "launching" key code with MCMD_POSTMACROSTRING
+   Troubles with AKey...
+   It needs testing!
+
+5. Mantis#0001480: Expand substr() to let it return substring from the end of string
+     if start  >= 0 then the result is a substring at the "start" position from the beginning of the string.
+     if start  <  0 then the result is a substring at the "start" position from the end of the string.
+     if length >  0 then the returned substring consists of maximum "length" characters from "start"
+     if length <  0 then the returned substring starts from "start" and misses "length" characters from the end of the string.
+
+     an empty string is returned:
+       if length = 0
+       if ... (clarify!)
+
+
+drkns 01.02.2011 14:02:14 +0200 - build 1804
+
+1. "In all non-removable drives"/"In all local drives" search mode also counts unmounted drives. 
+
+2. Mantis#0001693: Incorrect settings in File descriptions dialog
+
 drkns 29.01.2011 12:31:15 +0200 - build 1803
 
 1. Correction of alternative streams search in folders.
