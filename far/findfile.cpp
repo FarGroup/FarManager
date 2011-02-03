@@ -77,6 +77,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelmix.hpp"
 #include "setattr.hpp"
 #include "udlist.hpp"
+#include "keyboard.hpp"
 
 const int CHAR_TABLE_SIZE=5;
 const int LIST_DELTA=64;
@@ -971,8 +972,9 @@ LONG_PTR WINAPI MainDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 
 			break;
 		}
-		case DM_KEY:
+		case DN_KEY:
 		{
+			Param2 = InputRecordToKey((const INPUT_RECORD *)Param2);
 			switch (Param1)
 			{
 				case FAD_COMBOBOX_CP:
@@ -1621,6 +1623,7 @@ LONG_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 
 	case DN_KEY:
 		{
+			Param2 = InputRecordToKey((const INPUT_RECORD *)Param2);
 			switch (Param2)
 			{
 			case KEY_ESC:
@@ -1707,7 +1710,7 @@ LONG_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 			case KEY_ALTEND:
 			case KEY_ALT|KEY_NUMPAD1:
 				{
-					ListBox->ProcessKey((int)Param2);
+					ListBox->ProcessKey(Param2);
 					return TRUE;
 				}
 				break;

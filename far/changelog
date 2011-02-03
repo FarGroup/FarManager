@@ -1,3 +1,9 @@
+zg 03.02.2011 18:27:43 +0200 - build 1816
+
+1. DN_KEY, DN_HOTKEY в качестве Param2 принимают ссылку на INPUT_RECORD.
+
+2. DM_KEY в качестве Param2 принимают ссылку на массив INPUT_RECORD.
+
 zg 03.02.2011 16:05:25 +0200 - build 1815
 
 1. убрано FAR_PKF_FLAGS.

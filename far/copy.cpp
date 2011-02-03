@@ -1509,8 +1509,9 @@ LONG_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
 			break;
 		}
-		case DM_KEY: // по поводу дерева!
+		case DN_KEY: // по поводу дерева!
 		{
+			Param2 = InputRecordToKey((const INPUT_RECORD *)Param2);
 			if (Param2 == KEY_ALTF10 || Param2 == KEY_F10 || Param2 == KEY_SHIFTF10)
 			{
 				DlgParam->AltF10=Param2 == KEY_ALTF10?1:(Param2 == KEY_SHIFTF10?2:0);
@@ -3644,6 +3645,7 @@ LONG_PTR WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 		break;
 		case DN_KEY:
 		{
+			Param2 = InputRecordToKey((const INPUT_RECORD *)Param2);
 			if ((Param1==WDLG_SRCFILEBTN || Param1==WDLG_DSTFILEBTN) && Param2==KEY_F3)
 			{
 				SendDlgMessage(hDlg,DM_OPENVIEWER,Param1,0);

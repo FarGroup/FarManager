@@ -2545,8 +2545,11 @@ int Dialog::ProcessKey(int Key)
 	}
 
 	if (!(/*(Key>=KEY_MACRO_BASE && Key <=KEY_MACRO_ENDBASE) ||*/ ((unsigned int)Key>=KEY_OP_BASE && (unsigned int)Key <=KEY_OP_ENDBASE)) && !DialogMode.Check(DMODE_KEY))
-		if (DlgProc((HANDLE)this,DN_KEY,FocusPos,Key))
+	{
+		INPUT_RECORD rec;
+		if (KeyToInputRecord(Key,&rec) && DlgProc((HANDLE)this,DN_KEY,FocusPos,(LONG_PTR)&rec))
 			return TRUE;
+	}
 
 	if (!DialogMode.Check(DMODE_SHOW))
 		return TRUE;
@@ -4109,7 +4112,7 @@ int Dialog::SelectFromComboBox(
 
 			if (CurItem->IFlags.Check(DLGIIF_COMBOBOXEVENTKEY) && ReadRec.EventType == KEY_EVENT)
 			{
-				if (DlgProc((HANDLE)this,DN_KEY,FocusPos,Key))
+				if (DlgProc((HANDLE)this,DN_KEY,FocusPos,(LONG_PTR)&ReadRec))
 					continue;
 			}
 			else if (CurItem->IFlags.Check(DLGIIF_COMBOBOXEVENTMOUSE) && ReadRec.EventType == MOUSE_EVENT)
@@ -4305,6 +4308,9 @@ int Dialog::ProcessHighlighting(int Key,unsigned FocusPos,int Translate)
 	int Type;
 	DWORD Flags;
 
+	INPUT_RECORD rec;
+	if(!KeyToInputRecord(Key,&rec)) memset(&rec,0,sizeof(rec));
+
 	for (unsigned I=0; I<ItemCount; I++)
 	{
 		Type=Item[I]->Type;
@@ -4324,7 +4330,7 @@ int Dialog::ProcessHighlighting(int Key,unsigned FocusPos,int Translate)
 				        (I+1 < ItemCount && Item[I]->Y1!=Item[I+1]->Y1)) // ...и следующий контрол в другой строке
 				{
 					// Сначала сообщим о случившемся факте процедуре обработки диалога, а потом...
-					if (!DlgProc((HANDLE)this,DN_HOTKEY,I,Key))
+					if (!DlgProc((HANDLE)this,DN_HOTKEY,I,(LONG_PTR)&rec))
 						break; // сказали не продолжать обработку...
 
 					// ... если предыдущий контрол задизаблен или невидим, тогда выходим.
@@ -4340,7 +4346,7 @@ int Dialog::ProcessHighlighting(int Key,unsigned FocusPos,int Translate)
 					if (I+1 < ItemCount) // ...и следующий контрол
 					{
 						// Сначала сообщим о случившемся факте процедуре обработки диалога, а потом...
-						if (!DlgProc((HANDLE)this,DN_HOTKEY,I,Key))
+						if (!DlgProc((HANDLE)this,DN_HOTKEY,I,(LONG_PTR)&rec))
 							break; // сказали не продолжать обработку...
 
 						// ... если следующий контрол задизаблен или невидим, тогда выходим.
@@ -4353,7 +4359,7 @@ int Dialog::ProcessHighlighting(int Key,unsigned FocusPos,int Translate)
 				}
 
 				// Сообщим о случивщемся факте процедуре обработки диалога
-				if (!DlgProc((HANDLE)this,DN_HOTKEY,I,Key))
+				if (!DlgProc((HANDLE)this,DN_HOTKEY,I,(LONG_PTR)&rec))
 					break; // сказали не продолжать обработку...
 
 				ChangeFocus2(I);
@@ -5016,11 +5022,11 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 		/*****************************************************************/
 		case DM_KEY:
 		{
-			int *KeyArray=(int*)Param2;
+			const INPUT_RECORD *KeyArray=(const INPUT_RECORD *)Param2;
 			Dlg->DialogMode.Set(DMODE_KEY);
 
 			for (unsigned int I=0; I < (unsigned)Param1; ++I)
-				Dlg->ProcessKey(KeyArray[I]);
+				Dlg->ProcessKey(InputRecordToKey(KeyArray+I));
 
 			Dlg->DialogMode.Clear(DMODE_KEY);
 			return 0;

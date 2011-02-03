@@ -1827,6 +1827,7 @@ LONG_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 		}
 		case DN_HOTKEY:
 			Msg=oldfar::DN_HOTKEY;
+			Param2=KeyToOldKey((DWORD)InputRecordToKey((const INPUT_RECORD *)Param2));
 			break;
 		case DN_INITDIALOG:
 			Msg=oldfar::DN_INITDIALOG;
@@ -1844,7 +1845,7 @@ LONG_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 			break;
 		case DN_KEY:
 			Msg=oldfar::DN_KEY;
-			Param2=KeyToOldKey((DWORD)Param2);
+			Param2=KeyToOldKey((DWORD)InputRecordToKey((const INPUT_RECORD *)Param2));
 			break;
 	}
 
@@ -1909,11 +1910,11 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 
 			int Count = (int)Param1;
 			DWORD* KeysA = (DWORD*)Param2;
-			DWORD* KeysW = (DWORD*)xf_malloc(Count*sizeof(DWORD));
+			INPUT_RECORD* KeysW = (INPUT_RECORD*)xf_malloc(Count*sizeof(INPUT_RECORD));
 
 			for (int i=0; i<Count; i++)
 			{
-				KeysW[i]=OldKeyToKey(KeysA[i]);
+				KeyToInputRecord(OldKeyToKey(KeysA[i]),KeysW+i);
 			}
 
 			LONG_PTR ret = FarSendDlgMessage(hDlg, DM_KEY, Param1, (LONG_PTR)KeysW);
