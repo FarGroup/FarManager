@@ -2,7 +2,7 @@
 
 ;Workaround for VC2010 and old Windows
 
-;Copyright (c) 2010 Far Group
+;Copyright © 2010 Far Group
 ;All rights reserved.
 ;
 ;Redistribution and use in source and binary forms, with or without

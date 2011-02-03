@@ -4,8 +4,8 @@ filelist.cpp
 Файловая панель - общие функции
 */
 /*
-Copyright (c) 1996 Eugene Roshal
-Copyright (c) 2000 Far Group
+Copyright © 1996 Eugene Roshal
+Copyright © 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -607,7 +607,7 @@ void FileList::SetFocus()
 		SetTitle();
 }
 
-int FileList::SendKeyToPlugin(DWORD Key,BOOL Pred)
+int FileList::SendKeyToPlugin(DWORD Key,bool Pred)
 {
 	_ALGO(CleverSysLog clv(L"FileList::SendKeyToPlugin()"));
 	_ALGO(SysLog(L"Key=%s Pred=%d",_FARKEY_ToName(Key),Pred));

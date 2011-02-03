@@ -4,8 +4,8 @@ history.cpp
 История (Alt-F8, Alt-F11, Alt-F12)
 */
 /*
-Copyright (c) 1996 Eugene Roshal
-Copyright (c) 2000 Far Group
+Copyright © 1996 Eugene Roshal
+Copyright © 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

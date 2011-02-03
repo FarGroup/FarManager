@@ -9,7 +9,7 @@ Push, Unshift, InsertBefore или InsertAfter с item должен так же
       const Type& operator=(const Type &)
 */
 /*
-Copyright (c) 2009 lort
+Copyright © 2009 lort
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

@@ -1,7 +1,7 @@
 #pragma once
 /*
-  Copyright (c) 2000 Konstantin Stupnik
-  Copyright (c) 2008 Far Group
+  Copyright © 2000 Konstantin Stupnik
+  Copyright © 2008 Far Group
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without

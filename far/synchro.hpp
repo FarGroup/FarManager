@@ -5,7 +5,7 @@ synchro.hpp
 синхронизация для плагинов.
 */
 /*
-Copyright (c) 2009 Far Group
+Copyright © 2009 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

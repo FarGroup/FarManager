@@ -6,8 +6,8 @@
 @Contents
 $^#Программа управления файлами и архивами#
 `$^#'FULLVERSIONNOBRACES`#'
-$^#Copyright (C) 1996-2000 Eugene Roshal#
-`$^#Copyright (C)' COPYRIGHTYEARS `FAR Group#'
+$^#Copyright © 1996-2000 Eugene Roshal#
+`$^#Copyright ©' COPYRIGHTYEARS `FAR Group#'
    ~Индекс файла помощи~@Index@
    ~Как пользоваться помощью~@Help@
 
@@ -114,8 +114,8 @@ Windows SUPPORTEDWINDOWSVERSIONS, которая обеспечивает обр
 @License
 $ # FAR: Лицензия#
 
- Copyright (c) 1996 Eugene Roshal
- Copyright (c) 2000 Far Group
+ Copyright © 1996 Eugene Roshal
+ Copyright © 2000 Far Group
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without

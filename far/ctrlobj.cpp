@@ -4,8 +4,8 @@ ctrlobj.cpp
 ”правление остальными объектами, раздача сообщений клавиатуры и мыши
 */
 /*
-Copyright (c) 1996 Eugene Roshal
-Copyright (c) 2000 Far Group
+Copyright © 1996 Eugene Roshal
+Copyright © 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -197,7 +197,7 @@ void ControlObject::ShowCopyright(DWORD Flags)
 
 	for (int I=0; Str[I]; I++)
 	{
-		Str[I]=(Str[I]&0x7f)^Xor;
+		Str[I]=Str[I]^Xor;
 		Xor^=Str[I];
 
 		if (Str[I] == '\n')
@@ -207,8 +207,8 @@ void ControlObject::ShowCopyright(DWORD Flags)
 		}
 	}
 
-	string strStr(Str, CP_OEMCP); //BUGBUG
-	string strLine(Line2, CP_OEMCP);  //BUGBUG
+	string strStr(Str, CP_UTF8);
+	string strLine(Line2, CP_UTF8);
 	xf_free(Str);
 
 	if (Flags&1)

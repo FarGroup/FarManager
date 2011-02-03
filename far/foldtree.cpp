@@ -4,8 +4,8 @@ foldtree.cpp
 Поиск каталога по Alt-F10
 */
 /*
-Copyright (c) 1996 Eugene Roshal
-Copyright (c) 2000 Far Group
+Copyright © 1996 Eugene Roshal
+Copyright © 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

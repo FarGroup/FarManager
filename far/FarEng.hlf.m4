@@ -6,8 +6,8 @@
 @Contents
 $^#File and archive manager#
 `$^#'FULLVERSIONNOBRACES`#'
-$^#Copyright (C) 1996-2000 Eugene Roshal#
-`$^#Copyright (C)' COPYRIGHTYEARS `FAR Group#'
+$^#Copyright © 1996-2000 Eugene Roshal#
+`$^#Copyright ©' COPYRIGHTYEARS `FAR Group#'
    ~Help file index~@Index@
    ~How to use help~@Help@
 
@@ -112,8 +112,8 @@ transforms your commands into the corresponding external archiver calls.
 @License
 $ # FAR: License#
 
- Copyright (c) 1996 Eugene Roshal
- Copyright (c) 2000 Far Group
+ Copyright © 1996 Eugene Roshal
+ Copyright © 2000 Far Group
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without

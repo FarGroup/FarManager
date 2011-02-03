@@ -6,8 +6,8 @@ filelist.hpp
 Файловая панель - общие функции
 */
 /*
-Copyright (c) 1996 Eugene Roshal
-Copyright (c) 2000 Far Group
+Copyright © 1996 Eugene Roshal
+Copyright © 2000 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -322,7 +322,7 @@ class FileList:public Panel
 		*/
 		virtual void UpdateIfRequired();
 
-		virtual int SendKeyToPlugin(DWORD Key,BOOL Pred=FALSE);
+		virtual int SendKeyToPlugin(DWORD Key,bool Pred=false);
 		void CreateChangeNotification(int CheckTree);
 		virtual void CloseChangeNotification();
 		virtual void SortFileList(int KeepPosition);

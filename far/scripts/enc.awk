@@ -1,7 +1,4 @@
-BEGIN {
-  test = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
-}
-
+BEGIN {}
 {
   if (index($0,"Copyright") && match($0, /^(.*")(.*)(".*)$/, a))
   {
@@ -19,13 +16,24 @@ function enc(str, Xor)
 {
   for (i = 1; i <= length(str); i = i + 1)
   {
-    ch = index(test,substr(str,i,1)) + 31
+    ch = asc(substr(str,i,1))
     #new lines are marked by $
     if (ch == 36)
       ch = 10
     save = ch
-    ch = or(xor(ch,Xor),128)
+    ch = xor(ch,Xor)
     printf("\\x%x",ch)
     Xor = xor(Xor,save)
   }
+}
+
+function asc(c, tchar, ascval, b)
+{
+  if (c == "")
+    return ""
+  c = substr(c, 1, 1)
+  ascval = b = 128
+  while ((tchar = sprintf("%c", ascval)) != c)
+    ascval += (b /= 2) * (tchar < c) ? 1 : -1
+  return int(ascval)
 }
