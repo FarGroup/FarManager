@@ -1550,7 +1550,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 				{
 					Plugin *pPlugin = PluginsData[I];
 					bool bCached = pPlugin->CheckWorkFlags(PIWF_CACHED)?true:false;
-					int IFlags;
+					UINT64 IFlags;
 
 					if (bCached)
 					{
@@ -1777,7 +1777,7 @@ void PluginManager::GetHotKeyRegKey(Plugin *pPlugin,const GUID& Guid,string &str
 	if (pPlugin->IsOemPlugin() && FarPathLength < pPlugin->GetModuleName().GetLength() && !StrCmpNI(pPlugin->GetModuleName(), g_strFarPath, (int)FarPathLength))
 		strPluginName.LShift(FarPathLength);
 
-	strRegKey.Format(wszReg_PluginHotkeys"\\%s%%", strPluginName.CPtr());
+	strRegKey.Format(wszReg_PluginHotkeys L"\\%s%%", strPluginName.CPtr());
 	strRegKey+=GuidToStr(Guid);
 }
 
@@ -1950,7 +1950,7 @@ void PluginManager::LoadIfCacheAbsent()
 struct PluginData
 {
 	Plugin *pPlugin;
-	DWORD PluginFlags;
+	UINT64 PluginFlags;
 };
 
 int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
@@ -1980,7 +1980,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 
 	for (int I=0; I<PluginsCount; I++)
 	{
-		int PluginFlags=0;
+		UINT64 PluginFlags=0;
 
 		if (PluginsData[I]->CheckWorkFlags(PIWF_CACHED))
 		{

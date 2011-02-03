@@ -335,7 +335,7 @@ bool PluginW::SaveToCache()
 		}
 
 		SetRegKey(strRegKey, L"CommandPrefix", NullToEmpty(Info.CommandPrefix));
-		SetRegKey(strRegKey, L"Flags", Info.Flags);
+		SetRegKey64(strRegKey, L"Flags", Info.Flags);
 		strRegKey += L"\\Exports";
 		SetRegKey(strRegKey, wszReg_SysID, SysID);
 		SetRegKey(strRegKey, wszReg_MinFarVersion, MinFarVersion);
