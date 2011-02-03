@@ -1,3 +1,9 @@
+zg 03.02.2011 16:05:25 +0200 - build 1815
+
+1. убрано FAR_PKF_FLAGS.
+
+2. убрана поддержка PKF_PREPROCESS.
+
 zg 03.02.2011 15:12:44 +0200 - build 1814
 
 1. в ProcessKeyW приходит INPUT_RECORD.

@@ -263,7 +263,7 @@ class PluginManager
 		int DeleteFiles(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
 		int MakeDirectory(HANDLE hPlugin,const wchar_t **Name,int OpMode);
 		int ProcessHostFile(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
-		int ProcessKey(HANDLE hPlugin,const INPUT_RECORD *Rec);
+		int ProcessKey(HANDLE hPlugin,const INPUT_RECORD *Rec,bool Pred);
 		int ProcessEvent(HANDLE hPlugin,int Event,void *Param);
 		int Compare(HANDLE hPlugin,const PluginPanelItem *Item1,const PluginPanelItem *Item2,unsigned int Mode);
 		int ProcessEditorInput(INPUT_RECORD *Rec);

@@ -1184,17 +1184,14 @@ void PluginA::FreeFindData(
 	}
 }
 
-int PluginA::ProcessKey(HANDLE hPlugin,const INPUT_RECORD *Rec)
+int PluginA::ProcessKey(HANDLE hPlugin,const INPUT_RECORD *Rec, bool Pred)
 {
 	BOOL bResult = FALSE;
     int VirtKey;
     int dwControlState;
 
     //BUGBUG: здесь можно проще.
-    INPUT_RECORD rec=*Rec;
-    bool Pred=rec.Event.KeyEvent.dwControlKeyState&PKF_PREPROCESS;
-    rec.Event.KeyEvent.dwControlKeyState&=~PKF_PREPROCESS;
-    TranslateKeyToVK(InputRecordToKey(&rec),VirtKey,dwControlState);
+    TranslateKeyToVK(InputRecordToKey(Rec),VirtKey,dwControlState);
 	if (pProcessKey && !ProcessException)
 	{
 		ExecuteStruct es;

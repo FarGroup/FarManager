@@ -619,8 +619,7 @@ int FileList::SendKeyToPlugin(DWORD Key,BOOL Pred)
 		_ALGO(SysLog(L"call Plugins.ProcessKey() {"));
 		INPUT_RECORD rec;
 		KeyToInputRecord(Key,&rec);
-		if (Pred) rec.Event.KeyEvent.wVirtualKeyCode|=PKF_PREPROCESS;
-		int ProcessCode=CtrlObject->Plugins.ProcessKey(hPlugin,&rec);
+		int ProcessCode=CtrlObject->Plugins.ProcessKey(hPlugin,&rec,Pred);
 		_ALGO(SysLog(L"} ProcessCode=%d",ProcessCode));
 		ProcessPluginCommand();
 
@@ -2817,7 +2816,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 				FlushInputBuffer(); // !!!
 				INPUT_RECORD rec;
 				ProcessKeyToInputRecord(VK_RETURN,ShiftPressed ? PKF_SHIFT:0,&rec);
-				int ProcessCode=CtrlObject->Plugins.ProcessKey(hPlugin,&rec);
+				int ProcessCode=CtrlObject->Plugins.ProcessKey(hPlugin,&rec,false);
 				ProcessPluginCommand();
 
 				if (ProcessCode)

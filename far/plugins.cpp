@@ -1277,10 +1277,10 @@ void PluginManager::GetOpenPluginInfo(
 }
 
 
-int PluginManager::ProcessKey(HANDLE hPlugin,const INPUT_RECORD *Rec)
+int PluginManager::ProcessKey(HANDLE hPlugin,const INPUT_RECORD *Rec, bool Pred)
 {
 	PluginHandle *ph = (PluginHandle*)hPlugin;
-	return ph->pPlugin->ProcessKey(ph->hPlugin, Rec);
+	return ph->pPlugin->ProcessKey(ph->hPlugin, Rec, Pred);
 }
 
 

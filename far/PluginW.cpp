@@ -1175,8 +1175,9 @@ void PluginW::FreeFindData(
 	}
 }
 
-int PluginW::ProcessKey(HANDLE hPlugin,const INPUT_RECORD *Rec)
+int PluginW::ProcessKey(HANDLE hPlugin,const INPUT_RECORD *Rec, bool Pred)
 {
+	(void)Pred;
 	BOOL bResult = FALSE;
 
 	if (pProcessKeyW && !ProcessException)
