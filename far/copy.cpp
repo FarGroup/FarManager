@@ -1781,19 +1781,6 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 	SetCursorType(FALSE,0);
 	Flags&=~(FCOPY_STREAMSKIP|FCOPY_STREAMALL);
 
-	if (!TotalCopySize)
-	{
-		strTotalCopySizeText.Clear();
-
-		//  ! Не сканируем каталоги при создании линков
-		if (ShowTotalCopySize && !(Flags&FCOPY_LINK) && !CalcTotalSize())
-			return COPY_FAILURE;
-	}
-	else
-	{
-		CurCopiedSize=0;
-	}
-
 	// Создание структуры каталогов в месте назначения
 	if (!(Flags&FCOPY_COPYTONUL))
 	{
@@ -1857,378 +1844,389 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 		SameDisk=(CheckDisksProps(strTmpSrcDir,Dest,CHECKEDPROPS_ISSAMEDISK))!=0;
 	}
 
+	string strDest = Dest;
+
+	if (!(Flags&FCOPY_COPYTONUL))
+	{
+		if (wcspbrk(Dest,L"*?"))
+			ConvertWildcards(strSelName, strDest, SelectedFolderNameLength);
+
+		DestAttr=apiGetFileAttributes(strDest);
+
+		// получим данные о месте назначения
+		if (strDestDriveRoot.IsEmpty())
+		{
+			GetPathRoot(strDest,strDestDriveRoot);
+			DestDriveType=FAR_GetDriveType(wcschr(strDest,L'\\') ? strDestDriveRoot.CPtr():nullptr);
+		}
+	}
+	string strDestPath = strDest;
+
+	// "замочим" к едрене фени симлинк - копируем полный контент, независимо от опции
+	// (но не для случая переименования линка по сети)
+	if ((DestDriveType == DRIVE_REMOTE || SrcDriveType == DRIVE_REMOTE) && StrCmpI(strSrcDriveRoot,strDestDriveRoot))
+		Flags|=FCOPY_COPYSYMLINKCONTENTS;
+
+	if (!TotalCopySize)
+	{
+		strTotalCopySizeText.Clear();
+
+		//  ! Не сканируем каталоги при создании линков
+		if (ShowTotalCopySize && !(Flags&FCOPY_LINK) && !CalcTotalSize())
+			return COPY_FAILURE;
+	}
+	else
+	{
+		CurCopiedSize=0;
+	}
+
+
 	// Основной цикл копирования одной порции.
 	SrcPanel->GetSelName(nullptr,FileAttr);
+	while (SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName))
 	{
-		while (SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName))
+		SelectedFolderNameLength = (FileAttr & FILE_ATTRIBUTE_DIRECTORY)?(int)strSelName.GetLength():0;
+
+		FAR_FIND_DATA_EX SrcData;
+		int CopyCode=COPY_SUCCESS,KeepPathPos;
+		Flags&=~FCOPY_OVERWRITENEXT;
+
+		if (strSrcDriveRoot.IsEmpty() || StrCmpNI(strSelName,strSrcDriveRoot,(int)strSrcDriveRoot.GetLength()))
 		{
-			string strDest = Dest;
+			GetPathRoot(strSelName,strSrcDriveRoot);
+			SrcDriveType=FAR_GetDriveType(wcschr(strSelName,L'\\') ? strSrcDriveRoot.CPtr():nullptr);
+		}
 
-			if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
-				SelectedFolderNameLength=(int)strSelName.GetLength();
-			else
-				SelectedFolderNameLength=0;
 
-			if (!(Flags&FCOPY_COPYTONUL))
+		KeepPathPos=(int)(PointToName(strSelName)-strSelName.CPtr());
+
+		if (RPT==RP_JUNCTION || RPT==RP_SYMLINK || RPT==RP_SYMLINKFILE || RPT==RP_SYMLINKDIR)
+		{
+			switch (MkSymLink(strSelName,strDest,RPT,Flags))
 			{
-				if (wcspbrk(Dest,L"*?"))
-					ConvertWildcards(strSelName, strDest, SelectedFolderNameLength);
+				case 2:
+					break;
+				case 1:
 
-				DestAttr=apiGetFileAttributes(strDest);
-
-				// получим данные о месте назначения
-				if (strDestDriveRoot.IsEmpty())
-				{
-					GetPathRoot(strDest,strDestDriveRoot);
-					DestDriveType=FAR_GetDriveType(wcschr(strDest,L'\\') ? strDestDriveRoot.CPtr():nullptr);
-				}
-			}
-
-			string strDestPath = strDest;
-			FAR_FIND_DATA_EX SrcData;
-			int CopyCode=COPY_SUCCESS,KeepPathPos;
-			Flags&=~FCOPY_OVERWRITENEXT;
-
-			if (strSrcDriveRoot.IsEmpty() || StrCmpNI(strSelName,strSrcDriveRoot,(int)strSrcDriveRoot.GetLength()))
-			{
-				GetPathRoot(strSelName,strSrcDriveRoot);
-				SrcDriveType=FAR_GetDriveType(wcschr(strSelName,L'\\') ? strSrcDriveRoot.CPtr():nullptr);
-			}
-
-			// "замочим" к едрене фени симлинк - копируем полный контент, независимо от опции
-			// (но не для случая переименования линка по сети)
-			if ((DestDriveType == DRIVE_REMOTE || SrcDriveType == DRIVE_REMOTE) && StrCmpI(strSrcDriveRoot,strDestDriveRoot))
-				Flags|=FCOPY_COPYSYMLINKCONTENTS;
-
-			KeepPathPos=(int)(PointToName(strSelName)-strSelName.CPtr());
-
-			if (RPT==RP_JUNCTION || RPT==RP_SYMLINK || RPT==RP_SYMLINKFILE || RPT==RP_SYMLINKDIR)
-			{
-				switch (MkSymLink(strSelName,strDest,RPT,Flags))
-				{
-					case 2:
-						break;
-					case 1:
-
-						// Отметим (Ins) несколько каталогов, ALT-F6 Enter - выделение с папок не снялось.
-						if ((!(Flags&FCOPY_CURRENTONLY)) && (Flags&FCOPY_COPYLASTTIME))
-							SrcPanel->ClearLastGetSelection();
-
-						continue;
-					case 0:
-						return COPY_FAILURE;
-				}
-			}
-			else
-			{
-				// проверка на вшивость ;-)
-				if (!apiGetFindDataEx(strSelName,SrcData))
-				{
-					strDestPath = strSelName;
-					CP->SetNames(strSelName,strDestPath);
-
-					if (Message(MSG_WARNING,2,MSG(MError),MSG(MCopyCannotFind),
-					            strSelName,MSG(MSkip),MSG(MCancel))==1)
-					{
-						return COPY_FAILURE;
-					}
+					// Отметим (Ins) несколько каталогов, ALT-F6 Enter - выделение с папок не снялось.
+					if ((!(Flags&FCOPY_CURRENTONLY)) && (Flags&FCOPY_COPYLASTTIME))
+						SrcPanel->ClearLastGetSelection();
 
 					continue;
-				}
+				case 0:
+					return COPY_FAILURE;
 			}
-
-
-			//KeepPathPos=PointToName(SelName)-SelName;
-
-			// Мувим?
-			if ((Flags&FCOPY_MOVE))
+		}
+		else
+		{
+			// проверка на вшивость ;-)
+			if (!apiGetFindDataEx(strSelName,SrcData))
 			{
-				// Тыкс, а как на счет "тот же диск"?
-				if (KeepPathPos && PointToName(strDest)==strDest)
+				strDestPath = strSelName;
+				CP->SetNames(strSelName,strDestPath);
+
+				if (Message(MSG_WARNING,2,MSG(MError),MSG(MCopyCannotFind),
+					          strSelName,MSG(MSkip),MSG(MCancel))==1)
 				{
-					strDestPath = strSelName;
-					strDestPath.SetLength(KeepPathPos);
-					strDestPath += strDest;
-					SameDisk=true;
-				}
-
-				if ((UseFilter || !SameDisk) || ((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (Flags&FCOPY_COPYSYMLINKCONTENTS)))
-				{
-					CopyCode=COPY_FAILURE;
-				}
-				else
-				{
-					do
-					{
-						CopyCode=ShellCopyOneFile(strSelName,SrcData,strDestPath,KeepPathPos,1);
-					}
-					while (CopyCode==COPY_RETRY);
-
-					if (CopyCode==COPY_SUCCESS_MOVE)
-					{
-						if (!strDestDizPath.IsEmpty())
-						{
-							if (!strRenamedName.IsEmpty())
-							{
-								DestDiz.DeleteDiz(strSelName,strSelShortName);
-								SrcPanel->CopyDiz(strSelName,strSelShortName,strRenamedName,strRenamedName,&DestDiz);
-							}
-							else
-							{
-								if (strCopiedName.IsEmpty())
-									strCopiedName = strSelName;
-
-								SrcPanel->CopyDiz(strSelName,strSelShortName,strCopiedName,strCopiedName,&DestDiz);
-								SrcPanel->DeleteDiz(strSelName,strSelShortName);
-							}
-						}
-
-						continue;
-					}
-
-					if (CopyCode==COPY_CANCEL)
-						return COPY_CANCEL;
-
-					if (CopyCode==COPY_NEXT)
-					{
-						unsigned __int64 CurSize = SrcData.nFileSize;
-						TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
-						TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
-						continue;
-					}
-
-					if (!(Flags&FCOPY_MOVE) || CopyCode==COPY_FAILURE)
-						Flags|=FCOPY_OVERWRITENEXT;
-				}
-			}
-
-			if (!(Flags&FCOPY_MOVE) || CopyCode==COPY_FAILURE)
-			{
-				string strCopyDest=strDest;
-
-				do
-				{
-					CopyCode=ShellCopyOneFile(strSelName,SrcData,strCopyDest,KeepPathPos,0);
-				}
-				while (CopyCode==COPY_RETRY);
-
-				Flags&=~FCOPY_OVERWRITENEXT;
-
-				if (CopyCode==COPY_CANCEL)
-					return COPY_CANCEL;
-
-				if (CopyCode!=COPY_SUCCESS)
-				{
-					unsigned __int64 CurSize = SrcData.nFileSize;
-
-					if (CopyCode != COPY_NOFILTER) //????
-						TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
-
-					if (CopyCode == COPY_NEXT)
-						TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
-
-					continue;
-				}
-			}
-
-			if (CopyCode==COPY_SUCCESS && !(Flags&FCOPY_COPYTONUL) && !strDestDizPath.IsEmpty())
-			{
-				if (strCopiedName.IsEmpty())
-					strCopiedName = strSelName;
-
-				SrcPanel->CopyDiz(strSelName,strSelShortName,strCopiedName,strCopiedName,&DestDiz);
-			}
-
-#if 0
-
-			// Если [ ] Copy contents of symbolic links
-			if ((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && !(Flags&FCOPY_COPYSYMLINKCONTENTS))
-			{
-				//создать симлинк
-				switch (MkSymLink(SelName,Dest,FCOPY_LINK/*|FCOPY_NOSHOWMSGLINK*/))
-				{
-					case 2:
-						break;
-					case 1:
-
-						// Отметим (Ins) несколько каталогов, ALT-F6 Enter - выделение с папок не снялось.
-						if ((!(Flags&FCOPY_CURRENTONLY)) && (Flags&FCOPY_COPYLASTTIME))
-							SrcPanel->ClearLastGetSelection();
-
-						_LOGCOPYR(SysLog(L"%d continue;",__LINE__));
-						continue;
-					case 0:
-						_LOGCOPYR(SysLog(L"return COPY_FAILURE -> %d",__LINE__));
-						return COPY_FAILURE;
+					return COPY_FAILURE;
 				}
 
 				continue;
 			}
+		}
+
+
+		//KeepPathPos=PointToName(SelName)-SelName;
+
+		// Мувим?
+		if ((Flags&FCOPY_MOVE))
+		{
+			// Тыкс, а как на счет "тот же диск"?
+			if (KeepPathPos && PointToName(strDest)==strDest)
+			{
+				strDestPath = strSelName;
+				strDestPath.SetLength(KeepPathPos);
+				strDestPath += strDest;
+				SameDisk=true;
+			}
+
+			if ((UseFilter || !SameDisk) || ((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (Flags&FCOPY_COPYSYMLINKCONTENTS)))
+			{
+				CopyCode=COPY_FAILURE;
+			}
+			else
+			{
+				do
+				{
+					CopyCode=ShellCopyOneFile(strSelName,SrcData,strDestPath,KeepPathPos,1);
+				}
+				while (CopyCode==COPY_RETRY);
+
+				if (CopyCode==COPY_SUCCESS_MOVE)
+				{
+					if (!strDestDizPath.IsEmpty())
+					{
+						if (!strRenamedName.IsEmpty())
+						{
+							DestDiz.DeleteDiz(strSelName,strSelShortName);
+							SrcPanel->CopyDiz(strSelName,strSelShortName,strRenamedName,strRenamedName,&DestDiz);
+						}
+						else
+						{
+							if (strCopiedName.IsEmpty())
+								strCopiedName = strSelName;
+
+							SrcPanel->CopyDiz(strSelName,strSelShortName,strCopiedName,strCopiedName,&DestDiz);
+							SrcPanel->DeleteDiz(strSelName,strSelShortName);
+						}
+					}
+
+					continue;
+				}
+
+				if (CopyCode==COPY_CANCEL)
+					return COPY_CANCEL;
+
+				if (CopyCode==COPY_NEXT)
+				{
+					unsigned __int64 CurSize = SrcData.nFileSize;
+					TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
+					TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
+					continue;
+				}
+
+				if (!(Flags&FCOPY_MOVE) || CopyCode==COPY_FAILURE)
+					Flags|=FCOPY_OVERWRITENEXT;
+			}
+		}
+
+		if (!(Flags&FCOPY_MOVE) || CopyCode==COPY_FAILURE)
+		{
+			string strCopyDest=strDest;
+
+			do
+			{
+				CopyCode=ShellCopyOneFile(strSelName,SrcData,strCopyDest,KeepPathPos,0);
+			}
+			while (CopyCode==COPY_RETRY);
+
+			Flags&=~FCOPY_OVERWRITENEXT;
+
+			if (CopyCode==COPY_CANCEL)
+				return COPY_CANCEL;
+
+			if (CopyCode!=COPY_SUCCESS)
+			{
+				unsigned __int64 CurSize = SrcData.nFileSize;
+
+				if (CopyCode != COPY_NOFILTER) //????
+					TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
+
+				if (CopyCode == COPY_NEXT)
+					TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
+
+				continue;
+			}
+		}
+
+		if (CopyCode==COPY_SUCCESS && !(Flags&FCOPY_COPYTONUL) && !strDestDizPath.IsEmpty())
+		{
+			if (strCopiedName.IsEmpty())
+				strCopiedName = strSelName;
+
+			SrcPanel->CopyDiz(strSelName,strSelShortName,strCopiedName,strCopiedName,&DestDiz);
+		}
+
+#if 0
+
+		// Если [ ] Copy contents of symbolic links
+		if ((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && !(Flags&FCOPY_COPYSYMLINKCONTENTS))
+		{
+			//создать симлинк
+			switch (MkSymLink(SelName,Dest,FCOPY_LINK/*|FCOPY_NOSHOWMSGLINK*/))
+			{
+				case 2:
+					break;
+				case 1:
+
+					// Отметим (Ins) несколько каталогов, ALT-F6 Enter - выделение с папок не снялось.
+					if ((!(Flags&FCOPY_CURRENTONLY)) && (Flags&FCOPY_COPYLASTTIME))
+						SrcPanel->ClearLastGetSelection();
+
+					_LOGCOPYR(SysLog(L"%d continue;",__LINE__));
+					continue;
+				case 0:
+					_LOGCOPYR(SysLog(L"return COPY_FAILURE -> %d",__LINE__));
+					return COPY_FAILURE;
+			}
+
+			continue;
+		}
 
 #endif
 
-			// Mantis#44 - Потеря данных при копировании ссылок на папки
-			// если каталог (или нужно копировать симлинк) - придется рекурсивно спускаться...
-			if (RPT!=RP_SYMLINKFILE && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
-			        (
-			            !(SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) ||
-			            ((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (Flags&FCOPY_COPYSYMLINKCONTENTS))
-			        )
-			   )
+		// Mantis#44 - Потеря данных при копировании ссылок на папки
+		// если каталог (или нужно копировать симлинк) - придется рекурсивно спускаться...
+		if (RPT!=RP_SYMLINKFILE && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
+			      (
+			          !(SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) ||
+			          ((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (Flags&FCOPY_COPYSYMLINKCONTENTS))
+			      )
+			  )
+		{
+			int SubCopyCode;
+			string strSubName;
+			string strFullName;
+			ScanTree ScTree(TRUE,TRUE,Flags&FCOPY_COPYSYMLINKCONTENTS);
+			strSubName = strSelName;
+			strSubName += L"\\";
+
+			if (DestAttr==INVALID_FILE_ATTRIBUTES)
+				KeepPathPos=(int)strSubName.GetLength();
+
+			int NeedRename=!((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (Flags&FCOPY_COPYSYMLINKCONTENTS) && (Flags&FCOPY_MOVE));
+			ScTree.SetFindPath(strSubName,L"*",FSCANTREE_FILESFIRST);
+
+			while (ScTree.GetNextName(&SrcData,strFullName))
 			{
-				int SubCopyCode;
-				string strSubName;
-				string strFullName;
-				ScanTree ScTree(TRUE,TRUE,Flags&FCOPY_COPYSYMLINKCONTENTS);
-				strSubName = strSelName;
-				strSubName += L"\\";
-
-				if (DestAttr==INVALID_FILE_ATTRIBUTES)
-					KeepPathPos=(int)strSubName.GetLength();
-
-				int NeedRename=!((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (Flags&FCOPY_COPYSYMLINKCONTENTS) && (Flags&FCOPY_MOVE));
-				ScTree.SetFindPath(strSubName,L"*",FSCANTREE_FILESFIRST);
-
-				while (ScTree.GetNextName(&SrcData,strFullName))
+				if (UseFilter && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 				{
-					if (UseFilter && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+					// Просто пропустить каталог недостаточно - если каталог помечен в
+					// фильтре как некопируемый, то следует пропускать и его и всё его
+					// содержимое.
+					if (!Filter->FileInFilter(SrcData))
 					{
-						// Просто пропустить каталог недостаточно - если каталог помечен в
-						// фильтре как некопируемый, то следует пропускать и его и всё его
-						// содержимое.
-						if (!Filter->FileInFilter(SrcData))
-						{
-							ScTree.SkipDir();
-							continue;
-						}
+						ScTree.SkipDir();
+						continue;
 					}
+				}
+				{
+					int AttemptToMove=FALSE;
+
+					if ((Flags&FCOPY_MOVE) && (!UseFilter && SameDisk) && !(SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 					{
-						int AttemptToMove=FALSE;
-
-						if ((Flags&FCOPY_MOVE) && (!UseFilter && SameDisk) && !(SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-						{
-							AttemptToMove=TRUE;
-							int Ret=COPY_SUCCESS;
-							string strCopyDest=strDest;
-
-							do
-							{
-								Ret=ShellCopyOneFile(strFullName,SrcData,strCopyDest,KeepPathPos,NeedRename);
-							}
-							while (Ret==COPY_RETRY);
-
-							switch (Ret) // 1
-							{
-								case COPY_CANCEL:
-									return COPY_CANCEL;
-								case COPY_NEXT:
-								{
-									unsigned __int64 CurSize = SrcData.nFileSize;
-									TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
-									TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
-									continue;
-								}
-								case COPY_SUCCESS_MOVE:
-								{
-									continue;
-								}
-								case COPY_SUCCESS:
-
-									if (!NeedRename) // вариант при перемещении содержимого симлика с опцией "копировать содержимое сим..."
-									{
-										unsigned __int64 CurSize = SrcData.nFileSize;
-										TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
-										TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
-										continue;     // ...  т.к. мы ЭТО не мувили, а скопировали, то все, на этом закончим бадаться с этим файлов
-									}
-							}
-						}
-
-						int SaveOvrMode=OvrMode;
-
-						if (AttemptToMove)
-							OvrMode=1;
-
+						AttemptToMove=TRUE;
+						int Ret=COPY_SUCCESS;
 						string strCopyDest=strDest;
 
 						do
 						{
-							SubCopyCode=ShellCopyOneFile(strFullName,SrcData,strCopyDest,KeepPathPos,0);
+							Ret=ShellCopyOneFile(strFullName,SrcData,strCopyDest,KeepPathPos,NeedRename);
 						}
-						while (SubCopyCode==COPY_RETRY);
+						while (Ret==COPY_RETRY);
 
-						if (AttemptToMove)
-							OvrMode=SaveOvrMode;
-					}
-
-					if (SubCopyCode==COPY_CANCEL)
-						return COPY_CANCEL;
-
-					if (SubCopyCode==COPY_NEXT)
-					{
-						unsigned __int64 CurSize = SrcData.nFileSize;
-						TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
-						TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
-					}
-
-					if (SubCopyCode==COPY_SUCCESS)
-					{
-						if (Flags&FCOPY_MOVE)
+						switch (Ret) // 1
 						{
-							if (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+							case COPY_CANCEL:
+								return COPY_CANCEL;
+							case COPY_NEXT:
 							{
-								if (ScTree.IsDirSearchDone() ||
-								        ((SrcData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) && !(Flags&FCOPY_COPYSYMLINKCONTENTS)))
-								{
-									if (SrcData.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
-										apiSetFileAttributes(strFullName,FILE_ATTRIBUTE_NORMAL);
+								unsigned __int64 CurSize = SrcData.nFileSize;
+								TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
+								TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
+								continue;
+							}
+							case COPY_SUCCESS_MOVE:
+							{
+								continue;
+							}
+							case COPY_SUCCESS:
 
-									if (apiRemoveDirectory(strFullName))
-										TreeList::DelTreeName(strFullName);
+								if (!NeedRename) // вариант при перемещении содержимого симлика с опцией "копировать содержимое сим..."
+								{
+									unsigned __int64 CurSize = SrcData.nFileSize;
+									TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
+									TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
+									continue;     // ...  т.к. мы ЭТО не мувили, а скопировали, то все, на этом закончим бадаться с этим файлов
 								}
-							}
-							// здесь нужны проверка на FSCANTREE_INSIDEJUNCTION, иначе
-							// при мовинге будет удаление файла, что крайне неправильно!
-							else if (!ScTree.InsideJunction())
-							{
-								if (DeleteAfterMove(strFullName,SrcData.dwFileAttributes)==COPY_CANCEL)
-									return COPY_CANCEL;
-							}
 						}
 					}
-				}
 
-				if ((Flags&FCOPY_MOVE) && CopyCode==COPY_SUCCESS)
-				{
-					if (FileAttr & FILE_ATTRIBUTE_READONLY)
-						apiSetFileAttributes(strSelName,FILE_ATTRIBUTE_NORMAL);
+					int SaveOvrMode=OvrMode;
 
-					if (apiRemoveDirectory(strSelName))
+					if (AttemptToMove)
+						OvrMode=1;
+
+					string strCopyDest=strDest;
+
+					do
 					{
-						TreeList::DelTreeName(strSelName);
-
-						if (!strDestDizPath.IsEmpty())
-							SrcPanel->DeleteDiz(strSelName,strSelShortName);
+						SubCopyCode=ShellCopyOneFile(strFullName,SrcData,strCopyDest,KeepPathPos,0);
 					}
-				}
-			}
-			else if ((Flags&FCOPY_MOVE) && CopyCode==COPY_SUCCESS)
-			{
-				int DeleteCode;
+					while (SubCopyCode==COPY_RETRY);
 
-				if ((DeleteCode=DeleteAfterMove(strSelName,FileAttr))==COPY_CANCEL)
+					if (AttemptToMove)
+						OvrMode=SaveOvrMode;
+				}
+
+				if (SubCopyCode==COPY_CANCEL)
 					return COPY_CANCEL;
 
-				if (DeleteCode==COPY_SUCCESS && !strDestDizPath.IsEmpty())
-					SrcPanel->DeleteDiz(strSelName,strSelShortName);
+				if (SubCopyCode==COPY_NEXT)
+				{
+					unsigned __int64 CurSize = SrcData.nFileSize;
+					TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
+					TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
+				}
+
+				if (SubCopyCode==COPY_SUCCESS)
+				{
+					if (Flags&FCOPY_MOVE)
+					{
+						if (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+						{
+							if (ScTree.IsDirSearchDone() ||
+								      ((SrcData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) && !(Flags&FCOPY_COPYSYMLINKCONTENTS)))
+							{
+								if (SrcData.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
+									apiSetFileAttributes(strFullName,FILE_ATTRIBUTE_NORMAL);
+
+								if (apiRemoveDirectory(strFullName))
+									TreeList::DelTreeName(strFullName);
+							}
+						}
+						// здесь нужны проверка на FSCANTREE_INSIDEJUNCTION, иначе
+						// при мовинге будет удаление файла, что крайне неправильно!
+						else if (!ScTree.InsideJunction())
+						{
+							if (DeleteAfterMove(strFullName,SrcData.dwFileAttributes)==COPY_CANCEL)
+								return COPY_CANCEL;
+						}
+					}
+				}
 			}
 
-			if ((!(Flags&FCOPY_CURRENTONLY)) && (Flags&FCOPY_COPYLASTTIME))
+			if ((Flags&FCOPY_MOVE) && CopyCode==COPY_SUCCESS)
 			{
-				SrcPanel->ClearLastGetSelection();
+				if (FileAttr & FILE_ATTRIBUTE_READONLY)
+					apiSetFileAttributes(strSelName,FILE_ATTRIBUTE_NORMAL);
+
+				if (apiRemoveDirectory(strSelName))
+				{
+					TreeList::DelTreeName(strSelName);
+
+					if (!strDestDizPath.IsEmpty())
+						SrcPanel->DeleteDiz(strSelName,strSelShortName);
+				}
 			}
 		}
+		else if ((Flags&FCOPY_MOVE) && CopyCode==COPY_SUCCESS)
+		{
+			int DeleteCode;
+
+			if ((DeleteCode=DeleteAfterMove(strSelName,FileAttr))==COPY_CANCEL)
+				return COPY_CANCEL;
+
+			if (DeleteCode==COPY_SUCCESS && !strDestDizPath.IsEmpty())
+				SrcPanel->DeleteDiz(strSelName,strSelShortName);
+		}
+
+		if ((!(Flags&FCOPY_CURRENTONLY)) && (Flags&FCOPY_COPYLASTTIME))
+		{
+			SrcPanel->ClearLastGetSelection();
+		}
 	}
+
 	return COPY_SUCCESS; //COPY_SUCCESS_MOVE???
 }
 
@@ -4156,7 +4154,8 @@ bool ShellCopy::CalcTotalSize()
 	}
 
 	// INFO: Это для варианта, когда "ВСЕГО = общий размер * количество целей"
-	TotalCopySize=TotalCopySize*CountTarget;
+	TotalCopySize *= CountTarget;
+	TotalFilesToProcess *= CountTarget;
 	InsertCommas(TotalCopySize,strTotalCopySizeText);
 	PreRedraw.Pop();
 	return true;
