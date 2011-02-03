@@ -219,6 +219,15 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 						{
 							if (DlgParam->OSubfoldersState != SubfoldersState) // —осто€ние изменилось?
 							{
+								LPCWSTR Owner=reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,SA_EDIT_OWNER,0));
+								if(*Owner)
+								{
+									if(!DlgParam->OwnerChanged)
+									{
+										DlgParam->OwnerChanged=StrCmpI(Owner,DlgParam->strOwner)!=0;
+									}
+									DlgParam->strOwner=Owner;
+								}
 								// установили?
 								if (SubfoldersState)
 								{
@@ -230,12 +239,6 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 											SendDlgMessage(hDlg,DM_SETCHECK,i,BSTATE_3STATE);
 										}
 									}
-									LPCWSTR Owner=reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,SA_EDIT_OWNER,0));
-									if(!DlgParam->OwnerChanged)
-									{
-										DlgParam->OwnerChanged=StrCmpI(Owner,DlgParam->strOwner)!=0;
-									}
-									DlgParam->strOwner=Owner;
 									if(!DlgParam->OwnerChanged)
 									{
 										SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_EDIT_OWNER,reinterpret_cast<LONG_PTR>(L""));
@@ -249,27 +252,26 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 										SendDlgMessage(hDlg,DM_SET3STATE,i,FALSE);
 										SendDlgMessage(hDlg,DM_SETCHECK,i,DlgParam->OriginalCBAttr[i-SA_ATTR_FIRST]);
 									}
-									SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_EDIT_OWNER,reinterpret_cast<LONG_PTR>(DlgParam->strOwner.CPtr()));
+									if(!DlgParam->OwnerChanged)
+									{
+										SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_EDIT_OWNER,reinterpret_cast<LONG_PTR>(DlgParam->strOwner.CPtr()));
+									}
 								}
 
 
-								if (Opt.SetAttrFolderRules)
+								FAR_FIND_DATA_EX FindData;
+								if (apiGetFindDataEx(DlgParam->strSelName, FindData))
 								{
-									FAR_FIND_DATA_EX FindData;
+									const SETATTRDLG Items[]={SA_TEXT_LASTWRITE,SA_TEXT_CREATION,SA_TEXT_LASTACCESS,SA_TEXT_CHANGE};
+									bool* ParamTimes[]={&DlgParam->OLastWriteTime, &DlgParam->OCreationTime, &DlgParam->OLastAccessTime,&DlgParam->OChangeTime};
+									const PFILETIME FDTimes[]={&FindData.ftLastWriteTime,&FindData.ftCreationTime,&FindData.ftLastAccessTime,&FindData.ftChangeTime};
 
-									if (apiGetFindDataEx(DlgParam->strSelName, FindData))
+									for (size_t i=0; i<ARRAYSIZE(Items); i++)
 									{
-										const SETATTRDLG Items[]={SA_TEXT_LASTWRITE,SA_TEXT_CREATION,SA_TEXT_LASTACCESS,SA_TEXT_CHANGE};
-										bool* ParamTimes[]={&DlgParam->OLastWriteTime, &DlgParam->OCreationTime, &DlgParam->OLastAccessTime,&DlgParam->OChangeTime};
-										const PFILETIME FDTimes[]={&FindData.ftLastWriteTime,&FindData.ftCreationTime,&FindData.ftLastAccessTime,&FindData.ftChangeTime};
-
-										for (size_t i=0; i<ARRAYSIZE(Items); i++)
+										if (!*ParamTimes[i])
 										{
-											if (!*ParamTimes[i])
-											{
-												SendDlgMessage(hDlg,DM_SETATTR,Items[i],SubfoldersState?0:(LONG_PTR)FDTimes[i]);
-												*ParamTimes[i]=false;
-											}
+											SendDlgMessage(hDlg,DM_SETATTR,Items[i],SubfoldersState?0:(LONG_PTR)FDTimes[i]);
+											*ParamTimes[i]=false;
 										}
 									}
 								}
@@ -281,6 +283,15 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 							// —осто€ние изменилось?
 							if (DlgParam->OSubfoldersState!=SubfoldersState)
 							{
+								LPCWSTR Owner=reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,SA_EDIT_OWNER,0));
+								if(*Owner)
+								{
+									if(!DlgParam->OwnerChanged)
+									{
+										DlgParam->OwnerChanged=StrCmpI(Owner,DlgParam->strOwner)!=0;
+									}
+									DlgParam->strOwner=Owner;
+								}
 								// установили?
 								if (SubfoldersState)
 								{
@@ -292,7 +303,10 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 											SendDlgMessage(hDlg,DM_SETCHECK,i,BSTATE_3STATE);
 										}
 									}
-									SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_EDIT_OWNER,reinterpret_cast<LONG_PTR>(L""));
+									if(!DlgParam->OwnerChanged)
+									{
+										SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_EDIT_OWNER,reinterpret_cast<LONG_PTR>(L""));
+									}
 								}
 								// сн€ли?
 								else
@@ -302,7 +316,10 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 										SendDlgMessage(hDlg,DM_SET3STATE,i,((DlgParam->OriginalCBFlag[i-SA_ATTR_FIRST]&DIF_3STATE)?TRUE:FALSE));
 										SendDlgMessage(hDlg,DM_SETCHECK,i,DlgParam->OriginalCBAttr[i-SA_ATTR_FIRST]);
 									}
-									SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_EDIT_OWNER,reinterpret_cast<LONG_PTR>(DlgParam->strOwner.CPtr()));
+									if(!DlgParam->OwnerChanged)
+									{
+										SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_EDIT_OWNER,reinterpret_cast<LONG_PTR>(DlgParam->strOwner.CPtr()));
+									}
 								}
 							}
 						}
@@ -1079,6 +1096,16 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 			}
 		}
 
+		// запомним состо€ние переключателей.
+		for (size_t i=SA_ATTR_FIRST; i<=SA_ATTR_LAST; i++)
+		{
+			DlgParam.OriginalCBAttr[i-SA_ATTR_FIRST]=AttrDlg[i].Selected;
+			DlgParam.OriginalCBAttr2[i-SA_ATTR_FIRST]=-1;
+			DlgParam.OriginalCBFlag[i-SA_ATTR_FIRST]=AttrDlg[i].Flags;
+		}
+		DlgParam.strOwner=AttrDlg[SA_EDIT_OWNER].strData;
+		string strInitOwner=AttrDlg[SA_EDIT_OWNER].strData;
+
 		// поведение дл€ каталогов как у 1.65?
 		if (FolderPresent && !Opt.SetAttrFolderRules)
 		{
@@ -1097,18 +1124,8 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 				AttrDlg[i].Selected=BSTATE_3STATE;
 				AttrDlg[i].Flags|=DIF_3STATE;
 			}
+			AttrDlg[SA_EDIT_OWNER].strData.Clear();
 		}
-
-		// запомним состо€ние переключателей.
-		for (size_t i=SA_ATTR_FIRST; i<=SA_ATTR_LAST; i++)
-		{
-			DlgParam.OriginalCBAttr[i-SA_ATTR_FIRST]=AttrDlg[i].Selected;
-			DlgParam.OriginalCBAttr2[i-SA_ATTR_FIRST]=-1;
-			DlgParam.OriginalCBFlag[i-SA_ATTR_FIRST]=AttrDlg[i].Flags;
-		}
-
-		DlgParam.strOwner=AttrDlg[SA_EDIT_OWNER].strData;
-		string strInitOwner=AttrDlg[SA_EDIT_OWNER].strData;
 
 		DlgParam.DialogMode=((SelCount==1&&!(FileAttr&FILE_ATTRIBUTE_DIRECTORY))?MODE_FILE:(SelCount==1?MODE_FOLDER:MODE_MULTIPLE));
 		DlgParam.strSelName=strSelName;

@@ -1192,7 +1192,7 @@
 				>
 			</File>
 			<File
-				RelativePath="macrocompuler.cpp"
+				RelativePath="macrocompiler.cpp"
 				>
 			</File>
 			<File
@@ -3367,7 +3367,7 @@
 				>
 			</File>
 			<File
-				RelativePath="macrocompuler.hpp"
+				RelativePath="macrocompiler.hpp"
 				>
 			</File>
 			<File

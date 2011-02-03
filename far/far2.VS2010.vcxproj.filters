@@ -380,7 +380,7 @@
     <ClCompile Include="synchro.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="macrocompuler.cpp">
+    <ClCompile Include="macrocompiler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="syslog.cpp">
@@ -892,7 +892,7 @@
     <ClInclude Include="synchro.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="macrocompuler.hpp">
+    <ClInclude Include="macrocompiler.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="syslog.hpp">

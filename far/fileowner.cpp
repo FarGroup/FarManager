@@ -72,6 +72,16 @@ struct SIDCacheItem
 						}
 					}
 				}
+				else
+				{
+					LPWSTR Sid;
+					if(ConvertSidToStringSid(SID, &Sid))
+					{
+						strUserName = Sid;
+						LocalFree(Sid);
+					}
+
+				}
 			}
 		}
 

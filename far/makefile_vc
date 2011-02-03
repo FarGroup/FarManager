@@ -216,7 +216,7 @@ LINK_OBJS = \
 	"$(INTDIR)\stddlg.obj" \
 	"$(INTDIR)\strmix.obj" \
 	"$(INTDIR)\synchro.obj" \
-	"$(INTDIR)\macrocompuler.obj" \
+	"$(INTDIR)\macrocompiler.obj" \
 	"$(INTDIR)\syslog.obj" \
 	"$(INTDIR)\TaskBar.obj" \
 	"$(INTDIR)\TPreRedrawFunc.obj" \

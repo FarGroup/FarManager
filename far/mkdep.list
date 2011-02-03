@@ -244,8 +244,8 @@ strmix.cpp
 strmix.hpp
 synchro.cpp
 synchro.hpp
-macrocompuler.cpp
-macrocompuler.hpp
+macrocompiler.cpp
+macrocompiler.hpp
 syslog.cpp
 syslog.hpp
 TaskBar.cpp

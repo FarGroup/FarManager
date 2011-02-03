@@ -1,5 +1,5 @@
 /*
-macrocompuler.cpp
+macrocompiler.cpp
 
 Реализация парсера для MacroDrive II
 
@@ -45,7 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "macroopcode.hpp"
 #include "lang.hpp"
-#include "macrocompuler.hpp"
+#include "macrocompiler.hpp"
 #include "tvar.hpp"
 #include "syslog.hpp"
 #include "language.hpp"

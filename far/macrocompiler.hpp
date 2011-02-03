@@ -1,7 +1,7 @@
 #pragma once
 
 /*
-macrocompuler.hpp
+macrocompiler.hpp
 
 Реализация парсера для MacroDrive II
 

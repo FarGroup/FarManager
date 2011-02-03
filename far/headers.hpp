@@ -89,6 +89,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <winspool.h>
 #include <setupapi.h>
 #include <aclapi.h>
+#include <sddl.h>
 #include <dbt.h>
 #define SECURITY_WIN32
 #include <security.h>

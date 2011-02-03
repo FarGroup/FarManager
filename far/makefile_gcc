@@ -139,7 +139,7 @@ SRCS = \
 	stddlg.cpp \
 	strmix.cpp \
 	synchro.cpp \
-	macrocompuler.cpp \
+	macrocompiler.cpp \
 	syslog.cpp \
 	TaskBar.cpp \
 	TPreRedrawFunc.cpp \

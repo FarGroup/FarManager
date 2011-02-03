@@ -1,3 +1,9 @@
+drkns 03.02.2011 14:25:22 +0200 - build 1813
+
+1. Уточнения в setattr и fileowner.
+
+2. macrocompuler.?pp -> macrocompiler.?pp
+
 zg 03.02.2011 13:05:54 +0200 - build 1812
 
 1. в PanelInfo добавлены StructSize, OwnerGuid, PluginHandle. 
@@ -10,7 +16,7 @@ zg 03.02.2011 13:05:54 +0200 - build 1812
 
 svs 03.02.2011 13:34:09 +0300 - build 1811
 
-1. Файлы syntax.?pp переименованы в macrocompuler.?pp
+1. Файлы syntax.?pp переименованы в macrocompiler.?pp
 
 2. Mantis#0001696: Функция len иногда "роняет" FAR
    TVar::toString() возвращает nullptr
