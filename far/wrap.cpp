@@ -2471,7 +2471,7 @@ void ConvertUnicodePanelInfoToAnsi(PanelInfo* PIW, oldfar::PanelInfo* PIA)
 		case PTYPE_INFOPANEL:  PIA->PanelType = oldfar::PTYPE_INFOPANEL;  break;
 	}
 
-	PIA->Plugin = PIW->Plugin;
+	PIA->Plugin = (PIW->Flags&PFLAGS_PLUGIN)?1:0;
 	PIA->PanelRect.left   = PIW->PanelRect.left;
 	PIA->PanelRect.top    = PIW->PanelRect.top;
 	PIA->PanelRect.right  = PIW->PanelRect.right;
@@ -2482,10 +2482,10 @@ void ConvertUnicodePanelInfoToAnsi(PanelInfo* PIW, oldfar::PanelInfo* PIA)
 	PIA->SelectedItems = nullptr;
 	PIA->CurrentItem = PIW->CurrentItem;
 	PIA->TopPanelItem = PIW->TopPanelItem;
-	PIA->Visible = PIW->Visible;
-	PIA->Focus = PIW->Focus;
+	PIA->Visible = (PIW->Flags&PFLAGS_VISIBLE)?1:0;;
+	PIA->Focus = (PIW->Flags&PFLAGS_FOCUS)?1:0;;
 	PIA->ViewMode = PIW->ViewMode;
-	PIA->ShortNames = PIW->ShortNames;
+	PIA->ShortNames = (PIW->Flags&PFLAGS_ALTERNATIVENAMES)?1:0;;
 	PIA->SortMode = 0;
 
 	switch (PIW->SortMode)

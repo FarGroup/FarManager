@@ -2115,6 +2115,8 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 			PanelInfo *Info=(PanelInfo *)Param2;
 			memset(Info,0,sizeof(*Info));
 			UpdateIfRequired();
+			Info->OwnerGuid=FarGuid;
+			Info->PluginHandle=INVALID_HANDLE_VALUE;
 
 			switch (GetType())
 			{
@@ -2132,15 +2134,12 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 					break;
 			}
 
-			Info->Plugin=(GetMode()==PLUGIN_PANEL);
 			int X1,Y1,X2,Y2;
 			GetPosition(X1,Y1,X2,Y2);
 			Info->PanelRect.left=X1;
 			Info->PanelRect.top=Y1;
 			Info->PanelRect.right=X2;
 			Info->PanelRect.bottom=Y2;
-			Info->Visible=IsVisible();
-			Info->Focus=GetFocus();
 			Info->ViewMode=GetViewMode();
 			Info->SortMode=SM_UNSORTED-UNSORTED+GetSortMode();
 			{
@@ -2153,7 +2152,7 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 					{&Opt.ShowHidden,PFLAGS_SHOWHIDDEN},
 					{&Opt.Highlight,PFLAGS_HIGHLIGHT},
 				};
-				DWORD Flags=0;
+				unsigned __int64 Flags=0;
 
 				for (size_t I=0; I < ARRAYSIZE(PFLAGS); ++I)
 					if (*(PFLAGS[I].Opt) )
@@ -2165,6 +2164,9 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 				Flags|=GetDirectoriesFirst()?PFLAGS_DIRECTORIESFIRST:0;
 				Flags|=GetNumericSort()?PFLAGS_NUMERICSORT:0;
 				Flags|=GetCaseSensitiveSort()?PFLAGS_CASESENSITIVESORT:0;
+				Flags|=(GetMode()==PLUGIN_PANEL)?PFLAGS_PLUGIN:0;
+				Flags|=IsVisible()?PFLAGS_VISIBLE:0;
+				Flags|=GetFocus()?PFLAGS_FOCUS:0;
 
 				if (CtrlObject->Cp()->LeftPanel == this)
 					Flags|=PFLAGS_PANELLEFT;
@@ -2177,28 +2179,32 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 				FileList *DestFilePanel=(FileList *)this;
 				static int Reenter=0;
 
-				if (!Reenter && Info->Plugin)
+				if (Info->Flags&PFLAGS_PLUGIN)
 				{
-					Reenter++;
-					OpenPluginInfo PInfo;
-					DestFilePanel->GetOpenPluginInfo(&PInfo);
+					Info->OwnerGuid = static_cast<PluginHandle*>(DestFilePanel->GetPluginHandle())->pPlugin->GetGUID();
+					Info->PluginHandle = static_cast<PluginHandle*>(DestFilePanel->GetPluginHandle())->hPlugin;
+					if (!Reenter)
+					{
+						Reenter++;
+						OpenPluginInfo PInfo;
+						DestFilePanel->GetOpenPluginInfo(&PInfo);
 
-					if (PInfo.Flags & OPIF_REALNAMES)
-						Info->Flags |= PFLAGS_REALNAMES;
+						if (PInfo.Flags & OPIF_REALNAMES)
+							Info->Flags |= PFLAGS_REALNAMES;
 
-					if (!(PInfo.Flags & OPIF_USEHIGHLIGHTING))
-						Info->Flags &= ~PFLAGS_HIGHLIGHT;
+						if (!(PInfo.Flags & OPIF_USEHIGHLIGHTING))
+							Info->Flags &= ~PFLAGS_HIGHLIGHT;
 
-					if (PInfo.Flags & OPIF_USECRC32)
-						Info->Flags |= PFLAGS_USECRC32;
-
-					Reenter--;
+						if (PInfo.Flags & OPIF_USECRC32)
+							Info->Flags |= PFLAGS_USECRC32;
+						Reenter--;
+					}
 				}
 
 				DestFilePanel->PluginGetPanelInfo(*Info);
 			}
 
-			if (!Info->Plugin) // $ 12.12.2001 DJ - на неплагиновой панели - всегда реальные имена
+			if (!(Info->Flags&PFLAGS_PLUGIN)) // $ 12.12.2001 DJ - на неплагиновой панели - всегда реальные имена
 				Info->Flags |= PFLAGS_REALNAMES;
 
 			Result=TRUE;

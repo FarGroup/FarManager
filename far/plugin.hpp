@@ -769,6 +769,10 @@ enum PANELINFOFLAGS
 	PFLAGS_DIRECTORIESFIRST   = 0x00000100,
 	PFLAGS_USECRC32           = 0x00000200,
 	PFLAGS_CASESENSITIVESORT  = 0x00000400,
+	PFLAGS_PLUGIN             = 0x00000800,
+	PFLAGS_VISIBLE            = 0x00001000,
+	PFLAGS_FOCUS              = 0x00002000,
+	PFLAGS_ALTERNATIVENAMES   = 0x00004000,
 };
 
 enum PANELINFOTYPE
@@ -781,19 +785,18 @@ enum PANELINFOTYPE
 
 struct PanelInfo
 {
+	int StructSize;
+	GUID OwnerGuid;
+	HANDLE PluginHandle;
 	int PanelType;
-	int Plugin;
 	RECT PanelRect;
 	int ItemsNumber;
 	int SelectedItemsNumber;
 	int CurrentItem;
 	int TopPanelItem;
-	int Visible;
-	int Focus;
 	int ViewMode;
-	int ShortNames;
 	int SortMode;
-	DWORD Flags;
+	unsigned __int64 Flags;
 	DWORD Reserved;
 };
 

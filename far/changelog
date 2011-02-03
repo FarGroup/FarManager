@@ -1,3 +1,13 @@
+zg 03.02.2011 13:05:54 +0200 - build 1812
+
+1. в PanelInfo добавлены StructSize, OwnerGuid, PluginHandle. 
+   для плагиновых панелей OwnerGuid равен гуиду плагина, PluginHandle тому, что плагин вернул из Open[File]Plugin.
+   для реальных панелей OwnerGuid равен FarGuid, PluginHandle - INVALID_HANDLE_VALUE.
+
+2. в PanelInfo убраны Plugin, Visible, Focus и ShortNames. вместо них PFLAGS_PLUGIN, PFLAGS_VISIBLE, PFLAGS_FOCUS и PFLAGS_ALTERNATIVENAMES.
+
+3. в PanelInfo Flags теперь 64 битный.
+
 svs 03.02.2011 13:34:09 +0300 - build 1811
 
 1. Файлы syntax.?pp переименованы в macrocompuler.?pp

@@ -188,6 +188,7 @@ class PluginW: public Plugin
 		const wchar_t *GetCacheName() { return m_strCacheName; }
 		const wchar_t *GetHotkeyName() { return m_strGuid; }
 		DWORD GetSysID() { return SysID; }
+		const GUID& GetGUID(void) { return m_Guid; }
 		bool CheckWorkFlags(DWORD flags) { return WorkFlags.Check(flags)==TRUE; }
 		DWORD GetWorkFlags() { return WorkFlags.Flags; }
 		DWORD GetFuncFlags() { return FuncFlags.Flags; }

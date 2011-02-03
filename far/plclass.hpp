@@ -96,6 +96,7 @@ class Plugin
 		virtual const wchar_t *GetCacheName() = 0;
 		virtual const wchar_t *GetHotkeyName() = 0;
 		virtual DWORD GetSysID() = 0;
+		virtual const GUID& GetGUID(void) = 0;
 		virtual bool CheckWorkFlags(DWORD flags) = 0;
 		virtual DWORD GetWorkFlags() = 0;
 		virtual DWORD GetFuncFlags() = 0;

@@ -1032,7 +1032,7 @@ void FileList::PluginGetPanelInfo(PanelInfo &Info)
 	CorrectPosition();
 	Info.CurrentItem=CurFile;
 	Info.TopPanelItem=CurTopFile;
-	Info.ShortNames=ShowShortNames;
+	if(ShowShortNames) Info.Flags|=PFLAGS_ALTERNATIVENAMES;
 	Info.ItemsNumber=FileCount;
 	Info.SelectedItemsNumber=ListData?GetSelCount():0;
 }

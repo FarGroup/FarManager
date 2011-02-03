@@ -35,6 +35,7 @@ class PluginManager;
 #include "plugin.hpp"
 #include "plclass.hpp"
 #include "pluginold.hpp"
+#include "FarGuid.hpp"
 
 typedef void (WINAPI *PLUGINCLOSEPLUGIN)(HANDLE hPlugin);
 typedef int (WINAPI *PLUGINCOMPARE)(HANDLE hPlugin,const oldfar::PluginPanelItem *Item1,const oldfar::PluginPanelItem *Item2,unsigned int Mode);
@@ -180,6 +181,7 @@ class PluginA: public Plugin
 		const wchar_t *GetCacheName() { return m_strCacheName; }
 		const wchar_t *GetHotkeyName() { return GetCacheName(); }
 		DWORD GetSysID() { return SysID; }
+		const GUID& GetGUID(void) { return FarGuid; }
 		bool CheckWorkFlags(DWORD flags) { return WorkFlags.Check(flags)==TRUE; }
 		DWORD GetWorkFlags() { return WorkFlags.Flags; }
 		DWORD GetFuncFlags() { return FuncFlags.Flags; }
