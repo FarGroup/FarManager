@@ -1,3 +1,20 @@
+svs 03.02.2011 13:34:09 +0300 - build 1811
+
+1. Файлы syntax.?pp переименованы в macrocompuler.?pp
+
+2. Mantis#0001696: Функция len иногда "роняет" FAR
+   TVar::toString() возвращает nullptr
+
+3. Mantis#0001697: Доступ к Custom-колонке из функции panel.item
+   (from DAtaMan)
+   Добавлен индекс 22 = значение Custom-колонки
+
+4. Macro: "substr избавлен от дефолтового значения третьего параметр, равного -1"
+   В TVar добавлен тип vtUnknown (аналог vtInteger, содержит 0)
+
+5. Структура ActlKeyMacro увеличена в размере, согласно п.5 
+   (http://forum.farmanager.com/viewtopic.php?p=58432#p58432).
+
 drkns 03.02.2011 10:07:07 +0200 - build 1810
 
 1. Mantis#0001698: Ошибка при подсчете количества файлов при копировании.

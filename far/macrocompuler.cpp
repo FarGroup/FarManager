@@ -1,5 +1,5 @@
 /*
-syntax.cpp
+macrocompuler.cpp
 
 Реализация парсера для MacroDrive II
 
@@ -45,7 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "macroopcode.hpp"
 #include "lang.hpp"
-#include "syntax.hpp"
+#include "macrocompuler.hpp"
 #include "tvar.hpp"
 #include "syslog.hpp"
 #include "language.hpp"
@@ -386,14 +386,8 @@ static void calcFunc()
 				// добьем нулями опциональные параметры
 				for (; i < nParam-(!foundparam?0:1); ++i)
 				{
-					// TODO: нужен MCODE_OP_PUSHUNKNOWN вместо MCODE_OP_PUSHINT
-					put(MCODE_OP_PUSHINT);
-
-					// исключение для substr
-					if (nFunc == MCODE_F_SUBSTR)
-						put64((unsigned __int64)(((unsigned __int64)1)<<63));
-					else
-						put64(0);
+					put(MCODE_OP_PUSHUNKNOWN);
+					put64(0);
 				}
 			}
 		}

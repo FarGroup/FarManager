@@ -123,7 +123,7 @@ class TVar
 		void SetType(TVarType newType) {vType=newType;};
 
 		int isString()   const { return vType == vtString;  }
-		int isInteger()  const { return vType == vtInteger; }
+		int isInteger()  const { return vType == vtInteger || vType == vtUnknown; }
 		int isDouble()   const { return vType == vtDouble;  }
 		int isUnknown()  const { return vType == vtUnknown;  }
 

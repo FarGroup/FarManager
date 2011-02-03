@@ -1716,6 +1716,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 }
 
 
+/* ------------------------------------------------------------------- */
 // S=trim(S[,N])
 static bool trimFunc(const TMacroFunction*)
 {
@@ -1755,16 +1756,13 @@ static bool substrFunc(const TMacroFunction*)
 	bool Ret=false;
 
 	TVar VarLength;  VMStack.Pop(VarLength);
-	int length=(int)VarLength.getInteger();
 	int  start     = (int)VMStack.Pop().getInteger();
 	TVar Val;        VMStack.Pop(Val);
 
 	wchar_t *p = (wchar_t *)Val.toString();
 	int length_str = StrLength(p);
 
-	// TODO: MCODE_OP_PUSHUNKNOWN!
-	if ((unsigned __int64)VarLength.getInteger() == (((unsigned __int64)1)<<63))
-		length=length_str;
+	int length=VarLength.isUnknown()?length_str:(int)VarLength.getInteger();
 
 
 	if (length)
@@ -3561,11 +3559,8 @@ static bool panelitemFunc(const TMacroFunction*)
 				Ret=TVar((__int64)filelistItem.SortGroup);
 				break;
 			case 11:  // DizText
-			{
-				const wchar_t *LPtr=filelistItem.DizText;
-				Ret=TVar(LPtr);
+				Ret=TVar((const wchar_t *)filelistItem.DizText);
 				break;
-			}
 			case 12:  // Owner
 				Ret=TVar(filelistItem.strOwner);
 				break;
@@ -3598,6 +3593,9 @@ static bool panelitemFunc(const TMacroFunction*)
 				break;
 			case 21:  // ChangeTime (FILETIME)
 				Ret=TVar((__int64)FileTimeToUI64(&filelistItem.ChangeTime));
+				break;
+			case 22:  // CustomData
+				Ret=TVar(filelistItem.strCustomData);
 				break;
 		}
 	}

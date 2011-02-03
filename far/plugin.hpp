@@ -1292,7 +1292,7 @@ struct ActlKeyMacro
 		struct KeySequence Compile;
 #endif // END FAR_USE_INTERNALS
 		struct MacroParseResult MacroResult;
-		DWORD_PTR Reserved[3];
+		DWORD_PTR Reserved[7];
 	} Param;
 };
 
