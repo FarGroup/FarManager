@@ -38,20 +38,19 @@ class PluginManager;
 
 typedef void (WINAPI *PLUGINCLOSEPLUGINW)(HANDLE hPlugin);
 typedef int (WINAPI *PLUGINCOMPAREW)(HANDLE hPlugin,const PluginPanelItem *Item1,const PluginPanelItem *Item2,unsigned int Mode);
-typedef int (WINAPI *PLUGINCONFIGUREW)(int ItemNumber);
+typedef int (WINAPI *PLUGINCONFIGUREW)(GUID Guid);
 typedef int (WINAPI *PLUGINDELETEFILESW)(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
 typedef void (WINAPI *PLUGINEXITFARW)();
 typedef void (WINAPI *PLUGINFREEFINDDATAW)(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber);
 typedef void (WINAPI *PLUGINFREEVIRTUALFINDDATAW)(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber);
 typedef int (WINAPI *PLUGINGETFILESW)(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t **DestPath,int OpMode);
 typedef int (WINAPI *PLUGINGETFINDDATAW)(HANDLE hPlugin,PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
-typedef int (WINAPI *PLUGINMINFARVERSIONW)();
 typedef void (WINAPI *PLUGINGETOPENPLUGININFOW)(HANDLE hPlugin,OpenPluginInfo *Info);
 typedef void (WINAPI *PLUGINGETPLUGININFOW)(PluginInfo *Info);
 typedef int (WINAPI *PLUGINGETVIRTUALFINDDATAW)(HANDLE hPlugin,PluginPanelItem **pPanelItem,int *pItemsNumber,const wchar_t *Path);
 typedef int (WINAPI *PLUGINMAKEDIRECTORYW)(HANDLE hPlugin,const wchar_t **Name,int OpMode);
 typedef HANDLE(WINAPI *PLUGINOPENFILEPLUGINW)(const wchar_t *Name,const unsigned char *Data,int DataSize,int OpMode);
-typedef HANDLE(WINAPI *PLUGINOPENPLUGINW)(int OpenFrom,INT_PTR Item);
+typedef HANDLE(WINAPI *PLUGINOPENPLUGINW)(int OpenFrom,GUID Guid,INT_PTR Data);
 typedef int (WINAPI *PLUGINPROCESSEDITOREVENTW)(int Event,void *Param);
 typedef int (WINAPI *PLUGINPROCESSEDITORINPUTW)(const INPUT_RECORD *Rec);
 typedef int (WINAPI *PLUGINPROCESSEVENTW)(HANDLE hPlugin,int Event,void *Param);
@@ -80,6 +79,7 @@ class PluginW: public Plugin
 
 		string m_strModuleName;
 		string m_strCacheName;
+		string m_strGuid;
 
 		BitFlags WorkFlags;      // рабочие флаги текущего плагина
 		BitFlags FuncFlags;      // битовые маски вызова эксп.функций плагина
@@ -87,6 +87,7 @@ class PluginW: public Plugin
 		HMODULE m_hModule;
 		Language Lang;
 
+		DWORD MinFarVersion;
 		/* $ 21.09.2000 SVS
 		   поле - системный идентификатор плагина
 		   Плагин должен сам задавать, например для
@@ -94,6 +95,7 @@ class PluginW: public Plugin
 		   PrintManager = 0x6E614D50 (PMan)  SYSID_PRINTMANAGER
 		*/
 		DWORD SysID;
+		GUID m_Guid;
 
 		string strRootKey;
 
@@ -121,7 +123,6 @@ class PluginW: public Plugin
 		PLUGINPROCESSEDITOREVENTW    pProcessEditorEventW;
 		PLUGINCOMPAREW               pCompareW;
 		PLUGINPROCESSEDITORINPUTW    pProcessEditorInputW;
-		PLUGINMINFARVERSIONW         pMinFarVersionW;
 		PLUGINPROCESSVIEWEREVENTW    pProcessViewerEventW;
 		PLUGINPROCESSDIALOGEVENTW    pProcessDialogEventW;
 		PLUGINPROCESSSYNCHROEVENTW   pProcessSynchroEventW;
@@ -172,7 +173,7 @@ class PluginW: public Plugin
 		bool HasProcessEditorEvent() { return pProcessEditorEventW!=nullptr; }
 		bool HasCompare() { return pCompareW!=nullptr; }
 		bool HasProcessEditorInput() { return pProcessEditorInputW!=nullptr; }
-		bool HasMinFarVersion() { return pMinFarVersionW!=nullptr; }
+		bool HasMinFarVersion() { return true; }
 		bool HasProcessViewerEvent() { return pProcessViewerEventW!=nullptr; }
 		bool HasProcessDialogEvent() { return pProcessDialogEventW!=nullptr; }
 		bool HasProcessSynchroEvent() { return pProcessSynchroEventW!=nullptr; }
@@ -185,6 +186,7 @@ class PluginW: public Plugin
 
 		const string &GetModuleName() { return m_strModuleName; }
 		const wchar_t *GetCacheName() { return m_strCacheName; }
+		const wchar_t *GetHotkeyName() { return m_strGuid; }
 		DWORD GetSysID() { return SysID; }
 		bool CheckWorkFlags(DWORD flags) { return WorkFlags.Check(flags)==TRUE; }
 		DWORD GetWorkFlags() { return WorkFlags.Flags; }
@@ -201,7 +203,7 @@ class PluginW: public Plugin
 
 		int Analyse(const AnalyseData *pData);
 
-		HANDLE OpenPlugin(int OpenFrom, INT_PTR Item);
+		HANDLE OpenPlugin(int OpenFrom, const GUID& Guid, INT_PTR Item);
 		HANDLE OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, int DataSize, int OpMode);
 
 		int SetFindList(HANDLE hPlugin, const PluginPanelItem *PanelItem, int ItemsNumber);
@@ -235,11 +237,12 @@ class PluginW: public Plugin
 #endif
 
 		bool GetPluginInfo(PluginInfo *pi);
-		int Configure(int MenuItem);
+		int Configure(const GUID& Guid);
 
 		void ExitFAR();
 
 	private:
 
 		void ClearExports();
+		void SetGuid(const GUID& Guid);
 };

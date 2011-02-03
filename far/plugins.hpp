@@ -40,11 +40,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "PluginA.hpp"
 #include "PluginW.hpp"
 
+#define wszReg_PluginHotkeys L"PluginHotkeys2"
+
 extern const wchar_t *FmtPluginsCache_PluginS;
 extern const wchar_t *FmtDiskMenuStringD;
-extern const wchar_t *FmtDiskMenuNumberD;
+extern const wchar_t *FmtDiskMenuGuidD;
+extern const wchar_t *FmtDiskMenuNumberD; //BUGBUG - obsolete
 extern const wchar_t *FmtPluginMenuStringD;
+extern const wchar_t *FmtPluginMenuGuidD;
 extern const wchar_t *FmtPluginConfigStringD;
+extern const wchar_t *FmtPluginConfigGuidD;
 
 
 class SaveScreen;
@@ -180,7 +185,7 @@ class PluginManager
 		void LoadIfCacheAbsent();
 		void ReadUserBackgound(SaveScreen *SaveScr);
 
-		void GetPluginHotKey(Plugin *pPlugin,int ItemNumber,const wchar_t *HotKeyType,string &strHotKey);
+		void GetPluginHotKey(Plugin *pPlugin,const GUID& Guid,const wchar_t *HotKeyType,string &strHotKey);
 
 		bool TestPluginInfo(Plugin *Item,PluginInfo *Info);
 		bool TestOpenPluginInfo(Plugin *Item,OpenPluginInfo *Info);
@@ -220,9 +225,9 @@ class PluginManager
 		BOOL CheckFlags(DWORD NewFlags) { return Flags.Check(NewFlags); }
 
 		void Configure(int StartPos=0);
-		void ConfigureCurrent(Plugin *pPlugin,int INum);
+		void ConfigureCurrent(Plugin *pPlugin,const GUID& Guid);
 		int CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName=nullptr);
-		bool GetDiskMenuItem(Plugin *pPlugin,int PluginItem,bool &ItemPresent, wchar_t& PluginHotkey, string &strPluginText);
+		bool GetDiskMenuItem(Plugin *pPlugin,int PluginItem,bool &ItemPresent, wchar_t& PluginHotkey, string &strPluginText, GUID &Guid);
 
 		int UseFarCommand(HANDLE hPlugin,int CommandType);
 		void ReloadLanguage();
@@ -230,7 +235,7 @@ class PluginManager
 		int ProcessCommandLine(const wchar_t *Command,Panel *Target=nullptr);
 
 		bool SetHotKeyDialog(const wchar_t *DlgPluginTitle,const wchar_t *RegKey,const wchar_t *RegValueName);
-		void GetHotKeyRegKey(Plugin *pPlugin,int ItemNumber,string &strRegKey);
+		void GetHotKeyRegKey(Plugin *pPlugin,const GUID& Guid,string &strRegKey);
 
 		// $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
 		int CallPlugin(DWORD SysID,int OpenFrom, void *Data, int *Ret=nullptr);
@@ -242,7 +247,7 @@ class PluginManager
 
 		Plugin *Analyse(const AnalyseData *pData);
 
-		HANDLE OpenPlugin(Plugin *pPlugin,int OpenFrom,INT_PTR Item);
+		HANDLE OpenPlugin(Plugin *pPlugin,int OpenFrom,const GUID& Guid,INT_PTR Item);
 		HANDLE OpenFilePlugin(const wchar_t *Name, int OpMode, OPENFILEPLUGINTYPE Type);
 		HANDLE OpenFindListPlugin(const PluginPanelItem *PanelItem,int ItemsNumber);
 		void ClosePlugin(HANDLE hPlugin);

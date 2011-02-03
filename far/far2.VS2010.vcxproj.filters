@@ -122,6 +122,9 @@
     <ClCompile Include="farexcpt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FarGuid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="farqueue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -611,6 +614,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="farexcpt.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FarGuid.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="farqueue.hpp">

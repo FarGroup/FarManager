@@ -94,6 +94,7 @@ class Plugin
 
 		virtual const string &GetModuleName() = 0;
 		virtual const wchar_t *GetCacheName() = 0;
+		virtual const wchar_t *GetHotkeyName() = 0;
 		virtual DWORD GetSysID() = 0;
 		virtual bool CheckWorkFlags(DWORD flags) = 0;
 		virtual DWORD GetWorkFlags() = 0;
@@ -105,7 +106,7 @@ class Plugin
 		virtual bool SetStartupInfo(bool &bUnloaded) = 0;
 		virtual bool CheckMinFarVersion(bool &bUnloaded) = 0;
 
-		virtual HANDLE OpenPlugin(int OpenFrom, INT_PTR Item) = 0;
+		virtual HANDLE OpenPlugin(int OpenFrom, const GUID& Guid, INT_PTR Item) = 0;
 		virtual HANDLE OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, int DataSize, int OpMode) = 0;
 
 		virtual int SetFindList(HANDLE hPlugin, const PluginPanelItem *PanelItem, int ItemsNumber) = 0;
@@ -141,7 +142,7 @@ class Plugin
 		virtual int Analyse(const AnalyseData *pData) = 0;
 
 		virtual bool GetPluginInfo(PluginInfo *pi) = 0;
-		virtual int Configure(int MenuItem) = 0;
+		virtual int Configure(const GUID& Guid) = 0;
 
 		virtual void ExitFAR() = 0;
 };

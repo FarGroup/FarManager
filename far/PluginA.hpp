@@ -178,6 +178,7 @@ class PluginA: public Plugin
 
 		const string &GetModuleName() { return m_strModuleName; }
 		const wchar_t *GetCacheName() { return m_strCacheName; }
+		const wchar_t *GetHotkeyName() { return GetCacheName(); }
 		DWORD GetSysID() { return SysID; }
 		bool CheckWorkFlags(DWORD flags) { return WorkFlags.Check(flags)==TRUE; }
 		DWORD GetWorkFlags() { return WorkFlags.Flags; }
@@ -192,7 +193,7 @@ class PluginA: public Plugin
 		bool SetStartupInfo(bool &bUnloaded);
 		bool CheckMinFarVersion(bool &bUnloaded);
 
-		HANDLE OpenPlugin(int OpenFrom, INT_PTR Item);
+		HANDLE OpenPlugin(int OpenFrom, const GUID& Guid, INT_PTR Item);
 		HANDLE OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, int DataSize, int OpMode);
 
 		int SetFindList(HANDLE hPlugin, const PluginPanelItem *PanelItem, int ItemsNumber);
@@ -228,7 +229,7 @@ class PluginA: public Plugin
 		int Analyse(const AnalyseData *pData) { return FALSE; }
 
 		bool GetPluginInfo(PluginInfo *pi);
-		int Configure(int MenuItem);
+		int Configure(const GUID& Guid);
 
 		void ExitFAR();
 

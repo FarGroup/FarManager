@@ -112,3 +112,6 @@ void Transform(string &strBuffer,const wchar_t *ConvStr,wchar_t TransformType);
 wchar_t GetDecimalSeparator();
 
 string ReplaceBrackets(const string& SearchStr,const string& ReplaceStr,RegExpMatch* Match,int Count);
+
+string GuidToStr(const GUID& Guid);
+bool StrToGuid(const string& Value,GUID& Guid);

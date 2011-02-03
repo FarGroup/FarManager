@@ -564,7 +564,6 @@ struct FarDialogEvent
 
 struct OpenDlgPluginData
 {
-	int ItemNumber;
 	HANDLE hDlg;
 };
 
@@ -2034,18 +2033,24 @@ enum PLUGIN_FLAGS
 	PF_DIALOG         = 0x0020,
 };
 
+struct PluginMenuItem
+{
+	const GUID *Guid;
+	const wchar_t * const *Strings;
+	int Count;
+};
+
 struct PluginInfo
 {
 	int StructSize;
-	DWORD Flags;
-	const wchar_t * const *DiskMenuStrings;
-	int *Reserved0;
-	int DiskMenuStringsNumber;
-	const wchar_t * const *PluginMenuStrings;
-	int PluginMenuStringsNumber;
-	const wchar_t * const *PluginConfigStrings;
-	int PluginConfigStringsNumber;
+	GUID Guid;
+	const wchar_t *PluginTitle;
+	unsigned __int64 Flags;
+	PluginMenuItem DiskMenu;
+	PluginMenuItem PluginMenu;
+	PluginMenuItem PluginConfig;
 	const wchar_t *CommandPrefix;
+	DWORD MinFarVersion;
 #ifdef FAR_USE_INTERNALS
 	DWORD SysID;
 #else // ELSE FAR_USE_INTERNALS
@@ -2281,20 +2286,19 @@ extern "C"
 
 	void   WINAPI _export ClosePluginW(HANDLE hPlugin);
 	int    WINAPI _export CompareW(HANDLE hPlugin,const struct PluginPanelItem *Item1,const struct PluginPanelItem *Item2,unsigned int Mode);
-	int    WINAPI _export ConfigureW(int ItemNumber);
+	int    WINAPI _export ConfigureW(GUID Guid);
 	int    WINAPI _export DeleteFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
 	void   WINAPI _export ExitFARW(void);
 	void   WINAPI _export FreeFindDataW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber);
 	void   WINAPI _export FreeVirtualFindDataW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber);
 	int    WINAPI _export GetFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t **DestPath,int OpMode);
 	int    WINAPI _export GetFindDataW(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
-	int    WINAPI _export GetMinFarVersionW(void);
 	void   WINAPI _export GetOpenPluginInfoW(HANDLE hPlugin,struct OpenPluginInfo *Info);
 	void   WINAPI _export GetPluginInfoW(struct PluginInfo *Info);
 	int    WINAPI _export GetVirtualFindDataW(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,const wchar_t *Path);
 	int    WINAPI _export MakeDirectoryW(HANDLE hPlugin,const wchar_t **Name,int OpMode);
 	HANDLE WINAPI _export OpenFilePluginW(const wchar_t *Name,const unsigned char *Data,int DataSize,int OpMode);
-	HANDLE WINAPI _export OpenPluginW(int OpenFrom,INT_PTR Item);
+	HANDLE WINAPI _export OpenPluginW(int OpenFrom,GUID Guid,INT_PTR Data);
 	int    WINAPI _export ProcessDialogEventW(int Event,void *Param);
 	int    WINAPI _export ProcessEditorEventW(int Event,void *Param);
 	int    WINAPI _export ProcessEditorInputW(const INPUT_RECORD *Rec);

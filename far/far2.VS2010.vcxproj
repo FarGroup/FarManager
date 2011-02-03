@@ -164,7 +164,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>mpr.lib;psapi.lib;secur32.lib;setupapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>mpr.lib;psapi.lib;secur32.lib;setupapi.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)far.exe</OutputFile>
       <GenerateManifest>false</GenerateManifest>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -213,7 +213,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>mpr.lib;psapi.lib;secur32.lib;setupapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>mpr.lib;psapi.lib;secur32.lib;setupapi.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)far.exe</OutputFile>
       <GenerateManifest>false</GenerateManifest>
       <ModuleDefinitionFile>
@@ -260,7 +260,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>mpr.lib;psapi.lib;secur32.lib;setupapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>mpr.lib;psapi.lib;secur32.lib;setupapi.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)far.exe</OutputFile>
       <GenerateManifest>false</GenerateManifest>
       <ModuleDefinitionFile>
@@ -308,7 +308,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>mpr.lib;psapi.lib;secur32.lib;setupapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>mpr.lib;psapi.lib;secur32.lib;setupapi.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)far.exe</OutputFile>
       <GenerateManifest>false</GenerateManifest>
       <ModuleDefinitionFile>
@@ -357,7 +357,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>mpr.lib;psapi.lib;secur32.lib;setupapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>mpr.lib;psapi.lib;secur32.lib;setupapi.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)far.exe</OutputFile>
       <GenerateManifest>false</GenerateManifest>
       <ModuleDefinitionFile>
@@ -405,7 +405,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>mpr.lib;psapi.lib;secur32.lib;setupapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>mpr.lib;psapi.lib;secur32.lib;setupapi.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)far.exe</OutputFile>
       <GenerateManifest>false</GenerateManifest>
       <ModuleDefinitionFile>
@@ -450,6 +450,7 @@ if not exist bootstrap mkdir bootstrap</Command>
     <ClCompile Include="eject.cpp" />
     <ClCompile Include="execute.cpp" />
     <ClCompile Include="farexcpt.cpp" />
+    <ClCompile Include="FarGuid.cpp" />
     <ClCompile Include="farqueue.cpp" />
     <ClCompile Include="farrtl.cpp" />
     <ClCompile Include="farwinapi.cpp" />
@@ -1002,6 +1003,7 @@ if not exist bootstrap mkdir bootstrap</Command>
     <ClInclude Include="exitcode.hpp" />
     <ClInclude Include="FarDlgBuilder.hpp" />
     <ClInclude Include="farexcpt.hpp" />
+    <ClInclude Include="FarGuid.hpp" />
     <ClInclude Include="farqueue.hpp" />
     <ClInclude Include="farrtl.hpp" />
     <ClInclude Include="farwinapi.hpp" />

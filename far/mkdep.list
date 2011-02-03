@@ -66,6 +66,8 @@ exitcode.hpp
 FarDlgBuilder.hpp
 farexcpt.cpp
 farexcpt.hpp
+FarGuid.cpp
+FarGuid.hpp
 farqueue.cpp
 farqueue.hpp
 farrtl.cpp

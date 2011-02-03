@@ -63,16 +63,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "filelist.hpp"
 #include "message.hpp"
+#include "FarGuid.hpp"
 
-const wchar_t *FmtPluginsCache_PluginS=L"PluginsCache\\%s";
+const wchar_t *FmtPluginsCache_PluginS=L"PluginsCache2\\%s";
 const wchar_t *FmtDiskMenuStringD=L"DiskMenuString%d";
-const wchar_t *FmtDiskMenuNumberD=L"DiskMenuNumber%d";
+const wchar_t *FmtDiskMenuGuidD=L"DiskMenuGuid%d";
+const wchar_t *FmtDiskMenuNumberD=L"DiskMenuNumber%d"; //BUGBUG - obsolete
 const wchar_t *FmtPluginMenuStringD=L"PluginMenuString%d";
+const wchar_t *FmtPluginMenuGuidD=L"PluginMenuGuid%d";
 const wchar_t *FmtPluginConfigStringD=L"PluginConfigString%d";
+const wchar_t *FmtPluginConfigGuidD=L"PluginConfigGuid%d";
 
 static const wchar_t *PluginsFolderName=L"Plugins";
 
-static const wchar_t *RKN_PluginsCache=L"PluginsCache";
+static const wchar_t *RKN_PluginsCache=L"PluginsCache2";
 
 static int _cdecl PluginsSort(const void *el1,const void *el2);
 
@@ -823,7 +827,7 @@ HANDLE PluginManager::OpenFilePlugin(
 
 		if (pResult && pResult->hPlugin == INVALID_HANDLE_VALUE)
 		{
-			HANDLE h = pResult->pPlugin->OpenPlugin(OPEN_ANALYSE, 0);
+			HANDLE h = pResult->pPlugin->OpenPlugin(OPEN_ANALYSE, FarGuid, 0);
 
 			if (h != INVALID_HANDLE_VALUE)
 				pResult->hPlugin = h;
@@ -868,7 +872,7 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, int I
 		if (!pPlugin->HasSetFindList())
 			continue;
 
-		HANDLE hPlugin = pPlugin->OpenPlugin(OPEN_FINDLIST, 0);
+		HANDLE hPlugin = pPlugin->OpenPlugin(OPEN_FINDLIST, FarGuid, 0);
 
 		if (hPlugin != INVALID_HANDLE_VALUE)
 		{
@@ -1306,9 +1310,9 @@ int PluginManager::Compare(
 	return ph->pPlugin->Compare(ph->hPlugin, Item1, Item2, Mode);
 }
 
-void PluginManager::ConfigureCurrent(Plugin *pPlugin, int INum)
+void PluginManager::ConfigureCurrent(Plugin *pPlugin, const GUID& Guid)
 {
-	if (pPlugin->Configure(INum))
+	if (pPlugin->Configure(Guid))
 	{
 		int PMode[2];
 		PMode[0]=CtrlObject->Cp()->LeftPanel->GetMode();
@@ -1331,7 +1335,7 @@ void PluginManager::ConfigureCurrent(Plugin *pPlugin, int INum)
 struct PluginMenuItemData
 {
 	Plugin *pPlugin;
-	int nItem;
+	GUID Guid;
 };
 
 /* $ 29.05.2001 IS
@@ -1354,7 +1358,7 @@ void PluginManager::Configure(int StartPos)
 			BOOL NeedUpdateItems=TRUE;
 			int MenuItemNumber=0;
 			string strFirstHotKey;
-			int HotKeysPresent=EnumRegKey(L"PluginHotkeys",0,strFirstHotKey);
+			int HotKeysPresent=EnumRegKey(wszReg_PluginHotkeys,0,strFirstHotKey);
 
 			if (NeedUpdateItems)
 			{
@@ -1364,6 +1368,7 @@ void PluginManager::Configure(int StartPos)
 				MenuItemNumber=0;
 				LoadIfCacheAbsent();
 				string strHotKey, strRegKey, strValue, strName;
+				GUID guid;
 				PluginInfo Info={0};
 
 				for (int I=0; I<PluginsCount; I++)
@@ -1385,20 +1390,27 @@ void PluginManager::Configure(int StartPos)
 					{
 						if (bCached)
 						{
+							string guidValue, guidName;
 							strValue.Format(FmtPluginConfigStringD, J);
+							guidValue.Format(FmtPluginConfigGuidD, J);
 
 							if (!GetRegKey(strRegKey, strValue, strName, L""))
+								break;
+							if (!GetRegKey(strRegKey, guidValue, guidName, L""))
+								break;
+							if (!StrToGuid(guidName,guid))
 								break;
 						}
 						else
 						{
-							if (J >= Info.PluginConfigStringsNumber)
+							if (J >= Info.PluginConfig.Count)
 								break;
 
-							strName = Info.PluginConfigStrings[J];
+							strName = Info.PluginConfig.Strings[J];
+							guid = Info.PluginConfig.Guid[J];
 						}
 
-						GetPluginHotKey(pPlugin,J,L"ConfHotkey",strHotKey);
+						GetPluginHotKey(pPlugin,guid,L"ConfHotkey",strHotKey);
 						MenuItemEx ListItem;
 						ListItem.Clear();
 
@@ -1416,7 +1428,7 @@ void PluginManager::Configure(int StartPos)
 						MenuItemNumber++;
 						PluginMenuItemData item;
 						item.pPlugin = pPlugin;
-						item.nItem = J;
+						item.Guid = guid;
 						PluginList.SetUserData(&item, sizeof(PluginMenuItemData),PluginList.AddItem(&ListItem));
 					}
 				}
@@ -1459,7 +1471,7 @@ void PluginManager::Configure(int StartPos)
 							int nOffset = HotKeysPresent?3:0;
 							strName00 = PluginList.GetItemPtr()->strName.CPtr()+nOffset;
 							RemoveExternalSpaces(strName00);
-							GetHotKeyRegKey(item->pPlugin, item->nItem,strRegKey);
+							GetHotKeyRegKey(item->pPlugin, item->Guid,strRegKey);
 
 							if (SetHotKeyDialog(strName00,strRegKey,L"ConfHotkey"))
 							{
@@ -1488,7 +1500,7 @@ void PluginManager::Configure(int StartPos)
 					break;
 
 				PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(nullptr,0,StartPos);
-				ConfigureCurrent(item->pPlugin, item->nItem);
+				ConfigureCurrent(item->pPlugin, item->Guid);
 			}
 		}
 	}
@@ -1522,7 +1534,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 		while (!Done)
 		{
 			string strFirstHotKey;
-			int HotKeysPresent=EnumRegKey(L"PluginHotkeys",0,strFirstHotKey);
+			int HotKeysPresent=EnumRegKey(wszReg_PluginHotkeys,0,strFirstHotKey);
 
 			if (NeedUpdateItems)
 			{
@@ -1532,6 +1544,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 				LoadIfCacheAbsent();
 				string strHotKey, strRegKey, strValue, strName;
 				PluginInfo Info={0};
+				GUID guid;
 
 				for (int I=0; I<PluginsCount; I++)
 				{
@@ -1562,20 +1575,27 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 					{
 						if (bCached)
 						{
+							string guidValue, guidName;
 							strValue.Format(FmtPluginMenuStringD, J);
+							guidValue.Format(FmtPluginMenuGuidD, J);
 
 							if (!GetRegKey(strRegKey, strValue, strName, L""))
+								break;
+							if (!GetRegKey(strRegKey, guidValue, guidName, L""))
+								break;
+							if (!StrToGuid(guidName,guid))
 								break;
 						}
 						else
 						{
-							if (J >= Info.PluginMenuStringsNumber)
+							if (J >= Info.PluginMenu.Count)
 								break;
 
-							strName = Info.PluginMenuStrings[J];
+							strName = Info.PluginMenu.Strings[J];
+							guid = Info.PluginMenu.Guid[J];
 						}
 
-						GetPluginHotKey(pPlugin,J,L"Hotkey",strHotKey);
+						GetPluginHotKey(pPlugin,guid,L"Hotkey",strHotKey);
 						MenuItemEx ListItem;
 						ListItem.Clear();
 
@@ -1593,7 +1613,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 						MenuItemNumber++;
 						PluginMenuItemData item;
 						item.pPlugin = pPlugin;
-						item.nItem = J;
+						item.Guid = guid;
 						PluginList.SetUserData(&item, sizeof(PluginMenuItemData),PluginList.AddItem(&ListItem));
 					}
 				}
@@ -1630,7 +1650,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 							int nOffset = HotKeysPresent?3:0;
 							strName00 = PluginList.GetItemPtr()->strName.CPtr()+nOffset;
 							RemoveExternalSpaces(strName00);
-							GetHotKeyRegKey(item->pPlugin, item->nItem, strRegKey);
+							GetHotKeyRegKey(item->pPlugin, item->Guid, strRegKey);
 
 							if (SetHotKeyDialog(strName00,strRegKey,L"Hotkey"))
 							{
@@ -1661,7 +1681,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 							StartPos=SelPos;
 
 							if (item->pPlugin->HasConfigure())
-								ConfigureCurrent(item->pPlugin, item->nItem);
+								ConfigureCurrent(item->pPlugin, item->Guid);
 
 							PluginList.SetExitCode(SelPos);
 							PluginList.Show();
@@ -1694,7 +1714,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 	Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 	int OpenCode=OPEN_PLUGINSMENU;
-	INT_PTR Item=item.nItem;
+	INT_PTR Item=0;
 	OpenDlgPluginData pd;
 
 	if (Editor)
@@ -1709,11 +1729,10 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 	{
 		OpenCode=OPEN_DIALOG;
 		pd.hDlg=(HANDLE)FrameManager->GetCurrentFrame();
-		pd.ItemNumber=item.nItem;
 		Item=(INT_PTR)&pd;
 	}
 
-	HANDLE hPlugin=OpenPlugin(item.pPlugin,OpenCode,Item);
+	HANDLE hPlugin=OpenPlugin(item.pPlugin,OpenCode,item.Guid,Item);
 
 	if (hPlugin!=INVALID_HANDLE_VALUE && !Editor && !Viewer && !Dialog)
 	{
@@ -1739,7 +1758,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 	return TRUE;
 }
 
-void PluginManager::GetHotKeyRegKey(Plugin *pPlugin,int ItemNumber,string &strRegKey)
+void PluginManager::GetHotKeyRegKey(Plugin *pPlugin,const GUID& Guid,string &strRegKey)
 {
 	/*
 	FarPath
@@ -1751,29 +1770,22 @@ void PluginManager::GetHotKeyRegKey(Plugin *pPlugin,int ItemNumber,string &strRe
 	C:\MultiArc\MULTIARC.DLL                            -> C:\MultiArc\MULTIARC.DLL
 	---------------------------------------------------------------------------------------
 	*/
-	string strPluginName(pPlugin->GetCacheName());
+	string strPluginName(pPlugin->GetHotkeyName());
 	size_t FarPathLength=g_strFarPath.GetLength();
 	strRegKey.Clear();;
 
-	if (FarPathLength < pPlugin->GetModuleName().GetLength() && !StrCmpNI(pPlugin->GetModuleName(), g_strFarPath, (int)FarPathLength))
+	if (pPlugin->IsOemPlugin() && FarPathLength < pPlugin->GetModuleName().GetLength() && !StrCmpNI(pPlugin->GetModuleName(), g_strFarPath, (int)FarPathLength))
 		strPluginName.LShift(FarPathLength);
 
-	if (ItemNumber>0)
-	{
-		strRegKey.Format(L"PluginHotkeys\\%s%%%d", strPluginName.CPtr(), ItemNumber);
-	}
-	else
-	{
-		strRegKey = L"PluginHotkeys\\";
-		strRegKey += strPluginName;
-	}
+	strRegKey.Format(wszReg_PluginHotkeys"\\%s%%", strPluginName.CPtr());
+	strRegKey+=GuidToStr(Guid);
 }
 
-void PluginManager::GetPluginHotKey(Plugin *pPlugin, int ItemNumber, const wchar_t *HotKeyType, string &strHotKey)
+void PluginManager::GetPluginHotKey(Plugin *pPlugin, const GUID& Guid, const wchar_t *HotKeyType, string &strHotKey)
 {
 	string strRegKey;
 	strHotKey.Clear();
-	GetHotKeyRegKey(pPlugin, ItemNumber, strRegKey);
+	GetHotKeyRegKey(pPlugin, Guid, strRegKey);
 	GetRegKey(strRegKey, HotKeyType, strHotKey, L"");
 }
 
@@ -1827,37 +1839,43 @@ bool PluginManager::GetDiskMenuItem(
      int PluginItem,
      bool &ItemPresent,
      wchar_t& PluginHotkey,
-     string &strPluginText
+     string &strPluginText,
+     GUID &Guid
 )
 {
 	LoadIfCacheAbsent();
 
-	string strHotKey;
-	GetPluginHotKey(pPlugin,PluginItem,L"DriveMenuHotkey",strHotKey);
-	PluginHotkey = strHotKey.At(0);
-
 	if (pPlugin->CheckWorkFlags(PIWF_CACHED))
 	{
-		string strRegKey, strValue;
+		string strRegKey, strValue, guidValue, guidName;
 		strRegKey.Format(FmtPluginsCache_PluginS, pPlugin->GetCacheName());
 		strValue.Format(FmtDiskMenuStringD,PluginItem);
+		guidValue.Format(FmtPluginConfigGuidD,PluginItem);
 		GetRegKey(strRegKey,strValue,strPluginText,L"");
-		strValue.Format(FmtDiskMenuNumberD,PluginItem);
-		ItemPresent=!strPluginText.IsEmpty();
-
+		if (GetRegKey(strRegKey, guidValue, guidName, L"")&&StrToGuid(guidName,Guid)) ItemPresent=true;
+		ItemPresent=ItemPresent&&!strPluginText.IsEmpty();
 		return true;
-	}
-
-	PluginInfo Info;
-
-	if (!pPlugin->GetPluginInfo(&Info) || Info.DiskMenuStringsNumber <= PluginItem)
-	{
-		ItemPresent=false;
 	}
 	else
 	{
-		strPluginText = Info.DiskMenuStrings[PluginItem];
-		ItemPresent=true;
+		PluginInfo Info;
+
+		if (!pPlugin->GetPluginInfo(&Info) || Info.DiskMenu.Count <= PluginItem)
+		{
+			ItemPresent=false;
+		}
+		else
+		{
+			strPluginText = Info.DiskMenu.Strings[PluginItem];
+			Guid = Info.DiskMenu.Guid[PluginItem];
+			ItemPresent=true;
+		}
+	}
+	if (ItemPresent)
+	{
+		string strHotKey;
+		GetPluginHotKey(pPlugin,Guid,L"DriveMenuHotkey",strHotKey);
+		PluginHotkey = strHotKey.At(0);
 	}
 
 	return true;
@@ -2069,7 +2087,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 		CtrlObject->CmdLine->SetString(L"");
 		string strPluginCommand=strCommand.CPtr()+(PData->PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1);
 		RemoveTrailingSpaces(strPluginCommand);
-		HANDLE hPlugin=OpenPlugin(PData->pPlugin,OPEN_COMMANDLINE,(INT_PTR)strPluginCommand.CPtr()); //BUGBUG
+		HANDLE hPlugin=OpenPlugin(PData->pPlugin,OPEN_COMMANDLINE,FarGuid,(INT_PTR)strPluginCommand.CPtr()); //BUGBUG
 
 		if (hPlugin!=INVALID_HANDLE_VALUE)
 		{
@@ -2115,7 +2133,7 @@ int PluginManager::CallPlugin(DWORD SysID,int OpenFrom, void *Data,int *Ret)
 	{
 		if (pPlugin->HasOpenPlugin() && !ProcessException)
 		{
-			HANDLE hNewPlugin=OpenPlugin(pPlugin,OpenFrom,(INT_PTR)Data);
+			HANDLE hNewPlugin=OpenPlugin(pPlugin,OpenFrom,FarGuid,(INT_PTR)Data);
 			bool process=false;
 
 			if (OpenFrom & OPEN_FROMMACRO)
@@ -2177,9 +2195,9 @@ Plugin *PluginManager::FindPlugin(DWORD SysID)
 	return nullptr;
 }
 
-HANDLE PluginManager::OpenPlugin(Plugin *pPlugin,int OpenFrom,INT_PTR Item)
+HANDLE PluginManager::OpenPlugin(Plugin *pPlugin,int OpenFrom,const GUID& Guid,INT_PTR Item)
 {
-	HANDLE hPlugin = pPlugin->OpenPlugin(OpenFrom, Item);
+	HANDLE hPlugin = pPlugin->OpenPlugin(OpenFrom, Guid, Item);
 
 	if (hPlugin != INVALID_HANDLE_VALUE)
 	{

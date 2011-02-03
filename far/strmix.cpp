@@ -1333,3 +1333,23 @@ string ReplaceBrackets(const string& SearchStr,const string& ReplaceStr,RegExpMa
 
 	return result;
 }
+
+string GuidToStr(const GUID& Guid)
+{
+	string result;
+/*
+	unsigned short* str;
+	if(UuidToString((UUID*)&Guid,&str)==RPC_S_OK)
+	{
+		result=(wchar_t*)str;
+		RpcStringFree(&str);
+	}
+*/
+	result.Format(L"%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X",Guid.Data1,Guid.Data2,Guid.Data3,Guid.Data4[0],Guid.Data4[1],Guid.Data4[2],Guid.Data4[3],Guid.Data4[4],Guid.Data4[5],Guid.Data4[6],Guid.Data4[7]);
+	return result;
+}
+
+bool StrToGuid(const string& Value,GUID& Guid)
+{
+	return (UuidFromString((unsigned short*)Value.CPtr(),&Guid)==RPC_S_OK)?true:false;
+}

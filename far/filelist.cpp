@@ -85,6 +85,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "constitle.hpp"
 #include "elevation.hpp"
+#include "FarGuid.hpp"
 
 extern PanelViewSettings ViewSettingsArray[];
 extern size_t SizeViewSettingsArray;
@@ -961,7 +962,7 @@ int FileList::ProcessKey(int Key)
 			PluginHandle *ph = (PluginHandle*)hPlugin;
 
 			if (PanelMode==PLUGIN_PANEL)
-				CtrlObject->Plugins.ConfigureCurrent(ph->pPlugin, 0);
+				CtrlObject->Plugins.ConfigureCurrent(ph->pPlugin, FarGuid);
 			else
 				CtrlObject->Plugins.Configure();
 

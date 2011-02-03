@@ -78,6 +78,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "setattr.hpp"
 #include "window.hpp"
 #include "palette.hpp"
+#include "FarGuid.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;
@@ -182,7 +183,7 @@ struct PanelMenuItem
 		struct
 		{
 			Plugin *pPlugin;
-			int nItem;
+			GUID Guid;
 		};
 
 		struct
@@ -245,12 +246,14 @@ static size_t AddPluginItems(VMenu &ChDisk, int Pos, int DiskCount, bool SetSele
 			Plugin *pPlugin = CtrlObject->Plugins.GetPlugin(PluginNumber);
 
 			WCHAR HotKey = 0;
+			GUID guid;
 			if (!CtrlObject->Plugins.GetDiskMenuItem(
 			            pPlugin,
 			            PluginItem,
 			            ItemPresent,
 			            HotKey,
-			            strPluginText
+			            strPluginText,
+			            guid
 			        ))
 			{
 				Done=true;
@@ -268,7 +271,7 @@ static size_t AddPluginItems(VMenu &ChDisk, int Pos, int DiskCount, bool SetSele
 				PanelMenuItem *item = new PanelMenuItem;
 				item->bIsPlugin = true;
 				item->pPlugin = pPlugin;
-				item->nItem = PluginItem;
+				item->Guid = guid;
 
 				if (pPlugin->IsOemPlugin())
 					OneItem.Item.Flags=LIF_CHECKED|L'A';
@@ -709,7 +712,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 						else
 						{
 							string strRegKey;
-							CtrlObject->Plugins.GetHotKeyRegKey(item->pPlugin, item->nItem,strRegKey);
+							CtrlObject->Plugins.GetHotKeyRegKey(item->pPlugin, item->Guid,strRegKey);
 							string strName = ChDisk.GetItemPtr(SelPos)->strName + 3;
 							RemoveExternalSpaces(strName);
 							if(CtrlObject->Plugins.SetHotKeyDialog(strName, strRegKey, L"DriveMenuHotkey"))
@@ -810,7 +813,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				case KEY_SHIFTF9:
 
 					if (item && item->bIsPlugin && item->pPlugin->HasConfigure())
-						CtrlObject->Plugins.ConfigureCurrent(item->pPlugin, item->nItem);
+						CtrlObject->Plugins.ConfigureCurrent(item->pPlugin, item->Guid);
 
 					return SelPos;
 				case KEY_CTRLR:
@@ -968,7 +971,8 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		HANDLE hPlugin = CtrlObject->Plugins.OpenPlugin(
 		                     mitem->pPlugin,
 		                     OPEN_DISKMENU,
-		                     mitem->nItem
+		                     mitem->Guid,
+		                     0
 		                 );
 
 		if (hPlugin != INVALID_HANDLE_VALUE)
@@ -2638,7 +2642,7 @@ bool Panel::ExecShortcutFolder(int Pos)
 					{
 						if (pPlugin->HasOpenPlugin())
 						{
-							HANDLE hNewPlugin=CtrlObject->Plugins.OpenPlugin(pPlugin,OPEN_SHORTCUT,(INT_PTR)strPluginData.CPtr());
+							HANDLE hNewPlugin=CtrlObject->Plugins.OpenPlugin(pPlugin,OPEN_SHORTCUT,FarGuid,(INT_PTR)strPluginData.CPtr());
 
 							if (hNewPlugin!=INVALID_HANDLE_VALUE)
 							{

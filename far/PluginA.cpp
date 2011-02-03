@@ -260,25 +260,35 @@ bool PluginA::SaveToCache()
 			SetRegKey(strRegKey, L"ID", strCurPluginID);
 		}
 
-		for (int i = 0; i < Info.DiskMenuStringsNumber; i++)
+		GUID guid = {0,0,0,{0,0,0,0,0,0,0,0}};
+		for (int i = 0; i < Info.DiskMenu.Count; i++)
 		{
 			string strValue;
 			strValue.Format(FmtDiskMenuStringD, i);
-			SetRegKey(strRegKey, strValue, Info.DiskMenuStrings[i]);
+			SetRegKey(strRegKey, strValue, Info.DiskMenu.Strings[i]);
+			guid.Data1 = i;
+			strValue.Format(FmtDiskMenuGuidD, i);
+			SetRegKey(strRegKey, strValue, GuidToStr(guid));
 		}
 
-		for (int i = 0; i < Info.PluginMenuStringsNumber; i++)
+		for (int i = 0; i < Info.PluginMenu.Count; i++)
 		{
 			string strValue;
 			strValue.Format(FmtPluginMenuStringD, i);
-			SetRegKey(strRegKey, strValue, Info.PluginMenuStrings[i]);
+			SetRegKey(strRegKey, strValue, Info.PluginMenu.Strings[i]);
+			guid.Data1 = i;
+			strValue.Format(FmtPluginMenuGuidD, i);
+			SetRegKey(strRegKey, strValue, GuidToStr(guid));
 		}
 
-		for (int i = 0; i < Info.PluginConfigStringsNumber; i++)
+		for (int i = 0; i < Info.PluginConfig.Count; i++)
 		{
 			string strValue;
 			strValue.Format(FmtPluginConfigStringD, i);
-			SetRegKey(strRegKey,strValue,Info.PluginConfigStrings[i]);
+			SetRegKey(strRegKey,strValue,Info.PluginConfig.Strings[i]);
+			guid.Data1 = i;
+			strValue.Format(FmtPluginConfigGuidD, i);
+			SetRegKey(strRegKey, strValue, GuidToStr(guid));
 		}
 
 		SetRegKey(strRegKey, L"CommandPrefix", NullToEmpty(Info.CommandPrefix));
@@ -678,7 +688,7 @@ bool PluginA::IsPanelPlugin()
 	       pClosePlugin;
 }
 
-HANDLE PluginA::OpenPlugin(int OpenFrom, INT_PTR Item)
+HANDLE PluginA::OpenPlugin(int OpenFrom, const GUID& Guid, INT_PTR Item)
 {
 	ChangePriority *ChPriority = new ChangePriority(THREAD_PRIORITY_NORMAL);
 
@@ -706,6 +716,10 @@ HANDLE PluginA::OpenPlugin(int OpenFrom, INT_PTR Item)
 		{
 			ItemA = UnicodeToAnsi((const wchar_t *)Item);
 			Item = (INT_PTR)ItemA;
+		}
+		if (OpenFrom == OPEN_DISKMENU || OpenFrom == OPEN_PLUGINSMENU || OpenFrom == OPEN_EDITOR || OpenFrom == OPEN_VIEWER)
+		{
+			Item=Guid.Data1;
 		}
 
 		EXECUTE_FUNCTION_EX(pOpenPlugin(OpenFrom,Item), es);
@@ -1342,9 +1356,7 @@ void PluginA::GetOpenPluginInfo(
 }
 
 
-int PluginA::Configure(
-    int MenuItem
-)
+int PluginA::Configure(const GUID& Guid)
 {
 	BOOL bResult = FALSE;
 
@@ -1353,7 +1365,7 @@ int PluginA::Configure(
 		ExecuteStruct es;
 		es.id = EXCEPT_CONFIGURE;
 		es.bDefaultResult = FALSE;
-		EXECUTE_FUNCTION_EX(pConfigure(MenuItem), es);
+		EXECUTE_FUNCTION_EX(pConfigure(Guid.Data1), es);
 		bResult = es.bResult;
 	}
 
@@ -1362,28 +1374,31 @@ int PluginA::Configure(
 
 void PluginA::FreePluginInfo()
 {
-	if (PI.DiskMenuStringsNumber)
+	if (PI.DiskMenu.Count)
 	{
-		for (int i=0; i<PI.DiskMenuStringsNumber; i++)
-			xf_free((void *)PI.DiskMenuStrings[i]);
+		for (int i=0; i<PI.DiskMenu.Count; i++)
+			xf_free((void *)PI.DiskMenu.Strings[i]);
 
-		xf_free((void *)PI.DiskMenuStrings);
+		xf_free((void *)PI.DiskMenu.Guid);
+		xf_free((void *)PI.DiskMenu.Strings);
 	}
 
-	if (PI.PluginMenuStringsNumber)
+	if (PI.PluginMenu.Count)
 	{
-		for (int i=0; i<PI.PluginMenuStringsNumber; i++)
-			xf_free((void *)PI.PluginMenuStrings[i]);
+		for (int i=0; i<PI.PluginMenu.Count; i++)
+			xf_free((void *)PI.PluginMenu.Strings[i]);
 
-		xf_free((void *)PI.PluginMenuStrings);
+		xf_free((void *)PI.PluginMenu.Guid);
+		xf_free((void *)PI.PluginMenu.Strings);
 	}
 
-	if (PI.PluginConfigStringsNumber)
+	if (PI.PluginConfig.Count)
 	{
-		for (int i=0; i<PI.PluginConfigStringsNumber; i++)
-			xf_free((void *)PI.PluginConfigStrings[i]);
+		for (int i=0; i<PI.PluginConfig.Count; i++)
+			xf_free((void *)PI.PluginConfig.Strings[i]);
 
-		xf_free((void *)PI.PluginConfigStrings);
+		xf_free((void *)PI.PluginConfig.Guid);
+		xf_free((void *)PI.PluginConfig.Strings);
 	}
 
 	if (PI.CommandPrefix)
@@ -1401,34 +1416,52 @@ void PluginA::ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest)
 	if (Src.DiskMenuStringsNumber)
 	{
 		wchar_t **p = (wchar_t **) xf_malloc(Src.DiskMenuStringsNumber*sizeof(wchar_t*));
+		GUID* guid=(GUID*) xf_malloc(Src.DiskMenuStringsNumber*sizeof(GUID));
+		memset(guid,0,Src.DiskMenuStringsNumber*sizeof(GUID));
 
 		for (int i=0; i<Src.DiskMenuStringsNumber; i++)
+		{
 			p[i] = AnsiToUnicode(Src.DiskMenuStrings[i]);
+			guid[i].Data1=i;
+		}
 
-		PI.DiskMenuStrings = p;
-		PI.DiskMenuStringsNumber = Src.DiskMenuStringsNumber;
+		PI.DiskMenu.Guid = guid;
+		PI.DiskMenu.Strings = p;
+		PI.DiskMenu.Count = Src.DiskMenuStringsNumber;
 	}
 
 	if (Src.PluginMenuStringsNumber)
 	{
 		wchar_t **p = (wchar_t **) xf_malloc(Src.PluginMenuStringsNumber*sizeof(wchar_t*));
+		GUID* guid=(GUID*) xf_malloc(Src.PluginMenuStringsNumber*sizeof(GUID));
+		memset(guid,0,Src.PluginMenuStringsNumber*sizeof(GUID));
 
 		for (int i=0; i<Src.PluginMenuStringsNumber; i++)
+		{
 			p[i] = AnsiToUnicode(Src.PluginMenuStrings[i]);
+			guid[i].Data1=i;
+		}
 
-		PI.PluginMenuStrings = p;
-		PI.PluginMenuStringsNumber = Src.PluginMenuStringsNumber;
+		PI.PluginMenu.Guid = guid;
+		PI.PluginMenu.Strings = p;
+		PI.PluginMenu.Count = Src.PluginMenuStringsNumber;
 	}
 
 	if (Src.PluginConfigStringsNumber)
 	{
 		wchar_t **p = (wchar_t **) xf_malloc(Src.PluginConfigStringsNumber*sizeof(wchar_t*));
+		GUID* guid=(GUID*) xf_malloc(Src.PluginConfigStringsNumber*sizeof(GUID));
+		memset(guid,0,Src.PluginConfigStringsNumber*sizeof(GUID));
 
 		for (int i=0; i<Src.PluginConfigStringsNumber; i++)
+		{
 			p[i] = AnsiToUnicode(Src.PluginConfigStrings[i]);
+			guid[i].Data1=i;
+		}
 
-		PI.PluginConfigStrings = p;
-		PI.PluginConfigStringsNumber = Src.PluginConfigStringsNumber;
+		PI.PluginConfig.Guid = guid;
+		PI.PluginConfig.Strings = p;
+		PI.PluginConfig.Count = Src.PluginConfigStringsNumber;
 	}
 
 	if (Src.CommandPrefix)

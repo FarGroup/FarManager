@@ -63,9 +63,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "processname.hpp"
 #include "mix.hpp"
 #include "lasterror.hpp"
+#include "FarGuid.hpp"
 
 static const wchar_t *wszReg_Preload=L"Preload";
 static const wchar_t *wszReg_SysID=L"SysID";
+static const wchar_t *wszReg_MinFarVersion=L"MinFarVersion";
+static const wchar_t *wszReg_Guid=L"Guid";
 
 static const wchar_t wszReg_OpenPlugin[]=L"OpenPluginW";
 static const wchar_t wszReg_OpenFilePlugin[]=L"OpenFilePluginW";
@@ -97,7 +100,6 @@ static const wchar_t wszReg_ExitFAR[]=L"ExitFARW";
 static const wchar_t wszReg_ProcessKey[]=L"ProcessKeyW";
 static const wchar_t wszReg_ProcessEvent[]=L"ProcessEventW";
 static const wchar_t wszReg_Compare[]=L"CompareW";
-static const wchar_t wszReg_GetMinFarVersion[]=L"GetMinFarVersionW";
 static const wchar_t wszReg_Analyse[] = L"AnalyseW";
 static const wchar_t wszReg_GetCustomData[] = L"GetCustomDataW";
 static const wchar_t wszReg_FreeCustomData[] = L"FreeCustomDataW";
@@ -132,7 +134,6 @@ static const char NFMP_ExitFAR[]="ExitFARW";
 static const char NFMP_ProcessKey[]="ProcessKeyW";
 static const char NFMP_ProcessEvent[]="ProcessEventW";
 static const char NFMP_Compare[]="CompareW";
-static const char NFMP_GetMinFarVersion[]="GetMinFarVersionW";
 static const char NFMP_Analyse[]="AnalyseW";
 static const char NFMP_GetCustomData[]="GetCustomDataW";
 static const char NFMP_FreeCustomData[]="FreeCustomDataW";
@@ -186,7 +187,9 @@ PluginW::PluginW(PluginManager *owner, const wchar_t *lpwszModuleName):
 	m_owner(owner),
 	m_strModuleName(lpwszModuleName),
 	m_strCacheName(lpwszModuleName),
-	m_hModule(nullptr)
+	m_hModule(nullptr),
+	MinFarVersion(0),
+	SysID(0)
 	//more initialization here!!!
 {
 	wchar_t *p = m_strCacheName.GetBuffer();
@@ -199,6 +202,7 @@ PluginW::PluginW(PluginManager *owner, const wchar_t *lpwszModuleName):
 	}
 	m_strCacheName.ReleaseBuffer();
 	ClearExports();
+	SetGuid(FarGuid);
 }
 
 PluginW::~PluginW()
@@ -232,6 +236,9 @@ bool PluginW::LoadFromCache(const FAR_FIND_DATA_EX &FindData)
 		}
 		strRegKey += L"\\Exports";
 		SysID=GetRegKey(strRegKey,wszReg_SysID,0);
+		MinFarVersion=GetRegKey(strRegKey,wszReg_MinFarVersion,0);
+		GetRegKey(strRegKey,wszReg_Guid,m_strGuid,L"");
+		SetGuid(StrToGuid(m_strGuid,m_Guid)?m_Guid:FarGuid);
 		pOpenPluginW=(PLUGINOPENPLUGINW)(INT_PTR)GetRegKey(strRegKey,wszReg_OpenPlugin,0);
 		pOpenFilePluginW=(PLUGINOPENFILEPLUGINW)(INT_PTR)GetRegKey(strRegKey,wszReg_OpenFilePlugin,0);
 		pSetFindListW=(PLUGINSETFINDLISTW)(INT_PTR)GetRegKey(strRegKey,wszReg_SetFindList,0);
@@ -274,6 +281,8 @@ bool PluginW::SaveToCache()
 		PluginInfo Info;
 		GetPluginInfo(&Info);
 		SysID = Info.SysID; //LAME!!!
+		MinFarVersion = Info.MinFarVersion;
+		SetGuid(Info.Guid);
 		string strRegKey;
 		strRegKey.Format(FmtPluginsCache_PluginS, m_strCacheName.CPtr());
 		DeleteKeyTree(strRegKey);
@@ -298,31 +307,39 @@ bool PluginW::SaveToCache()
 			SetRegKey(strRegKey, L"ID", strCurPluginID);
 		}
 
-		for (int i = 0; i < Info.DiskMenuStringsNumber; i++)
+		for (int i = 0; i < Info.DiskMenu.Count; i++)
 		{
 			string strValue;
 			strValue.Format(FmtDiskMenuStringD, i);
-			SetRegKey(strRegKey, strValue, Info.DiskMenuStrings[i]);
+			SetRegKey(strRegKey, strValue, Info.DiskMenu.Strings[i]);
+			strValue.Format(FmtDiskMenuGuidD, i);
+			SetRegKey(strRegKey, strValue, GuidToStr(Info.DiskMenu.Guid[i]));
 		}
 
-		for (int i = 0; i < Info.PluginMenuStringsNumber; i++)
+		for (int i = 0; i < Info.PluginMenu.Count; i++)
 		{
 			string strValue;
 			strValue.Format(FmtPluginMenuStringD, i);
-			SetRegKey(strRegKey, strValue, Info.PluginMenuStrings[i]);
+			SetRegKey(strRegKey, strValue, Info.PluginMenu.Strings[i]);
+			strValue.Format(FmtPluginMenuGuidD, i);
+			SetRegKey(strRegKey, strValue, GuidToStr(Info.PluginMenu.Guid[i]));
 		}
 
-		for (int i = 0; i < Info.PluginConfigStringsNumber; i++)
+		for (int i = 0; i < Info.PluginConfig.Count; i++)
 		{
 			string strValue;
 			strValue.Format(FmtPluginConfigStringD, i);
-			SetRegKey(strRegKey,strValue,Info.PluginConfigStrings[i]);
+			SetRegKey(strRegKey,strValue,Info.PluginConfig.Strings[i]);
+			strValue.Format(FmtPluginConfigGuidD, i);
+			SetRegKey(strRegKey,strValue,GuidToStr(Info.PluginConfig.Guid[i]));
 		}
 
 		SetRegKey(strRegKey, L"CommandPrefix", NullToEmpty(Info.CommandPrefix));
 		SetRegKey(strRegKey, L"Flags", Info.Flags);
 		strRegKey += L"\\Exports";
 		SetRegKey(strRegKey, wszReg_SysID, SysID);
+		SetRegKey(strRegKey, wszReg_MinFarVersion, MinFarVersion);
+		SetRegKey(strRegKey, wszReg_Guid, m_strGuid);
 		SetRegKey(strRegKey, wszReg_OpenPlugin, pOpenPluginW!=nullptr);
 		SetRegKey(strRegKey, wszReg_OpenFilePlugin, pOpenFilePluginW!=nullptr);
 		SetRegKey(strRegKey, wszReg_SetFindList, pSetFindListW!=nullptr);
@@ -418,11 +435,15 @@ bool PluginW::Load()
 #if defined(PROCPLUGINMACROFUNC)
 	pProcessMacroFuncW=(PLUGINPROCESSMACROFUNCW)GetProcAddress(m_hModule,NFMP_ProcessMacroFunc);
 #endif
-	pMinFarVersionW=(PLUGINMINFARVERSIONW)GetProcAddress(m_hModule,NFMP_GetMinFarVersion);
 	pAnalyseW=(PLUGINANALYSEW)GetProcAddress(m_hModule, NFMP_Analyse);
 	pGetCustomDataW=(PLUGINGETCUSTOMDATAW)GetProcAddress(m_hModule, NFMP_GetCustomData);
 	pFreeCustomDataW=(PLUGINFREECUSTOMDATAW)GetProcAddress(m_hModule, NFMP_FreeCustomData);
 	bool bUnloaded = false;
+
+	PluginInfo Info;
+	GetPluginInfo(&Info);
+	MinFarVersion = Info.MinFarVersion;
+	SetGuid(Info.Guid);
 
 	if (!CheckMinFarVersion(bUnloaded) || !SetStartupInfo(bUnloaded))
 	{
@@ -648,28 +669,10 @@ static void ShowMessageAboutIllegalPluginVersion(const wchar_t* plg,int required
 
 bool PluginW::CheckMinFarVersion(bool &bUnloaded)
 {
-	if (pMinFarVersionW && !ProcessException)
+	if (MinFarVersion && (LOWORD(MinFarVersion) > LOWORD(FAR_VERSION) || (LOWORD(MinFarVersion) == LOWORD(FAR_VERSION) && HIWORD(MinFarVersion) > HIWORD(FAR_VERSION))))
 	{
-		ExecuteStruct es;
-		es.id = EXCEPT_MINFARVERSION;
-		es.nDefaultResult = 0;
-		EXECUTE_FUNCTION_EX(pMinFarVersionW(), es);
-
-		if (es.bUnloaded)
-		{
-			bUnloaded = true;
-			return false;
-		}
-
-		DWORD FVer = (DWORD)es.nResult;
-
-		if (LOWORD(FVer) >  LOWORD(FAR_VERSION) ||
-		        (LOWORD(FVer) == LOWORD(FAR_VERSION) &&
-		         HIWORD(FVer) >  HIWORD(FAR_VERSION)))
-		{
-			ShowMessageAboutIllegalPluginVersion(m_strModuleName,FVer);
-			return false;
-		}
+		ShowMessageAboutIllegalPluginVersion(m_strModuleName,MinFarVersion);
+		return false;
 	}
 
 	return true;
@@ -728,7 +731,7 @@ int PluginW::Analyse(const AnalyseData *pData)
 	return FALSE;
 }
 
-HANDLE PluginW::OpenPlugin(int OpenFrom, INT_PTR Item)
+HANDLE PluginW::OpenPlugin(int OpenFrom, const GUID& Guid, INT_PTR Item)
 {
 	ChangePriority *ChPriority = new ChangePriority(THREAD_PRIORITY_NORMAL);
 
@@ -750,7 +753,7 @@ HANDLE PluginW::OpenPlugin(int OpenFrom, INT_PTR Item)
 		es.id = EXCEPT_OPENPLUGIN;
 		es.hDefaultResult = INVALID_HANDLE_VALUE;
 		es.hResult = INVALID_HANDLE_VALUE;
-		EXECUTE_FUNCTION_EX(pOpenPluginW(OpenFrom,Item), es);
+		EXECUTE_FUNCTION_EX(pOpenPluginW(OpenFrom,Guid,Item), es);
 		hResult = es.hResult;
 		//CurPluginItem=nullptr; //BUGBUG
 		/*    CtrlObject->Macro.SetRedrawEditor(TRUE); //BUGBUG
@@ -1245,9 +1248,7 @@ void PluginW::GetOpenPluginInfo(
 }
 
 
-int PluginW::Configure(
-    int MenuItem
-)
+int PluginW::Configure(const GUID& Guid)
 {
 	BOOL bResult = FALSE;
 
@@ -1256,7 +1257,7 @@ int PluginW::Configure(
 		ExecuteStruct es;
 		es.id = EXCEPT_CONFIGURE;
 		es.bDefaultResult = FALSE;
-		EXECUTE_FUNCTION_EX(pConfigureW(MenuItem), es);
+		EXECUTE_FUNCTION_EX(pConfigureW(Guid), es);
 		bResult = es.bResult;
 	}
 
@@ -1348,8 +1349,13 @@ void PluginW::ClearExports()
 #if defined(PROCPLUGINMACROFUNC)
 	pProcessMacroFuncW=0;
 #endif
-	pMinFarVersionW=0;
 	pAnalyseW = 0;
 	pGetCustomDataW = 0;
 	pFreeCustomDataW = 0;
+}
+
+void PluginW::SetGuid(const GUID& Guid)
+{
+	m_Guid=Guid;
+	m_strGuid=GuidToStr(m_Guid);
 }

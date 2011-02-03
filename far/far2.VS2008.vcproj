@@ -82,7 +82,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="mpr.lib psapi.lib secur32.lib setupapi.lib"
+				AdditionalDependencies="mpr.lib psapi.lib secur32.lib setupapi.lib rpcrt4.lib"
 				OutputFile="$(OutDir)\far.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -182,7 +182,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="mpr.lib psapi.lib secur32.lib setupapi.lib"
+				AdditionalDependencies="mpr.lib psapi.lib secur32.lib setupapi.lib rpcrt4.lib"
 				OutputFile="$(OutDir)\far.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -281,7 +281,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="mpr.lib psapi.lib secur32.lib setupapi.lib"
+				AdditionalDependencies="mpr.lib psapi.lib secur32.lib setupapi.lib rpcrt4.lib"
 				OutputFile="$(OutDir)\far.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -381,7 +381,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="mpr.lib psapi.lib secur32.lib setupapi.lib"
+				AdditionalDependencies="mpr.lib psapi.lib secur32.lib setupapi.lib rpcrt4.lib"
 				OutputFile="$(OutDir)\far.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -481,7 +481,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="mpr.lib psapi.lib secur32.lib setupapi.lib"
+				AdditionalDependencies="mpr.lib psapi.lib secur32.lib setupapi.lib rpcrt4.lib"
 				OutputFile="$(OutDir)\far.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -581,7 +581,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="mpr.lib psapi.lib secur32.lib setupapi.lib"
+				AdditionalDependencies="mpr.lib psapi.lib secur32.lib setupapi.lib rpcrt4.lib"
 				OutputFile="$(OutDir)\far.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -749,6 +749,10 @@
 			</File>
 			<File
 				RelativePath="farexcpt.cpp"
+				>
+			</File>
+			<File
+				RelativePath="FarGuid.cpp"
 				>
 			</File>
 			<File
@@ -2872,6 +2876,10 @@
 			</File>
 			<File
 				RelativePath="farexcpt.hpp"
+				>
+			</File>
+			<File
+				RelativePath="FarGuid.hpp"
 				>
 			</File>
 			<File
