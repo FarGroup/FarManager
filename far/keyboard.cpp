@@ -497,6 +497,31 @@ int WINAPI InputRecordToKey(const INPUT_RECORD *r)
 }
 
 
+int WINAPI KeyToInputRecord(int Key, INPUT_RECORD *Rec)
+{
+  int VirtKey, ControlState;
+  return TranslateKeyToVK(Key, VirtKey, ControlState, Rec);
+}
+
+//BUGBUG - временная затычка
+void ProcessKeyToInputRecord(int Key, unsigned int dwControlState, INPUT_RECORD *Rec)
+{
+	if (Rec)
+	{
+		Rec->EventType=KEY_EVENT;
+		Rec->Event.KeyEvent.bKeyDown=1;
+		Rec->Event.KeyEvent.wRepeatCount=1;
+		Rec->Event.KeyEvent.wVirtualKeyCode=Key;
+		Rec->Event.KeyEvent.wVirtualScanCode = MapVirtualKey(Rec->Event.KeyEvent.wVirtualKeyCode,MAPVK_VK_TO_VSC);
+
+		//BUGBUG
+		Rec->Event.KeyEvent.uChar.UnicodeChar=MapVirtualKey(Rec->Event.KeyEvent.wVirtualKeyCode,MAPVK_VK_TO_CHAR);;
+
+		//BUGBUG
+		Rec->Event.KeyEvent.dwControlKeyState=(dwControlState&PKF_SHIFT?SHIFT_PRESSED:0)|(dwControlState&PKF_ALT?LEFT_ALT_PRESSED:0)|(dwControlState&PKF_CONTROL?LEFT_CTRL_PRESSED:0);
+	}
+}
+
 DWORD IsMouseButtonPressed()
 {
 	INPUT_RECORD rec;

@@ -1,3 +1,9 @@
+zg 03.02.2011 15:12:44 +0200 - build 1814
+
+1. в ProcessKeyW приходит INPUT_RECORD.
+
+2. в FSF добавлена FarKeyToInputRecord.
+
 drkns 03.02.2011 14:25:22 +0200 - build 1813
 
 1. Уточнения в setattr и fileowner.

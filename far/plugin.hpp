@@ -1841,6 +1841,7 @@ typedef BOOL (WINAPI *FARSTDADDENDSLASH)(wchar_t *Path);
 typedef int (WINAPI *FARSTDCOPYTOCLIPBOARD)(const wchar_t *Data);
 typedef wchar_t *(WINAPI *FARSTDPASTEFROMCLIPBOARD)(void);
 typedef int (WINAPI *FARSTDINPUTRECORDTOKEY)(const INPUT_RECORD *r);
+typedef int (WINAPI *FARSTDKEYTOINPUTRECORD)(int Key,INPUT_RECORD *r);
 typedef int (WINAPI *FARSTDLOCALISLOWER)(wchar_t Ch);
 typedef int (WINAPI *FARSTDLOCALISUPPER)(wchar_t Ch);
 typedef int (WINAPI *FARSTDLOCALISALPHA)(wchar_t Ch);
@@ -1972,6 +1973,7 @@ typedef struct FarStandardFunctions
 	FARSTDKEYTOKEYNAME         FarKeyToName;
 	FARSTDKEYNAMETOKEY         FarNameToKey;
 	FARSTDINPUTRECORDTOKEY     FarInputRecordToKey;
+	FARSTDKEYTOINPUTRECORD     FarKeyToInputRecord;
 	FARSTDXLAT                 XLat;
 	FARSTDGETFILEOWNER         GetFileOwner;
 	FARSTDGETNUMBEROFLINKS     GetNumberOfLinks;
@@ -2307,7 +2309,7 @@ extern "C"
 	int    WINAPI _export ProcessEditorInputW(const INPUT_RECORD *Rec);
 	int    WINAPI _export ProcessEventW(HANDLE hPlugin,int Event,void *Param);
 	int    WINAPI _export ProcessHostFileW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
-	int    WINAPI _export ProcessKeyW(HANDLE hPlugin,int Key,unsigned int ControlState);
+	int    WINAPI _export ProcessKeyW(HANDLE hPlugin,const INPUT_RECORD *Rec);
 #ifdef FAR_USE_INTERNALS
 	#if defined(PROCPLUGINMACROFUNC)
 	int    WINAPI _export ProcessMacroFuncW(const wchar_t *Name, const FarMacroValue *Params, int nParams, FarMacroValue **Results, int *nResults);

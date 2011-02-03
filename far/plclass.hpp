@@ -119,7 +119,7 @@ class Plugin
 		virtual int DeleteFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber, int OpMode) = 0;
 		virtual int MakeDirectory(HANDLE hPlugin, const wchar_t **Name, int OpMode) = 0;
 		virtual int ProcessHostFile(HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber, int OpMode) = 0;
-		virtual int ProcessKey(HANDLE hPlugin, int Key, unsigned int dwControlState) = 0;
+		virtual int ProcessKey(HANDLE hPlugin, const INPUT_RECORD *Rec) = 0;
 		virtual int ProcessEvent(HANDLE hPlugin, int Event, PVOID Param) = 0;
 		virtual int Compare(HANDLE hPlugin, const PluginPanelItem *Item1, const PluginPanelItem *Item2, unsigned long Mode) = 0;
 

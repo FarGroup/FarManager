@@ -507,6 +507,7 @@ void CreatePluginStartupInfo(Plugin *pPlugin, PluginStartupInfo *PSI, FarStandar
 		StandardFunctions.FarKeyToName=FarKeyToName;
 		StandardFunctions.FarNameToKey=KeyNameToKeyW;
 		StandardFunctions.FarInputRecordToKey=InputRecordToKey;
+		StandardFunctions.FarKeyToInputRecord=KeyToInputRecord;
 		StandardFunctions.XLat=Xlat;
 		StandardFunctions.GetFileOwner=farGetFileOwner;
 		StandardFunctions.GetNumberOfLinks=GetNumberOfLinks;
@@ -1174,11 +1175,7 @@ void PluginW::FreeFindData(
 	}
 }
 
-int PluginW::ProcessKey(
-    HANDLE hPlugin,
-    int Key,
-    unsigned int dwControlState
-)
+int PluginW::ProcessKey(HANDLE hPlugin,const INPUT_RECORD *Rec)
 {
 	BOOL bResult = FALSE;
 
@@ -1187,7 +1184,7 @@ int PluginW::ProcessKey(
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSKEY;
 		es.bDefaultResult = TRUE; // do not pass this key to far on exception
-		EXECUTE_FUNCTION_EX(pProcessKeyW(hPlugin, Key, dwControlState), es);
+		EXECUTE_FUNCTION_EX(pProcessKeyW(hPlugin, Rec), es);
 		bResult = es.bResult;
 	}
 

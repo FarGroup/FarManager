@@ -616,18 +616,16 @@ int FileList::SendKeyToPlugin(DWORD Key,BOOL Pred)
 	        (CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING_COMMON || CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING_COMMON || CtrlObject->Macro.GetCurRecord(nullptr,nullptr) == MACROMODE_NOMACRO)
 	   )
 	{
-		int VirtKey,ControlState;
+		_ALGO(SysLog(L"call Plugins.ProcessKey() {"));
+		INPUT_RECORD rec;
+		KeyToInputRecord(Key,&rec);
+		if (Pred) rec.Event.KeyEvent.wVirtualKeyCode|=PKF_PREPROCESS;
+		int ProcessCode=CtrlObject->Plugins.ProcessKey(hPlugin,&rec);
+		_ALGO(SysLog(L"} ProcessCode=%d",ProcessCode));
+		ProcessPluginCommand();
 
-		if (TranslateKeyToVK(Key,VirtKey,ControlState))
-		{
-			_ALGO(SysLog(L"call Plugins.ProcessKey() {"));
-			int ProcessCode=CtrlObject->Plugins.ProcessKey(hPlugin,VirtKey|(Pred?PKF_PREPROCESS:0),ControlState);
-			_ALGO(SysLog(L"} ProcessCode=%d",ProcessCode));
-			ProcessPluginCommand();
-
-			if (ProcessCode)
-				return TRUE;
-		}
+		if (ProcessCode)
+			return TRUE;
 	}
 
 	return FALSE;
@@ -2817,7 +2815,9 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			if (PanelMode==PLUGIN_PANEL)
 			{
 				FlushInputBuffer(); // !!!
-				int ProcessCode=CtrlObject->Plugins.ProcessKey(hPlugin,VK_RETURN,ShiftPressed ? PKF_SHIFT:0);
+				INPUT_RECORD rec;
+				ProcessKeyToInputRecord(VK_RETURN,ShiftPressed ? PKF_SHIFT:0,&rec);
+				int ProcessCode=CtrlObject->Plugins.ProcessKey(hPlugin,&rec);
 				ProcessPluginCommand();
 
 				if (ProcessCode)
