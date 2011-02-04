@@ -1939,7 +1939,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 		else if (FKey > KEY_FKEY_BEGIN && FKey < KEY_END_FKEY)
 			VirtKey=FKey-KEY_FKEY_BEGIN;
 		else if (FKey && FKey < WCHAR_MAX)
-			VirtKey=VkKeyScan(FKey);
+			VirtKey=VkKeyScan(static_cast<WCHAR>(FKey));
 		else if (!FKey)
 		{
 			DWORD ExtKey[]={KEY_SHIFT,VK_SHIFT,KEY_CTRL,VK_CONTROL,KEY_ALT,VK_MENU,KEY_RSHIFT,VK_RSHIFT,KEY_RCTRL,VK_RCONTROL,KEY_RALT,VK_RMENU};

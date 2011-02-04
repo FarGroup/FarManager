@@ -47,7 +47,11 @@ enum ALLOCATION_TYPE
 
 struct MEMINFO
 {
-	ALLOCATION_TYPE AllocationType;
+	union
+	{
+		ALLOCATION_TYPE AllocationType;
+		LPVOID Dummy; // alignment
+	};
 };
 #endif
 
