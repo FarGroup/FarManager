@@ -1913,8 +1913,8 @@ BOOL WINAPI KeyToText(int Key0, string &strKeyText0)
 
 int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 {
-	int FKey  =Key&0x0003FFFF;
-	int FShift=Key&0x7F000000; // старший бит используется в других целях!
+	DWORD FKey  =Key&0x0003FFFF;
+	DWORD FShift=Key&0x7F000000; // старший бит используется в других целях!
 	VirtKey=0;
 	ControlState=(FShift&KEY_SHIFT?PKF_SHIFT:0)|
 	             (FShift&KEY_ALT?PKF_ALT:0)|
@@ -1924,7 +1924,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 	size_t i;
 	for (i=0; i < ARRAYSIZE(Table_KeyToVK); i++)
 	{
-		if (FKey==Table_KeyToVK[i].Key)
+		if (FKey==(DWORD)Table_KeyToVK[i].Key)
 		{
 			VirtKey=Table_KeyToVK[i].VK;
 			KeyInTable=true;
@@ -1936,7 +1936,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 	{
 		if ((FKey>='0' && FKey<='9') || (FKey>='A' && FKey<='Z'))
 			VirtKey=FKey;
-		else if ((unsigned int)FKey > KEY_FKEY_BEGIN && (unsigned int)FKey < KEY_END_FKEY)
+		else if (FKey > KEY_FKEY_BEGIN && FKey < KEY_END_FKEY)
 			VirtKey=FKey-KEY_FKEY_BEGIN;
 		else if (FKey && FKey < WCHAR_MAX)
 			VirtKey=VkKeyScan(FKey);
@@ -1972,7 +1972,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 		    (FShift&KEY_RALT?RIGHT_ALT_PRESSED:0)|
 		    (FShift&KEY_RCTRL?RIGHT_CTRL_PRESSED:0);
 
-		DWORD ExtKey[]={KEY_PGUP,KEY_PGDN,KEY_END,KEY_HOME,KEY_LEFT,KEY_UP,KEY_RIGHT,KEY_DOWN,KEY_INS,KEY_DEL};
+		DWORD ExtKey[]={KEY_PGUP,KEY_PGDN,KEY_END,KEY_HOME,KEY_LEFT,KEY_UP,KEY_RIGHT,KEY_DOWN,KEY_INS,KEY_DEL,KEY_NUMENTER};
 		for (i=0; i < ARRAYSIZE(ExtKey); i++)
 			if(FKey == ExtKey[i])
 			{
