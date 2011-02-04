@@ -2149,7 +2149,8 @@ enum FAR_PKF_FLAGS
 	PKF_SHIFT       = 0x00000004,
 	PKF_PREPROCESS  = 0x00080000, // for "Key", function ProcessKey()
 };
-#endif
+#endif // END FAR_USE_INTERNALS
+
 enum FAR_EVENTS
 {
 	FE_CHANGEVIEWMODE =0,
