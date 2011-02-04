@@ -35,12 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "plugins.hpp"
 
-#if defined(__GNUC__)
-#pragma pack(2)
-#else
-#pragma pack(push,2)
-#endif
-
 #ifndef MAKEFOURCC
 #define MAKEFOURCC(ch0, ch1, ch2, ch3)                  \
 	((DWORD)(BYTE)(ch0) | ((DWORD)(BYTE)(ch1) << 8) |   \
@@ -197,12 +191,6 @@ struct FARExceptionState
 	//FAR error context
 	RECHEADER   *Head;
 };
-
-#if defined(__GNUC__)
-#pragma pack()
-#else
-#pragma pack(pop)
-#endif
 
 /* $ 17.10.2000 SVS
    ÈÑÊËÞ×ÅÍÈß!

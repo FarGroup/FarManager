@@ -91,9 +91,9 @@ void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &fd,FILE *f
 extern "C"
 {
 #endif
-	void WINAPIV _export FarSysLog(const wchar_t *ModuleName,int Level,char *fmt,...);
-	void WINAPI  _export FarSysLogDump(const wchar_t *ModuleName,DWORD StartAddress,LPBYTE Buf,int SizeBuf);
-	void WINAPI _export FarSysLog_INPUT_RECORD_Dump(const wchar_t *ModuleName,INPUT_RECORD *rec);
+	void WINAPIV FarSysLog(const wchar_t *ModuleName,int Level,char *fmt,...);
+	void WINAPI FarSysLogDump(const wchar_t *ModuleName,DWORD StartAddress,LPBYTE Buf,int SizeBuf);
+	void WINAPI FarSysLog_INPUT_RECORD_Dump(const wchar_t *ModuleName,INPUT_RECORD *rec);
 #ifdef __cplusplus
 };
 #endif

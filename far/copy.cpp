@@ -103,7 +103,7 @@ enum COPYSECURITYOPTIONS
 };
 
 
-static int TotalFiles,TotalFilesToProcess;
+size_t TotalFiles,TotalFilesToProcess;
 
 static clock_t CopyStartTime;
 

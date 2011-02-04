@@ -55,66 +55,8 @@ other possible license with no implications from the above license on them.
 
 #ifdef FAR_USE_INTERNALS
 #else // ELSE FAR_USE_INTERNALS
-#if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
-#if (defined(__GNUC__) || defined(_MSC_VER)) && !defined(_WIN64)
-#if !defined(_WINCON_H) && !defined(_WINCON_)
-#define _WINCON_H
-#define _WINCON_ // to prevent including wincon.h
-#if defined(_MSC_VER)
-#pragma pack(push,2)
-#else
-#pragma pack(2)
-#endif
 #include<windows.h>
-#if defined(_MSC_VER)
-#pragma pack(pop)
-#else
-#pragma pack()
-#endif
-#undef _WINCON_
-#undef  _WINCON_H
-
-#if defined(_MSC_VER)
-#pragma pack(push,8)
-#else
-#pragma pack(8)
-#endif
-#include<wincon.h>
-#if defined(_MSC_VER)
-#pragma pack(pop)
-#else
-#pragma pack()
-#endif
-#endif
-#define _WINCON_
-#else
-#include<windows.h>
-#endif
-#endif
 #endif // END FAR_USE_INTERNALS
-
-#if defined(__BORLANDC__)
-#ifndef _WIN64
-#pragma option -a2
-#endif
-#elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
-#ifndef _WIN64
-#pragma pack(2)
-#endif
-#if defined(__LCC__)
-#define _export __declspec(dllexport)
-#endif
-#else
-#ifndef _WIN64
-#pragma pack(push,2)
-#endif
-#if _MSC_VER
-#ifdef _export
-#undef _export
-#endif
-#define _export
-#endif
-#endif
 
 #undef DefDlgProc
 
@@ -129,11 +71,6 @@ other possible license with no implications from the above license on them.
 // you will need to use Data.Data, and the Selected field - Param.Selected
 //#define _FAR_NO_NAMELESS_UNIONS
 #endif // END FAR_USE_INTERNALS
-
-#ifndef _WINCON_
-typedef struct _INPUT_RECORD INPUT_RECORD;
-typedef struct _CHAR_INFO    CHAR_INFO;
-#endif
 
 #define CP_UNICODE 1200
 #define CP_REVERSEBOM 1201
@@ -2283,59 +2220,47 @@ struct RegExpSearch
 };
 
 
-#if defined(__BORLANDC__) || defined(_MSC_VER) || defined(__GNUC__) || defined(__WATCOMC__)
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 // Exported Functions
 
-	void   WINAPI _export ClosePluginW(HANDLE hPlugin);
-	int    WINAPI _export CompareW(HANDLE hPlugin,const struct PluginPanelItem *Item1,const struct PluginPanelItem *Item2,unsigned int Mode);
-	int    WINAPI _export ConfigureW(GUID Guid);
-	int    WINAPI _export DeleteFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
-	void   WINAPI _export ExitFARW(void);
-	void   WINAPI _export FreeFindDataW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber);
-	void   WINAPI _export FreeVirtualFindDataW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber);
-	int    WINAPI _export GetFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t **DestPath,int OpMode);
-	int    WINAPI _export GetFindDataW(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
-	void   WINAPI _export GetOpenPluginInfoW(HANDLE hPlugin,struct OpenPluginInfo *Info);
-	void   WINAPI _export GetPluginInfoW(struct PluginInfo *Info);
-	int    WINAPI _export GetVirtualFindDataW(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,const wchar_t *Path);
-	int    WINAPI _export MakeDirectoryW(HANDLE hPlugin,const wchar_t **Name,int OpMode);
-	HANDLE WINAPI _export OpenFilePluginW(const wchar_t *Name,const unsigned char *Data,int DataSize,int OpMode);
-	HANDLE WINAPI _export OpenPluginW(int OpenFrom,GUID Guid,INT_PTR Data);
-	int    WINAPI _export ProcessDialogEventW(int Event,void *Param);
-	int    WINAPI _export ProcessEditorEventW(int Event,void *Param);
-	int    WINAPI _export ProcessEditorInputW(const INPUT_RECORD *Rec);
-	int    WINAPI _export ProcessEventW(HANDLE hPlugin,int Event,void *Param);
-	int    WINAPI _export ProcessHostFileW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
-	int    WINAPI _export ProcessKeyW(HANDLE hPlugin,const INPUT_RECORD *Rec);
+	void   WINAPI ClosePluginW(HANDLE hPlugin);
+	int    WINAPI CompareW(HANDLE hPlugin,const struct PluginPanelItem *Item1,const struct PluginPanelItem *Item2,unsigned int Mode);
+	int    WINAPI ConfigureW(GUID Guid);
+	int    WINAPI DeleteFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
+	void   WINAPI ExitFARW(void);
+	void   WINAPI FreeFindDataW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber);
+	void   WINAPI FreeVirtualFindDataW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber);
+	int    WINAPI GetFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t **DestPath,int OpMode);
+	int    WINAPI GetFindDataW(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
+	void   WINAPI GetOpenPluginInfoW(HANDLE hPlugin,struct OpenPluginInfo *Info);
+	void   WINAPI GetPluginInfoW(struct PluginInfo *Info);
+	int    WINAPI GetVirtualFindDataW(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,const wchar_t *Path);
+	int    WINAPI MakeDirectoryW(HANDLE hPlugin,const wchar_t **Name,int OpMode);
+	HANDLE WINAPI OpenFilePluginW(const wchar_t *Name,const unsigned char *Data,int DataSize,int OpMode);
+	HANDLE WINAPI OpenPluginW(int OpenFrom,GUID Guid,INT_PTR Data);
+	int    WINAPI ProcessDialogEventW(int Event,void *Param);
+	int    WINAPI ProcessEditorEventW(int Event,void *Param);
+	int    WINAPI ProcessEditorInputW(const INPUT_RECORD *Rec);
+	int    WINAPI ProcessEventW(HANDLE hPlugin,int Event,void *Param);
+	int    WINAPI ProcessHostFileW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
+	int    WINAPI ProcessKeyW(HANDLE hPlugin,const INPUT_RECORD *Rec);
 #ifdef FAR_USE_INTERNALS
 	#if defined(PROCPLUGINMACROFUNC)
-	int    WINAPI _export ProcessMacroFuncW(const wchar_t *Name, const FarMacroValue *Params, int nParams, FarMacroValue **Results, int *nResults);
+	int    WINAPI ProcessMacroFuncW(const wchar_t *Name, const FarMacroValue *Params, int nParams, FarMacroValue **Results, int *nResults);
 	#endif
 #endif // END FAR_USE_INTERNALS
-	int    WINAPI _export ProcessSynchroEventW(int Event,void *Param);
-	int    WINAPI _export ProcessViewerEventW(int Event,void *Param);
-	int    WINAPI _export PutFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t *SrcPath,int OpMode);
-	int    WINAPI _export SetDirectoryW(HANDLE hPlugin,const wchar_t *Dir,int OpMode);
-	int    WINAPI _export SetFindListW(HANDLE hPlugin,const struct PluginPanelItem *PanelItem,int ItemsNumber);
-	void   WINAPI _export SetStartupInfoW(const struct PluginStartupInfo *Info);
+	int    WINAPI ProcessSynchroEventW(int Event,void *Param);
+	int    WINAPI ProcessViewerEventW(int Event,void *Param);
+	int    WINAPI PutFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t *SrcPath,int OpMode);
+	int    WINAPI SetDirectoryW(HANDLE hPlugin,const wchar_t *Dir,int OpMode);
+	int    WINAPI SetFindListW(HANDLE hPlugin,const struct PluginPanelItem *PanelItem,int ItemsNumber);
+	void   WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info);
 
 #ifdef __cplusplus
 };
-#endif
-#endif
-
-#ifndef _WIN64
-#if defined(__BORLANDC__)
-#pragma option -a.
-#elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
-#pragma pack()
-#else
-#pragma pack(pop)
-#endif
 #endif
 
 #endif /* RC_INVOKED */

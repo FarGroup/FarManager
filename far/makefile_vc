@@ -315,17 +315,14 @@ CPPFLAGS=$(CPPFLAGS) /FAcs /Fa"$(CODDIR)\\"
 
 # platform-cpecific
 !ifdef X86
-CPPFLAGS=$(CPPFLAGS) /Zp4
 !ifndef DEBUG
 CPPFLAGS=$(CPPFLAGS) /Oy-
 !endif
 LINKFLAGS=$(LINKFLAGS) /machine:i386
 !elseifdef AMD64
-CPPFLAGS=$(CPPFLAGS) /Zp8
 LINKFLAGS=$(LINKFLAGS) /machine:amd64
 ULINKFLAGS=$(ULINKFLAGS) -Tpe+
 !elseifdef IA64
-CPPFLAGS=$(CPPFLAGS) /Zp8
 LINKFLAGS=$(LINKFLAGS) /machine:IA64
 !endif
 

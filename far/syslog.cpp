@@ -766,7 +766,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 
 
 #if defined(SYSLOG_FARSYSLOG)
-void WINAPIV _export FarSysLog(const wchar_t *ModuleName,int l,const wchar_t *fmt,...)
+void WINAPIV FarSysLog(const wchar_t *ModuleName,int l,const wchar_t *fmt,...)
 {
 	if (!IsLogON())
 		return;
@@ -801,7 +801,7 @@ void WINAPIV _export FarSysLog(const wchar_t *ModuleName,int l,const wchar_t *fm
 	}
 }
 
-void WINAPI _export FarSysLogDump(const wchar_t *ModuleName,DWORD StartAddress,LPBYTE Buf,int SizeBuf)
+void WINAPI FarSysLogDump(const wchar_t *ModuleName,DWORD StartAddress,LPBYTE Buf,int SizeBuf)
 {
 	if (!IsLogON())
 		return;
@@ -809,7 +809,7 @@ void WINAPI _export FarSysLogDump(const wchar_t *ModuleName,DWORD StartAddress,L
 	SysLogDump(ModuleName,StartAddress,Buf,SizeBuf,nullptr);
 }
 
-void WINAPI _export FarSysLog_INPUT_RECORD_Dump(const wchar_t *ModuleName,INPUT_RECORD *rec)
+void WINAPI FarSysLog_INPUT_RECORD_Dump(const wchar_t *ModuleName,INPUT_RECORD *rec)
 {
 	if (!IsLogON())
 		return;
