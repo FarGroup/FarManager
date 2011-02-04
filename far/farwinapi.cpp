@@ -687,36 +687,36 @@ BOOL apiGetVolumeInformation(
 	return bResult;
 }
 
-void apiFindDataToDataEx(const FAR_FIND_DATA *pSrc, FAR_FIND_DATA_EX *pDest)
+void PluginPanelItemToFindDataEx(const PluginPanelItem *pSrc, FAR_FIND_DATA_EX *pDest)
 {
-	pDest->dwFileAttributes = pSrc->dwFileAttributes;
-	pDest->ftCreationTime = pSrc->ftCreationTime;
-	pDest->ftLastAccessTime = pSrc->ftLastAccessTime;
-	pDest->ftLastWriteTime = pSrc->ftLastWriteTime;
-	pDest->ftChangeTime.dwHighDateTime=0;
-	pDest->ftChangeTime.dwLowDateTime=0;
-	pDest->nFileSize = pSrc->nFileSize;
-	pDest->nPackSize = pSrc->nPackSize;
-	pDest->strFileName = pSrc->lpwszFileName;
-	pDest->strAlternateFileName = pSrc->lpwszAlternateFileName;
+	pDest->dwFileAttributes = pSrc->FileAttributes;
+	pDest->ftCreationTime = pSrc->CreationTime;
+	pDest->ftLastAccessTime = pSrc->LastAccessTime;
+	pDest->ftLastWriteTime = pSrc->LastWriteTime;
+	pDest->ftChangeTime = pSrc->ChangeTime;
+	pDest->nFileSize = pSrc->FileSize;
+	pDest->nPackSize = pSrc->PackSize;
+	pDest->strFileName = pSrc->FileName;
+	pDest->strAlternateFileName = pSrc->AlternateFileName;
 }
 
-void apiFindDataExToData(const FAR_FIND_DATA_EX *pSrc, FAR_FIND_DATA *pDest)
+void FindDataExToPluginPanelItem(const FAR_FIND_DATA_EX *pSrc, PluginPanelItem *pDest)
 {
-	pDest->dwFileAttributes = pSrc->dwFileAttributes;
-	pDest->ftCreationTime = pSrc->ftCreationTime;
-	pDest->ftLastAccessTime = pSrc->ftLastAccessTime;
-	pDest->ftLastWriteTime = pSrc->ftLastWriteTime;
-	pDest->nFileSize = pSrc->nFileSize;
-	pDest->nPackSize = pSrc->nPackSize;
-	pDest->lpwszFileName = xf_wcsdup(pSrc->strFileName);
-	pDest->lpwszAlternateFileName = xf_wcsdup(pSrc->strAlternateFileName);
+	pDest->FileAttributes = pSrc->dwFileAttributes;
+	pDest->CreationTime = pSrc->ftCreationTime;
+	pDest->LastAccessTime = pSrc->ftLastAccessTime;
+	pDest->LastWriteTime = pSrc->ftLastWriteTime;
+	pDest->ChangeTime = pSrc->ftChangeTime;
+	pDest->FileSize = pSrc->nFileSize;
+	pDest->PackSize = pSrc->nPackSize;
+	pDest->FileName = xf_wcsdup(pSrc->strFileName);
+	pDest->AlternateFileName = xf_wcsdup(pSrc->strAlternateFileName);
 }
 
-void apiFreeFindData(FAR_FIND_DATA *pData)
+void FreePluginPanelItem(PluginPanelItem *pData)
 {
-	xf_free(pData->lpwszFileName);
-	xf_free(pData->lpwszAlternateFileName);
+	xf_free(pData->FileName);
+	xf_free(pData->AlternateFileName);
 }
 
 BOOL apiGetFindDataEx(const wchar_t *lpwszFileName, FAR_FIND_DATA_EX& FindData,bool ScanSymLink)

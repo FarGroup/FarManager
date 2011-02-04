@@ -662,26 +662,22 @@ enum PLUGINPANELITEMFLAGS
 	PPIF_USERDATA               = 0x20000000,
 };
 
-struct FAR_FIND_DATA
-{
-	DWORD    dwFileAttributes;
-	FILETIME ftCreationTime;
-	FILETIME ftLastAccessTime;
-	FILETIME ftLastWriteTime;
-	unsigned __int64 nFileSize;
-	unsigned __int64 nPackSize;
-#ifdef FAR_USE_INTERNALS
-	wchar_t *lpwszFileName;
-	wchar_t *lpwszAlternateFileName;
-#else // ELSE FAR_USE_INTERNALS
-	const wchar_t *lpwszFileName;
-	const wchar_t *lpwszAlternateFileName;
-#endif // END FAR_USE_INTERNALS
-};
-
 struct PluginPanelItem
 {
-	struct FAR_FIND_DATA FindData;
+	DWORD    FileAttributes;
+	FILETIME CreationTime;
+	FILETIME LastAccessTime;
+	FILETIME LastWriteTime;
+	FILETIME ChangeTime;
+	unsigned __int64 FileSize;
+	unsigned __int64 PackSize;
+#ifdef FAR_USE_INTERNALS
+	wchar_t *FileName;
+	wchar_t *AlternateFileName;
+#else // ELSE FAR_USE_INTERNALS
+	const wchar_t *FileName;
+	const wchar_t *AlternateFileName;
+#endif // END FAR_USE_INTERNALS
 	DWORD         Flags;
 	DWORD         NumberOfLinks;
 	const wchar_t *Description;
@@ -814,7 +810,7 @@ typedef void (WINAPI *FARAPIRESTORESCREEN)(HANDLE hScreen);
 
 typedef int (WINAPI *FARAPIGETDIRLIST)(
     const wchar_t *Dir,
-    struct FAR_FIND_DATA **pPanelItem,
+    struct PluginPanelItem **pPanelItem,
     int *pItemsNumber
 );
 
@@ -826,7 +822,7 @@ typedef int (WINAPI *FARAPIGETPLUGINDIRLIST)(
     int *pItemsNumber
 );
 
-typedef void (WINAPI *FARAPIFREEDIRLIST)(struct FAR_FIND_DATA *PanelItem, int nItemsNumber);
+typedef void (WINAPI *FARAPIFREEDIRLIST)(struct PluginPanelItem *PanelItem, int nItemsNumber);
 typedef void (WINAPI *FARAPIFREEPLUGINDIRLIST)(struct PluginPanelItem *PanelItem, int nItemsNumber);
 
 enum VIEWER_FLAGS
@@ -1819,7 +1815,7 @@ typedef wchar_t*(WINAPI *FARSTDXLAT)(wchar_t *Line,int StartPos,int EndPos,DWORD
 typedef int (WINAPI *FARSTDKEYNAMETOKEY)(const wchar_t *Name);
 
 typedef int (WINAPI *FRSUSERFUNC)(
-    const struct FAR_FIND_DATA *FData,
+    const struct PluginPanelItem *FData,
     const wchar_t *FullName,
     void *Param
 );

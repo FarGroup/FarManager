@@ -1136,10 +1136,10 @@ bool GetPluginFile(size_t ArcIndex, const FAR_FIND_DATA_EX& FindData, const wcha
 		for (int i=0; i<nItemsNumber; i++)
 		{
 			PluginPanelItem Item = pItems[i];
-			Item.FindData.lpwszFileName=const_cast<LPWSTR>(PointToName(NullToEmpty(pItems[i].FindData.lpwszFileName)));
-			Item.FindData.lpwszAlternateFileName=const_cast<LPWSTR>(PointToName(NullToEmpty(pItems[i].FindData.lpwszAlternateFileName)));
+			Item.FileName=const_cast<LPWSTR>(PointToName(NullToEmpty(pItems[i].FileName)));
+			Item.AlternateFileName=const_cast<LPWSTR>(PointToName(NullToEmpty(pItems[i].AlternateFileName)));
 
-			if (!StrCmp(lpFileNameToFind,Item.FindData.lpwszFileName) && !StrCmp(lpFileNameToFindShort,Item.FindData.lpwszAlternateFileName))
+			if (!StrCmp(lpFileNameToFind,Item.FileName) && !StrCmp(lpFileNameToFindShort,Item.AlternateFileName))
 			{
 				nResult=CtrlObject->Plugins.GetFile(ArcItem.hPlugin,&Item,DestPath,strResultName,OPM_SILENT)!=0;
 				break;
@@ -2382,10 +2382,10 @@ void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& 
 	itd.SetLastFoundNumber(LF);
 }
 
-void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const FAR_FIND_DATA& FindData)
+void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const PluginPanelItem& FindData)
 {
 	FAR_FIND_DATA_EX fdata;
-	apiFindDataToDataEx(&FindData, &fdata);
+	PluginPanelItemToFindDataEx(&FindData, &fdata);
 	AddMenuRecord(hDlg,FullName, fdata);
 }
 
@@ -2643,7 +2643,7 @@ void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, DWORD Flags, int& RecurseLevel)
 			PauseEvent.Wait();
 
 			PluginPanelItem *CurPanelItem=PanelData+I;
-			string strCurName=CurPanelItem->FindData.lpwszFileName;
+			string strCurName=CurPanelItem->FileName;
 			string strFullName;
 
 			if (!StrCmp(strCurName,L".") || TestParentFolderName(strCurName))
@@ -2652,16 +2652,16 @@ void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, DWORD Flags, int& RecurseLevel)
 			strFullName = strPluginSearchPath;
 			strFullName += strCurName;
 
-			if (!UseFilter || Filter->FileInFilter(CurPanelItem->FindData))
+			if (!UseFilter || Filter->FileInFilter(*CurPanelItem))
 			{
-				if (((CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && strFindStr.IsEmpty()) ||
-				        (!(CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && !strFindStr.IsEmpty()))
+				if (((CurPanelItem->FileAttributes & FILE_ATTRIBUTE_DIRECTORY) && strFindStr.IsEmpty()) ||
+				        (!(CurPanelItem->FileAttributes & FILE_ATTRIBUTE_DIRECTORY) && !strFindStr.IsEmpty()))
 				{
 					itd.SetFindMessage(strFullName);
 				}
 
-				if (IsFileIncluded(CurPanelItem,strCurName,CurPanelItem->FindData.dwFileAttributes))
-					AddMenuRecord(hDlg,strFullName, CurPanelItem->FindData);
+				if (IsFileIncluded(CurPanelItem,strCurName,CurPanelItem->FileAttributes))
+					AddMenuRecord(hDlg,strFullName, *CurPanelItem);
 
 				if (SearchInArchives && (hPlugin != INVALID_HANDLE_VALUE) && (Flags & OPIF_REALNAMES))
 					ArchiveSearch(hDlg,strFullName);
@@ -2674,11 +2674,11 @@ void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, DWORD Flags, int& RecurseLevel)
 		for (int I=0; I<ItemCount && !StopEvent.Signaled(); I++)
 		{
 			PluginPanelItem *CurPanelItem=PanelData+I;
-			string strCurName=CurPanelItem->FindData.lpwszFileName;
+			string strCurName=CurPanelItem->FileName;
 
-			if ((CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
+			if ((CurPanelItem->FileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
 			        StrCmp(strCurName,L".") && !TestParentFolderName(strCurName) &&
-			        (!UseFilter || Filter->FileInFilter(CurPanelItem->FindData)) &&
+			        (!UseFilter || Filter->FileInFilter(*CurPanelItem)) &&
 			        (SearchMode!=FINDAREA_SELECTED || RecurseLevel!=1 ||
 			         CtrlObject->Cp()->ActivePanel->IsSelected(strCurName)))
 			{
@@ -3039,14 +3039,14 @@ bool FindFilesProcess(Vars& v)
 							}
 							PluginPanelItem *pi=&PanelItems[ItemsNumber++];
 							memset(pi,0,sizeof(*pi));
-							apiFindDataExToData(&FindItem.FindData, &pi->FindData);
+							FindDataExToPluginPanelItem(&FindItem.FindData, pi);
 
 							if (IsArchive)
-								pi->FindData.dwFileAttributes = 0;
+								pi->FileAttributes = 0;
 
-							if (pi->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+							if (pi->FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 							{
-								DeleteEndSlash(pi->FindData.lpwszFileName);
+								DeleteEndSlash(pi->FileName);
 							}
 						}
 					}
@@ -3067,7 +3067,7 @@ bool FindFilesProcess(Vars& v)
 				}
 
 				for (int i = 0; i < ItemsNumber; i++)
-					apiFreeFindData(&PanelItems[i].FindData);
+					FreePluginPanelItem(&PanelItems[i]);
 
 				delete[] PanelItems;
 				break;

@@ -183,17 +183,17 @@ BOOL apiFindStreamClose(
     HANDLE hFindFile
 );
 
-void apiFindDataToDataEx(
-    const FAR_FIND_DATA *pSrc,
+void PluginPanelItemToFindDataEx(
+    const PluginPanelItem *pSrc,
     FAR_FIND_DATA_EX *pDest);
 
-void apiFindDataExToData(
+void FindDataExToPluginPanelItem(
     const FAR_FIND_DATA_EX *pSrc,
-    FAR_FIND_DATA *pDest
+    PluginPanelItem *pDest
 );
 
-void apiFreeFindData(
-    FAR_FIND_DATA *pData
+void FreePluginPanelItem(
+    PluginPanelItem *pData
 );
 
 BOOL apiGetFindDataEx(

@@ -116,9 +116,9 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 			}
 			else
 			{
-				PanelItem.FindData.lpwszFileName = xf_wcsdup(PointToName(PStack->strHostFile));
+				PanelItem.FileName = xf_wcsdup(PointToName(PStack->strHostFile));
 				CtrlObject->Plugins.DeleteFiles(hPlugin,&PanelItem,1,0);
-				xf_free(PanelItem.FindData.lpwszFileName);
+				xf_free(PanelItem.FileName);
 			}
 
 			FarChDir(strSaveDir);
@@ -169,7 +169,7 @@ int FileList::FileNameToPluginItem(const wchar_t *Name,PluginPanelItem *pi)
 
 	if (apiGetFindDataEx(Name, fdata))
 	{
-		apiFindDataExToData(&fdata, &pi->FindData);
+		FindDataExToPluginPanelItem(&fdata, pi);
 		return TRUE;
 	}
 
@@ -179,14 +179,14 @@ int FileList::FileNameToPluginItem(const wchar_t *Name,PluginPanelItem *pi)
 
 void FileList::FileListToPluginItem(FileListItem *fi,PluginPanelItem *pi)
 {
-	pi->FindData.lpwszFileName = xf_wcsdup(fi->strName);
-	pi->FindData.lpwszAlternateFileName = xf_wcsdup(fi->strShortName);
-	pi->FindData.nFileSize=fi->UnpSize;
-	pi->FindData.nPackSize=fi->PackSize;
-	pi->FindData.dwFileAttributes=fi->FileAttr;
-	pi->FindData.ftLastWriteTime=fi->WriteTime;
-	pi->FindData.ftCreationTime=fi->CreationTime;
-	pi->FindData.ftLastAccessTime=fi->AccessTime;
+	pi->FileName = xf_wcsdup(fi->strName);
+	pi->AlternateFileName = xf_wcsdup(fi->strShortName);
+	pi->FileSize=fi->UnpSize;
+	pi->PackSize=fi->PackSize;
+	pi->FileAttributes=fi->FileAttr;
+	pi->LastWriteTime=fi->WriteTime;
+	pi->CreationTime=fi->CreationTime;
+	pi->LastAccessTime=fi->AccessTime;
 	pi->NumberOfLinks=fi->NumberOfLinks;
 	pi->Flags=fi->UserFlags;
 
@@ -213,10 +213,12 @@ void FileList::FileListToPluginItem(FileListItem *fi,PluginPanelItem *pi)
 
 void FileList::FreePluginPanelItem(PluginPanelItem *pi)
 {
-	apiFreeFindData(&pi->FindData);
+	::FreePluginPanelItem(pi);
 
 	if (pi->UserData && (pi->Flags & PPIF_USERDATA))
+	{
 		xf_free((void*)pi->UserData);
+	}
 }
 
 size_t FileList::FileListToPluginItem2(FileListItem *fi,PluginPanelItem *pi)
@@ -241,16 +243,16 @@ size_t FileList::FileListToPluginItem2(FileListItem *fi,PluginPanelItem *pi)
 	if (pi)
 	{
 		char* data=(char*)(pi+1);
-		pi->FindData.lpwszFileName=wcscpy((wchar_t*)data,fi->strName);
+		pi->FileName=wcscpy((wchar_t*)data,fi->strName);
 		data+=sizeof(wchar_t)*(fi->strName.GetLength()+1);
-		pi->FindData.lpwszAlternateFileName=wcscpy((wchar_t*)data,fi->strShortName);
+		pi->AlternateFileName=wcscpy((wchar_t*)data,fi->strShortName);
 		data+=sizeof(wchar_t)*(fi->strShortName.GetLength()+1);
-		pi->FindData.nFileSize=fi->UnpSize;
-		pi->FindData.nPackSize=fi->PackSize;
-		pi->FindData.dwFileAttributes=fi->FileAttr;
-		pi->FindData.ftLastWriteTime=fi->WriteTime;
-		pi->FindData.ftCreationTime=fi->CreationTime;
-		pi->FindData.ftLastAccessTime=fi->AccessTime;
+		pi->FileSize=fi->UnpSize;
+		pi->PackSize=fi->PackSize;
+		pi->FileAttributes=fi->FileAttr;
+		pi->LastWriteTime=fi->WriteTime;
+		pi->CreationTime=fi->CreationTime;
+		pi->LastAccessTime=fi->AccessTime;
 		pi->NumberOfLinks=fi->NumberOfLinks;
 		pi->Flags=fi->UserFlags;
 
@@ -311,8 +313,8 @@ size_t FileList::FileListToPluginItem2(FileListItem *fi,PluginPanelItem *pi)
 
 void FileList::PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi)
 {
-	fi->strName = pi->FindData.lpwszFileName;
-	fi->strShortName = pi->FindData.lpwszAlternateFileName;
+	fi->strName = pi->FileName;
+	fi->strShortName = pi->AlternateFileName;
 	fi->strOwner = pi->Owner;
 
 	if (pi->Description)
@@ -324,12 +326,12 @@ void FileList::PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi)
 	else
 		fi->DizText=nullptr;
 
-	fi->UnpSize=pi->FindData.nFileSize;
-	fi->PackSize=pi->FindData.nPackSize;
-	fi->FileAttr=pi->FindData.dwFileAttributes;
-	fi->WriteTime=pi->FindData.ftLastWriteTime;
-	fi->CreationTime=pi->FindData.ftCreationTime;
-	fi->AccessTime=pi->FindData.ftLastAccessTime;
+	fi->UnpSize=pi->FileSize;
+	fi->PackSize=pi->PackSize;
+	fi->FileAttr=pi->FileAttributes;
+	fi->WriteTime=pi->LastWriteTime;
+	fi->CreationTime=pi->CreationTime;
+	fi->AccessTime=pi->LastAccessTime;
 	fi->ChangeTime.dwHighDateTime = 0;
 	fi->ChangeTime.dwLowDateTime = 0;
 	fi->NumberOfLinks=pi->NumberOfLinks;
@@ -490,8 +492,8 @@ void FileList::PutDizToPlugin(FileList *DestPanel,PluginPanelItem *ItemList,
 		for (int I=0; I<ItemNumber; I++)
 			if (ItemList[I].Flags & PPIF_PROCESSDESCR)
 			{
-				string strName = ItemList[I].FindData.lpwszFileName;
-				string strShortName = ItemList[I].FindData.lpwszAlternateFileName;
+				string strName = ItemList[I].FileName;
+				string strShortName = ItemList[I].AlternateFileName;
 				int Code;
 
 				if (Delete)
@@ -529,9 +531,9 @@ void FileList::PutDizToPlugin(FileList *DestPanel,PluginPanelItem *ItemList,
 				else if (Delete)
 				{
 					PluginPanelItem pi={0};
-					pi.FindData.lpwszFileName = xf_wcsdup(DestPanel->strPluginDizName);
+					pi.FileName = xf_wcsdup(DestPanel->strPluginDizName);
 					CtrlObject->Plugins.DeleteFiles(DestPanel->hPlugin,&pi,1,OPM_SILENT);
-					xf_free(pi.FindData.lpwszFileName);
+					xf_free(pi.FileName);
 				}
 
 				FarChDir(strSaveDir);
@@ -572,8 +574,8 @@ void FileList::PluginGetFiles(const wchar_t **DestPath,int Move)
 						DizFound=TRUE;
 					}
 
-					string strName = PList->FindData.lpwszFileName;
-					string strShortName = PList->FindData.lpwszAlternateFileName;
+					string strName = PList->FileName;
+					string strShortName = PList->AlternateFileName;
 					CopyDiz(strName,strShortName,strName,strName,&DestDiz);
 				}
 
@@ -1200,7 +1202,7 @@ void FileList::PluginClearSelection(PluginPanelItem *ItemList,int ItemNumber)
 
 		if (!(CurPluginPtr->Flags & PPIF_SELECTED))
 		{
-			while (StrCmpI(CurPluginPtr->FindData.lpwszFileName,ListData[FileNumber]->strName))
+			while (StrCmpI(CurPluginPtr->FileName,ListData[FileNumber]->strName))
 				if (++FileNumber>=FileCount)
 					return;
 

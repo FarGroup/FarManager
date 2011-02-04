@@ -393,14 +393,14 @@ void ConvertPanelItemA(const oldfar::PluginPanelItem *PanelItemA, PluginPanelIte
 
 		(*PanelItemW)[i].UserData = PanelItemA[i].UserData;
 		(*PanelItemW)[i].CRC32 = PanelItemA[i].CRC32;
-		(*PanelItemW)[i].FindData.dwFileAttributes = PanelItemA[i].FindData.dwFileAttributes;
-		(*PanelItemW)[i].FindData.ftCreationTime = PanelItemA[i].FindData.ftCreationTime;
-		(*PanelItemW)[i].FindData.ftLastAccessTime = PanelItemA[i].FindData.ftLastAccessTime;
-		(*PanelItemW)[i].FindData.ftLastWriteTime = PanelItemA[i].FindData.ftLastWriteTime;
-		(*PanelItemW)[i].FindData.nFileSize = (unsigned __int64)PanelItemA[i].FindData.nFileSizeLow + (((unsigned __int64)PanelItemA[i].FindData.nFileSizeHigh)<<32);
-		(*PanelItemW)[i].FindData.nPackSize = (unsigned __int64)PanelItemA[i].PackSize + (((unsigned __int64)PanelItemA[i].PackSizeHigh)<<32);
-		(*PanelItemW)[i].FindData.lpwszFileName = AnsiToUnicode(PanelItemA[i].FindData.cFileName);
-		(*PanelItemW)[i].FindData.lpwszAlternateFileName = AnsiToUnicode(PanelItemA[i].FindData.cAlternateFileName);
+		(*PanelItemW)[i].FileAttributes = PanelItemA[i].FindData.dwFileAttributes;
+		(*PanelItemW)[i].CreationTime = PanelItemA[i].FindData.ftCreationTime;
+		(*PanelItemW)[i].LastAccessTime = PanelItemA[i].FindData.ftLastAccessTime;
+		(*PanelItemW)[i].LastWriteTime = PanelItemA[i].FindData.ftLastWriteTime;
+		(*PanelItemW)[i].FileSize = (unsigned __int64)PanelItemA[i].FindData.nFileSizeLow + (((unsigned __int64)PanelItemA[i].FindData.nFileSizeHigh)<<32);
+		(*PanelItemW)[i].PackSize = (unsigned __int64)PanelItemA[i].PackSize + (((unsigned __int64)PanelItemA[i].PackSizeHigh)<<32);
+		(*PanelItemW)[i].FileName = AnsiToUnicode(PanelItemA[i].FindData.cFileName);
+		(*PanelItemW)[i].AlternateFileName = AnsiToUnicode(PanelItemA[i].FindData.cAlternateFileName);
 	}
 }
 
@@ -434,16 +434,16 @@ void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::PluginPane
 		PanelItemA.UserData = PanelItem.UserData;
 
 	PanelItemA.CRC32 = PanelItem.CRC32;
-	PanelItemA.FindData.dwFileAttributes = PanelItem.FindData.dwFileAttributes;
-	PanelItemA.FindData.ftCreationTime = PanelItem.FindData.ftCreationTime;
-	PanelItemA.FindData.ftLastAccessTime = PanelItem.FindData.ftLastAccessTime;
-	PanelItemA.FindData.ftLastWriteTime = PanelItem.FindData.ftLastWriteTime;
-	PanelItemA.FindData.nFileSizeLow = (DWORD)PanelItem.FindData.nFileSize;
-	PanelItemA.FindData.nFileSizeHigh = (DWORD)(PanelItem.FindData.nFileSize>>32);
-	PanelItemA.PackSize = (DWORD)PanelItem.FindData.nPackSize;
-	PanelItemA.PackSizeHigh = (DWORD)(PanelItem.FindData.nPackSize>>32);
-	UnicodeToOEM(PanelItem.FindData.lpwszFileName,PanelItemA.FindData.cFileName,sizeof(PanelItemA.FindData.cFileName));
-	UnicodeToOEM(PanelItem.FindData.lpwszAlternateFileName,PanelItemA.FindData.cAlternateFileName,sizeof(PanelItemA.FindData.cAlternateFileName));
+	PanelItemA.FindData.dwFileAttributes = PanelItem.FileAttributes;
+	PanelItemA.FindData.ftCreationTime = PanelItem.CreationTime;
+	PanelItemA.FindData.ftLastAccessTime = PanelItem.LastAccessTime;
+	PanelItemA.FindData.ftLastWriteTime = PanelItem.LastWriteTime;
+	PanelItemA.FindData.nFileSizeLow = (DWORD)PanelItem.FileSize;
+	PanelItemA.FindData.nFileSizeHigh = (DWORD)(PanelItem.FileSize>>32);
+	PanelItemA.PackSize = (DWORD)PanelItem.PackSize;
+	PanelItemA.PackSizeHigh = (DWORD)(PanelItem.PackSize>>32);
+	UnicodeToOEM(PanelItem.FileName,PanelItemA.FindData.cFileName,sizeof(PanelItemA.FindData.cFileName));
+	UnicodeToOEM(PanelItem.AlternateFileName,PanelItemA.FindData.cAlternateFileName,sizeof(PanelItemA.FindData.cAlternateFileName));
 }
 
 void ConvertPanelItemsArrayToAnsi(const PluginPanelItem *PanelItemW, oldfar::PluginPanelItem *&PanelItemA, int ItemsNumber)
@@ -475,7 +475,7 @@ void FreeUnicodePanelItem(PluginPanelItem *PanelItem, int ItemsNumber)
 			xf_free((void*)PanelItem[i].CustomColumnData);
 		}
 
-		apiFreeFindData(&PanelItem[i].FindData);
+		FreePluginPanelItem(&PanelItem[i]);
 	}
 
 	xf_free(PanelItem);
@@ -933,18 +933,18 @@ struct FAR_SEARCH_A_CALLBACK_PARAM
 	void *Param;
 };
 
-static int WINAPI FarRecursiveSearchA_Callback(const FAR_FIND_DATA *FData,const wchar_t *FullName,void *param)
+static int WINAPI FarRecursiveSearchA_Callback(const PluginPanelItem *FData,const wchar_t *FullName,void *param)
 {
 	FAR_SEARCH_A_CALLBACK_PARAM* pCallbackParam = static_cast<FAR_SEARCH_A_CALLBACK_PARAM*>(param);
 	WIN32_FIND_DATAA FindData={0};
-	FindData.dwFileAttributes = FData->dwFileAttributes;
-	FindData.ftCreationTime = FData->ftCreationTime;
-	FindData.ftLastAccessTime = FData->ftLastAccessTime;
-	FindData.ftLastWriteTime = FData->ftLastWriteTime;
-	FindData.nFileSizeLow = (DWORD)FData->nFileSize;
-	FindData.nFileSizeHigh = (DWORD)(FData->nFileSize>>32);
-	UnicodeToOEM(FData->lpwszFileName,FindData.cFileName,sizeof(FindData.cFileName));
-	UnicodeToOEM(FData->lpwszAlternateFileName,FindData.cAlternateFileName,sizeof(FindData.cAlternateFileName));
+	FindData.dwFileAttributes = FData->FileAttributes;
+	FindData.ftCreationTime = FData->CreationTime;
+	FindData.ftLastAccessTime = FData->LastAccessTime;
+	FindData.ftLastWriteTime = FData->LastWriteTime;
+	FindData.nFileSizeLow = (DWORD)FData->FileSize;
+	FindData.nFileSizeHigh = (DWORD)(FData->FileSize>>32);
+	UnicodeToOEM(FData->FileName,FindData.cFileName,sizeof(FindData.cFileName));
+	UnicodeToOEM(FData->AlternateFileName,FindData.cAlternateFileName,sizeof(FindData.cAlternateFileName));
 	char FullNameA[oldfar::NM];
 	UnicodeToOEM(FullName,FullNameA,sizeof(FullNameA));
 	return pCallbackParam->Func(&FindData,FullNameA,pCallbackParam->Param);
@@ -2874,7 +2874,7 @@ int WINAPI FarGetDirListA(const char *Dir,oldfar::PluginPanelItem **pPanelItem,i
 	string strDir(Dir);
 	DeleteEndSlash(strDir, true);
 
-	FAR_FIND_DATA *pItems;
+	PluginPanelItem *pItems;
 	int ItemsNumber;
 	int ret=FarGetDirList(strDir, &pItems, &ItemsNumber);
 
@@ -2894,14 +2894,14 @@ int WINAPI FarGetDirListA(const char *Dir,oldfar::PluginPanelItem **pPanelItem,i
 
 			for (int i=0; i<ItemsNumber; i++)
 			{
-				(*pPanelItem)[i].FindData.dwFileAttributes = pItems[i].dwFileAttributes;
-				(*pPanelItem)[i].FindData.ftCreationTime = pItems[i].ftCreationTime;
-				(*pPanelItem)[i].FindData.ftLastAccessTime = pItems[i].ftLastAccessTime;
-				(*pPanelItem)[i].FindData.ftLastWriteTime = pItems[i].ftLastWriteTime;
-				(*pPanelItem)[i].FindData.nFileSizeLow = (DWORD)pItems[i].nFileSize;
-				(*pPanelItem)[i].FindData.nFileSizeHigh = (DWORD)(pItems[i].nFileSize>>32);
-				UnicodeToOEM(pItems[i].lpwszFileName+PathOffset,(*pPanelItem)[i].FindData.cFileName,MAX_PATH);
-				UnicodeToOEM(pItems[i].lpwszAlternateFileName,(*pPanelItem)[i].FindData.cAlternateFileName,14);
+				(*pPanelItem)[i].FindData.dwFileAttributes = pItems[i].FileAttributes;
+				(*pPanelItem)[i].FindData.ftCreationTime = pItems[i].CreationTime;
+				(*pPanelItem)[i].FindData.ftLastAccessTime = pItems[i].LastAccessTime;
+				(*pPanelItem)[i].FindData.ftLastWriteTime = pItems[i].LastWriteTime;
+				(*pPanelItem)[i].FindData.nFileSizeLow = (DWORD)pItems[i].FileSize;
+				(*pPanelItem)[i].FindData.nFileSizeHigh = (DWORD)(pItems[i].FileSize>>32);
+				UnicodeToOEM(pItems[i].FileName+PathOffset,(*pPanelItem)[i].FindData.cFileName,MAX_PATH);
+				UnicodeToOEM(pItems[i].AlternateFileName,(*pPanelItem)[i].FindData.cAlternateFileName,14);
 			}
 		}
 		else

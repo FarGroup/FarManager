@@ -394,10 +394,10 @@ bool FileFilterParams::FileInFilter(const FAR_FIND_DATA_EX& fde, unsigned __int6
 	return true;
 }
 
-bool FileFilterParams::FileInFilter(const FAR_FIND_DATA& fd, unsigned __int64 CurrentTime)
+bool FileFilterParams::FileInFilter(const PluginPanelItem& fd, unsigned __int64 CurrentTime)
 {
 	FAR_FIND_DATA_EX fde;
-	apiFindDataToDataEx(&fd,&fde);
+	PluginPanelItemToFindDataEx(&fd,&fde);
 	return FileInFilter(fde, CurrentTime);
 }
 

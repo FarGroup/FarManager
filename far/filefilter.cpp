@@ -750,10 +750,10 @@ final:
 	return !bAnyIncludeFound;
 }
 
-bool FileFilter::FileInFilter(const FAR_FIND_DATA& fd,enumFileInFilterType *foundType)
+bool FileFilter::FileInFilter(const PluginPanelItem& fd,enumFileInFilterType *foundType)
 {
 	FAR_FIND_DATA_EX fde;
-	apiFindDataToDataEx(&fd,&fde);
+	PluginPanelItemToFindDataEx(&fd,&fde);
 	return FileInFilter(fde,foundType);
 }
 

@@ -257,15 +257,15 @@ int GetPluginDirInfo(HANDLE hPlugin,const wchar_t *DirName,unsigned long &DirCou
 	{
 		for (int I=0; I<ItemsNumber; I++)
 		{
-			if (PanelItem[I].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			if (PanelItem[I].FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 			{
 				DirCount++;
 			}
 			else
 			{
 				FileCount++;
-				FileSize+=PanelItem[I].FindData.nFileSize;
-				CompressedFileSize+=PanelItem[I].FindData.nPackSize?PanelItem[I].FindData.nPackSize:PanelItem[I].FindData.nFileSize;
+				FileSize+=PanelItem[I].FileSize;
+				CompressedFileSize+=PanelItem[I].PackSize?PanelItem[I].PackSize:PanelItem[I].FileSize;
 			}
 		}
 	}

@@ -100,16 +100,16 @@ void WINAPI FarRecursiveSearch(const wchar_t *InitDir,const wchar_t *Mask,FRSUSE
 		{
 			if (FMask.Compare(FindData.strFileName))
 			{
-				FAR_FIND_DATA fdata;
-				apiFindDataExToData(&FindData, &fdata);
+				PluginPanelItem fdata;
+				FindDataExToPluginPanelItem(&FindData, &fdata);
 
 				if (!Func(&fdata,strFullName,Param))
 				{
-					apiFreeFindData(&fdata);
+					FreePluginPanelItem(&fdata);
 					break;
 				}
 
-				apiFreeFindData(&fdata);
+				FreePluginPanelItem(&fdata);
 			}
 		}
 	}

@@ -1620,7 +1620,7 @@ static void PR_FarGetDirListMsg()
 	Message(0,0,L"",MSG(MPreparingList));
 }
 
-int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pItemsNumber)
+int WINAPI FarGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,int *pItemsNumber)
 {
 	if (FrameManager->ManagerIsDown() || !Dir || !*Dir || !pItemsNumber || !pPanelItem)
 		return FALSE;
@@ -1638,7 +1638,7 @@ int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pIte
 		ScTree.SetFindPath(strDirName,L"*");
 		*pItemsNumber=0;
 		*pPanelItem=nullptr;
-		FAR_FIND_DATA *ItemsList=nullptr;
+		PluginPanelItem *ItemsList=nullptr;
 		int ItemsNumber=0;
 
 		while (ScTree.GetNextName(&FindData,strFullName))
@@ -1660,7 +1660,7 @@ int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pIte
 					MsgOut=1;
 				}
 
-				ItemsList=(FAR_FIND_DATA*)xf_realloc(ItemsList,sizeof(*ItemsList)*(ItemsNumber+32+1));
+				ItemsList=(PluginPanelItem*)xf_realloc(ItemsList,sizeof(*ItemsList)*(ItemsNumber+32+1));
 
 				if (!ItemsList)
 				{
@@ -1668,14 +1668,14 @@ int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pIte
 				}
 			}
 
-			ItemsList[ItemsNumber].dwFileAttributes = FindData.dwFileAttributes;
-			ItemsList[ItemsNumber].nFileSize = FindData.nFileSize;
-			ItemsList[ItemsNumber].nPackSize = FindData.nPackSize;
-			ItemsList[ItemsNumber].ftCreationTime = FindData.ftCreationTime;
-			ItemsList[ItemsNumber].ftLastAccessTime = FindData.ftLastAccessTime;
-			ItemsList[ItemsNumber].ftLastWriteTime = FindData.ftLastWriteTime;
-			ItemsList[ItemsNumber].lpwszFileName = xf_wcsdup(strFullName.CPtr());
-			ItemsList[ItemsNumber].lpwszAlternateFileName = xf_wcsdup(FindData.strAlternateFileName);
+			ItemsList[ItemsNumber].FileAttributes = FindData.dwFileAttributes;
+			ItemsList[ItemsNumber].FileSize = FindData.nFileSize;
+			ItemsList[ItemsNumber].PackSize = FindData.nPackSize;
+			ItemsList[ItemsNumber].CreationTime = FindData.ftCreationTime;
+			ItemsList[ItemsNumber].LastAccessTime = FindData.ftLastAccessTime;
+			ItemsList[ItemsNumber].LastWriteTime = FindData.ftLastWriteTime;
+			ItemsList[ItemsNumber].FileName = xf_wcsdup(strFullName.CPtr());
+			ItemsList[ItemsNumber].AlternateFileName = xf_wcsdup(FindData.strAlternateFileName);
 			ItemsNumber++;
 		}
 
@@ -1799,7 +1799,7 @@ static void CopyPluginDirItem(PluginPanelItem *CurPanelItem)
 {
 	string strFullName;
 	strFullName = strPluginSearchPath;
-	strFullName += CurPanelItem->FindData.lpwszFileName;
+	strFullName += CurPanelItem->FileName;
 	wchar_t *lpwszFullName = strFullName.GetBuffer();
 
 	for (int I=0; lpwszFullName[I]; I++)
@@ -1817,8 +1817,8 @@ static void CopyPluginDirItem(PluginPanelItem *CurPanelItem)
 		memcpy((void *)DestItem->UserData,(void *)CurPanelItem->UserData,Size);
 	}
 
-	DestItem->FindData.lpwszFileName = xf_wcsdup(strFullName);
-	DestItem->FindData.lpwszAlternateFileName=nullptr;
+	DestItem->FileName = xf_wcsdup(strFullName);
+	DestItem->AlternateFileName=nullptr;
 	DirListItemsNumber++;
 }
 
@@ -1867,7 +1867,7 @@ void ScanPluginDir()
 	{
 		PluginPanelItem *CurPanelItem=PanelData+i;
 
-		if (!(CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+		if (!(CurPanelItem->FileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 			CopyPluginDirItem(CurPanelItem);
 	}
 
@@ -1875,9 +1875,9 @@ void ScanPluginDir()
 	{
 		PluginPanelItem *CurPanelItem=PanelData+i;
 
-		if ((CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
-		        StrCmp(CurPanelItem->FindData.lpwszFileName,L".") &&
-		        !TestParentFolderName(CurPanelItem->FindData.lpwszFileName))
+		if ((CurPanelItem->FileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
+		        StrCmp(CurPanelItem->FileName,L".") &&
+		        !TestParentFolderName(CurPanelItem->FileName))
 		{
 			PluginPanelItem *NewList=(PluginPanelItem *)xf_realloc(PluginDirList,sizeof(*PluginDirList)*(DirListItemsNumber+1));
 
@@ -1893,11 +1893,11 @@ void ScanPluginDir()
 					обработать PPIF_USERDATA)
 			*/
 			CopyPluginDirItem(CurPanelItem);
-			string strFileName = CurPanelItem->FindData.lpwszFileName;
+			string strFileName = CurPanelItem->FileName;
 
 			if (CtrlObject->Plugins.SetDirectory(hDirListPlugin,strFileName,OPM_FIND))
 			{
-				strPluginSearchPath += CurPanelItem->FindData.lpwszFileName;
+				strPluginSearchPath += CurPanelItem->FileName;
 				strPluginSearchPath += L"\x1";
 				ScanPluginDir();
 				size_t pos = (size_t)-1;
@@ -1922,12 +1922,12 @@ void ScanPluginDir()
 }
 
 
-void WINAPI FarFreeDirList(FAR_FIND_DATA *PanelItem, int nItemsNumber)
+void WINAPI FarFreeDirList(PluginPanelItem *PanelItem, int nItemsNumber)
 {
 	for (int I=0; I<nItemsNumber; I++)
 	{
-		FAR_FIND_DATA *CurPanelItem=PanelItem+I;
-		apiFreeFindData(CurPanelItem);
+		PluginPanelItem *CurPanelItem=PanelItem+I;
+		FreePluginPanelItem(CurPanelItem);
 	}
 
 	xf_free(PanelItem);
@@ -1948,7 +1948,7 @@ void WINAPI FarFreePluginDirList(PluginPanelItem *PanelItem, int ItemsNumber)
 			xf_free((void *)CurPanelItem->UserData);
 		}
 
-		apiFreeFindData(&CurPanelItem->FindData);
+		FreePluginPanelItem(CurPanelItem);
 	}
 
 	xf_free(PanelItem);
@@ -2448,7 +2448,7 @@ int WINAPI farFileFilterControl(HANDLE hHandle, int Command, int Param1, LONG_PT
 			if (!Param2)
 				break;
 
-			return Filter->FileInFilter(*(const FAR_FIND_DATA *)Param2) ? TRUE : FALSE;
+			return Filter->FileInFilter(*(const PluginPanelItem *)Param2) ? TRUE : FALSE;
 		}
 	}
 

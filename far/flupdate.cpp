@@ -471,15 +471,15 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 				for (int i=0; i < PanelCount; i++)
 				{
 					CurPtr = ListData[FileCount+i];
-					FAR_FIND_DATA &fdata=PanelData[i].FindData;
+					PluginPanelItem &fdata=PanelData[i];
 					PluginToFileListItem(&PanelData[i],CurPtr);
 					CurPtr->Position=FileCount;
-					TotalFileSize += fdata.nFileSize;
+					TotalFileSize += fdata.FileSize;
 					CurPtr->PrevSelected=CurPtr->Selected=0;
 					CurPtr->ShowFolderSize=0;
 					CurPtr->SortGroup=CtrlObject->HiFiles->GetGroup(CurPtr);
 
-					if (!TestParentFolderName(fdata.lpwszFileName) && !(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+					if (!TestParentFolderName(fdata.FileName) && !(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 						TotalFileCount++;
 				}
 
@@ -766,10 +766,10 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
 		if (UseFilter && (Info.Flags & OPIF_USEFILTER))
 			//if (!(CurPanelData->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-			if (!Filter->FileInFilter(PanelData[i].FindData))
+			if (!Filter->FileInFilter(PanelData[i]))
 				continue;
 
-		if (!Opt.ShowHidden && (PanelData[i].FindData.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM)))
+		if (!Opt.ShowHidden && (PanelData[i].FileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM)))
 			continue;
 
 		//memset(CurListData,0,sizeof(*CurListData));
@@ -909,7 +909,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 
 				for (int J=0; J < PluginFileCount; J++, CurPanelData++)
 				{
-					string strFileName = CurPanelData->FindData.lpwszFileName;
+					string strFileName = CurPanelData->FileName;
 
 					if (!StrCmpI(strFileName,Info.DescrFiles[I]))
 					{

@@ -84,8 +84,8 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,int Param1,LONG_PTR Param2);
 HANDLE WINAPI FarSaveScreen(int X1,int Y1,int X2,int Y2);
 void WINAPI FarRestoreScreen(HANDLE hScreen);
 
-int WINAPI FarGetDirList(const wchar_t *Dir, FAR_FIND_DATA **pPanelItem, int *pItemsNumber);
-void WINAPI FarFreeDirList(FAR_FIND_DATA *PanelItem, int nItemsNumber);
+int WINAPI FarGetDirList(const wchar_t *Dir, PluginPanelItem **pPanelItem, int *pItemsNumber);
+void WINAPI FarFreeDirList(PluginPanelItem *PanelItem, int nItemsNumber);
 
 int WINAPI FarViewer(const wchar_t *FileName,const wchar_t *Title,
                      int X1,int Y1,int X2,int Y2,DWORD Flags, UINT CodePage);

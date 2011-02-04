@@ -1,3 +1,7 @@
+drkns 04.02.2011 16:50:21 +0200 - build 1821
+
+1. FAR_FIND_DATA больше нет, содержимое переехало в PluginPanelItem. Туда же добавлено ChangeTime.
+
 svs 04.02.2011 17:43:54 +0300 - build 
 
 1. Внимательнее фразой "#ifdef FAR_USE_INTERNALS"! 
