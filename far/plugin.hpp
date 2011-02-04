@@ -1298,12 +1298,19 @@ enum WINDOWINFO_TYPE
 #endif // END FAR_USE_INTERNALS
 };
 
+enum WINDOWINFO_FLAGS
+{
+	WIF_MODIFIED = 1,
+	WIF_CURRENT  = 2,
+};
+
 struct WindowInfo
 {
+	int  StructSize;
+	INT_PTR Id;
 	int  Pos;
 	int  Type;
-	int  Modified;
-	int  Current;
+	unsigned __int64 Flags;
 	wchar_t *TypeName;
 	int TypeNameSize;
 	wchar_t *Name;

@@ -1,3 +1,9 @@
+zg 04.02.2011 23:36:52 +0200 - build 1823
+
+1. в WindowInfo добавлено поле Id. для диалога - хэндл, для просмотра/редактора - Id.
+
+2. в WindowInfo убраны поля Modified&Current. вместо них Flags и WIF_MODIFIED&WIF_CURRENT.
+
 zg 04.02.2011 21:50:22 +0200 - build 1822
 
 1. уточнение 1820 для NumEnter.

@@ -577,8 +577,24 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 
 				wi->Pos=FrameManager->IndexOf(f);
 				wi->Type=f->GetType();
-				wi->Modified=f->IsFileModified();
-				wi->Current=f==FrameManager->GetCurrentFrame();
+				wi->Flags=0;
+				if (f->IsFileModified()) wi->Flags|=WIF_MODIFIED;
+				if (f==FrameManager->GetCurrentFrame()) wi->Flags|=WIF_CURRENT;
+				switch (wi->Type)
+				{
+					case WTYPE_VIEWER:
+						wi->Id=static_cast<FileViewer*>(f)->GetId();
+						break;
+					case WTYPE_EDITOR:
+						wi->Id=static_cast<FileEditor*>(f)->GetId();
+						break;
+					case WTYPE_DIALOG:
+						wi->Id=(INT_PTR)f;
+						break;
+					default:
+						wi->Id=0;
+						break;
+				}
 				return TRUE;
 			}
 

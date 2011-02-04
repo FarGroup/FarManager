@@ -103,4 +103,5 @@ class FileViewer:public Frame
 		__int64 GetViewFileSize() const;
 		__int64 GetViewFilePos() const;
 		void ShowStatus();
+		int GetId(void) const { return View.ViewerID; };
 };

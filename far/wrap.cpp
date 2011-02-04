@@ -3153,8 +3153,8 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 					case WTYPE_HELP:   wiA->Type = oldfar::WTYPE_HELP;   break;
 				}
 
-				wiA->Modified = wi.Modified;
-				wiA->Current = wi.Current;
+				wiA->Modified = (wi.Flags&WIF_MODIFIED)?true:false;
+				wiA->Current = (wi.Flags&WIF_CURRENT)?true:false;
 
 				if (cmd==ACTL_GETWINDOWINFO)
 				{

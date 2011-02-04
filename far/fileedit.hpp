@@ -104,6 +104,7 @@ class FileEditor : public Frame
 		void CodepageChangedByUser() {Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);};
 		virtual void Show();
 		void SetPluginTitle(const wchar_t *PluginTitle);
+		int GetId(void) const { return m_editor->EditorID; };
 
 		static const FileEditor *CurrentEditor;
 
