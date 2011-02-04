@@ -5889,7 +5889,8 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
 	static DlgParam *KMParam=nullptr;
 	int Index;
 
-	if (Msg == DN_KEY) Param2 = InputRecordToKey((const INPUT_RECORD *)Param2);
+	if (Msg == DN_KEY)
+		Param2 = InputRecordToKey((const INPUT_RECORD *)Param2);
 
 	//_SVS(SysLog(L"LastKey=%d Msg=%s",LastKey,_DLGMSG_ToName(Msg)));
 	if (Msg == DN_INITDIALOG)

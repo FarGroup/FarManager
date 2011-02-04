@@ -490,7 +490,7 @@ int WINAPI InputRecordToKey(const INPUT_RECORD *r)
 	{
 		INPUT_RECORD Rec=*r; // НАДО!, т.к. внутри CalcKeyCode
 		//   структура INPUT_RECORD модифицируется!
-		return (int)CalcKeyCode(&Rec,FALSE);
+		return (int)CalcKeyCode(&Rec,FALSE,nullptr,true);
 	}
 
 	return KEY_NONE;
@@ -1921,7 +1921,8 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 	             (FShift&KEY_CTRL?PKF_CONTROL:0);
 
 	bool KeyInTable=false;
-	for (size_t i=0; i < ARRAYSIZE(Table_KeyToVK); i++)
+	size_t i;
+	for (i=0; i < ARRAYSIZE(Table_KeyToVK); i++)
 	{
 		if (FKey==Table_KeyToVK[i].Key)
 		{
@@ -1937,8 +1938,18 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 			VirtKey=FKey;
 		else if ((unsigned int)FKey > KEY_FKEY_BEGIN && (unsigned int)FKey < KEY_END_FKEY)
 			VirtKey=FKey-KEY_FKEY_BEGIN;
-		else if (FKey < WCHAR_MAX)
+		else if (FKey && FKey < WCHAR_MAX)
 			VirtKey=VkKeyScan(FKey);
+		else if (!FKey)
+		{
+			DWORD ExtKey[]={KEY_SHIFT,VK_SHIFT,KEY_CTRL,VK_CONTROL,KEY_ALT,VK_MENU,KEY_RSHIFT,VK_RSHIFT,KEY_RCTRL,VK_RCONTROL,KEY_RALT,VK_RMENU};
+			for (i=0; i < ARRAYSIZE(ExtKey); i+=2)
+				if(FShift == ExtKey[i])
+				{
+					VirtKey=ExtKey[i+1];
+					break;
+				}
+		}
 		else
 			VirtKey=FKey;
 	}
@@ -1960,6 +1971,14 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 		    (FShift&KEY_CTRL?LEFT_CTRL_PRESSED:0)|
 		    (FShift&KEY_RALT?RIGHT_ALT_PRESSED:0)|
 		    (FShift&KEY_RCTRL?RIGHT_CTRL_PRESSED:0);
+
+		DWORD ExtKey[]={KEY_PGUP,KEY_PGDN,KEY_END,KEY_HOME,KEY_LEFT,KEY_UP,KEY_RIGHT,KEY_DOWN,KEY_INS,KEY_DEL};
+		for (i=0; i < ARRAYSIZE(ExtKey); i++)
+			if(FKey == ExtKey[i])
+			{
+				Rec->Event.KeyEvent.dwControlKeyState|=ENHANCED_KEY;
+				break;
+			}
 	}
 
 	return VirtKey;
@@ -2046,7 +2065,7 @@ int IsShiftKey(DWORD Key)
 
 
 // GetAsyncKeyState(VK_RSHIFT)
-DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
+DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlCode)
 {
 	_SVS(CleverSysLog Clev(L"CalcKeyCode"));
 	_SVS(SysLog(L"CalcKeyCode -> %s| RealKey=%d  *NotMacros=%d",_INPUT_RECORD_Dump(rec),RealKey,(NotMacros?*NotMacros:0)));
@@ -2949,8 +2968,16 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 
 		if (KeyCode)
 		{
+			if (ProcessCtrlCode)
+			{
+				if (KeyCode == VK_CONTROL)
+					return KEY_CTRL;
+				else if (KeyCode == VK_RCONTROL)
+					return KEY_RCTRL;
+			}
+
 			if (!RealKey && KeyCode==VK_CONTROL)
-				return(KEY_NONE);
+				return KEY_NONE;
 
 			return(KEY_CTRL+KeyCode);
 		}
@@ -3022,8 +3049,16 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 				return KEY_ALT|Char;
 		}
 
+		if (ProcessCtrlCode)
+		{
+			if (KeyCode == VK_RMENU)
+				return (AltPressed && !RightAltPressed)?KEY_ALT:(RightAltPressed?KEY_RALT:KEY_ALT);
+			else if (KeyCode == VK_RMENU)
+				return KEY_RALT;
+		}
+
 		if (!RealKey && KeyCode==VK_MENU)
-			return(KEY_NONE);
+			return KEY_NONE;
 
 		return(KEY_ALT+KeyCode);
 	}
@@ -3046,6 +3081,15 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 			case VK_SNAPSHOT:
 				return KEY_SHIFT|KEY_PRNTSCRN;
 		}
+
+		if (ProcessCtrlCode)
+		{
+			if (KeyCode == VK_SHIFT)
+				return KEY_SHIFT;
+			else if (KeyCode == VK_RSHIFT)
+				return KEY_RSHIFT;
+		}
+
 	}
 
 	return Char?Char:KEY_NONE;
