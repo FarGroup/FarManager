@@ -614,7 +614,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			__int64 Ret=-1;
 			long Val[1];
 			EditorBookMarks ebm={0};
-			int iMode=(int)((LONG_PTR)vParam);
+			int iMode=(int)((INT_PTR)vParam);
 
 			switch (iMode)
 			{

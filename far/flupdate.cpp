@@ -764,7 +764,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 		FileListItem *CurListData=ListData[FileListCount];
 		CurListData->Clear();
 
-		if (UseFilter && (Info.Flags & OPIF_USEFILTER))
+		if (UseFilter && !(Info.Flags & OPIF_DISABLEFILTER))
 			//if (!(CurPanelData->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 			if (!Filter->FileInFilter(PanelData[i]))
 				continue;

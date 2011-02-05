@@ -258,8 +258,8 @@ class ConsoleTitle;
 class Dialog: public Frame
 {
 		friend class DlgEdit;
-		friend LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
-		friend LONG_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
+		friend INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2);
+		friend INT_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2);
 
 	private:
 		bool bInitOK;               // диалог был успешно инициализирован
@@ -269,7 +269,7 @@ class Dialog: public Frame
 		int IsEnableRedraw;         // Разрешена перерисовка диалога? ( 0 - разрешена)
 		BitFlags DialogMode;        // Флаги текущего режима диалога
 
-		LONG_PTR DataDialog;        // Данные, специфические для конкретного экземпляра диалога (первоначально здесь параметр, переданный в конструктор)
+		INT_PTR DataDialog;        // Данные, специфические для конкретного экземпляра диалога (первоначально здесь параметр, переданный в конструктор)
 
 		DialogItemEx **Item; // массив элементов диалога
 		DialogItemEx *pSaveItemEx; // пользовательский массив элементов диалога
@@ -296,14 +296,14 @@ class Dialog: public Frame
 		bool IdExist;
 
 	private:
-		void Init(FARWINDOWPROC DlgProc,LONG_PTR InitParam);
+		void Init(FARWINDOWPROC DlgProc,INT_PTR InitParam);
 		virtual void DisplayObject();
 		void DeleteDialogObjects();
 		int  LenStrItem(int ID, const wchar_t *lpwszStr = nullptr);
 
 		void ShowDialog(unsigned ID=(unsigned)-1);  //    ID=-1 - отрисовать весь диалог
 
-		LONG_PTR CtlColorDlgItem(int ItemPos,int Type,int Focus,int Default,DWORD Flags);
+		INT_PTR CtlColorDlgItem(int ItemPos,int Type,int Focus,int Default,DWORD Flags);
 		/* $ 28.07.2000 SVS
 		   + Изменяет фокус ввода между двумя элементами.
 		     Вынесен отдельно для того, чтобы обработать DMSG_KILLFOCUS & DMSG_SETFOCUS
@@ -352,15 +352,15 @@ class Dialog: public Frame
 		int Do_ProcessSpace();
 		void SetComboBoxPos(DialogItemEx* Item=nullptr);
 
-		LONG_PTR CallDlgProc(int nMsg, int nParam1, LONG_PTR nParam2);
+		INT_PTR CallDlgProc(int nMsg, int nParam1, INT_PTR nParam2);
 
 		void ProcessKey(int Key, unsigned ItemPos);
 
 	public:
 		Dialog(DialogItemEx *SrcItem, unsigned SrcItemCount,
-		       FARWINDOWPROC DlgProc=nullptr,LONG_PTR InitParam=0);
+		       FARWINDOWPROC DlgProc=nullptr,INT_PTR InitParam=0);
 		Dialog(FarDialogItem *SrcItem, unsigned SrcItemCount,
-		       FARWINDOWPROC DlgProc=nullptr,LONG_PTR InitParam=0);
+		       FARWINDOWPROC DlgProc=nullptr,INT_PTR InitParam=0);
 		bool InitOK() {return bInitOK;}
 		virtual ~Dialog();
 
@@ -383,8 +383,8 @@ class Dialog: public Frame
 		int IsMoving() {return DialogMode.Check(DMODE_DRAGGED);}
 		void SetModeMoving(int IsMoving) { DialogMode.Change(DMODE_ISCANMOVE,IsMoving);}
 		int  GetModeMoving() {return DialogMode.Check(DMODE_ISCANMOVE);}
-		void SetDialogData(LONG_PTR NewDataDialog);
-		LONG_PTR GetDialogData() {return DataDialog;};
+		void SetDialogData(INT_PTR NewDataDialog);
+		INT_PTR GetDialogData() {return DataDialog;};
 
 		void InitDialog();
 		void Process();
@@ -420,7 +420,7 @@ class Dialog: public Frame
 		                  FarDialogItemFlags CheckedSet,FarDialogItemFlags CheckedSkip,
 		                  FarDialogItemFlags Checked3Set=DIF_NONE,FarDialogItemFlags Checked3Skip=DIF_NONE);
 
-		LONG_PTR WINAPI DlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
+		INT_PTR WINAPI DlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2);
 
 		virtual void SetPosition(int X1,int Y1,int X2,int Y2);
 
@@ -432,11 +432,11 @@ class Dialog: public Frame
 		friend class History;
 };
 
-typedef LONG_PTR(WINAPI *SENDDLGMESSAGE)(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
+typedef INT_PTR(WINAPI *SENDDLGMESSAGE)(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2);
 
-LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
+INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2);
 
-LONG_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
+INT_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2);
 
 bool IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos=-1);
 

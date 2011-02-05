@@ -61,7 +61,7 @@ enum
 	MKDIR_CANCEL,
 };
 
-LONG_PTR WINAPI MkDirDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
+INT_PTR WINAPI MkDirDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 {
 	switch (Msg)
 	{
@@ -122,7 +122,7 @@ void ShellMakeDir(Panel *SrcPanel)
 		DI_BUTTON,   0,7, 0,7,0,DIF_CENTERGROUP,MSG(MCancel),
 	};
 	MakeDialogItemsEx(MkDirDlgData,MkDirDlg);
-	Dialog Dlg(MkDirDlg,ARRAYSIZE(MkDirDlg),MkDirDlgProc,reinterpret_cast<LONG_PTR>(&DirList));
+	Dialog Dlg(MkDirDlg,ARRAYSIZE(MkDirDlg),MkDirDlgProc,reinterpret_cast<INT_PTR>(&DirList));
 	Dlg.SetPosition(-1,-1,76,10);
 	Dlg.SetHelp(L"MakeFolder");
 	Dlg.SetId(MakeFolderId);

@@ -532,7 +532,7 @@ void GetColor(int PaletteIndex)
 }
 
 
-static LONG_PTR WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
+static INT_PTR WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 {
 	switch (Msg)
 	{
@@ -552,7 +552,7 @@ static LONG_PTR WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PT
 				int NewColor;
 				int *CurColor = (int *) SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
 				FarDialogItem *DlgItem = (FarDialogItem *)xf_malloc(SendDlgMessage(hDlg, DM_GETDLGITEM, Param1, 0));
-				SendDlgMessage(hDlg, DM_GETDLGITEM, Param1, (LONG_PTR)DlgItem);
+				SendDlgMessage(hDlg, DM_GETDLGITEM, Param1, (INT_PTR)DlgItem);
 				NewColor=*CurColor;
 
 				if (Param1 >= 2 && Param1 <= 17) // Fore
@@ -707,7 +707,7 @@ int GetColorDialog(WORD& Color,bool bCentered,bool bAddTransparent)
 	}
 
 	{
-		Dialog Dlg(ColorDlg,ARRAYSIZE(ColorDlg), GetColorDlgProc, (LONG_PTR) &CurColor);
+		Dialog Dlg(ColorDlg,ARRAYSIZE(ColorDlg), GetColorDlgProc, (INT_PTR) &CurColor);
 
 		if (bCentered)
 			Dlg.SetPosition(-1,-1,39+(bAddTransparent?4:0),15+(bAddTransparent?3:0));

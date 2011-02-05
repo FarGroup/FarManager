@@ -23,7 +23,6 @@ DEF = far.def
 DEPFILE = bootstrap/far.gcc.dep
 
 SRCS = \
-	elevation.cpp \
 	cache.cpp \
 	cddrv.cpp \
 	CFileMask.cpp \
@@ -52,6 +51,7 @@ SRCS = \
 	edit.cpp \
 	editor.cpp \
 	eject.cpp \
+	elevation.cpp \
 	execute.cpp \
 	farexcpt.cpp \
 	FarGuid.cpp \

@@ -2596,13 +2596,13 @@ BOOL VMenu::GetVMenuInfo(FarListInfo* Info)
 }
 
 // функция обработки меню (по умолчанию)
-LONG_PTR WINAPI VMenu::DefMenuProc(HANDLE hVMenu, int Msg, int Param1, LONG_PTR Param2)
+INT_PTR WINAPI VMenu::DefMenuProc(HANDLE hVMenu, int Msg, int Param1, INT_PTR Param2)
 {
 	return 0;
 }
 
 // функция посылки сообщений меню
-LONG_PTR WINAPI VMenu::SendMenuMessage(HANDLE hVMenu, int Msg, int Param1, LONG_PTR Param2)
+INT_PTR WINAPI VMenu::SendMenuMessage(HANDLE hVMenu, int Msg, int Param1, INT_PTR Param2)
 {
 	CriticalSectionLock Lock(((VMenu*)hVMenu)->CS);
 

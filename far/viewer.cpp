@@ -2121,7 +2121,7 @@ enum SEARCHDLG
 	DM_SDSETVISIBILITY = DM_USER + 1,
 };
 
-LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
+INT_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 {
 	switch (Msg)
 	{
@@ -2149,7 +2149,7 @@ LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
 				bool Hex=(Param1==SD_RADIO_HEX);
 				string strDataStr;
 				Transform(strDataStr,(const wchar_t *)SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,Hex?SD_EDIT_TEXT:SD_EDIT_HEX,0),Hex?L'X':L'S');
-				SendDlgMessage(hDlg,DM_SETTEXTPTR,Hex?SD_EDIT_HEX:SD_EDIT_TEXT,(LONG_PTR)strDataStr.CPtr());
+				SendDlgMessage(hDlg,DM_SETTEXTPTR,Hex?SD_EDIT_HEX:SD_EDIT_TEXT,(INT_PTR)strDataStr.CPtr());
 				SendDlgMessage(hDlg,DM_SDSETVISIBILITY,Hex,0);
 
 				if (!strDataStr.IsEmpty())
@@ -3231,7 +3231,7 @@ int Viewer::ViewerControl(int Command,void *Param)
 			}
 			else
 			{
-				if ((LONG_PTR)Param != (LONG_PTR)-1) // не только перерисовать?
+				if ((INT_PTR)Param != (INT_PTR)-1) // не только перерисовать?
 				{
 					for (int i=0; i < 12; i++)
 					{

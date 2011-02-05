@@ -63,12 +63,12 @@ type
 
  {$ifdef CPUX86_64}
   INT_PTR = PtrInt;
-  LONG_PTR = PtrInt;
+  INT_PTR = PtrInt;
   DWORD_PTR = PtrUInt;
   SIZE_T = PtrUInt;
  {$else}
   INT_PTR = Integer;
-  LONG_PTR = Integer;
+  INT_PTR = Integer;
   DWORD_PTR = Cardinal;
   SIZE_T = Cardinal;
  {$endif CPUX86_64}
@@ -632,8 +632,8 @@ struct FarDialogEvent
   HANDLE hDlg;
   int Msg;
   int Param1;
-  LONG_PTR Param2;
-  LONG_PTR Result;
+  INT_PTR Param2;
+  INT_PTR Result;
 };
 *)
 type
@@ -642,8 +642,8 @@ type
     hDlg :THandle;
     Msg :Integer;
     Param1 :Integer;
-    Param2 :LONG_PTR;
-    Result :LONG_PTR;
+    Param2 :INT_PTR;
+    Result :INT_PTR;
   end;
 
 (*
@@ -684,49 +684,49 @@ const
 
 type
 (*
-typedef LONG_PTR (WINAPI *FARWINDOWPROC)(
+typedef INT_PTR (WINAPI *FARWINDOWPROC)(
   HANDLE   hDlg,
   int      Msg,
   int      Param1,
-  LONG_PTR Param2
+  INT_PTR Param2
 );
 *)
   TFarApiWindowProc = function (
     hDlg :THandle;
     Msg :Integer;
     Param1 :Integer;
-    Param2 :LONG_PTR
-  ) :LONG_PTR; stdcall;
+    Param2 :INT_PTR
+  ) :INT_PTR; stdcall;
 
 (*
-typedef LONG_PTR (WINAPI *FARAPISENDDLGMESSAGE)(
+typedef INT_PTR (WINAPI *FARAPISENDDLGMESSAGE)(
   HANDLE   hDlg,
   int      Msg,
   int      Param1,
-  LONG_PTR Param2
+  INT_PTR Param2
 );
 *)
   TFarApiSendDlgMessage = function (
     hDlg : THandle;
     Msg : Integer;
     Param1 : Integer;
-    Param2 : LONG_PTR
-  ) :LONG_PTR; stdcall;
+    Param2 : INT_PTR
+  ) :INT_PTR; stdcall;
 
 (*
-typedef LONG_PTR (WINAPI *FARAPIDEFDLGPROC)(
+typedef INT_PTR (WINAPI *FARAPIDEFDLGPROC)(
   HANDLE   hDlg,
   int      Msg,
   int      Param1,
-  LONG_PTR Param2
+  INT_PTR Param2
 );
 *)
   TFarApiDefDlgProc = function (
     hDlg :THandle;
     Msg :Integer;
     Param1 :Integer;
-    Param2 :LONG_PTR
-  ) :LONG_PTR; stdcall;
+    Param2 :INT_PTR
+  ) :INT_PTR; stdcall;
 
 (*
 typedef HANDLE (WINAPI *FARAPIDIALOGINIT)(
@@ -741,7 +741,7 @@ typedef HANDLE (WINAPI *FARAPIDIALOGINIT)(
   DWORD                 Reserved,
   DWORD                 Flags,
   FARWINDOWPROC         DlgProc,
-  LONG_PTR              Param
+  INT_PTR              Param
 );
 *)
   TFarApiDialogInit = function (
@@ -753,7 +753,7 @@ typedef HANDLE (WINAPI *FARAPIDIALOGINIT)(
     Reserved :DWORD;
     Flags :DWORD;
     DlgProc :TFarApiWindowProc;
-    Param :LONG_PTR
+    Param :INT_PTR
   ) :THandle; stdcall;
 
 (*
@@ -1097,14 +1097,14 @@ typedef int (WINAPI *FARAPICONTROL)(
   HANDLE hPlugin,
   int Command,
 	int Param1,
-	LONG_PTR Param2
+	INT_PTR Param2
 );
 *)
   TFarApiControl = function (
     hPlugin :THandle;
     Command :Integer;
     Param1 :Integer;
-    Param2 :Pointer // LONG_PTR
+    Param2 :Pointer // INT_PTR
   ) :Integer; stdcall;
 
 (*
@@ -2287,7 +2287,7 @@ typedef int (WINAPI *FARAPIPLUGINSCONTROL)(
   HANDLE hHandle,
   int Command,
   int Param1,
-  LONG_PTR Param2
+  INT_PTR Param2
 );
 *)
 type
@@ -2295,7 +2295,7 @@ type
     hHandle :THandle;
     Command :Integer;
     Param1 :Integer;
-    Param2 :Pointer //LONG_PTR
+    Param2 :Pointer //INT_PTR
   ) : Integer; stdcall;
 
 (*
@@ -2303,7 +2303,7 @@ typedef int (WINAPI *FARAPIFILEFILTERCONTROL)(
   HANDLE hHandle,
   int Command,
   int Param1,
-  LONG_PTR Param2
+  INT_PTR Param2
 );
 *)
 type
@@ -2311,7 +2311,7 @@ type
     hHandle :THandle;
     Command :Integer;
     Param1 :Integer;
-    Param2 :Pointer //LONG_PTR
+    Param2 :Pointer //INT_PTR
   ) : Integer; stdcall;
 
 
@@ -2319,14 +2319,14 @@ type
 typedef int (WINAPI *FARAPIREGEXPCONTROL)(
   HANDLE hHandle,
   int Command,
-  LONG_PTR Param
+  INT_PTR Param
 );
 *)
 type
   TFarApiRegexpControl = function(
     hHandle :THandle;
     Command :Integer;
-    Param :Pointer  //LONG_PTR
+    Param :Pointer  //INT_PTR
   ) :Integer; stdcall;
 
 (*
@@ -3118,32 +3118,32 @@ function MakeFarVersion (Major : DWORD; Minor : DWORD; Build : DWORD) : DWORD;
 #define Dlg_RedrawDialog(Info,hDlg)            Info.SendDlgMessage(hDlg,DM_REDRAW,0,0)
 
 #define Dlg_GetDlgData(Info,hDlg)              Info.SendDlgMessage(hDlg,DM_GETDLGDATA,0,0)
-#define Dlg_SetDlgData(Info,hDlg,Data)         Info.SendDlgMessage(hDlg,DM_SETDLGDATA,0,(LONG_PTR)Data)
+#define Dlg_SetDlgData(Info,hDlg,Data)         Info.SendDlgMessage(hDlg,DM_SETDLGDATA,0,(INT_PTR)Data)
 
 #define Dlg_GetDlgItemData(Info,hDlg,ID)       Info.SendDlgMessage(hDlg,DM_GETITEMDATA,0,0)
-#define Dlg_SetDlgItemData(Info,hDlg,ID,Data)  Info.SendDlgMessage(hDlg,DM_SETITEMDATA,0,(LONG_PTR)Data)
+#define Dlg_SetDlgItemData(Info,hDlg,ID,Data)  Info.SendDlgMessage(hDlg,DM_SETITEMDATA,0,(INT_PTR)Data)
 
 #define DlgItem_GetFocus(Info,hDlg)            Info.SendDlgMessage(hDlg,DM_GETFOCUS,0,0)
 #define DlgItem_SetFocus(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_SETFOCUS,ID,0)
 #define DlgItem_Enable(Info,hDlg,ID)           Info.SendDlgMessage(hDlg,DM_ENABLE,ID,TRUE)
 #define DlgItem_Disable(Info,hDlg,ID)          Info.SendDlgMessage(hDlg,DM_ENABLE,ID,FALSE)
 #define DlgItem_IsEnable(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_ENABLE,ID,-1)
-#define DlgItem_SetText(Info,hDlg,ID,Str)      Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,ID,(LONG_PTR)Str)
+#define DlgItem_SetText(Info,hDlg,ID,Str)      Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,ID,(INT_PTR)Str)
 
 #define DlgItem_GetCheck(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_GETCHECK,ID,0)
 #define DlgItem_SetCheck(Info,hDlg,ID,State)   Info.SendDlgMessage(hDlg,DM_SETCHECK,ID,State)
 
-#define DlgEdit_AddHistory(Info,hDlg,ID,Str)   Info.SendDlgMessage(hDlg,DM_ADDHISTORY,ID,(LONG_PTR)Str)
+#define DlgEdit_AddHistory(Info,hDlg,ID,Str)   Info.SendDlgMessage(hDlg,DM_ADDHISTORY,ID,(INT_PTR)Str)
 
-#define DlgList_AddString(Info,hDlg,ID,Str)    Info.SendDlgMessage(hDlg,DM_LISTADDSTR,ID,(LONG_PTR)Str)
+#define DlgList_AddString(Info,hDlg,ID,Str)    Info.SendDlgMessage(hDlg,DM_LISTADDSTR,ID,(INT_PTR)Str)
 #define DlgList_GetCurPos(Info,hDlg,ID)        Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID,0)
-#define DlgList_SetCurPos(Info,hDlg,ID,NewPos) {struct FarListPos LPos={NewPos,-1};Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID,(LONG_PTR)&LPos);}
+#define DlgList_SetCurPos(Info,hDlg,ID,NewPos) {struct FarListPos LPos={NewPos,-1};Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID,(INT_PTR)&LPos);}
 #define DlgList_ClearList(Info,hDlg,ID)        Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,0)
-#define DlgList_DeleteItem(Info,hDlg,ID,Index) {struct FarListDelete FLDItem={Index,1}; Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(LONG_PTR)&FLDItem);}
+#define DlgList_DeleteItem(Info,hDlg,ID,Index) {struct FarListDelete FLDItem={Index,1}; Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(INT_PTR)&FLDItem);}
 #define DlgList_SortUp(Info,hDlg,ID)           Info.SendDlgMessage(hDlg,DM_LISTSORT,ID,0)
 #define DlgList_SortDown(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_LISTSORT,ID,1)
 #define DlgList_GetItemData(Info,hDlg,ID,Index)          Info.SendDlgMessage(hDlg,DM_LISTGETDATA,ID,Index)
-#define DlgList_SetItemStrAsData(Info,hDlg,ID,Index,Str) {struct FarListItemData FLID{Index,0,Str,0}; Info.SendDlgMessage(hDlg,DM_LISTSETDATA,ID,(LONG_PTR)&FLID);}
+#define DlgList_SetItemStrAsData(Info,hDlg,ID,Index,Str) {struct FarListItemData FLID{Index,0,Str,0}; Info.SendDlgMessage(hDlg,DM_LISTSETDATA,ID,(INT_PTR)&FLID);}
 *)
 
 function Dlg_RedrawDialog(const Info :TPluginStartupInfo; hDlg :THandle) :Integer;
@@ -3205,7 +3205,7 @@ end;
 
 function Dlg_SetDlgData(const Info :TPluginStartupInfo; hDlg :THandle; Data :Pointer) :Integer;
 begin
-  Result := Info.SendDlgMessage(hDlg, DM_SETDLGDATA, 0, LONG_PTR(Data));
+  Result := Info.SendDlgMessage(hDlg, DM_SETDLGDATA, 0, INT_PTR(Data));
 end;
 
 function Dlg_GetDlgItemData(const Info :TPluginStartupInfo; hDlg :THandle; ID :Integer) :Integer;
@@ -3215,7 +3215,7 @@ end;
 
 function Dlg_SetDlgItemData(const Info :TPluginStartupInfo; hDlg :THandle; ID :Integer; Data :Pointer) :Integer;
 begin
-  Result := Info.SendDlgMessage(hDlg, DM_SETITEMDATA, 0, LONG_PTR(Data));
+  Result := Info.SendDlgMessage(hDlg, DM_SETITEMDATA, 0, INT_PTR(Data));
 end;
 
 function DlgItem_GetFocus(const Info :TPluginStartupInfo; hDlg :THandle) :Integer;
@@ -3245,7 +3245,7 @@ end;
 
 function DlgItem_SetText(const Info :TPluginStartupInfo; hDlg :THandle; ID :Integer; Str :PFarChar) :Integer;
 begin
-  Result := Info.SendDlgMessage(hDlg, DM_SETTEXTPTR, ID, LONG_PTR(Str));
+  Result := Info.SendDlgMessage(hDlg, DM_SETTEXTPTR, ID, INT_PTR(Str));
 end;
 
 function DlgItem_GetCheck(const Info :TPluginStartupInfo; hDlg :THandle; ID :Integer) :Integer;
@@ -3260,12 +3260,12 @@ end;
 
 function DlgEdit_AddHistory(const Info :TPluginStartupInfo; hDlg :THandle; ID :Integer; Str :PFarChar) :Integer;
 begin
-  Result := Info.SendDlgMessage(hDlg, DM_ADDHISTORY, ID, LONG_PTR(Str));
+  Result := Info.SendDlgMessage(hDlg, DM_ADDHISTORY, ID, INT_PTR(Str));
 end;
 
 function DlgList_AddString(const Info :TPluginStartupInfo; hDlg :THandle; ID :Integer; Str :PFarChar) :Integer;
 begin
-  Result := Info.SendDlgMessage(hDlg, DM_LISTADDSTR, ID, LONG_PTR(Str));
+  Result := Info.SendDlgMessage(hDlg, DM_LISTADDSTR, ID, INT_PTR(Str));
 end;
 
 function DlgList_GetCurPos(const Info :TPluginStartupInfo; hDlg :THandle; ID :Integer) :Integer;
@@ -3279,7 +3279,7 @@ var
 begin
   LPos.SelectPos := NewPos;
   LPos.TopPos := -1;
-  Result := Info.SendDlgMessage(hDlg, DM_LISTSETCURPOS, ID, LONG_PTR(@LPos));
+  Result := Info.SendDlgMessage(hDlg, DM_LISTSETCURPOS, ID, INT_PTR(@LPos));
 end;
 
 function DlgList_ClearList(const Info :TPluginStartupInfo; hDlg :THandle; ID :Integer) :Integer;
@@ -3293,7 +3293,7 @@ var
 begin
   FLDItem.StartIndex := Index;
   FLDItem.Count := 1;
-  Result := Info.SendDlgMessage(hDlg, DM_LISTDELETE, ID, LONG_PTR(@FLDItem));
+  Result := Info.SendDlgMessage(hDlg, DM_LISTDELETE, ID, INT_PTR(@FLDItem));
 end;
 
 function DlgList_SortUp(const Info :TPluginStartupInfo; hDlg :THandle; ID :Integer) :Integer;
@@ -3319,7 +3319,7 @@ begin
   FLID.DataSize := 0;
   FLID.Data := Str;
   FLID.Reserved := 0;
-  Result := Info.SendDlgMessage (hDlg, DM_LISTSETDATA, ID, LONG_PTR(@FLID));
+  Result := Info.SendDlgMessage (hDlg, DM_LISTSETDATA, ID, INT_PTR(@FLID));
 end;
 
 

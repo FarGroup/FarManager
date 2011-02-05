@@ -121,14 +121,14 @@ static DWORD Flags=0;                  // дополнительные флаги - пока только оди
 
 extern void CreatePluginStartupInfo(Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
-LONG_PTR WINAPI ExcDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
+INT_PTR WINAPI ExcDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 {
 	switch (Msg)
 	{
 		case DN_CTLCOLORDLGITEM:
 		{
 			FarDialogItem di;
-			SendDlgMessage(hDlg,DM_GETDLGITEMSHORT,Param1,(LONG_PTR)&di);
+			SendDlgMessage(hDlg,DM_GETDLGITEMSHORT,Param1,(INT_PTR)&di);
 
 			if (di.Type==DI_EDIT)
 			{

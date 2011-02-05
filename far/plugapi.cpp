@@ -927,53 +927,23 @@ int WINAPI FarMenuFn(
 		CurItem.Clear();
 		int Selected=0;
 
-		if (Flags&FMENU_USEEXT)
+		for (int i=0; i < ItemsNumber; i++)
 		{
-			FarMenuItemEx *ItemEx=(FarMenuItemEx*)Item;
+			CurItem.Flags=Item[i].Flags;
+			CurItem.strName.Clear();
+			// исключаем MultiSelected, т.к. у нас сейчас движок к этому не приспособлен, оставляем только первый
+			DWORD SelCurItem=CurItem.Flags&LIF_SELECTED;
+			CurItem.Flags&=~LIF_SELECTED;
 
-			for (int i=0; i < ItemsNumber; i++)
+			if (!Selected && !(CurItem.Flags&LIF_SEPARATOR) && SelCurItem)
 			{
-				CurItem.Flags=ItemEx[i].Flags;
-				CurItem.strName.Clear();
-				// исключаем MultiSelected, т.к. у нас сейчас движок к этому не приспособлен, оставляем только первый
-				DWORD SelCurItem=CurItem.Flags&LIF_SELECTED;
-				CurItem.Flags&=~LIF_SELECTED;
-
-				if (!Selected && !(CurItem.Flags&LIF_SEPARATOR) && SelCurItem)
-				{
-					CurItem.Flags|=SelCurItem;
-					Selected++;
-				}
-
-				CurItem.strName=ItemEx[i].Text;
-				CurItem.AccelKey=(CurItem.Flags&LIF_SEPARATOR)?0:ItemEx[i].AccelKey;
-				FarMenu.AddItem(&CurItem);
+				CurItem.Flags|=SelCurItem;
+				Selected++;
 			}
-		}
-		else
-		{
-			for (int i=0; i<ItemsNumber; i++)
-			{
-				CurItem.Flags=Item[i].Checked?(LIF_CHECKED|(Item[i].Checked&0xFFFF)):0;
-				CurItem.Flags|=Item[i].Selected?LIF_SELECTED:0;
-				CurItem.Flags|=Item[i].Separator?LIF_SEPARATOR:0;
 
-				if (Item[i].Separator)
-					CurItem.strName.Clear();
-				else
-					CurItem.strName = Item[i].Text;
-
-				DWORD SelCurItem=CurItem.Flags&LIF_SELECTED;
-				CurItem.Flags&=~LIF_SELECTED;
-
-				if (!Selected && !(CurItem.Flags&LIF_SEPARATOR) && SelCurItem)
-				{
-					CurItem.Flags|=SelCurItem;
-					Selected++;
-				}
-
-				FarMenu.AddItem(&CurItem);
-			}
+			CurItem.strName=Item[i].Text;
+			CurItem.AccelKey=(CurItem.Flags&LIF_SEPARATOR)?0:Item[i].AccelKey;
+			FarMenu.AddItem(&CurItem);
 		}
 
 		if (!Selected)
@@ -1057,7 +1027,7 @@ int WINAPI FarMenuFn(
 }
 
 // Функция FarDefDlgProc обработки диалога по умолчанию
-LONG_PTR WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
+INT_PTR WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 {
 	if (hDlg) // исключаем лишний вызов для hDlg=0
 		return DefDlgProc(hDlg,Msg,Param1,Param2);
@@ -1066,7 +1036,7 @@ LONG_PTR WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 }
 
 // Посылка сообщения диалогу
-LONG_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
+INT_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 {
 	if (hDlg) // исключаем лишний вызов для hDlg=0
 		return SendDlgMessage(hDlg,Msg,Param1,Param2);
@@ -1113,7 +1083,7 @@ static int FarDialogExSehed(Dialog *FarDialog)
 HANDLE WINAPI FarDialogInit(INT_PTR PluginNumber, int X1, int Y1, int X2, int Y2,
                             const wchar_t *HelpTopic, FarDialogItem *Item,
                             unsigned int ItemsNumber, DWORD Reserved, DWORD Flags,
-                            FARWINDOWPROC DlgProc, LONG_PTR Param)
+                            FARWINDOWPROC DlgProc, INT_PTR Param)
 {
 	HANDLE hDlg=INVALID_HANDLE_VALUE;
 
@@ -1382,7 +1352,7 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,const wchar_t *HelpTopi
 	return(MsgCode);
 }
 
-int WINAPI FarControl(HANDLE hPlugin,int Command,int Param1,LONG_PTR Param2)
+int WINAPI FarControl(HANDLE hPlugin,int Command,int Param1,INT_PTR Param2)
 {
 	_FCTLLOG(CleverSysLog CSL(L"Control"));
 	_FCTLLOG(SysLog(L"(hPlugin=0x%08X, Command=%s, Param1=[%d/0x%08X], Param2=[%d/0x%08X])",hPlugin,_FCTL_ToName(Command),(int)Param1,Param1,(int)Param2,Param2));
@@ -1511,14 +1481,10 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,int Param1,LONG_PTR Param2)
 			return TRUE;
 		}
 		case FCTL_GETCMDLINE:
-		case FCTL_GETCMDLINESELECTEDTEXT:
 		{
 			string strParam;
 
-			if (Command==FCTL_GETCMDLINE)
-				CmdLine->GetString(strParam);
-			else
-				CmdLine->GetSelString(strParam);
+			CmdLine->GetString(strParam);
 
 			if (Param1&&Param2)
 				xwcsncpy((wchar_t*)Param2,strParam,Param1);
@@ -2368,7 +2334,7 @@ int WINAPI farGetPathRoot(const wchar_t *Path, wchar_t *Root, int DestSize)
 	}
 }
 
-int WINAPI farPluginsControl(HANDLE hHandle, int Command, int Param1, LONG_PTR Param2)
+int WINAPI farPluginsControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2)
 {
 	switch (Command)
 	{
@@ -2399,7 +2365,7 @@ int WINAPI farPluginsControl(HANDLE hHandle, int Command, int Param1, LONG_PTR P
 	return 0;
 }
 
-int WINAPI farFileFilterControl(HANDLE hHandle, int Command, int Param1, LONG_PTR Param2)
+int WINAPI farFileFilterControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2)
 {
 	FileFilter *Filter=nullptr;
 
@@ -2471,7 +2437,7 @@ int WINAPI farFileFilterControl(HANDLE hHandle, int Command, int Param1, LONG_PT
 	return FALSE;
 }
 
-int WINAPI farRegExpControl(HANDLE hHandle, int Command, LONG_PTR Param)
+int WINAPI farRegExpControl(HANDLE hHandle, int Command, INT_PTR Param)
 {
 	RegExp* re=nullptr;
 

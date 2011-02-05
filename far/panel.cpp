@@ -371,7 +371,7 @@ static void ConfigureChangeDriveMode()
 }
 
 
-LONG_PTR WINAPI ChDiskDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
+INT_PTR WINAPI ChDiskDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 {
 	switch (Msg)
 	{
@@ -2045,7 +2045,7 @@ string &Panel::GetTitle(string &strTitle,int SubLen,int TruncSize)
 	return strTitle;
 }
 
-int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
+int Panel::SetPluginCommand(int Command,int Param1,INT_PTR Param2)
 {
 	_ALGO(CleverSysLog clv(L"Panel::SetPluginCommand"));
 	_ALGO(SysLog(L"(Command=%s, Param1=[%d/0x%08X], Param2=[%d/0x%08X])",_FCTL_ToName(Command),(int)Param1,Param1,(int)Param2,Param2));

@@ -87,11 +87,11 @@ enum enumOpenEditor
 };
 
 
-LONG_PTR __stdcall hndOpenEditor(
+INT_PTR __stdcall hndOpenEditor(
     HANDLE hDlg,
     int msg,
     int param1,
-    LONG_PTR param2
+    INT_PTR param2
 )
 {
 	if (msg == DN_INITDIALOG)
@@ -106,7 +106,7 @@ LONG_PTR __stdcall hndOpenEditor(
 		{
 			int *param = (int*)SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
 			FarListPos pos;
-			SendDlgMessage(hDlg, DM_LISTGETCURPOS, ID_OE_CODEPAGE, (LONG_PTR)&pos);
+			SendDlgMessage(hDlg, DM_LISTGETCURPOS, ID_OE_CODEPAGE, (INT_PTR)&pos);
 			*param = (int)SendDlgMessage(hDlg, DM_LISTGETDATA, ID_OE_CODEPAGE, pos.SelectPos);
 			return TRUE;
 		}
@@ -132,7 +132,7 @@ bool dlgOpenEditor(string &strFileName, UINT &codepage)
 	};
 	MakeDialogItemsEx(EditDlgData,EditDlg);
 	EditDlg[ID_OE_FILENAME].strData = strFileName;
-	Dialog Dlg(EditDlg, ARRAYSIZE(EditDlg), (FARWINDOWPROC)hndOpenEditor, (LONG_PTR)&codepage);
+	Dialog Dlg(EditDlg, ARRAYSIZE(EditDlg), (FARWINDOWPROC)hndOpenEditor, (INT_PTR)&codepage);
 	Dlg.SetPosition(-1,-1,76,10);
 	Dlg.SetHelp(L"FileOpenCreate");
 	Dlg.SetId(FileOpenCreateId);
@@ -170,11 +170,11 @@ enum enumSaveFileAs
 	ID_SF_CANCEL,
 };
 
-LONG_PTR __stdcall hndSaveFileAs(
+INT_PTR __stdcall hndSaveFileAs(
     HANDLE hDlg,
     int msg,
     int param1,
-    LONG_PTR param2
+    INT_PTR param2
 )
 {
 	static UINT codepage=0;
@@ -204,7 +204,7 @@ LONG_PTR __stdcall hndSaveFileAs(
 			{
 				UINT *codepage = (UINT*)SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
 				FarListPos pos;
-				SendDlgMessage(hDlg, DM_LISTGETCURPOS, ID_SF_CODEPAGE, (LONG_PTR)&pos);
+				SendDlgMessage(hDlg, DM_LISTGETCURPOS, ID_SF_CODEPAGE, (INT_PTR)&pos);
 				*codepage = (UINT)SendDlgMessage(hDlg, DM_LISTGETDATA, ID_SF_CODEPAGE, pos.SelectPos);
 				return TRUE;
 			}
@@ -216,7 +216,7 @@ LONG_PTR __stdcall hndSaveFileAs(
 			if (param1==ID_SF_CODEPAGE)
 			{
 				FarListPos pos;
-				SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID_SF_CODEPAGE,(LONG_PTR)&pos);
+				SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID_SF_CODEPAGE,(INT_PTR)&pos);
 				UINT Cp=static_cast<UINT>(SendDlgMessage(hDlg,DM_LISTGETDATA,ID_SF_CODEPAGE,pos.SelectPos));
 
 				if (Cp!=codepage)
@@ -277,7 +277,7 @@ bool dlgSaveFileAs(string &strFileName, int &TextFormat, UINT &codepage,bool &Ad
 			EditDlg[ID_SF_FILENAME].strData.SetLength(pos);
 	}
 	EditDlg[ID_SF_DONOTCHANGE+TextFormat].Selected = TRUE;
-	Dialog Dlg(EditDlg, ARRAYSIZE(EditDlg), (FARWINDOWPROC)hndSaveFileAs, (LONG_PTR)&codepage);
+	Dialog Dlg(EditDlg, ARRAYSIZE(EditDlg), (FARWINDOWPROC)hndSaveFileAs, (INT_PTR)&codepage);
 	Dlg.SetPosition(-1,-1,76,17);
 	Dlg.SetHelp(L"FileSaveAs");
 	Dlg.SetId(FileSaveAsId);
@@ -2512,7 +2512,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 				InitKeyBar();
 			else
 			{
-				if ((LONG_PTR)Param != (LONG_PTR)-1) // не только перерисовать?
+				if ((INT_PTR)Param != (INT_PTR)-1) // не только перерисовать?
 				{
 					for (int I = 0; I < 12; ++I)
 					{

@@ -100,7 +100,6 @@ RES_FILE = "$(INTDIR)\far.res"
 PCH_FILE = "$(INTDIR)\headers.pch"
 
 LINK_OBJS = \
-	"$(INTDIR)\elevation.obj" \
 	"$(INTDIR)\cache.obj" \
 	"$(INTDIR)\cddrv.obj" \
 	"$(INTDIR)\CFileMask.obj" \
@@ -129,6 +128,7 @@ LINK_OBJS = \
 	"$(INTDIR)\edit.obj" \
 	"$(INTDIR)\editor.obj" \
 	"$(INTDIR)\eject.obj" \
+	"$(INTDIR)\elevation.obj" \
 	"$(INTDIR)\execute.obj" \
 	"$(INTDIR)\farexcpt.obj" \
 	"$(INTDIR)\FarGuid.obj" \

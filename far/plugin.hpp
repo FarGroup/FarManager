@@ -495,8 +495,8 @@ struct FarDialogEvent
 	HANDLE hDlg;
 	int Msg;
 	int Param1;
-	LONG_PTR Param2;
-	LONG_PTR Result;
+	INT_PTR Param2;
+	INT_PTR Result;
 };
 
 struct OpenDlgPluginData
@@ -513,32 +513,32 @@ struct DialogInfo
 #define Dlg_RedrawDialog(Info,hDlg)            Info.SendDlgMessage(hDlg,DM_REDRAW,0,0)
 
 #define Dlg_GetDlgData(Info,hDlg)              Info.SendDlgMessage(hDlg,DM_GETDLGDATA,0,0)
-#define Dlg_SetDlgData(Info,hDlg,Data)         Info.SendDlgMessage(hDlg,DM_SETDLGDATA,0,(LONG_PTR)Data)
+#define Dlg_SetDlgData(Info,hDlg,Data)         Info.SendDlgMessage(hDlg,DM_SETDLGDATA,0,(INT_PTR)Data)
 
 #define Dlg_GetDlgItemData(Info,hDlg,ID)       Info.SendDlgMessage(hDlg,DM_GETITEMDATA,0,0)
-#define Dlg_SetDlgItemData(Info,hDlg,ID,Data)  Info.SendDlgMessage(hDlg,DM_SETITEMDATA,0,(LONG_PTR)Data)
+#define Dlg_SetDlgItemData(Info,hDlg,ID,Data)  Info.SendDlgMessage(hDlg,DM_SETITEMDATA,0,(INT_PTR)Data)
 
 #define DlgItem_GetFocus(Info,hDlg)            Info.SendDlgMessage(hDlg,DM_GETFOCUS,0,0)
 #define DlgItem_SetFocus(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_SETFOCUS,ID,0)
 #define DlgItem_Enable(Info,hDlg,ID)           Info.SendDlgMessage(hDlg,DM_ENABLE,ID,TRUE)
 #define DlgItem_Disable(Info,hDlg,ID)          Info.SendDlgMessage(hDlg,DM_ENABLE,ID,FALSE)
 #define DlgItem_IsEnable(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_ENABLE,ID,-1)
-#define DlgItem_SetText(Info,hDlg,ID,Str)      Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,ID,(LONG_PTR)Str)
+#define DlgItem_SetText(Info,hDlg,ID,Str)      Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,ID,(INT_PTR)Str)
 
 #define DlgItem_GetCheck(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_GETCHECK,ID,0)
 #define DlgItem_SetCheck(Info,hDlg,ID,State)   Info.SendDlgMessage(hDlg,DM_SETCHECK,ID,State)
 
-#define DlgEdit_AddHistory(Info,hDlg,ID,Str)   Info.SendDlgMessage(hDlg,DM_ADDHISTORY,ID,(LONG_PTR)Str)
+#define DlgEdit_AddHistory(Info,hDlg,ID,Str)   Info.SendDlgMessage(hDlg,DM_ADDHISTORY,ID,(INT_PTR)Str)
 
-#define DlgList_AddString(Info,hDlg,ID,Str)    Info.SendDlgMessage(hDlg,DM_LISTADDSTR,ID,(LONG_PTR)Str)
+#define DlgList_AddString(Info,hDlg,ID,Str)    Info.SendDlgMessage(hDlg,DM_LISTADDSTR,ID,(INT_PTR)Str)
 #define DlgList_GetCurPos(Info,hDlg,ID)        Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID,0)
-#define DlgList_SetCurPos(Info,hDlg,ID,NewPos) {struct FarListPos LPos={NewPos,-1};Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID,(LONG_PTR)&LPos);}
+#define DlgList_SetCurPos(Info,hDlg,ID,NewPos) {struct FarListPos LPos={NewPos,-1};Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID,(INT_PTR)&LPos);}
 #define DlgList_ClearList(Info,hDlg,ID)        Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,0)
-#define DlgList_DeleteItem(Info,hDlg,ID,Index) {struct FarListDelete FLDItem={Index,1}; Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(LONG_PTR)&FLDItem);}
+#define DlgList_DeleteItem(Info,hDlg,ID,Index) {struct FarListDelete FLDItem={Index,1}; Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(INT_PTR)&FLDItem);}
 #define DlgList_SortUp(Info,hDlg,ID)           Info.SendDlgMessage(hDlg,DM_LISTSORT,ID,0)
 #define DlgList_SortDown(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_LISTSORT,ID,1)
 #define DlgList_GetItemData(Info,hDlg,ID,Index)          Info.SendDlgMessage(hDlg,DM_LISTGETDATA,ID,Index)
-#define DlgList_SetItemStrAsData(Info,hDlg,ID,Index,Str) {struct FarListItemData FLID{Index,0,Str,0}; Info.SendDlgMessage(hDlg,DM_LISTSETDATA,ID,(LONG_PTR)&FLID);}
+#define DlgList_SetItemStrAsData(Info,hDlg,ID,Index,Str) {struct FarListItemData FLID{Index,0,Str,0}; Info.SendDlgMessage(hDlg,DM_LISTSETDATA,ID,(INT_PTR)&FLID);}
 
 enum FARDIALOGFLAGS
 {
@@ -552,25 +552,25 @@ enum FARDIALOGFLAGS
 	FDLG_KEEPCONSOLETITLE    = 0x00000020,
 };
 
-typedef LONG_PTR(WINAPI *FARWINDOWPROC)(
+typedef INT_PTR(WINAPI *FARWINDOWPROC)(
     HANDLE   hDlg,
     int      Msg,
     int      Param1,
-    LONG_PTR Param2
+    INT_PTR Param2
 );
 
-typedef LONG_PTR(WINAPI *FARAPISENDDLGMESSAGE)(
+typedef INT_PTR(WINAPI *FARAPISENDDLGMESSAGE)(
     HANDLE   hDlg,
     int      Msg,
     int      Param1,
-    LONG_PTR Param2
+    INT_PTR Param2
 );
 
-typedef LONG_PTR(WINAPI *FARAPIDEFDLGPROC)(
+typedef INT_PTR(WINAPI *FARAPIDEFDLGPROC)(
     HANDLE   hDlg,
     int      Msg,
     int      Param1,
-    LONG_PTR Param2
+    INT_PTR Param2
 );
 
 typedef HANDLE(WINAPI *FARAPIDIALOGINIT)(
@@ -585,7 +585,7 @@ typedef HANDLE(WINAPI *FARAPIDIALOGINIT)(
     DWORD                 Reserved,
     DWORD                 Flags,
     FARWINDOWPROC         DlgProc,
-    LONG_PTR              Param
+    INT_PTR              Param
 );
 
 typedef int (WINAPI *FARAPIDIALOGRUN)(
@@ -595,14 +595,6 @@ typedef int (WINAPI *FARAPIDIALOGRUN)(
 typedef void (WINAPI *FARAPIDIALOGFREE)(
     HANDLE hDlg
 );
-
-struct FarMenuItem
-{
-	const wchar_t *Text;
-	int  Selected;
-	int  Checked;
-	int  Separator;
-};
 
 enum MENUITEMFLAGS
 {
@@ -617,7 +609,7 @@ enum MENUITEMFLAGS
 #endif // END FAR_USE_INTERNALS
 };
 
-struct FarMenuItemEx
+struct FarMenuItem
 {
 	DWORD Flags;
 	const wchar_t *Text;
@@ -635,7 +627,6 @@ enum FARMENUFLAGS
 #ifdef FAR_USE_INTERNALS
 	FMENU_SHOWNOBOX            = 0x00000010,
 #endif // END FAR_USE_INTERNALS
-	FMENU_USEEXT               = 0x00000020,
 	FMENU_CHANGECONSOLETITLE   = 0x00000040,
 };
 
@@ -767,7 +758,6 @@ enum FILE_CONTROL_COMMANDS
 	FCTL_GETCMDLINEPOS,
 	FCTL_SETSORTMODE,
 	FCTL_SETSORTORDER,
-	FCTL_GETCMDLINESELECTEDTEXT,
 	FCTL_SETCMDLINESELECTION,
 	FCTL_GETCMDLINESELECTION,
 	FCTL_CHECKPANELSEXIST,
@@ -793,7 +783,7 @@ typedef int (WINAPI *FARAPICONTROL)(
     HANDLE hPlugin,
     int Command,
     int Param1,
-    LONG_PTR Param2
+    INT_PTR Param2
 );
 
 typedef void (WINAPI *FARAPITEXT)(
@@ -1739,20 +1729,20 @@ typedef int (WINAPI *FARAPIPLUGINSCONTROL)(
     HANDLE hHandle,
     int Command,
     int Param1,
-    LONG_PTR Param2
+    INT_PTR Param2
 );
 
 typedef int (WINAPI *FARAPIFILEFILTERCONTROL)(
     HANDLE hHandle,
     int Command,
     int Param1,
-    LONG_PTR Param2
+    INT_PTR Param2
 );
 
 typedef int (WINAPI *FARAPIREGEXPCONTROL)(
     HANDLE hHandle,
     int Command,
-    LONG_PTR Param
+    INT_PTR Param
 );
 
 // <C&C++>
@@ -2035,7 +2025,7 @@ struct PanelMode
 
 enum OPENPLUGININFO_FLAGS
 {
-	OPIF_USEFILTER               = 0x00000001,
+	OPIF_DISABLEFILTER           = 0x00000001,
 	OPIF_USESORTGROUPS           = 0x00000002,
 	OPIF_USEHIGHLIGHTING         = 0x00000004,
 	OPIF_ADDDOTS                 = 0x00000008,

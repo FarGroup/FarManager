@@ -1,3 +1,13 @@
+drkns 05.02.2011 15:30:10 +0200 - build 1825
+
+1. LONG_PTR -> INT_PTR.
+
+2. OPIF_USEFILTER -> !OPIF_DISABLEFILTER.
+
+3. FCTL_GETCMDLINESELECTEDTEXT больше нет.
+
+4. FarMenuItem и FMENU_USEEXT больше нет, FarMenuItemEx теперь FarMenuItem.
+
 drkns 04.02.2011 23:53:23 +0200 - build 1824
 
 1. Ќе работал x64 debug build.

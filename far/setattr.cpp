@@ -136,7 +136,7 @@ struct SetAttrDlgParam
 
 #define DM_SETATTR (DM_USER+1)
 
-LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
+INT_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 {
 	SetAttrDlgParam *DlgParam=reinterpret_cast<SetAttrDlgParam*>(SendDlgMessage(hDlg,DM_GETDLGDATA,0,0));
 
@@ -241,7 +241,7 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 									}
 									if(!DlgParam->OwnerChanged)
 									{
-										SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_EDIT_OWNER,reinterpret_cast<LONG_PTR>(L""));
+										SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_EDIT_OWNER,reinterpret_cast<INT_PTR>(L""));
 									}
 								}
 								// сняли?
@@ -254,7 +254,7 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 									}
 									if(!DlgParam->OwnerChanged)
 									{
-										SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_EDIT_OWNER,reinterpret_cast<LONG_PTR>(DlgParam->strOwner.CPtr()));
+										SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_EDIT_OWNER,reinterpret_cast<INT_PTR>(DlgParam->strOwner.CPtr()));
 									}
 								}
 
@@ -270,7 +270,7 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 									{
 										if (!*ParamTimes[i])
 										{
-											SendDlgMessage(hDlg,DM_SETATTR,Items[i],SubfoldersState?0:(LONG_PTR)FDTimes[i]);
+											SendDlgMessage(hDlg,DM_SETATTR,Items[i],SubfoldersState?0:(INT_PTR)FDTimes[i]);
 											*ParamTimes[i]=false;
 										}
 									}
@@ -305,7 +305,7 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 									}
 									if(!DlgParam->OwnerChanged)
 									{
-										SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_EDIT_OWNER,reinterpret_cast<LONG_PTR>(L""));
+										SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_EDIT_OWNER,reinterpret_cast<INT_PTR>(L""));
 									}
 								}
 								// сняли?
@@ -318,7 +318,7 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 									}
 									if(!DlgParam->OwnerChanged)
 									{
-										SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_EDIT_OWNER,reinterpret_cast<LONG_PTR>(DlgParam->strOwner.CPtr()));
+										SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_EDIT_OWNER,reinterpret_cast<INT_PTR>(DlgParam->strOwner.CPtr()));
 									}
 								}
 							}
@@ -337,10 +337,10 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
 				if (apiGetFindDataEx(DlgParam->strSelName, FindData))
 				{
-					SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_LASTWRITE,(LONG_PTR)&FindData.ftLastWriteTime);
-					SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_CREATION,(LONG_PTR)&FindData.ftCreationTime);
-					SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_LASTACCESS,(LONG_PTR)&FindData.ftLastAccessTime);
-					SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_CHANGE,(LONG_PTR)&FindData.ftChangeTime);
+					SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_LASTWRITE,(INT_PTR)&FindData.ftLastWriteTime);
+					SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_CREATION,(INT_PTR)&FindData.ftCreationTime);
+					SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_LASTACCESS,(INT_PTR)&FindData.ftLastAccessTime);
+					SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_CHANGE,(INT_PTR)&FindData.ftChangeTime);
 					DlgParam->OLastWriteTime=DlgParam->OCreationTime=DlgParam->OLastAccessTime=DlgParam->OChangeTime=false;
 				}
 
@@ -349,12 +349,12 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 			}
 			else if (Param1 == SA_BUTTON_CURRENT || Param1 == SA_BUTTON_BLANK)
 			{
-				LONG_PTR Value = 0;
+				INT_PTR Value = 0;
 				FILETIME CurrentTime;
 				if(Param1 == SA_BUTTON_CURRENT)
 				{
 					GetSystemTimeAsFileTime(&CurrentTime);
-					Value = reinterpret_cast<LONG_PTR>(&CurrentTime);
+					Value = reinterpret_cast<INT_PTR>(&CurrentTime);
 				}
 				SendDlgMessage(hDlg, DM_SETATTR, SA_TEXT_LASTWRITE, Value);
 				SendDlgMessage(hDlg, DM_SETATTR, SA_TEXT_CREATION, Value);
@@ -394,10 +394,10 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 				case SA_COMBO_HARDLINK:
 				{
 					FarListInfo li;
-					SendDlgMessage(hDlg,DM_LISTINFO,SA_COMBO_HARDLINK,(LONG_PTR)&li);
+					SendDlgMessage(hDlg,DM_LISTINFO,SA_COMBO_HARDLINK,(INT_PTR)&li);
 					FormatString strTmp;
 					strTmp<<MSG(MSetAttrHardLinks)<<L" ("<<li.ItemsNumber<<L")";
-					SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_COMBO_HARDLINK,(LONG_PTR)strTmp.strValue().CPtr());
+					SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_COMBO_HARDLINK,(INT_PTR)strTmp.strValue().CPtr());
 				}
 				break;
 				case SA_EDIT_WDATE:
@@ -430,11 +430,11 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 						if(reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, Param1, 0))[0] == L' ')
 						{
 							COORD Pos;
-							SendDlgMessage(hDlg, DM_GETCURSORPOS, Param1, (LONG_PTR)&Pos);
+							SendDlgMessage(hDlg, DM_GETCURSORPOS, Param1, (INT_PTR)&Pos);
 							if(Pos.X ==0)
 							{
 								Pos.X=1;
-								SendDlgMessage(hDlg, DM_SETCURSORPOS, Param1, (LONG_PTR)&Pos);
+								SendDlgMessage(hDlg, DM_SETCURSORPOS, Param1, (INT_PTR)&Pos);
 							}
 						}
 					}
@@ -499,12 +499,12 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
 			if (Set1!=-1)
 			{
-				SendDlgMessage(hDlg,DM_SETTEXTPTR,Set1,(LONG_PTR)strDate.CPtr());
+				SendDlgMessage(hDlg,DM_SETTEXTPTR,Set1,(INT_PTR)strDate.CPtr());
 			}
 
 			if (Set2!=-1)
 			{
-				SendDlgMessage(hDlg,DM_SETTEXTPTR,Set2,(LONG_PTR)strTime.CPtr());
+				SendDlgMessage(hDlg,DM_SETTEXTPTR,Set2,(INT_PTR)strTime.CPtr());
 			}
 
 			return TRUE;
@@ -1133,7 +1133,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 		DlgParam.OCompressState=static_cast<FARCHECKEDSTATE>(AttrDlg[SA_CHECKBOX_COMPRESSED].Selected);
 		DlgParam.OEncryptState=static_cast<FARCHECKEDSTATE>(AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected);
 
-		Dialog Dlg(AttrDlg,ARRAYSIZE(AttrDlgData),SetAttrDlgProc,(LONG_PTR)&DlgParam);
+		Dialog Dlg(AttrDlg,ARRAYSIZE(AttrDlgData),SetAttrDlgProc,(INT_PTR)&DlgParam);
 		Dlg.SetHelp(L"FileAttrDlg");                 //  ^ - это одиночный диалог!
 		Dlg.SetId(FileAttrDlgId);
 

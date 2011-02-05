@@ -2278,7 +2278,7 @@ static bool kbdLayoutFunc(const TMacroFunction*)
 		{
 			wchar_t *endptr;
 			DWORD res=(DWORD)wcstoul(LayoutName, &endptr, 16);
-			RetLayout=(HKL)(LONG_PTR)(HIWORD(res)? res : MAKELONG(res,res));
+			RetLayout=(HKL)(INT_PTR)(HIWORD(res)? res : MAKELONG(res,res));
 		}
 	}
 
@@ -2301,7 +2301,7 @@ static bool kbdLayoutFunc(const TMacroFunction*)
 		else
 		{
 			wParam=0;
-			Layout=(HKL)(LONG_PTR)(HIWORD(dwLayout)? dwLayout : MAKELONG(dwLayout,dwLayout));
+			Layout=(HKL)(INT_PTR)(HIWORD(dwLayout)? dwLayout : MAKELONG(dwLayout,dwLayout));
 		}
 
 		Ret=PostMessage(hWnd,WM_INPUTLANGCHANGEREQUEST, wParam, (LPARAM)Layout);
@@ -2597,7 +2597,7 @@ static bool dlggetvalueFunc(const TMacroFunction*)
 		{
 			SMALL_RECT Rect;
 
-			if (SendDlgMessage((HANDLE)CurFrame,DM_GETDLGRECT,0,(LONG_PTR)&Rect))
+			if (SendDlgMessage((HANDLE)CurFrame,DM_GETDLGRECT,0,(INT_PTR)&Rect))
 			{
 				switch (TypeInf)
 				{
@@ -2627,7 +2627,7 @@ static bool dlggetvalueFunc(const TMacroFunction*)
 					FarListGetItem ListItem;
 					ListItem.ItemIndex=Item->ListPtr->GetSelectPos();
 
-					if (SendDlgMessage((HANDLE)CurFrame,DM_LISTGETITEM,Index,(LONG_PTR)&ListItem))
+					if (SendDlgMessage((HANDLE)CurFrame,DM_LISTGETITEM,Index,(INT_PTR)&ListItem))
 					{
 						Ret=ListItem.Item.Text;
 					}
@@ -4858,7 +4858,7 @@ done:
 				f=fo;
 
 			if (f)
-				Result=f->VMProcess(Key,(void*)(LONG_PTR)p2.i(),p1.i());
+				Result=f->VMProcess(Key,(void*)(INT_PTR)p2.i(),p1.i());
 
 			VMStack.Push(Result);
 			goto begin;
@@ -5882,7 +5882,7 @@ void KeyMacro::RunStartMacro()
 }
 
 // обработчик диалогового окна назначения клавиши
-LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
+INT_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 {
 	string strKeyText;
 	static int LastKey=0;
@@ -5906,7 +5906,7 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
 		for (size_t i=0; i<ARRAYSIZE(PreDefKeyMain); i++)
 		{
 			KeyToText(PreDefKeyMain[i],strKeyText);
-			SendDlgMessage(hDlg,DM_LISTADDSTR,2,reinterpret_cast<LONG_PTR>(strKeyText.CPtr()));
+			SendDlgMessage(hDlg,DM_LISTADDSTR,2,reinterpret_cast<INT_PTR>(strKeyText.CPtr()));
 		}
 
 		DWORD PreDefKey[]=
@@ -5924,12 +5924,12 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
 
 		for (size_t i=0; i<ARRAYSIZE(PreDefKey); i++)
 		{
-			SendDlgMessage(hDlg,DM_LISTADDSTR,2,reinterpret_cast<LONG_PTR>(L"\1"));
+			SendDlgMessage(hDlg,DM_LISTADDSTR,2,reinterpret_cast<INT_PTR>(L"\1"));
 
 			for (size_t j=0; j<ARRAYSIZE(PreDefModKey); j++)
 			{
 				KeyToText(PreDefKey[i]|PreDefModKey[j],strKeyText);
-				SendDlgMessage(hDlg,DM_LISTADDSTR,2,reinterpret_cast<LONG_PTR>(strKeyText.CPtr()));
+				SendDlgMessage(hDlg,DM_LISTADDSTR,2,reinterpret_cast<INT_PTR>(strKeyText.CPtr()));
 			}
 		}
 
@@ -5956,7 +5956,7 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
 			xf_free(KeyStr);
 		}
 		*/
-		SendDlgMessage(hDlg,DM_SETTEXTPTR,2,reinterpret_cast<LONG_PTR>(L""));
+		SendDlgMessage(hDlg,DM_SETTEXTPTR,2,reinterpret_cast<INT_PTR>(L""));
 		// </Клавиши, которые не введешь в диалоге назначения>
 	}
 	else if (Param1 == 2 && Msg == DN_EDITCHANGE)
@@ -6091,7 +6091,7 @@ M1:
 		}
 
 		KMParam->Recurse++;
-		SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(LONG_PTR)strKeyText.CPtr());
+		SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(INT_PTR)strKeyText.CPtr());
 		KMParam->Recurse--;
 		//if(Param2 == KEY_F1 && LastKey == KEY_F1)
 		//LastKey=-1;
@@ -6120,7 +6120,7 @@ DWORD KeyMacro::AssignMacroKey()
 	DlgParam Param={this,0,StartMode,0};
 	//_SVS(SysLog(L"StartMode=%d",StartMode));
 	IsProcessAssignMacroKey++;
-	Dialog Dlg(MacroAssignDlg,ARRAYSIZE(MacroAssignDlg),AssignMacroDlgProc,(LONG_PTR)&Param);
+	Dialog Dlg(MacroAssignDlg,ARRAYSIZE(MacroAssignDlg),AssignMacroDlgProc,(INT_PTR)&Param);
 	Dlg.SetPosition(-1,-1,34,6);
 	Dlg.SetHelp(L"KeyMacro");
 	Dlg.Process();
@@ -6167,7 +6167,7 @@ enum MACROSETTINGSDLG
 	MS_BUTTON_CANCEL,
 };
 
-LONG_PTR WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
+INT_PTR WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 {
 	static DlgParam *KMParam=nullptr;
 
@@ -6347,7 +6347,7 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 	MacroSettingsDlg[MS_EDIT_SEQUENCE].strData=Sequence;
 	xf_free(Sequence);
 	DlgParam Param={this,0,0,0};
-	Dialog Dlg(MacroSettingsDlg,ARRAYSIZE(MacroSettingsDlg),ParamMacroDlgProc,(LONG_PTR)&Param);
+	Dialog Dlg(MacroSettingsDlg,ARRAYSIZE(MacroSettingsDlg),ParamMacroDlgProc,(INT_PTR)&Param);
 	Dlg.SetPosition(-1,-1,73,19);
 	Dlg.SetHelp(L"KeyMacroSetting");
 	Frame* BottomFrame = FrameManager->GetBottomFrame();

@@ -404,7 +404,7 @@ void DataToItemEx(const DialogDataEx *Data,DialogItemEx *Item,int Count)
 Dialog::Dialog(DialogItemEx *SrcItem,    // Набор элементов диалога
                unsigned SrcItemCount,              // Количество элементов
                FARWINDOWPROC DlgProc,      // Диалоговая процедура
-               LONG_PTR InitParam):             // Ассоцированные с диалогом данные
+               INT_PTR InitParam):             // Ассоцированные с диалогом данные
 	bInitOK(false)
 {
 	Dialog::Item = (DialogItemEx**)xf_malloc(sizeof(DialogItemEx*)*SrcItemCount);
@@ -424,7 +424,7 @@ Dialog::Dialog(DialogItemEx *SrcItem,    // Набор элементов диалога
 Dialog::Dialog(FarDialogItem *SrcItem,    // Набор элементов диалога
                unsigned SrcItemCount,              // Количество элементов
                FARWINDOWPROC DlgProc,      // Диалоговая процедура
-               LONG_PTR InitParam)             // Ассоцированные с диалогом данные
+               INT_PTR InitParam)             // Ассоцированные с диалогом данные
 {
 	bInitOK = false;
 	Dialog::Item = (DialogItemEx**)xf_malloc(sizeof(DialogItemEx*)*SrcItemCount);
@@ -443,7 +443,7 @@ Dialog::Dialog(FarDialogItem *SrcItem,    // Набор элементов диалога
 }
 
 void Dialog::Init(FARWINDOWPROC DlgProc,      // Диалоговая процедура
-                  LONG_PTR InitParam)         // Ассоцированные с диалогом данные
+                  INT_PTR InitParam)         // Ассоцированные с диалогом данные
 {
 	SetDynamicallyBorn(FALSE); // $OT: По умолчанию все диалоги создаются статически
 	CanLoseFocus = FALSE;
@@ -574,7 +574,7 @@ void Dialog::InitDialog()
 		DialogMode.Set(DMODE_INITOBJECTS);
 		DialogInfo di={sizeof(di)};
 
-		if (DlgProc(reinterpret_cast<HANDLE>(this),DN_GETDIALOGINFO,0,reinterpret_cast<LONG_PTR>(&di)))
+		if (DlgProc(reinterpret_cast<HANDLE>(this),DN_GETDIALOGINFO,0,reinterpret_cast<INT_PTR>(&di)))
 		{
 			Id=di.Id;
 			IdExist=true;
@@ -1133,7 +1133,7 @@ void Dialog::ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex)
 			FarDialogItemData IData;
 			IData.PtrData=const_cast<wchar_t*>(strData.CPtr());
 			IData.PtrLength=(int)strData.GetLength();
-			SendDlgMessage(this,DM_SETTEXT,MsgIndex,(LONG_PTR)&IData);
+			SendDlgMessage(this,DM_SETTEXT,MsgIndex,(INT_PTR)&IData);
 		}
 	}
 }
@@ -1473,7 +1473,7 @@ void Dialog::GetDialogObjectsData()
 
 
 // Функция формирования и запроса цветов.
-LONG_PTR Dialog::CtlColorDlgItem(int ItemPos,int Type,int Focus,int Default,DWORD Flags)
+INT_PTR Dialog::CtlColorDlgItem(int ItemPos,int Type,int Focus,int Default,DWORD Flags)
 {
 	CriticalSectionLock Lock(CS);
 	BOOL DisabledItem=Flags&DIF_DISABLE?TRUE:FALSE;
@@ -2146,7 +2146,7 @@ void Dialog::ShowDialog(unsigned ID)
 					ListColors.Colors=RealColors;
 					CurItem->ListPtr->GetColors(&ListColors);
 
-					if (DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,I,(LONG_PTR)&ListColors))
+					if (DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,I,(INT_PTR)&ListColors))
 						CurItem->ListPtr->SetColors(&ListColors);
 
 					// Курсор запоминаем...
@@ -2547,7 +2547,7 @@ int Dialog::ProcessKey(int Key)
 	if (!(/*(Key>=KEY_MACRO_BASE && Key <=KEY_MACRO_ENDBASE) ||*/ ((unsigned int)Key>=KEY_OP_BASE && (unsigned int)Key <=KEY_OP_ENDBASE)) && !DialogMode.Check(DMODE_KEY))
 	{
 		INPUT_RECORD rec;
-		if (KeyToInputRecord(Key,&rec) && DlgProc((HANDLE)this,DN_KEY,FocusPos,(LONG_PTR)&rec))
+		if (KeyToInputRecord(Key,&rec) && DlgProc((HANDLE)this,DN_KEY,FocusPos,(INT_PTR)&rec))
 			return TRUE;
 	}
 
@@ -2633,7 +2633,7 @@ int Dialog::ProcessKey(int Key)
 			//   и если вернули что надо, то выводим подсказку
 			if (!Help::MkTopic(PluginNumber,
 			                   (const wchar_t*)DlgProc((HANDLE)this,DN_HELP,FocusPos,
-			                                           (HelpTopic?(LONG_PTR)HelpTopic:0)),
+			                                           (HelpTopic?(INT_PTR)HelpTopic:0)),
 			                   strStr).IsEmpty())
 			{
 				Help Hlp(strStr);
@@ -3202,7 +3202,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (DialogMode.Check(DMODE_MOUSEEVENT))
 	{
-		if (!DlgProc((HANDLE)this,DN_MOUSEEVENT,0,(LONG_PTR)MouseEvent))
+		if (!DlgProc((HANDLE)this,DN_MOUSEEVENT,0,(INT_PTR)MouseEvent))
 			return TRUE;
 	}
 
@@ -3241,7 +3241,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 					List->ProcessMouse(MouseEvent);
 					int NewListPos=List->GetSelectPos();
 
-					if (NewListPos != Pos && !SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(LONG_PTR)NewListPos))
+					if (NewListPos != Pos && !SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(INT_PTR)NewListPos))
 					{
 						List->SetCheck(CheckedListItem,Pos);
 
@@ -3253,7 +3253,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 						Pos=NewListPos;
 					}
 				}
-				else if (!SendDlgMessage((HANDLE)this,DN_MOUSECLICK,I,(LONG_PTR)MouseEvent))
+				else if (!SendDlgMessage((HANDLE)this,DN_MOUSECLICK,I,(INT_PTR)MouseEvent))
 				{
 #if 1
 					List->ProcessMouse(MouseEvent);
@@ -3263,7 +3263,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 					if (!InScroolBar       &&                                                                // вне скроллбара и
 					        NewListPos != Pos &&                                                                 // позиция изменилась и
-					        !SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(LONG_PTR)NewListPos))                      // и плагин сказал в морг
+					        !SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(INT_PTR)NewListPos))                      // и плагин сказал в морг
 					{
 						List->SetCheck(CheckedListItem,Pos);
 
@@ -3284,7 +3284,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 #else
 
-					if (SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(LONG_PTR)Pos))
+					if (SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(INT_PTR)Pos))
 					{
 						if (MsX==X1+Item[I]->X2 && MsY >= Y1+Item[I]->Y1 && MsY <= Y1+Item[I]->Y2)
 							List->ProcessMouse(MouseEvent); // забыл проверить на клик на скролбар (KM)
@@ -3299,7 +3299,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			}
 			else
 			{
-				if (!MouseEvent->dwButtonState || SendDlgMessage((HANDLE)this,DN_MOUSECLICK,I,(LONG_PTR)MouseEvent))
+				if (!MouseEvent->dwButtonState || SendDlgMessage((HANDLE)this,DN_MOUSECLICK,I,(INT_PTR)MouseEvent))
 				{
 					if ((I == FocusPos && (Item[I]->IFlags.Flags&DLGIIF_LISTREACTIONFOCUS))
 					        ||
@@ -3309,7 +3309,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 						List->ProcessMouse(MouseEvent);
 						int NewListPos=List->GetSelectPos();
 
-						if (NewListPos != Pos && !SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(LONG_PTR)NewListPos))
+						if (NewListPos != Pos && !SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(INT_PTR)NewListPos))
 						{
 							List->SetCheck(CheckedListItem,Pos);
 
@@ -3328,7 +3328,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (MsX<X1 || MsY<Y1 || MsX>X2 || MsY>Y2)
 	{
-		if (DialogMode.Check(DMODE_CLICKOUTSIDE) && !DlgProc((HANDLE)this,DN_MOUSECLICK,-1,(LONG_PTR)MouseEvent))
+		if (DialogMode.Check(DMODE_CLICKOUTSIDE) && !DlgProc((HANDLE)this,DN_MOUSECLICK,-1,(INT_PTR)MouseEvent))
 		{
 			if (!DialogMode.Check(DMODE_SHOW))
 				return FALSE;
@@ -3378,7 +3378,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 					if (((MsX == Rect.Left || MsX == Rect.Right) && MsY >= Rect.Top && MsY <= Rect.Bottom) || // vert
 					        ((MsY == Rect.Top  || MsY == Rect.Bottom) && MsX >= Rect.Left && MsX <= Rect.Right))    // hor
 					{
-						if (DlgProc((HANDLE)this,DN_MOUSECLICK,I,(LONG_PTR)MouseEvent))
+						if (DlgProc((HANDLE)this,DN_MOUSECLICK,I,(INT_PTR)MouseEvent))
 							return TRUE;
 
 						if (!DialogMode.Check(DMODE_SHOW))
@@ -3396,7 +3396,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 				}
 
 //_SVS(SysLog(L"+ %2d) Rect (%2d,%2d) (%2d,%2d) '%s' Dbl=%d",I,Rect.left,Rect.top,Rect.right,Rect.bottom,Item[I].Data,MouseEvent->dwEventFlags==DOUBLE_CLICK));
-				if (DlgProc((HANDLE)this,DN_MOUSECLICK,I,(LONG_PTR)MouseEvent))
+				if (DlgProc((HANDLE)this,DN_MOUSECLICK,I,(INT_PTR)MouseEvent))
 					return TRUE;
 
 				if (!DialogMode.Check(DMODE_SHOW))
@@ -4084,7 +4084,7 @@ int Dialog::SelectFromComboBox(
 		ComboBox->SetColors(nullptr);
 		ComboBox->GetColors(&ListColors);
 
-		if (DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,CurItem->ID,(LONG_PTR)&ListColors))
+		if (DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,CurItem->ID,(INT_PTR)&ListColors))
 			ComboBox->SetColors(&ListColors);
 
 		// Выставим то, что есть в строке ввода!
@@ -4112,11 +4112,11 @@ int Dialog::SelectFromComboBox(
 
 			if (CurItem->IFlags.Check(DLGIIF_COMBOBOXEVENTKEY) && ReadRec.EventType == KEY_EVENT)
 			{
-				if (DlgProc((HANDLE)this,DN_KEY,FocusPos,(LONG_PTR)&ReadRec))
+				if (DlgProc((HANDLE)this,DN_KEY,FocusPos,(INT_PTR)&ReadRec))
 					continue;
 			}
 			else if (CurItem->IFlags.Check(DLGIIF_COMBOBOXEVENTMOUSE) && ReadRec.EventType == MOUSE_EVENT)
-				if (!DlgProc((HANDLE)this,DN_MOUSEEVENT,0,(LONG_PTR)&ReadRec.Event.MouseEvent))
+				if (!DlgProc((HANDLE)this,DN_MOUSEEVENT,0,(INT_PTR)&ReadRec.Event.MouseEvent))
 					continue;
 
 			// здесь можно добавить что-то свое, например,
@@ -4330,7 +4330,7 @@ int Dialog::ProcessHighlighting(int Key,unsigned FocusPos,int Translate)
 				        (I+1 < ItemCount && Item[I]->Y1!=Item[I+1]->Y1)) // ...и следующий контрол в другой строке
 				{
 					// Сначала сообщим о случившемся факте процедуре обработки диалога, а потом...
-					if (!DlgProc((HANDLE)this,DN_HOTKEY,I,(LONG_PTR)&rec))
+					if (!DlgProc((HANDLE)this,DN_HOTKEY,I,(INT_PTR)&rec))
 						break; // сказали не продолжать обработку...
 
 					// ... если предыдущий контрол задизаблен или невидим, тогда выходим.
@@ -4346,7 +4346,7 @@ int Dialog::ProcessHighlighting(int Key,unsigned FocusPos,int Translate)
 					if (I+1 < ItemCount) // ...и следующий контрол
 					{
 						// Сначала сообщим о случившемся факте процедуре обработки диалога, а потом...
-						if (!DlgProc((HANDLE)this,DN_HOTKEY,I,(LONG_PTR)&rec))
+						if (!DlgProc((HANDLE)this,DN_HOTKEY,I,(INT_PTR)&rec))
 							break; // сказали не продолжать обработку...
 
 						// ... если следующий контрол задизаблен или невидим, тогда выходим.
@@ -4359,7 +4359,7 @@ int Dialog::ProcessHighlighting(int Key,unsigned FocusPos,int Translate)
 				}
 
 				// Сообщим о случивщемся факте процедуре обработки диалога
-				if (!DlgProc((HANDLE)this,DN_HOTKEY,I,(LONG_PTR)&rec))
+				if (!DlgProc((HANDLE)this,DN_HOTKEY,I,(INT_PTR)&rec))
 					break; // сказали не продолжать обработку...
 
 				ChangeFocus2(I);
@@ -4438,7 +4438,7 @@ void Dialog::AdjustEditPos(int dx, int dy)
    Работа с доп. данными экземпляра диалога
    Пока простое копирование (присвоение)
 */
-void Dialog::SetDialogData(LONG_PTR NewDataDialog)
+void Dialog::SetDialogData(INT_PTR NewDataDialog)
 {
 	DataDialog=NewDataDialog;
 }
@@ -4601,7 +4601,7 @@ void Dialog::ResizeConsole()
 	}
 
 	COORD c = {ScrX+1, ScrY+1};
-	SendDlgMessage(reinterpret_cast<HANDLE>(this), DN_RESIZECONSOLE, 0, reinterpret_cast<LONG_PTR>(&c));
+	SendDlgMessage(reinterpret_cast<HANDLE>(this), DN_RESIZECONSOLE, 0, reinterpret_cast<INT_PTR>(&c));
 
 	int x1, y1, x2, y2;
 	GetPosition(x1, y1, x2, y2);
@@ -4611,7 +4611,7 @@ void Dialog::ResizeConsole()
 	{
 		c.X = x1;
 		c.Y = y1;
-		SendDlgMessage(reinterpret_cast<HANDLE>(this), DM_MOVEDIALOG, TRUE, reinterpret_cast<LONG_PTR>(&c));
+		SendDlgMessage(reinterpret_cast<HANDLE>(this), DM_MOVEDIALOG, TRUE, reinterpret_cast<INT_PTR>(&c));
 		Dialog::SetComboBoxPos();
 	}
 };
@@ -4635,12 +4635,12 @@ void Dialog::ResizeConsole()
 //  }
 //};
 
-LONG_PTR WINAPI Dialog::DlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
+INT_PTR WINAPI Dialog::DlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 {
 	if (DialogMode.Check(DMODE_ENDLOOP))
 		return 0;
 
-	LONG_PTR Result;
+	INT_PTR Result;
 	FarDialogEvent de={hDlg,Msg,Param1,Param2,0};
 
 	if(!reinterpret_cast<Dialog*>(hDlg)->CheckDialogMode(DMODE_NOPLUGINS))
@@ -4664,7 +4664,7 @@ LONG_PTR WINAPI Dialog::DlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
    Вот именно эта функция и является последним рубежом обработки диалога.
    Т.е. здесь должна быть ВСЯ обработка ВСЕХ сообщений!!!
 */
-LONG_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
+INT_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 {
 	_DIALOG(CleverSysLog CL(L"Dialog.DefDlgProc()"));
 	_DIALOG(SysLog(L"hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",hDlg,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
@@ -4788,7 +4788,7 @@ LONG_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 	return 0;
 }
 
-LONG_PTR Dialog::CallDlgProc(int nMsg, int nParam1, LONG_PTR nParam2)
+INT_PTR Dialog::CallDlgProc(int nMsg, int nParam1, INT_PTR nParam2)
 {
 	CriticalSectionLock Lock(CS);
 	return Dialog::DlgProc((HANDLE)this, nMsg, nParam1, nParam2);
@@ -4800,7 +4800,7 @@ LONG_PTR Dialog::CallDlgProc(int nMsg, int nParam1, LONG_PTR nParam2)
    Некоторые сообщения эта функция обрабатывает сама, не передавая управление
    обработчику диалога.
 */
-LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
+INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 {
 	if (!hDlg)
 		return 0;
@@ -5010,7 +5010,7 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 		/*****************************************************************/
 		case DM_SETDLGDATA:
 		{
-			LONG_PTR PrewDataDialog=Dlg->DataDialog;
+			INT_PTR PrewDataDialog=Dlg->DataDialog;
 			Dlg->DataDialog=Param2;
 			return PrewDataDialog;
 		}
@@ -5258,7 +5258,7 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 						case DM_LISTGETDATA: // Param1=ID Param2=Index
 						{
 							if (Param2 < ListBox->GetItemCount())
-								return (LONG_PTR)ListBox->GetUserData(nullptr,0,(int)Param2);
+								return (INT_PTR)ListBox->GetUserData(nullptr,0,(int)Param2);
 
 							return 0;
 						}
@@ -5659,7 +5659,7 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 			{
 				reinterpret_cast<DlgEdit*>(CurItem->ObjPtr)->SetCallbackState(false);
 				const wchar_t* original_PtrData=Item.PtrData;
-				I=Dlg->CallDlgProc(DN_EDITCHANGE,Param1,(LONG_PTR)&Item);
+				I=Dlg->CallDlgProc(DN_EDITCHANGE,Param1,(INT_PTR)&Item);
 				if (I)
 				{
 					if (Type == DI_COMBOBOX && CurItem->ListPtr)
@@ -5675,7 +5675,7 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 		/*****************************************************************/
 		case DN_BTNCLICK:
 		{
-			LONG_PTR Ret=Dlg->CallDlgProc(Msg,Param1,Param2);
+			INT_PTR Ret=Dlg->CallDlgProc(Msg,Param1,Param2);
 
 			if (Ret && (CurItem->Flags&DIF_AUTOMATION) && CurItem->AutoCount && CurItem->AutoPtr)
 			{
@@ -5783,7 +5783,7 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 			if (!ConvertItemEx(CVTITEM_TOPLUGIN,&Item,CurItem,1))
 				return FALSE; // no memory TODO: may be needed diagnostic
 
-			INT_PTR I=Dlg->CallDlgProc(Msg,Param1,(LONG_PTR)&Item);
+			INT_PTR I=Dlg->CallDlgProc(Msg,Param1,(INT_PTR)&Item);
 
 			if ((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
 				CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);
@@ -5820,7 +5820,7 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 		/*****************************************************************/
 		case DM_GETCONSTTEXTPTR:
 		{
-			return (LONG_PTR)Ptr;
+			return (INT_PTR)Ptr;
 		}
 		/*****************************************************************/
 		case DM_GETTEXTPTR:
@@ -5828,7 +5828,7 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 			if (Param2)
 			{
 				FarDialogItemData IData={0,(wchar_t *)Param2};
-				return SendDlgMessage(hDlg,DM_GETTEXT,Param1,(LONG_PTR)&IData);
+				return SendDlgMessage(hDlg,DM_GETTEXT,Param1,(INT_PTR)&IData);
 			}
 
 			/*****************************************************************/
@@ -5968,7 +5968,7 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 				return 0;
 
 			FarDialogItemData IData={StrLength((wchar_t *)Param2),(wchar_t *)Param2};
-			return SendDlgMessage(hDlg,DM_SETTEXT,Param1,(LONG_PTR)&IData);
+			return SendDlgMessage(hDlg,DM_SETTEXT,Param1,(INT_PTR)&IData);
 		}
 		/*****************************************************************/
 		case DM_SETTEXT:
@@ -6067,7 +6067,7 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 							{
 								LUpdate.Item.Flags=ListMenuItem->Flags;
 								LUpdate.Item.Text=Ptr;
-								SendDlgMessage(hDlg,DM_LISTUPDATE,Param1,(LONG_PTR)&LUpdate);
+								SendDlgMessage(hDlg,DM_LISTUPDATE,Param1,(INT_PTR)&LUpdate);
 							}
 
 							break;
@@ -6117,7 +6117,7 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 		case DM_GETDLGITEM:
 		{
 			FarDialogItem* Item = (FarDialogItem*)Param2;
-			return (LONG_PTR)ConvertItemEx2(Item,CurItem);
+			return (INT_PTR)ConvertItemEx2(Item,CurItem);
 		}
 		/*****************************************************************/
 		case DM_GETDLGITEMSHORT:
@@ -6282,7 +6282,7 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 			/*****************************************************************/
 		case DM_SETITEMDATA:
 		{
-			LONG_PTR PrewDataDialog=CurItem->UserData;
+			INT_PTR PrewDataDialog=CurItem->UserData;
 			CurItem->UserData=Param2;
 			return PrewDataDialog;
 		}

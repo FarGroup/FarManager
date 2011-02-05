@@ -979,7 +979,7 @@ void ReadConfig()
 			while (nullptr!=(ValPtr=DestList.GetNext()))
 			{
 				DWORD res=(DWORD)wcstoul(ValPtr, &endptr, 16);
-				Opt.XLat.Layouts[I]=(HKL)(LONG_PTR)(HIWORD(res)? res : MAKELONG(res,res));
+				Opt.XLat.Layouts[I]=(HKL)(INT_PTR)(HIWORD(res)? res : MAKELONG(res,res));
 				++I;
 
 				if (I >= ARRAYSIZE(Opt.XLat.Layouts))
