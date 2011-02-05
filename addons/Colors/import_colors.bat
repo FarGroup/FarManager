@@ -18,7 +18,7 @@ call export_colors.bat %FILENAME%
 echo.
 echo Deleting old color settings from the registry...
 echo REGEDIT4 > $DelOld$.reg
-echo [-HKEY_CURRENT_USER\Software\Far\Colors] >> $DelOld$.reg
+echo [-HKEY_CURRENT_USER\Software\Far2\Colors] >> $DelOld$.reg
 start /wait regedit -s $DelOld$.reg
 del $DelOld$.reg
 start /wait regedit -s %1

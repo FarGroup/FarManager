@@ -1,4 +1,4 @@
-
+﻿
                     The FAR File and Archive Manager
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                     How to install/uninstall plugins
@@ -81,16 +81,16 @@ REMOVING A PLUGIN
       etc.) clear plugins cache, use the file ClearPluginsCache.bat to
       complete this operation or manually delete the following registry
       branch:
-      [HKEY_CURRENT_USER\Software\Far\PluginsCache]
+      [HKEY_CURRENT_USER\Software\Far2\PluginsCache]
 
    g) You can try to find and delete all registry entries belonging
       to that plugin.
       Most often they will be at a sub-branch with the name of the plugin
       at the following registry branch
-      [HKEY_CURRENT_USER\Software\Far\Plugins],
+      [HKEY_CURRENT_USER\Software\Far2\Plugins],
       several entries might also be at the following registry branches:
-      [HKEY_CURRENT_USER\Software\Far\SavedDialogHistory]
-      [HKEY_CURRENT_USER\Software\Far\PluginHotkeys].
+      [HKEY_CURRENT_USER\Software\Far2\SavedDialogHistory]
+      [HKEY_CURRENT_USER\Software\Far2\PluginHotkeys].
       If you do not know how to do it, ask your system administrator.
       However, this step is completely optional: there is no harm in not
       deleting these registry entries.

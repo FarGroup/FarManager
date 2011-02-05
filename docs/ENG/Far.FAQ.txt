@@ -1,4 +1,4 @@
-
+﻿
                          Hints and FAQ.
 
 [1]  How to save FAR properties

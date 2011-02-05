@@ -1,7 +1,7 @@
 REGEDIT4
 
-[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlRight]
-[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlRight]
+[-HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlRight]
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlRight]
 "Description"="Use Ctrl-Right to change current drive to the next"
 "Sequence"="F9 Enter Up Enter Down Enter Esc"
 "DisableOutput"=dword:00000001

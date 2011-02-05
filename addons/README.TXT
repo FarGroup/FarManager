@@ -1,10 +1,4 @@
-   The "Archivers" folder contains  command  lines  for  some  archivers
-alternate to those used in the archive support plugin by default.
-
    The "Macros" folder contains useful keyboard macro commands.
-
-   The "Tables" folder contains additional character tables that may  be
-selected in FAR viewer and editor from the menu activated by Shift-F8.
 
    The "Colors" folder contains custom colors schemes.
 

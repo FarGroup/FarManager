@@ -4,15 +4,15 @@ REGEDIT4
 ; left arrow will move one level up in directory hierarchy, while right
 ; arrow will move one level down.
 
-[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\Left]
-[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\Left]
+[-HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\Left]
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\Left]
 "Sequence"="CtrlPgUp"
 "DisableOutput"=dword:00000001
 "EmptyCommandLine"=dword:00000001
 "NotEmptyCommandLine"=dword:00000000
 
-[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\Right]
-[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\Right]
+[-HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\Right]
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\Right]
 "Sequence"="CtrlPgDn"
 "DisableOutput"=dword:00000001
 "EmptyCommandLine"=dword:00000001

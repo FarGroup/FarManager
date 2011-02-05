@@ -1,4 +1,4 @@
-
+﻿
                     The FAR File and Archive Manager
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                      Overview of plugin capabilities
@@ -48,6 +48,10 @@ be used to search for specific plugins, one can recommend:
     http://plugring.farmanager.com
   - Online forum
     http://forum.farmanager.com
+  - Mailing lists
+    http://groups.google.com/group/fardev
+    http://groups.google.com/group/fardeven
+    http://groups.google.com/group/farcommits
   - USENET echo conference
     news:fido7.far.support
     Google Groups: http://groups.google.ru/groups?hl=ru&lr=&ie=UTF-8&group=fido7.far.support
@@ -56,12 +60,5 @@ be used to search for specific plugins, one can recommend:
   - FidoNet echo conference
     far.support
     far.development
-  - Mailing lists
-    http://groups.yahoo.com/group/plugringenglish
-    http://groups.yahoo.com/group/farpluginsapi
-    http://groups.yahoo.com/group/plugring_announce
-  - The PlugRinG viewer plugin allows you to view and download all the latest
-    plugins directly from FAR.
-    http://plugring.farmanager.com/cgi-bin/downld.cgi?Draw=List&Select=PlugIn&SelectPlugIn=259&Lang=Eng
 
                                      [ FAR manager development group ]

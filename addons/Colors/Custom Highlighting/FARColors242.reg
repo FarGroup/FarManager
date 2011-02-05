@@ -1,14 +1,14 @@
 REGEDIT4
 
-[HKEY_CURRENT_USER\Software\Far\Colors]
+[HKEY_CURRENT_USER\Software\Far2\Colors]
 "CurrentPalette"=hex:70,87,7f,8f,70,7f,70,07,7f,0f,87,2e,17,8b,70,7e,8f,70,8b,\
   8b,2e,70,7f,70,70,7f,8f,70,87,7f,8f,70,8f,7e,0e,4f,4e,4f,4f,4e,8f,4f,70,4e,\
   7e,0f,70,07,0f,70,87,f0,70,87,f0,70,70,7b,7f,8f,70,7f,7f,87,8f,70,8f,0a,70,\
   70,0e,00,70,70,8f,0a,78,78,78,46,78,78,78,00,00,00,00,00,00,00
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight]
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group0]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group0]
 "Mask"="*"
 "IncludeAttributes"=dword:00000410
 "NormalColor"=dword:0000005f
@@ -18,7 +18,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000005c
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group1]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group1]
 "Mask"="*"
 "IncludeAttributes"=dword:00000400
 "NormalColor"=dword:00000057
@@ -28,7 +28,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group10]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group10]
 "Mask"="*.doc,*.wri,*.rtf,*.dot"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -38,7 +38,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group100]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group100]
 "Mask"="*.ha"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -48,7 +48,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fb
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group101]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group101]
 "Mask"="*.ha"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -58,7 +58,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fb
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group102]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group102]
 "Mask"="*.ac[bei]"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -68,7 +68,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fe
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group103]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group103]
 "Mask"="*.ac[bei]"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -78,7 +78,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fe
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group104]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group104]
 "Mask"="*.ac[bei]"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -88,7 +88,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fe
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group105]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group105]
 "Mask"="*.ac[bei]"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -98,7 +98,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fe
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group106]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group106]
 "Mask"="*.hqx,*.sea,*.sit"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -108,7 +108,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000000f
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group107]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group107]
 "Mask"="*.hqx,*.sea,*.sit"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -118,7 +118,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000000f
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group108]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group108]
 "Mask"="*.hqx,*.sea,*.sit"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -128,7 +128,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000000f
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group109]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group109]
 "Mask"="*.hqx,*.sea,*.sit"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -138,7 +138,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000000f
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group11]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group11]
 "Mask"="*.doc,*.wri,*.rtf,*.dot"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -148,7 +148,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group110]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group110]
 "Mask"="*.uue,*.xxe"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -158,7 +158,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001c
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group111]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group111]
 "Mask"="*.uue,*.xxe"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -168,7 +168,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001c
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group112]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group112]
 "Mask"="*.uue,*.xxe"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -178,7 +178,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001c
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group113]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group113]
 "Mask"="*.uue,*.xxe"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -188,7 +188,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001c
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group114]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group114]
 "Mask"="*.dir,*.ddi,*.tdr,*.xdf"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -198,7 +198,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group115]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group115]
 "Mask"="*.dir,*.ddi,*.tdr,*.xdf"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -208,7 +208,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group116]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group116]
 "Mask"="*.dir,*.ddi,*.tdr,*.xdf"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -218,7 +218,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group117]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group117]
 "Mask"="*.dir,*.ddi,*.tdr,*.xdf"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -228,7 +228,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group118]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group118]
 "Mask"="*.lzh,*.lha,*.ice,*.pa[ck],*.lim,*.zoo,*.x,*.x2,*.z,*.arc,*.j,*.$z,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.chz,*.h[ay]p,*.hpk,*.[lw]sz,*.rk,*.rkv,*.rpm,*.sqz,*.uc2"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -238,7 +238,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group119]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group119]
 "Mask"="*.lzh,*.lha,*.ice,*.pa[ck],*.lim,*.zoo,*.x,*.x2,*.z,*.arc,*.j,*.$z,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.chz,*.h[ay]p,*.hpk,*.[lw]sz,*.rk,*.rkv,*.rpm,*.sqz,*.uc2"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -248,7 +248,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group12]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group12]
 "Mask"="*.doc,*.wri,*.rtf,*.dot"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -258,7 +258,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group120]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group120]
 "Mask"="*.lzh,*.lha,*.ice,*.pa[ck],*.lim,*.zoo,*.x,*.x2,*.z,*.arc,*.j,*.$z,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.chz,*.h[ay]p,*.hpk,*.[lw]sz,*.rk,*.rkv,*.rpm,*.sqz,*.uc2"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -268,7 +268,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group121]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group121]
 "Mask"="*.lzh,*.lha,*.ice,*.pa[ck],*.lim,*.zoo,*.x,*.x2,*.z,*.arc,*.j,*.$z,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.chz,*.h[ay]p,*.hpk,*.[lw]sz,*.rk,*.rkv,*.rpm,*.sqz,*.uc2"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -278,7 +278,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group122]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group122]
 "Mask"="*.stm,*.s3m,*.mod,*.med,*.mid,*.midi,*.rmi,*.xmi"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -288,7 +288,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000000e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group123]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group123]
 "Mask"="*.stm,*.s3m,*.mod,*.med,*.mid,*.midi,*.rmi,*.xmi"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -298,7 +298,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000000e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group124]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group124]
 "Mask"="*.stm,*.s3m,*.mod,*.med,*.mid,*.midi,*.rmi,*.xmi"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -308,7 +308,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000000e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group125]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group125]
 "Mask"="*.stm,*.s3m,*.mod,*.med,*.mid,*.midi,*.rmi,*.xmi"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -318,7 +318,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000000e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group126]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group126]
 "Mask"="*.smk,*.fli,*.flc,*.swf"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -328,7 +328,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000000f
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group127]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group127]
 "Mask"="*.smk,*.fli,*.flc,*.swf"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -338,7 +338,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000000f
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group128]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group128]
 "Mask"="*.smk,*.fli,*.flc,*.swf"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -348,7 +348,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000000f
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group129]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group129]
 "Mask"="*.smk,*.fli,*.flc,*.swf"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -358,7 +358,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000000f
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group13]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group13]
 "Mask"="*.doc,*.wri,*.rtf,*.dot"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -368,7 +368,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group130]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group130]
 "Mask"="*.avi,*.mpg,*.mpeg,*.asf,*.rm,*.mov"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -378,7 +378,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group131]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group131]
 "Mask"="*.avi,*.mpg,*.mpeg,*.asf,*.rm,*.mov"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -388,7 +388,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group132]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group132]
 "Mask"="*.avi,*.mpg,*.mpeg,*.asf,*.rm,*.mov"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -398,7 +398,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group133]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group133]
 "Mask"="*.avi,*.mpg,*.mpeg,*.asf,*.rm,*.mov"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -408,7 +408,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group134]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group134]
 "Mask"="*.m3u,*.pls,*.ram"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -418,7 +418,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group135]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group135]
 "Mask"="*.m3u,*.pls,*.ram"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -428,7 +428,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group136]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group136]
 "Mask"="*.m3u,*.pls,*.ram"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -438,7 +438,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group137]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group137]
 "Mask"="*.m3u,*.pls,*.ram"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -448,7 +448,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group138]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group138]
 "Mask"="*.wav,*.au,*.snd"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -458,7 +458,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group139]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group139]
 "Mask"="*.wav,*.au,*.snd"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -468,7 +468,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group14]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group14]
 "Mask"="*.pdf"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -478,7 +478,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001d
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group140]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group140]
 "Mask"="*.wav,*.au,*.snd"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -488,7 +488,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group141]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group141]
 "Mask"="*.wav,*.au,*.snd"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -498,7 +498,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group142]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group142]
 "Mask"="*.mp3,*.mpe,*.ra,*.m1v,*.mp2,*.mpv2,*.mp2v,*.mpa,*.asx"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -508,7 +508,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group143]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group143]
 "Mask"="*.mp3,*.mpe,*.ra,*.m1v,*.mp2,*.mpv2,*.mp2v,*.mpa,*.asx"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -518,7 +518,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group144]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group144]
 "Mask"="*.mp3,*.mpe,*.ra,*.m1v,*.mp2,*.mpv2,*.mp2v,*.mpa,*.asx"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -528,7 +528,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group145]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group145]
 "Mask"="*.mp3,*.mpe,*.ra,*.m1v,*.mp2,*.mpv2,*.mp2v,*.mpa,*.asx"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -538,7 +538,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group146]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group146]
 "Mask"="*.wm,*.wma,*.wmv,*.wmx,*.wmp,*.wvx,*.aif,*.aifc,*.aiff"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -548,7 +548,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group147]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group147]
 "Mask"="*.wm,*.wma,*.wmv,*.wmx,*.wmp,*.wvx,*.aif,*.aifc,*.aiff"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -558,7 +558,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group148]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group148]
 "Mask"="*.wm,*.wma,*.wmv,*.wmx,*.wmp,*.wvx,*.aif,*.aifc,*.aiff"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -568,7 +568,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group149]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group149]
 "Mask"="*.wm,*.wma,*.wmv,*.wmx,*.wmp,*.wvx,*.aif,*.aifc,*.aiff"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -578,7 +578,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group15]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group15]
 "Mask"="*.pdf"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -588,7 +588,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001d
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group150]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group150]
 "Mask"="*.jfif,*.jif,*.jpe,*.jpeg,*.jpg"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -598,7 +598,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group151]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group151]
 "Mask"="*.jfif,*.jif,*.jpe,*.jpeg,*.jpg"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -608,7 +608,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group152]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group152]
 "Mask"="*.jfif,*.jif,*.jpe,*.jpeg,*.jpg"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -618,7 +618,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group153]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group153]
 "Mask"="*.jfif,*.jif,*.jpe,*.jpeg,*.jpg"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -628,7 +628,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group154]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group154]
 "Mask"="*.gif,*.png"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -638,7 +638,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group155]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group155]
 "Mask"="*.gif,*.png"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -648,7 +648,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group156]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group156]
 "Mask"="*.gif,*.png"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -658,7 +658,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group157]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group157]
 "Mask"="*.gif,*.png"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -668,7 +668,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group158]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group158]
 "Mask"="*.cdr"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -678,7 +678,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group159]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group159]
 "Mask"="*.cdr"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -688,7 +688,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group16]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group16]
 "Mask"="*.pdf"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -698,7 +698,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001d
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group160]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group160]
 "Mask"="*.cdr"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -708,7 +708,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group161]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group161]
 "Mask"="*.cdr"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -718,7 +718,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group162]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group162]
 "Mask"="*.ani,*.cur,*.ico,*.icl"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -728,7 +728,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group163]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group163]
 "Mask"="*.ani,*.cur,*.ico,*.icl"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -738,7 +738,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group164]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group164]
 "Mask"="*.ani,*.cur,*.ico,*.icl"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -748,7 +748,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group165]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group165]
 "Mask"="*.ani,*.cur,*.ico,*.icl"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -758,7 +758,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group166]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group166]
 "Mask"="*.bm3,*.bmp,*.dib,*.rle,*.wbmp"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -768,7 +768,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000000f
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group167]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group167]
 "Mask"="*.bm3,*.bmp,*.dib,*.rle,*.wbmp"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -778,7 +778,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000000f
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group168]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group168]
 "Mask"="*.bm3,*.bmp,*.dib,*.rle,*.wbmp"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -788,7 +788,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000000f
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group169]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group169]
 "Mask"="*.bm3,*.bmp,*.dib,*.rle,*.wbmp"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -798,7 +798,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000000f
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group17]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group17]
 "Mask"="*.pdf"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -808,7 +808,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001d
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group170]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group170]
 "Mask"="*.tif,*.tiff"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -818,7 +818,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fb
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group171]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group171]
 "Mask"="*.tif,*.tiff"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -828,7 +828,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fb
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group172]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group172]
 "Mask"="*.tif,*.tiff"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -838,7 +838,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fb
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group173]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group173]
 "Mask"="*.tif,*.tiff"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -848,7 +848,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fb
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group174]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group174]
 "Mask"="*.emf,*.wmf"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -858,7 +858,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001d
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group175]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group175]
 "Mask"="*.emf,*.wmf"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -868,7 +868,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001d
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group176]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group176]
 "Mask"="*.emf,*.wmf"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -878,7 +878,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001d
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group177]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group177]
 "Mask"="*.emf,*.wmf"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -888,7 +888,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001d
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group178]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group178]
 "Mask"="*.acr,*.ais,*.bw,*.cam,*.clp,*.dcm,*.dcx,*.djvu,*.eps,*.fpx,*.g3,*.iff,*.ilbm,*.img,*.int,*.inta,*.iw44,*.kdc,*.lbm,*.ldf,*.lwf,*.mag,*.pbm,*.pcd,*.pct,*.pcx,*.pgm,*.pic,*.pict,*.pix,*.ppm,*.psd,*.psp,*.ras,*.rgb,*.rgba,*.sff,*.sgi,*.sun,*.tga,*.xbm,*.xif,*.xpm"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -898,7 +898,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group179]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group179]
 "Mask"="*.acr,*.ais,*.bw,*.cam,*.clp,*.dcm,*.dcx,*.djvu,*.eps,*.fpx,*.g3,*.iff,*.ilbm,*.img,*.int,*.inta,*.iw44,*.kdc,*.lbm,*.ldf,*.lwf,*.mag,*.pbm,*.pcd,*.pct,*.pcx,*.pgm,*.pic,*.pict,*.pix,*.ppm,*.psd,*.psp,*.ras,*.rgb,*.rgba,*.sff,*.sgi,*.sun,*.tga,*.xbm,*.xif,*.xpm"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -908,7 +908,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group18]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group18]
 "Mask"="*.htm,*.html"
 "IncludeAttributes"=dword:00000002
 "NormalColor"=dword:00000016
@@ -918,7 +918,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group180]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group180]
 "Mask"="*.acr,*.ais,*.bw,*.cam,*.clp,*.dcm,*.dcx,*.djvu,*.eps,*.fpx,*.g3,*.iff,*.ilbm,*.img,*.int,*.inta,*.iw44,*.kdc,*.lbm,*.ldf,*.lwf,*.mag,*.pbm,*.pcd,*.pct,*.pcx,*.pgm,*.pic,*.pict,*.pix,*.ppm,*.psd,*.psp,*.ras,*.rgb,*.rgba,*.sff,*.sgi,*.sun,*.tga,*.xbm,*.xif,*.xpm"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -928,7 +928,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group181]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group181]
 "Mask"="*.acr,*.ais,*.bw,*.cam,*.clp,*.dcm,*.dcx,*.djvu,*.eps,*.fpx,*.g3,*.iff,*.ilbm,*.img,*.int,*.inta,*.iw44,*.kdc,*.lbm,*.ldf,*.lwf,*.mag,*.pbm,*.pcd,*.pct,*.pcx,*.pgm,*.pic,*.pict,*.pix,*.ppm,*.psd,*.psp,*.ras,*.rgb,*.rgba,*.sff,*.sgi,*.sun,*.tga,*.xbm,*.xif,*.xpm"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -938,7 +938,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group182]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group182]
 "Mask"="*.isu"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -948,7 +948,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group183]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group183]
 "Mask"="*.isu"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -958,7 +958,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group184]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group184]
 "Mask"="*.isu"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -968,7 +968,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group185]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group185]
 "Mask"="*.isu"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -978,7 +978,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group186]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group186]
 "Mask"="*.res"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -988,7 +988,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group187]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group187]
 "Mask"="*.res"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -998,7 +998,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group188]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group188]
 "Mask"="*.res"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -1008,7 +1008,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group189]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group189]
 "Mask"="*.res"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -1018,7 +1018,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group19]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group19]
 "Mask"="*.htm,*.html"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -1028,7 +1028,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group190]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group190]
 "Mask"="*.dcu,*.obj,*.tpu,*.o,*.pjx,*.fxp"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -1038,7 +1038,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group191]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group191]
 "Mask"="*.dcu,*.obj,*.tpu,*.o,*.pjx,*.fxp"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -1048,7 +1048,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group192]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group192]
 "Mask"="*.dcu,*.obj,*.tpu,*.o,*.pjx,*.fxp"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -1058,7 +1058,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group193]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group193]
 "Mask"="*.dcu,*.obj,*.tpu,*.o,*.pjx,*.fxp"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -1068,7 +1068,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group194]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group194]
 "Mask"="*.bak,*.old,*.b[0-9][0-9],*.tmp,*.swp,*.wbk,*.gid"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -1078,7 +1078,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group195]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group195]
 "Mask"="*.bak,*.old,*.b[0-9][0-9],*.tmp,*.swp,*.wbk,*.gid"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -1088,7 +1088,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group196]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group196]
 "Mask"="*.bak,*.old,*.b[0-9][0-9],*.tmp,*.swp,*.wbk,*.gid"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -1098,7 +1098,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group197]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group197]
 "Mask"="*.bak,*.old,*.b[0-9][0-9],*.tmp,*.swp,*.wbk,*.gid"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -1108,7 +1108,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group198]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group198]
 "Mask"="*.[db]pr"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -1118,7 +1118,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group199]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group199]
 "Mask"="*.[db]pr"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -1128,7 +1128,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group2]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group2]
 "Mask"="*"
 "IncludeAttributes"=dword:00000012
 "NormalColor"=dword:0000001f
@@ -1138,7 +1138,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000005c
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group20]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group20]
 "Mask"="*.htm,*.html"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -1148,7 +1148,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group200]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group200]
 "Mask"="*.[db]pr"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -1158,7 +1158,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group201]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group201]
 "Mask"="*.[db]pr"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -1168,7 +1168,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group202]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group202]
 "Mask"="*.vbp"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -1178,7 +1178,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group203]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group203]
 "Mask"="*.vbp"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -1188,7 +1188,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group204]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group204]
 "Mask"="*.vbp"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -1198,7 +1198,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group205]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group205]
 "Mask"="*.vbp"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -1208,7 +1208,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group206]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group206]
 "Mask"="*.pj[mt]"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -1218,7 +1218,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group207]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group207]
 "Mask"="*.pj[mt]"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -1228,7 +1228,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group208]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group208]
 "Mask"="*.pj[mt]"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -1238,7 +1238,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group209]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group209]
 "Mask"="*.pj[mt]"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -1248,7 +1248,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group21]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group21]
 "Mask"="*.htm,*.html"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -1258,7 +1258,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group210]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group210]
 "Mask"="makefile,*.mak"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -1268,7 +1268,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group211]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group211]
 "Mask"="makefile,*.mak"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -1278,7 +1278,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group212]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group212]
 "Mask"="makefile,*.mak"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -1288,7 +1288,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group213]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group213]
 "Mask"="makefile,*.mak"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -1298,7 +1298,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group214]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group214]
 "Mask"="*.awk,*.mac"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -1308,7 +1308,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fb
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group215]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group215]
 "Mask"="*.awk,*.mac"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -1318,7 +1318,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fb
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group216]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group216]
 "Mask"="*.awk,*.mac"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -1328,7 +1328,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fb
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group217]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group217]
 "Mask"="*.awk,*.mac"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -1338,7 +1338,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fb
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group218]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group218]
 "Mask"="*.def,*.rc,*.lng"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -1348,7 +1348,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group219]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group219]
 "Mask"="*.def,*.rc,*.lng"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -1358,7 +1358,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group22]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group22]
 "Mask"="*.xml,*.xhtml"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -1368,7 +1368,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000019
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group220]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group220]
 "Mask"="*.def,*.rc,*.lng"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -1378,7 +1378,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group221]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group221]
 "Mask"="*.def,*.rc,*.lng"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -1388,7 +1388,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group222]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group222]
 "Mask"="*.inc,*.h,*.hpp,*.ch"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -1398,7 +1398,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group223]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group223]
 "Mask"="*.inc,*.h,*.hpp,*.ch"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -1408,7 +1408,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group224]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group224]
 "Mask"="*.inc,*.h,*.hpp,*.ch"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -1418,7 +1418,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group225]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group225]
 "Mask"="*.inc,*.h,*.hpp,*.ch"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -1428,7 +1428,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group226]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group226]
 "Mask"="*.sql"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -1438,7 +1438,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000000f
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group227]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group227]
 "Mask"="*.sql"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -1448,7 +1448,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000000f
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group228]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group228]
 "Mask"="*.sql"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -1458,7 +1458,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000000f
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group229]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group229]
 "Mask"="*.sql"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -1468,7 +1468,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000000f
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group23]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group23]
 "Mask"="*.xml,*.xhtml"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -1478,7 +1478,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000019
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group230]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group230]
 "Mask"="*.sct,*.frm"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -1488,7 +1488,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group231]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group231]
 "Mask"="*.sct,*.frm"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -1498,7 +1498,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group232]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group232]
 "Mask"="*.sct,*.frm"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -1508,7 +1508,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group233]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group233]
 "Mask"="*.sct,*.frm"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -1518,7 +1518,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group234]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group234]
 "Mask"="*.dfm,*.frx,*.scx"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -1528,7 +1528,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group235]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group235]
 "Mask"="*.dfm,*.frx,*.scx"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -1538,7 +1538,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group236]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group236]
 "Mask"="*.dfm,*.frx,*.scx"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -1548,7 +1548,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group237]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group237]
 "Mask"="*.dfm,*.frx,*.scx"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -1558,7 +1558,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group238]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group238]
 "Mask"="*.dsr"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -1568,7 +1568,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001d
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group239]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group239]
 "Mask"="*.dsr"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -1578,7 +1578,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001d
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group24]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group24]
 "Mask"="*.xml,*.xhtml"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -1588,7 +1588,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000019
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group240]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group240]
 "Mask"="*.dsr"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -1598,7 +1598,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001d
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group241]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group241]
 "Mask"="*.dsr"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -1608,7 +1608,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001d
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group242]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group242]
 "Mask"="*.class"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -1618,7 +1618,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fe
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group243]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group243]
 "Mask"="*.class"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -1628,7 +1628,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fe
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group244]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group244]
 "Mask"="*.class"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -1638,7 +1638,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fe
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group245]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group245]
 "Mask"="*.class"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -1648,7 +1648,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fe
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group246]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group246]
 "Mask"="*.pas,*.c,*.cpp,*.asm,*.prg,*.java,*.bas,*.cls"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -1658,7 +1658,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group247]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group247]
 "Mask"="*.pas,*.c,*.cpp,*.asm,*.prg,*.java,*.bas,*.cls"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -1668,7 +1668,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group248]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group248]
 "Mask"="*.pas,*.c,*.cpp,*.asm,*.prg,*.java,*.bas,*.cls"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -1678,7 +1678,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group249]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group249]
 "Mask"="*.pas,*.c,*.cpp,*.asm,*.prg,*.java,*.bas,*.cls"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -1688,7 +1688,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group25]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group25]
 "Mask"="*.xml,*.xhtml"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -1698,7 +1698,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000019
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group250]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group250]
 "Mask"="*.hlf"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -1708,7 +1708,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fb
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group251]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group251]
 "Mask"="*.hlf"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -1718,7 +1718,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fb
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group252]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group252]
 "Mask"="*.hlf"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -1728,7 +1728,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fb
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group253]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group253]
 "Mask"="*.hlf"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -1738,7 +1738,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fb
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group254]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group254]
 "Mask"="*.hlp,*.chm"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -1748,7 +1748,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group255]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group255]
 "Mask"="*.hlp,*.chm"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -1758,7 +1758,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group256]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group256]
 "Mask"="*.hlp,*.chm"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -1768,7 +1768,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group257]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group257]
 "Mask"="*.hlp,*.chm"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -1778,7 +1778,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group258]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group258]
 "Mask"="*.fts,*.ch[iqsw]"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -1788,7 +1788,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fe
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group259]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group259]
 "Mask"="*.fts,*.ch[iqsw]"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -1798,7 +1798,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fe
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group26]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group26]
 "Mask"="*.shtml"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -1808,7 +1808,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group260]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group260]
 "Mask"="*.fts,*.ch[iqsw]"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -1818,7 +1818,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fe
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group261]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group261]
 "Mask"="*.fts,*.ch[iqsw]"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -1828,7 +1828,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fe
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group262]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group262]
 "Mask"="*.cnt,*.toc,*.col"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -1838,7 +1838,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group263]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group263]
 "Mask"="*.cnt,*.toc,*.col"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -1848,7 +1848,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group264]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group264]
 "Mask"="*.cnt,*.toc,*.col"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -1858,7 +1858,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group265]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group265]
 "Mask"="*.cnt,*.toc,*.col"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -1868,7 +1868,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group266]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group266]
 "Mask"="*.nfo"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -1878,7 +1878,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group267]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group267]
 "Mask"="*.nfo"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -1888,7 +1888,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group268]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group268]
 "Mask"="*.nfo"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -1898,7 +1898,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group269]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group269]
 "Mask"="*.nfo"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -1908,7 +1908,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group27]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group27]
 "Mask"="*.shtml"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -1918,7 +1918,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group270]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group270]
 "Mask"="file_id.diz,dirinfo"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -1928,7 +1928,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group271]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group271]
 "Mask"="file_id.diz,dirinfo"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -1938,7 +1938,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group272]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group272]
 "Mask"="file_id.diz,dirinfo"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -1948,7 +1948,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group273]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group273]
 "Mask"="file_id.diz,dirinfo"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -1958,7 +1958,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group274]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group274]
 "Mask"="descript.ion,files.bbs"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -1968,7 +1968,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group275]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group275]
 "Mask"="descript.ion,files.bbs"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -1978,7 +1978,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group276]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group276]
 "Mask"="descript.ion,files.bbs"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -1988,7 +1988,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group277]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group277]
 "Mask"="descript.ion,files.bbs"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -1998,7 +1998,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group278]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group278]
 "Mask"="*.dll"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -2008,7 +2008,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group279]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group279]
 "Mask"="*.dll"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -2018,7 +2018,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group28]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group28]
 "Mask"="*.shtml"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -2028,7 +2028,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group280]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group280]
 "Mask"="*.dll"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -2038,7 +2038,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group281]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group281]
 "Mask"="*.dll"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -2048,7 +2048,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group282]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group282]
 "Mask"="*.vbx,*.ocx"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -2058,7 +2058,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group283]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group283]
 "Mask"="*.vbx,*.ocx"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -2068,7 +2068,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group284]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group284]
 "Mask"="*.vbx,*.ocx"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -2078,7 +2078,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group285]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group285]
 "Mask"="*.vbx,*.ocx"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -2088,7 +2088,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group286]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group286]
 "Mask"="*.ttf,*.fon"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -2098,7 +2098,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group287]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group287]
 "Mask"="*.ttf,*.fon"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -2108,7 +2108,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group288]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group288]
 "Mask"="*.ttf,*.fon"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -2118,7 +2118,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group289]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group289]
 "Mask"="*.ttf,*.fon"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -2128,7 +2128,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group29]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group29]
 "Mask"="*.shtml"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -2138,7 +2138,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group290]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group290]
 "Mask"="*.lib"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -2148,7 +2148,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group291]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group291]
 "Mask"="*.lib"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -2158,7 +2158,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group292]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group292]
 "Mask"="*.lib"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -2168,7 +2168,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group293]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group293]
 "Mask"="*.lib"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -2178,7 +2178,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group294]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group294]
 "Mask"="*.dat"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -2188,7 +2188,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fe
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group295]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group295]
 "Mask"="*.dat"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -2198,7 +2198,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fe
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group296]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group296]
 "Mask"="*.dat"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -2208,7 +2208,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fe
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group297]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group297]
 "Mask"="*.dat"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -2218,7 +2218,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fe
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group298]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group298]
 "Mask"="*.sys"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -2228,7 +2228,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fb
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group299]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group299]
 "Mask"="*.sys"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -2238,7 +2238,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fb
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group3]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group3]
 "Mask"="*"
 "NormalColor"=dword:0000004f
 "CursorColor"=dword:0000007f
@@ -2248,7 +2248,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000005c
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group30]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group30]
 "Mask"="*.jsp,*.asp,*.php,*.jhtml"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -2258,7 +2258,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fb
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group300]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group300]
 "Mask"="*.sys"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -2268,7 +2268,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fb
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group301]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group301]
 "Mask"="*.sys"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -2278,7 +2278,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fb
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group302]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group302]
 "Mask"="*.vxd"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -2288,7 +2288,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001d
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group303]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group303]
 "Mask"="*.vxd"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -2298,7 +2298,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001d
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group304]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group304]
 "Mask"="*.vxd"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -2308,7 +2308,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001d
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group305]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group305]
 "Mask"="*.vxd"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -2318,7 +2318,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001d
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group306]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group306]
 "Mask"="*"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -2328,7 +2328,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group307]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group307]
 "Mask"="*"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -2338,7 +2338,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group308]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group308]
 "Mask"="*"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -2348,7 +2348,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group309]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group309]
 "Mask"="*"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -2358,7 +2358,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group31]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group31]
 "Mask"="*.jsp,*.asp,*.php,*.jhtml"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -2368,7 +2368,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fb
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group32]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group32]
 "Mask"="*.jsp,*.asp,*.php,*.jhtml"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -2378,7 +2378,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fb
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group33]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group33]
 "Mask"="*.jsp,*.asp,*.php,*.jhtml"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -2388,7 +2388,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fb
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group34]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group34]
 "Mask"="*.css"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -2398,7 +2398,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fe
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group35]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group35]
 "Mask"="*.css"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -2408,7 +2408,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fe
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group36]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group36]
 "Mask"="*.css"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -2418,7 +2418,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fe
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group37]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group37]
 "Mask"="*.css"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -2428,7 +2428,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fe
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group38]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group38]
 "Mask"="*.eml,*.msg"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -2438,7 +2438,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000000f
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group39]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group39]
 "Mask"="*.eml,*.msg"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -2448,7 +2448,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000000f
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group4]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group4]
 "Mask"="*"
 "NormalColor"=dword:0000000f
 "CursorColor"=dword:0000007f
@@ -2458,7 +2458,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000005c
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group40]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group40]
 "Mask"="*.eml,*.msg"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -2468,7 +2468,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000000f
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group41]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group41]
 "Mask"="*.eml,*.msg"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -2478,7 +2478,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000000f
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group42]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group42]
 "Mask"="*.in[if],*.reg"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -2488,7 +2488,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group43]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group43]
 "Mask"="*.in[if],*.reg"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -2498,7 +2498,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group44]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group44]
 "Mask"="*.in[if],*.reg"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -2508,7 +2508,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group45]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group45]
 "Mask"="*.in[if],*.reg"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -2518,7 +2518,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group46]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group46]
 "Mask"="*.cfg,*.ctl,*.lst,*.properties"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -2528,7 +2528,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000012
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group47]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group47]
 "Mask"="*.cfg,*.ctl,*.lst,*.properties"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -2538,7 +2538,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000012
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group48]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group48]
 "Mask"="*.cfg,*.ctl,*.lst,*.properties"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -2548,7 +2548,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000012
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group49]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group49]
 "Mask"="*.cfg,*.ctl,*.lst,*.properties"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -2558,7 +2558,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000012
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group5]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group5]
 "Mask"="*"
 "NormalColor"=dword:0000008f
 "CursorColor"=dword:0000007f
@@ -2568,7 +2568,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000005c
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group50]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group50]
 "Mask"="*.url"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -2578,7 +2578,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000018
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group51]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group51]
 "Mask"="*.url"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -2588,7 +2588,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000018
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group52]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group52]
 "Mask"="*.url"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -2598,7 +2598,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000018
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group53]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group53]
 "Mask"="*.url"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -2608,7 +2608,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000018
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group54]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group54]
 "Mask"="*.log"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -2618,7 +2618,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001c
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group55]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group55]
 "Mask"="*.log"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -2628,7 +2628,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001c
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group56]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group56]
 "Mask"="*.log"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -2638,7 +2638,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001c
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group57]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group57]
 "Mask"="*.log"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -2648,7 +2648,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001c
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group58]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group58]
 "Mask"="*.txt,*.me,*.rus,*.eng,*.faq"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -2658,7 +2658,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group59]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group59]
 "Mask"="*.txt,*.me,*.rus,*.eng,*.faq"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -2668,7 +2668,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group6]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group6]
 "Mask"="*.xls"
 "NormalColor"=dword:00000016
 "CursorColor"=dword:00000078
@@ -2678,7 +2678,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group60]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group60]
 "Mask"="*.txt,*.me,*.rus,*.eng,*.faq"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -2688,7 +2688,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group61]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group61]
 "Mask"="*.txt,*.me,*.rus,*.eng,*.faq"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -2698,7 +2698,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group62]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group62]
 "Mask"="*.bat,*.cmd"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -2708,7 +2708,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group63]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group63]
 "Mask"="*.bat,*.cmd"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -2718,7 +2718,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group64]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group64]
 "Mask"="*.bat,*.cmd"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -2728,7 +2728,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group65]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group65]
 "Mask"="*.bat,*.cmd"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -2738,7 +2738,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group66]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group66]
 "Mask"="*.pif,*.lnk"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -2748,7 +2748,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group67]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group67]
 "Mask"="*.pif,*.lnk"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -2758,7 +2758,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group68]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group68]
 "Mask"="*.pif,*.lnk"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -2768,7 +2768,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group69]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group69]
 "Mask"="*.pif,*.lnk"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -2778,7 +2778,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group7]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group7]
 "Mask"="*.xls"
 "CursorColor"=dword:00000078
 "NormalColor"=dword:00000046
@@ -2788,7 +2788,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group70]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group70]
 "Mask"="*.exe,*.com"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -2798,7 +2798,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group71]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group71]
 "Mask"="*.exe,*.com"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -2808,7 +2808,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group72]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group72]
 "Mask"="*.exe,*.com"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -2818,7 +2818,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group73]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group73]
 "Mask"="*.exe,*.com"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -2828,7 +2828,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000020
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group74]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group74]
 "Mask"="*.vbs,*.vbe,*.js,*.jse,*.wsf,*.wsh,%PATHEXT%"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -2838,7 +2838,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group75]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group75]
 "Mask"="*.vbs,*.vbe,*.js,*.jse,*.wsf,*.wsh,%PATHEXT%"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -2848,7 +2848,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group76]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group76]
 "Mask"="*.vbs,*.vbe,*.js,*.jse,*.wsf,*.wsh,%PATHEXT%"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -2858,7 +2858,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group77]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group77]
 "Mask"="*.vbs,*.vbe,*.js,*.jse,*.wsf,*.wsh,%PATHEXT%"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -2868,7 +2868,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group78]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group78]
 "Mask"="*.rar,*.r[0-9][0-9]"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -2878,7 +2878,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group79]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group79]
 "Mask"="*.rar,*.r[0-9][0-9]"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -2888,7 +2888,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group8]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group8]
 "Mask"="*.xls"
 "NormalColor"=dword:00000006
 "CursorColor"=dword:00000078
@@ -2898,7 +2898,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group80]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group80]
 "Mask"="*.rar,*.r[0-9][0-9]"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -2908,7 +2908,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group81]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group81]
 "Mask"="*.rar,*.r[0-9][0-9]"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -2918,7 +2918,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:00000010
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group82]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group82]
 "Mask"="*.zip,*.jar"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -2928,7 +2928,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group83]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group83]
 "Mask"="*.zip,*.jar"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -2938,7 +2938,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group84]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group84]
 "Mask"="*.zip,*.jar"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -2948,7 +2948,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group85]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group85]
 "Mask"="*.zip,*.jar"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -2958,7 +2958,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000003e
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group86]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group86]
 "Mask"="*.cab"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -2968,7 +2968,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group87]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group87]
 "Mask"="*.cab"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -2978,7 +2978,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group88]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group88]
 "Mask"="*.cab"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -2988,7 +2988,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group89]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group89]
 "Mask"="*.cab"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -2998,7 +2998,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group9]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group9]
 "Mask"="*.xls"
 "NormalColor"=dword:00000086
 "CursorColor"=dword:00000078
@@ -3008,7 +3008,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001a
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group90]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group90]
 "Mask"="*.arj,*.a[0-9][0-9]"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -3018,7 +3018,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group91]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group91]
 "Mask"="*.arj,*.a[0-9][0-9]"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -3028,7 +3028,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group92]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group92]
 "Mask"="*.arj,*.a[0-9][0-9]"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -3038,7 +3038,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group93]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group93]
 "Mask"="*.arj,*.a[0-9][0-9]"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -3048,7 +3048,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fa
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group94]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group94]
 "Mask"="*.gz,*.tar,*.t[ag]z,*.bz,*.bzip,*.bz2"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -3058,7 +3058,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001d
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group95]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group95]
 "Mask"="*.gz,*.tar,*.t[ag]z,*.bz,*.bzip,*.bz2"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -3068,7 +3068,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001d
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group96]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group96]
 "Mask"="*.gz,*.tar,*.t[ag]z,*.bz,*.bzip,*.bz2"
 "IncludeAttributes"=dword:00000001
 "ExcludeAttributes"=dword:00000000
@@ -3078,7 +3078,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001d
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group97]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group97]
 "Mask"="*.gz,*.tar,*.t[ag]z,*.bz,*.bzip,*.bz2"
 "IncludeAttributes"=dword:00000000
 "ExcludeAttributes"=dword:00000000
@@ -3088,7 +3088,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:0000001d
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group98]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group98]
 "Mask"="*.ha"
 "IncludeAttributes"=dword:00000002
 "ExcludeAttributes"=dword:00000000
@@ -3098,7 +3098,7 @@ REGEDIT4
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fb
 
-[HKEY_CURRENT_USER\Software\Far\Colors\Highlight\Group99]
+[HKEY_CURRENT_USER\Software\Far2\Colors\Highlight\Group99]
 "Mask"="*.ha"
 "IncludeAttributes"=dword:00000004
 "ExcludeAttributes"=dword:00000000
@@ -3107,4 +3107,3 @@ REGEDIT4
 "CursorColor"=dword:00000072
 "SelectedCursorColor"=dword:00000000
 "MarkChar"=dword:000000fb
-

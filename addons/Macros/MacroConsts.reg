@@ -1,7 +1,7 @@
 REGEDIT4
 
 ; Predefined macro constants
-[HKEY_CURRENT_USER\Software\Far\KeyMacros\Consts]
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Consts]
 "ACTIVEPANEL"                        =dword:00000000
 "PASSIVEPANEL"                       =dword:00000001
 "ERROR"                              =dword:FFFFFFFF

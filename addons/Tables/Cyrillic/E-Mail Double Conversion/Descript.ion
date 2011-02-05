@@ -1,7 +1,0 @@
-Descript.ion File descriptions
-"Email DKWD.reg" Email DOS->KOI,WIN->DOS double conversion table
-"Email DWKD.reg" Email DOS->WIN,KOI->DOS double conversion table
-"Email KWKD.reg" Email KOI->WIN,KOI->DOS double conversion table
-"Email WK.reg" Email WIN->KOI conversion table
-"Email WKWD.reg" Email WIN->KOI,WIN->DOS double conversion table
-readme.txt Explanations to the EMail tables (RU)
