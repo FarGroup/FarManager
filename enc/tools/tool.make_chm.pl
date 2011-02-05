@@ -20,12 +20,12 @@ print "  -- making directories tree.\n\n";
 mkdir $dest_dr, 0775;
 mkdir $dest_dr_chm, 0775;
 
-%hrefs = ();
-%hrefs2 = ();
-mk_chm_lng("ru","rus","r");
-%hrefs = ();
-%hrefs2 = ();
-mk_chm_lng("en","eng","e");
+#%hrefs = ();
+#%hrefs2 = ();
+#mk_chm_lng("ru","rus","r");
+#%hrefs = ();
+#%hrefs2 = ();
+#mk_chm_lng("en","eng","e");
 
 %hrefs = ();
 %hrefs2 = ();

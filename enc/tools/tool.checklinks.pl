@@ -9,7 +9,8 @@ if($^O eq "MSWin32"){
   $toolpath="./tools/";
 }
 
-my @dirs=("../enc_rus/meta","../enc_eng/meta","../enc_rus2/meta");
+#my @dirs=("../enc_rus/meta","../enc_eng/meta","../enc_rus2/meta");
+my @dirs=("../enc_rus2/meta");
 foreach my $dir (@dirs) {
   srch($dir);
 }

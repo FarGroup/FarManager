@@ -2,9 +2,6 @@
   procedure, but saves to file full exception dump using plugin MAP
   files and disassembles the place of exception.
 
-  Warning: To use exception replacement you must have a FAR manager version
-           above "1.70 beta 5 (build 15XX)".
-
   Warning: To execute handler replacement you should have FAR
            ExceptionRule enabled. See in file "FAR installed dir"\TechInfo.txt
            #17 Rule.
