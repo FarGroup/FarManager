@@ -27,9 +27,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>far2</ProjectName>
+    <ProjectName>far</ProjectName>
     <ProjectGuid>{62F794C9-5F4C-40F6-B358-5DC1A9D6D2CB}</ProjectGuid>
-    <RootNamespace>far2</RootNamespace>
+    <RootNamespace>far</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
