@@ -1,26 +1,26 @@
 REGEDIT4
 ; Hotkeys to execute cut/copy/paste commands: Ctrl-X, Ctrl-C, Ctrl-V
 
-[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlC]
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlC]
 "Sequence"="Esc r c l k _ c m d : c o p y Enter"
 "DisableOutput"=dword:00000001
 
-[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlX]
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlX]
 "Sequence"="Esc r c l k _ c m d : c u t Enter"
 "DisableOutput"=dword:00000001
 
-[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlV]
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlV]
 "Sequence"="Esc r c l k _ c m d : p a s t e Enter"
 "DisableOutput"=dword:00000001
 
-[HKEY_CURRENT_USER\Software\Far\KeyMacros\Tree\CtrlC]
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Tree\CtrlC]
 "Sequence"="Esc r c l k _ c m d : c o p y Enter"
 "DisableOutput"=dword:00000001
 
-[HKEY_CURRENT_USER\Software\Far\KeyMacros\Tree\CtrlX]
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Tree\CtrlX]
 "Sequence"="Esc r c l k _ c m d : c u t Enter"
 "DisableOutput"=dword:00000001
 
-[HKEY_CURRENT_USER\Software\Far\KeyMacros\Tree\CtrlV]
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Tree\CtrlV]
 "Sequence"="Esc r c l k _ c m d : p a s t e Enter"
 "DisableOutput"=dword:00000001

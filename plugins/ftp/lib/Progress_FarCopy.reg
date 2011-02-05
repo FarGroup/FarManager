@@ -1,9 +1,9 @@
 REGEDIT4
 
-[-HKEY_CURRENT_USER\Software\Far\Plugins\FTP\CopyDialog\English]
-[-HKEY_CURRENT_USER\Software\Far\Plugins\FTP\CopyDialog\Russian]
+[-HKEY_CURRENT_USER\Software\Far2\Plugins\FTP\CopyDialog\English]
+[-HKEY_CURRENT_USER\Software\Far2\Plugins\FTP\CopyDialog\Russian]
 
-[HKEY_CURRENT_USER\Software\Far\Plugins\FTP\CopyDialog\English]
+[HKEY_CURRENT_USER\Software\Far2\Plugins\FTP\CopyDialog\English]
 "Count"  = dword:00000009
 "Line01" = "Transferring the file"
 "Line02" = "%-40SrcPathname%"
@@ -17,7 +17,7 @@ REGEDIT4
 "Line08" = "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ"
 "Line09" = "Time: %+8TotTime% Left: %-8TotRTime% %+7CPS4%b/s"
 
-[HKEY_CURRENT_USER\Software\Far\Plugins\FTP\CopyDialog\Russian]
+[HKEY_CURRENT_USER\Software\Far2\Plugins\FTP\CopyDialog\Russian]
 "Count" = dword:00000009
 "Line01" = "¥à¥¤ ç  ä ©« "
 "Line02" = "%-40SrcPathname%"

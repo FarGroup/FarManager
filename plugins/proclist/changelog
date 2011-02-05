@@ -1,3 +1,7 @@
+t-rex 06.02.2011 00:26:48 +0200
+
+1. lng,hlf -> utf8, reg -> Far2
+
 svs 17.01.2011 14:20:20 +0300 - build 165
 
 1. Mantis#0000729: Resource leaks в плагине Proclist.

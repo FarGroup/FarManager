@@ -2,48 +2,48 @@ REGEDIT4
 
 ;Hotkeys [Shift-]Apps, Alt-[Shift-]Apps and Ctrl-Apps to show context menu
 
-[HKEY_CURRENT_USER\Software\Far\PluginHotkeys\Plugins/EMenu/emenu.dll]
+[HKEY_CURRENT_USER\Software\Far2\PluginHotkeys\Plugins/EMenu/emenu.dll]
 "Hotkey"="x"
 
-[HKEY_CURRENT_USER\SOFTWARE\Far\Plugins\RightClick]
+[HKEY_CURRENT_USER\Software\Far2\Plugins\RightClick]
 "UseGUI"=dword:00000002
 
-[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\Apps]
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\Apps]
 "Sequence"="F11 x Enter 2"
 "DisableOutput"=dword:00000001
 
-[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\ShiftApps]
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\ShiftApps]
 "Sequence"="F11 x Enter 2"
 "DisableOutput"=dword:00000001
 
-[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\AltApps]
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\AltApps]
 "Sequence"="F11 x Enter 1"
 "DisableOutput"=dword:00000001
 
-[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\AltShiftApps]
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\AltShiftApps]
 "Sequence"="F11 x Enter 1"
 "DisableOutput"=dword:00000001
 
-[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlApps]
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlApps]
 "Sequence"="F11 x Enter"
 "DisableOutput"=dword:00000001
 
-[HKEY_CURRENT_USER\Software\Far\KeyMacros\Tree\Apps]
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Tree\Apps]
 "Sequence"="F11 x Enter 2"
 "DisableOutput"=dword:00000001
 
-[HKEY_CURRENT_USER\Software\Far\KeyMacros\Tree\ShiftApps]
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Tree\ShiftApps]
 "Sequence"="F11 x Enter 2"
 "DisableOutput"=dword:00000001
 
-[HKEY_CURRENT_USER\Software\Far\KeyMacros\Tree\AltApps]
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Tree\AltApps]
 "Sequence"="F11 x Enter 1"
 "DisableOutput"=dword:00000001
 
-[HKEY_CURRENT_USER\Software\Far\KeyMacros\Tree\AltShiftApps]
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Tree\AltShiftApps]
 "Sequence"="F11 x Enter 1"
 "DisableOutput"=dword:00000001
 
-[HKEY_CURRENT_USER\Software\Far\KeyMacros\Tree\CtrlApps]
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Tree\CtrlApps]
 "Sequence"="F11 x Enter"
 "DisableOutput"=dword:00000001

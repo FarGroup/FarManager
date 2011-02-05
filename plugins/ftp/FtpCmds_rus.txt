@@ -8,7 +8,7 @@ Windows, значением по умолчанию и описанием того, как и когда её использует
 плагин.
 
 Базовый ключ, где плагин пытается найти команды:
-  HKEY_CURRENT_USER\Software\Far\Plugins\FTP
+  HKEY_CURRENT_USER\Software\Far2\Plugins\FTP
 
 Значения по умолчанию для всех команд Вы можете найти в файле
 "TechInfo_rus.reg".

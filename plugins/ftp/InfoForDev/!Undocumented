@@ -1,4 +1,4 @@
- 1.[HKEY_CURRENT_USER\Software\Far\plugins\FTP\ShowPassword]
+ 1.[HKEY_CURRENT_USER\Software\Far2\plugins\FTP\ShowPassword]
    LogType: BOOL
    RegType: DWORD
       Name: ShowPassword

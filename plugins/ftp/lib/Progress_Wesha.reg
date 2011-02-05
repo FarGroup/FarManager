@@ -1,9 +1,9 @@
 REGEDIT4
 
-[-HKEY_CURRENT_USER\Software\Far\Plugins\FTP\CopyDialog\English]
-[-HKEY_CURRENT_USER\Software\Far\Plugins\FTP\CopyDialog\Russian]
+[-HKEY_CURRENT_USER\Software\Far2\Plugins\FTP\CopyDialog\English]
+[-HKEY_CURRENT_USER\Software\Far2\Plugins\FTP\CopyDialog\Russian]
 
-[HKEY_CURRENT_USER\Software\Far\Plugins\FTP\CopyDialog\English]
+[HKEY_CURRENT_USER\Software\Far2\Plugins\FTP\CopyDialog\English]
 "Count"  = dword:9
 "Line01" = "%-64SrcPathname%"
 "Line02" = "%\\1%"
@@ -15,7 +15,7 @@ REGEDIT4
 "Line08" = "%5FPc% [%58FPg%]"
 "Line09" = "                       %+8TotTime% / %-8TotFTime%       <%8TotETime% %6TotEDate%>"
 
-[HKEY_CURRENT_USER\Software\Far\Plugins\FTP\CopyDialog\Russian]
+[HKEY_CURRENT_USER\Software\Far2\Plugins\FTP\CopyDialog\Russian]
 "Count"  = dword:9
 "Line01" = "%-64SrcPathname%"
 "Line02" = "%\\1%"

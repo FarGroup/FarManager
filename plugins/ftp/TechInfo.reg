@@ -1,6 +1,6 @@
 REGEDIT4
 
-[HKEY_CURRENT_USER\Software\Far\plugins\FTP]
+[HKEY_CURRENT_USER\Software\Far2\plugins\FTP]
 
 ;Current developer:
 ;  JouriM<at>uran.ru, 2:5080/80.66
@@ -150,7 +150,7 @@ REGEDIT4
 ;"xcmdSTAT"="STAT"
 
 ;------------------------------------------------------------------------
-; 7.[HKEY_CURRENT_USER\Software\Far\plugins\FTP\ServerDateFormat]
+; 7.[HKEY_CURRENT_USER\Software\Far2\plugins\FTP\ServerDateFormat]
 ;   LogType: STRING
 ;   RegType: STRING
 ;      Name: ServerDateFormat

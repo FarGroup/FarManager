@@ -8,10 +8,10 @@ REGEDIT4
 ;    URL: http://spectr.msk.ru/zema/
 ;
 
-[-HKEY_CURRENT_USER\Software\Far\Plugins\FTP\CopyDialog\English]
-[-HKEY_CURRENT_USER\Software\Far\Plugins\FTP\CopyDialog\Russian]
+[-HKEY_CURRENT_USER\Software\Far2\Plugins\FTP\CopyDialog\English]
+[-HKEY_CURRENT_USER\Software\Far2\Plugins\FTP\CopyDialog\Russian]
 
-[HKEY_CURRENT_USER\Software\Far\Plugins\FTP\CopyDialog\English]
+[HKEY_CURRENT_USER\Software\Far2\Plugins\FTP\CopyDialog\English]
 "Count"=dword:00000009
 "Line01"="%-64SrcPathname%"
 "Line02"=" "
@@ -23,7 +23,7 @@ REGEDIT4
 "Line08"=" Size: %+13TotSize% / %-13TotFSize%  Time: %+8TotTime% / %-8TotRTime%"
 "Line09"="%64FProgress%"
 
-[HKEY_CURRENT_USER\Software\Far\Plugins\FTP\CopyDialog\Russian]
+[HKEY_CURRENT_USER\Software\Far2\Plugins\FTP\CopyDialog\Russian]
 "Count"=dword:00000009
 "Line01"="%-64SrcPathname%"
 "Line02"=" "

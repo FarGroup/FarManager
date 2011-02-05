@@ -1,9 +1,9 @@
 REGEDIT4
 
-[HKEY_CURRENT_USER\Software\Far\Plugins\TmpPanel]
+[HKEY_CURRENT_USER\Software\Far2\Plugins\TmpPanel]
 "Mask"="*.temp"
 "Prefix"="tmp"
 
-[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlApps]
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlApps]
 "Sequence"="t m p : + m e n u Space s h o r t c u t s . e n g . t e m p Enter"
 "DisableOutput"=dword:00000001

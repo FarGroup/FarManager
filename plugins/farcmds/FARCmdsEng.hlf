@@ -1,4 +1,4 @@
-.Language=English,English (English)
+я╗┐.Language=English,English (English)
 .PluginContents=FAR Commands
 .Options CtrlStartPosChar=^<wrap>
 
@@ -10,7 +10,7 @@ $^#FAR Commands#
 invoked via command line prefixes.
 
    Besides ~command line~@:CmdLineCmd@, prefixes may be used in ~User Menu~@:UserMenu@,
-in ~file associations~@:FileAssoc@, as well as in dialog ~Apply Command~@:ApplyCmd@ (#Ctrl-G#)
+in ~file associations~@:FileAssoc@, as well as in dialog┬а~Apply Command~@:ApplyCmd@┬а(#Ctrl-G#)
 
 
   #Command Line Syntax#
@@ -68,8 +68,8 @@ $^#The Clip command#
 The data can be the contents of a file or the output of a program.
 The clipboard will contain all the data up to the character with the
 code #0x00#.
-Размер помещаемых данных можно задавать в диалоге конфигурации плагина. По
-умолчанию - 1 Mb.
+╨а╨░╨╖╨╝╨╡╤А ╨┐╨╛╨╝╨╡╤Й╨░╨╡╨╝╤Л╤Е ╨┤╨░╨╜╨╜╤Л╤Е ╨╝╨╛╨╢╨╜╨╛ ╨╖╨░╨┤╨░╨▓╨░╤В╤М ╨▓ ╨┤╨╕╨░╨╗╨╛╨│╨╡ ╨║╨╛╨╜╤Д╨╕╨│╤Г╤А╨░╤Ж╨╕╨╕ ╨┐╨╗╨░╨│╨╕╨╜╨░. ╨Я╨╛
+╤Г╨╝╨╛╨╗╤З╨░╨╜╨╕╤О - 1 Mb.
 
    #clip:filename#
 
@@ -196,9 +196,9 @@ successful.
 
    #whereis:object#
 
-   Второй способ - имя объекта поиска берётся из заданного файла "#имяфайла#"
+   ╨Т╤В╨╛╤А╨╛╨╣ ╤Б╨┐╨╛╤Б╨╛╨▒ - ╨╕╨╝╤П ╨╛╨▒╤К╨╡╨║╤В╨░ ╨┐╨╛╨╕╤Б╨║╨░ ╨▒╨╡╤А╤С╤В╤Б╤П ╨╕╨╖ ╨╖╨░╨┤╨░╨╜╨╜╨╛╨│╨╛ ╤Д╨░╨╣╨╗╨░ "#╨╕╨╝╤П╤Д╨░╨╣╨╗╨░#"
 
-      #whereis: <имяфайла#
+      #whereis: <╨╕╨╝╤П╤Д╨░╨╣╨╗╨░#
 
    The search is performed in the following order:
 
@@ -252,10 +252,10 @@ typed from the keyboard.
       In case of error in the "sequence" you receive a message
       indicating the error type and its position in the sequence.
 
-   Команды #post# и #check# так же могут брать последовательность из #имяфайла#:
+   ╨Ъ╨╛╨╝╨░╨╜╨┤╤Л #post# ╨╕ #check# ╤В╨░╨║ ╨╢╨╡ ╨╝╨╛╨│╤Г╤В ╨▒╤А╨░╤В╤М ╨┐╨╛╤Б╨╗╨╡╨┤╨╛╨▓╨░╤В╨╡╨╗╤М╨╜╨╛╤Б╤В╤М ╨╕╨╖ #╨╕╨╝╤П╤Д╨░╨╣╨╗╨░#:
 
-      #macro:post <имяфайла#
-      #macro:check <имяфайла#
+      #macro:post <╨╕╨╝╤П╤Д╨░╨╣╨╗╨░#
+      #macro:check <╨╕╨╝╤П╤Д╨░╨╣╨╗╨░#
 
    Command #check# is only available in Unicode-version (in FAR 2.x)
 
@@ -417,10 +417,10 @@ $^#Configuring FAR Commands#
  #Edit new files#                Allows to open the editor with non
                                existing files.
 
- #The size of read data#         ^<wrap>Позволяет задавать максимальный размер
-считываемых из файла данных в командах ~clip~@clip@, ~goto~@goto@, ~whereis~@whereis@,
-~macro:post~@macro@ и ~macro:check~@macro@.
-                               По умолчанию - 1 Mb.
-                               Максимальное значение - 4Gb.
+ #The size of read data#         ^<wrap>╨Я╨╛╨╖╨▓╨╛╨╗╤П╨╡╤В ╨╖╨░╨┤╨░╨▓╨░╤В╤М ╨╝╨░╨║╤Б╨╕╨╝╨░╨╗╤М╨╜╤Л╨╣ ╤А╨░╨╖╨╝╨╡╤А
+╤Б╤З╨╕╤В╤Л╨▓╨░╨╡╨╝╤Л╤Е ╨╕╨╖ ╤Д╨░╨╣╨╗╨░ ╨┤╨░╨╜╨╜╤Л╤Е ╨▓ ╨║╨╛╨╝╨░╨╜╨┤╨░╤Е ~clip~@clip@, ~goto~@goto@, ~whereis~@whereis@,
+~macro:post~@macro@ ╨╕ ~macro:check~@macro@.
+                               ╨Я╨╛ ╤Г╨╝╨╛╨╗╤З╨░╨╜╨╕╤О - 1 Mb.
+                               ╨Ь╨░╨║╤Б╨╕╨╝╨░╨╗╤М╨╜╨╛╨╡ ╨╖╨╜╨░╤З╨╡╨╜╨╕╨╡ - 4Gb.
 
    See also: ~Contents~@Contents@

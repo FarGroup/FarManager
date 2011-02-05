@@ -7,7 +7,7 @@ Each command has a name in registry, default value and usage description for
 command usage in plugin.
 
 The base key, where plugin is looking for commands names is:
-  HKEY_CURRENT_USER\Software\Far\plugins\FTP
+  HKEY_CURRENT_USER\Software\Far2\plugins\FTP
 
 The default commands values can be found in the registry file "TechInfo.reg".
 

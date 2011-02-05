@@ -28,11 +28,7 @@ $(DLLFULLNAME): $(OBJS) $(DEF)
 	@$(RM) $(DLLNAME).base
 	@$(RM) $(DLLNAME).exp
 ifdef DOCS
-ifndef WIDE
 	@$(CP) $(DOCS) $(DLLDIR)
-else
-	@$(COMMON)/convert.exe $(DOCS) $(DLLDIR)
-endif
 endif
 
 ifndef DISABLEAUTODEPS

@@ -1,9 +1,9 @@
 REGEDIT4
 
-[-HKEY_CURRENT_USER\Software\Far\Plugins\FTP\CopyDialog\English]
-[-HKEY_CURRENT_USER\Software\Far\Plugins\FTP\CopyDialog\Russian]
+[-HKEY_CURRENT_USER\Software\Far2\Plugins\FTP\CopyDialog\English]
+[-HKEY_CURRENT_USER\Software\Far2\Plugins\FTP\CopyDialog\Russian]
 
-[HKEY_CURRENT_USER\Software\Far\Plugins\FTP\CopyDialog\English]
+[HKEY_CURRENT_USER\Software\Far2\Plugins\FTP\CopyDialog\English]
 "Count"  = dword:C
 "Line01" = "%*ú-61SrcPathname%"
 "Line02" = "%*ú-61DestPathname%"
@@ -19,7 +19,7 @@ REGEDIT4
 "Line10" = "%.FPercent%-[%57FProgress%]-"
 "Line11" = "Ä[%27CurPg%]Ä[%27SkipPg%]Ä"
 
-[HKEY_CURRENT_USER\Software\Far\Plugins\FTP\CopyDialog\Russian]
+[HKEY_CURRENT_USER\Software\Far2\Plugins\FTP\CopyDialog\Russian]
 "Count"  = dword:C
 "Line01" = "%*ú-61SrcPathname%"
 "Line02" = "%*ú-61DestPathname%"

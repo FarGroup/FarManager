@@ -1,4 +1,4 @@
-.Language=English,English (English)
+﻿.Language=English,English (English)
 .PluginContents=Hello, World!
 
 @Contents
@@ -10,7 +10,6 @@ who just do the first step in plugin programming.
 from program "Hello, World! That is this plugin does.
 
   Plugin is written in C language (as majority asked).
-The compiler is Borland C/C++ 5.02 (and Delphi).
 
   The initial conditions were:
 
