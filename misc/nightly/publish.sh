@@ -32,10 +32,3 @@ LASTCHANGE=`head -1 changelog | dos2unix`
 processFarBuild new 32 New
 processFarBuild new 64 New
 cd ..
-
-cd farold
-LASTCHANGE=`head -1 changelog | dos2unix`
-cp -f ../outfinalold32/changelog $NIGHTLY_WEB_ROOT/changelogfar
-processFarBuild old 32 Old
-processFarBuild old 64 Old
-cd ..

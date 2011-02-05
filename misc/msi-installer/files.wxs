@@ -537,9 +537,11 @@
       </Directory>
       <Directory Id="Documentation" Name="Documentation">
         <Directory Id="eng" Name="eng">
+<?if $(var.Branch) = 1 ?>
           <Component Id="Arc.Support.txt" Guid="$(var.Guid.Arc.Support.txt)" Win64="$(var.Win64)">
             <File Id="Arc.Support.txt" KeyPath="yes" Source="$(var.SourceDir)\Documentation\eng\Arc.Support.txt" />
           </Component>
+<?endif?>
           <Component Id="Bug.Report.txt" Guid="$(var.Guid.Bug.Report.txt)" Win64="$(var.Win64)">
             <File Id="Bug.Report.txt" KeyPath="yes" Source="$(var.SourceDir)\Documentation\eng\Bug.Report.txt" />
           </Component>
@@ -562,9 +564,11 @@
           </Component>
         </Directory>
         <Directory Id="rus" Name="rus">
+<?if $(var.Branch) = 1 ?>
           <Component Id="Arc.Support.txt_1" Guid="$(var.Guid.Arc.Support.txt_1)" Win64="$(var.Win64)">
             <File Id="Arc.Support.txt_1" KeyPath="yes" Source="$(var.SourceDir)\Documentation\rus\Arc.Support.txt" />
           </Component>
+<?endif?>
           <Component Id="Bug.Report.txt_1" Guid="$(var.Guid.Bug.Report.txt_1)" Win64="$(var.Win64)">
             <File Id="Bug.Report.txt_1" KeyPath="yes" Source="$(var.SourceDir)\Documentation\rus\Bug.Report.txt" />
           </Component>

@@ -12,7 +12,3 @@ SET APPVER=6.0
 genparams c:\src\outfinalnew64 x64
 
 nmake -nologo RELEASE=1
-
-genparams c:\src\outfinalold64 x64
-
-nmake -nologo RELEASE=1

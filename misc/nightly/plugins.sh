@@ -6,15 +6,12 @@ BIT=$2
 WIDE=$3
 FILES=$4
 
-NIGHTLY=/var/www/html/nightly
 if [ $WIDE -eq 1 ]; then
-  PTYPE=new
   FINAL=final.${BIT}W.vc
-  FARDIR=far
+  PTYPE=new
 else
-  PTYPE=old
-  FARDIR=farold
   FINAL=final.${BIT}.vc
+  PTYPE=old
 fi
 
 ADD=0
@@ -32,52 +29,31 @@ fi
 wine cmd /c ../../plugin${PTYPE}.${BIT}.bat &> ../../log${PLUGIN}${PTYPE}${BIT}
 
 if [ "$PLUGIN" == "FExcept" ]; then
-  mkdir -p ../../outfinal${PTYPE}${BIT}/FExcept/
-  cp -f changelog ../../outfinal${PTYPE}${BIT}/FExcept/
+  mkdir -p ../../outfinalnew${BIT}/FExcept/
+  cp -f changelog ../../outfinalnew${BIT}/FExcept/
   cd $FINAL
-  cp -f $FILES ../../../outfinal${PTYPE}${BIT}/FExcept/
-  COPYOK=$?
+  cp -f $FILES ../../../outfinalnew${BIT}/FExcept/
   cd ..
 elif [ $ADD -eq 1 ]; then
-  mkdir -p ../../outfinal${PTYPE}${BIT}/Plugins/$PLUGIN
-  mkdir -p ../../outfinal${PTYPE}${BIT}/Plugins/${PLUGIN}/$7
+  mkdir -p ../../outfinalnew${BIT}/Plugins/$PLUGIN
+  mkdir -p ../../outfinalnew${BIT}/Plugins/${PLUGIN}/$7
 
-  cp -f changelog ../../outfinal${PTYPE}${BIT}/Plugins/$PLUGIN/  
+  cp -f changelog ../../outfinalnew${BIT}/Plugins/$PLUGIN/  
 
   cd $FINAL
-  cp -f $FILES ../../../outfinal${PTYPE}${BIT}/Plugins/$PLUGIN/
-  COPYOK=$?
+  cp -f $FILES ../../../outfinalnew${BIT}/Plugins/$PLUGIN/
   cd ..
 
   cd $FINAL/$7
-  cp -f $5 ../../../../outfinal${PTYPE}${BIT}/Plugins/${PLUGIN}/$7/
-  if [ $? -ne 0 ]; then
-    COPYOK=1
-  fi
+  cp -f $5 ../../../../outfinalnew${BIT}/Plugins/${PLUGIN}/$7/
   cd ../..
-
-  if [ "$PLUGIN" == "FTP" ]; then
-    mkdir -p ../../outfinalnew${BIT}/Plugins/$PLUGIN
-    mkdir -p ../../outfinalnew${BIT}/Plugins/${PLUGIN}/$7
-
-    cp -f changelog ../../outfinalnew${BIT}/Plugins/$PLUGIN/  
-
-    cd $FINAL
-    cp -f $FILES ../../../outfinalnew${BIT}/Plugins/$PLUGIN/
-    cd ..
-
-    cd $FINAL/$7
-    cp -f $5 ../../../../outfinalnew${BIT}/Plugins/${PLUGIN}/$7/
-    cd ../..
-  fi
 else
-  mkdir -p ../../outfinal${PTYPE}${BIT}/Plugins/$PLUGIN
+  mkdir -p ../../outfinalnew${BIT}/Plugins/$PLUGIN
 
-  cp -f changelog ../../outfinal${PTYPE}${BIT}/Plugins/$PLUGIN/  
+  cp -f changelog ../../outfinalnew${BIT}/Plugins/$PLUGIN/  
 
   cd $FINAL
-  cp -f $FILES ../../../outfinal${PTYPE}${BIT}/Plugins/$PLUGIN/
-  COPYOK=$?
+  cp -f $FILES ../../../outfinalnew${BIT}/Plugins/$PLUGIN/
   cd ..
 fi
 }
@@ -90,9 +66,6 @@ pushd $PLUGIN
 
 bplugin2 "$PLDIR" 32 1 "$3"
 bplugin2 "$PLDIR" 64 1 "$3"
-
-bplugin2 "$PLDIR" 32 0 "$3"
-bplugin2 "$PLDIR" 64 0 "$3"
 
 popd
 }
@@ -131,20 +104,6 @@ bplugin2 "$PLDIR" 64 0 "$FILES" "$ADDFILES" $ADDBUILDDIRS $ADDOUTDIR
 popd
 }
 
-function bpluginarclite {
-PLUGIN=arclite
-PLDIR=arclite
-
-pushd $PLUGIN
-
-FILES="7z.dll 7z.sfx 7zCon.sfx 7zS2.sfx 7zS2con.sfx 7zSD.sfx arclite.dll arclite.map arclite_eng.hlf arclite_eng.lng arclite_rus.hlf arclite_rus.lng"
-
-bplugin2 "$PLDIR" 32 1 "$FILES"
-bplugin2 "$PLDIR" 64 1 "$FILES"
-
-popd
-}
-
 function bpluginfe {
 PLUGIN=fexcept
 PLDIR=FExcept
@@ -159,9 +118,6 @@ FILES32="demangle32.dll ExcDump.dll FExcept.dll SetFarExceptionHandler.reg"
 
 bplugin2 "$PLDIR" 32 1 "$FILES32"
 #bplugin2 "$PLDIR" 64 1 "$FILES64"
-                                
-bplugin2 "$PLDIR" 32 0 "$FILES32"
-#bplugin2 "$PLDIR" 64 0 "$FILES64"
 
 popd
 }
@@ -173,12 +129,9 @@ svn co http://localhost/svn/trunk/plugins plugins
 svn co http://localhost/svn/trunk/misc misc
 
 cp -f far/Include/*.hpp plugins/common/unicode/
-cp -f farold/Include/*.hpp plugins/common/ascii/
 
 mkdir -p outfinalnew32/Plugins
 mkdir -p outfinalnew64/Plugins
-mkdir -p outfinalold32/Plugins
-mkdir -p outfinalold64/Plugins
 
 cd plugins/common/CRT
 
@@ -203,10 +156,10 @@ bplugin "macroview" "MacroView" "MacroView.dll MacroEng.hlf MacroRus.hlf MacroEn
 bplugin "network" "Network" "Network.dll NetEng.hlf NetRus.hlf NetEng.lng NetRus.lng Network.map"
 bplugin "proclist" "ProcList" "Proclist.dll ProcEng.hlf ProcRus.hlf ProcEng.lng ProcRus.lng Proclist.map"
 bplugin "tmppanel" "TmpPanel" "TmpPanel.dll TmpEng.hlf TmpRus.hlf TmpEng.lng TmpRus.lng TmpPanel.map shortcuts.eng.reg shortcuts.rus.reg disks.eng.temp disks.rus.temp shortcuts.eng.temp shortcuts.rus.temp"
+bplugin "arclite" "ArcLite" "7z.dll 7z.sfx 7zCon.sfx 7zS2.sfx 7zS2con.sfx 7zSD.sfx arclite.dll arclite.map arclite_eng.hlf arclite_eng.lng arclite_rus.hlf arclite_rus.lng"
 
 bpluginftp
-bpluginma
-bpluginarclite
+#bpluginma
 
 cd ../misc
 

@@ -4,7 +4,7 @@ function buildfar2 {
 
 OUTDIR=Release.$1.vc
 DIRBIT=$1
-BINDIR=outfinal${3}${DIRBIT}
+BINDIR=outfinalnew${DIRBIT}
 
 rm -fR $BINDIR
 
@@ -27,28 +27,22 @@ m4 -P -DFARBIT=$DIRBIT copyright.inc.m4 | gawk -f ./scripts/enc.awk > ${BOOTSTRA
 m4 -P -DFARBIT=$DIRBIT File_id.diz.m4 > $OUTDIR/File_id.diz
 dos2unix FarEng.hlf.m4
 dos2unix FarRus.hlf.m4
+dos2unix FarHun.hlf.m4
 gawk -f ./scripts/mkhlf.awk FarEng.hlf.m4 | m4 -P -DFARBIT=$DIRBIT | unix2dos > $OUTDIR/FarEng.hlf
 gawk -f ./scripts/mkhlf.awk FarRus.hlf.m4 | m4 -P -DFARBIT=$DIRBIT | unix2dos > $OUTDIR/FarRus.hlf
-if [ $4 -eq 1 ]; then
-  gawk -f ./scripts/mkhlf.awk FarHun.hlf.m4 | m4 -P -DFARBIT=$DIRBIT | unix2dos > $OUTDIR/FarHun.hlf
-fi
+gawk -f ./scripts/mkhlf.awk FarHun.hlf.m4 | m4 -P -DFARBIT=$DIRBIT | unix2dos > $OUTDIR/FarHun.hlf
 
 wine tools/lng.generator.exe -nc -ol $OUTDIR ${BOOTSTRAP}farlang.templ
 
-wine cmd /c ../myset${3}.${DIRBIT}.bat
+wine cmd /c ../mysetnew.${DIRBIT}.bat
 
 cd ..
 
 cp $2/$OUTDIR/File_id.diz $2/$OUTDIR/Far.exe $2/$OUTDIR/*.hlf $2/$OUTDIR/far.map $2/$OUTDIR/*.lng $BINDIR/
 cp $2/Include/*.hpp $BINDIR/PluginSDK/Headers.c/
 cp $2/Include/*.pas $BINDIR/PluginSDK/Headers.pas/
-
-if [ $4 -eq 0 ]; then
-  gawk -f changelog2.awk $2/changelog > $BINDIR/changelog
-else
-  cp -f $2/changelog $BINDIR/
-  cp -f $2/changelog_eng $BINDIR/
-fi
+cp -f $2/changelog $BINDIR/
+cp -f $2/changelog_eng $BINDIR/
 }
 
 function buildfar {
@@ -63,39 +57,24 @@ m4 -P -DFARBIT=32 -DINPUT=colors.hpp headers.m4 | unix2dos > Include/farcolor.hp
 m4 -P -DFARBIT=32 -DINPUT=keys.hpp headers.m4 | unix2dos > Include/farkeys.hpp
 m4 -P -DFARBIT=32 -DINPUT=plugin.hpp headers.m4 | unix2dos > Include/plugin.hpp
 
-BOOTSTRAP=
-if [ $3 -eq 0 ]; then
-  dos2unix farcolor.pas
-  dos2unix farkeys.pas
-  dos2unix plugin.pas
-  m4 -P -DFARBIT=32 -DINPUT=farcolor.pas headers.m4 | unix2dos > Include/farcolor.pas
-  m4 -P -DFARBIT=32 -DINPUT=farkeys.pas headers.m4 | unix2dos > Include/farkeys.pas
-  m4 -P -DFARBIT=32 -DINPUT=plugin.pas headers.m4 | unix2dos > Include/plugin.pas
-else
-  BOOTSTRAP=bootstrap/
-  mkdir -p bootstrap
-  dos2unix PluginW.pas
-  dos2unix FarColorW.pas
-  dos2unix FarKeysW.pas 
-  m4 -P -DFARBIT=32 -DINPUT=PluginW.pas headers.m4 | unix2dos > Include/PluginW.pas
-  m4 -P -DFARBIT=32 -DINPUT=FarColorW.pas headers.m4 | unix2dos > Include/FarColorW.pas
-  m4 -P -DFARBIT=32 -DINPUT=FarKeysW.pas headers.m4 | unix2dos > Include/FarKeysW.pas
-fi
+BOOTSTRAP=bootstrap/
+mkdir -p bootstrap
+dos2unix PluginW.pas
+dos2unix FarColorW.pas
+dos2unix FarKeysW.pas 
+m4 -P -DFARBIT=32 -DINPUT=PluginW.pas headers.m4 | unix2dos > Include/PluginW.pas
+m4 -P -DFARBIT=32 -DINPUT=FarColorW.pas headers.m4 | unix2dos > Include/FarColorW.pas
+m4 -P -DFARBIT=32 -DINPUT=FarKeysW.pas headers.m4 | unix2dos > Include/FarKeysW.pas
 
 dos2unix mkdep.list
 gawk -f ./scripts/mkdep.awk mkdep.list | unix2dos > ${BOOTSTRAP}far.vc.dep
 cd ..
 
-buildfar2 32 $1 $2 $3
-buildfar2 64 $1 $2 $3
+buildfar2 32 $1
+buildfar2 64 $1
 }
 
 rm -fR far
 svn export http://localhost/svn/trunk/unicode_far far
 
-buildfar far new 1
-
-rm -fR farold
-svn export file:///svnroot/far/branches/171 farold
-
-buildfar farold old 0
+buildfar far

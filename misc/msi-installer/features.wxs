@@ -190,7 +190,9 @@
 <?endif?>
       </Feature>
       <Feature Id="Docs" Level="1" Title="!(loc.Feature.Title.Docs)" AllowAdvertise="no" Description="!(loc.Feature.Description.Docs)">
+<?if $(var.Branch) = 1 ?>
         <ComponentRef Id="Arc.Support.txt" />
+<?endif?>
         <ComponentRef Id="Bug.Report.txt" />
 <?if $(var.Branch) = 1 ?>
         <ComponentRef Id="Descript.ion_17" />
@@ -201,7 +203,9 @@
         <ComponentRef Id="TechInfo.txt" />
       </Feature>
       <Feature Id="Docs.Russian" Level="1" Display="hidden" AllowAdvertise="no">
+<?if $(var.Branch) = 1 ?>
         <ComponentRef Id="Arc.Support.txt_1" />
+<?endif?>
         <ComponentRef Id="Bug.Report.txt_1" />
 <?if $(var.Branch) = 1 ?>
         <ComponentRef Id="Descript.ion_18" />
