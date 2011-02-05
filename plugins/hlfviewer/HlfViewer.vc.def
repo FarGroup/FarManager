@@ -1,7 +1,0 @@
-EXPORTS 
-   GetMinFarVersion
-   GetPluginInfo
-   OpenPlugin
-   SetStartupInfo
-   ProcessEditorInput
-   Configure

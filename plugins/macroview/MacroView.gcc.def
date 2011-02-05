@@ -1,8 +1,0 @@
-EXPORTS
-   ClosePlugin=ClosePlugin@4
-   Configure=Configure@4
-   GetPluginInfo=GetPluginInfo@4
-   OpenPlugin=OpenPlugin@8
-   SetStartupInfo=SetStartupInfo@4
-   ExitFAR=ExitFAR@0
-   GetMinFarVersion=GetMinFarVersion@0

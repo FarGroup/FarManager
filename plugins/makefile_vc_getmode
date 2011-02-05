@@ -2,8 +2,8 @@
 _MKDO_=/D
 !endif
 
-!ifdef WIDE
-_MDEFS=$(_MDEFS) $(_MKDO_)WIDE=1
+!ifdef ANSI
+_MDEFS=$(_MDEFS) $(_MKDO_)ANSI=1
 !endif
 
 !ifdef DEBUG

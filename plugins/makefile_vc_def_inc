@@ -33,7 +33,7 @@
 #
 #DEBUG - set if a debug build is needed
 #
-#WIDE - set for a unicode build
+#ANSI - set for ansi build
 #
 #ULINK - set if you want to use ulink for linking
 #
@@ -96,7 +96,7 @@ DIRNAME=final
 DIRNAME=debug
 !endif                   
 
-!ifdef WIDE
+!ifndef ANSI
 DIRSUFF = W
 !endif
 
@@ -118,7 +118,7 @@ OBJDIR = $(WORKDIR)\obj$(ADDOBJDIR)
 !ifndef COMMON
 COMMON = ..\common
 !endif
-!ifndef WIDE
+!ifdef ANSI
 COMINC = $(COMMON)\ascii
 !else
 COMINC = $(COMMON)\unicode
@@ -130,7 +130,7 @@ EXT = dll
 !endif
 DLLNAME = $(NAME).$(EXT)
 DLLFULLNAME = $(OUTDIR)$(ADDOUTDIR)\$(DLLNAME)
-!ifndef WIDE
+!ifdef ANSI
 DEF = $(DEF_NAME).vc$(ULN_DEF).def
 !else
 DEF = $(DEF_NAME)W.vc$(ULN_DEF).def
@@ -197,7 +197,7 @@ NOENTRY = /noentry
 NODEFLIB = /nodefaultlib
 !endif
 
-!if !defined(CPU) && defined (WIDE)
+!if !defined(CPU)
 SUBSYSTEM=/subsystem:windows,5.0
 !endif
 

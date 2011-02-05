@@ -29,10 +29,10 @@
 #
 #DOCS - a list of additional files that need to copied to the target folder.
 #
-#WIDE - set for a unicode build
+#ANSI - set for ansi build
 #
 
-ifdef WIDE
+ifndef ANSI
 DIRSURF = W
 RCWIDE = -D UNICODE -D _UNICODE
 CXXWIDE = -D UNICODE -D _UNICODE
@@ -45,7 +45,7 @@ DLLDIR = ./final.32$(DIRSURF).gcc$(ADDOUTDIR)
 ifndef COMMON
 COMMON = ../common
 endif
-ifdef WIDE
+ifndef ANSI
 COMINC = $(COMMON)/unicode
 else
 COMINC = $(COMMON)/ascii

@@ -1,6 +1,0 @@
-EXPORTS 
-   GetMinFarVersion
-   ExitFAR
-   GetPluginInfo
-   OpenPlugin
-   SetStartupInfo

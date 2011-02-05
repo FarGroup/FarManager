@@ -1,3 +1,4 @@
+ANSI = 1
 USERCPP = -DWIN32 -DPCRE_STATIC -D_WIN32
 
 include ../makefile_gcc_def_inc

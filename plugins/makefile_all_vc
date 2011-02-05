@@ -4,8 +4,6 @@
 #  or
 #DEFINSTALL - same as above, but can be defined in makefile_vc_defs
 #
-#WIDE - set for a unicode build
-#
 #DEBUG - set if a debug build is needed
 #
 #AMD64 - set for x64 build
@@ -21,7 +19,7 @@
 #############################################################################
 
 ALLDIRS = align autowrap brackets compare drawline editcase emenu farcmds \
-          filecase hlfviewer macroview network proclist tmppanel
+          filecase hlfviewer macroview network proclist tmppanel ftp multiarc
 
 !if defined(AMD64) || "$(CPU)" == "AMD64" || "$(PLATFORM)" == "X64" || "$(PLATFORM)" == "x64"
 !undef AMD64
@@ -33,11 +31,6 @@ CPU=AMD64
 !undef CPU
 IA64=1
 CPU=IA64
-!endif
-
-!ifndef WIDE
-ALLDIRS = $(ALLDIRS) \
-          ftp multiarc
 !endif
 
 #############################################################################
@@ -97,10 +90,7 @@ _ODB_=IA64
 !else
 _ODB_=32
 !endif
-!ifdef WIDE
-_ODS_=W
-!endif
-OUTPATH=$(INSTALL)\$(_ODN_).$(_ODB_)$(_ODS_)
+OUTPATH=$(INSTALL)\$(_ODN_).$(_ODB_)W
 
 $(OUTPATH): $(INSTALL)
 	@if not exist "$(OUTPATH)\$(NULL)" mkdir "$(OUTPATH)"

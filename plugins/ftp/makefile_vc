@@ -2,6 +2,7 @@
 !include ../make_vc_defs
 !endif
 
+ANSI = 1
 NAME = FarFtp
 DOCS = FtpEng.hlf FtpRus.hlf FtpEng.lng FtpRus.lng TechInfo.reg TechInfo_rus.reg FtpCmds.txt FtpCmds_rus.txt Notes.txt Notes_rus.txt
 

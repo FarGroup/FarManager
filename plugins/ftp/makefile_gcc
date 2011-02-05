@@ -1,3 +1,4 @@
+ANSI = 1
 NAME = FarFtp
 SRCS = AskOver.cpp Cfg.cpp CmdLine.cpp cnDownload.cpp cnInit.cpp \
        cnUpload.cpp Connect.cpp ConnectCmds.cpp ConnectIO.cpp ConnectMain.cpp \

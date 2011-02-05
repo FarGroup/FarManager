@@ -2,6 +2,7 @@
 !include ../make_vc_defs
 !endif
 
+ANSI = 1
 NAME = MultiArc
 LINK_OBJS = $(OBJDIR)\MultiArc.obj \
 $(OBJDIR)\ArcCfg.obj \

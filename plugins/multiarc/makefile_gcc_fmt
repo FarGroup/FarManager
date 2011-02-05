@@ -2,6 +2,7 @@ ifndef FMT
 $(error An invalid FMT-target)
 endif
 
+ANSI = 1
 NAME = $(FMT)
 EXT = fmt
 ADDOUTDIR = /Formats

@@ -2,6 +2,7 @@
 !include ../make_vc_defs
 !endif
 
+ANSI = 1
 USERCPP = /D WIN32 /D PCRE_STATIC /D _WIN32
 
 !include ..\makefile_vc_def_inc
