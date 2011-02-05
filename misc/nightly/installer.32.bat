@@ -1,4 +1,4 @@
-call c:\VC9\vcvarsall.bat x86
+call c:\VC10\vcvarsall.bat x86
 SET CPU=i386
 SET APPVER=6.0
 SET Path=%Path%;C:\Program Files\Windows Installer XML v3\bin
