@@ -8,10 +8,8 @@ FILES=$4
 
 if [ $WIDE -eq 1 ]; then
   FINAL=final.${BIT}W.vc
-  PTYPE=new
 else
   FINAL=final.${BIT}.vc
-  PTYPE=old
 fi
 
 ADD=0
@@ -26,7 +24,7 @@ if [ $ADD -eq 1 ]; then
   eval "mkdir -p ${FINAL}/$6"
 fi
 
-wine cmd /c ../../plugin${PTYPE}.${BIT}.bat &> ../../log${PLUGIN}${PTYPE}${BIT}
+wine cmd /c ../../plugin.${BIT}.bat &> ../../log${PLUGIN}${BIT}
 
 if [ "$PLUGIN" == "FExcept" ]; then
   mkdir -p ../../outfinalnew${BIT}/FExcept/
