@@ -2,7 +2,7 @@ m4_include(`vbuild.m4')m4_dnl
 m4_include(`tools.m4')m4_dnl
 m4_define(FROMBIT,m4_ifelse(FARBIT,`64',`$2',FARBIT,`IA64',`$3',`$1'))m4_dnl
 m4_define(BUILDTYPE,`')m4_dnl
-m4_define(MAJOR,2)m4_dnl
+m4_define(MAJOR,3)m4_dnl
 m4_define(MINOR,0)m4_dnl
 m4_define(DATE,m4_esyscmd(CMDAWK -f CMDDATE))m4_dnl
 m4_define(BLD_YEAR,m4_substr(DATE,6,4))m4_dnl
