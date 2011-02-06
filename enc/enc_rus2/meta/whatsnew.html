@@ -1,162 +1,27 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
-<title>Что нового в Encyclopedia for Developers v2.0?</title>
+<title>Что нового в Encyclopedia for Developers?</title>
 <meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
 <link rel="stylesheet" type="text/css" href="../styles/styles.css">
 </head>
 <body>
 
-<h1>Что нового в Encyclopedia for Developers v2.0?</h1>
+<h1>Что нового в Encyclopedia for Developers?</h1>
 <div class=navbar>
 <a href="index.html">главная</a>
 </div>
 
 
-<h3>01 Февраля 2011 г.</h3>
+<h3>03 Февраля 2011 г.</h3>
 <ul>
-<h3>Что добавилось в сравнении c Plugins API v1.0</h3>
-<li>флаг FDLG_KEEPCONSOLETITLE в функции Info.DialogInit()
-<li>Macro: функция <a href="macro/macrocmd/prop_func/general.html#substr">substr</a> может иметь отрицательные параметры.
+<h3>Внимание! Начался второй этап изменений Plugins API - версия API теперь v3.0</h3>
 </ul>
 
-<h3>16 Января 2011 г.</h3>
-<ul>
-<h3>Что добавилось в сравнении c Plugins API v1.0</h3>
-<li>Macro: Добавлен условный оператор "^^" - XOR, исключающее ИЛИ
-</ul>
 
-<h3>14 Января 2011 г.</h3>
+<h3>01 февраля 2011 г.</h3>
 <ul>
-<h3>Что добавилось в сравнении c Plugins API v1.0</h3>
-<li>добавлена команда в Info.PluginsControl() - PCTL_FORCEDLOADPLUGIN, загружать плагин в память
-</ul>
-
-<h3>11 Января 2011 г.</h3>
-<ul>
-<li>Macro: полностью переработан раздел макросов (спасибо сюда: John Doe)
-</ul>
-
-<h3>26 Ноября 2010 г.</h3>
-<ul>
-<h3>Что добавилось в сравнении c Plugins API v1.0</h3>
-<li>флаги PFLAGS_USECRC32/OPIF_USECRC32 определяющие, что поле CRC32 элементов панели заполнено
-<li>в FileFilter API поддержка custom-фильтров
-</ul>
-<ul>
-<h3>Что изменилось в сравнении c Plugins API v1.0</h3>
-<li>функция Info.GetPluginDirList() изменена, вместо INVALID_HANDLE_VALUE используются PANEL_ACTIVE/PANEL_PASSIVE
-</ul>
-
-<h3>16 Сентября 2010 г.</h3>
-<ul>
-<li>Macro: добавлены функции beep() и kbdLayout()
-<li>Macro: Удалена макрокоманда $KbdSwitch<br>Замените $KbdSwitch на kbdLayout(1)
-<li>Macro: функция Menu.ItemStatus() теперь в старшем слове возвращает код символа пометки U+XXXX.
-</ul>
-
-<h3>26 Августа 2010 г.</h3>
-<ul>
-<h3>Что добавилось в сравнении c Plugins API v1.0</h3>
-<li>добавлена команда <a href="service_functions/advcontrol.html#ACTL_PROGRESSNOTIFY">ACTL_PROGRESSNOTIFY</a>.
-</ul>
-
-<h3>25 Августа 2010 г.</h3>
-<ul>
-<h3>Что добавилось в сравнении c Plugins API v1.0</h3>
-<li>добавлены команды FCTL_GETPANELFORMAT и FCTL_GETPANELHOSTFILE.
-</ul>
-
-<h3>19 Августа 2010 г.</h3>
-<ul>
-<li>Macro: добавлена функция N=mload(S).
-</ul>
-
-<h3>16 Июля 2010 г.</h3>
-<ul>
-<li>Плановые удаления в макросах:
-<ul>
-<li>удалена команда $Date - заменить на print(Date("формат"))
-<li>удалена команда $MMode - заменить на mmode(1,2)
-<li>удалено состояние IClip - заменить на clip(5,-1) (при этом учесть, что clip() вернет 1 или 2)
-<li>удалена команда $IClip - заменить на clip(5,0) или просто clip(5)
-<li>удалено состояние DisableOutput (не флаг макроса!) - заменить на вызов функции mmode(1,-1)
-</ul>
-</ul>
-
-<h3>5 Июля 2010 г.</h3>
-<ul>
-<h3>Что добавилось в сравнении c Plugins API v1.0</h3>
-<li>команда FSF.MkLink - FLINK_SYMLINK, автоматически выбрать тип создаваемой символической ссылки
-</ul>
-
-<h3>26 Мая 2010 г.</h3>
-<ul>
-<h3>Что изменилось в сравнении c Plugins API v1.0</h3>
-<li>Far теперь умеет работать в пределах окна (а не буфера), соответственно введены:<br>
-- команда Info.AdvControl - ACTL_GETFARRECT<br>
-- команда Info.AdvControl - ACTL_GETCURSORPOS<br>
-- команда Info.AdvControl - ACTL_SETCURSORPOS
-</ul>
-
-<h3>13 Мая 2010 г.</h3>
-<ul>
-<h3>Что изменилось в сравнении c Plugins API v1.0</h3>
-<li>новый метод CPM_NATIVE для FSF.ConvertPath()
-</ul>
-
-<h3>29 Апреля 2010 г.</h3>
-<ul>
-<h3>Что изменилось в сравнении c Plugins API v1.0</h3>
-<li>в функции Info.Message удалён флаг FMSG_DOWN
-
-<h3>Что добавилось в сравнении c Plugins API v1.0</h3>
-<li>флаг в DI_BUTTON - DIF_SETSHIELD, аналог BCM_SETSHIELD
-</ul>
-
-<h3>19 Апреля 2010 г.</h3>
-<ul>
-<h3>Что изменилось в сравнении c Plugins API v1.0</h3>
-<li>команда Info.EditorControl - ECTL_SETTITLE, теперь плагин самостоятельно должен восстанавливать "заголовок"
-</ul>
-
-<h3>21 Марта 2010 г.</h3>
-<ul>
-<h3>Что добавилось в сравнении c Plugins API v1.0</h3>
-<li>команда Info.Control - <a href="service_functions/control.html#FCTL_SETDIRECTORIESFIRST">FCTL_SETDIRECTORIESFIRST</a>
-<li>флаг в PanelInfo.Flags - <a href="structures/panelinfo.html#PFLAGS_DIRECTORIESFIRST">PFLAGS_DIRECTORIESFIRST</a>
-<li>режимы сортировки: <a href="defs/sortmetods.html#SM_NUMSTREAMS">SM_NUMSTREAMS</a>,
-  <a href="defs/sortmetods.html#SM_STREAMSSIZE">SM_STREAMSSIZE</a>, <a href="defs/sortmetods.html#SM_FULLNAME">SM_FULLNAME</a>
-</ul>
-
-<h3>20 Февраля 2010 г.</h3>
-<ul>
-<h3>Что изменилось в сравнении c Plugins API v1.0</h3>
-<li>команда Info.AdvControl - ACTL_CONSOLEMODE удалена
-</ul>
-
-<h3>16 Февраля 2010 г.</h3>
-<ul>
-<h3>Что добавилось в сравнении c Plugins API v1.0</h3>
-<li>команда Info.Control - FCTL_CLEARSELECTION
-</ul>
-
-<h3>10 Февраля 2010 г.</h3>
-<ul>
-<h3>Что добавилось в сравнении c Plugins API v1.0</h3>
-<li>в Info.AdvControl - ACTL_KEYMACRO добавилась команда MCMD_CHECKMACRO
-</ul>
-
-<h3>09 Февраля 2010 г.</h3>
-<ul>
-<h3>Что добавилось в сравнении c Plugins API v1.0</h3>
-<li>команда Info.EditorControl - ESPT_SETBOM
-<li>флаг в EditorInfo.Options - EOPT_BOM
-</ul>
-
-<h3>31 Января 2010 г.</h3>
-<ul>
-<h3>Что изменилось в сравнении c Plugins API v1.0</h3>
+<h3>Что изменилось в Plugins API v2.0 в сравнении c Plugins API v1.0</h3>
 <li>глобально char/char* заменены на wchar_t/wchar_t*
 <li>глобально фиксированные массивы char[n] заменены на указатели wchar_t* на буферы выделяемые плагином
 <li>ФАР не использует SetCurrentDirectoryW() при навигации по папкам, как следствие, бонусы:<br>
@@ -168,6 +33,7 @@
 - вместо Info.Control - FCTL_GETCURRENTDIRECTORY используйте FSF.GetCurrentDirectory()<br>
 - вместо ConvertNameToFullW() используйте FSF.ConvertPath()
 <li>описатели CURRENT_PANEL/ANOTHER_PANEL переименованы в PANEL_ACTIVE/PANEL_PASSIVE
+<li>функция Info.GetPluginDirList() изменена, вместо INVALID_HANDLE_VALUE используются PANEL_ACTIVE/PANEL_PASSIVE
 <li>макроса NM больше нет
 <li>структура PluginPanelItem.FindData изменена
 <li>проверки на размер PluginPanelItem больше нет
@@ -178,13 +44,16 @@
 <li>в команде Info.Control - FCTL_GETCMDLINE память под буфер плагин выделяет сам
 <li>в команде Info.Control - FCTL_SELECTEDTEXT память под буфер плагин выделяет сам
 <li>команда Info.AdvControl - ACTL_GETWCHARMODE удалена
+<li>команда Info.AdvControl - ACTL_CONSOLEMODE удалена
 <li>команда Info.EditorControl - ECTL_EDITORTOOEM удалена
 <li>команда Info.EditorControl - ECTL_OEMTOEDITOR удалена
+<li>команда Info.EditorControl - ECTL_SETTITLE, теперь плагин самостоятельно должен восстанавливать "заголовок"
 <li>команда FCTL_SETSELECTION изменена на систему команд:<br>
 - FCTL_BEGINSELECTION<br>
 - FCTL_SETSELECTION<br>
 - FCTL_ENDSELECTION
 <li>в Info.AdvControl - ACTL_WAITKEY теперь приходят и макрокнопки
+<li>в функции Info.Message удалён флаг FMSG_DOWN
 <li>память под WindowInfo::TypeName выделяет плагин
 <li>память под WindowInfo::Name выделяет плагин
 <li>функции FSF.ConvertNameToReal() больше нет
@@ -218,22 +87,42 @@
 - добавилось сообщение DM_SETDLGITEMSHORT<br>
 - добавился флаг DIF_EDITPATH<br>
 - добавился флаг FIB_EDITPATH<br>
+- добавился флаг FDLG_KEEPCONSOLETITLE в функции Info.DialogInit()
 - флага DIF_NOTCVTUSERCONTROL больше нет<br>
 - флага LIF_USETEXTPTR больше нет<br>
 - флага MIF_USETEXTPTR больше нет<br>
 
-<h3>Что добавилось в сравнении c Plugins API v1.0</h3>
+<li>Плановые изменения в макросах:<br>
+- удалена команда $Date - заменить на print(Date("формат"))<br>
+- удалена команда $MMode - заменить на mmode(1,2)<br>
+- удалено состояние IClip - заменить на clip(5,-1) (при этом учесть, что clip() вернет 1 или 2)<br>
+- удалена команда $IClip - заменить на clip(5,0) или просто clip(5)<br>
+- удалено состояние DisableOutput (не флаг макроса!) - заменить на вызов функции mmode(1,-1)<br>
+- добавлена функция N=mload(S)<br>
+- добавлена функция beep()<br>
+- добавлена функция kbdLayout()<br>
+- удалена команда $KbdSwitch, замените $KbdSwitch на kbdLayout(1)<br>
+- функция Menu.ItemStatus() теперь в старшем слове возвращает код символа пометки U+XXXX<br>
+- добавлен условный оператор "^^" - XOR, исключающее ИЛИ
+
+
+<h3>Что добавилось в Plugins API v2.0 в сравнении c Plugins API v1.0</h3>
 
 <li>функция WINAPI ProcessSynchroEventW()
 <li>функция FSF.ConvertPath(CPM_REAL,...)
 <li>функция FSF.ConvertPath(CPM_FULL,...)
+<li>функция FSF.ConvertPath(CPM_NATIVE,...)
 <li>функция FSF.GetCurrentDirectory()
+<li>команда FSF.MkLink() - FLINK_SYMLINK, автоматически выбрать тип создаваемой символической ссылки
 <li>команда Info.AdvControl - ACTL_QUIT
 <li>команда Info.AdvControl - ACTL_SETPROGRESSSTATE
 <li>команда Info.AdvControl - ACTL_SETPROGRESSVALUE
 <li>команда Info.AdvControl - ACTL_SYNCHRO
+<li>команда Info.AdvControl - ACTL_KEYMACRO, добавилась команда MCMD_CHECKMACRO
+<li>команда Info.AdvControl - ACTL_PROGRESSNOTIFY
 <li>команда Info.EditorControl - ECTL_GETFILENAME, плагин сам выделяет память под элемент
 <li>команда Info.EditorControl - ECTL_UNDOREDO
+<li>команда Info.EditorControl - ESPT_SETBOM
 <li>команда Info.Control - FCTL_ISACTIVEPANEL
 <li>команда Info.Control - FCTL_GETPANELITEM, плагин сам выделяет память под элемент
 <li>команда Info.Control - FCTL_GETSELECTEDPANELITEM, плагин сам выделяет память под элемент
@@ -241,14 +130,25 @@
 <li>команда Info.Control - FCTL_GETCOLUMNWIDTHS, плагин сам выделяет память под элемент
 <li>команда Info.Control - FCTL_GETCURRENTDIRECTORY, плагин сам выделяет память под элемент
 <li>команда Info.Control - FCTL_GETCURRENTITEM, плагин сам выделяет память под элемент
+<li>команда Info.Control - FCTL_CLEARSELECTION
+<li>команда Info.Control - FCTL_SETDIRECTORIESFIRST
+<li>команда Info.Control - FCTL_GETPANELFORMAT
+<li>команда Info.Control - FCTL_GETPANELHOSTFILE
 <li>опция в Info.AdvControl - ACTL_GETCONFIRMATIONS - FCS_OVERWRITEDELETEROFILES
 <li>опция в Info.AdvControl - ACTL_GETINTERFACESETTINGS - FIS_SHOWTOTALDELPROGRESSINDICATOR
 <li>флаг в EditorInfo.Options - EOPT_SHOWWHITESPACE
+<li>флаг в EditorInfo.Options - EOPT_BOM
 <li>флаг в EditorSetParameter.Type - ESPT_SHOWWHITESPACE
+<li>флаг в DI_BUTTON - DIF_SETSHIELD, аналог BCM_SETSHIELD
+<li>флаги PFLAGS_USECRC32/OPIF_USECRC32 определяющие, что поле CRC32 элементов панели заполнено
 <li>система идентификации диалогов:<br>
 - сообщения DN_GETDIALOGINFO/DM_GETDIALOGINFO<br>
 - идентификатор для диалога перезаписи файла - {9FBCB7E1-ACA2-475d-B40D-0F7365B632FF}<br>
 - идентификатор для диалога поиска (AltF7) - {8C9EAD29-910F-4b24-A669-EDAFBA6ED964}
+<li>Far теперь умеет работать в пределах окна (а не буфера), соответственно введены:<br>
+- команда Info.AdvControl - ACTL_GETFARRECT<br>
+- команда Info.AdvControl - ACTL_GETCURSORPOS<br>
+- команда Info.AdvControl - ACTL_SETCURSORPOS
 <li>RegExp API
 <li>FileFilter API
 <li>PluginsControl API

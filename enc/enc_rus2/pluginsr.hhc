@@ -10,12 +10,12 @@
 </OBJECT>
 <UL>
 <LI> <OBJECT type="text/sitemap">
-        <param name="Name" value="Programming FAR plugins - Encyclopedia for Developers v2.0">
+        <param name="Name" value="Programming FAR plugins - Encyclopedia for Developers">
         <param name="Local" value="html/index.html">
         </OBJECT>
 <UL>
         <LI> <OBJECT type="text/sitemap">
-                <param name="Name" value="Encyclopedia for Developers v2.0">
+                <param name="Name" value="Encyclopedia for Developers">
                 <param name="Local" value="html/index.html">
                 <param name="ImageNumber" value="11">
                 </OBJECT>
