@@ -413,7 +413,7 @@ MSG=echo generating $@
 
 bootstrap\copyright.inc: $(@F).m4 farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
-	$(M4) $(@F).m4 | $(GAWK) -f .\scripts\enc.awk > $@
+	$(M4) $(@F).m4 > $@
 
 bootstrap\farversion.inc: $(@F).m4 farversion.m4 tools.m4 vbuild.m4
 	$(MSG)

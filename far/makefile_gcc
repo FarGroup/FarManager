@@ -263,7 +263,7 @@ bootstrap/far.rc: far.rc.m4 farversion.m4 tools.m4 vbuild.m4 res.hpp bootstrap/F
 
 bootstrap/copyright.inc: copyright.inc.m4 farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
-	@$(M4) copyright.inc.m4 | $(GAWK) -f ./scripts/enc.awk > $@
+	@$(M4) copyright.inc.m4 > $@
 
 bootstrap/farversion.inc: farversion.inc.m4 farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@

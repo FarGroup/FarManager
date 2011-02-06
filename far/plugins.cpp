@@ -65,7 +65,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "FarGuid.hpp"
 
-const wchar_t *FmtPluginsCache_PluginS=L"PluginsCache2\\%s";
+const wchar_t *FmtPluginsCache_PluginS=L"PluginsCache\\%s";
 const wchar_t *FmtDiskMenuStringD=L"DiskMenuString%d";
 const wchar_t *FmtDiskMenuGuidD=L"DiskMenuGuid%d";
 const wchar_t *FmtDiskMenuNumberD=L"DiskMenuNumber%d"; //BUGBUG - obsolete
@@ -76,7 +76,7 @@ const wchar_t *FmtPluginConfigGuidD=L"PluginConfigGuid%d";
 
 static const wchar_t *PluginsFolderName=L"Plugins";
 
-static const wchar_t *RKN_PluginsCache=L"PluginsCache2";
+static const wchar_t *RKN_PluginsCache=L"PluginsCache";
 
 static int _cdecl PluginsSort(const void *el1,const void *el2);
 

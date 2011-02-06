@@ -40,7 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "PluginA.hpp"
 #include "PluginW.hpp"
 
-#define wszReg_PluginHotkeys L"PluginHotkeys2"
+#define wszReg_PluginHotkeys L"PluginHotkeys"
 
 extern const wchar_t *FmtPluginsCache_PluginS;
 extern const wchar_t *FmtDiskMenuStringD;

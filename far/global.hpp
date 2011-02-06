@@ -62,7 +62,8 @@ extern const DWORD FAR_VERSION;
 extern BOOL IsProcessAssignMacroKey;
 extern BOOL IsRedrawFramesInProcess;
 
-extern const char *Copyright;
+extern const wchar_t* Version;
+extern const wchar_t* Copyright;
 
 extern int WidthNameForMessage;
 

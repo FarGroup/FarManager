@@ -1169,27 +1169,27 @@ if not exist bootstrap mkdir bootstrap</Command>
     <CustomBuild Include="copyright.inc.m4">
       <FileType>Document</FileType>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\m4 -P -DFARBIT=IA64 %(Identity) | tools\gawk -f scripts\enc.awk &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\m4 -P -DFARBIT=IA64 %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\m4 -P -DFARBIT=32 %(Identity) | tools\gawk -f scripts\enc.awk &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\m4 -P -DFARBIT=32 %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\m4 -P -DFARBIT=64 %(Identity) | tools\gawk -f scripts\enc.awk &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\m4 -P -DFARBIT=64 %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">tools\m4 -P -DFARBIT=IA64 %(Identity) | tools\gawk -f scripts\enc.awk &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">tools\m4 -P -DFARBIT=IA64 %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">tools\m4 -P -DFARBIT=32 %(Identity) | tools\gawk -f scripts\enc.awk &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">tools\m4 -P -DFARBIT=32 %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\m4 -P -DFARBIT=64 %(Identity) | tools\gawk -f scripts\enc.awk &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\m4 -P -DFARBIT=64 %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">bootstrap\%(FileName);%(Outputs)</Outputs>
     </CustomBuild>

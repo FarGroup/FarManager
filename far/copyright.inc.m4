@@ -1,2 +1,3 @@
 m4_include(`farversion.m4')m4_dnl
-const char *Copyright="Far Manager, version FULLVERSION$Copyright Â© 1996-2000 Eugene Roshal, Copyright Â© COPYRIGHTYEARS Far Group";
+const wchar_t* Version=L"Far Manager, version FULLVERSION";
+const wchar_t* Copyright=L"Copyright © 1996-2000 Eugene Roshal, Copyright © COPYRIGHTYEARS Far Group";

@@ -191,31 +191,11 @@ ControlObject::~ControlObject()
 
 void ControlObject::ShowCopyright(DWORD Flags)
 {
-	char *Str=xf_strdup(Copyright);
-	char *Line2=nullptr;
-	char Xor=17, InitXor = Xor;
-
-	for (int I=0; Str[I]; I++)
-	{
-		Str[I]=Str[I]^Xor^InitXor;
-		Xor^=Str[I];
-
-		if (Str[I] == '\n')
-		{
-			Line2=&Str[I+1];
-			Str[I]='\0';
-		}
-	}
-
-	string strStr(Str, CP_UTF8);
-	string strLine(Line2, CP_UTF8);
-	xf_free(Str);
-
 	if (Flags&1)
 	{
-		Console.Write(strStr,static_cast<DWORD>(strStr.GetLength()));
+		Console.Write(Version,StrLength(Version));
 		Console.Write(L"\n",1);
-		Console.Write(strLine,static_cast<DWORD>(strLine.GetLength()));
+		Console.Write(Copyright,StrLength(Copyright));
 		Console.Write(L"\n",1);
 	}
 	else
@@ -224,22 +204,14 @@ void ControlObject::ShowCopyright(DWORD Flags)
 		Console.GetSize(Size);
 		Console.GetCursorPosition(CursorPosition);
 		int FreeSpace=Size.Y-CursorPosition.Y-1;
-		int LineCount=4+(strLine.IsEmpty()?0:1);
 
-		if (FreeSpace<LineCount)
-			ScrollScreen(LineCount-FreeSpace);
+		if (FreeSpace<5)
+			ScrollScreen(5-FreeSpace);
 
-		if (!strLine.IsEmpty())
-		{
-			GotoXY(0,ScrY-4);
-			Text(strStr);
-			GotoXY(0,ScrY-3);
-			Text(strLine);
-		}
-		else
-		{
-			Text(strStr);
-		}
+		GotoXY(0,ScrY-4);
+		Text(Version);
+		GotoXY(0,ScrY-3);
+		Text(Copyright);
 	}
 }
 
