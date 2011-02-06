@@ -3,7 +3,7 @@
 <String Id="Language">1049</String>
 <String Id="Codepage">1251</String>
 <String Id="ProductDescription">Менеджер файлов и архивов</String>
-<String Id="LaunchCondition">Для установки [ProductName] требуется минимум Windows 2000 Service Pack 4.</String>
+<String Id="LaunchCondition">Для установки [ProductName] требуется минимум Windows 2000 Service Pack 4 с KB816542.</String>
 <String Id="Feature.Title.Far">Far Manager</String>
 <String Id="Feature.Title.Addons">Дополнения</String>
 <String Id="Feature.Description.Addons">Наборы настроек для различных целей (*.reg файлы).</String>

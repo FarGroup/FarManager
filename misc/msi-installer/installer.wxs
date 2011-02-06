@@ -18,7 +18,12 @@
     <Property Id="ARPURLINFOABOUT" Value="http://farmanager.com/" />
     <Property Id="ARPURLUPDATEINFO" Value="http://farmanager.com/download.php" />
     <Media Id="1" Cabinet="far.cab" EmbedCab="yes" />
-    <Condition Message="!(loc.LaunchCondition)"><![CDATA[NOT Version9X AND (VersionNT >= 501 OR (VersionNT == 500 AND ServicePackLevel >= 4)]]></Condition>
+    <Property Id="KERNEL32VERSION">
+        <DirectorySearch Id="Kernel32Version" Path="[SystemFolder]">
+            <FileSearch Name="kernel32.dll" MinVersion="5.0.2195.6740"/>
+        </DirectorySearch>
+    </Property>
+    <Condition Message="!(loc.LaunchCondition)"><![CDATA[NOT Version9X AND (VersionNT >= 501 OR (VersionNT = 500 AND ServicePackLevel >= 4 AND KERNEL32VERSION))]]></Condition>
     <Binary Id="CustomActions.dll" SourceFile="customact.dll" />
     <CustomAction Id="UpdateFeatureState" BinaryKey="CustomActions.dll" DllEntry="UpdateFeatureState" />
     <CustomAction Id="SaveShortcutProps" BinaryKey="CustomActions.dll" DllEntry="SaveShortcutProps" Return="ignore" Impersonate="no" />
@@ -88,7 +93,6 @@
       <Custom Action="LaunchShortcut" After="RemoveExistingProducts"><![CDATA[LAUNCHAPP AND NOT Installed AND UILevel < 5]]></Custom>
     </InstallExecuteSequence>
     <InstallUISequence>
-      <LaunchConditions Before="AppSearch" />
       <Custom Action="SetUserInstallScope" After="LaunchConditions">NOT Privileged</Custom>
       <Custom Action="SetUserInstallDir" Before="FindRelatedProducts">USERINSTALLDIR AND NOT INSTALLPATH</Custom>
       <Custom Action="SetMachineInstallDir" Before="FindRelatedProducts">MACHINEINSTALLDIR AND NOT INSTALLPATH</Custom>
