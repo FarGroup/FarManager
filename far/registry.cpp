@@ -597,13 +597,20 @@ int CopyKeyTree(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip)
 			const wchar_t *SkipName=Skip;
 
 			while (!Found && *SkipName)
+			{
 				if (!StrCmpI(strSrcKeyName,SkipName))
+				{
 					Found=true;
+				}
 				else
+				{
 					SkipName+=StrLength(SkipName)+1;
-
+				}
+			}
 			if (Found)
+			{
 				continue;
+			}
 		}
 
 		strDestKeyName = Dest;

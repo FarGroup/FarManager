@@ -11698,7 +11698,7 @@ upd:"Show &plugins"
 "Mostrar &plugins"
 
 MChangeDriveSortPluginsByHotkey
-"Сотрировать плагины по горячей клавише"
+"Сортировать плагины по горячей клавише"
 "Sort plugins by hotkey"
 upd:"Sort plugins by hotkey"
 upd:"Sort plugins by hotkey"

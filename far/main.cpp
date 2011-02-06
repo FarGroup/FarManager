@@ -578,9 +578,20 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 		return 1;
 	}
 
+	// use Far2 settings
+	string strFarRoot = Opt.strRegRoot;
+	Opt.strRegRoot.Clear();
+	if (!CheckRegKey(L"Software\\Far Manager"))
+	{
+		if (CheckRegKey(L"Software\\Far2"))
+		{
+			CopyKeyTree(L"Software\\Far2", L"Software\\Far Manager",L"Software\\Far2\\PluginHotkeys\0Software\\Far2\\PluginsCache\0");
+		}
+	}
+	Opt.strRegRoot = strFarRoot;
+
 	SetEnvironmentVariable(L"FARLANG",Opt.strLanguage);
 	SetHighlighting();
-	DeleteEmptyKey(HKEY_CLASSES_ROOT,L"Directory\\shellex\\CopyHookHandlers");
 	initMacroVarTable(1);
 
 	if (Opt.ExceptRules == -1)
