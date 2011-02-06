@@ -1,41 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<?if $(var.Branch) = 1 ?>
-  <?if $(var.Platform) = x86 ?>
-    <?define Product = "Far Manager" ?>
-    <?define DefUserInstallDir = "Far" ?>
-  <?endif?>
-  <?if $(var.Platform) = x64 ?>
-    <?define Product = "Far Manager x64" ?>
-    <?define DefUserInstallDir = "Far_x64" ?>
-  <?endif?>
-<?endif?>
-<?if $(var.Branch) = 2 ?>
-  <?if $(var.Platform) = x86 ?>
-    <?define Product = "Far Manager 2" ?>
-    <?define DefUserInstallDir = "Far2" ?>
-  <?endif?>
-  <?if $(var.Platform) = x64 ?>
-    <?define Product = "Far Manager 2 x64" ?>
-    <?define DefUserInstallDir = "Far2_x64" ?>
-  <?endif?>
-<?endif?>
-<?define Manufacturer = "Eugene Roshal & Far Group" ?>
 <?if $(var.Platform) = x86 ?>
-  <?define Win64 = "no" ?>
-  <?define ProgramFiles = "ProgramFilesFolder" ?>
+  <?define Product = "Far Manager 2" ?>
   <?define InstallDir = "InstallDir" ?>
+  <?define DefUserInstallDir = "Far2" ?>
+  <?define ProgramFiles = "ProgramFilesFolder" ?>
+  <?define Win64 = "no" ?>
 <?endif?>
 <?if $(var.Platform) = x64 ?>
-  <?define Win64 = "yes" ?>
-  <?define ProgramFiles = "ProgramFiles64Folder" ?>
+  <?define Product = "Far Manager 2 x64" ?>
   <?define InstallDir = "InstallDir_x64" ?>
+  <?define DefUserInstallDir = "Far2_x64" ?>
+  <?define ProgramFiles = "ProgramFiles64Folder" ?>
+  <?define Win64 = "yes" ?>
 <?endif?>
-<?if $(var.Branch) = 1 ?>
-  <?define RegKey = "Far" ?>
-  <?define DefMachineInstallDir = "Far" ?>
-<?endif?>
-<?if $(var.Branch) = 2 ?>
-  <?define RegKey = "Far2" ?>
-  <?define DefMachineInstallDir = "Far2" ?>
-<?endif?>
+<?define Manufacturer = "Eugene Roshal & Far Group" ?>
+<?define DefMachineInstallDir = "Far2" ?>
+<?define RegKey = "Far2" ?>
 <Include />

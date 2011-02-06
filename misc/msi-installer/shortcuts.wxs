@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <?include defines.wxi ?>
-<?include guids_$(var.Branch)_$(var.Platform).wxi ?>
+<?include guids_$(var.Platform).wxi ?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Fragment>
     <DirectoryRef Id="TARGETDIR">
@@ -19,11 +19,6 @@
               <Shortcut Id="ClearPluginsCache" Name="Clear plugins cache" Target="[#ClearPluginsCache.cmd]" WorkingDirectory="INSTALLDIR" />
             </Component>
           </Directory>
-<?if $(var.Branch) = 1 ?>
-          <Component Id="EnglishEncShortcut" Guid="$(var.Guid.EnglishEncShortcut)" Win64="$(var.Win64)">
-            <Shortcut Id="EnglishEncyclopediaShortcut" Name="English Encyclopedia" Target="[#FarEncyclopedia.en.chm]" />
-          </Component>
-<?endif?>
           <Component Id="RussianEncShortcut" Guid="$(var.Guid.RussianEncShortcut)" Win64="$(var.Win64)">
             <Shortcut Id="RussianEncyclopediaShortcut" Name="Russian Encyclopedia" Target="[#FarEncyclopedia.ru.chm]" />
           </Component>

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <?include defines.wxi ?>
-<?include guids_$(var.Branch)_$(var.Platform).wxi ?>
+<?include guids_$(var.Platform).wxi ?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Product Id="*" Language="!(loc.Language)" Codepage="1252" Name="$(var.Product)" Version="$(var.Version)" Manufacturer="$(var.Manufacturer)" UpgradeCode="$(var.Guid.UpgradeCode)">
     <Package Id="*" Platform="$(var.Platform)" Compressed="yes" Manufacturer="$(var.Manufacturer)" Description="$(var.Product) $(var.Version)" InstallerVersion="200" SummaryCodepage="!(loc.Codepage)" />
@@ -18,9 +18,7 @@
     <Property Id="ARPURLINFOABOUT" Value="http://farmanager.com/" />
     <Property Id="ARPURLUPDATEINFO" Value="http://farmanager.com/download.php" />
     <Media Id="1" Cabinet="far.cab" EmbedCab="yes" />
-<?if $(var.Branch) = 2 ?>
-    <Condition Message="!(loc.LaunchCondition)"><![CDATA[NOT Version9X AND VersionNT >= 500]]></Condition>
-<?endif?>
+    <Condition Message="!(loc.LaunchCondition)"><![CDATA[NOT Version9X AND (VersionNT >= 501 OR (VersionNT == 500 AND ServicePackLevel >= 4)]]></Condition>
     <Binary Id="CustomActions.dll" SourceFile="customact.dll" />
     <CustomAction Id="UpdateFeatureState" BinaryKey="CustomActions.dll" DllEntry="UpdateFeatureState" />
     <CustomAction Id="SaveShortcutProps" BinaryKey="CustomActions.dll" DllEntry="SaveShortcutProps" Return="ignore" Impersonate="no" />

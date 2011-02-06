@@ -9,37 +9,12 @@
       <ComponentRef Id="FarEng.hlf" />
       <ComponentRef Id="FarEng.lng" />
       <ComponentRef Id="File_id.diz" />
-<?if $(var.Branch) = 1 ?>
-      <ComponentRef Id="Descript.ion" />
-      <ComponentRef Id="ClearPluginsCache.bat" />
-      <ComponentRef Id="RestoreSettings.bat" />
-      <ComponentRef Id="SaveSettings.bat" />
-<?endif?>
-<?if $(var.Branch) = 2 ?>
       <ComponentRef Id="ClearPluginsCache.cmd" />
       <ComponentRef Id="RestoreSettings.cmd" />
       <ComponentRef Id="SaveSettings.cmd" />
-<?endif?>
       <Feature Id="Addons" Level="2" Title="!(loc.Feature.Title.Addons)" AllowAdvertise="no" Description="!(loc.Feature.Description.Addons)">
         <ComponentRef Id="Descript.ion_1" />
         <ComponentRef Id="README.TXT_1" />
-<?if $(var.Branch) = 1 ?>
-        <Feature Id="Archivers" Level="2" Title="!(loc.Feature.Title.Archivers)" AllowAdvertise="no" Description="!(loc.Feature.Description.Archivers)">
-          <ComponentRef Id="Arj.reg" />
-          <ComponentRef Id="Descript.ion_2" />
-          <ComponentRef Id="FarUC2.reg" />
-          <ComponentRef Id="InfoZIP.reg" />
-          <ComponentRef Id="LGHA.reg" />
-          <ComponentRef Id="Lha32.reg" />
-          <ComponentRef Id="Lha32a.reg" />
-          <ComponentRef Id="Lha32b.reg" />
-          <ComponentRef Id="LhArk.reg" />
-          <ComponentRef Id="PkZip25.reg" />
-          <ComponentRef Id="PkZip25Dos.reg" />
-          <ComponentRef Id="Rar20.reg" />
-          <ComponentRef Id="WinZipCL.reg" />
-        </Feature>
-<?endif?>
         <Feature Id="Colors" Level="2" Title="!(loc.Feature.Title.Colors)" AllowAdvertise="no" Description="!(loc.Feature.Description.Colors)">
           <ComponentRef Id="Descript.ion_3" />
           <ComponentRef Id="export_colors.bat" />
@@ -107,9 +82,7 @@
           <ComponentRef Id="Panel.Lynx_mot.reg" />
           <ComponentRef Id="Panel.MouseWheelTilt.reg" />
           <ComponentRef Id="Panel.Numpad.reg" />
-<?if $(var.Branch) = 2 ?>
           <ComponentRef Id="Panel.SelectFromClipboard.reg" />
-<?endif?>
           <ComponentRef Id="Panel.SpaceToSelect.reg" />
           <ComponentRef Id="ShiftBS.reg" />
           <ComponentRef Id="ShiftF1.reg" />
@@ -126,53 +99,12 @@
           <ComponentRef Id="Descript.ion_7" />
           <ComponentRef Id="Executor.4NT.reg" />
           <ComponentRef Id="Executor.CMD.reg" />
-<?if $(var.Branch) = 1 ?>
-          <ComponentRef Id="Executor.COMMAND.reg" />
-<?endif?>
           <ComponentRef Id="WindowsGUI.reg" />
         </Feature>
         <Feature Id="Shell" Level="2" Title="!(loc.Feature.Title.Shell)" AllowAdvertise="no" Description="!(loc.Feature.Description.Shell)">
           <ComponentRef Id="Descript.ion_8" />
           <ComponentRef Id="FARHere.inf" />
         </Feature>
-<?if $(var.Branch) = 1 ?>
-        <Feature Id="Tables" Level="2" Title="!(loc.Feature.Title.Tables)" AllowAdvertise="no" Description="!(loc.Feature.Description.Tables)">
-          <ComponentRef Id="Descript.ion_9" />
-          <ComponentRef Id="README.TXT_2" />
-          <ComponentRef Id="Czech___CP_895__Kamenicti_.reg" />
-          <ComponentRef Id="Descript.ion_10" />
-          <ComponentRef Id="Hungarian___CWI.reg" />
-          <ComponentRef Id="ISO_8859_2__Latin_II_.reg" />
-          <ComponentRef Id="Polish___CP_896__Mazovia_.reg" />
-          <ComponentRef Id="Windows_1250.reg" />
-          <ComponentRef Id="Bulgarian_MIC.reg" />
-          <ComponentRef Id="Descript.ion_11" />
-          <ComponentRef Id="Dist.Rus.reg" />
-          <ComponentRef Id="Dist.Ukr.reg" />
-          <ComponentRef Id="DKOI8__Mainframe_.reg" />
-          <ComponentRef Id="DM__Amiga_.reg" />
-          <ComponentRef Id="ISO_8859_5.reg" />
-          <ComponentRef Id="KOI8_R.reg" />
-          <ComponentRef Id="KOI8_U.reg" />
-          <ComponentRef Id="Macintosh_Standard.reg" />
-          <ComponentRef Id="RUSCII__GOST_Ukrainian_.reg" />
-          <ComponentRef Id="Windows_1251.reg" />
-          <ComponentRef Id="Descript.ion_12" />
-          <ComponentRef Id="Email_DKWD.reg" />
-          <ComponentRef Id="Email_DWKD.reg" />
-          <ComponentRef Id="Email_KWKD.reg" />
-          <ComponentRef Id="Email_WK.reg" />
-          <ComponentRef Id="Email_WKWD.reg" />
-          <ComponentRef Id="readme.txt_3" />
-          <ComponentRef Id="Descript.ion_13" />
-          <ComponentRef Id="Windows_1255.reg" />
-          <ComponentRef Id="Descript.ion_14" />
-          <ComponentRef Id="Dist.Ger.reg" />
-          <ComponentRef Id="ISO_8859_1__Latin_I_.reg" />
-          <ComponentRef Id="Macintosh_Standard.reg_1" />
-          <ComponentRef Id="Windows_1252.reg" />
-        </Feature>
-<?endif?>
         <Feature Id="XLat" Level="2" Title="!(loc.Feature.Title.XLat)" AllowAdvertise="no" Description="!(loc.Feature.Description.XLat)">
           <ComponentRef Id="Descript.ion_15" />
           <ComponentRef Id="AltR.reg" />
@@ -185,42 +117,23 @@
       </Feature>
       <Feature Id="Changelogs" Level="2" Title="!(loc.Feature.Title.Changelogs)" AllowAdvertise="no" Description="!(loc.Feature.Description.Changelogs)">
         <ComponentRef Id="changelog" />
-<?if $(var.Branch) = 2 ?>
         <ComponentRef Id="changelog_eng" />
-<?endif?>
       </Feature>
       <Feature Id="Docs" Level="1" Title="!(loc.Feature.Title.Docs)" AllowAdvertise="no" Description="!(loc.Feature.Description.Docs)">
-<?if $(var.Branch) = 1 ?>
-        <ComponentRef Id="Arc.Support.txt" />
-<?endif?>
         <ComponentRef Id="Bug.Report.txt" />
-<?if $(var.Branch) = 1 ?>
-        <ComponentRef Id="Descript.ion_17" />
-<?endif?>
         <ComponentRef Id="Far.FAQ.txt" />
         <ComponentRef Id="Plugins.Install.txt" />
         <ComponentRef Id="Plugins.Review.txt" />
         <ComponentRef Id="TechInfo.txt" />
       </Feature>
       <Feature Id="Docs.Russian" Level="1" Display="hidden" AllowAdvertise="no">
-<?if $(var.Branch) = 1 ?>
-        <ComponentRef Id="Arc.Support.txt_1" />
-<?endif?>
         <ComponentRef Id="Bug.Report.txt_1" />
-<?if $(var.Branch) = 1 ?>
-        <ComponentRef Id="Descript.ion_18" />
-<?endif?>
         <ComponentRef Id="Far.FAQ.txt_1" />
         <ComponentRef Id="Plugins.Install.txt_1" />
         <ComponentRef Id="Plugins.Review.txt_1" />
         <ComponentRef Id="TechInfo.txt_1" />
       </Feature>
       <Feature Id="Enc" Level="2" Title="!(loc.Feature.Title.Enc)" AllowAdvertise="no" Description="!(loc.Feature.Description.Enc)">
-<?if $(var.Branch) = 1 ?>
-        <ComponentRef Id="FarEncyclopedia.en.chm" />
-      </Feature>
-      <Feature Id="Enc.Russian" Level="2" Display="hidden" AllowAdvertise="no">
-<?endif?>
         <ComponentRef Id="FarEncyclopedia.ru.chm" />
       </Feature>
 <?if $(var.Platform) = x86 ?>
@@ -242,7 +155,6 @@
           <ComponentRef Id="FarRus.hlf" />
           <ComponentRef Id="FarRus.lng" />
         </Feature>
-<?if $(var.Branch) = 2 ?>
         <Feature Id="Czech" Level="2" Title="!(loc.Feature.Title.Czech)" AllowAdvertise="no">
           <ComponentRef Id="FarCze.lng" />
         </Feature>
@@ -259,7 +171,6 @@
         <Feature Id="Spanish" Level="2" Title="!(loc.Feature.Title.Spanish)" AllowAdvertise="no">
           <ComponentRef Id="FarSpa.lng" />
         </Feature>
-<?endif?>
       </Feature>
       <Feature Id="FarShortcuts" Level="1" Title="!(loc.Feature.Title.FarShortcuts)" AllowAdvertise="no">
         <Feature Id="FarProgramsShortcut" Level="1" Title="!(loc.Feature.Title.FarProgramsShortcut)" AllowAdvertise="no">
@@ -267,11 +178,6 @@
           <ComponentRef Id="UninstallProduct" />
           <ComponentRef Id="Scripts" />
           <Feature Id="FarProgramsShortcut.Enc" Level="2" Display="hidden" AllowAdvertise="no">
-<?if $(var.Branch) = 1 ?>
-            <ComponentRef Id="EnglishEncShortcut" />
-          </Feature>
-          <Feature Id="FarProgramsShortcut.Enc.Russian" Level="2" Display="hidden" AllowAdvertise="no">
-<?endif?>
             <ComponentRef Id="RussianEncShortcut" />
           </Feature>
         </Feature>
@@ -294,26 +200,13 @@
         </Feature>
       </Feature>
       <Feature Id="SDK" Level="2" Title="!(loc.Feature.Title.SDK)" AllowAdvertise="no" Description="!(loc.Feature.Description.SDK)">
-<?if $(var.Branch) = 1 ?>
-        <ComponentRef Id="Descript.ion_19" />
-        <ComponentRef Id="GCCReadme.txt" />
-        <ComponentRef Id="README.TXT_4" />
-        <ComponentRef Id="VCReadme.txt" />
-<?endif?>
         <ComponentRef Id="farcolor.hpp" />
         <ComponentRef Id="farkeys.hpp" />
         <ComponentRef Id="plugin.hpp" />
         <Feature Id="Pascal" Level="2" Title="!(loc.Feature.Title.Pascal)" AllowAdvertise="no">
-<?if $(var.Branch) = 1 ?>
-          <ComponentRef Id="farcolor.pas" />
-          <ComponentRef Id="farkeys.pas" />
-          <ComponentRef Id="plugin.pas" />
-<?endif?>
-<?if $(var.Branch) = 2 ?>
           <ComponentRef Id="FarColorW.pas" />
           <ComponentRef Id="FarKeysW.pas" />
           <ComponentRef Id="PluginW.pas" />
-<?endif?>
         </Feature>
       </Feature>
       <Feature Id="Plugins" Level="1" Display="expand" Title="!(loc.Feature.Title.Plugins)" AllowAdvertise="no" Description="!(loc.Feature.Description.Plugins)">
@@ -403,7 +296,6 @@
             </Feature>
           </Feature>
         </Feature>
-<?if $(var.Branch) = 2 ?>
         <Feature Id="arclite" Level="1" Title="!(loc.Feature.Title.arclite)" AllowAdvertise="no" Description="!(loc.Feature.Description.arclite)">
           <ComponentRef Id="arclite.dll" />
           <ComponentRef Id="arclite_eng.hlf" />
@@ -441,7 +333,6 @@
             <ComponentRef Id="changelog_18" />
           </Feature>
         </Feature>
-<?endif?>
         <Feature Id="Compare" Level="1" Title="!(loc.Feature.Title.Compare)" AllowAdvertise="no" Description="!(loc.Feature.Description.Compare)">
           <ComponentRef Id="CmpEng.hlf" />
           <ComponentRef Id="Compare.dll" />
@@ -591,106 +482,6 @@
             <ComponentRef Id="changelog_13" />
           </Feature>
         </Feature>
-<?if $(var.Branch) = 1 ?>
-        <Feature Id="MultiArc" Level="1" Title="!(loc.Feature.Title.MultiArc)" AllowAdvertise="no" Description="!(loc.Feature.Description.MultiArc)">
-          <ComponentRef Id="arceng.hlf" />
-          <ComponentRef Id="arceng.lng" />
-          <ComponentRef Id="MultiArc.dll" />
-          <Feature Id="Ace" Level="1" Title="!(loc.Feature.Title.Ace)" AllowAdvertise="no">
-            <ComponentRef Id="Ace.fmt" />
-<?if $(var.Platform) = x86 ?>
-            <Feature Id="Ace.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
-              <ComponentRef Id="Ace.map" />
-            </Feature>
-<?endif?>
-          </Feature>
-          <Feature Id="Arc" Level="1" Title="!(loc.Feature.Title.Arc)" AllowAdvertise="no">
-            <ComponentRef Id="Arc.fmt" />
-<?if $(var.Platform) = x86 ?>
-            <Feature Id="Arc.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
-              <ComponentRef Id="Arc.map" />
-            </Feature>
-<?endif?>
-          </Feature>
-          <Feature Id="Arj" Level="1" Title="!(loc.Feature.Title.Arj)" AllowAdvertise="no">
-            <ComponentRef Id="Arj.fmt" />
-<?if $(var.Platform) = x86 ?>
-            <Feature Id="Arj.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
-              <ComponentRef Id="Arj.map" />
-            </Feature>
-<?endif?>
-          </Feature>
-          <Feature Id="Cab" Level="1" Title="!(loc.Feature.Title.Cab)" AllowAdvertise="no">
-            <ComponentRef Id="Cab.fmt" />
-<?if $(var.Platform) = x86 ?>
-            <Feature Id="Cab.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
-              <ComponentRef Id="Cab.map" />
-            </Feature>
-<?endif?>
-          </Feature>
-          <Feature Id="Custom" Level="1" Title="!(loc.Feature.Title.Custom)" AllowAdvertise="no">
-            <ComponentRef Id="Custom.fmt" />
-            <ComponentRef Id="custom.ini" />
-<?if $(var.Platform) = x86 ?>
-            <Feature Id="Custom.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
-              <ComponentRef Id="Custom.map" />
-            </Feature>
-<?endif?>
-          </Feature>
-          <Feature Id="Ha" Level="1" Title="!(loc.Feature.Title.Ha)" AllowAdvertise="no">
-            <ComponentRef Id="Ha.fmt" />
-<?if $(var.Platform) = x86 ?>
-            <Feature Id="Ha.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
-              <ComponentRef Id="Ha.map" />
-            </Feature>
-<?endif?>
-          </Feature>
-          <Feature Id="Lzh" Level="1" Title="!(loc.Feature.Title.Lzh)" AllowAdvertise="no">
-            <ComponentRef Id="Lzh.fmt" />
-<?if $(var.Platform) = x86 ?>
-            <Feature Id="Lzh.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
-              <ComponentRef Id="Lzh.map" />
-            </Feature>
-<?endif?>
-          </Feature>
-          <Feature Id="Rar" Level="1" Title="!(loc.Feature.Title.Rar)" AllowAdvertise="no">
-            <ComponentRef Id="Rar.fmt" />
-<?if $(var.Platform) = x86 ?>
-            <Feature Id="Rar.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
-              <ComponentRef Id="Rar.map" />
-            </Feature>
-<?endif?>
-          </Feature>
-          <Feature Id="TarGz" Level="1" Title="!(loc.Feature.Title.TarGz)" AllowAdvertise="no">
-            <ComponentRef Id="TarGz.fmt" />
-<?if $(var.Platform) = x86 ?>
-            <Feature Id="TarGz.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
-              <ComponentRef Id="TarGz.map" />
-            </Feature>
-<?endif?>
-          </Feature>
-          <Feature Id="Zip" Level="1" Title="!(loc.Feature.Title.Zip)" AllowAdvertise="no">
-            <ComponentRef Id="Zip.fmt" />
-<?if $(var.Platform) = x86 ?>
-            <Feature Id="Zip.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
-              <ComponentRef Id="Zip.map" />
-            </Feature>
-<?endif?>
-          </Feature>
-          <Feature Id="MultiArc.Russian" Level="1" Display="hidden" AllowAdvertise="no">
-            <ComponentRef Id="arcrus.hlf" />
-            <ComponentRef Id="arcrus.lng" />
-          </Feature>
-<?if $(var.Platform) = x86 ?>
-          <Feature Id="MultiArc.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
-            <ComponentRef Id="MultiArc.map" />
-          </Feature>
-<?endif?>
-          <Feature Id="MultiArc.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
-            <ComponentRef Id="changelog_14" />
-          </Feature>
-        </Feature>
-<?endif?>
         <Feature Id="Network" Level="1" Title="!(loc.Feature.Title.Network)" AllowAdvertise="no" Description="!(loc.Feature.Description.Network)">
           <ComponentRef Id="NetEng.hlf" />
           <ComponentRef Id="NetEng.lng" />

@@ -3,7 +3,7 @@
 <String Id="Language">1033</String>
 <String Id="Codepage">1252</String>
 <String Id="ProductDescription">File and archive manager</String>
-<String Id="LaunchCondition">[ProductName] requires Windows 2000 or above.</String>
+<String Id="LaunchCondition">[ProductName] requires Windows 2000 Service Pack 4 or above.</String>
 <String Id="Feature.Title.Far">Far Manager</String>
 <String Id="Feature.Title.Addons">Addons</String>
 <String Id="Feature.Description.Addons">Useful registry settings.</String>
