@@ -776,7 +776,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 		PluginToFileListItem(&PanelData[i],CurListData);
 		CurListData->Position=i;
 
-		if ((Info.Flags & OPIF_USESORTGROUPS)/* && !(CurListData->FileAttr & FILE_ATTRIBUTE_DIRECTORY)*/)
+		if (!(Info.Flags & OPIF_DISABLESORTGROUPS)/* && !(CurListData->FileAttr & FILE_ATTRIBUTE_DIRECTORY)*/)
 			CurListData->SortGroup=CtrlObject->HiFiles->GetGroup(CurListData);
 		else
 			CurListData->SortGroup=DEFAULT_SORT_GROUP;
@@ -801,7 +801,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 		FileListCount++;
 	}
 
-	if ((Info.Flags & OPIF_USEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
+	if (!(Info.Flags & OPIF_DISABLEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
 		CtrlObject->HiFiles->GetHiColor(ListData,FileListCount,(Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
 
 	FileCount=FileListCount;
@@ -813,7 +813,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 		CurPtr->Clear();
 		AddParentPoint(CurPtr,FileCount);
 
-		if ((Info.Flags & OPIF_USEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
+		if (!(Info.Flags & OPIF_DISABLEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
 			CtrlObject->HiFiles->GetHiColor(&CurPtr,1,(Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
 
 		if (Info.HostFile && *Info.HostFile)

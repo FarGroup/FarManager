@@ -536,7 +536,6 @@ void CreatePluginStartupInfo(Plugin *pPlugin, PluginStartupInfo *PSI, FarStandar
 		StartupInfo.FreePluginDirList=FarFreePluginDirList;
 		StartupInfo.Viewer=FarViewer;
 		StartupInfo.Editor=FarEditor;
-		StartupInfo.CmpName=FarCmpName;
 		StartupInfo.Text=FarText;
 		StartupInfo.EditorControl=FarEditorControl;
 		StartupInfo.ViewerControl=FarViewerControl;

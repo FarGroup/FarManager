@@ -549,14 +549,6 @@ if not exist bootstrap mkdir bootstrap</Command>
     <ClCompile Include="viewer.cpp" />
     <ClCompile Include="vmenu.cpp" />
     <ClCompile Include="window.cpp" />
-    <ClCompile Include="wrap.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="xlat.cpp" />
     <ClCompile Include="ucd\CharDistribution.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">

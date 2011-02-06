@@ -2144,12 +2144,6 @@ int WINAPI FarEditor(
 	return ExitCode;
 }
 
-int WINAPI FarCmpName(const wchar_t *pattern,const wchar_t *string,int skippath)
-{
-	return(CmpName(pattern,string,skippath!=0));
-}
-
-
 void WINAPI FarText(int X,int Y,int Color,const wchar_t *Str)
 {
 	if (DisablePluginsOutput || FrameManager->ManagerIsDown())

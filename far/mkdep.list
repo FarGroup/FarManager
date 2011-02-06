@@ -184,6 +184,7 @@ palette.cpp
 palette.hpp
 panel.cpp
 panel.hpp
+panelctype.hpp
 panelmix.cpp
 panelmix.hpp
 pathmix.cpp
@@ -270,7 +271,6 @@ vmenu.hpp
 wakeful.hpp
 window.cpp
 window.hpp
-wrap.cpp
 xlat.cpp
 xlat.hpp
-panelctype.hpp
+

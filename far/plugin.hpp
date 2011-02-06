@@ -886,13 +886,6 @@ typedef int (WINAPI *FARAPIEDITOR)(
     UINT CodePage
 );
 
-typedef int (WINAPI *FARAPICMPNAME)(
-    const wchar_t *Pattern,
-    const wchar_t *String,
-    int SkipPath
-);
-
-
 typedef const wchar_t*(WINAPI *FARAPIGETMSG)(
     INT_PTR PluginNumber,
     int MsgId
@@ -1935,7 +1928,6 @@ struct PluginStartupInfo
 	FARAPIFREEPLUGINDIRLIST FreePluginDirList;
 	FARAPIVIEWER           Viewer;
 	FARAPIEDITOR           Editor;
-	FARAPICMPNAME          CmpName;
 	FARAPITEXT             Text;
 	FARAPIEDITORCONTROL    EditorControl;
 
@@ -2026,8 +2018,8 @@ struct PanelMode
 enum OPENPLUGININFO_FLAGS
 {
 	OPIF_DISABLEFILTER           = 0x00000001,
-	OPIF_USESORTGROUPS           = 0x00000002,
-	OPIF_USEHIGHLIGHTING         = 0x00000004,
+	OPIF_DISABLESORTGROUPS       = 0x00000002,
+	OPIF_DISABLEHIGHLIGHTING     = 0x00000004,
 	OPIF_ADDDOTS                 = 0x00000008,
 	OPIF_RAWSELECTION            = 0x00000010,
 	OPIF_REALNAMES               = 0x00000020,

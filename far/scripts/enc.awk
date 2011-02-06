@@ -14,6 +14,7 @@ BEGIN {}
 
 function enc(str, Xor)
 {
+  InitXor = Xor;
   for (i = 1; i <= length(str); i = i + 1)
   {
     ch = asc(substr(str,i,1))
@@ -21,7 +22,7 @@ function enc(str, Xor)
     if (ch == 36)
       ch = 10
     save = ch
-    ch = xor(ch,Xor)
+    ch = xor(xor(ch,Xor),InitXor)
     printf("\\x%x",ch)
     Xor = xor(Xor,save)
   }

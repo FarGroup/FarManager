@@ -2192,7 +2192,7 @@ int Panel::SetPluginCommand(int Command,int Param1,INT_PTR Param2)
 						if (PInfo.Flags & OPIF_REALNAMES)
 							Info->Flags |= PFLAGS_REALNAMES;
 
-						if (!(PInfo.Flags & OPIF_USEHIGHLIGHTING))
+						if (PInfo.Flags & OPIF_DISABLEHIGHLIGHTING)
 							Info->Flags &= ~PFLAGS_HIGHLIGHT;
 
 						if (PInfo.Flags & OPIF_USECRC32)

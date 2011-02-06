@@ -491,9 +491,6 @@
     <ClCompile Include="vmenu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wrap.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="xlat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

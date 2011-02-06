@@ -193,11 +193,11 @@ void ControlObject::ShowCopyright(DWORD Flags)
 {
 	char *Str=xf_strdup(Copyright);
 	char *Line2=nullptr;
-	char Xor=17;
+	char Xor=17, InitXor = Xor;
 
 	for (int I=0; Str[I]; I++)
 	{
-		Str[I]=Str[I]^Xor;
+		Str[I]=Str[I]^Xor^InitXor;
 		Xor^=Str[I];
 
 		if (Str[I] == '\n')

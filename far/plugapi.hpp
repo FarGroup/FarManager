@@ -92,7 +92,6 @@ int WINAPI FarViewer(const wchar_t *FileName,const wchar_t *Title,
 int WINAPI FarEditor(const wchar_t *FileName,const wchar_t *Title,
                      int X1,int Y1,int X2, int Y2,DWORD Flags,
                      int StartLine,int StartChar, UINT CodePage);
-int WINAPI FarCmpName(const wchar_t *pattern,const wchar_t *string,int skippath);
 void WINAPI FarText(int X,int Y,int Color,const wchar_t *Str);
 int WINAPI TextToCharInfo(const char *Text,WORD Attr, CHAR_INFO *CharInfo, int Length, DWORD Reserved);
 int WINAPI FarEditorControl(int Command,void *Param);
