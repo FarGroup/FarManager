@@ -11697,6 +11697,15 @@ upd:"Show &plugins"
 upd:"Show &plugins"
 "Mostrar &plugins"
 
+MChangeDriveSortPluginsByHotkey
+"Сотрировать плагины по горячей клавише"
+"Sort plugins by hotkey"
+upd:"Sort plugins by hotkey"
+upd:"Sort plugins by hotkey"
+upd:"Sort plugins by hotkey"
+upd:"Sort plugins by hotkey"
+upd:"Sort plugins by hotkey"
+
 MChangeDriveShowCD
 "Показывать параметры &компакт-дисков"
 "Show &CD drive parameters"

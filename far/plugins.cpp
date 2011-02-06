@@ -1850,7 +1850,6 @@ bool PluginManager::GetDiskMenuItem(
 		GetRegKey(strRegKey,strValue,strPluginText,L"");
 		if (GetRegKey(strRegKey, guidValue, guidName, L"")&&StrToGuid(guidName,Guid)) ItemPresent=true;
 		ItemPresent=ItemPresent&&!strPluginText.IsEmpty();
-		return true;
 	}
 	else
 	{
