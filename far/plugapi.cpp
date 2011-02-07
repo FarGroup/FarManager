@@ -137,6 +137,7 @@ void ScanPluginDir();
    Сделано для того, чтобы не дублировать код GetString.
 */
 int WINAPI FarInputBox(
+    INT_PTR PluginNumber,
     const wchar_t *Title,
     const wchar_t *Prompt,
     const wchar_t *HistoryName,
@@ -151,7 +152,7 @@ int WINAPI FarInputBox(
 		return FALSE;
 
 	string strDest;
-	int nResult = GetString(Title,Prompt,HistoryName,SrcText,strDest,HelpTopic,Flags&~FIB_CHECKBOX,nullptr,nullptr);
+	int nResult = GetString(Title,Prompt,HistoryName,SrcText,strDest,HelpTopic,Flags&~FIB_CHECKBOX,nullptr,nullptr,PluginNumber);
 	xwcsncpy(DestText, strDest, DestLength+1);
 	return nResult;
 }

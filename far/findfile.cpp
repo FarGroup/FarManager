@@ -1710,7 +1710,7 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 			case KEY_ALTEND:
 			case KEY_ALT|KEY_NUMPAD1:
 				{
-          ListBox->ProcessKey((unsigned)Param2);
+					ListBox->ProcessKey((unsigned)Param2);
 					return TRUE;
 				}
 				break;

@@ -113,7 +113,8 @@ int __stdcall GetString(
     const wchar_t *HelpTopic = nullptr,
     DWORD Flags = 0,
     int *CheckBoxValue = nullptr,
-    const wchar_t *CheckBoxText = nullptr
+    const wchar_t *CheckBoxText = nullptr,
+    INT_PTR PluginNumber = -1
 );
 
 // для диалога GetNameAndPassword()

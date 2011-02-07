@@ -466,7 +466,8 @@ int WINAPI GetString(
     const wchar_t *HelpTopic,
     DWORD Flags,
     int *CheckBoxValue,
-    const wchar_t *CheckBoxText
+    const wchar_t *CheckBoxText,
+    INT_PTR PluginNumber
 )
 {
 	int Substract=5; // дополнительная величина :-)
@@ -548,6 +549,7 @@ int WINAPI GetString(
 		if (HelpTopic)
 			Dlg.SetHelp(HelpTopic);
 
+		Dlg.SetPluginNumber(PluginNumber);
 #if 0
 
 		if (Opt.ExceptRules)

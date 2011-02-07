@@ -1112,7 +1112,7 @@ int WINAPI FarInputBoxA(const char *Title,const char *Prompt,const char *History
 {
 	string strT(Title), strP(Prompt), strHN(HistoryName), strST(SrcText), strD, strHT(HelpTopic);
 	wchar_t *D = strD.GetBuffer(DestLength);
-	int ret = FarInputBox((Title?strT.CPtr():nullptr),(Prompt?strP.CPtr():nullptr),(HistoryName?strHN.CPtr():nullptr),(SrcText?strST.CPtr():nullptr),D,DestLength,(HelpTopic?strHT.CPtr():nullptr),Flags);
+	int ret = FarInputBox(-1,(Title?strT.CPtr():nullptr),(Prompt?strP.CPtr():nullptr),(HistoryName?strHN.CPtr():nullptr),(SrcText?strST.CPtr():nullptr),D,DestLength,(HelpTopic?strHT.CPtr():nullptr),Flags);
 	strD.ReleaseBuffer();
 
 	if (ret && DestText)

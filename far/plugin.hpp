@@ -217,10 +217,8 @@ enum FarMessagesProc
 	DM_SETDLGITEM,
 	DM_SETFOCUS,
 	DM_REDRAW,
-	DM_SETREDRAW=DM_REDRAW,
 	DM_SETTEXT,
 	DM_SETMAXTEXTLENGTH,
-	DM_SETTEXTLENGTH=DM_SETMAXTEXTLENGTH,
 	DM_SHOWDIALOG,
 	DM_GETFOCUS,
 	DM_GETCURSORPOS,
@@ -1708,6 +1706,7 @@ enum INPUTBOXFLAGS
 };
 
 typedef int (WINAPI *FARAPIINPUTBOX)(
+    INT_PTR PluginNumber,
     const wchar_t *Title,
     const wchar_t *SubTitle,
     const wchar_t *HistoryName,
