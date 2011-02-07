@@ -373,7 +373,7 @@ bool PluginW::SaveToCache()
 
 bool PluginW::Load()
 {
-	if (!WorkFlags.Check(PIWF_DONTLOADAGAIN))
+	if (WorkFlags.Check(PIWF_DONTLOADAGAIN))
 		return false;
 
 	if (m_hModule)
