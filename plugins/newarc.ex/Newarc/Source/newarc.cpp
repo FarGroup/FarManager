@@ -343,7 +343,7 @@ void __stdcall EXP_NAME(GetPluginInfo) (
 #include "mnu/mnuCommandLinesAndParams.cpp"
 #include "mnu/mnuConfigSelect.cpp"
 
-int __stdcall EXP_NAME(Configure) (
+int __stdcall EXP_NAME(Configure)(
 		int nItem
 		)
 {
@@ -352,8 +352,18 @@ int __stdcall EXP_NAME(Configure) (
 	return FALSE;
 }
 
+int __stdcall EXP_NAME(GetMinFarVersion)()
+{
+#ifdef _UNICODE
+// PCTL_FORCEDLOADPLUGIN
+	return MAKEFARVERSION(2,0,1789);
+#else
+	return FARMANAGERVERSION;
+#endif
+}
 
-BOOL __stdcall DllMain (
+
+BOOL __stdcall DllMain(
 		HINSTANCE hinstDLL,
 		DWORD fdwReason,
 		LPVOID lpvReserved

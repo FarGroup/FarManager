@@ -165,7 +165,7 @@ int ArchivePanel::pGetFindData(
 		{
 			const TCHAR* lpRealName = pItem->lpFileName+m_strPathInArchive.GetLength();
 
-			if ( bFileInFolder )
+			if ( bFileInFolder && *lpRealName )
 				lpRealName++;
 
 			if ( !*lpRealName )

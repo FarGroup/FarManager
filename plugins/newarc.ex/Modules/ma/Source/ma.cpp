@@ -3,9 +3,9 @@
 PluginStartupInfo Info;
 FARSTANDARDFUNCTIONS FSF;
 
-MaModule *pModule;
+MaModule* pModule;
 
-int OnInitialize (StartupInfo *pInfo)
+int OnInitialize(StartupInfo *pInfo)
 {
 	Info = pInfo->Info;
 	FSF = *pInfo->Info.FSF;
@@ -17,7 +17,7 @@ int OnInitialize (StartupInfo *pInfo)
 	return NAERROR_SUCCESS;
 }
 
-int OnFinalize ()
+int OnFinalize()
 {
 	delete pModule;
 	return NAERROR_SUCCESS;
@@ -106,7 +106,10 @@ int OnGetDefaultCommand (GetDefaultCommandStruct *pGDC)
 	MaPlugin* pPlugin = pModule->GetPlugin(pGDC->uidPlugin);
 
 	if ( pPlugin )
+	{
 		pGDC->bResult = pPlugin->GetDefaultCommand(pGDC->uidFormat, pGDC->nCommand, &pGDC->lpCommand);
+		pGDC->bEnabledByDefault = true; //BUGBUG
+	}
 	else
 		pGDC->bResult = false;
 	

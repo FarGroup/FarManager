@@ -3,9 +3,24 @@
 MaPlugin::MaPlugin(const GUID& uid)
 {
 	m_uid = uid;
+
+	m_hModule = NULL;
+	m_pfnLoadFormatModule = NULL;
+	m_pfnIsArchive = NULL;
+	m_pfnOpenArchive = NULL;
+	m_pfnGetArcItem = NULL;
+	m_pfnCloseArchive = NULL;
+	m_pfnGetFormatName = NULL;
+	m_pfnGetDefaultCommands = NULL;
+	m_pfnSetFarInfo = NULL;
+	m_pfnGetSFXPos = NULL;
 }
 
-bool MaPlugin::Load(const TCHAR* lpModuleName, oldfar::PluginStartupInfo* pInfo, oldfar::FARSTANDARDFUNCTIONS* pFSF)
+bool MaPlugin::Load(
+		const TCHAR* lpModuleName, 
+		oldfar::PluginStartupInfo* pInfo, 
+		oldfar::FARSTANDARDFUNCTIONS* pFSF
+		)
 {
 	m_strModuleName = lpModuleName;
 
