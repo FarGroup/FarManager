@@ -5,10 +5,10 @@
   <Product Id="*" Language="!(loc.Language)" Codepage="1252" Name="$(var.Product)" Version="$(var.Version)" Manufacturer="$(var.Manufacturer)" UpgradeCode="$(var.Guid.UpgradeCode)">
     <Package Id="*" Platform="$(var.Platform)" Compressed="yes" Manufacturer="$(var.Manufacturer)" Description="$(var.Product) $(var.Version)" InstallerVersion="200" SummaryCodepage="!(loc.Codepage)" />
     <Property Id="MACHINEINSTALLDIR">
-      <RegistrySearch Id="InstallDir" Root="HKLM" Key="Software\$(var.RegKey)" Name="$(var.InstallDir)" Type="directory" Win64="$(var.Win64)" />
+      <RegistrySearch Id="InstallDir" Root="HKLM" Key="Software\$(var.RegKey)" Name="$(var.InstallDirParam)" Type="directory" Win64="$(var.Win64)" />
     </Property>
     <Property Id="USERINSTALLDIR">
-      <RegistrySearch Id="UserInstallDir" Root="HKCU" Key="Software\$(var.RegKey)" Name="$(var.InstallDir)" Type="directory" Win64="$(var.Win64)" />
+      <RegistrySearch Id="UserInstallDir" Root="HKCU" Key="Software\$(var.RegKey)" Name="$(var.InstallDirParam)" Type="directory" Win64="$(var.Win64)" />
     </Property>
     <Property Id="InstallScope" Value="Machine" />
     <Property Id="ALLUSERS" Value="1" />
@@ -43,7 +43,7 @@
       <Directory Id="$(var.ProgramFiles)">
         <Directory Id="INSTALLDIR" Name="$(var.DefMachineInstallDir)">
           <Component Id="InstallDir" Guid="$(var.Guid.InstallDir)" Win64="$(var.Win64)">
-            <RegistryValue Root="HKMU" Key="Software\$(var.RegKey)" Name="$(var.InstallDir)" Value="[INSTALLDIR]" Type="string" KeyPath="yes" />
+            <RegistryValue Root="HKMU" Key="Software\$(var.RegKey)" Name="$(var.InstallDirParam)" Value="[INSTALLDIR]" Type="string" KeyPath="yes" />
           </Component>
           <Component Id="AppPaths" Guid="$(var.Guid.AppPaths)" Win64="$(var.Win64)">
             <RegistryKey Root="HKMU" Key="Software\Microsoft\Windows\CurrentVersion\App Paths\Far.exe">
