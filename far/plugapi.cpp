@@ -1080,7 +1080,7 @@ static int FarDialogExSehed(Dialog *FarDialog)
 	}
 }
 
-HANDLE WINAPI FarDialogInit(INT_PTR PluginNumber, int X1, int Y1, int X2, int Y2,
+HANDLE WINAPI FarDialogInit(INT_PTR PluginNumber, GUID Id, int X1, int Y1, int X2, int Y2,
                             const wchar_t *HelpTopic, FarDialogItem *Item,
                             unsigned int ItemsNumber, DWORD Reserved, DWORD Flags,
                             FARWINDOWPROC DlgProc, INT_PTR Param)
@@ -1131,6 +1131,8 @@ HANDLE WINAPI FarDialogInit(INT_PTR PluginNumber, int X1, int Y1, int X2, int Y2
 			FarDialog->SetCanLoseFocus(TRUE);
 
 		FarDialog->SetHelp(HelpTopic);
+
+		FarDialog->SetId(Id);
 		/* $ 29.08.2000 SVS
 		   Запомним номер плагина - сейчас в основном для формирования HelpTopic
 		*/

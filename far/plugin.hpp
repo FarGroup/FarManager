@@ -311,8 +311,6 @@ enum FarMessagesProc
 	DN_DRAWDIALOGDONE,
 	DN_LISTHOTKEY,
 
-	DN_GETDIALOGINFO=DM_GETDIALOGINFO,
-
 	DN_CLOSE=DM_CLOSE,
 	DN_KEY=DM_KEY,
 
@@ -508,6 +506,7 @@ struct DialogInfo
 {
 	int StructSize;
 	GUID Id;
+	GUID Owner;
 };
 
 #define Dlg_RedrawDialog(Info,hDlg)            Info.SendDlgMessage(hDlg,DM_REDRAW,0,0)
@@ -575,6 +574,7 @@ typedef INT_PTR(WINAPI *FARAPIDEFDLGPROC)(
 
 typedef HANDLE(WINAPI *FARAPIDIALOGINIT)(
     INT_PTR               PluginNumber,
+    GUID                  Id,
     int                   X1,
     int                   Y1,
     int                   X2,

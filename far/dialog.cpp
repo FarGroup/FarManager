@@ -574,12 +574,6 @@ void Dialog::InitDialog()
 		DialogMode.Set(DMODE_INITOBJECTS);
 		DialogInfo di={sizeof(di)};
 
-		if (DlgProc(reinterpret_cast<HANDLE>(this),DN_GETDIALOGINFO,0,reinterpret_cast<INT_PTR>(&di)))
-		{
-			Id=di.Id;
-			IdExist=true;
-		}
-
 		DlgProc((HANDLE)this,DN_GOTFOCUS,InitFocus,0);
 	}
 }
@@ -4742,7 +4736,13 @@ INT_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 					if (static_cast<size_t>(di->StructSize)>=offsetof(DialogInfo,Id)+sizeof(di->Id))
 					{
 						di->Id=Dlg->Id;
+						di->Owner=FarGuid;
 						Result=true;
+						Plugin *pPlugin=(Plugin*)Dlg->PluginNumber;
+						if (Dlg->PluginNumber!=-1&&pPlugin)
+						{
+							di->Owner=pPlugin->GetGUID();
+						}
 					}
 				}
 			}
