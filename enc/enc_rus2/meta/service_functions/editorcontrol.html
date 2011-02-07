@@ -35,87 +35,85 @@ int WINAPI EditorControl(
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_ADDCOLOR">ECTL_ADDCOLOR</a></td>
     <td class="cont" width="60%">Задать цвет части строки. Эта команда может быть
       вызвана несколько раз для одной и той же строки
-      для задания нескольких цветных областей. <em>Param</em>
+      для задания нескольких цветных областей. <var>Param</var>
       указывает на структуру <a href="../structures/editorcolor.html">EditorColor</a>.
       Если указанная строка отсутствует, то
-      возвращается FALSE, иначе TRUE.</td></tr>
+      возвращается <code>FALSE</code>, иначе <code>TRUE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_ADDSTACKBOOKMARK">ECTL_ADDSTACKBOOKMARK</a></td>
     <td class="cont" width="60%">Добавить позицию навигации ("стековую закладку") в текущую позицию редактора.
   При добавлении удаляются все позиции навигации с индексом выше индекса текущей позиции навигации.
-  Param должен быть равен NULL. Команда возвращает TRUE в случае успешного выполнения.
+  <var>Param</var> должен быть <code>NULL</code>. Команда возвращает <code>TRUE</code> в случае успешного выполнения.
   </td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_CLEARSTACKBOOKMARKS">ECTL_CLEARSTACKBOOKMARKS</a></td>
-    <td class="cont" width="60%">Удалить все позиции навигации. <em>Param</em> должен быть равен <code>NULL</code>.
-  </td></tr>
+    <td class="cont" width="60%">Удалить все позиции навигации. <var>Param</var> должен быть <code>NULL</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_DELETEBLOCK">ECTL_DELETEBLOCK</a></td>
     <td class="cont" width="60%">Удалить блок в редакторе. Функция вернёт
      <code>TRUE</code> в случае удачного удаления блока и <code>FALSE</code>,
      если редактор заблокирован (пользователь нажал <kbd>Ctrl-L</kbd>) или
-     нет выделенного блока. <em>Param</em> должен быть равен <code>NULL</code>.
+     нет выделенного блока. <var>Param</var> должен быть <code>NULL</code>.
     </td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_DELETECHAR">ECTL_DELETECHAR</a></td>
-    <td class="cont" width="60%">Удалить символ под курсором. <em>Param</em> должен быть
-      NULL.</td></tr>
+    <td class="cont" width="60%">Удалить символ под курсором. <var>Param</var> должен быть <code>NULL</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_DELETESTACKBOOKMARK">ECTL_DELETESTACKBOOKMARK</a></td>
     <td class="cont" width="60%">Удалить указанную позицию навигации.
-  <em>Param</em> должен быть равен индексу удаляемой позиции навигации (0 и более) или -1 для удаления текущей позиции навигации.
-  Количество позиций навигации можно получить, вызвав <a href="#ECTL_GETSTACKBOOKMARKS">ECTL_GETSTACKBOOKMARKS</a> c <em>Param</em>
-  равным значению <code>NULL</code>.<br>
-  Команда возвращает TRUE в случае успешного выполнения.
+  <var>Param</var> должен быть равен индексу удаляемой позиции навигации (0 и более) или -1 для удаления текущей позиции навигации.
+  Количество позиций навигации можно получить, вызвав <a href="#ECTL_GETSTACKBOOKMARKS">ECTL_GETSTACKBOOKMARKS</a> c <var>Param</var>
+  равным <code>NULL</code>.<br>
+  Команда возвращает <code>TRUE</code> в случае успешного выполнения.
   </td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_DELETESTRING">ECTL_DELETESTRING</a></td>
-    <td class="cont" width="60%">Удалить текущую строку. <em>Param</em> должен быть NULL.</td></tr>
+    <td class="cont" width="60%">Удалить текущую строку. <var>Param</var> должен быть <code>NULL</code>.</td></tr>
 
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_EXPANDTABS">ECTL_EXPANDTABS</a></td>
     <td class="cont" width="60%">Заменить все символы табуляции в строке
-      пробелами. <em>Param</em> указывает на целую переменную,
+      пробелами. <var>Param</var> указывает на целую переменную,
       содержащую номер обрабатываемой строки или
       -1 для обработки текущей строки.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_GETBOOKMARKS">ECTL_GETBOOKMARKS</a></td>
     <td class="cont" width="60%">Получить информацию о закладках для текущего
      редактируемого файла.
-     <em>Param</em> указывает на структуру <a href="../structures/editorbookmarks.html">EditorBookMarks</a>.
-     <br>Команда возвращает FALSE в случае, если:
+     <var>Param</var> указывает на структуру <a href="../structures/editorbookmarks.html">EditorBookMarks</a>.
+     <br>Команда возвращает <code>FALSE</code> в случае, если:
      <ol>
        <li>файл ещё не открыт;
-       <li>в качестве <var>Param</var> был передано значение <code>NULL</code>;
+       <li>в качестве <var>Param</var> было передано значение <code>NULL</code>;
      </ol>
-     В случае успеха возвращается TRUE.<br>
+     В случае успеха возвращается <code>TRUE</code>.<br>
     </td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_GETSTACKBOOKMARKS">ECTL_GETSTACKBOOKMARKS</a></td>
     <td class="cont" width="60%">Получить информацию о позициях навигации ("стековых закладках") для текущего
      редактируемого файла.
-     <em>Param</em> указывает на структуру <a href="../structures/editorbookmarks.html">EditorBookMarks</a> или равен значению <code>NULL</code>.<br>
+     <var>Param</var> указывает на структуру <a href="../structures/editorbookmarks.html">EditorBookMarks</a> или равен <code>NULL</code>.<br>
      Команда возвращает количество позиций навигации, информация о которых была передана (или общее количество позиций навигации,
      если в качестве <var>Param</var> было передано значение <code>NULL</code>).
     </td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_GETCOLOR">ECTL_GETCOLOR</a></td>
-    <td class="cont" width="60%">Получить цвет части строки. <em>Param</em> указывает на
+    <td class="cont" width="60%">Получить цвет части строки. <var>Param</var> указывает на
       структуру <a href="../structures/editorcolor.html">EditorColor</a>. Если
       указанная строка или часть строки отсутствует,
-      то возвращается FALSE, иначе TRUE.</td></tr>
+      то возвращается <code>FALSE</code>, иначе <code>TRUE</code>.</td></tr>
 
    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_GETFILENAME">ECTL_GETFILENAME</a></td>
-    <td class="cont" width="60%">Получить имя открытого в редакторе файла. <em>Param</em> указывает на
+    <td class="cont" width="60%">Получить имя открытого в редакторе файла. <var>Param</var> указывает на
       буфер выделенный плагином.<br>
       Команда возвращает требуемый размер буфера при <var>Param</var> = <code>NULL</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_GETINFO">ECTL_GETINFO</a></td>
-    <td class="cont" width="60%">Получить информацию о редакторе. <em>Param</em>
+    <td class="cont" width="60%">Получить информацию о редакторе. <var>Param</var>
       указывает на структуру <a href="../structures/editorinfo.html">EditorInfo</a>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_GETSTRING">ECTL_GETSTRING</a></td>
-    <td class="cont" width="60%">Получить информацию о строке. <em>Param</em>
+    <td class="cont" width="60%">Получить информацию о строке. <var>Param</var>
     указывает на структуру <a href="../structures/editorgetstring.html">EditorGetString</a>.
     Полученная строка будет в кодировке редактора.
     <pre class=code>// получить первую строку редактируемого файла
@@ -130,9 +128,9 @@ Info.EditorControl(ECTL_GETSTRING,&amp;egs);</pre>
       Вставить новую строку (разорвать строку) с текущей позиции
       курсора и переместить курсор либо на первую позицию новой
       строки, либо на позицию с учётом отступа.
-      Если <em>Param</em> указывает на целочисленную переменную, равную 1,
+      Если <var>Param</var> указывает на целочисленную переменную, равную 1,
       то при выполнении данной команды будет использоваться отступ.
-      Для его отключения установите <em>Param</em> в <code>NULL</code>
+      Для его отключения установите <var>Param</var> в <code>NULL</code>
       или установите целую переменную в 0.
       Поведение при отступе из плагина точно такое же, как и при нажатии
       <code>&lt;Enter&gt;</code> пользователем в редакторе, например, в
@@ -143,7 +141,7 @@ Info.EditorControl(ECTL_INSERTSTRING,0);</pre>
     </td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_INSERTTEXT">ECTL_INSERTTEXT</a></td>
-    <td class="cont" width="60%">Вставить текст, начиная с позиции курсора. <em>Param</em>
+    <td class="cont" width="60%">Вставить текст, начиная с позиции курсора. <var>Param</var>
       указывает на строку, оканчивающуюся нулём. Команда корректно
       обрабатывает символ(ы) перевода строки (CR). Команда
       <dfn>ECTL_INSERTTEXT</dfn> работает так, как будто текст вводится с
@@ -154,23 +152,23 @@ Info.EditorControl(ECTL_INSERTTEXT,L"Text");</pre>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_NEXTSTACKBOOKMARK">ECTL_NEXTSTACKBOOKMARK</a></td>
     <td class="cont" width="60%">Перейти на следующую позицию навигации.
-  <em>Param</em> должен быть равен <code>NULL</code>.<br>
-  Команда возвращает TRUE в случае успешного выполнения.
+  <var>Param</var> должен быть <code>NULL</code>.<br>
+  Команда возвращает <code>TRUE</code> в случае успешного выполнения.
   </td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_PREVSTACKBOOKMARK">ECTL_PREVSTACKBOOKMARK</a></td>
     <td class="cont" width="60%">Перейти на предыдущую позицию навигации.
   Если после предыдущего вызова команды <a href="#ECTL_ADDSTACKBOOKMARK">ECTL_ADDSTACKBOOKMARK</a> не выполнялось операций
   с позициями навигации, то перед переходом запоминается текущая позиция редактора в качестве новой позиции навигации.
-  <em>Param</em> должен быть равен <code>NULL</code>. Команда возвращает TRUE в случае успешного выполнения.
+  <var>Param</var> должен быть <code>NULL</code>. Команда возвращает <code>TRUE</code> в случае успешного выполнения.
   </td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_PROCESSINPUT">ECTL_PROCESSINPUT</a></td>
     <td class="cont" width="60%">Передаёт структуру <a href="../winapi/input_record.html">INPUT_RECORD</a>,
-      указатель на которую передаётся в <em>Param</em>, внутреннему редактору
+      указатель на которую передаётся в <var>Param</var>, внутреннему редактору
       FAR для обработки.<br>
       Учтите, что если ваш плагин экспортирует функцию <a href="../exported_functions/processeditorinputw.html">ProcessEditorInputW</a>,
-      то данные из <em>Param</em> сразу же будут переданы в ProcessEditorInput.
+      то данные из <var>Param</var> сразу же будут переданы в ProcessEditorInput.
       Схема проста:
 <pre class=code>case ECTL_PROCESSINPUT:
   if (ProcessEditorInput(Param))
@@ -183,10 +181,10 @@ Info.EditorControl(ECTL_INSERTTEXT,L"Text");</pre>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_PROCESSKEY">ECTL_PROCESSKEY</a></td>
     <td class="cont" width="60%">Функция позволяющая "нажимать" в редакторе
-     различные клавиши, коды которых передаются в <em>Param</em>.<br>
+     различные клавиши, коды которых передаются в <var>Param</var>.<br>
      Используются <a href="../defs/farkeycodes.html">внутренние коды клавиш</a>
      FAR Manager (см. farkeys.hpp)
-     <br>Эта команда всегда возвращает TRUE.
+     <br>Эта команда всегда возвращает <code>TRUE</code>.
 <pre class=code>// перейти в конец редактируемого файла
 Info.EditorControl(ECTL_PROCESSKEY,(void*)KEY_CTRLEND);
 </pre>
@@ -195,12 +193,12 @@ Info.EditorControl(ECTL_PROCESSKEY,(void*)KEY_CTRLEND);
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_QUIT">ECTL_QUIT</a></td>
     <td class="cont" width="60%">Закрыть редактор. Любая несохраненная информация будет потеряна.
-     <em>Param</em> должен быть равен NULL.
-     Эта команда всегда возвращает TRUE.</td></tr>
+     <var>Param</var> должен быть <code>NULL</code>.
+     Эта команда всегда возвращает <code>TRUE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_READINPUT">ECTL_READINPUT</a></td>
     <td class="cont" width="60%">Заполняет структуру <a href="../winapi/input_record.html">INPUT_RECORD</a>
-      читая данные со стандартного устройства ввода. <em>Param</em>
+      читая данные со стандартного устройства ввода. <var>Param</var>
       указывает на структуру INPUT_RECORD (<i>она определена в
       Windows API и используется в функции <a
       href="../winapi/readconsoleinput.html">ReadConsoleInput</a></i>).</td></tr>
@@ -209,62 +207,61 @@ Info.EditorControl(ECTL_PROCESSKEY,(void*)KEY_CTRLEND);
     <td class="cont" width="60%">Конвертировать реальную строковую позицию
       курсора в экранную позицию. Если строка не
       содержит символов табуляции, входная и
-      получаемая позиция будут равными. <em>Param</em>
+      получаемая позиция будут равными. <var>Param</var>
       указывает на структуру <a href="../structures/editorconvertpos.html">EditorConvertPos</a>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_REDRAW">ECTL_REDRAW</a></td>
-    <td class="cont" width="60%">Перерисовать окно редактора. <em>Param</em> должен быть
-      NULL.</td></tr>
+    <td class="cont" width="60%">Перерисовать окно редактора. <var>Param</var> должен быть <code>NULL</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SAVEFILE">ECTL_SAVEFILE</a></td>
     <td class="cont" width="60%">Позволяет плагину сохранить редактируемый файл.
-     <em>Param</em> указывает на структуру
+     <var>Param</var> указывает на структуру
      <a href="../structures/editorsavefile.html">EditorSaveFile</a>.
-     Если <em>Param</em> равен NULL, то будут использованы имя редактируемого
+     Если <var>Param</var> равен <code>NULL</code>, то будут использованы имя редактируемого
      файла и текущий формат сохранения (DOS-формат - перевод строки заменяется
      на "\r\n", Unix-формат - "\n").
-     При успешном сохранении файла функция вернёт TRUE.</td></tr>
+     При успешном сохранении файла функция вернёт <code>TRUE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SELECT">ECTL_SELECT</a></td>
-    <td class="cont" width="60%">Выделить или снять выделение с блока. <em>Param</em>
+    <td class="cont" width="60%">Выделить или снять выделение с блока. <var>Param</var>
       указывает на структуру <a href="../structures/editorselect.html">EditorSelect</a>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SETKEYBAR">ECTL_SETKEYBAR</a></td>
     <td class="cont" width="60%">Функция, позволяющая управлять поведением
      строки функциональных клавиш в редакторе:<br>
-     <em>Param</em> = NULL - восстановить, предыдущее значение<br>
-     <em>Param</em> = -1   - обновить полосу (перерисовать)<br>
-     <em>Param</em> = указатель на структуру <a href="../structures/keybartitles.html">KeyBarTitles</a>.<p>
+     <var>Param</var> = <code>NULL</code> - восстановить предыдущее значение<br>
+     <var>Param</var> = -1   - обновить полосу (перерисовать)<br>
+     <var>Param</var> = указатель на структуру <a href="../structures/keybartitles.html">KeyBarTitles</a>.<p>
      Вызывать данную команду в событии <a href="../exported_functions/processeditoreventw.html#EE_READ">EE_READ</a>
      не имеет смысла, т.к. строки функциональных клавиш, как объекта, в момент
      загрузки файла в редактор ещё не существует.<br>
-     Команда возвращает TRUE в случае успешного выполнения или FALSE (когда
+     Команда возвращает <code>TRUE</code> в случае успешного выполнения или <code>FALSE</code> (когда
      строка, как объект, не создана).<br>
      </td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SETPARAM">ECTL_SETPARAM</a></td>
     <td class="cont" width="60%">Изменение настроек текущего редактора.
-     <em>Param</em> указывает на структуру <a href="../structures/editorsetparameter.html">EditorSetParameter</a>.
-     <br>Команда возвращает TRUE в случае успешного изменения параметров.
+     <var>Param</var> указывает на структуру <a href="../structures/editorsetparameter.html">EditorSetParameter</a>.
+     <br>Команда возвращает <code>TRUE</code> в случае успешного изменения параметров.
     </td></tr>
 
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SETPOSITION">ECTL_SETPOSITION</a></td>
-    <td class="cont" width="60%">Установить позицию курсора. <em>Param</em> указывает на
+    <td class="cont" width="60%">Установить позицию курсора. <var>Param</var> указывает на
       структуру <a href="../structures/editorsetposition.html">EditorSetPosition</a>.
       </td></tr>
 
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SETSTRING">ECTL_SETSTRING</a></td>
-    <td class="cont" width="60%">Поместить текст в строку. <em>Param</em> указывает на
+    <td class="cont" width="60%">Поместить текст в строку. <var>Param</var> указывает на
     структуру <a href="../structures/editorsetstring.html">EditorSetString</a>.
     Помещаемая строка должна быть в кодировке редактора.</td></tr>
 
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SETTITLE">ECTL_SETTITLE</a></td>
     <td class="cont" width="60%"><img src="../../images/ectl_settitle.gif" width=213 height=53 align=right alt="DrawLine\DrawLine.cpp: Применена функция SetTitle()">Установить заголовок редактора (верхняя статусная панель).
-      <em>Param</em> указывает на строку, оканчивающуюся нулём, которая содержит текст заголовка.<br>
-      Для восстановления статусной строки укажите параметр <em>Param</em> равный NULL или пустой строке.<br>
+      <var>Param</var> указывает на строку, оканчивающуюся нулём, которая содержит текст заголовка.<br>
+      Для восстановления статусной строки укажите параметр <var>Param</var> равный <code>NULL</code> или пустой строке.<br>
       Заголовок не будет выведен, если статусная строка погашена.<br>
       При показе заголовок будет усечён до размера, не затрагивающего служебную информацию (кодировка, позиция, etc.)<br>
 <pre class=code>// DrawLine\DrawLine.cpp: функция SetTitle
@@ -275,7 +272,7 @@ Info.EditorControl(ECTL_SETTITLE,(wchar_t *)GetMsg(IDTitle));</pre>
     <td class="cont" width="60%">Конвертировать экранную позицию курсора в
       реальную строковую позицию. Если строка не
       содержит символов табуляции, входная и
-      получаемая позиция будут равными. <em>Param</em>
+      получаемая позиция будут равными. <var>Param</var>
       указывает на структуру <a href="../structures/editorconvertpos.html">EditorConvertPos</a>.</td></tr>
 
 
@@ -289,12 +286,12 @@ Info.EditorControl(ECTL_SETTITLE,(wchar_t *)GetMsg(IDTitle));</pre>
      например, изменил позицию курсора, поэтому вы почти всегда должны
      использовать данную команды перед передачей управления FAR, если ваш
      плагин изменил файл в редакторе или положение курсора.<br>
-     <em>Param</em> должен быть <code>NULL</code>.</td></tr>
+     <var>Param</var> должен быть <code>NULL</code>.</td></tr>
 
   <tr class="cont"><td class="cont" width="40%"><a name="ECTL_UNDOREDO">ECTL_UNDOREDO</a></td>
     <td class="cont" width="60%"> Функция, позволяющая управлять поведением операции Отмена-Возврат действия,
-    т.н. Undo-Redo. <em>Param</em> указывает на структуру <a href="../structures/editorundoredo.html">EditorUndoRedo</a>. <br>
-     Команда возвращает TRUE в случае успешного выполнения операции.</td></tr>
+    т.н. Undo-Redo. <var>Param</var> указывает на структуру <a href="../structures/editorundoredo.html">EditorUndoRedo</a>. <br>
+     Команда возвращает <code>TRUE</code> в случае успешного выполнения операции.</td></tr>
 
 
 </table>
@@ -302,14 +299,12 @@ Info.EditorControl(ECTL_SETTITLE,(wchar_t *)GetMsg(IDTitle));</pre>
   </div>
 
   <div class=dfn>Param</div>
-  <div class=dfndescr>Указывает на параметр команды. Смотрите
-    описание <dfn>Command</dfn>.</div>
+  <div class=dfndescr>Указывает на параметр команды. Смотрите описание <dfn>Command</dfn>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-  В случае успеха возвращается TRUE. В случае
-  неудачи - FALSE.
+  В случае успеха возвращается <code>TRUE</code>. В случае неудачи - <code>FALSE</code>.
 </div>
 
 <h3>Замечания</h3>
