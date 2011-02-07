@@ -1665,7 +1665,7 @@ namespace oldfar
 		const char * const *PluginConfigStrings;
 		int PluginConfigStringsNumber;
 		const char *CommandPrefix;
-		DWORD SysID;
+		DWORD Reserved;
 	};
 
 

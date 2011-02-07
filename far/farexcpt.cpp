@@ -68,6 +68,7 @@ LPCWSTR GetFunctionName(int ExceptFunctionType)
 	switch(ExceptFunctionType)
 	{
 		case EXCEPT_KERNEL: return L"";
+		case EXCEPT_GETGLOBALINFO: return L"GetGlobalInfo";
 		case EXCEPT_SETSTARTUPINFO: return L"SetStartupInfo";
 		case EXCEPT_GETVIRTUALFINDDATA: return L"GetVirtualFindData";
 		case EXCEPT_OPENPLUGIN: return L"OpenPlugin";
@@ -233,10 +234,10 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 						PlugRec.TypeRec=RTYPE_PLUGIN;
 						PlugRec.SizeRec=sizeof(PLUGINRECORD);
 						PlugRec.ModuleName=Module->GetModuleName();
-						PlugRec.SysID=Module->GetSysID();
 						PlugRec.WorkFlags=Module->GetWorkFlags();
 						PlugRec.CallFlags=Module->GetFuncFlags();
 						PlugRec.FuncFlags=0;
+						PlugRec.FuncFlags|=Module->HasGetGlobalInfo()?PICFF_GETGLOBALINFO:0;
 						PlugRec.FuncFlags|=Module->HasSetStartupInfo()?PICFF_SETSTARTUPINFO:0;
 						PlugRec.FuncFlags|=Module->HasOpenPlugin()?PICFF_OPENPLUGIN:0;
 						PlugRec.FuncFlags|=Module->HasOpenFilePlugin()?PICFF_OPENFILEPLUGIN:0;

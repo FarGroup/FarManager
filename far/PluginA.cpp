@@ -68,7 +68,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lasterror.hpp"
 
 static const wchar_t *wszReg_Preload=L"Preload";
-static const wchar_t *wszReg_SysID=L"SysID";
 
 static const wchar_t wszReg_OpenPlugin[]=L"OpenPlugin";
 static const wchar_t wszReg_OpenFilePlugin[]=L"OpenFilePlugin";
@@ -4251,7 +4250,6 @@ bool PluginA::LoadFromCache(const FAR_FIND_DATA_EX &FindData)
 				return false;
 		}
 		strRegKey += L"\\Exports";
-		SysID=GetRegKey(strRegKey,wszReg_SysID,0);
 		pOpenPlugin=(PLUGINOPENPLUGIN)(INT_PTR)GetRegKey(strRegKey,wszReg_OpenPlugin,0);
 		pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)(INT_PTR)GetRegKey(strRegKey,wszReg_OpenFilePlugin,0);
 		pSetFindList=(PLUGINSETFINDLIST)(INT_PTR)GetRegKey(strRegKey,wszReg_SetFindList,0);
@@ -4280,7 +4278,6 @@ bool PluginA::SaveToCache()
 	{
 		PluginInfo Info;
 		GetPluginInfo(&Info);
-		SysID = Info.SysID; //LAME!!!
 		string strRegKey;
 		strRegKey.Format(FmtPluginsCache_PluginS, m_strCacheName.CPtr());
 		DeleteKeyTree(strRegKey);
@@ -4339,7 +4336,6 @@ bool PluginA::SaveToCache()
 		SetRegKey(strRegKey, L"CommandPrefix", NullToEmpty(Info.CommandPrefix));
 		SetRegKey64(strRegKey, L"Flags", Info.Flags);
 		strRegKey += L"\\Exports";
-		SetRegKey(strRegKey, wszReg_SysID, SysID);
 		SetRegKey(strRegKey, wszReg_OpenPlugin, pOpenPlugin!=nullptr);
 		SetRegKey(strRegKey, wszReg_OpenFilePlugin, pOpenFilePlugin!=nullptr);
 		SetRegKey(strRegKey, wszReg_SetFindList, pSetFindList!=nullptr);

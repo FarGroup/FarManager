@@ -81,14 +81,6 @@ class PluginA: public Plugin
 		HMODULE m_hModule;
 		Language Lang;
 
-		/* $ 21.09.2000 SVS
-		   поле - системный идентификатор плагина
-		   Плагин должен сам задавать, например для
-		   Network      = 0x5774654E (NetW)
-		   PrintManager = 0x6E614D50 (PMan)  SYSID_PRINTMANAGER
-		*/
-		DWORD SysID;
-
 		string strRootKey;
 		char *RootKey;
 
@@ -142,6 +134,7 @@ class PluginA: public Plugin
 
 		bool IsPanelPlugin();
 
+		bool HasGetGlobalInfo() { return false; }
 		bool HasOpenPlugin() { return pOpenPlugin!=nullptr; }
 		bool HasMakeDirectory() { return pMakeDirectory!=nullptr; }
 		bool HasDeleteFiles() { return pDeleteFiles!=nullptr; }
@@ -180,7 +173,6 @@ class PluginA: public Plugin
 		const string &GetModuleName() { return m_strModuleName; }
 		const wchar_t *GetCacheName() { return m_strCacheName; }
 		const wchar_t *GetHotkeyName() { return GetCacheName(); }
-		DWORD GetSysID() { return SysID; }
 		const GUID& GetGUID(void) { return FarGuid; }
 		bool CheckWorkFlags(DWORD flags) { return WorkFlags.Check(flags)==TRUE; }
 		DWORD GetWorkFlags() { return WorkFlags.Flags; }
@@ -191,7 +183,7 @@ class PluginA: public Plugin
 		const char *GetMsgA(int nID) { return Lang.GetMsgA(nID); }
 
 	public:
-
+		bool GetGlobalInfo(GlobalInfo *Info) { return false; }
 		bool SetStartupInfo(bool &bUnloaded);
 		bool CheckMinFarVersion(bool &bUnloaded);
 

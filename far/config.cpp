@@ -712,7 +712,6 @@ static struct FARConfig
 	{0, REG_DWORD,  NKeySystem,L"CASRule",&Opt.CASRule,0xFFFFFFFFU, 0},
 	{0, REG_DWORD,  NKeySystem,L"AllCtrlAltShiftRule",&Opt.AllCtrlAltShiftRule,0x0000FFFF, 0},
 	{1, REG_DWORD,  NKeySystem,L"ScanJunction",&Opt.ScanJunction,1, 0},
-	{0, REG_DWORD,  NKeySystem,L"UsePrintManager",&Opt.UsePrintManager,1, 0},
 	{1, REG_DWORD,  NKeySystem,L"ElevationMode",&Opt.ElevationMode,0x0FFFFFFFU, 0},
 	{0, REG_DWORD,  NKeySystem,L"WindowMode",&Opt.WindowMode, 0, 0},
 

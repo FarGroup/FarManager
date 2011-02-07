@@ -557,8 +557,6 @@ struct Options
 
 	int ConsoleDetachKey; // Комбинация клавиш для детача Far'овской консоли от длятельного неинтерактивного процесса в ней запущенного.
 
-	int UsePrintManager;
-
 	string strHelpLanguage;
 	int FullScreenHelp;
 	int HelpTabSize;

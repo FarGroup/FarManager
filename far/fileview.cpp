@@ -178,9 +178,6 @@ void FileViewer::InitKeyBar()
 	if (!GetCanLoseFocus())
 		ViewKeyBar.Change(KBL_ALT,L"",11-1);
 
-	if (!Opt.UsePrintManager || CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER))
-		ViewKeyBar.Change(KBL_ALT,L"",5-1);
-
 	ViewKeyBar.ReadRegGroup(L"Viewer",Opt.strLanguage);
 	ViewKeyBar.SetAllRegGroup();
 	SetKeyBar(&ViewKeyBar);
@@ -330,14 +327,7 @@ int FileViewer::ProcessKey(int Key)
 			}
 
 			return TRUE;
-			// Печать файла с использованием плагина PrintMan
-		case KEY_ALTF5:
-		{
-			if (Opt.UsePrintManager && CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER))
-				CtrlObject->Plugins.CallPlugin(SYSID_PRINTMANAGER,OPEN_VIEWER,0); // printman
 
-			return TRUE;
-		}
 		case KEY_ALTSHIFTF9:
 			// Работа с локальной копией ViewerOptions
 			ViewerOptions ViOpt;

@@ -45,6 +45,7 @@ typedef void (WINAPI *PLUGINFREEFINDDATAW)(HANDLE hPlugin,PluginPanelItem *Panel
 typedef void (WINAPI *PLUGINFREEVIRTUALFINDDATAW)(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber);
 typedef int (WINAPI *PLUGINGETFILESW)(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t **DestPath,int OpMode);
 typedef int (WINAPI *PLUGINGETFINDDATAW)(HANDLE hPlugin,PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
+typedef void (WINAPI *PLUGINGETGLOBALINFOW)(GlobalInfo *Info);
 typedef void (WINAPI *PLUGINGETOPENPLUGININFOW)(HANDLE hPlugin,OpenPluginInfo *Info);
 typedef void (WINAPI *PLUGINGETPLUGININFOW)(PluginInfo *Info);
 typedef int (WINAPI *PLUGINGETVIRTUALFINDDATAW)(HANDLE hPlugin,PluginPanelItem **pPanelItem,int *pItemsNumber,const wchar_t *Path);
@@ -74,7 +75,6 @@ typedef void (WINAPI *PLUGINFREECUSTOMDATAW)(wchar_t *CustomData);
 class PluginW: public Plugin
 {
 	private:
-
 		PluginManager *m_owner; //BUGBUG
 
 		string m_strModuleName;
@@ -88,17 +88,18 @@ class PluginW: public Plugin
 		Language Lang;
 
 		DWORD MinFarVersion;
-		/* $ 21.09.2000 SVS
-		   поле - системный идентификатор плагина
-		   Плагин должен сам задавать, например для
-		   Network      = 0x5774654E (NetW)
-		   PrintManager = 0x6E614D50 (PMan)  SYSID_PRINTMANAGER
-		*/
-		DWORD SysID;
+
 		GUID m_Guid;
+
+		DWORD PluginVersion;
+		string strTitle;
+		string strDescription;
+		string strAuthor;
+
 
 		string strRootKey;
 
+		PLUGINGETGLOBALINFOW         pGetGlobalInfoW;
 		PLUGINSETSTARTUPINFOW        pSetStartupInfoW;
 		PLUGINOPENPLUGINW            pOpenPluginW;
 		PLUGINOPENFILEPLUGINW        pOpenFilePluginW;
@@ -149,6 +150,7 @@ class PluginW: public Plugin
 
 		bool IsPanelPlugin();
 
+		bool HasGetGlobalInfo() { return pGetGlobalInfoW!=nullptr; }
 		bool HasOpenPlugin() { return pOpenPluginW!=nullptr; }
 		bool HasMakeDirectory() { return pMakeDirectoryW!=nullptr; }
 		bool HasDeleteFiles() { return pDeleteFilesW!=nullptr; }
@@ -187,7 +189,6 @@ class PluginW: public Plugin
 		const string &GetModuleName() { return m_strModuleName; }
 		const wchar_t *GetCacheName() { return m_strCacheName; }
 		const wchar_t *GetHotkeyName() { return m_strGuid; }
-		DWORD GetSysID() { return SysID; }
 		const GUID& GetGUID(void) { return m_Guid; }
 		bool CheckWorkFlags(DWORD flags) { return WorkFlags.Check(flags)==TRUE; }
 		DWORD GetWorkFlags() { return WorkFlags.Flags; }
@@ -199,6 +200,7 @@ class PluginW: public Plugin
 
 	public:
 
+		bool GetGlobalInfo(GlobalInfo* gi);
 		bool SetStartupInfo(bool &bUnloaded);
 		bool CheckMinFarVersion(bool &bUnloaded);
 

@@ -57,6 +57,7 @@ class Plugin
 
 		virtual bool IsPanelPlugin() = 0;
 
+		virtual bool HasGetGlobalInfo() = 0;
 		virtual bool HasOpenPlugin() = 0;
 		virtual bool HasMakeDirectory() = 0;
 		virtual bool HasDeleteFiles() = 0;
@@ -95,7 +96,6 @@ class Plugin
 		virtual const string &GetModuleName() = 0;
 		virtual const wchar_t *GetCacheName() = 0;
 		virtual const wchar_t *GetHotkeyName() = 0;
-		virtual DWORD GetSysID() = 0;
 		virtual const GUID& GetGUID(void) = 0;
 		virtual bool CheckWorkFlags(DWORD flags) = 0;
 		virtual DWORD GetWorkFlags() = 0;

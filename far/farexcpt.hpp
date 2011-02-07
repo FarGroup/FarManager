@@ -99,7 +99,7 @@ struct PLUGINRECORD       // информация о плагине
 	DWORD FuncFlags;        // битовые маски эксп.функций плагина (бит есть - ест и функция)
 	DWORD CallFlags;        // битовые маски вызова эксп.функций плагина
 
-	DWORD SysID;
+	// DWORD SysID; GUID
 
 	const wchar_t *ModuleName;
 
@@ -198,6 +198,7 @@ struct FARExceptionState
 enum ExceptFunctionsType
 {
 	EXCEPT_KERNEL=-1,
+	EXCEPT_GETGLOBALINFO,
 	EXCEPT_SETSTARTUPINFO,
 	EXCEPT_GETVIRTUALFINDDATA,
 	EXCEPT_OPENPLUGIN,

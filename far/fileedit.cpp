@@ -712,9 +712,6 @@ void FileEditor::InitKeyBar()
 	if (!GetCanLoseFocus())
 		EditKeyBar.Change(KBL_ALT,L"",11-1);
 
-	if (!Opt.UsePrintManager || CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER))
-		EditKeyBar.Change(KBL_ALT,L"",5-1);
-
 	if (m_codepage!=GetOEMCP())
 		EditKeyBar.Change(KBL_MAIN,MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
 	else
@@ -836,19 +833,6 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 	switch (Key)
 	{
-			/* $ 27.09.2000 SVS
-			   Печать файла/блока с использованием плагина PrintMan
-			*/
-		case KEY_ALTF5:
-		{
-			if (Opt.UsePrintManager && CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER))
-			{
-				CtrlObject->Plugins.CallPlugin(SYSID_PRINTMANAGER,OPEN_EDITOR,0); // printman
-				return TRUE;
-			}
-
-			break; // отдадим Alt-F5 на растерзание плагинам, если не установлен PrintMan
-		}
 		case KEY_F6:
 		{
 			if (Flags.Check(FFILEEDIT_ENABLEF6))

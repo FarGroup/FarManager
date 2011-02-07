@@ -1,3 +1,25 @@
+drkns 07.02.2011 21:12:08 +0200 - build 1831
+
+1. API:
+   - Новый экспорт: void GetGlobalInfoW(GlobalInfo* Info), где:
+
+   struct GlobalInfo
+   {
+    int StructSize;              // размер
+    DWORD MinFarVersion;         // минимальная требуемая версия Far
+    DWORD Version;               // версия плагина (в том же формате)
+    GUID Guid;                   // GUID плагина
+    const wchar_t *Title;        // общее название плагина
+    const wchar_t *Description;  // описание/комментарий/дополнительно
+    const wchar_t *Author;       // автор плагина
+  };
+
+  Плагин обязан экспортировать GetGlobalInfoW.
+  Все поля должны быть заполнены.
+  Функция вызывается один раз.
+
+2. SysID больше нет.
+
 zg 07.02.2011 12:41:30 +0200 - build 1830
 
 1. у DialogInit новый параметр - GUID диалога.

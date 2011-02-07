@@ -113,26 +113,31 @@ unsigned long CRC32(
 	return crc ^ 0xffffffffL;
 }
 
+enum CRC32A
+{
+	CRC32_SETSTARTUPINFO   = 0xF537107A,
+	CRC32_GETPLUGININFO    = 0xDB6424B4,
+	CRC32_OPENPLUGIN       = 0x601AEDE8,
+	CRC32_OPENFILEPLUGIN   = 0xAC9FF5CD,
+	CRC32_EXITFAR          = 0x04419715,
+	CRC32_SETFINDLIST      = 0x7A74A2E5,
+	CRC32_CONFIGURE        = 0x4DC1BC1A,
+	CRC32_GETMINFARVERSION = 0x2BBAD952,
+};
 
-#define CRC32_SETSTARTUPINFO    0xF537107A
-#define CRC32_GETPLUGININFO     0xDB6424B4
-#define CRC32_OPENPLUGIN        0x601AEDE8
-#define CRC32_OPENFILEPLUGIN    0xAC9FF5CD
-#define CRC32_EXITFAR           0x04419715
-#define CRC32_SETFINDLIST       0x7A74A2E5
-#define CRC32_CONFIGURE         0x4DC1BC1A
-#define CRC32_GETMINFARVERSION  0x2BBAD952
+enum CRC32W
+{
+	CRC32_GETGLOBALINFOW   = 0x633EC0C4,
+	CRC32_SETSTARTUPINFOW  = 0x972884E8,
+	CRC32_GETPLUGININFOW   = 0xEBDA386B,
+	CRC32_OPENPLUGINW      = 0x89BC5B7D,
+	CRC32_OPENFILEPLUGINW  = 0xC2740A22,
+	CRC32_EXITFARW         = 0x4AD48EA6,
+	CRC32_SETFINDLISTW     = 0xF717498F,
+	CRC32_CONFIGUREW       = 0xDA22131C,
+};
 
-#define CRC32_SETSTARTUPINFOW   0x972884E8
-#define CRC32_GETPLUGININFOW    0xEBDA386B
-#define CRC32_OPENPLUGINW       0x89BC5B7D
-#define CRC32_OPENFILEPLUGINW   0xC2740A22
-#define CRC32_EXITFARW          0x4AD48EA6
-#define CRC32_SETFINDLISTW      0xF717498F
-#define CRC32_CONFIGUREW        0xDA22131C
-#define CRC32_GETMINFARVERSIONW 0xA243A1DB
-
-DWORD ExportCRC32[] =
+CRC32A ExportCRC32[] =
 {
 	CRC32_SETSTARTUPINFO,
 	CRC32_GETPLUGININFO,
@@ -144,8 +149,9 @@ DWORD ExportCRC32[] =
 	CRC32_GETMINFARVERSION
 };
 
-DWORD ExportCRC32W[] =
+CRC32W ExportCRC32W[] =
 {
+	CRC32_GETGLOBALINFOW,
 	CRC32_SETSTARTUPINFOW,
 	CRC32_GETPLUGININFOW,
 	CRC32_OPENPLUGINW,
@@ -153,7 +159,6 @@ DWORD ExportCRC32W[] =
 	CRC32_EXITFARW,
 	CRC32_SETFINDLISTW,
 	CRC32_CONFIGUREW,
-	CRC32_GETMINFARVERSIONW
 };
 
 enum PluginType
@@ -2122,6 +2127,8 @@ void PluginManager::ReadUserBackgound(SaveScreen *SaveScr)
 */
 int PluginManager::CallPlugin(DWORD SysID,int OpenFrom, void *Data,int *Ret)
 {
+	//BUGBUG, GIUD
+/*
 	Plugin *pPlugin = FindPlugin(SysID);
 
 	if (pPlugin)
@@ -2151,10 +2158,10 @@ int PluginManager::CallPlugin(DWORD SysID,int OpenFrom, void *Data,int *Ret)
 				if (Data && *(const wchar_t *)Data)
 					SetDirectory(hNewPlugin,(const wchar_t *)Data,0);
 
-				/* $ 04.04.2001 SVS
-					Код закомментирован! Попытка исключить ненужные вызовы в CallPlugin()
-					Если что-то не так - раскомментировать!!!
-				*/
+				// $ 04.04.2001 SVS
+				//	Код закомментирован! Попытка исключить ненужные вызовы в CallPlugin()
+				//	Если что-то не так - раскомментировать!!!
+
 				//NewPanel->Update(0);
 				//NewPanel->Show();
 			}
@@ -2168,12 +2175,14 @@ int PluginManager::CallPlugin(DWORD SysID,int OpenFrom, void *Data,int *Ret)
 			return TRUE;
 		}
 	}
-
+*/
 	return FALSE;
 }
 
+//BUGBUG. GUID
 Plugin *PluginManager::FindPlugin(DWORD SysID)
 {
+/*
 	if (SysID  && SysID != 0xFFFFFFFFUl) // не допускается 0 и -1
 	{
 		Plugin *PData;
@@ -2186,7 +2195,7 @@ Plugin *PluginManager::FindPlugin(DWORD SysID)
 				return PData;
 		}
 	}
-
+*/
 	return nullptr;
 }
 

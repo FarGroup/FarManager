@@ -1774,10 +1774,7 @@ int FileList::ProcessKey(int Key)
 			_ALGO(CleverSysLog clv(L"Alt-F5"));
 			_ALGO(SysLog(L"%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
 
-			// $ 11.03.2001 VVM - Печать через pman только из файловых панелей.
-			if ((PanelMode!=PLUGIN_PANEL) && (Opt.UsePrintManager && CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER)))
-				CtrlObject->Plugins.CallPlugin(SYSID_PRINTMANAGER,OPEN_FILEPANEL,0); // printman
-			else if (FileCount>0 && SetCurPath())
+			if (FileCount>0 && SetCurPath())
 				PrintFiles(this);
 
 			return TRUE;
@@ -2602,9 +2599,9 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 				strDirName = strCurDir;
 				AddEndSlash(strDirName);
 
-				if (Opt.PgUpChangeDisk &&
-				        (FAR_GetDriveType(strDirName) != DRIVE_REMOTE ||
-				         !CtrlObject->Plugins.FindPlugin(SYSID_NETWORK)))
+				if (Opt.PgUpChangeDisk && (FAR_GetDriveType(strDirName) != DRIVE_REMOTE
+					//|| !CtrlObject->Plugins.FindPlugin(SYSID_NETWORK) // BUGBUG, GUID
+					))
 				{
 					CtrlObject->Cp()->ActivePanel->ChangeDisk();
 					return TRUE;
@@ -2619,16 +2616,18 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 					DriveLocalToRemoteName(DRIVE_REMOTE,Letter,strNewCurDir);
 				}
 
+				// BUGBUG, GUID
+				/*
 				if (!strNewCurDir.IsEmpty())  // проверим - может не удалось определить RemoteName
 				{
 					const wchar_t *PtrS1=FirstSlash(strNewCurDir.CPtr()+2);
-
 					if (PtrS1 && !FirstSlash(PtrS1+1))
 					{
 						if (CtrlObject->Plugins.CallPlugin(SYSID_NETWORK,OPEN_FILEPANEL,(void*)strNewCurDir.CPtr())) // NetWork Plugin :-)
 							return FALSE;
 					}
 				}
+				*/
 			}
 		}
 	}

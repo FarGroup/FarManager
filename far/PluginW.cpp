@@ -66,10 +66,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarGuid.hpp"
 
 static const wchar_t *wszReg_Preload=L"Preload";
-static const wchar_t *wszReg_SysID=L"SysID";
 static const wchar_t *wszReg_MinFarVersion=L"MinFarVersion";
+static const wchar_t *wszReg_Version=L"Version";
 static const wchar_t *wszReg_Guid=L"Guid";
+static const wchar_t *wszReg_Title=L"Title";
+static const wchar_t *wszReg_Description=L"Description";
+static const wchar_t *wszReg_Author=L"Author";
 
+static const wchar_t wszReg_GetGlobalInfo[]=L"GetGlobalInfoW";
 static const wchar_t wszReg_OpenPlugin[]=L"OpenPluginW";
 static const wchar_t wszReg_OpenFilePlugin[]=L"OpenFilePluginW";
 static const wchar_t wszReg_SetFindList[]=L"SetFindListW";
@@ -104,6 +108,7 @@ static const wchar_t wszReg_Analyse[] = L"AnalyseW";
 static const wchar_t wszReg_GetCustomData[] = L"GetCustomDataW";
 static const wchar_t wszReg_FreeCustomData[] = L"FreeCustomDataW";
 
+static const char NFMP_GetGlobalInfo[]="GetGlobalInfoW";
 static const char NFMP_OpenPlugin[]="OpenPluginW";
 static const char NFMP_OpenFilePlugin[]="OpenFilePluginW";
 static const char NFMP_SetFindList[]="SetFindListW";
@@ -189,7 +194,7 @@ PluginW::PluginW(PluginManager *owner, const wchar_t *lpwszModuleName):
 	m_strCacheName(lpwszModuleName),
 	m_hModule(nullptr),
 	MinFarVersion(0),
-	SysID(0)
+	PluginVersion(0)
 	//more initialization here!!!
 {
 	wchar_t *p = m_strCacheName.GetBuffer();
@@ -235,10 +240,14 @@ bool PluginW::LoadFromCache(const FAR_FIND_DATA_EX &FindData)
 				return false;
 		}
 		strRegKey += L"\\Exports";
-		SysID=GetRegKey(strRegKey,wszReg_SysID,0);
 		MinFarVersion=GetRegKey(strRegKey,wszReg_MinFarVersion,0);
+		PluginVersion=GetRegKey(strRegKey,wszReg_Version,0);
 		GetRegKey(strRegKey,wszReg_Guid,m_strGuid,L"");
 		SetGuid(StrToGuid(m_strGuid,m_Guid)?m_Guid:FarGuid);
+		GetRegKey(strRegKey,wszReg_Title,strTitle,L"");
+		GetRegKey(strRegKey,wszReg_Description,strDescription,L"");
+		GetRegKey(strRegKey,wszReg_Author,strAuthor,L"");
+
 		pOpenPluginW=(PLUGINOPENPLUGINW)(INT_PTR)GetRegKey(strRegKey,wszReg_OpenPlugin,0);
 		pOpenFilePluginW=(PLUGINOPENFILEPLUGINW)(INT_PTR)GetRegKey(strRegKey,wszReg_OpenFilePlugin,0);
 		pSetFindListW=(PLUGINSETFINDLISTW)(INT_PTR)GetRegKey(strRegKey,wszReg_SetFindList,0);
@@ -262,7 +271,8 @@ bool PluginW::LoadFromCache(const FAR_FIND_DATA_EX &FindData)
 
 bool PluginW::SaveToCache()
 {
-	if (pGetPluginInfoW ||
+	if (pGetGlobalInfoW ||
+	        pGetPluginInfoW ||
 	        pOpenPluginW ||
 	        pOpenFilePluginW ||
 	        pSetFindListW ||
@@ -280,9 +290,6 @@ bool PluginW::SaveToCache()
 	{
 		PluginInfo Info;
 		GetPluginInfo(&Info);
-		SysID = Info.SysID; //LAME!!!
-		MinFarVersion = Info.MinFarVersion;
-		SetGuid(Info.Guid);
 		string strRegKey;
 		strRegKey.Format(FmtPluginsCache_PluginS, m_strCacheName.CPtr());
 		DeleteKeyTree(strRegKey);
@@ -337,9 +344,13 @@ bool PluginW::SaveToCache()
 		SetRegKey(strRegKey, L"CommandPrefix", NullToEmpty(Info.CommandPrefix));
 		SetRegKey64(strRegKey, L"Flags", Info.Flags);
 		strRegKey += L"\\Exports";
-		SetRegKey(strRegKey, wszReg_SysID, SysID);
 		SetRegKey(strRegKey, wszReg_MinFarVersion, MinFarVersion);
 		SetRegKey(strRegKey, wszReg_Guid, m_strGuid);
+		SetRegKey(strRegKey,wszReg_Version, PluginVersion);
+		SetRegKey(strRegKey,wszReg_Title, strTitle);
+		SetRegKey(strRegKey,wszReg_Description, strDescription);
+		SetRegKey(strRegKey,wszReg_Author, strAuthor);
+
 		SetRegKey(strRegKey, wszReg_OpenPlugin, pOpenPluginW!=nullptr);
 		SetRegKey(strRegKey, wszReg_OpenFilePlugin, pOpenFilePluginW!=nullptr);
 		SetRegKey(strRegKey, wszReg_SetFindList, pSetFindListW!=nullptr);
@@ -362,7 +373,7 @@ bool PluginW::SaveToCache()
 
 bool PluginW::Load()
 {
-	if (WorkFlags.Check(PIWF_DONTLOADAGAIN))
+	if (!WorkFlags.Check(PIWF_DONTLOADAGAIN))
 		return false;
 
 	if (m_hModule)
@@ -405,6 +416,7 @@ bool PluginW::Load()
 	}
 
 	WorkFlags.Clear(PIWF_CACHED);
+	pGetGlobalInfoW=(PLUGINGETGLOBALINFOW)GetProcAddress(m_hModule,NFMP_GetGlobalInfo);
 	pSetStartupInfoW=(PLUGINSETSTARTUPINFOW)GetProcAddress(m_hModule,NFMP_SetStartupInfo);
 	pOpenPluginW=(PLUGINOPENPLUGINW)GetProcAddress(m_hModule,NFMP_OpenPlugin);
 	pOpenFilePluginW=(PLUGINOPENFILEPLUGINW)GetProcAddress(m_hModule,NFMP_OpenFilePlugin);
@@ -438,27 +450,39 @@ bool PluginW::Load()
 	pAnalyseW=(PLUGINANALYSEW)GetProcAddress(m_hModule, NFMP_Analyse);
 	pGetCustomDataW=(PLUGINGETCUSTOMDATAW)GetProcAddress(m_hModule, NFMP_GetCustomData);
 	pFreeCustomDataW=(PLUGINFREECUSTOMDATAW)GetProcAddress(m_hModule, NFMP_FreeCustomData);
+
 	bool bUnloaded = false;
 
-	PluginInfo Info;
-	GetPluginInfo(&Info);
-	MinFarVersion = Info.MinFarVersion;
-	SetGuid(Info.Guid);
-
-	if (!CheckMinFarVersion(bUnloaded) || !SetStartupInfo(bUnloaded))
+	GlobalInfo Info;
+	if(GetGlobalInfo(&Info) &&
+		Info.StructSize && 
+		Info.MinFarVersion &&
+		Info.Version &&
+		Info.Title && *Info.Title &&
+		Info.Description && *Info.Description)
 	{
-		if (!bUnloaded)
-			Unload();
+		MinFarVersion = Info.MinFarVersion;
+		PluginVersion = Info.Version;
+		strTitle = Info.Title;
+		strDescription = Info.Description;
+		strAuthor = Info.Author;
+		SetGuid(Info.Guid);
 
-		//чтоб не пытаться загрузить опять а то ошибка будет постоянно показываться.
-		WorkFlags.Set(PIWF_DONTLOADAGAIN);
-
-		return false;
+		if (CheckMinFarVersion(bUnloaded) && SetStartupInfo(bUnloaded))
+		{
+			FuncFlags.Set(PICFF_LOADED);
+			SaveToCache();
+			return true;
+		}
 	}
 
-	FuncFlags.Set(PICFF_LOADED);
-	SaveToCache();
-	return true;
+	if (!bUnloaded)
+	{
+		Unload();
+	}
+	//чтоб не пытаться загрузить опять а то ошибка будет постоянно показываться.
+	WorkFlags.Set(PIWF_DONTLOADAGAIN);
+	return false;
 }
 
 void CreatePluginStartupInfo(Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF)
@@ -666,6 +690,19 @@ static void ShowMessageAboutIllegalPluginVersion(const wchar_t* plg,int required
 	Message(MSG_WARNING,1,MSG(MError),MSG(MPlgBadVers),plg,strMsg1,strMsg2,MSG(MOk));
 }
 
+
+bool PluginW::GetGlobalInfo(GlobalInfo *gi)
+{
+	if (pGetGlobalInfoW)
+	{
+		memset(gi, 0, sizeof(GlobalInfo));
+		ExecuteStruct es;
+		es.id = EXCEPT_GETGLOBALINFO;
+		EXECUTE_FUNCTION(pGetGlobalInfoW(gi), es);
+		return !es.bUnloaded;
+	}
+	return false;
+}
 
 bool PluginW::CheckMinFarVersion(bool &bUnloaded)
 {
@@ -1316,6 +1353,7 @@ void PluginW::ExitFAR()
 
 void PluginW::ClearExports()
 {
+	pGetGlobalInfoW=0;
 	pSetStartupInfoW=0;
 	pOpenPluginW=0;
 	pOpenFilePluginW=0;

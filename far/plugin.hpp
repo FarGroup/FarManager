@@ -1967,22 +1967,25 @@ struct PluginMenuItem
 	int Count;
 };
 
+struct GlobalInfo
+{
+	int StructSize;
+	DWORD MinFarVersion;
+	DWORD Version;
+	GUID Guid;
+	const wchar_t *Title;
+	const wchar_t *Description;
+	const wchar_t *Author;
+};
+
 struct PluginInfo
 {
 	int StructSize;
-	GUID Guid;
-	const wchar_t *PluginTitle;
 	unsigned __int64 Flags;
 	PluginMenuItem DiskMenu;
 	PluginMenuItem PluginMenu;
 	PluginMenuItem PluginConfig;
 	const wchar_t *CommandPrefix;
-	DWORD MinFarVersion;
-#ifdef FAR_USE_INTERNALS
-	DWORD SysID;
-#else // ELSE FAR_USE_INTERNALS
-	DWORD Reserved;
-#endif // END FAR_USE_INTERNALS
 #ifdef FAR_USE_INTERNALS
 #if defined(PROCPLUGINMACROFUNC)
 	int MacroFunctionNumber;
@@ -2221,6 +2224,7 @@ extern "C"
 	void   WINAPI FreeVirtualFindDataW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber);
 	int    WINAPI GetFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t **DestPath,int OpMode);
 	int    WINAPI GetFindDataW(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
+	void   WINAPI GetGlobalInfoW(struct GlobalInfo *Info);
 	void   WINAPI GetOpenPluginInfoW(HANDLE hPlugin,struct OpenPluginInfo *Info);
 	void   WINAPI GetPluginInfoW(struct PluginInfo *Info);
 	int    WINAPI GetVirtualFindDataW(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,const wchar_t *Path);
