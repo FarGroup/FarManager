@@ -2600,7 +2600,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 				AddEndSlash(strDirName);
 
 				if (Opt.PgUpChangeDisk && (FAR_GetDriveType(strDirName) != DRIVE_REMOTE
-					//|| !CtrlObject->Plugins.FindPlugin(SYSID_NETWORK) // BUGBUG, GUID
+					|| !CtrlObject->Plugins.FindPlugin(NetworkGuid)
 					))
 				{
 					CtrlObject->Cp()->ActivePanel->ChangeDisk();
@@ -2616,18 +2616,15 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 					DriveLocalToRemoteName(DRIVE_REMOTE,Letter,strNewCurDir);
 				}
 
-				// BUGBUG, GUID
-				/*
 				if (!strNewCurDir.IsEmpty())  // проверим - может не удалось определить RemoteName
 				{
 					const wchar_t *PtrS1=FirstSlash(strNewCurDir.CPtr()+2);
 					if (PtrS1 && !FirstSlash(PtrS1+1))
 					{
-						if (CtrlObject->Plugins.CallPlugin(SYSID_NETWORK,OPEN_FILEPANEL,(void*)strNewCurDir.CPtr())) // NetWork Plugin :-)
+						if (CtrlObject->Plugins.CallPlugin(NetworkGuid,OPEN_FILEPANEL,(void*)strNewCurDir.CPtr())) // NetWork Plugin :-)
 							return FALSE;
 					}
 				}
-				*/
 			}
 		}
 	}

@@ -3902,8 +3902,9 @@ static bool callpluginFunc(const TMacroFunction*)
 	__int64 Ret=0;
 	TVar Param; VMStack.Pop(Param);
 	TVar SysID; VMStack.Pop(SysID);
+	GUID guid;
 
-	if (CtrlObject->Plugins.FindPlugin((DWORD)SysID.i()))
+	if (StrToGuid(SysID.s(),guid) && CtrlObject->Plugins.FindPlugin(guid))
 	{
 		// OpenFrom => OPEN_FROMMACRO [+OPEN_FROMMACROSTRING] + FARMACROAREA(i)
 		int OpenFrom = OPEN_FROMMACRO | (Param.isString() ? OPEN_FROMMACROSTRING : 0) | CtrlObject->Macro.GetMode();
@@ -3913,7 +3914,7 @@ static bool callpluginFunc(const TMacroFunction*)
 
 		int ResultCallPlugin=0;
 
-		if (CtrlObject->Plugins.CallPlugin((DWORD)SysID.i(),OpenFrom,
+		if (CtrlObject->Plugins.CallPlugin(guid,OpenFrom,
 		                                   Param.isString() ? (void*)Param.s() :
 		                                   (void*)(size_t)Param.i(),&ResultCallPlugin))
 			Ret=(__int64)ResultCallPlugin;
