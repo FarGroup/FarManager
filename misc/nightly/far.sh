@@ -22,7 +22,7 @@ m4 -P -DFARBIT=$DIRBIT farlang.templ.m4 > ${BOOTSTRAP}farlang.templ
 m4 -P -DFARBIT=$DIRBIT far.rc.m4 > ${BOOTSTRAP}far.rc
 m4 -P -DFARBIT=$DIRBIT Far.exe.manifest.m4 > ${BOOTSTRAP}Far.exe.manifest
 m4 -P -DFARBIT=$DIRBIT farversion.inc.m4 > ${BOOTSTRAP}farversion.inc
-m4 -P -DFARBIT=$DIRBIT copyright.inc.m4 | gawk -f ./scripts/enc.awk > ${BOOTSTRAP}copyright.inc
+m4 -P -DFARBIT=$DIRBIT copyright.inc.m4 > ${BOOTSTRAP}copyright.inc
 
 m4 -P -DFARBIT=$DIRBIT File_id.diz.m4 > $OUTDIR/File_id.diz
 dos2unix FarEng.hlf.m4
