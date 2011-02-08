@@ -799,7 +799,7 @@ void AdvancedDialog()
 		DI_TEXT,5,8, 0, 8,0,nullptr,nullptr,0,MSG(MFindAlternateModeWidths),
 		DI_EDIT,5,9,35, 9,0,nullptr,nullptr,0,Opt.FindOpt.strSearchOutFormatWidth,
 		DI_TEXT,3,10,0,10,0,nullptr,nullptr,DIF_SEPARATOR,L"",
-		DI_BUTTON,0,11,0,11,0,nullptr,nullptr,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MOk),
+		DI_BUTTON,0,11,0,11,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk),
 		DI_BUTTON,0,11,0,11,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel),
 	};
 	MakeDialogItemsEx(AdvancedDlgData,AdvancedDlg);
@@ -2923,7 +2923,7 @@ bool FindFilesProcess(Vars& v)
 		DI_TEXT,5,DlgHeight-5,DlgWidth-(strFindStr.IsEmpty()?6:12),DlgHeight-5,0,nullptr,nullptr,DIF_SHOWAMPERSAND,strSearchStr,
 		DI_TEXT,DlgWidth-9,DlgHeight-5,DlgWidth-6,DlgHeight-5,0,nullptr,nullptr,(strFindStr.IsEmpty()?DIF_HIDDEN:0),L"",
 		DI_TEXT,0,DlgHeight-4,0,DlgHeight-4,0,nullptr,nullptr,DIF_SEPARATOR,L"",
-		DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,nullptr,nullptr,DIF_INTERNALFOCUS|DIF_DEFAULT|DIF_CENTERGROUP,MSG(MFindNewSearch),
+		DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,nullptr,nullptr,DIF_FOCUS|DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MFindNewSearch),
 		DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_DISABLE,MSG(MFindGoTo),
 		DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_DISABLE,MSG(MFindView),
 		DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_DISABLE,MSG(MFindPanel),
@@ -3223,7 +3223,7 @@ FindFiles::FindFiles()
 		{
 			DI_DOUBLEBOX,3,1,74,18,0,nullptr,nullptr,0,MSG(MFindFileTitle),
 			DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(MFindFileMasks),
-			DI_EDIT,5,3,72,3,0,MasksHistoryName,nullptr,DIF_INTERNALFOCUS|DIF_HISTORY|DIF_USELASTHISTORY,L"",
+			DI_EDIT,5,3,72,3,0,MasksHistoryName,nullptr,DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY,L"",
 			DI_TEXT,3,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L"",
 			DI_TEXT,5,5,0,5,0,nullptr,nullptr,0,L"",
 			DI_EDIT,5,6,72,6,0,TextHistoryName,nullptr,DIF_HISTORY,L"",
@@ -3243,7 +3243,7 @@ FindFiles::FindFiles()
 			DI_COMBOBOX,5,15,36,15,0,nullptr,nullptr,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,L"",
 			DI_CHECKBOX,40,15,0,15,UseFilter?BSTATE_CHECKED:BSTATE_UNCHECKED,nullptr,nullptr,DIF_AUTOMATION,MSG(MFindUseFilter),
 			DI_TEXT,3,16,0,16,0,nullptr,nullptr,DIF_SEPARATOR,L"",
-			DI_BUTTON,0,17,0,17,0,nullptr,nullptr,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MFindFileFind),
+			DI_BUTTON,0,17,0,17,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MFindFileFind),
 			DI_BUTTON,0,17,0,17,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MFindFileDrive),
 			DI_BUTTON,0,17,0,17,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_AUTOMATION|(UseFilter?0:DIF_DISABLE),MSG(MFindFileSetFilter),
 			DI_BUTTON,0,17,0,17,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MFindFileAdvanced),

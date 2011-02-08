@@ -572,7 +572,7 @@ bool EditTypeRecord(int EditPos,int TotalRecords,bool NewRec)
 	{
 		DI_DOUBLEBOX,3, 1,DlgX-4,DlgY-2,0,nullptr,nullptr,0,MSG(MFileAssocTitle),
 		DI_TEXT,     5, 2, 0, 2,0,nullptr,nullptr,0,MSG(MFileAssocMasks),
-		DI_EDIT,     5, 3,DlgX-6, 3,0,L"Masks",nullptr,DIF_INTERNALFOCUS|DIF_HISTORY,L"",
+		DI_EDIT,     5, 3,DlgX-6, 3,0,L"Masks",nullptr,DIF_FOCUS|DIF_HISTORY,L"",
 		DI_TEXT,     5, 4, 0, 4,0,nullptr,nullptr,0,MSG(MFileAssocDescr),
 		DI_EDIT,     5, 5,DlgX-6, 5,0,nullptr,nullptr,0,L"",
 		DI_TEXT,     3, 6, 0, 6,0,nullptr,nullptr,DIF_SEPARATOR,L"",
@@ -589,7 +589,7 @@ bool EditTypeRecord(int EditPos,int TotalRecords,bool NewRec)
 		DI_CHECKBOX, 5,17, 0,17,1,nullptr,nullptr,0,MSG(MFileAssocAltEdit),
 		DI_EDIT,     9,18,DlgX-6,18,0,nullptr,nullptr,DIF_EDITPATH,L"",
 		DI_TEXT,     3,DlgY-4, 0,DlgY-4,0,nullptr,nullptr,DIF_SEPARATOR,L"",
-		DI_BUTTON,   0,DlgY-3, 0,DlgY-3,0,nullptr,nullptr,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MOk),
+		DI_BUTTON,   0,DlgY-3, 0,DlgY-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk),
 		DI_BUTTON,   0,DlgY-3, 0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel),
 	};
 	MakeDialogItemsEx(EditDlgData,EditDlg);

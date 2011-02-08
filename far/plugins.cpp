@@ -1806,7 +1806,7 @@ bool PluginManager::SetHotKeyDialog(
 	{
 		DI_DOUBLEBOX,3,1,60,4,0,nullptr,nullptr,0,MSG(MPluginHotKeyTitle),
 		DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(MPluginHotKey),
-		DI_FIXEDIT,5,3,5,3,0,nullptr,nullptr,DIF_INTERNALFOCUS|DIF_DEFAULT,L"",
+		DI_FIXEDIT,5,3,5,3,0,nullptr,nullptr,DIF_FOCUS|DIF_DEFAULTBUTTON,L"",
 		DI_TEXT,8,3,58,3,0,nullptr,nullptr,0,DlgPluginTitle,
 	};
 	MakeDialogItemsEx(PluginDlgData,PluginDlg);

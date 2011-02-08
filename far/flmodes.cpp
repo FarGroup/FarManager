@@ -128,7 +128,7 @@ void FileList::SetFilePanelModes()
 		{
 			DI_DOUBLEBOX, 3, 1,72,15,0,nullptr,nullptr,0,ModeListMenu[ModeNumber].Name,
 			DI_TEXT,      5, 2, 0, 2,0,nullptr,nullptr,0,MSG(MEditPanelModeTypes),
-			DI_EDIT,      5, 3,35, 3,0,nullptr,nullptr,DIF_INTERNALFOCUS,L"",
+			DI_EDIT,      5, 3,35, 3,0,nullptr,nullptr,DIF_FOCUS,L"",
 			DI_TEXT,      5, 4, 0, 4,0,nullptr,nullptr,0,MSG(MEditPanelModeWidths),
 			DI_EDIT,      5, 5,35, 5,0,nullptr,nullptr,0,L"",
 			DI_TEXT,     38, 2, 0, 2,0,nullptr,nullptr,0,MSG(MEditPanelModeStatusTypes),
@@ -143,7 +143,7 @@ void FileList::SetFilePanelModes()
 			DI_CHECKBOX,  5,11, 0,11,0,nullptr,nullptr,0,MSG(MEditPanelModeFilesLowerCase),
 			DI_CHECKBOX,  5,12, 0,12,0,nullptr,nullptr,0,MSG(MEditPanelModeUpperToLowerCase),
 			DI_TEXT,      3,13, 0,13,0,nullptr,nullptr,DIF_SEPARATOR,L"",
-			DI_BUTTON,    0,14, 0,14,0,nullptr,nullptr,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MOk),
+			DI_BUTTON,    0,14, 0,14,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk),
 			DI_BUTTON,    0,14, 0,14,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel),
 		};
 		MakeDialogItemsEx(ModeDlgData,ModeDlg);

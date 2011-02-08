@@ -921,10 +921,10 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				DI_DOUBLEBOX,3,1,DX-4,DY-2,0,nullptr,nullptr,0,MSG(MError),
 				DI_EDIT,5,2,DX-6,2,0,nullptr,nullptr,DIF_READONLY,strError.CPtr(),
 				DI_TEXT,5,3,DX-9,3,0,nullptr,nullptr,0,MSG(MChangeDriveCannotReadDisk),
-				DI_FIXEDIT,5+Len2+1,3,5+Len2+1,3,0,nullptr,nullptr,DIF_INTERNALFOCUS,Drive,
+				DI_FIXEDIT,5+Len2+1,3,5+Len2+1,3,0,nullptr,nullptr,DIF_FOCUS,Drive,
 				DI_TEXT,5+Len2+2,3,5+Len2+2,3,0,nullptr,nullptr,0,L":",
 				DI_TEXT,3,DY-4,0,DY-4,0,nullptr,nullptr,DIF_SEPARATOR,L"",
-				DI_BUTTON,0,DY-3,0,DY-3,0,nullptr,nullptr,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MRetry),
+				DI_BUTTON,0,DY-3,0,DY-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MRetry),
 				DI_BUTTON,0,DY-3,0,DY-3,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel),
 			};
 			MakeDialogItemsEx(ChDiskData,ChDiskDlg);
@@ -2436,7 +2436,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 		DI_TEXT,      0, 5,  0, 5, 0, nullptr, nullptr, DIF_SEPARATOR,    L"",
 		DI_CHECKBOX,  5, 6, 70, 6, 0, nullptr, nullptr, 0,                L"",
 		DI_TEXT,      0, 7,  0, 7, 0, nullptr, nullptr, DIF_SEPARATOR,    L"",
-		DI_BUTTON,    0, 8,  0, 8, 0, nullptr, nullptr, DIF_INTERNALFOCUS|DIF_DEFAULT|DIF_CENTERGROUP,  L"",
+		DI_BUTTON,    0, 8,  0, 8, 0, nullptr, nullptr, DIF_FOCUS|DIF_DEFAULTBUTTON|DIF_CENTERGROUP,  L"",
 		DI_BUTTON,    0, 8,  0, 8, 0, nullptr, nullptr, DIF_CENTERGROUP,  L""
 	};
 	MakeDialogItemsEx(DCDlgData,DCDlg);

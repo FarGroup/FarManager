@@ -19,10 +19,7 @@ namespace oldfar
 		FMSG_KEEPBACKGROUND      = 0x00000004,
 		FMSG_DOWN                = 0x00000008,
 		FMSG_LEFTALIGN           = 0x00000010,
-
 		FMSG_ALLINONE            = 0x00000020,
-		FMSG_COLOURS             = 0x00000040,
-
 		FMSG_MB_OK               = 0x00010000,
 		FMSG_MB_OKCANCEL         = 0x00020000,
 		FMSG_MB_ABORTRETRYIGNORE = 0x00030000,
@@ -1425,8 +1422,6 @@ namespace oldfar
 		FIB_NOUSELASTHISTORY = 0x00000008,
 		FIB_BUTTONS          = 0x00000010,
 		FIB_NOAMPERSAND      = 0x00000020,
-		FIB_CHECKBOX         = 0x00010000,
-		FIB_EDITPATH         = 0x01000000,
 	};
 
 	typedef int (WINAPI *FARAPIINPUTBOX)(

@@ -367,9 +367,7 @@ void DataToItemEx(const DialogDataEx *Data,DialogItemEx *Item,int Count)
 		{
 			Item[i].Reserved = Data[i].Reserved;
 		}
-		Item[i].Flags=Data[i].Flags & ~(DIF_FOCUS|DIF_DEFAULTBUTTON);
-		if (Item[i].Type!=DI_SINGLEBOX && Item[i].Type!=DI_DOUBLEBOX && (Data[i].Flags&DIF_INTERNALFOCUS)) Item[i].Flags|=DIF_FOCUS;
-		if (Item[i].Type!=DI_TEXT && Item[i].Type!=DI_VTEXT && (Data[i].Flags&DIF_DEFAULT)) Item[i].Flags|=DIF_DEFAULTBUTTON;
+		Item[i].Flags=Data[i].Flags;
 		Item[i].SelStart=-1;
 
 		if (!IsPtr(Data[i].Data))

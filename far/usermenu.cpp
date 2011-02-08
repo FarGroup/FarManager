@@ -1059,7 +1059,7 @@ bool UserMenu::EditMenu(const wchar_t *MenuKey,int EditPos,int TotalRecords,bool
 		{
 			DI_DOUBLEBOX,3,1,DLG_X-4,DLG_Y-2,0,nullptr,nullptr,0,MSG(SubMenu?MEditSubmenuTitle:MEditMenuTitle),
 			DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(MEditMenuHotKey),
-			DI_FIXEDIT,5,3,7,3,0,nullptr,nullptr,DIF_INTERNALFOCUS,L"",
+			DI_FIXEDIT,5,3,7,3,0,nullptr,nullptr,DIF_FOCUS,L"",
 			DI_TEXT,5,4,0,4,0,nullptr,nullptr,0,MSG(MEditMenuLabel),
 			DI_EDIT,5,5,DLG_X-6,5,0,nullptr,nullptr,0,L"",
 
@@ -1081,7 +1081,7 @@ bool UserMenu::EditMenu(const wchar_t *MenuKey,int EditPos,int TotalRecords,bool
 #endif
 
 			DI_TEXT,3,DLG_Y-4,0,DLG_Y-4,0,nullptr,nullptr,DIF_SEPARATOR,L"",
-			DI_BUTTON,0,DLG_Y-3,0,DLG_Y-3,0,nullptr,nullptr,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MOk),
+			DI_BUTTON,0,DLG_Y-3,0,DLG_Y-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk),
 			DI_BUTTON,0,DLG_Y-3,0,DLG_Y-3,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel),
 		};
 		MakeDialogItemsEx(EditDlgData,EditDlg);

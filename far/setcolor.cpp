@@ -628,7 +628,7 @@ int GetColorDialog(WORD& Color,bool bCentered,bool bAddTransparent)
 		/*  38 */ DI_TEXT,        5, 9, 33,9, 0,nullptr,nullptr,DIF_SETCOLOR,MSG(MSetColorSample),
 		/*  39 */ DI_TEXT,        5,10, 33,10,0,nullptr,nullptr,DIF_SETCOLOR,MSG(MSetColorSample),
 		/*  40 */ DI_TEXT,        0,11, 0, 11,0,nullptr,nullptr,DIF_SEPARATOR,L"",
-		/*  41 */ DI_BUTTON,      0,12, 0, 12,0,nullptr,nullptr,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MSetColorSet),
+		/*  41 */ DI_BUTTON,      0,12, 0, 12,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MSetColorSet),
 		/*  42 */ DI_BUTTON,      0,12, 0, 12,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MSetColorCancel),
 
 	};

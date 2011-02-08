@@ -621,7 +621,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 		DI_TEXT,5,5,17,5,0,nullptr,nullptr,0,MSG(MSetAttrOwner),
 		DI_EDIT,18,5,DlgX-6,5,0,nullptr,nullptr,0,L"",
 		DI_TEXT,3,6,0,6,0,nullptr,nullptr,DIF_SEPARATOR,L"",
-		DI_CHECKBOX,5, 7,0,7,0,nullptr,nullptr,DIF_INTERNALFOCUS|DIF_3STATE,MSG(MSetAttrRO),
+		DI_CHECKBOX,5, 7,0,7,0,nullptr,nullptr,DIF_FOCUS|DIF_3STATE,MSG(MSetAttrRO),
 		DI_CHECKBOX,5, 8,0,8,0,nullptr,nullptr,DIF_3STATE,MSG(MSetAttrArchive),
 		DI_CHECKBOX,5, 9,0,9,0,nullptr,nullptr,DIF_3STATE,MSG(MSetAttrHidden),
 		DI_CHECKBOX,5,10,0,10,0,nullptr,nullptr,DIF_3STATE,MSG(MSetAttrSystem),
@@ -654,7 +654,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 		DI_TEXT,3,20,0,20,0,nullptr,nullptr,DIF_SEPARATOR|DIF_HIDDEN,L"",
 		DI_CHECKBOX,5,21,0,21,0,nullptr,nullptr,DIF_DISABLE|DIF_HIDDEN,MSG(MSetAttrSubfolders),
 		DI_TEXT,3,DlgY-4,0,DlgY-4,0,nullptr,nullptr,DIF_SEPARATOR,L"",
-		DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MSetAttrSet),
+		DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MSetAttrSet),
 		DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_DISABLE,MSG(MSetAttrSystemDialog),
 		DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel),
 	};

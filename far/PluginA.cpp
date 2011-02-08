@@ -1112,7 +1112,22 @@ int WINAPI FarInputBoxA(const char *Title,const char *Prompt,const char *History
 {
 	string strT(Title), strP(Prompt), strHN(HistoryName), strST(SrcText), strD, strHT(HelpTopic);
 	wchar_t *D = strD.GetBuffer(DestLength);
-	int ret = FarInputBox(-1,(Title?strT.CPtr():nullptr),(Prompt?strP.CPtr():nullptr),(HistoryName?strHN.CPtr():nullptr),(SrcText?strST.CPtr():nullptr),D,DestLength,(HelpTopic?strHT.CPtr():nullptr),Flags);
+	DWORD NewFlags=0;
+
+	if (Flags&oldfar::FIB_ENABLEEMPTY)
+		NewFlags|=FIB_ENABLEEMPTY;
+	if (Flags&oldfar::FIB_PASSWORD)
+		NewFlags|=FIB_PASSWORD;
+	if (Flags&oldfar::FIB_EXPANDENV)
+		NewFlags|=FIB_EXPANDENV;
+	if (Flags&oldfar::FIB_NOUSELASTHISTORY)
+		NewFlags|=FIB_NOUSELASTHISTORY;
+	if (Flags&oldfar::FIB_BUTTONS)
+		NewFlags|=FIB_BUTTONS;
+	if (Flags&oldfar::FIB_NOAMPERSAND)
+		NewFlags|=FIB_NOAMPERSAND;
+
+	int ret = FarInputBox(-1,(Title?strT.CPtr():nullptr),(Prompt?strP.CPtr():nullptr),(HistoryName?strHN.CPtr():nullptr),(SrcText?strST.CPtr():nullptr),D,DestLength,(HelpTopic?strHT.CPtr():nullptr),NewFlags);
 	strD.ReleaseBuffer();
 
 	if (ret && DestText)
@@ -1142,7 +1157,31 @@ int WINAPI FarMessageFnA(INT_PTR PluginNumber,DWORD Flags,const char *HelpTopic,
 			p[i] = AnsiToUnicode(Items[i]);
 	}
 
-	int ret = FarMessageFn(PluginNumber,Flags,(HelpTopic?strHT.CPtr():nullptr),p,ItemsNumber,ButtonsNumber);
+	DWORD NewFlags=0;
+	if (Flags&oldfar::FMSG_WARNING)
+		NewFlags|=FMSG_WARNING;
+	if (Flags&oldfar::FMSG_ERRORTYPE)
+		NewFlags|=FMSG_ERRORTYPE;
+	if (Flags&oldfar::FMSG_KEEPBACKGROUND)
+		NewFlags|=FMSG_KEEPBACKGROUND;
+	if (Flags&oldfar::FMSG_LEFTALIGN)
+		NewFlags|=FMSG_LEFTALIGN;
+	if (Flags&oldfar::FMSG_ALLINONE)
+		NewFlags|=FMSG_ALLINONE;
+	if (Flags&oldfar::FMSG_MB_OK)
+		NewFlags|=FMSG_MB_OK;
+	if (Flags&oldfar::FMSG_MB_OKCANCEL)
+		NewFlags|=FMSG_MB_OKCANCEL;
+	if (Flags&oldfar::FMSG_MB_ABORTRETRYIGNORE)
+		NewFlags|=FMSG_MB_ABORTRETRYIGNORE;
+	if (Flags&oldfar::FMSG_MB_YESNO)
+		NewFlags|=FMSG_MB_YESNO;
+	if (Flags&oldfar::FMSG_MB_YESNOCANCEL)
+		NewFlags|=FMSG_MB_YESNOCANCEL;
+	if (Flags&oldfar::FMSG_MB_RETRYCANCEL)
+		NewFlags|=FMSG_MB_RETRYCANCEL;
+
+	int ret = FarMessageFn(PluginNumber,NewFlags,(HelpTopic?strHT.CPtr():nullptr),p,ItemsNumber,ButtonsNumber);
 
 	for (int i=0; i<c; i++)
 		xf_free(p[i]);
@@ -1171,8 +1210,21 @@ int WINAPI FarMenuFnA(INT_PTR PluginNumber,int X,int Y,int MaxHeight,DWORD Flags
 	const wchar_t *wszB  = Bottom?strB.CPtr():nullptr;
 	const wchar_t *wszHT = HelpTopic?strHT.CPtr():nullptr;
 
+	DWORD NewFlags=0;
+
+	if (Flags&oldfar::FMENU_SHOWAMPERSAND)
+		NewFlags|=FMENU_SHOWAMPERSAND;
+	if (Flags&oldfar::FMENU_WRAPMODE)
+		NewFlags|=FMENU_WRAPMODE;
+	if (Flags&oldfar::FMENU_AUTOHIGHLIGHT)
+		NewFlags|=FMENU_AUTOHIGHLIGHT;
+	if (Flags&oldfar::FMENU_REVERSEAUTOHIGHLIGHT)
+		NewFlags|=FMENU_REVERSEAUTOHIGHLIGHT;
+	if (Flags&oldfar::FMENU_CHANGECONSOLETITLE)
+		NewFlags|=FMENU_CHANGECONSOLETITLE;
+
 	if (!Item || !ItemsNumber)
-		return FarMenuFn(PluginNumber,X,Y,MaxHeight,Flags,wszT,wszB,wszHT,BreakKeys,BreakCode,nullptr,0);
+		return FarMenuFn(PluginNumber,X,Y,MaxHeight,NewFlags,wszT,wszB,wszHT,BreakKeys,BreakCode,nullptr,0);
 
 	FarMenuItem *mi = (FarMenuItem *)xf_malloc(ItemsNumber*sizeof(*mi));
 
@@ -1182,7 +1234,18 @@ int WINAPI FarMenuFnA(INT_PTR PluginNumber,int X,int Y,int MaxHeight,DWORD Flags
 
 		for (int i=0; i<ItemsNumber; i++)
 		{
-			mi[i].Flags = p[i].Flags&~oldfar::MIF_USETEXTPTR;
+			if (p[i].Flags&oldfar::MIF_SELECTED)
+				mi[i].Flags|=MIF_SELECTED;
+			if (p[i].Flags&oldfar::MIF_CHECKED)
+				mi[i].Flags|=MIF_CHECKED;
+			if (p[i].Flags&oldfar::MIF_SEPARATOR)
+				mi[i].Flags|=MIF_SEPARATOR;
+			if (p[i].Flags&oldfar::MIF_DISABLE)
+				mi[i].Flags|=MIF_DISABLE;
+			if (p[i].Flags&oldfar::MIF_GRAYED)
+				mi[i].Flags|=MIF_GRAYED;
+			if (p[i].Flags&oldfar::MIF_HIDDEN)
+				mi[i].Flags|=MIF_HIDDEN;
 			mi[i].Text = AnsiToUnicode(p[i].Flags&oldfar::MIF_USETEXTPTR?p[i].Text.TextPtr:p[i].Text.Text);
 			mi[i].AccelKey = OldKeyToKey(p[i].AccelKey);
 			mi[i].Reserved = p[i].Reserved;
@@ -1220,7 +1283,7 @@ int WINAPI FarMenuFnA(INT_PTR PluginNumber,int X,int Y,int MaxHeight,DWORD Flags
 		}
 	}
 
-	int ret = FarMenuFn(PluginNumber,X,Y,MaxHeight,Flags,wszT,wszB,wszHT,BreakKeys,BreakCode,mi,ItemsNumber);
+	int ret = FarMenuFn(PluginNumber,X,Y,MaxHeight,NewFlags,wszT,wszB,wszHT,BreakKeys,BreakCode,mi,ItemsNumber);
 
 	for (int i=0; i<ItemsNumber; i++)
 		if (mi[i].Text) xf_free((wchar_t *)mi[i].Text);
@@ -3156,14 +3219,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 				case oldfar::MCMD_GETSTATE:
 					km.Command=MCMD_GETSTATE;
 					break;
-					/*
-					case oldfar::MCMD_COMPILEMACRO:
-					km.Command=MCMD_COMPILEMACRO;
-					km.Param.Compile.Count = kmA->Param.Compile.Count;
-					km.Param.Compile.Flags = kmA->Param.Compile.Flags;
-					km.Param.Compile.Sequence = AnsiToUnicode(kmA->Param.Compile.Sequence);
-					break;
-					*/
+
 				case oldfar::MCMD_CHECKMACRO:
 					km.Command=MCMD_CHECKMACRO;
 					km.Param.PlainText.SequenceText=AnsiToUnicode(kmA->Param.PlainText.SequenceText);
@@ -3197,12 +3253,6 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 					break;
 				}
 
-				case MCMD_COMPILEMACRO:
-
-					if (km.Param.Compile.Sequence)
-						xf_free((void*)km.Param.Compile.Sequence);
-
-					break;
 				case MCMD_POSTMACROSTRING:
 
 					if (km.Param.PlainText.SequenceText)
@@ -5332,7 +5382,7 @@ void PluginA::ConvertOpenPluginInfo(oldfar::OpenPluginInfo &Src, OpenPluginInfo 
 	FreeOpenPluginInfo();
 	OPI.StructSize = sizeof(OPI);
 	OPI.Flags = 0;
-	if (!(Src.Flags&oldfar::OPIF_USEFILTER)) OPI.Flags|=~OPIF_DISABLEFILTER;
+	if (!(Src.Flags&oldfar::OPIF_USEFILTER)) OPI.Flags|=OPIF_DISABLEFILTER;
 	if (!(Src.Flags&oldfar::OPIF_USESORTGROUPS)) OPI.Flags|=OPIF_DISABLESORTGROUPS;
 	if (!(Src.Flags&oldfar::OPIF_USEHIGHLIGHTING)) OPI.Flags|=OPIF_DISABLEHIGHLIGHTING;
 	if (Src.Flags&oldfar::OPIF_ADDDOTS) OPI.Flags|=OPIF_ADDDOTS;

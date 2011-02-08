@@ -125,7 +125,7 @@ DialogItemBinding<DialogItemEx> *DialogBuilder::CreateRadioButtonBinding(int *Va
 	return new RadioButtonBinding<DialogItemEx>(Value);
 }
 
-DialogItemEx *DialogBuilder::AddEditField(string *Value, int Width, const wchar_t *HistoryID, int Flags)
+DialogItemEx *DialogBuilder::AddEditField(string *Value, int Width, const wchar_t *HistoryID, FarDialogItemFlags Flags)
 {
 	DialogItemEx *Item = AddDialogItem(DI_EDIT, *Value);
 	SetNextY(Item);
@@ -159,7 +159,7 @@ DialogItemEx *DialogBuilder::AddIntEditField(int *Value, int Width)
 
 DialogItemEx *DialogBuilder::AddComboBox(int *Value, int Width,
 										 DialogBuilderListItem *Items, int ItemCount,
-										 DWORD Flags)
+										 FarDialogItemFlags Flags)
 {
 	DialogItemEx *Item = AddDialogItem(DI_COMBOBOX, L"");
 	SetNextY(Item);

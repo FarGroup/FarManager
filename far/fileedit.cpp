@@ -122,12 +122,12 @@ bool dlgOpenEditor(string &strFileName, UINT &codepage)
 	{
 		DI_DOUBLEBOX,3,1,72,8,0,nullptr,nullptr,0,MSG(MEditTitle),
 		DI_TEXT,     5,2, 0,2,0,nullptr,nullptr,0,MSG(MEditOpenCreateLabel),
-		DI_EDIT,     5,3,70,3,0,HistoryName,nullptr,DIF_INTERNALFOCUS|DIF_HISTORY|DIF_EDITEXPAND|DIF_EDITPATH,L"",
+		DI_EDIT,     5,3,70,3,0,HistoryName,nullptr,DIF_FOCUS|DIF_HISTORY|DIF_EDITEXPAND|DIF_EDITPATH,L"",
 		DI_TEXT,     3,4, 0,4,0,nullptr,nullptr,DIF_SEPARATOR,L"",
 		DI_TEXT,     5,5, 0,5,0,nullptr,nullptr,0,MSG(MEditCodePage),
 		DI_COMBOBOX,25,5,70,5,0,nullptr,nullptr,DIF_DROPDOWNLIST|DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT,L"",
 		DI_TEXT,     3,6, 0,6,0,nullptr,nullptr,DIF_SEPARATOR,L"",
-		DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MOk),
+		DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk),
 		DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel),
 	};
 	MakeDialogItemsEx(EditDlgData,EditDlg);
@@ -254,7 +254,7 @@ bool dlgSaveFileAs(string &strFileName, int &TextFormat, UINT &codepage,bool &Ad
 	{
 		DI_DOUBLEBOX,3,1,72,15,0,nullptr,nullptr,0,MSG(MEditTitle),
 		DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(MEditSaveAs),
-		DI_EDIT,5,3,70,3,0,HistoryName,nullptr,DIF_INTERNALFOCUS|DIF_HISTORY|DIF_EDITEXPAND|DIF_EDITPATH,L"",
+		DI_EDIT,5,3,70,3,0,HistoryName,nullptr,DIF_FOCUS|DIF_HISTORY|DIF_EDITEXPAND|DIF_EDITPATH,L"",
 		DI_TEXT,3,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L"",
 		DI_TEXT,5,5,0,5,0,nullptr,nullptr,0,MSG(MEditCodePage),
 		DI_COMBOBOX,25,5,70,5,0,nullptr,nullptr,DIF_DROPDOWNLIST|DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT,L"",
@@ -266,7 +266,7 @@ bool dlgSaveFileAs(string &strFileName, int &TextFormat, UINT &codepage,bool &Ad
 		DI_RADIOBUTTON,5,11,0,11,0,nullptr,nullptr,0,MSG(MEditSaveUnix),
 		DI_RADIOBUTTON,5,12,0,12,0,nullptr,nullptr,0,MSG(MEditSaveMac),
 		DI_TEXT,3,13,0,13,0,nullptr,nullptr,DIF_SEPARATOR,L"",
-		DI_BUTTON,0,14,0,14,0,nullptr,nullptr,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MOk),
+		DI_BUTTON,0,14,0,14,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk),
 		DI_BUTTON,0,14,0,14,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel),
 	};
 	MakeDialogItemsEx(EditDlgData,EditDlg);

@@ -3403,9 +3403,9 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 	DialogDataEx SelectDlgData[]=
 	{
 		DI_DOUBLEBOX,3,1,51,5,0,nullptr,nullptr,0,L"",
-		DI_EDIT,5,2,49,2,0,HistoryName,nullptr,DIF_INTERNALFOCUS|DIF_HISTORY,L"",
+		DI_EDIT,5,2,49,2,0,HistoryName,nullptr,DIF_FOCUS|DIF_HISTORY,L"",
 		DI_TEXT,0,3,0,3,0,nullptr,nullptr,DIF_SEPARATOR,L"",
-		DI_BUTTON,0,4,0,4,0,nullptr,nullptr,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MOk),
+		DI_BUTTON,0,4,0,4,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk),
 		DI_BUTTON,0,4,0,4,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MSelectFilter),
 		DI_BUTTON,0,4,0,4,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel),
 	};

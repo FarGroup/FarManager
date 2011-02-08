@@ -2229,7 +2229,7 @@ void Viewer::Search(int Next,int FirstChar)
 	{
 		DI_DOUBLEBOX,3,1,72,11,0,nullptr,nullptr,0,MSG(MViewSearchTitle),
 		DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(MViewSearchFor),
-		DI_EDIT,5,3,70,3,0,TextHistoryName,nullptr,DIF_INTERNALFOCUS|DIF_HISTORY|DIF_USELASTHISTORY,L"",
+		DI_EDIT,5,3,70,3,0,TextHistoryName,nullptr,DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY,L"",
 		DI_FIXEDIT,5,3,70,3,0,nullptr,HexMask,DIF_MASKEDIT,L"",
 		DI_TEXT,3,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L"",
 		DI_RADIOBUTTON,5,5,0,5,1,nullptr,nullptr,DIF_GROUP,MSG(MViewSearchForText),
@@ -2239,7 +2239,7 @@ void Viewer::Search(int Next,int FirstChar)
 		DI_CHECKBOX,40,7,0,7,0,nullptr,nullptr,0,MSG(MViewSearchReverse),
 		DI_CHECKBOX,40,8,0,8,0,nullptr,nullptr,DIF_DISABLE,MSG(MViewSearchRegexp),
 		DI_TEXT,3,9,0,9,0,nullptr,nullptr,DIF_SEPARATOR,L"",
-		DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MViewSearchSearch),
+		DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MViewSearchSearch),
 		DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MViewSearchCancel),
 	};
 	MakeDialogItemsEx(SearchDlgData,SearchDlg);
@@ -2846,7 +2846,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
 	DialogDataEx GoToDlgData[]=
 	{
 		DI_DOUBLEBOX,3,1,31,7,0,nullptr,nullptr,0,MSG(MViewerGoTo),
-		DI_EDIT,5,2,29,2,0,LineHistoryName,nullptr,DIF_INTERNALFOCUS|DIF_DEFAULT|DIF_HISTORY|DIF_USELASTHISTORY,L"",
+		DI_EDIT,5,2,29,2,0,LineHistoryName,nullptr,DIF_FOCUS|DIF_DEFAULTBUTTON|DIF_HISTORY|DIF_USELASTHISTORY,L"",
 		DI_TEXT,3,3,0,3,0,nullptr,nullptr,DIF_SEPARATOR,L"",
 		DI_RADIOBUTTON,5,4,0,4,0,nullptr,nullptr,DIF_GROUP,MSG(MGoToPercent),
 		DI_RADIOBUTTON,5,5,0,5,0,nullptr,nullptr,0,MSG(MGoToHex),

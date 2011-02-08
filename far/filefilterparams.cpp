@@ -867,7 +867,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	{
 		DI_DOUBLEBOX,3,1,76,18,0,nullptr,nullptr,DIF_SHOWAMPERSAND,MSG(MFileFilterTitle),
 
-		DI_TEXT,5,2,0,2,0,nullptr,nullptr,DIF_INTERNALFOCUS,MSG(MFileFilterName),
+		DI_TEXT,5,2,0,2,0,nullptr,nullptr,DIF_FOCUS,MSG(MFileFilterName),
 		DI_EDIT,5,2,74,2,0,FilterNameHistoryName,nullptr,DIF_HISTORY,L"",
 
 		DI_TEXT,0,3,0,3,0,nullptr,nullptr,DIF_SEPARATOR,L"",
@@ -936,7 +936,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
 		DI_TEXT,0,16,0,16,0,nullptr,nullptr,DIF_SEPARATOR,L"",
 
-		DI_BUTTON,0,17,0,17,0,nullptr,nullptr,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MOk),
+		DI_BUTTON,0,17,0,17,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk),
 		DI_BUTTON,0,17,0,17,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(MFileFilterReset),
 		DI_BUTTON,0,17,0,17,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MFileFilterCancel),
 		DI_BUTTON,0,17,0,17,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(MFileFilterMakeTransparent),

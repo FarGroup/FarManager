@@ -180,7 +180,7 @@ bool ExcDialog(LPCWSTR ModuleName,LPCWSTR Exception,LPVOID Adress)
 		DI_TEXT,     5,5, 17,5,0,nullptr,nullptr,0,MSG(MExcModule),
 		DI_EDIT,    18,5, 60,5,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,ModuleName,
 		DI_TEXT,    -1,6, 0,6,0,nullptr,nullptr,DIF_SEPARATOR,L"",
-		DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_DEFAULT|DIF_INTERNALFOCUS|DIF_CENTERGROUP,MSG((From == EXCEPT_KERNEL)?MExcTerminate:MExcUnload),
+		DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_CENTERGROUP,MSG((From == EXCEPT_KERNEL)?MExcTerminate:MExcUnload),
 		DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MExcDebugger),
 	};
 	MakeDialogItemsEx(EditDlgData,EditDlg);

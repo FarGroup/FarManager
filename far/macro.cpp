@@ -6115,7 +6115,7 @@ DWORD KeyMacro::AssignMacroKey()
 	{
 		DI_DOUBLEBOX,3,1,30,4,0,nullptr,nullptr,0,MSG(MDefineMacroTitle),
 		DI_TEXT,-1,2,0,2,0,nullptr,nullptr,0,MSG(MDefineMacro),
-		DI_COMBOBOX,5,3,28,3,0,nullptr,nullptr,DIF_INTERNALFOCUS|DIF_DEFAULT,L"",
+		DI_COMBOBOX,5,3,28,3,0,nullptr,nullptr,DIF_FOCUS|DIF_DEFAULTBUTTON,L"",
 	};
 	MakeDialogItemsEx(MacroAssignDlgData,MacroAssignDlg);
 	DlgParam Param={this,0,StartMode,0};
@@ -6308,7 +6308,7 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 	{
 		DI_DOUBLEBOX,3,1,69,17,0,nullptr,nullptr,0,L"",
 		DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(MMacroSequence),
-		DI_EDIT,5,3,67,3,0,nullptr,nullptr,DIF_INTERNALFOCUS,L"",
+		DI_EDIT,5,3,67,3,0,nullptr,nullptr,DIF_FOCUS,L"",
 		DI_TEXT,3,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L"",
 		DI_CHECKBOX,5,5,0,5,0,nullptr,nullptr,0,MSG(MMacroSettingsEnableOutput),
 		DI_CHECKBOX,5,6,0,6,0,nullptr,nullptr,0,MSG(MMacroSettingsRunAfterStart),
@@ -6325,7 +6325,7 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 		DI_CHECKBOX,5,13,0,13,2,nullptr,nullptr,DIF_3STATE,MSG(MMacroSettingsCommandLine),
 		DI_CHECKBOX,5,14,0,14,2,nullptr,nullptr,DIF_3STATE,MSG(MMacroSettingsSelectionBlockPresent),
 		DI_TEXT,3,15,0,15,0,nullptr,nullptr,DIF_SEPARATOR,L"",
-		DI_BUTTON,0,16,0,16,0,nullptr,nullptr,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MOk),
+		DI_BUTTON,0,16,0,16,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk),
 		DI_BUTTON,0,16,0,16,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel),
 	};
 	MakeDialogItemsEx(MacroSettingsDlgData,MacroSettingsDlg);
