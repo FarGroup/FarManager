@@ -253,6 +253,7 @@ TaskBar.cpp
 TaskBar.hpp
 TPreRedrawFunc.cpp
 TPreRedrawFunc.hpp
+tree.hpp
 treelist.cpp
 treelist.hpp
 TStack.hpp

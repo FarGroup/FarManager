@@ -290,19 +290,54 @@ PluginType IsModulePlugin(const wchar_t *lpModuleName)
 	return bResult;
 }
 
+class PluginSearch: public AncientPlugin
+{
+	private:
+		GUID m_Guid;
+		PluginSearch();
+	public:
+		PluginSearch(const GUID& Id): m_Guid(Id) {}
+		~PluginSearch() {}
+		const GUID& GetGUID(void) { return m_Guid; }
+};
+
+PluginTree::PluginTree(): Tree<AncientPlugin*>()
+{
+}
+
+PluginTree::~PluginTree()
+{
+	clear();
+}
+
+long PluginTree::compare(Node<AncientPlugin*>* first,AncientPlugin** second)
+{
+	return memcmp(&((*(first->data))->GetGUID()),&((*second)->GetGUID()),sizeof(GUID));
+}
+
+AncientPlugin* PluginTree::query(const GUID& value)
+{
+	PluginSearch plugin(value);
+	AncientPlugin* get=&plugin;
+	return *Tree<AncientPlugin*>::query(&get);
+}
 
 PluginManager::PluginManager():
 	PluginsData(nullptr),
 	PluginsCount(0),
 	OemPluginsCount(0),
+	PluginsCache(nullptr),
 	CurPluginItem(nullptr),
 	CurEditor(nullptr),
 	CurViewer(nullptr)
 {
+	PluginsCache=new PluginTree;
 }
 
 PluginManager::~PluginManager()
 {
+	delete PluginsCache;
+	PluginsCache=nullptr;
 	CurPluginItem=nullptr;
 	Plugin *pPlugin;
 
@@ -320,6 +355,12 @@ PluginManager::~PluginManager()
 
 bool PluginManager::AddPlugin(Plugin *pPlugin)
 {
+	if (PluginsCache&&!pPlugin->IsOemPlugin())
+	{
+		AncientPlugin** item=new AncientPlugin*(pPlugin);
+		item=PluginsCache->insert(item);
+		if(*item!=pPlugin) return false;
+	}
 	Plugin **NewPluginsData=(Plugin**)xf_realloc(PluginsData,sizeof(*PluginsData)*(PluginsCount+1));
 
 	if (!NewPluginsData)
@@ -337,6 +378,10 @@ bool PluginManager::AddPlugin(Plugin *pPlugin)
 
 bool PluginManager::RemovePlugin(Plugin *pPlugin)
 {
+	if (PluginsCache&&!pPlugin->IsOemPlugin())
+	{
+		PluginsCache->remove((AncientPlugin**)&pPlugin);
+	}
 	for (int i = 0; i < PluginsCount; i++)
 	{
 		if (PluginsData[i] == pPlugin)
@@ -374,12 +419,6 @@ bool PluginManager::LoadPlugin(
 	if (!pPlugin)
 		return false;
 
-	if (!AddPlugin(pPlugin))
-	{
-		delete pPlugin;
-		return false;
-	}
-
 	bool bResult=false;
 
 	if (!LoadToMem)
@@ -388,9 +427,13 @@ bool PluginManager::LoadPlugin(
 	if (!bResult && !Opt.LoadPlug.PluginsCacheOnly)
 	{
 		bResult = pPlugin->Load();
+	}
 
-		if (!bResult)
-			RemovePlugin(pPlugin);
+	if (bResult && !AddPlugin(pPlugin))
+	{
+		pPlugin->Unload(true);
+		delete pPlugin;
+		return false;
 	}
 
 	return bResult;
@@ -2176,22 +2219,9 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,int *Re
 	return FALSE;
 }
 
-//BUGBUG: наивная реализация.
 Plugin *PluginManager::FindPlugin(const GUID& SysID)
 {
-	if (!IsEqualGUID(SysID,FarGuid)) // не допускается FarGuid
-	{
-		Plugin *PData;
-
-		for (int I=0; I<PluginsCount; I++)
-		{
-			PData = PluginsData[I];
-
-			if (IsEqualGUID(SysID,PData->GetGUID()))
-				return PData;
-		}
-	}
-	return nullptr;
+	return PluginsCache?(Plugin*)PluginsCache->query(SysID):nullptr;
 }
 
 HANDLE PluginManager::OpenPlugin(Plugin *pPlugin,int OpenFrom,const GUID& Guid,INT_PTR Item)

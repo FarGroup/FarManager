@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plclass.hpp"
 #include "PluginA.hpp"
 #include "PluginW.hpp"
+#include "tree.hpp"
 
 #define wszReg_PluginHotkeys L"PluginHotkeys"
 
@@ -158,6 +159,15 @@ struct PluginHandle
 	class Plugin *pPlugin;
 };
 
+class PluginTree: public Tree<class AncientPlugin*>
+{
+	public:
+		PluginTree();
+		~PluginTree();
+		long compare(Node<class AncientPlugin*>* first,class AncientPlugin** second);
+		class AncientPlugin* query(const GUID& value);
+};
+
 class PluginManager
 {
 	private:
@@ -165,6 +175,7 @@ class PluginManager
 		Plugin **PluginsData;
 		int PluginsCount;
 		int OemPluginsCount;
+		PluginTree* PluginsCache;
 
 	public:
 

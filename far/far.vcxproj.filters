@@ -901,6 +901,9 @@
     <ClInclude Include="TPreRedrawFunc.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="tree.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="treelist.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

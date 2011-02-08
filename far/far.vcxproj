@@ -1122,6 +1122,7 @@ if not exist bootstrap mkdir bootstrap</Command>
     <ClInclude Include="syslog.hpp" />
     <ClInclude Include="TaskBar.hpp" />
     <ClInclude Include="TPreRedrawFunc.hpp" />
+    <ClInclude Include="tree.hpp" />
     <ClInclude Include="treelist.hpp" />
     <ClInclude Include="TStack.hpp" />
     <ClInclude Include="tvar.hpp" />
