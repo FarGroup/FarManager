@@ -198,8 +198,7 @@ static const FarDialogItemFlags
 	DIF_NOFOCUS               = 0x0000000040000000ULL,
 	DIF_DISABLE               = 0x0000000080000000ULL,
 	DIF_DEFAULTBUTTON         = 0x0000000100000000ULL,
-	DIF_FOCUS                 = 0x0000000200000000ULL,
-;
+	DIF_FOCUS                 = 0x0000000200000000ULL;
 
 enum FarMessagesProc
 {
