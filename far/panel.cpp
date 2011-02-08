@@ -918,14 +918,14 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			const int DX=Max(MaxMsg+13,40),DY=8;
 			const DialogDataEx ChDiskData[]=
 			{
-				DI_DOUBLEBOX,3,1,DX-4,DY-2,0,0,MSG(MError),
-				DI_EDIT,5,2,DX-6,2,0,DIF_READONLY,strError.CPtr(),
-				DI_TEXT,5,3,DX-9,3,0,0,MSG(MChangeDriveCannotReadDisk),
-				DI_FIXEDIT,5+Len2+1,3,5+Len2+1,3,0,DIF_FOCUS,Drive,
-				DI_TEXT,5+Len2+2,3,5+Len2+2,3,0,0,L":",
-				DI_TEXT,3,DY-4,0,DY-4,0,DIF_SEPARATOR,L"",
-				DI_BUTTON,0,DY-3,0,DY-3,0,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MRetry),
-				DI_BUTTON,0,DY-3,0,DY-3,0,DIF_CENTERGROUP,MSG(MCancel),
+				DI_DOUBLEBOX,3,1,DX-4,DY-2,0,nullptr,nullptr,0,MSG(MError),
+				DI_EDIT,5,2,DX-6,2,0,nullptr,nullptr,DIF_READONLY,strError.CPtr(),
+				DI_TEXT,5,3,DX-9,3,0,nullptr,nullptr,0,MSG(MChangeDriveCannotReadDisk),
+				DI_FIXEDIT,5+Len2+1,3,5+Len2+1,3,0,nullptr,nullptr,DIF_INTERNALFOCUS,Drive,
+				DI_TEXT,5+Len2+2,3,5+Len2+2,3,0,nullptr,nullptr,0,L":",
+				DI_TEXT,3,DY-4,0,DY-4,0,nullptr,nullptr,DIF_SEPARATOR,L"",
+				DI_BUTTON,0,DY-3,0,DY-3,0,nullptr,nullptr,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MRetry),
+				DI_BUTTON,0,DY-3,0,DY-3,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel),
 			};
 			MakeDialogItemsEx(ChDiskData,ChDiskDlg);
 			Dialog Dlg(ChDiskDlg, ARRAYSIZE(ChDiskData), ChDiskDlgProc, 0);
@@ -2429,15 +2429,15 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	*/
 	DialogDataEx DCDlgData[]=
 	{
-		DI_DOUBLEBOX, 3, 1, 72, 9, 0, 0,                L"",
-		DI_TEXT,      5, 2,  0, 2, 0, DIF_SHOWAMPERSAND,L"",
-		DI_TEXT,      5, 3,  0, 3, 0, DIF_SHOWAMPERSAND,L"",
-		DI_TEXT,      5, 4,  0, 4, 0, DIF_SHOWAMPERSAND,L"",
-		DI_TEXT,      0, 5,  0, 5, 0, DIF_SEPARATOR,    L"",
-		DI_CHECKBOX,  5, 6, 70, 6, 0, 0,                L"",
-		DI_TEXT,      0, 7,  0, 7, 0, DIF_SEPARATOR,    L"",
-		DI_BUTTON,    0, 8,  0, 8, 0, DIF_FOCUS|DIF_DEFAULT|DIF_CENTERGROUP,  L"",
-		DI_BUTTON,    0, 8,  0, 8, 0, DIF_CENTERGROUP,  L""
+		DI_DOUBLEBOX, 3, 1, 72, 9, 0, nullptr, nullptr, 0,                L"",
+		DI_TEXT,      5, 2,  0, 2, 0, nullptr, nullptr, DIF_SHOWAMPERSAND,L"",
+		DI_TEXT,      5, 3,  0, 3, 0, nullptr, nullptr, DIF_SHOWAMPERSAND,L"",
+		DI_TEXT,      5, 4,  0, 4, 0, nullptr, nullptr, DIF_SHOWAMPERSAND,L"",
+		DI_TEXT,      0, 5,  0, 5, 0, nullptr, nullptr, DIF_SEPARATOR,    L"",
+		DI_CHECKBOX,  5, 6, 70, 6, 0, nullptr, nullptr, 0,                L"",
+		DI_TEXT,      0, 7,  0, 7, 0, nullptr, nullptr, DIF_SEPARATOR,    L"",
+		DI_BUTTON,    0, 8,  0, 8, 0, nullptr, nullptr, DIF_INTERNALFOCUS|DIF_DEFAULT|DIF_CENTERGROUP,  L"",
+		DI_BUTTON,    0, 8,  0, 8, 0, nullptr, nullptr, DIF_CENTERGROUP,  L""
 	};
 	MakeDialogItemsEx(DCDlgData,DCDlg);
 	DCDlg[0].strData = MSG(MChangeDriveDisconnectTitle);

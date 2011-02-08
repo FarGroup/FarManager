@@ -1448,8 +1448,8 @@ void AnsiDialogItemToUnicodeSafe(oldfar::FarDialogItem &diA, FarDialogItem &di)
 	di.Y1=diA.Y1;
 	di.X2=diA.X2;
 	di.Y2=diA.Y2;
-	di.Focus=diA.Focus;
 	di.Flags=0;
+	if (diA.Focus) di.Flags|=DIF_FOCUS;
 
 	if (diA.Flags)
 	{
@@ -1550,7 +1550,7 @@ void AnsiDialogItemToUnicodeSafe(oldfar::FarDialogItem &diA, FarDialogItem &di)
 			di.Flags|=DIF_DISABLE;
 	}
 
-	di.DefaultButton=diA.DefaultButton;
+	if (diA.DefaultButton) di.Flags|=DIF_DEFAULTBUTTON;
 }
 
 void AnsiDialogItemToUnicode(oldfar::FarDialogItem &diA, FarDialogItem &di,FarList &l)
@@ -1583,9 +1583,9 @@ void AnsiDialogItemToUnicode(oldfar::FarDialogItem &diA, FarDialogItem &di,FarLi
 		case DI_FIXEDIT:
 		{
 			if (diA.Flags&oldfar::DIF_HISTORY && diA.Param.History)
-				di.Param.History=AnsiToUnicode(diA.Param.History);
+				di.History=AnsiToUnicode(diA.Param.History);
 			else if (diA.Flags&oldfar::DIF_MASKEDIT && diA.Param.Mask)
-				di.Param.Mask=AnsiToUnicode(diA.Param.Mask);
+				di.Mask=AnsiToUnicode(diA.Param.Mask);
 
 			break;
 		}
@@ -1615,10 +1615,10 @@ void FreeUnicodeDialogItem(FarDialogItem &di)
 		case DI_EDIT:
 		case DI_FIXEDIT:
 
-			if ((di.Flags&DIF_HISTORY) && di.Param.History)
-				xf_free((void *)di.Param.History);
-			else if ((di.Flags&DIF_MASKEDIT) && di.Param.Mask)
-				xf_free((void *)di.Param.Mask);
+			if ((di.Flags&DIF_HISTORY) && di.History)
+				xf_free((void *)di.History);
+			else if ((di.Flags&DIF_MASKEDIT) && di.Mask)
+				xf_free((void *)di.Mask);
 
 			break;
 		case DI_LISTBOX:
@@ -1723,7 +1723,7 @@ void UnicodeDialogItemToAnsiSafe(FarDialogItem &di,oldfar::FarDialogItem &diA)
 	diA.Y1=di.Y1;
 	diA.X2=di.X2;
 	diA.Y2=di.Y2;
-	diA.Focus=di.Focus;
+	diA.Focus=(di.Flags&DIF_FOCUS)?true:false;
 	diA.Flags=0;
 
 	if (di.Flags)
@@ -1825,7 +1825,7 @@ void UnicodeDialogItemToAnsiSafe(FarDialogItem &di,oldfar::FarDialogItem &diA)
 			diA.Flags|=oldfar::DIF_DISABLE;
 	}
 
-	diA.DefaultButton=di.DefaultButton;
+	diA.DefaultButton=(di.Flags&DIF_DEFAULTBUTTON)?true:false;
 }
 
 oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di,HANDLE hDlg,int ItemNumber)
@@ -1854,9 +1854,9 @@ oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di,HANDLE hDlg,int
 		case oldfar::DI_FIXEDIT:
 		{
 			if (di.Flags&DIF_HISTORY)
-				diA->Param.History=UnicodeToAnsi(di.Param.History);
+				diA->Param.History=UnicodeToAnsi(di.History);
 			else if (di.Flags&DIF_MASKEDIT)
-				diA->Param.Mask=UnicodeToAnsi(di.Param.Mask);
+				diA->Param.Mask=UnicodeToAnsi(di.Mask);
 		}
 		break;
 	}
@@ -2358,9 +2358,9 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 			else
 			{
 				FarDialogItem *di=CurrentDialogItem(hDlg,Param1);
-				xf_free((void*)di->Param.History);
-				di->Param.History = AnsiToUnicode((const char *)Param2);
-				return FarSendDlgMessage(hDlg, DM_SETHISTORY, Param1, (INT_PTR)di->Param.History);
+				xf_free((void*)di->History);
+				di->History = AnsiToUnicode((const char *)Param2);
+				return FarSendDlgMessage(hDlg, DM_SETHISTORY, Param1, (INT_PTR)di->History);
 			}
 
 		case oldfar::DM_GETITEMPOSITION:     Msg = DM_GETITEMPOSITION; break;

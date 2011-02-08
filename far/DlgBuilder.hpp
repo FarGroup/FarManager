@@ -504,8 +504,7 @@ class DialogBuilderBase
 			AddSeparator();
 
 			T *OKButton = AddDialogItem(DI_BUTTON, GetLangString(OKMessageId));
-			OKButton->Flags = DIF_CENTERGROUP;
-			OKButton->DefaultButton = TRUE;
+			OKButton->Flags = DIF_CENTERGROUP|DIF_DEFAULTBUTTON;
 			OKButton->Y1 = OKButton->Y2 = NextY++;
 			OKButtonID = DialogItemsCount-1;
 
@@ -794,7 +793,7 @@ public:
 
 
 #ifdef _FAR_NO_NAMELESS_UNIONS
-			Item->Param.Mask = Binding->GetMask();
+			Item->Mask = Binding->GetMask();
 #else
 			Item->Mask = Binding->GetMask();
 #endif
@@ -812,7 +811,7 @@ public:
 			if (HistoryID)
 			{
 #ifdef _FAR_NO_NAMELESS_UNIONS
-				Item->Param.History = HistoryID;
+				Item->History = HistoryID;
 #else
 				Item->History = HistoryID;
 #endif

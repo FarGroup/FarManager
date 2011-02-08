@@ -332,7 +332,7 @@ int Message(
 			MsgDlg[0].strData = Title;
 
 		int TypeItem=DI_TEXT;
-		DWORD FlagsItem=DIF_SHOWAMPERSAND;
+		unsigned __int64 FlagsItem=DIF_SHOWAMPERSAND;
 		BOOL IsButton=FALSE;
 		int CurItem=0;
 		bool StrSeparator=false;
@@ -351,10 +351,8 @@ int Message(
 			}
 			if(I==StrCount+1)
 			{
-				PtrMsgDlg->DefaultButton=TRUE;
-				PtrMsgDlg->Focus=TRUE;
 				TypeItem=DI_BUTTON;
-				FlagsItem=DIF_CENTERGROUP;
+				FlagsItem=DIF_CENTERGROUP|DIF_DEFAULTBUTTON|DIF_FOCUS;
 				IsButton=TRUE;
 				FirstButtonIndex=CurItem+1;
 				LastButtonIndex=CurItem;

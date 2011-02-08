@@ -313,7 +313,7 @@ bool GetCodePageInfo(UINT CodePage, CPINFOEX &CodePageInfoEx)
 		CodePageInfoEx.MaxCharSize = CodePageInfo.MaxCharSize;
 		CodePageInfoEx.CodePageName[0] = L'\0';
 	}
-	
+
 	// BUBUG: Пока не поддерживаем многобайтовые кодовые страницы
 	if (CodePageInfoEx.MaxCharSize != 1)
 		return false;
@@ -670,12 +670,12 @@ void EditCodePageName()
 	CodePageName.LShift(BoxPosition+2);
 	DialogDataEx EditDialogData[]=
 		{
-			DI_DOUBLEBOX, 3, 1, 50, 5, 0, 0, MSG(MGetCodePageEditCodePageName),
-			DI_EDIT,      5, 2, 48, 2, (DWORD_PTR)L"CodePageName", DIF_FOCUS|DIF_HISTORY, CodePageName,
-			DI_TEXT,      0, 3,  0, 3, 0, DIF_SEPARATOR, L"",
-			DI_BUTTON,    0, 4,  0, 3, 0, DIF_DEFAULT|DIF_CENTERGROUP, MSG(MOk),
-			DI_BUTTON,    0, 4,  0, 3, 0, DIF_CENTERGROUP, MSG(MCancel),
-			DI_BUTTON,    0, 4,  0, 3, 0, DIF_CENTERGROUP, MSG(MGetCodePageResetCodePageName)
+			DI_DOUBLEBOX, 3, 1, 50, 5, 0, nullptr, nullptr, 0, MSG(MGetCodePageEditCodePageName),
+			DI_EDIT,      5, 2, 48, 2, 0, L"CodePageName", nullptr, DIF_INTERNALFOCUS|DIF_HISTORY, CodePageName,
+			DI_TEXT,      0, 3,  0, 3, 0, nullptr, nullptr, DIF_SEPARATOR, L"",
+			DI_BUTTON,    0, 4,  0, 3, 0, nullptr, nullptr, DIF_DEFAULT|DIF_CENTERGROUP, MSG(MOk),
+			DI_BUTTON,    0, 4,  0, 3, 0, nullptr, nullptr, DIF_CENTERGROUP, MSG(MCancel),
+			DI_BUTTON,    0, 4,  0, 3, 0, nullptr, nullptr, DIF_CENTERGROUP, MSG(MGetCodePageResetCodePageName)
 		};
 	MakeDialogItemsEx(EditDialogData, EditDialog);
 	Dialog Dlg(EditDialog, ARRAYSIZE(EditDialog), EditDialogProc);

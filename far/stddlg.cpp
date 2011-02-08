@@ -91,19 +91,19 @@ int WINAPI GetSearchReplaceString(
 		*/
 		DialogDataEx ReplaceDlgData[]=
 		{
-			DI_DOUBLEBOX,3,1,72,12,0,0,MSG(MEditReplaceTitle),
-			DI_TEXT,5,2,0,2,0,0,MSG(MEditSearchFor),
-			DI_EDIT,5,3,70,3,0,DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY,L"",
-			DI_TEXT,5,4,0,4,0,0,MSG(MEditReplaceWith),
-			DI_EDIT,5,5,70,5,0,DIF_HISTORY/*|DIF_USELASTHISTORY*/,L"",
-			DI_TEXT,3,6,0,6,0,DIF_SEPARATOR,L"",
-			DI_CHECKBOX,5,7,0,7,0,0,MSG(MEditSearchCase),
-			DI_CHECKBOX,5,8,0,8,0,0,MSG(MEditSearchWholeWords),
-			DI_CHECKBOX,5,9,0,9,0,0,MSG(MEditSearchReverse),
-			DI_CHECKBOX,40,7,0,7,0,0,MSG(MEditSearchRegexp),
-			DI_TEXT,3,10,0,10,0,DIF_SEPARATOR,L"",
-			DI_BUTTON,0,11,0,11,0,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MEditReplaceReplace),
-			DI_BUTTON,0,11,0,11,0,DIF_CENTERGROUP,MSG(MEditSearchCancel),
+			DI_DOUBLEBOX,3,1,72,12,0,nullptr,nullptr,0,MSG(MEditReplaceTitle),
+			DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(MEditSearchFor),
+			DI_EDIT,5,3,70,3,0,nullptr,nullptr,DIF_INTERNALFOCUS|DIF_HISTORY|DIF_USELASTHISTORY,L"",
+			DI_TEXT,5,4,0,4,0,nullptr,nullptr,0,MSG(MEditReplaceWith),
+			DI_EDIT,5,5,70,5,0,nullptr,nullptr,DIF_HISTORY/*|DIF_USELASTHISTORY*/,L"",
+			DI_TEXT,3,6,0,6,0,nullptr,nullptr,DIF_SEPARATOR,L"",
+			DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,0,MSG(MEditSearchCase),
+			DI_CHECKBOX,5,8,0,8,0,nullptr,nullptr,0,MSG(MEditSearchWholeWords),
+			DI_CHECKBOX,5,9,0,9,0,nullptr,nullptr,0,MSG(MEditSearchReverse),
+			DI_CHECKBOX,40,7,0,7,0,nullptr,nullptr,0,MSG(MEditSearchRegexp),
+			DI_TEXT,3,10,0,10,0,nullptr,nullptr,DIF_SEPARATOR,L"",
+			DI_BUTTON,0,11,0,11,0,nullptr,nullptr,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MEditReplaceReplace),
+			DI_BUTTON,0,11,0,11,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MEditSearchCancel),
 		};
 		//индекс самого нижнего чекбокса каждой колонки в диалоге.
 		//предполагаем, что чекбокс на позиции Y+1 имеет индекс, на единицу больший
@@ -265,18 +265,18 @@ int WINAPI GetSearchReplaceString(
 		*/
 		DialogDataEx SearchDlgData[]=
 		{
-			DI_DOUBLEBOX,3,1,72,10,0,0,MSG(MEditSearchTitle),
-			DI_TEXT,5,2,0,2,0,0,MSG(MEditSearchFor),
-			DI_EDIT,5,3,70,3,0,DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY,L"",
-			DI_TEXT,3,4,0,4,0,DIF_SEPARATOR,L"",
-			DI_CHECKBOX,5,5,0,5,0,0,MSG(MEditSearchCase),
-			DI_CHECKBOX,5,6,0,6,0,0,MSG(MEditSearchWholeWords),
-			DI_CHECKBOX,5,7,0,7,0,0,MSG(MEditSearchReverse),
-			DI_CHECKBOX,40,5,0,5,0,0,MSG(MEditSearchRegexp),
-			DI_CHECKBOX,40,6,0,6,0,0,MSG(MEditSearchSelFound),
-			DI_TEXT,3,8,0,8,0,DIF_SEPARATOR,L"",
-			DI_BUTTON,0,9,0,9,0,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MEditSearchSearch),
-			DI_BUTTON,0,9,0,9,0,DIF_CENTERGROUP,MSG(MEditSearchCancel),
+			DI_DOUBLEBOX,3,1,72,10,0,nullptr,nullptr,0,MSG(MEditSearchTitle),
+			DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(MEditSearchFor),
+			DI_EDIT,5,3,70,3,0,nullptr,nullptr,DIF_INTERNALFOCUS|DIF_HISTORY|DIF_USELASTHISTORY,L"",
+			DI_TEXT,3,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L"",
+			DI_CHECKBOX,5,5,0,5,0,nullptr,nullptr,0,MSG(MEditSearchCase),
+			DI_CHECKBOX,5,6,0,6,0,nullptr,nullptr,0,MSG(MEditSearchWholeWords),
+			DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,0,MSG(MEditSearchReverse),
+			DI_CHECKBOX,40,5,0,5,0,nullptr,nullptr,0,MSG(MEditSearchRegexp),
+			DI_CHECKBOX,40,6,0,6,0,nullptr,nullptr,0,MSG(MEditSearchSelFound),
+			DI_TEXT,3,8,0,8,0,nullptr,nullptr,DIF_SEPARATOR,L"",
+			DI_BUTTON,0,9,0,9,0,nullptr,nullptr,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MEditSearchSearch),
+			DI_BUTTON,0,9,0,9,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MEditSearchCancel),
 		};
 		//индекс самого нижнего чекбокса каждой колонки в диалоге.
 		//предполагаем, что чекбокс на позиции Y+1 имеет индекс, на единицу больший
@@ -476,14 +476,14 @@ int WINAPI GetString(
 	int offset=addCheckBox?2:0;
 	DialogDataEx StrDlgData[]=
 	{
-		DI_DOUBLEBOX, 3, 1, 72, 4, 0, 0,                                L"",
-		DI_TEXT,      5, 2,  0, 2, 0, DIF_SHOWAMPERSAND,                L"",
-		DI_EDIT,      5, 3, 70, 3, 0, DIF_FOCUS|DIF_DEFAULT|(Flags&FIB_EDITPATH?DIF_EDITPATH:0),L"",
-		DI_TEXT,      0, 4,  0, 4, 0, DIF_SEPARATOR,                    L"",
-		DI_CHECKBOX,  5, 5,  0, 5, 0, 0,                                L"",
-		DI_TEXT,      0, 6,  0, 6, 0, DIF_SEPARATOR,                    L"",
-		DI_BUTTON,    0, 7,  0, 7, 0, DIF_CENTERGROUP,                  L"",
-		DI_BUTTON,    0, 7,  0, 7, 0, DIF_CENTERGROUP,                  L""
+		DI_DOUBLEBOX, 3, 1, 72, 4, 0, nullptr, nullptr, 0,                                L"",
+		DI_TEXT,      5, 2,  0, 2, 0, nullptr, nullptr, DIF_SHOWAMPERSAND,                L"",
+		DI_EDIT,      5, 3, 70, 3, 0, nullptr, nullptr, DIF_INTERNALFOCUS|DIF_DEFAULT|(Flags&FIB_EDITPATH?DIF_EDITPATH:0),L"",
+		DI_TEXT,      0, 4,  0, 4, 0, nullptr, nullptr, DIF_SEPARATOR,                    L"",
+		DI_CHECKBOX,  5, 5,  0, 5, 0, nullptr, nullptr, 0,                                L"",
+		DI_TEXT,      0, 6,  0, 6, 0, nullptr, nullptr, DIF_SEPARATOR,                    L"",
+		DI_BUTTON,    0, 7,  0, 7, 0, nullptr, nullptr, DIF_CENTERGROUP,                  L"",
+		DI_BUTTON,    0, 7,  0, 7, 0, nullptr, nullptr, DIF_CENTERGROUP,                  L""
 	};
 	MakeDialogItemsEx(StrDlgData,StrDlg);
 
@@ -499,11 +499,11 @@ int WINAPI GetString(
 	{
 		Substract-=3;
 		StrDlg[0].Y2+=2;
-		StrDlg[2].DefaultButton=FALSE;
+		StrDlg[2].Flags&=~DIF_DEFAULTBUTTON;
 		StrDlg[5+offset].Y1=StrDlg[4+offset].Y1=5+offset;
 		StrDlg[4+offset].Type=StrDlg[5+offset].Type=DI_BUTTON;
 		StrDlg[4+offset].Flags=StrDlg[5+offset].Flags=DIF_CENTERGROUP;
-		StrDlg[4+offset].DefaultButton=TRUE;
+		StrDlg[4+offset].Flags|=DIF_DEFAULTBUTTON;
 		StrDlg[4+offset].strData = MSG(MOk);
 		StrDlg[5+offset].strData = MSG(MCancel);
 	}
@@ -619,14 +619,14 @@ int WINAPI GetNameAndPassword(const wchar_t *Title, string &strUserName, string 
 	*/
 	DialogDataEx PassDlgData[]=
 	{
-		DI_DOUBLEBOX,  3, 1,72, 8,0,0,NullToEmpty(Title),
-		DI_TEXT,       5, 2, 0, 2,0,0,MSG(MNetUserName),
-		DI_EDIT,       5, 3,70, 3,0,DIF_FOCUS|DIF_USELASTHISTORY|DIF_HISTORY,(Flags&GNP_USELAST)?strLastName:strUserName,
-		DI_TEXT,       5, 4, 0, 4,0,0,MSG(MNetUserPassword),
-		DI_PSWEDIT,    5, 5,70, 5,0,0,(Flags&GNP_USELAST)?strLastPassword:strPassword,
-		DI_TEXT,       3, 6, 0, 6,0,DIF_SEPARATOR,L"",
-		DI_BUTTON,     0, 7, 0, 7,0,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MOk),
-		DI_BUTTON,     0, 7, 0, 7,0,DIF_CENTERGROUP,MSG(MCancel),
+		DI_DOUBLEBOX,  3, 1,72, 8,0,nullptr,nullptr,0,NullToEmpty(Title),
+		DI_TEXT,       5, 2, 0, 2,0,nullptr,nullptr,0,MSG(MNetUserName),
+		DI_EDIT,       5, 3,70, 3,0,nullptr,nullptr,DIF_INTERNALFOCUS|DIF_USELASTHISTORY|DIF_HISTORY,(Flags&GNP_USELAST)?strLastName:strUserName,
+		DI_TEXT,       5, 4, 0, 4,0,nullptr,nullptr,0,MSG(MNetUserPassword),
+		DI_PSWEDIT,    5, 5,70, 5,0,nullptr,nullptr,0,(Flags&GNP_USELAST)?strLastPassword:strPassword,
+		DI_TEXT,       3, 6, 0, 6,0,nullptr,nullptr,DIF_SEPARATOR,L"",
+		DI_BUTTON,     0, 7, 0, 7,0,nullptr,nullptr,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MOk),
+		DI_BUTTON,     0, 7, 0, 7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel),
 	};
 	MakeDialogItemsEx(PassDlgData,PassDlg);
 

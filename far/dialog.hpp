@@ -113,7 +113,6 @@ struct DialogItemEx
 {
 	int Type;
 	int X1,Y1,X2,Y2;
-	int Focus;
 	union
 	{
 		DWORD_PTR Reserved;
@@ -124,8 +123,7 @@ struct DialogItemEx
 	};
 	string strHistory;
 	string strMask;
-	DWORD Flags;
-	int DefaultButton;
+	unsigned __int64 Flags;
 
 	string strData;
 	size_t nMaxLength;
@@ -151,12 +149,10 @@ struct DialogItemEx
 		Y1=0;
 		X2=0;
 		Y2=0;
-		Focus=0;
 		Reserved=0;
 		strHistory.Clear();
 		strMask.Clear();
 		Flags=0;
-		DefaultButton=0;
 		strData.Clear();
 		nMaxLength=0;
 		ID=0;
@@ -178,10 +174,8 @@ struct DialogItemEx
 		X2            = Other.X2;
 		Y1            = Other.Y1;
 		Y2            = Other.Y2;
-		Focus         = Other.Focus;
 		Reserved      = Other.Reserved;
 		Flags         = Other.Flags;
-		DefaultButton = Other.DefaultButton;
 		strData       = Other.strData;
 		nMaxLength    = Other.nMaxLength;
 		ID            = Other.ID;
@@ -242,13 +236,13 @@ struct DialogDataEx
 	{
 		DWORD_PTR Reserved;
 		unsigned int Selected;
-		const wchar_t *History;
-		const wchar_t *Mask;
 		FarList *ListItems;
 		int  ListPos;
 		CHAR_INFO *VBuf;
 	};
-	DWORD Flags;
+	const wchar_t *History;
+	const wchar_t *Mask;
+	unsigned __int64 Flags;
 	const wchar_t *Data;
 };
 

@@ -2651,7 +2651,7 @@ static bool dlggetvalueFunc(const TMacroFunction*)
 				case 3: Ret=(__int64)Item->Y1;    break;
 				case 4: Ret=(__int64)Item->X2;    break;
 				case 5: Ret=(__int64)Item->Y2;    break;
-				case 6: Ret=(__int64)Item->Focus; break;
+				case 6: Ret=(__int64)Item->Flags&DIF_FOCUS; break;
 				case 7:
 				{
 					if (ItemType == DI_CHECKBOX || ItemType == DI_RADIOBUTTON)
@@ -2678,7 +2678,7 @@ static bool dlggetvalueFunc(const TMacroFunction*)
 					break;
 				}
 				case 8: Ret=(__int64)ItemFlags; break;
-				case 9: Ret=(__int64)Item->DefaultButton; break;
+				case 9: Ret=(__int64)Item->Flags&DIF_DEFAULTBUTTON; break;
 				case 10:
 				{
 					Ret=Item->strData.CPtr();
@@ -6113,9 +6113,9 @@ DWORD KeyMacro::AssignMacroKey()
 	*/
 	DialogDataEx MacroAssignDlgData[]=
 	{
-		DI_DOUBLEBOX,3,1,30,4,0,0,MSG(MDefineMacroTitle),
-		DI_TEXT,-1,2,0,2,0,0,MSG(MDefineMacro),
-		DI_COMBOBOX,5,3,28,3,0,DIF_FOCUS|DIF_DEFAULT,L"",
+		DI_DOUBLEBOX,3,1,30,4,0,nullptr,nullptr,0,MSG(MDefineMacroTitle),
+		DI_TEXT,-1,2,0,2,0,nullptr,nullptr,0,MSG(MDefineMacro),
+		DI_COMBOBOX,5,3,28,3,0,nullptr,nullptr,DIF_INTERNALFOCUS|DIF_DEFAULT,L"",
 	};
 	MakeDialogItemsEx(MacroAssignDlgData,MacroAssignDlg);
 	DlgParam Param={this,0,StartMode,0};
@@ -6306,27 +6306,27 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 	*/
 	DialogDataEx MacroSettingsDlgData[]=
 	{
-		DI_DOUBLEBOX,3,1,69,17,0,0,L"",
-		DI_TEXT,5,2,0,2,0,0,MSG(MMacroSequence),
-		DI_EDIT,5,3,67,3,0,DIF_FOCUS,L"",
-		DI_TEXT,3,4,0,4,0,DIF_SEPARATOR,L"",
-		DI_CHECKBOX,5,5,0,5,0,0,MSG(MMacroSettingsEnableOutput),
-		DI_CHECKBOX,5,6,0,6,0,0,MSG(MMacroSettingsRunAfterStart),
-		DI_TEXT,3,7,0,7,0,DIF_SEPARATOR,L"",
-		DI_CHECKBOX,5,8,0,8,0,0,MSG(MMacroSettingsActivePanel),
-		DI_CHECKBOX,7,9,0,9,2,DIF_3STATE|DIF_DISABLE,MSG(MMacroSettingsPluginPanel),
-		DI_CHECKBOX,7,10,0,10,2,DIF_3STATE|DIF_DISABLE,MSG(MMacroSettingsFolders),
-		DI_CHECKBOX,7,11,0,11,2,DIF_3STATE|DIF_DISABLE,MSG(MMacroSettingsSelectionPresent),
-		DI_CHECKBOX,37,8,0,8,0,0,MSG(MMacroSettingsPassivePanel),
-		DI_CHECKBOX,39,9,0,9,2,DIF_3STATE|DIF_DISABLE,MSG(MMacroSettingsPluginPanel),
-		DI_CHECKBOX,39,10,0,10,2,DIF_3STATE|DIF_DISABLE,MSG(MMacroSettingsFolders),
-		DI_CHECKBOX,39,11,0,11,2,DIF_3STATE|DIF_DISABLE,MSG(MMacroSettingsSelectionPresent),
-		DI_TEXT,3,12,0,12,0,DIF_SEPARATOR,L"",
-		DI_CHECKBOX,5,13,0,13,2,DIF_3STATE,MSG(MMacroSettingsCommandLine),
-		DI_CHECKBOX,5,14,0,14,2,DIF_3STATE,MSG(MMacroSettingsSelectionBlockPresent),
-		DI_TEXT,3,15,0,15,0,DIF_SEPARATOR,L"",
-		DI_BUTTON,0,16,0,16,0,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MOk),
-		DI_BUTTON,0,16,0,16,0,DIF_CENTERGROUP,MSG(MCancel),
+		DI_DOUBLEBOX,3,1,69,17,0,nullptr,nullptr,0,L"",
+		DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(MMacroSequence),
+		DI_EDIT,5,3,67,3,0,nullptr,nullptr,DIF_INTERNALFOCUS,L"",
+		DI_TEXT,3,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L"",
+		DI_CHECKBOX,5,5,0,5,0,nullptr,nullptr,0,MSG(MMacroSettingsEnableOutput),
+		DI_CHECKBOX,5,6,0,6,0,nullptr,nullptr,0,MSG(MMacroSettingsRunAfterStart),
+		DI_TEXT,3,7,0,7,0,nullptr,nullptr,DIF_SEPARATOR,L"",
+		DI_CHECKBOX,5,8,0,8,0,nullptr,nullptr,0,MSG(MMacroSettingsActivePanel),
+		DI_CHECKBOX,7,9,0,9,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,MSG(MMacroSettingsPluginPanel),
+		DI_CHECKBOX,7,10,0,10,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,MSG(MMacroSettingsFolders),
+		DI_CHECKBOX,7,11,0,11,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,MSG(MMacroSettingsSelectionPresent),
+		DI_CHECKBOX,37,8,0,8,0,nullptr,nullptr,0,MSG(MMacroSettingsPassivePanel),
+		DI_CHECKBOX,39,9,0,9,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,MSG(MMacroSettingsPluginPanel),
+		DI_CHECKBOX,39,10,0,10,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,MSG(MMacroSettingsFolders),
+		DI_CHECKBOX,39,11,0,11,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,MSG(MMacroSettingsSelectionPresent),
+		DI_TEXT,3,12,0,12,0,nullptr,nullptr,DIF_SEPARATOR,L"",
+		DI_CHECKBOX,5,13,0,13,2,nullptr,nullptr,DIF_3STATE,MSG(MMacroSettingsCommandLine),
+		DI_CHECKBOX,5,14,0,14,2,nullptr,nullptr,DIF_3STATE,MSG(MMacroSettingsSelectionBlockPresent),
+		DI_TEXT,3,15,0,15,0,nullptr,nullptr,DIF_SEPARATOR,L"",
+		DI_BUTTON,0,16,0,16,0,nullptr,nullptr,DIF_DEFAULT|DIF_CENTERGROUP,MSG(MOk),
+		DI_BUTTON,0,16,0,16,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel),
 	};
 	MakeDialogItemsEx(MacroSettingsDlgData,MacroSettingsDlg);
 	string strKeyText;

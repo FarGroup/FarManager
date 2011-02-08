@@ -172,12 +172,10 @@ void DialogItemExToDialogItemEx(DialogItemEx *pSrc, DialogItemEx *pDest)
 	pDest->Y1 = pSrc->Y1;
 	pDest->X2 = pSrc->X2;
 	pDest->Y2 = pSrc->Y2;
-	pDest->Focus = pSrc->Focus;
 	pDest->Reserved = pSrc->Reserved;
 	pDest->strHistory = pSrc->strHistory;
 	pDest->strMask = pSrc->strMask;
 	pDest->Flags = pSrc->Flags;
-	pDest->DefaultButton = pSrc->DefaultButton;
 	pDest->nMaxLength = 0;
 	pDest->strData = pSrc->strData;
 	pDest->ID = pSrc->ID;
@@ -199,24 +197,15 @@ void ConvertItemSmall(FarDialogItem *Item,DialogItemEx *Data)
 	Item->Y1 = Data->Y1;
 	Item->X2 = Data->X2;
 	Item->Y2 = Data->Y2;
-	Item->Focus = Data->Focus;
 	Item->Flags = Data->Flags;
-	Item->DefaultButton = Data->DefaultButton;
 	Item->MaxLen = Data->nMaxLength;
 	Item->PtrData = nullptr;
 
-	Item->Param.History = nullptr;
+	Item->History = Data->strHistory;
+	Item->Mask = Data->strMask;
 	if (Data->Type==DI_LISTBOX || Data->Type==DI_COMBOBOX)
 	{
 		Item->Param.ListPos = Data->ListPtr?Data->ListPtr->GetSelectPos():0;
-	}
-	if((Data->Type == DI_EDIT || Data->Type == DI_FIXEDIT) && Data->Flags&DIF_HISTORY)
-	{
-		Item->Param.History = Data->strHistory;
-	}
-	else if(Data->Type == DI_FIXEDIT && Data->Flags&DIF_MASKEDIT)
-	{
-		Item->Param.Mask = Data->strMask;
 	}
 	else
 	{
@@ -293,22 +282,11 @@ bool ConvertItemEx(
 				Data->Y1 = Item->Y1;
 				Data->X2 = Item->X2;
 				Data->Y2 = Item->Y2;
-				Data->Focus = Item->Focus;
 				Data->Reserved = 0;
-				if((Item->Type == DI_EDIT || Item->Type == DI_FIXEDIT) && Item->Flags&DIF_HISTORY)
-				{
-					Data->strHistory = Item->Param.History;
-				}
-				else if(Item->Type == DI_FIXEDIT && Item->Flags&DIF_MASKEDIT)
-				{
-					Data->strMask = Item->Param.Mask;
-				}
-				else
-				{
-					Data->Reserved = Item->Param.Reserved;
-				}
+				Data->strHistory = Item->History;
+				Data->strMask = Item->Mask;
+				Data->Reserved = Item->Param.Reserved;
 				Data->Flags = Item->Flags;
-				Data->DefaultButton = Item->DefaultButton;
 				Data->Type = Item->Type;
 
 				if (FromPlugin==CVTITEM_FROMPLUGIN)
@@ -375,7 +353,6 @@ void DataToItemEx(const DialogDataEx *Data,DialogItemEx *Item,int Count)
 
 		if (Item[i].Y2 < Item[i].Y1) Item[i].Y2=Item[i].Y1;
 
-		Item[i].Focus=Item[i].Type!=DI_SINGLEBOX && Item[i].Type!=DI_DOUBLEBOX && (Data[i].Flags&DIF_FOCUS);
 		if((Data[i].Type == DI_EDIT || Data[i].Type == DI_FIXEDIT) && Data[i].Flags&DIF_HISTORY)
 		{
 			Item[i].strHistory=Data[i].History;
@@ -388,8 +365,9 @@ void DataToItemEx(const DialogDataEx *Data,DialogItemEx *Item,int Count)
 		{
 			Item[i].Reserved = Data[i].Reserved;
 		}
-		Item[i].Flags=Data[i].Flags;
-		Item[i].DefaultButton=Item[i].Type!=DI_TEXT && Item[i].Type!=DI_VTEXT && (Data[i].Flags&DIF_DEFAULT);
+		Item[i].Flags=Data[i].Flags & ~(DIF_FOCUS|DIF_DEFAULTBUTTON);
+		if (Item[i].Type!=DI_SINGLEBOX && Item[i].Type!=DI_DOUBLEBOX && (Data[i].Flags&DIF_INTERNALFOCUS)) Item[i].Flags|=DIF_FOCUS;
+		if (Item[i].Type!=DI_TEXT && Item[i].Type!=DI_VTEXT && (Data[i].Flags&DIF_DEFAULT)) Item[i].Flags|=DIF_DEFAULTBUTTON;
 		Item[i].SelStart=-1;
 
 		if (!IsPtr(Data[i].Data))
@@ -771,7 +749,7 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
 		if (Type==DI_BUTTON && !(ItemFlags & DIF_NOBRACKETS))
 		{
 			LPCWSTR Brackets[]={L"[ ", L" ]", L"{ ",L" }"};
-			int Start=(CurItem->DefaultButton?2:0);
+			int Start=((CurItem->Flags&DIF_DEFAULTBUTTON)?2:0);
 			if(CurItem->strData.At(0)!=*Brackets[Start])
 			{
 				CurItem->strData=Brackets[Start]+CurItem->strData+Brackets[Start+1];
@@ -780,12 +758,12 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
 		// предварительный поик фокуса
 		if (FocusPos == (unsigned)-1 &&
 		        CanGetFocus(Type) &&
-		        CurItem->Focus &&
+		        (CurItem->Flags&DIF_FOCUS) &&
 		        !(ItemFlags&(DIF_DISABLE|DIF_NOFOCUS|DIF_HIDDEN)))
 			FocusPos=I; // запомним первый фокусный элемент
 
-		CurItem->Focus=0; // сбросим для всех, чтобы не оказалось,
-		//   что фокусов - как у дурочка фантиков
+		CurItem->Flags&=~DIF_FOCUS; // сбросим для всех, чтобы не оказалось,
+		//   что фокусов - как у дурачка фантиков
 
 		// сбросим флаг DIF_CENTERGROUP для редакторов
 		switch (Type)
@@ -826,7 +804,7 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
 	}
 
 	// ну вот и добрались до!
-	Item[FocusPos]->Focus=1;
+	Item[FocusPos]->Flags|=DIF_FOCUS;
 	// а теперь все сначала и по полной программе...
 	ProcessCenterGroup(); // сначала отцентрируем
 
@@ -881,7 +859,7 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
 					ListPtr->AddItem(CurItem->ListItems);
 				}
 
-				ListPtr->ChangeFlags(VMENU_LISTHASFOCUS, CurItem->Focus);
+				ListPtr->ChangeFlags(VMENU_LISTHASFOCUS, CurItem->Flags&DIF_FOCUS);
 			}
 		}
 		// "редакторы" - разговор особый...
@@ -1796,7 +1774,7 @@ void Dialog::ShowDialog(unsigned ID)
 
 		short CW=CX2-CX1+1;
 		short CH=CY2-CY1+1;
-		Attr=(DWORD)CtlColorDlgItem(I,CurItem->Type,CurItem->Focus,CurItem->DefaultButton,CurItem->Flags);
+		Attr=(DWORD)CtlColorDlgItem(I,CurItem->Type,CurItem->Flags&DIF_FOCUS,CurItem->Flags&DIF_DEFAULTBUTTON,CurItem->Flags);
 #if 0
 
 		// TODO: прежде чем эту строку применять... нужно проверить _ВСЕ_ диалоги на предмет X2, Y2. !!!
@@ -2050,7 +2028,7 @@ void Dialog::ShowDialog(unsigned ID)
 				else
 					HiText(strStr,HIBYTE(LOWORD(Attr)));
 
-				if (CurItem->Focus)
+				if (CurItem->Flags&DIF_FOCUS)
 				{
 					//   Отключение мигающего курсора при перемещении диалога
 					if (!DialogMode.Check(DMODE_DRAGGED))
@@ -2094,7 +2072,7 @@ void Dialog::ShowDialog(unsigned ID)
 
 				EditPtr->SetObjectColor(Attr&0xFF,HIBYTE(LOWORD(Attr)),LOBYTE(HIWORD(Attr)));
 
-				if (CurItem->Focus)
+				if (CurItem->Flags&DIF_FOCUS)
 				{
 					//   Отключение мигающего курсора при перемещении диалога
 					if (!DialogMode.Check(DMODE_DRAGGED))
@@ -2655,7 +2633,7 @@ int Dialog::ProcessKey(int Key)
 		case KEY_CTRLENTER:
 		{
 			for (I=0; I<ItemCount; I++)
-				if (Item[I]->DefaultButton)
+				if (Item[I]->Flags&DIF_DEFAULTBUTTON)
 				{
 					if (Item[I]->Flags&DIF_DISABLE)
 					{
@@ -2747,7 +2725,7 @@ int Dialog::ProcessKey(int Key)
 
 				for (I=0; I<ItemCount; I++)
 				{
-					if (Item[I]->DefaultButton && !(Item[I]->Flags&DIF_BTNNOCLOSE))
+					if ((Item[I]->Flags&DIF_DEFAULTBUTTON) && !(Item[I]->Flags&DIF_BTNNOCLOSE))
 					{
 						if (Item[I]->Flags&DIF_DISABLE)
 						{
@@ -2881,7 +2859,7 @@ int Dialog::ProcessKey(int Key)
 			if (!(Item[FocusPos]->Flags & DIF_EDITOR))
 			{
 				for (I=0; I<ItemCount; I++)
-					if (Item[I]->DefaultButton)
+					if (Item[I]->Flags&DIF_DEFAULTBUTTON)
 					{
 						ChangeFocus2(I);
 						ShowDialog();
@@ -3758,8 +3736,8 @@ int Dialog::Do_ProcessNextCtrl(int Up,BOOL IsRedraw)
 		PrevPos=((DlgEdit *)(Item[FocusPos]->ObjPtr))->GetCurPos();
 
 	unsigned I=ChangeFocus(FocusPos,Up? -1:1,FALSE);
-	Item[FocusPos]->Focus=0;
-	Item[I]->Focus=1;
+	Item[FocusPos]->Flags&=~DIF_FOCUS;
+	Item[I]->Flags|=DIF_FOCUS;
 	ChangeFocus2(I);
 
 	if (IsEdit(Item[I]->Type) && (Item[I]->Flags & DIF_EDITOR))
@@ -3940,7 +3918,7 @@ void Dialog::ChangeFocus2(unsigned SetFocusPos)
 		if (FocusPosNeed != -1 && CanGetFocus(Item[FocusPosNeed]->Type))
 			SetFocusPos=FocusPosNeed;
 
-		Item[FocusPos]->Focus=0;
+		Item[FocusPos]->Flags&=~DIF_FOCUS;
 
 		// "снимать выделение при потере фокуса?"
 		if (IsEdit(Item[FocusPos]->Type) &&
@@ -3955,7 +3933,7 @@ void Dialog::ChangeFocus2(unsigned SetFocusPos)
 			}
 		}
 
-		Item[SetFocusPos]->Focus=1;
+		Item[SetFocusPos]->Flags|=DIF_FOCUS;
 
 		// "не восстанавливать выделение при получении фокуса?"
 		if (IsEdit(Item[SetFocusPos]->Type) &&
