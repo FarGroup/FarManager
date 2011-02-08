@@ -2028,8 +2028,6 @@ enum OPENPLUGININFO_FLAGS
 	OPIF_SHOWNAMESONLY           = 0x00000040,
 	OPIF_SHOWRIGHTALIGNNAMES     = 0x00000080,
 	OPIF_SHOWPRESERVECASE        = 0x00000100,
-#ifdef FAR_USE_INTERNALS
-#endif // END FAR_USE_INTERNALS
 	OPIF_COMPAREFATTIME          = 0x00000400,
 	OPIF_EXTERNALGET             = 0x00000800,
 	OPIF_EXTERNALPUT             = 0x00001000,
@@ -2037,27 +2035,28 @@ enum OPENPLUGININFO_FLAGS
 	OPIF_EXTERNALMKDIR           = 0x00004000,
 	OPIF_USEATTRHIGHLIGHTING     = 0x00008000,
 	OPIF_USECRC32                = 0x00010000,
+	OPIF_USEFREESIZE             = 0x00020000,
 };
 
 
 enum OPENPLUGININFO_SORTMODES
 {
-	SM_DEFAULT,
-	SM_UNSORTED,
-	SM_NAME,
-	SM_EXT,
-	SM_MTIME,
-	SM_CTIME,
-	SM_ATIME,
-	SM_SIZE,
-	SM_DESCR,
-	SM_OWNER,
-	SM_COMPRESSEDSIZE,
-	SM_NUMLINKS,
-	SM_NUMSTREAMS,
-	SM_STREAMSSIZE,
-	SM_FULLNAME,
-	SM_CHTIME,
+	SM_DEFAULT                   =  0,
+	SM_UNSORTED                  =  1,
+	SM_NAME                      =  2,
+	SM_EXT                       =  3,
+	SM_MTIME                     =  4,
+	SM_CTIME                     =  5,
+	SM_ATIME                     =  6,
+	SM_SIZE                      =  7,
+	SM_DESCR                     =  8,
+	SM_OWNER                     =  9,
+	SM_COMPRESSEDSIZE            = 10,
+	SM_NUMLINKS                  = 11,
+	SM_NUMSTREAMS                = 12,
+	SM_STREAMSSIZE               = 13,
+	SM_FULLNAME                  = 14,
+	SM_CHTIME                    = 15,
 };
 
 
@@ -2087,24 +2086,24 @@ enum OPERATION_MODES
 
 struct OpenPluginInfo
 {
-	int                   StructSize;
-	DWORD                 Flags;
-	const wchar_t           *HostFile;
-	const wchar_t           *CurDir;
-	const wchar_t           *Format;
-	const wchar_t           *PanelTitle;
-	const struct InfoPanelLine *InfoLines;
-	int                   InfoLinesNumber;
-	const wchar_t * const   *DescrFiles;
-	int                   DescrFilesNumber;
-	const struct PanelMode *PanelModesArray;
-	int                   PanelModesNumber;
-	int                   StartPanelMode;
-	int                   StartSortMode;
-	int                   StartSortOrder;
-	const struct KeyBarTitles *KeyBar;
-	const wchar_t           *ShortcutData;
-	long                  Reserved;
+	int                          StructSize;
+	DWORD                        Flags;
+	const wchar_t               *HostFile;
+	const wchar_t               *CurDir;
+	const wchar_t               *Format;
+	const wchar_t               *PanelTitle;
+	const struct InfoPanelLine  *InfoLines;
+	int                          InfoLinesNumber;
+	const wchar_t * const       *DescrFiles;
+	int                          DescrFilesNumber;
+	const struct PanelMode      *PanelModesArray;
+	int                          PanelModesNumber;
+	int                          StartPanelMode;
+	int                          StartSortMode;
+	int                          StartSortOrder;
+	const struct KeyBarTitles   *KeyBar;
+	const wchar_t               *ShortcutData;
+	unsigned __int64             FreeSize;
 };
 
 enum OPENPLUGIN_OPENFROM

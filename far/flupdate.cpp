@@ -672,12 +672,17 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	OpenPluginInfo Info;
 	CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
 
-	if (Opt.ShowPanelFree && (Info.Flags & OPIF_REALNAMES))
+	FreeDiskSize=0;
+	if (Opt.ShowPanelFree)
 	{
-		unsigned __int64 TotalSize,TotalFree;
-
-		if (!apiGetDiskSize(strCurDir,&TotalSize,&TotalFree,&FreeDiskSize))
-			FreeDiskSize=0;
+		if (Info.Flags & OPIF_REALNAMES)
+		{
+			unsigned __int64 TotalSize,TotalFree;
+			if (!apiGetDiskSize(strCurDir,&TotalSize,&TotalFree,&FreeDiskSize))
+				FreeDiskSize=0;
+		}
+		else if (Info.Flags & OPIF_USEFREESIZE)
+			FreeDiskSize=Info.FreeSize;
 	}
 
 	PluginPanelItem *PanelData=nullptr;
