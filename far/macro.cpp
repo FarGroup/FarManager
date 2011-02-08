@@ -2614,7 +2614,7 @@ static bool dlggetvalueFunc(const TMacroFunction*)
 		{
 			const DialogItemEx *Item=DlgItem[Index];
 			int ItemType=Item->Type;
-			DWORD ItemFlags=Item->Flags;
+			FarDialogItemFlags ItemFlags=Item->Flags;
 
 			if (!TypeInf)
 			{
@@ -2651,7 +2651,7 @@ static bool dlggetvalueFunc(const TMacroFunction*)
 				case 3: Ret=(__int64)Item->Y1;    break;
 				case 4: Ret=(__int64)Item->X2;    break;
 				case 5: Ret=(__int64)Item->Y2;    break;
-				case 6: Ret=(__int64)Item->Flags&DIF_FOCUS; break;
+				case 6: Ret=(__int64)((Item->Flags&DIF_FOCUS)!=0); break;
 				case 7:
 				{
 					if (ItemType == DI_CHECKBOX || ItemType == DI_RADIOBUTTON)
@@ -2678,7 +2678,7 @@ static bool dlggetvalueFunc(const TMacroFunction*)
 					break;
 				}
 				case 8: Ret=(__int64)ItemFlags; break;
-				case 9: Ret=(__int64)Item->Flags&DIF_DEFAULTBUTTON; break;
+				case 9: Ret=(__int64)((Item->Flags&DIF_DEFAULTBUTTON)!=0); break;
 				case 10:
 				{
 					Ret=Item->strData.CPtr();

@@ -459,7 +459,8 @@ bool PluginW::Load()
 		Info.MinFarVersion &&
 		Info.Version &&
 		Info.Title && *Info.Title &&
-		Info.Description && *Info.Description)
+		Info.Description && *Info.Description &&
+		Info.Author && *Info.Author)
 	{
 		MinFarVersion = Info.MinFarVersion;
 		PluginVersion = Info.Version;

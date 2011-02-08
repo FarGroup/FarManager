@@ -148,9 +148,8 @@ static __inline BOOL IsEdit(int Type)
 	}
 }
 
-
-enum FarDialogItemFlags
-{
+typedef unsigned __int64 FarDialogItemFlags;
+static const FarDialogItemFlags
 	DIF_NONE                  = 0,
 	DIF_COLORMASK             = 0x00000000000000ffULL,
 	DIF_SETCOLOR              = 0x0000000000000100ULL,
@@ -200,7 +199,7 @@ enum FarDialogItemFlags
 	DIF_DISABLE               = 0x0000000080000000ULL,
 	DIF_DEFAULTBUTTON         = 0x0000000100000000ULL,
 	DIF_FOCUS                 = 0x0000000200000000ULL,
-};
+;
 
 enum FarMessagesProc
 {

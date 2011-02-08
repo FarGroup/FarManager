@@ -861,7 +861,7 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
 					ListPtr->AddItem(CurItem->ListItems);
 				}
 
-				ListPtr->ChangeFlags(VMENU_LISTHASFOCUS, CurItem->Flags&DIF_FOCUS);
+				ListPtr->ChangeFlags(VMENU_LISTHASFOCUS, (CurItem->Flags&DIF_FOCUS)!=0);
 			}
 		}
 		// "редакторы" - разговор особый...
@@ -1348,7 +1348,7 @@ void Dialog::GetDialogObjectsData()
 	for (unsigned I=0; I < ItemCount; I++)
 	{
 		CurItem = Item[I];
-		DWORD IFlags=CurItem->Flags;
+		FarDialogItemFlags IFlags=CurItem->Flags;
 
 		switch (Type=CurItem->Type)
 		{
@@ -1447,7 +1447,7 @@ void Dialog::GetDialogObjectsData()
 
 
 // Функция формирования и запроса цветов.
-INT_PTR Dialog::CtlColorDlgItem(int ItemPos,int Type,int Focus,int Default,DWORD Flags)
+INT_PTR Dialog::CtlColorDlgItem(int ItemPos,int Type,int Focus,int Default,FarDialogItemFlags Flags)
 {
 	CriticalSectionLock Lock(CS);
 	BOOL DisabledItem=Flags&DIF_DISABLE?TRUE:FALSE;
@@ -4243,7 +4243,7 @@ int Dialog::CheckHighlights(WORD CheckSymbol,int StartPos)
 {
 	CriticalSectionLock Lock(CS);
 	int Type, I;
-	DWORD Flags;
+	FarDialogItemFlags Flags;
 
 	if (StartPos < 0)
 		StartPos=0;
@@ -4280,7 +4280,7 @@ int Dialog::ProcessHighlighting(int Key,unsigned FocusPos,int Translate)
 {
 	CriticalSectionLock Lock(CS);
 	int Type;
-	DWORD Flags;
+	FarDialogItemFlags Flags;
 
 	INPUT_RECORD rec;
 	if(!KeyToInputRecord(Key,&rec)) memset(&rec,0,sizeof(rec));
@@ -5664,7 +5664,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 
 				for (UINT I=0; I < CurItem->AutoCount; ++I, ++Auto)
 				{
-					DWORD NewFlags=Dlg->Item[Auto->ID]->Flags;
+					FarDialogItemFlags NewFlags=Dlg->Item[Auto->ID]->Flags;
 					Dlg->Item[Auto->ID]->Flags=(NewFlags&(~Auto->Flags[Param2][1]))|Auto->Flags[Param2][0];
 					// здесь намеренно в обработчик не посылаются эвенты об изменении
 					// состояния...
@@ -5725,7 +5725,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 
 						for (UINT I=0; I < CurItem->AutoCount; ++I, ++Auto)
 						{
-							DWORD NewFlags=Dlg->Item[Auto->ID]->Flags;
+							FarDialogItemFlags NewFlags=Dlg->Item[Auto->ID]->Flags;
 							Dlg->Item[Auto->ID]->Flags=(NewFlags&(~Auto->Flags[Param2][1]))|Auto->Flags[Param2][0];
 							// здесь намеренно в обработчик не посылаются эвенты об изменении
 							// состояния...
@@ -6148,7 +6148,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 		*/
 		case DM_SHOWITEM:
 		{
-			DWORD PrevFlags=CurItem->Flags;
+			FarDialogItemFlags PrevFlags=CurItem->Flags;
 
 			if (Param2 != -1)
 			{
@@ -6223,7 +6223,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 		*/
 		case DM_ENABLE:
 		{
-			DWORD PrevFlags=CurItem->Flags;
+			FarDialogItemFlags PrevFlags=CurItem->Flags;
 
 			if (Param2 != -1)
 			{

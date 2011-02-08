@@ -83,7 +83,7 @@ enum DIALOG_MODES
 struct DialogItemAutomation
 {
 	WORD ID;                    // Для этого элемента...
-	DWORD Flags[3][2];          // ...выставить вот эти флаги
+	FarDialogItemFlags Flags[3][2];          // ...выставить вот эти флаги
 	// [0] - Unchecked, [1] - Checked, [2] - 3Checked
 	// [][0] - Set, [][1] - Skip
 };
@@ -297,7 +297,7 @@ class Dialog: public Frame
 
 		void ShowDialog(unsigned ID=(unsigned)-1);  //    ID=-1 - отрисовать весь диалог
 
-		INT_PTR CtlColorDlgItem(int ItemPos,int Type,int Focus,int Default,DWORD Flags);
+		INT_PTR CtlColorDlgItem(int ItemPos,int Type,int Focus,int Default,FarDialogItemFlags Flags);
 		/* $ 28.07.2000 SVS
 		   + Изменяет фокус ввода между двумя элементами.
 		     Вынесен отдельно для того, чтобы обработать DMSG_KILLFOCUS & DMSG_SETFOCUS

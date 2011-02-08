@@ -1054,7 +1054,7 @@ bool UserMenu::EditMenu(const wchar_t *MenuKey,int EditPos,int TotalRecords,bool
 	if (Continue)
 	{
 		const int DLG_X=76, DLG_Y=SubMenu?10:22;
-		DWORD State=SubMenu?DIF_HIDDEN|DIF_DISABLE:0;
+		FarDialogItemFlags State=SubMenu?DIF_HIDDEN|DIF_DISABLE:DIF_NONE;
 		DialogDataEx EditDlgData[]=
 		{
 			DI_DOUBLEBOX,3,1,DLG_X-4,DLG_Y-2,0,nullptr,nullptr,0,MSG(SubMenu?MEditSubmenuTitle:MEditMenuTitle),
