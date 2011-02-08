@@ -1556,7 +1556,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 					if (bCached)
 					{
 						strRegKey.Format(FmtPluginsCache_PluginS, pPlugin->GetCacheName());
-						IFlags=GetRegKey(strRegKey,L"Flags",0);
+						IFlags=GetRegKey64(strRegKey,L"Flags",0);
 					}
 					else
 					{
