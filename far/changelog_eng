@@ -3,6 +3,248 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 08.02.2011 21:48:00 +0200 - build 1841
+
+1. DIF_INTERNALFOCUS & DIF_DEFAULT are removed.
+
+2. plugin.hpp is redone a little.
+
+zg 08.02.2011 19:39:28 +0200 - build 1839
+
+1. flags were read incorrectly from plugin cache.
+
+drkns 08.02.2011 16:52:23 +0200 - build 1838
+
+1. VC warnings.
+
+zg 08.02.2011 14:57:17 +0200 - build 1837
+
+1. correction of 1836.1.
+
+2. FarDialogItem.UserParam is used as a value linked with dialog element (it is returned via DM_GETITEMDATA).
+
+zg 08.02.2011 13:54:18 +0200 - build 1836
+
+1. FarDialogItem: Focus&DefaultButton are removed. Instead, there are DIF_FOCUS&DIF_DEFAULTBUTTON flags.
+
+2. FarDialogItem: History&Mask are moved outside an union.
+
+3. FarDialogItem: Flags is now 64 bit wide.
+
+4. UserParam is added to FarDialogItem, unused yet.
+
+svs 08.02.2011 11:41:03 +0300 - build 1835
+
+1. OpenPluginInfo::Reserved is removed,
+   OpenPluginInfo::FreeSize is added (unsigned __int64)
+
+2. OPIF_USEFREESIZE flag is added - "OpenPluginInfo::FreeSize component contains data"
+   (or "when the flag is absent then FreeSize field is not relevant") 
+   That is, not any plugin provides "free space" notion (for example, Network or ImpEx)
+
+t-rex 08.02.2011 01:29:17 +0200 - build 1834
+
+1. PluginNumber in InputBox (like everywhere) to let FAR know where help topics must be opened from (a very old bug).
+
+2. Historical stuff is removed from plugin.hpp: DM_SETREDRAW=DM_REDRAW and DM_SETTEXTLENGTH=DM_SETMAXTEXTLENGTH.
+
+zg 08.02.2011 00:40:42 +0200 - build 1833
+
+1. implementation of CallPlugin&FindPlugin for GUIDs.
+
+drkns 07.02.2011 23:12:53 +0200 - build 1832
+
+1. Mistype in 1831.
+
+drkns 07.02.2011 21:12:08 +0200 - build 1831
+
+1. API:
+   - A new export: void GetGlobalInfoW(GlobalInfo* Info), where:
+
+   struct GlobalInfo
+   {
+    int StructSize;              // size
+    DWORD MinFarVersion;         // minimal required Far version
+    DWORD Version;               // plugin's version (in same form)
+    GUID Guid;                   // plugin's GUID
+    const wchar_t *Title;        // plugin's common name
+    const wchar_t *Description;  // description/comment/additional
+    const wchar_t *Author;       // plugin's author
+  };
+
+  A plugin must export GetGlobalInfoW.
+  All fields must be filled in.
+  The function is called once.
+
+2. SysID is removed.
+
+zg 07.02.2011 12:41:30 +0200 - build 1830
+
+1. a new parameter in DialogInit: dialog's GUID.
+
+2. a new field in DialogInfo: Owner. It contains the GUID of the plugin that has invoked the dialog.
+
+3. DN_GETDIALOGINFO is removed for its uselessness.
+
+drkns 06.02.2011 16:24:19 +0200 - build 1829
+
+1. Importing settings from Far2.
+
+drkns 06.02.2011 14:05:06 +0200 - build 1828
+
+1. xor and other according tricks are removed from copyright line.
+
+2. The registry key is now "Far Manager".
+
+drkns 06.02.2011 13:11:59 +0200 - build 1827
+
+1. Plugins hotkeys in drives menu did not work.
+
+2. Plugins in drives menu can be sorted by hotkeys (F9).
+
+drkns 06.02.2011 12:11:59 +0200 - build 1826
+
+1. Info.CmpName is removed.
+
+2. OPIF_USESORTGROUPS -> OPIF_DISABLESORTGROUPS, OPIF_USEHIGHLIGHTING -> OPIF_DISABLEHIGHLIGHTING.
+
+t-rex 05.02.2011 23:19:46 +0200
+
+1. FAR version is now 3.0
+
+drkns 05.02.2011 15:30:10 +0200 - build 1825
+
+1. LONG_PTR -> INT_PTR.
+
+2. OPIF_USEFILTER -> !OPIF_DISABLEFILTER.
+
+3. FCTL_GETCMDLINESELECTEDTEXT is removed.
+
+4. FarMenuItem and FMENU_USEEXT are removed, FarMenuItemEx is now FarMenuItem.
+
+drkns 04.02.2011 23:53:23 +0200 - build 1824
+
+1. x64 debug build was malfunctional.
+
+2. Warning.
+
+zg 04.02.2011 23:36:52 +0200 - build 1823
+
+1. "Id" is added to WindowInfo. is acts as a handle for a dialog, and as Id for editor/viewer.
+
+2. Modified&Current are removed from WindowInfo. Flags and WIF_MODIFIED&WIF_CURRENT are the replacement.
+
+zg 04.02.2011 21:50:22 +0200 - build 1822
+
+1. correction of 1820 for NumEnter.
+
+2. gcc warnings.
+
+drkns 04.02.2011 16:50:21 +0200 - build 1821
+
+1. FAR_FIND_DATA is removed, the content is moved to PluginPanelItem. Also, ChangeTime is added there.
+
+svs 04.02.2011 17:43:54 +0300 - build 
+
+1. Pay attention to the phrase "#ifdef FAR_USE_INTERNALS"! 
+   Is has got a pair: "#endif // END FAR_USE_INTERNALS"
+   It is processed with a script!
+
+svs 04.02.2011 16:39:35 +0300 - build 1820
+
+1. Solving troubles with keyboard.
+   a) Ctrl. Ctrl. Ins (not on numpad) - we see Num0 instead of Ins
+   b) TranslateKeyToVK function has become smarter - catching bugs :-)
+
+yjh 04.02.2011 15:29:20 +0300 - build 1819
+
+1. 64bit warnings
+
+drkns 04.02.2011 14:15:16 +0200 - build 1818
+
+1. Alignment for x86 is now 8 bytes too.
+
+drkns 04.02.2011 00:37:26 +0200 - build 1817
+
+1. Bells and whistles: proper copyright character "©" instead of "(Ñ)".
+
+zg 03.02.2011 18:27:43 +0200 - build 1816
+
+1. DN_KEY, DN_HOTKEY take a reference to INPUT_RECORD array as Param2.
+
+2. DM_KEY takes a reference to INPUT_RECORD array as Param2.
+
+zg 03.02.2011 16:05:25 +0200 - build 1815
+
+1. FAR_PKF_FLAGS is removed.
+
+2. PKF_PREPROCESS support is removed.
+
+zg 03.02.2011 15:12:44 +0200 - build 1814
+
+1. INPUT_RECORD appears in ProcessKeyW.
+
+2. FSF is appended with FarKeyToInputRecord.
+
+drkns 03.02.2011 14:25:22 +0200 - build 1813
+
+1. Corrections in setattr and fileowner.
+
+2. macrocompuler.?pp -> macrocompiler.?pp
+
+zg 03.02.2011 13:05:54 +0200 - build 1812
+
+1. PanelInfo is appended with StructSize, OwnerGuid, PluginHandle. 
+   For plugin panels, OwnerGuid equals to plugin's GUID, PluginHandle equals to value returned by the plugin from Open[File]Plugin.
+   For real panels, OwnerGuid equals to FarGuid, PluginHandle equals to INVALID_HANDLE_VALUE.
+
+2. PanelInfo: Plugin, Visible, Focus and ShortNames are removed. Instead, there are PFLAGS_PLUGIN, PFLAGS_VISIBLE, PFLAGS_FOCUS and PFLAGS_ALTERNATIVENAMES.
+
+3. PanelInfo.Flags is now 64 bit wide.
+
+svs 03.02.2011 13:34:09 +0300 - build 1811
+
+1. syntax.?pp are renamed to macrocompiler.?pp
+
+2. Mantis#0001696: "len" function "crashes" FAR sometimes
+   TVar::toString() returns nullptr
+
+3. Mantis#0001697: Access to Custom column from panel.item function
+   (from DAtaMan)
+   Index 22 is added, is equals to Custom column value
+
+4. Macro: "substr got rid of 3rd parameter default value of -1"
+   TVar is appended with vtUnknown type (analogous to vtInteger, contains 0)
+
+5. ActlKeyMacro structure has grown, according to #5 
+   (http://forum.farmanager.com/viewtopic.php?p=58432#p58432).
+
+drkns 03.02.2011 10:07:07 +0200 - build 1810
+
+1. Mantis#0001698: Error in copied files number calculation code.
+   Also, total files number was calculated incorrectly at multiple files copying.
+
+2. #error in headers.hpp is for release build only.
+
+drkns 03.02.2011 09:12:32 +0200 - build 1809
+
+1. Fix for vc-build + warnings.
+
+zg 03.02.2011 04:11:18 +0200 - build 1808
+
+Global API changes have started. All Unicode plugins for previous builds are incompatible with new versions.
+Until all planned API changes are done, headers.hpp contains #error.
+
+1. Plugin's GUID is added to PluginInfo.
+
+2. GUID is added to PluginInfo for each menu line. The GUID is passed to OpenPluginW and ConfigureW. It must be unique throughout the menu.
+
+3. New parameter in PluginInfo: PluginTitle, the plugin's common name.
+
+4. PluginInfo's Flags field is now 64 bit.
+
+5. GetMinFarVersionW is removed, there is MinFarVersion in PluginInfo instead.
+
 drkns 02.02.2011 08:36:12 +0200 - build 1807
 
 1. Correction of 1804.1.
@@ -278,7 +520,7 @@ svs 28.12.2010 09:49:18 +0300 - build 1770
 
    </ACHTUNG>
 
-4. "&Hidden" è "C&hange time:" hotkeys duplicates in SetAttr dialog.
+4. "&Hidden" and "C&hange time:" hotkeys duplicates in SetAttr dialog.
    "Change time:" is bound to "g".
 
 svs 27.12.2010 12:45:54 +0300 - build 1769
