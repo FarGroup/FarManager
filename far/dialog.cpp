@@ -211,6 +211,7 @@ void ConvertItemSmall(FarDialogItem *Item,DialogItemEx *Data)
 	{
 		Item->Param.Reserved = Data->Reserved;
 	}
+	Item->UserParam = Data->UserData;
 }
 
 size_t ItemStringAndSize(DialogItemEx *Data,string& ItemString)
@@ -288,6 +289,7 @@ bool ConvertItemEx(
 				Data->Reserved = Item->Param.Reserved;
 				Data->Flags = Item->Flags;
 				Data->Type = Item->Type;
+				Data->UserData = Item->UserParam;
 
 				if (FromPlugin==CVTITEM_FROMPLUGIN)
 				{
@@ -711,7 +713,7 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
 	int Type;
 	DialogItemEx *CurItem;
 	unsigned InitItemCount;
-	DWORD ItemFlags;
+	unsigned __int64 ItemFlags;
 	_DIALOG(CleverSysLog CL(L"Init Dialog"));
 
 	if (ID+1 > ItemCount)
@@ -1175,7 +1177,7 @@ BOOL Dialog::GetItemRect(unsigned I,SMALL_RECT& Rect)
 		return FALSE;
 
 	DialogItemEx *CurItem=Item[I];
-	DWORD ItemFlags=CurItem->Flags;
+	unsigned __int64 ItemFlags=CurItem->Flags;
 	int Type=CurItem->Type;
 	int Len=0;
 	Rect.Left=CurItem->X1;
@@ -1774,7 +1776,7 @@ void Dialog::ShowDialog(unsigned ID)
 
 		short CW=CX2-CX1+1;
 		short CH=CY2-CY1+1;
-		Attr=(DWORD)CtlColorDlgItem(I,CurItem->Type,CurItem->Flags&DIF_FOCUS,CurItem->Flags&DIF_DEFAULTBUTTON,CurItem->Flags);
+		Attr=(DWORD)CtlColorDlgItem(I,CurItem->Type,(CurItem->Flags&DIF_FOCUS)?true:false,(CurItem->Flags&DIF_DEFAULTBUTTON)?true:false,CurItem->Flags);
 #if 0
 
 		// TODO: прежде чем эту строку применять... нужно проверить _ВСЕ_ диалоги на предмет X2, Y2. !!!
