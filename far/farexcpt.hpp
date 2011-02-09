@@ -86,6 +86,7 @@ enum EX_PLUGINITEMWORKFLAGS
 	EXPIWF_PRELOADED     = 0x00000002, //
 	EXPIWF_DONTLOADAGAIN = 0x00000004, // не загружать плагин снова, ставится в
 	//   результате проверки требуемой версии фара
+	EXPIWF_DATALOADED    = 0x00000008, // LoadData успешно выполнилась
 };
 
 

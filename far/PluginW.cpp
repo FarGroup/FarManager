@@ -427,10 +427,13 @@ bool PluginW::SaveToCache()
 	return false;
 }
 
-bool PluginW::Load()
+bool PluginW::LoadData(void)
 {
 	if (WorkFlags.Check(PIWF_DONTLOADAGAIN))
 		return false;
+
+	if (WorkFlags.Check(PIWF_DATALOADED))
+		return true;
 
 	if (m_hModule)
 		return true;
@@ -507,8 +510,6 @@ bool PluginW::Load()
 	pGetCustomDataW=(PLUGINGETCUSTOMDATAW)GetProcAddress(m_hModule, NFMP_GetCustomData);
 	pFreeCustomDataW=(PLUGINFREECUSTOMDATAW)GetProcAddress(m_hModule, NFMP_FreeCustomData);
 
-	bool bUnloaded = false;
-
 	GlobalInfo Info;
 	if(GetGlobalInfo(&Info) &&
 		Info.StructSize &&
@@ -524,19 +525,39 @@ bool PluginW::Load()
 		strDescription = Info.Description;
 		strAuthor = Info.Author;
 		SetGuid(Info.Guid);
-
-		if (CheckMinFarVersion(bUnloaded) && SetStartupInfo(bUnloaded))
-		{
-			FuncFlags.Set(PICFF_LOADED);
-			SaveToCache();
-			return true;
-		}
+		WorkFlags.Set(PIWF_DATALOADED);
+		return true;
 	}
+	Unload();
+	//чтоб не пытаться загрузить опять а то ошибка будет постоянно показываться.
+	WorkFlags.Set(PIWF_DONTLOADAGAIN);
+	return false;
+}
 
+bool PluginW::Load()
+{
+	if (WorkFlags.Check(PIWF_DONTLOADAGAIN))
+		return false;
+
+	if (!WorkFlags.Check(PIWF_DATALOADED)&&!LoadData())
+		return false;
+
+	if (FuncFlags.Check(PICFF_LOADED))
+		return true;
+
+	bool bUnloaded = false;
+
+	if (CheckMinFarVersion(bUnloaded) && SetStartupInfo(bUnloaded))
+	{
+		FuncFlags.Set(PICFF_LOADED);
+		SaveToCache();
+		return true;
+	}
 	if (!bUnloaded)
 	{
 		Unload();
 	}
+
 	//чтоб не пытаться загрузить опять а то ошибка будет постоянно показываться.
 	WorkFlags.Set(PIWF_DONTLOADAGAIN);
 	return false;

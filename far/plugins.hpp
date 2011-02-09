@@ -77,6 +77,7 @@ enum PLUGINITEMWORKFLAGS
 	PIWF_PRELOADED     = 0x00000002, //
 	PIWF_DONTLOADAGAIN = 0x00000004, // не загружать плагин снова, ставится в
 	//   результате проверки требуемой версии фара
+	PIWF_DATALOADED    = 0x00000008, // LoadData успешно выполнилась
 };
 
 // флаги для поля Plugin.FuncFlags - активности функций

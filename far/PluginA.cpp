@@ -4400,9 +4400,18 @@ bool PluginA::SaveToCache()
 	return false;
 }
 
+bool PluginA::LoadData(void)
+{
+	WorkFlags.Set(PIWF_DATALOADED);
+	return true;
+}
+
 bool PluginA::Load()
 {
 	if (WorkFlags.Check(PIWF_DONTLOADAGAIN))
+		return false;
+
+	if (!WorkFlags.Check(PIWF_DATALOADED)&&!LoadData())
 		return false;
 
 	if (m_hModule)

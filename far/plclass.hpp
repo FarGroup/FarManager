@@ -54,6 +54,7 @@ class Plugin: public AncientPlugin
 
 		virtual bool IsOemPlugin() = 0;
 
+		virtual bool LoadData(void) = 0;
 		virtual bool Load() = 0;
 		virtual bool LoadFromCache(const FAR_FIND_DATA_EX &FindData) = 0;
 

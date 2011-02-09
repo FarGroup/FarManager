@@ -141,6 +141,7 @@ class PluginW: public Plugin
 
 		bool IsOemPlugin() {return false;}
 
+		bool LoadData(void);
 		bool Load();
 		bool LoadFromCache(const FAR_FIND_DATA_EX &FindData);
 

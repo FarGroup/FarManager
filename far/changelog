@@ -1,3 +1,7 @@
+zg 09.02.2011 15:19:00 +0200 - build 1843
+
+1. уточнение 1842.1: GetPluginDirList, Menu, Message, InputBox, AdvControl, DialogInit, GetMsg не всегда работали в SetStartupInfoW и в GetPluginInfoW.
+
 zg 09.02.2011 03:42:44 +0200 - build 1842
 
 1. в GetPluginDirList, Menu, Message, InputBox, AdvControl, DialogInit, GetMsg вместо ModuleNumber нужно передавать указатель на GUID плагина. соответственно из PluginStartupInfo ModuleNumber тоже убран.

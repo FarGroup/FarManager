@@ -419,14 +419,14 @@ bool PluginManager::LoadPlugin(
 	if (!pPlugin)
 		return false;
 
-	bool bResult=false;
+	bool bResult=false,bDataLoaded=false;
 
 	if (!LoadToMem)
 		bResult = pPlugin->LoadFromCache(FindData);
 
 	if (!bResult && !Opt.LoadPlug.PluginsCacheOnly)
 	{
-		bResult = pPlugin->Load();
+		bResult = bDataLoaded = pPlugin->LoadData();
 	}
 
 	if (bResult && !AddPlugin(pPlugin))
@@ -434,6 +434,11 @@ bool PluginManager::LoadPlugin(
 		pPlugin->Unload(true);
 		delete pPlugin;
 		return false;
+	}
+
+	if (bDataLoaded)
+	{
+		bResult = pPlugin->Load();
 	}
 
 	return bResult;
