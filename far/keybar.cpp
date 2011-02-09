@@ -394,3 +394,55 @@ void KeyBar::SetDisableMask(int Mask)
 void KeyBar::ResizeConsole()
 {
 }
+
+size_t KeyBar::Change(const KeyBarTitles *Kbt)
+{
+	size_t Result=0;
+
+	if (!Kbt)
+		return Result;
+
+	static DWORD Groups[]=
+	{
+		0,KBL_MAIN,
+		KEY_SHIFT,KBL_SHIFT,
+		KEY_CTRL,KBL_CTRL,
+		KEY_ALT,KBL_ALT,
+		KEY_CTRL|KEY_SHIFT,KBL_CTRLSHIFT,
+		KEY_ALT|KEY_SHIFT,KBL_ALTSHIFT,
+		KEY_CTRL|KEY_ALT,KBL_CTRLALT,
+		KEY_CTRL|KEY_ALT|KEY_SHIFT,KBL_CTRLALTSHIFT,
+	};
+
+	for (int I = 0; I < Kbt->CountLabels; ++I)
+	{
+
+		DWORD Pos=Kbt->Labels[I].Key;
+		DWORD Shift=Pos&KEY_CTRLMASK;
+		Pos &= ~KEY_CTRLMASK;
+		if (Pos >= KEY_F1 && Pos <= KEY_F24)
+		{
+			if (Shift&KEY_RCTRL)
+			{
+				Shift &= ~KEY_RCTRL;
+				Shift |= KEY_CTRL;
+			}
+			if (Shift&KEY_RALT)
+			{
+				Shift &= ~KEY_RALT;
+				Shift |= KEY_ALT;
+			}
+			for (int J=0; J < ARRAYSIZE(Groups); J+=2)
+			{
+				if (Groups[J] == Shift)
+				{
+					Change(Groups[J+1],Kbt->Labels[I].Text,Pos-KEY_F1);
+					Result++;
+					break;
+				}
+			}
+		}
+	}
+
+	return Result;
+}

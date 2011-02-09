@@ -129,6 +129,9 @@ static const char NFMP_GetMinFarVersion[]="GetMinFarVersion";
 #define UnicodeToOEM(src,dst,lendst)    WideCharToMultiByte(CP_OEMCP,0,(src),-1,(dst),(int)(lendst),nullptr,nullptr)
 #define OEMToUnicode(src,dst,lendst)    MultiByteToWideChar(CP_OEMCP,0,(src),-1,(dst),(int)(lendst))
 
+void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles *kbtW, bool FullStruct=true);
+
+
 const char *FirstSlashA(const char *String)
 {
 	do
@@ -429,43 +432,94 @@ void FreeUnicodePanelModes(PanelMode *pnmW, int iCount)
 	}
 }
 
-void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles *kbtW, bool FullStruct=true)
+
+static void ProcLabels(const char *Title,KeyBarLabel *Label, int& j, DWORD Key)
+{
+	if (Title)
+	{
+		Label->Text=AnsiToUnicode(Title);
+		Label->LongText=nullptr;
+		Label->Key=Key;
+		j++;
+	}
+}
+
+void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles *kbtW, bool FullStruct)
 {
 	if (kbtA && kbtW)
 	{
-		for (int i=0; i<12; i++)
+		int i;
+		kbtW->CountLabels=0;
+		kbtW->Labels=nullptr;
+
+		for (i=0; i<12; i++)
 		{
-			kbtW->Titles[i]          = kbtA->Titles[i]?          AnsiToUnicode(kbtA->Titles[i]):          nullptr;
-			kbtW->CtrlTitles[i]      = kbtA->CtrlTitles[i]?      AnsiToUnicode(kbtA->CtrlTitles[i]):      nullptr;
-			kbtW->AltTitles[i]       = kbtA->AltTitles[i]?       AnsiToUnicode(kbtA->AltTitles[i]):       nullptr;
-			kbtW->ShiftTitles[i]     = kbtA->ShiftTitles[i]?     AnsiToUnicode(kbtA->ShiftTitles[i]):     nullptr;
-			kbtW->CtrlShiftTitles[i] = FullStruct && kbtA->CtrlShiftTitles[i]? AnsiToUnicode(kbtA->CtrlShiftTitles[i]): nullptr;
-			kbtW->AltShiftTitles[i]  = FullStruct && kbtA->AltShiftTitles[i]?  AnsiToUnicode(kbtA->AltShiftTitles[i]):  nullptr;
-			kbtW->CtrlAltTitles[i]   = FullStruct && kbtA->CtrlAltTitles[i]?   AnsiToUnicode(kbtA->CtrlAltTitles[i]):   nullptr;
+			if (kbtA->Titles[i])
+				kbtW->CountLabels++;
+			if (kbtA->CtrlTitles[i])
+				kbtW->CountLabels++;
+			if (kbtA->AltTitles[i])
+				kbtW->CountLabels++;
+			if (kbtA->ShiftTitles[i])
+				kbtW->CountLabels++;
+			if (FullStruct)
+			{
+				if (kbtA->CtrlShiftTitles[i])
+					kbtW->CountLabels++;
+				if (kbtA->AltShiftTitles[i])
+					kbtW->CountLabels++;
+				if (kbtA->CtrlAltTitles[i])
+					kbtW->CountLabels++;
+			}
+		}
+
+		if (kbtW->CountLabels)
+		{
+			kbtW->Labels=new KeyBarLabel[kbtW->CountLabels];
+			if (kbtW->Labels)
+			{
+				int j;
+				for (j=i=0; i<12; i++)
+				{
+					if (kbtA->Titles[i])
+						ProcLabels(kbtA->Titles[i],kbtW->Labels+j,j,KEY_F1+i);
+					if (kbtA->CtrlTitles[i])
+						ProcLabels(kbtA->CtrlTitles[i],kbtW->Labels+j,j,KEY_F1+KEY_CTRL+i);
+					if (kbtA->AltTitles[i])
+						ProcLabels(kbtA->AltTitles[i],kbtW->Labels+j,j,KEY_F1+KEY_ALT+i);
+					if (kbtA->ShiftTitles[i])
+						ProcLabels(kbtA->ShiftTitles[i],kbtW->Labels+j,j,KEY_F1+KEY_SHIFT+i);
+
+					if (FullStruct)
+					{
+						if (kbtA->CtrlShiftTitles[i])
+							ProcLabels(kbtA->CtrlShiftTitles[i],kbtW->Labels+j,j,KEY_F1+KEY_CTRL+KEY_SHIFT+i);
+						if (kbtA->AltShiftTitles[i])
+							ProcLabels(kbtA->AltShiftTitles[i],kbtW->Labels+j,j,KEY_F1+KEY_CTRL+KEY_SHIFT+i);
+						if (kbtA->CtrlAltTitles[i])
+							ProcLabels(kbtA->CtrlAltTitles[i],kbtW->Labels+j,j,KEY_F1+KEY_ALT+KEY_CTRL+i);
+					}
+				}
+
+			}
+			else
+				kbtW->CountLabels=0;
 		}
 	}
 }
 
 void FreeUnicodeKeyBarTitles(KeyBarTitles *kbtW)
 {
-	if (kbtW)
+	if (kbtW && kbtW->CountLabels && kbtW->Labels)
 	{
-		for (int i=0; i<12; i++)
+		for (int i=0; i < kbtW->CountLabels; i++)
 		{
-			if (kbtW->Titles[i])					xf_free(kbtW->Titles[i]);
-
-			if (kbtW->CtrlTitles[i])			xf_free(kbtW->CtrlTitles[i]);
-
-			if (kbtW->AltTitles[i])				xf_free(kbtW->AltTitles[i]);
-
-			if (kbtW->ShiftTitles[i])			xf_free(kbtW->ShiftTitles[i]);
-
-			if (kbtW->CtrlShiftTitles[i])	xf_free(kbtW->CtrlShiftTitles[i]);
-
-			if (kbtW->AltShiftTitles[i])	xf_free(kbtW->AltShiftTitles[i]);
-
-			if (kbtW->CtrlAltTitles[i])		xf_free(kbtW->CtrlAltTitles[i]);
+			if (kbtW->Labels[i].Text)
+				xf_free((void*)kbtW->Labels[i].Text);
 		}
+		delete[] kbtW->Labels;
+		kbtW->Labels=nullptr;
+		kbtW->CountLabels=0;
 	}
 }
 
@@ -3196,6 +3250,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 
 			ActlKeyMacro km={0};
 			oldfar::ActlKeyMacro *kmA=(oldfar::ActlKeyMacro *)Param;
+			km.StructSize=sizeof(oldfar::ActlKeyMacro);
 
 			switch (kmA->Command)
 			{
@@ -3209,11 +3264,11 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 					km.Command=MCMD_POSTMACROSTRING;
 					km.Param.PlainText.SequenceText=AnsiToUnicode(kmA->Param.PlainText.SequenceText);
 
-					if (kmA->Param.PlainText.Flags&oldfar::KSFLAGS_DISABLEOUTPUT) km.Param.PlainText.Flags|=KSFLAGS_DISABLEOUTPUT;
+					if (kmA->Param.PlainText.Flags&oldfar::KSFLAGS_DISABLEOUTPUT) km.Param.PlainText.Flags|=KMFLAGS_DISABLEOUTPUT;
 
-					if (kmA->Param.PlainText.Flags&oldfar::KSFLAGS_NOSENDKEYSTOPLUGINS) km.Param.PlainText.Flags|=KSFLAGS_NOSENDKEYSTOPLUGINS;
+					if (kmA->Param.PlainText.Flags&oldfar::KSFLAGS_NOSENDKEYSTOPLUGINS) km.Param.PlainText.Flags|=KMFLAGS_NOSENDKEYSTOPLUGINS;
 
-					if (kmA->Param.PlainText.Flags&oldfar::KSFLAGS_REG_MULTI_SZ) km.Param.PlainText.Flags|=KSFLAGS_REG_MULTI_SZ;
+					if (kmA->Param.PlainText.Flags&oldfar::KSFLAGS_REG_MULTI_SZ) km.Param.PlainText.Flags|=KMFLAGS_REG_MULTI_SZ;
 
 					break;
 				case oldfar::MCMD_GETSTATE:
@@ -3265,28 +3320,41 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 		}
 		case oldfar::ACTL_POSTKEYSEQUENCE:
 		{
-			if (!Param) return FALSE;
+			if (!Param)
+				return FALSE;
 
-			KeySequence ks;
 			oldfar::KeySequence *ksA = (oldfar::KeySequence*)Param;
 
-			if (!ksA->Count || !ksA->Sequence) return FALSE;
+			if (!ksA->Count || !ksA->Sequence)
+				return FALSE;
 
-			ks.Count = ksA->Count;
+			MacroRecord MRec={0};
 
-			if (ksA->Flags&oldfar::KSFLAGS_DISABLEOUTPUT) ks.Flags|=KSFLAGS_DISABLEOUTPUT;
+			if (ksA->Flags&oldfar::KSFLAGS_DISABLEOUTPUT)
+				MRec.Flags|=MFLAGS_DISABLEOUTPUT;
 
-			if (ksA->Flags&oldfar::KSFLAGS_NOSENDKEYSTOPLUGINS) ks.Flags|=KSFLAGS_NOSENDKEYSTOPLUGINS;
+			if (ksA->Flags&oldfar::KSFLAGS_NOSENDKEYSTOPLUGINS)
+				MRec.Flags|=MFLAGS_NOSENDKEYSTOPLUGINS;
 
-			DWORD* Sequence = (DWORD*)xf_malloc(ks.Count*sizeof(DWORD));
-			for (int i=0; i<ks.Count; i++)
+			if (ksA->Flags&oldfar::KSFLAGS_REG_MULTI_SZ)
+				MRec.Flags|=MFLAGS_REG_MULTI_SZ;
+
+			MRec.BufferSize=ksA->Count;
+
+			DWORD* Sequence = (DWORD*)xf_malloc(MRec.BufferSize*sizeof(DWORD));
+			for (int i=0; i<MRec.BufferSize; i++)
 			{
 				Sequence[i]=OldKeyToKey(ksA->Sequence[i]);
 			}
-			ks.Sequence = Sequence;
 
-			INT_PTR ret = FarAdvControl(ModuleNumber, ACTL_POSTKEYSEQUENCE, &ks);
+			if (MRec.BufferSize == 1)
+				MRec.Buffer=(DWORD *)(DWORD_PTR)Sequence[0];
+			else
+				MRec.Buffer=Sequence;
+
+			INT_PTR ret = CtrlObject->Macro.PostNewMacro(&MRec,TRUE,TRUE);
 			xf_free(Sequence);
+
 			return ret;
 		}
 		case oldfar::ACTL_GETSHORTWINDOWINFO:

@@ -906,7 +906,6 @@ enum ADVANCED_CONTROL_COMMANDS
 	ACTL_GETARRAYCOLOR,
 	ACTL_EJECTMEDIA,
 	ACTL_KEYMACRO,
-	ACTL_POSTKEYSEQUENCE,
 	ACTL_GETWINDOWINFO,
 	ACTL_GETWINDOWCOUNT,
 	ACTL_SETCURRENTWINDOW,
@@ -1095,19 +1094,12 @@ struct ActlMediaType
 };
 #endif // END FAR_USE_INTERNALS
 
-enum FARKEYSEQUENCEFLAGS
+enum FARKEYMACROFLAGS
 {
-	KSFLAGS_DISABLEOUTPUT       = 0x00000001,
-	KSFLAGS_NOSENDKEYSTOPLUGINS = 0x00000002,
-	KSFLAGS_REG_MULTI_SZ        = 0x00100000,
-	KSFLAGS_SILENTCHECK         = 0x00000001,
-};
-
-struct KeySequence
-{
-	DWORD Flags;
-	int Count;
-	const DWORD *Sequence;
+	KMFLAGS_DISABLEOUTPUT       = 0x00000001,
+	KMFLAGS_NOSENDKEYSTOPLUGINS = 0x00000002,
+	KMFLAGS_REG_MULTI_SZ        = 0x00100000,
+	KMFLAGS_SILENTCHECK         = 0x00000001,
 };
 
 enum FARMACROCOMMAND
@@ -1183,6 +1175,7 @@ struct MacroParseResult
 
 struct ActlKeyMacro
 {
+	int StructSize;
 	int Command;
 	union
 	{
@@ -2043,18 +2036,18 @@ enum OPENPLUGININFO_SORTMODES
 };
 
 
-struct KeyBarTitles
+struct KeyBarLabel
 {
-	wchar_t *Titles[12];
-	wchar_t *CtrlTitles[12];
-	wchar_t *AltTitles[12];
-	wchar_t *ShiftTitles[12];
-
-	wchar_t *CtrlShiftTitles[12];
-	wchar_t *AltShiftTitles[12];
-	wchar_t *CtrlAltTitles[12];
+	DWORD Key;
+	const wchar_t *Text;
+	const wchar_t *LongText;
 };
 
+struct KeyBarTitles
+{
+	int CountLabels;
+	struct KeyBarLabel *Labels;
+};
 
 enum OPERATION_MODES
 {

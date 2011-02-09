@@ -3232,31 +3232,7 @@ int Viewer::ViewerControl(int Command,void *Param)
 			else
 			{
 				if ((INT_PTR)Param != (INT_PTR)-1) // не только перерисовать?
-				{
-					for (int i=0; i < 12; i++)
-					{
-						if (Kbt->Titles[i])
-							ViewKeyBar->Change(KBL_MAIN,Kbt->Titles[i],i);
-
-						if (Kbt->CtrlTitles[i])
-							ViewKeyBar->Change(KBL_CTRL,Kbt->CtrlTitles[i],i);
-
-						if (Kbt->AltTitles[i])
-							ViewKeyBar->Change(KBL_ALT,Kbt->AltTitles[i],i);
-
-						if (Kbt->ShiftTitles[i])
-							ViewKeyBar->Change(KBL_SHIFT,Kbt->ShiftTitles[i],i);
-
-						if (Kbt->CtrlShiftTitles[i])
-							ViewKeyBar->Change(KBL_CTRLSHIFT,Kbt->CtrlShiftTitles[i],i);
-
-						if (Kbt->AltShiftTitles[i])
-							ViewKeyBar->Change(KBL_ALTSHIFT,Kbt->AltShiftTitles[i],i);
-
-						if (Kbt->CtrlAltTitles[i])
-							ViewKeyBar->Change(KBL_CTRLALT,Kbt->CtrlAltTitles[i],i);
-					}
-				}
+					ViewKeyBar->Change(Kbt);
 
 				ViewKeyBar->Show();
 				ScrBuf.Flush(); //?????

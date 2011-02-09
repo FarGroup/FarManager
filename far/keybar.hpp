@@ -111,6 +111,8 @@ class KeyBar: public ScreenObject
 		// Изменение любого Label
 		void Change(int Group,const wchar_t *NewStr,int Pos);
 
+		size_t Change(const KeyBarTitles *);
+
 		void RedrawIfChanged();
 		virtual void ResizeConsole();
 };

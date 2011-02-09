@@ -2497,31 +2497,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 			else
 			{
 				if ((INT_PTR)Param != (INT_PTR)-1) // не только перерисовать?
-				{
-					for (int I = 0; I < 12; ++I)
-					{
-						if (Kbt->Titles[I])
-							EditKeyBar.Change(KBL_MAIN,Kbt->Titles[I],I);
-
-						if (Kbt->CtrlTitles[I])
-							EditKeyBar.Change(KBL_CTRL,Kbt->CtrlTitles[I],I);
-
-						if (Kbt->AltTitles[I])
-							EditKeyBar.Change(KBL_ALT,Kbt->AltTitles[I],I);
-
-						if (Kbt->ShiftTitles[I])
-							EditKeyBar.Change(KBL_SHIFT,Kbt->ShiftTitles[I],I);
-
-						if (Kbt->CtrlShiftTitles[I])
-							EditKeyBar.Change(KBL_CTRLSHIFT,Kbt->CtrlShiftTitles[I],I);
-
-						if (Kbt->AltShiftTitles[I])
-							EditKeyBar.Change(KBL_ALTSHIFT,Kbt->AltShiftTitles[I],I);
-
-						if (Kbt->CtrlAltTitles[I])
-							EditKeyBar.Change(KBL_CTRLALT,Kbt->CtrlAltTitles[I],I);
-					}
-				}
+					EditKeyBar.Change(Kbt);
 
 				EditKeyBar.Show();
 			}

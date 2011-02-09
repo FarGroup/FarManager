@@ -1,3 +1,25 @@
+svs 09.02.2011 18:51:58 +0300 - build 1844
+
+1. В ActlKeyMacro добавлен StructSize
+
+2. Удален ACTL_POSTKEYSEQUENCE (есть аналог в лице ACTL_KEYMACRO). 
+   FARKEYSEQUENCEFLAGS переименован в FARKEYMACROFLAGS (и KSFLAGS_* -> KMFLAGS_* ). 
+   Удалена структура KeySequence.
+
+3. Переделка struct KeyBarTitles (часть 1)
+
+     struct KeyBarLabel
+     {
+        DWORD Key;
+        const wchar *Text;
+        const wchar *LongText;
+     };
+     struct KeyBarTitles
+     {
+        int CountLabels;
+        struct KeyBarLabel *Labels;
+     };
+
 zg 09.02.2011 15:19:00 +0200 - build 1843
 
 1. уточнение 1842.1: GetPluginDirList, Menu, Message, InputBox, AdvControl, DialogInit, GetMsg не всегда работали в SetStartupInfoW и в GetPluginInfoW.

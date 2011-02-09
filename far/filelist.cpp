@@ -4880,19 +4880,7 @@ BOOL FileList::UpdateKeyBar()
 		GetOpenPluginInfo(&Info);
 
 		if (Info.KeyBar)
-		{
-			KB->Set((const wchar_t **)Info.KeyBar->Titles,12);
-			KB->SetShift((const wchar_t **)Info.KeyBar->ShiftTitles,12);
-			KB->SetAlt((const wchar_t **)Info.KeyBar->AltTitles,12);
-			KB->SetCtrl((const wchar_t **)Info.KeyBar->CtrlTitles,12);
-
-			if (Info.StructSize >= (int)sizeof(OpenPluginInfo))
-			{
-				KB->SetCtrlShift((const wchar_t **)Info.KeyBar->CtrlShiftTitles,12);
-				KB->SetAltShift((const wchar_t **)Info.KeyBar->AltShiftTitles,12);
-				KB->SetCtrlAlt((const wchar_t **)Info.KeyBar->CtrlAltTitles,12);
-			}
-		}
+			KB->Change(Info.KeyBar);
 	}
 
 	return TRUE;

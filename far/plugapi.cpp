@@ -427,7 +427,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 					case MCMD_CHECKMACRO:  // проверка макроса
 					{
 						MacroRecord CurMacro={0};
-						int Ret=Macro.ParseMacroString(&CurMacro,KeyMacro->Param.PlainText.SequenceText,(KeyMacro->Param.PlainText.Flags&KSFLAGS_SILENTCHECK)?TRUE:FALSE);
+						int Ret=Macro.ParseMacroString(&CurMacro,KeyMacro->Param.PlainText.SequenceText,(KeyMacro->Param.PlainText.Flags&KMFLAGS_SILENTCHECK)?TRUE:FALSE);
 
 						if (Ret)
 						{
@@ -470,48 +470,6 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 					}
 #endif
 				}
-			}
-
-			return FALSE;
-		}
-		case ACTL_POSTKEYSEQUENCE:
-		{
-			if (CtrlObject && Param && ((KeySequence*)Param)->Count > 0)
-			{
-				MacroRecord MRec={0};
-				MRec.Flags=(((KeySequence*)Param)->Flags)<<8;
-				MRec.BufferSize=((KeySequence*)Param)->Count;
-
-				if (MRec.BufferSize == 1)
-					MRec.Buffer=(DWORD *)(DWORD_PTR)((KeySequence*)Param)->Sequence[0];
-				else
-					MRec.Buffer=const_cast<DWORD*>(((KeySequence*)Param)->Sequence);
-
-				return CtrlObject->Macro.PostNewMacro(&MRec,TRUE,TRUE);
-#if 0
-				// Этот кусок - для дальнейших экспериментов
-				{
-					//CtrlObject->Macro.PostNewMacro(&MRec);
-					for (int I=0; I < MRec.BufferSize; ++I)
-					{
-						int Key=MRec.Buffer[I];
-
-						if (CtrlObject->Macro.ProcessKey(Key))
-						{
-							while ((Key=CtrlObject->Macro.GetKey()) )
-							{
-								FrameManager->ProcessKey(Key);
-							}
-						}
-						else
-							FrameManager->ProcessKey(Key);
-
-						FrameManager->PluginCommit();
-					}
-
-					return TRUE;
-				}
-#endif
 			}
 
 			return FALSE;
