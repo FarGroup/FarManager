@@ -315,11 +315,11 @@ long PluginTree::compare(Node<AncientPlugin*>* first,AncientPlugin** second)
 	return memcmp(&((*(first->data))->GetGUID()),&((*second)->GetGUID()),sizeof(GUID));
 }
 
-AncientPlugin* PluginTree::query(const GUID& value)
+AncientPlugin** PluginTree::query(const GUID& value)
 {
 	PluginSearch plugin(value);
 	AncientPlugin* get=&plugin;
-	return *Tree<AncientPlugin*>::query(&get);
+	return Tree<AncientPlugin*>::query(&get);
 }
 
 PluginManager::PluginManager():
@@ -2221,7 +2221,20 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,int *Re
 
 Plugin *PluginManager::FindPlugin(const GUID& SysID)
 {
-	return PluginsCache?(Plugin*)PluginsCache->query(SysID):nullptr;
+	Plugin **result=nullptr;
+	if(PluginsCache) result=(Plugin**)PluginsCache->query(SysID);
+	return result?*result:nullptr;
+}
+
+INT_PTR PluginManager::PluginGuidToPluginNumber(const GUID& PluginId)
+{
+	INT_PTR result=-1;
+	if(!IsEqualGUID(FarGuid,PluginId))
+	{
+		result=(INT_PTR)FindPlugin(PluginId);
+		if(!result) result=-1;
+	}
+	return result;
 }
 
 HANDLE PluginManager::OpenPlugin(Plugin *pPlugin,int OpenFrom,const GUID& Guid,INT_PTR Item)

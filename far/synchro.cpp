@@ -35,8 +35,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "synchro.hpp"
 #include "plclass.hpp"
 #include "plugin.hpp"
-
 #include "elevation.hpp"
+#include "FarGuid.hpp"
+#include "ctrlobj.hpp"
 
 PluginSynchro PluginSynchroManager;
 
@@ -50,7 +51,7 @@ PluginSynchro::~PluginSynchro()
 	CloseHandle(Mutex);
 }
 
-void PluginSynchro::Synchro(bool Plugin, INT_PTR ModuleNumber,void* Param)
+void PluginSynchro::Synchro(bool Plugin, const GUID& PluginId,void* Param)
 {
 	if (Mutex)
 	{
@@ -58,7 +59,7 @@ void PluginSynchro::Synchro(bool Plugin, INT_PTR ModuleNumber,void* Param)
 		{
 			SynchroData* item=Data.Push();
 			item->Plugin=Plugin;
-			item->ModuleNumber=ModuleNumber;
+			item->PluginId=PluginId;
 			item->Param=Param;
 			ReleaseMutex(Mutex);
 		}
@@ -71,7 +72,7 @@ bool PluginSynchro::Process(void)
 
 	if (Mutex)
 	{
-		bool process=false; bool plugin=false; INT_PTR module=0; void* param=nullptr;
+		bool process=false; bool plugin=false; GUID PluginId=FarGuid; void* param=nullptr;
 
 		if (WaitForSingleObject(Mutex,INFINITE)==WAIT_OBJECT_0)
 		{
@@ -81,7 +82,7 @@ bool PluginSynchro::Process(void)
 			{
 				process=true;
 				plugin=item->Plugin;
-				module=item->ModuleNumber;
+				PluginId=item->PluginId;
 				param=item->Param;
 				Data.Delete(item);
 			}
@@ -93,7 +94,7 @@ bool PluginSynchro::Process(void)
 		{
 			if(plugin)
 			{
-				Plugin* pPlugin=(Plugin*)module;
+				Plugin* pPlugin=CtrlObject?CtrlObject->Plugins.FindPlugin(PluginId):nullptr;
 
 				if (pPlugin)
 				{

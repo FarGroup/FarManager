@@ -1,3 +1,9 @@
+zg 09.02.2011 03:42:44 +0200 - build 1842
+
+1. в GetPluginDirList, Menu, Message, InputBox, AdvControl, DialogInit, GetMsg вместо ModuleNumber нужно передавать указатель на GUID плагина. соответственно из PluginStartupInfo ModuleNumber тоже убран.
+
+2. в ConfigureW, OpenPluginW, DialogInit GUID заменён на указатель на GUID.
+
 zg 09.02.2011 00:36:50 +0200 - build 1841
 
 1. если внезапно фар обнаруживает несколько плагинов с одинаковым GUID, грузится только первый обнаруженный.

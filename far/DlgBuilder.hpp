@@ -706,6 +706,7 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 		const PluginStartupInfo &Info;
 		HANDLE DialogHandle;
 		const TCHAR *HelpTopic;
+		GUID PluginId;
 		GUID Id;
 
 		virtual void InitDialogItem(FarDialogItem *Item, const TCHAR *Text)
@@ -729,7 +730,7 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 
 		virtual const TCHAR *GetLangString(int MessageID)
 		{
-			return Info.GetMsg(Info.ModuleNumber, MessageID);
+			return Info.GetMsg(&PluginId, MessageID);
 		}
 
 		virtual int DoShowDialog()
@@ -737,7 +738,7 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 			int Width = DialogItems [0].X2+4;
 			int Height = DialogItems [0].Y2+2;
 #ifdef UNICODE
-			DialogHandle = Info.DialogInit(Info.ModuleNumber, Id, -1, -1, Width, Height,
+			DialogHandle = Info.DialogInit(&PluginId, &Id, -1, -1, Width, Height,
 				HelpTopic, DialogItems, DialogItemsCount, 0, 0, nullptr, 0);
 			return Info.DialogRun(DialogHandle);
 #else
@@ -765,8 +766,8 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 		}
 
 public:
-		PluginDialogBuilder(const PluginStartupInfo &aInfo, const GUID &aId, int TitleMessageID, const TCHAR *aHelpTopic)
-			: Info(aInfo), HelpTopic(aHelpTopic), Id(aId)
+		PluginDialogBuilder(const PluginStartupInfo &aInfo, const GUID &aPluginId, const GUID &aId, int TitleMessageID, const TCHAR *aHelpTopic)
+			: Info(aInfo), HelpTopic(aHelpTopic), PluginId(aPluginId), Id(aId)
 		{
 			AddBorder(GetLangString(TitleMessageID));
 		}

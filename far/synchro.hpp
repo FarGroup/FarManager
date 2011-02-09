@@ -39,7 +39,7 @@ class PluginSynchro
 		struct SynchroData
 		{
 			bool Plugin;
-			INT_PTR ModuleNumber;
+			GUID PluginId;
 			void* Param;
 		};
 	private:
@@ -48,7 +48,7 @@ class PluginSynchro
 	public:
 		PluginSynchro();
 		~PluginSynchro();
-		void Synchro(bool Plugin, INT_PTR ModuleNumber,void* Param);
+		void Synchro(bool Plugin, const GUID& PluginId,void* Param);
 		bool Process(void);
 };
 

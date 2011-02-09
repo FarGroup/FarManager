@@ -70,7 +70,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "exitcode.hpp"
 #include "processname.hpp"
-#include "synchro.hpp"
 #include "RegExp.hpp"
 #include "TaskBar.hpp"
 #include "console.hpp"
@@ -227,12 +226,6 @@ BOOL WINAPI FarShowHelp(
 */
 INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 {
-	if (ACTL_SYNCHRO==Command) //must be first
-	{
-		PluginSynchroManager.Synchro(true, ModuleNumber, Param);
-		return 0;
-	}
-
 	struct Opt2Flags
 	{
 		int *Opt;
@@ -1081,7 +1074,7 @@ static int FarDialogExSehed(Dialog *FarDialog)
 	}
 }
 
-HANDLE WINAPI FarDialogInit(INT_PTR PluginNumber, GUID Id, int X1, int Y1, int X2, int Y2,
+HANDLE WINAPI FarDialogInit(INT_PTR PluginNumber, const GUID* Id, int X1, int Y1, int X2, int Y2,
                             const wchar_t *HelpTopic, FarDialogItem *Item,
                             unsigned int ItemsNumber, DWORD Reserved, DWORD Flags,
                             FARWINDOWPROC DlgProc, INT_PTR Param)
@@ -1133,7 +1126,7 @@ HANDLE WINAPI FarDialogInit(INT_PTR PluginNumber, GUID Id, int X1, int Y1, int X
 
 		FarDialog->SetHelp(HelpTopic);
 
-		FarDialog->SetId(Id);
+		FarDialog->SetId(*Id);
 		/* $ 29.08.2000 SVS
 		   Запомним номер плагина - сейчас в основном для формирования HelpTopic
 		*/
@@ -1190,14 +1183,18 @@ void WINAPI FarDialogFree(HANDLE hDlg)
 
 const wchar_t* WINAPI FarGetMsgFn(INT_PTR PluginHandle,int MsgId)
 {
-	//BUGBUG, надо проверять, что PluginHandle - плагин
-	PluginW *pPlugin = (PluginW*)PluginHandle;
-	string strPath = pPlugin->GetModuleName();
-	CutToSlash(strPath);
+	if (PluginHandle!=-1)
+	{
+		PluginW *pPlugin = (PluginW*)PluginHandle;
+		if (pPlugin)
+		{
+			string strPath = pPlugin->GetModuleName();
+			CutToSlash(strPath);
 
-	if (pPlugin->InitLang(strPath))
-		return pPlugin->GetMsg(MsgId);
-
+			if (pPlugin->InitLang(strPath))
+				return pPlugin->GetMsg(MsgId);
+		}
+	}
 	return L"";
 }
 

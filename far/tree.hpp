@@ -1,3 +1,5 @@
+#pragma once
+
 /*
 tree.hpp
 
@@ -30,9 +32,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
-#ifndef __TREE_HPP__
-#define __TREE_HPP__
 
 enum AVL_SKEW
 {
@@ -471,5 +470,3 @@ template <class D> D *Tree<D>::internal_query(Node<D> *node,D *data)
 	if(diff>0) return internal_query(node->right,data);
 	return node->data;
 }
-
-#endif

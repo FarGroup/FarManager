@@ -64,6 +64,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "lasterror.hpp"
 #include "FarGuid.hpp"
+#include "synchro.hpp"
 
 static const wchar_t *wszReg_Preload=L"Preload";
 static const wchar_t *wszReg_MinFarVersion=L"MinFarVersion";
@@ -186,6 +187,61 @@ int WINAPI KeyNameToKeyW(const wchar_t *Name)
 {
 	string strN(Name);
 	return KeyNameToKey(strN);
+}
+
+#define GetPluginNumber(Id) (CtrlObject?CtrlObject->Plugins.PluginGuidToPluginNumber(*Id):-1)
+
+static int WINAPI FarGetPluginDirListW(const GUID* PluginId,HANDLE hPlugin,
+                               const wchar_t *Dir,struct PluginPanelItem **pPanelItem,
+                               int *pItemsNumber)
+{
+	return FarGetPluginDirList(GetPluginNumber(PluginId),hPlugin,Dir,pPanelItem,pItemsNumber);
+}
+
+static int WINAPI FarMenuFnW(const GUID* PluginId,int X,int Y,int MaxHeight,
+                     DWORD Flags,const wchar_t *Title,const wchar_t *Bottom,
+                     const wchar_t *HelpTopic,const int *BreakKeys,int *BreakCode,
+                     const struct FarMenuItem *Item, int ItemsNumber)
+{
+	return FarMenuFn(GetPluginNumber(PluginId),X,Y,MaxHeight,Flags,Title,Bottom,HelpTopic,BreakKeys,BreakCode,Item,ItemsNumber);
+}
+
+static int WINAPI FarMessageFnW(const GUID* PluginId,DWORD Flags,
+                        const wchar_t *HelpTopic,const wchar_t * const *Items,int ItemsNumber,
+                        int ButtonsNumber)
+{
+  return FarMessageFn(GetPluginNumber(PluginId),Flags,HelpTopic,Items,ItemsNumber,ButtonsNumber);
+}
+
+static int WINAPI FarInputBoxW(const GUID* PluginId,const wchar_t *Title,const wchar_t *Prompt,
+                       const wchar_t *HistoryName,const wchar_t *SrcText,
+                       wchar_t *DestText,int DestLength,
+                       const wchar_t *HelpTopic,DWORD Flags)
+{
+	return FarInputBox(GetPluginNumber(PluginId),Title,Prompt,HistoryName,SrcText,DestText,DestLength,HelpTopic,Flags);
+}
+
+static INT_PTR WINAPI FarAdvControlW(const GUID* PluginId, int Command, void *Param)
+{
+	if (ACTL_SYNCHRO==Command) //must be first
+	{
+		PluginSynchroManager.Synchro(true, *PluginId, Param);
+		return 0;
+	}
+	return FarAdvControl(GetPluginNumber(PluginId),Command,Param);
+}
+
+static HANDLE WINAPI FarDialogInitW(const GUID* PluginId, const GUID* Id, int X1, int Y1, int X2, int Y2,
+                            const wchar_t *HelpTopic, struct FarDialogItem *Item,
+                            unsigned int ItemsNumber, DWORD Reserved, DWORD Flags,
+                            FARWINDOWPROC Proc, INT_PTR Param)
+{
+	return FarDialogInit(GetPluginNumber(PluginId),Id,X1,Y1,X2,Y2,HelpTopic,Item,ItemsNumber,Reserved,Flags,Proc,Param);
+}
+
+static const wchar_t* WINAPI FarGetMsgFnW(const GUID* PluginId,int MsgId)
+{
+	return FarGetMsgFn(GetPluginNumber(PluginId),MsgId);
 }
 
 PluginW::PluginW(PluginManager *owner, const wchar_t *lpwszModuleName):
@@ -455,7 +511,7 @@ bool PluginW::Load()
 
 	GlobalInfo Info;
 	if(GetGlobalInfo(&Info) &&
-		Info.StructSize && 
+		Info.StructSize &&
 		Info.MinFarVersion &&
 		Info.Version &&
 		Info.Title && *Info.Title &&
@@ -549,14 +605,14 @@ void CreatePluginStartupInfo(Plugin *pPlugin, PluginStartupInfo *PSI, FarStandar
 	if (!StartupInfo.StructSize)
 	{
 		StartupInfo.StructSize=sizeof(StartupInfo);
-		StartupInfo.Menu=FarMenuFn;
-		StartupInfo.GetMsg=FarGetMsgFn;
-		StartupInfo.Message=FarMessageFn;
+		StartupInfo.Menu=FarMenuFnW;
+		StartupInfo.GetMsg=FarGetMsgFnW;
+		StartupInfo.Message=FarMessageFnW;
 		StartupInfo.Control=FarControl;
 		StartupInfo.SaveScreen=FarSaveScreen;
 		StartupInfo.RestoreScreen=FarRestoreScreen;
 		StartupInfo.GetDirList=FarGetDirList;
-		StartupInfo.GetPluginDirList=FarGetPluginDirList;
+		StartupInfo.GetPluginDirList=FarGetPluginDirListW;
 		StartupInfo.FreeDirList=FarFreeDirList;
 		StartupInfo.FreePluginDirList=FarFreePluginDirList;
 		StartupInfo.Viewer=FarViewer;
@@ -565,13 +621,13 @@ void CreatePluginStartupInfo(Plugin *pPlugin, PluginStartupInfo *PSI, FarStandar
 		StartupInfo.EditorControl=FarEditorControl;
 		StartupInfo.ViewerControl=FarViewerControl;
 		StartupInfo.ShowHelp=FarShowHelp;
-		StartupInfo.AdvControl=FarAdvControl;
-		StartupInfo.DialogInit=FarDialogInit;
+		StartupInfo.AdvControl=FarAdvControlW;
+		StartupInfo.DialogInit=FarDialogInitW;
 		StartupInfo.DialogRun=FarDialogRun;
 		StartupInfo.DialogFree=FarDialogFree;
 		StartupInfo.SendDlgMessage=FarSendDlgMessage;
 		StartupInfo.DefDlgProc=FarDefDlgProc;
-		StartupInfo.InputBox=FarInputBox;
+		StartupInfo.InputBox=FarInputBoxW;
 		StartupInfo.PluginsControl=farPluginsControl;
 		StartupInfo.FileFilterControl=farFileFilterControl;
 		StartupInfo.RegExpControl=farRegExpControl;
@@ -581,7 +637,6 @@ void CreatePluginStartupInfo(Plugin *pPlugin, PluginStartupInfo *PSI, FarStandar
 	*FSF=StandardFunctions;
 	PSI->FSF=FSF;
 	PSI->RootKey=nullptr;
-	PSI->ModuleNumber=(INT_PTR)pPlugin;
 
 	if (pPlugin)
 	{
@@ -791,7 +846,7 @@ HANDLE PluginW::OpenPlugin(int OpenFrom, const GUID& Guid, INT_PTR Item)
 		es.id = EXCEPT_OPENPLUGIN;
 		es.hDefaultResult = INVALID_HANDLE_VALUE;
 		es.hResult = INVALID_HANDLE_VALUE;
-		EXECUTE_FUNCTION_EX(pOpenPluginW(OpenFrom,Guid,Item), es);
+		EXECUTE_FUNCTION_EX(pOpenPluginW(OpenFrom,&Guid,Item), es);
 		hResult = es.hResult;
 		//CurPluginItem=nullptr; //BUGBUG
 		/*    CtrlObject->Macro.SetRedrawEditor(TRUE); //BUGBUG
@@ -1292,7 +1347,7 @@ int PluginW::Configure(const GUID& Guid)
 		ExecuteStruct es;
 		es.id = EXCEPT_CONFIGURE;
 		es.bDefaultResult = FALSE;
-		EXECUTE_FUNCTION_EX(pConfigureW(Guid), es);
+		EXECUTE_FUNCTION_EX(pConfigureW(&Guid), es);
 		bResult = es.bResult;
 	}
 

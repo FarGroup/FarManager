@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "synchro.hpp"
 #include "scrbuf.hpp"
 #include "event.hpp"
+#include "FarGuid.hpp"
 
 const int CallbackMagic= 0xCA11BAC6;
 
@@ -468,7 +469,7 @@ bool elevation::AdminApproveDlg(int Why, LPCWSTR Object)
 			Data.pEvent=new Event();
 			if(Data.pEvent)
 			{
-				PluginSynchroManager.Synchro(false, 0, &Data);
+				PluginSynchroManager.Synchro(false, FarGuid, &Data);
 				Data.pEvent->Wait();
 				delete Data.pEvent;
 			}

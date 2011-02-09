@@ -38,7 +38,7 @@ class PluginManager;
 
 typedef void (WINAPI *PLUGINCLOSEPLUGINW)(HANDLE hPlugin);
 typedef int (WINAPI *PLUGINCOMPAREW)(HANDLE hPlugin,const PluginPanelItem *Item1,const PluginPanelItem *Item2,unsigned int Mode);
-typedef int (WINAPI *PLUGINCONFIGUREW)(GUID Guid);
+typedef int (WINAPI *PLUGINCONFIGUREW)(const GUID* Guid);
 typedef int (WINAPI *PLUGINDELETEFILESW)(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
 typedef void (WINAPI *PLUGINEXITFARW)();
 typedef void (WINAPI *PLUGINFREEFINDDATAW)(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber);
@@ -51,7 +51,7 @@ typedef void (WINAPI *PLUGINGETPLUGININFOW)(PluginInfo *Info);
 typedef int (WINAPI *PLUGINGETVIRTUALFINDDATAW)(HANDLE hPlugin,PluginPanelItem **pPanelItem,int *pItemsNumber,const wchar_t *Path);
 typedef int (WINAPI *PLUGINMAKEDIRECTORYW)(HANDLE hPlugin,const wchar_t **Name,int OpMode);
 typedef HANDLE(WINAPI *PLUGINOPENFILEPLUGINW)(const wchar_t *Name,const unsigned char *Data,int DataSize,int OpMode);
-typedef HANDLE(WINAPI *PLUGINOPENPLUGINW)(int OpenFrom,GUID Guid,INT_PTR Data);
+typedef HANDLE(WINAPI *PLUGINOPENPLUGINW)(int OpenFrom,const GUID* Guid,INT_PTR Data);
 typedef int (WINAPI *PLUGINPROCESSEDITOREVENTW)(int Event,void *Param);
 typedef int (WINAPI *PLUGINPROCESSEDITORINPUTW)(const INPUT_RECORD *Rec);
 typedef int (WINAPI *PLUGINPROCESSEVENTW)(HANDLE hPlugin,int Event,void *Param);

@@ -165,7 +165,7 @@ class PluginTree: public Tree<class AncientPlugin*>
 		PluginTree();
 		~PluginTree();
 		long compare(Node<class AncientPlugin*>* first,class AncientPlugin** second);
-		class AncientPlugin* query(const GUID& value);
+		class AncientPlugin** query(const GUID& value);
 };
 
 class PluginManager
@@ -246,6 +246,7 @@ class PluginManager
 		// $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
 		int CallPlugin(const GUID& SysID,int OpenFrom, void *Data, int *Ret=nullptr);
 		Plugin *FindPlugin(const GUID& SysID);
+		INT_PTR PluginGuidToPluginNumber(const GUID& PluginId);
 
 //api functions
 

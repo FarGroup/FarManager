@@ -92,7 +92,7 @@ enum FARMESSAGEFLAGS
 };
 
 typedef int (WINAPI *FARAPIMESSAGE)(
-    INT_PTR PluginNumber,
+    const GUID* PluginId,
     DWORD Flags,
     const wchar_t *HelpTopic,
     const wchar_t * const *Items,
@@ -559,8 +559,8 @@ typedef INT_PTR(WINAPI *FARAPIDEFDLGPROC)(
 );
 
 typedef HANDLE(WINAPI *FARAPIDIALOGINIT)(
-    INT_PTR               PluginNumber,
-    GUID                  Id,
+    const GUID*           PluginId,
+    const GUID*           Id,
     int                   X1,
     int                   Y1,
     int                   X2,
@@ -617,7 +617,7 @@ enum FARMENUFLAGS
 };
 
 typedef int (WINAPI *FARAPIMENU)(
-    INT_PTR             PluginNumber,
+	const GUID*         PluginId,
     int                 X,
     int                 Y,
     int                 MaxHeight,
@@ -791,7 +791,7 @@ typedef int (WINAPI *FARAPIGETDIRLIST)(
 );
 
 typedef int (WINAPI *FARAPIGETPLUGINDIRLIST)(
-    INT_PTR PluginNumber,
+    const GUID* PluginId,
     HANDLE hPlugin,
     const wchar_t *Dir,
     struct PluginPanelItem **pPanelItem,
@@ -873,7 +873,7 @@ typedef int (WINAPI *FARAPIEDITOR)(
 );
 
 typedef const wchar_t*(WINAPI *FARAPIGETMSG)(
-    INT_PTR PluginNumber,
+    const GUID* PluginId,
     int MsgId
 );
 
@@ -1298,7 +1298,7 @@ struct PROGRESSVALUE
 };
 
 typedef INT_PTR(WINAPI *FARAPIADVCONTROL)(
-    INT_PTR ModuleNumber,
+    const GUID* PluginId,
     int Command,
     void *Param
 );
@@ -1690,7 +1690,7 @@ enum INPUTBOXFLAGS
 };
 
 typedef int (WINAPI *FARAPIINPUTBOX)(
-    INT_PTR PluginNumber,
+    const GUID* PluginId,
     const wchar_t *Title,
     const wchar_t *SubTitle,
     const wchar_t *HistoryName,
@@ -1897,7 +1897,6 @@ struct PluginStartupInfo
 {
 	int StructSize;
 	const wchar_t *ModuleName;
-	INT_PTR ModuleNumber;
 	const wchar_t *RootKey;
 	FARAPIMENU             Menu;
 	FARAPIMESSAGE          Message;
@@ -2199,7 +2198,7 @@ extern "C"
 
 	void   WINAPI ClosePluginW(HANDLE hPlugin);
 	int    WINAPI CompareW(HANDLE hPlugin,const struct PluginPanelItem *Item1,const struct PluginPanelItem *Item2,unsigned int Mode);
-	int    WINAPI ConfigureW(GUID Guid);
+	int    WINAPI ConfigureW(const GUID* Guid);
 	int    WINAPI DeleteFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
 	void   WINAPI ExitFARW(void);
 	void   WINAPI FreeFindDataW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber);
@@ -2212,7 +2211,7 @@ extern "C"
 	int    WINAPI GetVirtualFindDataW(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,const wchar_t *Path);
 	int    WINAPI MakeDirectoryW(HANDLE hPlugin,const wchar_t **Name,int OpMode);
 	HANDLE WINAPI OpenFilePluginW(const wchar_t *Name,const unsigned char *Data,int DataSize,int OpMode);
-	HANDLE WINAPI OpenPluginW(int OpenFrom,GUID Guid,INT_PTR Data);
+	HANDLE WINAPI OpenPluginW(int OpenFrom,const GUID* Guid,INT_PTR Data);
 	int    WINAPI ProcessDialogEventW(int Event,void *Param);
 	int    WINAPI ProcessEditorEventW(int Event,void *Param);
 	int    WINAPI ProcessEditorInputW(const INPUT_RECORD *Rec);
