@@ -1547,11 +1547,9 @@ void AnsiDialogItemToUnicodeSafe(oldfar::FarDialogItem &diA, FarDialogItem &di)
 			break;
 		case oldfar::DI_COMBOBOX:
 			di.Type=DI_COMBOBOX;
-			di.Param.ListPos=diA.Param.ListPos;
 			break;
 		case oldfar::DI_LISTBOX:
 			di.Type=DI_LISTBOX;
-			di.Param.ListPos=diA.Param.ListPos;
 			break;
 		case oldfar::DI_MEMOEDIT:
 			di.Type=DI_MEMOEDIT;
@@ -1822,11 +1820,9 @@ void UnicodeDialogItemToAnsiSafe(FarDialogItem &di,oldfar::FarDialogItem &diA)
 			break;
 		case DI_COMBOBOX:
 			diA.Type=oldfar::DI_COMBOBOX;
-			diA.Param.ListPos=di.Param.ListPos;
 			break;
 		case DI_LISTBOX:
 			diA.Type=oldfar::DI_LISTBOX;
-			diA.Param.ListPos=di.Param.ListPos;
 			break;
 		case DI_MEMOEDIT:
 			diA.Type=oldfar::DI_MEMOEDIT;
@@ -1976,6 +1972,10 @@ oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di,HANDLE hDlg,int
 				diA->Param.Mask=UnicodeToAnsi(di.Mask);
 		}
 		break;
+		case oldfar::DI_COMBOBOX:
+		case oldfar::DI_LISTBOX:
+			diA->Param.ListPos=FarSendDlgMessage(hDlg,DM_LISTGETCURPOS,ItemNumber,0);
+			break;
 	}
 
 	if (diA->Type==oldfar::DI_USERCONTROL)
@@ -2642,6 +2642,11 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 				{
 					di[i].Param.VBuf=pdi->Param.VBuf;
 					Item[i].Param.VBuf=GetAnsiVBufPtr(pdi->Param.VBuf,GetAnsiVBufSize(Item[i]));
+				}
+
+				if (pdi->Type==DI_COMBOBOX || pdi->Type==DI_LISTBOX)
+				{
+					Item[i].Param.ListPos = FarSendDlgMessage(hDlg,DM_LISTGETCURPOS,i,0);
 				}
 
 				xf_free(pdi);

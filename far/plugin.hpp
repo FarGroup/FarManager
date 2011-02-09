@@ -452,7 +452,6 @@ struct FarDialogItem
 		DWORD_PTR Reserved;
 		int Selected;
 		struct FarList *ListItems;
-		int  ListPos;
 		CHAR_INFO *VBuf;
 	}
 #ifdef _FAR_NO_NAMELESS_UNIONS

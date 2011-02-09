@@ -1,3 +1,7 @@
+zg 09.02.2011 20:25:20 +0200 - build 1845
+
+1. удалён FarDialogItem.Param.ListPos.
+
 svs 09.02.2011 18:51:58 +0300 - build 1844
 
 1. В ActlKeyMacro добавлен StructSize

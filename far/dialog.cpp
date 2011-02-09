@@ -203,14 +203,7 @@ void ConvertItemSmall(FarDialogItem *Item,DialogItemEx *Data)
 
 	Item->History = Data->strHistory;
 	Item->Mask = Data->strMask;
-	if (Data->Type==DI_LISTBOX || Data->Type==DI_COMBOBOX)
-	{
-		Item->Param.ListPos = Data->ListPtr?Data->ListPtr->GetSelectPos():0;
-	}
-	else
-	{
-		Item->Param.Reserved = Data->Reserved;
-	}
+	Item->Param.Reserved = Data->Reserved;
 	Item->UserParam = Data->UserData;
 }
 

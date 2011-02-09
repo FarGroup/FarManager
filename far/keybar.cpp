@@ -432,7 +432,7 @@ size_t KeyBar::Change(const KeyBarTitles *Kbt)
 				Shift &= ~KEY_RALT;
 				Shift |= KEY_ALT;
 			}
-			for (int J=0; J < ARRAYSIZE(Groups); J+=2)
+			for (unsigned J=0; J < ARRAYSIZE(Groups); J+=2)
 			{
 				if (Groups[J] == Shift)
 				{
