@@ -5889,9 +5889,10 @@ INT_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,INT_P
 	static int LastKey=0;
 	static DlgParam *KMParam=nullptr;
 	int Index;
+	int key=0;
 
 	if (Msg == DN_KEY)
-		Param2 = InputRecordToKey((const INPUT_RECORD *)Param2);
+		key = InputRecordToKey((const INPUT_RECORD *)Param2);
 
 	//_SVS(SysLog(L"LastKey=%d Msg=%s",LastKey,_DLGMSG_ToName(Msg)));
 	if (Msg == DN_INITDIALOG)
@@ -5969,19 +5970,19 @@ INT_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,INT_P
 		if (Param2 != -1 && !KMParam->Recurse)
 			goto M1;
 	}
-	else if (Msg == DN_KEY && (((Param2&KEY_END_SKEY) < KEY_END_FKEY) ||
-	                           (((Param2&KEY_END_SKEY) > INTERNAL_KEY_BASE) && (Param2&KEY_END_SKEY) < INTERNAL_KEY_BASE_2)))
+	else if (Msg == DN_KEY && (((key&KEY_END_SKEY) < KEY_END_FKEY) ||
+	                           (((key&KEY_END_SKEY) > INTERNAL_KEY_BASE) && (key&KEY_END_SKEY) < INTERNAL_KEY_BASE_2)))
 	{
-		//if((Param2&0x00FFFFFF) >= 'A' && (Param2&0x00FFFFFF) <= 'Z' && ShiftPressed)
-		//Param2|=KEY_SHIFT;
+		//if((key&0x00FFFFFF) >= 'A' && (key&0x00FFFFFF) <= 'Z' && ShiftPressed)
+		//key|=KEY_SHIFT;
 
-		//_SVS(SysLog(L"Macro: Key=%s",_FARKEY_ToName(Param2)));
+		//_SVS(SysLog(L"Macro: Key=%s",_FARKEY_ToName(key)));
 		// <Обработка особых клавиш: F1 & Enter>
 		// Esc & (Enter и предыдущий Enter) - не обрабатываем
-		if (Param2 == KEY_ESC ||
-		        ((Param2 == KEY_ENTER||Param2 == KEY_NUMENTER) && (LastKey == KEY_ENTER||LastKey == KEY_NUMENTER)) ||
-		        Param2 == KEY_CTRLDOWN ||
-		        Param2 == KEY_F1)
+		if (key == KEY_ESC ||
+		        ((key == KEY_ENTER||key == KEY_NUMENTER) && (LastKey == KEY_ENTER||LastKey == KEY_NUMENTER)) ||
+		        key == KEY_CTRLDOWN ||
+		        key == KEY_F1)
 		{
 			return FALSE;
 		}
@@ -5990,36 +5991,36 @@ INT_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,INT_P
 		// F1 - особый случай - нужно жать 2 раза
 		// первый раз будет выведен хелп,
 		// а второй раз - второй раз уже назначение
-		if(Param2 == KEY_F1 && LastKey!=KEY_F1)
+		if(key == KEY_F1 && LastKey!=KEY_F1)
 		{
 		  LastKey=KEY_F1;
 		  return FALSE;
 		}
 		*/
 		// Было что-то уже нажато и Enter`ом подтверждаем
-		_SVS(SysLog(L"[%d] Assign ==> Param2='%s',LastKey='%s'",__LINE__,_FARKEY_ToName((DWORD)Param2),(LastKey?_FARKEY_ToName(LastKey):L"")));
+		_SVS(SysLog(L"[%d] Assign ==> Param2='%s',LastKey='%s'",__LINE__,_FARKEY_ToName((DWORD)key),(LastKey?_FARKEY_ToName(LastKey):L"")));
 
-		if ((Param2 == KEY_ENTER||Param2 == KEY_NUMENTER) && LastKey && !(LastKey == KEY_ENTER||LastKey == KEY_NUMENTER))
+		if ((key == KEY_ENTER||key == KEY_NUMENTER) && LastKey && !(LastKey == KEY_ENTER||LastKey == KEY_NUMENTER))
 			return FALSE;
 
 		// </Обработка особых клавиш: F1 & Enter>
 M1:
-		_SVS(SysLog(L"[%d] Assign ==> Param2='%s',LastKey='%s'",__LINE__,_FARKEY_ToName((DWORD)Param2),LastKey?_FARKEY_ToName(LastKey):L""));
+		_SVS(SysLog(L"[%d] Assign ==> Param2='%s',LastKey='%s'",__LINE__,_FARKEY_ToName((DWORD)key),LastKey?_FARKEY_ToName(LastKey):L""));
 		KeyMacro *MacroDlg=KMParam->Handle;
 
-		if ((Param2&0x00FFFFFF) > 0x7F && (Param2&0x00FFFFFF) < 0xFFFF)
-			Param2=KeyToKeyLayout((int)(Param2&0x0000FFFF))|(DWORD)(Param2&(~0x0000FFFF));
+		if ((key&0x00FFFFFF) > 0x7F && (key&0x00FFFFFF) < 0xFFFF)
+			key=KeyToKeyLayout((int)(key&0x0000FFFF))|(DWORD)(key&(~0x0000FFFF));
 
 		//косметика
-		if (Param2<0xFFFF)
-			Param2=Upper((wchar_t)(Param2&0x0000FFFF))|(Param2&(~0x0000FFFF));
+		if (key<0xFFFF)
+			key=Upper((wchar_t)(key&0x0000FFFF))|(key&(~0x0000FFFF));
 
-		_SVS(SysLog(L"[%d] Assign ==> Param2='%s',LastKey='%s'",__LINE__,_FARKEY_ToName((DWORD)Param2),LastKey?_FARKEY_ToName(LastKey):L""));
-		KMParam->Key=(DWORD)Param2;
-		KeyToText((int)Param2,strKeyText);
+		_SVS(SysLog(L"[%d] Assign ==> Param2='%s',LastKey='%s'",__LINE__,_FARKEY_ToName((DWORD)key),LastKey?_FARKEY_ToName(LastKey):L""));
+		KMParam->Key=(DWORD)key;
+		KeyToText((int)key,strKeyText);
 
 		// если УЖЕ есть такой макрос...
-		if ((Index=MacroDlg->GetIndex((int)Param2,KMParam->Mode)) != -1)
+		if ((Index=MacroDlg->GetIndex((int)key,KMParam->Mode)) != -1)
 		{
 			MacroRecord *Mac=MacroDlg->MacroLIB+Index;
 
@@ -6094,10 +6095,10 @@ M1:
 		KMParam->Recurse++;
 		SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(INT_PTR)strKeyText.CPtr());
 		KMParam->Recurse--;
-		//if(Param2 == KEY_F1 && LastKey == KEY_F1)
+		//if(key == KEY_F1 && LastKey == KEY_F1)
 		//LastKey=-1;
 		//else
-		LastKey=(int)Param2;
+		LastKey=(int)key;
 		return TRUE;
 	}
 	return DefDlgProc(hDlg,Msg,Param1,Param2);

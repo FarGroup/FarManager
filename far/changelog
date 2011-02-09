@@ -1,3 +1,11 @@
+zg 10.02.2011 01:00:03 +0200 - build 1846
+
+1. исправлена обработка DN_KEY во встроенных диалога.
+
+2. в MAKEFARVERSION теперь версия в старшем слове, билд в младшем.
+
+3. в PluginMenuItem Guid заменён на Guids.
+
 zg 09.02.2011 20:25:20 +0200 - build 1845
 
 1. удалён FarDialogItem.Param.ListPos.

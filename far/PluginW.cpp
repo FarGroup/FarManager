@@ -376,7 +376,7 @@ bool PluginW::SaveToCache()
 			strValue.Format(FmtDiskMenuStringD, i);
 			SetRegKey(strRegKey, strValue, Info.DiskMenu.Strings[i]);
 			strValue.Format(FmtDiskMenuGuidD, i);
-			SetRegKey(strRegKey, strValue, GuidToStr(Info.DiskMenu.Guid[i]));
+			SetRegKey(strRegKey, strValue, GuidToStr(Info.DiskMenu.Guids[i]));
 		}
 
 		for (int i = 0; i < Info.PluginMenu.Count; i++)
@@ -385,7 +385,7 @@ bool PluginW::SaveToCache()
 			strValue.Format(FmtPluginMenuStringD, i);
 			SetRegKey(strRegKey, strValue, Info.PluginMenu.Strings[i]);
 			strValue.Format(FmtPluginMenuGuidD, i);
-			SetRegKey(strRegKey, strValue, GuidToStr(Info.PluginMenu.Guid[i]));
+			SetRegKey(strRegKey, strValue, GuidToStr(Info.PluginMenu.Guids[i]));
 		}
 
 		for (int i = 0; i < Info.PluginConfig.Count; i++)
@@ -394,7 +394,7 @@ bool PluginW::SaveToCache()
 			strValue.Format(FmtPluginConfigStringD, i);
 			SetRegKey(strRegKey,strValue,Info.PluginConfig.Strings[i]);
 			strValue.Format(FmtPluginConfigGuidD, i);
-			SetRegKey(strRegKey,strValue,GuidToStr(Info.PluginConfig.Guid[i]));
+			SetRegKey(strRegKey,strValue,GuidToStr(Info.PluginConfig.Guids[i]));
 		}
 
 		SetRegKey(strRegKey, L"CommandPrefix", NullToEmpty(Info.CommandPrefix));
@@ -761,9 +761,9 @@ static void ShowMessageAboutIllegalPluginVersion(const wchar_t* plg,int required
 	string strMsg1, strMsg2;
 	string strPlgName;
 	strMsg1.Format(MSG(MPlgRequired),
-	               (WORD)HIBYTE(LOWORD(required)),(WORD)LOBYTE(LOWORD(required)),HIWORD(required));
+	               (WORD)HIBYTE(HIWORD(required)),(WORD)LOBYTE(HIWORD(required)),LOWORD(required));
 	strMsg2.Format(MSG(MPlgRequired2),
-	               (WORD)HIBYTE(LOWORD(FAR_VERSION)),(WORD)LOBYTE(LOWORD(FAR_VERSION)),HIWORD(FAR_VERSION));
+	               (WORD)HIBYTE(HIWORD(FAR_VERSION)),(WORD)LOBYTE(HIWORD(FAR_VERSION)),LOWORD(FAR_VERSION));
 	Message(MSG_WARNING,1,MSG(MError),MSG(MPlgBadVers),plg,strMsg1,strMsg2,MSG(MOk));
 }
 
@@ -783,7 +783,7 @@ bool PluginW::GetGlobalInfo(GlobalInfo *gi)
 
 bool PluginW::CheckMinFarVersion(bool &bUnloaded)
 {
-	if (MinFarVersion && (LOWORD(MinFarVersion) > LOWORD(FAR_VERSION) || (LOWORD(MinFarVersion) == LOWORD(FAR_VERSION) && HIWORD(MinFarVersion) > HIWORD(FAR_VERSION))))
+	if (MinFarVersion && MinFarVersion > FAR_VERSION)
 	{
 		ShowMessageAboutIllegalPluginVersion(m_strModuleName,MinFarVersion);
 		return false;

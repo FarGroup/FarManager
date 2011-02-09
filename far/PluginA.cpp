@@ -3209,6 +3209,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 		case oldfar::ACTL_GETFARVERSION:
 		{
 			DWORD FarVer=(DWORD)FarAdvControl(ModuleNumber,ACTL_GETFARVERSION,nullptr);
+			FarVer = (LOWORD(FarVer)<<16)|HIWORD(FarVer);
 			int OldFarVer;
 			GetRegKey(L"wrapper",L"version",OldFarVer,FarVer);
 
@@ -4785,15 +4786,6 @@ bool PluginA::SetStartupInfo(bool &bUnloaded)
 	return true;
 }
 
-static void ShowMessageAboutIllegalPluginVersion(const wchar_t* plg,int required)
-{
-	string strMsg1, strMsg2;
-	strMsg1.Format(MSG(MPlgRequired),(WORD)HIBYTE(LOWORD(required)),(WORD)LOBYTE(LOWORD(required)),HIWORD(required));
-	strMsg2.Format(MSG(MPlgRequired2),(WORD)HIBYTE(LOWORD(FAR_VERSION)),(WORD)LOBYTE(LOWORD(FAR_VERSION)),HIWORD(FAR_VERSION));
-	Message(MSG_WARNING,1,MSG(MError),MSG(MPlgBadVers),plg,strMsg1,strMsg2,MSG(MOk));
-}
-
-
 bool PluginA::CheckMinFarVersion(bool &bUnloaded)
 {
 	if (pMinFarVersion && !ProcessException)
@@ -4806,16 +4798,6 @@ bool PluginA::CheckMinFarVersion(bool &bUnloaded)
 		if (es.bUnloaded)
 		{
 			bUnloaded = true;
-			return false;
-		}
-
-		DWORD FVer = (DWORD)es.nResult;
-
-		if (LOWORD(FVer) >  LOWORD(FAR_VERSION) ||
-		        (LOWORD(FVer) == LOWORD(FAR_VERSION) &&
-		         HIWORD(FVer) >  HIWORD(FAR_VERSION)))
-		{
-			ShowMessageAboutIllegalPluginVersion(m_strModuleName,FVer);
 			return false;
 		}
 	}
@@ -5567,7 +5549,7 @@ void PluginA::FreePluginInfo()
 		for (int i=0; i<PI.DiskMenu.Count; i++)
 			xf_free((void *)PI.DiskMenu.Strings[i]);
 
-		xf_free((void *)PI.DiskMenu.Guid);
+		xf_free((void *)PI.DiskMenu.Guids);
 		xf_free((void *)PI.DiskMenu.Strings);
 	}
 
@@ -5576,7 +5558,7 @@ void PluginA::FreePluginInfo()
 		for (int i=0; i<PI.PluginMenu.Count; i++)
 			xf_free((void *)PI.PluginMenu.Strings[i]);
 
-		xf_free((void *)PI.PluginMenu.Guid);
+		xf_free((void *)PI.PluginMenu.Guids);
 		xf_free((void *)PI.PluginMenu.Strings);
 	}
 
@@ -5585,7 +5567,7 @@ void PluginA::FreePluginInfo()
 		for (int i=0; i<PI.PluginConfig.Count; i++)
 			xf_free((void *)PI.PluginConfig.Strings[i]);
 
-		xf_free((void *)PI.PluginConfig.Guid);
+		xf_free((void *)PI.PluginConfig.Guids);
 		xf_free((void *)PI.PluginConfig.Strings);
 	}
 
@@ -5613,7 +5595,7 @@ void PluginA::ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest)
 			guid[i].Data1=i;
 		}
 
-		PI.DiskMenu.Guid = guid;
+		PI.DiskMenu.Guids = guid;
 		PI.DiskMenu.Strings = p;
 		PI.DiskMenu.Count = Src.DiskMenuStringsNumber;
 	}
@@ -5630,7 +5612,7 @@ void PluginA::ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest)
 			guid[i].Data1=i;
 		}
 
-		PI.PluginMenu.Guid = guid;
+		PI.PluginMenu.Guids = guid;
 		PI.PluginMenu.Strings = p;
 		PI.PluginMenu.Count = Src.PluginMenuStringsNumber;
 	}
@@ -5647,7 +5629,7 @@ void PluginA::ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest)
 			guid[i].Data1=i;
 		}
 
-		PI.PluginConfig.Guid = guid;
+		PI.PluginConfig.Guids = guid;
 		PI.PluginConfig.Strings = p;
 		PI.PluginConfig.Count = Src.PluginConfigStringsNumber;
 	}

@@ -974,12 +974,12 @@ INT_PTR WINAPI MainDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 		}
 		case DN_KEY:
 		{
-			Param2 = InputRecordToKey((const INPUT_RECORD *)Param2);
+			int key = InputRecordToKey((const INPUT_RECORD *)Param2);
 			switch (Param1)
 			{
 				case FAD_COMBOBOX_CP:
 				{
-					switch (Param2)
+					switch (key)
 					{
 						case KEY_INS:
 						case KEY_NUMPAD0:
@@ -1623,8 +1623,8 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 
 	case DN_KEY:
 		{
-			Param2 = InputRecordToKey((const INPUT_RECORD *)Param2);
-			switch (Param2)
+			int key = InputRecordToKey((const INPUT_RECORD *)Param2);
+			switch (key)
 			{
 			case KEY_ESC:
 			case KEY_F10:
@@ -1650,7 +1650,7 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 			case KEY_F11:
 			case KEY_CTRLW:
 				{
-					FrameManager->ProcessKey((DWORD)Param2);
+					FrameManager->ProcessKey((DWORD)key);
 					return TRUE;
 				}
 				break;
@@ -1710,7 +1710,7 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 			case KEY_ALTEND:
 			case KEY_ALT|KEY_NUMPAD1:
 				{
-					ListBox->ProcessKey((unsigned)Param2);
+					ListBox->ProcessKey((unsigned)key);
 					return TRUE;
 				}
 				break;
@@ -1835,7 +1835,7 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 						string strOldTitle;
 						Console.GetTitle(strOldTitle);
 
-						if (Param2==KEY_F3 || Param2==KEY_NUMPAD5 || Param2==KEY_SHIFTNUMPAD5)
+						if (key==KEY_F3 || key==KEY_NUMPAD5 || key==KEY_SHIFTNUMPAD5)
 						{
 							int ListSize=ListBox->GetItemCount();
 							NamesList ViewList;

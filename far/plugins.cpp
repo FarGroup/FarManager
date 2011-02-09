@@ -1456,7 +1456,7 @@ void PluginManager::Configure(int StartPos)
 								break;
 
 							strName = Info.PluginConfig.Strings[J];
-							guid = Info.PluginConfig.Guid[J];
+							guid = Info.PluginConfig.Guids[J];
 						}
 
 						GetPluginHotKey(pPlugin,guid,L"ConfHotkey",strHotKey);
@@ -1641,7 +1641,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 								break;
 
 							strName = Info.PluginMenu.Strings[J];
-							guid = Info.PluginMenu.Guid[J];
+							guid = Info.PluginMenu.Guids[J];
 						}
 
 						GetPluginHotKey(pPlugin,guid,L"Hotkey",strHotKey);
@@ -1915,7 +1915,7 @@ bool PluginManager::GetDiskMenuItem(
 		else
 		{
 			strPluginText = Info.DiskMenu.Strings[PluginItem];
-			Guid = Info.DiskMenu.Guid[PluginItem];
+			Guid = Info.DiskMenu.Guids[PluginItem];
 			ItemPresent=true;
 		}
 	}

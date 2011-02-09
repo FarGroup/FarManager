@@ -128,7 +128,7 @@ FILE * OpenLogStream(const wchar_t *file)
 	string strRealLogName;
 	SYSTEMTIME st;
 	GetLocalTime(&st);
-	strRealLogName.Format(L"%s\\Far.%04d%02d%02d.%05d.log",file,st.wYear,st.wMonth,st.wDay,HIWORD(FAR_VERSION));
+	strRealLogName.Format(L"%s\\Far.%04d%02d%02d.%05d.log",file,st.wYear,st.wMonth,st.wDay,LOWORD(FAR_VERSION));
 	return _wfsopen(strRealLogName,L"a+t",SH_DENYWR);
 #else
 	return nullptr;

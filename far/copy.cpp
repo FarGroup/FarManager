@@ -669,17 +669,17 @@ INT_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 		}
 		case DN_KEY: // по поводу дерева!
 		{
-			Param2 = InputRecordToKey((const INPUT_RECORD *)Param2);
-			if (Param2 == KEY_ALTF10 || Param2 == KEY_F10 || Param2 == KEY_SHIFTF10)
+			int key = InputRecordToKey((const INPUT_RECORD *)Param2);
+			if (key == KEY_ALTF10 || key == KEY_F10 || key == KEY_SHIFTF10)
 			{
-				DlgParam->AltF10=Param2 == KEY_ALTF10?1:(Param2 == KEY_SHIFTF10?2:0);
+				DlgParam->AltF10=key == KEY_ALTF10?1:(key == KEY_SHIFTF10?2:0);
 				SendDlgMessage(hDlg,DM_CALLTREE,DlgParam->AltF10,0);
 				return TRUE;
 			}
 
 			if (Param1 == ID_SC_COMBO)
 			{
-				if (Param2==KEY_ENTER || Param2==KEY_NUMENTER || Param2==KEY_INS || Param2==KEY_NUMPAD0 || Param2==KEY_SPACE)
+				if (key==KEY_ENTER || key==KEY_NUMENTER || key==KEY_INS || key==KEY_NUMPAD0 || key==KEY_SPACE)
 				{
 					if (SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID_SC_COMBO,0)==CM_ASKRO)
 						return SendDlgMessage(hDlg,DM_SWITCHRO,0,0);
@@ -3644,8 +3644,8 @@ INT_PTR WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 		break;
 		case DN_KEY:
 		{
-			Param2 = InputRecordToKey((const INPUT_RECORD *)Param2);
-			if ((Param1==WDLG_SRCFILEBTN || Param1==WDLG_DSTFILEBTN) && Param2==KEY_F3)
+			int key = InputRecordToKey((const INPUT_RECORD *)Param2);
+			if ((Param1==WDLG_SRCFILEBTN || Param1==WDLG_DSTFILEBTN) && key==KEY_F3)
 			{
 				SendDlgMessage(hDlg,DM_OPENVIEWER,Param1,0);
 			}

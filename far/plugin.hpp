@@ -49,7 +49,7 @@ other possible license with no implications from the above license on them.
 
 #ifndef RC_INVOKED
 
-#define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
+#define MAKEFARVERSION(major,minor,build) ( ((major)<<24) | ((minor)<<16) | (build)
 
 #define FARMANAGERVERSION MAKEFARVERSION(FARMANAGERVERSION_MAJOR,FARMANAGERVERSION_MINOR,FARMANAGERVERSION_BUILD)
 
@@ -1936,7 +1936,7 @@ enum PLUGIN_FLAGS
 
 struct PluginMenuItem
 {
-	const GUID *Guid;
+	const GUID *Guids;
 	const wchar_t * const *Strings;
 	int Count;
 };

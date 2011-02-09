@@ -129,13 +129,13 @@ INT_PTR WINAPI MsgDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 		break;
 		case DN_KEY:
 		{
-			Param2 = InputRecordToKey((const INPUT_RECORD *)Param2);
-			if (Param1==FirstButtonIndex && (Param2==KEY_LEFT || Param2 == KEY_NUMPAD4 || Param2==KEY_SHIFTTAB))
+			int key = InputRecordToKey((const INPUT_RECORD *)Param2);
+			if (Param1==FirstButtonIndex && (key==KEY_LEFT || key == KEY_NUMPAD4 || key==KEY_SHIFTTAB))
 			{
 				SendDlgMessage(hDlg,DM_SETFOCUS,LastButtonIndex,0);
 				return TRUE;
 			}
-			else if (Param1==LastButtonIndex && (Param2==KEY_RIGHT || Param2 == KEY_NUMPAD6 || Param2==KEY_TAB))
+			else if (Param1==LastButtonIndex && (key==KEY_RIGHT || key == KEY_NUMPAD6 || key==KEY_TAB))
 			{
 				SendDlgMessage(hDlg,DM_SETFOCUS,FirstButtonIndex,0);
 				return TRUE;
