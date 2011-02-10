@@ -259,8 +259,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	bool bCurDirRoot=IsLocalRootPath(strCurDir)||IsLocalPrefixRootPath(strCurDir)||IsLocalVolumeRootPath(strCurDir);
 
 	FileCount = 0;
-	//BUGBUG!!! // что это?
-	::FindFile Find(L"*",true);
+	::FindFile Find(strCurDir+L"\\"+L"*",true);
 	DWORD FindErrorCode = ERROR_SUCCESS;
 	bool UseFilter=Filter->IsEnabledOnPanel();
 	bool ReadCustomData=IsColumnDisplayed(CUSTOM_COLUMN0)!=0;

@@ -1974,7 +1974,7 @@ oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di,HANDLE hDlg,int
 		break;
 		case oldfar::DI_COMBOBOX:
 		case oldfar::DI_LISTBOX:
-			diA->Param.ListPos=FarSendDlgMessage(hDlg,DM_LISTGETCURPOS,ItemNumber,0);
+			diA->Param.ListPos=static_cast<int>(FarSendDlgMessage(hDlg,DM_LISTGETCURPOS,ItemNumber,0));
 			break;
 	}
 
@@ -2646,7 +2646,7 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 
 				if (pdi->Type==DI_COMBOBOX || pdi->Type==DI_LISTBOX)
 				{
-					Item[i].Param.ListPos = FarSendDlgMessage(hDlg,DM_LISTGETCURPOS,i,0);
+					Item[i].Param.ListPos = static_cast<int>(FarSendDlgMessage(hDlg,DM_LISTGETCURPOS,i,0));
 				}
 
 				xf_free(pdi);

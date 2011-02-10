@@ -318,7 +318,7 @@ bool MixToFullPath(LPCWSTR stPath, string& strDest, LPCWSTR stCurrentDir)
 			strDest+=pstPath;
 		}
 
-		if (!blIgnore)
+		if (!blIgnore && !HasPathPrefix(strDest))
 			MixToFullPath(strDest);
 
 		return true;
