@@ -2038,7 +2038,7 @@ int WINAPI FarEditorControl(int EditorID, int Command, int Param1, INT_PTR Param
 	if (FrameManager->ManagerIsDown())
 		return 0;
 
-	if (EditorID == 0)
+	if (EditorID == -1)
 	{
 		if (CtrlObject->Plugins.CurEditor)
 			return CtrlObject->Plugins.CurEditor->EditorControl(Command,(void *)Param2);
@@ -2069,7 +2069,7 @@ int WINAPI FarViewerControl(int ViewerID, int Command, int Param1, INT_PTR Param
 	if (FrameManager->ManagerIsDown())
 		return 0;
 
-	if (ViewerID == 0)
+	if (ViewerID == -1)
 	{
 		if (CtrlObject->Plugins.CurViewer)
 			return CtrlObject->Plugins.CurViewer->ViewerControl(Command,(void *)Param2);

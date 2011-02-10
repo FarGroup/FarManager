@@ -64,7 +64,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static int ReplaceMode,ReplaceAll;
 
-static int EditorID=1;
+static int EditorID=0;
 
 // EditorUndoData
 enum {UNDO_EDIT=1,UNDO_INSSTR,UNDO_DELSTR,UNDO_BEGIN,UNDO_END};
