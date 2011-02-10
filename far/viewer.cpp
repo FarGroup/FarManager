@@ -72,7 +72,7 @@ static void ViewerSearchMsg(const wchar_t *Name,int Percent);
 
 static int InitHex=FALSE,SearchHex=FALSE;
 
-static int ViewerID=0;
+static int ViewerID=1;
 
 Viewer::Viewer(bool bQuickView, UINT aCodePage):
 	ViOpt(Opt.ViOpt),
