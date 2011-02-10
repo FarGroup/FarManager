@@ -1,3 +1,18 @@
+svs 10.02.2011 18:26:54 +0300 - build 1851
+
+1. Переделка EditorControl, ViewerControl и RegExpControl.
+   Теперь это так:
+     int WINAPI EditorControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2);
+     int WINAPI ViewerControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2);
+     int WINAPI RegExpControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2);
+
+   Для редактора/вьювера если hHandle равен INVALID_HANDLE_VALUE - текущий редактор/вьювер (врапер для 1.7x работает с текущим)
+   В противном случае берем значение из EditorInfo::EditorID в качестве хэндла.
+
+   Param1 пока не юзается.
+
+   Внутренние реализации EditorControl и ViewerControl (в классах) остались пока прежними.
+
 zg 10.02.2011 14:25:07 +0200 - build 1850
 
 1. добавлен OPM_PGDN. приходит в OpenFilePluginW если на файле нажали PgDn.

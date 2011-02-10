@@ -2033,20 +2033,56 @@ void WINAPI FarText(int X,int Y,int Color,const wchar_t *Str)
 }
 
 
-int WINAPI FarEditorControl(int Command,void *Param)
+int WINAPI FarEditorControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2)
 {
 	if (FrameManager->ManagerIsDown() || !CtrlObject->Plugins.CurEditor)
 		return 0;
 
-	return(CtrlObject->Plugins.CurEditor->EditorControl(Command,Param));
+	if (hHandle == INVALID_HANDLE_VALUE)
+		return CtrlObject->Plugins.CurEditor->EditorControl(Command,(void *)Param2);
+	else
+	{
+		int idx=0;
+		Frame *frame;
+		while((frame=FrameManager->Manager::operator[](idx++)) != nullptr)
+		{
+			if (frame->GetType() == MODALTYPE_EDITOR)
+			{
+				if (((FileEditor*)frame)->GetId() == (int)hHandle)
+				{
+					return ((FileEditor*)frame)->EditorControl(Command,(void *)Param2);
+				}
+			}
+		}
+	}
+
+	return 0;
 }
 
-int WINAPI FarViewerControl(int Command,void *Param)
+int WINAPI FarViewerControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2)
 {
 	if (FrameManager->ManagerIsDown() || !CtrlObject->Plugins.CurViewer)
 		return 0;
 
-	return(CtrlObject->Plugins.CurViewer->ViewerControl(Command,Param));
+	if (hHandle == INVALID_HANDLE_VALUE)
+		return CtrlObject->Plugins.CurViewer->ViewerControl(Command,(void *)Param2);
+	else
+	{
+		int idx=0;
+		Frame *frame;
+		while((frame=FrameManager->Manager::operator[](idx++)) != nullptr)
+		{
+			if (frame->GetType() == MODALTYPE_VIEWER)
+			{
+				if (((FileViewer*)frame)->GetId() == (int)hHandle)
+				{
+					return ((FileViewer*)frame)->ViewerControl(Command,(void *)Param2);
+				}
+			}
+		}
+	}
+
+	return 0;
 }
 
 
@@ -2402,7 +2438,7 @@ int WINAPI farFileFilterControl(HANDLE hHandle, int Command, int Param1, INT_PTR
 	return FALSE;
 }
 
-int WINAPI farRegExpControl(HANDLE hHandle, int Command, INT_PTR Param)
+int WINAPI farRegExpControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2)
 {
 	RegExp* re=nullptr;
 
@@ -2418,15 +2454,15 @@ int WINAPI farRegExpControl(HANDLE hHandle, int Command, INT_PTR Param)
 	{
 		case RECTL_CREATE:
 
-			if (!Param)
+			if (!Param2)
 				break;
 
-			*((HANDLE*)Param) = INVALID_HANDLE_VALUE;
+			*((HANDLE*)Param2) = INVALID_HANDLE_VALUE;
 			re = new RegExp;
 
 			if (re)
 			{
-				*((HANDLE*)Param) = (HANDLE)re;
+				*((HANDLE*)Param2) = (HANDLE)re;
 				return TRUE;
 			}
 
@@ -2435,12 +2471,12 @@ int WINAPI farRegExpControl(HANDLE hHandle, int Command, INT_PTR Param)
 			delete re;
 			return TRUE;
 		case RECTL_COMPILE:
-			return re->Compile((const wchar_t*)Param,OP_PERLSTYLE);
+			return re->Compile((const wchar_t*)Param2,OP_PERLSTYLE);
 		case RECTL_OPTIMIZE:
 			return re->Optimize();
 		case RECTL_MATCHEX:
 		{
-			RegExpSearch* data=(RegExpSearch*)Param;
+			RegExpSearch* data=(RegExpSearch*)Param2;
 			return re->MatchEx(data->Text,data->Text+data->Position,data->Text+data->Length,data->Match,data->Count
 #ifdef NAMEDBRACKETS
 			                   ,data->Reserved
@@ -2449,7 +2485,7 @@ int WINAPI farRegExpControl(HANDLE hHandle, int Command, INT_PTR Param)
 		}
 		case RECTL_SEARCHEX:
 		{
-			RegExpSearch* data=(RegExpSearch*)Param;
+			RegExpSearch* data=(RegExpSearch*)Param2;
 			return re->SearchEx(data->Text,data->Text+data->Position,data->Text+data->Length,data->Match,data->Count
 #ifdef NAMEDBRACKETS
 			                    ,data->Reserved

@@ -1383,8 +1383,10 @@ struct ViewerInfo
 };
 
 typedef int (WINAPI *FARAPIVIEWERCONTROL)(
+    HANDLE hHandle,
     int Command,
-    void *Param
+    int Param1,
+    INT_PTR Param2
 );
 
 enum VIEWER_EVENTS
@@ -1663,8 +1665,10 @@ struct EditorSaveFile
 };
 
 typedef int (WINAPI *FARAPIEDITORCONTROL)(
+    HANDLE hHandle,
     int Command,
-    void *Param
+    int Param1,
+    INT_PTR Param2
 );
 
 enum INPUTBOXFLAGS
@@ -1717,7 +1721,8 @@ typedef int (WINAPI *FARAPIFILEFILTERCONTROL)(
 typedef int (WINAPI *FARAPIREGEXPCONTROL)(
     HANDLE hHandle,
     int Command,
-    INT_PTR Param
+    int Param1,
+    INT_PTR Param2
 );
 
 // <C&C++>
