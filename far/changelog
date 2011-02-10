@@ -1,3 +1,13 @@
+t-rex 10.02.2011 20:15:23 +0200 - build 1852
+
+1. Исправление 1851:
+     int WINAPI EditorControl(int EditorID, int Command, int Param1, INT_PTR Param2);
+     int WINAPI ViewerControl(int ViewerID, int Command, int Param1, INT_PTR Param2);
+
+   ID вместо HANDLE, 0 для текущего редактора/вьювера.
+
+2. Нельзя было вызывать Viewer/EditorControl из панелей для ID!=0.
+
 svs 10.02.2011 18:26:54 +0300 - build 1851
 
 1. Переделка EditorControl, ViewerControl и RegExpControl.

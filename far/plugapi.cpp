@@ -2033,13 +2033,18 @@ void WINAPI FarText(int X,int Y,int Color,const wchar_t *Str)
 }
 
 
-int WINAPI FarEditorControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2)
+int WINAPI FarEditorControl(int EditorID, int Command, int Param1, INT_PTR Param2)
 {
-	if (FrameManager->ManagerIsDown() || !CtrlObject->Plugins.CurEditor)
+	if (FrameManager->ManagerIsDown())
 		return 0;
 
-	if (hHandle == INVALID_HANDLE_VALUE)
-		return CtrlObject->Plugins.CurEditor->EditorControl(Command,(void *)Param2);
+	if (EditorID == 0)
+	{
+		if (CtrlObject->Plugins.CurEditor)
+			return CtrlObject->Plugins.CurEditor->EditorControl(Command,(void *)Param2);
+
+		return 0;
+	}
 	else
 	{
 		int idx=0;
@@ -2048,7 +2053,7 @@ int WINAPI FarEditorControl(HANDLE hHandle, int Command, int Param1, INT_PTR Par
 		{
 			if (frame->GetType() == MODALTYPE_EDITOR)
 			{
-				if (((FileEditor*)frame)->GetId() == (int)hHandle)
+				if (((FileEditor*)frame)->GetId() == EditorID)
 				{
 					return ((FileEditor*)frame)->EditorControl(Command,(void *)Param2);
 				}
@@ -2059,13 +2064,18 @@ int WINAPI FarEditorControl(HANDLE hHandle, int Command, int Param1, INT_PTR Par
 	return 0;
 }
 
-int WINAPI FarViewerControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2)
+int WINAPI FarViewerControl(int ViewerID, int Command, int Param1, INT_PTR Param2)
 {
-	if (FrameManager->ManagerIsDown() || !CtrlObject->Plugins.CurViewer)
+	if (FrameManager->ManagerIsDown())
 		return 0;
 
-	if (hHandle == INVALID_HANDLE_VALUE)
-		return CtrlObject->Plugins.CurViewer->ViewerControl(Command,(void *)Param2);
+	if (ViewerID == 0)
+	{
+		if (CtrlObject->Plugins.CurViewer)
+			return CtrlObject->Plugins.CurViewer->ViewerControl(Command,(void *)Param2);
+
+		return 0;
+	}
 	else
 	{
 		int idx=0;
@@ -2074,7 +2084,7 @@ int WINAPI FarViewerControl(HANDLE hHandle, int Command, int Param1, INT_PTR Par
 		{
 			if (frame->GetType() == MODALTYPE_VIEWER)
 			{
-				if (((FileViewer*)frame)->GetId() == (int)hHandle)
+				if (((FileViewer*)frame)->GetId() == ViewerID)
 				{
 					return ((FileViewer*)frame)->ViewerControl(Command,(void *)Param2);
 				}

@@ -1383,7 +1383,7 @@ struct ViewerInfo
 };
 
 typedef int (WINAPI *FARAPIVIEWERCONTROL)(
-    HANDLE hHandle,
+    int ViewerID,
     int Command,
     int Param1,
     INT_PTR Param2
@@ -1665,7 +1665,7 @@ struct EditorSaveFile
 };
 
 typedef int (WINAPI *FARAPIEDITORCONTROL)(
-    HANDLE hHandle,
+    int EditorID,
     int Command,
     int Param1,
     INT_PTR Param2

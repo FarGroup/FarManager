@@ -3621,7 +3621,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 UINT GetEditorCodePageA()
 {
 	EditorInfo info={0};
-	FarEditorControl(INVALID_HANDLE_VALUE,ECTL_GETINFO,0,(INT_PTR)&info);
+	FarEditorControl(0,ECTL_GETINFO,0,(INT_PTR)&info);
 	UINT CodePage=info.CodePage;
 	CPINFO cpi;
 
@@ -3760,7 +3760,7 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 			if (!oegs) return FALSE;
 
 			egs.StringNumber=oegs->StringNumber;
-			int ret=FarEditorControl(INVALID_HANDLE_VALUE,ECTL_GETSTRING,0,(INT_PTR)&egs);
+			int ret=FarEditorControl(0,ECTL_GETSTRING,0,(INT_PTR)&egs);
 
 			if (ret)
 			{
@@ -3790,7 +3790,7 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 			if (!p) return FALSE;
 
 			string strP(p);
-			return FarEditorControl(INVALID_HANDLE_VALUE,ECTL_INSERTTEXT,0,(INT_PTR)strP.CPtr());
+			return FarEditorControl(0,ECTL_INSERTTEXT,0,(INT_PTR)strP.CPtr());
 		}
 		case oldfar::ECTL_GETINFO:
 		{
@@ -3800,7 +3800,7 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 			if (!oei)
 				return FALSE;
 
-			int ret=FarEditorControl(INVALID_HANDLE_VALUE,ECTL_GETINFO,0,(INT_PTR)&ei);
+			int ret=FarEditorControl(0,ECTL_GETINFO,0,(INT_PTR)&ei);
 
 			if (ret)
 			{
@@ -3808,12 +3808,12 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 					xf_free(fn);
 
 				memset(oei,0,sizeof(*oei));
-				size_t FileNameSize=FarEditorControl(INVALID_HANDLE_VALUE,ECTL_GETFILENAME,0,(INT_PTR)nullptr);
+				size_t FileNameSize=FarEditorControl(0,ECTL_GETFILENAME,0,(INT_PTR)nullptr);
 
 				if (FileNameSize)
 				{
 					LPWSTR FileName=new wchar_t[FileNameSize];
-					FarEditorControl(INVALID_HANDLE_VALUE,ECTL_GETFILENAME,0,(INT_PTR)FileName);
+					FarEditorControl(0,ECTL_GETFILENAME,0,(INT_PTR)FileName);
 					fn = UnicodeToAnsi(FileName);
 					oei->FileName=fn;
 					delete[] FileName;
@@ -3864,7 +3864,7 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 				newsf.FileEOL=(oldsf->FileEOL)?AnsiToUnicode(oldsf->FileEOL):nullptr;
 			}
 
-			int ret = FarEditorControl(INVALID_HANDLE_VALUE,ECTL_SAVEFILE, 0, Param?(INT_PTR)&newsf:0);
+			int ret = FarEditorControl(0,ECTL_SAVEFILE, 0, Param?(INT_PTR)&newsf:0);
 
 			if (newsf.FileName) xf_free((void*)newsf.FileName);
 
@@ -3897,15 +3897,15 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 				}
 			}
 
-			return FarEditorControl(INVALID_HANDLE_VALUE,ECTL_PROCESSINPUT, 0, (INT_PTR)Param);
+			return FarEditorControl(0,ECTL_PROCESSINPUT, 0, (INT_PTR)Param);
 		}
 		case oldfar::ECTL_PROCESSKEY:
 		{
-			return FarEditorControl(INVALID_HANDLE_VALUE,ECTL_PROCESSKEY, 0, (INT_PTR)(DWORD_PTR)OldKeyToKey((DWORD)(DWORD_PTR)Param));
+			return FarEditorControl(0,ECTL_PROCESSKEY, 0, (INT_PTR)(DWORD_PTR)OldKeyToKey((DWORD)(DWORD_PTR)Param));
 		}
 		case oldfar::ECTL_READINPUT:	//BUGBUG?
 		{
-			int ret = FarEditorControl(INVALID_HANDLE_VALUE,ECTL_READINPUT, 0, (INT_PTR)Param);
+			int ret = FarEditorControl(0,ECTL_READINPUT, 0, (INT_PTR)Param);
 
 			if (Param)
 			{
@@ -3940,12 +3940,12 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 			{
 				case 0:
 				case -1:
-					return FarEditorControl(INVALID_HANDLE_VALUE,ECTL_SETKEYBAR, 0, (INT_PTR)Param);
+					return FarEditorControl(0,ECTL_SETKEYBAR, 0, (INT_PTR)Param);
 				default:
 					oldfar::KeyBarTitles* oldkbt = (oldfar::KeyBarTitles*)Param;
 					KeyBarTitles newkbt;
 					ConvertKeyBarTitlesA(oldkbt, &newkbt);
-					int ret = FarEditorControl(INVALID_HANDLE_VALUE,ECTL_SETKEYBAR, 0, (INT_PTR)&newkbt);
+					int ret = FarEditorControl(0,ECTL_SETKEYBAR, 0, (INT_PTR)&newkbt);
 					FreeUnicodeKeyBarTitles(&newkbt);
 					return ret;
 			}
@@ -4013,7 +4013,7 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 					{
 						newsp.Type = ESPT_SETWORDDIV;
 						newsp.Param.wszParam = (oldsp->Param.cParam)?AnsiToUnicode(oldsp->Param.cParam):nullptr;
-						int ret = FarEditorControl(INVALID_HANDLE_VALUE,ECTL_SETPARAM, 0, (INT_PTR)&newsp);
+						int ret = FarEditorControl(0,ECTL_SETPARAM, 0, (INT_PTR)&newsp);
 
 						if (newsp.Param.wszParam) xf_free(newsp.Param.wszParam);
 
@@ -4027,12 +4027,12 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 						newsp.Type = ESPT_GETWORDDIV;
 						newsp.Param.wszParam = nullptr;
 						newsp.Size = 0;
-						newsp.Size = FarEditorControl(INVALID_HANDLE_VALUE,ECTL_SETPARAM, 0, (INT_PTR)&newsp);
+						newsp.Size = FarEditorControl(0,ECTL_SETPARAM, 0, (INT_PTR)&newsp);
 						newsp.Param.wszParam = (wchar_t*)xf_malloc(newsp.Size*sizeof(wchar_t));
 
 						if (newsp.Param.wszParam)
 						{
-							int ret = FarEditorControl(INVALID_HANDLE_VALUE,ECTL_SETPARAM, 0, (INT_PTR)&newsp);
+							int ret = FarEditorControl(0,ECTL_SETPARAM, 0, (INT_PTR)&newsp);
 							char *olddiv = UnicodeToAnsi(newsp.Param.wszParam);
 
 							if (olddiv)
@@ -4052,7 +4052,7 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 				}
 			}
 
-			return FarEditorControl(INVALID_HANDLE_VALUE,ECTL_SETPARAM, 0, Param?(INT_PTR)&newsp:0);
+			return FarEditorControl(0,ECTL_SETPARAM, 0, Param?(INT_PTR)&newsp:0);
 		}
 		case oldfar::ECTL_SETSTRING:
 		{
@@ -4068,7 +4068,7 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 				newss.StringLength=oldss->StringLength;
 			}
 
-			int ret = FarEditorControl(INVALID_HANDLE_VALUE,ECTL_SETSTRING, 0, Param?(INT_PTR)&newss:0);
+			int ret = FarEditorControl(0,ECTL_SETSTRING, 0, Param?(INT_PTR)&newss:0);
 
 			if (newss.StringText) xf_free((void*)newss.StringText);
 
@@ -4085,7 +4085,7 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 				newtit=AnsiToUnicode((char*)Param);
 			}
 
-			int ret = FarEditorControl(INVALID_HANDLE_VALUE,ECTL_SETTITLE, 0, (INT_PTR)newtit);
+			int ret = FarEditorControl(0,ECTL_SETTITLE, 0, (INT_PTR)newtit);
 
 			if (newtit) xf_free(newtit);
 
@@ -4095,7 +4095,7 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 			return FALSE;
 	}
 
-	return FarEditorControl(INVALID_HANDLE_VALUE,Command, 0,(INT_PTR)Param);
+	return FarEditorControl(0,Command, 0,(INT_PTR)Param);
 }
 
 int WINAPI FarViewerControlA(int Command,void* Param)
@@ -4115,7 +4115,7 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 			ViewerInfo viW;
 			viW.StructSize = sizeof(ViewerInfo); //BUGBUG?
 
-			if (FarViewerControl(INVALID_HANDLE_VALUE,VCTL_GETINFO, 0, (INT_PTR)&viW) == FALSE) return FALSE;
+			if (FarViewerControl(0,VCTL_GETINFO, 0, (INT_PTR)&viW) == FALSE) return FALSE;
 
 			viA->ViewerID = viW.ViewerID;
 
@@ -4146,21 +4146,21 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 			break;
 		}
 		case oldfar::VCTL_QUIT:
-			return FarViewerControl(INVALID_HANDLE_VALUE,VCTL_QUIT,0, (INT_PTR)nullptr);
+			return FarViewerControl(0,VCTL_QUIT,0, (INT_PTR)nullptr);
 		case oldfar::VCTL_REDRAW:
-			return FarViewerControl(INVALID_HANDLE_VALUE,VCTL_REDRAW,0, (INT_PTR)nullptr);
+			return FarViewerControl(0,VCTL_REDRAW,0, (INT_PTR)nullptr);
 		case oldfar::VCTL_SETKEYBAR:
 		{
 			switch ((INT_PTR)Param)
 			{
 				case 0:
 				case -1:
-					return FarViewerControl(INVALID_HANDLE_VALUE,VCTL_SETKEYBAR,0, (INT_PTR)Param);
+					return FarViewerControl(0,VCTL_SETKEYBAR,0, (INT_PTR)Param);
 				default:
 					oldfar::KeyBarTitles* kbtA = (oldfar::KeyBarTitles*)Param;
 					KeyBarTitles kbt;
 					ConvertKeyBarTitlesA(kbtA, &kbt);
-					int ret=FarViewerControl(INVALID_HANDLE_VALUE,VCTL_SETKEYBAR,0, (INT_PTR)&kbt);
+					int ret=FarViewerControl(0,VCTL_SETKEYBAR,0, (INT_PTR)&kbt);
 					FreeUnicodeKeyBarTitles(&kbt);
 					return ret;
 			}
@@ -4183,17 +4183,17 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 
 			vsp.StartPos = vspA->StartPos;
 			vsp.LeftPos = vspA->LeftPos;
-			int ret = FarViewerControl(INVALID_HANDLE_VALUE,VCTL_SETPOSITION,0, (INT_PTR)&vsp);
+			int ret = FarViewerControl(0,VCTL_SETPOSITION,0, (INT_PTR)&vsp);
 			vspA->StartPos = vsp.StartPos;
 			return ret;
 		}
 		case oldfar::VCTL_SELECT:
 		{
-			if (!Param) return FarViewerControl(INVALID_HANDLE_VALUE,VCTL_SELECT,0, (INT_PTR)nullptr);
+			if (!Param) return FarViewerControl(0,VCTL_SELECT,0, (INT_PTR)nullptr);
 
 			oldfar::ViewerSelect* vsA = (oldfar::ViewerSelect*)Param;
 			ViewerSelect vs = {vsA->BlockStartPos,vsA->BlockLen};
-			return FarViewerControl(INVALID_HANDLE_VALUE,VCTL_SELECT,0, (INT_PTR)&vs);
+			return FarViewerControl(0,VCTL_SELECT,0, (INT_PTR)&vs);
 		}
 		case oldfar::VCTL_SETMODE:
 		{
@@ -4216,7 +4216,7 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 			if (vsmA->Flags&oldfar::VSMFL_REDRAW) vsm.Flags|=VSMFL_REDRAW;
 
 			vsm.Reserved = 0;
-			return FarViewerControl(INVALID_HANDLE_VALUE,VCTL_SETMODE,0, (INT_PTR)&vsm);
+			return FarViewerControl(0,VCTL_SETMODE,0, (INT_PTR)&vsm);
 		}
 	}
 

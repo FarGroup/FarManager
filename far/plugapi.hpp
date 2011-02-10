@@ -94,9 +94,9 @@ int WINAPI FarEditor(const wchar_t *FileName,const wchar_t *Title,
                      int StartLine,int StartChar, UINT CodePage);
 void WINAPI FarText(int X,int Y,int Color,const wchar_t *Str);
 int WINAPI TextToCharInfo(const char *Text,WORD Attr, CHAR_INFO *CharInfo, int Length, DWORD Reserved);
-int WINAPI FarEditorControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2);
+int WINAPI FarEditorControl(int EditorID, int Command, int Param1, INT_PTR Param2);
 
-int WINAPI FarViewerControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2);
+int WINAPI FarViewerControl(int ViewerID, int Command, int Param1, INT_PTR Param2);
 
 /* Функция вывода помощи */
 BOOL WINAPI FarShowHelp(const wchar_t *ModuleName,
