@@ -119,28 +119,28 @@ int WINAPI ProcessEditorInputW(const INPUT_RECORD *Rec)
     return FALSE;
 
   struct EditorInfo startei;
-  Info.EditorControl(0,ECTL_GETINFO,0,(INT_PTR)&startei);
+  Info.EditorControl(-1,ECTL_GETINFO,0,(INT_PTR)&startei);
 
   struct EditorGetString prevegs;
   prevegs.StringNumber=-1;
-  Info.EditorControl(0,ECTL_GETSTRING,0,(INT_PTR)&prevegs);
+  Info.EditorControl(-1,ECTL_GETSTRING,0,(INT_PTR)&prevegs);
 
   Reenter=TRUE;
-  Info.EditorControl(0,ECTL_PROCESSINPUT,0,(INT_PTR)Rec);
+  Info.EditorControl(-1,ECTL_PROCESSINPUT,0,(INT_PTR)Rec);
   Reenter=FALSE;
 
   for (int Pass=1;;Pass++)
   {
     EditorInfo ei;
-    Info.EditorControl(0,ECTL_GETINFO,0,(INT_PTR)&ei);
+    Info.EditorControl(-1,ECTL_GETINFO,0,(INT_PTR)&ei);
     LPWSTR FileName=nullptr;
-    size_t FileNameSize=Info.EditorControl(0,ECTL_GETFILENAME,0,0);
+    size_t FileNameSize=Info.EditorControl(-1,ECTL_GETFILENAME,0,0);
     if(FileNameSize)
     {
       FileName=new wchar_t[FileNameSize];
       if(FileName)
       {
-        Info.EditorControl(0,ECTL_GETFILENAME,0,(INT_PTR)FileName);
+        Info.EditorControl(-1,ECTL_GETFILENAME,0,(INT_PTR)FileName);
       }
     }
     if (Pass==1 && *Opt.FileMasks)
@@ -189,7 +189,7 @@ int WINAPI ProcessEditorInputW(const INPUT_RECORD *Rec)
 
     struct EditorGetString egs;
     egs.StringNumber=ei.CurLine;
-    Info.EditorControl(0,ECTL_GETSTRING,0,(INT_PTR)&egs);
+    Info.EditorControl(-1,ECTL_GETSTRING,0,(INT_PTR)&egs);
 
     bool TabPresent=wmemchr(egs.StringText,L'\t',egs.StringLength)!=nullptr;
     int TabLength=egs.StringLength;
@@ -198,7 +198,7 @@ int WINAPI ProcessEditorInputW(const INPUT_RECORD *Rec)
       struct EditorConvertPos ecp;
       ecp.StringNumber=-1;
       ecp.SrcPos=egs.StringLength;
-      Info.EditorControl(0,ECTL_REALTOTAB,0,(INT_PTR)&ecp);
+      Info.EditorControl(-1,ECTL_REALTOTAB,0,(INT_PTR)&ecp);
       TabLength=ecp.DestPos;
     }
 
@@ -217,7 +217,7 @@ int WINAPI ProcessEditorInputW(const INPUT_RECORD *Rec)
             struct EditorConvertPos ecp;
             ecp.StringNumber=-1;
             ecp.SrcPos=I;
-            Info.EditorControl(0,ECTL_REALTOTAB,0,(INT_PTR)&ecp);
+            Info.EditorControl(-1,ECTL_REALTOTAB,0,(INT_PTR)&ecp);
             TabPos=ecp.DestPos;
           }
           if (TabPos<Opt.RightMargin)
@@ -244,25 +244,25 @@ int WINAPI ProcessEditorInputW(const INPUT_RECORD *Rec)
       struct EditorSetPosition esp;
       memset(&esp,-1,sizeof(esp));
       esp.CurPos=SpacePos+1;
-      Info.EditorControl(0,ECTL_SETPOSITION,0,(INT_PTR)&esp);
+      Info.EditorControl(-1,ECTL_SETPOSITION,0,(INT_PTR)&esp);
       int Indent=TRUE;
-      if (!Info.EditorControl(0,ECTL_INSERTSTRING,0,(INT_PTR)&Indent))
+      if (!Info.EditorControl(-1,ECTL_INSERTSTRING,0,(INT_PTR)&Indent))
         break;
       if (ei.CurPos<SpacePos)
       {
         esp.CurLine=ei.CurLine;
         esp.CurPos=ei.CurPos;
-        Info.EditorControl(0,ECTL_SETPOSITION,0,(INT_PTR)&esp);
+        Info.EditorControl(-1,ECTL_SETPOSITION,0,(INT_PTR)&esp);
       }
       else
       {
         egs.StringNumber=ei.CurLine+1;
-        Info.EditorControl(0,ECTL_GETSTRING,0,(INT_PTR)&egs);
+        Info.EditorControl(-1,ECTL_GETSTRING,0,(INT_PTR)&egs);
         esp.CurLine=ei.CurLine+1;
         esp.CurPos=egs.StringLength;
-        Info.EditorControl(0,ECTL_SETPOSITION,0,(INT_PTR)&esp);
+        Info.EditorControl(-1,ECTL_SETPOSITION,0,(INT_PTR)&esp);
       }
-      Info.EditorControl(0,ECTL_REDRAW,0,0);
+      Info.EditorControl(-1,ECTL_REDRAW,0,0);
     }
     else
       break;
