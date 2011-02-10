@@ -129,4 +129,6 @@ int WINAPI farFileFilterControl(HANDLE hHandle, int Command, int Param1, INT_PTR
 
 int WINAPI farRegExpControl(HANDLE hHandle, int Command, INT_PTR Param);
 
+int WINAPI farMacroControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2);
+
 DWORD WINAPI farGetCurrentDirectory(DWORD Size,wchar_t* Buffer);

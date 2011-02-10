@@ -1,3 +1,43 @@
+svs 10.02.2011 12:01:19 +0300 - build 1849
+
+1. Переделки в "ACTL_KEYMACRO".
+
+   * удалены: ACTL_KEYMACRO, FARMACROCOMMAND, struct ActlKeyMacro
+   * добавлено: MacroControl, MACRO_CONTROL_COMMANDS, FARMACROSENDSTRINGCOMMAND, struct MacroSendMacroText, struct MacroCheckMacroText
+   
+   Новое АПИ выглядит так:
+   int Info.MacroControl(HANDLE hHandle,int Command,int Param1,INT_PTR Param2)
+    hHandle = 0
+    Command:
+       MCTL_LOADALL
+         Param1=0
+         Param2=0
+         Return=0|1
+       MCTL_SAVEALL
+         Param1=0
+         Param2=0
+         Return=0|1
+       MCTL_SENDSTRING
+         Param1:
+           MSSC_POST
+             Param2=MacroSendMacroText*
+             Return=0|1
+           MSSC_EXEC (пока заглужка, не используется)
+             Param2=MacroSendMacroText*
+             Return=0|1
+           MSSC_CHECK
+             Param2=MacroCheckMacroText* (Text)
+             Return=0|1 в Param2=MacroCheckMacroText* (Check)
+       MCTL_GETSTATE
+         Param1=0
+         Param2=0
+         Return=FARMACROSTATE
+       MCTL_GETAREA
+         Param1=0
+         Param2=0
+         Return=FARMACROAREA
+
+
 zg 10.02.2011 02:16:46 +0200 - build 1848
 
 1. уточнение 1846.2.

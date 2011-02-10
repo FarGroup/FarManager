@@ -3254,72 +3254,89 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 		{
 			if (!Param) return FALSE;
 
-			ActlKeyMacro km={0};
 			oldfar::ActlKeyMacro *kmA=(oldfar::ActlKeyMacro *)Param;
-			km.StructSize=sizeof(oldfar::ActlKeyMacro);
+			int Command;
+			int Param1=0;
+			bool Process=true;
+
+			MacroCheckMacroText kmW={0};
+			kmW.Check.Text.StructSize=sizeof(MacroParseResult);
 
 			switch (kmA->Command)
 			{
 				case oldfar::MCMD_LOADALL:
-					km.Command=MCMD_LOADALL;
+					Command=MCTL_LOADALL;
 					break;
 				case oldfar::MCMD_SAVEALL:
-					km.Command=MCMD_SAVEALL;
-					break;
-				case oldfar::MCMD_POSTMACROSTRING:
-					km.Command=MCMD_POSTMACROSTRING;
-					km.Param.PlainText.SequenceText=AnsiToUnicode(kmA->Param.PlainText.SequenceText);
-
-					if (kmA->Param.PlainText.Flags&oldfar::KSFLAGS_DISABLEOUTPUT) km.Param.PlainText.Flags|=KMFLAGS_DISABLEOUTPUT;
-
-					if (kmA->Param.PlainText.Flags&oldfar::KSFLAGS_NOSENDKEYSTOPLUGINS) km.Param.PlainText.Flags|=KMFLAGS_NOSENDKEYSTOPLUGINS;
-
-					if (kmA->Param.PlainText.Flags&oldfar::KSFLAGS_REG_MULTI_SZ) km.Param.PlainText.Flags|=KMFLAGS_REG_MULTI_SZ;
-
+					Command=MCTL_SAVEALL;
 					break;
 				case oldfar::MCMD_GETSTATE:
-					km.Command=MCMD_GETSTATE;
+					Command=MCTL_GETSTATE;
+					break;
+				case oldfar::MCMD_POSTMACROSTRING:
+					Command=MCTL_SENDSTRING;
+					Param1=MSSC_POST;
+					kmW.Check.Text.SequenceText=AnsiToUnicode(kmA->Param.PlainText.SequenceText);
+
+					if (kmA->Param.PlainText.Flags&oldfar::KSFLAGS_DISABLEOUTPUT) kmW.Check.Text.Flags|=KMFLAGS_DISABLEOUTPUT;
+
+					if (kmA->Param.PlainText.Flags&oldfar::KSFLAGS_NOSENDKEYSTOPLUGINS) kmW.Check.Text.Flags|=KMFLAGS_NOSENDKEYSTOPLUGINS;
+
+					if (kmA->Param.PlainText.Flags&oldfar::KSFLAGS_REG_MULTI_SZ) kmW.Check.Text.Flags|=KMFLAGS_REG_MULTI_SZ;
+
 					break;
 
 				case oldfar::MCMD_CHECKMACRO:
-					km.Command=MCMD_CHECKMACRO;
-					km.Param.PlainText.SequenceText=AnsiToUnicode(kmA->Param.PlainText.SequenceText);
+					Command=MCTL_SENDSTRING;
+					Param1=MSSC_CHECK;
+					kmW.Check.Text.SequenceText=AnsiToUnicode(kmA->Param.PlainText.SequenceText);
+					break;
+
+				default:
+					Process=false;
 					break;
 			}
 
-			INT_PTR res = FarAdvControl(ModuleNumber, ACTL_KEYMACRO, &km);
+			INT_PTR res=0;
 
-			switch (km.Command)
+			if (Process)
 			{
-				case MCMD_CHECKMACRO:
+				res = farMacroControl(0,Command,Param1,(INT_PTR)&kmW);
+
+				if (Command == MCTL_SENDSTRING)
 				{
+					switch (Param1)
+					{
+						case MSSC_CHECK:
+						{
+							if (ErrMsg1) xf_free(ErrMsg1);
 
-					if (ErrMsg1) xf_free(ErrMsg1);
+							if (ErrMsg2) xf_free(ErrMsg2);
 
-					if (ErrMsg2) xf_free(ErrMsg2);
+							if (ErrMsg3) xf_free(ErrMsg3);
 
-					if (ErrMsg3) xf_free(ErrMsg3);
+							string ErrMessage[3];
 
-					string ErrMessage[3];
+							CtrlObject->Macro.GetMacroParseError(&ErrMessage[0],&ErrMessage[1],&ErrMessage[2],nullptr);
 
-					CtrlObject->Macro.GetMacroParseError(&ErrMessage[0],&ErrMessage[1],&ErrMessage[2],nullptr);
+							kmA->Param.MacroResult.ErrMsg1 = ErrMsg1 = UnicodeToAnsi(ErrMessage[0]);
+							kmA->Param.MacroResult.ErrMsg2 = ErrMsg2 = UnicodeToAnsi(ErrMessage[1]);
+							kmA->Param.MacroResult.ErrMsg3 = ErrMsg3 = UnicodeToAnsi(ErrMessage[2]);
 
-					kmA->Param.MacroResult.ErrMsg1 = ErrMsg1 = UnicodeToAnsi(ErrMessage[0]);
-					kmA->Param.MacroResult.ErrMsg2 = ErrMsg2 = UnicodeToAnsi(ErrMessage[1]);
-					kmA->Param.MacroResult.ErrMsg3 = ErrMsg3 = UnicodeToAnsi(ErrMessage[2]);
+							if (kmW.Check.Text.SequenceText)
+								xf_free((void*)kmW.Check.Text.SequenceText);
 
-					if (km.Param.PlainText.SequenceText)
-						xf_free((void*)km.Param.PlainText.SequenceText);
+							break;
+						}
 
-					break;
+						case MSSC_POST:
+
+							if (kmW.Check.Text.SequenceText)
+								xf_free((void*)kmW.Check.Text.SequenceText);
+
+							break;
+					}
 				}
-
-				case MCMD_POSTMACROSTRING:
-
-					if (km.Param.PlainText.SequenceText)
-						xf_free((void*)km.Param.PlainText.SequenceText);
-
-					break;
 			}
 
 			return res;

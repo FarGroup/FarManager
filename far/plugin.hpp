@@ -896,15 +896,11 @@ typedef BOOL (WINAPI *FARAPISHOWHELP)(
 enum ADVANCED_CONTROL_COMMANDS
 {
 	ACTL_GETFARVERSION,
-#ifdef FAR_USE_INTERNALS
-
-#endif // END FAR_USE_INTERNALS
 	ACTL_GETSYSWORDDIV,
 	ACTL_WAITKEY,
 	ACTL_GETCOLOR,
 	ACTL_GETARRAYCOLOR,
 	ACTL_EJECTMEDIA,
-	ACTL_KEYMACRO,
 	ACTL_GETWINDOWINFO,
 	ACTL_GETWINDOWCOUNT,
 	ACTL_SETCURRENTWINDOW,
@@ -1093,6 +1089,16 @@ struct ActlMediaType
 };
 #endif // END FAR_USE_INTERNALS
 
+
+enum MACRO_CONTROL_COMMANDS
+{
+	MCTL_LOADALL           = 0,
+	MCTL_SAVEALL           = 1,
+	MCTL_SENDSTRING        = 2,
+	MCTL_GETSTATE          = 5,
+	MCTL_GETAREA           = 6,
+};
+
 enum FARKEYMACROFLAGS
 {
 	KMFLAGS_DISABLEOUTPUT       = 0x00000001,
@@ -1101,20 +1107,13 @@ enum FARKEYMACROFLAGS
 	KMFLAGS_SILENTCHECK         = 0x00000001,
 };
 
-enum FARMACROCOMMAND
+enum FARMACROSENDSTRINGCOMMAND
 {
-	MCMD_LOADALL           = 0,
-	MCMD_SAVEALL           = 1,
-	MCMD_POSTMACROSTRING   = 2,
+	MSSC_POST              =0,
 #ifdef FAR_USE_INTERNALS
-	MCMD_COMPILEMACRO      = 3,
+	MSSC_EXEC              =1,
 #endif // END FAR_USE_INTERNALS
-	MCMD_CHECKMACRO        = 4,
-	MCMD_GETSTATE          = 5,
-	MCMD_GETAREA           = 6,
-#ifdef FAR_USE_INTERNALS
-	MCMD_RUNMACROSTRING    = 7,
-#endif // END FAR_USE_INTERNALS
+	MSSC_CHECK             =2,
 };
 
 enum FARMACROAREA
@@ -1167,26 +1166,27 @@ enum FARMACROPARSEERRORCODE
 
 struct MacroParseResult
 {
+	int StructSize;
 	DWORD ErrCode;
 	COORD ErrPos;
 	const wchar_t *ErrSrc;
 };
 
-struct ActlKeyMacro
+
+struct MacroSendMacroText
 {
 	int StructSize;
-	int Command;
-	union
-	{
-		struct
-		{
-			const wchar_t *SequenceText;
-			DWORD Flags;
-			DWORD AKey;
-		} PlainText;
-		struct MacroParseResult MacroResult;
-		DWORD_PTR Reserved[7];
-	} Param;
+	DWORD Flags;
+	DWORD AKey;
+	const wchar_t *SequenceText;
+};
+
+struct MacroCheckMacroText
+{
+	union {
+		MacroSendMacroText Text;
+		MacroParseResult   Result;
+	} Check;
 };
 
 #ifdef FAR_USE_INTERNALS
@@ -1693,6 +1693,13 @@ typedef int (WINAPI *FARAPIINPUTBOX)(
     DWORD Flags
 );
 
+typedef int (WINAPI *FARAPIMACROSCONTROL)(
+    HANDLE hHandle,
+    int Command,
+    int Param1,
+    INT_PTR Param2
+);
+
 typedef int (WINAPI *FARAPIPLUGINSCONTROL)(
     HANDLE hHandle,
     int Command,
@@ -1921,6 +1928,7 @@ struct PluginStartupInfo
 	FARAPIPLUGINSCONTROL   PluginsControl;
 	FARAPIFILEFILTERCONTROL FileFilterControl;
 	FARAPIREGEXPCONTROL    RegExpControl;
+	FARAPIMACROSCONTROL    MacroControl;
 };
 
 

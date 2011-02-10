@@ -386,94 +386,6 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 		      return FAR_GetDriveType(DiskLetter,nullptr,(amt && !(amt->Flags&MEDIATYPE_NODETECTCDROM)?TRUE:FALSE));
 		    }
 		*/
-		/* $ 21.12.2000 SVS
-		   Macro API
-		*/
-		case ACTL_KEYMACRO:
-		{
-			if (CtrlObject && Param) // все зависит от этой бадяги.
-			{
-				KeyMacro& Macro=CtrlObject->Macro; //??
-				ActlKeyMacro *KeyMacro=(ActlKeyMacro*)Param;
-
-				switch (KeyMacro->Command)
-				{
-					case MCMD_LOADALL: // из реестра в память ФАР с затиранием предыдущего
-					{
-						if (Macro.IsRecording())
-							return FALSE;
-
-						return Macro.LoadMacros(!Macro.IsExecuting());
-					}
-					case MCMD_SAVEALL: // из памяти ФАРа в реестра
-					{
-						if (Macro.IsRecording()) // || Macro.IsExecuting())
-							return FALSE;
-
-						Macro.SaveMacros();
-						return TRUE;
-					}
-					case MCMD_POSTMACROSTRING:
-					{
-						if (KeyMacro->Param.PlainText.SequenceText && *KeyMacro->Param.PlainText.SequenceText)
-							return Macro.PostNewMacro(KeyMacro->Param.PlainText.SequenceText,KeyMacro->Param.PlainText.Flags<<8,KeyMacro->Param.PlainText.AKey);
-
-						return FALSE;
-					}
-					case MCMD_RUNMACROSTRING:
-					{
-						return FALSE;
-					}
-					case MCMD_CHECKMACRO:  // проверка макроса
-					{
-						MacroRecord CurMacro={0};
-						int Ret=Macro.ParseMacroString(&CurMacro,KeyMacro->Param.PlainText.SequenceText,(KeyMacro->Param.PlainText.Flags&KMFLAGS_SILENTCHECK)?TRUE:FALSE);
-
-						if (Ret)
-						{
-							if (CurMacro.BufferSize > 1)
-								xf_free(CurMacro.Buffer);
-							memset(&KeyMacro->Param.MacroResult,0,sizeof(struct MacroParseResult));
-						}
-						else
-						{
-							static string ErrSrc;
-							Macro.GetMacroParseError(&KeyMacro->Param.MacroResult.ErrCode,&KeyMacro->Param.MacroResult.ErrPos,&ErrSrc);
-							KeyMacro->Param.MacroResult.ErrSrc=ErrSrc;
-						}
-
-						return Ret;
-					}
-					case MCMD_GETSTATE:
-					{
-						return Macro.GetCurRecord(nullptr,nullptr);
-					}
-
-					case MCMD_GETAREA:
-					{
-						return Macro.GetMode();
-					}
-#if 0
-					case MCMD_COMPILEMACRO:
-					{
-						MacroRecord CurMacro={0};
-						int Ret=Macro.ParseMacroString(&CurMacro,KeyMacro->Param.PlainText.SequenceText);
-
-						if (Ret)
-						{
-							//KeyMacro->Params.Compile.Flags=CurMacro.Flags;
-							KeyMacro->Param.Compile.Sequence=CurMacro.Buffer;
-							KeyMacro->Param.Compile.Count=CurMacro.BufferSize;
-						}
-
-						return Ret;
-					}
-#endif
-				}
-			}
-
-			return FALSE;
-		}
 		/* $ 05.06.2001 tran
 		   новые ACTL_ для работы с фреймами */
 		case ACTL_GETWINDOWINFO:
@@ -2284,6 +2196,107 @@ int WINAPI farGetPathRoot(const wchar_t *Path, wchar_t *Root, int DestSize)
 
 		return 1;
 	}
+}
+
+int WINAPI farMacroControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2)
+{
+	if (CtrlObject) // все зависит от этой бадяги.
+	{
+		KeyMacro& Macro=CtrlObject->Macro; //??
+
+		switch (Command)
+		{
+			// Param1=0, Param2 - 0
+			case MCTL_LOADALL: // из реестра в память ФАР с затиранием предыдущего
+			{
+				if (Macro.IsRecording())
+					return FALSE;
+        		return Macro.LoadMacros(!Macro.IsExecuting());
+			}
+
+			// Param1=0, Param2 - 0
+			case MCTL_SAVEALL: // из памяти ФАРа в реестра
+			{
+				if (Macro.IsRecording()) // || Macro.IsExecuting())
+					return FALSE;
+
+				Macro.SaveMacros();
+				return TRUE;
+			}
+
+			// Param1=FARMACROSENDSTRINGCOMMAND, Param2...
+			case MCTL_SENDSTRING:
+			{
+				if (!Param2)
+					break;
+
+				switch (Param1)
+				{
+					// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*
+					case MSSC_POST:
+					{
+						MacroSendMacroText *PlainText=(MacroSendMacroText*)Param2;
+						if (PlainText->SequenceText && *PlainText->SequenceText)
+							return Macro.PostNewMacro(PlainText->SequenceText,PlainText->Flags<<8,PlainText->AKey);
+
+						break;
+					}
+
+					// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*
+					case MSSC_EXEC:
+					{
+						break;
+					}
+
+					// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroCheckMacroText*
+					case MSSC_CHECK:
+					{
+						MacroCheckMacroText *CheckText=(MacroCheckMacroText*)Param2;
+						if (CheckText->Check.Text.SequenceText && *CheckText->Check.Text.SequenceText)
+						{
+							MacroRecord CurMacro={0};
+							int Ret=Macro.ParseMacroString(&CurMacro,CheckText->Check.Text.SequenceText,(CheckText->Check.Text.Flags&KMFLAGS_SILENTCHECK)?TRUE:FALSE);
+
+							if (Ret)
+							{
+								if (CurMacro.BufferSize > 1)
+									xf_free(CurMacro.Buffer);
+
+								memset(&CheckText->Check.Result,0,sizeof(struct MacroParseResult));
+								CheckText->Check.Result.StructSize=sizeof(MacroParseResult);
+							}
+							else
+							{
+								static string ErrSrc;
+								Macro.GetMacroParseError(&CheckText->Check.Result.ErrCode,&CheckText->Check.Result.ErrPos,&ErrSrc);
+								CheckText->Check.Result.ErrSrc=ErrSrc;
+							}
+			            	return Ret;
+						}
+
+						break;
+					}
+				}
+
+				break;
+			}
+
+			// Param1=0, Param2 - 0
+			case MCTL_GETSTATE:
+			{
+				return Macro.GetCurRecord(nullptr,nullptr);
+			}
+
+			// Param1=0, Param2 - 0
+			case MCTL_GETAREA:
+			{
+				return Macro.GetMode();
+			}
+		}
+	}
+
+
+	return 0;
 }
 
 int WINAPI farPluginsControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2)
