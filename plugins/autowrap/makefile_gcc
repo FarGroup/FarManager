@@ -1,5 +1,5 @@
 NAME = AutoWrap
-SRCS = AutoWrap.cpp
+SRCS = AutoWrap.cpp WrapReg.cpp
 DOCS = WrapEng.lng WrapRus.lng
 
 include ../makefile_gcc_def_inc

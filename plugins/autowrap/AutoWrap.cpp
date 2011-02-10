@@ -1,8 +1,10 @@
-#include "plugin.hpp"
-#include "WrapLng.hpp"
 #include "AutoWrap.hpp"
-#include "CRT/crt.hpp"
+#include "WrapReg.hpp"
+#include "WrapLng.hpp"
 #include "DlgBuilder.hpp"
+#include "version.hpp"
+#include <initguid.h>
+#include "guid.hpp"
 
 #if defined(__GNUC__)
 #ifdef __cplusplus
@@ -22,31 +24,70 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 }
 #endif
 
-#include "WrapReg.cpp"
-#include "WrapMix.cpp"
+static struct PluginStartupInfo Info;
+static struct FarStandardFunctions FSF;
+wchar_t *PluginRootKey;
 
-int WINAPI EXP_NAME(GetMinFarVersion)()
+struct Options
 {
-  return FARMANAGERVERSION;
+  wchar_t FileMasks[512];
+  wchar_t ExcludeFileMasks[512];
+  int RightMargin;
+  int Wrap;
+} Opt;
+
+const wchar_t *GetCommaWord(const wchar_t *Src, wchar_t *Word);
+
+const wchar_t *GetMsg(int MsgId)
+{
+  return Info.GetMsg(&MainGuid, MsgId);
 }
 
-void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
+void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
+{
+  Info->StructSize=sizeof(GlobalInfo);
+  Info->MinFarVersion=FARMANAGERVERSION;
+  Info->Version=PLUGIN_VERSION;
+  Info->Guid=MainGuid;
+  Info->Title=PLUGIN_NAME;
+  Info->Description=PLUGIN_DESC;
+  Info->Author=PLUGIN_AUTHOR;
+}
+
+void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 {
   ::Info=*Info;
   FSF=*Info->FSF;
   ::Info.FSF=&FSF;
+  PluginRootKey = (wchar_t *)malloc(lstrlen(Info->RootKey)*sizeof(wchar_t) + sizeof(L"\\AutoWrap"));
   lstrcpy(PluginRootKey,Info->RootKey);
-  lstrcat(PluginRootKey,_T("\\AutoWrap"));
-  Opt.Wrap=GetRegKey(HKEY_CURRENT_USER,_T(""),_T("Wrap"),0);
-  Opt.RightMargin=GetRegKey(HKEY_CURRENT_USER,_T(""),_T("RightMargin"),75);
-  GetRegKey(HKEY_CURRENT_USER,_T(""),_T("FileMasks"),Opt.FileMasks,_T("*.*"),ARRAYSIZE(Opt.FileMasks));
-  GetRegKey(HKEY_CURRENT_USER,_T(""),_T("ExcludeFileMasks"),Opt.ExcludeFileMasks,_T(""),ARRAYSIZE(Opt.ExcludeFileMasks));
+  lstrcat(PluginRootKey,L"\\AutoWrap");
+
+  Opt.Wrap=GetRegKey(L"",L"Wrap",0);
+  Opt.RightMargin=GetRegKey(L"",L"RightMargin",75);
+  GetRegKey(L"",L"FileMasks",Opt.FileMasks,L"*.*",ARRAYSIZE(Opt.FileMasks));
+  GetRegKey(L"",L"ExcludeFileMasks",Opt.ExcludeFileMasks,L"",ARRAYSIZE(Opt.ExcludeFileMasks));
 }
 
-
-HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
+void WINAPI ExitFARW()
 {
-  PluginDialogBuilder Builder(Info, MAutoWrap, NULL);
+  free(PluginRootKey);
+}
+
+void WINAPI GetPluginInfoW(struct PluginInfo *Info)
+{
+  Info->StructSize=sizeof(*Info);
+  Info->Flags=PF_EDITOR|PF_DISABLEPANELS;
+  static const wchar_t *PluginMenuStrings[1];
+  PluginMenuStrings[0]=GetMsg(MAutoWrap);
+  Info->PluginMenu.Guids=&MenuGuid;
+  Info->PluginMenu.Strings=PluginMenuStrings;
+  Info->PluginMenu.Count=ARRAYSIZE(PluginMenuStrings);
+}
+
+HANDLE WINAPI OpenPluginW(int OpenFrom,const GUID* Guid,INT_PTR Item)
+{
+  PluginDialogBuilder Builder(Info, MainGuid, DialogGuid, MAutoWrap, nullptr);
   Builder.AddCheckbox(MEnableWrap, &Opt.Wrap);
   FarDialogItem *RightMargin = Builder.AddIntEditField(&Opt.RightMargin, 3);
   Builder.AddTextAfter(RightMargin, MRightMargin);
@@ -58,127 +99,106 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
   Builder.AddOKCancel(MOk, MCancel);
   if (Builder.ShowDialog())
   {
-    SetRegKey(HKEY_CURRENT_USER,_T(""),_T("Wrap"),Opt.Wrap);
-    SetRegKey(HKEY_CURRENT_USER,_T(""),_T("RightMargin"),Opt.RightMargin);
-    SetRegKey(HKEY_CURRENT_USER,_T(""),_T("FileMasks"),Opt.FileMasks);
-    SetRegKey(HKEY_CURRENT_USER,_T(""),_T("ExcludeFileMasks"),Opt.ExcludeFileMasks);
+    SetRegKey(L"",L"Wrap",Opt.Wrap);
+    SetRegKey(L"",L"RightMargin",Opt.RightMargin);
+    SetRegKey(L"",L"FileMasks",Opt.FileMasks);
+    SetRegKey(L"",L"ExcludeFileMasks",Opt.ExcludeFileMasks);
   }
   return INVALID_HANDLE_VALUE;
 }
 
 
-int WINAPI EXP_NAME(ProcessEditorInput)(const INPUT_RECORD *Rec)
+int WINAPI ProcessEditorInputW(const INPUT_RECORD *Rec)
 {
   if (!Opt.Wrap)
-    return(FALSE);
+    return FALSE;
 
   static int Reenter=FALSE;
 
   if (Reenter || Rec->EventType!=KEY_EVENT || !Rec->Event.KeyEvent.bKeyDown || Rec->Event.KeyEvent.wVirtualKeyCode==VK_F1)
-    return(FALSE);
+    return FALSE;
 
   struct EditorInfo startei;
-  Info.EditorControl(ECTL_GETINFO,&startei);
+  Info.EditorControl(0,ECTL_GETINFO,0,(INT_PTR)&startei);
 
   struct EditorGetString prevegs;
   prevegs.StringNumber=-1;
-  Info.EditorControl(ECTL_GETSTRING,&prevegs);
+  Info.EditorControl(0,ECTL_GETSTRING,0,(INT_PTR)&prevegs);
 
   Reenter=TRUE;
-  Info.EditorControl(ECTL_PROCESSINPUT,(void*)Rec);
+  Info.EditorControl(0,ECTL_PROCESSINPUT,0,(INT_PTR)Rec);
   Reenter=FALSE;
 
   for (int Pass=1;;Pass++)
   {
     EditorInfo ei;
-    Info.EditorControl(ECTL_GETINFO,&ei);
-#ifdef UNICODE
-    LPWSTR FileName=NULL;
-    size_t FileNameSize=Info.EditorControl(ECTL_GETFILENAME,NULL);
+    Info.EditorControl(0,ECTL_GETINFO,0,(INT_PTR)&ei);
+    LPWSTR FileName=nullptr;
+    size_t FileNameSize=Info.EditorControl(0,ECTL_GETFILENAME,0,0);
     if(FileNameSize)
     {
       FileName=new wchar_t[FileNameSize];
       if(FileName)
       {
-        Info.EditorControl(ECTL_GETFILENAME,FileName);
+        Info.EditorControl(0,ECTL_GETFILENAME,0,(INT_PTR)FileName);
       }
     }
-#endif
     if (Pass==1 && *Opt.FileMasks)
     {
       if (ei.CurLine!=startei.CurLine)
       {
-#ifdef UNICODE
         if(FileName)
-        {
           delete[] FileName;
-        }
-#endif
         return TRUE;
       }
-      int Found=FALSE;
-      TCHAR FileMask[MAX_PATH],*MaskPtr=Opt.FileMasks;
-      while ((MaskPtr=GetCommaWord(MaskPtr,FileMask))!=NULL)
-        if (Info.CmpName(FileMask,
-#ifndef UNICODE
-                                  ei.
-#endif
-                                     FileName,TRUE))
+      bool Found=false;
+      wchar_t FileMask[MAX_PATH];
+      const wchar_t *MaskPtr=Opt.FileMasks;
+      while ((MaskPtr=GetCommaWord(MaskPtr,FileMask))!=nullptr)
+      {
+        if (FSF.ProcessName(FileMask,FileName,0,PN_CMPNAME|PN_SKIPPATH))
         {
-          Found=TRUE;
+          Found=true;
           break;
         }
+      }
       if (!Found)
       {
-#ifdef UNICODE
         if(FileName)
-        {
           delete[] FileName;
-        }
-#endif
         return TRUE;
       }
       MaskPtr=Opt.ExcludeFileMasks;
-      while ((MaskPtr=GetCommaWord(MaskPtr,FileMask))!=NULL)
-        if (Info.CmpName(FileMask,
-#ifndef UNICODE
-                                  ei.
-#endif
-                                     FileName,TRUE))
+      while ((MaskPtr=GetCommaWord(MaskPtr,FileMask))!=nullptr)
+      {
+        if (FSF.ProcessName(FileMask,FileName,0,PN_CMPNAME|PN_SKIPPATH))
         {
-          Found=FALSE;
+          Found=false;
           break;
         }
+      }
       if (!Found)
       {
-#ifdef UNICODE
         if(FileName)
-        {
           delete[] FileName;
-        }
-#endif
         return TRUE;
       }
     }
-#ifdef UNICODE
     if(FileName)
-    {
       delete[] FileName;
-    }
-#endif
 
     struct EditorGetString egs;
     egs.StringNumber=ei.CurLine;
-    Info.EditorControl(ECTL_GETSTRING,&egs);
+    Info.EditorControl(0,ECTL_GETSTRING,0,(INT_PTR)&egs);
 
-    int TabPresent=_tmemchr(egs.StringText,_T('\t'),egs.StringLength)!=NULL;
+    bool TabPresent=wmemchr(egs.StringText,L'\t',egs.StringLength)!=nullptr;
     int TabLength=egs.StringLength;
     if (TabPresent)
     {
       struct EditorConvertPos ecp;
       ecp.StringNumber=-1;
       ecp.SrcPos=egs.StringLength;
-      Info.EditorControl(ECTL_REALTOTAB,&ecp);
+      Info.EditorControl(0,ECTL_REALTOTAB,0,(INT_PTR)&ecp);
       TabLength=ecp.DestPos;
     }
 
@@ -186,9 +206,9 @@ int WINAPI EXP_NAME(ProcessEditorInput)(const INPUT_RECORD *Rec)
         TabLength>=Opt.RightMargin && ei.CurPos>=egs.StringLength)
     {
       int SpacePos=-1;
-      int I;
-      for (I=egs.StringLength-1;I>0;I--)
-        if (egs.StringText[I]==_T(' ') || egs.StringText[I]==_T('\t'))
+      for (int I=egs.StringLength-1;I>0;I--)
+      {
+        if (egs.StringText[I]==L' ' || egs.StringText[I]==L'\t')
         {
           SpacePos=I;
           int TabPos=I;
@@ -197,23 +217,26 @@ int WINAPI EXP_NAME(ProcessEditorInput)(const INPUT_RECORD *Rec)
             struct EditorConvertPos ecp;
             ecp.StringNumber=-1;
             ecp.SrcPos=I;
-            Info.EditorControl(ECTL_REALTOTAB,&ecp);
+            Info.EditorControl(0,ECTL_REALTOTAB,0,(INT_PTR)&ecp);
             TabPos=ecp.DestPos;
           }
           if (TabPos<Opt.RightMargin)
             break;
         }
+      }
 
       if (SpacePos<=0)
         break;
 
-      int SpaceOnly=TRUE;
-      for (I=0;I<SpacePos;I++)
-        if (egs.StringText[I]!=_T(' ') && egs.StringText[I]!=_T('\t'))
+      bool SpaceOnly=true;
+      for (int I=0;I<SpacePos;I++)
+      {
+        if (egs.StringText[I]!=L' ' && egs.StringText[I]!=L'\t')
         {
-          SpaceOnly=FALSE;
+          SpaceOnly=false;
           break;
         }
+      }
 
       if (SpaceOnly)
         break;
@@ -221,41 +244,60 @@ int WINAPI EXP_NAME(ProcessEditorInput)(const INPUT_RECORD *Rec)
       struct EditorSetPosition esp;
       memset(&esp,-1,sizeof(esp));
       esp.CurPos=SpacePos+1;
-      Info.EditorControl(ECTL_SETPOSITION,&esp);
+      Info.EditorControl(0,ECTL_SETPOSITION,0,(INT_PTR)&esp);
       int Indent=TRUE;
-      if (!Info.EditorControl(ECTL_INSERTSTRING,&Indent))
+      if (!Info.EditorControl(0,ECTL_INSERTSTRING,0,(INT_PTR)&Indent))
         break;
       if (ei.CurPos<SpacePos)
       {
         esp.CurLine=ei.CurLine;
         esp.CurPos=ei.CurPos;
-        Info.EditorControl(ECTL_SETPOSITION,&esp);
+        Info.EditorControl(0,ECTL_SETPOSITION,0,(INT_PTR)&esp);
       }
       else
       {
         egs.StringNumber=ei.CurLine+1;
-        Info.EditorControl(ECTL_GETSTRING,&egs);
+        Info.EditorControl(0,ECTL_GETSTRING,0,(INT_PTR)&egs);
         esp.CurLine=ei.CurLine+1;
         esp.CurPos=egs.StringLength;
-        Info.EditorControl(ECTL_SETPOSITION,&esp);
+        Info.EditorControl(0,ECTL_SETPOSITION,0,(INT_PTR)&esp);
       }
-      Info.EditorControl(ECTL_REDRAW,NULL);
+      Info.EditorControl(0,ECTL_REDRAW,0,0);
     }
     else
       break;
   }
-  return(TRUE);
+  return TRUE;
 }
 
-
-void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
+const wchar_t *GetCommaWord(const wchar_t *Src, wchar_t *Word)
 {
-  Info->StructSize=sizeof(*Info);
-  Info->Flags=PF_EDITOR|PF_DISABLEPANELS;
-  Info->DiskMenuStringsNumber=0;
-  static const TCHAR *PluginMenuStrings[1];
-  PluginMenuStrings[0]=GetMsg(MAutoWrap);
-  Info->PluginMenuStrings=PluginMenuStrings;
-  Info->PluginMenuStringsNumber=ARRAYSIZE(PluginMenuStrings);
-  Info->PluginConfigStringsNumber=0;
+  if (*Src==L'\0')
+    return nullptr;
+
+  int WordPos=0;
+  bool SkipBrackets=false;
+
+  for (; *Src!=L'\0'; Src++,WordPos++)
+  {
+    if (*Src==L'[' && wcschr(Src+1,L']')!=nullptr)
+      SkipBrackets=true;
+    if (*Src==L']')
+      SkipBrackets=false;
+    if (*Src==L',' && !SkipBrackets)
+    {
+      Word[WordPos]=0;
+      Src++;
+      while (iswspace(*Src))
+        Src++;
+      return Src;
+    }
+    else
+    {
+      Word[WordPos]=*Src;
+    }
+  }
+  Word[WordPos]=0;
+
+  return Src;
 }
