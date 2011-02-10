@@ -1,10 +1,10 @@
 #include "Align.hpp"
 #include "AlignReg.hpp"
 
-HKEY CreateRegKey(const TCHAR *Key);
-HKEY OpenRegKey(const TCHAR *Key);
+HKEY CreateRegKey(const wchar_t *Key);
+HKEY OpenRegKey(const wchar_t *Key);
 
-void SetRegKey(const TCHAR *Key,const TCHAR *ValueName,DWORD ValueData)
+void SetRegKey(const wchar_t *Key,const wchar_t *ValueName,DWORD ValueData)
 {
   HKEY hKey=CreateRegKey(Key);
   RegSetValueEx(hKey,ValueName,0,REG_DWORD,(BYTE *)&ValueData,sizeof(ValueData));
@@ -12,15 +12,15 @@ void SetRegKey(const TCHAR *Key,const TCHAR *ValueName,DWORD ValueData)
 }
 
 
-void SetRegKey(const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData)
+void SetRegKey(const wchar_t *Key,const wchar_t *ValueName,wchar_t *ValueData)
 {
   HKEY hKey=CreateRegKey(Key);
-  RegSetValueEx(hKey,ValueName,0,REG_SZ,(CONST BYTE *)ValueData,(lstrlen(ValueData)+1)*sizeof(TCHAR));
+  RegSetValueEx(hKey,ValueName,0,REG_SZ,(CONST BYTE *)ValueData,(lstrlen(ValueData)+1)*sizeof(wchar_t));
   RegCloseKey(hKey);
 }
 
 
-int GetRegKey(const TCHAR *Key,const TCHAR *ValueName,int &ValueData,DWORD Default)
+int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,int &ValueData,DWORD Default)
 {
   HKEY hKey=OpenRegKey(Key);
   DWORD Type,Size=sizeof(ValueData);
@@ -35,7 +35,7 @@ int GetRegKey(const TCHAR *Key,const TCHAR *ValueName,int &ValueData,DWORD Defau
 }
 
 
-int GetRegKey(const TCHAR *Key,const TCHAR *ValueName,DWORD Default)
+int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,DWORD Default)
 {
   int ValueData;
   GetRegKey(Key,ValueName,ValueData,Default);
@@ -43,7 +43,7 @@ int GetRegKey(const TCHAR *Key,const TCHAR *ValueName,DWORD Default)
 }
 
 
-int GetRegKey(const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData,const TCHAR *Default,DWORD DataSize)
+int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,wchar_t *ValueData,const wchar_t *Default,DWORD DataSize)
 {
   HKEY hKey=OpenRegKey(Key);
   DWORD Type;
@@ -57,7 +57,7 @@ int GetRegKey(const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData,const TCH
   return(TRUE);
 }
 
-HKEY CreateRegKey(const TCHAR *Key)
+HKEY CreateRegKey(const wchar_t *Key)
 {
   HKEY hKey=NULL;
   if (RegCreateKeyEx(HKEY_CURRENT_USER,PluginRootKey,0,0,0,KEY_WRITE,0,&hKey,0)==ERROR_SUCCESS)
@@ -73,7 +73,7 @@ HKEY CreateRegKey(const TCHAR *Key)
   return hKey;
 }
 
-HKEY OpenRegKey(const TCHAR *Key)
+HKEY OpenRegKey(const wchar_t *Key)
 {
   HKEY hKey=NULL;
   if (RegOpenKeyEx(HKEY_CURRENT_USER,PluginRootKey,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS)

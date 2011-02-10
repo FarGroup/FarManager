@@ -25,17 +25,17 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 #endif
 
 #define GetCheck(i) (int)Info.SendDlgMessage(hDlg,DM_GETCHECK,i,0)
-#define GetDataPtr(i) ((const TCHAR *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,i,0))
+#define GetDataPtr(i) ((const wchar_t *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,i,0))
 
 static struct PluginStartupInfo Info;
 static struct FarStandardFunctions FSF;
-TCHAR *PluginRootKey;
+wchar_t *PluginRootKey;
 
 static void ReformatBlock(int RightMargin,int SmartMode,int Justify);
 static void JustifyBlock(int RightMargin);
 static int JustifyString(int RightMargin,struct EditorSetString &ess);
 
-const TCHAR *GetMsg(int MsgId)
+const wchar_t *GetMsg(int MsgId)
 {
   return Info.GetMsg(&MainGuid,MsgId);
 }
@@ -46,9 +46,9 @@ void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
   Info->MinFarVersion=FARMANAGERVERSION;
   Info->Version=PLUGIN_VERSION;
   Info->Guid=MainGuid;
-  Info->Title=_T(PLUGIN_NAME);
-  Info->Description=_T(PLUGIN_DESC);
-  Info->Author=_T(PLUGIN_AUTHOR);
+  Info->Title=PLUGIN_NAME;
+  Info->Description=PLUGIN_DESC;
+  Info->Author=PLUGIN_AUTHOR;
 }
 
 
@@ -57,7 +57,7 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
   ::Info=*Info;
   ::FSF=*Info->FSF;
   ::Info.FSF=&::FSF;
-  PluginRootKey = (TCHAR *)malloc(lstrlen(Info->RootKey)*sizeof(TCHAR) + sizeof(L"\\Align"));
+  PluginRootKey = (wchar_t *)malloc(lstrlen(Info->RootKey)*sizeof(wchar_t) + sizeof(L"\\Align"));
   lstrcpy(PluginRootKey,Info->RootKey);
   lstrcat(PluginRootKey,L"\\Align");
 }
@@ -73,9 +73,9 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 {
   Info->StructSize=sizeof(*Info);
   Info->Flags=PF_EDITOR|PF_DISABLEPANELS;
-  static const TCHAR *PluginMenuStrings[1];
+  static const wchar_t *PluginMenuStrings[1];
   PluginMenuStrings[0]=GetMsg(MAlign);
-  Info->PluginMenu.Guids=&MainGuid;
+  Info->PluginMenu.Guids=&MenuGuid;
   Info->PluginMenu.Strings=PluginMenuStrings;
   Info->PluginMenu.Count=ARRAYSIZE(PluginMenuStrings);
 }
@@ -99,7 +99,7 @@ HANDLE WINAPI OpenPluginW(int OpenFrom,const GUID* Guid,INT_PTR Data)
   int Reformat=GetRegKey(L"",L"Reformat",TRUE);
   int SmartMode=GetRegKey(L"",L"SmartMode",FALSE);
   int Justify=GetRegKey(L"",L"Justify",FALSE);
-  
+
   wchar_t marstr[32];
   DialogItems[1].PtrData = marstr;
   FSF.sprintf(marstr,L"%d",RightMargin);
@@ -108,7 +108,7 @@ HANDLE WINAPI OpenPluginW(int OpenFrom,const GUID* Guid,INT_PTR Data)
   DialogItems[4].Selected=SmartMode;
   DialogItems[5].Selected=Justify;
 
-  HANDLE hDlg=Info.DialogInit(&MainGuid,&MainGuid,-1,-1,76,10,NULL,DialogItems,ARRAYSIZE(DialogItems),0,0,NULL,0);
+  HANDLE hDlg=Info.DialogInit(&MainGuid,&DialogGuid,-1,-1,76,10,NULL,DialogItems,ARRAYSIZE(DialogItems),0,0,NULL,0);
 
   if (hDlg == INVALID_HANDLE_VALUE)
     return INVALID_HANDLE_VALUE;
@@ -123,7 +123,7 @@ HANDLE WINAPI OpenPluginW(int OpenFrom,const GUID* Guid,INT_PTR Data)
     SetRegKey(L"",L"RightMargin",RightMargin);
     SetRegKey(L"",L"SmartMode",SmartMode);
     SetRegKey(L"",L"Justify",Justify);
-    Info.EditorControl(ECTL_TURNOFFMARKINGBLOCK,NULL);
+    Info.EditorControl(0,ECTL_TURNOFFMARKINGBLOCK,0,0);
     if (Reformat)
       ReformatBlock(RightMargin,SmartMode,Justify);
     else if (Justify)
@@ -139,7 +139,7 @@ HANDLE WINAPI OpenPluginW(int OpenFrom,const GUID* Guid,INT_PTR Data)
 void ReformatBlock(int RightMargin,int SmartMode,int Justify)
 {
   EditorInfo ei;
-  Info.EditorControl(ECTL_GETINFO,&ei);
+  Info.EditorControl(0,ECTL_GETINFO,0,(INT_PTR)&ei);
 
   if (ei.BlockType!=BTYPE_STREAM || RightMargin<1)
     return;
@@ -148,22 +148,22 @@ void ReformatBlock(int RightMargin,int SmartMode,int Justify)
   memset(&esp,-1,sizeof(esp));
   esp.CurLine=ei.BlockStartLine;
   esp.CurPos=0;
-  Info.EditorControl(ECTL_SETPOSITION,&esp);
+  Info.EditorControl(0,ECTL_SETPOSITION,0,(INT_PTR)&esp);
 
-  TCHAR *TotalString=NULL;
+  wchar_t *TotalString=NULL;
   int TotalLength=0,IndentSize=0x7fffffff;
 
   while (1)
   {
     struct EditorGetString egs;
     egs.StringNumber=-1;
-    if (!Info.EditorControl(ECTL_GETSTRING,&egs))
+    if (!Info.EditorControl(0,ECTL_GETSTRING,0,(INT_PTR)&egs))
       break;
     if (egs.SelStart==-1 || egs.SelStart==egs.SelEnd)
       break;
     int ExpandNum=-1;
-    Info.EditorControl(ECTL_EXPANDTABS,&ExpandNum);
-    Info.EditorControl(ECTL_GETSTRING,&egs);
+    Info.EditorControl(0,ECTL_EXPANDTABS,0,(INT_PTR)&ExpandNum);
+    Info.EditorControl(0,ECTL_GETSTRING,0,(INT_PTR)&egs);
 
     int SpaceLength=0;
     while (SpaceLength<egs.StringLength && egs.StringText[SpaceLength]==L' ')
@@ -180,14 +180,14 @@ void ReformatBlock(int RightMargin,int SmartMode,int Justify)
       if (SpaceLength<IndentSize)
         IndentSize=SpaceLength;
 
-      TotalString=(TCHAR *)realloc(TotalString,(TotalLength+egs.StringLength+2)*sizeof(TCHAR));
+      TotalString=(wchar_t *)realloc(TotalString,(TotalLength+egs.StringLength+2)*sizeof(wchar_t));
       if (TotalLength!=0 && TotalString[TotalLength-1]!=L' ')
         TotalString[TotalLength++]=L' ';
 
       wmemcpy(TotalString+TotalLength,egs.StringText,egs.StringLength);
       TotalLength+=egs.StringLength;
     }
-    if (!Info.EditorControl(ECTL_DELETESTRING,NULL))
+    if (!Info.EditorControl(0,ECTL_DELETESTRING,0,0))
     {
       free(TotalString);
       return;
@@ -203,16 +203,16 @@ void ReformatBlock(int RightMargin,int SmartMode,int Justify)
   if (IndentSize>=MaxIndent)
     IndentSize=MaxIndent-1;
 
-  TCHAR IndentBuf[MaxIndent];
+  wchar_t IndentBuf[MaxIndent];
   if (IndentSize>0)
   {
     wmemset(IndentBuf,L' ',IndentSize);
     IndentBuf[IndentSize]=0;
   }
 
-  Info.EditorControl(ECTL_SETPOSITION,&esp);
-  Info.EditorControl(ECTL_INSERTSTRING,NULL);
-  Info.EditorControl(ECTL_SETPOSITION,&esp);
+  Info.EditorControl(0,ECTL_SETPOSITION,0,(INT_PTR)&esp);
+  Info.EditorControl(0,ECTL_INSERTSTRING,0,0);
+  Info.EditorControl(0,ECTL_SETPOSITION,0,(INT_PTR)&esp);
 
   int LastSplitPos=0,PrevSpacePos;
   while (LastSplitPos<TotalLength && TotalString[LastSplitPos]==L' ')
@@ -269,7 +269,7 @@ void ReformatBlock(int RightMargin,int SmartMode,int Justify)
       while (ess.StringLength>0 && ess.StringText[ess.StringLength-1]==L' ')
         ess.StringLength--;
       if (!Justify || ess.StringLength>=RightMargin-IndentSize || !JustifyString(RightMargin-IndentSize,ess))
-        Info.EditorControl(ECTL_SETSTRING,&ess);
+        Info.EditorControl(0,ECTL_SETSTRING,0,(INT_PTR)&ess);
       else
         LastLength=RightMargin;
 
@@ -283,13 +283,13 @@ void ReformatBlock(int RightMargin,int SmartMode,int Justify)
       if (IndentSize>0)
       {
         esp.CurPos=0;
-        Info.EditorControl(ECTL_SETPOSITION,&esp);
-        Info.EditorControl(ECTL_INSERTTEXT,(void *)IndentBuf);
+        Info.EditorControl(0,ECTL_SETPOSITION,0,(INT_PTR)&esp);
+        Info.EditorControl(0,ECTL_INSERTTEXT,0,(INT_PTR)IndentBuf);
       }
 
       esp.CurPos=LastLength+IndentSize;
-      Info.EditorControl(ECTL_SETPOSITION,&esp);
-      Info.EditorControl(ECTL_INSERTSTRING,NULL);
+      Info.EditorControl(0,ECTL_SETPOSITION,0,(INT_PTR)&esp);
+      Info.EditorControl(0,ECTL_INSERTSTRING,0,0);
 
       LastSplitPos=I;
     }
@@ -303,7 +303,7 @@ void ReformatBlock(int RightMargin,int SmartMode,int Justify)
   ess.StringLength=TotalLength-LastSplitPos;
   while (ess.StringLength>0 && ess.StringText[ess.StringLength-1]==L' ')
     ess.StringLength--;
-  Info.EditorControl(ECTL_SETSTRING,&ess);
+  Info.EditorControl(0,ECTL_SETSTRING,0,(INT_PTR)&ess);
 
   if (IndentSize>0)
   {
@@ -311,8 +311,8 @@ void ReformatBlock(int RightMargin,int SmartMode,int Justify)
     memset(&esp,-1,sizeof(esp));
     esp.CurLine=-1;
     esp.CurPos=0;
-    Info.EditorControl(ECTL_SETPOSITION,&esp);
-    Info.EditorControl(ECTL_INSERTTEXT,(void *)IndentBuf);
+    Info.EditorControl(0,ECTL_SETPOSITION,0,(INT_PTR)&esp);
+    Info.EditorControl(0,ECTL_INSERTTEXT,0,(INT_PTR)IndentBuf);
   }
 
   free(TotalString);
@@ -320,14 +320,14 @@ void ReformatBlock(int RightMargin,int SmartMode,int Justify)
   memset(&esp,-1,sizeof(esp));
   esp.CurLine=ei.CurLine;
   esp.CurPos=ei.CurPos;
-  Info.EditorControl(ECTL_SETPOSITION,&esp);
+  Info.EditorControl(0,ECTL_SETPOSITION,0,(INT_PTR)&esp);
 }
 
 
 void JustifyBlock(int RightMargin)
 {
   EditorInfo ei;
-  Info.EditorControl(ECTL_GETINFO,&ei);
+  Info.EditorControl(0,ECTL_GETINFO,0,(INT_PTR)&ei);
 
   if (ei.BlockType!=BTYPE_STREAM)
     return;
@@ -337,20 +337,20 @@ void JustifyBlock(int RightMargin)
 
   while (1)
   {
-    if (!Info.EditorControl(ECTL_GETSTRING,&egs))
+    if (!Info.EditorControl(0,ECTL_GETSTRING,0,(INT_PTR)&egs))
       break;
     if (egs.SelStart==-1 || egs.SelStart==egs.SelEnd)
       break;
     int ExpNum=egs.StringNumber;
-    if (!Info.EditorControl(ECTL_EXPANDTABS,&ExpNum))
+    if (!Info.EditorControl(0,ECTL_EXPANDTABS,0,(INT_PTR)&ExpNum))
       break;
-    Info.EditorControl(ECTL_GETSTRING,&egs);
+    Info.EditorControl(0,ECTL_GETSTRING,0,(INT_PTR)&egs);
 
     struct EditorSetString ess;
     ess.StringNumber=egs.StringNumber;
 
-    ess.StringText=(TCHAR*)egs.StringText;
-    ess.StringEOL=(TCHAR*)egs.StringEOL;
+    ess.StringText=(wchar_t*)egs.StringText;
+    ess.StringEOL=(wchar_t*)egs.StringEOL;
     ess.StringLength=egs.StringLength;
 
     if (ess.StringLength<RightMargin)
@@ -378,7 +378,7 @@ int JustifyString(int RightMargin,struct EditorSetString &ess)
   int AddSize=TotalAddSize/WordCount;
   int Reminder=TotalAddSize%WordCount;
 
-  TCHAR *NewString=(TCHAR *)malloc(RightMargin*sizeof(TCHAR));
+  wchar_t *NewString=(wchar_t *)malloc(RightMargin*sizeof(wchar_t));
   wmemset(NewString,L' ',RightMargin);
   wmemcpy(NewString,ess.StringText,ess.StringLength);
 
@@ -394,7 +394,7 @@ int JustifyString(int RightMargin,struct EditorSetString &ess)
       }
       if (MoveSize==0)
         break;
-      memmove(NewString+I+1+MoveSize,NewString+I+1,(RightMargin-(I+1+MoveSize))*sizeof(TCHAR));
+      wmemmove(NewString+I+1+MoveSize,NewString+I+1,RightMargin-(I+1+MoveSize));
       while (MoveSize--)
         NewString[I+1+MoveSize]=L' ';
     }
@@ -402,7 +402,7 @@ int JustifyString(int RightMargin,struct EditorSetString &ess)
 
   ess.StringText=NewString;
   ess.StringLength=RightMargin;
-  Info.EditorControl(ECTL_SETSTRING,&ess);
+  Info.EditorControl(0,ECTL_SETSTRING,0,(INT_PTR)&ess);
   free(NewString);
   return(TRUE);
 }

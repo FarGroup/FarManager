@@ -1,5 +1,5 @@
-void SetRegKey(const TCHAR *Key,const TCHAR *ValueName,DWORD ValueData);
-void SetRegKey(const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData);
-int GetRegKey(const TCHAR *Key,const TCHAR *ValueName,int &ValueData,DWORD Default);
-int GetRegKey(const TCHAR *Key,const TCHAR *ValueName,DWORD Default);
-int GetRegKey(const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData,const TCHAR *Default,DWORD DataSize);
+void SetRegKey(const wchar_t *Key,const wchar_t *ValueName,DWORD ValueData);
+void SetRegKey(const wchar_t *Key,const wchar_t *ValueName,wchar_t *ValueData);
+int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,int &ValueData,DWORD Default);
+int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,DWORD Default);
+int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,wchar_t *ValueData,const wchar_t *Default,DWORD DataSize);
