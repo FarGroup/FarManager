@@ -6,7 +6,7 @@ DlgBuilder.hpp
 Динамическое конструирование диалогов
 */
 /*
-Copyright (c) 2009 Far Group
+Copyright © 2009 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -76,7 +76,7 @@ struct CheckBoxBinding: public DialogItemBinding<T>
 
 		virtual void SaveValue(T *Item, int RadioGroupIndex)
 		{
-			if (Mask == 0)
+			if (!Mask)
 			{
 				*Value = Item->Selected;
 			}
@@ -176,7 +176,7 @@ class DialogBuilderBase
 			// чтобы все нормальные диалоги помещались без реаллокации
 			// TODO хорошо бы, чтобы они вообще не инвалидировались
 			DialogItemsAllocated += 32;
-			if (DialogItems == nullptr)
+			if (!DialogItems)
 			{
 				DialogItems = new T[DialogItemsAllocated];
 				Bindings = new DialogItemBinding<T> * [DialogItemsAllocated];
@@ -386,10 +386,10 @@ class DialogBuilderBase
 			T *Item = AddDialogItem(DI_CHECKBOX, GetLangString(TextMessageId));
 			SetNextY(Item);
 			Item->X2 = Item->X1 + ItemWidth(*Item);
-			if (Mask == 0)
+			if (!Mask)
 				Item->Selected = *Value;
 			else
-				Item->Selected = (*Value & Mask) != 0;
+				Item->Selected = (*Value & Mask) ;
 			SetLastItemBinding(CreateCheckBoxBinding(Value, Mask));
 			return Item;
 		}
@@ -402,7 +402,7 @@ class DialogBuilderBase
 				T *Item = AddDialogItem(DI_RADIOBUTTON, GetLangString(MessageIDs[i]));
 				SetNextY(Item);
 				Item->X2 = Item->X1 + ItemWidth(*Item);
-				if (i == 0)
+				if (!i)
 					Item->Flags |= DIF_GROUP;
 				if (*Value == i)
 					Item->Selected = TRUE;
@@ -504,8 +504,7 @@ class DialogBuilderBase
 			AddSeparator();
 
 			T *OKButton = AddDialogItem(DI_BUTTON, GetLangString(OKMessageId));
-			OKButton->Flags = DIF_CENTERGROUP;
-			OKButton->DefaultButton = TRUE;
+			OKButton->Flags = DIF_CENTERGROUP|DIF_DEFAULTBUTTON;
 			OKButton->Y1 = OKButton->Y2 = NextY++;
 			OKButtonID = DialogItemsCount-1;
 
@@ -558,7 +557,7 @@ public:
 	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
 	{
 		BOOL Selected = static_cast<BOOL>(Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, 0));
-		if (Mask == 0)
+		if (!Mask)
 		{
 			*Value = Selected;
 		}
@@ -707,6 +706,8 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 		const PluginStartupInfo &Info;
 		HANDLE DialogHandle;
 		const TCHAR *HelpTopic;
+		GUID PluginId;
+		GUID Id;
 
 		virtual void InitDialogItem(FarDialogItem *Item, const TCHAR *Text)
 		{
@@ -729,7 +730,7 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 
 		virtual const TCHAR *GetLangString(int MessageID)
 		{
-			return Info.GetMsg(Info.ModuleNumber, MessageID);
+			return Info.GetMsg(&PluginId, MessageID);
 		}
 
 		virtual int DoShowDialog()
@@ -737,7 +738,7 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 			int Width = DialogItems [0].X2+4;
 			int Height = DialogItems [0].Y2+2;
 #ifdef UNICODE
-			DialogHandle = Info.DialogInit(Info.ModuleNumber, -1, -1, Width, Height,
+			DialogHandle = Info.DialogInit(&PluginId, &Id, -1, -1, Width, Height,
 				HelpTopic, DialogItems, DialogItemsCount, 0, 0, nullptr, 0);
 			return Info.DialogRun(DialogHandle);
 #else
@@ -765,8 +766,8 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 		}
 
 public:
-		PluginDialogBuilder(const PluginStartupInfo &aInfo, int TitleMessageID, const TCHAR *aHelpTopic)
-			: Info(aInfo), HelpTopic(aHelpTopic)
+		PluginDialogBuilder(const PluginStartupInfo &aInfo, const GUID &aPluginId, const GUID &aId, int TitleMessageID, const TCHAR *aHelpTopic)
+			: Info(aInfo), HelpTopic(aHelpTopic), PluginId(aPluginId), Id(aId)
 		{
 			AddBorder(GetLangString(TitleMessageID));
 		}
@@ -793,7 +794,7 @@ public:
 
 
 #ifdef _FAR_NO_NAMELESS_UNIONS
-			Item->Param.Mask = Binding->GetMask();
+			Item->Mask = Binding->GetMask();
 #else
 			Item->Mask = Binding->GetMask();
 #endif
@@ -811,7 +812,7 @@ public:
 			if (HistoryID)
 			{
 #ifdef _FAR_NO_NAMELESS_UNIONS
-				Item->Param.History = HistoryID;
+				Item->History = HistoryID;
 #else
 				Item->History = HistoryID;
 #endif
