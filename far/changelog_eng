@@ -3,6 +3,155 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 11.02.2011 00:14:23 +0200 - build 1855
+
+1. Mantis#0001713: Access to "." and ".." folders on non-NTFS volumes.
+   Now "." è ".." can be entered by UNC-paths, listed etc.
+
+2. VC warnings.
+
+zg 11.02.2011 00:03:05 +0200 - build 1854
+
+1. rollback of 1853.
+
+2. correction of 1852, -1 for the current editor/viewer.
+
+t-rex 10.02.2011 22:59:45 +0200 - build 1853
+
+1. For 1852 to work, Viewer/EditorID in FAR must start from 1, not from 0.
+
+t-rex 10.02.2011 20:15:23 +0200 - build 1852
+
+1. Correction of 1851:
+     int WINAPI EditorControl(int EditorID, int Command, int Param1, INT_PTR Param2);
+     int WINAPI ViewerControl(int ViewerID, int Command, int Param1, INT_PTR Param2);
+
+   ID instead of HANDLE, 0 for the current editor/viewer.
+
+2. One could not call Viewer/EditorControl from panels for ID!=0.
+
+svs 10.02.2011 18:26:54 +0300 - build 1851
+
+1. Rearrangement of EditorControl, ViewerControl and RegExpControl.
+   Now it looks like this:
+     int WINAPI EditorControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2);
+     int WINAPI ViewerControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2);
+     int WINAPI RegExpControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2);
+
+   For editor/viewer, if hHandle == INVALID_HANDLE_VALUE - the current editor/viewer (1.7x wrapper works with the current one)
+   Otherwise, the value from EditorInfo::EditorID is taken as a handle.
+
+   Param1 is unused so far.
+
+   Inner EditorControl and ViewerControl implementations (in classes) still remain unchanged.
+
+zg 10.02.2011 14:25:07 +0200 - build 1850
+
+1. OPM_PGDN is added. it is passed to OpenFilePluginW if PgDn has been pressed on a file.
+
+2. OPEN_DISKMENU->OPEN_LEFTDISKMENU. OPEN_RIGHTDISKMENU is added.
+
+svs 10.02.2011 12:01:19 +0300 - build 1849
+
+1. Rearrangement of "ACTL_KEYMACRO".
+
+   * removed: ACTL_KEYMACRO, FARMACROCOMMAND, struct ActlKeyMacro
+   * added: MacroControl, MACRO_CONTROL_COMMANDS, FARMACROSENDSTRINGCOMMAND, struct MacroSendMacroText, struct MacroCheckMacroText
+   
+   New API look:
+   int Info.MacroControl(HANDLE hHandle,int Command,int Param1,INT_PTR Param2)
+    hHandle = 0
+    Command:
+       MCTL_LOADALL
+         Param1=0
+         Param2=0
+         Return=0|1
+       MCTL_SAVEALL
+         Param1=0
+         Param2=0
+         Return=0|1
+       MCTL_SENDSTRING
+         Param1:
+           MSSC_POST
+             Param2=MacroSendMacroText*
+             Return=0|1
+           MSSC_EXEC (a stub so far, unused)
+             Param2=MacroSendMacroText*
+             Return=0|1
+           MSSC_CHECK
+             Param2=MacroCheckMacroText* (Text)
+             Return=0|1 in Param2=MacroCheckMacroText* (Check)
+       MCTL_GETSTATE
+         Param1=0
+         Param2=0
+         Return=FARMACROSTATE
+       MCTL_GETAREA
+         Param1=0
+         Param2=0
+         Return=FARMACROAREA
+
+
+zg 10.02.2011 02:16:46 +0200 - build 1848
+
+1. correction of 1846.2.
+
+zg 10.02.2011 01:52:02 +0200 - build 1847
+
+1. dialog plugins are prohibited for the dialog on plugin/FAR version mismatch.
+
+2. FMSG_LEFTALIGN was malfunctional.
+
+zg 10.02.2011 01:00:03 +0200 - build 1846
+
+1. DN_KEY processing in built-in dialogs is corrected.
+
+2. MAKEFARVERSION: now the version is in the upper word, the build is in the lower word.
+
+3. PluginMenuItem: Guid is replaced with Guids.
+
+zg 09.02.2011 20:25:20 +0200 - build 1845
+
+1. FarDialogItem.Param.ListPos is removed.
+
+svs 09.02.2011 18:51:58 +0300 - build 1844
+
+1. ActlKeyMacro: StructSize is added.
+
+2. ACTL_POSTKEYSEQUENCE is removed (the analog is ACTL_KEYMACRO). 
+   FARKEYSEQUENCEFLAGS is renamed to FARKEYMACROFLAGS (also, KSFLAGS_* -> KMFLAGS_* ). 
+   struct KeySequence is removed.
+
+3. Rearrangement of struct KeyBarTitles (part 1)
+
+     struct KeyBarLabel
+     {
+        DWORD Key;
+        const wchar *Text;
+        const wchar *LongText;
+     };
+     struct KeyBarTitles
+     {
+        int CountLabels;
+        struct KeyBarLabel *Labels;
+     };
+
+zg 09.02.2011 15:19:00 +0200 - build 1843
+
+1. Correction of 1842.1: GetPluginDirList, Menu, Message, InputBox, AdvControl, DialogInit, GetMsg sometimes worked wrong in SetStartupInfoW and GetPluginInfoW.
+
+zg 09.02.2011 03:42:44 +0200 - build 1842
+
+1. in GetPluginDirList, Menu, Message, InputBox, AdvControl, DialogInit, GetMsg, one must pass a pointer to plugin's GUID instead of ModuleNumber. 
+   Thereafter, ModuleNumber is also removed from PluginStartupInfo.
+
+2. in ConfigureW, OpenPluginW and DialogInit, GUID is replaced to a pointer to GUID.
+
+zg 09.02.2011 00:36:50 +0200 - build 1841
+
+1. If suddenly FAR discovers a few plugins with identical GUIDs, only first one is loaded.
+
+2. Plugin search by GUID is sped up.
+
 drkns 08.02.2011 21:48:00 +0200 - build 1840
 
 1. DIF_INTERNALFOCUS & DIF_DEFAULT are removed.
@@ -1956,7 +2105,7 @@ t-rex 04.05.2010 13:53:24 +0200 - build 1537
 drkns 03.05.2010 12:45:16 +0200 - build 1536
 
 1. Problems with Mantis#1362: that "macro execution indication" caused regular screen refreshes.
-  Also, 'Ð' is now green :)
+  Also, 'P' is now green :)
 
 t-rex 02.05.2010 21:46:41 +0200 - build 15351. Mantis#1288: Slow processing of network folders in owners view mode.
 
