@@ -1,6 +1,3 @@
-#include "plugin.hpp"
-#include "CRT/crt.hpp"
-
 #if defined(__GNUC__)
 
 #ifdef __cplusplus
@@ -20,42 +17,69 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 }
 #endif
 
-
-#include "AlignLng.hpp"
 #include "Align.hpp"
-#include "AlignReg.cpp"
-#include "AlignMix.cpp"
+#include "AlignReg.hpp"
+#include "AlignLng.hpp"
+#include "version.hpp"
 
-#ifndef UNICODE
-#define GetCheck(i) DialogItems[i].Selected
-#define GetDataPtr(i) DialogItems[i].Data
-#else
 #define GetCheck(i) (int)Info.SendDlgMessage(hDlg,DM_GETCHECK,i,0)
 #define GetDataPtr(i) ((const TCHAR *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,i,0))
-#endif
 
+static struct PluginStartupInfo Info;
+static struct FarStandardFunctions FSF;
+TCHAR *PluginRootKey;
 
 static void ReformatBlock(int RightMargin,int SmartMode,int Justify);
 static void JustifyBlock(int RightMargin);
 static int JustifyString(int RightMargin,struct EditorSetString &ess);
 
-int WINAPI EXP_NAME(GetMinFarVersion)()
+const TCHAR *GetMsg(int MsgId)
 {
-  return FARMANAGERVERSION;
+  return Info.GetMsg(Info.ModuleNumber,MsgId);
+}
+
+void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
+{
+  Info->StructSize=sizeof(GlobalInfo);
+  Info->MinFarVersion=FARMANAGERVERSION;
+  Info->Version=PLUGIN_VERSION;
+  Info->Guid=MainGuid;
+  Info->Title=_T(PLUGIN_NAME);
+  Info->Description=_T(PLUGIN_DESC);
+  Info->Author=_T(PLUGIN_AUTHOR);
 }
 
 
-void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
+void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 {
   ::Info=*Info;
   ::FSF=*Info->FSF;
   ::Info.FSF=&::FSF;
+  PluginRootKey = (TCHAR *)malloc(lstrlen(Info->RootKey)*sizeof(TCHAR) + sizeof(_T("\\Align")));
   lstrcpy(PluginRootKey,Info->RootKey);
   lstrcat(PluginRootKey,_T("\\Align"));
 }
 
 
-HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
+void WINAPI ExitFARW()
+{
+  free(PluginRootKey);
+}
+
+
+void WINAPI GetPluginInfoW(struct PluginInfo *Info)
+{
+  Info->StructSize=sizeof(*Info);
+  Info->Flags=PF_EDITOR|PF_DISABLEPANELS;
+  static const TCHAR *PluginMenuStrings[1];
+  PluginMenuStrings[0]=GetMsg(MAlign);
+  Info->PluginMenu.Guids=&MainGuid;
+  Info->PluginMenu.Strings=PluginMenuStrings;
+  Info->PluginMenu.Count=ARRAYSIZE(PluginMenuStrings);
+}
+
+
+HANDLE WINAPI OpenPluginW(int OpenFrom,const GUID* Guid,INT_PTR Data)
 {
   struct InitDialogItem InitItems[]={
     {DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(TCHAR *)MAlign},
@@ -71,52 +95,45 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 
   struct FarDialogItem DialogItems[ARRAYSIZE(InitItems)];
   InitDialogItems(InitItems,DialogItems,ARRAYSIZE(InitItems));
-  int RightMargin=GetRegKey(HKEY_CURRENT_USER,_T(""),_T("RightMargin"),75);
-  int Reformat=GetRegKey(HKEY_CURRENT_USER,_T(""),_T("Reformat"),TRUE);
-  int SmartMode=GetRegKey(HKEY_CURRENT_USER,_T(""),_T("SmartMode"),FALSE);
-  int Justify=GetRegKey(HKEY_CURRENT_USER,_T(""),_T("Justify"),FALSE);
-#ifdef UNICODE
+  
+  int RightMargin=GetRegKey(_T(""),_T("RightMargin"),75);
+  int Reformat=GetRegKey(_T(""),_T("Reformat"),TRUE);
+  int SmartMode=GetRegKey(_T(""),_T("SmartMode"),FALSE);
+  int Justify=GetRegKey(_T(""),_T("Justify"),FALSE);
+  
   wchar_t marstr[32];
   DialogItems[1].PtrData = marstr;
   FSF.sprintf(marstr,L"%d",RightMargin);
-#else
-  FSF.sprintf(DialogItems[1].Data,"%d",RightMargin);
-#endif
+
   DialogItems[3].Selected=Reformat;
   DialogItems[4].Selected=SmartMode;
   DialogItems[5].Selected=Justify;
-#ifndef UNICODE
-  int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,10,NULL,DialogItems,
-                           ARRAYSIZE(DialogItems));
-#else
-  HANDLE hDlg=Info.DialogInit(Info.ModuleNumber,-1,-1,76,10,NULL,DialogItems,
-                              ARRAYSIZE(DialogItems),0,0,NULL,0);
+
+  HANDLE hDlg=Info.DialogInit(Info.ModuleNumber,-1,-1,76,10,NULL,DialogItems,ARRAYSIZE(DialogItems),0,0,NULL,0);
+
   if (hDlg == INVALID_HANDLE_VALUE)
     return INVALID_HANDLE_VALUE;
 
-  int ExitCode=Info.DialogRun(hDlg);
-#endif
-  if (ExitCode!=7)
-    goto done;
-  RightMargin=FSF.atoi(GetDataPtr(1));
-  Reformat=GetCheck(3);
-  SmartMode=GetCheck(4);
-  Justify=GetCheck(5);
-  SetRegKey(HKEY_CURRENT_USER,_T(""),_T("Reformat"),Reformat);
-  SetRegKey(HKEY_CURRENT_USER,_T(""),_T("RightMargin"),RightMargin);
-  SetRegKey(HKEY_CURRENT_USER,_T(""),_T("SmartMode"),SmartMode);
-  SetRegKey(HKEY_CURRENT_USER,_T(""),_T("Justify"),Justify);
-  Info.EditorControl(ECTL_TURNOFFMARKINGBLOCK,NULL);
-  if (Reformat)
-    ReformatBlock(RightMargin,SmartMode,Justify);
-  else
-    if (Justify)
+  if (Info.DialogRun(hDlg) == 7)
+  {
+    RightMargin=FSF.atoi(GetDataPtr(1));
+    Reformat=GetCheck(3);
+    SmartMode=GetCheck(4);
+    Justify=GetCheck(5);
+    SetRegKey(_T(""),_T("Reformat"),Reformat);
+    SetRegKey(_T(""),_T("RightMargin"),RightMargin);
+    SetRegKey(_T(""),_T("SmartMode"),SmartMode);
+    SetRegKey(_T(""),_T("Justify"),Justify);
+    Info.EditorControl(ECTL_TURNOFFMARKINGBLOCK,NULL);
+    if (Reformat)
+      ReformatBlock(RightMargin,SmartMode,Justify);
+    else if (Justify)
       JustifyBlock(RightMargin);
-done:
-#ifdef UNICODE
+  }
+
   Info.DialogFree(hDlg);
-#endif
-  return(INVALID_HANDLE_VALUE);
+
+  return INVALID_HANDLE_VALUE;
 }
 
 
@@ -367,6 +384,7 @@ int JustifyString(int RightMargin,struct EditorSetString &ess)
   _tmemcpy(NewString,ess.StringText,ess.StringLength);
 
   for (I=0;I<RightMargin-1;I++)
+  {
     if (NewString[I]!=_T(' ') && NewString[I+1]==_T(' '))
     {
       int MoveSize=AddSize;
@@ -381,23 +399,11 @@ int JustifyString(int RightMargin,struct EditorSetString &ess)
       while (MoveSize--)
         NewString[I+1+MoveSize]=_T(' ');
     }
+  }
 
   ess.StringText=NewString;
   ess.StringLength=RightMargin;
   Info.EditorControl(ECTL_SETSTRING,&ess);
   free(NewString);
   return(TRUE);
-}
-
-
-void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
-{
-  Info->StructSize=sizeof(*Info);
-  Info->Flags=PF_EDITOR|PF_DISABLEPANELS;
-  Info->DiskMenuStringsNumber=0;
-  static const TCHAR *PluginMenuStrings[1];
-  PluginMenuStrings[0]=GetMsg(MAlign);
-  Info->PluginMenuStrings=PluginMenuStrings;
-  Info->PluginMenuStringsNumber=ARRAYSIZE(PluginMenuStrings);
-  Info->PluginConfigStringsNumber=0;
 }

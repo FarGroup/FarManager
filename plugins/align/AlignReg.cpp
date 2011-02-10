@@ -1,25 +1,28 @@
-HKEY CreateRegKey(HKEY hRoot,const TCHAR *Key);
-HKEY OpenRegKey(HKEY hRoot,const TCHAR *Key);
+#include "Align.hpp"
+#include "AlignReg.hpp"
 
-void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,DWORD ValueData)
+HKEY CreateRegKey(const TCHAR *Key);
+HKEY OpenRegKey(const TCHAR *Key);
+
+void SetRegKey(const TCHAR *Key,const TCHAR *ValueName,DWORD ValueData)
 {
-  HKEY hKey=CreateRegKey(hRoot,Key);
+  HKEY hKey=CreateRegKey(Key);
   RegSetValueEx(hKey,ValueName,0,REG_DWORD,(BYTE *)&ValueData,sizeof(ValueData));
   RegCloseKey(hKey);
 }
 
 
-void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData)
+void SetRegKey(const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData)
 {
-  HKEY hKey=CreateRegKey(hRoot,Key);
+  HKEY hKey=CreateRegKey(Key);
   RegSetValueEx(hKey,ValueName,0,REG_SZ,(CONST BYTE *)ValueData,(lstrlen(ValueData)+1)*sizeof(TCHAR));
   RegCloseKey(hKey);
 }
 
 
-int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,int &ValueData,DWORD Default)
+int GetRegKey(const TCHAR *Key,const TCHAR *ValueName,int &ValueData,DWORD Default)
 {
-  HKEY hKey=OpenRegKey(hRoot,Key);
+  HKEY hKey=OpenRegKey(Key);
   DWORD Type,Size=sizeof(ValueData);
   int ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,(BYTE *)&ValueData,&Size);
   RegCloseKey(hKey);
@@ -32,17 +35,17 @@ int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,int &ValueData,
 }
 
 
-int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,DWORD Default)
+int GetRegKey(const TCHAR *Key,const TCHAR *ValueName,DWORD Default)
 {
   int ValueData;
-  GetRegKey(hRoot,Key,ValueName,ValueData,Default);
+  GetRegKey(Key,ValueName,ValueData,Default);
   return(ValueData);
 }
 
 
-int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData,const TCHAR *Default,DWORD DataSize)
+int GetRegKey(const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData,const TCHAR *Default,DWORD DataSize)
 {
-  HKEY hKey=OpenRegKey(hRoot,Key);
+  HKEY hKey=OpenRegKey(Key);
   DWORD Type;
   int ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,(LPBYTE)ValueData,&DataSize);
   RegCloseKey(hKey);
@@ -54,35 +57,34 @@ int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueDat
   return(TRUE);
 }
 
-
-HKEY CreateRegKey(HKEY hRoot,const TCHAR *Key)
+HKEY CreateRegKey(const TCHAR *Key)
 {
-  HKEY hKey;
-  DWORD Disposition;
-  TCHAR FullKeyName[512];
-  lstrcpy(FullKeyName,PluginRootKey);
-  if (*Key)
+  HKEY hKey=NULL;
+  if (RegCreateKeyEx(HKEY_CURRENT_USER,PluginRootKey,0,0,0,KEY_WRITE,0,&hKey,0)==ERROR_SUCCESS)
   {
-    lstrcat(FullKeyName,_T("\\"));
-    lstrcat(FullKeyName,Key);
+    if (Key && *Key)
+    {
+      HKEY hSubKey=NULL;
+      RegCreateKeyEx(hKey,Key,0,0,0,KEY_WRITE,0,&hSubKey,0);
+      RegCloseKey(hKey);
+      return hSubKey;
+    }
   }
-  RegCreateKeyEx(hRoot,FullKeyName,0,NULL,0,KEY_WRITE,NULL,
-                 &hKey,&Disposition);
-  return(hKey);
+  return hKey;
 }
 
-
-HKEY OpenRegKey(HKEY hRoot,const TCHAR *Key)
+HKEY OpenRegKey(const TCHAR *Key)
 {
-  HKEY hKey;
-  TCHAR FullKeyName[512];
-  lstrcpy(FullKeyName,PluginRootKey);
-  if (*Key)
+  HKEY hKey=NULL;
+  if (RegOpenKeyEx(HKEY_CURRENT_USER,PluginRootKey,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS)
   {
-    lstrcat(FullKeyName,_T("\\"));
-    lstrcat(FullKeyName,Key);
+    if (Key && *Key)
+    {
+      HKEY hSubKey=NULL;
+      RegOpenKeyEx(hKey,Key,0,KEY_QUERY_VALUE,&hSubKey);
+      RegCloseKey(hKey);
+      return hSubKey;
+    }
   }
-  if (RegOpenKeyEx(hRoot,FullKeyName,0,KEY_QUERY_VALUE,&hKey)!=ERROR_SUCCESS)
-    return(NULL);
-  return(hKey);
+  return hKey;
 }

@@ -1,5 +1,5 @@
 NAME = Align
-SRCS = Align.cpp
+SRCS = Align.cpp AlignReg.cpp
 DOCS = AlignEng.lng AlignRus.lng
 
 include ../makefile_gcc_def_inc

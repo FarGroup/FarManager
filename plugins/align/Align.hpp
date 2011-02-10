@@ -1,23 +1,7 @@
-struct InitDialogItem
-{
-  unsigned char Type;
-  unsigned char X1,Y1,X2,Y2;
-  unsigned char Focus;
-  DWORD_PTR Selected;
-  unsigned int Flags;
-  unsigned char DefaultButton;
-  const TCHAR *Data;
-};
+#include "plugin.hpp"
+#include "CRT/crt.hpp"
 
-void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,DWORD ValueData);
-void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData);
-int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,int &ValueData,DWORD Default);
-int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,DWORD Default);
-int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData,const TCHAR *Default,DWORD DataSize);
-const TCHAR *GetMsg(int MsgId);
-void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Item,int ItemsNumber);
+extern TCHAR *PluginRootKey;
 
-
-static struct PluginStartupInfo Info;
-struct FarStandardFunctions FSF;
-TCHAR PluginRootKey[80];
+// {B076F0B0-90AE-408c-AD09-491606F09435}
+DEFINE_GUID(MainGuid, 0xb076f0b0, 0x90ae, 0x408c, 0xad, 0x9, 0x49, 0x16, 0x6, 0xf0, 0x94, 0x35);
