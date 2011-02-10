@@ -1,6 +1,7 @@
 #include "Align.hpp"
 #include "AlignReg.hpp"
 #include "AlignLng.hpp"
+#include "DlgBuilder.hpp"
 #include "version.hpp"
 #include <initguid.h>
 #include "guid.hpp"
@@ -83,42 +84,21 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 
 HANDLE WINAPI OpenPluginW(int OpenFrom,const GUID* Guid,INT_PTR Data)
 {
-  struct FarDialogItem DialogItems[]={
-    {DI_DOUBLEBOX, 3,1,72,8, {0}, nullptr, nullptr, 0, 0, GetMsg(MAlign),0},
-    {DI_FIXEDIT, 5,2,7,3, {0}, nullptr, nullptr, DIF_FOCUS, 0, L"",0},
-    {DI_TEXT, 9,2,0,0, {0}, nullptr, nullptr, 0, 0, GetMsg(MRightMargin),0},
-    {DI_CHECKBOX, 5,3,0,0, {0}, nullptr, nullptr, 0, 0, GetMsg(MReformat),0},
-    {DI_CHECKBOX, 5,4,0,0, {0}, nullptr, nullptr, 0, 0, GetMsg(MSmartMode),0},
-    {DI_CHECKBOX, 5,5,0,0, {0}, nullptr, nullptr, 0, 0, GetMsg(MJustify),0},
-    {DI_TEXT, 5,6,0,0, {0}, nullptr, nullptr, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L"",0},
-    {DI_BUTTON,0,7,0,0, {0}, nullptr, nullptr, DIF_CENTERGROUP|DIF_DEFAULTBUTTON, 0, GetMsg(MOk),0},
-    {DI_BUTTON,0,7,0,0, {0}, nullptr, nullptr, DIF_CENTERGROUP, 0, GetMsg(MCancel),0}
-  };
-
   int RightMargin=GetRegKey(L"",L"RightMargin",75);
   int Reformat=GetRegKey(L"",L"Reformat",TRUE);
   int SmartMode=GetRegKey(L"",L"SmartMode",FALSE);
   int Justify=GetRegKey(L"",L"Justify",FALSE);
 
-  wchar_t marstr[32];
-  DialogItems[1].PtrData = marstr;
-  FSF.sprintf(marstr,L"%d",RightMargin);
+  PluginDialogBuilder Builder(Info, MainGuid, DialogGuid, MAlign, nullptr);
+  FarDialogItem *RightMarginItem = Builder.AddIntEditField(&RightMargin, 3);
+  Builder.AddTextAfter(RightMarginItem, MRightMargin);
+  Builder.AddCheckbox(MReformat, &Reformat);
+  Builder.AddCheckbox(MSmartMode, &SmartMode);
+  Builder.AddCheckbox(MJustify, &Justify);
+  Builder.AddOKCancel(MOk, MCancel);
 
-  DialogItems[3].Selected=Reformat;
-  DialogItems[4].Selected=SmartMode;
-  DialogItems[5].Selected=Justify;
-
-  HANDLE hDlg=Info.DialogInit(&MainGuid,&DialogGuid,-1,-1,76,10,NULL,DialogItems,ARRAYSIZE(DialogItems),0,0,NULL,0);
-
-  if (hDlg == INVALID_HANDLE_VALUE)
-    return INVALID_HANDLE_VALUE;
-
-  if (Info.DialogRun(hDlg) == 7)
+  if (Builder.ShowDialog())
   {
-    RightMargin=FSF.atoi(GetDataPtr(1));
-    Reformat=GetCheck(3);
-    SmartMode=GetCheck(4);
-    Justify=GetCheck(5);
     SetRegKey(L"",L"Reformat",Reformat);
     SetRegKey(L"",L"RightMargin",RightMargin);
     SetRegKey(L"",L"SmartMode",SmartMode);
@@ -129,8 +109,6 @@ HANDLE WINAPI OpenPluginW(int OpenFrom,const GUID* Guid,INT_PTR Data)
     else if (Justify)
       JustifyBlock(RightMargin);
   }
-
-  Info.DialogFree(hDlg);
 
   return INVALID_HANDLE_VALUE;
 }
