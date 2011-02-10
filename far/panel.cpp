@@ -971,7 +971,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	{
 		HANDLE hPlugin = CtrlObject->Plugins.OpenPlugin(
 		                     mitem->pPlugin,
-		                     OPEN_DISKMENU,
+		                     (CtrlObject->Cp()->LeftPanel == this)?OPEN_LEFTDISKMENU:OPEN_RIGHTDISKMENU,
 		                     mitem->Guid,
 		                     0
 		                 );

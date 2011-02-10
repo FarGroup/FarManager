@@ -1,3 +1,9 @@
+zg 10.02.2011 14:25:07 +0200 - build 1850
+
+1. добавлен OPM_PGDN. приходит в OpenFilePluginW если на файле нажали PgDn.
+
+2. OPEN_DISKMENU->OPEN_LEFTDISKMENU. добавлена OPEN_RIGHTDISKMENU.
+
 svs 10.02.2011 12:01:19 +0300 - build 1849
 
 1. Переделки в "ACTL_KEYMACRO".

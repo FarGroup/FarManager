@@ -4889,9 +4889,13 @@ HANDLE PluginA::OpenPlugin(int OpenFrom, const GUID& Guid, INT_PTR Item)
 			ItemA = UnicodeToAnsi((const wchar_t *)Item);
 			Item = (INT_PTR)ItemA;
 		}
-		if (OpenFrom == OPEN_DISKMENU || OpenFrom == OPEN_PLUGINSMENU || OpenFrom == OPEN_EDITOR || OpenFrom == OPEN_VIEWER)
+		if (OpenFrom == OPEN_LEFTDISKMENU || OpenFrom == OPEN_RIGHTDISKMENU || OpenFrom == OPEN_PLUGINSMENU || OpenFrom == OPEN_EDITOR || OpenFrom == OPEN_VIEWER)
 		{
 			Item=Guid.Data1;
+		}
+		if (OpenFrom == OPEN_RIGHTDISKMENU)
+		{
+			OpenFrom = OPEN_LEFTDISKMENU;
 		}
 
 		EXECUTE_FUNCTION_EX(pOpenPlugin(OpenFrom,Item), es);

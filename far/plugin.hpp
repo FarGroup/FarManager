@@ -2065,6 +2065,7 @@ enum OPERATION_MODES
 	OPM_TOPLEVEL   =0x0010,
 	OPM_DESCR      =0x0020,
 	OPM_QUICKVIEW  =0x0040,
+	OPM_PGDN       =0x0080,
 };
 
 struct OpenPluginInfo
@@ -2093,7 +2094,7 @@ enum OPENPLUGIN_OPENFROM
 {
 	OPEN_FROM_MASK          = 0x000000FF,
 
-	OPEN_DISKMENU           = 0,
+	OPEN_LEFTDISKMENU       = 0,
 	OPEN_PLUGINSMENU        = 1,
 	OPEN_FINDLIST           = 2,
 	OPEN_SHORTCUT           = 3,
@@ -2103,6 +2104,7 @@ enum OPENPLUGIN_OPENFROM
 	OPEN_FILEPANEL          = 7,
 	OPEN_DIALOG             = 8,
 	OPEN_ANALYSE            = 9,
+	OPEN_RIGHTDISKMENU      = 10,
 
 	OPEN_FROMMACRO_MASK     = 0x000F0000,
 

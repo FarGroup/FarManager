@@ -790,6 +790,10 @@ HANDLE PluginManager::OpenFilePlugin(
 			if (Opt.ShowCheckingFile)
 				ct.Set(L"%s - [%s]...",MSG(MCheckingFileInPlugin),PointToName(pPlugin->GetModuleName()));
 
+			if (Type == OFP_ALTERNATIVE)
+			{
+				OpMode|=OPM_PGDN; //у анси плагинов OpMode нет.
+			}
 			hPlugin = pPlugin->OpenFilePlugin(Name, Data, DataSize, OpMode);
 
 			if (hPlugin == (HANDLE)-2)   //сразу на выход, плагин решил нагло обработать все сам (Autorun/PictureView)!!!
