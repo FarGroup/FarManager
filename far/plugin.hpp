@@ -49,7 +49,7 @@ other possible license with no implications from the above license on them.
 
 #ifndef RC_INVOKED
 
-#define MAKEFARVERSION(major,minor,build) ( ((major)<<24) | ((minor)<<16) | (build)
+#define MAKEFARVERSION(major,minor,build) ( ((major)<<24) | ((minor)<<16) | (build) )
 
 #define FARMANAGERVERSION MAKEFARVERSION(FARMANAGERVERSION_MAJOR,FARMANAGERVERSION_MINOR,FARMANAGERVERSION_BUILD)
 
