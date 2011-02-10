@@ -1,6 +1,6 @@
 #include "farversion.hpp"
 
-#define PLUGIN_BUILD 16
+#define PLUGIN_BUILD 17
 #define PLUGIN_DESC "Align block for FAR Manager"
 #define PLUGIN_NAME "Align"
 #define PLUGIN_FILENAME "Align.dll"
