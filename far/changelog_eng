@@ -3,6 +3,36 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 11.02.2011 18:45:24 +0200 - build 1860
+
+1. ACTL_GETSHORTWINDOWINFO is removed for its meaninglessness.
+
+2. thread-safe ACTL_GETWINDOWTYPE call. Param points to WindowType. TRUE is returned in case of success, FALSE otherwise.
+
+zg 11.02.2011 17:01:22 +0200 - build 1859
+
+1. DN_MOUSEEVENT is renamed to DN_INPUT. Param2 points to INPUT_RECORD. in future, passing of events other than mouse events is planned, therefore EventType checking is strongly recommended.
+
+2. DN_KEY and DN_MOUSECLICK are combined to DN_CONTROLINPUT. Param2 points to INPUT_RECORD. in future, passing of other events is planned.
+
+3. DM_KEY is no more equal to DN_KEY.
+
+t-rex 11.02.2011 13:04:02 +0200 - build 1858
+
+1. DialogBuilder is now capable of DI_SINGLEBOX with automatic elements grouping.
+
+2. DialogBuilder is now capable of DI_FIXEDIT with text mask.
+
+svs 11.02.2011 10:27:51 +0300 - build 1857
+
+1. Mantis#0001482: Improvement of <!Macro:Vars!> and <!Macro:Consts!> output
+
+t-rex 11.02.2011 01:56:20 +0200 - build 1856
+
+1. ANSI code cleanup in DialogBuilder.
+
+2. A couple makeup trivia in code.
+
 drkns 11.02.2011 00:14:23 +0200 - build 1855
 
 1. Mantis#0001713: Access to "." and ".." folders on non-NTFS volumes.
