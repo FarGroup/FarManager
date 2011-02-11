@@ -5,10 +5,10 @@
 #define FAR_MAJOR_VER FARMANAGERVERSION_MAJOR
 #define FAR_MINOR_VER FARMANAGERVERSION_MINOR
 #define FAR_BUILD FARMANAGERVERSION_BUILD
-#define FARCOMPANYNAME "Eugene Roshal & FAR Group"
-#define FARGROUPCOPYRIGHT(start_year) "Copyright © " start_year "-2010 FAR Group"
+#define FARCOMPANYNAME "Eugene Roshal & Far Group"
+#define FARGROUPCOPYRIGHT(start_year) "Copyright © " start_year "-2010 Far Group"
 #define FARCOPYRIGHT "Copyright © Eugene Roshal 1996-2000, " FARGROUPCOPYRIGHT("2000")
-#define FARPRODUCTNAME "FAR Manager"
+#define FARPRODUCTNAME "Far Manager"
 
 #define FULLMAKEPRODUCTVERSION(major, minor, build) #major "." #minor " build " #build
 #define MAKEPRODUCTVERSION(major, minor, build) FULLMAKEPRODUCTVERSION(major, minor, build)
