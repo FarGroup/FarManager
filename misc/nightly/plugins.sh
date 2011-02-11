@@ -135,8 +135,17 @@ cd plugins/common/CRT
 
 mkdir -p obj.32.vc/wide
 mkdir -p obj.64.vc/wide
-wine cmd /c ../../../common.32.bat &> ../../../logcommon32
-wine cmd /c ../../../common.64.bat &> ../../../logcommon64
+wine cmd /c ../../../common.32.bat &> ../../../logCRT32
+wine cmd /c ../../../common.64.bat &> ../../../logCRT64
+
+cd ../..
+
+cd common/pluginreg
+
+mkdir -p obj.32.vc
+mkdir -p obj.64.vc
+wine cmd /c ../../../common.32.bat &> ../../../logpluginreg32
+wine cmd /c ../../../common.64.bat &> ../../../logpluginreg64
 
 cd ../..
 
