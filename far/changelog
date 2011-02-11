@@ -1,3 +1,9 @@
+t-rex 11.02.2011 13:04:02 +0200 - build 1858
+
+1. DialogBuilder теперь умеет и DI_SINGLEBOX с автоматичиской групировкой элементов в нём.
+
+2. DialogBuilder теперь умеет DI_FIXEDIT с маской для текста.
+
 svs 11.02.2011 10:27:51 +0300 - build 1857
 
 1. Mantis#0001482: Улучшение вывода <!Macro:Vars!> и <!Macro:Consts!>

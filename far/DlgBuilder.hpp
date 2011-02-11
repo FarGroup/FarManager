@@ -154,6 +154,7 @@ class DialogBuilderBase
 		int DialogItemsCount;
 		int DialogItemsAllocated;
 		int NextY;
+		int Indent;
 		int OKButtonID;
 		int ColumnStartIndex;
 		int ColumnBreakIndex;
@@ -207,7 +208,7 @@ class DialogBuilderBase
 
 		void SetNextY(T *Item)
 		{
-			Item->X1 = 5;
+			Item->X1 = 5 + Indent;
 			Item->Y1 = Item->Y2 = NextY++;
 		}
 
@@ -248,6 +249,18 @@ class DialogBuilderBase
 			T *Title = &DialogItems[0];
 			Title->X2 = Title->X1 + MaxTextWidth() + 3;
 			Title->Y2 = DialogItems [DialogItemsCount-1].Y2 + 1;
+
+			for (int i=1; i<DialogItemsCount; i++)
+			{
+				if (DialogItems[i].Type == DI_SINGLEBOX)
+				{
+					Indent = 2;
+					DialogItems[i].X2 = Title->X2;
+				}
+			}
+
+			Title->X2 += Indent;
+			Indent = 0;
 		}
 
 		int MaxTextWidth()
@@ -349,7 +362,7 @@ class DialogBuilderBase
 		}
 
 		DialogBuilderBase()
-			: DialogItems(nullptr), DialogItemsCount(0), DialogItemsAllocated(0), NextY(2),
+			: DialogItems(nullptr), DialogItemsCount(0), DialogItemsAllocated(0), NextY(2), Indent(0),
 			  ColumnStartIndex(-1), ColumnBreakIndex(-1), ColumnMinWidth(0)
 		{
 		}
@@ -415,7 +428,7 @@ class DialogBuilderBase
 		{
 			T *Item = AddDialogItem(DI_TEXT, GetLangString(LabelId));
 			Item->Y1 = Item->Y2 = RelativeTo->Y1;
-			Item->X1 = 5;
+			Item->X1 = 5 + Indent;
 			Item->X2 = Item->X1 + ItemWidth(*Item) - 1;
 
 			int RelativeToWidth = RelativeTo->X2 - RelativeTo->X1;
@@ -475,6 +488,23 @@ class DialogBuilderBase
 
 			ColumnStartIndex = -1;
 			ColumnBreakIndex = -1;
+		}
+
+		// Начинает располагать поля диалога внутри single box
+		T *StartSingleBox(int MessageId=-1, bool LeftAlign=false)
+		{
+			T *SingleBox = AddDialogItem(DI_SINGLEBOX, MessageId == -1 ? L"" : GetLangString(MessageId));
+			SingleBox->Flags = LeftAlign ? DIF_LEFTTEXT : DIF_NONE;
+			SingleBox->X1 = 5;
+			SingleBox->Y1 = NextY++;
+			Indent = 2;
+			return SingleBox;
+		}
+
+		void EndSingleBox(T *SingleBox)
+		{
+			SingleBox->Y2 = NextY++;
+			Indent = 0;
 		}
 
 		// Добавляет пустую строку.
@@ -721,6 +751,21 @@ public:
 			{
 				Item->History = HistoryID;
 				Item->Flags |= DIF_HISTORY;
+			}
+
+			SetLastItemBinding(new PluginEditFieldBinding(Info, &DialogHandle, DialogItemsCount-1, Value, MaxSize));
+			return Item;
+		}
+
+		FarDialogItem *AddFixEditField(wchar_t *Value, int MaxSize, int Width, const wchar_t *Mask = nullptr)
+		{
+			FarDialogItem *Item = AddDialogItem(DI_FIXEDIT, Value);
+			SetNextY(Item);
+			Item->X2 = Item->X1 + Width;
+			if (Mask)
+			{
+				Item->Mask = Mask;
+				Item->Flags |= DIF_MASKEDIT;
 			}
 
 			SetLastItemBinding(new PluginEditFieldBinding(Info, &DialogHandle, DialogItemsCount-1, Value, MaxSize));
