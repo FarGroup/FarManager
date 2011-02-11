@@ -1,6 +1,7 @@
 NAME = Brackets
 SRCS = Brackets.cpp
 DOCS = BrackEng.hlf BrackRus.hlf BrackEng.lng BrackRus.lng BrackDel.reg BrackEng.reg BrackRus.reg
+NEEDPLUGINREG = 1
 
 include ../makefile_gcc_def_inc
 

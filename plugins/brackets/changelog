@@ -1,3 +1,19 @@
+t-rex 11.02.2011 13:47:51 +0200 - build 17
+
+1. Far 3.0.1854 API
+
+2. Убран код 1.75.
+
+3. Mantis#1342: Падение при использовании ключа /u со слишком длинным параметром.
+
+4. Различные чистки и перетасовки.
+
+5. Use pluginreg lib.
+
+6. Use DialogBuilder for Dialogs.
+
+7. registry key -> "Far Manager"
+
 t-rex 06.02.2011 00:26:48 +0200
 
 1. lng,hlf -> utf8, reg -> Far2

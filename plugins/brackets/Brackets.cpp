@@ -1,9 +1,10 @@
-#define _FAR_NO_NAMELESS_UNIONS
-#include "plugin.hpp"
-#include "CRT/crt.hpp"
-
 #include "Brackets.hpp"
+#include "pluginreg/pluginreg.hpp"
 #include "BrackLng.hpp"
+#include "DlgBuilder.hpp"
+#include "version.hpp"
+#include <initguid.h>
+#include "guid.hpp"
 
 #if defined(__GNUC__)
 #ifdef __cplusplus
@@ -23,78 +24,139 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 }
 #endif
 
-#include "BrackMix.cpp"
-#include "BrackCfg.cpp"
+static struct Options Opt;
+static struct PluginStartupInfo Info;
+wchar_t *PluginRootKey;
 
-int WINAPI EXP_NAME(GetMinFarVersion)()
+const wchar_t *GetMsg(int MsgId)
 {
-  return FARMANAGERVERSION;
+  return Info.GetMsg(&MainGuid,MsgId);
 }
 
-void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
+void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
+{
+  Info->StructSize=sizeof(GlobalInfo);
+  Info->MinFarVersion=FARMANAGERVERSION;
+  Info->Version=PLUGIN_VERSION;
+  Info->Guid=MainGuid;
+  Info->Title=PLUGIN_NAME;
+  Info->Description=PLUGIN_DESC;
+  Info->Author=PLUGIN_AUTHOR;
+}
+
+void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 {
   ::Info=*Info;
+  PluginRootKey = (wchar_t *)malloc(lstrlen(Info->RootKey)*sizeof(wchar_t) + sizeof(L"\\Brackets"));
   lstrcpy(PluginRootKey,Info->RootKey);
-  lstrcat(PluginRootKey,_T("\\Brackets"));
+  lstrcat(PluginRootKey,L"\\Brackets");
 
-  HKEY hKey;
-  DWORD Type;
-  DWORD DataSize=0;
-  if ((RegOpenKeyEx(HKEY_CURRENT_USER,PluginRootKey,0,
-         KEY_QUERY_VALUE,&hKey))==ERROR_SUCCESS)
-  {
-    DataSize=sizeof(Opt);
-    RegQueryValueEx(hKey,_T("Options"),0,&Type,(LPBYTE)&Opt,&DataSize);
-    RegCloseKey(hKey);
-  }
+  Opt.IgnoreQuotes=GetRegKey(L"",L"IgnoreQuotes",0);
+  Opt.IgnoreAfter=GetRegKey(L"",L"IgnoreAfter",0);
+  Opt.BracketPrior=GetRegKey(L"",L"BracketPrior",1);
+  Opt.JumpToPair=GetRegKey(L"",L"JumpToPair",1);
+  Opt.Beep=GetRegKey(L"",L"Beep",0);
+  GetRegKey(L"",L"QuotesType",Opt.QuotesType,L"''\"\"`'``",ARRAYSIZE(Opt.QuotesType));
+  GetRegKey(L"",L"Brackets1",Opt.Brackets1,L"<>{}[]()\"\"''%%",ARRAYSIZE(Opt.Brackets1));
+  GetRegKey(L"",L"Brackets2",Opt.Brackets2,L"/**/<\?\?><%%>",ARRAYSIZE(Opt.Brackets2));
+}
 
-  if(DataSize != sizeof(Opt))
-  {
-    Opt.IgnoreQuotes=0;
-    Opt.IgnoreAfter=0;
-    Opt.BracketPrior=1;
-    Opt.JumpToPair=1;
-    Opt.Beep=0;
-    lstrcpy(Opt.QuotesType,_T("''\"\"`'``"));
-    lstrcpy(Opt.Brackets1,_T("<>{}[]()\"\"''%%"));
-    lstrcpy(Opt.Brackets2,_T("/**/<\?\?><%%>"));
-  }
+void WINAPI ExitFARW()
+{
+  free(PluginRootKey);
 }
 
 
-void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
+void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 {
-  static const TCHAR *PluginMenuStrings[1];
-  PluginMenuStrings[0]=GetMsg(MTitle);
   Info->StructSize=sizeof(*Info);
   Info->Flags=PF_EDITOR|PF_DISABLEPANELS;
-  Info->PluginMenuStrings=PluginMenuStrings;
-  Info->PluginMenuStringsNumber=ARRAYSIZE(PluginMenuStrings);
-  Info->DiskMenuStringsNumber=0;
-  static const TCHAR *PluginCfgStrings[1];
-  PluginCfgStrings[0]=GetMsg(MTitle);
-  Info->PluginConfigStrings=PluginCfgStrings;
-  Info->PluginConfigStringsNumber=ARRAYSIZE(PluginCfgStrings);
+  static const wchar_t *PluginMenuStrings[1];
+  PluginMenuStrings[0]=GetMsg(MTitle);
+  Info->PluginMenu.Guids=&MenuGuid;
+  Info->PluginMenu.Strings=PluginMenuStrings;
+  Info->PluginMenu.Count=ARRAYSIZE(PluginMenuStrings);
+  Info->PluginConfig.Guids=&MenuGuid;
+  Info->PluginConfig.Strings=PluginMenuStrings;
+  Info->PluginConfig.Count=ARRAYSIZE(PluginMenuStrings);
 }
 
-
-int WINAPI EXP_NAME(Configure)(int ItemNumber)
+int Config()
 {
-  if(!ItemNumber)
-    return(Config());
-  return(FALSE);
+  PluginDialogBuilder Builder(Info, MainGuid, DialogGuid, MTitle, nullptr);
+
+  FarDialogItem *Box = Builder.StartSingleBox(MRules, true);
+  Builder.AddCheckbox(MIgnoreQuotation, &Opt.IgnoreQuotes);
+  Builder.AddCheckbox(MIgnoreAfter, &Opt.IgnoreAfter);
+  Builder.AddCheckbox(MPriority, &Opt.BracketPrior);
+  Builder.AddCheckbox(MJumpToPair, &Opt.JumpToPair);
+  Builder.AddCheckbox(MBeep, &Opt.Beep);
+  Builder.EndSingleBox(Box);
+
+  Box = Builder.StartSingleBox(MDescriptions, true);
+  Builder.AddText(MTypeQuotes);
+  Builder.AddFixEditField(Opt.QuotesType, ARRAYSIZE(Opt.QuotesType), ARRAYSIZE(Opt.QuotesType)-1);
+  Builder.AddText(MDescript1);
+  Builder.AddFixEditField(Opt.Brackets1, ARRAYSIZE(Opt.Brackets1), ARRAYSIZE(Opt.Brackets1)-1);
+  Builder.AddText(MDescript2);
+  Builder.AddFixEditField(Opt.Brackets2, ARRAYSIZE(Opt.Brackets2), ARRAYSIZE(Opt.Brackets2)-1);
+  Builder.EndSingleBox(Box);
+
+  Builder.AddOKCancel(MSave, MCancel);
+
+  if (Builder.ShowDialog())
+  {
+    SetRegKey(L"",L"IgnoreQuotes",Opt.IgnoreQuotes);
+    SetRegKey(L"",L"IgnoreAfter",Opt.IgnoreAfter);
+    SetRegKey(L"",L"BracketPrior",Opt.BracketPrior);
+    SetRegKey(L"",L"JumpToPair",Opt.JumpToPair);
+    SetRegKey(L"",L"Beep",Opt.Beep);
+    SetRegKey(L"",L"QuotesType",Opt.QuotesType);
+    SetRegKey(L"",L"Brackets1",Opt.Brackets1);
+    SetRegKey(L"",L"Brackets2",Opt.Brackets2);
+    return TRUE;
+  }
+
+  return FALSE;
 }
 
+int WINAPI ConfigureW(const GUID* Guid)
+{
+	return Config();
+}
 
-HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
+int ShowMenu(int Type)
+{
+  struct FarMenuItem shMenu[4]={0};
+  static const wchar_t *HelpTopic[2]={L"Find",L"Direct"};
+  shMenu[0].Text = GetMsg((Type?MBForward:MBrackMath));
+  shMenu[1].Text = GetMsg((Type?MBBackward:MBrackSelect));
+  shMenu[2].Flags = MIF_SEPARATOR;
+  shMenu[3].Text = GetMsg(MConfigure);
+
+  int Ret;
+  while(1)
+  {
+    Ret=Info.Menu(&MainGuid,-1,-1,0,FMENU_WRAPMODE,GetMsg(MTitle),NULL,HelpTopic[Type&1],NULL,NULL,shMenu,ARRAYSIZE(shMenu));
+
+    if(Ret == 3)
+      Config();
+    else
+      break;
+  }
+
+  return Ret;
+}
+
+HANDLE WINAPI OpenPluginW(int OpenFrom,const GUID* Guid,INT_PTR Item)
 {
   struct EditorGetString egs;
   struct EditorSetPosition esp,espo;
   struct EditorSelect es;
 
-  TCHAR Bracket,Bracket1,Bracket_1;
-  TCHAR Ch,Ch1,Ch_1;
-  TCHAR B21=0,B22=0,B23=0,B24=0;
+  wchar_t Bracket,Bracket1,Bracket_1;
+  wchar_t Ch,Ch1,Ch_1;
+  wchar_t B21=0,B22=0,B23=0,B24=0;
 
   int nQuotes=0;
   int isSelect=-1;
@@ -113,7 +175,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
   int lenBrackets2=0;
 
   EditorInfo ei;
-  Info.EditorControl(ECTL_GETINFO,&ei);
+  Info.EditorControl(-1,ECTL_GETINFO,0,(INT_PTR)&ei);
 
   espo.CurTabPos=ei.CurTabPos;
   espo.TopScreenLine=ei.TopScreenLine;
@@ -124,30 +186,32 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
   espo.CurPos=CurPos=ei.CurPos;
   egs.StringNumber=-1;
 
-  Info.EditorControl(ECTL_GETSTRING,&egs);
+  Info.EditorControl(-1,ECTL_GETSTRING,0,(INT_PTR)&egs);
 
-  if(isSelect == -1)
-    if((isSelect=ShowMenu(0)) == -1)
-      return(INVALID_HANDLE_VALUE);
+  if (isSelect == -1)
+    if ((isSelect=ShowMenu(0)) == -1)
+      return INVALID_HANDLE_VALUE;
 
   if (CurPos > egs.StringLength)
-    return(INVALID_HANDLE_VALUE);
+    return INVALID_HANDLE_VALUE;
 
   egs.StringNumber=espo.CurLine;
   isSelect=isSelect == 1;
 
-  Bracket_1=(CurPos-1 >= 0?egs.StringText[CurPos-1]:_T('\0'));
-  Bracket1=(CurPos+1 < egs.StringLength?egs.StringText[CurPos+1]:_T('\0'));
+  Bracket_1=(CurPos-1 >= 0?egs.StringText[CurPos-1]:L'\0');
+  Bracket1=(CurPos+1 < egs.StringLength?egs.StringText[CurPos+1]:L'\0');
 
-  if(!Opt.QuotesType[0])
+  if (!Opt.QuotesType[0])
+  {
     Opt.IgnoreQuotes=1;
+  }
   else
   {
     // размер Opt.QuotesType должен быть кратный двум (иначе усекаем)
     i=lstrlen(Opt.QuotesType);
-    if((i&1) == 1)
+    if ((i&1) == 1)
     {
-      if(--i > 0)
+      if (--i > 0)
         Opt.QuotesType[i]=0;
       else
         Opt.IgnoreQuotes=1;
@@ -158,17 +222,17 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
   Opt.BracketPrior&=1;
   Opt.IgnoreAfter&=1;
 
-  if(Opt.IgnoreQuotes == 0)
+  if (Opt.IgnoreQuotes == 0)
   {
-    for(i=0; i < nQuotes; i+=2)
-      if(Bracket_1 == Opt.QuotesType[i] && Bracket1 == Opt.QuotesType[i+1])
-        return(INVALID_HANDLE_VALUE);
+    for (i=0; i < nQuotes; i+=2)
+      if (Bracket_1 == Opt.QuotesType[i] && Bracket1 == Opt.QuotesType[i+1])
+        return INVALID_HANDLE_VALUE;
   }
 
-  Bracket=(CurPos == egs.StringLength)?_T('\0'):egs.StringText[CurPos];
+  Bracket=(CurPos == egs.StringLength)?L'\0':egs.StringText[CurPos];
 
   // размер Opt.Brackets1 должен быть кратный двум (иначе усекаем)
-  if(((lenBrackets1=lstrlen(Opt.Brackets1)) & 1) != 0)
+  if (((lenBrackets1=lstrlen(Opt.Brackets1)) & 1) != 0)
   {
     lenBrackets1-=(lenBrackets1&1);
     Opt.Brackets1[lenBrackets1]=0;
@@ -176,7 +240,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
   lenBrackets1>>=1;
 
   // размер Opt.Brackets1 должен быть кратный четырем (иначе усекаем)
-  if(((lenBrackets2=lstrlen(Opt.Brackets2)) & 3) != 0)
+  if (((lenBrackets2=lstrlen(Opt.Brackets2)) & 3) != 0)
   {
     lenBrackets2-=(lenBrackets2&3);
     Opt.Brackets2[lenBrackets2]=0;
@@ -186,20 +250,20 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
   // анализ того, что под курсором
   i=3;
   short BracketPrior=Opt.BracketPrior;
-  while(--i)
+  while (--i)
   {
-    if(BracketPrior == 1)
+    if (BracketPrior == 1)
     {
       BracketPrior--;
-      if(types == BrZERO && lenBrackets2)
+      if (types == BrZERO && lenBrackets2)
       {
-        for(idxBrackets2=0;lenBrackets2 > 0; --lenBrackets2,idxBrackets2+=4)
+        for (idxBrackets2=0;lenBrackets2 > 0; --lenBrackets2,idxBrackets2+=4)
         {
           B21=Opt.Brackets2[idxBrackets2+0];
           B22=Opt.Brackets2[idxBrackets2+1];
           B23=Opt.Brackets2[idxBrackets2+2];
           B24=Opt.Brackets2[idxBrackets2+3];
-          if(Bracket == B21 || Bracket == B22 || Bracket == B23 || Bracket == B24)
+          if (Bracket == B21 || Bracket == B22 || Bracket == B23 || Bracket == B24)
           {
             if ((Bracket==B21 && Bracket1==B22) || (Bracket==B22 && Bracket_1==B21))
             {
@@ -219,10 +283,10 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
     else
     {
       BracketPrior++;
-      if(types == BrZERO && lenBrackets1)
+      if (types == BrZERO && lenBrackets1)
       {
         int LB=lenBrackets1;
-        for(idxBrackets1=0;lenBrackets1 > 0; --lenBrackets1,idxBrackets1+=2)
+        for (idxBrackets1=0;lenBrackets1 > 0; --lenBrackets1,idxBrackets1+=2)
         {
           B21=Opt.Brackets1[idxBrackets1+0];
           B22=Opt.Brackets1[idxBrackets1+1];
@@ -240,8 +304,9 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
             break;
           }
         }
-        if(types == BrZERO && !Opt.IgnoreAfter)
-          for(idxBrackets1=0;LB > 0; --LB,idxBrackets1+=2)
+        if (types == BrZERO && !Opt.IgnoreAfter)
+        {
+          for (idxBrackets1=0;LB > 0; --LB,idxBrackets1+=2)
           {
             B21=Opt.Brackets1[idxBrackets1+0];
             B22=Opt.Brackets1[idxBrackets1+1];
@@ -259,19 +324,21 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
               break;
             }
           }
+        }
       }
     }
   }
 
   if(Opt.IgnoreAfter && types == BrRight)
-    return(INVALID_HANDLE_VALUE);
-  if(types == BrZERO)
-    return(INVALID_HANDLE_VALUE);
+    return INVALID_HANDLE_VALUE;
 
-  if(B21 == B22)
+  if (types == BrZERO)
+    return INVALID_HANDLE_VALUE;
+
+  if (B21 == B22)
   {
-    if((DirectQuotes=ShowMenu(1)) == -1)
-      return(INVALID_HANDLE_VALUE);
+    if ((DirectQuotes=ShowMenu(1)) == -1)
+      return INVALID_HANDLE_VALUE;
     Direction=DirectQuotes == 0?1:-1;
     types=BrOneMath;
   }
@@ -294,11 +361,11 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
       else
         esp.CurLine--;
 
-      if(esp.CurLine >= ei.TotalLines || esp.CurLine < 0)
+      if (esp.CurLine >= ei.TotalLines || esp.CurLine < 0)
         break;
 
-      Info.EditorControl(ECTL_SETPOSITION,&esp);
-      Info.EditorControl(ECTL_GETSTRING,&egs);
+      Info.EditorControl(-1,ECTL_SETPOSITION,0,(INT_PTR)&esp);
+      Info.EditorControl(-1,ECTL_GETSTRING,0,(INT_PTR)&egs);
 
       if (cond_gt)
         CurPos=0;
@@ -309,20 +376,22 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
     if (CurPos > egs.StringLength || CurPos < 0)
       continue;
 
-    Ch_1=(CurPos-1 >= 0?egs.StringText[CurPos-1]:_T('\0'));
-    Ch=((CurPos == egs.StringLength)?_T('\0'):egs.StringText[CurPos]);
-    Ch1=(CurPos+1 < egs.StringLength?egs.StringText[CurPos+1]:_T('\0'));
+    Ch_1=(CurPos-1 >= 0?egs.StringText[CurPos-1]:L'\0');
+    Ch=((CurPos == egs.StringLength)?L'\0':egs.StringText[CurPos]);
+    Ch1=(CurPos+1 < egs.StringLength?egs.StringText[CurPos+1]:L'\0');
 
     // BUGBUGBUG!!!
-    if(Opt.IgnoreQuotes == 1)
+    if (Opt.IgnoreQuotes == 1)
     {
-      for(k=j=0; j < nQuotes; j+=2)
-        if(Ch_1 == Opt.QuotesType[j] && Ch1 == Opt.QuotesType[j+1])
+      for (k=j=0; j < nQuotes; j+=2)
+      {
+        if (Ch_1 == Opt.QuotesType[j] && Ch1 == Opt.QuotesType[j+1])
         {
           k++;
           break;
         }
-      if(k)
+      }
+      if (k)
         continue;
     }
 
@@ -331,11 +400,9 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
       /***************************************************************/
       case BrOneMath:
       {
-        if(Ch == Bracket)
+        if (Ch == Bracket)
         {
-          if ((Bracket_1==_T('\\') && Ch_1==_T('\\')) ||
-              (Bracket_1!=_T('\\') && Ch_1!=_T('\\'))
-             )
+          if ((Bracket_1==L'\\' && Ch_1==L'\\') || (Bracket_1!=L'\\' && Ch_1!=L'\\'))
             found=TRUE;
         }
         break;
@@ -344,15 +411,14 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
       /***************************************************************/
       case BrRight:
       {
-        if(Ch == Bracket_1)
+        if (Ch == Bracket_1)
         {
           MatchCount++;
         }
         else if ((Ch==B21 && Bracket_1==B22) || (Ch==B22 && Bracket_1==B21))
         {
           --MatchCount;
-          if((Direction ==  1 && MatchCount == 0) ||
-             (Direction == -1 && MatchCount == 1))
+          if ((Direction ==  1 && MatchCount == 0) || (Direction == -1 && MatchCount == 1))
             found=TRUE;
         }
         break;
@@ -361,13 +427,13 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
       /***************************************************************/
       case BrOne:
       {
-        if(Ch == Bracket)
+        if (Ch == Bracket)
         {
           MatchCount++;
         }
         else if ((Ch==B21 && Bracket==B22) || (Ch==B22 && Bracket==B21))
         {
-          if(--MatchCount==0)
+          if (--MatchCount==0)
             found=TRUE;
         }
         break;
@@ -377,15 +443,15 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 
       case BrTwo:
       {
-        if((Direction == 1 &&
-           ((Bracket==B21 && Ch==B21 && Ch1  == B22) ||
-           (Bracket==B22 && Ch==B22 && Ch_1 == B21))
-           ) ||
-           (Direction == -1 &&
-           ((Bracket==B23 && Ch==B23 && Ch1  == B24) ||
-           (Bracket==B24 && Ch==B24 && Ch_1 == B23))
+        if ((Direction == 1 &&
+            ((Bracket==B21 && Ch==B21 && Ch1  == B22) ||
+            (Bracket==B22 && Ch==B22 && Ch_1 == B21))
+            ) ||
+            (Direction == -1 &&
+            ((Bracket==B23 && Ch==B23 && Ch1  == B24) ||
+            (Bracket==B24 && Ch==B24 && Ch_1 == B23))
+            )
            )
-          )
         {
           MatchCount++;
         }
@@ -396,7 +462,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
                  (Bracket==B24 && Ch==B22 && Bracket_1==B23 && Ch_1==B21)
                 )
         {
-          if(--MatchCount==0)
+          if (--MatchCount==0)
             found=TRUE;
         }
         break;
@@ -404,67 +470,69 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
     }
   }
 
-  if(found)
+  if (found)
   {
     egs.StringNumber=esp.CurLine;
-    if(types == BrTwo)
+    if (types == BrTwo)
     {
-      if(Bracket == B21 || Bracket == B24)
+      if (Bracket == B21 || Bracket == B24)
         CurPos+=Direction;
-      else if(Bracket == B22 || Bracket == B23)
+      else if (Bracket == B22 || Bracket == B23)
         CurPos-=Direction;
     }
 
     esp.CurPos=CurPos;
 
     esp.CurTabPos=esp.LeftPos=esp.Overtype=-1;
-    if (egs.StringNumber<ei.TopScreenLine ||
-        egs.StringNumber>=ei.TopScreenLine+ei.WindowSizeY)
+    if (egs.StringNumber<ei.TopScreenLine || egs.StringNumber>=ei.TopScreenLine+ei.WindowSizeY)
     {
       esp.TopScreenLine=esp.CurLine-ei.WindowSizeY/2;
       if (esp.TopScreenLine < 0)
         esp.TopScreenLine=0;
     }
     else
+    {
       esp.TopScreenLine=-1;
+    }
 
-    if(!isSelect || (isSelect && Opt.JumpToPair))
-      Info.EditorControl(ECTL_SETPOSITION,&esp);
+    if (!isSelect || (isSelect && Opt.JumpToPair))
+      Info.EditorControl(-1,ECTL_SETPOSITION,0,(INT_PTR)&esp);
 
-    if(Opt.Beep)
+    if (Opt.Beep)
        MessageBeep(0);
 
-    if(isSelect)
+    if (isSelect)
     {
       es.BlockType=BTYPE_STREAM;
       es.BlockStartLine=min(esp.CurLine,espo.CurLine);
       es.BlockStartPos=(Direction > 0?espo.CurPos:esp.CurPos);
       es.BlockHeight=max(esp.CurLine,espo.CurLine)-min(esp.CurLine,espo.CurLine)+1;
 
-      if(Direction > 0)
+      if (Direction > 0)
         es.BlockWidth=esp.CurPos-espo.CurPos+1;
       else
         es.BlockWidth=espo.CurPos-esp.CurPos+1;
 
-      if(types == BrRight)
+      if (types == BrRight)
       {
-        if(Direction > 0)
+        if (Direction > 0)
         {
           es.BlockStartPos--;
           es.BlockWidth++;
         }
-        else if(Direction < 0)
+        else if (Direction < 0)
         {
           es.BlockWidth--;
         }
       }
 
-      Info.EditorControl(ECTL_SELECT,(void*)&es);
+      Info.EditorControl(-1,ECTL_SELECT,0,(INT_PTR)&es);
     }
   }
   else
   {
-    Info.EditorControl(ECTL_SETPOSITION,&espo);
+    Info.EditorControl(-1,ECTL_SETPOSITION,0,(INT_PTR)&espo);
   }
-  return(INVALID_HANDLE_VALUE);
+
+  return INVALID_HANDLE_VALUE;
 }
