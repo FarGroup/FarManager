@@ -18,7 +18,7 @@ keys.hpp
 /*
   farkeys.hpp
 
-  Inside KeyName for FAR Manager <%VERSION%>
+  Inside KeyName for Far Manager <%VERSION%>
 */
 #endif // END FAR_USE_INTERNALS
 

@@ -1,7 +1,7 @@
 {
   PluginW.pas
 
-  Plugin API for FAR Manager <%VERSION%>
+  Plugin API for Far Manager <%VERSION%>
 }
 
 {
@@ -1050,9 +1050,9 @@ type
 { FILE_CONTROL_COMMANDS }
 
 const
-  PANEL_NONE	                = THandle(-1);
-  PANEL_ACTIVE	                = THandle(-1);
-  PANEL_PASSIVE	                = THandle(-2);
+  PANEL_NONE                    = THandle(-1);
+  PANEL_ACTIVE                  = THandle(-1);
+  PANEL_PASSIVE                 = THandle(-2);
 
 const
   FCTL_CLOSEPLUGIN              = 0;
@@ -1090,14 +1090,14 @@ const
   FCTL_GETPANELFORMAT           = 32;
   FCTL_GETPANELHOSTFILE         = 33;
 
-  
+
 type
 (*
 typedef int (WINAPI *FARAPICONTROL)(
   HANDLE hPlugin,
   int Command,
-	int Param1,
-	INT_PTR Param2
+    int Param1,
+    INT_PTR Param2
 );
 *)
   TFarApiControl = function (
@@ -1355,7 +1355,7 @@ const
   ACTL_GETCURSORPOS         = 33;
   ACTL_SETCURSORPOS         = 34;
 
-  
+
 { FarSystemSettings }
 
 const
@@ -1463,7 +1463,7 @@ type
     Flags :DWORD;
   end;
 
-  
+
 { FARKEYSEQUENCEFLAGS }
 
 const
@@ -1527,9 +1527,9 @@ const
 (*
 struct MacroParseResult
 {
-	DWORD ErrCode;
-	COORD ErrPos;
-	const wchar_t *ErrSrc;
+    DWORD ErrCode;
+    COORD ErrPos;
+    const wchar_t *ErrSrc;
 };
 *)
 type
@@ -1543,17 +1543,17 @@ type
 (*
 struct ActlKeyMacro
 {
-	int Command;
-	union
-	{
-		struct
-		{
-			const wchar_t *SequenceText;
-			DWORD Flags;
-		} PlainText;
-		struct MacroParseResult MacroResult;
-		DWORD_PTR Reserved[3];
-	} Param;
+    int Command;
+    union
+    {
+        struct
+        {
+            const wchar_t *SequenceText;
+            DWORD Flags;
+        } PlainText;
+        struct MacroParseResult MacroResult;
+        DWORD_PTR Reserved[3];
+    } Param;
 };
 *)
 type
@@ -1647,8 +1647,8 @@ const
 (*
 struct PROGRESSVALUE
 {
-	unsigned __int64 Completed;
-	unsigned __int64 Total;
+    unsigned __int64 Completed;
+    unsigned __int64 Total;
 };
 *)
 type
@@ -1922,7 +1922,7 @@ const
   ECTL_UNDOREDO            = 32;
   ECTL_GETFILENAME         = 33;
 
-  
+
 { EDITOR_SETPARAMETER_TYPES }
 
 const
@@ -2499,9 +2499,9 @@ type
 (*
 enum CONVERTPATHMODES
 {
-	CPM_FULL,
-	CPM_REAL,
-	CPM_NATIVE,
+    CPM_FULL,
+    CPM_REAL,
+    CPM_NATIVE,
 };
 
 typedef int (WINAPI *FARCONVERTPATH)(CONVERTPATHMODES Mode, const wchar_t *Src, wchar_t *Dest, int DestSize);
@@ -3181,7 +3181,7 @@ const
   CopyFilesId       :TGUID = '{FCEF11C4-5490-451d-8B4A-62FA03F52759}';
   HardSymLinkId     :TGUID = '{5EB266F4-980D-46af-B3D2-2C50E64BCA81}';
 
-  
+
 {******************************************************************************}
 {******************************} implementation {******************************}
 {******************************************************************************}

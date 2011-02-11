@@ -1,7 +1,7 @@
 {
   FarKeysW.pas
 
-  Internal key names for FAR Manager <%VERSION%>
+  Internal key names for Far Manager <%VERSION%>
 }
 
 {
@@ -89,7 +89,7 @@ const
    KEY_UP                  = EXTENDED_KEY_BASE+VK_UP;
    KEY_RIGHT               = EXTENDED_KEY_BASE+VK_RIGHT;
    KEY_DOWN                = EXTENDED_KEY_BASE+VK_DOWN;
-   KEY_PRNTSCRN            = EXTENDED_KEY_BASE+VK_SNAPSHOT;   
+   KEY_PRNTSCRN            = EXTENDED_KEY_BASE+VK_SNAPSHOT;
    KEY_INS                 = EXTENDED_KEY_BASE+VK_INSERT;
    KEY_DEL                 = EXTENDED_KEY_BASE+VK_DELETE;
 

@@ -32,12 +32,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef UNICODE
-#define EMPTY_TEXT L""
-#else
-#define EMPTY_TEXT ""
-#endif
-
 // Элемент выпадающего списка в диалоге.
 struct DialogBuilderListItem
 {
@@ -148,7 +142,7 @@ checkbox и radio button вычисляется автоматически, для других элементов передаёт
 - добавляются контролы для второй колонки
 - EndColumns()
 
-Базовая версия класса используется как внутри кода FAR, так и в плагинах.
+Базовая версия класса используется как внутри кода Far, так и в плагинах.
 */
 
 template<class T>
@@ -197,7 +191,7 @@ class DialogBuilderBase
 			}
 		}
 
-		T *AddDialogItem(int Type, const TCHAR *Text)
+		T *AddDialogItem(int Type, const wchar_t *Text)
 		{
 			if (DialogItemsCount == DialogItemsAllocated)
 			{
@@ -242,7 +236,7 @@ class DialogBuilderBase
 			return 0;
 		}
 
-		void AddBorder(const TCHAR *TitleText)
+		void AddBorder(const wchar_t *TitleText)
 		{
 			T *Title = AddDialogItem(DI_DOUBLEBOX, TitleText);
 			Title->X1 = 3;
@@ -289,7 +283,7 @@ class DialogBuilderBase
 			}
 		}
 
-		virtual void InitDialogItem(T *NewDialogItem, const TCHAR *Text)
+		virtual void InitDialogItem(T *NewDialogItem, const wchar_t *Text)
 		{
 		}
 
@@ -334,7 +328,7 @@ class DialogBuilderBase
 			}
 		}
 
-		virtual const TCHAR *GetLangString(int MessageID)
+		virtual const wchar_t *GetLangString(int MessageID)
 		{
 			return nullptr;
 		}
@@ -492,7 +486,7 @@ class DialogBuilderBase
 		// Добавляет сепаратор.
 		void AddSeparator(int MessageId=-1)
 		{
-			T *Separator = AddDialogItem(DI_TEXT, MessageId == -1 ? EMPTY_TEXT : GetLangString(MessageId));
+			T *Separator = AddDialogItem(DI_TEXT, MessageId == -1 ? L"" : GetLangString(MessageId));
 			Separator->Flags = DIF_SEPARATOR;
 			Separator->X1 = 3;
 			Separator->Y1 = Separator->Y2 = NextY++;
@@ -590,23 +584,21 @@ class PluginRadioButtonBinding: public DialogAPIBinding
 		}
 };
 
-#ifdef UNICODE
-
 class PluginEditFieldBinding: public DialogAPIBinding
 {
 private:
-	TCHAR *Value;
+	wchar_t *Value;
 	int MaxSize;
 
 public:
-	PluginEditFieldBinding(const PluginStartupInfo &aInfo, HANDLE *aHandle, int aID, TCHAR *aValue, int aMaxSize)
+	PluginEditFieldBinding(const PluginStartupInfo &aInfo, HANDLE *aHandle, int aID, wchar_t *aValue, int aMaxSize)
 		: DialogAPIBinding(aInfo, aHandle, aID), Value(aValue), MaxSize(aMaxSize)
 	{
 	}
 
 	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
 	{
-		const TCHAR *DataPtr = (const TCHAR *) Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, 0);
+		const wchar_t *DataPtr = (const wchar_t *) Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, 0);
 		lstrcpyn(Value, DataPtr, MaxSize);
 	}
 };
@@ -615,8 +607,8 @@ class PluginIntEditFieldBinding: public DialogAPIBinding
 {
 private:
 	int *Value;
-	TCHAR Buffer[32];
-	TCHAR Mask[32];
+	wchar_t Buffer[32];
+	wchar_t Mask[32];
 
 public:
 	PluginIntEditFieldBinding(const PluginStartupInfo &aInfo, HANDLE *aHandle, int aID, int *aValue, int Width)
@@ -632,103 +624,45 @@ public:
 
 	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
 	{
-		const TCHAR *DataPtr = (const TCHAR *) Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, 0);
+		const wchar_t *DataPtr = (const wchar_t *) Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, 0);
 		*Value = Info.FSF->atoi(DataPtr);
 	}
 
-	TCHAR *GetBuffer()
+	wchar_t *GetBuffer()
 	{
 		return Buffer;
 	}
 
-	const TCHAR *GetMask()
+	const wchar_t *GetMask()
 	{
 		return Mask;
 	}
 };
-
-#else
-
-class PluginEditFieldBinding: public DialogItemBinding<FarDialogItem>
-{
-private:
-	TCHAR *Value;
-	int MaxSize;
-
-public:
-	PluginEditFieldBinding(TCHAR *aValue, int aMaxSize)
-		: Value(aValue), MaxSize(aMaxSize)
-	{
-	}
-
-	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
-	{
-		lstrcpyn(Value, Item->Data, MaxSize);
-	}
-};
-
-class PluginIntEditFieldBinding: public DialogItemBinding<FarDialogItem>
-{
-private:
-	const PluginStartupInfo &Info;
-	int *Value;
-	TCHAR Mask[32];
-
-public:
-	PluginIntEditFieldBinding(const PluginStartupInfo &aInfo, int *aValue, int Width)
-		: Info(aInfo), Value(aValue)
-	{
-		int MaskWidth = Width < 31 ? Width : 31;
-		for(int i=0; i<MaskWidth; i++)
-			Mask[i] = '9';
-		Mask[MaskWidth] = '\0';
-	}
-
-	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
-	{
-		*Value = Info.FSF->atoi(Item->Data);
-	}
-
-	const TCHAR *GetMask()
-	{
-		return Mask;
-	}
-};
-
-#endif
 
 /*
-Версия класса для динамического построения диалогов, используемая в плагинах к FAR.
+Версия класса для динамического построения диалогов, используемая в плагинах к Far.
 */
 class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 {
 	protected:
 		const PluginStartupInfo &Info;
 		HANDLE DialogHandle;
-		const TCHAR *HelpTopic;
+		const wchar_t *HelpTopic;
 		GUID PluginId;
 		GUID Id;
 
-		virtual void InitDialogItem(FarDialogItem *Item, const TCHAR *Text)
+		virtual void InitDialogItem(FarDialogItem *Item, const wchar_t *Text)
 		{
 			memset(Item, 0, sizeof(FarDialogItem));
-#ifdef UNICODE
 			Item->PtrData = Text;
-#else
-			lstrcpyn(Item->Data, Text, sizeof(Item->Data)/sizeof(Item->Data[0]));
-#endif
 		}
 
 		virtual int TextWidth(const FarDialogItem &Item)
 		{
-#ifdef UNICODE
 			return lstrlen(Item.PtrData);
-#else
-			return lstrlen(Item.Data);
-#endif
 		}
 
-		virtual const TCHAR *GetLangString(int MessageID)
+		virtual const wchar_t *GetLangString(int MessageID)
 		{
 			return Info.GetMsg(&PluginId, MessageID);
 		}
@@ -737,36 +671,23 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 		{
 			int Width = DialogItems [0].X2+4;
 			int Height = DialogItems [0].Y2+2;
-#ifdef UNICODE
 			DialogHandle = Info.DialogInit(&PluginId, &Id, -1, -1, Width, Height,
 				HelpTopic, DialogItems, DialogItemsCount, 0, 0, nullptr, 0);
 			return Info.DialogRun(DialogHandle);
-#else
-			return Info.Dialog(Info.ModuleNumber, -1, -1, Width, Height,
-				HelpTopic, DialogItems, DialogItemsCount);
-#endif
 		}
 
 		virtual DialogItemBinding<FarDialogItem> *CreateCheckBoxBinding(BOOL *Value, int Mask)
 		{
-#ifdef UNICODE
 			return new PluginCheckBoxBinding(Info, &DialogHandle, DialogItemsCount-1, Value, Mask);
-#else
-			return new CheckBoxBinding<FarDialogItem>(Value, Mask);
-#endif
 		}
 
 		virtual DialogItemBinding<FarDialogItem> *CreateRadioButtonBinding(BOOL *Value)
 		{
-#ifdef UNICODE
 			return new PluginRadioButtonBinding(Info, &DialogHandle, DialogItemsCount-1, Value);
-#else
-			return new RadioButtonBinding<FarDialogItem>(Value);
-#endif
 		}
 
 public:
-		PluginDialogBuilder(const PluginStartupInfo &aInfo, const GUID &aPluginId, const GUID &aId, int TitleMessageID, const TCHAR *aHelpTopic)
+		PluginDialogBuilder(const PluginStartupInfo &aInfo, const GUID &aPluginId, const GUID &aId, int TitleMessageID, const wchar_t *aHelpTopic)
 			: Info(aInfo), HelpTopic(aHelpTopic), PluginId(aPluginId), Id(aId)
 		{
 			AddBorder(GetLangString(TitleMessageID));
@@ -774,56 +695,35 @@ public:
 
 		~PluginDialogBuilder()
 		{
-#ifdef UNICODE
 			Info.DialogFree(DialogHandle);
-#endif
 		}
 
 		virtual FarDialogItem *AddIntEditField(int *Value, int Width)
 		{
-			FarDialogItem *Item = AddDialogItem(DI_FIXEDIT, EMPTY_TEXT);
+			FarDialogItem *Item = AddDialogItem(DI_FIXEDIT, L"");
 			Item->Flags |= DIF_MASKEDIT;
 			PluginIntEditFieldBinding *Binding;
-#ifdef UNICODE
 			Binding = new PluginIntEditFieldBinding(Info, &DialogHandle, DialogItemsCount-1, Value, Width);
 			Item->PtrData = Binding->GetBuffer();
-#else
-			Binding = new PluginIntEditFieldBinding(Info, Value, Width);
-			Info.FSF->itoa(*Value, (TCHAR *) Item->Data, 10);
-#endif
-
-
-#ifdef _FAR_NO_NAMELESS_UNIONS
 			Item->Mask = Binding->GetMask();
-#else
-			Item->Mask = Binding->GetMask();
-#endif
 			SetNextY(Item);
 			Item->X2 = Item->X1 + Width - 1;
 			SetLastItemBinding(Binding);
 			return Item;
 		}
 
-		FarDialogItem *AddEditField(TCHAR *Value, int MaxSize, int Width, const TCHAR *HistoryID = nullptr)
+		FarDialogItem *AddEditField(wchar_t *Value, int MaxSize, int Width, const wchar_t *HistoryID = nullptr)
 		{
 			FarDialogItem *Item = AddDialogItem(DI_EDIT, Value);
 			SetNextY(Item);
 			Item->X2 = Item->X1 + Width;
 			if (HistoryID)
 			{
-#ifdef _FAR_NO_NAMELESS_UNIONS
 				Item->History = HistoryID;
-#else
-				Item->History = HistoryID;
-#endif
 				Item->Flags |= DIF_HISTORY;
 			}
 
-#ifdef UNICODE
 			SetLastItemBinding(new PluginEditFieldBinding(Info, &DialogHandle, DialogItemsCount-1, Value, MaxSize));
-#else
-			SetLastItemBinding(new PluginEditFieldBinding(Value, MaxSize));
-#endif
 			return Item;
 		}
 };

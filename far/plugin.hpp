@@ -8,7 +8,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager <%VERSION%>
+  Plugin API for Far Manager <%VERSION%>
 */
 
 /*

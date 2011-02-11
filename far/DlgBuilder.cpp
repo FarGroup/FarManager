@@ -58,7 +58,7 @@ struct EditFieldBinding: public DialogItemBinding<DialogItemEx>
 struct EditFieldIntBinding: public DialogItemBinding<DialogItemEx>
 {
 	int *IntValue;
-	TCHAR Mask[32];
+	wchar_t Mask[32];
 
 	EditFieldIntBinding(int *aIntValue, int Width)
 		: IntValue(aIntValue)
@@ -75,7 +75,7 @@ struct EditFieldIntBinding: public DialogItemBinding<DialogItemEx>
 		*IntValue = wcstoul(Item->strData, &endptr, 10);
 	}
 
-	const TCHAR *GetMask() 
+	const wchar_t *GetMask()
 	{
 		return Mask;
 	}
@@ -98,7 +98,7 @@ DialogBuilder::~DialogBuilder()
 {
 }
 
-void DialogBuilder::InitDialogItem(DialogItemEx *Item, const TCHAR *Text)
+void DialogBuilder::InitDialogItem(DialogItemEx *Item, const wchar_t *Text)
 {
 	Item->Clear();
 	Item->ID = DialogItemsCount-1;
@@ -110,7 +110,7 @@ int DialogBuilder::TextWidth(const DialogItemEx &Item)
 	return static_cast<int>(Item.strData.GetLength());
 }
 
-const TCHAR *DialogBuilder::GetLangString(int MessageID)
+const wchar_t *DialogBuilder::GetLangString(int MessageID)
 {
 	return MSG(MessageID);
 }
