@@ -972,9 +972,11 @@ INT_PTR WINAPI MainDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 
 			break;
 		}
-		case DN_KEY:
+		case DN_CONTROLINPUT:
 		{
-			int key = InputRecordToKey((const INPUT_RECORD *)Param2);
+			const INPUT_RECORD* record=(const INPUT_RECORD *)Param2;
+			if (record->EventType!=KEY_EVENT) break;
+			int key = InputRecordToKey(record);
 			switch (Param1)
 			{
 				case FAD_COMBOBOX_CP:
@@ -1621,9 +1623,11 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 		}
 		break;
 
-	case DN_KEY:
+	case DN_CONTROLINPUT:
 		{
-			int key = InputRecordToKey((const INPUT_RECORD *)Param2);
+			const INPUT_RECORD* record=(const INPUT_RECORD *)Param2;
+			if (record->EventType!=KEY_EVENT) break;
+			int key = InputRecordToKey(record);
 			switch (key)
 			{
 			case KEY_ESC:
@@ -2019,7 +2023,9 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 
 			case FD_BUTTON_VIEW:
 				{
-					FindDlgProc(hDlg,DN_KEY,FD_LISTBOX,KEY_F3);
+					INPUT_RECORD key;
+					KeyToInputRecord(KEY_F3,&key);
+					FindDlgProc(hDlg,DN_CONTROLINPUT,FD_LISTBOX,(INT_PTR)&key);
 					return TRUE;
 				}
 				break;

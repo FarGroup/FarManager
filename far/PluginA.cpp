@@ -2050,24 +2050,46 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 			break;
 		case DN_KILLFOCUS:      Msg=oldfar::DN_KILLFOCUS; break;
 		case DN_LISTCHANGE:     Msg=oldfar::DN_LISTCHANGE; break;
-		case DN_MOUSECLICK:     Msg=oldfar::DN_MOUSECLICK; break;
 		case DN_DRAGGED:        Msg=oldfar::DN_DRAGGED; break;
 		case DN_RESIZECONSOLE:  Msg=oldfar::DN_RESIZECONSOLE; break;
-		case DN_MOUSEEVENT:     Msg=oldfar::DN_MOUSEEVENT; break;
 		case DN_DRAWDIALOGDONE: Msg=oldfar::DN_DRAWDIALOGDONE; break;
 		case DM_KILLSAVESCREEN: Msg=oldfar::DM_KILLSAVESCREEN; break;
 		case DM_ALLKEYMODE:     Msg=oldfar::DM_ALLKEYMODE; break;
 		case DN_ACTIVATEAPP:    Msg=oldfar::DN_ACTIVATEAPP; break;
-			break;
-		case DN_KEY:
-			Msg=oldfar::DN_KEY;
-			Param2=KeyToOldKey((DWORD)InputRecordToKey((const INPUT_RECORD *)Param2));
-			break;
+		case DN_INPUT:
+			{
+				const INPUT_RECORD* record=(const INPUT_RECORD *)Param2;
+				if (record->EventType==MOUSE_EVENT)
+				{
+					Msg=oldfar::DN_MOUSEEVENT;
+					Param1=0;
+					Param2=(INT_PTR)&record->Event.MouseEvent;
+					break;
+				}
+			}
+			return FarDefDlgProc(hDlg, Msg, Param1, Param2);
+		case DN_CONTROLINPUT:
+			{
+				const INPUT_RECORD* record=(const INPUT_RECORD *)Param2;
+				if (record->EventType==MOUSE_EVENT)
+				{
+					Msg=oldfar::DN_MOUSECLICK;
+					Param2=(INT_PTR)&record->Event.MouseEvent;
+					break;
+				}
+				else if (record->EventType==KEY_EVENT)
+				{
+					Msg=oldfar::DN_KEY;
+					Param2=KeyToOldKey((DWORD)InputRecordToKey((const INPUT_RECORD *)Param2));
+				}
+			}
+			return FarDefDlgProc(hDlg, Msg, Param1, Param2);
 	}
 
 	return CurrentDlgProc(hDlg, Msg, Param1, Param2);
 }
 
+//BUGBUG: так нельзя.
 LONG_PTR WINAPI FarDefDlgProcA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 {
 	return FarDefDlgProc(hDlg, Msg, Param1, Param2);

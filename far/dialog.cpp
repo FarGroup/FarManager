@@ -2512,7 +2512,7 @@ int Dialog::ProcessKey(int Key)
 	if (!(/*(Key>=KEY_MACRO_BASE && Key <=KEY_MACRO_ENDBASE) ||*/ ((unsigned int)Key>=KEY_OP_BASE && (unsigned int)Key <=KEY_OP_ENDBASE)) && !DialogMode.Check(DMODE_KEY))
 	{
 		INPUT_RECORD rec;
-		if (KeyToInputRecord(Key,&rec) && DlgProc((HANDLE)this,DN_KEY,FocusPos,(INT_PTR)&rec))
+		if (KeyToInputRecord(Key,&rec) && DlgProc((HANDLE)this,DN_CONTROLINPUT,FocusPos,(INT_PTR)&rec))
 			return TRUE;
 	}
 
@@ -3161,21 +3161,25 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	int MsX,MsY;
 	int Type;
 	SMALL_RECT Rect;
+	INPUT_RECORD mouse;
+	memset(&mouse,0,sizeof(mouse));
+	mouse.EventType=MOUSE_EVENT;
+	mouse.Event.MouseEvent=*MouseEvent;
 
 	if (!DialogMode.Check(DMODE_SHOW))
 		return FALSE;
 
 	if (DialogMode.Check(DMODE_MOUSEEVENT))
 	{
-		if (!DlgProc((HANDLE)this,DN_MOUSEEVENT,0,(INT_PTR)MouseEvent))
+		if (!DlgProc((HANDLE)this,DN_INPUT,0,(INT_PTR)&mouse))
 			return TRUE;
 	}
 
 	if (!DialogMode.Check(DMODE_SHOW))
 		return FALSE;
 
-	MsX=MouseEvent->dwMousePosition.X;
-	MsY=MouseEvent->dwMousePosition.Y;
+	MsX=mouse.Event.MouseEvent.dwMousePosition.X;
+	MsY=mouse.Event.MouseEvent.dwMousePosition.Y;
 
 	//for (I=0;I<ItemCount;I++)
 	for (I=ItemCount-1; I!=(unsigned)-1; I--)
@@ -3193,7 +3197,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			int Pos=List->GetSelectPos();
 			int CheckedListItem=List->GetCheck(-1);
 
-			if ((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
+			if ((mouse.Event.MouseEvent.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
 			{
 				if (FocusPos != I)
 				{
@@ -3201,9 +3205,9 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 					ShowDialog();
 				}
 
-				if (MouseEvent->dwEventFlags!=DOUBLE_CLICK && !(Item[I]->IFlags.Flags&(DLGIIF_LISTREACTIONFOCUS|DLGIIF_LISTREACTIONNOFOCUS)))
+				if (mouse.Event.MouseEvent.dwEventFlags!=DOUBLE_CLICK && !(Item[I]->IFlags.Flags&(DLGIIF_LISTREACTIONFOCUS|DLGIIF_LISTREACTIONNOFOCUS)))
 				{
-					List->ProcessMouse(MouseEvent);
+					List->ProcessMouse(&mouse.Event.MouseEvent);
 					int NewListPos=List->GetSelectPos();
 
 					if (NewListPos != Pos && !SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(INT_PTR)NewListPos))
@@ -3218,10 +3222,10 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 						Pos=NewListPos;
 					}
 				}
-				else if (!SendDlgMessage((HANDLE)this,DN_MOUSECLICK,I,(INT_PTR)MouseEvent))
+				else if (!SendDlgMessage((HANDLE)this,DN_CONTROLINPUT,I,(INT_PTR)&mouse))
 				{
 #if 1
-					List->ProcessMouse(MouseEvent);
+					List->ProcessMouse(&mouse.Event.MouseEvent);
 					int NewListPos=List->GetSelectPos();
 					int InScroolBar=(MsX==X1+Item[I]->X2 && MsY >= Y1+Item[I]->Y1 && MsY <= Y1+Item[I]->Y2) &&
 					                (List->CheckFlags(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Opt.ShowMenuScrollbar);
@@ -3252,7 +3256,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 					if (SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(INT_PTR)Pos))
 					{
 						if (MsX==X1+Item[I]->X2 && MsY >= Y1+Item[I]->Y1 && MsY <= Y1+Item[I]->Y2)
-							List->ProcessMouse(MouseEvent); // забыл проверить на клик на скролбар (KM)
+							List->ProcessMouse(&mouse.Event.MouseEvent); // забыл проверить на клик на скролбар (KM)
 						else
 							ProcessKey(KEY_ENTER, I);
 					}
@@ -3264,14 +3268,14 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			}
 			else
 			{
-				if (!MouseEvent->dwButtonState || SendDlgMessage((HANDLE)this,DN_MOUSECLICK,I,(INT_PTR)MouseEvent))
+				if (!mouse.Event.MouseEvent.dwButtonState || SendDlgMessage((HANDLE)this,DN_CONTROLINPUT,I,(INT_PTR)&mouse))
 				{
 					if ((I == FocusPos && (Item[I]->IFlags.Flags&DLGIIF_LISTREACTIONFOCUS))
 					        ||
 					        (I != FocusPos && (Item[I]->IFlags.Flags&DLGIIF_LISTREACTIONNOFOCUS))
 					   )
 					{
-						List->ProcessMouse(MouseEvent);
+						List->ProcessMouse(&mouse.Event.MouseEvent);
 						int NewListPos=List->GetSelectPos();
 
 						if (NewListPos != Pos && !SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(INT_PTR)NewListPos))
@@ -3293,34 +3297,34 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (MsX<X1 || MsY<Y1 || MsX>X2 || MsY>Y2)
 	{
-		if (DialogMode.Check(DMODE_CLICKOUTSIDE) && !DlgProc((HANDLE)this,DN_MOUSECLICK,-1,(INT_PTR)MouseEvent))
+		if (DialogMode.Check(DMODE_CLICKOUTSIDE) && !DlgProc((HANDLE)this,DN_CONTROLINPUT,-1,(INT_PTR)&mouse))
 		{
 			if (!DialogMode.Check(DMODE_SHOW))
 				return FALSE;
 
-//      if (!(MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && PrevLButtonPressed && ScreenObject::CaptureMouseObject)
-			if (!(MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && (PrevMouseButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (Opt.Dialogs.MouseButton&DMOUSEBUTTON_LEFT))
+//      if (!(mouse.Event.MouseEvent.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && PrevLButtonPressed && ScreenObject::CaptureMouseObject)
+			if (!(mouse.Event.MouseEvent.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && (PrevMouseButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (Opt.Dialogs.MouseButton&DMOUSEBUTTON_LEFT))
 				ProcessKey(KEY_ESC);
-//      else if (!(MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && PrevRButtonPressed && ScreenObject::CaptureMouseObject)
-			else if (!(MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && (PrevMouseButtonState&RIGHTMOST_BUTTON_PRESSED) && (Opt.Dialogs.MouseButton&DMOUSEBUTTON_RIGHT))
+//      else if (!(mouse.Event.MouseEvent.dwButtonState & RIGHTMOST_BUTTON_PRESSED) && PrevRButtonPressed && ScreenObject::CaptureMouseObject)
+			else if (!(mouse.Event.MouseEvent.dwButtonState & RIGHTMOST_BUTTON_PRESSED) && (PrevMouseButtonState&RIGHTMOST_BUTTON_PRESSED) && (Opt.Dialogs.MouseButton&DMOUSEBUTTON_RIGHT))
 				ProcessKey(KEY_ENTER);
 		}
 
-		if (MouseEvent->dwButtonState)
+		if (mouse.Event.MouseEvent.dwButtonState)
 			DialogMode.Set(DMODE_CLICKOUTSIDE);
 
 		//ScreenObject::SetCapture(this);
 		return TRUE;
 	}
 
-	if (!MouseEvent->dwButtonState)
+	if (!mouse.Event.MouseEvent.dwButtonState)
 	{
 		DialogMode.Clear(DMODE_CLICKOUTSIDE);
 //    ScreenObject::SetCapture(nullptr);
 		return FALSE;
 	}
 
-	if (!MouseEvent->dwEventFlags || MouseEvent->dwEventFlags==DOUBLE_CLICK)
+	if (!mouse.Event.MouseEvent.dwEventFlags || mouse.Event.MouseEvent.dwEventFlags==DOUBLE_CLICK)
 	{
 		// первый цикл - все за исключением рамок.
 		//for (I=0; I < ItemCount;I++)
@@ -3343,7 +3347,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 					if (((MsX == Rect.Left || MsX == Rect.Right) && MsY >= Rect.Top && MsY <= Rect.Bottom) || // vert
 					        ((MsY == Rect.Top  || MsY == Rect.Bottom) && MsX >= Rect.Left && MsX <= Rect.Right))    // hor
 					{
-						if (DlgProc((HANDLE)this,DN_MOUSECLICK,I,(INT_PTR)MouseEvent))
+						if (DlgProc((HANDLE)this,DN_CONTROLINPUT,I,(INT_PTR)&mouse))
 							return TRUE;
 
 						if (!DialogMode.Check(DMODE_SHOW))
@@ -3356,12 +3360,12 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 				if (Item[I]->Type == DI_USERCONTROL)
 				{
 					// для user-типа подготовим координаты мыши
-					MouseEvent->dwMousePosition.X-=Rect.Left;
-					MouseEvent->dwMousePosition.Y-=Rect.Top;
+					mouse.Event.MouseEvent.dwMousePosition.X-=Rect.Left;
+					mouse.Event.MouseEvent.dwMousePosition.Y-=Rect.Top;
 				}
 
-//_SVS(SysLog(L"+ %2d) Rect (%2d,%2d) (%2d,%2d) '%s' Dbl=%d",I,Rect.left,Rect.top,Rect.right,Rect.bottom,Item[I].Data,MouseEvent->dwEventFlags==DOUBLE_CLICK));
-				if (DlgProc((HANDLE)this,DN_MOUSECLICK,I,(INT_PTR)MouseEvent))
+//_SVS(SysLog(L"+ %2d) Rect (%2d,%2d) (%2d,%2d) '%s' Dbl=%d",I,Rect.left,Rect.top,Rect.right,Rect.bottom,Item[I].Data,mouse.Event.MouseEvent.dwEventFlags==DOUBLE_CLICK));
+				if (DlgProc((HANDLE)this,DN_CONTROLINPUT,I,(INT_PTR)&mouse))
 					return TRUE;
 
 				if (!DialogMode.Check(DMODE_SHOW))
@@ -3378,7 +3382,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			}
 		}
 
-		if ((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
+		if ((mouse.Event.MouseEvent.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
 		{
 			//for (I=0;I<ItemCount;I++)
 
@@ -3428,7 +3432,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 						ChangeFocus2(I);
 
-						if (EditLine->ProcessMouse(MouseEvent))
+						if (EditLine->ProcessMouse(&mouse.Event.MouseEvent))
 						{
 							EditLine->SetClearFlag(0); // а может это делать в самом edit?
 
@@ -4077,11 +4081,11 @@ int Dialog::SelectFromComboBox(
 
 			if (CurItem->IFlags.Check(DLGIIF_COMBOBOXEVENTKEY) && ReadRec.EventType == KEY_EVENT)
 			{
-				if (DlgProc((HANDLE)this,DN_KEY,FocusPos,(INT_PTR)&ReadRec))
+				if (DlgProc((HANDLE)this,DN_CONTROLINPUT,FocusPos,(INT_PTR)&ReadRec))
 					continue;
 			}
 			else if (CurItem->IFlags.Check(DLGIIF_COMBOBOXEVENTMOUSE) && ReadRec.EventType == MOUSE_EVENT)
-				if (!DlgProc((HANDLE)this,DN_MOUSEEVENT,0,(INT_PTR)&ReadRec.Event.MouseEvent))
+				if (!DlgProc((HANDLE)this,DN_INPUT,0,(INT_PTR)&ReadRec))
 					continue;
 
 			// здесь можно добавить что-то свое, например,
@@ -4734,8 +4738,11 @@ INT_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 
 	switch (Msg)
 	{
-		case DN_MOUSECLICK:
+		case DN_CONTROLINPUT:
 			return FALSE;
+		//BUGBUG!!!
+		case DN_INPUT:
+			return TRUE;
 		case DN_DRAWDLGITEM:
 			return TRUE;
 		case DN_HOTKEY:
@@ -4745,10 +4752,6 @@ INT_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 		case DN_BTNCLICK:
 			return ((Type==DI_BUTTON && !(CurItem->Flags&DIF_BTNNOCLOSE))?FALSE:TRUE);
 		case DN_LISTCHANGE:
-			return TRUE;
-		case DN_KEY:
-			return FALSE;
-		case DN_MOUSEEVENT:
 			return TRUE;
 		case DM_GETSELECTION: // Msg=DM_GETSELECTION, Param1=ID, Param2=*EditorSelect
 			return FALSE;

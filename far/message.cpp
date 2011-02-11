@@ -127,18 +127,22 @@ INT_PTR WINAPI MsgDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 			}
 		}
 		break;
-		case DN_KEY:
+		case DN_CONTROLINPUT:
 		{
-			int key = InputRecordToKey((const INPUT_RECORD *)Param2);
-			if (Param1==FirstButtonIndex && (key==KEY_LEFT || key == KEY_NUMPAD4 || key==KEY_SHIFTTAB))
+			const INPUT_RECORD* record=(const INPUT_RECORD *)Param2;
+			if (record->EventType==KEY_EVENT)
 			{
-				SendDlgMessage(hDlg,DM_SETFOCUS,LastButtonIndex,0);
-				return TRUE;
-			}
-			else if (Param1==LastButtonIndex && (key==KEY_RIGHT || key == KEY_NUMPAD6 || key==KEY_TAB))
-			{
-				SendDlgMessage(hDlg,DM_SETFOCUS,FirstButtonIndex,0);
-				return TRUE;
+				int key = InputRecordToKey((const INPUT_RECORD *)Param2);
+				if (Param1==FirstButtonIndex && (key==KEY_LEFT || key == KEY_NUMPAD4 || key==KEY_SHIFTTAB))
+				{
+					SendDlgMessage(hDlg,DM_SETFOCUS,LastButtonIndex,0);
+					return TRUE;
+				}
+				else if (Param1==LastButtonIndex && (key==KEY_RIGHT || key == KEY_NUMPAD6 || key==KEY_TAB))
+				{
+					SendDlgMessage(hDlg,DM_SETFOCUS,FirstButtonIndex,0);
+					return TRUE;
+				}
 			}
 		}
 		break;

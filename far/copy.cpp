@@ -667,22 +667,26 @@ INT_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 
 			break;
 		}
-		case DN_KEY: // по поводу дерева!
+		case DN_CONTROLINPUT: // по поводу дерева!
 		{
-			int key = InputRecordToKey((const INPUT_RECORD *)Param2);
-			if (key == KEY_ALTF10 || key == KEY_F10 || key == KEY_SHIFTF10)
+			const INPUT_RECORD* record=(const INPUT_RECORD *)Param2;
+			if (record->EventType==KEY_EVENT)
 			{
-				DlgParam->AltF10=key == KEY_ALTF10?1:(key == KEY_SHIFTF10?2:0);
-				SendDlgMessage(hDlg,DM_CALLTREE,DlgParam->AltF10,0);
-				return TRUE;
-			}
-
-			if (Param1 == ID_SC_COMBO)
-			{
-				if (key==KEY_ENTER || key==KEY_NUMENTER || key==KEY_INS || key==KEY_NUMPAD0 || key==KEY_SPACE)
+				int key = InputRecordToKey(record);
+				if (key == KEY_ALTF10 || key == KEY_F10 || key == KEY_SHIFTF10)
 				{
-					if (SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID_SC_COMBO,0)==CM_ASKRO)
-						return SendDlgMessage(hDlg,DM_SWITCHRO,0,0);
+					DlgParam->AltF10=key == KEY_ALTF10?1:(key == KEY_SHIFTF10?2:0);
+					SendDlgMessage(hDlg,DM_CALLTREE,DlgParam->AltF10,0);
+					return TRUE;
+				}
+
+				if (Param1 == ID_SC_COMBO)
+				{
+					if (key==KEY_ENTER || key==KEY_NUMENTER || key==KEY_INS || key==KEY_NUMPAD0 || key==KEY_SPACE)
+					{
+						if (SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID_SC_COMBO,0)==CM_ASKRO)
+							return SendDlgMessage(hDlg,DM_SWITCHRO,0,0);
+					}
 				}
 			}
 		}
@@ -698,11 +702,11 @@ INT_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 				}
 			}
 			break;
-		case DN_MOUSEEVENT:
+		case DN_INPUT:
 
 			if (SendDlgMessage(hDlg,DM_GETDROPDOWNOPENED,ID_SC_COMBO,0))
 			{
-				MOUSE_EVENT_RECORD *mer=(MOUSE_EVENT_RECORD *)Param2;
+				MOUSE_EVENT_RECORD *mer=&reinterpret_cast<INPUT_RECORD*>(Param2)->Event.MouseEvent;
 
 				if (SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID_SC_COMBO,0)==CM_ASKRO && mer->dwButtonState && !(mer->dwEventFlags&MOUSE_MOVED))
 				{
@@ -3642,12 +3646,16 @@ INT_PTR WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 			}
 		}
 		break;
-		case DN_KEY:
+		case DN_CONTROLINPUT:
 		{
-			int key = InputRecordToKey((const INPUT_RECORD *)Param2);
-			if ((Param1==WDLG_SRCFILEBTN || Param1==WDLG_DSTFILEBTN) && key==KEY_F3)
+			const INPUT_RECORD* record=(const INPUT_RECORD *)Param2;
+			if (record->EventType==KEY_EVENT)
 			{
-				SendDlgMessage(hDlg,DM_OPENVIEWER,Param1,0);
+				int key = InputRecordToKey(record);
+				if ((Param1==WDLG_SRCFILEBTN || Param1==WDLG_DSTFILEBTN) && key==KEY_F3)
+				{
+					SendDlgMessage(hDlg,DM_OPENVIEWER,Param1,0);
+				}
 			}
 		}
 		break;

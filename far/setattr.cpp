@@ -366,24 +366,29 @@ INT_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 			}
 
 			break;
-		case DN_MOUSECLICK:
+		//BUGBUG: DefDlgProc вызывается дважды, второй раз Param1 может быть другим.
+		case DN_CONTROLINPUT:
 		{
-			//_SVS(SysLog(L"Msg=DN_MOUSECLICK Param1=%d Param2=%d",Param1,Param2));
-			if (Param1>=SA_TEXT_LASTWRITE && Param1<=SA_EDIT_XTIME)
+			const INPUT_RECORD* record=(const INPUT_RECORD *)Param2;
+			if (record->EventType==MOUSE_EVENT)
 			{
-				if (reinterpret_cast<MOUSE_EVENT_RECORD*>(Param2)->dwEventFlags==DOUBLE_CLICK)
+				//_SVS(SysLog(L"Msg=DN_MOUSECLICK Param1=%d Param2=%d",Param1,Param2));
+				if (Param1>=SA_TEXT_LASTWRITE && Param1<=SA_EDIT_XTIME)
 				{
-					// Дадим Менеджеру диалогов "попотеть"
-					DefDlgProc(hDlg,Msg,Param1,Param2);
-					SendDlgMessage(hDlg,DM_SETATTR,Param1,-1);
-				}
+					if (record->Event.MouseEvent.dwEventFlags==DOUBLE_CLICK)
+					{
+						// Дадим Менеджеру диалогов "попотеть"
+						DefDlgProc(hDlg,Msg,Param1,Param2);
+						SendDlgMessage(hDlg,DM_SETATTR,Param1,-1);
+					}
 
-				if (Param1 == SA_TEXT_LASTWRITE || Param1 == SA_TEXT_CREATION || Param1 == SA_TEXT_LASTACCESS || Param1 == SA_TEXT_CHANGE)
-				{
-					Param1++;
-				}
+					if (Param1 == SA_TEXT_LASTWRITE || Param1 == SA_TEXT_CREATION || Param1 == SA_TEXT_LASTACCESS || Param1 == SA_TEXT_CHANGE)
+					{
+						Param1++;
+					}
 
-				SendDlgMessage(hDlg,DM_SETFOCUS,Param1,0);
+					SendDlgMessage(hDlg,DM_SETFOCUS,Param1,0);
+				}
 			}
 		}
 		break;

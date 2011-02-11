@@ -5889,10 +5889,17 @@ INT_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,INT_P
 	static int LastKey=0;
 	static DlgParam *KMParam=nullptr;
 	int Index;
+	const INPUT_RECORD* record=NULL;
 	int key=0;
 
-	if (Msg == DN_KEY)
-		key = InputRecordToKey((const INPUT_RECORD *)Param2);
+	if (Msg == DN_CONTROLINPUT)
+	{
+		record=(const INPUT_RECORD *)Param2;
+		if (record->EventType==KEY_EVENT)
+		{
+			key = InputRecordToKey((const INPUT_RECORD *)Param2);
+		}
+	}
 
 	//_SVS(SysLog(L"LastKey=%d Msg=%s",LastKey,_DLGMSG_ToName(Msg)));
 	if (Msg == DN_INITDIALOG)
@@ -5970,7 +5977,7 @@ INT_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,INT_P
 		if (Param2 != -1 && !KMParam->Recurse)
 			goto M1;
 	}
-	else if (Msg == DN_KEY && (((key&KEY_END_SKEY) < KEY_END_FKEY) ||
+	else if (Msg == DN_CONTROLINPUT && record->EventType==KEY_EVENT && (((key&KEY_END_SKEY) < KEY_END_FKEY) ||
 	                           (((key&KEY_END_SKEY) > INTERNAL_KEY_BASE) && (key&KEY_END_SKEY) < INTERNAL_KEY_BASE_2)))
 	{
 		//if((key&0x00FFFFFF) >= 'A' && (key&0x00FFFFFF) <= 'Z' && ShiftPressed)
