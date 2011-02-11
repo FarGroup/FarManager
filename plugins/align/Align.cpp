@@ -1,5 +1,6 @@
-#include "Align.hpp"
-#include "AlignReg.hpp"
+#include "plugin.hpp"
+#include "CRT/crt.hpp"
+#include "pluginreg/pluginreg.hpp"
 #include "AlignLng.hpp"
 #include "DlgBuilder.hpp"
 #include "version.hpp"

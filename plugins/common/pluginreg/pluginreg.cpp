@@ -1,5 +1,7 @@
-#include "AutoWrap.hpp"
-#include "WrapReg.hpp"
+#include <windows.h>
+#include "pluginreg.hpp"
+
+extern wchar_t *PluginRootKey;
 
 HKEY CreateRegKey(const wchar_t *Key);
 HKEY OpenRegKey(const wchar_t *Key);

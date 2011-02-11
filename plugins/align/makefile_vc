@@ -3,12 +3,12 @@
 !endif
 
 NAME = Align
-LINK_OBJS = $(OBJDIR)\Align.obj $(OBJDIR)\AlignReg.obj
+LINK_OBJS = $(OBJDIR)\Align.obj
 DOCS = AlignEng.lng AlignRus.lng
+NEEDPLUGINREG = 1
 
 !include ..\makefile_vc_def_inc
 
 !include ..\makefile_vc_target_inc
 
-$(OBJDIR)\Align.obj: Align.cpp AlignReg.hpp Align.hpp AlignLng.hpp version.hpp guid.hpp $(COMINC)\plugin.hpp
-$(OBJDIR)\AlignReg.obj: AlignReg.cpp AlignReg.hpp Align.hpp $(COMINC)\plugin.hpp
+$(OBJDIR)\Align.obj: Align.cpp AlignLng.hpp version.hpp guid.hpp $(COMINC)\plugin.hpp

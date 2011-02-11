@@ -43,6 +43,8 @@
 #
 #EXCLUDECRT - set if you do not want to link with common/crt lib.
 #
+#NEEDPLUGINREG - set if you want to link with pluginreg lib.
+#
 #AMD64 - set for x64 build
 #  or
 #CPU=AMD64 - for x64 build
@@ -171,6 +173,17 @@ CPP_PROJ=$(CPP_PROJ_NO) /Fo"$(OBJDIR)\\"
 !ifdef EXCLUDECRT
 !undef COMMONLIB
 !endif
+
+!ifdef NEEDPLUGINREG
+!ifdef AMD64
+COMMONLIB = $(COMMONLIB) $(COMMON)\libpluginreg64.lib
+!elseif defined(IA64)
+COMMONLIB = $(COMMONLIB) $(COMMON)\libpluginregIA64.lib
+!else
+COMMONLIB = $(COMMONLIB) $(COMMON)\libpluginreg.lib
+!endif
+!endif
+
 LIBS = $(COMMONLIB) chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib
 
 !ifdef _BIN_PATH_
@@ -243,4 +256,3 @@ RC=$(_RC_PATH)rc.exe
 .path.rc=.
 .path.def=.
 !endif
-

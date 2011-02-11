@@ -3,12 +3,12 @@
 !endif
 
 NAME = AutoWrap
-LINK_OBJS = $(OBJDIR)\AutoWrap.obj $(OBJDIR)\WrapReg.obj
+LINK_OBJS = $(OBJDIR)\AutoWrap.obj
 DOCS = WrapEng.lng WrapRus.lng
+NEEDPLUGINREG = 1
 
 !include ..\makefile_vc_def_inc
 
 !include ..\makefile_vc_target_inc
 
-$(OBJDIR)\AutoWrap.obj: AutoWrap.cpp WrapLng.hpp WrapReg.hpp AutoWrap.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp
-$(OBJDIR)\WrapReg.obj: WrapReg.cpp WrapReg.hpp AutoWrap.hpp $(COMINC)\plugin.hpp
+$(OBJDIR)\AutoWrap.obj: AutoWrap.cpp WrapLng.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp

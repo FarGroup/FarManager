@@ -1,5 +1,6 @@
-#include "AutoWrap.hpp"
-#include "WrapReg.hpp"
+#include "plugin.hpp"
+#include "CRT/crt.hpp"
+#include "pluginreg/pluginreg.hpp"
 #include "WrapLng.hpp"
 #include "DlgBuilder.hpp"
 #include "version.hpp"
