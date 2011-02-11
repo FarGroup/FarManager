@@ -4429,7 +4429,7 @@ by manually editing the registry or by using special tools/plugins.
     Description of the macro language can be found in the accompanying
 documentation.
 
-@KeyMacroList@
+@KeyMacroList
 $ #Макросы: Список установленных макросов#
     Ниже приведен список разделов, в которых можно узнать какие ~макросы~@KeyMacro@ 
 действуют в текущей сессии Far Manager.
@@ -4467,11 +4467,15 @@ $ #Макросы: Список переменных#
 
 <!Macro:Vars!>
 
+    См. так же ~"Список установленных макросов"~@KeyMacroList@
+
 @KeyMacroConstList
 $ #Макросы: Список констант#
     Ниже приведен список констант, которые можно использовать в макросах.
 
 <!Macro:Consts!>
+
+    См. так же ~"Список установленных макросов"~@KeyMacroList@
 
 @KeyMacroCommonList
 $ #Макросы: Общие#
@@ -4479,6 +4483,8 @@ $ #Макросы: Общие#
     Описание для каждой макроклавиши берется из реестра (поле Description).
 
 <!Macro:Common!>
+
+    См. так же ~"Список установленных макросов"~@KeyMacroList@
 
 @KeyMacroQViewList
 $ #Макросы: Панель быстрого просмотра#
@@ -4488,6 +4494,8 @@ $ #Макросы: Панель быстрого просмотра#
 <!Macro:Common!>
 <!Macro:Qview!>
 
+    См. так же ~"Список установленных макросов"~@KeyMacroList@
+
 @KeyMacroMainMenuList
 $ #Макросы: Главное меню#
     Ниже приведены комбинации макроклавиш, действующих в главном меню.
@@ -4495,6 +4503,8 @@ $ #Макросы: Главное меню#
 
 <!Macro:Common!>
 <!Macro:MainMenu!>
+
+    См. так же ~"Список установленных макросов"~@KeyMacroList@
 
 @KeyMacroTreeList
 $ #Макросы: Панель папок#
@@ -4504,6 +4514,8 @@ $ #Макросы: Панель папок#
 <!Macro:Common!>
 <!Macro:Tree!>
 
+    См. так же ~"Список установленных макросов"~@KeyMacroList@
+
 @KeyMacroDialogList
 $ #Макросы: Диалоги#
     Ниже приведены комбинации макроклавиш, действующих в диалогах.
@@ -4511,6 +4523,8 @@ $ #Макросы: Диалоги#
 
 <!Macro:Common!>
 <!Macro:Dialog!>
+
+    См. так же ~"Список установленных макросов"~@KeyMacroList@
 
 @KeyMacroInfoList
 $ #Макросы: Информационная панель#
@@ -4520,6 +4534,8 @@ $ #Макросы: Информационная панель#
 <!Macro:Common!>
 <!Macro:Info!>
 
+    См. так же ~"Список установленных макросов"~@KeyMacroList@
+
 @KeyMacroDisksList
 $ #Макросы: Меню выбора дисков#
     Ниже приведены комбинации макроклавиш, действующих в меню выбора дисков.
@@ -4527,6 +4543,8 @@ $ #Макросы: Меню выбора дисков#
 
 <!Macro:Common!>
 <!Macro:Disks!>
+
+    См. так же ~"Список установленных макросов"~@KeyMacroList@
 
 @KeyMacroUserMenuList
 $ #Макросы: Меню пользователя#
@@ -4536,6 +4554,8 @@ $ #Макросы: Меню пользователя#
 <!Macro:Common!>
 <!Macro:UserMenu!>
 
+    См. так же ~"Список установленных макросов"~@KeyMacroList@
+
 @KeyMacroShellList
 $ #Макросы: Панели#
     Ниже приведены комбинации макроклавиш, действующих в файловых панелях.
@@ -4543,6 +4563,8 @@ $ #Макросы: Панели#
 
 <!Macro:Common!>
 <!Macro:Shell!>
+
+    См. так же ~"Список установленных макросов"~@KeyMacroList@
 
 @KeyMacroSearchList
 $ #Макросы: Быстрый поиск в панелях#
@@ -4552,6 +4574,8 @@ $ #Макросы: Быстрый поиск в панелях#
 <!Macro:Common!>
 <!Macro:Search!>
 
+    См. так же ~"Список установленных макросов"~@KeyMacroList@
+
 @KeyMacroFindFolderList
 $ #Макросы: Поиск папки#
     Ниже приведены комбинации макроклавиш, действующих в поиске папки.
@@ -4560,6 +4584,8 @@ $ #Макросы: Поиск папки#
 <!Macro:Common!>
 <!Macro:FindFolder!>
 
+    См. так же ~"Список установленных макросов"~@KeyMacroList@
+
 @KeyMacroEditList
 $ #Макросы: Редактор#
     Macro-commands available in the editor are listed below. Descriptions are read from the registry.
@@ -4567,12 +4593,16 @@ $ #Макросы: Редактор#
 <!Macro:Common!>
 <!Macro:Editor!>
 
+    См. так же ~"Список установленных макросов"~@KeyMacroList@
+
 @KeyMacroViewerList
 $ #Макросы: Программа просмотра#
     Macro-commands available in the viewer are listed below. Descriptions are read from the registry.
 
 <!Macro:Common!>
 <!Macro:Viewer!>
+
+    См. так же ~"Список установленных макросов"~@KeyMacroList@
 
 @KeyMacroMenuList
 $ #Макросы: Прочие меню#
@@ -4582,6 +4612,8 @@ $ #Макросы: Прочие меню#
 <!Macro:Common!>
 <!Macro:Menu!>
 
+    См. так же ~"Список установленных макросов"~@KeyMacroList@
+
 @KeyMacroHelpList
 $ #Макросы: Файл помощи#
     Ниже приведены комбинации макроклавиш, действующих в файле помощи.
@@ -4590,6 +4622,8 @@ $ #Макросы: Файл помощи#
 <!Macro:Common!>
 <!Macro:Help!>
 
+    См. так же ~"Список установленных макросов"~@KeyMacroList@
+
 @KeyMacroOtherList
 $ #Макросы: Остальные области#
     Ниже приведены комбинации макроклавиш, действующих в других областях: копировании текста с экрана, вертикальных меню.
@@ -4597,6 +4631,8 @@ $ #Макросы: Остальные области#
 
 <!Macro:Common!>
 <!Macro:Other!>
+
+    См. так же ~"Список установленных макросов"~@KeyMacroList@
 
 @Index
 $ #Index help file#

@@ -304,6 +304,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 
 	OldGetFileString GetStr(HelpFile);
 	int nStrLength,GetCode;
+	size_t SizeKeyName=20;
 
 	for (;;)
 	{
@@ -359,7 +360,6 @@ int Help::ReadHelp(const wchar_t *Mask)
 			ReplaceStrings(strKeyName,L"~",L"~~",-1);
 			ReplaceStrings(strKeyName,L"#",L"##",-1);
 			ReplaceStrings(strKeyName,L"@",L"@@",-1);
-			int SizeKeyName=20;
 
 			if (wcschr(strKeyName,L'~')) // корректировка размера
 				SizeKeyName++;
@@ -460,6 +460,13 @@ m1:
 
 					strMacroArea=strReadStr.SubStr(8,PosTab-1-8); //???
 					MacroProcess=true;
+					MI=0;
+					string strDescription,strKeyName;
+					while (CtrlObject->Macro.GetMacroKeyInfo(true,CtrlObject->Macro.GetSubKey(strMacroArea),MI,strKeyName,strDescription) != -1)
+					{
+						SizeKeyName=Max(SizeKeyName,strKeyName.GetLength());
+						MI++;
+					}
 					MI=0;
 					continue;
 				}
