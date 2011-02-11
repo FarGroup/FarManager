@@ -1,12 +1,12 @@
 ﻿
-                    The FAR File and Archive Manager
+                    The Far File and Archive Manager
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                      Overview of plugin capabilities
                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   FAR Manager is so tightly integrated with its plugins that it is  simply
-meaningless to talk about FAR and  not  to  mention  the  plugins.  Plugins
-present an almost limitless expansion of the features of FAR.
+   Far Manager is so tightly integrated with its plugins that it is  simply
+meaningless to talk about Far and  not  to  mention  the  plugins.  Plugins
+present an almost limitless expansion of the features of Far.
 
    Without going into details, some of the capabilities can be noted:
 
@@ -33,14 +33,14 @@ present an almost limitless expansion of the features of FAR.
     databases.
   * RAS service control.
   * External programs executing (compilers, converters etc.) while
-    editing text in FAR editor.
+    editing text in Far editor.
   * Windows help files contents displaying (.hlp and .chm)
   * Calculators with different possibilities.
   * Several games :-)
-  * Spell checker functions while editing text in FAR editor.
+  * Spell checker functions while editing text in Far editor.
   * Removable drives catalog preparation and much more...
 
-   It is useless to list all the functions provided by FAR and its  plugins,
+   It is useless to list all the functions provided by Far and its  plugins,
 because this list is constantly growing. As an information source, which can
 be used to search for specific plugins, one can recommend:
 
@@ -61,4 +61,4 @@ be used to search for specific plugins, one can recommend:
     far.support
     far.development
 
-                                     [ FAR manager development group ]
+                                     [ Far Manager development group ]

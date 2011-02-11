@@ -931,4 +931,4 @@ RTFM!:
   После этого 7-zip о раре забудет.
 
 
-                                              [ FAR manager development group ]
+                                              [ Far Manager development group ]

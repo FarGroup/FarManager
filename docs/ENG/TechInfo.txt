@@ -1,12 +1,12 @@
 ﻿
-                    The FAR File and Archive Manager
+                    The Far File and Archive Manager
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                          Technical Information
                          ~~~~~~~~~~~~~~~~~~~~~
 
 Contents:
 
-I. FAR Manager: advanced settings.
+I. Far Manager: advanced settings.
   1.1. General/miscellaneous.
   1.2. System.
   1.3. Executor.
@@ -16,16 +16,16 @@ I. FAR Manager: advanced settings.
   1.7. Dialog.
   1.8. Editor.
   1.9. XLat.
-II. Windows: settings that apply to FAR Manager.
+II. Windows: settings that apply to Far Manager.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 
-I. FAR Manager: advanced settings.
+I. Far Manager: advanced settings.
 ===============================================================================
    This section describes the advanced technical information, not  included  in
-the main help file, that is actual for the current FAR Manager version.
+the main help file, that is actual for the current Far Manager version.
 
 
 
@@ -37,15 +37,15 @@ the main help file, that is actual for the current FAR Manager version.
 1.1.0.(TechInfo #0)
 ~~~~~~~~~~~~~~~~~~~
    Key "/u <username>"
-   The     data     from     [HKCU\Software\Far2]     is     copied     into
-   [HKCU\Software\Far2\Users] only if the following registry branch  doesn't
-   exist:
-   [HKCU\Software\Far2\Users\<username>]. Only the  following  branches  are
-   not copied:
-   [HKCU\Software\Far2\Users] and [HKCU\Software\Far2\PluginsCache].
+   The  data   from  [HKCU\Software\Far Manager]     is     copied     into
+   [HKCU\Software\Far Manager\Users]  only if the following registry branch
+   doesn't exist:
+   [HKCU\Software\Far Manager\Users\<username>]. Only the following branches
+   are not copied:
+   [HKCU\Software\Far Manager\Users] and [HKCU\Software\Far Manager\PluginsCache].
    That means that changing parameters  described  below  will  not  affect
    existing user profiles.  Setting  for  "<username>"  should  be  changed
-   relative to the branch [HKCU\Software\Far2\Users\<username>].
+   relative to the branch [HKCU\Software\Far Manager\Users\<username>].
 
 1.1.1.(TechInfo #3)
 ~~~~~~~~~~~~~~~~~~~
@@ -54,7 +54,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.1.2.(TechInfo #12)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Help]
+   [HKEY_CURRENT_USER\Software\Far Manager\Help]
    "ActivateURL":REG_DWORD
    The  key  "Help/ActivateURL"  of  DWORD  type  allows  to  control   URL
    references activation in HLF files:
@@ -67,21 +67,21 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.1.3.(TechInfo #22)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\KeyMacros]
+   [HKEY_CURRENT_USER\Software\Far Manager\KeyMacros]
    The documentation on macros has been  moved  to  the  "Encyclopedia  for
    Developers".
 
 1.1.4.(TechInfo #28)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Colors]
+   [HKEY_CURRENT_USER\Software\Far Manager\Colors]
    The registry branch describing file highlighting
-   [HKEY_CURRENT_USER\Software\Far2\Highlight]
+   [HKEY_CURRENT_USER\Software\Far Manager\Highlight]
    has been moved as a sub-branch into
-   [HKEY_CURRENT_USER\Software\Far2\Colors\Highlight].
+   [HKEY_CURRENT_USER\Software\Far Manager\Colors\Highlight].
 
 1.1.5.(TechInfo #35)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Plugins\Network]
+   [HKEY_CURRENT_USER\Software\Far Manager\Plugins\Network]
    "HiddenSharesAsHidden":REG_DWORD
    The key "Plugins/Network/HiddenSharesAsHidden"  of  DWORD  type  enables
    showing hidden shares in the Network plugin with the Hidden attribute.
@@ -94,12 +94,12 @@ the main help file, that is actual for the current FAR Manager version.
    (Registry)" is a poor design choice, you can make a small correction  in
    the LNG files:
      change the line after the label "// <...menu (Registry)>" to an
-     empty string and restart the FAR Manager. After that, the user
+     empty string and restart the Far Manager. After that, the user
      menu caption will look like "Main menu".
 
 1.1.7.(TechInfo #47)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Confirmations]
+   [HKEY_CURRENT_USER\Software\Far Manager\Confirmations]
    "EscTwiceToInterrupt":REG_DWORD
    The key "Confirmations/EscTwiceToInterrupt"  of  DWORD  type  allows  to
    control the handling of  the  Esc  key  in  the  interrupt  confirmation
@@ -111,10 +111,10 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.1.8.(TechInfo #52)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\SavedDialogHistory]
-   [HKEY_CURRENT_USER\Software\Far2\SavedFolderHistory]
-   [HKEY_CURRENT_USER\Software\Far2\SavedHistory]
-   [HKEY_CURRENT_USER\Software\Far2\SavedViewHistory]
+   [HKEY_CURRENT_USER\Software\Far Manager\SavedDialogHistory]
+   [HKEY_CURRENT_USER\Software\Far Manager\SavedFolderHistory]
+   [HKEY_CURRENT_USER\Software\Far Manager\SavedHistory]
+   [HKEY_CURRENT_USER\Software\Far Manager\SavedViewHistory]
    "HistoryCount":REG_DWORD
    The key "Saved???/HistoryCount" of DWORD type specifies history size (in
    positions) for dialog input lines, visited folders,  executed  commands,
@@ -129,7 +129,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.1.10.(TechInfo #70)
 ~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Plugins\AdvCompare]
+   [HKEY_CURRENT_USER\Software\Far Manager\Plugins\AdvCompare]
    "CompareBufferSize":REG_DWORD
    The key "Plugins/AdvCompare/CompareBufferSize" of DWORD type  allows  to
    change the size of the compare buffer (in bytes) of the Advanced Compare
@@ -138,7 +138,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.1.11.(TechInfo #71)
 ~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Plugins\MultiArc\TryIfNoOther]
+   [HKEY_CURRENT_USER\Software\Far Manager\Plugins\MultiArc\TryIfNoOther]
    "fmt-module-name":REG_DWORD
    This parameter of DWORD type decreases the priority of the corresponding
    fmt-module in the  process  of  selecting  the  appropriate  module  for
@@ -158,7 +158,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.1.12.(TechInfo #72)
 ~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System]
+   [HKEY_CURRENT_USER\Software\Far Manager\System]
    "SavePluginFoldersHistory":REG_DWORD
    The key "System/SavePluginFoldersHistory" of DWORD type allows  to  save
    plugin paths to the folders history (in the registry).
@@ -169,14 +169,14 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.1.13.(TechInfo #77)
 ~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\KeyBarLabels]
+   [HKEY_CURRENT_USER\Software\Far Manager\KeyBarLabels]
    Parameters in registry key "KeyBarLabels" allow to  redefine  labels  of
    function keys without modifying LNG-files.
-   This key has high priority: initially, FAR reads labels of function keys
+   This key has high priority: initially, Far reads labels of function keys
    from LNG-file, then changes label values to values  from  this  registry
    key (if corresponding label was found).
    Structure:
-    [HKEY_CURRENT_USER\Software\Far2\KeyBarLabels\LANGUAGE\AREA]
+    [HKEY_CURRENT_USER\Software\Far Manager\KeyBarLabels\LANGUAGE\AREA]
     "KEYNAME"="Value"
     Here
       LANGUAGE   - English name of interface language, same spelling as in
@@ -191,7 +191,7 @@ the main help file, that is actual for the current FAR Manager version.
                    (in combination with Alt, Ctrl, and Shift modifiers).
    For example,
     to label F1 as "Manual" in editor, you need to specify:
-      [HKEY_CURRENT_USER\Software\Far2\KeyBarLabels\English\Editor]
+      [HKEY_CURRENT_USER\Software\Far Manager\KeyBarLabels\English\Editor]
       "F1"="Manual"
 
 
@@ -202,19 +202,19 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.2.0.(TechInfo #2)
 ~~~~~~~~~~~~~~~~~~~
-   [HKEY_LOCAL_MACHINE\Software\Far2\System]
+   [HKEY_LOCAL_MACHINE\Software\Far Manager\System]
    "TemplatePluginsPath":REG_SZ
    This is a template for the personal plugins path.
    Environment variables can be used here.
    Example:
-    "%SystemRoot%\Profiles\%USERNAME%\FAR\Plugins"
+    "%SystemRoot%\Profiles\%USERNAME%\Far Manager\Plugins"
    This path will be used for newly created users (/u command line  switch)
    as the default value for:
     "Options|System settings|Path for personal plugins"
 
 1.2.1.(TechInfo #7)
 ~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System]
+   [HKEY_CURRENT_USER\Software\Far Manager\System]
    "AllCtrlAltShiftRule":REG_DWORD
    The key "System/AllCtrlAltShiftRule" of DWORD type specifies behavior of
    the Ctrl-Alt-Shift combination for temporary  hiding  of  the  interface
@@ -231,7 +231,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.2.2.(TechInfo #9)
 ~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System]
+   [HKEY_CURRENT_USER\Software\Far Manager\System]
    "CmdHistoryRule":REG_DWORD
    The key "System/CmdHistoryRule" of  DWORD  type  specifies  behavior  of
    command history recalling in the command line, if Esc was pressed  after
@@ -242,7 +242,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.2.3.(TechInfo #11)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System]
+   [HKEY_CURRENT_USER\Software\Far Manager\System]
    "MaxPositionCache":REG_DWORD
    The key "System/MaxPositionCache" of DWORD type specifies  the  size  of
    the cache used to save file positions of the editor/viewer. The  minimal
@@ -251,30 +251,30 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.2.4.(TechInfo #15)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System]
+   [HKEY_CURRENT_USER\Software\Far Manager\System]
    "SetAttrFolderRules":REG_DWORD
    The "System/SetAttrFolderRules" key of DWORD type specifies the behavior
    of the attribute settings dialog when changing attributes for  a  single
    directory. If this option is set to 1,  then  the  "Process  subfolders"
    checkbox will be unset for a single directory. Setting this option to  0
-   enables the same behavior as in FAR prior to the version 1.70.
+   enables the same behavior as in Far prior to the version 1.70.
    By default the value 1 is used (the  checkbox  is  unset  for  a  single
    directory).
 
 1.2.5.(TechInfo #17)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System]
+   [HKEY_CURRENT_USER\Software\Far Manager\System]
    "ExceptRules":REG_DWORD
    The key "System/ExceptRules" of DWORD type allows to  disable  exception
-   handling  during  FAR  operation  and  is  designed  mainly  for  plugin
+   handling  during  Far  operation  and  is  designed  mainly  for  plugin
    developers. It is also possible to disable exception handling by running
-   FAR with the "/x" command line parameter.
+   Far with the "/x" command line parameter.
    To disable exception handling, set this parameter to 0.
    The default value is 1 - handle exceptions.
 
 1.2.6.(TechInfo #23)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System]
+   [HKEY_CURRENT_USER\Software\Far Manager\System]
    "CopyBufferSize":REG_DWORD
    The key "System/CopyBufferSize" of DWORD type sets the size of the  copy
    buffer. If it is set to 0, the default size (0x10000 bytes) is used.
@@ -283,22 +283,22 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.2.7.(TechInfo #26)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System]
+   [HKEY_CURRENT_USER\Software\Far Manager\System]
    "CopyTimeRule":REG_DWORD
    The  parameter  can  be  changed   in   the   configuration   dialog   -
    Options|Interface settings
 
 1.2.8.(TechInfo #27)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System]
+   [HKEY_CURRENT_USER\Software\Far Manager\System]
    "ConsoleDetachKey":REG_SZ
    The key "System/ConsoleDetachKey" of REG_SZ type allows to  specify  the
-   key combination that can be used to detach the FAR Manager console  from
+   key combination that can be used to detach the Far Manager console  from
    a non-interactive process running in it.
-   If a long-running process (for example, archiving)  was  run  in  a  FAR
-   console, and for some reasons this very instance of FAR  is  needed  (an
+   If a long-running process (for example, archiving)  was  run  in  a  Far
+   console, and for some reasons this very instance of Far  is  needed  (an
    editor in the background) or it is undesirable to run a new instance  of
-   FAR, pressing this key combination will create a  new  console  for  FAR
+   Far, pressing this key combination will create a  new  console  for  Far
    where it will continue running as if the process has already ended,  and
    the process will continue working in the old console.
    For example, the value of "ConsoleDetachKey" equal to "CtrlAltX" assigns
@@ -307,7 +307,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.2.9.(TechInfo #29)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System]
+   [HKEY_CURRENT_USER\Software\Far Manager\System]
    "WipeSymbol":REG_DWORD
    The "System/WipeSymbol" key of DWORD type  specifies  the  code  of  the
    filler character for the "Wipe file" operation (Alt-Del). The lower byte
@@ -316,7 +316,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.2.10.(TechInfo #31)
 ~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System]
+   [HKEY_CURRENT_USER\Software\Far Manager\System]
    "FlagPosixSemantics":REG_DWORD
    The  "System/FlagPosixSemantics"  key  of  DWORD  type   specifies   the
    behaviour of the history and position cache for the internal viewer  and
@@ -330,7 +330,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.2.11.(TechInfo #33)
 ~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System]
+   [HKEY_CURRENT_USER\Software\Far Manager\System]
    "MsWheelDelta":REG_DWORD
    "MsWheelDeltaView":REG_DWORD
    "MsWheelDeltaEdit":REG_DWORD
@@ -357,16 +357,16 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.2.12.(TechInfo #34)
 ~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System]
+   [HKEY_CURRENT_USER\Software\Far Manager\System]
    "QuotedSymbols":REG_SZ
    The key "System/QuotedSymbols" of REG_SZ type allows to specify the  set
-   of characters  that  will  cause  FAR  to  quote  filenames  when  those
+   of characters  that  will  cause  Far  to  quote  filenames  when  those
    characters are present in them. You may specify up to 32 characters.
    The default value is " &()[]{}^=;!'+,`".
 
 1.2.13.(TechInfo #36)
 ~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System]
+   [HKEY_CURRENT_USER\Software\Far Manager\System]
    "SubstNameRule":REG_DWORD
    The key "System/SubstNameRule" of DWORD  type  specifies  the  rule  of
    querying drives to find SUBSTed drives.
@@ -377,16 +377,16 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.2.14.(TechInfo #37)
 ~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System]
+   [HKEY_CURRENT_USER\Software\Far Manager\System]
    "ShowCheckingFile":REG_DWORD
    The key"System/ShowCheckingFile" of DWORD type  allows  to  display  the
-   name of the plugin being checked in the title of the FAR Manager window,
-   while FAR checks plugins after Enter or Ctrl-PgDn is pressed on a file.
+   name of the plugin being checked in the title of the Far Manager window,
+   while Far checks plugins after Enter or Ctrl-PgDn is pressed on a file.
    The default value is 0 - do not display the information.
 
 1.2.15.(TechInfo #39)
 ~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System]
+   [HKEY_CURRENT_USER\Software\Far Manager\System]
    "LCID":REG_DWORD
    The key "System/LCID" of DWORD type allows  to  specify  the  locale
    used for sorting file names.
@@ -396,35 +396,35 @@ the main help file, that is actual for the current FAR Manager version.
      0x00000400    LOCALE_USER_DEFAULT    - current user locale
      0x00000800    LOCALE_SYSTEM_DEFAULT  - system default locale
      0x00000000    LOCALE_NEUTRAL         - neutral locale
-   You will need to restart FAR after changing the value of this
+   You will need to restart Far after changing the value of this
    parameter. The default value is 0x00000400 (LOCALE_USER_DEFAULT).
 
 1.2.16.(TechInfo #42)
 ~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System]
+   [HKEY_CURRENT_USER\Software\Far Manager\System]
    "SubstPluginPrefix":REG_DWORD
    The key "System/SubstPluginPrefix"  of  DWORD  type  allows  to  control
    plugin prefix substitution in operations for inserting the  path  to  an
    object (Ctrl-F, Ctrl-[ and so on) invoked from a plugin panel.
-   If the value is equal to 1, FAR will automatically  prepend  the  plugin
+   If the value is equal to 1, Far will automatically  prepend  the  plugin
    prefix to the path (except for plugins that point to  real  files,  like
    the Temporary panel).
-   If the value is equal to 0, FAR does not prepend prefixes.
+   If the value is equal to 0, Far does not prepend prefixes.
    The default value is 0.
 
 1.2.17.(TechInfo #46)
 ~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System]
+   [HKEY_CURRENT_USER\Software\Far Manager\System]
    "CloseConsoleRule":REG_DWORD
    The key  "System/CloseConsoleRule"  of  DWORD  type  allows  to  control
    automatic settings saving when the user clicks the close button ([x]) of
-   the FAR Manager console window.
+   the Far Manager console window.
    This rule has effect only if the option "System  settings  |  Auto  save
    setup" is enabled.
    The rule does not work under Windows 9x.
    Known problems:
       If the close button is clicked when there is an unsaved file in
-      the editor, FAR shows the save prompt, but the system still
+      the editor, Far shows the save prompt, but the system still
       terminates the process without waiting for the user's response.
    Can have one of the following values:
      0 - do not save the settings
@@ -433,7 +433,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.2.18.(TechInfo #48)
 ~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System]
+   [HKEY_CURRENT_USER\Software\Far Manager\System]
    "UseNumPad":REG_DWORD
    The key "System/UseNumPad" of  DWORD  type  enables  the  mechanism  for
    distinguishing the keys on the numerical keypad from  the  corresponding
@@ -451,7 +451,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.2.19.(TechInfo #50)
 ~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System]
+   [HKEY_CURRENT_USER\Software\Far Manager\System]
    "QuotedName":REG_DWORD
    File or folder names, containing characters specified in rule  34,  will
    be quoted when inserted into the editor/command line or the clipboard.
@@ -465,9 +465,9 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.2.20.(TechInfo #51)
 ~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System]
+   [HKEY_CURRENT_USER\Software\Far Manager\System]
    "SilentLoadPlugin":REG_DWORD
-   If FAR couldn't load a plugin DLL  it  showed  an  error  message.  This
+   If Far couldn't load a plugin DLL  it  showed  an  error  message.  This
    option allows to suppress those messages.
    Possible values:
      0 - show messages about errors occurred while loading plugin
@@ -477,7 +477,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.2.21.(TechInfo #60)
 ~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System]
+   [HKEY_CURRENT_USER\Software\Far Manager\System]
    "IgnoreErrorBadPathName":REG_DWORD
    Parameter  "System/IgnoreErrorBadPathName"  of  DWORD  type   makes   it
    possible to ignore error code ERROR_BAD_PATHNAME  under  Windows  9x/Me,
@@ -490,7 +490,7 @@ the main help file, that is actual for the current FAR Manager version.
    This problem does not exist in Windows Explorer, Norton Commander  (both
    DOS and Windows), Total Commander, etc., and also under Windows 2000 and
    Windows XP. This parameter gives  possibility,  for  example,  to  avoid
-   message "Path not found", when FAR enters such directory.
+   message "Path not found", when Far enters such directory.
    Can have one of the following values:
      0 - don't ignore error
      1 - ignore error
@@ -499,7 +499,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.2.22.(TechInfo #62)
 ~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System]
+   [HKEY_CURRENT_USER\Software\Far Manager\System]
    "UsePrintManager":REG_DWORD
    The key "System/UsePrintManager" of DWORD type  allows  to  disable  the
    automatic invocation of the  "Print  Manager"  plugin  assigned  to  the
@@ -510,7 +510,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.2.23.(TechInfo #63)
 ~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System]
+   [HKEY_CURRENT_USER\Software\Far Manager\System]
    "PluginMaxReadData":REG_DWORD
    The key "System/PluginMaxReadData" of  DWORD  type  allows  to  set  the
    maximum size of the data read from a file after an attempt to  enter  it
@@ -523,7 +523,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.2.24.(TechInfo #68)
 ~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System]
+   [HKEY_CURRENT_USER\Software\Far Manager\System]
    "CASRule":REG_DWORD
    The  key  "System/CASRule"  of  type  DWORD  allows   to   disable   the
    Ctrl-Alt-Shift combination used for temporary hiding  of  the  interface
@@ -538,7 +538,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.2.25.(TechInfo #69)
 ~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System]
+   [HKEY_CURRENT_USER\Software\Far Manager\System]
    "CopySecurityOptions":REG_DWORD
 
    The key "System/CopySecurityOptions" of DWORD type allows to control the
@@ -547,18 +547,18 @@ the main help file, that is actual for the current FAR Manager version.
      0 and 1 - Move dialog: set this option to "Copy" (bit 0 is set  to  1,
                bit 1 is set to 0) or "Move" (both bits 0 and 1 are  set  to
                1) by default;
-     2 - Move dialog: remember option state for the current FAR session;
+     2 - Move dialog: remember option state for the current Far session;
      3 and 4 - Copy dialog: set this option to "Copy" (bit 3 is set  to  1,
                bit 4 is set to 0) or "Move" (both bits 3 and 4 are  set  to
                1) by default;
-     5 - Copy dialog: remember option state for the current FAR session.
+     5 - Copy dialog: remember option state for the current Far session.
    The effect of bits 0 and 1 depends on the state of bit 2:
    1. If bit 2 is set to 1 then the "Access  rights"  option  will  be  set
       according to bits 0 and 1 only in the first time the Move  dialog  is
       called. If you change this option manually in  the  dialog  then  the
       next time the dialog is  called  this  option  will  have  the  value
       previously set by you. The state of this option is saved  only  until
-      the end of the current FAR session. Next  time  you  start  FAR  this
+      the end of the current Far session. Next  time  you  start  Far  this
       option will once again be set according to bits 0 and 1.
    2. If bit 2 is set to 0, then the "Access rights"  option  will  be  set
       according to bits 0 and 1 every time the Move  dialog  is  displayed.
@@ -569,10 +569,10 @@ the main help file, that is actual for the current FAR Manager version.
    Examples:
      0x21 - always set the "Copy" action for the "Access rights" option  in
             the Move dialog and set the default action for the Copy  dialog
-            where user setting will be remembered until FAR is closed.
+            where user setting will be remembered until Far is closed.
      0xC0 - always set the "Copy" action for the "Access rights" option  in
             the Copy dialog and set the default action for the Move  dialog
-            where user setting will be remembered until FAR is closed.
+            where user setting will be remembered until Far is closed.
    The default value is 0 (select the default option each time  the  dialog
    is opened).
    Remarks:
@@ -581,12 +581,12 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.2.26.(TechInfo #76)
 ~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System]
+   [HKEY_CURRENT_USER\Software\Far Manager\System]
    "FolderDeepScan":REG_DWORD
    Parameter  "System/FolderDeepScan"  of  DWORD  type  allows  to   bypass
    limitations when working with directories whose names contain characters
    that were incorrectly mapped from ANSI to OEM.
-   If parameter is enabled (=1), FAR will try to receive information  using
+   If parameter is enabled (=1), Far will try to receive information  using
    short name when handling such directories.
    This option does not affect the work of copy engine.
    Possible values:
@@ -596,14 +596,14 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.2.27.(TechInfo #79)
 ~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System]
+   [HKEY_CURRENT_USER\Software\Far Manager\System]
    "ExcludeCmdHistory":REG_DWORD
    Parameter "System/ExcludeCmdHistory" of  DWORD  type  allows  to  define
    which types of commands will be excluded from history. Bit mask is used.
    If the bit is set, certain type of commands is excluded from history.
     Bit numbers:
      0 - exclude from history Windows association commands
-     1 - exclude from history FAR association commands
+     1 - exclude from history Far association commands
      2 - exclude from history panel execution commands
      3 - exclude from history command line execution commands
    The default value is 0 (all commands are included into history).
@@ -617,11 +617,11 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.3.0.(TechInfo #45)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System\Executor]
+   [HKEY_CURRENT_USER\Software\Far Manager\System\Executor]
    "RestoreCP":REG_DWORD
    Parameter "System/Executor/RestoreCP" of DWORD type allows to control  the
    possibility of restoring the  code  page  after  external  programs  are
-   started from the FAR Manager window and complete processing.
+   started from the Far Manager window and complete processing.
    Some programs change the code page of the  console  window  and  do  not
    restore the previous value after completion.
    Can have one of the following values;
@@ -631,9 +631,9 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.3.1.(TechInfo #49)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System\Executor]
+   [HKEY_CURRENT_USER\Software\Far Manager\System\Executor]
    "UseAppPath":REG_DWORD
-   When executing the contents of the command line, FAR  searches  for  the
+   When executing the contents of the command line, Far  searches  for  the
    executable in the  following  sequence  (sequentially  substituting  all
    extensions listed in the environment variable %PATHEXT%):
    1. The current directory
@@ -642,7 +642,7 @@ the main help file, that is actual for the current FAR Manager version.
       Windows NT/2000 or later: The 32-bit Windows system directory.
    4. Windows NT/2000 or later: The 16-bit Windows system directory.
    5. The Windows directory.
-   If the key "Executor\UseAppPath" of DWORD type is set to 1, FAR performs
+   If the key "Executor\UseAppPath" of DWORD type is set to 1, Far performs
    an additional search for the executables through the registry:
    6. Contents of the registry branch:
       [HKCU\Software\Microsoft\Windows\CurrentVersion\App Paths]
@@ -655,7 +655,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.3.2.(TechInfo #53)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System\Executor]
+   [HKEY_CURRENT_USER\Software\Far Manager\System\Executor]
    "Type":REG_DWORD
    The key "System/Executor/Type" of DWORD type allows to activate extended
    functionality of the executer (see items 54).
@@ -666,7 +666,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.3.3.(TechInfo #54)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System\Executor]
+   [HKEY_CURRENT_USER\Software\Far Manager\System\Executor]
    "ExcludeCmds":REG_SZ
    The key "System/Executor/ExcludeCmds" of REG_SZ type allows to define  a
    list of commands that  will  be  immediately  passed  to  %comspec%  for
@@ -682,10 +682,10 @@ the main help file, that is actual for the current FAR Manager version.
    Ready made settings for CMD.EXE, COMMAND.COM and 4NT.EXE can be found in
    the Addons\SetUp folder, files "Executor.???.reg".
 
-   The commands "CLS", "REM", "CD" and "CHDIR" are processed by FAR on  its
+   The commands "CLS", "REM", "CD" and "CHDIR" are processed by Far on  its
    own. Those commands are excluded from the "Executor.???.reg" files..
 
-   The commands "IF", "CHCP" and "SET" are not processed by  FAR  in  their
+   The commands "IF", "CHCP" and "SET" are not processed by  Far  in  their
    entirety -  if  the  syntax  differs  from  the  one  explained  in  the
    "Operating system commands" help topic then the command  execution  will
    be handed over to the com. processor.
@@ -695,19 +695,19 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.3.4.(TechInfo #73)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System\Executor]
+   [HKEY_CURRENT_USER\Software\Far Manager\System\Executor]
    "BatchType":REG_SZ
    The key "System/Executor/BatchType" of REG_SZ type allows  to  define  a
-   list of file extensions which will be used by FAR Manager to distinguish
+   list of file extensions which will be used by Far Manager to distinguish
    batch files (files that are processed by the command line processor)  so
-   they will be executed inside the  FAR  console  windows  when  Enter  is
+   they will be executed inside the  Far  console  windows  when  Enter  is
    pressed on the corresponding panel item  (others  -  in  a  new  console
    window).
 
    List format: <.><Extension><;>[<.><Extension><;>]
    Separator - the semicolon (';') character.
    Single ";" character defines an empty list (in such a case no batch file
-   will be executed by FAR).
+   will be executed by Far).
 
    For example, a list of ".BAT;.BTM;" defines that "*.BAT" and "*.BTM" are
    batch files.
@@ -724,7 +724,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.3.5.(TechInfo #74)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\System\Executor]
+   [HKEY_CURRENT_USER\Software\Far Manager\System\Executor]
    "FullTitle":REG_DWORD
    The key "System/Executor/FullTitle" of type  DWORD  allows  to  set  the
    console window title format for file execution.
@@ -742,8 +742,8 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.4.0.(TechInfo #4)
 ~~~~~~~~~~~~~~~~~~~
-   [HKEY_LOCAL_MACHINE\Software\Far2\Policies]
-   [HKEY_CURRENT_USER\Software\Far2\Policies]
+   [HKEY_LOCAL_MACHINE\Software\Far Manager\Policies]
+   [HKEY_CURRENT_USER\Software\Far Manager\Policies]
    "DisabledOptions":REG_DWORD
    The key "Policies/DisabledOptions" of DWORD type controls access to  the
    items of the Options menu. The access is specified with a bit mask. If a
@@ -783,15 +783,15 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.4.1.(TechInfo #30)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_LOCAL_MACHINE\Software\Far2\Policies]
-   [HKEY_CURRENT_USER\Software\Far2\Policies]
+   [HKEY_LOCAL_MACHINE\Software\Far Manager\Policies]
+   [HKEY_CURRENT_USER\Software\Far Manager\Policies]
    "ShowHiddenDrives":REG_DWORD
-   The key "Policies/ShowHiddenDrives" of DWORD type allows FAR to use  the
+   The key "Policies/ShowHiddenDrives" of DWORD type allows Far to use  the
    Windows settings for hiding logical drives from the system ("Hide Drives
    in My Computer")
-     0 - FAR shows only allowed drives (taking into account the value
+     0 - Far shows only allowed drives (taking into account the value
          of the system policy parameter "NoDrives").
-     1 - the feature is disabled, FAR shows all the drives,
+     1 - the feature is disabled, Far shows all the drives,
          independently of the value of the "NoDrives" registry setting
          [HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer]
    The key in HKLM allows to specify the options for all users, the key  in
@@ -809,13 +809,13 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.5.0.(TechInfo #21)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Interface]
+   [HKEY_CURRENT_USER\Software\Far Manager\Interface]
    "HotkeyRules":REG_DWORD
    The key  "Interface/HotkeyRules"  of  DWORD  type  allows  to  select  a
    mechanism for handling keyboard shortcuts:
      1 - use an advanced shortcut handling mechanism not dependent on the
          active keyboard layout.
-     0 - use a mechanism compatible with FAR 1.65 and lower.
+     0 - use a mechanism compatible with Far 1.65 and lower.
    This rule should be used only if you generate keyboard layouts using the
    tool "Janko's Keyboard Generator"
    (http://solair.eunet.yu/~janko/engdload.htm)
@@ -824,7 +824,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.5.1.(TechInfo #24)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Interface]
+   [HKEY_CURRENT_USER\Software\Far Manager\Interface]
    "ShiftsKeyRules":REG_DWORD
    The key "Interface/ShiftsKeyRules" of DWORD type allows  to  choose  the
    mechanism for handling keyboard shortcuts with  modifiers  Alt-,  Ctrl-,
@@ -832,22 +832,22 @@ the main help file, that is actual for the current FAR Manager version.
      1 - use an advanced mechanism for handling keyboard shortcuts. For
          example, Alt-NonEnglishCharacter will be translated to
          Alt-EnglishCharacter (except for quick search in the panels).
-     0 - use the mechanism compatible with FAR 1.70 beta 2 and lower.
+     0 - use the mechanism compatible with Far 1.70 beta 2 and lower.
    The default value is 1.
 
 1.5.2.(TechInfo #25)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Interface]
+   [HKEY_CURRENT_USER\Software\Far Manager\Interface]
    "CursorSize1":REG_DWORD
    "CursorSize2":REG_DWORD
    "CursorSize3":REG_DWORD
    "CursorSize4":REG_DWORD
    The keys "Interface/CursorSize1" and  "Interface/CursorSize2"  of  DWORD
    type allow to set the  insert  mode  cursor  size  for  the  window  and
-   fullscreen modes of FAR.
+   fullscreen modes of Far.
    The keys "Interface/CursorSize3" and  "Interface/CursorSize4"  of  DWORD
    type allow to set the overwrite mode cusrsor size  for  the  window  and
-   fullscreen modes of FAR.
+   fullscreen modes of Far.
    The values of the parameters (numbers between 1  and  100)  specify  the
    fraction of the character cell (in percents) filled by the  cursor.  The
    cursor can change from a completely full cell to a  horizontal  line  at
@@ -860,18 +860,18 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.5.3.(TechInfo #38)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Interface]
+   [HKEY_CURRENT_USER\Software\Far Manager\Interface]
    "AltF9":REG_DWORD
    The key "Interface/AltF9" of DWORD type allows to  select  the  mode  of
    handling the  Alt-F9  combination  (Change  the  console  size)  in  the
    windowed mode:
-     1 - use advanced mode - the FAR Manager window will switch from
+     1 - use advanced mode - the Far Manager window will switch from
          its current size to the maximum possible size of a console
          window and back. The font size of the console window will not
          change.
-     0 - use the mode compatible with FAR 1.65 and earlier, that is,
+     0 - use the mode compatible with Far 1.65 and earlier, that is,
          switching between 25/50 lines.
-   This parameter has effect only in the windowed mode of FAR Manager.
+   This parameter has effect only in the windowed mode of Far Manager.
    By default the rule is on (1) for the Windows NT family.
    For Windows 9x family the rule is off (0)  by  default  and  it  is  not
    recommended to turn it on as it causes considerable  visual  distortions
@@ -880,7 +880,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.5.4.(TechInfo #64)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Interface]
+   [HKEY_CURRENT_USER\Software\Far Manager\Interface]
    "ShowTimeoutDelFiles":REG_DWORD
    The key "Interface/ShowTimeoutDelFiles" of DWORD type allows to  control
    the refresh timeout (in ms) of the file deletion  process  message  box.
@@ -890,7 +890,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.5.5.(TechInfo #65)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Interface]
+   [HKEY_CURRENT_USER\Software\Far Manager\Interface]
    "ShowTimeoutDACLFiles":REG_DWORD
    The key "Interface/ShowTimeoutDACLFiles" of DWORD type allows to control
    the refresh timeout (in ms) of the  access  rights  application  process
@@ -901,7 +901,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.5.6.(TechInfo #78)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Interface]
+   [HKEY_CURRENT_USER\Software\Far Manager\Interface]
    "FormatNumberSeparators":REG_DWORD
    The  key  "Interface/FormatNumberSeparators"  of  DWORD  type  allows to
    redefine decimal and digit grouping separator symbols.
@@ -916,7 +916,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.6.0.(TechInfo #6)
 ~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Panel]
+   [HKEY_CURRENT_USER\Software\Far Manager\Panel]
    "RightClickRule":REG_DWORD
    The key "Panel/RightClickRule" of DWORD type specifies behavior  of  the
    right mouse button for the case if the button was pressed  in  an  empty
@@ -930,7 +930,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.6.1.(TechInfo #8)
 ~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Panel]
+   [HKEY_CURRENT_USER\Software\Far Manager\Panel]
    "CtrlAltShiftRule":REG_DWORD
    The key "Panel/CtrlAltShiftRule" of DWORD type specifies behavior of the
    Ctrl-Alt-Shift for temporary hiding of the panels:
@@ -941,7 +941,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.6.2.(TechInfo #14)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Panel]
+   [HKEY_CURRENT_USER\Software\Far Manager\Panel]
    "CtrlFRule":REG_DWORD
    The key "Panel/CtrlFRule" of DWORD type specifies the  Ctrl-F  behavior.
    When it is 0, the pathname of the file is put into the command  line  as
@@ -951,16 +951,16 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.6.3.(TechInfo #43)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Panel\Layout]
+   [HKEY_CURRENT_USER\Software\Far Manager\Panel\Layout]
    "ScrollbarMenu":REG_DWORD
    The key "Panel/Layout/ScrollbarMenu" of DWORD type  enables  showing  of
    the scrollbar in menus if the number of items exceeds the menu height.
-   If the value is equal to 0, FAR will not show the scrollbar.
+   If the value is equal to 0, Far will not show the scrollbar.
    The default value is 1 (show the scrollbar).
 
 1.6.4.(TechInfo #75)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Panel]
+   [HKEY_CURRENT_USER\Software\Far Manager\Panel]
    "ShellRightLeftArrowsRule":REG_DWORD
     Parameter "ShellRightLeftArrowsRule" of DWORD  type  allows  to control
     the Left/Right arrow keys behaviour (of both main keyboard and keypad).
@@ -987,12 +987,12 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.7.0.(TechInfo #5)
 ~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Dialog/EULBsClear]
+   [HKEY_CURRENT_USER\Software\Far Manager\Dialog/EULBsClear]
    (the option is configured through Options|Dialog Settings)
 
 1.7.1.(TechInfo #41)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Dialog]
+   [HKEY_CURRENT_USER\Software\Far Manager\Dialog]
    "SelectFromHistory":REG_DWORD
    The key "Dialog/SelectFromHistory" of DWORD type allows  to  change  the
    cursor positioning behaviour when a history list for a dialog input line
@@ -1006,7 +1006,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.7.2.(TechInfo #61)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Dialog]
+   [HKEY_CURRENT_USER\Software\Far Manager\Dialog]
    "CBoxMaxHeight":REG_DWORD
    The key "Dialog/CBoxMaxHeight"  of  DWORD  type  specifies  the  maximum
    height for dialog history lists.
@@ -1021,7 +1021,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.8.0.(TechInfo #1)
 ~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Editor]
+   [HKEY_CURRENT_USER\Software\Far Manager\Editor]
    "WordDiv":REG_SZ
    Words delimiters. Used by the internal  editor  for  the  Ctrl-Left  and
    Ctrl-Right functions and for the "whole words" search.
@@ -1030,7 +1030,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.8.1.(TechInfo #13)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Editor]
+   [HKEY_CURRENT_USER\Software\Far Manager\Editor]
    "BSLikeDel":REG_DWORD
    The "Editor/BSLikeDel" key of the  DWORD  type  allows  to  control  the
    effect of the BackSpace key when a vertical block  is  selected  in  the
@@ -1041,7 +1041,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.8.2.(TechInfo #18)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Editor]
+   [HKEY_CURRENT_USER\Software\Far Manager\Editor]
    "EditorF7Rules":REG_DWORD
    The key "Editor/EditorF7Rules" of  DWORD  type  allows  to  control  the
    behaviour of the search function in the editor. If the value is equal to
@@ -1052,7 +1052,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.8.3.(TechInfo #19)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Editor]
+   [HKEY_CURRENT_USER\Software\Far Manager\Editor]
    "ReadOnlyLock":REG_DWORD
    The key "Editor/ReadOnlyLock" of DWORD type specifies the  behaviour  of
    the  editor  when  opening  files  with  ReadOnly,  Hidden   or   System
@@ -1069,7 +1069,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.8.4.(TechInfo #20)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Editor]
+   [HKEY_CURRENT_USER\Software\Far Manager\Editor]
    "FileSizeLimit":REG_DWORD
    The key "Editor/FileSizeLimit" of DWORD type specifies the maximum  size
    of files that can be edited in bytes. If the size of a file being edited
@@ -1079,7 +1079,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.8.5.(TechInfo #32)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Editor]
+   [HKEY_CURRENT_USER\Software\Far Manager\Editor]
    "CharCodeBase":REG_DWORD
    The key  "Editor/CharCodeBase"  of  DWORD  type  allows  to  change  the
    representation of the current character code in the editor status line.
@@ -1091,7 +1091,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.8.6.(TechInfo #44)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Editor]
+   [HKEY_CURRENT_USER\Software\Far Manager\Editor]
    "EditorUndoSize":REG_DWORD
    The value "Editor/EditorUndoSize" of type DWORD  allows  to  change  the
    size of undo buffer in the editor. It indicates  the  number  of  stored
@@ -1102,7 +1102,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.8.7.(TechInfo #67)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\Editor]
+   [HKEY_CURRENT_USER\Software\Far Manager\Editor]
    "AllowEmptySpaceAfterEof":REG_DWORD
    The end of the file in the editor is always at the bottom of the screen,
    if there are more lines  in  the  file  than  in  on  the  screen.  When
@@ -1126,12 +1126,12 @@ the main help file, that is actual for the current FAR Manager version.
 
    Translates the selected block according to the rules table
    (see %FARHOME%\Addons\Xlat\*.reg).
-   Function is called by FAR macro language $XLat operator, which can be
+   Function is called by Far macro language $XLat operator, which can be
    assigned to any key combination.
 
 1.9.0.(TechInfo #10)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\XLat]
+   [HKEY_CURRENT_USER\Software\Far Manager\XLat]
    The parameter "Flags" determines the behaviour of the XLat function.
      Bits:
        0 - under Windows NT family, switch to the next available
@@ -1140,14 +1140,14 @@ the main help file, that is actual for the current FAR Manager version.
        1 - emit a beep after performing the translation.
        2 - Использовать предопределенные именованные правила для "двойных" клавиш.
            Параметр в реестре c именем раскладки, например:
-           "HKCU\Software\Far2\XLat/00000409:REG_SZ"
+           "HKCU\Software\Far Manager\XLat/00000409:REG_SZ"
               обозначает "набирали по-русски в английской раскладке"
-           "HKCU\Software\Far2\XLat/00000419:REG_SZ"
+           "HKCU\Software\Far Manager\XLat/00000419:REG_SZ"
               обозначает "набирали по-английски в русской раскладке"
            и т.п.
            Так же, если установлен бит 0, то переключение раскладок происходит
            только по списку значений, перечисленных в
-           "HKCU\Software\Far2\XLat/Layouts:REG_SZ", независимо от количества
+           "HKCU\Software\Far Manager\XLat/Layouts:REG_SZ", независимо от количества
            установленных в системе раскладок.
       16 - Конвертировать всю командную строку при отсутствии выделенного
            блока.
@@ -1155,7 +1155,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.9.1.(TechInfo #16)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\XLat]
+   [HKEY_CURRENT_USER\Software\Far Manager\XLat]
    "WordDivForXlat":REG_SZ
    Word delimiter symbols for the XLat function (for transliteration of the
    currrent word without selection). Can contain no more than 255 symbols.
@@ -1163,7 +1163,7 @@ the main help file, that is actual for the current FAR Manager version.
 
 1.9.2.(TechInfo #80)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far2\XLat]
+   [HKEY_CURRENT_USER\Software\Far Manager\XLat]
    "Layouts":REG_SZ
    Номера раскладок клавиатуры (через ';'), которые будут переключаться,
    независимо от количества установленных в системе раскладок.
@@ -1176,17 +1176,17 @@ the main help file, that is actual for the current FAR Manager version.
    По умолчанию значению отсутствует.
 
 
-II. Windows: settings that apply to FAR Manager.
+II. Windows: settings that apply to Far Manager.
 ===============================================================================
    This section describes the additional technical information  that  has  some
-appliance to FAR Manager.
+appliance to Far Manager.
 
 
 2.0.(TechInfo #57)
 ~~~~~~~~~~~~~~~~~~
    If the  [HKEY_CLASSES_ROOT\Directory\shellex\CopyHookHandlers]  registry
-   key is empty FAR removes it when started.
-   If this key is empty then FAR will crash  when  deleting  files  to  the
+   key is empty Far removes it when started.
+   If this key is empty then Far will crash  when  deleting  files  to  the
    recycle bin.
 
 2.1.(TechInfo #58)
@@ -1214,7 +1214,7 @@ appliance to FAR Manager.
    "DisableUNCCheck":REG_DWORD
    (applies only to NT4/2k/XP/2003/Vista/2008 and cmd.exe)
    The CMD.EXE normally disallows UNC names from being used for the current
-   directory. When FAR tries to execute a command of  the  command  process
+   directory. When Far tries to execute a command of  the  command  process
    and the current path is UNC then the following  error  message  will  be
    written to the console:
 
@@ -1236,4 +1236,4 @@ appliance to FAR Manager.
                     or Microsoft Article - Q156276
 
 
-                                     [ FAR manager development group ]
+                                     [ Far Manager development group ]

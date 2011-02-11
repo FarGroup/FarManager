@@ -1,5 +1,5 @@
 ﻿
-                    The FAR File and Archive Manager
+                    The Far File and Archive Manager
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                  Reporting Problems and Receiving Support
                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -8,35 +8,35 @@ By following these simple rules, you have the best chances of
 getting your problem successfully solved.
 
 1. Make sure that the problem you've encountered is not an ordinary situation
-or a known problem: see FAR Help, FAQ, TechInfo and WhatsNew. If it's
+or a known problem: see Far Help, FAQ, TechInfo and WhatsNew. If it's
 possible, you should also search network resources for the answers (links to
 the resources are located in help chapter "Overview of plugin capabilities").
 Only if the problem is not known, move to step 2, otherwise there's no need
 to produce extra traffic, it does not stimulate developers in any way,
 but distracts them.
 
-2. Because FAR is commonly used with plug-ins, first it is necessary to
+2. Because Far is commonly used with plug-ins, first it is necessary to
 locate the source of the problem.
 
-2.1. Start FAR without plug-ins. You can do it with "far.exe /p" command.
+2.1. Start Far without plug-ins. You can do it with "far.exe /p" command.
 Try to reproduce the problem situation. If the problem persists, it makes
-sense to inform FAR developers about the problem (see step 3).
+sense to inform Far developers about the problem (see step 3).
 
-2.2. If problem does not persist when running FAR without plug-ins, you'll
+2.2. If problem does not persist when running Far without plug-ins, you'll
 have to find out which plug-in(s) are essential for the problem to emerge.
 In order to do it, for example, you can remove plug-ins one by one, starting
 with the most recently installed ones, and every time check whether the
 problem still exists. If you have found the plugin causing the problem
-and the plugin is not included in the FAR distribution, you should report
+and the plugin is not included in the Far distribution, you should report
 the problem to the author of that plugin.
 
-2.3. If the found "bad" plug-in is included in the FAR distribution,
+2.3. If the found "bad" plug-in is included in the Far distribution,
 or you failed to find out which plug-in is essential to reproduce the
-problem, inform FAR developers about it (see step 3). If the problem is
+problem, inform Far developers about it (see step 3). If the problem is
 in the MultiArc/ArcLite plugin, see Step 4. If the problem is in the FTP
 plugin, see Step 5.
 
-3. You should inform the FAR Group about the problem (the contacts are in
+3. You should inform the Far Group about the problem (the contacts are in
 the File_id.diz file).
 
 3.1. Follow the usual rules when reporting a problem:
@@ -51,12 +51,12 @@ the File_id.diz file).
      recorded. Press Ctrl-. (Ctrl-point) to switch macros off, and try to
      reproduce the problem again.
    - If it's possible, try to reproduce the problem on different versions
-     of FAR, Windows, other computers and with different FAR settings.
+     of Far, Windows, other computers and with different Far settings.
      Include a report on these experiments in your message about the
      problem.
 
 3.2. Specify the conditions to reproduce the problem (Windows version,
-type of the filesystem, type of the local network, FAR version, versions
+type of the filesystem, type of the local network, Far version, versions
 of installed plug-ins, macros etc - the necessary and sufficient set of
 conditions to repeat the problem).
 
@@ -108,4 +108,4 @@ mailserver that any files attached with .exe, .dll, .sys, .bat, .cmd,
 such files, you should archive them first.
 
 
-                                     [FAR manager development group]
+                                     [Far Manager development group]

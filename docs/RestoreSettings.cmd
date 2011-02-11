@@ -11,9 +11,9 @@ set machinewow64file=FarSettings.Machine.WoW64.reg
 
 set savepath=%~dp0
 
-call :restore "hkcu\software\far2" "%savepath%%userfile%"
-call :restore "hklm\software\far2" "%savepath%%machinefile%"
-call :restore "hklm\software\wow6432node\far2" "%savepath%%machinewow64file%"
+call :restore "hkcu\software\far manager" "%savepath%%userfile%"
+call :restore "hklm\software\far manager" "%savepath%%machinefile%"
+call :restore "hklm\software\wow6432node\far manager" "%savepath%%machinewow64file%"
 
 goto :eof
 
