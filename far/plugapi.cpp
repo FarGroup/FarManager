@@ -389,9 +389,6 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 		/* $ 05.06.2001 tran
 		   םמגûו ACTL_ הכÿ נאבמעû ס פנוילאלט */
 		case ACTL_GETWINDOWINFO:
-			/* $ 12.04.2005 AY
-			     thread safe window info */
-		case ACTL_GETSHORTWINDOWINFO:
 		{
 			if (FrameManager && Param)
 			{
@@ -409,34 +406,24 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 				if (!f)
 					return FALSE;
 
-				if (Command==ACTL_GETWINDOWINFO)
+				f->GetTypeAndName(strType, strName);
+
+				if (wi->TypeNameSize && wi->TypeName)
 				{
-					f->GetTypeAndName(strType, strName);
-
-					if (wi->TypeNameSize && wi->TypeName)
-					{
-						xwcsncpy(wi->TypeName,strType,wi->TypeNameSize);
-					}
-					else
-					{
-						wi->TypeNameSize=static_cast<int>(strType.GetLength()+1);
-					}
-
-					if (wi->NameSize && wi->Name)
-					{
-						xwcsncpy(wi->Name,strName,wi->NameSize);
-					}
-					else
-					{
-						wi->NameSize=static_cast<int>(strName.GetLength()+1);
-					}
+					xwcsncpy(wi->TypeName,strType,wi->TypeNameSize);
 				}
 				else
 				{
-					wi->TypeName=nullptr;
-					wi->Name=nullptr;
-					wi->NameSize=0;
-					wi->TypeName=0;
+					wi->TypeNameSize=static_cast<int>(strType.GetLength()+1);
+				}
+
+				if (wi->NameSize && wi->Name)
+				{
+					xwcsncpy(wi->Name,strName,wi->NameSize);
+				}
+				else
+				{
+					wi->NameSize=static_cast<int>(strName.GetLength()+1);
 				}
 
 				wi->Pos=FrameManager->IndexOf(f);

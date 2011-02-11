@@ -228,6 +228,26 @@ static INT_PTR WINAPI FarAdvControlW(const GUID* PluginId, int Command, void *Pa
 		PluginSynchroManager.Synchro(true, *PluginId, Param);
 		return 0;
 	}
+	if (ACTL_GETWINDOWTYPE==Command)
+	{
+		WindowType* info=(WindowType*)Param;
+		if (info&&info->StructSize>=sizeof(WindowType))
+		{
+			long type=CurrentWindowType;
+			switch(type)
+			{
+				case WTYPE_PANELS:
+				case WTYPE_VIEWER:
+				case WTYPE_EDITOR:
+				case WTYPE_DIALOG:
+				case WTYPE_VMENU:
+				case WTYPE_HELP:
+					info->Type=type;
+					return TRUE;
+			}
+		}
+		return FALSE;
+	}
 	return FarAdvControl(GetPluginNumber(PluginId),Command,Param);
 }
 

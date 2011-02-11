@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 
 Manager *FrameManager;
+long CurrentWindowType=-1;
 
 Manager::Manager():
 	ModalStack(nullptr),
@@ -1410,6 +1411,7 @@ void Manager::ActivateCommit()
 	}
 
 	RefreshedFrame=CurrentFrame=ActivatedFrame;
+	InterlockedExchange(&CurrentWindowType,CurrentFrame->GetType());
 }
 
 void Manager::UpdateCommit()
@@ -1549,7 +1551,10 @@ void Manager::DeleteCommit()
 		_MANAGER(SysLog(L"delete DeletedFrame %p, CurrentFrame=%p",DeletedFrame,CurrentFrame));
 
 		if (CurrentFrame==DeletedFrame)
+		{
 			CurrentFrame=0;
+			InterlockedExchange(&CurrentWindowType,-1);
+		}
 
 		/* $ 14.05.2002 SKV
 		  Так как в деструкторе фрэйма неявно может быть

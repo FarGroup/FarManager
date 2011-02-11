@@ -216,3 +216,4 @@ class Manager
 };
 
 extern Manager *FrameManager;
+extern long CurrentWindowType;

@@ -3408,10 +3408,9 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 			if (!Param)
 				return FALSE;
 
-			int cmd = (Command==oldfar::ACTL_GETWINDOWINFO)?ACTL_GETWINDOWINFO:ACTL_GETSHORTWINDOWINFO;
 			oldfar::WindowInfo *wiA = (oldfar::WindowInfo *)Param;
 			WindowInfo wi={wiA->Pos};
-			INT_PTR ret = FarAdvControl(ModuleNumber, cmd, &wi);
+			INT_PTR ret = FarAdvControl(ModuleNumber, ACTL_GETWINDOWINFO, &wi);
 
 			if (ret)
 			{
@@ -3428,7 +3427,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 				wiA->Modified = (wi.Flags&WIF_MODIFIED)?true:false;
 				wiA->Current = (wi.Flags&WIF_CURRENT)?true:false;
 
-				if (cmd==ACTL_GETWINDOWINFO)
+				if (Command==oldfar::ACTL_GETWINDOWINFO)
 				{
 					if (wi.TypeNameSize)
 					{

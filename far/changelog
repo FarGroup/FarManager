@@ -1,3 +1,9 @@
+zg 11.02.2011 18:45:24 +0200 - build 1860
+
+1. ACTL_GETSHORTWINDOWINFO убрана из-за своей бессмысленности.
+
+2. thread-safe вызов ACTL_GETWINDOWTYPE. Param - указатель на структуру WindowType. в случае удачи возвращается TRUE, иначе FALSE.
+
 zg 11.02.2011 17:01:22 +0200 - build 1859
 
 1. DN_MOUSEEVENT переименовано в DN_INPUT. Param2 указывает на INPUT_RECORD. в будущем планируется приход не только мышиных событий, поэтому настоятельно рекомендуется проверять EventType.
