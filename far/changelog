@@ -1,3 +1,11 @@
+zg 12.02.2011 23:57:50 +0200 - build 1863
+
+1. в PanelMode добавилось поле StructSize.
+
+2. из PanelMode убраны поля FullScreen, DetailedStatus, AlignExtensions и CaseConversion. взамен добавлено поле Flags и соответствующие флаги.
+
+3. из PanelMode убрано поле Reserved.
+
 zg 12.02.2011 20:10:48 +0200 - build 1862
 
 1. Добавлена структура FarKey. FarKey.VirtualKeyCode аналогична KEY_EVENT_RECORD.wVirtualKeyCode. FarKey.ControlKeyState аналогична KEY_EVENT_RECORD.dwControlKeyState.

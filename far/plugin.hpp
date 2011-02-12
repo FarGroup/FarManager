@@ -2000,18 +2000,23 @@ struct InfoPanelLine
 	int  Separator;
 };
 
+enum PANELMODE_FLAGS
+{
+	PMFLAGS_FULLSCREEN      = 0x00000001,
+	PMFLAGS_DETAILEDSTATUS  = 0x00000002,
+	PMFLAGS_ALIGNEXTENSIONS = 0x00000004,
+	PMFLAGS_CASECONVERSION  = 0x00000008,
+};
+
 struct PanelMode
 {
+	unsigned StructSize;
 	const wchar_t *ColumnTypes;
 	const wchar_t *ColumnWidths;
 	const wchar_t * const *ColumnTitles;
-	int    FullScreen;
-	int    DetailedStatus;
-	int    AlignExtensions;
-	int    CaseConversion;
 	const wchar_t *StatusColumnTypes;
 	const wchar_t *StatusColumnWidths;
-	DWORD  Reserved[2];
+	unsigned __int64 Flags;
 };
 
 

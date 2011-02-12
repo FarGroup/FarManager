@@ -312,7 +312,7 @@ void FileList::ShowFileList(int Fast)
 		/*
 		if(GetCaseSensitiveSort())
 		{
-		
+
 		}
 		*/
 		*PtrOutCharacter=0;
@@ -637,7 +637,7 @@ void FileList::PrepareViewSettings(int ViewMode,OpenPluginInfo *PlugInfo)
 				                   Info.PanelModesArray[ViewMode].StatusColumnWidths,
 				                   ViewSettings.StatusColumnType,ViewSettings.StatusColumnWidth,
 				                   ViewSettings.StatusColumnWidthType,ViewSettings.StatusColumnCount);
-			else if (Info.PanelModesArray[ViewMode].DetailedStatus)
+			else if (Info.PanelModesArray[ViewMode].Flags&PMFLAGS_DETAILEDSTATUS)
 			{
 				ViewSettings.StatusColumnType[0]=COLUMN_RIGHTALIGN|NAME_COLUMN;
 				ViewSettings.StatusColumnType[1]=SIZE_COLUMN;
@@ -656,10 +656,10 @@ void FileList::PrepareViewSettings(int ViewMode,OpenPluginInfo *PlugInfo)
 				ViewSettings.StatusColumnCount=1;
 			}
 
-			ViewSettings.FullScreen=Info.PanelModesArray[ViewMode].FullScreen;
-			ViewSettings.AlignExtensions=Info.PanelModesArray[ViewMode].AlignExtensions;
+			ViewSettings.FullScreen=static_cast<bool>(Info.PanelModesArray[ViewMode].Flags&PMFLAGS_FULLSCREEN);
+			ViewSettings.AlignExtensions=static_cast<bool>(Info.PanelModesArray[ViewMode].Flags&PMFLAGS_ALIGNEXTENSIONS);
 
-			if (!Info.PanelModesArray[ViewMode].CaseConversion)
+			if (!(Info.PanelModesArray[ViewMode].Flags&PMFLAGS_CASECONVERSION))
 			{
 				ViewSettings.FolderUpperCase=0;
 				ViewSettings.FileLowerCase=0;
