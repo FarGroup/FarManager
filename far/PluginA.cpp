@@ -126,6 +126,8 @@ static const char NFMP_ProcessEvent[]="ProcessEvent";
 static const char NFMP_Compare[]="Compare";
 static const char NFMP_GetMinFarVersion[]="GetMinFarVersion";
 
+const LONG_PTR DEF_DLG_PROC_CALL = 0xFEFEFEFE;
+
 #define UnicodeToOEM(src,dst,lendst)    WideCharToMultiByte(CP_OEMCP,0,(src),-1,(dst),(int)(lendst),nullptr,nullptr)
 #define OEMToUnicode(src,dst,lendst)    MultiByteToWideChar(CP_OEMCP,0,(src),-1,(dst),(int)(lendst))
 
@@ -1400,6 +1402,10 @@ INT_PTR WINAPI CurrentDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 	if (Data && Data->DlgProc)
 		Ret=Data->DlgProc(Data->hDlg,Msg,Param1,Param2);
 
+	if (Ret == DEF_DLG_PROC_CALL)
+	{
+		Ret = FarDefDlgProc(hDlg, Msg, Param1, Param2);
+	}
 	return Ret;
 }
 
@@ -2089,10 +2095,10 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 	return CurrentDlgProc(hDlg, Msg, Param1, Param2);
 }
 
-//BUGBUG: так нельзя.
+// BUGBUG, it works only for "return DefDlgProc(hDlg, Msg, Param1, Param2);"
 LONG_PTR WINAPI FarDefDlgProcA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 {
-	return FarDefDlgProc(hDlg, Msg, Param1, Param2);
+	return DEF_DLG_PROC_CALL;
 }
 
 LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
