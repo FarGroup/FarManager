@@ -721,6 +721,14 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 	return FALSE;
 }
 
+static DWORD NormalizeControlKeys(DWORD Value)
+{
+	DWORD result=Value&(LEFT_CTRL_PRESSED|LEFT_ALT_PRESSED|SHIFT_PRESSED);
+	if(Value&RIGHT_CTRL_PRESSED) result|=LEFT_CTRL_PRESSED;
+	if(Value&RIGHT_ALT_PRESSED) result|=LEFT_ALT_PRESSED;
+	return result;
+}
+
 int WINAPI FarMenuFn(
     INT_PTR PluginNumber,
     int X,
@@ -730,7 +738,7 @@ int WINAPI FarMenuFn(
     const wchar_t *Title,
     const wchar_t *Bottom,
     const wchar_t *HelpTopic,
-    const int *BreakKeys,
+    const FarKey *BreakKeys,
     int *BreakCode,
     const FarMenuItem *Item,
     int ItemsNumber
@@ -829,7 +837,7 @@ int WINAPI FarMenuFn(
 			{
 				if (BreakKeys)
 				{
-					for (int I=0; BreakKeys[I]; I++)
+					for (int I=0; BreakKeys[I].VirtualKeyCode; I++)
 					{
 						if (CtrlObject->Macro.IsExecuting())
 						{
@@ -837,30 +845,18 @@ int WINAPI FarMenuFn(
 							TranslateKeyToVK(ReadKey,VirtKey,ControlState,&ReadRec);
 						}
 
-						if (ReadRec.Event.KeyEvent.wVirtualKeyCode==(BreakKeys[I] & 0xffff))
+						if (ReadRec.Event.KeyEvent.wVirtualKeyCode==BreakKeys[I].VirtualKeyCode)
 						{
-							DWORD Flags=BreakKeys[I]>>16;
-							DWORD RealFlags=ReadRec.Event.KeyEvent.dwControlKeyState &
-							                (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED|
-							                 LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED|SHIFT_PRESSED);
-							DWORD f = 0;
+							DWORD Flags=NormalizeControlKeys(BreakKeys[I].ControlKeyState);
+							DWORD RealFlags=NormalizeControlKeys(ReadRec.Event.KeyEvent.dwControlKeyState);
 
-							if (RealFlags & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED))
-								f |= PKF_CONTROL;
-
-							if (RealFlags & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED))
-								f |= PKF_ALT;
-
-							if (RealFlags & SHIFT_PRESSED)
-								f |= PKF_SHIFT;
-
-							if (f == Flags)
+							if (RealFlags == Flags)
 							{
 								if (BreakCode)
 									*BreakCode=I;
 
 								FarMenu.Hide();
-//                  CheckScreenLock();
+//								CheckScreenLock();
 								return FarMenu.GetSelectPos();
 							}
 						}

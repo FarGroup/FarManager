@@ -74,7 +74,7 @@ void WINAPI FarFreePluginDirList(PluginPanelItem *PanelItem, int ItemsNumber);
 
 int WINAPI FarMenuFn(INT_PTR PluginNumber,int X,int Y,int MaxHeight,
                      DWORD Flags,const wchar_t *Title,const wchar_t *Bottom,
-                     const wchar_t *HelpTopic,const int *BreakKeys,int *BreakCode,
+                     const wchar_t *HelpTopic,const FarKey *BreakKeys,int *BreakCode,
                      const struct FarMenuItem *Item, int ItemsNumber);
 const wchar_t* WINAPI FarGetMsgFn(INT_PTR PluginHandle,int MsgId);
 int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,

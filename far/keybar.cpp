@@ -417,26 +417,19 @@ size_t KeyBar::Change(const KeyBarTitles *Kbt)
 	for (int I = 0; I < Kbt->CountLabels; ++I)
 	{
 
-		DWORD Pos=Kbt->Labels[I].Key;
-		DWORD Shift=Pos&KEY_CTRLMASK;
-		Pos &= ~KEY_CTRLMASK;
-		if (Pos >= KEY_F1 && Pos <= KEY_F24)
+		WORD Pos=Kbt->Labels[I].Key.VirtualKeyCode;
+		DWORD Shift=0,Flags=Kbt->Labels[I].Key.ControlKeyState;
+		if(Flags&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)) Shift|=KEY_CTRL;
+		if(Flags&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)) Shift|=KEY_ALT;
+		if(Flags&SHIFT_PRESSED) Shift|=KEY_SHIFT;
+
+		if (Pos >= VK_F1 && Pos <= VK_F24)
 		{
-			if (Shift&KEY_RCTRL)
-			{
-				Shift &= ~KEY_RCTRL;
-				Shift |= KEY_CTRL;
-			}
-			if (Shift&KEY_RALT)
-			{
-				Shift &= ~KEY_RALT;
-				Shift |= KEY_ALT;
-			}
 			for (unsigned J=0; J < ARRAYSIZE(Groups); J+=2)
 			{
 				if (Groups[J] == Shift)
 				{
-					Change(Groups[J+1],Kbt->Labels[I].Text,Pos-KEY_F1);
+					Change(Groups[J+1],Kbt->Labels[I].Text,Pos-VK_F1);
 					Result++;
 					break;
 				}

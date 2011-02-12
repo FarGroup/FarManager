@@ -1,3 +1,11 @@
+zg 12.02.2011 20:10:48 +0200 - build 1862
+
+1. Добавлена структура FarKey. FarKey.VirtualKeyCode аналогична KEY_EVENT_RECORD.wVirtualKeyCode. FarKey.ControlKeyState аналогична KEY_EVENT_RECORD.dwControlKeyState.
+
+2. параметр BreakKeys Menu тепер указатель на массив FarKey.
+
+3. тип KeyBarLabel.Key - FarKey.
+
 drkns 12.02.2011 18:01:44 +0200 - build 1861
 
 1. Исправлен древний баг с DefDlgProc для ansi-плагинов.

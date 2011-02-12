@@ -435,13 +435,14 @@ void FreeUnicodePanelModes(PanelMode *pnmW, int iCount)
 }
 
 
-static void ProcLabels(const char *Title,KeyBarLabel *Label, int& j, DWORD Key)
+static void ProcLabels(const char *Title,KeyBarLabel *Label, int& j, WORD Key, DWORD Shift)
 {
 	if (Title)
 	{
 		Label->Text=AnsiToUnicode(Title);
 		Label->LongText=nullptr;
-		Label->Key=Key;
+		Label->Key.VirtualKeyCode=Key;
+		Label->Key.ControlKeyState=Shift;
 		j++;
 	}
 }
@@ -484,22 +485,22 @@ void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles *kbtW, 
 				for (j=i=0; i<12; i++)
 				{
 					if (kbtA->Titles[i])
-						ProcLabels(kbtA->Titles[i],kbtW->Labels+j,j,KEY_F1+i);
+						ProcLabels(kbtA->Titles[i],kbtW->Labels+j,j,VK_F1+i,0);
 					if (kbtA->CtrlTitles[i])
-						ProcLabels(kbtA->CtrlTitles[i],kbtW->Labels+j,j,KEY_F1+KEY_CTRL+i);
+						ProcLabels(kbtA->CtrlTitles[i],kbtW->Labels+j,j,VK_F1+i,LEFT_CTRL_PRESSED);
 					if (kbtA->AltTitles[i])
-						ProcLabels(kbtA->AltTitles[i],kbtW->Labels+j,j,KEY_F1+KEY_ALT+i);
+						ProcLabels(kbtA->AltTitles[i],kbtW->Labels+j,j,VK_F1+i,LEFT_ALT_PRESSED);
 					if (kbtA->ShiftTitles[i])
-						ProcLabels(kbtA->ShiftTitles[i],kbtW->Labels+j,j,KEY_F1+KEY_SHIFT+i);
+						ProcLabels(kbtA->ShiftTitles[i],kbtW->Labels+j,j,VK_F1+i,SHIFT_PRESSED);
 
 					if (FullStruct)
 					{
 						if (kbtA->CtrlShiftTitles[i])
-							ProcLabels(kbtA->CtrlShiftTitles[i],kbtW->Labels+j,j,KEY_F1+KEY_CTRL+KEY_SHIFT+i);
+							ProcLabels(kbtA->CtrlShiftTitles[i],kbtW->Labels+j,j,VK_F1+i,LEFT_CTRL_PRESSED|SHIFT_PRESSED);
 						if (kbtA->AltShiftTitles[i])
-							ProcLabels(kbtA->AltShiftTitles[i],kbtW->Labels+j,j,KEY_F1+KEY_CTRL+KEY_SHIFT+i);
+							ProcLabels(kbtA->AltShiftTitles[i],kbtW->Labels+j,j,VK_F1+i,LEFT_ALT_PRESSED|SHIFT_PRESSED);
 						if (kbtA->CtrlAltTitles[i])
-							ProcLabels(kbtA->CtrlAltTitles[i],kbtW->Labels+j,j,KEY_F1+KEY_ALT+KEY_CTRL+i);
+							ProcLabels(kbtA->CtrlAltTitles[i],kbtW->Labels+j,j,VK_F1+i,LEFT_CTRL_PRESSED|LEFT_ALT_PRESSED);
 					}
 				}
 
@@ -1279,8 +1280,7 @@ int WINAPI FarMenuFnA(INT_PTR PluginNumber,int X,int Y,int MaxHeight,DWORD Flags
 	if (Flags&oldfar::FMENU_CHANGECONSOLETITLE)
 		NewFlags|=FMENU_CHANGECONSOLETITLE;
 
-	if (!Item || !ItemsNumber)
-		return FarMenuFn(PluginNumber,X,Y,MaxHeight,NewFlags,wszT,wszB,wszHT,BreakKeys,BreakCode,nullptr,0);
+	if (!Item) ItemsNumber=0;
 
 	FarMenuItem *mi = (FarMenuItem *)xf_malloc(ItemsNumber*sizeof(*mi));
 
@@ -1339,12 +1339,34 @@ int WINAPI FarMenuFnA(INT_PTR PluginNumber,int X,int Y,int MaxHeight,DWORD Flags
 		}
 	}
 
-	int ret = FarMenuFn(PluginNumber,X,Y,MaxHeight,NewFlags,wszT,wszB,wszHT,BreakKeys,BreakCode,mi,ItemsNumber);
+	FarKey* NewBreakKeys=nullptr;
+	if (BreakKeys)
+	{
+		int BreakKeysCount=0;
+		while(BreakKeys[BreakKeysCount++]) ;
+		if (BreakKeysCount)
+		{
+			NewBreakKeys=(FarKey*)xf_malloc(BreakKeysCount*sizeof(FarKey));
+			for(int ii=0;ii<BreakKeysCount;++ii)
+			{
+				NewBreakKeys[ii].VirtualKeyCode=BreakKeys[ii]&0xffff;
+				NewBreakKeys[ii].ControlKeyState=0;
+				DWORD Flags=BreakKeys[ii]>>16;
+				if(Flags&oldfar::PKF_CONTROL) NewBreakKeys[ii].ControlKeyState|=LEFT_CTRL_PRESSED;
+				if(Flags&oldfar::PKF_ALT) NewBreakKeys[ii].ControlKeyState|=LEFT_ALT_PRESSED;
+				if(Flags&oldfar::PKF_SHIFT) NewBreakKeys[ii].ControlKeyState|=SHIFT_PRESSED;
+			}
+		}
+	}
+
+	int ret = FarMenuFn(PluginNumber,X,Y,MaxHeight,NewFlags,wszT,wszB,wszHT,NewBreakKeys,BreakCode,mi,ItemsNumber);
 
 	for (int i=0; i<ItemsNumber; i++)
 		if (mi[i].Text) xf_free((wchar_t *)mi[i].Text);
 
 	if (mi) xf_free(mi);
+
+	if (NewBreakKeys) xf_free(NewBreakKeys);
 
 	return ret;
 }

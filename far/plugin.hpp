@@ -579,6 +579,12 @@ typedef void (WINAPI *FARAPIDIALOGFREE)(
     HANDLE hDlg
 );
 
+struct FarKey
+{
+    WORD VirtualKeyCode;
+    DWORD ControlKeyState;
+};
+
 enum MENUITEMFLAGS
 {
 	MIF_SELECTED   = 0x00010000UL,
@@ -622,7 +628,7 @@ typedef int (WINAPI *FARAPIMENU)(
     const wchar_t      *Title,
     const wchar_t      *Bottom,
     const wchar_t      *HelpTopic,
-    const int          *BreakKeys,
+    const FarKey       *BreakKeys,
     int                *BreakCode,
     const struct FarMenuItem *Item,
     int                 ItemsNumber
@@ -2054,7 +2060,7 @@ enum OPENPLUGININFO_SORTMODES
 
 struct KeyBarLabel
 {
-	DWORD Key;
+	FarKey Key;
 	const wchar_t *Text;
 	const wchar_t *LongText;
 };
