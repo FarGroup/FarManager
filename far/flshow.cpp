@@ -657,7 +657,7 @@ void FileList::PrepareViewSettings(int ViewMode,OpenPluginInfo *PlugInfo)
 			}
 
 			ViewSettings.FullScreen=static_cast<bool>(Info.PanelModesArray[ViewMode].Flags&PMFLAGS_FULLSCREEN);
-			ViewSettings.AlignExtensions=static_cast<bool>(Info.PanelModesArray[ViewMode].Flags&PMFLAGS_ALIGNEXTENSIONS);
+			ViewSettings.AlignExtensions=(Info.PanelModesArray[ViewMode].Flags&PMFLAGS_ALIGNEXTENSIONS)!=0;
 
 			if (!(Info.PanelModesArray[ViewMode].Flags&PMFLAGS_CASECONVERSION))
 			{

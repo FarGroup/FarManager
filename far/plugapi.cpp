@@ -244,7 +244,6 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 		case ACTL_GETINTERFACESETTINGS:
 		case ACTL_GETCONFIRMATIONS:
 		case ACTL_GETDESCSETTINGS:
-		case ACTL_GETPOLICIES:
 		case ACTL_GETPLUGINMAXREADDATA:
 		case ACTL_GETMEDIATYPE:
 		case ACTL_SETPROGRESSSTATE:
@@ -622,10 +621,6 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 				Options |= FDS_UPDATEREADONLY;
 
 			return Options;
-		}
-		case ACTL_GETPOLICIES:
-		{
-			return Opt.Policies.DisabledOptions|(Opt.Policies.ShowHiddenDrives?FFPOL_SHOWHIDDENDRIVES:0);
 		}
 		case ACTL_REDRAWALL:
 		{

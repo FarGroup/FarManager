@@ -599,10 +599,10 @@ void GetOpenPluginInfo_Dump(const wchar_t *Title,const OpenPluginInfo *Info,FILE
 				fwprintf(fp,L"\t\tColumnTypes       ='%s'\n",NullToEmpty(Info->PanelModesArray[I].ColumnTypes));
 				fwprintf(fp,L"\t\tColumnWidths      ='%s'\n",NullToEmpty(Info->PanelModesArray[I].ColumnWidths));
 				fwprintf(fp,L"\t\tColumnTitles      =%p\n",Info->PanelModesArray[I].ColumnTitles);
-				fwprintf(fp,L"\t\tFullScreen        =%d\n",Info->PanelModesArray[I].FullScreen);
-				fwprintf(fp,L"\t\tDetailedStatus    =%d\n",Info->PanelModesArray[I].DetailedStatus);
-				fwprintf(fp,L"\t\tAlignExtensions   =%d\n",Info->PanelModesArray[I].AlignExtensions);
-				fwprintf(fp,L"\t\tCaseConversion    =%d\n",Info->PanelModesArray[I].CaseConversion);
+				fwprintf(fp,L"\t\tFullScreen        =%d\n",(Info->PanelModesArray[I].Flags&PMFLAGS_FULLSCREEN)!=0);
+				fwprintf(fp,L"\t\tDetailedStatus    =%d\n",(Info->PanelModesArray[I].Flags&PMFLAGS_DETAILEDSTATUS)!=0);
+				fwprintf(fp,L"\t\tAlignExtensions   =%d\n",(Info->PanelModesArray[I].Flags&PMFLAGS_ALIGNEXTENSIONS)!=0);
+				fwprintf(fp,L"\t\tCaseConversion    =%d\n",(Info->PanelModesArray[I].Flags&PMFLAGS_CASECONVERSION)!=0);
 				fwprintf(fp,L"\t\tStatusColumnTypes ='%s'\n",NullToEmpty(Info->PanelModesArray[I].StatusColumnTypes));
 				fwprintf(fp,L"\t\tStatusColumnWidths='%s'\n",NullToEmpty(Info->PanelModesArray[I].StatusColumnWidths));
 			}

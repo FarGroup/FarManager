@@ -1,3 +1,9 @@
+drkns 13.02.2011 00:39:44 +0200 - build 1864
+
+1. Исправлена debug-сборка.
+
+2. ACTL_GETPOLICIES больше нет.
+
 zg 12.02.2011 23:57:50 +0200 - build 1863
 
 1. в PanelMode добавилось поле StructSize.

@@ -3660,7 +3660,6 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 		}
 		case oldfar::ACTL_REMOVEMEDIA:
 		case oldfar::ACTL_GETMEDIATYPE:
-		case oldfar::ACTL_GETPOLICIES:
 			return FALSE;
 		case oldfar::ACTL_REDRAWALL:
 			return FarAdvControl(ModuleNumber, ACTL_REDRAWALL, 0);
