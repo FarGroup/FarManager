@@ -510,6 +510,7 @@ bool Archive::ExecuteCommand(
 				apiExpandEnvironmentStrings(strExecuteString, strExecuteString);
 
 				HANDLE hScreen = Info.SaveScreen(0, 0, -1, -1);
+				Info.Control(INVALID_HANDLE_VALUE, FCTL_GETUSERSCREEN, 0, 0);
 
 				if ( CreateProcess (
 						NULL,
@@ -540,6 +541,8 @@ bool Archive::ExecuteCommand(
 					strError.Format(_T("CreateProcess failed - %d\n%s"), GetLastError(), strExecuteString.GetString());
 					msgError(strError);
 				}
+
+				Info.Control(INVALID_HANDLE_VALUE, FCTL_SETUSERSCREEN, 0, 0);
 
 				Info.RestoreScreen(NULL);
 				Info.RestoreScreen(hScreen);

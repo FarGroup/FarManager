@@ -224,10 +224,13 @@ int __stdcall EXP_NAME(PutFiles) (
 		int OpMode
 		)
 {
-	return pPanel->pPutFiles (
+	return pPanel->pPutFiles(
 			PanelItem,
 			ItemsNumber,
 			Move,
+#ifdef UNICODE
+			SrcPath,
+#endif
 			OpMode
 			);
 }
@@ -239,7 +242,7 @@ int __stdcall EXP_NAME(DeleteFiles) (
 		int OpMode
 		)
 {
-	return pPanel->pDeleteFiles (
+	return pPanel->pDeleteFiles(
 			PanelItem,
 			ItemsNumber,
 			OpMode

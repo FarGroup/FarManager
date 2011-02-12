@@ -186,5 +186,13 @@
 - инициализация в MA [Maximus5]
 - PCTL_FORCEDLOAD.
 - частично временные меры в MA [Maximus5]
-- новая сигнатура NTFS, экспериментально. [TS, Maximus5]
+- новая сигнатура NTFS. [TS, Maximus5]
 - GetMinFarVersion
+
+13.02.2011
+
+- параметр в PutFiles потерялся [NA, Maximus5]
+- мелкие изменения в диалогах [NA, Maximus5]
+- часть правки по lng [NA, Maximus5]
+- UserScreen, экспериментально [NA, Maximus5]
+- не падаем на архивах нулевого размера, плохой метод [NA, TS]

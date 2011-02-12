@@ -365,13 +365,18 @@ bool dlgModifyCreateArchive(
 	D.Button (67, 7, _T("[*]")); //10
 	D.SetFlags(DIF_BTNNOCLOSE);
 
-	D.Text (9, 9, _M(MCreateArchiveArchiver));//11
-	D.ComboBox (19, 9, 15, NULL/*, 0, _T("123")*/);//12
+	D.Text (8, 9, _M(MCreateArchiveArchiver));//11
+	D.ComboBox (18, 9, 18, NULL/*, 0, _T("123")*/);//12
+//	D.Text (9, 9, _M(MCreateArchiveArchiver));//11
+//	D.ComboBox (19, 9, 15, NULL/*, 0, _T("123")*/);//12
 ///	D->ListBox (50, 5, 65, 10, NULL);
 	D.SetFlags (DIF_DROPDOWNLIST);
 
-	D.Text (37, 9, _M(MCreateArchiveAdditionalParams));//13
-	D.Edit (52, 9, 18, NULL, AUTO_LENGTH, _T("adsaf"));//14
+	D.Text (38, 9, _M(MCreateArchiveAdditionalParams));//13
+	D.Edit (53, 9, 17, NULL, AUTO_LENGTH, _T("adsaf"));//14
+
+//	D.Text (37, 9, _M(MCreateArchiveAdditionalParams));//13
+//	D.Edit (52, 9, 18, NULL, AUTO_LENGTH, _T("adsaf"));//14
 
 	D.Separator (10); //15
 

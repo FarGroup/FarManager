@@ -464,6 +464,9 @@ int ArchivePanel::pPutFiles(
 		const PluginPanelItem *PanelItem,
 		int ItemsNumber,
 		int Move,
+#ifdef UNICODE
+		const wchar_t* SrcPath,
+#endif
 		int OpMode
 		)
 {
@@ -556,7 +559,7 @@ int ArchivePanel::pPutFiles(
 	else
 	{
 		GetPanelItemsToProcess(PanelItem, ItemsNumber, items);
-		bResult = AddFiles(items, info.GetCurrentDirectory());
+		bResult = AddFiles(items, SrcPath ? SrcPath : info.GetCurrentDirectory());
 	}
 
 	return bResult;

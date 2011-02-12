@@ -216,8 +216,8 @@ MCreateArchiveArchiverSettings
 "Archiver setup:"
 
 MCreateArchiveTemplate
-"Шаблон:"
-"Template:"
+"&Шаблон:"
+"&Template:"
 
 MCreateArchiveDirectSettings
 "Непосредственные настройки:"
@@ -232,20 +232,20 @@ MCreateArchiveAdditionalParams
 "Additional params"
 
 MCreateArchivePassword
-"Пароль"
-"Password"
+"&Пароль"
+"&Password"
 
 MCreateArchiveConfirmPassword
-"&Подтверждение пароля"
-"&Password confirmation"
+"Подтверждение пароля"
+"Password confirmation"
 
 MCreateArchiveExactFilename
-"Точное соответствие имени файла"
-"Exact filename"
+"&Точное соответствие имени файла"
+"&Exact filename"
 
 MCreateArchiveEachFileInSeparateArchive
-"Каждый элемент в отдельный архив"
-"Each file in separate archive"
+"&Каждый элемент в отдельный архив"
+"Each file in &separate archive"
 
 MCreateArchiveAdd
 "Добавить"
@@ -324,16 +324,16 @@ MModifyTemplateTitle
 "Modify template"
 
 MAddTemplateName
-"Имя шаблона"
-"Template name"
+"&Имя шаблона"
+"Template &name"
 
 MAddTemplateFormat
 "Формат"
 "Format"
 
 MAddTemplateAdditionalParams
-"Дополнительные параметры"
-"Additional params"
+"Д&ополнительные параметры"
+"Additional para&eters"
 
 MAddTemplateAdd
 "Добавить"

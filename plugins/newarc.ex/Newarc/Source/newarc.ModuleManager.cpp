@@ -89,13 +89,20 @@ void ArchiveModuleManager::SetCurrentLanguage(const TCHAR* lpLanguage)
 
 //бля, это пиздец
 int ArchiveModuleManager::QueryArchives(
-		const TCHAR *lpFileName,
-		const unsigned char *pBuffer,
+		const TCHAR* lpFileName,
+		const unsigned char* pBuffer,
 		DWORD dwBufferSize,
 		Array<ArchiveFormat*>& result
 		)
 {
 	bool bStopped = false;
+
+	//BADBAD
+	if ( !dwBufferSize )
+	{
+		result.reset();
+		return 0;
+	};
 
 	Array<ArchiveFilterEntry*> filters;
 

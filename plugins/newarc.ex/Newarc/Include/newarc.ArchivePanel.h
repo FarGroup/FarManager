@@ -46,7 +46,17 @@ public:
 	int pMakeDirectory(const TCHAR* lpDirectory, int nOpMode);
 
 	int pGetFiles(const PluginPanelItem *PanelItem, int ItemsNumber, int Move, const TCHAR *DestPath, int OpMode);
-	int pPutFiles(const PluginPanelItem *PanelItem, int ItemsNumber, int Move, int OpMode);
+	
+	int pPutFiles(
+			const PluginPanelItem *PanelItem, 
+			int ItemsNumber, 
+			int Move, 
+#ifdef UNICODE
+			const wchar_t* SrcPath,
+#endif
+			int OpMode
+			);
+
 	int pDeleteFiles(const PluginPanelItem *PanelItem, int ItemsNumber, int OpMode);
 
 	int pProcessHostFile(const PluginPanelItem *PanelItem, int ItemsNumber, int OpMode);

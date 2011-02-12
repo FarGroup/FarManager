@@ -15,7 +15,7 @@ enum enumAddEditTemplate {
 };
 
 
-LONG_PTR __stdcall hndAddEditTemplate (
+LONG_PTR __stdcall hndAddEditTemplate(
 		FarDialog *D,
 		int nMsg,
 		int nParam1,
@@ -120,7 +120,8 @@ bool dlgAddEditTemplate(ArchiveTemplate *ptpl, bool bAdd)
 //	else
 //	{
 		D.Text(22, 5, _M(MAddTemplateAdditionalParams)); //6
-		D.Edit(22, 6, 27); //7
+		D.Edit(22, 6, 27, NULL, AUTO_LENGTH, _T("adsaf")); //7
+		//D.Edit(22, 6, 27); //7
 //	}
 
 	D.Separator(7); //8
