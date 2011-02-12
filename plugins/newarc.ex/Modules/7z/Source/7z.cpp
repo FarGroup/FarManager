@@ -153,7 +153,10 @@ int OnGetDefaultCommand(GetDefaultCommandStruct* pGDC)
 	SevenZipPlugin* pPlugin = pModule->GetPlugin(pGDC->uidPlugin);
 
 	if ( pPlugin )
+	{
 		pGDC->bResult = pPlugin->GetDefaultCommand(pGDC->uidFormat, pGDC->nCommand, &pGDC->lpCommand);
+		pGDC->bEnabledByDefault = true;
+	}
 	else
 		pGDC->bResult = false;
 	
