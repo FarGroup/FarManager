@@ -1,6 +1,6 @@
 EXPORTS
-   GetMinFarVersionW
    ExitFARW
    GetPluginInfoW
    OpenPluginW
    SetStartupInfoW
+   GetGlobalInfoW
