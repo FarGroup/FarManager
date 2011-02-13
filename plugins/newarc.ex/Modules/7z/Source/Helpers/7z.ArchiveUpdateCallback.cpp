@@ -21,6 +21,8 @@ CArchiveUpdateCallback::CArchiveUpdateCallback(
 	m_strPathInArchive = lpPathInArchive;
 
 	m_uItemsNumber = indicies.count();
+
+	m_uSuccessCount = 0;
 }
 
 CArchiveUpdateCallback::~CArchiveUpdateCallback()
@@ -156,6 +158,9 @@ HRESULT __stdcall CArchiveUpdateCallback::GetUpdateItemInfo(
 			*newProperties = 0;
 	}
 
+	if ( !item->bNewFile )
+		m_uSuccessCount++; //???AAAA
+
 	return S_OK;
 }
 
@@ -269,6 +274,7 @@ HRESULT __stdcall CArchiveUpdateCallback::GetStream(unsigned int index, ISequent
 				delete file;
 		}
 	}
+
 
 	return S_OK;
 }
