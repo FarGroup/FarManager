@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 1857
+  Plugin API for Far Manager 3.0 build 1867
 */
 
 /*
@@ -42,7 +42,7 @@ other possible license with no implications from the above license on them.
 
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
-#define FARMANAGERVERSION_BUILD 1857
+#define FARMANAGERVERSION_BUILD 1867
 
 #ifndef RC_INVOKED
 
@@ -83,7 +83,7 @@ enum FARMESSAGEFLAGS
 
 typedef int (WINAPI *FARAPIMESSAGE)(
     const GUID* PluginId,
-    DWORD Flags,
+    unsigned __int64 Flags,
     const wchar_t *HelpTopic,
     const wchar_t * const *Items,
     int ItemsNumber,
@@ -269,16 +269,13 @@ enum FarMessagesProc
 	DN_INITDIALOG,
 	DN_KILLFOCUS,
 	DN_LISTCHANGE,
-	DN_MOUSECLICK,
 	DN_DRAGGED,
 	DN_RESIZECONSOLE,
-	DN_MOUSEEVENT,
 	DN_DRAWDIALOGDONE,
 	DN_LISTHOTKEY,
-
-	DN_CLOSE=DM_CLOSE,
-	DN_KEY=DM_KEY,
-
+	DN_INPUT,
+	DN_CONTROLINPUT,
+	DN_CLOSE,
 
 	DM_USER=0x4000,
 
@@ -318,7 +315,7 @@ enum LISTITEMFLAGS
 
 struct FarListItem
 {
-	DWORD Flags;
+	unsigned __int64 Flags;
 	const wchar_t *Text;
 	DWORD Reserved[3];
 };
@@ -356,7 +353,7 @@ struct FarListFind
 {
 	int StartIndex;
 	const wchar_t *Pattern;
-	DWORD Flags;
+	unsigned __int64 Flags;
 	DWORD Reserved;
 };
 
@@ -377,7 +374,7 @@ enum FARLISTINFOFLAGS
 
 struct FarListInfo
 {
-	DWORD Flags;
+	unsigned __int64 Flags;
 	int ItemsNumber;
 	int SelectPos;
 	int TopPos;
@@ -410,7 +407,7 @@ struct FarListTitles
 
 struct FarListColors
 {
-	DWORD  Flags;
+	unsigned __int64 Flags;
 	DWORD  Reserved;
 	int    ColorCount;
 	LPBYTE Colors;
@@ -462,7 +459,7 @@ struct OpenDlgPluginData
 
 struct DialogInfo
 {
-	int StructSize;
+	size_t StructSize;
 	GUID Id;
 	GUID Owner;
 };
@@ -538,9 +535,9 @@ typedef HANDLE(WINAPI *FARAPIDIALOGINIT)(
     struct FarDialogItem *Item,
     unsigned int          ItemsNumber,
     DWORD                 Reserved,
-    DWORD                 Flags,
+    unsigned __int64      Flags,
     FARWINDOWPROC         DlgProc,
-    INT_PTR              Param
+    INT_PTR               Param
 );
 
 typedef int (WINAPI *FARAPIDIALOGRUN)(
@@ -550,6 +547,12 @@ typedef int (WINAPI *FARAPIDIALOGRUN)(
 typedef void (WINAPI *FARAPIDIALOGFREE)(
     HANDLE hDlg
 );
+
+struct FarKey
+{
+    WORD VirtualKeyCode;
+    DWORD ControlKeyState;
+};
 
 enum MENUITEMFLAGS
 {
@@ -563,7 +566,7 @@ enum MENUITEMFLAGS
 
 struct FarMenuItem
 {
-	DWORD Flags;
+	unsigned __int64 Flags;
 	const wchar_t *Text;
 	DWORD AccelKey;
 	DWORD Reserved;
@@ -584,11 +587,11 @@ typedef int (WINAPI *FARAPIMENU)(
     int                 X,
     int                 Y,
     int                 MaxHeight,
-    DWORD               Flags,
+    unsigned __int64    Flags,
     const wchar_t      *Title,
     const wchar_t      *Bottom,
     const wchar_t      *HelpTopic,
-    const int          *BreakKeys,
+    const struct FarKey *BreakKeys,
     int                *BreakCode,
     const struct FarMenuItem *Item,
     int                 ItemsNumber
@@ -613,7 +616,7 @@ struct PluginPanelItem
 	unsigned __int64 PackSize;
 	const wchar_t *FileName;
 	const wchar_t *AlternateFileName;
-	DWORD         Flags;
+	unsigned __int64 Flags;
 	DWORD         NumberOfLinks;
 	const wchar_t *Description;
 	const wchar_t *Owner;
@@ -653,7 +656,7 @@ enum PANELINFOTYPE
 
 struct PanelInfo
 {
-	int StructSize;
+	size_t StructSize;
 	GUID OwnerGuid;
 	HANDLE PluginHandle;
 	int PanelType;
@@ -776,7 +779,7 @@ typedef int (WINAPI *FARAPIVIEWER)(
     int Y1,
     int X2,
     int Y2,
-    DWORD Flags,
+    unsigned __int64 Flags,
     UINT CodePage
 );
 
@@ -806,7 +809,7 @@ typedef int (WINAPI *FARAPIEDITOR)(
     int Y1,
     int X2,
     int Y2,
-    DWORD Flags,
+    unsigned __int64 Flags,
     int StartLine,
     int StartChar,
     UINT CodePage
@@ -831,7 +834,7 @@ enum FarHelpFlags
 typedef BOOL (WINAPI *FARAPISHOWHELP)(
     const wchar_t *ModuleName,
     const wchar_t *Topic,
-    DWORD Flags
+    unsigned __int64 Flags
 );
 
 enum ADVANCED_CONTROL_COMMANDS
@@ -855,7 +858,6 @@ enum ADVANCED_CONTROL_COMMANDS
 	ACTL_SETARRAYCOLOR,
 	ACTL_GETPLUGINMAXREADDATA,
 	ACTL_GETDIALOGSETTINGS,
-	ACTL_GETSHORTWINDOWINFO,
 	ACTL_REDRAWALL,
 	ACTL_SYNCHRO,
 	ACTL_SETPROGRESSSTATE,
@@ -865,10 +867,10 @@ enum ADVANCED_CONTROL_COMMANDS
 	ACTL_GETCURSORPOS,
 	ACTL_SETCURSORPOS,
 	ACTL_PROGRESSNOTIFY,
+	ACTL_GETWINDOWTYPE,
 
 
 };
-
 
 enum FarSystemSettings
 {
@@ -956,7 +958,7 @@ enum FAREJECTMEDIAFLAGS
 struct ActlEjectMedia
 {
 	DWORD Letter;
-	DWORD Flags;
+	unsigned __int64 Flags;
 };
 
 
@@ -1034,7 +1036,7 @@ enum FARMACROPARSEERRORCODE
 
 struct MacroParseResult
 {
-	int StructSize;
+	size_t StructSize;
 	DWORD ErrCode;
 	COORD ErrPos;
 	const wchar_t *ErrSrc;
@@ -1043,8 +1045,8 @@ struct MacroParseResult
 
 struct MacroSendMacroText
 {
-	int StructSize;
-	DWORD Flags;
+	size_t StructSize;
+	unsigned __int64 Flags;
 	DWORD AKey;
 	const wchar_t *SequenceText;
 };
@@ -1052,8 +1054,8 @@ struct MacroSendMacroText
 struct MacroCheckMacroText
 {
 	union {
-		MacroSendMacroText Text;
-		MacroParseResult   Result;
+		struct MacroSendMacroText Text;
+		struct MacroParseResult   Result;
 	} Check;
 };
 
@@ -1065,7 +1067,7 @@ enum FARCOLORFLAGS
 
 struct FarSetColors
 {
-	DWORD Flags;
+	unsigned __int64 Flags;
 	int StartIndex;
 	int ColorCount;
 	LPBYTE Colors;
@@ -1089,7 +1091,7 @@ enum WINDOWINFO_FLAGS
 
 struct WindowInfo
 {
-	int  StructSize;
+	size_t StructSize;
 	INT_PTR Id;
 	int  Pos;
 	int  Type;
@@ -1098,6 +1100,12 @@ struct WindowInfo
 	int TypeNameSize;
 	wchar_t *Name;
 	int NameSize;
+};
+
+struct WindowType
+{
+	size_t StructSize;
+	long Type;
 };
 
 enum PROGRESSTATE
@@ -1159,7 +1167,7 @@ struct ViewerSetMode
 		int iParam;
 		wchar_t *wszParam;
 	} Param;
-	DWORD Flags;
+	unsigned __int64 Flags;
 	DWORD Reserved;
 };
 
@@ -1179,7 +1187,7 @@ enum VIEWER_SETPOS_FLAGS
 
 struct ViewerSetPosition
 {
-	DWORD Flags;
+	unsigned __int64 Flags;
 	__int64 StartPos;
 	__int64 LeftPos;
 };
@@ -1195,7 +1203,7 @@ struct ViewerMode
 
 struct ViewerInfo
 {
-	int    StructSize;
+	size_t StructSize;
 	int    ViewerID;
 	const wchar_t *FileName;
 	__int64 FileSize;
@@ -1317,7 +1325,7 @@ struct EditorSetParameter
 		wchar_t *wszParam;
 		DWORD Reserved1;
 	} Param;
-	DWORD Flags;
+	unsigned __int64 Flags;
 	DWORD Size;
 };
 
@@ -1502,7 +1510,7 @@ typedef int (WINAPI *FARAPIINPUTBOX)(
     wchar_t *DestText,
     int   DestLength,
     const wchar_t *HelpTopic,
-    DWORD Flags
+    unsigned __int64 Flags
 );
 
 typedef int (WINAPI *FARAPIMACROSCONTROL)(
@@ -1595,7 +1603,7 @@ enum XLATMODE
 
 typedef size_t (WINAPI *FARSTDKEYTOKEYNAME)(int Key,wchar_t *KeyText,size_t Size);
 
-typedef wchar_t*(WINAPI *FARSTDXLAT)(wchar_t *Line,int StartPos,int EndPos,DWORD Flags);
+typedef wchar_t*(WINAPI *FARSTDXLAT)(wchar_t *Line,int StartPos,int EndPos,unsigned __int64 Flags);
 
 typedef int (WINAPI *FARSTDKEYNAMETOKEY)(const wchar_t *Name);
 
@@ -1612,7 +1620,7 @@ enum FRSMODE
 	FRS_SCANSYMLINK          = 0x04,
 };
 
-typedef void (WINAPI *FARSTDRECURSIVESEARCH)(const wchar_t *InitDir,const wchar_t *Mask,FRSUSERFUNC Func,DWORD Flags,void *Param);
+typedef void (WINAPI *FARSTDRECURSIVESEARCH)(const wchar_t *InitDir,const wchar_t *Mask,FRSUSERFUNC Func,unsigned __int64 Flags,void *Param);
 typedef int (WINAPI *FARSTDMKTEMP)(wchar_t *Dest, DWORD size, const wchar_t *Prefix);
 typedef void (WINAPI *FARSTDDELETEBUFFER)(void *Buffer);
 
@@ -1628,7 +1636,7 @@ enum MKLINKOP
 	FLINK_SHOWERRMSG       = 0x10000,
 	FLINK_DONOTUPDATEPANEL = 0x20000,
 };
-typedef int (WINAPI *FARSTDMKLINK)(const wchar_t *Src,const wchar_t *Dest,DWORD Flags);
+typedef int (WINAPI *FARSTDMKLINK)(const wchar_t *Src,const wchar_t *Dest,unsigned __int64 Flags);
 typedef int (WINAPI *FARGETREPARSEPOINTINFO)(const wchar_t *Src, wchar_t *Dest,int DestSize);
 
 enum CONVERTPATHMODES
@@ -1644,7 +1652,7 @@ typedef DWORD (WINAPI *FARGETCURRENTDIRECTORY)(DWORD Size,wchar_t* Buffer);
 
 typedef struct FarStandardFunctions
 {
-	int StructSize;
+	size_t StructSize;
 
 	FARSTDATOI                 atoi;
 	FARSTDATOI64               atoi64;
@@ -1707,7 +1715,7 @@ typedef struct FarStandardFunctions
 
 struct PluginStartupInfo
 {
-	int StructSize;
+	size_t StructSize;
 	const wchar_t *ModuleName;
 	const wchar_t *RootKey;
 	FARAPIMENU             Menu;
@@ -1764,7 +1772,7 @@ struct PluginMenuItem
 
 struct GlobalInfo
 {
-	int StructSize;
+	size_t StructSize;
 	DWORD MinFarVersion;
 	DWORD Version;
 	GUID Guid;
@@ -1775,11 +1783,11 @@ struct GlobalInfo
 
 struct PluginInfo
 {
-	int StructSize;
+	size_t StructSize;
 	unsigned __int64 Flags;
-	PluginMenuItem DiskMenu;
-	PluginMenuItem PluginMenu;
-	PluginMenuItem PluginConfig;
+	struct PluginMenuItem DiskMenu;
+	struct PluginMenuItem PluginMenu;
+	struct PluginMenuItem PluginConfig;
 	const wchar_t *CommandPrefix;
 };
 
@@ -1792,18 +1800,23 @@ struct InfoPanelLine
 	int  Separator;
 };
 
+enum PANELMODE_FLAGS
+{
+	PMFLAGS_FULLSCREEN      = 0x00000001,
+	PMFLAGS_DETAILEDSTATUS  = 0x00000002,
+	PMFLAGS_ALIGNEXTENSIONS = 0x00000004,
+	PMFLAGS_CASECONVERSION  = 0x00000008,
+};
+
 struct PanelMode
 {
+	size_t StructSize;
 	const wchar_t *ColumnTypes;
 	const wchar_t *ColumnWidths;
 	const wchar_t * const *ColumnTitles;
-	int    FullScreen;
-	int    DetailedStatus;
-	int    AlignExtensions;
-	int    CaseConversion;
 	const wchar_t *StatusColumnTypes;
 	const wchar_t *StatusColumnWidths;
-	DWORD  Reserved[2];
+	unsigned __int64 Flags;
 };
 
 
@@ -1852,7 +1865,7 @@ enum OPENPLUGININFO_SORTMODES
 
 struct KeyBarLabel
 {
-	DWORD Key;
+	struct FarKey Key;
 	const wchar_t *Text;
 	const wchar_t *LongText;
 };
@@ -1877,8 +1890,8 @@ enum OPERATION_MODES
 
 struct OpenPluginInfo
 {
-	int                          StructSize;
-	DWORD                        Flags;
+	size_t                       StructSize;
+	unsigned __int64             Flags;
 	const wchar_t               *HostFile;
 	const wchar_t               *CurDir;
 	const wchar_t               *Format;
