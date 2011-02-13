@@ -1903,7 +1903,7 @@ bool PluginManager::GetDiskMenuItem(
 		string strRegKey, strValue, guidValue, guidName;
 		strRegKey.Format(FmtPluginsCache_PluginS, pPlugin->GetCacheName());
 		strValue.Format(FmtDiskMenuStringD,PluginItem);
-		guidValue.Format(FmtPluginConfigGuidD,PluginItem);
+		guidValue.Format(FmtDiskMenuGuidD,PluginItem);
 		GetRegKey(strRegKey,strValue,strPluginText,L"");
 		if (GetRegKey(strRegKey, guidValue, guidName, L"")&&StrToGuid(guidName,Guid)) ItemPresent=true;
 		ItemPresent=ItemPresent&&!strPluginText.IsEmpty();
