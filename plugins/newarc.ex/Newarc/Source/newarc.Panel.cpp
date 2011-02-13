@@ -559,7 +559,12 @@ int ArchivePanel::pPutFiles(
 	else
 	{
 		GetPanelItemsToProcess(PanelItem, ItemsNumber, items);
+
+#ifdef UNICODE
 		bResult = AddFiles(items, SrcPath ? SrcPath : info.GetCurrentDirectory());
+#else
+		bResult = AddFiles(items, info.GetCurrentDirectory());
+#endif
 	}
 
 	return bResult;

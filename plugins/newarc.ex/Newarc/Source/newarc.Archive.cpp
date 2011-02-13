@@ -510,8 +510,12 @@ bool Archive::ExecuteCommand(
 				apiExpandEnvironmentStrings(strExecuteString, strExecuteString);
 
 				HANDLE hScreen = Info.SaveScreen(0, 0, -1, -1);
-				Info.Control(INVALID_HANDLE_VALUE, FCTL_GETUSERSCREEN, 0, 0);
 
+#ifdef UNICODE
+				Info.Control(INVALID_HANDLE_VALUE, FCTL_GETUSERSCREEN, 0, 0);
+#else
+				Info.Control(INVALID_HANDLE_VALUE, FCTL_GETUSERSCREEN, 0);
+#endif
 				if ( CreateProcess (
 						NULL,
 						strExecuteString.GetBuffer(),
@@ -542,7 +546,11 @@ bool Archive::ExecuteCommand(
 					msgError(strError);
 				}
 
+#ifdef UNICODE
 				Info.Control(INVALID_HANDLE_VALUE, FCTL_SETUSERSCREEN, 0, 0);
+#else
+				Info.Control(INVALID_HANDLE_VALUE, FCTL_SETUSERSCREEN, 0);
+#endif
 
 				Info.RestoreScreen(NULL);
 				Info.RestoreScreen(hScreen);
