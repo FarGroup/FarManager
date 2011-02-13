@@ -10,4 +10,4 @@ DOCS = DrawEng.hlf DrawRus.hlf DrawEng.lng DrawRus.lng
 
 !include ..\makefile_vc_target_inc
 
-$(OBJDIR)\DrawLine.obj: DrawLine.cpp drawlng.hpp drawline.hpp $(COMINC)\plugin.hpp
+$(OBJDIR)\DrawLine.obj: DrawLine.cpp DrawLng.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp

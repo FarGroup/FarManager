@@ -1,5 +1,5 @@
 EXPORTS 
-   GetMinFarVersionW
    GetPluginInfoW
    OpenPluginW
    SetStartupInfoW
+   GetGlobalInfoW
