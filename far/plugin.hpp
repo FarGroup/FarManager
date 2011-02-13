@@ -297,8 +297,7 @@ enum FarMessagesProc
 	DN_LISTHOTKEY,
 	DN_INPUT,
 	DN_CONTROLINPUT,
-
-	DN_CLOSE=DM_CLOSE,
+	DN_CLOSE,
 
 	DM_USER=0x4000,
 
@@ -487,7 +486,7 @@ struct OpenDlgPluginData
 
 struct DialogInfo
 {
-	int StructSize;
+	unsigned StructSize;
 	GUID Id;
 	GUID Owner;
 };
@@ -698,7 +697,7 @@ enum PANELINFOTYPE
 
 struct PanelInfo
 {
-	int StructSize;
+	unsigned StructSize;
 	GUID OwnerGuid;
 	HANDLE PluginHandle;
 	int PanelType;
@@ -1141,7 +1140,7 @@ enum FARMACROPARSEERRORCODE
 
 struct MacroParseResult
 {
-	int StructSize;
+	unsigned StructSize;
 	DWORD ErrCode;
 	COORD ErrPos;
 	const wchar_t *ErrSrc;
@@ -1150,7 +1149,7 @@ struct MacroParseResult
 
 struct MacroSendMacroText
 {
-	int StructSize;
+	unsigned StructSize;
 	DWORD Flags;
 	DWORD AKey;
 	const wchar_t *SequenceText;
@@ -1238,7 +1237,7 @@ enum WINDOWINFO_FLAGS
 
 struct WindowInfo
 {
-	int  StructSize;
+	unsigned StructSize;
 	INT_PTR Id;
 	int  Pos;
 	int  Type;
@@ -1350,7 +1349,7 @@ struct ViewerMode
 
 struct ViewerInfo
 {
-	int    StructSize;
+	unsigned StructSize;
 	int    ViewerID;
 	const wchar_t *FileName;
 	__int64 FileSize;
@@ -1817,7 +1816,7 @@ typedef DWORD (WINAPI *FARGETCURRENTDIRECTORY)(DWORD Size,wchar_t* Buffer);
 
 typedef struct FarStandardFunctions
 {
-	int StructSize;
+	unsigned StructSize;
 
 	FARSTDATOI                 atoi;
 	FARSTDATOI64               atoi64;
@@ -1880,7 +1879,7 @@ typedef struct FarStandardFunctions
 
 struct PluginStartupInfo
 {
-	int StructSize;
+	unsigned StructSize;
 	const wchar_t *ModuleName;
 	const wchar_t *RootKey;
 	FARAPIMENU             Menu;
@@ -1937,7 +1936,7 @@ struct PluginMenuItem
 
 struct GlobalInfo
 {
-	int StructSize;
+	unsigned StructSize;
 	DWORD MinFarVersion;
 	DWORD Version;
 	GUID Guid;
@@ -1948,7 +1947,7 @@ struct GlobalInfo
 
 struct PluginInfo
 {
-	int StructSize;
+	unsigned StructSize;
 	unsigned __int64 Flags;
 	PluginMenuItem DiskMenu;
 	PluginMenuItem PluginMenu;
@@ -2061,7 +2060,7 @@ enum OPERATION_MODES
 
 struct OpenPluginInfo
 {
-	int                          StructSize;
+	unsigned                     StructSize;
 	DWORD                        Flags;
 	const wchar_t               *HostFile;
 	const wchar_t               *CurDir;

@@ -4462,12 +4462,13 @@ void Dialog::Process()
 	}
 }
 
-void Dialog::CloseDialog()
+INT_PTR Dialog::CloseDialog()
 {
 	CriticalSectionLock Lock(CS);
 	GetDialogObjectsData();
 
-	if (DlgProc((HANDLE)this,DN_CLOSE,ExitCode,0))
+	INT_PTR result=DlgProc((HANDLE)this,DN_CLOSE,ExitCode,0);
+	if (result)
 	{
 		DialogMode.Set(DMODE_ENDLOOP);
 		Hide();
@@ -4480,6 +4481,7 @@ void Dialog::CloseDialog()
 
 		_DIALOG(CleverSysLog CL(L"Close Dialog"));
 	}
+	return result;
 }
 
 
@@ -4659,7 +4661,7 @@ INT_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 	{
 		case DN_INITDIALOG:
 			return FALSE; // изменений не было!
-		case DM_CLOSE:
+		case DN_CLOSE:
 			return TRUE;  // согласен с закрытием
 		case DN_KILLFOCUS:
 			return -1;    // "Согласен с потерей фокуса"
@@ -5013,8 +5015,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 			else
 				Dlg->ExitCode=Param1;
 
-			Dlg->CloseDialog();
-			return TRUE;  // согласен с закрытием
+			return Dlg->CloseDialog();
 		}
 		/*****************************************************************/
 		case DM_GETDLGRECT:
