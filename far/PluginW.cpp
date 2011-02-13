@@ -199,14 +199,14 @@ static int WINAPI FarGetPluginDirListW(const GUID* PluginId,HANDLE hPlugin,
 }
 
 static int WINAPI FarMenuFnW(const GUID* PluginId,int X,int Y,int MaxHeight,
-                     DWORD Flags,const wchar_t *Title,const wchar_t *Bottom,
+                     unsigned __int64 Flags,const wchar_t *Title,const wchar_t *Bottom,
                      const wchar_t *HelpTopic,const FarKey *BreakKeys,int *BreakCode,
                      const struct FarMenuItem *Item, int ItemsNumber)
 {
 	return FarMenuFn(GetPluginNumber(PluginId),X,Y,MaxHeight,Flags,Title,Bottom,HelpTopic,BreakKeys,BreakCode,Item,ItemsNumber);
 }
 
-static int WINAPI FarMessageFnW(const GUID* PluginId,DWORD Flags,
+static int WINAPI FarMessageFnW(const GUID* PluginId,unsigned __int64 Flags,
                         const wchar_t *HelpTopic,const wchar_t * const *Items,int ItemsNumber,
                         int ButtonsNumber)
 {
@@ -216,7 +216,7 @@ static int WINAPI FarMessageFnW(const GUID* PluginId,DWORD Flags,
 static int WINAPI FarInputBoxW(const GUID* PluginId,const wchar_t *Title,const wchar_t *Prompt,
                        const wchar_t *HistoryName,const wchar_t *SrcText,
                        wchar_t *DestText,int DestLength,
-                       const wchar_t *HelpTopic,DWORD Flags)
+                       const wchar_t *HelpTopic,unsigned __int64 Flags)
 {
 	return FarInputBox(GetPluginNumber(PluginId),Title,Prompt,HistoryName,SrcText,DestText,DestLength,HelpTopic,Flags);
 }
@@ -253,7 +253,7 @@ static INT_PTR WINAPI FarAdvControlW(const GUID* PluginId, int Command, void *Pa
 
 static HANDLE WINAPI FarDialogInitW(const GUID* PluginId, const GUID* Id, int X1, int Y1, int X2, int Y2,
                             const wchar_t *HelpTopic, struct FarDialogItem *Item,
-                            unsigned int ItemsNumber, DWORD Reserved, DWORD Flags,
+                            unsigned int ItemsNumber, DWORD Reserved, unsigned __int64 Flags,
                             FARWINDOWPROC Proc, INT_PTR Param)
 {
 	return FarDialogInit(GetPluginNumber(PluginId),Id,X1,Y1,X2,Y2,HelpTopic,Item,ItemsNumber,Reserved,Flags,Proc,Param);

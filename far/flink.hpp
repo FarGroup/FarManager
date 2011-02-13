@@ -45,7 +45,7 @@ enum ReparsePointTypes
 };
 
 int   WINAPI MkHardLink(const wchar_t *ExistingName,const wchar_t *NewName);
-int   WINAPI FarMkLink(const wchar_t *Src,const wchar_t *Dest,DWORD Flags);
+int   WINAPI FarMkLink(const wchar_t *Src,const wchar_t *Dest,unsigned __int64 Flags);
 
 int   WINAPI GetNumberOfLinks(const wchar_t *Name);
 bool WINAPI CreateVolumeMountPoint(const wchar_t *TargetVolume, const wchar_t *Object);

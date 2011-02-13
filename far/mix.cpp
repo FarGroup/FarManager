@@ -82,7 +82,7 @@ int ToPercent64(unsigned __int64 N1, unsigned __int64 N2)
         зап€тыми или точкой с зап€той, можно указывать маски исключени€,
         можно заключать маски в кавычки.  ороче, все как и должно быть :-)
 */
-void WINAPI FarRecursiveSearch(const wchar_t *InitDir,const wchar_t *Mask,FRSUSERFUNC Func,DWORD Flags,void *Param)
+void WINAPI FarRecursiveSearch(const wchar_t *InitDir,const wchar_t *Mask,FRSUSERFUNC Func,unsigned __int64 Flags,void *Param)
 {
 	if (Func && InitDir && *InitDir && Mask && *Mask)
 	{

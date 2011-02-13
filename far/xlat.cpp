@@ -54,7 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 wchar_t* WINAPI Xlat(wchar_t *Line,
                      int StartPos,
                      int EndPos,
-                     DWORD Flags)
+                     unsigned __int64 Flags)
 {
 	wchar_t Chr,ChrOld;
 	int PreLang=2,CurLang=2; // unknown

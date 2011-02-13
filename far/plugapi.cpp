@@ -144,7 +144,7 @@ int WINAPI FarInputBox(
     wchar_t *DestText,
     int DestLength,
     const wchar_t *HelpTopic,
-    DWORD Flags
+    unsigned __int64 Flags
 )
 {
 	if (FrameManager->ManagerIsDown())
@@ -160,7 +160,7 @@ int WINAPI FarInputBox(
 BOOL WINAPI FarShowHelp(
     const wchar_t *ModuleName,
     const wchar_t *HelpTopic,
-    DWORD Flags
+    unsigned __int64 Flags
 )
 {
 	if (FrameManager->ManagerIsDown())
@@ -729,7 +729,7 @@ int WINAPI FarMenuFn(
     int X,
     int Y,
     int MaxHeight,
-    DWORD Flags,
+    unsigned __int64 Flags,
     const wchar_t *Title,
     const wchar_t *Bottom,
     const wchar_t *HelpTopic,
@@ -924,7 +924,7 @@ static int FarDialogExSehed(Dialog *FarDialog)
 
 HANDLE WINAPI FarDialogInit(INT_PTR PluginNumber, const GUID* Id, int X1, int Y1, int X2, int Y2,
                             const wchar_t *HelpTopic, FarDialogItem *Item,
-                            unsigned int ItemsNumber, DWORD Reserved, DWORD Flags,
+                            unsigned int ItemsNumber, DWORD Reserved, unsigned __int64 Flags,
                             FARWINDOWPROC DlgProc, INT_PTR Param)
 {
 	HANDLE hDlg=INVALID_HANDLE_VALUE;
@@ -1046,7 +1046,7 @@ const wchar_t* WINAPI FarGetMsgFn(INT_PTR PluginHandle,int MsgId)
 	return L"";
 }
 
-int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,const wchar_t *HelpTopic,
+int WINAPI FarMessageFn(INT_PTR PluginNumber,unsigned __int64 Flags,const wchar_t *HelpTopic,
                         const wchar_t * const *Items,int ItemsNumber,
                         int ButtonsNumber)
 {
@@ -1785,7 +1785,7 @@ void WINAPI FarFreePluginDirList(PluginPanelItem *PanelItem, int ItemsNumber)
 }
 
 int WINAPI FarViewer(const wchar_t *FileName,const wchar_t *Title,
-                     int X1,int Y1,int X2, int Y2,DWORD Flags, UINT CodePage)
+                     int X1,int Y1,int X2, int Y2,unsigned __int64 Flags, UINT CodePage)
 {
 	if (FrameManager->ManagerIsDown())
 		return FALSE;
@@ -1867,7 +1867,7 @@ int WINAPI FarEditor(
     int Y1,
     int X2,
     int Y2,
-    DWORD Flags,
+    unsigned __int64 Flags,
     int StartLine,
     int StartChar,
     UINT CodePage
