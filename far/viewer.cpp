@@ -2839,7 +2839,7 @@ bool Viewer::vgetc(WCHAR& C)
 #define RB_HEX 4
 #define RB_DEC 5
 
-void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
+void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 {
 	__int64 Relative=0;
 	const wchar_t *LineHistoryName=L"ViewerOffset";

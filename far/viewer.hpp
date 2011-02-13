@@ -233,7 +233,7 @@ class Viewer:public ScreenObject
 		int  ViewerControl(int Command,void *Param);
 		void SetHostFileViewer(FileViewer *Viewer) {HostFileViewer=Viewer;};
 
-		void GoTo(int ShowDlg=TRUE,__int64 NewPos=0,DWORD Flags=0);
+		void GoTo(int ShowDlg=TRUE,__int64 NewPos=0,UINT64 Flags=0);
 		void GetSelectedParam(__int64 &Pos, __int64 &Length, DWORD &Flags);
 		// Функция выделения - как самостоятельная функция
 		void SelectText(const __int64 &MatchPos,const __int64 &SearchLength, const DWORD Flags=0x1);

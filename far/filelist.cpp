@@ -364,9 +364,7 @@ int _cdecl SortList(const void *el1,const void *el2)
 
 	if (hSortPlugin)
 	{
-		DWORD SaveFlags1,SaveFlags2;
-		SaveFlags1=SPtr1->UserFlags;
-		SaveFlags2=SPtr2->UserFlags;
+		UINT64 SaveFlags1 = SPtr1->UserFlags ,SaveFlags2 = SPtr2->UserFlags;
 		SPtr1->UserFlags=SPtr2->UserFlags=0;
 		PluginPanelItem pi1,pi2;
 		FileList::FileListToPluginItem(SPtr1,&pi1);
@@ -4570,7 +4568,7 @@ bool FileList::ApplyCommand()
 }
 
 
-void FileList::CountDirSize(DWORD PluginFlags)
+void FileList::CountDirSize(UINT64 PluginFlags)
 {
 	unsigned long DirCount,DirFileCount,ClusterSize;;
 	unsigned __int64 FileSize,CompressedFileSize,RealFileSize;

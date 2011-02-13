@@ -147,7 +147,7 @@ struct TMacroFunction
 
 struct MacroRecord
 {
-	DWORD  Flags;         // Флаги макропоследовательности
+	UINT64  Flags;         // Флаги макропоследовательности
 	int    Key;           // Назначенная клавиша
 	int    BufferSize;    // Размер буфера компилированной последовательности
 	DWORD *Buffer;        // компилированная последовательность (OpCode) макроса
@@ -237,17 +237,17 @@ class KeyMacro
 		void InitInternalLIBVars();
 		void ReleaseWORKBuffer(BOOL All=FALSE); // удалить временный буфер
 
-		DWORD SwitchFlags(DWORD& Flags,DWORD Value);
+		UINT64 SwitchFlags(UINT64& Flags,UINT64 Value);
 		string &MkRegKeyName(int IdxMacro,string &strRegKeyName);
 
-		BOOL CheckEditSelected(DWORD CurFlags);
-		BOOL CheckInsidePlugin(DWORD CurFlags);
-		BOOL CheckPanel(int PanelMode,DWORD CurFlags, BOOL IsPassivePanel);
-		BOOL CheckCmdLine(int CmdLength,DWORD Flags);
-		BOOL CheckFileFolder(Panel *ActivePanel,DWORD CurFlags, BOOL IsPassivePanel);
-		BOOL CheckAll(int CheckMode,DWORD CurFlags);
+		BOOL CheckEditSelected(UINT64 CurFlags);
+		BOOL CheckInsidePlugin(UINT64 CurFlags);
+		BOOL CheckPanel(int PanelMode,UINT64 CurFlags, BOOL IsPassivePanel);
+		BOOL CheckCmdLine(int CmdLength,UINT64 Flags);
+		BOOL CheckFileFolder(Panel *ActivePanel,UINT64 CurFlags, BOOL IsPassivePanel);
+		BOOL CheckAll(int CheckMode,UINT64 CurFlags);
 		void Sort();
-		TVar FARPseudoVariable(DWORD Flags,DWORD Code,DWORD& Err);
+		TVar FARPseudoVariable(UINT64 Flags,DWORD Code,DWORD& Err);
 		DWORD GetOpCode(struct MacroRecord *MR,int PC);
 		DWORD SetOpCode(struct MacroRecord *MR,int PC,DWORD OpCode);
 
@@ -282,7 +282,7 @@ class KeyMacro
 		void RunStartMacro();
 
 		// Поместить временное строковое представление макроса
-		int PostNewMacro(const wchar_t *PlainText,DWORD Flags=0,DWORD AKey=0,BOOL onlyCheck=FALSE);
+		int PostNewMacro(const wchar_t *PlainText,UINT64 Flags=0,DWORD AKey=0,BOOL onlyCheck=FALSE);
 		// Поместить временный рекорд (бинарное представление)
 		int PostNewMacro(struct MacroRecord *MRec,BOOL NeedAddSendFlag=0,BOOL IsPluginSend=FALSE);
 

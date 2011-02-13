@@ -52,7 +52,7 @@ struct FileListItem
 
 	DWORD NumberOfLinks;
 	DWORD NumberOfStreams;
-	DWORD UserFlags;
+	UINT64 UserFlags;
 	DWORD_PTR UserData;
 
 	int Position;
@@ -245,7 +245,7 @@ class FileList:public Panel
 		void ProcessEnter(bool EnableExec,bool SeparateWindow, bool EnableAssoc=true, bool RunAs = false, OPENFILEPLUGINTYPE Type = OFP_NORMAL);
 		// ChangeDir возвращает FALSE, eсли не смогла выставить заданный путь
 		BOOL ChangeDir(const wchar_t *NewDir,BOOL IsUpdated=TRUE);
-		void CountDirSize(DWORD PluginFlags);
+		void CountDirSize(UINT64 PluginFlags);
 		/* $ 19.03.2002 DJ
 		   IgnoreVisible - обновить, даже если панель невидима
 		*/

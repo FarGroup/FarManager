@@ -35,5 +35,5 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "drivemix.hpp"
 
-BOOL EjectVolume(wchar_t Letter,DWORD Flags);
+BOOL EjectVolume(wchar_t Letter,UINT64 Flags);
 bool IsEjectableMedia(wchar_t Letter,UINT DriveType=DRIVE_NOT_INIT,BOOL ForceCDROM=FALSE);

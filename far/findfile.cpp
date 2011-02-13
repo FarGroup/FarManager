@@ -101,7 +101,7 @@ struct ARCLIST
 {
 	string strArcName;
 	HANDLE hPlugin;    // Plugin handle
-	DWORD Flags;       // OpenPluginInfo.Flags
+	UINT64 Flags;       // OpenPluginInfo.Flags
 	string strRootPath; // Root path in plugin after opening.
 };
 
@@ -263,7 +263,7 @@ public:
 		return Result;
 	}
 
-	size_t AddArcListItem(const wchar_t *ArcName,HANDLE hPlugin,DWORD dwFlags,const wchar_t *RootPath)
+	size_t AddArcListItem(const wchar_t *ArcName,HANDLE hPlugin,UINT64 dwFlags,const wchar_t *RootPath)
 	{
 		CriticalSectionLock Lock(DataCS);
 		if ((ArcListCount == ArcListCapacity) && (!ArcListGrow()))
@@ -2620,7 +2620,7 @@ void DoScanTree(HANDLE hDlg, string& strRoot)
 	}
 }
 
-void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, DWORD Flags, int& RecurseLevel)
+void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, UINT64 Flags, int& RecurseLevel)
 {
 	PluginPanelItem *PanelData=nullptr;
 	int ItemCount=0;

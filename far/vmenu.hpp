@@ -96,7 +96,7 @@ class SaveScreen;
 
 struct MenuItemEx
 {
-	DWORD  Flags;                  // Флаги пункта
+	UINT64  Flags;                  // Флаги пункта
 
 	string strName;
 
@@ -114,7 +114,7 @@ struct MenuItemEx
 
 	int   ShowPos;
 
-	DWORD SetCheck(int Value)
+	UINT64 SetCheck(int Value)
 	{
 		if (Value)
 		{
@@ -131,8 +131,8 @@ struct MenuItemEx
 		return Flags;
 	}
 
-	DWORD SetSelect(int Value) { if (Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
-	DWORD SetDisable(int Value) { if (Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
+	UINT64 SetSelect(int Value) { if (Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
+	UINT64 SetDisable(int Value) { if (Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
 
 	void Clear()
 	{
@@ -251,13 +251,13 @@ class VMenu: public Modal
 		int CheckHighlights(wchar_t Chr,int StartPos=0);
 		wchar_t GetHighlights(const struct MenuItemEx *_item);
 		bool ShiftItemShowPos(int Pos,int Direct);
-		bool ItemCanHaveFocus(DWORD Flags);
-		bool ItemCanBeEntered(DWORD Flags);
-		bool ItemIsVisible(DWORD Flags);
+		bool ItemCanHaveFocus(UINT64 Flags);
+		bool ItemCanBeEntered(UINT64 Flags);
+		bool ItemIsVisible(UINT64 Flags);
 		void UpdateMaxLengthFromTitles();
 		void UpdateMaxLength(int Length);
-		void UpdateItemFlags(int Pos, DWORD NewFlags);
-		void UpdateInternalCounters(DWORD OldFlags, DWORD NewFlags);
+		void UpdateItemFlags(int Pos, UINT64 NewFlags);
+		void UpdateInternalCounters(UINT64 OldFlags, UINT64 NewFlags);
 		void RestoreFilteredItems();
 		void FilterStringUpdated(bool bLonger);
 		bool IsFilterEditKey(int Key);
@@ -321,7 +321,7 @@ class VMenu: public Modal
 		int  InsertItem(const FarListInsert *NewItem);
 		int  UpdateItem(const FarListUpdate *NewItem);
 		int  FindItem(const FarListFind *FindItem);
-		int  FindItem(int StartIndex,const wchar_t *Pattern,DWORD Flags=0);
+		int  FindItem(int StartIndex,const wchar_t *Pattern,UINT64 Flags=0);
 
 		int  GetItemCount() { return ItemCount; };
 		int  GetShowItemCount() { return ItemCount-ItemHiddenCount; };

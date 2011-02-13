@@ -565,7 +565,17 @@ void ConvertPanelItemA(const oldfar::PluginPanelItem *PanelItemA, PluginPanelIte
 
 void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::PluginPanelItem &PanelItemA)
 {
-	PanelItemA.Flags = PanelItem.Flags;
+	PanelItemA.Flags = 0;
+
+	if(PanelItem.Flags&PPIF_PROCESSDESCR)
+		PanelItemA.Flags|=oldfar::PPIF_PROCESSDESCR;
+	
+	if(PanelItem.Flags&PPIF_SELECTED)
+		PanelItemA.Flags|=oldfar::PPIF_SELECTED;
+
+	if(PanelItem.Flags&PPIF_USERDATA)
+		PanelItemA.Flags|=oldfar::PPIF_USERDATA;
+
 	PanelItemA.NumberOfLinks=PanelItem.NumberOfLinks;
 
 	if (PanelItem.Description)

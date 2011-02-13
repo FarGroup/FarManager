@@ -151,19 +151,19 @@ void VMenu::ResetCursor()
 }
 
 //может иметь фокус
-bool VMenu::ItemCanHaveFocus(DWORD Flags)
+bool VMenu::ItemCanHaveFocus(UINT64 Flags)
 {
 	return !(Flags&(LIF_DISABLE|LIF_HIDDEN|LIF_SEPARATOR));
 }
 
 //может быть выбран
-bool VMenu::ItemCanBeEntered(DWORD Flags)
+bool VMenu::ItemCanBeEntered(UINT64 Flags)
 {
 	return !(Flags&(LIF_DISABLE|LIF_HIDDEN|LIF_GRAYED|LIF_SEPARATOR));
 }
 
 //видимый
-bool VMenu::ItemIsVisible(DWORD Flags)
+bool VMenu::ItemIsVisible(UINT64 Flags)
 {
 	return !(Flags&(LIF_HIDDEN));
 }
@@ -175,7 +175,7 @@ bool VMenu::UpdateRequired()
 	return CheckFlags(VMENU_UPDATEREQUIRED)!=0;
 }
 
-void VMenu::UpdateInternalCounters(DWORD OldFlags, DWORD NewFlags)
+void VMenu::UpdateInternalCounters(UINT64 OldFlags, UINT64 NewFlags)
 {
 	if (OldFlags&MIF_SUBMENU)
 		ItemSubMenusCount--;
@@ -190,7 +190,7 @@ void VMenu::UpdateInternalCounters(DWORD OldFlags, DWORD NewFlags)
 		ItemHiddenCount++;
 }
 
-void VMenu::UpdateItemFlags(int Pos, DWORD NewFlags)
+void VMenu::UpdateItemFlags(int Pos, UINT64 NewFlags)
 {
 	UpdateInternalCounters(Item[Pos]->Flags, NewFlags);
 
@@ -2782,7 +2782,7 @@ int VMenu::FindItem(const FarListFind *FItem)
 	return FindItem(FItem->StartIndex,FItem->Pattern,FItem->Flags);
 }
 
-int VMenu::FindItem(int StartIndex,const wchar_t *Pattern,DWORD Flags)
+int VMenu::FindItem(int StartIndex,const wchar_t *Pattern,UINT64 Flags)
 {
 	CriticalSectionLock Lock(CS);
 

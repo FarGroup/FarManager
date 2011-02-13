@@ -63,7 +63,7 @@ class CallBackStack
 		{
 			ListNode *Next;
 
-			DWORD Flags;             // флаги
+			UINT64 Flags;             // флаги
 			int   TopStr;            // номер верхней видимой строки темы
 			int   CurX,CurY;         // координаты (???)
 
@@ -112,7 +112,7 @@ static const wchar_t *HelpContents=L"Contents";
 
 static int RunURL(const wchar_t *Protocol, wchar_t *URLPath);
 
-Help::Help(const wchar_t *Topic, const wchar_t *Mask,DWORD Flags):
+Help::Help(const wchar_t *Topic, const wchar_t *Mask,UINT64 Flags):
 	ErrorHelp(TRUE),
 	IsNewTopic(TRUE),
 	MouseDown(FALSE),

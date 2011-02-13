@@ -895,7 +895,7 @@ int KeyMacro::ProcessKey(int Key)
 		{
 			//_KEYMACRO(CleverSysLog Clev(L"MACRO find..."));
 			//_KEYMACRO(SysLog(L"Param Key=%s",_FARKEY_ToName(Key)));
-			DWORD CurFlags;
+			UINT64 CurFlags;
 
 			if ((Key&(~KEY_CTRLMASK)) > 0x01 && (Key&(~KEY_CTRLMASK)) < KEY_FKEY_BEGIN) // 0xFFFF ??
 			{
@@ -989,7 +989,7 @@ int KeyMacro::GetPlainTextSize()
 	return StrLength((wchar_t*)&MR->Buffer[Work.ExecLIBPos]);
 }
 
-TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
+TVar KeyMacro::FARPseudoVariable(UINT64 Flags,DWORD CheckCode,DWORD& Err)
 {
 	_KEYMACRO(CleverSysLog Clev(L"KeyMacro::FARPseudoVariable()"));
 	size_t I;
@@ -4989,7 +4989,7 @@ done:
 				const TMacroFunction *MFunc = KeyMacro::GetMacroFunction(J);
 				if (MFunc->Code == (TMacroOpCode)Key && MFunc->Func)
 				{
-					DWORD Flags=MR->Flags;
+					UINT64 Flags=MR->Flags;
 
 					if (MFunc->IntFlags&IMFF_UNLOCKSCREEN)
 					{
@@ -5094,7 +5094,7 @@ int KeyMacro::PeekKey()
 	return OpCode;
 }
 
-DWORD KeyMacro::SwitchFlags(DWORD& Flags,DWORD Value)
+UINT64 KeyMacro::SwitchFlags(UINT64& Flags,UINT64 Value)
 {
 	if (Flags&Value) Flags&=~Value;
 	else Flags|=Value;
@@ -5820,7 +5820,7 @@ void KeyMacro::RunStartMacro()
 
 	for (int I=0; I < IndexMode[MACRO_SHELL][1]; ++I)
 	{
-		DWORD CurFlags;
+		UINT64 CurFlags;
 
 		if (((CurFlags=MR[I].Flags)&MFLAGS_MODEMASK)==MACRO_SHELL &&
 		        MR[I].BufferSize>0 &&
@@ -6403,7 +6403,7 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 	return TRUE;
 }
 
-int KeyMacro::PostNewMacro(const wchar_t *PlainText,DWORD Flags,DWORD AKey,BOOL onlyCheck)
+int KeyMacro::PostNewMacro(const wchar_t *PlainText,UINT64 Flags,DWORD AKey,BOOL onlyCheck)
 {
 	MacroRecord NewMacroWORK2={0};
 	wchar_t *Buffer=(wchar_t *)PlainText;
@@ -6855,7 +6855,7 @@ int KeyMacro::GetMacroKeyInfo(bool FromReg,int Mode,int Pos, string &strKeyName,
 	return -1;
 }
 
-BOOL KeyMacro::CheckEditSelected(DWORD CurFlags)
+BOOL KeyMacro::CheckEditSelected(UINT64 CurFlags)
 {
 	if (Mode==MACRO_EDITOR || Mode==MACRO_DIALOG || Mode==MACRO_VIEWER || (Mode==MACRO_SHELL&&CtrlObject->CmdLine->IsVisible()))
 	{
@@ -6879,7 +6879,7 @@ BOOL KeyMacro::CheckEditSelected(DWORD CurFlags)
 	return TRUE;
 }
 
-BOOL KeyMacro::CheckInsidePlugin(DWORD CurFlags)
+BOOL KeyMacro::CheckInsidePlugin(UINT64 CurFlags)
 {
 	if (CtrlObject && CtrlObject->Plugins.CurPluginItem && (CurFlags&MFLAGS_NOSENDKEYSTOPLUGINS)) // ?????
 		//if(CtrlObject && CtrlObject->Plugins.CurEditor && (CurFlags&MFLAGS_NOSENDKEYSTOPLUGINS))
@@ -6888,7 +6888,7 @@ BOOL KeyMacro::CheckInsidePlugin(DWORD CurFlags)
 	return TRUE;
 }
 
-BOOL KeyMacro::CheckCmdLine(int CmdLength,DWORD CurFlags)
+BOOL KeyMacro::CheckCmdLine(int CmdLength,UINT64 CurFlags)
 {
 	if (((CurFlags&MFLAGS_EMPTYCOMMANDLINE) && CmdLength) || ((CurFlags&MFLAGS_NOTEMPTYCOMMANDLINE) && CmdLength==0))
 		return FALSE;
@@ -6896,7 +6896,7 @@ BOOL KeyMacro::CheckCmdLine(int CmdLength,DWORD CurFlags)
 	return TRUE;
 }
 
-BOOL KeyMacro::CheckPanel(int PanelMode,DWORD CurFlags,BOOL IsPassivePanel)
+BOOL KeyMacro::CheckPanel(int PanelMode,UINT64 CurFlags,BOOL IsPassivePanel)
 {
 	if (IsPassivePanel)
 	{
@@ -6912,7 +6912,7 @@ BOOL KeyMacro::CheckPanel(int PanelMode,DWORD CurFlags,BOOL IsPassivePanel)
 	return TRUE;
 }
 
-BOOL KeyMacro::CheckFileFolder(Panel *CheckPanel,DWORD CurFlags, BOOL IsPassivePanel)
+BOOL KeyMacro::CheckFileFolder(Panel *CheckPanel,UINT64 CurFlags, BOOL IsPassivePanel)
 {
 	string strFileName;
 	DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
@@ -6935,7 +6935,7 @@ BOOL KeyMacro::CheckFileFolder(Panel *CheckPanel,DWORD CurFlags, BOOL IsPassiveP
 	return TRUE;
 }
 
-BOOL KeyMacro::CheckAll(int /*CheckMode*/,DWORD CurFlags)
+BOOL KeyMacro::CheckAll(int /*CheckMode*/,UINT64 CurFlags)
 {
 	/* $TODO:
 		Здесь вместо Check*() попробовать заюзать IfCondition()

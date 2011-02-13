@@ -169,7 +169,7 @@ BOOL WINAPI FarShowHelp(
 	if (!HelpTopic)
 		HelpTopic=L"Contents";
 
-	DWORD OFlags=Flags;
+	UINT64 OFlags=Flags;
 	Flags&=~(FHELP_NOSHOWERROR|FHELP_USECONTENTS);
 	string strPath, strTopic;
 	string strMask;

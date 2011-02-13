@@ -47,7 +47,7 @@ class CallBackStack;
 
 struct StackHelpData
 {
-	DWORD Flags;                  // флаги
+	UINT64 Flags;                  // флаги
 	int   TopStr;                 // номер верхней видимой строки темы
 	int   CurX,CurY;              // координаты (???)
 
@@ -168,7 +168,7 @@ class Help:public Frame
 		const HelpRecord* GetHelpItem(int Pos);
 
 	public:
-		Help(const wchar_t *Topic,const wchar_t *Mask=nullptr,DWORD Flags=0);
+		Help(const wchar_t *Topic,const wchar_t *Mask=nullptr,UINT64 Flags=0);
 		virtual ~Help();
 
 	public:

@@ -52,7 +52,7 @@ static BOOL DismountVolume(HANDLE hVolume)
 /* Функция by Vadim Yegorov <zg@matrica.apollo.lv>
    Доработанная! Умеет "вставлять" диск :-)
 */
-BOOL EjectVolume(wchar_t Letter,DWORD Flags)
+BOOL EjectVolume(wchar_t Letter,UINT64 Flags)
 {
 	BOOL Retry=TRUE;
 	BOOL fAutoEject=FALSE;
