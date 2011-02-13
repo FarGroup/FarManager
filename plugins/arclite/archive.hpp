@@ -121,18 +121,23 @@ struct ArcEntry {
   }
 };
 
+typedef list<ArcEntry> ArcEntries;
+
 class ArcChain: public list<ArcEntry> {
 public:
   wstring to_string() const;
 };
 
-class Archive {
+class Archive: public ComBase {
+public:
+  UNKNOWN_IMPL
+
   // open
 private:
   ComObject<IInArchive> in_arc;
-  bool open_sub_stream(IInStream** sub_stream, FindData& sub_arc_info);
-  bool open(IInStream* in_stream);
-  static void open(const OpenOptions& options, vector<Archive>& archives);
+  bool open(IInStream* in_stream, const ArcType& type);
+  static ArcEntries detect(IInStream* stream, const wstring& file_ext, const ArcTypes& arc_types);
+  static void open(const OpenOptions& options, vector<ComObject<Archive>>& archives);
 public:
   static unsigned max_check_size;
   wstring arc_path;
@@ -146,7 +151,7 @@ public:
     wstring name = extract_file_name(arc_path);
     return name.empty() ? arc_path : name;
   }
-  static vector<Archive> open(const OpenOptions& options);
+  static vector<ComObject<Archive>> open(const OpenOptions& options);
   void close();
   void reopen();
   bool is_open() const {
@@ -167,6 +172,10 @@ public:
   void make_index();
   UInt32 find_dir(const wstring& dir);
   FileIndexRange get_dir_list(UInt32 dir_index);
+  bool get_stream(UInt32 index, IInStream** stream);
+  wstring get_path(UInt32 index);
+  FindData get_file_info(UInt32 index);
+  bool get_main_file(UInt32& index) const;
   DWORD get_attr(UInt32 index) const;
   unsigned __int64 get_size(UInt32 index) const;
   unsigned __int64 get_psize(UInt32 index) const;

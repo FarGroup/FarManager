@@ -61,7 +61,7 @@ int menu(const wstring& title, const MenuItems& items, const wchar_t* help) {
   menu_items.reserve(items.size());
   FarMenuItem mi;
   for (unsigned i = 0; i < items.size(); i++) {
-    memset(&mi, 0, sizeof(mi));
+    memzero(mi);
     mi.Text = items[i].c_str();
     menu_items.push_back(mi);
   }
@@ -660,7 +660,7 @@ size_t Regex::search(const wstring& expr, const wstring& text) {
   CHECK(g_far.RegExpControl(h_regex, RECTL_COMPILE, reinterpret_cast<LONG_PTR>((L"/" + expr + L"/").c_str())));
   CHECK(g_far.RegExpControl(h_regex, RECTL_OPTIMIZE, 0));
   RegExpSearch regex_search;
-  memset(&regex_search, 0, sizeof(regex_search));
+  memzero(regex_search);
   regex_search.Text = text.c_str();
   regex_search.Position = 0;
   regex_search.Length = static_cast<int>(text.size());
@@ -737,6 +737,10 @@ bool match_masks(const wstring& file_name, const wstring& masks) {
 
 unsigned char get_colors(PaletteColors color_id) {
   return static_cast<unsigned char>(g_far.AdvControl(g_far.ModuleNumber, ACTL_GETCOLOR, reinterpret_cast<void*>(color_id)));
+}
+
+bool panel_go_to_dir(HANDLE h_panel, const wstring& dir) {
+  return g_far.Control(h_panel, FCTL_SETPANELDIR, 0, reinterpret_cast<LONG_PTR>(dir.c_str())) != 0;
 }
 
 // set current file on panel to file_path

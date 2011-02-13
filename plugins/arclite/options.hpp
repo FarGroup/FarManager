@@ -11,6 +11,7 @@ struct Options {
   bool extract_ignore_errors;
   OverwriteAction extract_overwrite;
   TriState extract_separate_dir;
+  bool extract_open_dir;
   // update
   wstring update_arc_format_name;
   unsigned update_level;

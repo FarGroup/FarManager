@@ -16,6 +16,8 @@ extract.dlg.move_files = &Delete files from archive after extraction
 extract.dlg.password = Pass&word:
 extract.dlg.separate_dir = Ex&tract archive into separate directory
 extract.dlg.delete_archive = De&lete archive after extraction
+extract.dlg.open_dir = &Go to target directory after extraction
+extract.dlg.save_params = Re&member current settings
 
 # Update dialog
 update.dlg.title = Add files to archive

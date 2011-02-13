@@ -119,7 +119,7 @@ struct DialogItem {
   unsigned list_size;
   unsigned list_pos;
   DialogItem() {
-    memset(this, 0, sizeof(*this));
+    memzero(*this);
   }
 };
 
@@ -248,6 +248,7 @@ wstring get_absolute_path(const wstring& rel_path);
 INT_PTR adv_control(int command, void* param = nullptr);
 bool match_masks(const wstring& file_name, const wstring& masks);
 unsigned char get_colors(PaletteColors color_id);
+bool panel_go_to_dir(HANDLE h_panel, const wstring& dir);
 bool panel_go_to_file(HANDLE h_panel, const wstring& file_path);
 DWORD get_lang_id();
 void close_plugin(HANDLE h_plugin, const wstring& dir);

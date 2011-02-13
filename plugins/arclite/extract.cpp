@@ -11,7 +11,9 @@ ExtractOptions::ExtractOptions():
   overwrite(oaOverwrite),
   move_files(triUndef),
   separate_dir(triFalse),
-  delete_archive(false) {
+  delete_archive(false),
+  open_dir(false),
+  save_params(false) {
 }
 
 wstring get_progress_bar_str(unsigned width, unsigned percent1, unsigned percent2) {
@@ -134,7 +136,7 @@ private:
     size_t buffer_size;
   };
 
-  Archive& archive;
+  ComObject<Archive> archive;
   unsigned char* buffer;
   size_t buffer_size;
   size_t commit_size;
@@ -176,14 +178,14 @@ private:
   // allocate file
   void allocate_file() {
     if (error_state) return;
-    if (archive.get_size(current_rec.file_id) == 0) return;
+    if (archive->get_size(current_rec.file_id) == 0) return;
     unsigned __int64 size;
     if (current_rec.overwrite == oaAppend)
       size = file.size();
     else
       size = 0;
     RETRY_OR_IGNORE_BEGIN
-    file.set_pos(size + archive.get_size(current_rec.file_id), FILE_BEGIN);
+    file.set_pos(size + archive->get_size(current_rec.file_id), FILE_BEGIN);
     file.set_end();
     file.set_pos(size, FILE_BEGIN);
     RETRY_OR_IGNORE_END(ignore_errors, error_log, progress)
@@ -217,8 +219,8 @@ private:
       if (!error_state) {
         RETRY_OR_IGNORE_BEGIN
         file.set_end(); // ensure end of file is set correctly
-        File::set_attr(current_rec.file_path, archive.get_attr(current_rec.file_id));
-        file.set_time(archive.get_ctime(current_rec.file_id), archive.get_atime(current_rec.file_id), archive.get_mtime(current_rec.file_id));
+        File::set_attr(current_rec.file_path, archive->get_attr(current_rec.file_id));
+        file.set_time(archive->get_ctime(current_rec.file_id), archive->get_atime(current_rec.file_id), archive->get_mtime(current_rec.file_id));
         IGNORE_END(ignore_errors, error_log, progress)
         if (error_ignored) error_state = true;
       }
@@ -271,7 +273,7 @@ private:
     progress.update_cache_stored(size);
   }
 public:
-  FileWriteCache(Archive& archive, bool& ignore_errors, ErrorLog& error_log, ExtractProgress& progress): archive(archive), buffer_size(get_max_cache_size()), commit_size(0), buffer_pos(0), continue_file(false), error_state(false), ignore_errors(ignore_errors), error_log(error_log), progress(progress) {
+  FileWriteCache(Archive* archive, bool& ignore_errors, ErrorLog& error_log, ExtractProgress& progress): archive(archive), buffer_size(get_max_cache_size()), commit_size(0), buffer_pos(0), continue_file(false), error_state(false), ignore_errors(ignore_errors), error_log(error_log), progress(progress) {
     progress.set_cache_total(buffer_size);
     buffer = reinterpret_cast<unsigned char*>(VirtualAlloc(nullptr, buffer_size, MEM_RESERVE, PAGE_NOACCESS));
     CHECK_SYS(buffer);
@@ -335,7 +337,7 @@ private:
   ArcFileInfo file_info;
   UInt32 src_dir_index;
   wstring dst_dir;
-  Archive& archive;
+  ComObject<Archive> archive;
   OverwriteAction& overwrite_action;
   bool& ignore_errors;
   ErrorLog& error_log;
@@ -343,7 +345,7 @@ private:
   ExtractProgress& progress;
 
 public:
-  ArchiveExtractor(UInt32 src_dir_index, const wstring& dst_dir, Archive& archive, OverwriteAction& overwrite_action, bool& ignore_errors, ErrorLog& error_log, FileWriteCache& cache, ExtractProgress& progress): src_dir_index(src_dir_index), dst_dir(dst_dir), archive(archive), overwrite_action(overwrite_action), ignore_errors(ignore_errors), error_log(error_log), cache(cache), progress(progress) {
+  ArchiveExtractor(UInt32 src_dir_index, const wstring& dst_dir, Archive* archive, OverwriteAction& overwrite_action, bool& ignore_errors, ErrorLog& error_log, FileWriteCache& cache, ExtractProgress& progress): src_dir_index(src_dir_index), dst_dir(dst_dir), archive(archive), overwrite_action(overwrite_action), ignore_errors(ignore_errors), error_log(error_log), cache(cache), progress(progress) {
   }
 
   UNKNOWN_IMPL_BEGIN
@@ -369,14 +371,14 @@ public:
   STDMETHODIMP GetStream(UInt32 index, ISequentialOutStream **outStream,  Int32 askExtractMode) {
     COM_ERROR_HANDLER_BEGIN
     *outStream = nullptr;
-    file_info = archive.file_list[index];
+    file_info = archive->file_list[index];
     if (file_info.is_dir)
       return S_OK;
 
     file_path = file_info.name;
     UInt32 parent_index = file_info.parent;
     while (parent_index != src_dir_index && parent_index != c_root_index) {
-      const ArcFileInfo& file_info = archive.file_list[parent_index];
+      const ArcFileInfo& file_info = archive->file_list[parent_index];
       file_path.insert(0, 1, L'\\').insert(0, file_info.name);
       parent_index = file_info.parent;
     }
@@ -391,8 +393,8 @@ public:
       if (overwrite_action == oaAsk) {
         OverwriteFileInfo src_ov_info, dst_ov_info;
         src_ov_info.is_dir = file_info.is_dir;
-        src_ov_info.size = archive.get_size(index);
-        src_ov_info.mtime = archive.get_mtime(index);
+        src_ov_info.size = archive->get_size(index);
+        src_ov_info.mtime = archive->get_mtime(index);
         dst_ov_info.is_dir = dst_file_info.is_dir();
         dst_ov_info.size = dst_file_info.size();
         dst_ov_info.mtime = dst_file_info.ftLastWriteTime;
@@ -430,23 +432,23 @@ public:
     RETRY_OR_IGNORE_BEGIN
     if (resultEOperationResult == NArchive::NExtract::NOperationResult::kOK)
       return S_OK;
-    bool encrypted = !archive.password.empty();
+    bool encrypted = !archive->password.empty();
     Error error;
     error.code = E_MESSAGE;
     if (resultEOperationResult == NArchive::NExtract::NOperationResult::kUnSupportedMethod)
       error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_UNSUPPORTED_METHOD));
     else if (resultEOperationResult == NArchive::NExtract::NOperationResult::kDataError) {
-      archive.password.clear();
+      archive->password.clear();
       error.messages.push_back(Far::get_msg(encrypted ? MSG_ERROR_EXTRACT_DATA_ERROR_ENCRYPTED : MSG_ERROR_EXTRACT_DATA_ERROR));
     }
     else if (resultEOperationResult == NArchive::NExtract::NOperationResult::kCRCError) {
-      archive.password.clear();
+      archive->password.clear();
       error.messages.push_back(Far::get_msg(encrypted ? MSG_ERROR_EXTRACT_CRC_ERROR_ENCRYPTED : MSG_ERROR_EXTRACT_CRC_ERROR));
     }
     else
       error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_UNKNOWN));
     error.messages.push_back(file_path);
-    error.messages.push_back(archive.arc_path);
+    error.messages.push_back(archive->arc_path);
     throw error;
     IGNORE_END(ignore_errors, error_log, progress)
     COM_ERROR_HANDLER_END
@@ -454,12 +456,12 @@ public:
 
   STDMETHODIMP CryptoGetTextPassword(BSTR *password) {
     COM_ERROR_HANDLER_BEGIN
-    if (archive.password.empty()) {
+    if (archive->password.empty()) {
       ProgressSuspend ps(progress);
-      if (!password_dialog(archive.password, archive.arc_path))
+      if (!password_dialog(archive->password, archive->arc_path))
         FAIL(E_ABORT);
     }
-    BStr(archive.password).detach(password);
+    BStr(archive->password).detach(password);
     return S_OK;
     COM_ERROR_HANDLER_END
   }
@@ -474,7 +476,7 @@ void Archive::prepare_dst_dir(const wstring& path) {
 
 class PrepareExtract: public ProgressMonitor {
 private:
-  Archive& archive;
+  ComObject<Archive> archive;
   list<UInt32>& indices;
   bool& ignore_errors;
   ErrorLog& error_log;
@@ -494,7 +496,7 @@ private:
 
   void prepare_extract(const FileIndexRange& index_range, const wstring& parent_dir) {
     for_each(index_range.first, index_range.second, [&] (UInt32 file_index) {
-      const ArcFileInfo& file_info = archive.file_list[file_index];
+      const ArcFileInfo& file_info = archive->file_list[file_index];
       if (file_info.is_dir) {
         wstring dir_path = add_trailing_slash(parent_dir) + file_info.name;
         update_progress(dir_path);
@@ -509,7 +511,7 @@ private:
         }
         RETRY_OR_IGNORE_END(ignore_errors, error_log, *this)
 
-        FileIndexRange dir_list = archive.get_dir_list(file_index);
+        FileIndexRange dir_list = archive->get_dir_list(file_index);
         prepare_extract(dir_list, dir_path);
       }
       else {
@@ -519,7 +521,7 @@ private:
   }
 
 public:
-  PrepareExtract(const FileIndexRange& index_range, const wstring& parent_dir, Archive& archive, list<UInt32>& indices, bool& ignore_errors, ErrorLog& error_log): ProgressMonitor(Far::get_msg(MSG_PROGRESS_CREATE_DIRS), false), archive(archive), indices(indices), ignore_errors(ignore_errors), error_log(error_log) {
+  PrepareExtract(const FileIndexRange& index_range, const wstring& parent_dir, Archive* archive, list<UInt32>& indices, bool& ignore_errors, ErrorLog& error_log): ProgressMonitor(Far::get_msg(MSG_PROGRESS_CREATE_DIRS), false), archive(archive), indices(indices), ignore_errors(ignore_errors), error_log(error_log) {
     prepare_extract(index_range, parent_dir);
   }
 };
@@ -527,7 +529,7 @@ public:
 
 class SetDirAttr: public ProgressMonitor {
 private:
-  Archive& archive;
+  ComObject<Archive> archive;
   bool& ignore_errors;
   ErrorLog& error_log;
   const wstring* file_path;
@@ -546,24 +548,24 @@ private:
 
   void set_dir_attr(const FileIndexRange& index_range, const wstring& parent_dir) {
     for_each (index_range.first, index_range.second, [&] (UInt32 file_index) {
-      const ArcFileInfo& file_info = archive.file_list[file_index];
+      const ArcFileInfo& file_info = archive->file_list[file_index];
       wstring file_path = add_trailing_slash(parent_dir) + file_info.name;
       update_progress(file_path);
       if (file_info.is_dir) {
-        FileIndexRange dir_list = archive.get_dir_list(file_index);
+        FileIndexRange dir_list = archive->get_dir_list(file_index);
         set_dir_attr(dir_list, file_path);
         RETRY_OR_IGNORE_BEGIN
         File::set_attr(file_path, FILE_ATTRIBUTE_NORMAL);
         File file(file_path, FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS);
-        File::set_attr(file_path, archive.get_attr(file_index));
-        file.set_time(archive.get_ctime(file_index), archive.get_atime(file_index), archive.get_mtime(file_index));
+        File::set_attr(file_path, archive->get_attr(file_index));
+        file.set_time(archive->get_ctime(file_index), archive->get_atime(file_index), archive->get_mtime(file_index));
         RETRY_OR_IGNORE_END(ignore_errors, error_log, *this)
       }
     });
   }
 
 public:
-  SetDirAttr(const FileIndexRange& index_range, const wstring& parent_dir, Archive& archive, bool& ignore_errors, ErrorLog& error_log): ProgressMonitor(Far::get_msg(MSG_PROGRESS_SET_ATTR), false), archive(archive), ignore_errors(ignore_errors), error_log(error_log) {
+  SetDirAttr(const FileIndexRange& index_range, const wstring& parent_dir, Archive*archive, bool& ignore_errors, ErrorLog& error_log): ProgressMonitor(Far::get_msg(MSG_PROGRESS_SET_ATTR), false), archive(archive), ignore_errors(ignore_errors), error_log(error_log) {
     set_dir_attr(index_range, parent_dir);
   }
 };
@@ -576,7 +578,7 @@ void Archive::extract(UInt32 src_dir_index, const vector<UInt32>& src_indices, c
   prepare_dst_dir(options.dst_dir);
 
   list<UInt32> file_indices;
-  PrepareExtract(FileIndexRange(src_indices.begin(), src_indices.end()), options.dst_dir, *this, file_indices, ignore_errors, error_log);
+  PrepareExtract(FileIndexRange(src_indices.begin(), src_indices.end()), options.dst_dir, this, file_indices, ignore_errors, error_log);
 
   vector<UInt32> indices;
   indices.reserve(file_indices.size());
@@ -584,13 +586,13 @@ void Archive::extract(UInt32 src_dir_index, const vector<UInt32>& src_indices, c
   sort(indices.begin(), indices.end());
 
   ExtractProgress progress(arc_path);
-  FileWriteCache cache(*this, ignore_errors, error_log, progress);
-  ComObject<IArchiveExtractCallback> extractor(new ArchiveExtractor(src_dir_index, options.dst_dir, *this, overwrite_action, ignore_errors, error_log, cache, progress));
+  FileWriteCache cache(this, ignore_errors, error_log, progress);
+  ComObject<IArchiveExtractCallback> extractor(new ArchiveExtractor(src_dir_index, options.dst_dir, this, overwrite_action, ignore_errors, error_log, cache, progress));
   COM_ERROR_CHECK(in_arc->Extract(indices.data(), static_cast<UInt32>(indices.size()), 0, extractor));
   cache.finalize();
   progress.clean();
 
-  SetDirAttr(FileIndexRange(src_indices.begin(), src_indices.end()), options.dst_dir, *this, ignore_errors, error_log);
+  SetDirAttr(FileIndexRange(src_indices.begin(), src_indices.end()), options.dst_dir, this, ignore_errors, error_log);
 }
 
 void Archive::delete_archive() {

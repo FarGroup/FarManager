@@ -99,10 +99,10 @@ void attach_sfx_module(const wstring& file_path, const SfxOptions& sfx_options) 
     options.arc_path = file_path;
     options.detect = false;
     options.arc_types.push_back(c_7z);
-    vector<Archive> archives = Archive::open(options);
+    vector<ComObject<Archive>> archives = Archive::open(options);
     if (archives.empty())
       FAIL_MSG(Far::get_msg(MSG_ERROR_SFX_CONVERT));
-    if (!archives.front().is_pure_7z())
+    if (!archives.front()->is_pure_7z())
       FAIL_MSG(Far::get_msg(MSG_ERROR_SFX_CONVERT));
   }
 

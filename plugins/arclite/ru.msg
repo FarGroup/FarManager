@@ -16,6 +16,8 @@ extract.dlg.move_files = &Удалить файлы из архива после
 extract.dlg.password = П&ароль:
 extract.dlg.separate_dir = Распаковать архив в &отдельный каталог
 extract.dlg.delete_archive = У&далить архив после распаковки
+extract.dlg.open_dir = Пере&йти в целевой каталог после распаковки
+extract.dlg.save_params = &Запомнить текущие установки
 
 # Update dialog
 update.dlg.title = Обновление архива

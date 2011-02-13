@@ -43,19 +43,35 @@ ASFLAGS = $(ASFLAGS) -Fo$(OUTDIR)\
 OBJS = $(OUTDIR)\archive.obj $(OUTDIR)\plugin.obj $(OUTDIR)\ui.obj $(OUTDIR)\extract.obj $(OUTDIR)\open.obj \
   $(OUTDIR)\update.obj $(OUTDIR)\delete.obj $(OUTDIR)\options.obj $(OUTDIR)\msearch.obj $(OUTDIR)\attr.obj \
   $(OUTDIR)\test.obj $(OUTDIR)\common.obj $(OUTDIR)\sfx.obj $(OUTDIR)\cmdline.obj $(OUTDIR)\rsrc.obj \
-  $(OUTDIR)\farutils.obj $(OUTDIR)\pathutils.obj $(OUTDIR)\strutils.obj $(OUTDIR)\sysutils.obj $(OUTDIR)\numutils.obj
+  $(OUTDIR)\farutils.obj $(OUTDIR)\pathutils.obj $(OUTDIR)\strutils.obj $(OUTDIR)\sysutils.obj
 !if "$(BITS)" == "32"
 OBJS = $(OBJS) $(OUTDIR)\vc10.obj
 !endif
 
 LIBS = user32.lib advapi32.lib ole32.lib oleaut32.lib version.lib
 
-SFX = .\$(OUTDIR)\7z.sfx .\$(OUTDIR)\7zCon.sfx .\$(OUTDIR)\7zS2.sfx .\$(OUTDIR)\7zS2con.sfx .\$(OUTDIR)\7zSD.sfx
+!ifdef DEBUG
+# Microsoft Windows SDK v7.1
+# cd 7z\src\CPP\7zip\Bundles\Format7zF
+# setenv /x86
+# msbuild Format7z.vcxproj
+# setenv /x64
+# msbuild Format7z.vcxproj /p:Configuration=Debug /p:Platform=x64
+!if "$(BITS)" == "32"
+_7Z = 7z\src\CPP\7zip\Bundles\Format7zF\Debug\7z.dll
+!else
+_7Z = 7z\src\CPP\7zip\Bundles\Format7zF\x64\Debug\7z.dll
+!endif
+!else
+_7Z = 7z\dll\$(OUTDIR)\7z.dll
+!endif
+
+SFX = $(OUTDIR)\7z.dll $(OUTDIR)\7z.sfx $(OUTDIR)\7zCon.sfx $(OUTDIR)\7zS2.sfx $(OUTDIR)\7zS2con.sfx $(OUTDIR)\7zSD.sfx
 
 project: depfile $(OUTDIR)\far.ini
   $(MAKE) -nologo -f makefile_vc -$(MAKEFLAGS) build_project BUILD=1
 
-build_project: $(OUTDIR)\$(MODULE).dll $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_eng.hlf $(OUTDIR)\$(MODULE)_rus.hlf $(OUTDIR)\7z.dll $(SFX)
+build_project: $(OUTDIR)\$(MODULE).dll $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_eng.hlf $(OUTDIR)\$(MODULE)_rus.hlf $(_7Z) $(SFX)
 
 $(OUTDIR)\$(MODULE).dll: $(OUTDIR)\plugin.def $(OBJS) $(OUTDIR)\headers.pch $(OUTDIR)\version.res project.ini
   link $(LINKFLAGS) -def:$(OUTDIR)\plugin.def -out:$@ $(OBJS) $(OUTDIR)\headers.obj $(OUTDIR)\version.res $(LIBS)
@@ -99,17 +115,17 @@ $(OUTDIR)\$(MODULE)_rus.hlf: project.ini ru.hlf
 
 COPY = copy /y $** $@
 
-$(OUTDIR)\7z.dll: 7z\dll\$(OUTDIR)\7z.dll
+$(OUTDIR)\7z.dll: $(_7Z)
   $(COPY)
 
-{7z\sfx}.sfx{.\$(OUTDIR)}.sfx:
+{7z\sfx}.sfx{$(OUTDIR)}.sfx:
   $(COPY)
 
 $(OUTDIR)\far.ini: $(FARSDK)\plugin.hpp
   $(TOOLSDIR)\farver $** $@
 
-.asm{$(OUTDIR)}.obj:
-  $(AS) $(ASFLAGS) $<
+$(OUTDIR)\vc10.obj: ..\..\unicode_far\vc10.asm
+  $(AS) $(ASFLAGS) ..\..\unicode_far\vc10.asm
 
 $(OUTDIR):
   if not exist $(OUTDIR) mkdir $(OUTDIR)

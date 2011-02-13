@@ -510,6 +510,42 @@ FileIndexRange Archive::get_dir_list(UInt32 dir_index) {
   return index_range;
 }
 
+wstring Archive::get_path(UInt32 index) {
+  if (file_list.empty())
+    make_index();
+
+  wstring file_path = file_list[index].name;
+  UInt32 parent = file_list[index].parent;
+  while (parent != c_root_index) {
+    file_path.insert(0, 1, L'\\').insert(0, file_list[parent].name);
+    parent = file_list[parent].parent;
+  }
+  return file_path;
+}
+
+FindData Archive::get_file_info(UInt32 index) {
+  if (file_list.empty())
+    make_index();
+
+  FindData file_info;
+  memzero(file_info);
+  wcscpy(file_info.cFileName, file_list[index].name.c_str());
+  file_info.dwFileAttributes = get_attr(index);
+  file_info.set_size(get_size(index));
+  file_info.ftCreationTime = get_ctime(index);
+  file_info.ftLastWriteTime = get_mtime(index);
+  file_info.ftLastAccessTime = get_atime(index);
+  return file_info;
+}
+
+bool Archive::get_main_file(UInt32& index) const {
+  PropVariant prop;
+  if (in_arc->GetArchiveProperty(kpidMainSubfile, prop.ref()) != S_OK || prop.vt != VT_UI4)
+    return false;
+  index = prop.ulVal;
+  return true;
+}
+
 DWORD Archive::get_attr(UInt32 index) const {
   PropVariant prop;
   if (index >= num_indices)

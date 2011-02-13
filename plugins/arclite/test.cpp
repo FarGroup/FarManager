@@ -9,7 +9,7 @@
 class ArchiveTester: public IArchiveExtractCallback, public ICryptoGetTextPassword, public ComBase, public ProgressMonitor {
 private:
   UInt32 src_dir_index;
-  Archive& archive;
+  ComObject<Archive> archive;
 
   wstring file_path;
   unsigned __int64 completed;
@@ -33,7 +33,7 @@ private:
   }
 
 public:
-  ArchiveTester(UInt32 src_dir_index, Archive& archive): ProgressMonitor(Far::get_msg(MSG_PROGRESS_TEST)), src_dir_index(src_dir_index), archive(archive), completed(0), total(0) {
+  ArchiveTester(UInt32 src_dir_index, Archive* archive): ProgressMonitor(Far::get_msg(MSG_PROGRESS_TEST)), src_dir_index(src_dir_index), archive(archive), completed(0), total(0) {
   }
 
   UNKNOWN_IMPL_BEGIN
@@ -61,11 +61,11 @@ public:
 
   STDMETHODIMP GetStream(UInt32 index, ISequentialOutStream **outStream,  Int32 askExtractMode) {
     COM_ERROR_HANDLER_BEGIN
-    const ArcFileInfo& file_info = archive.file_list[index];
+    const ArcFileInfo& file_info = archive->file_list[index];
     file_path = file_info.name;
     UInt32 parent_index = file_info.parent;
     while (parent_index != src_dir_index) {
-      const ArcFileInfo& file_info = archive.file_list[parent_index];
+      const ArcFileInfo& file_info = archive->file_list[parent_index];
       file_path.insert(0, 1, L'\\').insert(0, file_info.name);
       parent_index = file_info.parent;
     }
@@ -83,7 +83,7 @@ public:
     COM_ERROR_HANDLER_BEGIN
     if (resultEOperationResult == NArchive::NExtract::NOperationResult::kOK)
       return S_OK;
-    bool encrypted = !archive.password.empty();
+    bool encrypted = !archive->password.empty();
     Error error;
     error.code = E_MESSAGE;
     if (resultEOperationResult == NArchive::NExtract::NOperationResult::kUnSupportedMethod)
@@ -95,19 +95,19 @@ public:
     else
       error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_UNKNOWN));
     error.messages.push_back(file_path);
-    error.messages.push_back(archive.arc_path);
+    error.messages.push_back(archive->arc_path);
     throw error;
     COM_ERROR_HANDLER_END
   }
 
   STDMETHODIMP CryptoGetTextPassword(BSTR *password) {
     COM_ERROR_HANDLER_BEGIN
-    if (archive.password.empty()) {
+    if (archive->password.empty()) {
       ProgressSuspend ps(*this);
-      if (!password_dialog(archive.password, archive.arc_path))
+      if (!password_dialog(archive->password, archive->arc_path))
         FAIL(E_ABORT);
     }
-    BStr(archive.password).detach(password);
+    BStr(archive->password).detach(password);
     return S_OK;
     COM_ERROR_HANDLER_END
   }
@@ -137,6 +137,6 @@ void Archive::test(UInt32 src_dir_index, const vector<UInt32>& src_indices) {
   copy(file_indices.begin(), file_indices.end(), back_insert_iterator<vector<UInt32>>(indices));
   sort(indices.begin(), indices.end());
 
-  ComObject<IArchiveExtractCallback> tester(new ArchiveTester(src_dir_index, *this));
+  ComObject<IArchiveExtractCallback> tester(new ArchiveTester(src_dir_index, this));
   COM_ERROR_CHECK(in_arc->Extract(indices.data(), static_cast<UInt32>(indices.size()), 1, tester));
 }
