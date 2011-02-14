@@ -782,7 +782,7 @@ public:
 		{
 			FarDialogItem *Item = AddDialogItem(DI_FIXEDIT, Value);
 			SetNextY(Item);
-			Item->X2 = Item->X1 + Width;
+			Item->X2 = Item->X1 + Width - 1;
 			if (Mask)
 			{
 				Item->Mask = Mask;
