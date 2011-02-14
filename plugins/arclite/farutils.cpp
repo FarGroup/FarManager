@@ -1,6 +1,7 @@
 #include "utils.hpp"
 #include "sysutils.hpp"
 #include "farutils.hpp"
+#include "guids.hpp"
 
 namespace Far {
 
@@ -22,16 +23,16 @@ wstring get_root_key_name() {
 
 unsigned get_version() {
   DWORD version;
-  g_far.AdvControl(g_far.ModuleNumber, ACTL_GETFARVERSION, &version);
+  g_far.AdvControl(&c_plugin_guid, ACTL_GETFARVERSION, &version);
   return (LOWORD(version) << 16) | HIWORD(version);
 }
 
 const wchar_t* msg_ptr(int id) {
-  return g_far.GetMsg(g_far.ModuleNumber, id);
+  return g_far.GetMsg(&c_plugin_guid, id);
 }
 
 wstring get_msg(int id) {
-  return g_far.GetMsg(g_far.ModuleNumber, id);
+  return g_far.GetMsg(&c_plugin_guid, id);
 }
 
 unsigned get_optimal_msg_width() {
@@ -47,8 +48,8 @@ unsigned get_optimal_msg_width() {
   return 60;
 }
 
-int message(const wstring& msg, int button_cnt, DWORD flags) {
-  return g_far.Message(g_far.ModuleNumber, flags | FMSG_ALLINONE, NULL, reinterpret_cast<const wchar_t* const*>(msg.c_str()), 0, button_cnt);
+int message(const wstring& msg, int button_cnt, unsigned __int64 flags) {
+  return g_far.Message(&c_plugin_guid, flags | FMSG_ALLINONE, NULL, reinterpret_cast<const wchar_t* const*>(msg.c_str()), 0, button_cnt);
 }
 
 unsigned MenuItems::add(const wstring& item) {
@@ -65,7 +66,7 @@ int menu(const wstring& title, const MenuItems& items, const wchar_t* help) {
     mi.Text = items[i].c_str();
     menu_items.push_back(mi);
   }
-  return g_far.Menu(g_far.ModuleNumber, -1, -1, 0, FMENU_WRAPMODE, title.c_str(), NULL, help, NULL, NULL, menu_items.data(), static_cast<int>(menu_items.size()));
+  return g_far.Menu(&c_plugin_guid, -1, -1, 0, FMENU_WRAPMODE, title.c_str(), NULL, help, NULL, NULL, menu_items.data(), static_cast<int>(menu_items.size()));
 }
 
 wstring get_progress_bar_str(unsigned width, unsigned __int64 completed, unsigned __int64 total) {
@@ -86,31 +87,32 @@ wstring get_progress_bar_str(unsigned width, unsigned __int64 completed, unsigne
 }
 
 void set_progress_state(TBPFLAG state) {
-  g_far.AdvControl(g_far.ModuleNumber, ACTL_SETPROGRESSSTATE, reinterpret_cast<void*>(state));
+  g_far.AdvControl(&c_plugin_guid, ACTL_SETPROGRESSSTATE, reinterpret_cast<void*>(state));
 }
 
 void set_progress_value(unsigned __int64 completed, unsigned __int64 total) {
   PROGRESSVALUE pv;
   pv.Completed = completed;
   pv.Total = total;
-  g_far.AdvControl(g_far.ModuleNumber, ACTL_SETPROGRESSVALUE, &pv);
+  g_far.AdvControl(&c_plugin_guid, ACTL_SETPROGRESSVALUE, &pv);
 }
 
 void progress_notify() {
-  g_far.AdvControl(g_far.ModuleNumber, ACTL_PROGRESSNOTIFY, nullptr);
+  g_far.AdvControl(&c_plugin_guid, ACTL_PROGRESSNOTIFY, nullptr);
 }
 
 void call_user_apc(void* param) {
-  g_far.AdvControl(g_far.ModuleNumber, ACTL_SYNCHRO, param);
+  g_far.AdvControl(&c_plugin_guid, ACTL_SYNCHRO, param);
 }
 
-void post_keys(const vector<DWORD>& keys, DWORD flags) {
-  KeySequence ks = { flags, static_cast<int>(keys.size()), keys.data() };
-  g_far.AdvControl(g_far.ModuleNumber, ACTL_POSTKEYSEQUENCE, &ks);
+bool post_macro(const wstring& macro) {
+  MacroSendMacroText mcmd = { sizeof(MacroSendMacroText) };
+  mcmd.SequenceText = macro.c_str();
+  return g_far.MacroControl(0, MCTL_SENDSTRING, MSSC_POST, reinterpret_cast<INT_PTR>(&mcmd)) != 0;
 }
 
 void quit() {
-  g_far.AdvControl(g_far.ModuleNumber, ACTL_QUIT, 0);
+  g_far.AdvControl(&c_plugin_guid, ACTL_QUIT, 0);
 }
 
 HANDLE save_screen() {
@@ -123,14 +125,14 @@ void restore_screen(HANDLE h_scr) {
 
 void flush_screen() {
   g_far.Text(0, 0, 0, NULL); // flush buffer hack
-  g_far.AdvControl(g_far.ModuleNumber, ACTL_REDRAWALL, 0);
+  g_far.AdvControl(&c_plugin_guid, ACTL_REDRAWALL, 0);
 }
 
-int viewer(const wstring& file_name, const wstring& title, DWORD flags) {
+int viewer(const wstring& file_name, const wstring& title, unsigned __int64 flags) {
   return g_far.Viewer(file_name.c_str(), title.c_str(), 0, 0, -1, -1, flags, CP_AUTODETECT);
 }
 
-int editor(const wstring& file_name, const wstring& title, DWORD flags) {
+int editor(const wstring& file_name, const wstring& title, unsigned __int64 flags) {
   return g_far.Editor(file_name.c_str(), title.c_str(), 0, 0, -1, -1, flags, 1, 1, CP_AUTODETECT);
 }
 
@@ -160,7 +162,7 @@ void set_directories_first(HANDLE h_panel, bool first) {
 }
 
 bool get_panel_info(HANDLE h_panel, PanelInfo& panel_info) {
-  return g_far.Control(h_panel, FCTL_GETPANELINFO, 0, reinterpret_cast<LONG_PTR>(&panel_info)) == TRUE;
+  return g_far.Control(h_panel, FCTL_GETPANELINFO, 0, reinterpret_cast<INT_PTR>(&panel_info)) == TRUE;
 }
 
 bool is_real_file_panel(const PanelInfo& panel_info) {
@@ -169,10 +171,10 @@ bool is_real_file_panel(const PanelInfo& panel_info) {
 
 wstring get_panel_dir(HANDLE h_panel) {
   Buffer<wchar_t> buf(MAX_PATH);
-  unsigned size = g_far.Control(h_panel, FCTL_GETPANELDIR, static_cast<int>(buf.size()), reinterpret_cast<LONG_PTR>(buf.data()));
+  unsigned size = g_far.Control(h_panel, FCTL_GETPANELDIR, static_cast<int>(buf.size()), reinterpret_cast<INT_PTR>(buf.data()));
   if (size > buf.size()) {
     buf.resize(size);
-    size = g_far.Control(h_panel, FCTL_GETPANELDIR, static_cast<int>(buf.size()), reinterpret_cast<LONG_PTR>(buf.data()));
+    size = g_far.Control(h_panel, FCTL_GETPANELDIR, static_cast<int>(buf.size()), reinterpret_cast<INT_PTR>(buf.data()));
   }
   CHECK(size)
   return wstring(buf.data(), size - 1);
@@ -180,22 +182,22 @@ wstring get_panel_dir(HANDLE h_panel) {
 
 PanelItem get_current_panel_item(HANDLE h_panel) {
   Buffer<unsigned char> buf(0x1000);
-  unsigned size = g_far.Control(h_panel, FCTL_GETCURRENTPANELITEM, static_cast<int>(buf.size()), reinterpret_cast<LONG_PTR>(buf.data()));
+  unsigned size = g_far.Control(h_panel, FCTL_GETCURRENTPANELITEM, static_cast<int>(buf.size()), reinterpret_cast<INT_PTR>(buf.data()));
   if (size > buf.size()) {
     buf.resize(size);
-    size = g_far.Control(h_panel, FCTL_GETCURRENTPANELITEM, static_cast<int>(buf.size()), reinterpret_cast<LONG_PTR>(buf.data()));
+    size = g_far.Control(h_panel, FCTL_GETCURRENTPANELITEM, static_cast<int>(buf.size()), reinterpret_cast<INT_PTR>(buf.data()));
   }
   CHECK(size)
   const PluginPanelItem* panel_item = reinterpret_cast<const PluginPanelItem*>(buf.data());
   PanelItem pi;
-  pi.file_attributes = panel_item->FindData.dwFileAttributes;
-  pi.creation_time = panel_item->FindData.ftCreationTime;
-  pi.last_access_time = panel_item->FindData.ftLastAccessTime;
-  pi.last_write_time = panel_item->FindData.ftLastWriteTime;
-  pi.file_size = panel_item->FindData.nFileSize;
-  pi.pack_size = panel_item->FindData.nPackSize;
-  pi.file_name = panel_item->FindData.lpwszFileName;
-  pi.alt_file_name = panel_item->FindData.lpwszAlternateFileName;
+  pi.file_attributes = panel_item->FileAttributes;
+  pi.creation_time = panel_item->CreationTime;
+  pi.last_access_time = panel_item->LastAccessTime;
+  pi.last_write_time = panel_item->LastWriteTime;
+  pi.file_size = panel_item->FileSize;
+  pi.pack_size = panel_item->PackSize;
+  pi.file_name = panel_item->FileName;
+  pi.alt_file_name = panel_item->AlternateFileName;
   pi.user_data = panel_item->UserData;
   return pi;
 }
@@ -203,18 +205,18 @@ PanelItem get_current_panel_item(HANDLE h_panel) {
 PanelItem get_panel_item(HANDLE h_panel, int command, int index) {
   unsigned size = g_far.Control(h_panel, command, index, 0);
   Buffer<unsigned char> buf(size);
-  size = g_far.Control(h_panel, command, index, reinterpret_cast<LONG_PTR>(buf.data()));
+  size = g_far.Control(h_panel, command, index, reinterpret_cast<INT_PTR>(buf.data()));
   CHECK(size)
   const PluginPanelItem* panel_item = reinterpret_cast<const PluginPanelItem*>(buf.data());
   PanelItem pi;
-  pi.file_attributes = panel_item->FindData.dwFileAttributes;
-  pi.creation_time = panel_item->FindData.ftCreationTime;
-  pi.last_access_time = panel_item->FindData.ftLastAccessTime;
-  pi.last_write_time = panel_item->FindData.ftLastWriteTime;
-  pi.file_size = panel_item->FindData.nFileSize;
-  pi.pack_size = panel_item->FindData.nPackSize;
-  pi.file_name = panel_item->FindData.lpwszFileName;
-  pi.alt_file_name = panel_item->FindData.lpwszAlternateFileName;
+  pi.file_attributes = panel_item->FileAttributes;
+  pi.creation_time = panel_item->CreationTime;
+  pi.last_access_time = panel_item->LastAccessTime;
+  pi.last_write_time = panel_item->LastWriteTime;
+  pi.file_size = panel_item->FileSize;
+  pi.pack_size = panel_item->PackSize;
+  pi.file_name = panel_item->FileName;
+  pi.alt_file_name = panel_item->AlternateFileName;
   pi.user_data = panel_item->UserData;
   return pi;
 }
@@ -246,9 +248,9 @@ void info_dlg(const wstring& title, const wstring& msg) {
   message(title + L'\n' + msg, 0, FMSG_MB_OK);
 }
 
-bool input_dlg(const wstring& title, const wstring& msg, wstring& text, DWORD flags) {
+bool input_dlg(const wstring& title, const wstring& msg, wstring& text, unsigned __int64 flags) {
   Buffer<wchar_t> buf(1024);
-  if (g_far.InputBox(title.c_str(), msg.c_str(), nullptr, text.c_str(), buf.data(), static_cast<int>(buf.size()), nullptr, flags)) {
+  if (g_far.InputBox(&c_plugin_guid, title.c_str(), msg.c_str(), nullptr, text.c_str(), buf.data(), static_cast<int>(buf.size()), nullptr, flags)) {
     text.assign(buf.data());
     return true;
   }
@@ -295,29 +297,23 @@ unsigned Dialog::new_item(const DialogItem& di) {
   return static_cast<unsigned>(items.size()) - 1;
 }
 
-LONG_PTR WINAPI Dialog::internal_dialog_proc(HANDLE h_dlg, int msg, int param1, LONG_PTR param2) {
+INT_PTR WINAPI Dialog::internal_dialog_proc(HANDLE h_dlg, int msg, int param1, INT_PTR param2) {
   Dialog* dlg = reinterpret_cast<Dialog*>(g_far.SendDlgMessage(h_dlg, DM_GETDLGDATA, 0, 0));
   dlg->h_dlg = h_dlg;
   FAR_ERROR_HANDLER_BEGIN
   if (!dlg->events_enabled)
     return dlg->default_dialog_proc(msg, param1, param2);
-  else if (msg == DN_GETDIALOGINFO && dlg->guid) {
-    DialogInfo* dialog_info = reinterpret_cast<DialogInfo*>(param2);
-    dialog_info->StructSize = sizeof(DialogInfo);
-    dialog_info->Id = *dlg->guid;
-    return TRUE;
-  }
   else
     return dlg->dialog_proc(msg, param1, param2);
   FAR_ERROR_HANDLER_END(return 0, return 0, false)
 }
 
-LONG_PTR Dialog::default_dialog_proc(int msg, int param1, LONG_PTR param2) {
+INT_PTR Dialog::default_dialog_proc(int msg, int param1, INT_PTR param2) {
   return g_far.DefDlgProc(h_dlg, msg, param1, param2);
 }
 
-LONG_PTR Dialog::send_message(int msg, int param1, const void* param2) {
-  return g_far.SendDlgMessage(h_dlg, msg, param1, reinterpret_cast<LONG_PTR>(param2));
+INT_PTR Dialog::send_message(int msg, int param1, const void* param2) {
+  return g_far.SendDlgMessage(h_dlg, msg, param1, reinterpret_cast<INT_PTR>(param2));
 }
 
 Dialog::Dialog(const wstring& title, const GUID* guid, unsigned width, const wchar_t* help): guid(guid), client_xs(width), x(c_x_frame), y(c_y_frame), help(help), events_enabled(true) {
@@ -360,7 +356,7 @@ unsigned Dialog::separator(const wstring& text) {
   return new_item(di);
 }
 
-unsigned Dialog::label(const wstring& text, unsigned boxsize, DWORD flags) {
+unsigned Dialog::label(const wstring& text, unsigned boxsize, FarDialogItemFlags flags) {
   DialogItem di;
   di.type = DI_TEXT;
   di.x1 = x;
@@ -378,7 +374,7 @@ unsigned Dialog::label(const wstring& text, unsigned boxsize, DWORD flags) {
   return new_item(di);
 }
 
-unsigned Dialog::edit_box(const wstring& text, unsigned boxsize, DWORD flags) {
+unsigned Dialog::edit_box(const wstring& text, unsigned boxsize, FarDialogItemFlags flags) {
   DialogItem di;
   di.type = DI_EDIT;
   di.x1 = x;
@@ -396,19 +392,19 @@ unsigned Dialog::edit_box(const wstring& text, unsigned boxsize, DWORD flags) {
   return new_item(di);
 }
 
-unsigned Dialog::history_edit_box(const wstring& text, const wstring& history_name, unsigned boxsize, DWORD flags) {
+unsigned Dialog::history_edit_box(const wstring& text, const wstring& history_name, unsigned boxsize, FarDialogItemFlags flags) {
   unsigned idx = edit_box(text, boxsize, flags | DIF_HISTORY);
   items[idx].history_idx = new_value(history_name);
   return idx;
 }
 
-unsigned Dialog::mask_edit_box(const wstring& text, const wstring& mask, unsigned boxsize, DWORD flags) {
+unsigned Dialog::mask_edit_box(const wstring& text, const wstring& mask, unsigned boxsize, FarDialogItemFlags flags) {
   unsigned idx = fix_edit_box(text, boxsize, flags | DIF_MASKEDIT);
   items[idx].mask_idx = new_value(mask);
   return idx;
 }
 
-unsigned Dialog::fix_edit_box(const wstring& text, unsigned boxsize, DWORD flags) {
+unsigned Dialog::fix_edit_box(const wstring& text, unsigned boxsize, FarDialogItemFlags flags) {
   DialogItem di;
   di.type = DI_FIXEDIT;
   di.x1 = x;
@@ -426,7 +422,7 @@ unsigned Dialog::fix_edit_box(const wstring& text, unsigned boxsize, DWORD flags
   return new_item(di);
 }
 
-unsigned Dialog::pwd_edit_box(const wstring& text, unsigned boxsize, DWORD flags) {
+unsigned Dialog::pwd_edit_box(const wstring& text, unsigned boxsize, FarDialogItemFlags flags) {
   DialogItem di;
   di.type = DI_PSWEDIT;
   di.x1 = x;
@@ -444,7 +440,7 @@ unsigned Dialog::pwd_edit_box(const wstring& text, unsigned boxsize, DWORD flags
   return new_item(di);
 }
 
-unsigned Dialog::button(const wstring& text, DWORD flags, bool def) {
+unsigned Dialog::button(const wstring& text, FarDialogItemFlags flags) {
   DialogItem di;
   di.type = DI_BUTTON;
   di.x1 = x;
@@ -454,12 +450,11 @@ unsigned Dialog::button(const wstring& text, DWORD flags, bool def) {
     client_xs = x - c_x_frame;
   di.y2 = y;
   di.flags = flags;
-  di.default_button = def ? 1 : 0;
   di.text_idx = new_value(text);
   return new_item(di);
 }
 
-unsigned Dialog::check_box(const wstring& text, int value, DWORD flags) {
+unsigned Dialog::check_box(const wstring& text, int value, FarDialogItemFlags flags) {
   DialogItem di;
   di.type = DI_CHECKBOX;
   di.x1 = x;
@@ -474,7 +469,7 @@ unsigned Dialog::check_box(const wstring& text, int value, DWORD flags) {
   return new_item(di);
 }
 
-unsigned Dialog::radio_button(const wstring& text, bool value, DWORD flags) {
+unsigned Dialog::radio_button(const wstring& text, bool value, FarDialogItemFlags flags) {
   DialogItem di;
   di.type = DI_RADIOBUTTON;
   di.x1 = x;
@@ -489,7 +484,7 @@ unsigned Dialog::radio_button(const wstring& text, bool value, DWORD flags) {
   return new_item(di);
 }
 
-unsigned Dialog::combo_box(const vector<wstring>& list_items, unsigned sel_idx, unsigned boxsize, DWORD flags) {
+unsigned Dialog::combo_box(const vector<wstring>& list_items, unsigned sel_idx, unsigned boxsize, FarDialogItemFlags flags) {
   DialogItem di;
   di.type = DI_COMBOBOX;
   di.x1 = x;
@@ -551,9 +546,7 @@ int Dialog::show() {
     dlg_item->Y1 = items[i].y1;
     dlg_item->X2 = items[i].x2;
     dlg_item->Y2 = items[i].y2;
-    dlg_item->Focus = items[i].focus;
     dlg_item->Flags = items[i].flags;
-    dlg_item->DefaultButton = items[i].default_button;
     dlg_item->Selected = items[i].selected;
     if (items[i].history_idx)
       dlg_item->History = get_value(items[i].history_idx);
@@ -578,7 +571,7 @@ int Dialog::show() {
   }
 
   int res = -1;
-  HANDLE h_dlg = g_far.DialogInit(g_far.ModuleNumber, -1, -1, client_xs + 2 * c_x_frame, client_ys + 2 * c_y_frame, help, dlg_items.data(), static_cast<unsigned>(dlg_items.size()), 0, 0, internal_dialog_proc, reinterpret_cast<LONG_PTR>(this));
+  HANDLE h_dlg = g_far.DialogInit(&c_plugin_guid, guid, -1, -1, client_xs + 2 * c_x_frame, client_ys + 2 * c_y_frame, help, dlg_items.data(), static_cast<unsigned>(dlg_items.size()), 0, 0, internal_dialog_proc, reinterpret_cast<INT_PTR>(this));
   if (h_dlg != INVALID_HANDLE_VALUE) {
     res = g_far.DialogRun(h_dlg);
     g_far.DialogFree(h_dlg);
@@ -589,12 +582,12 @@ int Dialog::show() {
 wstring Dialog::get_text(unsigned ctrl_id) const {
   size_t len = g_far.SendDlgMessage(h_dlg, DM_GETTEXTLENGTH, ctrl_id, 0);
   Buffer<wchar_t> buf(len + 1);
-  g_far.SendDlgMessage(h_dlg, DM_GETTEXTPTR, ctrl_id, reinterpret_cast<LONG_PTR>(buf.data()));
+  g_far.SendDlgMessage(h_dlg, DM_GETTEXTPTR, ctrl_id, reinterpret_cast<INT_PTR>(buf.data()));
   return wstring(buf.data(), len);
 }
 
 void Dialog::set_text(unsigned ctrl_id, const wstring& text) {
-  g_far.SendDlgMessage(h_dlg, DM_SETTEXTPTR, ctrl_id, reinterpret_cast<LONG_PTR>(text.c_str()));
+  g_far.SendDlgMessage(h_dlg, DM_SETTEXTPTR, ctrl_id, reinterpret_cast<INT_PTR>(text.c_str()));
 }
 
 bool Dialog::get_check(unsigned ctrl_id) const {
@@ -606,7 +599,7 @@ void Dialog::set_check(unsigned ctrl_id, bool check) {
 }
 
 TriState Dialog::get_check3(unsigned ctrl_id) const {
-  LONG_PTR value = DlgItem_GetCheck(g_far, h_dlg, ctrl_id);
+  INT_PTR value = DlgItem_GetCheck(g_far, h_dlg, ctrl_id);
   return value == BSTATE_3STATE ? triUndef : value == BSTATE_CHECKED ? triTrue : triFalse;
 }
 
@@ -622,17 +615,17 @@ void Dialog::set_list_pos(unsigned ctrl_id, unsigned pos) {
   FarListPos list_pos;
   list_pos.SelectPos = pos;
   list_pos.TopPos = -1;
-  g_far.SendDlgMessage(h_dlg, DM_LISTSETCURPOS, ctrl_id, reinterpret_cast<LONG_PTR>(&list_pos));
+  g_far.SendDlgMessage(h_dlg, DM_LISTSETCURPOS, ctrl_id, reinterpret_cast<INT_PTR>(&list_pos));
 }
 
 void Dialog::set_color(unsigned ctrl_id, unsigned char color) {
   size_t size = g_far.SendDlgMessage(h_dlg, DM_GETDLGITEM, ctrl_id, NULL);
   Buffer<unsigned char> buf(size);
   FarDialogItem* dlg_item = reinterpret_cast<FarDialogItem*>(buf.data());
-  g_far.SendDlgMessage(h_dlg, DM_GETDLGITEM, ctrl_id, reinterpret_cast<LONG_PTR>(dlg_item));
+  g_far.SendDlgMessage(h_dlg, DM_GETDLGITEM, ctrl_id, reinterpret_cast<INT_PTR>(dlg_item));
   dlg_item->Flags &= ~DIF_COLORMASK;
   dlg_item->Flags |= DIF_SETCOLOR | color;
-  g_far.SendDlgMessage(h_dlg, DM_SETDLGITEM, ctrl_id, reinterpret_cast<LONG_PTR>(dlg_item));
+  g_far.SendDlgMessage(h_dlg, DM_SETDLGITEM, ctrl_id, reinterpret_cast<INT_PTR>(dlg_item));
 }
 
 void Dialog::set_focus(unsigned ctrl_id) {
@@ -648,17 +641,17 @@ void Dialog::set_visible(unsigned ctrl_id, bool visible) {
 }
 
 Regex::Regex(): h_regex(INVALID_HANDLE_VALUE) {
-  CHECK(g_far.RegExpControl(0, RECTL_CREATE, reinterpret_cast<LONG_PTR>(&h_regex)));
+  CHECK(g_far.RegExpControl(0, RECTL_CREATE, 0, reinterpret_cast<INT_PTR>(&h_regex)));
 }
 
 Regex::~Regex() {
   if (h_regex != INVALID_HANDLE_VALUE)
-    CHECK(g_far.RegExpControl(h_regex, RECTL_FREE, 0));
+    CHECK(g_far.RegExpControl(h_regex, RECTL_FREE, 0, 0));
 }
 
 size_t Regex::search(const wstring& expr, const wstring& text) {
-  CHECK(g_far.RegExpControl(h_regex, RECTL_COMPILE, reinterpret_cast<LONG_PTR>((L"/" + expr + L"/").c_str())));
-  CHECK(g_far.RegExpControl(h_regex, RECTL_OPTIMIZE, 0));
+  CHECK(g_far.RegExpControl(h_regex, RECTL_COMPILE, 0, reinterpret_cast<INT_PTR>((L"/" + expr + L"/").c_str())));
+  CHECK(g_far.RegExpControl(h_regex, RECTL_OPTIMIZE, 0, 0));
   RegExpSearch regex_search;
   memzero(regex_search);
   regex_search.Text = text.c_str();
@@ -667,7 +660,7 @@ size_t Regex::search(const wstring& expr, const wstring& text) {
   RegExpMatch regex_match;
   regex_search.Match = &regex_match;
   regex_search.Count = 1;
-  if (g_far.RegExpControl(h_regex, RECTL_SEARCHEX, reinterpret_cast<LONG_PTR>(&regex_search)))
+  if (g_far.RegExpControl(h_regex, RECTL_SEARCHEX, 0, reinterpret_cast<INT_PTR>(&regex_search)))
     return regex_search.Match[0].start;
   else
     return -1;
@@ -685,7 +678,6 @@ void Selection::select(unsigned idx, bool value) {
   g_far.Control(h_plugin, FCTL_SETSELECTION, idx, value ? TRUE : FALSE);
 }
 
-//  HANDLE h_filter;
 FileFilter::FileFilter(): h_filter(INVALID_HANDLE_VALUE) {
 }
 
@@ -702,7 +694,7 @@ void FileFilter::clean() {
 
 bool FileFilter::create(HANDLE h_panel, int type) {
   clean();
-  return g_far.FileFilterControl(h_panel, FFCTL_CREATEFILEFILTER, type, reinterpret_cast<LONG_PTR>(&h_filter)) != FALSE;
+  return g_far.FileFilterControl(h_panel, FFCTL_CREATEFILEFILTER, type, reinterpret_cast<INT_PTR>(&h_filter)) != FALSE;
 }
 
 bool FileFilter::menu() {
@@ -713,8 +705,8 @@ void FileFilter::start() {
   g_far.FileFilterControl(h_filter, FFCTL_STARTINGTOFILTER, 0, 0);
 }
 
-bool FileFilter::match(const FAR_FIND_DATA& find_data) {
-  return g_far.FileFilterControl(h_filter, FFCTL_ISFILEINFILTER, 0, reinterpret_cast<LONG_PTR>(&find_data)) != FALSE;
+bool FileFilter::match(const PluginPanelItem& panel_item) {
+  return g_far.FileFilterControl(h_filter, FFCTL_ISFILEINFILTER, 0, reinterpret_cast<INT_PTR>(&panel_item)) != FALSE;
 }
 
 wstring get_absolute_path(const wstring& rel_path) {
@@ -728,7 +720,7 @@ wstring get_absolute_path(const wstring& rel_path) {
 }
 
 INT_PTR adv_control(int command, void* param) {
-  return g_far.AdvControl(g_far.ModuleNumber, command, param);
+  return g_far.AdvControl(&c_plugin_guid, command, param);
 }
 
 bool match_masks(const wstring& file_name, const wstring& masks) {
@@ -736,20 +728,20 @@ bool match_masks(const wstring& file_name, const wstring& masks) {
 }
 
 unsigned char get_colors(PaletteColors color_id) {
-  return static_cast<unsigned char>(g_far.AdvControl(g_far.ModuleNumber, ACTL_GETCOLOR, reinterpret_cast<void*>(color_id)));
+  return static_cast<unsigned char>(g_far.AdvControl(&c_plugin_guid, ACTL_GETCOLOR, reinterpret_cast<void*>(color_id)));
 }
 
 bool panel_go_to_dir(HANDLE h_panel, const wstring& dir) {
-  return g_far.Control(h_panel, FCTL_SETPANELDIR, 0, reinterpret_cast<LONG_PTR>(dir.c_str())) != 0;
+  return g_far.Control(h_panel, FCTL_SETPANELDIR, 0, reinterpret_cast<INT_PTR>(dir.c_str())) != 0;
 }
 
 // set current file on panel to file_path
 bool panel_go_to_file(HANDLE h_panel, const wstring& file_path) {
   wstring dir = extract_file_path(file_path);
-  if (!g_far.Control(h_panel, FCTL_SETPANELDIR, 0, reinterpret_cast<LONG_PTR>(dir.c_str())))
+  if (!g_far.Control(h_panel, FCTL_SETPANELDIR, 0, reinterpret_cast<INT_PTR>(dir.c_str())))
     return false;
   PanelInfo panel_info;
-  if (!g_far.Control(h_panel, FCTL_GETPANELINFO, 0, reinterpret_cast<LONG_PTR>(&panel_info)))
+  if (!g_far.Control(h_panel, FCTL_GETPANELINFO, 0, reinterpret_cast<INT_PTR>(&panel_info)))
     return false;
   wstring file_name = upcase(extract_file_name(file_path));
   PanelRedrawInfo panel_ri = { 0 };
@@ -759,17 +751,17 @@ bool panel_go_to_file(HANDLE h_panel, const wstring& file_path) {
     unsigned size = g_far.Control(h_panel, FCTL_GETPANELITEM, i, NULL);
     if (size > buf.size())
       buf.resize(size);
-    size = g_far.Control(h_panel, FCTL_GETPANELITEM, i, reinterpret_cast<LONG_PTR>(buf.data()));
+    size = g_far.Control(h_panel, FCTL_GETPANELITEM, i, reinterpret_cast<INT_PTR>(buf.data()));
     assert(size);
     const PluginPanelItem* panel_item = reinterpret_cast<const PluginPanelItem*>(buf.data());
-    if (file_name == upcase(panel_item->FindData.lpwszFileName)) {
+    if (file_name == upcase(panel_item->FileName)) {
       panel_ri.CurrentItem = i;
       break;
     }
   }
   if (i == panel_info.ItemsNumber)
     return false;
-  if (!g_far.Control(h_panel, FCTL_REDRAWPANEL, 0, reinterpret_cast<LONG_PTR>(&panel_ri)))
+  if (!g_far.Control(h_panel, FCTL_REDRAWPANEL, 0, reinterpret_cast<INT_PTR>(&panel_ri)))
     return false;
   return true;
 }
@@ -794,7 +786,7 @@ DWORD get_lang_id() {
 }
 
 void close_plugin(HANDLE h_plugin, const wstring& dir) {
-  g_far.Control(h_plugin, FCTL_CLOSEPLUGIN, 0, reinterpret_cast<LONG_PTR>(dir.c_str()));
+  g_far.Control(h_plugin, FCTL_CLOSEPLUGIN, 0, reinterpret_cast<INT_PTR>(dir.c_str()));
 }
 
 void open_help(const wstring& topic) {

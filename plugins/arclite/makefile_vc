@@ -84,7 +84,7 @@ $(OBJS): $(OUTDIR)\headers.pch
 $(OUTDIR)\headers.pch: headers.cpp headers.hpp
   $(CPP) $(CPPFLAGS) headers.cpp -Ycheaders.hpp -Fp$(OUTDIR)\headers.pch
 
-depfile: $(OUTDIR) $(OUTDIR)\msg.h
+depfile: $(OUTDIR) $(OUTDIR)\msg.h $(OUTDIR)\plugin.h
   $(TOOLSDIR)\gendep.exe $(INCLUDES) > $(OUTDIR)\dep.mak
 
 $(OUTDIR)\msg.h $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng: $(OUTDIR) $(OUTDIR)\en.msg $(OUTDIR)\ru.msg
@@ -111,6 +111,9 @@ $(OUTDIR)\$(MODULE)_eng.hlf: project.ini en.hlf
   $(PREPROC)
 
 $(OUTDIR)\$(MODULE)_rus.hlf: project.ini ru.hlf
+  $(PREPROC)
+
+$(OUTDIR)\plugin.h: project.ini $(OUTDIR)\far.ini plugin_h.h
   $(PREPROC)
 
 COPY = copy /y $** $@

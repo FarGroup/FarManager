@@ -507,15 +507,15 @@ private:
   }
 
   bool process_file(const wstring& sub_dir, const FindData& src_find_data, UInt32 dst_dir_index, UInt32& file_index) {
-    FAR_FIND_DATA filter_data;
-    memset(&filter_data, 0, sizeof(filter_data));
-    filter_data.dwFileAttributes = src_find_data.dwFileAttributes;
-    filter_data.ftCreationTime = src_find_data.ftCreationTime;
-    filter_data.ftLastAccessTime = src_find_data.ftLastAccessTime;
-    filter_data.ftLastWriteTime = src_find_data.ftLastWriteTime;
-    filter_data.nFileSize = src_find_data.size();
-    filter_data.nPackSize = 0;
-    filter_data.lpwszFileName = src_find_data.cFileName;
+    PluginPanelItem filter_data;
+    memzero(filter_data);
+    filter_data.FileAttributes = src_find_data.dwFileAttributes;
+    filter_data.CreationTime = src_find_data.ftCreationTime;
+    filter_data.LastAccessTime = src_find_data.ftLastAccessTime;
+    filter_data.LastWriteTime = src_find_data.ftLastWriteTime;
+    filter_data.FileSize = src_find_data.size();
+    filter_data.PackSize = 0;
+    filter_data.FileName = src_find_data.cFileName;
     if (filter && !filter->match(filter_data))
       return false;
     ArcFileInfo file_info;

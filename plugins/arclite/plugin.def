@@ -1,7 +1,6 @@
 LIBRARY <(MODULE)> BASE=0x64000000
 EXPORTS
-  GetMinFarVersion
-  GetMinFarVersionW
+  GetGlobalInfoW
   SetStartupInfoW
   GetPluginInfoW
   OpenPluginW

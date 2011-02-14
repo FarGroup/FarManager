@@ -1,4 +1,5 @@
 #include "msg.h"
+#include "guids.hpp"
 
 #include "utils.hpp"
 #include "farutils.hpp"
@@ -163,14 +164,6 @@ const wchar_t** get_speed_suffixes() {
   return suffixes;
 }
 
-
-const GUID c_password_dialog_guid = { /* 761F3B4C-FC45-4A9D-A383-3F75D505A43B */
-  0x761F3B4C,
-  0xFC45,
-  0x4A9D,
-  {0xA3, 0x83, 0x3F, 0x75, 0xD5, 0x05, 0xA4, 0x3B}
-};
-
 class PasswordDialog: public Far::Dialog {
 private:
   enum {
@@ -184,7 +177,7 @@ private:
   int ok_ctrl_id;
   int cancel_ctrl_id;
 
-  LONG_PTR dialog_proc(int msg, int param1, LONG_PTR param2) {
+  INT_PTR dialog_proc(int msg, int param1, INT_PTR param2) {
     if ((msg == DN_CLOSE) && (param1 >= 0) && (param1 != cancel_ctrl_id)) {
       password = get_text(password_ctrl_id);
     }
@@ -219,13 +212,6 @@ bool password_dialog(wstring& password, const wstring& arc_path) {
 }
 
 
-const GUID c_overwrite_dialog_guid = { /* 83B02899-4590-47F9-B4C1-6BC66C6CA4F9 */
-  0x83B02899,
-  0x4590,
-  0x47F9,
-  {0xB4, 0xC1, 0x6B, 0xC6, 0x6C, 0x6C, 0xA4, 0xF9}
-};
-
 class OverwriteDialog: public Far::Dialog {
 private:
   enum {
@@ -245,7 +231,7 @@ private:
   int append_ctrl_id;
   int cancel_ctrl_id;
 
-  LONG_PTR dialog_proc(int msg, int param1, LONG_PTR param2) {
+  INT_PTR dialog_proc(int msg, int param1, INT_PTR param2) {
     if (msg == DN_CLOSE && param1 >= 0 && param1 != cancel_ctrl_id) {
       options.all = get_check(all_ctrl_id);
       if (param1 == overwrite_ctrl_id)
@@ -343,13 +329,6 @@ bool overwrite_dialog(const wstring& file_path, const OverwriteFileInfo& src_fil
 }
 
 
-const GUID c_extract_dialog_guid = { /* 97877FD0-78E6-4169-B4FB-D76746249F4D */
-  0x97877FD0,
-  0x78E6,
-  0x4169,
-  {0xB4, 0xFB, 0xD7, 0x67, 0x46, 0x24, 0x9F, 0x4D}
-};
-
 class ExtractDialog: public Far::Dialog {
 private:
   enum {
@@ -374,7 +353,7 @@ private:
   int ok_ctrl_id;
   int cancel_ctrl_id;
 
-  LONG_PTR dialog_proc(int msg, int param1, LONG_PTR param2) {
+  INT_PTR dialog_proc(int msg, int param1, INT_PTR param2) {
     if ((msg == DN_CLOSE) && (param1 >= 0) && (param1 != cancel_ctrl_id)) {
       options.dst_dir = unquote(strip(get_text(dst_dir_ctrl_id)));
       options.ignore_errors = get_check(ignore_errors_ctrl_id);
@@ -657,12 +636,6 @@ const CompressionMethod c_methods[] = {
   { MSG_COMPRESSION_METHOD_PPMD, c_method_ppmd },
 };
 
-const GUID c_update_dialog_guid = { /* CD57D7FA-552C-4E31-8FA8-73D9704F0666 */
-  0xCD57D7FA,
-  0x552C,
-  0x4E31,
-  {0x8F, 0xA8, 0x73, 0xD9, 0x70, 0x4F, 0x06, 0x66}
-};
 
 class UpdateDialog: public Far::Dialog {
 private:
@@ -975,7 +948,7 @@ private:
     send_message(DM_LISTSET, profile_ctrl_id, &fl);
   }
 
-  LONG_PTR dialog_proc(int msg, int param1, LONG_PTR param2) {
+  INT_PTR dialog_proc(int msg, int param1, INT_PTR param2) {
     if (msg == DN_CLOSE && param1 >= 0 && param1 != cancel_ctrl_id) {
       read_controls(options);
       if (new_arc)
@@ -1295,13 +1268,6 @@ bool update_dialog(bool new_arc, UpdateOptions& options, UpdateProfiles& profile
 }
 
 
-const GUID c_settings_dialog_guid = { /* 08A1229B-AD54-451B-8B53-6D5FD35BCFAA */
-  0x08A1229B,
-  0xAD54,
-  0x451B,
-  {0x8B, 0x53, 0x6D, 0x5F, 0xD3, 0x5B, 0xCF, 0xAA}
-};
-
 class SettingsDialog: public Far::Dialog {
 private:
   enum {
@@ -1325,7 +1291,7 @@ private:
   int ok_ctrl_id;
   int cancel_ctrl_id;
 
-  LONG_PTR dialog_proc(int msg, int param1, LONG_PTR param2) {
+  INT_PTR dialog_proc(int msg, int param1, INT_PTR param2) {
     if ((msg == DN_CLOSE) && (param1 >= 0) && (param1 != cancel_ctrl_id)) {
       settings.handle_create = get_check(handle_create_ctrl_id);
       settings.handle_commands = get_check(handle_commands_ctrl_id);
@@ -1466,11 +1432,12 @@ bool settings_dialog(PluginSettings& settings) {
   return SettingsDialog(settings).show();
 }
 
+
 class AttrDialog: public Far::Dialog {
 private:
   const AttrList& attr_list;
 
-  LONG_PTR dialog_proc(int msg, int param1, LONG_PTR param2) {
+  INT_PTR dialog_proc(int msg, int param1, INT_PTR param2) {
     if (msg == DN_INITDIALOG) {
       FarDialogItem dlg_item;
       for (unsigned ctrl_id = 0; send_message(DM_GETDLGITEMSHORT, ctrl_id, &dlg_item); ctrl_id++) {
@@ -1491,7 +1458,7 @@ private:
   }
 
 public:
-  AttrDialog(const AttrList& attr_list): Far::Dialog(Far::get_msg(MSG_ATTR_DLG_TITLE)), attr_list(attr_list) {
+  AttrDialog(const AttrList& attr_list): Far::Dialog(Far::get_msg(MSG_ATTR_DLG_TITLE), &c_attr_dialog_guid), attr_list(attr_list) {
   }
 
   void show() {

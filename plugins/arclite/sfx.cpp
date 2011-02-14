@@ -1,4 +1,5 @@
 #include "msg.h"
+#include "guids.hpp"
 #include "utils.hpp"
 #include "farutils.hpp"
 #include "sysutils.hpp"
@@ -142,13 +143,6 @@ struct SfxProfile {
 };
 
 typedef vector<SfxProfile> SfxProfiles;
-
-const GUID c_sfx_options_dialog_guid = { /* 0DCE48E5-B205-44A0-B8BF-96B28E2FD3B3 */
-  0x0DCE48E5,
-  0xB205,
-  0x44A0,
-  {0xB8, 0xBF, 0x96, 0xB2, 0x8E, 0x2F, 0xD3, 0xB3}
-};
 
 class SfxOptionsDialog: public Far::Dialog {
 private:
@@ -295,7 +289,7 @@ private:
     set_text(install_config_execute_parameters_ctrl_id, options.install_config.execute_parameters);
   }
 
-  LONG_PTR dialog_proc(int msg, int param1, LONG_PTR param2) {
+  INT_PTR dialog_proc(int msg, int param1, INT_PTR param2) {
     if (msg == DN_CLOSE && param1 >= 0 && param1 != cancel_ctrl_id) {
       options = read_controls();
     }

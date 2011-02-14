@@ -44,7 +44,7 @@ const wchar_t* msg_ptr(int id);
 wstring get_msg(int id);
 
 unsigned get_optimal_msg_width();
-int message(const wstring& msg, int button_cnt = 0, DWORD flags = 0);
+int message(const wstring& msg, int button_cnt = 0, unsigned __int64 flags = 0);
 
 class MenuItems: public vector<wstring> {
 public:
@@ -58,15 +58,15 @@ void set_progress_value(unsigned __int64 completed, unsigned __int64 total);
 void progress_notify();
 
 void call_user_apc(void* param);
-void post_keys(const vector<DWORD>& keys, DWORD flags = 0);
+bool post_macro(const wstring& macro);
 void quit();
 
 HANDLE save_screen();
 void restore_screen(HANDLE h_scr);
 void flush_screen();
 
-int viewer(const wstring& file_name, const wstring& title, DWORD flags = 0);
-int editor(const wstring& file_name, const wstring& title, DWORD flags = 0);
+int viewer(const wstring& file_name, const wstring& title, unsigned __int64 flags = 0);
+int editor(const wstring& file_name, const wstring& title, unsigned __int64 flags = 0);
 
 void update_panel(HANDLE h_panel, bool keep_selection);
 void set_view_mode(HANDLE h_panel, unsigned view_mode);
@@ -96,7 +96,7 @@ PanelItem get_selected_panel_item(HANDLE h_panel, unsigned index);
 
 void error_dlg(const wstring& title, const Error& e);
 void info_dlg(const wstring& title, const wstring& msg);
-bool input_dlg(const wstring& title, const wstring& msg, wstring& text, DWORD flags = 0);
+bool input_dlg(const wstring& title, const wstring& msg, wstring& text, unsigned __int64 flags = 0);
 
 #define AUTO_SIZE (-1)
 const unsigned c_x_frame = 5;
@@ -108,9 +108,7 @@ struct DialogItem {
   unsigned y1;
   unsigned x2;
   unsigned y2;
-  DWORD flags;
-  bool focus;
-  bool default_button;
+  FarDialogItemFlags flags;
   int selected;
   unsigned history_idx;
   unsigned mask_idx;
@@ -139,7 +137,7 @@ private:
   void frame(const wstring& text);
   void calc_frame_size();
   unsigned new_item(const DialogItem& di);
-  static LONG_PTR WINAPI internal_dialog_proc(HANDLE h_dlg, int msg, int param1, LONG_PTR param2);
+  static INT_PTR WINAPI internal_dialog_proc(HANDLE h_dlg, int msg, int param1, INT_PTR param2);
   bool events_enabled;
 protected:
   class DisableEvents {
@@ -157,16 +155,16 @@ protected:
     }
   };
   unsigned get_label_len(const wstring& str);
-  LONG_PTR default_dialog_proc(int msg, int param1, LONG_PTR param2);
-  virtual LONG_PTR dialog_proc(int msg, int param1, LONG_PTR param2) {
+  INT_PTR default_dialog_proc(int msg, int param1, INT_PTR param2);
+  virtual INT_PTR dialog_proc(int msg, int param1, INT_PTR param2) {
     return default_dialog_proc(msg, param1, param2);
   }
   void set_width(unsigned width) {
     client_xs = width;
   }
-  LONG_PTR send_message(int msg, int param1, const void* param2 = nullptr);
+  INT_PTR send_message(int msg, int param1, const void* param2 = nullptr);
 public:
-  Dialog(const wstring& title, const GUID* guid = nullptr, unsigned width = 60, const wchar_t* help = nullptr);
+  Dialog(const wstring& title, const GUID* guid, unsigned width = 60, const wchar_t* help = nullptr);
   // create different controls
   void new_line();
   void reset_line();
@@ -174,28 +172,28 @@ public:
   void pad(unsigned pos);
   unsigned separator();
   unsigned separator(const wstring& text);
-  unsigned label(const wstring& text, unsigned boxsize = AUTO_SIZE, DWORD flags = 0);
-  unsigned edit_box(const wstring& text, unsigned boxsize = AUTO_SIZE, DWORD flags = 0);
-  unsigned mask_edit_box(const wstring& text, const wstring& mask, unsigned boxsize = AUTO_SIZE, DWORD flags = 0);
-  unsigned history_edit_box(const wstring& text, const wstring& history_name, unsigned boxsize = AUTO_SIZE, DWORD flags = 0);
-  unsigned fix_edit_box(const wstring& text, unsigned boxsize = AUTO_SIZE, DWORD flags = 0);
-  unsigned pwd_edit_box(const wstring& text, unsigned boxsize = AUTO_SIZE, DWORD flags = 0);
-  unsigned button(const wstring& text, DWORD flags = 0, bool def = false);
-  unsigned def_button(const wstring& text, DWORD flags = 0) {
-    return button(text, flags, true);
+  unsigned label(const wstring& text, unsigned boxsize = AUTO_SIZE, FarDialogItemFlags flags = 0);
+  unsigned edit_box(const wstring& text, unsigned boxsize = AUTO_SIZE, FarDialogItemFlags flags = 0);
+  unsigned mask_edit_box(const wstring& text, const wstring& mask, unsigned boxsize = AUTO_SIZE, FarDialogItemFlags flags = 0);
+  unsigned history_edit_box(const wstring& text, const wstring& history_name, unsigned boxsize = AUTO_SIZE, FarDialogItemFlags flags = 0);
+  unsigned fix_edit_box(const wstring& text, unsigned boxsize = AUTO_SIZE, FarDialogItemFlags flags = 0);
+  unsigned pwd_edit_box(const wstring& text, unsigned boxsize = AUTO_SIZE, FarDialogItemFlags flags = 0);
+  unsigned button(const wstring& text, FarDialogItemFlags flags = 0);
+  unsigned def_button(const wstring& text, FarDialogItemFlags flags = 0) {
+    return button(text, flags | DIF_DEFAULTBUTTON);
   }
-  unsigned check_box(const wstring& text, int value, DWORD flags = 0);
-  unsigned check_box(const wstring& text, bool value, DWORD flags = 0) {
+  unsigned check_box(const wstring& text, int value, FarDialogItemFlags flags = 0);
+  unsigned check_box(const wstring& text, bool value, FarDialogItemFlags flags = 0) {
     return check_box(text, value ? BSTATE_CHECKED : BSTATE_UNCHECKED, flags);
   }
-  unsigned check_box3(const wstring& text, bool value, bool value_defined, DWORD flags = 0) {
+  unsigned check_box3(const wstring& text, bool value, bool value_defined, FarDialogItemFlags flags = 0) {
     return check_box(text, value_defined ? (value ? BSTATE_CHECKED : BSTATE_UNCHECKED) : BSTATE_3STATE, flags | DIF_3STATE);
   }
-  unsigned check_box3(const wstring& text, TriState value, DWORD flags = 0) {
+  unsigned check_box3(const wstring& text, TriState value, FarDialogItemFlags flags = 0) {
     return check_box(text, value == triUndef ? BSTATE_3STATE : value == triTrue ? BSTATE_CHECKED : BSTATE_UNCHECKED, flags | DIF_3STATE);
   }
-  unsigned radio_button(const wstring& text, bool value, DWORD flags = 0);
-  unsigned combo_box(const vector<wstring>& items, unsigned sel_idx, unsigned boxsize = AUTO_SIZE, DWORD flags = 0);
+  unsigned radio_button(const wstring& text, bool value, FarDialogItemFlags flags = 0);
+  unsigned combo_box(const vector<wstring>& items, unsigned sel_idx, unsigned boxsize = AUTO_SIZE, FarDialogItemFlags flags = 0);
   // display dialog
   int show();
   // utilities to set/get control values
@@ -241,7 +239,7 @@ public:
   bool create(HANDLE h_panel, int type);
   bool menu();
   void start();
-  bool match(const FAR_FIND_DATA& find_data);
+  bool match(const PluginPanelItem& panel_item);
 };
 
 wstring get_absolute_path(const wstring& rel_path);

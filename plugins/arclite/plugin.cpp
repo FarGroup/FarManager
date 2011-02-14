@@ -1,4 +1,6 @@
 #include "msg.h"
+#include "plugin.h"
+#include "guids.hpp"
 
 #include "utils.hpp"
 #include "sysutils.hpp"
@@ -61,7 +63,7 @@ public:
 
   void info(OpenPluginInfo* opi) {
     opi->StructSize = sizeof(OpenPluginInfo);
-    opi->Flags = OPIF_USEFILTER | OPIF_USESORTGROUPS | OPIF_USEHIGHLIGHTING | OPIF_ADDDOTS;
+    opi->Flags = OPIF_ADDDOTS;
     opi->CurDir = current_dir.c_str();
     panel_title = Far::get_msg(MSG_PLUGIN_NAME);
     if (archive->is_open()) {
@@ -128,15 +130,14 @@ public:
       unsigned idx = 0;
       for_each(dir_list.first, dir_list.second, [&] (UInt32 file_index) {
         const ArcFileInfo& file_info = archive->file_list[file_index];
-        FAR_FIND_DATA& fdata = items[idx].FindData;
         const DWORD c_valid_attributes = FILE_ATTRIBUTE_ARCHIVE | FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_SYSTEM;
-        fdata.dwFileAttributes = archive->get_attr(file_index) & c_valid_attributes;
-        fdata.ftCreationTime = archive->get_ctime(file_index);
-        fdata.ftLastAccessTime = archive->get_atime(file_index);
-        fdata.ftLastWriteTime = archive->get_mtime(file_index);
-        fdata.nFileSize = archive->get_size(file_index);
-        fdata.nPackSize = archive->get_psize(file_index);
-        fdata.lpwszFileName = file_info.name.c_str();
+        items[idx].FileAttributes = archive->get_attr(file_index) & c_valid_attributes;
+        items[idx].CreationTime = archive->get_ctime(file_index);
+        items[idx].LastAccessTime = archive->get_atime(file_index);
+        items[idx].LastWriteTime = archive->get_mtime(file_index);
+        items[idx].FileSize = archive->get_size(file_index);
+        items[idx].PackSize = archive->get_psize(file_index);
+        items[idx].FileName = file_info.name.c_str();
         items[idx].UserData = file_index;
         items[idx].CRC32 = archive->get_crc(file_index);
         idx++;
@@ -160,7 +161,7 @@ public:
 
   void get_files(const PluginPanelItem* panel_items, int items_number, int move, const wchar_t** dest_path, int op_mode) {
     bool single_item = items_number == 1;
-    if (single_item && wcscmp(panel_items[0].FindData.lpwszFileName, L"..") == 0) return;
+    if (single_item && wcscmp(panel_items[0].FileName, L"..") == 0) return;
     ExtractOptions options;
     options.dst_dir = *dest_path;
     options.move_files = archive->updatable() ? (move ? triTrue : triFalse) : triUndef;
@@ -234,7 +235,7 @@ public:
 
     if (options.open_dir) {
       if (single_item)
-        Far::panel_go_to_file(PANEL_ACTIVE, add_trailing_slash(options.dst_dir) + panel_items[0].FindData.lpwszFileName);
+        Far::panel_go_to_file(PANEL_ACTIVE, add_trailing_slash(options.dst_dir) + panel_items[0].FileName);
       else
         Far::panel_go_to_dir(PANEL_ACTIVE, options.dst_dir);
     }
@@ -424,7 +425,7 @@ public:
   }
 
   void put_files(const PluginPanelItem* panel_items, int items_number, int move, const wchar_t* src_path, int op_mode) {
-    if (items_number == 1 && wcscmp(panel_items[0].FindData.lpwszFileName, L"..") == 0)
+    if (items_number == 1 && wcscmp(panel_items[0].FileName, L"..") == 0)
       return;
     UpdateOptions options;
     bool new_arc = !archive->is_open();
@@ -433,7 +434,7 @@ public:
     }
     if (new_arc) {
       if (items_number == 1 || is_root_path(src_path))
-        options.arc_path = panel_items[0].FindData.lpwszFileName;
+        options.arc_path = panel_items[0].FileName;
       else
         options.arc_path = extract_file_name(src_path);
       ArcTypes arc_types = ArcAPI::formats().find_by_name(g_options.update_arc_format_name);
@@ -507,7 +508,7 @@ public:
     vector<wstring> file_names;
     file_names.reserve(items_number);
     for (int i = 0; i < items_number; i++) {
-      file_names.push_back(panel_items[i].FindData.lpwszFileName);
+      file_names.push_back(panel_items[i].FileName);
     }
 
     ErrorLog error_log;
@@ -706,7 +707,7 @@ public:
   }
 
   void delete_files(const PluginPanelItem* panel_items, int items_number, int op_mode) {
-    if (items_number == 1 && wcscmp(panel_items[0].FindData.lpwszFileName, L"..") == 0) return;
+    if (items_number == 1 && wcscmp(panel_items[0].FileName, L"..") == 0) return;
 
     if (!archive->updatable()) {
       FAIL_MSG(Far::get_msg(MSG_ERROR_NOT_UPDATABLE));
@@ -784,12 +785,14 @@ public:
 
 TriState detect_next_time = triUndef;
 
-int WINAPI GetMinFarVersion(void) {
-  return FARMANAGERVERSION;
-}
-
-int WINAPI GetMinFarVersionW(void) {
-  return FARMANAGERVERSION;
+void WINAPI GetGlobalInfoW(struct GlobalInfo *Info) {
+  Info->StructSize = sizeof(GlobalInfo);
+  Info->MinFarVersion = FARMANAGERVERSION;
+  Info->Version = PLUGIN_VERSION;
+  Info->Guid = c_plugin_guid;
+  Info->Title = PLUGIN_NAME;
+  Info->Description = PLUGIN_DESCRIPTION;
+  Info->Author = FARCOMPANYNAME;
 }
 
 void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info) {
@@ -809,15 +812,17 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info) {
   config_menu[0] = Far::msg_ptr(MSG_PLUGIN_NAME);
 
   Info->StructSize = sizeof(PluginInfo);
-  Info->PluginMenuStrings = plugin_menu;
-  Info->PluginMenuStringsNumber = ARRAYSIZE(plugin_menu);
-  Info->PluginConfigStrings = config_menu;
-  Info->PluginConfigStringsNumber = ARRAYSIZE(config_menu);
+  Info->PluginMenu.Guids = &c_plugin_menu_guid;
+  Info->PluginMenu.Strings = plugin_menu;
+  Info->PluginMenu.Count = ARRAYSIZE(plugin_menu);
+  Info->PluginConfig.Guids = &c_plugin_config_guid;
+  Info->PluginConfig.Strings = config_menu;
+  Info->PluginConfig.Count = ARRAYSIZE(config_menu);
   Info->CommandPrefix = g_plugin_prefix.c_str();
   FAR_ERROR_HANDLER_END(return, return, false);
 }
 
-HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item) {
+HANDLE WINAPI OpenPluginW(int OpenFrom, const GUID* Guid, INT_PTR Data) {
   FAR_ERROR_HANDLER_BEGIN;
   if (OpenFrom == OPEN_PLUGINSMENU) {
     Far::MenuItems menu_items;
@@ -839,7 +844,7 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item) {
         return INVALID_HANDLE_VALUE;
       if (!Far::is_real_file_panel(panel_info)) {
         if ((panel_item.file_attributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
-          Far::post_keys(vector<DWORD>(1, KEY_CTRLPGDN));
+          Far::post_macro(L"CtrlPgDn");
           detect_next_time = options.detect ? triTrue : triFalse;
         }
         return INVALID_HANDLE_VALUE;
@@ -880,7 +885,7 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item) {
   }
   else if (OpenFrom == OPEN_COMMANDLINE) {
     try {
-      CommandArgs cmd_args = parse_command(reinterpret_cast<const wchar_t*>(Item));
+      CommandArgs cmd_args = parse_command(reinterpret_cast<const wchar_t*>(Data));
       switch (cmd_args.cmd) {
       case cmdOpen: {
         OpenOptions options = parse_open_command(cmd_args).options;
@@ -1038,17 +1043,20 @@ int WINAPI ProcessHostFileW(HANDLE hPlugin, struct PluginPanelItem *PanelItem, i
   FAR_ERROR_HANDLER_END(return FALSE, return FALSE, (OpMode & OPM_SILENT) != 0);
 }
 
-int WINAPI ProcessKeyW(HANDLE hPlugin,int Key,unsigned int ControlState) {
+int WINAPI ProcessKeyW(HANDLE hPlugin, const INPUT_RECORD *Rec) {
   FAR_ERROR_HANDLER_BEGIN;
-  if (ControlState == PKF_CONTROL && Key == 'A') {
-    reinterpret_cast<Plugin*>(hPlugin)->show_attr();
-    return TRUE;
+  if (Rec->EventType == KEY_EVENT) {
+    const KEY_EVENT_RECORD& key_event = Rec->Event.KeyEvent;
+    if ((key_event.dwControlKeyState & LEFT_CTRL_PRESSED) == LEFT_CTRL_PRESSED && key_event.wVirtualKeyCode == 'A') {
+      reinterpret_cast<Plugin*>(hPlugin)->show_attr();
+      return TRUE;
+    }
   }
   return FALSE;
   FAR_ERROR_HANDLER_END(return FALSE, return FALSE, false);
 }
 
-int WINAPI ConfigureW(int ItemNumber) {
+int WINAPI ConfigureW(const GUID* Guid) {
   FAR_ERROR_HANDLER_BEGIN;
   PluginSettings settings;
   settings.handle_create = g_options.handle_create;
