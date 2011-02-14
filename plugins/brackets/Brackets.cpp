@@ -85,22 +85,22 @@ int Config()
 {
   PluginDialogBuilder Builder(Info, MainGuid, DialogGuid, MTitle, nullptr);
 
-  FarDialogItem *Box = Builder.StartSingleBox(MRules, true);
+  Builder.StartSingleBox(MRules, true);
   Builder.AddCheckbox(MIgnoreQuotation, &Opt.IgnoreQuotes);
   Builder.AddCheckbox(MIgnoreAfter, &Opt.IgnoreAfter);
   Builder.AddCheckbox(MPriority, &Opt.BracketPrior);
   Builder.AddCheckbox(MJumpToPair, &Opt.JumpToPair);
   Builder.AddCheckbox(MBeep, &Opt.Beep);
-  Builder.EndSingleBox(Box);
+  Builder.EndSingleBox();
 
-  Box = Builder.StartSingleBox(MDescriptions, true);
+  Builder.StartSingleBox(MDescriptions, true);
   Builder.AddText(MTypeQuotes);
   Builder.AddFixEditField(Opt.QuotesType, ARRAYSIZE(Opt.QuotesType), ARRAYSIZE(Opt.QuotesType)-1);
   Builder.AddText(MDescript1);
   Builder.AddFixEditField(Opt.Brackets1, ARRAYSIZE(Opt.Brackets1), ARRAYSIZE(Opt.Brackets1)-1);
   Builder.AddText(MDescript2);
   Builder.AddFixEditField(Opt.Brackets2, ARRAYSIZE(Opt.Brackets2), ARRAYSIZE(Opt.Brackets2)-1);
-  Builder.EndSingleBox(Box);
+  Builder.EndSingleBox();
 
   Builder.AddOKCancel(MSave, MCancel);
 
