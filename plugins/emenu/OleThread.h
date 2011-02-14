@@ -17,7 +17,7 @@ namespace OleThread
   extern CHandle *hStop;
   extern CThreadTerminator *hTerminator;
 
-  CPlugin::EDoMenu OpenPlugin(int nOpenFrom, int nItem);
+  CPlugin::EDoMenu OpenPlugin(int nOpenFrom, INT_PTR nItem);
   void Stop();
 };
 

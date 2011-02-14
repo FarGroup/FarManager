@@ -1,38 +1,27 @@
 #include "FarMenu.h"
 #include "Plugin.h"
-#include <tchar.h>
+#include "guid.hpp"
 #include <cassert>
 
-#ifdef UNICODE
 static const wchar_t  empty_wstr;
-#define TextPtr Text
-#else
-#define TextPtr Text.Text
-#endif
 
-CFarMenu::CFarMenu(LPCTSTR szHelp/*=NULL*/, unsigned nMaxItems/*=40*/)
+CFarMenu::CFarMenu(LPCWSTR szHelp/*=NULL*/, unsigned nMaxItems/*=40*/)
   : m_szHelp(szHelp)
   , m_pfmi(NULL)
   , m_nItemCnt(0)
-#ifndef UNICODE
-  , m_szArrow("  \x10")
-#else
   , m_szArrow(L"  \x25BA")
-#endif
   , m_bArrowsAdded(false)
   , m_nMaxItems(nMaxItems)
 {
-  m_pfmi=new FarMenuItemEx[nMaxItems];
+  m_pfmi=new FarMenuItem[nMaxItems];
   m_pbHasSubMenu=new bool[nMaxItems];
 }
 
 CFarMenu::~CFarMenu()
 {
-#ifdef UNICODE
   for(unsigned i = 0; i < m_nItemCnt; i++)
     if(m_pfmi[i].Text != &empty_wstr)
       delete m_pfmi[i].Text;
-#endif
   delete[] m_pfmi;
   delete[] m_pbHasSubMenu;
 }
@@ -42,17 +31,12 @@ void CFarMenu::AddSeparator()
   AddItem(NULL, false);
 }
 
-unsigned CFarMenu::AddItem(LPCTSTR szText, bool bHasSubMenu/*=false*/
-             , ECheck enChecked/*=UNCHECKED*/
-             , bool bDisabled/*=false*/)
+unsigned CFarMenu::AddItem(LPCWSTR szText, bool bHasSubMenu/*=false*/, ECheck enChecked/*=UNCHECKED*/, bool bDisabled/*=false*/)
 {
   return InsertItem(m_nItemCnt, szText, bHasSubMenu, enChecked, bDisabled);
 }
 
-unsigned CFarMenu::InsertItem(unsigned nIndex, LPCTSTR szText
-                , bool bHasSubMenu/*=false*/
-                , ECheck enChecked/*=UNCHECKED*/
-                , bool bDisabled/*=false*/)
+unsigned CFarMenu::InsertItem(unsigned nIndex, LPCWSTR szText, bool bHasSubMenu/*=false*/, ECheck enChecked/*=UNCHECKED*/, bool bDisabled/*=false*/)
 {
   if (m_nItemCnt>=m_nMaxItems || nIndex>m_nItemCnt)
   {
@@ -66,25 +50,19 @@ unsigned CFarMenu::InsertItem(unsigned nIndex, LPCTSTR szText
   m_pfmi[nIndex].Flags=0;
   if (szText)
   {
-#ifndef UNICODE
-    lstrcpyn(m_pfmi[nIndex].Text.Text, szText, sizeof(m_pfmi[nIndex].Text.Text));
-#else
     if(!*szText)
+    {
       m_pfmi[nIndex].Text=&empty_wstr;
+    }
     else
 	{
       m_pfmi[nIndex].Text = new wchar_t[lstrlen(szText)+1];
       lstrcpy((wchar_t *)m_pfmi[nIndex].Text,szText);
     }
-#endif
   }
   else
   {
-#ifndef UNICODE
-    m_pfmi[nIndex].Text.Text[0]=0;
-#else
     m_pfmi[nIndex].Text=&empty_wstr;
-#endif
     m_pfmi[nIndex].Flags|=MIF_SEPARATOR;
   }
   switch (enChecked)
@@ -100,10 +78,10 @@ unsigned CFarMenu::InsertItem(unsigned nIndex, LPCTSTR szText
   return nIndex;
 }
 
-unsigned CFarMenu::MenuItemLen(LPCTSTR szText)
+unsigned CFarMenu::MenuItemLen(LPCWSTR szText)
 {
   unsigned nLen=lstrlen(szText);
-  for (unsigned n=0; n<nLen; n++) if (szText[n]==_T('&')) nLen--;
+  for (unsigned n=0; n<nLen; n++) if (szText[n]==L'&') nLen--;
   return nLen;
 }
 
@@ -114,42 +92,38 @@ void CFarMenu::AddArrows()
     m_bArrowsAdded=true;
     unsigned nMaxLen=0;
     unsigned i;
-#ifdef UNICODE
     size_t  arrLen = lstrlen(m_szArrow);
-#endif
     for (i=0; i<m_nItemCnt; i++)
     {
-      unsigned nLen=MenuItemLen(m_pfmi[i].TextPtr);
+      unsigned nLen=MenuItemLen(m_pfmi[i].Text);
       if (nLen>nMaxLen) nMaxLen=nLen;
     }
     for (i=0; i<m_nItemCnt; i++)
     {
-      unsigned nLen=MenuItemLen(m_pfmi[i].TextPtr);
+      unsigned nLen=MenuItemLen(m_pfmi[i].Text);
       if (m_pbHasSubMenu[i])
       {
-#ifdef UNICODE
         {
           size_t  len=lstrlen(m_pfmi[i].Text)+lstrlen(m_szArrow)+(nMaxLen-nLen);
           wchar_t *pn = new wchar_t[len+1];
           wcscpy(pn, m_pfmi[i].Text);
-          if(m_pfmi[i].Text != &empty_wstr)  // paranoya
+          if (m_pfmi[i].Text != &empty_wstr)  // paranoya
             delete m_pfmi[i].Text;
           m_pfmi[i].Text = pn;
         }
-#endif
         for (unsigned n=0; n<nMaxLen-nLen; n++)
         {
-          lstrcat((TCHAR*)m_pfmi[i].TextPtr, _T(" "));
+          lstrcat((wchar_t*)m_pfmi[i].Text, L" ");
         }
-        lstrcat((TCHAR*)m_pfmi[i].TextPtr, m_szArrow);
+        lstrcat((wchar_t*)m_pfmi[i].Text, m_szArrow);
       }
     }
   }
 }
 
-LPCTSTR CFarMenu::operator[](unsigned nIndex)
+LPCWSTR CFarMenu::operator[](unsigned nIndex)
 {
-  return m_pfmi[nIndex].TextPtr;
+  return m_pfmi[nIndex].Text;
 }
 
 void CFarMenu::SetSelectedItem(unsigned nIndex)
@@ -176,7 +150,7 @@ void CFarMenu::GetCursorXY(int* pnX, int* pnY)
   }
   else
   {
-    HWND hFarWnd=(HWND)thePlug->AdvControl(ACTL_GETFARHWND, 0);
+    HWND hFarWnd=(HWND)thePlug->AdvControl(&MainGuid, ACTL_GETFARHWND, 0);
     if (!ScreenToClient(hFarWnd, &pt))
     {
       assert(0);
@@ -189,25 +163,13 @@ void CFarMenu::GetCursorXY(int* pnX, int* pnY)
       else {
         bool success=false;
         COORD console_size;
-#ifndef UNICODE
-        CONSOLE_SCREEN_BUFFER_INFO csbi;
-        HANDLE hStdOutput=GetStdHandle(STD_OUTPUT_HANDLE);
-        if (INVALID_HANDLE_VALUE!=hStdOutput
-          && GetConsoleScreenBufferInfo(hStdOutput, &csbi))
-        {
-          success=true;
-          console_size.X=csbi.dwSize.X;
-          console_size.Y=csbi.dwSize.Y;
-        }
-#else
         SMALL_RECT console_rect;
-        if (thePlug->AdvControl(ACTL_GETFARRECT,(void*)&console_rect))
+        if (thePlug->AdvControl(&MainGuid, ACTL_GETFARRECT,(void*)&console_rect))
         {
           success=true;
           console_size.X=console_rect.Right-console_rect.Left+1;
           console_size.Y=console_rect.Bottom-console_rect.Top+1;
         }
-#endif
         if (!success)
         {
           assert(0);
@@ -225,7 +187,7 @@ void CFarMenu::GetCursorXY(int* pnX, int* pnY)
   }
 }
 
-int CFarMenu::Show(LPCTSTR szTitle, int nSelItem/*=0*/, bool bAtCursorPos/*=false*/)
+int CFarMenu::Show(LPCWSTR szTitle, int nSelItem/*=0*/, bool bAtCursorPos/*=false*/)
 {
   int nX=-1, nY=-1;
   if (bAtCursorPos) GetCursorXY(&nX, &nY);
@@ -236,17 +198,12 @@ int CFarMenu::Show(LPCTSTR szTitle, int nSelItem/*=0*/, bool bAtCursorPos/*=fals
     , SHIFT_ENTER=MAKELONG(VK_RETURN, PKF_SHIFT)
     , SHIFT_SPACE=MAKELONG(VK_SPACE, PKF_SHIFT)
   };
-  int pnBreakKeys[]={VK_RIGHT, VK_LEFT
-    , CTRL_PGDN, CTRL_PGUP, VK_BACK, VK_SPACE
-    , SHIFT_ENTER, SHIFT_SPACE, ALTSHIFT_F9, 0};
+  int pnBreakKeys[]={VK_RIGHT, VK_LEFT, CTRL_PGDN, CTRL_PGUP, VK_BACK, VK_SPACE, SHIFT_ENTER, SHIFT_SPACE, ALTSHIFT_F9, 0};
   int nBreakCode;
   while (1)
   {
     SetSelectedItem(nSelItem);
-    nSelItem=thePlug->Menu(nX, nY, MAX_HEIGHT
-      , FMENU_WRAPMODE|FMENU_USEEXT
-      , szTitle, NULL, m_szHelp, pnBreakKeys, &nBreakCode
-      , (const struct FarMenuItem*)m_pfmi, m_nItemCnt);
+    nSelItem=Menu(&MainGuid, nX, nY, MAX_HEIGHT, FMENU_WRAPMODE, szTitle, NULL, m_szHelp, pnBreakKeys, &nBreakCode, m_pfmi, m_nItemCnt);
     if (-1==nBreakCode) return nSelItem;
     assert(-1!=nSelItem);
     switch (pnBreakKeys[nBreakCode])

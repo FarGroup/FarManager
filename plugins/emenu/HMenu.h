@@ -8,6 +8,7 @@ class CHMenu
 public:
   CHMenu() : m_hMenu(CreatePopupMenu()) {}
   ~CHMenu() {Destroy();}
+  
   void Destroy()
   {
     if (m_hMenu && !DestroyMenu(m_hMenu))
@@ -16,6 +17,7 @@ public:
     }
     m_hMenu=NULL;
   }
+
   void Clear()
   {
     for (int i=GetMenuItemCount()-1; i>=0; i--)
@@ -26,6 +28,7 @@ public:
       }
     }
   }
+
   int GetMenuItemCount() {return ::GetMenuItemCount(m_hMenu);}
   bool operator !() {return (NULL==m_hMenu);}
   operator HMENU() {return m_hMenu;}

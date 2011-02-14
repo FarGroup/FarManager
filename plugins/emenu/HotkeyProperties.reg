@@ -1,11 +1,11 @@
 REGEDIT4
 
-[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlAltEnter]
+[HKEY_CURRENT_USER\Software\Far Manager\KeyMacros\Shell\CtrlAltEnter]
 "Description"="Hotkey to execute properties command: Ctrl-Alt-Enter"
 "Sequence"="Esc r c l k _ c m d : p r o p e r t i e s Enter"
 "DisableOutput"=dword:00000001
 
-[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Tree\CtrlAltEnter]
+[HKEY_CURRENT_USER\Software\Far Manager\KeyMacros\Tree\CtrlAltEnter]
 "Description"="Hotkey to execute properties command: Ctrl-Alt-Enter"
 "Sequence"="Esc r c l k _ c m d : p r o p e r t i e s Enter"
 "DisableOutput"=dword:00000001

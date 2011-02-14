@@ -1,11 +1,6 @@
-#include "farversion.hpp"
+#include "version.hpp"
 #include <windows.h>
 #include "resource.h"
-
-#define PLUGIN_BUILD 36
-#define PLUGIN_DESC "EMenu Plugin for FAR Manager"
-#define PLUGIN_NAME "EMenu"
-#define PLUGIN_FILENAME "EMenu.dll"
 
 genericpluginrc(PLUGIN_BUILD, PLUGIN_DESC, PLUGIN_NAME, PLUGIN_FILENAME)
 

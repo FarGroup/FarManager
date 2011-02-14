@@ -19,9 +19,11 @@ NEEDENTRY = 1
 NEEDDEFLIB = 1
 !endif
 
+NEEDPLUGINREG = 1
+
 !include ..\makefile_vc_def_inc
 
 !include ..\makefile_vc_target_inc
 
 $(RES): resource.h
-$(OBJDIR)\Plugin.obj : Reg.cpp
+$(OBJDIR)\Plugin.obj: FarMenu.h HMenu.h MenuDlg.h OleThread.h Pidl.h Plugin.h resource.h guid.hpp version.hpp

@@ -30,7 +30,7 @@ show the menu:
  #Shift-Apps# Show GUI menu
  #Ctrl-Apps#  Show the menu to choose between text and GUI menu
 
-    To install the macros just execute Hotkey.reg and restart FAR.
+    To install the macros just execute Hotkey.reg and restart Far.
 
     #By using command line prefixes#
 
@@ -54,14 +54,14 @@ $ #EMenu configuration dialog#
     Enable this option if you want a message to be shown after the plugin
 has finished working. This message may be needed under Windows 9x where
 problems can arise if you execute some context menu commands in parallel
-to working with FAR.
+to working with Far.
 
     Default value: #disabled#.
 
 ^#Show GUI menu#
 
     There may be some context menu items that are not just a text strings.
-Such items can't be displayed correctly in FAR menu (though you will see them
+Such items can't be displayed correctly in Far menu (though you will see them
 and be able to execute). To see the menu as it is shown in explorer you can
 use GUI menu.
     The option can have one of the following values:
@@ -73,10 +73,10 @@ is invoked.
 
     Default value: #[?]#.
 
-^#Delete using FAR#
+^#Delete using Far#
 
     When this option is enabled the "delete" menu command acts like the F8
-key in FAR.
+key in Far.
 
     Default value: #disabled#.
 
@@ -113,7 +113,7 @@ displayed in the text menu in brackets next to item.
     It's easy.
 
  #( ) At the mouse cursor#
- #( ) In the center of FAR window#
+ #( ) In the center of Far window#
 
 @Main
 $ #Main EMenu menu#
@@ -155,8 +155,8 @@ $ #Can't invoke menu command.#
 @Close
 $ #Press "OK" to continue...#
     There are some cases when you have to wait until the execution of the menu
-command finishes, and only after that continue working with FAR. One of
+command finishes, and only after that continue working with Far. One of
 such commands is "paste" in Windows 9x for files with paths containing
-national letters. Under Windows NT/2000/XP you may disable this message.
+national letters.
 
     This message can be disabled in the ~configuration dialog~@Config@.

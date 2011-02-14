@@ -7,53 +7,35 @@ class auto_sz
 {
 public:
   auto_sz();
-  auto_sz(LPCTSTR sz);
-  auto_sz(LPCTSTR szBuf, size_t nBufLen);
-#ifndef UNICODE
-  auto_sz(LPCWSTR szw);
-#endif
+  auto_sz(LPCWSTR sz);
+  auto_sz(LPCWSTR szBuf, size_t nBufLen);
   auto_sz(auto_sz& str);
   auto_sz(const STRRET& sr, LPCITEMIDLIST piid);
   ~auto_sz();
-  operator LPTSTR();
-  operator LPCTSTR();
-  operator LPCTSTR() const;
-  auto_sz& operator =(LPCTSTR sz);
-#ifndef UNICODE
-  auto_sz& operator =(LPCWSTR szw);
-#endif
+  operator LPWSTR();
+  operator LPCWSTR();
+  operator LPCWSTR() const;
+  auto_sz& operator =(LPCWSTR sz);
   auto_sz& operator =(const auto_sz& str);
   void Alloc(size_t nSize);
   size_t Size() const;
   void Clear();
-  auto_sz& operator +=(LPCTSTR szAdd);
+  auto_sz& operator +=(LPCWSTR szAdd);
   void Realloc(size_t nNewSize);
   size_t Len() const;
-#ifndef UNICODE
-  auto_sz& Ansi2Oem();
-  auto_sz& Oem2Ansi();
-  operator LPOLESTR();
-#endif
   operator void*();
-  TCHAR operator[](int nPos);
+  wchar_t operator[](int nPos);
   void Trunc(size_t nNewLen);
-#ifndef UNICODE
-  static void SetOem() {s_bOem=true;}
-#endif
-  bool operator ==(LPCTSTR sz);
-  bool operator !=(LPCTSTR sz);
-  bool CompareExcluding(LPCTSTR sz, TCHAR chExcl);
-  void RemoveTrailing(TCHAR chExcl);
-  int CompareNoCase(LPCTSTR sz);
+  bool operator ==(LPCWSTR sz);
+  bool operator !=(LPCWSTR sz);
+  bool CompareExcluding(LPCWSTR sz, wchar_t chExcl);
+  void RemoveTrailing(wchar_t chExcl);
+  int CompareNoCase(LPCWSTR sz);
   bool IsEmpty();
 protected:
-  LPTSTR m_sz;
+  LPWSTR m_sz;
   bool m_bDelete;
   size_t m_nSize;
-#ifndef UNICODE
-  WCHAR* m_wsz;
-  static bool s_bOem;
-#endif
 };
 
 #endif

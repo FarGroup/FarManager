@@ -1,8 +1,7 @@
 #include "MenuDlg.h"
 #include <cassert>
 
-BOOL CALLBACK MenuDlgProc(HWND hDlg, UINT nMsg
-              , WPARAM wParam, LPARAM lParam)
+BOOL CALLBACK MenuDlgProc(HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lParam)
 {
   SMenuDlgParam* pParam=(SMenuDlgParam*)::GetWindowLongPtr(hDlg, GWLP_USERDATA);
   switch (nMsg)
