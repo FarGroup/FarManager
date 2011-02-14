@@ -5,9 +5,10 @@
 NAME = EditCase
 LINK_OBJS = $(OBJDIR)\EditCase.obj
 DOCS = ECaseEng.hlf ECaseRus.hlf ECaseEng.lng ECaseRus.lng
+NEEDPLUGINREG = 1
 
 !include ..\makefile_vc_def_inc
 
 !include ..\makefile_vc_target_inc
 
-$(OBJDIR)\EditCase.obj: EditCase.cpp WrapReg.cpp EditCase.hpp EditLng.hpp $(COMINC)\plugin.hpp
+$(OBJDIR)\EditCase.obj: EditCase.cpp EditLng.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp
