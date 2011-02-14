@@ -11,11 +11,10 @@
 #include "HMenu.h"
 #include "pluginreg/pluginreg.hpp"
 #include "guid.hpp"
+#include "DlgBuilder.hpp"
 #include <cassert>
 
 wchar_t *PluginRootKey;
-
-#define GetCheck(i) (int)PluginStartupInfo::SendDlgMessage(hDlg,DM_GETCHECK,i,0)
 
 // new version of PSDK do not contains standard smart-pointer declaration
 _COM_SMARTPTR_TYPEDEF(IContextMenu, __uuidof(IContextMenu));
@@ -128,7 +127,7 @@ INT_PTR WINAPI CPlugin::CfgDlgProcStatic(HANDLE hDlg, int Msg, int Param1, INT_P
   return thePlug->DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
-void CPlugin::CfgDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
+void CPlugin::CfgDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 {
   if (DN_INITDIALOG==Msg)
   {
@@ -147,71 +146,44 @@ void CPlugin::CfgDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 
 int CPlugin::Configure()
 {
-  const int nWidth=57;
-  const int nHeight=20;
-  assert(nHeight<25 && nWidth<80);
-  FarDialogItem DlgItems[] = {
-  /*0*/  {DI_DOUBLEBOX,   3, 1, nWidth-4, nHeight-2,   {0}, NULL, NULL, 0, 0, GetMsg(LNG_TITLE), 0},
+  int enHelptext = 0;
+  if (m_enHelptext==AS_VERB)
+    enHelptext=2;
+  else if (m_enHelptext==AS_HELPTEXT)
+    enHelptext=1;
 
-  /*1*/  {DI_CHECKBOX,    5, 2, 0, 0,                  {0}, NULL, NULL, DIF_FOCUS, 0, GetMsg(LNG_SHOWMESS), 0},
+  PluginDialogBuilder Builder(*this, MainGuid, DialogGuid, LNG_TITLE, g_szTopicConfig, CfgDlgProcStatic, reinterpret_cast<INT_PTR>(this));
 
-  /*2*/  {DI_CHECKBOX,    5, 3, 0, 0,                  {0}, NULL, NULL, DIF_3STATE, 0, GetMsg(LNG_SHOWGUI), 0},
+  Builder.AddCheckbox(LNG_SHOWMESS, &m_WaitToContinue);
+  m_nShowMessId=Builder.GetLastID();
+  Builder.AddCheckbox(LNG_SHOWGUI, &m_UseGUI, 0, true); //3STATE
+  Builder.AddCheckbox(LNG_DELETE_USING_FAR, &m_DelUsingFar);
+  Builder.AddCheckbox(LNG_CLEAR_SELECTION, &m_ClearSel);
+  Builder.AddCheckbox(LNG_SILENT, &m_Silent);
+  m_nSilentId=Builder.GetLastID();
 
-  /*3*/  {DI_CHECKBOX,    5, 4, 0, 0,                  {0}, NULL, NULL, 0, 0, GetMsg(LNG_DELETE_USING_FAR), 0},
+  Builder.StartSingleBox(LNG_ADDITIONAL_INFO, true);
+  const int AddInfoIDs[] = {LNG_ADDITIONAL_INFO_NONE, LNG_ADDITIONAL_INFO_HELPTEXT, LNG_ADDITIONAL_INFO_VERBS};
+  Builder.AddRadioButtons(&enHelptext, 3, AddInfoIDs);
+  Builder.AddCheckbox(LNG_ADDITIONAL_DIFFERENT_ONLY, &m_DifferentOnly);
+  m_nDifferentId=Builder.GetLastID();
+  Builder.EndSingleBox();
 
-  /*4*/  {DI_CHECKBOX,    5, 5, 0, 0,                  {0}, NULL, NULL, 0, 0, GetMsg(LNG_CLEAR_SELECTION), 0},
+  Builder.StartSingleBox(LNG_GUI_POSITION, true);
+  const int GuiPosIDs[] = {LNG_GUI_MOUSE_CURSOR, LNG_GUI_WINDOW_CENTER};
+  Builder.AddRadioButtons(&m_GuiPos, 2, GuiPosIDs);
+  Builder.EndSingleBox();
 
-  /*5*/  {DI_CHECKBOX,    5, 6, 0, 0,                  {0}, NULL, NULL, 0, 0, GetMsg(LNG_SILENT), 0},
+  Builder.AddOKCancel(LNG_SAVE, LNG_CANCEL);
 
-  /*6*/  {DI_SINGLEBOX,   5, 7, nWidth-6, 12,          {0}, NULL, NULL, DIF_LEFTTEXT, 0, GetMsg(LNG_ADDITIONAL_INFO), 0},
-  /*7*/  {DI_RADIOBUTTON, 6, 8, 0, 0,                  {0}, NULL, NULL, DIF_GROUP, 0, GetMsg(LNG_ADDITIONAL_INFO_NONE), 0},
-  /*8*/  {DI_RADIOBUTTON, 6, 9, 0, 0,                  {0}, NULL, NULL, 0, 0, GetMsg(LNG_ADDITIONAL_INFO_HELPTEXT), 0},
-  /*9*/  {DI_RADIOBUTTON, 6, 10, 0, 0,                 {0}, NULL, NULL, 0, 0, GetMsg(LNG_ADDITIONAL_INFO_VERBS), 0},
-  /*10*/ {DI_CHECKBOX,    6, 11, 0, 0,                 {0}, NULL, NULL, 0, 0, GetMsg(LNG_ADDITIONAL_DIFFERENT_ONLY), 0},
-
-  /*11*/ {DI_SINGLEBOX,   5, 13, nWidth-6, 16,         {0}, NULL, NULL, DIF_LEFTTEXT, 0, GetMsg(LNG_GUI_POSITION), 0},
-  /*12*/ {DI_RADIOBUTTON, 6, 14, 0, 0,                 {0}, NULL, NULL, DIF_GROUP, 0, GetMsg(LNG_GUI_MOUSE_CURSOR), 0},
-  /*13*/ {DI_RADIOBUTTON, 6, 15, 0, 0,                 {0}, NULL, NULL, 0, 0, GetMsg(LNG_GUI_WINDOW_CENTER), 0},
-
-  /*14*/ {DI_BUTTON,      0, nHeight-3, 0, 0,          {0}, NULL, NULL, DIF_CENTERGROUP|DIF_DEFAULTBUTTON, 0, GetMsg(LNG_SAVE), 0},
-  /*15*/ {DI_BUTTON,      0, nHeight-3, 0, 0,          {0}, NULL, NULL, DIF_CENTERGROUP, 0, GetMsg(LNG_CANCEL), 0}
-  };
-  m_nShowMessId=1;
-  m_nSilentId=5;
-  m_nDifferentId=10;
-  DlgItems[1].Selected=m_WaitToContinue;
-  DlgItems[2].Selected=m_UseGUI;
-  DlgItems[3].Selected=m_DelUsingFar;
-  DlgItems[4].Selected=m_ClearSel;
-  DlgItems[5].Selected=m_Silent;
-  DlgItems[7].Selected=m_enHelptext==AS_NONE;
-  DlgItems[8].Selected=m_enHelptext==AS_HELPTEXT;
-  DlgItems[9].Selected=m_enHelptext==AS_VERB;
-  DlgItems[10].Selected=m_DifferentOnly;
-  DlgItems[12].Selected=m_GuiPos==0;
-  DlgItems[13].Selected=m_GuiPos==1;
-
-  int ret = 0;
-  HANDLE hDlg = DialogInit(&MainGuid, &DialogGuid, -1, -1, nWidth, nHeight, g_szTopicConfig, DlgItems, ARRAYSIZE(DlgItems), 0, 0, CfgDlgProcStatic, reinterpret_cast<INT_PTR>(this));
-
-  if (hDlg == INVALID_HANDLE_VALUE)
-    return ret;
-
-  int ExitCode = DialogRun(hDlg);
-
-  if (ExitCode==14)
+  if (Builder.ShowDialog())
   {
-    m_WaitToContinue=GetCheck(1);
-    m_UseGUI=GetCheck(2);
-    m_DelUsingFar=GetCheck(3);
-    m_ClearSel=GetCheck(4);
-    m_Silent=GetCheck(5);
-    if (GetCheck(7)) m_enHelptext=AS_NONE;
-    if (GetCheck(8)) m_enHelptext=AS_HELPTEXT;
-    if (GetCheck(9)) m_enHelptext=AS_VERB;
-    m_DifferentOnly=GetCheck(10);
-    if (GetCheck(12)) m_GuiPos=0;
-    if (GetCheck(13)) m_GuiPos=1;
+    if (enHelptext==2)
+      m_enHelptext=AS_VERB;
+    else if (enHelptext==1)
+      m_enHelptext=AS_HELPTEXT;
+    else
+      m_enHelptext=AS_NONE;
     SetRegKey(L"", REG_WaitToContinue, m_WaitToContinue);
     SetRegKey(L"", REG_UseGUI, m_UseGUI);
     SetRegKey(L"", REG_DelUsingFar, m_DelUsingFar);
@@ -220,10 +192,10 @@ int CPlugin::Configure()
     SetRegKey(L"", REG_Helptext, m_enHelptext);
     SetRegKey(L"", REG_DifferentOnly, m_DifferentOnly);
     SetRegKey(L"", REG_GuiPos, m_GuiPos);
-    ret=1;
+    return 1;
   }
-  DialogFree(hDlg);
-  return ret;
+
+  return 0;
 }
 
 void CPlugin::ExitFAR()
@@ -271,7 +243,7 @@ HANDLE CPlugin::OpenPlugin(int nOpenFrom, INT_PTR nItem)
   }
   if (bSuccess)
   {
-    if (m_ClearSel && !Control(FCTL_UPDATEPANEL, 0, NULL))
+    if (m_ClearSel && !Control(PANEL_ACTIVE,FCTL_UPDATEPANEL, 0, NULL))
     {
       assert(0);
     }
@@ -565,16 +537,11 @@ CPlugin::EDoMenu CPlugin::MenuForPanelOrCmdLine(LPWSTR szCmdLine/*=NULL*/
   return enRet;
 }
 
-bool CPlugin::GetFilesFromParams(LPWSTR szCmdLine
-                 , LPCWSTR** ppFiles
-                 , unsigned* pnFiles
-                 , unsigned* pnFolders
-                 , auto_sz* pstrCurDir
-                 , bool bSkipFirst)
+bool CPlugin::GetFilesFromParams(LPWSTR szCmdLine, LPCWSTR** ppFiles, unsigned* pnFiles, unsigned* pnFolders, auto_sz* pstrCurDir, bool bSkipFirst)
 {
-  int Size=Control(FCTL_GETPANELDIR,0,NULL);
+  int Size=Control(PANEL_ACTIVE,FCTL_GETPANELDIR,0,NULL);
   wchar_t *CurDir=new wchar_t[Size];
-  Control(FCTL_GETPANELDIR,Size,(LONG_PTR)CurDir);
+  Control(PANEL_ACTIVE,FCTL_GETPANELDIR,Size,(LONG_PTR)CurDir);
   *pstrCurDir=auto_sz(CurDir,Size);
   delete[] CurDir;
   if (pstrCurDir->Len()) m_fsf.AddEndSlash(*pstrCurDir);
@@ -636,13 +603,13 @@ bool CPlugin::GetFilesFromPanel(LPCWSTR** ppFiles, unsigned* pnFiles, unsigned* 
     SelectedItemsCount=0;
   }
   PanelInfo pi;
-  if (!Control(FCTL_GETPANELINFO,0,(LONG_PTR)&pi))
+  if (!Control(PANEL_ACTIVE,FCTL_GETPANELINFO,0,(LONG_PTR)&pi))
   {
     return false;
   }
-  int Size=Control(FCTL_GETPANELDIR,0,NULL);
+  int Size=Control(PANEL_ACTIVE,FCTL_GETPANELDIR,0,NULL);
   wchar_t *CurDir=new wchar_t[Size];
-  Control(FCTL_GETPANELDIR,Size,(LONG_PTR)CurDir);
+  Control(PANEL_ACTIVE,FCTL_GETPANELDIR,Size,(LONG_PTR)CurDir);
   // preserve space for AddEndSlash
   *pstrCurDir=auto_sz(CurDir,Size);
   delete[] CurDir;
@@ -650,13 +617,13 @@ bool CPlugin::GetFilesFromPanel(LPCWSTR** ppFiles, unsigned* pnFiles, unsigned* 
   bool Root=!pi.SelectedItemsNumber;
   if(!Root)
   {
-    size_t Size=Control(FCTL_GETSELECTEDPANELITEM,0,NULL);
+    size_t Size=Control(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,0,NULL);
     if(Size)
     {
       PluginPanelItem *PPI=(PluginPanelItem*)new char[Size];
        if(PPI)
       {
-        Control(FCTL_GETSELECTEDPANELITEM,0,(LONG_PTR)PPI);
+        Control(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,0,(LONG_PTR)PPI);
         Root=(pi.SelectedItemsNumber==1 && !lstrcmp(PPI->FileName,L".."));
         delete[] PPI;
       }
@@ -685,11 +652,11 @@ bool CPlugin::GetFilesFromPanel(LPCWSTR** ppFiles, unsigned* pnFiles, unsigned* 
     SelectedItems=new PluginPanelItem*[SelectedItemsCount];
     for (int i=0; i<pi.SelectedItemsNumber; i++)
     {
-      SelectedItems[i]=(PluginPanelItem*)new char[Control(FCTL_GETSELECTEDPANELITEM,i,NULL)];
-      Control(FCTL_GETSELECTEDPANELITEM,i,(LONG_PTR)SelectedItems[i]);
+      SelectedItems[i]=(PluginPanelItem*)new char[Control(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,i,NULL)];
+      Control(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,i,(LONG_PTR)SelectedItems[i]);
       LPCWSTR szPath=SelectedItems[i]->FileName;
-      PluginPanelItem *PPI=(PluginPanelItem*)new char[Control(FCTL_GETPANELITEM,pi.CurrentItem,NULL)];
-      Control(FCTL_GETPANELITEM,pi.CurrentItem,(LONG_PTR)PPI);
+      PluginPanelItem *PPI=(PluginPanelItem*)new char[Control(PANEL_ACTIVE,FCTL_GETPANELITEM,pi.CurrentItem,NULL)];
+      Control(PANEL_ACTIVE,FCTL_GETPANELITEM,pi.CurrentItem,(LONG_PTR)PPI);
       bool Equal=!lstrcmp(PPI->FileName,szPath);
       delete[] PPI;
       if(Equal)
@@ -714,10 +681,7 @@ bool CPlugin::GetFilesFromPanel(LPCWSTR** ppFiles, unsigned* pnFiles, unsigned* 
   return true;
 }// CurDir
 
-CPlugin::EDoMenu CPlugin::DoMenu(LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* pPiids
-                 , LPCWSTR pFiles[], unsigned nFiles
-                 , unsigned nFolders, LPCWSTR szCommand/*=NULL*/
-                 , EAutoItem enAutoItem/*=AI_NONE*/)
+CPlugin::EDoMenu CPlugin::DoMenu(LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* pPiids, LPCWSTR pFiles[], unsigned nFiles, unsigned nFolders, LPCWSTR szCommand/*=NULL*/, EAutoItem enAutoItem/*=AI_NONE*/)
 {
   assert(nFolders+nFiles);
   auto_sz strMnuTitle;
@@ -889,24 +853,22 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* pPiids
     }
     if (lstrcmpA(szVerb, "rename")==0)
     {
-      DWORD dwKey=KEY_F6;
-      KeySequence Key={0, 1, &dwKey};
-      AdvControl(ACTL_POSTKEYSEQUENCE, &Key);
+      MacroSendMacroText mcmd = {sizeof(MacroSendMacroText), 0, 0, L"F6"};
+      MacroControl(NULL, MCTL_SENDSTRING, MSSC_POST, (INT_PTR)&mcmd);
       return DOMENU_CANCELLED;
     }
     if (m_DelUsingFar && lstrcmpA(szVerb, "delete")==0)
     {
-      DWORD dwKey=KEY_F8;
+      MacroSendMacroText mcmd = {sizeof(MacroSendMacroText), 0, 0, L"F8"};
       if (GetKeyState(VK_LSHIFT)&0x8000 || GetKeyState(VK_RSHIFT)&0x8000)
       {
-        dwKey=KEY_SHIFTDEL;
+        mcmd.SequenceText=L"ShiftDel";
       }
       else if (GetKeyState(VK_LMENU)&0x8000 || GetKeyState(VK_RMENU)&0x8000)
       {
-        dwKey=KEY_ALTDEL;
+        mcmd.SequenceText=L"AltDel";
       }
-      KeySequence Key={0, 1, &dwKey};
-      AdvControl(ACTL_POSTKEYSEQUENCE, &Key);
+      MacroControl(NULL, MCTL_SENDSTRING, MSSC_POST, (INT_PTR)&mcmd);
       return DOMENU_CANCELLED;
     }
     else
@@ -949,11 +911,7 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* pPiids
   return DOMNU_OK;
 }
 
-bool CPlugin::ShowGuiMenu(HMENU hMenu
-              , LPCONTEXTMENU pMenu1
-              , LPCONTEXTMENU2 pMenu2
-              , LPCONTEXTMENU3 pMenu3
-              , int* pnCmd)
+bool CPlugin::ShowGuiMenu(HMENU hMenu, LPCONTEXTMENU pMenu1, LPCONTEXTMENU2 pMenu2, LPCONTEXTMENU3 pMenu3, int* pnCmd)
 {
   SMenuDlgParam DlgParam;
   DlgParam.pMenu1=pMenu1;
@@ -964,7 +922,7 @@ bool CPlugin::ShowGuiMenu(HMENU hMenu
   {
     assert(0);
   }
-  HWND hFarWnd=(HWND)AdvControl(ACTL_GETFARHWND, 0);
+  HWND hFarWnd=(HWND)AdvControl(&MainGuid,ACTL_GETFARHWND, 0);
   if (m_GuiPos==1)
   {
     RECT rc;
@@ -1021,15 +979,7 @@ bool CPlugin::GetAdditionalString(IContextMenu* pContextMenu, UINT nID, EAdditio
   return !pstr->IsEmpty();
 }
 
-bool CPlugin::ShowTextMenu(HMENU hMenu
-              , LPCONTEXTMENU pPreferredMenu
-              , LPCONTEXTMENU2 pMenu2
-              , LPCONTEXTMENU3 pMenu3
-              , int* pnCmd
-              , LPCWSTR szTitle
-              , LPSHELLFOLDER pCurFolder
-              , LPCITEMIDLIST* ppiid
-              , unsigned nPiidCnt)
+bool CPlugin::ShowTextMenu(HMENU hMenu, LPCONTEXTMENU pPreferredMenu, LPCONTEXTMENU2 pMenu2, LPCONTEXTMENU3 pMenu3, int* pnCmd, LPCWSTR szTitle, LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* ppiid, unsigned nPiidCnt)
 {
   int nItems=GetMenuItemCount(hMenu);
   if (nItems<1) return false;
@@ -1148,7 +1098,7 @@ bool CPlugin::ShowTextMenu(HMENU hMenu
         {
           szItem+=L" (";
           szItem+=szAddInfo;
-          szItem+=L"");
+          szItem+=L")";
         }
       }
     }

@@ -192,36 +192,38 @@ int CFarMenu::Show(LPCWSTR szTitle, int nSelItem/*=0*/, bool bAtCursorPos/*=fals
   int nX=-1, nY=-1;
   if (bAtCursorPos) GetCursorXY(&nX, &nY);
   AddArrows();
-  enum {CTRL_PGDN=MAKELONG(VK_NEXT, PKF_CONTROL)
-    , CTRL_PGUP=MAKELONG(VK_PRIOR, PKF_CONTROL)
-    , ALTSHIFT_F9=MAKELONG(VK_F9, PKF_ALT|PKF_SHIFT)
-    , SHIFT_ENTER=MAKELONG(VK_RETURN, PKF_SHIFT)
-    , SHIFT_SPACE=MAKELONG(VK_SPACE, PKF_SHIFT)
-  };
-  int pnBreakKeys[]={VK_RIGHT, VK_LEFT, CTRL_PGDN, CTRL_PGUP, VK_BACK, VK_SPACE, SHIFT_ENTER, SHIFT_SPACE, ALTSHIFT_F9, 0};
+  FarKey pBreakKeys[]={{VK_RIGHT,0},
+                       {VK_LEFT,0},
+                       {VK_NEXT,LEFT_CTRL_PRESSED},
+                       {VK_PRIOR, LEFT_CTRL_PRESSED},
+                       {VK_BACK,0},
+                       {VK_SPACE,0},
+                       {VK_RETURN,SHIFT_PRESSED},
+                       {VK_SPACE,SHIFT_PRESSED},
+                       {VK_F9,SHIFT_PRESSED|LEFT_ALT_PRESSED},
+                       {0,0}};
   int nBreakCode;
   while (1)
   {
     SetSelectedItem(nSelItem);
-    nSelItem=Menu(&MainGuid, nX, nY, MAX_HEIGHT, FMENU_WRAPMODE, szTitle, NULL, m_szHelp, pnBreakKeys, &nBreakCode, m_pfmi, m_nItemCnt);
+    nSelItem=thePlug->Menu(&MainGuid, nX, nY, MAX_HEIGHT, FMENU_WRAPMODE, szTitle, NULL, m_szHelp, pBreakKeys, &nBreakCode, m_pfmi, m_nItemCnt);
     if (-1==nBreakCode) return nSelItem;
     assert(-1!=nSelItem);
-    switch (pnBreakKeys[nBreakCode])
+    switch (pBreakKeys[nBreakCode].VirtualKeyCode)
     {
     case VK_RIGHT:
-    case CTRL_PGDN:
+    case VK_NEXT:
       if (m_pbHasSubMenu[nSelItem]) return nSelItem;
       break;
     case VK_BACK:
     case VK_LEFT:
-    case CTRL_PGUP:
+    case VK_PRIOR:
       return SHOW_BACK;
       break;
     case VK_SPACE:
-    case SHIFT_ENTER:
-    case SHIFT_SPACE:
+    case VK_RETURN:
       return nSelItem;
-    case ALTSHIFT_F9:
+    case VK_F9:
       thePlug->Configure();
     }
   }
