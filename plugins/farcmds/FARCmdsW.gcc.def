@@ -1,7 +1,6 @@
 EXPORTS 
    ConfigureW=ConfigureW@4
    GetPluginInfoW=GetPluginInfoW@4
-   OpenPluginW=OpenPluginW@8
+   OpenPluginW=OpenPluginW@12
    SetStartupInfoW=SetStartupInfoW@4
-   GetMinFarVersionW=GetMinFarVersionW@0
    ExitFARW=ExitFARW@0

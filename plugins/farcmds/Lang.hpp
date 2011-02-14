@@ -4,7 +4,6 @@ enum
 	MSetPassiveDir,
 	MAddSetPassiveDir2PlugMenu,
 	MAddToDisksMenu,
-	MDisksMenuDigit,
 	MSeparator,
 	MHideCmdOutput,
 	MKeepCmdOutput,

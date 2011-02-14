@@ -26,8 +26,8 @@ in ~file associations~@:FileAssoc@, as well as in dialog ~Apply Command~@:Apply
              ~macro~@Macro@    - macros
              ~link~@Link@     - create links
              ~run~@Run@      - execute commands
-             ~load~@Load@     - load plugin (FAR 2 only)
-             ~unload~@Unload@   - unload plugin (FAR 2 only)
+             ~load~@Load@     - load plugin
+             ~unload~@Unload@   - unload plugin
 
    #options# - optional parameters, see corresponding commands descriptions.
 
@@ -46,8 +46,6 @@ $ #The Load command#
 
    #load:DLL_module_name#
 
-   Command is only available in Unicode-version (in FAR 2.x)
-
 
    See also: ~unload~@Unload@ | ~Notes~@Remark@ | ~Contents~@Contents@
 
@@ -56,8 +54,6 @@ $ #The Unload command#
    Command #unload# allows you to unload the plugin #DLL_module_name#.
 
    #unload:DLL_module_name#
-
-   Command is only available in Unicode-version (in FAR 2.x)
 
 
    See also: ~load~@Load@ | ~Notes~@Remark@ | ~Contents~@Contents@

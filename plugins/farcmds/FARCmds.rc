@@ -1,8 +1,8 @@
 #include "farversion.hpp"
 
-#define PLUGIN_BUILD 72
-#define PLUGIN_DESC "FAR Commands Plugin for FAR Manager"
-#define PLUGIN_NAME "FARCmds"
-#define PLUGIN_FILENAME "FARCmds.dll"
+#define PLUGIN_BUILD 73
+#define PLUGIN_DESC L"FAR Commands Plugin for Far Manager"
+#define PLUGIN_NAME L"FARCmds"
+#define PLUGIN_FILENAME L"FARCmds.dll"
 
 genericpluginrc(PLUGIN_BUILD, PLUGIN_DESC, PLUGIN_NAME, PLUGIN_FILENAME)
