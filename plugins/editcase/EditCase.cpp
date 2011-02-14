@@ -99,7 +99,7 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
   lstrcat(WordDiv, L" \n\r\t");
 }
 
-HANDLE WINAPI OpenPluginW(int OpenFrom,INT_PTR Item)
+HANDLE WINAPI OpenPluginW(int OpenFrom,const GUID* Guid,INT_PTR Item)
 {
   size_t i;
   struct FarMenuItem MenuItems[5] = {0}, *MenuItem;
