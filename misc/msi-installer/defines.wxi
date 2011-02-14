@@ -1,18 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <?if $(var.Platform) = x86 ?>
-  <?define Product = "Far Manager 2" ?>
+  <?define Product = "Far Manager $(var.VerMajor)" ?>
   <?define InstallDirParam = "InstallDir" ?>
   <?define DefUserInstallDir = "Far Manager" ?>
   <?define ProgramFiles = "ProgramFilesFolder" ?>
   <?define Win64 = "no" ?>
 <?endif?>
 <?if $(var.Platform) = x64 ?>
-  <?define Product = "Far Manager 2 x64" ?>
+  <?define Product = "Far Manager $(var.VerMajor) x64" ?>
   <?define InstallDirParam = "InstallDir_x64" ?>
   <?define DefUserInstallDir = "Far Manager x64" ?>
   <?define ProgramFiles = "ProgramFiles64Folder" ?>
   <?define Win64 = "yes" ?>
 <?endif?>
+<?define Version = "$(var.VerMajor).$(var.VerMinor).$(var.VerBuild)" ?>
 <?define Manufacturer = "Eugene Roshal & Far Group" ?>
 <?define DefMachineInstallDir = "Far Manager" ?>
 <?define RegKey = "Far Manager" ?>

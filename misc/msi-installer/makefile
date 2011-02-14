@@ -12,7 +12,7 @@
 
 CPPFLAGS = -nologo -D_WIN32_WINNT=0x0500
 LINKFLAGS = -nologo -incremental:no -machine:$(PLATFORM)
-CANDLEFLAGS = -nologo -dSourceDir="$(SOURCE_DIR)" -dPlatform=$(PLATFORM) -dVersion=$(VER_MAJOR).$(VER_MINOR).$(VER_BUILD)
+CANDLEFLAGS = -nologo -dSourceDir="$(SOURCE_DIR)" -dPlatform=$(PLATFORM) -dVerMajor=$(VER_MAJOR) -dVerMinor=$(VER_MINOR) -dVerBuild=$(VER_BUILD)
 LIGHTFLAGS = -nologo -spdb -sval
 ASFLAGS = -nologo -c
 
