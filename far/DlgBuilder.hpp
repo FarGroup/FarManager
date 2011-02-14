@@ -142,6 +142,12 @@ checkbox и radio button вычисляется автоматически, для других элементов передаёт
 - добавляются контролы для второй колонки
 - EndColumns()
 
+Поддерживается также возможность расположения контролов внутри бокса. Используется следующим
+образом:
+- StartSingleBox()
+- добавляются контролы
+- EndSingleBox()
+
 Базовая версия класса используется как внутри кода Far, так и в плагинах.
 */
 
@@ -155,6 +161,7 @@ class DialogBuilderBase
 		int DialogItemsAllocated;
 		int NextY;
 		int Indent;
+		int SingleBoxIndex;
 		int OKButtonID;
 		int ColumnStartIndex;
 		int ColumnBreakIndex;
@@ -362,7 +369,7 @@ class DialogBuilderBase
 		}
 
 		DialogBuilderBase()
-			: DialogItems(nullptr), DialogItemsCount(0), DialogItemsAllocated(0), NextY(2), Indent(0),
+			: DialogItems(nullptr), DialogItemsCount(0), DialogItemsAllocated(0), NextY(2), Indent(0), SingleBoxIndex(-1),
 			  ColumnStartIndex(-1), ColumnBreakIndex(-1), ColumnMinWidth(0)
 		{
 		}
@@ -379,6 +386,12 @@ class DialogBuilderBase
 		}
 
 	public:
+
+		int GetLastID()
+		{
+			return DialogItemsCount-1;
+		}
+
 		// Добавляет статический текст, расположенный на отдельной строке в диалоге.
 		T *AddText(int LabelId)
 		{
@@ -388,9 +401,11 @@ class DialogBuilderBase
 		}
 
 		// Добавляет чекбокс.
-		T *AddCheckbox(int TextMessageId, BOOL *Value, int Mask=0)
+		T *AddCheckbox(int TextMessageId, BOOL *Value, int Mask=0, bool ThreeState=false)
 		{
 			T *Item = AddDialogItem(DI_CHECKBOX, GetLangString(TextMessageId));
+			if (ThreeState && !Mask)
+				Item->Flags |= DIF_3STATE;
 			SetNextY(Item);
 			Item->X2 = Item->X1 + ItemWidth(*Item);
 			if (!Mask)
@@ -402,7 +417,7 @@ class DialogBuilderBase
 		}
 
 		// Добавляет группу радиокнопок.
-		void AddRadioButtons(int *Value, int OptionCount, int MessageIDs[])
+		void AddRadioButtons(int *Value, int OptionCount, const int MessageIDs[])
 		{
 			for(int i=0; i<OptionCount; i++)
 			{
@@ -491,20 +506,24 @@ class DialogBuilderBase
 		}
 
 		// Начинает располагать поля диалога внутри single box
-		T *StartSingleBox(int MessageId=-1, bool LeftAlign=false)
+		void StartSingleBox(int MessageId=-1, bool LeftAlign=false)
 		{
 			T *SingleBox = AddDialogItem(DI_SINGLEBOX, MessageId == -1 ? L"" : GetLangString(MessageId));
 			SingleBox->Flags = LeftAlign ? DIF_LEFTTEXT : DIF_NONE;
 			SingleBox->X1 = 5;
 			SingleBox->Y1 = NextY++;
 			Indent = 2;
-			return SingleBox;
+			SingleBoxIndex = DialogItemsCount - 1;
 		}
 
-		void EndSingleBox(T *SingleBox)
+		void EndSingleBox()
 		{
-			SingleBox->Y2 = NextY++;
-			Indent = 0;
+			if (SingleBoxIndex != -1)
+			{
+				DialogItems[SingleBoxIndex].Y2 = NextY++;
+				Indent = 0;
+				SingleBoxIndex = -1;
+			}
 		}
 
 		// Добавляет пустую строку.
@@ -523,9 +542,10 @@ class DialogBuilderBase
 		}
 
 		// Добавляет сепаратор, кнопки OK и Cancel.
-		void AddOKCancel(int OKMessageId, int CancelMessageId)
+		void AddOKCancel(int OKMessageId, int CancelMessageId, bool Separator=true)
 		{
-			AddSeparator();
+			if (Separator)
+				AddSeparator();
 
 			T *OKButton = AddDialogItem(DI_BUTTON, GetLangString(OKMessageId));
 			OKButton->Flags = DIF_CENTERGROUP|DIF_DEFAULTBUTTON;
@@ -680,6 +700,8 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 		const wchar_t *HelpTopic;
 		GUID PluginId;
 		GUID Id;
+		FARWINDOWPROC DlgProc;
+		INT_PTR UserParam;
 
 		virtual void InitDialogItem(FarDialogItem *Item, const wchar_t *Text)
 		{
@@ -701,8 +723,7 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 		{
 			int Width = DialogItems [0].X2+4;
 			int Height = DialogItems [0].Y2+2;
-			DialogHandle = Info.DialogInit(&PluginId, &Id, -1, -1, Width, Height,
-				HelpTopic, DialogItems, DialogItemsCount, 0, 0, nullptr, 0);
+			DialogHandle = Info.DialogInit(&PluginId, &Id, -1, -1, Width, Height, HelpTopic, DialogItems, DialogItemsCount, 0, 0, DlgProc, UserParam);
 			return Info.DialogRun(DialogHandle);
 		}
 
@@ -717,8 +738,8 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 		}
 
 public:
-		PluginDialogBuilder(const PluginStartupInfo &aInfo, const GUID &aPluginId, const GUID &aId, int TitleMessageID, const wchar_t *aHelpTopic)
-			: Info(aInfo), HelpTopic(aHelpTopic), PluginId(aPluginId), Id(aId)
+		PluginDialogBuilder(const PluginStartupInfo &aInfo, const GUID &aPluginId, const GUID &aId, int TitleMessageID, const wchar_t *aHelpTopic, FARWINDOWPROC aDlgProc=nullptr, INT_PTR aUserParam=0)
+			: Info(aInfo), HelpTopic(aHelpTopic), PluginId(aPluginId), Id(aId), DlgProc(aDlgProc), UserParam(aUserParam)
 		{
 			AddBorder(GetLangString(TitleMessageID));
 		}

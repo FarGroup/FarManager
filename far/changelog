@@ -1,3 +1,9 @@
+t-rex 14.02.2011 21:28:51 +0200 - build 1869
+
+1. DialogBuilder: поддержка DIF_3STATE, DlgProc и UserParam, можно не добавлять сепаратор перед Ok/Cancel.
+
+2. DialogBuilder: переделка поддержки DI_SINGLEBOX.
+
 drkns 13.02.2011 21:56:25 +0200 - build 1868
 
 1. Warnings.
