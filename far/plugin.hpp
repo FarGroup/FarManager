@@ -1677,7 +1677,7 @@ typedef int (WINAPI *FARAPIINPUTBOX)(
     unsigned __int64 Flags
 );
 
-typedef int (WINAPI *FARAPIMACROSCONTROL)(
+typedef int (WINAPI *FARAPIMACROCONTROL)(
     HANDLE hHandle,
     int Command,
     int Param1,
@@ -1913,7 +1913,7 @@ struct PluginStartupInfo
 	FARAPIPLUGINSCONTROL   PluginsControl;
 	FARAPIFILEFILTERCONTROL FileFilterControl;
 	FARAPIREGEXPCONTROL    RegExpControl;
-	FARAPIMACROSCONTROL    MacroControl;
+	FARAPIMACROCONTROL     MacroControl;
 };
 
 
