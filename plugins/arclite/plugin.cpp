@@ -926,7 +926,7 @@ HANDLE WINAPI OpenFilePluginW(const wchar_t *Name,const unsigned char *Data,int 
     OpenOptions options;
     options.arc_path = Name;
     options.arc_types = ArcAPI::formats().get_arc_types();
-    if (detect_next_time == triUndef) {
+    if (detect_next_time == triUndef && (OpMode & OPM_PGDN) == 0) {
       options.detect = false;
       if (!g_options.handle_commands)
         FAIL(E_ABORT);
