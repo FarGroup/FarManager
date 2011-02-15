@@ -228,16 +228,16 @@ class DialogBuilderBase
 
 			case DI_CHECKBOX:
 			case DI_RADIOBUTTON:
+			case DI_BUTTON:
 				return TextWidth(Item) + 4;
 
 			case DI_EDIT:
 			case DI_FIXEDIT:
 			case DI_COMBOBOX:
 				int Width = Item.X2 - Item.X1 + 1;
-				/* стрелка history занимает дополнительное место, но раньше она рисовалась поверх рамки
+				// стрелка history занимает дополнительное место, но раньше она рисовалась поверх рамки???
 				if (Item.Flags & DIF_HISTORY)
 					Width++;
-				*/
 				return Width;
 				break;
 			}
@@ -417,7 +417,7 @@ class DialogBuilderBase
 		}
 
 		// ƒобавл€ет группу радиокнопок.
-		void AddRadioButtons(int *Value, int OptionCount, const int MessageIDs[])
+		void AddRadioButtons(int *Value, int OptionCount, const int MessageIDs[], bool FocusOnSelected=false)
 		{
 			for(int i=0; i<OptionCount; i++)
 			{
@@ -427,7 +427,11 @@ class DialogBuilderBase
 				if (!i)
 					Item->Flags |= DIF_GROUP;
 				if (*Value == i)
+				{
 					Item->Selected = TRUE;
+					if (FocusOnSelected)
+						Item->Flags |= DIF_FOCUS;
+				}
 				SetLastItemBinding(CreateRadioButtonBinding(Value));
 			}
 		}
@@ -462,7 +466,21 @@ class DialogBuilderBase
 		{
 			T *Item = AddDialogItem(DI_TEXT, GetLangString(LabelId));
 			Item->Y1 = Item->Y2 = RelativeTo->Y1;
-			Item->X1 = RelativeTo->X2 + 2;
+			Item->X1 = RelativeTo->X1 + ItemWidth(*RelativeTo) - 1 + 2;
+
+			DialogItemBinding<T> *Binding = FindBinding(RelativeTo);
+			if (Binding)
+				Binding->AfterLabelID = GetItemID(Item);
+
+			return Item;
+		}
+
+		// ƒобавл€ет кнопку справа от элемента RelativeTo.
+		T *AddButtonAfter(T *RelativeTo, int LabelId)
+		{
+			T *Item = AddDialogItem(DI_BUTTON, GetLangString(LabelId));
+			Item->Y1 = Item->Y2 = RelativeTo->Y1;
+			Item->X1 = RelativeTo->X1 + ItemWidth(*RelativeTo) - 1 + 2;
 
 			DialogItemBinding<T> *Binding = FindBinding(RelativeTo);
 			if (Binding)
@@ -516,6 +534,7 @@ class DialogBuilderBase
 			SingleBoxIndex = DialogItemsCount - 1;
 		}
 
+		// «авершает расположение полей диалога внутри single box
 		void EndSingleBox()
 		{
 			if (SingleBoxIndex != -1)
@@ -665,7 +684,7 @@ public:
 		: DialogAPIBinding(aInfo, aHandle, aID),
 		  Value(aValue)
 	{
-		aInfo.FSF->itoa(*aValue, Buffer, 10);
+		aInfo.FSF->sprintf(Buffer, L"%u", *aValue);
 		int MaskWidth = Width < 31 ? Width : 31;
 		for(int i=0; i<MaskWidth; i++)
 			Mask[i] = '9';
@@ -767,7 +786,7 @@ public:
 		{
 			FarDialogItem *Item = AddDialogItem(DI_EDIT, Value);
 			SetNextY(Item);
-			Item->X2 = Item->X1 + Width;
+			Item->X2 = Item->X1 + Width - 1;
 			if (HistoryID)
 			{
 				Item->History = HistoryID;
