@@ -3,6 +3,62 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+t-rex 14.02.2011 21:28:51 +0200 - build 1869
+
+1. DialogBuilder: DIF_3STATE, DlgProc and UserParam support, one may omit a separator before Ok/Cancel.
+
+2. DialogBuilder: DI_SINGLEBOX support is reworked.
+
+drkns 13.02.2011 21:56:25 +0200 - build 1868
+
+1. Warnings.
+
+zg 13.02.2011 21:25:20 +0200 - build 1867
+
+1. plugin.hpp is pure C compatible again.
+
+2. all API flags are 64 bit wide.
+
+3. correction of 1866.3: the type of StructSize is size_t.
+
+zg 13.02.2011 15:29:55 +0200 - build 1866
+
+1. DN_CLOSE is not equal to DM_CLOSE anymore.
+
+2. DM_CLOSE always returned TRUE.
+
+3. StructSize in API structures is unsigned everywhere.
+
+zg 13.02.2011 11:01:58 +0200 - build 1865
+
+1. disk menu plugin hotkeys were not read.
+
+drkns 13.02.2011 00:39:44 +0200 - build 1864
+
+1. debug build is fixed.
+
+2. ACTL_GETPOLICIES is removed.
+
+zg 12.02.2011 23:57:50 +0200 - build 1863
+
+1. "StructSize" field is added to PanelMode.
+
+2. FullScreen, DetailedStatus, AlignExtensions and CaseConversion fields are removed from PanelMode. Instead, Flags field is added with appropriate flags.
+
+3. "Reserved" field is removed from PanelMode.
+
+zg 12.02.2011 20:10:48 +0200 - build 1862
+
+1. FarKey structure is added. FarKey.VirtualKeyCode is similar to KEY_EVENT_RECORD.wVirtualKeyCode. FarKey.ControlKeyState is similar to KEY_EVENT_RECORD.dwControlKeyState.
+
+2. BreakKeys Menu parameter is now a pointer to FarKey array.
+
+3. the type of KeyBarLabel.Key is FarKey.
+
+drkns 12.02.2011 18:01:44 +0200 - build 1861
+
+1. Fix for an ancient bug related to DefDlgProc for ANSI plugins.
+
 zg 11.02.2011 18:45:24 +0200 - build 1860
 
 1. ACTL_GETSHORTWINDOWINFO is removed for its meaninglessness.
@@ -36,7 +92,7 @@ t-rex 11.02.2011 01:56:20 +0200 - build 1856
 drkns 11.02.2011 00:14:23 +0200 - build 1855
 
 1. Mantis#0001713: Access to "." and ".." folders on non-NTFS volumes.
-   Now "." è ".." can be entered by UNC-paths, listed etc.
+   Now "." and ".." can be entered by UNC-paths, listed etc.
 
 2. VC warnings.
 
