@@ -44,7 +44,6 @@ static struct FarStandardFunctions FSF;
 struct PanelInfo PInfo;
 wchar_t *PluginRootKey;
 wchar_t selectItem[MAX_PATH*5];
-//wchar_t tempFileNameOut[MAX_PATH*5],tempFileNameErr[MAX_PATH*5],FileNameOut[MAX_PATH*5],FileNameErr[MAX_PATH*5],
 wchar_t fullcmd[MAX_PATH*5],cmd[MAX_PATH*5];
 
 #include "Mix.cpp"
@@ -61,13 +60,14 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *psInfo)
 	lstrcat(PluginRootKey,L"\\FARCmds");
 
 
-	GetRegKey(L"",REGStr.Separator,Opt.Separator,L" ",3);
+	GetRegKey(L"",REGStr.Separator,Opt.Separator,L" ",ARRAYSIZE(Opt.Separator));
 	Opt.Add2PlugMenu=GetRegKey(L"",REGStr.Add2PlugMenu,0);
 	Opt.Add2DisksMenu=GetRegKey(L"",REGStr.Add2DisksMenu,0);
 	Opt.ShowCmdOutput=GetRegKey(L"",REGStr.ShowCmdOutput,0);
 	Opt.CatchMode=GetRegKey(L"",REGStr.CatchMode,0);
 	Opt.ViewZeroFiles=GetRegKey(L"",REGStr.ViewZeroFiles,1);
 	Opt.EditNewFiles=GetRegKey(L"",REGStr.EditNewFiles,1);
+	Opt.MaxDataSize=GetRegKey(L"",REGStr.MaxDataSize,1048576);
 }
 
 void WINAPI ExitFARW()
@@ -78,7 +78,6 @@ void WINAPI ExitFARW()
 HANDLE WINAPI OpenPluginW(int OpenFrom,const GUID* Guid,INT_PTR Item)
 {
 	Info.Control(PANEL_ACTIVE,FCTL_GETPANELINFO,0,(LONG_PTR)&PInfo);
-//	tempFileNameOut[0]=tempFileNameErr[0]=FileNameOut[0]=FileNameErr[0]=
 	fullcmd[0]=cmd[0]=selectItem[0]=L'\0';
 
 	if (OpenFrom==OPEN_COMMANDLINE)
@@ -219,7 +218,7 @@ int WINAPI ConfigureW(const GUID* Guid)
 
     Builder.AddSeparator();
 
-    FarDialogItem *MaxData = Builder.AddIntEditField(&Opt.MaxDataSize, 8);
+    FarDialogItem *MaxData = Builder.AddIntEditField((int *)&Opt.MaxDataSize, 10);
     Builder.AddTextBefore(MaxData, MMaxDataSize);
 
     Builder.AddOKCancel(MOk, MCancel);

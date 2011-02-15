@@ -21,16 +21,6 @@ struct Options
 	int CatchMode;
 	int ViewZeroFiles;
 	int EditNewFiles;
-	int MaxDataSize;
+	DWORD MaxDataSize;
 	wchar_t Separator[4];
-} Opt=
-{
-	0,
-	0,
-	0,
-	0,
-	1,
-	1,
-	1048576,
-	L" "
-};
+} Opt;
