@@ -186,8 +186,8 @@ HANDLE WINAPI OpenPluginW(int OpenFrom,const GUID* Guid,INT_PTR Item)
         break;
     }
   }
-  Info.EditorControl(-1,ECTL_SETTITLE,0,NULL);
-  Info.EditorControl(-1,ECTL_SETKEYBAR,0,NULL);
+  Info.EditorControl(-1,ECTL_SETTITLE,0,0);
+  Info.EditorControl(-1,ECTL_SETKEYBAR,0,0);
   Reenter=false;
   return INVALID_HANDLE_VALUE;
 }

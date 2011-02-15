@@ -155,7 +155,7 @@ HANDLE WINAPI OpenPluginW(int OpenFrom,const GUID* Guid,INT_PTR Item)
 	}
 	else
 	{
-		Info.Control(PANEL_PASSIVE,FCTL_REDRAWPANEL,0,NULL);
+		Info.Control(PANEL_PASSIVE,FCTL_REDRAWPANEL,0,0);
 	}
 
 	return INVALID_HANDLE_VALUE;

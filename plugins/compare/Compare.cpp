@@ -1097,7 +1097,7 @@ void FreePanelItems(OwnPanelInfo &AInfo,OwnPanelInfo &PInfo)
 /****************************************************************************
  * Основная функция плагина. FAR её вызывает, когда пользователь зовёт плагин
  ****************************************************************************/
-HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item)
+HANDLE WINAPI OpenPluginW(int OpenFrom, const GUID* Guid, INT_PTR Item)
 {
   OwnPanelInfo AInfo, PInfo;
 
@@ -1113,7 +1113,7 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item)
   AInfo.ItemsNumber=AI.ItemsNumber;
   AInfo.SelectedItemsNumber=AI.SelectedItemsNumber;
 
-  int Size=Info.Control(PANEL_ACTIVE, FCTL_GETPANELDIR,0,NULL);
+  int Size=Info.Control(PANEL_ACTIVE, FCTL_GETPANELDIR,0,0);
   AInfo.lpwszCurDir=new wchar_t[Size];
   Info.Control(PANEL_ACTIVE, FCTL_GETPANELDIR,Size,(LONG_PTR)AInfo.lpwszCurDir);
 
@@ -1144,7 +1144,7 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item)
   PInfo.ItemsNumber=PI.ItemsNumber;
   PInfo.SelectedItemsNumber=PI.SelectedItemsNumber;
 
-  Size=Info.Control(PANEL_PASSIVE, FCTL_GETPANELDIR,0,NULL);
+  Size=Info.Control(PANEL_PASSIVE, FCTL_GETPANELDIR,0,0);
   PInfo.lpwszCurDir=new wchar_t[Size];
   Info.Control(PANEL_PASSIVE, FCTL_GETPANELDIR,Size,(LONG_PTR)PInfo.lpwszCurDir);
 
@@ -1262,22 +1262,22 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item)
   // Отмечаем файлы и перерисовываем панели. Если нужно показываем сообщение...
   if (!bBrokenByEsc)
   {
-    Info.Control(PANEL_ACTIVE,FCTL_BEGINSELECTION,0,NULL);
+    Info.Control(PANEL_ACTIVE,FCTL_BEGINSELECTION,0,0);
     for(int i=0;i<AInfo.ItemsNumber;i++)
     {
       Info.Control(PANEL_ACTIVE, FCTL_SETSELECTION,i,AInfo.PanelItems[i].Flags&PPIF_SELECTED);
     }
-    Info.Control(PANEL_ACTIVE,FCTL_ENDSELECTION,0,NULL);
+    Info.Control(PANEL_ACTIVE,FCTL_ENDSELECTION,0,0);
 
-    Info.Control(PANEL_PASSIVE,FCTL_BEGINSELECTION,0,NULL);
+    Info.Control(PANEL_PASSIVE,FCTL_BEGINSELECTION,0,0);
     for(int i=0;i<PInfo.ItemsNumber;i++)
     {
       Info.Control(PANEL_PASSIVE, FCTL_SETSELECTION,i,PInfo.PanelItems[i].Flags&PPIF_SELECTED);
     }
-    Info.Control(PANEL_PASSIVE,FCTL_ENDSELECTION,0,NULL);
+    Info.Control(PANEL_PASSIVE,FCTL_ENDSELECTION,0,0);
 
-    Info.Control(PANEL_ACTIVE, FCTL_REDRAWPANEL,0,NULL);
-    Info.Control(PANEL_PASSIVE, FCTL_REDRAWPANEL,0,NULL);
+    Info.Control(PANEL_ACTIVE, FCTL_REDRAWPANEL,0,0);
+    Info.Control(PANEL_PASSIVE, FCTL_REDRAWPANEL,0,0);
 
     if(bOpenFail)
     {
