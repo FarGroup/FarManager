@@ -1,74 +1,36 @@
-const TCHAR *GetMsg(int MsgId)
+const wchar_t *GetMsg(int MsgId)
 {
-  return(Info.GetMsg(Info.ModuleNumber,MsgId));
+  return Info.GetMsg(&MainGuid,MsgId);
 }
 
-void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Item,int ItemsNumber)
-{
-  int I;
-  struct FarDialogItem *PItem=Item;
-  const struct InitDialogItem *PInit=Init;
-  for (I=0;I<ItemsNumber;I++,PItem++,PInit++)
-  {
-    PItem->Type=PInit->Type;
-    PItem->X1=PInit->X1;
-    PItem->Y1=PInit->Y1;
-    PItem->X2=PInit->X2;
-    PItem->Y2=PInit->Y2;
-    PItem->Focus=PInit->Focus;
-    PItem->Param.History=(const TCHAR *)PInit->Selected;
-    PItem->Flags=PInit->Flags;
-    PItem->DefaultButton=PInit->DefaultButton;
-#ifdef UNICODE
-    PItem->MaxLen=0;
-#endif
-    if ((DWORD_PTR)PInit->Data<2000)
-#ifndef UNICODE
-      lstrcpy(PItem->Data.Data,GetMsg((unsigned int)(DWORD_PTR)PInit->Data));
-#else
-      PItem->PtrData = GetMsg((unsigned int)(DWORD_PTR)PInit->Data);
-#endif
-    else
-#ifndef UNICODE
-      lstrcpy(PItem->Data.Data,PInit->Data);
-#else
-      PItem->PtrData = PInit->Data;
-#endif
-  }
-}
 
-#ifndef UNICODE
-typedef unsigned char UTCHAR;
-#else
-typedef wchar_t UTCHAR;
-#endif
-int IsCaseMixed(const TCHAR *Str)
+int IsCaseMixed(const wchar_t *Str)
 {
-  while (*Str && !FSF.LIsAlpha((UTCHAR)*Str))
+  while (*Str && !FSF.LIsAlpha(*Str))
     Str++;
-  int Case=FSF.LIsLower((UTCHAR)*Str);
+  int Case=FSF.LIsLower(*Str);
   while (*(Str++))
-    if (FSF.LIsAlpha((UTCHAR)*Str) && FSF.LIsLower((UTCHAR)*Str)!=Case)
-      return(TRUE);
-  return(FALSE);
+    if (FSF.LIsAlpha(*Str) && FSF.LIsLower(*Str)!=Case)
+      return TRUE;
+  return FALSE;
 }
 
-const TCHAR *GetOnlyName(const TCHAR *FullName)
+const wchar_t *GetOnlyName(const wchar_t *FullName)
 {
-  const TCHAR *Name=_tcsrchr(FullName,_T('\\'));
+  const wchar_t *Name=wcsrchr(FullName,L'\\');
   if(Name) ++Name;
   else Name=FullName;
   return Name;
 }
 
-TCHAR *GetFullName(TCHAR *Dest,const TCHAR *Dir,const TCHAR *Name)
+wchar_t *GetFullName(wchar_t *Dest,const wchar_t *Dir,const wchar_t *Name)
 {
   lstrcpy(Dest,Dir);
   int len=lstrlen(Dest);
   if(len)
   {
-    if(Dest[len-1]==_T('\\')) --len;
-    else Dest[len]=_T('\\');
+    if(Dest[len-1]==L'\\') --len;
+    else Dest[len]=L'\\';
     lstrcpy(Dest+len+1,GetOnlyName(Name));
   }
   else lstrcpy(Dest, Name);
@@ -78,26 +40,28 @@ TCHAR *GetFullName(TCHAR *Dest,const TCHAR *Dir,const TCHAR *Name)
 
 BOOL IsWordDiv(int c)
 {
-  return (_tmemchr(Opt.WordDiv, c, Opt.WordDivLen)!=NULL);
+  return (wmemchr(Opt.WordDiv, c, Opt.WordDivLen)!=NULL);
 }
 
 //  CaseWord - convert case of string by given type
-void CaseWord( TCHAR *nm, int Type )
+void CaseWord( wchar_t *nm, int Type )
 {
   int I;
 
   switch( Type )
   {
     case MODE_N_WORD:
-      *nm = (TCHAR)FSF.LUpper((UTCHAR)*nm);
+      *nm = FSF.LUpper(*nm);
       FSF.LStrlwr(nm+1);
       break;
     case MODE_LN_WORD:
       for (I=0; nm[I]; I++)
+      {
         if(!I || IsWordDiv(nm[I-1]))
-           nm[I]=(TCHAR)FSF.LUpper((UTCHAR)nm[I]);
-    else
-      nm[I]=(TCHAR)FSF.LLower((UTCHAR)nm[I]);
+           nm[I]=(wchar_t)FSF.LUpper(nm[I]);
+        else
+          nm[I]=(wchar_t)FSF.LLower(nm[I]);
+      }
       break;
     case MODE_LOWER:
       FSF.LStrlwr(nm);

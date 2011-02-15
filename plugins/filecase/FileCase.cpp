@@ -1,9 +1,11 @@
-#include <windows.h>
-#define _FAR_NO_NAMELESS_UNIONS
-#include "CRT/crt.hpp"
 #include "plugin.hpp"
+#include "CRT/crt.hpp"
 #include "FileLng.hpp"
 #include "FileCase.hpp"
+#include "pluginreg/pluginreg.hpp"
+#include "version.hpp"
+#include <initguid.h>
+#include "guid.hpp"
 
 #if defined(__GNUC__)
 
@@ -26,46 +28,57 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 
 #include "FileMix.cpp"
 #include "filecvt.cpp"
-#include "FileReg.cpp"
 #include "ProcessName.cpp"
 
-int WINAPI EXP_NAME(GetMinFarVersion)()
+void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 {
-  return FARMANAGERVERSION;
+  Info->StructSize=sizeof(GlobalInfo);
+  Info->MinFarVersion=FARMANAGERVERSION;
+  Info->Version=PLUGIN_VERSION;
+  Info->Guid=MainGuid;
+  Info->Title=PLUGIN_NAME;
+  Info->Description=PLUGIN_DESC;
+  Info->Author=PLUGIN_AUTHOR;
 }
 
+void WINAPI ExitFARW()
+{
+	free(PluginRootKey);
+}
 
-void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
+void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 {
   ::Info=*Info;
-	::FSF=*Info->FSF;
-	::Info.FSF=&::FSF;
+  ::FSF=*Info->FSF;
+  ::Info.FSF=&::FSF;
 
-	lstrcpy(PluginRootKey,Info->RootKey);
-	lstrcat(PluginRootKey,_T("\\CaseConvertion"));
+  PluginRootKey = (wchar_t *)malloc(lstrlen(Info->RootKey)*sizeof(wchar_t) + sizeof(L"\\CaseConvertion"));
+  lstrcpy(PluginRootKey,Info->RootKey);
+  lstrcat(PluginRootKey,L"\\CaseConvertion");
 
-	Opt.ConvertMode=GetRegKey(HKEY_CURRENT_USER,_T(""),_T("ConvertMode"),0);
-	Opt.ConvertModeExt=GetRegKey(HKEY_CURRENT_USER,_T(""),_T("ConvertModeExt"),0);
-	Opt.SkipMixedCase=GetRegKey(HKEY_CURRENT_USER,_T(""),_T("SkipMixedCase"),1);
-	Opt.ProcessSubDir=GetRegKey(HKEY_CURRENT_USER,_T(""),_T("ProcessSubDir"),0);
-	Opt.ProcessDir=GetRegKey(HKEY_CURRENT_USER,_T(""),_T("ProcessDir"),0);
-	GetRegKey(HKEY_CURRENT_USER,_T(""),_T("WordDiv"),Opt.WordDiv,_T(" _"),ARRAYSIZE(Opt.WordDiv));
-	Opt.WordDivLen=lstrlen(Opt.WordDiv);
+  Opt.ConvertMode=GetRegKey(L"",L"ConvertMode",0);
+  Opt.ConvertModeExt=GetRegKey(L"",L"ConvertModeExt",0);
+  Opt.SkipMixedCase=GetRegKey(L"",L"SkipMixedCase",1);
+  Opt.ProcessSubDir=GetRegKey(L"",L"ProcessSubDir",0);
+  Opt.ProcessDir=GetRegKey(_T(""),L"ProcessDir",0);
+  GetRegKey(L"",L"WordDiv",Opt.WordDiv,L" _",ARRAYSIZE(Opt.WordDiv));
+  Opt.WordDivLen=lstrlen(Opt.WordDiv);
 }
 
 
-HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
+HANDLE WINAPI OpenPluginW(int OpenFrom, const GUID* Guid, INT_PTR Item)
 {
   CaseConvertion();
-  return(INVALID_HANDLE_VALUE);
+  return INVALID_HANDLE_VALUE;
 }
 
 
-void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
+void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 {
-	Info->StructSize=sizeof(*Info);
-	static TCHAR *PluginMenuStrings[1];
-	PluginMenuStrings[0]=(TCHAR*)GetMsg(MFileCase);
-	Info->PluginMenuStrings=PluginMenuStrings;
-	Info->PluginMenuStringsNumber=ARRAYSIZE(PluginMenuStrings);
+  Info->StructSize=sizeof(*Info);
+  static const wchar_t *PluginMenuStrings[1];
+  PluginMenuStrings[0]=GetMsg(MFileCase);
+  Info->PluginMenu.Guids=&MenuGuid;
+  Info->PluginMenu.Strings=PluginMenuStrings;
+  Info->PluginMenu.Count=ARRAYSIZE(PluginMenuStrings);
 }

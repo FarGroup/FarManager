@@ -13,7 +13,7 @@ struct Options
   int SkipMixedCase;
   int ProcessSubDir;
   int ProcessDir;
-  TCHAR WordDiv[512];
+  wchar_t WordDiv[512];
   int WordDivLen;
 } Opt;
 
@@ -25,24 +25,17 @@ struct InitDialogItem
   DWORD_PTR Selected;
   unsigned int Flags;
   unsigned char DefaultButton;
-  const TCHAR *Data;
+  const wchar_t *Data;
 };
 
-const TCHAR *GetMsg(int MsgId);
+const wchar_t *GetMsg(int MsgId);
 void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Item,int ItemsNumber);
-int IsCaseMixed(const TCHAR *Str);
-const TCHAR *GetOnlyName(const TCHAR *FullName);
-TCHAR *GetFullName(TCHAR *Dest,const TCHAR *Dir,const TCHAR *Name);
-void CaseWord( TCHAR *nm, int Type );
-void ProcessName(const TCHAR *OldFullName, DWORD FileAttributes);
-
-
-void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,DWORD ValueData);
-void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData);
-int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,int &ValueData,DWORD Default);
-int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,DWORD Default);
-int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData,const TCHAR *Default,DWORD DataSize);
+int IsCaseMixed(const wchar_t *Str);
+const wchar_t *GetOnlyName(const wchar_t *FullName);
+wchar_t *GetFullName(wchar_t *Dest,const wchar_t *Dir,const wchar_t *Name);
+void CaseWord( wchar_t *nm, int Type );
+void ProcessName(const wchar_t *OldFullName, DWORD FileAttributes);
 
 static struct PluginStartupInfo Info;
 static struct FarStandardFunctions FSF;
-TCHAR PluginRootKey[80];
+wchar_t *PluginRootKey;

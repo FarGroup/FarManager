@@ -2,17 +2,17 @@
 //     ProcessName - convert case of given filename
 //                   use all options from `Opt`
 //                   Call recurse for subdirectories
-void ProcessName(const TCHAR *OldFullName, DWORD FileAttributes)
+void ProcessName(const wchar_t *OldFullName, DWORD FileAttributes)
 {
-  TCHAR NewFullName[MAX_PATH];
-  TCHAR NewName[MAX_PATH];
-  TCHAR NewExt[MAX_PATH];
-  TCHAR *ExtPtr;
+  wchar_t NewFullName[MAX_PATH];
+  wchar_t NewName[MAX_PATH];
+  wchar_t NewExt[MAX_PATH];
+  wchar_t *ExtPtr;
 
   lstrcpy(NewFullName, OldFullName);
 
   // Path
-  ExtPtr = _tcsrchr(NewFullName,_T('\\'));
+  ExtPtr = wcsrchr(NewFullName,L'\\');
   if(ExtPtr)
     ExtPtr[1] = 0;
   else
@@ -22,7 +22,7 @@ void ProcessName(const TCHAR *OldFullName, DWORD FileAttributes)
   lstrcpy(NewName,GetOnlyName(OldFullName));
 
   //Ext
-  ExtPtr = _tcsrchr(NewName,_T('.'));
+  ExtPtr = wcsrchr(NewName,L'.');
 
   if(ExtPtr)
   {
@@ -32,9 +32,7 @@ void ProcessName(const TCHAR *OldFullName, DWORD FileAttributes)
   else
     NewExt[0] = 0;
 
-  if (*NewExt==0 && (*NewName==0 ||
-     (*NewName==_T('.') && NewName[1]==0) ||
-     (*NewName==_T('.') && NewName[1]==_T('.') && NewName[2]==0)))
+  if (*NewExt==0 && (*NewName==0 || (*NewName==L'.' && NewName[1]==0) || (*NewName==L'.' && NewName[1]==L'.' && NewName[2]==0)))
     return;
 
   //Check need to convert
@@ -54,7 +52,7 @@ void ProcessName(const TCHAR *OldFullName, DWORD FileAttributes)
 
     if (NewExt[0])
     {
-      lstrcat(NewFullName,_T("."));
+      lstrcat(NewFullName,L".");
       lstrcat(NewFullName,NewExt);
     }
 
@@ -64,11 +62,7 @@ void ProcessName(const TCHAR *OldFullName, DWORD FileAttributes)
   //Recurce to directories
   if( Opt.ProcessSubDir && (FileAttributes&FILE_ATTRIBUTE_DIRECTORY))
   {
-#ifdef UNICODE
-    FAR_FIND_DATA *Items;
-#else
     struct PluginPanelItem *Items;
-#endif
     int ItemsNumber,DirList;
 
     DirList = Info.GetDirList(OldFullName,&Items,&ItemsNumber);
@@ -77,18 +71,9 @@ void ProcessName(const TCHAR *OldFullName, DWORD FileAttributes)
     {
       for (int I=0; I < ItemsNumber; I++)
       {
-#ifdef UNICODE
-        ProcessName(Items[I].lpwszFileName,Items[I].dwFileAttributes);
-#else
-        GetFullName(NewFullName,OldFullName,Items[I].FindData.cFileName);
-        ProcessName(NewFullName,Items[I].FindData.dwFileAttributes);
-#endif
+        ProcessName(Items[I].FileName,Items[I].FileAttributes);
       }
     }
-    Info.FreeDirList(Items
-#ifdef UNICODE
-                          , ItemsNumber
-#endif
-                    );
+    Info.FreeDirList(Items, ItemsNumber);
   }
 }
