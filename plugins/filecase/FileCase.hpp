@@ -17,19 +17,7 @@ struct Options
   int WordDivLen;
 } Opt;
 
-struct InitDialogItem
-{
-  unsigned char Type;
-  unsigned char X1,Y1,X2,Y2;
-  unsigned char Focus;
-  DWORD_PTR Selected;
-  unsigned int Flags;
-  unsigned char DefaultButton;
-  const wchar_t *Data;
-};
-
 const wchar_t *GetMsg(int MsgId);
-void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Item,int ItemsNumber);
 int IsCaseMixed(const wchar_t *Str);
 const wchar_t *GetOnlyName(const wchar_t *FullName);
 wchar_t *GetFullName(wchar_t *Dest,const wchar_t *Dir,const wchar_t *Name);
