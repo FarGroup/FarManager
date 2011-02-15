@@ -719,36 +719,37 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 					}
 					else if (Macro)
 					{
-						ActlKeyMacro command;
+						int command=-1;
+						int subcommand=0;
 
 						if (!FSF.LStrnicmp(pCmd,L"LOAD",lstrlen(pCmd)))
-							command.Command=MCMD_LOADALL;
+						{
+							command=MCTL_LOADALL;
+						}
 						else if (!FSF.LStrnicmp(pCmd,L"SAVE",lstrlen(pCmd)))
-							command.Command=MCMD_SAVEALL;
+						{
+							command=MCTL_SAVEALL;
+						}
 						else if (!FSF.LStrnicmp(pCmd,L"CHECK",5))
 						{
-							command.Command=MCMD_CHECKMACRO;
-							//command.Param.PlainText.Flags=KSFLAGS_SILENTCHECK;
-							command.Param.PlainText.Flags=0;
+							command=MCTL_SENDSTRING;
+							subcommand=MSSC_CHECK;
 							pCmd+=5;
 						}
 						else if (!FSF.LStrnicmp(pCmd,L"POST",4))
 						{
-							command.Command=MCMD_POSTMACROSTRING;
-							command.Param.PlainText.Flags=KSFLAGS_DISABLEOUTPUT;
+							command=MCTL_SENDSTRING;
+							subcommand=MSSC_POST;
 							pCmd+=4;
 						}
 
-						switch(command.Command)
+						switch(command)
 						{
-							case MCMD_LOADALL:
-								Info.AdvControl(&MainGuid,ACTL_KEYMACRO,&command);
+							case MCTL_SAVEALL:
+							case MCTL_LOADALL:
+								Info.MacroControl(NULL,command,0,0);
 								break;
-							case MCMD_SAVEALL:
-								Info.AdvControl(&MainGuid,ACTL_KEYMACRO,&command);
-								break;
-							case MCMD_CHECKMACRO:
-							case MCMD_POSTMACROSTRING:
+							case MCTL_SENDSTRING:
 							{
 								wchar_t *SequenceText=NULL;
 								wchar_t *Ptr=NULL;
@@ -787,9 +788,16 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 
 								if (SequenceText)
 								{
-									command.Param.PlainText.SequenceText=SequenceText;
+									MacroSendMacroText mcmd = {sizeof(mcmd), KMFLAGS_DISABLEOUTPUT, 0, SequenceText};
+									MacroCheckMacroText mcmd2 = {0};
+									mcmd2.Check.Text = mcmd;
 
-									if (!Info.AdvControl(Info.ModuleNumber,ACTL_KEYMACRO,&command))
+									INT_PTR pcmd = (INT_PTR)&mcmd;
+
+									if (subcommand == MSSC_CHECK)
+										pcmd = (INT_PTR)&mcmd2;
+
+									if (!Info.MacroControl(NULL, command, subcommand, pcmd))
 									{
 										;
 									}
@@ -802,7 +810,6 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 								break;
 							}
 						}
-
 					}
 					else if (Link) //link [/msg] [/n] источник назначение
 					{

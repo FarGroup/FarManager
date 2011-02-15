@@ -11,4 +11,4 @@ NEEDPLUGINREG = 1
 
 !include ..\makefile_vc_target_inc
 
-$(OBJDIR)\FARCmds.obj: FARCmds.cpp Mix.cpp OpenCmd.cpp FARCmds.hpp Lang.hpp $(COMINC)\plugin.hpp
+$(OBJDIR)\FARCmds.obj: FARCmds.cpp Mix.cpp OpenCmd.cpp FARCmds.hpp Lang.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp

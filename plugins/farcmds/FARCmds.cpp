@@ -4,6 +4,9 @@
 #include "FARCmds.hpp"
 #include "Lang.hpp"
 #include "pluginreg/pluginreg.hpp"
+#include "version.hpp"
+#include <initguid.h>
+#include "guid.hpp"
 
 #if defined(__GNUC__)
 
@@ -163,36 +166,32 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 {
 	Info->StructSize=sizeof(*Info);
 	Info->Flags=PF_FULLCMDLINE;
-	static const wchar_t *PluginMenuStrings[1],*PluginConfigStrings[1],
-	*DiskMenuStrings[1];
+
+	static const wchar_t *PluginMenuStrings[1];
+	static const wchar_t *PluginConfigStrings[1];
+	static const wchar_t *DiskMenuStrings[1];
 
 	if (Opt.Add2PlugMenu)
 	{
 		PluginMenuStrings[0]=GetMsg(MSetPassiveDir);
-		Info->PluginMenuStrings=PluginMenuStrings;
-		Info->PluginMenuStringsNumber=ARRAYSIZE(PluginMenuStrings);
-	}
-	else
-	{
-		Info->PluginMenuStringsNumber=0;
-		Info->PluginMenuStrings=0;
+        Info->PluginMenu.Guids=&SameFolderMenuGuid;
+        Info->PluginMenu.Strings=PluginMenuStrings;
+        Info->PluginMenu.Count=ARRAYSIZE(PluginMenuStrings);
 	}
 
 	if (Opt.Add2DisksMenu)
 	{
 		DiskMenuStrings[0]=(wchar_t*)GetMsg(MSetPassiveDir);
-		Info->DiskMenuStrings=DiskMenuStrings;
-		Info->DiskMenuStringsNumber=1;
-	}
-	else
-	{
-		Info->DiskMenuStringsNumber=0;
-		Info->DiskMenuStrings=0;
+        Info->DiskMenu.Guids=&SameFolderMenuGuid;
+        Info->DiskMenu.Strings=DiskMenuStrings;
+        Info->DiskMenu.Count=ARRAYSIZE(DiskMenuStrings);
 	}
 
 	PluginConfigStrings[0]=GetMsg(MConfig);
-	Info->PluginConfigStrings=PluginConfigStrings;
-	Info->PluginConfigStringsNumber=ARRAYSIZE(PluginConfigStrings);
+    Info->PluginMenu.Guids=&ConfigMenuGuid;
+    Info->PluginMenu.Strings=PluginConfigStrings;
+    Info->PluginMenu.Count=ARRAYSIZE(PluginConfigStrings);
+
 	Info->CommandPrefix=L"far:view:edit:goto:clip:whereis:macro:link:run:load:unload";
 }
 
