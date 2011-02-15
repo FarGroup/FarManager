@@ -4,3 +4,4 @@ EXPORTS
    OpenPluginW=OpenPluginW@12
    SetStartupInfoW=SetStartupInfoW@4
    ExitFARW=ExitFARW@0
+   GetGlobalInfoW=GetGlobalInfoW@4

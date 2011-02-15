@@ -49,6 +49,17 @@ wchar_t fullcmd[MAX_PATH*5],cmd[MAX_PATH*5];
 #include "Mix.cpp"
 #include "OpenCmd.cpp"
 
+void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
+{
+  Info->StructSize=sizeof(GlobalInfo);
+  Info->MinFarVersion=FARMANAGERVERSION;
+  Info->Version=PLUGIN_VERSION;
+  Info->Guid=MainGuid;
+  Info->Title=PLUGIN_NAME;
+  Info->Description=PLUGIN_DESC;
+  Info->Author=PLUGIN_AUTHOR;
+}
+
 void WINAPI SetStartupInfoW(const struct PluginStartupInfo *psInfo)
 {
 	Info=*psInfo;
@@ -187,9 +198,9 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 	}
 
 	PluginConfigStrings[0]=GetMsg(MConfig);
-    Info->PluginMenu.Guids=&ConfigMenuGuid;
-    Info->PluginMenu.Strings=PluginConfigStrings;
-    Info->PluginMenu.Count=ARRAYSIZE(PluginConfigStrings);
+    Info->PluginConfig.Guids=&ConfigMenuGuid;
+    Info->PluginConfig.Strings=PluginConfigStrings;
+    Info->PluginConfig.Count=ARRAYSIZE(PluginConfigStrings);
 
 	Info->CommandPrefix=L"far:view:edit:goto:clip:whereis:macro:link:run:load:unload";
 }
