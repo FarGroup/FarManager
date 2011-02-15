@@ -719,6 +719,10 @@ wstring get_absolute_path(const wstring& rel_path) {
   return buf.data();
 }
 
+int control(HANDLE h_panel, int command, int param1, void* param2) {
+  return g_far.Control(h_panel, command, param1, reinterpret_cast<INT_PTR>(param2));
+}
+
 INT_PTR adv_control(int command, void* param) {
   return g_far.AdvControl(&c_plugin_guid, command, param);
 }

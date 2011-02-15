@@ -243,6 +243,7 @@ public:
 };
 
 wstring get_absolute_path(const wstring& rel_path);
+int control(HANDLE h_panel, int command, int param1 = 0, void* param2 = nullptr);
 INT_PTR adv_control(int command, void* param = nullptr);
 bool match_masks(const wstring& file_name, const wstring& masks);
 unsigned char get_colors(PaletteColors color_id);

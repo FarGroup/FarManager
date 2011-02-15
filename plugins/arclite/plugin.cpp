@@ -159,11 +159,20 @@ public:
     return final_dir;
   }
 
-  void get_files(const PluginPanelItem* panel_items, int items_number, int move, const wchar_t** dest_path, int op_mode) {
-    bool single_item = items_number == 1;
-    if (single_item && wcscmp(panel_items[0].FileName, L"..") == 0) return;
+  class PluginPanelItemAccessor {
+  public:
+    virtual const PluginPanelItem* get(unsigned idx) const = 0;
+    virtual int size() const = 0;
+  };
+
+  void extract(const PluginPanelItemAccessor& panel_items, wstring& dst_dir, bool move, int op_mode) {
+    if (panel_items.size() == 0)
+      return;
+    bool single_item = panel_items.size() == 1;
+    if (single_item && wcscmp(panel_items.get(0)->FileName, L"..") == 0)
+      return;
     ExtractOptions options;
-    options.dst_dir = *dest_path;
+    options.dst_dir = dst_dir;
     options.move_files = archive->updatable() ? (move ? triTrue : triFalse) : triUndef;
     options.delete_archive = false;
     bool show_dialog = (op_mode & (OPM_FIND | OPM_VIEW | OPM_EDIT | OPM_QUICKVIEW)) == 0;
@@ -189,10 +198,7 @@ public:
         options.dst_dir = L".";
       if (!is_absolute_path(options.dst_dir))
         options.dst_dir = Far::get_absolute_path(options.dst_dir);
-      if (options.dst_dir != *dest_path) {
-        extract_dir = options.dst_dir;
-        *dest_path = extract_dir.c_str();
-      }
+      dst_dir = options.dst_dir;
       if (options.separate_dir == triTrue || (options.separate_dir == triUndef && !single_item && (op_mode & OPM_TOPLEVEL))) {
         options.dst_dir = get_separate_dir_path(options.dst_dir, archive->arc_name());
       }
@@ -210,9 +216,9 @@ public:
     UInt32 src_dir_index = archive->find_dir(current_dir);
 
     vector<UInt32> indices;
-    indices.reserve(items_number);
-    for (int i = 0; i < items_number; i++) {
-      indices.push_back(static_cast<UInt32>(panel_items[i].UserData));
+    indices.reserve(panel_items.size());
+    for (int i = 0; i < panel_items.size(); i++) {
+      indices.push_back(static_cast<UInt32>(panel_items.get(i)->UserData));
     }
 
     ErrorLog error_log;
@@ -235,10 +241,59 @@ public:
 
     if (options.open_dir) {
       if (single_item)
-        Far::panel_go_to_file(PANEL_ACTIVE, add_trailing_slash(options.dst_dir) + panel_items[0].FileName);
+        Far::panel_go_to_file(PANEL_ACTIVE, add_trailing_slash(options.dst_dir) + panel_items.get(0)->FileName);
       else
         Far::panel_go_to_dir(PANEL_ACTIVE, options.dst_dir);
     }
+  }
+
+  void get_files(const PluginPanelItem* panel_items, int items_number, int move, const wchar_t** dest_path, int op_mode) {
+    class PluginPanelItems: public PluginPanelItemAccessor {
+    private:
+      const PluginPanelItem* panel_items;
+      int items_number;
+    public:
+      PluginPanelItems(const PluginPanelItem* panel_items, int items_number): panel_items(panel_items), items_number(items_number) {
+      }
+      virtual const PluginPanelItem* get(unsigned idx) const {
+        return panel_items + idx;
+      }
+      virtual int size() const {
+        return items_number;
+      }
+    };
+    PluginPanelItems pp_items(panel_items, items_number);
+    extract_dir = *dest_path;
+    extract(pp_items, extract_dir, move != 0, op_mode);
+    if (extract_dir != *dest_path) {
+      *dest_path = extract_dir.c_str();
+    }
+  }
+
+  void extract() {
+    class PluginPanelItems: public PluginPanelItemAccessor {
+    private:
+      HANDLE h_plugin;
+      PanelInfo panel_info;
+      mutable Buffer<unsigned char> buf;
+    public:
+      PluginPanelItems(HANDLE h_plugin): h_plugin(h_plugin) {
+        CHECK(Far::get_panel_info(h_plugin, panel_info));
+      }
+      virtual const PluginPanelItem* get(unsigned idx) const {
+        unsigned size = Far::control(h_plugin, FCTL_GETSELECTEDPANELITEM, idx);
+        if (buf.size() < size)
+          buf.resize(size);
+        size = Far::control(h_plugin, FCTL_GETSELECTEDPANELITEM, idx, buf.data());
+        CHECK(size);
+        return reinterpret_cast<const PluginPanelItem*>(buf.data());
+      }
+      virtual int size() const {
+        return panel_info.SelectedItemsNumber;
+      }
+    };
+    PluginPanelItems pp_items(this);
+    extract(pp_items, extract_file_path(archive->arc_path), false, 0);
   }
 
   static void extract(const vector<wstring>& arc_list, ExtractOptions options) {
@@ -1047,8 +1102,12 @@ int WINAPI ProcessKeyW(HANDLE hPlugin, const INPUT_RECORD *Rec) {
   FAR_ERROR_HANDLER_BEGIN;
   if (Rec->EventType == KEY_EVENT) {
     const KEY_EVENT_RECORD& key_event = Rec->Event.KeyEvent;
-    if ((key_event.dwControlKeyState & LEFT_CTRL_PRESSED) == LEFT_CTRL_PRESSED && key_event.wVirtualKeyCode == 'A') {
+    if ((key_event.dwControlKeyState & (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED)) != 0 && key_event.wVirtualKeyCode == 'A') {
       reinterpret_cast<Plugin*>(hPlugin)->show_attr();
+      return TRUE;
+    }
+    else if ((key_event.dwControlKeyState & (LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED)) != 0 && key_event.wVirtualKeyCode == VK_F6) {
+      reinterpret_cast<Plugin*>(hPlugin)->extract();
       return TRUE;
     }
   }
