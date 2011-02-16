@@ -639,7 +639,6 @@ struct Options
 	string strExecuteBatchType;
 
 	DWORD PluginMaxReadData;
-	int UseNumPad;
 	int ScanJunction;
 
 	DWORD ShowTimeoutDelFiles; // тайаут в процессе удаления (в ms)

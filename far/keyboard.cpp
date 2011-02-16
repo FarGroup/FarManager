@@ -2276,37 +2276,6 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 
 	if (AltPressed && !CtrlPressed && !ShiftPressed)
 	{
-#if 0
-
-		if (!AltValue && (CtrlObject->Macro.IsRecording() == MACROMODE_NOMACRO || !Opt.UseNumPad))
-		{
-			// VK_INSERT  = 0x2D       AS-0 = 0x2D
-			// VK_NUMPAD0 = 0x60       A-0  = 0x60
-			/*
-			  — грабером не все пон€тно - что, где и когда вызывать,
-			  посему его оставим пока в покое.
-			*/
-			if (//(CtrlState&NUMLOCK_ON)  && KeyCode==VK_NUMPAD0 && !(CtrlState&ENHANCED_KEY) ||
-			    (Opt.UseNumPad && KeyCode==VK_INSERT && (CtrlState&ENHANCED_KEY)) ||
-			    (!Opt.UseNumPad && (KeyCode==VK_INSERT || KeyCode==VK_NUMPAD0))
-			)
-			{   // CtrlObject->Macro.IsRecording()
-				//// // _SVS(SysLog(L"IsProcessAssignMacroKey=%d",IsProcessAssignMacroKey));
-				if (IsProcessAssignMacroKey && Opt.UseNumPad)
-				{
-					return KEY_INS|KEY_ALT;
-				}
-				else
-				{
-					RunGraber();
-				}
-
-				return(KEY_NONE);
-			}
-		}
-
-#else
-
 		if (!AltValue)
 		{
 			if (KeyCode==VK_INSERT || KeyCode==VK_NUMPAD0)
@@ -2325,8 +2294,6 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 				return(KEY_NONE);
 			}
 		}
-
-#endif
 
 		//// // _SVS(SysLog(L"1 AltNumPad -> CalcKeyCode -> KeyCode=%s  ScanCode=0x%0X AltValue=0x%0X CtrlState=%X GetAsyncKeyState(VK_SHIFT)=%X",_VK_KEY_ToName(KeyCode),ScanCode,AltValue,CtrlState,GetAsyncKeyState(VK_SHIFT)));
 		if (!(CtrlState & ENHANCED_KEY)
@@ -2398,7 +2365,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 			else if ((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD0)
 				return '0';
 
-			return Modif|(Opt.UseNumPad?KEY_NUMPAD0:KEY_INS);
+			return Modif|KEY_NUMPAD0;
 		case VK_DOWN:
 		case VK_NUMPAD2:
 
@@ -2409,7 +2376,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 			else if ((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD2)
 				return '2';
 
-			return Modif|(Opt.UseNumPad?KEY_NUMPAD2:KEY_DOWN);
+			return Modif|KEY_NUMPAD2;
 		case VK_LEFT:
 		case VK_NUMPAD4:
 
@@ -2420,7 +2387,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 			else if ((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD4)
 				return '4';
 
-			return Modif|(Opt.UseNumPad?KEY_NUMPAD4:KEY_LEFT);
+			return Modif|KEY_NUMPAD4;
 		case VK_RIGHT:
 		case VK_NUMPAD6:
 
@@ -2431,7 +2398,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 			else if ((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD6)
 				return '6';
 
-			return Modif|(Opt.UseNumPad?KEY_NUMPAD6:KEY_RIGHT);
+			return Modif|KEY_NUMPAD6;
 		case VK_UP:
 		case VK_NUMPAD8:
 
@@ -2442,7 +2409,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 			else if ((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD8)
 				return '8';
 
-			return Modif|(Opt.UseNumPad?KEY_NUMPAD8:KEY_UP);
+			return Modif|KEY_NUMPAD8;
 		case VK_END:
 		case VK_NUMPAD1:
 
@@ -2453,7 +2420,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 			else if ((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD1)
 				return '1';
 
-			return Modif|(Opt.UseNumPad?KEY_NUMPAD1:KEY_END);
+			return Modif|KEY_NUMPAD1;
 		case VK_HOME:
 		case VK_NUMPAD7:
 
@@ -2464,7 +2431,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 			else if ((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD7)
 				return '7';
 
-			return Modif|(Opt.UseNumPad?KEY_NUMPAD7:KEY_HOME);
+			return Modif|KEY_NUMPAD7;
 		case VK_NEXT:
 		case VK_NUMPAD3:
 
@@ -2475,7 +2442,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 			else if ((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD3)
 				return '3';
 
-			return Modif|(Opt.UseNumPad?KEY_NUMPAD3:KEY_PGDN);
+			return Modif|KEY_NUMPAD3;
 		case VK_PRIOR:
 		case VK_NUMPAD9:
 
@@ -2486,7 +2453,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 			else if ((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD9)
 				return '9';
 
-			return Modif|(Opt.UseNumPad?KEY_NUMPAD9:KEY_PGUP);
+			return Modif|KEY_NUMPAD9;
 		case VK_CLEAR:
 		case VK_NUMPAD5:
 
@@ -2508,7 +2475,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 			else if ((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_DECIMAL)
 				return KEY_DECIMAL;
 
-			return Modif|(Opt.UseNumPad?KEY_NUMDEL:KEY_DEL);
+			return Modif|KEY_NUMDEL;
 	}
 
 	switch (KeyCode)
@@ -2527,10 +2494,10 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 #else
 
 			if (ShiftPressed && RealKey && !ShiftPressedLast && !CtrlPressed && !AltPressed && !LastShiftEnterPressed)
-				return(Opt.UseNumPad && (CtrlState&ENHANCED_KEY)?KEY_NUMENTER:KEY_ENTER);
+				return (CtrlState&ENHANCED_KEY)?KEY_NUMENTER:KEY_ENTER;
 
 			LastShiftEnterPressed=Modif&KEY_SHIFT?TRUE:FALSE;
-			return(Modif|(Opt.UseNumPad && (CtrlState&ENHANCED_KEY)?KEY_NUMENTER:KEY_ENTER));
+			return Modif|((CtrlState&ENHANCED_KEY)?KEY_NUMENTER:KEY_ENTER);
 #endif
 		case VK_BROWSER_BACK:
 			return Modif|KEY_BROWSER_BACK;
