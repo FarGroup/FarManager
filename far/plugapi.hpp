@@ -80,7 +80,7 @@ const wchar_t* WINAPI FarGetMsgFn(INT_PTR PluginHandle,int MsgId);
 int WINAPI FarMessageFn(INT_PTR PluginNumber,unsigned __int64 Flags,
                         const wchar_t *HelpTopic,const wchar_t * const *Items,int ItemsNumber,
                         int ButtonsNumber);
-int WINAPI FarControl(HANDLE hPlugin,int Command,int Param1,INT_PTR Param2);
+int WINAPI FarControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int Param1,INT_PTR Param2);
 HANDLE WINAPI FarSaveScreen(int X1,int Y1,int X2,int Y2);
 void WINAPI FarRestoreScreen(HANDLE hScreen);
 
@@ -94,13 +94,13 @@ int WINAPI FarEditor(const wchar_t *FileName,const wchar_t *Title,
                      int StartLine,int StartChar, UINT CodePage);
 void WINAPI FarText(int X,int Y,int Color,const wchar_t *Str);
 int WINAPI TextToCharInfo(const char *Text,WORD Attr, CHAR_INFO *CharInfo, int Length, DWORD Reserved);
-int WINAPI FarEditorControl(int EditorID, int Command, int Param1, INT_PTR Param2);
+int WINAPI FarEditorControl(int EditorID, EDITOR_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2);
 
-int WINAPI FarViewerControl(int ViewerID, int Command, int Param1, INT_PTR Param2);
+int WINAPI FarViewerControl(int ViewerID, VIEWER_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2);
 
 /* Функция вывода помощи */
 BOOL WINAPI FarShowHelp(const wchar_t *ModuleName,
-                        const wchar_t *HelpTopic,unsigned __int64 Flags);
+                        const wchar_t *HelpTopic, FARHELPFLAGS Flags);
 
 /* Обертка вокруг GetString для плагинов - с меньшей функциональностью.
    Сделано для того, чтобы не дублировать код GetString.*/

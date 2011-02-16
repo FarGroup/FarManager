@@ -1,3 +1,11 @@
+drkns 16.02.2011 17:00:00 +0200 - build 1873
+
+1. Коррекция типов в plugin.hpp.
+
+2. vc-сборка.
+
+3. warnings.
+
 zg 16.02.2011 12:32:54 +0200 - build 1872
 
 1. SettingsControl:

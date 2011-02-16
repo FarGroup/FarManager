@@ -129,7 +129,7 @@ struct SetAttrDlgParam
 	// значения CheckBox`ов на момент старта диалога
 	int OriginalCBAttr[SA_ATTR_LAST-SA_ATTR_FIRST+1];
 	int OriginalCBAttr2[SA_ATTR_LAST-SA_ATTR_FIRST+1];
-	FarDialogItemFlags OriginalCBFlag[SA_ATTR_LAST-SA_ATTR_FIRST+1];
+	FARDIALOGITEMFLAGS OriginalCBFlag[SA_ATTR_LAST-SA_ATTR_FIRST+1];
 	FARCHECKEDSTATE OSubfoldersState, OCompressState, OEncryptState;
 	bool OLastWriteTime, OCreationTime, OLastAccessTime, OChangeTime;
 };

@@ -83,7 +83,7 @@ enum DIALOG_MODES
 struct DialogItemAutomation
 {
 	WORD ID;                    // Для этого элемента...
-	FarDialogItemFlags Flags[3][2];          // ...выставить вот эти флаги
+	FARDIALOGITEMFLAGS Flags[3][2];          // ...выставить вот эти флаги
 	// [0] - Unchecked, [1] - Checked, [2] - 3Checked
 	// [][0] - Set, [][1] - Skip
 };
@@ -111,7 +111,7 @@ class DlgUserControl
 */
 struct DialogItemEx
 {
-	int Type;
+	FARDIALOGITEMTYPES Type;
 	int X1,Y1,X2,Y2;
 	union
 	{
@@ -144,7 +144,7 @@ struct DialogItemEx
 
 	void Clear()
 	{
-		Type=0;
+		Type=DI_TEXT;
 		X1=0;
 		Y1=0;
 		X2=0;
@@ -198,9 +198,9 @@ struct DialogItemEx
 	}
 
 	bool AddAutomation(int id,
-		FarDialogItemFlags UncheckedSet,FarDialogItemFlags UncheckedSkip,
-		FarDialogItemFlags CheckedSet,FarDialogItemFlags CheckedSkip,
-		FarDialogItemFlags Checked3Set,FarDialogItemFlags Checked3Skip)
+		FARDIALOGITEMFLAGS UncheckedSet,FARDIALOGITEMFLAGS UncheckedSkip,
+		FARDIALOGITEMFLAGS CheckedSet,FARDIALOGITEMFLAGS CheckedSkip,
+		FARDIALOGITEMFLAGS Checked3Set,FARDIALOGITEMFLAGS Checked3Skip)
 	{
 		DialogItemAutomation *Auto;
 
@@ -230,7 +230,7 @@ Russian Help Encyclopedia of Developer")
 
 struct DialogDataEx
 {
-	WORD  Type;
+	FARDIALOGITEMTYPES Type;
 	short X1,Y1,X2,Y2;
 	union
 	{
@@ -297,7 +297,7 @@ class Dialog: public Frame
 
 		void ShowDialog(unsigned ID=(unsigned)-1);  //    ID=-1 - отрисовать весь диалог
 
-		INT_PTR CtlColorDlgItem(int ItemPos,int Type,int Focus,int Default,FarDialogItemFlags Flags);
+		INT_PTR CtlColorDlgItem(int ItemPos,int Type,int Focus,int Default,FARDIALOGITEMFLAGS Flags);
 		/* $ 28.07.2000 SVS
 		   + Изменяет фокус ввода между двумя элементами.
 		     Вынесен отдельно для того, чтобы обработать DMSG_KILLFOCUS & DMSG_SETFOCUS
@@ -337,7 +337,7 @@ class Dialog: public Frame
 
 		unsigned InitDialogObjects(unsigned ID=(unsigned)-1);
 
-		int ProcessOpenComboBox(int Type,DialogItemEx *CurItem,unsigned CurFocusPos);
+		int ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem,unsigned CurFocusPos);
 		int ProcessMoveDialog(DWORD Key);
 
 		int Do_ProcessTab(int Next);
@@ -410,9 +410,9 @@ class Dialog: public Frame
 
 
 		int SetAutomation(WORD IDParent,WORD id,
-		                  FarDialogItemFlags UncheckedSet,FarDialogItemFlags UncheckedSkip,
-		                  FarDialogItemFlags CheckedSet,FarDialogItemFlags CheckedSkip,
-		                  FarDialogItemFlags Checked3Set=DIF_NONE,FarDialogItemFlags Checked3Skip=DIF_NONE);
+		                  FARDIALOGITEMFLAGS UncheckedSet,FARDIALOGITEMFLAGS UncheckedSkip,
+		                  FARDIALOGITEMFLAGS CheckedSet,FARDIALOGITEMFLAGS CheckedSkip,
+		                  FARDIALOGITEMFLAGS Checked3Set=DIF_NONE,FARDIALOGITEMFLAGS Checked3Skip=DIF_NONE);
 
 		INT_PTR WINAPI DlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2);
 

@@ -199,7 +199,7 @@ class DialogBuilderBase
 			}
 		}
 
-		T *AddDialogItem(int Type, const wchar_t *Text)
+		T *AddDialogItem(FARDIALOGITEMTYPES Type, const wchar_t *Text)
 		{
 			if (DialogItemsCount == DialogItemsAllocated)
 			{

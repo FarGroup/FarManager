@@ -30,6 +30,9 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "headers.hpp"
+#pragma hdrstop
+
 #include "plugsettings.hpp"
 #include "ctrlobj.hpp"
 #include "registry.hpp"
@@ -77,7 +80,7 @@ int PluginSettings::Set(const FarSettingsItem& Item)
 				if (SetRegKey(m_Keys.getItem(Item.Root)->CPtr(),Item.Name,Item.Value.String)==ERROR_SUCCESS) result=TRUE;
 				break;
 			case FST_DATA:
-				if (SetRegKey(m_Keys.getItem(Item.Root)->CPtr(),Item.Name,(const BYTE*)Item.Value.Data.Data,Item.Value.Data.Size)==ERROR_SUCCESS) result=TRUE;
+				if (SetRegKey(m_Keys.getItem(Item.Root)->CPtr(),Item.Name,(const BYTE*)Item.Value.Data.Data,static_cast<DWORD>(Item.Value.Data.Size))==ERROR_SUCCESS) result=TRUE;
 				break;
 		}
 	}
@@ -210,7 +213,7 @@ int PluginSettings::SubKey(const FarSettingsValue& Value)
 	int result=0;
 	if(Value.Root<m_Keys.getCount()&&!wcschr(Value.Value,'\\'))
 	{
-		result=m_Keys.getCount();
+		result=static_cast<int>(m_Keys.getCount());
 		string& root(*m_Keys.insertItem(result));
 		root=*m_Keys.getItem(Value.Root)+L"\\"+Value.Value;
 	}

@@ -125,7 +125,7 @@ DialogItemBinding<DialogItemEx> *DialogBuilder::CreateRadioButtonBinding(int *Va
 	return new RadioButtonBinding<DialogItemEx>(Value);
 }
 
-DialogItemEx *DialogBuilder::AddEditField(string *Value, int Width, const wchar_t *HistoryID, FarDialogItemFlags Flags)
+DialogItemEx *DialogBuilder::AddEditField(string *Value, int Width, const wchar_t *HistoryID, FARDIALOGITEMFLAGS Flags)
 {
 	DialogItemEx *Item = AddDialogItem(DI_EDIT, *Value);
 	SetNextY(Item);
@@ -159,7 +159,7 @@ DialogItemEx *DialogBuilder::AddIntEditField(int *Value, int Width)
 
 DialogItemEx *DialogBuilder::AddComboBox(int *Value, int Width,
 										 DialogBuilderListItem *Items, int ItemCount,
-										 FarDialogItemFlags Flags)
+										 FARDIALOGITEMFLAGS Flags)
 {
 	DialogItemEx *Item = AddDialogItem(DI_COMBOBOX, L"");
 	SetNextY(Item);
@@ -182,7 +182,7 @@ DialogItemEx *DialogBuilder::AddComboBox(int *Value, int Width,
 	return Item;
 }
 
-void DialogBuilder::LinkFlags(DialogItemEx *Parent, DialogItemEx *Target, FarDialogItemFlags Flags, bool LinkLabels)
+void DialogBuilder::LinkFlags(DialogItemEx *Parent, DialogItemEx *Target, FARDIALOGITEMFLAGS Flags, bool LinkLabels)
 {
 	Parent->Flags |= DIF_AUTOMATION;
 	Parent->AddAutomation(Target->ID, Flags, DIF_NONE, DIF_NONE, Flags, DIF_NONE, DIF_NONE);
@@ -200,7 +200,7 @@ void DialogBuilder::LinkFlags(DialogItemEx *Parent, DialogItemEx *Target, FarDia
 	}
 }
 
-void DialogBuilder::LinkFlagsByID(DialogItemEx *Parent, int TargetID, FarDialogItemFlags Flags)
+void DialogBuilder::LinkFlagsByID(DialogItemEx *Parent, int TargetID, FARDIALOGITEMFLAGS Flags)
 {
 	if (TargetID >= 0)
 	{

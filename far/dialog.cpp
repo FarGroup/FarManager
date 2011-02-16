@@ -701,7 +701,7 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
 {
 	CriticalSectionLock Lock(CS);
 	unsigned I, J;
-	int Type;
+	FARDIALOGITEMTYPES Type;
 	DialogItemEx *CurItem;
 	unsigned InitItemCount;
 	unsigned __int64 ItemFlags;
@@ -1113,7 +1113,7 @@ BOOL Dialog::SetItemRect(unsigned ID,SMALL_RECT *Rect)
 		return FALSE;
 
 	DialogItemEx *CurItem=Item[ID];
-	int Type=CurItem->Type;
+	FARDIALOGITEMTYPES Type=CurItem->Type;
 	CurItem->X1=Rect->Left;
 	CurItem->Y1=(Rect->Top<0)?0:Rect->Top;
 
@@ -1339,7 +1339,7 @@ void Dialog::GetDialogObjectsData()
 	for (unsigned I=0; I < ItemCount; I++)
 	{
 		CurItem = Item[I];
-		FarDialogItemFlags IFlags=CurItem->Flags;
+		FARDIALOGITEMFLAGS IFlags=CurItem->Flags;
 
 		switch (Type=CurItem->Type)
 		{
@@ -1438,7 +1438,7 @@ void Dialog::GetDialogObjectsData()
 
 
 // Функция формирования и запроса цветов.
-INT_PTR Dialog::CtlColorDlgItem(int ItemPos,int Type,int Focus,int Default,FarDialogItemFlags Flags)
+INT_PTR Dialog::CtlColorDlgItem(int ItemPos,int Type,int Focus,int Default,FARDIALOGITEMFLAGS Flags)
 {
 	CriticalSectionLock Lock(CS);
 	BOOL DisabledItem=Flags&DIF_DISABLE?TRUE:FALSE;
@@ -3159,7 +3159,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	CriticalSectionLock Lock(CS);
 	unsigned I;
 	int MsX,MsY;
-	int Type;
+	FARDIALOGITEMTYPES Type;
 	SMALL_RECT Rect;
 	INPUT_RECORD mouse;
 	memset(&mouse,0,sizeof(mouse));
@@ -3611,7 +3611,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 }
 
 
-int Dialog::ProcessOpenComboBox(int Type,DialogItemEx *CurItem, unsigned CurFocusPos)
+int Dialog::ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem, unsigned CurFocusPos)
 {
 	CriticalSectionLock Lock(CS);
 	string strStr;
@@ -3844,7 +3844,7 @@ int Dialog::Do_ProcessSpace()
 unsigned Dialog::ChangeFocus(unsigned CurFocusPos,int Step,int SkipGroup)
 {
 	CriticalSectionLock Lock(CS);
-	int Type;
+	FARDIALOGITEMTYPES Type;
 	unsigned OrigFocusPos=CurFocusPos;
 //  int FucusPosNeed=-1;
 	// В функцию обработки диалога здесь передаем сообщение,
@@ -4003,9 +4003,9 @@ void Dialog::SelectOnEntry(unsigned Pos,BOOL Selected)
 }
 
 int Dialog::SetAutomation(WORD IDParent,WORD id,
-                          FarDialogItemFlags UncheckedSet,FarDialogItemFlags UncheckedSkip,
-                          FarDialogItemFlags CheckedSet,FarDialogItemFlags CheckedSkip,
-                          FarDialogItemFlags Checked3Set,FarDialogItemFlags Checked3Skip)
+                          FARDIALOGITEMFLAGS UncheckedSet,FARDIALOGITEMFLAGS UncheckedSkip,
+                          FARDIALOGITEMFLAGS CheckedSet,FARDIALOGITEMFLAGS CheckedSkip,
+                          FARDIALOGITEMFLAGS Checked3Set,FARDIALOGITEMFLAGS Checked3Skip)
 {
 	CriticalSectionLock Lock(CS);
 	int Ret=FALSE;
@@ -4237,8 +4237,9 @@ int Dialog::AddToEditHistory(const wchar_t *AddStr,const wchar_t *HistoryName)
 int Dialog::CheckHighlights(WORD CheckSymbol,int StartPos)
 {
 	CriticalSectionLock Lock(CS);
-	int Type, I;
-	FarDialogItemFlags Flags;
+	FARDIALOGITEMTYPES Type;
+	int I;
+	FARDIALOGITEMFLAGS Flags;
 
 	if (StartPos < 0)
 		StartPos=0;
@@ -4274,8 +4275,8 @@ int Dialog::CheckHighlights(WORD CheckSymbol,int StartPos)
 int Dialog::ProcessHighlighting(int Key,unsigned FocusPos,int Translate)
 {
 	CriticalSectionLock Lock(CS);
-	int Type;
-	FarDialogItemFlags Flags;
+	FARDIALOGITEMTYPES Type;
+	FARDIALOGITEMFLAGS Flags;
 
 	INPUT_RECORD rec;
 	if(!KeyToInputRecord(Key,&rec)) memset(&rec,0,sizeof(rec));
@@ -4379,7 +4380,7 @@ void Dialog::AdjustEditPos(int dx, int dy)
 	for (unsigned I=0; I < ItemCount; I++)
 	{
 		CurItem=Item[I];
-		int Type=CurItem->Type;
+		FARDIALOGITEMTYPES Type=CurItem->Type;
 
 		if ((CurItem->ObjPtr  && IsEdit(Type)) ||
 		        (CurItem->ListPtr && Type == DI_LISTBOX))
@@ -5098,7 +5099,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 
 	/*****************************************************************/
 	DialogItemEx *CurItem=nullptr;
-	int Type=0;
+	FARDIALOGITEMTYPES Type=DI_TEXT;
 	size_t Len=0;
 
 	// предварительно проверим...
@@ -5659,7 +5660,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 
 				for (UINT I=0; I < CurItem->AutoCount; ++I, ++Auto)
 				{
-					FarDialogItemFlags NewFlags=Dlg->Item[Auto->ID]->Flags;
+					FARDIALOGITEMFLAGS NewFlags=Dlg->Item[Auto->ID]->Flags;
 					Dlg->Item[Auto->ID]->Flags=(NewFlags&(~Auto->Flags[Param2][1]))|Auto->Flags[Param2][0];
 					// здесь намеренно в обработчик не посылаются эвенты об изменении
 					// состояния...
@@ -5720,7 +5721,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 
 						for (UINT I=0; I < CurItem->AutoCount; ++I, ++Auto)
 						{
-							FarDialogItemFlags NewFlags=Dlg->Item[Auto->ID]->Flags;
+							FARDIALOGITEMFLAGS NewFlags=Dlg->Item[Auto->ID]->Flags;
 							Dlg->Item[Auto->ID]->Flags=(NewFlags&(~Auto->Flags[Param2][1]))|Auto->Flags[Param2][0];
 							// здесь намеренно в обработчик не посылаются эвенты об изменении
 							// состояния...
@@ -6143,7 +6144,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 		*/
 		case DM_SHOWITEM:
 		{
-			FarDialogItemFlags PrevFlags=CurItem->Flags;
+			FARDIALOGITEMFLAGS PrevFlags=CurItem->Flags;
 
 			if (Param2 != -1)
 			{
@@ -6218,7 +6219,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 		*/
 		case DM_ENABLE:
 		{
-			FarDialogItemFlags PrevFlags=CurItem->Flags;
+			FARDIALOGITEMFLAGS PrevFlags=CurItem->Flags;
 
 			if (Param2 != -1)
 			{

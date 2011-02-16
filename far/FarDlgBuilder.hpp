@@ -51,7 +51,7 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 	private:
 		const wchar_t *HelpTopic;
 
-		void LinkFlagsByID(DialogItemEx *Parent, int TargetID, FarDialogItemFlags Flags);
+		void LinkFlagsByID(DialogItemEx *Parent, int TargetID, FARDIALOGITEMFLAGS Flags);
 
 	protected:
 		virtual void InitDialogItem(DialogItemEx *Item, const TCHAR *Text);
@@ -67,20 +67,20 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 		~DialogBuilder();
 
 		// Добавляет поле типа DI_EDIT для редактирования указанного строкового значения.
-		DialogItemEx *AddEditField(string *Value, int Width, const wchar_t *HistoryID = nullptr, FarDialogItemFlags Flags = 0);
+		DialogItemEx *AddEditField(string *Value, int Width, const wchar_t *HistoryID = nullptr, FARDIALOGITEMFLAGS Flags = 0);
 
 		// Добавляет поле типа DI_FIXEDIT для редактирования указанного числового значения.
 		virtual DialogItemEx *AddIntEditField(int *Value, int Width);
 
 		// Добавляет выпадающий список с указанными значениями.
-		DialogItemEx *AddComboBox(int *Value, int Width, DialogBuilderListItem *Items, int ItemCount, FarDialogItemFlags Flags = DIF_NONE);
+		DialogItemEx *AddComboBox(int *Value, int Width, DialogBuilderListItem *Items, int ItemCount, FARDIALOGITEMFLAGS Flags = DIF_NONE);
 
 		// Связывает состояние элементов Parent и Target. Когда Parent->Selected равно
 		// false, устанавливает флаги Flags у элемента Target; когда равно true -
 		// сбрасывает флаги.
 		// Если LinkLabels установлено в true, то текстовые элементы, добавленные к элементу Target
 		// методами AddTextBefore и AddTextAfter, также связываются с элементом Parent.
-		void LinkFlags(DialogItemEx *Parent, DialogItemEx *Target, FarDialogItemFlags Flags, bool LinkLabels=true);
+		void LinkFlags(DialogItemEx *Parent, DialogItemEx *Target, FARDIALOGITEMFLAGS Flags, bool LinkLabels=true);
 
 		void AddOKCancel()
 		{

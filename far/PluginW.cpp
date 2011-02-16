@@ -221,7 +221,7 @@ static int WINAPI FarInputBoxW(const GUID* PluginId,const wchar_t *Title,const w
 	return FarInputBox(GetPluginNumber(PluginId),Title,Prompt,HistoryName,SrcText,DestText,DestLength,HelpTopic,Flags);
 }
 
-static INT_PTR WINAPI FarAdvControlW(const GUID* PluginId, int Command, void *Param)
+static INT_PTR WINAPI FarAdvControlW(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Command, void *Param)
 {
 	if (ACTL_SYNCHRO==Command) //must be first
 	{

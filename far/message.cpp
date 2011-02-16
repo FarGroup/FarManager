@@ -335,7 +335,7 @@ int Message(
 		if (Title && *Title)
 			MsgDlg[0].strData = Title;
 
-		int TypeItem=DI_TEXT;
+		FARDIALOGITEMTYPES TypeItem=DI_TEXT;
 		unsigned __int64 FlagsItem=DIF_SHOWAMPERSAND;
 		BOOL IsButton=FALSE;
 		int CurItem=0;

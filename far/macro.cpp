@@ -2613,8 +2613,8 @@ static bool dlggetvalueFunc(const TMacroFunction*)
 		else if (Index < DlgItemCount && DlgItem)
 		{
 			const DialogItemEx *Item=DlgItem[Index];
-			int ItemType=Item->Type;
-			FarDialogItemFlags ItemFlags=Item->Flags;
+			FARDIALOGITEMTYPES ItemType=Item->Type;
+			FARDIALOGITEMFLAGS ItemFlags=Item->Flags;
 
 			if (!TypeInf)
 			{

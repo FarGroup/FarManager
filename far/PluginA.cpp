@@ -4155,7 +4155,7 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 			return FALSE;
 	}
 
-	return FarEditorControl(-1,Command, 0,(INT_PTR)Param);
+	return FALSE;
 }
 
 int WINAPI FarViewerControlA(int Command,void* Param)
@@ -5572,7 +5572,47 @@ void PluginA::ConvertOpenPluginInfo(oldfar::OpenPluginInfo &Src, OpenPluginInfo 
 		ConvertPanelModesA(Src.PanelModesArray, (PanelMode**)&OPI.PanelModesArray, Src.PanelModesNumber);
 		OPI.PanelModesNumber	= Src.PanelModesNumber;
 		OPI.StartPanelMode		= Src.StartPanelMode;
-		OPI.StartSortMode			= Src.StartSortMode;
+
+		switch(Src.StartSortMode)
+		{
+		case oldfar::SM_DEFAULT:
+			OPI.StartSortMode = SM_DEFAULT;
+			break;
+		case oldfar::SM_UNSORTED:
+			OPI.StartSortMode = SM_UNSORTED;
+			break;
+		case oldfar::SM_NAME:
+			OPI.StartSortMode = SM_NAME;
+			break;
+		case oldfar::SM_EXT:
+			OPI.StartSortMode = SM_EXT;
+			break;
+		case oldfar::SM_MTIME:
+			OPI.StartSortMode = SM_MTIME;
+			break;
+		case oldfar::SM_CTIME:
+			OPI.StartSortMode = SM_CTIME;
+			break;
+		case oldfar::SM_ATIME:
+			OPI.StartSortMode = SM_ATIME;
+			break;
+		case oldfar::SM_SIZE:
+			OPI.StartSortMode = SM_SIZE;
+			break;
+		case oldfar::SM_DESCR:
+			OPI.StartSortMode = SM_DESCR;
+			break;
+		case oldfar::SM_OWNER:
+			OPI.StartSortMode = SM_OWNER;
+			break;
+		case oldfar::SM_COMPRESSEDSIZE:
+			OPI.StartSortMode = SM_COMPRESSEDSIZE;
+			break;
+		case oldfar::SM_NUMLINKS:
+			OPI.StartSortMode = SM_NUMLINKS;
+			break;
+		}
+
 		OPI.StartSortOrder		= Src.StartSortOrder;
 	}
 

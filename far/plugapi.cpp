@@ -161,7 +161,7 @@ int WINAPI FarInputBox(
 BOOL WINAPI FarShowHelp(
     const wchar_t *ModuleName,
     const wchar_t *HelpTopic,
-    unsigned __int64 Flags
+    FARHELPFLAGS Flags
 )
 {
 	if (FrameManager->ManagerIsDown())
@@ -1201,7 +1201,7 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,unsigned __int64 Flags,const wchar_
 	return(MsgCode);
 }
 
-int WINAPI FarControl(HANDLE hPlugin,int Command,int Param1,INT_PTR Param2)
+int WINAPI FarControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int Param1,INT_PTR Param2)
 {
 	_FCTLLOG(CleverSysLog CSL(L"Control"));
 	_FCTLLOG(SysLog(L"(hPlugin=0x%08X, Command=%s, Param1=[%d/0x%08X], Param2=[%d/0x%08X])",hPlugin,_FCTL_ToName(Command),(int)Param1,Param1,(int)Param2,Param2));
@@ -2012,7 +2012,7 @@ void WINAPI FarText(int X,int Y,int Color,const wchar_t *Str)
 }
 
 
-int WINAPI FarEditorControl(int EditorID, int Command, int Param1, INT_PTR Param2)
+int WINAPI FarEditorControl(int EditorID, EDITOR_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2)
 {
 	if (FrameManager->ManagerIsDown())
 		return 0;
@@ -2043,7 +2043,7 @@ int WINAPI FarEditorControl(int EditorID, int Command, int Param1, INT_PTR Param
 	return 0;
 }
 
-int WINAPI FarViewerControl(int ViewerID, int Command, int Param1, INT_PTR Param2)
+int WINAPI FarViewerControl(int ViewerID, VIEWER_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2)
 {
 	if (FrameManager->ManagerIsDown())
 		return 0;
