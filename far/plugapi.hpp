@@ -131,4 +131,6 @@ int WINAPI farRegExpControl(HANDLE hHandle, int Command, int Param1, INT_PTR Par
 
 int WINAPI farMacroControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2);
 
+int WINAPI farSettingsControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2);
+
 DWORD WINAPI farGetCurrentDirectory(DWORD Size,wchar_t* Buffer);

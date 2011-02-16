@@ -673,12 +673,12 @@ void CreatePluginStartupInfo(Plugin *pPlugin, PluginStartupInfo *PSI, FarStandar
 		StartupInfo.FileFilterControl=farFileFilterControl;
 		StartupInfo.RegExpControl=farRegExpControl;
 		StartupInfo.MacroControl=farMacroControl;
+		StartupInfo.SettingsControl=farSettingsControl;
 	}
 
 	*PSI=StartupInfo;
 	*FSF=StandardFunctions;
 	PSI->FSF=FSF;
-	PSI->RootKey=nullptr;
 
 	if (pPlugin)
 	{
@@ -760,9 +760,6 @@ bool PluginW::SetStartupInfo(bool &bUnloaded)
 		FarStandardFunctions _fsf;
 		CreatePluginStartupInfo(this, &_info, &_fsf);
 		// скорректирем адреса и плагино-зависимые пол€
-		strRootKey = Opt.strRegRoot;
-		strRootKey += L"\\Plugins";
-		_info.RootKey = strRootKey.CPtr();
 		ExecuteStruct es;
 		es.id = EXCEPT_SETSTARTUPINFO;
 		EXECUTE_FUNCTION(pSetStartupInfoW(&_info), es);

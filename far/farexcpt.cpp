@@ -229,7 +229,6 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 					LocalStartupInfo.ModuleName = strFarEventSvc;
 					static string strRootKey;
 					strRootKey = Opt.strRegRoot;
-					LocalStartupInfo.RootKey=strRootKey;
 					static PLUGINRECORD PlugRec;
 
 					if (Module)

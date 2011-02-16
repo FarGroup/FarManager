@@ -1,3 +1,30 @@
+zg 16.02.2011 02:23:03 +0200 - build 1871
+
+1. API дл€ хранени€ настроек:
+
+   int WINAPI SettingsControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2)
+
+   Command:
+
+   SCTL_CREATE            - hHandle - INVALID_HANDLE_VALUE.
+                            Param2 - FarSettingsCreate, на входе guid плагина, на выходе - хэндл настроек.
+                            ѕри неудаче вернЄт FALSE.
+   SCTL_FREE              - hHandle - HANDLE, который вернул SCTL_CREATE.
+   SCTL_SET               - hHandle - HANDLE, который вернул SCTL_CREATE.
+                            Param2 - указатель на FarSettingsItem.
+                            Root - задаЄт место сохранени€ настроек. 0 - корень дл€ плагина. подключи получаютс€ при помощи SCTL_SUBKEY.
+                            Name - им€ сохран€емого значени€.
+                            Type - тип.
+                            Value - само значение.
+   SCTL_GET               - hHandle - HANDLE, который вернул SCTL_CREATE.
+                            Param2 - указатель на FarSettingsItem.
+                            Value заполн€ет фар, остальное - плагин.
+   SCTL_SUBKEY            - hHandle - HANDLE, который вернул SCTL_CREATE.
+                            Param2 - указатель на FarSettingsValue.
+                            возвращает описатель подключа с именем Value дл€ ключа с описателем Root.
+
+2. поле PluginStartupInfo.RootKey удалено.
+
 t-rex 16.02.2011 01:00:45 +0200 - build 1870
 
 1. –азличные добавлени€ и исправлени€ в DialogBuilder.

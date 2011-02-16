@@ -73,6 +73,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "RegExp.hpp"
 #include "TaskBar.hpp"
 #include "console.hpp"
+#include "plugsettings.hpp"
 
 wchar_t *WINAPI FarItoa(int value, wchar_t *string, int radix)
 {
@@ -2482,6 +2483,52 @@ int WINAPI farRegExpControl(HANDLE hHandle, int Command, int Param1, INT_PTR Par
 		}
 		case RECTL_BRACKETSCOUNT:
 			return re->GetBracketsCount();
+	}
+
+	return FALSE;
+}
+
+int WINAPI farSettingsControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2)
+{
+	PluginSettings* settings=nullptr;
+
+	if (Command != RECTL_CREATE)
+	{
+		if (hHandle == INVALID_HANDLE_VALUE)
+			return FALSE;
+
+		settings = (PluginSettings*)hHandle;
+	}
+
+	switch (Command)
+	{
+		case SCTL_CREATE:
+
+			if (!Param2)
+				break;
+
+			{
+			    FarSettingsCreate* data = (FarSettingsCreate*)Param2;
+				if (data->StructSize>=sizeof(FarSettingsCreate))
+				{
+					data->Handle=new PluginSettings(data->Guid);
+					return TRUE;
+				}
+			}
+			break;
+		case SCTL_FREE:
+			delete settings;
+			return TRUE;
+		case SCTL_SET:
+			return settings->Set(*(const FarSettingsItem*)Param2);
+		case SCTL_GET:
+			return settings->Get(*(FarSettingsItem*)Param2);
+		case SCTL_ENUM:
+			return settings->Enum(*(FarSettingsEnum*)Param2);
+		case SCTL_DELETE:
+			return settings->Delete(*(const FarSettingsValue*)Param2);
+		case SCTL_SUBKEY:
+			return settings->SubKey(*(const FarSettingsValue*)Param2);
 	}
 
 	return FALSE;

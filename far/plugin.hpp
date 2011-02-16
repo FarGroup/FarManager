@@ -1705,6 +1705,13 @@ typedef int (WINAPI *FARAPIREGEXPCONTROL)(
     INT_PTR Param2
 );
 
+typedef int (WINAPI *FARAPISETTINGSCONTROL)(
+    HANDLE hHandle,
+    int Command,
+    int Param1,
+    INT_PTR Param2
+);
+
 // <C&C++>
 typedef int (WINAPIV *FARSTDSPRINTF)(wchar_t *Buffer,const wchar_t *Format,...);
 typedef int (WINAPIV *FARSTDSNPRINTF)(wchar_t *Buffer,size_t Sizebuf,const wchar_t *Format,...);
@@ -1881,7 +1888,6 @@ struct PluginStartupInfo
 {
 	size_t StructSize;
 	const wchar_t *ModuleName;
-	const wchar_t *RootKey;
 	FARAPIMENU             Menu;
 	FARAPIMESSAGE          Message;
 	FARAPIGETMSG           GetMsg;
@@ -1914,6 +1920,7 @@ struct PluginStartupInfo
 	FARAPIFILEFILTERCONTROL FileFilterControl;
 	FARAPIREGEXPCONTROL    RegExpControl;
 	FARAPIMACROCONTROL     MacroControl;
+	FARAPISETTINGSCONTROL  SettingsControl;
 };
 
 
@@ -2181,6 +2188,67 @@ struct RegExpSearch
 	void* Reserved;
 };
 
+enum FAR_SETTINGS_CONTROL_COMMANDS
+{
+	SCTL_CREATE=0,
+	SCTL_FREE,
+	SCTL_SET,
+	SCTL_GET,
+	SCTL_ENUM,
+	SCTL_DELETE,
+	SCTL_SUBKEY
+};
+
+enum FarSettingsTypes
+{
+	FST_SUBKEY,
+	FST_QWORD,
+	FST_STRING,
+	FST_DATA
+};
+
+struct FarSettingsCreate
+{
+	size_t StructSize;
+	GUID Guid;
+	HANDLE Handle;
+};
+
+struct FarSettingsItem
+{
+	size_t Root;
+	const wchar_t* Name;
+	FarSettingsTypes Type;
+	union
+	{
+		unsigned __int64 Number;
+		const wchar_t* String;
+		struct
+		{
+			size_t Size;
+			const void* Data;
+		} Data;
+	} Value;
+};
+
+struct FarSettingsName
+{
+	const wchar_t* Name;
+	FarSettingsTypes Type;
+};
+
+struct FarSettingsEnum
+{
+	size_t Root;
+	int Count;
+	const FarSettingsItem* Items;
+};
+
+struct FarSettingsValue
+{
+	size_t Root;
+	const wchar_t* Value;
+};
 
 #ifdef __cplusplus
 extern "C"

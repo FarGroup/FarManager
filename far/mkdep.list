@@ -204,6 +204,8 @@ plugins.cpp
 plugins.hpp
 PluginW.cpp
 PluginW.hpp
+plugsettings.cpp
+plugsettings.hpp
 poscache.cpp
 poscache.hpp
 print.cpp

@@ -152,4 +152,5 @@ class Plugin: public AncientPlugin
 		virtual int Configure(const GUID& Guid) = 0;
 
 		virtual void ExitFAR() = 0;
+		virtual	const wchar_t* GetTitle(void) = 0;
 };

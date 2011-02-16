@@ -97,8 +97,6 @@ class PluginW: public Plugin
 		string strAuthor;
 
 
-		string strRootKey;
-
 		PLUGINGETGLOBALINFOW         pGetGlobalInfoW;
 		PLUGINSETSTARTUPINFOW        pSetStartupInfoW;
 		PLUGINOPENPLUGINW            pOpenPluginW;
@@ -244,6 +242,7 @@ class PluginW: public Plugin
 		int Configure(const GUID& Guid);
 
 		void ExitFAR();
+		const wchar_t* GetTitle(void) { return strTitle.CPtr(); }
 
 	private:
 

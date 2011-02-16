@@ -119,6 +119,7 @@ SRCS = \
 	PluginA.cpp \
 	plugins.cpp \
 	PluginW.cpp \
+	plugsettings.cpp \
 	poscache.cpp \
 	print.cpp \
 	privilege.cpp \
