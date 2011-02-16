@@ -774,7 +774,7 @@ INT_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Pa
 				//MarkChar это FIXEDIT размером в 1 символ так что проверять размер строки не надо
 				SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_HER_MARKEDIT,(INT_PTR)MarkChar);
 				EditData->MarkChar=*MarkChar;
-				HighlightDlgUpdateUserControl(ColorExample->Param.VBuf,*EditData);
+				HighlightDlgUpdateUserControl(ColorExample->VBuf,*EditData);
 				SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,(INT_PTR)ColorExample);
 				xf_free(ColorExample);
 				return TRUE;
@@ -792,7 +792,7 @@ INT_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Pa
 				//MarkChar это FIXEDIT размером в 1 символ так что проверять размер строки не надо
 				SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_HER_MARKEDIT,(INT_PTR)MarkChar);
 				EditData->MarkChar=*MarkChar;
-				HighlightDlgUpdateUserControl(ColorExample->Param.VBuf,*EditData);
+				HighlightDlgUpdateUserControl(ColorExample->VBuf,*EditData);
 				SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,(INT_PTR)ColorExample);
 				xf_free(ColorExample);
 				return TRUE;

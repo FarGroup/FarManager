@@ -123,14 +123,14 @@ INT_PTR WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2);
 // Посылка сообщения диалогу
 INT_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1, INT_PTR Param2);
 
-int WINAPI farPluginsControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2);
+int WINAPI farPluginsControl(HANDLE hHandle, FAR_PLUGINS_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2);
 
-int WINAPI farFileFilterControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2);
+int WINAPI farFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2);
 
-int WINAPI farRegExpControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2);
+int WINAPI farRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2);
 
-int WINAPI farMacroControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2);
+int WINAPI farMacroControl(HANDLE hHandle, FAR_MACRO_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2);
 
-int WINAPI farSettingsControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2);
+int WINAPI farSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2);
 
 DWORD WINAPI farGetCurrentDirectory(DWORD Size,wchar_t* Buffer);

@@ -747,18 +747,18 @@ INT_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 						DItemACInherit->Flags|=DIF_DISABLE;
 						DItemACLeave->Flags|=DIF_DISABLE;
 						//DItemOnlyNewer->Flags|=DIF_DISABLE;
-						//DlgParam->OnlyNewerFiles=DItemOnlyNewer->Param.Selected;
+						//DlgParam->OnlyNewerFiles=DItemOnlyNewer->Selected;
 						DlgParam->CopySecurity=0;
 
-						if (DItemACCopy->Param.Selected)
+						if (DItemACCopy->Selected)
 							DlgParam->CopySecurity=1;
-						else if (DItemACLeave->Param.Selected)
+						else if (DItemACLeave->Selected)
 							DlgParam->CopySecurity=2;
 
-						DItemACCopy->Param.Selected=0;
-						DItemACInherit->Param.Selected=0;
-						DItemACLeave->Param.Selected=1;
-						//DItemOnlyNewer->Param.Selected=0;
+						DItemACCopy->Selected=0;
+						DItemACInherit->Selected=0;
+						DItemACLeave->Selected=1;
+						//DItemOnlyNewer->Selected=0;
 					}
 					else
 					{
@@ -766,21 +766,21 @@ INT_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 						DItemACInherit->Flags&=~DIF_DISABLE;
 						DItemACLeave->Flags&=~DIF_DISABLE;
 						//DItemOnlyNewer->Flags&=~DIF_DISABLE;
-						//DItemOnlyNewer->Param.Selected=DlgParam->OnlyNewerFiles;
-						DItemACCopy->Param.Selected=0;
-						DItemACInherit->Param.Selected=0;
-						DItemACLeave->Param.Selected=0;
+						//DItemOnlyNewer->Selected=DlgParam->OnlyNewerFiles;
+						DItemACCopy->Selected=0;
+						DItemACInherit->Selected=0;
+						DItemACLeave->Selected=0;
 
 						if (DlgParam->CopySecurity == 1)
 						{
-							DItemACCopy->Param.Selected=1;
+							DItemACCopy->Selected=1;
 						}
 						else if (DlgParam->CopySecurity == 2)
 						{
-							DItemACLeave->Param.Selected=1;
+							DItemACLeave->Selected=1;
 						}
 						else
-							DItemACInherit->Param.Selected=1;
+							DItemACInherit->Selected=1;
 					}
 				}
 

@@ -1314,7 +1314,7 @@ int WINAPI FarMenuFnA(INT_PTR PluginNumber,int X,int Y,int MaxHeight,DWORD Flags
 				mi[i].Flags|=MIF_GRAYED;
 			if (p[i].Flags&oldfar::MIF_HIDDEN)
 				mi[i].Flags|=MIF_HIDDEN;
-			mi[i].Text = AnsiToUnicode(p[i].Flags&oldfar::MIF_USETEXTPTR?p[i].Text.TextPtr:p[i].Text.Text);
+			mi[i].Text = AnsiToUnicode(p[i].Flags&oldfar::MIF_USETEXTPTR?p[i].TextPtr:p[i].Text);
 			mi[i].AccelKey = OldKeyToKey(p[i].AccelKey);
 			mi[i].Reserved = p[i].Reserved;
 			mi[i].UserData = p[i].UserData;
@@ -1510,7 +1510,7 @@ PCHAR_INFO AnsiVBufToUnicode(oldfar::FarDialogItem &diA)
 {
 	PCHAR_INFO VBuf = nullptr;
 
-	if (diA.Param.VBuf)
+	if (diA.VBuf)
 	{
 		size_t Size = GetAnsiVBufSize(diA);
 		// +sizeof(PCHAR_INFO) потому что там храним поинтер на анси vbuf.
@@ -1518,8 +1518,8 @@ PCHAR_INFO AnsiVBufToUnicode(oldfar::FarDialogItem &diA)
 
 		if (VBuf)
 		{
-			AnsiVBufToUnicode(diA.Param.VBuf, VBuf, Size,(diA.Flags&oldfar::DIF_NOTCVTUSERCONTROL)==oldfar::DIF_NOTCVTUSERCONTROL);
-			SetAnsiVBufPtr(VBuf, diA.Param.VBuf, Size);
+			AnsiVBufToUnicode(diA.VBuf, VBuf, Size,(diA.Flags&oldfar::DIF_NOTCVTUSERCONTROL)==oldfar::DIF_NOTCVTUSERCONTROL);
+			SetAnsiVBufPtr(VBuf, diA.VBuf, Size);
 		}
 	}
 
@@ -1575,15 +1575,15 @@ void AnsiDialogItemToUnicodeSafe(oldfar::FarDialogItem &diA, FarDialogItem &di)
 			break;
 		case oldfar::DI_BUTTON:
 			di.Type=DI_BUTTON;
-			di.Param.Selected=diA.Param.Selected;
+			di.Selected=diA.Selected;
 			break;
 		case oldfar::DI_CHECKBOX:
 			di.Type=DI_CHECKBOX;
-			di.Param.Selected=diA.Param.Selected;
+			di.Selected=diA.Selected;
 			break;
 		case oldfar::DI_RADIOBUTTON:
 			di.Type=DI_RADIOBUTTON;
-			di.Param.Selected=diA.Param.Selected;
+			di.Selected=diA.Selected;
 			break;
 		case oldfar::DI_COMBOBOX:
 			di.Type=DI_COMBOBOX;
@@ -1718,29 +1718,29 @@ void AnsiDialogItemToUnicode(oldfar::FarDialogItem &diA, FarDialogItem &di,FarLi
 		case DI_LISTBOX:
 		case DI_COMBOBOX:
 		{
-			if (diA.Param.ListItems && IsPtr(diA.Param.ListItems))
+			if (diA.ListItems && IsPtr(diA.ListItems))
 			{
-				l.Items = (FarListItem *)xf_malloc(diA.Param.ListItems->ItemsNumber*sizeof(FarListItem));
-				l.ItemsNumber = diA.Param.ListItems->ItemsNumber;
+				l.Items = (FarListItem *)xf_malloc(diA.ListItems->ItemsNumber*sizeof(FarListItem));
+				l.ItemsNumber = diA.ListItems->ItemsNumber;
 
-				for (int j=0; j<di.Param.ListItems->ItemsNumber; j++)
-					AnsiListItemToUnicode(&diA.Param.ListItems->Items[j],&l.Items[j]);
+				for (int j=0; j<di.ListItems->ItemsNumber; j++)
+					AnsiListItemToUnicode(&diA.ListItems->Items[j],&l.Items[j]);
 
-				di.Param.ListItems=&l;
+				di.ListItems=&l;
 			}
 
 			break;
 		}
 		case DI_USERCONTROL:
-			di.Param.VBuf = AnsiVBufToUnicode(diA);
+			di.VBuf = AnsiVBufToUnicode(diA);
 			break;
 		case DI_EDIT:
 		case DI_FIXEDIT:
 		{
-			if (diA.Flags&oldfar::DIF_HISTORY && diA.Param.History)
-				di.History=AnsiToUnicode(diA.Param.History);
-			else if (diA.Flags&oldfar::DIF_MASKEDIT && diA.Param.Mask)
-				di.Mask=AnsiToUnicode(diA.Param.Mask);
+			if (diA.Flags&oldfar::DIF_HISTORY && diA.History)
+				di.History=AnsiToUnicode(diA.History);
+			else if (diA.Flags&oldfar::DIF_MASKEDIT && diA.Mask)
+				di.Mask=AnsiToUnicode(diA.Mask);
 
 			break;
 		}
@@ -1748,16 +1748,16 @@ void AnsiDialogItemToUnicode(oldfar::FarDialogItem &diA, FarDialogItem &di,FarLi
 
 	if (diA.Type==oldfar::DI_USERCONTROL)
 	{
-		di.PtrData = (wchar_t*)xf_malloc(sizeof(diA.Data.Data));
+		di.PtrData = (wchar_t*)xf_malloc(sizeof(diA.Data));
 
-		if (di.PtrData) memcpy((char*)di.PtrData,diA.Data.Data,sizeof(diA.Data.Data));
+		if (di.PtrData) memcpy((char*)di.PtrData,diA.Data,sizeof(diA.Data));
 
 		di.MaxLen = 0;
 	}
 	else if ((diA.Type==oldfar::DI_EDIT || diA.Type==oldfar::DI_COMBOBOX) && diA.Flags&oldfar::DIF_VAREDIT)
-		di.PtrData = AnsiToUnicode(diA.Data.Ptr.PtrData);
+		di.PtrData = AnsiToUnicode(diA.Ptr.PtrData);
 	else
-		di.PtrData = AnsiToUnicode(diA.Data.Data);
+		di.PtrData = AnsiToUnicode(diA.Data);
 
 	//BUGBUG тут надо придумать как сделать лучше: maxlen=513 например и также подумать что делать для DIF_VAREDIT
 	//di->MaxLen = 0;
@@ -1779,26 +1779,26 @@ void FreeUnicodeDialogItem(FarDialogItem &di)
 		case DI_LISTBOX:
 		case DI_COMBOBOX:
 
-			if (di.Param.ListItems)
+			if (di.ListItems)
 			{
-				if (di.Param.ListItems->Items)
+				if (di.ListItems->Items)
 				{
-					for (int i=0; i<di.Param.ListItems->ItemsNumber; i++)
+					for (int i=0; i<di.ListItems->ItemsNumber; i++)
 					{
-						if (di.Param.ListItems->Items[i].Text)
-							xf_free((void *)di.Param.ListItems->Items[i].Text);
+						if (di.ListItems->Items[i].Text)
+							xf_free((void *)di.ListItems->Items[i].Text);
 					}
 
-					xf_free(di.Param.ListItems->Items);
-					di.Param.ListItems->Items=nullptr;
+					xf_free(di.ListItems->Items);
+					di.ListItems->Items=nullptr;
 				}
 			}
 
 			break;
 		case DI_USERCONTROL:
 
-			if (di.Param.VBuf)
-				xf_free(di.Param.VBuf);
+			if (di.VBuf)
+				xf_free(di.VBuf);
 
 			break;
 	}
@@ -1811,12 +1811,12 @@ void FreeAnsiDialogItem(oldfar::FarDialogItem &diA)
 {
 	if ((diA.Type==oldfar::DI_EDIT || diA.Type==oldfar::DI_FIXEDIT) &&
 	        (diA.Flags&oldfar::DIF_HISTORY ||diA.Flags&oldfar::DIF_MASKEDIT) &&
-	        diA.Param.History)
-		xf_free((void*)diA.Param.History);
+	        diA.History)
+		xf_free((void*)diA.History);
 
 	if ((diA.Type==oldfar::DI_EDIT || diA.Type==oldfar::DI_COMBOBOX) &&
-	        diA.Flags&oldfar::DIF_VAREDIT && diA.Data.Ptr.PtrData)
-		xf_free(diA.Data.Ptr.PtrData);
+	        diA.Flags&oldfar::DIF_VAREDIT && diA.Ptr.PtrData)
+		xf_free(diA.Ptr.PtrData);
 
 	memset(&diA,0,sizeof(oldfar::FarDialogItem));
 }
@@ -1848,15 +1848,15 @@ void UnicodeDialogItemToAnsiSafe(FarDialogItem &di,oldfar::FarDialogItem &diA)
 			break;
 		case DI_BUTTON:
 			diA.Type=oldfar::DI_BUTTON;
-			diA.Param.Selected=di.Param.Selected;
+			diA.Selected=di.Selected;
 			break;
 		case DI_CHECKBOX:
 			diA.Type=oldfar::DI_CHECKBOX;
-			diA.Param.Selected=di.Param.Selected;
+			diA.Selected=di.Selected;
 			break;
 		case DI_RADIOBUTTON:
 			diA.Type=oldfar::DI_RADIOBUTTON;
-			diA.Param.Selected=di.Param.Selected;
+			diA.Selected=di.Selected;
 			break;
 		case DI_COMBOBOX:
 			diA.Type=oldfar::DI_COMBOBOX;
@@ -2001,35 +2001,35 @@ oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di,HANDLE hDlg,int
 	switch (diA->Type)
 	{
 		case oldfar::DI_USERCONTROL:
-			diA->Param.VBuf=GetAnsiVBufPtr(di.Param.VBuf, GetAnsiVBufSize(*diA));
+			diA->VBuf=GetAnsiVBufPtr(di.VBuf, GetAnsiVBufSize(*diA));
 			break;
 		case oldfar::DI_EDIT:
 		case oldfar::DI_FIXEDIT:
 		{
 			if (di.Flags&DIF_HISTORY)
-				diA->Param.History=UnicodeToAnsi(di.History);
+				diA->History=UnicodeToAnsi(di.History);
 			else if (di.Flags&DIF_MASKEDIT)
-				diA->Param.Mask=UnicodeToAnsi(di.Mask);
+				diA->Mask=UnicodeToAnsi(di.Mask);
 		}
 		break;
 		case oldfar::DI_COMBOBOX:
 		case oldfar::DI_LISTBOX:
-			diA->Param.ListPos=static_cast<int>(FarSendDlgMessage(hDlg,DM_LISTGETCURPOS,ItemNumber,0));
+			diA->ListPos=static_cast<int>(FarSendDlgMessage(hDlg,DM_LISTGETCURPOS,ItemNumber,0));
 			break;
 	}
 
 	if (diA->Type==oldfar::DI_USERCONTROL)
 	{
-		if (di.PtrData) memcpy(diA->Data.Data,(char*)di.PtrData,sizeof(diA->Data.Data));
+		if (di.PtrData) memcpy(diA->Data,(char*)di.PtrData,sizeof(diA->Data));
 	}
 	else if ((diA->Type==oldfar::DI_EDIT || diA->Type==oldfar::DI_COMBOBOX) && diA->Flags&oldfar::DIF_VAREDIT)
 	{
-		diA->Data.Ptr.PtrLength=StrLength(di.PtrData);
-		diA->Data.Ptr.PtrData=(char*)xf_malloc(diA->Data.Ptr.PtrLength+1);
-		UnicodeToOEM(di.PtrData,diA->Data.Ptr.PtrData,diA->Data.Ptr.PtrLength+1);
+		diA->Ptr.PtrLength=StrLength(di.PtrData);
+		diA->Ptr.PtrData=(char*)xf_malloc(diA->Ptr.PtrLength+1);
+		UnicodeToOEM(di.PtrData,diA->Ptr.PtrData,diA->Ptr.PtrLength+1);
 	}
 	else
-		UnicodeToOEM(di.PtrData,diA->Data.Data,sizeof(diA->Data.Data));
+		UnicodeToOEM(di.PtrData,diA->Data,sizeof(diA->Data));
 
 	return diA;
 }
@@ -2053,9 +2053,9 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 			oldfar::FarDialogItem *FarDiA=UnicodeDialogItemToAnsi(*di,hDlg,Param1);
 			INT_PTR ret = CurrentDlgProc(hDlg, Msg, Param1, (INT_PTR)FarDiA);
 
-			if (ret && (di->Type==DI_USERCONTROL) && (di->Param.VBuf))
+			if (ret && (di->Type==DI_USERCONTROL) && (di->VBuf))
 			{
-				AnsiVBufToUnicode(FarDiA->Param.VBuf, di->Param.VBuf, GetAnsiVBufSize(*FarDiA),(FarDiA->Flags&oldfar::DIF_NOTCVTUSERCONTROL)==oldfar::DIF_NOTCVTUSERCONTROL);
+				AnsiVBufToUnicode(FarDiA->VBuf, di->VBuf, GetAnsiVBufSize(*FarDiA),(FarDiA->Flags&oldfar::DIF_NOTCVTUSERCONTROL)==oldfar::DIF_NOTCVTUSERCONTROL);
 			}
 
 			return ret;
@@ -2209,11 +2209,11 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 			FarDialogItem *di=CurrentDialogItem(hDlg,Param1);
 
 			if (di->Type==DI_LISTBOX || di->Type==DI_COMBOBOX)
-				di->Param.ListItems=CurrentList(hDlg,Param1);
+				di->ListItems=CurrentList(hDlg,Param1);
 
 			FreeUnicodeDialogItem(*di);
 			oldfar::FarDialogItem *diA = (oldfar::FarDialogItem *)Param2;
-			AnsiDialogItemToUnicode(*diA,*di,*di->Param.ListItems);
+			AnsiDialogItemToUnicode(*diA,*di,*di->ListItems);
 			return FarSendDlgMessage(hDlg, DM_SETDLGITEM, Param1, (INT_PTR)di);
 		}
 		case oldfar::DM_SETFOCUS: Msg = DM_SETFOCUS; break;
@@ -2696,19 +2696,19 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 				if (!res) res = L"";
 
 				if ((di[i].Type==DI_EDIT || di[i].Type==DI_COMBOBOX) && Item[i].Flags&oldfar::DIF_VAREDIT)
-					UnicodeToOEM(res, Item[i].Data.Ptr.PtrData, Item[i].Data.Ptr.PtrLength+1);
+					UnicodeToOEM(res, Item[i].Ptr.PtrData, Item[i].Ptr.PtrLength+1);
 				else
-					UnicodeToOEM(res, Item[i].Data.Data, sizeof(Item[i].Data.Data));
+					UnicodeToOEM(res, Item[i].Data, sizeof(Item[i].Data));
 
 				if (pdi->Type==DI_USERCONTROL)
 				{
-					di[i].Param.VBuf=pdi->Param.VBuf;
-					Item[i].Param.VBuf=GetAnsiVBufPtr(pdi->Param.VBuf,GetAnsiVBufSize(Item[i]));
+					di[i].VBuf=pdi->VBuf;
+					Item[i].VBuf=GetAnsiVBufPtr(pdi->VBuf,GetAnsiVBufSize(Item[i]));
 				}
 
 				if (pdi->Type==DI_COMBOBOX || pdi->Type==DI_LISTBOX)
 				{
-					Item[i].Param.ListPos = static_cast<int>(FarSendDlgMessage(hDlg,DM_LISTGETCURPOS,i,0));
+					Item[i].ListPos = static_cast<int>(FarSendDlgMessage(hDlg,DM_LISTGETCURPOS,i,0));
 				}
 
 				xf_free(pdi);
@@ -2722,7 +2722,7 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 		for (int i=0; i<ItemsNumber; i++)
 		{
 			if (di[i].Type==DI_LISTBOX || di[i].Type==DI_COMBOBOX)
-				di[i].Param.ListItems=CurrentList(hDlg,i);
+				di[i].ListItems=CurrentList(hDlg,i);
 
 			FreeUnicodeDialogItem(di[i]);
 		}
@@ -3317,12 +3317,12 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 			if (!Param) return FALSE;
 
 			oldfar::ActlKeyMacro *kmA=(oldfar::ActlKeyMacro *)Param;
-			int Command;
+			FAR_MACRO_CONTROL_COMMANDS Command;
 			int Param1=0;
 			bool Process=true;
 
 			MacroCheckMacroText kmW={0};
-			kmW.Check.Text.StructSize=sizeof(MacroParseResult);
+			kmW.Text.StructSize=sizeof(MacroParseResult);
 
 			switch (kmA->Command)
 			{
@@ -3338,20 +3338,20 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 				case oldfar::MCMD_POSTMACROSTRING:
 					Command=MCTL_SENDSTRING;
 					Param1=MSSC_POST;
-					kmW.Check.Text.SequenceText=AnsiToUnicode(kmA->Param.PlainText.SequenceText);
+					kmW.Text.SequenceText=AnsiToUnicode(kmA->PlainText.SequenceText);
 
-					if (kmA->Param.PlainText.Flags&oldfar::KSFLAGS_DISABLEOUTPUT) kmW.Check.Text.Flags|=KMFLAGS_DISABLEOUTPUT;
+					if (kmA->PlainText.Flags&oldfar::KSFLAGS_DISABLEOUTPUT) kmW.Text.Flags|=KMFLAGS_DISABLEOUTPUT;
 
-					if (kmA->Param.PlainText.Flags&oldfar::KSFLAGS_NOSENDKEYSTOPLUGINS) kmW.Check.Text.Flags|=KMFLAGS_NOSENDKEYSTOPLUGINS;
+					if (kmA->PlainText.Flags&oldfar::KSFLAGS_NOSENDKEYSTOPLUGINS) kmW.Text.Flags|=KMFLAGS_NOSENDKEYSTOPLUGINS;
 
-					if (kmA->Param.PlainText.Flags&oldfar::KSFLAGS_REG_MULTI_SZ) kmW.Check.Text.Flags|=KMFLAGS_REG_MULTI_SZ;
+					if (kmA->PlainText.Flags&oldfar::KSFLAGS_REG_MULTI_SZ) kmW.Text.Flags|=KMFLAGS_REG_MULTI_SZ;
 
 					break;
 
 				case oldfar::MCMD_CHECKMACRO:
 					Command=MCTL_SENDSTRING;
 					Param1=MSSC_CHECK;
-					kmW.Check.Text.SequenceText=AnsiToUnicode(kmA->Param.PlainText.SequenceText);
+					kmW.Text.SequenceText=AnsiToUnicode(kmA->PlainText.SequenceText);
 					break;
 
 				default:
@@ -3381,20 +3381,20 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 
 							CtrlObject->Macro.GetMacroParseError(&ErrMessage[0],&ErrMessage[1],&ErrMessage[2],nullptr);
 
-							kmA->Param.MacroResult.ErrMsg1 = ErrMsg1 = UnicodeToAnsi(ErrMessage[0]);
-							kmA->Param.MacroResult.ErrMsg2 = ErrMsg2 = UnicodeToAnsi(ErrMessage[1]);
-							kmA->Param.MacroResult.ErrMsg3 = ErrMsg3 = UnicodeToAnsi(ErrMessage[2]);
+							kmA->MacroResult.ErrMsg1 = ErrMsg1 = UnicodeToAnsi(ErrMessage[0]);
+							kmA->MacroResult.ErrMsg2 = ErrMsg2 = UnicodeToAnsi(ErrMessage[1]);
+							kmA->MacroResult.ErrMsg3 = ErrMsg3 = UnicodeToAnsi(ErrMessage[2]);
 
-							if (kmW.Check.Text.SequenceText)
-								xf_free((void*)kmW.Check.Text.SequenceText);
+							if (kmW.Text.SequenceText)
+								xf_free((void*)kmW.Text.SequenceText);
 
 							break;
 						}
 
 						case MSSC_POST:
 
-							if (kmW.Check.Text.SequenceText)
-								xf_free((void*)kmW.Check.Text.SequenceText);
+							if (kmW.Text.SequenceText)
+								xf_free((void*)kmW.Text.SequenceText);
 
 							break;
 					}
@@ -4012,12 +4012,12 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 		}
 		case oldfar::ECTL_SETPARAM:
 		{
-			EditorSetParameter newsp = {0,0,0,0};
+			EditorSetParameter newsp = {};
 
 			if (Param)
 			{
 				oldfar::EditorSetParameter *oldsp= (oldfar::EditorSetParameter*) Param;
-				newsp.Param.iParam = oldsp->Param.iParam;
+				newsp.iParam = oldsp->iParam;
 
 				switch (oldsp->Type)
 				{
@@ -4029,26 +4029,26 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 					case oldfar::ESPT_TABSIZE:					newsp.Type = ESPT_TABSIZE; break;
 					case oldfar::ESPT_CHARTABLE: //BUGBUG, недоделано в фаре
 					{
-						if (!oldsp->Param.iParam) return FALSE;
+						if (!oldsp->iParam) return FALSE;
 
 						newsp.Type = ESPT_CODEPAGE;
 
-						switch (oldsp->Param.iParam)
+						switch (oldsp->iParam)
 						{
 							case 1:
-								newsp.Param.iParam=GetOEMCP();
+								newsp.iParam=GetOEMCP();
 								break;
 							case 2:
-								newsp.Param.iParam=GetACP();
+								newsp.iParam=GetACP();
 								break;
 							default:
-								newsp.Param.iParam=oldsp->Param.iParam;
+								newsp.iParam=oldsp->iParam;
 
-								if (newsp.Param.iParam>0) newsp.Param.iParam-=3;
+								if (newsp.iParam>0) newsp.iParam-=3;
 
-								newsp.Param.iParam=ConvertCharTableToCodePage(newsp.Param.iParam);
+								newsp.iParam=ConvertCharTableToCodePage(newsp.iParam);
 
-								if ((UINT)newsp.Param.iParam==CP_AUTODETECT) return FALSE;
+								if ((UINT)newsp.iParam==CP_AUTODETECT) return FALSE;
 
 								break;
 						}
@@ -4059,11 +4059,11 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 					{
 						newsp.Type = ESPT_EXPANDTABS;
 
-						switch (oldsp->Param.iParam)
+						switch (oldsp->iParam)
 						{
-							case oldfar::EXPAND_NOTABS:		newsp.Param.iParam = EXPAND_NOTABS; break;
-							case oldfar::EXPAND_ALLTABS:	newsp.Param.iParam = EXPAND_ALLTABS; break;
-							case oldfar::EXPAND_NEWTABS: 	newsp.Param.iParam = EXPAND_NEWTABS; break;
+							case oldfar::EXPAND_NOTABS:		newsp.iParam = EXPAND_NOTABS; break;
+							case oldfar::EXPAND_ALLTABS:	newsp.iParam = EXPAND_ALLTABS; break;
+							case oldfar::EXPAND_NEWTABS: 	newsp.iParam = EXPAND_NEWTABS; break;
 							default: return FALSE;
 						}
 
@@ -4072,36 +4072,36 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 					case oldfar::ESPT_SETWORDDIV:
 					{
 						newsp.Type = ESPT_SETWORDDIV;
-						newsp.Param.wszParam = (oldsp->Param.cParam)?AnsiToUnicode(oldsp->Param.cParam):nullptr;
+						newsp.wszParam = (oldsp->cParam)?AnsiToUnicode(oldsp->cParam):nullptr;
 						int ret = FarEditorControl(-1,ECTL_SETPARAM, 0, (INT_PTR)&newsp);
 
-						if (newsp.Param.wszParam) xf_free(newsp.Param.wszParam);
+						if (newsp.wszParam) xf_free(newsp.wszParam);
 
 						return ret;
 					}
 					case oldfar::ESPT_GETWORDDIV:
 					{
-						if (!oldsp->Param.cParam) return FALSE;
+						if (!oldsp->cParam) return FALSE;
 
-						*oldsp->Param.cParam=0;
+						*oldsp->cParam=0;
 						newsp.Type = ESPT_GETWORDDIV;
-						newsp.Param.wszParam = nullptr;
+						newsp.wszParam = nullptr;
 						newsp.Size = 0;
 						newsp.Size = FarEditorControl(-1,ECTL_SETPARAM, 0, (INT_PTR)&newsp);
-						newsp.Param.wszParam = (wchar_t*)xf_malloc(newsp.Size*sizeof(wchar_t));
+						newsp.wszParam = (wchar_t*)xf_malloc(newsp.Size*sizeof(wchar_t));
 
-						if (newsp.Param.wszParam)
+						if (newsp.wszParam)
 						{
 							int ret = FarEditorControl(-1,ECTL_SETPARAM, 0, (INT_PTR)&newsp);
-							char *olddiv = UnicodeToAnsi(newsp.Param.wszParam);
+							char *olddiv = UnicodeToAnsi(newsp.wszParam);
 
 							if (olddiv)
 							{
-								xstrncpy(oldsp->Param.cParam, olddiv, 0x100);
+								xstrncpy(oldsp->cParam, olddiv, 0x100);
 								xf_free(olddiv);
 							}
 
-							xf_free(newsp.Param.wszParam);
+							xf_free(newsp.wszParam);
 							return ret;
 						}
 
@@ -4260,8 +4260,7 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 			if (!Param) return FALSE;
 
 			oldfar::ViewerSetMode* vsmA = (oldfar::ViewerSetMode*)Param;
-			ViewerSetMode vsm;
-			vsm.Type = 0;
+			ViewerSetMode vsm={};
 
 			switch (vsmA->Type)
 			{
@@ -4270,12 +4269,10 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 				case oldfar::VSMT_WORDWRAP: vsm.Type = VSMT_WORDWRAP; break;
 			}
 
-			vsm.Param.iParam = vsmA->Param.iParam;
-			vsm.Flags = 0;
+			vsm.iParam = vsmA->iParam;
 
 			if (vsmA->Flags&oldfar::VSMFL_REDRAW) vsm.Flags|=VSMFL_REDRAW;
 
-			vsm.Reserved = 0;
 			return FarViewerControl(-1,VCTL_SETMODE,0, (INT_PTR)&vsm);
 		}
 	}

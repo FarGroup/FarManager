@@ -74,13 +74,13 @@ int PluginSettings::Set(const FarSettingsItem& Item)
 			    //BUGBUG: NOT IMPLEMENTED
 				break;
 			case FST_QWORD:
-				if (SetRegKey64(m_Keys.getItem(Item.Root)->CPtr(),Item.Name,Item.Value.Number)==ERROR_SUCCESS) result=TRUE;
+				if (SetRegKey64(m_Keys.getItem(Item.Root)->CPtr(),Item.Name,Item.Number)==ERROR_SUCCESS) result=TRUE;
 				break;
 			case FST_STRING:
-				if (SetRegKey(m_Keys.getItem(Item.Root)->CPtr(),Item.Name,Item.Value.String)==ERROR_SUCCESS) result=TRUE;
+				if (SetRegKey(m_Keys.getItem(Item.Root)->CPtr(),Item.Name,Item.String)==ERROR_SUCCESS) result=TRUE;
 				break;
 			case FST_DATA:
-				if (SetRegKey(m_Keys.getItem(Item.Root)->CPtr(),Item.Name,(const BYTE*)Item.Value.Data.Data,static_cast<DWORD>(Item.Value.Data.Size))==ERROR_SUCCESS) result=TRUE;
+				if (SetRegKey(m_Keys.getItem(Item.Root)->CPtr(),Item.Name,(const BYTE*)Item.Data.Data,static_cast<DWORD>(Item.Data.Size))==ERROR_SUCCESS) result=TRUE;
 				break;
 		}
 	}
@@ -102,7 +102,7 @@ int PluginSettings::Get(FarSettingsItem& Item)
 					if (GetRegKey64(m_Keys.getItem(Item.Root)->CPtr(),Item.Name,value,0LL))
 					{
 						result=TRUE;
-						Item.Value.Number=value;
+						Item.Number=value;
 					}
 				}
 				break;
@@ -116,7 +116,7 @@ int PluginSettings::Get(FarSettingsItem& Item)
 						size_t size=(data.GetLength()+1)*sizeof(wchar_t);
 						*item=new char[size];
 						memcpy(*item,data.CPtr(),size);
-						Item.Value.String=(wchar_t*)*item;
+						Item.String=(wchar_t*)*item;
 					}
 				}
 				break;
@@ -131,8 +131,8 @@ int PluginSettings::Get(FarSettingsItem& Item)
 						if (size==checkedSize)
 						{
 							result=TRUE;
-							Item.Value.Data.Data=*item;
-							Item.Value.Data.Size=size;
+							Item.Data.Data=*item;
+							Item.Data.Size=size;
 						}
 					}
 				}

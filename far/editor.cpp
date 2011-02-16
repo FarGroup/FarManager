@@ -5829,42 +5829,42 @@ int Editor::EditorControl(int Command,void *Param)
 				switch (espar->Type)
 				{
 					case ESPT_GETWORDDIV:
-						_ECTLLOG(SysLog(L"  wszParam    =(%p)",espar->Param.wszParam));
+						_ECTLLOG(SysLog(L"  wszParam    =(%p)",espar->wszParam));
 
-						if (espar->Param.wszParam && espar->Size)
-							xwcsncpy(espar->Param.wszParam,EdOpt.strWordDiv,espar->Size);
+						if (espar->wszParam && espar->Size)
+							xwcsncpy(espar->wszParam,EdOpt.strWordDiv,espar->Size);
 
 						rc=(int)EdOpt.strWordDiv.GetLength()+1;
 						break;
 					case ESPT_SETWORDDIV:
-						_ECTLLOG(SysLog(L"  wszParam    =[%s]",espar->Param.wszParam));
-						SetWordDiv((!espar->Param.wszParam || !*espar->Param.wszParam)?Opt.strWordDiv.CPtr():espar->Param.wszParam);
+						_ECTLLOG(SysLog(L"  wszParam    =[%s]",espar->wszParam));
+						SetWordDiv((!espar->wszParam || !*espar->wszParam)?Opt.strWordDiv.CPtr():espar->wszParam);
 						break;
 					case ESPT_TABSIZE:
-						_ECTLLOG(SysLog(L"  iParam      =%d",espar->Param.iParam));
-						SetTabSize(espar->Param.iParam);
+						_ECTLLOG(SysLog(L"  iParam      =%d",espar->iParam));
+						SetTabSize(espar->iParam);
 						break;
 					case ESPT_EXPANDTABS:
-						_ECTLLOG(SysLog(L"  iParam      =%s",espar->Param.iParam?L"On":L"Off"));
-						SetConvertTabs(espar->Param.iParam);
+						_ECTLLOG(SysLog(L"  iParam      =%s",espar->iParam?L"On":L"Off"));
+						SetConvertTabs(espar->iParam);
 						break;
 					case ESPT_AUTOINDENT:
-						_ECTLLOG(SysLog(L"  iParam      =%s",espar->Param.iParam?L"On":L"Off"));
-						SetAutoIndent(espar->Param.iParam);
+						_ECTLLOG(SysLog(L"  iParam      =%s",espar->iParam?L"On":L"Off"));
+						SetAutoIndent(espar->iParam);
 						break;
 					case ESPT_CURSORBEYONDEOL:
-						_ECTLLOG(SysLog(L"  iParam      =%s",espar->Param.iParam?L"On":L"Off"));
-						SetCursorBeyondEOL(espar->Param.iParam);
+						_ECTLLOG(SysLog(L"  iParam      =%s",espar->iParam?L"On":L"Off"));
+						SetCursorBeyondEOL(espar->iParam);
 						break;
 					case ESPT_CHARCODEBASE:
-						_ECTLLOG(SysLog(L"  iParam      =%s",(!espar->Param.iParam?L"0 (Oct)":(espar->Param.iParam==1?L"1 (Dec)":(espar->Param.iParam==2?L"2 (Hex)":L"?????")))));
-						SetCharCodeBase(espar->Param.iParam);
+						_ECTLLOG(SysLog(L"  iParam      =%s",(!espar->iParam?L"0 (Oct)":(espar->iParam==1?L"1 (Dec)":(espar->iParam==2?L"2 (Hex)":L"?????")))));
+						SetCharCodeBase(espar->iParam);
 						break;
 						/* $ 07.08.2001 IS сменить кодировку из плагина */
 					case ESPT_CODEPAGE:
 					{
 						//BUGBUG
-						if ((UINT)espar->Param.iParam==CP_AUTODETECT)
+						if ((UINT)espar->iParam==CP_AUTODETECT)
 						{
 							rc=FALSE;
 						}
@@ -5872,12 +5872,12 @@ int Editor::EditorControl(int Command,void *Param)
 						{
 							if (HostFileEditor)
 							{
-								HostFileEditor->SetCodePage(espar->Param.iParam);
+								HostFileEditor->SetCodePage(espar->iParam);
 								HostFileEditor->CodepageChangedByUser();
 							}
 							else
 							{
-								SetCodePage(espar->Param.iParam);
+								SetCodePage(espar->iParam);
 							}
 
 							Show();
@@ -5886,16 +5886,16 @@ int Editor::EditorControl(int Command,void *Param)
 					break;
 					/* $ 29.10.2001 IS изменение настройки "Сохранять позицию файла" */
 					case ESPT_SAVEFILEPOSITION:
-						_ECTLLOG(SysLog(L"  iParam      =%s",espar->Param.iParam?L"On":L"Off"));
-						SetSavePosMode(espar->Param.iParam, -1);
+						_ECTLLOG(SysLog(L"  iParam      =%s",espar->iParam?L"On":L"Off"));
+						SetSavePosMode(espar->iParam, -1);
 						break;
 						/* $ 23.03.2002 IS запретить/отменить изменение файла */
 					case ESPT_LOCKMODE:
-						_ECTLLOG(SysLog(L"  iParam      =%s",espar->Param.iParam?L"On":L"Off"));
-						Flags.Change(FEDITOR_LOCKMODE, espar->Param.iParam);
+						_ECTLLOG(SysLog(L"  iParam      =%s",espar->iParam?L"On":L"Off"));
+						Flags.Change(FEDITOR_LOCKMODE, espar->iParam);
 						break;
 					case ESPT_SHOWWHITESPACE:
-						SetShowWhiteSpace(espar->Param.iParam);
+						SetShowWhiteSpace(espar->iParam);
 						break;
 					default:
 						_ECTLLOG(SysLog(L"}"));

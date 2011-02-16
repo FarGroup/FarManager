@@ -3759,7 +3759,7 @@ static bool editorundoFunc(const TMacroFunction*)
 	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins.CurEditor && CtrlObject->Plugins.CurEditor->IsVisible())
 	{
 		EditorUndoRedo eur;
-		eur.Command=(int)Action.toInteger();
+		eur.Command=static_cast<EDITOR_UNDOREDO_COMMANDS>(Action.toInteger());
 		Ret=(__int64)CtrlObject->Plugins.CurEditor->EditorControl(ECTL_UNDOREDO,&eur);
 	}
 

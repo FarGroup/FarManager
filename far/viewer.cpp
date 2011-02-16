@@ -3283,13 +3283,13 @@ int Viewer::ViewerControl(int Command,void *Param)
 				switch (vsmode->Type)
 				{
 					case VSMT_HEX:
-						ProcessHexMode(vsmode->Param.iParam,isRedraw);
+						ProcessHexMode(vsmode->iParam,isRedraw);
 						return TRUE;
 					case VSMT_WRAP:
-						ProcessWrapMode(vsmode->Param.iParam,isRedraw);
+						ProcessWrapMode(vsmode->iParam,isRedraw);
 						return TRUE;
 					case VSMT_WORDWRAP:
-						ProcessTypeWrapMode(vsmode->Param.iParam,isRedraw);
+						ProcessTypeWrapMode(vsmode->iParam,isRedraw);
 						return TRUE;
 				}
 			}

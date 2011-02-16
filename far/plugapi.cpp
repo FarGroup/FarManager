@@ -2223,7 +2223,7 @@ int WINAPI farGetPathRoot(const wchar_t *Path, wchar_t *Root, int DestSize)
 	}
 }
 
-int WINAPI farMacroControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2)
+int WINAPI farMacroControl(HANDLE hHandle, FAR_MACRO_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2)
 {
 	if (CtrlObject) // все зависит от этой бад€ги.
 	{
@@ -2236,7 +2236,7 @@ int WINAPI farMacroControl(HANDLE hHandle, int Command, int Param1, INT_PTR Para
 			{
 				if (Macro.IsRecording())
 					return FALSE;
-        		return Macro.LoadMacros(!Macro.IsExecuting());
+				return Macro.LoadMacros(!Macro.IsExecuting());
 			}
 
 			// Param1=0, Param2 - 0
@@ -2277,26 +2277,26 @@ int WINAPI farMacroControl(HANDLE hHandle, int Command, int Param1, INT_PTR Para
 					case MSSC_CHECK:
 					{
 						MacroCheckMacroText *CheckText=(MacroCheckMacroText*)Param2;
-						if (CheckText->Check.Text.SequenceText && *CheckText->Check.Text.SequenceText)
+						if (CheckText->Text.SequenceText && *CheckText->Text.SequenceText)
 						{
 							MacroRecord CurMacro={0};
-							int Ret=Macro.ParseMacroString(&CurMacro,CheckText->Check.Text.SequenceText,(CheckText->Check.Text.Flags&KMFLAGS_SILENTCHECK)?TRUE:FALSE);
+							int Ret=Macro.ParseMacroString(&CurMacro,CheckText->Text.SequenceText,(CheckText->Text.Flags&KMFLAGS_SILENTCHECK)?TRUE:FALSE);
 
 							if (Ret)
 							{
 								if (CurMacro.BufferSize > 1)
 									xf_free(CurMacro.Buffer);
 
-								memset(&CheckText->Check.Result,0,sizeof(struct MacroParseResult));
-								CheckText->Check.Result.StructSize=sizeof(MacroParseResult);
+								memset(&CheckText->Result,0,sizeof(struct MacroParseResult));
+								CheckText->Result.StructSize=sizeof(MacroParseResult);
 							}
 							else
 							{
 								static string ErrSrc;
-								Macro.GetMacroParseError(&CheckText->Check.Result.ErrCode,&CheckText->Check.Result.ErrPos,&ErrSrc);
-								CheckText->Check.Result.ErrSrc=ErrSrc;
+								Macro.GetMacroParseError(&CheckText->Result.ErrCode,&CheckText->Result.ErrPos,&ErrSrc);
+								CheckText->Result.ErrSrc=ErrSrc;
 							}
-			            	return Ret;
+							return Ret;
 						}
 
 						break;
@@ -2324,7 +2324,7 @@ int WINAPI farMacroControl(HANDLE hHandle, int Command, int Param1, INT_PTR Para
 	return 0;
 }
 
-int WINAPI farPluginsControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2)
+int WINAPI farPluginsControl(HANDLE hHandle, FAR_PLUGINS_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2)
 {
 	switch (Command)
 	{
@@ -2355,7 +2355,7 @@ int WINAPI farPluginsControl(HANDLE hHandle, int Command, int Param1, INT_PTR Pa
 	return 0;
 }
 
-int WINAPI farFileFilterControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2)
+int WINAPI farFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2)
 {
 	FileFilter *Filter=nullptr;
 
@@ -2427,7 +2427,7 @@ int WINAPI farFileFilterControl(HANDLE hHandle, int Command, int Param1, INT_PTR
 	return FALSE;
 }
 
-int WINAPI farRegExpControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2)
+int WINAPI farRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2)
 {
 	RegExp* re=nullptr;
 
@@ -2488,7 +2488,7 @@ int WINAPI farRegExpControl(HANDLE hHandle, int Command, int Param1, INT_PTR Par
 	return FALSE;
 }
 
-int WINAPI farSettingsControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2)
+int WINAPI farSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2)
 {
 	PluginSettings* settings=nullptr;
 

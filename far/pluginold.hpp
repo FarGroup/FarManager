@@ -354,11 +354,7 @@ namespace oldfar
 			struct FarList *ListItems;
 			int  ListPos;
 			CHAR_INFO *VBuf;
-		}
-#ifdef _FAR_NO_NAMELESS_UNIONS
-		Param
-#endif
-		;
+		};
 		DWORD Flags;
 		int DefaultButton;
 		union
@@ -371,11 +367,7 @@ namespace oldfar
 				char *PtrData;
 				char  PtrTail[1];
 			} Ptr;
-		}
-#ifdef _FAR_NO_NAMELESS_UNIONS
-		Data
-#endif
-		;
+		};
 	};
 
 	struct FarDialogItemData
@@ -482,7 +474,7 @@ namespace oldfar
 		{
 			char  Text[128];
 			const char *TextPtr;
-		} Text;
+		};
 		DWORD AccelKey;
 		DWORD Reserved;
 		DWORD_PTR UserData;
@@ -989,7 +981,7 @@ namespace oldfar
 				const char *ErrMsg3;
 			} MacroResult;
 			DWORD_PTR Reserved[3];
-		} Param;
+		};
 	};
 
 	enum FARCOLORFLAGS
@@ -1075,7 +1067,7 @@ namespace oldfar
 		{
 			int iParam;
 			char *cParam;
-		} Param;
+		};
 		DWORD Flags;
 		DWORD Reserved;
 	};
@@ -1234,7 +1226,7 @@ namespace oldfar
 			int iParam;
 			char *cParam;
 			DWORD Reserved1;
-		} Param;
+		};
 		DWORD Flags;
 		DWORD Reserved2;
 	};

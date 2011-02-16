@@ -62,16 +62,6 @@ other possible license with no implications from the above license on them.
 
 #define FARMACRO_KEY_EVENT  (KEY_EVENT|0x8000)
 
-#ifdef FAR_USE_INTERNALS
-#define _FAR_NO_NAMELESS_UNIONS
-#else // ELSE FAR_USE_INTERNALS
-// To ensure compatibility of plugin.hpp with compilers not supporting C++,
-// you can #define _FAR_NO_NAMELESS_UNIONS. In this case, to access,
-// for example, the Data field of the FarDialogItem structure
-// you will need to use Data.Data, and the Selected field - Param.Selected
-//#define _FAR_NO_NAMELESS_UNIONS
-#endif // END FAR_USE_INTERNALS
-
 #define CP_UNICODE 1200
 #define CP_REVERSEBOM 1201
 #define CP_AUTODETECT ((UINT)-1)
@@ -451,7 +441,7 @@ struct FarDialogItem
 		struct FarList *ListItems;
 		CHAR_INFO *VBuf;
 	}
-#ifdef _FAR_NO_NAMELESS_UNIONS
+#ifndef __cplusplus
 	Param
 #endif
 	;
@@ -767,13 +757,6 @@ enum FILE_CONTROL_COMMANDS
 	FCTL_SETCASESENSITIVESORT,
 };
 
-typedef int (WINAPI *FARAPICONTROL)(
-    HANDLE hPlugin,
-    FILE_CONTROL_COMMANDS Command,
-    int Param1,
-    INT_PTR Param2
-);
-
 typedef void (WINAPI *FARAPITEXT)(
     int X,
     int Y,
@@ -1063,7 +1046,7 @@ struct ActlMediaType
 #endif // END FAR_USE_INTERNALS
 
 
-enum MACRO_CONTROL_COMMANDS
+enum FAR_MACRO_CONTROL_COMMANDS
 {
 	MCTL_LOADALL           = 0,
 	MCTL_SAVEALL           = 1,
@@ -1072,13 +1055,13 @@ enum MACRO_CONTROL_COMMANDS
 	MCTL_GETAREA           = 6,
 };
 
-enum FARKEYMACROFLAGS
-{
-	KMFLAGS_DISABLEOUTPUT       = 0x00000001,
-	KMFLAGS_NOSENDKEYSTOPLUGINS = 0x00000002,
-	KMFLAGS_REG_MULTI_SZ        = 0x00100000,
-	KMFLAGS_SILENTCHECK         = 0x00000001,
-};
+typedef unsigned __int64 FARKEYMACROFLAGS;
+const FARKEYMACROFLAGS
+	KMFLAGS_NONE                = 0,
+	KMFLAGS_DISABLEOUTPUT       = 0x0000000000000001,
+	KMFLAGS_NOSENDKEYSTOPLUGINS = 0x0000000000000002,
+	KMFLAGS_REG_MULTI_SZ        = 0x0000000000100000,
+	KMFLAGS_SILENTCHECK         = 0x0000000000000001;
 
 enum FARMACROSENDSTRINGCOMMAND
 {
@@ -1149,17 +1132,22 @@ struct MacroParseResult
 struct MacroSendMacroText
 {
 	size_t StructSize;
-	unsigned __int64 Flags;
+	FARKEYMACROFLAGS Flags;
 	DWORD AKey;
 	const wchar_t *SequenceText;
 };
 
 struct MacroCheckMacroText
 {
-	union {
+	union
+	{
 		struct MacroSendMacroText Text;
 		struct MacroParseResult   Result;
-	} Check;
+	}
+#ifndef __cplusplus
+	Check
+#endif
+	;
 };
 
 #ifdef FAR_USE_INTERNALS
@@ -1179,7 +1167,11 @@ struct FarMacroValue
 		__int64  i;
 		double   d;
 		const wchar_t *s;
-	} v;
+	}
+#ifndef __cplusplus
+	Value
+#endif
+	;
 };
 
 struct FarMacroFunction
@@ -1229,11 +1221,10 @@ enum WINDOWINFO_TYPE
 #endif // END FAR_USE_INTERNALS
 };
 
-enum WINDOWINFO_FLAGS
-{
-	WIF_MODIFIED = 1,
-	WIF_CURRENT  = 2,
-};
+typedef unsigned __int64 WINDOWINFO_FLAGS;
+const WINDOWINFO_FLAGS
+	WIF_MODIFIED = 0x0000000000000001ULL,
+	WIF_CURRENT  = 0x0000000000000002ULL;
 
 struct WindowInfo
 {
@@ -1241,7 +1232,7 @@ struct WindowInfo
 	INT_PTR Id;
 	int  Pos;
 	int  Type;
-	unsigned __int64 Flags;
+	WINDOWINFO_FLAGS Flags;
 	wchar_t *TypeName;
 	int TypeNameSize;
 	wchar_t *Name;
@@ -1269,13 +1260,6 @@ struct PROGRESSVALUE
 	unsigned __int64 Total;
 };
 
-typedef INT_PTR(WINAPI *FARAPIADVCONTROL)(
-    const GUID* PluginId,
-    ADVANCED_CONTROL_COMMANDS Command,
-    void *Param
-);
-
-
 enum VIEWER_CONTROL_COMMANDS
 {
 	VCTL_GETINFO,
@@ -1300,20 +1284,23 @@ enum VIEWER_SETMODE_TYPES
 	VSMT_WORDWRAP,
 };
 
-enum VIEWER_SETMODEFLAGS_TYPES
-{
-	VSMFL_REDRAW    = 0x00000001,
-};
+typedef unsigned __int64 VIEWER_SETMODEFLAGS_TYPES;
+const VIEWER_SETMODEFLAGS_TYPES
+	VSMFL_REDRAW    = 0x0000000000000001ULL;
 
 struct ViewerSetMode
 {
-	int Type;
+	VIEWER_SETMODE_TYPES Type;
 	union
 	{
 		int iParam;
 		wchar_t *wszParam;
-	} Param;
-	unsigned __int64 Flags;
+	}
+#ifndef __cplusplus
+	Param
+#endif
+	;
+	VIEWER_SETMODEFLAGS_TYPES Flags;
 	DWORD Reserved;
 };
 
@@ -1323,17 +1310,16 @@ struct ViewerSelect
 	int     BlockLen;
 };
 
-enum VIEWER_SETPOS_FLAGS
-{
-	VSP_NOREDRAW    = 0x0001,
-	VSP_PERCENT     = 0x0002,
-	VSP_RELATIVE    = 0x0004,
-	VSP_NORETNEWPOS = 0x0008,
-};
+typedef unsigned __int64 VIEWER_SETPOS_FLAGS;
+const VIEWER_SETPOS_FLAGS
+	VSP_NOREDRAW    = 0x0000000000000001ULL,
+	VSP_PERCENT     = 0x0000000000000002ULL,
+	VSP_RELATIVE    = 0x0000000000000004ULL,
+	VSP_NORETNEWPOS = 0x0000000000000008ULL;
 
 struct ViewerSetPosition
 {
-	unsigned __int64 Flags;
+	VIEWER_SETPOS_FLAGS Flags;
 	__int64 StartPos;
 	__int64 LeftPos;
 };
@@ -1361,13 +1347,6 @@ struct ViewerInfo
 	struct ViewerMode CurMode;
 	__int64 LeftPos;
 };
-
-typedef int (WINAPI *FARAPIVIEWERCONTROL)(
-    int ViewerID,
-    VIEWER_CONTROL_COMMANDS Command,
-    int Param1,
-    INT_PTR Param2
-);
 
 enum VIEWER_EVENTS
 {
@@ -1474,13 +1453,17 @@ struct EditorServiceRegion
 
 struct EditorSetParameter
 {
-	int Type;
+	EDITOR_SETPARAMETER_TYPES Type;
 	union
 	{
 		int iParam;
 		wchar_t *wszParam;
 		DWORD Reserved1;
-	} Param;
+	}
+#ifndef __cplusplus
+	Param
+#endif
+	;
 	unsigned __int64 Flags;
 	DWORD Size;
 };
@@ -1497,7 +1480,7 @@ enum EDITOR_UNDOREDO_COMMANDS
 
 struct EditorUndoRedo
 {
-	int Command;
+	EDITOR_UNDOREDO_COMMANDS Command;
 	DWORD_PTR Reserved[3];
 };
 
@@ -1644,26 +1627,19 @@ struct EditorSaveFile
 	UINT CodePage;
 };
 
-typedef int (WINAPI *FARAPIEDITORCONTROL)(
-    int EditorID,
-    EDITOR_CONTROL_COMMANDS Command,
-    int Param1,
-    INT_PTR Param2
-);
-
-enum INPUTBOXFLAGS
-{
-	FIB_ENABLEEMPTY      = 0x00000001,
-	FIB_PASSWORD         = 0x00000002,
-	FIB_EXPANDENV        = 0x00000004,
-	FIB_NOUSELASTHISTORY = 0x00000008,
-	FIB_BUTTONS          = 0x00000010,
-	FIB_NOAMPERSAND      = 0x00000020,
-	FIB_EDITPATH         = 0x00000040,
+typedef unsigned __int64 INPUTBOXFLAGS;
+const INPUTBOXFLAGS
+	FIB_ENABLEEMPTY      = 0x0000000000000001ULL,
+	FIB_PASSWORD         = 0x0000000000000002ULL,
+	FIB_EXPANDENV        = 0x0000000000000004ULL,
+	FIB_NOUSELASTHISTORY = 0x0000000000000008ULL,
+	FIB_BUTTONS          = 0x0000000000000010ULL,
+	FIB_NOAMPERSAND      = 0x0000000000000020ULL,
+	FIB_EDITPATH         = 0x0000000000000040ULL,
 #ifdef FAR_USE_INTERNALS
-	FIB_CHECKBOX         = 0x00010000,
+	FIB_CHECKBOX         = 0x0000000000010000ULL,
 #endif // END FAR_USE_INTERNALS
-};
+	FIB_NONE             = 0;
 
 typedef int (WINAPI *FARAPIINPUTBOX)(
     const GUID* PluginId,
@@ -1674,40 +1650,190 @@ typedef int (WINAPI *FARAPIINPUTBOX)(
     wchar_t *DestText,
     int   DestLength,
     const wchar_t *HelpTopic,
-    unsigned __int64 Flags
+    INPUTBOXFLAGS Flags
+);
+
+enum FAR_PLUGINS_CONTROL_COMMANDS
+{
+	PCTL_LOADPLUGIN         = 0,
+	PCTL_UNLOADPLUGIN       = 1,
+	PCTL_FORCEDLOADPLUGIN   = 2,
+};
+
+enum FAR_PLUGIN_LOAD_TYPE
+{
+	PLT_PATH = 0,
+};
+
+enum FAR_FILE_FILTER_CONTROL_COMMANDS
+{
+	FFCTL_CREATEFILEFILTER = 0,
+	FFCTL_FREEFILEFILTER,
+	FFCTL_OPENFILTERSMENU,
+	FFCTL_STARTINGTOFILTER,
+	FFCTL_ISFILEINFILTER,
+};
+
+enum FAR_FILE_FILTER_TYPE
+{
+	FFT_PANEL = 0,
+	FFT_FINDFILE,
+	FFT_COPY,
+	FFT_SELECT,
+	FFT_CUSTOM,
+};
+
+enum FAR_REGEXP_CONTROL_COMMANDS
+{
+	RECTL_CREATE=0,
+	RECTL_FREE,
+	RECTL_COMPILE,
+	RECTL_OPTIMIZE,
+	RECTL_MATCHEX,
+	RECTL_SEARCHEX,
+	RECTL_BRACKETSCOUNT
+};
+
+struct RegExpMatch
+{
+	int start,end;
+};
+
+struct RegExpSearch
+{
+	const wchar_t* Text;
+	int Position;
+	int Length;
+	struct RegExpMatch* Match;
+	int Count;
+	void* Reserved;
+};
+
+enum FAR_SETTINGS_CONTROL_COMMANDS
+{
+	SCTL_CREATE=0,
+	SCTL_FREE,
+	SCTL_SET,
+	SCTL_GET,
+	SCTL_ENUM,
+	SCTL_DELETE,
+	SCTL_SUBKEY
+};
+
+enum FarSettingsTypes
+{
+	FST_UNKNOWN,
+	FST_SUBKEY,
+	FST_QWORD,
+	FST_STRING,
+	FST_DATA
+};
+
+struct FarSettingsCreate
+{
+	size_t StructSize;
+	GUID Guid;
+	HANDLE Handle;
+};
+
+struct FarSettingsItem
+{
+	size_t Root;
+	const wchar_t* Name;
+	FarSettingsTypes Type;
+	union
+	{
+		unsigned __int64 Number;
+		const wchar_t* String;
+		struct
+		{
+			size_t Size;
+			const void* Data;
+		} Data;
+	}
+#ifndef __cplusplus
+	Value
+#endif
+	;
+};
+
+struct FarSettingsName
+{
+	const wchar_t* Name;
+	FarSettingsTypes Type;
+};
+
+struct FarSettingsEnum
+{
+	size_t Root;
+	size_t Count;
+	const FarSettingsName* Items;
+};
+
+struct FarSettingsValue
+{
+	size_t Root;
+	const wchar_t* Value;
+};
+
+typedef int (WINAPI *FARAPICONTROL)(
+    HANDLE hPlugin,
+    FILE_CONTROL_COMMANDS Command,
+    int Param1,
+    INT_PTR Param2
+);
+
+typedef INT_PTR(WINAPI *FARAPIADVCONTROL)(
+    const GUID* PluginId,
+    ADVANCED_CONTROL_COMMANDS Command,
+    void *Param
+);
+
+typedef int (WINAPI *FARAPIVIEWERCONTROL)(
+    int ViewerID,
+    VIEWER_CONTROL_COMMANDS Command,
+    int Param1,
+    INT_PTR Param2
+);
+
+typedef int (WINAPI *FARAPIEDITORCONTROL)(
+    int EditorID,
+    EDITOR_CONTROL_COMMANDS Command,
+    int Param1,
+    INT_PTR Param2
 );
 
 typedef int (WINAPI *FARAPIMACROCONTROL)(
     HANDLE hHandle,
-    int Command,
+    FAR_MACRO_CONTROL_COMMANDS Command,
     int Param1,
     INT_PTR Param2
 );
 
 typedef int (WINAPI *FARAPIPLUGINSCONTROL)(
     HANDLE hHandle,
-    int Command,
+    FAR_PLUGINS_CONTROL_COMMANDS Command,
     int Param1,
     INT_PTR Param2
 );
 
 typedef int (WINAPI *FARAPIFILEFILTERCONTROL)(
     HANDLE hHandle,
-    int Command,
+    FAR_FILE_FILTER_CONTROL_COMMANDS Command,
     int Param1,
     INT_PTR Param2
 );
 
 typedef int (WINAPI *FARAPIREGEXPCONTROL)(
     HANDLE hHandle,
-    int Command,
+    FAR_REGEXP_CONTROL_COMMANDS Command,
     int Param1,
     INT_PTR Param2
 );
 
 typedef int (WINAPI *FARAPISETTINGSCONTROL)(
     HANDLE hHandle,
-    int Command,
+    FAR_SETTINGS_CONTROL_COMMANDS Command,
     int Param1,
     INT_PTR Param2
 );
@@ -1784,14 +1910,13 @@ typedef int (WINAPI *FRSUSERFUNC)(
     void *Param
 );
 
-enum FRSMODE
-{
-	FRS_RETUPDIR             = 0x01,
-	FRS_RECUR                = 0x02,
-	FRS_SCANSYMLINK          = 0x04,
-};
+typedef unsigned __int64 FRSMODE;
+const FRSMODE
+	FRS_RETUPDIR             = 0x0000000000000001ULL,
+	FRS_RECUR                = 0x0000000000000002ULL,
+	FRS_SCANSYMLINK          = 0x0000000000000004ULL;
 
-typedef void (WINAPI *FARSTDRECURSIVESEARCH)(const wchar_t *InitDir,const wchar_t *Mask,FRSUSERFUNC Func,unsigned __int64 Flags,void *Param);
+typedef void (WINAPI *FARSTDRECURSIVESEARCH)(const wchar_t *InitDir,const wchar_t *Mask,FRSUSERFUNC Func,FRSMODE Flags,void *Param);
 typedef int (WINAPI *FARSTDMKTEMP)(wchar_t *Dest, DWORD size, const wchar_t *Prefix);
 typedef void (WINAPI *FARSTDDELETEBUFFER)(void *Buffer);
 
@@ -2127,125 +2252,6 @@ enum FAR_EVENTS
 
 	FE_GOTFOCUS       =6,
 	FE_KILLFOCUS      =7,
-};
-
-enum FAR_PLUGINS_CONTROL_COMMANDS
-{
-	PCTL_LOADPLUGIN         = 0,
-	PCTL_UNLOADPLUGIN       = 1,
-	PCTL_FORCEDLOADPLUGIN   = 2,
-};
-
-enum FAR_PLUGIN_LOAD_TYPE
-{
-	PLT_PATH = 0,
-};
-
-enum FAR_FILE_FILTER_CONTROL_COMMANDS
-{
-	FFCTL_CREATEFILEFILTER = 0,
-	FFCTL_FREEFILEFILTER,
-	FFCTL_OPENFILTERSMENU,
-	FFCTL_STARTINGTOFILTER,
-	FFCTL_ISFILEINFILTER,
-};
-
-enum FAR_FILE_FILTER_TYPE
-{
-	FFT_PANEL = 0,
-	FFT_FINDFILE,
-	FFT_COPY,
-	FFT_SELECT,
-	FFT_CUSTOM,
-};
-
-enum FAR_REGEXP_CONTROL_COMMANDS
-{
-	RECTL_CREATE=0,
-	RECTL_FREE,
-	RECTL_COMPILE,
-	RECTL_OPTIMIZE,
-	RECTL_MATCHEX,
-	RECTL_SEARCHEX,
-	RECTL_BRACKETSCOUNT
-};
-
-struct RegExpMatch
-{
-	int start,end;
-};
-
-struct RegExpSearch
-{
-	const wchar_t* Text;
-	int Position;
-	int Length;
-	struct RegExpMatch* Match;
-	int Count;
-	void* Reserved;
-};
-
-enum FAR_SETTINGS_CONTROL_COMMANDS
-{
-	SCTL_CREATE=0,
-	SCTL_FREE,
-	SCTL_SET,
-	SCTL_GET,
-	SCTL_ENUM,
-	SCTL_DELETE,
-	SCTL_SUBKEY
-};
-
-enum FarSettingsTypes
-{
-	FST_UNKNOWN,
-	FST_SUBKEY,
-	FST_QWORD,
-	FST_STRING,
-	FST_DATA
-};
-
-struct FarSettingsCreate
-{
-	size_t StructSize;
-	GUID Guid;
-	HANDLE Handle;
-};
-
-struct FarSettingsItem
-{
-	size_t Root;
-	const wchar_t* Name;
-	FarSettingsTypes Type;
-	union
-	{
-		unsigned __int64 Number;
-		const wchar_t* String;
-		struct
-		{
-			size_t Size;
-			const void* Data;
-		} Data;
-	} Value;
-};
-
-struct FarSettingsName
-{
-	const wchar_t* Name;
-	FarSettingsTypes Type;
-};
-
-struct FarSettingsEnum
-{
-	size_t Root;
-	size_t Count;
-	const FarSettingsName* Items;
-};
-
-struct FarSettingsValue
-{
-	size_t Root;
-	const wchar_t* Value;
 };
 
 #ifdef __cplusplus

@@ -203,7 +203,7 @@ void ConvertItemSmall(FarDialogItem *Item,DialogItemEx *Data)
 
 	Item->History = Data->strHistory;
 	Item->Mask = Data->strMask;
-	Item->Param.Reserved = Data->Reserved;
+	Item->Reserved = Data->Reserved;
 	Item->UserParam = Data->UserData;
 }
 
@@ -279,7 +279,7 @@ bool ConvertItemEx(
 				Data->Reserved = 0;
 				Data->strHistory = Item->History;
 				Data->strMask = Item->Mask;
-				Data->Reserved = Item->Param.Reserved;
+				Data->Reserved = Item->Reserved;
 				Data->Flags = Item->Flags;
 				Data->Type = Item->Type;
 				Data->UserData = Item->UserParam;
@@ -293,13 +293,13 @@ bool ConvertItemEx(
 						Data->strData.SetLength(Data->nMaxLength);
 				}
 
-				Data->ListItems = Item->Param.ListItems;
+				Data->ListItems = Item->ListItems;
 
 				if (Data->X2 < Data->X1) Data->X2=Data->X1;
 
 				if (Data->Y2 < Data->Y1) Data->Y2=Data->Y1;
 
-				if ((Data->Type == DI_COMBOBOX || Data->Type == DI_LISTBOX) && !IsPtr(Item->Param.ListItems))
+				if ((Data->Type == DI_COMBOBOX || Data->Type == DI_LISTBOX) && !IsPtr(Item->ListItems))
 					Data->ListItems=nullptr;
 			}
 

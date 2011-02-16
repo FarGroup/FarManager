@@ -2651,7 +2651,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 				{
 				    if(IsUnicodeOrUtfCodePage(m_codepage))
 				    {
-						m_bAddSignature=espar->Param.iParam?true:false;
+						m_bAddSignature=espar->iParam?true:false;
 						return TRUE;
 					}
 					return FALSE;
