@@ -35,11 +35,41 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "array.hpp"
 #include "UnicodeString.hpp"
 
+template <class Object> class Vector
+{
+	private:
+		size_t InternalCount, Count, Delta;
+		Object *Items;
+
+	public:
+		Vector():InternalCount(0), Count(0), Delta(8), Items(nullptr) {}
+		~Vector() { delete [] Items; Items=nullptr; }
+		size_t GetSize(void) const { return Count; }
+		Object& AddItem(const Object &anItem)
+		{
+			if (InternalCount==Count)
+			{
+				InternalCount+=Delta;
+				Object* newItems=new Object[InternalCount];
+				for(size_t ii=0;ii<Count;++ii)
+				{
+					newItems[ii]=Items[ii];
+				}
+				delete [] Items;
+				Items=newItems;
+			}
+			Items[Count++]=anItem;
+			return Items[Count-1];
+		}
+		Object* GetItems(void) { return Items; }
+};
+
 class PluginSettings
 {
 	private:
 		TPointerArray<string> m_Keys;
 		TPointerArray<char*> m_Data;
+		TPointerArray<Vector<FarSettingsName> > m_Enum;
 		PluginSettings();
 	public:
 		PluginSettings(const GUID& Guid);

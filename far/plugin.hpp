@@ -2201,6 +2201,7 @@ enum FAR_SETTINGS_CONTROL_COMMANDS
 
 enum FarSettingsTypes
 {
+	FST_UNKNOWN,
 	FST_SUBKEY,
 	FST_QWORD,
 	FST_STRING,
@@ -2240,8 +2241,8 @@ struct FarSettingsName
 struct FarSettingsEnum
 {
 	size_t Root;
-	int Count;
-	const FarSettingsItem* Items;
+	size_t Count;
+	const FarSettingsName* Items;
 };
 
 struct FarSettingsValue

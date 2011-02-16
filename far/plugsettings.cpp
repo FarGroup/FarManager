@@ -50,6 +50,14 @@ PluginSettings::~PluginSettings()
 	{
 		delete [] *m_Data.getItem(ii);
 	}
+	for(size_t ii=0;ii<m_Enum.getCount();++ii)
+	{
+		FarSettingsName* array=m_Enum.getItem(ii)->GetItems();
+		for(size_t jj=0;jj<m_Enum.getItem(ii)->GetSize();++jj)
+		{
+			delete [] array[jj].Name;
+		}
+	}
 }
 
 int PluginSettings::Set(const FarSettingsItem& Item)
@@ -131,12 +139,58 @@ int PluginSettings::Get(FarSettingsItem& Item)
 	return result;
 }
 
+static void AddString(Vector<FarSettingsName>& Array, FarSettingsName& Item, string& String)
+{
+	size_t size=String.GetLength()+1;
+	Item.Name=new wchar_t[size];
+	wmemcpy((wchar_t*)Item.Name,String.CPtr(),size);
+	Array.AddItem(Item);
+}
+
 int PluginSettings::Enum(FarSettingsEnum& Enum)
 {
 	int result=FALSE;
 	if(Enum.Root<m_Keys.getCount())
 	{
-	    //BUGBUG: NOT IMPLEMENTED
+	    Vector<FarSettingsName>& array=*m_Enum.addItem();
+		FarSettingsName item;
+	    DWORD Index=0,Type;
+		HKEY hKey=OpenRegKey(m_Keys.getItem(Enum.Root)->CPtr());
+		string strName,strValue;
+
+		if (hKey)
+		{
+	    	item.Type=FST_SUBKEY;
+	    	while (apiRegEnumKeyEx(hKey,Index++,strName)==ERROR_SUCCESS)
+	    	{
+	    	    AddString(array,item,strName);
+	    	}
+			RegCloseKey(hKey);
+			Index=0;
+			while(EnumRegValueEx(m_Keys.getItem(Enum.Root)->CPtr(),Index++,strName,strValue,nullptr,nullptr,&Type)!=REG_NONE)
+			{
+				item.Type=FST_UNKNOWN;
+				switch(Type)
+				{
+					case REG_QWORD:
+						item.Type=FST_QWORD;
+						break;
+					case REG_SZ:
+						item.Type=FST_STRING;
+						break;
+					case REG_BINARY:
+						item.Type=FST_DATA;
+						break;
+				}
+				if(item.Type!=FST_UNKNOWN)
+				{
+	    	    	AddString(array,item,strName);
+				}
+			}
+			Enum.Count=array.GetSize();
+			Enum.Items=array.GetItems();
+			result=TRUE;
+	    }
 	}
 	return result;
 }
