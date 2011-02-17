@@ -2042,7 +2042,7 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, FARMESSAGE NewMsg, int Param1, INT_PTR Para
 	StackHandler sh(e);
 
 	static wchar_t* HelpTopic = nullptr;
-	oldfar::FARMESSAGE Msg;
+	oldfar::FARMESSAGE Msg = oldfar::DM_FIRST;
 	if(NewMsg>DM_USER)
 	{
 		Msg = static_cast<oldfar::FARMESSAGE>(NewMsg);
@@ -2145,7 +2145,7 @@ LONG_PTR WINAPI FarDefDlgProcA(HANDLE hDlg, oldfar::FARMESSAGE Msg, int Param1, 
 
 LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, oldfar::FARMESSAGE OldMsg, int Param1, LONG_PTR Param2)
 {
-	FARMESSAGE Msg;
+	FARMESSAGE Msg = DM_FIRST;
 	if(OldMsg>oldfar::DM_USER)
 	{
 		Msg = static_cast<FARMESSAGE>(OldMsg);

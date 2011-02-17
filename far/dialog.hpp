@@ -428,7 +428,7 @@ class Dialog: public Frame
 
 typedef INT_PTR(WINAPI *SENDDLGMESSAGE)(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2);
 
-INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,FARMESSAGE Msg,FARMESSAGE Param1,INT_PTR Param2);
+INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2);
 
 INT_PTR WINAPI DefDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2);
 
