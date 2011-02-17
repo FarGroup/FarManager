@@ -2054,8 +2054,28 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, FARMESSAGE NewMsg, int Param1, INT_PTR Para
 		case DN_BTNCLICK:        Msg=oldfar::DN_BTNCLICK; break;
 		case DN_CTLCOLORDIALOG:  Msg=oldfar::DN_CTLCOLORDIALOG; break;
 		case DN_CTLCOLORDLGITEM: Msg=oldfar::DN_CTLCOLORDLGITEM; break;
-		case DN_CTLCOLORDLGLIST: Msg=oldfar::DN_CTLCOLORDLGLIST; break;
 		case DN_DRAWDIALOG:      Msg=oldfar::DN_DRAWDIALOG; break;
+
+		case DN_CTLCOLORDLGLIST:
+			{
+				if(Param2)
+				{
+					FarListColors* lc = reinterpret_cast<FarListColors*>(Param2);
+					oldfar::FarListColors lcA={};
+					lcA.ColorCount = lc->ColorCount;
+					lcA.Colors = lc->Colors;
+					INT_PTR Result = CurrentDlgProc(hDlg, oldfar::DN_CTLCOLORDLGLIST, Param1, reinterpret_cast<INT_PTR>(&lcA));
+					if(Result)
+					{
+						lc->ColorCount = lcA.ColorCount;
+						lc->Colors = lcA.Colors;
+						return TRUE;
+					}
+				}
+				return FALSE;
+			}
+			break;
+
 		case DN_DRAWDLGITEM:
 		{
 			Msg=oldfar::DN_DRAWDLGITEM;
@@ -3796,35 +3816,43 @@ UINT ConvertCharTableToCodePage(int Command)
 	return nCP;
 }
 
-int WINAPI FarEditorControlA(int Command,void* Param)
+int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Param)
 {
 	static char *gt=nullptr;
 	static char *geol=nullptr;
 	static char *fn=nullptr;
-
-	switch (Command)
+	EDITOR_CONTROL_COMMANDS Command=ECTL_GETSTRING;
+	switch (OldCommand)
 	{
-		case oldfar::ECTL_ADDCOLOR:			Command = ECTL_ADDCOLOR; break;
-		case oldfar::ECTL_DELETEBLOCK:	Command = ECTL_DELETEBLOCK; break;
-		case oldfar::ECTL_DELETECHAR:		Command = ECTL_DELETECHAR; break;
-		case oldfar::ECTL_DELETESTRING:	Command = ECTL_DELETESTRING; break;
-		case oldfar::ECTL_EXPANDTABS:		Command = ECTL_EXPANDTABS; break;
-		case oldfar::ECTL_GETCOLOR:			Command = ECTL_GETCOLOR; break;
-		case oldfar::ECTL_GETBOOKMARKS:	Command = ECTL_GETBOOKMARKS; break;
-		case oldfar::ECTL_INSERTSTRING:	Command = ECTL_INSERTSTRING; break;
-		case oldfar::ECTL_QUIT:					Command = ECTL_QUIT; break;
-		case oldfar::ECTL_REALTOTAB:		Command = ECTL_REALTOTAB; break;
-		case oldfar::ECTL_REDRAW:				Command = ECTL_REDRAW; break;
-		case oldfar::ECTL_SELECT:				Command = ECTL_SELECT; break;
-		case oldfar::ECTL_SETPOSITION:	Command = ECTL_SETPOSITION; break;
-		case oldfar::ECTL_TABTOREAL:		Command = ECTL_TABTOREAL; break;
-		case oldfar::ECTL_TURNOFFMARKINGBLOCK:	Command = ECTL_TURNOFFMARKINGBLOCK; break;
-		case oldfar::ECTL_ADDSTACKBOOKMARK:			Command = ECTL_ADDSTACKBOOKMARK; break;
-		case oldfar::ECTL_PREVSTACKBOOKMARK:		Command = ECTL_PREVSTACKBOOKMARK; break;
-		case oldfar::ECTL_NEXTSTACKBOOKMARK:		Command = ECTL_NEXTSTACKBOOKMARK; break;
-		case oldfar::ECTL_CLEARSTACKBOOKMARKS:	Command = ECTL_CLEARSTACKBOOKMARKS; break;
-		case oldfar::ECTL_DELETESTACKBOOKMARK:	Command = ECTL_DELETESTACKBOOKMARK; break;
-		case oldfar::ECTL_GETSTACKBOOKMARKS:		Command = ECTL_GETSTACKBOOKMARKS; break;
+		case oldfar::ECTL_ADDCOLOR:
+		case oldfar::ECTL_GETCOLOR:
+			if(Param)
+			{
+				Command = OldCommand==oldfar::ECTL_ADDCOLOR?ECTL_ADDCOLOR:ECTL_GETCOLOR;
+				oldfar::EditorColor* ecA = reinterpret_cast<oldfar::EditorColor*>(Param);
+				EditorColor ec={};
+				ec.StringNumber = ecA->StringNumber;
+				if(Command == ECTL_ADDCOLOR)
+				{
+					ec.StartPos = ecA->StartPos;
+					ec.EndPos = ecA->EndPos;
+					ec.Color = ecA->Color;
+				}
+				else
+				{
+					ec.ColorItem = ecA->ColorItem;
+				}
+				int Result = FarEditorControl(-1, Command, 0, reinterpret_cast<INT_PTR>(&ec));
+				if(Result && Command == ECTL_GETCOLOR)
+				{
+					ecA->StartPos = ec.StartPos;
+					ecA->EndPos = ec.EndPos;
+					ecA->Color = ec.Color;
+				}
+				return Result;
+			}
+			return FALSE;
+
 		case oldfar::ECTL_GETSTRING:
 		{
 			EditorGetString egs;
@@ -4164,11 +4192,30 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 
 			return ret;
 		}
+		// BUGBUG, convert params
+		case oldfar::ECTL_DELETEBLOCK:	Command = ECTL_DELETEBLOCK; break;
+		case oldfar::ECTL_DELETECHAR:		Command = ECTL_DELETECHAR; break;
+		case oldfar::ECTL_DELETESTRING:	Command = ECTL_DELETESTRING; break;
+		case oldfar::ECTL_EXPANDTABS:		Command = ECTL_EXPANDTABS; break;
+		case oldfar::ECTL_GETBOOKMARKS:	Command = ECTL_GETBOOKMARKS; break;
+		case oldfar::ECTL_INSERTSTRING:	Command = ECTL_INSERTSTRING; break;
+		case oldfar::ECTL_QUIT:					Command = ECTL_QUIT; break;
+		case oldfar::ECTL_REALTOTAB:		Command = ECTL_REALTOTAB; break;
+		case oldfar::ECTL_REDRAW:				Command = ECTL_REDRAW; break;
+		case oldfar::ECTL_SELECT:				Command = ECTL_SELECT; break;
+		case oldfar::ECTL_SETPOSITION:	Command = ECTL_SETPOSITION; break;
+		case oldfar::ECTL_TABTOREAL:		Command = ECTL_TABTOREAL; break;
+		case oldfar::ECTL_TURNOFFMARKINGBLOCK:	Command = ECTL_TURNOFFMARKINGBLOCK; break;
+		case oldfar::ECTL_ADDSTACKBOOKMARK:			Command = ECTL_ADDSTACKBOOKMARK; break;
+		case oldfar::ECTL_PREVSTACKBOOKMARK:		Command = ECTL_PREVSTACKBOOKMARK; break;
+		case oldfar::ECTL_NEXTSTACKBOOKMARK:		Command = ECTL_NEXTSTACKBOOKMARK; break;
+		case oldfar::ECTL_CLEARSTACKBOOKMARKS:	Command = ECTL_CLEARSTACKBOOKMARKS; break;
+		case oldfar::ECTL_DELETESTACKBOOKMARK:	Command = ECTL_DELETESTACKBOOKMARK; break;
+		case oldfar::ECTL_GETSTACKBOOKMARKS:		Command = ECTL_GETSTACKBOOKMARKS; break;
 		default:
 			return FALSE;
 	}
-
-	return FALSE;
+	return FarEditorControl(-1, Command, 0, reinterpret_cast<INT_PTR>(Param));
 }
 
 int WINAPI FarViewerControlA(int Command,void* Param)

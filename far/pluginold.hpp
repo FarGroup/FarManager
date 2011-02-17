@@ -1362,7 +1362,7 @@ namespace oldfar
 	};
 
 	typedef int (WINAPI *FARAPIEDITORCONTROL)(
-	    int   Command,
+	    EDITOR_CONTROL_COMMANDS   Command,
 	    void *Param
 	);
 
