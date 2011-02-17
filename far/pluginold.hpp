@@ -97,7 +97,7 @@ namespace oldfar
 		DIF_DISABLE               = 0x80000000UL,
 	};
 
-	enum FarMessagesProc
+	enum FARMESSAGE
 	{
 		DM_FIRST=0,
 		DM_CLOSE,
@@ -379,7 +379,7 @@ namespace oldfar
 	struct FarDialogEvent
 	{
 		HANDLE hDlg;
-		int Msg;
+		FARMESSAGE Msg;
 		int Param1;
 		LONG_PTR Param2;
 		LONG_PTR Result;
@@ -402,21 +402,7 @@ namespace oldfar
 
 	typedef LONG_PTR(WINAPI *FARWINDOWPROC)(
 	    HANDLE   hDlg,
-	    int      Msg,
-	    int      Param1,
-	    LONG_PTR Param2
-	);
-
-	typedef LONG_PTR(WINAPI *FARAPISENDDLGMESSAGE)(
-	    HANDLE   hDlg,
-	    int      Msg,
-	    int      Param1,
-	    LONG_PTR Param2
-	);
-
-	typedef LONG_PTR(WINAPI *FARAPIDEFDLGPROC)(
-	    HANDLE   hDlg,
-	    int      Msg,
+	    FARMESSAGE Msg,
 	    int      Param1,
 	    LONG_PTR Param2
 	);
@@ -1596,8 +1582,8 @@ namespace oldfar
 		FARAPIADVCONTROL       AdvControl;
 		FARAPIINPUTBOX         InputBox;
 		FARAPIDIALOGEX         DialogEx;
-		FARAPISENDDLGMESSAGE   SendDlgMessage;
-		FARAPIDEFDLGPROC       DefDlgProc;
+		FARWINDOWPROC          SendDlgMessage;
+		FARWINDOWPROC          DefDlgProc;
 		DWORD_PTR              Reserved;
 		FARAPIVIEWERCONTROL    ViewerControl;
 	};

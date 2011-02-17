@@ -4607,7 +4607,7 @@ void Dialog::ResizeConsole()
 //  }
 //};
 
-INT_PTR WINAPI Dialog::DlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI Dialog::DlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
 {
 	if (DialogMode.Check(DMODE_ENDLOOP))
 		return 0;
@@ -4636,7 +4636,7 @@ INT_PTR WINAPI Dialog::DlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
    Вот именно эта функция и является последним рубежом обработки диалога.
    Т.е. здесь должна быть ВСЯ обработка ВСЕХ сообщений!!!
 */
-INT_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI DefDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
 {
 	_DIALOG(CleverSysLog CL(L"Dialog.DefDlgProc()"));
 	_DIALOG(SysLog(L"hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",hDlg,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
@@ -4765,7 +4765,7 @@ INT_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 	return 0;
 }
 
-INT_PTR Dialog::CallDlgProc(int nMsg, int nParam1, INT_PTR nParam2)
+INT_PTR Dialog::CallDlgProc(FARMESSAGE nMsg, int nParam1, INT_PTR nParam2)
 {
 	CriticalSectionLock Lock(CS);
 	return Dialog::DlgProc((HANDLE)this, nMsg, nParam1, nParam2);
@@ -4777,7 +4777,7 @@ INT_PTR Dialog::CallDlgProc(int nMsg, int nParam1, INT_PTR nParam2)
    Некоторые сообщения эта функция обрабатывает сама, не передавая управление
    обработчику диалога.
 */
-INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
 {
 	if (!hDlg)
 		return 0;

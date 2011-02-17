@@ -61,7 +61,7 @@ enum
 	MKDIR_CANCEL,
 };
 
-INT_PTR WINAPI MkDirDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI MkDirDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
 {
 	switch (Msg)
 	{

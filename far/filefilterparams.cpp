@@ -663,7 +663,7 @@ void FilterDlgRelativeDateItemsUpdate(HANDLE hDlg, bool bClear)
 	SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
 }
 
-INT_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
 {
 	switch (Msg)
 	{

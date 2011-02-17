@@ -89,7 +89,7 @@ enum enumOpenEditor
 
 INT_PTR __stdcall hndOpenEditor(
     HANDLE hDlg,
-    int msg,
+    FARMESSAGE msg,
     int param1,
     INT_PTR param2
 )
@@ -172,7 +172,7 @@ enum enumSaveFileAs
 
 INT_PTR __stdcall hndSaveFileAs(
     HANDLE hDlg,
-    int msg,
+    FARMESSAGE msg,
     int param1,
     INT_PTR param2
 )

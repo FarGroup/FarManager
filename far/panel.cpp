@@ -372,7 +372,7 @@ static void ConfigureChangeDriveMode()
 }
 
 
-INT_PTR WINAPI ChDiskDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI ChDiskDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
 {
 	switch (Msg)
 	{
@@ -2142,7 +2142,7 @@ int Panel::SetPluginCommand(int Command,int Param1,INT_PTR Param2)
 			Info->PanelRect.right=X2;
 			Info->PanelRect.bottom=Y2;
 			Info->ViewMode=GetViewMode();
-			Info->SortMode=SM_UNSORTED-UNSORTED+GetSortMode();
+			Info->SortMode=static_cast<OPENPLUGININFO_SORTMODES>(SM_UNSORTED-UNSORTED+GetSortMode());
 			{
 				static struct
 				{

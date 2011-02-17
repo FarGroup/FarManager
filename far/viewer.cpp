@@ -2117,11 +2117,11 @@ enum SEARCHDLG
 	SD_SEPARATOR2,
 	SD_BUTTON_OK,
 	SD_BUTTON_CANCEL,
-
-	DM_SDSETVISIBILITY = DM_USER + 1,
 };
 
-INT_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
+const FARMESSAGE DM_SDSETVISIBILITY = static_cast<FARMESSAGE>(DM_USER+1);
+
+INT_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
 {
 	switch (Msg)
 	{

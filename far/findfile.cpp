@@ -762,7 +762,7 @@ void SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,bool UpdatePanel=f
 	}
 }
 
-INT_PTR WINAPI AdvancedDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
+INT_PTR WINAPI AdvancedDlgProc(HANDLE hDlg, FARMESSAGE Msg, int Param1, INT_PTR Param2)
 {
 	switch (Msg)
 	{
@@ -836,7 +836,7 @@ void AdvancedDialog()
 	}
 }
 
-INT_PTR WINAPI MainDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
+INT_PTR WINAPI MainDlgProc(HANDLE hDlg, FARMESSAGE Msg, int Param1, INT_PTR Param2)
 {
 	Vars* v = reinterpret_cast<Vars*>(SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0));
 	switch (Msg)
@@ -1530,7 +1530,7 @@ bool IsFileIncluded(PluginPanelItem* FileItem, const wchar_t *FullName, DWORD Fi
 	return FileFound;
 }
 
-INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
+INT_PTR WINAPI FindDlgProc(HANDLE hDlg, FARMESSAGE Msg, int Param1, INT_PTR Param2)
 {
 	Vars* v = reinterpret_cast<Vars*>(SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0));
 	Dialog* Dlg=reinterpret_cast<Dialog*>(hDlg);

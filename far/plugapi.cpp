@@ -870,7 +870,7 @@ int WINAPI FarMenuFn(
 }
 
 // Функция FarDefDlgProc обработки диалога по умолчанию
-INT_PTR WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI FarDefDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
 {
 	if (hDlg) // исключаем лишний вызов для hDlg=0
 		return DefDlgProc(hDlg,Msg,Param1,Param2);
@@ -879,7 +879,7 @@ INT_PTR WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 }
 
 // Посылка сообщения диалогу
-INT_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
 {
 	if (hDlg) // исключаем лишний вызов для hDlg=0
 		return SendDlgMessage(hDlg,Msg,Param1,Param2);
@@ -2492,7 +2492,7 @@ int WINAPI farSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS Comm
 {
 	PluginSettings* settings=nullptr;
 
-	if (Command != RECTL_CREATE)
+	if (Command != SCTL_CREATE)
 	{
 		if (hHandle == INVALID_HANDLE_VALUE)
 			return FALSE;

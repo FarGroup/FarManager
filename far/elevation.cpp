@@ -396,7 +396,7 @@ enum ADMINAPPROVEDLGITEM
 	AAD_BUTTON_SKIP,
 };
 
-INT_PTR WINAPI AdminApproveDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI AdminApproveDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
 {
 	switch (Msg)
 	{

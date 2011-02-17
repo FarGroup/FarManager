@@ -962,7 +962,7 @@ enum EditMenuItems
 	EM_BUTTON_CANCEL,
 };
 
-INT_PTR WINAPI EditMenuDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI EditMenuDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 	Dialog* Dlg=(Dialog*)hDlg;

@@ -97,7 +97,7 @@ int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
 	return Message(Flags,Buttons,Title,Str,StrCount,PluginNumber);
 }
 
-INT_PTR WINAPI MsgDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI MsgDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
 {
 	switch (Msg)
 	{

@@ -126,8 +126,6 @@ static const char NFMP_ProcessEvent[]="ProcessEvent";
 static const char NFMP_Compare[]="Compare";
 static const char NFMP_GetMinFarVersion[]="GetMinFarVersion";
 
-const LONG_PTR DEF_DLG_PROC_CALL = 0xFEFEFEFE;
-
 #define UnicodeToOEM(src,dst,lendst)    WideCharToMultiByte(CP_OEMCP,0,(src),-1,(dst),(int)(lendst),nullptr,nullptr)
 #define OEMToUnicode(src,dst,lendst)    MultiByteToWideChar(CP_OEMCP,0,(src),-1,(dst),(int)(lendst))
 
@@ -1428,7 +1426,7 @@ FarList* CurrentList(HANDLE hDlg,int ItemNumber)
 	return Data?&Data->l[ItemNumber]:nullptr;
 }
 
-INT_PTR WINAPI CurrentDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
+INT_PTR WINAPI CurrentDlgProc(HANDLE hDlg, oldfar::FARMESSAGE Msg, int Param1, INT_PTR Param2)
 {
 	INT_PTR Ret=0;
 	PDialogData Data=FindCurrentDialogData(hDlg);
@@ -1436,10 +1434,6 @@ INT_PTR WINAPI CurrentDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 	if (Data && Data->DlgProc)
 		Ret=Data->DlgProc(Data->hDlg,Msg,Param1,Param2);
 
-	if (Ret == DEF_DLG_PROC_CALL)
-	{
-		Ret = FarDefDlgProc(hDlg, Msg, Param1, Param2);
-	}
 	return Ret;
 }
 
@@ -1722,11 +1716,10 @@ void AnsiDialogItemToUnicode(oldfar::FarDialogItem &diA, FarDialogItem &di,FarLi
 			{
 				l.Items = (FarListItem *)xf_malloc(diA.ListItems->ItemsNumber*sizeof(FarListItem));
 				l.ItemsNumber = diA.ListItems->ItemsNumber;
+				di.ListItems=&l;
 
 				for (int j=0; j<di.ListItems->ItemsNumber; j++)
 					AnsiListItemToUnicode(&diA.ListItems->Items[j],&l.Items[j]);
-
-				di.ListItems=&l;
 			}
 
 			break;
@@ -2034,12 +2027,29 @@ oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di,HANDLE hDlg,int
 	return diA;
 }
 
-INT_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
-{
-	static wchar_t* HelpTopic = nullptr;
+TStack<FarDialogEvent>OriginalEvents;
 
-	switch (Msg)
+class StackHandler
+{
+public:
+	StackHandler(FarDialogEvent& e){OriginalEvents.Push(e);}
+	~StackHandler(){FarDialogEvent e; OriginalEvents.Pop(e);}
+};
+
+INT_PTR WINAPI DlgProcA(HANDLE hDlg, FARMESSAGE NewMsg, int Param1, INT_PTR Param2)
+{
+	FarDialogEvent e = {hDlg, NewMsg, Param1, Param2};
+	StackHandler sh(e);
+
+	static wchar_t* HelpTopic = nullptr;
+	oldfar::FARMESSAGE Msg;
+	if(NewMsg>DM_USER)
 	{
+		Msg = static_cast<oldfar::FARMESSAGE>(NewMsg);
+	}
+	else switch (NewMsg)
+	{
+		case DN_CLOSE:           Msg=oldfar::DN_CLOSE; break;
 		case DN_LISTHOTKEY:      Msg=oldfar::DN_LISTHOTKEY; break;
 		case DN_BTNCLICK:        Msg=oldfar::DN_BTNCLICK; break;
 		case DN_CTLCOLORDIALOG:  Msg=oldfar::DN_CTLCOLORDIALOG; break;
@@ -2052,7 +2062,6 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 			FarDialogItem *di = (FarDialogItem *)Param2;
 			oldfar::FarDialogItem *FarDiA=UnicodeDialogItemToAnsi(*di,hDlg,Param1);
 			INT_PTR ret = CurrentDlgProc(hDlg, Msg, Param1, (INT_PTR)FarDiA);
-
 			if (ret && (di->Type==DI_USERCONTROL) && (di->VBuf))
 			{
 				AnsiVBufToUnicode(FarDiA->VBuf, di->VBuf, GetAnsiVBufSize(*FarDiA),(FarDiA->Flags&oldfar::DIF_NOTCVTUSERCONTROL)==oldfar::DIF_NOTCVTUSERCONTROL);
@@ -2062,14 +2071,13 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 		}
 		case DN_EDITCHANGE:
 			Msg=oldfar::DN_EDITCHANGE;
-			return Param2?CurrentDlgProc(hDlg,Msg,Param1,(INT_PTR)UnicodeDialogItemToAnsi(*((FarDialogItem *)Param2),hDlg,Param1)):FALSE;
+			return Param2?FarDefDlgProc(hDlg, NewMsg, Param1, Param2):FALSE;
 		case DN_ENTERIDLE: Msg=oldfar::DN_ENTERIDLE; break;
 		case DN_GOTFOCUS:  Msg=oldfar::DN_GOTFOCUS; break;
 		case DN_HELP:
 		{
 			char* HelpTopicA = UnicodeToAnsi((const wchar_t *)Param2);
 			INT_PTR ret = CurrentDlgProc(hDlg, oldfar::DN_HELP, Param1, (INT_PTR)HelpTopicA);
-
 			if (ret)
 			{
 				if (HelpTopic) xf_free(HelpTopic);
@@ -2107,7 +2115,7 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 					break;
 				}
 			}
-			return FarDefDlgProc(hDlg, Msg, Param1, Param2);
+			return FarDefDlgProc(hDlg, NewMsg, Param1, Param2);
 		case DN_CONTROLINPUT:
 			{
 				const INPUT_RECORD* record=(const INPUT_RECORD *)Param2;
@@ -2121,23 +2129,28 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 				{
 					Msg=oldfar::DN_KEY;
 					Param2=KeyToOldKey((DWORD)InputRecordToKey((const INPUT_RECORD *)Param2));
+					break;
 				}
 			}
-			return FarDefDlgProc(hDlg, Msg, Param1, Param2);
+			return FarDefDlgProc(hDlg, NewMsg, Param1, Param2);
 	}
 
 	return CurrentDlgProc(hDlg, Msg, Param1, Param2);
 }
 
-// BUGBUG, it works only for "return DefDlgProc(hDlg, Msg, Param1, Param2);"
-LONG_PTR WINAPI FarDefDlgProcA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
+LONG_PTR WINAPI FarDefDlgProcA(HANDLE hDlg, oldfar::FARMESSAGE Msg, int Param1, LONG_PTR Param2)
 {
-	return DEF_DLG_PROC_CALL;
+	return FarDefDlgProc(OriginalEvents.Peek()->hDlg, OriginalEvents.Peek()->Msg, OriginalEvents.Peek()->Param1, OriginalEvents.Peek()->Param2);
 }
 
-LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
+LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, oldfar::FARMESSAGE OldMsg, int Param1, LONG_PTR Param2)
 {
-	switch (Msg)
+	FARMESSAGE Msg;
+	if(OldMsg>oldfar::DM_USER)
+	{
+		Msg = static_cast<FARMESSAGE>(OldMsg);
+	}
+	else switch (OldMsg)
 	{
 		case oldfar::DM_CLOSE:        Msg = DM_CLOSE; break;
 		case oldfar::DM_ENABLE:       Msg = DM_ENABLE; break;
@@ -2182,6 +2195,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 			return ret;
 		}
 		case oldfar::DM_GETTEXTLENGTH: Msg = DM_GETTEXTLENGTH; break;
+
 		case oldfar::DM_KEY:
 		{
 			if (!Param1 || !Param2) return FALSE;
@@ -2194,7 +2208,6 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 			{
 				KeyToInputRecord(OldKeyToKey(KeysA[i]),KeysW+i);
 			}
-
 			INT_PTR ret = FarSendDlgMessage(hDlg, DM_KEY, Param1, (INT_PTR)KeysW);
 			xf_free(KeysW);
 			return ret;

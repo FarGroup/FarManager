@@ -609,10 +609,12 @@ BOOL CheckAndUpdateConsole(BOOL IsChangeConsole)
 	return IsChangeConsole;
 }
 
-INT_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
+const FARMESSAGE DM_CALLTREE = static_cast<FARMESSAGE>(DM_USER+1);
+const FARMESSAGE DM_SWITCHRO = static_cast<FARMESSAGE>(DM_USER+2);
+
+INT_PTR WINAPI CopyDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
 {
-#define DM_CALLTREE (DM_USER+1)
-#define DM_SWITCHRO (DM_USER+2)
+
 	CopyDlgParam *DlgParam=(CopyDlgParam *)SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
 
 	switch (Msg)
@@ -3561,9 +3563,9 @@ enum WarnDlgItems
 	WDLG_CANCEL,
 };
 
-#define DM_OPENVIEWER DM_USER+33
+const FARMESSAGE DM_OPENVIEWER = static_cast<FARMESSAGE>(DM_USER+33);
 
-INT_PTR WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI WarnDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
 {
 	switch (Msg)
 	{

@@ -134,9 +134,9 @@ struct SetAttrDlgParam
 	bool OLastWriteTime, OCreationTime, OLastAccessTime, OChangeTime;
 };
 
-#define DM_SETATTR (DM_USER+1)
+const FARMESSAGE DM_SETATTR = static_cast<FARMESSAGE>(DM_USER+1);
 
-INT_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
 {
 	SetAttrDlgParam *DlgParam=reinterpret_cast<SetAttrDlgParam*>(SendDlgMessage(hDlg,DM_GETDLGDATA,0,0));
 

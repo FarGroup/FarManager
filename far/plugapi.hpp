@@ -119,9 +119,9 @@ HANDLE WINAPI FarDialogInit(INT_PTR PluginNumber, const GUID* Id, int X1, int Y1
 int WINAPI FarDialogRun(HANDLE hDlg);
 void WINAPI FarDialogFree(HANDLE hDlg);
 //  Функция обработки диалога по умолчанию
-INT_PTR WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2);
+INT_PTR WINAPI FarDefDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2);
 // Посылка сообщения диалогу
-INT_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1, INT_PTR Param2);
+INT_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,FARMESSAGE Msg,int Param1, INT_PTR Param2);
 
 int WINAPI farPluginsControl(HANDLE hHandle, FAR_PLUGINS_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2);
 
