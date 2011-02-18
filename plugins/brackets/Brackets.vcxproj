@@ -403,143 +403,143 @@
     <None Include="Brackets.vc.def" />
     <None Include="BracketsW.vc.def" />
     <CustomBuild Include="BrackEng.lng">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="BrackRus.lng">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="BrackEng.hlf">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="BrackRus.hlf">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="BrackDel.reg">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="BrackEng.reg">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="BrackRus.reg">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Converting %(Identity)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\common\convert.exe %(Identity) $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <None Include="changelog" />
