@@ -6738,7 +6738,7 @@ int KeyMacro::GetMacroKeyInfo(bool FromReg,int Mode,int Pos, string &strKeyName,
 			string strRegKeyName;
 			strUpKeyName.Format(L"KeyMacros\\%s",GetSubKey(Mode));
 
-			if (Mode >= MACRO_OTHER || Mode == MACRO_FUNCS)
+			if (Mode >= MACRO_OTHER)
 			{
 				string strSyntax, strDescr;
 
@@ -6767,6 +6767,11 @@ int KeyMacro::GetMacroKeyInfo(bool FromReg,int Mode,int Pos, string &strKeyName,
 					strKeyName.Clear();
 
 				return Pos+1;
+			}
+			else if (Mode >= MACRO_OTHER)
+			{
+				// TODO: MACRO_FUNCS
+				return -1;
 			}
 			else
 			{
@@ -6800,18 +6805,22 @@ int KeyMacro::GetMacroKeyInfo(bool FromReg,int Mode,int Pos, string &strKeyName,
 		}
 		else
 		{
-			// TODO: MACRO_FUNCS, MACRO_CONSTS & MACRO_VARS
-			if (Mode >= MACRO_OTHER || Mode == MACRO_FUNCS)
+			if (Mode >= MACRO_OTHER)
 			{
-				int Len=CtrlObject->Macro.IndexMode[Mode+3][1];
+				int Len=CtrlObject->Macro.IndexMode[Mode][1];
 
 				if (Len && Pos < Len)
 				{
-					MacroRecord *MPtr=CtrlObject->Macro.MacroLIB+CtrlObject->Macro.IndexMode[Mode+3][0]+Pos;
+					MacroRecord *MPtr=CtrlObject->Macro.MacroLIB+CtrlObject->Macro.IndexMode[Mode][0]+Pos;
 					::KeyToText(MPtr->Key,strKeyName);
 					strDescription=NullToEmpty(MPtr->Description);
 					return Pos+1;
 				}
+			}
+			else if (Mode == MACRO_FUNCS)
+			{
+				// TODO: MACRO_FUNCS
+				return -1;
 			}
 			else
 			{
