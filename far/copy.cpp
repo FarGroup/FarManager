@@ -1851,11 +1851,16 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 	}
 
 	string strDest = Dest;
-
+	bool UseWildCards = wcspbrk(Dest,L"*?")!=nullptr;
 	if (!(Flags&FCOPY_COPYTONUL))
 	{
-		if (wcspbrk(Dest,L"*?"))
+		SrcPanel->GetSelName(nullptr,FileAttr);
+		SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName);
+		SelectedFolderNameLength = (FileAttr & FILE_ATTRIBUTE_DIRECTORY)?(int)strSelName.GetLength():0;
+		if (UseWildCards)
+		{
 			ConvertWildcards(strSelName, strDest, SelectedFolderNameLength);
+		}
 
 		DestAttr=apiGetFileAttributes(strDest);
 
@@ -1866,7 +1871,6 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 			DestDriveType=FAR_GetDriveType(wcschr(strDest,L'\\') ? strDestDriveRoot.CPtr():nullptr);
 		}
 	}
-	string strDestPath = strDest;
 
 	// "замочим" к едрене фени симлинк - копируем полный контент, независимо от опции
 	// (но не для случая переименования линка по сети)
@@ -1892,6 +1896,13 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 	while (SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName))
 	{
 		SelectedFolderNameLength = (FileAttr & FILE_ATTRIBUTE_DIRECTORY)?(int)strSelName.GetLength():0;
+		if (UseWildCards)
+		{
+			strDest = Dest;
+			ConvertWildcards(strSelName, strDest, SelectedFolderNameLength);
+		}
+
+		string strDestPath = strDest;
 
 		FAR_FIND_DATA_EX SrcData;
 		int CopyCode=COPY_SUCCESS,KeepPathPos;
