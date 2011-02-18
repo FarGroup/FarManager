@@ -2591,7 +2591,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 			AddEndSlash(strTempDir);
 			GetPathRoot(strTempDir, strRootDir);
 
-			if ((strCurDir.At(0) == L'\\' && strCurDir.At(1) == L'\\' && !StrCmp(strTempDir,strRootDir)) || IsLocalRootPath(strCurDir))
+			if ((strCurDir.At(0) == L'\\' && strCurDir.At(1) == L'\\' && !StrCmpI(strTempDir,strRootDir)) || IsLocalRootPath(strCurDir))
 			{
 				string strDirName;
 				strDirName = strCurDir;
@@ -3866,9 +3866,11 @@ void FileList::CopyFiles()
 		{
 			DataSize++;
 			Clipboard clip;
-			clip.Open();
-			clip.CopyHDROP(CopyData, DataSize*sizeof(WCHAR));
-			clip.Close();
+			if(clip.Open())
+			{
+				clip.CopyHDROP(CopyData, DataSize*sizeof(WCHAR));
+				clip.Close();
+			}
 			xf_free(CopyData);
 		}
 	}
