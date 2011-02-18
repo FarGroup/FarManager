@@ -10,4 +10,4 @@ DOCS = HelloWorld_en.hlf HelloWorld_ru.hlf HelloWorld_en.lng HelloWorld_ru.lng
 
 !include ..\makefile_vc_target_inc
 
-$(OBJDIR)\HelloWorld.obj: HelloWorld.cpp $(COMINC)\plugin.hpp
+$(OBJDIR)\HelloWorld.obj: HelloWorld.cpp HelloWorldLng.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp

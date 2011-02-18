@@ -1,6 +1,11 @@
 #include <windows.h>
 #include "plugin.hpp"
 #include "CRT/crt.hpp"
+#include "HelloWorldLng.hpp"
+#include "version.hpp"
+#include <initguid.h>
+#include "guid.hpp"
+
 
 #if defined(__GNUC__)
 
@@ -14,86 +19,81 @@ extern "C"{
 
 BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 {
-  (void) lpReserved;
-  (void) dwReason;
-  (void) hDll;
-  return TRUE;
+	(void) lpReserved;
+	(void) dwReason;
+	(void) hDll;
+	return TRUE;
 }
 #endif
 
-enum {
-  MTitle,
-  MMessage1,
-  MMessage2,
-  MMessage3,
-  MMessage4,
-  MButton,
-};
-
 static struct PluginStartupInfo Info;
 
-int WINAPI EXP_NAME(GetMinFarVersion)()
+void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 {
-  return FARMANAGERVERSION;
+	Info->StructSize=sizeof(GlobalInfo);
+	Info->MinFarVersion=FARMANAGERVERSION;
+	Info->Version=PLUGIN_VERSION;
+	Info->Guid=MainGuid;
+	Info->Title=PLUGIN_NAME;
+	Info->Description=PLUGIN_DESC;
+	Info->Author=PLUGIN_AUTHOR;
 }
 
 /*
  Функция GetMsg возвращает строку сообщения из языкового файла.
  А это надстройка над Info.GetMsg для сокращения кода :-)
 */
-const TCHAR *GetMsg(int MsgId)
+const wchar_t *GetMsg(int MsgId)
 {
-  return(Info.GetMsg(Info.ModuleNumber,MsgId));
+	return Info.GetMsg(&MainGuid,MsgId);
 }
 
 /*
-Функция SetStartupInfo вызывается один раз, перед всеми
+Функция SetStartupInfoW вызывается один раз, перед всеми
 другими функциями. Она передается плагину информацию,
 необходимую для дальнейшей работы.
 */
-void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *psi)
+void WINAPI SetStartupInfoW(const struct PluginStartupInfo *psi)
 {
-  Info=*psi;
+	Info=*psi;
 }
 
 /*
-Функция GetPluginInfo вызывается для получения основной
-  (general) информации о плагине
+Функция GetPluginInfoW вызывается для получения информации о плагине
 */
-void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *pi)
+void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 {
-  static const TCHAR *PluginMenuStrings[1];
-
-  pi->StructSize=sizeof(struct PluginInfo);
-  pi->Flags=PF_EDITOR;
-
-  PluginMenuStrings[0]=GetMsg(MTitle);
-  pi->PluginMenuStrings=PluginMenuStrings;
-  pi->PluginMenuStringsNumber=ARRAYSIZE(PluginMenuStrings);
+	Info->StructSize=sizeof(*Info);
+	Info->Flags=PF_EDITOR;
+	static const wchar_t *PluginMenuStrings[1];
+	PluginMenuStrings[0]=GetMsg(MTitle);
+	Info->PluginMenu.Guids=&MenuGuid;
+	Info->PluginMenu.Strings=PluginMenuStrings;
+	Info->PluginMenu.Count=ARRAYSIZE(PluginMenuStrings);
 }
 
 /*
-  Функция OpenPlugin вызывается при создании новой копии плагина.
+  Функция OpenPluginW вызывается при создании новой копии плагина.
 */
-HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR item)
+HANDLE WINAPI OpenPluginW(int OpenFrom,const GUID* Guid,INT_PTR Item)
 {
-  const TCHAR *Msg[]=
-  {
-    GetMsg(MTitle),
-    GetMsg(MMessage1),
-    GetMsg(MMessage2),
-    GetMsg(MMessage3),
-    GetMsg(MMessage4),
-    _T("\x01"),                              /* separator line */
-    GetMsg(MButton),
-  };
+	const wchar_t *MsgItems[]=
+	{
+		GetMsg(MTitle),
+		GetMsg(MMessage1),
+		GetMsg(MMessage2),
+		GetMsg(MMessage3),
+		GetMsg(MMessage4),
+		L"\x01",                      /* separator line */
+		GetMsg(MButton),
+	};
 
-  Info.Message(Info.ModuleNumber,            /* PluginNumber */
-               FMSG_WARNING|FMSG_LEFTALIGN,  /* Flags */
-               _T("Contents"),               /* HelpTopic */
-               Msg,                          /* Items */
-               ARRAYSIZE(Msg),               /* ItemsNumber */
-               1);                           /* ButtonsNumber */
+	Info.Message(&MainGuid,           /* GUID */
+		FMSG_WARNING|FMSG_LEFTALIGN,  /* Flags */
+		L"Contents",                  /* HelpTopic */
+		MsgItems,                     /* Items */
+		ARRAYSIZE(MsgItems),          /* ItemsNumber */
+		1);                           /* ButtonsNumber */
 
   return  INVALID_HANDLE_VALUE;
 }
