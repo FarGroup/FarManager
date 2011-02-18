@@ -3,6 +3,99 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 18.02.2011 15:36:25 +0300 - build 1882
+
+1. Correction of build 1880
+
+drkns 18.02.2011 13:50:12 +0200 - build 1881
+
+1. Mantis#0001714: Error at the attempt of leaving to shares list via "..".
+
+2. Mantis#0001716: Ctrl+C in panels does not copy files to clipboard.
+
+svs 18.02.2011 11:10:57 +0300 - build 1880
+
+1. Mantis#0001482: <!Macro:Vars!> and <!Macro:Consts!> output improvement
+   Now these (and similar) construcctions in help take information from
+   memory only (not from the registry).
+   At the moment, there's a little drawback - the list is unsorted.
+
+drkns 18.02.2011 09:21:21 +0200 - build 1879
+
+1. In 1810, renaming to "*.ext" was broken.
+
+drkns 17.02.2011 17:03:03 +0200 - build 1878
+
+1. Bugs in wrapper.
+
+drkns 17.02.2011 14:39:39 +0200 - build 1877
+
+1. gcc.
+
+drkns 17.02.2011 12:35:35 +0200 - build 1876
+
+1. Correction of types in plugin.hpp.
+
+2. Bugs in wrapper.
+
+drkns 16.02.2011 21:03:11 +0200 - build 1875
+
+1. Techinfo #48 is removed.
+
+drkns 16.02.2011 19:57:08 +0200 - build 1874
+
+1. Correction of types in plugin.hpp.
+
+drkns 16.02.2011 17:00:00 +0200 - build 1873
+
+1. Correction of types in plugin.hpp.
+
+2. vc build.
+
+3. warnings.
+
+zg 16.02.2011 12:32:54 +0200 - build 1872
+
+1. SettingsControl:
+
+   SCTL_ENUM              - get the list of subkeys and values.
+                            hHandle - HANDLE returned by SCTL_CREATE.
+                            Param2 - pointer to FarSettingsEnum.
+                            Root - subkey descriptor where to get information from.
+                            Count - the number of returned elements.
+                            Items - elements.
+
+zg 16.02.2011 02:23:03 +0200 - build 1871
+
+1. Settings storage API:
+
+   int WINAPI SettingsControl(HANDLE hHandle, int Command, int Param1, INT_PTR Param2)
+
+   Command:
+
+   SCTL_CREATE            - hHandle - INVALID_HANDLE_VALUE.
+                            Param2 - FarSettingsCreate, in - plugin's GUID, out - settings handle.
+                            Return FALSE if failed.
+   SCTL_FREE              - hHandle - HANDLE returned by SCTL_CREATE.
+   SCTL_SET               - hHandle - HANDLE returned by SCTL_CREATE.
+                            Param2 - pointer to FarSettingsItem.
+                            Root - specifies the place for settings storage. 0 - root for the plugin. subkeys are made with SCTL_SUBKEY.
+                            Name - the name of the stored value.
+                            Type - type.
+                            Value - the value itself.
+   SCTL_GET               - hHandle - HANDLE returned by SCTL_CREATE.
+                            Param2 - pointer to FarSettingsItem.
+                            Value is filled in by FAR, the rest is done by the plugin.
+   SCTL_SUBKEY            - hHandle - HANDLE returned by SCTL_CREATE.
+                            Param2 - pointer to FarSettingsValue.
+                            return the descriptor of a subkey named Value for a subkey with "Root" descriptor.
+
+2. PluginStartupInfo.RootKey field is removed.
+
+t-rex 16.02.2011 01:00:45 +0200 - build 1870
+
+1. Miscellaneous additions and corrections in DialogBuilder.
+
 t-rex 14.02.2011 21:28:51 +0200 - build 1869
 
 1. DialogBuilder: DIF_3STATE, DlgProc and UserParam support, one may omit a separator before Ok/Cancel.
