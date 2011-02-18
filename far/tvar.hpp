@@ -179,7 +179,7 @@ class TVarSet : public TAbstractSet
 };
 
 extern int isVar(TVarTable, const wchar_t*);
-extern TVarSet *varEnum(TVarTable, int, int);
+extern TVarSet *varEnum(TVarTable, int);
 extern TVarSet *varLook(TVarTable worktable, const wchar_t* name, bool ins=false);
 extern void varKill(TVarTable, const wchar_t*);
 extern void initVTable(TVarTable);

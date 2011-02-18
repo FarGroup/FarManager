@@ -5266,30 +5266,29 @@ int KeyMacro::WriteVarsConst(int WriteMode)
 	string strValueName;
 	TVarTable *t = (WriteMode==MACRO_VARS)?&glbVarTable:&glbConstTable;
 
-	for (int I=0; I < V_TABLE_SIZE; I++)
-		for (int J=0;; ++J)
+	for (int I=0; ; I++)
+	{
+		TVarSet *var=varEnum(*t,I);
+
+		if (!var)
+			break;
+
+		strValueName = var->str;
+		strValueName = (WriteMode==MACRO_VARS?L"%":L"")+strValueName;
+
+		switch (var->value.type())
 		{
-			TVarSet *var=varEnum(*t,I,J);
-
-			if (!var)
+			case vtInteger:
+				SetRegKey64(strUpKeyName,strValueName,var->value.i());
 				break;
-
-			strValueName = var->str;
-			strValueName = (WriteMode==MACRO_VARS?L"%":L"")+strValueName;
-
-			switch (var->value.type())
-			{
-				case vtInteger:
-					SetRegKey64(strUpKeyName,strValueName,var->value.i());
-					break;
-				case vtDouble:
-					//_RegWriteString(strUpKeyName,strValueName,var->value.d());
-					break;
-				case vtString:
-					_RegWriteString(strUpKeyName,strValueName,var->value.s());
-					break;
-			}
+			case vtDouble:
+				//_RegWriteString(strUpKeyName,strValueName,var->value.d());
+				break;
+			case vtString:
+				_RegWriteString(strUpKeyName,strValueName,var->value.s());
+				break;
 		}
+	}
 
 	return TRUE;
 }
@@ -6816,11 +6815,7 @@ int KeyMacro::GetMacroKeyInfo(bool FromReg,int Mode,int Pos, string &strKeyName,
 			}
 			else
 			{
-				TVarTable *t = (Mode==MACRO_VARS)?&glbVarTable:&glbConstTable;
-				int I, J;
-				I=Pos % V_TABLE_SIZE;
-				J=Pos / V_TABLE_SIZE;
-				TVarSet *var=varEnum(*t,I,J);
+				TVarSet *var=varEnum((Mode==MACRO_VARS)?glbVarTable:glbConstTable,Pos);
 
 				if (!var)
 					return -1;
