@@ -1708,15 +1708,16 @@ TVarSet *varEnum(TVarTable table,int Index)
 		{
 			for (int J=0;; ++J)
 			{
-				if (!(n = ((TVarSet*)n->next)))
-					break;
-
 				if (Index == Idx++)
 				{
 					nfound=n;
 					found=true;
 					break;
 				}
+
+				if (!(n = ((TVarSet*)n->next)))
+					break;
+
 			}
 		}
 		if (found)
