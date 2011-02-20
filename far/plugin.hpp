@@ -2177,17 +2177,17 @@ struct KeyBarTitles
 	struct KeyBarLabel *Labels;
 };
 
-enum OPERATION_MODES
-{
-	OPM_SILENT     =0x0001,
-	OPM_FIND       =0x0002,
-	OPM_VIEW       =0x0004,
-	OPM_EDIT       =0x0008,
-	OPM_TOPLEVEL   =0x0010,
-	OPM_DESCR      =0x0020,
-	OPM_QUICKVIEW  =0x0040,
-	OPM_PGDN       =0x0080,
-};
+typedef unsigned __int64 OPERATION_MODES;
+static const OPERATION_MODES
+	OPM_NONE       =0,
+	OPM_SILENT     =0x0000000000000001ULL,
+	OPM_FIND       =0x0000000000000002ULL,
+	OPM_VIEW       =0x0000000000000004ULL,
+	OPM_EDIT       =0x0000000000000008ULL,
+	OPM_TOPLEVEL   =0x0000000000000010ULL,
+	OPM_DESCR      =0x0000000000000020ULL,
+	OPM_QUICKVIEW  =0x0000000000000040ULL,
+	OPM_PGDN       =0x0000000000000080ULL;
 
 struct OpenPluginInfo
 {
@@ -2265,24 +2265,24 @@ extern "C"
 	void   WINAPI ClosePluginW(HANDLE hPlugin);
 	int    WINAPI CompareW(HANDLE hPlugin,const struct PluginPanelItem *Item1,const struct PluginPanelItem *Item2,OPENPLUGININFO_SORTMODES Mode);
 	int    WINAPI ConfigureW(const GUID* Guid);
-	int    WINAPI DeleteFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
+	int    WINAPI DeleteFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,OPERATION_MODES OpMode);
 	void   WINAPI ExitFARW(void);
 	void   WINAPI FreeFindDataW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber);
 	void   WINAPI FreeVirtualFindDataW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber);
-	int    WINAPI GetFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t **DestPath,int OpMode);
-	int    WINAPI GetFindDataW(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
+	int    WINAPI GetFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t **DestPath,OPERATION_MODES OpMode);
+	int    WINAPI GetFindDataW(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,OPERATION_MODES OpMode);
 	void   WINAPI GetGlobalInfoW(struct GlobalInfo *Info);
 	void   WINAPI GetOpenPluginInfoW(HANDLE hPlugin,struct OpenPluginInfo *Info);
 	void   WINAPI GetPluginInfoW(struct PluginInfo *Info);
 	int    WINAPI GetVirtualFindDataW(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,const wchar_t *Path);
-	int    WINAPI MakeDirectoryW(HANDLE hPlugin,const wchar_t **Name,int OpMode);
-	HANDLE WINAPI OpenFilePluginW(const wchar_t *Name,const unsigned char *Data,int DataSize,int OpMode);
-	HANDLE WINAPI OpenPluginW(OPENPLUGININFO_SORTMODES OpenFrom,const GUID* Guid,INT_PTR Data);
+	int    WINAPI MakeDirectoryW(HANDLE hPlugin,const wchar_t **Name,OPERATION_MODES OpMode);
+	HANDLE WINAPI OpenFilePluginW(const wchar_t *Name,const unsigned char *Data,int DataSize,OPERATION_MODES OpMode);
+	HANDLE WINAPI OpenPluginW(OPENPLUGIN_OPENFROM OpenFrom,const GUID* Guid,INT_PTR Data);
 	int    WINAPI ProcessDialogEventW(int Event,void *Param);
 	int    WINAPI ProcessEditorEventW(int Event,void *Param);
 	int    WINAPI ProcessEditorInputW(const INPUT_RECORD *Rec);
 	int    WINAPI ProcessEventW(HANDLE hPlugin,int Event,void *Param);
-	int    WINAPI ProcessHostFileW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
+	int    WINAPI ProcessHostFileW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,OPERATION_MODES OpMode);
 	int    WINAPI ProcessKeyW(HANDLE hPlugin,const INPUT_RECORD *Rec);
 #ifdef FAR_USE_INTERNALS
 	#if defined(PROCPLUGINMACROFUNC)
@@ -2291,8 +2291,8 @@ extern "C"
 #endif // END FAR_USE_INTERNALS
 	int    WINAPI ProcessSynchroEventW(int Event,void *Param);
 	int    WINAPI ProcessViewerEventW(int Event,void *Param);
-	int    WINAPI PutFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t *SrcPath,int OpMode);
-	int    WINAPI SetDirectoryW(HANDLE hPlugin,const wchar_t *Dir,int OpMode);
+	int    WINAPI PutFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t *SrcPath,OPERATION_MODES OpMode);
+	int    WINAPI SetDirectoryW(HANDLE hPlugin,const wchar_t *Dir,OPERATION_MODES OpMode);
 	int    WINAPI SetFindListW(HANDLE hPlugin,const struct PluginPanelItem *PanelItem,int ItemsNumber);
 	void   WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info);
 
