@@ -39,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 
 // обработать имя файла: сравнить с маской, масками, сгенерировать по маске
-int WINAPI ProcessName(const wchar_t *param1, wchar_t *param2, DWORD size, DWORD flags)
+int WINAPI ProcessName(const wchar_t *param1, wchar_t *param2, DWORD size, PROCESSNAME_FLAGS flags)
 {
 	bool skippath = (flags&PN_SKIPPATH)!=0;
 

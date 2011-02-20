@@ -643,6 +643,8 @@ void Dialog::ProcessCenterGroup()
 						case DI_RADIOBUTTON:
 							Length+=5;
 							break;
+						default:
+							break;
 					}
 			}
 
@@ -655,6 +657,8 @@ void Dialog::ProcessCenterGroup()
 					case DI_CHECKBOX:
 					case DI_RADIOBUTTON:
 //            Length-=5;
+						break;
+					default:
 						break;
 				} //Бля, це ж ботва какая-то
 
@@ -674,6 +678,8 @@ void Dialog::ProcessCenterGroup()
 						case DI_CHECKBOX:
 						case DI_RADIOBUTTON:
 							StartX+=5;
+							break;
+						default:
 							break;
 					}
 
@@ -1149,6 +1155,8 @@ BOOL Dialog::SetItemRect(unsigned ID,SMALL_RECT *Rect)
 			CurItem->X2=Rect->Right;
 			CurItem->Y2=Rect->Bottom;
 			break;
+		default:
+			break;
 	}
 
 	if (DialogMode.Check(DMODE_SHOW))
@@ -1315,6 +1323,9 @@ void Dialog::DeleteDialogObjects()
 				if (CurItem->UCData)
 					delete CurItem->UCData;
 
+				break;
+
+			default:
 				break;
 		}
 
@@ -2414,6 +2425,8 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				case DI_TEXT:        return 0; // Текстовая строка.
 				case DI_USERCONTROL: return 255; // Элемент управления, определяемый программистом.
 				case DI_VTEXT:       return 1; // Вертикальная текстовая строка.
+				default:
+					break;
 			}
 
 			return -1;
@@ -2457,6 +2470,8 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				case DI_CHECKBOX:
 				case DI_RADIOBUTTON:
 					return 0;
+				default:
+					break;
 			}
 
 			return 0;
@@ -2470,6 +2485,9 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 			return 0;
 		}
+
+		default:
+			break;
 	}
 
 	return 0;
@@ -4607,7 +4625,7 @@ void Dialog::ResizeConsole()
 //  }
 //};
 
-INT_PTR WINAPI Dialog::DlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI Dialog::DlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 {
 	if (DialogMode.Check(DMODE_ENDLOOP))
 		return 0;
@@ -4636,7 +4654,7 @@ INT_PTR WINAPI Dialog::DlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Par
    Вот именно эта функция и является последним рубежом обработки диалога.
    Т.е. здесь должна быть ВСЯ обработка ВСЕХ сообщений!!!
 */
-INT_PTR WINAPI DefDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 {
 	_DIALOG(CleverSysLog CL(L"Dialog.DefDlgProc()"));
 	_DIALOG(SysLog(L"hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",hDlg,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
@@ -4727,6 +4745,8 @@ INT_PTR WINAPI DefDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
 
 			return Result;
 		}
+		default:
+			break;
 	}
 
 	// предварительно проверим...
@@ -4760,12 +4780,14 @@ INT_PTR WINAPI DefDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
 			return FALSE;
 		case DM_SETSELECTION:
 			return FALSE;
+		default:
+			break;
 	}
 
 	return 0;
 }
 
-INT_PTR Dialog::CallDlgProc(FARMESSAGE nMsg, int nParam1, INT_PTR nParam2)
+INT_PTR Dialog::CallDlgProc(int nMsg, int nParam1, INT_PTR nParam2)
 {
 	CriticalSectionLock Lock(CS);
 	return Dialog::DlgProc((HANDLE)this, nMsg, nParam1, nParam2);
@@ -4777,7 +4799,7 @@ INT_PTR Dialog::CallDlgProc(FARMESSAGE nMsg, int nParam1, INT_PTR nParam2)
    Некоторые сообщения эта функция обрабатывает сама, не передавая управление
    обработчику диалога.
 */
-INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 {
 	if (!hDlg)
 		return 0;
@@ -5089,6 +5111,8 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Para
 		{
 			return DefDlgProc(hDlg,DM_GETDIALOGINFO,Param1,Param2);
 		}
+		default:
+			break;
 	}
 
 	/*****************************************************************/
@@ -5376,6 +5400,8 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Para
 
 							return OldSets;
 						}
+						default:
+							break;
 					}
 
 					// уточнение для DI_COMBOBOX - здесь еще и DlgEdit нужно корректно заполнить
@@ -6344,6 +6370,8 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Para
 
 			break;
 		}
+		default:
+			break;
 	}
 
 	// Все, что сами не отрабатываем - посылаем на обработку обработчику.

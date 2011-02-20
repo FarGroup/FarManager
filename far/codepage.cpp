@@ -610,7 +610,7 @@ wchar_t *FormatCodePageName(UINT CodePage, wchar_t *CodePageName, size_t Length,
 }
 
 // Каллбак для диалога редактирования имени кодовой страницы
-INT_PTR WINAPI EditDialogProc(HANDLE hDlg, FARMESSAGE Msg, int Param1, INT_PTR Param2)
+INT_PTR WINAPI EditDialogProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 {
 	if (Msg==DN_CLOSE)
 	{

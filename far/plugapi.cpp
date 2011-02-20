@@ -427,7 +427,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 				}
 
 				wi->Pos=FrameManager->IndexOf(f);
-				wi->Type=f->GetType();
+				wi->Type=static_cast<WINDOWINFO_TYPE>(f->GetType());
 				wi->Flags=0;
 				if (f->IsFileModified()) wi->Flags|=WIF_MODIFIED;
 				if (f==FrameManager->GetCurrentFrame()) wi->Flags|=WIF_CURRENT;
@@ -641,7 +641,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 			BOOL Result=FALSE;
 			if(Param)
 			{
-				PROGRESSVALUE* PV=reinterpret_cast<PROGRESSVALUE*>(Param);
+				ProgressValue* PV=reinterpret_cast<ProgressValue*>(Param);
 				TBC.SetProgressValue(PV->Completed,PV->Total);
 				Result=TRUE;
 			}
@@ -870,7 +870,7 @@ int WINAPI FarMenuFn(
 }
 
 // Функция FarDefDlgProc обработки диалога по умолчанию
-INT_PTR WINAPI FarDefDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 {
 	if (hDlg) // исключаем лишний вызов для hDlg=0
 		return DefDlgProc(hDlg,Msg,Param1,Param2);
@@ -879,7 +879,7 @@ INT_PTR WINAPI FarDefDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param
 }
 
 // Посылка сообщения диалогу
-INT_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 {
 	if (hDlg) // исключаем лишний вызов для hDlg=0
 		return SendDlgMessage(hDlg,Msg,Param1,Param2);
@@ -1412,6 +1412,8 @@ int WINAPI FarControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int Param1,IN
 
 			return FALSE;
 		}
+		default:
+			break;
 	}
 
 	return FALSE;

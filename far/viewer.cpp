@@ -2119,9 +2119,12 @@ enum SEARCHDLG
 	SD_BUTTON_CANCEL,
 };
 
-const FARMESSAGE DM_SDSETVISIBILITY = static_cast<FARMESSAGE>(DM_USER+1);
+enum
+{
+ DM_SDSETVISIBILITY = DM_USER+1,
+};
 
-INT_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 {
 	switch (Msg)
 	{
@@ -2169,6 +2172,8 @@ INT_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR
 				return FALSE;
 			}
 		}
+		default:
+			break;
 	}
 
 	return DefDlgProc(hDlg,Msg,Param1,Param2);
@@ -3137,7 +3142,7 @@ int Viewer::ViewerControl(int Command,void *Param)
 				Info->FilePos=FilePos;
 				Info->FileSize=FileSize;
 				Info->CurMode=VM;
-				Info->Options=0;
+				Info->Options=VOPT_NONE;
 
 				if (Opt.ViOpt.SavePos)   Info->Options|=VOPT_SAVEFILEPOSITION;
 

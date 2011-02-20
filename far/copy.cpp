@@ -609,10 +609,13 @@ BOOL CheckAndUpdateConsole(BOOL IsChangeConsole)
 	return IsChangeConsole;
 }
 
-const FARMESSAGE DM_CALLTREE = static_cast<FARMESSAGE>(DM_USER+1);
-const FARMESSAGE DM_SWITCHRO = static_cast<FARMESSAGE>(DM_USER+2);
+enum
+{
+	DM_CALLTREE = DM_USER+1,
+	DM_SWITCHRO = DM_USER+2,
+};
 
-INT_PTR WINAPI CopyDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 {
 
 	CopyDlgParam *DlgParam=(CopyDlgParam *)SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
@@ -898,6 +901,9 @@ INT_PTR WINAPI CopyDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
 			}
 		}
 		break;
+
+		default:
+			break;
 	}
 
 	return DefDlgProc(hDlg,Msg,Param1,Param2);
@@ -2366,6 +2372,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				return COPY_NEXT;
 			case COPY_CANCEL:
 				return COPY_CANCEL;
+			default:
+				break;
 		}
 
 		if (SrcData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY ||
@@ -3574,9 +3582,12 @@ enum WarnDlgItems
 	WDLG_CANCEL,
 };
 
-const FARMESSAGE DM_OPENVIEWER = static_cast<FARMESSAGE>(DM_USER+33);
+enum
+{
+ DM_OPENVIEWER = DM_USER+33,
+};
 
-INT_PTR WINAPI WarnDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 {
 	switch (Msg)
 	{
@@ -3672,6 +3683,9 @@ INT_PTR WINAPI WarnDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
 			}
 		}
 		break;
+
+		default:
+			break;
 	}
 
 	return DefDlgProc(hDlg,Msg,Param1,Param2);

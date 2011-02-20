@@ -234,11 +234,16 @@ class DialogBuilderBase
 			case DI_EDIT:
 			case DI_FIXEDIT:
 			case DI_COMBOBOX:
-				int Width = Item.X2 - Item.X1 + 1;
-				// стрелка history занимает дополнительное место, но раньше она рисовалась поверх рамки???
-				if (Item.Flags & DIF_HISTORY)
-					Width++;
-				return Width;
+				{
+					int Width = Item.X2 - Item.X1 + 1;
+					// стрелка history занимает дополнительное место, но раньше она рисовалась поверх рамки???
+					if (Item.Flags & DIF_HISTORY)
+						Width++;
+					return Width;
+				}
+				break;
+
+			default:
 				break;
 			}
 			return 0;

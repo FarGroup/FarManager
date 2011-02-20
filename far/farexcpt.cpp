@@ -122,7 +122,7 @@ static DWORD Flags=0;                  // дополнительные флаги - пока только оди
 
 extern void CreatePluginStartupInfo(Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
-INT_PTR WINAPI ExcDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI ExcDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 {
 	switch (Msg)
 	{
@@ -157,6 +157,8 @@ INT_PTR WINAPI ExcDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
 				}
 			}
 		}
+		break;
+	default:
 		break;
 	}
 	return DefDlgProc(hDlg,Msg,Param1,Param2);

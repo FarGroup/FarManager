@@ -555,46 +555,51 @@ bool DuplicateReparsePoint(const wchar_t *Src,const wchar_t *Dst)
 	return Result;
 }
 
-int WINAPI FarMkLink(const wchar_t *Src,const wchar_t *Dest,unsigned __int64 Flags)
+int WINAPI FarMkLink(const wchar_t *Src,const wchar_t *Dest, LINK_TYPE Type, MKLINK_FLAGS Flags)
 {
 	int Result=0;
 
 	if (Src && *Src && Dest && *Dest)
 	{
-		int Op=Flags&0xFFFF;
-
-		switch (Op)
+		switch (Type)
 		{
-			case FLINK_HARDLINK:
+			case LINK_HARDLINK:
 				Result=MkHardLink(Src,Dest);
 				break;
-			case FLINK_JUNCTION:
-			case FLINK_VOLMOUNT:
-			case FLINK_SYMLINKFILE:
-			case FLINK_SYMLINKDIR:
-				ReparsePointTypes LinkType=RP_JUNCTION;
-
-				switch (Op)
+			case LINK_JUNCTION:
+			case LINK_VOLMOUNT:
+			case LINK_SYMLINKFILE:
+			case LINK_SYMLINKDIR:
 				{
-					case FLINK_VOLMOUNT:
-						LinkType=RP_VOLMOUNT;
-						break;
-					case FLINK_SYMLINK:
-						LinkType=RP_SYMLINK;
-						break;
-					case FLINK_SYMLINKFILE:
-						LinkType=RP_SYMLINKFILE;
-						break;
-					case FLINK_SYMLINKDIR:
-						LinkType=RP_SYMLINKDIR;
-						break;
-				}
+					ReparsePointTypes LinkType=RP_JUNCTION;
 
-				Result=MkSymLink(Src,Dest,LinkType,(Flags&FLINK_SHOWERRMSG?0:FCOPY_NOSHOWMSGLINK));
+					switch (Type)
+					{
+						case LINK_VOLMOUNT:
+							LinkType=RP_VOLMOUNT;
+							break;
+						case LINK_SYMLINK:
+							LinkType=RP_SYMLINK;
+							break;
+						case LINK_SYMLINKFILE:
+							LinkType=RP_SYMLINKFILE;
+							break;
+						case LINK_SYMLINKDIR:
+							LinkType=RP_SYMLINKDIR;
+							break;
+						default:
+							break;
+					}
+
+					Result=MkSymLink(Src,Dest,LinkType,(Flags&MLF_SHOWERRMSG?0:FCOPY_NOSHOWMSGLINK));
+				}
+				break;
+			default:
+				break;
 		}
 	}
 
-	if (Result && !(Flags&FLINK_DONOTUPDATEPANEL))
+	if (Result && !(Flags&MLF_DONOTUPDATEPANEL))
 		ShellUpdatePanels(nullptr,FALSE);
 
 	return Result;

@@ -89,7 +89,7 @@ enum enumOpenEditor
 
 INT_PTR __stdcall hndOpenEditor(
     HANDLE hDlg,
-    FARMESSAGE msg,
+    int msg,
     int param1,
     INT_PTR param2
 )
@@ -172,7 +172,7 @@ enum enumSaveFileAs
 
 INT_PTR __stdcall hndSaveFileAs(
     HANDLE hDlg,
-    FARMESSAGE msg,
+    int msg,
     int param1,
     INT_PTR param2
 )
@@ -240,6 +240,8 @@ INT_PTR __stdcall hndSaveFileAs(
 
 			break;
 		}
+	default:
+		break;
 	}
 
 	return DefDlgProc(hDlg, msg, param1, param2);

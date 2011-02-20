@@ -252,8 +252,8 @@ class ConsoleTitle;
 class Dialog: public Frame
 {
 		friend class DlgEdit;
-		friend INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2);
-		friend INT_PTR WINAPI DefDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2);
+		friend INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2);
+		friend INT_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2);
 
 	private:
 		bool bInitOK;               // диалог был успешно инициализирован
@@ -346,7 +346,7 @@ class Dialog: public Frame
 		int Do_ProcessSpace();
 		void SetComboBoxPos(DialogItemEx* Item=nullptr);
 
-		INT_PTR CallDlgProc(FARMESSAGE nMsg, int nParam1, INT_PTR nParam2);
+		INT_PTR CallDlgProc(int nMsg, int nParam1, INT_PTR nParam2);
 
 		void ProcessKey(int Key, unsigned ItemPos);
 
@@ -414,7 +414,7 @@ class Dialog: public Frame
 		                  FARDIALOGITEMFLAGS CheckedSet,FARDIALOGITEMFLAGS CheckedSkip,
 		                  FARDIALOGITEMFLAGS Checked3Set=DIF_NONE,FARDIALOGITEMFLAGS Checked3Skip=DIF_NONE);
 
-		INT_PTR WINAPI DlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2);
+		INT_PTR WINAPI DlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2);
 
 		virtual void SetPosition(int X1,int Y1,int X2,int Y2);
 
@@ -426,11 +426,11 @@ class Dialog: public Frame
 		friend class History;
 };
 
-typedef INT_PTR(WINAPI *SENDDLGMESSAGE)(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2);
+typedef INT_PTR(WINAPI *SENDDLGMESSAGE)(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2);
 
-INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2);
+INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2);
 
-INT_PTR WINAPI DefDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2);
+INT_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2);
 
 bool IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos=-1);
 

@@ -3053,6 +3053,8 @@ static bool msaveFunc(const TMacroFunction*)
 			Ret=(DWORD)_RegWriteString(L"KeyMacros\\Vars",strValueName,Result.toString());
 			break;
 		}
+		default:
+			break;
 	}
 
 	VMStack.Push(TVar(Ret==ERROR_SUCCESS?1:0));
@@ -4530,10 +4532,10 @@ done:
 		}
 		case MCODE_OP_PUSHFLOAT:
 		{
-			LARGE_INTEGER i64;
-			i64.u.HighPart=GetOpCode(MR,Work.ExecLIBPos++);   //???
-			i64.u.LowPart=GetOpCode(MR,Work.ExecLIBPos++);    //???
-			VMStack.Push(*(double*)(void*)&i64);
+			union { struct { DWORD l, h; }; double d; } u;
+			u.h = GetOpCode(MR,Work.ExecLIBPos++);   //???
+			u.l = GetOpCode(MR,Work.ExecLIBPos++);    //???
+			VMStack.Push(u.d);
 			goto begin;
 		}
 		case MCODE_OP_PUSHUNKNOWN:
@@ -5287,6 +5289,8 @@ int KeyMacro::WriteVarsConst(int WriteMode)
 			case vtString:
 				_RegWriteString(strUpKeyName,strValueName,var->value.s());
 				break;
+			default:
+				break;
 		}
 	}
 
@@ -5882,7 +5886,7 @@ void KeyMacro::RunStartMacro()
 }
 
 // обработчик диалогового окна назначения клавиши
-INT_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 {
 	string strKeyText;
 	static int LastKey=0;
@@ -6175,7 +6179,7 @@ enum MACROSETTINGSDLG
 	MS_BUTTON_CANCEL,
 };
 
-INT_PTR WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 {
 	static DlgParam *KMParam=nullptr;
 
@@ -6214,6 +6218,9 @@ INT_PTR WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,FARMESSAGE Msg,int Param1
 				return FALSE;
 			}
 
+			break;
+
+		default:
 			break;
 	}
 
@@ -6848,6 +6855,8 @@ int KeyMacro::GetMacroKeyInfo(bool FromReg,int Mode,int Pos, string &strKeyName,
 					}
 					case vtString:
 						strDescription.Format(MSG(MMacroOutputFormatForHelpSz), var->value.s());
+						break;
+					default:
 						break;
 				}
 

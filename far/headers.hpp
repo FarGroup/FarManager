@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #ifndef _DEBUG
-#error WIP FAR build.
+//#error WIP FAR build.
 #endif
 
 #include <new>

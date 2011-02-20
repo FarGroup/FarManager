@@ -379,7 +379,7 @@ namespace oldfar
 	struct FarDialogEvent
 	{
 		HANDLE hDlg;
-		FARMESSAGE Msg;
+		int Msg;
 		int Param1;
 		LONG_PTR Param2;
 		LONG_PTR Result;
@@ -402,7 +402,7 @@ namespace oldfar
 
 	typedef LONG_PTR(WINAPI *FARWINDOWPROC)(
 	    HANDLE   hDlg,
-	    FARMESSAGE Msg,
+	    int Msg,
 	    int      Param1,
 	    LONG_PTR Param2
 	);

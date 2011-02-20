@@ -532,7 +532,7 @@ void GetColor(int PaletteIndex)
 }
 
 
-static INT_PTR WINAPI GetColorDlgProc(HANDLE hDlg, FARMESSAGE Msg, int Param1, INT_PTR Param2)
+static INT_PTR WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 {
 	switch (Msg)
 	{
@@ -574,6 +574,8 @@ static INT_PTR WINAPI GetColorDlgProc(HANDLE hDlg, FARMESSAGE Msg, int Param1, I
 				return TRUE;
 			}
 
+			break;
+		default:
 			break;
 	}
 

@@ -1037,25 +1037,26 @@ char* WINAPI FarMkTempA(char *Dest, const char *Prefix)
 	return Dest;
 }
 
-int WINAPI FarMkLinkA(const char *Src,const char *Dest, DWORD Flags)
+int WINAPI FarMkLinkA(const char *Src,const char *Dest, DWORD OldFlags)
 {
-	string s(Src), d(Dest);
-	int flg=0;
+	string strS(Src), strD(Dest);
+	LINK_TYPE Type = LINK_HARDLINK;
 
-	switch (Flags&0xf)
+	switch (OldFlags&0xf)
 	{
-		case oldfar::FLINK_HARDLINK:    flg = FLINK_HARDLINK; break;
-		case oldfar::FLINK_JUNCTION:    flg = FLINK_JUNCTION; break;
-		case oldfar::FLINK_VOLMOUNT:    flg = FLINK_VOLMOUNT; break;
-		case oldfar::FLINK_SYMLINKFILE: flg = FLINK_SYMLINKFILE; break;
-		case oldfar::FLINK_SYMLINKDIR:  flg = FLINK_SYMLINKDIR; break;
+		case oldfar::FLINK_HARDLINK:    Type = LINK_HARDLINK; break;
+		case oldfar::FLINK_JUNCTION:    Type = LINK_JUNCTION; break;
+		case oldfar::FLINK_VOLMOUNT:    Type = LINK_VOLMOUNT; break;
+		case oldfar::FLINK_SYMLINKFILE: Type = LINK_SYMLINKFILE; break;
+		case oldfar::FLINK_SYMLINKDIR:  Type = LINK_SYMLINKDIR; break;
 	}
 
-	if (Flags&oldfar::FLINK_SHOWERRMSG)       flg|=FLINK_SHOWERRMSG;
+	MKLINK_FLAGS Flags = MLF_NONE;
+	if (OldFlags&oldfar::FLINK_SHOWERRMSG)       Flags|=MLF_SHOWERRMSG;
 
-	if (Flags&oldfar::FLINK_DONOTUPDATEPANEL) flg|=FLINK_DONOTUPDATEPANEL;
+	if (OldFlags&oldfar::FLINK_DONOTUPDATEPANEL) Flags|=MLF_DONOTUPDATEPANEL;
 
-	return FarMkLink(s, d, flg);
+	return FarMkLink(strS, strD, Type, Flags);
 }
 
 int WINAPI GetNumberOfLinksA(const char *Name)
@@ -1426,7 +1427,7 @@ FarList* CurrentList(HANDLE hDlg,int ItemNumber)
 	return Data?&Data->l[ItemNumber]:nullptr;
 }
 
-INT_PTR WINAPI CurrentDlgProc(HANDLE hDlg, oldfar::FARMESSAGE Msg, int Param1, INT_PTR Param2)
+INT_PTR WINAPI CurrentDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 {
 	INT_PTR Ret=0;
 	PDialogData Data=FindCurrentDialogData(hDlg);
@@ -1737,6 +1738,8 @@ void AnsiDialogItemToUnicode(oldfar::FarDialogItem &diA, FarDialogItem &di,FarLi
 
 			break;
 		}
+		default:
+			break;
 	}
 
 	if (diA.Type==oldfar::DI_USERCONTROL)
@@ -1793,6 +1796,8 @@ void FreeUnicodeDialogItem(FarDialogItem &di)
 			if (di.VBuf)
 				xf_free(di.VBuf);
 
+			break;
+		default:
 			break;
 	}
 
@@ -2036,16 +2041,16 @@ public:
 	~StackHandler(){FarDialogEvent e; OriginalEvents.Pop(e);}
 };
 
-INT_PTR WINAPI DlgProcA(HANDLE hDlg, FARMESSAGE NewMsg, int Param1, INT_PTR Param2)
+INT_PTR WINAPI DlgProcA(HANDLE hDlg, int NewMsg, int Param1, INT_PTR Param2)
 {
 	FarDialogEvent e = {hDlg, NewMsg, Param1, Param2};
 	StackHandler sh(e);
 
 	static wchar_t* HelpTopic = nullptr;
-	oldfar::FARMESSAGE Msg = oldfar::DM_FIRST;
+	int Msg = oldfar::DM_FIRST;
 	if(NewMsg>DM_USER)
 	{
-		Msg = static_cast<oldfar::FARMESSAGE>(NewMsg);
+		Msg = NewMsg;
 	}
 	else switch (NewMsg)
 	{
@@ -2153,22 +2158,24 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, FARMESSAGE NewMsg, int Param1, INT_PTR Para
 				}
 			}
 			return FarDefDlgProc(hDlg, NewMsg, Param1, Param2);
+		default:
+			break;
 	}
 
 	return CurrentDlgProc(hDlg, Msg, Param1, Param2);
 }
 
-LONG_PTR WINAPI FarDefDlgProcA(HANDLE hDlg, oldfar::FARMESSAGE Msg, int Param1, LONG_PTR Param2)
+LONG_PTR WINAPI FarDefDlgProcA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 {
 	return FarDefDlgProc(OriginalEvents.Peek()->hDlg, OriginalEvents.Peek()->Msg, OriginalEvents.Peek()->Param1, OriginalEvents.Peek()->Param2);
 }
 
-LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, oldfar::FARMESSAGE OldMsg, int Param1, LONG_PTR Param2)
+LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR Param2)
 {
-	FARMESSAGE Msg = DM_FIRST;
+	int Msg = DM_FIRST;
 	if(OldMsg>oldfar::DM_USER)
 	{
-		Msg = static_cast<FARMESSAGE>(OldMsg);
+		Msg = OldMsg;
 	}
 	else switch (OldMsg)
 	{
@@ -2669,6 +2676,8 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, oldfar::FARMESSAGE OldMsg, int P
 		case oldfar::DM_ALLKEYMODE:
 		case oldfar::DN_ACTIVATEAPP:
 			break;
+		default:
+			break;
 	}
 
 	return FarSendDlgMessage(hDlg, Msg, Param1, Param2);
@@ -2819,6 +2828,8 @@ void ConvertUnicodePanelInfoToAnsi(PanelInfo* PIW, oldfar::PanelInfo* PIA)
 		case SM_OWNER:          PIA->SortMode = oldfar::SM_OWNER;          break;
 		case SM_COMPRESSEDSIZE: PIA->SortMode = oldfar::SM_COMPRESSEDSIZE; break;
 		case SM_NUMLINKS:       PIA->SortMode = oldfar::SM_NUMLINKS;       break;
+		default:
+			break;
 	}
 
 	PIA->Flags = 0;
@@ -3495,6 +3506,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 					case WTYPE_DIALOG: wiA->Type = oldfar::WTYPE_DIALOG; break;
 					case WTYPE_VMENU:  wiA->Type = oldfar::WTYPE_VMENU;  break;
 					case WTYPE_HELP:   wiA->Type = oldfar::WTYPE_HELP;   break;
+					default: break;
 				}
 
 				wiA->Modified = (wi.Flags&WIF_MODIFIED)?true:false;
@@ -3951,7 +3963,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 
 			oldfar::EditorConvertText *ect=(oldfar::EditorConvertText*) Param;
 			UINT CodePage=GetEditorCodePageA();
-			MultiByteRecode(Command==oldfar::ECTL_OEMTOEDITOR ? CP_OEMCP : CodePage, Command==oldfar::ECTL_OEMTOEDITOR ?  CodePage : CP_OEMCP, ect->Text, ect->TextLength);
+			MultiByteRecode(OldCommand==oldfar::ECTL_OEMTOEDITOR ? CP_OEMCP : CodePage, OldCommand==oldfar::ECTL_OEMTOEDITOR ?  CodePage : CP_OEMCP, ect->Text, ect->TextLength);
 			return TRUE;
 		}
 		case oldfar::ECTL_SAVEFILE:
@@ -3995,6 +4007,8 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 						);
 						pIR->Event.KeyEvent.uChar.UnicodeChar=res;
 					}
+					default:
+						break;
 				}
 			}
 
@@ -5759,7 +5773,19 @@ void PluginA::ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest)
 {
 	FreePluginInfo();
 	PI.StructSize = sizeof(PI);
-	PI.Flags = Src.Flags;
+	PI.Flags=PF_NONE;
+	if(Src.Flags&oldfar::PF_PRELOAD)
+		PI.Flags|=PF_PRELOAD;
+	if(Src.Flags&oldfar::PF_DISABLEPANELS)
+		PI.Flags|=PF_DISABLEPANELS;
+	if(Src.Flags&oldfar::PF_EDITOR)
+		PI.Flags|=PF_EDITOR;
+	if(Src.Flags&oldfar::PF_VIEWER)
+		PI.Flags|=PF_VIEWER;
+	if(Src.Flags&oldfar::PF_DIALOG)
+		PI.Flags|=PF_DIALOG;
+	if(Src.Flags&oldfar::PF_FULLCMDLINE)
+		PI.Flags|=PF_FULLCMDLINE;
 
 	if (Src.DiskMenuStringsNumber)
 	{

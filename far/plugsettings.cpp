@@ -82,6 +82,8 @@ int PluginSettings::Set(const FarSettingsItem& Item)
 			case FST_DATA:
 				if (SetRegKey(m_Keys.getItem(Item.Root)->CPtr(),Item.Name,(const BYTE*)Item.Data.Data,static_cast<DWORD>(Item.Data.Size))==ERROR_SUCCESS) result=TRUE;
 				break;
+			default:
+				break;
 		}
 	}
 	return result;
@@ -136,6 +138,8 @@ int PluginSettings::Get(FarSettingsItem& Item)
 						}
 					}
 				}
+				break;
+			default:
 				break;
 		}
 	}
