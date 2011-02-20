@@ -71,7 +71,16 @@ int PluginSettings::Set(const FarSettingsItem& Item)
 		switch(Item.Type)
 		{
 			case FST_SUBKEY:
-			    //BUGBUG: NOT IMPLEMENTED
+				{
+					FarSettingsValue value={Item.Root,Item.Name};
+					int key=SubKey(value);
+					HKEY hKey=CreateRegKey(m_Keys.getItem(key)->CPtr());
+					if (hKey)
+					{
+						result=TRUE;
+						RegCloseKey(hKey);
+					}
+				}
 				break;
 			case FST_QWORD:
 				if (SetRegKey64(m_Keys.getItem(Item.Root)->CPtr(),Item.Name,Item.Number)==ERROR_SUCCESS) result=TRUE;
@@ -224,6 +233,7 @@ int PluginSettings::Delete(const FarSettingsValue& Value)
 			int key=SubKey(Value);
 			DeleteKeyTree(m_Keys.getItem(key)->CPtr());
 		}
+		result=TRUE;
 	}
 	return result;
 }

@@ -1,3 +1,9 @@
+zg 20.02.2011 19:22:59 +0200 - build 1887
+
+1. уточнение SettingsControl(...,SCTL_SET,...): если Type равно FST_SUBKEY, то создаётся ключ с именем Name.
+
+2. уточнение 1886.
+
 zg 20.02.2011 19:00:26 +0200 - build 1886
 
 1. SettingsControl:
