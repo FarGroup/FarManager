@@ -207,7 +207,23 @@ int PluginSettings::Delete(const FarSettingsValue& Value)
 	int result=FALSE;
 	if(Value.Root<m_Keys.getCount())
 	{
-	    //BUGBUG: NOT IMPLEMENTED
+		bool isValue=false;
+		HKEY hKey=OpenRegKey(m_Keys.getItem(Value.Root)->CPtr());
+		if (hKey)
+		{
+			DWORD QueryDataSize=0;
+			if(ERROR_SUCCESS==RegQueryValueEx(hKey,Value.Value,0,nullptr,nullptr,&QueryDataSize)) isValue=true;
+			RegCloseKey(hKey);
+		}
+		if (isValue)
+		{
+			DeleteRegValue(m_Keys.getItem(Value.Root)->CPtr(),Value.Value);
+		}
+		else
+		{
+			int key=SubKey(Value);
+			DeleteKeyTree(m_Keys.getItem(key)->CPtr());
+		}
 	}
 	return result;
 }

@@ -567,7 +567,7 @@ void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::PluginPane
 
 	if(PanelItem.Flags&PPIF_PROCESSDESCR)
 		PanelItemA.Flags|=oldfar::PPIF_PROCESSDESCR;
-	
+
 	if(PanelItem.Flags&PPIF_SELECTED)
 		PanelItemA.Flags|=oldfar::PPIF_SELECTED;
 
