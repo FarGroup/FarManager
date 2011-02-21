@@ -1,3 +1,7 @@
+drkns 21.02.2011 09:36:32 +0200 - build 1888
+
+1. gcc warnings & O3 optimization.
+
 zg 20.02.2011 19:22:59 +0200 - build 1887
 
 1. уточнение SettingsControl(...,SCTL_SET,...): если Type равно FST_SUBKEY, то создаётся ключ с именем Name.
