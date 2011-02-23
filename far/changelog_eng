@@ -3,6 +3,46 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 23.02.2011 20:34:14 +0200 - build 1889
+
+1. VC level 4 warnings.
+
+1. Rollback of 1781.2
+
+drkns 21.02.2011 09:36:32 +0200 - build 1888
+
+1. gcc warnings & O3 optimization.
+
+zg 20.02.2011 19:22:59 +0200 - build 1887
+
+1. correction of SettingsControl(...,SCTL_SET,...): if Type equals to FST_SUBKEY then a key "Name" is created.
+
+2. correction of 1886.
+
+zg 20.02.2011 19:00:26 +0200 - build 1886
+
+1. SettingsControl:
+
+   SCTL_DELETE            - delete subkey or value.
+                            hHandle - HANDLE returned by SCTL_CREATE.
+                            Param2 - pointer to FarSettingsValue.
+                            Root - descriptor of a key containing the thing being deleted.
+                            Value - the name of a subkey or a value to delete.
+
+drkns 20.02.2011 16:53:10 +0200 - build 1885
+
+1. And more.
+
+drkns 20.02.2011 16:36:47 +0200 - build 1884
+
+1. Correction of types in plugin.hpp.
+
+2. gcc warnings.
+
+svs 19.02.2011 10:26:53 +0300 - build 1883
+
+1. Correction of build 1880
+
 svs 18.02.2011 15:36:25 +0300 - build 1882
 
 1. Correction of build 1880
@@ -88,7 +128,7 @@ zg 16.02.2011 02:23:03 +0200 - build 1871
                             Value is filled in by FAR, the rest is done by the plugin.
    SCTL_SUBKEY            - hHandle - HANDLE returned by SCTL_CREATE.
                             Param2 - pointer to FarSettingsValue.
-                            return the descriptor of a subkey named Value for a subkey with "Root" descriptor.
+                            return the descriptor of a subkey named as "Value" for a subkey with "Root" descriptor.
 
 2. PluginStartupInfo.RootKey field is removed.
 
