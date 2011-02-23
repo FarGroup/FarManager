@@ -543,7 +543,6 @@ void Dialog::InitDialog()
 
 		// все объекты проинициализированы!
 		DialogMode.Set(DMODE_INITOBJECTS);
-		DialogInfo di={sizeof(di)};
 
 		DlgProc((HANDLE)this,DN_GOTFOCUS,InitFocus,0);
 	}
@@ -2443,7 +2442,7 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		{
 			static string strId;
 			strId.Format(L"{%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}",Id.Data1,Id.Data2,Id.Data3,Id.Data4[0],Id.Data4[1],Id.Data4[2],Id.Data4[3],Id.Data4[4],Id.Data4[5],Id.Data4[6],Id.Data4[7]);
-			return reinterpret_cast<INT64>(strId.CPtr());
+			return reinterpret_cast<INT_PTR>(strId.CPtr());
 		}
 		case MCODE_V_ITEMCOUNT:
 		case MCODE_V_CURPOS:
@@ -5618,8 +5617,8 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 		//   Return MAKELONG(OldVisible,OldSize)
 		case DM_SETCURSORSIZE:
 		{
-			bool Visible;
-			DWORD Size;
+			bool Visible=0;
+			DWORD Size=0;
 
 			if (IsEdit(Type) && CurItem->ObjPtr)
 			{

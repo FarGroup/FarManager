@@ -84,7 +84,7 @@ class BaseFormat
 
 	public:
 		BaseFormat() {Reset();}
-		~BaseFormat() {}
+		virtual ~BaseFormat() {}
 
 		// attributes
 		void SetPrecision(size_t Precision=static_cast<size_t>(-1)) {_Precision=Precision;}

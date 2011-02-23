@@ -54,7 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "wakeful.hpp"
 
-static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name,const UINT64 Size)
+static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name,UINT64 Size)
 {
 	string strSize;
 	FileSizeToStr(strSize,Size,8,COLUMN_FLOATSIZE|COLUMN_COMMAS);
@@ -70,7 +70,7 @@ static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name,const UIN
 static void PR_DrawGetDirInfoMsg()
 {
 	PreRedrawItem preRedrawItem=PreRedraw.Peek();
-	DrawGetDirInfoMsg((const wchar_t*)preRedrawItem.Param.Param1,(const wchar_t *)preRedrawItem.Param.Param2,reinterpret_cast<const UINT64>(preRedrawItem.Param.Param3));
+	DrawGetDirInfoMsg((const wchar_t*)preRedrawItem.Param.Param1,(const wchar_t *)preRedrawItem.Param.Param2,reinterpret_cast<UINT_PTR>(preRedrawItem.Param.Param3));
 }
 
 int GetDirInfo(const wchar_t *Title,

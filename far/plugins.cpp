@@ -113,7 +113,7 @@ unsigned long CRC32(
 	return crc ^ 0xffffffffL;
 }
 
-enum CRC32A
+enum
 {
 	CRC32_SETSTARTUPINFO   = 0xF537107A,
 	CRC32_GETPLUGININFO    = 0xDB6424B4,
@@ -125,7 +125,7 @@ enum CRC32A
 	CRC32_GETMINFARVERSION = 0x2BBAD952,
 };
 
-enum CRC32W
+enum
 {
 	CRC32_GETGLOBALINFOW   = 0x633EC0C4,
 	CRC32_SETSTARTUPINFOW  = 0x972884E8,
@@ -137,7 +137,7 @@ enum CRC32W
 	CRC32_CONFIGUREW       = 0xDA22131C,
 };
 
-CRC32A ExportCRC32[] =
+DWORD ExportCRC32[] =
 {
 	CRC32_SETSTARTUPINFO,
 	CRC32_GETPLUGININFO,
@@ -149,7 +149,7 @@ CRC32A ExportCRC32[] =
 	CRC32_GETMINFARVERSION
 };
 
-CRC32W ExportCRC32W[] =
+DWORD ExportCRC32W[] =
 {
 	CRC32_GETGLOBALINFOW,
 	CRC32_SETSTARTUPINFOW,
@@ -1563,7 +1563,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 {
 	if(ModalType == MODALTYPE_DIALOG)
 	{
-		if(reinterpret_cast<Dialog*>(FrameManager->GetCurrentFrame())->CheckDialogMode(DMODE_NOPLUGINS))
+		if(static_cast<Dialog*>(FrameManager->GetCurrentFrame())->CheckDialogMode(DMODE_NOPLUGINS))
 		{
 			return 0;
 		}

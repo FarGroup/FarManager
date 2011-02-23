@@ -56,7 +56,7 @@ void LocalUpperInit()
 		CharToOemA(CvtStr,ReverseCvtStr);
 		IsUpperOrLower[I]=0;
 
-		if (IsCharAlphaA(CvtStr[0]) && ReverseCvtStr[0]==I)
+		if (IsCharAlphaA(CvtStr[0]) && ReverseCvtStr[0]==static_cast<char>(I))
 		{
 			IsUpperOrLower[I]=IsCharLowerA(CvtStr[0])?1:(IsCharUpperA(CvtStr[0])?2:0);
 			CharUpperA(CvtStr);

@@ -423,6 +423,8 @@ struct AAData
 	bool& AskApprove;
 	bool& Approve;
 	bool& DontAskAgain;
+	AAData(Event* pEvent, int Why, LPCWSTR Object, bool& AskApprove, bool& Approve, bool& DontAskAgain):
+		pEvent(pEvent), Why(Why), Object(Object), AskApprove(AskApprove), Approve(Approve), DontAskAgain(DontAskAgain){}
 };
 
 void AdminApproveDlgSync(LPVOID Param)
@@ -465,7 +467,7 @@ bool elevation::AdminApproveDlg(int Why, LPCWSTR Object)
 		Recurse = true;
 		GuardLastError error;
 		TaskBarPause TBP;
-		AAData Data={nullptr, Why, Object, AskApprove, Approve, DontAskAgain};
+		AAData Data(nullptr, Why, Object, AskApprove, Approve, DontAskAgain);
 		if(GetCurrentThreadId()!=MainThreadID)
 		{
 			Data.pEvent=new Event();

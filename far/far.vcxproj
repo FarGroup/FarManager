@@ -153,9 +153,10 @@ if not exist bootstrap mkdir bootstrap</Command>
       <AssemblerOutput>NoListing</AssemblerOutput>
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(OutDir)far.pdb</ProgramDataBaseFileName>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <StringPooling>true</StringPooling>
+      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4365;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4917</DisableSpecificWarnings>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -201,8 +202,9 @@ if not exist bootstrap mkdir bootstrap</Command>
       <AssemblerOutput>NoListing</AssemblerOutput>
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4365;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4917</DisableSpecificWarnings>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -246,8 +248,9 @@ if not exist bootstrap mkdir bootstrap</Command>
       <AssemblerOutput>NoListing</AssemblerOutput>
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4365;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4917</DisableSpecificWarnings>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -290,9 +293,10 @@ if not exist bootstrap mkdir bootstrap</Command>
       <AssemblerOutput>NoListing</AssemblerOutput>
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(OutDir)far.pdb</ProgramDataBaseFileName>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <StringPooling>true</StringPooling>
+      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4365;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4917</DisableSpecificWarnings>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -337,8 +341,9 @@ if not exist bootstrap mkdir bootstrap</Command>
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
+      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4365;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4917</DisableSpecificWarnings>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -382,8 +387,9 @@ if not exist bootstrap mkdir bootstrap</Command>
       <AssemblerOutput>NoListing</AssemblerOutput>
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4365;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4917</DisableSpecificWarnings>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>

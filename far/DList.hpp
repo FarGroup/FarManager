@@ -78,7 +78,7 @@ class DList : public CDList
 		Node *Type2Node(const Type *item) {return item ? (Node*)((BYTE*)item-sizeof(Node)) : &root;}
 
 	public:
-		~DList() {Clear();};
+		virtual ~DList() {Clear();};
 
 		//создать новый элемент и поместить его в конец сприска
 		//возвращает указатель на созданный элемент

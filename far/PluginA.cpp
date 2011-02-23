@@ -3361,7 +3361,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 			if (!Param) return FALSE;
 
 			oldfar::ActlKeyMacro *kmA=(oldfar::ActlKeyMacro *)Param;
-			FAR_MACRO_CONTROL_COMMANDS Command;
+			FAR_MACRO_CONTROL_COMMANDS Command = MCTL_LOADALL;
 			int Param1=0;
 			bool Process=true;
 

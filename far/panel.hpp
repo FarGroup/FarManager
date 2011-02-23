@@ -160,7 +160,7 @@ class Panel:public ScreenObject
 		virtual ~Panel();
 
 	public:
-		virtual int SendKeyToPlugin(DWORD Key,BOOL Pred=FALSE) {return FALSE;};
+		virtual int SendKeyToPlugin(DWORD Key,bool Pred=false) {return FALSE;};
 		virtual BOOL SetCurDir(const wchar_t *NewDir,int ClosePlugin);
 		virtual void ChangeDirToCurrent();
 

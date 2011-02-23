@@ -2329,7 +2329,7 @@ int Panel::SetPluginCommand(int Command,int Param1,INT_PTR Param2)
 		{
 			if (GetType()==FILE_PANEL)
 			{
-				reinterpret_cast<FileList*>(this)->PluginClearSelection(Param1);
+				static_cast<FileList*>(this)->PluginClearSelection(Param1);
 				Result=TRUE;
 			}
 			break;

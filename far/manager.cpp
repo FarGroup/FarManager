@@ -768,6 +768,9 @@ static void Test_EXCEPTION_STACK_OVERFLOW(char* target)
 	char Buffer[1024]; /* чтобы быстрее рвануло */
 	strcpy(Buffer, "zzzz");
 	Test_EXCEPTION_STACK_OVERFLOW(Buffer);
+
+	// "side effect" to prevent deletion of this function call due to C4718.
+	Sleep(0);
 }
 #if defined(_MSC_VER)
 #pragma warning( pop )

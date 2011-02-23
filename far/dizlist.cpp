@@ -55,7 +55,7 @@ static int _cdecl SortDizSearch(const void *key,const void *elem);
 struct DizSearchKey
 {
 	const wchar_t *Str;
-	const int Len;
+	int Len;
 };
 
 DizList::DizList():

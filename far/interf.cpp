@@ -315,7 +315,7 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 
 void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx, int Sy)
 {
-	COORD Size;
+	COORD Size={};
 	if (Sx==-1 || Sy==-1)
 	{
 		Console.GetSize(Size);

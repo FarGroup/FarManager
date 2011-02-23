@@ -1606,8 +1606,10 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 					TotalFilesToProcess=1;
 				}
 
-				if (Move)
+				if (Move) // при перемещении "тотал" так же скидывается для "того же диска"
 				{
+					if (!UseFilter && CheckDisksProps(strSrcDir,strNameTmp,CHECKEDPROPS_ISSAMEDISK))
+						ShowTotalCopySize=false;
 					if (CDP.SelCount==1 && CDP.FolderPresent && CheckUpdateAnotherPanel(SrcPanel,strSelName))
 					{
 						NeedUpdateAPanel=TRUE;

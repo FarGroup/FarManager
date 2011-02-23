@@ -33,10 +33,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _DEBUG
-//#error WIP FAR build.
-#endif
-
 #include <new>
 #include <cstdlib>
 #include <cstdio>

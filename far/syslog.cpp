@@ -859,7 +859,7 @@ struct __XXX_Name
 	const wchar_t *Name;
 };
 
-static string _XXX_ToName(int Val,const wchar_t *Pref,__XXX_Name *arrDef,size_t cntArr)
+static string _XXX_ToName(DWORD Val,const wchar_t *Pref,__XXX_Name *arrDef,size_t cntArr)
 {
 	string Name;
 
@@ -1068,7 +1068,7 @@ string __VCTL_ToName(int Command)
 }
 
 
-string __MCODE_ToName(int OpCode)
+string __MCODE_ToName(DWORD OpCode)
 {
 #if defined(SYSLOG)
 #define DEF_MCODE_(m) { MCODE_##m , L#m }
@@ -1350,7 +1350,7 @@ string __FARKEY_ToName(int Key)
 }
 
 
-string __DLGMSG_ToName(int Msg)
+string __DLGMSG_ToName(DWORD Msg)
 {
 #if defined(SYSLOG)
 #define DEF_MESSAGE(m) { m , L#m }

@@ -111,7 +111,7 @@ struct ComboBoxBinding: public DialogItemBinding<T>
 	{
 	}
 
-	~ComboBoxBinding()
+	virtual ~ComboBoxBinding()
 	{
 		delete [] List->Items;
 		delete List;
@@ -379,7 +379,7 @@ class DialogBuilderBase
 		{
 		}
 
-		~DialogBuilderBase()
+		virtual ~DialogBuilderBase()
 		{
 			for(int i=0; i<DialogItemsCount; i++)
 			{

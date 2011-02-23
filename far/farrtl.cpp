@@ -189,7 +189,7 @@ void * __cdecl operator new(size_t size)
 	return res;
 }
 
-void * __cdecl operator new[] (size_t size)
+void * __cdecl operator new[] (size_t size) throw()
 {
 	void * res = operator new(size);
 
@@ -201,7 +201,7 @@ void * __cdecl operator new[] (size_t size)
 	return res;
 }
 
-void operator delete(void *ptr)
+void operator delete(void *ptr) 
 {
 
 #ifdef MEMORY_CHECK
@@ -217,7 +217,7 @@ void operator delete(void *ptr)
 #endif
 }
 
-void __cdecl operator delete[] (void *ptr)
+void __cdecl operator delete[] (void *ptr) throw()
 {
 #ifdef MEMORY_CHECK
 	MEMINFO* Info = reinterpret_cast<MEMINFO*>(reinterpret_cast<LPBYTE>(ptr)-sizeof(MEMINFO));

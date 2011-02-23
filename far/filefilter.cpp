@@ -508,7 +508,7 @@ void FileFilter::ProcessSelection(VMenu *FilterList)
 		}
 		else if (i > (int)(FilterData.getCount() + 2))
 		{
-			const wchar_t *FMask;
+			const wchar_t *FMask=nullptr;
 			wchar_t Mask[MAX_PATH];
 			string strMask1;
 			FilterList->GetUserData(Mask,sizeof(Mask),i);

@@ -917,7 +917,7 @@ int Execute(const wchar_t *CmdStr, // Ком.строка для исполнения
 	bool Visible=false;
 	DWORD Size=0;
 	SMALL_RECT ConsoleWindowRect;
-	COORD ConsoleSize;
+	COORD ConsoleSize={};
 	int ConsoleCP = CP_OEMCP;
 	int ConsoleOutputCP = CP_OEMCP;
 
