@@ -532,7 +532,7 @@ bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 		if (!Result)
 		{
 			string strFullName=Module;
-			LPCWSTR ModuleExt=wcsrchr(Module,L'.');
+			LPCWSTR ModuleExt=wcsrchr(PointToName(Module),L'.');
 			string strPathExt(L".COM;.EXE;.BAT;.CMD;.VBS;.JS;.WSH");
 			apiGetEnvironmentVariable(L"PATHEXT",strPathExt);
 			UserDefinedList PathExtList;
@@ -752,7 +752,6 @@ int PartCmdLine(const wchar_t *CmdStr, string &strNewCmdStr, string &strNewCmdPa
 			        *CmdPtr == L'<' ||
 			        *CmdPtr == L'|' ||
 			        *CmdPtr == L' ' ||
-			        *CmdPtr == L'/' || // вариант "far.exe/?"
 			        *CmdPtr == L'&'    // обработаем разделитель команд
 			   )
 			{
@@ -825,6 +824,11 @@ int Execute(const wchar_t *CmdStr, //  ом.строка дл€ исполнени€
 	string strNewCmdPar;
 	PartCmdLine(CmdStr, strNewCmdStr, strNewCmdPar);
 
+	if(strNewCmdPar.IsEmpty())
+	{
+		DirectRun = true;
+	}
+
 	DWORD dwAttr = apiGetFileAttributes(strNewCmdStr);
 
 	if(RunAs)
@@ -875,11 +879,10 @@ int Execute(const wchar_t *CmdStr, //  ом.строка дл€ исполнени€
 		if (/*!*NewCmdPar && */ dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN)
 		{
 			DWORD Error=0, dwSubSystem2=0;
-			size_t pos;
 
-			if (strNewCmdStr.RPos(pos,L'.'))
+			const wchar_t *ExtPtr=wcsrchr(PointToName(strNewCmdStr), L'.');
+			if (ExtPtr)
 			{
-				const wchar_t *ExtPtr=strNewCmdStr.CPtr()+pos;
 				if (!(!StrCmpI(ExtPtr,L".exe") || !StrCmpI(ExtPtr,L".com") || IsBatchExtType(ExtPtr)))
 				{
 					lpVerb=GetShellAction(strNewCmdStr,dwSubSystem2,Error);
@@ -892,7 +895,7 @@ int Execute(const wchar_t *CmdStr, //  ом.строка дл€ исполнени€
 
 				if (dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN && !StrCmpNI(strNewCmdStr,L"ECHO.",5)) // вариант "echo."
 				{
-					strNewCmdStr.Replace(pos,1,L' ');
+					strNewCmdStr.Replace(4,1,L' ');
 					PartCmdLine(strNewCmdStr,strNewCmdStr,strNewCmdPar);
 
 					if (strNewCmdPar.IsEmpty())
@@ -986,8 +989,11 @@ int Execute(const wchar_t *CmdStr, //  ом.строка дл€ исполнени€
 	if (DirectRun)
 	{
 		seInfo.lpFile = strNewCmdStr;
-		seInfo.lpParameters = strNewCmdPar;
-		seInfo.lpVerb = (dwAttr&FILE_ATTRIBUTE_DIRECTORY)?nullptr:lpVerb?lpVerb:GetShellAction(strNewCmdStr, dwSubSystem, dwError);
+		if(!strNewCmdPar.IsEmpty())
+		{
+			seInfo.lpParameters = strNewCmdPar;
+		}
+		seInfo.lpVerb = dwAttr != INVALID_FILE_ATTRIBUTES && (dwAttr&FILE_ATTRIBUTE_DIRECTORY)?nullptr:lpVerb?lpVerb:GetShellAction(strNewCmdStr, dwSubSystem, dwError);
 	}
 	else
 	{
