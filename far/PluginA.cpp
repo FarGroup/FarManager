@@ -79,7 +79,7 @@ static const wchar_t wszReg_ProcessDialogEvent[]=L"ProcessDialogEvent";
 static const wchar_t wszReg_SetStartupInfo[]=L"SetStartupInfo";
 static const wchar_t wszReg_ClosePanel[]=L"ClosePlugin"; // !ClosePlugin!
 static const wchar_t wszReg_GetPluginInfo[]=L"GetPluginInfo";
-static const wchar_t wszReg_GetOPENPANELINFO[]=L"GetOpenPluginInfo";
+static const wchar_t wszReg_GetOpenPanelInfo[]=L"GetOpenPluginInfo";
 static const wchar_t wszReg_GetFindData[]=L"GetFindData";
 static const wchar_t wszReg_FreeFindData[]=L"FreeFindData";
 static const wchar_t wszReg_GetVirtualFindData[]=L"GetVirtualFindData";
@@ -108,7 +108,7 @@ static const char NFMP_ProcessDialogEvent[]="ProcessDialogEvent";
 static const char NFMP_SetStartupInfo[]="SetStartupInfo";
 static const char NFMP_ClosePanel[]="ClosePlugin"; // !ClosePlugin!
 static const char NFMP_GetPluginInfo[]="GetPluginInfo";
-static const char NFMP_GetOPENPANELINFO[]="GetOpenPluginInfo";
+static const char NFMP_GetOpenPanelInfo[]="GetOpenPluginInfo";
 static const char NFMP_GetFindData[]="GetFindData";
 static const char NFMP_FreeFindData[]="FreeFindData";
 static const char NFMP_GetVirtualFindData[]="GetVirtualFindData";
@@ -4493,7 +4493,7 @@ PluginA::~PluginA()
 	if (RootKey) xf_free(RootKey);
 
 	FreePluginInfo();
-	FreeOPENPANELINFO();
+	FreeOpenPanelInfo();
 	Lang.Close();
 }
 
@@ -4681,7 +4681,7 @@ bool PluginA::Load()
 	pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)GetProcAddress(m_hModule,NFMP_OpenFilePlugin);
 	pClosePanel=(PLUGINCLOSEPANEL)GetProcAddress(m_hModule,NFMP_ClosePanel);
 	pGetPluginInfo=(PLUGINGETPLUGININFO)GetProcAddress(m_hModule,NFMP_GetPluginInfo);
-	pGetOpenPanelInfo=(PLUGINGETOPENPANELINFO)GetProcAddress(m_hModule,NFMP_GetOPENPANELINFO);
+	pGetOpenPanelInfo=(PLUGINGETOPENPANELINFO)GetProcAddress(m_hModule,NFMP_GetOpenPanelInfo);
 	pGetFindData=(PLUGINGETFINDDATA)GetProcAddress(m_hModule,NFMP_GetFindData);
 	pFreeFindData=(PLUGINFREEFINDDATA)GetProcAddress(m_hModule,NFMP_FreeFindData);
 	pGetVirtualFindData=(PLUGINGETVIRTUALFINDDATA)GetProcAddress(m_hModule,NFMP_GetVirtualFindData);
@@ -5523,7 +5523,7 @@ void PluginA::ClosePanel(
 		EXECUTE_FUNCTION(pClosePanel(hPlugin), es);
 	}
 
-	FreeOPENPANELINFO();
+	FreeOpenPanelInfo();
 	//	m_pManager->m_pCurrentPlugin = (Plugin*)-1;
 }
 
@@ -5552,7 +5552,7 @@ int PluginA::SetDirectory(
 	return bResult;
 }
 
-void PluginA::FreeOPENPANELINFO()
+void PluginA::FreeOpenPanelInfo()
 {
 	if (OPI.CurDir)
 		xf_free((void *)OPI.CurDir);
@@ -5593,9 +5593,9 @@ void PluginA::FreeOPENPANELINFO()
 	memset(&OPI,0,sizeof(OPI));
 }
 
-void PluginA::ConvertOPENPANELINFO(oldfar::OpenPanelInfo &Src, OpenPanelInfo *Dest)
+void PluginA::ConvertOpenPanelInfo(oldfar::OpenPanelInfo &Src, OpenPanelInfo *Dest)
 {
-	FreeOPENPANELINFO();
+	FreeOpenPanelInfo();
 	OPI.StructSize = sizeof(OPI);
 	OPI.Flags = 0;
 	if (!(Src.Flags&oldfar::OPIF_USEFILTER)) OPI.Flags|=OPIF_DISABLEFILTER;
@@ -5713,7 +5713,7 @@ void PluginA::GetOpenPanelInfo(
 		es.id = EXCEPT_GETOPENPANELINFO;
 		oldfar::OpenPanelInfo InfoA={0};
 		EXECUTE_FUNCTION(pGetOpenPanelInfo(hPlugin, &InfoA), es);
-		ConvertOPENPANELINFO(InfoA,pInfo);
+		ConvertOpenPanelInfo(InfoA,pInfo);
 	}
 }
 

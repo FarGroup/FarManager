@@ -235,6 +235,6 @@ class PluginA: public Plugin
 
 		void FreePluginInfo();
 		void ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest);
-		void FreeOPENPANELINFO();
-		void ConvertOPENPANELINFO(oldfar::OpenPanelInfo &Src, OpenPanelInfo *Dest);
+		void FreeOpenPanelInfo();
+		void ConvertOpenPanelInfo(oldfar::OpenPanelInfo &Src, OpenPanelInfo *Dest);
 };

@@ -551,7 +551,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 #endif
 }
 
-void GetOPENPANELINFO_Dump(const wchar_t *Title,const OpenPanelInfo *Info,FILE *fp)
+void GetOpenPanelInfo_Dump(const wchar_t *Title,const OpenPanelInfo *Info,FILE *fp)
 {
 #if defined(SYSLOG)
 
