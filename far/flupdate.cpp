@@ -79,8 +79,8 @@ void FileList::Update(int Mode)
 				break;
 			case PLUGIN_PANEL:
 			{
-				OpenPluginInfo Info;
-				CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+				OpenPanelInfo Info;
+				CtrlObject->Plugins.GetOpenPanelInfo(hPlugin,&Info);
 				ProcessPluginCommand();
 
 				if (PanelMode!=PLUGIN_PANEL)
@@ -668,8 +668,8 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	int OldFileCount=0;
 	CloseChangeNotification();
 	LastCurFile=-1;
-	OpenPluginInfo Info;
-	CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+	OpenPanelInfo Info;
+	CtrlObject->Plugins.GetOpenPanelInfo(hPlugin,&Info);
 
 	FreeDiskSize=0;
 	if (Opt.ShowPanelFree)
@@ -885,8 +885,8 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 	{
 		PluginPanelItem *PanelData=nullptr;
 		int PluginFileCount=0;
-		OpenPluginInfo Info;
-		CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+		OpenPanelInfo Info;
+		CtrlObject->Plugins.GetOpenPanelInfo(hPlugin,&Info);
 
 		if (!Info.DescrFilesNumber)
 			return;

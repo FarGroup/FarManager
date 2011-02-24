@@ -101,7 +101,7 @@ struct ARCLIST
 {
 	string strArcName;
 	HANDLE hPlugin;    // Plugin handle
-	UINT64 Flags;       // OpenPluginInfo.Flags
+	UINT64 Flags;       // OpenPanelInfo.Flags
 	string strRootPath; // Root path in plugin after opening.
 };
 
@@ -1124,8 +1124,8 @@ bool GetPluginFile(size_t ArcIndex, const FAR_FIND_DATA_EX& FindData, const wcha
 	_ALGO(CleverSysLog clv(L"FindFiles::GetPluginFile()"));
 	ARCLIST ArcItem;
 	itd.GetArcListItem(ArcIndex, ArcItem);
-	OpenPluginInfo Info;
-	CtrlObject->Plugins.GetOpenPluginInfo(ArcItem.hPlugin,&Info);
+	OpenPanelInfo Info;
+	CtrlObject->Plugins.GetOpenPanelInfo(ArcItem.hPlugin,&Info);
 	string strSaveDir = NullToEmpty(Info.CurDir);
 	AddEndSlash(strSaveDir);
 	CtrlObject->Plugins.SetDirectory(ArcItem.hPlugin,L"\\",OPM_SILENT);
@@ -1758,7 +1758,7 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 					size_t ItemIndex = reinterpret_cast<size_t>(ListBox->GetUserData(nullptr,0));
 					bool RemoveTemp=false;
 					// ѕлагины надо закрывать, если открыли.
-					bool ClosePlugin=false;
+					bool ClosePanel=false;
 					string strSearchFileName;
 					string strTempDir;
 
@@ -1798,7 +1798,7 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 									return TRUE;
 								}
 
-								ClosePlugin = true;
+								ClosePanel = true;
 							}
 							FarMkTempEx(strTempDir);
 							apiCreateDirectory(strTempDir, nullptr);
@@ -1809,9 +1809,9 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 							{
 								apiRemoveDirectory(strTempDir);
 
-								if (ClosePlugin)
+								if (ClosePanel)
 								{
-									CtrlObject->Plugins.ClosePlugin(ArcItem.hPlugin);
+									CtrlObject->Plugins.ClosePanel(ArcItem.hPlugin);
 									ArcItem.hPlugin = INVALID_HANDLE_VALUE;
 									itd.SetArcListItem(FindItem.ArcIndex, ArcItem);
 								}
@@ -1819,9 +1819,9 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 							}
 							else
 							{
-								if (ClosePlugin)
+								if (ClosePanel)
 								{
-									CtrlObject->Plugins.ClosePlugin(ArcItem.hPlugin);
+									CtrlObject->Plugins.ClosePanel(ArcItem.hPlugin);
 									ArcItem.hPlugin = INVALID_HANDLE_VALUE;
 									itd.SetArcListItem(FindItem.ArcIndex, ArcItem);
 								}
@@ -2437,8 +2437,8 @@ void ArchiveSearch(HANDLE hDlg, const wchar_t *ArcName)
 		DisablePluginsOutput=TRUE;
 
 		SearchMode=FINDAREA_FROM_CURRENT;
-		OpenPluginInfo Info;
-		CtrlObject->Plugins.GetOpenPluginInfo(hArc,&Info);
+		OpenPanelInfo Info;
+		CtrlObject->Plugins.GetOpenPanelInfo(hArc,&Info);
 		itd.SetFindFileArcIndex(itd.AddArcListItem(ArcName, hArc, Info.Flags, Info.CurDir));
 		// «апомним каталог перед поиском в архиве. » если ничего не нашли - не рисуем его снова.
 		{
@@ -2454,7 +2454,7 @@ void ArchiveSearch(HANDLE hDlg, const wchar_t *ArcName)
 			itd.GetArcListItem(itd.GetFindFileArcIndex(), ArcItem);
 			{
 				CriticalSectionLock Lock(PluginCS);
-				CtrlObject->Plugins.ClosePlugin(ArcItem.hPlugin);
+				CtrlObject->Plugins.ClosePanel(ArcItem.hPlugin);
 			}
 			ArcItem.hPlugin = INVALID_HANDLE_VALUE;
 			itd.SetArcListItem(itd.GetFindFileArcIndex(), ArcItem);
@@ -2827,16 +2827,16 @@ void DoPreparePluginList(HANDLE hDlg, bool Internal)
 {
 	ARCLIST ArcItem;
 	itd.GetArcListItem(itd.GetFindFileArcIndex(), ArcItem);
-	OpenPluginInfo Info;
+	OpenPanelInfo Info;
 	string strSaveDir;
 	{
 		CriticalSectionLock Lock(PluginCS);
-		CtrlObject->Plugins.GetOpenPluginInfo(ArcItem.hPlugin,&Info);
+		CtrlObject->Plugins.GetOpenPanelInfo(ArcItem.hPlugin,&Info);
 		strSaveDir = Info.CurDir;
 		if (SearchMode==FINDAREA_ROOT || SearchMode==FINDAREA_ALL || SearchMode==FINDAREA_ALL_BUTNETWORK || SearchMode==FINDAREA_INPATH)
 		{
 			CtrlObject->Plugins.SetDirectory(ArcItem.hPlugin,L"\\",OPM_FIND);
-			CtrlObject->Plugins.GetOpenPluginInfo(ArcItem.hPlugin,&Info);
+			CtrlObject->Plugins.GetOpenPanelInfo(ArcItem.hPlugin,&Info);
 		}
 	}
 
@@ -2951,8 +2951,8 @@ bool FindFilesProcess(Vars& v)
 	{
 		Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 		HANDLE hPlugin=ActivePanel->GetPluginHandle();
-		OpenPluginInfo Info;
-		CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+		OpenPanelInfo Info;
+		CtrlObject->Plugins.GetOpenPanelInfo(hPlugin,&Info);
 		itd.SetFindFileArcIndex(itd.AddArcListItem(Info.HostFile, hPlugin, Info.Flags, Info.CurDir));
 
 		if (itd.GetFindFileArcIndex() == LIST_INDEX_NONE)
@@ -3120,8 +3120,8 @@ bool FindFilesProcess(Vars& v)
 
 					if (ArcItem.hPlugin != INVALID_HANDLE_VALUE)
 					{
-						OpenPluginInfo Info;
-						CtrlObject->Plugins.GetOpenPluginInfo(ArcItem.hPlugin,&Info);
+						OpenPanelInfo Info;
+						CtrlObject->Plugins.GetOpenPanelInfo(ArcItem.hPlugin,&Info);
 
 						if (SearchMode==FINDAREA_ROOT ||
 							    SearchMode==FINDAREA_ALL ||
@@ -3285,8 +3285,8 @@ FindFiles::FindFiles()
 
 		if (v.PluginMode)
 		{
-			OpenPluginInfo Info;
-			CtrlObject->Plugins.GetOpenPluginInfo(ActivePanel->GetPluginHandle(),&Info);
+			OpenPanelInfo Info;
+			CtrlObject->Plugins.GetOpenPanelInfo(ActivePanel->GetPluginHandle(),&Info);
 
 			if (!(Info.Flags & OPIF_REALNAMES))
 				FindAskDlg[FAD_CHECKBOX_ARC].Flags |= DIF_DISABLE;

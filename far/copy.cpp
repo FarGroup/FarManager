@@ -1204,8 +1204,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
 			case PLUGIN_PANEL:
 			{
-				OpenPluginInfo Info;
-				DestPanel->GetOpenPluginInfo(&Info);
+				OpenPanelInfo Info;
+				DestPanel->GetOpenPanelInfo(&Info);
 				string strFormat = Info.Format;
 				CopyDlg[ID_SC_TARGETEDIT].strData = strFormat+L":";
 

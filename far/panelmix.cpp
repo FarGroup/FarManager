@@ -211,8 +211,8 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 					else
 					{
 						FileList *SrcFilePanel=(FileList *)SrcPanel;
-						OpenPluginInfo Info;
-						CtrlObject->Plugins.GetOpenPluginInfo(SrcFilePanel->GetPluginHandle(),&Info);
+						OpenPanelInfo Info;
+						CtrlObject->Plugins.GetOpenPanelInfo(SrcFilePanel->GetPluginHandle(),&Info);
 						FileList::AddPluginPrefix(SrcFilePanel,strPathName);
 						if (Info.HostFile && *Info.HostFile)
 						{

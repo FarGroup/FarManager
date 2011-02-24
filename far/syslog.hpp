@@ -73,7 +73,7 @@ string __MOUSE_EVENT_RECORD_Dump(MOUSE_EVENT_RECORD *Rec);
 string __SysLog_LinearDump(LPBYTE Buf,int SizeBuf);
 #define _SysLog_LinearDump(B,S) __SysLog_LinearDump((B),(S)).CPtr()
 
-void GetOpenPluginInfo_Dump(const wchar_t *Title,const struct OpenPluginInfo *Info,FILE *fp);
+void GetOPENPANELINFO_Dump(const wchar_t *Title,const struct OpenPanelInfo *Info,FILE *fp);
 void INPUT_RECORD_DumpBuffer(FILE *fp=nullptr);
 void PanelViewSettings_Dump(const wchar_t *Title,const struct PanelViewSettings &ViewSettings,FILE *fp=nullptr);
 void PluginsStackItem_Dump(const wchar_t *Title,const struct PluginsStackItem *StackItems,int ItemNumber,FILE *fp=nullptr);

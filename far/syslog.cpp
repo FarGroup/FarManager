@@ -551,7 +551,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 #endif
 }
 
-void GetOpenPluginInfo_Dump(const wchar_t *Title,const OpenPluginInfo *Info,FILE *fp)
+void GetOPENPANELINFO_Dump(const wchar_t *Title,const OpenPanelInfo *Info,FILE *fp)
 {
 #if defined(SYSLOG)
 
@@ -563,7 +563,7 @@ void GetOpenPluginInfo_Dump(const wchar_t *Title,const OpenPluginInfo *Info,FILE
 	if (InternalLog)
 	{
 		OpenSysLog();
-		fp=PrintBaner(fp,L"OpenPluginInfo",Title);
+		fp=PrintBaner(fp,L"OpenPanelInfo",Title);
 	}
 
 	if (fp)
@@ -977,7 +977,7 @@ string __FCTL_ToName(int Command)
 #define DEF_FCTL_(m) { FCTL_##m , L#m }
 	__XXX_Name FCTL[]=
 	{
-		DEF_FCTL_(CLOSEPLUGIN),
+		DEF_FCTL_(CLOSEPANEL),
 		DEF_FCTL_(GETPANELINFO),
 		DEF_FCTL_(UPDATEPANEL),
 		DEF_FCTL_(REDRAWPANEL),

@@ -130,8 +130,8 @@ enum
 	CRC32_GETGLOBALINFOW   = 0x633EC0C4,
 	CRC32_SETSTARTUPINFOW  = 0x972884E8,
 	CRC32_GETPLUGININFOW   = 0xEBDA386B,
-	CRC32_OPENPLUGINW      = 0x89BC5B7D,
-	CRC32_OPENFILEPLUGINW  = 0xC2740A22,
+	CRC32_OPENPANELW       = 0x3E6451E4,
+	CRC32_ANALYSEW         = 0x69F30EBB,
 	CRC32_EXITFARW         = 0x4AD48EA6,
 	CRC32_SETFINDLISTW     = 0xF717498F,
 	CRC32_CONFIGUREW       = 0xDA22131C,
@@ -154,8 +154,8 @@ DWORD ExportCRC32W[] =
 	CRC32_GETGLOBALINFOW,
 	CRC32_SETSTARTUPINFOW,
 	CRC32_GETPLUGININFOW,
-	CRC32_OPENPLUGINW,
-	CRC32_OPENFILEPLUGINW,
+	CRC32_OPENPANELW,
+	CRC32_ANALYSEW,
 	CRC32_EXITFARW,
 	CRC32_SETFINDLISTW,
 	CRC32_CONFIGUREW,
@@ -659,71 +659,6 @@ int _cdecl PluginsSort(const void *el1,const void *el2)
 	return (StrCmpI(PointToName(Plugin1->GetModuleName()),PointToName(Plugin2->GetModuleName())));
 }
 
-/* OLD
-HANDLE PluginManager::OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, int DataSize, int OpMode)
-{
-	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-
-	ConsoleTitle ct(Opt.ShowCheckingFile?MSG(MCheckingFileInPlugin):nullptr);
-
-	Plugin *pPlugin = nullptr;
-
-	string strFullName;
-
-	if (Name)
-	{
-		ConvertNameToFull(Name,strFullName);
-		Name = strFullName;
-	}
-
-	for (int i = 0; i < PluginsCount; i++)
-	{
-		pPlugin = PluginsData[i];
-
-		if ( !pPlugin->HasOpenFilePlugin() || (pPlugin->HasAnalyse() && pPlugin->HasOpenPlugin()) )
-			continue;
-
-		if ( Opt.ShowCheckingFile )
-			ct.Set(L"%s - [%s]...",MSG(MCheckingFileInPlugin),PointToName(pPlugin->GetModuleName()));
-
-		HANDLE hPlugin;
-
-		if ( pPlugin->HasOpenFilePlugin() )
-			hPlugin = pPlugin->OpenFilePlugin (Name, Data, DataSize, OpMode);
-		else
-		{
-			AnalyseData AData;
-
-			AData.lpwszFileName = Name;
-			AData.pBuffer = Data;
-			AData.dwBufferSize = DataSize;
-			AData.OpMode = OpMode;
-
-			if ( !pPlugin->Analyse(&AData) )
-				continue;
-
-			hPlugin = pPlugin->OpenPlugin(OPEN_ANALYSE, 0);
-		}
-
-		if (hPlugin == (HANDLE)-2)
-			return hPlugin;
-
-		if (hPlugin != INVALID_HANDLE_VALUE)
-		{
-			PluginHandle *handle = new PluginHandle;
-			handle->hPlugin = hPlugin;
-			handle->pPlugin = pPlugin;
-
-			return (HANDLE)handle;
-		}
-	}
-
-	return INVALID_HANDLE_VALUE;
-}
-
-*/
-
-
 HANDLE PluginManager::OpenFilePlugin(
     const wchar_t *Name,
     int OpMode,
@@ -756,7 +691,7 @@ HANDLE PluginManager::OpenFilePlugin(
 	{
 		pPlugin = PluginsData[i];
 
-		if (!pPlugin->HasOpenFilePlugin() && !(pPlugin->HasAnalyse() && pPlugin->HasOpenPlugin()))
+		if (!pPlugin->HasOpenFilePlugin() && !(pPlugin->HasAnalyse() && pPlugin->HasOpenPanel()))
 			continue;
 
 		if(Name && !DataRead)
@@ -812,9 +747,9 @@ HANDLE PluginManager::OpenFilePlugin(
 		else
 		{
 			AnalyseData AData;
-			AData.lpwszFileName = Name;
-			AData.pBuffer = Data;
-			AData.dwBufferSize = DataSize;
+			AData.FileName = Name;
+			AData.Buffer = Data;
+			AData.BufferSize = DataSize;
 			AData.OpMode = OpMode;
 
 			if (pPlugin->Analyse(&AData))
@@ -884,7 +819,7 @@ HANDLE PluginManager::OpenFilePlugin(
 
 		if (pResult && pResult->hPlugin == INVALID_HANDLE_VALUE)
 		{
-			HANDLE h = pResult->pPlugin->OpenPlugin(OPEN_ANALYSE, FarGuid, 0);
+			HANDLE h = pResult->pPlugin->OpenPanel(OPEN_ANALYSE, FarGuid, 0);
 
 			if (h != INVALID_HANDLE_VALUE)
 				pResult->hPlugin = h;
@@ -900,7 +835,7 @@ HANDLE PluginManager::OpenFilePlugin(
 		if (handle != pResult)
 		{
 			if (handle->hPlugin != INVALID_HANDLE_VALUE)
-				handle->pPlugin->ClosePlugin(handle->hPlugin);
+				handle->pPlugin->ClosePanel(handle->hPlugin);
 		}
 	}
 
@@ -929,7 +864,7 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, int I
 		if (!pPlugin->HasSetFindList())
 			continue;
 
-		HANDLE hPlugin = pPlugin->OpenPlugin(OPEN_FINDLIST, FarGuid, 0);
+		HANDLE hPlugin = pPlugin->OpenPanel(OPEN_FINDLIST, FarGuid, 0);
 
 		if (hPlugin != INVALID_HANDLE_VALUE)
 		{
@@ -996,7 +931,7 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, int I
 		if (handle!=pResult)
 		{
 			if (handle->hPlugin!=INVALID_HANDLE_VALUE)
-				handle->pPlugin->ClosePlugin(handle->hPlugin);
+				handle->pPlugin->ClosePanel(handle->hPlugin);
 		}
 	}
 
@@ -1012,11 +947,11 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, int I
 }
 
 
-void PluginManager::ClosePlugin(HANDLE hPlugin)
+void PluginManager::ClosePanel(HANDLE hPlugin)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	PluginHandle *ph = (PluginHandle*)hPlugin;
-	ph->pPlugin->ClosePlugin(ph->hPlugin);
+	ph->pPlugin->ClosePanel(ph->hPlugin);
 	delete ph;
 }
 
@@ -1314,9 +1249,9 @@ int PluginManager::PutFiles(
 	return Code;
 }
 
-void PluginManager::GetOpenPluginInfo(
+void PluginManager::GetOpenPanelInfo(
     HANDLE hPlugin,
-    OpenPluginInfo *Info
+    OpenPanelInfo *Info
 )
 {
 	if (!Info)
@@ -1324,7 +1259,7 @@ void PluginManager::GetOpenPluginInfo(
 
 	memset(Info, 0, sizeof(*Info));
 	PluginHandle *ph = (PluginHandle*)hPlugin;
-	ph->pPlugin->GetOpenPluginInfo(ph->hPlugin, Info);
+	ph->pPlugin->GetOpenPanelInfo(ph->hPlugin, Info);
 
 	if (!Info->CurDir)  //υμμ...
 		Info->CurDir = L"";
@@ -1785,13 +1720,13 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 		Item=(INT_PTR)&pd;
 	}
 
-	HANDLE hPlugin=OpenPlugin(item.pPlugin,OpenCode,item.Guid,Item);
+	HANDLE hPlugin=OpenPanel(item.pPlugin,OpenCode,item.Guid,Item);
 
 	if (hPlugin!=INVALID_HANDLE_VALUE && !Editor && !Viewer && !Dialog)
 	{
 		if (ActivePanel->ProcessPluginEvent(FE_CLOSE,nullptr))
 		{
-			ClosePlugin(hPlugin);
+			ClosePanel(hPlugin);
 			return FALSE;
 		}
 
@@ -1935,8 +1870,8 @@ bool PluginManager::GetDiskMenuItem(
 
 int PluginManager::UseFarCommand(HANDLE hPlugin,int CommandType)
 {
-	OpenPluginInfo Info;
-	GetOpenPluginInfo(hPlugin,&Info);
+	OpenPanelInfo Info;
+	GetOpenPanelInfo(hPlugin,&Info);
 
 	if (!(Info.Flags & OPIF_REALNAMES))
 		return FALSE;
@@ -2069,7 +2004,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 
 			if (!StrCmpNI(strPrefix, PrStart, (int)Len))
 			{
-				if (PluginsData[I]->Load() && PluginsData[I]->HasOpenPlugin())
+				if (PluginsData[I]->Load() && PluginsData[I]->HasOpenPanel())
 				{
 					PluginData *pD=items.addItem();
 					pD->pPlugin=PluginsData[I];
@@ -2139,7 +2074,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 		CtrlObject->CmdLine->SetString(L"");
 		string strPluginCommand=strCommand.CPtr()+(PData->PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1);
 		RemoveTrailingSpaces(strPluginCommand);
-		HANDLE hPlugin=OpenPlugin(PData->pPlugin,OPEN_COMMANDLINE,FarGuid,(INT_PTR)strPluginCommand.CPtr()); //BUGBUG
+		HANDLE hPlugin=OpenPanel(PData->pPlugin,OPEN_COMMANDLINE,FarGuid,(INT_PTR)strPluginCommand.CPtr()); //BUGBUG
 
 		if (hPlugin!=INVALID_HANDLE_VALUE)
 		{
@@ -2183,9 +2118,9 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,int *Re
 
 	if (pPlugin)
 	{
-		if (pPlugin->HasOpenPlugin() && !ProcessException)
+		if (pPlugin->HasOpenPanel() && !ProcessException)
 		{
-			HANDLE hNewPlugin=OpenPlugin(pPlugin,OpenFrom,FarGuid,(INT_PTR)Data);
+			HANDLE hNewPlugin=OpenPanel(pPlugin,OpenFrom,FarGuid,(INT_PTR)Data);
 			bool process=false;
 
 			if (OpenFrom & OPEN_FROMMACRO)
@@ -2246,9 +2181,9 @@ INT_PTR PluginManager::PluginGuidToPluginNumber(const GUID& PluginId)
 	return result;
 }
 
-HANDLE PluginManager::OpenPlugin(Plugin *pPlugin,int OpenFrom,const GUID& Guid,INT_PTR Item)
+HANDLE PluginManager::OpenPanel(Plugin *pPlugin,int OpenFrom,const GUID& Guid,INT_PTR Item)
 {
-	HANDLE hPlugin = pPlugin->OpenPlugin(OpenFrom, Guid, Item);
+	HANDLE hPlugin = pPlugin->OpenPanel(OpenFrom, Guid, Item);
 
 	if (hPlugin != INVALID_HANDLE_VALUE)
 	{

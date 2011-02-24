@@ -1374,9 +1374,9 @@ TVar KeyMacro::FARPseudoVariable(UINT64 Flags,DWORD CheckCode,DWORD& Err)
 					{
 						if (SelPanel->GetMode() == PLUGIN_PANEL)
 						{
-							OpenPluginInfo Info={0};
-							Info.StructSize=sizeof(OpenPluginInfo);
-							SelPanel->GetOpenPluginInfo(&Info);
+							OpenPanelInfo Info={0};
+							Info.StructSize=sizeof(OpenPanelInfo);
+							SelPanel->GetOpenPanelInfo(&Info);
 							if (CheckCode == MCODE_V_APANEL_OPIFLAGS || CheckCode == MCODE_V_PPANEL_OPIFLAGS)
 								Cond = (__int64)Info.Flags;
 							else
@@ -1432,9 +1432,9 @@ TVar KeyMacro::FARPseudoVariable(UINT64 Flags,DWORD CheckCode,DWORD& Err)
 					{
 						if (SelPanel->GetMode() == PLUGIN_PANEL)
 						{
-							OpenPluginInfo Info={0};
-							Info.StructSize=sizeof(OpenPluginInfo);
-							SelPanel->GetOpenPluginInfo(&Info);
+							OpenPanelInfo Info={0};
+							Info.StructSize=sizeof(OpenPanelInfo);
+							SelPanel->GetOpenPanelInfo(&Info);
 							strFileName = Info.CurDir;
 						}
 						else
@@ -3827,7 +3827,7 @@ OPEN_FROMMACRO 	Открыт из макрокоманды
 
 # Для OPEN_FINDLIST Item всегда 0.
 # Для OPEN_SHORTCUT Item содержит адрес строки, которая была передана
-	в элемент ShortcutData структуры OpenPluginInfo в момент сохранения горячей клавиши.
+	в элемент ShortcutData структуры OpenPanelInfo в момент сохранения горячей клавиши.
 	Плагин может использовать это поле для сохранения дополнительной информации о текущем состоянии.
 	Не обязательно сохранять в нём информацию о текущей директории, так как этим занимается сам FAR.
 

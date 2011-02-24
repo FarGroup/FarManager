@@ -84,13 +84,16 @@ enum PLUGINITEMWORKFLAGS
 enum PLUGINITEMCALLFUNCFLAGS
 {
 	PICFF_LOADED               = 0x00000001, // DLL загружен ;-)
+	PICFF_OPENPANEL            = 0x00000004, //
+	PICFF_ANALYSE              = 0x00000008, //
+	PICFF_CLOSEPANEL           = 0x00000010, //
 	PICFF_GETGLOBALINFO        = 0x00000002, //
 	PICFF_SETSTARTUPINFO       = 0x00000004, //
 	PICFF_OPENPLUGIN           = 0x00000008, //
 	PICFF_OPENFILEPLUGIN       = 0x00000010, //
 	PICFF_CLOSEPLUGIN          = 0x00000020, //
 	PICFF_GETPLUGININFO        = 0x00000040, //
-	PICFF_GETOPENPLUGININFO    = 0x00000080, //
+	PICFF_GETOPENPANELINFO    = 0x00000080, //
 	PICFF_GETFINDDATA          = 0x00000100, //
 	PICFF_FREEFINDDATA         = 0x00000200, //
 	PICFF_GETVIRTUALFINDDATA   = 0x00000400, //
@@ -116,23 +119,6 @@ enum PLUGINITEMCALLFUNCFLAGS
 #if defined(PROCPLUGINMACROFUNC)
 	PICFF_PROCESSMACROFUNC     = 0x40000000, //
 #endif
-	// PICFF_PANELPLUGIN - первая попытка определиться с понятием "это панель"
-	PICFF_PANELPLUGIN          = PICFF_OPENFILEPLUGIN|
-	PICFF_GETFINDDATA|
-	PICFF_FREEFINDDATA|
-	PICFF_GETVIRTUALFINDDATA|
-	PICFF_FREEVIRTUALFINDDATA|
-	PICFF_SETDIRECTORY|
-	PICFF_GETFILES|
-	PICFF_PUTFILES|
-	PICFF_DELETEFILES|
-	PICFF_MAKEDIRECTORY|
-	PICFF_PROCESSHOSTFILE|
-	PICFF_SETFINDLIST|
-	PICFF_PROCESSKEY|
-	PICFF_PROCESSEVENT|
-	PICFF_COMPARE|
-	PICFF_GETOPENPLUGININFO,
 };
 
 // флаги для поля PluginManager.Flags
@@ -195,7 +181,7 @@ class PluginManager
 		void GetPluginHotKey(Plugin *pPlugin,const GUID& Guid,const wchar_t *HotKeyType,string &strHotKey);
 
 		bool TestPluginInfo(Plugin *Item,PluginInfo *Info);
-		bool TestOpenPluginInfo(Plugin *Item,OpenPluginInfo *Info);
+		bool TestOPENPANELINFO(Plugin *Item,OpenPanelInfo *Info);
 
 		bool LoadPlugin(const wchar_t *lpwszModuleName, const FAR_FIND_DATA_EX &FindData, bool LoadToMem);
 
@@ -255,11 +241,11 @@ class PluginManager
 
 		Plugin *Analyse(const AnalyseData *pData);
 
-		HANDLE OpenPlugin(Plugin *pPlugin,int OpenFrom,const GUID& Guid,INT_PTR Item);
+		HANDLE OpenPanel(Plugin *pPlugin,int OpenFrom,const GUID& Guid,INT_PTR Item);
 		HANDLE OpenFilePlugin(const wchar_t *Name, int OpMode, OPENFILEPLUGINTYPE Type);
 		HANDLE OpenFindListPlugin(const PluginPanelItem *PanelItem,int ItemsNumber);
-		void ClosePlugin(HANDLE hPlugin);
-		void GetOpenPluginInfo(HANDLE hPlugin, OpenPluginInfo *Info);
+		void ClosePanel(HANDLE hPlugin);
+		void GetOpenPanelInfo(HANDLE hPlugin, OpenPanelInfo *Info);
 		int GetFindData(HANDLE hPlugin,PluginPanelItem **pPanelItem,int *pItemsNumber,int Silent);
 		void FreeFindData(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber);
 		int GetVirtualFindData(HANDLE hPlugin,PluginPanelItem **pPanelItem,int *pItemsNumber,const wchar_t *Path);

@@ -30,15 +30,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "plugin.hpp"
 
-struct AnalyseData
-{
-	int StructSize;
-	const wchar_t *lpwszFileName;
-	const unsigned char *pBuffer;
-	DWORD dwBufferSize;
-	int OpMode;
-};
-
 class AncientPlugin
 {
 	public:
@@ -65,16 +56,16 @@ class Plugin: public AncientPlugin
 		virtual bool IsPanelPlugin() = 0;
 
 		virtual bool HasGetGlobalInfo() = 0;
-		virtual bool HasOpenPlugin() = 0;
+		virtual bool HasOpenPanel() = 0;
 		virtual bool HasMakeDirectory() = 0;
 		virtual bool HasDeleteFiles() = 0;
 		virtual bool HasPutFiles() = 0;
 		virtual bool HasGetFiles() = 0;
 		virtual bool HasSetStartupInfo() = 0;
 		virtual bool HasOpenFilePlugin() = 0;
-		virtual bool HasClosePlugin() = 0;
+		virtual bool HasClosePanel() = 0;
 		virtual bool HasGetPluginInfo() = 0;
-		virtual bool HasGetOpenPluginInfo() = 0;
+		virtual bool HasGetOpenPanelInfo() = 0;
 		virtual bool HasGetFindData() = 0;
 		virtual bool HasFreeFindData() = 0;
 		virtual bool HasGetVirtualFindData() = 0;
@@ -113,7 +104,7 @@ class Plugin: public AncientPlugin
 		virtual bool SetStartupInfo(bool &bUnloaded) = 0;
 		virtual bool CheckMinFarVersion(bool &bUnloaded) = 0;
 
-		virtual HANDLE OpenPlugin(int OpenFrom, const GUID& Guid, INT_PTR Item) = 0;
+		virtual HANDLE OpenPanel(int OpenFrom, const GUID& Guid, INT_PTR Item) = 0;
 		virtual HANDLE OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, int DataSize, int OpMode) = 0;
 
 		virtual int SetFindList(HANDLE hPlugin, const PluginPanelItem *PanelItem, int ItemsNumber) = 0;
@@ -132,10 +123,10 @@ class Plugin: public AncientPlugin
 		virtual int GetCustomData(const wchar_t *FilePath, wchar_t **CustomData) = 0;
 		virtual void FreeCustomData(wchar_t *CustomData) = 0;
 
-		virtual void GetOpenPluginInfo(HANDLE hPlugin, OpenPluginInfo *Info) = 0;
+		virtual void GetOpenPanelInfo(HANDLE hPlugin, OpenPanelInfo *Info) = 0;
 		virtual void FreeFindData(HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber) = 0;
 		virtual void FreeVirtualFindData(HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber) = 0;
-		virtual void ClosePlugin(HANDLE hPlugin) = 0;
+		virtual void ClosePanel(HANDLE hPlugin) = 0;
 
 		virtual int ProcessEditorInput(const INPUT_RECORD *D) = 0;
 		virtual int ProcessEditorEvent(int Event, PVOID Param) = 0;

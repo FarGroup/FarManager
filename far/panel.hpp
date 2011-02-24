@@ -161,7 +161,7 @@ class Panel:public ScreenObject
 
 	public:
 		virtual int SendKeyToPlugin(DWORD Key,bool Pred=false) {return FALSE;};
-		virtual BOOL SetCurDir(const wchar_t *NewDir,int ClosePlugin);
+		virtual BOOL SetCurDir(const wchar_t *NewDir,int ClosePanel);
 		virtual void ChangeDirToCurrent();
 
 		virtual int GetCurDir(string &strCurDir);
@@ -261,7 +261,7 @@ class Panel:public ScreenObject
 		virtual int GetColumnsCount() { return 1;};
 		virtual void SetReturnCurrentFile(int Mode) {};
 		virtual void QViewDelTempName() {};
-		virtual void GetOpenPluginInfo(struct OpenPluginInfo *Info) {};
+		virtual void GetOpenPanelInfo(struct OpenPanelInfo *Info) {};
 		virtual void SetPluginMode(HANDLE hPlugin,const wchar_t *PluginFile,bool SendOnFocus=false) {};
 		virtual void SetPluginModified() {};
 		virtual int ProcessPluginEvent(int Event,void *Param) {return FALSE;};

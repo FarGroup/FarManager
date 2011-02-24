@@ -102,14 +102,14 @@ void FileList::ShowFileList(int Fast)
 	string strTitle;
 	string strInfoCurDir;
 	int Length;
-	OpenPluginInfo Info;
+	OpenPanelInfo Info;
 
 	if (PanelMode==PLUGIN_PANEL)
 	{
 		if (ProcessPluginEvent(FE_REDRAW,nullptr))
 			return;
 
-		CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+		CtrlObject->Plugins.GetOpenPanelInfo(hPlugin,&Info);
 		strInfoCurDir=Info.CurDir;
 	}
 
@@ -504,7 +504,7 @@ void FileList::ShowSelectedSize()
 }
 
 
-void FileList::ShowTotalSize(OpenPluginInfo &Info)
+void FileList::ShowTotalSize(OpenPanelInfo &Info)
 {
 	if (!Opt.ShowPanelTotals && PanelMode==PLUGIN_PANEL && !(Info.Flags & OPIF_REALNAMES))
 		return;
@@ -606,14 +606,14 @@ int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,i
 }
 
 
-void FileList::PrepareViewSettings(int ViewMode,OpenPluginInfo *PlugInfo)
+void FileList::PrepareViewSettings(int ViewMode,OpenPanelInfo *PlugInfo)
 {
-	OpenPluginInfo Info={0};
+	OpenPanelInfo Info={0};
 
 	if (PanelMode==PLUGIN_PANEL)
 	{
 		if (!PlugInfo)
-			CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+			CtrlObject->Plugins.GetOpenPanelInfo(hPlugin,&Info);
 		else
 			Info=*PlugInfo;
 	}

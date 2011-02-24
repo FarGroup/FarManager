@@ -13586,13 +13586,13 @@ MPluginsManagerPersonalPath
 "Ruta para pl&ugins personales:
 
 MPluginsManagerOFP
-"Обработка &файла (OpenFilePlugin)"
-"&File processing (OpenFilePlugin)"
-upd:"&File processing (OpenFilePlugin)"
-upd:"&File processing (OpenFilePlugin)"
-"&Fájl feldolgozása (OpenFilePlugin)"
-upd:"&File processing (OpenFilePlugin)"
-"Proceso de archivo (OpenFilePlugin)"
+"Обработка &файла"
+"&File processing"
+upd:"&File processing"
+upd:"&File processing"
+"&Fájl feldolgozása"
+upd:"&File processing"
+"Proceso de archivo"
 
 MPluginsManagerStdAssoc
 "Пункт вызова стандартной &ассоциации"

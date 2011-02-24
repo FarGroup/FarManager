@@ -1,3 +1,12 @@
+drkns 24.02.2011 16:48:26 +0200 - build 1891
+
+1. OpenFilePluginW = AnalyseW + OpenPanelW.
+   OpenPluginW = OpenPanelW
+   ClosePluginW = ClosePanelW
+   GetOpenPluginInfoW = GetOpenPanelInfoW
+   OpenPluginInfo = OpenPanelInfo
+   FCTL_CLOSEPLUGIN = FCTL_CLOSEPANEL
+
 zg 24.02.2011 02:48:54 +0200 - build 1890
 
 1. неверно загружались плагины с флагом PF_PRELOAD, если они уже находились в кэше.

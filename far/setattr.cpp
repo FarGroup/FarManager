@@ -688,7 +688,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 
 	if (SrcPanel && SrcPanel->GetMode()==PLUGIN_PANEL)
 	{
-		OpenPluginInfo Info;
+		OpenPanelInfo Info;
 		HANDLE hPlugin=SrcPanel->GetPluginHandle();
 
 		if (hPlugin == INVALID_HANDLE_VALUE)
@@ -696,7 +696,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 			return false;
 		}
 
-		CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+		CtrlObject->Plugins.GetOpenPanelInfo(hPlugin,&Info);
 
 		if (!(Info.Flags & OPIF_REALNAMES))
 		{

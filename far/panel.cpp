@@ -971,7 +971,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	}
 	else //эта плагин, да
 	{
-		HANDLE hPlugin = CtrlObject->Plugins.OpenPlugin(
+		HANDLE hPlugin = CtrlObject->Plugins.OpenPanel(
 		                     mitem->pPlugin,
 		                     (CtrlObject->Cp()->LeftPanel == this)?OPEN_LEFTDISKMENU:OPEN_RIGHTDISKMENU,
 		                     mitem->Guid,
@@ -1749,7 +1749,7 @@ int Panel::GetCurDir(string &strCurDir)
 
 
 
-BOOL Panel::SetCurDir(const wchar_t *CurDir,int ClosePlugin)
+BOOL Panel::SetCurDir(const wchar_t *CurDir,int ClosePanel)
 {
 	if (StrCmpI(strCurDir,CurDir) || !TestCurrentDirectory(CurDir))
 	{
@@ -2026,8 +2026,8 @@ string &Panel::GetTitle(string &strTitle,int SubLen,int TruncSize)
 
 	if (PanelMode==PLUGIN_PANEL)
 	{
-		OpenPluginInfo Info;
-		GetOpenPluginInfo(&Info);
+		OpenPanelInfo Info;
+		GetOpenPanelInfo(&Info);
 		strTitleDir = Info.PanelTitle;
 		RemoveExternalSpaces(strTitleDir);
 		if (truncTitle)
@@ -2103,7 +2103,7 @@ int Panel::SetPluginCommand(int Command,int Param1,INT_PTR Param2)
 			break;
 		}
 
-		case FCTL_CLOSEPLUGIN:
+		case FCTL_CLOSEPANEL:
 			strPluginParam = (const wchar_t *)Param2;
 			Result=TRUE;
 			//if(Opt.CPAJHefuayor)
@@ -2144,7 +2144,7 @@ int Panel::SetPluginCommand(int Command,int Param1,INT_PTR Param2)
 			Info->PanelRect.right=X2;
 			Info->PanelRect.bottom=Y2;
 			Info->ViewMode=GetViewMode();
-			Info->SortMode=static_cast<OPENPLUGININFO_SORTMODES>(SM_UNSORTED-UNSORTED+GetSortMode());
+			Info->SortMode=static_cast<OPENPANELINFO_SORTMODES>(SM_UNSORTED-UNSORTED+GetSortMode());
 			{
 				static struct
 				{
@@ -2189,8 +2189,8 @@ int Panel::SetPluginCommand(int Command,int Param1,INT_PTR Param2)
 					if (!Reenter)
 					{
 						Reenter++;
-						OpenPluginInfo PInfo;
-						DestFilePanel->GetOpenPluginInfo(&PInfo);
+						OpenPanelInfo PInfo;
+						DestFilePanel->GetOpenPanelInfo(&PInfo);
 
 						if (PInfo.Flags & OPIF_REALNAMES)
 							Info->Flags |= PFLAGS_REALNAMES;
@@ -2232,8 +2232,8 @@ int Panel::SetPluginCommand(int Command,int Param1,INT_PTR Param2)
 				{
 					Reenter++;
 
-					OpenPluginInfo PInfo;
-					DestFilePanel->GetOpenPluginInfo(&PInfo);
+					OpenPanelInfo PInfo;
+					DestFilePanel->GetOpenPanelInfo(&PInfo);
 
 					switch (Command)
 					{
@@ -2516,8 +2516,8 @@ bool Panel::SaveShortcutFolder(int Pos)
 		HANDLE hPlugin=GetPluginHandle();
 		PluginHandle *ph = (PluginHandle*)hPlugin;
 		strPluginModule = ph->pPlugin->GetModuleName();
-		OpenPluginInfo Info;
-		CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+		OpenPanelInfo Info;
+		CtrlObject->Plugins.GetOpenPanelInfo(hPlugin,&Info);
 		strPluginFile = Info.HostFile;
 		strShortcutFolder = Info.CurDir;
 		strPluginData = Info.ShortcutData;
@@ -2649,9 +2649,9 @@ bool Panel::ExecShortcutFolder(int Pos)
 
 					if (!StrCmpI(pPlugin->GetModuleName(),strPluginModule))
 					{
-						if (pPlugin->HasOpenPlugin())
+						if (pPlugin->HasOpenPanel())
 						{
-							HANDLE hNewPlugin=CtrlObject->Plugins.OpenPlugin(pPlugin,OPEN_SHORTCUT,FarGuid,(INT_PTR)strPluginData.CPtr());
+							HANDLE hNewPlugin=CtrlObject->Plugins.OpenPanel(pPlugin,OPEN_SHORTCUT,FarGuid,(INT_PTR)strPluginData.CPtr());
 
 							if (hNewPlugin!=INVALID_HANDLE_VALUE)
 							{

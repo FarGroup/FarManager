@@ -612,8 +612,8 @@ void InfoList::ShowPluginDescription()
 		return;
 
 	CloseFile();
-	OpenPluginInfo Info;
-	AnotherPanel->GetOpenPluginInfo(&Info);
+	OpenPanelInfo Info;
+	AnotherPanel->GetOpenPanelInfo(&Info);
 
 	for (int I=0; I<Info.InfoLinesNumber; I++)
 	{

@@ -74,7 +74,7 @@ void FileList::PushPlugin(HANDLE hPlugin,const wchar_t *HostFile)
 
 int FileList::PopPlugin(int EnableRestoreViewMode)
 {
-	OpenPluginInfo Info={0};
+	OpenPanelInfo Info={0};
 
 	if (PluginsList.Empty())
 	{
@@ -87,7 +87,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 
 	// закрываем текущий плагин.
 	PluginsList.Delete(PluginsList.Last());
-	CtrlObject->Plugins.ClosePlugin(hPlugin);
+	CtrlObject->Plugins.ClosePanel(hPlugin);
 
 	if (!PluginsList.Empty())
 	{
@@ -125,7 +125,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 		}
 
 
-		CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+		CtrlObject->Plugins.GetOpenPanelInfo(hPlugin,&Info);
 
 		if (!(Info.Flags & OPIF_REALNAMES))
 		{
@@ -470,8 +470,8 @@ void FileList::PutDizToPlugin(FileList *DestPanel,PluginPanelItem *ItemList,
                               DizList *DestDiz)
 {
 	_ALGO(CleverSysLog clv(L"FileList::PutDizToPlugin()"));
-	OpenPluginInfo Info;
-	CtrlObject->Plugins.GetOpenPluginInfo(DestPanel->hPlugin,&Info);
+	OpenPanelInfo Info;
+	CtrlObject->Plugins.GetOpenPanelInfo(DestPanel->hPlugin,&Info);
 
 	if (DestPanel->strPluginDizName.IsEmpty() && Info.DescrFilesNumber>0)
 		DestPanel->strPluginDizName = Info.DescrFiles[0];
@@ -732,8 +732,8 @@ void FileList::PluginHostGetFiles()
 				OpMode|=OPM_SILENT;
 			}
 
-			_ALGO(SysLog(L"call Plugins.ClosePlugin"));
-			CtrlObject->Plugins.ClosePlugin(hCurPlugin);
+			_ALGO(SysLog(L"call Plugins.ClosePanel"));
+			CtrlObject->Plugins.ClosePanel(hCurPlugin);
 		}
 	}
 
@@ -863,14 +863,14 @@ int FileList::PluginPutFilesToAnother(int Move,Panel *AnotherPanel)
 }
 
 
-void FileList::GetOpenPluginInfo(OpenPluginInfo *Info)
+void FileList::GetOpenPanelInfo(OpenPanelInfo *Info)
 {
-	_ALGO(CleverSysLog clv(L"FileList::GetOpenPluginInfo()"));
+	_ALGO(CleverSysLog clv(L"FileList::GetOpenPanelInfo()"));
 	//_ALGO(SysLog(L"FileName='%s'",(FileName?FileName:"(nullptr)")));
 	memset(Info,0,sizeof(*Info));
 
 	if (PanelMode==PLUGIN_PANEL)
-		CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,Info);
+		CtrlObject->Plugins.GetOpenPanelInfo(hPlugin,Info);
 }
 
 
@@ -983,8 +983,8 @@ int FileList::ProcessOneHostFile(int Idx)
 			CtrlObject->Plugins.FreeFindData(hNewPlugin,ItemList,ItemNumber);
 		}
 
-		_ALGO(SysLog(L"call Plugins.ClosePlugin"));
-		CtrlObject->Plugins.ClosePlugin(hNewPlugin);
+		_ALGO(SysLog(L"call Plugins.ClosePanel"));
+		CtrlObject->Plugins.ClosePanel(hNewPlugin);
 	}
 
 	return Done;
@@ -1006,8 +1006,8 @@ void FileList::SetPluginMode(HANDLE hPlugin,const wchar_t *PluginFile,bool SendO
 	if (SendOnFocus)
 		SetFocus();
 
-	OpenPluginInfo Info;
-	CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+	OpenPanelInfo Info;
+	CtrlObject->Plugins.GetOpenPanelInfo(hPlugin,&Info);
 
 	if (Info.StartPanelMode)
 		SetViewMode(VIEW_0+Info.StartPanelMode-L'0');
@@ -1155,8 +1155,8 @@ void FileList::ProcessPluginCommand()
 	if (PanelMode==PLUGIN_PANEL)
 		switch (Command)
 		{
-			case FCTL_CLOSEPLUGIN:
-				_ALGO(SysLog(L"Command=FCTL_CLOSEPLUGIN"));
+			case FCTL_CLOSEPANEL:
+				_ALGO(SysLog(L"Command=FCTL_CLOSEPANEL"));
 				SetCurDir(strPluginParam,TRUE);
 
 				if (strPluginParam.IsEmpty())

@@ -1787,7 +1787,7 @@ bool CommandLine::CheckCmdLineForSet(const string& CmdLine)
 	return false;
 }
 
-BOOL CommandLine::IntChDir(const wchar_t *CmdLine,int ClosePlugin,bool Selent)
+BOOL CommandLine::IntChDir(const wchar_t *CmdLine,int ClosePanel,bool Selent)
 {
 	Panel *SetPanel;
 	SetPanel=CtrlObject->Cp()->ActivePanel;
@@ -1865,7 +1865,7 @@ BOOL CommandLine::IntChDir(const wchar_t *CmdLine,int ClosePlugin,bool Selent)
 
 	if (SetPanel->GetType()==FILE_PANEL && SetPanel->GetMode()==PLUGIN_PANEL)
 	{
-		SetPanel->SetCurDir(strExpandedDir,ClosePlugin);
+		SetPanel->SetCurDir(strExpandedDir,ClosePanel);
 		return TRUE;
 	}
 

@@ -237,7 +237,7 @@ class FileList:public Panel
 		void SetShowColor(int Position, int ColorType=HIGHLIGHTCOLORTYPE_FILE);
 		int  GetShowColor(int Position, int ColorType);
 		void ShowSelectedSize();
-		void ShowTotalSize(OpenPluginInfo &Info);
+		void ShowTotalSize(OpenPanelInfo &Info);
 		int ConvertName(const wchar_t *SrcName, string &strDest, int MaxLength, int RightAlign, int ShowStatus, DWORD dwFileAttr);
 
 		void Select(FileListItem *SelPtr,int Selection);
@@ -277,7 +277,7 @@ class FileList:public Panel
 		int PreparePanelView(PanelViewSettings *PanelView);
 		int PrepareColumnWidths(unsigned int *ColumnTypes,int *ColumnWidths,
 		                        int *ColumnWidthsTypes,int &ColumnCount,int FullScreen);
-		void PrepareViewSettings(int ViewMode,OpenPluginInfo *PlugInfo);
+		void PrepareViewSettings(int ViewMode,OpenPanelInfo *PlugInfo);
 
 		void PluginDelete();
 		void PutDizToPlugin(FileList *DestPanel,PluginPanelItem *ItemList,
@@ -333,7 +333,7 @@ class FileList:public Panel
 		virtual void ChangeNumericSort(int Mode);
 		virtual void ChangeCaseSensitiveSort(int Mode);
 		virtual void ChangeDirectoriesFirst(int Mode);
-		virtual BOOL SetCurDir(const wchar_t *NewDir,int ClosePlugin);
+		virtual BOOL SetCurDir(const wchar_t *NewDir,int ClosePanel);
 		virtual int GetPrevSortMode();
 		virtual int GetPrevSortOrder();
 		virtual int GetPrevViewMode();
@@ -376,7 +376,7 @@ class FileList:public Panel
 		virtual int IsColumnDisplayed(int Type);
 		virtual int GetColumnsCount() { return Columns;};
 		virtual void SetReturnCurrentFile(int Mode);
-		virtual void GetOpenPluginInfo(OpenPluginInfo *Info);
+		virtual void GetOpenPanelInfo(OpenPanelInfo *Info);
 		virtual void SetPluginMode(HANDLE hPlugin,const wchar_t *PluginFile,bool SendOnFocus=false);
 
 		void PluginGetPanelInfo(PanelInfo &Info);

@@ -209,8 +209,8 @@ static int ShowFolderShortcutMenu(int Pos)
 
 						if (ActivePanel->GetMode() == PLUGIN_PANEL)
 						{
-							OpenPluginInfo Info;
-							ActivePanel->GetOpenPluginInfo(&Info);
+							OpenPanelInfo Info;
+							ActivePanel->GetOpenPanelInfo(&Info);
 							string strTemp;
 							PluginHandle *ph = (PluginHandle*)ActivePanel->GetPluginHandle();
 							strTemp = ph->pPlugin->GetModuleName();

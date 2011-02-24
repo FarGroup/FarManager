@@ -1638,7 +1638,7 @@ namespace oldfar
 	};
 
 
-	enum OPENPLUGININFO_FLAGS
+	enum OPENPANELINFO_FLAGS
 	{
 		OPIF_USEFILTER               = 0x00000001,
 		OPIF_USESORTGROUPS           = 0x00000002,
@@ -1658,7 +1658,7 @@ namespace oldfar
 	};
 
 
-	enum OPENPLUGININFO_SORTMODES
+	enum OPENPANELINFO_SORTMODES
 	{
 		SM_DEFAULT,
 		SM_UNSORTED,
@@ -1699,7 +1699,7 @@ namespace oldfar
 		OPM_QUICKVIEW  =0x0040,
 	};
 
-	struct OpenPluginInfo
+	struct OpenPanelInfo
 	{
 		int                   StructSize;
 		DWORD                 Flags;

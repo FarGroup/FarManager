@@ -37,7 +37,7 @@ class PluginManager;
 #include "pluginold.hpp"
 #include "FarGuid.hpp"
 
-typedef void (WINAPI *PLUGINCLOSEPLUGIN)(HANDLE hPlugin);
+typedef void (WINAPI *PLUGINCLOSEPANEL)(HANDLE hPlugin);
 typedef int (WINAPI *PLUGINCOMPARE)(HANDLE hPlugin,const oldfar::PluginPanelItem *Item1,const oldfar::PluginPanelItem *Item2,unsigned int Mode);
 typedef int (WINAPI *PLUGINCONFIGURE)(int ItemNumber);
 typedef int (WINAPI *PLUGINDELETEFILES)(HANDLE hPlugin,oldfar::PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
@@ -47,12 +47,12 @@ typedef void (WINAPI *PLUGINFREEVIRTUALFINDDATA)(HANDLE hPlugin,oldfar::PluginPa
 typedef int (WINAPI *PLUGINGETFILES)(HANDLE hPlugin,oldfar::PluginPanelItem *PanelItem,int ItemsNumber,int Move,char *DestPath,int OpMode);
 typedef int (WINAPI *PLUGINGETFINDDATA)(HANDLE hPlugin,oldfar::PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
 typedef int (WINAPI *PLUGINMINFARVERSION)();
-typedef void (WINAPI *PLUGINGETOPENPLUGININFO)(HANDLE hPlugin,oldfar::OpenPluginInfo *Info);
+typedef void (WINAPI *PLUGINGETOPENPANELINFO)(HANDLE hPlugin,oldfar::OpenPanelInfo *Info);
 typedef void (WINAPI *PLUGINGETPLUGININFO)(oldfar::PluginInfo *Info);
 typedef int (WINAPI *PLUGINGETVIRTUALFINDDATA)(HANDLE hPlugin,oldfar::PluginPanelItem **pPanelItem,int *pItemsNumber,const char *Path);
 typedef int (WINAPI *PLUGINMAKEDIRECTORY)(HANDLE hPlugin,char *Name,int OpMode);
 typedef HANDLE(WINAPI *PLUGINOPENFILEPLUGIN)(char *Name,const unsigned char *Data,int DataSize);
-typedef HANDLE(WINAPI *PLUGINOPENPLUGIN)(int OpenFrom,INT_PTR Item);
+typedef HANDLE(WINAPI *PLUGINOPENPANEL)(int OpenFrom,INT_PTR Item);
 typedef int (WINAPI *PLUGINPROCESSEDITOREVENT)(int Event,void *Param);
 typedef int (WINAPI *PLUGINPROCESSEDITORINPUT)(const INPUT_RECORD *Rec);
 typedef int (WINAPI *PLUGINPROCESSEVENT)(HANDLE hPlugin,int Event,void *Param);
@@ -85,17 +85,17 @@ class PluginA: public Plugin
 		char *RootKey;
 
 		PluginInfo PI;
-		OpenPluginInfo OPI;
+		OpenPanelInfo OPI;
 
 		oldfar::PluginPanelItem  *pFDPanelItemA;
 		oldfar::PluginPanelItem  *pVFDPanelItemA;
 
 		PLUGINSETSTARTUPINFO        pSetStartupInfo;
-		PLUGINOPENPLUGIN            pOpenPlugin;
+		PLUGINOPENPANEL             pOpenPanel;
 		PLUGINOPENFILEPLUGIN        pOpenFilePlugin;
-		PLUGINCLOSEPLUGIN           pClosePlugin;
+		PLUGINCLOSEPANEL            pClosePanel;
 		PLUGINGETPLUGININFO         pGetPluginInfo;
-		PLUGINGETOPENPLUGININFO     pGetOpenPluginInfo;
+		PLUGINGETOPENPANELINFO      pGetOpenPanelInfo;
 		PLUGINGETFINDDATA           pGetFindData;
 		PLUGINFREEFINDDATA          pFreeFindData;
 		PLUGINGETVIRTUALFINDDATA    pGetVirtualFindData;
@@ -136,16 +136,16 @@ class PluginA: public Plugin
 		bool IsPanelPlugin();
 
 		bool HasGetGlobalInfo() { return false; }
-		bool HasOpenPlugin() { return pOpenPlugin!=nullptr; }
+		bool HasOpenPanel() { return pOpenPanel!=nullptr; }
 		bool HasMakeDirectory() { return pMakeDirectory!=nullptr; }
 		bool HasDeleteFiles() { return pDeleteFiles!=nullptr; }
 		bool HasPutFiles() { return pPutFiles!=nullptr; }
 		bool HasGetFiles() { return pGetFiles!=nullptr; }
 		bool HasSetStartupInfo() { return pSetStartupInfo!=nullptr; }
 		bool HasOpenFilePlugin() { return pOpenFilePlugin!=nullptr; }
-		bool HasClosePlugin() { return pClosePlugin!=nullptr; }
+		bool HasClosePanel() { return pClosePanel!=nullptr; }
 		bool HasGetPluginInfo() { return pGetPluginInfo!=nullptr; }
-		bool HasGetOpenPluginInfo() { return pGetOpenPluginInfo!=nullptr; }
+		bool HasGetOpenPanelInfo() { return pGetOpenPanelInfo!=nullptr; }
 		bool HasGetFindData() { return pGetFindData!=nullptr; }
 		bool HasFreeFindData() { return pFreeFindData!=nullptr; }
 		bool HasGetVirtualFindData() { return pGetVirtualFindData!=nullptr; }
@@ -188,7 +188,7 @@ class PluginA: public Plugin
 		bool SetStartupInfo(bool &bUnloaded);
 		bool CheckMinFarVersion(bool &bUnloaded);
 
-		HANDLE OpenPlugin(int OpenFrom, const GUID& Guid, INT_PTR Item);
+		HANDLE OpenPanel(int OpenFrom, const GUID& Guid, INT_PTR Item);
 		HANDLE OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, int DataSize, int OpMode);
 
 		int SetFindList(HANDLE hPlugin, const PluginPanelItem *PanelItem, int ItemsNumber);
@@ -207,10 +207,10 @@ class PluginA: public Plugin
 		int GetCustomData(const wchar_t *FilePath, wchar_t **CustomData) { return 0; }
 		void FreeCustomData(wchar_t *CustomData) {}
 
-		void GetOpenPluginInfo(HANDLE hPlugin, OpenPluginInfo *Info);
+		void GetOpenPanelInfo(HANDLE hPlugin, OpenPanelInfo *Info);
 		void FreeFindData(HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber);
 		void FreeVirtualFindData(HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber);
-		void ClosePlugin(HANDLE hPlugin);
+		void ClosePanel(HANDLE hPlugin);
 
 		int ProcessEditorInput(const INPUT_RECORD *D);
 		int ProcessEditorEvent(int Event, PVOID Param);
@@ -235,6 +235,6 @@ class PluginA: public Plugin
 
 		void FreePluginInfo();
 		void ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest);
-		void FreeOpenPluginInfo();
-		void ConvertOpenPluginInfo(oldfar::OpenPluginInfo &Src, OpenPluginInfo *Dest);
+		void FreeOPENPANELINFO();
+		void ConvertOPENPANELINFO(oldfar::OpenPanelInfo &Src, OpenPanelInfo *Dest);
 };

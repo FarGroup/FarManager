@@ -36,7 +36,7 @@ class PluginManager;
 #include "plclass.hpp"
 
 
-typedef void (WINAPI *PLUGINCLOSEPLUGINW)(HANDLE hPlugin);
+typedef void (WINAPI *PLUGINCLOSEPANELW)(HANDLE hPlugin);
 typedef int (WINAPI *PLUGINCOMPAREW)(HANDLE hPlugin,const PluginPanelItem *Item1,const PluginPanelItem *Item2,unsigned int Mode);
 typedef int (WINAPI *PLUGINCONFIGUREW)(const GUID* Guid);
 typedef int (WINAPI *PLUGINDELETEFILESW)(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
@@ -46,12 +46,11 @@ typedef void (WINAPI *PLUGINFREEVIRTUALFINDDATAW)(HANDLE hPlugin,PluginPanelItem
 typedef int (WINAPI *PLUGINGETFILESW)(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t **DestPath,int OpMode);
 typedef int (WINAPI *PLUGINGETFINDDATAW)(HANDLE hPlugin,PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
 typedef void (WINAPI *PLUGINGETGLOBALINFOW)(GlobalInfo *Info);
-typedef void (WINAPI *PLUGINGETOPENPLUGININFOW)(HANDLE hPlugin,OpenPluginInfo *Info);
+typedef void (WINAPI *PLUGINGETOPENPANELINFOW)(HANDLE hPlugin,OpenPanelInfo *Info);
 typedef void (WINAPI *PLUGINGETPLUGININFOW)(PluginInfo *Info);
 typedef int (WINAPI *PLUGINGETVIRTUALFINDDATAW)(HANDLE hPlugin,PluginPanelItem **pPanelItem,int *pItemsNumber,const wchar_t *Path);
 typedef int (WINAPI *PLUGINMAKEDIRECTORYW)(HANDLE hPlugin,const wchar_t **Name,int OpMode);
-typedef HANDLE(WINAPI *PLUGINOPENFILEPLUGINW)(const wchar_t *Name,const unsigned char *Data,int DataSize,int OpMode);
-typedef HANDLE(WINAPI *PLUGINOPENPLUGINW)(int OpenFrom,const GUID* Guid,INT_PTR Data);
+typedef HANDLE(WINAPI *PLUGINOPENPANELW)(int OpenFrom,const GUID* Guid,INT_PTR Data);
 typedef int (WINAPI *PLUGINPROCESSEDITOREVENTW)(int Event,void *Param);
 typedef int (WINAPI *PLUGINPROCESSEDITORINPUTW)(const INPUT_RECORD *Rec);
 typedef int (WINAPI *PLUGINPROCESSEVENTW)(HANDLE hPlugin,int Event,void *Param);
@@ -99,11 +98,10 @@ class PluginW: public Plugin
 
 		PLUGINGETGLOBALINFOW         pGetGlobalInfoW;
 		PLUGINSETSTARTUPINFOW        pSetStartupInfoW;
-		PLUGINOPENPLUGINW            pOpenPluginW;
-		PLUGINOPENFILEPLUGINW        pOpenFilePluginW;
-		PLUGINCLOSEPLUGINW           pClosePluginW;
+		PLUGINOPENPANELW             pOpenPanelW;
+		PLUGINCLOSEPANELW            pClosePanelW;
 		PLUGINGETPLUGININFOW         pGetPluginInfoW;
-		PLUGINGETOPENPLUGININFOW     pGetOpenPluginInfoW;
+		PLUGINGETOPENPANELINFOW     pGetOpenPanelInfoW;
 		PLUGINGETFINDDATAW           pGetFindDataW;
 		PLUGINFREEFINDDATAW          pFreeFindDataW;
 		PLUGINGETVIRTUALFINDDATAW    pGetVirtualFindDataW;
@@ -150,16 +148,16 @@ class PluginW: public Plugin
 		bool IsPanelPlugin();
 
 		bool HasGetGlobalInfo() { return pGetGlobalInfoW!=nullptr; }
-		bool HasOpenPlugin() { return pOpenPluginW!=nullptr; }
+		bool HasOpenPanel() { return pOpenPanelW!=nullptr; }
 		bool HasMakeDirectory() { return pMakeDirectoryW!=nullptr; }
 		bool HasDeleteFiles() { return pDeleteFilesW!=nullptr; }
 		bool HasPutFiles() { return pPutFilesW!=nullptr; }
 		bool HasGetFiles() { return pGetFilesW!=nullptr; }
 		bool HasSetStartupInfo() { return pSetStartupInfoW!=nullptr; }
-		bool HasOpenFilePlugin() { return pOpenFilePluginW!=nullptr; }
-		bool HasClosePlugin() { return pClosePluginW!=nullptr; }
+		bool HasOpenFilePlugin() { return false; }
+		bool HasClosePanel() { return pClosePanelW!=nullptr; }
 		bool HasGetPluginInfo() { return pGetPluginInfoW!=nullptr; }
-		bool HasGetOpenPluginInfo() { return pGetOpenPluginInfoW!=nullptr; }
+		bool HasGetOpenPanelInfo() { return pGetOpenPanelInfoW!=nullptr; }
 		bool HasGetFindData() { return pGetFindDataW!=nullptr; }
 		bool HasFreeFindData() { return pFreeFindDataW!=nullptr; }
 		bool HasGetVirtualFindData() { return pGetVirtualFindDataW!=nullptr; }
@@ -205,8 +203,8 @@ class PluginW: public Plugin
 
 		int Analyse(const AnalyseData *pData);
 
-		HANDLE OpenPlugin(int OpenFrom, const GUID& Guid, INT_PTR Item);
-		HANDLE OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, int DataSize, int OpMode);
+		HANDLE OpenPanel(int OpenFrom, const GUID& Guid, INT_PTR Item);
+		HANDLE OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, int DataSize, int OpMode){ return INVALID_HANDLE_VALUE; };
 
 		int SetFindList(HANDLE hPlugin, const PluginPanelItem *PanelItem, int ItemsNumber);
 		int GetFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, int *pItemsNumber, int OpMode);
@@ -224,10 +222,10 @@ class PluginW: public Plugin
 		int GetCustomData(const wchar_t *FilePath, wchar_t **CustomData);
 		void FreeCustomData(wchar_t *CustomData);
 
-		void GetOpenPluginInfo(HANDLE hPlugin, OpenPluginInfo *Info);
+		void GetOpenPanelInfo(HANDLE hPlugin, OpenPanelInfo *Info);
 		void FreeFindData(HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber);
 		void FreeVirtualFindData(HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber);
-		void ClosePlugin(HANDLE hPlugin);
+		void ClosePanel(HANDLE hPlugin);
 
 		int ProcessEditorInput(const INPUT_RECORD *D);
 		int ProcessEditorEvent(int Event, PVOID Param);

@@ -1253,7 +1253,7 @@ void TreeList::CorrectPosition()
 		CurTopFile=CurFile-(Height-1);
 }
 
-BOOL TreeList::SetCurDir(const wchar_t *NewDir,int ClosePlugin)
+BOOL TreeList::SetCurDir(const wchar_t *NewDir,int ClosePanel)
 {
 	if (!TreeCount)
 		Update(0);

@@ -1219,7 +1219,7 @@ int WINAPI FarControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int Param1,IN
 
 	switch (Command)
 	{
-		case FCTL_CLOSEPLUGIN:
+		case FCTL_CLOSEPANEL:
 			g_strDirToSet = (wchar_t *)Param2;
 		case FCTL_GETPANELINFO:
 		case FCTL_GETPANELITEM:
@@ -1590,8 +1590,8 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
 				StopSearch=FALSE;
 				*pItemsNumber=DirListItemsNumber=0;
 				*pPanelItem=PluginDirList=nullptr;
-				OpenPluginInfo Info;
-				CtrlObject->Plugins.GetOpenPluginInfo(hDirListPlugin,&Info);
+				OpenPanelInfo Info;
+				CtrlObject->Plugins.GetOpenPanelInfo(hDirListPlugin,&Info);
 				string strPrevDir = Info.CurDir;
 
 				if (CtrlObject->Plugins.SetDirectory(hDirListPlugin,Dir,OPM_SILENT))
@@ -1602,8 +1602,8 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
 					*pPanelItem=PluginDirList;
 					*pItemsNumber=DirListItemsNumber;
 					CtrlObject->Plugins.SetDirectory(hDirListPlugin,L"..",OPM_SILENT);
-					OpenPluginInfo NewInfo;
-					CtrlObject->Plugins.GetOpenPluginInfo(hDirListPlugin,&NewInfo);
+					OpenPanelInfo NewInfo;
+					CtrlObject->Plugins.GetOpenPanelInfo(hDirListPlugin,&NewInfo);
 
 					if (StrCmpI(strPrevDir, NewInfo.CurDir) )
 					{

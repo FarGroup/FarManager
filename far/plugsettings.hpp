@@ -74,7 +74,7 @@ class PluginSettings
 	public:
 		PluginSettings(const GUID& Guid);
 		~PluginSettings();
-		bool IsValid(void) {return m_Keys.getCount();};
+		bool IsValid(void) {return m_Keys.getCount()!=0;}
 		int Set(const FarSettingsItem& Item);
 		int Get(FarSettingsItem& Item);
 		int Enum(FarSettingsEnum& Enum);

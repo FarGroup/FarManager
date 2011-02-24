@@ -69,7 +69,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static const wchar_t *wszReg_Preload=L"Preload";
 
-static const wchar_t wszReg_OpenPlugin[]=L"OpenPlugin";
+static const wchar_t wszReg_OpenPanel[]=L"OpenPlugin"; // !OpenPlugin!
 static const wchar_t wszReg_OpenFilePlugin[]=L"OpenFilePlugin";
 static const wchar_t wszReg_SetFindList[]=L"SetFindList";
 static const wchar_t wszReg_ProcessEditorInput[]=L"ProcessEditorInput";
@@ -77,9 +77,9 @@ static const wchar_t wszReg_ProcessEditorEvent[]=L"ProcessEditorEvent";
 static const wchar_t wszReg_ProcessViewerEvent[]=L"ProcessViewerEvent";
 static const wchar_t wszReg_ProcessDialogEvent[]=L"ProcessDialogEvent";
 static const wchar_t wszReg_SetStartupInfo[]=L"SetStartupInfo";
-static const wchar_t wszReg_ClosePlugin[]=L"ClosePlugin";
+static const wchar_t wszReg_ClosePanel[]=L"ClosePlugin"; // !ClosePlugin!
 static const wchar_t wszReg_GetPluginInfo[]=L"GetPluginInfo";
-static const wchar_t wszReg_GetOpenPluginInfo[]=L"GetOpenPluginInfo";
+static const wchar_t wszReg_GetOPENPANELINFO[]=L"GetOpenPluginInfo";
 static const wchar_t wszReg_GetFindData[]=L"GetFindData";
 static const wchar_t wszReg_FreeFindData[]=L"FreeFindData";
 static const wchar_t wszReg_GetVirtualFindData[]=L"GetVirtualFindData";
@@ -98,7 +98,7 @@ static const wchar_t wszReg_Compare[]=L"Compare";
 static const wchar_t wszReg_GetMinFarVersion[]=L"GetMinFarVersion";
 
 
-static const char NFMP_OpenPlugin[]="OpenPlugin";
+static const char NFMP_OpenPanel[]="OpenPlugin"; // !OpenPlugin!
 static const char NFMP_OpenFilePlugin[]="OpenFilePlugin";
 static const char NFMP_SetFindList[]="SetFindList";
 static const char NFMP_ProcessEditorInput[]="ProcessEditorInput";
@@ -106,9 +106,9 @@ static const char NFMP_ProcessEditorEvent[]="ProcessEditorEvent";
 static const char NFMP_ProcessViewerEvent[]="ProcessViewerEvent";
 static const char NFMP_ProcessDialogEvent[]="ProcessDialogEvent";
 static const char NFMP_SetStartupInfo[]="SetStartupInfo";
-static const char NFMP_ClosePlugin[]="ClosePlugin";
+static const char NFMP_ClosePanel[]="ClosePlugin"; // !ClosePlugin!
 static const char NFMP_GetPluginInfo[]="GetPluginInfo";
-static const char NFMP_GetOpenPluginInfo[]="GetOpenPluginInfo";
+static const char NFMP_GetOPENPANELINFO[]="GetOpenPluginInfo";
 static const char NFMP_GetFindData[]="GetFindData";
 static const char NFMP_FreeFindData[]="FreeFindData";
 static const char NFMP_GetVirtualFindData[]="GetVirtualFindData";
@@ -2883,7 +2883,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 			if (Param)
 				ParamW = AnsiToUnicode((const char *)Param);
 
-			int ret = FarControl(hPlugin,FCTL_CLOSEPLUGIN,0,(INT_PTR)ParamW);
+			int ret = FarControl(hPlugin,FCTL_CLOSEPANEL,0,(INT_PTR)ParamW);
 
 			if (ParamW) xf_free(ParamW);
 
@@ -2899,7 +2899,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 
 			if (Reenter)
 			{
-				//Попытка борьбы с рекурсией (вызов GET*PANELINFO из GetOpenPluginInfo).
+				//Попытка борьбы с рекурсией (вызов GET*PANELINFO из GetOpenPanelInfo).
 				//Так как у нас всё статик то должно сработать нормально в 99% случаев
 				*(oldfar::PanelInfo*)Param=Passive?AnotherPanelInfoA:PanelInfoA;
 				return TRUE;
@@ -4493,7 +4493,7 @@ PluginA::~PluginA()
 	if (RootKey) xf_free(RootKey);
 
 	FreePluginInfo();
-	FreeOpenPluginInfo();
+	FreeOPENPANELINFO();
 	Lang.Close();
 }
 
@@ -4522,7 +4522,7 @@ bool PluginA::LoadFromCache(const FAR_FIND_DATA_EX &FindData)
 				return false;
 		}
 		strRegKey += L"\\Exports";
-		pOpenPlugin=(PLUGINOPENPLUGIN)(INT_PTR)GetRegKey(strRegKey,wszReg_OpenPlugin,0);
+		pOpenPanel=(PLUGINOPENPANEL)(INT_PTR)GetRegKey(strRegKey,wszReg_OpenPanel,0);
 		pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)(INT_PTR)GetRegKey(strRegKey,wszReg_OpenFilePlugin,0);
 		pSetFindList=(PLUGINSETFINDLIST)(INT_PTR)GetRegKey(strRegKey,wszReg_SetFindList,0);
 		pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)(INT_PTR)GetRegKey(strRegKey,wszReg_ProcessEditorInput,0);
@@ -4540,7 +4540,7 @@ bool PluginA::LoadFromCache(const FAR_FIND_DATA_EX &FindData)
 bool PluginA::SaveToCache()
 {
 	if (pGetPluginInfo ||
-	        pOpenPlugin ||
+	        pOpenPanel ||
 	        pOpenFilePlugin ||
 	        pSetFindList ||
 	        pProcessEditorInput ||
@@ -4608,7 +4608,7 @@ bool PluginA::SaveToCache()
 		SetRegKey(strRegKey, L"CommandPrefix", NullToEmpty(Info.CommandPrefix));
 		SetRegKey64(strRegKey, L"Flags", Info.Flags);
 		strRegKey += L"\\Exports";
-		SetRegKey(strRegKey, wszReg_OpenPlugin, pOpenPlugin!=nullptr);
+		SetRegKey(strRegKey, wszReg_OpenPanel, pOpenPanel!=nullptr);
 		SetRegKey(strRegKey, wszReg_OpenFilePlugin, pOpenFilePlugin!=nullptr);
 		SetRegKey(strRegKey, wszReg_SetFindList, pSetFindList!=nullptr);
 		SetRegKey(strRegKey, wszReg_ProcessEditorInput, pProcessEditorInput!=nullptr);
@@ -4677,11 +4677,11 @@ bool PluginA::Load()
 
 	WorkFlags.Clear(PIWF_CACHED);
 	pSetStartupInfo=(PLUGINSETSTARTUPINFO)GetProcAddress(m_hModule,NFMP_SetStartupInfo);
-	pOpenPlugin=(PLUGINOPENPLUGIN)GetProcAddress(m_hModule,NFMP_OpenPlugin);
+	pOpenPanel=(PLUGINOPENPANEL)GetProcAddress(m_hModule,NFMP_OpenPanel);
 	pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)GetProcAddress(m_hModule,NFMP_OpenFilePlugin);
-	pClosePlugin=(PLUGINCLOSEPLUGIN)GetProcAddress(m_hModule,NFMP_ClosePlugin);
+	pClosePanel=(PLUGINCLOSEPANEL)GetProcAddress(m_hModule,NFMP_ClosePanel);
 	pGetPluginInfo=(PLUGINGETPLUGININFO)GetProcAddress(m_hModule,NFMP_GetPluginInfo);
-	pGetOpenPluginInfo=(PLUGINGETOPENPLUGININFO)GetProcAddress(m_hModule,NFMP_GetOpenPluginInfo);
+	pGetOpenPanelInfo=(PLUGINGETOPENPANELINFO)GetProcAddress(m_hModule,NFMP_GetOPENPANELINFO);
 	pGetFindData=(PLUGINGETFINDDATA)GetProcAddress(m_hModule,NFMP_GetFindData);
 	pFreeFindData=(PLUGINFREEFINDDATA)GetProcAddress(m_hModule,NFMP_FreeFindData);
 	pGetVirtualFindData=(PLUGINGETVIRTUALFINDDATA)GetProcAddress(m_hModule,NFMP_GetVirtualFindData);
@@ -4985,13 +4985,13 @@ bool PluginA::IsPanelPlugin()
 	       pProcessKey ||
 	       pProcessEvent ||
 	       pCompare ||
-	       pGetOpenPluginInfo ||
+	       pGetOpenPanelInfo ||
 	       pFreeFindData ||
 	       pFreeVirtualFindData ||
-	       pClosePlugin;
+	       pClosePanel;
 }
 
-HANDLE PluginA::OpenPlugin(int OpenFrom, const GUID& Guid, INT_PTR Item)
+HANDLE PluginA::OpenPanel(int OpenFrom, const GUID& Guid, INT_PTR Item)
 {
 	ChangePriority *ChPriority = new ChangePriority(THREAD_PRIORITY_NORMAL);
 
@@ -5006,11 +5006,11 @@ HANDLE PluginA::OpenPlugin(int OpenFrom, const GUID& Guid, INT_PTR Item)
 
 	HANDLE hResult = INVALID_HANDLE_VALUE;
 
-	if (Load() && pOpenPlugin && !ProcessException)
+	if (Load() && pOpenPanel && !ProcessException)
 	{
 		//CurPluginItem=this; //BUGBUG
 		ExecuteStruct es;
-		es.id = EXCEPT_OPENPLUGIN;
+		es.id = EXCEPT_OPENPANEL;
 		es.hDefaultResult = INVALID_HANDLE_VALUE;
 		es.hResult = INVALID_HANDLE_VALUE;
 		char *ItemA = nullptr;
@@ -5029,7 +5029,7 @@ HANDLE PluginA::OpenPlugin(int OpenFrom, const GUID& Guid, INT_PTR Item)
 			OpenFrom = OPEN_LEFTDISKMENU;
 		}
 
-		EXECUTE_FUNCTION_EX(pOpenPlugin(OpenFrom,Item), es);
+		EXECUTE_FUNCTION_EX(pOpenPanel(OpenFrom,Item), es);
 
 		if (ItemA) xf_free(ItemA);
 
@@ -5512,18 +5512,18 @@ int PluginA::ProcessKey(HANDLE hPlugin,const INPUT_RECORD *Rec, bool Pred)
 }
 
 
-void PluginA::ClosePlugin(
+void PluginA::ClosePanel(
     HANDLE hPlugin
 )
 {
-	if (pClosePlugin && !ProcessException)
+	if (pClosePanel && !ProcessException)
 	{
 		ExecuteStruct es;
-		es.id = EXCEPT_CLOSEPLUGIN;
-		EXECUTE_FUNCTION(pClosePlugin(hPlugin), es);
+		es.id = EXCEPT_CLOSEPANEL;
+		EXECUTE_FUNCTION(pClosePanel(hPlugin), es);
 	}
 
-	FreeOpenPluginInfo();
+	FreeOPENPANELINFO();
 	//	m_pManager->m_pCurrentPlugin = (Plugin*)-1;
 }
 
@@ -5552,7 +5552,7 @@ int PluginA::SetDirectory(
 	return bResult;
 }
 
-void PluginA::FreeOpenPluginInfo()
+void PluginA::FreeOPENPANELINFO()
 {
 	if (OPI.CurDir)
 		xf_free((void *)OPI.CurDir);
@@ -5593,9 +5593,9 @@ void PluginA::FreeOpenPluginInfo()
 	memset(&OPI,0,sizeof(OPI));
 }
 
-void PluginA::ConvertOpenPluginInfo(oldfar::OpenPluginInfo &Src, OpenPluginInfo *Dest)
+void PluginA::ConvertOPENPANELINFO(oldfar::OpenPanelInfo &Src, OpenPanelInfo *Dest)
 {
-	FreeOpenPluginInfo();
+	FreeOPENPANELINFO();
 	OPI.StructSize = sizeof(OPI);
 	OPI.Flags = 0;
 	if (!(Src.Flags&oldfar::OPIF_USEFILTER)) OPI.Flags|=OPIF_DISABLEFILTER;
@@ -5690,7 +5690,7 @@ void PluginA::ConvertOpenPluginInfo(oldfar::OpenPluginInfo &Src, OpenPluginInfo 
 	if (Src.KeyBar)
 	{
 		OPI.KeyBar=(KeyBarTitles*) xf_malloc(sizeof(KeyBarTitles));
-		ConvertKeyBarTitlesA(Src.KeyBar, (KeyBarTitles*)OPI.KeyBar, Src.StructSize>=(int)sizeof(oldfar::OpenPluginInfo));
+		ConvertKeyBarTitlesA(Src.KeyBar, (KeyBarTitles*)OPI.KeyBar, Src.StructSize>=(int)sizeof(oldfar::OpenPanelInfo));
 	}
 
 	if (Src.ShortcutData)
@@ -5699,21 +5699,21 @@ void PluginA::ConvertOpenPluginInfo(oldfar::OpenPluginInfo &Src, OpenPluginInfo 
 	*Dest=OPI;
 }
 
-void PluginA::GetOpenPluginInfo(
+void PluginA::GetOpenPanelInfo(
     HANDLE hPlugin,
-    OpenPluginInfo *pInfo
+    OpenPanelInfo *pInfo
 )
 {
 //	m_pManager->m_pCurrentPlugin = this;
-	pInfo->StructSize = sizeof(OpenPluginInfo);
+	pInfo->StructSize = sizeof(OpenPanelInfo);
 
-	if (pGetOpenPluginInfo && !ProcessException)
+	if (pGetOpenPanelInfo && !ProcessException)
 	{
 		ExecuteStruct es;
-		es.id = EXCEPT_GETOPENPLUGININFO;
-		oldfar::OpenPluginInfo InfoA={0};
-		EXECUTE_FUNCTION(pGetOpenPluginInfo(hPlugin, &InfoA), es);
-		ConvertOpenPluginInfo(InfoA,pInfo);
+		es.id = EXCEPT_GETOPENPANELINFO;
+		oldfar::OpenPanelInfo InfoA={0};
+		EXECUTE_FUNCTION(pGetOpenPanelInfo(hPlugin, &InfoA), es);
+		ConvertOPENPANELINFO(InfoA,pInfo);
 	}
 }
 
@@ -5878,11 +5878,11 @@ void PluginA::ExitFAR()
 void PluginA::ClearExports()
 {
 	pSetStartupInfo=0;
-	pOpenPlugin=0;
+	pOpenPanel=0;
 	pOpenFilePlugin=0;
-	pClosePlugin=0;
+	pClosePanel=0;
 	pGetPluginInfo=0;
-	pGetOpenPluginInfo=0;
+	pGetOpenPanelInfo=0;
 	pGetFindData=0;
 	pFreeFindData=0;
 	pGetVirtualFindData=0;
