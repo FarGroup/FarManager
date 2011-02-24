@@ -2513,8 +2513,13 @@ int WINAPI farSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS Comm
 			    FarSettingsCreate* data = (FarSettingsCreate*)Param2;
 				if (data->StructSize>=sizeof(FarSettingsCreate))
 				{
-					data->Handle=new PluginSettings(data->Guid);
-					return TRUE;
+					settings=new PluginSettings(data->Guid);
+					if (settings->IsValid())
+					{
+						data->Handle=settings;
+						return TRUE;
+					}
+					delete settings;
 				}
 			}
 			break;

@@ -424,7 +424,7 @@ bool PluginManager::LoadPlugin(
 	if (!LoadToMem)
 		bResult = pPlugin->LoadFromCache(FindData);
 
-	if (!bResult && !Opt.LoadPlug.PluginsCacheOnly)
+	if (!bResult && (pPlugin->CheckWorkFlags(PIWF_PRELOADED) || !Opt.LoadPlug.PluginsCacheOnly))
 	{
 		bResult = bDataLoaded = pPlugin->LoadData();
 	}

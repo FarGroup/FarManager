@@ -300,7 +300,10 @@ bool PluginW::LoadFromCache(const FAR_FIND_DATA_EX &FindData)
 	if (CheckRegKey(strRegKey))
 	{
 		if (GetRegKey(strRegKey,wszReg_Preload,0) == 1)   //PF_PRELOAD plugin, skip cache
-			return Load();
+		{
+			WorkFlags.Set(PIWF_PRELOADED);
+			return false;
+		}
 
 		{
 			string strPluginID, strCurPluginID;
