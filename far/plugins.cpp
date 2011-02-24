@@ -750,7 +750,7 @@ HANDLE PluginManager::OpenFilePlugin(
 			AData.FileName = Name;
 			AData.Buffer = Data;
 			AData.BufferSize = DataSize;
-			AData.OpMode = OpMode;
+			AData.OpMode = OpMode|(Type==OFP_ALTERNATIVE?OPM_PGDN:0);
 
 			if (pPlugin->Analyse(&AData))
 			{
