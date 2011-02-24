@@ -44,7 +44,7 @@ void CheckHeap(int NumLine);
 
 string __FARKEY_ToName(int Key);
 #define _FARKEY_ToName(K) __FARKEY_ToName(K).CPtr()
-string __MCODE_ToName(int OpCode);
+string __MCODE_ToName(DWORD OpCode);
 #define _MCODE_ToName(K) __MCODE_ToName(K).CPtr()
 string __VK_KEY_ToName(int VkKey);
 #define _VK_KEY_ToName(K) __VK_KEY_ToName(K).CPtr()
@@ -60,7 +60,7 @@ string __VE_ToName(int Command);
 #define _VE_ToName(K) __VE_ToName(K).CPtr()
 string __FCTL_ToName(int Command);
 #define _FCTL_ToName(K) __FCTL_ToName(K).CPtr()
-string __DLGMSG_ToName(int Msg);
+string __DLGMSG_ToName(DWORD Msg);
 #define _DLGMSG_ToName(K) __DLGMSG_ToName(K).CPtr()
 string __ACTL_ToName(int Command);
 #define _ACTL_ToName(K) __ACTL_ToName(K).CPtr()

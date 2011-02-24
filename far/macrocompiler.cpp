@@ -1333,7 +1333,7 @@ static void printKeyValue(DWORD* k, int& i)
 		for (size_t J=0; J < CountMacroFunction; ++J)
 		{
 			const TMacroFunction *mFunc=KeyMacro::GetMacroFunction(J);
-			if (mFunc[J].Code == Code)
+			if (mFunc[J].Code == static_cast<TMacroOpCode>(Code))
 			{
 				cmt=mFunc[J].Syntax;
 				break;
