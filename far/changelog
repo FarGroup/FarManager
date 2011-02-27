@@ -1,3 +1,7 @@
+drkns 27.02.2011 23:33:05 +0200 - build 1895
+
+1. Уточнение отладочных версий delete[] и delete.
+
 drkns 27.02.2011 13:26:39 +0200 - build 1894
 
 1. Настройки плагинов теперь хранятся не в Plugins\<PluginTitle>, а в Plugins\<PluginGUID>.

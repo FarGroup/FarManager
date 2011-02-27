@@ -201,13 +201,16 @@ void * __cdecl operator new[] (size_t size) throw()
 	return res;
 }
 
-void operator delete(void *ptr) 
+void operator delete(void *ptr)
 {
 
 #ifdef MEMORY_CHECK
-	MEMINFO* Info = reinterpret_cast<MEMINFO*>(reinterpret_cast<LPBYTE>(ptr)-sizeof(MEMINFO));
-	assert(Info->AllocationType == AT_CPP);
-	Info->AllocationType = AT_C;
+	if(ptr)
+	{
+		MEMINFO* Info = reinterpret_cast<MEMINFO*>(reinterpret_cast<LPBYTE>(ptr)-sizeof(MEMINFO));
+		assert(Info->AllocationType == AT_CPP);
+		Info->AllocationType = AT_C;
+	}
 #endif
 
 	xf_free(ptr);
@@ -220,9 +223,12 @@ void operator delete(void *ptr)
 void __cdecl operator delete[] (void *ptr) throw()
 {
 #ifdef MEMORY_CHECK
-	MEMINFO* Info = reinterpret_cast<MEMINFO*>(reinterpret_cast<LPBYTE>(ptr)-sizeof(MEMINFO));
-	assert(Info->AllocationType == AT_CPPARRAY);
-	Info->AllocationType = AT_CPP;
+	if(ptr)
+	{
+		MEMINFO* Info = reinterpret_cast<MEMINFO*>(reinterpret_cast<LPBYTE>(ptr)-sizeof(MEMINFO));
+		assert(Info->AllocationType == AT_CPPARRAY);
+		Info->AllocationType = AT_CPP;
+	}
 #endif
 
 	operator delete(ptr);
