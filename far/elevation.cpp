@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "event.hpp"
 #include "FarGuid.hpp"
+#include "strmix.hpp"
 
 const int CallbackMagic= 0xCA11BAC6;
 
@@ -277,8 +278,7 @@ bool elevation::Initialize()
 		GUID Id;
 		if(CoCreateGuid(&Id) == S_OK)
 		{
-			strPipeID.Format(L"{%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}", Id.Data1, Id.Data2, Id.Data3, Id.Data4[0], Id.Data4[1], Id.Data4[2], Id.Data4[3], Id.Data4[4], Id.Data4[5], Id.Data4[6], Id.Data4[7]);
-
+			strPipeID = GuidToStr(Id);
 			SID_IDENTIFIER_AUTHORITY NtAuthority=SECURITY_NT_AUTHORITY;
 			PSID AdminSID;
 			if(AllocateAndInitializeSid(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS, 0, 0, 0, 0, 0, 0, &AdminSID))

@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugsettings.hpp"
 #include "ctrlobj.hpp"
 #include "registry.hpp"
+#include "strmix.hpp"
 
 PluginSettings::PluginSettings(const GUID& Guid)
 {
@@ -43,7 +44,7 @@ PluginSettings::PluginSettings(const GUID& Guid)
 	if (pPlugin)
 	{
 		string& root(*m_Keys.insertItem(0));
-		root=string(L"Plugins\\")+pPlugin->GetTitle();
+		root=string(L"Plugins\\")+GuidToStr(Guid);
 	}
 }
 
@@ -108,8 +109,8 @@ int PluginSettings::Get(FarSettingsItem& Item)
 			case FST_SUBKEY:
 				break;
 			case FST_QWORD:
-			    {
-			        __int64 value;
+				{
+					__int64 value;
 					if (GetRegKey64(m_Keys.getItem(Item.Root)->CPtr(),Item.Name,value,0LL))
 					{
 						result=TRUE;
@@ -168,19 +169,19 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 	int result=FALSE;
 	if(Enum.Root<m_Keys.getCount())
 	{
-	    Vector<FarSettingsName>& array=*m_Enum.addItem();
+		Vector<FarSettingsName>& array=*m_Enum.addItem();
 		FarSettingsName item;
-	    DWORD Index=0,Type;
+		DWORD Index=0,Type;
 		HKEY hKey=OpenRegKey(m_Keys.getItem(Enum.Root)->CPtr());
 		string strName,strValue;
 
 		if (hKey)
 		{
-	    	item.Type=FST_SUBKEY;
-	    	while (apiRegEnumKeyEx(hKey,Index++,strName)==ERROR_SUCCESS)
-	    	{
-	    	    AddString(array,item,strName);
-	    	}
+			item.Type=FST_SUBKEY;
+			while (apiRegEnumKeyEx(hKey,Index++,strName)==ERROR_SUCCESS)
+			{
+				AddString(array,item,strName);
+			}
 			RegCloseKey(hKey);
 			Index=0;
 			while(EnumRegValueEx(m_Keys.getItem(Enum.Root)->CPtr(),Index++,strName,strValue,nullptr,nullptr,&Type)!=REG_NONE)
@@ -200,13 +201,13 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 				}
 				if(item.Type!=FST_UNKNOWN)
 				{
-	    	    	AddString(array,item,strName);
+					AddString(array,item,strName);
 				}
 			}
 			Enum.Count=array.GetSize();
 			Enum.Items=array.GetItems();
 			result=TRUE;
-	    }
+		}
 	}
 	return result;
 }

@@ -1,3 +1,7 @@
+drkns 27.02.2011 13:26:39 +0200 - build 1894
+
+1. Настройки плагинов теперь хранятся не в Plugins\<PluginTitle>, а в Plugins\<PluginGUID>.
+
 drkns 24.02.2011 21:04:51 +0200 - build 1893
 
 1. Warnings.
