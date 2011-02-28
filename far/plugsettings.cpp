@@ -45,6 +45,7 @@ PluginSettings::PluginSettings(const GUID& Guid)
 	{
 		string& root(*m_Keys.insertItem(0));
 		root=string(L"Plugins\\")+GuidToStr(Guid);
+		SetRegKey(root, nullptr, pPlugin->GetTitle());
 	}
 }
 
