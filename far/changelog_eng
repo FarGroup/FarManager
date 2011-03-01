@@ -3,6 +3,49 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 01.03.2011 11:12:03 +0200 - build 1897
+
+1. Regular expressions replacement used to crash on empty parentheses.
+
+drkns 28.02.2011 14:27:07 +0200 - build 1896
+
+1. Plugins\<PluginGUID> keys contain PluginTitle as Default, for those manual editing fans.
+
+drkns 27.02.2011 23:33:05 +0200 - build 1895
+
+1. Correction of debug versions of delete[] and delete.
+
+drkns 27.02.2011 13:26:39 +0200 - build 1894
+
+1. Plugin settings are now stored at Plugins\<PluginGUID> instead of Plugins\<PluginTitle>.
+
+drkns 24.02.2011 21:04:51 +0200 - build 1893
+
+1. Warnings.
+
+drkns 24.02.2011 20:34:19 +0200 - build 1892
+
+1. Some correction on launcher functionality.
+
+drkns 24.02.2011 17:09:22 +0200
+
+1. Makeup.
+
+drkns 24.02.2011 16:48:26 +0200 - build 1891
+
+1. OpenFilePluginW = AnalyseW + OpenPanelW.
+   OpenPluginW = OpenPanelW
+   ClosePluginW = ClosePanelW
+   GetOpenPluginInfoW = GetOpenPanelInfoW
+   OpenPluginInfo = OpenPanelInfo
+   FCTL_CLOSEPLUGIN = FCTL_CLOSEPANEL
+
+zg 24.02.2011 02:48:54 +0200 - build 1890
+
+1. Plugins with PF_PRELOAD flag were not loaded correctly if they had already been in the cache.
+
+2. SCTL_CREATE did not return an error in the case of incorrect GUID.
+
 drkns 23.02.2011 20:34:14 +0200 - build 1889
 
 1. VC level 4 warnings.
