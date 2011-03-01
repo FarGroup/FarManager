@@ -1313,7 +1313,7 @@ string ReplaceBrackets(const string& SearchStr,const string& ReplaceStr,RegExpMa
 
 			if (index>=0)
 			{
-				if (index<Count)
+				if (index<Count&&Match[index].end>=0)
 				{
 					string bracket(SearchStr.CPtr()+Match[index].start,Match[index].end-Match[index].start);
 					result+=bracket;
