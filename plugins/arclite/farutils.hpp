@@ -32,7 +32,6 @@ namespace Far {
 
 void init(const PluginStartupInfo* psi);
 wstring get_plugin_module_path();
-wstring get_root_key_name();
 
 #define MAKE_VERSION(major, minor, build) (((major) << 24) | ((minor) << 16) | (build))
 #define VER_MAJOR(version) HIBYTE(HIWORD(version))
@@ -103,12 +102,12 @@ const unsigned c_x_frame = 5;
 const unsigned c_y_frame = 2;
 
 struct DialogItem {
-  DialogItemTypes type;
+  FARDIALOGITEMTYPES type;
   unsigned x1;
   unsigned y1;
   unsigned x2;
   unsigned y2;
-  FarDialogItemFlags flags;
+  FARDIALOGITEMFLAGS flags;
   int selected;
   unsigned history_idx;
   unsigned mask_idx;
@@ -172,28 +171,28 @@ public:
   void pad(unsigned pos);
   unsigned separator();
   unsigned separator(const wstring& text);
-  unsigned label(const wstring& text, unsigned boxsize = AUTO_SIZE, FarDialogItemFlags flags = 0);
-  unsigned edit_box(const wstring& text, unsigned boxsize = AUTO_SIZE, FarDialogItemFlags flags = 0);
-  unsigned mask_edit_box(const wstring& text, const wstring& mask, unsigned boxsize = AUTO_SIZE, FarDialogItemFlags flags = 0);
-  unsigned history_edit_box(const wstring& text, const wstring& history_name, unsigned boxsize = AUTO_SIZE, FarDialogItemFlags flags = 0);
-  unsigned fix_edit_box(const wstring& text, unsigned boxsize = AUTO_SIZE, FarDialogItemFlags flags = 0);
-  unsigned pwd_edit_box(const wstring& text, unsigned boxsize = AUTO_SIZE, FarDialogItemFlags flags = 0);
-  unsigned button(const wstring& text, FarDialogItemFlags flags = 0);
-  unsigned def_button(const wstring& text, FarDialogItemFlags flags = 0) {
+  unsigned label(const wstring& text, unsigned boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
+  unsigned edit_box(const wstring& text, unsigned boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
+  unsigned mask_edit_box(const wstring& text, const wstring& mask, unsigned boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
+  unsigned history_edit_box(const wstring& text, const wstring& history_name, unsigned boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
+  unsigned fix_edit_box(const wstring& text, unsigned boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
+  unsigned pwd_edit_box(const wstring& text, unsigned boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
+  unsigned button(const wstring& text, FARDIALOGITEMFLAGS flags = 0);
+  unsigned def_button(const wstring& text, FARDIALOGITEMFLAGS flags = 0) {
     return button(text, flags | DIF_DEFAULTBUTTON);
   }
-  unsigned check_box(const wstring& text, int value, FarDialogItemFlags flags = 0);
-  unsigned check_box(const wstring& text, bool value, FarDialogItemFlags flags = 0) {
+  unsigned check_box(const wstring& text, int value, FARDIALOGITEMFLAGS flags = 0);
+  unsigned check_box(const wstring& text, bool value, FARDIALOGITEMFLAGS flags = 0) {
     return check_box(text, value ? BSTATE_CHECKED : BSTATE_UNCHECKED, flags);
   }
-  unsigned check_box3(const wstring& text, bool value, bool value_defined, FarDialogItemFlags flags = 0) {
+  unsigned check_box3(const wstring& text, bool value, bool value_defined, FARDIALOGITEMFLAGS flags = 0) {
     return check_box(text, value_defined ? (value ? BSTATE_CHECKED : BSTATE_UNCHECKED) : BSTATE_3STATE, flags | DIF_3STATE);
   }
-  unsigned check_box3(const wstring& text, TriState value, FarDialogItemFlags flags = 0) {
+  unsigned check_box3(const wstring& text, TriState value, FARDIALOGITEMFLAGS flags = 0) {
     return check_box(text, value == triUndef ? BSTATE_3STATE : value == triTrue ? BSTATE_CHECKED : BSTATE_UNCHECKED, flags | DIF_3STATE);
   }
-  unsigned radio_button(const wstring& text, bool value, FarDialogItemFlags flags = 0);
-  unsigned combo_box(const vector<wstring>& items, unsigned sel_idx, unsigned boxsize = AUTO_SIZE, FarDialogItemFlags flags = 0);
+  unsigned radio_button(const wstring& text, bool value, FARDIALOGITEMFLAGS flags = 0);
+  unsigned combo_box(const vector<wstring>& items, unsigned sel_idx, unsigned boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
   // display dialog
   int show();
   // utilities to set/get control values
@@ -243,14 +242,35 @@ public:
 };
 
 wstring get_absolute_path(const wstring& rel_path);
-int control(HANDLE h_panel, int command, int param1 = 0, void* param2 = nullptr);
-INT_PTR adv_control(int command, void* param = nullptr);
+int control(HANDLE h_panel, FILE_CONTROL_COMMANDS command, int param1 = 0, void* param2 = nullptr);
+INT_PTR adv_control(ADVANCED_CONTROL_COMMANDS command, void* param = nullptr);
 bool match_masks(const wstring& file_name, const wstring& masks);
 unsigned char get_colors(PaletteColors color_id);
 bool panel_go_to_dir(HANDLE h_panel, const wstring& dir);
 bool panel_go_to_file(HANDLE h_panel, const wstring& file_path);
 DWORD get_lang_id();
-void close_plugin(HANDLE h_plugin, const wstring& dir);
+void close_panel(HANDLE h_panel, const wstring& dir);
 void open_help(const wstring& topic);
+
+class Settings {
+private:
+  HANDLE handle;
+  size_t dir_id;
+  int control(FAR_SETTINGS_CONTROL_COMMANDS command, void* param = nullptr);
+  void clean();
+public:
+  Settings();
+  ~Settings();
+  bool create();
+  bool set_dir(const wstring& path);
+  bool list_dir(vector<wstring>& result);
+  bool set(const wchar_t* name, unsigned __int64 value);
+  bool set(const wchar_t* name, const wstring& value);
+  bool set(const wchar_t* name, const void* value, size_t value_size);
+  bool get(const wchar_t* name, unsigned __int64& value);
+  bool get(const wchar_t* name, wstring& value);
+  bool get(const wchar_t* name, ByteVector& value);
+  bool del(const wchar_t* name);
+};
 
 };

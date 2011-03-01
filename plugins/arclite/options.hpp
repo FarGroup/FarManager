@@ -25,7 +25,7 @@ struct Options {
   OverwriteAction update_overwrite;
   // panel mode
   unsigned panel_view_mode;
-  unsigned panel_sort_mode;
+  OPENPANELINFO_SORTMODES panel_sort_mode;
   bool panel_reverse_sort;
   // masks
   bool use_include_masks;
@@ -37,6 +37,7 @@ struct Options {
   wstring enabled_formats;
   bool use_disabled_formats;
   wstring disabled_formats;
+  Options();
   // profiles
   void load();
   void save() const;

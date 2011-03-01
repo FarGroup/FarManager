@@ -2,6 +2,7 @@
 #include "sysutils.hpp"
 #include "farutils.hpp"
 #include "guids.hpp"
+#include "msg.h"
 
 namespace Far {
 
@@ -15,10 +16,6 @@ void init(const PluginStartupInfo* psi) {
 
 wstring get_plugin_module_path() {
   return extract_file_path(g_far.ModuleName);
-}
-
-wstring get_root_key_name() {
-  return g_far.RootKey;
 }
 
 unsigned get_version() {
@@ -91,7 +88,7 @@ void set_progress_state(TBPFLAG state) {
 }
 
 void set_progress_value(unsigned __int64 completed, unsigned __int64 total) {
-  PROGRESSVALUE pv;
+  ProgressValue pv;
   pv.Completed = completed;
   pv.Total = total;
   g_far.AdvControl(&c_plugin_guid, ACTL_SETPROGRESSVALUE, &pv);
@@ -202,7 +199,7 @@ PanelItem get_current_panel_item(HANDLE h_panel) {
   return pi;
 }
 
-PanelItem get_panel_item(HANDLE h_panel, int command, int index) {
+PanelItem get_panel_item(HANDLE h_panel, FILE_CONTROL_COMMANDS command, int index) {
   unsigned size = g_far.Control(h_panel, command, index, 0);
   Buffer<unsigned char> buf(size);
   size = g_far.Control(h_panel, command, index, reinterpret_cast<INT_PTR>(buf.data()));
@@ -356,7 +353,7 @@ unsigned Dialog::separator(const wstring& text) {
   return new_item(di);
 }
 
-unsigned Dialog::label(const wstring& text, unsigned boxsize, FarDialogItemFlags flags) {
+unsigned Dialog::label(const wstring& text, unsigned boxsize, FARDIALOGITEMFLAGS flags) {
   DialogItem di;
   di.type = DI_TEXT;
   di.x1 = x;
@@ -374,7 +371,7 @@ unsigned Dialog::label(const wstring& text, unsigned boxsize, FarDialogItemFlags
   return new_item(di);
 }
 
-unsigned Dialog::edit_box(const wstring& text, unsigned boxsize, FarDialogItemFlags flags) {
+unsigned Dialog::edit_box(const wstring& text, unsigned boxsize, FARDIALOGITEMFLAGS flags) {
   DialogItem di;
   di.type = DI_EDIT;
   di.x1 = x;
@@ -392,19 +389,19 @@ unsigned Dialog::edit_box(const wstring& text, unsigned boxsize, FarDialogItemFl
   return new_item(di);
 }
 
-unsigned Dialog::history_edit_box(const wstring& text, const wstring& history_name, unsigned boxsize, FarDialogItemFlags flags) {
+unsigned Dialog::history_edit_box(const wstring& text, const wstring& history_name, unsigned boxsize, FARDIALOGITEMFLAGS flags) {
   unsigned idx = edit_box(text, boxsize, flags | DIF_HISTORY);
   items[idx].history_idx = new_value(history_name);
   return idx;
 }
 
-unsigned Dialog::mask_edit_box(const wstring& text, const wstring& mask, unsigned boxsize, FarDialogItemFlags flags) {
+unsigned Dialog::mask_edit_box(const wstring& text, const wstring& mask, unsigned boxsize, FARDIALOGITEMFLAGS flags) {
   unsigned idx = fix_edit_box(text, boxsize, flags | DIF_MASKEDIT);
   items[idx].mask_idx = new_value(mask);
   return idx;
 }
 
-unsigned Dialog::fix_edit_box(const wstring& text, unsigned boxsize, FarDialogItemFlags flags) {
+unsigned Dialog::fix_edit_box(const wstring& text, unsigned boxsize, FARDIALOGITEMFLAGS flags) {
   DialogItem di;
   di.type = DI_FIXEDIT;
   di.x1 = x;
@@ -422,7 +419,7 @@ unsigned Dialog::fix_edit_box(const wstring& text, unsigned boxsize, FarDialogIt
   return new_item(di);
 }
 
-unsigned Dialog::pwd_edit_box(const wstring& text, unsigned boxsize, FarDialogItemFlags flags) {
+unsigned Dialog::pwd_edit_box(const wstring& text, unsigned boxsize, FARDIALOGITEMFLAGS flags) {
   DialogItem di;
   di.type = DI_PSWEDIT;
   di.x1 = x;
@@ -440,7 +437,7 @@ unsigned Dialog::pwd_edit_box(const wstring& text, unsigned boxsize, FarDialogIt
   return new_item(di);
 }
 
-unsigned Dialog::button(const wstring& text, FarDialogItemFlags flags) {
+unsigned Dialog::button(const wstring& text, FARDIALOGITEMFLAGS flags) {
   DialogItem di;
   di.type = DI_BUTTON;
   di.x1 = x;
@@ -454,7 +451,7 @@ unsigned Dialog::button(const wstring& text, FarDialogItemFlags flags) {
   return new_item(di);
 }
 
-unsigned Dialog::check_box(const wstring& text, int value, FarDialogItemFlags flags) {
+unsigned Dialog::check_box(const wstring& text, int value, FARDIALOGITEMFLAGS flags) {
   DialogItem di;
   di.type = DI_CHECKBOX;
   di.x1 = x;
@@ -469,7 +466,7 @@ unsigned Dialog::check_box(const wstring& text, int value, FarDialogItemFlags fl
   return new_item(di);
 }
 
-unsigned Dialog::radio_button(const wstring& text, bool value, FarDialogItemFlags flags) {
+unsigned Dialog::radio_button(const wstring& text, bool value, FARDIALOGITEMFLAGS flags) {
   DialogItem di;
   di.type = DI_RADIOBUTTON;
   di.x1 = x;
@@ -484,7 +481,7 @@ unsigned Dialog::radio_button(const wstring& text, bool value, FarDialogItemFlag
   return new_item(di);
 }
 
-unsigned Dialog::combo_box(const vector<wstring>& list_items, unsigned sel_idx, unsigned boxsize, FarDialogItemFlags flags) {
+unsigned Dialog::combo_box(const vector<wstring>& list_items, unsigned sel_idx, unsigned boxsize, FARDIALOGITEMFLAGS flags) {
   DialogItem di;
   di.type = DI_COMBOBOX;
   di.x1 = x;
@@ -719,11 +716,11 @@ wstring get_absolute_path(const wstring& rel_path) {
   return buf.data();
 }
 
-int control(HANDLE h_panel, int command, int param1, void* param2) {
+int control(HANDLE h_panel, FILE_CONTROL_COMMANDS command, int param1, void* param2) {
   return g_far.Control(h_panel, command, param1, reinterpret_cast<INT_PTR>(param2));
 }
 
-INT_PTR adv_control(int command, void* param) {
+INT_PTR adv_control(ADVANCED_CONTROL_COMMANDS command, void* param) {
   return g_far.AdvControl(&c_plugin_guid, command, param);
 }
 
@@ -771,30 +768,147 @@ bool panel_go_to_file(HANDLE h_panel, const wstring& file_path) {
 }
 
 DWORD get_lang_id() {
-  DWORD lang_id = 0;
-  wstring lang_key_path = add_trailing_slash(extract_file_path(g_far.RootKey)) + L"Language";
-  Key lang_key;
-  if (!lang_key.open_nt(HKEY_CURRENT_USER, lang_key_path.c_str(), KEY_QUERY_VALUE, false))
-    return lang_id;
-  wstring lang_name;
-  if (!lang_key.query_str_nt(lang_name, L"Main"))
-    return lang_id;
-  if (lang_name == L"English") lang_id = MAKELANGID(LANG_ENGLISH, SUBLANG_DEFAULT);
-  else if (lang_name == L"Russian") lang_id = MAKELANGID(LANG_RUSSIAN, SUBLANG_DEFAULT);
-  else if (lang_name == L"Czech") lang_id = MAKELANGID(LANG_CZECH, SUBLANG_DEFAULT);
-  else if (lang_name == L"German") lang_id = MAKELANGID(LANG_GERMAN, SUBLANG_DEFAULT);
-  else if (lang_name == L"Hungarian") lang_id = MAKELANGID(LANG_HUNGARIAN, SUBLANG_DEFAULT);
-  else if (lang_name == L"Polish") lang_id = MAKELANGID(LANG_POLISH, SUBLANG_DEFAULT);
-  else if (lang_name == L"Spanish") lang_id = MAKELANGID(LANG_SPANISH, SUBLANG_DEFAULT);
-  return lang_id;
+  if (get_msg(MSG_LANG) == L"ru")
+    return MAKELANGID(LANG_RUSSIAN, SUBLANG_DEFAULT);
+  else
+    return MAKELANGID(LANG_ENGLISH, SUBLANG_DEFAULT);
 }
 
-void close_plugin(HANDLE h_plugin, const wstring& dir) {
-  g_far.Control(h_plugin, FCTL_CLOSEPLUGIN, 0, reinterpret_cast<INT_PTR>(dir.c_str()));
+void close_panel(HANDLE h_panel, const wstring& dir) {
+  g_far.Control(h_panel, FCTL_CLOSEPANEL, 0, reinterpret_cast<INT_PTR>(dir.c_str()));
 }
 
 void open_help(const wstring& topic) {
   g_far.ShowHelp(g_far.ModuleName, topic.c_str(), FHELP_SELFHELP);
+}
+
+
+int Settings::control(FAR_SETTINGS_CONTROL_COMMANDS command, void* param) {
+  return g_far.SettingsControl(handle, command, 0, reinterpret_cast<INT_PTR>(param));
+}
+
+void Settings::clean() {
+  if (handle != INVALID_HANDLE_VALUE) {
+    control(SCTL_FREE);
+    handle = INVALID_HANDLE_VALUE;
+    dir_id = 0;
+  }
+}
+
+Settings::Settings(): handle(INVALID_HANDLE_VALUE), dir_id(0) {
+}
+
+Settings::~Settings() {
+  clean();
+}
+
+bool Settings::create() {
+  clean();
+  FarSettingsCreate fsc = { sizeof(FarSettingsCreate) };
+  fsc.Guid = c_plugin_guid;
+  if (!control(SCTL_CREATE, &fsc))
+    return false;
+  handle = fsc.Handle;
+  return true;
+}
+
+bool Settings::set_dir(const wstring& path) {
+  FarSettingsValue fsv;
+  size_t dir_id = 0;
+  list<wstring> dir_list = split(path, L'\\');
+  for(list<wstring>::const_iterator dir = dir_list.cbegin(); dir != dir_list.cend(); dir++) {
+    fsv.Root = dir_id;
+    fsv.Value = dir->c_str();
+    dir_id = control(SCTL_SUBKEY, &fsv);
+    if (dir_id == 0)
+      return false;
+  };
+  this->dir_id = dir_id;
+  return true;
+}
+
+bool Settings::list_dir(vector<wstring>& result) {
+  FarSettingsEnum fse;
+  fse.Root = dir_id;
+  if (!control(SCTL_ENUM, &fse))
+    return false;
+  result.clear();
+  result.reserve(fse.Count);
+  for (size_t i = 0; i < fse.Count; i++) {
+    if (fse.Items[i].Type == FST_SUBKEY)
+      result.push_back(fse.Items[i].Name);
+  }
+  result.shrink_to_fit();
+  return true;
+}
+
+bool Settings::set(const wchar_t* name, unsigned __int64 value) {
+  FarSettingsItem fsi;
+  fsi.Root = dir_id;
+  fsi.Name = name;
+  fsi.Type = FST_QWORD;
+  fsi.Number = value;
+  return control(SCTL_SET, &fsi) != 0;
+}
+
+bool Settings::set(const wchar_t* name, const wstring& value) {
+  FarSettingsItem fsi;
+  fsi.Root = dir_id;
+  fsi.Name = name;
+  fsi.Type = FST_STRING;
+  fsi.String = value.c_str();
+  return control(SCTL_SET, &fsi) != 0;
+}
+
+bool Settings::set(const wchar_t* name, const void* value, size_t value_size) {
+  FarSettingsItem fsi;
+  fsi.Root = dir_id;
+  fsi.Name = name;
+  fsi.Type = FST_DATA;
+  fsi.Data.Data = value;
+  fsi.Data.Size = value_size;
+  return control(SCTL_SET, &fsi) != 0;
+}
+
+bool Settings::get(const wchar_t* name, unsigned __int64& value) {
+  FarSettingsItem fsi;
+  fsi.Root = dir_id;
+  fsi.Name = name;
+  fsi.Type = FST_QWORD;
+  if (!control(SCTL_GET, &fsi))
+    return false;
+  value = fsi.Number;
+  return true;
+}
+
+bool Settings::get(const wchar_t* name, wstring& value) {
+  FarSettingsItem fsi;
+  fsi.Root = dir_id;
+  fsi.Name = name;
+  fsi.Type = FST_STRING;
+  if (!control(SCTL_GET, &fsi))
+    return false;
+  value = fsi.String;
+  return true;
+}
+
+bool Settings::get(const wchar_t* name, ByteVector& value) {
+  FarSettingsItem fsi;
+  fsi.Root = dir_id;
+  fsi.Name = name;
+  fsi.Type = FST_DATA;
+  if (!control(SCTL_GET, &fsi))
+    return false;
+  const unsigned char* data = static_cast<const unsigned char*>(fsi.Data.Data);
+  value.assign(data, data + fsi.Data.Size);
+  return true;
+}
+
+bool Settings::del(const wchar_t* name) {
+  FarSettingsValue fsv;
+  fsv.Root = dir_id;
+  fsv.Value = name;
+  return control(SCTL_DELETE, &fsv) != 0;
 }
 
 };

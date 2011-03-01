@@ -3,10 +3,10 @@ EXPORTS
   GetGlobalInfoW
   SetStartupInfoW
   GetPluginInfoW
-  OpenPluginW
-  OpenFilePluginW
-  ClosePluginW
-  GetOpenPluginInfoW
+  AnalyseW
+  OpenPanelW
+  ClosePanelW
+  GetOpenPanelInfoW
   SetDirectoryW
   GetFindDataW
   FreeFindDataW

@@ -1,5 +1,6 @@
-﻿.Language=English,English
+﻿.Language=Russian,Russian (Русский)
 
+lang = ru
 plugin.name = <(NAME)>
 
 # Extract dialog
