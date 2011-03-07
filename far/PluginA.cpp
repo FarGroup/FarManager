@@ -2104,7 +2104,7 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, int NewMsg, int Param1, INT_PTR Param2)
 		{
 			char* HelpTopicA = UnicodeToAnsi((const wchar_t *)Param2);
 			INT_PTR ret = CurrentDlgProc(hDlg, oldfar::DN_HELP, Param1, (INT_PTR)HelpTopicA);
-			if (ret)
+			if (ret && ret != Param2) // changed
 			{
 				if (HelpTopic) xf_free(HelpTopic);
 
@@ -3564,27 +3564,27 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 			INT_PTR ss = FarAdvControl(ModuleNumber, ACTL_GETSYSTEMSETTINGS, 0);
 			INT_PTR ret = 0;
 
-			if (ss&oldfar::FSS_CLEARROATTRIBUTE)          ret|=FSS_CLEARROATTRIBUTE;
+			if (ss&FSS_CLEARROATTRIBUTE)          ret|=oldfar::FSS_CLEARROATTRIBUTE;
 
-			if (ss&oldfar::FSS_DELETETORECYCLEBIN)        ret|=FSS_DELETETORECYCLEBIN;
+			if (ss&FSS_DELETETORECYCLEBIN)        ret|=oldfar::FSS_DELETETORECYCLEBIN;
 
-			if (ss&oldfar::FSS_USESYSTEMCOPYROUTINE)      ret|=FSS_USESYSTEMCOPYROUTINE;
+			if (ss&FSS_USESYSTEMCOPYROUTINE)      ret|=oldfar::FSS_USESYSTEMCOPYROUTINE;
 
-			if (ss&oldfar::FSS_COPYFILESOPENEDFORWRITING) ret|=FSS_COPYFILESOPENEDFORWRITING;
+			if (ss&FSS_COPYFILESOPENEDFORWRITING) ret|=oldfar::FSS_COPYFILESOPENEDFORWRITING;
 
-			if (ss&oldfar::FSS_CREATEFOLDERSINUPPERCASE)  ret|=FSS_CREATEFOLDERSINUPPERCASE;
+			if (ss&FSS_CREATEFOLDERSINUPPERCASE)  ret|=oldfar::FSS_CREATEFOLDERSINUPPERCASE;
 
-			if (ss&oldfar::FSS_SAVECOMMANDSHISTORY)       ret|=FSS_SAVECOMMANDSHISTORY;
+			if (ss&FSS_SAVECOMMANDSHISTORY)       ret|=oldfar::FSS_SAVECOMMANDSHISTORY;
 
-			if (ss&oldfar::FSS_SAVEFOLDERSHISTORY)        ret|=FSS_SAVEFOLDERSHISTORY;
+			if (ss&FSS_SAVEFOLDERSHISTORY)        ret|=oldfar::FSS_SAVEFOLDERSHISTORY;
 
-			if (ss&oldfar::FSS_SAVEVIEWANDEDITHISTORY)    ret|=FSS_SAVEVIEWANDEDITHISTORY;
+			if (ss&FSS_SAVEVIEWANDEDITHISTORY)    ret|=oldfar::FSS_SAVEVIEWANDEDITHISTORY;
 
-			if (ss&oldfar::FSS_USEWINDOWSREGISTEREDTYPES) ret|=FSS_USEWINDOWSREGISTEREDTYPES;
+			if (ss&FSS_USEWINDOWSREGISTEREDTYPES) ret|=oldfar::FSS_USEWINDOWSREGISTEREDTYPES;
 
-			if (ss&oldfar::FSS_AUTOSAVESETUP)             ret|=FSS_AUTOSAVESETUP;
+			if (ss&FSS_AUTOSAVESETUP)             ret|=oldfar::FSS_AUTOSAVESETUP;
 
-			if (ss&oldfar::FSS_SCANSYMLINK)               ret|=FSS_SCANSYMLINK;
+			if (ss&FSS_SCANSYMLINK)               ret|=oldfar::FSS_SCANSYMLINK;
 
 			return ret;
 		}
@@ -3593,29 +3593,29 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 			INT_PTR ps = FarAdvControl(ModuleNumber, ACTL_GETPANELSETTINGS, 0);
 			INT_PTR ret = 0;
 
-			if (ps&oldfar::FPS_SHOWHIDDENANDSYSTEMFILES)    ret|=FPS_SHOWHIDDENANDSYSTEMFILES;
+			if (ps&FPS_SHOWHIDDENANDSYSTEMFILES)    ret|=oldfar::FPS_SHOWHIDDENANDSYSTEMFILES;
 
-			if (ps&oldfar::FPS_HIGHLIGHTFILES)              ret|=FPS_HIGHLIGHTFILES;
+			if (ps&FPS_HIGHLIGHTFILES)              ret|=oldfar::FPS_HIGHLIGHTFILES;
 
-			if (ps&oldfar::FPS_AUTOCHANGEFOLDER)            ret|=FPS_AUTOCHANGEFOLDER;
+			if (ps&FPS_AUTOCHANGEFOLDER)            ret|=oldfar::FPS_AUTOCHANGEFOLDER;
 
-			if (ps&oldfar::FPS_SELECTFOLDERS)               ret|=FPS_SELECTFOLDERS;
+			if (ps&FPS_SELECTFOLDERS)               ret|=oldfar::FPS_SELECTFOLDERS;
 
-			if (ps&oldfar::FPS_ALLOWREVERSESORTMODES)       ret|=FPS_ALLOWREVERSESORTMODES;
+			if (ps&FPS_ALLOWREVERSESORTMODES)       ret|=oldfar::FPS_ALLOWREVERSESORTMODES;
 
-			if (ps&oldfar::FPS_SHOWCOLUMNTITLES)            ret|=FPS_SHOWCOLUMNTITLES;
+			if (ps&FPS_SHOWCOLUMNTITLES)            ret|=oldfar::FPS_SHOWCOLUMNTITLES;
 
-			if (ps&oldfar::FPS_SHOWSTATUSLINE)              ret|=FPS_SHOWSTATUSLINE;
+			if (ps&FPS_SHOWSTATUSLINE)              ret|=oldfar::FPS_SHOWSTATUSLINE;
 
-			if (ps&oldfar::FPS_SHOWFILESTOTALINFORMATION)   ret|=FPS_SHOWFILESTOTALINFORMATION;
+			if (ps&FPS_SHOWFILESTOTALINFORMATION)   ret|=oldfar::FPS_SHOWFILESTOTALINFORMATION;
 
-			if (ps&oldfar::FPS_SHOWFREESIZE)                ret|=FPS_SHOWFREESIZE;
+			if (ps&FPS_SHOWFREESIZE)                ret|=oldfar::FPS_SHOWFREESIZE;
 
-			if (ps&oldfar::FPS_SHOWSCROLLBAR)               ret|=FPS_SHOWSCROLLBAR;
+			if (ps&FPS_SHOWSCROLLBAR)               ret|=oldfar::FPS_SHOWSCROLLBAR;
 
-			if (ps&oldfar::FPS_SHOWBACKGROUNDSCREENSNUMBER) ret|=FPS_SHOWBACKGROUNDSCREENSNUMBER;
+			if (ps&FPS_SHOWBACKGROUNDSCREENSNUMBER) ret|=oldfar::FPS_SHOWBACKGROUNDSCREENSNUMBER;
 
-			if (ps&oldfar::FPS_SHOWSORTMODELETTER)          ret|=FPS_SHOWSORTMODELETTER;
+			if (ps&FPS_SHOWSORTMODELETTER)          ret|=oldfar::FPS_SHOWSORTMODELETTER;
 
 			return ret;
 		}
@@ -3624,21 +3624,21 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 			INT_PTR is = FarAdvControl(ModuleNumber, ACTL_GETINTERFACESETTINGS, 0);
 			INT_PTR ret = 0;
 
-			if (is&oldfar::FIS_CLOCKINPANELS)                  ret|=FIS_CLOCKINPANELS;
+			if (is&FIS_CLOCKINPANELS)                  ret|=oldfar::FIS_CLOCKINPANELS;
 
-			if (is&oldfar::FIS_CLOCKINVIEWERANDEDITOR)         ret|=FIS_CLOCKINVIEWERANDEDITOR;
+			if (is&FIS_CLOCKINVIEWERANDEDITOR)         ret|=oldfar::FIS_CLOCKINVIEWERANDEDITOR;
 
-			if (is&oldfar::FIS_MOUSE)                          ret|=FIS_MOUSE;
+			if (is&FIS_MOUSE)                          ret|=oldfar::FIS_MOUSE;
 
-			if (is&oldfar::FIS_SHOWKEYBAR)                     ret|=FIS_SHOWKEYBAR;
+			if (is&FIS_SHOWKEYBAR)                     ret|=oldfar::FIS_SHOWKEYBAR;
 
-			if (is&oldfar::FIS_ALWAYSSHOWMENUBAR)              ret|=FIS_ALWAYSSHOWMENUBAR;
+			if (is&FIS_ALWAYSSHOWMENUBAR)              ret|=oldfar::FIS_ALWAYSSHOWMENUBAR;
 
-			if (is&oldfar::FIS_SHOWTOTALCOPYPROGRESSINDICATOR) ret|=FIS_SHOWTOTALCOPYPROGRESSINDICATOR;
+			if (is&FIS_SHOWTOTALCOPYPROGRESSINDICATOR) ret|=oldfar::FIS_SHOWTOTALCOPYPROGRESSINDICATOR;
 
-			if (is&oldfar::FIS_SHOWCOPYINGTIMEINFO)            ret|=FIS_SHOWCOPYINGTIMEINFO;
+			if (is&FIS_SHOWCOPYINGTIMEINFO)            ret|=oldfar::FIS_SHOWCOPYINGTIMEINFO;
 
-			if (is&oldfar::FIS_USECTRLPGUPTOCHANGEDRIVE)       ret|=FIS_USECTRLPGUPTOCHANGEDRIVE;
+			if (is&FIS_USECTRLPGUPTOCHANGEDRIVE)       ret|=oldfar::FIS_USECTRLPGUPTOCHANGEDRIVE;
 
 			return ret;
 		}
@@ -3647,25 +3647,25 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 			INT_PTR cs = FarAdvControl(ModuleNumber, ACTL_GETCONFIRMATIONS, 0);
 			INT_PTR ret = 0;
 
-			if (cs&oldfar::FCS_COPYOVERWRITE)          ret|=FCS_COPYOVERWRITE;
+			if (cs&FCS_COPYOVERWRITE)          ret|=oldfar::FCS_COPYOVERWRITE;
 
-			if (cs&oldfar::FCS_MOVEOVERWRITE)          ret|=FCS_MOVEOVERWRITE;
+			if (cs&FCS_MOVEOVERWRITE)          ret|=oldfar::FCS_MOVEOVERWRITE;
 
-			if (cs&oldfar::FCS_DRAGANDDROP)            ret|=FCS_DRAGANDDROP;
+			if (cs&FCS_DRAGANDDROP)            ret|=oldfar::FCS_DRAGANDDROP;
 
-			if (cs&oldfar::FCS_DELETE)                 ret|=FCS_DELETE;
+			if (cs&FCS_DELETE)                 ret|=oldfar::FCS_DELETE;
 
-			if (cs&oldfar::FCS_DELETENONEMPTYFOLDERS)  ret|=FCS_DELETENONEMPTYFOLDERS;
+			if (cs&FCS_DELETENONEMPTYFOLDERS)  ret|=oldfar::FCS_DELETENONEMPTYFOLDERS;
 
-			if (cs&oldfar::FCS_INTERRUPTOPERATION)     ret|=FCS_INTERRUPTOPERATION;
+			if (cs&FCS_INTERRUPTOPERATION)     ret|=oldfar::FCS_INTERRUPTOPERATION;
 
-			if (cs&oldfar::FCS_DISCONNECTNETWORKDRIVE) ret|=FCS_DISCONNECTNETWORKDRIVE;
+			if (cs&FCS_DISCONNECTNETWORKDRIVE) ret|=oldfar::FCS_DISCONNECTNETWORKDRIVE;
 
-			if (cs&oldfar::FCS_RELOADEDITEDFILE)       ret|=FCS_RELOADEDITEDFILE;
+			if (cs&FCS_RELOADEDITEDFILE)       ret|=oldfar::FCS_RELOADEDITEDFILE;
 
-			if (cs&oldfar::FCS_CLEARHISTORYLIST)       ret|=FCS_CLEARHISTORYLIST;
+			if (cs&FCS_CLEARHISTORYLIST)       ret|=oldfar::FCS_CLEARHISTORYLIST;
 
-			if (cs&oldfar::FCS_EXIT)                   ret|=FCS_EXIT;
+			if (cs&FCS_EXIT)                   ret|=oldfar::FCS_EXIT;
 
 			return ret;
 		}
@@ -3674,13 +3674,13 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 			INT_PTR ds = FarAdvControl(ModuleNumber, ACTL_GETDESCSETTINGS, 0);
 			INT_PTR ret = 0;
 
-			if (ds&oldfar::FDS_UPDATEALWAYS)      ret|=FDS_UPDATEALWAYS;
+			if (ds&FDS_UPDATEALWAYS)      ret|=oldfar::FDS_UPDATEALWAYS;
 
-			if (ds&oldfar::FDS_UPDATEIFDISPLAYED) ret|=FDS_UPDATEIFDISPLAYED;
+			if (ds&FDS_UPDATEIFDISPLAYED) ret|=oldfar::FDS_UPDATEIFDISPLAYED;
 
-			if (ds&oldfar::FDS_SETHIDDEN)         ret|=FDS_SETHIDDEN;
+			if (ds&FDS_SETHIDDEN)         ret|=oldfar::FDS_SETHIDDEN;
 
-			if (ds&oldfar::FDS_UPDATEREADONLY)    ret|=FDS_UPDATEREADONLY;
+			if (ds&FDS_UPDATEREADONLY)    ret|=oldfar::FDS_UPDATEREADONLY;
 
 			return ret;
 		}
@@ -4994,7 +4994,7 @@ bool PluginA::IsPanelPlugin()
 	       pClosePanel;
 }
 
-HANDLE PluginA::OpenPanel(int OpenFrom, const GUID& Guid, INT_PTR Item)
+HANDLE PluginA::Open(int OpenFrom, const GUID& Guid, INT_PTR Item)
 {
 	ChangePriority *ChPriority = new ChangePriority(THREAD_PRIORITY_NORMAL);
 
@@ -5013,7 +5013,7 @@ HANDLE PluginA::OpenPanel(int OpenFrom, const GUID& Guid, INT_PTR Item)
 	{
 		//CurPluginItem=this; //BUGBUG
 		ExecuteStruct es;
-		es.id = EXCEPT_OPENPANEL;
+		es.id = EXCEPT_OPEN;
 		es.hDefaultResult = INVALID_HANDLE_VALUE;
 		es.hResult = INVALID_HANDLE_VALUE;
 		char *ItemA = nullptr;

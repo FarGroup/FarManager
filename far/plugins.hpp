@@ -239,9 +239,9 @@ class PluginManager
 
 	public:
 
-		Plugin *Analyse(const AnalyseData *pData);
+		Plugin *Analyse(const AnalyseInfo *Info);
 
-		HANDLE OpenPanel(Plugin *pPlugin,int OpenFrom,const GUID& Guid,INT_PTR Item);
+		HANDLE Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,INT_PTR Item);
 		HANDLE OpenFilePlugin(const wchar_t *Name, int OpMode, OPENFILEPLUGINTYPE Type);
 		HANDLE OpenFindListPlugin(const PluginPanelItem *PanelItem,int ItemsNumber);
 		void ClosePanel(HANDLE hPlugin);

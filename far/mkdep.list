@@ -18,6 +18,8 @@ clipboard.hpp
 cmdline.cpp
 cmdline.hpp
 colors.hpp
+colormix.hpp
+colormix.cpp
 config.cpp
 config.hpp
 console.cpp

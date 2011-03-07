@@ -3995,13 +3995,15 @@ struct FarMacroValue
 			switch(V.type())
 			{
 				case vtInteger:
-					(vParams+I)->v.i=V.i();
+					(vParams+I)->i=V.i();
 					break;
 				case vtString:
-					(vParams+I)->v.s=xf_wcsdup(V.s());
+					(vParams+I)->s=xf_wcsdup(V.s());
 					break;
 				case vtDouble:
-					(vParams+I)->v.d=V.d();
+					(vParams+I)->d=V.d();
+					break;
+				case vtUnknown:
 					break;
 			}
 		}
@@ -4020,13 +4022,13 @@ struct FarMacroValue
 					switch((Results+I)->type)
 					{
 						case FMVT_INTEGER:
-							V=(Results+I)->v.i;
+							V=(Results+I)->i;
 							break;
 						case FMVT_STRING:
-							V=(Results+I)->v.s;
+							V=(Results+I)->s;
 							break;
 						case FMVT_DOUBLE:
-							V=(Results+I)->v.d;
+							V=(Results+I)->d;
 							break;
 					}
 					VMStack.Push(V);
@@ -4035,8 +4037,8 @@ struct FarMacroValue
 		}
 
 		for (I=0; I < nParam; ++I)
-			if((vParams+I)->type == vtString && (vParams+I)->v.s)
-				xf_free((void*)(vParams+I)->v.s);
+			if((vParams+I)->type == vtString && (vParams+I)->s)
+				xf_free((void*)(vParams+I)->s);
 
 		delete[] vParams;
 	}

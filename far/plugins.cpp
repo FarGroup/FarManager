@@ -746,13 +746,13 @@ HANDLE PluginManager::OpenFilePlugin(
 		}
 		else
 		{
-			AnalyseData AData;
-			AData.FileName = Name;
-			AData.Buffer = Data;
-			AData.BufferSize = DataSize;
-			AData.OpMode = OpMode|(Type==OFP_ALTERNATIVE?OPM_PGDN:0);
+			AnalyseInfo Info;
+			Info.FileName = Name;
+			Info.Buffer = Data;
+			Info.BufferSize = DataSize;
+			Info.OpMode = OpMode|(Type==OFP_ALTERNATIVE?OPM_PGDN:0);
 
-			if (pPlugin->Analyse(&AData))
+			if (pPlugin->Analyse(&Info))
 			{
 				PluginHandle *handle=items.addItem();
 				handle->pPlugin = pPlugin;
@@ -819,7 +819,7 @@ HANDLE PluginManager::OpenFilePlugin(
 
 		if (pResult && pResult->hPlugin == INVALID_HANDLE_VALUE)
 		{
-			HANDLE h = pResult->pPlugin->OpenPanel(OPEN_ANALYSE, FarGuid, 0);
+			HANDLE h = pResult->pPlugin->Open(OPEN_ANALYSE, FarGuid, 0);
 
 			if (h != INVALID_HANDLE_VALUE)
 				pResult->hPlugin = h;
@@ -864,7 +864,7 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, int I
 		if (!pPlugin->HasSetFindList())
 			continue;
 
-		HANDLE hPlugin = pPlugin->OpenPanel(OPEN_FINDLIST, FarGuid, 0);
+		HANDLE hPlugin = pPlugin->Open(OPEN_FINDLIST, FarGuid, 0);
 
 		if (hPlugin != INVALID_HANDLE_VALUE)
 		{
@@ -1720,7 +1720,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 		Item=(INT_PTR)&pd;
 	}
 
-	HANDLE hPlugin=OpenPanel(item.pPlugin,OpenCode,item.Guid,Item);
+	HANDLE hPlugin=Open(item.pPlugin,OpenCode,item.Guid,Item);
 
 	if (hPlugin!=INVALID_HANDLE_VALUE && !Editor && !Viewer && !Dialog)
 	{
@@ -2074,7 +2074,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 		CtrlObject->CmdLine->SetString(L"");
 		string strPluginCommand=strCommand.CPtr()+(PData->PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1);
 		RemoveTrailingSpaces(strPluginCommand);
-		HANDLE hPlugin=OpenPanel(PData->pPlugin,OPEN_COMMANDLINE,FarGuid,(INT_PTR)strPluginCommand.CPtr()); //BUGBUG
+		HANDLE hPlugin=Open(PData->pPlugin,OPEN_COMMANDLINE,FarGuid,(INT_PTR)strPluginCommand.CPtr()); //BUGBUG
 
 		if (hPlugin!=INVALID_HANDLE_VALUE)
 		{
@@ -2120,7 +2120,7 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,int *Re
 	{
 		if (pPlugin->HasOpenPanel() && !ProcessException)
 		{
-			HANDLE hNewPlugin=OpenPanel(pPlugin,OpenFrom,FarGuid,(INT_PTR)Data);
+			HANDLE hNewPlugin=Open(pPlugin,OpenFrom,FarGuid,(INT_PTR)Data);
 			bool process=false;
 
 			if (OpenFrom & OPEN_FROMMACRO)
@@ -2181,9 +2181,9 @@ INT_PTR PluginManager::PluginGuidToPluginNumber(const GUID& PluginId)
 	return result;
 }
 
-HANDLE PluginManager::OpenPanel(Plugin *pPlugin,int OpenFrom,const GUID& Guid,INT_PTR Item)
+HANDLE PluginManager::Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,INT_PTR Item)
 {
-	HANDLE hPlugin = pPlugin->OpenPanel(OpenFrom, Guid, Item);
+	HANDLE hPlugin = pPlugin->Open(OpenFrom, Guid, Item);
 
 	if (hPlugin != INVALID_HANDLE_VALUE)
 	{

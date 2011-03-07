@@ -104,7 +104,7 @@ class Plugin: public AncientPlugin
 		virtual bool SetStartupInfo(bool &bUnloaded) = 0;
 		virtual bool CheckMinFarVersion(bool &bUnloaded) = 0;
 
-		virtual HANDLE OpenPanel(int OpenFrom, const GUID& Guid, INT_PTR Item) = 0;
+		virtual HANDLE Open(int OpenFrom, const GUID& Guid, INT_PTR Item) = 0;
 		virtual HANDLE OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, int DataSize, int OpMode) = 0;
 
 		virtual int SetFindList(HANDLE hPlugin, const PluginPanelItem *PanelItem, int ItemsNumber) = 0;
@@ -137,7 +137,7 @@ class Plugin: public AncientPlugin
 		virtual int ProcessMacroFunc(const wchar_t *Name, const FarMacroValue *Params, int nParams, FarMacroValue **Results, int *nResults) = 0;
 #endif
 
-		virtual int Analyse(const AnalyseData *pData) = 0;
+		virtual int Analyse(const AnalyseInfo *Info) = 0;
 
 		virtual bool GetPluginInfo(PluginInfo *pi) = 0;
 		virtual int Configure(const GUID& Guid) = 0;

@@ -188,7 +188,7 @@ class PluginA: public Plugin
 		bool SetStartupInfo(bool &bUnloaded);
 		bool CheckMinFarVersion(bool &bUnloaded);
 
-		HANDLE OpenPanel(int OpenFrom, const GUID& Guid, INT_PTR Item);
+		HANDLE Open(int OpenFrom, const GUID& Guid, INT_PTR Item);
 		HANDLE OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, int DataSize, int OpMode);
 
 		int SetFindList(HANDLE hPlugin, const PluginPanelItem *PanelItem, int ItemsNumber);
@@ -221,7 +221,7 @@ class PluginA: public Plugin
 		int ProcessMacroFunc(const wchar_t *Name, const FarMacroValue *Params, int nParams, FarMacroValue **Results, int *nResults) {return 0;}
 #endif
 
-		int Analyse(const AnalyseData *pData) { return FALSE; }
+		int Analyse(const AnalyseInfo *Info) { return FALSE; }
 
 		bool GetPluginInfo(PluginInfo *pi);
 		int Configure(const GUID& Guid);

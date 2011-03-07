@@ -971,7 +971,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	}
 	else //эта плагин, да
 	{
-		HANDLE hPlugin = CtrlObject->Plugins.OpenPanel(
+		HANDLE hPlugin = CtrlObject->Plugins.Open(
 		                     mitem->pPlugin,
 		                     (CtrlObject->Cp()->LeftPanel == this)?OPEN_LEFTDISKMENU:OPEN_RIGHTDISKMENU,
 		                     mitem->Guid,
@@ -2651,7 +2651,7 @@ bool Panel::ExecShortcutFolder(int Pos)
 					{
 						if (pPlugin->HasOpenPanel())
 						{
-							HANDLE hNewPlugin=CtrlObject->Plugins.OpenPanel(pPlugin,OPEN_SHORTCUT,FarGuid,(INT_PTR)strPluginData.CPtr());
+							HANDLE hNewPlugin=CtrlObject->Plugins.Open(pPlugin,OPEN_SHORTCUT,FarGuid,(INT_PTR)strPluginData.CPtr());
 
 							if (hNewPlugin!=INVALID_HANDLE_VALUE)
 							{

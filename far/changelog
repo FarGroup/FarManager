@@ -1,3 +1,11 @@
+drkns 07.03.2011 13:35:35 +0200 - build 1899
+
+1. OpenPanelW -> OpenW.
+
+2. Функции CompareW, DeleteFilesW, FreeFindDataW, FreeVirtualFindDataW, GetFilesW, GetFindDataW, GetOpenPanelInfoW, GetVirtualFindDataW, MakeDirectoryW, OpenW, ProcessHostFileW, ProcessMacroFuncW, PutFilesW, SetDirectoryW, SetFindListW принимают структуру в качестве параметра.
+
+3. Уточнения враппера.
+
 zg 07.03.2011 12:29:13 +0200 - build 1898
 
 1. добавлена структура FarColor.

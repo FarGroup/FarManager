@@ -71,7 +71,7 @@ LPCWSTR GetFunctionName(int ExceptFunctionType)
 		case EXCEPT_GETGLOBALINFO: return L"GetGlobalInfo";
 		case EXCEPT_SETSTARTUPINFO: return L"SetStartupInfo";
 		case EXCEPT_GETVIRTUALFINDDATA: return L"GetVirtualFindData";
-		case EXCEPT_OPENPANEL: return L"OpenPanel";
+		case EXCEPT_OPEN: return L"Open";
 		case EXCEPT_OPENFILEPLUGIN: return L"OpenFilePlugin";
 		case EXCEPT_CLOSEPANEL: return L"ClosePanel";
 		case EXCEPT_GETPLUGININFO: return L"GetPluginInfo";

@@ -2206,6 +2206,7 @@ static const OPERATION_MODES
 struct OpenPanelInfo
 {
 	size_t                       StructSize;
+	HANDLE                       hPanel;
 	OPENPANELINFO_FLAGS          Flags;
 	const wchar_t               *HostFile;
 	const wchar_t               *CurDir;
@@ -2225,7 +2226,7 @@ struct OpenPanelInfo
 	unsigned __int64             FreeSize;
 };
 
-struct AnalyseData
+struct AnalyseInfo
 {
 	size_t          StructSize;
 	const wchar_t  *FileName;
@@ -2234,7 +2235,7 @@ struct AnalyseData
 	OPERATION_MODES OpMode;
 };
 
-enum OPENPANEL_OPENFROM
+enum OPENFROM
 {
 	OPEN_FROM_MASK          = 0x000000FF,
 
@@ -2279,44 +2280,166 @@ enum FAR_EVENTS
 	FE_KILLFOCUS      =7,
 };
 
+struct OpenInfo
+{
+	size_t StructSize;
+	OPENFROM OpenFrom;
+	const GUID* Guid;
+	INT_PTR Data;
+};
+
+struct SetDirectoryInfo
+{
+	size_t StructSize;
+	HANDLE hPanel;
+	const wchar_t *Dir;
+	OPERATION_MODES OpMode;
+	INT_PTR UserData;
+};
+
+struct SetFindListInfo
+{
+	size_t StructSize;
+	HANDLE hPanel;
+	const struct PluginPanelItem *PanelItem;
+	int ItemsNumber;
+};
+
+struct PutFilesInfo
+{
+	size_t StructSize;
+	HANDLE hPanel;
+	struct PluginPanelItem *PanelItem;
+	int ItemsNumber;
+	int Move;
+	const wchar_t *SrcPath;
+	OPERATION_MODES OpMode;
+};
+
+struct ProcessHostFileInfo
+{
+	size_t StructSize;
+	HANDLE hPanel;
+	struct PluginPanelItem *PanelItem;
+	int ItemsNumber;
+	OPERATION_MODES OpMode;
+};
+
+struct MakeDirectoryInfo
+{
+	size_t StructSize;
+	HANDLE hPanel;
+	const wchar_t *Name;
+	OPERATION_MODES OpMode;
+};
+
+struct CompareInfo
+{
+	size_t StructSize;
+	HANDLE hPanel;
+	const struct PluginPanelItem *Item1;
+	const struct PluginPanelItem *Item2;
+	OPENPANELINFO_SORTMODES Mode;
+};
+
+struct GetFindDataInfo
+{
+	size_t StructSize;
+	HANDLE hPanel;
+	struct PluginPanelItem *PanelItem;
+	int ItemsNumber;
+	OPERATION_MODES OpMode;
+};
+
+struct GetVirtualFindDataInfo
+{
+	size_t StructSize;
+	HANDLE hPanel;
+	struct PluginPanelItem *PanelItem;
+	int ItemsNumber;
+	const wchar_t *Path;
+};
+
+struct FreeFindDataInfo
+{
+	size_t StructSize;
+	HANDLE hPanel;
+	struct PluginPanelItem *PanelItem;
+	int ItemsNumber;
+};
+
+struct GetFilesInfo
+{
+	size_t StructSize;
+	HANDLE hPanel;
+	struct PluginPanelItem *PanelItem;
+	int ItemsNumber;
+	int Move;
+	const wchar_t *DestPath;
+	OPERATION_MODES OpMode;
+};
+
+struct DeleteFilesInfo
+{
+	size_t StructSize;
+	HANDLE hPanel;
+	struct PluginPanelItem *PanelItem;
+	int ItemsNumber;
+	OPERATION_MODES OpMode;
+};
+
+#ifdef FAR_USE_INTERNALS
+#if defined(PROCPLUGINMACROFUNC)
+struct ProcessMacroFuncInfo
+{
+	size_t StructSize;
+	const wchar_t *Name;
+	const FarMacroValue *Params;
+	int nParams;
+	FarMacroValue **Results;
+	int *nResults;
+};
+#endif
+#endif // END FAR_USE_INTERNALS
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 // Exported Functions
 
-	int    WINAPI AnalyseW(const struct AnalyseData *Data);
+	int    WINAPI AnalyseW(const struct AnalyseInfo *Info);
 	void   WINAPI ClosePanelW(HANDLE hPanel);
-	int    WINAPI CompareW(HANDLE hPanel,const struct PluginPanelItem *Item1,const struct PluginPanelItem *Item2,OPENPANELINFO_SORTMODES Mode);
+	int    WINAPI CompareW(const CompareInfo *Info);
 	int    WINAPI ConfigureW(const GUID* Guid);
-	int    WINAPI DeleteFilesW(HANDLE hPanel,struct PluginPanelItem *PanelItem,int ItemsNumber,OPERATION_MODES OpMode);
+	int    WINAPI DeleteFilesW(const struct DeleteFilesInfo *Info);
 	void   WINAPI ExitFARW(void);
-	void   WINAPI FreeFindDataW(HANDLE hPanel,struct PluginPanelItem *PanelItem,int ItemsNumber);
-	void   WINAPI FreeVirtualFindDataW(HANDLE hPanel,struct PluginPanelItem *PanelItem,int ItemsNumber);
-	int    WINAPI GetFilesW(HANDLE hPanel,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t **DestPath,OPERATION_MODES OpMode);
-	int    WINAPI GetFindDataW(HANDLE hPanel,struct PluginPanelItem **pPanelItem,int *pItemsNumber,OPERATION_MODES OpMode);
+	void   WINAPI FreeFindDataW(const struct FreeFindDataInfo *Info);
+	void   WINAPI FreeVirtualFindDataW(const struct FreeFindDataInfo *Info);
+	int    WINAPI GetFilesW(GetFilesInfo *Info);
+	int    WINAPI GetFindDataW(const struct GetFindDataInfo *Info);
 	void   WINAPI GetGlobalInfoW(struct GlobalInfo *Info);
-	void   WINAPI GetOpenPanelInfoW(HANDLE hPanel,struct OpenPanelInfo *Info);
+	void   WINAPI GetOpenPanelInfoW(struct OpenPanelInfo *Info);
 	void   WINAPI GetPluginInfoW(struct PluginInfo *Info);
-	int    WINAPI GetVirtualFindDataW(HANDLE hPanel,struct PluginPanelItem **pPanelItem,int *pItemsNumber,const wchar_t *Path);
-	int    WINAPI MakeDirectoryW(HANDLE hPanel,const wchar_t **Name,OPERATION_MODES OpMode);
-	HANDLE WINAPI OpenPanelW(OPENPANEL_OPENFROM OpenFrom,const GUID* Guid,INT_PTR Data);
+	int    WINAPI GetVirtualFindDataW(const struct GetVirtualFindDataInfo *Info);
+	int    WINAPI MakeDirectoryW(struct MakeDirectoryInfo *Info);
+	HANDLE WINAPI OpenW(const struct OpenInfo *Info);
 	int    WINAPI ProcessDialogEventW(int Event,void *Param);
 	int    WINAPI ProcessEditorEventW(int Event,void *Param);
 	int    WINAPI ProcessEditorInputW(const INPUT_RECORD *Rec);
 	int    WINAPI ProcessEventW(HANDLE hPanel,int Event,void *Param);
-	int    WINAPI ProcessHostFileW(HANDLE hPanel,struct PluginPanelItem *PanelItem,int ItemsNumber,OPERATION_MODES OpMode);
+	int    WINAPI ProcessHostFileW(const struct ProcessHostFileInfo *Info);
 	int    WINAPI ProcessKeyW(HANDLE hPanel,const INPUT_RECORD *Rec);
 #ifdef FAR_USE_INTERNALS
 	#if defined(PROCPLUGINMACROFUNC)
-	int    WINAPI ProcessMacroFuncW(const wchar_t *Name, const FarMacroValue *Params, int nParams, FarMacroValue **Results, int *nResults);
+	int    WINAPI ProcessMacroFuncW(const ProcessMacroFuncInfo *Info);
 	#endif
 #endif // END FAR_USE_INTERNALS
 	int    WINAPI ProcessSynchroEventW(int Event,void *Param);
 	int    WINAPI ProcessViewerEventW(int Event,void *Param);
-	int    WINAPI PutFilesW(HANDLE hPanel,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t *SrcPath,OPERATION_MODES OpMode);
-	int    WINAPI SetDirectoryW(HANDLE hPanel,const wchar_t *Dir,OPERATION_MODES OpMode);
-	int    WINAPI SetFindListW(HANDLE hPanel,const struct PluginPanelItem *PanelItem,int ItemsNumber);
+	int    WINAPI PutFilesW(const struct PutFilesInfo *Info);
+	int    WINAPI SetDirectoryW(const struct SetDirectoryInfo *Info);
+	int    WINAPI SetFindListW(const struct SetFindListInfo *Info);
 	void   WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info);
 
 #ifdef __cplusplus

@@ -75,7 +75,7 @@ static const wchar_t *wszReg_Description=L"Description";
 static const wchar_t *wszReg_Author=L"Author";
 
 static const wchar_t wszReg_GetGlobalInfo[]=L"GetGlobalInfoW";
-static const wchar_t wszReg_OpenPanel[]=L"OpenPanelW";
+static const wchar_t wszReg_OpenPanel[]=L"OpenW";
 static const wchar_t wszReg_SetFindList[]=L"SetFindListW";
 static const wchar_t wszReg_ProcessEditorInput[]=L"ProcessEditorInputW";
 static const wchar_t wszReg_ProcessEditorEvent[]=L"ProcessEditorEventW";
@@ -109,7 +109,7 @@ static const wchar_t wszReg_GetCustomData[] = L"GetCustomDataW";
 static const wchar_t wszReg_FreeCustomData[] = L"FreeCustomDataW";
 
 static const char NFMP_GetGlobalInfo[]="GetGlobalInfoW";
-static const char NFMP_OpenPanel[]="OpenPanelW";
+static const char NFMP_OpenPanel[]="OpenW";
 static const char NFMP_SetFindList[]="SetFindListW";
 static const char NFMP_ProcessEditorInput[]="ProcessEditorInputW";
 static const char NFMP_ProcessEditorEvent[]="ProcessEditorEventW";
@@ -845,7 +845,7 @@ bool PluginW::IsPanelPlugin()
 	       pClosePanelW;
 }
 
-int PluginW::Analyse(const AnalyseData *pData)
+int PluginW::Analyse(const AnalyseInfo *Info)
 {
 	if (Load() && pAnalyseW && !ProcessException)
 	{
@@ -853,14 +853,14 @@ int PluginW::Analyse(const AnalyseData *pData)
 		es.id = EXCEPT_ANALYSE;
 		es.bDefaultResult = FALSE;
 		es.bResult = FALSE;
-		EXECUTE_FUNCTION_EX(pAnalyseW(pData), es);
+		EXECUTE_FUNCTION_EX(pAnalyseW(Info), es);
 		return es.bResult;
 	}
 
 	return FALSE;
 }
 
-HANDLE PluginW::OpenPanel(int OpenFrom, const GUID& Guid, INT_PTR Item)
+HANDLE PluginW::Open(int OpenFrom, const GUID& Guid, INT_PTR Item)
 {
 	ChangePriority *ChPriority = new ChangePriority(THREAD_PRIORITY_NORMAL);
 
@@ -879,10 +879,14 @@ HANDLE PluginW::OpenPanel(int OpenFrom, const GUID& Guid, INT_PTR Item)
 	{
 		//CurPluginItem=this; //BUGBUG
 		ExecuteStruct es;
-		es.id = EXCEPT_OPENPANEL;
+		es.id = EXCEPT_OPEN;
 		es.hDefaultResult = INVALID_HANDLE_VALUE;
 		es.hResult = INVALID_HANDLE_VALUE;
-		EXECUTE_FUNCTION_EX(pOpenPanelW(OpenFrom,&Guid,Item), es);
+		OpenInfo Info = {sizeof(Info)};
+		Info.OpenFrom = static_cast<OPENFROM>(OpenFrom);
+		Info.Guid = &Guid;
+		Info.Data = Item;
+		EXECUTE_FUNCTION_EX(pOpenPanelW(&Info), es);
 		hResult = es.hResult;
 		//CurPluginItem=nullptr; //BUGBUG
 		/*    CtrlObject->Macro.SetRedrawEditor(TRUE); //BUGBUG
@@ -934,7 +938,11 @@ int PluginW::SetFindList(
 		ExecuteStruct es;
 		es.id = EXCEPT_SETFINDLIST;
 		es.bDefaultResult = FALSE;
-		EXECUTE_FUNCTION_EX(pSetFindListW(hPlugin, PanelItem, ItemsNumber), es);
+		SetFindListInfo Info = {sizeof(Info)};
+		Info.hPanel = hPlugin;
+		Info.PanelItem = PanelItem;
+		Info.ItemsNumber = ItemsNumber;
+		EXECUTE_FUNCTION_EX(pSetFindListW(&Info), es);
 		bResult = es.bResult;
 	}
 
@@ -1042,7 +1050,13 @@ int PluginW::ProcessMacroFunc(
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSMACROFUNC;
 		es.nDefaultResult = 0;
-		EXECUTE_FUNCTION_EX(pProcessMacroFuncW(Name,Params,nParams,Results,nResults), es);
+		ProcessMacroFuncInfo Info = {sizeof(Info)};
+		Info.Name = Name;
+		Info.Params = Params;
+		Info.nParams = nParams;
+		Info.Results = Results;
+		Info.nResults = nResults;
+		EXECUTE_FUNCTION_EX(pProcessMacroFuncW(&Info), es);
 		nResult = (int)es.nResult;
 	}
 
@@ -1064,7 +1078,12 @@ int PluginW::GetVirtualFindData(
 		ExecuteStruct es;
 		es.id = EXCEPT_GETVIRTUALFINDDATA;
 		es.bDefaultResult = FALSE;
-		EXECUTE_FUNCTION_EX(pGetVirtualFindDataW(hPlugin, pPanelItem, pItemsNumber, Path), es);
+		GetVirtualFindDataInfo Info = {sizeof(Info)};
+		Info.hPanel = hPlugin;
+		Info.PanelItem = *pPanelItem;
+		Info.ItemsNumber = *pItemsNumber;
+		Info.Path = Path;
+		EXECUTE_FUNCTION_EX(pGetVirtualFindDataW(&Info), es);
 		bResult = es.bResult;
 	}
 
@@ -1082,7 +1101,11 @@ void PluginW::FreeVirtualFindData(
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_FREEVIRTUALFINDDATA;
-		EXECUTE_FUNCTION(pFreeVirtualFindDataW(hPlugin, PanelItem, ItemsNumber), es);
+		FreeFindDataInfo Info = {sizeof(Info)};
+		Info.hPanel = hPlugin;
+		Info.PanelItem = PanelItem;
+		Info.ItemsNumber = ItemsNumber;
+		EXECUTE_FUNCTION(pFreeVirtualFindDataW(&Info), es);
 	}
 }
 
@@ -1104,7 +1127,14 @@ int PluginW::GetFiles(
 		ExecuteStruct es;
 		es.id = EXCEPT_GETFILES;
 		es.nDefaultResult = -1;
-		EXECUTE_FUNCTION_EX(pGetFilesW(hPlugin, PanelItem, ItemsNumber, Move, DestPath, OpMode), es);
+		GetFilesInfo Info = {sizeof(Info)};
+		Info.hPanel = hPlugin;
+		Info.PanelItem = PanelItem;
+		Info.ItemsNumber = ItemsNumber;
+		Info.Move = Move;
+		Info.DestPath = *DestPath;
+		Info.OpMode = OpMode;
+		EXECUTE_FUNCTION_EX(pGetFilesW(&Info), es);
 		nResult = (int)es.nResult;
 	}
 
@@ -1129,7 +1159,14 @@ int PluginW::PutFiles(
 		es.nDefaultResult = -1;
 		static string strCurrentDirectory;
 		apiGetCurrentDirectory(strCurrentDirectory);
-		EXECUTE_FUNCTION_EX(pPutFilesW(hPlugin, PanelItem, ItemsNumber, Move, strCurrentDirectory, OpMode), es);
+		PutFilesInfo Info = {sizeof(Info)};
+		Info.hPanel = hPlugin;
+		Info.PanelItem = PanelItem;
+		Info.ItemsNumber = ItemsNumber;
+		Info.Move = Move;
+		Info.SrcPath = strCurrentDirectory;
+		Info.OpMode = OpMode;
+		EXECUTE_FUNCTION_EX(pPutFilesW(&Info), es);
 		nResult = (int)es.nResult;
 	}
 
@@ -1150,7 +1187,12 @@ int PluginW::DeleteFiles(
 		ExecuteStruct es;
 		es.id = EXCEPT_DELETEFILES;
 		es.bDefaultResult = FALSE;
-		EXECUTE_FUNCTION_EX(pDeleteFilesW(hPlugin, PanelItem, ItemsNumber, OpMode), es);
+		DeleteFilesInfo Info = {sizeof(Info)};
+		Info.hPanel = hPlugin;
+		Info.PanelItem = PanelItem;
+		Info.ItemsNumber = ItemsNumber;
+		Info.OpMode = OpMode;
+		EXECUTE_FUNCTION_EX(pDeleteFilesW(&Info), es);
 		bResult = (int)es.bResult;
 	}
 
@@ -1171,7 +1213,11 @@ int PluginW::MakeDirectory(
 		ExecuteStruct es;
 		es.id = EXCEPT_MAKEDIRECTORY;
 		es.nDefaultResult = -1;
-		EXECUTE_FUNCTION_EX(pMakeDirectoryW(hPlugin, Name, OpMode), es);
+		MakeDirectoryInfo Info = {sizeof(Info)};
+		Info.hPanel = hPlugin;
+		Info.Name = *Name;
+		Info.OpMode = OpMode;
+		EXECUTE_FUNCTION_EX(pMakeDirectoryW(&Info), es);
 		nResult = (int)es.nResult;
 	}
 
@@ -1193,7 +1239,12 @@ int PluginW::ProcessHostFile(
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSHOSTFILE;
 		es.bDefaultResult = FALSE;
-		EXECUTE_FUNCTION_EX(pProcessHostFileW(hPlugin, PanelItem, ItemsNumber, OpMode), es);
+		ProcessHostFileInfo Info = {sizeof(Info)};
+		Info.hPanel = hPlugin;
+		Info.PanelItem = PanelItem;
+		Info.ItemsNumber = ItemsNumber;
+		Info.OpMode = OpMode;
+		EXECUTE_FUNCTION_EX(pProcessHostFileW(&Info), es);
 		bResult = es.bResult;
 	}
 
@@ -1236,7 +1287,12 @@ int PluginW::Compare(
 		ExecuteStruct es;
 		es.id = EXCEPT_COMPARE;
 		es.nDefaultResult = -2;
-		EXECUTE_FUNCTION_EX(pCompareW(hPlugin, Item1, Item2, Mode), es);
+		CompareInfo Info = {sizeof(Info)};
+		Info.hPanel = hPlugin;
+		Info.Item1 = Item1;
+		Info.Item2 = Item2;
+		Info.Mode = static_cast<OPENPANELINFO_SORTMODES>(Mode);
+		EXECUTE_FUNCTION_EX(pCompareW(&Info), es);
 		nResult = (int)es.nResult;
 	}
 
@@ -1258,7 +1314,12 @@ int PluginW::GetFindData(
 		ExecuteStruct es;
 		es.id = EXCEPT_GETFINDDATA;
 		es.bDefaultResult = FALSE;
-		EXECUTE_FUNCTION_EX(pGetFindDataW(hPlugin, pPanelItem, pItemsNumber, OpMode), es);
+		GetFindDataInfo Info = {sizeof(Info)};
+		Info.hPanel = hPlugin;
+		Info.PanelItem = *pPanelItem;
+		Info.ItemsNumber = *pItemsNumber;
+		Info.OpMode = OpMode;
+		EXECUTE_FUNCTION_EX(pGetFindDataW(&Info), es);
 		bResult = es.bResult;
 	}
 
@@ -1276,7 +1337,11 @@ void PluginW::FreeFindData(
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_FREEFINDDATA;
-		EXECUTE_FUNCTION(pFreeFindDataW(hPlugin, PanelItem, ItemsNumber), es);
+		FreeFindDataInfo Info = {sizeof(Info)};
+		Info.hPanel = hPlugin;
+		Info.PanelItem = PanelItem;
+		Info.ItemsNumber = ItemsNumber;
+		EXECUTE_FUNCTION(pFreeFindDataW(&Info), es);
 	}
 }
 
@@ -1326,7 +1391,12 @@ int PluginW::SetDirectory(
 		ExecuteStruct es;
 		es.id = EXCEPT_SETDIRECTORY;
 		es.bDefaultResult = FALSE;
-		EXECUTE_FUNCTION_EX(pSetDirectoryW(hPlugin, Dir, OpMode), es);
+		SetDirectoryInfo Info = {sizeof(Info)};
+		Info.hPanel = hPlugin;
+		Info.Dir = Dir;
+		Info.OpMode = OpMode;
+		Info.UserData = 0; //Reserved
+		EXECUTE_FUNCTION_EX(pSetDirectoryW(&Info), es);
 		bResult = es.bResult;
 	}
 
@@ -1346,7 +1416,8 @@ void PluginW::GetOpenPanelInfo(
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_GETOPENPANELINFO;
-		EXECUTE_FUNCTION(pGetOpenPanelInfoW(hPlugin, pInfo), es);
+		pInfo->hPanel = hPlugin;
+		EXECUTE_FUNCTION(pGetOpenPanelInfoW(pInfo), es);
 	}
 }
 
