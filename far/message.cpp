@@ -363,6 +363,10 @@ int Message(
 				FirstButtonIndex=CurItem+1;
 				LastButtonIndex=CurItem;
 			}
+			else
+			{
+				FlagsItem&=~DIF_DEFAULTBUTTON;
+			}
 
 			PtrMsgDlg->Type=TypeItem;
 			PtrMsgDlg->Flags|=FlagsItem;

@@ -17,9 +17,11 @@ clipboard.cpp
 clipboard.hpp
 cmdline.cpp
 cmdline.hpp
-colors.hpp
+codepage.cpp
+codepage.hpp
 colormix.hpp
 colormix.cpp
+colors.hpp
 config.cpp
 config.hpp
 console.cpp
@@ -118,10 +120,6 @@ format.cpp
 format.hpp
 frame.cpp
 frame.hpp
-codepage.cpp
-codepage.hpp
-colormix.cpp
-colormix.hpp
 global.cpp
 global.hpp
 grabber.cpp
