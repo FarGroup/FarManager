@@ -4,7 +4,7 @@ EXPORTS
   SetStartupInfoW
   GetPluginInfoW
   AnalyseW
-  OpenPanelW
+  OpenW
   ClosePanelW
   GetOpenPanelInfoW
   SetDirectoryW
