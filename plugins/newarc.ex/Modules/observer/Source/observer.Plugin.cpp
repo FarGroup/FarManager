@@ -8,7 +8,7 @@ ObserverPlugin::ObserverPlugin(const GUID& uid)
 
 bool ObserverPlugin::Load(const TCHAR* lpModuleName)
 {
-    m_strModuleName = lpModuleName;
+	m_strModuleName = lpModuleName;
 		
 	m_hModule = LoadLibraryEx(
 			lpModuleName, 

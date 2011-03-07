@@ -252,9 +252,7 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream(
 
 HRESULT __stdcall CArchiveExtractCallback::PrepareOperation(int askExtractMode)
 {
-	if ( askExtractMode == 0 )
-		m_bExtractMode = true;
-
+	m_bExtractMode = (askExtractMode == 0);
 	return S_OK;
 }
 
