@@ -493,12 +493,19 @@ int ArchiveModule::GetArchiveInfo(HANDLE hArchive, const ArchiveInfoItem** pItem
 	return 0;
 }
 
-void ArchiveModule::Configure(const GUID& uid)
+void ArchiveModule::ConfigureFormat(const GUID& uidPlugin, const GUID& uidFormat)
+{
+	ConfigureFormatStruct CFS;
+
+	CFS.uidFormat = uidFormat;
+	CFS.uidPlugin = uidPlugin;
+
+	m_pfnModuleEntry(FID_CONFIGUREFORMAT, (void*)&CFS);
+}
+
+void ArchiveModule::Configure()
 {
 	ConfigureStruct CF;
-
-	//CF.uid = uid;
-
 	m_pfnModuleEntry(FID_CONFIGURE, (void*)&CF);
 }
 

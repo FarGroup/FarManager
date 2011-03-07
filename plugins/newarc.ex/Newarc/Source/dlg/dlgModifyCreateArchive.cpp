@@ -233,6 +233,46 @@ LONG_PTR __stdcall hndModifyCreateArchive (
 
 	if ( nMsg == DN_CLOSE )
 	{
+		if ( nParam1 == ID_MCA_CANCEL+1 ) //BUGBUG, да вы прикалываетесь
+		{
+			ArchiveModule* pModule = nullptr;
+			GUID uidPlugin, uidFormat;
+
+			if ( D->GetCheck(ID_MCA_TEMPLATE) == BSTATE_CHECKED )
+			{
+				int pos = D->ListGetCurrentPos(ID_MCA_TEMPLATELIST, NULL);
+
+				if ( pos != -1 )
+				{
+					ArchiveTemplate *pTemplate = templates[pos];
+
+					pModule = pManager->GetModule(pTemplate->GetModuleUID());
+					
+					uidPlugin = pTemplate->GetPluginUID();
+					uidFormat = pTemplate->GetFormatUID();
+				}
+			}
+			else
+			{
+				int pos = D->ListGetCurrentPos(ID_MCA_FORMATLIST, NULL);
+
+				if ( pos != -1 )
+				{
+					ArchiveFormat* pFormat = (ArchiveFormat*)D->ListGetData(ID_MCA_FORMATLIST, pos);
+
+					pModule = pFormat->GetModule();
+
+					uidFormat = pFormat->GetUID();
+					uidPlugin = pFormat->GetPlugin()->GetUID();
+				}
+			}
+
+			if ( pModule != nullptr )
+				pModule->ConfigureFormat(uidPlugin, uidFormat);
+
+			return FALSE;
+		}
+
 		if ( nParam1 == ID_MCA_ADDCONFIRM )
 		{
 			string strPassword1, strPassword2;

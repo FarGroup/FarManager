@@ -183,8 +183,7 @@ int OnConfigure(ConfigureStruct *pCF)
 
 	if ( pPlugin )
 		pPlugin->Configure(pCF->uid);
-*/
-	
+	*/
 	return NAERROR_SUCCESS;
 }
 

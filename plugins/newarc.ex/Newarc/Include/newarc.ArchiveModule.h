@@ -67,7 +67,10 @@ public:
 
 	void ReloadLanguage(const TCHAR *lpLanguage);
 
-	void Configure(const GUID& uid);
+	void Configure();
+	void ConfigureFormat(const GUID& uidPlugin, const GUID& uidFormat);
+
+
 	bool GetDefaultCommand(const GUID& uidPlugin, const GUID& uidArchive, int nCommand, string& strCommand, bool& bEnabledByDefault);
 
 //new

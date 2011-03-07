@@ -169,8 +169,18 @@ int OnEndOperation(OperationStruct* pEOS)
 }
 
 
-int OnGetDefaultCommand (GetDefaultCommandStruct *pGDC)
+int OnGetDefaultCommand (GetDefaultCommandStruct* pGDC)
 {
+	return NAERROR_SUCCESS;
+}
+
+int OnConfigureFormat(ConfigureFormatStruct* pCFS)
+{
+	WcxPlugin* pPlugin = pModule->GetPlugin(pCFS->uidPlugin);
+
+	if ( pPlugin )
+		pPlugin->ConfigurePacker();
+
 	return NAERROR_SUCCESS;
 }
 
@@ -224,6 +234,9 @@ int __stdcall ModuleEntry (
 	case FID_CREATEARCHIVE:
 	case FID_OPENARCHIVE:
 		return OnOpenCreateArchive ((OpenCreateArchiveStruct*)pParams);
+
+	case FID_CONFIGUREFORMAT:
+		return OnConfigureFormat((ConfigureFormatStruct*)pParams);
 
 	case FID_CLOSEARCHIVE:
 		return OnCloseArchive((CloseArchiveStruct*)pParams);

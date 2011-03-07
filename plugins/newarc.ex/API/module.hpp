@@ -426,8 +426,9 @@ struct StartupInfo {
 #define FID_DELETE				18 //param - DeleteStruct
 #define FID_ADD					19 //param - AddStruct
 
-#define FID_CONFIGURE			20 //param - ConfigureFormatStruct
-#define FID_DELETECONFIGUREDATA 21
+#define FID_CONFIGURE			20 //param - ConfigureStruct
+#define FID_CONFIGUREFORMAT		21
+#define FID_DELETECONFIGUREDATA 22
 
 #define FID_GETARCHIVEINFO  200
 #define FID_GETARCHIVEFILEINFO 300
