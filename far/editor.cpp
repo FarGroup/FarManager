@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "palette.hpp"
 #include "FarDlgBuilder.hpp"
 #include "wakeful.hpp"
+#include "colormix.hpp"
 
 static int ReplaceMode,ReplaceAll;
 
@@ -5746,12 +5747,13 @@ int Editor::EditorControl(int Command,void *Param)
 				_ECTLLOG(SysLog(L"  ColorItem   =%d (0x%08X)",col->ColorItem,col->ColorItem));
 				_ECTLLOG(SysLog(L"  StartPos    =%d",col->StartPos));
 				_ECTLLOG(SysLog(L"  EndPos      =%d",col->EndPos));
-				_ECTLLOG(SysLog(L"  Color       =%d (0x%08X)",col->Color,col->Color));
+				_ECTLLOG(SysLog(L"  Color       =%d (0x%08X)",Colors::FarColorToColor(col->Color),Colors::FarColorToColor(col->Color)));
 				_ECTLLOG(SysLog(L"}"));
 				ColorItem newcol;
 				newcol.StartPos=col->StartPos+(col->StartPos!=-1?X1:0);
 				newcol.EndPos=col->EndPos+X1;
-				newcol.Color=col->Color;
+				newcol.Color=Colors::FarColorToColor(col->Color);
+				newcol.Flags=col->Flags;
 				Edit *CurPtr=GetStringByNumber(col->StringNumber);
 
 				if (!CurPtr)
@@ -5760,7 +5762,7 @@ int Editor::EditorControl(int Command,void *Param)
 					return FALSE;
 				}
 
-				if (!col->Color)
+				if (!Colors::FarColorToColor(col->Color))
 					return(CurPtr->DeleteColor(newcol.StartPos));
 
 				CurPtr->AddColor(&newcol);
@@ -5793,13 +5795,14 @@ int Editor::EditorControl(int Command,void *Param)
 
 				col->StartPos=curcol.StartPos-X1;
 				col->EndPos=curcol.EndPos-X1;
-				col->Color=curcol.Color;
+				Colors::ColorToFarColor(curcol.Color,col->Color);
+				col->Flags=curcol.Flags;
 				_ECTLLOG(SysLog(L"EditorColor{"));
 				_ECTLLOG(SysLog(L"  StringNumber=%d",col->StringNumber));
 				_ECTLLOG(SysLog(L"  ColorItem   =%d (0x%08X)",col->ColorItem,col->ColorItem));
 				_ECTLLOG(SysLog(L"  StartPos    =%d",col->StartPos));
 				_ECTLLOG(SysLog(L"  EndPos      =%d",col->EndPos));
-				_ECTLLOG(SysLog(L"  Color       =%d (0x%08X)",col->Color,col->Color));
+				_ECTLLOG(SysLog(L"  Color       =%d (0x%08X)",Colors::FarColorToColor(col->Color),Colors::FarColorToColor(col->Color)));
 				_ECTLLOG(SysLog(L"}"));
 				return TRUE;
 			}

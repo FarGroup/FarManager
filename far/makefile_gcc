@@ -31,6 +31,7 @@ SRCS = \
 	clipboard.cpp \
 	cmdline.cpp \
 	codepage.cpp \
+	colormix.cpp \
 	config.cpp \
 	console.cpp \
 	constitle.cpp \

@@ -2673,10 +2673,7 @@ void Edit::ApplyColor()
 			continue;
 
 		// Корректировка относительно табов (отключается, если присутвует флаг ECF_TAB1)
-		int CorrectPos = Attr & ECF_TAB1 ? 0 : 1;
-
-		if (!CorrectPos)
-			Attr &= ~ECF_TAB1;
+		int CorrectPos = CurItem->Flags & ECF_TAB1 ? 0 : 1;
 
 		// Получаем конечную позицию
 		int EndPos = CurItem->EndPos;

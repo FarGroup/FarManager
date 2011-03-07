@@ -335,7 +335,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 				{
 					memmove(Palette+Pal->StartIndex,Pal->Colors,Pal->ColorCount);
 
-					if (Pal->Flags&FCLR_REDRAW)
+					if (Pal->Flags&FSETCLR_REDRAW)
 					{
 						ScrBuf.Lock(); // отменяем всякую прорисовку
 						FrameManager->ResizeAllFrame();

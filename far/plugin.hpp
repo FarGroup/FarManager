@@ -66,6 +66,19 @@ other possible license with no implications from the above license on them.
 #define CP_REVERSEBOM 1201
 #define CP_AUTODETECT ((UINT)-1)
 
+typedef unsigned __int64 FARCOLORFLAGS;
+static const FARCOLORFLAGS
+	FMSG_FG_4BIT  = 0x0000000000000001ULL,
+	FMSG_BG_4BIT  = 0x0000000000000002ULL;
+
+struct FarColor
+{
+	unsigned __int64 Flags;
+	unsigned int ForegroundColor;
+	unsigned int BackgroundColor;
+	void* Reserved;
+};
+
 typedef unsigned __int64 FARMESSAGEFLAGS;
 static const FARMESSAGEFLAGS
 	FMSG_NONE                = 0,
@@ -1206,15 +1219,15 @@ struct FarMacroFunction
 #endif
 #endif // END FAR_USE_INTERNALS
 
-typedef unsigned __int64 FARCOLORFLAGS;
-static const FARCOLORFLAGS
-	
-	FCLR_NONE                   = 0,
-	FCLR_REDRAW                 = 0x0000000000000001ULL;
+typedef unsigned __int64 FARSETCOLORFLAGS;
+static const FARSETCOLORFLAGS
+
+	FSETCLR_NONE                   = 0,
+	FSETCLR_REDRAW                 = 0x0000000000000001ULL;
 
 struct FarSetColors
 {
-	FARCOLORFLAGS Flags;
+	FARSETCOLORFLAGS Flags;
 	int StartIndex;
 	int ColorCount;
 	LPBYTE Colors;
@@ -1626,18 +1639,19 @@ struct EditorConvertPos
 };
 
 
-enum EDITORCOLORFLAGS
-{
-	ECF_TAB1 = 0x10000,
-};
+typedef unsigned __int64 EDITORCOLORFLAGS;
+static const EDITORCOLORFLAGS
+	ECF_TAB1 = 0x0000000000000001ULL;
 
 struct EditorColor
 {
+	size_t StructSize;
 	int StringNumber;
 	int ColorItem;
 	int StartPos;
 	int EndPos;
-	int Color;
+	EDITORCOLORFLAGS Flags;
+	FarColor Color;
 };
 
 struct EditorSaveFile

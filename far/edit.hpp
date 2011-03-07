@@ -64,6 +64,7 @@ struct ColorItem
 	int StartPos;
 	int EndPos;
 	int Color;
+	unsigned __int64 Flags;
 };
 
 enum SetCPFlags

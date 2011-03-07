@@ -59,6 +59,9 @@
     <ClCompile Include="codepage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="colormix.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="config.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -539,6 +542,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="codepage.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="colormix.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="config.hpp">

@@ -1,3 +1,13 @@
+zg 07.03.2011 12:29:13 +0200 - build 1898
+
+1. добавлена структура FarColor.
+
+2. FARCOLORFLAGS переименована в FARSETCOLORFLAGS.
+
+3. ECF_TAB1 переехало в EditorColor.Flags.
+
+4. тип EditorColor.Color теперь FarColor.
+
 zg 01.03.2011 11:12:03 +0200 - build 1897
 
 1. замена с регэкпами падала на пустых скобках.

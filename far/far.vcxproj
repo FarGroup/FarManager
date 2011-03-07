@@ -419,6 +419,7 @@ if not exist bootstrap mkdir bootstrap</Command>
     <ClCompile Include="clipboard.cpp" />
     <ClCompile Include="cmdline.cpp" />
     <ClCompile Include="codepage.cpp" />
+    <ClCompile Include="colormix.cpp" />
     <ClCompile Include="config.cpp" />
     <ClCompile Include="console.cpp" />
     <ClCompile Include="constitle.cpp" />
@@ -935,6 +936,7 @@ if not exist bootstrap mkdir bootstrap</Command>
     <ClInclude Include="clipboard.hpp" />
     <ClInclude Include="cmdline.hpp" />
     <ClInclude Include="codepage.hpp" />
+    <ClInclude Include="colormix.hpp" />
     <CustomBuild Include="colors.hpp">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Transforming %(Identity) to redistributable form...</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\m4 -P -DFARBIT=IA64 -DINPUT=%(Identity) headers.m4 &gt; Include\farcolor.hpp</Command>

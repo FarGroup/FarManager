@@ -1,13 +1,10 @@
-#pragma once
-
 /*
-codepage.hpp
+colormix.cpp
 
-Работа с кодовыми страницами
+Работа с цветами
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright © 2011 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -33,29 +30,22 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// Тип выбранной таблицы символов
-enum CPSelectType
+#include "headers.hpp"
+#pragma hdrstop
+
+#include "colormix.hpp"
+
+int Colors::FarColorToColor(FarColor Color)
 {
-	// "Любимая" таблица символов
-	CPST_FAVORITE = 1,
-	// Таблица символов участвующая в поиске по всем таблицам символов
-	CPST_FIND = 2
-};
+	const FARCOLORFLAGS consoleColors=FMSG_FG_4BIT|FMSG_BG_4BIT;
+	if((Color.Flags&consoleColors)==consoleColors) return ((Color.ForegroundColor&ConsoleMask)<<ConsoleFgShift)|((Color.BackgroundColor&ConsoleMask)<<ConsoleBgShift);
+	return DefaultColor;
+}
 
-extern const wchar_t *FavoriteCodePagesKey;
-
-const int StandardCPCount = 2 /* OEM, ANSI */ + 2 /* UTF-16 LE, UTF-16 BE */ + 2 /* UTF-7, UTF-8 */;
-
-inline bool IsStandardCodePage(UINT CP) { return(CP==CP_UNICODE)||(CP==CP_UTF8)||(CP==CP_UTF7)||(CP==CP_REVERSEBOM)||(CP==GetOEMCP()||CP==GetACP()); }
-
-inline bool IsUnicodeCodePage(UINT CP) { return(CP==CP_UNICODE)||(CP==CP_REVERSEBOM); }
-
-inline bool IsUnicodeOrUtfCodePage(UINT CP) { return(CP==CP_UNICODE)||(CP==CP_UTF8)||(CP==CP_UTF7)||(CP==CP_REVERSEBOM); }
-
-bool IsCodePageSupported(UINT CodePage);
-
-UINT SelectCodePage(UINT nCurrent, bool bShowUnicode, bool bShowUTF, bool bShowUTF7 = false);
-
-UINT FillCodePagesList(HANDLE dialogHandle, UINT controlId, UINT codePage, bool allowAuto, bool allowAll);
-
-wchar_t *FormatCodePageName(UINT CodePage, wchar_t *CodePageName, size_t Length);
+void Colors::ColorToFarColor(int Color,FarColor& NewColor)
+{
+	NewColor.Flags=FMSG_FG_4BIT|FMSG_BG_4BIT;
+	NewColor.ForegroundColor=(Color>>ConsoleFgShift)&ConsoleMask;
+	NewColor.BackgroundColor=(Color>>ConsoleBgShift)&ConsoleMask;
+	NewColor.Reserved=nullptr;
+}

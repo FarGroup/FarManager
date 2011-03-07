@@ -66,6 +66,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "processname.hpp"
 #include "mix.hpp"
 #include "lasterror.hpp"
+#include "colormix.hpp"
 
 static const wchar_t *wszReg_Preload=L"Preload";
 
@@ -3690,7 +3691,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 			oldfar::FarSetColors *scA = (oldfar::FarSetColors *)Param;
 			FarSetColors sc = {0, scA->StartIndex, scA->ColorCount, scA->Colors};
 
-			if (scA->Flags&oldfar::FCLR_REDRAW) sc.Flags|=FCLR_REDRAW;
+			if (scA->Flags&oldfar::FCLR_REDRAW) sc.Flags|=FSETCLR_REDRAW;
 
 			return FarAdvControl(ModuleNumber, ACTL_SETARRAYCOLOR, &sc);
 		}
@@ -3848,7 +3849,8 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 				{
 					ec.StartPos = ecA->StartPos;
 					ec.EndPos = ecA->EndPos;
-					ec.Color = ecA->Color;
+					Colors::ColorToFarColor(ecA->Color,ec.Color);
+					if(ecA->Color&oldfar::ECF_TAB1) ec.Color.Flags|=ECF_TAB1;
 				}
 				else
 				{
@@ -3859,7 +3861,8 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 				{
 					ecA->StartPos = ec.StartPos;
 					ecA->EndPos = ec.EndPos;
-					ecA->Color = ec.Color;
+					ecA->Color = Colors::FarColorToColor(ec.Color);
+					if(ec.Color.Flags&ECF_TAB1) ecA->Color|=oldfar::ECF_TAB1;
 				}
 				return Result;
 			}
