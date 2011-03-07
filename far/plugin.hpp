@@ -2396,8 +2396,8 @@ struct ProcessMacroFuncInfo
 	const wchar_t *Name;
 	const FarMacroValue *Params;
 	int nParams;
-	FarMacroValue **Results;
-	int *nResults;
+	FarMacroValue *Results;
+	int nResults;
 };
 #endif
 #endif // END FAR_USE_INTERNALS

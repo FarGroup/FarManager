@@ -1054,9 +1054,11 @@ int PluginW::ProcessMacroFunc(
 		Info.Name = Name;
 		Info.Params = Params;
 		Info.nParams = nParams;
-		Info.Results = Results;
-		Info.nResults = nResults;
+		Info.Results = *Results;
+		Info.nResults = *nResults;
 		EXECUTE_FUNCTION_EX(pProcessMacroFuncW(&Info), es);
+		*Results = Info.Results;
+		*nResults = Info.nResults;
 		nResult = (int)es.nResult;
 	}
 
@@ -1084,6 +1086,8 @@ int PluginW::GetVirtualFindData(
 		Info.ItemsNumber = *pItemsNumber;
 		Info.Path = Path;
 		EXECUTE_FUNCTION_EX(pGetVirtualFindDataW(&Info), es);
+		*pPanelItem = Info.PanelItem;
+		*pItemsNumber = Info.ItemsNumber;
 		bResult = es.bResult;
 	}
 
@@ -1135,6 +1139,7 @@ int PluginW::GetFiles(
 		Info.DestPath = *DestPath;
 		Info.OpMode = OpMode;
 		EXECUTE_FUNCTION_EX(pGetFilesW(&Info), es);
+		*DestPath = Info.DestPath;
 		nResult = (int)es.nResult;
 	}
 
@@ -1218,6 +1223,7 @@ int PluginW::MakeDirectory(
 		Info.Name = *Name;
 		Info.OpMode = OpMode;
 		EXECUTE_FUNCTION_EX(pMakeDirectoryW(&Info), es);
+		*Name = Info.Name;
 		nResult = (int)es.nResult;
 	}
 
@@ -1320,6 +1326,8 @@ int PluginW::GetFindData(
 		Info.ItemsNumber = *pItemsNumber;
 		Info.OpMode = OpMode;
 		EXECUTE_FUNCTION_EX(pGetFindDataW(&Info), es);
+		*pPanelItem = Info.PanelItem;
+		*pItemsNumber = Info.ItemsNumber;
 		bResult = es.bResult;
 	}
 
