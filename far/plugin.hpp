@@ -2417,11 +2417,11 @@ extern "C"
 	void   WINAPI FreeFindDataW(const struct FreeFindDataInfo *Info);
 	void   WINAPI FreeVirtualFindDataW(const struct FreeFindDataInfo *Info);
 	int    WINAPI GetFilesW(GetFilesInfo *Info);
-	int    WINAPI GetFindDataW(const struct GetFindDataInfo *Info);
+	int    WINAPI GetFindDataW(struct GetFindDataInfo *Info);
 	void   WINAPI GetGlobalInfoW(struct GlobalInfo *Info);
 	void   WINAPI GetOpenPanelInfoW(struct OpenPanelInfo *Info);
 	void   WINAPI GetPluginInfoW(struct PluginInfo *Info);
-	int    WINAPI GetVirtualFindDataW(const struct GetVirtualFindDataInfo *Info);
+	int    WINAPI GetVirtualFindDataW(struct GetVirtualFindDataInfo *Info);
 	int    WINAPI MakeDirectoryW(struct MakeDirectoryInfo *Info);
 	HANDLE WINAPI OpenW(const struct OpenInfo *Info);
 	int    WINAPI ProcessDialogEventW(int Event,void *Param);
