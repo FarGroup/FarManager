@@ -824,10 +824,12 @@ int Execute(const wchar_t *CmdStr, // Ком.строка для исполнения
 	string strNewCmdPar;
 	PartCmdLine(CmdStr, strNewCmdStr, strNewCmdPar);
 
+	/*
 	if(strNewCmdPar.IsEmpty())
 	{
 		DirectRun = true;
 	}
+	*/
 
 	DWORD dwAttr = apiGetFileAttributes(strNewCmdStr);
 
