@@ -9,12 +9,10 @@
 #include "olethread.h"
 #include "farkeys.hpp"
 #include "HMenu.h"
-#include "pluginreg/pluginreg.hpp"
+#include "PluginSettings.hpp"
 #include "guid.hpp"
 #include "DlgBuilder.hpp"
 #include <cassert>
-
-wchar_t *PluginRootKey;
 
 // new version of PSDK do not contains standard smart-pointer declaration
 _COM_SMARTPTR_TYPEDEF(IContextMenu, __uuidof(IContextMenu));
@@ -41,7 +39,6 @@ CPlugin::CPlugin(const PluginStartupInfo *Info)
   m_hModule=(HINSTANCE)GetModuleHandle(Info->ModuleName);
   m_pMalloc=NULL;
   NULL_HWND=NULL;
-  REG_Key=L"\\RightClick";
   REG_WaitToContinue=L"WaitToContinue";
   REG_UseGUI=L"UseGUI";
   REG_DelUsingFar=L"DelUsingFar";
@@ -56,10 +53,6 @@ CPlugin::CPlugin(const PluginStartupInfo *Info)
   *(PluginStartupInfo*)this=*Info;
   m_fsf=*Info->FSF;
 
-  PluginRootKey = (wchar_t *)malloc(lstrlen(Info->RootKey)*sizeof(wchar_t) + lstrlen(REG_Key)*sizeof(wchar_t));
-  lstrcpy(PluginRootKey,Info->RootKey);
-  lstrcat(PluginRootKey,REG_Key);
-
   ReadRegValues();
 
   OSVERSIONINFO osvi;
@@ -70,14 +63,15 @@ CPlugin::CPlugin(const PluginStartupInfo *Info)
 
 void CPlugin::ReadRegValues()
 {
-  m_WaitToContinue=GetRegKey(L"",REG_WaitToContinue, 0);
-  m_UseGUI=GetRegKey(L"",REG_UseGUI, 2);
-  m_DelUsingFar=GetRegKey(L"",REG_DelUsingFar, 0);
-  m_ClearSel=GetRegKey(L"",REG_ClearSel, 1);
-  m_Silent=GetRegKey(L"",REG_Silent, 0);
-  m_enHelptext=(EAdditionalStr)GetRegKey(L"",REG_Helptext, 0);
-  m_DifferentOnly=GetRegKey(L"",REG_DifferentOnly, 0);
-  m_GuiPos=GetRegKey(L"",REG_GuiPos, 1);
+  PluginSettings settings(MainGuid, SettingsControl);
+  m_WaitToContinue=settings.Get(0,REG_WaitToContinue, 0);
+  m_UseGUI=settings.Get(0,REG_UseGUI, 2);
+  m_DelUsingFar=settings.Get(0,REG_DelUsingFar, 0);
+  m_ClearSel=settings.Get(0,REG_ClearSel, 1);
+  m_Silent=settings.Get(0,REG_Silent, 0);
+  m_enHelptext=(EAdditionalStr)settings.Get(0,REG_Helptext, 0);
+  m_DifferentOnly=settings.Get(0,REG_DifferentOnly, 0);
+  m_GuiPos=settings.Get(0,REG_GuiPos, 1);
 }
 
 void CPlugin::GetPluginInfo(PluginInfo *Info)
@@ -184,14 +178,15 @@ int CPlugin::Configure()
       m_enHelptext=AS_HELPTEXT;
     else
       m_enHelptext=AS_NONE;
-    SetRegKey(L"", REG_WaitToContinue, m_WaitToContinue);
-    SetRegKey(L"", REG_UseGUI, m_UseGUI);
-    SetRegKey(L"", REG_DelUsingFar, m_DelUsingFar);
-    SetRegKey(L"", REG_ClearSel, m_ClearSel);
-    SetRegKey(L"", REG_Silent, m_Silent);
-    SetRegKey(L"", REG_Helptext, m_enHelptext);
-    SetRegKey(L"", REG_DifferentOnly, m_DifferentOnly);
-    SetRegKey(L"", REG_GuiPos, m_GuiPos);
+    PluginSettings settings(MainGuid, SettingsControl);
+    settings.Set(0, REG_WaitToContinue, m_WaitToContinue);
+    settings.Set(0, REG_UseGUI, m_UseGUI);
+    settings.Set(0, REG_DelUsingFar, m_DelUsingFar);
+    settings.Set(0, REG_ClearSel, m_ClearSel);
+    settings.Set(0, REG_Silent, m_Silent);
+    settings.Set(0, REG_Helptext, m_enHelptext);
+    settings.Set(0, REG_DifferentOnly, m_DifferentOnly);
+    settings.Set(0, REG_GuiPos, m_GuiPos);
     return 1;
   }
 
@@ -201,7 +196,6 @@ int CPlugin::Configure()
 void CPlugin::ExitFAR()
 {
   OleThread::Stop();
-  free(PluginRootKey);
 }
 
 HANDLE CPlugin::OpenPlugin(int nOpenFrom, INT_PTR nItem)

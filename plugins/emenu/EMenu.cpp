@@ -62,9 +62,9 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
   thePlug->GetPluginInfo(Info);
 }
 
-HANDLE WINAPI OpenPluginW(int OpenFrom, const GUID* Guid, INT_PTR Item)
+HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 {
-  return thePlug->OpenPlugin(OpenFrom, Item);
+  return thePlug->OpenPlugin(OInfo->OpenFrom, OInfo->Data);
 }
 
 int WINAPI ConfigureW(const GUID* Guid)

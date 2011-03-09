@@ -19,8 +19,6 @@ NEEDENTRY = 1
 NEEDDEFLIB = 1
 !endif
 
-NEEDPLUGINREG = 1
-
 !include ..\makefile_vc_def_inc
 
 !include ..\makefile_vc_target_inc

@@ -1,7 +1,7 @@
 #include "farversion.hpp"
 
-#define PLUGIN_BUILD 38
-#define PLUGIN_DESC L"EMenu Plugin for FAR Manager"
+#define PLUGIN_BUILD 39
+#define PLUGIN_DESC L"EMenu Plugin for Far Manager"
 #define PLUGIN_NAME L"EMenu"
 #define PLUGIN_FILENAME L"EMenu.dll"
 #define PLUGIN_AUTHOR FARCOMPANYNAME

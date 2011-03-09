@@ -98,7 +98,6 @@ protected:
   };
   HWND NULL_HWND;
   FarStandardFunctions m_fsf;
-  LPCWSTR REG_Key;
   LPCWSTR REG_WaitToContinue;
   LPCWSTR REG_UseGUI;
   LPCWSTR REG_DelUsingFar;
