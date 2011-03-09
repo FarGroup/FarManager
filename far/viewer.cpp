@@ -122,6 +122,7 @@ Viewer::Viewer(bool bQuickView, UINT aCodePage):
 	SelectPosOffSet=0;
 	bVE_READ_Sent = false;
 	Signature = false;
+	vgetc_ready = -1;
 }
 
 
@@ -1929,8 +1930,11 @@ void Viewer::Up()
 	if (!ViewFile.Opened())
 		return;
 
-	wchar_t Buf[MAX_VIEWLINE];
+	wchar_t Buf[MAX_VIEWLINE], Buf2[ARRAYSIZE(Buf)], *tBuf = Buf, *tBuf2 = NULL;
 	int BufSize,StrPos,Skipped,I,J;
+
+	if (!VM.Hex && VM.CodePage == CP_UTF8)
+		tBuf = tBuf2 = Buf2;
 
 	if (FilePos > (__int64)sizeof(Buf)/sizeof(wchar_t))
 		BufSize=sizeof(Buf)/sizeof(wchar_t);
@@ -1955,7 +1959,7 @@ void Viewer::Up()
 	}
 
 	vseek(FilePos-(__int64)BufSize,SEEK_SET);
-	BufSize = vread(Buf,BufSize);
+	BufSize = vread(Buf, BufSize, false, tBuf2);
 	Skipped=0;
 
 	if (BufSize>0 && Buf[BufSize-1]==(unsigned int)CRSym)
@@ -1979,7 +1983,7 @@ void Viewer::Up()
 		{
 			if (!VM.Wrap)
 			{
-				FilePos -= GetStrBytesNum(Buf + (I+1), BufSize-(I+1)) + Skipped;
+				FilePos -= GetStrBytesNum(tBuf + (I+1), BufSize-(I+1)) + Skipped;
 				return;
 			}
 			else
@@ -2003,7 +2007,7 @@ void Viewer::Up()
 
 						if (CalcStrSize(&Buf[J],BufSize-J) <= Width)
 						{
-							FilePos -= GetStrBytesNum(Buf + J, BufSize-J) + Skipped;
+							FilePos -= GetStrBytesNum(tBuf + J, BufSize-J) + Skipped;
 							return;
 						}
 						else
@@ -2025,7 +2029,7 @@ void Viewer::Up()
 	for (I=Min(Width,BufSize); I>0; I-=5)
 		if (CalcStrSize(&Buf[BufSize-I],I) <= Width)
 		{
-			FilePos -= GetStrBytesNum(&Buf[BufSize-I], I)+Skipped;
+			FilePos -= GetStrBytesNum(&tBuf[BufSize-I], I)+Skipped;
 			break;
 		}
 }
@@ -2309,6 +2313,8 @@ void Viewer::Search(int Next,int FirstChar)
 	ReverseSearch=SearchDlg[SD_CHECKBOX_REVERSE].Selected;
 	SearchRegexp=SearchDlg[SD_CHECKBOX_REGEXP].Selected;
 
+	bool t_utf8 = false;
+
 	if (SearchHex)
 	{
 		strSearchStr = SearchDlg[SD_EDIT_HEX].strData;
@@ -2317,6 +2323,7 @@ void Viewer::Search(int Next,int FirstChar)
 	else
 	{
 		strSearchStr = SearchDlg[SD_EDIT_TEXT].strData;
+		t_utf8 = VM.CodePage == CP_UTF8;
 	}
 
 	strLastSearchStr = strSearchStr;
@@ -2380,7 +2387,7 @@ void Viewer::Search(int Next,int FirstChar)
 
 		if (SearchLength>0 && (!ReverseSearch || LastSelPos>0))
 		{
-			wchar_t Buf[8192];
+			wchar_t Buf[8192], t_Buf[ARRAYSIZE(Buf)];
 			__int64 CurPos=LastSelPos;
 			int BufSize=ARRAYSIZE(Buf);
 
@@ -2416,7 +2423,10 @@ void Viewer::Search(int Next,int FirstChar)
 
 				vseek(CurPos,SEEK_SET);
 
-				if ((ReadSize=vread(Buf,BufSize,SearchHex!=0))<=0)
+				ReadSize = t_utf8
+					? vread(Buf, BufSize, false, t_Buf)
+					: vread(Buf, BufSize, SearchHex!=0);
+				if (ReadSize <= 0)
 					break;
 
 				DWORD CurTime=GetTickCount();
@@ -2508,12 +2518,21 @@ void Viewer::Search(int Next,int FirstChar)
 					if (Match)
 					{
 						MatchPos=CurPos+I;
+						if (t_utf8)
+						{
+							MatchPos = CurPos + GetStrBytesNum(t_Buf, I);
+							SearchLength = GetStrBytesNum(t_Buf+I, SearchLength);
+						}
 						break;
 					}
 				}
 
-				if ((ReverseSearch && CurPos <= 0) || (!ReverseSearch && ReadSize < BufSize))
+				if ((ReverseSearch && CurPos <= 0) || (!ReverseSearch && ViewFile.Eof()))
 					break;
+
+				int asz = ARRAYSIZE(Buf);
+				if (t_utf8)
+					asz = GetStrBytesNum(t_Buf, ReadSize);
 
 				if (ReverseSearch)
 				{
@@ -2521,16 +2540,16 @@ void Viewer::Search(int Next,int FirstChar)
 					   Изменёно вычисление CurPos с учётом Whole words
 					*/
 					if (WholeWords)
-						CurPos-=ARRAYSIZE(Buf)-SearchLength+1;
+						CurPos-=asz-SearchLength+1;
 					else
-						CurPos-=ARRAYSIZE(Buf)-SearchLength;
+						CurPos-=asz-SearchLength;
 				}
 				else
 				{
 					if (WholeWords)
-						CurPos+=ARRAYSIZE(Buf)-SearchLength+1;
+						CurPos+=asz-SearchLength+1;
 					else
-						CurPos+=ARRAYSIZE(Buf)-SearchLength;
+						CurPos+=asz-SearchLength;
 				}
 			}
 		}
@@ -2706,7 +2725,121 @@ void Viewer::SetNamesList(NamesList *List)
 }
 
 
-int Viewer::vread(wchar_t *Buf,int Count, bool Raw)
+static int utf8_to_WideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int wlen, int &tail )
+{
+#define REPLACEMENT 0xFFFD // L'?'
+
+	if ( wlen <= 0 )
+	{
+		tail = nc;
+		return 0;
+	}
+
+	int ic = 0, nw = 0, wc;
+
+	while ( ic < nc )
+	{
+		unsigned char c4, c3, c2, c1 = ((const unsigned char *)s)[ic++];
+
+		if (c1 < 0x80) // simple ASCII
+			wc = (wchar_t)c1;
+		else if ( c1 < 0xC2 || c1 >= 0xF5 ) // illegal 1-st byte
+			wc = -1;
+		else
+		{ // multibyte (2, 3, 4)
+			if (ic + 0 >= nc )
+			{ // unfinished
+			unfinished:
+				if ( nw > 0 )
+					tail = nc - ic + 1;
+				else
+				{
+					tail = 0;
+					w1[0] = REPLACEMENT;
+					if (w2)
+						w2[0] = L'?';
+					nw = 1;
+				}
+				return nw;
+			}
+			c2 = ((const unsigned char *)s)[ic];
+			if ( 0x80 != (c2 & 0xC0)        // illegal 2-st byte
+				|| (0xE0 == c1 && c2 <= 0x9F) // illegal 3-byte start (overlaps with 2-byte)
+				|| (0xF0 == c1 && c2 <= 0x8F) // illegal 4-byte start (overlaps with 3-byte)
+				|| (0xF4 == c1 && c2 >= 0x90) // illegal 4-byte (out of unicode range)
+			)
+			{
+				wc = -1;
+			}
+			else if ( c1 < 0xE0 )
+			{ // legal 2-byte
+				++ic;
+				wc = ((c1 & 0x1F) << 6) | (c2 & 0x3F);
+			}
+			else
+			{ // 3 or 4-byte
+				if (ic + 1 >= nc )
+					goto unfinished;
+				c3 = ((const unsigned char *)s)[ic+1];
+				if ( 0x80 != (c3 & 0xC0) ) // illegal 3-rd byte
+					wc = -1;
+				else if ( c1 < 0xF0 )
+				{ // legal 3-byte
+					ic += 2;
+					wc = ((c1 & 0x0F) << 12) | ((c2 & 0x3F) << 6) | (c3 & 0x3F);
+				}
+				else
+				{ // 4-byte
+					if (ic + 2 >= nc )
+						goto unfinished;
+
+					c4 = ((const unsigned char *)s)[ic+2];
+					if ( 0x80 != (c4 & 0xC0) ) // illegal 4-th byte
+						wc = -1;
+					else
+					{ // legal 4-byte (produce 2 WCHARs)
+						ic += 3;
+						wc = ((c1 & 0x07) << 18) | ((c2 & 0x3F) << 12) | ((c3 & 0x3F) << 6) | (c4 & 0x3F);
+						wc -= 0x10000;
+						w1[nw] = (wchar_t)(0xD800 + (wc >> 10));
+						if (w2)
+							w2[nw] = w1[nw];
+						++nw;
+						wc = 0xDC00 + (wc & 0x3FF);
+#if 0
+						_ASSERTE(nw < wlen); //??? caller should be fixed to avoid this...
+#endif
+						if (nw >= wlen)
+						{
+							--nw;
+							wc = REPLACEMENT;
+						}
+					}
+				}
+			}
+		}
+
+		if ( wc >= 0 )
+		{
+			w1[nw] = (wchar_t)wc;
+			if (w2)
+				w2[nw] = (wchar_t)wc;
+		}
+		else
+		{
+			w1[nw] = REPLACEMENT;
+			if (w2)
+				w2[nw] = L'?';
+		}
+		if (++nw >= wlen)
+			break;
+	}
+
+	tail = nc - ic;
+	return nw;
+}
+
+int Viewer::vread(wchar_t *Buf,int Count, bool Raw, wchar_t *Buf2)
 {
 	if (IsUnicodeCodePage(VM.CodePage))
 	{
@@ -2764,7 +2897,7 @@ int Viewer::vread(wchar_t *Buf,int Count, bool Raw)
 				1110yyyy  10yyyyxx  10xxxxxx
 				11110zzz  10zzyyyy  10yyyyxx  10xxxxxx
 				*/
-
+#if 0
 				//Мы посреди буквы? Тогда ищем начало следующей.
 				while ((c&0xC0) == 0x80)
 				{
@@ -2775,7 +2908,7 @@ int Viewer::vread(wchar_t *Buf,int Count, bool Raw)
 					ReadSize++;
 					c=*TmpBuf;
 				}
-
+#endif
 				//Посчитаем сколько байт нам ещё надо прочитать чтоб получить целую букву.
 				DWORD cc=1;
 				c = c & 0xF0;
@@ -2801,7 +2934,15 @@ int Viewer::vread(wchar_t *Buf,int Count, bool Raw)
 		}
 		else
 		{
-			ReadSize = MultiByteToWideChar(VM.CodePage, 0, TmpBuf, ConvertSize, Buf, Count);
+			if (VM.CodePage != CP_UTF8)
+				ReadSize = MultiByteToWideChar(VM.CodePage, 0, TmpBuf, ConvertSize, Buf, Count);
+			else
+			{
+				int tail;
+				ReadSize = (DWORD)utf8_to_WideChar(TmpBuf, ConvertSize, Buf,Buf2, Count, tail);
+				if (tail)
+					Reader.Unread(tail);
+			}
 		}
 
 		xf_free(TmpBuf);
@@ -2812,6 +2953,7 @@ int Viewer::vread(wchar_t *Buf,int Count, bool Raw)
 
 int Viewer::vseek(__int64 Offset,int Whence)
 {
+	vgetc_ready = -1;
 	return ViewFile.SetPointer(Offset*(IsUnicodeCodePage(VM.CodePage)?2:1), nullptr, Whence);
 }
 
@@ -2830,11 +2972,37 @@ __int64 Viewer::vtell()
 
 bool Viewer::vgetc(WCHAR& C)
 {
-	bool Result=false;
-
-	if (vread(&C,1))
+	bool Result;
+	if (VM.Hex || VM.CodePage != CP_UTF8)
+		Result = (vread(&C,1) > 0);
+	else
 	{
-		Result=true;
+		if (vgetc_ready >= 0)
+		{
+			C = (WCHAR)vgetc_ready;
+			vgetc_ready = -1;
+			Result = true;
+		}
+		else
+		{
+			wchar_t w1[4], w2[4];
+			int need = 1;
+			int nw = vread(w1, 4, false, w2);
+			if (true == (Result = (nw > 0)))
+			{
+				C = w1[0];
+				if (nw > need && 0xD800 == (w1[0] & 0xFC00) && 0xDC00 == (w1[1] & 0xFC00))
+				{
+					++need;
+					vgetc_ready = w1[1];
+				}
+				if (nw > need)
+				{
+					int tail = GetStrBytesNum(w2+need, nw-need);
+					Reader.Unread(tail);
+				}
+			}
+		}
 	}
 	return Result;
 }
@@ -3053,7 +3221,7 @@ void Viewer::SelectText(const __int64 &MatchPos,const __int64 &SearchLength, con
 	if (!ViewFile.Opened())
 		return;
 
-	wchar_t Buf[1024];
+	wchar_t Buf[1024], Buf2[ARRAYSIZE(Buf)], *tBuf=(!VM.Hex && VM.CodePage == CP_UTF8) ? Buf2 : NULL;
 	__int64 StartLinePos=-1,SearchLinePos=MatchPos-sizeof(Buf)/sizeof(wchar_t);
 
 	if (SearchLinePos<0)
@@ -3061,12 +3229,15 @@ void Viewer::SelectText(const __int64 &MatchPos,const __int64 &SearchLength, con
 
 	vseek(SearchLinePos,SEEK_SET);
 	int ReadSize=(int)Min((__int64)ARRAYSIZE(Buf),(__int64)(MatchPos-SearchLinePos));
-	ReadSize=vread(Buf,ReadSize);
+	ReadSize=vread(Buf,ReadSize, false, tBuf);
 
 	for (int I=ReadSize-1; I>=0; I--)
 		if (Buf[I]==(unsigned int)CRSym)
 		{
-			StartLinePos=SearchLinePos+I;
+			if (tBuf)
+				StartLinePos = MatchPos - GetStrBytesNum(tBuf+I, ReadSize-I);
+			else
+				StartLinePos=SearchLinePos+I;
 			break;
 		}
 

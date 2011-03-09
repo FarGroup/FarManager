@@ -109,6 +109,18 @@ bool CachedRead::Read(LPVOID Data, DWORD DataSize, LPDWORD BytesRead)
 	return Result;
 }
 
+bool CachedRead::Unread(DWORD BytesUnread)
+{
+	if (BytesUnread + BytesLeft <= ReadSize)
+	{
+		BytesLeft += BytesUnread;
+		__int64 off = BytesUnread;
+		file.SetPointer(-off, &LastPtr, FILE_CURRENT);
+		return true;
+	}
+	return false;
+}
+
 bool CachedRead::FillBuffer()
 {
 	bool Result=false;

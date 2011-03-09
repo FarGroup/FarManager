@@ -39,6 +39,7 @@ public:
 	~CachedRead();
 	bool Read(LPVOID Data, DWORD DataSize, LPDWORD BytesRead);
 	bool FillBuffer();
+	bool Unread(DWORD BytesUnread);
 	void Clear();
 
 private:

@@ -163,6 +163,8 @@ class Viewer:public ScreenObject
 		bool m_bQuickView;
 
 		UINT DefCodePage;
+		int vgetc_ready;
+
 	private:
 		virtual void DisplayObject();
 
@@ -187,7 +189,7 @@ class Viewer:public ScreenObject
 		void Search(int Next,int FirstChar);
 		void ConvertToHex(char *SearchStr,int &SearchLength);
 		int HexToNum(int Hex);
-		int vread(wchar_t *Buf,int Count, bool Raw=false);
+		int vread(wchar_t *Buf,int Count, bool Raw=false, wchar_t *Buf2=NULL);
 		int vseek(__int64 Offset,int Whence);
 		__int64 vtell();
 		bool vgetc(WCHAR& C);
