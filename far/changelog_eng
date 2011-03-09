@@ -3,6 +3,21 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 10.03.2011 16:22:44 +0200 - build 1905
+
+1. Warnings, optimization.
+
+drkns 10.03.2011 12:10:12 +0200 - build 1904
+
+1. File::<G|S>etPointer optimization. As a consequence:
+    Mantis#0001668: CachedRead and CacheWrite classes are quite ineffective in performance terms.
+    Mantis#0001431: 100% CPU load while page scrolling in viewer
+
+svs 09.03.2011 08:15:51 +0300 - build 1903
+
+1. Mantis#0000786: Incorrect output of UTF-8 encoded files content in viewer after positioning at search results
+   from 2useven10
+
 drkns 08.03.2011 09:23:34 +0200 - build 1902
 
 1. Correction of 1892.1.
