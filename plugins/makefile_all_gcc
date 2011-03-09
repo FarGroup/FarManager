@@ -1,7 +1,7 @@
 ALLDIRS = align autowrap brackets compare drawline editcase farcmds \
           filecase hlfviewer macroview network proclist tmppanel ftp multiarc
 
-all: libcrt libpluginreg $(ALLDIRS)
+all: libcrt $(ALLDIRS)
 
 FICTIVE=_fictive_
 $(FICTIVE):
@@ -9,10 +9,6 @@ $(FICTIVE):
 libcrt: $(FICTIVE)
 	@echo ===========CRT library
 	@$(MAKE) -C common/CRT -f makefile_lib_gcc
-
-pluginreg: $(FICTIVE)
-	@echo ===========pluginreg library
-	@$(MAKE) -C common/pluginreg -f makefile_lib_gcc
 
 $(ALLDIRS): $(FICTIVE)
 	@echo ===========$@

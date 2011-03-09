@@ -58,10 +58,10 @@ VC=10
 !include ./makefile_vc_getmode
 
 ##########################
-all:    libcrt libpluginreg $(OUTPATH) $(ALLDIRS)
+all:    libcrt $(OUTPATH) $(ALLDIRS)
 
 !ifdef __MAKE__
-.PHONY: libcrt libpluginreg $(OUTPATH) $(ALLDIRS)
+.PHONY: libcrt $(OUTPATH) $(ALLDIRS)
 !else
 FICTIVE=_fictive_
 $(FICTIVE):
@@ -72,13 +72,6 @@ $(FICTIVE):
 libcrt: $(FICTIVE)
 	@echo ===========CRT library
         @cd common\CRT
-        @$(MAKE) -s -f makefile_lib_vc $(_MDEFS)
-        @cd ..\..
-
-##########################
-libpluginreg : $(FICTIVE)
-	@echo ===========pluginreg library
-        @cd common\pluginreg
         @$(MAKE) -s -f makefile_lib_vc $(_MDEFS)
         @cd ..\..
 

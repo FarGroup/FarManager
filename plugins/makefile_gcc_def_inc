@@ -25,8 +25,6 @@
 #
 #EXCLUDECRT - set if you do not want to link with common/crt lib.
 #
-#NEEDPLUGINREG - set if you want to link with libpluginreg 
-#
 #SRCS - a list of the *.cpp source files.
 #
 #DOCS - a list of additional files that need to copied to the target folder.
@@ -74,10 +72,6 @@ endif
 COMMONLIB = -L $(COMMON) -lCRT
 ifdef EXCLUDECRT
 COMMONLIB = 
-endif
-
-ifdef NEEDPLUGINREG
-COMMONLIB += -L $(COMMON) -lpluginreg
 endif
 
 CXX = g++
