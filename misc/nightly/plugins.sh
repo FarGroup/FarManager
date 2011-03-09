@@ -140,15 +140,6 @@ wine cmd /c ../../../common.64.bat &> ../../../logCRT64
 
 cd ../..
 
-cd common/pluginreg
-
-mkdir -p obj.32.vc
-mkdir -p obj.64.vc
-wine cmd /c ../../../common.32.bat &> ../../../logpluginreg32
-wine cmd /c ../../../common.64.bat &> ../../../logpluginreg64
-
-cd ../..
-
 bplugin "align" "Align" "Align.dll AlignEng.lng AlignRus.lng Align.map"
 bplugin "autowrap" "AutoWrap" "AutoWrap.dll WrapEng.lng WrapRus.lng AutoWrap.map"
 bplugin "brackets" "Brackets" "Brackets.dll BrackEng.hlf BrackRus.hlf BrackEng.lng BrackRus.lng BrackDel.reg BrackEng.reg BrackRus.reg Brackets.map"
