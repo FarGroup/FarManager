@@ -63,7 +63,7 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 }
 
 
-HANDLE WINAPI OpenW(int OpenFrom,const GUID* Guid,INT_PTR Item)
+HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 {
 	static bool Reenter=false;
 
@@ -74,7 +74,6 @@ HANDLE WINAPI OpenW(int OpenFrom,const GUID* Guid,INT_PTR Item)
 	int LineWidth=1, KeyCode;
 	bool Done=false;
 	INPUT_RECORD rec;
-	COORD MousePos={-1,-1};
 	SetTitle(LineWidth,(LineWidth==1)?MTitleSingle:MTitleDouble);
 
 	while (!Done)
@@ -84,6 +83,7 @@ HANDLE WINAPI OpenW(int OpenFrom,const GUID* Guid,INT_PTR Item)
 		if ((rec.EventType&(~0x8000))!=KEY_EVENT || !rec.Event.KeyEvent.bKeyDown)
 		{
 #if 0
+			COORD MousePos={-1,-1};
 
 			if (rec.EventType==MOUSE_EVENT)
 			{
@@ -145,7 +145,9 @@ HANDLE WINAPI OpenW(int OpenFrom,const GUID* Guid,INT_PTR Item)
 			continue;
 		}
 		else
+		{
 			KeyCode=rec.Event.KeyEvent.wVirtualKeyCode;
+		}
 
 		switch (KeyCode)
 		{

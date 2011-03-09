@@ -1,5 +1,5 @@
 EXPORTS 
    GetPluginInfoW=GetPluginInfoW@4
-   OpenW=OpenW@12
+   OpenW=OpenW@4
    SetStartupInfoW=SetStartupInfoW@4
    GetGlobalInfoW=GetGlobalInfoW@4
