@@ -1,5 +1,6 @@
 #include <plugin.hpp>
 #include <CRT/crt.hpp>
+#include <PluginSettings.hpp>
 #include "CompareLng.hpp"
 #include "version.hpp"
 #include <initguid.h>
@@ -55,7 +56,6 @@ struct Options {
  ****************************************************************************/
 static struct PluginStartupInfo Info;
 static struct FarStandardFunctions FSF;
-static wchar_t  *PluginRootKey = NULL;
 
 static void WFD2FFD(WIN32_FIND_DATA &wfd, PluginPanelItem &ffd)
 {
@@ -193,7 +193,7 @@ INT_PTR WINAPI ShowDialogProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
 {
   static struct InitDialogItem {
-    unsigned char Type;
+    FARDIALOGITEMTYPES Type;
     unsigned char X1, Y1, X2, Y2;
     int           Data;
     int           DefaultRegValue;
@@ -229,18 +229,13 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
 
   memset(DialogItems,0,sizeof(DialogItems));
 
-  HKEY hKey;
-  if (!PluginRootKey ||
-       RegOpenKeyEx(HKEY_CURRENT_USER, PluginRootKey, 0, KEY_QUERY_VALUE, &hKey) != ERROR_SUCCESS)
-    hKey = 0;
+  PluginSettings settings(MainGuid, Info.SettingsControl);
 
   size_t DlgData=0;
   bool bNoFocus = true;
   size_t i;
   for (i = 0; i < ARRAYSIZE(InitItems); i++)
   {
-    DWORD dwRegValue;
-    DWORD dwSize                  = sizeof(DWORD);
     DialogItems[i].Type           = InitItems[i].Type;
     DialogItems[i].X1             = InitItems[i].X1;
     DialogItems[i].Y1             = InitItems[i].Y1;
@@ -248,21 +243,17 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
     DialogItems[i].Y2             = InitItems[i].Y2;
     DialogItems[i].Flags          = InitItems[i].Flags;
     DialogItems[i].PtrData = (InitItems[i].Data == MNoLngStringDefined) ? L"" : GetMsg(InitItems[i].Data);
-    dwRegValue = (hKey && InitItems[i].SelectedRegValue &&
-                  RegQueryValueEx(hKey, InitItems[i].SelectedRegValue, NULL,
-                  NULL, (LPBYTE)&dwRegValue, &dwSize)
-                  == ERROR_SUCCESS ) ? dwRegValue : InitItems[i].DefaultRegValue;
+    int Value = InitItems[i].SelectedRegValue ? settings.Get(0, InitItems[i].SelectedRegValue, InitItems[i].DefaultRegValue) : InitItems[i].DefaultRegValue;
     if (DialogItems[i].Type == DI_CHECKBOX || DialogItems[i].Type == DI_RADIOBUTTON)
     {
-      DialogItems[i].Selected = dwRegValue;
+      DialogItems[i].Selected = Value;
     }
     else if (DialogItems[i].Type == DI_FIXEDIT)
     {
       DialogItems[i].PtrData = tmpnum[i];
-      FSF.itoa(dwRegValue, (wchar_t *)DialogItems[i].PtrData, 10);
+      FSF.itoa(Value, (wchar_t *)DialogItems[i].PtrData, 10);
       DialogItems[i].Mask = Mask;
-      DialogItems[i].X1 = DialogItems[i-1].X1 + lstrlen(DialogItems[i-1].PtrData)
-                          - (wcschr(DialogItems[i-1].PtrData, L'&')?1:0) + 5;
+      DialogItems[i].X1 = DialogItems[i-1].X1 + lstrlen(DialogItems[i-1].PtrData) - (wcschr(DialogItems[i-1].PtrData, L'&')?1:0) + 5;
       DialogItems[i].X2 += DialogItems[i].X1;
     }
 
@@ -357,9 +348,6 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
     }
   }
 
-  if (hKey)
-    RegCloseKey(hKey);
-
   HANDLE hDlg = Info.DialogInit(&MainGuid, &DialogGuid, -1, -1, 66, 22, L"Contents",
                                DialogItems, ARRAYSIZE(DialogItems), 0, 0,
                                ShowDialogProc, DlgData);
@@ -381,20 +369,12 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
       }
     }
 
-    DWORD dwDisposition;
-    if (PluginRootKey &&
-        RegCreateKeyEx(HKEY_CURRENT_USER, PluginRootKey, 0, NULL, REG_OPTION_NON_VOLATILE,
-        KEY_ALL_ACCESS, NULL, &hKey, &dwDisposition) == ERROR_SUCCESS)
+    for (i = 0; i < ARRAYSIZE(InitItems); i++)
     {
-      for (i = 0; i < ARRAYSIZE(InitItems); i++)
+      if (!(CheckDisabled((int)i)) && InitItems[i].SelectedRegValue)
       {
-        if (!(CheckDisabled((int)i)) && InitItems[i].SelectedRegValue)
-        {
-          DWORD dwValue = *InitItems[i].StoreTo;
-          RegSetValueEx(hKey, InitItems[i].SelectedRegValue, 0, REG_DWORD, (BYTE *)&dwValue, sizeof(dwValue));
-        }
+        settings.Set(0, InitItems[i].SelectedRegValue, *InitItems[i].StoreTo);
       }
-      RegCloseKey(hKey);
     }
 
     if (bPluginPanels)
@@ -402,8 +382,7 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
       Opt.ProcessSubfolders = FALSE;
       Opt.CompareContents = FALSE;
     }
-    Opt.ProcessHidden = (Info.AdvControl(&MainGuid, ACTL_GETPANELSETTINGS, NULL) &
-                          FPS_SHOWHIDDENANDSYSTEMFILES) != 0;
+    Opt.ProcessHidden = (Info.AdvControl(&MainGuid, ACTL_GETPANELSETTINGS, NULL) & FPS_SHOWHIDDENANDSYSTEMFILES) != 0;
 
     Info.DialogFree(hDlg);
 
@@ -1005,31 +984,8 @@ void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
  ****************************************************************************/
 void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 {
-  const wchar_t *cpPlugRegKey = L"\\AdvCompare";
   ::Info = *Info;
-
   FSF = *Info->FSF;
-
-  if (PluginRootKey)
-  {
-    free(PluginRootKey);
-    PluginRootKey = NULL;
-  }
-
-  if ((PluginRootKey = (wchar_t*)malloc(sizeof(wchar_t)*(lstrlen(Info->RootKey) + lstrlen(cpPlugRegKey) + 1))) != NULL)
-  {
-    lstrcpy(PluginRootKey, Info->RootKey);
-    lstrcat(PluginRootKey, cpPlugRegKey);
-  }
-  else
-  {
-    const wchar_t *MsgItems[] = {
-      GetMsg(MNoMemTitle),
-      GetMsg(MNoMemBody),
-      GetMsg(MOK)
-    };
-    ::Info.Message(&MainGuid, FMSG_WARNING, NULL, MsgItems, ARRAYSIZE(MsgItems), 1);
-  }
 }
 
 /****************************************************************************
@@ -1046,7 +1002,7 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
   Info->PluginMenu.Count=ARRAYSIZE(PluginMenuStrings);
 }
 
-void GetPanelItem(HANDLE hPlugin,int Command,int Param1,PluginPanelItem* Param2)
+void GetPanelItem(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int Param1,PluginPanelItem* Param2)
 {
   PluginPanelItem* item=(PluginPanelItem*)malloc(Info.Control(hPlugin,Command,Param1,0));
   if(item)
@@ -1097,7 +1053,7 @@ void FreePanelItems(OwnPanelInfo &AInfo,OwnPanelInfo &PInfo)
 /****************************************************************************
  * Основная функция плагина. FAR её вызывает, когда пользователь зовёт плагин
  ****************************************************************************/
-HANDLE WINAPI OpenPluginW(int OpenFrom, const GUID* Guid, INT_PTR Item)
+HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 {
   OwnPanelInfo AInfo, PInfo;
 
@@ -1217,16 +1173,13 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, const GUID* Guid, INT_PTR Item)
   lstrcpy(cBuffer, GetMsg(MComparingFiles));
   SetConsoleTitle(cBuffer);
 
-  // Читаем размер буфера сравнения из реестре...
-  HKEY hKey = NULL;
-  if (!PluginRootKey || RegOpenKeyEx(HKEY_CURRENT_USER, PluginRootKey, 0, KEY_QUERY_VALUE, &hKey) != ERROR_SUCCESS)
-    hKey = NULL;
-
-  DWORD dwSize = sizeof(DWORD);
-  bufSize = ( hKey && (RegQueryValueEx(hKey, L"CompareBufferSize", NULL, NULL, (LPBYTE)&bufSize,
-              &dwSize) == ERROR_SUCCESS) && (bufSize > 32767) ) ? bufSize : 32768;
-  if (hKey)
-    RegCloseKey(hKey);
+  // Читаем размер буфера сравнения из настроек...
+  {
+    PluginSettings settings(MainGuid, Info.SettingsControl);
+    bufSize = settings.Get(0, L"CompareBufferSize", 32768);
+    if (bufSize < 32768)
+      bufSize = 32768;
+  }
 
   ABuf = (char*)malloc(bufSize);
   PBuf = (char*)malloc(bufSize);
@@ -1303,16 +1256,4 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, const GUID* Guid, INT_PTR Item)
     SetConsoleTitle(cConsoleTitle);
   FreePanelItems(AInfo,PInfo);
   return INVALID_HANDLE_VALUE;
-}
-
-/****************************************************************************
- * Эту функцию FAR вызывает перед выгрузкой плагина
- ****************************************************************************/
-void WINAPI ExitFARW(void)
-{
-  if (PluginRootKey)
-  {
-    free(PluginRootKey);
-    PluginRootKey = NULL;
-  }
 }
