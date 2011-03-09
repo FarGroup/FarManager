@@ -1,6 +1,6 @@
 #include "plugin.hpp"
 #include "CRT/crt.hpp"
-#include "pluginreg/pluginreg.hpp"
+#include "PluginSettings.hpp"
 #include "AlignLng.hpp"
 #include "DlgBuilder.hpp"
 #include "version.hpp"
@@ -28,7 +28,6 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 
 static struct PluginStartupInfo Info;
 static struct FarStandardFunctions FSF;
-wchar_t *PluginRootKey;
 
 static void ReformatBlock(int RightMargin,int SmartMode,int Justify);
 static void JustifyBlock(int RightMargin);
@@ -56,17 +55,7 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
   ::Info=*Info;
   ::FSF=*Info->FSF;
   ::Info.FSF=&::FSF;
-  PluginRootKey = (wchar_t *)malloc(lstrlen(Info->RootKey)*sizeof(wchar_t) + sizeof(L"\\Align"));
-  lstrcpy(PluginRootKey,Info->RootKey);
-  lstrcat(PluginRootKey,L"\\Align");
 }
-
-
-void WINAPI ExitFARW()
-{
-  free(PluginRootKey);
-}
-
 
 void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 {
@@ -80,12 +69,14 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 }
 
 
-HANDLE WINAPI OpenPluginW(int OpenFrom,const GUID* Guid,INT_PTR Data)
+HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 {
-  int RightMargin=GetRegKey(L"",L"RightMargin",75);
-  int Reformat=GetRegKey(L"",L"Reformat",TRUE);
-  int SmartMode=GetRegKey(L"",L"SmartMode",FALSE);
-  int Justify=GetRegKey(L"",L"Justify",FALSE);
+  PluginSettings settings(MainGuid, Info.SettingsControl);
+
+  int RightMargin=settings.Get(0,L"RightMargin",75);
+  int Reformat=settings.Get(0,L"Reformat",TRUE);
+  int SmartMode=settings.Get(0,L"SmartMode",FALSE);
+  int Justify=settings.Get(0,L"Justify",FALSE);
 
   PluginDialogBuilder Builder(Info, MainGuid, DialogGuid, MAlign, nullptr);
   FarDialogItem *RightMarginItem = Builder.AddIntEditField(&RightMargin, 3);
@@ -97,10 +88,10 @@ HANDLE WINAPI OpenPluginW(int OpenFrom,const GUID* Guid,INT_PTR Data)
 
   if (Builder.ShowDialog())
   {
-    SetRegKey(L"",L"Reformat",Reformat);
-    SetRegKey(L"",L"RightMargin",RightMargin);
-    SetRegKey(L"",L"SmartMode",SmartMode);
-    SetRegKey(L"",L"Justify",Justify);
+    settings.Set(0,L"Reformat",Reformat);
+    settings.Set(0,L"RightMargin",RightMargin);
+    settings.Set(0,L"SmartMode",SmartMode);
+    settings.Set(0,L"Justify",Justify);
     Info.EditorControl(-1,ECTL_TURNOFFMARKINGBLOCK,0,0);
     if (Reformat)
       ReformatBlock(RightMargin,SmartMode,Justify);

@@ -1,7 +1,6 @@
 NAME = Align
 SRCS = Align.cpp
 DOCS = AlignEng.lng AlignRus.lng
-NEEDPLUGINREG = 1
 
 include ../makefile_gcc_def_inc
 

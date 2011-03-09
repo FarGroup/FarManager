@@ -5,10 +5,9 @@
 NAME = Align
 LINK_OBJS = $(OBJDIR)\Align.obj
 DOCS = AlignEng.lng AlignRus.lng
-NEEDPLUGINREG = 1
 
 !include ..\makefile_vc_def_inc
 
 !include ..\makefile_vc_target_inc
 
-$(OBJDIR)\Align.obj: Align.cpp AlignLng.hpp version.hpp guid.hpp $(COMINC)\plugin.hpp
+$(OBJDIR)\Align.obj: Align.cpp AlignLng.hpp version.hpp guid.hpp $(COMINC)\plugin.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp
