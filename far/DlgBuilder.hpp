@@ -673,7 +673,7 @@ public:
 	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
 	{
 		const wchar_t *DataPtr = (const wchar_t *) Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, 0);
-		xwcsncpy(Value, DataPtr, MaxSize);
+		lstrcpyn(Value, DataPtr, MaxSize);
 	}
 };
 
@@ -735,7 +735,7 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 
 		virtual int TextWidth(const FarDialogItem &Item)
 		{
-			return StrLength(Item.PtrData);
+			return lstrlen(Item.PtrData);
 		}
 
 		virtual const wchar_t *GetLangString(int MessageID)
