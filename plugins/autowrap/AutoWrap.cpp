@@ -1,6 +1,6 @@
 #include "plugin.hpp"
 #include "CRT/crt.hpp"
-#include "pluginreg/pluginreg.hpp"
+#include "PluginSettings.hpp"
 #include "WrapLng.hpp"
 #include "DlgBuilder.hpp"
 #include "version.hpp"
@@ -27,7 +27,6 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 
 static struct PluginStartupInfo Info;
 static struct FarStandardFunctions FSF;
-wchar_t *PluginRootKey;
 
 struct Options
 {
@@ -60,19 +59,12 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
   ::Info=*Info;
   FSF=*Info->FSF;
   ::Info.FSF=&FSF;
-  PluginRootKey = (wchar_t *)malloc(lstrlen(Info->RootKey)*sizeof(wchar_t) + sizeof(L"\\AutoWrap"));
-  lstrcpy(PluginRootKey,Info->RootKey);
-  lstrcat(PluginRootKey,L"\\AutoWrap");
 
-  Opt.Wrap=GetRegKey(L"",L"Wrap",0);
-  Opt.RightMargin=GetRegKey(L"",L"RightMargin",75);
-  GetRegKey(L"",L"FileMasks",Opt.FileMasks,L"*.*",ARRAYSIZE(Opt.FileMasks));
-  GetRegKey(L"",L"ExcludeFileMasks",Opt.ExcludeFileMasks,L"",ARRAYSIZE(Opt.ExcludeFileMasks));
-}
-
-void WINAPI ExitFARW()
-{
-  free(PluginRootKey);
+  PluginSettings settings(MainGuid, ::Info.SettingsControl);
+  Opt.Wrap=settings.Get(0,L"Wrap",0);
+  Opt.RightMargin=settings.Get(0,L"RightMargin",75);
+  settings.Get(0,L"FileMasks",Opt.FileMasks,ARRAYSIZE(Opt.FileMasks),L"*.*");
+  settings.Get(0,L"ExcludeFileMasks",Opt.ExcludeFileMasks,ARRAYSIZE(Opt.ExcludeFileMasks),L"");
 }
 
 void WINAPI GetPluginInfoW(struct PluginInfo *Info)
@@ -86,7 +78,7 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
   Info->PluginMenu.Count=ARRAYSIZE(PluginMenuStrings);
 }
 
-HANDLE WINAPI OpenPluginW(int OpenFrom,const GUID* Guid,INT_PTR Item)
+HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 {
   PluginDialogBuilder Builder(Info, MainGuid, DialogGuid, MAutoWrap, nullptr);
   Builder.AddCheckbox(MEnableWrap, &Opt.Wrap);
@@ -100,10 +92,11 @@ HANDLE WINAPI OpenPluginW(int OpenFrom,const GUID* Guid,INT_PTR Item)
   Builder.AddOKCancel(MOk, MCancel);
   if (Builder.ShowDialog())
   {
-    SetRegKey(L"",L"Wrap",Opt.Wrap);
-    SetRegKey(L"",L"RightMargin",Opt.RightMargin);
-    SetRegKey(L"",L"FileMasks",Opt.FileMasks);
-    SetRegKey(L"",L"ExcludeFileMasks",Opt.ExcludeFileMasks);
+    PluginSettings settings(MainGuid, Info.SettingsControl);
+    settings.Set(0,L"Wrap",Opt.Wrap);
+    settings.Set(0,L"RightMargin",Opt.RightMargin);
+    settings.Set(0,L"FileMasks",Opt.FileMasks);
+    settings.Set(0,L"ExcludeFileMasks",Opt.ExcludeFileMasks);
   }
   return INVALID_HANDLE_VALUE;
 }

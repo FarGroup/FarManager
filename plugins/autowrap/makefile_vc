@@ -5,10 +5,9 @@
 NAME = AutoWrap
 LINK_OBJS = $(OBJDIR)\AutoWrap.obj
 DOCS = WrapEng.lng WrapRus.lng
-NEEDPLUGINREG = 1
 
 !include ..\makefile_vc_def_inc
 
 !include ..\makefile_vc_target_inc
 
-$(OBJDIR)\AutoWrap.obj: AutoWrap.cpp WrapLng.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp
+$(OBJDIR)\AutoWrap.obj: AutoWrap.cpp WrapLng.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp

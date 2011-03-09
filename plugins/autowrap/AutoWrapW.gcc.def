@@ -1,7 +1,6 @@
 EXPORTS 
    GetPluginInfoW=GetPluginInfoW@4
-   OpenPluginW=OpenPluginW@12
+   OpenW=OpenW@4
    SetStartupInfoW=SetStartupInfoW@4
    ProcessEditorInputW=ProcessEditorInputW@4
-   ExitFARW=ExitFARW@0
    GetGlobalInfoW=GetGlobalInfoW@4
