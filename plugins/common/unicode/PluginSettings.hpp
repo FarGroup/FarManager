@@ -41,6 +41,11 @@ public:
 		return Default;
 	}
 
+	void Get(int Root, const wchar_t *Name, wchar_t *Value, size_t Size, const wchar_t *Default)
+	{
+		lstrcpyn(Value, Get(Root,Name,Default), Size);
+	}
+
 	unsigned __int64 Get(int Root, const wchar_t *Name, unsigned __int64 Default)
 	{
 		FarSettingsItem item={Root,Name,FST_QWORD};
