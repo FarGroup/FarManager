@@ -4,4 +4,4 @@ EXPORTS
   GetGlobalInfoW
   SetStartupInfoW
   GetPluginInfoW
-  OpenPluginW
+  OpenW

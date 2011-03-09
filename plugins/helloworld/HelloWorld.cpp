@@ -75,7 +75,7 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 /*
   Функция OpenPluginW вызывается при создании новой копии плагина.
 */
-HANDLE WINAPI OpenPluginW(int OpenFrom,const GUID* Guid,INT_PTR Item)
+HANDLE WINAPI OpenW(const struct OpenInfo *Info)
 {
 	const wchar_t *MsgItems[]=
 	{
@@ -88,7 +88,7 @@ HANDLE WINAPI OpenPluginW(int OpenFrom,const GUID* Guid,INT_PTR Item)
 		GetMsg(MButton),
 	};
 
-	Info.Message(&MainGuid,           /* GUID */
+	::Info.Message(&MainGuid,           /* GUID */
 		FMSG_WARNING|FMSG_LEFTALIGN,  /* Flags */
 		L"Contents",                  /* HelpTopic */
 		MsgItems,                     /* Items */
