@@ -5,10 +5,9 @@
 NAME = Brackets
 LINK_OBJS = $(OBJDIR)\Brackets.obj
 DOCS = BrackEng.hlf BrackRus.hlf BrackEng.lng BrackRus.lng BrackDel.reg BrackEng.reg BrackRus.reg
-NEEDPLUGINREG = 1
 
 !include ..\makefile_vc_def_inc
 
 !include ..\makefile_vc_target_inc
 
-$(OBJDIR)\Brackets.obj: Brackets.cpp Brackets.hpp BrackLng.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp
+$(OBJDIR)\Brackets.obj: Brackets.cpp Brackets.hpp BrackLng.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp

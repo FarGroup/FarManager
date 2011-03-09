@@ -1,5 +1,5 @@
 #include "Brackets.hpp"
-#include "pluginreg/pluginreg.hpp"
+#include "PluginSettings.hpp"
 #include "BrackLng.hpp"
 #include "DlgBuilder.hpp"
 #include "version.hpp"
@@ -26,7 +26,6 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 
 static struct Options Opt;
 static struct PluginStartupInfo Info;
-wchar_t *PluginRootKey;
 
 const wchar_t *GetMsg(int MsgId)
 {
@@ -47,25 +46,17 @@ void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 {
   ::Info=*Info;
-  PluginRootKey = (wchar_t *)malloc(lstrlen(Info->RootKey)*sizeof(wchar_t) + sizeof(L"\\Brackets"));
-  lstrcpy(PluginRootKey,Info->RootKey);
-  lstrcat(PluginRootKey,L"\\Brackets");
 
-  Opt.IgnoreQuotes=GetRegKey(L"",L"IgnoreQuotes",0);
-  Opt.IgnoreAfter=GetRegKey(L"",L"IgnoreAfter",0);
-  Opt.BracketPrior=GetRegKey(L"",L"BracketPrior",1);
-  Opt.JumpToPair=GetRegKey(L"",L"JumpToPair",1);
-  Opt.Beep=GetRegKey(L"",L"Beep",0);
-  GetRegKey(L"",L"QuotesType",Opt.QuotesType,L"''\"\"`'``",ARRAYSIZE(Opt.QuotesType));
-  GetRegKey(L"",L"Brackets1",Opt.Brackets1,L"<>{}[]()\"\"''%%",ARRAYSIZE(Opt.Brackets1));
-  GetRegKey(L"",L"Brackets2",Opt.Brackets2,L"/**/<\?\?><%%>",ARRAYSIZE(Opt.Brackets2));
+  PluginSettings settings(MainGuid, ::Info.SettingsControl);
+  Opt.IgnoreQuotes=settings.Get(0,L"IgnoreQuotes",0);
+  Opt.IgnoreAfter=settings.Get(0,L"IgnoreAfter",0);
+  Opt.BracketPrior=settings.Get(0,L"BracketPrior",1);
+  Opt.JumpToPair=settings.Get(0,L"JumpToPair",1);
+  Opt.Beep=settings.Get(0,L"Beep",0);
+  settings.Get(0,L"QuotesType",Opt.QuotesType,ARRAYSIZE(Opt.QuotesType),L"''\"\"`'``");
+  settings.Get(0,L"Brackets1",Opt.Brackets1,ARRAYSIZE(Opt.Brackets1),L"<>{}[]()\"\"''%%");
+  settings.Get(0,L"Brackets2",Opt.Brackets2,ARRAYSIZE(Opt.Brackets2),L"/**/<\?\?><%%>");
 }
-
-void WINAPI ExitFARW()
-{
-  free(PluginRootKey);
-}
-
 
 void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 {
@@ -106,14 +97,15 @@ int Config()
 
   if (Builder.ShowDialog())
   {
-    SetRegKey(L"",L"IgnoreQuotes",Opt.IgnoreQuotes);
-    SetRegKey(L"",L"IgnoreAfter",Opt.IgnoreAfter);
-    SetRegKey(L"",L"BracketPrior",Opt.BracketPrior);
-    SetRegKey(L"",L"JumpToPair",Opt.JumpToPair);
-    SetRegKey(L"",L"Beep",Opt.Beep);
-    SetRegKey(L"",L"QuotesType",Opt.QuotesType);
-    SetRegKey(L"",L"Brackets1",Opt.Brackets1);
-    SetRegKey(L"",L"Brackets2",Opt.Brackets2);
+    PluginSettings settings(MainGuid, Info.SettingsControl);
+    settings.Set(0,L"IgnoreQuotes",Opt.IgnoreQuotes);
+    settings.Set(0,L"IgnoreAfter",Opt.IgnoreAfter);
+    settings.Set(0,L"BracketPrior",Opt.BracketPrior);
+    settings.Set(0,L"JumpToPair",Opt.JumpToPair);
+    settings.Set(0,L"Beep",Opt.Beep);
+    settings.Set(0,L"QuotesType",Opt.QuotesType);
+    settings.Set(0,L"Brackets1",Opt.Brackets1);
+    settings.Set(0,L"Brackets2",Opt.Brackets2);
     return TRUE;
   }
 
@@ -148,7 +140,7 @@ int ShowMenu(int Type)
   return Ret;
 }
 
-HANDLE WINAPI OpenPluginW(int OpenFrom,const GUID* Guid,INT_PTR Item)
+HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 {
   struct EditorGetString egs;
   struct EditorSetPosition esp,espo;
