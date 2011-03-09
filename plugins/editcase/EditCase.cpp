@@ -4,7 +4,7 @@
 // Besides, it has ability of cyclic case change like MS Word by ShiftF3
 #include "plugin.hpp"
 #include "EditLng.hpp"
-#include "pluginreg/pluginreg.hpp"
+#include "PluginSettings.hpp"
 #include "version.hpp"
 #include <initguid.h>
 #include "guid.hpp"
@@ -52,9 +52,6 @@ enum ENUMCCTYPES {
 static wchar_t WordDiv[80];
 static int WordDivLen;
 
-// Plugin Registry root
-wchar_t *PluginRootKey;
-
 const wchar_t *GetMsg(int MsgId);
 bool FindBounds(wchar_t *Str, int Len, int Pos, int &Start, int &End);
 int FindEnd(wchar_t *Str, int Len, int Pos);
@@ -74,32 +71,24 @@ void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
   Info->Author=PLUGIN_AUTHOR;
 }
 
-void WINAPI ExitFARW()
-{
-  free(PluginRootKey);
-}
-
 void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 {
   ::Info=*Info;
   ::FSF=*Info->FSF;
   ::Info.FSF=&::FSF;
 
-  PluginRootKey = (wchar_t *)malloc(lstrlen(Info->RootKey)*sizeof(wchar_t) + sizeof(L"\\EditCase"));
-  lstrcpy(PluginRootKey,Info->RootKey);
-  lstrcat(PluginRootKey,L"\\EditCase");
-
+  PluginSettings settings(MainGuid, ::Info.SettingsControl);
   //BUGBUG dynamic string
   WordDivLen=(int)::Info.AdvControl(&MainGuid, ACTL_GETSYSWORDDIV, WordDiv);
   wchar_t AddWordDiv[ARRAYSIZE(WordDiv)];
-  GetRegKey(L"",L"AddWordDiv",AddWordDiv,L"#",ARRAYSIZE(AddWordDiv));
+  settings.Get(0,L"AddWordDiv",AddWordDiv,ARRAYSIZE(AddWordDiv),L"#");
   WordDivLen += lstrlen(AddWordDiv);
   lstrcat(WordDiv, AddWordDiv);
   WordDivLen += ARRAYSIZE(L" \n\r\t");
   lstrcat(WordDiv, L" \n\r\t");
 }
 
-HANDLE WINAPI OpenPluginW(int OpenFrom,const GUID* Guid,INT_PTR Item)
+HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 {
   size_t i;
   struct FarMenuItem MenuItems[5] = {0}, *MenuItem;

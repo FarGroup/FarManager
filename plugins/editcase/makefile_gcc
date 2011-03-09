@@ -1,7 +1,6 @@
 NAME = EditCase
 SRCS = EditCase.cpp
 DOCS = ECaseEng.hlf ECaseRus.hlf ECaseEng.lng ECaseRus.lng
-NEEDPLUGINREG = 1
 
 include ../makefile_gcc_def_inc
 
