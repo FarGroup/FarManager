@@ -93,7 +93,7 @@ LONG SetRegKey(const wchar_t *Key,const wchar_t *ValueName,const wchar_t * const
 	LONG Ret=ERROR_SUCCESS;
 
 	if ((hKey=CreateRegKey(Key)) )
-		Ret=RegSetValueEx(hKey,ValueName,0,REG_SZ,(unsigned char *)ValueData,(int)(StrLength(ValueData)+1)*sizeof(wchar_t));
+		Ret=RegSetValueEx(hKey,ValueName,0,REG_SZ,(unsigned char *)ValueData,static_cast<DWORD>((StrLength(ValueData)+1)*sizeof(wchar_t)));
 
 	CloseRegKey(hKey);
 	return Ret;

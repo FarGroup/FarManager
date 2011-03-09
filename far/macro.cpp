@@ -4847,7 +4847,7 @@ done:
 			if (Key == MCODE_F_BM_GET)
 				VMStack.Pop(p2);
 
-			if (Key == MCODE_F_BM_GET || Key == MCODE_F_BM_DEL || Key == MCODE_F_BM_GET || Key == MCODE_F_BM_GOTO)
+			if (Key == MCODE_F_BM_GET || Key == MCODE_F_BM_DEL || Key == MCODE_F_BM_STAT || Key == MCODE_F_BM_GOTO)
 				VMStack.Pop(p1);
 
 			__int64 Result=0;
@@ -5226,7 +5226,7 @@ void KeyMacro::SaveMacros(BOOL AllSaved)
 		if (MacroLIB[I].Flags&MFLAGS_REG_MULTI_SZ)
 		{
 			int Len=StrLength(MacroLIB[I].Src)+2;
-			wchar_t *ptrSrc=(wchar_t *)xf_malloc(Len*sizeof(wchar_t));
+			wchar_t *ptrSrc=new wchar_t[Len];
 
 			if (ptrSrc)
 			{
@@ -5238,7 +5238,7 @@ void KeyMacro::SaveMacros(BOOL AllSaved)
 
 				ptrSrc[Len-1]=0;
 				SetRegKey(strRegKeyName,L"Sequence",ptrSrc,Len*sizeof(wchar_t),REG_MULTI_SZ);
-				xf_free(ptrSrc);
+				delete[] ptrSrc;
 				Ok=FALSE;
 			}
 		}
@@ -5252,7 +5252,7 @@ void KeyMacro::SaveMacros(BOOL AllSaved)
 			DeleteRegValue(strRegKeyName,L"Description");
 
 		// подсократим код”...
-		for (int J=0; J < int(ARRAYSIZE(MKeywordsFlags)); ++J)
+		for (size_t J=0; J < ARRAYSIZE(MKeywordsFlags); ++J)
 		{
 			if (MacroLIB[I].Flags & MKeywordsFlags[J].Value)
 				SetRegKey(strRegKeyName,MKeywordsFlags[J].Name,1);
@@ -5368,7 +5368,7 @@ int KeyMacro::ReadVarsConst(int ReadMode, string &strSData)
 	return TRUE;
 }
 
-void KeyMacro::SetMacroConst(const wchar_t *ConstName, const TVar Value)
+void KeyMacro::SetMacroConst(const wchar_t *ConstName, const TVar& Value)
 {
 	varLook(glbConstTable, ConstName,1)->value = Value;
 }
@@ -6777,7 +6777,7 @@ int KeyMacro::GetMacroKeyInfo(bool FromReg,int Mode,int Pos, string &strKeyName,
 
 				return Pos+1;
 			}
-			else if (Mode >= MACRO_OTHER)
+			else if (Mode == MACRO_FUNCS)
 			{
 				// TODO: MACRO_FUNCS
 				return -1;

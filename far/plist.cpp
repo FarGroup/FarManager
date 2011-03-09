@@ -202,7 +202,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 	VMenu *ProcList=(VMenu *)lParam;
 
 	if (IsWindowVisible(hwnd) ||
-	        (IsIconic(hwnd) && !(GetWindowLong(hwnd,GWL_STYLE) & WS_DISABLED)))
+	        (IsIconic(hwnd) && !(GetWindowLongPtr(hwnd,GWL_STYLE) & WS_DISABLED)))
 	{
 		int LenTitle=GetWindowTextLength(hwnd);
 

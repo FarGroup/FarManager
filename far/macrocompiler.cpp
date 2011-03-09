@@ -205,7 +205,7 @@ static void putstr(const wchar_t *s)
 {
 	_KEYMACRO(CleverSysLog Clev(L"putstr"));
 	_KEYMACRO(SysLog(L"s[%p]='%s'", s,s));
-	int Length = (int)(StrLength(s)+1)*sizeof(wchar_t);
+	int Length = (StrLength(s)+1)*sizeof(wchar_t);
 	// строка должна быть выровнена на 4
 	int nSize = Length/sizeof(DWORD);
 	memmove(&exprBuff[exprBuffSize],s,Length);

@@ -106,7 +106,7 @@ private:
 	string strPipeID;
 
 	bool ReadData(AutoObject& Data) const;
-	bool WriteData(LPCVOID Data, DWORD DataSize) const;
+	bool WriteData(LPCVOID Data, size_t DataSize) const;
 	bool ReadInt(int& Data) const;
 	bool ReadInt64(INT64& Data) const;
 	bool WriteInt(int Data) const;

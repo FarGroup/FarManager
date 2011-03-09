@@ -278,7 +278,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 			if (Param)
 				wcscpy((wchar_t *)Param,Opt.strWordDiv);
 
-			return (int)Opt.strWordDiv.GetLength()+1;
+			return Opt.strWordDiv.GetLength()+1;
 		}
 		/* $ 24.08.2000 SVS
 		   ожидать определенную (или любую) клавишу

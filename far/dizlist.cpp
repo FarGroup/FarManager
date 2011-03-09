@@ -80,7 +80,7 @@ DizList::~DizList()
 
 void DizList::Reset()
 {
-	for (int I=0; I<DizCount; I++)
+	for (size_t I=0; I<DizCount; I++)
 		if (DizData[I].DizText)
 			xf_free(DizData[I].DizText);
 
@@ -90,8 +90,7 @@ void DizList::Reset()
 	DizData=nullptr;
 	DizCount=0;
 
-	if (IndexData)
-		xf_free(IndexData);
+	delete[] IndexData;
 
 	IndexData=nullptr;
 	IndexCount=0;
@@ -337,10 +336,10 @@ void DizList::BuildIndex()
 {
 	if (!IndexData || IndexCount!=DizCount)
 	{
-		if (IndexData)
-			xf_free(IndexData);
+		delete[] IndexData;
+		IndexData=new size_t[DizCount];
 
-		if (!(IndexData=(int *)xf_malloc(DizCount*sizeof(int))))
+		if(!IndexData)
 		{
 			Reset();
 			return;
@@ -349,7 +348,7 @@ void DizList::BuildIndex()
 		IndexCount=DizCount;
 	}
 
-	for (int I=0; I<IndexCount; I++)
+	for (size_t I=0; I<IndexCount; I++)
 		IndexData[I]=I;
 
 	SearchDizData=DizData;
@@ -420,11 +419,11 @@ int _cdecl SortDizSearch(const void *key,const void *elem)
 
 bool DizList::DeleteDiz(const wchar_t *Name,const wchar_t *ShortName)
 {
-	int DizPos=GetDizPosEx(Name,ShortName,nullptr);
+	int iDizPos=GetDizPosEx(Name,ShortName,nullptr);
 
-	if (DizPos==-1)
+	if (iDizPos==-1)
 		return false;
-
+	size_t DizPos = iDizPos;
 	DizData[DizPos++].Deleted=true;
 
 	while (DizPos<DizCount)
@@ -512,7 +511,7 @@ bool DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
 
 		if(!AnyError)
 		{
-			for (int I=0; I<DizCount; I++)
+			for (size_t I=0; I<DizCount; I++)
 			{
 				if (!DizData[I].Deleted)
 				{
@@ -592,11 +591,11 @@ bool DizList::AddDizText(const wchar_t *Name,const wchar_t *ShortName,const wcha
 bool DizList::CopyDiz(const wchar_t *Name, const wchar_t *ShortName, const wchar_t *DestName, const wchar_t *DestShortName, DizList *DestDiz)
 {
 	int TextPos;
-	int DizPos=GetDizPosEx(Name,ShortName,&TextPos);
+	int iDizPos=GetDizPosEx(Name,ShortName,&TextPos);
 
-	if (DizPos==-1)
+	if (iDizPos==-1)
 		return false;
-
+	size_t DizPos = iDizPos;
 	while (IsSpace(DizData[DizPos].DizText[TextPos]))
 		TextPos++;
 

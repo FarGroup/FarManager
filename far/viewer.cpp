@@ -115,7 +115,7 @@ Viewer::Viewer(bool bQuickView, UINT aCodePage):
 	memset(UndoData,0xff,sizeof(UndoData));
 	LastKeyUndo=FALSE;
 	InternalKey=FALSE;
-	Viewer::ViewerID=::ViewerID++;
+	this->ViewerID=::ViewerID++;
 	CtrlObject->Plugins.CurViewer=this;
 	OpenFailed=false;
 	HostFileViewer=nullptr;
@@ -2843,7 +2843,7 @@ int Viewer::vread(wchar_t *Buf,int Count, bool Raw, wchar_t *Buf2)
 	if (IsUnicodeCodePage(VM.CodePage))
 	{
 		// выделяем столько, сколько нужно!
-		char *TmpBuf=(char *)xf_malloc(Count*2+16);
+		char *TmpBuf=new char[Count*2+16];
 
 		if (!TmpBuf)
 			return -1;
@@ -2867,12 +2867,12 @@ int Viewer::vread(wchar_t *Buf,int Count, bool Raw, wchar_t *Buf2)
 
 		memcpy(Buf, TmpBuf, Count*2);
 		ReadSize+=(ReadSize & 1);
-		xf_free(TmpBuf);
+		delete[] TmpBuf;
 		return(ReadSize/2);
 	}
 	else
 	{
-		char *TmpBuf=(char*)xf_malloc(Count+16);
+		char *TmpBuf=new char[Count+16];
 
 		if (!TmpBuf)
 			return -1;
@@ -2944,7 +2944,7 @@ int Viewer::vread(wchar_t *Buf,int Count, bool Raw, wchar_t *Buf2)
 			}
 		}
 
-		xf_free(TmpBuf);
+		delete[] TmpBuf;
 		return ReadSize;
 	}
 }

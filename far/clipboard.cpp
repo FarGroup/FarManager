@@ -253,7 +253,7 @@ bool Clipboard::Copy(const wchar_t *Data)
 	{
 		HGLOBAL hData;
 		void *GData;
-		int BufferSize=(StrLength(Data)+1)*sizeof(wchar_t);
+		size_t BufferSize=(StrLength(Data)+1)*sizeof(wchar_t);
 
 		if ((hData=GlobalAlloc(GMEM_MOVEABLE,BufferSize)))
 		{

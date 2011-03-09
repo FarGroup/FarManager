@@ -1219,9 +1219,9 @@ BOOL Manager::IsPanelsActive()
 	}
 }
 
-Frame *Manager::operator[](int Index)
+Frame *Manager::operator[](size_t Index)
 {
-	if (Index<0 || Index>=FrameCount || !FrameList)
+	if (Index>=static_cast<size_t>(FrameCount) || !FrameList)
 	{
 		return nullptr;
 	}

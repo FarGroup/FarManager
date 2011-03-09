@@ -179,7 +179,7 @@ class Manager
 
 		Frame *GetCurrentFrame() { return CurrentFrame; }
 
-		Frame *operator[](int Index);
+		Frame *operator[](size_t Index);
 
 		int IndexOf(Frame *Frame);
 

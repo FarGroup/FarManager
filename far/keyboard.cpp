@@ -1886,7 +1886,7 @@ BOOL WINAPI KeyToText(int Key0, string &strKeyText0)
 
 					if (FKey >= L'A' && FKey <= L'Z')
 					{
-						if (Key&(KEY_RCTRL|KEY_CTRL|KEY_ALT|KEY_RCTRL)) // ??? а если есть другие модификаторы ???
+						if (Key&(KEY_RCTRL|KEY_CTRL|KEY_ALT)) // ??? а если есть другие модификаторы ???
 							KeyText[0]=(wchar_t)FKey; // для клавиш с модификаторами подставляем "латиницу" в верхнем регистре
 						else
 							KeyText[0]=(wchar_t)(Key&0xFFFF);
@@ -3018,7 +3018,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 
 		if (ProcessCtrlCode)
 		{
-			if (KeyCode == VK_RMENU)
+			if (KeyCode == VK_MENU)
 				return (AltPressed && !RightAltPressed)?KEY_ALT:(RightAltPressed?KEY_RALT:KEY_ALT);
 			else if (KeyCode == VK_RMENU)
 				return KEY_RALT;

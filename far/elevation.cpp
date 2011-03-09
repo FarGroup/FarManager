@@ -99,22 +99,22 @@ private:
 	LPVOID Data;
 };
 
-bool RawReadPipe(HANDLE Pipe, LPVOID Data, DWORD DataSize)
+bool RawReadPipe(HANDLE Pipe, LPVOID Data, size_t DataSize)
 {
 	bool Result=false;
 	DWORD n;
-	if(ReadFile(Pipe, Data, DataSize, &n, nullptr) && n==DataSize)
+	if(ReadFile(Pipe, Data, static_cast<DWORD>(DataSize), &n, nullptr) && n==static_cast<DWORD>(DataSize))
 	{
 		Result=true;
 	}
 	return Result;
 }
 
-bool RawWritePipe(HANDLE Pipe, LPCVOID Data, DWORD DataSize)
+bool RawWritePipe(HANDLE Pipe, LPCVOID Data, size_t DataSize)
 {
 	bool Result=false;
 	DWORD n;
-	if(WriteFile(Pipe, Data, DataSize, &n, nullptr) && n==DataSize)
+	if(WriteFile(Pipe, Data, static_cast<DWORD>(DataSize), &n, nullptr) && n==static_cast<DWORD>(DataSize))
 	{
 		Result=true;
 	}
@@ -166,10 +166,10 @@ bool ReadPipeData(HANDLE Pipe, AutoObject& Data)
 	return Result;
 }
 
-bool WritePipeData(HANDLE Pipe, LPCVOID Data, int DataSize)
+bool WritePipeData(HANDLE Pipe, LPCVOID Data, size_t DataSize)
 {
 	bool Result=false;
-	if(WritePipeInt(Pipe, DataSize))
+	if(WritePipeInt(Pipe, static_cast<int>(DataSize)))
 	{
 		if(!DataSize || RawWritePipe(Pipe, Data, DataSize))
 		{
@@ -232,7 +232,7 @@ bool elevation::ReadData(AutoObject& Data) const
 	return ReadPipeData(Pipe, Data);
 }
 
-bool elevation::WriteData(LPCVOID Data,DWORD DataSize) const
+bool elevation::WriteData(LPCVOID Data,size_t DataSize) const
 {
 	return WritePipeData(Pipe, Data, DataSize);
 }

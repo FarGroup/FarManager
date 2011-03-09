@@ -75,7 +75,7 @@ class TArray
 
 		Object *setItem(size_t index, const Object &newItem);
 		Object *getItem(size_t index);
-		int getIndex(const Object &item, int start=-1);
+		size_t getIndex(const Object &item, int start=-1);
 
 		// сортировка массива. Offset - сколько первых пунктов пропустить
 		void Sort(TARRAYCMPFUNC user_cmp_func=nullptr,size_t Offset=0);
@@ -277,7 +277,7 @@ TArray<Object>& TArray<Object>::operator=(const TArray<Object> &rhs)
 
 	if (setSize(rhs.Count))
 	{
-		for (unsigned i=0; i<Count; ++i)
+		for (size_t i=0; i<Count; ++i)
 		{
 			if (rhs.items[i])
 			{
@@ -313,9 +313,9 @@ void TArray<Object>::setDelta(size_t newDelta)
 }
 
 template <class Object>
-int TArray<Object>::getIndex(const Object &item, int start)
+size_t TArray<Object>::getIndex(const Object &item, int start)
 {
-	int rc=-1;
+	size_t rc=-1;
 
 	if (start==-1)
 		start=0;

@@ -47,9 +47,9 @@ class DizList
 	private:
 		string strDizFileName;
 		DizRecord *DizData;
-		int DizCount;
-		int *IndexData;
-		int IndexCount;
+		size_t DizCount;
+		size_t *IndexData;
+		size_t IndexCount;
 		bool Modified;
 		bool NeedRebuild;
 		UINT OrigCodePage;

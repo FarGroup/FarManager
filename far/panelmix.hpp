@@ -42,7 +42,7 @@ int _MakePath1(DWORD Key,string &strPathName, const wchar_t *Param2,int ShortNam
 
 const string FormatStr_Attribute(DWORD FileAttributes,int Width=-1);
 const string FormatStr_DateTime(const FILETIME *FileTime,int ColumnType,DWORD Flags,int Width);
-const string FormatStr_Size(__int64 UnpSize, __int64 PackSize, __int64 StreamsSize, const string strName,DWORD FileAttributes,DWORD ShowFolderSize,DWORD ReparseTag,int ColumnType,DWORD Flags,int Width);
+const string FormatStr_Size(__int64 UnpSize, __int64 PackSize, __int64 StreamsSize, const string& strName,DWORD FileAttributes,DWORD ShowFolderSize,DWORD ReparseTag,int ColumnType,DWORD Flags,int Width);
 void TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *ColumnWidths,
 						unsigned int *ViewColumnTypes,int *ViewColumnWidths,int *ViewColumnWidthsTypes,int &ColumnCount);
 void ViewSettingsToText(unsigned int *ViewColumnTypes,

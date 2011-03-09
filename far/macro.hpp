@@ -316,7 +316,7 @@ class KeyMacro
 		BOOL GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc);
 		BOOL GetMacroParseError(string *Err1, string *Err2, string *Err3, string *Err4);
 
-		static void SetMacroConst(const wchar_t *ConstName, const TVar Value);
+		static void SetMacroConst(const wchar_t *ConstName, const TVar& Value);
 		static DWORD GetNewOpCode();
 
 		static size_t GetCountMacroFunction();

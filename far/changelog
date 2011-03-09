@@ -1,3 +1,7 @@
+drkns 10.03.2011 16:22:44 +0200 - build 1905
+
+1. Warnings, optimization.
+
 drkns 10.03.2011 12:10:12 +0200 - build 1904
 
 1. Оптимизация File::<G|S>etPointer. Как следствие:

@@ -569,7 +569,7 @@ const string FormatStr_DateTime(const FILETIME *FileTime,int ColumnType,DWORD Fl
 	return strResult.strValue();
 }
 
-const string FormatStr_Size(__int64 UnpSize, __int64 PackSize, __int64 StreamsSize, const string strName,DWORD FileAttributes,DWORD ShowFolderSize,DWORD ReparseTag,int ColumnType,DWORD Flags,int Width)
+const string FormatStr_Size(__int64 UnpSize, __int64 PackSize, __int64 StreamsSize, const string& strName,DWORD FileAttributes,DWORD ShowFolderSize,DWORD ReparseTag,int ColumnType,DWORD Flags,int Width)
 {
 	FormatString strResult;
 
