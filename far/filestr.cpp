@@ -702,7 +702,7 @@ int GetFileString::GetAnsiString(LPSTR* DestStr, int& Length)
 		{
 			if (ReadPos >= ReadSize)
 			{
-				if (!(SrcFile.Read(ReadBuf, sizeof(ReadBuf), &ReadSize) && ReadSize))
+				if (!(SrcFile.Read(ReadBuf, sizeof(ReadBuf), ReadSize) && ReadSize))
 				{
 					if (!CurLength)
 					{
@@ -811,7 +811,7 @@ int GetFileString::GetUnicodeString(LPWSTR* DestStr, int& Length, bool bBigEndia
 		{
 			if (ReadPos >= ReadSize)
 			{
-				if (!(SrcFile.Read(wReadBuf, sizeof(wReadBuf), &ReadSize) && ReadSize))
+				if (!(SrcFile.Read(wReadBuf, sizeof(wReadBuf), ReadSize) && ReadSize))
 				{
 					if (!CurLength)
 					{
@@ -909,7 +909,7 @@ bool GetFileFormat(File& file, UINT& nCodePage, bool* pSignatureFound, bool bUse
 	bool bDetect=false;
 
 	DWORD Readed = 0;
-	if (file.Read(&dwTemp, sizeof(dwTemp), &Readed) && Readed > 1 ) // minimum signature size is 2 bytes
+	if (file.Read(&dwTemp, sizeof(dwTemp), Readed) && Readed > 1 ) // minimum signature size is 2 bytes
 	{
 		if (LOWORD(dwTemp) == SIGN_UNICODE)
 		{
@@ -945,7 +945,7 @@ bool GetFileFormat(File& file, UINT& nCodePage, bool* pSignatureFound, bool bUse
 		DWORD Size=0x8000; // BUGBUG. TODO: configurable
 		LPVOID Buffer=xf_malloc(Size);
 		DWORD ReadSize = 0;
-		bool ReadResult = file.Read(Buffer, Size, &ReadSize);
+		bool ReadResult = file.Read(Buffer, Size, ReadSize);
 		file.SetPointer(0, nullptr, FILE_BEGIN);
 
 		if (ReadResult && ReadSize)

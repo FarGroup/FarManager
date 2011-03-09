@@ -934,10 +934,10 @@ int WipeFile(const wchar_t *Name)
 		while (FileSize>0)
 		{
 			DWORD WriteSize=(DWORD)Min((unsigned __int64)BufSize,FileSize);
-			WipeFile.Write(Buf,WriteSize,&Written);
+			WipeFile.Write(Buf,WriteSize,Written);
 			FileSize-=WriteSize;
 		}
-		WipeFile.Write(Buf,BufSize,&Written);
+		WipeFile.Write(Buf,BufSize,Written);
 		delete[] Buf;
 		WipeFile.SetPointer(0,nullptr,FILE_BEGIN);
 		WipeFile.SetEnd();

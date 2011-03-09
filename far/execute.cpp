@@ -95,7 +95,7 @@ static bool GetImageSubsystem(const wchar_t *FileName,DWORD& ImageSubsystem)
 		IMAGE_DOS_HEADER DOSHeader;
 		DWORD ReadSize;
 
-		if (ModuleFile.Read(&DOSHeader, sizeof(DOSHeader), &ReadSize) && ReadSize==sizeof(DOSHeader))
+		if (ModuleFile.Read(&DOSHeader, sizeof(DOSHeader), ReadSize) && ReadSize==sizeof(DOSHeader))
 		{
 			if (DOSHeader.e_magic==IMAGE_DOS_SIGNATURE)
 			{
@@ -106,7 +106,7 @@ static bool GetImageSubsystem(const wchar_t *FileName,DWORD& ImageSubsystem)
 				{
 					IMAGE_HEADERS PEHeader;
 
-					if (ModuleFile.Read(&PEHeader, sizeof(PEHeader), &ReadSize) && ReadSize==sizeof(PEHeader))
+					if (ModuleFile.Read(&PEHeader, sizeof(PEHeader), ReadSize) && ReadSize==sizeof(PEHeader))
 					{
 						if (PEHeader.Signature==IMAGE_NT_SIGNATURE)
 						{

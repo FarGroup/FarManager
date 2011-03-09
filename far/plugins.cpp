@@ -701,7 +701,7 @@ HANDLE PluginManager::OpenFilePlugin(
 				Data = new BYTE[Opt.PluginMaxReadData];
 				if (Data)
 				{
-					if (file.Read(Data, Opt.PluginMaxReadData, &DataSize))
+					if (file.Read(Data, Opt.PluginMaxReadData, DataSize))
 					{
 						DataRead = true;
 					}

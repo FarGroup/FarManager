@@ -62,7 +62,7 @@ void CachedRead::Clear()
 bool CachedRead::Read(LPVOID Data, DWORD DataSize, LPDWORD BytesRead)
 {
 	INT64 Ptr=0;
-	file.GetPointer(Ptr);
+	Ptr = file.GetPointer();
 
 	if(Ptr!=LastPtr)
 	{
@@ -104,7 +104,7 @@ bool CachedRead::Read(LPVOID Data, DWORD DataSize, LPDWORD BytesRead)
 	}
 	else
 	{
-		Result = file.Read(Data, DataSize, BytesRead);
+		Result = file.Read(Data, DataSize, *BytesRead);
 	}
 	return Result;
 }
@@ -127,14 +127,14 @@ bool CachedRead::FillBuffer()
 	if(!file.Eof())
 	{
 		INT64 Pointer=0;
-		file.GetPointer(Pointer);
+		Pointer = file.GetPointer();
 		bool Bidirection=false;
 		if(Pointer>BufferSize/2)
 		{
 			Bidirection=true;
 			file.SetPointer(-BufferSize/2, nullptr, FILE_CURRENT);
 		}
-		Result = file.Read(Buffer, BufferSize, &ReadSize);
+		Result = file.Read(Buffer, BufferSize, ReadSize);
 		if(Result)
 		{
 			BytesLeft = ReadSize;
@@ -154,7 +154,6 @@ bool CachedRead::FillBuffer()
 	}
 	return Result;
 }
-
 
 CachedWrite::CachedWrite(File& file):
 	Buffer(reinterpret_cast<LPBYTE>(xf_malloc(BufferSize))),
@@ -192,7 +191,7 @@ bool CachedWrite::Write(LPCVOID Data, DWORD DataSize)
 			{
 				DWORD WrittenSize=0;
 
-				if (file.Write(Data, DataSize,&WrittenSize) && DataSize==WrittenSize)
+				if (file.Write(Data, DataSize,WrittenSize) && DataSize==WrittenSize)
 				{
 					Result=true;
 				}
@@ -217,7 +216,7 @@ bool CachedWrite::Flush()
 		{
 			DWORD WrittenSize=0;
 
-			if (file.Write(Buffer, BufferSize-FreeSize, &WrittenSize, nullptr) && BufferSize-FreeSize==WrittenSize)
+			if (file.Write(Buffer, BufferSize-FreeSize, WrittenSize, nullptr) && BufferSize-FreeSize==WrittenSize)
 			{
 				Flushed=true;
 				FreeSize=BufferSize;

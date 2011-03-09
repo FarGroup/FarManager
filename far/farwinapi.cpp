@@ -263,7 +263,9 @@ bool FindFile::Get(FAR_FIND_DATA_EX& FindData)
 
 
 File::File():
-	Handle(INVALID_HANDLE_VALUE)
+	Handle(INVALID_HANDLE_VALUE),
+	Pointer(0),
+	NeedSyncPointer(false)
 {
 }
 
@@ -278,23 +280,71 @@ bool File::Open(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY
 	return Handle != INVALID_HANDLE_VALUE;
 }
 
-bool File::Read(LPVOID Buffer, DWORD NumberOfBytesToRead, LPDWORD NumberOfBytesRead, LPOVERLAPPED Overlapped)
+inline void File::SyncPointer()
 {
-	return ReadFile(Handle, Buffer, NumberOfBytesToRead, NumberOfBytesRead, Overlapped) != FALSE;
+	if(NeedSyncPointer)
+	{
+		SetFilePointerEx(Handle, *reinterpret_cast<PLARGE_INTEGER>(&Pointer), reinterpret_cast<PLARGE_INTEGER>(&Pointer), FILE_BEGIN);
+		NeedSyncPointer = false;
+	}
 }
 
-bool File::Write(LPCVOID Buffer, DWORD NumberOfBytesToWrite, LPDWORD NumberOfBytesWritten, LPOVERLAPPED Overlapped) const
+
+bool File::Read(LPVOID Buffer, DWORD NumberOfBytesToRead, DWORD& NumberOfBytesRead, LPOVERLAPPED Overlapped)
 {
-	return WriteFile(Handle, Buffer, NumberOfBytesToWrite, NumberOfBytesWritten, Overlapped) != FALSE;
+	SyncPointer();
+	bool Result = ReadFile(Handle, Buffer, NumberOfBytesToRead, &NumberOfBytesRead, Overlapped) != FALSE;
+	if(Result)
+	{
+		Pointer += NumberOfBytesRead;
+	}
+	return Result;
+}
+
+bool File::Write(LPCVOID Buffer, DWORD NumberOfBytesToWrite, DWORD& NumberOfBytesWritten, LPOVERLAPPED Overlapped)
+{
+	SyncPointer();
+	bool Result = WriteFile(Handle, Buffer, NumberOfBytesToWrite, &NumberOfBytesWritten, Overlapped) != FALSE;
+	if(Result)
+	{
+		Pointer += NumberOfBytesWritten;
+	}
+	return Result;
 }
 
 bool File::SetPointer(INT64 DistanceToMove, PINT64 NewFilePointer, DWORD MoveMethod)
 {
-	return SetFilePointerEx(Handle, *reinterpret_cast<PLARGE_INTEGER>(&DistanceToMove), reinterpret_cast<PLARGE_INTEGER>(NewFilePointer), MoveMethod) != FALSE;
+	INT64 OldPointer = Pointer;
+	switch (MoveMethod)
+	{
+	case FILE_BEGIN:
+		Pointer = DistanceToMove;
+		break;
+	case FILE_CURRENT:
+		Pointer+=DistanceToMove;
+		break;
+	case FILE_END:
+		{
+			UINT64 Size=0;
+			GetSize(Size);
+			Pointer = Size+DistanceToMove;
+		}
+		break;
+	}
+	if(OldPointer != Pointer)
+	{
+		NeedSyncPointer = true;
+	}
+	if(NewFilePointer)
+	{
+		*NewFilePointer = Pointer;
+	}
+	return true;
 }
 
 bool File::SetEnd()
 {
+	SyncPointer();
 	return SetEndOfFile(Handle) != FALSE;
 }
 
@@ -365,8 +415,7 @@ bool File::Close()
 
 bool File::Eof()
 {
-	INT64 Ptr=0;
-	GetPointer(Ptr);
+	INT64 Ptr = GetPointer();
 	UINT64 Size=0;
 	GetSize(Size);
 	return static_cast<UINT64>(Ptr)==Size;

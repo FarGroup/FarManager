@@ -761,7 +761,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 					if (Signature && SignatureSize)
 					{
 						DWORD NumberOfBytesWritten;
-						ListFile.Write(&Signature,SignatureSize, &NumberOfBytesWritten);
+						ListFile.Write(&Signature,SignatureSize, NumberOfBytesWritten);
 					}
 				}
 			}
@@ -834,14 +834,14 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 					}
 				}
 
-				BOOL Written=ListFile.Write(Ptr,NumberOfBytesToWrite,&NumberOfBytesWritten);
+				BOOL Written=ListFile.Write(Ptr,NumberOfBytesToWrite,NumberOfBytesWritten);
 
 				if (Buffer)
 					xf_free(Buffer);
 
 				if (Written && NumberOfBytesWritten==NumberOfBytesToWrite)
 				{
-					if (ListFile.Write(Eol,EolSize,&NumberOfBytesWritten) && NumberOfBytesWritten==EolSize)
+					if (ListFile.Write(Eol,EolSize,NumberOfBytesWritten) && NumberOfBytesWritten==EolSize)
 					{
 						Ret=true;
 					}

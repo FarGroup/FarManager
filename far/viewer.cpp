@@ -244,7 +244,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 
 		while (ReadFile(Console.GetInputHandle(),ReadBuf,sizeof(ReadBuf),&ReadSize,nullptr))
 		{
-			ViewFile.Write(ReadBuf,ReadSize,&WrittenSize);
+			ViewFile.Write(ReadBuf,ReadSize,WrittenSize);
 		}
 		ViewFile.SetPointer(0, nullptr, FILE_BEGIN);
 
@@ -623,8 +623,7 @@ void Viewer::ShowHex()
 		if (Y==Y1+1 && !ViewFile.Eof())
 			SecondPos=vtell();
 
-		INT64 Ptr=0;
-		ViewFile.GetPointer(Ptr);
+		INT64 Ptr=ViewFile.GetPointer();
 		_snwprintf(OutStr,ARRAYSIZE(OutStr),L"%010I64X: ", Ptr);
 		TextPos=0;
 		int HexStrStart = (int)wcslen(OutStr);
@@ -2960,8 +2959,7 @@ int Viewer::vseek(__int64 Offset,int Whence)
 
 __int64 Viewer::vtell()
 {
-	INT64 Ptr=0;
-	ViewFile.GetPointer(Ptr);
+	INT64 Ptr=ViewFile.GetPointer();
 	if (IsUnicodeCodePage(VM.CodePage))
 	{
 		Ptr=(Ptr+(Ptr&1))/2;

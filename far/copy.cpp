@@ -3185,11 +3185,8 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 		{
 			if (FreeBytes>SrcData.nFileSize)
 			{
-				INT64 CurPtr=0;
-
-				if (DestFile.GetPointer(CurPtr) &&
-				        DestFile.SetPointer(SrcData.nFileSize,nullptr,FILE_CURRENT) &&
-				        DestFile.SetEnd())
+				INT64 CurPtr=DestFile.GetPointer();
+				if (DestFile.SetPointer(SrcData.nFileSize,nullptr,FILE_CURRENT) && DestFile.SetEnd())
 					DestFile.SetPointer(CurPtr,nullptr,FILE_BEGIN);
 			}
 		}
@@ -3281,7 +3278,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 					return COPY_CANCEL;
 				}
 
-				while (!SrcFile.Read(CopyBuffer,(CopySparse?(DWORD)Min((LONGLONG)CopyBufferSize,Size):CopyBufferSize),&BytesRead,nullptr))
+				while (!SrcFile.Read(CopyBuffer,(CopySparse?(DWORD)Min((LONGLONG)CopyBufferSize,Size):CopyBufferSize),BytesRead,nullptr))
 				{
 					int MsgCode = Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
 					                      MSG(MCopyReadError),SrcName,
@@ -3325,7 +3322,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 
 				if (!(Flags&FCOPY_COPYTONUL))
 				{
-					while (!DestFile.Write(CopyBuffer,BytesRead,&BytesWritten,nullptr))
+					while (!DestFile.Write(CopyBuffer,BytesRead,BytesWritten,nullptr))
 					{
 						DWORD LastError=GetLastError();
 						int Split=FALSE,SplitCancelled=FALSE,SplitSkipped=FALSE;
@@ -3340,7 +3337,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 							if (apiGetDiskSize(strDriveRoot,nullptr,nullptr,&FreeSize))
 							{
 								if (FreeSize<BytesRead &&
-								        DestFile.Write(CopyBuffer,(DWORD)FreeSize,&BytesWritten,nullptr) &&
+								        DestFile.Write(CopyBuffer,(DWORD)FreeSize,BytesWritten,nullptr) &&
 										SrcFile.SetPointer(FreeSize-BytesRead,nullptr,FILE_CURRENT))
 								{
 									DestFile.Close();
@@ -3401,8 +3398,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 
 						if (Split)
 						{
-							INT64 FilePtr;
-							SrcFile.GetPointer(FilePtr);
+							INT64 FilePtr=SrcFile.GetPointer();
 							FAR_FIND_DATA_EX SplitData=SrcData;
 							SplitData.nFileSize-=FilePtr;
 							int RetCode;

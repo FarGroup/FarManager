@@ -152,8 +152,7 @@ void MenuRegToFile(const wchar_t *MenuKey, File& MenuFile, CachedWrite& CW, bool
 
 void MenuFileToReg(const wchar_t *MenuKey, File& MenuFile, GetFileString& GetStr, bool SingleItemMenu = false, UINT MenuCP = CP_UNICODE)
 {
-	INT64 Pos = 0;
-	MenuFile.GetPointer(Pos);
+	INT64 Pos = MenuFile.GetPointer();
 	if(!Pos)
 	{
 		if (!GetFileFormat(MenuFile,MenuCP))

@@ -250,7 +250,7 @@ void PrintFiles(Panel *SrcPanel)
 					DWORD Read,Written;
 					Success=TRUE;
 
-					while (SrcFile.Read(Buffer, sizeof(Buffer), &Read) && Read > 0)
+					while (SrcFile.Read(Buffer, sizeof(Buffer), Read) && Read > 0)
 						if (!WritePrinter(hPrinter,Buffer,Read,&Written))
 						{
 							Success=FALSE;

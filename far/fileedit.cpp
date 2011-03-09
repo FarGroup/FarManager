@@ -1533,8 +1533,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 			}
 
 			SetCursorType(FALSE,0);
-			INT64 CurPos=0;
-			EditFile.GetPointer(CurPos);
+			INT64 CurPos = EditFile.GetPointer();
 			int Percent=static_cast<int>(CurPos*100/FileSize);
 			// В случае если во время загрузки файл увеличивается размере, то количество
 			// процентов может быть больше 100. Обрабатываем эту ситуацию.
@@ -1869,7 +1868,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 					break;
 			}
 
-			if (!EditFile.Write(&dwSignature,SignLength,&dwWritten,nullptr)||dwWritten!=SignLength)
+			if (!EditFile.Write(&dwSignature,SignLength,dwWritten,nullptr)||dwWritten!=SignLength)
 			{
 				EditFile.Close();
 				apiDeleteFile(Name);
