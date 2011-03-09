@@ -111,7 +111,7 @@ struct ComboBoxBinding: public DialogItemBinding<T>
 	{
 	}
 
-	~ComboBoxBinding()
+	virtual ~ComboBoxBinding()
 	{
 		delete [] List->Items;
 		delete List;
@@ -199,7 +199,7 @@ class DialogBuilderBase
 			}
 		}
 
-		T *AddDialogItem(int Type, const wchar_t *Text)
+		T *AddDialogItem(FARDIALOGITEMTYPES Type, const wchar_t *Text)
 		{
 			if (DialogItemsCount == DialogItemsAllocated)
 			{
@@ -234,11 +234,16 @@ class DialogBuilderBase
 			case DI_EDIT:
 			case DI_FIXEDIT:
 			case DI_COMBOBOX:
-				int Width = Item.X2 - Item.X1 + 1;
-				// стрелка history занимает дополнительное место, но раньше она рисовалась поверх рамки???
-				if (Item.Flags & DIF_HISTORY)
-					Width++;
-				return Width;
+				{
+					int Width = Item.X2 - Item.X1 + 1;
+					// стрелка history занимает дополнительное место, но раньше она рисовалась поверх рамки???
+					if (Item.Flags & DIF_HISTORY)
+						Width++;
+					return Width;
+				}
+				break;
+
+			default:
 				break;
 			}
 			return 0;
@@ -374,7 +379,7 @@ class DialogBuilderBase
 		{
 		}
 
-		~DialogBuilderBase()
+		virtual ~DialogBuilderBase()
 		{
 			for(int i=0; i<DialogItemsCount; i++)
 			{
