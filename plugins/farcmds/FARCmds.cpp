@@ -3,7 +3,7 @@
 #include "DlgBuilder.hpp"
 #include "FARCmds.hpp"
 #include "Lang.hpp"
-#include "pluginreg/pluginreg.hpp"
+#include "PluginSettings.hpp"
 #include "version.hpp"
 #include <initguid.h>
 #include "guid.hpp"
@@ -42,7 +42,6 @@ struct RegistryStr REGStr={
 static struct PluginStartupInfo Info;
 static struct FarStandardFunctions FSF;
 struct PanelInfo PInfo;
-wchar_t *PluginRootKey;
 wchar_t selectItem[MAX_PATH*5];
 wchar_t fullcmd[MAX_PATH*5],cmd[MAX_PATH*5];
 
@@ -66,36 +65,27 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *psInfo)
 	FSF=*psInfo->FSF;
 	Info.FSF=&FSF;
 
-	PluginRootKey = (wchar_t *)malloc(lstrlen(Info.RootKey)*sizeof(wchar_t) + sizeof(L"\\FARCmds"));
-	lstrcpy(PluginRootKey,Info.RootKey);
-	lstrcat(PluginRootKey,L"\\FARCmds");
-
-
-	GetRegKey(L"",REGStr.Separator,Opt.Separator,L" ",ARRAYSIZE(Opt.Separator));
-	Opt.Add2PlugMenu=GetRegKey(L"",REGStr.Add2PlugMenu,0);
-	Opt.Add2DisksMenu=GetRegKey(L"",REGStr.Add2DisksMenu,0);
-	Opt.ShowCmdOutput=GetRegKey(L"",REGStr.ShowCmdOutput,0);
-	Opt.CatchMode=GetRegKey(L"",REGStr.CatchMode,0);
-	Opt.ViewZeroFiles=GetRegKey(L"",REGStr.ViewZeroFiles,1);
-	Opt.EditNewFiles=GetRegKey(L"",REGStr.EditNewFiles,1);
-	Opt.MaxDataSize=GetRegKey(L"",REGStr.MaxDataSize,1048576);
+	PluginSettings settings(MainGuid, Info.SettingsControl);
+	settings.Get(0,REGStr.Separator,Opt.Separator,ARRAYSIZE(Opt.Separator),L" ");
+	Opt.Add2PlugMenu=settings.Get(0,REGStr.Add2PlugMenu,0);
+	Opt.Add2DisksMenu=settings.Get(0,REGStr.Add2DisksMenu,0);
+	Opt.ShowCmdOutput=settings.Get(0,REGStr.ShowCmdOutput,0);
+	Opt.CatchMode=settings.Get(0,REGStr.CatchMode,0);
+	Opt.ViewZeroFiles=settings.Get(0,REGStr.ViewZeroFiles,1);
+	Opt.EditNewFiles=settings.Get(0,REGStr.EditNewFiles,1);
+	Opt.MaxDataSize=settings.Get(0,REGStr.MaxDataSize,1048576);
 }
 
-void WINAPI ExitFARW()
-{
-	free(PluginRootKey);
-}
-
-HANDLE WINAPI OpenPluginW(int OpenFrom,const GUID* Guid,INT_PTR Item)
+HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 {
 	Info.Control(PANEL_ACTIVE,FCTL_GETPANELINFO,0,(LONG_PTR)&PInfo);
 	fullcmd[0]=cmd[0]=selectItem[0]=L'\0';
 
-	if (OpenFrom==OPEN_COMMANDLINE)
+	if (OInfo->OpenFrom==OPEN_COMMANDLINE)
 	{
-		OpenFromCommandLine((wchar_t *)Item);
+		OpenFromCommandLine((wchar_t *)OInfo->Data);
 	}
-	else if (OpenFrom == OPEN_PLUGINSMENU && !Item && PInfo.PanelType != PTYPE_FILEPANEL)
+	else if (OInfo->OpenFrom == OPEN_PLUGINSMENU && !OInfo->Data && PInfo.PanelType != PTYPE_FILEPANEL)
 	{
 		return INVALID_HANDLE_VALUE;
 	}
@@ -236,13 +226,14 @@ int WINAPI ConfigureW(const GUID* Guid)
 
     if (Builder.ShowDialog())
 	{
-		SetRegKey(L"",REGStr.Add2PlugMenu,Opt.Add2PlugMenu);
-		SetRegKey(L"",REGStr.Add2DisksMenu,Opt.Add2DisksMenu);
-		SetRegKey(L"",REGStr.ShowCmdOutput,Opt.ShowCmdOutput);
-		SetRegKey(L"",REGStr.CatchMode,Opt.CatchMode);
-		SetRegKey(L"",REGStr.ViewZeroFiles,Opt.ViewZeroFiles);
-		SetRegKey(L"",REGStr.EditNewFiles,Opt.EditNewFiles);
-		SetRegKey(L"",REGStr.MaxDataSize,Opt.MaxDataSize);
+		PluginSettings settings(MainGuid, Info.SettingsControl);
+		settings.Set(0,REGStr.Add2PlugMenu,Opt.Add2PlugMenu);
+		settings.Set(0,REGStr.Add2DisksMenu,Opt.Add2DisksMenu);
+		settings.Set(0,REGStr.ShowCmdOutput,Opt.ShowCmdOutput);
+		settings.Set(0,REGStr.CatchMode,Opt.CatchMode);
+		settings.Set(0,REGStr.ViewZeroFiles,Opt.ViewZeroFiles);
+		settings.Set(0,REGStr.EditNewFiles,Opt.EditNewFiles);
+		settings.Set(0,REGStr.MaxDataSize,Opt.MaxDataSize);
 		return TRUE;
 	}
 

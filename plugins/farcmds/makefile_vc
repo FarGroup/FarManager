@@ -5,10 +5,9 @@
 NAME = FARCmds
 LINK_OBJS = $(OBJDIR)\FARCmds.obj
 DOCS = FARCmdsEng.hlf FARCmdsRus.hlf FARCmdsEng.lng FARCmdsRus.lng
-NEEDPLUGINREG = 1
 
 !include ..\makefile_vc_def_inc
 
 !include ..\makefile_vc_target_inc
 
-$(OBJDIR)\FARCmds.obj: FARCmds.cpp Mix.cpp OpenCmd.cpp FARCmds.hpp Lang.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp
+$(OBJDIR)\FARCmds.obj: FARCmds.cpp Mix.cpp OpenCmd.cpp FARCmds.hpp Lang.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp

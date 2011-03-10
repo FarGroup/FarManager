@@ -1,7 +1,6 @@
 EXPORTS 
    ConfigureW
    GetPluginInfoW
-   OpenPluginW
+   OpenW
    SetStartupInfoW
-   ExitFARW
    GetGlobalInfoW

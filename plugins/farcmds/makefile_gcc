@@ -1,7 +1,6 @@
 NAME = FARCmds
 SRCS = FARCmds.cpp
 DOCS = FARCmdsEng.hlf FARCmdsRus.hlf FARCmdsEng.lng FARCmdsRus.lng
-NEEDPLUGINREG = 1
 
 include ../makefile_gcc_def_inc
 

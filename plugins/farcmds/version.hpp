@@ -1,6 +1,6 @@
 #include "farversion.hpp"
 
-#define PLUGIN_BUILD 76
+#define PLUGIN_BUILD 77
 #define PLUGIN_DESC L"FAR Commands Plugin for Far Manager"
 #define PLUGIN_NAME L"FARCmds"
 #define PLUGIN_FILENAME L"FARCmds.dll"

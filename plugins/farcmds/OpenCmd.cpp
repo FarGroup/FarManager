@@ -747,7 +747,7 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 						{
 							case MCTL_SAVEALL:
 							case MCTL_LOADALL:
-								Info.MacroControl(NULL,command,0,0);
+								Info.MacroControl(NULL,(FAR_MACRO_CONTROL_COMMANDS)command,0,0);
 								break;
 							case MCTL_SENDSTRING:
 							{
@@ -790,14 +790,14 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 								{
 									MacroSendMacroText mcmd = {sizeof(mcmd), KMFLAGS_DISABLEOUTPUT, 0, SequenceText};
 									MacroCheckMacroText mcmd2 = {0};
-									mcmd2.Check.Text = mcmd;
+									mcmd2.Text = mcmd;
 
 									INT_PTR pcmd = (INT_PTR)&mcmd;
 
 									if (subcommand == MSSC_CHECK)
 										pcmd = (INT_PTR)&mcmd2;
 
-									if (!Info.MacroControl(NULL, command, subcommand, pcmd))
+									if (!Info.MacroControl(NULL, (FAR_MACRO_CONTROL_COMMANDS)command, subcommand, pcmd))
 									{
 										;
 									}
@@ -814,19 +814,19 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 					else if (Link) //link [/msg] [/n] источник назначение
 					{
 						bool NeedSymLink=false;
-						DWORD LinkFlags=0;
+						MKLINK_FLAGS LinkFlags=MLF_NONE;
 						wchar_t *Arg2=NULL;
 
 						while (*pCmd && *pCmd == L'/')
 						{
 							if (!FSF.LStrnicmp(pCmd,L"/MSG",4))
 							{
-								LinkFlags|=FLINK_SHOWERRMSG;
+								LinkFlags|=MLF_SHOWERRMSG;
 								pCmd=FSF.Trim(pCmd+4);
 							}
 							else if (!FSF.LStrnicmp(pCmd,L"/N",2))
 							{
-								LinkFlags|=FLINK_DONOTUPDATEPANEL;
+								LinkFlags|=MLF_DONOTUPDATEPANEL;
 								pCmd=FSF.Trim(pCmd+2);
 							}
 							else if (!FSF.LStrnicmp(pCmd,L"/S",2))
@@ -890,6 +890,7 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 						if (FTAttr != 0xFFFFFFFF && Arg2)
 						{
 							wchar_t Disk[16];
+							LINK_TYPE LinkType;
 
 							if (pCmd[1] == L':' && ((pCmd[2] == L'\\' && pCmd[3] == 0) || pCmd[2] == 0))
 							{
@@ -900,14 +901,14 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 									pCmd=Disk;
 								}
 
-								LinkFlags|=FLINK_VOLMOUNT;
+								LinkType=LINK_VOLMOUNT;
 							}
 							else if (FTAttr&FILE_ATTRIBUTE_DIRECTORY)
-								LinkFlags|=NeedSymLink?FLINK_SYMLINKDIR:FLINK_JUNCTION;
+								LinkType=NeedSymLink?LINK_SYMLINKDIR:LINK_JUNCTION;
 							else
-								LinkFlags|=NeedSymLink?FLINK_SYMLINKFILE:FLINK_HARDLINK;
+								LinkType=NeedSymLink?LINK_SYMLINKFILE:LINK_HARDLINK;
 
-							FSF.MkLink(pCmd,Arg2,LinkFlags);
+							FSF.MkLink(pCmd,Arg2,LinkType,LinkFlags);
 						}
 					}
 					else if (Load || Unload)
