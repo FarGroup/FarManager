@@ -1,4 +1,7 @@
 #include "utils.hpp"
+#include "farutils.hpp"
+#include "common.hpp"
+#include "utils.hpp"
 #include "sysutils.hpp"
 
 class RsrcId {
@@ -355,21 +358,12 @@ public:
   }
 };
 
-struct VersionInfo {
-  wstring version;
-  wstring comments;
-  wstring company_name;
-  wstring file_description;
-  wstring legal_copyright;
-  wstring product_name;
-};
-
 struct IdLang {
   RsrcId id;
   WORD lang_id;
 };
 
-void replace_ver_info(const wstring& pe_path, const VersionInfo& ver_info) {
+void replace_ver_info(const wstring& pe_path, const SfxVersionInfo& ver_info) {
   // numeric version
   list<wstring> ver_parts = split(ver_info.version, L'.');
   DWORD ver_hi = 0, ver_lo = 0;

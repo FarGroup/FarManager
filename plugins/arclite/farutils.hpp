@@ -33,12 +33,6 @@ namespace Far {
 void init(const PluginStartupInfo* psi);
 wstring get_plugin_module_path();
 
-#define MAKE_VERSION(major, minor, build) (((major) << 24) | ((minor) << 16) | (build))
-#define VER_MAJOR(version) HIBYTE(HIWORD(version))
-#define VER_MINOR(version) LOBYTE(HIWORD(version))
-#define VER_BUILD(version) LOWORD(version)
-unsigned get_version();
-
 const wchar_t* msg_ptr(int id);
 wstring get_msg(int id);
 

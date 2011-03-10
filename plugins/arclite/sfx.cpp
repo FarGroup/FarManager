@@ -38,7 +38,7 @@ public:
 };
 
 void replace_icon(const wstring& pe_path, const wstring& ico_path);
-void replace_ver_info(const wstring& pe_path, const VersionInfo& ver_info);
+void replace_ver_info(const wstring& pe_path, const SfxVersionInfo& ver_info);
 
 ByteVector generate_install_config(const SfxInstallConfig& config) {
   wstring text;
@@ -100,7 +100,7 @@ void attach_sfx_module(const wstring& file_path, const SfxOptions& sfx_options) 
     options.arc_path = file_path;
     options.detect = false;
     options.arc_types.push_back(c_7z);
-    vector<ComObject<Archive>> archives = Archive::open(options);
+    Archives archives = Archive::open(options);
     if (archives.empty())
       FAIL_MSG(Far::get_msg(MSG_ERROR_SFX_CONVERT));
     if (!archives.front()->is_pure_7z())

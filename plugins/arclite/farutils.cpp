@@ -18,12 +18,6 @@ wstring get_plugin_module_path() {
   return extract_file_path(g_far.ModuleName);
 }
 
-unsigned get_version() {
-  DWORD version;
-  g_far.AdvControl(&c_plugin_guid, ACTL_GETFARVERSION, &version);
-  return (LOWORD(version) << 16) | HIWORD(version);
-}
-
 const wchar_t* msg_ptr(int id) {
   return g_far.GetMsg(&c_plugin_guid, id);
 }

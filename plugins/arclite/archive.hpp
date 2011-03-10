@@ -128,6 +128,9 @@ public:
   wstring to_string() const;
 };
 
+class Archive;
+typedef vector<ComObject<Archive>> Archives;
+
 class Archive: public ComBase {
 public:
   UNKNOWN_IMPL
@@ -137,7 +140,7 @@ private:
   ComObject<IInArchive> in_arc;
   bool open(IInStream* in_stream, const ArcType& type);
   static ArcEntries detect(IInStream* stream, const wstring& file_ext, const ArcTypes& arc_types);
-  static void open(const OpenOptions& options, vector<ComObject<Archive>>& archives);
+  static void open(const OpenOptions& options, Archives& archives);
 public:
   static unsigned max_check_size;
   wstring arc_path;
@@ -151,7 +154,7 @@ public:
     wstring name = extract_file_name(arc_path);
     return name.empty() ? arc_path : name;
   }
-  static vector<ComObject<Archive>> open(const OpenOptions& options);
+  static Archives open(const OpenOptions& options);
   void close();
   void reopen();
   bool is_open() const {

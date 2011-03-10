@@ -111,7 +111,7 @@ struct ExtractOptions {
   ExtractOptions();
 };
 
-struct VersionInfo {
+struct SfxVersionInfo {
   wstring version;
   wstring comments;
   wstring company_name;
@@ -135,7 +135,7 @@ struct SfxOptions {
   bool replace_icon;
   wstring icon_path;
   bool replace_version;
-  VersionInfo ver_info;
+  SfxVersionInfo ver_info;
   bool append_install_config;
   SfxInstallConfig install_config;
   SfxOptions();

@@ -12,6 +12,8 @@
 #include "cmdline.hpp"
 
 wstring g_plugin_prefix;
+TriState g_detect_next_time = triUndef;
+Archives g_archives;
 
 void attach_sfx_module(const wstring& file_path, const SfxOptions& sfx_options);
 
@@ -30,7 +32,7 @@ public:
   Plugin(): archive(new Archive()) {
   }
 
-  static Plugin* open(const vector<ComObject<Archive>>& archives) {
+  static Plugin* open(const Archives& archives) {
     if (archives.size() == 0)
       FAIL(E_ABORT);
 
@@ -299,7 +301,7 @@ public:
     wstring dst_file_name;
     ErrorLog error_log;
     for (unsigned i = 0; i < arc_list.size(); i++) {
-      vector<ComObject<Archive>> archives;
+      Archives archives;
       try {
         OpenOptions open_options;
         open_options.arc_path = arc_list[i];
@@ -422,7 +424,7 @@ public:
   static void bulk_test(const vector<wstring>& arc_list) {
     ErrorLog error_log;
     for (unsigned i = 0; i < arc_list.size(); i++) {
-      vector<ComObject<Archive>> archives;
+      Archives archives;
       try {
         OpenOptions open_options;
         open_options.arc_path = arc_list[i];
@@ -732,7 +734,7 @@ public:
       open_options.detect = false;
       open_options.password = options.password;
       open_options.arc_types = ArcAPI::formats().get_arc_types();
-      vector<ComObject<Archive>> archives = Archive::open(open_options);
+      Archives archives = Archive::open(open_options);
       if (archives.empty())
         throw Error(Far::get_msg(MSG_ERROR_NOT_ARCHIVE), options.arc_path, __FILE__, __LINE__);
 
@@ -836,8 +838,6 @@ public:
   }
 };
 
-TriState detect_next_time = triUndef;
-vector<ComObject<Archive>> archives;
 
 void WINAPI GetGlobalInfoW(GlobalInfo* info) {
   info->StructSize = sizeof(GlobalInfo);
@@ -881,14 +881,14 @@ int WINAPI AnalyseW(const AnalyseInfo* info) {
   if (info->FileName == nullptr) {
     if (!g_options.handle_create)
       FAIL(E_ABORT);
-    archives.clear();
+    g_archives.clear();
     return TRUE;
   }
   else {
     OpenOptions options;
     options.arc_path = info->FileName;
     options.arc_types = ArcAPI::formats().get_arc_types();
-    if (detect_next_time == triUndef && (info->OpMode & OPM_PGDN) == 0) {
+    if (g_detect_next_time == triUndef && (info->OpMode & OPM_PGDN) == 0) {
       options.detect = false;
       if (!g_options.handle_commands)
         FAIL(E_ABORT);
@@ -925,11 +925,11 @@ int WINAPI AnalyseW(const AnalyseInfo* info) {
       }
     }
     else
-      options.detect = detect_next_time == triTrue;
-    detect_next_time = triUndef;
+      options.detect = g_detect_next_time == triTrue;
+    g_detect_next_time = triUndef;
 
-    archives = Archive::open(options);
-    return archives.size() != 0;
+    g_archives = Archive::open(options);
+    return g_archives.size() != 0;
   }
   FAR_ERROR_HANDLER_END(return FALSE, return FALSE, true);
 }
@@ -957,7 +957,7 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
       if (!Far::is_real_file_panel(panel_info)) {
         if ((panel_item.file_attributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
           Far::post_macro(L"CtrlPgDn");
-          detect_next_time = options.detect ? triTrue : triFalse;
+          g_detect_next_time = options.detect ? triTrue : triFalse;
         }
         return INVALID_HANDLE_VALUE;
       }
@@ -1024,11 +1024,12 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
     }
   }
   else if (info->OpenFrom == OPEN_ANALYSE) {
-    if (archives.size() == 0) {
+    if (g_archives.size() == 0) {
       return new Plugin();
     }
     else {
-      return Plugin::open(archives);
+      shared_ptr<void> _(&g_archives, mem_fn(&Archives::clear));
+      return Plugin::open(g_archives);
     }
   }
   return INVALID_HANDLE_VALUE;
@@ -1158,5 +1159,6 @@ int WINAPI ConfigureW(const GUID* Guid) {
 }
 
 void WINAPI ExitFARW() {
+  g_archives.clear();
   ArcAPI::free();
 }
