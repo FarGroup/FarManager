@@ -1,5 +1,8 @@
 !ifdef __MAKE__
 _MKDO_=/D
+_MKHIDE=-s
+!else
+_MKHIDE=/nologo
 !endif
 
 !ifdef ANSI
