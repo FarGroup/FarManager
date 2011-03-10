@@ -43,7 +43,7 @@ public:
 
 	void Get(int Root, const wchar_t *Name, wchar_t *Value, size_t Size, const wchar_t *Default)
 	{
-		lstrcpyn(Value, Get(Root,Name,Default), Size);
+		lstrcpyn(Value, Get(Root,Name,Default), (int)Size);
 	}
 
 	unsigned __int64 Get(int Root, const wchar_t *Name, unsigned __int64 Default)
