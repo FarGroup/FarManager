@@ -1,7 +1,6 @@
 NAME = FileCase
 SRCS = FileCase.cpp
 DOCS = CaseEng.hlf CaseRus.hlf CaseEng.lng CaseRus.lng
-NEEDPLUGINREG = 1
 
 include ../makefile_gcc_def_inc
 

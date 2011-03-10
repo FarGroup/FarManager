@@ -93,12 +93,13 @@ void CaseConvertion()
 
       if (!CurRun)
       {
-        SetRegKey(L"",L"WordDiv",Opt.WordDiv);
-        SetRegKey(L"",L"ConvertMode",Opt.ConvertMode);
-        SetRegKey(L"",L"ConvertModeExt",Opt.ConvertModeExt);
-        SetRegKey(L"",L"SkipMixedCase",Opt.SkipMixedCase);
-        SetRegKey(L"",L"ProcessSubDir",Opt.ProcessSubDir);
-        SetRegKey(L"",L"ProcessDir",Opt.ProcessDir);
+        PluginSettings settings(MainGuid, Info.SettingsControl);
+        settings.Set(0,L"WordDiv",Opt.WordDiv);
+        settings.Set(0,L"ConvertMode",Opt.ConvertMode);
+        settings.Set(0,L"ConvertModeExt",Opt.ConvertModeExt);
+        settings.Set(0,L"SkipMixedCase",Opt.SkipMixedCase);
+        settings.Set(0,L"ProcessSubDir",Opt.ProcessSubDir);
+        settings.Set(0,L"ProcessDir",Opt.ProcessDir);
       }
 
       Info.RestoreScreen(hScreen);

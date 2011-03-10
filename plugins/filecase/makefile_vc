@@ -5,10 +5,9 @@
 NAME = FileCase
 LINK_OBJS = $(OBJDIR)\FileCase.obj
 DOCS = CaseEng.hlf CaseRus.hlf CaseEng.lng CaseRus.lng
-NEEDPLUGINREG = 1
 
 !include ..\makefile_vc_def_inc
 
 !include ..\makefile_vc_target_inc
 
-$(OBJDIR)\FileCase.obj: FileCase.cpp filecvt.cpp FileMix.cpp ProcessName.cpp FileCase.hpp FileLng.hpp version.hpp guid.hpp $(COMINC)\plugin.hpp
+$(OBJDIR)\FileCase.obj: FileCase.cpp filecvt.cpp FileMix.cpp ProcessName.cpp FileCase.hpp FileLng.hpp version.hpp guid.hpp $(COMINC)\plugin.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp

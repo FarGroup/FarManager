@@ -2,7 +2,7 @@
 #include "CRT/crt.hpp"
 #include "FileLng.hpp"
 #include "FileCase.hpp"
-#include "pluginreg/pluginreg.hpp"
+#include "PluginSettings.hpp"
 #include "version.hpp"
 #include <initguid.h>
 #include "guid.hpp"
@@ -26,6 +26,20 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 }
 #endif
 
+static struct PluginStartupInfo Info;
+static struct FarStandardFunctions FSF;
+
+struct Options
+{
+  int ConvertMode;
+  int ConvertModeExt;
+  int SkipMixedCase;
+  int ProcessSubDir;
+  int ProcessDir;
+  wchar_t WordDiv[512];
+  int WordDivLen;
+} Opt;
+
 #include "FileMix.cpp"
 #include "filecvt.cpp"
 #include "ProcessName.cpp"
@@ -41,32 +55,24 @@ void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
   Info->Author=PLUGIN_AUTHOR;
 }
 
-void WINAPI ExitFARW()
-{
-	free(PluginRootKey);
-}
-
 void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 {
   ::Info=*Info;
   ::FSF=*Info->FSF;
   ::Info.FSF=&::FSF;
 
-  PluginRootKey = (wchar_t *)malloc(lstrlen(Info->RootKey)*sizeof(wchar_t) + sizeof(L"\\CaseConvertion"));
-  lstrcpy(PluginRootKey,Info->RootKey);
-  lstrcat(PluginRootKey,L"\\CaseConvertion");
-
-  Opt.ConvertMode=GetRegKey(L"",L"ConvertMode",0);
-  Opt.ConvertModeExt=GetRegKey(L"",L"ConvertModeExt",0);
-  Opt.SkipMixedCase=GetRegKey(L"",L"SkipMixedCase",1);
-  Opt.ProcessSubDir=GetRegKey(L"",L"ProcessSubDir",0);
-  Opt.ProcessDir=GetRegKey(_T(""),L"ProcessDir",0);
-  GetRegKey(L"",L"WordDiv",Opt.WordDiv,L" _",ARRAYSIZE(Opt.WordDiv));
+  PluginSettings settings(MainGuid, ::Info.SettingsControl);
+  Opt.ConvertMode=settings.Get(0,L"ConvertMode",0);
+  Opt.ConvertModeExt=settings.Get(0,L"ConvertModeExt",0);
+  Opt.SkipMixedCase=settings.Get(0,L"SkipMixedCase",1);
+  Opt.ProcessSubDir=settings.Get(0,L"ProcessSubDir",0);
+  Opt.ProcessDir=settings.Get(0,L"ProcessDir",0);
+  settings.Get(0,L"WordDiv",Opt.WordDiv,ARRAYSIZE(Opt.WordDiv),L" _");
   Opt.WordDivLen=lstrlen(Opt.WordDiv);
 }
 
 
-HANDLE WINAPI OpenPluginW(int OpenFrom, const GUID* Guid, INT_PTR Item)
+HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 {
   CaseConvertion();
   return INVALID_HANDLE_VALUE;
