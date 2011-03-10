@@ -15518,22 +15518,22 @@ l:
 "Este plugin requiere versión más actual de FAR"
 
 MPlgRequired
-"Требуется версия FAR - %d.%d.%d."
-"Required FAR version is %d.%d.%d."
-"Požadovaná verze FARu je %d.%d.%d."
-"Benötigte FAR-Version ist %d.%d.%d."
-"A szükséges FAR verzió: %d.%d.%d."
-"Wymagana wersja FAR-a to %d.%d.%d."
-"Requiere la versión FAR %d.%d.%d."
+"Требуется версия FAR - %d.%d.%d.%d."
+"Required FAR version is %d.%d.%d.%d."
+"Požadovaná verze FARu je %d.%d.%d.%d."
+"Benötigte FAR-Version ist %d.%d.%d.%d."
+"A szükséges FAR verzió: %d.%d.%d.%d."
+"Wymagana wersja FAR-a to %d.%d.%d.%d."
+"Requiere la versión FAR %d.%d.%d.%d."
 
 MPlgRequired2
-"Текущая версия FAR - %d.%d.%d."
-"Current FAR version is %d.%d.%d."
-"Nynější verze FARu je %d.%d.%d."
-"Aktuelle FAR-Version ist %d.%d.%d."
-"A jelenlegi FAR verzió: %d.%d.%d."
-"Bieżąca wersja FAR-a: %d.%d.%d."
-"Versión actual de FAR es %d.%d.%d"
+"Текущая версия FAR - %d.%d.%d.%d."
+"Current FAR version is %d.%d.%d.%d."
+"Nynější verze FARu je %d.%d.%d.%d."
+"Aktuelle FAR-Version ist %d.%d.%d.%d."
+"A jelenlegi FAR verzió: %d.%d.%d.%d."
+"Bieżąca wersja FAR-a: %d.%d.%d.%d."
+"Versión actual de FAR es %d.%d.%d.%d"
 
 MPlgLoadPluginError
 "Ошибка при загрузке плагина"

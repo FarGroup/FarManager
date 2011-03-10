@@ -1,3 +1,11 @@
+drkns 11.03.2011 14:12:42 +0200 - build 1906
+
+1. Изменён формат версии плагина, теперь это структура. Там же можно указывать дополнительную информацию: alpha, beta, rc, release.
+
+2. ACTL_GETFARVERSION теперь всегда возвращает TRUE и, во избежание ошибок, переименована в ACTL_GETFARMANAGERVERSION.
+
+3. plugin.hpp снова совместим с pure C.
+
 drkns 10.03.2011 16:22:44 +0200 - build 1905
 
 1. Warnings, optimization.

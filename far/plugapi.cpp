@@ -235,7 +235,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 
 	switch (Command)
 	{
-		case ACTL_GETFARVERSION:
+		case ACTL_GETFARMANAGERVERSION:
 		case ACTL_GETSYSWORDDIV:
 		case ACTL_GETCOLOR:
 		case ACTL_GETARRAYCOLOR:
@@ -262,12 +262,12 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 
 	switch (Command)
 	{
-		case ACTL_GETFARVERSION:
+		case ACTL_GETFARMANAGERVERSION:
 		{
 			if (Param)
-				*(DWORD*)Param=FAR_VERSION;
+				*(VersionInfo*)Param=FAR_VERSION;
 
-			return FAR_VERSION;
+			return TRUE;
 		}
 		case ACTL_GETPLUGINMAXREADDATA:
 		{

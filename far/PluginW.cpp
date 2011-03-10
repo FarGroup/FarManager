@@ -266,9 +266,7 @@ PluginW::PluginW(PluginManager *owner, const wchar_t *lpwszModuleName):
 	m_owner(owner),
 	m_strModuleName(lpwszModuleName),
 	m_strCacheName(lpwszModuleName),
-	m_hModule(nullptr),
-	MinFarVersion(0),
-	PluginVersion(0)
+	m_hModule(nullptr)
 	//more initialization here!!!
 {
 	wchar_t *p = m_strCacheName.GetBuffer();
@@ -317,8 +315,9 @@ bool PluginW::LoadFromCache(const FAR_FIND_DATA_EX &FindData)
 				return false;
 		}
 		strRegKey += L"\\Exports";
-		MinFarVersion=GetRegKey(strRegKey,wszReg_MinFarVersion,0);
-		PluginVersion=GetRegKey(strRegKey,wszReg_Version,0);
+		GetRegKey(strRegKey,wszReg_MinFarVersion,reinterpret_cast<LPBYTE>(&MinFarVersion),reinterpret_cast<const BYTE*>(&FAR_VERSION),sizeof(MinFarVersion));
+		VersionInfo Default = {};
+		GetRegKey(strRegKey,wszReg_Version,reinterpret_cast<LPBYTE>(&PluginVersion),reinterpret_cast<const BYTE*>(&Default),sizeof(PluginVersion));
 		GetRegKey(strRegKey,wszReg_Guid,m_strGuid,L"");
 		SetGuid(StrToGuid(m_strGuid,m_Guid)?m_Guid:FarGuid);
 		GetRegKey(strRegKey,wszReg_Title,strTitle,L"");
@@ -418,14 +417,14 @@ bool PluginW::SaveToCache()
 
 		SetRegKey(strRegKey, L"CommandPrefix", NullToEmpty(Info.CommandPrefix));
 		SetRegKey64(strRegKey, L"Flags", Info.Flags);
-		strRegKey += L"\\Exports";
-		SetRegKey(strRegKey, wszReg_MinFarVersion, MinFarVersion);
+		SetRegKey(strRegKey, wszReg_MinFarVersion, reinterpret_cast<const BYTE*>(&MinFarVersion),sizeof(MinFarVersion));
 		SetRegKey(strRegKey, wszReg_Guid, m_strGuid);
-		SetRegKey(strRegKey,wszReg_Version, PluginVersion);
+		SetRegKey(strRegKey,wszReg_Version, reinterpret_cast<const BYTE*>(&PluginVersion),sizeof(PluginVersion));
 		SetRegKey(strRegKey,wszReg_Title, strTitle);
 		SetRegKey(strRegKey,wszReg_Description, strDescription);
 		SetRegKey(strRegKey,wszReg_Author, strAuthor);
 
+		strRegKey += L"\\Exports";
 		SetRegKey(strRegKey, wszReg_OpenPanel, pOpenPanelW!=nullptr);
 		SetRegKey(strRegKey, wszReg_SetFindList, pSetFindListW!=nullptr);
 		SetRegKey(strRegKey, wszReg_ProcessEditorInput, pProcessEditorInputW!=nullptr);
@@ -530,8 +529,6 @@ bool PluginW::LoadData(void)
 	GlobalInfo Info;
 	if(GetGlobalInfo(&Info) &&
 		Info.StructSize &&
-		Info.MinFarVersion &&
-		Info.Version &&
 		Info.Title && *Info.Title &&
 		Info.Description && *Info.Description &&
 		Info.Author && *Info.Author)
@@ -771,14 +768,14 @@ bool PluginW::SetStartupInfo(bool &bUnloaded)
 	return true;
 }
 
-static void ShowMessageAboutIllegalPluginVersion(const wchar_t* plg,int required)
+static void ShowMessageAboutIllegalPluginVersion(const wchar_t* plg,const VersionInfo& required)
 {
 	string strMsg1, strMsg2;
 	string strPlgName;
 	strMsg1.Format(MSG(MPlgRequired),
-	               (WORD)HIBYTE(HIWORD(required)),(WORD)LOBYTE(HIWORD(required)),LOWORD(required));
+	               required.Major,required.Minor,required.Revision,required.Build);
 	strMsg2.Format(MSG(MPlgRequired2),
-	               (WORD)HIBYTE(HIWORD(FAR_VERSION)),(WORD)LOBYTE(HIWORD(FAR_VERSION)),LOWORD(FAR_VERSION));
+	               FAR_VERSION.Major,FAR_VERSION.Minor,FAR_VERSION.Revision,FAR_VERSION.Build);
 	Message(MSG_WARNING|MSG_NOPLUGINS,1,MSG(MError),MSG(MPlgBadVers),plg,strMsg1,strMsg2,MSG(MOk));
 }
 
@@ -798,7 +795,7 @@ bool PluginW::GetGlobalInfo(GlobalInfo *gi)
 
 bool PluginW::CheckMinFarVersion(bool &bUnloaded)
 {
-	if (MinFarVersion && MinFarVersion > FAR_VERSION)
+	if (!CheckVersion(&FAR_VERSION, &MinFarVersion))
 	{
 		ShowMessageAboutIllegalPluginVersion(m_strModuleName,MinFarVersion);
 		return false;

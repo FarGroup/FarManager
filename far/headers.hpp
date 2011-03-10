@@ -159,9 +159,9 @@ inline const T Round(const T &a, const T &b) { return a/b+(a%b*2>b?1:0); }
 #include "farrtl.hpp"
 #include "UnicodeString.hpp"
 #include "format.hpp"
+#include "plugin.hpp"
 #include "global.hpp"
 #include "local.hpp"
-#include "plugin.hpp"
 #include "farwinapi.hpp"
 #include "cvtname.hpp"
 

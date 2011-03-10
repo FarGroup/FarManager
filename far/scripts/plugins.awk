@@ -56,6 +56,8 @@ BEGIN {
           printf "#define FARMANAGERVERSION_MAJOR %d\n",p1
         else if (index($0,"MINOR") > 0)
           printf "#define FARMANAGERVERSION_MINOR %d\n",p2
+        else if (index($0,"REVISION") > 0)
+          printf "#define FARMANAGERVERSION_REVISION %d\n",p3
         else if (index($0,"BUILD") > 0)
           printf "#define FARMANAGERVERSION_BUILD %d\n",p4
       }

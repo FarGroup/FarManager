@@ -86,11 +86,11 @@ class PluginW: public Plugin
 		HMODULE m_hModule;
 		Language Lang;
 
-		DWORD MinFarVersion;
+		VersionInfo MinFarVersion;
 
 		GUID m_Guid;
 
-		DWORD PluginVersion;
+		VersionInfo PluginVersion;
 		string strTitle;
 		string strDescription;
 		string strAuthor;

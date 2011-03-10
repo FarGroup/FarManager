@@ -74,7 +74,7 @@ struct SYSINFOHEADER      // информация о системе
 	DWORD SizeRec;          // Размер данных = sizeof(DUMPHEADER)-sizeof(WORD)*2
 	RECHEADER *Next; // Следующий элемент в списке
 	DWORD DumpFlags;        // дополнительные флаги (пока =0)
-	DWORD FARVersion;       // версия FAR Manager в формате FAR_VERSION
+	VersionInfo FARVersion;       // версия FAR Manager в формате FAR_VERSION
 	SYSTEMTIME DumpTime;    // the system time is expressed in Coordinated Universal Time (UTC))
 	OSVERSIONINFO WinVer;   // версия виндов
 };
