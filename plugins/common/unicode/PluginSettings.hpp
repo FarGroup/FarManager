@@ -59,6 +59,7 @@ public:
 	__int64      Get(int Root, const wchar_t *Name, __int64 Default) { return (__int64)Get(Root,Name,(unsigned __int64)Default); }
 	int          Get(int Root, const wchar_t *Name, int Default)  { return (int)Get(Root,Name,(unsigned __int64)Default); }
 	unsigned int Get(int Root, const wchar_t *Name, unsigned int Default) { return (unsigned int)Get(Root,Name,(unsigned __int64)Default); }
+	DWORD        Get(int Root, const wchar_t *Name, DWORD Default) { return (DWORD)Get(Root,Name,(unsigned __int64)Default); }
 	bool         Get(int Root, const wchar_t *Name, bool Default) { return Get(Root,Name,Default?1ull:0ull)?true:false; }
 
 	bool Set(int Root, const wchar_t *Name, const wchar_t *Value)
@@ -78,6 +79,7 @@ public:
 	bool Set(int Root, const wchar_t *Name, __int64 Value) { return Set(Root,Name,(unsigned __int64)Value); }
 	bool Set(int Root, const wchar_t *Name, int Value) { return Set(Root,Name,(unsigned __int64)Value); }
 	bool Set(int Root, const wchar_t *Name, unsigned int Value) { return Set(Root,Name,(unsigned __int64)Value); }
+	bool Set(int Root, const wchar_t *Name, DWORD Value) { return Set(Root,Name,(unsigned __int64)Value); }
 	bool Set(int Root, const wchar_t *Name, bool Value) { return Set(Root,Name,Value?1ull:0ull); }
 };
 
