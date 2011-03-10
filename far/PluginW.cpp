@@ -314,7 +314,6 @@ bool PluginW::LoadFromCache(const FAR_FIND_DATA_EX &FindData)
 			if (StrCmp(strPluginID, strCurPluginID) )   //одинаковые ли бинарники?
 				return false;
 		}
-		strRegKey += L"\\Exports";
 		GetRegKey(strRegKey,wszReg_MinFarVersion,reinterpret_cast<LPBYTE>(&MinFarVersion),reinterpret_cast<const BYTE*>(&FAR_VERSION),sizeof(MinFarVersion));
 		VersionInfo Default = {};
 		GetRegKey(strRegKey,wszReg_Version,reinterpret_cast<LPBYTE>(&PluginVersion),reinterpret_cast<const BYTE*>(&Default),sizeof(PluginVersion));
@@ -324,6 +323,7 @@ bool PluginW::LoadFromCache(const FAR_FIND_DATA_EX &FindData)
 		GetRegKey(strRegKey,wszReg_Description,strDescription,L"");
 		GetRegKey(strRegKey,wszReg_Author,strAuthor,L"");
 
+		strRegKey += L"\\Exports";
 		pOpenPanelW=(PLUGINOPENPANELW)(INT_PTR)GetRegKey(strRegKey,wszReg_OpenPanel,0);
 		pSetFindListW=(PLUGINSETFINDLISTW)(INT_PTR)GetRegKey(strRegKey,wszReg_SetFindList,0);
 		pProcessEditorInputW=(PLUGINPROCESSEDITORINPUTW)(INT_PTR)GetRegKey(strRegKey,wszReg_ProcessEditorInput,0);
