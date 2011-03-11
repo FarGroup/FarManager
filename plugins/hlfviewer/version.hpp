@@ -1,6 +1,6 @@
 #include "farversion.hpp"
 
-#define PLUGIN_BUILD 30
+#define PLUGIN_BUILD 31
 #define PLUGIN_DESC L"Hlf-file Viewer for FAR Manager"
 #define PLUGIN_NAME L"HlfViewer"
 #define PLUGIN_FILENAME L"HlfViewer.dll"

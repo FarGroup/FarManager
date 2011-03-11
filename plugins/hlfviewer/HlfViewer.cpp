@@ -228,7 +228,7 @@ int WINAPI ProcessEditorInputW(const INPUT_RECORD *Rec)
 		        FSF.FarInputRecordToKey((INPUT_RECORD *)Rec)==Opt.Key)
 		{
 			Info.EditorControl(-1,ECTL_GETINFO,0,(INT_PTR)&ei);
-			size_t FileNameSize=Info.EditorControl(-1,ECTL_GETFILENAME,0,nullptr);
+			size_t FileNameSize=Info.EditorControl(-1,ECTL_GETFILENAME,0,0);
 
 			if (FileNameSize)
 			{
@@ -258,7 +258,7 @@ int WINAPI ProcessEditorInputW(const INPUT_RECORD *Rec)
 
 void ShowCurrentHelpTopic()
 {
-	size_t FileNameSize=Info.EditorControl(-1,ECTL_GETFILENAME,0,nullptr);
+	size_t FileNameSize=Info.EditorControl(-1,ECTL_GETFILENAME,0,0);
 	LPWSTR FileName=NULL;
 	Info.EditorControl(-1,ECTL_GETINFO,0,(INT_PTR)&ei);
 
@@ -285,7 +285,7 @@ void ShowCurrentHelpTopic()
 		case 2:
 
 			if (!(ei.CurState&ECSTATE_SAVED))
-				Info.EditorControl(-1,ECTL_SAVEFILE, 0, nullptr);
+				Info.EditorControl(-1,ECTL_SAVEFILE, 0, 0);
 
 		default:
 			ShowHelp(FileName,FindTopic());

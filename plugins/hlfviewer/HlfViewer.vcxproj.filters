@@ -21,16 +21,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="FarEditor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="HlfViewer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Mix.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Reg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -48,6 +39,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Lang.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="guid.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="version.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
