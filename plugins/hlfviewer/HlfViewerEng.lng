@@ -1,6 +1,8 @@
 ﻿.Language=English,English
 
 "HlfViewer"
+
+"HlfViewer"
 "HlfViewer: show current help topic"
 
 "Process editor hot&key:"
@@ -10,7 +12,7 @@
 "Show &modified file"
 "&Save and show modified file"
 
-"Ok"
+"Save"
 "Cancel"
 
 "Contents"

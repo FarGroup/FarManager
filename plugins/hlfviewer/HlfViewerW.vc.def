@@ -1,7 +1,7 @@
 EXPORTS 
-   GetMinFarVersionW
-   GetPluginInfoW
-   OpenPluginW
-   SetStartupInfoW
-   ProcessEditorInputW
-   ConfigureW
+	GetGlobalInfoW
+	SetStartupInfoW
+	OpenW
+	GetPluginInfoW
+	ProcessEditorInputW
+	ConfigureW

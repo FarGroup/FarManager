@@ -2,7 +2,7 @@
 .PluginContents=HlfViewer
 
 @Contents
-$^#HlfViewer#
+$ #HlfViewer#
    The HlfViewer plugin was created to help those who create or edit
 HLF files or just want to view some HLF files.
 
@@ -11,7 +11,7 @@ HLF files or just want to view some HLF files.
    ~Settings~@Config@
 
 @cmd
-$^#HlfViewer: command line syntax
+$ #HlfViewer: command line syntax
 
    #hlf:filename [topic]#
 
@@ -24,7 +24,7 @@ $^#HlfViewer: command line syntax
 
    ~Contents~@Contents@
 @editor
-$^#HlfViewer: work in editor#
+$ #HlfViewer: work in editor#
 
    If the file being edited is a FAR help file, then invoking this command
 will show the help topic currently being edited. It is possible to specify
@@ -32,7 +32,7 @@ a hotkey for showing the help topic in the ~settings dialog~@Config@.
 
    ~Contents~@Contents@
 @Config
-$^#HlfViewer: Settings#
+$ #HlfViewer: Settings#
 
    If you enable the "#Process editor hotkey#" option, then pressing
 the assigned key combination in the editor will show the current topic
