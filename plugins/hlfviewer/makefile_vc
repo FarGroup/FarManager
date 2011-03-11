@@ -10,4 +10,4 @@ DOCS = HlfViewerEng.hlf HlfViewerRus.hlf HlfViewerEng.lng HlfViewerRus.lng
 
 !include ..\makefile_vc_target_inc
 
-$(OBJDIR)\HlfViewer.obj: HlfViewer.cpp Lang.hpp $(COMINC)\plugin.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\farversion.hpp
+$(OBJDIR)\HlfViewer.obj: HlfViewer.cpp Lang.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\farversion.hpp
