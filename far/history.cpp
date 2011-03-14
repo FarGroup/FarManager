@@ -47,6 +47,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dialog.hpp"
 #include "interf.hpp"
 
+const wchar_t* CommandHistoryKey=L"History\\CommandHistory";
+const wchar_t* ViewEditHistoryKey=L"History\\ViewEditHistory";
+const wchar_t* FolderHistoryKey=L"History\\FolderHistory";
+const wchar_t* DialogHistoryKey=L"History\\DialogHistory";
+
 History::History(enumHISTORYTYPE TypeHistory, size_t HistoryCount, const wchar_t *RegKey, const int *EnableSave, bool SaveType):
 	strRegKey(RegKey),
 	EnableAdd(true),

@@ -89,8 +89,6 @@ enum DLGITEMINTERNALFLAGS
 	DLGIIF_COMBOBOXEVENTMOUSE       = 0x00000020, // посылать события мыши в диалоговую проц. для открытого комбобокса
 };
 
-const wchar_t *fmtSavedDialogHistory=L"SavedDialogHistory\\";
-
 //////////////////////////////////////////////////////////////////////////
 /*
    Функция, определяющая - "Может ли элемент диалога иметь фокус ввода"
@@ -1092,8 +1090,8 @@ void Dialog::ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex)
 
 	if (strData.IsEmpty())
 	{
-		string strRegKey=fmtSavedDialogHistory;
-		strRegKey+=CurItem->strHistory;
+		string strRegKey(DialogHistoryKey);
+		strRegKey.Append(L"\\").Append(CurItem->strHistory);
 		History::ReadLastItem(strRegKey, strData);
 
 		if (MsgIndex != -1)
@@ -4199,8 +4197,8 @@ BOOL Dialog::SelectFromEditHistory(DialogItemEx *CurItem,
 
 	string strStr;
 	int ret=0;
-	string strRegKey=fmtSavedDialogHistory;
-	strRegKey+=HistoryName;
+	string strRegKey(DialogHistoryKey);
+	strRegKey.Append(L"\\").Append(HistoryName);
 	History DlgHist(HISTORYTYPE_DIALOG, Opt.DialogsHistoryCount, strRegKey, &Opt.Dialogs.EditHistory, false);
 	DlgHist.ReadHistory();
 	DlgHist.ResetPosition();
@@ -4243,8 +4241,8 @@ int Dialog::AddToEditHistory(const wchar_t *AddStr,const wchar_t *HistoryName)
 		return FALSE;
 	}
 
-	string strRegKey=fmtSavedDialogHistory;
-	strRegKey+=HistoryName;
+	string strRegKey(DialogHistoryKey);
+	strRegKey.Append(L"\\").Append(HistoryName);
 	History DlgHist(HISTORYTYPE_DIALOG, Opt.DialogsHistoryCount, strRegKey, &Opt.Dialogs.EditHistory, false);
 	DlgHist.ReadHistory();
 	DlgHist.AddToHistory(AddStr);

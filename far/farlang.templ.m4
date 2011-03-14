@@ -1201,13 +1201,13 @@ MFolderHistoryTitle
 "Historial directorios"
 
 MViewHistoryTitle
-"История просмотра"
-"File view history"
-"Historie prohlížení souborů"
-"Zuletzt betrachtete Dateien"
-"Fájl előzmények"
-"Historia podglądu plików"
-"Historial visor"
+"История просмотра и редактирования"
+"File view and edit history"
+upd:"Historie prohlížení souborů"
+upd:"Zuletzt betrachtete Dateien"
+upd:"Fájl előzmények"
+upd:"Historia podglądu plików"
+upd:"Historial visor"
 
 MViewHistoryIsCreate
 "Создать файл?"

@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "udlist.hpp"
 #include "FarDlgBuilder.hpp"
 #include "elevation.hpp"
+#include "history.hpp"
 
 Options Opt={0};
 
@@ -103,10 +104,7 @@ const wchar_t NKeyDescriptions[]=L"Descriptions";
 const wchar_t NKeyKeyMacros[]=L"KeyMacros";
 const wchar_t NKeyPolicies[]=L"Policies";
 const wchar_t NKeyFileFilter[]=L"OperationsFilter";
-const wchar_t NKeySavedHistory[]=L"SavedHistory";
-const wchar_t NKeySavedViewHistory[]=L"SavedViewHistory";
-const wchar_t NKeySavedFolderHistory[]=L"SavedFolderHistory";
-const wchar_t NKeySavedDialogHistory[]=L"SavedDialogHistory";
+
 const wchar_t NKeyCodePages[]=L"CodePages";
 const wchar_t NParamHistoryCount[]=L"HistoryCount";
 const wchar_t NKeyVMenu[]=L"VMenu";
@@ -643,10 +641,10 @@ static struct FARConfig
 	{0, REG_SZ,     NKeyXLat,L"Rules3",&Opt.XLat.Rules[2],0,L""},
 	{0, REG_SZ,     NKeyXLat,L"WordDivForXlat",&Opt.XLat.strWordDivForXlat, 0,WordDivForXlat0},
 
-	{0, REG_DWORD,  NKeySavedHistory, NParamHistoryCount,&Opt.HistoryCount,512, 0},
-	{0, REG_DWORD,  NKeySavedFolderHistory, NParamHistoryCount,&Opt.FoldersHistoryCount,512, 0},
-	{0, REG_DWORD,  NKeySavedViewHistory, NParamHistoryCount,&Opt.ViewHistoryCount,512, 0},
-	{0, REG_DWORD,  NKeySavedDialogHistory, NParamHistoryCount,&Opt.DialogsHistoryCount,512, 0},
+	{0, REG_DWORD,  CommandHistoryKey, NParamHistoryCount,&Opt.HistoryCount,512, 0},
+	{0, REG_DWORD,  FolderHistoryKey, NParamHistoryCount,&Opt.FoldersHistoryCount,512, 0},
+	{0, REG_DWORD,  ViewEditHistoryKey, NParamHistoryCount,&Opt.ViewHistoryCount,512, 0},
+	{0, REG_DWORD,  DialogHistoryKey, NParamHistoryCount,&Opt.DialogsHistoryCount,512, 0},
 
 	{1, REG_DWORD,  NKeySystem,L"SaveHistory",&Opt.SaveHistory,1, 0},
 	{1, REG_DWORD,  NKeySystem,L"SaveFoldersHistory",&Opt.SaveFoldersHistory,1, 0},

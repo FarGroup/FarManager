@@ -65,9 +65,9 @@ ControlObject::ControlObject():
 	FrameManager = new Manager;
 	//Macro.LoadMacros();
 	ReadConfig();
-	CmdHistory=new History(HISTORYTYPE_CMD,Opt.HistoryCount,L"SavedHistory",&Opt.SaveHistory,false);
-	FolderHistory=new History(HISTORYTYPE_FOLDER,Opt.FoldersHistoryCount,L"SavedFolderHistory",&Opt.SaveFoldersHistory,true);
-	ViewHistory=new History(HISTORYTYPE_VIEW,Opt.ViewHistoryCount,L"SavedViewHistory",&Opt.SaveViewHistory,true);
+	CmdHistory=new History(HISTORYTYPE_CMD,Opt.HistoryCount,CommandHistoryKey,&Opt.SaveHistory,false);
+	FolderHistory=new History(HISTORYTYPE_FOLDER,Opt.FoldersHistoryCount,FolderHistoryKey,&Opt.SaveFoldersHistory,true);
+	ViewHistory=new History(HISTORYTYPE_VIEW,Opt.ViewHistoryCount,ViewEditHistoryKey,&Opt.SaveViewHistory,true);
 	FolderHistory->SetAddMode(true,2,true);
 	ViewHistory->SetAddMode(true,Opt.FlagPosixSemantics?1:2,true);
 

@@ -62,6 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "cmdline.hpp"
 #include "console.hpp"
+#include "history.hpp"
 
 #ifdef DIRECT_RT
 int DirectRT=0;
@@ -589,6 +590,18 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 		}
 	}
 	Opt.strRegRoot = strFarRoot;
+
+	if (!CheckRegKey(L"History"))
+	{
+		CopyLocalKeyTree(L"SavedHistory", CommandHistoryKey);
+		CopyLocalKeyTree(L"SavedViewHistory", ViewEditHistoryKey);
+		CopyLocalKeyTree(L"SavedFolderHistory", FolderHistoryKey);
+		CopyLocalKeyTree(L"SavedDialogHistory", DialogHistoryKey);
+		DeleteRegKey(L"SavedHistory");
+		DeleteRegKey(L"SavedViewHistory");
+		DeleteRegKey(L"SavedFolderHistory");
+		DeleteKeyTree(L"SavedDialogHistory");
+	}
 
 	SetEnvironmentVariable(L"FARLANG",Opt.strLanguage);
 	SetHighlighting();

@@ -46,7 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern const wchar_t *FmtPluginsCache_PluginS;
 extern const wchar_t *FmtDiskMenuStringD;
 extern const wchar_t *FmtDiskMenuGuidD;
-extern const wchar_t *FmtDiskMenuNumberD; //BUGBUG - obsolete
 extern const wchar_t *FmtPluginMenuStringD;
 extern const wchar_t *FmtPluginMenuGuidD;
 extern const wchar_t *FmtPluginConfigStringD;

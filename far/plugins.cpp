@@ -68,7 +68,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 const wchar_t *FmtPluginsCache_PluginS=L"PluginsCache\\%s";
 const wchar_t *FmtDiskMenuStringD=L"DiskMenuString%d";
 const wchar_t *FmtDiskMenuGuidD=L"DiskMenuGuid%d";
-const wchar_t *FmtDiskMenuNumberD=L"DiskMenuNumber%d"; //BUGBUG - obsolete
 const wchar_t *FmtPluginMenuStringD=L"PluginMenuString%d";
 const wchar_t *FmtPluginMenuGuidD=L"PluginMenuGuid%d";
 const wchar_t *FmtPluginConfigStringD=L"PluginConfigString%d";
@@ -1760,13 +1759,12 @@ void PluginManager::GetHotKeyRegKey(Plugin *pPlugin,const GUID& Guid,string &str
 	*/
 	string strPluginName(pPlugin->GetHotkeyName());
 	size_t FarPathLength=g_strFarPath.GetLength();
-	strRegKey.Clear();;
+	strRegKey = wszReg_PluginHotkeys;
 
 	if (pPlugin->IsOemPlugin() && FarPathLength < pPlugin->GetModuleName().GetLength() && !StrCmpNI(pPlugin->GetModuleName(), g_strFarPath, (int)FarPathLength))
 		strPluginName.LShift(FarPathLength);
 
-	strRegKey.Format(wszReg_PluginHotkeys L"\\%s%%", strPluginName.CPtr());
-	strRegKey+=GuidToStr(Guid);
+	strRegKey.Append(L"\\").Append(strPluginName).Append(L"\\").Append(GuidToStr(Guid));
 }
 
 void PluginManager::GetPluginHotKey(Plugin *pPlugin, const GUID& Guid, const wchar_t *HotKeyType, string &strHotKey)

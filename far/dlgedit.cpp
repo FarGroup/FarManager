@@ -72,8 +72,8 @@ DlgEdit::DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type):
 				}
 				if(CurItem->Flags&DIF_HISTORY && !CurItem->strHistory.IsEmpty())
 				{
-					string strHistory = fmtSavedDialogHistory;
-					strHistory+=CurItem->strHistory;
+					string strHistory(DialogHistoryKey);
+					strHistory.Append(L"\\").Append(CurItem->strHistory);
 					iHistory=new History(HISTORYTYPE_DIALOG, Opt.DialogsHistoryCount, strHistory, &Opt.Dialogs.EditHistory, false);
 					iHistory->ReadHistory(true);
 				}

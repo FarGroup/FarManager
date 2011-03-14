@@ -114,3 +114,9 @@ class History
 		void SetAddMode(bool EnableAdd, int RemoveDups, bool KeepSelectedPos);
 		void ResetPosition() { CurrentItem = nullptr; }
 };
+
+
+extern const wchar_t* CommandHistoryKey;
+extern const wchar_t* ViewEditHistoryKey;
+extern const wchar_t* FolderHistoryKey;
+extern const wchar_t* DialogHistoryKey;

@@ -435,5 +435,3 @@ INT_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2);
 bool IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos=-1);
 
 void DataToItemEx(const DialogDataEx *Data,DialogItemEx *Item,int Count);
-
-extern const wchar_t* fmtSavedDialogHistory;
