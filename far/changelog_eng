@@ -3,6 +3,24 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 14.03.2011 11:11:11 +0200 - build 1908
+
+1. PluginHotkeys is now in GUID\GUID format.
+
+2. Commands, viewer/editor, folder, dialog histories moved to History subkey.
+
+drkns 10.03.2011 20:54:46 +0200 - build 1907
+
+1. Error loading plugins from cache.
+
+drkns 11.03.2011 14:12:42 +0200 - build 1906
+
+1. Plugin version format is changed, now this is a structure. You can specify additional information there: alpha, beta, rc, release.
+
+2. ACTL_GETFARVERSION now always returns TRUE, it is also renamed to ACTL_GETFARMANAGERVERSION to prevent mistakes.
+
+3. plugin.hpp is pure C compatible again.
+
 drkns 10.03.2011 16:22:44 +0200 - build 1905
 
 1. Warnings, optimization.
