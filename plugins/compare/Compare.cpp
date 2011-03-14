@@ -1,6 +1,7 @@
 #include <plugin.hpp>
 #include <CRT/crt.hpp>
 #include <PluginSettings.hpp>
+#include <SimpleString.hpp>
 #include "CompareLng.hpp"
 #include "version.hpp"
 #include <initguid.h>
@@ -538,21 +539,17 @@ static void FreePanelIndex(struct FileIndex *pIndex)
  ****************************************************************************/
 static int GetDirList(OwnPanelInfo *PInfo, const wchar_t *Dir)
 {
-  wchar_t cPathMask[MAX_PATH];
   WIN32_FIND_DATA wfdFindData;
   HANDLE hFind;
   struct PluginPanelItem **pPanelItem = &PInfo->PanelItems;
   int *pItemsNumber = &PInfo->ItemsNumber;
-  {
-    size_t dirLen = lstrlen(Dir);
-    if (dirLen > ARRAYSIZE(cPathMask) - sizeof(L"\\*")/sizeof(wchar_t))
-      return FALSE;
-  }
   PInfo->lpwszCurDir = wcsdup(Dir);
   *pPanelItem = NULL;
   *pItemsNumber = 0;
 
-  if ((hFind = FindFirstFile(lstrcat(lstrcpy(cPathMask, Dir), L"\\*"), &wfdFindData)) == INVALID_HANDLE_VALUE)
+  string strPathMask(Dir);
+  strPathMask += L"\\*";
+  if ((hFind = FindFirstFile(strPathMask, &wfdFindData)) == INVALID_HANDLE_VALUE)
     return TRUE;
 
   int iRet = TRUE;

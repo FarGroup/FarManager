@@ -10,4 +10,4 @@ DOCS = CmpEng.hlf CmpRus.hlf CompEng.lng CompRus.lng
 
 !include ..\makefile_vc_target_inc
 
-$(OBJDIR)\Compare.obj: Compare.cpp CompareLng.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp $(COMINC)\PluginSettings.hpp
+$(OBJDIR)\Compare.obj: Compare.cpp CompareLng.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\SimpleString.hpp
