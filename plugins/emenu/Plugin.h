@@ -2,7 +2,7 @@
 #define _PLUGIN_H_
 
 #include <CRT/crt.hpp>
-#include "plugin.hpp"
+#include <plugin.hpp>
 #include <shlobj.h>
 #include "auto_sz.h"
 

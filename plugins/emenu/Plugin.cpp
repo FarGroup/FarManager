@@ -1,17 +1,17 @@
-#include "plugin.h"
+#include "Plugin.h"
 #include <comdef.h>
 #include <stddef.h>
 #include "resource.h"
 #include "MenuDlg.h"
 #include "FarMenu.h"
 #include "Pidl.h"
-#include "shlguid.h"
-#include "olethread.h"
-#include "farkeys.hpp"
+#include <shlguid.h>
+#include "OleThread.h"
+#include <farkeys.hpp>
 #include "HMenu.h"
-#include "PluginSettings.hpp"
+#include <PluginSettings.hpp>
 #include "guid.hpp"
-#include "DlgBuilder.hpp"
+#include <DlgBuilder.hpp>
 #include <cassert>
 
 // new version of PSDK do not contains standard smart-pointer declaration

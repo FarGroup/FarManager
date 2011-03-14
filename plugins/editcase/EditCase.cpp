@@ -2,9 +2,9 @@
 // or current (nearest) word in the internal editor.
 // This plugin can change case to: lower case, Title Case, UPPER CASE and tOGGLE cASE
 // Besides, it has ability of cyclic case change like MS Word by ShiftF3
-#include "plugin.hpp"
+#include <plugin.hpp>
+#include <PluginSettings.hpp>
 #include "EditLng.hpp"
-#include "PluginSettings.hpp"
 #include "version.hpp"
 #include <initguid.h>
 #include "guid.hpp"
@@ -16,7 +16,7 @@
 #else
 #include <values.h> //MAXINT
 #endif
-#include "CRT/crt.hpp"
+#include <CRT/crt.hpp>
 
 #if defined(__GNUC__)
 #ifdef __cplusplus

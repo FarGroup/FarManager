@@ -1,7 +1,7 @@
 #ifndef _FARMENU_H_
 #define _FARMENU_H_
 
-#include "plugin.hpp"
+#include <plugin.hpp>
 
 class CFarMenu
 {

@@ -1,7 +1,9 @@
+#include <plugin.hpp>
+#include <CRT/crt.hpp>
+#include <PluginSettings.hpp>
+#include <DlgBuilder.hpp>
 #include "Brackets.hpp"
-#include "PluginSettings.hpp"
 #include "BrackLng.hpp"
-#include "DlgBuilder.hpp"
 #include "version.hpp"
 #include <initguid.h>
 #include "guid.hpp"

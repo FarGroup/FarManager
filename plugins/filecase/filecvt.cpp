@@ -1,5 +1,3 @@
-#include "DlgBuilder.hpp"
-
 int ResetButtonID;
 int WordDivEditID;
 

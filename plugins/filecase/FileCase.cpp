@@ -1,8 +1,9 @@
-#include "plugin.hpp"
-#include "CRT/crt.hpp"
+#include <plugin.hpp>
+#include <CRT/crt.hpp>
+#include <PluginSettings.hpp>
+#include <DlgBuilder.hpp>
 #include "FileLng.hpp"
 #include "FileCase.hpp"
-#include "PluginSettings.hpp"
 #include "version.hpp"
 #include <initguid.h>
 #include "guid.hpp"

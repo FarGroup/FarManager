@@ -1,9 +1,9 @@
 #include <CRT/crt.hpp>
 #include <plugin.hpp>
-#include "DlgBuilder.hpp"
+#include <DlgBuilder.hpp>
+#include <PluginSettings.hpp>
 #include "FARCmds.hpp"
 #include "Lang.hpp"
-#include "PluginSettings.hpp"
 #include "version.hpp"
 #include <initguid.h>
 #include "guid.hpp"

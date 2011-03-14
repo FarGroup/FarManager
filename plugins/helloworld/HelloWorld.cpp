@@ -1,6 +1,6 @@
 #include <windows.h>
-#include "plugin.hpp"
-#include "CRT/crt.hpp"
+#include <plugin.hpp>
+#include <CRT/crt.hpp>
 #include "HelloWorldLng.hpp"
 #include "version.hpp"
 #include <initguid.h>

@@ -1,6 +1,3 @@
-#include "plugin.hpp"
-#include "CRT/crt.hpp"
-
 struct Options{
   int IgnoreQuotes;   // Правило: "Игнорировать скобки, заключенные в кавычки"
   int IgnoreAfter;    // Правило: "Игнорировать за скобкой"
