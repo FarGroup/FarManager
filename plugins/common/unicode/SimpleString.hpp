@@ -51,7 +51,7 @@ typedef class SimpleString
 		size_t Len() const { return m_len; }
 		size_t SetLen(size_t len) { if (len < m_size) { m_len = len; m_str[m_len] = 0; } return m_len; }
 
-		size_t GetSize() const { return m_size; }
+		size_t Size() const { return m_size; }
 
 		wchar_t At(size_t index) const { return m_str[index]; }
 
