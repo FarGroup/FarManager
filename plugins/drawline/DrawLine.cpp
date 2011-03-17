@@ -5,6 +5,8 @@
 #include <initguid.h>
 #include "guid.hpp"
 
+#define DRAWLINE_MULTIEDITSTYLE 1
+
 #if defined(__GNUC__)
 
 #ifdef __cplusplus
@@ -33,17 +35,29 @@ const wchar_t *GetMsg(int MsgId);
 static wchar_t BoxChar[]  =
 {
 	// UNICODE
-	0x2502,0x2524,0x2561,0x2562,0x2556,0x2555,0x2563,0x2551,0x2557,0x255d,0x255c,0x255b,0x2510,
-	0x2514,0x2534,0x252c,0x251c,0x2500,0x253c,0x255e,0x255f,0x255a,0x2554,0x2569,0x2566,0x2560,0x2550,0x256c,0x2567,
-	0x2568,0x2564,0x2565,0x2559,0x2558,0x2552,0x2553,0x256b,0x256a,0x2518,0x250c
+	0x2502,0x2524,0x2561,0x2562,0x2556,0x2555,0x2563,0x2551,0x2557,0x255d,
+	0x255c,0x255b,0x2510,0x2514,0x2534,0x252c,0x251c,0x2500,0x253c,0x255e,
+	0x255f,0x255a,0x2554,0x2569,0x2566,0x2560,0x2550,0x256c,0x2567,0x2568,
+	0x2564,0x2565,0x2559,0x2558,0x2552,0x2553,0x256b,0x256a,0x2518,0x250c
 };
 
+// see BoxChar[?]           │   ┤   ╡   ╢   ╖   ╕   ╣   ║   ╗   ╝   ╜   ╛   ┐   └   ┴   ┬   ├   ─   ┼   ╞   ╟   ╚   ╔   ╩   ╦   ╠   ═   ╬   ╧   ╨   ╤   ╥   ╙   ╘   ╒   ╓   ╫   ╪   ┘   ┌
 static short BoxLeft[]  = { 0 , 1 , 2 , 1 , 1 , 2 , 2 , 0 , 2 , 2 , 1 , 2 , 1 , 0 , 1 , 1 , 0 , 1 , 1 , 0 , 0 , 0 , 0 , 2 , 2 , 0 , 2 , 2 , 2 , 1 , 2 , 1 , 0 , 0 , 0 , 0 , 1 , 2 , 1 , 0 };
 static short BoxUp[]    = { 1 , 1 , 1 , 2 , 0 , 0 , 2 , 2 , 0 , 2 , 2 , 1 , 0 , 1 , 1 , 0 , 1 , 0 , 1 , 1 , 2 , 2 , 0 , 2 , 0 , 2 , 0 , 2 , 1 , 2 , 0 , 0 , 2 , 1 , 0 , 0 , 2 , 1 , 1 , 0 };
 static short BoxRight[] = { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 1 , 1 , 1 , 1 , 1 , 2 , 1 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 1 , 2 , 1 , 1 , 2 , 2 , 1 , 1 , 2 , 0 , 1 };
 static short BoxDown[]  = { 1 , 1 , 1 , 2 , 2 , 1 , 2 , 2 , 2 , 0 , 0 , 0 , 1 , 0 , 0 , 1 , 1 , 0 , 1 , 1 , 2 , 0 , 2 , 0 , 2 , 2 , 0 , 2 , 0 , 0 , 1 , 2 , 0 , 0 , 1 , 2 , 2 , 1 , 0 , 1 };
 
 static struct PluginStartupInfo Info;
+
+enum DirectionType{
+	TDir_None  = 0,
+	TDir_Left  = 1,
+	TDir_Right = 2,
+	TDir_Up    = 3,
+	TDir_Down  = 4,
+};
+
+static DirectionType Present_Direction=TDir_None;
 
 void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 {
@@ -75,6 +89,10 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	bool Done=false;
 	INPUT_RECORD rec;
 	SetTitle(LineWidth,(LineWidth==1)?MTitleSingle:MTitleDouble);
+
+	struct EditorUndoRedo eur;
+	eur.Command=EUR_BEGIN;
+	Info.EditorControl(-1,ECTL_UNDOREDO,0,(INT_PTR)&eur);
 
 	while (!Done)
 	{
@@ -161,6 +179,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 				break;
 			case VK_F1:
 				Info.ShowHelp(Info.ModuleName,NULL,0);
+				Present_Direction=TDir_None;
 				break;
 			case VK_F2:
 
@@ -169,21 +188,44 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 				{
 					LineWidth=3-LineWidth;
 					SetTitle(LineWidth,((LineWidth==1)?MTitleSingle:MTitleDouble));
+					Present_Direction=TDir_None;
 				}
 
 				break;
 			default:
 
-				if ((KeyCode>=VK_PRIOR && KeyCode<=VK_DOWN) ||
-				        (KeyCode>=VK_NUMPAD0 && KeyCode<=VK_NUMPAD9))
+				if ((KeyCode>=VK_PRIOR && KeyCode<=VK_DOWN) || (KeyCode>=VK_NUMPAD0 && KeyCode<=VK_NUMPAD9))
 				{
 					if (rec.Event.KeyEvent.dwControlKeyState & SHIFT_PRESSED)
-						ProcessShiftKey(KeyCode,LineWidth);
+					{
+						struct EditorUndoRedo eur2;
+						eur2.Command=EUR_BEGIN;
+						Info.EditorControl(-1,ECTL_UNDOREDO,0,(INT_PTR)&eur2);
+
+						#if defined(DRAWLINE_MULTIEDITSTYLE)
+						if (rec.Event.KeyEvent.dwControlKeyState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED))
+						{
+							EditorInfo ei;
+							Info.EditorControl(-1,ECTL_GETINFO,0,(INT_PTR)&ei);
+
+							for (int i=0; i < ei.TabSize; ++i)
+								ProcessShiftKey(KeyCode,LineWidth);
+						}
+						else
+						#endif
+							ProcessShiftKey(KeyCode,LineWidth);
+						eur2.Command=EUR_END;
+						Info.EditorControl(-1,ECTL_UNDOREDO,0,(INT_PTR)&eur2);
+					}
 					else
+					{
+						Present_Direction=TDir_None;
 						Info.EditorControl(-1,ECTL_PROCESSINPUT,0,(INT_PTR)&rec);
+					}
 				}
 				else
 				{
+					Present_Direction=TDir_None;
 					if (KeyCode < VK_F3 || KeyCode > VK_F12)
 						Info.EditorControl(-1,ECTL_PROCESSINPUT,0,(INT_PTR)&rec);
 
@@ -196,6 +238,10 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 
 	Info.EditorControl(-1,ECTL_SETTITLE,0,0);
 	Info.EditorControl(-1,ECTL_SETKEYBAR,0,0);
+
+	eur.Command=EUR_END;
+	Info.EditorControl(-1,ECTL_UNDOREDO,0,(INT_PTR)&eur);
+
 	Reenter=false;
 	return INVALID_HANDLE_VALUE;
 }
@@ -259,6 +305,7 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
 		esp.Overtype=-1;
 		Info.EditorControl(-1,ECTL_SETPOSITION,0,(INT_PTR)&esp);
 		Info.EditorControl(-1,ECTL_INSERTSTRING,0,0);
+
 		esp.CurLine=ei.CurLine;
 		esp.CurPos=ei.CurTabPos;
 		Info.EditorControl(-1,ECTL_SETPOSITION,0,(INT_PTR)&esp);
@@ -270,7 +317,56 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
 		Info.EditorControl(-1,ECTL_EXPANDTABS,0,(INT_PTR)&StringNumber);
 	}
 
+	#if defined(DRAWLINE_MULTIEDITSTYLE)
+	bool shiftCursor=false;
+
+	switch (KeyCode)
+	{
+		case VK_UP:
+		case VK_NUMPAD8:
+			if (Present_Direction == TDir_Up && esp.CurLine > 0)
+			{
+				esp.CurLine--;
+				shiftCursor=true;
+			}
+			Present_Direction = TDir_Up;
+			break;
+		case VK_DOWN:
+		case VK_NUMPAD2:
+			if (Present_Direction == TDir_Down)
+			{
+				esp.CurLine++;
+				shiftCursor=true;
+			}
+			Present_Direction = TDir_Down;
+			break;
+		case VK_LEFT:
+		case VK_NUMPAD4:
+			if (Present_Direction == TDir_Left && esp.CurPos > 0)
+			{
+				esp.CurPos--;
+				shiftCursor=true;
+			}
+			Present_Direction = TDir_Left;
+			break;
+		case VK_RIGHT:
+		case VK_NUMPAD6:
+			if (Present_Direction == TDir_Right)
+			{
+				esp.CurPos++;
+				shiftCursor=true;
+			}
+			Present_Direction = TDir_Right;
+			break;
+	}
+
+	if (shiftCursor)
+		Info.EditorControl(-1,ECTL_SETPOSITION,0,(INT_PTR)&esp);
+
+	#endif
+
 	Info.EditorControl(-1,ECTL_GETINFO,0,(INT_PTR)&ei);
+
 	struct EditorGetString egs;
 	egs.StringNumber=ei.CurLine;
 	Info.EditorControl(-1,ECTL_GETSTRING,0,(INT_PTR)&egs);
@@ -281,6 +377,7 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
 		wmemset(NewString+egs.StringLength,L' ',StringLength-egs.StringLength);
 
 	wmemcpy(NewString,egs.StringText,egs.StringLength);
+
 	int LeftLine,UpLine,RightLine,DownLine;
 	GetEnvType(NewString,StringLength,&ei,LeftLine,UpLine,RightLine,DownLine);
 
@@ -293,8 +390,10 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
 			if (LeftLine==0 && RightLine==0)
 				DownLine=UpLine;
 
+			#if !defined(DRAWLINE_MULTIEDITSTYLE)
 			if (esp.CurLine>0)
 				esp.CurLine--;
+			#endif
 
 			break;
 		case VK_DOWN:
@@ -304,7 +403,9 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
 			if (LeftLine==0 && RightLine==0)
 				UpLine=DownLine;
 
+			#if !defined(DRAWLINE_MULTIEDITSTYLE)
 			esp.CurLine++;
+			#endif
 			break;
 		case VK_LEFT:
 		case VK_NUMPAD4:
@@ -313,8 +414,10 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
 			if (UpLine==0 && DownLine==0)
 				RightLine=LeftLine;
 
+			#if !defined(DRAWLINE_MULTIEDITSTYLE)
 			if (esp.CurPos>0)
 				esp.CurPos--;
+			#endif
 
 			break;
 		case VK_RIGHT:
@@ -324,7 +427,9 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
 			if (UpLine==0 && DownLine==0)
 				LeftLine=RightLine;
 
+			#if !defined(DRAWLINE_MULTIEDITSTYLE)
 			esp.CurPos++;
+			#endif
 			break;
 	}
 
@@ -336,8 +441,7 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
 
 	for (size_t I=0; I<sizeof(BoxChar)/sizeof(wchar_t); I++)
 	{
-		if (LeftLine==BoxLeft[I] && UpLine==BoxUp[I] &&
-		        RightLine==BoxRight[I] && DownLine==BoxDown[I])
+		if (LeftLine==BoxLeft[I] && UpLine==BoxUp[I] && RightLine==BoxRight[I] && DownLine==BoxDown[I])
 		{
 			NewString[ei.CurPos]=BoxChar[I];
 			struct EditorSetString ess;
@@ -360,9 +464,11 @@ void GetEnvType(wchar_t *NewString,int StringLength,struct EditorInfo *ei,
                 int &LeftLine,int &UpLine,int &RightLine,int &DownLine)
 {
 	wchar_t OldChar[3];
+
 	OldChar[0]=ei->CurPos>0 ? NewString[ei->CurPos-1]:L' ';
 	OldChar[1]=NewString[ei->CurPos];
 	OldChar[2]=ei->CurPos<StringLength-1 ? NewString[ei->CurPos+1]:L' ';
+
 	wchar_t LeftChar=OldChar[0];
 	wchar_t RightChar=OldChar[2];
 	wchar_t UpChar=L' ';
