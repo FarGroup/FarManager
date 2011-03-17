@@ -998,7 +998,7 @@ int WINAPI ProcessNameA(const char *Param1,char *Param2,DWORD Flags)
 		newFlags|=PN_GENERATENAME|(Flags&0xFF);
 	}
 
-	int ret = ProcessName(strP1,p,size,newFlags);
+	int ret = static_cast<int>(ProcessName(strP1,p,size,newFlags));
 
 	if (newFlags&PN_GENERATENAME)
 		UnicodeToOEM(p,Param2,size);

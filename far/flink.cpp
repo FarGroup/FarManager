@@ -555,7 +555,7 @@ bool DuplicateReparsePoint(const wchar_t *Src,const wchar_t *Dst)
 	return Result;
 }
 
-int WINAPI FarMkLink(const wchar_t *Src,const wchar_t *Dest, LINK_TYPE Type, MKLINK_FLAGS Flags)
+BOOL WINAPI FarMkLink(const wchar_t *Src,const wchar_t *Dest, LINK_TYPE Type, MKLINK_FLAGS Flags)
 {
 	int Result=0;
 

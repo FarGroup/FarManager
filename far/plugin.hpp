@@ -1234,9 +1234,9 @@ enum WINDOWINFO_TYPE
 {
 #ifdef FAR_USE_INTERNALS
 	WTYPE_VIRTUAL,
-	// ??????? ?? ???????? ???????????????? ?????????
-	// WTYPE_* ? MODALTYPE_* (frame.hpp)!!!
-	// (? ?? ???? ??????? ???? ???????????, ???? ???????? ?? ????????? ;)
+	// ПРОСЬБА НЕ ЗАБЫВАТЬ СИНХРОНИЗИРОВАТЬ ИЗМЕНЕНИЯ
+	// WTYPE_* и MODALTYPE_* (frame.hpp)!!!
+	// (и не надо убирать этот комментарий, пока ситуация не изменится ;)
 #endif // END FAR_USE_INTERNALS
 	WTYPE_PANELS=1,
 	WTYPE_VIEWER,
@@ -1877,7 +1877,7 @@ typedef int (WINAPIV *FARSTDSSCANF)(const wchar_t *Buffer, const wchar_t *Format
 typedef void (WINAPI *FARSTDQSORT)(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
 typedef void (WINAPI *FARSTDQSORTEX)(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *,void *userparam),void *userparam);
 typedef void   *(WINAPI *FARSTDBSEARCH)(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
-typedef int (WINAPI *FARSTDGETFILEOWNER)(const wchar_t *Computer,const wchar_t *Name,wchar_t *Owner,int Size);
+typedef size_t (WINAPI *FARSTDGETFILEOWNER)(const wchar_t *Computer,const wchar_t *Name,wchar_t *Owner,size_t Size);
 typedef int (WINAPI *FARSTDGETNUMBEROFLINKS)(const wchar_t *Name);
 typedef int (WINAPI *FARSTDATOI)(const wchar_t *s);
 typedef __int64(WINAPI *FARSTDATOI64)(const wchar_t *s);
@@ -1890,7 +1890,6 @@ typedef wchar_t   *(WINAPI *FARSTDTRUNCSTR)(wchar_t *Str,int MaxLength);
 typedef wchar_t   *(WINAPI *FARSTDTRUNCPATHSTR)(wchar_t *Str,int MaxLength);
 typedef wchar_t   *(WINAPI *FARSTDQUOTESPACEONLY)(wchar_t *Str);
 typedef const wchar_t*(WINAPI *FARSTDPOINTTONAME)(const wchar_t *Path);
-typedef int (WINAPI *FARSTDGETPATHROOT)(const wchar_t *Path,wchar_t *Root, int DestSize);
 typedef BOOL (WINAPI *FARSTDADDENDSLASH)(wchar_t *Path);
 typedef int (WINAPI *FARSTDCOPYTOCLIPBOARD)(const wchar_t *Data);
 typedef wchar_t *(WINAPI *FARSTDPASTEFROMCLIPBOARD)(void);
@@ -1916,7 +1915,7 @@ static const PROCESSNAME_FLAGS
 	PN_GENERATENAME = 0x0000000000020000ULL,
 	PN_SKIPPATH     = 0x0000000001000000ULL;
 
-typedef int (WINAPI *FARSTDPROCESSNAME)(const wchar_t *param1, wchar_t *param2, DWORD size, PROCESSNAME_FLAGS flags);
+typedef size_t (WINAPI *FARSTDPROCESSNAME)(const wchar_t *param1, wchar_t *param2, size_t size, PROCESSNAME_FLAGS flags);
 
 typedef void (WINAPI *FARSTDUNQUOTE)(wchar_t *Str);
 
@@ -1928,7 +1927,7 @@ static const XLAT_FLAGS
 	XLAT_CONVERTALLCMDLINE = 0x0000000000010000ULL;
 
 
-typedef size_t (WINAPI *FARSTDKEYTOKEYNAME)(int Key,wchar_t *KeyText,size_t Size);
+typedef size_t (WINAPI *FARSTDKEYTOKEYNAME)(int Key, wchar_t *KeyText, size_t Size);
 
 typedef wchar_t*(WINAPI *FARSTDXLAT)(wchar_t *Line,int StartPos,int EndPos,XLAT_FLAGS Flags);
 
@@ -1947,8 +1946,9 @@ static const FRSMODE
 	FRS_SCANSYMLINK          = 0x0000000000000004ULL;
 
 typedef void (WINAPI *FARSTDRECURSIVESEARCH)(const wchar_t *InitDir,const wchar_t *Mask,FRSUSERFUNC Func,FRSMODE Flags,void *Param);
-typedef int (WINAPI *FARSTDMKTEMP)(wchar_t *Dest, DWORD size, const wchar_t *Prefix);
+typedef size_t (WINAPI *FARSTDMKTEMP)(wchar_t *Dest, size_t DestSize, const wchar_t *Prefix);
 typedef void (WINAPI *FARSTDDELETEBUFFER)(void *Buffer);
+typedef size_t (WINAPI *FARSTDGETPATHROOT)(const wchar_t *Path,wchar_t *Root, size_t DestSize);
 
 enum LINK_TYPE
 {
@@ -1966,8 +1966,8 @@ static const MKLINK_FLAGS
 	MLF_SHOWERRMSG       = 0x0000000000010000ULL,
 	MLF_DONOTUPDATEPANEL = 0x0000000000020000ULL;
 
-typedef int (WINAPI *FARSTDMKLINK)(const wchar_t *Src,const wchar_t *Dest,enum LINK_TYPE Type, MKLINK_FLAGS Flags);
-typedef int (WINAPI *FARGETREPARSEPOINTINFO)(const wchar_t *Src, wchar_t *Dest,int DestSize);
+typedef BOOL (WINAPI *FARSTDMKLINK)(const wchar_t *Src,const wchar_t *Dest,enum LINK_TYPE Type, MKLINK_FLAGS Flags);
+typedef size_t (WINAPI *FARGETREPARSEPOINTINFO)(const wchar_t *Src, wchar_t *Dest, size_t DestSize);
 
 enum CONVERTPATHMODES
 {
@@ -1976,9 +1976,9 @@ enum CONVERTPATHMODES
 	CPM_NATIVE,
 };
 
-typedef int (WINAPI *FARCONVERTPATH)(enum CONVERTPATHMODES Mode, const wchar_t *Src, wchar_t *Dest, int DestSize);
+typedef size_t (WINAPI *FARCONVERTPATH)(enum CONVERTPATHMODES Mode, const wchar_t *Src, wchar_t *Dest, size_t DestSize);
 
-typedef DWORD (WINAPI *FARGETCURRENTDIRECTORY)(DWORD Size,wchar_t* Buffer);
+typedef size_t (WINAPI *FARGETCURRENTDIRECTORY)(size_t Size, wchar_t* Buffer);
 
 typedef struct FarStandardFunctions
 {
@@ -2110,10 +2110,10 @@ enum VERSION_STAGE
 
 struct VersionInfo
 {
-	int Major;
-	int Minor;
-	int Revision;
-	int Build;
+	DWORD Major;
+	DWORD Minor;
+	DWORD Revision;
+	DWORD Build;
 	enum VERSION_STAGE Stage;
 };
 
@@ -2214,7 +2214,7 @@ struct KeyBarLabel
 
 struct KeyBarTitles
 {
-	int CountLabels;
+	size_t CountLabels;
 	struct KeyBarLabel *Labels;
 };
 

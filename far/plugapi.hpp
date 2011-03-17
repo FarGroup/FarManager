@@ -59,13 +59,13 @@ int __stdcall farIsUpper(wchar_t Ch);
 int __stdcall farIsAlpha(wchar_t Ch);
 int __stdcall farIsAlphaNum(wchar_t Ch);
 
-int WINAPI farGetFileOwner(const wchar_t *Computer,const wchar_t *Name, wchar_t *Owner,int Size);
+size_t WINAPI farGetFileOwner(const wchar_t *Computer,const wchar_t *Name, wchar_t *Owner,size_t Size);
 
-int WINAPI farConvertPath(CONVERTPATHMODES Mode,const wchar_t *Src,wchar_t *Dest,int DestSize);
+size_t WINAPI farConvertPath(CONVERTPATHMODES Mode,const wchar_t *Src,wchar_t *Dest,size_t DestSize);
 
-int WINAPI farGetReparsePointInfo(const wchar_t *Src,wchar_t *Dest,int DestSize);
+size_t WINAPI farGetReparsePointInfo(const wchar_t *Src,wchar_t *Dest,size_t DestSize);
 
-int WINAPI farGetPathRoot(const wchar_t *Path, wchar_t *Root, int DestSize);
+size_t WINAPI farGetPathRoot(const wchar_t *Path, wchar_t *Root, size_t DestSize);
 
 int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,HANDLE hPlugin,
                                const wchar_t *Dir,struct PluginPanelItem **pPanelItem,
@@ -133,4 +133,4 @@ int WINAPI farMacroControl(HANDLE hHandle, FAR_MACRO_CONTROL_COMMANDS Command, i
 
 int WINAPI farSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2);
 
-DWORD WINAPI farGetCurrentDirectory(DWORD Size,wchar_t* Buffer);
+size_t WINAPI farGetCurrentDirectory(size_t Size,wchar_t* Buffer);

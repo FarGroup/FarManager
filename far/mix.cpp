@@ -121,14 +121,14 @@ void WINAPI FarRecursiveSearch(const wchar_t *InitDir,const wchar_t *Mask,FRSUSE
     Template - шаблон по правилам функции mktemp, например "FarTmpXXXXXX"
     Вернет требуемый размер приемника.
 */
-int WINAPI FarMkTemp(wchar_t *Dest, DWORD size, const wchar_t *Prefix)
+size_t WINAPI FarMkTemp(wchar_t *Dest, size_t DestSize, const wchar_t *Prefix)
 {
 	string strDest;
-	if (FarMkTempEx(strDest, Prefix, TRUE) && Dest && size)
+	if (FarMkTempEx(strDest, Prefix, TRUE) && Dest && DestSize)
 	{
-		xwcsncpy(Dest, strDest, size);
+		xwcsncpy(Dest, strDest, DestSize);
 	}
-	return static_cast<int>(strDest.GetLength()+1);
+	return strDest.GetLength()+1;
 }
 
 /*

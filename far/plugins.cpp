@@ -127,13 +127,6 @@ enum
 enum
 {
 	CRC32_GETGLOBALINFOW   = 0x633EC0C4,
-	CRC32_SETSTARTUPINFOW  = 0x972884E8,
-	CRC32_GETPLUGININFOW   = 0xEBDA386B,
-	CRC32_OPENPANELW       = 0x3E6451E4,
-	CRC32_ANALYSEW         = 0x69F30EBB,
-	CRC32_EXITFARW         = 0x4AD48EA6,
-	CRC32_SETFINDLISTW     = 0xF717498F,
-	CRC32_CONFIGUREW       = 0xDA22131C,
 };
 
 DWORD ExportCRC32[] =
@@ -151,13 +144,6 @@ DWORD ExportCRC32[] =
 DWORD ExportCRC32W[] =
 {
 	CRC32_GETGLOBALINFOW,
-	CRC32_SETSTARTUPINFOW,
-	CRC32_GETPLUGININFOW,
-	CRC32_OPENPANELW,
-	CRC32_ANALYSEW,
-	CRC32_EXITFARW,
-	CRC32_SETFINDLISTW,
-	CRC32_CONFIGUREW,
 };
 
 enum PluginType
@@ -745,7 +731,7 @@ HANDLE PluginManager::OpenFilePlugin(
 		}
 		else
 		{
-			AnalyseInfo Info;
+			AnalyseInfo Info={sizeof(Info)};
 			Info.FileName = Name;
 			Info.Buffer = Data;
 			Info.BufferSize = DataSize;
