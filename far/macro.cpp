@@ -423,7 +423,7 @@ static TMacroFunction intMacroFunction[]=
 	{L"UCASE",            1, 0,   MCODE_F_UCASE,            nullptr, 0,nullptr,L"S=UCase(S1)",0,ucaseFunc},
 	{L"WAITKEY",          2, 2,   MCODE_F_WAITKEY,          nullptr, 0,nullptr,L"V=Waitkey([N,[T]])",0,waitkeyFunc},
 	{L"WINDOW.SCROLL",    2, 1,   MCODE_F_WINDOW_SCROLL,    nullptr, 0,nullptr,L"N=Window.Scroll(Lines[,Axis])",0,windowscrollFunc},
-	{L"XLAT",             1, 0,   MCODE_F_XLAT,             nullptr, 0,nullptr,L"S=Xlat(S)",0,xlatFunc},
+	{L"XLAT",             2, 1,   MCODE_F_XLAT,             nullptr, 0,nullptr,L"S=Xlat(S[,Flags])",0,xlatFunc},
 
 	{0}
 };
@@ -2201,13 +2201,20 @@ static bool dateFunc(const TMacroFunction*)
 	return Ret;
 }
 
-// S=xlat(S)
+// S=xlat(S[,Flags])
+/*
+  Flags:
+  	XLAT_SWITCHKEYBLAYOUT  = 1
+	XLAT_SWITCHKEYBBEEP    = 2
+	XLAT_USEKEYBLAYOUTNAME = 4
+*/
 static bool xlatFunc(const TMacroFunction*)
 {
-	TVar Val;
-	VMStack.Pop(Val);
+	TVar Flags; VMStack.Pop(Flags);
+	TVar Val;   VMStack.Pop(Val);
+
 	wchar_t *Str = (wchar_t *)Val.toString();
-	bool Ret=::Xlat(Str,0,StrLength(Str),Opt.XLat.Flags)?true:false;
+	bool Ret=::Xlat(Str,0,StrLength(Str),Flags.i())?true:false;
 	VMStack.Push(TVar(Str));
 	return Ret;
 }
