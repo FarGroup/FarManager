@@ -220,7 +220,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, string* PluginModule, string* Pl
 
 				case KEY_F4:
 					{
-						EditItem(&FolderList, Item);
+						EditItem(&FolderList, Item, false);
 					}
 					break;
 
@@ -306,7 +306,7 @@ void Shortcuts::MakeItemName(size_t Pos, string& str)
 	str = fstr;
 }
 
-void Shortcuts::EditItem(VMenu* Menu, ShortcutItem* Item)
+void Shortcuts::EditItem(VMenu* Menu, ShortcutItem* Item, bool Root)
 {
 	string strNewDir = Item->strFolder;
 
@@ -339,6 +339,10 @@ void Shortcuts::EditItem(VMenu* Menu, ShortcutItem* Item)
 			Item->strFolder = strNewDir;
 			MenuItemEx* MenuItem = Menu->GetItemPtr();
 			MenuItem->strName = Item->strFolder;
+			if(Root)
+			{
+				MakeItemName(Menu->GetSelectPos(), MenuItem->strName);
+			}
 			Menu->SetPosition(-1, -1, -1, -1);
 			Menu->SetUpdateRequired(TRUE);
 			Menu->Show();
@@ -415,7 +419,11 @@ void Shortcuts::Configure()
 
 		case KEY_F4:
 			{
-				EditItem(&FolderList, Item);
+				if(!Item)
+				{
+					Item = Items[Pos].Push();
+				}
+				EditItem(&FolderList, Item, true);
 			}
 			break;
 

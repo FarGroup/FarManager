@@ -59,5 +59,5 @@ private:
 	static const size_t KeyCount = 10;
 	DList<ShortcutItem> Items[KeyCount];
 	void MakeItemName(size_t Pos, string& str);
-	void EditItem(VMenu* Menu, ShortcutItem* Item);
+	void EditItem(VMenu* Menu, ShortcutItem* Item, bool Root);
 };
