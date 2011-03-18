@@ -68,7 +68,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "scrsaver.hpp"
 #include "execute.hpp"
-#include "ffolders.hpp"
+#include "shortcuts.hpp"
 #include "options.hpp"
 #include "pathmix.hpp"
 #include "dirmix.hpp"
@@ -2507,7 +2507,7 @@ BOOL Panel::NeedUpdatePanel(Panel *AnotherPanel)
 }
 
 
-bool Panel::SaveShortcutFolder(int Pos)
+bool Panel::SaveShortcutFolder(int Pos, bool Add)
 {
 	string strShortcutFolder,strPluginModule,strPluginFile,strPluginData;
 
@@ -2530,8 +2530,15 @@ bool Panel::SaveShortcutFolder(int Pos)
 		strShortcutFolder = strCurDir;
 	}
 
-	if (SaveFolderShortcut(Pos,&strShortcutFolder,&strPluginModule,&strPluginFile,&strPluginData))
-		return true;
+	if(Add)
+	{
+		CtrlObject->FolderShortcuts->Add(Pos,strShortcutFolder, strPluginModule, strPluginFile, strPluginData);
+	}
+	else
+	{
+		CtrlObject->FolderShortcuts->Set(Pos,strShortcutFolder, strPluginModule, strPluginFile, strPluginData);
+	}
+
 
 	return true;
 }
@@ -2578,7 +2585,7 @@ bool Panel::ExecShortcutFolder(int Pos)
 {
 	string strShortcutFolder,strPluginModule,strPluginFile,strPluginData;
 
-	if (GetShortcutFolder(Pos,&strShortcutFolder,&strPluginModule,&strPluginFile,&strPluginData))
+	if (CtrlObject->FolderShortcuts->Get(Pos,&strShortcutFolder, &strPluginModule, &strPluginFile, &strPluginData))
 	{
 		Panel *SrcPanel=this;
 		Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);

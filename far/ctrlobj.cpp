@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileowner.hpp"
 #include "dirmix.hpp"
 #include "console.hpp"
+#include "shortcuts.hpp"
 
 ControlObject *CtrlObject;
 
@@ -60,6 +61,7 @@ ControlObject::ControlObject():
 	_OT(SysLog(L"[%p] ControlObject::ControlObject()", this));
 	CtrlObject=this;
 	HiFiles = new HighlightFiles;
+	FolderShortcuts = new Shortcuts();
 	ViewerPosCache = new FilePositionCache();
 	EditorPosCache = new FilePositionCache();
 	FrameManager = new Manager;
@@ -170,6 +172,7 @@ ControlObject::~ControlObject()
 	delete ViewHistory;
 	delete CmdLine;
 	delete HiFiles;
+	delete FolderShortcuts;
 
 	if (Opt.ViOpt.SavePos)
 		ViewerPosCache->Save(L"Viewer\\LastPositions");

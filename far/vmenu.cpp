@@ -558,6 +558,10 @@ int VMenu::DeleteItem(int ID, int Count)
 	// коррекци€ текущей позиции
 	if (SelectPos >= ID && SelectPos < ID+Count)
 	{
+		if(SelectPos==ItemCount)
+		{
+			ID--;
+		}
 		SelectPos = -1;
 		SetSelectPos(ID,1);
 	}
@@ -2628,7 +2632,7 @@ MenuItemEx *VMenu::GetItemPtr(int Position)
 void *VMenu::_GetUserData(MenuItemEx *PItem, void *Data, int Size)
 {
 	int DataSize = PItem->UserDataSize;
-	char *PtrData = PItem->UserData; // PtrData содержит: либо указатель на что-то либо sizeof(void*)!
+	void *PtrData = PItem->UserData; // PtrData содержит: либо указатель на что-то либо sizeof(void*)!
 
 	if (Size > 0 && Data )
 	{
@@ -2641,7 +2645,7 @@ void *VMenu::_GetUserData(MenuItemEx *PItem, void *Data, int Size)
 			}
 			else if (DataSize > 0) // а данные то вообще есть? “.е. если в UserData
 			{                      // есть строка из sizeof(void*) байт (UserDataSize при этом > 0)
-				memmove(Data,PItem->Str4,Min(Size,DataSize));
+				memmove(Data,PItem->UserData, Min(Size,DataSize));
 			}
 			// else а иначе... в PtrData уже указатель сидит!
 		}
@@ -2700,7 +2704,7 @@ int VMenu::_SetUserData(MenuItemEx *PItem,
 			else // Ё“ј —“–ќ ј ѕќћ≈ўј≈“—я ¬ sizeof(void*)!
 			{
 				PItem->UserDataSize=SizeReal;
-				memcpy(PItem->Str4,Data,SizeReal);
+				memcpy(PItem->UserData,Data,SizeReal);
 			}
 		}
 		else // ќк. данные помещаютс€ в sizeof(void*)...

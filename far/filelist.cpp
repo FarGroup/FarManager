@@ -71,7 +71,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "setattr.hpp"
 #include "filetype.hpp"
 #include "execute.hpp"
-#include "ffolders.hpp"
+#include "shortcuts.hpp"
 #include "fnparce.hpp"
 #include "datetime.hpp"
 #include "dirinfo.hpp"
@@ -915,9 +915,10 @@ int FileList::ProcessKey(int Key)
 	if ( !InternalProcessKey )
 	{
 		// Create a folder shortcut?
-		if (Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9)
+		if ((Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9) || (Key>=KEY_CTRLALT0 && Key<=KEY_CTRLALT9))
 		{
-			SaveShortcutFolder(Key-KEY_CTRLSHIFT0);
+			bool Add = (Key>=KEY_CTRLALT0 && Key<=KEY_CTRLALT9);
+			SaveShortcutFolder(Key-(Add?KEY_CTRLALT0:KEY_CTRLSHIFT0), Add);
 			return TRUE;
 		}
 		// Jump to a folder shortcut?

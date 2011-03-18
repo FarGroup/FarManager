@@ -136,7 +136,6 @@ LINK_OBJS = \
 	"$(INTDIR)\farqueue.obj" \
 	"$(INTDIR)\farrtl.obj" \
 	"$(INTDIR)\farwinapi.obj" \
-	"$(INTDIR)\ffolders.obj" \
 	"$(INTDIR)\fileattr.obj" \
 	"$(INTDIR)\fileedit.obj" \
 	"$(INTDIR)\filefilter.obj" \
@@ -215,6 +214,7 @@ LINK_OBJS = \
 	"$(INTDIR)\scrsaver.obj" \
 	"$(INTDIR)\setattr.obj" \
 	"$(INTDIR)\setcolor.obj" \
+	"$(INTDIR)\shortcuts.obj" \
 	"$(INTDIR)\stddlg.obj" \
 	"$(INTDIR)\strmix.obj" \
 	"$(INTDIR)\synchro.obj" \

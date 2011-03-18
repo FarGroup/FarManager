@@ -305,6 +305,61 @@ int MainProcessSEH(string& strEditName,string& strViewName,string& DestName1,str
 	return Result;
 }
 
+void ConvertOldSettings()
+{
+	// use Far2 settings
+	string strFarRoot = Opt.strRegRoot;
+	Opt.strRegRoot.Clear();
+	bool Convert = false;
+	if (!CheckRegKey(L"Software\\Far Manager"))
+	{
+		if (CheckRegKey(L"Software\\Far2"))
+		{
+			Convert = true;
+			CopyKeyTree(L"Software\\Far2", L"Software\\Far Manager",L"Software\\Far2\\PluginHotkeys\0Software\\Far2\\PluginsCache\0");
+		}
+	}
+	Opt.strRegRoot = strFarRoot;
+
+	if(Convert)
+	{
+		CopyLocalKeyTree(L"SavedHistory", CommandHistoryKey);
+		CopyLocalKeyTree(L"SavedViewHistory", ViewEditHistoryKey);
+		CopyLocalKeyTree(L"SavedFolderHistory", FolderHistoryKey);
+		CopyLocalKeyTree(L"SavedDialogHistory", DialogHistoryKey);
+		DeleteRegKey(L"SavedHistory");
+		DeleteRegKey(L"SavedViewHistory");
+		DeleteRegKey(L"SavedFolderHistory");
+		DeleteKeyTree(L"SavedDialogHistory");
+
+		LPCWSTR Names[4]=
+		{
+			L"Shortcut%d",
+			L"PluginModule%d",
+			L"PluginFile%d",
+			L"PluginData%d",
+		};
+		string strData;
+		string strKey;
+		string strName;
+		for(int i = 0; i < 10; i++)
+		{
+			for(int j = 0; j < ARRAYSIZE(Names); j++)
+			{
+				strName.Format(Names[j], i);
+				GetRegKey(L"FolderShortcuts",strName, strData, L"");
+				if(!strData.IsEmpty())
+				{
+					strKey.Format(L"Shortcuts\\%d", i);
+					strName.Format(Names[j], 0);
+					SetRegKey(strKey,strName, strData);
+				}
+			}
+		}
+		DeleteRegKey(L"FolderShortcuts");
+	}
+}
+
 int _cdecl wmain(int Argc, wchar_t *Argv[])
 {
 	apiEnableLowFragmentationHeap();
@@ -579,29 +634,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 		return 1;
 	}
 
-	// use Far2 settings
-	string strFarRoot = Opt.strRegRoot;
-	Opt.strRegRoot.Clear();
-	if (!CheckRegKey(L"Software\\Far Manager"))
-	{
-		if (CheckRegKey(L"Software\\Far2"))
-		{
-			CopyKeyTree(L"Software\\Far2", L"Software\\Far Manager",L"Software\\Far2\\PluginHotkeys\0Software\\Far2\\PluginsCache\0");
-		}
-	}
-	Opt.strRegRoot = strFarRoot;
-
-	if (!CheckRegKey(L"History"))
-	{
-		CopyLocalKeyTree(L"SavedHistory", CommandHistoryKey);
-		CopyLocalKeyTree(L"SavedViewHistory", ViewEditHistoryKey);
-		CopyLocalKeyTree(L"SavedFolderHistory", FolderHistoryKey);
-		CopyLocalKeyTree(L"SavedDialogHistory", DialogHistoryKey);
-		DeleteRegKey(L"SavedHistory");
-		DeleteRegKey(L"SavedViewHistory");
-		DeleteRegKey(L"SavedFolderHistory");
-		DeleteKeyTree(L"SavedDialogHistory");
-	}
+	ConvertOldSettings();
 
 	SetEnvironmentVariable(L"FARLANG",Opt.strLanguage);
 	SetHighlighting();

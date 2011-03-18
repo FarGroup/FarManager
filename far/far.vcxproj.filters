@@ -137,9 +137,6 @@
     <ClCompile Include="farwinapi.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ffolders.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="fileattr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -506,6 +503,9 @@
     <ClCompile Include="window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="shortcuts.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="elevation.hpp">
@@ -632,9 +632,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="farwinapi.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ffolders.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="fileattr.hpp">
@@ -1019,6 +1016,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="window.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shortcuts.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

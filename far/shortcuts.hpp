@@ -1,7 +1,7 @@
 #pragma once
 
 /*
-ffolders.hpp
+shortcuts.hpp
 
 Folder shortcuts
 */
@@ -33,6 +33,31 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-int GetShortcutFolder(int Pos,string *pDestFolder, string *pPluginModule=nullptr, string *pPluginFile=nullptr,string *pPluginData=nullptr);
-int SaveFolderShortcut(int Pos,string *pSrcFolder,string *pPluginModule=nullptr, string *pPluginFile=nullptr,string *pPluginData=nullptr);
-void ShowFolderShortcut();
+#include "DList.hpp"
+
+struct ShortcutItem
+{
+	string strFolder;
+	string strPluginModule;
+	string strPluginFile;
+	string strPluginData;
+};
+
+class VMenu;
+
+class Shortcuts
+{
+public:
+	Shortcuts();
+	~Shortcuts();
+	bool Get(size_t Pos, string* Folder, string* PluginModule, string* PluginFile, string* PluginData);
+	void Set(size_t Pos, const wchar_t* Folder, const wchar_t* PluginModule, const wchar_t* PluginFile, const wchar_t* PluginData);
+	void Add(size_t Pos, const wchar_t* Folder, const wchar_t* PluginModule, const wchar_t* PluginFile, const wchar_t* PluginData);
+	void Configure();
+
+private:
+	static const size_t KeyCount = 10;
+	DList<ShortcutItem> Items[KeyCount];
+	void MakeItemName(size_t Pos, string& str);
+	void EditItem(VMenu* Menu, ShortcutItem* Item);
+};

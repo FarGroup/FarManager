@@ -59,7 +59,6 @@ SRCS = \
 	farqueue.cpp \
 	farrtl.cpp \
 	farwinapi.cpp \
-	ffolders.cpp \
 	fileattr.cpp \
 	fileedit.cpp \
 	filefilter.cpp \
@@ -138,6 +137,7 @@ SRCS = \
 	scrsaver.cpp \
 	setattr.cpp \
 	setcolor.cpp \
+	shortcuts.cpp \
 	stddlg.cpp \
 	strmix.cpp \
 	synchro.cpp \

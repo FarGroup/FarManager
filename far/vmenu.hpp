@@ -102,12 +102,7 @@ struct MenuItemEx
 
 	DWORD  AccelKey;
 	int    UserDataSize;           // –азмер пользовательских данных
-	union                          // ѕользовательские данные:
-	{
-		char  *UserData;             // - указатель!
-		char   Str4[sizeof(char*)];  // - strlen(строка)+1 <= sizeof(char*)
-	};
-
+	void *UserData;                // ѕользовательские данные:
 	short AmpPos;                  // ѕозици€ автоназначенной подсветки
 	short Len[2];                  // размеры 2-х частей
 	short Idx2;                    // начало 2-й части

@@ -414,7 +414,7 @@ size_t KeyBar::Change(const KeyBarTitles *Kbt)
 		KEY_CTRL|KEY_ALT|KEY_SHIFT,KBL_CTRLALTSHIFT,
 	};
 
-	for (int I = 0; I < Kbt->CountLabels; ++I)
+	for (size_t I = 0; I < Kbt->CountLabels; ++I)
 	{
 
 		WORD Pos=Kbt->Labels[I].Key.VirtualKeyCode;

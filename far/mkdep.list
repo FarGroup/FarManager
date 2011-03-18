@@ -78,8 +78,6 @@ farrtl.cpp
 farrtl.hpp
 farwinapi.cpp
 farwinapi.hpp
-ffolders.cpp
-ffolders.hpp
 fileattr.cpp
 fileattr.hpp
 fileedit.cpp
@@ -243,6 +241,8 @@ setattr.cpp
 setattr.hpp
 setcolor.cpp
 setcolor.hpp
+shortcuts.cpp
+shortcuts.hpp
 stddlg.cpp
 stddlg.hpp
 strmix.cpp

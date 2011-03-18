@@ -4397,6 +4397,15 @@ l:
 "Accesos a directorio"
 
 MFolderShortcutBottom
+"Редактирование: Del,Ins,ShiftIns,F4"
+"Edit: Del,Ins,ShiftIns,F4"
+"Edit: Del,Ins,ShiftIns,F4"
+"Bearb.: Entf,Einf,ShiftEinf,F4"
+"Szerk.: Del,Ins,ShiftIns,F4"
+"Edycja: Del,Ins,ShiftIns,F4"
+"Editar: Del,Ins,ShiftIns,F4"
+
+MFolderShortcutBottomSub
 "Редактирование: Del,Ins,F4"
 "Edit: Del,Ins,F4"
 "Edit: Del,Ins,F4"

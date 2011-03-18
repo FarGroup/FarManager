@@ -49,7 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "clipboard.hpp"
 #include "xlat.hpp"
 #include "datetime.hpp"
-#include "ffolders.hpp"
+#include "shortcuts.hpp"
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "panelmix.hpp"
@@ -534,7 +534,7 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
 	{
 		string strPluginModule, strPluginFile, strPluginData;
 
-		if (GetShortcutFolder(Key-KEY_RCTRL0,&strPathName,&strPluginModule,&strPluginFile,&strPluginData))
+		if (CtrlObject->FolderShortcuts->Get(Key-KEY_RCTRL0,&strPathName,&strPluginModule,&strPluginFile,&strPluginData))
 			RetCode=TRUE;
 	}
 	else // Пути/имена?

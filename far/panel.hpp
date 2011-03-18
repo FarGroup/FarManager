@@ -283,7 +283,7 @@ class Panel:public ScreenObject
 		virtual BOOL GetItem(int,void *) {return FALSE;};
 
 		bool ExecShortcutFolder(int Pos);
-		bool SaveShortcutFolder(int Pos);
+		bool SaveShortcutFolder(int Pos, bool Add);
 
 		static void EndDrag();
 		virtual void Hide();

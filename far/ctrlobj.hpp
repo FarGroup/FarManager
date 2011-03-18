@@ -43,6 +43,7 @@ class MenuBar;
 class HighlightFiles;
 class FilePositionCache;
 class FilePanels;
+class Shortcuts;
 
 class ControlObject
 {
@@ -70,6 +71,7 @@ class ControlObject
 		FilePositionCache *ViewerPosCache,*EditorPosCache;
 		KeyMacro Macro;
 		PluginManager Plugins;
+		Shortcuts* FolderShortcuts;
 
 		static void ShowCopyright(DWORD Flags=0);
 };
