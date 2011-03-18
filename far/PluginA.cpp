@@ -516,7 +516,7 @@ void FreeUnicodeKeyBarTitles(KeyBarTitles *kbtW)
 {
 	if (kbtW && kbtW->CountLabels && kbtW->Labels)
 	{
-		for (int i=0; i < kbtW->CountLabels; i++)
+		for (size_t i=0; i < kbtW->CountLabels; i++)
 		{
 			if (kbtW->Labels[i].Text)
 				xf_free((void*)kbtW->Labels[i].Text);
