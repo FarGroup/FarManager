@@ -4452,7 +4452,7 @@ MNeedNearPath
 
 MSaveThisShortcut
 "Запомнить эту ссылку?"
-"Save this shortcuts?"
+"Save this shortcut?"
 "Uložit tyto zkratky?"
 "Verknüpfung speichern?"
 "Mentsem a gyorsbillentyűket?"
