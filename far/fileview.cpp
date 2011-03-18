@@ -211,6 +211,34 @@ void FileViewer::DisplayObject()
 
 __int64 FileViewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
+	if (OpCode == MCODE_F_KEYBAR_SHOW)
+	{
+		int PrevMode=Opt.ViOpt.ShowKeyBar?2:1;
+		switch (iParam)
+		{
+			case 0:
+				break;
+			case 1:
+				Opt.ViOpt.ShowKeyBar=1;
+				ViewKeyBar.Show();
+				Show();
+				KeyBarVisible = Opt.ViOpt.ShowKeyBar;
+				break;
+			case 2:
+				Opt.ViOpt.ShowKeyBar=0;
+				ViewKeyBar.Hide();
+				Show();
+				KeyBarVisible = Opt.ViOpt.ShowKeyBar;
+				break;
+			case 3:
+				ProcessKey(KEY_CTRLB);
+				break;
+			default:
+				PrevMode=0;
+				break;
+		}
+		return PrevMode;
+	}
 	return View.VMProcess(OpCode,vParam,iParam);
 }
 

@@ -1308,6 +1308,7 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(F_BEEP),                     // N=beep([N])
 		DEF_MCODE_(F_KBDLAYOUT),                // N=kbdLayout([N])
 		DEF_MCODE_(F_WINDOW_SCROLL),               // N=Window.Scroll(Lines[,Axis])
+		DEF_MCODE_(F_KEYBAR_SHOW),              // N=KeyBar.Show([N])
 
 	};
 	string Name;

@@ -1,3 +1,25 @@
+svs 18.03.2011 16:51:39 +0300 - build 1913
+
+1. Macro: Добавлена функция Keybar.Show()
+
+     N=KeyBar.Show([N])
+
+        0 - get state
+            ret: 0 - hide, 1 - show, -1 - KeyBar not found
+        1 - show
+        2 - hide
+        3 - swap
+        ret: prev mode or -1 - KeyBar not found
+
+   KeyBar found в панелях, редакторе, вьювере. И только если они текущие.
+   В остальных (в т.ч. в хелпе) возвращается -1.
+
+   Например, Esc в панелях 
+      CtrlO $if (APanel.Visible && PPanel.Visible) KeyBar.Show(1) $else KeyBar.Show(2) $end 
+   при погашенных панелях гасить и кейбар.
+
+2. В диалоге назначения макроклавиш отвалился выбор из комбобокса.
+
 drkns 18.03.2011 10:06:22 +0200 - build 1912
 
 1. Уточнение 1911.

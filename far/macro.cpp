@@ -345,6 +345,7 @@ static bool xlatFunc(const TMacroFunction*);
 static bool pluginsFunc(const TMacroFunction*);
 static bool usersFunc(const TMacroFunction*);
 static bool windowscrollFunc(const TMacroFunction*);
+static bool keybarshowFunc(const TMacroFunction*);
 
 static bool __CheckCondForSkip(DWORD Op);
 
@@ -391,6 +392,7 @@ static TMacroFunction intMacroFunction[]=
 	{L"ITOA",             2, 1,   MCODE_F_ITOA,             nullptr, 0,nullptr,L"S=Itoa(N[,radix])",0,itowFunc},
 	{L"KBDLAYOUT",        1, 1,   MCODE_F_KBDLAYOUT,        nullptr, 0,nullptr,L"N=kbdLayout([N])",0,kbdLayoutFunc},
 	{L"KEY",              1, 0,   MCODE_F_KEY,              nullptr, 0,nullptr,L"S=Key(V)",0,keyFunc},
+	{L"KEYBAR.SHOW",      1, 1,   MCODE_F_KEYBAR_SHOW,      nullptr, 0,nullptr,L"N=KeyBar.Show([N])",0,keybarshowFunc},
 	{L"LCASE",            1, 0,   MCODE_F_LCASE,            nullptr, 0,nullptr,L"S=LCase(S1)",0,lcaseFunc},
 	{L"LEN",              1, 0,   MCODE_F_LEN,              nullptr, 0,nullptr,L"N=Len(S)",0,lenFunc},
 	{L"MAX",              2, 0,   MCODE_F_MAX,              nullptr, 0,nullptr,L"N=Max(N1,N2)",0,maxFunc},
@@ -2049,6 +2051,36 @@ static bool sleepFunc(const TMacroFunction*)
 	VMStack.Push(0ll);
 	return false;
 }
+
+
+// N=KeyBar.Show([N])
+static bool keybarshowFunc(const TMacroFunction*)
+{
+	/*
+	Mode:
+		0 - visible?
+			ret: 0 - hide, 1 - show, -1 - KeyBar not found
+		1 - show
+		2 - hide
+		3 - swap
+		ret: prev mode or -1 - KeyBar not found
+    */
+	Frame *f=FrameManager->GetCurrentFrame(), *fo=nullptr;
+
+	//f=f->GetTopModal();
+	while (f)
+	{
+		fo=f;
+		f=f->GetTopModal();
+	}
+
+	if (!f)
+		f=fo;
+
+	VMStack.Push(f?f->VMProcess(MCODE_F_KEYBAR_SHOW,nullptr,VMStack.Pop().getInteger())-1:-1);
+	return f?true:false;
+}
+
 
 // S=key(V)
 static bool keyFunc(const TMacroFunction*)
@@ -5984,9 +6016,9 @@ INT_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,INT_P
 	{
 		LastKey=0;
 		_SVS(SysLog(L"[%d] ((FarDialogItem*)Param2)->PtrData='%s'",__LINE__,((FarDialogItem*)Param2)->PtrData));
-		Param2=KeyNameToKey(((FarDialogItem*)Param2)->PtrData);
+		key=KeyNameToKey(((FarDialogItem*)Param2)->PtrData);
 
-		if (Param2 != -1 && !KMParam->Recurse)
+		if (key != -1 && !KMParam->Recurse)
 			goto M1;
 	}
 	else if (Msg == DN_CONTROLINPUT && record->EventType==KEY_EVENT && (((key&KEY_END_SKEY) < KEY_END_FKEY) ||

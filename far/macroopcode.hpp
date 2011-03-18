@@ -218,6 +218,7 @@ enum MACRO_OP_CODE
 	MCODE_F_BEEP,                     // N=beep([N])
 	MCODE_F_KBDLAYOUT,                // N=kbdLayout([N])
 	MCODE_F_WINDOW_SCROLL,            // N=Window.Scroll(Lines[,Axis])
+	MCODE_F_KEYBAR_SHOW,              // N=KeyBar.Show([N])
 
 	/* ************************************************************************* */
 	// булевые переменные - различные состояния

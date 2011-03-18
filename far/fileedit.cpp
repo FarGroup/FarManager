@@ -797,6 +797,35 @@ __int64 FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	if (OpCode == MCODE_V_ITEMCOUNT || OpCode == MCODE_V_EDITORLINES)
 		return (__int64)(m_editor->NumLastLine);
 
+	if (OpCode == MCODE_F_KEYBAR_SHOW)
+	{
+		int PrevMode=Opt.EdOpt.ShowKeyBar?2:1;
+		switch (iParam)
+		{
+			case 0:
+				break;
+			case 1:
+				Opt.EdOpt.ShowKeyBar=1;
+				EditKeyBar.Show();
+				Show();
+				KeyBarVisible = Opt.EdOpt.ShowKeyBar;
+				break;
+			case 2:
+				Opt.EdOpt.ShowKeyBar=0;
+				EditKeyBar.Hide();
+				Show();
+				KeyBarVisible = Opt.EdOpt.ShowKeyBar;
+				break;
+			case 3:
+				ProcessKey(KEY_CTRLB);
+				break;
+			default:
+				PrevMode=0;
+				break;
+		}
+		return PrevMode;
+	}
+
 	return m_editor->VMProcess(OpCode,vParam,iParam);
 }
 
