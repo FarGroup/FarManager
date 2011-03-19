@@ -4,7 +4,7 @@
 
 #define __US_DELTA 20
 
-class BaseTraits 
+class BaseTraits
 {
 public:
 
@@ -27,10 +27,10 @@ public:
 	{
 		return StrLengthW(lpData);
 	}
-	
+
 	static size_t GetAnsiDataLength(const char* lpData, size_t nLength, int nCodePage)
 	{
-		return MultiByteToWideChar(nCodePage, 0, lpData, nLength, NULL, 0); 
+		return MultiByteToWideChar(nCodePage, 0, lpData, nLength, NULL, 0);
 	}
 
 	static void CopyAnsiData(wchar_t* lpBuffer, size_t nSize, const char* lpData, size_t nLength, int nCodePage)
@@ -71,7 +71,7 @@ public:
 
 	static size_t GetAnsiDataLength(const char* lpData, size_t nLength, int nCodePage)
 	{
-		return nLength; 
+		return nLength;
 	}
 
 	static void CopyAnsiData(char* lpBuffer, size_t nSize, const char* lpData, size_t nLength, int nCodePage)
@@ -119,7 +119,7 @@ private:
 	size_t m_nLength;
 	size_t m_nSize;
 	size_t m_nDelta;
-	
+
 	int m_nRefCount;
 	T* m_pData;
 
@@ -127,8 +127,8 @@ private:
 	{
 		if ( nSize <= m_nDelta )
 			*nNewSize = m_nDelta;
-		else 
-		
+		else
+
 		if ( nSize%m_nDelta > 0 )
 			*nNewSize = (nSize/m_nDelta+1)*m_nDelta;
 		else
@@ -137,10 +137,10 @@ private:
 		return new T[*nNewSize];
 	}
 
-	void FreeData(T *pData) 
+	void FreeData(T *pData)
 	{
 		if ( pData )
-			delete [] pData; 
+			delete [] pData;
 	}
 
 public:
@@ -151,57 +151,57 @@ public:
 
 		m_nLength = 0;
 		m_nRefCount = 1;
-		
+
 		m_pData = AllocData(nSize, &m_nSize);
-		
+
 		if ( m_pData )
 			*m_pData = 0;
 		else
 			m_nSize = 0; //and what?
 	}
 
-	~StringData() 
-	{ 
-		FreeData(m_pData); 
+	~StringData()
+	{
+		FreeData(m_pData);
 	}
 
 	size_t SetLength(size_t nLength)
 	{
 		m_nLength = nLength;
 		m_pData[m_nLength] = 0;
-		
+
 		return m_nLength;
 	}
 
-	T* GetData() 
-	{ 
-		return m_pData; 
+	T* GetData()
+	{
+		return m_pData;
 	}
 
-	size_t GetLength() const 
-	{ 
-		return m_nLength; 
+	size_t GetLength() const
+	{
+		return m_nLength;
 	}
 
-	size_t GetSize() const 
-	{ 
-		return m_nSize; 
+	size_t GetSize() const
+	{
+		return m_nSize;
 	}
 
-	bool Unique() const 
-	{ 
-		return (m_nRefCount == 1); 
+	bool Unique() const
+	{
+		return (m_nRefCount == 1);
 	}
 
-	void AddRef() 
-	{ 
-		m_nRefCount++; 
+	void AddRef()
+	{
+		m_nRefCount++;
 	}
 
 	void DecRef()
 	{
 		m_nRefCount--;
-		
+
 		if ( !m_nRefCount )
 			delete this;
 	}
@@ -259,7 +259,7 @@ public:
 		if ( strCopy.m_pData != m_pData )
 		{
 			FreeData();
-			
+
 			m_pData = strCopy.m_pData;
 			m_pData->AddRef();
 		}
@@ -289,7 +289,7 @@ public:
 
 				Traits::CopyUnicodeData(pNewData->GetData(), nSize, lpData, nLength, nCodePage);
 				pNewData->SetLength(nLength);
-	
+
 				FreeData();
 				m_pData = pNewData;
 			}
@@ -321,7 +321,7 @@ public:
 
 				Traits::CopyAnsiData(pNewData->GetData(), nSize, lpData, nLength, nCodePage);
 				pNewData->SetLength(nLength);
-	
+
 				FreeData();
 				m_pData = pNewData;
 			}
@@ -329,7 +329,7 @@ public:
 
 		return *this;
 	}
-	
+
 	StringBase& SetData(const char* lpData, int nCodePage = CP_OEMCP)
 	{
 		return SetData(lpData, Traits::StrLengthA(lpData), nCodePage);
@@ -393,7 +393,7 @@ public:
 			StringData<T>* pNewData = new StringData<T>(nSize+1);
 
 			memcpy(pNewData->GetData(), m_pData->GetData(), m_pData->GetLength()*sizeof(T));
-			Traits::CopyAnsiData(pNewData->GetData()+m_pData->GetLength(), nNewLength, lpData, nLength, nCodePage); 
+			Traits::CopyAnsiData(pNewData->GetData()+m_pData->GetLength(), nNewLength, lpData, nLength, nCodePage);
 
 			pNewData->SetLength(nSize);
 			FreeData();
@@ -422,7 +422,7 @@ public:
 			StringData<T>* pNewData = new StringData<T>(nSize+1);
 
 			memcpy(pNewData->GetData(), m_pData->GetData(), m_pData->GetLength()*sizeof(T));
-			Traits::CopyUnicodeData(pNewData->GetData()+m_pData->GetLength(), nNewLength, lpData, nLength, nCodePage); 
+			Traits::CopyUnicodeData(pNewData->GetData()+m_pData->GetLength(), nNewLength, lpData, nLength, nCodePage);
 
 			pNewData->SetLength(nSize);
 			FreeData();
@@ -505,7 +505,7 @@ public:
 
 	bool operator==(const StringBase& strCmp)
 	{
-		return (strCmp.m_pData == m_pData) || 
+		return (strCmp.m_pData == m_pData) ||
 				(
 					(strCmp.GetLength() == GetLength()) &&
 					!memcmp(m_pData->GetData(), strCmp.m_pData->GetData(), GetLength()*sizeof(T))
@@ -514,7 +514,7 @@ public:
 
 	bool operator==(const T* lpCmp)
 	{
-		return (StrLength(lpCmp) == GetLength()) && !memcmp(lpCom, m_pData->GetData(), GetLength()*sizeof(T));
+		return (StrLength(lpCmp) == GetLength()) && !memcmp(lpCmp, m_pData->GetData(), GetLength()*sizeof(T));
 	}
 
 	bool operator!=(const StringBase& strCmp)

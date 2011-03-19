@@ -9,7 +9,7 @@ typedef int (__cdecl *SORTFUNC) (const void *, const void *, void *);
 #define DEFAULT_ARRAY_DELTA		 5
 #define INVALID_INDEX			(unsigned int)-1
 
-template <typename type> 
+template <typename type>
 class Array {
 
 protected:
@@ -54,14 +54,14 @@ protected:
 
 	bool SetLimit (unsigned int limit);
 
-	virtual void FreeItem(unsigned int index) 
-	{ 
-		(void)index; //BUGBUG
-	} 
-	
-	virtual void FreeData() 
+	virtual void FreeItem(unsigned int index)
 	{
-		::free(m_data); 
+		(void)index; //BUGBUG
+	}
+
+	virtual void FreeData()
+	{
+		::free(m_data);
 		m_data = NULL;
 	}
 };
@@ -276,7 +276,7 @@ static void iswap (int *a, int *b, unsigned int n_to_swap)  /* swap ints */
 static void cswap (char *a, char *b, unsigned int n_to_swap)    /* swap chars */
 {
 	char tmp;
-	
+
 	do
 	{
 		tmp = *a;
@@ -430,13 +430,13 @@ void Array<type>::sort(void* SortFunc, void* Param)
 
 
 ///////////////////////
-template <typename type> 
+template <typename type>
 class PointerArray : public Array<type> {
 
 public:
 
 	PointerArray(unsigned int delta = DEFAULT_ARRAY_DELTA) : Array<type>(delta) { };
-	virtual ~PointerArray() { free(); }
+	virtual ~PointerArray() { this->free(); }
 
 protected:
 
@@ -448,12 +448,12 @@ protected:
 
 /////////////////////////////////////
 
-template <typename type> 
+template <typename type>
 class ObjectArray : public Array<type> {
 public:
 
 	ObjectArray(unsigned int delta = DEFAULT_ARRAY_DELTA) : Array<type>(delta) { };
-	virtual ~ObjectArray() { free(); }
+	virtual ~ObjectArray() { this->free(); }
 
 protected:
 
@@ -464,12 +464,12 @@ protected:
 };
 
 //////////////////////////////////////
-template <typename type> 
+template <typename type>
 class ConstArray : public Array<type> {
 public:
 
 	ConstArray(unsigned int delta = DEFAULT_ARRAY_DELTA) : Array<type>(delta) { };
-	virtual ~ConstArray() { free(); }; //or virtual methods will be called wrong
+	virtual ~ConstArray() { this->free(); }; //or virtual methods will be called wrong
 
 protected:
 
