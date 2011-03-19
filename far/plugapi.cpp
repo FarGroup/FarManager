@@ -2534,8 +2534,8 @@ int WINAPI farSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS Comm
 			return settings->Enum(*(FarSettingsEnum*)Param2);
 		case SCTL_DELETE:
 			return settings->Delete(*(const FarSettingsValue*)Param2);
-		case SCTL_DELETEALL:
-			return settings->DeleteAll();
+		case SCTL_SUBKEY:
+			return settings->SubKey(*(const FarSettingsValue*)Param2);
 	}
 
 	return FALSE;

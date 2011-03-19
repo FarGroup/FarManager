@@ -1748,12 +1748,13 @@ enum FAR_SETTINGS_CONTROL_COMMANDS
 	SCTL_GET,
 	SCTL_ENUM,
 	SCTL_DELETE,
-	SCTL_DELETEALL
+	SCTL_SUBKEY
 };
 
 enum FARSETTINGSTYPES
 {
 	FST_UNKNOWN,
+	FST_SUBKEY,
 	FST_QWORD,
 	FST_STRING,
 	FST_DATA
@@ -1768,6 +1769,7 @@ struct FarSettingsCreate
 
 struct FarSettingsItem
 {
+	size_t Root;
 	const wchar_t* Name;
 	enum FARSETTINGSTYPES Type;
 	union
@@ -1794,12 +1796,14 @@ struct FarSettingsName
 
 struct FarSettingsEnum
 {
+	size_t Root;
 	size_t Count;
 	const struct FarSettingsName* Items;
 };
 
 struct FarSettingsValue
 {
+	size_t Root;
 	const wchar_t* Value;
 };
 
