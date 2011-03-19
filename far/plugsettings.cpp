@@ -35,17 +35,212 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "plugsettings.hpp"
 #include "ctrlobj.hpp"
-#include "registry.hpp"
 #include "strmix.hpp"
+#include "pathmix.hpp"
+#include "sqlite/sqlite3.h"
+
+class PluginSettingDb {
+	sqlite3 *pDb;
+	sqlite3_stmt *pStmtSetPluginTitle;
+	sqlite3_stmt *pStmtDelPluginTree;
+	sqlite3_stmt *pStmtSetValue;
+	sqlite3_stmt *pStmtGetValue;
+	sqlite3_stmt *pStmtEnumValues;
+	sqlite3_stmt *pStmtDelValue;
+
+public:
+
+	enum {
+		TYPE_INTEGER,
+		TYPE_TEXT,
+		TYPE_BLOB
+	};
+
+	PluginSettingDb() : pDb(nullptr),  pStmtSetPluginTitle(nullptr), pStmtDelPluginTree(nullptr), pStmtSetValue(nullptr), pStmtGetValue(nullptr), pStmtEnumValues(nullptr), pStmtDelValue(nullptr)
+	{
+		string strPath;
+		SHGetFolderPath(NULL,CSIDL_APPDATA|CSIDL_FLAG_CREATE,NULL,0,strPath.GetBuffer(MAX_PATH));
+		strPath.ReleaseBuffer();
+		AddEndSlash(strPath);
+		strPath += L"Far Manager";
+		apiCreateDirectory(strPath, nullptr);
+		strPath += L"\\pluginsconfig.db";
+		if (sqlite3_open16(strPath.CPtr(),&pDb) != SQLITE_OK)
+		{
+			sqlite3_close(pDb);
+			pDb = nullptr;
+			//if failed, let's open a memory only db so Far can work anyway
+			if (sqlite3_open16(L":memory:",&pDb) != SQLITE_OK)
+				return;
+		}
+
+		//schem
+		sqlite3_exec(pDb,
+			"CREATE TABLE IF NOT EXISTS plugins_config(guid TEXT NOT NULL, name TEXT NOT NULL, type INTEGER NOT NULL, value BLOB, PRIMARY KEY (guid, name));"
+			"CREATE TABLE IF NOT EXISTS plugins_config_titles(guid TEXT NOT NULL PRIMARY KEY, title TEXT);"
+			,NULL,NULL,NULL);
+
+		//set plugin title statement
+		sqlite3_prepare16_v2(pDb, L"INSERT OR REPLACE INTO plugins_config_titles VALUES (?1, ?2);", -1, &pStmtSetPluginTitle, nullptr);
+
+		//delete all plugin settings statement
+		//sqlite3_prepare16_v2(pDb, L"DELETE FROM plugin_config WHERE guid=$1; DELETE FROM plugin_config_titles WHERE guid=$1;", -1, &pStmtDelPluginTree, nullptr);
+		sqlite3_prepare16_v2(pDb, L"DELETE FROM plugin_config WHERE guid=$1;", -1, &pStmtDelPluginTree, nullptr);
+
+		//set value statement
+		sqlite3_prepare16_v2(pDb, L"INSERT OR REPLACE INTO plugins_config VALUES (?1,?2,?3,?4);", -1, &pStmtSetValue, nullptr);
+
+		//get value statement
+		sqlite3_prepare16_v2(pDb, L"SELECT value FROM plugins_config WHERE guid=?1 AND name=?2;", -1, &pStmtGetValue, nullptr);
+
+		//enum values statement
+		sqlite3_prepare16_v2(pDb, L"SELECT name, type FROM plugins_config WHERE guid=?1;", -1, &pStmtEnumValues, nullptr);
+
+		//delete value statement
+		sqlite3_prepare16_v2(pDb, L"DELETE FROM plugins_config WHERE guid=?1 AND name=?2;", -1, &pStmtDelValue, nullptr);
+	}
+
+	~PluginSettingDb()
+	{
+		sqlite3_finalize(pStmtSetPluginTitle);
+		sqlite3_finalize(pStmtDelPluginTree);
+		sqlite3_finalize(pStmtSetValue);
+		sqlite3_finalize(pStmtGetValue);
+		sqlite3_finalize(pStmtEnumValues);
+		sqlite3_finalize(pStmtDelValue);
+
+		sqlite3_close(pDb);
+	}
+
+	bool SetPluginTitle(const wchar_t *Guid, const wchar_t *Title)
+	{
+		sqlite3_bind_text16(pStmtSetPluginTitle,1,Guid,-1,SQLITE_STATIC);
+		sqlite3_bind_text16(pStmtSetPluginTitle,2,Title,-1,SQLITE_STATIC);
+		int res = sqlite3_step(pStmtSetPluginTitle);
+		sqlite3_reset(pStmtSetPluginTitle);
+		return res == SQLITE_DONE;
+	}
+
+	bool DeletePluginTree(const wchar_t *Guid)
+	{
+		sqlite3_bind_text16(pStmtDelPluginTree,1,Guid,-1,SQLITE_STATIC);
+		int res = sqlite3_step(pStmtDelPluginTree);
+		sqlite3_reset(pStmtDelPluginTree);
+		return res == SQLITE_DONE;
+	}
+
+	bool SetValue(const wchar_t *Guid, const wchar_t *Name, const wchar_t *Value)
+	{
+		sqlite3_bind_text16(pStmtSetValue,1,Guid,-1,SQLITE_STATIC);
+		sqlite3_bind_text16(pStmtSetValue,2,Name,-1,SQLITE_STATIC);
+		sqlite3_bind_int(pStmtSetValue,3,TYPE_TEXT);
+		sqlite3_bind_text16(pStmtSetValue,4,Value,-1,SQLITE_STATIC);
+		int res = sqlite3_step(pStmtSetValue);
+		sqlite3_reset(pStmtSetValue);
+		return res == SQLITE_DONE;
+	}
+
+	bool SetValue(const wchar_t *Guid, const wchar_t *Name, unsigned __int64 Value)
+	{
+		sqlite3_bind_text16(pStmtSetValue,1,Guid,-1,SQLITE_STATIC);
+		sqlite3_bind_text16(pStmtSetValue,2,Name,-1,SQLITE_STATIC);
+		sqlite3_bind_int(pStmtSetValue,3,TYPE_INTEGER);
+		sqlite3_bind_int64(pStmtSetValue,4,Value);
+		int res = sqlite3_step(pStmtSetValue);
+		sqlite3_reset(pStmtSetValue);
+		return res == SQLITE_DONE;
+	}
+
+	bool SetValue(const wchar_t *Guid, const wchar_t *Name, const void *Value, int Size)
+	{
+		sqlite3_bind_text16(pStmtSetValue,1,Guid,-1,SQLITE_STATIC);
+		sqlite3_bind_text16(pStmtSetValue,2,Name,-1,SQLITE_STATIC);
+		sqlite3_bind_int(pStmtSetValue,3,TYPE_BLOB);
+		sqlite3_bind_blob(pStmtSetValue,4,Value,Size,SQLITE_STATIC);
+		int res = sqlite3_step(pStmtSetValue);
+		sqlite3_reset(pStmtSetValue);
+		return res == SQLITE_DONE;
+	}
+
+	bool GetValue(const wchar_t *Guid, const wchar_t *Name, unsigned __int64 *Value)
+	{
+		sqlite3_bind_text16(pStmtGetValue,1,Guid,-1,SQLITE_STATIC);
+		sqlite3_bind_text16(pStmtGetValue,2,Name,-1,SQLITE_STATIC);
+		int res = sqlite3_step(pStmtGetValue);
+		if (res == SQLITE_ROW)
+		{
+			*Value = sqlite3_column_int64(pStmtGetValue,0);
+		}
+		sqlite3_reset(pStmtGetValue);
+		return res == SQLITE_ROW;
+	}
+
+	bool GetValue(const wchar_t *Guid, const wchar_t *Name, string &strValue)
+	{
+		sqlite3_bind_text16(pStmtGetValue,1,Guid,-1,SQLITE_STATIC);
+		sqlite3_bind_text16(pStmtGetValue,2,Name,-1,SQLITE_STATIC);
+		int res = sqlite3_step(pStmtGetValue);
+		if (res == SQLITE_ROW)
+		{
+			strValue = (const wchar_t *)sqlite3_column_text16(pStmtGetValue,0);
+		}
+		sqlite3_reset(pStmtGetValue);
+		return res == SQLITE_ROW;
+	}
+
+	int GetValue(const wchar_t *Guid, const wchar_t *Name, char *Value, int Size)
+	{
+		int res = 0;
+		sqlite3_bind_text16(pStmtGetValue,1,Guid,-1,SQLITE_STATIC);
+		sqlite3_bind_text16(pStmtGetValue,2,Name,-1,SQLITE_STATIC);
+		if (sqlite3_step(pStmtGetValue) == SQLITE_ROW)
+		{
+			const void *blob = sqlite3_column_blob(pStmtGetValue,0);
+			res = sqlite3_column_bytes(pStmtGetValue,0);
+			if (Value)
+				memcpy(Value,blob,Min(res,Size));
+		}
+		sqlite3_reset(pStmtGetValue);
+		return res;
+	}
+
+	bool DeleteValue(const wchar_t *Guid, const wchar_t *Name)
+	{
+		sqlite3_bind_text16(pStmtDelValue,1,Guid,-1,SQLITE_STATIC);
+		sqlite3_bind_text16(pStmtDelValue,2,Name,-1,SQLITE_STATIC);
+		int res = sqlite3_step(pStmtDelValue);
+		sqlite3_reset(pStmtDelValue);
+		return res == SQLITE_DONE;
+	}
+
+	bool EnumValues(const wchar_t *Guid, DWORD Index, string &strName, DWORD *Type)
+	{
+		if (Index == 0)
+		{
+			sqlite3_reset(pStmtEnumValues);
+			sqlite3_bind_text16(pStmtEnumValues,1,Guid,-1,SQLITE_STATIC);
+		}
+
+		if (sqlite3_step(pStmtEnumValues) == SQLITE_ROW)
+		{
+			strName = (const wchar_t *)sqlite3_column_text16(pStmtEnumValues,0);
+			*Type = sqlite3_column_int(pStmtEnumValues,1);
+			return true;
+		}
+
+		return false;
+	}
+};
+
+PluginSettingDb db;
 
 PluginSettings::PluginSettings(const GUID& Guid)
 {
 	Plugin* pPlugin=CtrlObject?CtrlObject->Plugins.FindPlugin(Guid):nullptr;
 	if (pPlugin)
 	{
-		string& root(*m_Keys.insertItem(0));
-		root=string(L"Plugins\\")+GuidToStr(Guid);
-		SetRegKey(root, nullptr, pPlugin->GetTitle());
+		strGuid = GuidToStr(Guid);
+		db.SetPluginTitle(strGuid, pPlugin->GetTitle());
 	}
 }
 
@@ -68,30 +263,18 @@ PluginSettings::~PluginSettings()
 int PluginSettings::Set(const FarSettingsItem& Item)
 {
 	int result=FALSE;
-	if(Item.Root<m_Keys.getCount())
+	if(Item.Name)
 	{
 		switch(Item.Type)
 		{
-			case FST_SUBKEY:
-				{
-					FarSettingsValue value={Item.Root,Item.Name};
-					int key=SubKey(value);
-					HKEY hKey=CreateRegKey(m_Keys.getItem(key)->CPtr());
-					if (hKey)
-					{
-						result=TRUE;
-						RegCloseKey(hKey);
-					}
-				}
-				break;
 			case FST_QWORD:
-				if (SetRegKey64(m_Keys.getItem(Item.Root)->CPtr(),Item.Name,Item.Number)==ERROR_SUCCESS) result=TRUE;
+				if (db.SetValue(strGuid,Item.Name,Item.Number)) result=TRUE;
 				break;
 			case FST_STRING:
-				if (SetRegKey(m_Keys.getItem(Item.Root)->CPtr(),Item.Name,Item.String)==ERROR_SUCCESS) result=TRUE;
+				if (db.SetValue(strGuid,Item.Name,Item.String)) result=TRUE;
 				break;
 			case FST_DATA:
-				if (SetRegKey(m_Keys.getItem(Item.Root)->CPtr(),Item.Name,(const BYTE*)Item.Data.Data,static_cast<DWORD>(Item.Data.Size))==ERROR_SUCCESS) result=TRUE;
+				if (db.SetValue(strGuid,Item.Name,Item.Data.Data,(int)Item.Data.Size)) result=TRUE;
 				break;
 			default:
 				break;
@@ -103,16 +286,14 @@ int PluginSettings::Set(const FarSettingsItem& Item)
 int PluginSettings::Get(FarSettingsItem& Item)
 {
 	int result=FALSE;
-	if(Item.Root<m_Keys.getCount())
+	if(Item.Name)
 	{
 		switch(Item.Type)
 		{
-			case FST_SUBKEY:
-				break;
 			case FST_QWORD:
 				{
-					__int64 value;
-					if (GetRegKey64(m_Keys.getItem(Item.Root)->CPtr(),Item.Name,value,0LL))
+					unsigned __int64 value;
+					if (db.GetValue(strGuid,Item.Name,&value))
 					{
 						result=TRUE;
 						Item.Number=value;
@@ -122,7 +303,7 @@ int PluginSettings::Get(FarSettingsItem& Item)
 			case FST_STRING:
 				{
 					string data;
-					if (GetRegKey(m_Keys.getItem(Item.Root)->CPtr(),Item.Name,data,L"",nullptr))
+					if (db.GetValue(strGuid,Item.Name,data))
 					{
 						result=TRUE;
 						char** item=m_Data.addItem();
@@ -135,12 +316,12 @@ int PluginSettings::Get(FarSettingsItem& Item)
 				break;
 			case FST_DATA:
 				{
-					int size=GetRegKey(m_Keys.getItem(Item.Root)->CPtr(),Item.Name,nullptr,nullptr,0,nullptr);
+					int size=db.GetValue(strGuid,Item.Name,nullptr,0);
 					if (size)
 					{
 						char** item=m_Data.addItem();
 						*item=new char[size];
-						int checkedSize=GetRegKey(m_Keys.getItem(Item.Root)->CPtr(),Item.Name,(BYTE*)*item,nullptr,size,nullptr);
+						int checkedSize=db.GetValue(strGuid,Item.Name,*item,size);
 						if (size==checkedSize)
 						{
 							result=TRUE;
@@ -167,87 +348,49 @@ static void AddString(Vector<FarSettingsName>& Array, FarSettingsName& Item, str
 
 int PluginSettings::Enum(FarSettingsEnum& Enum)
 {
-	int result=FALSE;
-	if(Enum.Root<m_Keys.getCount())
-	{
-		Vector<FarSettingsName>& array=*m_Enum.addItem();
-		FarSettingsName item;
-		DWORD Index=0,Type;
-		HKEY hKey=OpenRegKey(m_Keys.getItem(Enum.Root)->CPtr());
-		string strName,strValue;
+	Vector<FarSettingsName>& array=*m_Enum.addItem();
+	FarSettingsName item;
+	DWORD Index=0,Type;
+	string strName;
 
-		if (hKey)
+	while (db.EnumValues(strGuid,Index++,strName,&Type))
+	{
+		item.Type=FST_UNKNOWN;
+		switch (Type)
 		{
-			item.Type=FST_SUBKEY;
-			while (apiRegEnumKeyEx(hKey,Index++,strName)==ERROR_SUCCESS)
-			{
-				AddString(array,item,strName);
-			}
-			RegCloseKey(hKey);
-			Index=0;
-			while(EnumRegValueEx(m_Keys.getItem(Enum.Root)->CPtr(),Index++,strName,strValue,nullptr,nullptr,&Type)!=REG_NONE)
-			{
-				item.Type=FST_UNKNOWN;
-				switch(Type)
-				{
-					case REG_QWORD:
-						item.Type=FST_QWORD;
-						break;
-					case REG_SZ:
-						item.Type=FST_STRING;
-						break;
-					case REG_BINARY:
-						item.Type=FST_DATA;
-						break;
-				}
-				if(item.Type!=FST_UNKNOWN)
-				{
-					AddString(array,item,strName);
-				}
-			}
-			Enum.Count=array.GetSize();
-			Enum.Items=array.GetItems();
-			result=TRUE;
+			case PluginSettingDb::TYPE_INTEGER:
+				item.Type=FST_QWORD;
+				break;
+			case PluginSettingDb::TYPE_TEXT:
+				item.Type=FST_STRING;
+				break;
+			case PluginSettingDb::TYPE_BLOB:
+				item.Type=FST_DATA;
+				break;
+		}
+		if(item.Type!=FST_UNKNOWN)
+		{
+			AddString(array,item,strName);
 		}
 	}
-	return result;
+	Enum.Count=array.GetSize();
+	Enum.Items=array.GetItems();
+	return TRUE;
 }
 
 int PluginSettings::Delete(const FarSettingsValue& Value)
 {
-	int result=FALSE;
-	if(Value.Root<m_Keys.getCount())
+	if(Value.Value)
 	{
-		bool isValue=false;
-		HKEY hKey=OpenRegKey(m_Keys.getItem(Value.Root)->CPtr());
-		if (hKey)
-		{
-			DWORD QueryDataSize=0;
-			if(ERROR_SUCCESS==RegQueryValueEx(hKey,Value.Value,0,nullptr,nullptr,&QueryDataSize)) isValue=true;
-			RegCloseKey(hKey);
-		}
-		if (isValue)
-		{
-			DeleteRegValue(m_Keys.getItem(Value.Root)->CPtr(),Value.Value);
-		}
-		else
-		{
-			int key=SubKey(Value);
-			DeleteKeyTree(m_Keys.getItem(key)->CPtr());
-		}
-		result=TRUE;
+		if (db.DeleteValue(strGuid,Value.Value))
+			return TRUE;
 	}
-	return result;
+	return FALSE;
 }
 
-int PluginSettings::SubKey(const FarSettingsValue& Value)
+int PluginSettings::DeleteAll()
 {
-	int result=0;
-	if(Value.Root<m_Keys.getCount()&&!wcschr(Value.Value,'\\'))
-	{
-		result=static_cast<int>(m_Keys.getCount());
-		string& root(*m_Keys.insertItem(result));
-		root=*m_Keys.getItem(Value.Root)+L"\\"+Value.Value;
-	}
-	return result;
+	if (db.DeletePluginTree(strGuid))
+		return TRUE;
+	return FALSE;
 }

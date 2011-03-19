@@ -1582,6 +1582,6 @@ static void  swap_m(
 // strmix.obj : error LNK2019: unresolved external symbol __ftol2 referenced in function "char * __stdcall FileSizeToStr (char *,unsigned long,unsigned long,int,int)" (?FileSizeToStr@@YGPADPADKKHH@Z)
 // Источник: http://q12.org/pipermail/ode/2004-January/010811.html
 //VC7 or later, building with pre-VC7 runtime libraries
-extern "C" long _ftol(double);   //defined by VC6 C libs
-extern "C" long _ftol2(double dblSource) { return _ftol(dblSource); }
+//extern "C" long _ftol(double);   //defined by VC6 C libs
+//extern "C" long _ftol2(double dblSource) { return _ftol(dblSource); }
 #endif

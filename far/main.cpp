@@ -344,7 +344,7 @@ void ConvertOldSettings()
 		string strName;
 		for(int i = 0; i < 10; i++)
 		{
-			for(int j = 0; j < ARRAYSIZE(Names); j++)
+			for(size_t j = 0; j < ARRAYSIZE(Names); j++)
 			{
 				strName.Format(Names[j], i);
 				GetRegKey(L"FolderShortcuts",strName, strData, L"");

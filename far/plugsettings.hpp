@@ -67,17 +67,17 @@ template <class Object> class Vector
 class PluginSettings
 {
 	private:
-		TPointerArray<string> m_Keys;
 		TPointerArray<char*> m_Data;
 		TPointerArray<Vector<FarSettingsName> > m_Enum;
+		string strGuid;
 		PluginSettings();
 	public:
 		PluginSettings(const GUID& Guid);
 		~PluginSettings();
-		bool IsValid(void) {return m_Keys.getCount()!=0;}
+		bool IsValid(void) { return strGuid.GetLength()>0; }
 		int Set(const FarSettingsItem& Item);
 		int Get(FarSettingsItem& Item);
 		int Enum(FarSettingsEnum& Enum);
 		int Delete(const FarSettingsValue& Value);
-		int SubKey(const FarSettingsValue& Value);
+		int DeleteAll();
 };
