@@ -3,6 +3,123 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+t-rex 20.03.2011 23:20:31 +0200 - build 1920
+
+1. generalconfig.db schema is changed for inner convenience (generalconfig.db must be deleted).
+
+2. All common settings moved to generalconfig.db.
+   Now the turn is for history, associations, filters, positions, highlight, hotkeys, macros, pluginscache, shortcuts, usermenu, panelmodes.
+
+t-rex 20.03.2011 19:16:44 +0200 - build 1919
+
+1. Debug target build failure.
+
+t-rex 20.03.2011 18:23:03 +0200 - build 1918
+
+1. sqlite code moved to configdb.cpp
+
+2. using sqlite3_clear_bindings() for correctness.
+
+3. GeneralConfig is appended with BEGIN/END TRANSACTION to speed up sequential insertions.
+
+4. for "outer space", DB access abstract classes are made to avoid sqlite3.h and other stuff be included everywhere.
+
+5. a kind of singleton for DB access inner classes.
+
+6. precompiled headers are disconnected from plugin.hpp, it was pointless because it used to change too often.
+
+t-rex 20.03.2011 02:45:34 +0200 - build 1917
+
+1. Transfer of settings to sqlite is started.
+   Common settings have been partially moved.
+   %appdata%\Far Manager\generalconfig.db
+
+2. PRAGMA synchronous = 0; for better sqlite performance.
+
+t-rex 19.03.2011 21:35:56 +0200 - build 1916
+
+1. "Old" plugin settings API is back.
+
+2. DB schema and code are changed to support tree-like structure of plugins settings according to API.
+
+t-rex 19.03.2011 17:59:17 +0200 - build 1915
+
+1. Starting to use sqlite database instead of the registry, plugins settings only for now.
+   The data is stored in %appdata%\Far Manager\pluginsconfig.db
+   sqlite source is included in FAR for now, then we'll see if it is reasonable to move it to dll.
+
+2. Plugins settings API is slightly changed, "subkey" and "root" notions are removed.
+   It is recommended to assign names like xxx.yyy, xxx.zzz to settings if any kind of tree-like structure is needed,
+   for the moment when a visual editor appears.
+
+3. Warnings.
+
+zeroes 18.03.2011 16:22:17 +200 - build 1914
+
+1. Correction of the type of a variable
+
+svs 18.03.2011 16:51:39 +0300 - build 1913
+
+1. Macro: Keybar.Show() function is added
+
+     N=KeyBar.Show([N])
+
+        0 - get state
+            ret: 0 - hide, 1 - show, -1 - KeyBar not found
+        1 - show
+        2 - hide
+        3 - swap
+        ret: prev mode or -1 - KeyBar not found
+
+   "KeyBar found" in panels, editor and viewer. And only if the area is current.
+   In other areas (including the help area) -1 is returned.
+
+   For example, Esc in panels 
+      CtrlO $if (APanel.Visible && PPanel.Visible) KeyBar.Show(1) $else KeyBar.Show(2) $end 
+   if panels are hidden, hide the keybar too.
+
+2. Combo box selection was broken in macro keys assignment dialog.
+
+drkns 18.03.2011 10:06:22 +0200 - build 1912
+
+1. Correction of 1911.
+
+drkns 18.03.2011 09:05:21 +0200 - build 1911
+
+1. In Folder Shortcuts, assignment of several types to one shortcut is supported (Ctrl-Alt-<0-9> in panels or ShiftIns in menu).
+
+drkns 17.03.2011 21:31:28 +0200 - build 1910
+
+1. Correction of types in plugin api.
+
+svs 17.03.2011 17:55:16 +0300 - build 1909
+
+1. Mantis#0001733: XLat() macrofunction must not switch current keyboard layout.
+
+   The function is granted with a second parameter - optional flags, and does not depend on TechInfo#10.
+
+     S=xlat(S[,Flags])
+
+     flags
+       XLAT_SWITCHKEYBLAYOUT  = 1
+       XLAT_SWITCHKEYBBEEP    = 2
+       XLAT_USEKEYBLAYOUTNAME = 4
+
+   print(xlat("Qwerty"))
+   outputs "…цукен" and herewith:
+     * keyboard layout is not switched
+     * there's no sound
+     * values "00000409", "00000419" etc. from "HKCU\Software\Far2\XLat" branch are not used
+
+   print(xlat("Qwerty",6))
+   outputs "…цукен" and herewith:
+     * keyboard layout is not switched
+     * there's a beep (sound)
+     * values "00000409", "00000419" etc. from "HKCU\Software\Far2\XLat" branch are used
+
+
+   $XLat macrocommand still depends on TechInfo#10
+
 drkns 14.03.2011 11:11:11 +0200 - build 1908
 
 1. PluginHotkeys is now in GUID\GUID format.
