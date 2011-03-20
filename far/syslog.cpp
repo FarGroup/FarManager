@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "interf.hpp"
 #include "console.hpp"
+#include "farversion.hpp"
 
 #if !defined(SYSLOG)
 #if defined(SYSLOG_OT)             || \
