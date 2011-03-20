@@ -33,6 +33,7 @@ SRCS = \
 	codepage.cpp \
 	colormix.cpp \
 	config.cpp \
+	configdb.cpp \
 	console.cpp \
 	constitle.cpp \
 	copy.cpp \
@@ -58,6 +59,7 @@ SRCS = \
 	FarGuid.cpp \
 	farqueue.cpp \
 	farrtl.cpp \
+	farversion.cpp \
 	farwinapi.cpp \
 	fileattr.cpp \
 	fileedit.cpp \

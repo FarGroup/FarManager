@@ -38,11 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   берем char *CopyRight из inc файла */
 #include "bootstrap/copyright.inc"
 
-/* $ 07.12.2000 SVS
-   + Версия берется из файла farversion.inc
-*/
-#include "bootstrap/farversion.inc"
-
 OSVERSIONINFO WinVer={sizeof(WinVer)};
 
 // идет процесс назначения клавиши в макросе?

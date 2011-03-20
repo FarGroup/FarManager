@@ -1,5 +1,6 @@
 #include "UCD/nscore.h"
 #include "UCD/nsUniversalDetector.h"
+#include "plugin.hpp"
 
 class nsUniversalDetectorEx : public nsUniversalDetector
 {

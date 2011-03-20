@@ -24,6 +24,8 @@ colormix.cpp
 colors.hpp
 config.cpp
 config.hpp
+configdb.cpp
+configdb.hpp
 console.cpp
 console.hpp
 constitle.cpp
@@ -76,6 +78,8 @@ farqueue.cpp
 farqueue.hpp
 farrtl.cpp
 farrtl.hpp
+farversion.cpp
+farversion.hpp
 farwinapi.cpp
 farwinapi.hpp
 fileattr.cpp
@@ -278,4 +282,3 @@ window.cpp
 window.hpp
 xlat.cpp
 xlat.hpp
-

@@ -33,6 +33,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "plugin.hpp"
+
 enum ReparsePointTypes
 {
 	RP_EXACTCOPY,   // для копирования/переноса ссылок, копия существующего

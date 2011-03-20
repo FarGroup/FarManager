@@ -33,8 +33,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "plugin.hpp"
-#include "UnicodeString.hpp"
 #include "noncopyable.hpp"
 
 #define NT_MAX_PATH 32768
@@ -185,19 +183,6 @@ BOOL apiGetVolumeInformation(
 
 BOOL apiFindStreamClose(
     HANDLE hFindFile
-);
-
-void PluginPanelItemToFindDataEx(
-    const PluginPanelItem *pSrc,
-    FAR_FIND_DATA_EX *pDest);
-
-void FindDataExToPluginPanelItem(
-    const FAR_FIND_DATA_EX *pSrc,
-    PluginPanelItem *pDest
-);
-
-void FreePluginPanelItem(
-    PluginPanelItem *pData
 );
 
 BOOL apiGetFindDataEx(

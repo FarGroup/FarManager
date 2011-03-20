@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "setcolor.hpp"
 #include "datetime.hpp"
 #include "strmix.hpp"
+#include "mix.hpp"
 
 FileFilterParams::FileFilterParams()
 {

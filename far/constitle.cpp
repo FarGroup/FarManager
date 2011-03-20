@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "CriticalSections.hpp"
 #include "console.hpp"
+#include "farversion.hpp"
 
 static const string& GetFarTitleAddons()
 {

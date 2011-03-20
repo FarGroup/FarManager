@@ -65,6 +65,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lasterror.hpp"
 #include "FarGuid.hpp"
 #include "synchro.hpp"
+#include "farversion.hpp"
 
 static const wchar_t *wszReg_Preload=L"Preload";
 static const wchar_t *wszReg_MinFarVersion=L"MinFarVersion";

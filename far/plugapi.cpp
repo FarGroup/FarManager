@@ -74,6 +74,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TaskBar.hpp"
 #include "console.hpp"
 #include "plugsettings.hpp"
+#include "farversion.hpp"
+#include "mix.hpp"
 
 wchar_t *WINAPI FarItoa(int value, wchar_t *string, int radix)
 {

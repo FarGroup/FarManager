@@ -110,6 +110,7 @@ LINK_OBJS = \
 	"$(INTDIR)\codepage.obj" \
 	"$(INTDIR)\colormix.obj" \
 	"$(INTDIR)\config.obj" \
+	"$(INTDIR)\configdb.obj" \
 	"$(INTDIR)\console.obj" \
 	"$(INTDIR)\constitle.obj" \
 	"$(INTDIR)\copy.obj" \
@@ -135,6 +136,7 @@ LINK_OBJS = \
 	"$(INTDIR)\FarGuid.obj" \
 	"$(INTDIR)\farqueue.obj" \
 	"$(INTDIR)\farrtl.obj" \
+	"$(INTDIR)\farversion.obj" \
 	"$(INTDIR)\farwinapi.obj" \
 	"$(INTDIR)\fileattr.obj" \
 	"$(INTDIR)\fileedit.obj" \

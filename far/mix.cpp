@@ -177,3 +177,35 @@ string& FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithTempPath, c
 	strDest.ReleaseBuffer();
 	return strDest;
 }
+
+void PluginPanelItemToFindDataEx(const PluginPanelItem *pSrc, FAR_FIND_DATA_EX *pDest)
+{
+	pDest->dwFileAttributes = pSrc->FileAttributes;
+	pDest->ftCreationTime = pSrc->CreationTime;
+	pDest->ftLastAccessTime = pSrc->LastAccessTime;
+	pDest->ftLastWriteTime = pSrc->LastWriteTime;
+	pDest->ftChangeTime = pSrc->ChangeTime;
+	pDest->nFileSize = pSrc->FileSize;
+	pDest->nPackSize = pSrc->PackSize;
+	pDest->strFileName = pSrc->FileName;
+	pDest->strAlternateFileName = pSrc->AlternateFileName;
+}
+
+void FindDataExToPluginPanelItem(const FAR_FIND_DATA_EX *pSrc, PluginPanelItem *pDest)
+{
+	pDest->FileAttributes = pSrc->dwFileAttributes;
+	pDest->CreationTime = pSrc->ftCreationTime;
+	pDest->LastAccessTime = pSrc->ftLastAccessTime;
+	pDest->LastWriteTime = pSrc->ftLastWriteTime;
+	pDest->ChangeTime = pSrc->ftChangeTime;
+	pDest->FileSize = pSrc->nFileSize;
+	pDest->PackSize = pSrc->nPackSize;
+	pDest->FileName = xf_wcsdup(pSrc->strFileName);
+	pDest->AlternateFileName = xf_wcsdup(pSrc->strAlternateFileName);
+}
+
+void FreePluginPanelItem(PluginPanelItem *pData)
+{
+	xf_free(pData->FileName);
+	xf_free(pData->AlternateFileName);
+}

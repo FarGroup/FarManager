@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "plugin.hpp"
 #include "lang.hpp"
 #include "FarDlgBuilder.hpp"
 #include "dialog.hpp"

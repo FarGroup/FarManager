@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrobj.hpp"
 #include "colors.hpp"
 #include "bitflags.hpp"
+#include "plugin.hpp"
 
 // ћладший байт (маска 0xFF) юзаетс€ классом ScreenObject!!!
 enum FLAGS_CLASS_EDITLINE

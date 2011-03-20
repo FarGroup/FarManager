@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "cddrv.hpp"
 #include "message.hpp"
+#include "plugin.hpp"
 
 #if 0
 static BOOL DismountVolume(HANDLE hVolume)

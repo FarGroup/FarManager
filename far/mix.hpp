@@ -33,6 +33,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "plugin.hpp"
+
 int ToPercent(unsigned long N1,unsigned long N2);
 int ToPercent64(unsigned __int64 N1,unsigned __int64 N2);
 
@@ -51,3 +53,17 @@ extern "C"
 #endif
 
 string& FarMkTempEx(string &strDest, const wchar_t *Prefix=nullptr, BOOL WithTempPath=TRUE, const wchar_t *UserTempPath=nullptr);
+
+void PluginPanelItemToFindDataEx(
+    const PluginPanelItem *pSrc,
+    FAR_FIND_DATA_EX *pDest
+);
+
+void FindDataExToPluginPanelItem(
+    const FAR_FIND_DATA_EX *pSrc,
+    PluginPanelItem *pDest
+);
+
+void FreePluginPanelItem(
+    PluginPanelItem *pData
+);
