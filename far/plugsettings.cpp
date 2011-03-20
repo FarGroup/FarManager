@@ -79,6 +79,7 @@ public:
 		//schema
 		sqlite3_exec(pDb,
 			"PRAGMA foreign_keys = ON;"
+			"PRAGMA synchronous = OFF;"
 			"CREATE TABLE IF NOT EXISTS plugin_keys(id INTEGER PRIMARY KEY ASC, parent_id INTEGER NOT NULL, name TEXT NOT NULL, description TEXT, FOREIGN KEY(parent_id) REFERENCES plugin_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, UNIQUE (parent_id,name));"
 			"CREATE TABLE IF NOT EXISTS plugin_values(key_id INTEGER NOT NULL, name TEXT NOT NULL, type INTEGER NOT NULL, value BLOB, FOREIGN KEY(key_id) REFERENCES plugin_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (key_id, name), CHECK (key_id > 0));"
 			,NULL,NULL,NULL);
@@ -162,7 +163,7 @@ public:
 		sqlite3_bind_int64(pStmtSetKeyDescription,2,Root);
 		int res = sqlite3_step(pStmtSetKeyDescription);
 		sqlite3_reset(pStmtSetKeyDescription);
-		return res == SQLITE_DONE;
+		return (res == SQLITE_DONE) && (sqlite3_changes(pDb) > 0);
 	}
 
 	bool SetValue(unsigned __int64 Root, const wchar_t *Name, const wchar_t *Value)
@@ -348,7 +349,7 @@ int PluginSettings::Set(const FarSettingsItem& Item)
 				if (db.SetValue(*m_Keys.getItem(Item.Root),Item.Name,Item.String)) result=TRUE;
 				break;
 			case FST_DATA:
-				if (db.SetValue(*m_Keys.getItem(Item.Root),Item.Name,Item.Data.Data,Item.Data.Size)) result=TRUE;
+				if (db.SetValue(*m_Keys.getItem(Item.Root),Item.Name,Item.Data.Data,(int)Item.Data.Size)) result=TRUE;
 				break;
 			default:
 				break;

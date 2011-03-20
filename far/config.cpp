@@ -62,6 +62,198 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarDlgBuilder.hpp"
 #include "elevation.hpp"
 #include "history.hpp"
+#include "sqlite/sqlite3.h"
+
+class GeneralConfigDb {
+	sqlite3 *pDb;
+	sqlite3_stmt *pStmtUpdateValue;
+	sqlite3_stmt *pStmtInsertValue;
+	sqlite3_stmt *pStmtGetValue;
+
+public:
+
+	enum {
+		TYPE_INTEGER,
+		TYPE_TEXT,
+		TYPE_BLOB
+	};
+
+	GeneralConfigDb() : pDb(nullptr), pStmtUpdateValue(nullptr), pStmtInsertValue(nullptr), pStmtGetValue(nullptr)
+	{
+		string strPath;
+		SHGetFolderPath(NULL,CSIDL_APPDATA|CSIDL_FLAG_CREATE,NULL,0,strPath.GetBuffer(MAX_PATH));
+		strPath.ReleaseBuffer();
+		AddEndSlash(strPath);
+		strPath += L"Far Manager";
+		apiCreateDirectory(strPath, nullptr);
+		strPath += L"\\generalconfig.db";
+		if (sqlite3_open16(strPath.CPtr(),&pDb) != SQLITE_OK)
+		{
+			sqlite3_close(pDb);
+			pDb = nullptr;
+			//if failed, let's open a memory only db so Far can work anyway
+			if (sqlite3_open16(L":memory:",&pDb) != SQLITE_OK)
+				return;
+		}
+
+		//scheme
+		sqlite3_exec(pDb,
+			"PRAGMA synchronous = OFF;"
+			"CREATE TABLE IF NOT EXISTS general_config(name TEXT NOT NULL PRIMARY KEY ASC, type INTEGER NOT NULL, value BLOB);"
+			,NULL,NULL,NULL);
+
+		//update value statement
+		sqlite3_prepare16_v2(pDb, L"UPDATE general_config SET type=?1, value=?2 WHERE name=?3||'.'||?4;", -1, &pStmtUpdateValue, nullptr);
+
+		//insert value statement
+		sqlite3_prepare16_v2(pDb, L"INSERT INTO general_config VALUES (?1||'.'||?2,?3,?4);", -1, &pStmtInsertValue, nullptr);
+
+		//get value statement
+		sqlite3_prepare16_v2(pDb, L"SELECT value FROM general_config WHERE name=?1||'.'||?2;", -1, &pStmtGetValue, nullptr);
+	}
+
+	~GeneralConfigDb()
+	{
+		sqlite3_finalize(pStmtUpdateValue);
+		sqlite3_finalize(pStmtInsertValue);
+		sqlite3_finalize(pStmtGetValue);
+
+		sqlite3_close(pDb);
+	}
+
+	bool SetValue(const wchar_t *Key, const wchar_t *Name, const wchar_t *Value)
+	{
+		sqlite3_bind_int(pStmtUpdateValue,1,TYPE_TEXT);
+		sqlite3_bind_text16(pStmtUpdateValue,2,Value,-1,SQLITE_STATIC);
+		sqlite3_bind_text16(pStmtUpdateValue,3,Key,-1,SQLITE_STATIC);
+		sqlite3_bind_text16(pStmtUpdateValue,4,Name,-1,SQLITE_STATIC);
+		int res = sqlite3_step(pStmtUpdateValue);
+		sqlite3_reset(pStmtUpdateValue);
+		if (res != SQLITE_DONE || sqlite3_changes(pDb) == 0)
+		{
+			sqlite3_bind_text16(pStmtInsertValue,1,Key,-1,SQLITE_STATIC);
+			sqlite3_bind_text16(pStmtInsertValue,2,Name,-1,SQLITE_STATIC);
+			sqlite3_bind_int(pStmtInsertValue,3,TYPE_TEXT);
+			sqlite3_bind_text16(pStmtInsertValue,4,Value,-1,SQLITE_STATIC);
+			res = sqlite3_step(pStmtInsertValue);
+			sqlite3_reset(pStmtInsertValue);
+		}
+		return res == SQLITE_DONE;
+	}
+
+	bool SetValue(const wchar_t *Key, const wchar_t *Name, unsigned __int64 Value)
+	{
+		sqlite3_bind_int(pStmtUpdateValue,1,TYPE_INTEGER);
+		sqlite3_bind_int64(pStmtUpdateValue,2,Value);
+		sqlite3_bind_text16(pStmtUpdateValue,3,Key,-1,SQLITE_STATIC);
+		sqlite3_bind_text16(pStmtUpdateValue,4,Name,-1,SQLITE_STATIC);
+		int res = sqlite3_step(pStmtUpdateValue);
+		sqlite3_reset(pStmtUpdateValue);
+		if (res != SQLITE_DONE || sqlite3_changes(pDb) == 0)
+		{
+			sqlite3_bind_text16(pStmtInsertValue,1,Key,-1,SQLITE_STATIC);
+			sqlite3_bind_text16(pStmtInsertValue,2,Name,-1,SQLITE_STATIC);
+			sqlite3_bind_int(pStmtInsertValue,3,TYPE_INTEGER);
+			sqlite3_bind_int64(pStmtInsertValue,4,Value);
+			res = sqlite3_step(pStmtInsertValue);
+			sqlite3_reset(pStmtInsertValue);
+		}
+		return res == SQLITE_DONE;
+	}
+
+	bool SetValue(const wchar_t *Key, const wchar_t *Name, const void *Value, int Size)
+	{
+		sqlite3_bind_int(pStmtUpdateValue,1,TYPE_BLOB);
+		sqlite3_bind_blob(pStmtUpdateValue,2,Value,Size,SQLITE_STATIC);
+		sqlite3_bind_text16(pStmtUpdateValue,3,Key,-1,SQLITE_STATIC);
+		sqlite3_bind_text16(pStmtUpdateValue,4,Name,-1,SQLITE_STATIC);
+		int res = sqlite3_step(pStmtUpdateValue);
+		sqlite3_reset(pStmtUpdateValue);
+		if (res != SQLITE_DONE || sqlite3_changes(pDb) == 0)
+		{
+			sqlite3_bind_text16(pStmtInsertValue,1,Key,-1,SQLITE_STATIC);
+			sqlite3_bind_text16(pStmtInsertValue,2,Name,-1,SQLITE_STATIC);
+			sqlite3_bind_int(pStmtInsertValue,3,TYPE_BLOB);
+			sqlite3_bind_blob(pStmtInsertValue,4,Value,Size,SQLITE_STATIC);
+			res = sqlite3_step(pStmtInsertValue);
+			sqlite3_reset(pStmtInsertValue);
+		}
+		return res == SQLITE_DONE;
+	}
+
+	bool GetValue(const wchar_t *Key, const wchar_t *Name, unsigned __int64 *Value)
+	{
+		sqlite3_bind_text16(pStmtGetValue,1,Key,-1,SQLITE_STATIC);
+		sqlite3_bind_text16(pStmtGetValue,2,Name,-1,SQLITE_STATIC);
+		int res = sqlite3_step(pStmtGetValue);
+		if (res == SQLITE_ROW)
+		{
+			*Value = sqlite3_column_int64(pStmtGetValue,0);
+		}
+		sqlite3_reset(pStmtGetValue);
+		return res == SQLITE_ROW;
+	}
+
+	bool GetValue(const wchar_t *Key, const wchar_t *Name, string &strValue)
+	{
+		sqlite3_bind_text16(pStmtGetValue,1,Key,-1,SQLITE_STATIC);
+		sqlite3_bind_text16(pStmtGetValue,2,Name,-1,SQLITE_STATIC);
+		int res = sqlite3_step(pStmtGetValue);
+		if (res == SQLITE_ROW)
+		{
+			strValue = (const wchar_t *)sqlite3_column_text16(pStmtGetValue,0);
+		}
+		sqlite3_reset(pStmtGetValue);
+		return res == SQLITE_ROW;
+	}
+
+	int GetValue(const wchar_t *Key, const wchar_t *Name, char *Value, int Size)
+	{
+		int res = 0;
+		sqlite3_bind_text16(pStmtGetValue,1,Key,-1,SQLITE_STATIC);
+		sqlite3_bind_text16(pStmtGetValue,2,Name,-1,SQLITE_STATIC);
+		if (sqlite3_step(pStmtGetValue) == SQLITE_ROW)
+		{
+			const void *blob = sqlite3_column_blob(pStmtGetValue,0);
+			res = sqlite3_column_bytes(pStmtGetValue,0);
+			if (Value)
+				memcpy(Value,blob,Min(res,Size));
+		}
+		sqlite3_reset(pStmtGetValue);
+		return res;
+	}
+
+	void GetValue(const wchar_t *Key, const wchar_t *Name, DWORD *Value, DWORD Default)
+	{   unsigned __int64 v;
+		if (GetValue(Key,Name,&v))
+		{   *Value = (DWORD)v;
+			return;
+		}
+		*Value = Default;
+	}
+
+	void GetValue(const wchar_t *Key, const wchar_t *Name, string &strValue, const wchar_t *Default)
+	{
+		if (GetValue(Key,Name,strValue))
+			return;
+		strValue=Default;
+	}
+
+	int GetValue(const wchar_t *Key, const wchar_t *Name, char *Value, int Size, const char *Default)
+	{
+		int s = GetValue(Key,Name,Value,Size);
+		if (s)
+			return s;
+		if (Default)
+		{
+			memcpy(Value,Default,Size);
+			return Size;
+		}
+		return 0;
+	}
+};
+
+GeneralConfigDb db;
 
 Options Opt={0};
 
@@ -81,24 +273,24 @@ const wchar_t NKeyColors[]=L"Colors";
 const wchar_t NKeyScreen[]=L"Screen";
 const wchar_t NKeyCmdline[]=L"Cmdline";
 const wchar_t NKeyInterface[]=L"Interface";
-const wchar_t NKeyInterfaceCompletion[]=L"Interface\\Completion";
+const wchar_t NKeyInterfaceCompletion[]=L"Interface.Completion";
 const wchar_t NKeyViewer[]=L"Viewer";
 const wchar_t NKeyDialog[]=L"Dialog";
 const wchar_t NKeyEditor[]=L"Editor";
 const wchar_t NKeyXLat[]=L"XLat";
 const wchar_t NKeySystem[]=L"System";
-const wchar_t NKeySystemExecutor[]=L"System\\Executor";
-const wchar_t NKeySystemNowell[]=L"System\\Nowell";
+const wchar_t NKeySystemExecutor[]=L"System.Executor";
+const wchar_t NKeySystemNowell[]=L"System.Nowell";
 const wchar_t NKeyHelp[]=L"Help";
 const wchar_t NKeyLanguage[]=L"Language";
 const wchar_t NKeyConfirmations[]=L"Confirmations";
 const wchar_t NKeyPluginConfirmations[]=L"PluginConfirmations";
 const wchar_t NKeyPanel[]=L"Panel";
-const wchar_t NKeyPanelLeft[]=L"Panel\\Left";
-const wchar_t NKeyPanelRight[]=L"Panel\\Right";
-const wchar_t NKeyPanelLayout[]=L"Panel\\Layout";
-const wchar_t NKeyPanelTree[]=L"Panel\\Tree";
-const wchar_t NKeyPanelInfo[]=L"Panel\\Info";
+const wchar_t NKeyPanelLeft[]=L"Panel.Left";
+const wchar_t NKeyPanelRight[]=L"Panel.Right";
+const wchar_t NKeyPanelLayout[]=L"Panel.Layout";
+const wchar_t NKeyPanelTree[]=L"Panel.Tree";
+const wchar_t NKeyPanelInfo[]=L"Panel.Info";
 const wchar_t NKeyLayout[]=L"Layout";
 const wchar_t NKeyDescriptions[]=L"Descriptions";
 const wchar_t NKeyKeyMacros[]=L"KeyMacros";
@@ -699,7 +891,7 @@ static struct FARConfig
 	{0, REG_DWORD,  NKeySystem,L"SubstNameRule", &Opt.SubstNameRule, 2, 0},
 	{0, REG_DWORD,  NKeySystem,L"ShowCheckingFile", &Opt.ShowCheckingFile, 0, 0},
 	{0, REG_DWORD,  NKeySystem,L"DelThreadPriority", &Opt.DelThreadPriority, THREAD_PRIORITY_NORMAL, 0},
-  {0, REG_SZ,     NKeySystem,L"QuotedSymbols",&Opt.strQuotedSymbols, 0, L" &()[]{}^=;!'+,`\xA0"}, //xA0 => 160 =>oem(0xFF)
+	{0, REG_SZ,     NKeySystem,L"QuotedSymbols",&Opt.strQuotedSymbols, 0, L" &()[]{}^=;!'+,`\xA0"}, //xA0 => 160 =>oem(0xFF)
 	{0, REG_DWORD,  NKeySystem,L"QuotedName",&Opt.QuotedName,0xFFFFFFFFU, 0},
 	//{0, REG_DWORD,  NKeySystem,L"CPAJHefuayor",&Opt.strCPAJHefuayor,0, 0},
 	{0, REG_DWORD,  NKeySystem,L"CloseConsoleRule",&Opt.CloseConsoleRule,1, 0},
@@ -855,7 +1047,7 @@ void ReadConfig()
 	OptPolicies_ShowHiddenDrives=GetRegKey(NKeyPolicies,L"ShowHiddenDrives",1)&1;
 	OptPolicies_DisabledOptions=GetRegKey(NKeyPolicies,L"DisabledOptions",0);
 	SetRegRootKey(HKEY_CURRENT_USER);
-	GetRegKey(NKeySystem,L"PersonalPluginsPath",Opt.LoadPlug.strPersonalPluginsPath, strPersonalPluginsPath);
+	db.GetValue(NKeySystem,L"PersonalPluginsPath",Opt.LoadPlug.strPersonalPluginsPath, strPersonalPluginsPath);
 	bool ExplicitWindowMode=Opt.WindowMode!=FALSE;
 	//Opt.LCIDSort=LOCALE_USER_DEFAULT; // проинициализируем на всякий случай
 	/* *************************************************** </ПРЕПРОЦЕССЫ> */
@@ -865,13 +1057,13 @@ void ReadConfig()
 		switch (CFG[I].ValType)
 		{
 			case REG_DWORD:
-				GetRegKey(CFG[I].KeyName, CFG[I].ValName,*(int *)CFG[I].ValPtr,(DWORD)CFG[I].DefDWord);
+				db.GetValue(CFG[I].KeyName, CFG[I].ValName,(DWORD *)CFG[I].ValPtr,(DWORD)CFG[I].DefDWord);
 				break;
 			case REG_SZ:
-				GetRegKey(CFG[I].KeyName, CFG[I].ValName,*(string *)CFG[I].ValPtr,CFG[I].DefStr);
+				db.GetValue(CFG[I].KeyName, CFG[I].ValName,*(string *)CFG[I].ValPtr,CFG[I].DefStr);
 				break;
 			case REG_BINARY:
-				int Size=GetRegKey(CFG[I].KeyName, CFG[I].ValName,(BYTE*)CFG[I].ValPtr,(BYTE*)CFG[I].DefStr,CFG[I].DefDWord);
+				int Size=db.GetValue(CFG[I].KeyName, CFG[I].ValName,(char *)CFG[I].ValPtr,(int)CFG[I].DefDWord,(const char *)CFG[I].DefStr);
 
 				if (Size && Size < (int)CFG[I].DefDWord)
 					memset(((BYTE*)CFG[I].ValPtr)+Size,0,CFG[I].DefDWord-Size);
@@ -934,12 +1126,12 @@ void ReadConfig()
 	if (Opt.ViOpt.TabSize<1 || Opt.ViOpt.TabSize>512)
 		Opt.ViOpt.TabSize=8;
 
-	GetRegKey(NKeyKeyMacros,L"KeyRecordCtrlDot",strKeyNameFromReg,szCtrlDot);
+	db.GetValue(NKeyKeyMacros,L"KeyRecordCtrlDot",strKeyNameFromReg,szCtrlDot);
 
 	if ((Opt.Macro.KeyMacroCtrlDot=KeyNameToKey(strKeyNameFromReg)) == (DWORD)-1)
 		Opt.Macro.KeyMacroCtrlDot=KEY_CTRLDOT;
 
-	GetRegKey(NKeyKeyMacros,L"KeyRecordCtrlShiftDot",strKeyNameFromReg,szCtrlShiftDot);
+	db.GetValue(NKeyKeyMacros,L"KeyRecordCtrlShiftDot",strKeyNameFromReg,szCtrlShiftDot);
 
 	if ((Opt.Macro.KeyMacroCtrlShiftDot=KeyNameToKey(strKeyNameFromReg)) == (DWORD)-1)
 		Opt.Macro.KeyMacroCtrlShiftDot=KEY_CTRLSHIFTDOT;
@@ -961,7 +1153,7 @@ void ReadConfig()
 		Opt.XLat.CurrentLayout=0;
 		memset(Opt.XLat.Layouts,0,sizeof(Opt.XLat.Layouts));
 		string strXLatLayouts;
-		GetRegKey(NKeyXLat,L"Layouts",strXLatLayouts,L"");
+		db.GetValue(NKeyXLat,L"Layouts",strXLatLayouts,L"");
 
 		if (!strXLatLayouts.IsEmpty())
 		{
@@ -1058,8 +1250,8 @@ void SaveConfig(int Ask)
 	RightPanel->GetCurBaseName(Opt.strRightCurFile,strTemp);
 	CtrlObject->HiFiles->SaveHiData();
 	/* *************************************************** </ПРЕПРОЦЕССЫ> */
-	SetRegKey(NKeySystem,L"PersonalPluginsPath",Opt.LoadPlug.strPersonalPluginsPath);
-	SetRegKey(NKeyLanguage,L"Main",Opt.strLanguage);
+	db.SetValue(NKeySystem,L"PersonalPluginsPath",Opt.LoadPlug.strPersonalPluginsPath);
+	db.SetValue(NKeyLanguage,L"Main",Opt.strLanguage);
 
 	for (size_t I=0; I < ARRAYSIZE(CFG); ++I)
 	{
@@ -1067,13 +1259,13 @@ void SaveConfig(int Ask)
 			switch (CFG[I].ValType)
 			{
 				case REG_DWORD:
-					SetRegKey(CFG[I].KeyName, CFG[I].ValName,*(int *)CFG[I].ValPtr);
+					db.SetValue(CFG[I].KeyName, CFG[I].ValName,*(int *)CFG[I].ValPtr);
 					break;
 				case REG_SZ:
-					SetRegKey(CFG[I].KeyName, CFG[I].ValName,*(string *)CFG[I].ValPtr);
+					db.SetValue(CFG[I].KeyName, CFG[I].ValName,*(string *)CFG[I].ValPtr);
 					break;
 				case REG_BINARY:
-					SetRegKey(CFG[I].KeyName, CFG[I].ValName,(BYTE*)CFG[I].ValPtr,CFG[I].DefDWord);
+					db.SetValue(CFG[I].KeyName, CFG[I].ValName,(BYTE*)CFG[I].ValPtr,CFG[I].DefDWord);
 					break;
 			}
 	}
