@@ -76,6 +76,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "console.hpp"
 #include "wakeful.hpp"
+#include "configdb.hpp"
 
 /* Общее время ожидания пользователя */
 extern long WaitUserTime;
@@ -947,7 +948,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	_tran(SysLog(L"call (*FrameManager)[0]->LockRefresh()"));
 	(*FrameManager)[0]->Lock();
 	// Размер буфера берется из реестра
-	GetRegKey(L"System", L"CopyBufferSize", CopyBufferSize, 0);
+	GeneralCfg->GetValue(L"System", L"CopyBufferSize", &CopyBufferSize, 0);
 	CopyBufferSize=Max(CopyBufferSize,(int)COPY_BUFFER_SIZE);
 	CDP.thisClass=this;
 	CDP.AltF10=0;

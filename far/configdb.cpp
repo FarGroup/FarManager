@@ -38,6 +38,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "sqlite/sqlite3.h"
 
+GeneralConfig *GeneralCfg;
+
+PluginsConfig *PluginsCfg;
+
 void GetDatabasePath(const wchar_t *FileName, string &strOut)
 {
 	SHGetFolderPath(NULL,CSIDL_APPDATA|CSIDL_FLAG_CREATE,NULL,0,strOut.GetBuffer(MAX_PATH));
@@ -54,11 +58,14 @@ class GeneralConfigDb: public GeneralConfig {
 	sqlite3_stmt *pStmtUpdateValue;
 	sqlite3_stmt *pStmtInsertValue;
 	sqlite3_stmt *pStmtGetValue;
+	sqlite3_stmt *pStmtDelValue;
+	sqlite3_stmt *pStmtEnumValues;
 
 public:
 
-	GeneralConfigDb() : pDb(nullptr), pStmtUpdateValue(nullptr), pStmtInsertValue(nullptr), pStmtGetValue(nullptr)
+	GeneralConfigDb() : pDb(nullptr), pStmtUpdateValue(nullptr), pStmtInsertValue(nullptr), pStmtGetValue(nullptr), pStmtDelValue(nullptr), pStmtEnumValues(nullptr)
 	{
+		GeneralCfg = this;
 		string strPath;
 		GetDatabasePath(L"generalconfig.db", strPath);
 		if (sqlite3_open16(strPath.CPtr(),&pDb) != SQLITE_OK)
@@ -67,23 +74,33 @@ public:
 			pDb = nullptr;
 			//if failed, let's open a memory only db so Far can work anyway
 			if (sqlite3_open16(L":memory:",&pDb) != SQLITE_OK)
+			{
+				sqlite3_close(pDb);
+				pDb = nullptr;
 				return;
+			}
 		}
 
-		//scheme
+		//schema
 		sqlite3_exec(pDb,
 			"PRAGMA synchronous = OFF;"
-			"CREATE TABLE IF NOT EXISTS general_config(name TEXT NOT NULL PRIMARY KEY, type INTEGER NOT NULL, value BLOB);"
+			"CREATE TABLE IF NOT EXISTS general_config(key TEXT NOT NULL, name TEXT NOT NULL, type INTEGER NOT NULL, value BLOB, PRIMARY KEY (key, name));"
 			,NULL,NULL,NULL);
 
 		//update value statement
-		sqlite3_prepare16_v2(pDb, L"UPDATE general_config SET type=?1, value=?2 WHERE name=?3||'.'||?4;", -1, &pStmtUpdateValue, nullptr);
+		sqlite3_prepare16_v2(pDb, L"UPDATE general_config SET type=?1, value=?2 WHERE key=?3 AND name=?4;", -1, &pStmtUpdateValue, nullptr);
 
 		//insert value statement
-		sqlite3_prepare16_v2(pDb, L"INSERT INTO general_config VALUES (?1||'.'||?2,?3,?4);", -1, &pStmtInsertValue, nullptr);
+		sqlite3_prepare16_v2(pDb, L"INSERT INTO general_config VALUES (?1,?2,?3,?4);", -1, &pStmtInsertValue, nullptr);
 
 		//get value statement
-		sqlite3_prepare16_v2(pDb, L"SELECT value FROM general_config WHERE name=?1||'.'||?2;", -1, &pStmtGetValue, nullptr);
+		sqlite3_prepare16_v2(pDb, L"SELECT value FROM general_config WHERE key=?1 AND name=?2;", -1, &pStmtGetValue, nullptr);
+
+		//delete value statement
+		sqlite3_prepare16_v2(pDb, L"DELETE FROM general_config WHERE key=?1 AND name=?2;", -1, &pStmtDelValue, nullptr);
+
+		//enum values statement
+		sqlite3_prepare16_v2(pDb, L"SELECT name, value FROM general_config WHERE key=?1;", -1, &pStmtEnumValues, nullptr);
 	}
 
 	virtual ~GeneralConfigDb()
@@ -91,6 +108,8 @@ public:
 		sqlite3_finalize(pStmtUpdateValue);
 		sqlite3_finalize(pStmtInsertValue);
 		sqlite3_finalize(pStmtGetValue);
+		sqlite3_finalize(pStmtDelValue);
+		sqlite3_finalize(pStmtEnumValues);
 
 		sqlite3_close(pDb);
 	}
@@ -216,20 +235,44 @@ public:
 		return res;
 	}
 
-	void GetValue(const wchar_t *Key, const wchar_t *Name, DWORD *Value, DWORD Default)
-	{   unsigned __int64 v;
+	bool GetValue(const wchar_t *Key, const wchar_t *Name, DWORD *Value, DWORD Default)
+	{
+		unsigned __int64 v;
 		if (GetValue(Key,Name,&v))
 		{   *Value = (DWORD)v;
-			return;
+			return true;
 		}
 		*Value = Default;
+		return false;
 	}
 
-	void GetValue(const wchar_t *Key, const wchar_t *Name, string &strValue, const wchar_t *Default)
+	bool GetValue(const wchar_t *Key, const wchar_t *Name, int *Value, int Default)
+	{
+		unsigned __int64 v;
+		if (GetValue(Key,Name,&v))
+		{   *Value = (int)v;
+			return true;
+		}
+		*Value = Default;
+		return false;
+	}
+
+	int GetValue(const wchar_t *Key, const wchar_t *Name, int Default)
+	{
+		unsigned __int64 v;
+		if (GetValue(Key,Name,&v))
+		{
+			return (int)v;
+		}
+		return Default;
+	}
+
+	bool GetValue(const wchar_t *Key, const wchar_t *Name, string &strValue, const wchar_t *Default)
 	{
 		if (GetValue(Key,Name,strValue))
-			return;
+			return true;
 		strValue=Default;
+		return false;
 	}
 
 	int GetValue(const wchar_t *Key, const wchar_t *Name, char *Value, int Size, const char *Default)
@@ -243,6 +286,54 @@ public:
 			return Size;
 		}
 		return 0;
+	}
+
+	bool DeleteValue(const wchar_t *Key, const wchar_t *Name)
+	{
+		sqlite3_bind_text16(pStmtDelValue,1,Key,-1,SQLITE_STATIC);
+		sqlite3_bind_text16(pStmtDelValue,2,Name,-1,SQLITE_STATIC);
+		int res = sqlite3_step(pStmtDelValue);
+		sqlite3_clear_bindings(pStmtDelValue);
+		sqlite3_reset(pStmtDelValue);
+		return res == SQLITE_DONE;
+	}
+
+	bool EnumValues(const wchar_t *Key, DWORD Index, string &strName, string &strValue)
+	{
+		if (Index == 0)
+		{
+			sqlite3_clear_bindings(pStmtEnumValues);
+			sqlite3_reset(pStmtEnumValues);
+			sqlite3_bind_text16(pStmtEnumValues,1,Key,-1,SQLITE_TRANSIENT);
+		}
+
+		if (sqlite3_step(pStmtEnumValues) == SQLITE_ROW)
+		{
+			strName = (const wchar_t *)sqlite3_column_text16(pStmtEnumValues,0);
+			strValue = (const wchar_t *)sqlite3_column_text16(pStmtEnumValues,1);
+			return true;
+		}
+
+		return false;
+	}
+
+	bool EnumValues(const wchar_t *Key, DWORD Index, string &strName, DWORD *Value)
+	{
+		if (Index == 0)
+		{
+			sqlite3_clear_bindings(pStmtEnumValues);
+			sqlite3_reset(pStmtEnumValues);
+			sqlite3_bind_text16(pStmtEnumValues,1,Key,-1,SQLITE_TRANSIENT);
+		}
+
+		if (sqlite3_step(pStmtEnumValues) == SQLITE_ROW)
+		{
+			strName = (const wchar_t *)sqlite3_column_text16(pStmtEnumValues,0);
+			*Value = (DWORD)sqlite3_column_int(pStmtEnumValues,1);
+			return true;
+		}
+
+		return false;
 	}
 };
 
@@ -261,6 +352,7 @@ public:
 
 	PluginsConfigDb() : pDb(nullptr),  pStmtCreateKey(nullptr), pStmtFindKey(nullptr), pStmtSetKeyDescription(nullptr), pStmtSetValue(nullptr), pStmtGetValue(nullptr), pStmtEnumKeys(nullptr), pStmtEnumValues(nullptr), pStmtDelValue(nullptr)
 	{
+		PluginsCfg = this;
 		string strPath;
 		GetDatabasePath(L"pluginsconfig.db", strPath);
 		if (sqlite3_open16(strPath.CPtr(),&pDb) != SQLITE_OK)
@@ -269,7 +361,11 @@ public:
 			pDb = nullptr;
 			//if failed, let's open a memory only db so Far can work anyway
 			if (sqlite3_open16(L":memory:",&pDb) != SQLITE_OK)
+			{
+				sqlite3_close(pDb);
+				pDb = nullptr;
 				return;
+			}
 		}
 
 		//schema
@@ -507,13 +603,3 @@ public:
 
 static GeneralConfigDb gc;
 static PluginsConfigDb pc;
-
-GeneralConfig *GetGeneralConfig()
-{
-	return &gc;
-}
-
-PluginsConfig *GetPluginsConfig()
-{
-	return &pc;
-}

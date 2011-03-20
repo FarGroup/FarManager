@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "registry.hpp"
 #include "config.hpp"
+#include "configdb.hpp"
 
 static int _cdecl LCSort(const void *el1,const void *el2);
 
@@ -86,7 +87,7 @@ void InitLCIDSort()
 		LCSortBuffer[i]=static_cast<BYTE>(i);
 	}
 
-	Opt.LCIDSort=GetRegKey(L"System",L"LCID",LOCALE_USER_DEFAULT);
+	Opt.LCIDSort=GeneralCfg->GetValue(L"System",L"LCID",LOCALE_USER_DEFAULT);
 	far_qsort(LCSortBuffer,256,sizeof(LCSortBuffer[0]),LCSort);
 
 	for (size_t i=0; i<ARRAYSIZE(LCSortBuffer); i++)

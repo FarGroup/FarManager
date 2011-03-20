@@ -63,6 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cmdline.hpp"
 #include "console.hpp"
 #include "history.hpp"
+#include "configdb.hpp"
 
 #ifdef DIRECT_RT
 int DirectRT=0;
@@ -610,7 +611,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	}
 
 	InitConsole();
-	GetRegKey(L"Language",L"Main",Opt.strLanguage,L"English");
+	GeneralCfg->GetValue(L"Language",L"Main",Opt.strLanguage,L"English");
 
 	if (!Lang.Init(g_strFarPath,true,MNewFileName))
 	{
@@ -642,10 +643,10 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
 	if (Opt.ExceptRules == -1)
 	{
-		GetRegKey(L"System",L"ExceptRules",Opt.ExceptRules,1);
+		GeneralCfg->GetValue(L"System",L"ExceptRules",&Opt.ExceptRules,1);
 	}
 
-	ErrorMode=SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX|(Opt.ExceptRules?SEM_NOGPFAULTERRORBOX:0)|(GetRegKey(L"System\\Exception", L"IgnoreDataAlignmentFaults", 0)?SEM_NOALIGNMENTFAULTEXCEPT:0);
+	ErrorMode=SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX|(Opt.ExceptRules?SEM_NOGPFAULTERRORBOX:0)|(GeneralCfg->GetValue(L"System.Exception", L"IgnoreDataAlignmentFaults", 0)?SEM_NOALIGNMENTFAULTEXCEPT:0);
 	SetErrorMode(ErrorMode);
 
 	int Result=MainProcessSEH(strEditName,strViewName,DestNames[0],DestNames[1],StartLine,StartChar);

@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "array.hpp"
 #include "plugin.hpp"
-#include "configdb.hpp"
 
 template <class Object> class Vector
 {
@@ -71,7 +70,6 @@ class PluginSettings
 		TPointerArray<unsigned __int64> m_Keys;
 		TPointerArray<char*> m_Data;
 		TPointerArray<Vector<FarSettingsName> > m_Enum;
-		PluginsConfig *db;
 		PluginSettings();
 	public:
 		PluginSettings(const GUID& Guid);

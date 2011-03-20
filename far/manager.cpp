@@ -57,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exitcode.hpp"
 #include "scrbuf.hpp"
 #include "console.hpp"
+#include "configdb.hpp"
 
 Manager *FrameManager;
 long CurrentWindowType=-1;
@@ -824,7 +825,7 @@ int Manager::ProcessKey(DWORD Key)
 #if defined(FAR_ALPHA_VERSION)
 
 // сей код для проверки исключатор, просьба не трогать :-)
-		if (Key == (KEY_APPS|KEY_CTRL|KEY_ALT) && GetRegKey(L"System\\Exception",L"Used",0))
+		if (Key == (KEY_APPS|KEY_CTRL|KEY_ALT) && GeneralCfg->GetValue(L"System.Exception",L"Used",0))
 		{
 			struct __ECODE
 			{

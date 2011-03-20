@@ -67,6 +67,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "lasterror.hpp"
 #include "colormix.hpp"
+#include "configdb.hpp"
 
 static const wchar_t *wszReg_Preload=L"Preload";
 
@@ -3319,7 +3320,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 			FarAdvControl(ModuleNumber, ACTL_GETFARMANAGERVERSION, &Info);
 			DWORD FarVer = Info.Major<<8|Info.Minor|Info.Build<<16;
 			int OldFarVer;
-			GetRegKey(L"wrapper",L"version",OldFarVer,FarVer);
+			GeneralCfg->GetValue(L"wrapper",L"version",&OldFarVer,FarVer);
 
 			if (
 			    //не выше текущей версии
@@ -3755,9 +3756,10 @@ int GetEditorCodePageFavA()
 	}
 	else
 	{
-		while (EnumRegValue(FavoriteCodePagesKey,Index++,sTableName,(BYTE*)&selectType,sizeof(selectType)))
+		while (GeneralCfg->EnumValues(FavoriteCodePagesKey,Index++,sTableName,&selectType))
 		{
-			if (!(selectType&CPST_FAVORITE)) continue;
+			if (!(selectType&CPST_FAVORITE))
+				continue;
 
 			nCP=_wtoi(sTableName);
 
@@ -3791,7 +3793,7 @@ void MultiByteRecode(UINT nCPin, UINT nCPout, char *szBuffer, int nLength)
 
 UINT ConvertCharTableToCodePage(int Command)
 {
-	string sTableName;
+	string strTableName;
 	UINT nCP = 0;
 
 	if (Command<0)
@@ -3811,13 +3813,13 @@ UINT ConvertCharTableToCodePage(int Command)
 
 				for (;;)
 				{
-					if (!EnumRegValue(FavoriteCodePagesKey,Index++,sTableName,(BYTE*)&selectType,sizeof(selectType))) return CP_AUTODETECT;
+					if (!GeneralCfg->EnumValues(FavoriteCodePagesKey,Index++,strTableName,&selectType)) return CP_AUTODETECT;
 
 					if (!(selectType&CPST_FAVORITE)) continue;
 
 					if (FavIndex==Command)
 					{
-						nCP=_wtoi(sTableName);
+						nCP=_wtoi(strTableName);
 						break;
 					}
 

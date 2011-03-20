@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "udlist.hpp"
 #include "registry.hpp"
 #include "config.hpp"
+#include "configdb.hpp"
 
 #define MSIZE_PARAM1           (sizeof(DWORD64)*5)
 #define MSIZE_PARAM            (Opt.MaxPositionCache*MSIZE_PARAM1)
@@ -57,7 +58,7 @@ FilePositionCache::FilePositionCache():
 {
 	if (!Opt.MaxPositionCache)
 	{
-		GetRegKey(L"System",L"MaxPositionCache",Opt.MaxPositionCache,MAX_POSITIONS);
+		GeneralCfg->GetValue(L"System",L"MaxPositionCache",&Opt.MaxPositionCache,MAX_POSITIONS);
 	}
 
 	Names=new string[Opt.MaxPositionCache];

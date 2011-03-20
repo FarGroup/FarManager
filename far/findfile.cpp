@@ -78,6 +78,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "setattr.hpp"
 #include "udlist.hpp"
 #include "keyboard.hpp"
+#include "configdb.hpp"
 
 const int CHAR_TABLE_SIZE=5;
 const int LIST_DELTA=64;
@@ -513,7 +514,7 @@ void InitInFileSearch()
 				bool hasSelected = false;
 
 				// Проверяем наличие выбранных страниц символов
-				for (int i=0; EnumRegValue(FavoriteCodePagesKey, i, codePageName, (BYTE *)&data, sizeof(data)); i++)
+				for (DWORD i=0; GeneralCfg->EnumValues(FavoriteCodePagesKey, i, codePageName, &data); i++)
 				{
 					if (data & CPST_FIND)
 					{
@@ -541,7 +542,7 @@ void InitInFileSearch()
 				}
 
 				// Добавляем стандартные таблицы символов
-				for (int i=0; EnumRegValue(FavoriteCodePagesKey, i, codePageName, (BYTE *)&data, sizeof(data)); i++)
+				for (DWORD i=0; GeneralCfg->EnumValues(FavoriteCodePagesKey, i, codePageName, &data); i++)
 				{
 					if (data & (hasSelected?CPST_FIND:CPST_FAVORITE))
 					{
@@ -1007,7 +1008,7 @@ INT_PTR WINAPI MainDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 								strCodePageName.Format(L"%u", SelectedCodePage);
 								// Получаем текущее состояние флага в реестре
 								int SelectType = 0;
-								GetRegKey(FavoriteCodePagesKey, strCodePageName, SelectType, 0);
+								GeneralCfg->GetValue(FavoriteCodePagesKey, strCodePageName, &SelectType, 0);
 
 								// Отмечаем/разотмечаем таблицу символов
 								if (Item.Item.Flags & LIF_CHECKED)
@@ -1015,15 +1016,15 @@ INT_PTR WINAPI MainDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 									// Для стандартных таблиц символов просто удаляем значение из рееста, для
 									// любимых же оставляем в реестре флаг, что таблица символов любимая
 									if (SelectType & CPST_FAVORITE)
-										SetRegKey(FavoriteCodePagesKey, strCodePageName, CPST_FAVORITE);
+										GeneralCfg->SetValue(FavoriteCodePagesKey, strCodePageName, CPST_FAVORITE);
 									else
-										DeleteRegValue(FavoriteCodePagesKey, strCodePageName);
+										GeneralCfg->DeleteValue(FavoriteCodePagesKey, strCodePageName);
 
 									Item.Item.Flags &= ~LIF_CHECKED;
 								}
 								else
 								{
-									SetRegKey(FavoriteCodePagesKey, strCodePageName, CPST_FIND | (SelectType & CPST_FAVORITE ?  CPST_FAVORITE : 0));
+									GeneralCfg->SetValue(FavoriteCodePagesKey, strCodePageName, CPST_FIND | (SelectType & CPST_FAVORITE ?  CPST_FAVORITE : 0));
 									Item.Item.Flags |= LIF_CHECKED;
 								}
 

@@ -36,15 +36,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugsettings.hpp"
 #include "ctrlobj.hpp"
 #include "strmix.hpp"
+#include "configdb.hpp"
 
 PluginSettings::PluginSettings(const GUID& Guid)
 {
-	db = GetPluginsConfig();
 	Plugin* pPlugin=CtrlObject?CtrlObject->Plugins.FindPlugin(Guid):nullptr;
 	if (pPlugin)
 	{
 		unsigned __int64& root(*m_Keys.insertItem(0));
-		root=db->CreateKey(0,GuidToStr(Guid), pPlugin->GetTitle());
+		root=PluginsCfg->CreateKey(0,GuidToStr(Guid), pPlugin->GetTitle());
 	}
 }
 
@@ -82,13 +82,13 @@ int PluginSettings::Set(const FarSettingsItem& Item)
 				}
 				break;
 			case FST_QWORD:
-				if (db->SetValue(*m_Keys.getItem(Item.Root),Item.Name,Item.Number)) result=TRUE;
+				if (PluginsCfg->SetValue(*m_Keys.getItem(Item.Root),Item.Name,Item.Number)) result=TRUE;
 				break;
 			case FST_STRING:
-				if (db->SetValue(*m_Keys.getItem(Item.Root),Item.Name,Item.String)) result=TRUE;
+				if (PluginsCfg->SetValue(*m_Keys.getItem(Item.Root),Item.Name,Item.String)) result=TRUE;
 				break;
 			case FST_DATA:
-				if (db->SetValue(*m_Keys.getItem(Item.Root),Item.Name,Item.Data.Data,(int)Item.Data.Size)) result=TRUE;
+				if (PluginsCfg->SetValue(*m_Keys.getItem(Item.Root),Item.Name,Item.Data.Data,(int)Item.Data.Size)) result=TRUE;
 				break;
 			default:
 				break;
@@ -109,7 +109,7 @@ int PluginSettings::Get(FarSettingsItem& Item)
 			case FST_QWORD:
 				{
 					unsigned __int64 value;
-					if (db->GetValue(*m_Keys.getItem(Item.Root),Item.Name,&value))
+					if (PluginsCfg->GetValue(*m_Keys.getItem(Item.Root),Item.Name,&value))
 					{
 						result=TRUE;
 						Item.Number=value;
@@ -119,7 +119,7 @@ int PluginSettings::Get(FarSettingsItem& Item)
 			case FST_STRING:
 				{
 					string data;
-					if (db->GetValue(*m_Keys.getItem(Item.Root),Item.Name,data))
+					if (PluginsCfg->GetValue(*m_Keys.getItem(Item.Root),Item.Name,data))
 					{
 						result=TRUE;
 						char** item=m_Data.addItem();
@@ -132,12 +132,12 @@ int PluginSettings::Get(FarSettingsItem& Item)
 				break;
 			case FST_DATA:
 				{
-					int size=db->GetValue(*m_Keys.getItem(Item.Root),Item.Name,nullptr,0);
+					int size=PluginsCfg->GetValue(*m_Keys.getItem(Item.Root),Item.Name,nullptr,0);
 					if (size)
 					{
 						char** item=m_Data.addItem();
 						*item=new char[size];
-						int checkedSize=db->GetValue(*m_Keys.getItem(Item.Root),Item.Name,*item,size);
+						int checkedSize=PluginsCfg->GetValue(*m_Keys.getItem(Item.Root),Item.Name,*item,size);
 						if (size==checkedSize)
 						{
 							result=TRUE;
@@ -174,12 +174,12 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 
 		unsigned __int64 root = *m_Keys.getItem(Enum.Root);
 		item.Type=FST_SUBKEY;
-		while (db->EnumKeys(root,Index++,strName))
+		while (PluginsCfg->EnumKeys(root,Index++,strName))
 		{
 			AddString(array,item,strName);
 		}
 		Index=0;
-		while (db->EnumValues(root,Index++,strName,&Type))
+		while (PluginsCfg->EnumValues(root,Index++,strName,&Type))
 		{
 			item.Type=FST_UNKNOWN;
 			switch (Type)
@@ -211,15 +211,15 @@ int PluginSettings::Delete(const FarSettingsValue& Value)
 	int result=FALSE;
 	if(Value.Root<m_Keys.getCount())
 	{
-		unsigned __int64 root = db->GetKeyID(*m_Keys.getItem(Value.Root),Value.Value);
+		unsigned __int64 root = PluginsCfg->GetKeyID(*m_Keys.getItem(Value.Root),Value.Value);
 		if (root)
 		{
-			if (db->DeleteKeyTree(root))
+			if (PluginsCfg->DeleteKeyTree(root))
 				result=TRUE;
 		}
 		else
 		{
-			if (db->DeleteValue(*m_Keys.getItem(Value.Root),Value.Value))
+			if (PluginsCfg->DeleteValue(*m_Keys.getItem(Value.Root),Value.Value))
 				result=TRUE;
 		}
 	}
@@ -231,7 +231,7 @@ int PluginSettings::SubKey(const FarSettingsValue& Value)
 	int result=0;
 	if(Value.Root<m_Keys.getCount()&&!wcschr(Value.Value,'\\'))
 	{
-		unsigned __int64 root = db->CreateKey(*m_Keys.getItem(Value.Root),Value.Value);
+		unsigned __int64 root = PluginsCfg->CreateKey(*m_Keys.getItem(Value.Root),Value.Value);
 		if (root)
 		{
 			result=static_cast<int>(m_Keys.getCount());

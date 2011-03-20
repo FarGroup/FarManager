@@ -62,8 +62,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constitle.hpp"
 #include "console.hpp"
 #include "constitle.hpp"
+#include "configdb.hpp"
 
-static const wchar_t strSystemExecutor[]=L"System\\Executor";
+static const wchar_t strSystemExecutor[]=L"System.Executor";
 
 // Выдранный кусок из будущего GetFileInfo, получаем достоверную информацию о ГУЯХ PE-модуля
 
@@ -515,7 +516,7 @@ bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 		// Берем "исключения" из реестра, которые должны исполняться директом,
 		// например, некоторые внутренние команды ком. процессора.
 		string strExcludeCmds;
-		GetRegKey(strSystemExecutor,L"ExcludeCmds",strExcludeCmds,L"");
+		GeneralCfg->GetValue(strSystemExecutor,L"ExcludeCmds",strExcludeCmds,L"");
 		UserDefinedList ExcludeCmdsList;
 		ExcludeCmdsList.Set(strExcludeCmds);
 
@@ -1810,7 +1811,7 @@ BOOL CommandLine::IntChDir(const wchar_t *CmdLine,int ClosePanel,bool Selent)
 	if (SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir.At(0) == L'~' && ((!strExpandedDir.At(1) && apiGetFileAttributes(strExpandedDir) == INVALID_FILE_ATTRIBUTES) || IsSlash(strExpandedDir.At(1))))
 	{
 		string strTemp;
-		GetRegKey(strSystemExecutor,L"~",strTemp,g_strFarPath);
+		GeneralCfg->GetValue(strSystemExecutor,L"~",strTemp,g_strFarPath);
 
 		if (strExpandedDir.At(1))
 		{

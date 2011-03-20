@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "palette.hpp"
 #include "keys.hpp"
 #include "keyboard.hpp"
+#include "configdb.hpp"
 
 int WriteEvent(DWORD DumpType, // FLOG_*
                EXCEPTION_POINTERS *xp,
@@ -205,11 +206,11 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 //   if(From == EXCEPT_KERNEL)
 //     CriticalInternalError=TRUE;
 
-	if (!Is_STACK_OVERFLOW && GetRegKey(L"System\\Exception",L"Used",0))
+	if (!Is_STACK_OVERFLOW && GeneralCfg->GetValue(L"System.Exception",L"Used",0))
 	{
 		static string strFarEventSvc;
 
-		if (GetRegKey(L"System\\Exception",L"FarEvent.svc",strFarEventSvc,L"") && !strFarEventSvc.IsEmpty())
+		if (GeneralCfg->GetValue(L"System.Exception",L"FarEvent.svc",strFarEventSvc,L"") && !strFarEventSvc.IsEmpty())
 		{
 			HMODULE m = LoadLibrary(strFarEventSvc);
 

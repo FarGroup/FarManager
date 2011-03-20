@@ -48,9 +48,14 @@ public:
 	virtual bool SetValue(const wchar_t *Key, const wchar_t *Name, const wchar_t *Value) = 0;
 	virtual bool SetValue(const wchar_t *Key, const wchar_t *Name, unsigned __int64 Value) = 0;
 	virtual bool SetValue(const wchar_t *Key, const wchar_t *Name, const void *Value, int Size) = 0;
-	virtual void GetValue(const wchar_t *Key, const wchar_t *Name, DWORD *Value, DWORD Default) = 0;
-	virtual void GetValue(const wchar_t *Key, const wchar_t *Name, string &strValue, const wchar_t *Default) = 0;
+	virtual bool GetValue(const wchar_t *Key, const wchar_t *Name, DWORD *Value, DWORD Default) = 0;
+	virtual bool GetValue(const wchar_t *Key, const wchar_t *Name, int *Value, int Default) = 0;
+	virtual int GetValue(const wchar_t *Key, const wchar_t *Name, int Default) = 0;
+	virtual bool GetValue(const wchar_t *Key, const wchar_t *Name, string &strValue, const wchar_t *Default) = 0;
 	virtual int GetValue(const wchar_t *Key, const wchar_t *Name, char *Value, int Size, const char *Default) = 0;
+	virtual	bool DeleteValue(const wchar_t *Key, const wchar_t *Name) = 0;
+	virtual bool EnumValues(const wchar_t *Key, DWORD Index, string &strName, string &strValue) = 0;
+	virtual bool EnumValues(const wchar_t *Key, DWORD Index, string &strName, DWORD *Value) = 0;
 };
 
 class PluginsConfig {
@@ -79,6 +84,6 @@ public:
 	virtual bool EnumValues(unsigned __int64 Root, DWORD Index, string &strName, DWORD *Type) = 0;
 };
 
-GeneralConfig *GetGeneralConfig();
+extern GeneralConfig *GeneralCfg;
 
-PluginsConfig *GetPluginsConfig();
+extern PluginsConfig *PluginsCfg;

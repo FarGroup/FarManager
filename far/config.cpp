@@ -61,17 +61,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "udlist.hpp"
 #include "FarDlgBuilder.hpp"
 #include "elevation.hpp"
-#include "history.hpp"
 #include "configdb.hpp"
 
 Options Opt={0};
-GeneralConfig *db;
 
 // Стандартный набор разделителей
 static const wchar_t *WordDiv0 = L"~!%^&*()+|{}:\"<>?`-=\\[];',./";
 
 // Стандартный набор разделителей для функции Xlat
 static const wchar_t *WordDivForXlat0=L" \t!#$%^&*()+|=\\/@?";
+
+const wchar_t *constBatchExt=L".BAT;.CMD;";
 
 string strKeyNameConsoleDetachKey;
 static const wchar_t szCtrlShiftX[]=L"CtrlShiftX";
@@ -106,12 +106,14 @@ const wchar_t NKeyDescriptions[]=L"Descriptions";
 const wchar_t NKeyKeyMacros[]=L"KeyMacros";
 const wchar_t NKeyPolicies[]=L"Policies";
 const wchar_t NKeyFileFilter[]=L"OperationsFilter";
-
 const wchar_t NKeyCodePages[]=L"CodePages";
-const wchar_t NParamHistoryCount[]=L"HistoryCount";
 const wchar_t NKeyVMenu[]=L"VMenu";
+const wchar_t NKeyCommandHistory[]=L"History.CommandHistory";
+const wchar_t NKeyViewEditHistory[]=L"History.ViewEditHistory";
+const wchar_t NKeyFolderHistory[]=L"History.FolderHistory";
+const wchar_t NKeyDialogHistory[]=L"History.DialogHistory";
 
-const wchar_t *constBatchExt=L".BAT;.CMD;";
+const wchar_t NParamHistoryCount[]=L"HistoryCount";
 
 void SystemSettings()
 {
@@ -643,10 +645,10 @@ static struct FARConfig
 	{0, REG_SZ,     NKeyXLat,L"Rules3",&Opt.XLat.Rules[2],0,L""},
 	{0, REG_SZ,     NKeyXLat,L"WordDivForXlat",&Opt.XLat.strWordDivForXlat, 0,WordDivForXlat0},
 
-	{0, REG_DWORD,  CommandHistoryKey, NParamHistoryCount,&Opt.HistoryCount,512, 0},
-	{0, REG_DWORD,  FolderHistoryKey, NParamHistoryCount,&Opt.FoldersHistoryCount,512, 0},
-	{0, REG_DWORD,  ViewEditHistoryKey, NParamHistoryCount,&Opt.ViewHistoryCount,512, 0},
-	{0, REG_DWORD,  DialogHistoryKey, NParamHistoryCount,&Opt.DialogsHistoryCount,512, 0},
+	{0, REG_DWORD,  NKeyCommandHistory, NParamHistoryCount,&Opt.HistoryCount,512, 0},
+	{0, REG_DWORD,  NKeyFolderHistory, NParamHistoryCount,&Opt.FoldersHistoryCount,512, 0},
+	{0, REG_DWORD,  NKeyViewEditHistory, NParamHistoryCount,&Opt.ViewHistoryCount,512, 0},
+	{0, REG_DWORD,  NKeyDialogHistory, NParamHistoryCount,&Opt.DialogsHistoryCount,512, 0},
 
 	{1, REG_DWORD,  NKeySystem,L"SaveHistory",&Opt.SaveHistory,1, 0},
 	{1, REG_DWORD,  NKeySystem,L"SaveFoldersHistory",&Opt.SaveFoldersHistory,1, 0},
@@ -850,8 +852,6 @@ void ReadConfig()
 	string strPersonalPluginsPath;
 	size_t I;
 
-	db = GetGeneralConfig();
-
 	/* <ПРЕПРОЦЕССЫ> *************************************************** */
 	// "Вспомним" путь для дополнительного поиска плагинов
 	SetRegRootKey(HKEY_LOCAL_MACHINE);
@@ -859,7 +859,7 @@ void ReadConfig()
 	OptPolicies_ShowHiddenDrives=GetRegKey(NKeyPolicies,L"ShowHiddenDrives",1)&1;
 	OptPolicies_DisabledOptions=GetRegKey(NKeyPolicies,L"DisabledOptions",0);
 	SetRegRootKey(HKEY_CURRENT_USER);
-	db->GetValue(NKeySystem,L"PersonalPluginsPath",Opt.LoadPlug.strPersonalPluginsPath, strPersonalPluginsPath);
+	GeneralCfg->GetValue(NKeySystem,L"PersonalPluginsPath",Opt.LoadPlug.strPersonalPluginsPath, strPersonalPluginsPath);
 	bool ExplicitWindowMode=Opt.WindowMode!=FALSE;
 	//Opt.LCIDSort=LOCALE_USER_DEFAULT; // проинициализируем на всякий случай
 	/* *************************************************** </ПРЕПРОЦЕССЫ> */
@@ -869,13 +869,13 @@ void ReadConfig()
 		switch (CFG[I].ValType)
 		{
 			case REG_DWORD:
-				db->GetValue(CFG[I].KeyName, CFG[I].ValName,(DWORD *)CFG[I].ValPtr,(DWORD)CFG[I].DefDWord);
+				GeneralCfg->GetValue(CFG[I].KeyName, CFG[I].ValName,(DWORD *)CFG[I].ValPtr,(DWORD)CFG[I].DefDWord);
 				break;
 			case REG_SZ:
-				db->GetValue(CFG[I].KeyName, CFG[I].ValName,*(string *)CFG[I].ValPtr,CFG[I].DefStr);
+				GeneralCfg->GetValue(CFG[I].KeyName, CFG[I].ValName,*(string *)CFG[I].ValPtr,CFG[I].DefStr);
 				break;
 			case REG_BINARY:
-				int Size=db->GetValue(CFG[I].KeyName, CFG[I].ValName,(char *)CFG[I].ValPtr,(int)CFG[I].DefDWord,(const char *)CFG[I].DefStr);
+				int Size=GeneralCfg->GetValue(CFG[I].KeyName, CFG[I].ValName,(char *)CFG[I].ValPtr,(int)CFG[I].DefDWord,(const char *)CFG[I].DefStr);
 
 				if (Size && Size < (int)CFG[I].DefDWord)
 					memset(((BYTE*)CFG[I].ValPtr)+Size,0,CFG[I].DefDWord-Size);
@@ -938,12 +938,12 @@ void ReadConfig()
 	if (Opt.ViOpt.TabSize<1 || Opt.ViOpt.TabSize>512)
 		Opt.ViOpt.TabSize=8;
 
-	db->GetValue(NKeyKeyMacros,L"KeyRecordCtrlDot",strKeyNameFromReg,szCtrlDot);
+	GeneralCfg->GetValue(NKeyKeyMacros,L"KeyRecordCtrlDot",strKeyNameFromReg,szCtrlDot);
 
 	if ((Opt.Macro.KeyMacroCtrlDot=KeyNameToKey(strKeyNameFromReg)) == (DWORD)-1)
 		Opt.Macro.KeyMacroCtrlDot=KEY_CTRLDOT;
 
-	db->GetValue(NKeyKeyMacros,L"KeyRecordCtrlShiftDot",strKeyNameFromReg,szCtrlShiftDot);
+	GeneralCfg->GetValue(NKeyKeyMacros,L"KeyRecordCtrlShiftDot",strKeyNameFromReg,szCtrlShiftDot);
 
 	if ((Opt.Macro.KeyMacroCtrlShiftDot=KeyNameToKey(strKeyNameFromReg)) == (DWORD)-1)
 		Opt.Macro.KeyMacroCtrlShiftDot=KEY_CTRLSHIFTDOT;
@@ -965,7 +965,7 @@ void ReadConfig()
 		Opt.XLat.CurrentLayout=0;
 		memset(Opt.XLat.Layouts,0,sizeof(Opt.XLat.Layouts));
 		string strXLatLayouts;
-		db->GetValue(NKeyXLat,L"Layouts",strXLatLayouts,L"");
+		GeneralCfg->GetValue(NKeyXLat,L"Layouts",strXLatLayouts,L"");
 
 		if (!strXLatLayouts.IsEmpty())
 		{
@@ -1062,9 +1062,9 @@ void SaveConfig(int Ask)
 	RightPanel->GetCurBaseName(Opt.strRightCurFile,strTemp);
 	CtrlObject->HiFiles->SaveHiData();
 	/* *************************************************** </ПРЕПРОЦЕССЫ> */
-	db->Begin();
-	db->SetValue(NKeySystem,L"PersonalPluginsPath",Opt.LoadPlug.strPersonalPluginsPath);
-	db->SetValue(NKeyLanguage,L"Main",Opt.strLanguage);
+	GeneralCfg->Begin();
+	GeneralCfg->SetValue(NKeySystem,L"PersonalPluginsPath",Opt.LoadPlug.strPersonalPluginsPath);
+	GeneralCfg->SetValue(NKeyLanguage,L"Main",Opt.strLanguage);
 
 	for (size_t I=0; I < ARRAYSIZE(CFG); ++I)
 	{
@@ -1072,18 +1072,18 @@ void SaveConfig(int Ask)
 			switch (CFG[I].ValType)
 			{
 				case REG_DWORD:
-					db->SetValue(CFG[I].KeyName, CFG[I].ValName,*(int *)CFG[I].ValPtr);
+					GeneralCfg->SetValue(CFG[I].KeyName, CFG[I].ValName,*(int *)CFG[I].ValPtr);
 					break;
 				case REG_SZ:
-					db->SetValue(CFG[I].KeyName, CFG[I].ValName,*(string *)CFG[I].ValPtr);
+					GeneralCfg->SetValue(CFG[I].KeyName, CFG[I].ValName,*(string *)CFG[I].ValPtr);
 					break;
 				case REG_BINARY:
-					db->SetValue(CFG[I].KeyName, CFG[I].ValName,(BYTE*)CFG[I].ValPtr,CFG[I].DefDWord);
+					GeneralCfg->SetValue(CFG[I].KeyName, CFG[I].ValName,(BYTE*)CFG[I].ValPtr,CFG[I].DefDWord);
 					break;
 			}
 	}
 
-	db->End();
+	GeneralCfg->End();
 	/* <ПОСТПРОЦЕССЫ> *************************************************** */
 	FileFilter::SaveFilters();
 	FileList::SavePanelModes();

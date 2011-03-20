@@ -44,11 +44,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dialog.hpp"
 #include "interf.hpp"
 #include "config.hpp"
+#include "configdb.hpp"
 
 // Ключ где хранятся имена кодовых страниц
-const wchar_t *NamesOfCodePagesKey = L"CodePages\\Names";
+const wchar_t *NamesOfCodePagesKey = L"CodePages.Names";
 
-const wchar_t *FavoriteCodePagesKey = L"CodePages\\Favorites";
+const wchar_t *FavoriteCodePagesKey = L"CodePages.Favorites";
 
 // Стандартные кодовое страницы
 enum StandardCodePages
@@ -223,7 +224,7 @@ void AddStandardCodePage(const wchar_t *codePageName, UINT codePage, int positio
 		FormatString strCodePageName;
 		strCodePageName<<codePage;
 		int selectType = 0;
-		GetRegKey(FavoriteCodePagesKey, strCodePageName, selectType, 0);
+		GeneralCfg->GetValue(FavoriteCodePagesKey, strCodePageName, &selectType, 0);
 
 		if (selectType & CPST_FIND)
 			checked = true;
@@ -348,7 +349,7 @@ BOOL __stdcall EnumCodePagesProc(const wchar_t *lpwszCodePage)
 	wchar_t *codePageName = FormatCodePageName(_wtoi(lpwszCodePage), cpiex.CodePageName, sizeof(cpiex.CodePageName)/sizeof(wchar_t), IsCodePageNameCustom);
 	// Получаем признак выбранности таблицы символов
 	int selectType = 0;
-	GetRegKey(FavoriteCodePagesKey, lpwszCodePage, selectType, 0);
+	GeneralCfg->GetValue(FavoriteCodePagesKey, lpwszCodePage, &selectType, 0);
 
 	// Добавляем таблицу символов либо в нормальные, либо в выбранные таблицы симовлов
 	if (selectType & CPST_FAVORITE)
@@ -432,15 +433,15 @@ void ProcessSelected(bool select)
 		strCPName<<codePage;
 		// Получаем текущее состояние флага в реестре
 		int selectType = 0;
-		GetRegKey(FavoriteCodePagesKey, strCPName, selectType, 0);
+		GeneralCfg->GetValue(FavoriteCodePagesKey, strCPName, &selectType, 0);
 
 		// Удаляем/добавляем в ресестре информацию о выбранной кодовой странице
 		if (select)
-			SetRegKey(FavoriteCodePagesKey, strCPName, CPST_FAVORITE | (selectType & CPST_FIND ? CPST_FIND : 0));
+			GeneralCfg->SetValue(FavoriteCodePagesKey, strCPName, CPST_FAVORITE | (selectType & CPST_FIND ? CPST_FIND : 0));
 		else if (selectType & CPST_FIND)
-			SetRegKey(FavoriteCodePagesKey, strCPName, CPST_FIND);
+			GeneralCfg->SetValue(FavoriteCodePagesKey, strCPName, CPST_FIND);
 		else
-			DeleteRegValue(FavoriteCodePagesKey, strCPName);
+			GeneralCfg->DeleteValue(FavoriteCodePagesKey, strCPName);
 
 		// Создаём новый элемент меню
 		MenuItemEx newItem;
@@ -570,7 +571,7 @@ wchar_t *FormatCodePageName(UINT CodePage, wchar_t *CodePageName, size_t Length,
 	FormatString strCodePage;
 	strCodePage<<CodePage;
 	string strCodePageName;
-	if (GetRegKey(NamesOfCodePagesKey, strCodePage, strCodePageName, L""))
+	if (GeneralCfg->GetValue(NamesOfCodePagesKey, strCodePage, strCodePageName, L""))
 	{
 		Length = Min(Length-1, strCodePageName.GetLength());
 		IsCodePageNameCustom = true;
@@ -593,7 +594,7 @@ wchar_t *FormatCodePageName(UINT CodePage, wchar_t *CodePageName, size_t Length,
 		{
 			if (strCodePageName==Name)
 			{
-				DeleteRegValue(NamesOfCodePagesKey, strCodePage);
+				GeneralCfg->DeleteValue(NamesOfCodePagesKey, strCodePage);
 				IsCodePageNameCustom = false;
 				return Name;
 			}
@@ -628,9 +629,9 @@ INT_PTR WINAPI EditDialogProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 			}
 			// Если имя кодовой страницы пустое, то считаем, что имя не задано
 			if (!strCodePageName.GetLength())
-				DeleteRegValue(NamesOfCodePagesKey, strCodePage);
+				GeneralCfg->DeleteValue(NamesOfCodePagesKey, strCodePage);
 			else
-				SetRegKey(NamesOfCodePagesKey, strCodePage, strCodePageName);
+				GeneralCfg->SetValue(NamesOfCodePagesKey, strCodePage, strCodePageName);
 			// Получаем информацию о кодовой странице
 			CPINFOEX cpiex;
 			if (GetCodePageInfo(CodePage, cpiex))

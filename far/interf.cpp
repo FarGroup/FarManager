@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "palette.hpp"
 #include "strmix.hpp"
 #include "console.hpp"
+#include "configdb.hpp"
 
 BOOL __stdcall CtrlHandler(DWORD CtrlType);
 
@@ -86,7 +87,7 @@ void InitConsole(int FirstInit)
 	CONSOLE_CURSOR_INFO InitCursorInfo;
 	Console.GetCursorInfo(InitCursorInfo);
 
-	GetRegKey(L"Interface",L"Mouse",Opt.Mouse,1);
+	GeneralCfg->GetValue(L"Interface",L"Mouse",&Opt.Mouse,1);
 
 	// размер клавиатурной очереди = 1024 кода клавиши
 	if (!KeyQueue)
@@ -100,7 +101,7 @@ void InitConsole(int FirstInit)
 	*/
 	if(!Opt.WindowMode)
 	{
-		GetRegKey(L"System",L"WindowMode",Opt.WindowMode, 0);
+		GeneralCfg->GetValue(L"System",L"WindowMode",&Opt.WindowMode, 0);
 	}
 	if (FirstInit)
 	{
@@ -276,7 +277,7 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 	srWindowRect.Right = xSize-1;
 	srWindowRect.Bottom = ySize-1;
 	srWindowRect.Left = srWindowRect.Top = 0;
-	
+
 	COORD coordScreen={xSize,ySize};
 
 	if (xSize>Size.X || ySize > Size.Y)
@@ -543,7 +544,7 @@ void InitRecodeOutTable()
 	}
 
 	{
-		static WCHAR _BoxSymbols[48] =
+		static const WCHAR _BoxSymbols[48] =
 		{
 			0x2591, 0x2592, 0x2593, 0x2502, 0x2524, 0x2561, 0x2562, 0x2556,
 			0x2555, 0x2563, 0x2551, 0x2557, 0x255D, 0x255C, 0x255B, 0x2510,
@@ -553,7 +554,7 @@ void InitRecodeOutTable()
 			0x256A, 0x2518, 0x250C, 0x2588, 0x2584, 0x258C, 0x2590, 0x2580,
 		};
 		// перед [пере]инициализацией восстановим буфер (либо из реестра, либо...)
-		GetRegKey(L"System",L"BoxSymbols",(BYTE *)BoxSymbols,(BYTE*)_BoxSymbols,sizeof(_BoxSymbols));
+		GeneralCfg->GetValue(L"System",L"BoxSymbols",(char *)BoxSymbols,sizeof(_BoxSymbols),(const char *)_BoxSymbols);
 
 		if (Opt.NoGraphics)
 		{
