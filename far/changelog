@@ -1,3 +1,30 @@
+drkns 21.03.2011 11:11:11 +0200 - build 1921
+
+1. update vcxproj.
+
+2. sqlite warnings.
+
+3. w32api-3.17 (or higher) required for gcc build.
+
+4. Изменен принцип хранения профилей:
+   Путь к профилям по умолчанию: "%APPDATA%\Far Manager\Profiles"
+   Профиль по умолчанию: "Default"
+   Итого, по умолчанию настройки здесь: "%APPDATA%\Far Manager\Profiles\Default"
+   
+   Путь к профилям может быть переопределён в файле "%FARHOME%\Far.exe.ini":
+   Секция: Profiles
+   Параметр: BasePath
+   Значение: новый путь к профилям. Если путь относителен, то считается, что он относителен к %FARHOME%.
+
+   Ключ /u рассматривает параметр username как путь к профилю.
+   Если этот путь относителен, то считается, что он относителен к "%APPDATA%\Far Manager\Profiles" либо к пути, указанному в "Far.exe.ini".
+   Если этот путь абсолютен, то он абсолютен :)
+
+   Примеры:
+     "far.exe" - профиль в "%APPDATA%\Far Manager\Profiles\Default" (или в "<BasePath>\Default")
+     "far.exe /u foo" - профиль в "%APPDATA%\Far Manager\Profiles\foo" (или в "<BasePath>\foo")
+     "far.exe /u d:\bar" - профиль в "d:\bar"
+
 t-rex 20.03.2011 23:20:31 +0200 - build 1920
 
 1. Изменилась схема generalconfig.db для внутренего удобства (надо удалить старый generalconfig.db).

@@ -34,19 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // ntddstor.h
-typedef enum _STORAGE_BUS_TYPE {
-    BusTypeUnknown = 0x00,
-    BusTypeScsi,
-    BusTypeAtapi,
-    BusTypeAta,
-    BusType1394,
-    BusTypeSsa,
-    BusTypeFibre,
-    BusTypeUsb,
-    BusTypeRAID,
-    BusTypeMaxReserved = 0x7F
-} STORAGE_BUS_TYPE, *PSTORAGE_BUS_TYPE;
-
 typedef enum _STORAGE_MEDIA_TYPE {
     DDS_4mm = 0x20,            // Tape - DAT DDS1,2,... (all vendors)
     MiniQic,                   // Tape - miniQIC Tape
@@ -283,10 +270,6 @@ OBJECT_INFORMATION_CLASS;
 #endif
 
 // winbase.h
-#ifndef GetComputerNameEx
-#define GetComputerNameEx GetComputerNameExW
-#endif
-
 #ifndef FIND_FIRST_EX_LARGE_FETCH
 #define FIND_FIRST_EX_LARGE_FETCH 0x00000002
 #endif

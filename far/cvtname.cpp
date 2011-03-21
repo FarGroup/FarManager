@@ -327,10 +327,17 @@ bool MixToFullPath(LPCWSTR stPath, string& strDest, LPCWSTR stCurrentDir)
 	return false;
 }
 
-void ConvertNameToFull(const wchar_t *lpwszSrc, string &strDest)
+void ConvertNameToFull(const wchar_t *lpwszSrc, string &strDest, LPCWSTR CurrentDirectory)
 {
 	string strCurDir;
-	apiGetCurrentDirectory(strCurDir);
+	if(!CurrentDirectory)
+	{
+		apiGetCurrentDirectory(strCurDir);
+	}
+	else
+	{
+		strCurDir = CurrentDirectory;
+	}
 	string strSrc = lpwszSrc;
 	MixToFullPath(strSrc,strDest,strCurDir);
 }

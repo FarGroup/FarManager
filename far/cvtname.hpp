@@ -33,7 +33,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-void ConvertNameToFull(const wchar_t *lpwszSrc, string &strDest);
+void ConvertNameToFull(const wchar_t *lpwszSrc, string &strDest, LPCWSTR CurrentDirectory = nullptr);
 
 void ConvertNameToReal(const wchar_t *Src, string &strDest);
 

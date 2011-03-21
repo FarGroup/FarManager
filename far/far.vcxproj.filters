@@ -30,6 +30,12 @@
     <Filter Include="Source Files\UCD">
       <UniqueIdentifier>{f4426ce0-aacd-4ea2-9dbf-8081d3d886bc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\sqlite">
+      <UniqueIdentifier>{5742a9a6-c759-4d33-a3e4-d7221e8d51e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\sqlite">
+      <UniqueIdentifier>{033665e1-e02c-4d12-9e70-e716ebd8caea}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="elevation.cpp">
@@ -504,6 +510,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="shortcuts.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlite\sqlite3.c">
+      <Filter>Source Files\sqlite</Filter>
+    </ClCompile>
+    <ClCompile Include="configdb.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="farversion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1019,6 +1034,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="shortcuts.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlite\sqlite3.h">
+      <Filter>Header Files\sqlite</Filter>
+    </ClInclude>
+    <ClInclude Include="configdb.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="farversion.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

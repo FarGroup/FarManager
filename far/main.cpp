@@ -361,9 +361,35 @@ void ConvertOldSettings()
 	}
 }
 
+void InitProfile( string& strDefaultProfile)
+{
+	// default base profiles path: %APPDATA%\Far Manager\Profiles
+	SHGetFolderPath(nullptr, CSIDL_APPDATA, nullptr, 0, Opt.ProfilePath.GetBuffer(MAX_PATH));
+	Opt.ProfilePath.ReleaseBuffer();
+	AddEndSlash(Opt.ProfilePath);
+	Opt.ProfilePath += L"Far Manager\\Profiles";
+
+	// default base path can be overriden in %FARHOME%\Far.exe.ini
+	string strCfgName = g_strFarModuleName+L".ini";
+	wchar_t BasePath[MAX_PATH];
+	GetPrivateProfileString(L"Profiles", L"BasePath", Opt.ProfilePath, BasePath, ARRAYSIZE(BasePath), strCfgName);
+
+	apiExpandEnvironmentStrings(BasePath, Opt.ProfilePath);
+
+	// if custom path is not absolute, treat it as relative to %FARHOME%;
+	ConvertNameToFull(Opt.ProfilePath, Opt.ProfilePath, g_strFarPath);
+
+	// strDefaultProfile can be an absolute path, in that case it overrides any base path.
+	ConvertNameToFull(strDefaultProfile, Opt.ProfilePath, Opt.ProfilePath);
+
+	CreatePath(Opt.ProfilePath);
+}
+
 int _cdecl wmain(int Argc, wchar_t *Argv[])
 {
 	apiEnableLowFragmentationHeap();
+
+	std::set_new_handler(nullptr);
 
 	GetVersionEx(&WinVer);
 
@@ -428,6 +454,9 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
 	// макросы не дисаблим
 	Opt.Macro.DisableMacro=0;
+
+	// without "/u" switch
+	string strDefaultProfile = L"Default";
 
 	for (int I=1; I<Argc; I++)
 	{
@@ -510,9 +539,12 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
 					if (I+1<Argc)
 					{
+						strDefaultProfile = Argv[I+1];
+
+						// BUGBUG
 						Opt.strRegRoot += L"\\Users\\";
-						Opt.strRegRoot += Argv[I+1];
-						SetEnvironmentVariable(L"FARUSER", Argv[I+1]);
+						Opt.strRegRoot += strDefaultProfile;
+						SetEnvironmentVariable(L"FARUSER", strDefaultProfile);
 						CopyGlobalSettings();
 						I++;
 					}
@@ -592,13 +624,16 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 		}
 	}
 
+	InitProfile(strDefaultProfile);
+
+	InitDb();
+
 	//Настройка OEM сортировки. Должна быть после CopyGlobalSettings и перед InitKeysArray!
 	LocalUpperInit();
 	InitLCIDSort();
 	//Инициализация массива клавиш. Должна быть после CopyGlobalSettings!
 	InitKeysArray();
 	WaitForInputIdle(GetCurrentProcess(),0);
-	std::set_new_handler(nullptr);
 
 	if (!Opt.LoadPlug.MainPluginDir) //если есть ключ /p то он отменяет /co
 		Opt.LoadPlug.PluginsCacheOnly=FALSE;
@@ -653,6 +688,9 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
 	EmptyInternalClipboard();
 	doneMacroVarTable(1);
+
+	ReleaseDb();
+
 	_OT(SysLog(L"[[[[[Exit of FAR]]]]]]]]]"));
 	return Result;
 }

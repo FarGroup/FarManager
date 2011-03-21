@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "pathmix.hpp"
 #include "sqlite/sqlite3.h"
+#include "config.hpp"
 
 GeneralConfig *GeneralCfg;
 
@@ -44,12 +45,8 @@ PluginsConfig *PluginsCfg;
 
 void GetDatabasePath(const wchar_t *FileName, string &strOut)
 {
-	SHGetFolderPath(NULL,CSIDL_APPDATA|CSIDL_FLAG_CREATE,NULL,0,strOut.GetBuffer(MAX_PATH));
-	strOut.ReleaseBuffer();
+	strOut = Opt.ProfilePath;
 	AddEndSlash(strOut);
-	strOut += L"Far Manager";
-	apiCreateDirectory(strOut, nullptr);
-	strOut += L"\\";
 	strOut += FileName;
 }
 
@@ -65,7 +62,6 @@ public:
 
 	GeneralConfigDb() : pDb(nullptr), pStmtUpdateValue(nullptr), pStmtInsertValue(nullptr), pStmtGetValue(nullptr), pStmtDelValue(nullptr), pStmtEnumValues(nullptr)
 	{
-		GeneralCfg = this;
 		string strPath;
 		GetDatabasePath(L"generalconfig.db", strPath);
 		if (sqlite3_open16(strPath.CPtr(),&pDb) != SQLITE_OK)
@@ -352,7 +348,6 @@ public:
 
 	PluginsConfigDb() : pDb(nullptr),  pStmtCreateKey(nullptr), pStmtFindKey(nullptr), pStmtSetKeyDescription(nullptr), pStmtSetValue(nullptr), pStmtGetValue(nullptr), pStmtEnumKeys(nullptr), pStmtEnumValues(nullptr), pStmtDelValue(nullptr)
 	{
-		PluginsCfg = this;
 		string strPath;
 		GetDatabasePath(L"pluginsconfig.db", strPath);
 		if (sqlite3_open16(strPath.CPtr(),&pDb) != SQLITE_OK)
@@ -601,5 +596,14 @@ public:
 	}
 };
 
-static GeneralConfigDb gc;
-static PluginsConfigDb pc;
+void InitDb()
+{
+	GeneralCfg = new GeneralConfigDb();
+	PluginsCfg = new PluginsConfigDb();
+}
+
+void ReleaseDb()
+{
+	delete GeneralCfg;
+	delete PluginsCfg;
+}

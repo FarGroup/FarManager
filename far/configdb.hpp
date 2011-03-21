@@ -85,5 +85,7 @@ public:
 };
 
 extern GeneralConfig *GeneralCfg;
-
 extern PluginsConfig *PluginsCfg;
+
+void InitDb();
+void ReleaseDb();

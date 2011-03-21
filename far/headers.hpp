@@ -61,8 +61,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef __GNUC__
 #include <w32api.h>
-#if __W32API_MAJOR_VERSION<3 || (__W32API_MAJOR_VERSION==3 && (__W32API_MINOR_VERSION<15))
-#error w32api-3.15 (or higher) required
+#if __W32API_MAJOR_VERSION<3 || (__W32API_MAJOR_VERSION==3 && (__W32API_MINOR_VERSION<17))
+#error w32api-3.17 (or higher) required
 #endif
 #endif // __GNUC__
 

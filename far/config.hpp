@@ -670,6 +670,8 @@ struct Options
 
 	int ElevationMode;
 	BOOL WindowMode;
+
+	string ProfilePath;
 };
 
 extern Options Opt;
