@@ -41,8 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 GeneralConfig *GeneralCfg;
 
-PluginsConfig *PluginsCfg;
-
 void GetDatabasePath(const wchar_t *FileName, string &strOut)
 {
 	strOut = Opt.ProfilePath;
@@ -79,9 +77,8 @@ public:
 
 		//schema
 		sqlite3_exec(pDb,
-			"PRAGMA synchronous = OFF;"
 			"CREATE TABLE IF NOT EXISTS general_config(key TEXT NOT NULL, name TEXT NOT NULL, type INTEGER NOT NULL, value BLOB, PRIMARY KEY (key, name));"
-			,NULL,NULL,NULL);
+			,nullptr,nullptr,nullptr);
 
 		//update value statement
 		sqlite3_prepare16_v2(pDb, L"UPDATE general_config SET type=?1, value=?2 WHERE key=?3 AND name=?4;", -1, &pStmtUpdateValue, nullptr);
@@ -110,14 +107,14 @@ public:
 		sqlite3_close(pDb);
 	}
 
-	void Begin()
+	void BeginTransaction()
 	{
-		sqlite3_exec(pDb,"BEGIN TRANSACTION;",NULL,NULL,NULL);
+		sqlite3_exec(pDb,"BEGIN TRANSACTION;",nullptr,nullptr,nullptr);
 	}
 
-	void End()
+	void EndTransaction()
 	{
-		sqlite3_exec(pDb,"END TRANSACTION;",NULL,NULL,NULL);
+		sqlite3_exec(pDb,"END TRANSACTION;",nullptr,nullptr,nullptr);
 	}
 
 	bool SetValue(const wchar_t *Key, const wchar_t *Name, const wchar_t *Value)
@@ -366,10 +363,11 @@ public:
 		//schema
 		sqlite3_exec(pDb,
 			"PRAGMA foreign_keys = ON;"
-			"PRAGMA synchronous = OFF;"
 			"CREATE TABLE IF NOT EXISTS plugin_keys(id INTEGER PRIMARY KEY ASC, parent_id INTEGER NOT NULL, name TEXT NOT NULL, description TEXT, FOREIGN KEY(parent_id) REFERENCES plugin_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, UNIQUE (parent_id,name));"
 			"CREATE TABLE IF NOT EXISTS plugin_values(key_id INTEGER NOT NULL, name TEXT NOT NULL, type INTEGER NOT NULL, value BLOB, FOREIGN KEY(key_id) REFERENCES plugin_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (key_id, name), CHECK (key_id > 0));"
-			,NULL,NULL,NULL);
+			,nullptr,nullptr,nullptr);
+
+		BeginTransaction();
 
 		//root key
 		sqlite3_exec(pDb,"INSERT INTO plugin_keys VALUES (0,0,\"\",\"Root - do not edit\");",nullptr,nullptr,nullptr);
@@ -381,7 +379,7 @@ public:
 		sqlite3_prepare16_v2(pDb, L"SELECT id FROM plugin_keys WHERE parent_id=?1 AND name=?2 AND id>0;", -1, &pStmtFindKey, nullptr);
 
 		//set key description statement
-		sqlite3_prepare16_v2(pDb, L"UPDATE plugin_keys SET description=?1 WHERE id=?2 AND id>0;", -1, &pStmtSetKeyDescription, nullptr);
+		sqlite3_prepare16_v2(pDb, L"UPDATE plugin_keys SET description=?1 WHERE id=?2 AND id>0 AND description<>?1;", -1, &pStmtSetKeyDescription, nullptr);
 
 		//set value statement
 		sqlite3_prepare16_v2(pDb, L"INSERT OR REPLACE INTO plugin_values VALUES (?1,?2,?3,?4);", -1, &pStmtSetValue, nullptr);
@@ -410,7 +408,26 @@ public:
 		sqlite3_finalize(pStmtEnumValues);
 		sqlite3_finalize(pStmtDelValue);
 
+		EndTransaction();
+
 		sqlite3_close(pDb);
+	}
+
+	bool BeginTransaction()
+	{
+		return sqlite3_exec(pDb, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr) == SQLITE_OK;
+	}
+
+	bool EndTransaction()
+	{
+		return sqlite3_exec(pDb, "END TRANSACTION;", nullptr, nullptr, nullptr) == SQLITE_OK;
+	}
+
+	bool Flush()
+	{
+		bool res = EndTransaction();
+		BeginTransaction();
+		return res;
 	}
 
 	unsigned __int64 CreateKey(unsigned __int64 Root, const wchar_t *Name, const wchar_t *Description=nullptr)
@@ -453,7 +470,7 @@ public:
 		int res = sqlite3_step(pStmtSetKeyDescription);
 		sqlite3_clear_bindings(pStmtSetKeyDescription);
 		sqlite3_reset(pStmtSetKeyDescription);
-		return (res == SQLITE_DONE) && (sqlite3_changes(pDb) > 0);
+		return (res == SQLITE_DONE);
 	}
 
 	bool SetValue(unsigned __int64 Root, const wchar_t *Name, const wchar_t *Value)
@@ -596,14 +613,17 @@ public:
 	}
 };
 
+PluginsConfig *CreatePluginsConfig()
+{
+	return new PluginsConfigDb();
+}
+
 void InitDb()
 {
 	GeneralCfg = new GeneralConfigDb();
-	PluginsCfg = new PluginsConfigDb();
 }
 
 void ReleaseDb()
 {
 	delete GeneralCfg;
-	delete PluginsCfg;
 }

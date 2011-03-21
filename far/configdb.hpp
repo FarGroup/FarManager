@@ -43,8 +43,8 @@ public:
 	};
 
 	virtual ~GeneralConfig() {}
-	virtual void Begin() = 0;
-	virtual void End() = 0;
+	virtual void BeginTransaction() = 0;
+	virtual void EndTransaction() = 0;
 	virtual bool SetValue(const wchar_t *Key, const wchar_t *Name, const wchar_t *Value) = 0;
 	virtual bool SetValue(const wchar_t *Key, const wchar_t *Name, unsigned __int64 Value) = 0;
 	virtual bool SetValue(const wchar_t *Key, const wchar_t *Name, const void *Value, int Size) = 0;
@@ -85,7 +85,8 @@ public:
 };
 
 extern GeneralConfig *GeneralCfg;
-extern PluginsConfig *PluginsCfg;
 
 void InitDb();
 void ReleaseDb();
+
+PluginsConfig *CreatePluginsConfig();

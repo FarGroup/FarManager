@@ -1062,7 +1062,9 @@ void SaveConfig(int Ask)
 	RightPanel->GetCurBaseName(Opt.strRightCurFile,strTemp);
 	CtrlObject->HiFiles->SaveHiData();
 	/* *************************************************** </опеопнжеяяш> */
-	GeneralCfg->Begin();
+
+	GeneralCfg->BeginTransaction();
+
 	GeneralCfg->SetValue(NKeySystem,L"PersonalPluginsPath",Opt.LoadPlug.strPersonalPluginsPath);
 	GeneralCfg->SetValue(NKeyLanguage,L"Main",Opt.strLanguage);
 
@@ -1083,7 +1085,8 @@ void SaveConfig(int Ask)
 			}
 	}
 
-	GeneralCfg->End();
+	GeneralCfg->EndTransaction();
+
 	/* <оняропнжеяяш> *************************************************** */
 	FileFilter::SaveFilters();
 	FileList::SavePanelModes();

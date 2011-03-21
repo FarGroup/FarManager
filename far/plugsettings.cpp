@@ -36,13 +36,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugsettings.hpp"
 #include "ctrlobj.hpp"
 #include "strmix.hpp"
-#include "configdb.hpp"
 
-PluginSettings::PluginSettings(const GUID& Guid)
+PluginSettings::PluginSettings(const GUID& Guid) : PluginsCfg(nullptr)
 {
 	Plugin* pPlugin=CtrlObject?CtrlObject->Plugins.FindPlugin(Guid):nullptr;
 	if (pPlugin)
 	{
+		PluginsCfg = CreatePluginsConfig();
 		unsigned __int64& root(*m_Keys.insertItem(0));
 		root=PluginsCfg->CreateKey(0,GuidToStr(Guid), pPlugin->GetTitle());
 	}
@@ -50,6 +50,9 @@ PluginSettings::PluginSettings(const GUID& Guid)
 
 PluginSettings::~PluginSettings()
 {
+	if (PluginsCfg)
+		delete PluginsCfg;
+
 	for(size_t ii=0;ii<m_Data.getCount();++ii)
 	{
 		delete [] *m_Data.getItem(ii);
