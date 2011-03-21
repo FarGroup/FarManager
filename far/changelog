@@ -1,3 +1,9 @@
+t-rex 22.03.2011 00:04:16 +0200 - build 1925
+
+1. From 2useven10: Hex view для UTF-8.
+
+2. From Maximus: Mantis#1731: Ошибка "Cannot find the file" после выхода из TempPanel.
+
 t-rex 21.03.2011 22:53:37 +0200 - build 1924
 
 1. Отрубаем "PRAGMA synchronous = OFF;", юзаем транзакции.

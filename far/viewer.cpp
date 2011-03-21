@@ -74,6 +74,11 @@ static int InitHex=FALSE,SearchHex=FALSE;
 
 static int ViewerID=0;
 
+static int utf8_to_WideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int wlen, int &tail);
+
+#define REPLACE_CHAR 0xFFFD  // Replacement
+#define CONTINUE_CHAR 0x203A // Single Right-Pointing Angle Quotation Mark
+
 Viewer::Viewer(bool bQuickView, UINT aCodePage):
 	ViOpt(Opt.ViOpt),
 	Reader(ViewFile),
@@ -348,13 +353,6 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 		else
 		{
 			CodePageChangedByUser=TRUE;
-		}
-
-		// BUGBUG
-		// пока что запретим переключать hex в UTF8, ибо не работает.
-		if (VM.Hex && VM.CodePage==CP_UTF8)
-		{
-			VM.CodePage=Opt.ViOpt.AnsiCodePageAsDefault?GetACP():GetOEMCP();
 		}
 
 		if (!IsUnicodeOrUtfCodePage(VM.CodePage))
@@ -678,7 +676,7 @@ void Viewer::ShowHex()
 
 					if (!X)
 					{
-						wcscpy(OutStr,L"");
+						*OutStr=0;
 						break;
 					}
 
@@ -708,6 +706,76 @@ void Viewer::ShowHex()
 
 				if (X==3)
 					wcscat(OutStr, BorderLine);
+			}
+		}
+		else if ( CP_UTF8 == VM.CodePage )
+		{
+			__int64 fpos = vtell();
+			unsigned char line[16+3];
+			DWORD nr = 0;
+			Reader.Read(line, (DWORD)sizeof(line), &nr);
+			if (nr > 16)
+				Reader.Unread(nr-16);
+
+			if (!nr)
+			{
+				*OutStr=0;
+			}
+			else
+			{
+				int out_len = (int)wcslen(OutStr);
+				int border_len = (int)wcslen(BorderLine);
+				if (SelectSize)
+				{
+					if (SelectPos >= fpos && SelectPos < fpos+16)
+					{
+						int off = (int)(SelectPos - fpos);
+						bSelStartFound = true;
+						SelStart = out_len + 3*off + (off < 8 ? 0 : border_len);
+						SelSize = SelectSize;
+					}
+					__int64 selectEnd = SelectPos + SelectSize - 1;
+					if (selectEnd >= fpos && selectEnd < fpos+16)
+					{
+						int off = (int)(selectEnd - fpos);
+						bSelEndFound = true;
+						SelEnd = out_len + 3*off + (off < 8 ? 0 : border_len) + 1;
+						SelSize = SelectSize;
+					}
+				}
+				for (X=0; X<16; X++)
+				{
+					int off = out_len + 3*X + (X < 8 ? 0 : border_len);
+					if (X == 8)
+						wcscpy(OutStr+off-border_len, BorderLine);
+					if (X < (int)nr)
+						_snwprintf(OutStr+off, ARRAYSIZE(OutStr)-off, L"%02X ", (int)line[X]);
+					else
+						wcscpy(OutStr+off, L"   ");
+					TextStr[X] = L' ';
+				}
+
+				wchar_t w1[16], w2[16];
+				int tail, nw, ib=0, iw=0;
+				nw = utf8_to_WideChar((char *)line, (int)nr, w1, w2, 16, tail);
+				bool first = true;
+				while (ib < 16 && iw < nw)
+				{
+					if (first && w1[iw] == REPLACE_CHAR && w2[iw] == L'?')
+					{
+						TextStr[ib++] = CONTINUE_CHAR; // это может быть не совсем корректно для 'плохих' utf-8
+					}                                 // но усложнять из-за этого код на мой взгяд не стоит...
+					else
+					{
+						first = false;
+						TextStr[ib++] = w1[iw] ? w1[iw] : L' ';
+					}
+					int clen = WideCharToMultiByte(CP_UTF8, 0, w2+iw, 1, NULL,0, NULL,NULL);
+					while (--clen > 0 && ib < 16)
+						TextStr[ib++] = CONTINUE_CHAR;
+					++iw;
+				}
+				TextPos = 16;
 			}
 		}
 		else
@@ -746,7 +814,7 @@ void Viewer::ShowHex()
 
 					if (!X)
 					{
-						wcscpy(OutStr,L"");
+						*OutStr=0;
 						break;
 					}
 
@@ -782,13 +850,6 @@ void Viewer::ShowHex()
 
 		wcscat(OutStr,L" ");
 		wcscat(OutStr,TextStr);
-#if 0
-
-		for (size_t I=0; I < wcslen(OutStr); ++I)
-			if (OutStr[I] == (wchar_t)0xFFFF)
-				OutStr[I]=L'?';
-
-#endif
 
 		if (StrLength(OutStr)>HexLeftPos)
 		{
@@ -1392,13 +1453,6 @@ int Viewer::ProcessKey(int Key)
 		case KEY_SHIFTF8:
 		{
 			UINT nCodePage = SelectCodePage(VM.CodePage, true, true);
-
-			// BUGBUG
-			// пока что запретим переключать hex в UTF8, ибо не работает.
-			if (VM.Hex && nCodePage==CP_UTF8)
-			{
-				return TRUE;
-			}
 
 			if (nCodePage!=(UINT)-1)
 			{
@@ -2726,8 +2780,6 @@ void Viewer::SetNamesList(NamesList *List)
 
 static int utf8_to_WideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int wlen, int &tail )
 {
-#define REPLACEMENT 0xFFFD // L'?'
-
 	if ( wlen <= 0 )
 	{
 		tail = nc;
@@ -2754,7 +2806,7 @@ static int utf8_to_WideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int 
 				else
 				{
 					tail = 0;
-					w1[0] = REPLACEMENT;
+					w1[0] = REPLACE_CHAR;
 					if (w2)
 						w2[0] = L'?';
 					nw = 1;
@@ -2762,7 +2814,7 @@ static int utf8_to_WideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int 
 				return nw;
 			}
 			c2 = ((const unsigned char *)s)[ic];
-			if ( 0x80 != (c2 & 0xC0)        // illegal 2-st byte
+			if ( 0x80 != (c2 & 0xC0)        // illegal 2-nd byte
 				|| (0xE0 == c1 && c2 <= 0x9F) // illegal 3-byte start (overlaps with 2-byte)
 				|| (0xF0 == c1 && c2 <= 0x8F) // illegal 4-byte start (overlaps with 3-byte)
 				|| (0xF4 == c1 && c2 >= 0x90) // illegal 4-byte (out of unicode range)
@@ -2811,7 +2863,7 @@ static int utf8_to_WideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int 
 						if (nw >= wlen)
 						{
 							--nw;
-							wc = REPLACEMENT;
+							wc = REPLACE_CHAR;
 						}
 					}
 				}
@@ -2826,7 +2878,7 @@ static int utf8_to_WideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int 
 		}
 		else
 		{
-			w1[nw] = REPLACEMENT;
+			w1[nw] = REPLACE_CHAR;
 			if (w2)
 				w2[nw] = L'?';
 		}
@@ -3482,14 +3534,6 @@ BOOL Viewer::isTemporary()
 
 int Viewer::ProcessHexMode(int newMode, bool isRedraw)
 {
-	// BUGBUG
-	// До тех пор, пока не будет реализован адекватный hex-просмотр в UTF8 - будем смотреть в OEM.
-	// Ибо сейчас это не просмотр, а генератор однотипных унылых багрепортов.
-	if (VM.CodePage==CP_UTF8 && newMode)
-	{
-		VM.CodePage=Opt.ViOpt.AnsiCodePageAsDefault?GetACP():GetOEMCP();
-	}
-
 	int oldHex=VM.Hex;
 	VM.Hex=newMode&1;
 

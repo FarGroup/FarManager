@@ -2527,6 +2527,10 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 
 		ProcessPluginCommand();
 
+		// после закрытия панели нужно сразу установить внутренний каталог, иначе будет "Cannot find the file" - Mantis#1731
+		if (PanelMode == NORMAL_PANEL)
+			SetCurPath();
+
 		if (SetDirectorySuccess)
 			Update(0);
 		else
