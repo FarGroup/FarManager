@@ -53,4 +53,4 @@ BOOL FarChDir(const wchar_t *NewDir,BOOL ChangeDir=TRUE);
 int TestFolder(const wchar_t *Name);
 int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent=FALSE);
 
-void CreatePath(string &strPath);
+void CreatePath(string &strPath, bool Simple=false);

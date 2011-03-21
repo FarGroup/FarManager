@@ -245,7 +245,7 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 	return 1;
 }
 
-void CreatePath(string &strPath)
+void CreatePath(string &strPath, bool Simple)
 {
 	wchar_t *ChPtr = strPath.GetBuffer();
 	wchar_t *DirPart = ChPtr;
@@ -260,10 +260,11 @@ void CreatePath(string &strPath)
 
 			*ChPtr = 0;
 
-			if (Opt.CreateUppercaseFolders && !IsCaseMixed(DirPart) && apiGetFileAttributes(strPath) == INVALID_FILE_ATTRIBUTES)  //BUGBUG
+			bool Exist = apiGetFileAttributes(strPath) != INVALID_FILE_ATTRIBUTES;
+			if (!Simple && Opt.CreateUppercaseFolders && !IsCaseMixed(DirPart) && !Exist)  //BUGBUG
 				CharUpper(DirPart);
 
-			if (apiCreateDirectory(strPath, nullptr))
+			if(!Exist && apiCreateDirectory(strPath, nullptr) && !Simple)
 				TreeList::AddTreeName(strPath);
 
 			if (bEnd)

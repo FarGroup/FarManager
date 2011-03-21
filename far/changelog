@@ -1,3 +1,9 @@
+drkns 21.03.2011 22:16:11 +0200 - build 1923
+
+1. Ещё одна переделка путей.
+   Теперь всё лежит или в "%APPDATA%\Far Manager\Profiles\<Default|ProfileName>", или в "%FARHOME%\UserData\Profiles\<Default|ProfileName>".
+   Переключается в Far.exe.ini\General\UseSystemProfiles, 1|0.
+
 drkns 21.03.2011 16:17:18 +0200 - build 1922
 
 1. Уточнение 1921:

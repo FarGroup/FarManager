@@ -95,8 +95,6 @@ static void show_help()
 	    L" /ma  Do not execute auto run macros.\n"
 	    L" /p[<path>]\n"
 	    L"      Search for \"common\" plugins in the directory, specified by <path>.\n"
-	    L" /s[<path>]\n"
-	    L"      Path to a folder containing profiles.\n"
 	    L" /u <profile>\n"
 	    L"      Use specified profile.\n"
 	    L" /v <filename>\n"
@@ -363,44 +361,30 @@ void ConvertOldSettings()
 	}
 }
 
-void InitProfile(bool ParamBasePath, string& strDefaultProfile)
+void InitProfile(const string& strDefaultProfile)
 {
-	if(ParamBasePath)
+	string strCfgName = g_strFarModuleName+L".ini";
+	if(GetPrivateProfileInt(L"General", L"UseSystemProfiles", 1, strCfgName))
 	{
-		if(Opt.ProfilePath.IsEmpty())
-		{
-			Opt.ProfilePath=g_strFarPath;
-			AddEndSlash(Opt.ProfilePath);
-			Opt.ProfilePath+=L"Profiles";
-		}
-		else
-		{
-			ConvertNameToFull(Opt.ProfilePath, Opt.ProfilePath, g_strFarPath);
-		}
+		// default profiles path: %APPDATA%\Far Manager\Profiles
+		SHGetFolderPath(nullptr, CSIDL_APPDATA|CSIDL_FLAG_CREATE, nullptr, 0, Opt.ProfilePath.GetBuffer(MAX_PATH));
+		Opt.ProfilePath.ReleaseBuffer();
+		AddEndSlash(Opt.ProfilePath);
+		Opt.ProfilePath += L"Far Manager";
 	}
 	else
 	{
-		// default base profiles path: %APPDATA%\Far Manager\Profiles
-		SHGetFolderPath(nullptr, CSIDL_APPDATA, nullptr, 0, Opt.ProfilePath.GetBuffer(MAX_PATH));
-		Opt.ProfilePath.ReleaseBuffer();
+		Opt.ProfilePath=g_strFarPath;
 		AddEndSlash(Opt.ProfilePath);
-		Opt.ProfilePath += L"Far Manager\\Profiles";
-
-		// default base path can be overriden in %FARHOME%\Far.exe.ini
-		string strCfgName = g_strFarModuleName+L".ini";
-		wchar_t BasePath[MAX_PATH];
-		GetPrivateProfileString(L"Profiles", L"BasePath", Opt.ProfilePath, BasePath, ARRAYSIZE(BasePath), strCfgName);
-
-		apiExpandEnvironmentStrings(BasePath, Opt.ProfilePath);
+		Opt.ProfilePath+=L"UserData";
 	}
 
-	// if custom path is not absolute, treat it as relative to %FARHOME%;
-	ConvertNameToFull(Opt.ProfilePath, Opt.ProfilePath, g_strFarPath);
-
+	AddEndSlash(Opt.ProfilePath);
+	Opt.ProfilePath += L"Profiles";
 	AddEndSlash(Opt.ProfilePath);
 	Opt.ProfilePath+=strDefaultProfile;
 
-	CreatePath(Opt.ProfilePath);
+	CreatePath(Opt.ProfilePath, true);
 }
 
 int _cdecl wmain(int Argc, wchar_t *Argv[])
@@ -475,7 +459,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
 	// without "/u" switch
 	string strDefaultProfile = L"Default";
-	bool ParamBasePath = false;
 
 	for (int I=1; I<Argc; I++)
 	{
@@ -569,12 +552,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 					}
 					break;
 
-				case L'S':
-					ParamBasePath = true;
-					Opt.ProfilePath = Argv[I]+2;
-					I++;
-					break;
-
 				case L'P':
 				{
 					// Полиция 19
@@ -649,7 +626,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 		}
 	}
 
-	InitProfile(ParamBasePath, strDefaultProfile);
+	InitProfile(strDefaultProfile);
 
 	InitDb();
 
