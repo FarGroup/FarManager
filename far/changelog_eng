@@ -3,6 +3,66 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 22.03.2011 17:04:11 +0200 - build 1927
+
+1. In 1911, the shortcuts with environment variables didn't work.
+
+drkns 22.03.2011 15:55:16 +0200 - build 1926
+
+1. For the future: Opt.LocalProfilePath == "%LOCALAPPDATA%\Far Manager\Profiles\<Default|ProfileName>".
+
+t-rex 22.03.2011 00:04:16 +0200 - build 1925
+
+1. From 2useven10: Hex view for UTF-8.
+
+2. From Maximus: Mantis#1731: "Cannot find the file" error after exit from TempPanel.
+
+t-rex 21.03.2011 22:53:37 +0200 - build 1924
+
+1. Disabling "PRAGMA synchronous = OFF;", using transactions.
+
+2. Each plugin has now its own connection to configuration DB, and everything goes inside one transaction from CREATE to FREE.
+   I.e. the data is actually written at FREE only.
+
+drkns 21.03.2011 22:16:11 +0200 - build 1923
+
+1. Another paths remake.
+   Now everything is stored in either "%APPDATA%\Far Manager\Profiles\<Default|ProfileName>" or "%FARHOME%\UserData\Profiles\<Default|ProfileName>".
+   This is switched in Far.exe.ini\General\UseSystemProfiles, 1|0.
+
+drkns 21.03.2011 16:17:18 +0200 - build 1922
+
+1. Correction of 1921:
+   /u specifies the profile only.
+   /s[<path>] specifies the path to profiles. If "path" is relative, it is relative to "%FARHOME%". An empty one means "%FARHOME%\Profiles".
+
+drkns 21.03.2011 11:11:11 +0200 - build 1921
+
+1. update vcxproj.
+
+2. sqlite warnings.
+
+3. w32api-3.17 (or higher) required for gcc build.
+
+4. The profile storage principle is changed:
+   Default path to profiles: "%APPDATA%\Far Manager\Profiles"
+   Default profile: "Default"
+   Thus, settings are here by default: "%APPDATA%\Far Manager\Profiles\Default"
+   
+   Path to profiles can be redefined in file "%FARHOME%\Far.exe.ini":
+   Section: Profiles
+   Parameter: BasePath
+   Value: new path to profiles. If the path is relative then it is meant to be relative to %FARHOME%.
+
+   /u key gets "username" parameter to be considered as the path to the profile.
+   If the path is relative then it is meant to be relative to "%APPDATA%\Far Manager\Profiles" or to the path specified in "Far.exe.ini".
+   If the path is absolute then it is absolute :)
+
+   Examples:
+     "far.exe" - profile in "%APPDATA%\Far Manager\Profiles\Default" (or in "<BasePath>\Default")
+     "far.exe /u foo" - profile in "%APPDATA%\Far Manager\Profiles\foo" (or in "<BasePath>\foo")
+     "far.exe /u d:\bar" - profile in "d:\bar"
+
 t-rex 20.03.2011 23:20:31 +0200 - build 1920
 
 1. generalconfig.db schema is changed for inner convenience (generalconfig.db must be deleted).
