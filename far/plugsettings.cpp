@@ -91,7 +91,7 @@ int PluginSettings::Set(const FarSettingsItem& Item)
 				if (PluginsCfg->SetValue(*m_Keys.getItem(Item.Root),Item.Name,Item.String)) result=TRUE;
 				break;
 			case FST_DATA:
-				if (PluginsCfg->SetValue(*m_Keys.getItem(Item.Root),Item.Name,Item.Data.Data,(int)Item.Data.Size)) result=TRUE;
+				if (PluginsCfg->SetValue(*m_Keys.getItem(Item.Root),Item.Name,(const char *)Item.Data.Data,(int)Item.Data.Size)) result=TRUE;
 				break;
 			default:
 				break;

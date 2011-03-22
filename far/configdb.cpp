@@ -48,20 +48,67 @@ void GetDatabasePath(const wchar_t *FileName, string &strOut)
 	strOut += FileName;
 }
 
-class GeneralConfigDb: public GeneralConfig {
-	sqlite3 *pDb;
-	sqlite3_stmt *pStmtUpdateValue;
-	sqlite3_stmt *pStmtInsertValue;
-	sqlite3_stmt *pStmtGetValue;
-	sqlite3_stmt *pStmtDelValue;
-	sqlite3_stmt *pStmtEnumValues;
+class SQLiteStmt {
+	int param;
+
+protected:
+	sqlite3_stmt *pStmt;
 
 public:
 
-	GeneralConfigDb() : pDb(nullptr), pStmtUpdateValue(nullptr), pStmtInsertValue(nullptr), pStmtGetValue(nullptr), pStmtDelValue(nullptr), pStmtEnumValues(nullptr)
+	SQLiteStmt() : param(1), pStmt(nullptr) { }
+
+	~SQLiteStmt() { sqlite3_finalize(pStmt); }
+
+	SQLiteStmt& Reset() { param=1; sqlite3_clear_bindings(pStmt); sqlite3_reset(pStmt); return *this; }
+
+	bool Step() { return sqlite3_step(pStmt) == SQLITE_ROW; }
+
+	bool StepAndReset() { bool b = sqlite3_step(pStmt) == SQLITE_DONE; Reset(); return b; }
+
+	SQLiteStmt& Bind(int Value) { sqlite3_bind_int(pStmt,param++,Value); return *this; }
+
+	SQLiteStmt& Bind(unsigned __int64 Value) { sqlite3_bind_int64(pStmt,param++,Value); return *this; }
+
+	SQLiteStmt& Bind(const wchar_t *Value, bool bStatic=true)
+	{
+		if (Value)
+			sqlite3_bind_text16(pStmt,param++,Value,-1,bStatic?SQLITE_STATIC:SQLITE_TRANSIENT);
+		else
+			sqlite3_bind_null(pStmt,param++);
+		return *this;
+	}
+
+	SQLiteStmt& Bind(const char *Value, int Size, bool bStatic=true) { sqlite3_bind_blob(pStmt,param++,Value,Size,bStatic?SQLITE_STATIC:SQLITE_TRANSIENT); return *this; }
+
+	const wchar_t *GetColText(int Col) { return (const wchar_t *)sqlite3_column_text16(pStmt,Col); }
+
+	int GetColBytes(int Col) { return sqlite3_column_bytes(pStmt,Col); }
+
+	int GetColInt(int Col) { return sqlite3_column_int(pStmt,Col); }
+
+	unsigned __int64 GetColInt64(int Col) { return sqlite3_column_int64(pStmt,Col); }
+
+	const char *GetColBlob(int Col) { return (const char *)sqlite3_column_blob(pStmt,Col); }
+
+	int GetColType(int Col) { return sqlite3_column_type(pStmt,Col); }
+
+	friend class SQLiteDb;
+};
+
+class SQLiteDb {
+	sqlite3 *pDb;
+
+public:
+
+	SQLiteDb() : pDb(nullptr) { };
+
+	~SQLiteDb()	{ Close(); }
+
+	bool Open(const wchar_t *DbFile)
 	{
 		string strPath;
-		GetDatabasePath(L"generalconfig.db", strPath);
+		GetDatabasePath(DbFile, strPath);
 		if (sqlite3_open16(strPath.CPtr(),&pDb) != SQLITE_OK)
 		{
 			sqlite3_close(pDb);
@@ -71,161 +118,123 @@ public:
 			{
 				sqlite3_close(pDb);
 				pDb = nullptr;
-				return;
+				return false;
 			}
 		}
+		return true;
+	}
+
+	bool Exec(const char *Command) { return sqlite3_exec(pDb, Command, nullptr, nullptr, nullptr) == SQLITE_OK; }
+
+	bool BeginTransaction() { return Exec("BEGIN TRANSACTION;"); }
+
+	bool EndTransaction() { return Exec("END TRANSACTION;"); }
+
+	bool IsOpen() { return pDb != nullptr; }
+
+	bool InitStmt(SQLiteStmt &stmtStmt, const wchar_t *Stmt) { return sqlite3_prepare16_v2(pDb, Stmt, -1, &stmtStmt.pStmt, nullptr) == SQLITE_OK; }
+
+	int Changes() { return sqlite3_changes(pDb); }
+
+	unsigned __int64 LastInsertRowID() { return sqlite3_last_insert_rowid(pDb); }
+
+	bool Close() { return sqlite3_close(pDb) == SQLITE_OK; }
+};
+
+class GeneralConfigDb: public GeneralConfig {
+	SQLiteDb   db;
+	SQLiteStmt stmtUpdateValue;
+	SQLiteStmt stmtInsertValue;
+	SQLiteStmt stmtGetValue;
+	SQLiteStmt stmtDelValue;
+	SQLiteStmt stmtEnumValues;
+
+public:
+
+	GeneralConfigDb()
+	{
+		if (!db.Open(L"generalconfig.db"))
+			return;
 
 		//schema
-		sqlite3_exec(pDb,
-			"CREATE TABLE IF NOT EXISTS general_config(key TEXT NOT NULL, name TEXT NOT NULL, type INTEGER NOT NULL, value BLOB, PRIMARY KEY (key, name));"
-			,nullptr,nullptr,nullptr);
+		db.Exec("CREATE TABLE IF NOT EXISTS general_config(key TEXT NOT NULL, name TEXT NOT NULL, value BLOB, PRIMARY KEY (key, name));");
 
 		//update value statement
-		sqlite3_prepare16_v2(pDb, L"UPDATE general_config SET type=?1, value=?2 WHERE key=?3 AND name=?4;", -1, &pStmtUpdateValue, nullptr);
+		db.InitStmt(stmtUpdateValue, L"UPDATE general_config SET value=?1 WHERE key=?2 AND name=?3;");
 
 		//insert value statement
-		sqlite3_prepare16_v2(pDb, L"INSERT INTO general_config VALUES (?1,?2,?3,?4);", -1, &pStmtInsertValue, nullptr);
+		db.InitStmt(stmtInsertValue, L"INSERT INTO general_config VALUES (?1,?2,?3);");
 
 		//get value statement
-		sqlite3_prepare16_v2(pDb, L"SELECT value FROM general_config WHERE key=?1 AND name=?2;", -1, &pStmtGetValue, nullptr);
+		db.InitStmt(stmtGetValue, L"SELECT value FROM general_config WHERE key=?1 AND name=?2;");
 
 		//delete value statement
-		sqlite3_prepare16_v2(pDb, L"DELETE FROM general_config WHERE key=?1 AND name=?2;", -1, &pStmtDelValue, nullptr);
+		db.InitStmt(stmtDelValue, L"DELETE FROM general_config WHERE key=?1 AND name=?2;");
 
 		//enum values statement
-		sqlite3_prepare16_v2(pDb, L"SELECT name, value FROM general_config WHERE key=?1;", -1, &pStmtEnumValues, nullptr);
+		db.InitStmt(stmtEnumValues, L"SELECT name, value FROM general_config WHERE key=?1;");
 	}
 
-	virtual ~GeneralConfigDb()
-	{
-		sqlite3_finalize(pStmtUpdateValue);
-		sqlite3_finalize(pStmtInsertValue);
-		sqlite3_finalize(pStmtGetValue);
-		sqlite3_finalize(pStmtDelValue);
-		sqlite3_finalize(pStmtEnumValues);
+	virtual ~GeneralConfigDb() { }
 
-		sqlite3_close(pDb);
-	}
+	void BeginTransaction() { db.BeginTransaction(); }
 
-	void BeginTransaction()
-	{
-		sqlite3_exec(pDb,"BEGIN TRANSACTION;",nullptr,nullptr,nullptr);
-	}
-
-	void EndTransaction()
-	{
-		sqlite3_exec(pDb,"END TRANSACTION;",nullptr,nullptr,nullptr);
-	}
+	void EndTransaction() { db.EndTransaction(); }
 
 	bool SetValue(const wchar_t *Key, const wchar_t *Name, const wchar_t *Value)
 	{
-		sqlite3_bind_int(pStmtUpdateValue,1,TYPE_TEXT);
-		sqlite3_bind_text16(pStmtUpdateValue,2,Value,-1,SQLITE_STATIC);
-		sqlite3_bind_text16(pStmtUpdateValue,3,Key,-1,SQLITE_STATIC);
-		sqlite3_bind_text16(pStmtUpdateValue,4,Name,-1,SQLITE_STATIC);
-		int res = sqlite3_step(pStmtUpdateValue);
-		sqlite3_clear_bindings(pStmtUpdateValue);
-		sqlite3_reset(pStmtUpdateValue);
-		if (res != SQLITE_DONE || sqlite3_changes(pDb) == 0)
-		{
-			sqlite3_bind_text16(pStmtInsertValue,1,Key,-1,SQLITE_STATIC);
-			sqlite3_bind_text16(pStmtInsertValue,2,Name,-1,SQLITE_STATIC);
-			sqlite3_bind_int(pStmtInsertValue,3,TYPE_TEXT);
-			sqlite3_bind_text16(pStmtInsertValue,4,Value,-1,SQLITE_STATIC);
-			res = sqlite3_step(pStmtInsertValue);
-			sqlite3_clear_bindings(pStmtInsertValue);
-			sqlite3_reset(pStmtInsertValue);
-		}
-		return res == SQLITE_DONE;
+		bool b = stmtUpdateValue.Bind(Value).Bind(Key).Bind(Name).StepAndReset();
+		if (!b || db.Changes() == 0)
+			b = stmtInsertValue.Bind(Key).Bind(Name).Bind(Value).StepAndReset();
+		return b;
 	}
 
 	bool SetValue(const wchar_t *Key, const wchar_t *Name, unsigned __int64 Value)
 	{
-		sqlite3_bind_int(pStmtUpdateValue,1,TYPE_INTEGER);
-		sqlite3_bind_int64(pStmtUpdateValue,2,Value);
-		sqlite3_bind_text16(pStmtUpdateValue,3,Key,-1,SQLITE_STATIC);
-		sqlite3_bind_text16(pStmtUpdateValue,4,Name,-1,SQLITE_STATIC);
-		int res = sqlite3_step(pStmtUpdateValue);
-		sqlite3_clear_bindings(pStmtUpdateValue);
-		sqlite3_reset(pStmtUpdateValue);
-		if (res != SQLITE_DONE || sqlite3_changes(pDb) == 0)
-		{
-			sqlite3_bind_text16(pStmtInsertValue,1,Key,-1,SQLITE_STATIC);
-			sqlite3_bind_text16(pStmtInsertValue,2,Name,-1,SQLITE_STATIC);
-			sqlite3_bind_int(pStmtInsertValue,3,TYPE_INTEGER);
-			sqlite3_bind_int64(pStmtInsertValue,4,Value);
-			res = sqlite3_step(pStmtInsertValue);
-			sqlite3_clear_bindings(pStmtInsertValue);
-			sqlite3_reset(pStmtInsertValue);
-		}
-		return res == SQLITE_DONE;
+		bool b = stmtUpdateValue.Bind(Value).Bind(Key).Bind(Name).StepAndReset();
+		if (!b || db.Changes() == 0)
+			b = stmtInsertValue.Bind(Key).Bind(Name).Bind(Value).StepAndReset();
+		return b;
 	}
 
-	bool SetValue(const wchar_t *Key, const wchar_t *Name, const void *Value, int Size)
+	bool SetValue(const wchar_t *Key, const wchar_t *Name, const char *Value, int Size)
 	{
-		sqlite3_bind_int(pStmtUpdateValue,1,TYPE_BLOB);
-		sqlite3_bind_blob(pStmtUpdateValue,2,Value,Size,SQLITE_STATIC);
-		sqlite3_bind_text16(pStmtUpdateValue,3,Key,-1,SQLITE_STATIC);
-		sqlite3_bind_text16(pStmtUpdateValue,4,Name,-1,SQLITE_STATIC);
-		int res = sqlite3_step(pStmtUpdateValue);
-		sqlite3_clear_bindings(pStmtUpdateValue);
-		sqlite3_reset(pStmtUpdateValue);
-		if (res != SQLITE_DONE || sqlite3_changes(pDb) == 0)
-		{
-			sqlite3_bind_text16(pStmtInsertValue,1,Key,-1,SQLITE_STATIC);
-			sqlite3_bind_text16(pStmtInsertValue,2,Name,-1,SQLITE_STATIC);
-			sqlite3_bind_int(pStmtInsertValue,3,TYPE_BLOB);
-			sqlite3_bind_blob(pStmtInsertValue,4,Value,Size,SQLITE_STATIC);
-			res = sqlite3_step(pStmtInsertValue);
-			sqlite3_clear_bindings(pStmtInsertValue);
-			sqlite3_reset(pStmtInsertValue);
-		}
-		return res == SQLITE_DONE;
+		bool b = stmtUpdateValue.Bind(Value,Size).Bind(Key).Bind(Name).StepAndReset();
+		if (!b || db.Changes() == 0)
+			b = stmtInsertValue.Bind(Key).Bind(Name).Bind(Value,Size).StepAndReset();
+		return b;
 	}
 
 	bool GetValue(const wchar_t *Key, const wchar_t *Name, unsigned __int64 *Value)
 	{
-		sqlite3_bind_text16(pStmtGetValue,1,Key,-1,SQLITE_STATIC);
-		sqlite3_bind_text16(pStmtGetValue,2,Name,-1,SQLITE_STATIC);
-		int res = sqlite3_step(pStmtGetValue);
-		if (res == SQLITE_ROW)
-		{
-			*Value = sqlite3_column_int64(pStmtGetValue,0);
-		}
-		sqlite3_clear_bindings(pStmtGetValue);
-		sqlite3_reset(pStmtGetValue);
-		return res == SQLITE_ROW;
+		bool b = stmtGetValue.Bind(Key).Bind(Name).Step();
+		if (b)
+			*Value = stmtGetValue.GetColInt64(0);
+		stmtGetValue.Reset();
+		return b;
 	}
 
 	bool GetValue(const wchar_t *Key, const wchar_t *Name, string &strValue)
 	{
-		sqlite3_bind_text16(pStmtGetValue,1,Key,-1,SQLITE_STATIC);
-		sqlite3_bind_text16(pStmtGetValue,2,Name,-1,SQLITE_STATIC);
-		int res = sqlite3_step(pStmtGetValue);
-		if (res == SQLITE_ROW)
-		{
-			strValue = (const wchar_t *)sqlite3_column_text16(pStmtGetValue,0);
-		}
-		sqlite3_clear_bindings(pStmtGetValue);
-		sqlite3_reset(pStmtGetValue);
-		return res == SQLITE_ROW;
+		bool b = stmtGetValue.Bind(Key).Bind(Name).Step();
+		if (b)
+			strValue = stmtGetValue.GetColText(0);
+		stmtGetValue.Reset();
+		return b;
 	}
 
 	int GetValue(const wchar_t *Key, const wchar_t *Name, char *Value, int Size)
 	{
-		int res = 0;
-		sqlite3_bind_text16(pStmtGetValue,1,Key,-1,SQLITE_STATIC);
-		sqlite3_bind_text16(pStmtGetValue,2,Name,-1,SQLITE_STATIC);
-		if (sqlite3_step(pStmtGetValue) == SQLITE_ROW)
+		int realsize = 0;
+		if (stmtGetValue.Bind(Key).Bind(Name).Step())
 		{
-			const void *blob = sqlite3_column_blob(pStmtGetValue,0);
-			res = sqlite3_column_bytes(pStmtGetValue,0);
+			const char *blob = stmtGetValue.GetColBlob(0);
+			realsize = stmtGetValue.GetColBytes(0);
 			if (Value)
-				memcpy(Value,blob,Min(res,Size));
+				memcpy(Value,blob,Min(realsize,Size));
 		}
-		sqlite3_clear_bindings(pStmtGetValue);
-		sqlite3_reset(pStmtGetValue);
-		return res;
+		stmtGetValue.Reset();
+		return realsize;
 	}
 
 	bool GetValue(const wchar_t *Key, const wchar_t *Name, DWORD *Value, DWORD Default)
@@ -254,9 +263,7 @@ public:
 	{
 		unsigned __int64 v;
 		if (GetValue(Key,Name,&v))
-		{
 			return (int)v;
-		}
 		return Default;
 	}
 
@@ -283,27 +290,18 @@ public:
 
 	bool DeleteValue(const wchar_t *Key, const wchar_t *Name)
 	{
-		sqlite3_bind_text16(pStmtDelValue,1,Key,-1,SQLITE_STATIC);
-		sqlite3_bind_text16(pStmtDelValue,2,Name,-1,SQLITE_STATIC);
-		int res = sqlite3_step(pStmtDelValue);
-		sqlite3_clear_bindings(pStmtDelValue);
-		sqlite3_reset(pStmtDelValue);
-		return res == SQLITE_DONE;
+		return stmtDelValue.Bind(Key).Bind(Name).StepAndReset();
 	}
 
 	bool EnumValues(const wchar_t *Key, DWORD Index, string &strName, string &strValue)
 	{
 		if (Index == 0)
-		{
-			sqlite3_clear_bindings(pStmtEnumValues);
-			sqlite3_reset(pStmtEnumValues);
-			sqlite3_bind_text16(pStmtEnumValues,1,Key,-1,SQLITE_TRANSIENT);
-		}
+			stmtEnumValues.Reset().Bind(Key,false);
 
-		if (sqlite3_step(pStmtEnumValues) == SQLITE_ROW)
+		if (stmtEnumValues.Step())
 		{
-			strName = (const wchar_t *)sqlite3_column_text16(pStmtEnumValues,0);
-			strValue = (const wchar_t *)sqlite3_column_text16(pStmtEnumValues,1);
+			strName = stmtEnumValues.GetColText(0);
+			strValue = stmtEnumValues.GetColText(1);
 			return true;
 		}
 
@@ -313,16 +311,12 @@ public:
 	bool EnumValues(const wchar_t *Key, DWORD Index, string &strName, DWORD *Value)
 	{
 		if (Index == 0)
-		{
-			sqlite3_clear_bindings(pStmtEnumValues);
-			sqlite3_reset(pStmtEnumValues);
-			sqlite3_bind_text16(pStmtEnumValues,1,Key,-1,SQLITE_TRANSIENT);
-		}
+			stmtEnumValues.Reset().Bind(Key,false);
 
-		if (sqlite3_step(pStmtEnumValues) == SQLITE_ROW)
+		if (stmtEnumValues.Step())
 		{
-			strName = (const wchar_t *)sqlite3_column_text16(pStmtEnumValues,0);
-			*Value = (DWORD)sqlite3_column_int(pStmtEnumValues,1);
+			strName = stmtEnumValues.GetColText(0);
+			*Value = (DWORD)stmtEnumValues.GetColInt(1);
 			return true;
 		}
 
@@ -331,118 +325,73 @@ public:
 };
 
 class PluginsConfigDb: public PluginsConfig {
-	sqlite3 *pDb;
-	sqlite3_stmt *pStmtCreateKey;
-	sqlite3_stmt *pStmtFindKey;
-	sqlite3_stmt *pStmtSetKeyDescription;
-	sqlite3_stmt *pStmtSetValue;
-	sqlite3_stmt *pStmtGetValue;
-	sqlite3_stmt *pStmtEnumKeys;
-	sqlite3_stmt *pStmtEnumValues;
-	sqlite3_stmt *pStmtDelValue;
+	SQLiteDb   db;
+	SQLiteStmt stmtCreateKey;
+	SQLiteStmt stmtFindKey;
+	SQLiteStmt stmtSetKeyDescription;
+	SQLiteStmt stmtSetValue;
+	SQLiteStmt stmtGetValue;
+	SQLiteStmt stmtEnumKeys;
+	SQLiteStmt stmtEnumValues;
+	SQLiteStmt stmtDelValue;
 
 public:
 
-	PluginsConfigDb() : pDb(nullptr),  pStmtCreateKey(nullptr), pStmtFindKey(nullptr), pStmtSetKeyDescription(nullptr), pStmtSetValue(nullptr), pStmtGetValue(nullptr), pStmtEnumKeys(nullptr), pStmtEnumValues(nullptr), pStmtDelValue(nullptr)
+	PluginsConfigDb()
 	{
-		string strPath;
-		GetDatabasePath(L"pluginsconfig.db", strPath);
-		if (sqlite3_open16(strPath.CPtr(),&pDb) != SQLITE_OK)
-		{
-			sqlite3_close(pDb);
-			pDb = nullptr;
-			//if failed, let's open a memory only db so Far can work anyway
-			if (sqlite3_open16(L":memory:",&pDb) != SQLITE_OK)
-			{
-				sqlite3_close(pDb);
-				pDb = nullptr;
-				return;
-			}
-		}
+		if (!db.Open(L"pluginsconfig.db"))
+			return;
 
 		//schema
-		sqlite3_exec(pDb,
+		db.Exec(
 			"PRAGMA foreign_keys = ON;"
 			"CREATE TABLE IF NOT EXISTS plugin_keys(id INTEGER PRIMARY KEY ASC, parent_id INTEGER NOT NULL, name TEXT NOT NULL, description TEXT, FOREIGN KEY(parent_id) REFERENCES plugin_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, UNIQUE (parent_id,name));"
-			"CREATE TABLE IF NOT EXISTS plugin_values(key_id INTEGER NOT NULL, name TEXT NOT NULL, type INTEGER NOT NULL, value BLOB, FOREIGN KEY(key_id) REFERENCES plugin_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (key_id, name), CHECK (key_id > 0));"
-			,nullptr,nullptr,nullptr);
+			"CREATE TABLE IF NOT EXISTS plugin_values(key_id INTEGER NOT NULL, name TEXT NOT NULL, value BLOB, FOREIGN KEY(key_id) REFERENCES plugin_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (key_id, name), CHECK (key_id > 0));"
+		);
 
-		BeginTransaction();
+		//root key (needs to be before the transaction start)
+		db.Exec("INSERT INTO plugin_keys VALUES (0,0,\"\",\"Root - do not edit\");");
 
-		//root key
-		sqlite3_exec(pDb,"INSERT INTO plugin_keys VALUES (0,0,\"\",\"Root - do not edit\");",nullptr,nullptr,nullptr);
+		db.BeginTransaction();
 
 		//create key statement
-		sqlite3_prepare16_v2(pDb, L"INSERT INTO plugin_keys VALUES (NULL,?1,?2,?3);", -1, &pStmtCreateKey, nullptr);
+		db.InitStmt(stmtCreateKey, L"INSERT INTO plugin_keys VALUES (NULL,?1,?2,?3);");
 
 		//find key statement
-		sqlite3_prepare16_v2(pDb, L"SELECT id FROM plugin_keys WHERE parent_id=?1 AND name=?2 AND id>0;", -1, &pStmtFindKey, nullptr);
+		db.InitStmt(stmtFindKey, L"SELECT id FROM plugin_keys WHERE parent_id=?1 AND name=?2 AND id>0;");
 
 		//set key description statement
-		sqlite3_prepare16_v2(pDb, L"UPDATE plugin_keys SET description=?1 WHERE id=?2 AND id>0 AND description<>?1;", -1, &pStmtSetKeyDescription, nullptr);
+		db.InitStmt(stmtSetKeyDescription, L"UPDATE plugin_keys SET description=?1 WHERE id=?2 AND id>0 AND description<>?1;");
 
 		//set value statement
-		sqlite3_prepare16_v2(pDb, L"INSERT OR REPLACE INTO plugin_values VALUES (?1,?2,?3,?4);", -1, &pStmtSetValue, nullptr);
+		db.InitStmt(stmtSetValue, L"INSERT OR REPLACE INTO plugin_values VALUES (?1,?2,?3);");
 
 		//get value statement
-		sqlite3_prepare16_v2(pDb, L"SELECT value FROM plugin_values WHERE key_id=?1 AND name=?2;", -1, &pStmtGetValue, nullptr);
+		db.InitStmt(stmtGetValue, L"SELECT value FROM plugin_values WHERE key_id=?1 AND name=?2;");
 
 		//enum keys statement
-		sqlite3_prepare16_v2(pDb, L"SELECT name FROM plugin_keys WHERE parent_id=?1 AND id>0;", -1, &pStmtEnumKeys, nullptr);
+		db.InitStmt(stmtEnumKeys, L"SELECT name FROM plugin_keys WHERE parent_id=?1 AND id>0;");
 
 		//enum values statement
-		sqlite3_prepare16_v2(pDb, L"SELECT name, type FROM plugin_values WHERE key_id=?1;", -1, &pStmtEnumValues, nullptr);
+		db.InitStmt(stmtEnumValues, L"SELECT name, value FROM plugin_values WHERE key_id=?1;");
 
 		//delete value statement
-		sqlite3_prepare16_v2(pDb, L"DELETE FROM plugin_values WHERE key_id=?1 AND name=?2;", -1, &pStmtDelValue, nullptr);
+		db.InitStmt(stmtDelValue, L"DELETE FROM plugin_values WHERE key_id=?1 AND name=?2;");
 	}
 
-	virtual ~PluginsConfigDb()
-	{
-		sqlite3_finalize(pStmtCreateKey);
-		sqlite3_finalize(pStmtFindKey);
-		sqlite3_finalize(pStmtSetKeyDescription);
-		sqlite3_finalize(pStmtSetValue);
-		sqlite3_finalize(pStmtGetValue);
-		sqlite3_finalize(pStmtEnumKeys);
-		sqlite3_finalize(pStmtEnumValues);
-		sqlite3_finalize(pStmtDelValue);
-
-		EndTransaction();
-
-		sqlite3_close(pDb);
-	}
-
-	bool BeginTransaction()
-	{
-		return sqlite3_exec(pDb, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr) == SQLITE_OK;
-	}
-
-	bool EndTransaction()
-	{
-		return sqlite3_exec(pDb, "END TRANSACTION;", nullptr, nullptr, nullptr) == SQLITE_OK;
-	}
+	virtual ~PluginsConfigDb() { db.EndTransaction(); }
 
 	bool Flush()
 	{
-		bool res = EndTransaction();
-		BeginTransaction();
-		return res;
+		bool b = db.EndTransaction();
+		db.BeginTransaction();
+		return b;
 	}
 
 	unsigned __int64 CreateKey(unsigned __int64 Root, const wchar_t *Name, const wchar_t *Description=nullptr)
 	{
-		sqlite3_bind_int64(pStmtCreateKey,1,Root);
-		sqlite3_bind_text16(pStmtCreateKey,2,Name,-1,SQLITE_STATIC);
-		if (Description)
-			sqlite3_bind_text16(pStmtCreateKey,3,Description,-1,SQLITE_STATIC);
-		else
-		   sqlite3_bind_null(pStmtCreateKey,3);
-		int res = sqlite3_step(pStmtCreateKey);
-		sqlite3_clear_bindings(pStmtCreateKey);
-		sqlite3_reset(pStmtCreateKey);
-		if (res == SQLITE_DONE)
-			return sqlite3_last_insert_rowid(pDb);
+		if (stmtCreateKey.Bind(Root).Bind(Name).Bind(Description).StepAndReset())
+			return db.LastInsertRowID();
 		unsigned __int64 id = GetKeyID(Root,Name);
 		if (id && Description)
 			SetKeyDescription(id,Description);
@@ -451,142 +400,88 @@ public:
 
 	unsigned __int64 GetKeyID(unsigned __int64 Root, const wchar_t *Name)
 	{
-		sqlite3_bind_int64(pStmtFindKey,1,Root);
-		sqlite3_bind_text16(pStmtFindKey,2,Name,-1,SQLITE_STATIC);
 		unsigned __int64 id = 0;
-		if (sqlite3_step(pStmtFindKey) == SQLITE_ROW)
-		{
-			id = sqlite3_column_int64(pStmtFindKey,0);
-		}
-		sqlite3_clear_bindings(pStmtFindKey);
-		sqlite3_reset(pStmtFindKey);
+		if (stmtFindKey.Bind(Root).Bind(Name).Step())
+			id = stmtFindKey.GetColInt64(0);
+		stmtFindKey.Reset();
 		return id;
 	}
 
 	bool SetKeyDescription(unsigned __int64 Root, const wchar_t *Description)
 	{
-		sqlite3_bind_text16(pStmtSetKeyDescription,1,Description,-1,SQLITE_STATIC);
-		sqlite3_bind_int64(pStmtSetKeyDescription,2,Root);
-		int res = sqlite3_step(pStmtSetKeyDescription);
-		sqlite3_clear_bindings(pStmtSetKeyDescription);
-		sqlite3_reset(pStmtSetKeyDescription);
-		return (res == SQLITE_DONE);
+		return stmtSetKeyDescription.Bind(Description).Bind(Root).StepAndReset();
 	}
 
 	bool SetValue(unsigned __int64 Root, const wchar_t *Name, const wchar_t *Value)
 	{
 		if (!Name)
 			return SetKeyDescription(Root,Value);
-		sqlite3_bind_int64(pStmtSetValue,1,Root);
-		sqlite3_bind_text16(pStmtSetValue,2,Name,-1,SQLITE_STATIC);
-		sqlite3_bind_int(pStmtSetValue,3,TYPE_TEXT);
-		sqlite3_bind_text16(pStmtSetValue,4,Value,-1,SQLITE_STATIC);
-		int res = sqlite3_step(pStmtSetValue);
-		sqlite3_clear_bindings(pStmtSetValue);
-		sqlite3_reset(pStmtSetValue);
-		return res == SQLITE_DONE;
+		return stmtSetValue.Bind(Root).Bind(Name).Bind(Value).StepAndReset();
 	}
 
 	bool SetValue(unsigned __int64 Root, const wchar_t *Name, unsigned __int64 Value)
 	{
-		sqlite3_bind_int64(pStmtSetValue,1,Root);
-		sqlite3_bind_text16(pStmtSetValue,2,Name,-1,SQLITE_STATIC);
-		sqlite3_bind_int(pStmtSetValue,3,TYPE_INTEGER);
-		sqlite3_bind_int64(pStmtSetValue,4,Value);
-		int res = sqlite3_step(pStmtSetValue);
-		sqlite3_clear_bindings(pStmtSetValue);
-		sqlite3_reset(pStmtSetValue);
-		return res == SQLITE_DONE;
+		return stmtSetValue.Bind(Root).Bind(Name).Bind(Value).StepAndReset();
 	}
 
-	bool SetValue(unsigned __int64 Root, const wchar_t *Name, const void *Value, int Size)
+	bool SetValue(unsigned __int64 Root, const wchar_t *Name, const char *Value, int Size)
 	{
-		sqlite3_bind_int64(pStmtSetValue,1,Root);
-		sqlite3_bind_text16(pStmtSetValue,2,Name,-1,SQLITE_STATIC);
-		sqlite3_bind_int(pStmtSetValue,3,TYPE_BLOB);
-		sqlite3_bind_blob(pStmtSetValue,4,Value,Size,SQLITE_STATIC);
-		int res = sqlite3_step(pStmtSetValue);
-		sqlite3_clear_bindings(pStmtSetValue);
-		sqlite3_reset(pStmtSetValue);
-		return res == SQLITE_DONE;
+		return stmtSetValue.Bind(Root).Bind(Name).Bind(Value,Size).StepAndReset();
 	}
 
 	bool GetValue(unsigned __int64 Root, const wchar_t *Name, unsigned __int64 *Value)
 	{
-		sqlite3_bind_int64(pStmtGetValue,1,Root);
-		sqlite3_bind_text16(pStmtGetValue,2,Name,-1,SQLITE_STATIC);
-		int res = sqlite3_step(pStmtGetValue);
-		if (res == SQLITE_ROW)
-		{
-			*Value = sqlite3_column_int64(pStmtGetValue,0);
-		}
-		sqlite3_clear_bindings(pStmtGetValue);
-		sqlite3_reset(pStmtGetValue);
-		return res == SQLITE_ROW;
+		bool b = stmtGetValue.Bind(Root).Bind(Name).Step();
+		if (b)
+			*Value = stmtGetValue.GetColInt64(0);
+		stmtGetValue.Reset();
+		return b;
 	}
 
 	bool GetValue(unsigned __int64 Root, const wchar_t *Name, string &strValue)
 	{
-		sqlite3_bind_int64(pStmtGetValue,1,Root);
-		sqlite3_bind_text16(pStmtGetValue,2,Name,-1,SQLITE_STATIC);
-		int res = sqlite3_step(pStmtGetValue);
-		if (res == SQLITE_ROW)
-		{
-			strValue = (const wchar_t *)sqlite3_column_text16(pStmtGetValue,0);
-		}
-		sqlite3_clear_bindings(pStmtGetValue);
-		sqlite3_reset(pStmtGetValue);
-		return res == SQLITE_ROW;
+		bool b = stmtGetValue.Bind(Root).Bind(Name).Step();
+		if (b)
+			strValue = stmtGetValue.GetColText(0);
+		stmtGetValue.Reset();
+		return b;
 	}
 
 	int GetValue(unsigned __int64 Root, const wchar_t *Name, char *Value, int Size)
 	{
-		int res = 0;
-		sqlite3_bind_int64(pStmtGetValue,1,Root);
-		sqlite3_bind_text16(pStmtGetValue,2,Name,-1,SQLITE_STATIC);
-		if (sqlite3_step(pStmtGetValue) == SQLITE_ROW)
+		int realsize = 0;
+		if (stmtGetValue.Bind(Root).Bind(Name).Step())
 		{
-			const void *blob = sqlite3_column_blob(pStmtGetValue,0);
-			res = sqlite3_column_bytes(pStmtGetValue,0);
+			const char *blob = stmtGetValue.GetColBlob(0);
+			realsize = stmtGetValue.GetColBytes(0);
 			if (Value)
-				memcpy(Value,blob,Min(res,Size));
+				memcpy(Value,blob,Min(realsize,Size));
 		}
-		sqlite3_clear_bindings(pStmtGetValue);
-		sqlite3_reset(pStmtGetValue);
-		return res;
+		stmtGetValue.Reset();
+		return realsize;
 	}
 
 	bool DeleteKeyTree(unsigned __int64 KeyID)
 	{
 		//All subtree is automatically deleted because of foreign key constraints
-		char *zSQL = sqlite3_mprintf("DELETE FROM plugin_keys WHERE id=%lld AND id>0;", KeyID);
-		int res = sqlite3_exec(pDb, zSQL, nullptr,nullptr,nullptr);
-		sqlite3_free(zSQL);
-		return res == SQLITE_OK;
+		SQLiteStmt stmtDeleteTree;
+		db.InitStmt(stmtDeleteTree, L"DELETE FROM plugin_keys WHERE id=?1 AND id>0;");
+		return stmtDeleteTree.Bind(KeyID).StepAndReset();
 	}
 
 	bool DeleteValue(unsigned __int64 Root, const wchar_t *Name)
 	{
-		sqlite3_bind_int64(pStmtDelValue,1,Root);
-		sqlite3_bind_text16(pStmtDelValue,2,Name,-1,SQLITE_STATIC);
-		int res = sqlite3_step(pStmtDelValue);
-		sqlite3_clear_bindings(pStmtDelValue);
-		sqlite3_reset(pStmtDelValue);
-		return res == SQLITE_DONE;
+		return stmtDelValue.Bind(Root).Bind(Name).StepAndReset();
 	}
 
 	bool EnumKeys(unsigned __int64 Root, DWORD Index, string &strName)
 	{
 		if (Index == 0)
-		{
-			sqlite3_clear_bindings(pStmtEnumKeys);
-			sqlite3_reset(pStmtEnumKeys);
-			sqlite3_bind_int64(pStmtEnumKeys,1,Root);
-		}
+			stmtEnumKeys.Reset().Bind(Root);
 
-		if (sqlite3_step(pStmtEnumKeys) == SQLITE_ROW)
+		if (stmtEnumKeys.Step())
 		{
-			strName = (const wchar_t *)sqlite3_column_text16(pStmtEnumKeys,0);
+			strName = stmtEnumKeys.GetColText(0);
 			return true;
 		}
 
@@ -596,20 +491,24 @@ public:
 	bool EnumValues(unsigned __int64 Root, DWORD Index, string &strName, DWORD *Type)
 	{
 		if (Index == 0)
-		{
-			sqlite3_clear_bindings(pStmtEnumValues);
-			sqlite3_reset(pStmtEnumValues);
-			sqlite3_bind_int64(pStmtEnumValues,1,Root);
-		}
+			stmtEnumValues.Reset().Bind(Root);
 
-		if (sqlite3_step(pStmtEnumValues) == SQLITE_ROW)
+		if (stmtEnumValues.Step())
 		{
-			strName = (const wchar_t *)sqlite3_column_text16(pStmtEnumValues,0);
-			*Type = sqlite3_column_int(pStmtEnumValues,1);
+			strName = stmtEnumValues.GetColText(0);
+			switch (stmtEnumValues.GetColType(1))
+			{
+				case SQLITE_INTEGER: *Type = TYPE_INTEGER; break;
+				case SQLITE_TEXT: *Type = TYPE_TEXT; break;
+				case SQLITE_BLOB: *Type = TYPE_BLOB; break;
+				default: *Type = TYPE_UNKNOWN;
+			}
+
 			return true;
 		}
 
 		return false;
+
 	}
 };
 

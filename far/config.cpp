@@ -1080,7 +1080,7 @@ void SaveConfig(int Ask)
 					GeneralCfg->SetValue(CFG[I].KeyName, CFG[I].ValName,*(string *)CFG[I].ValPtr);
 					break;
 				case REG_BINARY:
-					GeneralCfg->SetValue(CFG[I].KeyName, CFG[I].ValName,(BYTE*)CFG[I].ValPtr,CFG[I].DefDWord);
+					GeneralCfg->SetValue(CFG[I].KeyName, CFG[I].ValName,(char*)CFG[I].ValPtr,CFG[I].DefDWord);
 					break;
 			}
 	}

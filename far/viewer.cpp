@@ -717,6 +717,8 @@ void Viewer::ShowHex()
 			if (nr > 16)
 				Reader.Unread(nr-16);
 
+			LastPage = nr < (DWORD)sizeof(line) && ViewFile.Eof() ? 1 : 0;
+
 			if (!nr)
 			{
 				*OutStr=0;
