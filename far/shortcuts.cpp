@@ -245,6 +245,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, string* PluginModule, string* Pl
 			if(Folder)
 			{
 				*Folder = RetItem->strFolder;
+				apiExpandEnvironmentStrings(*Folder, *Folder);
 			}
 			if(PluginModule)
 			{
