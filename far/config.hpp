@@ -672,6 +672,7 @@ struct Options
 	BOOL WindowMode;
 
 	string ProfilePath;
+	string LocalProfilePath;
 };
 
 extern Options Opt;

@@ -1,3 +1,7 @@
+drkns 22.03.2011 15:55:16 +0200 - build 1926
+
+1. На будущее: Opt.LocalProfilePath == "%LOCALAPPDATA%\Far Manager\Profiles\<Default|ProfileName>".
+
 t-rex 22.03.2011 00:04:16 +0200 - build 1925
 
 1. From 2useven10: Hex view для UTF-8.

@@ -366,17 +366,24 @@ void InitProfile(const string& strDefaultProfile)
 	string strCfgName = g_strFarModuleName+L".ini";
 	if(GetPrivateProfileInt(L"General", L"UseSystemProfiles", 1, strCfgName))
 	{
-		// default profiles path: %APPDATA%\Far Manager\Profiles
+		// roaming profiles default path: %APPDATA%\Far Manager\Profiles
 		SHGetFolderPath(nullptr, CSIDL_APPDATA|CSIDL_FLAG_CREATE, nullptr, 0, Opt.ProfilePath.GetBuffer(MAX_PATH));
 		Opt.ProfilePath.ReleaseBuffer();
 		AddEndSlash(Opt.ProfilePath);
 		Opt.ProfilePath += L"Far Manager";
+
+		// local profiles default path: %LOCALAPPDATA%\Far Manager\Profiles
+		SHGetFolderPath(nullptr, CSIDL_LOCAL_APPDATA|CSIDL_FLAG_CREATE, nullptr, 0, Opt.LocalProfilePath.GetBuffer(MAX_PATH));
+		Opt.LocalProfilePath.ReleaseBuffer();
+		AddEndSlash(Opt.LocalProfilePath);
+		Opt.LocalProfilePath += L"Far Manager";
 	}
 	else
 	{
 		Opt.ProfilePath=g_strFarPath;
 		AddEndSlash(Opt.ProfilePath);
 		Opt.ProfilePath+=L"UserData";
+		Opt.LocalProfilePath = Opt.ProfilePath;
 	}
 
 	AddEndSlash(Opt.ProfilePath);
@@ -384,7 +391,13 @@ void InitProfile(const string& strDefaultProfile)
 	AddEndSlash(Opt.ProfilePath);
 	Opt.ProfilePath+=strDefaultProfile;
 
+	AddEndSlash(Opt.LocalProfilePath);
+	Opt.LocalProfilePath += L"Profiles";
+	AddEndSlash(Opt.LocalProfilePath);
+	Opt.LocalProfilePath+=strDefaultProfile;
+
 	CreatePath(Opt.ProfilePath, true);
+	CreatePath(Opt.LocalProfilePath, true);
 }
 
 int _cdecl wmain(int Argc, wchar_t *Argv[])
