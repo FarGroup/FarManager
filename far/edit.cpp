@@ -2159,11 +2159,11 @@ int Edit::Search(const string& Str,string& ReplaceStr,int Position,int Case,int 
 					*SearchLength = m[0].end - m[0].start;
 					CurPos = m[0].start;
 					ReplaceStr=ReplaceBrackets(this->Str,ReplaceStr,m,n);
-					free(m);
+					xf_free(m);
 					return TRUE;
 				}
 
-				free(m);
+				xf_free(m);
 			}
 
 			return FALSE;
