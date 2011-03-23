@@ -53,7 +53,7 @@ extern int GlobalSearchReverse;
 
 extern int ScreenSaverActive;
 
-extern int CloseFAR, CloseFARMenu;
+extern int CloseFAR, CloseFARMenu, AllowCancelExit;
 
 extern int DisablePluginsOutput;
 

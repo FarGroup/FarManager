@@ -92,7 +92,7 @@ public:
 
 	LPCWSTR GetStr()
 	{
-		return reinterpret_cast<wchar_t*>(Get());
+		return reinterpret_cast<LPCWSTR>(Get());
 	}
 
 private:
@@ -101,24 +101,14 @@ private:
 
 bool RawReadPipe(HANDLE Pipe, LPVOID Data, size_t DataSize)
 {
-	bool Result=false;
 	DWORD n;
-	if(ReadFile(Pipe, Data, static_cast<DWORD>(DataSize), &n, nullptr) && n==static_cast<DWORD>(DataSize))
-	{
-		Result=true;
-	}
-	return Result;
+	return ReadFile(Pipe, Data, static_cast<DWORD>(DataSize), &n, nullptr) && n==DataSize;
 }
 
 bool RawWritePipe(HANDLE Pipe, LPCVOID Data, size_t DataSize)
 {
-	bool Result=false;
 	DWORD n;
-	if(WriteFile(Pipe, Data, static_cast<DWORD>(DataSize), &n, nullptr) && n==static_cast<DWORD>(DataSize))
-	{
-		Result=true;
-	}
-	return Result;
+	return WriteFile(Pipe, Data, static_cast<DWORD>(DataSize), &n, nullptr) && n==DataSize;
 }
 
 bool ReadPipeInt(HANDLE Pipe, int& Data)
