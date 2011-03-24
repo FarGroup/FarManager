@@ -3,6 +3,26 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 24.03.2011 10:59:59 +0200 - build 1931
+
+1. Types correction.
+
+drkns 23.03.2011 17:00:00 +0200 - build 1930
+
+1. Now settings are guaranteed to be saved when the console is closed with [x] button.
+
+drkns 23.03.2011 10:52:38 +0200 - build 1929
+
+1. Mantis#0001661: Debug version crashes at regexp search.
+
+t-rex 23.03.2011 01:18:18 +0200 - build 1928
+
+1. Again, changes in DB schema (old ones must be deleted). "type" field is removed because sqlite can determine the type anyway.
+
+2. Wrapper classes around sqlite for code simplification.
+
+3. From 2useven10: Fix for 1925.1
+
 drkns 22.03.2011 17:04:11 +0200 - build 1927
 
 1. In 1911, the shortcuts with environment variables didn't work.
