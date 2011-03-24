@@ -400,7 +400,7 @@ int VMenu::AddItem(const FarList *List)
 	{
 		MenuItemEx MItem;
 
-		for (int i=0; i<List->ItemsNumber; i++)
+		for (size_t i=0; i<List->ItemsNumber; i++)
 		{
 			AddItem(FarList2MenuItem(&List->Items[i], &MItem));
 		}

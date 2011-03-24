@@ -739,7 +739,7 @@ int WINAPI FarMenuFn(
     const FarKey *BreakKeys,
     int *BreakCode,
     const FarMenuItem *Item,
-    int ItemsNumber
+    size_t ItemsNumber
 )
 {
 	if (FrameManager->ManagerIsDown())
@@ -784,7 +784,7 @@ int WINAPI FarMenuFn(
 		CurItem.Clear();
 		int Selected=0;
 
-		for (int i=0; i < ItemsNumber; i++)
+		for (size_t i=0; i < ItemsNumber; i++)
 		{
 			CurItem.Flags=Item[i].Flags;
 			CurItem.strName.Clear();
@@ -1050,7 +1050,7 @@ const wchar_t* WINAPI FarGetMsgFn(INT_PTR PluginHandle,int MsgId)
 }
 
 int WINAPI FarMessageFn(INT_PTR PluginNumber,unsigned __int64 Flags,const wchar_t *HelpTopic,
-                        const wchar_t * const *Items,int ItemsNumber,
+                        const wchar_t * const *Items,size_t ItemsNumber,
                         int ButtonsNumber)
 {
 	if (FrameManager->ManagerIsDown())
@@ -1123,12 +1123,12 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,unsigned __int64 Flags,const wchar_
 	}
 	else
 	{
-		for (int i=0; i < ItemsNumber; i++)
+		for (size_t i=0; i < ItemsNumber; i++)
 			MsgItems[i]=Items[i];
 	}
 
 	// ограничение на строки
-	if (ItemsNumber > ScrY-2)
+	if (ItemsNumber > static_cast<SIZE_T>(ScrY-2))
 	{
 		ItemsNumber=ScrY-2-(Flags&0x000F0000?1:0);
 	}

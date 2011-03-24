@@ -197,7 +197,7 @@ void FileList::ShowFileList(int Fast)
 				strTitle=MSG(IDMessage);
 
 			if (PanelMode==PLUGIN_PANEL && Info.PanelModesArray &&
-			        ViewMode<Info.PanelModesNumber &&
+			        ViewMode<static_cast<int>(Info.PanelModesNumber) &&
 			        Info.PanelModesArray[ViewMode].ColumnTitles)
 			{
 				const wchar_t *NewTitle=Info.PanelModesArray[ViewMode].ColumnTitles[I];
@@ -622,7 +622,7 @@ void FileList::PrepareViewSettings(int ViewMode,OpenPanelInfo *PlugInfo)
 
 	if (PanelMode==PLUGIN_PANEL)
 	{
-		if (Info.PanelModesArray && ViewMode<Info.PanelModesNumber &&
+		if (Info.PanelModesArray && ViewMode<static_cast<int>(Info.PanelModesNumber) &&
 		        Info.PanelModesArray[ViewMode].ColumnTypes &&
 		        Info.PanelModesArray[ViewMode].ColumnWidths)
 		{
@@ -933,7 +933,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 				if (ColumnType>=CUSTOM_COLUMN0 && ColumnType<=CUSTOM_COLUMN9)
 				{
-					int ColumnNumber=ColumnType-CUSTOM_COLUMN0;
+					size_t ColumnNumber=ColumnType-CUSTOM_COLUMN0;
 					const wchar_t *ColumnData=nullptr;
 
 					if (ColumnNumber<ListData[ListPos]->CustomColumnNumber)

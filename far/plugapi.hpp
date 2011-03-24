@@ -77,10 +77,10 @@ void WINAPI FarFreePluginDirList(PluginPanelItem *PanelItem, int ItemsNumber);
 int WINAPI FarMenuFn(INT_PTR PluginNumber,int X,int Y,int MaxHeight,
                      unsigned __int64 Flags,const wchar_t *Title,const wchar_t *Bottom,
                      const wchar_t *HelpTopic,const FarKey *BreakKeys,int *BreakCode,
-                     const struct FarMenuItem *Item, int ItemsNumber);
+                     const struct FarMenuItem *Item, size_t ItemsNumber);
 const wchar_t* WINAPI FarGetMsgFn(INT_PTR PluginHandle,int MsgId);
 int WINAPI FarMessageFn(INT_PTR PluginNumber,unsigned __int64 Flags,
-                        const wchar_t *HelpTopic,const wchar_t * const *Items,int ItemsNumber,
+                        const wchar_t *HelpTopic,const wchar_t * const *Items,size_t ItemsNumber,
                         int ButtonsNumber);
 int WINAPI FarControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int Param1,INT_PTR Param2);
 HANDLE WINAPI FarSaveScreen(int X1,int Y1,int X2,int Y2);

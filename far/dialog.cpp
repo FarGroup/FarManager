@@ -371,43 +371,43 @@ void DataToItemEx(const DialogDataEx *Data,DialogItemEx *Item,int Count)
 
 
 Dialog::Dialog(DialogItemEx *SrcItem,    // Набор элементов диалога
-               unsigned SrcItemCount,              // Количество элементов
+               size_t SrcItemCount,              // Количество элементов
                FARWINDOWPROC DlgProc,      // Диалоговая процедура
                INT_PTR InitParam):             // Ассоцированные с диалогом данные
 	bInitOK(false)
 {
-	Dialog::Item = (DialogItemEx**)xf_malloc(sizeof(DialogItemEx*)*SrcItemCount);
+	Item = (DialogItemEx**)xf_malloc(sizeof(DialogItemEx*)*SrcItemCount);
 
 	for (unsigned i = 0; i < SrcItemCount; i++)
 	{
-		Dialog::Item[i] = new DialogItemEx;
-		Dialog::Item[i]->Clear();
-		DialogItemExToDialogItemEx(&SrcItem[i], Dialog::Item[i]);
+		Item[i] = new DialogItemEx;
+		Item[i]->Clear();
+		DialogItemExToDialogItemEx(&SrcItem[i], Item[i]);
 	}
 
-	Dialog::ItemCount = SrcItemCount;
-	Dialog::pSaveItemEx = SrcItem;
+	ItemCount = static_cast<int>(SrcItemCount);
+	pSaveItemEx = SrcItem;
 	Init(DlgProc, InitParam);
 }
 
 Dialog::Dialog(FarDialogItem *SrcItem,    // Набор элементов диалога
-               unsigned SrcItemCount,              // Количество элементов
+               size_t SrcItemCount,              // Количество элементов
                FARWINDOWPROC DlgProc,      // Диалоговая процедура
                INT_PTR InitParam)             // Ассоцированные с диалогом данные
 {
 	bInitOK = false;
-	Dialog::Item = (DialogItemEx**)xf_malloc(sizeof(DialogItemEx*)*SrcItemCount);
+	Item = (DialogItemEx**)xf_malloc(sizeof(DialogItemEx*)*SrcItemCount);
 
 	for (unsigned i = 0; i < SrcItemCount; i++)
 	{
-		Dialog::Item[i] = new DialogItemEx;
-		Dialog::Item[i]->Clear();
+		Item[i] = new DialogItemEx;
+		Item[i]->Clear();
 		//BUGBUG add error check
-		ConvertItemEx(CVTITEM_FROMPLUGIN,&SrcItem[i],Dialog::Item[i],1);
+		ConvertItemEx(CVTITEM_FROMPLUGIN,&SrcItem[i],Item[i],1);
 	}
 
-	Dialog::ItemCount = SrcItemCount;
-	Dialog::pSaveItemEx = nullptr;
+	ItemCount = static_cast<int>(SrcItemCount);
+	pSaveItemEx = nullptr;
 	Init(DlgProc, InitParam);
 }
 
@@ -419,7 +419,7 @@ void Dialog::Init(FARWINDOWPROC DlgProc,      // Диалоговая процедура
 	HelpTopic = nullptr;
 	//Номер плагина, вызвавшего диалог (-1 = Main)
 	PluginNumber=-1;
-	Dialog::DataDialog=InitParam;
+	DataDialog=InitParam;
 	DialogMode.Set(DMODE_ISCANMOVE);
 	SetDropDownOpened(FALSE);
 	IsEnableRedraw=0;
@@ -433,7 +433,7 @@ void Dialog::Init(FARWINDOWPROC DlgProc,      // Диалоговая процедура
 		DialogMode.Set(DMODE_OLDSTYLE);
 	}
 
-	Dialog::RealDlgProc=DlgProc;
+	RealDlgProc=DlgProc;
 
 	if (CtrlObject)
 	{
@@ -1001,7 +1001,7 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
 			if (Type==DI_COMBOBOX && CurItem->strData.IsEmpty() && CurItem->ListItems)
 			{
 				FarListItem *ListItems=CurItem->ListItems->Items;
-				unsigned Length=CurItem->ListItems->ItemsNumber;
+				size_t Length=CurItem->ListItems->ItemsNumber;
 				//CurItem->ListPtr->AddItem(CurItem->ListItems);
 
 				for (J=0; J < Length; J++)
@@ -4599,7 +4599,7 @@ void Dialog::ResizeConsole()
 		c.X = x1;
 		c.Y = y1;
 		SendDlgMessage(reinterpret_cast<HANDLE>(this), DM_MOVEDIALOG, TRUE, reinterpret_cast<INT_PTR>(&c));
-		Dialog::SetComboBoxPos();
+		SetComboBoxPos();
 	}
 };
 
@@ -4787,7 +4787,7 @@ INT_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 INT_PTR Dialog::CallDlgProc(int nMsg, int nParam1, INT_PTR nParam2)
 {
 	CriticalSectionLock Lock(CS);
-	return Dialog::DlgProc((HANDLE)this, nMsg, nParam1, nParam2);
+	return DlgProc((HANDLE)this, nMsg, nParam1, nParam2);
 }
 
 //////////////////////////////////////////////////////////////////////////

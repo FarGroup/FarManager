@@ -230,7 +230,7 @@ size_t FileList::FileListToPluginItem2(FileListItem *fi,PluginPanelItem *pi)
 	size+=fi->DizText?sizeof(wchar_t)*(wcslen(fi->DizText)+1):0;
 	size+=fi->CustomColumnNumber*sizeof(wchar_t*);
 
-	for (int ii=0; ii<fi->CustomColumnNumber; ii++)
+	for (size_t ii=0; ii<fi->CustomColumnNumber; ii++)
 	{
 		size+=fi->CustomColumnData[ii]?sizeof(wchar_t)*(wcslen(fi->CustomColumnData[ii])+1):0;
 	}
@@ -262,7 +262,7 @@ size_t FileList::FileListToPluginItem2(FileListItem *fi,PluginPanelItem *pi)
 		pi->CustomColumnData=(wchar_t**)data;
 		data+=fi->CustomColumnNumber*sizeof(wchar_t*);
 
-		for (int ii=0; ii<fi->CustomColumnNumber; ii++)
+		for (size_t ii=0; ii<fi->CustomColumnNumber; ii++)
 		{
 			if (!fi->CustomColumnData[ii])
 			{
@@ -351,7 +351,7 @@ void FileList::PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi)
 	{
 		fi->CustomColumnData=new wchar_t*[pi->CustomColumnNumber];
 
-		for (int I=0; I<pi->CustomColumnNumber; I++)
+		for (size_t I=0; I<pi->CustomColumnNumber; I++)
 			if (pi->CustomColumnData && pi->CustomColumnData[I])
 			{
 				fi->CustomColumnData[I]=new wchar_t[StrLength(pi->CustomColumnData[I])+1];

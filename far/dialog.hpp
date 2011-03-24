@@ -351,9 +351,9 @@ class Dialog: public Frame
 		void ProcessKey(int Key, unsigned ItemPos);
 
 	public:
-		Dialog(DialogItemEx *SrcItem, unsigned SrcItemCount,
+		Dialog(DialogItemEx *SrcItem, size_t SrcItemCount,
 		       FARWINDOWPROC DlgProc=nullptr,INT_PTR InitParam=0);
-		Dialog(FarDialogItem *SrcItem, unsigned SrcItemCount,
+		Dialog(FarDialogItem *SrcItem, size_t SrcItemCount,
 		       FARWINDOWPROC DlgProc=nullptr,INT_PTR InitParam=0);
 		bool InitOK() {return bInitOK;}
 		virtual ~Dialog();

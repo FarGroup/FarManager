@@ -207,7 +207,7 @@ void FileList::DeleteListData(FileListItem **(&ListData),int &FileCount)
 		{
 			if (ListData[I]->CustomColumnNumber>0 && ListData[I]->CustomColumnData)
 			{
-				for (int J=0; J < ListData[I]->CustomColumnNumber; J++)
+				for (size_t J=0; J < ListData[I]->CustomColumnNumber; J++)
 					delete[] ListData[I]->CustomColumnData[J];
 
 				delete[] ListData[I]->CustomColumnData;

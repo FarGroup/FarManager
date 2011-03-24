@@ -357,9 +357,9 @@ void ConvertInfoPanelLinesA(const oldfar::InfoPanelLine *iplA, InfoPanelLine **p
 	}
 }
 
-void FreeUnicodeInfoPanelLines(InfoPanelLine *iplW,int InfoLinesNumber)
+void FreeUnicodeInfoPanelLines(InfoPanelLine *iplW,size_t InfoLinesNumber)
 {
-	for (int i=0; i<InfoLinesNumber; i++)
+	for (size_t i=0; i<InfoLinesNumber; i++)
 	{
 		if (iplW[i].Text)
 			xf_free((void*)iplW[i].Text);
@@ -415,11 +415,11 @@ void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW, int iC
 	}
 }
 
-void FreeUnicodePanelModes(PanelMode *pnmW, int iCount)
+void FreeUnicodePanelModes(PanelMode *pnmW, size_t iCount)
 {
 	if (pnmW)
 	{
-		for (int i=0; i<iCount; i++)
+		for (size_t i=0; i<iCount; i++)
 		{
 			if (pnmW[i].ColumnTypes) xf_free((void*)pnmW[i].ColumnTypes);
 
@@ -586,10 +586,10 @@ void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::PluginPane
 
 	if (PanelItem.CustomColumnNumber)
 	{
-		PanelItemA.CustomColumnNumber=PanelItem.CustomColumnNumber;
+		PanelItemA.CustomColumnNumber=static_cast<int>(PanelItem.CustomColumnNumber);
 		PanelItemA.CustomColumnData=(char **)xf_malloc(PanelItem.CustomColumnNumber*sizeof(char *));
 
-		for (int j=0; j<PanelItem.CustomColumnNumber; j++)
+		for (size_t j=0; j<PanelItem.CustomColumnNumber; j++)
 			PanelItemA.CustomColumnData[j] = UnicodeToAnsi(PanelItem.CustomColumnData[j]);
 	}
 
@@ -626,9 +626,9 @@ void ConvertPanelItemsArrayToAnsi(const PluginPanelItem *PanelItemW, oldfar::Plu
 	}
 }
 
-void FreeUnicodePanelItem(PluginPanelItem *PanelItem, int ItemsNumber)
+void FreeUnicodePanelItem(PluginPanelItem *PanelItem, size_t ItemsNumber)
 {
-	for (int i=0; i<ItemsNumber; i++)
+	for (size_t i=0; i<ItemsNumber; i++)
 	{
 		if (PanelItem[i].Description)
 			xf_free((void*)PanelItem[i].Description);
@@ -638,7 +638,7 @@ void FreeUnicodePanelItem(PluginPanelItem *PanelItem, int ItemsNumber)
 
 		if (PanelItem[i].CustomColumnNumber)
 		{
-			for (int j=0; j<PanelItem[i].CustomColumnNumber; j++)
+			for (size_t j=0; j<PanelItem[i].CustomColumnNumber; j++)
 				xf_free((void*)PanelItem[i].CustomColumnData[j]);
 
 			xf_free((void*)PanelItem[i].CustomColumnData);
@@ -1721,7 +1721,7 @@ void AnsiDialogItemToUnicode(oldfar::FarDialogItem &diA, FarDialogItem &di,FarLi
 				l.ItemsNumber = diA.ListItems->ItemsNumber;
 				di.ListItems=&l;
 
-				for (int j=0; j<di.ListItems->ItemsNumber; j++)
+				for (size_t j=0; j<di.ListItems->ItemsNumber; j++)
 					AnsiListItemToUnicode(&diA.ListItems->Items[j],&l.Items[j]);
 			}
 
@@ -1781,7 +1781,7 @@ void FreeUnicodeDialogItem(FarDialogItem &di)
 			{
 				if (di.ListItems->Items)
 				{
-					for (int i=0; i<di.ListItems->ItemsNumber; i++)
+					for (size_t i=0; i<di.ListItems->ItemsNumber; i++)
 					{
 						if (di.ListItems->Items[i].Text)
 							xf_free((void *)di.ListItems->Items[i].Text);
@@ -2394,7 +2394,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 
 					if (newlist.Items)
 					{
-						for (int i=0; i<newlist.ItemsNumber; i++)
+						for (size_t i=0; i<newlist.ItemsNumber; i++)
 							AnsiListItemToUnicode(&oldlist->Items[i], &newlist.Items[i]);
 					}
 				}
@@ -2404,7 +2404,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 
 			if (newlist.Items)
 			{
-				for (int i=0; i<newlist.ItemsNumber; i++)
+				for (size_t i=0; i<newlist.ItemsNumber; i++)
 					if (newlist.Items[i].Text) xf_free((void*)newlist.Items[i].Text);
 
 				xf_free(newlist.Items);
@@ -2604,7 +2604,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 
 					if (newlist.Items)
 					{
-						for (int i=0; i<newlist.ItemsNumber; i++)
+						for (size_t i=0; i<newlist.ItemsNumber; i++)
 							AnsiListItemToUnicode(&oldlist->Items[i], &newlist.Items[i]);
 					}
 				}
@@ -2614,7 +2614,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 
 			if (newlist.Items)
 			{
-				for (int i=0; i<newlist.ItemsNumber; i++)
+				for (size_t i=0; i<newlist.ItemsNumber; i++)
 					if (newlist.Items[i].Text) xf_free((void*)newlist.Items[i].Text);
 
 				xf_free(newlist.Items);

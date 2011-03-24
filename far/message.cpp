@@ -53,7 +53,7 @@ static int FirstButtonIndex,LastButtonIndex;
 static BOOL IsWarningStyle;
 
 
-int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
+int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
             INT_PTR PluginNumber)
 {
@@ -61,7 +61,7 @@ int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
 	               nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,PluginNumber));
 }
 
-int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
+int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
             const wchar_t *Str5,const wchar_t *Str6,const wchar_t *Str7,
             INT_PTR PluginNumber)
@@ -71,7 +71,7 @@ int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
 }
 
 
-int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
+int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
             const wchar_t *Str5,const wchar_t *Str6,const wchar_t *Str7,
             const wchar_t *Str8,const wchar_t *Str9,const wchar_t *Str10,
@@ -81,7 +81,7 @@ int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
 	               Str9,Str10,nullptr,nullptr,nullptr,nullptr,PluginNumber));
 }
 
-int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
+int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
             const wchar_t *Str5,const wchar_t *Str6,const wchar_t *Str7,
             const wchar_t *Str8,const wchar_t *Str9,const wchar_t *Str10,
@@ -155,16 +155,16 @@ INT_PTR WINAPI MsgDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 
 int Message(
     DWORD Flags,
-    int Buttons,
+    size_t Buttons,
     const wchar_t *Title,
     const wchar_t * const *Items,
-    int ItemsNumber,
+    size_t ItemsNumber,
     INT_PTR PluginNumber
 )
 {
 	string strTempStr;
 	int X1,Y1,X2,Y2;
-	int Length, BtnLength, J;
+	int Length, BtnLength;
 	DWORD I, MaxLength, StrCount;
 	BOOL ErrorSets=FALSE;
 	const wchar_t **Str;
@@ -181,7 +181,7 @@ int Message(
 	if (!Str)
 		return -1;
 
-	StrCount=ItemsNumber-Buttons;
+	StrCount=static_cast<DWORD>(ItemsNumber-Buttons);
 
 	// предварительный обсчет максимального размера.
 	for (BtnLength=0,I=0; I<static_cast<DWORD>(Buttons); I++) //??
@@ -292,7 +292,7 @@ int Message(
 		ItemsNumber++;
 	}
 
-	for (J=0; J < ItemsNumber-(EmptyText?1:0); ++J, ++I)
+	for (size_t J=0; J < ItemsNumber-(EmptyText?1:0); ++J, ++I)
 	{
 		Str[I]=Items[J];
 	}
@@ -313,7 +313,7 @@ int Message(
 
 	if (Buttons>0)
 	{
-		DWORD ItemCount=StrCount+Buttons+1;
+		size_t ItemCount=StrCount+Buttons+1;
 		DialogItemEx *PtrMsgDlg;
 		DialogItemEx *MsgDlg = new DialogItemEx[ItemCount+1];
 

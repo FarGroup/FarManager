@@ -3016,7 +3016,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 		}
 		else if(pList)
 		{
-			for(int i=0;i<pList->ItemsNumber;i++)
+			for(size_t i=0;i<pList->ItemsNumber;i++)
 			{
 				if (!StrCmpNI(pList->Items[i].Text, strTemp, static_cast<int>(strTemp.GetLength())) && StrCmp(pList->Items[i].Text, strTemp))
 				{
@@ -3107,7 +3107,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 									}
 									else if(pList)
 									{
-										for(int i=0;i<pList->ItemsNumber;i++)
+										for(size_t i=0;i<pList->ItemsNumber;i++)
 										{
 											if (!StrCmpNI(pList->Items[i].Text, strTemp, static_cast<int>(strTemp.GetLength())) && StrCmp(pList->Items[i].Text, strTemp))
 											{

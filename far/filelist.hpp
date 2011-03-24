@@ -61,7 +61,7 @@ struct FileListItem
 	char DeleteDiz;
 	string strOwner;
 	wchar_t **CustomColumnData;
-	int CustomColumnNumber;
+	size_t CustomColumnNumber;
 	DWORD CRC32;
 
 	//BUGBUG!!

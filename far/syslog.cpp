@@ -580,7 +580,7 @@ void GetOpenPanelInfo_Dump(const wchar_t *Title,const OpenPanelInfo *Info,FILE *
 
 		if (Info->InfoLines)
 		{
-			for (int I=0; I<Info->InfoLinesNumber; ++I)
+			for (size_t I=0; I<Info->InfoLinesNumber; ++I)
 			{
 				fwprintf(fp,L"\t\t%d) Text=[%s], Data=[%s], Separator=[%d]\n",I,
 				         NullToEmpty(Info->InfoLines[I].Text),NullToEmpty(Info->InfoLines[I].Data),Info->InfoLines[I].Separator);
@@ -594,7 +594,7 @@ void GetOpenPanelInfo_Dump(const wchar_t *Title,const OpenPanelInfo *Info,FILE *
 
 		if (Info->PanelModesArray)
 		{
-			for (int I=0; I<Info->PanelModesNumber; ++I)
+			for (size_t I=0; I<Info->PanelModesNumber; ++I)
 			{
 				fwprintf(fp,L"\t%d) ------------------\n",I);
 				fwprintf(fp,L"\t\tColumnTypes       ='%s'\n",NullToEmpty(Info->PanelModesArray[I].ColumnTypes));

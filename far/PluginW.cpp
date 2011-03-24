@@ -200,13 +200,13 @@ static int WINAPI FarGetPluginDirListW(const GUID* PluginId,HANDLE hPlugin,
 static int WINAPI FarMenuFnW(const GUID* PluginId,int X,int Y,int MaxHeight,
                      unsigned __int64 Flags,const wchar_t *Title,const wchar_t *Bottom,
                      const wchar_t *HelpTopic,const FarKey *BreakKeys,int *BreakCode,
-                     const struct FarMenuItem *Item, int ItemsNumber)
+                     const struct FarMenuItem *Item, size_t ItemsNumber)
 {
 	return FarMenuFn(GetPluginNumber(PluginId),X,Y,MaxHeight,Flags,Title,Bottom,HelpTopic,BreakKeys,BreakCode,Item,ItemsNumber);
 }
 
 static int WINAPI FarMessageFnW(const GUID* PluginId,unsigned __int64 Flags,
-                        const wchar_t *HelpTopic,const wchar_t * const *Items,int ItemsNumber,
+                        const wchar_t *HelpTopic,const wchar_t * const *Items,size_t ItemsNumber,
                         int ButtonsNumber)
 {
   return FarMessageFn(GetPluginNumber(PluginId),Flags,HelpTopic,Items,ItemsNumber,ButtonsNumber);

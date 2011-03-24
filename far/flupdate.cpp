@@ -907,7 +907,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 
 		if (GetCode)
 		{
-			for (int I=0; I<Info.DescrFilesNumber; I++)
+			for (size_t I=0; I<Info.DescrFilesNumber; I++)
 			{
 				PluginPanelItem *CurPanelData=PanelData;
 

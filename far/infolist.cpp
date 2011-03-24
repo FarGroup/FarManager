@@ -615,9 +615,9 @@ void InfoList::ShowPluginDescription()
 	OpenPanelInfo Info;
 	AnotherPanel->GetOpenPanelInfo(&Info);
 
-	for (int I=0; I<Info.InfoLinesNumber; I++)
+	for (size_t I=0; I<Info.InfoLinesNumber; I++)
 	{
-		int Y=Y2-Info.InfoLinesNumber+I;
+		int Y=static_cast<int>(Y2-Info.InfoLinesNumber+I);
 
 		if (Y<=Y1)
 			continue;
