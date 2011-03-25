@@ -54,23 +54,27 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "wakeful.hpp"
 
-static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name,UINT64 Size)
+static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name,const UINT64* Size)
 {
 	string strSize;
-	FileSizeToStr(strSize,Size,8,COLUMN_FLOATSIZE|COLUMN_COMMAS);
+	FileSizeToStr(strSize,*Size,8,COLUMN_FLOATSIZE|COLUMN_COMMAS);
 	RemoveLeadingSpaces(strSize);
 	Message(0,0,Title,MSG(MScanningFolder),Name,strSize);
 	PreRedrawItem preRedrawItem=PreRedraw.Peek();
-	preRedrawItem.Param.Param1=(void*)Title;
-	preRedrawItem.Param.Param2=(void*)Name;
-	preRedrawItem.Param.Param3=reinterpret_cast<LPCVOID>(Size);
+	preRedrawItem.Param.Param1=Title;
+	preRedrawItem.Param.Param2=Name;
+	preRedrawItem.Param.Param3=Size;
 	PreRedraw.SetParam(preRedrawItem.Param);
 }
 
 static void PR_DrawGetDirInfoMsg()
 {
 	PreRedrawItem preRedrawItem=PreRedraw.Peek();
-	DrawGetDirInfoMsg((const wchar_t*)preRedrawItem.Param.Param1,(const wchar_t *)preRedrawItem.Param.Param2,reinterpret_cast<UINT_PTR>(preRedrawItem.Param.Param3));
+	DrawGetDirInfoMsg(
+		reinterpret_cast<const wchar_t*>(preRedrawItem.Param.Param1),
+		reinterpret_cast<const wchar_t*>(preRedrawItem.Param.Param2),
+		reinterpret_cast<const UINT64*>(preRedrawItem.Param.Param3)
+	);
 }
 
 int GetDirInfo(const wchar_t *Title,
@@ -168,7 +172,7 @@ int GetDirInfo(const wchar_t *Title,
 			MsgWaitTime=500;
 			OldTitle.Set(L"%s %s",MSG(MScanningFolder), ShowDirName); // покажем заголовок консоли
 			SetCursorType(FALSE,0);
-			DrawGetDirInfoMsg(Title,ShowDirName,FileSize);
+			DrawGetDirInfoMsg(Title,ShowDirName,&FileSize);
 		}
 
 		if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)

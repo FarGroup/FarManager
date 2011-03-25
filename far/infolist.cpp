@@ -216,28 +216,27 @@ void InfoList::DisplayObject()
 		}
 
 		LPCWSTR DiskType=(IdxMsgID!=-1)?MSG(IdxMsgID):L"";
-		wchar_t LocalName[]={ExtractPathRoot(strCurDir).At(0),L':',L'\0'}; // strDriveRoot?
 		string strAssocPath;
 
-		if (GetSubstName(DriveType,LocalName,strAssocPath))
+		if (GetSubstName(DriveType,strDriveRoot,strAssocPath))
 		{
 			DiskType = MSG(MInfoSUBST);
 			DriveType=DRIVE_SUBSTITUTE;
 		}
-		else if(DriveType == DRIVE_FIXED && GetVHDName(LocalName,strAssocPath))
+		else if(DriveType == DRIVE_FIXED && GetVHDName(strDriveRoot,strAssocPath))
 		{
 			DiskType = MSG(MInfoVirtual);
 			DriveType=DRIVE_VIRTUAL;
 		}
 
 
-		strTitle=string(L" ")+DiskType+L" "+MSG(MInfoDisk)+L" "+((!strDriveRoot.IsEmpty() && strDriveRoot.At(1)==L':')?LocalName:strDriveRoot)+L" ("+strFileSystemName+L") ";
+		strTitle=string(L" ")+DiskType+L" "+MSG(MInfoDisk)+L" "+strDriveRoot+L" ("+strFileSystemName+L") ";
 
 		switch(DriveType)
 		{
 		case DRIVE_REMOTE:
 			{
-				apiWNetGetConnection(LocalName, strAssocPath);
+				apiWNetGetConnection(strDriveRoot, strAssocPath);
 			}
 			break;
 

@@ -1195,7 +1195,7 @@ TVar KeyMacro::FARPseudoVariable(UINT64 Flags,DWORD CheckCode,DWORD& Err)
 				{
 					if (CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG) // ?? Mode == MACRO_DIALOG ??
 					{
-						Cond=reinterpret_cast<LPCWSTR>(CurFrame->VMProcess(CheckCode));
+						Cond=reinterpret_cast<LPCWSTR>(static_cast<INT_PTR>(CurFrame->VMProcess(CheckCode)));
 					}
 
 					break;
@@ -3782,9 +3782,9 @@ static bool editorselFunc(const TMacroFunction*)
 	if (CurFrame && CurFrame->GetType()==NeedType)
 	{
 		if (Mode==MACRO_SHELL && CtrlObject->CmdLine->IsVisible())
-			Ret=CtrlObject->CmdLine->VMProcess(MCODE_F_EDITOR_SEL,(void*)Action.toInteger(),Opt.i());
+			Ret=CtrlObject->CmdLine->VMProcess(MCODE_F_EDITOR_SEL,reinterpret_cast<LPVOID>(static_cast<INT_PTR>(Action.toInteger())),Opt.i());
 		else
-			Ret=CurFrame->VMProcess(MCODE_F_EDITOR_SEL,(void*)Action.toInteger(),Opt.i());
+			Ret=CurFrame->VMProcess(MCODE_F_EDITOR_SEL,reinterpret_cast<LPVOID>(static_cast<INT_PTR>(Action.toInteger())),Opt.i());
 	}
 
 	VMStack.Push(Ret);
