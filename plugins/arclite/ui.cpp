@@ -887,27 +887,34 @@ private:
     if (new_arc) {
       arc_type = options.arc_type;
       for (unsigned i = 0; i < main_formats.size(); i++) {
-        if (options.arc_type == main_formats[i])
+        if (options.arc_type == main_formats[i]) {
           set_check(main_formats_ctrl_id + i);
-      };
+          break;
+        }
+      }
       for (unsigned i = 0; i < other_formats.size(); i++) {
         if (options.arc_type == other_formats[i]) {
           set_check(other_formats_ctrl_id);
           set_list_pos(other_formats_ctrl_id + 1, i);
           break;
         }
-      };
+      }
     }
 
     for (unsigned i = 0; i < ARRAYSIZE(c_levels); i++) {
-      if (options.level == c_levels[i].value)
+      if (options.level == c_levels[i].value) {
         set_check(level_ctrl_id + i);
-    };
+        break;
+      }
+    }
 
+    wstring method = options.method.empty() && options.arc_type == c_7z ? c_methods[0].value : options.method;
     for (unsigned i = 0; i < ARRAYSIZE(c_methods); i++) {
-      if (options.method == c_methods[i].value)
+      if (method == c_methods[i].value) {
         set_check(method_ctrl_id + i);
-    };
+        break;
+      }
+    }
 
     set_check(solid_ctrl_id, options.solid);
 
@@ -1177,10 +1184,11 @@ public:
 
     label(Far::get_msg(MSG_UPDATE_DLG_METHOD));
     new_line();
+    wstring method = options.method.empty() && options.arc_type == c_7z ? c_methods[0].value : options.method;
     for (unsigned i = 0; i < ARRAYSIZE(c_methods); i++) {
       if (i)
         spacer(1);
-      int ctrl_id = radio_button(Far::get_msg(c_methods[i].name_id), options.method == c_methods[i].value, i == 0 ? DIF_GROUP : 0);
+      int ctrl_id = radio_button(Far::get_msg(c_methods[i].name_id), method == c_methods[i].value, i == 0 ? DIF_GROUP : 0);
       if (i == 0)
         method_ctrl_id = ctrl_id;
     };
