@@ -193,7 +193,7 @@ private:
   void prepare_dst_dir(const wstring& path);
   void prepare_test(UInt32 file_index, list<UInt32>& indices);
 public:
-  void extract(UInt32 src_dir_index, const vector<UInt32>& src_indices, const ExtractOptions& options, ErrorLog& error_log);
+  void extract(UInt32 src_dir_index, const vector<UInt32>& src_indices, const ExtractOptions& options, shared_ptr<ErrorLog> error_log);
   void test(UInt32 src_dir_index, const vector<UInt32>& src_indices);
   void delete_archive();
 
@@ -212,8 +212,8 @@ public:
   bool has_crc;
   void load_update_props();
 public:
-  void create(const wstring& src_dir, const vector<wstring>& file_names, const UpdateOptions& options, ErrorLog& error_log);
-  void update(const wstring& src_dir, const vector<wstring>& file_names, const wstring& dst_dir, const UpdateOptions& options, ErrorLog& error_log);
+  void create(const wstring& src_dir, const vector<wstring>& file_names, const UpdateOptions& options, shared_ptr<ErrorLog> error_log);
+  void update(const wstring& src_dir, const vector<wstring>& file_names, const wstring& dst_dir, const UpdateOptions& options, shared_ptr<ErrorLog> error_log);
   void create_dir(const wstring& dir_name, const wstring& dst_dir);
 
   // delete files in archive

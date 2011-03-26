@@ -221,14 +221,14 @@ public:
       indices.push_back(static_cast<UInt32>(panel_items.get(i)->UserData));
     }
 
-    ErrorLog error_log;
+    shared_ptr<ErrorLog> error_log(new ErrorLog());
     archive->extract(src_dir_index, indices, options, error_log);
 
-    if (!error_log.empty() && show_dialog) {
-      show_error_log(error_log);
+    if (!error_log->empty() && show_dialog) {
+      show_error_log(*error_log);
     }
 
-    if (error_log.empty()) {
+    if (error_log->empty()) {
       if (options.delete_archive) {
         archive->close();
         archive->delete_archive();
@@ -299,7 +299,7 @@ public:
   static void extract(const vector<wstring>& arc_list, ExtractOptions options) {
     wstring dst_dir = options.dst_dir;
     wstring dst_file_name;
-    ErrorLog error_log;
+    shared_ptr<ErrorLog> error_log(new ErrorLog());
     for (unsigned i = 0; i < arc_list.size(); i++) {
       Archives archives;
       try {
@@ -315,7 +315,7 @@ public:
       catch (const Error& error) {
         if (error.code == E_ABORT)
           throw;
-        error_log.push_back(error);
+        error_log->push_back(error);
         continue;
       }
 
@@ -342,17 +342,17 @@ public:
       else
         options.dst_dir = dst_dir;
 
-      size_t error_count = error_log.size();
+      size_t error_count = error_log->size();
       archive->extract(c_root_index, indices, options, error_log);
 
-      if (options.delete_archive && error_count == error_log.size()) {
+      if (options.delete_archive && error_count == error_log->size()) {
         archive->close();
         archive->delete_archive();
       }
     }
 
-    if (!error_log.empty()) {
-      show_error_log(error_log);
+    if (!error_log->empty()) {
+      show_error_log(*error_log);
     }
     else {
       Far::update_panel(PANEL_ACTIVE, false);
@@ -422,7 +422,7 @@ public:
   }
 
   static void bulk_test(const vector<wstring>& arc_list) {
-    ErrorLog error_log;
+    shared_ptr<ErrorLog> error_log(new ErrorLog());
     for (unsigned i = 0; i < arc_list.size(); i++) {
       Archives archives;
       try {
@@ -437,7 +437,7 @@ public:
       catch (const Error& error) {
         if (error.code == E_ABORT)
           throw;
-        error_log.push_back(error);
+        error_log->push_back(error);
         continue;
       }
 
@@ -457,12 +457,12 @@ public:
       catch (const Error& error) {
         if (error.code == E_ABORT)
           throw;
-        error_log.push_back(error);
+        error_log->push_back(error);
       }
     }
 
-    if (!error_log.empty()) {
-      show_error_log(error_log);
+    if (!error_log->empty()) {
+      show_error_log(*error_log);
     }
     else {
       Far::update_panel(PANEL_ACTIVE, false);
@@ -566,14 +566,14 @@ public:
       file_names.push_back(panel_items[i].FileName);
     }
 
-    ErrorLog error_log;
+    shared_ptr<ErrorLog> error_log(new ErrorLog());
     if (new_arc)
       archive->create(src_path, file_names, options, error_log);
     else
       archive->update(src_path, file_names, remove_path_root(current_dir), options, error_log);
 
-    if (!error_log.empty()) {
-      show_error_log(error_log);
+    if (!error_log->empty()) {
+      show_error_log(*error_log);
     }
     else {
       Far::progress_notify();
@@ -657,11 +657,11 @@ public:
     g_options.update_ignore_errors = options.ignore_errors;
     g_options.save();
 
-    ErrorLog error_log;
+    shared_ptr<ErrorLog> error_log(new ErrorLog());
     Archive().create(src_path, file_list, options, error_log);
 
-    if (!error_log.empty()) {
-      show_error_log(error_log);
+    if (!error_log->empty()) {
+      show_error_log(*error_log);
     }
     else {
       Far::progress_notify();
@@ -719,7 +719,7 @@ public:
 
     options.open_shared = (Far::adv_control(ACTL_GETSYSTEMSETTINGS) & FSS_COPYFILESOPENEDFORWRITING) != 0;
 
-    ErrorLog error_log;
+    shared_ptr<ErrorLog> error_log(new ErrorLog());
     if (cmd.new_arc) {
       Archive().create(src_path, files, options, error_log);
 

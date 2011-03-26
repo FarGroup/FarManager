@@ -50,12 +50,12 @@ public:
 
 class ArchiveFileDeleterStream: public IOutStream, public ComBase, private File {
 private:
-  ProgressMonitor& progress;
+  shared_ptr<ProgressMonitor> progress;
 public:
-  ArchiveFileDeleterStream(const wstring& file_path, ProgressMonitor& progress): progress(progress) {
+  ArchiveFileDeleterStream(const wstring& file_path, shared_ptr<ProgressMonitor> progress): progress(progress) {
     RETRY_OR_IGNORE_BEGIN
     open(file_path, GENERIC_WRITE, FILE_SHARE_READ, CREATE_ALWAYS, 0);
-    RETRY_END(progress)
+    RETRY_END(*progress)
   }
 
   UNKNOWN_IMPL_BEGIN
@@ -68,7 +68,7 @@ public:
     unsigned size_written;
     RETRY_OR_IGNORE_BEGIN
     size_written = write(data, size);
-    RETRY_END(progress)
+    RETRY_END(*progress)
     if (processedSize)
       *processedSize = size_written;
     return S_OK;
@@ -88,7 +88,7 @@ public:
     RETRY_OR_IGNORE_BEGIN
     set_pos(newSize, FILE_BEGIN);
     set_end();
-    RETRY_END(progress)
+    RETRY_END(*progress)
     return S_OK;
     COM_ERROR_HANDLER_END
   }
@@ -97,10 +97,10 @@ public:
 class ArchiveFileDeleter: public IArchiveUpdateCallback, public ComBase {
 private:
   vector<UInt32> new_indices;
-  ArchiveFileDeleterProgress& progress;
+  shared_ptr<ArchiveFileDeleterProgress> progress;
 
 public:
-  ArchiveFileDeleter(const vector<UInt32>& new_indices, ArchiveFileDeleterProgress& progress): new_indices(new_indices), progress(progress) {
+  ArchiveFileDeleter(const vector<UInt32>& new_indices, shared_ptr<ArchiveFileDeleterProgress> progress): new_indices(new_indices), progress(progress) {
   }
 
   UNKNOWN_IMPL_BEGIN
@@ -110,14 +110,14 @@ public:
 
   STDMETHODIMP SetTotal(UInt64 total) {
     COM_ERROR_HANDLER_BEGIN
-    progress.update_total(total);
+    progress->update_total(total);
     return S_OK;
     COM_ERROR_HANDLER_END
   }
   STDMETHODIMP SetCompleted(const UInt64 *completeValue) {
     COM_ERROR_HANDLER_BEGIN
     if (completeValue)
-      progress.update_completed(*completeValue);
+      progress->update_completed(*completeValue);
     return S_OK;
     COM_ERROR_HANDLER_END
   }
@@ -177,14 +177,14 @@ void Archive::delete_files(const vector<UInt32>& src_indices) {
 
   vector<UInt32> new_indices;
   new_indices.reserve(num_indices);
-  set_difference(file_indices.begin(), file_indices.end(), deleted_indices.begin(), deleted_indices.end(), back_insert_iterator<vector<UInt32>>(new_indices));
+  set_difference(file_indices.begin(), file_indices.end(), deleted_indices.begin(), deleted_indices.end(), back_inserter(new_indices));
 
   wstring temp_arc_name = get_temp_file_name();
   try {
     ComObject<IOutArchive> out_arc;
     CHECK_COM(in_arc->QueryInterface(IID_IOutArchive, reinterpret_cast<void**>(&out_arc)));
 
-    ArchiveFileDeleterProgress progress;
+    shared_ptr<ArchiveFileDeleterProgress> progress(new ArchiveFileDeleterProgress());
     ComObject<IArchiveUpdateCallback> deleter(new ArchiveFileDeleter(new_indices, progress));
     ComObject<IOutStream> update_stream(new ArchiveFileDeleterStream(temp_arc_name, progress));
 

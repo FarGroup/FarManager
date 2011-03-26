@@ -26,6 +26,7 @@ private:
   UInt64 file_completed;
   unsigned __int64 total_data_read;
   unsigned __int64 total_data_written;
+  CriticalSection sync;
 
   virtual void do_update_ui() {
     const unsigned c_width = 60;
@@ -79,25 +80,30 @@ public:
   }
 
   void on_open_file(const wstring& file_path, unsigned __int64 size) {
+    CriticalSectionLock lock(sync);
     this->file_path = file_path;
     file_total = size;
     file_completed = 0;
     update_ui();
   }
   void on_read_file(unsigned size) {
+    CriticalSectionLock lock(sync);
     file_completed += size;
     total_data_read += size;
     update_ui();
   }
   void on_write_archive(unsigned size) {
+    CriticalSectionLock lock(sync);
     total_data_written += size;
     update_ui();
   }
   void on_total_update(UInt64 total) {
+    CriticalSectionLock lock(sync);
     this->total = total;
     update_ui();
   }
   void on_completed_update(UInt64 completed) {
+    CriticalSectionLock lock(sync);
     this->completed = completed;
     update_ui();
   }
@@ -122,9 +128,9 @@ DWORD translate_seek_method(UInt32 seek_origin) {
 
 class UpdateStream: public IOutStream {
 protected:
-  ArchiveUpdateProgress& progress;
+  shared_ptr<ArchiveUpdateProgress> progress;
 public:
-  UpdateStream(ArchiveUpdateProgress& progress): progress(progress) {
+  UpdateStream(shared_ptr<ArchiveUpdateProgress> progress): progress(progress) {
   }
   virtual ~UpdateStream() {
   }
@@ -134,10 +140,10 @@ public:
 
 class SimpleUpdateStream: public UpdateStream, public ComBase, private File {
 public:
-  SimpleUpdateStream(const wstring& file_path, ArchiveUpdateProgress& progress): UpdateStream(progress) {
+  SimpleUpdateStream(const wstring& file_path, shared_ptr<ArchiveUpdateProgress> progress): UpdateStream(progress) {
     RETRY_OR_IGNORE_BEGIN
     open(file_path, GENERIC_WRITE, FILE_SHARE_READ, CREATE_ALWAYS, 0);
-    RETRY_END(progress)
+    RETRY_END(*progress)
   }
 
   UNKNOWN_IMPL_BEGIN
@@ -150,8 +156,8 @@ public:
     unsigned size_written;
     RETRY_OR_IGNORE_BEGIN
     size_written = write(data, size);
-    RETRY_END(progress)
-    progress.on_write_archive(size_written);
+    RETRY_END(*progress)
+    progress->on_write_archive(size_written);
     if (processedSize)
       *processedSize = size_written;
     return S_OK;
@@ -171,7 +177,7 @@ public:
     RETRY_OR_IGNORE_BEGIN
     set_pos(newSize, FILE_BEGIN);
     set_end();
-    RETRY_END(progress)
+    RETRY_END(*progress)
     return S_OK;
     COM_ERROR_HANDLER_END
   }
@@ -190,7 +196,7 @@ private:
   unsigned __int64 start_offset;
 
 public:
-  SfxUpdateStream(const wstring& file_path, const SfxOptions& sfx_options, ArchiveUpdateProgress& progress): UpdateStream(progress) {
+  SfxUpdateStream(const wstring& file_path, const SfxOptions& sfx_options, shared_ptr<ArchiveUpdateProgress> progress): UpdateStream(progress) {
     RETRY_OR_IGNORE_BEGIN
     try {
       create_sfx_module(file_path, sfx_options);
@@ -201,7 +207,7 @@ public:
       File::delete_file_nt(file_path);
       throw;
     }
-    RETRY_END(progress)
+    RETRY_END(*progress)
   }
 
   UNKNOWN_IMPL_BEGIN
@@ -214,8 +220,8 @@ public:
     DWORD size_written;
     RETRY_OR_IGNORE_BEGIN
     size_written = write(data, size);
-    RETRY_END(progress)
-    progress.on_write_archive(size_written);
+    RETRY_END(*progress)
+    progress->on_write_archive(size_written);
     if (processedSize)
       *processedSize = size_written;
     return S_OK;
@@ -241,7 +247,7 @@ public:
     RETRY_OR_IGNORE_BEGIN
     set_pos(newSize + start_offset);
     set_end();
-    RETRY_END(progress)
+    RETRY_END(*progress)
     return S_OK;
     COM_ERROR_HANDLER_END
   }
@@ -284,10 +290,10 @@ private:
   }
 
 public:
-  MultiVolumeUpdateStream(const wstring& file_path, unsigned __int64 volume_size, ArchiveUpdateProgress& progress): UpdateStream(progress), file_path(file_path), volume_size(volume_size), stream_pos(0), seek_stream_pos(0), stream_size(0), next_volume(false) {
+  MultiVolumeUpdateStream(const wstring& file_path, unsigned __int64 volume_size, shared_ptr<ArchiveUpdateProgress> progress): UpdateStream(progress), file_path(file_path), volume_size(volume_size), stream_pos(0), seek_stream_pos(0), stream_size(0), next_volume(false) {
     RETRY_OR_IGNORE_BEGIN
     volume.open(get_volume_path(0), GENERIC_WRITE, FILE_SHARE_READ, CREATE_ALWAYS, 0);
-    RETRY_END(progress)
+    RETRY_END(*progress)
   }
 
   UNKNOWN_IMPL_BEGIN
@@ -306,19 +312,19 @@ public:
         volume.open(get_volume_path(last_volume_idx), GENERIC_WRITE, FILE_SHARE_READ, CREATE_ALWAYS, 0);
         volume.set_pos(volume_size);
         volume.set_end();
-        RETRY_END(progress)
+        RETRY_END(*progress)
       }
       if (last_volume_idx < volume_idx) {
         last_volume_idx += 1;
         assert(last_volume_idx == volume_idx);
         RETRY_OR_IGNORE_BEGIN
         volume.open(get_volume_path(last_volume_idx), GENERIC_WRITE, FILE_SHARE_READ, CREATE_ALWAYS, 0);
-        RETRY_END(progress)
+        RETRY_END(*progress)
       }
       else {
         RETRY_OR_IGNORE_BEGIN
         volume.open(get_volume_path(volume_idx), GENERIC_WRITE, FILE_SHARE_READ, OPEN_EXISTING, 0);
-        RETRY_END(progress)
+        RETRY_END(*progress)
       }
       volume.set_pos(seek_stream_pos - volume_idx * volume_size);
       stream_pos = seek_stream_pos;
@@ -333,12 +339,12 @@ public:
         if (volume_idx > get_last_volume_idx()) {
           RETRY_OR_IGNORE_BEGIN
           volume.open(get_volume_path(volume_idx), GENERIC_WRITE, FILE_SHARE_READ, CREATE_ALWAYS, 0);
-          RETRY_END(progress)
+          RETRY_END(*progress)
         }
         else {
           RETRY_OR_IGNORE_BEGIN
           volume.open(get_volume_path(volume_idx), GENERIC_WRITE, FILE_SHARE_READ, OPEN_EXISTING, 0);
-          RETRY_END(progress)
+          RETRY_END(*progress)
         }
         next_volume = false;
       }
@@ -353,7 +359,7 @@ public:
         write_size = size - data_off;
       RETRY_OR_IGNORE_BEGIN
       write_size = volume.write(reinterpret_cast<const unsigned char*>(data) + data_off, write_size);
-      RETRY_END(progress)
+      RETRY_END(*progress)
       CHECK(write_size != 0);
       data_off += write_size;
       stream_pos += write_size;
@@ -362,7 +368,7 @@ public:
         stream_size = stream_pos;
     }
     while (data_off < size);
-    progress.on_write_archive(size);
+    progress->on_write_archive(size);
     if (processedSize)
       *processedSize = size;
     return S_OK;
@@ -405,7 +411,7 @@ public:
       volume.open(get_volume_path(last_volume_idx), GENERIC_WRITE, FILE_SHARE_READ, CREATE_ALWAYS, 0);
       volume.set_pos(volume_size);
       volume.set_end();
-      RETRY_END(progress)
+      RETRY_END(*progress)
     }
     RETRY_OR_IGNORE_BEGIN
     if (last_volume_idx < volume_idx) {
@@ -418,7 +424,7 @@ public:
     }
     volume.set_pos(newSize - volume_idx * volume_size);
     volume.set_end();
-    RETRY_END(progress)
+    RETRY_END(*progress)
 
     for (unsigned __int64 extra_idx = volume_idx + 1; extra_idx <= last_volume_idx; extra_idx++) {
       File::delete_file(get_volume_path(extra_idx));
@@ -442,10 +448,10 @@ public:
 
 class FileReadStream: public IInStream, public ComBase, private File {
 private:
-  ArchiveUpdateProgress& progress;
+  shared_ptr<ArchiveUpdateProgress> progress;
 
 public:
-  FileReadStream(const wstring& file_path, bool open_shared, ArchiveUpdateProgress& progress): progress(progress) {
+  FileReadStream(const wstring& file_path, bool open_shared, shared_ptr<ArchiveUpdateProgress> progress): progress(progress) {
     open(file_path, FILE_READ_DATA, FILE_SHARE_READ | (open_shared ? FILE_SHARE_WRITE | FILE_SHARE_DELETE : 0), OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
   }
 
@@ -457,7 +463,7 @@ public:
   STDMETHODIMP Read(void *data, UInt32 size, UInt32 *processedSize) {
     COM_ERROR_HANDLER_BEGIN
     unsigned size_read = read(data, size);
-    progress.on_read_file(size_read);
+    progress->on_read_file(size_read);
     if (processedSize)
       *processedSize = size_read;
     return S_OK;
@@ -619,14 +625,14 @@ private:
   wstring src_dir;
   wstring dst_dir;
   UInt32 num_indices;
-  const FileIndexMap& file_index_map;
+  shared_ptr<FileIndexMap> file_index_map;
   const UpdateOptions& options;
-  bool& ignore_errors;
-  ErrorLog& error_log;
-  ArchiveUpdateProgress& progress;
+  shared_ptr<bool> ignore_errors;
+  shared_ptr<ErrorLog> error_log;
+  shared_ptr<ArchiveUpdateProgress> progress;
 
 public:
-  ArchiveUpdater(const wstring& src_dir, const wstring& dst_dir, UInt32 num_indices, const FileIndexMap& file_index_map, const UpdateOptions& options, bool& ignore_errors, ErrorLog& error_log, ArchiveUpdateProgress& progress): src_dir(src_dir), dst_dir(dst_dir), num_indices(num_indices), file_index_map(file_index_map), options(options), ignore_errors(ignore_errors), error_log(error_log), progress(progress) {
+  ArchiveUpdater(const wstring& src_dir, const wstring& dst_dir, UInt32 num_indices, shared_ptr<FileIndexMap> file_index_map, const UpdateOptions& options, shared_ptr<bool> ignore_errors, shared_ptr<ErrorLog> error_log, shared_ptr<ArchiveUpdateProgress> progress): src_dir(src_dir), dst_dir(dst_dir), num_indices(num_indices), file_index_map(file_index_map), options(options), ignore_errors(ignore_errors), error_log(error_log), progress(progress) {
   }
 
   UNKNOWN_IMPL_BEGIN
@@ -637,22 +643,22 @@ public:
 
   STDMETHODIMP SetTotal(UInt64 total) {
     COM_ERROR_HANDLER_BEGIN
-    progress.on_total_update(total);
+    progress->on_total_update(total);
     return S_OK;
     COM_ERROR_HANDLER_END
   }
   STDMETHODIMP SetCompleted(const UInt64 *completeValue) {
     COM_ERROR_HANDLER_BEGIN
     if (completeValue)
-      progress.on_completed_update(*completeValue);
+      progress->on_completed_update(*completeValue);
     return S_OK;
     COM_ERROR_HANDLER_END
   }
 
   STDMETHODIMP GetUpdateItemInfo(UInt32 index, Int32 *newData, Int32 *newProperties, UInt32 *indexInArchive) {
     COM_ERROR_HANDLER_BEGIN
-    FileIndexMap::const_iterator found = file_index_map.find(index);
-    if (found == file_index_map.end()) {
+    auto found = file_index_map->find(index);
+    if (found == file_index_map->end()) {
       *newData = 0;
       *newProperties = 0;
       *indexInArchive = index;
@@ -667,7 +673,7 @@ public:
   }
   STDMETHODIMP GetProperty(UInt32 index, PROPID propID, PROPVARIANT *value) {
     COM_ERROR_HANDLER_BEGIN
-    const FileIndexInfo& file_index_info = file_index_map.at(index);
+    const FileIndexInfo& file_index_info = file_index_map->at(index);
     PropVariant prop;
     switch (propID) {
     case kpidPath:
@@ -694,18 +700,18 @@ public:
   STDMETHODIMP GetStream(UInt32 index, ISequentialInStream **inStream) {
     COM_ERROR_HANDLER_BEGIN
     *inStream = nullptr;
-    const FileIndexInfo& file_index_info = file_index_map.at(index);
+    const FileIndexInfo& file_index_info = file_index_map->at(index);
 
     if (file_index_info.find_data.is_dir())
       return S_OK;
 
     wstring file_path = add_trailing_slash(add_trailing_slash(src_dir) + file_index_info.rel_path) + file_index_info.find_data.cFileName;
-    progress.on_open_file(file_path, file_index_info.find_data.size());
+    progress->on_open_file(file_path, file_index_info.find_data.size());
 
     ComObject<ISequentialInStream> stream;
     RETRY_OR_IGNORE_BEGIN
     stream = new FileReadStream(file_path, options.open_shared, progress);
-    RETRY_OR_IGNORE_END(ignore_errors, error_log, progress)
+    RETRY_OR_IGNORE_END(*ignore_errors, *error_log, *progress)
     if (error_ignored)
       return S_FALSE;
 
@@ -862,19 +868,19 @@ public:
 };
 
 
-void Archive::create(const wstring& src_dir, const vector<wstring>& file_names, const UpdateOptions& options, ErrorLog& error_log) {
-  bool ignore_errors = options.ignore_errors;
+void Archive::create(const wstring& src_dir, const vector<wstring>& file_names, const UpdateOptions& options, shared_ptr<ErrorLog> error_log) {
+  shared_ptr<bool> ignore_errors(new bool(options.ignore_errors));
   UInt32 new_index = 0;
 
-  FileIndexMap file_index_map;
-  PrepareUpdate(src_dir, file_names, c_root_index, this, file_index_map, new_index, oaOverwrite, ignore_errors, error_log, options.filter.get());
+  shared_ptr<FileIndexMap> file_index_map(new FileIndexMap());
+  PrepareUpdate(src_dir, file_names, c_root_index, this, *file_index_map, new_index, oaOverwrite, *ignore_errors, *error_log, options.filter.get());
 
   ComObject<IOutArchive> out_arc;
   ArcAPI::create_out_archive(options.arc_type, out_arc.ref());
 
   set_properties(out_arc, options);
 
-  ArchiveUpdateProgress progress(true, options.arc_path);
+  shared_ptr<ArchiveUpdateProgress> progress(new ArchiveUpdateProgress(true, options.arc_path));
   ComObject<IArchiveUpdateCallback> updater(new ArchiveUpdater(src_dir, wstring(), 0, file_index_map, options, ignore_errors, error_log, progress));
 
   prepare_dst_dir(extract_file_path(options.arc_path));
@@ -895,16 +901,16 @@ void Archive::create(const wstring& src_dir, const vector<wstring>& file_names, 
     throw;
   }
 
-  if (options.move_files && error_log.empty() && !options.filter)
-    DeleteSrcFiles(src_dir, file_names, ignore_errors, error_log);
+  if (options.move_files && error_log->empty() && !options.filter)
+    DeleteSrcFiles(src_dir, file_names, *ignore_errors, *error_log);
 }
 
-void Archive::update(const wstring& src_dir, const vector<wstring>& file_names, const wstring& dst_dir, const UpdateOptions& options, ErrorLog& error_log) {
-  bool ignore_errors = options.ignore_errors;
+void Archive::update(const wstring& src_dir, const vector<wstring>& file_names, const wstring& dst_dir, const UpdateOptions& options, shared_ptr<ErrorLog> error_log) {
+  shared_ptr<bool> ignore_errors(new bool(options.ignore_errors));
   UInt32 new_index = num_indices; // starting index for new files
 
-  FileIndexMap file_index_map;
-  PrepareUpdate(src_dir, file_names, find_dir(dst_dir), this, file_index_map, new_index, options.overwrite, ignore_errors, error_log, options.filter.get());
+  shared_ptr<FileIndexMap> file_index_map(new FileIndexMap());
+  PrepareUpdate(src_dir, file_names, find_dir(dst_dir), this, *file_index_map, new_index, options.overwrite, *ignore_errors, *error_log, options.filter.get());
 
   wstring temp_arc_name = get_temp_file_name();
   try {
@@ -913,7 +919,7 @@ void Archive::update(const wstring& src_dir, const vector<wstring>& file_names, 
 
     set_properties(out_arc, options);
 
-    ArchiveUpdateProgress progress(false, arc_path);
+    shared_ptr<ArchiveUpdateProgress> progress(new ArchiveUpdateProgress(false, arc_path));
     ComObject<IArchiveUpdateCallback> updater(new ArchiveUpdater(src_dir, dst_dir, num_indices, file_index_map, options, ignore_errors, error_log, progress));
     ComObject<IOutStream> update_stream(new SimpleUpdateStream(temp_arc_name, progress));
 
@@ -929,12 +935,12 @@ void Archive::update(const wstring& src_dir, const vector<wstring>& file_names, 
 
   reopen();
 
-  if (options.move_files && error_log.empty() && !options.filter)
-    DeleteSrcFiles(src_dir, file_names, ignore_errors, error_log);
+  if (options.move_files && error_log->empty() && !options.filter)
+    DeleteSrcFiles(src_dir, file_names, *ignore_errors, *error_log);
 }
 
 void Archive::create_dir(const wstring& dir_name, const wstring& dst_dir) {
-  FileIndexMap file_index_map;
+  shared_ptr<FileIndexMap> file_index_map(new FileIndexMap());
   FileIndexInfo file_index_info;
   memzero(file_index_info.find_data);
   file_index_info.find_data.dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
@@ -946,7 +952,7 @@ void Archive::create_dir(const wstring& dir_name, const wstring& dst_dir) {
   file_index_info.find_data.ftLastAccessTime = file_time;
   file_index_info.find_data.ftLastWriteTime = file_time;
   wcscpy(file_index_info.find_data.cFileName, dir_name.c_str());
-  file_index_map[num_indices] = file_index_info;
+  (*file_index_map)[num_indices] = file_index_info;
 
   UpdateOptions options;
   options.arc_type = arc_chain.back().type;
@@ -963,8 +969,11 @@ void Archive::create_dir(const wstring& dir_name, const wstring& dst_dir) {
     ComObject<IOutArchive> out_arc;
     CHECK_COM(in_arc->QueryInterface(IID_IOutArchive, reinterpret_cast<void**>(&out_arc)));
 
-    ArchiveUpdateProgress progress(false, arc_path);
-    ComObject<IArchiveUpdateCallback> updater(new ArchiveUpdater(wstring(), dst_dir, num_indices, file_index_map, options, options.ignore_errors, ErrorLog(), progress));
+    shared_ptr<ErrorLog> error_log(new ErrorLog());
+    shared_ptr<bool> ignore_errors(new bool(options.ignore_errors));
+
+    shared_ptr<ArchiveUpdateProgress> progress(new ArchiveUpdateProgress(false, arc_path));
+    ComObject<IArchiveUpdateCallback> updater(new ArchiveUpdater(wstring(), dst_dir, num_indices, file_index_map, options, ignore_errors, error_log, progress));
     ComObject<IOutStream> update_stream(new SimpleUpdateStream(temp_arc_name, progress));
 
     COM_ERROR_CHECK(out_arc->UpdateItems(update_stream, num_indices + 1, updater));
