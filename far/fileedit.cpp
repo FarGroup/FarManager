@@ -1642,7 +1642,12 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
 		if (Ask)
 		{
-			switch (AllowCancelExit?Message(MSG_WARNING,3,MSG(MEditTitle),MSG(MEditAskSave),MSG(MHYes),MSG(MHNo),MSG(MHCancel)):Message(MSG_WARNING,2,MSG(MEditTitle),MSG(MEditAskSave),MSG(MHYes),MSG(MHNo)))
+			int Code = AllowCancelExit?Message(MSG_WARNING,3,MSG(MEditTitle),MSG(MEditAskSave),MSG(MHYes),MSG(MHNo),MSG(MHCancel)):Message(MSG_WARNING,2,MSG(MEditTitle),MSG(MEditAskSave),MSG(MHYes),MSG(MHNo));
+			if(Code < 0 && !AllowCancelExit)
+			{
+				Code = 1; // close == not save
+			}
+			switch (Code)
 			{
 				case -1:
 				case -2:
