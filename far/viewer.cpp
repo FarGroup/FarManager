@@ -128,6 +128,7 @@ Viewer::Viewer(bool bQuickView, UINT aCodePage):
 	bVE_READ_Sent = false;
 	Signature = false;
 	vgetc_ready = -1;
+	EOF_Pos = -1;
 }
 
 
@@ -376,6 +377,31 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 	   пора легализироваться */
 	CtrlObject->Plugins.ProcessViewerEvent(VE_READ,nullptr);
 	bVE_READ_Sent = true;
+
+	last_update_check = GetTickCount();
+	string strRoot;
+	GetPathRoot(strFullFileName, strRoot);
+	int DriveType = FAR_GetDriveType(strRoot);
+	if (IsDriveTypeCDROM(DriveType))
+		DriveType = DRIVE_CDROM;
+	switch (DriveType) //??? make it configurable
+	{
+		case DRIVE_REMOVABLE: update_check_period = -1;   break; // flash drive or floppy: never
+		case DRIVE_FIXED:     update_check_period = +1;   break; // hard disk: 1msec
+		case DRIVE_REMOTE:    update_check_period = 1000; break; // network drive: 1sec
+		case DRIVE_CDROM:     update_check_period = -1;   break; // cd/dvd: never
+		case DRIVE_RAMDISK:   update_check_period = +1;   break; // ramdrive: 1msec
+		default:              update_check_period = -1;   break; // unknown: never
+	}
+
+	// возможно не лучший метод определения специальных файлов:
+	//  \\.\C: \\.\D: \\.\PhysucalDrive0 \\.\CdRom0 \\?\Volume{Volume_GUID} ...
+	if (INVALID_FILE_ATTRIBUTES == GetFileAttributes(strFullFileName))
+	{
+		DWORD dummy;
+		ViewFile.IoControl(FSCTL_ALLOW_EXTENDED_DASD_IO, NULL,0, NULL,0, &dummy);
+	}
+
 	return TRUE;
 }
 
@@ -454,60 +480,85 @@ void Viewer::ShowPage(int nMode)
 	if (!SelectSize)
 		SelectPos=FilePos;
 
-	switch (nMode)
-	{
-		case SHOW_HEX:
-			CtrlObject->Plugins.CurViewer = this; //HostFileViewer;
-			ShowHex();
-			break;
-		case SHOW_RELOAD:
-			CtrlObject->Plugins.CurViewer = this; //HostFileViewer;
+	__int64 last_filepos = -1;
+	bool eof_mode = EOF_Pos >= 0 && nMode == SHOW_RELOAD;
+	do {
+		switch (nMode)
+		{
+			case SHOW_HEX:
+				CtrlObject->Plugins.CurViewer = this; //HostFileViewer;
+				ShowHex();
+				break;
 
-			for (I=0,Y=Y1; Y<=Y2; Y++,I++)
-			{
-				Strings[I]->nFilePos = vtell();
+			case SHOW_RELOAD:
+				CtrlObject->Plugins.CurViewer = this; //HostFileViewer;
 
-				if (Y==Y1+1 && !ViewFile.Eof())
-					SecondPos=vtell();
+				for (I=0,Y=Y1; Y<=Y2; Y++,I++)
+				{
+					Strings[I]->nFilePos = vtell();
 
-				ReadString(Strings[I],-1,MAX_VIEWLINEB);
-			}
+					if (Y==Y1+1 && !ViewFile.Eof())
+						SecondPos=vtell();
 
-			break;
-		case SHOW_UP:
+					ReadString(Strings[I],-1,MAX_VIEWLINEB);
+				}
 
-			for (I=Y2-Y1-1; I>=0; I--)
-			{
-				Strings[I+1]->nFilePos = Strings[I]->nFilePos;
-				Strings[I+1]->nSelStart = Strings[I]->nSelStart;
-				Strings[I+1]->nSelEnd = Strings[I]->nSelEnd;
-				Strings[I+1]->bSelection = Strings[I]->bSelection;
-				wcscpy(Strings[I+1]->lpData, Strings[I]->lpData);
-			}
+				if (eof_mode)
+				{
+					last_filepos = vtell();
+					eof_mode = last_filepos < EOF_Pos;
+					if (eof_mode)
+						nMode = SHOW_DOWN;
+				}
+				break;
 
-			Strings[0]->nFilePos = FilePos;
-			SecondPos = Strings[1]->nFilePos;
-			ReadString(Strings[0],(int)(SecondPos-FilePos),MAX_VIEWLINEB);
-			break;
-		case SHOW_DOWN:
+			case SHOW_UP:
+				for (I=Y2-Y1-1; I>=0; I--)
+				{
+					Strings[I+1]->nFilePos = Strings[I]->nFilePos;
+					Strings[I+1]->nSelStart = Strings[I]->nSelStart;
+					Strings[I+1]->nSelEnd = Strings[I]->nSelEnd;
+					Strings[I+1]->bSelection = Strings[I]->bSelection;
+					wcscpy(Strings[I+1]->lpData, Strings[I]->lpData);
+				}
 
-			for (I=0; I<Y2-Y1; I++)
-			{
-				Strings[I]->nFilePos = Strings[I+1]->nFilePos;
-				Strings[I]->nSelStart = Strings[I+1]->nSelStart;
-				Strings[I]->nSelEnd = Strings[I+1]->nSelEnd;
-				Strings[I]->bSelection = Strings[I+1]->bSelection;
-				wcscpy(Strings[I]->lpData, Strings[I+1]->lpData);
-			}
+				Strings[0]->nFilePos = FilePos;
+				SecondPos = Strings[1]->nFilePos;
+				ReadString(Strings[0],(int)(SecondPos-FilePos),MAX_VIEWLINEB);
+				break;
 
-			FilePos = Strings[0]->nFilePos;
-			SecondPos = Strings[1]->nFilePos;
-			vseek(Strings[Y2-Y1]->nFilePos, SEEK_SET);
-			ReadString(Strings[Y2-Y1],-1,MAX_VIEWLINEB);
-			Strings[Y2-Y1]->nFilePos = vtell();
-			ReadString(Strings[Y2-Y1],-1,MAX_VIEWLINEB);
-			break;
-	}
+			case SHOW_DOWN:
+				for (I=0; I<Y2-Y1; I++)
+				{
+					Strings[I]->nFilePos = Strings[I+1]->nFilePos;
+					Strings[I]->nSelStart = Strings[I+1]->nSelStart;
+					Strings[I]->nSelEnd = Strings[I+1]->nSelEnd;
+					Strings[I]->bSelection = Strings[I+1]->bSelection;
+					wcscpy(Strings[I]->lpData, Strings[I+1]->lpData);
+				}
+
+				FilePos = Strings[0]->nFilePos;
+				SecondPos = Strings[1]->nFilePos;
+				vseek(Strings[Y2-Y1]->nFilePos, SEEK_SET);
+				ReadString(Strings[Y2-Y1],-1,MAX_VIEWLINEB);
+				Strings[Y2-Y1]->nFilePos = vtell();
+				ReadString(Strings[Y2-Y1],-1,MAX_VIEWLINEB);
+
+				if (eof_mode)
+				{
+					__int64 fpos = vtell();
+					if (fpos >= EOF_Pos || fpos <= last_filepos)
+					{
+						eof_mode = false; nMode = SHOW_RELOAD;
+					}
+					else
+					{
+						last_filepos = fpos;
+					}
+				}
+				break;
+		}
+	} while ( eof_mode );
 
 	if (nMode != SHOW_HEX)
 	{
@@ -598,7 +649,6 @@ void Viewer::ShowHex()
 	wchar_t OutStr[MAX_VIEWLINE],TextStr[20];
 	int EndFile;
 	__int64 SelSize;
-	WCHAR Ch;
 	int X,Y,TextPos;
 	int SelStart, SelEnd;
 	bool bSelStartFound = false, bSelEndFound = false;
@@ -640,93 +690,80 @@ void Viewer::ShowHex()
 
 		const wchar_t BorderLine[]={BoxSymbols[BS_V1],L' ',0};
 
+		int out_len = (int)wcslen(OutStr);
+		int border_len = (int)wcslen(BorderLine);
+
 		if (IsUnicodeCodePage(VM.CodePage))
 		{
-			for (X=0; X<8; X++)
+			wchar_t line[8];
+			int nr = vread(line, 8);
+			LastPage = EndFile = ViewFile.Eof() ? 1 : 0;
+			if (nr <= 0)
 			{
-				__int64 fpos = vtell();
-
-				if (SelectSize>0 && (SelectPos == fpos))
-				{
-					bSelStartFound = true;
-					SelStart = (int)wcslen(OutStr);
-					SelSize=SelectSize;
-					/* $ 22.01.2001 IS
-					    Внимание! Возможно, это не совсем верное решение проблемы
-					    выделения из плагинов, но мне пока другого в голову не пришло.
-					    Я приравниваю SelectSize нулю в Process*
-					*/
-					//SelectSize=0;
-				}
-
-				if (SelectSize>0 && (fpos == (SelectPos+SelectSize-1)))
-				{
-					bSelEndFound = true;
-					SelEnd = (int)wcslen(OutStr)+3;
-					SelSize=SelectSize;
-				}
-
-				if (!vgetc(Ch))
-				{
-					/* $ 28.06.2000 tran
-					   убираем показ пустой строки, если длина
-					   файла кратна 16 */
-					EndFile=1;
-					LastPage=1;
-
-					if (!X)
-					{
-						*OutStr=0;
-						break;
-					}
-
-					wcscat(OutStr,L"     ");
-					TextStr[TextPos++]=L' ';
-				}
-				else
-				{
-					WCHAR OutChar=Ch;
-
-					if (VM.CodePage == CP_REVERSEBOM)
-					{
-						_swab(reinterpret_cast<LPSTR>(&OutChar),reinterpret_cast<LPSTR>(&OutChar),sizeof(WCHAR));
-					}
-
-					int OutStrLen=StrLength(OutStr);
-					_snwprintf(OutStr+OutStrLen,ARRAYSIZE(OutStr)-OutStrLen,L"%02X%02X ",HIBYTE(OutChar),LOBYTE(OutChar));
-
-					if (!Ch)
-					{
-						Ch=L' ';
-					}
-
-					TextStr[TextPos++]=Ch;
-					LastPage=0;
-				}
-
-				if (X==3)
-					wcscat(OutStr, BorderLine);
-			}
-		}
-		else if ( CP_UTF8 == VM.CodePage )
-		{
-			__int64 fpos = vtell();
-			unsigned char line[16+3];
-			DWORD nr = 0;
-			Reader.Read(line, (DWORD)sizeof(line), &nr);
-			if (nr > 16)
-				Reader.Unread(nr-16);
-
-			LastPage = nr < (DWORD)sizeof(line) && ViewFile.Eof() ? 1 : 0;
-
-			if (!nr)
-			{
-				*OutStr=0;
+				*OutStr = L'\0';
 			}
 			else
 			{
-				int out_len = (int)wcslen(OutStr);
-				int border_len = (int)wcslen(BorderLine);
+				for (X=0; X<8; X++)
+				{
+					if (SelectSize>0 && (SelectPos == fpos))
+					{
+						bSelStartFound = true;
+						SelStart = (int)wcslen(OutStr);
+						SelSize=SelectSize;
+					}
+					if (SelectSize>0 && (fpos == (SelectPos+SelectSize-1)))
+					{
+						bSelEndFound = true;
+						SelEnd = (int)wcslen(OutStr)+3;
+						SelSize=SelectSize;
+					}
+
+					if (X < nr)
+					{
+						unsigned char b1 = HIBYTE(line[X]), b2 = LOBYTE(line[X]);
+#if 0																 // !!! поведение изменено !!!
+						if (VM.CodePage != CP_REVERSEBOM) // мне кажется в обоих случаях
+						{                                 // логичнее показывать неперевернутые коды
+							unsigned char t = b1; b1 = b2; b2 = t;
+						}
+#endif
+						_snwprintf(OutStr+out_len, ARRAYSIZE(OutStr)-out_len, L"%02X%02X ", b1, b2);
+						TextStr[TextPos++] = line[X] ? line[X] : L' ';
+					}
+					else
+					{
+						wcscpy(OutStr+out_len, L"     ");
+						TextStr[TextPos++] = L' ';
+					}
+					out_len += 5;
+
+					if (X == 3)
+					{
+						wcscpy(OutStr+out_len, BorderLine);
+						out_len += border_len;
+					}
+				}
+				++fpos;
+			}
+		}
+		else
+		{
+			unsigned char line[16+3];
+			DWORD nr = 0;
+			DWORD nb = CP_UTF8 == VM.CodePage ? 16+3 : 16;
+			Reader.Read(line, nb, &nr);
+			if (nr > 16)
+				Reader.Unread(nr-16);
+
+			LastPage = EndFile = (nr <= nb) && ViewFile.Eof() ? 1 : 0;
+
+			if (!nr)
+			{
+				*OutStr = L'\0';
+			}
+			else
+			{
 				if (SelectSize)
 				{
 					if (SelectPos >= fpos && SelectPos < fpos+16)
@@ -755,92 +792,34 @@ void Viewer::ShowHex()
 					else
 						wcscpy(OutStr+off, L"   ");
 					TextStr[X] = L' ';
+					if (CP_UTF8 != VM.CodePage && X < (int)nr && line[X])
+						MultiByteToWideChar(VM.CodePage, 0, (LPCSTR)line+X, 1, TextStr+X, 1);
 				}
 
-				wchar_t w1[16], w2[16];
-				int tail, nw, ib=0, iw=0;
-				nw = utf8_to_WideChar((char *)line, (int)nr, w1, w2, 16, tail);
-				bool first = true;
-				while (ib < 16 && iw < nw)
+				if (CP_UTF8 == VM.CodePage)
 				{
-					if (first && w1[iw] == REPLACE_CHAR && w2[iw] == L'?')
+					wchar_t w1[16], w2[16];
+					int tail, nw, ib=0, iw=0;
+					nw = utf8_to_WideChar((char *)line, (int)nr, w1, w2, 16, tail);
+					bool first = true;
+					while (ib < 16 && iw < nw)
 					{
-						TextStr[ib++] = CONTINUE_CHAR; // это может быть не совсем корректно для 'плохих' utf-8
-					}                                 // но усложнять из-за этого код на мой взгяд не стоит...
-					else
-					{
-						first = false;
-						TextStr[ib++] = w1[iw] ? w1[iw] : L' ';
+						if (first && w1[iw] == REPLACE_CHAR && w2[iw] == L'?')
+						{
+							TextStr[ib++] = CONTINUE_CHAR; // это может быть не совсем корректно для 'плохих' utf-8
+						}                                 // но усложнять из-за этого код на мой взгяд не стоит...
+						else
+						{
+							first = false;
+							TextStr[ib++] = w1[iw] ? w1[iw] : L' ';
+						}
+						int clen = WideCharToMultiByte(CP_UTF8, 0, w2+iw, 1, NULL,0, NULL,NULL);
+						while (--clen > 0 && ib < 16)
+							TextStr[ib++] = CONTINUE_CHAR;
+						++iw;
 					}
-					int clen = WideCharToMultiByte(CP_UTF8, 0, w2+iw, 1, NULL,0, NULL,NULL);
-					while (--clen > 0 && ib < 16)
-						TextStr[ib++] = CONTINUE_CHAR;
-					++iw;
 				}
 				TextPos = 16;
-			}
-		}
-		else
-		{
-			for (X=0; X<16; X++)
-			{
-				__int64 fpos = vtell();
-
-				if (SelectSize>0 && (SelectPos == fpos))
-				{
-					bSelStartFound = true;
-					SelStart = (int)wcslen(OutStr);
-					SelSize=SelectSize;
-					/* $ 22.01.2001 IS
-					    Внимание! Возможно, это не совсем верное решение проблемы
-					    выделения из плагинов, но мне пока другого в голову не пришло.
-					    Я приравниваю SelectSize нулю в Process*
-					*/
-					//SelectSize=0;
-				}
-
-				if (SelectSize>0 && (fpos == (SelectPos+SelectSize-1)))
-				{
-					bSelEndFound = true;
-					SelEnd = (int)wcslen(OutStr)+1;
-					SelSize=SelectSize;
-				}
-
-				if (!vgetc(Ch))
-				{
-					/* $ 28.06.2000 tran
-					   убираем показ пустой строки, если длина
-					   файла кратна 16 */
-					EndFile=1;
-					LastPage=1;
-
-					if (!X)
-					{
-						*OutStr=0;
-						break;
-					}
-
-					/* $ 03.07.2000 tran
-					   - вместо 5 пробелов тут надо 3 */
-					wcscat(OutStr,L"   ");
-					TextStr[TextPos++]=L' ';
-				}
-				else
-				{
-					char NewCh;
-					WideCharToMultiByte(VM.CodePage, 0, &Ch,1, &NewCh,1," ",nullptr);
-					int OutStrLen=StrLength(OutStr);
-					_snwprintf(OutStr+OutStrLen,ARRAYSIZE(OutStr)-OutStrLen,L"%02X ", NewCh);
-
-					if (!Ch)
-						Ch=L' ';
-
-					TextStr[TextPos++]=Ch;
-					LastPage=0;
-				}
-
-				if (X==7)
-					wcscat(OutStr,BorderLine);
 			}
 		}
 
@@ -1269,42 +1248,41 @@ int Viewer::ProcessKey(int Key)
 		}
 		case KEY_IDLE:
 		{
-			if (ViewFile.Opened())
+			if (ViewFile.Opened() && update_check_period >= 0)
 			{
-				string strRoot;
-				GetPathRoot(strFullFileName, strRoot);
-				int DriveType=FAR_GetDriveType(strRoot);
+				DWORD now_ticks = GetTickCount();
+				if ((int)(now_ticks - last_update_check) < update_check_period)
+					return TRUE;
+				last_update_check = now_ticks;
 
-				if (DriveType!=DRIVE_REMOVABLE && !IsDriveTypeCDROM(DriveType))
+				FAR_FIND_DATA_EX NewViewFindData;
+				if (!apiGetFindDataEx(strFullFileName, NewViewFindData))
+					return TRUE;
+
+				ViewFile.FlushBuffers();
+				vseek(0,SEEK_END);
+				__int64 CurFileSize=vtell();
+
+				if (ViewFindData.ftLastWriteTime.dwLowDateTime!=NewViewFindData.ftLastWriteTime.dwLowDateTime
+				 || ViewFindData.ftLastWriteTime.dwHighDateTime!=NewViewFindData.ftLastWriteTime.dwHighDateTime
+				 || CurFileSize!=FileSize)
 				{
-					FAR_FIND_DATA_EX NewViewFindData;
+					ViewFindData=NewViewFindData;
+					FileSize=CurFileSize;
 
-					if (!apiGetFindDataEx(strFullFileName, NewViewFindData))
-						return TRUE;
-
-					ViewFile.FlushBuffers();
-					vseek(0,SEEK_END);
-					__int64 CurFileSize=vtell();
-
-					if (ViewFindData.ftLastWriteTime.dwLowDateTime!=NewViewFindData.ftLastWriteTime.dwLowDateTime ||
-					        ViewFindData.ftLastWriteTime.dwHighDateTime!=NewViewFindData.ftLastWriteTime.dwHighDateTime ||
-					        CurFileSize!=FileSize)
+					if (FilePos>FileSize)
 					{
-						ViewFindData=NewViewFindData;
-						FileSize=CurFileSize;
+						ProcessKey(KEY_CTRLEND);
+					}
+					else
+					{
+						__int64 PrevLastPage=LastPage;
+						Show();
 
-						if (FilePos>FileSize)
-							ProcessKey(KEY_CTRLEND);
-						else
+						if (PrevLastPage && !LastPage)
 						{
-							__int64 PrevLastPage=LastPage;
-							Show();
-
-							if (PrevLastPage && !LastPage)
-							{
-								ProcessKey(KEY_CTRLEND);
-								LastPage=TRUE;
-							}
+							ProcessKey(KEY_CTRLEND);
+							LastPage=TRUE;
 						}
 					}
 				}
@@ -1785,7 +1763,17 @@ int Viewer::ProcessKey(int Key)
 				unsigned int max_counter=Y2-Y1;
 
 				if (VM.Hex)
+				{
 					vseek(0,SEEK_END);
+					FilePos = vtell();
+					int line_chars = IsUnicodeCodePage(VM.CodePage) ? 8 : 16;
+					if ((FilePos % line_chars) == 0)
+						FilePos -= line_chars * (Y2 - Y1 + 1);
+					else
+						FilePos -= (FilePos % line_chars) + line_chars * (Y2 - Y1);
+					if (FilePos < 0)
+						FilePos = 0;
+				}
 				else
 				{
 					vseek(-1,SEEK_END);
@@ -1793,39 +1781,17 @@ int Viewer::ProcessKey(int Key)
 
 					if (vgetc(LastSym) && LastSym!=CRSym)
 						++max_counter;
+
+					FilePos=vtell();
+					if (VM.Wrap && VM.WordWrap)
+						EOF_Pos = FilePos; //!!! hack to adjust possible incorrect last page show
+
+					for (int i=0; static_cast<unsigned int>(i)<max_counter; i++)
+						Up();
 				}
 
-				FilePos=vtell();
-
-				/*
-				        {
-				          char Buf[100];
-				          sprintf(Buf,"%I64X",FilePos);
-				          Message(0,1,"End",Buf,"Ok");
-				        }
-				*/
-				for (int i=0; static_cast<unsigned int>(i)<max_counter; i++)
-					Up();
-
-				/*
-				        {
-				          char Buf[100];
-				          sprintf(Buf,"%I64X, %d",FilePos, I);
-				          Message(0,1,"Up",Buf,"Ok");
-				        }
-				*/
-				if (VM.Hex)
-					FilePos&=~(IsUnicodeCodePage(VM.CodePage) ? 0x7:0xf);
-
-				/*
-				        if (VM.Hex)
-				        {
-				          char Buf[100];
-				          sprintf(Buf,"%I64X",FilePos);
-				          Message(0,1,"VM.Hex",Buf,"Ok");
-				        }
-				*/
 				Show();
+				EOF_Pos = -1;
 //        LastSelPos=FilePos;
 			}
 
@@ -3003,13 +2969,11 @@ int Viewer::vread(wchar_t *Buf,int Count, bool Raw, wchar_t *Buf2)
 	}
 }
 
-
 int Viewer::vseek(__int64 Offset,int Whence)
 {
 	vgetc_ready = -1;
 	return ViewFile.SetPointer(Offset*(IsUnicodeCodePage(VM.CodePage)?2:1), nullptr, Whence);
 }
-
 
 __int64 Viewer::vtell()
 {
@@ -3020,7 +2984,6 @@ __int64 Viewer::vtell()
 	}
 	return Ptr;
 }
-
 
 bool Viewer::vgetc(WCHAR& C)
 {
@@ -3058,7 +3021,6 @@ bool Viewer::vgetc(WCHAR& C)
 	}
 	return Result;
 }
-
 
 #define RB_PRC 3
 #define RB_HEX 4

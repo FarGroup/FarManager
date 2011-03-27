@@ -163,7 +163,11 @@ class Viewer:public ScreenObject
 		bool m_bQuickView;
 
 		UINT DefCodePage;
+
 		int vgetc_ready;
+		__int64 EOF_Pos;
+		int update_check_period;
+		DWORD last_update_check;
 
 	private:
 		virtual void DisplayObject();

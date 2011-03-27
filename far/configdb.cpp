@@ -512,9 +512,127 @@ public:
 	}
 };
 
+class AssociationsConfigDb: public AssociationsConfig {
+	SQLiteDb   db;
+	SQLiteStmt stmtAddType;
+	SQLiteStmt stmtGetMask;
+	SQLiteStmt stmtGetDescription;
+	SQLiteStmt stmtUpdateType;
+	SQLiteStmt stmtSetCommand;
+	SQLiteStmt stmtGetCommand;
+	SQLiteStmt stmtEnumTypes;
+	SQLiteStmt stmtEnumMasks;
+	SQLiteStmt stmtEnumMasksForType;
+	SQLiteStmt stmtDelType;
+
+public:
+
+	AssociationsConfigDb()
+	{
+		if (!db.Open(L"associations.db"))
+			return;
+
+		//schema
+		db.Exec(
+			"PRAGMA foreign_keys = ON;"
+			"CREATE TABLE IF NOT EXISTS filetypes(id INTEGER PRIMARY KEY ASC, mask TEXT, description TEXT);"
+			"CREATE TABLE IF NOT EXISTS commands(ft_id INTEGER NOT NULL, type INTEGER NOT NULL, on INTEGER NOT NULL, command TEXT, FOREIGN KEY(ft_id) REFERENCES filetypes(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (ft_id, type));"
+		);
+
+		db.BeginTransaction();
+
+		//create type statement
+		db.InitStmt(stmtAddType, L"INSERT INTO filetypes VALUES (NULL,?2,?3);");
+
+		//get mask statement
+		db.InitStmt(stmtGetMask, L"SELECT mask FROM filetypes WHERE id=?1;");
+
+		//get description statement
+		db.InitStmt(stmtGetDescription, L"SELECT description FROM filetypes WHERE id=?1;");
+
+		//update type statement
+		db.InitStmt(stmtUpdateType, L"UPDATE filetypes SET mask=?1, description=?2 WHERE id=?3;");
+
+		//set association statement
+		db.InitStmt(stmtSetCommand, L"INSERT OR REPLACE INTO commands VALUES (?1,?2,?3,?4);");
+
+		//get association statement
+		db.InitStmt(stmtGetCommand, L"SELECT command, on FROM commands WHERE ft_id=?1 AND type=?2;");
+
+		//enum types statement
+		db.InitStmt(stmtEnumTypes, L"SELECT id, description FROM filetypes ORDER BY id;");
+
+		//enum masks statement
+		db.InitStmt(stmtEnumMasks, L"SELECT id, mask FROM filetypes ORDER BY id;");
+
+		//enum masks with a specific type on statement
+		db.InitStmt(stmtEnumMasksForType, L"SELECT id, mask FROM filetypes, commands WHERE id=ft_id AND type=?1 AND on<>0 ORDER BY id;");
+
+		//delete type statement
+		db.InitStmt(stmtDelType, L"DELETE FROM filetypes WHERE id=?1;");
+	}
+
+	virtual ~AssociationsConfigDb() { db.EndTransaction(); }
+
+	bool EnumMasks(DWORD Index, unsigned __int64 *id, string &strMask)
+	{
+		return false;
+	}
+
+	bool EnumMasksForType(int Type, DWORD Index, unsigned __int64 *id, string &strMask)
+	{
+		return false;
+	}
+
+	bool GetMask(unsigned __int64 id, string &strMask)
+	{
+		return false;
+	}
+
+	bool GetDescription(unsigned __int64 id, string &strDescription)
+	{
+		return false;
+	}
+
+	bool GetCommand(unsigned __int64 id, int Type, string &strCommand, bool *Enabled=nullptr)
+	{
+		return false;
+	}
+
+	bool SetCommand(unsigned __int64 id, int Type, string &strCommand, bool Enabled)
+	{
+		return false;
+	}
+
+	bool SwapPositions(unsigned __int64 id1, unsigned __int64 id2)
+	{
+		return false;
+	}
+
+	unsigned __int64 AddType(const wchar_t *Mask, const wchar_t *Description)
+	{
+		return 0;
+	}
+
+	bool UpdateType(unsigned __int64 id, const wchar_t *Mask, const wchar_t *Description)
+	{
+		return false;
+	}
+
+	bool DelType(unsigned __int64 id)
+	{
+		return false;
+	}
+};
+
 PluginsConfig *CreatePluginsConfig()
 {
 	return new PluginsConfigDb();
+}
+
+AssociationsConfig *CreateAssociationsConfig()
+{
+	return new AssociationsConfigDb();
 }
 
 void InitDb()

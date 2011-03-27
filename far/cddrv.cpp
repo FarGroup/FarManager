@@ -96,7 +96,7 @@ static void InitSCSIPassThrough(SCSI_PASS_THROUGH_WITH_BUFFERS* pSptwb)
 	pSptwb->Spt.DataTransferLength = sDataLength;
 	pSptwb->Spt.DataBufferOffset = offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS, DataBuf);
 	pSptwb->Spt.DataIn = SCSI_IOCTL_DATA_IN;
-	pSptwb->Spt.TimeOutValue = 2; 
+	pSptwb->Spt.TimeOutValue = 2;
 
 	memset(pSptwb->DataBuf, 0, sDataLength);
 	memset(pSptwb->Spt.Cdb, 0, sizeof(pSptwb->Spt.Cdb));
@@ -117,15 +117,15 @@ static CDROM_DeviceCapabilities getCapsUsingMagic(File& Device)
 	sptwb.Spt.Cdb[2] = MODE_PAGE_CAPABILITIES;
 	sptwb.Spt.Cdb[4] = 192;
 	sptwb.Spt.CdbLength = 6;
-	
+
 	DWORD returned = 0;
 
 	if ( Device.IoControl(
-			IOCTL_SCSI_PASS_THROUGH, 
-			&sptwb, 
-			sizeof(SCSI_PASS_THROUGH_WITH_BUFFERS), 
-			&sptwb, 
-			sizeof(SCSI_PASS_THROUGH_WITH_BUFFERS), 
+			IOCTL_SCSI_PASS_THROUGH,
+			&sptwb,
+			sizeof(SCSI_PASS_THROUGH_WITH_BUFFERS),
+			&sptwb,
+			sizeof(SCSI_PASS_THROUGH_WITH_BUFFERS),
 			&returned
 			) && (sptwb.Spt.ScsiStatus == 0) )
 	{
@@ -167,28 +167,28 @@ static CDROM_DeviceCapabilities getCapsUsingMagic(File& Device)
 	// GET CONFIGURATION NOW
 	InitSCSIPassThrough(&sptwb);
 
-	sptwb.Spt.Cdb[0] = 0x46; //GET CONFIGURATION	
+	sptwb.Spt.Cdb[0] = 0x46; //GET CONFIGURATION
 	sptwb.Spt.Cdb[7] = static_cast<unsigned char>(sDataLength >> 8);	// Allocation length (MSB).
 	sptwb.Spt.Cdb[8] = static_cast<unsigned char>(sDataLength & 0xff);	// Allocation length (LSB).
-	sptwb.Spt.Cdb[9] = 0x00;		
+	sptwb.Spt.Cdb[9] = 0x00;
 	sptwb.Spt.CdbLength = 10;
 
 	returned = 0;
 
 	if ( Device.IoControl(
-			IOCTL_SCSI_PASS_THROUGH, 
-			&sptwb, 
-			sizeof(SCSI_PASS_THROUGH_WITH_BUFFERS), 
-			&sptwb, 
-			sizeof(SCSI_PASS_THROUGH_WITH_BUFFERS), 
+			IOCTL_SCSI_PASS_THROUGH,
+			&sptwb,
+			sizeof(SCSI_PASS_THROUGH_WITH_BUFFERS),
+			&sptwb,
+			sizeof(SCSI_PASS_THROUGH_WITH_BUFFERS),
 			&returned
 			) && (sptwb.Spt.ScsiStatus == 0) )
 	{
 		unsigned char *ptr = sptwb.DataBuf;
 		unsigned char *ptr_end = &sptwb.DataBuf[sDataLength];
-	
-		ptr += 8;	
-		
+
+		ptr += 8;
+
 		while ( ptr < ptr_end )
 		{
 			unsigned short feature_code = (static_cast<unsigned short>(ptr[0]) << 8) | ptr[1];
@@ -356,7 +356,7 @@ UINT FAR_GetDriveType(const wchar_t *RootDir, CDROM_DeviceCapabilities *Caps, DW
 		string VolumePath = strRootDir;
 		DeleteEndSlash(VolumePath);
 
-		if (VolumePath.Equal(0, L"\\\\?\\"))
+		if (VolumePath.IsSubStrAt(0, L"\\\\?\\"))
 			VolumePath.Replace(0, 4, L"\\\\.\\");
 		else
 			VolumePath.Insert(0, L"\\\\.\\");

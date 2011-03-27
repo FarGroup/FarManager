@@ -128,30 +128,41 @@ bool CachedRead::FillBuffer()
 	{
 		INT64 Pointer=0;
 		Pointer = file.GetPointer();
-		bool Bidirection=false;
-		if(Pointer>BufferSize/2)
+
+		int shift = (int)Pointer & 0xfff; // 4k pointer alignment (some new disks have 4k sector size)
+		if (Pointer-shift > BufferSize/2)
+			shift += BufferSize/2;         // suppose BufferSize/2 is 4k aligned...
+
+		if (shift)
+			file.SetPointer(-shift, nullptr, FILE_CURRENT);
+
+		DWORD read_size = BufferSize;
+		UINT64 FileSize = 0;
+		if (file.GetSize(FileSize) && Pointer-shift+BufferSize > (INT64)FileSize)
+			read_size = (DWORD)((INT64)FileSize-Pointer+shift);
+
+		Result = file.Read(Buffer, read_size, ReadSize);
+		if (Result)
 		{
-			Bidirection=true;
-			file.SetPointer(-BufferSize/2, nullptr, FILE_CURRENT);
-		}
-		Result = file.Read(Buffer, BufferSize, ReadSize);
-		if(Result)
-		{
-			BytesLeft = ReadSize;
-			if(Bidirection && BytesLeft>=BufferSize/2)
+			if (ReadSize > (DWORD)shift)
 			{
-				BytesLeft-=BufferSize/2;
+				BytesLeft = ReadSize - shift;
+				file.SetPointer(Pointer, nullptr, FILE_BEGIN);
 			}
-			file.SetPointer(Pointer, nullptr, FILE_BEGIN);
+			else
+			{
+				BytesLeft = 0;
+			}
 		}
 		else
 		{
-			if (Bidirection)
+			if (shift)
 				file.SetPointer(Pointer, nullptr, FILE_BEGIN);
 			ReadSize=0;
 			BytesLeft=0;
 		}
 	}
+
 	return Result;
 }
 

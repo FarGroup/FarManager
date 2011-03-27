@@ -1,3 +1,16 @@
+t-rex 27.03.2011 22:19:24 +0200 - build 1934
+
+1. Ќачальна€ стади€ перевода ассоциаций в sqlite (associations.db, пока не работает!).
+
+2. UnicodeString::Equal() -> IsSubStrAt() чтоб небыло путаницы.
+
+3. From 2useven10: Mantis#1043: viewing a file on network share causes 40kB/s network spam of QUERY_PATH_INFO SMB requests.
+   периоды опроса пока просто зашиты в код - дл€ DRIVE_REMOTE: один раз в секунду
+
+4. From 2useven10: Mantis#796: Viewer и поведение клавиши End.
+
+5. From 2useven10: –азличные исправлени€ дл€ просмотра физических дисков и хекс просмотра.
+
 drkns 26.03.2011 19:41:35 +0200 - build 1933
 
 1. ”точнение 1930.1.

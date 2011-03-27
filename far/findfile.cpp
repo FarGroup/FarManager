@@ -2793,7 +2793,7 @@ void DoPrepareFileList(HANDLE hDlg)
 			bool Mounted = false;
 			for(string* i = Volumes.First(); i; i = Volumes.Next(i))
 			{
-				if(i->Equal(0,VolumeName))
+				if(i->IsSubStrAt(0,VolumeName))
 				{
 					Mounted = true;
 					break;

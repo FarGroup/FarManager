@@ -313,7 +313,7 @@ DWORD DriveMaskFromVolumeName(const wchar_t *lpwszVolumeName)
 	for (wchar_t Letter = L'A'; Letter <= L'Z'; Letter++)
 	{
 		wszMountPoint[4] = Letter;
-		if(apiGetVolumeNameForVolumeMountPoint(wszMountPoint,strCurrentVolumeName) && strCurrentVolumeName.Equal(0,lpwszVolumeName))
+		if(apiGetVolumeNameForVolumeMountPoint(wszMountPoint,strCurrentVolumeName) && strCurrentVolumeName.IsSubStrAt(0,lpwszVolumeName))
 			return (1 << (Letter-L'A'));
 	}
 

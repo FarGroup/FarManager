@@ -425,7 +425,7 @@ bool GetSubstName(int DriveType,const wchar_t *DeviceName, string &strTargetPath
 			string Name;
 			if (apiQueryDosDevice(DeviceName, Name))
 			{
-				if (Name.Equal(0, L"\\??\\"))
+				if (Name.IsSubStrAt(0, L"\\??\\"))
 				{
 					strTargetPath=Name.SubStr(4);
 					Ret=true;

@@ -1058,7 +1058,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 						{
 							AttrDlg[SA_EDIT_OWNER].strData=strCurOwner;
 						}
-						else if(!AttrDlg[SA_EDIT_OWNER].strData.Equal(0,strCurOwner))
+						else if(AttrDlg[SA_EDIT_OWNER].strData != strCurOwner)
 						{
 							AttrDlg[SA_EDIT_OWNER].strData=MSG(MSetAttrOwnerMultiple);
 							CheckOwner=false;

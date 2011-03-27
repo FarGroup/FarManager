@@ -627,22 +627,22 @@ size_t GetPathRootLength(const string &Path)
 	unsigned PrefixLen = 0;
 	bool IsUNC = false;
 
-	if (Path.Equal(0,8,L"\\\\?\\UNC\\",8))
+	if (Path.IsSubStrAt(0,8,L"\\\\?\\UNC\\",8))
 	{
 		PrefixLen = 8;
 		IsUNC = true;
 	}
-	else if (Path.Equal(0,4,L"\\\\?\\",4) || Path.Equal(0,4,L"\\??\\",4) || Path.Equal(0,4,L"\\\\.\\",4))
+	else if (Path.IsSubStrAt(0,4,L"\\\\?\\",4) || Path.IsSubStrAt(0,4,L"\\??\\",4) || Path.IsSubStrAt(0,4,L"\\\\.\\",4))
 	{
 		PrefixLen = 4;
 	}
-	else if (Path.Equal(0,2,L"\\\\",2))
+	else if (Path.IsSubStrAt(0,2,L"\\\\",2))
 	{
 		PrefixLen = 2;
 		IsUNC = true;
 	}
 
-	if (!PrefixLen && !Path.Equal(1, L':'))
+	if (!PrefixLen && !Path.IsSubStrAt(1, L':'))
 		return 0;
 
 	size_t p;
@@ -716,7 +716,7 @@ bool PathStartsWith(const string &Path, const string &Start)
 {
 	string PathPart(Start);
 	DeleteEndSlash(PathPart, true);
-	return Path.Equal(0, PathPart) && (Path.GetLength() == PathPart.GetLength() || IsSlash(Path[PathPart.GetLength()]));
+	return Path.IsSubStrAt(0, PathPart) && (Path.GetLength() == PathPart.GetLength() || IsSlash(Path[PathPart.GetLength()]));
 }
 
 int MatchNtPathRoot(const string &NtPath, const wchar_t *DeviceName)

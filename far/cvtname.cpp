@@ -348,7 +348,7 @@ string TryConvertVolumeGuidToDrivePath(const string& Path)
 {
 	string Result = Path;
 
-	if (Path.GetLength() >= cVolumeGuidLen && Path.Equal(0, L"\\\\?\\Volume"))
+	if (Path.GetLength() >= cVolumeGuidLen && Path.IsSubStrAt(0, L"\\\\?\\Volume"))
 	{
 		if (ifn.pfnGetVolumePathNamesForVolumeName)
 		{
@@ -395,7 +395,7 @@ string TryConvertVolumeGuidToDrivePath(const string& Path)
 				{
 					if (apiGetVolumeNameForVolumeMountPoint(Drive,strVolumeGuid))
 					{
-						if (Path.Equal(0, strVolumeGuid, cVolumeGuidLen))
+						if (Path.IsSubStrAt(0, strVolumeGuid, cVolumeGuidLen))
 						{
 							DeleteEndSlash(Drive);
 							Result.Replace(0, cVolumeGuidLen, Drive);
@@ -576,8 +576,8 @@ void ConvertNameToUNC(string &strFileName)
 // CheckFullPath используется в FCTL_SET[ANOTHER]PANELDIR
 string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 {
-	// elevation not required during cosmetic operation 
-	DisableElevation de; 
+	// elevation not required during cosmetic operation
+	DisableElevation de;
 
 	if (!strPath.IsEmpty())
 	{
