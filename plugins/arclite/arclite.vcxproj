@@ -1,0 +1,157 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="archive.cpp" />
+    <ClCompile Include="attr.cpp" />
+    <ClCompile Include="cmdline.cpp" />
+    <ClCompile Include="common.cpp" />
+    <ClCompile Include="delete.cpp" />
+    <ClCompile Include="extract.cpp" />
+    <ClCompile Include="farutils.cpp" />
+    <ClCompile Include="headers.cpp" />
+    <ClCompile Include="msearch.cpp" />
+    <ClCompile Include="open.cpp" />
+    <ClCompile Include="options.cpp" />
+    <ClCompile Include="pathutils.cpp" />
+    <ClCompile Include="plugin.cpp" />
+    <ClCompile Include="rsrc.cpp" />
+    <ClCompile Include="sfx.cpp" />
+    <ClCompile Include="strutils.cpp" />
+    <ClCompile Include="sysutils.cpp" />
+    <ClCompile Include="test.cpp" />
+    <ClCompile Include="ui.cpp" />
+    <ClCompile Include="update.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="archive.hpp" />
+    <ClInclude Include="cmdline.hpp" />
+    <ClInclude Include="common.hpp" />
+    <ClInclude Include="comutils.hpp" />
+    <ClInclude Include="error.hpp" />
+    <ClInclude Include="farutils.hpp" />
+    <ClInclude Include="guids.hpp" />
+    <ClInclude Include="headers.hpp" />
+    <ClInclude Include="msearch.hpp" />
+    <ClInclude Include="options.hpp" />
+    <ClInclude Include="sysutils.hpp" />
+    <ClInclude Include="ui.hpp" />
+    <ClInclude Include="utils.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="changelog" />
+    <None Include="en.hlf" />
+    <None Include="en.msg" />
+    <None Include="makefile_vc" />
+    <None Include="plugin.def" />
+    <None Include="project.ini" />
+    <None Include="ru.hlf" />
+    <None Include="ru.msg" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="version.rc" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{38CF1530-243C-4C81-9B0E-DCA51551AC81}</ProjectGuid>
+    <Keyword>MakeFileProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <OutDir>debug.32W.vc</OutDir>
+    <IntDir>debug.32W.vc</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <OutDir>debug.64W.vc</OutDir>
+    <IntDir>debug.64W.vc</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <OutDir>final.32W.vc</OutDir>
+    <IntDir>final.32W.vc</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <OutDir>final.64W.vc</OutDir>
+    <IntDir>final.64W.vc</IntDir>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <NMakePreprocessorDefinitions>WIN32;_DEBUG;DEBUG;WIN32_LEAN_AND_MEAN;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;_WIN32_WINNT=0x0500;UNICODE;_UNICODE;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <NMakeBuildCommandLine>nmake -nologo -f makefile_vc DEBUG=1</NMakeBuildCommandLine>
+    <NMakeForcedIncludes>headers.hpp</NMakeForcedIncludes>
+    <NMakeCleanCommandLine>nmake -nologo -f makefile_vc DEBUG=1 clean</NMakeCleanCommandLine>
+    <NMakeIncludeSearchPath>7z\h;..\common\unicode;$(OutDir)</NMakeIncludeSearchPath>
+    <NMakeOutput>
+    </NMakeOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <NMakeOutput>
+    </NMakeOutput>
+    <NMakePreprocessorDefinitions>WIN32;_DEBUG;DEBUG;WIN32_LEAN_AND_MEAN;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;_WIN32_WINNT=0x0500;UNICODE;_UNICODE;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <NMakeBuildCommandLine>nmake -nologo -f makefile_vc DEBUG=1 CPU=AMD64</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>nmake -nologo -f makefile_vc DEBUG=1 CPU=AMD64 clean</NMakeCleanCommandLine>
+    <NMakeIncludeSearchPath>7z\h;..\common\unicode;$(OutDir)</NMakeIncludeSearchPath>
+    <NMakeForcedIncludes>headers.hpp</NMakeForcedIncludes>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <NMakeOutput>
+    </NMakeOutput>
+    <NMakePreprocessorDefinitions>WIN32;NDEBUG;WIN32_LEAN_AND_MEAN;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;_WIN32_WINNT=0x0500;UNICODE;_UNICODE;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <NMakeBuildCommandLine>nmake -nologo -f makefile_vc</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>nmake -nologo -f makefile_vc clean</NMakeCleanCommandLine>
+    <NMakeIncludeSearchPath>7z\h;..\common\unicode;$(OutDir)</NMakeIncludeSearchPath>
+    <NMakeForcedIncludes>headers.hpp</NMakeForcedIncludes>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <NMakeOutput>
+    </NMakeOutput>
+    <NMakePreprocessorDefinitions>WIN32;NDEBUG;WIN32_LEAN_AND_MEAN;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;_WIN32_WINNT=0x0500;UNICODE;_UNICODE;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <NMakeBuildCommandLine>nmake -nologo -f makefile_vc CPU=AMD64</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>nmake -nologo -f makefile_vc CPU=AMD64 clean</NMakeCleanCommandLine>
+    <NMakeIncludeSearchPath>7z\h;..\common\unicode;$(OutDir)</NMakeIncludeSearchPath>
+    <NMakeForcedIncludes>headers.hpp</NMakeForcedIncludes>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -86,6 +86,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		changelog = changelog
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "arclite", "arclite\arclite.vcxproj", "{38CF1530-243C-4C81-9B0E-DCA51551AC81}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Itanium = Debug|Itanium
@@ -504,6 +506,16 @@ Global
 		{6A6E122A-4151-4AF2-BBCB-2B4603CF029F}.Release|Win32.Build.0 = Release|Win32
 		{6A6E122A-4151-4AF2-BBCB-2B4603CF029F}.Release|x64.ActiveCfg = Release|x64
 		{6A6E122A-4151-4AF2-BBCB-2B4603CF029F}.Release|x64.Build.0 = Release|x64
+		{38CF1530-243C-4C81-9B0E-DCA51551AC81}.Debug|Itanium.ActiveCfg = Debug|x64
+		{38CF1530-243C-4C81-9B0E-DCA51551AC81}.Debug|Win32.ActiveCfg = Debug|Win32
+		{38CF1530-243C-4C81-9B0E-DCA51551AC81}.Debug|Win32.Build.0 = Debug|Win32
+		{38CF1530-243C-4C81-9B0E-DCA51551AC81}.Debug|x64.ActiveCfg = Debug|x64
+		{38CF1530-243C-4C81-9B0E-DCA51551AC81}.Debug|x64.Build.0 = Debug|x64
+		{38CF1530-243C-4C81-9B0E-DCA51551AC81}.Release|Itanium.ActiveCfg = Release|x64
+		{38CF1530-243C-4C81-9B0E-DCA51551AC81}.Release|Win32.ActiveCfg = Release|Win32
+		{38CF1530-243C-4C81-9B0E-DCA51551AC81}.Release|Win32.Build.0 = Release|Win32
+		{38CF1530-243C-4C81-9B0E-DCA51551AC81}.Release|x64.ActiveCfg = Release|x64
+		{38CF1530-243C-4C81-9B0E-DCA51551AC81}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
