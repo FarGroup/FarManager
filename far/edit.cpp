@@ -2702,6 +2702,7 @@ void Edit::ApplyColor()
 		// с начала строки (с учётом корректировки относительно табов)
 		else if (EndPos < Pos)
 		{
+			// TODO: возможно так же нужна коррекция с учетом табов (на предмет Mantis#0001718)
 			RealEnd = RealPosToTab(0, 0, EndPos, &CorrectPos);
 			EndPos += CorrectPos;
 			End = RealEnd-LeftPos;
@@ -2710,8 +2711,15 @@ void Edit::ApplyColor()
 		// корректировки относительно табов)
 		else
 		{
-			RealEnd = RealPosToTab(TabPos, Pos, EndPos, &CorrectPos);
-			EndPos += CorrectPos;
+			// Mantis#0001718: Отсутствие ECF_TAB1 не всегда корректно отрабатывает
+			// Коррекция с учетом последнего таба
+			if (CorrectPos && EndPos < StrSize && Str[EndPos] == L'\t')
+				RealEnd = RealPosToTab(TabPos, Pos, ++EndPos, nullptr);
+			else
+			{
+				RealEnd = RealPosToTab(TabPos, Pos, EndPos, &CorrectPos);
+				EndPos += CorrectPos;
+			}
 			End = RealEnd-LeftPos;
 		}
 
