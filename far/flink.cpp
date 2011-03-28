@@ -234,7 +234,7 @@ bool WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,DWOR
 				ConvertNameToFull(Target,strPrintName);
 				strSubstituteName=L"\\??\\";
 				strSubstituteName+=(strPrintName.CPtr()+(HasPathPrefix(strPrintName)?4:0));
-				BYTE szBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
+				LPBYTE szBuff = new BYTE[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
 				PREPARSE_DATA_BUFFER rdb=reinterpret_cast<PREPARSE_DATA_BUFFER>(szBuff);
 				rdb->ReparseTag=IO_REPARSE_TAG_MOUNT_POINT;
 
@@ -246,6 +246,7 @@ bool WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,DWOR
 				{
 					SetLastError(ERROR_INSUFFICIENT_BUFFER);
 				}
+				delete[] szBuff;
 			}
 			break;
 		}

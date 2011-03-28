@@ -2312,7 +2312,7 @@ static bool kbdLayoutFunc(const TMacroFunction*)
 
 	if (ifn.pfnGetConsoleKeyboardLayoutName)
 	{
-		wchar_t LayoutName[1024]; // BUGBUG!!!
+		wchar_t LayoutName[1024]={}; // BUGBUG!!!
 		if (ifn.pfnGetConsoleKeyboardLayoutName(LayoutName))
 		{
 			wchar_t *endptr;

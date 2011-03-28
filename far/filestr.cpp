@@ -58,6 +58,8 @@ OldGetFileString::OldGetFileString(FILE *SrcFile):
 	SrcFile(SrcFile),
 	ReadPos(0),
 	ReadSize(0),
+	ReadBuf(new char[0x2000]),
+	wReadBuf(new wchar_t[0x2000]),
 	m_nStrLength(DELTA),
 	Str(reinterpret_cast<char*>(xf_malloc(m_nStrLength))),
 	m_nwStrLength(DELTA),
@@ -69,8 +71,10 @@ OldGetFileString::OldGetFileString(FILE *SrcFile):
 
 OldGetFileString::~OldGetFileString()
 {
-	xf_free(Str);
 	xf_free(wStr);
+	xf_free(Str);
+	delete[] wReadBuf;
+	delete[] ReadBuf;
 }
 
 
@@ -557,6 +561,8 @@ GetFileString::GetFileString(File& SrcFile):
 	SrcFile(SrcFile),
 	ReadPos(0),
 	ReadSize(0),
+	ReadBuf(new char[0x2000]),
+	wReadBuf(new wchar_t[0x2000]),
 	Peek(false),
 	LastLength(0),
 	LastString(nullptr),
@@ -572,8 +578,10 @@ GetFileString::GetFileString(File& SrcFile):
 
 GetFileString::~GetFileString()
 {
-	xf_free(Str);
 	xf_free(wStr);
+	xf_free(Str);
+	delete[] wReadBuf;
+	delete[] ReadBuf;
 }
 
 int GetFileString::PeekString(LPWSTR* DestStr, UINT nCodePage, int& Length)

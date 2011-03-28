@@ -639,7 +639,7 @@ m1:
 		StackData.TopStr=0;
 	}
 
-	return TopicFound ;
+	return TopicFound;
 }
 
 

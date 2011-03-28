@@ -870,8 +870,8 @@ void Viewer::DrawScrollbar()
 		}
 		else
 		{
-			UINT64 Total=FileSize/16+(FileSize%16?1:0);
-			UINT64 Top=FilePos/16+(FilePos%16?1:0);
+			UINT64 Total=FileSize/16+((FileSize%16)?1:0);
+			UINT64 Top=FilePos/16+((FilePos%16)?1:0);
 ScrollBarEx(X2+(m_bQuickView?1:0),Y1,Y2-Y1+1,LastPage?Top?Total:0:Top,Total);
 		}
 	}
@@ -2408,7 +2408,7 @@ void Viewer::Search(int Next,int FirstChar)
 
 		if (SearchLength>0 && (!ReverseSearch || LastSelPos>0))
 		{
-			wchar_t Buf[8192], t_Buf[ARRAYSIZE(Buf)];
+			static wchar_t Buf[8192], t_Buf[ARRAYSIZE(Buf)];
 			__int64 CurPos=LastSelPos;
 			int BufSize=ARRAYSIZE(Buf);
 

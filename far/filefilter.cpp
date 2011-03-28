@@ -543,9 +543,9 @@ void FileFilter::ProcessSelection(VMenu *FilterList)
 					{
 						bool bCheckedNowhere = true;
 
-						for (int i=FFFT_FIRST; i < FFFT_COUNT; i++)
+						for (int n=FFFT_FIRST; n < FFFT_COUNT; n++)
 						{
-							if (i != FFFT && CurFilterData->GetFlags((enumFileFilterFlagsType)i))
+							if (n != FFFT && CurFilterData->GetFlags((enumFileFilterFlagsType)n))
 							{
 								bCheckedNowhere = false;
 								break;
@@ -907,8 +907,8 @@ void FileFilter::SaveFilters()
 		SetRegKey(strRegKey,L"AttrClear",AttrClear);
 		DWORD Flags[FFFT_COUNT];
 
-		for (DWORD i=FFFT_FIRST; i < FFFT_COUNT; i++)
-			Flags[i] = CurFilterData->GetFlags((enumFileFilterFlagsType)i);
+		for (DWORD j=FFFT_FIRST; j < FFFT_COUNT; j++)
+			Flags[j] = CurFilterData->GetFlags((enumFileFilterFlagsType)j);
 
 		SetRegKey(strRegKey,L"FFlags",(BYTE *)Flags,sizeof(Flags));
 	}
@@ -922,8 +922,8 @@ void FileFilter::SaveFilters()
 		SetRegKey(strRegKey,L"Mask",Mask);
 		DWORD Flags[FFFT_COUNT];
 
-		for (DWORD i=FFFT_FIRST; i < FFFT_COUNT; i++)
-			Flags[i] = CurFilterData->GetFlags((enumFileFilterFlagsType)i);
+		for (DWORD j=FFFT_FIRST; j < FFFT_COUNT; j++)
+			Flags[j] = CurFilterData->GetFlags((enumFileFilterFlagsType)j);
 
 		SetRegKey(strRegKey,L"FFlags",(BYTE *)Flags,sizeof(Flags));
 	}

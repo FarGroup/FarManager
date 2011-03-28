@@ -2015,9 +2015,8 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 
 				if (CopyCode==COPY_NEXT)
 				{
-					unsigned __int64 CurSize = SrcData.nFileSize;
-					TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
-					TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
+					TotalCopiedSize = TotalCopiedSize - CurCopiedSize + SrcData.nFileSize;
+					TotalSkippedSize = TotalSkippedSize + SrcData.nFileSize - CurCopiedSize;
 					continue;
 				}
 
@@ -2043,13 +2042,11 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 
 			if (CopyCode!=COPY_SUCCESS)
 			{
-				unsigned __int64 CurSize = SrcData.nFileSize;
-
 				if (CopyCode != COPY_NOFILTER) //????
-					TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
+					TotalCopiedSize = TotalCopiedSize - CurCopiedSize +  SrcData.nFileSize;
 
 				if (CopyCode == COPY_NEXT)
-					TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
+					TotalSkippedSize = TotalSkippedSize +  SrcData.nFileSize - CurCopiedSize;
 
 				continue;
 			}
@@ -2147,9 +2144,8 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 								return COPY_CANCEL;
 							case COPY_NEXT:
 							{
-								unsigned __int64 CurSize = SrcData.nFileSize;
-								TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
-								TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
+								TotalCopiedSize = TotalCopiedSize - CurCopiedSize + SrcData.nFileSize;
+								TotalSkippedSize = TotalSkippedSize + SrcData.nFileSize - CurCopiedSize;
 								continue;
 							}
 							case COPY_SUCCESS_MOVE:
@@ -2160,9 +2156,8 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 
 								if (!NeedRename) // вариант при перемещении содержимого симлика с опцией "копировать содержимое сим..."
 								{
-									unsigned __int64 CurSize = SrcData.nFileSize;
-									TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
-									TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
+									TotalCopiedSize = TotalCopiedSize - CurCopiedSize + SrcData.nFileSize;
+									TotalSkippedSize = TotalSkippedSize + SrcData.nFileSize - CurCopiedSize;
 									continue;     // ...  т.к. мы Ё“ќ не мувили, а скопировали, то все, на этом закончим бадатьс€ с этим файлов
 								}
 						}
@@ -2190,9 +2185,8 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 
 				if (SubCopyCode==COPY_NEXT)
 				{
-					unsigned __int64 CurSize = SrcData.nFileSize;
-					TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
-					TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
+					TotalCopiedSize = TotalCopiedSize - CurCopiedSize + SrcData.nFileSize;
+					TotalSkippedSize = TotalSkippedSize + SrcData.nFileSize - CurCopiedSize;
 				}
 
 				if (SubCopyCode==COPY_SUCCESS)
@@ -3196,7 +3190,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 	int   AbortOp = FALSE;
 	BOOL SparseQueryResult=TRUE;
 	FILE_ALLOCATED_RANGE_BUFFER queryrange;
-	FILE_ALLOCATED_RANGE_BUFFER ranges[1024];
+	static FILE_ALLOCATED_RANGE_BUFFER ranges[1024];
 	queryrange.FileOffset.QuadPart = 0;
 	queryrange.Length.QuadPart = SrcData.nFileSize;
 	CP->SetProgressValue(0,0);

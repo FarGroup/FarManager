@@ -1,7 +1,11 @@
 #pragma once
 
+
 namespace oldfar
 {
+#pragma warning(push)
+#pragma warning(disable:6244)
+
 #ifndef _WIN64
 #ifdef __GNUC__
 #pragma pack(2)
@@ -1763,4 +1767,5 @@ namespace oldfar
 #pragma pack(pop)
 #endif
 #endif
+#pragma warning(pop)
 }

@@ -74,7 +74,8 @@ COORD InitialSize;
 
 static HICON hOldLargeIcon=nullptr, hOldSmallIcon=nullptr;
 
-const size_t StackBufferSize=0x2000;
+//stack buffer size + stack vars size must be less than 16384
+const size_t StackBufferSize=0x3FC0;
 
 void InitConsole(int FirstInit)
 {
@@ -588,11 +589,11 @@ void Text(const WCHAR *Str)
 	if (Length<=0)
 		return;
 
-	CHAR_INFO StackBuffer[StackBufferSize];
+	CHAR_INFO StackBuffer[StackBufferSize/sizeof(CHAR_INFO)];
 	PCHAR_INFO HeapBuffer=nullptr;
 	PCHAR_INFO BufPtr=StackBuffer;
 
-	if (Length >= StackBufferSize)
+	if (Length >= StackBufferSize/sizeof(CHAR_INFO))
 	{
 		HeapBuffer=new CHAR_INFO[Length+1];
 		BufPtr=HeapBuffer;
@@ -856,12 +857,12 @@ void Box(int x1,int y1,int x2,int y2,int Color,int Type)
 	SetColor(Color);
 	Type=(Type==DOUBLE_BOX || Type==SHORT_DOUBLE_BOX);
 
-	WCHAR StackBuffer[StackBufferSize];
+	WCHAR StackBuffer[StackBufferSize/sizeof(WCHAR)];
 	LPWSTR HeapBuffer=nullptr;
 	LPWSTR BufPtr=StackBuffer;
 
 	const size_t height=y2-y1;
-	if(height>StackBufferSize)
+	if(height>StackBufferSize/sizeof(WCHAR))
 	{
 		HeapBuffer=new WCHAR[height];
 		BufPtr=HeapBuffer;
@@ -873,7 +874,7 @@ void Box(int x1,int y1,int x2,int y2,int Color,int Type)
 	GotoXY(x2,y1+1);
 	VText(BufPtr);
 	const size_t width=x2-x1+2;
-	if(width>StackBufferSize)
+	if(width>StackBufferSize/sizeof(WCHAR))
 	{
 		if(width>height)
 		{
@@ -926,10 +927,10 @@ bool ScrollBarEx(UINT X1,UINT Y1,UINT Length,UINT64 TopItem,UINT64 ItemsCount)
 		}
 
 		CaretPos=Min(CaretPos,Length-CaretLength);
-		WCHAR StackBuffer[StackBufferSize];
+		WCHAR StackBuffer[StackBufferSize/sizeof(WCHAR)];
 		LPWSTR HeapBuffer=nullptr;
 		LPWSTR BufPtr=StackBuffer;
-		if(Length+3>=StackBufferSize)
+		if(Length+3>=StackBufferSize/sizeof(WCHAR))
 		{
 			HeapBuffer=new WCHAR[Length+3];
 			BufPtr=HeapBuffer;
@@ -971,10 +972,10 @@ void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Tota
 
 	GotoXY(X1,Y1);
 	{
-		WCHAR StackBuffer[StackBufferSize];
+		WCHAR StackBuffer[StackBufferSize/sizeof(WCHAR)];
 		LPWSTR HeapBuffer=nullptr;
 		LPWSTR BufPtr=StackBuffer;
-		if(static_cast<size_t>(Length+3)>=StackBufferSize)
+		if(static_cast<size_t>(Length+3)>=StackBufferSize/sizeof(WCHAR))
 		{
 			HeapBuffer=new WCHAR[Length+3];
 			BufPtr=HeapBuffer;
@@ -996,10 +997,10 @@ void DrawLine(int Length,int Type, const wchar_t* UserSep)
 {
 	if (Length>1)
 	{
-		WCHAR StackBuffer[StackBufferSize];
+		WCHAR StackBuffer[StackBufferSize/sizeof(WCHAR)];
 		LPWSTR HeapBuffer=nullptr;
 		LPWSTR BufPtr=StackBuffer;
-		if(static_cast<size_t>(Length)>=StackBufferSize)
+		if(static_cast<size_t>(Length)>=StackBufferSize/sizeof(WCHAR))
 		{
 			HeapBuffer=new WCHAR[Length+1];
 			BufPtr=HeapBuffer;

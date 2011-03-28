@@ -3927,7 +3927,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 					xf_free(fn);
 
 				memset(oei,0,sizeof(*oei));
-				size_t FileNameSize=FarEditorControl(-1,ECTL_GETFILENAME,0,(INT_PTR)nullptr);
+				size_t FileNameSize=FarEditorControl(-1,ECTL_GETFILENAME,0,0);
 
 				if (FileNameSize)
 				{
@@ -4286,9 +4286,9 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 			break;
 		}
 		case oldfar::VCTL_QUIT:
-			return FarViewerControl(-1,VCTL_QUIT,0, (INT_PTR)nullptr);
+			return FarViewerControl(-1,VCTL_QUIT,0, 0);
 		case oldfar::VCTL_REDRAW:
-			return FarViewerControl(-1,VCTL_REDRAW,0, (INT_PTR)nullptr);
+			return FarViewerControl(-1,VCTL_REDRAW,0, 0);
 		case oldfar::VCTL_SETKEYBAR:
 		{
 			switch ((INT_PTR)Param)
@@ -4329,7 +4329,7 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 		}
 		case oldfar::VCTL_SELECT:
 		{
-			if (!Param) return FarViewerControl(-1,VCTL_SELECT,0, (INT_PTR)nullptr);
+			if (!Param) return FarViewerControl(-1,VCTL_SELECT,0, 0);
 
 			oldfar::ViewerSelect* vsA = (oldfar::ViewerSelect*)Param;
 			ViewerSelect vs = {vsA->BlockStartPos,vsA->BlockLen};

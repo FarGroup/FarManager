@@ -2440,7 +2440,6 @@ BOOL FileList::SetCurDir(const wchar_t *NewDir,int ClosePanel)
 
 BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 {
-	Panel *AnotherPanel;
 	string strFindDir, strSetDir;
 
 	if (PanelMode!=PLUGIN_PANEL && !IsAbsolutePath(NewDir) && !TestCurrentDirectory(strCurDir))
@@ -2700,7 +2699,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 		CtrlObject->CmdLine->Show();
 	}
 
-	AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+	Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
 
 	if (AnotherPanel->GetType()!=FILE_PANEL)
 	{

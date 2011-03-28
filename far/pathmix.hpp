@@ -48,7 +48,7 @@ class NTPath
 			return Str;
 		}
 
-		const string Get() const
+		const string& Get() const
 		{
 			return Str;
 		}

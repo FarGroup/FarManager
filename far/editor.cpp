@@ -816,7 +816,7 @@ int Editor::ProcessKey(int Key)
 
 	_KEYMACRO(CleverSysLog SL(L"Editor::ProcessKey()"));
 	_KEYMACRO(SysLog(L"Key=%s",_FARKEY_ToName(Key)));
-	int CurPos,CurVisPos,I;
+	int CurPos,CurVisPos;
 	CurPos=CurLine->GetCurPos();
 	CurVisPos=GetLineCurPos();
 	int isk=IsShiftKey(Key);
@@ -1010,7 +1010,7 @@ int Editor::ProcessKey(int Key)
 			Pasting++;
 			Lock();
 
-			for (I=Y1; I<Y2; I++)
+			for (int I=Y1; I<Y2; I++)
 			{
 				ProcessKey(KEY_SHIFTUP);
 
@@ -1033,7 +1033,7 @@ int Editor::ProcessKey(int Key)
 			Pasting++;
 			Lock();
 
-			for (I=Y1; I<Y2; I++)
+			for (int I=Y1; I<Y2; I++)
 			{
 				ProcessKey(KEY_SHIFTDOWN);
 
@@ -1844,7 +1844,7 @@ int Editor::ProcessKey(int Key)
 		{
 			Flags.Set(FEDITOR_NEWUNDO);
 
-			for (I=Y1; I<Y2; I++)
+			for (int I=Y1; I<Y2; I++)
 				ScrollUp();
 
 			Show();
@@ -1854,7 +1854,7 @@ int Editor::ProcessKey(int Key)
 		{
 			Flags.Set(FEDITOR_NEWUNDO);
 
-			for (I=Y1; I<Y2; I++)
+			for (int I=Y1; I<Y2; I++)
 				ScrollDown();
 
 			Show();
@@ -1886,8 +1886,8 @@ int Editor::ProcessKey(int Key)
 				int StartPos=CurLine->GetTabCurPos();
 				NumLine=NumLastLine-1;
 				CurLine=EndList;
-
-				for (TopScreen=CurLine,I=Y1; I<Y2 && TopScreen->m_prev; I++)
+				TopScreen=CurLine;
+				for (int I=Y1; I<Y2 && TopScreen->m_prev; I++)
 				{
 					TopScreen->SetPosition(X1,I,XX2,I);
 					TopScreen=TopScreen->m_prev;
@@ -1944,7 +1944,7 @@ int Editor::ProcessKey(int Key)
 				Edit *CurPtr=TopScreen;
 				int CurLineFound=FALSE;
 
-				for (I=Y1; I<Y2; I++)
+				for (int I=Y1; I<Y2; I++)
 				{
 					if (!CurPtr->m_next)
 						break;
@@ -2402,7 +2402,7 @@ int Editor::ProcessKey(int Key)
 			Pasting++;
 			Lock();
 
-			for (I=Y1; I<Y2; I++)
+			for (int I=Y1; I<Y2; I++)
 				ProcessKey(KEY_ALTSHIFTUP);
 
 			Unlock();
@@ -2416,7 +2416,7 @@ int Editor::ProcessKey(int Key)
 			Pasting++;
 			Lock();
 
-			for (I=Y1; I<Y2; I++)
+			for (int I=Y1; I<Y2; I++)
 				ProcessKey(KEY_ALTSHIFTDOWN);
 
 			Unlock();

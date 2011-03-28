@@ -736,18 +736,18 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 
 		if (TextMonth)
 		{
-			const wchar_t *Month=MSG(MMonthJan+st.wMonth-1);
+			const wchar_t *Mnth=MSG(MMonthJan+st.wMonth-1);
 
 			switch (CurDateFormat)
 			{
 				case 0:
-					strDateText.Format(L"%3.3s %2d %02d",Month,st.wDay,Year);
+					strDateText.Format(L"%3.3s %2d %02d",Mnth,st.wDay,Year);
 					break;
 				case 1:
-					strDateText.Format(L"%2d %3.3s %02d",st.wDay,Month,Year);
+					strDateText.Format(L"%2d %3.3s %02d",st.wDay,Mnth,Year);
 					break;
 				default:
-					strDateText.Format(L"%02d %3.3s %2d",Year,Month,st.wDay);
+					strDateText.Format(L"%02d %3.3s %2d",Year,Mnth,st.wDay);
 					break;
 			}
 		}

@@ -2718,7 +2718,7 @@ void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, UINT64 Flags, int& RecurseLevel
 					else
 						strPluginSearchPath.Clear();
 
-					bool SetDirectoryResult=false;
+					SetDirectoryResult=false;
 					{
 						CriticalSectionLock Lock(PluginCS);
 						SetDirectoryResult=CtrlObject->Plugins.SetDirectory(hPlugin,L"..",OPM_FIND)!=FALSE;

@@ -360,8 +360,7 @@ static void ConfigureChangeDriveMode()
 	{
 		if (ShowSizeAny)
 		{
-			bool ShowSizeFloat = (Opt.ChangeDriveMode & DRIVE_SHOW_SIZE_FLOAT) ? true : false;
-			if (ShowSizeFloat)
+			if (Opt.ChangeDriveMode & DRIVE_SHOW_SIZE_FLOAT)
 				Opt.ChangeDriveMode &= ~DRIVE_SHOW_SIZE;
 			else
 				Opt.ChangeDriveMode |= DRIVE_SHOW_SIZE;

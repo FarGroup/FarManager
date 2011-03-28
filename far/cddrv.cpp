@@ -247,7 +247,7 @@ static CDROM_DeviceCapabilities getCapsUsingDeviceProps(File& Device)
 {
 	PSTORAGE_DEVICE_DESCRIPTOR      devDesc;
 	BOOL                            status;
-	char                            outBuf[512];
+	char                            outBuf[1024];
 	DWORD                           returnedLength;
 	STORAGE_PROPERTY_QUERY          query;
 	query.PropertyId = StorageDeviceProperty;

@@ -134,10 +134,10 @@ void MenuRegToFile(const wchar_t *MenuKey, File& MenuFile, CachedWrite& CW, bool
 		}
 		else
 		{
-			for (int i=0;; i++)
+			for (int j=0;; j++)
 			{
 				string strLineName;
-				strLineName.Format(L"Command%d",i);
+				strLineName.Format(L"Command%d",j);
 				string strCommand;
 
 				if (!GetRegKey(strItemKey,strLineName,strCommand,L""))

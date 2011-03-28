@@ -570,7 +570,7 @@ void GetOpenPanelInfo_Dump(const wchar_t *Title,const OpenPanelInfo *Info,FILE *
 	if (fp)
 	{
 		fwprintf(fp,L"\tStructSize      =%d\n",Info->StructSize);
-		fwprintf(fp,L"\tFlags           =0x%08X\n",Info->Flags);
+		fwprintf(fp,L"\tFlags           =0x%08I64X\n",Info->Flags);
 		fwprintf(fp,L"\tHostFile        ='%s'\n",NullToEmpty(Info->HostFile));
 		fwprintf(fp,L"\tCurDir          ='%s'\n",NullToEmpty(Info->CurDir));
 		fwprintf(fp,L"\tFormat          ='%s'\n",NullToEmpty(Info->Format));
