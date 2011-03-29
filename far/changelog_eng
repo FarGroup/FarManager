@@ -3,6 +3,38 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 28.03.2011 19:19:10 +0300 - build 1936
+
+1. Mantis#0001718: The absence of ECF_TAB1 does not always work correctly
+   Correction taking the last TAB character into account.
+
+drkns 28.03.2011 15:58:34 +0200 - build 1935
+
+1. VC code analysis warnings.
+
+t-rex 27.03.2011 22:19:24 +0200 - build 1934
+
+1. Initial stage of moving associations to sqlite (associations.db, doesn't work yet!).
+
+2. UnicodeString::Equal() -> IsSubStrAt() to avoid disorder.
+
+3. From 2useven10: Mantis#1043: viewing a file on network share causes 40kB/s network spam of QUERY_PATH_INFO SMB requests.
+   requests frequency is hardcoded for now - once per second for DRIVE_REMOTE
+
+4. From 2useven10: Mantis#796: Viewer and End key behaviour.
+
+5. From 2useven10: fixes for physical drives viewing and for hex viewer.
+
+drkns 26.03.2011 19:41:35 +0200 - build 1933
+
+1. Correction of 1930.1.
+
+drkns 25.03.2011 19:03:05 +0200 - build 1932
+
+1. x64 warnings.
+
+2. Mantis#0001735: incorrect displayiog of volume name in info panel if UNC path is used
+
 drkns 24.03.2011 10:59:59 +0200 - build 1931
 
 1. Types correction.
