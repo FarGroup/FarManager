@@ -405,7 +405,7 @@ INT_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 					SendDlgMessage(hDlg,DM_LISTINFO,SA_COMBO_HARDLINK,(INT_PTR)&li);
 					FormatString strTmp;
 					strTmp<<MSG(MSetAttrHardLinks)<<L" ("<<li.ItemsNumber<<L")";
-					SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_COMBO_HARDLINK,(INT_PTR)strTmp.strValue().CPtr());
+					SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_COMBO_HARDLINK,(INT_PTR)strTmp.CPtr());
 				}
 				break;
 				case SA_EDIT_WDATE:
@@ -1595,7 +1595,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 				seInfo.nShow = SW_SHOW;
 				seInfo.fMask = SEE_MASK_INVOKEIDLIST;
 				// "\\?\c:\" fails on old windows
-				string strFullName(IsLocalRootPath(strSelName)?strSelName:NTPath(strSelName).Get());
+				string strFullName(IsLocalRootPath(strSelName)?strSelName:NTPath(strSelName));
 				if(FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
 				{
 					AddEndSlash(strFullName);

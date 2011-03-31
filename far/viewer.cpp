@@ -2219,7 +2219,7 @@ void ViewerSearchMsg(const wchar_t *MsgStr,int Percent)
 		FormatString strPercent;
 		strPercent<<Percent;
 
-		size_t PercentLength=Max(strPercent.strValue().GetLength(),(size_t)3);
+		size_t PercentLength=Max(strPercent.GetLength(),(size_t)3);
 		size_t Length=Max(Min(static_cast<int>(MAX_WIDTH_MESSAGE-2),StrLength(MsgStr)),40)-PercentLength-2;
 		wchar_t *Progress=strProgress.GetBuffer(Length);
 

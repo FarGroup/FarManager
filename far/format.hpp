@@ -117,17 +117,12 @@ class BaseFormat
 		BaseFormat& operator<<(const fmt::FillChar& Manipulator);
 };
 
-class FormatString:public BaseFormat
+class FormatString:public BaseFormat, public string
 {
-		string Value;
-		void Commit(const string& Data) {Value+=Data;}
-	public:
-		operator const wchar_t*()const {return Value;}
-		const string& strValue()const {return Value;}
-		void Clear() {Value.Clear();}
+	void Commit(const string& Data);
 };
 
 class FormatScreen:public BaseFormat
 {
-		void Commit(const string& Data);
+	void Commit(const string& Data);
 };

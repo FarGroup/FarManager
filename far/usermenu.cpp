@@ -110,10 +110,10 @@ void MenuRegToFile(const wchar_t *MenuKey, File& MenuFile, CachedWrite& CW, bool
 {
 	for (int i=0;;i++)
 	{
-		string strItemKey;
-		strItemKey.Format(L"%s\\Item%d",MenuKey,i);
-		string strLabel;
+		FormatString strItemKey;
+		strItemKey << MenuKey << L"\\Item" << i;
 
+		string strLabel;
 		if (!GetRegKey(strItemKey,L"Label",strLabel,L""))
 			break;
 
@@ -136,10 +136,10 @@ void MenuRegToFile(const wchar_t *MenuKey, File& MenuFile, CachedWrite& CW, bool
 		{
 			for (int j=0;; j++)
 			{
-				string strLineName;
-				strLineName.Format(L"Command%d",j);
-				string strCommand;
+				FormatString strLineName;
+				strLineName << L"Command" << j;
 
+				string strCommand;
 				if (!GetRegKey(strItemKey,strLineName,strCommand,L""))
 					break;
 				CW.Write(L"    ", 4*sizeof(WCHAR));
@@ -165,12 +165,11 @@ void MenuFileToReg(const wchar_t *MenuKey, File& MenuFile, GetFileString& GetStr
 
 	while(GetStr.GetString(&MenuStr, MenuCP, MenuStrLength))
 	{
-		string strItemKey;
+		FormatString strItemKey;
+		strItemKey << MenuKey;
 
 		if (!SingleItemMenu)
-			strItemKey.Format(L"%s\\Item%d",MenuKey,KeyNumber);
-		else
-			strItemKey=MenuKey;
+			strItemKey << L"\\Item" << KeyNumber;
 
 		RemoveTrailingSpaces(MenuStr);
 
@@ -193,14 +192,13 @@ void MenuFileToReg(const wchar_t *MenuKey, File& MenuFile, GetFileString& GetStr
 			if (!(ChPtr=wcschr(MenuStr,L':')))
 				continue;
 
+			strItemKey.Clear();
+			strItemKey << MenuKey;
+			++KeyNumber;
+
 			if (!SingleItemMenu)
 			{
-				strItemKey.Format(L"%s\\Item%d",MenuKey,++KeyNumber);
-			}
-			else
-			{
-				strItemKey=MenuKey;
-				++KeyNumber;
+				strItemKey << L"\\Item" << KeyNumber;
 			}
 
 			*ChPtr=0;
@@ -226,8 +224,8 @@ void MenuFileToReg(const wchar_t *MenuKey, File& MenuFile, GetFileString& GetStr
 		{
 			if (KeyNumber>=0)
 			{
-				string strLineName;
-				strLineName.Format(L"Command%d",CommandNumber++);
+				FormatString strLineName;
+				strLineName << L"Command" << CommandNumber++;
 				RemoveLeadingSpaces(MenuStr);
 				SetRegKey(strItemKey,strLineName,MenuStr);
 			}
@@ -253,8 +251,8 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 	CtrlObject->CmdLine->GetCurDir(strMenuFilePath);
 	// по умолчанию меню - это FarMenu.ini
 	MenuMode=MM_LOCAL;
-	string strLocalMenuKey;
-	strLocalMenuKey.Format(L"UserMenu\\LocalMenu%u",clock());
+	FormatString strLocalMenuKey;
+	strLocalMenuKey << L"UserMenu\\LocalMenu" << clock();
 	DeleteKeyTree(strLocalMenuKey);
 	MenuModified=MenuNeedRefresh=false;
 
@@ -496,7 +494,7 @@ int FillUserMenu(VMenu& UserMenu,const wchar_t *MenuKey,int MenuPos,int *FuncPos
 			int Offset=strHotKey.At(0)==L'&'?5:4;
 			FormatString FString;
 			FString<<((!strHotKey.IsEmpty() && !FuncNum)?L"&":L"")<<fmt::LeftAlign()<<fmt::Width(Offset)<<fmt::Precision(Offset)<<strHotKey;
-			UserMenuItem.strName=FString.strValue();
+			UserMenuItem.strName=FString;
 			UserMenuItem.strName+=strLabel;
 
 			if (GetRegKey(strItemKey,L"Submenu",0))
@@ -757,17 +755,18 @@ int UserMenu::ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t
 		if (ExitCode<0 || ExitCode>=NumLine)
 			return(EC_CLOSE_LEVEL); //  вверх на один уровень
 
-		string strCurrentKey;
+		FormatString strCurrentKey;
 		int SubMenu;
-		strCurrentKey.Format(L"%s\\Item%d",MenuKey,ExitCode);
+		strCurrentKey << MenuKey <<L"\\Item" << ExitCode;
 		GetRegKey(strCurrentKey,L"Submenu",SubMenu,0);
 
 		if (SubMenu)
 		{
 			/* $ 20.08.2001 VVM + При вложенных меню показывает заголовки предыдущих */
-			string strSubMenuKey, strSubMenuLabel, strSubMenuTitle;
-			strSubMenuKey.Format(L"%s\\Item%d",MenuKey,ExitCode);
+			FormatString strSubMenuKey;
+			strSubMenuKey << MenuKey << L"\\Item" << ExitCode;
 
+			string strSubMenuLabel, strSubMenuTitle;
 			if (GetRegKey(strSubMenuKey,L"Label",strSubMenuLabel,L""))
 			{
 				SubstFileName(strSubMenuLabel,strName,strShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
@@ -1105,9 +1104,10 @@ bool UserMenu::EditMenu(const wchar_t *MenuKey,int EditPos,int TotalRecords,bool
 
 			while (true)
 			{
-				string strCommandName, strCommand;
-				strCommandName.Format(L"Command%d",CommandNumber);
+				FormatString strCommandName;
+				strCommandName << L"Command" << CommandNumber;
 
+				string strCommand;
 				if (!GetRegKey(strItemKey,strCommandName,strCommand,L""))
 					break;
 
@@ -1122,9 +1122,10 @@ bool UserMenu::EditMenu(const wchar_t *MenuKey,int EditPos,int TotalRecords,bool
 
 			while (CommandNumber < DI_EDIT_COUNT)
 			{
-				string strCommandName, strCommand;
-				strCommandName.Format(L"Command%d",CommandNumber);
+				FormatString strCommandName;
+				strCommandName << L"Command" << CommandNumber;
 
+				string strCommand;
 				if (!GetRegKey(strItemKey,strCommandName,strCommand,L""))
 					break;
 
@@ -1146,8 +1147,8 @@ bool UserMenu::EditMenu(const wchar_t *MenuKey,int EditPos,int TotalRecords,bool
 
 			if (Create)
 			{
-				string strKeyMask;
-				strKeyMask.Format(L"%s\\Item%%d",MenuKey);
+				string strKeyMask(MenuKey);
+				strKeyMask+=L"\\Item%%d";
 				InsertKeyRecord(strKeyMask,EditPos,TotalRecords);
 			}
 
@@ -1176,8 +1177,8 @@ bool UserMenu::EditMenu(const wchar_t *MenuKey,int EditPos,int TotalRecords,bool
 
 				for (int i=0 ; i < DI_EDIT_COUNT ; i++)
 				{
-					string strCommandName;
-					strCommandName.Format(L"Command%d",i);
+					FormatString strCommandName;
+					strCommandName << L"Command" << i;
 
 					if (i>=CommandNumber)
 						DeleteRegValue(strItemKey,strCommandName);

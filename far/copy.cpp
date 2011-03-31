@@ -366,10 +366,10 @@ void CopyProgress::SetNames(const wchar_t *Src,const wchar_t *Dst)
 
 	FormatString FString;
 	FString<<fmt::LeftAlign()<<fmt::Width(Rect.Right-Rect.Left-9)<<fmt::Precision(Rect.Right-Rect.Left-9)<<Src;
-	strSrc=FString.strValue();
+	strSrc=FString;
 	FString.Clear();
 	FString<<fmt::LeftAlign()<<fmt::Width(Rect.Right-Rect.Left-9)<<fmt::Precision(Rect.Right-Rect.Left-9)<<Dst;
-	strDst=FString.strValue();
+	strDst=FString;
 
 	if (Total)
 	{
@@ -1119,7 +1119,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		// коррекция языка - про окончания
 		FormatString StrItems;
 		StrItems<<CDP.SelCount;
-		size_t LenItems=StrItems.strValue().GetLength();
+		size_t LenItems=StrItems.GetLength();
 		int NItems=MCMLItemsA;
 
 		if (LenItems > 0)

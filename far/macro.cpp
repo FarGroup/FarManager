@@ -6782,9 +6782,9 @@ int KeyMacro::GetMacroKeyInfo(bool FromReg,int Mode,int Pos, string &strKeyName,
 	{
 		if (FromReg)
 		{
-			string strUpKeyName;
+			FormatString strUpKeyName;
 			string strRegKeyName;
-			strUpKeyName.Format(L"KeyMacros\\%s",GetSubKey(Mode));
+			strUpKeyName << L"KeyMacros\\" << GetSubKey(Mode);
 
 			if (Mode >= MACRO_OTHER)
 			{

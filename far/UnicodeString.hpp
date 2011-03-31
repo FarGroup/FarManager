@@ -101,7 +101,7 @@ class UnicodeStringData
 			FreeData(pOldData);
 		}
 
-		wchar_t *GetData() { return m_pData; }
+		wchar_t *GetData() const { return m_pData; }
 		size_t GetLength() const { return m_nLength; }
 		size_t GetSize() const { return m_nSize; }
 

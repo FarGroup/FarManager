@@ -138,6 +138,11 @@ BaseFormat& BaseFormat::operator<<(const fmt::RightAlign& Manipulator)
 	return *this;
 }
 
+void FormatString::Commit(const string& Data)
+{
+	Append(Data);
+}
+
 void FormatScreen::Commit(const string& Data)
 {
 	Text(Data);

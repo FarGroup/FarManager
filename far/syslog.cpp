@@ -1626,8 +1626,8 @@ string __INPUT_RECORD_Dump(INPUT_RECORD *rec)
 			break;
 	}
 
-	string tmp;
-	tmp.Format(L" (%s)",IsFullscreen()?L"Fullscreen":L"Widowed");
+	FormatString tmp;
+	tmp << L" (" << (IsFullscreen()?L"Fullscreen":L"Widowed") << L")";
 	Records+=tmp;
 	return Records;
 #else

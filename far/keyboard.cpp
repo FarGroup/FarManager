@@ -1832,14 +1832,15 @@ int WINAPI KeyNameToKey(const wchar_t *Name)
 BOOL WINAPI KeyToText(int Key0, string &strKeyText0)
 {
 	string strKeyText;
-	string strKeyTemp;
 	int I, Len;
 	DWORD Key=(DWORD)Key0, FKey=(DWORD)Key0&0xFFFFFF;
 	//if(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE)
 	//  return KeyMacroToText(Key0, strKeyText0);
 
 	if (Key&KEY_ALTDIGIT)
+	{
 		strKeyText.Format(L"Alt%05d", Key&FKey);
+	}
 	else
 	{
 		GetShiftKeyName(strKeyText,Key,Len);
@@ -1855,14 +1856,15 @@ BOOL WINAPI KeyToText(int Key0, string &strKeyText0)
 
 		if (I  == ARRAYSIZE(FKeys1))
 		{
+			FormatString strKeyTemp;
 			if (FKey >= KEY_VK_0xFF_BEGIN && FKey <= KEY_VK_0xFF_END)
 			{
-				strKeyTemp.Format(L"Spec%05d",FKey-KEY_VK_0xFF_BEGIN);
+				strKeyTemp << L"Spec" <<fmt::Width(5) << FKey-KEY_VK_0xFF_BEGIN;
 				strKeyText += strKeyTemp;
 			}
 			else if (FKey > KEY_LAUNCH_APP2 && FKey < KEY_CTRLALTSHIFTPRESS)
 			{
-				strKeyTemp.Format(L"Oem%05d",FKey-KEY_FKEY_BEGIN);
+				strKeyTemp << L"Oem" <<fmt::Width(5) << FKey-KEY_FKEY_BEGIN;
 				strKeyText += strKeyTemp;
 			}
 			else

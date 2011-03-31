@@ -1970,26 +1970,21 @@ void Panel::ShowScreensCount()
 
 		if (Viewers>0 || Editors>0 || Dialogs > 0)
 		{
-			string strScreensText;
-			string strAdd;
-			strScreensText.Format(L"[%d", Viewers);
+			GotoXY(Opt.ShowColumnTitles ? X1:X1+2,Y1);
+			SetColor(COL_PANELSCREENSNUMBER);
 
+			FS << L"[" << Viewers;
 			if (Editors > 0)
 			{
-				strAdd.Format(L"+%d", Editors);
-				strScreensText += strAdd;
+				FS << L"+" << Editors;
 			}
 
 			if (Dialogs > 0)
 			{
-				strAdd.Format(L",%d", Dialogs);
-				strScreensText += strAdd;
+				FS << L"," << Dialogs;
 			}
 
-			strScreensText += L"]";
-			GotoXY(Opt.ShowColumnTitles ? X1:X1+2,Y1);
-			SetColor(COL_PANELSCREENSNUMBER);
-			Text(strScreensText);
+			FS << L"]";
 		}
 	}
 }

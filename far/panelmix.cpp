@@ -498,7 +498,7 @@ const string FormatStr_Attribute(DWORD FileAttributes,int Width)
 
 	strResult<<OutStr;
 
-	return strResult.strValue();
+	return strResult;
 }
 
 const string FormatStr_DateTime(const FILETIME *FileTime,int ColumnType,DWORD Flags,int Width)
@@ -510,7 +510,7 @@ const string FormatStr_DateTime(const FILETIME *FileTime,int ColumnType,DWORD Fl
 		if (ColumnType == DATE_COLUMN)
 			Width=0;
 		else
-			return strResult.strValue();
+			return strResult;
 	}
 
 	int ColumnWidth=Width;
@@ -566,7 +566,7 @@ const string FormatStr_DateTime(const FILETIME *FileTime,int ColumnType,DWORD Fl
 
 	strResult<<fmt::Width(Width)<<fmt::Precision(Width)<<strOutStr;
 
-	return strResult.strValue();
+	return strResult;
 }
 
 const string FormatStr_Size(__int64 UnpSize, __int64 PackSize, __int64 StreamsSize, const string& strName,DWORD FileAttributes,DWORD ShowFolderSize,DWORD ReparseTag,int ColumnType,DWORD Flags,int Width)
@@ -612,11 +612,15 @@ const string FormatStr_Size(__int64 UnpSize, __int64 PackSize, __int64 StreamsSi
 			}
 		}
 
-		string strStr;
+		FormatString strStr;
 		if (StrLength(PtrName) <= Width-2)
-			strStr.Format(L"<%s>", PtrName);
+		{
+			strStr << L"<" << PtrName << L">";
+		}
 		else
-			strStr = PtrName;
+		{
+			strStr << PtrName;
+		}
 
 		strResult<<fmt::Width(Width)<<fmt::Precision(Width)<<strStr;
 	}
@@ -626,5 +630,5 @@ const string FormatStr_Size(__int64 UnpSize, __int64 PackSize, __int64 StreamsSi
 		strResult<<FileSizeToStr(strOutStr,Packed?PackSize:Streams?StreamsSize:UnpSize,Width,Flags).CPtr();
 	}
 
-	return strResult.strValue();
+	return strResult;
 }

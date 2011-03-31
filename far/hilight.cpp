@@ -767,7 +767,6 @@ void SetHighlighting()
 	if (CheckRegKey(RegColorsHighlight))
 		return;
 
-	string strRegKey;
 	static const wchar_t *Masks[]=
 	{
 		/* 0 */ L"*.*",
@@ -807,7 +806,8 @@ void SetHighlighting()
 
 	for (size_t I=0; I < ARRAYSIZE(StdHighlightData); I++)
 	{
-		strRegKey.Format(L"%s\\Group%d",RegColorsHighlight,I);
+		FormatString strRegKey;
+		strRegKey << RegColorsHighlight << L"\\Group" << I;
 		SetRegKey(strRegKey,HLS.Mask,StdHighlightData[I].Mask);
 		SetRegKey(strRegKey,HLS.IgnoreMask,StdHighlightData[I].IgnoreMask);
 		SetRegKey(strRegKey,HLS.IncludeAttributes,StdHighlightData[I].IncludeAttr);

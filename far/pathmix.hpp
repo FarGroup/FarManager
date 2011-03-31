@@ -37,21 +37,12 @@ extern const wchar_t *ReservedFilenameSymbols;
 
 const size_t cVolumeGuidLen = 48;
 
-class NTPath
+class NTPath:public string
 {
-		string Str;
-	public:
-		NTPath(LPCWSTR Src);
-
-		operator LPCWSTR() const
-		{
-			return Str;
-		}
-
-		const string& Get() const
-		{
-			return Str;
-		}
+	void Transform();
+public:
+	NTPath(const string& Src):string(Src) {Transform();}
+	NTPath(LPCWSTR Src):string(Src) {Transform();}
 };
 
 inline int IsSlash(wchar_t x) { return x==L'\\' || x==L'/'; }

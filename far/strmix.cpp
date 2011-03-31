@@ -485,7 +485,7 @@ string& CenterStr(const wchar_t *Src, string &strDest, int Length)
 		int Space=(Length-SrcLength)/2;
 		FormatString FString;
 		FString<<fmt::Width(Space)<<L""<<strTempStr<<fmt::Width(Length-Space-SrcLength)<<L"";
-		strDest=FString.strValue();
+		strDest=FString;
 	}
 
 	return strDest;
@@ -630,7 +630,7 @@ void PrepareUnitStr()
 
 string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, int ViewFlags)
 {
-	string strStr;
+	FormatString strStr;
 	unsigned __int64 Divider;
 	int IndexDiv, IndexB;
 
@@ -676,7 +676,9 @@ string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Wid
 		}
 
 		if (!IndexB)
-			strStr.Format(L"%d", (DWORD)Sz);
+		{
+			strStr << Sz;
+		}
 		else
 		{
 			Sz = (OldSize=Sz) / Divider64F2;
@@ -689,7 +691,7 @@ string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Wid
 				Sz++;
 			}
 
-			strStr.Format(L"%d.%02d", (DWORD)Sz,Decimal);
+			strStr << Sz << L"." << fmt::Width(2) << fmt::FillChar(L'0') << Decimal;
 			FormatNumber(strStr,strStr,2);
 		}
 
@@ -714,7 +716,7 @@ string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Wid
 	if (Commas)
 		InsertCommas(Sz,strStr);
 	else
-		strStr.Format(L"%I64u", Sz);
+		strStr << Sz;
 
 	if ((!UseMinSizeIndex && strStr.GetLength()<=static_cast<size_t>(Width)) || Width<5)
 	{
@@ -749,9 +751,14 @@ string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Wid
 			IndexB++;
 
 			if (Commas)
+			{
 				InsertCommas(Sz,strStr);
+			}
 			else
-				strStr.Format(L"%I64u",Sz);
+			{
+				strStr.Clear();
+				strStr << Sz;
+			}
 		}
 		while ((UseMinSizeIndex && IndexB<MinSizeIndex) || strStr.GetLength() > static_cast<size_t>(Width));
 

@@ -2371,7 +2371,7 @@ void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& 
 		itd.SetFindListItem(ItemIndex, FindItem);
 	}
 
-	ListItem.strName = MenuText.strValue();
+	ListItem.strName = MenuText;
 	int ListPos = ListBox->AddItem(&ListItem);
 	ListBox->SetUserData((void*)(DWORD_PTR)ItemIndex,sizeof(ItemIndex), ListPos);
 

@@ -40,38 +40,33 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 const wchar_t *ReservedFilenameSymbols = L"<>|";
 
-NTPath::NTPath(LPCWSTR Src)
+void NTPath::Transform()
 {
-	if (Src&&*Src)
+	string& Data = *this;
+	if (!HasPathPrefix(Data))
 	{
-		Str=Src;
-		if (!HasPathPrefix(Src))
-		{
-			ConvertNameToFull(Str,Str);
+		ConvertNameToFull(Data,Data);
 
-			if (!HasPathPrefix(Str))
+		if (!HasPathPrefix(Data))
+		{
+			ReplaceSlashToBSlash(Data);
+			if (IsLocalPath(Data))
 			{
-				ReplaceSlashToBSlash(Str);
-				if (IsLocalPath(Str))
-				{
-					while(ReplaceStrings(Str,L"\\\\",L"\\"));
-					Str=string(L"\\\\?\\")+Str;
-				}
-				else
-				{
-					while(ReplaceStrings(Str,L"\\\\",L"\\"));
-					Str=string(L"\\\\?\\UNC")+Str.CPtr();
-				}
+				while(ReplaceStrings(Data,L"\\\\",L"\\"));
+				Data=string(L"\\\\?\\")+Data;
+			}
+			else
+			{
+				while(ReplaceStrings(Data,L"\\\\",L"\\"));
+				Data=string(L"\\\\?\\UNC")+Data;
 			}
 		}
-		// \\?\C: -> \\?\c:
-		// Some file operations fails on Win2k if a drive letter is in upper case
-		if(Str.At(5) == L':')
-		{
-			LPWSTR Buffer = Str.GetBuffer();
-			Buffer[4] = Lower(Buffer[4]);
-			Str.ReleaseBuffer(Str.GetLength());
-		}
+	}
+	// \\?\C: -> \\?\c:
+	// Some file operations fails on Win2k if a drive letter is in upper case
+	if(Data.At(5) == L':')
+	{
+		Lower(4,1);
 	}
 }
 

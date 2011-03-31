@@ -2159,7 +2159,7 @@ size_t WINAPI farConvertPath(CONVERTPATHMODES Mode,const wchar_t *Src, wchar_t *
 		switch (Mode)
 		{
 			case CPM_NATIVE:
-				strDest=NTPath(Src).Get();
+				strDest=NTPath(Src);
 				break;
 			case CPM_REAL:
 				ConvertNameToReal(Src, strDest);

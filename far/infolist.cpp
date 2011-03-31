@@ -92,7 +92,8 @@ void InfoList::Update(int Mode)
 
 string &InfoList::GetTitle(string &strTitle,int SubLen,int TruncSize)
 {
-	strTitle.Format(L" %s ", MSG(MInfoTitle));
+	strTitle.Clear();
+	strTitle.Append(L" ").Append(MSG(MInfoTitle)).Append(" ");
 	TruncStr(strTitle,X2-X1-3);
 	return strTitle;
 }

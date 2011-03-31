@@ -156,7 +156,7 @@ bool WINAPI GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &st
 	strOwner.Clear();
 	SECURITY_INFORMATION si=OWNER_SECURITY_INFORMATION|GROUP_SECURITY_INFORMATION;;
 	DWORD LengthNeeded=0;
-	string strName(NTPath(Name).Get());
+	NTPath strName(Name);
 	PSECURITY_DESCRIPTOR sd=reinterpret_cast<PSECURITY_DESCRIPTOR>(sddata);
 
 	if (GetFileSecurity(strName,si,sd,sizeof(sddata),&LengthNeeded) && LengthNeeded<=sizeof(sddata))
@@ -223,7 +223,7 @@ bool SetOwnerInternal(LPCWSTR Object, LPCWSTR Owner)
 
 bool SetOwner(LPCWSTR Object, LPCWSTR Owner)
 {
-	string strNtObject(NTPath(Object).Get());
+	NTPath strNtObject(Object);
 	bool Result = SetOwnerInternal(strNtObject, Owner);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
