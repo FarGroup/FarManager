@@ -4362,11 +4362,24 @@ done:
 		}
 
 		case MCODE_OP_AKEY:               // $AKey
+		{
+			DWORD aKey=KEY_NONE;
+			INPUT_RECORD *inRec=&Work.cRec;
+			if (!inRec->EventType)
+				inRec->EventType = KEY_EVENT;
+			if(inRec->EventType == KEY_EVENT || inRec->EventType == FARMACRO_KEY_EVENT)
+				aKey=CalcKeyCode(inRec,TRUE,nullptr);
+			return aKey;
+		}
+
 		case MCODE_F_AKEY:                // V=akey(Mode[,Type])
 		{
+			int tmpType=(int)VMStack.Pop().getInteger();
+			int tmpMode=(int)VMStack.Pop().getInteger();
+
 			DWORD aKey=MR->Key;
 
-			if (!aKey) // Mantis#1677 ???
+			if (!tmpType)
 			{
 				INPUT_RECORD *inRec=&Work.cRec;
 				if (!inRec->EventType)
@@ -4375,27 +4388,16 @@ done:
 					aKey=CalcKeyCode(inRec,TRUE,nullptr);
 			}
 
-			if (Key == MCODE_F_AKEY)
+			if (!tmpMode)
+				tmpVar=(__int64)aKey;
+			else
 			{
-				int tmpType=(int)VMStack.Pop().getInteger();
-				int tmpMode=(int)VMStack.Pop().getInteger();
-
-				if(tmpType)
-					aKey=MR->Key;
-
-				if (!tmpMode)
-					tmpVar=(__int64)aKey;
-				else
-				{
-					KeyToText(aKey,value);
-					tmpVar=value.CPtr();
-					tmpVar.toString();
-				}
-
-				VMStack.Push(tmpVar);
-				goto begin;
+				KeyToText(aKey,value);
+				tmpVar=value.CPtr();
+				tmpVar.toString();
 			}
-			return aKey;
+			VMStack.Push(tmpVar);
+			goto begin;
 		}
 
 		// $Rep (expr) ... $End
