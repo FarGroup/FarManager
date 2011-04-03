@@ -33,7 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "CriticalSections.hpp"
-#include "noncopyable.hpp"
 
 enum ELEVATION_MODE
 {

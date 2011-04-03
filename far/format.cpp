@@ -101,7 +101,7 @@ BaseFormat& BaseFormat::operator<<(LPCWSTR Data)
 	return *this;
 }
 
-BaseFormat& BaseFormat::operator<<(string& String)
+BaseFormat& BaseFormat::operator<<(const string& String)
 {
 	Put(String,String.GetLength());
 	return *this;

@@ -1,3 +1,9 @@
+drkns 03.04.2011 20:46:44 +0200 - build 1939
+
+1. Mantis#0000502: apiCreateFile rights for the Viewer.
+
+2. Несколько мелочей.
+
 svs 31.03.2011 13:43:54 +0300 - build 1938
 
 1. Mantis#0001736: akey(1,0)==akey(1,1)

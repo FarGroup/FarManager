@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "array.hpp"
-#include "noncopyable.hpp"
 
 enum UDL_FLAGS
 {

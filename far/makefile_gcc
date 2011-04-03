@@ -201,7 +201,7 @@ M4 = tools/m4 -P -DFARBIT=$(DIRBIT)
 GAWK = tools/gawk
 MV = mv -f
 MKDIR = mkdir -p
-WINDRES = windres -D__FARBIT__=$(DIRBIT)
+WINDRES = windres
 DEFINES = -D FAR_ALPHA_VERSION -D UNICODE -D _UNICODE
 CFLAGS = $(DEBUGFLAGS) -mno-cygwin -pipe $(DEFINES) -funsigned-char -fno-exceptions -Wall -Wno-missing-braces -Wno-unknown-pragmas
 CCFLAGS = $(CFLAGS) -fno-rtti

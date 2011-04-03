@@ -1098,7 +1098,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Include\plugin.hpp;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Transforming %(Identity) to redistributable form...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\m4 -P -DFARBIT=64 -DFARBIT=64 -DINPUT=%(Identity) headers.m4 &gt; Include\plugin.hpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\m4 -P -DFARBIT=64 -DINPUT=%(Identity) headers.m4 &gt; Include\plugin.hpp</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Include\plugin.hpp;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Transforming %(Identity) to redistributable form...</Message>
@@ -1110,7 +1110,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Include\plugin.hpp;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Transforming %(Identity) to redistributable form...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\m4 -P -DFARBIT=64 -DFARBIT=64 -DINPUT=%(Identity) headers.m4 &gt; Include\plugin.hpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\m4 -P -DFARBIT=64 -DINPUT=%(Identity) headers.m4 &gt; Include\plugin.hpp</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Include\plugin.hpp;%(Outputs)</Outputs>
     </CustomBuild>
@@ -1480,12 +1480,12 @@ if not exist bootstrap mkdir bootstrap</Command>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="bootstrap\far.rc">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">__FARBIT__=IA64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">__FARBIT__=32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">__FARBIT__=64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">__FARBIT__=IA64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">__FARBIT__=32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">__FARBIT__=64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

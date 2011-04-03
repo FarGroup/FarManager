@@ -156,6 +156,7 @@ inline const T Round(const T &a, const T &b) { return a/b+(a%b*2>b?1:0); }
 #define nullptr NULL
 #endif
 
+#include "noncopyable.hpp"
 #include "farrtl.hpp"
 #include "UnicodeString.hpp"
 #include "format.hpp"

@@ -261,7 +261,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 	}
 	else
 	{
-		ViewFile.Open(strFileName, GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING);
+		ViewFile.Open(strFileName, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING);
 	}
 
 	if (!ViewFile.Opened())

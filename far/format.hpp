@@ -57,16 +57,16 @@ namespace fmt
 			WCHAR GetValue()const {return Value;}
 	};
 
-	class LeftAlign {};
-
-	class RightAlign {};
-
 	enum AlignType
 	{
 		A_LEFT,
 		A_RIGHT,
 	};
 
+	template<AlignType T>class Align {};
+
+	typedef Align<A_LEFT> LeftAlign;
+	typedef Align<A_RIGHT> RightAlign;
 };
 
 class BaseFormat
@@ -107,7 +107,7 @@ class BaseFormat
 
 		BaseFormat& operator<<(WCHAR Value);
 		BaseFormat& operator<<(LPCWSTR Data);
-		BaseFormat& operator<<(string& String);
+		BaseFormat& operator<<(const string& String);
 
 		// manipulators
 		BaseFormat& operator<<(const fmt::Width& Manipulator);

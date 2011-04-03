@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "bitflags.hpp"
 #include "config.hpp"
 #include "DList.hpp"
-#include "noncopyable.hpp"
 
 class FileEditor;
 class KeyBar;

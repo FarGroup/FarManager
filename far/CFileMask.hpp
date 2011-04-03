@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "BaseFileMask.hpp"
-#include "noncopyable.hpp"
 
 enum FM_FLAGS
 {
