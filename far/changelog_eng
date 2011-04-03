@@ -3,6 +3,29 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 03.04.2011 20:46:44 +0200 - build 1939
+
+1. Mantis#0000502: apiCreateFile rights for the Viewer.
+
+2. A few trivia.
+
+svs 31.03.2011 13:43:54 +0300 - build 1938
+
+1. Mantis#0001736: akey(1,0)==akey(1,1)
+
+   "...akey(?,Type): 
+     Type=0 - before it had always returned the key I pressed = which called the binding macro,
+     Type=1 - the key assigned to the macro called by macro sequence, 
+     now Type always returns the key which the last macro is assigned to..."
+
+   It was broken in build 1805 (although it was written clearly - "testing is needed" :-))
+
+drkns 31.03.2011 12:12:12 +0200 - build 1937
+
+1. FormatString and NTPath classes are based on UnicodeString.
+
+2. Continuing printf elimination.
+
 svs 28.03.2011 19:19:10 +0300 - build 1936
 
 1. Mantis#0001718: The absence of ECF_TAB1 does not always work correctly
