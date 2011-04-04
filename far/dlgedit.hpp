@@ -147,6 +147,8 @@ class DlgEdit: public ScreenObject
 
 		bool HistoryGetSimilar(string &strStr, int LastCmdPartLength, bool bAppend=false);
 
+		History* GetHistory() const {return iHistory;}
+
 	private:
 		Dialog* m_Dialog;
 		unsigned m_Index;

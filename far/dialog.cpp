@@ -1373,7 +1373,7 @@ void Dialog::GetDialogObjectsData()
 							!CurItem->strHistory.IsEmpty() &&
 					        Opt.Dialogs.EditHistory)
 					{
-						AddToEditHistory(strData,CurItem->strHistory);
+						AddToEditHistory(CurItem, strData);
 					}
 
 					/* $ 01.08.2000 SVS
@@ -4197,11 +4197,10 @@ BOOL Dialog::SelectFromEditHistory(DialogItemEx *CurItem,
 
 	string strStr;
 	int ret=0;
-	string strRegKey(DialogHistoryKey);
-	strRegKey.Append(L"\\").Append(HistoryName);
-	History DlgHist(HISTORYTYPE_DIALOG, Opt.DialogsHistoryCount, strRegKey, &Opt.Dialogs.EditHistory, false);
-	DlgHist.ReadHistory();
-	DlgHist.ResetPosition();
+	History *DlgHist = reinterpret_cast<DlgEdit*>(CurItem->ObjPtr)->GetHistory();
+
+	DlgHist->ReadHistory();
+	DlgHist->ResetPosition();
 	{
 		// создание пустого вертикального меню
 		VMenu HistoryMenu(L"",nullptr,0,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR|VMENU_COMBOBOX|VMENU_NOTCHANGE);
@@ -4210,7 +4209,7 @@ BOOL Dialog::SelectFromEditHistory(DialogItemEx *CurItem,
 		SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
 		// запомним (для прорисовки)
 		CurItem->ListPtr=&HistoryMenu;
-		ret = DlgHist.Select(HistoryMenu, Opt.Dialogs.CBoxMaxHeight, this, strStr);
+		ret = DlgHist->Select(HistoryMenu, Opt.Dialogs.CBoxMaxHeight, this, strStr);
 		// забудим (не нужен)
 		CurItem->ListPtr=nullptr;
 		SetDropDownOpened(FALSE); // Установим флаг "закрытия" комбобокса.
@@ -4232,7 +4231,7 @@ BOOL Dialog::SelectFromEditHistory(DialogItemEx *CurItem,
 /* Private:
    Работа с историей - добавление и reorder списка
 */
-int Dialog::AddToEditHistory(const wchar_t *AddStr,const wchar_t *HistoryName)
+int Dialog::AddToEditHistory(DialogItemEx* CurItem, const wchar_t *AddStr)
 {
 	CriticalSectionLock Lock(CS);
 
@@ -4241,11 +4240,9 @@ int Dialog::AddToEditHistory(const wchar_t *AddStr,const wchar_t *HistoryName)
 		return FALSE;
 	}
 
-	string strRegKey(DialogHistoryKey);
-	strRegKey.Append(L"\\").Append(HistoryName);
-	History DlgHist(HISTORYTYPE_DIALOG, Opt.DialogsHistoryCount, strRegKey, &Opt.Dialogs.EditHistory, false);
-	DlgHist.ReadHistory();
-	DlgHist.AddToHistory(AddStr);
+	History *DlgHist = reinterpret_cast<DlgEdit*>(CurItem->ObjPtr)->GetHistory();
+	DlgHist->ReadHistory();
+	DlgHist->AddToHistory(AddStr);
 	return TRUE;
 }
 
@@ -5468,7 +5465,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 			        (Type==DI_EDIT || Type==DI_FIXEDIT) &&
 			        (CurItem->Flags & DIF_HISTORY))
 			{
-				return Dlg->AddToEditHistory((const wchar_t*)Param2,CurItem->strHistory);
+				return Dlg->AddToEditHistory(CurItem, (const wchar_t*)Param2);
 			}
 
 			return FALSE;

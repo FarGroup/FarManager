@@ -1,3 +1,7 @@
+drkns 03.04.2011 20:46:44 +0200 - build 1940
+
+1. Элемент, добавленный в историю поля ввода по DM_ADDHISTORY, не был доступен в списке дополнения.
+
 drkns 03.04.2011 20:46:44 +0200 - build 1939
 
 1. Mantis#0000502: apiCreateFile rights for the Viewer.
