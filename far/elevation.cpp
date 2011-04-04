@@ -1433,7 +1433,7 @@ int AdminMain(LPCWSTR guid, DWORD PID, bool UsePrivileges)
 	if (Pipe != INVALID_HANDLE_VALUE)
 	{
 		ULONG ServerProcessId;
-		if(!ifn.pGetNamedPipeServerProcessId || (ifn.pGetNamedPipeServerProcessId(Pipe, &ServerProcessId) && ServerProcessId == PID))
+		if(!ifn.pfnGetNamedPipeServerProcessId || (ifn.pfnGetNamedPipeServerProcessId(Pipe, &ServerProcessId) && ServerProcessId == PID))
 		{
 			HANDLE ParentProcess = OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_VM_READ, FALSE, PID);
 			if(ParentProcess)

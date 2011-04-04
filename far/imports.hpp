@@ -217,7 +217,7 @@ public:
 	GETPHYSICALLYINSTALLEDSYSTEMMEMORY pfnGetPhysicallyInstalledSystemMemory;
 	HEAPSETINFORMATION pfnHeapSetInformation;
 	ISWOW64PROCESS pfnIsWow64Process;
-	GETNAMEDPIPESERVERPROCESSID pGetNamedPipeServerProcessId;
+	GETNAMEDPIPESERVERPROCESSID pfnGetNamedPipeServerProcessId;
 
 	NTQUERYDIRECTORYFILE pfnNtQueryDirectoryFile;
 	NTQUERYINFORMATIONFILE pfnNtQueryInformationFile;

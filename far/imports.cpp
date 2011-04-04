@@ -59,7 +59,7 @@ ImportedFunctions::ImportedFunctions()
 		pfnGetPhysicallyInstalledSystemMemory = reinterpret_cast<GETPHYSICALLYINSTALLEDSYSTEMMEMORY>(GetProcAddress(hKernel, "GetPhysicallyInstalledSystemMemory"));
 		pfnHeapSetInformation = reinterpret_cast<HEAPSETINFORMATION>(GetProcAddress(hKernel, "HeapSetInformation"));
 		pfnIsWow64Process = reinterpret_cast<ISWOW64PROCESS>(GetProcAddress(hKernel, "IsWow64Process"));
-		pGetNamedPipeServerProcessId = reinterpret_cast<GETNAMEDPIPESERVERPROCESSID>(GetProcAddress(hKernel, "GetNamedPipeServerProcessId"));
+		pfnGetNamedPipeServerProcessId = reinterpret_cast<GETNAMEDPIPESERVERPROCESSID>(GetProcAddress(hKernel, "GetNamedPipeServerProcessId"));
 	}
 
 	if (hNtdll)

@@ -4199,7 +4199,6 @@ BOOL Dialog::SelectFromEditHistory(DialogItemEx *CurItem,
 	int ret=0;
 	History *DlgHist = reinterpret_cast<DlgEdit*>(CurItem->ObjPtr)->GetHistory();
 
-	DlgHist->ReadHistory();
 	DlgHist->ResetPosition();
 	{
 		// создание пустого вертикального меню
@@ -4241,7 +4240,6 @@ int Dialog::AddToEditHistory(DialogItemEx* CurItem, const wchar_t *AddStr)
 	}
 
 	History *DlgHist = reinterpret_cast<DlgEdit*>(CurItem->ObjPtr)->GetHistory();
-	DlgHist->ReadHistory();
 	DlgHist->AddToHistory(AddStr);
 	return TRUE;
 }
