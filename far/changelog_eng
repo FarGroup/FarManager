@@ -3,11 +3,19 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 03.04.2011 20:46:44 +0200 - build 1941
+
+1. 1940 is continued.
+
+drkns 03.04.2011 20:46:44 +0200 - build 1940
+
+1. An element appended to input field history with DM_ADDHISTORY was not accessible in completion list.
+
 drkns 03.04.2011 20:46:44 +0200 - build 1939
 
 1. Mantis#0000502: apiCreateFile rights for the Viewer.
 
-2. A few trivia.
+2. A few trivial fixes.
 
 svs 31.03.2011 13:43:54 +0300 - build 1938
 
