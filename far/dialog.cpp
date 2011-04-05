@@ -163,49 +163,18 @@ bool IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos)
 	return false;
 }
 
-void DialogItemExToDialogItemEx(DialogItemEx *pSrc, DialogItemEx *pDest)
+void ConvertItemSmall(const DialogItemEx& From, FarDialogItem& To)
 {
-	pDest->Type = pSrc->Type;
-	pDest->X1 = pSrc->X1;
-	pDest->Y1 = pSrc->Y1;
-	pDest->X2 = pSrc->X2;
-	pDest->Y2 = pSrc->Y2;
-	pDest->Reserved = pSrc->Reserved;
-	pDest->strHistory = pSrc->strHistory;
-	pDest->strMask = pSrc->strMask;
-	pDest->Flags = pSrc->Flags;
-	pDest->nMaxLength = 0;
-	pDest->strData = pSrc->strData;
-	pDest->ID = pSrc->ID;
-	pDest->IFlags = pSrc->IFlags;
-	pDest->AutoCount = pSrc->AutoCount;
-	pDest->AutoPtr = pSrc->AutoPtr;
-	pDest->UserData = pSrc->UserData;
-	pDest->ObjPtr = pSrc->ObjPtr;
-	pDest->ListPtr = pSrc->ListPtr;
-	pDest->UCData = pSrc->UCData;
-	pDest->SelStart = pSrc->SelStart;
-	pDest->SelEnd = pSrc->SelEnd;
+	To = static_cast<FarDialogItem>(From);
+
+	To.Data = nullptr;
+	To.History = From.strHistory;
+	To.Mask = From.strMask;
+	To.Reserved = From.Reserved;
+	To.UserData = From.UserData;
 }
 
-void ConvertItemSmall(FarDialogItem *Item,DialogItemEx *Data)
-{
-	Item->Type = Data->Type;
-	Item->X1 = Data->X1;
-	Item->Y1 = Data->Y1;
-	Item->X2 = Data->X2;
-	Item->Y2 = Data->Y2;
-	Item->Flags = Data->Flags;
-	Item->MaxLen = Data->nMaxLength;
-	Item->PtrData = nullptr;
-
-	Item->History = Data->strHistory;
-	Item->Mask = Data->strMask;
-	Item->Reserved = Data->Reserved;
-	Item->UserParam = Data->UserData;
-}
-
-size_t ItemStringAndSize(DialogItemEx *Data,string& ItemString)
+size_t ItemStringAndSize(const DialogItemEx *Data,string& ItemString)
 {
 	//TODO: тут видимо надо сделать поумнее
 	ItemString=Data->strData;
@@ -220,8 +189,8 @@ size_t ItemStringAndSize(DialogItemEx *Data,string& ItemString)
 
 	size_t sz = ItemString.GetLength();
 
-	if (sz > Data->nMaxLength && Data->nMaxLength > 0)
-		sz = Data->nMaxLength;
+	if (sz > Data->MaxLength && Data->MaxLength > 0)
+		sz = Data->MaxLength;
 
 	return sz;
 }
@@ -229,97 +198,56 @@ size_t ItemStringAndSize(DialogItemEx *Data,string& ItemString)
 bool ConvertItemEx(
     CVTITEMFLAGS FromPlugin,
     FarDialogItem *Item,
-    DialogItemEx *Data,
-    unsigned Count
+    DialogItemEx *ItemEx,
+    size_t Count
 )
 {
-	unsigned I;
-
-	if (!Item || !Data)
+	if (!Item || !ItemEx)
 		return false;
 
 	switch (FromPlugin)
 	{
 		case CVTITEM_TOPLUGIN:
 		case CVTITEM_TOPLUGINSHORT:
-
-			for (I=0; I < Count; I++, ++Item, ++Data)
+			for (size_t i = 0; i < Count; ++i, ++Item, ++ItemEx)
 			{
-				ConvertItemSmall(Item,Data);
-
+				ConvertItemSmall(*ItemEx, *Item);
 				if (FromPlugin==CVTITEM_TOPLUGIN)
 				{
 					string str;
-					size_t sz = ItemStringAndSize(Data,str);
+					size_t sz = ItemStringAndSize(ItemEx,str);
 					{
-						wchar_t *p = (wchar_t*)xf_malloc((sz+1)*sizeof(wchar_t));
-						Item->PtrData = p;
-
-						if (!p) // TODO: may be needed message?
-							return false;
-
+						wchar_t* p = reinterpret_cast<wchar_t*>(xf_malloc((sz+1)*sizeof(wchar_t)));
 						wmemcpy(p, str.CPtr(), sz);
 						p[sz] = L'\0';
+						Item->Data = p;
 					}
 				}
 			}
-
 			break;
+
 		case CVTITEM_FROMPLUGIN:
 		case CVTITEM_FROMPLUGINSHORT:
-
-			for (I=0; I < Count; I++, ++Item, ++Data)
-			{
-				Data->X1 = Item->X1;
-				Data->Y1 = Item->Y1;
-				Data->X2 = Item->X2;
-				Data->Y2 = Item->Y2;
-				Data->Reserved = 0;
-				Data->strHistory = Item->History;
-				Data->strMask = Item->Mask;
-				Data->Reserved = Item->Reserved;
-				Data->Flags = Item->Flags;
-				Data->Type = Item->Type;
-				Data->UserData = Item->UserParam;
-
-				if (FromPlugin==CVTITEM_FROMPLUGIN)
-				{
-					Data->strData = Item->PtrData;
-					Data->nMaxLength = Item->MaxLen;
-
-					if (Data->nMaxLength > 0)
-						Data->strData.SetLength(Data->nMaxLength);
-				}
-
-				Data->ListItems = Item->ListItems;
-
-				if (Data->X2 < Data->X1) Data->X2=Data->X1;
-
-				if (Data->Y2 < Data->Y1) Data->Y2=Data->Y1;
-
-				if ((Data->Type == DI_COMBOBOX || Data->Type == DI_LISTBOX) && !IsPtr(Item->ListItems))
-					Data->ListItems=nullptr;
-			}
-
+			ItemToItemEx(Item, ItemEx, Count, FromPlugin == CVTITEM_FROMPLUGINSHORT);
 			break;
 	}
 
 	return true;
 }
 
-size_t ConvertItemEx2(FarDialogItem *Item,DialogItemEx *Data)
+size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarDialogItem *Item)
 {
 	size_t size=sizeof(*Item);
 	string str;
-	size_t sz = ItemStringAndSize(Data,str);
+	size_t sz = ItemStringAndSize(ItemEx,str);
 	size+=(sz+1)*sizeof(wchar_t);
 
 	if (Item)
 	{
-		ConvertItemSmall(Item,Data);
+		ConvertItemSmall(*ItemEx, *Item);
 
 		wchar_t* p=(wchar_t*)(Item+1);
-		Item->PtrData = p;
+		Item->Data = p;
 		wmemcpy(p, str.CPtr(), sz);
 		p[sz] = L'\0';
 	}
@@ -327,44 +255,31 @@ size_t ConvertItemEx2(FarDialogItem *Item,DialogItemEx *Data)
 	return size;
 }
 
-void DataToItemEx(const DialogDataEx *Data,DialogItemEx *Item,int Count)
+void ItemToItemEx(const FarDialogItem *Item, DialogItemEx *ItemEx, size_t Count, bool Short)
 {
-	if (!Item || !Data)
+	if (!Item || !ItemEx)
 		return;
 
-	for (int i=0; i < Count; i++)
+	for (size_t i = 0; i < Count; ++i, ++Item, ++ItemEx)
 	{
-		Item[i].Clear();
-		Item[i].ID=static_cast<WORD>(i);
-		Item[i].Type=Data[i].Type;
-		Item[i].X1=Data[i].X1;
-		Item[i].Y1=Data[i].Y1;
-		Item[i].X2=Data[i].X2;
-		Item[i].Y2=Data[i].Y2;
+		*ItemEx = *Item;
 
-		if (Item[i].X2 < Item[i].X1) Item[i].X2=Item[i].X1;
-
-		if (Item[i].Y2 < Item[i].Y1) Item[i].Y2=Item[i].Y1;
-
-		if((Data[i].Type == DI_EDIT || Data[i].Type == DI_FIXEDIT) && Data[i].Flags&DIF_HISTORY)
+		ItemEx->ID = static_cast<int>(i);
+		ItemEx->strHistory = Item->History;
+		ItemEx->strMask = Item->Mask;
+		if(!Short && Item->Data)
 		{
-			Item[i].strHistory=Data[i].History;
+			ItemEx->strData.Copy(Item->Data, Item->MaxLength?Item->MaxLength:StrLength(Item->Data));
 		}
-		else if(Data[i].Type == DI_FIXEDIT && Data[i].Flags&DIF_MASKEDIT)
-		{
-			Item[i].strMask = Data[i].Mask;
-		}
-		else
-		{
-			Item[i].Reserved = Data[i].Reserved;
-		}
-		Item[i].Flags=Data[i].Flags;
-		Item[i].SelStart=-1;
+		ItemEx->SelStart=-1;
 
-		if (!IsPtr(Data[i].Data))
-			Item[i].strData = MSG((int)(DWORD_PTR)Data[i].Data);
-		else
-			Item[i].strData = Data[i].Data;
+		ItemEx->X2 = Max(ItemEx->X1, ItemEx->X2);
+		ItemEx->Y2 = Max(ItemEx->Y1, ItemEx->Y2);
+
+		if ((ItemEx->Type == DI_COMBOBOX || ItemEx->Type == DI_LISTBOX) && !IsPtr(Item->ListItems))
+		{
+			ItemEx->ListItems=nullptr;
+		}
 	}
 }
 
@@ -380,9 +295,7 @@ Dialog::Dialog(DialogItemEx *SrcItem,    // Набор элементов диалога
 
 	for (unsigned i = 0; i < SrcItemCount; i++)
 	{
-		Item[i] = new DialogItemEx;
-		Item[i]->Clear();
-		DialogItemExToDialogItemEx(&SrcItem[i], Item[i]);
+		Item[i] = new DialogItemEx(SrcItem[i]);
 	}
 
 	ItemCount = static_cast<int>(SrcItemCount);
@@ -916,7 +829,7 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
 
 			//BUGBUG
 			if (DialogEdit->GetMaxLength() == -1)
-				DialogEdit->SetMaxLength(CurItem->nMaxLength?(int)CurItem->nMaxLength:-1);
+				DialogEdit->SetMaxLength(CurItem->MaxLength?(int)CurItem->MaxLength:-1);
 
 			DialogEdit->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
 			                        X1+CurItem->X2,Y1+CurItem->Y2);
@@ -4465,7 +4378,7 @@ void Dialog::Process()
 
 	if (pSaveItemEx)
 		for (unsigned i = 0; i < ItemCount; i++)
-			DialogItemExToDialogItemEx(Item[i], &pSaveItemEx[i]);
+			pSaveItemEx[i] = *Item[i];
 
 	if (TBE)
 	{
@@ -5652,7 +5565,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 			if(CurItem->Type==DI_EDIT||CurItem->Type==DI_COMBOBOX||CurItem->Type==DI_FIXEDIT||CurItem->Type==DI_PSWEDIT)
 			{
 				reinterpret_cast<DlgEdit*>(CurItem->ObjPtr)->SetCallbackState(false);
-				const wchar_t* original_PtrData=Item.PtrData;
+				const wchar_t* original_PtrData=Item.Data;
 				I=Dlg->CallDlgProc(DN_EDITCHANGE,Param1,(INT_PTR)&Item);
 				if (I)
 				{
@@ -5782,8 +5695,8 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 			if ((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
 				CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);
 
-			if (Item.PtrData)
-				xf_free((wchar_t *)Item.PtrData);
+			if (Item.Data)
+				xf_free((wchar_t *)Item.Data);
 
 			return I;
 		}
@@ -6111,7 +6024,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 		case DM_GETDLGITEM:
 		{
 			FarDialogItem* Item = (FarDialogItem*)Param2;
-			return (INT_PTR)ConvertItemEx2(Item,CurItem);
+			return (INT_PTR)ConvertItemEx2(CurItem, Item);
 		}
 		/*****************************************************************/
 		case DM_GETDLGITEMSHORT:

@@ -309,7 +309,7 @@ TVar::TVar(__int64 v) :
 
 TVar::TVar(int v) :
 	vType(vtInteger),
-	inum((__int64)v),
+	inum(v),
 	dnum(0.0),
 	str(nullptr)
 {

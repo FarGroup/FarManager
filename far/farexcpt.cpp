@@ -175,20 +175,20 @@ bool ExcDialog(LPCWSTR ModuleName,LPCWSTR Exception,LPVOID Adress)
 		strFunction+=L"W";
 	}
 
-	DialogDataEx EditDlgData[]=
+	FarDialogItem EditDlgData[]=
 	{
-		DI_DOUBLEBOX,3,1,62,8,0,nullptr,nullptr,0,MSG(MExcTrappedException),
-		DI_TEXT,     5,2, 17,2,0,nullptr,nullptr,0,MSG(MExcException),
-		DI_TEXT,    18,2, 60,2,0,nullptr,nullptr,0,Exception,
-		DI_TEXT,     5,3, 17,3,0,nullptr,nullptr,0,MSG(MExcAddress),
-		DI_TEXT,    18,3, 60,3,0,nullptr,nullptr,0,strAddr,
-		DI_TEXT,     5,4, 17,4,0,nullptr,nullptr,0,MSG(MExcFunction),
-		DI_TEXT,    18,4, 60,4,0,nullptr,nullptr,0,strFunction,
-		DI_TEXT,     5,5, 17,5,0,nullptr,nullptr,0,MSG(MExcModule),
-		DI_EDIT,    18,5, 60,5,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,ModuleName,
-		DI_TEXT,    -1,6, 0,6,0,nullptr,nullptr,DIF_SEPARATOR,L"",
-		DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_CENTERGROUP,MSG((From == EXCEPT_KERNEL)?MExcTerminate:MExcUnload),
-		DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MExcDebugger),
+		{DI_DOUBLEBOX,3,1,62,8,0,nullptr,nullptr,0,MSG(MExcTrappedException)},
+		{DI_TEXT,     5,2, 17,2,0,nullptr,nullptr,0,MSG(MExcException)},
+		{DI_TEXT,    18,2, 60,2,0,nullptr,nullptr,0,Exception},
+		{DI_TEXT,     5,3, 17,3,0,nullptr,nullptr,0,MSG(MExcAddress)},
+		{DI_TEXT,    18,3, 60,3,0,nullptr,nullptr,0,strAddr},
+		{DI_TEXT,     5,4, 17,4,0,nullptr,nullptr,0,MSG(MExcFunction)},
+		{DI_TEXT,    18,4, 60,4,0,nullptr,nullptr,0,strFunction},
+		{DI_TEXT,     5,5, 17,5,0,nullptr,nullptr,0,MSG(MExcModule)},
+		{DI_EDIT,    18,5, 60,5,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,ModuleName},
+		{DI_TEXT,    -1,6, 0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
+		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_CENTERGROUP,MSG((From == EXCEPT_KERNEL)?MExcTerminate:MExcUnload)},
+		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MExcDebugger)},
 	};
 	MakeDialogItemsEx(EditDlgData,EditDlg);
 	Dialog Dlg(EditDlg, ARRAYSIZE(EditDlg),ExcDlgProc);

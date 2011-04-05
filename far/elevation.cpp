@@ -421,17 +421,17 @@ void AdminApproveDlgSync(LPVOID Param)
 {
 	AAData* Data=reinterpret_cast<AAData*>(Param);
 	enum {DlgX=64,DlgY=12};
-	DialogDataEx AdminApproveDlgData[]=
+	FarDialogItem AdminApproveDlgData[]=
 	{
-		DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,nullptr,nullptr,0,MSG(MErrorAccessDenied),
-		DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(Opt.IsUserAdmin?MAdminRequiredPrivileges:MAdminRequired),
-		DI_TEXT,5,3,0,3,0,nullptr,nullptr,0,MSG(Data->Why),
-		DI_EDIT,5,4,DlgX-6,4,0,nullptr,nullptr,DIF_READONLY|DIF_SETCOLOR|FarColorToReal(COL_DIALOGTEXT),Data->Object,
-		DI_CHECKBOX,5,6,0,6,1,nullptr,nullptr,0,MSG(MAdminDoForAll),
-		DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,0,MSG(MAdminDoNotAskAgainInTheCurrentSession),
-		DI_TEXT,3,DlgY-4,0,DlgY-4,0,nullptr,nullptr,DIF_SEPARATOR,L"",
-		DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_SETSHIELD|DIF_CENTERGROUP,MSG(MOk),
-		DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MSkip),
+		{DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,nullptr,nullptr,0,MSG(MErrorAccessDenied)},
+		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(Opt.IsUserAdmin?MAdminRequiredPrivileges:MAdminRequired)},
+		{DI_TEXT,5,3,0,3,0,nullptr,nullptr,0,MSG(Data->Why)},
+		{DI_EDIT,5,4,DlgX-6,4,0,nullptr,nullptr,DIF_READONLY|DIF_SETCOLOR|FarColorToReal(COL_DIALOGTEXT),Data->Object},
+		{DI_CHECKBOX,5,6,0,6,1,nullptr,nullptr,0,MSG(MAdminDoForAll)},
+		{DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,0,MSG(MAdminDoNotAskAgainInTheCurrentSession)},
+		{DI_TEXT,3,DlgY-4,0,DlgY-4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
+		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_SETSHIELD|DIF_CENTERGROUP,MSG(MOk)},
+		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MSkip)},
 	};
 	MakeDialogItemsEx(AdminApproveDlgData,AdminApproveDlg);
 	Dialog Dlg(AdminApproveDlg,ARRAYSIZE(AdminApproveDlg),AdminApproveDlgProc);

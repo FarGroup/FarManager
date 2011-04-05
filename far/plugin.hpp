@@ -458,10 +458,9 @@ struct FarDialogItem
 	const wchar_t *History;
 	const wchar_t *Mask;
 	FARDIALOGITEMFLAGS Flags;
-	LONG_PTR UserParam;
-
-	const wchar_t *PtrData;
-	size_t MaxLen; // terminate 0 not included (if == 0 string size is unlimited)
+	const wchar_t *Data;
+	size_t MaxLength; // terminate 0 not included (if == 0 string size is unlimited)
+	LONG_PTR UserData;
 };
 
 struct FarDialogItemData

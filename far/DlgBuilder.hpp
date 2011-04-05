@@ -730,12 +730,12 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 		virtual void InitDialogItem(FarDialogItem *Item, const wchar_t *Text)
 		{
 			memset(Item, 0, sizeof(FarDialogItem));
-			Item->PtrData = Text;
+			Item->Data = Text;
 		}
 
 		virtual int TextWidth(const FarDialogItem &Item)
 		{
-			return lstrlen(Item.PtrData);
+			return lstrlen(Item.Data);
 		}
 
 		virtual const wchar_t *GetLangString(int MessageID)
@@ -779,7 +779,7 @@ public:
 			Item->Flags |= DIF_MASKEDIT;
 			PluginIntEditFieldBinding *Binding;
 			Binding = new PluginIntEditFieldBinding(Info, &DialogHandle, DialogItemsCount-1, Value, Width);
-			Item->PtrData = Binding->GetBuffer();
+			Item->Data = Binding->GetBuffer();
 			Item->Mask = Binding->GetMask();
 			SetNextY(Item);
 			Item->X2 = Item->X1 + Width - 1;

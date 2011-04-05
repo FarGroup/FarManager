@@ -76,7 +76,7 @@ enum DIALOG_MODES
 
 #define MakeDialogItemsEx(Data,Item) \
 	DialogItemEx Item[ARRAYSIZE(Data)]; \
-	DataToItemEx(Data,Item,ARRAYSIZE(Data));
+	ItemToItemEx(Data,Item,ARRAYSIZE(Data));
 
 // Структура, описывающая автоматизацию для DIF_AUTOMATION
 // на первом этапе - примитивная - выставление флагов у элементов для CheckBox
@@ -107,54 +107,35 @@ class DlgUserControl
 
 /*
 Описывает один элемент диалога - внутренне представление.
-Для плагинов это FarDialogItem (за исключением ObjPtr)
+Для плагинов это FarDialogItem
 */
-struct DialogItemEx
+struct DialogItemEx: public FarDialogItem
 {
-	FARDIALOGITEMTYPES Type;
-	int X1,Y1,X2,Y2;
-	union
-	{
-		DWORD_PTR Reserved;
-		int Selected;
-		FarList *ListItems;
-		int  ListPos;
-		CHAR_INFO *VBuf;
-	};
+	int ListPos;
 	string strHistory;
 	string strMask;
-	unsigned __int64 Flags;
-
 	string strData;
-	size_t nMaxLength;
 
-	WORD ID;
+	int ID;
 	BitFlags IFlags;
-	unsigned AutoCount;   // Автоматизация
 	DialogItemAutomation* AutoPtr;
-	DWORD_PTR UserData; // ассоциированные данные
-
-	// прочее
+	size_t AutoCount;
 	void *ObjPtr;
 	VMenu *ListPtr;
 	DlgUserControl *UCData;
-
 	int SelStart;
 	int SelEnd;
 
+	DialogItemEx() {Clear();}
+
 	void Clear()
 	{
-		Type=DI_TEXT;
-		X1=0;
-		Y1=0;
-		X2=0;
-		Y2=0;
-		Reserved=0;
+		memset(static_cast<FarDialogItem*>(this), 0, sizeof(FarDialogItem));
+
+		ListPos=0;
 		strHistory.Clear();
 		strMask.Clear();
-		Flags=0;
 		strData.Clear();
-		nMaxLength=0;
 		ID=0;
 		IFlags.ClearAll();
 		AutoCount=0;
@@ -167,27 +148,9 @@ struct DialogItemEx
 		SelEnd=0;
 	}
 
-	const DialogItemEx &operator=(const DialogItemEx &Other)
+	const DialogItemEx &operator=(const FarDialogItem &Other)
 	{
-		Type          = Other.Type;
-		X1            = Other.X1;
-		X2            = Other.X2;
-		Y1            = Other.Y1;
-		Y2            = Other.Y2;
-		Reserved      = Other.Reserved;
-		Flags         = Other.Flags;
-		strData       = Other.strData;
-		nMaxLength    = Other.nMaxLength;
-		ID            = Other.ID;
-		IFlags        = Other.IFlags;
-		AutoCount     = Other.AutoCount;
-		AutoPtr       = Other.AutoPtr;
-		UserData      = Other.UserData;
-		ObjPtr        = Other.ObjPtr;
-		ListPtr       = Other.ListPtr;
-		UCData        = Other.UCData;
-		SelStart      = Other.SelStart;
-		SelEnd        = Other.SelEnd;
+		*static_cast<FarDialogItem*>(this) = Other;
 		return *this;
 	}
 
@@ -220,30 +183,6 @@ struct DialogItemEx
 		}
 		return false;
 	}
-};
-
-/*
-Описывает один элемент диалога - для сокращения объемов
-Структура аналогичена структуре InitDialogItem (см. "Far PlugRinG
-Russian Help Encyclopedia of Developer")
-*/
-
-struct DialogDataEx
-{
-	FARDIALOGITEMTYPES Type;
-	short X1,Y1,X2,Y2;
-	union
-	{
-		DWORD_PTR Reserved;
-		unsigned int Selected;
-		FarList *ListItems;
-		int  ListPos;
-		CHAR_INFO *VBuf;
-	};
-	const wchar_t *History;
-	const wchar_t *Mask;
-	unsigned __int64 Flags;
-	const wchar_t *Data;
 };
 
 class DlgEdit;
@@ -434,4 +373,4 @@ INT_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2);
 
 bool IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos=-1);
 
-void DataToItemEx(const DialogDataEx *Data,DialogItemEx *Item,int Count);
+void ItemToItemEx(const FarDialogItem *Data, DialogItemEx *Item, size_t Count, bool Short = false);

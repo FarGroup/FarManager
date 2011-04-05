@@ -1746,16 +1746,16 @@ void AnsiDialogItemToUnicode(oldfar::FarDialogItem &diA, FarDialogItem &di,FarLi
 
 	if (diA.Type==oldfar::DI_USERCONTROL)
 	{
-		di.PtrData = (wchar_t*)xf_malloc(sizeof(diA.Data));
+		di.Data = (wchar_t*)xf_malloc(sizeof(diA.Data));
 
-		if (di.PtrData) memcpy((char*)di.PtrData,diA.Data,sizeof(diA.Data));
+		if (di.Data) memcpy((char*)di.Data,diA.Data,sizeof(diA.Data));
 
-		di.MaxLen = 0;
+		di.MaxLength = 0;
 	}
 	else if ((diA.Type==oldfar::DI_EDIT || diA.Type==oldfar::DI_COMBOBOX) && diA.Flags&oldfar::DIF_VAREDIT)
-		di.PtrData = AnsiToUnicode(diA.Ptr.PtrData);
+		di.Data = AnsiToUnicode(diA.Ptr.PtrData);
 	else
-		di.PtrData = AnsiToUnicode(diA.Data);
+		di.Data = AnsiToUnicode(diA.Data);
 
 	//BUGBUG тут надо придумать как сделать лучше: maxlen=513 например и также подумать что делать для DIF_VAREDIT
 	//di->MaxLen = 0;
@@ -1803,8 +1803,8 @@ void FreeUnicodeDialogItem(FarDialogItem &di)
 			break;
 	}
 
-	if (di.PtrData)
-		xf_free((void *)di.PtrData);
+	if (di.Data)
+		xf_free((void *)di.Data);
 }
 
 void FreeAnsiDialogItem(oldfar::FarDialogItem &diA)
@@ -2020,16 +2020,16 @@ oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di,HANDLE hDlg,int
 
 	if (diA->Type==oldfar::DI_USERCONTROL)
 	{
-		if (di.PtrData) memcpy(diA->Data,(char*)di.PtrData,sizeof(diA->Data));
+		if (di.Data) memcpy(diA->Data,(char*)di.Data,sizeof(diA->Data));
 	}
 	else if ((diA->Type==oldfar::DI_EDIT || diA->Type==oldfar::DI_COMBOBOX) && diA->Flags&oldfar::DIF_VAREDIT)
 	{
-		diA->Ptr.PtrLength=StrLength(di.PtrData);
+		diA->Ptr.PtrLength=StrLength(di.Data);
 		diA->Ptr.PtrData=(char*)xf_malloc(diA->Ptr.PtrLength+1);
-		UnicodeToOEM(di.PtrData,diA->Ptr.PtrData,diA->Ptr.PtrLength+1);
+		UnicodeToOEM(di.Data,diA->Ptr.PtrData,diA->Ptr.PtrLength+1);
 	}
 	else
-		UnicodeToOEM(di.PtrData,diA->Data,sizeof(diA->Data));
+		UnicodeToOEM(di.Data,diA->Data,sizeof(diA->Data));
 
 	return diA;
 }
@@ -2735,7 +2735,7 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 			{
 				FarSendDlgMessage(hDlg, DM_GETDLGITEM, i, (INT_PTR)pdi);
 				UnicodeDialogItemToAnsiSafe(*pdi,Item[i]);
-				const wchar_t *res = pdi->PtrData;
+				const wchar_t *res = pdi->Data;
 
 				if (!res) res = L"";
 
