@@ -3,9 +3,42 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 05.04.2011 17:02:32 +0200 - build 1944
+
+1. Small refactoring of dialog engine.
+
+drkns 05.04.2011 11:54:24 +0200 - build 1943
+
+1. Correction of completion algorithm.
+
+svs 05.04.2011 09:48:10 +0300 - build 1942
+
+1. Mantis#0001742: CmpName macrofunction - matching the text against the mask
+   From: DAtaMan
+    Quite often it is needed to figure out in macros whether a text matches a mask.
+    The suggested patch implements CmpName macrofunction.
+    The syntax follows:
+    N=CmpName(Mask,S[,SkipPath])
+    The function is case insensitive.
+
+    Examples:
+    cmpname("*far*", "far manager") == 1
+    cmpname("a.txt", @"c:\a.txt", 0) == 1
+    cmpname("a.txt", @"c:\a.txt", 0) == 0
+    cmpname("a.txt", @"c:\a.txt", 1) == 1
+
+2. Mantis#0001741: Additional keys for selected screen area manipulation
+   From: DAtaMan
+    A possible use case for FAR is running it on a computer without a mouse.
+    The patch is suggested for more convenient grabber use.
+    Additions:
+      Alt-Shift-<cursor keys> increase/decrease the selected area.
+      Alt-<cursor keys> move the selected area.
+      Ctrl-A selects the whole screen area.
+
 drkns 03.04.2011 20:46:44 +0200 - build 1941
 
-1. 1940 is continued.
+1. Continuation of 1940.
 
 drkns 03.04.2011 20:46:44 +0200 - build 1940
 
