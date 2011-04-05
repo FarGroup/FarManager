@@ -903,11 +903,16 @@ bool History::GetAllSimilar(VMenu &HistoryMenu,const wchar_t *Str)
 	int Length=StrLength(Str);
 	for (HistoryRecord *HistoryItem=HistoryList.Last();HistoryItem;HistoryItem=HistoryList.Prev(HistoryItem))
 	{
-		if (!StrCmpNI(Str,HistoryItem->strName,Length) && StrCmp(Str,HistoryItem->strName))
+		if (!StrCmpNI(Str,HistoryItem->strName,Length))
 		{
 			HistoryMenu.AddItem(HistoryItem->strName);
 		}
 	}
+	if(HistoryMenu.GetItemCount() == 1 && HistoryMenu.GetItemPtr(0)->strName.GetLength() == static_cast<size_t>(Length))
+	{
+		HistoryMenu.DeleteItems();
+	}
+
 	return false;
 }
 

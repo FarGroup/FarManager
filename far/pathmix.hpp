@@ -96,3 +96,6 @@ string ExtractFileName(const string &Path);
 string ExtractFilePath(const string &Path);
 
 int MatchNtPathRoot(const string &NtPath, const wchar_t *DeviceName);
+
+class VMenu;
+void EnumFiles(VMenu& Menu, const wchar_t* Str);

@@ -3099,8 +3099,8 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 						if((MenuKey>=L' ' && MenuKey<=WCHAR_MAX) || MenuKey==KEY_BS || MenuKey==KEY_DEL || MenuKey==KEY_NUMDEL)
 						{
 							string strPrev;
-							GetString(strPrev);
 							DeleteBlock();
+							GetString(strPrev);
 							ProcessKey(MenuKey);
 							GetString(strTemp);
 							if(StrCmp(strPrev,strTemp))
