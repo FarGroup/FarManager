@@ -281,9 +281,9 @@ int Grabber::ProcessKey(int Key)
 	}
 	else
 	{
-		if ((ShiftPressed || Key!=KEY_SHIFT) && (Key&KEY_SHIFT) && Key!=KEY_NONE && ResetArea)
+		if ((ShiftPressed || Key!=KEY_SHIFT) && (Key&KEY_SHIFT) && Key!=KEY_NONE && Key!=KEY_CTRLA && !AltPressed && ResetArea)
 			Reset();
-		else if (Key!=KEY_IDLE && Key!=KEY_NONE && Key!=KEY_SHIFT && !ShiftPressed && !(Key&KEY_SHIFT))
+		else if (Key!=KEY_IDLE && Key!=KEY_NONE && Key!=KEY_SHIFT && Key!=KEY_CTRLA && !ShiftPressed && !AltPressed && !(Key&KEY_SHIFT))
 			ResetArea=TRUE;
 	}
 
@@ -392,6 +392,7 @@ int Grabber::ProcessKey(int Key)
 				GArea.X1--;
 
 			GArea.CurX=GArea.X1;
+			GArea.CurY=GArea.Y1;
 			break;
 		case KEY_SHIFTRIGHT: case KEY_SHIFTNUMPAD6:
 
@@ -399,12 +400,14 @@ int Grabber::ProcessKey(int Key)
 				GArea.X1++;
 
 			GArea.CurX=GArea.X1;
+			GArea.CurY=GArea.Y1;
 			break;
 		case KEY_SHIFTUP:    case KEY_SHIFTNUMPAD8:
 
 			if (GArea.Y1>0)
 				GArea.Y1--;
 
+			GArea.CurX=GArea.X1;
 			GArea.CurY=GArea.Y1;
 			break;
 		case KEY_SHIFTDOWN:  case KEY_SHIFTNUMPAD2:
@@ -412,6 +415,7 @@ int Grabber::ProcessKey(int Key)
 			if (GArea.Y1<ScrY)
 				GArea.Y1++;
 
+			GArea.CurX=GArea.X1;
 			GArea.CurY=GArea.Y1;
 			break;
 		case KEY_SHIFTHOME:  case KEY_SHIFTNUMPAD7:
@@ -426,6 +430,98 @@ int Grabber::ProcessKey(int Key)
 		case KEY_SHIFTPGDN:  case KEY_SHIFTNUMPAD3:
 			GArea.CurY=GArea.Y1=ScrY;
 			break;
+
+		case KEY_ALTSHIFTHOME:  case KEY_ALTSHIFTNUMPAD7:
+			GArea.X2=0;
+			break;
+		case KEY_ALTSHIFTEND:   case KEY_ALTSHIFTNUMPAD1:
+			GArea.X2=ScrX;
+			break;
+		case KEY_ALTSHIFTPGUP:  case KEY_ALTSHIFTNUMPAD9:
+			GArea.Y2=0;
+			break;
+		case KEY_ALTSHIFTPGDN:  case KEY_ALTSHIFTNUMPAD3:
+			GArea.Y2=ScrY;
+			break;
+
+		case KEY_ALTSHIFTLEFT:  case KEY_ALTSHIFTNUMPAD4:
+			if (GArea.X2>0)
+				GArea.X2--;
+			break;
+		case KEY_ALTSHIFTRIGHT: case KEY_ALTSHIFTNUMPAD6:
+			if (GArea.X2<ScrX)
+				GArea.X2++;
+			break;
+		case KEY_ALTSHIFTUP:    case KEY_ALTSHIFTNUMPAD8:
+			if (GArea.Y2>0)
+				GArea.Y2--;
+			break;
+		case KEY_ALTSHIFTDOWN:  case KEY_ALTSHIFTNUMPAD2:
+			if (GArea.Y2<ScrY)
+				GArea.Y2++;
+			break;
+
+		case KEY_CTRLA:
+			GArea.X1=GArea.CurX=ScrX;
+			GArea.X2=0;
+			GArea.Y1=GArea.CurY=ScrY;
+			GArea.Y2=0;
+			break;
+
+		case KEY_ALTLEFT:
+			if ((GArea.X1>0) && (GArea.X2>0))
+			{
+				GArea.X1--;
+				GArea.X2--;
+				GArea.CurX=GArea.X1;
+				GArea.CurY=GArea.Y1;
+			}
+			break;
+		case KEY_ALTRIGHT:
+			if ((GArea.X1<ScrX) && (GArea.X2<ScrX))
+			{
+				GArea.X1++;
+				GArea.X2++;
+				GArea.CurX=GArea.X1;
+				GArea.CurY=GArea.Y1;
+			}
+			break;
+		case KEY_ALTUP:
+			if ((GArea.Y1>0) && (GArea.Y2>0))
+			{
+				GArea.Y1--;
+				GArea.Y2--;
+				GArea.CurX=GArea.X1;
+				GArea.CurY=GArea.Y1;
+			}
+			break;
+		case KEY_ALTDOWN:
+			if ((GArea.Y1<ScrY) && (GArea.Y2<ScrY))
+			{
+				GArea.Y1++;
+				GArea.Y2++;
+				GArea.CurX=GArea.X1;
+				GArea.CurY=GArea.Y1;
+			}
+			break;
+
+		case KEY_ALTHOME:
+			GArea.X1=GArea.CurX=abs(GArea.X1-GArea.X2);
+			GArea.X2=0;
+			break;
+		case KEY_ALTEND:
+			GArea.X2=ScrX-abs(GArea.X1-GArea.X2);
+			GArea.X1=GArea.CurX=ScrX;
+			break;
+		case KEY_ALTPGUP:
+			GArea.Y1=GArea.CurY=abs(GArea.Y1-GArea.Y2);
+			GArea.Y2=0;
+			break;
+		case KEY_ALTPGDN:
+			GArea.Y2=ScrY-abs(GArea.Y1-GArea.Y2);
+			GArea.Y1=GArea.CurY=ScrY;
+			break;
+
 	}
 
 	DisplayObject();

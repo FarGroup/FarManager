@@ -77,6 +77,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dirmix.hpp"
 #include "console.hpp"
 #include "imports.hpp"
+#include "processname.hpp"
 
 // для диалога назначения клавиши
 struct DlgParam
@@ -295,6 +296,7 @@ static bool atoiFunc(const TMacroFunction*);
 static bool beepFunc(const TMacroFunction*);
 static bool callpluginFunc(const TMacroFunction*);
 static bool chrFunc(const TMacroFunction*);
+static bool cmpnameFunc(const TMacroFunction*);
 static bool clipFunc(const TMacroFunction*);
 static bool dateFunc(const TMacroFunction*);
 static bool dlggetvalueFunc(const TMacroFunction*);
@@ -371,6 +373,7 @@ static TMacroFunction intMacroFunction[]=
 	{L"CHECKHOTKEY",      2, 1,   MCODE_F_MENU_CHECKHOTKEY, nullptr, 0,nullptr,L"N=CheckHotkey(S[,N])",0,usersFunc},
 	{L"CHR",              1, 0,   MCODE_F_CHR,              nullptr, 0,nullptr,L"S=Chr(N)",0,chrFunc},
 	{L"CLIP",             2, 1,   MCODE_F_CLIP,             nullptr, 0,nullptr,L"V=Clip(N[,V])",0,clipFunc},
+	{L"CMPNAME",          3, 1,   MCODE_F_CMPNAME,          nullptr, 0,nullptr,L"N=CmpName(Mask,S[,SkipPath])",0,cmpnameFunc},
 	{L"DATE",             1, 1,   MCODE_F_DATE,             nullptr, 0,nullptr,L"S=Date([S])",0,dateFunc},
 	{L"DLG.GETVALUE",     2, 0,   MCODE_F_DLG_GETVALUE,     nullptr, 0,nullptr,L"V=Dlg.GetValue(ID,N)",0,dlggetvalueFunc},
 	{L"EDITOR.POS",       3, 1,   MCODE_F_EDITOR_POS,       nullptr, 0,nullptr,L"N=Editor.Pos(Op,What[,Where])",0,editorposFunc},
@@ -3740,6 +3743,18 @@ static bool chrFunc(const TMacroFunction*)
 	return true;
 }
 
+// N=CmpName(Mask,S[,SkipPath])
+static bool cmpnameFunc(const TMacroFunction*)
+{
+	bool SkipPath = (bool) VMStack.Pop().getInteger();
+	TVar S2;    VMStack.Pop(S2);
+	TVar Mask;  VMStack.Pop(Mask);
+
+	int i = CmpName(Mask.toString(), S2.toString(), SkipPath);
+	VMStack.Push(TVar((__int64)(i)));
+
+	return true;
+}
 
 // V=Editor.Sel(Action[,Opt])
 static bool editorselFunc(const TMacroFunction*)
