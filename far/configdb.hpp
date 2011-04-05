@@ -91,12 +91,14 @@ class AssociationsConfig {
 public:
 
 	virtual ~AssociationsConfig() {}
+	virtual void BeginTransaction() = 0;
+	virtual void EndTransaction() = 0;
 	virtual bool EnumMasks(DWORD Index, unsigned __int64 *id, string &strMask) = 0;
 	virtual bool EnumMasksForType(int Type, DWORD Index, unsigned __int64 *id, string &strMask) = 0;
 	virtual bool GetMask(unsigned __int64 id, string &strMask) = 0;
 	virtual bool GetDescription(unsigned __int64 id, string &strDescription) = 0;
 	virtual bool GetCommand(unsigned __int64 id, int Type, string &strCommand, bool *Enabled=nullptr) = 0;
-	virtual bool SetCommand(unsigned __int64 id, int Type, string &strCommand, bool Enabled) = 0;
+	virtual bool SetCommand(unsigned __int64 id, int Type, const wchar_t *Command, bool Enabled) = 0;
 	virtual bool SwapPositions(unsigned __int64 id1, unsigned __int64 id2) = 0;
 	virtual unsigned __int64 AddType(const wchar_t *Mask, const wchar_t *Description) = 0;
 	virtual bool UpdateType(unsigned __int64 id, const wchar_t *Mask, const wchar_t *Description) = 0;
@@ -104,9 +106,9 @@ public:
 };
 
 extern GeneralConfig *GeneralCfg;
+extern AssociationsConfig *AssocConfig;
 
 void InitDb();
 void ReleaseDb();
 
 PluginsConfig *CreatePluginsConfig();
-AssociationsConfig *CreateAssociationsConfig();

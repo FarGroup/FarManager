@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 
 GeneralConfig *GeneralCfg;
+AssociationsConfig *AssocConfig;
 
 void GetDatabasePath(const wchar_t *FileName, string &strOut)
 {
@@ -535,14 +536,12 @@ public:
 		//schema
 		db.Exec(
 			"PRAGMA foreign_keys = ON;"
-			"CREATE TABLE IF NOT EXISTS filetypes(id INTEGER PRIMARY KEY ASC, mask TEXT, description TEXT);"
-			"CREATE TABLE IF NOT EXISTS commands(ft_id INTEGER NOT NULL, type INTEGER NOT NULL, on INTEGER NOT NULL, command TEXT, FOREIGN KEY(ft_id) REFERENCES filetypes(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (ft_id, type));"
+			"CREATE TABLE IF NOT EXISTS filetypes(id INTEGER PRIMARY KEY, weight INTEGER, mask TEXT, description TEXT);"
+			"CREATE TABLE IF NOT EXISTS commands(ft_id INTEGER NOT NULL, type INTEGER NOT NULL, enabled INTEGER NOT NULL, command TEXT, FOREIGN KEY(ft_id) REFERENCES filetypes(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (ft_id, type));"
 		);
 
-		db.BeginTransaction();
-
 		//create type statement
-		db.InitStmt(stmtAddType, L"INSERT INTO filetypes VALUES (NULL,?2,?3);");
+		db.InitStmt(stmtAddType, L"INSERT INTO filetypes VALUES (NULL,(SELECT max(weight) FROM filetypes)+1,?1,?2);");
 
 		//get mask statement
 		db.InitStmt(stmtGetMask, L"SELECT mask FROM filetypes WHERE id=?1;");
@@ -557,51 +556,91 @@ public:
 		db.InitStmt(stmtSetCommand, L"INSERT OR REPLACE INTO commands VALUES (?1,?2,?3,?4);");
 
 		//get association statement
-		db.InitStmt(stmtGetCommand, L"SELECT command, on FROM commands WHERE ft_id=?1 AND type=?2;");
+		db.InitStmt(stmtGetCommand, L"SELECT command, enabled FROM commands WHERE ft_id=?1 AND type=?2;");
 
 		//enum types statement
-		db.InitStmt(stmtEnumTypes, L"SELECT id, description FROM filetypes ORDER BY id;");
+		db.InitStmt(stmtEnumTypes, L"SELECT id, description FROM filetypes ORDER BY weight;");
 
 		//enum masks statement
-		db.InitStmt(stmtEnumMasks, L"SELECT id, mask FROM filetypes ORDER BY id;");
+		db.InitStmt(stmtEnumMasks, L"SELECT id, mask FROM filetypes ORDER BY weight;");
 
 		//enum masks with a specific type on statement
-		db.InitStmt(stmtEnumMasksForType, L"SELECT id, mask FROM filetypes, commands WHERE id=ft_id AND type=?1 AND on<>0 ORDER BY id;");
+		db.InitStmt(stmtEnumMasksForType, L"SELECT id, mask FROM filetypes, commands WHERE id=ft_id AND type=?1 AND enabled<>0 ORDER BY weight;");
 
 		//delete type statement
 		db.InitStmt(stmtDelType, L"DELETE FROM filetypes WHERE id=?1;");
 	}
 
-	virtual ~AssociationsConfigDb() { db.EndTransaction(); }
+	virtual ~AssociationsConfigDb() { }
+
+	void BeginTransaction() { db.BeginTransaction(); }
+
+	void EndTransaction() { db.EndTransaction(); }
 
 	bool EnumMasks(DWORD Index, unsigned __int64 *id, string &strMask)
 	{
+		if (Index == 0)
+			stmtEnumMasks.Reset();
+
+		if (stmtEnumMasks.Step())
+		{
+			*id = stmtEnumMasks.GetColInt64(0);
+			strMask = stmtEnumMasks.GetColText(1);
+			return true;
+		}
+
 		return false;
 	}
 
 	bool EnumMasksForType(int Type, DWORD Index, unsigned __int64 *id, string &strMask)
 	{
+		if (Index == 0)
+			stmtEnumMasksForType.Reset().Bind(Type);
+
+		if (stmtEnumMasksForType.Step())
+		{
+			*id = stmtEnumMasksForType.GetColInt64(0);
+			strMask = stmtEnumMasksForType.GetColText(1);
+			return true;
+		}
+
 		return false;
 	}
 
 	bool GetMask(unsigned __int64 id, string &strMask)
 	{
-		return false;
+		bool b = stmtGetMask.Bind(id).Step();
+		if (b)
+			strMask = stmtGetMask.GetColText(0);
+		stmtGetMask.Reset();
+		return b;
 	}
 
 	bool GetDescription(unsigned __int64 id, string &strDescription)
 	{
-		return false;
+		bool b = stmtGetDescription.Bind(id).Step();
+		if (b)
+			strDescription = stmtGetDescription.GetColText(0);
+		stmtGetDescription.Reset();
+		return b;
 	}
 
 	bool GetCommand(unsigned __int64 id, int Type, string &strCommand, bool *Enabled=nullptr)
 	{
-		return false;
+		bool b = stmtGetCommand.Bind(id).Bind(Type).Step();
+		if (b)
+		{
+			strCommand = stmtGetCommand.GetColText(0);
+			if (Enabled)
+				*Enabled = stmtGetCommand.GetColInt(1) ? true : false;
+		}
+		stmtGetCommand.Reset();
+		return b;
 	}
 
-	bool SetCommand(unsigned __int64 id, int Type, string &strCommand, bool Enabled)
+	bool SetCommand(unsigned __int64 id, int Type, const wchar_t *Command, bool Enabled)
 	{
-		return false;
+		return stmtSetCommand.Bind(id).Bind(Type).Bind(Enabled?1:0).Bind(Command).StepAndReset();
 	}
 
 	bool SwapPositions(unsigned __int64 id1, unsigned __int64 id2)
@@ -611,17 +650,19 @@ public:
 
 	unsigned __int64 AddType(const wchar_t *Mask, const wchar_t *Description)
 	{
+		if (stmtAddType.Bind(Mask).Bind(Description).StepAndReset())
+			return db.LastInsertRowID();
 		return 0;
 	}
 
 	bool UpdateType(unsigned __int64 id, const wchar_t *Mask, const wchar_t *Description)
 	{
-		return false;
+		return stmtUpdateType.Bind(Mask).Bind(Description).Bind(id).StepAndReset();
 	}
 
 	bool DelType(unsigned __int64 id)
 	{
-		return false;
+		return stmtDelType.Bind(id).StepAndReset();
 	}
 };
 
@@ -630,17 +671,14 @@ PluginsConfig *CreatePluginsConfig()
 	return new PluginsConfigDb();
 }
 
-AssociationsConfig *CreateAssociationsConfig()
-{
-	return new AssociationsConfigDb();
-}
-
 void InitDb()
 {
 	GeneralCfg = new GeneralConfigDb();
+	AssocConfig = new AssociationsConfigDb();
 }
 
 void ReleaseDb()
 {
 	delete GeneralCfg;
+	delete AssocConfig;
 }

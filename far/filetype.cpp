@@ -57,9 +57,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "configdb.hpp"
 
-//BUGBUG
-AssociationsConfig *AssocConfig = CreateAssociationsConfig();
-
 /* $ 25.04.2001 DJ
    обработка @ в IF EXIST: функция, которая извлекает команду из строки
    с IF EXIST с учетом @ и возвращает TRUE, если условие IF EXIST
@@ -532,10 +529,14 @@ bool EditTypeRecord(unsigned __int64 EditPos,bool NewRec)
 		for (int i=FILETYPE_EXEC,Item=ETR_EDIT_EXEC; i<=FILETYPE_ALTEDIT; i++,Item+=2)
 		{
 			bool on=false;
-			if (AssocConfig->GetCommand(EditPos,i,EditDlg[Item].strData,&on) && !on)
+			if (!AssocConfig->GetCommand(EditPos,i,EditDlg[Item].strData,&on) || !on)
 			{
-				EditDlg[Item].Selected = BSTATE_UNCHECKED;
-				EditDlg[Item-1].Flags |= DIF_DISABLE;
+				EditDlg[Item-1].Selected = BSTATE_UNCHECKED;
+				EditDlg[Item].Flags |= DIF_DISABLE;
+			}
+			else if (on)
+			{
+				EditDlg[Item-1].Selected = BSTATE_CHECKED;
 			}
 		}
 	}
@@ -584,6 +585,8 @@ bool DeleteTypeRecord(unsigned __int64 DeletePos)
 
 void EditFileTypes()
 {
+	AssocConfig->BeginTransaction();
+
 	int NumLine=0;
 	int MenuPos=0;
 	unsigned __int64 id;
@@ -676,4 +679,6 @@ void EditFileTypes()
 
 		break;
 	}
+
+	AssocConfig->EndTransaction();
 }
