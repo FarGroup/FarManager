@@ -3,9 +3,58 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 06.04.2011 21:34:29 +0200 - build 1948
+
+1. reinterpret_cast -> static_cast where it is possible.
+
+drkns 06.04.2011 13:24:53 +0200 - build 1947
+
+1. Strings containing \0 were copied to clipboard incorrectly.
+
+2. Error in VMenu::<G|S>etUserData.
+
+svs 06.04.2011 13:43:53 +0300 - build 1946
+
+1. Correction of Mantis#0001741
+   From: DAtaMan
+   Bugfix on 1942 - Alt-combinations did not work in macros
+
+2. Mantis#0001743: History disable option
+     A macrofunction is added to control appending items to history while the current macro is running.
+     At macro start all kinds of history are enabled.
+
+     N=history.disable([State])
+
+     Here State is a bit mask:
+       bit 0 - cmd history
+       bit 1 - folder histroy
+       bit 2 - view/edit history
+       bit 3 - dialog history
+       if the corresponding bit is set to 1, the appropriate history is disabled
+       State = -1 - disable all history types
+
+     The function returns the previous mask.
+     If the parameter is omitted then it returns the current mask.
+
+     TODO: Clarification is needed on "only while the macro is being played" statement!
+
+3. Mantis#0001681: panel.setpath() does not work with plugins
+   Relative paths - within current FS's bounds
+   Absolute paths (C:\ \\Server\share) close plugin panel (if that was the plugin panel)
+
+4. Macro: CmpName (из Mantis#0001742) renamed to FMatch
+   From: DAtaMan
+     
+     N=FMatch(S, Mask)
+
+
+t-rex 06.04.2011 01:51:53 +0200 - build 1945
+
+1. associations in sqlite - 90% complete (swap and creation of a new one under the cursor are not completed yet).
+
 drkns 05.04.2011 17:02:32 +0200 - build 1944
 
-1. Small refactoring of dialog engine.
+1. Minor refactoring of dialog engine.
 
 drkns 05.04.2011 11:54:24 +0200 - build 1943
 
