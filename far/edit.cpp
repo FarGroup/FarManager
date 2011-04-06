@@ -82,7 +82,7 @@ public:
 Edit::Edit(ScreenObject *pOwner, Callback* aCallback, bool bAllocateData):
 	m_next(nullptr),
 	m_prev(nullptr),
-	Str(bAllocateData ? reinterpret_cast<wchar_t*>(xf_malloc(sizeof(wchar_t))) : nullptr),
+	Str(bAllocateData ? static_cast<wchar_t*>(xf_malloc(sizeof(wchar_t))) : nullptr),
 	StrSize(0),
 	MaxLength(-1),
 	Mask(nullptr),

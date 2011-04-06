@@ -2445,7 +2445,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 		{
 			if (Param)
 			{
-				wcscpy(reinterpret_cast<LPWSTR>(Param),strFullFileName);
+				wcscpy(static_cast<LPWSTR>(Param),strFullFileName);
 			}
 
 			return static_cast<int>(strFullFileName.GetLength()+1);
@@ -2454,7 +2454,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 		{
 			if (!Flags.Check(FFILEEDIT_OPENFAILED) && Param)
 			{
-				EditorBookMarks *ebm = reinterpret_cast<EditorBookMarks*>(Param);
+				EditorBookMarks *ebm = static_cast<EditorBookMarks*>(Param);
 				for(size_t i = 0; i < BOOKMARK_COUNT; i++)
 				{
 					if (ebm->Line)

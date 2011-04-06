@@ -69,9 +69,9 @@ void *__cdecl xf_malloc(size_t size)
 	while (!Ptr && InsufficientMemoryHandler());
 
 #ifdef MEMORY_CHECK
-	MEMINFO* Info = reinterpret_cast<MEMINFO*>(Ptr);
+	MEMINFO* Info = static_cast<MEMINFO*>(Ptr);
 	Info->AllocationType = AT_RAW;
-	Ptr=reinterpret_cast<LPBYTE>(Ptr)+sizeof(MEMINFO);
+	Ptr=static_cast<LPBYTE>(Ptr)+sizeof(MEMINFO);
 #endif
 
 #if defined(SYSLOG)
@@ -84,8 +84,8 @@ void *__cdecl xf_malloc(size_t size)
 void *__cdecl xf_expand(void * block, size_t size)
 {
 #ifdef MEMORY_CHECK
-	block=reinterpret_cast<LPBYTE>(block)-sizeof(MEMINFO);
-	MEMINFO* Info = reinterpret_cast<MEMINFO*>(block);
+	block=static_cast<LPBYTE>(block)-sizeof(MEMINFO);
+	MEMINFO* Info = static_cast<MEMINFO*>(block);
 	assert(Info->AllocationType == AT_RAW);
 	size+=sizeof(MEMINFO);
 #endif
@@ -121,8 +121,8 @@ void *__cdecl xf_realloc(void * block, size_t size)
 #ifdef MEMORY_CHECK
 	if(block)
 	{
-		block=reinterpret_cast<LPBYTE>(block)-sizeof(MEMINFO);
-		MEMINFO* Info = reinterpret_cast<MEMINFO*>(block);
+		block=static_cast<LPBYTE>(block)-sizeof(MEMINFO);
+		MEMINFO* Info = static_cast<MEMINFO*>(block);
 		assert(Info->AllocationType == AT_RAW);
 	}
 	size+=sizeof(MEMINFO);
@@ -138,10 +138,10 @@ void *__cdecl xf_realloc(void * block, size_t size)
 #ifdef MEMORY_CHECK
 	if (!block)
 	{
-		MEMINFO* Info = reinterpret_cast<MEMINFO*>(Ptr);
+		MEMINFO* Info = static_cast<MEMINFO*>(Ptr);
 		Info->AllocationType = AT_RAW;
 	}
-	Ptr=reinterpret_cast<LPBYTE>(Ptr)+sizeof(MEMINFO);
+	Ptr=static_cast<LPBYTE>(Ptr)+sizeof(MEMINFO);
 #endif
 
 #if defined(SYSLOG)
@@ -159,8 +159,8 @@ void __cdecl xf_free(void * block)
 #ifdef MEMORY_CHECK
 	if(block)
 	{
-		block=reinterpret_cast<LPBYTE>(block)-sizeof(MEMINFO);
-		MEMINFO* Info = reinterpret_cast<MEMINFO*>(block);
+		block=static_cast<LPBYTE>(block)-sizeof(MEMINFO);
+		MEMINFO* Info = static_cast<MEMINFO*>(block);
 
 		assert(Info->AllocationType == AT_RAW);
 	}
@@ -178,7 +178,7 @@ void * __cdecl operator new(size_t size)
 	void * res = xf_malloc(size);
 
 #ifdef MEMORY_CHECK
-	MEMINFO* Info = reinterpret_cast<MEMINFO*>(reinterpret_cast<LPBYTE>(res)-sizeof(MEMINFO));
+	MEMINFO* Info = static_cast<MEMINFO*>(res)-1;
 	Info->AllocationType = AT_SCALAR;
 #endif
 
@@ -194,7 +194,7 @@ void * __cdecl operator new[] (size_t size) throw()
 	void * res = operator new(size);
 
 #ifdef MEMORY_CHECK
-	MEMINFO* Info = reinterpret_cast<MEMINFO*>(reinterpret_cast<LPBYTE>(res)-sizeof(MEMINFO));
+	MEMINFO* Info = static_cast<MEMINFO*>(res)-1;
 	Info->AllocationType = AT_VECTOR;
 #endif
 
@@ -207,7 +207,7 @@ void operator delete(void *ptr)
 #ifdef MEMORY_CHECK
 	if(ptr)
 	{
-		MEMINFO* Info = reinterpret_cast<MEMINFO*>(reinterpret_cast<LPBYTE>(ptr)-sizeof(MEMINFO));
+		MEMINFO* Info = static_cast<MEMINFO*>(ptr)-1;
 		assert(Info->AllocationType == AT_SCALAR);
 		Info->AllocationType = AT_RAW;
 	}
@@ -225,7 +225,7 @@ void __cdecl operator delete[] (void *ptr) throw()
 #ifdef MEMORY_CHECK
 	if(ptr)
 	{
-		MEMINFO* Info = reinterpret_cast<MEMINFO*>(reinterpret_cast<LPBYTE>(ptr)-sizeof(MEMINFO));
+		MEMINFO* Info = static_cast<MEMINFO*>(ptr)-1;
 		assert(Info->AllocationType == AT_VECTOR);
 		Info->AllocationType = AT_SCALAR;
 	}

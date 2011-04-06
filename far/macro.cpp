@@ -348,7 +348,6 @@ static bool pluginsFunc(const TMacroFunction*);
 static bool usersFunc(const TMacroFunction*);
 static bool windowscrollFunc(const TMacroFunction*);
 static bool keybarshowFunc(const TMacroFunction*);
-static bool historydisableFunc(const TMacroFunction*);
 
 static bool __CheckCondForSkip(DWORD Op);
 

@@ -686,7 +686,7 @@ void *RegExp::CreateArray(const unsigned int size, const unsigned int total,
 				for (unsigned int f=0; f<total; ++f)
 					Create(array+size*f);
 
-			return reinterpret_cast<void*>(array);
+			return array;
 		}
 	}
 

@@ -318,7 +318,7 @@ bool Clipboard::CopyHDROP(LPVOID NamesArray, size_t NamesArraySize)
 		HGLOBAL hMemory=GlobalAlloc(GMEM_MOVEABLE, sizeof(DROPFILES)+NamesArraySize);
 		if (hMemory)
 		{
-			LPDROPFILES Drop = reinterpret_cast<LPDROPFILES>(GlobalLock(hMemory));
+			LPDROPFILES Drop = static_cast<LPDROPFILES>(GlobalLock(hMemory));
 			if(Drop)
 			{
 				Drop->pFiles=sizeof(DROPFILES);
@@ -373,7 +373,7 @@ wchar_t *Clipboard::Paste()
 		hClipData=GetData(CF_HDROP);
 		if (hClipData)
 		{
-			LPDROPFILES Files=reinterpret_cast<LPDROPFILES>(GlobalLock(hClipData));
+			LPDROPFILES Files=static_cast<LPDROPFILES>(GlobalLock(hClipData));
 			if (Files)
 			{
 				LPCSTR StartA=reinterpret_cast<LPCSTR>(Files)+Files->pFiles;
@@ -409,7 +409,7 @@ wchar_t *Clipboard::Paste()
 				}
 				if(!strClipText.IsEmpty())
 				{
-					ClipText=reinterpret_cast<LPWSTR>(xf_malloc((strClipText.GetLength()+1)*sizeof(WCHAR)));
+					ClipText=static_cast<LPWSTR>(xf_malloc((strClipText.GetLength()+1)*sizeof(WCHAR)));
 					wcscpy(ClipText, strClipText);
 				}
 				GlobalUnlock(hClipData);

@@ -643,7 +643,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 			BOOL Result=FALSE;
 			if(Param)
 			{
-				ProgressValue* PV=reinterpret_cast<ProgressValue*>(Param);
+				ProgressValue* PV=static_cast<ProgressValue*>(Param);
 				TBC.SetProgressValue(PV->Completed,PV->Total);
 				Result=TRUE;
 			}
@@ -662,7 +662,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 				BOOL Result=FALSE;
 				if(Param)
 				{
-					SMALL_RECT& Rect=*reinterpret_cast<PSMALL_RECT>(Param);
+					SMALL_RECT& Rect=*static_cast<PSMALL_RECT>(Param);
 					if(Opt.WindowMode)
 					{
 						Result=Console.GetWorkingRect(Rect);
@@ -689,7 +689,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 				BOOL Result=FALSE;
 				if(Param)
 				{
-					COORD& Pos=*reinterpret_cast<PCOORD>(Param);
+					COORD& Pos=*static_cast<PCOORD>(Param);
 					Result=Console.GetCursorPosition(Pos);
 				}
 				return Result;
@@ -701,7 +701,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 				BOOL Result=FALSE;
 				if(Param)
 				{
-					COORD& Pos=*reinterpret_cast<PCOORD>(Param);
+					COORD& Pos=*static_cast<PCOORD>(Param);
 					Result=Console.SetCursorPosition(Pos);
 				}
 				return Result;

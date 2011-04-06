@@ -174,7 +174,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, string* PluginModule, string* Pl
 			{
 				DWORD Key=FolderList.ReadInput();
 				int ItemPos = FolderList.GetSelectPos();
-				ShortcutItem* Item = reinterpret_cast<ShortcutItem*>(FolderList.GetUserData(nullptr, 0, ItemPos));
+				ShortcutItem* Item = static_cast<ShortcutItem*>(FolderList.GetUserData(nullptr, 0, ItemPos));
 				switch (Key)
 				{
 				case KEY_NUMDEL:
@@ -232,7 +232,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, string* PluginModule, string* Pl
 			int ExitCode = FolderList.GetExitCode();
 			if (ExitCode>=0)
 			{
-				RetItem = reinterpret_cast<ShortcutItem*>(FolderList.GetUserData(nullptr, 0, ExitCode));
+				RetItem = static_cast<ShortcutItem*>(FolderList.GetUserData(nullptr, 0, ExitCode));
 			}
 		}
 		else

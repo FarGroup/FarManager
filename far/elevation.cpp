@@ -92,7 +92,7 @@ public:
 
 	LPCWSTR GetStr()
 	{
-		return reinterpret_cast<LPCWSTR>(Get());
+		return static_cast<LPCWSTR>(Get());
 	}
 
 private:
@@ -273,7 +273,7 @@ bool elevation::Initialize()
 			PSID AdminSID;
 			if(AllocateAndInitializeSid(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS, 0, 0, 0, 0, 0, 0, &AdminSID))
 			{
-				PSECURITY_DESCRIPTOR pSD = reinterpret_cast<PSECURITY_DESCRIPTOR>(LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH));
+				PSECURITY_DESCRIPTOR pSD = static_cast<PSECURITY_DESCRIPTOR>(LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH));
 				if(pSD)
 				{
 					if (InitializeSecurityDescriptor(pSD, SECURITY_DESCRIPTOR_REVISION))
@@ -419,7 +419,7 @@ struct AAData
 
 void AdminApproveDlgSync(LPVOID Param)
 {
-	AAData* Data=reinterpret_cast<AAData*>(Param);
+	AAData* Data=static_cast<AAData*>(Param);
 	enum {DlgX=64,DlgY=12};
 	FarDialogItem AdminApproveDlgData[]=
 	{
@@ -612,7 +612,7 @@ void elevation::fCallbackRoutine(LPPROGRESS_ROUTINE ProgressRoutine) const
 								AutoObject Data;
 								if (ReadData(Data))
 								{
-									int Result=ProgressRoutine(*reinterpret_cast<PLARGE_INTEGER>(TotalFileSize.Get()), *reinterpret_cast<PLARGE_INTEGER>(TotalBytesTransferred.Get()), *reinterpret_cast<PLARGE_INTEGER>(StreamSize.Get()), *reinterpret_cast<PLARGE_INTEGER>(StreamBytesTransferred.Get()), StreamNumber, CallbackReason, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, Data.Get());
+									int Result=ProgressRoutine(*static_cast<PLARGE_INTEGER>(TotalFileSize.Get()), *static_cast<PLARGE_INTEGER>(TotalBytesTransferred.Get()), *static_cast<PLARGE_INTEGER>(StreamSize.Get()), *static_cast<PLARGE_INTEGER>(StreamBytesTransferred.Get()), StreamNumber, CallbackReason, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, Data.Get());
 									if(WriteInt(CallbackMagic))
 									{
 										WriteInt(Result);
@@ -993,7 +993,7 @@ HANDLE elevation::fCreateFile(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMo
 										{
 											if(ReceiveLastError())
 											{
-												Result = *reinterpret_cast<PHANDLE>(OpResult.Get());
+												Result = *static_cast<PHANDLE>(OpResult.Get());
 											}
 										}
 									}
@@ -1278,7 +1278,7 @@ void MoveToRecycleBinHandler()
 			AutoObject To;
 			if(ReadPipeData(Pipe, To))
 			{
-				SHFILEOPSTRUCT* FileOpStruct = reinterpret_cast<SHFILEOPSTRUCT*>(Struct.Get());
+				SHFILEOPSTRUCT* FileOpStruct = static_cast<SHFILEOPSTRUCT*>(Struct.Get());
 				FileOpStruct->pFrom = From.GetStr();
 				FileOpStruct->pTo = To.GetStr();
 				if(WritePipeInt(Pipe, SHFileOperation(FileOpStruct)))

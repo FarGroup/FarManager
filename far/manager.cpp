@@ -67,7 +67,7 @@ Manager::Manager():
 	ModalStackCount(0),
 	ModalStackSize(0),
 	FrameCount(0),
-	FrameList(reinterpret_cast<Frame **>(xf_malloc(sizeof(Frame*)*(FrameCount+1)))),
+	FrameList(static_cast<Frame **>(xf_malloc(sizeof(Frame*)*(FrameCount+1)))),
 	FrameListSize(0),
 	FramePos(-1),
 	InsertedFrame(nullptr),

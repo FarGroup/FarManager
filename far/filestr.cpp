@@ -61,9 +61,9 @@ OldGetFileString::OldGetFileString(FILE *SrcFile):
 	ReadBuf(new char[0x2000]),
 	wReadBuf(new wchar_t[0x2000]),
 	m_nStrLength(DELTA),
-	Str(reinterpret_cast<char*>(xf_malloc(m_nStrLength))),
+	Str(static_cast<char*>(xf_malloc(m_nStrLength))),
 	m_nwStrLength(DELTA),
-	wStr(reinterpret_cast<wchar_t*>(xf_malloc(m_nwStrLength * sizeof(wchar_t)))),
+	wStr(static_cast<wchar_t*>(xf_malloc(m_nwStrLength * sizeof(wchar_t)))),
 	SomeDataLost(false),
 	bCrCr(false)
 {
@@ -568,9 +568,9 @@ GetFileString::GetFileString(File& SrcFile):
 	ReadBuf(new char[0x2000]),
 	wReadBuf(new wchar_t[0x2000]),
 	m_nStrLength(DELTA),
-	Str(reinterpret_cast<LPSTR>(xf_malloc(m_nStrLength))),
+	Str(static_cast<LPSTR>(xf_malloc(m_nStrLength))),
 	m_nwStrLength(DELTA),
-	wStr(reinterpret_cast<LPWSTR>(xf_malloc(m_nwStrLength * sizeof(wchar_t)))),
+	wStr(static_cast<LPWSTR>(xf_malloc(m_nwStrLength * sizeof(wchar_t)))),
 	SomeDataLost(false),
 	bCrCr(false)
 {
@@ -662,7 +662,7 @@ int GetFileString::GetString(LPWSTR* DestStr, UINT nCodePage, int& Length)
 			if (Result == ERROR_INSUFFICIENT_BUFFER)
 			{
 				nResultLength = MultiByteToWideChar(nCodePage, 0, Str, Length, nullptr, 0);
-				wStr = reinterpret_cast<LPWSTR>(xf_realloc_nomove(wStr, (nResultLength + 1) * sizeof(wchar_t)));
+				wStr = static_cast<LPWSTR>(xf_realloc_nomove(wStr, (nResultLength + 1) * sizeof(wchar_t)));
 				*wStr = L'\0';
 				m_nwStrLength = nResultLength+1;
 				nResultLength = MultiByteToWideChar(nCodePage, 0, Str, Length, wStr, nResultLength);
@@ -767,7 +767,7 @@ int GetFileString::GetAnsiString(LPSTR* DestStr, int& Length)
 			ReadPos++;
 			if (CurLength >= m_nStrLength - 1)
 			{
-				LPSTR NewStr = reinterpret_cast<LPSTR>(xf_realloc(Str, m_nStrLength + (DELTA << x)));
+				LPSTR NewStr = static_cast<LPSTR>(xf_realloc(Str, m_nStrLength + (DELTA << x)));
 				if (!NewStr)
 				{
 					return -1;
@@ -881,7 +881,7 @@ int GetFileString::GetUnicodeString(LPWSTR* DestStr, int& Length, bool bBigEndia
 			ReadPos += sizeof(wchar_t);
 			if (CurLength >= m_nwStrLength - 1)
 			{
-				LPWSTR NewStr = reinterpret_cast<LPWSTR>(xf_realloc(wStr, (m_nwStrLength + (DELTA << x)) * sizeof(wchar_t)));
+				LPWSTR NewStr = static_cast<LPWSTR>(xf_realloc(wStr, (m_nwStrLength + (DELTA << x)) * sizeof(wchar_t)));
 				if (!NewStr)
 				{
 					return -1;
@@ -976,7 +976,7 @@ bool GetFileFormat(File& file, UINT& nCodePage, bool* pSignatureFound, bool bUse
 					}
 				}
 			}
-			else if (IsTextUTF8(reinterpret_cast<LPBYTE>(Buffer), ReadSize))
+			else if (IsTextUTF8(static_cast<LPBYTE>(Buffer), ReadSize))
 			{
 				nCodePage=CP_UTF8;
 				bDetect=true;
@@ -984,7 +984,7 @@ bool GetFileFormat(File& file, UINT& nCodePage, bool* pSignatureFound, bool bUse
 			else
 			{
 				nsUniversalDetectorEx *ns = new nsUniversalDetectorEx();
-				ns->HandleData(reinterpret_cast<LPCSTR>(Buffer), ReadSize);
+				ns->HandleData(static_cast<LPCSTR>(Buffer), ReadSize);
 				ns->DataEnd();
 				int cp = ns->getCodePage();
 

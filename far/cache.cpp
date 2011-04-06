@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cache.hpp"
 
 CachedRead::CachedRead(File& file):
-	Buffer(reinterpret_cast<LPBYTE>(xf_malloc(BufferSize))),
+	Buffer(static_cast<LPBYTE>(xf_malloc(BufferSize))),
 	file(file),
 	ReadSize(0),
 	BytesLeft(0),
@@ -167,7 +167,7 @@ bool CachedRead::FillBuffer()
 }
 
 CachedWrite::CachedWrite(File& file):
-	Buffer(reinterpret_cast<LPBYTE>(xf_malloc(BufferSize))),
+	Buffer(static_cast<LPBYTE>(xf_malloc(BufferSize))),
 	file(file),
 	FreeSize(BufferSize),
 	Flushed(false)

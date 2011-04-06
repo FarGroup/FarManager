@@ -208,7 +208,7 @@ int Editor::GetRawData(wchar_t **DestBuf,int& SizeDestBuf,int TextFormat)
 		AllLength+=Length+StrLength(!TextFormat?EndSeq:GlobalEOL)+1;
 	}
 
-	wchar_t * MemEditStr=reinterpret_cast<wchar_t*>(xf_malloc((AllLength+8)*sizeof(wchar_t)));
+	wchar_t * MemEditStr=static_cast<wchar_t*>(xf_malloc((AllLength+8)*sizeof(wchar_t)));
 
 	if (MemEditStr)
 	{

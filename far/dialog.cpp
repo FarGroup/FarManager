@@ -217,7 +217,7 @@ bool ConvertItemEx(
 					string str;
 					size_t sz = ItemStringAndSize(ItemEx,str);
 					{
-						wchar_t* p = reinterpret_cast<wchar_t*>(xf_malloc((sz+1)*sizeof(wchar_t)));
+						wchar_t* p = static_cast<wchar_t*>(xf_malloc((sz+1)*sizeof(wchar_t)));
 						wmemcpy(p, str.CPtr(), sz);
 						p[sz] = L'\0';
 						Item->Data = p;
@@ -4110,7 +4110,7 @@ BOOL Dialog::SelectFromEditHistory(DialogItemEx *CurItem,
 
 	string strStr;
 	int ret=0;
-	History *DlgHist = reinterpret_cast<DlgEdit*>(CurItem->ObjPtr)->GetHistory();
+	History *DlgHist = static_cast<DlgEdit*>(CurItem->ObjPtr)->GetHistory();
 
 	DlgHist->ResetPosition();
 	{
@@ -4152,7 +4152,7 @@ int Dialog::AddToEditHistory(DialogItemEx* CurItem, const wchar_t *AddStr)
 		return FALSE;
 	}
 
-	History *DlgHist = reinterpret_cast<DlgEdit*>(CurItem->ObjPtr)->GetHistory();
+	History *DlgHist = static_cast<DlgEdit*>(CurItem->ObjPtr)->GetHistory();
 	DlgHist->AddToHistory(AddStr);
 	return TRUE;
 }
@@ -4538,13 +4538,13 @@ INT_PTR WINAPI Dialog::DlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 	INT_PTR Result;
 	FarDialogEvent de={hDlg,Msg,Param1,Param2,0};
 
-	if(!reinterpret_cast<Dialog*>(hDlg)->CheckDialogMode(DMODE_NOPLUGINS))
+	if(!static_cast<Dialog*>(hDlg)->CheckDialogMode(DMODE_NOPLUGINS))
 	{
 		if (CtrlObject->Plugins.ProcessDialogEvent(DE_DLGPROCINIT,&de))
 			return de.Result;
 	}
 	Result=RealDlgProc(hDlg,Msg,Param1,Param2);
-	if(!reinterpret_cast<Dialog*>(hDlg)->CheckDialogMode(DMODE_NOPLUGINS))
+	if(!static_cast<Dialog*>(hDlg)->CheckDialogMode(DMODE_NOPLUGINS))
 	{
 		de.Result=Result;
 		if (CtrlObject->Plugins.ProcessDialogEvent(DE_DLGPROCEND,&de))
@@ -4569,7 +4569,7 @@ INT_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 
 	FarDialogEvent de={hDlg,Msg,Param1,Param2,0};
 
-	if(!reinterpret_cast<Dialog*>(hDlg)->CheckDialogMode(DMODE_NOPLUGINS))
+	if(!static_cast<Dialog*>(hDlg)->CheckDialogMode(DMODE_NOPLUGINS))
 	{
 		if (CtrlObject->Plugins.ProcessDialogEvent(DE_DEFDLGPROCINIT,&de))
 		{
@@ -5564,7 +5564,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 			INT_PTR I=0;
 			if(CurItem->Type==DI_EDIT||CurItem->Type==DI_COMBOBOX||CurItem->Type==DI_FIXEDIT||CurItem->Type==DI_PSWEDIT)
 			{
-				reinterpret_cast<DlgEdit*>(CurItem->ObjPtr)->SetCallbackState(false);
+				static_cast<DlgEdit*>(CurItem->ObjPtr)->SetCallbackState(false);
 				const wchar_t* original_PtrData=Item.Data;
 				I=Dlg->CallDlgProc(DN_EDITCHANGE,Param1,(INT_PTR)&Item);
 				if (I)
@@ -5574,7 +5574,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 				}
 				if (original_PtrData)
 					xf_free((void*)original_PtrData);
-				reinterpret_cast<DlgEdit*>(CurItem->ObjPtr)->SetCallbackState(true);
+				static_cast<DlgEdit*>(CurItem->ObjPtr)->SetCallbackState(true);
 			}
 
 			return I;

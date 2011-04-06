@@ -101,7 +101,7 @@ DWORD WINAPI WindowThreadRoutine(LPVOID Param)
 	UnregisterClass(wc.lpszClassName, 0);
 	if(RegisterClassEx(&wc))
 	{
-		HWND* pHwnd=reinterpret_cast<HWND*>(Param);
+		HWND* pHwnd=static_cast<HWND*>(Param);
 		*pHwnd=CreateWindowEx(0, wc.lpszClassName, nullptr, 0, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, nullptr, nullptr, nullptr, nullptr);
 		if(*pHwnd)
 		{

@@ -616,7 +616,7 @@ bool ReadFileTime(int Type,const wchar_t *Name,FILETIME& FileTime,const wchar_t 
 void PR_ShellSetFileAttributesMsg()
 {
 	PreRedrawItem preRedrawItem=PreRedraw.Peek();
-	ShellSetFileAttributesMsg(reinterpret_cast<const wchar_t*>(preRedrawItem.Param.Param1));
+	ShellSetFileAttributesMsg(static_cast<const wchar_t*>(preRedrawItem.Param.Param1));
 }
 
 bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)

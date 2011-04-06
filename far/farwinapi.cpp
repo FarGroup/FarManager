@@ -75,7 +75,7 @@ HANDLE FindFirstFileInternal(LPCWSTR Name, FAR_FIND_DATA_EX& FindData)
 						LPCWSTR NamePtr = PointToName(Name);
 						if(Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileBothDirectoryInformation, FALSE, NamePtr, TRUE))
 						{
-							PFILE_BOTH_DIR_INFORMATION DirectoryInfo = reinterpret_cast<PFILE_BOTH_DIR_INFORMATION>(Handle->BufferBase);
+							PFILE_BOTH_DIR_INFORMATION DirectoryInfo = static_cast<PFILE_BOTH_DIR_INFORMATION>(Handle->BufferBase);
 							FindData.dwFileAttributes = DirectoryInfo->FileAttributes;
 							FindData.ftCreationTime.dwLowDateTime = DirectoryInfo->CreationTime.LowPart;
 							FindData.ftCreationTime.dwHighDateTime = DirectoryInfo->CreationTime.HighPart;
@@ -103,7 +103,7 @@ HANDLE FindFirstFileInternal(LPCWSTR Name, FAR_FIND_DATA_EX& FindData)
 							}
 
 							Handle->NextOffset = DirectoryInfo->NextEntryOffset;
-							Result = reinterpret_cast<HANDLE>(Handle);
+							Result = static_cast<HANDLE>(Handle);
 						}
 						else
 						{
@@ -136,16 +136,16 @@ HANDLE FindFirstFileInternal(LPCWSTR Name, FAR_FIND_DATA_EX& FindData)
 bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA_EX& FindData)
 {
 	bool Result = false;
-	PSEUDO_HANDLE* Handle = reinterpret_cast<PSEUDO_HANDLE*>(Find);
+	PSEUDO_HANDLE* Handle = static_cast<PSEUDO_HANDLE*>(Find);
 	bool Status = true;
-	PFILE_BOTH_DIR_INFORMATION DirectoryInfo = reinterpret_cast<PFILE_BOTH_DIR_INFORMATION>(Handle->BufferBase);
+	PFILE_BOTH_DIR_INFORMATION DirectoryInfo = static_cast<PFILE_BOTH_DIR_INFORMATION>(Handle->BufferBase);
 	if(Handle->NextOffset)
 	{
 		DirectoryInfo = reinterpret_cast<PFILE_BOTH_DIR_INFORMATION>(reinterpret_cast<LPBYTE>(DirectoryInfo)+Handle->NextOffset);
 	}
 	else
 	{
-		File* Directory = reinterpret_cast<File*>(Handle->ObjectHandle);
+		File* Directory = static_cast<File*>(Handle->ObjectHandle);
 		Status = Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileBothDirectoryInformation, FALSE, nullptr, FALSE);
 	}
 
@@ -185,9 +185,9 @@ bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA_EX& FindData)
 
 bool FindCloseInternal(HANDLE Find)
 {
-	PSEUDO_HANDLE* Handle = reinterpret_cast<PSEUDO_HANDLE*>(Find);
+	PSEUDO_HANDLE* Handle = static_cast<PSEUDO_HANDLE*>(Find);
 	xf_free(Handle->BufferBase);
-	File* Directory = reinterpret_cast<File*>(Handle->ObjectHandle);
+	File* Directory = static_cast<File*>(Handle->ObjectHandle);
 	delete Directory;
 	delete Handle;
 	return true;
@@ -1038,7 +1038,7 @@ HANDLE apiFindFirstStream(LPCWSTR lpFileName,STREAM_INFO_LEVELS InfoLevel,LPVOID
 						if (Handle->BufferBase)
 						{
 							// sometimes for directories NtQueryInformationFile returns STATUS_SUCCESS but doesn't fill the buffer
-							PFILE_STREAM_INFORMATION StreamInfo = reinterpret_cast<PFILE_STREAM_INFORMATION>(Handle->BufferBase);
+							PFILE_STREAM_INFORMATION StreamInfo = static_cast<PFILE_STREAM_INFORMATION>(Handle->BufferBase);
 							StreamInfo->StreamNameLength = 0;
 
 							IO_STATUS_BLOCK IoStatusBlock;
@@ -1049,8 +1049,8 @@ HANDLE apiFindFirstStream(LPCWSTR lpFileName,STREAM_INFO_LEVELS InfoLevel,LPVOID
 
 					if (Result == STATUS_SUCCESS)
 					{
-						PWIN32_FIND_STREAM_DATA pFsd=reinterpret_cast<PWIN32_FIND_STREAM_DATA>(lpFindStreamData);
-						PFILE_STREAM_INFORMATION StreamInfo = reinterpret_cast<PFILE_STREAM_INFORMATION>(Handle->BufferBase);
+						PWIN32_FIND_STREAM_DATA pFsd=static_cast<PWIN32_FIND_STREAM_DATA>(lpFindStreamData);
+						PFILE_STREAM_INFORMATION StreamInfo = static_cast<PFILE_STREAM_INFORMATION>(Handle->BufferBase);
 						Handle->NextOffset = StreamInfo->NextEntryOffset;
 						if (StreamInfo->StreamNameLength)
 						{
@@ -1095,12 +1095,12 @@ BOOL apiFindNextStream(HANDLE hFindStream,LPVOID lpFindStreamData)
 	{
 		if (ifn.pfnNtQueryInformationFile)
 		{
-			PSEUDO_HANDLE* Handle = reinterpret_cast<PSEUDO_HANDLE*>(hFindStream);
+			PSEUDO_HANDLE* Handle = static_cast<PSEUDO_HANDLE*>(hFindStream);
 
 			if (Handle->NextOffset)
 			{
 				PFILE_STREAM_INFORMATION pStreamInfo=reinterpret_cast<PFILE_STREAM_INFORMATION>(reinterpret_cast<LPBYTE>(Handle->BufferBase)+Handle->NextOffset);
-				PWIN32_FIND_STREAM_DATA pFsd=reinterpret_cast<PWIN32_FIND_STREAM_DATA>(lpFindStreamData);
+				PWIN32_FIND_STREAM_DATA pFsd=static_cast<PWIN32_FIND_STREAM_DATA>(lpFindStreamData);
 				Handle->NextOffset = pStreamInfo->NextEntryOffset?Handle->NextOffset+pStreamInfo->NextEntryOffset:0;
 
 				if (pStreamInfo->StreamNameLength && pStreamInfo->StreamNameLength < sizeof(pFsd->cStreamName))
@@ -1131,7 +1131,7 @@ BOOL apiFindStreamClose(HANDLE hFindStream)
 	}
 	else
 	{
-		PSEUDO_HANDLE* Handle = reinterpret_cast<PSEUDO_HANDLE*>(hFindStream);
+		PSEUDO_HANDLE* Handle = static_cast<PSEUDO_HANDLE*>(hFindStream);
 		xf_free(Handle->BufferBase);
 		delete Handle;
 		Ret=TRUE;
@@ -1166,13 +1166,13 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 	{
 		ULONG RetLen;
 		ULONG BufSize = NT_MAX_PATH;
-		OBJECT_NAME_INFORMATION* oni = reinterpret_cast<OBJECT_NAME_INFORMATION*>(xf_malloc(BufSize));
+		OBJECT_NAME_INFORMATION* oni = static_cast<OBJECT_NAME_INFORMATION*>(xf_malloc(BufSize));
 		NTSTATUS Res = ifn.pfnNtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
 
 		if (Res == STATUS_BUFFER_OVERFLOW || Res == STATUS_BUFFER_TOO_SMALL)
 		{
 			BufSize = RetLen;
-			oni = reinterpret_cast<OBJECT_NAME_INFORMATION*>(xf_realloc_nomove(oni, BufSize));
+			oni = static_cast<OBJECT_NAME_INFORMATION*>(xf_realloc_nomove(oni, BufSize));
 			Res = ifn.pfnNtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
 		}
 

@@ -1511,7 +1511,7 @@ PCHAR_INFO AnsiVBufToUnicode(oldfar::FarDialogItem &diA)
 	{
 		size_t Size = GetAnsiVBufSize(diA);
 		// +sizeof(PCHAR_INFO) потому что там храним поинтер на анси vbuf.
-		VBuf = reinterpret_cast<PCHAR_INFO>(xf_malloc(Size*sizeof(CHAR_INFO)+sizeof(PCHAR_INFO)));
+		VBuf = static_cast<PCHAR_INFO>(xf_malloc(Size*sizeof(CHAR_INFO)+sizeof(PCHAR_INFO)));
 
 		if (VBuf)
 		{
@@ -3130,7 +3130,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 						s += cls.SelStart;
 					}
 				}
-				UnicodeToOEM(s, reinterpret_cast<char*>(Param), Size);
+				UnicodeToOEM(s, static_cast<char*>(Param), Size);
 				return TRUE;
 			}
 
@@ -3845,7 +3845,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 			if(Param)
 			{
 				Command = OldCommand==oldfar::ECTL_ADDCOLOR?ECTL_ADDCOLOR:ECTL_GETCOLOR;
-				oldfar::EditorColor* ecA = reinterpret_cast<oldfar::EditorColor*>(Param);
+				oldfar::EditorColor* ecA = static_cast<oldfar::EditorColor*>(Param);
 				EditorColor ec={};
 				ec.StringNumber = ecA->StringNumber;
 				if(Command == ECTL_ADDCOLOR)

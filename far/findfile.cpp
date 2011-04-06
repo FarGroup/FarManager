@@ -238,7 +238,7 @@ public:
 		CriticalSectionLock Lock(DataCS);
 		bool Result=false;
 		size_t Delta=(FindListCapacity<256)?LIST_DELTA:FindListCapacity/2;
-		FINDLIST** NewList = reinterpret_cast<FINDLIST**>(xf_realloc(FindList,(FindListCapacity+Delta)*sizeof(*FindList)));
+		FINDLIST** NewList = static_cast<FINDLIST**>(xf_realloc(FindList,(FindListCapacity+Delta)*sizeof(*FindList)));
 		if (NewList)
 		{
 			FindList=NewList;
@@ -253,7 +253,7 @@ public:
 		CriticalSectionLock Lock(DataCS);
 		bool Result=false;
 		size_t Delta=(ArcListCapacity<256)?LIST_DELTA:ArcListCapacity/2;
-		ARCLIST** NewList=reinterpret_cast<ARCLIST**>(xf_realloc(ArcList,(ArcListCapacity+Delta)*sizeof(*ArcList)));
+		ARCLIST** NewList=static_cast<ARCLIST**>(xf_realloc(ArcList,(ArcListCapacity+Delta)*sizeof(*ArcList)));
 
 		if (NewList)
 		{
@@ -1538,7 +1538,7 @@ bool IsFileIncluded(PluginPanelItem* FileItem, const wchar_t *FullName, DWORD Fi
 INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 {
 	Vars* v = reinterpret_cast<Vars*>(SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0));
-	Dialog* Dlg=reinterpret_cast<Dialog*>(hDlg);
+	Dialog* Dlg=static_cast<Dialog*>(hDlg);
 	VMenu *ListBox=Dlg->GetAllItem()[FD_LISTBOX]->ListPtr;
 
 	static bool Recurse=false;
@@ -1732,7 +1732,7 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 					return TRUE;
 				}
 
-				size_t ItemIndex = reinterpret_cast<size_t>(ListBox->GetUserData(nullptr,0));
+				size_t ItemIndex = static_cast<size_t>(ListBox->GetUserData(nullptr,0));
 
 				FINDLIST FindItem;
 				itd.GetFindListItem(ItemIndex, FindItem);
@@ -2166,7 +2166,7 @@ void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& 
 	if (!hDlg)
 		return;
 
-	VMenu *ListBox=reinterpret_cast<Dialog*>(hDlg)->GetAllItem()[FD_LISTBOX]->ListPtr;
+	VMenu *ListBox=static_cast<Dialog*>(hDlg)->GetAllItem()[FD_LISTBOX]->ListPtr;
 
 	if(!ListBox->GetItemCount())
 	{
@@ -2873,7 +2873,7 @@ DWORD WINAPI ThreadRoutine(LPVOID Param)
 	__try
 	{
 		InitInFileSearch();
-		THREADPARAM* tParam=reinterpret_cast<THREADPARAM*>(Param);
+		THREADPARAM* tParam=static_cast<THREADPARAM*>(Param);
 		tParam->PluginMode?DoPreparePluginList(tParam->hDlg, false):DoPrepareFileList(tParam->hDlg);
 		ReleaseInFileSearch();
 	}
@@ -2992,7 +2992,7 @@ bool FindFilesProcess(Vars& v)
 
 	strLastDirName.Clear();
 
-	THREADPARAM Param={v.PluginMode,reinterpret_cast<HANDLE>(&Dlg)};
+	THREADPARAM Param={v.PluginMode,static_cast<HANDLE>(&Dlg)};
 	HANDLE Thread = CreateThread(nullptr, 0, ThreadRoutine, &Param, 0, nullptr);
 	if (Thread)
 	{

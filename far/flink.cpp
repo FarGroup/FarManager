@@ -447,14 +447,14 @@ bool GetVHDName(const wchar_t *DeviceName, string &strVolumePath)
 		if(Device.Open(DeviceName, FILE_READ_ATTRIBUTES,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
 		{
 			ULONG Size = 1024;
-			PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo = reinterpret_cast<PSTORAGE_DEPENDENCY_INFO>(xf_malloc(Size));
+			PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo = static_cast<PSTORAGE_DEPENDENCY_INFO>(xf_malloc(Size));
 			if(StorageDependencyInfo)
 			{
 				StorageDependencyInfo->Version = STORAGE_DEPENDENCY_INFO_VERSION_2;
 				DWORD Used = 0;
 				if(!Device.GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG_HOST_VOLUMES, Size, StorageDependencyInfo, &Used) && GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 				{
-					StorageDependencyInfo = reinterpret_cast<PSTORAGE_DEPENDENCY_INFO>(xf_realloc(StorageDependencyInfo, Used));
+					StorageDependencyInfo = static_cast<PSTORAGE_DEPENDENCY_INFO>(xf_realloc(StorageDependencyInfo, Used));
 					if(StorageDependencyInfo)
 					{
 						Device.GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG_HOST_VOLUMES, Used, StorageDependencyInfo, &Used);

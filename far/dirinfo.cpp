@@ -71,9 +71,9 @@ static void PR_DrawGetDirInfoMsg()
 {
 	PreRedrawItem preRedrawItem=PreRedraw.Peek();
 	DrawGetDirInfoMsg(
-		reinterpret_cast<const wchar_t*>(preRedrawItem.Param.Param1),
-		reinterpret_cast<const wchar_t*>(preRedrawItem.Param.Param2),
-		reinterpret_cast<const UINT64*>(preRedrawItem.Param.Param3)
+		static_cast<const wchar_t*>(preRedrawItem.Param.Param1),
+		static_cast<const wchar_t*>(preRedrawItem.Param.Param2),
+		static_cast<const UINT64*>(preRedrawItem.Param.Param3)
 	);
 }
 

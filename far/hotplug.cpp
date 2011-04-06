@@ -340,7 +340,7 @@ DWORD GetDriveMaskFromMountPoints(DEVINST hDevInst)
 					SetupDiGetDeviceInterfaceDetail(Info, &sdid, nullptr, 0, &RequiredSize, nullptr);
 					if(RequiredSize)
 					{
-						PSP_DEVICE_INTERFACE_DETAIL_DATA DData = reinterpret_cast<PSP_DEVICE_INTERFACE_DETAIL_DATA>(xf_malloc(RequiredSize));
+						PSP_DEVICE_INTERFACE_DETAIL_DATA DData = static_cast<PSP_DEVICE_INTERFACE_DETAIL_DATA>(xf_malloc(RequiredSize));
 						if(DData)
 						{
 							DData->cbSize = sizeof(*DData);

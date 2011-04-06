@@ -829,7 +829,7 @@ HANDLE PluginManager::OpenFilePlugin(
 		PluginHandle* pDup=new PluginHandle;
 		pDup->hPlugin=pResult->hPlugin;
 		pDup->pPlugin=pResult->pPlugin;
-		hResult=reinterpret_cast<HANDLE>(pDup);
+		hResult=static_cast<HANDLE>(pDup);
 	}
 
 	return hResult;
@@ -928,7 +928,7 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, int I
 		pResult=pDup;
 	}
 
-	return pResult?reinterpret_cast<HANDLE>(pResult):INVALID_HANDLE_VALUE;
+	return pResult?static_cast<HANDLE>(pResult):INVALID_HANDLE_VALUE;
 }
 
 
