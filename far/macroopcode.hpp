@@ -151,7 +151,6 @@ enum MACRO_OP_CODE
 	MCODE_F_ATOI,                     // N=atoi(S[,radix])
 	MCODE_F_CLIP,                     // V=clip(N[,V])
 	MCODE_F_CHR,                      // S=chr(N)
-	MCODE_F_CMPNAME,                  // N=CmpName(Mask,S[,SkipPath])
 	MCODE_F_DATE,                     // S=date([S])
 	MCODE_F_DLG_GETVALUE,             // V=Dlg.GetValue(ID,N)
 	MCODE_F_EDITOR_SEL,               // V=Editor.Sel(Action[,Opt])
@@ -220,6 +219,8 @@ enum MACRO_OP_CODE
 	MCODE_F_KBDLAYOUT,                // N=kbdLayout([N])
 	MCODE_F_WINDOW_SCROLL,            // N=Window.Scroll(Lines[,Axis])
 	MCODE_F_KEYBAR_SHOW,              // N=KeyBar.Show([N])
+	MCODE_F_HISTIORY_DISABLE,         // N=History.Disable([State])
+	MCODE_F_FMATCH,                   // N=FMatch(S,Mask)
 
 	/* ************************************************************************* */
 	// булевые переменные - различные состояния

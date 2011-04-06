@@ -2266,7 +2266,7 @@ int WINAPI farMacroControl(HANDLE hHandle, FAR_MACRO_CONTROL_COMMANDS Command, i
 					{
 						MacroSendMacroText *PlainText=(MacroSendMacroText*)Param2;
 						if (PlainText->SequenceText && *PlainText->SequenceText)
-							return Macro.PostNewMacro(PlainText->SequenceText,PlainText->Flags<<8,PlainText->AKey);
+							return Macro.PostNewMacro(PlainText->SequenceText,(PlainText->Flags|MFLAGS_POSTFROMPLUGIN)<<8,PlainText->AKey);
 
 						break;
 					}

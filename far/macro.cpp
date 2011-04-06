@@ -77,7 +77,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dirmix.hpp"
 #include "console.hpp"
 #include "imports.hpp"
-#include "processname.hpp"
+#include "CFileMask.hpp"
 
 // для диалога назначения клавиши
 struct DlgParam
@@ -296,7 +296,7 @@ static bool atoiFunc(const TMacroFunction*);
 static bool beepFunc(const TMacroFunction*);
 static bool callpluginFunc(const TMacroFunction*);
 static bool chrFunc(const TMacroFunction*);
-static bool cmpnameFunc(const TMacroFunction*);
+static bool fmatchFunc(const TMacroFunction*);
 static bool clipFunc(const TMacroFunction*);
 static bool dateFunc(const TMacroFunction*);
 static bool dlggetvalueFunc(const TMacroFunction*);
@@ -348,6 +348,7 @@ static bool pluginsFunc(const TMacroFunction*);
 static bool usersFunc(const TMacroFunction*);
 static bool windowscrollFunc(const TMacroFunction*);
 static bool keybarshowFunc(const TMacroFunction*);
+static bool historydisableFunc(const TMacroFunction*);
 
 static bool __CheckCondForSkip(DWORD Op);
 
@@ -373,7 +374,6 @@ static TMacroFunction intMacroFunction[]=
 	{L"CHECKHOTKEY",      2, 1,   MCODE_F_MENU_CHECKHOTKEY, nullptr, 0,nullptr,L"N=CheckHotkey(S[,N])",0,usersFunc},
 	{L"CHR",              1, 0,   MCODE_F_CHR,              nullptr, 0,nullptr,L"S=Chr(N)",0,chrFunc},
 	{L"CLIP",             2, 1,   MCODE_F_CLIP,             nullptr, 0,nullptr,L"V=Clip(N[,V])",0,clipFunc},
-	{L"CMPNAME",          3, 1,   MCODE_F_CMPNAME,          nullptr, 0,nullptr,L"N=CmpName(Mask,S[,SkipPath])",0,cmpnameFunc},
 	{L"DATE",             1, 1,   MCODE_F_DATE,             nullptr, 0,nullptr,L"S=Date([S])",0,dateFunc},
 	{L"DLG.GETVALUE",     2, 0,   MCODE_F_DLG_GETVALUE,     nullptr, 0,nullptr,L"V=Dlg.GetValue(ID,N)",0,dlggetvalueFunc},
 	{L"EDITOR.POS",       3, 1,   MCODE_F_EDITOR_POS,       nullptr, 0,nullptr,L"N=Editor.Pos(Op,What[,Where])",0,editorposFunc},
@@ -387,8 +387,10 @@ static TMacroFunction intMacroFunction[]=
 	{L"FEXIST",           1, 0,   MCODE_F_FEXIST,           nullptr, 0,nullptr,L"N=FExist(S)",0,fexistFunc},
 	{L"FLOAT",            1, 0,   MCODE_F_FLOAT,            nullptr, 0,nullptr,L"N=Float(V)",0,floatFunc},
 	{L"FLOCK",            2, 0,   MCODE_F_FLOCK,            nullptr, 0,nullptr,L"N=FLock(N,N)",0,flockFunc},
+	{L"FMATCH",           2, 0,   MCODE_F_FMATCH,           nullptr, 0,nullptr,L"N=FMatch(S,Mask)",0,fmatchFunc},
 	{L"FSPLIT",           2, 0,   MCODE_F_FSPLIT,           nullptr, 0,nullptr,L"S=FSplit(S,N)",0,fsplitFunc},
 	{L"GETHOTKEY",        1, 1,   MCODE_F_MENU_GETHOTKEY,   nullptr, 0,nullptr,L"S=GetHotkey([N])",0,usersFunc},
+	{L"HISTORY.DISABLE",  1, 1,   MCODE_F_HISTIORY_DISABLE, nullptr, 0,nullptr,L"N=History.Disable([State])",0,usersFunc},
 	{L"IIF",              3, 0,   MCODE_F_IIF,              nullptr, 0,nullptr,L"V=Iif(Condition,V1,V2)",0,iifFunc},
 	{L"INDEX",            3, 1,   MCODE_F_INDEX,            nullptr, 0,nullptr,L"S=Index(S1,S2[,Mode])",0,indexFunc},
 	{L"INT",              1, 0,   MCODE_F_INT,              nullptr, 0,nullptr,L"N=Int(V)",0,intFunc},
@@ -598,6 +600,7 @@ void KeyMacro::InitInternalVars(BOOL InitedRAM)
 		Work.Executing=MACROMODE_NOMACRO;
 	}
 
+	Work.HistroyDisable=0;
 	RecBuffer=nullptr;
 	RecBufferSize=0;
 	RecSrc=nullptr;
@@ -937,6 +940,7 @@ int KeyMacro::ProcessKey(int Key)
 				}
 
 				// различаем общий режим (с передачей плагину кеев) или специальный (без передачи клавиш плагину)
+				Work.HistroyDisable=0;
 				Work.ExecLIBPos=0;
 				PostNewMacro(MacroLIB+I);
 				Work.cRec=*FrameManager->GetLastInputRecord();
@@ -3371,8 +3375,12 @@ static bool panelsetpathFunc(const TMacroFunction*)
 
 		if (SelPanel)
 		{
-			if (SelPanel->SetCurDir(pathName,TRUE))
+			if (SelPanel->SetCurDir(pathName,SelPanel->GetMode()==PLUGIN_PANEL && IsAbsolutePath(pathName)))
 			{
+				ActivePanel=CtrlObject->Cp()->ActivePanel;
+				PassivePanel=ActivePanel?CtrlObject->Cp()->GetAnotherPanel(ActivePanel):nullptr;
+				SelPanel = typePanel? (typePanel == 1?PassivePanel:nullptr):ActivePanel;
+
 				//восстановим текущую папку из активной панели.
 				ActivePanel->SetCurPath();
 				// Need PointToName()?
@@ -3743,16 +3751,20 @@ static bool chrFunc(const TMacroFunction*)
 	return true;
 }
 
-// N=CmpName(Mask,S[,SkipPath])
-static bool cmpnameFunc(const TMacroFunction*)
+// N=FMatch(S, Mask)
+static bool fmatchFunc(const TMacroFunction*)
 {
-	bool SkipPath = VMStack.Pop().getInteger() != 0;
-	TVar S2;    VMStack.Pop(S2);
 	TVar Mask;  VMStack.Pop(Mask);
+	TVar S;    VMStack.Pop(S);
+	CFileMask FileMask;
 
-	VMStack.Push(TVar(CmpName(Mask.toString(), S2.toString(), SkipPath)));
+	bool Ret = FileMask.Set(Mask.toString(), 0);
+	if (Ret && FileMask.Set(Mask.toString(), FMF_SILENT))
+	  Ret = FileMask.Compare(S.toString());
 
-	return true;
+	VMStack.Push(Ret?1:0);
+
+	return Ret?true:false;
 }
 
 // V=Editor.Sel(Action[,Opt])
@@ -4293,6 +4305,7 @@ done:
 		}
 
 		ScrBuf.RestoreMacroChar();
+		Work.HistroyDisable=0;
 
 		return KEY_NONE; // Здесь ВСЕГДА!
 	}
@@ -4378,11 +4391,16 @@ done:
 		case MCODE_OP_AKEY:               // $AKey
 		{
 			DWORD aKey=KEY_NONE;
-			INPUT_RECORD *inRec=&Work.cRec;
-			if (!inRec->EventType)
-				inRec->EventType = KEY_EVENT;
-			if(inRec->EventType == KEY_EVENT || inRec->EventType == FARMACRO_KEY_EVENT)
-				aKey=CalcKeyCode(inRec,TRUE,nullptr);
+			if (!(MR->Flags&MFLAGS_POSTFROMPLUGIN))
+			{
+				INPUT_RECORD *inRec=&Work.cRec;
+				if (!inRec->EventType)
+					inRec->EventType = KEY_EVENT;
+				if(inRec->EventType == KEY_EVENT || inRec->EventType == FARMACRO_KEY_EVENT)
+					aKey=CalcKeyCode(inRec,TRUE,nullptr);
+			}
+			else
+				aKey=MR->Key;
 			return aKey;
 		}
 
@@ -4395,11 +4413,16 @@ done:
 
 			if (!tmpType)
 			{
-				INPUT_RECORD *inRec=&Work.cRec;
-				if (!inRec->EventType)
-					inRec->EventType = KEY_EVENT;
-				if(inRec->EventType == KEY_EVENT || inRec->EventType == FARMACRO_KEY_EVENT)
-					aKey=CalcKeyCode(inRec,TRUE,nullptr);
+				if (!(MR->Flags&MFLAGS_POSTFROMPLUGIN))
+				{
+					INPUT_RECORD *inRec=&Work.cRec;
+					if (!inRec->EventType)
+						inRec->EventType = KEY_EVENT;
+					if(inRec->EventType == KEY_EVENT || inRec->EventType == FARMACRO_KEY_EVENT)
+						aKey=CalcKeyCode(inRec,TRUE,nullptr);
+				}
+				else if (!aKey)
+					aKey=KEY_NONE;
 			}
 
 			if (!tmpMode)
@@ -4411,6 +4434,19 @@ done:
 				tmpVar.toString();
 			}
 			VMStack.Push(tmpVar);
+			goto begin;
+		}
+
+		case MCODE_F_HISTIORY_DISABLE: // N=History.Disable([State])
+		{
+			TVar State; VMStack.Pop(State);
+
+			DWORD oldHistroyDisable=Work.HistroyDisable;
+
+			if (!State.isUnknown())
+				Work.HistroyDisable=(DWORD)State.getInteger();
+
+			VMStack.Push((__int64)oldHistroyDisable);
 			goto begin;
 		}
 
@@ -6667,6 +6703,7 @@ int KeyMacro::ParseMacroString(MacroRecord *CurMacro,const wchar_t *BufPtr,BOOL 
 void MacroState::Init(TVarTable *tbl)
 {
 	KeyProcess=Executing=MacroPC=ExecLIBPos=MacroWORKCount=0;
+	HistroyDisable=0;
 	MacroWORK=nullptr;
 
 	if (!tbl)
@@ -7112,6 +7149,12 @@ int KeyMacro::GetCurRecord(MacroRecord* RBuf,int *KeyPos)
 	}
 
 	return Recording?(Recording==MACROMODE_RECORDING?MACROMODE_RECORDING:MACROMODE_RECORDING_COMMON):(Work.Executing?Work.Executing:MACROMODE_NOMACRO);
+}
+
+
+bool KeyMacro::IsHistroyDisable(int TypeHistory)
+{
+	return (Work.HistroyDisable & (1 << TypeHistory))?false:true;
 }
 
 static int __cdecl SortMacros(const MacroRecord *el1,const MacroRecord *el2)

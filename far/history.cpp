@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "dialog.hpp"
 #include "interf.hpp"
+#include "ctrlobj.hpp"
 
 const wchar_t* CommandHistoryKey=L"History\\CommandHistory";
 const wchar_t* ViewEditHistoryKey=L"History\\ViewEditHistory";
@@ -76,6 +77,9 @@ History::~History()
 void History::AddToHistory(const wchar_t *Str, int Type, const wchar_t *Prefix, bool SaveForbid)
 {
 	if (!EnableAdd)
+		return;
+
+	if (CtrlObject->Macro.IsExecuting() && CtrlObject->Macro.IsHistroyDisable((int)TypeHistory))
 		return;
 
 	AddToHistoryLocal(Str,Prefix,Type);

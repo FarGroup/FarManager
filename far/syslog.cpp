@@ -1127,7 +1127,7 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(F_AKEY),
 		DEF_MCODE_(F_ASC),
 		DEF_MCODE_(F_CHR),
-		DEF_MCODE_(F_CMPNAME),
+		DEF_MCODE_(F_FMATCH),
 		DEF_MCODE_(F_CLIP),
 		DEF_MCODE_(F_DATE),
 		DEF_MCODE_(F_DLG_GETVALUE),
@@ -1311,6 +1311,7 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(F_KBDLAYOUT),                // N=kbdLayout([N])
 		DEF_MCODE_(F_WINDOW_SCROLL),               // N=Window.Scroll(Lines[,Axis])
 		DEF_MCODE_(F_KEYBAR_SHOW),              // N=KeyBar.Show([N])
+		DEF_MCODE_(F_HISTIORY_DISABLE),           // N=History.Disable([State])
 
 	};
 	string Name;
