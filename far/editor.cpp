@@ -4088,7 +4088,8 @@ wchar_t *Editor::Block2Text(wchar_t *ptrInitData)
 
 		int Length;
 		if (EndSel == -1)
-			Length = Ptr->GetLength() - StartSel;
+			// BUGBUG, don't use Ptr->GetLength() here: Ptr->Str may contain \0
+			Length = /*Ptr->GetLength()*/StrLength(Ptr->Str) - StartSel;
 		else
 			Length = EndSel - StartSel;
 

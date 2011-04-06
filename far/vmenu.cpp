@@ -2645,7 +2645,7 @@ void *VMenu::_GetUserData(MenuItemEx *PItem, void *Data, int Size)
 			}
 			else if (DataSize > 0) // а данные то вообще есть? “.е. если в UserData
 			{                      // есть строка из sizeof(void*) байт (UserDataSize при этом > 0)
-				memmove(Data,PItem->UserData, Min(Size,DataSize));
+				memmove(Data,&PItem->UserData, Min(Size,DataSize));
 			}
 			// else а иначе... в PtrData уже указатель сидит!
 		}
@@ -2704,7 +2704,7 @@ int VMenu::_SetUserData(MenuItemEx *PItem,
 			else // Ё“ј —“–ќ ј ѕќћ≈ўј≈“—я ¬ sizeof(void*)!
 			{
 				PItem->UserDataSize=SizeReal;
-				memcpy(PItem->UserData,Data,SizeReal);
+				memcpy(&PItem->UserData,Data,SizeReal);
 			}
 		}
 		else // ќк. данные помещаютс€ в sizeof(void*)...
