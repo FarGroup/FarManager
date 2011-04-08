@@ -203,7 +203,7 @@ MV = mv -f
 MKDIR = mkdir -p
 WINDRES = windres
 DEFINES = -D FAR_ALPHA_VERSION -D UNICODE -D _UNICODE
-CFLAGS = $(DEBUGFLAGS) -mno-cygwin -pipe $(DEFINES) -funsigned-char -fno-exceptions -Wall -Wno-missing-braces -Wno-unknown-pragmas
+CFLAGS = $(DEBUGFLAGS) -mno-cygwin -pipe $(DEFINES) -funsigned-char -fomit-frame-pointer -fno-exceptions -Wall -Wno-missing-braces -Wno-unknown-pragmas
 CCFLAGS = $(CFLAGS) -fno-rtti
 LNKFLAGS = -mno-cygwin -static-libgcc -static-libstdc++ $(DEBUGLINKFLAGS) -lmpr -lwinspool -lole32 -lsecur32 -lsetupapi -lpsapi -lrpcrt4
 
