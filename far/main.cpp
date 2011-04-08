@@ -399,7 +399,7 @@ void InitProfile(const string& strDefaultProfile)
 	CreatePath(Opt.ProfilePath, true);
 	CreatePath(Opt.LocalProfilePath, true);
 }
-#include "plugin.hpp"
+
 int _cdecl wmain(int Argc, wchar_t *Argv[])
 {
 	apiEnableLowFragmentationHeap();
