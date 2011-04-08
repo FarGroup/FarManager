@@ -45,6 +45,6 @@ class Colors
 			ConsoleFgShift=0
 		};
 	public:
-		static int FarColorToColor(FarColor Color);
+		static int FarColorToColor(const FarColor& Color);
 		static void ColorToFarColor(int Color,FarColor& NewColor);
 };

@@ -768,7 +768,7 @@ INT_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Pa
 				//Color[0=file, 1=mark][0=normal,1=selected,2=undercursor,3=selectedundercursor]
 				WORD Color=EditData->Color[(Param1-ID_HER_NORMALFILE)&1][(Param1-ID_HER_NORMALFILE)/2];
 				GetColorDialog(Color,true,true);
-				EditData->Color[(Param1-ID_HER_NORMALFILE)&1][(Param1-ID_HER_NORMALFILE)/2]=(WORD)Color;
+				EditData->Color[(Param1-ID_HER_NORMALFILE)&1][(Param1-ID_HER_NORMALFILE)/2]=Color;
 				FarDialogItem *ColorExample = (FarDialogItem *)xf_malloc(SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,0));
 				SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,(INT_PTR)ColorExample);
 				wchar_t MarkChar[2];

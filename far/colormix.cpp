@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "colormix.hpp"
 
-int Colors::FarColorToColor(FarColor Color)
+int Colors::FarColorToColor(const FarColor& Color)
 {
 	const FARCOLORFLAGS consoleColors=FMSG_FG_4BIT|FMSG_BG_4BIT;
 	if((Color.Flags&consoleColors)==consoleColors) return ((Color.ForegroundColor&ConsoleMask)<<ConsoleFgShift)|((Color.BackgroundColor&ConsoleMask)<<ConsoleBgShift);

@@ -66,6 +66,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarGuid.hpp"
 #include "synchro.hpp"
 #include "farversion.hpp"
+#include "colormix.hpp"
+#include "setcolor.hpp"
 
 static const wchar_t *wszReg_Preload=L"Preload";
 static const wchar_t *wszReg_MinFarVersion=L"MinFarVersion";
@@ -220,6 +222,20 @@ static int WINAPI FarInputBoxW(const GUID* PluginId,const wchar_t *Title,const w
 	return FarInputBox(GetPluginNumber(PluginId),Title,Prompt,HistoryName,SrcText,DestText,DestLength,HelpTopic,Flags);
 }
 
+static BOOL WINAPI farColorDialog(const GUID* PluginId, COLORDIALOGFLAGS Flags, struct FarColor *Color)
+{
+	BOOL Result = FALSE;
+	if (!FrameManager->ManagerIsDown())
+	{
+		WORD Clr = Colors::FarColorToColor(*Color);
+		if(GetColorDialog(Clr, true, false))
+		{
+			Colors::ColorToFarColor(Clr, *Color);
+			Result = TRUE;
+		}
+	}
+	return Result;
+}
 static INT_PTR WINAPI FarAdvControlW(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Command, void *Param)
 {
 	if (ACTL_SYNCHRO==Command) //must be first
@@ -664,6 +680,7 @@ void CreatePluginStartupInfo(Plugin *pPlugin, PluginStartupInfo *PSI, FarStandar
 		StartupInfo.SendDlgMessage=FarSendDlgMessage;
 		StartupInfo.DefDlgProc=FarDefDlgProc;
 		StartupInfo.InputBox=FarInputBoxW;
+		StartupInfo.ColorDialog = farColorDialog;
 		StartupInfo.PluginsControl=farPluginsControl;
 		StartupInfo.FileFilterControl=farFileFilterControl;
 		StartupInfo.RegExpControl=farRegExpControl;

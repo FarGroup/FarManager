@@ -76,6 +76,16 @@ struct FarColor
 	void* Reserved;
 };
 
+typedef unsigned __int64 COLORDIALOGFLAGS;
+static const COLORDIALOGFLAGS
+    CDF_NONE = 0;
+
+typedef BOOL (WINAPI *FARAPICOLORDIALOG)(
+    const GUID* PluginId,
+    COLORDIALOGFLAGS Flags,
+    struct FarColor *Color
+);
+
 typedef unsigned __int64 FARMESSAGEFLAGS;
 static const FARMESSAGEFLAGS
 	FMSG_NONE                = 0,
@@ -2066,6 +2076,7 @@ struct PluginStartupInfo
 	FARAPISHOWHELP         ShowHelp;
 	FARAPIADVCONTROL       AdvControl;
 	FARAPIINPUTBOX         InputBox;
+	FARAPICOLORDIALOG      ColorDialog;
 	FARAPIDIALOGINIT       DialogInit;
 	FARAPIDIALOGRUN        DialogRun;
 	FARAPIDIALOGFREE       DialogFree;
