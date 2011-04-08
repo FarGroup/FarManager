@@ -4496,7 +4496,7 @@ void Dialog::ResizeConsole()
 	}
 
 	COORD c = {ScrX+1, ScrY+1};
-	SendDlgMessage(reinterpret_cast<HANDLE>(this), DN_RESIZECONSOLE, 0, reinterpret_cast<INT_PTR>(&c));
+	SendDlgMessage(static_cast<HANDLE>(this), DN_RESIZECONSOLE, 0, reinterpret_cast<INT_PTR>(&c));
 
 	int x1, y1, x2, y2;
 	GetPosition(x1, y1, x2, y2);
@@ -4506,7 +4506,7 @@ void Dialog::ResizeConsole()
 	{
 		c.X = x1;
 		c.Y = y1;
-		SendDlgMessage(reinterpret_cast<HANDLE>(this), DM_MOVEDIALOG, TRUE, reinterpret_cast<INT_PTR>(&c));
+		SendDlgMessage(static_cast<HANDLE>(this), DM_MOVEDIALOG, TRUE, reinterpret_cast<INT_PTR>(&c));
 		SetComboBoxPos();
 	}
 };

@@ -42,37 +42,37 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 console Console;
 
-bool console::Allocate()
+bool console::Allocate() const
 {
 	return AllocConsole()!=FALSE;
 }
 
-bool console::Free()
+bool console::Free() const
 {
 	return FreeConsole()!=FALSE;
 }
 
-HANDLE console::GetInputHandle()
+HANDLE console::GetInputHandle() const
 {
 	return GetStdHandle(STD_INPUT_HANDLE);
 }
 
-HANDLE console::GetOutputHandle()
+HANDLE console::GetOutputHandle() const
 {
 	return GetStdHandle(STD_OUTPUT_HANDLE);
 }
 
-HANDLE console::GetErrorHandle()
+HANDLE console::GetErrorHandle() const
 {
 	return GetStdHandle(STD_ERROR_HANDLE);
 }
 
-HWND console::GetWindow()
+HWND console::GetWindow() const
 {
 	return GetConsoleWindow();
 }
 
-bool console::GetSize(COORD& Size)
+bool console::GetSize(COORD& Size) const
 {
 	bool Result=false;
 	CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
@@ -92,7 +92,7 @@ bool console::GetSize(COORD& Size)
 	return Result;
 }
 
-bool console::SetSize(COORD Size)
+bool console::SetSize(COORD Size) const
 {
 	bool Result=false;
 	if(Opt.WindowMode)
@@ -119,7 +119,7 @@ bool console::SetSize(COORD Size)
 	return Result;
 }
 
-bool console::GetWindowRect(SMALL_RECT& ConsoleWindow)
+bool console::GetWindowRect(SMALL_RECT& ConsoleWindow) const
 {
 	bool Result=false;
 	CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
@@ -131,12 +131,12 @@ bool console::GetWindowRect(SMALL_RECT& ConsoleWindow)
 	return Result;
 }
 
-bool console::SetWindowRect(const SMALL_RECT& ConsoleWindow)
+bool console::SetWindowRect(const SMALL_RECT& ConsoleWindow) const
 {
 	return SetConsoleWindowInfo(GetOutputHandle(), true, &ConsoleWindow)!=FALSE;
 }
 
-bool console::GetWorkingRect(SMALL_RECT& WorkingRect)
+bool console::GetWorkingRect(SMALL_RECT& WorkingRect) const
 {
 	bool Result=false;
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -151,7 +151,7 @@ bool console::GetWorkingRect(SMALL_RECT& WorkingRect)
 	return Result;
 }
 
-bool console::GetTitle(string &strTitle)
+bool console::GetTitle(string &strTitle) const
 {
 	DWORD dwSize = 0;
 	DWORD dwBufferSize = MAX_PATH;
@@ -172,12 +172,12 @@ bool console::GetTitle(string &strTitle)
 	return dwSize!=0;
 }
 
-bool console::SetTitle(LPCWSTR Title)
+bool console::SetTitle(LPCWSTR Title) const
 {
 	return SetConsoleTitle(Title)!=FALSE;
 }
 
-bool console::GetKeyboardLayoutName(string &strName)
+bool console::GetKeyboardLayoutName(string &strName) const
 {
 	bool Result=false;
 	strName.Clear();
@@ -197,42 +197,42 @@ bool console::GetKeyboardLayoutName(string &strName)
 	return Result;
 }
 
-UINT console::GetInputCodepage()
+UINT console::GetInputCodepage() const
 {
 	return GetConsoleCP();
 }
 
-bool console::SetInputCodepage(UINT Codepage)
+bool console::SetInputCodepage(UINT Codepage) const
 {
 	return SetConsoleCP(Codepage)!=FALSE;
 }
 
-UINT console::GetOutputCodepage()
+UINT console::GetOutputCodepage() const
 {
 	return GetConsoleOutputCP();
 }
 
-bool console::SetOutputCodepage(UINT Codepage)
+bool console::SetOutputCodepage(UINT Codepage) const
 {
 	return SetConsoleOutputCP(Codepage)!=FALSE;
 }
 
-bool console::SetControlHandler(PHANDLER_ROUTINE HandlerRoutine, bool Add)
+bool console::SetControlHandler(PHANDLER_ROUTINE HandlerRoutine, bool Add) const
 {
 	return SetConsoleCtrlHandler(HandlerRoutine, Add)!=FALSE;
 }
 
-bool console::GetMode(HANDLE ConsoleHandle, DWORD& Mode)
+bool console::GetMode(HANDLE ConsoleHandle, DWORD& Mode) const
 {
 	return GetConsoleMode(ConsoleHandle, &Mode)!=FALSE;
 }
 
-bool console::SetMode(HANDLE ConsoleHandle, DWORD Mode)
+bool console::SetMode(HANDLE ConsoleHandle, DWORD Mode) const
 {
 	return SetConsoleMode(ConsoleHandle, Mode)!=FALSE;
 }
 
-bool console::PeekInput(INPUT_RECORD& Buffer, DWORD Length, DWORD& NumberOfEventsRead)
+bool console::PeekInput(INPUT_RECORD& Buffer, DWORD Length, DWORD& NumberOfEventsRead) const
 {
 	bool Result=PeekConsoleInput(GetInputHandle(), &Buffer, Length, &NumberOfEventsRead)!=FALSE;
 	if(Opt.WindowMode && Buffer.EventType==MOUSE_EVENT)
@@ -245,7 +245,7 @@ bool console::PeekInput(INPUT_RECORD& Buffer, DWORD Length, DWORD& NumberOfEvent
 	return Result;
 }
 
-bool console::ReadInput(INPUT_RECORD& Buffer, DWORD Length, DWORD& NumberOfEventsRead)
+bool console::ReadInput(INPUT_RECORD& Buffer, DWORD Length, DWORD& NumberOfEventsRead) const
 {
 	bool Result=ReadConsoleInput(GetInputHandle(), &Buffer, Length, &NumberOfEventsRead)!=FALSE;
 	if(Opt.WindowMode && Buffer.EventType==MOUSE_EVENT)
@@ -258,7 +258,7 @@ bool console::ReadInput(INPUT_RECORD& Buffer, DWORD Length, DWORD& NumberOfEvent
 	return Result;
 }
 
-bool console::WriteInput(INPUT_RECORD& Buffer, DWORD Length, DWORD& NumberOfEventsWritten)
+bool console::WriteInput(INPUT_RECORD& Buffer, DWORD Length, DWORD& NumberOfEventsWritten) const
 {
 	if(Opt.WindowMode && Buffer.EventType==MOUSE_EVENT)
 	{
@@ -270,7 +270,7 @@ bool console::WriteInput(INPUT_RECORD& Buffer, DWORD Length, DWORD& NumberOfEven
 // пишем/читаем порциями по 32 K, иначе проблемы.
 const unsigned int MAXSIZE=0x8000;
 
-bool console::ReadOutput(CHAR_INFO& Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& ReadRegion)
+bool console::ReadOutput(CHAR_INFO& Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& ReadRegion) const
 {
 	bool Result=false;
 	int Delta=Opt.WindowMode?GetDelta():0;
@@ -310,7 +310,7 @@ bool console::ReadOutput(CHAR_INFO& Buffer, COORD BufferSize, COORD BufferCoord,
 	return Result;
 }
 
-bool console::WriteOutput(const CHAR_INFO& Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& WriteRegion)
+bool console::WriteOutput(const CHAR_INFO& Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& WriteRegion) const
 {
 	bool Result=false;
 	int Delta=Opt.WindowMode?GetDelta():0;
@@ -350,13 +350,13 @@ bool console::WriteOutput(const CHAR_INFO& Buffer, COORD BufferSize, COORD Buffe
 	return Result;
 }
 
-bool console::Write(LPCWSTR Buffer, DWORD NumberOfCharsToWrite)
+bool console::Write(LPCWSTR Buffer, DWORD NumberOfCharsToWrite) const
 {
 	DWORD NumberOfCharsWritten;
 	return WriteConsole(GetOutputHandle(), Buffer, NumberOfCharsToWrite, &NumberOfCharsWritten, nullptr)!=FALSE;
 }
 
-bool console::GetTextAttributes(WORD& Attributes)
+bool console::GetTextAttributes(WORD& Attributes) const
 {
 	bool Result=false;
 	CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
@@ -368,22 +368,22 @@ bool console::GetTextAttributes(WORD& Attributes)
 	return Result;
 }
 
-bool console::SetTextAttributes(WORD Attributes)
+bool console::SetTextAttributes(WORD Attributes) const
 {
 	return SetConsoleTextAttribute(GetOutputHandle(), Attributes)!=FALSE;
 }
 
-bool console::GetCursorInfo(CONSOLE_CURSOR_INFO& ConsoleCursorInfo)
+bool console::GetCursorInfo(CONSOLE_CURSOR_INFO& ConsoleCursorInfo) const
 {
 	return GetConsoleCursorInfo(GetOutputHandle(), &ConsoleCursorInfo)!=FALSE;
 }
 
-bool console::SetCursorInfo(const CONSOLE_CURSOR_INFO& ConsoleCursorInfo)
+bool console::SetCursorInfo(const CONSOLE_CURSOR_INFO& ConsoleCursorInfo) const
 {
 	return SetConsoleCursorInfo(GetOutputHandle(), &ConsoleCursorInfo)!=FALSE;
 }
 
-bool console::GetCursorPosition(COORD& Position)
+bool console::GetCursorPosition(COORD& Position) const
 {
 	bool Result=false;
 	CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
@@ -399,7 +399,7 @@ bool console::GetCursorPosition(COORD& Position)
 	return Result;
 }
 
-bool console::SetCursorPosition(COORD Position)
+bool console::SetCursorPosition(COORD Position) const
 {
 
 	if(Opt.WindowMode)
@@ -414,37 +414,37 @@ bool console::SetCursorPosition(COORD Position)
 	return SetConsoleCursorPosition(GetOutputHandle(), Position)!=FALSE;
 }
 
-bool console::FlushInputBuffer()
+bool console::FlushInputBuffer() const
 {
 	return FlushConsoleInputBuffer(GetInputHandle())!=FALSE;
 }
 
-bool console::GetNumberOfInputEvents(DWORD& NumberOfEvents)
+bool console::GetNumberOfInputEvents(DWORD& NumberOfEvents) const
 {
 	return GetNumberOfConsoleInputEvents(GetInputHandle(), &NumberOfEvents)!=FALSE;
 }
 
-DWORD console::GetAlias(LPCWSTR Source, LPWSTR TargetBuffer, DWORD TargetBufferLength, LPCWSTR ExeName)
+DWORD console::GetAlias(LPCWSTR Source, LPWSTR TargetBuffer, DWORD TargetBufferLength, LPCWSTR ExeName) const
 {
 	return GetConsoleAlias(const_cast<LPWSTR>(Source), TargetBuffer, TargetBufferLength, const_cast<LPWSTR>(ExeName));
 }
 
-bool console::GetDisplayMode(DWORD& Mode)
+bool console::GetDisplayMode(DWORD& Mode) const
 {
 	return GetConsoleDisplayMode(&Mode)!=FALSE;
 }
 
-COORD console::GetLargestWindowSize()
+COORD console::GetLargestWindowSize() const
 {
 	return GetLargestConsoleWindowSize(GetOutputHandle());
 }
 
-bool console::SetActiveScreenBuffer(HANDLE ConsoleOutput)
+bool console::SetActiveScreenBuffer(HANDLE ConsoleOutput) const
 {
 	return SetConsoleActiveScreenBuffer(ConsoleOutput)!=FALSE;
 }
 
-bool console::ClearExtraRegions(WORD Color)
+bool console::ClearExtraRegions(WORD Color) const
 {
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
@@ -464,7 +464,7 @@ bool console::ClearExtraRegions(WORD Color)
 	return true;
 }
 
-bool console::ScrollWindow(int Lines,int Columns)
+bool console::ScrollWindow(int Lines,int Columns) const
 {
 	bool process=false;
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -517,7 +517,7 @@ bool console::ScrollWindow(int Lines,int Columns)
 	return false;
 }
 
-bool console::ScrollScreenBuffer(int Lines)
+bool console::ScrollScreenBuffer(int Lines) const
 {
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
@@ -527,7 +527,7 @@ bool console::ScrollScreenBuffer(int Lines)
 	return ScrollConsoleScreenBuffer(GetOutputHandle(), &ScrollRectangle, nullptr, DestinationOrigin, &Fill)!=FALSE;
 }
 
-bool console::ResetPosition()
+bool console::ResetPosition() const
 {
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
@@ -542,7 +542,7 @@ bool console::ResetPosition()
 	return true;
 }
 
-int console::GetDelta()
+int console::GetDelta() const
 {
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);

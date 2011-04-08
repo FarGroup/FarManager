@@ -732,9 +732,7 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 						if (!CurrentRecord->Lock)
 						{
 							HistoryMenu.Hide();
-							HistoryList.Delete(CurrentRecord);
-							ResetPosition();
-							SaveHistory();
+							Delete(CurrentRecord);
 							HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
 							HistoryMenu.SetUpdateRequired(TRUE);
 							IsUpdate=true;
@@ -909,7 +907,13 @@ bool History::GetAllSimilar(VMenu &HistoryMenu,const wchar_t *Str)
 	{
 		if (!StrCmpNI(Str,HistoryItem->strName,Length))
 		{
-			HistoryMenu.AddItem(HistoryItem->strName);
+			MenuItemEx NewItem={};
+			NewItem.strName = HistoryItem->strName;
+			if(HistoryItem->Lock)
+			{
+				NewItem.Flags|=LIF_CHECKED;
+			}
+			HistoryMenu.SetUserData(HistoryItem,sizeof(HistoryItem),HistoryMenu.AddItem(&NewItem));
 		}
 	}
 	if(HistoryMenu.GetItemCount() == 1 && HistoryMenu.GetItemPtr(0)->strName.GetLength() == static_cast<size_t>(Length))

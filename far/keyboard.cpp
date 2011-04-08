@@ -1589,6 +1589,11 @@ int WriteInput(int Key,DWORD Flags)
 
 int CheckForEscSilent()
 {
+	if(CloseFAR)
+	{
+		return TRUE;
+	}
+
 	INPUT_RECORD rec;
 	int Key;
 	BOOL Processed=TRUE;
@@ -1653,7 +1658,7 @@ int CheckForEscSilent()
 
 int ConfirmAbortOp()
 {
-	return Opt.Confirm.Esc?AbortMessage():TRUE;
+	return (Opt.Confirm.Esc && !CloseFAR)?AbortMessage():TRUE;
 }
 
 /* $ 09.02.2001 IS

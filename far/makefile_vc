@@ -342,6 +342,13 @@ LINKFLAGS=$(LINKFLAGS) /opt:nowin98
 RFLAGS=$(RFLAGS) /nologo
 !endif
 
+!ifdef ICL
+CPP = icl
+LINK = xilink
+DEFINES = $(DEFINES) /D"nullptr=NULL"
+CPPFLAGS = $(CPPFLAGS) /Qvec-report0 -wd672,869,1552,1879
+!endif
+
 ALL: AllDirs lng depfile
 	$(MAKE) /nologo /f makefile_vc build USEDEPS=1
 

@@ -3172,6 +3172,31 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 									break;
 								}
 
+							case KEY_SHIFTDEL:
+							case KEY_SHIFTNUMDEL:
+								{
+									if(ComplMenu.GetItemCount()>1)
+									{
+										HistoryRecord *CurrentRecord=static_cast<HistoryRecord *>(ComplMenu.GetUserData(nullptr,sizeof(HistoryRecord *)));
+										if (CurrentRecord && !CurrentRecord->Lock)
+										{
+											pHistory->Delete(CurrentRecord);
+											ComplMenu.DeleteItem(ComplMenu.GetSelectPos());
+											if(ComplMenu.GetItemCount()>1)
+											{
+												SetMenuPos(ComplMenu);
+												ComplMenu.Redraw();
+												Show();
+											}
+											else
+											{
+												ComplMenu.SetExitCode(-1);
+											}
+										}
+									}
+								}
+								break;
+
 							// навигация по строке ввода
 							case KEY_LEFT:
 							case KEY_NUMPAD4:
@@ -3192,10 +3217,17 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 										MenuKey = KEY_CTRLD;
 									}
 									pOwner->ProcessKey(MenuKey);
+									ComplMenu.Show();
+									Show();
 									break;
 								}
 
 							// навигация по списку
+							case KEY_SHIFT:
+							case KEY_ALT:
+							case KEY_RALT:
+							case KEY_CTRL:
+							case KEY_RCTRL:
 							case KEY_HOME:
 							case KEY_NUMPAD7:
 							case KEY_END:

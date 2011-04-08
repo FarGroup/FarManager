@@ -65,7 +65,7 @@ HANDLE FindFirstFileInternal(LPCWSTR Name, FAR_FIND_DATA_EX& FindData)
 			{
 				if(Directory->Open(strDirectory, FILE_LIST_DIRECTORY, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 				{
-					Handle->ObjectHandle =reinterpret_cast<HANDLE>(Directory);
+					Handle->ObjectHandle =static_cast<HANDLE>(Directory);
 
 					// for network paths buffer size must be <= 65k
 					Handle->BufferSize = 0x10000;
