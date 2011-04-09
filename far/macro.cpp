@@ -296,7 +296,6 @@ static bool atoiFunc(const TMacroFunction*);
 static bool beepFunc(const TMacroFunction*);
 static bool callpluginFunc(const TMacroFunction*);
 static bool chrFunc(const TMacroFunction*);
-static bool fmatchFunc(const TMacroFunction*);
 static bool clipFunc(const TMacroFunction*);
 static bool dateFunc(const TMacroFunction*);
 static bool dlggetvalueFunc(const TMacroFunction*);
@@ -310,29 +309,32 @@ static bool fattrFunc(const TMacroFunction*);
 static bool fexistFunc(const TMacroFunction*);
 static bool floatFunc(const TMacroFunction*);
 static bool flockFunc(const TMacroFunction*);
+static bool fmatchFunc(const TMacroFunction*);
 static bool fsplitFunc(const TMacroFunction*);
 static bool iifFunc(const TMacroFunction*);
 static bool indexFunc(const TMacroFunction*);
 static bool intFunc(const TMacroFunction*);
 static bool itowFunc(const TMacroFunction*);
-static bool lcaseFunc(const TMacroFunction*);
 static bool kbdLayoutFunc(const TMacroFunction*);
+static bool keybarshowFunc(const TMacroFunction*);
 static bool keyFunc(const TMacroFunction*);
+static bool lcaseFunc(const TMacroFunction*);
 static bool lenFunc(const TMacroFunction*);
 static bool maxFunc(const TMacroFunction*);
+static bool minFunc(const TMacroFunction*);
 static bool mloadFunc(const TMacroFunction*);
 static bool modFunc(const TMacroFunction*);
 static bool msaveFunc(const TMacroFunction*);
 static bool msgBoxFunc(const TMacroFunction*);
-static bool minFunc(const TMacroFunction*);
 static bool panelfattrFunc(const TMacroFunction*);
 static bool panelfexistFunc(const TMacroFunction*);
+static bool panelitemFunc(const TMacroFunction*);
 static bool panelitemFunc(const TMacroFunction*);
 static bool panelselectFunc(const TMacroFunction*);
 static bool panelsetpathFunc(const TMacroFunction*);
 static bool panelsetposFunc(const TMacroFunction*);
 static bool panelsetposidxFunc(const TMacroFunction*);
-static bool panelitemFunc(const TMacroFunction*);
+static bool pluginsFunc(const TMacroFunction*);
 static bool promptFunc(const TMacroFunction*);
 static bool replaceFunc(const TMacroFunction*);
 static bool rindexFunc(const TMacroFunction*);
@@ -342,12 +344,10 @@ static bool substrFunc(const TMacroFunction*);
 static bool testfolderFunc(const TMacroFunction*);
 static bool trimFunc(const TMacroFunction*);
 static bool ucaseFunc(const TMacroFunction*);
-static bool waitkeyFunc(const TMacroFunction*);
-static bool xlatFunc(const TMacroFunction*);
-static bool pluginsFunc(const TMacroFunction*);
 static bool usersFunc(const TMacroFunction*);
+static bool waitkeyFunc(const TMacroFunction*);
 static bool windowscrollFunc(const TMacroFunction*);
-static bool keybarshowFunc(const TMacroFunction*);
+static bool xlatFunc(const TMacroFunction*);
 
 static bool __CheckCondForSkip(DWORD Op);
 
@@ -3750,20 +3750,18 @@ static bool chrFunc(const TMacroFunction*)
 	return true;
 }
 
-// N=FMatch(S, Mask)
+// N=FMatch(S,Mask)
 static bool fmatchFunc(const TMacroFunction*)
 {
 	TVar Mask;  VMStack.Pop(Mask);
-	TVar S;    VMStack.Pop(S);
+	TVar S;     VMStack.Pop(S);
 	CFileMask FileMask;
 
-	bool Ret = FileMask.Set(Mask.toString(), 0);
-	if (Ret && FileMask.Set(Mask.toString(), FMF_SILENT))
-	  Ret = FileMask.Compare(S.toString());
-
-	VMStack.Push(Ret?1:0);
-
-	return Ret?true:false;
+	if (FileMask.Set(Mask.toString(), FMF_SILENT))
+		VMStack.Push(FileMask.Compare(S.toString()));
+	else
+		VMStack.Push(-1);
+	return true;
 }
 
 // V=Editor.Sel(Action[,Opt])
