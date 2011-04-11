@@ -3,6 +3,40 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 11.04.2011 14:42:32 +0200 - build 1954
+
+1. Codepage autodetection in editor and viewer is on by default.
+
+drkns 11.04.2011 14:42:32 +0200 - build 1953
+
+1. Plugin panel excessive update on exit from editor without saving.
+
+t-rex 11.04.2011 05:02:11 +0200 - build 1952
+
+1. Associations in sqlite are completed, the old associations.db must be removed.
+
+svs 10.04.2011 00:19:01 +0300 - build 1951
+
+1. Mantis#0001742. 
+   From DAtaMan
+     One more correction.
+     Now FMatch function returns:
+      1 - the string matches the mask
+      0 - the string does not match the mask
+     -1 - incorrect mask (error in regular expression)
+
+drkns 08.04.2011 13:47:00 +0200 - build 1950
+
+1. Color selection dialog is available to plugins.
+
+drkns 08.04.2011 12:17:31 +0200 - build 1949
+
+1. Mantis#0001746: Quick elements removal from autocompletion list
+
+2. One more correction of 1930.
+
+3. A few minor issues.
+
 drkns 06.04.2011 21:34:29 +0200 - build 1948
 
 1. reinterpret_cast -> static_cast where it is possible.
