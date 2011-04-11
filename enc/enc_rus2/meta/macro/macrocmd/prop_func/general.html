@@ -768,6 +768,39 @@
        <p>В отличии от <a href="panels.html#panel.fattr">panel.fattr()</a>, функция не работает с панелями.</p>
     </td>
   </tr>
+  <tr>
+    <td>N=<dfn><a name="FMatch">FMatch</a></dfn>(S,Mask)</td>
+    <td><p>Тестирует строку <var>S</var> на соответствие маске <var>Mask</var>.</p>
+       <p><var>Mask</var> может быть:</p>
+       <p> - маской</p>
+       <p> - списком масок (разделённых запятой или точкой с запятой)</p>
+       <p> - маской исключения - одной или несколькими масками файлов, которой не должна соответствовать строка <var>S</var>.
+       Маска исключения отделяется от основной маски символом |</p>
+       <p> - регулярным выражением. Текст регулярного выражения должен быть окружён символами /</p>
+       <p>Возвращает:</p>
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+       <tr><th>Значение</th><th>Описание</th></tr>
+        <tr><td> 1</td><td>строка соответствует маске</td></tr>
+        <tr><td> 0</td><td>строка не соответствует маске</td></tr>
+        <tr><td>-1</td><td>ошибка в регулярном выражении</td></tr>
+       </table>
+       <p>Примеры</p>
+       <table class="cont2 params lite tiny">
+         <col>
+         <col>
+         <tr>
+           <th>Вызов</th>
+           <th>Результат</th>
+         </tr>
+          <tr><td>FMatch("Readme.txt", "*.txt")</td><td>возвращает 1</td></tr>
+          <tr><td>FMatch("Readme.txt", "Readme.*|*.txt")</td><td>возвращает 0</td></tr>
+          <tr><td>FMatch(@"c:\Readme.txt", @"/txt$/i")</td><td>возвращает 1</td></tr>
+          <tr><td>FMatch(@"c:\Readme.txt", @"/txt$")</td><td>возвращает -1</td></tr>
+       </table>
+    </td>
+  </tr>
 </table>
 
 <h3>Взаимодействие с пользователем</h3>
