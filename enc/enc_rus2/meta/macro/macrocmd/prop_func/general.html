@@ -445,10 +445,18 @@
       </td>
   </tr>
   <tr>
-    <td>S=<dfn><a name="xlat">xlat</a></dfn>(S)</td>
-    <td><p>Возвращает транслитерируемую строку.</p>
+    <td>S=<dfn><a name="xlat">xlat</a></dfn>(S[,Flags])</td>
+    <td><p>Возвращает транслитерируемую строку <var>S</var>.</p>
       <p>Функция аналогична макрокоманде <a href="../xlat.html">$XLat</a>, но используется в
-      выражениях. Строковый аргумент <var>S</var> обязателен.</p></td>
+      выражениях. Необязательный аргумент <var>Flags</var> позволяет уточнять поведение функции:</p>
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+       <tr><th><var>Flags</var></th><th>Описание</th></tr>
+        <tr><td>1</td><td>переключить раскладку клавиатуры</td></tr>
+        <tr><td>2</td><td>издать системный звук</td></tr>
+       </table>
+    </td>
   </tr>
   <tr>
     <td>S=<dfn><a name="lcase">lcase</a></dfn>(S)</td>
@@ -1323,6 +1331,35 @@ $end</code></pre>
          <tr><td>history.disable(-1)</td><td>отключить все истории</td></tr>
          <tr><td>history.disable(5)</td><td>отключить историю командной строки и редактора/втювера</td></tr>
       </table>
+    </td>
+  </tr>
+
+    <tr>
+    <td>N=<dfn><a name="keybar.show">keybar.show</a></dfn>([Mode])</td>
+    <td><p>Позволяет управлять видимостью линейки функциональных клавиш.</p>
+      <p>Необязательный параметр <var>Mode</var>:</p>
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+       <tr><th><var>Mode</var></th><th>Описание</th></tr>
+        <tr><td>0</td><td>получить состояние видимости</td></tr>
+        <tr><td>1</td><td>показать линейку</td></tr>
+        <tr><td>2</td><td>скрыть линейку</td></tr>
+        <tr><td>3</td><td>изменить состояние видимости на обратное</td></tr>
+       </table>
+       <p>Функция возвращает предыдущее состояние видимости линейки:</p>
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+       <tr><th>Value</th><th>Описание</th></tr>
+        <tr><td>0</td><td>скрыта</td></tr>
+        <tr><td>1</td><td>показана</td></tr>
+        <tr><td>-1</td><td>в этой макрообласти линейка клавиш не найдена</td></tr>
+       </table>
+       Действие функции актуально только для текущих панелей, редакторов, вьюверов.
+
+       <p>Например, Esc при погашенных панелях гасить и кейбар:
+       <pre class="codesample"><code>CtrlO $if (APanel.Visible &amp;&amp; PPanel.Visible) KeyBar.Show(1) $else KeyBar.Show(2) $end</code></pre>
     </td>
   </tr>
 
