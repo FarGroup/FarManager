@@ -1728,7 +1728,7 @@ int FileList::ProcessKey(int Key)
 
 				if (Modaling && (Edit || IsColumnDisplayed(ADATE_COLUMN)) && RefreshedPanel)
 				{
-					//if (!PluginMode || UploadFile)
+					if (!PluginMode || UploadFile)
 					{
 						Update(UPDATE_KEEP_SELECTION);
 						Redraw();
