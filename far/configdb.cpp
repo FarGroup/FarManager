@@ -515,6 +515,7 @@ public:
 
 class AssociationsConfigDb: public AssociationsConfig {
 	SQLiteDb   db;
+	SQLiteStmt stmtReorder;
 	SQLiteStmt stmtAddType;
 	SQLiteStmt stmtGetMask;
 	SQLiteStmt stmtGetDescription;
@@ -525,6 +526,8 @@ class AssociationsConfigDb: public AssociationsConfig {
 	SQLiteStmt stmtEnumMasks;
 	SQLiteStmt stmtEnumMasksForType;
 	SQLiteStmt stmtDelType;
+	SQLiteStmt stmtGetWeight;
+	SQLiteStmt stmtSetWeight;
 
 public:
 
@@ -536,12 +539,13 @@ public:
 		//schema
 		db.Exec(
 			"PRAGMA foreign_keys = ON;"
-			"CREATE TABLE IF NOT EXISTS filetypes(id INTEGER PRIMARY KEY, weight INTEGER, mask TEXT, description TEXT);"
+			"CREATE TABLE IF NOT EXISTS filetypes(id INTEGER PRIMARY KEY, weight INTEGER NOT NULL, mask TEXT, description TEXT);"
 			"CREATE TABLE IF NOT EXISTS commands(ft_id INTEGER NOT NULL, type INTEGER NOT NULL, enabled INTEGER NOT NULL, command TEXT, FOREIGN KEY(ft_id) REFERENCES filetypes(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (ft_id, type));"
 		);
 
-		//create type statement
-		db.InitStmt(stmtAddType, L"INSERT INTO filetypes VALUES (NULL,(SELECT max(weight) FROM filetypes)+1,?1,?2);");
+		//add new type and reorder statements
+		db.InitStmt(stmtReorder, L"UPDATE filetypes SET weight=weight+1 WHERE weight>(CASE ?1 WHEN 0 THEN 0 ELSE (SELECT weight FROM filetypes WHERE id=?1) END);");
+		db.InitStmt(stmtAddType, L"INSERT INTO filetypes VALUES (NULL,(CASE ?1 WHEN 0 THEN 1 ELSE (SELECT weight FROM filetypes WHERE id=?1)+1 END),?2,?3);");
 
 		//get mask statement
 		db.InitStmt(stmtGetMask, L"SELECT mask FROM filetypes WHERE id=?1;");
@@ -569,6 +573,10 @@ public:
 
 		//delete type statement
 		db.InitStmt(stmtDelType, L"DELETE FROM filetypes WHERE id=?1;");
+
+		//get weight and set weight statements
+		db.InitStmt(stmtGetWeight, L"SELECT weight FROM filetypes WHERE id=?1;");
+		db.InitStmt(stmtSetWeight, L"UPDATE filetypes SET weight=?1 WHERE id=?2;");
 	}
 
 	virtual ~AssociationsConfigDb() { }
@@ -645,12 +653,24 @@ public:
 
 	bool SwapPositions(unsigned __int64 id1, unsigned __int64 id2)
 	{
+		if (stmtGetWeight.Bind(id1).Step())
+		{
+			unsigned __int64 weight1 = stmtGetWeight.GetColInt64(0);
+			stmtGetWeight.Reset();
+			if (stmtGetWeight.Bind(id2).Step())
+			{
+				unsigned __int64 weight2 = stmtGetWeight.GetColInt64(0);
+				stmtGetWeight.Reset();
+				return stmtSetWeight.Bind(weight1).Bind(id2).StepAndReset() && stmtSetWeight.Bind(weight2).Bind(id1).StepAndReset();
+			}
+		}
+		stmtGetWeight.Reset();
 		return false;
 	}
 
-	unsigned __int64 AddType(const wchar_t *Mask, const wchar_t *Description)
+	unsigned __int64 AddType(unsigned __int64 after_id, const wchar_t *Mask, const wchar_t *Description)
 	{
-		if (stmtAddType.Bind(Mask).Bind(Description).StepAndReset())
+		if (stmtReorder.Bind(after_id).StepAndReset() && stmtAddType.Bind(after_id).Bind(Mask).Bind(Description).StepAndReset())
 			return db.LastInsertRowID();
 		return 0;
 	}

@@ -100,7 +100,7 @@ public:
 	virtual bool GetCommand(unsigned __int64 id, int Type, string &strCommand, bool *Enabled=nullptr) = 0;
 	virtual bool SetCommand(unsigned __int64 id, int Type, const wchar_t *Command, bool Enabled) = 0;
 	virtual bool SwapPositions(unsigned __int64 id1, unsigned __int64 id2) = 0;
-	virtual unsigned __int64 AddType(const wchar_t *Mask, const wchar_t *Description) = 0;
+	virtual unsigned __int64 AddType(unsigned __int64 after_id, const wchar_t *Mask, const wchar_t *Description) = 0;
 	virtual bool UpdateType(unsigned __int64 id, const wchar_t *Mask, const wchar_t *Description) = 0;
 	virtual bool DelType(unsigned __int64 id) = 0;
 };

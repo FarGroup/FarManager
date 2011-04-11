@@ -550,7 +550,7 @@ bool EditTypeRecord(unsigned __int64 EditPos,bool NewRec)
 	{
 		if (NewRec)
 		{
-			EditPos = AssocConfig->AddType(EditDlg[ETR_EDIT_MASKS].strData,EditDlg[ETR_EDIT_DESCR].strData);
+			EditPos = AssocConfig->AddType(EditPos,EditDlg[ETR_EDIT_MASKS].strData,EditDlg[ETR_EDIT_DESCR].strData);
 		}
 		else
 		{
@@ -628,7 +628,10 @@ void EditFileTypes()
 					break;
 				case KEY_NUMPAD0:
 				case KEY_INS:
-					EditTypeRecord(0,true);
+					if (MenuPos-1 >= 0 && TypesMenu.GetUserData(&id,sizeof(id),MenuPos-1))
+						EditTypeRecord(id,true);
+					else
+						EditTypeRecord(0,true);
 					MenuModified=true;
 					break;
 				case KEY_NUMENTER:
