@@ -148,7 +148,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, string* PluginModule, string* Pl
 		if(Items[Pos].Count()>1)
 		{
 			VMenu FolderList(MSG(MFolderShortcutsTitle),nullptr,0,ScrY-4);
-			FolderList.SetFlags(VMENU_WRAPMODE);
+			FolderList.SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
 			FolderList.SetHelp(HelpFolderShortcuts);
 			FolderList.SetPosition(-1,-1,0,0);
 			FolderList.SetBottomTitle(MSG(MFolderShortcutBottomSub));
@@ -283,7 +283,7 @@ void Shortcuts::Add(size_t Pos, const wchar_t* Folder, const wchar_t* PluginModu
 	Item->strPluginData = PluginData;
 }
 
-void Shortcuts::MakeItemName(size_t Pos, string& str)
+void Shortcuts::MakeItemName(size_t Pos, MenuItemEx* MenuItem)
 {
 	const wchar_t* Ptr = L"";
 	if(!Items[Pos].Empty())
@@ -300,11 +300,15 @@ void Shortcuts::MakeItemName(size_t Pos, string& str)
 
 	FormatString fstr;
 	fstr << MSG(MRightCtrl) << L"+&" << Pos << L" \x2502 " << Ptr;
+	MenuItem->strName = fstr;
 	if(Items[Pos].Count() > 1)
 	{
-		fstr << L",...";
+		MenuItem->Flags|=MIF_SUBMENU;
 	}
-	str = fstr;
+	else
+	{
+		MenuItem->Flags&=~MIF_SUBMENU;
+	}
 }
 
 void Shortcuts::EditItem(VMenu* Menu, ShortcutItem* Item, bool Root)
@@ -342,7 +346,7 @@ void Shortcuts::EditItem(VMenu* Menu, ShortcutItem* Item, bool Root)
 			MenuItem->strName = Item->strFolder;
 			if(Root)
 			{
-				MakeItemName(Menu->GetSelectPos(), MenuItem->strName);
+				MakeItemName(Menu->GetSelectPos(), MenuItem);
 			}
 			Menu->SetPosition(-1, -1, -1, -1);
 			Menu->SetUpdateRequired(TRUE);
@@ -362,7 +366,7 @@ void Shortcuts::Configure()
 	for (int I=0; I < 10; I++)
 	{
 		MenuItemEx ListItem={};
-		MakeItemName(I, ListItem.strName);
+		MakeItemName(I, &ListItem);
 		FolderList.AddItem(&ListItem);
 	}
 
@@ -402,14 +406,14 @@ void Shortcuts::Configure()
 						Item->strPluginFile = Info.HostFile;
 						Item->strPluginData = Info.ShortcutData;
 					}
-					MakeItemName(Pos,MenuItem->strName);
+					MakeItemName(Pos, MenuItem);
 				}
 				else
 				{
 					if(Item)
 					{
 						Items[Pos].Delete(Item);
-						MakeItemName(Pos, MenuItem->strName);
+						MakeItemName(Pos, MenuItem);
 					}
 				}
 				FolderList.SetPosition(-1, -1, -1, -1);
@@ -424,7 +428,14 @@ void Shortcuts::Configure()
 				{
 					Item = Items[Pos].Push();
 				}
-				EditItem(&FolderList, Item, true);
+				if(Items[Pos].Count()>1)
+				{
+					FolderList.ProcessKey(KEY_ENTER);
+				}
+				else
+				{
+					EditItem(&FolderList, Item, true);
+				}
 			}
 			break;
 
