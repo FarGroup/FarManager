@@ -769,7 +769,7 @@
     </td>
   </tr>
   <tr>
-    <td>N=<dfn><a name="FMatch">FMatch</a></dfn>(S,Mask)</td>
+    <td>N=<dfn><a name="fmatch">fmatch</a></dfn>(S,Mask)</td>
     <td><p>Тестирует строку <var>S</var> на соответствие маске <var>Mask</var>.</p>
        <p><var>Mask</var> может быть:</p>
        <p> - маской</p>
@@ -1291,6 +1291,38 @@ $end</code></pre>
         <tr><td> 2</td><td>переключить значение <var>Action</var> (триггер)</td></tr>
        </table>
        Функция возвращает предыдущее значение.
+    </td>
+  </tr>
+
+    <tr>
+    <td>N=<dfn><a name="history.disable">history.disable</a></dfn>([State])</td>
+    <td><p>Позволяет отключать добавление пунктов в истории во время воспроизведения текущего макроса.</p>
+      <p>Необязательный параметр <var>State</var>:</p>
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+       <tr><th>Бит</th><th>Описание</th></tr>
+        <tr><td>0</td><td>история командной строки</td></tr>
+        <tr><td>1</td><td>история папок</td></tr>
+        <tr><td>2</td><td>история редактора/вьювера</td></tr>
+        <tr><td>3</td><td>история диалогов</td></tr>
+       </table>
+       <p>Если соответствующий бит выставлен, то история блокируется.</p>
+       <p>Если параметр не указан, то просто возвращает текущую маску.</p>
+       <p>Функция возвращает предыдущее значение.</p>
+       <p>При старте макроса разрешено добавление во все истории.</p>
+       <p>Примеры</p>
+       <table class="cont2 params lite tiny">
+        <col>
+        <col>
+        <tr>
+          <th>Вызов</th>
+          <th>Результат</th>
+        </tr>
+         <tr><td>history.disable()</td><td>получить текущее состояние блокировок историй</td></tr>
+         <tr><td>history.disable(-1)</td><td>отключить все истории</td></tr>
+         <tr><td>history.disable(5)</td><td>отключить историю командной строки и редактора/втювера</td></tr>
+      </table>
     </td>
   </tr>
 
