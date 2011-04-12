@@ -1554,7 +1554,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine, bool SeparateWindow, 
 		SilentInt=true;
 		strCmdLine.LShift(1);
 	}
-
+	DWORD Attr = INVALID_FILE_ATTRIBUTES;
 	if (!SeparateWindow && strCmdLine.At(0) && strCmdLine.At(1)==L':' && !strCmdLine.At(2))
 	{
 		if(!FarChDir(strCmdLine))
@@ -1737,23 +1737,34 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine, bool SeparateWindow, 
 		return FALSE;
 	}
 	// пропускаем обработку, если нажат Shift-Enter
-	else if (!SeparateWindow && (!StrCmpNI(strCmdLine,L"CD",Length=2) || !StrCmpNI(strCmdLine,L"CHDIR",Length=5)))
+	else if (!SeparateWindow && (!StrCmpNI(strCmdLine,L"CD",Length=2) || !StrCmpNI(strCmdLine,L"CHDIR",Length=5) || (((Attr = apiGetFileAttributes(strCmdLine)) != INVALID_FILE_ATTRIBUTES) && (Attr&FILE_ATTRIBUTE_DIRECTORY))))
 	{
-		if (!IsSpaceOrEos(strCmdLine.At(Length)))
+		if((Attr!=INVALID_FILE_ATTRIBUTES) && (Attr&FILE_ATTRIBUTE_DIRECTORY))
 		{
-			if (!IsSlash(strCmdLine.At(Length)))
-				return FALSE;
+			Length = 0;
 		}
-
-		strCmdLine.LShift(Length);
-		RemoveLeadingSpaces(strCmdLine);
-
-		//проигнорируем /D
-		//мы и так всегда меняем диск а некоторые в алайсах или по привычке набирают этот ключ
-		if (!StrCmpNI(strCmdLine,L"/D",2) && IsSpaceOrEos(strCmdLine.At(2)))
+		if (Length)
 		{
-			strCmdLine.LShift(2);
+			if (!IsSpaceOrEos(strCmdLine.At(Length)))
+			{
+				if (!IsSlash(strCmdLine.At(Length)))
+					return FALSE;
+			}
+
+			strCmdLine.LShift(Length);
 			RemoveLeadingSpaces(strCmdLine);
+
+			//проигнорируем /D
+			//мы и так всегда меняем диск а некоторые в алайсах или по привычке набирают этот ключ
+			if (!StrCmpNI(strCmdLine,L"/D",2) && IsSpaceOrEos(strCmdLine.At(2)))
+			{
+				strCmdLine.LShift(2);
+				RemoveLeadingSpaces(strCmdLine);
+			}
+		}
+		else
+		{
+				RemoveLeadingSpaces(strCmdLine);
 		}
 
 		if (strCmdLine.IsEmpty() || CheckCmdLineForHelp(strCmdLine))

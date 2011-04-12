@@ -285,7 +285,7 @@ bool elevation::Initialize()
 						ea.grfInheritance= NO_INHERITANCE;
 						ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
 						ea.Trustee.TrusteeType = TRUSTEE_IS_WELL_KNOWN_GROUP;
-						ea.Trustee.ptstrName  = (LPTSTR)AdminSID;
+						ea.Trustee.ptstrName = static_cast<LPTSTR>(AdminSID);
 						if(SetEntriesInAcl(1, &ea, NULL, &pACL) == ERROR_SUCCESS)
 						{
 							if(SetSecurityDescriptorDacl(pSD, TRUE, pACL, FALSE))
