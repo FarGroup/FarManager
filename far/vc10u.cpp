@@ -54,7 +54,7 @@ static FARPROC WINAPI delayFailureHook(/*dliNotification*/unsigned dliNotify,
     {
       return (FARPROC)no_recode_pointer;
     }
-    return NULL;
+    return nullptr;
 }
 
 //----------------------------------------------------------------------------

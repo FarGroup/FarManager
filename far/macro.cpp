@@ -5982,7 +5982,7 @@ INT_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,INT_P
 	static int LastKey=0;
 	static DlgParam *KMParam=nullptr;
 	int Index;
-	const INPUT_RECORD* record=NULL;
+	const INPUT_RECORD* record=nullptr;
 	int key=0;
 
 	if (Msg == DN_CONTROLINPUT)

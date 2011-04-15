@@ -65,7 +65,9 @@ struct ViewerString
 	__int64 nFilePos;
 	__int64 nSelStart;
 	__int64 nSelEnd;
+	int  nbytes;
 	bool bSelection;
+	bool have_eol;
 };
 
 struct InternalViewerBookMark
@@ -136,7 +138,6 @@ class Viewer:public ScreenObject
 
 		__int64 LeftPos;
 		__int64 LastPage;
-		int CRSym;
 		__int64 SelectPos,SelectSize;
 		DWORD SelectFlags;
 		__int64 SelectPosOffSet; // Используется для коррекции позиции выделения в юникодных файлах
@@ -164,10 +165,22 @@ class Viewer:public ScreenObject
 
 		UINT DefCodePage;
 
-		int vgetc_ready;
-		__int64 EOF_Pos;
 		int update_check_period;
 		DWORD last_update_check;
+
+		char *vread_buffer;
+		int vread_buffer_size;
+
+		wchar_t *Up_buffer;
+		int Up_buffer_size;
+
+		ViewerString vString;
+
+		unsigned char vgetc_buffer[32];
+		bool vgetc_ready;
+		int  vgetc_cb;
+		int  vgetc_ib;
+		wchar_t vgetc_composite;
 
 	private:
 		virtual void DisplayObject();
@@ -175,6 +188,8 @@ class Viewer:public ScreenObject
 		void ShowPage(int nMode);
 
 		void Up();
+		int WrappedLength(wchar_t *str, int line_size);
+
 		void ShowHex();
 		void ShowStatus();
 		/* $ 27.04.2001 DJ
@@ -186,24 +201,24 @@ class Viewer:public ScreenObject
 		void AdjustWidth();
 		void AdjustFilePos();
 
-		void ReadString(ViewerString *pString, int MaxSize, int StrSize);
+		void ReadString(ViewerString *pString, int MaxSize);
 		int CalcStrSize(const wchar_t *Str,int Length);
 		void ChangeViewKeyBar();
-		void SetCRSym();
 		void Search(int Next,int FirstChar);
 		void ConvertToHex(char *SearchStr,int &SearchLength);
-		int HexToNum(int Hex);
-		int vread(wchar_t *Buf,int Count, bool Raw=false, wchar_t *Buf2=NULL);
-		int vseek(__int64 Offset,int Whence);
+
+		int vread(wchar_t *Buf, int Count, wchar_t *Buf2 = nullptr);
+		bool vseek(__int64 Offset, int Whence);
 		__int64 vtell();
-		bool vgetc(WCHAR& C);
+		bool vgetc(wchar_t *ch);
+		bool veof();
+
 		void SetFileSize();
 		int GetStrBytesNum(const wchar_t *Str, int Length);
 
 	public:
 		Viewer(bool bQuickView = false, UINT aCodePage = CP_AUTODETECT);
 		virtual ~Viewer();
-
 
 	public:
 		int OpenFile(const wchar_t *Name,int warning);
@@ -273,4 +288,6 @@ class Viewer:public ScreenObject
 		int ProcessHexMode(int newMode, bool isRedraw=TRUE);
 		int ProcessWrapMode(int newMode, bool isRedraw=TRUE);
 		int ProcessTypeWrapMode(int newMode, bool isRedraw=TRUE);
+
+		void SearchTextTransform(UnicodeString &to, const wchar_t *from, bool hex2text);
 };

@@ -81,7 +81,7 @@ static int utf8_to_WideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int 
 
 Viewer::Viewer(bool bQuickView, UINT aCodePage):
 	ViOpt(Opt.ViOpt),
-	Reader(ViewFile),
+	Reader(ViewFile, 0, 0),
 	m_bQuickView(bQuickView)
 {
 	_OT(SysLog(L"[%p] Viewer::Viewer()", this));
@@ -127,8 +127,16 @@ Viewer::Viewer(bool bQuickView, UINT aCodePage):
 	SelectPosOffSet=0;
 	bVE_READ_Sent = false;
 	Signature = false;
-	vgetc_ready = -1;
-	EOF_Pos = -1;
+
+	vgetc_ready = false;
+	vgetc_cb = vgetc_ib = 0;
+	vgetc_composite = L'\0';
+
+	vread_buffer = new char[vread_buffer_size = 8192];
+	Up_buffer = new wchar_t[Up_buffer_size = 2 * (3*MAX_VIEWLINE + 2)];
+
+	memset(&vString, 0, sizeof(vString));
+	vString.lpData = new wchar_t[MAX_VIEWLINEB];
 }
 
 
@@ -168,6 +176,10 @@ Viewer::~Viewer()
 			CtrlObject->ViewerPosCache->AddPosition(strCacheName,poscache);
 		}
 	}
+
+	delete[] vString.lpData;
+	delete[] Up_buffer;
+	delete[] vread_buffer;
 
 	_tran(SysLog(L"[%p] Viewer::~Viewer, TempViewName=[%s]",this,TempViewName));
 	/* $ 11.10.2001 IS
@@ -245,12 +257,11 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 			return FALSE;
 		}
 
-		char ReadBuf[8192];
 		DWORD ReadSize,WrittenSize;
 
-		while (ReadFile(Console.GetInputHandle(),ReadBuf,sizeof(ReadBuf),&ReadSize,nullptr))
+		while (ReadFile(Console.GetInputHandle(),vread_buffer,(DWORD)vread_buffer_size,&ReadSize,nullptr))
 		{
-			ViewFile.Write(ReadBuf,ReadSize,WrittenSize);
+			ViewFile.Write(vread_buffer,ReadSize,WrittenSize);
 		}
 		ViewFile.SetPointer(0, nullptr, FILE_BEGIN);
 
@@ -276,6 +287,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 		OpenFailed=true;
 		return FALSE;
 	}
+	Reader.Init();
 
 	CodePageChangedByUser=FALSE;
 
@@ -366,7 +378,6 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 	if (FilePos>FileSize)
 		FilePos=0;
 
-	SetCRSym();
 //  if (ViOpt.AutoDetectTable && !TableChangedByUser)
 //  {
 //  }
@@ -394,22 +405,12 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 		default:              update_check_period = -1;   break; // unknown: never
 	}
 
-	// возможно не лучший метод определени€ специальных файлов:
-	//  \\.\C: \\.\D: \\.\PhysucalDrive0 \\.\CdRom0 \\?\Volume{Volume_GUID} ...
-	if (INVALID_FILE_ATTRIBUTES == GetFileAttributes(strFullFileName))
-	{
-		DWORD dummy;
-		ViewFile.IoControl(FSCTL_ALLOW_EXTENDED_DASD_IO, NULL,0, NULL,0, &dummy);
-	}
-
 	return TRUE;
 }
-
 
 /* $ 27.04.2001 DJ
    функци€ вычислени€ ширины в зависимости от наличи€ скроллбара
 */
-
 void Viewer::AdjustWidth()
 {
 	Width=X2-X1+1;
@@ -420,37 +421,6 @@ void Viewer::AdjustWidth()
 		Width--;
 		XX2--;
 	}
-}
-
-void Viewer::SetCRSym()
-{
-	if (!ViewFile.Opened())
-		return;
-
-	wchar_t Buf[2048];
-	int CRCount=0,LFCount=0;
-	int ReadSize,I;
-	vseek(0,SEEK_SET);
-	ReadSize=vread(Buf,ARRAYSIZE(Buf));
-
-	for (I=0; I<ReadSize; I++)
-		switch (Buf[I])
-		{
-			case L'\n':
-				LFCount++;
-				break;
-			case L'\r':
-
-				if (I+1>=ReadSize || Buf[I+1]!=L'\n')
-					CRCount++;
-
-				break;
-		}
-
-	if (LFCount<CRCount)
-		CRSym=L'\r';
-	else
-		CRSym=L'\n';
 }
 
 void Viewer::ShowPage(int nMode)
@@ -480,85 +450,50 @@ void Viewer::ShowPage(int nMode)
 	if (!SelectSize)
 		SelectPos=FilePos;
 
-	__int64 last_filepos = -1;
-	bool eof_mode = EOF_Pos >= 0 && nMode == SHOW_RELOAD;
-	do {
-		switch (nMode)
-		{
-			case SHOW_HEX:
-				CtrlObject->Plugins.CurViewer = this; //HostFileViewer;
-				ShowHex();
-				break;
+	switch (nMode)
+	{
+		case SHOW_HEX:
+			CtrlObject->Plugins.CurViewer = this; //HostFileViewer;
+			ShowHex();
+			break;
+		case SHOW_RELOAD:
+			CtrlObject->Plugins.CurViewer = this; //HostFileViewer;
 
-			case SHOW_RELOAD:
-				CtrlObject->Plugins.CurViewer = this; //HostFileViewer;
+			for (I=0,Y=Y1; Y<=Y2; Y++,I++)
+			{
+				Strings[I]->nFilePos = vtell();
 
-				for (I=0,Y=Y1; Y<=Y2; Y++,I++)
-				{
-					Strings[I]->nFilePos = vtell();
+				if (Y==Y1+1 && !veof())
+					SecondPos=vtell();
 
-					if (Y==Y1+1 && !ViewFile.Eof())
-						SecondPos=vtell();
-
-					ReadString(Strings[I],-1,MAX_VIEWLINEB);
-				}
-
-				if (eof_mode)
-				{
-					last_filepos = vtell();
-					eof_mode = last_filepos < EOF_Pos;
-					if (eof_mode)
-						nMode = SHOW_DOWN;
-				}
-				break;
-
-			case SHOW_UP:
-				for (I=Y2-Y1-1; I>=0; I--)
-				{
-					Strings[I+1]->nFilePos = Strings[I]->nFilePos;
-					Strings[I+1]->nSelStart = Strings[I]->nSelStart;
-					Strings[I+1]->nSelEnd = Strings[I]->nSelEnd;
-					Strings[I+1]->bSelection = Strings[I]->bSelection;
-					wcscpy(Strings[I+1]->lpData, Strings[I]->lpData);
-				}
-
-				Strings[0]->nFilePos = FilePos;
-				SecondPos = Strings[1]->nFilePos;
-				ReadString(Strings[0],(int)(SecondPos-FilePos),MAX_VIEWLINEB);
-				break;
-
-			case SHOW_DOWN:
-				for (I=0; I<Y2-Y1; I++)
-				{
-					Strings[I]->nFilePos = Strings[I+1]->nFilePos;
-					Strings[I]->nSelStart = Strings[I+1]->nSelStart;
-					Strings[I]->nSelEnd = Strings[I+1]->nSelEnd;
-					Strings[I]->bSelection = Strings[I+1]->bSelection;
-					wcscpy(Strings[I]->lpData, Strings[I+1]->lpData);
-				}
-
-				FilePos = Strings[0]->nFilePos;
-				SecondPos = Strings[1]->nFilePos;
-				vseek(Strings[Y2-Y1]->nFilePos, SEEK_SET);
-				ReadString(Strings[Y2-Y1],-1,MAX_VIEWLINEB);
-				Strings[Y2-Y1]->nFilePos = vtell();
-				ReadString(Strings[Y2-Y1],-1,MAX_VIEWLINEB);
-
-				if (eof_mode)
-				{
-					__int64 fpos = vtell();
-					if (fpos >= EOF_Pos || fpos <= last_filepos)
-					{
-						eof_mode = false; nMode = SHOW_RELOAD;
-					}
-					else
-					{
-						last_filepos = fpos;
-					}
-				}
-				break;
-		}
-	} while ( eof_mode );
+				ReadString(Strings[I], -1);
+			}
+			break;
+		case SHOW_UP:
+			if (Y2 > Y1)
+			{
+				ViewerString *tmp = Strings[Y2-Y1];
+				memmove(&Strings[1], &Strings[0], sizeof(Strings[0]) * (Y2-Y1));
+				Strings[0] = tmp;
+			}
+			Strings[0]->nFilePos = FilePos;
+			SecondPos = Strings[1]->nFilePos;
+			ReadString(Strings[0],(int)(SecondPos-FilePos));
+			break;
+		case SHOW_DOWN:
+			if (Y2 > Y1)
+			{
+				ViewerString *tmp = Strings[0];
+				memmove(&Strings[0], &Strings[1], sizeof(Strings[0]) * (Y2-Y1));
+				Strings[Y2-Y1] = tmp;
+			}
+			FilePos = Strings[0]->nFilePos;
+			SecondPos = Strings[1]->nFilePos;
+			Strings[Y2-Y1]->nFilePos = Strings[Y2-Y1-1]->nFilePos + Strings[Y2-Y1-1]->nbytes;
+			vseek(Strings[Y2-Y1]->nFilePos, SEEK_SET);
+			ReadString(Strings[Y2-Y1],-1);
+			break;
+	}
 
 	if (nMode != SHOW_HEX)
 	{
@@ -646,7 +581,7 @@ void Viewer::DisplayObject()
 
 void Viewer::ShowHex()
 {
-	wchar_t OutStr[MAX_VIEWLINE],TextStr[20];
+	wchar_t OutStr[128],TextStr[20];
 	int EndFile;
 	__int64 SelSize;
 	int X,Y,TextPos;
@@ -668,7 +603,7 @@ void Viewer::ShowHex()
 			continue;
 		}
 
-		if (Y==Y1+1 && !ViewFile.Eof())
+		if (Y==Y1+1 && !veof())
 			SecondPos=vtell();
 
 		INT64 Ptr=ViewFile.GetPointer();
@@ -697,7 +632,7 @@ void Viewer::ShowHex()
 		{
 			wchar_t line[8];
 			int nr = vread(line, 8);
-			LastPage = EndFile = ViewFile.Eof() ? 1 : 0;
+			LastPage = EndFile = veof() ? 1 : 0;
 			if (nr <= 0)
 			{
 				*OutStr = L'\0';
@@ -743,8 +678,8 @@ void Viewer::ShowHex()
 						wcscpy(OutStr+out_len, BorderLine);
 						out_len += border_len;
 					}
+					++fpos;
 				}
-				++fpos;
 			}
 		}
 		else
@@ -756,7 +691,7 @@ void Viewer::ShowHex()
 			if (nr > 16)
 				Reader.Unread(nr-16);
 
-			LastPage = EndFile = (nr <= nb) && ViewFile.Eof() ? 1 : 0;
+			LastPage = EndFile = (nr <= nb) && veof() ? 1 : 0;
 
 			if (!nr)
 			{
@@ -813,7 +748,7 @@ void Viewer::ShowHex()
 							first = false;
 							TextStr[ib++] = w1[iw] ? w1[iw] : L' ';
 						}
-						int clen = WideCharToMultiByte(CP_UTF8, 0, w2+iw, 1, NULL,0, NULL,NULL);
+						int clen = WideCharToMultiByte(CP_UTF8, 0, w2+iw, 1, nullptr, 0, nullptr, nullptr);
 						while (--clen > 0 && ib < 16)
 							TextStr[ib++] = CONTINUE_CHAR;
 						++iw;
@@ -915,200 +850,162 @@ void Viewer::SetStatusMode(int Mode)
 }
 
 
-void Viewer::ReadString(ViewerString *pString, int MaxSize, int StrSize)
+static inline bool is_space_or_nul( const wchar_t ch )
 {
-	WCHAR Ch, Ch2;
-	__int64 OutPtr;
-	bool bSelStartFound = false, bSelEndFound = false;
-	pString->bSelection = false;
+	return L'\0' == ch || IsSpace(ch);
+}
+
+static inline int wrapped_char( const wchar_t ch )
+{
+	static const wchar_t wrapped_chars[] = L",;>)"; // word-wrap enabled after it
+
+	if (is_space_or_nul(ch))
+		return +0;
+	else if (nullptr != wcschr(wrapped_chars, ch))
+		return +1;
+	else
+		return -1;
+}
+
+void Viewer::ReadString(ViewerString *pString, int MaxSize)
+{
 	AdjustWidth();
-	OutPtr=0;
+
+	int OutPtr = 0, nTab = 0, wrap_out = -1;
+	wchar_t ch, eol_char = L'\0';
+	__int64 fpos, sel_end, wrap_pos = -1;
+	bool skip_space = false;
 
 	if (VM.Hex)
 	{
-		OutPtr=vread(pString->lpData,IsUnicodeCodePage(VM.CodePage) ? 8:16);
-		pString->lpData[IsUnicodeCodePage(VM.CodePage) ? 8:16]=0;
+		vseek(IsUnicodeCodePage(VM.CodePage) ? 8 : 16, FILE_CURRENT);
+		pString->lpData[OutPtr] = L'\0';
+		LastPage = veof();
+		return;
 	}
-	else
-	{
-		bool CRSkipped=false;
 
-		if (SelectSize && vtell() > SelectPos)
+	bool bSelStartFound = false, bSelEndFound = false;
+	pString->bSelection = false;
+	sel_end = SelectPos + SelectSize;
+	fpos = vtell();
+
+	for (;;)
+	{
+		if (OutPtr >= MAX_VIEWLINE)
+			break;
+
+		if (--nTab >= 0)
+			ch = L' ';
+		else
 		{
-			pString->nSelStart = 0;
-			bSelStartFound = true;
+			fpos = vtell();
+			if (!MaxSize-- || !vgetc(&ch))
+				break;
 		}
 
-		for (;;)
+		if (SelectSize > 0)
 		{
-			if (OutPtr>=StrSize-16)
-				break;
-
-			/* $ 12.07.2000 SVS
-			  ! Wrap - трехпозиционный
-			*/
-			if (VM.Wrap && OutPtr>XX2-X1)
+			if (fpos == SelectPos)
 			{
-				/* $ 11.07.2000 tran
-				   + warp are now WORD-WRAP */
-				__int64 SavePos=vtell();
-				WCHAR TmpChar=0;
-
-				if (vgetc(Ch) && Ch!=CRSym && (Ch!=L'\r' || (vgetc(TmpChar) && TmpChar!=CRSym)))
-				{
-					vseek(SavePos,SEEK_SET);
-
-					if (VM.WordWrap)
-					{
-						if (!IsSpace(Ch) && !IsSpace(pString->lpData[(int)OutPtr]))
-						{
-							__int64 SavePtr=OutPtr;
-
-							/* $ 18.07.2000 tran
-							   добавил в качестве wordwrap разделителей , ; > ) */
-							while (OutPtr)
-							{
-								Ch2=pString->lpData[(int)OutPtr];
-
-								if (IsSpace(Ch2) || Ch2==L',' || Ch2==L';' || Ch2==L'>'|| Ch2==L')')
-									break;
-
-								OutPtr--;
-							}
-
-							Ch2=pString->lpData[(int)OutPtr];
-
-							if (Ch2==L',' || Ch2==L';' || Ch2==L')' || Ch2==L'>')
-								OutPtr++;
-							else
-								while (IsSpace(pString->lpData[(int)OutPtr]) && OutPtr<=SavePtr)
-									OutPtr++;
-
-							if (OutPtr)
-							{
-								vseek(OutPtr-SavePtr,SEEK_CUR);
-							}
-							else
-								OutPtr=SavePtr;
-						}
-
-						/* $ 13.09.2000 tran
-						   remove space at WWrap */
-						__int64 savepos=vtell();
-
-						while (IsSpace(Ch))
-						{
-							if (!vgetc(Ch))
-							{
-								break;
-							}
-						}
-
-						if (vtell()!=savepos)
-							vseek(-1,SEEK_CUR);
-					}// wwrap
-				}
-
-				break;
-			}
-
-			if (SelectSize > 0 && SelectPos==vtell())
-			{
-				pString->nSelStart = OutPtr+(CRSkipped?1:0);;
+				pString->nSelStart = OutPtr;
 				bSelStartFound = true;
 			}
-
-			if (!(MaxSize--))
-				break;
-
-			if (!vgetc(Ch))
-				break;
-
-			if (Ch==CRSym)
-				break;
-
-			if (CRSkipped)
-			{
-				CRSkipped=false;
-				pString->lpData[(int)OutPtr++]=L'\r';
-			}
-
-			if (Ch==L'\t')
-			{
-				do
-				{
-					pString->lpData[(int)OutPtr++]=L' ';
-				}
-				while ((OutPtr % ViOpt.TabSize) && ((int)OutPtr < (MAX_VIEWLINEB-1)));
-
-				if (VM.Wrap && OutPtr>XX2-X1)
-					pString->lpData[XX2-X1+1]=0;
-
-				continue;
-			}
-
-			/* $ 20.09.01 IS
-			   Ѕаг: не учитывали левую границу при свертке
-			*/
-			if (Ch==L'\r')
-			{
-				CRSkipped=true;
-
-				if (OutPtr>=XX2-X1)
-				{
-					__int64 SavePos=vtell();
-					WCHAR nextCh=0;
-
-					if (vgetc(nextCh) && nextCh!=CRSym)
-					{
-						CRSkipped=false;
-					}
-
-					vseek(SavePos,SEEK_SET);
-				}
-
-				if (CRSkipped)
-					continue;
-			}
-
-			if (!Ch || Ch==L'\n')
-				Ch=L' ';
-
-			pString->lpData[(int)OutPtr++]=Ch;
-			pString->lpData[(int)OutPtr]=0;
-
-			if (SelectSize > 0 && (SelectPos+SelectSize)==vtell())
+			if (fpos == sel_end)
 			{
 				pString->nSelEnd = OutPtr;
 				bSelEndFound = true;
 			}
 		}
+
+		if (L'\t' == ch)
+		{
+			nTab = ViOpt.TabSize - (OutPtr % ViOpt.TabSize);
+			continue;
+		}
+		if (L'\n' == ch || L'\r' == ch)
+		{
+			eol_char = ch;
+			break;
+		}
+
+		pString->lpData[OutPtr++] = ch ? ch : L' ';
+		if (!VM.Wrap)
+			continue;
+
+		if (OutPtr >= Width)
+		{
+			if (VM.WordWrap && wrap_out > 0)
+			{
+				OutPtr = wrap_out;
+				vseek(wrap_pos, SEEK_SET);
+				while (OutPtr > 0 && is_space_or_nul(pString->lpData[OutPtr-1]))
+					--OutPtr;
+				skip_space = true;
+			}
+			break;
+		}
+
+		if (!VM.WordWrap)
+			continue;
+
+		if (wrapped_char(ch) >= 0)
+		{
+			wrap_out = OutPtr;
+			wrap_pos = vtell();
+		}
 	}
 
+	if (skip_space || eol_char != L'\n') // skip spaces and/or eol-s if required
+	{
+		for (;;)
+		{
+			vgetc(nullptr);
+			int ib = vgetc_ib;
+			if (!vgetc(&ch))
+				break;
+
+			if (skip_space && is_space_or_nul(ch))
+				continue;
+
+			if (!eol_char && ch == L'\r')
+			{
+				eol_char = ch;
+				continue;
+			}
+
+			if (ch != L'\n')
+				vgetc_ib = ib; // ungetc()
+
+			eol_char = ch;
+			break;
+		}
+	}
+
+	pString->have_eol = (eol_char != L'\0');
 	pString->lpData[(int)OutPtr]=0;
+	pString->nbytes = (int)(vtell() - pString->nFilePos);
 
-	if (!bSelEndFound && SelectSize && vtell() < SelectPos+SelectSize)
+	if (SelectSize > 0 && OutPtr > 0)
 	{
-		bSelEndFound = true;
-		pString->nSelEnd = wcslen(pString->lpData);
+		if (!bSelStartFound && pString->nFilePos >= SelectPos && pString->nFilePos <= sel_end)
+		{
+			bSelStartFound = true;
+			pString->nSelStart = 0;
+		}
+		if (bSelStartFound && !bSelEndFound)
+		{
+			bSelEndFound = true;
+			pString->nSelEnd = OutPtr;
+		}
+		if (bSelEndFound && pString->nSelEnd > OutPtr)
+			pString->nSelEnd = OutPtr;
+
+		pString->bSelection = bSelStartFound && bSelEndFound;
 	}
 
-	if (bSelStartFound)
-	{
-		if (pString->nSelStart > (__int64)wcslen(pString->lpData))
-			bSelStartFound = false;
-
-		if (bSelEndFound)
-			if (pString->nSelStart > pString->nSelEnd)
-				bSelStartFound = false;
-	}
-
-	LastPage=ViewFile.Eof();
-
-	if (bSelStartFound && bSelEndFound)
-		pString->bSelection = true;
+	if (!eol_char && veof())
+		LastPage = 1;
 }
-
 
 __int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
@@ -1146,8 +1043,6 @@ __int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 */
 int Viewer::ProcessKey(int Key)
 {
-	ViewerString vString;
-
 	/* $ 22.01.2001 IS
 	     ѕроисход€т какие-то манипул€ции -> снимем выделение
 	*/
@@ -1259,16 +1154,15 @@ int Viewer::ProcessKey(int Key)
 				if (!apiGetFindDataEx(strFullFileName, NewViewFindData))
 					return TRUE;
 
-				ViewFile.FlushBuffers();
-				vseek(0,SEEK_END);
-				__int64 CurFileSize=vtell();
-
 				if (ViewFindData.ftLastWriteTime.dwLowDateTime!=NewViewFindData.ftLastWriteTime.dwLowDateTime
 				 || ViewFindData.ftLastWriteTime.dwHighDateTime!=NewViewFindData.ftLastWriteTime.dwHighDateTime
-				 || CurFileSize!=FileSize)
+				 || ViewFindData.nFileSize != NewViewFindData.nFileSize)
 				{
-					ViewFindData=NewViewFindData;
-					FileSize=CurFileSize;
+					ViewFindData = NewViewFindData;
+					SetFileSize();
+
+					Reader.Clear(); // иначе зачем вс€ эта возн€?
+					ViewFile.FlushBuffers();
 
 					if (FilePos>FileSize)
 					{
@@ -1309,7 +1203,6 @@ int Viewer::ProcessKey(int Key)
 				UndoData[ARRAYSIZE(UndoData)-1].UndoAddr=-1;
 				UndoData[ARRAYSIZE(UndoData)-1].UndoLeft=-1;
 				Show();
-//        LastSelPos=FilePos;
 			}
 
 			return TRUE;
@@ -1382,16 +1275,19 @@ int Viewer::ProcessKey(int Key)
 		}
 		case KEY_SHIFTF2:
 		{
+			LastPage = 0;
 			ProcessTypeWrapMode(!VM.WordWrap);
 			return TRUE;
 		}
 		case KEY_F2:
 		{
+			LastPage = 0;
 			ProcessWrapMode(!VM.Wrap);
 			return TRUE;
 		}
 		case KEY_F4:
 		{
+			LastPage = 0;
 			ProcessHexMode(!VM.Hex);
 			return TRUE;
 		}
@@ -1415,6 +1311,7 @@ int Viewer::ProcessKey(int Key)
 		}
 		case KEY_F8:
 		{
+			LastPage = 0;
 			if (IsUnicodeCodePage(VM.CodePage))
 			{
 				FilePos*=2;
@@ -1426,12 +1323,12 @@ int Viewer::ProcessKey(int Key)
 			VM.CodePage = VM.CodePage==GetOEMCP() ? GetACP() : GetOEMCP();
 			ChangeViewKeyBar();
 			Show();
-//    LastSelPos=FilePos;
 			CodePageChangedByUser=TRUE;
 			return TRUE;
 		}
 		case KEY_SHIFTF8:
 		{
+			LastPage = 0;
 			UINT nCodePage = SelectCodePage(VM.CodePage, true, true);
 
 			if (nCodePage!=(UINT)-1)
@@ -1443,21 +1340,18 @@ int Viewer::ProcessKey(int Key)
 					FilePos*=2;
 					SelectPos = 0;
 					SelectSize = 0;
-					SetCRSym();
 				}
 				else if (!IsUnicodeCodePage(VM.CodePage) && IsUnicodeCodePage(nCodePage))
 				{
 					FilePos=(FilePos+(FilePos&1))/2; //????
 					SelectPos = 0;
 					SelectSize = 0;
-					SetCRSym();
 				}
 
 				VM.CodePage=nCodePage;
 				SetFileSize();
 				ChangeViewKeyBar();
 				Show();
-//      LastSelPos=FilePos;
 			}
 
 			return TRUE;
@@ -1465,7 +1359,10 @@ int Viewer::ProcessKey(int Key)
 		case KEY_ALTF8:
 		{
 			if (ViewFile.Opened())
+			{
+				LastPage = 0;
 				GoTo();
+			}
 
 			return TRUE;
 		}
@@ -1521,18 +1418,22 @@ int Viewer::ProcessKey(int Key)
 		{
 			if (FilePos>0 && ViewFile.Opened())
 			{
-				Up();
+				Up();	// LastPage = 0
 
 				if (VM.Hex)
 				{
-					FilePos&=~(IsUnicodeCodePage(VM.CodePage) ? 0x7:0xf);
+					//FilePos&=~(IsUnicodeCodePage(VM.CodePage) ? 0x7:0xf);
 					Show();
 				}
 				else
+				{
 					ShowPage(SHOW_UP);
+					ViewerString *end = Strings[Y2-Y1];
+					LastPage = end->nFilePos >= FileSize ||
+					   (!end->have_eol && end->nFilePos + end->nbytes >= FileSize);
+				}
 			}
 
-//      LastSelPos=FilePos;
 			return TRUE;
 		}
 		case KEY_DOWN: case KEY_NUMPAD2:  case KEY_SHIFTNUMPAD2:
@@ -1548,7 +1449,6 @@ int Viewer::ProcessKey(int Key)
 					ShowPage(SHOW_DOWN);
 			}
 
-//      LastSelPos=FilePos;
 			return TRUE;
 		}
 		case KEY_PGUP: case KEY_NUMPAD9: case KEY_SHIFTNUMPAD9: case KEY_CTRLUP:
@@ -1559,61 +1459,36 @@ int Viewer::ProcessKey(int Key)
 					Up();
 
 				Show();
-//        LastSelPos=FilePos;
 			}
 
 			return TRUE;
 		}
 		case KEY_PGDN: case KEY_NUMPAD3:  case KEY_SHIFTNUMPAD3: case KEY_CTRLDOWN:
 		{
-			vString.lpData = new wchar_t[MAX_VIEWLINEB];
-
-			if (!vString.lpData)
-				return TRUE;
-
 			if (LastPage || !ViewFile.Opened())
-			{
-				delete[] vString.lpData;
 				return TRUE;
-			}
 
-			vseek(FilePos,SEEK_SET);
+			if (VM.Hex)
+				FilePos += (IsUnicodeCodePage(VM.CodePage) ? 8 : 16) * (Y2-Y1);
+			else
+				FilePos = Strings[Y2-Y1]->nFilePos;
 
-			for (int i=Y1; i<Y2; i++)
+			if (Key == KEY_CTRLDOWN)
 			{
-				ReadString(&vString,-1, MAX_VIEWLINEB);
+				vseek(FilePos, SEEK_SET);
+				for (int i=Y1; i<=Y2; i++)
+				ReadString(&vString,-1);
 
 				if (LastPage)
-				{
-					delete[] vString.lpData;
-					return TRUE;
-				}
-			}
-
-			FilePos=vtell();
-
-			for (int i=Y1; i<=Y2; i++)
-				ReadString(&vString,-1, MAX_VIEWLINEB);
-
-			/* $ 02.06.2003 VVM
-			  + —тарое поведение оставим на Ctrl-Down */
-
-			/* $ 21.05.2003 VVM
-			  + ѕо PgDn листаем всегда по одной странице,
-			    даже если осталась всего одна строчка.
-			    ”добно тексты читать */
-			if (LastPage && Key == KEY_CTRLDOWN)
 			{
 				InternalKey++;
 				ProcessKey(KEY_CTRLPGDN);
 				InternalKey--;
-				delete[] vString.lpData;
 				return TRUE;
+			}
 			}
 
 			Show();
-			delete [] vString.lpData;
-//      LastSelPos=FilePos;
 			return TRUE;
 		}
 		case KEY_LEFT: case KEY_NUMPAD4: case KEY_SHIFTNUMPAD4:
@@ -1627,7 +1502,6 @@ int Viewer::ProcessKey(int Key)
 				Show();
 			}
 
-//      LastSelPos=FilePos;
 			return TRUE;
 		}
 		case KEY_RIGHT: case KEY_NUMPAD6: case KEY_SHIFTNUMPAD6:
@@ -1638,7 +1512,6 @@ int Viewer::ProcessKey(int Key)
 				Show();
 			}
 
-//      LastSelPos=FilePos;
 			return TRUE;
 		}
 		case KEY_CTRLLEFT: case KEY_CTRLNUMPAD4:
@@ -1661,7 +1534,6 @@ int Viewer::ProcessKey(int Key)
 				}
 
 				Show();
-//        LastSelPos=FilePos;
 			}
 
 			return TRUE;
@@ -1686,7 +1558,6 @@ int Viewer::ProcessKey(int Key)
 				}
 
 				Show();
-//        LastSelPos=FilePos;
 			}
 
 			return TRUE;
@@ -1734,12 +1605,11 @@ int Viewer::ProcessKey(int Key)
 				LeftPos=0;
 
 		case KEY_CTRLPGUP:    case KEY_CTRLNUMPAD9:
-
 			if (ViewFile.Opened())
 			{
 				FilePos=0;
+				LastPage = 0;
 				Show();
-//        LastSelPos=FilePos;
 			}
 
 			return TRUE;
@@ -1779,20 +1649,16 @@ int Viewer::ProcessKey(int Key)
 					vseek(-1,SEEK_END);
 					WCHAR LastSym=0;
 
-					if (vgetc(LastSym) && LastSym!=CRSym)
+					if (vgetc(&LastSym) && LastSym!=L'\n' && LastSym!=L'\r')
 						++max_counter;
 
 					FilePos=vtell();
-					if (VM.Wrap && VM.WordWrap)
-						EOF_Pos = FilePos; //!!! hack to adjust possible incorrect last page show
 
 					for (int i=0; static_cast<unsigned int>(i)<max_counter; i++)
 						Up();
 				}
 
 				Show();
-				EOF_Pos = -1;
-//        LastSelPos=FilePos;
 			}
 
 			return TRUE;
@@ -1951,130 +1817,127 @@ void Viewer::Up()
 	if (!ViewFile.Opened())
 		return;
 
-	wchar_t Buf[MAX_VIEWLINE], Buf2[ARRAYSIZE(Buf)], *tBuf = Buf, *tBuf2 = NULL;
-	int BufSize,StrPos,Skipped,I,J;
+	LastPage = 0;
 
-	if (!VM.Hex && VM.CodePage == CP_UTF8)
-		tBuf = tBuf2 = Buf2;
-
-	if (FilePos > (__int64)sizeof(Buf)/sizeof(wchar_t))
-		BufSize=sizeof(Buf)/sizeof(wchar_t);
-	else
-		BufSize=(int)FilePos;
-
-	if (!BufSize)
+	if (FilePos <= 0)
 		return;
-
-	LastPage=0;
 
 	if (VM.Hex)
 	{
-		int UpSize=IsUnicodeCodePage(VM.CodePage) ? 8:16;
-
-		if (FilePos<(__int64)UpSize)
-			FilePos=0;
-		else
-			FilePos-=UpSize;
-
+		FilePos -= IsUnicodeCodePage(VM.CodePage) ? 8 : 16;
+		if (FilePos < 0)
+			FilePos = 0;
 		return;
 	}
 
-	vseek(FilePos-(__int64)BufSize,SEEK_SET);
-	BufSize = vread(Buf, BufSize, false, tBuf2);
-	Skipped=0;
+	int Skipped = 0, I = -1, BufSize = MAX_VIEWLINE + 2;
+	wchar_t *Buf = Up_buffer, *tBuf = Up_buffer, *tBuf2 = nullptr;
 
-	if (BufSize>0 && Buf[BufSize-1]==(unsigned int)CRSym)
+	if (!VM.Hex && VM.CodePage == CP_UTF8)
 	{
-		BufSize--;
-		Skipped++;
+		BufSize = Up_buffer_size / 2; // = 3*MAXLINE + 2;
+		tBuf = tBuf2 = Up_buffer + BufSize;
 	}
 
-	if (BufSize>0 && CRSym==L'\n' && Buf[BufSize-1]==L'\r')
-	{
-		BufSize--;
-		Skipped++;
-	}
+	if (FilePos < (__int64)BufSize)
+		BufSize = (int)FilePos;
 
-	for (I=BufSize-1; I>=-1; I--)
+	if (BufSize >= 512) // first try to find newline in first 256 bytes
 	{
-		/* $ 29.11.2001 DJ
-		   не обращаемс€ за границу массива (а надо было всего лишь помен€ть местами услови€...)
-		*/
-		if (I==-1 || Buf[I]==(unsigned int)CRSym)
+		vseek(FilePos-256, SEEK_SET);
+		int nr = vread(Buf, 256, tBuf2);
+
+		if (nr > 0 && Buf[nr-1] == L'\n')
 		{
-			if (!VM.Wrap)
+			--nr; ++Skipped;
+		}
+		if (nr > 0 && Buf[nr-1] == L'\r')
+		{
+			--nr; ++Skipped;
+		}
+
+		for (I = nr-1; I >= 0; I--)
+		{
+			if (Buf[I] == L'\n' || Buf[I] == L'\r')
 			{
-				FilePos -= GetStrBytesNum(tBuf + (I+1), BufSize-(I+1)) + Skipped;
-				return;
-			}
-			else
-			{
-				if (!Skipped && I==-1)
-					break;
-
-				for (StrPos=0,J=I+1; J<=BufSize; J++)
-				{
-					if (!StrPos || StrPos >= Width)
-					{
-						if (J==BufSize)
-						{
-							if (!Skipped)
-								FilePos--;
-							else
-								FilePos-=Skipped;
-
-							return;
-						}
-
-						if (CalcStrSize(&Buf[J],BufSize-J) <= Width)
-						{
-							FilePos -= GetStrBytesNum(tBuf + J, BufSize-J) + Skipped;
-							return;
-						}
-						else
-							StrPos=0;
-					}
-
-					if (J<BufSize)
-					{
-						if (Buf[J]==L'\t')
-							StrPos+=ViOpt.TabSize-(StrPos % ViOpt.TabSize);
-						else if (Buf[J]!=L'\r')
-							StrPos++;
-					}
-				}
+				BufSize = nr;
+				break;
 			}
 		}
 	}
 
-	for (I=Min(Width,BufSize); I>0; I-=5)
-		if (CalcStrSize(&Buf[BufSize-I],I) <= Width)
+	if (I < 0) // full portion read
+	{
+		vseek(FilePos - BufSize, SEEK_SET);
+		BufSize = vread(Buf, BufSize, tBuf2);
+		Skipped=0;
+
+		if (BufSize > 0 && Buf[BufSize-1]==L'\n')
 		{
-			FilePos -= GetStrBytesNum(&tBuf[BufSize-I], I)+Skipped;
-			break;
+			--BufSize; ++Skipped;
 		}
+		if (BufSize > 0 && Buf[BufSize-1] == L'\r')
+		{
+			--BufSize; ++Skipped;
+		}
+
+		int I0 = BufSize > MAX_VIEWLINE ? BufSize - MAX_VIEWLINE : 0;
+		for (I = BufSize-1; I >= I0; I--)
+		{
+			if (Buf[I] == L'\n' || Buf[I] == L'\r')
+				break;
+		}
+	}
+
+	if (!VM.Wrap)
+	{
+		FilePos -= GetStrBytesNum(tBuf + (I+1), BufSize-(I+1)) + Skipped;
+	}
+	else
+	{
+		wchar_t *line = tBuf + I+1;
+		int len, line_size = BufSize - (I+1);
+		for (;;)
+		{
+			len = WrappedLength(line, line_size);
+			if ( len >= line_size )
+				break;
+			line += len;
+			line_size -= len;
+		}
+		FilePos -= GetStrBytesNum(line, line_size + Skipped);
+	}
+	return;
 }
 
-
-int Viewer::CalcStrSize(const wchar_t *Str,int Length)
+int Viewer::WrappedLength(wchar_t *str, int line_size)
 {
-	int Size,I;
+	int width = 0, off = 0, wrap_pos = -1, wrap_ch, tab_size = ViOpt.TabSize;
+	bool wwrap = VM.Wrap && VM.WordWrap;
 
-	for (Size=0,I=0; I<Length; I++)
-		switch (Str[I])
+	for (;;)
+	{
+		if (off >= line_size)
+			return off;
+
+		wchar_t ch = str[off++];
+		width += L'\t' != ch ? 1 : tab_size - width % tab_size;
+
+		if (width >= Width)
 		{
-			case L'\t':
-				Size+=ViOpt.TabSize-(Size % ViOpt.TabSize);
-				break;
-			case L'\n':
-			case L'\r':
-				break;
-			default:
-				Size++;
-				break;
+			if (!wwrap || wrap_pos <= 0)
+				return off;
+			while (wrap_pos < line_size && is_space_or_nul(str[wrap_pos]))
+				++wrap_pos;
+			return wrap_pos;
 		}
 
-	return(Size);
+		if (!wwrap)
+			continue;
+
+		if ((wrap_ch = wrapped_char(ch)) >= 0)
+			wrap_pos = off - 1 + wrap_ch;
+	}
 }
 
 int Viewer::GetStrBytesNum(const wchar_t *Str, int Length)
@@ -2121,9 +1984,7 @@ void Viewer::ChangeViewKeyBar()
 		ViewKeyBar->Redraw();
 	}
 
-	//ViewerMode vm=VM;
 	CtrlObject->Plugins.CurViewer=this; //HostFileViewer;
-//  CtrlObject->Plugins.ProcessViewerEvent(VE_MODE,&vm);
 }
 
 enum SEARCHDLG
@@ -2173,16 +2034,23 @@ INT_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2
 		{
 			if ((Param1 == SD_RADIO_TEXT || Param1 == SD_RADIO_HEX) && Param2)
 			{
-				SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
-				bool Hex=(Param1==SD_RADIO_HEX);
-				string strDataStr;
-				Transform(strDataStr,(const wchar_t *)SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,Hex?SD_EDIT_TEXT:SD_EDIT_HEX,0),Hex?L'X':L'S');
-				SendDlgMessage(hDlg,DM_SETTEXTPTR,Hex?SD_EDIT_HEX:SD_EDIT_TEXT,(INT_PTR)strDataStr.CPtr());
-				SendDlgMessage(hDlg,DM_SDSETVISIBILITY,Hex,0);
+				SendDlgMessage(hDlg, DM_ENABLEREDRAW, FALSE, 0);
+				Viewer *viewer = (Viewer *)SendDlgMessage(hDlg, DM_GETITEMDATA, SD_EDIT_TEXT, 0);
 
-				if (!strDataStr.IsEmpty())
+				int sd_dst = Param1 == SD_RADIO_HEX  ? SD_EDIT_HEX : SD_EDIT_TEXT;
+				int sd_src = Param1 == SD_RADIO_TEXT ? SD_EDIT_HEX : SD_EDIT_TEXT;
+
+				const wchar_t *ps = (const wchar_t *)SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, sd_src, 0);
+				string strTo;
+				viewer->SearchTextTransform(strTo, ps, Param1 == SD_RADIO_TEXT);
+
+				SendDlgMessage(hDlg, DM_SETTEXTPTR, sd_dst, (INT_PTR)strTo.CPtr());
+				SendDlgMessage(hDlg, DM_SDSETVISIBILITY, Param1 == SD_RADIO_HEX, 0);
+
+				if (!strTo.IsEmpty())
 				{
-					SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,Hex?SD_EDIT_HEX:SD_EDIT_TEXT,SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,Hex?SD_EDIT_TEXT:SD_EDIT_HEX,-1));
+					int changed = (int)SendDlgMessage(hDlg, DM_EDITUNCHANGEDFLAG, sd_src, -1);
+					SendDlgMessage(hDlg, DM_EDITUNCHANGEDFLAG, sd_dst, changed);
 				}
 
 				SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
@@ -2244,6 +2112,118 @@ void ViewerSearchMsg(const wchar_t *MsgStr,int Percent)
 	PreRedraw.SetParam(preRedrawItem.Param);
 }
 
+static void ss2hex(string& to, const char *c1, int len, wchar_t sep = L' ')
+{
+	wchar_t ss[4];
+
+	for (int i = 0; i < len; ++i)
+	{
+		if (sep && i > 0)
+			to += sep;
+		_snwprintf(ss, ARRAYSIZE(ss), L"%02X", (unsigned char)c1[i]);
+		to += ss;
+	}
+}
+
+static int hex2ss(const wchar_t *from, char *c1, int mb)
+{
+	int nb, i, v, sub = 0;
+	wchar_t ch;
+
+	nb = i = v = 0;
+	for (;;)
+	{
+		ch = *from++;
+		if      (ch >= L'0' && ch <= L'9') sub = L'0';
+		else if (ch >= L'A' && ch <= L'F') sub = L'A' - 10;
+		else if (ch >= L'a' && ch <= L'f') sub = L'a' - 10;
+		else
+		{
+			if (i > 0)
+			{
+				c1[nb++] = (char)v;
+				i = 0;
+			}
+			if (!ch || nb >= mb)
+				break;
+			else
+				continue;
+		}
+		v = v*16 + ((int)ch - sub);
+		if (++i >= 2)
+		{
+			c1[nb++] = (char)v;
+			i = 0;
+			if (nb >= mb)
+				break;
+		}
+	}
+#ifdef _DEBUG
+	if (nb < mb) c1[nb] = '\0';
+#endif
+	return nb;
+}
+
+void Viewer::SearchTextTransform( UnicodeString &to, const wchar_t *from, bool hex2text )
+{
+	int nb, i, v;
+	char c1[128];
+	wchar_t ch, ss[ARRAYSIZE(c1)+1];
+
+	if (hex2text)
+	{
+		nb = hex2ss(from, c1, ARRAYSIZE(c1));
+
+		if (IsUnicodeCodePage(VM.CodePage))
+		{
+			v = CP_REVERSEBOM == VM.CodePage ? 1 : 0;
+			if (nb & 1)
+				c1[nb++] = '\0';
+
+			for (i = 0; i < nb; i += 2)
+			{
+				ch = MAKEWORD(c1[i+v], c1[i+1-v]);
+				if (!ch)
+					ch = 0xffff; // encode L'\0'
+				to += ch;
+			}
+		}
+		else
+		{
+			int nw = MultiByteToWideChar(VM.CodePage,0, c1,nb, ss,ARRAYSIZE(ss));
+			for (i=0; i < nw; ++i)
+				if (!ss[i])
+					ss[i] = 0xffff;
+			ss[nw] = L'\0';
+			to = ss;
+		}
+	}
+	else // text2hex
+	{
+		while (*from)
+		{
+			ch = *from++;
+			if (0xffff == ch)	// 0xffff - invalid unicode char
+				ch = 0x0000;   // it used to transfer '\0' in zero terminated string
+
+			switch (VM.CodePage)
+			{
+				case CP_UNICODE:
+					nb = 2; c1[0] = (char)LOBYTE(ch); c1[1] = (char)HIBYTE(ch);
+				break;
+				case CP_REVERSEBOM:
+					nb = 2; c1[0] = (char)HIBYTE(ch); c1[1] = (char)LOBYTE(ch);
+				break;
+				default:
+					nb = WideCharToMultiByte(VM.CodePage,0, &ch, 1, c1, 4, nullptr, nullptr);
+				break;
+			}
+
+			ss2hex(to, c1, nb, L'\0');
+		}
+	}
+}
+
 /* $ 27.01.2003 VVM
    + ѕараметр Next может принимать значени€:
    0 - Ќовый поиск
@@ -2274,6 +2254,7 @@ void Viewer::Search(int Next,int FirstChar)
 	};
 	MakeDialogItemsEx(SearchDlgData,SearchDlg);
 	string strSearchStr;
+	char search_bytes[128];
 	string strMsgStr;
 	__int64 MatchPos=0;
 	int SearchLength,Case,WholeWords,ReverseSearch,Match,SearchRegexp;
@@ -2296,17 +2277,17 @@ void Viewer::Search(int Next,int FirstChar)
 	if (SearchFlags.Check(REVERSE_SEARCH))
 		SearchDlg[SD_CHECKBOX_REVERSE].Selected=!SearchDlg[SD_CHECKBOX_REVERSE].Selected;
 
-	if (IsUnicodeCodePage(VM.CodePage))
-	{
-		SearchDlg[SD_RADIO_TEXT].Selected=TRUE;
-		SearchDlg[SD_RADIO_HEX].Flags|=DIF_DISABLE;
-		SearchDlg[SD_RADIO_HEX].Selected=FALSE;
-	}
-
 	if (SearchDlg[SD_RADIO_HEX].Selected)
+	{
+		int nb = hex2ss(strSearchStr.CPtr(), search_bytes, ARRAYSIZE(search_bytes));
+		strSearchStr.Clear();
+		ss2hex(strSearchStr, search_bytes, nb, L'\0');
 		SearchDlg[SD_EDIT_HEX].strData = strSearchStr;
+	}
 	else
 		SearchDlg[SD_EDIT_TEXT].strData = strSearchStr;
+
+	SearchDlg[SD_EDIT_TEXT].UserData = (DWORD_PTR)this;
 
 	if (!Next)
 	{
@@ -2334,17 +2315,22 @@ void Viewer::Search(int Next,int FirstChar)
 	ReverseSearch=SearchDlg[SD_CHECKBOX_REVERSE].Selected;
 	SearchRegexp=SearchDlg[SD_CHECKBOX_REGEXP].Selected;
 
-	bool t_utf8 = false;
+	bool t_utf8 = !SearchHex && VM.CodePage == CP_UTF8;
 
 	if (SearchHex)
 	{
 		strSearchStr = SearchDlg[SD_EDIT_HEX].strData;
-		RemoveTrailingSpaces(strSearchStr);
+		SearchLength = hex2ss(strSearchStr.CPtr(), search_bytes, ARRAYSIZE(search_bytes));
+		strSearchStr.Clear();
+		ss2hex(strSearchStr, search_bytes, SearchLength, L' ');
 	}
 	else
 	{
 		strSearchStr = SearchDlg[SD_EDIT_TEXT].strData;
-		t_utf8 = VM.CodePage == CP_UTF8;
+		SearchLength = (int)strSearchStr.GetLength();
+		size_t pos = 0;
+		while (strSearchStr.Pos(pos, 0xffff))
+			strSearchStr.Replace(pos, 1, L'\0');
 	}
 
 	strLastSearchStr = strSearchStr;
@@ -2357,7 +2343,7 @@ void Viewer::Search(int Next,int FirstChar)
 
 	LastSearchRegexp=SearchRegexp;
 
-	if (!(SearchLength=(int)strSearchStr.GetLength()))
+	if (!SearchLength)
 		return;
 
 	{
@@ -2369,14 +2355,11 @@ void Viewer::Search(int Next,int FirstChar)
 		if (strMsgStr.GetLength()+18 > static_cast<DWORD>(ObjWidth))
 			TruncStrFromEnd(strMsgStr, ObjWidth-18);
 
-		InsertQuote(strMsgStr);
+		if (!SearchHex)
+			InsertQuote(strMsgStr);
 
 		if (SearchHex)
-		{
-			Transform(strSearchStr,strSearchStr,L'S');
-			SearchLength=(int)strSearchStr.GetLength();
-			WholeWords=0;
-		}
+			Case = 1 + (WholeWords = 0);
 
 		if (!Case && !SearchHex)
 			strSearchStr.Upper();
@@ -2404,13 +2387,22 @@ void Viewer::Search(int Next,int FirstChar)
 		}
 
 		vseek(LastSelPos,SEEK_SET);
-		Match=0;
+		Match = 0;
 
-		if (SearchLength>0 && (!ReverseSearch || LastSelPos>0))
+		if (SearchLength > 0 && (!ReverseSearch || LastSelPos > 0))
 		{
-			static wchar_t Buf[8192], t_Buf[ARRAYSIZE(Buf)];
+			wchar_t *Buf = new wchar_t[8192 + 8192], *t_Buf = t_utf8 ? Buf + 8192 : nullptr;
+			int buf_size = 8192, seek_size = 1;
+			char *byte_buff = nullptr;
+			if (SearchHex)
+			{
+				byte_buff = (char *)Buf;
+				buf_size *= 2*(int)sizeof(wchar_t);
+				seek_size = IsUnicodeCodePage(VM.CodePage) ? 2 : 1;
+			}
+
 			__int64 CurPos=LastSelPos;
-			int BufSize=ARRAYSIZE(Buf);
+			int BufSize = buf_size;
 
 			if (ReverseSearch)
 			{
@@ -2418,19 +2410,19 @@ void Viewer::Search(int Next,int FirstChar)
 				   »зменЄно вычисление CurPos с учЄтом Whole words
 				*/
 				if (WholeWords)
-					CurPos-=ARRAYSIZE(Buf)-SearchLength+1;
+					CurPos -= BufSize/seek_size - SearchLength/seek_size + 1;
 				else
-					CurPos-=ARRAYSIZE(Buf)-SearchLength;
+					CurPos -= BufSize/seek_size - SearchLength/seek_size;
 
 				if (CurPos<0)
-					BufSize+=(int)CurPos;
+					BufSize += (int)CurPos * seek_size;
 			}
 
 			int ReadSize;
 			TaskBar TB;
 			wakeful W;
-			INT64 StartPos=vtell();
-			DWORD StartTime=GetTickCount();
+			INT64 StartPos = vtell();
+			DWORD StartTime = GetTickCount();
 
 			while (!Match)
 			{
@@ -2439,14 +2431,21 @@ void Viewer::Search(int Next,int FirstChar)
 				   так как при обычном пр€мом и LastSelPos=0xFFFFFFFF, поиск
 				   заканчивалс€ так и не начавшись.
 				*/
-				if (CurPos<0)
-					CurPos=0;
+				if (CurPos < 0)
+					CurPos = 0;
 
-				vseek(CurPos,SEEK_SET);
+				vseek(CurPos, SEEK_SET);
 
-				ReadSize = t_utf8
-					? vread(Buf, BufSize, false, t_Buf)
-					: vread(Buf, BufSize, SearchHex!=0);
+				if (SearchHex)
+				{
+					DWORD nr = 0;
+					Reader.Read(byte_buff, (DWORD)BufSize, &nr);
+					ReadSize = (int)nr;
+				}
+				else
+				{
+					ReadSize = vread(Buf, BufSize, t_Buf);
+				}
 				if (ReadSize <= 0)
 					break;
 
@@ -2488,7 +2487,7 @@ void Viewer::Search(int Next,int FirstChar)
 				   и если нет, тогда Buf приводитс€ к верхнему регистру
 				*/
 				if (!Case && !SearchHex)
-					CharUpperBuff(Buf,ReadSize);
+					CharUpperBuff(Buf, ReadSize);
 
 				/* $ 01.08.2000 KM
 				   ”бран кусок текста после приведени€ поисковой строки
@@ -2496,7 +2495,7 @@ void Viewer::Search(int Next,int FirstChar)
 				   или не ищетс€ Hex-строка и в св€зи с этим переработан код поиска
 				*/
 				int MaxSize=ReadSize-SearchLength+1;
-				int Increment=ReverseSearch ? -1:+1;
+				int Increment=ReverseSearch ? -seek_size : +seek_size;
 
 				for (int I=ReverseSearch ? MaxSize-1:0; I<MaxSize && I>=0; I+=Increment)
 				{
@@ -2532,13 +2531,28 @@ void Viewer::Search(int Next,int FirstChar)
 						locResultRight=TRUE;
 					}
 
-					Match=locResultLeft && locResultRight && strSearchStr.At(0)==Buf[I] &&
-					      (SearchLength==1 || (strSearchStr.At(1)==Buf[I+1] &&
-					                           (SearchLength==2 || !memcmp(strSearchStr.CPtr()+2,&Buf[I+2],(SearchLength-2)*sizeof(wchar_t)))));
+					if (!SearchHex)
+					{
+						Match = locResultLeft && locResultRight && strSearchStr.At(0) == Buf[I] &&
+							( SearchLength==1 ||
+								( strSearchStr.At(1) == Buf[I+1] &&
+									(SearchLength==2 || !memcmp(strSearchStr.CPtr()+2,&Buf[I+2],(SearchLength-2)*sizeof(wchar_t)))
+								)
+							)
+						;
+					}
+					else
+					{
+						if ((Match = search_bytes[0] == byte_buff[I+0]) && SearchLength > 1)
+							if ((Match = search_bytes[1] == byte_buff[I+1]) && SearchLength > 2)
+								if ((Match = search_bytes[2] == byte_buff[I+2]) && SearchLength > 3)
+									if ((Match = search_bytes[3] == byte_buff[I+3]) && SearchLength > 4)
+										Match = !memcmp(search_bytes+4, byte_buff+I+4, SearchLength-4);
+					}
 
 					if (Match)
 					{
-						MatchPos=CurPos+I;
+						MatchPos = CurPos + I / seek_size;
 						if (t_utf8)
 						{
 							MatchPos = CurPos + GetStrBytesNum(t_Buf, I);
@@ -2548,10 +2562,10 @@ void Viewer::Search(int Next,int FirstChar)
 					}
 				}
 
-				if ((ReverseSearch && CurPos <= 0) || (!ReverseSearch && ViewFile.Eof()))
+				if ((ReverseSearch && CurPos <= 0) || (!ReverseSearch && veof()))
 					break;
 
-				int asz = ARRAYSIZE(Buf);
+				int asz = buf_size;
 				if (t_utf8)
 					asz = GetStrBytesNum(t_Buf, ReadSize);
 
@@ -2561,18 +2575,20 @@ void Viewer::Search(int Next,int FirstChar)
 					   »зменЄно вычисление CurPos с учЄтом Whole words
 					*/
 					if (WholeWords)
-						CurPos-=asz-SearchLength+1;
+						CurPos -= asz/seek_size - SearchLength/seek_size + 1;
 					else
-						CurPos-=asz-SearchLength;
+						CurPos -= asz/seek_size - SearchLength/seek_size;
 				}
 				else
 				{
 					if (WholeWords)
-						CurPos+=asz-SearchLength+1;
+						CurPos += asz/seek_size - SearchLength/seek_size + 1;
 					else
-						CurPos+=asz-SearchLength;
+						CurPos += asz/seek_size - SearchLength/seek_size;
 				}
 			}
+
+			delete[] Buf;
 		}
 	}
 
@@ -2602,61 +2618,21 @@ void Viewer::Search(int Next,int FirstChar)
 		/* $ 27.01.2003 VVM
 		   + ѕосле окончани€ поиска спросим о переходе поиска в начало/конец */
 		if (SearchFlags.Check(SEARCH_MODE2))
+		{
 			Message(MSG_WARNING,1,MSG(MViewSearchTitle),
 			        (SearchHex?MSG(MViewSearchCannotFindHex):MSG(MViewSearchCannotFind)),strMsgStr,MSG(MOk));
+		}
 		else
 		{
 			if (!Message(MSG_WARNING,2,MSG(MViewSearchTitle),
 			            (SearchHex?MSG(MViewSearchCannotFindHex):MSG(MViewSearchCannotFind)),strMsgStr,
 			            (ReverseSearch?MSG(MViewSearchFromEnd):MSG(MViewSearchFromBegin)),
 			            MSG(MHYes),MSG(MHNo)))
+			{
 				Search(2,0);
+			}
 		}
 	}
-}
-
-
-/*void Viewer::ConvertToHex(char *SearchStr,int &SearchLength)
-{
-  char OutStr[512],*SrcPtr;
-  int OutPos=0,N=0;
-  SrcPtr=SearchStr;
-  while (*SrcPtr)
-  {
-    while (IsSpaceA(*SrcPtr))
-      SrcPtr++;
-    if (SrcPtr[0])
-      if (!SrcPtr[1] || IsSpaceA(SrcPtr[1]))
-      {
-        N=HexToNum(SrcPtr[0]);
-        SrcPtr++;
-      }
-      else
-      {
-        N=16*HexToNum(SrcPtr[0])+HexToNum(SrcPtr[1]);
-        SrcPtr+=2;
-      }
-    if (N>=0)
-      OutStr[OutPos++]=N;
-    else
-      break;
-  }
-  memcpy(SearchStr,OutStr,OutPos);
-  SearchLength=OutPos;
-}*/
-
-
-int Viewer::HexToNum(int Hex)
-{
-	Hex=toupper(Hex);
-
-	if (Hex>='0' && Hex<='9')
-		return(Hex-'0');
-
-	if (Hex>='A' && Hex<='F')
-		return(Hex-'A'+10);
-
-	return(-1000);
 }
 
 
@@ -2748,11 +2724,9 @@ void Viewer::SetNamesList(NamesList *List)
 
 static int utf8_to_WideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int wlen, int &tail )
 {
-	if ( wlen <= 0 )
-	{
-		tail = nc;
-		return 0;
-	}
+	bool need_one = wlen <= 0;
+	if (need_one)
+		wlen = 2;
 
 	int ic = 0, nw = 0, wc;
 
@@ -2850,7 +2824,7 @@ static int utf8_to_WideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int 
 			if (w2)
 				w2[nw] = L'?';
 		}
-		if (++nw >= wlen)
+		if (++nw >= wlen || need_one)
 			break;
 	}
 
@@ -2858,168 +2832,166 @@ static int utf8_to_WideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int 
 	return nw;
 }
 
-int Viewer::vread(wchar_t *Buf,int Count, bool Raw, wchar_t *Buf2)
+int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 {
+	if (Count <= 0)
+		return 0;
+
+	DWORD ReadSize = 0;
+
 	if (IsUnicodeCodePage(VM.CodePage))
 	{
-		// выдел€ем столько, сколько нужно!
-		char *TmpBuf=new char[Count*2+16];
+		Reader.Read(Buf, Count*2, &ReadSize);
+		if (0 != (ReadSize & 1))
+			((char *)Buf)[ReadSize++] = '\0';
 
-		if (!TmpBuf)
-			return -1;
-
-		DWORD ReadSize=0;
-		Reader.Read(TmpBuf, Count*2, &ReadSize);
-		TmpBuf[ReadSize]=0;
-		/* $ 20.10.2000 tran
-		   обратный пор€док байтов */
-		TmpBuf[ReadSize+1]=0;
-
-		if (!Raw && VM.CodePage == CP_REVERSEBOM)
+		if (CP_REVERSEBOM == VM.CodePage)
 		{
 			for (DWORD i=0; i<ReadSize; i+=2)
 			{
-				char t=TmpBuf[i];
-				TmpBuf[i]=TmpBuf[i+1];
-				TmpBuf[i+1]=t;
+				char t = ((char *)Buf)[i];
+				((char *)Buf)[i] = ((char *)Buf)[i+1];
+				((char *)Buf)[i+1] = t;
 			}
 		}
 
-		memcpy(Buf, TmpBuf, Count*2);
-		ReadSize+=(ReadSize & 1);
-		delete[] TmpBuf;
-		return(ReadSize/2);
+		ReadSize /= 2;
 	}
 	else
 	{
-		char *TmpBuf=new char[Count+16];
+		char *TmpBuf = vread_buffer;
+		if (Count > vread_buffer_size)
+			TmpBuf = new char[Count];
 
-		if (!TmpBuf)
-			return -1;
-
-		DWORD ReadSize=0;
 		Reader.Read(TmpBuf, Count, &ReadSize);
-		int ConvertSize=ReadSize;
+		int ConvertSize = (int)ReadSize;
 
-		if (Count == 1)
+		if (VM.CodePage != CP_UTF8)
 		{
-			//≈сли UTF8 то простой ли это символ или нет?
-			unsigned int c=*TmpBuf;
-
-			if (VM.CodePage==CP_UTF8 && ReadSize && (c&0x80) )
-			{
-				/*
-				UTF-8 format
-				Byte1     Byte2     Byte3     Byte4
-				0xxxxxxx
-				110yyyxx  10xxxxxx
-				1110yyyy  10yyyyxx  10xxxxxx
-				11110zzz  10zzyyyy  10yyyyxx  10xxxxxx
-				*/
-#if 0
-				//ћы посреди буквы? “огда ищем начало следующей.
-				while ((c&0xC0) == 0x80)
-				{
-					DWORD Readed=0;
-					if(!(Reader.Read(TmpBuf, 1, &Readed) && Readed==1))
-						break;
-
-					ReadSize++;
-					c=*TmpBuf;
-				}
-#endif
-				//ѕосчитаем сколько байт нам ещЄ надо прочитать чтоб получить целую букву.
-				DWORD cc=1;
-				c = c & 0xF0;
-
-				if (c == 0xE0)
-					cc = 2;
-				else if (c == 0xF0)
-					cc = 3;
-
-				DWORD CurRead=0;
-				Reader.Read(TmpBuf+1, cc, &CurRead);
-				ReadSize += CurRead;
-				ConvertSize = Min(cc+1,ReadSize);
-			}
-		}
-
-		if (Raw)
-		{
-			for (int i=0; i<ConvertSize; i++)
-			{
-				Buf[i]=TmpBuf[i];
-			}
+			ReadSize = (DWORD)MultiByteToWideChar(VM.CodePage,0, TmpBuf,ConvertSize, Buf,Count);
 		}
 		else
 		{
-			if (VM.CodePage != CP_UTF8)
-				ReadSize = MultiByteToWideChar(VM.CodePage, 0, TmpBuf, ConvertSize, Buf, Count);
-			else
-			{
-				int tail;
-				ReadSize = (DWORD)utf8_to_WideChar(TmpBuf, ConvertSize, Buf,Buf2, Count, tail);
-				if (tail)
-					Reader.Unread(tail);
-			}
+			int tail;
+			ReadSize = (DWORD)utf8_to_WideChar(TmpBuf, ConvertSize, Buf,Buf2, Count, tail);
+			if (tail)
+				Reader.Unread(tail);
 		}
 
-		delete[] TmpBuf;
-		return ReadSize;
+		if (TmpBuf != vread_buffer)
+			delete[] TmpBuf;
 	}
+
+	return (int)ReadSize;
 }
 
-int Viewer::vseek(__int64 Offset,int Whence)
+bool Viewer::vseek(__int64 Offset, int Whence)
 {
-	vgetc_ready = -1;
-	return ViewFile.SetPointer(Offset*(IsUnicodeCodePage(VM.CodePage)?2:1), nullptr, Whence);
+	int seek_size = IsUnicodeCodePage(VM.CodePage) ? 2 : 1;
+	Offset *= seek_size;
+
+	if (FILE_CURRENT == Whence)
+	{
+		if (vgetc_ready)
+		{
+			int tail = vgetc_cb - vgetc_ib;
+			tail += (seek_size - 1) * (tail & 1);
+			Offset += tail;
+			vgetc_ready = false;
+		}
+		if (0 == Offset)
+			return true;
+	}
+
+	vgetc_ready = false;
+	return ViewFile.SetPointer(Offset, nullptr, Whence);
 }
 
 __int64 Viewer::vtell()
 {
-	INT64 Ptr=ViewFile.GetPointer();
+	__int64 Ptr = ViewFile.GetPointer();
+
+	if (vgetc_ready)
+		Ptr -= (vgetc_cb - vgetc_ib);
+
 	if (IsUnicodeCodePage(VM.CodePage))
-	{
 		Ptr=(Ptr+(Ptr&1))/2;
-	}
+
 	return Ptr;
 }
 
-bool Viewer::vgetc(WCHAR& C)
+bool Viewer::veof()
 {
-	bool Result;
-	if (VM.Hex || VM.CodePage != CP_UTF8)
-		Result = (vread(&C,1) > 0);
+	if (vgetc_ready && vgetc_ib < vgetc_cb)
+		return false;
 	else
+		return ViewFile.Eof();
+}
+
+bool Viewer::vgetc(wchar_t *pCh)
+{
+	if (!vgetc_ready)
+		vgetc_cb = vgetc_ib = (int)(vgetc_composite = 0);
+
+	if (vgetc_cb - vgetc_ib < 4 && !ViewFile.Eof())
 	{
-		if (vgetc_ready >= 0)
-		{
-			C = (WCHAR)vgetc_ready;
-			vgetc_ready = -1;
-			Result = true;
-		}
-		else
-		{
-			wchar_t w1[4], w2[4];
-			int need = 1;
-			int nw = vread(w1, 4, false, w2);
-			if (true == (Result = (nw > 0)))
-			{
-				C = w1[0];
-				if (nw > need && 0xD800 == (w1[0] & 0xFC00) && 0xDC00 == (w1[1] & 0xFC00))
-				{
-					++need;
-					vgetc_ready = w1[1];
-				}
-				if (nw > need)
-				{
-					int tail = GetStrBytesNum(w2+need, nw-need);
-					Reader.Unread(tail);
-				}
-			}
-		}
+		vgetc_cb -= vgetc_ib;
+		if (vgetc_cb && vgetc_ib)
+			memmove(vgetc_buffer, vgetc_buffer+vgetc_ib, vgetc_cb);
+		vgetc_ib = 0;
+
+		DWORD nr = 0;
+		Reader.Read(vgetc_buffer + vgetc_cb, (DWORD)(ARRAYSIZE(vgetc_buffer)-vgetc_cb), &nr);
+		vgetc_cb += (int)nr;
+
+		if (0 != (vgetc_cb & 1) && IsUnicodeCodePage(VM.CodePage))
+			vgetc_buffer[vgetc_cb++] = 0;
 	}
-	return Result;
+
+	vgetc_ready = true;
+
+	if (vgetc_composite)
+	{
+		if (pCh)
+			*pCh = vgetc_composite;
+		vgetc_composite = 0;
+		return true;
+	}
+
+	if (!pCh)
+		return true;
+
+	if (vgetc_cb <= vgetc_ib)
+		return false;
+
+	switch (VM.CodePage)
+	{
+		case CP_UNICODE:
+			*pCh = (wchar_t)((vgetc_buffer[vgetc_ib] << 8) | vgetc_buffer[vgetc_ib+1]);
+			vgetc_ib += 2;
+		break;
+		case CP_REVERSEBOM:
+			*pCh = (wchar_t)((vgetc_buffer[vgetc_ib+1] << 8) | vgetc_buffer[vgetc_ib]);
+			vgetc_ib += 2;
+		break;
+		case CP_UTF8:
+		{
+			int tail;
+			wchar_t w[2];
+			int nw = utf8_to_WideChar((const char *)vgetc_buffer+vgetc_ib, vgetc_cb-vgetc_ib, w,nullptr, -2,tail);
+			vgetc_ib = vgetc_cb - tail;
+			*pCh = w[0];
+			if (nw > 1)
+				vgetc_composite = w[1];
+			break;
+		}
+		default:
+			MultiByteToWideChar(VM.CodePage, 0, (LPCSTR)vgetc_buffer+vgetc_ib,1, pCh,1);
+			++vgetc_ib;
+		break;
+	}
+
+	return true;
 }
 
 #define RB_PRC 3
@@ -3169,36 +3141,45 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 
 void Viewer::AdjustFilePos()
 {
+	wchar_t ch;
+
 	if (!VM.Hex)
 	{
-		wchar_t Buf[4096];
-		__int64 StartLinePos=-1,GotoLinePos=FilePos-(__int64)sizeof(Buf)/sizeof(wchar_t);
-
-		if (GotoLinePos<0)
-			GotoLinePos=0;
-
-		vseek(GotoLinePos,SEEK_SET);
-		int ReadSize=(int)Min((__int64)ARRAYSIZE(Buf),(__int64)(FilePos-GotoLinePos));
-		ReadSize=vread(Buf,ReadSize);
-
-		for (int I=ReadSize-1; I>=0; I--)
-			if (Buf[I]==(unsigned int)CRSym)
-			{
-				StartLinePos=GotoLinePos+I;
-				break;
-			}
-
-		vseek(FilePos+1,SEEK_SET);
-
-		if (VM.Hex)
-			FilePos&=~(IsUnicodeCodePage(VM.CodePage) ? 0x7:0xf);
+		vseek(FilePos, SEEK_SET);
+		if (VM.CodePage != CP_UTF8)
+		{
+			vgetc(&ch);
+		}
 		else
 		{
-			if (FilePos!=StartLinePos)
-				Up();
+			vgetc(nullptr);
+			if (vgetc_ib < vgetc_cb)
+			{
+				if (0x80 == (vgetc_buffer[vgetc_ib] & 0xC0))
+		{
+					if (++vgetc_ib < vgetc_cb)
+					{
+						if (0x80 == (vgetc_buffer[vgetc_ib] & 0xC0))
+						{
+							if (++vgetc_ib < vgetc_cb)
+							{
+								if (0x80 == (vgetc_buffer[vgetc_ib] & 0xC0))
+									++vgetc_ib;
+							}
+						}
+					}
+		}
+				else
+		{
+					vgetc(&ch);
+				}
+			}
+		}
+
+		   FilePos = vtell();
+			Up();
 		}
 	}
-}
 
 void Viewer::SetFileSize()
 {
@@ -3235,31 +3216,32 @@ void Viewer::SelectText(const __int64 &MatchPos,const __int64 &SearchLength, con
 	if (!ViewFile.Opened())
 		return;
 
-	wchar_t Buf[1024], Buf2[ARRAYSIZE(Buf)], *tBuf=(!VM.Hex && VM.CodePage == CP_UTF8) ? Buf2 : NULL;
-	__int64 StartLinePos=-1,SearchLinePos=MatchPos-sizeof(Buf)/sizeof(wchar_t);
+	int buff_size = 1024;
+	wchar_t *Buf = Up_buffer, *tBuf = (!VM.Hex && VM.CodePage == CP_UTF8) ? Buf + buff_size : nullptr;
+	__int64 StartLinePos = -1, SearchLinePos = MatchPos - buff_size;
+	if (SearchLinePos < 0)
+	{
+		buff_size += (int)SearchLinePos;
+		SearchLinePos = 0;
+	}
 
-	if (SearchLinePos<0)
-		SearchLinePos=0;
+	vseek(SearchLinePos, SEEK_SET);
+	int ReadSize = vread(Buf, buff_size, tBuf);
 
-	vseek(SearchLinePos,SEEK_SET);
-	int ReadSize=(int)Min((__int64)ARRAYSIZE(Buf),(__int64)(MatchPos-SearchLinePos));
-	ReadSize=vread(Buf,ReadSize, false, tBuf);
+	for (int I=ReadSize-1; I >= 0; I--)
+	if (Buf[I]==L'\n' || Buf[I]==L'\r')
+	{
+		if (tBuf)
+			StartLinePos = MatchPos - GetStrBytesNum(tBuf+I, ReadSize-I);
+		else
+			StartLinePos = SearchLinePos+I;
+		break;
+	}
 
-	for (int I=ReadSize-1; I>=0; I--)
-		if (Buf[I]==(unsigned int)CRSym)
-		{
-			if (tBuf)
-				StartLinePos = MatchPos - GetStrBytesNum(tBuf+I, ReadSize-I);
-			else
-				StartLinePos=SearchLinePos+I;
-			break;
-		}
-
-//MessageBeep(0);
-	vseek(MatchPos+1,SEEK_SET);
-	SelectPos=FilePos=MatchPos;
-	SelectSize=SearchLength;
-	SelectFlags=Flags;
+	vseek(MatchPos+1, SEEK_SET);
+	SelectPos = FilePos=MatchPos;
+	SelectSize = SearchLength;
+	SelectFlags = Flags;
 
 //  LastSelPos=SelectPos+((Flags&0x2) ? -1:1);
 	if (VM.Hex)
@@ -3268,7 +3250,7 @@ void Viewer::SelectText(const __int64 &MatchPos,const __int64 &SearchLength, con
 	}
 	else
 	{
-		if (SelectPos!=StartLinePos)
+		if (SelectPos != StartLinePos)
 		{
 			Up();
 			Show();  //update OutStr
@@ -3327,7 +3309,7 @@ int Viewer::ViewerControl(int Command,void *Param)
 				Info->FilePos=FilePos;
 				Info->FileSize=FileSize;
 				Info->CurMode=VM;
-				Info->Options=VOPT_NONE;
+				Info->Options=0;
 
 				if (Opt.ViOpt.SavePos)   Info->Options|=VOPT_SAVEFILEPOSITION;
 
@@ -3501,6 +3483,9 @@ int Viewer::ProcessHexMode(int newMode, bool isRedraw)
 	int oldHex=VM.Hex;
 	VM.Hex=newMode&1;
 
+	if (!VM.Hex)
+		AdjustFilePos();
+
 	if (isRedraw)
 	{
 		ChangeViewKeyBar();
@@ -3519,8 +3504,8 @@ int Viewer::ProcessWrapMode(int newMode, bool isRedraw)
 	if (VM.Wrap)
 		LeftPos = 0;
 
-	if (!VM.Wrap && LastPage)
-		Up();
+	if (!VM.Wrap)
+		AdjustFilePos();
 
 	if (isRedraw)
 	{

@@ -1737,7 +1737,7 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 				FINDLIST FindItem;
 				itd.GetFindListItem(ItemIndex, FindItem);
 
-				if (ShellSetFileAttributes(NULL,FindItem.FindData.strFileName))
+				if (ShellSetFileAttributes(nullptr,FindItem.FindData.strFileName))
 				{
 					itd.SetFindListItem(ItemIndex, FindItem);
 					SendDlgMessage(hDlg,DM_REDRAW,0,0);

@@ -106,7 +106,7 @@ DWORD WINAPI WindowThreadRoutine(LPVOID Param)
 		if(*pHwnd)
 		{
 			MSG Msg;
-			while(GetMessage(&Msg, NULL, 0, 0)>0)
+			while(GetMessage(&Msg, nullptr, 0, 0)>0)
 			{
 				TranslateMessage(&Msg);
 				DispatchMessage(&Msg);

@@ -35,13 +35,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "cache.hpp"
 
-CachedRead::CachedRead(File& file):
-	Buffer(static_cast<LPBYTE>(xf_malloc(BufferSize))),
+CachedRead::CachedRead(File& file, DWORD buffer_size, int alignment):
+	Buffer(nullptr),
 	file(file),
 	ReadSize(0),
 	BytesLeft(0),
-	LastPtr(0)
+	LastPtr(0),
+	BufferSize(buffer_size),
+	Alignment(alignment)
 {
+	if (buffer_size)
+		Buffer = static_cast<LPBYTE>(xf_malloc(buffer_size));
 }
 
 CachedRead::~CachedRead()
@@ -50,6 +54,36 @@ CachedRead::~CachedRead()
 	{
 		xf_free(Buffer);
 	}
+}
+
+bool CachedRead::Init()
+{
+	if (!file.Opened())
+		return false;
+
+	DWORD ret, buff_size = DefaultBufferSize;
+	Alignment = 4 * 1024;
+	DISK_GEOMETRY g;
+
+	if (file.IoControl(IOCTL_DISK_GET_DRIVE_GEOMETRY, nullptr, 0, &g, (DWORD)sizeof(g), &ret, nullptr))
+	{
+		if (g.BytesPerSector > 4*1024 && g.BytesPerSector <= 256*1024)
+		{
+			Alignment = (int)g.BytesPerSector;
+			buff_size = 16 * g.BytesPerSector;
+		}
+		file.IoControl(FSCTL_ALLOW_EXTENDED_DASD_IO, nullptr, 0, nullptr, 0, &ret, nullptr);
+	}
+
+	if (buff_size != BufferSize)
+	{
+		if (Buffer)
+			xf_free(Buffer);
+		Buffer = reinterpret_cast<LPBYTE>(xf_malloc(BufferSize = buff_size));
+	}
+
+	Clear();
+	return Buffer != nullptr;
 }
 
 void CachedRead::Clear()
@@ -61,8 +95,7 @@ void CachedRead::Clear()
 
 bool CachedRead::Read(LPVOID Data, DWORD DataSize, LPDWORD BytesRead)
 {
-	INT64 Ptr=0;
-	Ptr = file.GetPointer();
+	INT64 Ptr = file.GetPointer();
 
 	if(Ptr!=LastPtr)
 	{
@@ -124,14 +157,13 @@ bool CachedRead::Unread(DWORD BytesUnread)
 bool CachedRead::FillBuffer()
 {
 	bool Result=false;
-	if(!file.Eof())
+	if (!file.Eof())
 	{
-		INT64 Pointer=0;
-		Pointer = file.GetPointer();
+		INT64 Pointer = file.GetPointer();
 
-		int shift = (int)Pointer & 0xfff; // 4k pointer alignment (some new disks have 4k sector size)
+		int shift = (int)(Pointer % Alignment);
 		if (Pointer-shift > BufferSize/2)
-			shift += BufferSize/2;         // suppose BufferSize/2 is 4k aligned...
+			shift += BufferSize/2;
 
 		if (shift)
 			file.SetPointer(-shift, nullptr, FILE_CURRENT);

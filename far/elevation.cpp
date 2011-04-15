@@ -278,7 +278,7 @@ bool elevation::Initialize()
 				{
 					if (InitializeSecurityDescriptor(pSD, SECURITY_DESCRIPTOR_REVISION))
 					{
-						PACL pACL = NULL;
+						PACL pACL = nullptr;
 						EXPLICIT_ACCESS ea={};
 						ea.grfAccessPermissions = GENERIC_READ|GENERIC_WRITE;
 						ea.grfAccessMode = SET_ACCESS;
@@ -286,7 +286,7 @@ bool elevation::Initialize()
 						ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
 						ea.Trustee.TrusteeType = TRUSTEE_IS_WELL_KNOWN_GROUP;
 						ea.Trustee.ptstrName = static_cast<LPTSTR>(AdminSID);
-						if(SetEntriesInAcl(1, &ea, NULL, &pACL) == ERROR_SUCCESS)
+						if(SetEntriesInAcl(1, &ea, nullptr, &pACL) == ERROR_SUCCESS)
 						{
 							if(SetSecurityDescriptorDacl(pSD, TRUE, pACL, FALSE))
 							{

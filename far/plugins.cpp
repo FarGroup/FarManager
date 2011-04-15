@@ -2188,7 +2188,7 @@ void PluginManager::GetCustomData(FileListItem *ListItem)
 	{
 		Plugin *pPlugin = PluginsData[i];
 
-		wchar_t *CustomData = NULL;
+		wchar_t *CustomData = nullptr;
 
 		if (pPlugin->HasGetCustomData() && pPlugin->GetCustomData(FilePath.CPtr(), &CustomData))
 		{
