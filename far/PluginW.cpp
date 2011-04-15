@@ -52,7 +52,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "RefreshFrameManager.hpp"
 #include "plclass.hpp"
 #include "PluginW.hpp"
-#include "registry.hpp"
 #include "keyboard.hpp"
 #include "message.hpp"
 #include "clipboard.hpp"
@@ -68,16 +67,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farversion.hpp"
 #include "colormix.hpp"
 #include "setcolor.hpp"
+#include "configdb.hpp"
 
-static const wchar_t *wszReg_Preload=L"Preload";
-static const wchar_t *wszReg_MinFarVersion=L"MinFarVersion";
-static const wchar_t *wszReg_Version=L"Version";
-static const wchar_t *wszReg_Guid=L"Guid";
-static const wchar_t *wszReg_Title=L"Title";
-static const wchar_t *wszReg_Description=L"Description";
-static const wchar_t *wszReg_Author=L"Author";
-
-static const wchar_t wszReg_GetGlobalInfo[]=L"GetGlobalInfoW";
 static const wchar_t wszReg_OpenPanel[]=L"OpenW";
 static const wchar_t wszReg_SetFindList[]=L"SetFindListW";
 static const wchar_t wszReg_ProcessEditorInput[]=L"ProcessEditorInputW";
@@ -88,28 +79,9 @@ static const wchar_t wszReg_ProcessSynchroEvent[]=L"ProcessSynchroEventW";
 #if defined(PROCPLUGINMACROFUNC)
 static const wchar_t wszReg_ProcessMacroFunc[]=L"ProcessMacroFuncW";
 #endif
-static const wchar_t wszReg_SetStartupInfo[]=L"SetStartupInfoW";
-static const wchar_t wszReg_ClosePanel[]=L"ClosePanelW";
-static const wchar_t wszReg_GetPluginInfo[]=L"GetPluginInfoW";
-static const wchar_t wszReg_GetOpenPanelInfo[]=L"GetOpenPanelInfoW";
-static const wchar_t wszReg_GetFindData[]=L"GetFindDataW";
-static const wchar_t wszReg_FreeFindData[]=L"FreeFindDataW";
-static const wchar_t wszReg_GetVirtualFindData[]=L"GetVirtualFindDataW";
-static const wchar_t wszReg_FreeVirtualFindData[]=L"FreeVirtualFindDataW";
-static const wchar_t wszReg_SetDirectory[]=L"SetDirectoryW";
-static const wchar_t wszReg_GetFiles[]=L"GetFilesW";
-static const wchar_t wszReg_PutFiles[]=L"PutFilesW";
-static const wchar_t wszReg_DeleteFiles[]=L"DeleteFilesW";
-static const wchar_t wszReg_MakeDirectory[]=L"MakeDirectoryW";
-static const wchar_t wszReg_ProcessHostFile[]=L"ProcessHostFileW";
 static const wchar_t wszReg_Configure[]=L"ConfigureW";
-static const wchar_t wszReg_ExitFAR[]=L"ExitFARW";
-static const wchar_t wszReg_ProcessKey[]=L"ProcessKeyW";
-static const wchar_t wszReg_ProcessEvent[]=L"ProcessEventW";
-static const wchar_t wszReg_Compare[]=L"CompareW";
 static const wchar_t wszReg_Analyse[] = L"AnalyseW";
 static const wchar_t wszReg_GetCustomData[] = L"GetCustomDataW";
-static const wchar_t wszReg_FreeCustomData[] = L"FreeCustomDataW";
 
 static const char NFMP_GetGlobalInfo[]="GetGlobalInfoW";
 static const char NFMP_OpenPanel[]="OpenW";
@@ -307,53 +279,54 @@ PluginW::~PluginW()
 
 bool PluginW::LoadFromCache(const FAR_FIND_DATA_EX &FindData)
 {
-	string strRegKey;
-	strRegKey.Format(FmtPluginsCache_PluginS, m_strCacheName.CPtr());
+	unsigned __int64 id = PlCacheCfg->GetCacheID(m_strCacheName);
 
-	if (CheckRegKey(strRegKey))
+	if (id)
 	{
-		if (GetRegKey(strRegKey,wszReg_Preload,0) == 1)   //PF_PRELOAD plugin, skip cache
+		if (PlCacheCfg->IsPreload(id))   //PF_PRELOAD plugin, skip cache
 		{
 			WorkFlags.Set(PIWF_PRELOADED);
 			return false;
 		}
 
 		{
-			string strPluginID, strCurPluginID;
+			string strCurPluginID;
 			strCurPluginID.Format(
 			    L"%I64x%x%x",
 			    FindData.nFileSize,
 			    FindData.ftCreationTime.dwLowDateTime,
 			    FindData.ftLastWriteTime.dwLowDateTime
 			);
-			GetRegKey(strRegKey, L"ID", strPluginID, L"");
 
-			if (StrCmp(strPluginID, strCurPluginID) )   //одинаковые ли бинарники?
+			string strPluginID = PlCacheCfg->GetSignature(id);
+
+			if (StrCmp(strPluginID, strCurPluginID))   //одинаковые ли бинарники?
 				return false;
 		}
-		GetRegKey(strRegKey,wszReg_MinFarVersion,reinterpret_cast<LPBYTE>(&MinFarVersion),reinterpret_cast<const BYTE*>(&FAR_VERSION),sizeof(MinFarVersion));
-		VersionInfo Default = {};
-		GetRegKey(strRegKey,wszReg_Version,reinterpret_cast<LPBYTE>(&PluginVersion),reinterpret_cast<const BYTE*>(&Default),sizeof(PluginVersion));
-		GetRegKey(strRegKey,wszReg_Guid,m_strGuid,L"");
-		SetGuid(StrToGuid(m_strGuid,m_Guid)?m_Guid:FarGuid);
-		GetRegKey(strRegKey,wszReg_Title,strTitle,L"");
-		GetRegKey(strRegKey,wszReg_Description,strDescription,L"");
-		GetRegKey(strRegKey,wszReg_Author,strAuthor,L"");
 
-		strRegKey += L"\\Exports";
-		pOpenPanelW=(PLUGINOPENPANELW)(INT_PTR)GetRegKey(strRegKey,wszReg_OpenPanel,0);
-		pSetFindListW=(PLUGINSETFINDLISTW)(INT_PTR)GetRegKey(strRegKey,wszReg_SetFindList,0);
-		pProcessEditorInputW=(PLUGINPROCESSEDITORINPUTW)(INT_PTR)GetRegKey(strRegKey,wszReg_ProcessEditorInput,0);
-		pProcessEditorEventW=(PLUGINPROCESSEDITOREVENTW)(INT_PTR)GetRegKey(strRegKey,wszReg_ProcessEditorEvent,0);
-		pProcessViewerEventW=(PLUGINPROCESSVIEWEREVENTW)(INT_PTR)GetRegKey(strRegKey,wszReg_ProcessViewerEvent,0);
-		pProcessDialogEventW=(PLUGINPROCESSDIALOGEVENTW)(INT_PTR)GetRegKey(strRegKey,wszReg_ProcessDialogEvent,0);
-		pProcessSynchroEventW=(PLUGINPROCESSSYNCHROEVENTW)(INT_PTR)GetRegKey(strRegKey,wszReg_ProcessSynchroEvent,0);
+		if (!PlCacheCfg->GetMinFarVersion(id, &MinFarVersion))
+			memcpy(&MinFarVersion,&FAR_VERSION,sizeof(MinFarVersion));
+		if (!PlCacheCfg->GetVersion(id, &PluginVersion))
+			memset(&PluginVersion, 0, sizeof(PluginVersion));
+		m_strGuid = PlCacheCfg->GetGuid(id);
+		SetGuid(StrToGuid(m_strGuid,m_Guid)?m_Guid:FarGuid);
+		strTitle = PlCacheCfg->GetTitle(id);
+		strDescription = PlCacheCfg->GetDescription(id);
+		strAuthor = PlCacheCfg->GetAuthor(id);
+
+		pOpenPanelW=(PLUGINOPENPANELW)PlCacheCfg->GetExport(id, wszReg_OpenPanel);
+		pSetFindListW=(PLUGINSETFINDLISTW)PlCacheCfg->GetExport(id, wszReg_SetFindList);
+		pProcessEditorInputW=(PLUGINPROCESSEDITORINPUTW)PlCacheCfg->GetExport(id, wszReg_ProcessEditorInput);
+		pProcessEditorEventW=(PLUGINPROCESSEDITOREVENTW)PlCacheCfg->GetExport(id, wszReg_ProcessEditorEvent);
+		pProcessViewerEventW=(PLUGINPROCESSVIEWEREVENTW)PlCacheCfg->GetExport(id, wszReg_ProcessViewerEvent);
+		pProcessDialogEventW=(PLUGINPROCESSDIALOGEVENTW)PlCacheCfg->GetExport(id, wszReg_ProcessDialogEvent);
+		pProcessSynchroEventW=(PLUGINPROCESSSYNCHROEVENTW)PlCacheCfg->GetExport(id, wszReg_ProcessSynchroEvent);
 #if defined(PROCPLUGINMACROFUNC)
-		pProcessMacroFuncW=(PLUGINPROCESSMACROFUNCW)(INT_PTR)GetRegKey(strRegKey,wszReg_ProcessMacroFunc,0);
+		pProcessMacroFuncW=(PLUGINPROCESSMACROFUNCW)PlCacheCfg->GetExport(id, wszReg_ProcessMacroFunc);
 #endif
-		pConfigureW=(PLUGINCONFIGUREW)(INT_PTR)GetRegKey(strRegKey,wszReg_Configure,0);
-		pAnalyseW=(PLUGINANALYSEW)(INT_PTR)GetRegKey(strRegKey, wszReg_Analyse, 0);
-		pGetCustomDataW=(PLUGINGETCUSTOMDATAW)(INT_PTR)GetRegKey(strRegKey, wszReg_GetCustomData, 0);
+		pConfigureW=(PLUGINCONFIGUREW)PlCacheCfg->GetExport(id, wszReg_Configure);
+		pAnalyseW=(PLUGINANALYSEW)PlCacheCfg->GetExport(id, wszReg_Analyse);
+		pGetCustomDataW=(PLUGINGETCUSTOMDATAW)PlCacheCfg->GetExport(id, wszReg_GetCustomData);
 		WorkFlags.Set(PIWF_CACHED); //too much "cached" flags
 		return true;
 	}
@@ -381,17 +354,24 @@ bool PluginW::SaveToCache()
 	{
 		PluginInfo Info;
 		GetPluginInfo(&Info);
-		string strRegKey;
-		strRegKey.Format(FmtPluginsCache_PluginS, m_strCacheName.CPtr());
-		DeleteKeyTree(strRegKey);
+
+		PlCacheCfg->BeginTransaction();
+
+		PlCacheCfg->DeleteCache(m_strCacheName);
+		unsigned __int64 id = PlCacheCfg->CreateCache(m_strCacheName);
+
 		{
 			bool bPreload = (Info.Flags & PF_PRELOAD);
-			SetRegKey(strRegKey, wszReg_Preload, bPreload?1:0);
+			PlCacheCfg->SetPreload(id, bPreload);
 			WorkFlags.Change(PIWF_PRELOADED, bPreload);
 
 			if (bPreload)
+			{
+				PlCacheCfg->EndTransaction();
 				return true;
+			}
 		}
+
 		{
 			string strCurPluginID;
 			FAR_FIND_DATA_EX fdata;
@@ -402,59 +382,50 @@ bool PluginW::SaveToCache()
 			    fdata.ftCreationTime.dwLowDateTime,
 			    fdata.ftLastWriteTime.dwLowDateTime
 			);
-			SetRegKey(strRegKey, L"ID", strCurPluginID);
+			PlCacheCfg->SetSignature(id, strCurPluginID);
 		}
 
 		for (int i = 0; i < Info.DiskMenu.Count; i++)
 		{
-			string strValue;
-			strValue.Format(FmtDiskMenuStringD, i);
-			SetRegKey(strRegKey, strValue, Info.DiskMenu.Strings[i]);
-			strValue.Format(FmtDiskMenuGuidD, i);
-			SetRegKey(strRegKey, strValue, GuidToStr(Info.DiskMenu.Guids[i]));
+			PlCacheCfg->SetDiskMenuItem(id, i, Info.DiskMenu.Strings[i], GuidToStr(Info.DiskMenu.Guids[i]));
 		}
 
 		for (int i = 0; i < Info.PluginMenu.Count; i++)
 		{
-			string strValue;
-			strValue.Format(FmtPluginMenuStringD, i);
-			SetRegKey(strRegKey, strValue, Info.PluginMenu.Strings[i]);
-			strValue.Format(FmtPluginMenuGuidD, i);
-			SetRegKey(strRegKey, strValue, GuidToStr(Info.PluginMenu.Guids[i]));
+			PlCacheCfg->SetPluginsMenuItem(id, i, Info.PluginMenu.Strings[i], GuidToStr(Info.PluginMenu.Guids[i]));
 		}
 
 		for (int i = 0; i < Info.PluginConfig.Count; i++)
 		{
-			string strValue;
-			strValue.Format(FmtPluginConfigStringD, i);
-			SetRegKey(strRegKey,strValue,Info.PluginConfig.Strings[i]);
-			strValue.Format(FmtPluginConfigGuidD, i);
-			SetRegKey(strRegKey,strValue,GuidToStr(Info.PluginConfig.Guids[i]));
+			PlCacheCfg->SetPluginsConfigMenuItem(id, i, Info.PluginConfig.Strings[i], GuidToStr(Info.PluginConfig.Guids[i]));
 		}
 
-		SetRegKey(strRegKey, L"CommandPrefix", NullToEmpty(Info.CommandPrefix));
-		SetRegKey64(strRegKey, L"Flags", Info.Flags);
-		SetRegKey(strRegKey, wszReg_MinFarVersion, reinterpret_cast<const BYTE*>(&MinFarVersion),sizeof(MinFarVersion));
-		SetRegKey(strRegKey, wszReg_Guid, m_strGuid);
-		SetRegKey(strRegKey,wszReg_Version, reinterpret_cast<const BYTE*>(&PluginVersion),sizeof(PluginVersion));
-		SetRegKey(strRegKey,wszReg_Title, strTitle);
-		SetRegKey(strRegKey,wszReg_Description, strDescription);
-		SetRegKey(strRegKey,wszReg_Author, strAuthor);
+		PlCacheCfg->SetCommandPrefix(id, NullToEmpty(Info.CommandPrefix));
+		PlCacheCfg->SetFlags(id, Info.Flags);
 
-		strRegKey += L"\\Exports";
-		SetRegKey(strRegKey, wszReg_OpenPanel, pOpenPanelW!=nullptr);
-		SetRegKey(strRegKey, wszReg_SetFindList, pSetFindListW!=nullptr);
-		SetRegKey(strRegKey, wszReg_ProcessEditorInput, pProcessEditorInputW!=nullptr);
-		SetRegKey(strRegKey, wszReg_ProcessEditorEvent, pProcessEditorEventW!=nullptr);
-		SetRegKey(strRegKey, wszReg_ProcessViewerEvent, pProcessViewerEventW!=nullptr);
-		SetRegKey(strRegKey, wszReg_ProcessDialogEvent, pProcessDialogEventW!=nullptr);
-		SetRegKey(strRegKey, wszReg_ProcessSynchroEvent, pProcessSynchroEventW!=nullptr);
+		PlCacheCfg->SetMinFarVersion(id, &MinFarVersion);
+		PlCacheCfg->SetGuid(id, m_strGuid);
+		PlCacheCfg->SetVersion(id, &PluginVersion);
+		PlCacheCfg->SetTitle(id, strTitle);
+		PlCacheCfg->SetDescription(id, strDescription);
+		PlCacheCfg->SetAuthor(id, strAuthor);
+
+		PlCacheCfg->SetExport(id, wszReg_OpenPanel, pOpenPanelW!=nullptr);
+		PlCacheCfg->SetExport(id, wszReg_SetFindList, pSetFindListW!=nullptr);
+		PlCacheCfg->SetExport(id, wszReg_ProcessEditorInput, pProcessEditorInputW!=nullptr);
+		PlCacheCfg->SetExport(id, wszReg_ProcessEditorEvent, pProcessEditorEventW!=nullptr);
+		PlCacheCfg->SetExport(id, wszReg_ProcessViewerEvent, pProcessViewerEventW!=nullptr);
+		PlCacheCfg->SetExport(id, wszReg_ProcessDialogEvent, pProcessDialogEventW!=nullptr);
+		PlCacheCfg->SetExport(id, wszReg_ProcessSynchroEvent, pProcessSynchroEventW!=nullptr);
 #if defined(PROCPLUGINMACROFUNC)
-		SetRegKey(strRegKey, wszReg_ProcessMacroFunc, pProcessMacroFuncW!=nullptr);
+		PlCacheCfg->SetExport(id, wszReg_ProcessMacroFunc, pProcessMacroFuncW!=nullptr);
 #endif
-		SetRegKey(strRegKey, wszReg_Configure, pConfigureW!=nullptr);
-		SetRegKey(strRegKey, wszReg_Analyse, pAnalyseW!=nullptr);
-		SetRegKey(strRegKey, wszReg_GetCustomData, pGetCustomDataW!=nullptr);
+		PlCacheCfg->SetExport(id, wszReg_Configure, pConfigureW!=nullptr);
+		PlCacheCfg->SetExport(id, wszReg_Analyse, pAnalyseW!=nullptr);
+		PlCacheCfg->SetExport(id, wszReg_GetCustomData, pGetCustomDataW!=nullptr);
+
+		PlCacheCfg->EndTransaction();
+
 		return true;
 	}
 

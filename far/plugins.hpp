@@ -40,17 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "PluginA.hpp"
 #include "PluginW.hpp"
 #include "tree.hpp"
-
-#define wszReg_PluginHotkeys L"PluginHotkeys"
-
-extern const wchar_t *FmtPluginsCache_PluginS;
-extern const wchar_t *FmtDiskMenuStringD;
-extern const wchar_t *FmtDiskMenuGuidD;
-extern const wchar_t *FmtPluginMenuStringD;
-extern const wchar_t *FmtPluginMenuGuidD;
-extern const wchar_t *FmtPluginConfigStringD;
-extern const wchar_t *FmtPluginConfigGuidD;
-
+#include "configdb.hpp"
 
 class SaveScreen;
 class FileEditor;
@@ -92,7 +82,7 @@ enum PLUGINITEMCALLFUNCFLAGS
 	PICFF_OPENFILEPLUGIN       = 0x00000010, //
 	PICFF_CLOSEPLUGIN          = 0x00000020, //
 	PICFF_GETPLUGININFO        = 0x00000040, //
-	PICFF_GETOPENPANELINFO    = 0x00000080, //
+	PICFF_GETOPENPANELINFO     = 0x00000080, //
 	PICFF_GETFINDDATA          = 0x00000100, //
 	PICFF_FREEFINDDATA         = 0x00000200, //
 	PICFF_GETVIRTUALFINDDATA   = 0x00000400, //
@@ -177,7 +167,8 @@ class PluginManager
 		void LoadIfCacheAbsent();
 		void ReadUserBackgound(SaveScreen *SaveScr);
 
-		void GetPluginHotKey(Plugin *pPlugin,const GUID& Guid,const wchar_t *HotKeyType,string &strHotKey);
+		void GetHotKeyPluginKey(Plugin *pPlugin, string &strPluginKey);
+		void GetPluginHotKey(Plugin *pPlugin,const GUID& Guid, PluginsHotkeysConfig::HotKeyTypeEnum HotKeyType,string &strHotKey);
 
 		bool TestPluginInfo(Plugin *Item,PluginInfo *Info);
 		bool TestOPENPANELINFO(Plugin *Item,OpenPanelInfo *Info);
@@ -226,8 +217,7 @@ class PluginManager
 		void DiscardCache();
 		int ProcessCommandLine(const wchar_t *Command,Panel *Target=nullptr);
 
-		bool SetHotKeyDialog(const wchar_t *DlgPluginTitle,const wchar_t *RegKey,const wchar_t *RegValueName);
-		void GetHotKeyRegKey(Plugin *pPlugin,const GUID& Guid,string &strRegKey);
+		bool SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHotkeysConfig::HotKeyTypeEnum HotKeyType, const wchar_t *DlgPluginTitle);
 
 		// $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
 		int CallPlugin(const GUID& SysID,int OpenFrom, void *Data, int *Ret=nullptr);

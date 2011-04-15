@@ -45,7 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "scrbuf.hpp"
 #include "syslog.hpp"
-#include "registry.hpp"
 #include "palette.hpp"
 #include "strmix.hpp"
 #include "console.hpp"

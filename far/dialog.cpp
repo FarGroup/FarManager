@@ -51,7 +51,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lockscrn.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "syslog.hpp"
-#include "registry.hpp"
 #include "TaskBar.hpp"
 #include "interf.hpp"
 #include "palette.hpp"

@@ -54,7 +54,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farexcpt.hpp"
 #include "fileedit.hpp"
 #include "RefreshFrameManager.hpp"
-#include "registry.hpp"
 #include "plugapi.hpp"
 #include "TaskBar.hpp"
 #include "pathmix.hpp"
@@ -64,18 +63,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filelist.hpp"
 #include "message.hpp"
 #include "FarGuid.hpp"
-
-const wchar_t *FmtPluginsCache_PluginS=L"PluginsCache\\%s";
-const wchar_t *FmtDiskMenuStringD=L"DiskMenuString%d";
-const wchar_t *FmtDiskMenuGuidD=L"DiskMenuGuid%d";
-const wchar_t *FmtPluginMenuStringD=L"PluginMenuString%d";
-const wchar_t *FmtPluginMenuGuidD=L"PluginMenuGuid%d";
-const wchar_t *FmtPluginConfigStringD=L"PluginConfigString%d";
-const wchar_t *FmtPluginConfigGuidD=L"PluginConfigGuid%d";
+#include "configdb.hpp"
 
 static const wchar_t *PluginsFolderName=L"Plugins";
-
-static const wchar_t *RKN_PluginsCache=L"PluginsCache";
 
 static int _cdecl PluginsSort(const void *el1,const void *el2);
 
@@ -618,16 +608,10 @@ void PluginManager::LoadPlugins()
    Load cache only plugins  - '/co' switch */
 void PluginManager::LoadPluginsFromCache()
 {
-	/*
-		[HKEY_CURRENT_USER\Software\Far2\PluginsCache\C:/PROGRAM FILES/FAR/Plugins/ABOOK/AddrBook.dll]
-	*/
-	size_t ShiftLen = wcslen(RKN_PluginsCache)+1;
 	string strModuleName;
 
-	for (int i=0; EnumRegKey(RKN_PluginsCache, i, strModuleName); i++)
+	for (DWORD i=0; PlCacheCfg->EnumPlugins(i, strModuleName); i++)
 	{
-		strModuleName.LShift(ShiftLen);
-
 		ReplaceSlashToBSlash(strModuleName);
 
 		FAR_FIND_DATA_EX FindData;
@@ -1328,10 +1312,9 @@ void PluginManager::Configure(int StartPos)
 
 		for (;;)
 		{
-			BOOL NeedUpdateItems=TRUE;
-			int MenuItemNumber=0;
-			string strFirstHotKey;
-			int HotKeysPresent=EnumRegKey(wszReg_PluginHotkeys,0,strFirstHotKey);
+			bool NeedUpdateItems = true;
+			int MenuItemNumber = 0;
+			bool HotKeysPresent = PlHotkeyCfg->HotkeysPresent(PluginsHotkeysConfig::CONFIG_MENU);
 
 			if (NeedUpdateItems)
 			{
@@ -1340,7 +1323,7 @@ void PluginManager::Configure(int StartPos)
 				PluginList.SetPosition(-1,-1,0,0);
 				MenuItemNumber=0;
 				LoadIfCacheAbsent();
-				string strHotKey, strRegKey, strValue, strName;
+				string strHotKey, strName;
 				GUID guid;
 				PluginInfo Info={0};
 
@@ -1348,10 +1331,11 @@ void PluginManager::Configure(int StartPos)
 				{
 					Plugin *pPlugin = PluginsData[I];
 					bool bCached = pPlugin->CheckWorkFlags(PIWF_CACHED)?true:false;
+					unsigned __int64 id = 0;
 
 					if (bCached)
 					{
-						strRegKey.Format(FmtPluginsCache_PluginS, pPlugin->GetCacheName());
+						id = PlCacheCfg->GetCacheID(pPlugin->GetCacheName());
 					}
 					else
 					{
@@ -1363,15 +1347,11 @@ void PluginManager::Configure(int StartPos)
 					{
 						if (bCached)
 						{
-							string guidValue, guidName;
-							strValue.Format(FmtPluginConfigStringD, J);
-							guidValue.Format(FmtPluginConfigGuidD, J);
+							string strGuid;
 
-							if (!GetRegKey(strRegKey, strValue, strName, L""))
+							if (!PlCacheCfg->GetPluginsConfigMenuItem(id, J, strName, strGuid))
 								break;
-							if (!GetRegKey(strRegKey, guidValue, guidName, L""))
-								break;
-							if (!StrToGuid(guidName,guid))
+							if (!StrToGuid(strGuid,guid))
 								break;
 						}
 						else
@@ -1383,7 +1363,7 @@ void PluginManager::Configure(int StartPos)
 							guid = Info.PluginConfig.Guids[J];
 						}
 
-						GetPluginHotKey(pPlugin,guid,L"ConfHotkey",strHotKey);
+						GetPluginHotKey(pPlugin,guid,PluginsHotkeysConfig::CONFIG_MENU,strHotKey);
 						MenuItemEx ListItem;
 						ListItem.Clear();
 
@@ -1411,7 +1391,7 @@ void PluginManager::Configure(int StartPos)
 				PluginList.ClearDone();
 				PluginList.SortItems(0,HotKeysPresent?3:0);
 				PluginList.SetSelectPos(StartPos,1);
-				NeedUpdateItems=FALSE;
+				NeedUpdateItems = false;
 			}
 
 			string strPluginModuleName;
@@ -1422,7 +1402,6 @@ void PluginManager::Configure(int StartPos)
 				DWORD Key=PluginList.ReadInput();
 				int SelPos=PluginList.GetSelectPos();
 				PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(nullptr,0,SelPos);
-				string strRegKey;
 
 				switch (Key)
 				{
@@ -1434,30 +1413,28 @@ void PluginManager::Configure(int StartPos)
 						{
 							FarShowHelp(strPluginModuleName,nullptr,FHELP_SELFHELP|FHELP_NOSHOWERROR);
 						}
-
 						break;
-					case KEY_F4:
 
+					case KEY_F4:
 						if (PluginList.GetItemCount() > 0 && SelPos<MenuItemNumber)
 						{
-							string strName00;
+							string strTitle;
 							int nOffset = HotKeysPresent?3:0;
-							strName00 = PluginList.GetItemPtr()->strName.CPtr()+nOffset;
-							RemoveExternalSpaces(strName00);
-							GetHotKeyRegKey(item->pPlugin, item->Guid,strRegKey);
+							strTitle = PluginList.GetItemPtr()->strName.CPtr()+nOffset;
+							RemoveExternalSpaces(strTitle);
 
-							if (SetHotKeyDialog(strName00,strRegKey,L"ConfHotkey"))
+							if (SetHotKeyDialog(item->pPlugin, item->Guid, PluginsHotkeysConfig::CONFIG_MENU, strTitle))
 							{
 								PluginList.Hide();
-								NeedUpdateItems=TRUE;
-								StartPos=SelPos;
+								NeedUpdateItems = true;
+								StartPos = SelPos;
 								PluginList.SetExitCode(SelPos);
 								PluginList.Show();
 								break;
 							}
 						}
-
 						break;
+
 					default:
 						PluginList.ProcessInput();
 						break;
@@ -1481,33 +1458,34 @@ void PluginManager::Configure(int StartPos)
 
 int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName)
 {
-	if(ModalType == MODALTYPE_DIALOG)
+	if (ModalType == MODALTYPE_DIALOG)
 	{
-		if(static_cast<Dialog*>(FrameManager->GetCurrentFrame())->CheckDialogMode(DMODE_NOPLUGINS))
+		if (static_cast<Dialog*>(FrameManager->GetCurrentFrame())->CheckDialogMode(DMODE_NOPLUGINS))
 		{
 			return 0;
 		}
 	}
 
-	int MenuItemNumber=0;
-	int PrevMacroMode=CtrlObject->Macro.GetMode();
+	int MenuItemNumber = 0;
+	int PrevMacroMode = CtrlObject->Macro.GetMode();
 	CtrlObject->Macro.SetMode(MACRO_MENU);
-	int Editor = ModalType==MODALTYPE_EDITOR,
-	             Viewer = ModalType==MODALTYPE_VIEWER,
-	                      Dialog = ModalType==MODALTYPE_DIALOG;
-	string strRegKey;
+
+	bool Editor = ModalType==MODALTYPE_EDITOR;
+	bool Viewer = ModalType==MODALTYPE_VIEWER;
+	bool Dialog = ModalType==MODALTYPE_DIALOG;
+
 	PluginMenuItemData item;
+
 	{
 		VMenu PluginList(MSG(MPluginCommandsMenuTitle),nullptr,0,ScrY-4);
 		PluginList.SetFlags(VMENU_WRAPMODE);
 		PluginList.SetHelp(L"PluginCommands");
-		BOOL NeedUpdateItems=TRUE;
-		BOOL Done=FALSE;
+		bool NeedUpdateItems = true;
+		bool Done = false;
 
 		while (!Done)
 		{
-			string strFirstHotKey;
-			int HotKeysPresent=EnumRegKey(wszReg_PluginHotkeys,0,strFirstHotKey);
+			bool HotKeysPresent = PlHotkeyCfg->HotkeysPresent(PluginsHotkeysConfig::PLUGINS_MENU);
 
 			if (NeedUpdateItems)
 			{
@@ -1515,7 +1493,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 				PluginList.DeleteItems();
 				PluginList.SetPosition(-1,-1,0,0);
 				LoadIfCacheAbsent();
-				string strHotKey, strRegKey, strValue, strName;
+				string strHotKey, strName;
 				PluginInfo Info={0};
 				GUID guid;
 
@@ -1524,11 +1502,12 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 					Plugin *pPlugin = PluginsData[I];
 					bool bCached = pPlugin->CheckWorkFlags(PIWF_CACHED)?true:false;
 					UINT64 IFlags;
+					unsigned __int64 id = 0;
 
 					if (bCached)
 					{
-						strRegKey.Format(FmtPluginsCache_PluginS, pPlugin->GetCacheName());
-						IFlags=GetRegKey64(strRegKey,L"Flags",0);
+						id = PlCacheCfg->GetCacheID(pPlugin->GetCacheName());
+						IFlags = PlCacheCfg->GetFlags(id);
 					}
 					else
 					{
@@ -1548,15 +1527,11 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 					{
 						if (bCached)
 						{
-							string guidValue, guidName;
-							strValue.Format(FmtPluginMenuStringD, J);
-							guidValue.Format(FmtPluginMenuGuidD, J);
+							string strGuid;
 
-							if (!GetRegKey(strRegKey, strValue, strName, L""))
+							if (!PlCacheCfg->GetPluginsMenuItem(id, J, strName, strGuid))
 								break;
-							if (!GetRegKey(strRegKey, guidValue, guidName, L""))
-								break;
-							if (!StrToGuid(guidName,guid))
+							if (!StrToGuid(strGuid,guid))
 								break;
 						}
 						else
@@ -1568,7 +1543,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 							guid = Info.PluginMenu.Guids[J];
 						}
 
-						GetPluginHotKey(pPlugin,guid,L"Hotkey",strHotKey);
+						GetPluginHotKey(pPlugin,guid,PluginsHotkeysConfig::PLUGINS_MENU,strHotKey);
 						MenuItemEx ListItem;
 						ListItem.Clear();
 
@@ -1595,7 +1570,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 				PluginList.SetBottomTitle(MSG(MPluginHotKeyBottom));
 				PluginList.SortItems(0,HotKeysPresent?3:0);
 				PluginList.SetSelectPos(StartPos,1);
-				NeedUpdateItems=FALSE;
+				NeedUpdateItems = false;
 			}
 
 			PluginList.Show();
@@ -1612,45 +1587,46 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 						// Вызываем нужный топик, который передали в CommandsMenu()
 						FarShowHelp(item->pPlugin->GetModuleName(),HistoryName,FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS);
 						break;
+
 					case KEY_ALTF11:
 						WriteEvent(FLOG_PLUGINSINFO);
 						break;
-					case KEY_F4:
 
+					case KEY_F4:
 						if (PluginList.GetItemCount() > 0 && SelPos<MenuItemNumber)
 						{
-							string strName00;
+							string strTitle;
 							int nOffset = HotKeysPresent?3:0;
-							strName00 = PluginList.GetItemPtr()->strName.CPtr()+nOffset;
-							RemoveExternalSpaces(strName00);
-							GetHotKeyRegKey(item->pPlugin, item->Guid, strRegKey);
+							strTitle = PluginList.GetItemPtr()->strName.CPtr()+nOffset;
+							RemoveExternalSpaces(strTitle);
 
-							if (SetHotKeyDialog(strName00,strRegKey,L"Hotkey"))
+							if (SetHotKeyDialog(item->pPlugin, item->Guid, PluginsHotkeysConfig::PLUGINS_MENU, strTitle))
 							{
 								PluginList.Hide();
-								NeedUpdateItems=TRUE;
-								StartPos=SelPos;
+								NeedUpdateItems = true;
+								StartPos = SelPos;
 								PluginList.SetExitCode(SelPos);
 								PluginList.Show();
 							}
 						}
-
 						break;
+
 					case KEY_ALTSHIFTF9:
 					{
 						PluginList.Hide();
-						NeedUpdateItems=TRUE;
-						StartPos=SelPos;
+						NeedUpdateItems = true;
+						StartPos = SelPos;
 						PluginList.SetExitCode(SelPos);
 						Configure();
 						PluginList.Show();
 						break;
 					}
+
 					case KEY_SHIFTF9:
 					{
 						if (PluginList.GetItemCount() > 0 && SelPos<MenuItemNumber)
 						{
-							NeedUpdateItems=TRUE;
+							NeedUpdateItems = true;
 							StartPos=SelPos;
 
 							if (item->pPlugin->HasConfigure())
@@ -1662,6 +1638,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 						break;
 					}
+
 					default:
 						PluginList.ProcessInput();
 						break;
@@ -1731,7 +1708,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 	return TRUE;
 }
 
-void PluginManager::GetHotKeyRegKey(Plugin *pPlugin,const GUID& Guid,string &strRegKey)
+void PluginManager::GetHotKeyPluginKey(Plugin *pPlugin, string &strPluginKey)
 {
 	/*
 	FarPath
@@ -1743,29 +1720,22 @@ void PluginManager::GetHotKeyRegKey(Plugin *pPlugin,const GUID& Guid,string &str
 	C:\MultiArc\MULTIARC.DLL                            -> C:\MultiArc\MULTIARC.DLL
 	---------------------------------------------------------------------------------------
 	*/
-	string strPluginName(pPlugin->GetHotkeyName());
+	strPluginKey = pPlugin->GetHotkeyName();
 	size_t FarPathLength=g_strFarPath.GetLength();
-	strRegKey = wszReg_PluginHotkeys;
 
 	if (pPlugin->IsOemPlugin() && FarPathLength < pPlugin->GetModuleName().GetLength() && !StrCmpNI(pPlugin->GetModuleName(), g_strFarPath, (int)FarPathLength))
-		strPluginName.LShift(FarPathLength);
-
-	strRegKey.Append(L"\\").Append(strPluginName).Append(L"\\").Append(GuidToStr(Guid));
+		strPluginKey.LShift(FarPathLength);
 }
 
-void PluginManager::GetPluginHotKey(Plugin *pPlugin, const GUID& Guid, const wchar_t *HotKeyType, string &strHotKey)
+void PluginManager::GetPluginHotKey(Plugin *pPlugin, const GUID& Guid, PluginsHotkeysConfig::HotKeyTypeEnum HotKeyType, string &strHotKey)
 {
-	string strRegKey;
+	string strPluginKey;
 	strHotKey.Clear();
-	GetHotKeyRegKey(pPlugin, Guid, strRegKey);
-	GetRegKey(strRegKey, HotKeyType, strHotKey, L"");
+	GetHotKeyPluginKey(pPlugin, strPluginKey);
+	strHotKey = PlHotkeyCfg->GetHotkey(strPluginKey, GuidToStr(Guid), HotKeyType);
 }
 
-bool PluginManager::SetHotKeyDialog(
-    const wchar_t *DlgPluginTitle,  // имя плагина
-    const wchar_t *RegKey,          // ключ, откуда берем значение
-    const wchar_t *RegValueName     // название параметра из реестра
-)
+bool PluginManager::SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHotkeysConfig::HotKeyTypeEnum HotKeyType, const wchar_t *DlgPluginTitle)
 {
 	/*
 	г================ Assign plugin hot key =================¬
@@ -1781,7 +1751,12 @@ bool PluginManager::SetHotKeyDialog(
 		{DI_TEXT,8,3,58,3,0,nullptr,nullptr,0,DlgPluginTitle},
 	};
 	MakeDialogItemsEx(PluginDlgData,PluginDlg);
-	GetRegKey(RegKey,RegValueName,PluginDlg[2].strData,L"");
+
+	string strPluginKey;
+	GetHotKeyPluginKey(pPlugin, strPluginKey);
+	string strGuid = GuidToStr(Guid);
+	PluginDlg[2].strData = PlHotkeyCfg->GetHotkey(strPluginKey, strGuid, HotKeyType);
+
 	int ExitCode;
 	{
 		Dialog Dlg(PluginDlg,ARRAYSIZE(PluginDlg));
@@ -1796,9 +1771,9 @@ bool PluginManager::SetHotKeyDialog(
 		RemoveLeadingSpaces(PluginDlg[2].strData);
 
 		if (PluginDlg[2].strData.IsEmpty())
-			DeleteRegValue(RegKey,RegValueName);
+			PlHotkeyCfg->DelHotkey(strPluginKey, strGuid, HotKeyType);
 		else
-			SetRegKey(RegKey,RegValueName,PluginDlg[2].strData);
+			PlHotkeyCfg->SetHotkey(strPluginKey, strGuid, HotKeyType, PluginDlg[2].strData);
 
 		return true;
 	}
@@ -1817,15 +1792,15 @@ bool PluginManager::GetDiskMenuItem(
 {
 	LoadIfCacheAbsent();
 
+	ItemPresent = false;
+
 	if (pPlugin->CheckWorkFlags(PIWF_CACHED))
 	{
-		string strRegKey, strValue, guidValue, guidName;
-		strRegKey.Format(FmtPluginsCache_PluginS, pPlugin->GetCacheName());
-		strValue.Format(FmtDiskMenuStringD,PluginItem);
-		guidValue.Format(FmtDiskMenuGuidD,PluginItem);
-		GetRegKey(strRegKey,strValue,strPluginText,L"");
-		if (GetRegKey(strRegKey, guidValue, guidName, L"")&&StrToGuid(guidName,Guid)) ItemPresent=true;
-		ItemPresent=ItemPresent&&!strPluginText.IsEmpty();
+		string strGuid;
+		if (PlCacheCfg->GetDiskMenuItem(PlCacheCfg->GetCacheID(pPlugin->GetCacheName()), PluginItem, strPluginText, strGuid))
+			if (StrToGuid(strGuid,Guid))
+				ItemPresent = true;
+		ItemPresent = ItemPresent && !strPluginText.IsEmpty();
 	}
 	else
 	{
@@ -1833,19 +1808,19 @@ bool PluginManager::GetDiskMenuItem(
 
 		if (!pPlugin->GetPluginInfo(&Info) || Info.DiskMenu.Count <= PluginItem)
 		{
-			ItemPresent=false;
+			ItemPresent = false;
 		}
 		else
 		{
 			strPluginText = Info.DiskMenu.Strings[PluginItem];
 			Guid = Info.DiskMenu.Guids[PluginItem];
-			ItemPresent=true;
+			ItemPresent = true;
 		}
 	}
 	if (ItemPresent)
 	{
 		string strHotKey;
-		GetPluginHotKey(pPlugin,Guid,L"DriveMenuHotkey",strHotKey);
+		GetPluginHotKey(pPlugin,Guid,PluginsHotkeysConfig::DRIVE_MENU,strHotKey);
 		PluginHotkey = strHotKey.At(0);
 	}
 
@@ -1901,13 +1876,13 @@ void PluginManager::DiscardCache()
 		pPlugin->Load();
 	}
 
-	DeleteKeyTree(RKN_PluginsCache);
+	PlCacheCfg->DiscardCache();
 }
 
 
 void PluginManager::LoadIfCacheAbsent()
 {
-	if (!CheckRegKey(RKN_PluginsCache))
+	if (PlCacheCfg->IsCacheEmpty())
 	{
 		for (int I=0; I<PluginsCount; I++)
 		{
@@ -1955,10 +1930,9 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 
 		if (PluginsData[I]->CheckWorkFlags(PIWF_CACHED))
 		{
-			string strRegKey;
-			strRegKey.Format(FmtPluginsCache_PluginS,PluginsData[I]->GetCacheName());
-			GetRegKey(strRegKey,L"CommandPrefix",strPluginPrefix, L"");
-			PluginFlags=GetRegKey(strRegKey,L"Flags",0);
+			unsigned __int64 id = PlCacheCfg->GetCacheID(PluginsData[I]->GetCacheName());
+			strPluginPrefix = PlCacheCfg->GetCommandPrefix(id);
+			PluginFlags = PlCacheCfg->GetFlags(id);
 		}
 		else
 		{

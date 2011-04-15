@@ -1,3 +1,9 @@
+t-rex 15.04.2011 21:45:01 +0200 - build 1960
+
+1. Начальная стадия перевода PluginCache и PluginHotKeys в sqlite (пока ещё не работает).
+
+2. Глюки в меню вызваных через враппер.
+
 svs 15.04.2011 10:06:10 +0300 - build 1959
 
 1. Macro: history.disable переименована в history.enable.

@@ -32,6 +32,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+struct VersionInfo;
+
 class GeneralConfig {
 
 public:
@@ -105,8 +107,70 @@ public:
 	virtual bool DelType(unsigned __int64 id) = 0;
 };
 
+class PluginsCacheConfig {
+
+public:
+
+	virtual ~PluginsCacheConfig() {}
+	virtual void BeginTransaction() = 0;
+	virtual void EndTransaction() = 0;
+	virtual unsigned __int64 CreateCache(const wchar_t *CacheName) = 0;
+	virtual unsigned __int64 GetCacheID(const wchar_t *CacheName) = 0;
+	virtual bool DeleteCache(const wchar_t *CacheName) = 0;
+	virtual bool IsPreload(unsigned __int64 id) = 0;
+	virtual string GetSignature(unsigned __int64 id) = 0;
+	virtual void *GetExport(unsigned __int64 id, const wchar_t *ExportName) = 0;
+	virtual string GetGuid(unsigned __int64 id) = 0;
+	virtual string GetTitle(unsigned __int64 id) = 0;
+	virtual string GetAuthor(unsigned __int64 id) = 0;
+	virtual string GetDescription(unsigned __int64 id) = 0;
+	virtual bool GetMinFarVersion(unsigned __int64 id, VersionInfo *Version) = 0;
+	virtual bool GetVersion(unsigned __int64 id, VersionInfo *Version) = 0;
+	virtual bool GetDiskMenuItem(unsigned __int64 id, int index, string &Text, string &Guid) = 0;
+	virtual bool GetPluginsMenuItem(unsigned __int64 id, int index, string &Text, string &Guid) = 0;
+	virtual bool GetPluginsConfigMenuItem(unsigned __int64 id, int index, string &Text, string &Guid) = 0;
+	virtual string GetCommandPrefix(unsigned __int64 id) = 0;
+	virtual unsigned __int64 GetFlags(unsigned __int64 id) = 0;
+	virtual bool SetPreload(unsigned __int64 id, bool Preload) = 0;
+	virtual bool SetSignature(unsigned __int64 id, const wchar_t *Signature) = 0;
+	virtual bool SetDiskMenuItem(unsigned __int64 id, int index, const wchar_t *Text, const wchar_t *Guid) = 0;
+	virtual bool SetPluginsMenuItem(unsigned __int64 id, int index, const wchar_t *Text, const wchar_t *Guid) = 0;
+	virtual bool SetPluginsConfigMenuItem(unsigned __int64 id, int index, const wchar_t *Text, const wchar_t *Guid) = 0;
+	virtual bool SetCommandPrefix(unsigned __int64 id, const wchar_t *Prefix) = 0;
+	virtual bool SetFlags(unsigned __int64 id, unsigned __int64 Flags) = 0;
+	virtual bool SetExport(unsigned __int64 id, const wchar_t *ExportName, bool Exists) = 0;
+	virtual bool SetMinFarVersion(unsigned __int64 id, const VersionInfo *Version) = 0;
+	virtual bool SetVersion(unsigned __int64 id, const VersionInfo *Version) = 0;
+	virtual bool SetGuid(unsigned __int64 id, const wchar_t *Guid) = 0;
+	virtual bool SetTitle(unsigned __int64 id, const wchar_t *Title) = 0;
+	virtual bool SetAuthor(unsigned __int64 id, const wchar_t *Author) = 0;
+	virtual bool SetDescription(unsigned __int64 id, const wchar_t *Description) = 0;
+	virtual bool EnumPlugins(DWORD index, string &CacheName) = 0;
+	virtual bool DiscardCache() = 0;
+	virtual bool IsCacheEmpty() = 0;
+};
+
+class PluginsHotkeysConfig {
+
+public:
+
+	enum HotKeyTypeEnum {
+		DRIVE_MENU,
+		PLUGINS_MENU,
+		CONFIG_MENU,
+	};
+
+	virtual ~PluginsHotkeysConfig() {}
+	virtual bool HotkeysPresent(HotKeyTypeEnum HotKeyType) = 0;
+	virtual string GetHotkey(const wchar_t *PluginKey, const wchar_t *MenuGuid, HotKeyTypeEnum HotKeyType) = 0;
+	virtual bool SetHotkey(const wchar_t *PluginKey, const wchar_t *MenuGuid, HotKeyTypeEnum HotKeyType, const wchar_t *HotKey) = 0;
+	virtual bool DelHotkey(const wchar_t *PluginKey, const wchar_t *MenuGuid, HotKeyTypeEnum HotKeyType) = 0;
+};
+
 extern GeneralConfig *GeneralCfg;
 extern AssociationsConfig *AssocConfig;
+extern PluginsCacheConfig *PlCacheCfg;
+extern PluginsHotkeysConfig *PlHotkeyCfg;
 
 void InitDb();
 void ReleaseDb();

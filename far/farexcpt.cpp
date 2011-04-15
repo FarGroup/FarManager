@@ -41,7 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filepanels.hpp"
 #include "ctrlobj.hpp"
 #include "manager.hpp"
-#include "registry.hpp"
 #include "config.hpp"
 #include "dialog.hpp"
 #include "colors.hpp"

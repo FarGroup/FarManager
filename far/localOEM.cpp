@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "localOEM.hpp"
 #include "syslog.hpp"
-#include "registry.hpp"
 #include "config.hpp"
 #include "configdb.hpp"
 

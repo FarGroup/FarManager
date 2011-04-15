@@ -45,7 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cmdline.hpp"
 #include "ctrlobj.hpp"
 #include "syslog.hpp"
-#include "registry.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
 #include "grabber.hpp"

@@ -41,6 +41,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 GeneralConfig *GeneralCfg;
 AssociationsConfig *AssocConfig;
+PluginsCacheConfig *PlCacheCfg;
+PluginsHotkeysConfig *PlHotkeyCfg;
 
 void GetDatabasePath(const wchar_t *FileName, string &strOut)
 {
@@ -686,6 +688,226 @@ public:
 	}
 };
 
+class PluginsCacheConfigDb: public PluginsCacheConfig {
+
+public:
+
+	PluginsCacheConfigDb()
+	{
+	}
+
+	virtual ~PluginsCacheConfigDb() {}
+
+	void BeginTransaction()
+	{
+	}
+
+	void EndTransaction()
+	{
+	}
+
+	unsigned __int64 CreateCache(const wchar_t *CacheName)
+	{
+		return 0;
+	}
+
+	unsigned __int64 GetCacheID(const wchar_t *CacheName)
+	{
+		return 0;
+	}
+
+	bool DeleteCache(const wchar_t *CacheName)
+	{
+		return false;
+	}
+
+	bool IsPreload(unsigned __int64 id)
+	{
+		return false;
+	}
+
+	string GetSignature(unsigned __int64 id)
+	{
+		return L"";
+	}
+
+	void *GetExport(unsigned __int64 id, const wchar_t *ExportName)
+	{
+		return nullptr;
+	}
+
+	string GetGuid(unsigned __int64 id)
+	{
+		return L"";
+	}
+
+	string GetTitle(unsigned __int64 id)
+	{
+		return L"";
+	}
+
+	string GetAuthor(unsigned __int64 id)
+	{
+		return L"";
+	}
+
+	string GetDescription(unsigned __int64 id)
+	{
+		return L"";
+	}
+
+	bool GetMinFarVersion(unsigned __int64 id, VersionInfo *Version)
+	{
+		return false;
+	}
+
+	bool GetVersion(unsigned __int64 id, VersionInfo *Version)
+	{
+		return false;
+	}
+
+	bool GetDiskMenuItem(unsigned __int64 id, int index, string &Text, string &Guid)
+	{
+		return false;
+	}
+
+	bool GetPluginsMenuItem(unsigned __int64 id, int index, string &Text, string &Guid)
+	{
+		return false;
+	}
+
+	bool GetPluginsConfigMenuItem(unsigned __int64 id, int index, string &Text, string &Guid)
+	{
+		return false;
+	}
+
+	string GetCommandPrefix(unsigned __int64 id)
+	{
+		return L"";
+	}
+
+	unsigned __int64 GetFlags(unsigned __int64 id)
+	{
+		return 0;
+	}
+
+	bool SetPreload(unsigned __int64 id, bool Preload)
+	{
+		return false;
+	}
+
+	bool SetSignature(unsigned __int64 id, const wchar_t *Signature)
+	{
+		return false;
+	}
+
+	bool SetDiskMenuItem(unsigned __int64 id, int index, const wchar_t *Text, const wchar_t *Guid)
+	{
+		return false;
+	}
+
+	bool SetPluginsMenuItem(unsigned __int64 id, int index, const wchar_t *Text, const wchar_t *Guid)
+	{
+		return false;
+	}
+
+	bool SetPluginsConfigMenuItem(unsigned __int64 id, int index, const wchar_t *Text, const wchar_t *Guid)
+	{
+		return false;
+	}
+
+	bool SetCommandPrefix(unsigned __int64 id, const wchar_t *Prefix)
+	{
+		return false;
+	}
+
+	bool SetFlags(unsigned __int64 id, unsigned __int64 Flags)
+	{
+		return false;
+	}
+
+	bool SetExport(unsigned __int64 id, const wchar_t *ExportName, bool Exists)
+	{
+		return false;
+	}
+
+	bool SetMinFarVersion(unsigned __int64 id, const VersionInfo *Version)
+	{
+		return false;
+	}
+
+	bool SetVersion(unsigned __int64 id, const VersionInfo *Version)
+	{
+		return false;
+	}
+
+	bool SetGuid(unsigned __int64 id, const wchar_t *Guid)
+	{
+		return false;
+	}
+
+	bool SetTitle(unsigned __int64 id, const wchar_t *Title)
+	{
+		return false;
+	}
+
+	bool SetAuthor(unsigned __int64 id, const wchar_t *Author)
+	{
+		return false;
+	}
+
+	bool SetDescription(unsigned __int64 id, const wchar_t *Description)
+	{
+		return false;
+	}
+
+	bool EnumPlugins(DWORD index, string &CacheName)
+	{
+		return false;
+	}
+
+	bool DiscardCache()
+	{
+		return false;
+	}
+
+	bool IsCacheEmpty()
+	{
+		return true;
+	}
+};
+
+class PluginsHotkeysConfigDb: public PluginsHotkeysConfig {
+
+public:
+
+	PluginsHotkeysConfigDb()
+	{
+	}
+
+	virtual ~PluginsHotkeysConfigDb() {}
+
+	bool HotkeysPresent(HotKeyTypeEnum HotKeyType)
+	{
+		return false;
+	}
+
+	string GetHotkey(const wchar_t *PluginKey, const wchar_t *MenuGuid, HotKeyTypeEnum HotKeyType)
+	{
+		return L"";
+	}
+
+	bool SetHotkey(const wchar_t *PluginKey, const wchar_t *MenuGuid, HotKeyTypeEnum HotKeyType, const wchar_t *HotKey)
+	{
+		return false;
+	}
+
+	bool DelHotkey(const wchar_t *PluginKey, const wchar_t *MenuGuid, HotKeyTypeEnum HotKeyType)
+	{
+		return false;
+	}
+};
+
 PluginsConfig *CreatePluginsConfig()
 {
 	return new PluginsConfigDb();
@@ -695,10 +917,14 @@ void InitDb()
 {
 	GeneralCfg = new GeneralConfigDb();
 	AssocConfig = new AssociationsConfigDb();
+	PlCacheCfg = new PluginsCacheConfigDb();
+	PlHotkeyCfg = new PluginsHotkeysConfigDb();
 }
 
 void ReleaseDb()
 {
 	delete GeneralCfg;
 	delete AssocConfig;
+	delete PlCacheCfg;
+	delete PlHotkeyCfg;
 }

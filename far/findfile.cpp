@@ -57,7 +57,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "localOEM.hpp"
 #include "codepage.hpp"
-#include "registry.hpp"
 #include "cddrv.hpp"
 #include "TaskBar.hpp"
 #include "interf.hpp"

@@ -40,7 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dialog.hpp"
 #include "ctrlobj.hpp"
 #include "farexcpt.hpp"
-#include "registry.hpp"
 #include "strmix.hpp"
 
 int WINAPI GetSearchReplaceString(
