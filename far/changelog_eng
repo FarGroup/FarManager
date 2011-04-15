@@ -3,6 +3,27 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+t-rex 15.04.2011 21:45:01 +0200 - build 1960
+
+1. The initial stage of PluginCache and PluginHotKeys moving to sqlite (it does not work so far).
+
+2. Bugs in menus invoked via the wrapper.
+
+svs 15.04.2011 10:06:10 +0300 - build 1959
+
+1. Macro: history.disable is renamed to history.enable.
+   This means that:
+    1. histories are off when macro is started
+    2. the bit mask has an effect on histories forced switching-on
+
+t-rex 15.04.2011 03:28:35 +0200 - build 1958
+
+1. From 2useven10: Partial remake of viewer's internals, numerous bugs are fixed.
+
+2. Update sqlite to 3.7.6.1.
+
+3. NULL -> nullptr in a couple of places.
+
 drkns 12.04.2011 21:26:28 +0200 - build 1957
 
 1. Rollback of 1956.
