@@ -79,7 +79,7 @@ void History::AddToHistory(const wchar_t *Str, int Type, const wchar_t *Prefix, 
 	if (!EnableAdd)
 		return;
 
-	if (CtrlObject->Macro.IsExecuting() && CtrlObject->Macro.IsHistroyDisable((int)TypeHistory))
+	if (CtrlObject->Macro.IsExecuting() && !CtrlObject->Macro.IsHistroyEnable((int)TypeHistory))
 		return;
 
 	AddToHistoryLocal(Str,Prefix,Type);

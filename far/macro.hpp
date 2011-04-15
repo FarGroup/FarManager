@@ -165,7 +165,7 @@ struct MacroState
 	int MacroPC;
 	int ExecLIBPos;
 	int MacroWORKCount;
-	DWORD HistroyDisable;
+	DWORD HistroyEnable;
 	bool UseInternalClipboard;
 	struct MacroRecord *MacroWORK; // т.н. текущее исполнение
 	INPUT_RECORD cRec; // "описание реально нажатой клавиши"
@@ -308,7 +308,7 @@ class KeyMacro
 		// проверить флаги текущего исполняемого макроса.
 		BOOL CheckCurMacroFlags(DWORD Flags);
 
-		bool IsHistroyDisable(int TypeHistory);
+		bool IsHistroyEnable(int TypeHistory);
 
 		static const wchar_t* GetSubKey(int Mode);
 		static int   GetSubKey(const wchar_t *Mode);

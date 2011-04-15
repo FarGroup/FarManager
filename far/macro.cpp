@@ -389,7 +389,7 @@ static TMacroFunction intMacroFunction[]=
 	{L"FMATCH",           2, 0,   MCODE_F_FMATCH,           nullptr, 0,nullptr,L"N=FMatch(S,Mask)",0,fmatchFunc},
 	{L"FSPLIT",           2, 0,   MCODE_F_FSPLIT,           nullptr, 0,nullptr,L"S=FSplit(S,N)",0,fsplitFunc},
 	{L"GETHOTKEY",        1, 1,   MCODE_F_MENU_GETHOTKEY,   nullptr, 0,nullptr,L"S=GetHotkey([N])",0,usersFunc},
-	{L"HISTORY.DISABLE",  1, 1,   MCODE_F_HISTIORY_DISABLE, nullptr, 0,nullptr,L"N=History.Disable([State])",0,usersFunc},
+	{L"HISTORY.ENABLE",   1, 1,   MCODE_F_HISTIORY_ENABLE,  nullptr, 0,nullptr,L"N=History.Enable([State])",0,usersFunc},
 	{L"IIF",              3, 0,   MCODE_F_IIF,              nullptr, 0,nullptr,L"V=Iif(Condition,V1,V2)",0,iifFunc},
 	{L"INDEX",            3, 1,   MCODE_F_INDEX,            nullptr, 0,nullptr,L"S=Index(S1,S2[,Mode])",0,indexFunc},
 	{L"INT",              1, 0,   MCODE_F_INT,              nullptr, 0,nullptr,L"N=Int(V)",0,intFunc},
@@ -599,7 +599,7 @@ void KeyMacro::InitInternalVars(BOOL InitedRAM)
 		Work.Executing=MACROMODE_NOMACRO;
 	}
 
-	Work.HistroyDisable=0;
+	Work.HistroyEnable=0;
 	RecBuffer=nullptr;
 	RecBufferSize=0;
 	RecSrc=nullptr;
@@ -939,7 +939,7 @@ int KeyMacro::ProcessKey(int Key)
 				}
 
 				// различаем общий режим (с передачей плагину кеев) или специальный (без передачи клавиш плагину)
-				Work.HistroyDisable=0;
+				Work.HistroyEnable=0;
 				Work.ExecLIBPos=0;
 				PostNewMacro(MacroLIB+I);
 				Work.cRec=*FrameManager->GetLastInputRecord();
@@ -4302,7 +4302,7 @@ done:
 		}
 
 		ScrBuf.RestoreMacroChar();
-		Work.HistroyDisable=0;
+		Work.HistroyEnable=0;
 
 		return KEY_NONE; // Здесь ВСЕГДА!
 	}
@@ -4434,16 +4434,16 @@ done:
 			goto begin;
 		}
 
-		case MCODE_F_HISTIORY_DISABLE: // N=History.Disable([State])
+		case MCODE_F_HISTIORY_ENABLE: // N=History.Enable([State])
 		{
 			TVar State; VMStack.Pop(State);
 
-			DWORD oldHistroyDisable=Work.HistroyDisable;
+			DWORD oldHistroyEnable=Work.HistroyEnable;
 
 			if (!State.isUnknown())
-				Work.HistroyDisable=(DWORD)State.getInteger();
+				Work.HistroyEnable=(DWORD)State.getInteger();
 
-			VMStack.Push((__int64)oldHistroyDisable);
+			VMStack.Push((__int64)oldHistroyEnable);
 			goto begin;
 		}
 
@@ -6064,7 +6064,7 @@ INT_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,INT_P
 	else if (Param1 == 2 && Msg == DN_EDITCHANGE)
 	{
 		LastKey=0;
-		_SVS(SysLog(L"[%d] ((FarDialogItem*)Param2)->PtrData='%s'",__LINE__,((FarDialogItem*)Param2)->PtrData));
+		_SVS(SysLog(L"[%d] ((FarDialogItem*)Param2)->PtrData='%s'",__LINE__,((FarDialogItem*)Param2)->Data));
 		key=KeyNameToKey(((FarDialogItem*)Param2)->Data);
 
 		if (key != -1 && !KMParam->Recurse)
@@ -6700,7 +6700,7 @@ int KeyMacro::ParseMacroString(MacroRecord *CurMacro,const wchar_t *BufPtr,BOOL 
 void MacroState::Init(TVarTable *tbl)
 {
 	KeyProcess=Executing=MacroPC=ExecLIBPos=MacroWORKCount=0;
-	HistroyDisable=0;
+	HistroyEnable=0;
 	MacroWORK=nullptr;
 
 	if (!tbl)
@@ -7149,9 +7149,9 @@ int KeyMacro::GetCurRecord(MacroRecord* RBuf,int *KeyPos)
 }
 
 
-bool KeyMacro::IsHistroyDisable(int TypeHistory)
+bool KeyMacro::IsHistroyEnable(int TypeHistory)
 {
-	return (Work.HistroyDisable & (1 << TypeHistory))?false:true;
+	return (Work.HistroyEnable & (1 << TypeHistory))?true:false;
 }
 
 static int __cdecl SortMacros(const MacroRecord *el1,const MacroRecord *el2)

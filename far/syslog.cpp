@@ -1311,7 +1311,7 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(F_KBDLAYOUT),                // N=kbdLayout([N])
 		DEF_MCODE_(F_WINDOW_SCROLL),               // N=Window.Scroll(Lines[,Axis])
 		DEF_MCODE_(F_KEYBAR_SHOW),              // N=KeyBar.Show([N])
-		DEF_MCODE_(F_HISTIORY_DISABLE),           // N=History.Disable([State])
+		DEF_MCODE_(F_HISTIORY_ENABLE),           // N=History.Enable([State])
 
 	};
 	string Name;
