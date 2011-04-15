@@ -1,3 +1,9 @@
+t-rex 16.04.2011 01:15:31 +0200 - build 1961
+
+1. PluginHotKeys в sqlite - готово.
+
+2. PluginCache в sqlite - готова структура базы и пару запросов (~30%).
+
 t-rex 15.04.2011 21:45:01 +0200 - build 1960
 
 1. Ќачальна€ стади€ перевода PluginCache и PluginHotKeys в sqlite (пока ещЄ не работает).

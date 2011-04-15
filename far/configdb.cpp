@@ -689,41 +689,101 @@ public:
 };
 
 class PluginsCacheConfigDb: public PluginsCacheConfig {
+	SQLiteDb   db;
+	SQLiteStmt stmtCreateCache;
+	SQLiteStmt stmtFindCacheName;
+	SQLiteStmt stmtDelCache;
+	SQLiteStmt stmtGetPreloadState;
+
+	enum MenuItemTypeEnum {
+		PLUGINS_MENU,
+		CONFIG_MENU,
+		DRIVE_MENU
+	};
+
+	bool GetMenuItem(unsigned __int64 id, MenuItemTypeEnum type, int index, string &Text, string &Guid)
+	{
+		return false;
+	}
+
+	bool SetMenuItem(unsigned __int64 id, MenuItemTypeEnum type, int index, const wchar_t *Text, const wchar_t *Guid)
+	{
+		return false;
+	}
 
 public:
 
 	PluginsCacheConfigDb()
 	{
+		if (!db.Open(L"plugincache.db"))
+			return;
+
+		//schema
+		db.Exec(
+			"PRAGMA foreign_keys = ON;"
+			"CREATE TABLE IF NOT EXISTS cachename(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE);"
+			"CREATE TABLE IF NOT EXISTS preload(cid INTEGER NOT NULL PRIMARY KEY, enabled INTEGER NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
+			"CREATE TABLE IF NOT EXISTS signatures(cid INTEGER NOT NULL PRIMARY KEY, signature TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
+			"CREATE TABLE IF NOT EXISTS guids(cid INTEGER NOT NULL PRIMARY KEY, guid TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
+			"CREATE TABLE IF NOT EXISTS titles(cid INTEGER NOT NULL PRIMARY KEY, title TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
+			"CREATE TABLE IF NOT EXISTS authors(cid INTEGER NOT NULL PRIMARY KEY, author TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
+			"CREATE TABLE IF NOT EXISTS descriptions(cid INTEGER NOT NULL PRIMARY KEY, description TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
+			"CREATE TABLE IF NOT EXISTS minfarversions(cid INTEGER NOT NULL PRIMARY KEY, version BLOB NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
+			"CREATE TABLE IF NOT EXISTS pluginversions(cid INTEGER NOT NULL PRIMARY KEY, version BLOB NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
+			"CREATE TABLE IF NOT EXISTS flags(cid INTEGER NOT NULL PRIMARY KEY, bitmask INTEGER NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
+			"CREATE TABLE IF NOT EXISTS prefixes(cid INTEGER NOT NULL PRIMARY KEY, prefix TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
+			"CREATE TABLE IF NOT EXISTS exports(cid INTEGER NOT NULL, export TEXT NOT NULL, enabled INTEGER NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (cid, export));"
+			"CREATE TABLE IF NOT EXISTS menuitems(cid INTEGER NOT NULL, type INTEGER NOT NULL, number INTEGER NOT NULL, guid TEXT NOT NULL, name TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (cid, type, number));"
+		);
+
+		//add new cache name statement
+		db.InitStmt(stmtCreateCache, L"INSERT INTO cachename VALUES (NULL,?1);");
+
+		//get cache id by name statement
+		db.InitStmt(stmtFindCacheName, L"SELECT id FROM cachename WHERE name=?1;");
+
+		//del chache by name statement
+		db.InitStmt(stmtDelCache, L"DELETE FROM cachename WHERE name=?1;");
+
+		//get preload state statement
+		db.InitStmt(stmtGetPreloadState, L"SELECT enabled FROM preload WHERE cid=?1;");
 	}
 
 	virtual ~PluginsCacheConfigDb() {}
 
-	void BeginTransaction()
-	{
-	}
+	void BeginTransaction() { db.BeginTransaction(); }
 
-	void EndTransaction()
-	{
-	}
+	void EndTransaction() { db.EndTransaction(); }
 
 	unsigned __int64 CreateCache(const wchar_t *CacheName)
 	{
+		if (stmtCreateCache.Bind(CacheName).StepAndReset())
+			return db.LastInsertRowID();
 		return 0;
 	}
 
 	unsigned __int64 GetCacheID(const wchar_t *CacheName)
 	{
-		return 0;
+		unsigned __int64 id = 0;
+		if (stmtFindCacheName.Bind(CacheName).Step())
+			id = stmtFindCacheName.GetColInt64(0);
+		stmtFindCacheName.Reset();
+		return id;
 	}
 
 	bool DeleteCache(const wchar_t *CacheName)
 	{
-		return false;
+		//All related entries are automatically deleted because of foreign key constraints
+		return stmtDelCache.Bind(CacheName).StepAndReset();
 	}
 
 	bool IsPreload(unsigned __int64 id)
 	{
-		return false;
+		bool preload = false;
+		if (stmtGetPreloadState.Bind(id).Step())
+			preload = stmtGetPreloadState.GetColInt(0) ? true : false;
+		stmtGetPreloadState.Reset();
+		return preload;
 	}
 
 	string GetSignature(unsigned __int64 id)
@@ -768,17 +828,17 @@ public:
 
 	bool GetDiskMenuItem(unsigned __int64 id, int index, string &Text, string &Guid)
 	{
-		return false;
+		return GetMenuItem(id, DRIVE_MENU, index, Text, Guid);
 	}
 
 	bool GetPluginsMenuItem(unsigned __int64 id, int index, string &Text, string &Guid)
 	{
-		return false;
+		return GetMenuItem(id, PLUGINS_MENU, index, Text, Guid);
 	}
 
 	bool GetPluginsConfigMenuItem(unsigned __int64 id, int index, string &Text, string &Guid)
 	{
-		return false;
+		return GetMenuItem(id, CONFIG_MENU, index, Text, Guid);
 	}
 
 	string GetCommandPrefix(unsigned __int64 id)
@@ -803,17 +863,17 @@ public:
 
 	bool SetDiskMenuItem(unsigned __int64 id, int index, const wchar_t *Text, const wchar_t *Guid)
 	{
-		return false;
+		return SetMenuItem(id, DRIVE_MENU, index, Text, Guid);
 	}
 
 	bool SetPluginsMenuItem(unsigned __int64 id, int index, const wchar_t *Text, const wchar_t *Guid)
 	{
-		return false;
+		return SetMenuItem(id, PLUGINS_MENU, index, Text, Guid);
 	}
 
 	bool SetPluginsConfigMenuItem(unsigned __int64 id, int index, const wchar_t *Text, const wchar_t *Guid)
 	{
-		return false;
+		return SetMenuItem(id, CONFIG_MENU, index, Text, Guid);
 	}
 
 	bool SetCommandPrefix(unsigned __int64 id, const wchar_t *Prefix)
@@ -878,33 +938,63 @@ public:
 };
 
 class PluginsHotkeysConfigDb: public PluginsHotkeysConfig {
+	SQLiteDb   db;
+	SQLiteStmt stmtGetHotkey;
+	SQLiteStmt stmtSetHotkey;
+	SQLiteStmt stmtDelHotkey;
+	SQLiteStmt stmtCheckForHotkeys;
 
 public:
 
 	PluginsHotkeysConfigDb()
 	{
+		if (!db.Open(L"pluginhotkeys.db"))
+			return;
+
+		//schema
+		db.Exec("CREATE TABLE IF NOT EXISTS pluginhotkeys(pluginkey TEXT NOT NULL, menuguid TEXT NOT NULL, type INTEGER NOT NULL, hotkey TEXT, PRIMARY KEY(pluginkey, menuguid, type));");
+
+		//get hotkey statement
+		db.InitStmt(stmtGetHotkey, L"SELECT hotkey FROM pluginhotkeys WHERE pluginkey=?1 AND menuguid=?2 AND type=?3;");
+
+		//set hotkey statement
+		db.InitStmt(stmtSetHotkey, L"INSERT OR REPLACE INTO pluginhotkeys VALUES (?1,?2,?3,?4);");
+
+		//delete hotkey statement
+		db.InitStmt(stmtDelHotkey, L"DELETE FROM pluginhotkeys WHERE pluginkey=?1 AND menuguid=?2 AND type=?3;");
+
+		//check if exist hotkeys of specific type statement
+		db.InitStmt(stmtCheckForHotkeys, L"SELECT count(hotkey) FROM pluginhotkeys WHERE type=?1");
 	}
 
 	virtual ~PluginsHotkeysConfigDb() {}
 
 	bool HotkeysPresent(HotKeyTypeEnum HotKeyType)
 	{
-		return false;
+		int count = 0;
+		if (stmtCheckForHotkeys.Bind((int)HotKeyType).Step())
+			count = stmtCheckForHotkeys.GetColInt(0);
+		stmtCheckForHotkeys.Reset();
+		return count!=0;
 	}
 
 	string GetHotkey(const wchar_t *PluginKey, const wchar_t *MenuGuid, HotKeyTypeEnum HotKeyType)
 	{
-		return L"";
+		string strHotKey;
+		if (stmtGetHotkey.Bind(PluginKey).Bind(MenuGuid).Bind((int)HotKeyType).Step())
+			strHotKey = stmtGetHotkey.GetColText(0);
+		stmtGetHotkey.Reset();
+		return strHotKey;
 	}
 
 	bool SetHotkey(const wchar_t *PluginKey, const wchar_t *MenuGuid, HotKeyTypeEnum HotKeyType, const wchar_t *HotKey)
 	{
-		return false;
+		return stmtSetHotkey.Bind(PluginKey).Bind(MenuGuid).Bind((int)HotKeyType).Bind(HotKey).StepAndReset();
 	}
 
 	bool DelHotkey(const wchar_t *PluginKey, const wchar_t *MenuGuid, HotKeyTypeEnum HotKeyType)
 	{
-		return false;
+		return stmtDelHotkey.Bind(PluginKey).Bind(MenuGuid).Bind((int)HotKeyType).StepAndReset();
 	}
 };
 
