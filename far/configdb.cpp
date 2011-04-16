@@ -693,7 +693,32 @@ class PluginsCacheConfigDb: public PluginsCacheConfig {
 	SQLiteStmt stmtCreateCache;
 	SQLiteStmt stmtFindCacheName;
 	SQLiteStmt stmtDelCache;
+	SQLiteStmt stmtCountCacheNames;
 	SQLiteStmt stmtGetPreloadState;
+	SQLiteStmt stmtGetSignature;
+	SQLiteStmt stmtGetExportState;
+	SQLiteStmt stmtGetGuid;
+	SQLiteStmt stmtGetTitle;
+	SQLiteStmt stmtGetAuthor;
+	SQLiteStmt stmtGetPrefix;
+	SQLiteStmt stmtGetDescription;
+	SQLiteStmt stmtGetFlags;
+	SQLiteStmt stmtGetMinFarVersion;
+	SQLiteStmt stmtGetVersion;
+	SQLiteStmt stmtSetPreloadState;
+	SQLiteStmt stmtSetSignature;
+	SQLiteStmt stmtSetExportState;
+	SQLiteStmt stmtSetGuid;
+	SQLiteStmt stmtSetTitle;
+	SQLiteStmt stmtSetAuthor;
+	SQLiteStmt stmtSetPrefix;
+	SQLiteStmt stmtSetDescription;
+	SQLiteStmt stmtSetFlags;
+	SQLiteStmt stmtSetMinFarVersion;
+	SQLiteStmt stmtSetVersion;
+	SQLiteStmt stmtEnumCache;
+	SQLiteStmt stmtGetMenuItem;
+	SQLiteStmt stmtSetMenuItem;
 
 	enum MenuItemTypeEnum {
 		PLUGINS_MENU,
@@ -703,12 +728,28 @@ class PluginsCacheConfigDb: public PluginsCacheConfig {
 
 	bool GetMenuItem(unsigned __int64 id, MenuItemTypeEnum type, int index, string &Text, string &Guid)
 	{
-		return false;
+		bool b = stmtGetMenuItem.Bind(id).Bind((int)type).Bind(index).Step();
+		if (b)
+		{
+			Text = stmtGetMenuItem.GetColText(0);
+			Guid = stmtGetMenuItem.GetColText(1);
+		}
+		stmtGetMenuItem.Reset();
+		return b;
 	}
 
 	bool SetMenuItem(unsigned __int64 id, MenuItemTypeEnum type, int index, const wchar_t *Text, const wchar_t *Guid)
 	{
-		return false;
+		return stmtSetMenuItem.Bind(id).Bind((int)type).Bind(index).Bind(Guid).Bind(Text).StepAndReset();
+	}
+
+	string GetTextFromID(SQLiteStmt &stmt, unsigned __int64 id)
+	{
+		string strText;
+		if (stmt.Bind(id).Step())
+			strText = stmt.GetColText(0);
+		stmt.Reset();
+		return strText;
 	}
 
 public:
@@ -736,17 +777,92 @@ public:
 			"CREATE TABLE IF NOT EXISTS menuitems(cid INTEGER NOT NULL, type INTEGER NOT NULL, number INTEGER NOT NULL, guid TEXT NOT NULL, name TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (cid, type, number));"
 		);
 
+		//get menu item text and guid statement
+		db.InitStmt(stmtGetMenuItem, L"SELECT name, guid FROM menuitems WHERE cid=?1 AND type=?2 AND number=?3;");
+
+		//set menu item statement
+		db.InitStmt(stmtSetMenuItem, L"INSERT OR REPLACE INTO menuitems VALUES (?1,?2,?3,?4,?5);");
+
 		//add new cache name statement
 		db.InitStmt(stmtCreateCache, L"INSERT INTO cachename VALUES (NULL,?1);");
 
 		//get cache id by name statement
 		db.InitStmt(stmtFindCacheName, L"SELECT id FROM cachename WHERE name=?1;");
 
-		//del chache by name statement
+		//del cache by name statement
 		db.InitStmt(stmtDelCache, L"DELETE FROM cachename WHERE name=?1;");
+
+		//count cache names statement
+		db.InitStmt(stmtCountCacheNames, L"SELECT count(name) FROM cachename");
 
 		//get preload state statement
 		db.InitStmt(stmtGetPreloadState, L"SELECT enabled FROM preload WHERE cid=?1;");
+
+		//get signature statement
+		db.InitStmt(stmtGetSignature, L"SELECT signature FROM signatures WHERE cid=?1;");
+
+		//get export state statement
+		db.InitStmt(stmtGetExportState, L"SELECT enabled FROM exports WHERE cid=?1 and export=?2;");
+
+		//get guid statement
+		db.InitStmt(stmtGetGuid, L"SELECT guid FROM guids WHERE cid=?1;");
+
+		//get title statement
+		db.InitStmt(stmtGetTitle, L"SELECT title FROM titles WHERE cid=?1;");
+
+		//get author statement
+		db.InitStmt(stmtGetAuthor, L"SELECT author FROM authors WHERE cid=?1;");
+
+		//get description statement
+		db.InitStmt(stmtGetDescription, L"SELECT description FROM descriptions WHERE cid=?1;");
+
+		//get command prefix statement
+		db.InitStmt(stmtGetPrefix, L"SELECT prefix FROM prefixes WHERE cid=?1;");
+
+		//get flags statement
+		db.InitStmt(stmtGetFlags, L"SELECT bitmask FROM flags WHERE cid=?1;");
+
+		//get MinFarVersion statement
+		db.InitStmt(stmtGetMinFarVersion, L"SELECT version FROM minfarversions WHERE cid=?1;");
+
+		//get plugin version statement
+		db.InitStmt(stmtGetVersion, L"SELECT version FROM pluginversions WHERE cid=?1;");
+
+		//set preload state statement
+		db.InitStmt(stmtSetPreloadState, L"INSERT OR REPLACE INTO preload VALUES (?1,?2);");
+
+		//set signature statement
+		db.InitStmt(stmtSetSignature, L"INSERT OR REPLACE INTO signatures VALUES (?1,?2);");
+
+		//set export state statement
+		db.InitStmt(stmtSetExportState, L"INSERT OR REPLACE INTO exports VALUES (?1,?2,?3);");
+
+		//set guid statement
+		db.InitStmt(stmtSetGuid, L"INSERT OR REPLACE INTO guids VALUES (?1,?2);");
+
+		//set title statement
+		db.InitStmt(stmtSetTitle, L"INSERT OR REPLACE INTO titles VALUES (?1,?2);");
+
+		//set author statement
+		db.InitStmt(stmtSetAuthor, L"INSERT OR REPLACE INTO authors VALUES (?1,?2);");
+
+		//set description statement
+		db.InitStmt(stmtSetDescription, L"INSERT OR REPLACE INTO descriptions VALUES (?1,?2);");
+
+		//set command prefix statement
+		db.InitStmt(stmtSetPrefix, L"INSERT OR REPLACE INTO prefixes VALUES (?1,?2);");
+
+		//set flags statement
+		db.InitStmt(stmtSetFlags, L"INSERT OR REPLACE INTO flags VALUES (?1,?2);");
+
+		//set MinFarVersion statement
+		db.InitStmt(stmtSetMinFarVersion, L"INSERT OR REPLACE INTO minfarversions VALUES (?1,?2);");
+
+		//set plugin version statement
+		db.InitStmt(stmtSetVersion, L"INSERT OR REPLACE INTO pluginversions VALUES (?1,?2);");
+
+		//enum cache names statement
+		db.InitStmt(stmtEnumCache, L"SELECT name FROM cachename ORDER BY name;");
 	}
 
 	virtual ~PluginsCacheConfigDb() {}
@@ -788,42 +904,63 @@ public:
 
 	string GetSignature(unsigned __int64 id)
 	{
-		return L"";
+		return GetTextFromID(stmtGetSignature, id);
 	}
 
 	void *GetExport(unsigned __int64 id, const wchar_t *ExportName)
 	{
-		return nullptr;
+		void *enabled = nullptr;
+		if (stmtGetExportState.Bind(id).Bind(ExportName).Step())
+			if (stmtGetExportState.GetColInt(0) > 0)
+				enabled = (void *)1;
+		stmtGetExportState.Reset();
+		return enabled;
 	}
 
 	string GetGuid(unsigned __int64 id)
 	{
-		return L"";
+		return GetTextFromID(stmtGetGuid, id);
 	}
 
 	string GetTitle(unsigned __int64 id)
 	{
-		return L"";
+		return GetTextFromID(stmtGetTitle, id);
 	}
 
 	string GetAuthor(unsigned __int64 id)
 	{
-		return L"";
+		return GetTextFromID(stmtGetAuthor, id);
 	}
 
 	string GetDescription(unsigned __int64 id)
 	{
-		return L"";
+		return GetTextFromID(stmtGetDescription, id);
 	}
 
 	bool GetMinFarVersion(unsigned __int64 id, VersionInfo *Version)
 	{
-		return false;
+		bool b = stmtGetMinFarVersion.Bind(id).Step();
+		if (b)
+		{
+			const char *blob = stmtGetMinFarVersion.GetColBlob(0);
+			int realsize = stmtGetMinFarVersion.GetColBytes(0);
+			memcpy(Version,blob,Min(realsize,(int)sizeof(VersionInfo)));
+		}
+		stmtGetMinFarVersion.Reset();
+		return b;
 	}
 
 	bool GetVersion(unsigned __int64 id, VersionInfo *Version)
 	{
-		return false;
+		bool b = stmtGetVersion.Bind(id).Step();
+		if (b)
+		{
+			const char *blob = stmtGetVersion.GetColBlob(0);
+			int realsize = stmtGetVersion.GetColBytes(0);
+			memcpy(Version,blob,Min(realsize,(int)sizeof(VersionInfo)));
+		}
+		stmtGetVersion.Reset();
+		return b;
 	}
 
 	bool GetDiskMenuItem(unsigned __int64 id, int index, string &Text, string &Guid)
@@ -843,22 +980,26 @@ public:
 
 	string GetCommandPrefix(unsigned __int64 id)
 	{
-		return L"";
+		return GetTextFromID(stmtGetPrefix, id);
 	}
 
 	unsigned __int64 GetFlags(unsigned __int64 id)
 	{
-		return 0;
+		unsigned __int64 flags = 0;
+		if (stmtGetFlags.Bind(id).Step())
+			flags = stmtGetFlags.GetColInt64(0);
+		stmtGetFlags.Reset();
+		return flags;
 	}
 
 	bool SetPreload(unsigned __int64 id, bool Preload)
 	{
-		return false;
+		return stmtSetPreloadState.Bind(id).Bind(Preload?1:0).StepAndReset();
 	}
 
 	bool SetSignature(unsigned __int64 id, const wchar_t *Signature)
 	{
-		return false;
+		return stmtSetSignature.Bind(id).Bind(Signature).StepAndReset();
 	}
 
 	bool SetDiskMenuItem(unsigned __int64 id, int index, const wchar_t *Text, const wchar_t *Guid)
@@ -878,62 +1019,78 @@ public:
 
 	bool SetCommandPrefix(unsigned __int64 id, const wchar_t *Prefix)
 	{
-		return false;
+		return stmtSetPrefix.Bind(id).Bind(Prefix).StepAndReset();
 	}
 
 	bool SetFlags(unsigned __int64 id, unsigned __int64 Flags)
 	{
-		return false;
+		return stmtSetFlags.Bind(id).Bind(Flags).StepAndReset();
 	}
 
 	bool SetExport(unsigned __int64 id, const wchar_t *ExportName, bool Exists)
 	{
-		return false;
+		return stmtSetExportState.Bind(id).Bind(ExportName).Bind(Exists?1:0).StepAndReset();
 	}
 
 	bool SetMinFarVersion(unsigned __int64 id, const VersionInfo *Version)
 	{
-		return false;
+		return stmtSetMinFarVersion.Bind(id).Bind((const char *)Version,(int)sizeof(VersionInfo)).StepAndReset();
 	}
 
 	bool SetVersion(unsigned __int64 id, const VersionInfo *Version)
 	{
-		return false;
+		return stmtSetVersion.Bind(id).Bind((const char *)Version,(int)sizeof(VersionInfo)).StepAndReset();
 	}
 
 	bool SetGuid(unsigned __int64 id, const wchar_t *Guid)
 	{
-		return false;
+		return stmtSetGuid.Bind(id).Bind(Guid).StepAndReset();
 	}
 
 	bool SetTitle(unsigned __int64 id, const wchar_t *Title)
 	{
-		return false;
+		return stmtSetTitle.Bind(id).Bind(Title).StepAndReset();
 	}
 
 	bool SetAuthor(unsigned __int64 id, const wchar_t *Author)
 	{
-		return false;
+		return stmtSetAuthor.Bind(id).Bind(Author).StepAndReset();
 	}
 
 	bool SetDescription(unsigned __int64 id, const wchar_t *Description)
 	{
-		return false;
+		return stmtSetDescription.Bind(id).Bind(Description).StepAndReset();
 	}
 
 	bool EnumPlugins(DWORD index, string &CacheName)
 	{
+		if (index == 0)
+			stmtEnumCache.Reset();
+
+		if (stmtEnumCache.Step())
+		{
+			CacheName = stmtEnumCache.GetColText(0);
+			return true;
+		}
+
 		return false;
 	}
 
 	bool DiscardCache()
 	{
-		return false;
+		db.BeginTransaction();
+		bool ret = db.Exec("DELETE FROM cachename");
+		db.EndTransaction();
+		return ret;
 	}
 
 	bool IsCacheEmpty()
 	{
-		return true;
+		int count = 0;
+		if (stmtCountCacheNames.Step())
+			count = stmtCountCacheNames.GetColInt(0);
+		stmtCountCacheNames.Reset();
+		return count==0;
 	}
 };
 
