@@ -1118,7 +1118,7 @@ int FileList::ProcessKey(int Key)
 						{
 							string strFullName = Info.CurDir;
 
-							if (Opt.PanelCtrlFRule && ViewSettings.FolderUpperCase)
+							if (Opt.PanelCtrlFRule && (ViewSettings.Flags&PVS_FOLDERUPPERCASE))
 								strFullName.Upper();
 
 							if (!strFullName.IsEmpty())
@@ -1128,10 +1128,10 @@ int FileList::ProcessKey(int Key)
 							{
 								/* $ 13.10.2000 tran
 								  по Ctrl-f имя должно отвечать условиям на панели */
-								if (ViewSettings.FileLowerCase && !(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+								if ((ViewSettings.Flags&PVS_FILELOWERCASE) && !(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 									strFileName.Lower();
 
-								if (ViewSettings.FileUpperToLowerCase)
+								if ((ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE))
 									if (!(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(strFileName))
 										strFileName.Lower();
 							}
@@ -1289,7 +1289,7 @@ int FileList::ProcessKey(int Key)
 
 			if (PanelMode==PLUGIN_PANEL)// && *PluginsList[PluginsListSize-1].HostFile)
 			{
-				int CheckFullScreen=IsFullScreen();
+				bool CheckFullScreen=IsFullScreen();
 				OpenPanelInfo Info;
 				CtrlObject->Plugins.GetOpenPanelInfo(hPlugin,&Info);
 
@@ -2161,7 +2161,7 @@ int FileList::ProcessKey(int Key)
 		case KEY_CTRLPGUP:     case KEY_CTRLNUMPAD9:
 		{
 			//"this" может быть удалён в ChangeDir
-			int CheckFullScreen=IsFullScreen();
+			bool CheckFullScreen=IsFullScreen();
 			ChangeDir(L"..");
 			Panel *NewActivePanel = CtrlObject->Cp()->ActivePanel;
 			NewActivePanel->SetViewMode(NewActivePanel->GetViewMode());
@@ -2288,10 +2288,9 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 		}
 		else
 		{
-			int CheckFullScreen=IsFullScreen();
+			bool CheckFullScreen=IsFullScreen();
 
-			if (PanelMode==PLUGIN_PANEL || !wcschr(CurPtr->strName,L'?') ||
-			        CurPtr->strShortName.IsEmpty())
+			if (PanelMode==PLUGIN_PANEL || !wcschr(CurPtr->strName,L'?') || CurPtr->strShortName.IsEmpty())
 			{
 				ChangeDir(CurPtr->strName);
 			}
@@ -2407,7 +2406,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 
 BOOL FileList::SetCurDir(const wchar_t *NewDir,int ClosePanel)
 {
-	int CheckFullScreen=0;
+	bool CheckFullScreen=false;
 
 	if (ClosePanel && PanelMode==PLUGIN_PANEL)
 	{
@@ -2967,7 +2966,7 @@ void FileList::SetViewMode(int ViewMode)
 	if ((DWORD)ViewMode > (DWORD)SizeViewSettingsArray)
 		ViewMode=VIEW_0;
 
-	int CurFullScreen=IsFullScreen();
+	bool CurFullScreen=IsFullScreen();
 	int OldOwner=IsColumnDisplayed(OWNER_COLUMN);
 	int OldPacked=IsColumnDisplayed(PACKED_COLUMN);
 	int OldNumLink=IsColumnDisplayed(NUMLINK_COLUMN);
@@ -3002,7 +3001,7 @@ void FileList::SetViewMode(int ViewMode)
 	if (!OldDiz && NewDiz)
 		ReadDiz();
 
-	if (ViewSettings.FullScreen && !CurFullScreen)
+	if ((ViewSettings.Flags&PVS_FULLSCREEN) && !CurFullScreen)
 	{
 		if (Y2>0)
 			SetPosition(0,Y1,ScrX,Y2);
@@ -3011,7 +3010,7 @@ void FileList::SetViewMode(int ViewMode)
 	}
 	else
 	{
-		if (!ViewSettings.FullScreen && CurFullScreen)
+		if (!(ViewSettings.Flags&PVS_FULLSCREEN) && CurFullScreen)
 		{
 			if (Y2>0)
 			{
@@ -3933,7 +3932,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 			{
 				string strFullName = Info.CurDir;
 
-				if (Opt.PanelCtrlFRule && ViewSettings.FolderUpperCase)
+				if (Opt.PanelCtrlFRule && (ViewSettings.Flags&PVS_FOLDERUPPERCASE))
 					strFullName.Upper();
 
 				if (!strFullName.IsEmpty())
@@ -3942,10 +3941,10 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 				if (Opt.PanelCtrlFRule)
 				{
 					// имя должно отвечать условиям на панели
-					if (ViewSettings.FileLowerCase && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+					if ((ViewSettings.Flags&PVS_FILELOWERCASE) && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 						strQuotedName.Lower();
 
-					if (ViewSettings.FileUpperToLowerCase)
+					if (ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE)
 						if (!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(strQuotedName))
 							strQuotedName.Lower();
 				}
@@ -4055,7 +4054,7 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
 	{
 		/* $ 13.10.2000 tran
 		  по Ctrl-f имя должно отвечать условиям на панели */
-		if (ViewSettings.FolderUpperCase)
+		if (ViewSettings.Flags&PVS_FOLDERUPPERCASE)
 		{
 			if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
 			{
@@ -4072,7 +4071,7 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
 			}
 		}
 
-		if (ViewSettings.FileUpperToLowerCase && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+		if ((ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE) && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 		{
 			size_t pos;
 
@@ -4080,7 +4079,7 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
 				strFileName.Lower(pos);
 		}
 
-		if (ViewSettings.FileLowerCase && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+		if ((ViewSettings.Flags&PVS_FILELOWERCASE) && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 		{
 			size_t pos;
 
@@ -4746,7 +4745,7 @@ HANDLE FileList::OpenFilePlugin(const wchar_t *FileName, int PushPrev, OPENFILEP
 			FileCount=0;
 		}
 
-		BOOL WasFullscreen = IsFullScreen();
+		bool WasFullscreen = IsFullScreen();
 		SetPluginMode(hNewPlugin,FileName);  // SendOnFocus??? true???
 		PanelMode=PLUGIN_PANEL;
 		UpperFolderTopFile=CurTopFile;

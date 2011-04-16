@@ -275,8 +275,7 @@ class FileList:public Panel
 		void DeletePluginItemList(PluginPanelItem *(&ItemList),int &ItemNumber);
 		HANDLE OpenPluginForFile(const wchar_t *FileName,DWORD FileAttr, OPENFILEPLUGINTYPE Type);
 		int PreparePanelView(PanelViewSettings *PanelView);
-		int PrepareColumnWidths(unsigned int *ColumnTypes,int *ColumnWidths,
-		                        int *ColumnWidthsTypes,int &ColumnCount,int FullScreen);
+		int PrepareColumnWidths(unsigned int *ColumnTypes,int *ColumnWidths,int *ColumnWidthsTypes,int &ColumnCount,bool FullScreen);
 		void PrepareViewSettings(int ViewMode,OpenPanelInfo *PlugInfo);
 
 		void PluginDelete();
@@ -371,7 +370,7 @@ class FileList:public Panel
 		virtual void GetDizName(string &strDizName);
 		virtual void CopyDiz(const wchar_t *Name, const wchar_t *ShortName, const wchar_t *DestName,
 		                     const wchar_t *DestShortName,DizList *DestDiz);
-		virtual int IsFullScreen();
+		virtual bool IsFullScreen();
 		virtual int IsDizDisplayed();
 		virtual int IsColumnDisplayed(int Type);
 		virtual int GetColumnsCount() { return Columns;};
@@ -415,6 +414,6 @@ class FileList:public Panel
 		static void FreePluginPanelItem(PluginPanelItem *pi);
 		size_t FileListToPluginItem2(FileListItem *fi,PluginPanelItem *pi);
 		static void PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi);
-		static int IsModeFullScreen(int Mode);
+		static bool IsModeFullScreen(int Mode);
 		static string &AddPluginPrefix(FileList *SrcPanel,string &strPrefix);
 };

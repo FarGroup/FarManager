@@ -167,6 +167,15 @@ public:
 	virtual bool DelHotkey(const wchar_t *PluginKey, const wchar_t *MenuGuid, HotKeyTypeEnum HotKeyType) = 0;
 };
 
+class PanelModeConfig {
+
+public:
+
+	virtual ~PanelModeConfig() {}
+	virtual bool GetMode(int mode, string &strColumnTitles, string &strColumnWidths, string &strStatusColumnTitles, string &strStatusColumnWidths, DWORD *Flags) = 0;
+	virtual bool SetMode(int mode, const wchar_t *ColumnTitles, const wchar_t *ColumnWidths, const wchar_t *StatusColumnTitles, const wchar_t *StatusColumnWidths, DWORD Flags) = 0;
+};
+
 extern GeneralConfig *GeneralCfg;
 extern AssociationsConfig *AssocConfig;
 extern PluginsCacheConfig *PlCacheCfg;
@@ -176,3 +185,4 @@ void InitDb();
 void ReleaseDb();
 
 PluginsConfig *CreatePluginsConfig();
+PanelModeConfig *CreatePanelModeConfig();

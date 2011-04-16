@@ -57,7 +57,7 @@ FileViewer::FileViewer(const wchar_t *Name,int EnableSwitch,int DisableHistory,
                        int DisableEdit,long ViewStartPos,const wchar_t *PluginData,
                        NamesList *ViewNamesList,int ToSaveAs,UINT aCodePage):
 	View(false,aCodePage),
-	FullScreen(TRUE),
+	FullScreen(true),
 	DisableEdit(DisableEdit)
 {
 	_OT(SysLog(L"[%p] FileViewer::FileViewer(I variant...)", this));

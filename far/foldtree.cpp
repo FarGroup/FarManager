@@ -49,7 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "exitcode.hpp"
 
-FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,int IsFullScreen):
+FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,bool IsFullScreen):
 	Tree(nullptr),
 	FindEdit(nullptr),
 	ModalMode(iModalMode),
@@ -142,7 +142,9 @@ void FolderTree::DisplayObject()
 void FolderTree::SetCoords()
 {
 	if (IsFullScreen)
+	{
 		SetPosition(0,0,ScrX,ScrY);
+	}
 	else
 	{
 		if (IsStandalone)

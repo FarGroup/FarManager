@@ -252,7 +252,7 @@ FilePanels::~FilePanels()
 	RightPanel=nullptr;
 }
 
-void FilePanels::SetPanelPositions(int LeftFullScreen,int RightFullScreen)
+void FilePanels::SetPanelPositions(bool LeftFullScreen, bool RightFullScreen)
 {
 	if (Opt.WidthDecrement < -(ScrX/2-10))
 		Opt.WidthDecrement=-(ScrX/2-10);
@@ -266,7 +266,7 @@ void FilePanels::SetPanelPositions(int LeftFullScreen,int RightFullScreen)
 	if (LeftFullScreen)
 	{
 		LeftPanel->SetPosition(0,Opt.ShowMenuBar?1:0,ScrX,ScrY-1-(Opt.ShowKeyBar)-Opt.LeftHeightDecrement);
-		LeftPanel->ViewSettings.FullScreen=1;
+		LeftPanel->ViewSettings.Flags|=PVS_FULLSCREEN;
 	}
 	else
 	{
@@ -276,7 +276,7 @@ void FilePanels::SetPanelPositions(int LeftFullScreen,int RightFullScreen)
 	if (RightFullScreen)
 	{
 		RightPanel->SetPosition(0,Opt.ShowMenuBar?1:0,ScrX,ScrY-1-(Opt.ShowKeyBar)-Opt.RightHeightDecrement);
-		RightPanel->ViewSettings.FullScreen=1;
+		RightPanel->ViewSettings.Flags|=PVS_FULLSCREEN;
 	}
 	else
 	{
@@ -378,7 +378,7 @@ int FilePanels::SwapPanels()
 		LeftPanel->GetPosition(XL1,YL1,XL2,YL2);
 		RightPanel->GetPosition(XR1,YR1,XR2,YR2);
 
-		if (!LeftPanel->ViewSettings.FullScreen || !RightPanel->ViewSettings.FullScreen)
+		if (!LeftPanel->IsFullScreen() || !RightPanel->IsFullScreen())
 		{
 			Opt.WidthDecrement=-Opt.WidthDecrement;
 
@@ -867,30 +867,29 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 	SaveScreen *SaveScr=nullptr;
 	// OldType не инициализировался...
 	int OldType=Current->GetType(),X1,Y1,X2,Y2;
-	int OldViewMode,OldSortMode,OldSortOrder,OldSortGroups,OldSelectedFirst,OldDirectoriesFirst;
-	int OldShowShortNames,OldPanelMode,LeftPosition,ChangePosition,OldNumericSort,OldCaseSensitiveSort;
-	int OldFullScreen,OldFocus,UseLastPanel=0;
-	OldPanelMode=Current->GetMode();
+	int OldPanelMode=Current->GetMode();
 
 	if (!Force && NewType==OldType && OldPanelMode==NORMAL_PANEL)
 		return(Current);
 
-	OldViewMode=Current->GetPrevViewMode();
-	OldFullScreen=Current->IsFullScreen();
-	OldSortMode=Current->GetPrevSortMode();
-	OldSortOrder=Current->GetPrevSortOrder();
-	OldNumericSort=Current->GetPrevNumericSort();
-	OldCaseSensitiveSort=Current->GetPrevCaseSensitiveSort();
-	OldSortGroups=Current->GetSortGroups();
-	OldShowShortNames=Current->GetShowShortNamesMode();
-	OldFocus=Current->GetFocus();
-	OldSelectedFirst=Current->GetSelectedFirstMode();
-	OldDirectoriesFirst=Current->GetPrevDirectoriesFirst();
-	LeftPosition=(Current==LeftPanel);
+	int UseLastPanel=0;
+	int OldViewMode=Current->GetPrevViewMode();
+	bool OldFullScreen=Current->IsFullScreen();
+	int OldSortMode=Current->GetPrevSortMode();
+	int OldSortOrder=Current->GetPrevSortOrder();
+	int OldNumericSort=Current->GetPrevNumericSort();
+	int OldCaseSensitiveSort=Current->GetPrevCaseSensitiveSort();
+	int OldSortGroups=Current->GetSortGroups();
+	int OldShowShortNames=Current->GetShowShortNamesMode();
+	int OldFocus=Current->GetFocus();
+	int OldSelectedFirst=Current->GetSelectedFirstMode();
+	int OldDirectoriesFirst=Current->GetPrevDirectoriesFirst();
+	int LeftPosition=(Current==LeftPanel);
+
 	Panel *(&LastFilePanel)=LeftPosition ? LastLeftFilePanel:LastRightFilePanel;
 	Current->GetPosition(X1,Y1,X2,Y2);
-	ChangePosition=((OldType==FILE_PANEL && NewType!=FILE_PANEL &&
-	                 OldFullScreen) || (NewType==FILE_PANEL &&
+	int ChangePosition=((OldType==FILE_PANEL && NewType!=FILE_PANEL &&
+	                    OldFullScreen) || (NewType==FILE_PANEL &&
 	                                    ((OldFullScreen && !FileList::IsModeFullScreen(OldViewMode)) ||
 	                                     (!OldFullScreen && FileList::IsModeFullScreen(OldViewMode)))));
 

@@ -1155,9 +1155,61 @@ public:
 	}
 };
 
+class PanelModeConfigDb: public PanelModeConfig {
+	SQLiteDb   db;
+	SQLiteStmt stmtGetMode;
+	SQLiteStmt stmtSetMode;
+
+public:
+
+	PanelModeConfigDb()
+	{
+		if (!db.Open(L"panelmodes.db"))
+			return;
+
+		//schema
+		db.Exec("CREATE TABLE IF NOT EXISTS panelmodes(mode INTEGER NOT NULL PRIMARY KEY, columntitles TEXT NOT NULL, columnwidths TEXT NOT NULL, statuscolumntitles TEXT NOT NULL, statuscolumnwidths TEXT NOT NULL, flags INTEGER NOT NULL);");
+
+		//get mode statement
+		db.InitStmt(stmtGetMode, L"SELECT columntitles, columnwidths, statuscolumntitles, statuscolumnwidths, flags FROM panelmodes WHERE mode=?1;");
+
+		//set mode statement
+		db.InitStmt(stmtSetMode, L"INSERT OR REPLACE INTO panelmodes VALUES (?1,?2,?3,?4,?5,?6);");
+
+		db.BeginTransaction();
+	}
+
+	virtual ~PanelModeConfigDb() { db.EndTransaction(); }
+
+	bool GetMode(int mode, string &strColumnTitles, string &strColumnWidths, string &strStatusColumnTitles, string &strStatusColumnWidths, DWORD *Flags)
+	{
+		bool b = stmtGetMode.Bind(mode).Step();
+		if (b)
+		{
+			strColumnTitles = stmtGetMode.GetColText(0);
+			strColumnWidths = stmtGetMode.GetColText(1);
+			strStatusColumnTitles = stmtGetMode.GetColText(2);
+			strStatusColumnWidths = stmtGetMode.GetColText(3);
+			*Flags = (DWORD)stmtGetMode.GetColInt(4);
+		}
+		stmtGetMode.Reset();
+		return b;
+	}
+
+	bool SetMode(int mode, const wchar_t *ColumnTitles, const wchar_t *ColumnWidths, const wchar_t *StatusColumnTitles, const wchar_t *StatusColumnWidths, DWORD Flags)
+	{
+		return stmtSetMode.Bind(mode).Bind(ColumnTitles).Bind(ColumnWidths).Bind(StatusColumnTitles).Bind(StatusColumnWidths).Bind((int)Flags).StepAndReset();
+	}
+};
+
 PluginsConfig *CreatePluginsConfig()
 {
 	return new PluginsConfigDb();
+}
+
+PanelModeConfig *CreatePanelModeConfig()
+{
+	return new PanelModeConfigDb();
 }
 
 void InitDb()

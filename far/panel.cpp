@@ -2598,7 +2598,7 @@ bool Panel::ExecShortcutFolder(int Pos)
 			}
 		}
 
-		int CheckFullScreen=SrcPanel->IsFullScreen();
+		bool CheckFullScreen=SrcPanel->IsFullScreen();
 
 		if (!strPluginModule.IsEmpty())
 		{

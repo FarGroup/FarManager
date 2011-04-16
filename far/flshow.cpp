@@ -113,7 +113,7 @@ void FileList::ShowFileList(int Fast)
 		strInfoCurDir=Info.CurDir;
 	}
 
-	int CurFullScreen=IsFullScreen();
+	bool CurFullScreen=IsFullScreen();
 	PrepareViewSettings(ViewMode,&Info);
 	CorrectPosition();
 
@@ -578,7 +578,8 @@ int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,i
 	const wchar_t *DotPtr;
 
 	if (!ShowStatus &&
-	        ((!(FileAttr&FILE_ATTRIBUTE_DIRECTORY) && ViewSettings.AlignExtensions) || ((FileAttr&FILE_ATTRIBUTE_DIRECTORY) && ViewSettings.FolderAlignExtensions))
+	        ((!(FileAttr&FILE_ATTRIBUTE_DIRECTORY) && (ViewSettings.Flags&PVS_ALIGNEXTENSIONS))
+	         || ((FileAttr&FILE_ATTRIBUTE_DIRECTORY) && (ViewSettings.Flags&PVS_FOLDERALIGNEXTENSIONS)))
 	        && SrcLength<=MaxLength &&
 	        (DotPtr=wcsrchr(SrcName,L'.')) && DotPtr!=SrcName &&
 	        (SrcName[0]!=L'.' || SrcName[2]) && !wcschr(DotPtr+1,L' '))
@@ -633,10 +634,12 @@ void FileList::PrepareViewSettings(int ViewMode,OpenPanelInfo *PlugInfo)
 
 			if (Info.PanelModesArray[ViewMode].StatusColumnTypes &&
 			        Info.PanelModesArray[ViewMode].StatusColumnWidths)
+			{
 				TextToViewSettings(Info.PanelModesArray[ViewMode].StatusColumnTypes,
 				                   Info.PanelModesArray[ViewMode].StatusColumnWidths,
 				                   ViewSettings.StatusColumnType,ViewSettings.StatusColumnWidth,
 				                   ViewSettings.StatusColumnWidthType,ViewSettings.StatusColumnCount);
+			}
 			else if (Info.PanelModesArray[ViewMode].Flags&PMFLAGS_DETAILEDSTATUS)
 			{
 				ViewSettings.StatusColumnType[0]=COLUMN_RIGHTALIGN|NAME_COLUMN;
@@ -656,18 +659,23 @@ void FileList::PrepareViewSettings(int ViewMode,OpenPanelInfo *PlugInfo)
 				ViewSettings.StatusColumnCount=1;
 			}
 
-			ViewSettings.FullScreen=static_cast<bool>(Info.PanelModesArray[ViewMode].Flags&PMFLAGS_FULLSCREEN);
-			ViewSettings.AlignExtensions=(Info.PanelModesArray[ViewMode].Flags&PMFLAGS_ALIGNEXTENSIONS)!=0;
+			if (Info.PanelModesArray[ViewMode].Flags&PMFLAGS_FULLSCREEN)
+				ViewSettings.Flags|=PVS_FULLSCREEN;
+			else
+				ViewSettings.Flags&=~PVS_FULLSCREEN;
+
+			if (Info.PanelModesArray[ViewMode].Flags&PMFLAGS_ALIGNEXTENSIONS)
+				ViewSettings.Flags|=PVS_ALIGNEXTENSIONS;
+			else
+				ViewSettings.Flags&=~PVS_ALIGNEXTENSIONS;
 
 			if (!(Info.PanelModesArray[ViewMode].Flags&PMFLAGS_CASECONVERSION))
-			{
-				ViewSettings.FolderUpperCase=0;
-				ViewSettings.FileLowerCase=0;
-				ViewSettings.FileUpperToLowerCase=0;
-			}
+				ViewSettings.Flags&=~(PVS_FOLDERUPPERCASE|PVS_FILELOWERCASE|PVS_FILEUPPERTOLOWERCASE);
 		}
 		else
+		{
 			for (int I=0; I<ViewSettings.ColumnCount; I++)
+			{
 				if ((ViewSettings.ColumnType[I] & 0xff)==NAME_COLUMN)
 				{
 					if (Info.Flags & OPIF_SHOWNAMESONLY)
@@ -677,12 +685,10 @@ void FileList::PrepareViewSettings(int ViewMode,OpenPanelInfo *PlugInfo)
 						ViewSettings.ColumnType[I]|=COLUMN_RIGHTALIGN;
 
 					if (Info.Flags & OPIF_SHOWPRESERVECASE)
-					{
-						ViewSettings.FolderUpperCase=0;
-						ViewSettings.FileLowerCase=0;
-						ViewSettings.FileUpperToLowerCase=0;
-					}
+						ViewSettings.Flags&=~(PVS_FOLDERUPPERCASE|PVS_FILELOWERCASE|PVS_FILEUPPERTOLOWERCASE);
 				}
+			}
+		}
 	}
 
 	Columns=PreparePanelView(&ViewSettings);
@@ -699,14 +705,13 @@ void FileList::PrepareViewSettings(int ViewMode,OpenPanelInfo *PlugInfo)
 int FileList::PreparePanelView(PanelViewSettings *PanelView)
 {
 	PrepareColumnWidths(PanelView->StatusColumnType,PanelView->StatusColumnWidth,PanelView->StatusColumnWidthType,
-	                    PanelView->StatusColumnCount,PanelView->FullScreen);
+	                    PanelView->StatusColumnCount,(PanelView->Flags&PVS_FULLSCREEN)==PVS_FULLSCREEN);
 	return(PrepareColumnWidths(PanelView->ColumnType,PanelView->ColumnWidth,PanelView->ColumnWidthType,
-	                           PanelView->ColumnCount,PanelView->FullScreen));
+	                           PanelView->ColumnCount,(PanelView->Flags&PVS_FULLSCREEN)==PVS_FULLSCREEN));
 }
 
 
-int FileList::PrepareColumnWidths(unsigned int *ColumnTypes,int *ColumnWidths,
-                                  int *ColumnWidthsTypes,int &ColumnCount,int FullScreen)
+int FileList::PrepareColumnWidths(unsigned int *ColumnTypes, int *ColumnWidths, int *ColumnWidthsTypes, int &ColumnCount, bool FullScreen)
 {
 	int TotalWidth,TotalPercentWidth,TotalPercentCount,ZeroLengthCount,EmptyColumns,I;
 	ZeroLengthCount=EmptyColumns=0;
@@ -1062,14 +1067,14 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 							if (!ShowStatus)
 							{
-								if (ViewSettings.FileUpperToLowerCase)
+								if (ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE)
 									if (!(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(NameCopy))
 										strName.Lower();
 
-								if ((ViewSettings.FolderUpperCase) && (ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+								if ((ViewSettings.Flags&PVS_FOLDERUPPERCASE) && (ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 									strName.Upper();
 
-								if ((ViewSettings.FileLowerCase) && !(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+								if ((ViewSettings.Flags&PVS_FILELOWERCASE) && !(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 									strName.Lower();
 							}
 
@@ -1314,21 +1319,21 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 }
 
 
-int FileList::IsFullScreen()
+bool FileList::IsFullScreen()
 {
-	return this->ViewSettings.FullScreen;
+	return (this->ViewSettings.Flags&PVS_FULLSCREEN)==PVS_FULLSCREEN;
 }
 
 
-int FileList::IsModeFullScreen(int Mode)
+bool FileList::IsModeFullScreen(int Mode)
 {
-	return(ViewSettingsArray[Mode].FullScreen);
+	return (ViewSettingsArray[Mode].Flags&PVS_FULLSCREEN)==PVS_FULLSCREEN;
 }
 
 
 int FileList::IsDizDisplayed()
 {
-	return(IsColumnDisplayed(DIZ_COLUMN));
+	return IsColumnDisplayed(DIZ_COLUMN);
 }
 
 

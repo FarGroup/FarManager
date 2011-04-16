@@ -1056,7 +1056,7 @@ TVar KeyMacro::FARPseudoVariable(UINT64 Flags,DWORD CheckCode,DWORD& Err)
 					Cond=GetSubKey(CtrlObject->Macro.GetMode());
 					break;
 				case MCODE_C_FULLSCREENMODE: // Fullscreen?
-					Cond=IsFullscreen();
+					Cond=IsFullscreen()?1:0;
 					break;
 				case MCODE_C_ISUSERADMIN: // IsUserAdmin?
 					Cond=(__int64)Opt.IsUserAdmin;

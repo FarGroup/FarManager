@@ -46,7 +46,7 @@ class FileViewer:public Frame
 		int RedrawTitle;
 		KeyBar ViewKeyBar;
 		bool F3KeyOnly;
-		int FullScreen;
+		bool FullScreen;
 		int DisableEdit;
 		int DisableHistory;
 
@@ -98,7 +98,7 @@ class FileViewer:public Frame
 		*/
 		void SetSaveToSaveAs(int ToSaveAs) { SaveToSaveAs=ToSaveAs; InitKeyBar(); }
 		int  ViewerControl(int Command,void *Param);
-		BOOL IsFullScreen() {return FullScreen;}
+		bool IsFullScreen() {return FullScreen;}
 		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
 		__int64 GetViewFileSize() const;
 		__int64 GetViewFilePos() const;

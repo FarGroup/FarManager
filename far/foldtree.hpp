@@ -48,7 +48,7 @@ class FolderTree:public Frame
 
 		KeyBar TreeKeyBar;     // кейбар
 		int ModalMode;
-		int IsFullScreen;
+		bool IsFullScreen;
 		int IsStandalone;
 		int  PrevMacroMode;        // предыдущий режим макроса
 
@@ -61,7 +61,7 @@ class FolderTree:public Frame
 		void SetCoords();
 
 	public:
-		FolderTree(string &strResultFolder,int ModalMode,int IsStandalone=TRUE,int IsFullScreen=TRUE);
+		FolderTree(string &strResultFolder,int ModalMode,int IsStandalone=TRUE,bool IsFullScreen=true);
 		virtual ~FolderTree();
 
 	public:
