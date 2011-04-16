@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 1916
+  Plugin API for Far Manager 3.0 build 1962
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 1916
+#define FARMANAGERVERSION_BUILD 1962
 
 #ifndef RC_INVOKED
 
@@ -70,6 +70,16 @@ struct FarColor
 	void* Reserved;
 };
 
+typedef unsigned __int64 COLORDIALOGFLAGS;
+static const COLORDIALOGFLAGS
+    CDF_NONE = 0;
+
+typedef BOOL (WINAPI *FARAPICOLORDIALOG)(
+    const GUID* PluginId,
+    COLORDIALOGFLAGS Flags,
+    struct FarColor *Color
+);
+
 typedef unsigned __int64 FARMESSAGEFLAGS;
 static const FARMESSAGEFLAGS
 	FMSG_NONE                = 0,
@@ -90,7 +100,7 @@ typedef int (WINAPI *FARAPIMESSAGE)(
     FARMESSAGEFLAGS Flags,
     const wchar_t *HelpTopic,
     const wchar_t * const *Items,
-    int ItemsNumber,
+    size_t ItemsNumber,
     int ButtonsNumber
 );
 
@@ -397,7 +407,7 @@ struct FarListItemData
 
 struct FarList
 {
-	int ItemsNumber;
+	size_t ItemsNumber;
 	struct FarListItem *Items;
 };
 
@@ -435,10 +445,9 @@ struct FarDialogItem
 	const wchar_t *History;
 	const wchar_t *Mask;
 	FARDIALOGITEMFLAGS Flags;
-	LONG_PTR UserParam;
-
-	const wchar_t *PtrData;
-	size_t MaxLen; // terminate 0 not included (if == 0 string size is unlimited)
+	const wchar_t *Data;
+	size_t MaxLength; // terminate 0 not included (if == 0 string size is unlimited)
+	LONG_PTR UserData;
 };
 
 struct FarDialogItemData
@@ -598,7 +607,7 @@ typedef int (WINAPI *FARAPIMENU)(
     const struct FarKey *BreakKeys,
     int                *BreakCode,
     const struct FarMenuItem *Item,
-    int                 ItemsNumber
+    size_t              ItemsNumber
 );
 
 
@@ -625,7 +634,7 @@ struct PluginPanelItem
 	const wchar_t *Description;
 	const wchar_t *Owner;
 	const wchar_t * const *CustomColumnData;
-	int           CustomColumnNumber;
+	size_t           CustomColumnNumber;
 	DWORD_PTR     UserData;
 	DWORD         CRC32;
 	DWORD_PTR     Reserved[2];
@@ -1903,6 +1912,7 @@ struct PluginStartupInfo
 	FARAPISHOWHELP         ShowHelp;
 	FARAPIADVCONTROL       AdvControl;
 	FARAPIINPUTBOX         InputBox;
+	FARAPICOLORDIALOG      ColorDialog;
 	FARAPIDIALOGINIT       DialogInit;
 	FARAPIDIALOGRUN        DialogRun;
 	FARAPIDIALOGFREE       DialogFree;
@@ -2070,11 +2080,11 @@ struct OpenPanelInfo
 	const wchar_t               *Format;
 	const wchar_t               *PanelTitle;
 	const struct InfoPanelLine  *InfoLines;
-	int                          InfoLinesNumber;
+	size_t                       InfoLinesNumber;
 	const wchar_t * const       *DescrFiles;
-	int                          DescrFilesNumber;
+	size_t                       DescrFilesNumber;
 	const struct PanelMode      *PanelModesArray;
-	int                          PanelModesNumber;
+	size_t                       PanelModesNumber;
 	int                          StartPanelMode;
 	enum OPENPANELINFO_SORTMODES StartSortMode;
 	int                          StartSortOrder;
@@ -2150,7 +2160,7 @@ struct SetFindListInfo
 	size_t StructSize;
 	HANDLE hPanel;
 	const struct PluginPanelItem *PanelItem;
-	int ItemsNumber;
+	size_t ItemsNumber;
 };
 
 struct PutFilesInfo
@@ -2158,7 +2168,7 @@ struct PutFilesInfo
 	size_t StructSize;
 	HANDLE hPanel;
 	struct PluginPanelItem *PanelItem;
-	int ItemsNumber;
+	size_t ItemsNumber;
 	int Move;
 	const wchar_t *SrcPath;
 	OPERATION_MODES OpMode;
@@ -2169,7 +2179,7 @@ struct ProcessHostFileInfo
 	size_t StructSize;
 	HANDLE hPanel;
 	struct PluginPanelItem *PanelItem;
-	int ItemsNumber;
+	size_t ItemsNumber;
 	OPERATION_MODES OpMode;
 };
 
