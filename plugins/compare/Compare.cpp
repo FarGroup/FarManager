@@ -243,7 +243,7 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
     DialogItems[i].X2             = InitItems[i].X2;
     DialogItems[i].Y2             = InitItems[i].Y2;
     DialogItems[i].Flags          = InitItems[i].Flags;
-    DialogItems[i].PtrData = (InitItems[i].Data == MNoLngStringDefined) ? L"" : GetMsg(InitItems[i].Data);
+    DialogItems[i].Data = (InitItems[i].Data == MNoLngStringDefined) ? L"" : GetMsg(InitItems[i].Data);
     int Value = InitItems[i].SelectedRegValue ? settings.Get(0, InitItems[i].SelectedRegValue, InitItems[i].DefaultRegValue) : InitItems[i].DefaultRegValue;
     if (DialogItems[i].Type == DI_CHECKBOX || DialogItems[i].Type == DI_RADIOBUTTON)
     {
@@ -251,10 +251,10 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
     }
     else if (DialogItems[i].Type == DI_FIXEDIT)
     {
-      DialogItems[i].PtrData = tmpnum[i];
-      FSF.itoa(Value, (wchar_t *)DialogItems[i].PtrData, 10);
+      DialogItems[i].Data = tmpnum[i];
+      FSF.itoa(Value, (wchar_t *)DialogItems[i].Data, 10);
       DialogItems[i].Mask = Mask;
-      DialogItems[i].X1 = DialogItems[i-1].X1 + lstrlen(DialogItems[i-1].PtrData) - (wcschr(DialogItems[i-1].PtrData, L'&')?1:0) + 5;
+      DialogItems[i].X1 = DialogItems[i-1].X1 + lstrlen(DialogItems[i-1].Data) - (wcschr(DialogItems[i-1].Data, L'&')?1:0) + 5;
       DialogItems[i].X2 += DialogItems[i].X1;
     }
 
