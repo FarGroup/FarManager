@@ -1189,6 +1189,27 @@ if not exist bootstrap mkdir bootstrap</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include="bootstrap\lang.inc" />
+    <CustomBuild Include="Far.exe.ini">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy /y %(Identity) $(OutDir) &gt; nul</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compiling %(Identity)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Compiling %(Identity)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Compiling %(Identity)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compiling %(Identity)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compiling %(Identity)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compiling %(Identity)...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">copy /y %(Identity) $(OutDir) &gt; nul</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">copy /y %(Identity) $(OutDir) &gt; nul</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy /y %(Identity) $(OutDir) &gt; nul</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy /y %(Identity) $(OutDir) &gt; nul</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy /y %(Identity) $(OutDir) &gt; nul</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(Identity)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(OutDir)%(Identity)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Identity)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Identity)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Identity)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity)</Outputs>
+    </CustomBuild>
     <None Include="Far.ico" />
     <CustomBuild Include="copyright.inc.m4">
       <FileType>Document</FileType>

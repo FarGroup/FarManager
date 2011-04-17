@@ -1124,6 +1124,9 @@
     <CustomBuild Include="plugin.hpp">
       <Filter>Header Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="Far.exe.ini">
+      <Filter>Dependencies</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="vc10.asm">

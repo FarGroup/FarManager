@@ -44,9 +44,9 @@ AssociationsConfig *AssocConfig;
 PluginsCacheConfig *PlCacheCfg;
 PluginsHotkeysConfig *PlHotkeyCfg;
 
-void GetDatabasePath(const wchar_t *FileName, string &strOut)
+void GetDatabasePath(const wchar_t *FileName, string &strOut, bool Local)
 {
-	strOut = Opt.ProfilePath;
+	strOut = Local?Opt.LocalProfilePath:Opt.ProfilePath;
 	AddEndSlash(strOut);
 	strOut += FileName;
 }
@@ -108,10 +108,10 @@ public:
 
 	~SQLiteDb()	{ Close(); }
 
-	bool Open(const wchar_t *DbFile)
+	bool Open(const wchar_t *DbFile, bool Local = false)
 	{
 		string strPath;
-		GetDatabasePath(DbFile, strPath);
+		GetDatabasePath(DbFile, strPath, Local);
 		if (sqlite3_open16(strPath.CPtr(),&pDb) != SQLITE_OK)
 		{
 			sqlite3_close(pDb);
@@ -756,7 +756,7 @@ public:
 
 	PluginsCacheConfigDb()
 	{
-		if (!db.Open(L"plugincache.db"))
+		if (!db.Open(L"plugincache.db", true))
 			return;
 
 		//schema
