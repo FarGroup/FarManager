@@ -410,6 +410,8 @@ bool File::Close()
 		Result = CloseHandle(Handle) != FALSE;
 		Handle = INVALID_HANDLE_VALUE;
 	}
+	Pointer = 0;
+	NeedSyncPointer = false;
 	return Result;
 }
 

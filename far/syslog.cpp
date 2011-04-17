@@ -1956,12 +1956,12 @@ void PanelViewSettings_Dump(const wchar_t *Title,const PanelViewSettings &ViewSe
 
 		fwprintf(fp,L"%d]\n",ViewSettings.StatusColumnWidth[I]);
 		fwprintf(fp,L"%*s %s  StatusColumnCount    = %d\n",12,L"",space,ViewSettings.StatusColumnCount);
-		fwprintf(fp,L"%*s %s  FullScreen           = %d\n",12,L"",space,ViewSettings.FullScreen);
-		fwprintf(fp,L"%*s %s  AlignExtensions      = %d\n",12,L"",space,ViewSettings.AlignExtensions);
-		fwprintf(fp,L"%*s %s  FolderAlignExtensions= %d\n",12,L"",space,ViewSettings.FolderAlignExtensions);
-		fwprintf(fp,L"%*s %s  FolderUpperCase      = %d\n",12,L"",space,ViewSettings.FolderUpperCase);
-		fwprintf(fp,L"%*s %s  FileLowerCase        = %d\n",12,L"",space,ViewSettings.FileLowerCase);
-		fwprintf(fp,L"%*s %s  FileUpperToLowerCase = %d\n",12,L"",space,ViewSettings.FileUpperToLowerCase);
+		fwprintf(fp,L"%*s %s  FullScreen           = %d\n",12,L"",space,(ViewSettings.Flags&PVS_FULLSCREEN)?1:0);
+		fwprintf(fp,L"%*s %s  AlignExtensions      = %d\n",12,L"",space,(ViewSettings.Flags&PVS_ALIGNEXTENSIONS)?1:0);
+		fwprintf(fp,L"%*s %s  FolderAlignExtensions= %d\n",12,L"",space,(ViewSettings.Flags&PVS_FOLDERALIGNEXTENSIONS)?1:0);
+		fwprintf(fp,L"%*s %s  FolderUpperCase      = %d\n",12,L"",space,(ViewSettings.Flags&PVS_FOLDERUPPERCASE)?1:0);
+		fwprintf(fp,L"%*s %s  FileLowerCase        = %d\n",12,L"",space,(ViewSettings.Flags&PVS_FILELOWERCASE)?1:0);
+		fwprintf(fp,L"%*s %s  FileUpperToLowerCase = %d\n",12,L"",space,(ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE)?1:0);
 		fwprintf(fp,L"%*s %s  }\n",12,L"",space);
 		fflush(fp);
 	}

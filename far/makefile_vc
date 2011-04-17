@@ -362,7 +362,7 @@ depfile:
 	$(GAWK) -f .\scripts\mkdep.awk mkdep.list > $(DEPFILE)
 
 .PHONY: build
-build: "$(OUTDIR)\Far.exe" "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf" "$(OUTDIR)\FarHun.hlf" "$(OUTDIR)\File_id.diz" "$(FARINCLUDE)\PluginW.pas" "$(FARINCLUDE)\FarColorW.pas" "$(FARINCLUDE)\FarKeysW.pas" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\farkeys.hpp" "$(FARINCLUDE)\plugin.hpp"
+build: "$(OUTDIR)\Far.exe" "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf" "$(OUTDIR)\FarHun.hlf" "$(OUTDIR)\File_id.diz" "$(OUTDIR)\Far.exe.ini" "$(FARINCLUDE)\PluginW.pas" "$(FARINCLUDE)\FarColorW.pas" "$(FARINCLUDE)\FarKeysW.pas" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\farkeys.hpp" "$(FARINCLUDE)\plugin.hpp"
 
 .PHONY: AllDirs
 AllDirs:
@@ -479,6 +479,10 @@ $(OUTDIR)\File_id.diz: $(@F).m4 farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	$(M4) $(@F).m4 > $@
 
+$(OUTDIR)\Far.exe.ini: $(@F)
+	$(MSG)
+	copy /Y $(@F) $@ > nul
+
 $(FARINCLUDE)\PluginW.pas: $(@F) farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	$(M4) -DINPUT=$(@F) headers.m4 > $@
@@ -494,4 +498,4 @@ $(FARINCLUDE)\FarKeysW.pas: $(@F) farversion.m4 tools.m4 vbuild.m4
 .PHONY: CLEAN
 CLEAN:
 	echo cleaning
-	for %%i in ("$(INTDIR)\*.*" "$(CODDIR)\*.*" "bootstrap\*.*" "$(OUTDIR)\Far.exe" "$(OUTDIR)\Far.exp" "$(OUTDIR)\Far.lib" "$(OUTDIR)\Far.map" "$(OUTDIR)\Far.pdb" "$(OUTDIR)\*.hlf" "$(OUTDIR)\*.lng" "$(OUTDIR)\File_id.diz") do @if exist %%i del /q /f %%i
+	for %%i in ("$(INTDIR)\*.*" "$(CODDIR)\*.*" "bootstrap\*.*" "$(OUTDIR)\Far.exe" "$(OUTDIR)\Far.exp" "$(OUTDIR)\Far.lib" "$(OUTDIR)\Far.map" "$(OUTDIR)\Far.pdb" "$(OUTDIR)\*.hlf" "$(OUTDIR)\*.lng" "$(OUTDIR)\File_id.diz" "$(OUTDIR)\Far.exe.ini") do @if exist %%i del /q /f %%i

@@ -13787,25 +13787,25 @@ MMainMenuTitle
 "Menu główne"
 "Menú principal"
 
-MMainMenuFAR
-"Папка FAR"
-"FAR folder"
-"Složka FARu"
-"FAR Ordner"
-"FAR mappa"
-"Folder FAR-a"
-"Directorio FAR"
-
-MMainMenuREG
+MMainMenuUser
 l:
-l:// <...menu (Registry)>
-"Реестр"
-"Registry"
-"Registry"
-"Reg."
-"Registry"
-"Rejestr"
-"Registro"
+l:// <...menu (User)>
+"Пользовательское"
+"User"
+upd:"User"
+upd:"User"
+upd:"User"
+upd:"User"
+upd:"User"
+
+MMainMenuGlobal
+"Глобальное"
+"Global"
+upd:"Global"
+upd:"Global"
+upd:"Global"
+upd:"Global"
+upd:"Global"
 
 MLocalMenuTitle
 "Местное меню"

@@ -673,6 +673,7 @@ struct Options
 
 	string ProfilePath;
 	string LocalProfilePath;
+	string GlobalUserMenuDir;
 };
 
 extern Options Opt;

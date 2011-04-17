@@ -398,6 +398,11 @@ void InitProfile(const string& strDefaultProfile)
 
 	CreatePath(Opt.ProfilePath, true);
 	CreatePath(Opt.LocalProfilePath, true);
+
+	string strGlobalUserMenuDir;
+	GetPrivateProfileString(L"General", L"GlobalUserMenuDir", g_strFarPath, strGlobalUserMenuDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, strCfgName);
+	apiExpandEnvironmentStrings(strGlobalUserMenuDir, Opt.GlobalUserMenuDir);
+	AddEndSlash(Opt.GlobalUserMenuDir);
 }
 
 int _cdecl wmain(int Argc, wchar_t *Argv[])

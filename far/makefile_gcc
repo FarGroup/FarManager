@@ -228,7 +228,7 @@ dirs:
 	@$(MKDIR) bootstrap
 
 .PHONY: build
-build: $(EXEFULLNAME) $(EXEDIR)/FarEng.hlf $(EXEDIR)/FarRus.hlf $(EXEDIR)/FarHun.hlf $(EXEDIR)/File_id.diz $(FARINCLUDE)/farcolor.hpp $(FARINCLUDE)/farkeys.hpp $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/PluginW.pas $(FARINCLUDE)/FarColorW.pas $(FARINCLUDE)/FarKeysW.pas
+build: $(EXEFULLNAME) $(EXEDIR)/FarEng.hlf $(EXEDIR)/FarRus.hlf $(EXEDIR)/FarHun.hlf $(EXEDIR)/File_id.diz $(EXEDIR)/Far.exe.ini $(FARINCLUDE)/farcolor.hpp $(FARINCLUDE)/farkeys.hpp $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/PluginW.pas $(FARINCLUDE)/FarColorW.pas $(FARINCLUDE)/FarKeysW.pas
 
 $(EXEFULLNAME): bootstrap/Far.exe.manifest bootstrap/far.rc bootstrap/copyright.inc bootstrap/farversion.inc $(OBJS) $(UCD_OBJS) $(SQLITE_OBJS) $(DEF)
 	@echo linking $@
@@ -300,6 +300,10 @@ $(EXEDIR)/File_id.diz: File_id.diz.m4 farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@$(M4) File_id.diz.m4 > $@
 
+$(EXEDIR)/Far.exe.ini: Far.exe.ini
+	@echo generating $@
+	@$(CP) Far.exe.ini $@
+
 $(FARINCLUDE)/farcolor.hpp: colors.hpp farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@$(M4) -DINPUT=colors.hpp headers.m4 > $@
@@ -340,3 +344,4 @@ clean:
 	@$(RM) $(EXEDIR)/*.lng
 	@$(RM) $(EXEDIR)/*.hlf
 	@$(RM) $(EXEDIR)/File_id.diz
+	@$(RM) $(EXEDIR)/Far.exe.ini
