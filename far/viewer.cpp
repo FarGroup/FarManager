@@ -2966,11 +2966,11 @@ bool Viewer::vgetc(wchar_t *pCh)
 
 	switch (VM.CodePage)
 	{
-		case CP_UNICODE:
+		case CP_REVERSEBOM:
 			*pCh = (wchar_t)((vgetc_buffer[vgetc_ib] << 8) | vgetc_buffer[vgetc_ib+1]);
 			vgetc_ib += 2;
 		break;
-		case CP_REVERSEBOM:
+		case CP_UNICODE:
 			*pCh = (wchar_t)((vgetc_buffer[vgetc_ib+1] << 8) | vgetc_buffer[vgetc_ib]);
 			vgetc_ib += 2;
 		break;

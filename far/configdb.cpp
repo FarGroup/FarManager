@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "strmix.hpp"
 #include "pathmix.hpp"
-#include "sqlite/sqlite3.h"
+#include "sqlite/sqlite.h"
 #include "config.hpp"
 
 GeneralConfig *GeneralCfg;

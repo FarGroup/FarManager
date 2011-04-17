@@ -820,7 +820,7 @@ int GetFileString::GetUnicodeString(LPWSTR* DestStr, int& Length, bool bBigEndia
 
 				if (bBigEndian)
 				{
-					_swab(reinterpret_cast<LPSTR>(&wReadBuf), reinterpret_cast<LPSTR>(&wReadBuf), ReadSize);
+					_swab(reinterpret_cast<LPSTR>(wReadBuf), reinterpret_cast<LPSTR>(wReadBuf), ReadSize);
 				}
 				ReadPos = 0;
 				ReadBufPtr = wReadBuf;

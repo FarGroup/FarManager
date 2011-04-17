@@ -512,7 +512,7 @@
     <ClCompile Include="shortcuts.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sqlite\sqlite3.c">
+    <ClCompile Include="sqlite\sqlite.c">
       <Filter>Source Files\sqlite</Filter>
     </ClCompile>
     <ClCompile Include="configdb.cpp">
@@ -1036,7 +1036,7 @@
     <ClInclude Include="shortcuts.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="sqlite\sqlite3.h">
+    <ClInclude Include="sqlite\sqlite.h">
       <Filter>Header Files\sqlite</Filter>
     </ClInclude>
     <ClInclude Include="configdb.hpp">

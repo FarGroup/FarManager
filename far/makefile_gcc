@@ -186,7 +186,7 @@ UCD_SRCS= \
 	nsUniversalDetector.cpp \
 	nsUTF8Prober.cpp
 
-SQLITE_SRCS = sqlite3.c
+SQLITE_SRCS = sqlite.c
 
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(SRCS))) $(OBJDIR)/far.rc.o
 UCD_OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(UCD_SRCS))) $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(UCD_SRCS)))

@@ -274,7 +274,7 @@ UCD_OBJS=\
 	"$(INTDIR)\nsUniversalDetector.obj" \
 	"$(INTDIR)\nsUTF8Prober.obj"
 
-SQLITE_OBJS="$(INTDIR)\sqlite3.obj"
+SQLITE_OBJS="$(INTDIR)\sqlite.obj"
 
 LINK_LIBS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.lib ole32.lib psapi.lib secur32.lib setupapi.lib rpcrt4.lib
 
