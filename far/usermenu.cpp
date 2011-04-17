@@ -674,11 +674,15 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 			} // while (!UserMenu.Done())
 
 			ExitCode=UserMenu.Modal::GetExitCode();
-			CurrentMenuItem = (UserMenuItem *)UserMenu.GetUserData(nullptr,sizeof(UserMenuItem *),MenuPos);
-		}
 
-		if (ExitCode<0 || ExitCode>=NumLine || !CurrentMenuItem)
-			return(EC_CLOSE_LEVEL); //  вверх на один уровень
+			if (ExitCode<0 || ExitCode>=NumLine || !CurrentMenuItem)
+				return EC_CLOSE_LEVEL; //  вверх на один уровень
+
+			CurrentMenuItem = (UserMenuItem *)UserMenu.GetUserData(nullptr,sizeof(UserMenuItem *),ExitCode);
+
+			if (!CurrentMenuItem)
+				return EC_CLOSE_LEVEL; //  вверх на один уровень
+		}
 
 		if (CurrentMenuItem->Submenu)
 		{
