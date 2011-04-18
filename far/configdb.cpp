@@ -308,6 +308,7 @@ public:
 			return true;
 		}
 
+		stmtEnumValues.Reset();
 		return false;
 	}
 
@@ -323,6 +324,7 @@ public:
 			return true;
 		}
 
+		stmtEnumValues.Reset();
 		return false;
 	}
 };
@@ -348,8 +350,8 @@ public:
 		//schema
 		db.Exec(
 			"PRAGMA foreign_keys = ON;"
-			"CREATE TABLE IF NOT EXISTS plugin_keys(id INTEGER PRIMARY KEY ASC, parent_id INTEGER NOT NULL, name TEXT NOT NULL, description TEXT, FOREIGN KEY(parent_id) REFERENCES plugin_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, UNIQUE (parent_id,name));"
-			"CREATE TABLE IF NOT EXISTS plugin_values(key_id INTEGER NOT NULL, name TEXT NOT NULL, value BLOB, FOREIGN KEY(key_id) REFERENCES plugin_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (key_id, name), CHECK (key_id > 0));"
+			"CREATE TABLE IF NOT EXISTS plugin_keys(id INTEGER PRIMARY KEY, parent_id INTEGER NOT NULL, name TEXT NOT NULL, description TEXT, FOREIGN KEY(parent_id) REFERENCES plugin_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, UNIQUE (parent_id,name));"
+			"CREATE TABLE IF NOT EXISTS plugin_values(key_id INTEGER NOT NULL, name TEXT NOT NULL, value BLOB, FOREIGN KEY(key_id) REFERENCES plugin_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (key_id, name), CHECK (key_id <> 0));"
 		);
 
 		//root key (needs to be before the transaction start)
@@ -361,10 +363,10 @@ public:
 		db.InitStmt(stmtCreateKey, L"INSERT INTO plugin_keys VALUES (NULL,?1,?2,?3);");
 
 		//find key statement
-		db.InitStmt(stmtFindKey, L"SELECT id FROM plugin_keys WHERE parent_id=?1 AND name=?2 AND id>0;");
+		db.InitStmt(stmtFindKey, L"SELECT id FROM plugin_keys WHERE parent_id=?1 AND name=?2 AND id<>0;");
 
 		//set key description statement
-		db.InitStmt(stmtSetKeyDescription, L"UPDATE plugin_keys SET description=?1 WHERE id=?2 AND id>0 AND description<>?1;");
+		db.InitStmt(stmtSetKeyDescription, L"UPDATE plugin_keys SET description=?1 WHERE id=?2 AND id<>0 AND description<>?1;");
 
 		//set value statement
 		db.InitStmt(stmtSetValue, L"INSERT OR REPLACE INTO plugin_values VALUES (?1,?2,?3);");
@@ -373,7 +375,7 @@ public:
 		db.InitStmt(stmtGetValue, L"SELECT value FROM plugin_values WHERE key_id=?1 AND name=?2;");
 
 		//enum keys statement
-		db.InitStmt(stmtEnumKeys, L"SELECT name FROM plugin_keys WHERE parent_id=?1 AND id>0;");
+		db.InitStmt(stmtEnumKeys, L"SELECT name FROM plugin_keys WHERE parent_id=?1 AND id<>0;");
 
 		//enum values statement
 		db.InitStmt(stmtEnumValues, L"SELECT name, value FROM plugin_values WHERE key_id=?1;");
@@ -488,6 +490,7 @@ public:
 			return true;
 		}
 
+		stmtEnumKeys.Reset();
 		return false;
 	}
 
@@ -510,6 +513,7 @@ public:
 			return true;
 		}
 
+		stmtEnumValues.Reset();
 		return false;
 
 	}
@@ -599,6 +603,7 @@ public:
 			return true;
 		}
 
+		stmtEnumMasks.Reset();
 		return false;
 	}
 
@@ -614,6 +619,7 @@ public:
 			return true;
 		}
 
+		stmtEnumMasksForType.Reset();
 		return false;
 	}
 
@@ -1073,6 +1079,7 @@ public:
 			return true;
 		}
 
+		stmtEnumCache.Reset();
 		return false;
 	}
 
