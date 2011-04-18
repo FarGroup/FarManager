@@ -473,7 +473,7 @@ bool PluginW::LoadData(void)
 		if (!Opt.LoadPlug.SilentLoadPlugin) //убрать в PluginSet
 		{
 			SetMessageHelp(L"ErrLoadPlugin");
-			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MPlgLoadPluginError),m_strModuleName,MSG(MOk));
+			Message(MSG_WARNING|MSG_ERRORTYPE|MSG_NOPLUGINS,1,MSG(MError),MSG(MPlgLoadPluginError),m_strModuleName,MSG(MOk));
 		}
 
 		return false;
