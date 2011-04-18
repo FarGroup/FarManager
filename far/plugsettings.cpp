@@ -187,13 +187,13 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 			item.Type=FST_UNKNOWN;
 			switch (Type)
 			{
-				case PluginsConfig::TYPE_INTEGER:
+				case HierarchicalConfig::TYPE_INTEGER:
 					item.Type=FST_QWORD;
 					break;
-				case PluginsConfig::TYPE_TEXT:
+				case HierarchicalConfig::TYPE_TEXT:
 					item.Type=FST_STRING;
 					break;
-				case PluginsConfig::TYPE_BLOB:
+				case HierarchicalConfig::TYPE_BLOB:
 					item.Type=FST_DATA;
 					break;
 			}

@@ -71,7 +71,7 @@ class PluginSettings
 		TPointerArray<unsigned __int64> m_Keys;
 		TPointerArray<char*> m_Data;
 		TPointerArray<Vector<FarSettingsName> > m_Enum;
-		PluginsConfig *PluginsCfg;
+		HierarchicalConfig *PluginsCfg;
 		PluginSettings();
 	public:
 		PluginSettings(const GUID& Guid);

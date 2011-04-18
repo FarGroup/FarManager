@@ -329,7 +329,7 @@ public:
 	}
 };
 
-class PluginsConfigDb: public PluginsConfig {
+class HierarchicalConfigDb: public HierarchicalConfig {
 	SQLiteDb   db;
 	SQLiteStmt stmtCreateKey;
 	SQLiteStmt stmtFindKey;
@@ -339,52 +339,58 @@ class PluginsConfigDb: public PluginsConfig {
 	SQLiteStmt stmtEnumKeys;
 	SQLiteStmt stmtEnumValues;
 	SQLiteStmt stmtDelValue;
+	SQLiteStmt stmtDeleteTree;
+
+	HierarchicalConfigDb() {}
 
 public:
 
-	PluginsConfigDb()
+	explicit HierarchicalConfigDb(const wchar_t *DbName)
 	{
-		if (!db.Open(L"pluginsconfig.db"))
+		if (!db.Open(DbName))
 			return;
 
 		//schema
 		db.Exec(
 			"PRAGMA foreign_keys = ON;"
-			"CREATE TABLE IF NOT EXISTS plugin_keys(id INTEGER PRIMARY KEY, parent_id INTEGER NOT NULL, name TEXT NOT NULL, description TEXT, FOREIGN KEY(parent_id) REFERENCES plugin_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, UNIQUE (parent_id,name));"
-			"CREATE TABLE IF NOT EXISTS plugin_values(key_id INTEGER NOT NULL, name TEXT NOT NULL, value BLOB, FOREIGN KEY(key_id) REFERENCES plugin_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (key_id, name), CHECK (key_id <> 0));"
+			"CREATE TABLE IF NOT EXISTS table_keys(id INTEGER PRIMARY KEY, parent_id INTEGER NOT NULL, name TEXT NOT NULL, description TEXT, FOREIGN KEY(parent_id) REFERENCES table_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, UNIQUE (parent_id,name));"
+			"CREATE TABLE IF NOT EXISTS table_values(key_id INTEGER NOT NULL, name TEXT NOT NULL, value BLOB, FOREIGN KEY(key_id) REFERENCES table_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (key_id, name), CHECK (key_id <> 0));"
 		);
 
 		//root key (needs to be before the transaction start)
-		db.Exec("INSERT INTO plugin_keys VALUES (0,0,\"\",\"Root - do not edit\");");
+		db.Exec("INSERT INTO table_keys VALUES (0,0,\"\",\"Root - do not edit\");");
 
 		db.BeginTransaction();
 
 		//create key statement
-		db.InitStmt(stmtCreateKey, L"INSERT INTO plugin_keys VALUES (NULL,?1,?2,?3);");
+		db.InitStmt(stmtCreateKey, L"INSERT INTO table_keys VALUES (NULL,?1,?2,?3);");
 
 		//find key statement
-		db.InitStmt(stmtFindKey, L"SELECT id FROM plugin_keys WHERE parent_id=?1 AND name=?2 AND id<>0;");
+		db.InitStmt(stmtFindKey, L"SELECT id FROM table_keys WHERE parent_id=?1 AND name=?2 AND id<>0;");
 
 		//set key description statement
-		db.InitStmt(stmtSetKeyDescription, L"UPDATE plugin_keys SET description=?1 WHERE id=?2 AND id<>0 AND description<>?1;");
+		db.InitStmt(stmtSetKeyDescription, L"UPDATE table_keys SET description=?1 WHERE id=?2 AND id<>0 AND description<>?1;");
 
 		//set value statement
-		db.InitStmt(stmtSetValue, L"INSERT OR REPLACE INTO plugin_values VALUES (?1,?2,?3);");
+		db.InitStmt(stmtSetValue, L"INSERT OR REPLACE INTO table_values VALUES (?1,?2,?3);");
 
 		//get value statement
-		db.InitStmt(stmtGetValue, L"SELECT value FROM plugin_values WHERE key_id=?1 AND name=?2;");
+		db.InitStmt(stmtGetValue, L"SELECT value FROM table_values WHERE key_id=?1 AND name=?2;");
 
 		//enum keys statement
-		db.InitStmt(stmtEnumKeys, L"SELECT name FROM plugin_keys WHERE parent_id=?1 AND id<>0;");
+		db.InitStmt(stmtEnumKeys, L"SELECT name FROM table_keys WHERE parent_id=?1 AND id<>0;");
 
 		//enum values statement
-		db.InitStmt(stmtEnumValues, L"SELECT name, value FROM plugin_values WHERE key_id=?1;");
+		db.InitStmt(stmtEnumValues, L"SELECT name, value FROM table_values WHERE key_id=?1;");
 
 		//delete value statement
-		db.InitStmt(stmtDelValue, L"DELETE FROM plugin_values WHERE key_id=?1 AND name=?2;");
+		db.InitStmt(stmtDelValue, L"DELETE FROM table_values WHERE key_id=?1 AND name=?2;");
+
+		//delete tree statement
+		db.InitStmt(stmtDeleteTree, L"DELETE FROM table_keys WHERE id=?1 AND id<>0;");
 	}
 
-	virtual ~PluginsConfigDb() { db.EndTransaction(); }
+	virtual ~HierarchicalConfigDb() { db.EndTransaction(); }
 
 	bool Flush()
 	{
@@ -469,8 +475,6 @@ public:
 	bool DeleteKeyTree(unsigned __int64 KeyID)
 	{
 		//All subtree is automatically deleted because of foreign key constraints
-		SQLiteStmt stmtDeleteTree;
-		db.InitStmt(stmtDeleteTree, L"DELETE FROM plugin_keys WHERE id=?1 AND id>0;");
 		return stmtDeleteTree.Bind(KeyID).StepAndReset();
 	}
 
@@ -1209,9 +1213,19 @@ public:
 	}
 };
 
-PluginsConfig *CreatePluginsConfig()
+HierarchicalConfig *CreatePluginsConfig()
 {
-	return new PluginsConfigDb();
+	return new HierarchicalConfigDb(L"pluginsconfig.db");
+}
+
+HierarchicalConfig *CreateFiltersConfig()
+{
+	return new HierarchicalConfigDb(L"filters.db");
+}
+
+HierarchicalConfig *CreateHighlightConfig()
+{
+	return new HierarchicalConfigDb(L"highlight.db");
 }
 
 PanelModeConfig *CreatePanelModeConfig()

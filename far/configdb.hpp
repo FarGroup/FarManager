@@ -61,7 +61,7 @@ public:
 	virtual bool EnumValues(const wchar_t *Key, DWORD Index, string &strName, DWORD *Value) = 0;
 };
 
-class PluginsConfig {
+class HierarchicalConfig {
 
 public:
 
@@ -72,7 +72,7 @@ public:
 		TYPE_UNKNOWN
 	};
 
-	virtual ~PluginsConfig() {}
+	virtual ~HierarchicalConfig() {}
 	virtual unsigned __int64 CreateKey(unsigned __int64 Root, const wchar_t *Name, const wchar_t *Description=nullptr) = 0;
 	virtual unsigned __int64 GetKeyID(unsigned __int64 Root, const wchar_t *Name) = 0;
 	virtual bool SetKeyDescription(unsigned __int64 Root, const wchar_t *Description) = 0;
@@ -86,6 +86,7 @@ public:
 	virtual bool DeleteValue(unsigned __int64 Root, const wchar_t *Name) = 0;
 	virtual bool EnumKeys(unsigned __int64 Root, DWORD Index, string &strName) = 0;
 	virtual bool EnumValues(unsigned __int64 Root, DWORD Index, string &strName, DWORD *Type) = 0;
+	virtual bool Flush() = 0;
 };
 
 class AssociationsConfig {
@@ -184,5 +185,7 @@ extern PluginsHotkeysConfig *PlHotkeyCfg;
 void InitDb();
 void ReleaseDb();
 
-PluginsConfig *CreatePluginsConfig();
+HierarchicalConfig *CreatePluginsConfig();
+HierarchicalConfig *CreateFiltersConfig();
+HierarchicalConfig *CreateHighlightConfig();
 PanelModeConfig *CreatePanelModeConfig();

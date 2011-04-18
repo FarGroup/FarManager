@@ -85,4 +85,4 @@ class HighlightFiles
 		void SaveHiData();
 };
 
-void SetHighlighting();
+void SetHighlighting(bool DeleteOld=false);
