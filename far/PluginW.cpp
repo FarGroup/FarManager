@@ -467,14 +467,14 @@ bool PluginW::LoadData(void)
 
 	if (!m_hModule)
 	{
+		//чтоб не пытаться загрузить опять а то ошибка будет постоянно показываться.
+		WorkFlags.Set(PIWF_DONTLOADAGAIN);
+
 		if (!Opt.LoadPlug.SilentLoadPlugin) //убрать в PluginSet
 		{
 			SetMessageHelp(L"ErrLoadPlugin");
 			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MPlgLoadPluginError),m_strModuleName,MSG(MOk));
 		}
-
-		//чтоб не пытаться загрузить опять а то ошибка будет постоянно показываться.
-		WorkFlags.Set(PIWF_DONTLOADAGAIN);
 
 		return false;
 	}
