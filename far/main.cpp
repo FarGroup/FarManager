@@ -400,7 +400,7 @@ void InitProfile(const string& strDefaultProfile)
 	CreatePath(Opt.LocalProfilePath, true);
 
 	string strGlobalUserMenuDir;
-	GetPrivateProfileString(L"General", L"GlobalUserMenuDir", g_strFarPath, strGlobalUserMenuDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, strCfgName);
+	strGlobalUserMenuDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"GlobalUserMenuDir", g_strFarPath, strGlobalUserMenuDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, strCfgName));
 	apiExpandEnvironmentStrings(strGlobalUserMenuDir, Opt.GlobalUserMenuDir);
 	AddEndSlash(Opt.GlobalUserMenuDir);
 }
