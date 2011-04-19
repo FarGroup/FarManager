@@ -1228,6 +1228,9 @@ class HistoryConfigDb: public HistoryConfig {
 	SQLiteStmt stmtDelUnlocked;
 	SQLiteStmt stmtGetLock;
 	SQLiteStmt stmtSetLock;
+	SQLiteStmt stmtGetNext;
+	SQLiteStmt stmtGetPrev;
+	SQLiteStmt stmtGetNewest;
 
 public:
 
@@ -1242,6 +1245,7 @@ public:
 			"CREATE INDEX IF NOT EXISTS history_idx1 ON history (kind, key);"
 			"CREATE INDEX IF NOT EXISTS history_idx2 ON history (kind, key, time);"
 			"CREATE INDEX IF NOT EXISTS history_idx3 ON history (kind, key, lock DESC, time DESC);"
+			"CREATE INDEX IF NOT EXISTS history_idx4 ON history (kind, key, time DESC);"
 		);
 
 		//enum items order by time statement
@@ -1265,7 +1269,7 @@ public:
 		//get item name and type statement
 		db.InitStmt(stmtGetNameAndType, L"SELECT name, type FROM history WHERE id=?1;");
 
-		//get newest item name statement
+		//get newest item (locked items go first) name statement
 		db.InitStmt(stmtGetNewestName, L"SELECT name FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC LIMIT 1;");
 
 		//count items statement
@@ -1279,6 +1283,15 @@ public:
 
 		//set item lock statement
 		db.InitStmt(stmtSetLock, L"UPDATE history SET lock=?1 WHERE id=?2");
+
+		//get next (newer than current) item statement
+		db.InitStmt(stmtGetNext, L"SELECT a.id, a.name FROM history AS a, history AS b WHERE b.id=?1 AND a.kind=?2 AND a.key=?3 AND a.time>b.time ORDER BY a.time LIMIT 1;");
+
+		//get prev (older than current) item statement
+		db.InitStmt(stmtGetPrev, L"SELECT a.id, a.name FROM history AS a, history AS b WHERE b.id=?1 AND a.kind=?2 AND a.key=?3 AND a.time<b.time ORDER BY a.time DESC LIMIT 1;");
+
+		//get newest item name statement
+		db.InitStmt(stmtGetNewest, L"SELECT id, name FROM history WHERE kind=?1 AND key=?2 ORDER BY time DESC LIMIT 1;");
 	}
 
 	virtual ~HistoryConfigDb() {}
@@ -1388,6 +1401,70 @@ public:
 		return stmtDelUnlocked.Bind((int)TypeHistory).Bind(HistoryName).StepAndReset();
 	}
 
+	unsigned __int64 GetNext(DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 id, string &strName)
+	{
+		strName.Clear();
+		unsigned __int64 nid = 0;
+		if (!id)
+			return nid;
+		if (stmtGetNext.Bind(id).Bind((int)TypeHistory).Bind(HistoryName).Step())
+		{
+			nid = stmtGetNext.GetColInt64(0);
+			strName = stmtGetNext.GetColText(1);
+		}
+		stmtGetNext.Reset();
+		return nid;
+	}
+
+	unsigned __int64 GetPrev(DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 id, string &strName)
+	{
+		strName.Clear();
+		unsigned __int64 nid = 0;
+		if (!id)
+		{
+			if (stmtGetNewest.Bind((int)TypeHistory).Bind(HistoryName).Step())
+			{
+				nid = stmtGetNewest.GetColInt64(0);
+				strName = stmtGetNewest.GetColText(1);
+			}
+			stmtGetNewest.Reset();
+			return nid;
+		}
+		if (stmtGetPrev.Bind(id).Bind((int)TypeHistory).Bind(HistoryName).Step())
+		{
+			nid = stmtGetPrev.GetColInt64(0);
+			strName = stmtGetPrev.GetColText(1);
+		}
+		else if (Get(id, strName))
+		{
+			nid = id;
+		}
+		stmtGetPrev.Reset();
+		return nid;
+	}
+
+	unsigned __int64 CyclicGetPrev(DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 id, string &strName)
+	{
+		strName.Clear();
+		unsigned __int64 nid = 0;
+		if (!id)
+		{
+			if (stmtGetNewest.Bind((int)TypeHistory).Bind(HistoryName).Step())
+			{
+				nid = stmtGetNewest.GetColInt64(0);
+				strName = stmtGetNewest.GetColText(1);
+			}
+			stmtGetNewest.Reset();
+			return nid;
+		}
+		if (stmtGetPrev.Bind(id).Bind((int)TypeHistory).Bind(HistoryName).Step())
+		{
+			nid = stmtGetPrev.GetColInt64(0);
+			strName = stmtGetPrev.GetColText(1);
+		}
+		stmtGetPrev.Reset();
+		return nid;
+	}
 };
 
 HierarchicalConfig *CreatePluginsConfig()

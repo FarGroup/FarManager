@@ -531,37 +531,19 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 
 void History::GetPrev(string &strStr)
 {
-/*
-	CurrentItem=HistoryList.Prev(CurrentItem);
 
-	if (!CurrentItem)
-		CurrentItem=HistoryList.First();
-
-	if (CurrentItem)
-		strStr = CurrentItem->strName;
-	else
-		strStr.Clear();
-*/
+	CurrentItem = HistoryCfg->GetPrev(TypeHistory, strHistoryName, CurrentItem, strStr);
 }
 
 
 void History::GetNext(string &strStr)
 {
-/*
-	if (CurrentItem)
-		CurrentItem=HistoryList.Next(CurrentItem);
-
-	if (CurrentItem)
-		strStr = CurrentItem->strName;
-	else
-		strStr.Clear();
-*/
+	CurrentItem = HistoryCfg->GetNext(TypeHistory, strHistoryName, CurrentItem, strStr);
 }
 
 
 bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 {
-/*
 	int Length=(int)strStr.GetLength();
 
 	if (LastCmdPartLength!=-1 && LastCmdPartLength<Length)
@@ -572,51 +554,64 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 		ResetPosition();
 	}
 
-	for (HistoryRecord *HistoryItem=HistoryList.Prev(CurrentItem); HistoryItem != CurrentItem; HistoryItem=HistoryList.Prev(HistoryItem))
+	int i=0;
+	string strName;
+	unsigned __int64 HistoryItem=HistoryCfg->CyclicGetPrev(TypeHistory, strHistoryName, CurrentItem, strName);
+	while (HistoryItem != CurrentItem)
 	{
 		if (!HistoryItem)
+		{
+			if (++i > 1) //infinite loop
+				break;
+			HistoryItem = HistoryCfg->CyclicGetPrev(TypeHistory, strHistoryName, HistoryItem, strName);
 			continue;
+		}
 
-		if (!StrCmpNI(strStr,HistoryItem->strName,Length) && StrCmp(strStr,HistoryItem->strName))
+		if (!StrCmpNI(strStr,strName,Length) && StrCmp(strStr,strName))
 		{
 			if (bAppend)
-				strStr += &HistoryItem->strName[Length];
+				strStr += &strName[Length];
 			else
-				strStr = HistoryItem->strName;
+				strStr = strName;
 
 			CurrentItem = HistoryItem;
 			return true;
 		}
+
+		HistoryItem = HistoryCfg->CyclicGetPrev(TypeHistory, strHistoryName, HistoryItem, strName);
 	}
 
-*/
 	return false;
 }
 
 bool History::GetAllSimilar(VMenu &HistoryMenu,const wchar_t *Str)
 {
-/*
 	int Length=StrLength(Str);
-	for (HistoryRecord *HistoryItem=HistoryList.Last();HistoryItem;HistoryItem=HistoryList.Prev(HistoryItem))
+	DWORD index=0;
+	string strHName;
+	int HType;
+	bool HLock;
+	unsigned __int64 id;
+	while (HistoryCfg->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,true))
 	{
-		if (!StrCmpNI(Str,HistoryItem->strName,Length))
+		if (!StrCmpNI(Str,strHName,Length))
 		{
 			MenuItemEx NewItem={};
-			NewItem.strName = HistoryItem->strName;
-			if(HistoryItem->Lock)
+			NewItem.strName = strHName;
+			if(HLock)
 			{
 				NewItem.Flags|=LIF_CHECKED;
 			}
-			HistoryMenu.SetUserData(HistoryItem,sizeof(HistoryItem),HistoryMenu.AddItem(&NewItem));
+			HistoryMenu.SetUserData(&id,sizeof(id),HistoryMenu.AddItem(&NewItem));
 		}
 	}
 	if(HistoryMenu.GetItemCount() == 1 && HistoryMenu.GetItemPtr(0)->strName.GetLength() == static_cast<size_t>(Length))
 	{
 		HistoryMenu.DeleteItems();
+		return false;
 	}
 
-*/
-	return false;
+	return true;
 }
 
 bool History::DeleteIfUnlocked(unsigned __int64 id)

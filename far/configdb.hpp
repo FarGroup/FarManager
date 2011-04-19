@@ -195,7 +195,9 @@ public:
 	virtual bool FlipLock(unsigned __int64 id) = 0;
 	virtual bool IsLocked(unsigned __int64 id) = 0;
 	virtual bool DeleteAllUnlocked(DWORD TypeHistory, const wchar_t *HistoryName) = 0;
-
+	virtual unsigned __int64 GetNext(DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 id, string &strName) = 0;
+	virtual unsigned __int64 GetPrev(DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 id, string &strName) = 0;
+	virtual unsigned __int64 CyclicGetPrev(DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 id, string &strName) = 0;
 };
 
 extern GeneralConfig *GeneralCfg;
