@@ -1245,16 +1245,16 @@ public:
 		);
 
 		//enum items order by time statement
-		db.InitStmt(stmtEnum, L"SELECT id, name, type, lock FROM history WHERE kind=?1 AND key=$2 ORDER BY time;");
+		db.InitStmt(stmtEnum, L"SELECT id, name, type, lock FROM history WHERE kind=?1 AND key=?2 ORDER BY time;");
 
 		//enum items order by time DESC and lock DESC statement
-		db.InitStmt(stmtEnumDesc, L"SELECT id, name, type, lock FROM history WHERE kind=?1 AND key=$2 ORDER BY lock DESC, time DESC;");
+		db.InitStmt(stmtEnumDesc, L"SELECT id, name, type, lock FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC;");
 
 		//delete item statement
 		db.InitStmt(stmtDel, L"DELETE FROM history WHERE id=?1;");
 
 		//delete old unlocked imtems statement
-		db.InitStmt(stmtDeleteOldUnlocked, L"DELETE FROM history WHERE kind=?1 AND key=$2 AND lock=0 AND time<?3;");
+		db.InitStmt(stmtDeleteOldUnlocked, L"DELETE FROM history WHERE kind=?1 AND key=?2 AND lock=0 AND time<?3;");
 
 		//add item statement
 		db.InitStmt(stmtAdd, L"INSERT INTO history VALUES (NULL,?1,?2,?3,?4,?5,?6);");
@@ -1266,13 +1266,13 @@ public:
 		db.InitStmt(stmtGetNameAndType, L"SELECT name, type FROM history WHERE id=?1;");
 
 		//get newest item name statement
-		db.InitStmt(stmtGetNewestName, L"SELECT name FROM history WHERE kind=?1 AND key=$2 ORDER BY lock DESC, time DESC LIMIT 1;");
+		db.InitStmt(stmtGetNewestName, L"SELECT name FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC LIMIT 1;");
 
 		//count items statement
-		db.InitStmt(stmtCount, L"SELECT count(id) FROM history WHERE kind=?1 AND key=$2;");
+		db.InitStmt(stmtCount, L"SELECT count(id) FROM history WHERE kind=?1 AND key=?2;");
 
 		//delete unlocked items statement
-		db.InitStmt(stmtDelUnlocked, L"DELETE FROM history WHERE kind=?1 AND key=$2 AND lock=0;");
+		db.InitStmt(stmtDelUnlocked, L"DELETE FROM history WHERE kind=?1 AND key=?2 AND lock=0;");
 
 		//get item lock statement
 		db.InitStmt(stmtGetLock, L"SELECT lock FROM history WHERE id=?1;");
