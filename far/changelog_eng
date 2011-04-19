@@ -3,6 +3,104 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+t-rex 19.04.2011 22:51:10 +0200 - build 1976
+
+1. $N -> ?N in sqlite statements for the history.
+
+t-rex 19.04.2011 22:45:21 +0200 - build 1975
+
+1. The history is now in sqlite - about 80% is ready.
+   - unified history for all open FAR sessions - work with history goes through the database only, the history is not stored in memory
+   - if the history is off the it isn't processed at all (it was processed in current FAR session)
+   - CtrlE/CtlX/CtrlEnd etc still do not work.
+   - so far the last 90 days of history are stored, unlocked records older than 90 days are removed automatically
+
+   Please test, especially the performance at large history (especially in dialogs).
+
+drkns 19.04.2011 16:35:53 +0200 - build 1974
+
+1. Visual bug in folder shortcuts.
+
+2. Correction of current character code display in editor status line.
+
+3. FormatString and FormatScreen classes can format output in oct and hex.
+
+t-rex 19.04.2011 03:40:18 +0200 - build 1973
+
+1. folder shortcuts in sqlite.
+
+t-rex 19.04.2011 01:09:36 +0200 - build 1972 - Hag Sameach!
+
+1. filters è highligh in sqlite (pluginsconfig.db must be removed again).
+
+t-rex 18.04.2011 21:19:35 +0200 - build 1971
+
+1. Using MSG_NOPLUGINS for plugin loading error message to avoid possible problems as in 1969.
+
+t-rex 18.04.2011 16:52:37 +0200 - build 1970
+
+1. pluginsconfig.db schema is altered, the old file must be deleted.
+
+2. Improvement in memory usage configdb::Enum of database service functions.
+
+t-rex 18.04.2011 13:38:58 +0200 - build 1969
+
+1. If a plugin could not be loaded at the moment of ProcessDialogEventW then infinite recursion took place.
+
+t-rex 18.04.2011 12:57:18 +0200 - build 1968
+
+1. A minor bug in GlobalUserMenuDir initialization.
+
+drkns 17.04.2011 23:26:31 +0200 - build 1967
+
+1. far.exe.ini in unicode.
+
+2. pluginscache.db moved to %localappdata%.
+
+t-rex 17.04.2011 22:47:56 +0200 - build 1966
+
+1. Forum: User menu: when a hotkey is pressed, the selected menu item is invoked instead of the item to which the key is assigned.
+
+drkns 17.04.2011 20:42:03 +0200 - build 1965
+
+1. Unicode files viewer worked incorrectly.
+
+2. Crash at file read in be-unicode.
+
+3. The #pragma push/pop wrapper around sqlite.? in order to not to watch warnings and not to fix them on each update.
+
+t-rex 17.04.2011 19:42:24 +0200 - build 1964
+
+1. UserMenu is untied from the registry. This is how it works now:
+   - local menu: FarMenu.ini in the current folder (as it was before)
+   - user menu: FarMenu.ini in the profile folder (was in the registry)
+   - globel menu: FarMenu.ini in %FARHOME% (or in a folder defined in Far.exe.ini::Global:GlobalUserMenuDir) (almost as before)
+
+   Nothing seems to be broken, test it please.
+
+2. File::Close() did not reset the position pointer.
+
+3. Debug build fail is fixed.
+
+4. Added Far.exe.ini to the project.
+
+t-rex 16.04.2011 22:58:48 +0200 - build 1963
+
+1. PanelModes in sqlite and minor modification of PanelViewSettings in addition.
+   What is left: history, filters, positions, highlight, shortcuts.
+   probably we have to store usermenu as a text file in %appdata% and not bother about that.
+   macros - the solution from MacroLib plugin is better, isn't it?
+
+t-rex 16.04.2011 14:46:55 +0200 - build 1962
+
+1. PluginCache in sqlite: done. Old plugincache.db must be deleted.
+
+t-rex 16.04.2011 01:15:31 +0200 - build 1961
+
+1. PluginHotKeys in sqlite: done.
+
+2. PluginCache in sqlite - database structure is done; also, a couple of queries (~30%).
+
 t-rex 15.04.2011 21:45:01 +0200 - build 1960
 
 1. The initial stage of PluginCache and PluginHotKeys moving to sqlite (it does not work so far).
