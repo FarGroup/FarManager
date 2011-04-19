@@ -2296,12 +2296,23 @@ void FileEditor::ShowStatus()
 
 		if (CurPos<Length)
 		{
-			GotoXY(X2-(Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN) ? 16:10),Y1);
+			GotoXY(X2-(Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN) ? 14:8)-(!m_editor->EdOpt.CharCodeBase?3:0),Y1);
 			SetColor(COL_EDITORSTATUS);
 			/* $ 27.02.2001 SVS
 			Показываем в зависимости от базы */
-			static const wchar_t *FmtWCharCode[]={L"%05o",L"%5d",L"%04Xh"};
-			mprintf(FmtWCharCode[m_editor->EdOpt.CharCodeBase%ARRAYSIZE(FmtWCharCode)],Str[CurPos]);
+			switch(m_editor->EdOpt.CharCodeBase)
+			{
+			case 0:
+				FS << fmt::Width(7) << fmt::FillChar(L'0') << fmt::Radix(8) << static_cast<UINT>(Str[CurPos]);
+				break;
+			case 2:
+				FS << fmt::Width(4) << fmt::FillChar(L'0') << fmt::Radix(16) << static_cast<UINT>(Str[CurPos]) << L'h';
+				break;
+			case 1:
+			default:
+				FS << fmt::Width(5) << static_cast<UINT>(Str[CurPos]);
+				break;
+			}
 
 			if (!IsUnicodeOrUtfCodePage(m_codepage))
 			{
@@ -2311,10 +2322,20 @@ void FileEditor::ShowStatus()
 
 				if (C && !UsedDefaultChar && static_cast<wchar_t>(C)!=Str[CurPos])
 				{
-					static const wchar_t *FmtCharCode[]={L"%o",L"%d",L"%Xh"};
-					Text(L" (");
-					mprintf(FmtCharCode[m_editor->EdOpt.CharCodeBase%ARRAYSIZE(FmtCharCode)],C);
-					Text(L")");
+					FS << L"/";
+					switch(m_editor->EdOpt.CharCodeBase)
+					{
+					case 0:
+						FS << fmt::Width(4) << fmt::FillChar(L'0') << fmt::Radix(8) << static_cast<UINT>(C);
+						break;
+					case 2:
+						FS << fmt::Width(2) << fmt::FillChar(L'0') << fmt::Radix(16) << static_cast<UINT>(C) << L'h';
+						break;
+					case 1:
+					default:
+						FS << fmt::Width(3) << static_cast<UINT>(C);
+						break;
+					}
 				}
 			}
 		}

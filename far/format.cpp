@@ -42,6 +42,7 @@ void BaseFormat::Reset()
 	_Precision=static_cast<size_t>(-1);
 	_FillChar=L' ';
 	_Align=fmt::A_RIGHT;
+	_Radix=10;
 }
 
 void BaseFormat::Put(LPCWSTR Data,size_t Length)
@@ -78,20 +79,26 @@ BaseFormat& BaseFormat::operator<<(WCHAR Value)
 	return *this;
 }
 
-BaseFormat& BaseFormat::operator<<(INT64 Value)
+BaseFormat& BaseFormat::ToString(INT64 Value, bool Signed)
 {
-	WCHAR Buffer[32];
-	_i64tow(Value,Buffer,10);
+	WCHAR Buffer[65];
+	Signed?_i64tow(Value,Buffer,_Radix):_ui64tow(Value,Buffer,_Radix);
+	if(_Radix > 10)
+	{
+		UpperBuf(Buffer, ARRAYSIZE(Buffer));
+	}
 	Put(Buffer,StrLength(Buffer));
 	return *this;
 }
 
+BaseFormat& BaseFormat::operator<<(INT64 Value)
+{
+	return ToString(Value, true);
+}
+
 BaseFormat& BaseFormat::operator<<(UINT64 Value)
 {
-	WCHAR Buffer[32];
-	_ui64tow(Value,Buffer,10);
-	Put(Buffer,StrLength(Buffer));
-	return *this;
+	return ToString(Value, false);
 }
 
 BaseFormat& BaseFormat::operator<<(LPCWSTR Data)
@@ -126,6 +133,12 @@ BaseFormat& BaseFormat::operator<<(const fmt::FillChar& Manipulator)
 	return *this;
 }
 
+BaseFormat& BaseFormat::operator<<(const fmt::Radix& Manipulator)
+{
+	SetRadix(Manipulator.GetValue());
+	return *this;
+}
+
 BaseFormat& BaseFormat::operator<<(const fmt::LeftAlign& Manipulator)
 {
 	SetAlign(fmt::A_LEFT);
@@ -147,4 +160,3 @@ void FormatScreen::Commit(const string& Data)
 {
 	Text(Data);
 }
-

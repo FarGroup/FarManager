@@ -367,6 +367,7 @@ void Shortcuts::EditItem(VMenu* Menu, ShortcutItem* Item, bool Root)
 			Item->strPluginFile.Clear();
 			Item->strPluginModule.Clear();
 			Item->strFolder = strNewDir;
+			
 			MenuItemEx* MenuItem = Menu->GetItemPtr();
 			MenuItem->strName = Item->strFolder;
 			if(Root)
@@ -441,6 +442,9 @@ void Shortcuts::Configure()
 						MakeItemName(Pos, MenuItem);
 					}
 				}
+				INT64 Flags = MenuItem->Flags;
+				MenuItem->Flags = 0;
+				FolderList.UpdateItemFlags(FolderList.GetSelectPos(), Flags);
 				FolderList.SetPosition(-1, -1, -1, -1);
 				FolderList.SetUpdateRequired(TRUE);
 				FolderList.Show();

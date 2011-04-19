@@ -57,6 +57,14 @@ namespace fmt
 			WCHAR GetValue()const {return Value;}
 	};
 
+	class Radix
+	{
+			int Value;
+		public:
+			Radix(int Value=10) {this->Value=Value;}
+			int GetValue()const {return Value;}
+	};
+
 	enum AlignType
 	{
 		A_LEFT,
@@ -75,9 +83,11 @@ class BaseFormat
 		size_t _Precision;
 		WCHAR _FillChar;
 		fmt::AlignType _Align;
+		int _Radix;
 
 		void Reset();
 		void Put(LPCWSTR Data,size_t Length);
+		BaseFormat& ToString(INT64 Value, bool Signed);
 
 	protected:
 		virtual void Commit(const string& Data)=0;
@@ -91,6 +101,7 @@ class BaseFormat
 		void SetWidth(size_t Width=0) {_Width=Width;}
 		void SetAlign(fmt::AlignType Align=fmt::A_RIGHT) {_Align=Align;}
 		void SetFillChar(WCHAR Char=L' ') {_FillChar=Char;}
+		void SetRadix(int Radix=10) {_Radix=Radix;}
 
 		// data
 		BaseFormat& operator<<(INT64 Value);
@@ -115,14 +126,15 @@ class BaseFormat
 		BaseFormat& operator<<(const fmt::LeftAlign& Manipulator);
 		BaseFormat& operator<<(const fmt::RightAlign& Manipulator);
 		BaseFormat& operator<<(const fmt::FillChar& Manipulator);
+		BaseFormat& operator<<(const fmt::Radix& Manipulator);
 };
 
 class FormatString:public BaseFormat, public string
 {
-	void Commit(const string& Data);
+	virtual void Commit(const string& Data);
 };
 
 class FormatScreen:public BaseFormat
 {
-	void Commit(const string& Data);
+	virtual void Commit(const string& Data);
 };

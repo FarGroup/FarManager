@@ -1,3 +1,11 @@
+drkns 19.04.2011 16:35:53 +0200 - build 1974
+
+1. Визуальный глюк в folder shortcuts.
+
+2. Уточнение отобоажения кода текущего символа в статусной строке редактора.
+
+3. Классы FormatString и FormatScreen умеют выводить в oct и hex.
+
 t-rex 19.04.2011 03:40:18 +0200 - build 1973
 
 1. folder shortcuts в sqlite.

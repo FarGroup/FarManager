@@ -106,7 +106,7 @@ void InfoList::DisplayObject()
 	string strDriveRoot;
 	string strVolumeName, strFileSystemName;
 	DWORD MaxNameLength,FileSystemFlags,VolumeNumber;
-	string strDiskNumber;
+	FormatString strDiskNumber;
 	CloseFile();
 
 	Box(X1,Y1,X2,Y2,COL_PANELBOX,DOUBLE_BOX);
@@ -250,7 +250,9 @@ void InfoList::DisplayObject()
 			break;
 		}
 
-		strDiskNumber.Format(L"%04X-%04X",VolumeNumber>>16,VolumeNumber & 0xffff);
+		strDiskNumber <<
+			fmt::Width(4) << fmt::FillChar(L'0') << fmt::Radix(16) << HIWORD(VolumeNumber) << L'-' <<
+			fmt::Width(4) << fmt::FillChar(L'0') << fmt::Radix(16) << LOWORD(VolumeNumber);
 	}
 	else // Error!
 		strTitle = strDriveRoot;

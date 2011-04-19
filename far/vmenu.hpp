@@ -251,7 +251,6 @@ class VMenu: public Modal
 		bool ItemIsVisible(UINT64 Flags);
 		void UpdateMaxLengthFromTitles();
 		void UpdateMaxLength(int Length);
-		void UpdateItemFlags(int Pos, UINT64 NewFlags);
 		void UpdateInternalCounters(UINT64 OldFlags, UINT64 NewFlags);
 		void RestoreFilteredItems();
 		void FilterStringUpdated(bool bLonger);
@@ -335,6 +334,7 @@ class VMenu: public Modal
 		void SetCheck(int Check, int Position=-1);
 
 		bool UpdateRequired();
+		void UpdateItemFlags(int Pos, UINT64 NewFlags);
 
 		virtual void ResizeConsole();
 

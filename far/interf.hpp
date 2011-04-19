@@ -141,7 +141,6 @@ void Text(const WCHAR *Str);
 void Text(int MsgId);
 void VText(const WCHAR *Str);
 void HiText(const WCHAR *Str,int HiColor,int isVertText=0);
-void mprintf(const WCHAR *fmt,...);
 void vmprintf(const WCHAR *fmt,...);
 void PutText(int X1,int Y1,int X2,int Y2,const void *Src);
 void GetText(int X1,int Y1,int X2,int Y2,void *Dest,int DestSize);
