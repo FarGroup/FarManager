@@ -33,8 +33,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "DList.hpp"
-
 class Dialog;
 class VMenu;
 
@@ -46,65 +44,28 @@ enum enumHISTORYTYPE
 	HISTORYTYPE_DIALOG
 };
 
-struct HistoryRecord
-{
-	bool   Lock;
-	int    Type;
-	string strName;
-	FILETIME Timestamp;
-
-	HistoryRecord()
-	{
-		Lock = false;
-		Type = 0;
-		strName.Clear();
-		Timestamp.dwLowDateTime=0;
-		Timestamp.dwHighDateTime=0;
-	}
-
-	const HistoryRecord& operator=(const HistoryRecord &rhs)
-	{
-		if (this != &rhs)
-		{
-			strName = rhs.strName;
-			Type = rhs.Type;
-			Lock = rhs.Lock;
-			Timestamp.dwLowDateTime  = rhs.Timestamp.dwLowDateTime;
-			Timestamp.dwHighDateTime = rhs.Timestamp.dwHighDateTime;
-		}
-
-		return *this;
-	}
-};
-
 class History
 {
 	private:
-		string strRegKey;
+		string strHistoryName;
 		bool EnableAdd, KeepSelectedPos, SaveType;
 		int RemoveDups;
 		enumHISTORYTYPE TypeHistory;
 		size_t HistoryCount;
 		const int *EnableSave;
-
-		DList<HistoryRecord> HistoryList;
-		HistoryRecord *CurrentItem;
+		unsigned __int64 CurrentItem;
 
 	private:
-		void AddToHistoryLocal(const wchar_t *Str, const wchar_t *Prefix, int Type);
 		bool EqualType(int Type1, int Type2);
 		const wchar_t *GetTitle(int Type);
 		int ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMenu, int Height, int &Type, Dialog *Dlg);
 
 	public:
-		History(enumHISTORYTYPE TypeHistory, size_t HistoryCount, const wchar_t *RegKey, const int *EnableSave, bool SaveType);
+		History(enumHISTORYTYPE TypeHistory, const wchar_t *HistoryName, size_t HistoryCount, const int *EnableSave, bool SaveType);
 		~History();
 
-	public:
 		void AddToHistory(const wchar_t *Str, int Type=0, const wchar_t *Prefix=nullptr, bool SaveForbid=false);
-		bool ReadHistory(bool bOnlyLines=false);
-		bool SaveHistory();
-		static bool ReadLastItem(const wchar_t *RegKey, string &strStr);
+		static bool ReadLastItem(const wchar_t *HistoryName, string &strStr);
 		int  Select(const wchar_t *Title, const wchar_t *HelpTopic, string &strStr, int &Type);
 		int  Select(VMenu &HistoryMenu, int Height, Dialog *Dlg, string &strStr);
 		void GetPrev(string &strStr);
@@ -112,12 +73,6 @@ class History
 		bool GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend=false);
 		bool GetAllSimilar(VMenu &HistoryMenu,const wchar_t *Str);
 		void SetAddMode(bool EnableAdd, int RemoveDups, bool KeepSelectedPos);
-		void ResetPosition() { CurrentItem = nullptr; }
-		void Delete(HistoryRecord* Item){HistoryList.Delete(Item); ResetPosition(); SaveHistory();}
+		void ResetPosition() { CurrentItem = 0; }
+		bool DeleteIfUnlocked(unsigned __int64 id);
 };
-
-
-extern const wchar_t* CommandHistoryKey;
-extern const wchar_t* ViewEditHistoryKey;
-extern const wchar_t* FolderHistoryKey;
-extern const wchar_t* DialogHistoryKey;

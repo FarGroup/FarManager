@@ -177,10 +177,32 @@ public:
 	virtual bool SetMode(int mode, const wchar_t *ColumnTitles, const wchar_t *ColumnWidths, const wchar_t *StatusColumnTitles, const wchar_t *StatusColumnWidths, DWORD Flags) = 0;
 };
 
+class HistoryConfig {
+
+public:
+
+	virtual ~HistoryConfig() {}
+	virtual void BeginTransaction() = 0;
+	virtual void EndTransaction() = 0;
+	virtual bool Enum(DWORD index, DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 *id, string &strName, int *Type, bool *Lock, bool Reverse=false) = 0;
+	virtual bool Delete(unsigned __int64 id) = 0;
+	virtual bool DeleteOldUnlocked(DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 older) = 0;
+	virtual bool Add(DWORD TypeHistory, const wchar_t *HistoryName, string strName, int Type, bool Lock, unsigned __int64 time) = 0;
+	virtual bool GetNewest(DWORD TypeHistory, const wchar_t *HistoryName, string &strName) = 0;
+	virtual bool Get(unsigned __int64 id, string &strName) = 0;
+	virtual bool Get(unsigned __int64 id, string &strName, int *Type) = 0;
+	virtual DWORD Count(DWORD TypeHistory, const wchar_t *HistoryName) = 0;
+	virtual bool FlipLock(unsigned __int64 id) = 0;
+	virtual bool IsLocked(unsigned __int64 id) = 0;
+	virtual bool DeleteAllUnlocked(DWORD TypeHistory, const wchar_t *HistoryName) = 0;
+
+};
+
 extern GeneralConfig *GeneralCfg;
 extern AssociationsConfig *AssocConfig;
 extern PluginsCacheConfig *PlCacheCfg;
 extern PluginsHotkeysConfig *PlHotkeyCfg;
+extern HistoryConfig *HistoryCfg;
 
 void InitDb();
 void ReleaseDb();
@@ -189,4 +211,5 @@ HierarchicalConfig *CreatePluginsConfig();
 HierarchicalConfig *CreateFiltersConfig();
 HierarchicalConfig *CreateHighlightConfig();
 HierarchicalConfig *CreateShortcutsConfig();
+
 PanelModeConfig *CreatePanelModeConfig();

@@ -59,7 +59,7 @@ DlgEdit::DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type):
 		case DLGEDIT_SINGLELINE:
 		{
 			Edit::Callback callback={true,EditChange,this};
-			
+
 			iHistory=0;
 			FarList* iList=0;
 			DWORD iFlags=0;
@@ -72,10 +72,7 @@ DlgEdit::DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type):
 				}
 				if(CurItem->Flags&DIF_HISTORY && !CurItem->strHistory.IsEmpty())
 				{
-					string strHistory(DialogHistoryKey);
-					strHistory.Append(L"\\").Append(CurItem->strHistory);
-					iHistory=new History(HISTORYTYPE_DIALOG, Opt.DialogsHistoryCount, strHistory, &Opt.Dialogs.EditHistory, false);
-					iHistory->ReadHistory(true);
+					iHistory=new History(HISTORYTYPE_DIALOG, CurItem->strHistory, Opt.DialogsHistoryCount, &Opt.Dialogs.EditHistory, false);
 				}
 				if(CurItem->Type == DI_COMBOBOX)
 				{

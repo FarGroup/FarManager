@@ -1002,9 +1002,7 @@ void Dialog::ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex)
 
 	if (strData.IsEmpty())
 	{
-		string strRegKey(DialogHistoryKey);
-		strRegKey.Append(L"\\").Append(CurItem->strHistory);
-		History::ReadLastItem(strRegKey, strData);
+		History::ReadLastItem(CurItem->strHistory, strData);
 
 		if (MsgIndex != -1)
 		{

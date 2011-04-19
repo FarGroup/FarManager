@@ -43,6 +43,7 @@ GeneralConfig *GeneralCfg;
 AssociationsConfig *AssocConfig;
 PluginsCacheConfig *PlCacheCfg;
 PluginsHotkeysConfig *PlHotkeyCfg;
+HistoryConfig *HistoryCfg;
 
 void GetDatabasePath(const wchar_t *FileName, string &strOut, bool Local)
 {
@@ -1213,6 +1214,182 @@ public:
 	}
 };
 
+class HistoryConfigDb: public HistoryConfig {
+	SQLiteDb   db;
+	SQLiteStmt stmtEnum;
+	SQLiteStmt stmtEnumDesc;
+	SQLiteStmt stmtDel;
+	SQLiteStmt stmtDeleteOldUnlocked;
+	SQLiteStmt stmtAdd;
+	SQLiteStmt stmtGetName;
+	SQLiteStmt stmtGetNameAndType;
+	SQLiteStmt stmtGetNewestName;
+	SQLiteStmt stmtCount;
+	SQLiteStmt stmtDelUnlocked;
+	SQLiteStmt stmtGetLock;
+	SQLiteStmt stmtSetLock;
+
+public:
+
+	HistoryConfigDb()
+	{
+		if (!db.Open(L"history.db"))
+			return;
+
+		//schema
+		db.Exec(
+			"CREATE TABLE IF NOT EXISTS history(id INTEGER PRIMARY KEY, kind INTEGER NOT NULL, key TEXT NOT NULL, type INTEGER NOT NULL, lock INTEGER NOT NULL, name TEXT NOT NULL, time INTEGER NOT NULL);"
+			"CREATE INDEX IF NOT EXISTS history_idx1 ON history (kind, key);"
+			"CREATE INDEX IF NOT EXISTS history_idx2 ON history (kind, key, time);"
+			"CREATE INDEX IF NOT EXISTS history_idx3 ON history (kind, key, lock DESC, time DESC);"
+		);
+
+		//enum items order by time statement
+		db.InitStmt(stmtEnum, L"SELECT id, name, type, lock FROM history WHERE kind=?1 AND key=$2 ORDER BY time;");
+
+		//enum items order by time DESC and lock DESC statement
+		db.InitStmt(stmtEnumDesc, L"SELECT id, name, type, lock FROM history WHERE kind=?1 AND key=$2 ORDER BY lock DESC, time DESC;");
+
+		//delete item statement
+		db.InitStmt(stmtDel, L"DELETE FROM history WHERE id=?1;");
+
+		//delete old unlocked imtems statement
+		db.InitStmt(stmtDeleteOldUnlocked, L"DELETE FROM history WHERE kind=?1 AND key=$2 AND lock=0 AND time<?3;");
+
+		//add item statement
+		db.InitStmt(stmtAdd, L"INSERT INTO history VALUES (NULL,?1,?2,?3,?4,?5,?6);");
+
+		//get item name statement
+		db.InitStmt(stmtGetName, L"SELECT name FROM history WHERE id=?1;");
+
+		//get item name and type statement
+		db.InitStmt(stmtGetNameAndType, L"SELECT name, type FROM history WHERE id=?1;");
+
+		//get newest item name statement
+		db.InitStmt(stmtGetNewestName, L"SELECT name FROM history WHERE kind=?1 AND key=$2 ORDER BY lock DESC, time DESC LIMIT 1;");
+
+		//count items statement
+		db.InitStmt(stmtCount, L"SELECT count(id) FROM history WHERE kind=?1 AND key=$2;");
+
+		//delete unlocked items statement
+		db.InitStmt(stmtDelUnlocked, L"DELETE FROM history WHERE kind=?1 AND key=$2 AND lock=0;");
+
+		//get item lock statement
+		db.InitStmt(stmtGetLock, L"SELECT lock FROM history WHERE id=?1;");
+
+		//set item lock statement
+		db.InitStmt(stmtSetLock, L"UPDATE history SET lock=?1 WHERE id=?2");
+	}
+
+	virtual ~HistoryConfigDb() {}
+
+	void BeginTransaction() { db.BeginTransaction(); }
+
+	void EndTransaction() { db.EndTransaction(); }
+
+	bool Enum(DWORD index, DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 *id, string &strName, int *Type, bool *Lock, bool Reverse=false)
+	{
+		SQLiteStmt &stmt = Reverse ? stmtEnumDesc : stmtEnum;
+
+		if (index == 0)
+			stmt.Reset().Bind((int)TypeHistory).Bind(HistoryName,false);
+
+		if (stmt.Step())
+		{
+			*id = stmt.GetColInt64(0);
+			strName = stmt.GetColText(1);
+			*Type = stmt.GetColInt(2);
+			*Lock = stmt.GetColInt(3) ? true : false;
+			return true;
+		}
+
+		stmt.Reset();
+		return false;
+	}
+
+	bool Delete(unsigned __int64 id)
+	{
+		return stmtDel.Bind(id).StepAndReset();
+	}
+
+	bool DeleteOldUnlocked(DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 older)
+	{
+		return stmtDeleteOldUnlocked.Bind((int)TypeHistory).Bind(HistoryName).Bind(older).StepAndReset();
+	}
+
+	bool Add(DWORD TypeHistory, const wchar_t *HistoryName, string strName, int Type, bool Lock, unsigned __int64 time)
+	{
+		return stmtAdd.Bind((int)TypeHistory).Bind(HistoryName).Bind(Type).Bind(Lock?1:0).Bind(strName).Bind(time).StepAndReset();
+	}
+
+	bool GetNewest(DWORD TypeHistory, const wchar_t *HistoryName, string &strName)
+	{
+		bool b = stmtGetNewestName.Bind((int)TypeHistory).Bind(HistoryName).Step();
+		if (b)
+		{
+			strName = stmtGetNewestName.GetColText(0);
+		}
+		stmtGetNewestName.Reset();
+		return b;
+	}
+
+	bool Get(unsigned __int64 id, string &strName)
+	{
+		bool b = stmtGetName.Bind(id).Step();
+		if (b)
+		{
+			strName = stmtGetName.GetColText(0);
+		}
+		stmtGetName.Reset();
+		return b;
+	}
+
+	bool Get(unsigned __int64 id, string &strName, int *Type)
+	{
+		bool b = stmtGetNameAndType.Bind(id).Step();
+		if (b)
+		{
+			strName = stmtGetNameAndType.GetColText(0);
+			*Type = stmtGetNameAndType.GetColInt(1);
+		}
+		stmtGetNameAndType.Reset();
+		return b;
+	}
+
+	DWORD Count(DWORD TypeHistory, const wchar_t *HistoryName)
+	{
+		DWORD c = 0;
+		if (stmtCount.Bind((int)TypeHistory).Bind(HistoryName).Step())
+		{
+			 c = (DWORD) stmtCount.GetColInt(0);
+		}
+		stmtCount.Reset();
+		return c;
+	}
+
+	bool FlipLock(unsigned __int64 id)
+	{
+		return stmtSetLock.Bind(IsLocked(id)?0:1).Bind(id).StepAndReset();
+	}
+
+	bool IsLocked(unsigned __int64 id)
+	{
+		bool l = false;
+		if (stmtGetLock.Bind(id).Step())
+		{
+			 l = stmtGetLock.GetColInt(0) ? true : false;
+		}
+		stmtGetLock.Reset();
+		return l;
+	}
+
+	bool DeleteAllUnlocked(DWORD TypeHistory, const wchar_t *HistoryName)
+	{
+		return stmtDelUnlocked.Bind((int)TypeHistory).Bind(HistoryName).StepAndReset();
+	}
+
+};
+
 HierarchicalConfig *CreatePluginsConfig()
 {
 	return new HierarchicalConfigDb(L"pluginsconfig.db");
@@ -1244,6 +1421,7 @@ void InitDb()
 	AssocConfig = new AssociationsConfigDb();
 	PlCacheCfg = new PluginsCacheConfigDb();
 	PlHotkeyCfg = new PluginsHotkeysConfigDb();
+	HistoryCfg = new HistoryConfigDb();
 }
 
 void ReleaseDb()
@@ -1252,4 +1430,5 @@ void ReleaseDb()
 	delete AssocConfig;
 	delete PlCacheCfg;
 	delete PlHotkeyCfg;
+	delete HistoryCfg;
 }
