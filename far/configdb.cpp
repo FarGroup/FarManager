@@ -1228,6 +1228,11 @@ HierarchicalConfig *CreateHighlightConfig()
 	return new HierarchicalConfigDb(L"highlight.db");
 }
 
+HierarchicalConfig *CreateShortcutsConfig()
+{
+	return new HierarchicalConfigDb(L"shortcuts.db");
+}
+
 PanelModeConfig *CreatePanelModeConfig()
 {
 	return new PanelModeConfigDb();

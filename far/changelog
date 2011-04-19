@@ -1,3 +1,7 @@
+t-rex 19.04.2011 03:40:18 +0200 - build 1973
+
+1. folder shortcuts в sqlite.
+
 t-rex 19.04.2011 01:09:36 +0200 - build 1972 - хаг самэах!
 
 1. filters и highligh в sqlite (снова надо удалить pluginsconfig.db).

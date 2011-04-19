@@ -188,4 +188,5 @@ void ReleaseDb();
 HierarchicalConfig *CreatePluginsConfig();
 HierarchicalConfig *CreateFiltersConfig();
 HierarchicalConfig *CreateHighlightConfig();
+HierarchicalConfig *CreateShortcutsConfig();
 PanelModeConfig *CreatePanelModeConfig();

@@ -43,15 +43,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "filelist.hpp"
-#include "registry.hpp"
 #include "message.hpp"
 #include "stddlg.hpp"
 #include "pathmix.hpp"
 #include "interf.hpp"
 #include "dialog.hpp"
 #include "FarDlgBuilder.hpp"
-
 #include "plugins.hpp"
+#include "configdb.hpp"
 
 enum PSCR_RECTYPE
 {
@@ -61,7 +60,7 @@ enum PSCR_RECTYPE
 	PSCR_RT_PLUGINDATA,
 };
 
-const wchar_t *RecTypeName[]=
+static const wchar_t *RecTypeName[]=
 {
 	L"Shortcut",
 	L"PluginModule",
@@ -69,74 +68,100 @@ const wchar_t *RecTypeName[]=
 	L"PluginData",
 };
 
-const wchar_t* FolderShortcutsKey = L"Shortcuts\\";
-const wchar_t* HelpFolderShortcuts = L"FolderShortcuts";
+static const wchar_t* FolderShortcutsKey = L"Shortcuts";
+static const wchar_t* HelpFolderShortcuts = L"FolderShortcuts";
 
 
 Shortcuts::Shortcuts()
 {
-	for(size_t i = 0; i < KeyCount; i++)
-	{
-		FormatString strFolderShortcuts;
-		strFolderShortcuts << FolderShortcutsKey << i;
+	HierarchicalConfig *cfg = CreateShortcutsConfig();
+	unsigned __int64 root = cfg->GetKeyID(0,FolderShortcutsKey);
 
-		for(size_t j=0; ; j++)
+	if (root)
+	{
+		for(size_t i = 0; i < KeyCount; i++)
 		{
-			FormatString ValueName;
-			ValueName << RecTypeName[PSCR_RT_SHORTCUT] << j;
-			string strValue;
-			if(!GetRegKey(strFolderShortcuts, ValueName, strValue, L""))
-				break;
-			ValueName.Clear();
-			ShortcutItem* Item = Items[i].Push();
-			Item->strFolder = strValue;
-			ValueName << RecTypeName[PSCR_RT_PLUGINMODULE] << j;
-			GetRegKey(strFolderShortcuts, ValueName, Item->strPluginModule, L"");
-			ValueName.Clear();
-			ValueName << RecTypeName[PSCR_RT_PLUGINFILE] << j;
-			GetRegKey(strFolderShortcuts, ValueName, Item->strPluginFile, L"");
-			ValueName.Clear();
-			ValueName << RecTypeName[PSCR_RT_PLUGINDATA] << j;
-			GetRegKey(strFolderShortcuts, ValueName, Item->strPluginData, L"");
-			ValueName.Clear();
+			FormatString strFolderShortcuts;
+			strFolderShortcuts << i;
+
+			unsigned __int64 key = cfg->GetKeyID(root,strFolderShortcuts);
+			if (!key)
+				continue;
+
+			for(size_t j=0; ; j++)
+			{
+				FormatString ValueName;
+				ValueName << RecTypeName[PSCR_RT_SHORTCUT] << j;
+				string strValue;
+				if (!cfg->GetValue(key, ValueName, strValue))
+					break;
+				ValueName.Clear();
+				ShortcutItem* Item = Items[i].Push();
+				Item->strFolder = strValue;
+				ValueName << RecTypeName[PSCR_RT_PLUGINMODULE] << j;
+				cfg->GetValue(key, ValueName, Item->strPluginModule);
+				ValueName.Clear();
+				ValueName << RecTypeName[PSCR_RT_PLUGINFILE] << j;
+				cfg->GetValue(key, ValueName, Item->strPluginFile);
+				ValueName.Clear();
+				ValueName << RecTypeName[PSCR_RT_PLUGINDATA] << j;
+				cfg->GetValue(key, ValueName, Item->strPluginData);
+			}
 		}
 	}
+
+	delete cfg;
 }
 
 Shortcuts::~Shortcuts()
 {
-	for(size_t i = 0; i < KeyCount; i++)
-	{
-		FormatString strFolderShortcuts;
-		strFolderShortcuts << FolderShortcutsKey << i;
+	HierarchicalConfig *cfg = CreateShortcutsConfig();
+	unsigned __int64 root = cfg->GetKeyID(0,FolderShortcutsKey);
+	if (root)
+		cfg->DeleteKeyTree(root);
 
-		int index = 0;
-		for(ShortcutItem* j = Items[i].First(); j; j = Items[i].Next(j), index++)
+	root = cfg->CreateKey(0,FolderShortcutsKey);
+
+	if (root)
+	{
+		for (size_t i = 0; i < KeyCount; i++)
 		{
-			FormatString ValueName;
-			ValueName << RecTypeName[PSCR_RT_SHORTCUT] << index;
-			SetRegKey(strFolderShortcuts, ValueName, j->strFolder);
-			ValueName.Clear();
-			if(!j->strPluginModule.IsEmpty())
+			FormatString strFolderShortcuts;
+			strFolderShortcuts << i;
+
+			unsigned __int64 key = cfg->CreateKey(root,strFolderShortcuts);
+			if (!key)
+				continue;
+
+			int index = 0;
+			for (ShortcutItem* j = Items[i].First(); j; j = Items[i].Next(j), index++)
 			{
-				ValueName << RecTypeName[PSCR_RT_PLUGINMODULE] << index;
-				SetRegKey(strFolderShortcuts, ValueName, j->strPluginModule);
-				ValueName.Clear();
-			}
-			if(!j->strPluginFile.IsEmpty())
-			{
-				ValueName << RecTypeName[PSCR_RT_PLUGINFILE] << index;
-				SetRegKey(strFolderShortcuts, ValueName, j->strPluginFile);
-				ValueName.Clear();
-			}
-			if(!j->strPluginData.IsEmpty())
-			{
-				ValueName << RecTypeName[PSCR_RT_PLUGINDATA] << index;
-				SetRegKey(strFolderShortcuts, ValueName, j->strPluginData);
-				ValueName.Clear();
+				FormatString ValueName;
+				ValueName << RecTypeName[PSCR_RT_SHORTCUT] << index;
+				cfg->SetValue(key, ValueName, j->strFolder);
+				if(!j->strPluginModule.IsEmpty())
+				{
+					ValueName.Clear();
+					ValueName << RecTypeName[PSCR_RT_PLUGINMODULE] << index;
+					cfg->SetValue(key, ValueName, j->strPluginModule);
+				}
+				if(!j->strPluginFile.IsEmpty())
+				{
+					ValueName.Clear();
+					ValueName << RecTypeName[PSCR_RT_PLUGINFILE] << index;
+					cfg->SetValue(key, ValueName, j->strPluginFile);
+				}
+				if(!j->strPluginData.IsEmpty())
+				{
+					ValueName.Clear();
+					ValueName << RecTypeName[PSCR_RT_PLUGINDATA] << index;
+					cfg->SetValue(key, ValueName, j->strPluginData);
+				}
 			}
 		}
 	}
+
+	delete cfg;
 }
 
 bool Shortcuts::Get(size_t Pos, string* Folder, string* PluginModule, string* PluginFile, string* PluginData)
