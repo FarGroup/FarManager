@@ -193,7 +193,7 @@ private:
   void prepare_dst_dir(const wstring& path);
   void prepare_test(UInt32 file_index, list<UInt32>& indices);
 public:
-  void extract(UInt32 src_dir_index, const vector<UInt32>& src_indices, const ExtractOptions& options, shared_ptr<ErrorLog> error_log);
+  void extract(UInt32 src_dir_index, const vector<UInt32>& src_indices, const ExtractOptions& options, shared_ptr<ErrorLog> error_log, vector<UInt32>* extracted_indices = nullptr);
   void test(UInt32 src_dir_index, const vector<UInt32>& src_indices);
   void delete_archive();
 

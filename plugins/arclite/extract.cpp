@@ -345,9 +345,28 @@ private:
   shared_ptr<ErrorLog> error_log;
   shared_ptr<FileWriteCache> cache;
   shared_ptr<ExtractProgress> progress;
+  shared_ptr<set<UInt32>> skipped_indices;
 
 public:
-  ArchiveExtractor(UInt32 src_dir_index, const wstring& dst_dir, Archive* archive, shared_ptr<OverwriteAction> overwrite_action, shared_ptr<bool> ignore_errors, shared_ptr<ErrorLog> error_log, shared_ptr<FileWriteCache> cache, shared_ptr<ExtractProgress> progress): src_dir_index(src_dir_index), dst_dir(dst_dir), archive(archive), overwrite_action(overwrite_action), ignore_errors(ignore_errors), error_log(error_log), cache(cache), progress(progress) {
+  ArchiveExtractor(
+    UInt32 src_dir_index,
+    const wstring& dst_dir,
+    Archive* archive,
+    shared_ptr<OverwriteAction> overwrite_action,
+    shared_ptr<bool> ignore_errors,
+    shared_ptr<ErrorLog> error_log,
+    shared_ptr<FileWriteCache> cache,
+    shared_ptr<ExtractProgress> progress,
+    shared_ptr<set<UInt32>> skipped_indices):
+      src_dir_index(src_dir_index),
+      dst_dir(dst_dir),
+      archive(archive),
+      overwrite_action(overwrite_action),
+      ignore_errors(ignore_errors),
+      error_log(error_log),
+      cache(cache),
+      progress(progress),
+      skipped_indices(skipped_indices) {
   }
 
   UNKNOWN_IMPL_BEGIN
@@ -410,8 +429,15 @@ public:
       }
       else
         overwrite = *overwrite_action;
-      if (overwrite == oaSkip)
+      if (overwrite == oaSkip) {
+        if (skipped_indices) {
+          skipped_indices->insert(index);
+          for (UInt32 idx = file_info.parent; idx != c_root_index; idx = archive->file_list[idx].parent) {
+            skipped_indices->insert(idx);
+          }
+        }
         return S_OK;
+      }
     }
     else
       overwrite = oaAsk;
@@ -573,7 +599,7 @@ public:
 };
 
 
-void Archive::extract(UInt32 src_dir_index, const vector<UInt32>& src_indices, const ExtractOptions& options, shared_ptr<ErrorLog> error_log) {
+void Archive::extract(UInt32 src_dir_index, const vector<UInt32>& src_indices, const ExtractOptions& options, shared_ptr<ErrorLog> error_log, vector<UInt32>* extracted_indices) {
   shared_ptr<bool> ignore_errors(new bool(options.ignore_errors));
   shared_ptr<OverwriteAction> overwrite_action(new OverwriteAction(options.overwrite));
 
@@ -589,12 +615,24 @@ void Archive::extract(UInt32 src_dir_index, const vector<UInt32>& src_indices, c
 
   shared_ptr<ExtractProgress> progress(new ExtractProgress(arc_path));
   shared_ptr<FileWriteCache> cache(new FileWriteCache(this, ignore_errors, error_log, progress));
-  ComObject<IArchiveExtractCallback> extractor(new ArchiveExtractor(src_dir_index, options.dst_dir, this, overwrite_action, ignore_errors, error_log, cache, progress));
+  shared_ptr<set<UInt32>> skipped_indices;
+  if (extracted_indices)
+    skipped_indices.reset(new set<UInt32>());
+  ComObject<IArchiveExtractCallback> extractor(new ArchiveExtractor(src_dir_index, options.dst_dir, this, overwrite_action, ignore_errors, error_log, cache, progress, skipped_indices));
   COM_ERROR_CHECK(in_arc->Extract(indices.data(), static_cast<UInt32>(indices.size()), 0, extractor));
   cache->finalize();
   progress->clean();
 
   SetDirAttr(FileIndexRange(src_indices.begin(), src_indices.end()), options.dst_dir, this, *ignore_errors, *error_log);
+
+  if (extracted_indices) {
+    vector<UInt32> sorted_src_indices(src_indices);
+    sort(sorted_src_indices.begin(), sorted_src_indices.end());
+    extracted_indices->clear();
+    extracted_indices->reserve(src_indices.size());
+    set_difference(sorted_src_indices.begin(), sorted_src_indices.end(), skipped_indices->begin(), skipped_indices->end(), back_inserter(*extracted_indices));
+    extracted_indices->shrink_to_fit();
+  }
 }
 
 void Archive::delete_archive() {
