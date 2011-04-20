@@ -3,6 +3,21 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+t-rex 20.04.2011 21:14:08 +0200 - build 1979
+
+1. The history is now located in %LOCALAPPDATA% by default (no configuration yet).
+
+2. PRAGMA journal_mode = WAL; for plugins cache and history this has a very positive effect on performance.
+
+drkns 20.04.2011 15:56:22 +0200 - build 1978
+
+1. Refactoring of plugin classes. Duplicating code is removed.
+
+t-rex 20.04.2011 01:47:43 +0200 - build 1977
+
+1. History stored in sqlite is done in common, CtrlE/CtlX/CtrlEnd must be functional.
+   So far the history is stored for 90 days, all unlocked records older than 90 days are removed automatically.
+
 t-rex 19.04.2011 22:51:10 +0200 - build 1976
 
 1. $N -> ?N in sqlite statements for the history.
