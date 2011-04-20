@@ -300,9 +300,6 @@ Language::Language():
 {
 }
 
-void a(void){return;}
-
-
 bool Language::Init(const wchar_t *Path, bool bUnicode, int CountNeed)
 {
 	if (MsgList || MsgListA)
