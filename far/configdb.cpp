@@ -118,6 +118,7 @@ public:
 			sqlite3_close(pDb);
 			pDb = nullptr;
 			//if failed, let's open a memory only db so Far can work anyway
+			//BUGBUG maybe need to display some error message
 			if (sqlite3_open16(L":memory:",&pDb) != SQLITE_OK)
 			{
 				sqlite3_close(pDb);
@@ -143,6 +144,10 @@ public:
 	unsigned __int64 LastInsertRowID() { return sqlite3_last_insert_rowid(pDb); }
 
 	bool Close() { return sqlite3_close(pDb) == SQLITE_OK; }
+
+	bool SetWALJournalingMode() { return Exec("PRAGMA journal_mode = WAL;"); }
+
+	bool EnableForeignKeysConstraints() { return Exec("PRAGMA foreign_keys = ON;"); }
 };
 
 class GeneralConfigDb: public GeneralConfig {
@@ -352,8 +357,8 @@ public:
 			return;
 
 		//schema
+		db.EnableForeignKeysConstraints();
 		db.Exec(
-			"PRAGMA foreign_keys = ON;"
 			"CREATE TABLE IF NOT EXISTS table_keys(id INTEGER PRIMARY KEY, parent_id INTEGER NOT NULL, name TEXT NOT NULL, description TEXT, FOREIGN KEY(parent_id) REFERENCES table_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, UNIQUE (parent_id,name));"
 			"CREATE TABLE IF NOT EXISTS table_values(key_id INTEGER NOT NULL, name TEXT NOT NULL, value BLOB, FOREIGN KEY(key_id) REFERENCES table_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (key_id, name), CHECK (key_id <> 0));"
 		);
@@ -548,8 +553,8 @@ public:
 			return;
 
 		//schema
+		db.EnableForeignKeysConstraints();
 		db.Exec(
-			"PRAGMA foreign_keys = ON;"
 			"CREATE TABLE IF NOT EXISTS filetypes(id INTEGER PRIMARY KEY, weight INTEGER NOT NULL, mask TEXT, description TEXT);"
 			"CREATE TABLE IF NOT EXISTS commands(ft_id INTEGER NOT NULL, type INTEGER NOT NULL, enabled INTEGER NOT NULL, command TEXT, FOREIGN KEY(ft_id) REFERENCES filetypes(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (ft_id, type));"
 		);
@@ -771,8 +776,9 @@ public:
 			return;
 
 		//schema
+		db.SetWALJournalingMode();
+		db.EnableForeignKeysConstraints();
 		db.Exec(
-			"PRAGMA foreign_keys = ON;"
 			"CREATE TABLE IF NOT EXISTS cachename(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE);"
 			"CREATE TABLE IF NOT EXISTS preload(cid INTEGER NOT NULL PRIMARY KEY, enabled INTEGER NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
 			"CREATE TABLE IF NOT EXISTS signatures(cid INTEGER NOT NULL PRIMARY KEY, signature TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
@@ -1236,10 +1242,11 @@ public:
 
 	HistoryConfigDb()
 	{
-		if (!db.Open(L"history.db"))
+		if (!db.Open(L"history.db", true))
 			return;
 
 		//schema
+		db.SetWALJournalingMode();
 		db.Exec(
 			"CREATE TABLE IF NOT EXISTS history(id INTEGER PRIMARY KEY, kind INTEGER NOT NULL, key TEXT NOT NULL, type INTEGER NOT NULL, lock INTEGER NOT NULL, name TEXT NOT NULL, time INTEGER NOT NULL);"
 			"CREATE INDEX IF NOT EXISTS history_idx1 ON history (kind, key);"
