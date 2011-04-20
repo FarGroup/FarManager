@@ -70,12 +70,6 @@ struct ViewerString
 	bool have_eol;
 };
 
-struct InternalViewerBookMark
-{
-	DWORD64 SavePosAddr[BOOKMARK_COUNT];
-	DWORD64 SavePosLeft[BOOKMARK_COUNT];
-};
-
 struct ViewerUndoData
 {
 	__int64 UndoAddr;
@@ -150,7 +144,7 @@ class Viewer:public ScreenObject
 		int ReadStdin;
 		int InternalKey;
 
-		struct InternalViewerBookMark BMSavePos;
+		struct ViewerBookmark BMSavePos;
 		struct ViewerUndoData UndoData[VIEWER_UNDO_COUNT];
 
 		int LastKeyUndo;

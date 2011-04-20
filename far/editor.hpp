@@ -43,14 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class FileEditor;
 class KeyBar;
 
-struct InternalEditorBookMark
-{
-	DWORD64 Line[BOOKMARK_COUNT];
-	DWORD64 Cursor[BOOKMARK_COUNT];
-	DWORD64 ScreenLine[BOOKMARK_COUNT];
-	DWORD64 LeftPos[BOOKMARK_COUNT];
-};
-
 struct InternalEditorStackBookMark
 {
 	DWORD Line;
@@ -58,17 +50,6 @@ struct InternalEditorStackBookMark
 	DWORD ScreenLine;
 	DWORD LeftPos;
 	InternalEditorStackBookMark *prev, *next;
-};
-
-struct EditorCacheParams
-{
-	int Line;
-	int LinePos;
-	int ScreenLine;
-	int LeftPos;
-	int CodePage;
-
-	InternalEditorBookMark SavePos;
 };
 
 struct EditorUndoData
@@ -223,7 +204,7 @@ class Editor:public ScreenObject
 		int StartLine;
 		int StartChar;
 
-		InternalEditorBookMark SavePos;
+		EditorBookmark SavePos;
 
 		InternalEditorStackBookMark *StackPos;
 		BOOL NewStackPos;
@@ -302,8 +283,8 @@ class Editor:public ScreenObject
 
 	public:
 
-		void SetCacheParams(EditorCacheParams *pp);
-		void GetCacheParams(EditorCacheParams *pp);
+		void SetCacheParams(EditorPosCache &pc);
+		void GetCacheParams(EditorPosCache &pc);
 
 		bool SetCodePage(UINT codepage);  //BUGBUG
 		UINT GetCodePage();  //BUGBUG

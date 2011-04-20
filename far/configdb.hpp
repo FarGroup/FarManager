@@ -184,6 +184,8 @@ public:
 	virtual ~HistoryConfig() {}
 	virtual void BeginTransaction() = 0;
 	virtual void EndTransaction() = 0;
+
+	//command,view,edit,folder,dialog history
 	virtual bool Enum(DWORD index, DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 *id, string &strName, int *Type, bool *Lock, bool Reverse=false) = 0;
 	virtual bool Delete(unsigned __int64 id) = 0;
 	virtual bool DeleteOldUnlocked(DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 older) = 0;
@@ -198,6 +200,16 @@ public:
 	virtual unsigned __int64 GetNext(DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 id, string &strName) = 0;
 	virtual unsigned __int64 GetPrev(DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 id, string &strName) = 0;
 	virtual unsigned __int64 CyclicGetPrev(DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 id, string &strName) = 0;
+
+	//view,edit file positions and bookmarks history
+	virtual unsigned __int64 SetEditorPos(const wchar_t *Name, int Line, int LinePos, int ScreenLine, int LeftPos, UINT CodePage) = 0;
+	virtual unsigned __int64 GetEditorPos(const wchar_t *Name, int *Line, int *LinePos, int *ScreenLine, int *LeftPos, UINT *CodePage) = 0;
+	virtual bool SetEditorBookmark(unsigned __int64 id, int i, int Line, int LinePos, int ScreenLine, int LeftPos) = 0;
+	virtual bool GetEditorBookmark(unsigned __int64 id, int i, int *Line, int *LinePos, int *ScreenLine, int *LeftPos) = 0;
+	virtual unsigned __int64 SetViewerPos(const wchar_t *Name, __int64 FilePos, __int64 LeftPos, int Hex, UINT CodePage) = 0;
+	virtual unsigned __int64 GetViewerPos(const wchar_t *Name, __int64 *FilePos, __int64 *LeftPos, int *Hex, UINT *CodePage) = 0;
+	virtual bool SetViewerBookmark(unsigned __int64 id, int i, __int64 FilePos, __int64 LeftPos) = 0;
+	virtual bool GetViewerBookmark(unsigned __int64 id, int i, __int64 *FilePos, __int64 *LeftPos) = 0;
 };
 
 extern GeneralConfig *GeneralCfg;

@@ -645,10 +645,10 @@ static struct FARConfig
 	{0, REG_SZ,     NKeyXLat,L"Rules3",&Opt.XLat.Rules[2],0,L""},
 	{0, REG_SZ,     NKeyXLat,L"WordDivForXlat",&Opt.XLat.strWordDivForXlat, 0,WordDivForXlat0},
 
-	{0, REG_DWORD,  NKeyCommandHistory, NParamHistoryCount,&Opt.HistoryCount,512, 0},
-	{0, REG_DWORD,  NKeyFolderHistory, NParamHistoryCount,&Opt.FoldersHistoryCount,512, 0},
-	{0, REG_DWORD,  NKeyViewEditHistory, NParamHistoryCount,&Opt.ViewHistoryCount,512, 0},
-	{0, REG_DWORD,  NKeyDialogHistory, NParamHistoryCount,&Opt.DialogsHistoryCount,512, 0},
+	{0, REG_DWORD,  NKeyCommandHistory, NParamHistoryCount,&Opt.HistoryCount,512, 0}, //BUGBUG
+	{0, REG_DWORD,  NKeyFolderHistory, NParamHistoryCount,&Opt.FoldersHistoryCount,512, 0}, //BUGBUG
+	{0, REG_DWORD,  NKeyViewEditHistory, NParamHistoryCount,&Opt.ViewHistoryCount,512, 0}, //BUGBUG
+	{0, REG_DWORD,  NKeyDialogHistory, NParamHistoryCount,&Opt.DialogsHistoryCount,512, 0}, //BUGBUG
 
 	{1, REG_DWORD,  NKeySystem,L"SaveHistory",&Opt.SaveHistory,1, 0},
 	{1, REG_DWORD,  NKeySystem,L"SaveFoldersHistory",&Opt.SaveFoldersHistory,1, 0},
@@ -686,7 +686,7 @@ static struct FARConfig
 	{0, REG_DWORD,  NKeySystem,L"SubstPluginPrefix",&Opt.SubstPluginPrefix, 0, 0},
 	{0, REG_DWORD,  NKeySystem,L"CmdHistoryRule",&Opt.CmdHistoryRule,0, 0},
 	{0, REG_DWORD,  NKeySystem,L"SetAttrFolderRules",&Opt.SetAttrFolderRules,1, 0},
-	{0, REG_DWORD,  NKeySystem,L"MaxPositionCache",&Opt.MaxPositionCache,MAX_POSITIONS, 0},
+	{0, REG_DWORD,  NKeySystem,L"MaxPositionCache",&Opt.MaxPositionCache, 512/*MAX_POSITIONS*/, 0}, //BUGBUG
 	{0, REG_SZ,     NKeySystem,L"ConsoleDetachKey", &strKeyNameConsoleDetachKey, 0, L"CtrlAltTab"},
 	{0, REG_DWORD,  NKeySystem,L"SilentLoadPlugin",  &Opt.LoadPlug.SilentLoadPlugin, 0, 0},
 	{1, REG_DWORD,  NKeySystem,L"OEMPluginsSupport",  &Opt.LoadPlug.OEMPluginsSupport, 1, 0},
@@ -950,8 +950,6 @@ void ReadConfig()
 
 	Opt.EdOpt.strWordDiv = Opt.strWordDiv;
 	FileList::ReadPanelModes();
-	CtrlObject->EditorPosCache->Read(L"Editor\\LastPositions");
-	CtrlObject->ViewerPosCache->Read(L"Viewer\\LastPositions");
 	// уточняем системную политику
 	// для дисков HKCU может только отменять показ
 	Opt.Policies.ShowHiddenDrives&=OptPolicies_ShowHiddenDrives;

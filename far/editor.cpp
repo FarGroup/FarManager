@@ -120,7 +120,7 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
 	   пудрить мозги, пропишем его явно.
 	*/
 	wcscpy(GlobalEOL,DOS_EOL_fmt);
-	memset(&SavePos,0xff,sizeof(SavePos));
+	SavePos.Clear();
 	InsertString(nullptr, 0);
 }
 
@@ -5970,7 +5970,7 @@ int Editor::SetBookmark(DWORD Pos)
 	if (Pos < BOOKMARK_COUNT)
 	{
 		SavePos.Line[Pos]=NumLine;
-		SavePos.Cursor[Pos]=CurLine->GetCurPos();
+		SavePos.LinePos[Pos]=CurLine->GetCurPos();
 		SavePos.LeftPos[Pos]=CurLine->GetLeftPos();
 		SavePos.ScreenLine[Pos]=CalcDistance(TopScreen,CurLine,-1);
 		return TRUE;
@@ -5985,12 +5985,12 @@ int Editor::GotoBookmark(DWORD Pos)
 	{
 		if (SavePos.Line[Pos]!=POS_NONE)
 		{
-			GoToLine(static_cast<int>(SavePos.Line[Pos]));
-			CurLine->SetCurPos(static_cast<int>(SavePos.Cursor[Pos]));
-			CurLine->SetLeftPos(static_cast<int>(SavePos.LeftPos[Pos]));
+			GoToLine(SavePos.Line[Pos]);
+			CurLine->SetCurPos(SavePos.LinePos[Pos]);
+			CurLine->SetLeftPos(SavePos.LeftPos[Pos]);
 			TopScreen=CurLine;
 
-			for (DWORD I=0; I<SavePos.ScreenLine[Pos] && TopScreen->m_prev; I++)
+			for (int I=0; I<SavePos.ScreenLine[Pos] && TopScreen->m_prev; I++)
 				TopScreen=TopScreen->m_prev;
 
 			if (!EdOpt.PersistentBlocks)
@@ -6800,11 +6800,11 @@ Edit *Editor::InsertString(const wchar_t *lpwszStr, int nLength, Edit *pAfter, i
 }
 
 
-void Editor::SetCacheParams(EditorCacheParams *pp)
+void Editor::SetCacheParams(EditorPosCache &pc)
 {
 	bool translateTabs=false;
-	SavePos=pp->SavePos;
-	//m_codepage = pp->Table; //BUGBUG!!!, LoadFile do it itself
+	SavePos=pc.bm;
+	//m_codepage = pc.CodePage; //BUGBUG!!!, LoadFile do it itself
 
 	if (StartLine == -2)  // from Viewer!
 	{
@@ -6827,71 +6827,65 @@ void Editor::SetCacheParams(EditorCacheParams *pp)
 
 		TopScreen=CurLine=CurPtr;
 
-		if (NumLine == pp->Line - pp->ScreenLine)
+		if (NumLine == pc.Line - pc.ScreenLine)
 		{
 			Lock();
 
-			for (DWORD I=0; I < (DWORD)pp->ScreenLine; I++)
+			for (int I=0; I < pc.ScreenLine; I++)
 				ProcessKey(KEY_DOWN);
 
-			CurLine->SetTabCurPos(pp->LinePos);
+			CurLine->SetTabCurPos(pc.LinePos);
 			Unlock();
 		}
 
-		CurLine->SetLeftPos(pp->LeftPos);
+		CurLine->SetLeftPos(pc.LeftPos);
 	}
 	else if (StartLine != -1 || EdOpt.SavePos)
 	{
 		if (StartLine!=-1)
 		{
-			pp->Line = StartLine-1;
-			pp->ScreenLine = ObjHeight/2; //ScrY
+			pc.Line = StartLine-1;
+			pc.ScreenLine = ObjHeight/2; //ScrY
 
-			if (pp->ScreenLine > pp->Line)
-				pp->ScreenLine = pp->Line;
+			if (pc.ScreenLine > pc.Line)
+				pc.ScreenLine = pc.Line;
 
-			pp->LinePos = 0;
+			pc.LinePos = 0;
 			if (StartChar > 0)
 			{
-				pp->LinePos = StartChar-1;
+				pc.LinePos = StartChar-1;
 				translateTabs = true;
 			}
 		}
 
-		if (pp->ScreenLine > ObjHeight) //ScrY //BUGBUG
-			pp->ScreenLine=ObjHeight;//ScrY;
+		if (pc.ScreenLine > ObjHeight) //ScrY //BUGBUG
+			pc.ScreenLine=ObjHeight;//ScrY;
 
-		if (pp->Line >= pp->ScreenLine)
+		if (pc.Line >= pc.ScreenLine)
 		{
 			Lock();
-			GoToLine(pp->Line-pp->ScreenLine);
+			GoToLine(pc.Line-pc.ScreenLine);
 			TopScreen = CurLine;
 
-			for (int I=0; I < pp->ScreenLine; I++)
+			for (int I=0; I < pc.ScreenLine; I++)
 				ProcessKey(KEY_DOWN);
 
-			if(translateTabs) CurLine->SetCurPos(pp->LinePos);
-			else CurLine->SetTabCurPos(pp->LinePos);
-			CurLine->SetLeftPos(pp->LeftPos);
+			if(translateTabs) CurLine->SetCurPos(pc.LinePos);
+			else CurLine->SetTabCurPos(pc.LinePos);
+			CurLine->SetLeftPos(pc.LeftPos);
 			Unlock();
 		}
 	}
 }
 
-void Editor::GetCacheParams(EditorCacheParams *pp)
+void Editor::GetCacheParams(EditorPosCache &pc)
 {
-	memset(pp, 0, sizeof(EditorCacheParams));
-	memset(&pp->SavePos,0xff,sizeof(InternalEditorBookMark));
-	pp->Line = NumLine;
-	pp->ScreenLine = CalcDistance(TopScreen, CurLine,-1);
-	pp->LinePos = CurLine->GetTabCurPos();
-	pp->LeftPos = CurLine->GetLeftPos();
-	pp->CodePage = m_codepage;
-
-	if (Opt.EdOpt.SaveShortPos)
-	{
-		pp->SavePos=SavePos;
-	}
+	pc.Line = NumLine;
+	pc.ScreenLine = CalcDistance(TopScreen, CurLine,-1);
+	pc.LinePos = CurLine->GetTabCurPos();
+	pc.LeftPos = CurLine->GetLeftPos();
+	pc.CodePage = m_codepage;
+	pc.bm=SavePos;
 }
 
 

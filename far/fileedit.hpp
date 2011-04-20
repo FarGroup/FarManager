@@ -168,7 +168,7 @@ class FileEditor : public Frame
 		DWORD EditorGetFileAttributes(const wchar_t *Name);
 		void SetPluginData(const wchar_t *PluginData);
 		const wchar_t *GetPluginData() {return strPluginData.CPtr();}
-		bool LoadFromCache(EditorCacheParams *pp);
+		bool LoadFromCache(EditorPosCache &pc);
 		void SaveToCache();
 };
 

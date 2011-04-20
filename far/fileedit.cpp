@@ -1408,7 +1408,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	TaskBar TB;
 	wakeful W;
 	int LastLineCR = 0;
-	EditorCacheParams cp;
+	EditorPosCache pc;
 	UserBreak = 0;
 	File EditFile;
 	if(!EditFile.Open(Name, GENERIC_READ, FILE_SHARE_READ|(Opt.EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
@@ -1473,7 +1473,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	}
 
 	m_editor->FreeAllocatedData(false);
-	bool bCached = LoadFromCache(&cp);
+	bool bCached = LoadFromCache(pc);
 
 	DWORD FileAttributes=apiGetFileAttributes(Name);
 	if((m_editor->EdOpt.ReadOnlyLock&1) && FileAttributes != INVALID_FILE_ATTRIBUTES && (FileAttributes & (FILE_ATTRIBUTE_READONLY|((m_editor->EdOpt.ReadOnlyLock&0x60)>>4))))
@@ -1482,8 +1482,8 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	}
 
 	// Проверяем поддерживается или нет загруженная кодовая страница
-	if (bCached && cp.CodePage && !IsCodePageSupported(cp.CodePage))
-		cp.CodePage = 0;
+	if (bCached && pc.CodePage && !IsCodePageSupported(pc.CodePage))
+		pc.CodePage = 0;
 
 	GetFileString GetStr(EditFile);
 	*m_editor->GlobalEOL=0; //BUGBUG???
@@ -1510,9 +1510,9 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 
 		if (bCached)
 		{
-			if (cp.CodePage)
+			if (pc.CodePage)
 			{
-				m_codepage = cp.CodePage;
+				m_codepage = pc.CodePage;
 				Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
 			}
 		}
@@ -1612,7 +1612,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 
 	EditFile.Close();
 	//if ( bCached )
-	m_editor->SetCacheParams(&cp);
+	m_editor->SetCacheParams(pc);
 	SysErrorCode=GetLastError();
 	apiGetFindDataEx(Name, FileInfo);
 	EditorGetFileAttributes(Name);
@@ -2484,7 +2484,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 					}
 					if (ebm->Cursor)
 					{
-						ebm->Cursor[i] = static_cast<long>(m_editor->SavePos.Cursor[i]);
+						ebm->Cursor[i] = static_cast<long>(m_editor->SavePos.LinePos[i]);
 					}
 					if (ebm->ScreenLine)
 					{
@@ -2726,11 +2726,8 @@ int FileEditor::EditorControl(int Command, void *Param)
 	return result;
 }
 
-bool FileEditor::LoadFromCache(EditorCacheParams *pp)
+bool FileEditor::LoadFromCache(EditorPosCache &pc)
 {
-	memset(pp, 0, sizeof(EditorCacheParams));
-	memset(&pp->SavePos,0xff,sizeof(InternalEditorBookMark));
-
 	string strCacheName;
 
 	if (*GetPluginData())
@@ -2744,68 +2741,25 @@ bool FileEditor::LoadFromCache(EditorCacheParams *pp)
 		ReplaceSlashToBSlash(strCacheName);
 	}
 
-	PosCache PosCache={0};
+	pc.Clear();
 
-	if (Opt.EdOpt.SaveShortPos)
-	{
-		PosCache.Position[0] = pp->SavePos.Line;
-		PosCache.Position[1] = pp->SavePos.Cursor;
-		PosCache.Position[2] = pp->SavePos.ScreenLine;
-		PosCache.Position[3] = pp->SavePos.LeftPos;
-	}
-
-	if (CtrlObject->EditorPosCache->GetPosition(
-	            strCacheName,
-	            PosCache
-	        ))
-	{
-		pp->Line=static_cast<int>(PosCache.Param[0]);
-		pp->ScreenLine=static_cast<int>(PosCache.Param[1]);
-		pp->LinePos=static_cast<int>(PosCache.Param[2]);
-		pp->LeftPos=static_cast<int>(PosCache.Param[3]);
-		pp->CodePage=static_cast<UINT>(PosCache.Param[4]);
-
-		if ((int)pp->Line < 0) pp->Line=0;
-
-		if ((int)pp->ScreenLine < 0) pp->ScreenLine=0;
-
-		if ((int)pp->LinePos < 0) pp->LinePos=0;
-
-		if ((int)pp->LeftPos < 0) pp->LeftPos=0;
-
-		if ((int)pp->CodePage < 0) pp->CodePage=0;
-
+	if (FilePositionCache::GetPosition(strCacheName, pc))
 		return true;
-	}
 
 	return false;
 }
 
 void FileEditor::SaveToCache()
 {
-	EditorCacheParams cp;
-	m_editor->GetCacheParams(&cp);
+	EditorPosCache pc;
+	m_editor->GetCacheParams(pc);
 	string strCacheName=strPluginData.IsEmpty()?strFullFileName:strPluginData+PointToName(strFullFileName);
 
 	if (!Flags.Check(FFILEEDIT_OPENFAILED))   //????
 	{
-		PosCache poscache = {0};
-		poscache.Param[0] = cp.Line;
-		poscache.Param[1] = cp.ScreenLine;
-		poscache.Param[2] = cp.LinePos;
-		poscache.Param[3] = cp.LeftPos;
-		poscache.Param[4] = Flags.Check(FFILEEDIT_CODEPAGECHANGEDBYUSER)?m_codepage:0;
+		pc.CodePage = Flags.Check(FFILEEDIT_CODEPAGECHANGEDBYUSER)?m_codepage:0;
 
-		if (Opt.EdOpt.SaveShortPos)
-		{
-			//if no position saved these are nulls
-			poscache.Position[0] = cp.SavePos.Line;
-			poscache.Position[1] = cp.SavePos.Cursor;
-			poscache.Position[2] = cp.SavePos.ScreenLine;
-			poscache.Position[3] = cp.SavePos.LeftPos;
-		}
-
-		CtrlObject->EditorPosCache->AddPosition(strCacheName, poscache);
+		FilePositionCache::AddPosition(strCacheName, pc);
 	}
 }
 

@@ -1247,6 +1247,7 @@ public:
 
 		//schema
 		db.SetWALJournalingMode();
+		db.EnableForeignKeysConstraints();
 		db.Exec(
 			"CREATE TABLE IF NOT EXISTS history(id INTEGER PRIMARY KEY, kind INTEGER NOT NULL, key TEXT NOT NULL, type INTEGER NOT NULL, lock INTEGER NOT NULL, name TEXT NOT NULL, time INTEGER NOT NULL);"
 			"CREATE INDEX IF NOT EXISTS history_idx1 ON history (kind, key);"
@@ -1471,6 +1472,46 @@ public:
 		}
 		stmtGetPrev.Reset();
 		return nid;
+	}
+
+	unsigned __int64 SetEditorPos(const wchar_t *Name, int Line, int LinePos, int ScreenLine, int LeftPos, UINT CodePage)
+	{
+		return 0;
+	}
+
+	unsigned __int64 GetEditorPos(const wchar_t *Name, int *Line, int *LinePos, int *ScreenLine, int *LeftPos, UINT *CodePage)
+	{
+		return 0;
+	}
+
+	bool SetEditorBookmark(unsigned __int64 id, int i, int Line, int LinePos, int ScreenLine, int LeftPos)
+	{
+		return false;
+	}
+
+	bool GetEditorBookmark(unsigned __int64 id, int i, int *Line, int *LinePos, int *ScreenLine, int *LeftPos)
+	{
+		return false;
+	}
+
+	unsigned __int64 SetViewerPos(const wchar_t *Name, __int64 FilePos, __int64 LeftPos, int Hex, UINT CodePage)
+	{
+		return 0;
+	}
+
+	unsigned __int64 GetViewerPos(const wchar_t *Name, __int64 *FilePos, __int64 *LeftPos, int *Hex, UINT *CodePage)
+	{
+		return 0;
+	}
+
+	bool SetViewerBookmark(unsigned __int64 id, int i, __int64 FilePos, __int64 LeftPos)
+	{
+		return false;
+	}
+
+	bool GetViewerBookmark(unsigned __int64 id, int i, __int64 *FilePos, __int64 *LeftPos)
+	{
+		return false;
 	}
 };
 

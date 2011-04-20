@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "cmdline.hpp"
 #include "hilight.hpp"
-#include "poscache.hpp"
 #include "history.hpp"
 #include "treelist.hpp"
 #include "filefilter.hpp"
@@ -62,8 +61,6 @@ ControlObject::ControlObject():
 	CtrlObject=this;
 	HiFiles = new HighlightFiles;
 	FolderShortcuts = new Shortcuts();
-	ViewerPosCache = new FilePositionCache();
-	EditorPosCache = new FilePositionCache();
 	FrameManager = new Manager;
 	//Macro.LoadMacros();
 	ReadConfig();
@@ -164,16 +161,6 @@ ControlObject::~ControlObject()
 	delete CmdLine;
 	delete HiFiles;
 	delete FolderShortcuts;
-
-	if (Opt.ViOpt.SavePos)
-		ViewerPosCache->Save(L"Viewer\\LastPositions");
-
-	delete ViewerPosCache;
-
-	if (Opt.EdOpt.SavePos)
-		EditorPosCache->Save(L"Editor\\LastPositions");
-
-	delete EditorPosCache;
 
 	delete FrameManager;
 	TreeList::FlushCache();

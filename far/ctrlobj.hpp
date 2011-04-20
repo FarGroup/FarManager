@@ -68,7 +68,6 @@ class ControlObject
 		KeyBar *MainKeyBar;
 		MenuBar *TopMenuBar;
 		HighlightFiles *HiFiles;
-		FilePositionCache *ViewerPosCache,*EditorPosCache;
 		KeyMacro Macro;
 		PluginManager Plugins;
 		Shortcuts* FolderShortcuts;

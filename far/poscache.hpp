@@ -33,70 +33,60 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-const DWORD64 POS_NONE=_UI64_MAX;
-
-// Максимальное количество элементов в кэше
-#define MAX_POSITIONS 512
+const int POS_NONE = -1;
 
 // Количество закладок в редакторе/вьювере на одну позицию
-#define BOOKMARK_COUNT   10
+const int BOOKMARK_COUNT = 10;
 
-struct PosCache
+struct EditorBookmark
 {
-    /*
-    Param:
-    	Editor:
-			Param[0] = Line
-			Param[1] = ScreenLine
-			Param[2] = LinePos
-			Param[3] = LeftPos
-			Param[4] = CodePage or 0
-		Viewer:
-			Param[0] = FilePos
-			Param[1] = LeftPos
-			Param[2] = Hex?
-			Param[3] = 0
-			Param[4] = CodePage
-    */
-	DWORD64 Param[5];
+	int Line[BOOKMARK_COUNT];
+	int LinePos[BOOKMARK_COUNT];
+	int ScreenLine[BOOKMARK_COUNT];
+	int LeftPos[BOOKMARK_COUNT];
 
-    /*
-    Position
-    	Editor:
-			Position[0] = [BOOKMARK_COUNT] Line
-			Position[1] = [BOOKMARK_COUNT] Cursor
-			Position[2] = [BOOKMARK_COUNT] ScreenLine
-			Position[3] = [BOOKMARK_COUNT] LeftPos
-		Viewer:
-			Position[0] = [BOOKMARK_COUNT] SavePosAddr
-			Position[1] = [BOOKMARK_COUNT] SavePosLeft
-			Position[2] = [BOOKMARK_COUNT] 0
-			Position[3] = [BOOKMARK_COUNT] 0
-    */
-	DWORD64 *Position[4];
+	void Clear() { memset(this, POS_NONE, sizeof(*this)); }
+};
+
+struct EditorPosCache
+{
+	int Line;
+	int LinePos;
+	int ScreenLine;
+	int LeftPos;
+	UINT CodePage;
+
+	EditorBookmark bm;
+
+	void Clear() { Line=LinePos=ScreenLine=LeftPos=0; CodePage=0; bm.Clear(); }
+};
+
+struct ViewerBookmark
+{
+	__int64 FilePos[BOOKMARK_COUNT];
+	__int64 LeftPos[BOOKMARK_COUNT];
+
+	void Clear() { memset(this, POS_NONE, sizeof(*this)); }
+};
+
+struct ViewerPosCache
+{
+	__int64 FilePos;
+	__int64 LeftPos;
+	int Hex;
+	UINT CodePage;
+
+	ViewerBookmark bm;
+
+	void Clear() { FilePos=LeftPos=0; Hex=0; CodePage=0; bm.Clear(); }
 };
 
 class FilePositionCache
 {
-	private:
-		int IsMemory;
-		int CurPos;
-
-		string *Names;
-		BYTE *Param;
-		BYTE *Position;
-
-	private:
-		int FindPosition(const wchar_t *FullName);
-
 	public:
-		FilePositionCache();
-		~FilePositionCache();
+		static bool AddPosition(const wchar_t *Name, const EditorPosCache& poscache);
+		static bool GetPosition(const wchar_t *Name, EditorPosCache& poscache);
 
-	public:
-		void AddPosition(const wchar_t *Name,PosCache& poscache);
-		bool GetPosition(const wchar_t *Name,PosCache& poscache);
-
-		bool Read(const wchar_t *Key);
-		bool Save(const wchar_t *Key);
+		static bool AddPosition(const wchar_t *Name, const ViewerPosCache& poscache);
+		static bool GetPosition(const wchar_t *Name, ViewerPosCache& poscache);
 };
