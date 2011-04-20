@@ -25,13 +25,13 @@ absolutely necessary.
 
  #Alt-Shift-F9#  Call the ~Configuration~@Config@ dialog.
 
- See also: ~NT Performance Counters~@PerfCounters@ help
+ See also: ~Performance Counters~@PerfCounters@ help
            ~Special Column Types~@Columns@ help
 
 @PerfCounters
 $^#Performance Data Counters#
 
-   The following descriptions were taken from the NT system registry value
+   The following descriptions were taken from the system registry value
    #HKLM\Software\Microsoft\Windows NT\CurrentVersion\Perflib\009\Help#
 
 
@@ -255,14 +255,12 @@ List:
 
    #S (Size)#
 
-   For NT/2000/XP systems, it displays the sum of Working Set and
-   Page File counters. For 9x/ME, it displays the total size of the
-   process modules only.
+   Displays the sum of Working Set and Page File counters.
 
    #D/T (Date/Time)#
 
-   NT/2000/XP only: displays the process start date/time. The
-   modification, creation and last access date/time are the same.
+   Displays the process start date/time. The modification, creation
+and last access date/time are the same.
 
    In addition to the standard FAR column types, these #special# column
 types can be used in this plugin:
@@ -286,7 +284,7 @@ browsing.
    #ZP# - Full pathname
    #ZW# - Window title
    #ZD# - File Description
-   #ZC# - Command line (local NT only)
+   #ZC# - Command line (local only)
 
    #WARNING:# In each panel mode there may be only one description
             column ('Zx'). To view different kinds of descriptions,
@@ -349,7 +347,7 @@ $^#Configuration#
                         to disable them.
 
  #Environment#            Include the process's environment block.
-                        Used for local NT/2000/XP only.
+                        Used for local only.
 
  #Module info#            Include the list of modules loaded by
                         this process.
@@ -366,9 +364,8 @@ $^#Configuration#
                         process browsing.
 
  #Handles#                List all handles opened by the process.
- #(local NT only)#        Warning: this uses undocumented features
-                        and may not work properly. Used for local
-                        NT/2000/XP only.
+                        Warning: this uses undocumented features
+                        and may not work properly. Used for local only.
 
    In this version, #panel modes# are not configured in this dialog. When
 you press "OK" in the dialog, the configuration is saved with the current

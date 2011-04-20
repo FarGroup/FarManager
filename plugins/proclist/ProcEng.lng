@@ -88,11 +88,11 @@
 "Add to &Plugins menu"
 
 "Include in the additional information:"
-"&Environment (local NT only)"
+"&Environment (local only)"
 "&Module info"
 "Module &versions and descriptions (slow!)"
-"Pe&rformance data (NT only)"
-"&Handles (local NT only)"
+"Pe&rformance data"
+"&Handles (local only)"
 "Include unnamed handles"
 
 "Processor Time"
