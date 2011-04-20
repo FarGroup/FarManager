@@ -56,6 +56,8 @@ public:
 
   STDMETHODIMP Read(void *data, UInt32 size, UInt32 *processedSize) {
     COM_ERROR_HANDLER_BEGIN
+    if (processedSize)
+      *processedSize = 0;
     unsigned size_read;
     if (device_file) {
       unsigned __int64 aligned_pos = device_pos / device_sector_size * device_sector_size;
@@ -87,6 +89,8 @@ public:
 
   STDMETHODIMP Seek(Int64 offset, UInt32 seekOrigin, UInt64 *newPosition) {
     COM_ERROR_HANDLER_BEGIN
+    if (newPosition)
+      *newPosition = 0;
     unsigned __int64 new_position;
     if (device_file) {
       switch (seekOrigin) {

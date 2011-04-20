@@ -65,6 +65,8 @@ public:
 
   STDMETHODIMP Write(const void *data, UInt32 size, UInt32 *processedSize) {
     COM_ERROR_HANDLER_BEGIN
+    if (processedSize)
+      *processedSize = 0;
     unsigned size_written;
     RETRY_OR_IGNORE_BEGIN
     size_written = write(data, size);
@@ -77,6 +79,8 @@ public:
 
   STDMETHODIMP Seek(Int64 offset, UInt32 seekOrigin, UInt64 *newPosition) {
     COM_ERROR_HANDLER_BEGIN
+    if (newPosition)
+      *newPosition = 0;
     unsigned __int64 new_position = set_pos(offset, translate_seek_method(seekOrigin));
     if (newPosition)
       *newPosition = new_position;
