@@ -544,7 +544,7 @@ int Dialog::show() {
     if (items[i].mask_idx)
       dlg_item->Mask = get_value(items[i].mask_idx);
     if (items[i].text_idx)
-      dlg_item->PtrData = get_value(items[i].text_idx);
+      dlg_item->Data = get_value(items[i].text_idx);
     if (items[i].list_idx) {
       FarList* fl = far_lists.data() + fl_idx;
       fl->Items = far_list_items.data() + fli_idx;
