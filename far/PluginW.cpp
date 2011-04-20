@@ -61,13 +61,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "processname.hpp"
 #include "mix.hpp"
-#include "lasterror.hpp"
 #include "FarGuid.hpp"
 #include "synchro.hpp"
 #include "farversion.hpp"
 #include "colormix.hpp"
 #include "setcolor.hpp"
-#include "configdb.hpp"
 
 static const wchar_t wszReg_OpenPanel[]=L"OpenW";
 static const wchar_t wszReg_SetFindList[]=L"SetFindListW";
@@ -116,15 +114,6 @@ static const char NFMP_Compare[]="CompareW";
 static const char NFMP_Analyse[]="AnalyseW";
 static const char NFMP_GetCustomData[]="GetCustomDataW";
 static const char NFMP_FreeCustomData[]="FreeCustomDataW";
-
-
-static BOOL PrepareModulePath(const wchar_t *ModuleName)
-{
-	string strModulePath;
-	strModulePath = ModuleName;
-	CutToSlash(strModulePath); //??
-	return FarChDir(strModulePath);
-}
 
 static void CheckScreenLock()
 {
@@ -208,6 +197,7 @@ static BOOL WINAPI farColorDialog(const GUID* PluginId, COLORDIALOGFLAGS Flags, 
 	}
 	return Result;
 }
+
 static INT_PTR WINAPI FarAdvControlW(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Command, void *Param)
 {
 	if (ACTL_SYNCHRO==Command) //must be first
@@ -252,86 +242,49 @@ static const wchar_t* WINAPI FarGetMsgFnW(const GUID* PluginId,int MsgId)
 }
 
 PluginW::PluginW(PluginManager *owner, const wchar_t *lpwszModuleName):
-	m_owner(owner),
-	m_strModuleName(lpwszModuleName),
-	m_strCacheName(lpwszModuleName),
-	m_hModule(nullptr)
-	//more initialization here!!!
+	Plugin(owner,lpwszModuleName)
 {
-	wchar_t *p = m_strCacheName.GetBuffer();
-	while (*p)
-	{
-		if (*p == L'\\')
-			*p = L'/';
-
-		p++;
-	}
-	m_strCacheName.ReleaseBuffer();
 	ClearExports();
 	SetGuid(FarGuid);
 }
 
 PluginW::~PluginW()
 {
-	Lang.Close();
 }
 
 
-bool PluginW::LoadFromCache(const FAR_FIND_DATA_EX &FindData)
+void PluginW::ReadCache(unsigned __int64 id)
 {
-	unsigned __int64 id = PlCacheCfg->GetCacheID(m_strCacheName);
-
-	if (id)
+	if (!PlCacheCfg->GetMinFarVersion(id, &MinFarVersion))
 	{
-		if (PlCacheCfg->IsPreload(id))   //PF_PRELOAD plugin, skip cache
-		{
-			WorkFlags.Set(PIWF_PRELOADED);
-			return false;
-		}
-
-		{
-			string strCurPluginID;
-			strCurPluginID.Format(
-			    L"%I64x%x%x",
-			    FindData.nFileSize,
-			    FindData.ftCreationTime.dwLowDateTime,
-			    FindData.ftLastWriteTime.dwLowDateTime
-			);
-
-			string strPluginID = PlCacheCfg->GetSignature(id);
-
-			if (StrCmp(strPluginID, strCurPluginID))   //одинаковые ли бинарники?
-				return false;
-		}
-
-		if (!PlCacheCfg->GetMinFarVersion(id, &MinFarVersion))
-			memcpy(&MinFarVersion,&FAR_VERSION,sizeof(MinFarVersion));
-		if (!PlCacheCfg->GetVersion(id, &PluginVersion))
-			memset(&PluginVersion, 0, sizeof(PluginVersion));
-		m_strGuid = PlCacheCfg->GetGuid(id);
-		SetGuid(StrToGuid(m_strGuid,m_Guid)?m_Guid:FarGuid);
-		strTitle = PlCacheCfg->GetTitle(id);
-		strDescription = PlCacheCfg->GetDescription(id);
-		strAuthor = PlCacheCfg->GetAuthor(id);
-
-		pOpenPanelW=(PLUGINOPENPANELW)PlCacheCfg->GetExport(id, wszReg_OpenPanel);
-		pSetFindListW=(PLUGINSETFINDLISTW)PlCacheCfg->GetExport(id, wszReg_SetFindList);
-		pProcessEditorInputW=(PLUGINPROCESSEDITORINPUTW)PlCacheCfg->GetExport(id, wszReg_ProcessEditorInput);
-		pProcessEditorEventW=(PLUGINPROCESSEDITOREVENTW)PlCacheCfg->GetExport(id, wszReg_ProcessEditorEvent);
-		pProcessViewerEventW=(PLUGINPROCESSVIEWEREVENTW)PlCacheCfg->GetExport(id, wszReg_ProcessViewerEvent);
-		pProcessDialogEventW=(PLUGINPROCESSDIALOGEVENTW)PlCacheCfg->GetExport(id, wszReg_ProcessDialogEvent);
-		pProcessSynchroEventW=(PLUGINPROCESSSYNCHROEVENTW)PlCacheCfg->GetExport(id, wszReg_ProcessSynchroEvent);
-#if defined(PROCPLUGINMACROFUNC)
-		pProcessMacroFuncW=(PLUGINPROCESSMACROFUNCW)PlCacheCfg->GetExport(id, wszReg_ProcessMacroFunc);
-#endif
-		pConfigureW=(PLUGINCONFIGUREW)PlCacheCfg->GetExport(id, wszReg_Configure);
-		pAnalyseW=(PLUGINANALYSEW)PlCacheCfg->GetExport(id, wszReg_Analyse);
-		pGetCustomDataW=(PLUGINGETCUSTOMDATAW)PlCacheCfg->GetExport(id, wszReg_GetCustomData);
-		WorkFlags.Set(PIWF_CACHED); //too much "cached" flags
-		return true;
+		memcpy(&MinFarVersion,&FAR_VERSION,sizeof(MinFarVersion));
 	}
+	
+	if (!PlCacheCfg->GetVersion(id, &PluginVersion))
+	{
+		memset(&PluginVersion, 0, sizeof(PluginVersion));
+	}
+	
+	m_strGuid = PlCacheCfg->GetGuid(id);
+	SetGuid(StrToGuid(m_strGuid,m_Guid)?m_Guid:FarGuid);
+	strTitle = PlCacheCfg->GetTitle(id);
+	strDescription = PlCacheCfg->GetDescription(id);
+	strAuthor = PlCacheCfg->GetAuthor(id);
 
-	return false;
+	pOpenPanelW=(PLUGINOPENPANELW)PlCacheCfg->GetExport(id, wszReg_OpenPanel);
+	pSetFindListW=(PLUGINSETFINDLISTW)PlCacheCfg->GetExport(id, wszReg_SetFindList);
+	pProcessEditorInputW=(PLUGINPROCESSEDITORINPUTW)PlCacheCfg->GetExport(id, wszReg_ProcessEditorInput);
+	pProcessEditorEventW=(PLUGINPROCESSEDITOREVENTW)PlCacheCfg->GetExport(id, wszReg_ProcessEditorEvent);
+	pProcessViewerEventW=(PLUGINPROCESSVIEWEREVENTW)PlCacheCfg->GetExport(id, wszReg_ProcessViewerEvent);
+	pProcessDialogEventW=(PLUGINPROCESSDIALOGEVENTW)PlCacheCfg->GetExport(id, wszReg_ProcessDialogEvent);
+	pProcessSynchroEventW=(PLUGINPROCESSSYNCHROEVENTW)PlCacheCfg->GetExport(id, wszReg_ProcessSynchroEvent);
+#if defined(PROCPLUGINMACROFUNC)
+	pProcessMacroFuncW=(PLUGINPROCESSMACROFUNCW)PlCacheCfg->GetExport(id, wszReg_ProcessMacroFunc);
+#endif
+	pConfigureW=(PLUGINCONFIGUREW)PlCacheCfg->GetExport(id, wszReg_Configure);
+	pAnalyseW=(PLUGINANALYSEW)PlCacheCfg->GetExport(id, wszReg_Analyse);
+	pGetCustomDataW=(PLUGINGETCUSTOMDATAW)PlCacheCfg->GetExport(id, wszReg_GetCustomData);
+	WorkFlags.Set(PIWF_CACHED); //too much "cached" flags
 }
 
 bool PluginW::SaveToCache()
@@ -429,139 +382,6 @@ bool PluginW::SaveToCache()
 		return true;
 	}
 
-	return false;
-}
-
-bool PluginW::LoadData(void)
-{
-	if (WorkFlags.Check(PIWF_DONTLOADAGAIN))
-		return false;
-
-	if (WorkFlags.Check(PIWF_DATALOADED))
-		return true;
-
-	if (m_hModule)
-		return true;
-
-	if (!m_hModule)
-	{
-		string strCurPath, strCurPlugDiskPath;
-		wchar_t Drive[]={0,L' ',L':',0}; //ставим 0, как признак того, что вертать обратно ненадо!
-		apiGetCurrentDirectory(strCurPath);
-
-		if (IsLocalPath(m_strModuleName))  // если указан локальный путь, то...
-		{
-			Drive[0] = L'=';
-			Drive[1] = m_strModuleName.At(0);
-			apiGetEnvironmentVariable(Drive,strCurPlugDiskPath);
-		}
-
-		PrepareModulePath(m_strModuleName);
-		m_hModule = LoadLibraryEx(m_strModuleName,nullptr,LOAD_WITH_ALTERED_SEARCH_PATH);
-		GuardLastError Err;
-		FarChDir(strCurPath);
-
-		if (Drive[0]) // вернем ее (переменную окружения) обратно
-			SetEnvironmentVariable(Drive,strCurPlugDiskPath);
-	}
-
-	if (!m_hModule)
-	{
-		//чтоб не пытаться загрузить опять а то ошибка будет постоянно показываться.
-		WorkFlags.Set(PIWF_DONTLOADAGAIN);
-
-		if (!Opt.LoadPlug.SilentLoadPlugin) //убрать в PluginSet
-		{
-			SetMessageHelp(L"ErrLoadPlugin");
-			Message(MSG_WARNING|MSG_ERRORTYPE|MSG_NOPLUGINS,1,MSG(MError),MSG(MPlgLoadPluginError),m_strModuleName,MSG(MOk));
-		}
-
-		return false;
-	}
-
-	WorkFlags.Clear(PIWF_CACHED);
-	pGetGlobalInfoW=(PLUGINGETGLOBALINFOW)GetProcAddress(m_hModule,NFMP_GetGlobalInfo);
-	pSetStartupInfoW=(PLUGINSETSTARTUPINFOW)GetProcAddress(m_hModule,NFMP_SetStartupInfo);
-	pOpenPanelW=(PLUGINOPENPANELW)GetProcAddress(m_hModule,NFMP_OpenPanel);
-	pClosePanelW=(PLUGINCLOSEPANELW)GetProcAddress(m_hModule,NFMP_ClosePanel);
-	pGetPluginInfoW=(PLUGINGETPLUGININFOW)GetProcAddress(m_hModule,NFMP_GetPluginInfo);
-	pGetOpenPanelInfoW=(PLUGINGETOPENPANELINFOW)GetProcAddress(m_hModule,NFMP_GetOpenPanelInfo);
-	pGetFindDataW=(PLUGINGETFINDDATAW)GetProcAddress(m_hModule,NFMP_GetFindData);
-	pFreeFindDataW=(PLUGINFREEFINDDATAW)GetProcAddress(m_hModule,NFMP_FreeFindData);
-	pGetVirtualFindDataW=(PLUGINGETVIRTUALFINDDATAW)GetProcAddress(m_hModule,NFMP_GetVirtualFindData);
-	pFreeVirtualFindDataW=(PLUGINFREEVIRTUALFINDDATAW)GetProcAddress(m_hModule,NFMP_FreeVirtualFindData);
-	pSetDirectoryW=(PLUGINSETDIRECTORYW)GetProcAddress(m_hModule,NFMP_SetDirectory);
-	pGetFilesW=(PLUGINGETFILESW)GetProcAddress(m_hModule,NFMP_GetFiles);
-	pPutFilesW=(PLUGINPUTFILESW)GetProcAddress(m_hModule,NFMP_PutFiles);
-	pDeleteFilesW=(PLUGINDELETEFILESW)GetProcAddress(m_hModule,NFMP_DeleteFiles);
-	pMakeDirectoryW=(PLUGINMAKEDIRECTORYW)GetProcAddress(m_hModule,NFMP_MakeDirectory);
-	pProcessHostFileW=(PLUGINPROCESSHOSTFILEW)GetProcAddress(m_hModule,NFMP_ProcessHostFile);
-	pSetFindListW=(PLUGINSETFINDLISTW)GetProcAddress(m_hModule,NFMP_SetFindList);
-	pConfigureW=(PLUGINCONFIGUREW)GetProcAddress(m_hModule,NFMP_Configure);
-	pExitFARW=(PLUGINEXITFARW)GetProcAddress(m_hModule,NFMP_ExitFAR);
-	pProcessKeyW=(PLUGINPROCESSKEYW)GetProcAddress(m_hModule,NFMP_ProcessKey);
-	pProcessEventW=(PLUGINPROCESSEVENTW)GetProcAddress(m_hModule,NFMP_ProcessEvent);
-	pCompareW=(PLUGINCOMPAREW)GetProcAddress(m_hModule,NFMP_Compare);
-	pProcessEditorInputW=(PLUGINPROCESSEDITORINPUTW)GetProcAddress(m_hModule,NFMP_ProcessEditorInput);
-	pProcessEditorEventW=(PLUGINPROCESSEDITOREVENTW)GetProcAddress(m_hModule,NFMP_ProcessEditorEvent);
-	pProcessViewerEventW=(PLUGINPROCESSVIEWEREVENTW)GetProcAddress(m_hModule,NFMP_ProcessViewerEvent);
-	pProcessDialogEventW=(PLUGINPROCESSDIALOGEVENTW)GetProcAddress(m_hModule,NFMP_ProcessDialogEvent);
-	pProcessSynchroEventW=(PLUGINPROCESSSYNCHROEVENTW)GetProcAddress(m_hModule,NFMP_ProcessSynchroEvent);
-#if defined(PROCPLUGINMACROFUNC)
-	pProcessMacroFuncW=(PLUGINPROCESSMACROFUNCW)GetProcAddress(m_hModule,NFMP_ProcessMacroFunc);
-#endif
-	pAnalyseW=(PLUGINANALYSEW)GetProcAddress(m_hModule, NFMP_Analyse);
-	pGetCustomDataW=(PLUGINGETCUSTOMDATAW)GetProcAddress(m_hModule, NFMP_GetCustomData);
-	pFreeCustomDataW=(PLUGINFREECUSTOMDATAW)GetProcAddress(m_hModule, NFMP_FreeCustomData);
-
-	GlobalInfo Info;
-	if(GetGlobalInfo(&Info) &&
-		Info.StructSize &&
-		Info.Title && *Info.Title &&
-		Info.Description && *Info.Description &&
-		Info.Author && *Info.Author)
-	{
-		MinFarVersion = Info.MinFarVersion;
-		PluginVersion = Info.Version;
-		strTitle = Info.Title;
-		strDescription = Info.Description;
-		strAuthor = Info.Author;
-		SetGuid(Info.Guid);
-		WorkFlags.Set(PIWF_DATALOADED);
-		return true;
-	}
-	Unload();
-	//чтоб не пытаться загрузить опять а то ошибка будет постоянно показываться.
-	WorkFlags.Set(PIWF_DONTLOADAGAIN);
-	return false;
-}
-
-bool PluginW::Load()
-{
-	if (WorkFlags.Check(PIWF_DONTLOADAGAIN))
-		return false;
-
-	if (!WorkFlags.Check(PIWF_DATALOADED)&&!LoadData())
-		return false;
-
-	if (FuncFlags.Check(PICFF_LOADED))
-		return true;
-
-	bool bUnloaded = false;
-
-	if (CheckMinFarVersion(bUnloaded) && SetStartupInfo(bUnloaded))
-	{
-		FuncFlags.Set(PICFF_LOADED);
-		SaveToCache();
-		return true;
-	}
-	if (!bUnloaded)
-	{
-		Unload();
-	}
-
-	//чтоб не пытаться загрузить опять а то ошибка будет постоянно показываться.
-	WorkFlags.Set(PIWF_DONTLOADAGAIN);
 	return false;
 }
 
@@ -669,72 +489,6 @@ void CreatePluginStartupInfo(Plugin *pPlugin, PluginStartupInfo *PSI, FarStandar
 	}
 }
 
-struct ExecuteStruct
-{
-	int id; //function id
-	union
-	{
-		INT_PTR nResult;
-		HANDLE hResult;
-		BOOL bResult;
-	};
-
-	union
-	{
-		INT_PTR nDefaultResult;
-		HANDLE hDefaultResult;
-		BOOL bDefaultResult;
-	};
-
-	bool bUnloaded;
-};
-
-
-#define EXECUTE_FUNCTION(function, es) \
-	{ \
-		es.nResult = 0; \
-		es.nDefaultResult = 0; \
-		es.bUnloaded = false; \
-		if ( Opt.ExceptRules ) \
-		{ \
-			__try \
-			{ \
-				function; \
-			} \
-			__except(xfilter(es.id, GetExceptionInformation(), this, 0)) \
-			{ \
-				m_owner->UnloadPlugin(this, es.id, true); \
-				es.bUnloaded = true; \
-				ProcessException=FALSE; \
-			} \
-		} \
-		else \
-			function; \
-	}
-
-
-#define EXECUTE_FUNCTION_EX(function, es) \
-	{ \
-		es.bUnloaded = false; \
-		es.nResult = 0; \
-		if ( Opt.ExceptRules ) \
-		{ \
-			__try \
-			{ \
-				es.nResult = (INT_PTR)function; \
-			} \
-			__except(xfilter(es.id, GetExceptionInformation(), this, 0)) \
-			{ \
-				m_owner->UnloadPlugin(this, es.id, true); \
-				es.bUnloaded = true; \
-				es.nResult = es.nDefaultResult; \
-				ProcessException=FALSE; \
-			} \
-		} \
-		else \
-			es.nResult = (INT_PTR)function; \
-	}
-
 bool PluginW::SetStartupInfo(bool &bUnloaded)
 {
 	if (pSetStartupInfoW && !ProcessException)
@@ -791,24 +545,6 @@ bool PluginW::CheckMinFarVersion(bool &bUnloaded)
 	}
 
 	return true;
-}
-
-int PluginW::Unload(bool bExitFAR)
-{
-	int nResult = TRUE;
-
-	if (bExitFAR)
-		ExitFAR();
-
-	if (!WorkFlags.Check(PIWF_CACHED))
-	{
-		nResult = FreeLibrary(m_hModule);
-		ClearExports();
-	}
-
-	m_hModule = nullptr;
-	FuncFlags.Clear(PICFF_LOADED); //??
-	return nResult;
 }
 
 bool PluginW::IsPanelPlugin()
@@ -1485,6 +1221,43 @@ void PluginW::ExitFAR()
 	}
 }
 
+void PluginW::InitExports()
+{
+	pGetGlobalInfoW=(PLUGINGETGLOBALINFOW)GetProcAddress(m_hModule,NFMP_GetGlobalInfo);
+	pSetStartupInfoW=(PLUGINSETSTARTUPINFOW)GetProcAddress(m_hModule,NFMP_SetStartupInfo);
+	pOpenPanelW=(PLUGINOPENPANELW)GetProcAddress(m_hModule,NFMP_OpenPanel);
+	pClosePanelW=(PLUGINCLOSEPANELW)GetProcAddress(m_hModule,NFMP_ClosePanel);
+	pGetPluginInfoW=(PLUGINGETPLUGININFOW)GetProcAddress(m_hModule,NFMP_GetPluginInfo);
+	pGetOpenPanelInfoW=(PLUGINGETOPENPANELINFOW)GetProcAddress(m_hModule,NFMP_GetOpenPanelInfo);
+	pGetFindDataW=(PLUGINGETFINDDATAW)GetProcAddress(m_hModule,NFMP_GetFindData);
+	pFreeFindDataW=(PLUGINFREEFINDDATAW)GetProcAddress(m_hModule,NFMP_FreeFindData);
+	pGetVirtualFindDataW=(PLUGINGETVIRTUALFINDDATAW)GetProcAddress(m_hModule,NFMP_GetVirtualFindData);
+	pFreeVirtualFindDataW=(PLUGINFREEVIRTUALFINDDATAW)GetProcAddress(m_hModule,NFMP_FreeVirtualFindData);
+	pSetDirectoryW=(PLUGINSETDIRECTORYW)GetProcAddress(m_hModule,NFMP_SetDirectory);
+	pGetFilesW=(PLUGINGETFILESW)GetProcAddress(m_hModule,NFMP_GetFiles);
+	pPutFilesW=(PLUGINPUTFILESW)GetProcAddress(m_hModule,NFMP_PutFiles);
+	pDeleteFilesW=(PLUGINDELETEFILESW)GetProcAddress(m_hModule,NFMP_DeleteFiles);
+	pMakeDirectoryW=(PLUGINMAKEDIRECTORYW)GetProcAddress(m_hModule,NFMP_MakeDirectory);
+	pProcessHostFileW=(PLUGINPROCESSHOSTFILEW)GetProcAddress(m_hModule,NFMP_ProcessHostFile);
+	pSetFindListW=(PLUGINSETFINDLISTW)GetProcAddress(m_hModule,NFMP_SetFindList);
+	pConfigureW=(PLUGINCONFIGUREW)GetProcAddress(m_hModule,NFMP_Configure);
+	pExitFARW=(PLUGINEXITFARW)GetProcAddress(m_hModule,NFMP_ExitFAR);
+	pProcessKeyW=(PLUGINPROCESSKEYW)GetProcAddress(m_hModule,NFMP_ProcessKey);
+	pProcessEventW=(PLUGINPROCESSEVENTW)GetProcAddress(m_hModule,NFMP_ProcessEvent);
+	pCompareW=(PLUGINCOMPAREW)GetProcAddress(m_hModule,NFMP_Compare);
+	pProcessEditorInputW=(PLUGINPROCESSEDITORINPUTW)GetProcAddress(m_hModule,NFMP_ProcessEditorInput);
+	pProcessEditorEventW=(PLUGINPROCESSEDITOREVENTW)GetProcAddress(m_hModule,NFMP_ProcessEditorEvent);
+	pProcessViewerEventW=(PLUGINPROCESSVIEWEREVENTW)GetProcAddress(m_hModule,NFMP_ProcessViewerEvent);
+	pProcessDialogEventW=(PLUGINPROCESSDIALOGEVENTW)GetProcAddress(m_hModule,NFMP_ProcessDialogEvent);
+	pProcessSynchroEventW=(PLUGINPROCESSSYNCHROEVENTW)GetProcAddress(m_hModule,NFMP_ProcessSynchroEvent);
+#if defined(PROCPLUGINMACROFUNC)
+	pProcessMacroFuncW=(PLUGINPROCESSMACROFUNCW)GetProcAddress(m_hModule,NFMP_ProcessMacroFunc);
+#endif
+	pAnalyseW=(PLUGINANALYSEW)GetProcAddress(m_hModule, NFMP_Analyse);
+	pGetCustomDataW=(PLUGINGETCUSTOMDATAW)GetProcAddress(m_hModule, NFMP_GetCustomData);
+	pFreeCustomDataW=(PLUGINFREECUSTOMDATAW)GetProcAddress(m_hModule, NFMP_FreeCustomData);
+}
+
 void PluginW::ClearExports()
 {
 	pGetGlobalInfoW=0;
@@ -1520,10 +1293,4 @@ void PluginW::ClearExports()
 	pAnalyseW = 0;
 	pGetCustomDataW = 0;
 	pFreeCustomDataW = 0;
-}
-
-void PluginW::SetGuid(const GUID& Guid)
-{
-	m_Guid=Guid;
-	m_strGuid=GuidToStr(m_Guid);
 }

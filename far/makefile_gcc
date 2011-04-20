@@ -116,6 +116,7 @@ SRCS = \
 	panelmix.cpp \
 	pathmix.cpp \
 	plist.cpp \
+	plclass.cpp \
 	plognmn.cpp \
 	plugapi.cpp \
 	PluginA.cpp \

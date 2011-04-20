@@ -28,11 +28,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class PluginManager;
-
-#include "language.hpp"
-#include "bitflags.hpp"
-#include "plugin.hpp"
 #include "plclass.hpp"
 
 
@@ -74,28 +69,6 @@ typedef void (WINAPI *PLUGINFREECUSTOMDATAW)(wchar_t *CustomData);
 class PluginW: public Plugin
 {
 	private:
-		PluginManager *m_owner; //BUGBUG
-
-		string m_strModuleName;
-		string m_strCacheName;
-		string m_strGuid;
-
-		BitFlags WorkFlags;      // рабочие флаги текущего плагина
-		BitFlags FuncFlags;      // битовые маски вызова эксп.функций плагина
-
-		HMODULE m_hModule;
-		Language Lang;
-
-		VersionInfo MinFarVersion;
-
-		GUID m_Guid;
-
-		VersionInfo PluginVersion;
-		string strTitle;
-		string strDescription;
-		string strAuthor;
-
-
 		PLUGINGETGLOBALINFOW         pGetGlobalInfoW;
 		PLUGINSETSTARTUPINFOW        pSetStartupInfoW;
 		PLUGINOPENPANELW             pOpenPanelW;
@@ -130,6 +103,8 @@ class PluginW: public Plugin
 		PLUGINGETCUSTOMDATAW         pGetCustomDataW;
 		PLUGINFREECUSTOMDATAW        pFreeCustomDataW;
 
+		void ReadCache(unsigned __int64 id);
+
 	public:
 
 		PluginW(PluginManager *owner, const wchar_t *lpwzModuleName);
@@ -137,13 +112,7 @@ class PluginW: public Plugin
 
 		bool IsOemPlugin() {return false;}
 
-		bool LoadData(void);
-		bool Load();
-		bool LoadFromCache(const FAR_FIND_DATA_EX &FindData);
-
 		bool SaveToCache();
-
-		int Unload(bool bExitFAR = false);
 
 		bool IsPanelPlugin();
 
@@ -191,9 +160,9 @@ class PluginW: public Plugin
 		DWORD GetWorkFlags() { return WorkFlags.Flags; }
 		DWORD GetFuncFlags() { return FuncFlags.Flags; }
 
-		bool InitLang(const wchar_t *Path) { return Lang.Init(Path,true); }
-		void CloseLang() { Lang.Close(); }
-		const wchar_t *GetMsg(int nID) { return Lang.GetMsg(nID); }
+		bool InitLang(const wchar_t *Path) { return PluginLang.Init(Path,true); }
+		void CloseLang() { PluginLang.Close(); }
+		const wchar_t *GetMsg(int nID) { return PluginLang.GetMsg(nID); }
 
 	public:
 
@@ -244,6 +213,6 @@ class PluginW: public Plugin
 
 	private:
 
+		void InitExports();
 		void ClearExports();
-		void SetGuid(const GUID& Guid);
 };

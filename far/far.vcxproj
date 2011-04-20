@@ -448,6 +448,7 @@ if not exist bootstrap mkdir bootstrap</Command>
     <ClCompile Include="farrtl.cpp" />
     <ClCompile Include="farversion.cpp" />
     <ClCompile Include="farwinapi.cpp" />
+    <ClCompile Include="plclass.cpp" />
     <ClCompile Include="shortcuts.cpp" />
     <ClCompile Include="fileattr.cpp" />
     <ClCompile Include="fileedit.cpp" />

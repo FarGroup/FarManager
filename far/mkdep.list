@@ -193,6 +193,7 @@ panelmix.cpp
 panelmix.hpp
 pathmix.cpp
 pathmix.hpp
+plclass.cpp
 plclass.hpp
 plist.cpp
 plist.hpp

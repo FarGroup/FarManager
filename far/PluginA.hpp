@@ -28,11 +28,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class PluginManager;
-
-#include "language.hpp"
-#include "bitflags.hpp"
-#include "plugin.hpp"
 #include "plclass.hpp"
 #include "pluginold.hpp"
 #include "FarGuid.hpp"
@@ -69,17 +64,6 @@ typedef int (WINAPI *PLUGINPROCESSDIALOGEVENT)(int Event,void *Param);
 class PluginA: public Plugin
 {
 	private:
-
-		PluginManager *m_owner; //BUGBUG
-
-		string m_strModuleName;
-		string m_strCacheName;
-
-		BitFlags WorkFlags;      // рабочие флаги текущего плагина
-		BitFlags FuncFlags;      // битовые маски вызова эксп.функций плагина
-
-		HMODULE m_hModule;
-		Language Lang;
 
 		string strRootKey;
 		char *RootKey;
@@ -118,6 +102,11 @@ class PluginA: public Plugin
 		PLUGINPROCESSVIEWEREVENT    pProcessViewerEvent;
 		PLUGINPROCESSDIALOGEVENT    pProcessDialogEvent;
 
+		UINT64 OEMApiCnt;
+		void __Prolog() { SetFileApisToOEM(); OEMApiCnt++; }
+		void __Epilog() { OEMApiCnt--; if(!OEMApiCnt) SetFileApisToANSI(); }
+		void ReadCache(unsigned __int64 id);
+
 	public:
 
 		PluginA(PluginManager *owner, const wchar_t *lpwzModuleName);
@@ -125,13 +114,7 @@ class PluginA: public Plugin
 
 		bool IsOemPlugin() {return true;}
 
-		bool LoadData(void);
-		bool Load();
-		bool LoadFromCache(const FAR_FIND_DATA_EX &FindData);
-
 		bool SaveToCache();
-
-		int Unload(bool bExitFAR = false);
 
 		bool IsPanelPlugin();
 
@@ -179,9 +162,9 @@ class PluginA: public Plugin
 		DWORD GetWorkFlags() { return WorkFlags.Flags; }
 		DWORD GetFuncFlags() { return FuncFlags.Flags; }
 
-		bool InitLang(const wchar_t *Path) { return Lang.Init(Path,false); }
-		void CloseLang() { Lang.Close(); }
-		const char *GetMsgA(int nID) { return Lang.GetMsgA(nID); }
+		bool InitLang(const wchar_t *Path) { return PluginLang.Init(Path,false); }
+		void CloseLang() { PluginLang.Close(); }
+		const char *GetMsgA(int nID) { return PluginLang.GetMsgA(nID); }
 
 	public:
 		bool GetGlobalInfo(GlobalInfo *Info) { return false; }
@@ -231,6 +214,7 @@ class PluginA: public Plugin
 
 	private:
 
+		void InitExports();
 		void ClearExports();
 
 		void FreePluginInfo();

@@ -28,6 +28,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "language.hpp"
+#include "bitflags.hpp"
 #include "plugin.hpp"
 
 class AncientPlugin
@@ -37,21 +39,127 @@ class AncientPlugin
 		virtual const GUID& GetGUID(void) = 0;
 };
 
+class PluginManager;
+struct ExecuteStruct
+{
+	int id; //function id
+	union
+	{
+		INT_PTR nResult;
+		HANDLE hResult;
+		BOOL bResult;
+	};
+
+	union
+	{
+		INT_PTR nDefaultResult;
+		HANDLE hDefaultResult;
+		BOOL bDefaultResult;
+	};
+
+	bool bUnloaded;
+};
+
+#define EXECUTE_FUNCTION(function, es) \
+{ \
+	__Prolog(); \
+	es.nResult = 0; \
+	es.nDefaultResult = 0; \
+	es.bUnloaded = false; \
+	if ( Opt.ExceptRules ) \
+	{ \
+		__try \
+		{ \
+			function; \
+		} \
+		__except(xfilter(es.id, GetExceptionInformation(), this, 0)) \
+		{ \
+			m_owner->UnloadPlugin(this, es.id, true); \
+			es.bUnloaded = true; \
+			ProcessException=FALSE; \
+		} \
+	} \
+	else \
+	{ \
+		function; \
+	} \
+	__Epilog(); \
+}
+
+
+#define EXECUTE_FUNCTION_EX(function, es) \
+{ \
+	__Prolog(); \
+	es.bUnloaded = false; \
+	es.nResult = 0; \
+	if ( Opt.ExceptRules ) \
+	{ \
+		__try \
+		{ \
+			es.nResult = (INT_PTR)function; \
+		} \
+		__except(xfilter(es.id, GetExceptionInformation(), this, 0)) \
+		{ \
+			m_owner->UnloadPlugin(this, es.id, true); \
+			es.bUnloaded = true; \
+			es.nResult = es.nDefaultResult; \
+			ProcessException=FALSE; \
+		} \
+	} \
+	else \
+	{ \
+		es.nResult = (INT_PTR)function; \
+	} \
+	__Epilog(); \
+}
+
 class Plugin: public AncientPlugin
 {
+
+protected:
+		PluginManager *m_owner; //BUGBUG
+
+		string m_strModuleName;
+		string m_strCacheName;
+
+		BitFlags WorkFlags;      // рабочие флаги текущего плагина
+		BitFlags FuncFlags;      // битовые маски вызова эксп.функций плагина
+
+		HMODULE m_hModule;
+		Language PluginLang;
+
+		VersionInfo MinFarVersion;
+		VersionInfo PluginVersion;
+		string strTitle;
+		string strDescription;
+		string strAuthor;
+
+		GUID m_Guid;
+		string m_strGuid;
+
+		virtual void InitExports() = 0;
+		virtual void ClearExports() = 0;
+		virtual void ReadCache(unsigned __int64 id) = 0;
+
+		void SetGuid(const GUID& Guid);
+
+		virtual void __Prolog() {};
+		virtual void __Epilog() {};
+
+
 	public:
 
-		virtual ~Plugin() {}
+		Plugin(PluginManager *owner, const wchar_t *lpwszModuleName);
+		virtual ~Plugin();
+
+		bool Load();
+		int Unload(bool bExitFAR = false);
+		bool LoadData();
+		bool LoadFromCache(const FAR_FIND_DATA_EX &FindData);
 
 		virtual bool IsOemPlugin() = 0;
 
-		virtual bool LoadData(void) = 0;
-		virtual bool Load() = 0;
-		virtual bool LoadFromCache(const FAR_FIND_DATA_EX &FindData) = 0;
-
 		virtual bool SaveToCache() = 0;
-
-		virtual int Unload(bool bExitFAR = false) = 0;
 
 		virtual bool IsPanelPlugin() = 0;
 
@@ -100,6 +208,8 @@ class Plugin: public AncientPlugin
 
 		virtual bool InitLang(const wchar_t *Path) = 0;
 		virtual void CloseLang() = 0;
+
+		virtual bool GetGlobalInfo(GlobalInfo *Info) = 0;
 
 		virtual bool SetStartupInfo(bool &bUnloaded) = 0;
 		virtual bool CheckMinFarVersion(bool &bUnloaded) = 0;

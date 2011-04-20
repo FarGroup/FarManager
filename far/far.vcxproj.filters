@@ -521,6 +521,9 @@
     <ClCompile Include="farversion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="plclass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="elevation.hpp">
