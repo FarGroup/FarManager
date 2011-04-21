@@ -46,9 +46,7 @@ void MenuBar::DisplayObject()
 	string strMsg=strSpace+MSG(MMenuLeftTitle)+strSpace+MSG(MMenuFilesTitle)+strSpace+MSG(MMenuCommandsTitle)+strSpace+MSG(MMenuOptionsTitle)+strSpace+MSG(MMenuRightTitle);
 	RemoveHighlights(strMsg);
 	int Length=X2-X1+1;
-	string strFullMsg;
-	strFullMsg.Format(L"%-*.*s", Length,Length, strMsg.CPtr());
 	GotoXY(X1,Y1);
 	SetColor(COL_HMENUTEXT);
-	Text(strFullMsg);
+	FS << fmt::LeftAlign() << fmt::Width(Length) << fmt::Precision(Length) << strMsg;
 }

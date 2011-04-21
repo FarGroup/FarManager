@@ -1257,10 +1257,10 @@ public:
 		);
 
 		//enum items order by time statement
-		db.InitStmt(stmtEnum, L"SELECT id, name, type, lock FROM history WHERE kind=?1 AND key=?2 ORDER BY time;");
+		db.InitStmt(stmtEnum, L"SELECT id, name, type, lock, time FROM history WHERE kind=?1 AND key=?2 ORDER BY time;");
 
 		//enum items order by time DESC and lock DESC statement
-		db.InitStmt(stmtEnumDesc, L"SELECT id, name, type, lock FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC;");
+		db.InitStmt(stmtEnumDesc, L"SELECT id, name, type, lock, time FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC;");
 
 		//delete item statement
 		db.InitStmt(stmtDel, L"DELETE FROM history WHERE id=?1;");
@@ -1308,7 +1308,7 @@ public:
 
 	void EndTransaction() { db.EndTransaction(); }
 
-	bool Enum(DWORD index, DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 *id, string &strName, int *Type, bool *Lock, bool Reverse=false)
+	bool Enum(DWORD index, DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 *id, string &strName, int *Type, bool *Lock, unsigned __int64 *Time, bool Reverse=false)
 	{
 		SQLiteStmt &stmt = Reverse ? stmtEnumDesc : stmtEnum;
 
@@ -1321,6 +1321,7 @@ public:
 			strName = stmt.GetColText(1);
 			*Type = stmt.GetColInt(2);
 			*Lock = stmt.GetColInt(3) ? true : false;
+			*Time = stmt.GetColInt64(4);
 			return true;
 		}
 

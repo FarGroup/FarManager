@@ -254,12 +254,12 @@ int Select(int HelpLanguage,VMenu **MenuPtr)
 */
 int GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strValue, UINT nCodePage)
 {
-	wchar_t ReadStr[1024];
+	wchar_t ReadStr[1024]={};
 	string strFullParamName;
 	int Length=StrLength(L".Options");
 	long CurFilePos=ftell(SrcFile);
 
-	while (ReadString(SrcFile, ReadStr, 1024, nCodePage) )
+	while (ReadString(SrcFile, ReadStr, ARRAYSIZE(ReadStr), nCodePage) )
 	{
 		if (!StrCmpNI(ReadStr,L".Options",Length))
 		{

@@ -186,7 +186,7 @@ public:
 	virtual void EndTransaction() = 0;
 
 	//command,view,edit,folder,dialog history
-	virtual bool Enum(DWORD index, DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 *id, string &strName, int *Type, bool *Lock, bool Reverse=false) = 0;
+	virtual bool Enum(DWORD index, DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 *id, string &strName, int *Type, bool *Lock, unsigned __int64 *Time, bool Reverse=false) = 0;
 	virtual bool Delete(unsigned __int64 id) = 0;
 	virtual bool DeleteOldUnlocked(DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 older) = 0;
 	virtual bool Add(DWORD TypeHistory, const wchar_t *HistoryName, string strName, int Type, bool Lock, unsigned __int64 time) = 0;

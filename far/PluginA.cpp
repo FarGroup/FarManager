@@ -64,7 +64,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "colormix.hpp"
 
-static const wchar_t wszReg_OpenPanel[]=L"OpenPlugin"; // !OpenPlugin!
+static const wchar_t wszReg_Open[]=L"OpenPlugin"; // !OpenPlugin!
 static const wchar_t wszReg_OpenFilePlugin[]=L"OpenFilePlugin";
 static const wchar_t wszReg_SetFindList[]=L"SetFindList";
 static const wchar_t wszReg_ProcessEditorInput[]=L"ProcessEditorInput";
@@ -73,7 +73,7 @@ static const wchar_t wszReg_ProcessViewerEvent[]=L"ProcessViewerEvent";
 static const wchar_t wszReg_ProcessDialogEvent[]=L"ProcessDialogEvent";
 static const wchar_t wszReg_Configure[]=L"Configure";
 
-static const char NFMP_OpenPanel[]="OpenPlugin"; // !OpenPlugin!
+static const char NFMP_Open[]="OpenPlugin"; // !OpenPlugin!
 static const char NFMP_OpenFilePlugin[]="OpenFilePlugin";
 static const char NFMP_SetFindList[]="SetFindList";
 static const char NFMP_ProcessEditorInput[]="ProcessEditorInput";
@@ -4459,7 +4459,7 @@ PluginA::~PluginA()
 
 void PluginA::ReadCache(unsigned __int64 id)
 {
-	pOpenPanel=(PLUGINOPENPANEL)PlCacheCfg->GetExport(id,wszReg_OpenPanel);
+	pOpenPanel=(PLUGINOPENPANEL)PlCacheCfg->GetExport(id,wszReg_Open);
 	pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)PlCacheCfg->GetExport(id,wszReg_OpenFilePlugin);
 	pSetFindList=(PLUGINSETFINDLIST)PlCacheCfg->GetExport(id,wszReg_SetFindList);
 	pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)PlCacheCfg->GetExport(id,wszReg_ProcessEditorInput);
@@ -4536,7 +4536,7 @@ bool PluginA::SaveToCache()
 		PlCacheCfg->SetCommandPrefix(id, NullToEmpty(Info.CommandPrefix));
 		PlCacheCfg->SetFlags(id, Info.Flags);
 
-		PlCacheCfg->SetExport(id, wszReg_OpenPanel, pOpenPanel!=nullptr);
+		PlCacheCfg->SetExport(id, wszReg_Open, pOpenPanel!=nullptr);
 		PlCacheCfg->SetExport(id, wszReg_OpenFilePlugin, pOpenFilePlugin!=nullptr);
 		PlCacheCfg->SetExport(id, wszReg_SetFindList, pSetFindList!=nullptr);
 		PlCacheCfg->SetExport(id, wszReg_ProcessEditorInput, pProcessEditorInput!=nullptr);
@@ -5600,7 +5600,7 @@ void PluginA::ExitFAR()
 void PluginA::InitExports()
 {
 	pSetStartupInfo=(PLUGINSETSTARTUPINFO)GetProcAddress(m_hModule,NFMP_SetStartupInfo);
-	pOpenPanel=(PLUGINOPENPANEL)GetProcAddress(m_hModule,NFMP_OpenPanel);
+	pOpenPanel=(PLUGINOPENPANEL)GetProcAddress(m_hModule,NFMP_Open);
 	pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)GetProcAddress(m_hModule,NFMP_OpenFilePlugin);
 	pClosePanel=(PLUGINCLOSEPANEL)GetProcAddress(m_hModule,NFMP_ClosePanel);
 	pGetPluginInfo=(PLUGINGETPLUGININFO)GetProcAddress(m_hModule,NFMP_GetPluginInfo);

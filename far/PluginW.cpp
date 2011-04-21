@@ -67,7 +67,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "setcolor.hpp"
 
-static const wchar_t wszReg_OpenPanel[]=L"OpenW";
+static const wchar_t wszReg_Open[]=L"OpenW";
 static const wchar_t wszReg_SetFindList[]=L"SetFindListW";
 static const wchar_t wszReg_ProcessEditorInput[]=L"ProcessEditorInputW";
 static const wchar_t wszReg_ProcessEditorEvent[]=L"ProcessEditorEventW";
@@ -82,7 +82,7 @@ static const wchar_t wszReg_Analyse[] = L"AnalyseW";
 static const wchar_t wszReg_GetCustomData[] = L"GetCustomDataW";
 
 static const char NFMP_GetGlobalInfo[]="GetGlobalInfoW";
-static const char NFMP_OpenPanel[]="OpenW";
+static const char NFMP_Open[]="OpenW";
 static const char NFMP_SetFindList[]="SetFindListW";
 static const char NFMP_ProcessEditorInput[]="ProcessEditorInputW";
 static const char NFMP_ProcessEditorEvent[]="ProcessEditorEventW";
@@ -257,7 +257,7 @@ void PluginW::ReadCache(unsigned __int64 id)
 {
 	if (!PlCacheCfg->GetMinFarVersion(id, &MinFarVersion))
 	{
-		memcpy(&MinFarVersion,&FAR_VERSION,sizeof(MinFarVersion));
+		MinFarVersion = FAR_VERSION;
 	}
 
 	if (!PlCacheCfg->GetVersion(id, &PluginVersion))
@@ -271,7 +271,7 @@ void PluginW::ReadCache(unsigned __int64 id)
 	strDescription = PlCacheCfg->GetDescription(id);
 	strAuthor = PlCacheCfg->GetAuthor(id);
 
-	pOpenPanelW=(PLUGINOPENPANELW)PlCacheCfg->GetExport(id, wszReg_OpenPanel);
+	pOpenPanelW=(PLUGINOPENPANELW)PlCacheCfg->GetExport(id, wszReg_Open);
 	pSetFindListW=(PLUGINSETFINDLISTW)PlCacheCfg->GetExport(id, wszReg_SetFindList);
 	pProcessEditorInputW=(PLUGINPROCESSEDITORINPUTW)PlCacheCfg->GetExport(id, wszReg_ProcessEditorInput);
 	pProcessEditorEventW=(PLUGINPROCESSEDITOREVENTW)PlCacheCfg->GetExport(id, wszReg_ProcessEditorEvent);
@@ -363,7 +363,7 @@ bool PluginW::SaveToCache()
 		PlCacheCfg->SetDescription(id, strDescription);
 		PlCacheCfg->SetAuthor(id, strAuthor);
 
-		PlCacheCfg->SetExport(id, wszReg_OpenPanel, pOpenPanelW!=nullptr);
+		PlCacheCfg->SetExport(id, wszReg_Open, pOpenPanelW!=nullptr);
 		PlCacheCfg->SetExport(id, wszReg_SetFindList, pSetFindListW!=nullptr);
 		PlCacheCfg->SetExport(id, wszReg_ProcessEditorInput, pProcessEditorInputW!=nullptr);
 		PlCacheCfg->SetExport(id, wszReg_ProcessEditorEvent, pProcessEditorEventW!=nullptr);
@@ -1225,7 +1225,7 @@ void PluginW::InitExports()
 {
 	pGetGlobalInfoW=(PLUGINGETGLOBALINFOW)GetProcAddress(m_hModule,NFMP_GetGlobalInfo);
 	pSetStartupInfoW=(PLUGINSETSTARTUPINFOW)GetProcAddress(m_hModule,NFMP_SetStartupInfo);
-	pOpenPanelW=(PLUGINOPENPANELW)GetProcAddress(m_hModule,NFMP_OpenPanel);
+	pOpenPanelW=(PLUGINOPENPANELW)GetProcAddress(m_hModule,NFMP_Open);
 	pClosePanelW=(PLUGINCLOSEPANELW)GetProcAddress(m_hModule,NFMP_ClosePanel);
 	pGetPluginInfoW=(PLUGINGETPLUGININFOW)GetProcAddress(m_hModule,NFMP_GetPluginInfo);
 	pGetOpenPanelInfoW=(PLUGINGETOPENPANELINFOW)GetProcAddress(m_hModule,NFMP_GetOpenPanelInfo);

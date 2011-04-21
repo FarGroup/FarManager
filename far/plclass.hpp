@@ -76,6 +76,7 @@ struct ExecuteStruct
 		{ \
 			m_owner->UnloadPlugin(this, es.id, true); \
 			es.bUnloaded = true; \
+			es.nResult = es.nDefaultResult; \
 			ProcessException=FALSE; \
 		} \
 	} \
@@ -86,32 +87,7 @@ struct ExecuteStruct
 	__Epilog(); \
 }
 
-
-#define EXECUTE_FUNCTION_EX(function, es) \
-{ \
-	__Prolog(); \
-	es.bUnloaded = false; \
-	es.nResult = 0; \
-	if ( Opt.ExceptRules ) \
-	{ \
-		__try \
-		{ \
-			es.nResult = (INT_PTR)function; \
-		} \
-		__except(xfilter(es.id, GetExceptionInformation(), this, 0)) \
-		{ \
-			m_owner->UnloadPlugin(this, es.id, true); \
-			es.bUnloaded = true; \
-			es.nResult = es.nDefaultResult; \
-			ProcessException=FALSE; \
-		} \
-	} \
-	else \
-	{ \
-		es.nResult = (INT_PTR)function; \
-	} \
-	__Epilog(); \
-}
+#define EXECUTE_FUNCTION_EX(function, es) EXECUTE_FUNCTION(es.nResult = (INT_PTR)function, es)
 
 class Plugin: public AncientPlugin
 {

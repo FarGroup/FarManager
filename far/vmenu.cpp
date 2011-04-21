@@ -245,6 +245,7 @@ int VMenu::SetSelectPos(int Pos, int Direct)
 			else
 			{
 				Pos = 0;
+				TopPos = 0;
 				Pass++;
 			}
 		}
@@ -254,6 +255,7 @@ int VMenu::SetSelectPos(int Pos, int Direct)
 			if (CheckFlags(VMENU_WRAPMODE))
 			{
 				Pos = 0;
+				TopPos = 0;
 			}
 			else
 			{
@@ -2647,7 +2649,10 @@ void *VMenu::_GetUserData(MenuItemEx *PItem, void *Data, int Size)
 			{                      // есть строка из sizeof(void*) байт (UserDataSize при этом > 0)
 				memmove(Data,&PItem->UserData, Min(Size,DataSize));
 			}
-			// else а иначе... в PtrData уже указатель сидит!
+			else
+			{
+				*reinterpret_cast<PINT_PTR>(Data) = *reinterpret_cast<PINT_PTR>(&PtrData);
+			}
 		}
 		else // ... данных нет, значит лудим имя пункта!
 		{
@@ -2710,7 +2715,7 @@ int VMenu::_SetUserData(MenuItemEx *PItem,
 		else // Ок. данные помещаются в sizeof(void*)...
 		{
 			PItem->UserDataSize = 0;         // признак того, что данных либо нет, либо
-			PItem->UserData = (char*)Data;   // они помещаются в 4 байта
+			*reinterpret_cast<PINT_PTR>(&PItem->UserData) = *reinterpret_cast<const INT_PTR*>(Data);   // они помещаются в sizeof(void*)
 		}
 	}
 

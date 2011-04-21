@@ -335,18 +335,15 @@ void InitProfile(const string& strDefaultProfile)
 		Opt.LocalProfilePath = Opt.ProfilePath;
 	}
 
-	AddEndSlash(Opt.ProfilePath);
-	Opt.ProfilePath += L"Profiles";
-	AddEndSlash(Opt.ProfilePath);
-	Opt.ProfilePath+=strDefaultProfile;
-
-	AddEndSlash(Opt.LocalProfilePath);
-	Opt.LocalProfilePath += L"Profiles";
-	AddEndSlash(Opt.LocalProfilePath);
-	Opt.LocalProfilePath+=strDefaultProfile;
-
-	CreatePath(Opt.ProfilePath, true);
-	CreatePath(Opt.LocalProfilePath, true);
+	string* Paths[] = {&Opt.ProfilePath, &Opt.LocalProfilePath};
+	for(size_t i = 0; i< ARRAYSIZE(Paths); ++i)
+	{
+		AddEndSlash(*Paths[i]);
+		*Paths[i] += L"Profiles";
+		AddEndSlash(*Paths[i]);
+		*Paths[i]+=strDefaultProfile;
+		CreatePath(*Paths[i], true);
+	}
 
 	string strGlobalUserMenuDir;
 	strGlobalUserMenuDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"GlobalUserMenuDir", g_strFarPath, strGlobalUserMenuDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, strCfgName));

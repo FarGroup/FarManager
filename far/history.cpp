@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "ctrlobj.hpp"
 #include "configdb.hpp"
+#include "datetime.hpp"
 
 History::History(enumHISTORYTYPE TypeHistory, const wchar_t *HistoryName, size_t HistoryCount, const int *EnableSave, bool SaveType):
 	strHistoryName(HistoryName),
@@ -100,7 +101,8 @@ void History::AddToHistory(const wchar_t *Str, int Type, const wchar_t *Prefix, 
 		int HType;
 		bool HLock;
 		unsigned __int64 id;
-		while (HistoryCfg->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock))
+		unsigned __int64 Time;
+		while (HistoryCfg->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time))
 		{
 			if (EqualType(Type,HType))
 			{
@@ -188,6 +190,7 @@ int History::Select(VMenu &HistoryMenu, int Height, Dialog *Dlg, string &strStr)
    6 - Ctrl-Shift-Enter
    7 - Ctrl-Alt-Enter
 */
+
 int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMenu, int Height, int &Type, Dialog *Dlg)
 {
 	MenuItemEx MenuItem;
@@ -216,7 +219,11 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 			int HType;
 			bool HLock;
 			unsigned __int64 id;
-			while (HistoryCfg->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,TypeHistory==HISTORYTYPE_DIALOG))
+			unsigned __int64 Time;
+			SYSTEMTIME st;
+			GetLocalTime(&st);
+			int LastDay=0, LastMonth = 0, LastYear = 0;
+			while (HistoryCfg->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time,TypeHistory==HISTORYTYPE_DIALOG))
 			{
 				string strRecord;
 
@@ -226,14 +233,19 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 					strRecord += L":";
 					strRecord += (HType==4?L"-":L" ");
 				}
-
-				/*
-					TODO: возможно здесь! или выше....
-					char Date[16],Time[16], OutStr[32];
-					ConvertDate(HistoryItem->Timestamp,Date,Time,5,TRUE,FALSE,TRUE,TRUE);
-					а дальше
-					strRecord += дату и время
-				*/
+				SYSTEMTIME SavedTime;
+				FileTimeToSystemTime(reinterpret_cast<LPFILETIME>(&Time), &SavedTime);
+				if(LastDay != SavedTime.wDay || LastMonth != SavedTime.wMonth || LastYear != SavedTime.wYear)
+				{
+					LastDay = SavedTime.wDay;
+					LastMonth = SavedTime.wMonth;
+					LastYear = SavedTime.wYear;
+					MenuItemEx Separator={};
+					Separator.Flags = LIF_SEPARATOR;
+					string strTime;
+					ConvertDate(*reinterpret_cast<FILETIME*>(&Time), Separator.strName, strTime, 5, FALSE, FALSE, TRUE, TRUE); 
+					HistoryMenu.AddItem(&Separator);
+				}
 				strRecord += strHName;
 
 				if (TypeHistory != HISTORYTYPE_DIALOG)
@@ -330,7 +342,8 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 						int HType;
 						bool HLock;
 						unsigned __int64 id;
-						while (HistoryCfg->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock))
+						unsigned __int64 Time;
+						while (HistoryCfg->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time))
 						{
 							if (HLock) // залоченные не трогаем
 								continue;
@@ -592,7 +605,8 @@ bool History::GetAllSimilar(VMenu &HistoryMenu,const wchar_t *Str)
 	int HType;
 	bool HLock;
 	unsigned __int64 id;
-	while (HistoryCfg->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,true))
+	unsigned __int64 Time;
+	while (HistoryCfg->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time,true))
 	{
 		if (!StrCmpNI(Str,strHName,Length))
 		{
