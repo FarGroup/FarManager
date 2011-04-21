@@ -2476,23 +2476,23 @@ int FileEditor::EditorControl(int Command, void *Param)
 			if (!Flags.Check(FFILEEDIT_OPENFAILED) && Param)
 			{
 				EditorBookMarks *ebm = static_cast<EditorBookMarks*>(Param);
-				for(size_t i = 0; i < BOOKMARK_COUNT; i++)
+				for(int i = 0; i < BOOKMARK_COUNT; i++)
 				{
 					if (ebm->Line)
 					{
-						ebm->Line[i] = static_cast<long>(m_editor->SavePos.Line[i]);
+						ebm->Line[i] = m_editor->SavePos.Line[i];
 					}
 					if (ebm->Cursor)
 					{
-						ebm->Cursor[i] = static_cast<long>(m_editor->SavePos.LinePos[i]);
+						ebm->Cursor[i] = m_editor->SavePos.LinePos[i];
 					}
 					if (ebm->ScreenLine)
 					{
-						ebm->ScreenLine[i] = static_cast<long>(m_editor->SavePos.ScreenLine[i]);
+						ebm->ScreenLine[i] = m_editor->SavePos.ScreenLine[i];
 					}
 					if (ebm->LeftPos)
 					{
-						ebm->LeftPos[i] = static_cast<long>(m_editor->SavePos.LeftPos[i]);
+						ebm->LeftPos[i] = m_editor->SavePos.LeftPos[i];
 					}
 				}
 				return TRUE;

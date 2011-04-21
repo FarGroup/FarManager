@@ -613,7 +613,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_F_BM_GET:                   // N=BM.Get(Idx,M) - возвращает координаты строки (M==0) или колонки (M==1) закладки с индексом (Idx=1...)
 		{
 			__int64 Ret=-1;
-			long Val[1];
+			int Val[1];
 			EditorBookMarks ebm={0};
 			int iMode=(int)((INT_PTR)vParam);
 
@@ -5965,7 +5965,7 @@ int Editor::EditorControl(int Command,void *Param)
 	return FALSE;
 }
 
-int Editor::SetBookmark(DWORD Pos)
+int Editor::SetBookmark(int Pos)
 {
 	if (Pos < BOOKMARK_COUNT)
 	{
@@ -5979,7 +5979,7 @@ int Editor::SetBookmark(DWORD Pos)
 	return FALSE;
 }
 
-int Editor::GotoBookmark(DWORD Pos)
+int Editor::GotoBookmark(int Pos)
 {
 	if (Pos < BOOKMARK_COUNT)
 	{

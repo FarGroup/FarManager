@@ -4440,8 +4440,8 @@ static void CheckScreenLock()
 
 PluginA::PluginA(PluginManager *owner, const wchar_t *lpwszModuleName):
 	Plugin(owner,lpwszModuleName),
-	OEMApiCnt(0),
-	RootKey(nullptr)
+	RootKey(nullptr),
+	OEMApiCnt(0)
 {
 	ClearExports();
 	memset(&PI,0,sizeof(PI));

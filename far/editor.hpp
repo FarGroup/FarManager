@@ -250,8 +250,8 @@ class Editor:public ScreenObject
 		Edit* GetStringByNumber(int DestLine);
 		static void EditorShowMsg(const wchar_t *Title,const wchar_t *Msg, const wchar_t* Name,int Percent);
 
-		int SetBookmark(DWORD Pos);
-		int GotoBookmark(DWORD Pos);
+		int SetBookmark(int Pos);
+		int GotoBookmark(int Pos);
 
 		int ClearStackBookmarks();
 		int DeleteStackBookmark(InternalEditorStackBookMark *sb_delete);

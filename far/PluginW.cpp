@@ -210,7 +210,7 @@ static INT_PTR WINAPI FarAdvControlW(const GUID* PluginId, ADVANCED_CONTROL_COMM
 		WindowType* info=(WindowType*)Param;
 		if (info&&info->StructSize>=sizeof(WindowType))
 		{
-			long type=CurrentWindowType;
+			int type=CurrentWindowType;
 			switch(type)
 			{
 				case WTYPE_PANELS:
@@ -259,12 +259,12 @@ void PluginW::ReadCache(unsigned __int64 id)
 	{
 		memcpy(&MinFarVersion,&FAR_VERSION,sizeof(MinFarVersion));
 	}
-	
+
 	if (!PlCacheCfg->GetVersion(id, &PluginVersion))
 	{
 		memset(&PluginVersion, 0, sizeof(PluginVersion));
 	}
-	
+
 	m_strGuid = PlCacheCfg->GetGuid(id);
 	SetGuid(StrToGuid(m_strGuid,m_Guid)?m_Guid:FarGuid);
 	strTitle = PlCacheCfg->GetTitle(id);

@@ -1281,7 +1281,7 @@ struct WindowInfo
 struct WindowType
 {
 	size_t StructSize;
-	long Type;
+	int Type;
 };
 
 enum PROGRESSTATE
@@ -1609,10 +1609,10 @@ struct EditorInfo
 
 struct EditorBookMarks
 {
-	long *Line;
-	long *Cursor;
-	long *ScreenLine;
-	long *LeftPos;
+	int *Line;
+	int *Cursor;
+	int *ScreenLine;
+	int *LeftPos;
 	DWORD Reserved[4];
 };
 

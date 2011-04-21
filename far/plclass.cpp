@@ -133,11 +133,11 @@ bool Plugin::LoadData()
 
 	GlobalInfo Info={};
 
-	if(IsOemPlugin() || GetGlobalInfo(&Info) &&
+	if(IsOemPlugin() || (GetGlobalInfo(&Info) &&
 		Info.StructSize &&
 		Info.Title && *Info.Title &&
 		Info.Description && *Info.Description &&
-		Info.Author && *Info.Author)
+		Info.Author && *Info.Author))
 	{
 		MinFarVersion = Info.MinFarVersion;
 		PluginVersion = Info.Version;
