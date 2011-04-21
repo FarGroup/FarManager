@@ -932,6 +932,11 @@ bool VMenu::AddToFilter(const wchar_t *str)
 	return false;
 }
 
+void VMenu::SetFilterString(const wchar_t *str)
+{
+	strFilter=str;
+}
+
 int VMenu::ProcessKey(int Key)
 {
 	CriticalSectionLock Lock(CS);
@@ -2821,12 +2826,6 @@ int VMenu::FindItem(int StartIndex,const wchar_t *Pattern,UINT64 Flags)
 	return -1;
 }
 
-struct SortItemParam
-{
-	int Direction;
-	int Offset;
-};
-
 static int __cdecl SortItem(const MenuItemEx **el1, const MenuItemEx **el2, const SortItemParam *Param)
 {
 	string strName1((*el1)->strName);
@@ -2868,22 +2867,65 @@ void VMenu::SortItems(int Direction, int Offset, BOOL SortForDataDWORD)
 	if (!SortForDataDWORD) // обычная сортировка
 	{
 		qsortex((char *)Item,
-		        ItemCount,
-		        sizeof(*Item),
-		        (qsortex_fn)SortItem,
-		        &Param);
+				ItemCount,
+				sizeof(*Item),
+				(qsortex_fn)SortItem,
+				&Param);
 	}
 	else
 	{
 		qsortex((char *)Item,
-		        ItemCount,
-		        sizeof(*Item),
-		        (qsortex_fn)SortItemDataDWORD,
-		        &Param);
+				ItemCount,
+				sizeof(*Item),
+				(qsortex_fn)SortItemDataDWORD,
+				&Param);
 	}
 
 	// скорректируем SelectPos
 	UpdateSelectPos();
 
 	SetFlags(VMENU_UPDATEREQUIRED);
+}
+
+void VMenu::SortItems(TMENUITEMEXCMPFUNC user_cmp_func,int Direction,int Offset)
+{
+	CriticalSectionLock Lock(CS);
+
+	typedef int (__cdecl *qsortex_fn)(const void*,const void*,void*);
+
+	SortItemParam Param;
+	Param.Direction=Direction;
+	Param.Offset=Offset;
+
+	qsortex((char *)Item,
+			ItemCount,
+			sizeof(*Item),
+			(qsortex_fn)user_cmp_func,
+			&Param);
+
+	// скорректируем SelectPos
+	UpdateSelectPos();
+
+	SetFlags(VMENU_UPDATEREQUIRED);
+}
+
+bool VMenu::Pack()
+{
+	int OldItemCount=ItemCount;
+	int FirstIndex=0;
+
+	while (FirstIndex<ItemCount)
+	{
+		int LastIndex=ItemCount-1;
+		while (LastIndex>FirstIndex)
+		{
+			if (StrCmp(Item[FirstIndex]->strName,Item[LastIndex]->strName)==0)
+			{
+				DeleteItem(LastIndex);
+			}
+			LastIndex--;
+		}
+		FirstIndex++;
+	}
+	return (OldItemCount!=ItemCount);
 }

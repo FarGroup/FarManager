@@ -1152,6 +1152,7 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(F_MAX),
 		DEF_MCODE_(F_MENU_CHECKHOTKEY),
 		DEF_MCODE_(F_MENU_GETHOTKEY),           // S=gethotkey()
+		DEF_MCODE_(F_MENU_SHOW),           // S=Menu.Show(Items[,Title[,Flags[,FindOrFilter[,X[,Y]]]]])
 		DEF_MCODE_(F_MIN),
 		DEF_MCODE_(F_MSAVE),
 		DEF_MCODE_(F_MLOAD),

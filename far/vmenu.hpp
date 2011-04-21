@@ -189,6 +189,14 @@ struct MenuDataEx
 	DWORD SetGrayed(int Value) { if (Value) Flags|=LIF_GRAYED; else Flags&=~LIF_GRAYED; return Flags;}
 };
 
+struct SortItemParam
+{
+	int Direction;
+	int Offset;
+};
+
+typedef int (*TMENUITEMEXCMPFUNC)(const MenuItemEx *el1,const MenuItemEx *el2, const SortItemParam *Param);
+
 
 class ConsoleTitle;
 
@@ -252,11 +260,8 @@ class VMenu: public Modal
 		void UpdateMaxLengthFromTitles();
 		void UpdateMaxLength(int Length);
 		void UpdateInternalCounters(UINT64 OldFlags, UINT64 NewFlags);
-		void RestoreFilteredItems();
-		void FilterStringUpdated(bool bLonger);
 		bool IsFilterEditKey(int Key);
 		bool ShouldSendKeyToFilter(int Key);
-		bool AddToFilter(const wchar_t *str);
 		//коректировка текущей позиции и флагов SELECTED
 		void UpdateSelectPos();
 
@@ -316,6 +321,12 @@ class VMenu: public Modal
 		int  UpdateItem(const FarListUpdate *NewItem);
 		int  FindItem(const FarListFind *FindItem);
 		int  FindItem(int StartIndex,const wchar_t *Pattern,UINT64 Flags=0);
+		void RestoreFilteredItems();
+		void FilterStringUpdated(bool bLonger);
+		void SetFilterEnabled(bool bEnabled) { bFilterEnabled=bEnabled; };
+		void SetFilterLocked(bool bLocked) { bFilterEnabled=bLocked; };
+ 		bool AddToFilter(const wchar_t *str);
+ 		void SetFilterString(const wchar_t *str);
 
 		int  GetItemCount() { return ItemCount; };
 		int  GetShowItemCount() { return ItemCount-ItemHiddenCount; };
@@ -341,6 +352,9 @@ class VMenu: public Modal
 		struct MenuItemEx *GetItemPtr(int Position=-1);
 
 		void SortItems(int Direction=0,int Offset=0,BOOL SortForDataDWORD=FALSE);
+		void SortItems(TMENUITEMEXCMPFUNC user_cmp_func,int Direction=0,int Offset=0);
+		bool Pack();
+
 		BOOL GetVMenuInfo(struct FarListInfo* Info);
 
 		virtual const wchar_t *GetTypeName() {return L"[VMenu]";};

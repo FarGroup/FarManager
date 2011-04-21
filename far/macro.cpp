@@ -78,6 +78,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "imports.hpp"
 #include "CFileMask.hpp"
+#include "vmenu.hpp"
 
 // для диалога назначения клавиши
 struct DlgParam
@@ -321,6 +322,7 @@ static bool keyFunc(const TMacroFunction*);
 static bool lcaseFunc(const TMacroFunction*);
 static bool lenFunc(const TMacroFunction*);
 static bool maxFunc(const TMacroFunction*);
+static bool menushowFunc(const TMacroFunction*);
 static bool minFunc(const TMacroFunction*);
 static bool mloadFunc(const TMacroFunction*);
 static bool modFunc(const TMacroFunction*);
@@ -403,6 +405,7 @@ static TMacroFunction intMacroFunction[]=
 	{L"MENU.GETVALUE",    1, 1,   MCODE_F_MENU_GETVALUE,    nullptr, 0,nullptr,L"S=Menu.GetValue([N])",0,usersFunc},
 	{L"MENU.ITEMSTATUS",  1, 1,   MCODE_F_MENU_ITEMSTATUS,  nullptr, 0,nullptr,L"N=Menu.ItemStatus([N])",0,usersFunc},
 	{L"MENU.SELECT",      3, 2,   MCODE_F_MENU_SELECT,      nullptr, 0,nullptr,L"N=Menu.Select(S[,N[,Dir]])",0,usersFunc},
+	{L"MENU.SHOW",        6, 5,   MCODE_F_MENU_SHOW,        nullptr, 0,nullptr,L"S=Menu.Show(Items[,Title[,Flags[,FindOrFilter[,X[,Y]]]]])",IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT,menushowFunc},
 	{L"MIN",              2, 0,   MCODE_F_MIN,              nullptr, 0,nullptr,L"N=Min(N1,N2)",0,minFunc},
 	{L"MLOAD",            1, 0,   MCODE_F_MLOAD,            nullptr, 0,nullptr,L"N=MLoad(S)",0,mloadFunc},
 	{L"MMODE",            2, 1,   MCODE_F_MMODE,            nullptr, 0,nullptr,L"N=MMode(Action[,Value])",0,usersFunc},
@@ -2437,6 +2440,234 @@ static bool msgBoxFunc(const TMacroFunction*)
 	return true;
 }
 
+
+static int __cdecl CompareItems(const MenuItemEx **el1, const MenuItemEx **el2, const SortItemParam *Param)
+{
+	string strName1((*el1)->strName);
+	string strName2((*el2)->strName);
+	RemoveChar(strName1,L'&',TRUE);
+	RemoveChar(strName2,L'&',TRUE);
+	int Res = NumStrCmpI(strName1.CPtr()+Param->Offset,strName2.CPtr()+Param->Offset);
+	return (Param->Direction?(Res<0?1:(Res>0?-1:0)):Res);
+}
+
+//S=Menu.Show(Items[,Title[,Flags[,FindOrFilter[,X[,Y]]]]])
+//Flags:
+//0x001 - возвращаемый результат - индекс или строка
+//0x002 - разрешена отметка нескольких пунктов
+//0x004 - отсортировать (с учетом регистра)
+//0x008 - убирать дублирующиеся пункты
+//0x010 - автоматически назначать хоткеи |= VMENU_AUTOHIGHLIGHT
+//0x020 - FindOrFilter - найти или отфильтровать
+//0x040 - автоматическая нумерация строк
+//0x080 - BoxType
+//0x100 - BoxType
+//0x200 - BoxType
+//0x400 -
+static bool menushowFunc(const TMacroFunction*)
+{
+	TVar VY; VMStack.Pop(VY);
+	TVar VX; VMStack.Pop(VX);
+	TVar VFindOrFilter; VMStack.Pop(VFindOrFilter);
+	DWORD Flags = (DWORD)VMStack.Pop().getInteger();
+	TVar Title; VMStack.Pop(Title);
+	string strTitle=Title.toString();
+	string strBottom;
+	TVar Items; VMStack.Pop(Items);
+	string strItems = Items.toString();
+	strItems.Append(L"\r\n");
+	TVar Result = -1;
+
+	int BoxType = (Flags & 0x380)?((Flags & 0x380) >> 7)-1:3;
+	bool bAutoNumbering = (Flags & 0x40)?true:false;
+	int nLeftShift=bAutoNumbering?9:0;
+	int X = -1;
+	int Y = -1;
+	unsigned __int64 MenuFlags = VMENU_WRAPMODE;
+
+	if (!VX.isUnknown())
+		X=VX.toInteger();
+
+	if (!VY.isUnknown())
+		Y=VY.toInteger();
+
+	if (Title.isUnknown())
+		Title=L"";
+
+	bool MultiSelect = (Flags & 0x002)?true:false;
+
+	if (Flags & 0x010)
+		MenuFlags |= VMENU_AUTOHIGHLIGHT;
+
+	int SelectedPos=0;
+	int LineCount=0;
+	size_t PosCRLF;
+	size_t CurrentPos=0;
+	bool CRLFFound=strTitle.Pos(PosCRLF, L"\n");
+
+	if(CRLFFound)
+	{
+		strBottom=strTitle.SubStr(PosCRLF+1);
+		if (strTitle.IsSubStrAt(PosCRLF-1, L"\r"))
+			PosCRLF--;
+		strTitle=strTitle.SubStr(0,PosCRLF);
+	}
+	VMenu Menu(strTitle.CPtr(),nullptr,0,ScrY-4);
+	Menu.SetBottomTitle(strBottom.CPtr());
+	Menu.SetFlags(MenuFlags);
+	Menu.SetPosition(X,Y,0,0);
+	Menu.SetBoxType(BoxType);
+
+	CRLFFound=strItems.Pos(PosCRLF, L"\n");
+	while(CRLFFound)
+	{
+		MenuItemEx NewItem;
+		NewItem.Clear();
+ 		int	Shift=1;
+		if (strItems.IsSubStrAt(PosCRLF-1, L"\r"))
+		{
+ 			PosCRLF--;
+ 			Shift++;
+ 		}
+
+		NewItem.strName=strItems.SubStr(CurrentPos,PosCRLF-CurrentPos);
+		wchar_t *CurrentChar=(wchar_t *)NewItem.strName.CPtr();
+		bool bContunue=(*CurrentChar<=L'\x4');
+		while(*CurrentChar && bContunue)
+		{
+			switch (*CurrentChar)
+			{
+				case L'\x1':
+					NewItem.Flags|=LIF_SEPARATOR;
+					CurrentChar++;
+					break;
+
+				case L'\x2':
+					NewItem.Flags|=LIF_CHECKED;
+					CurrentChar++;
+					break;
+
+				case L'\x3':
+					NewItem.Flags|=LIF_DISABLE;
+					CurrentChar++;
+					break;
+
+				case L'\x4':
+					NewItem.Flags|=LIF_GRAYED;
+					CurrentChar++;
+					break;
+
+				default:
+				bContunue=false;
+				CurrentChar++;
+				break;
+			}
+		}
+		NewItem.strName=CurrentChar;
+		if (bAutoNumbering)
+		{
+			LineCount++;
+			NewItem.strName.Format(L"%6d - %s", LineCount, NewItem.strName.CPtr());
+		}
+		Menu.AddItem(&NewItem);
+		CurrentPos=PosCRLF+Shift;
+		CRLFFound=strItems.Pos(PosCRLF, L"\n",CurrentPos+1);
+	}
+
+	if (Flags & 0x004)
+		Menu.SortItems(reinterpret_cast<TMENUITEMEXCMPFUNC>(CompareItems));
+
+	if (Flags & 0x008)
+		Menu.Pack();
+
+	if (!VFindOrFilter.isUnknown())
+	{
+		if (Flags & 0x020)
+		{
+			Menu.SetFilterEnabled(true);
+			Menu.SetFilterString(VFindOrFilter.toString());
+			Menu.FilterStringUpdated(true);
+			Menu.Show();
+		}
+		else
+		{
+			if (VFindOrFilter.isInteger())
+			{
+				if (VFindOrFilter.toInteger()-1>=0)
+					Menu.SetSelectPos(VFindOrFilter.toInteger()-1,1);
+				else
+					Menu.SetSelectPos(Menu.GetItemCount()+VFindOrFilter.toInteger(),1);
+			}
+			else
+				if (VFindOrFilter.isString())
+					Menu.SetSelectPos(Max(0,Menu.FindItem(0, VFindOrFilter.toString())),1);
+		}
+	}
+
+	Menu.Show();
+
+	while (!Menu.Done() && !CloseFARMenu)
+	{
+		SelectedPos=Menu.GetSelectPos();
+		DWORD Key=Menu.ReadInput();
+		switch (Key)
+		{
+			case KEY_NUMPAD0:
+			case KEY_INS:
+				if (MultiSelect)
+				{
+					Menu.SetCheck(!Menu.GetCheck(SelectedPos));
+					Menu.Show();
+				}
+				break;
+
+			case KEY_CTRLADD:
+			case KEY_CTRLSUBTRACT:
+				if (MultiSelect)
+				{
+					for(int i=0; i<Menu.GetShowItemCount(); i++)
+					{
+						Menu.SetCheck((Key==KEY_CTRLADD), Menu.VisualPosToReal(i));
+					}
+					Menu.Show();
+				}
+
+			default:
+				Menu.ProcessInput();
+				break;
+		}
+	}
+
+	if (Menu.Modal::GetExitCode() >= 0)
+	{
+		SelectedPos=Menu.GetExitCode();
+		if (MultiSelect)
+		{
+			Result=L"";
+			for(int i=0; i<Menu.GetItemCount(); i++)
+			{
+				if (Menu.GetCheck(i))
+				{
+					Result+=(*Menu.GetItemPtr(i)).strName.CPtr()+nLeftShift;
+					Result+=L"\r\n";
+				}
+			}
+			if(Result==L"")
+			{
+				Result=(*Menu.GetItemPtr(SelectedPos)).strName.CPtr()+nLeftShift;
+			}
+		}
+		else
+			if(!(Flags & 0x1))
+				Result=(*Menu.GetItemPtr(SelectedPos)).strName.CPtr()+nLeftShift;
+			else
+				Result=SelectedPos+1;
+	}
+	Menu.Hide();
+
+	VMStack.Push(Result);
+	return true;
+}
 
 // S=env(S)
 static bool environFunc(const TMacroFunction*)
