@@ -2428,7 +2428,7 @@ MEditConfigScrollbar
 "Zobr&azovat posuvník"
 "Scro&llbalken anzeigen"
 "&Gördítősáv mutatva"
-"Pokaż %pasek przewijania"
+"Pokaż &pasek przewijania"
 "Mostrar barra de desp&lazamiento"
 
 MEditShowWhiteSpace
@@ -2799,8 +2799,8 @@ MCopyFiles
 "Copy %d item%s"
 "Kopírovat %d polož%s"
 "Kopiere %d Objekt%s"
-" %d elem másolása"
-"Skopiuj %d plików"
+" %d elem másolása%s"
+"Skopiuj %d plików%s"
 "Copiar %d ítem%s"
 
 MMoveFiles
@@ -2808,8 +2808,8 @@ MMoveFiles
 "Rename or move %d item%s"
 "Přejmenovat nebo přesunout %d polož%s"
 "Verschiebe %d Objekt%s"
-" %d elem átnevezése-mozgatása"
-"Zmień nazwę lub przenieś %d plików"
+" %d elem átnevezése-mozgatása%s"
+"Zmień nazwę lub przenieś %d plików%s"
 "Renombrar o mover %d ítem%s"
 
 MLinkFiles
@@ -3364,7 +3364,7 @@ l:
 "Konnte nicht kopieren"
 "Nem másolható"
 "Nie mogę skopiować"
-"No se puede copiar %s"
+"No se puede copiar"
 
 MCannotMove
 "Ошибка переноса"
@@ -3373,7 +3373,7 @@ MCannotMove
 "Konnte nicht verschieben"
 "Nem mozgatható"
 "Nie mogę przenieść"
-"No se puede mover %s"
+"No se puede mover"
 
 MCannotLink
 "Ошибка создания ссылки"
@@ -3382,7 +3382,7 @@ MCannotLink
 "Konnte nicht verlinken"
 "Nem linkelhető"
 "Nie mogę dowiązać"
-"No se puede enlazar %s"
+"No se puede enlazar"
 
 MCannotCopyTo
 "в"
@@ -3391,7 +3391,7 @@ MCannotCopyTo
 "nach"
 "ide:"
 "do"
-"hacia %s"
+"hacia"
 
 MCopyEncryptWarn1
 "Файл"
@@ -14209,7 +14209,7 @@ MEnterDescription
 "Beschreibung für"
 upd:"Írja be megjegyzését:"
 "Wprowadź opis"
-"Entrar descripción de %s"
+"Entrar descripción de"
 
 MReadingDiz
 l:
@@ -14909,7 +14909,7 @@ l:// for <!Macro:Vars!> and <!Macro:Consts!>, count formats = 1
 "„%s”"
 "„%s”"
 "„%s”"
-"%s"
+""%s""
 
 MMacroOutputFormatForHelpDWord
 l:// for <!Macro:Vars!> and <!Macro:Consts!>, count formats = 2
