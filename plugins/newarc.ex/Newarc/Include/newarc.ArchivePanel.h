@@ -16,11 +16,11 @@ private:
 	string m_strPathInArchive;
 	string m_strPanelTitle;
 
+	string m_strLastDestPath;
+
 	bool m_bPasswordSet;
 	string m_strPassword;
 	string m_strAdditionalCommandLine;
-
-	ArchiveItemArray m_pArchiveFiles;
 
 	InfoPanelLine* m_pArchiveInfo;
 	int m_nArchiveInfoItems;

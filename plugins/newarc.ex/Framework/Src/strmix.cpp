@@ -1,9 +1,6 @@
 #include "strmix.hpp"
 
-
-
-
-void CutTo (string& str, TCHAR symbol, bool bInclude)
+void CutTo(string& str, TCHAR symbol, bool bInclude)
 {
 	TCHAR *pBuffer = str.GetBuffer();
 
@@ -23,9 +20,6 @@ void AddEndSlash(string& str)
 		str += _T('\\');
 }
 
-
-
-
 void ConvertSlashes(string& strStr)
 {
 	TCHAR* pBuffer = strStr.GetBuffer();
@@ -39,4 +33,21 @@ void ConvertSlashes(string& strStr)
 	}
 
 	strStr.ReleaseBuffer();
+}
+
+
+void Quote(string& strStr)
+{
+	string strResult;
+
+	if ( strStr.At(0) != _T('\"') )
+	{
+		strResult += _T('\"');
+		strResult += strStr;
+	}
+
+	if ( strResult.At(strResult.GetLength()) != _T('\"') )
+		strResult += _T('\"');
+
+	strStr = strResult;
 }

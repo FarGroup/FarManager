@@ -4,8 +4,9 @@ FARSTANDARDFUNCTIONS FSF;
 PluginStartupInfo Info;
 
 ArchiveModuleManager* pManager;
+Configuration cfg;
 
-string strIniFileName;
+//string strIniFileName;
 
 
 const TCHAR *pCommandNames[11] = {
@@ -262,11 +263,12 @@ void __stdcall EXP_NAME(SetStartupInfo) (
 
 	pManager = new ArchiveModuleManager(strLanguage);
 
-	strIniFileName = Info.ModuleName;
+/*	strIniFileName = Info.ModuleName;
 
 	CutToSlash (strIniFileName);
-	strIniFileName += _T("templates.ini");
+	strIniFileName += _T("templates.ini");*/
 
+	cfg.uArchiverOutput = ARCHIVER_OUTPUT_SHOW_ALWAYS;
 }
 
 int __stdcall EXP_NAME(ProcessHostFile) (

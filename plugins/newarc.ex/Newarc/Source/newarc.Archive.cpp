@@ -52,6 +52,8 @@ Archive::Archive(
 	m_dwArchiveFileSizeLow = 0;
 
 	m_uid = pFormat->GetUID();
+
+	_tree = nullptr;
 }
 
 void Archive::SetPassword(const TCHAR* lpPassword)
@@ -59,10 +61,24 @@ void Archive::SetPassword(const TCHAR* lpPassword)
 	m_strPassword = lpPassword;
 }
 
-void Archive::SetCurrentDirectory(const TCHAR* lpPathInArchive)
+bool Archive::SetCurrentDirectory(const TCHAR* lpPathInArchive)
 {
-	m_strPathInArchive = lpPathInArchive;
-	AddEndSlash(m_strPathInArchive);
+	ArchiveTree* pResult = _current->GetNode(lpPathInArchive);
+
+	if ( pResult )
+	{
+		_current = pResult;
+		pResult->GetPath(m_strPathInArchive);
+
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+const TCHAR* Archive::GetCurrentDirectory()
+{
+	return m_strPathInArchive.GetString();
 }
 
 const GUID& Archive::GetUID() const
@@ -85,26 +101,69 @@ bool Archive::QueryCapability(DWORD dwFlags) const
 
 extern bool CheckForEsc();
 
-bool Archive::ReadArchive(ArchiveItemArray& items)
+
+bool Archive::ReadArchiveItems(bool bForce)
 {
-	if ( StartOperation(OPERATION_LIST, true) )
+	if ( bForce || WasUpdated() )
 	{
-		int nResult = E_SUCCESS;
+		FreeArchiveItems();
 
-		while ( (nResult == E_SUCCESS) && !CheckForEsc() )
+		_tree = new ArchiveTree();
+		_current = _tree;
+
+		if ( StartOperation(OPERATION_LIST, true) )
 		{
-			ArchiveItem* item = items.add();
+			int nResult = E_SUCCESS;
 
-			nResult = GetArchiveItem(item);
+			while ( (nResult == E_SUCCESS) && !CheckForEsc() )
+			{
+				ArchiveItem* item = new ArchiveItem;
+				memset(item, 0, sizeof(ArchiveItem));
 
-			if ( nResult != E_SUCCESS )
-				items.remove();
+				nResult = GetArchiveItem(item);
+
+				if ( nResult == E_SUCCESS )
+					_tree->AddItem(item->lpFileName, item);
+			}
+
+			EndOperation(OPERATION_LIST, true);
 		}
-
-		EndOperation(OPERATION_LIST, true);
 	}
 
 	return true;
+}
+
+
+void Archive::FreeArchiveItemsHelper(ArchiveTree* tree)
+{
+	if ( tree )
+	{
+		for (ArchiveTreeNodesIterator itr = tree->children.begin(); itr != tree->children.end(); ++itr)
+			FreeArchiveItemsHelper(itr->second);
+
+		if ( !tree->IsDummy() )
+		{
+			FreeArchiveItem(tree->item);
+			delete tree->item;
+		}
+	}
+}
+
+void Archive::FreeArchiveItems()
+{
+	FreeArchiveItemsHelper(_tree);
+
+	delete _tree;
+
+	_tree = nullptr;
+	_current = nullptr;
+}
+
+
+void Archive::GetArchiveTreeItems(Array<ArchiveTreeNode*>& items, bool bRecursive)
+{
+	for (ArchiveTreeNodesIterator itr = _current->children.begin(); itr != _current->children.end(); ++itr)
+		items.add(itr->second);
 }
 
 
@@ -132,6 +191,7 @@ bool Archive::WasUpdated()
 
 Archive::~Archive ()
 {
+	FreeArchiveItems();
 }
 
 int Archive::Extract(
@@ -417,13 +477,38 @@ ArchivePlugin* Archive::GetPlugin()
 
 bool Archive::GetDefaultCommand(
 		int nCommand,
-		string &strCommand,
+		string& strCommand,
 		bool& bEnabledByDefault
 		)
 {
 	return m_pModule->GetDefaultCommand(GetPlugin()->GetUID(), m_uid, nCommand, strCommand, bEnabledByDefault);
 }
 
+
+bool Archive::GetCommand(
+		int nCommand,
+		string& strCommand
+		)
+{
+	bool bEnabledByDefault = false;
+
+	if ( GetDefaultCommand(nCommand, strCommand, bEnabledByDefault) /*&& bEnabledByDefault*/)
+		return true;
+
+	//что здесь делает cfg???
+
+	std::map<const ArchiveFormat*, ArchiveFormatCommands*>::iterator itr = cfg.pArchiveCommands.find(m_pFormat);
+
+	if ( itr != cfg.pArchiveCommands.end() )
+	{
+		ArchiveFormatCommands* pCommands = itr->second;
+		strCommand = pCommands->Commands[nCommand];
+
+		return true;
+	}
+
+	return false;
+}
 
 #include "processname.cpp"
 
@@ -440,15 +525,14 @@ void QuoteSpaceOnly(string& strSrc)
 bool Archive::ExecuteCommand(
 		const ArchiveItemArray& items,
 		int nCommand,
-		const TCHAR* lpCurrentDiskPath 
+		const TCHAR* lpCurrentDiskPath
 		)
 {
 	bool bResult = false;
 
 	string strCommand;
-	bool bEnabledByDefault;
 
-	if ( GetDefaultCommand(nCommand, strCommand, bEnabledByDefault) && !strCommand.IsEmpty() && bEnabledByDefault )
+	if ( GetCommand(nCommand, strCommand) && !strCommand.IsEmpty() )
 	{
 		ParamStruct psParam;
 		FarPanelInfo info;
@@ -491,7 +575,7 @@ bool Archive::ExecuteCommand(
 
 		while ( true )
 		{
-			int nResult = ParseString (
+			int nResult = ParseString(
 					items,
 					strCommand,
 					strExecuteString,

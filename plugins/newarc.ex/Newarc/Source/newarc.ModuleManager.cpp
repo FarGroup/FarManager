@@ -27,12 +27,13 @@ bool ArchiveModuleManager::LoadIfNeeded()
 		strModulesPath += _T("templates.ini");
 		
 		LoadTemplates(strModulesPath);
-	/*	ArchiveFormatInfoArray formats;
 
-		GetFormats(formats);
 
-		__debug(_T("formats - %d"), formats.count());  
-		*/
+		CutToSlash(strModulesPath);
+		strModulesPath += _T("commands.ini");
+		
+		LoadCommands(strModulesPath);
+
 		m_bLoaded = true;
 	}
 
@@ -67,6 +68,12 @@ int __stdcall ArchiveModuleManager::LoadModules(
 
 ArchiveModuleManager::~ArchiveModuleManager()
 {
+	//раз в менеджере грузим опции, в нем и убьем
+	//завести отдельный класс!!!
+
+	for (std::map<const ArchiveFormat*, ArchiveFormatCommands*>::iterator itr = cfg.pArchiveCommands.begin(); itr != cfg.pArchiveCommands.end(); ++itr)
+		delete itr->second;
+
 	delete m_pFilter;
 }
 
@@ -330,6 +337,96 @@ void ArchiveModuleManager::CloseArchive(Archive* pArchive)
 		pArchive->GetModule()->CloseArchive(pArchive->GetPlugin()->GetUID(), pArchive->GetHandle());
 	
 	delete pArchive;
+}
+
+extern const TCHAR* pCommandNames[MAX_COMMANDS];
+
+bool ArchiveModuleManager::SaveCommands(const TCHAR* lpFileName)
+{
+	DeleteFile(lpFileName);
+
+	string strFileName = Info.ModuleName;
+
+	CutToSlash(strFileName);
+	strFileName += lpFileName;
+
+	for (std::map<const ArchiveFormat*, ArchiveFormatCommands*>::iterator itr = cfg.pArchiveCommands.begin(); itr != cfg.pArchiveCommands.end(); ++itr)
+	{
+		ArchiveFormatCommands* pCommands = itr->second;
+		ArchiveFormat* pFormat = pCommands->pFormat;
+
+		string strName = GUID2STR(pFormat->GetUID());
+
+		WritePrivateProfileString(strName, _T("Name"), pFormat->GetName(), strFileName);
+		WritePrivateProfileString(strName, _T("ModuleUID"), GUID2STR(pFormat->GetModule()->GetUID()), strFileName);
+		WritePrivateProfileString(strName, _T("PluginUID"), GUID2STR(pFormat->GetPlugin()->GetUID()), strFileName);
+		WritePrivateProfileString(strName, _T("FormatUID"), GUID2STR(pFormat->GetUID()), strFileName);
+
+		for (unsigned int i = 0; i < MAX_COMMANDS; i++)
+			WritePrivateProfileString(GUID2STR(pFormat->GetUID()), pCommandNames[i], pCommands->Commands[i], strFileName);
+	}
+
+	return true;
+}
+
+
+
+bool ArchiveModuleManager::LoadCommands(const TCHAR* lpFileName)
+{
+	TCHAR szNames[4096];
+
+	if ( !GetPrivateProfileSectionNames(szNames, 4096, lpFileName) )
+		return false;
+
+	Array<const TCHAR*> names;
+
+	const TCHAR *lpName = szNames;
+
+	while ( *lpName )
+	{
+		names.add(lpName);
+		lpName += _tcslen (lpName)+1;
+	}
+
+	for (unsigned int i = 0; i < names.count(); i++)
+	{
+		string strName = names[i];
+
+		TCHAR szGUID[64];
+		
+		GetPrivateProfileString(strName, _T("ModuleUID"), _T(""), szGUID, 64, lpFileName);
+		GUID uidModule = STR2GUID(szGUID);
+		
+		GetPrivateProfileString(strName, _T("PluginUID"), _T(""), szGUID, 64, lpFileName);
+		GUID uidPlugin = STR2GUID(szGUID);
+		
+		GetPrivateProfileString(strName, _T("FormatUID"), _T(""), szGUID, 64, lpFileName);
+		GUID uidFormat = STR2GUID(szGUID);
+
+		ArchiveFormat* pFormat = GetFormat(uidModule, uidPlugin, uidFormat);
+
+		if ( pFormat )
+		{
+			string strCommand;
+
+			ArchiveFormatCommands* pCommands = new ArchiveFormatCommands;
+
+			pCommands->pFormat = pFormat;
+
+			for (unsigned int j = 0; j < MAX_COMMANDS; j++)
+			{
+				TCHAR* pBuffer = strCommand.GetBuffer(260); //BUGBUG
+				GetPrivateProfileString(strName, pCommandNames[j], _T(""), pBuffer, 260, lpFileName);
+				strCommand.ReleaseBuffer();
+
+				pCommands->Commands[j] = strCommand;
+			}
+
+			cfg.pArchiveCommands.insert(std::pair<const ArchiveFormat*, ArchiveFormatCommands*>(pFormat, pCommands));
+		}
+	}
+
+	return true;
 }
 
 

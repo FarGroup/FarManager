@@ -31,7 +31,7 @@ const GUID& ObserverArchive::GetUID()
 
 ObserverArchive::~ObserverArchive()
 {
-	for (int i = 0; i < m_pArchiveInfo.count(); i++)
+	for (unsigned int i = 0; i < m_pArchiveInfo.count(); i++)
 	{
 		StrFree((void*)m_pArchiveInfo[i].lpName);
 		StrFree((void*)m_pArchiveInfo[i].lpValue);
@@ -46,7 +46,7 @@ bool ObserverArchive::Open()
 	{
 		memset(&m_Info, 0, sizeof(StorageGeneralInfo));
 
-		INT_PTR* hArchive = m_pPlugin->OpenStorage(m_strFileName, &m_Info);
+		HANDLE hArchive = m_pPlugin->OpenStorage(m_strFileName, &m_Info);
 
 		if ( hArchive )
 		{

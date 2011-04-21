@@ -102,6 +102,9 @@ private:
 
 	DWORD m_dwArchiveFileSizeLow;
 
+	ArchiveTree* _tree;
+	ArchiveTree* _current;
+
 public:
 
 	HANDLE GetHandle() const; 
@@ -118,8 +121,10 @@ public:
 	ArchiveModule* GetModule();
 	ArchivePlugin* GetPlugin();
 
-	bool WasUpdated();
-	bool ReadArchive(ArchiveItemArray& items);
+	bool ReadArchiveItems(bool bForce = false);
+	void FreeArchiveItems();
+
+	void GetArchiveTreeItems(Array<ArchiveTreeNode*>& items, bool bRecursive);
 
 	bool OpenArchive(int nMode);
 	void CloseArchive();
@@ -127,12 +132,14 @@ public:
 	bool StartOperation(int nOperation, bool bInternal);
 	void EndOperation(int nOperation, bool bInternal);
 
-	int GetArchiveItem(ArchiveItem *pItem);
-	bool FreeArchiveItem(ArchiveItem *pItem);
+	int GetArchiveItem(ArchiveItem* pItem);
+	bool FreeArchiveItem(ArchiveItem* pItem);
 
 	int GetArchiveInfo(const ArchiveInfoItem** pItems);
 
-	void SetCurrentDirectory(const TCHAR* lpPathInArchive);
+	bool SetCurrentDirectory(const TCHAR* lpPathInArchive);
+	const TCHAR* GetCurrentDirectory();
+
 	void SetPassword(const TCHAR* lpPassword);
 
 	int Extract(const ArchiveItemArray& items, const TCHAR *lpDestDiskPath, bool bWithoutPath);
@@ -142,11 +149,18 @@ public:
 
 	bool MakeDirectory(const TCHAR* lpDirectory);
 
-	bool GetDefaultCommand(int nCommand, string &strCommand, bool& bEnabledByDefault);
+	bool GetDefaultCommand(int nCommand, string& strCommand, bool& bEnabledByDefault);
+	bool GetCommand(int nCommand, string& strCommand);
 
 	bool ExecuteCommand(
 			const ArchiveItemArray& items, 
 			int nCommand, 
 			const TCHAR* lpCurrentDiskPath = NULL
 			);
+
+private:
+
+	bool WasUpdated();
+	void FreeArchiveItemsHelper(ArchiveTree* tree); //private
+
 };

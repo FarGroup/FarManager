@@ -45,7 +45,7 @@ ObserverModule::~ObserverModule()
 		for (unsigned int i = 0; i < m_Plugins.count(); i++)
 			StrFree((void*)m_pPluginInfo[i].lpModuleName);
 
-		delete [] m_pPluginInfo;			
+		delete [] m_pPluginInfo;
 	}
 }
 

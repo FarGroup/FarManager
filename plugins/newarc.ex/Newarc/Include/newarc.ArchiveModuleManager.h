@@ -53,4 +53,8 @@ public:
 
 	bool LoadTemplates(const TCHAR* lpFileName);
 	bool SaveTemplates(const TCHAR* lpFileName);
+
+	bool LoadCommands(const TCHAR* lpFileName);
+	bool SaveCommands(const TCHAR* lpFileName);
+
 };

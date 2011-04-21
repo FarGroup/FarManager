@@ -1,9 +1,11 @@
+//pFormat->GetDefaultCommand(command, strCommand, bEnabled); \
+
+
 #define DECLARE_COMMAND(str, command) \
 	{\
-		pFormat->GetDefaultCommand(command, strCommand, bEnabled); \
 		D.CheckBox(5, Y, bEnabled); \
 		D.Text (9, Y, str); \
-		D.Edit (33, Y++, 42, strCommand); \
+		D.Edit (33, Y++, 42, cfg.pArchiveCommands->Commands[command]); \
 	}
 
 void dlgCommandLinesAndParams(ArchiveFormat* pFormat)
@@ -11,7 +13,7 @@ void dlgCommandLinesAndParams(ArchiveFormat* pFormat)
 	int nHeight = 19;
 	int Y = 2;
 
-	bool bEnabled;
+	bool bEnabled = false;
 
 	string strCommand;
 	string strTitle;
@@ -22,8 +24,26 @@ void dlgCommandLinesAndParams(ArchiveFormat* pFormat)
 
 	D.DoubleBox (3, 1, 75, nHeight-2, strTitle); //0
 
-	for (int i = 0; i < 11; i++)
-		DECLARE_COMMAND (_M(MSG_dlgCLAP_S_EXTRACT+i), i);
+	ArchiveFormatCommands* pCommands = nullptr;
+	std::map<const ArchiveFormat*, ArchiveFormatCommands*>::iterator itr = cfg.pArchiveCommands.find(pFormat);
+
+	if ( itr != cfg.pArchiveCommands.end() )
+		pCommands = itr->second;
+
+	for (int i = 0; i < MAX_COMMANDS; i++)
+	{
+		D.CheckBox(5, Y, bEnabled);
+		D.Text(9, Y, _M(MSG_dlgCLAP_S_EXTRACT+i));
+
+		string strCommand;
+
+		if ( pCommands ) 
+			strCommand = pCommands->Commands[i];
+		else
+			pFormat->GetDefaultCommand(i, strCommand, bEnabled);
+
+		D.Edit(33, Y++, 42, strCommand);
+	}
 
 	D.Separator (Y++);
 
@@ -43,40 +63,25 @@ void dlgCommandLinesAndParams(ArchiveFormat* pFormat)
 
 	if ( D.Run() == D.FirstButton() )
 	{
-	//	SaveArchiveModuleParams (pModule, nFormat);
+		unsigned int uStartIndex = 3;
 
-		/*HKEY hKey;
-
-		string strRegKey;
-
-		strRegKey.Format(
-				_T("%s\\newarc\\formats\\%s"),
-				Info.RootKey,
-				GUID2STR (info->uid)
-				);
-
-		if ( RegCreateKeyEx (
-				HKEY_CURRENT_USER,
-				strRegKey,
-				0,
-				NULL,
-				0,
-				KEY_WRITE,
-				NULL,
-				&hKey,
-				NULL
-				) == ERROR_SUCCESS )
+		for (unsigned int i = 0; i < MAX_COMMANDS; i++)
 		{
-			for (int i = 0; i < 11; i++)
+			if ( pCommands )
+				pCommands->Commands[i] = D.GetResultData(uStartIndex);
+			else
 			{
-				RegSetStringValue (
-						hKey,
-						pCommandNames[i],
-						D.GetResultData(2+i*2)
-						);
+				pCommands = new ArchiveFormatCommands;
+
+				pCommands->pFormat = pFormat;
+				pCommands->Commands[i] = D.GetResultData(uStartIndex);
+
+				cfg.pArchiveCommands.insert(std::pair<const ArchiveFormat*, ArchiveFormatCommands*>(pFormat, pCommands));
 			}
 
-			RegCloseKey (hKey);
-		}*/
+			uStartIndex += 3;
+		}
+
+		pManager->SaveCommands(_T("commands.ini")); //не место этому тут
 	}
 }

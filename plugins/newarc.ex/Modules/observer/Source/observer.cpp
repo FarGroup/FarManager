@@ -28,8 +28,8 @@ int OnQueryArchive(QueryArchiveStruct *pQAS)
 	bool bMoreArchives = false;
 
 	const ArchiveQueryResult* pResult = pModule->QueryArchive(pQAS, bMoreArchives);
-    
-    if ( pResult )
+
+	if ( pResult )
 	{
 		pQAS->uidFormat = pResult->uidFormat;
 		pQAS->uidPlugin = pResult->uidPlugin;

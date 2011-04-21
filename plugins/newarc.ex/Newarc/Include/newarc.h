@@ -2,6 +2,7 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
+#include <map>
 
 #include "strmix.hpp"
 #include "SystemApi.hpp"
@@ -21,6 +22,7 @@ class Archive;
 class ArchiveModule;
 class ArchiveModuleManager;
 class ArchiveItemArray;
+class ArchivePItemArray;
 class ArchivePanel;
 class ArchiveFilter;
 class ArchivePlugin;
@@ -36,6 +38,7 @@ typedef Array<ArchiveModule*> ArchiveModuleArray;
 typedef Array<ArchiveFilterEntry*> ArchiveFilterArray;
 
 //self
+#include "newarc.ArchiveTree.h"
 #include "newarc.Archive.h"
 #include "newarc.ArchiveModule.h"
 #include "newarc.ArchiveFilter.h"
@@ -46,6 +49,26 @@ typedef Array<ArchiveFilterEntry*> ArchiveFilterArray;
 #include "itemarray.hpp"
 #include "newarc.ArchivePanel.h"
 #include "newarc.Messages.h"
+
+
+
+enum ArchiveOutputSettings {
+	ARCHIVER_OUTPUT_SHOW_ALWAYS,
+	ARCHIVER_OUTPUT_SHOW_EDIT_VIEW,
+	ARCHIVER_OUTPUT_SHOW_NEVER
+};
+
+struct ArchiveFormatCommands {
+	ArchiveFormat* pFormat;
+	string Commands[MAX_COMMANDS];
+};
+
+struct Configuration {
+	ArchiveOutputSettings uArchiverOutput;
+	std::map<const ArchiveFormat*, ArchiveFormatCommands*> pArchiveCommands;
+};
+
+extern Configuration cfg;
 
 #define _M(id) (TCHAR*)Info.GetMsg (Info.ModuleNumber, id)
 

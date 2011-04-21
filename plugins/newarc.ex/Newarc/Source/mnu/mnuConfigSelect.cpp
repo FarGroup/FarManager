@@ -13,7 +13,7 @@ void mnuConfigSelect()
 		int nResult = menu.Run();
 
 		if ( nResult == 0 )
-			dlgConfigure();
+			dlgConfigure(cfg);
 		else
 		
 		if ( nResult == 1 )

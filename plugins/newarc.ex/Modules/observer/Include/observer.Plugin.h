@@ -6,9 +6,11 @@ private:
 
 	GUID m_uid;
 
-	string m_strModuleName;	
+	string m_strModuleName;
 
 	LoadSubModuleFunc m_pfnLoadSubModule;
+	UnloadSubModuleFunc m_pfnUnloadSubModule;
+
 	OpenStorageFunc m_pfnOpenStorage;
 	CloseStorageFunc m_pfnCloseStorage;
 	GetItemFunc m_pfnGetStorageItem;
@@ -38,13 +40,13 @@ public:
 	void CloseArchive(ObserverArchive* pArchive);
 
 //observer
-	INT_PTR* OpenStorage(const TCHAR* lpFileName, StorageGeneralInfo* pInfo);
+	HANDLE OpenStorage(const TCHAR* lpFileName, StorageGeneralInfo* pInfo);
 	
-	void CloseStorage(INT_PTR* hArchive);
-	int GetStorageItem(INT_PTR* hArchive, int nIndex, ArchiveItem* pItem, unsigned int& uNumberOfFiles);
+	void CloseStorage(HANDLE hArchive);
+	int GetStorageItem(HANDLE hArchive, int nIndex, ArchiveItem* pItem, unsigned int& uNumberOfFiles);
 	
 	int ExtractItem(
-			INT_PTR* hArchive, 
+			HANDLE hArchive, 
 			int nIndex, 
 			const TCHAR* lpDestPath, 
 			ExtractProcessCallbacks* pCallbacks

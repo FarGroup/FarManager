@@ -15,7 +15,7 @@
 		break;
 
 
-const TCHAR *GetFlags (const TCHAR *p, DWORD &dwFlags)
+const TCHAR *GetFlags(const TCHAR *p, DWORD &dwFlags)
 {
 	dwFlags = 0;
 
@@ -71,69 +71,101 @@ void ProcessName (
 		bool bForList
 		)
 {
-	TCHAR* lpResult = strResult.GetBuffer(512); //BUGBUG
+	strResult = lpFileName;
 
-	_tcscpy (lpResult, lpFileName);
-
-	if ( OptionIsOn (dwFlags, PF_FLAG_PATH_ONLY) )
-		CutToSlash (lpResult);
+	if ( OptionIsOn(dwFlags, PF_FLAG_PATH_ONLY) )
+		CutToSlash(strResult);
 
 	if ( bForList )
 	{
-		if ( OptionIsOn (dwFlags, PF_FLAG_NAME_ONLY) )
-			if ( !OptionIsOn (dwFlags, PF_FLAG_PATH_ONLY) )
-				_tcscpy(lpResult, FSF.PointToName (lpFileName));
+		if ( OptionIsOn(dwFlags, PF_FLAG_NAME_ONLY) )
+			if ( !OptionIsOn(dwFlags, PF_FLAG_PATH_ONLY) )
+				strResult = FSF.PointToName(lpFileName);
 
-		if ( OptionIsOn (dwFlags, PF_FLAG_USE_BACKSLASH) )
-			for (size_t i = 0; i < _tcslen(lpResult); i++ )
-				if ( lpResult[i] == _T('\\') )
-					lpResult[i] = _T('/');
+		if ( OptionIsOn(dwFlags, PF_FLAG_USE_BACKSLASH) )
+		{
+			TCHAR* pBuffer = strResult.GetBuffer();
 
-		if ( OptionIsOn (dwFlags, PF_FLAG_QUOTE_SPACES) )
-			FSF.QuoteSpaceOnly (lpResult);
+			for (unsigned int i = 0; i < strResult.GetLength(); i++)
+			{
+				if ( pBuffer[i] == _T('\\') )
+					pBuffer[i] = _T('/');
+			}
 
-		if ( OptionIsOn (dwFlags, PF_FLAG_QUOTE_ALL) );
-			//NOT SUPPORTED YET!
+			strResult.ReleaseBuffer();
+		}
+
+		if ( OptionIsOn(dwFlags, PF_FLAG_QUOTE_SPACES) )
+			farQuoteSpaceOnly(strResult);
+
+		if ( OptionIsOn(dwFlags, PF_FLAG_QUOTE_ALL) )
+			Quote(strResult); //NOT TESTED!
 	}
-
-#ifndef UNICODE //???
-	if ( OptionIsOn (dwFlags, PF_FLAG_ANSI_CHARSET) )
-		OemToChar (lpResult, lpResult);
-#endif
-
-	strResult.ReleaseBuffer();
 }
 
 void WriteLine(HANDLE hFile, const TCHAR* lpLine, DWORD dwFlags)
 {
+	DWORD dwWritten;
 	string strProcessed;
 
-	ProcessName (
+	ProcessName(
 			lpLine,
 			strProcessed,
 			dwFlags,
 			true
 			);
 
+	//надо еще UTF-8 добавить и конвертацию OEM/ANSI
 
-	DWORD dwWritten;
+	if ( OptionIsOn(dwFlags, PF_FLAG_UTF16_CHARSET) )
+	{
+		const wchar_t* lpwszCRLF = L"\r\n";
 
-	const char* lpCRLF = "\r\n";
 #ifdef UNICODE
-	char* lpBuffer = UnicodeToAnsi(strProcessed);
+		const wchar_t* lpBuffer = strProcessed.GetString();
 #else
-	const char* lpBuffer = strProcessed;
+		wchar_t* lpBuffer = AnsiToUnicode(strProcessed);
 #endif
 
-	WriteFile (hFile, lpBuffer, strlen(lpBuffer), &dwWritten, NULL);
-	WriteFile (hFile, lpCRLF, 2, &dwWritten, NULL);
+		WriteFile (hFile, lpBuffer, wcslen(lpBuffer)*sizeof(wchar_t), &dwWritten, NULL);
+		WriteFile (hFile, lpwszCRLF, 2*sizeof(wchar_t), &dwWritten, NULL);
 
+#ifndef UNICODE
+		free(lpBuffer);
+#endif
+	}
+	else
+	{
+		char* lpBuffer = nullptr;
+		const char* lpCRLF = "\r\n";
+
+		if ( OptionIsOn(dwFlags, PF_FLAG_UTF8_CHARSET) )
+		{
 #ifdef UNICODE
-	free(lpBuffer);
+			lpBuffer = UnicodeToUTF8(strProcessed);
+#else
+			lpBuffer = AnsiToUnicode(strProcessed);
 #endif
+		}
+		else
+		{
+#ifdef UNICODE
+			lpBuffer = UnicodeToAnsi(strProcessed);
+#else
+			lpBuffer = StrDuplicate(strProcessed);
+#endif
+			if ( OptionIsOn(dwFlags, PF_FLAG_ANSI_CHARSET) )
+				OemToCharA(lpBuffer, lpBuffer);
+		}
+
+		WriteFile (hFile, lpBuffer, strlen(lpBuffer), &dwWritten, NULL);
+		WriteFile (hFile, lpCRLF, 2, &dwWritten, NULL);
+
+		free(lpBuffer);
+	}
 }
 
-void CreateListFile (
+void CreateListFile(
 		const ArchiveItemArray& items,
 		const TCHAR *lpListFileName,
 		int dwFlags
@@ -153,6 +185,12 @@ void CreateListFile (
 
 	if ( hListFile != INVALID_HANDLE_VALUE )
 	{
+		WORD wSignature = 0xFEFF;
+		DWORD dwWritten;
+
+		if ( OptionIsOn(dwFlags, PF_FLAG_UTF16_CHARSET) )
+			WriteFile(hListFile, &wSignature, 2, &dwWritten, NULL);
+
 		for (unsigned int i = 0; i < items.count(); i++)
 		{
 			const ArchiveItem *item = &items[i];
@@ -180,7 +218,7 @@ void CreateListFile (
 #define PE_SUCCESS		0
 #define PE_MORE_FILES	1
 
-int ParseString (
+int ParseString(
 		const ArchiveItemArray& items,
 		const TCHAR *lpString,
 		string &strResult,

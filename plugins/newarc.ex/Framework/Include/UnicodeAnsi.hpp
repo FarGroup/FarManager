@@ -99,3 +99,6 @@
 
 wchar_t* AnsiToUnicode(const char* lpSrc, int CodePage = CP_OEMCP);
 char* UnicodeToAnsi(const wchar_t* lpSrc, int CodePage = CP_OEMCP);
+
+char* UnicodeToUTF8(const wchar_t* lpSrc);
+char* AnsiToUTF8(const char* lpSrc, int CodePage = CP_OEMCP);

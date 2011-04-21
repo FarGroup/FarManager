@@ -15,7 +15,7 @@ enum enumUnpackFiles {
 bool dlgUnpackFiles(
 		const TCHAR* lpDestPath,
 		bool bMove,
-		string& strResultDestPath //source and dest
+		string& strResultDestPath 
 		)
 {
 	bool bResult = false;
@@ -27,7 +27,7 @@ bool dlgUnpackFiles(
 	D.DoubleBox(3, 1, 71, 11, bMove?_M(MUnpackFilesTitleMove):_M(MUnpackFilesTitle)); //0
 
 	D.Text(5, 2, _M(MUnpackFilesUnpackTo)); //1
-	D.Edit(5, 3, 65, strResultDestPath, AUTO_LENGTH, _T("")); //2
+	D.Edit(5, 3, 65, lpDestPath, AUTO_LENGTH, _T("")); //2
 
 	D.Separator(4);
 

@@ -1,5 +1,7 @@
 #include "UnicodeAnsi.hpp"
 
+//как-то ANSI тут неумно звучит
+
 wchar_t* AnsiToUnicode(const char* lpSrc, int CodePage)
 {
 	if ( !lpSrc )
@@ -24,6 +26,22 @@ char* UnicodeToAnsi(const wchar_t* lpSrc, int CodePage)
 	char* lpResult = (char*)malloc(nLength+1);
 
 	WideCharToMultiByte(CodePage, 0, lpSrc, -1, lpResult, nLength, NULL, NULL);
+
+	return lpResult;
+}
+
+char* UnicodeToUTF8(const wchar_t* lpSrc)
+{
+	return UnicodeToAnsi(lpSrc, CP_UTF8); //ааа!!!! ToAnsi!!!
+}
+
+char* AnsiToUTF8(const char* lpSrc, int CodePage)
+{
+	wchar_t* lpUnicode = AnsiToUnicode(lpSrc, CodePage);
+
+	char* lpResult = UnicodeToUTF8(lpUnicode);
+
+	free(lpUnicode);
 
 	return lpResult;
 }

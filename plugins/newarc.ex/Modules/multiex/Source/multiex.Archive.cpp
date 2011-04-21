@@ -96,7 +96,7 @@ bool MultiExArchive::Extract(
 LONG_PTR MultiExArchive::Callback (int nMsg, int nParam1, LONG_PTR nParam2)
 {
 	if ( m_pfnCallback )
-		return m_pfnCallback (m_hCallback, nMsg, nParam1, nParam2);
+		return m_pfnCallback(m_hCallback, nMsg, nParam1, nParam2);
 
 	return FALSE;
 }

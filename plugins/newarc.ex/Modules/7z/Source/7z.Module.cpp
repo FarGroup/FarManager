@@ -52,7 +52,7 @@ bool SevenZipModule::Load()
 
 	m_pPluginInfo = new ArchivePluginInfo[m_Plugins.count()];
 
-	for (int i = 0; i < m_Plugins.count(); i++)
+	for (unsigned int i = 0; i < m_Plugins.count(); i++)
 	{
 		SevenZipPlugin* pPlugin = m_Plugins[i];
 		ArchivePluginInfo* info = &m_pPluginInfo[i];
@@ -73,7 +73,7 @@ SevenZipModule::~SevenZipModule()
 {
 	if ( m_pPluginInfo )
 	{
-		for (int i = 0; i < m_Plugins.count(); i++)
+		for (unsigned int i = 0; i < m_Plugins.count(); i++)
 			StrFree((void*)m_pPluginInfo[i].lpModuleName);
 
 		delete m_pPluginInfo;
@@ -143,7 +143,7 @@ const ArchiveQueryResult* SevenZipModule::QueryArchive(const QueryArchiveStruct*
 		}
 		else
 		{
-			for (int i = 0; i < m_Plugins.count(); i++)
+			for (unsigned int i = 0; i < m_Plugins.count(); i++)
 				m_Plugins[i]->QueryArchives(pQAS->pBuffer, pQAS->dwBufferSize, pQAS->lpFileName, m_QueryPool);
 		}
 	}

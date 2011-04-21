@@ -1,22 +1,5 @@
 #include "newarc.h"
 
-bool IsFileInFolder(const TCHAR *lpCurrentPath, const TCHAR *lpFileName)
-{
-	int nLength = StrLength(lpCurrentPath);
-
-	bool bResult = nLength && !_tcsncmp(lpCurrentPath, lpFileName, nLength); //ў®Їа®б, ­г¦­® «Ё §¤Ґбм в®¦Ґ ЁЈ­®аЁа®ў вм аҐЈЁбва
-	
-	return bResult && ((
-			(lpFileName[nLength] == 0) || 
-			(lpFileName[nLength] == '/') || 
-			(lpFileName[nLength] == '\\')
-			) || (
-			(lpCurrentPath[nLength-1] == '\\') ||
-			(lpCurrentPath[nLength-1] == '/')
-			));
-}
-
-
 bool CheckForEsc ()
 {
 	bool EC = false;
@@ -117,16 +100,8 @@ int ArchivePanel::pGetFindData(
 
 #pragma message("check if pArchive exists!!")
 
-	if ( m_pArchive->WasUpdated() )
-	{
-		for (unsigned int i = 0; i < m_pArchiveFiles.count(); i++)
-			m_pArchive->FreeArchiveItem(&m_pArchiveFiles[i]);
-
-		m_pArchiveFiles.reset();
-
-		if ( !m_pArchive->ReadArchive(m_pArchiveFiles) )
-			return FALSE;
-	}
+	if ( !m_pArchive->ReadArchiveItems() )
+		return FALSE; //??? в ¬ ­Ґв FALSE
 
 	const ArchiveInfoItem* pInfoItems;
 
@@ -150,103 +125,31 @@ int ArchivePanel::pGetFindData(
 	}
 
 	ConstArray<PluginPanelItem> pPanelItems(100);
+	Array<ArchiveTreeNode*> items;
 
-	bool bIsFolder;
+	m_pArchive->GetArchiveTreeItems(items, false); //no recursive
 
-	for (unsigned int i = 0; i < m_pArchiveFiles.count(); i++)
+	for (unsigned int i = 0; i < items.count(); i++)
 	{
-		ArchiveItem* pItem = &m_pArchiveFiles[i];
+		PluginPanelItem item;
+		memset(&item, 0, sizeof(PluginPanelItem));
 
-		bIsFolder = false;
+		ArchiveTree* node = items.at(i);
+		const ArchiveItem* src = node->GetOriginalItem();
 
-		bool bFileInFolder = IsFileInFolder(m_strPathInArchive, pItem->lpFileName);
+		item.FindData.lpwszFileName = StrDuplicate(node->GetFileName());
+		item.FindData.lpwszAlternateFileName = StrDuplicate(node->GetFileName());
+		item.UserData = (DWORD_PTR)node;
 
-		if ( m_strPathInArchive.IsEmpty() || bFileInFolder ) 
+		if ( node->IsDummy() )
+			item.FindData.dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
+		else
 		{
-			const TCHAR* lpRealName = pItem->lpFileName+m_strPathInArchive.GetLength();
-
-			if ( bFileInFolder && *lpRealName )
-				lpRealName++;
-
-			if ( !*lpRealName )
-				continue;
-
-			TCHAR* lpFileName = StrDuplicate(lpRealName);
-
-			TCHAR* p = _tcschr(lpFileName, _T('\\'));
-
-			if ( p )
-			{
-				bIsFolder = true;
-				*p = 0;
-			}
-
-			bool bSkip = false;
-
-			for (unsigned int j = 0; j < pPanelItems.count(); j++)
-			{
-				PluginPanelItem* item = &pPanelItems[j];
-
-				if ( (item->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY )
-				{
-#ifdef UNICODE
-					if ( IsFileInFolder(item->FindData.lpwszFileName, lpFileName) )
-					//if ( !_tcscmp(item->FindData.lpwszFileName, lpFileName) )
-#else
-					if ( IsFileInFolder(item->FindData.cFileName, lpFileName) )
-					//if ( !_tcscmp(item->FindData.cFileName, lpFileName) )
-#endif
-					{
-						bSkip = true;
-						break;
-					}
-				}
-			}
-
-			if ( bSkip )
-				continue;
-
-			PluginPanelItem *item = pPanelItems.add();
-
-			//CHECK!!!
-			item->FindData.dwFileAttributes = pItem->dwFileAttributes;
-
-#ifdef UNICODE
-			item->FindData.nFileSize = pItem->nFileSize;
-			item->FindData.nPackSize = pItem->nPackSize;
-#else
-			item->FindData.nFileSizeHigh = (DWORD)(pItem->nFileSize >> 32);
-			item->FindData.nFileSizeLow = (DWORD)(pItem->nFileSize);
-
-			item->FindData.dwReserved0 = (DWORD)(pItem->nPackSize >> 32);
-			item->FindData.dwReserved1 = (DWORD)(pItem->nPackSize);
-#endif
-
-			item->CRC32 = pItem->dwCRC32;
-				
-			memcpy(&item->FindData.ftCreationTime, &pItem->ftCreationTime, sizeof(FILETIME));
-			memcpy(&item->FindData.ftLastAccessTime, &pItem->ftLastAccessTime, sizeof(FILETIME));
-			memcpy(&item->FindData.ftLastWriteTime, &pItem->ftLastWriteTime, sizeof(FILETIME));
-
-
-			if ( item )
-			{
-#ifdef UNICODE
-				item->FindData.lpwszFileName = StrDuplicate(lpFileName); 
-#else
-				_tcscpy (item->FindData.cFileName, lpFileName);
-#endif
-				if ( bIsFolder )
-				{
-					item->FindData.dwFileAttributes |= FILE_ATTRIBUTE_DIRECTORY;
-					item->UserData = 0;
-				}
-				else
-					item->UserData = (DWORD_PTR)pItem;
-			}
-
-			StrFree(lpFileName);
+			item.FindData.dwFileAttributes = src->dwFileAttributes;
+			item.FindData.nFileSize = src->nFileSize;
 		}
+
+		pPanelItems.add(item);
 	}
 
 	*pPanelItem = pPanelItems.data();
@@ -255,17 +158,19 @@ int ArchivePanel::pGetFindData(
 	return TRUE;
 }
 
-void ArchivePanel::pGetOpenPluginInfo (
+void ArchivePanel::pGetOpenPluginInfo(
 		OpenPluginInfo *pInfo
 		)
 {
-	pInfo->StructSize = sizeof (OpenPluginInfo);
+	pInfo->StructSize = sizeof(OpenPluginInfo);
 
 	pInfo->Flags = OPIF_USEFILTER | OPIF_USEHIGHLIGHTING | OPIF_USESORTGROUPS | OPIF_ADDDOTS;
 	pInfo->CurDir = m_strPathInArchive;
 
 	if ( m_pArchive )
 	{
+		
+
 		ArchiveFormat *pFormat = m_pArchive->GetFormat();
 
 		m_strPanelTitle.Format(
@@ -295,83 +200,46 @@ void ArchivePanel::pGetOpenPluginInfo (
 }
 
 
+unsigned __int64 GetArchiveItemsToProcessFromNode(ArchiveTreeNode* node, ArchiveItemArray& items)
+{
+	unsigned __int64 uTotalSize = 0;
 
-void ArchivePanel::GetArchiveItemsToProcess (
+	if ( !node->IsDummy() )
+	{
+		const ArchiveItem* item = node->GetOriginalItem();
+		uTotalSize = item->nFileSize;
+
+		items.add(*item);
+	}
+
+	for (ArchiveTreeNodesIterator itr = node->children.begin(); itr != node->children.end(); ++itr)
+		uTotalSize += GetArchiveItemsToProcessFromNode(itr->second, items);
+
+	return uTotalSize;
+}
+
+void ArchivePanel::GetArchiveItemsToProcess(
 		const PluginPanelItem *pPanelItems,
 		int nItemsNumber,
 		ArchiveItemArray &items
 		)
 {
-	ArchiveItem *dest = NULL;
-
 	m_OS.uTotalFiles = 0;
 	m_OS.uTotalSize = 0;
 
 	for (int i = 0; i < nItemsNumber; i++)
 	{
 		const FAR_FIND_DATA *data = &pPanelItems[i].FindData;
-		ArchiveItem *src = (ArchiveItem*)pPanelItems[i].UserData;
 
-		if ( src )
-		{
-			dest = items.add(*src);
+		ArchiveTreeNode* node = (ArchiveTreeNode*)pPanelItems[i].UserData;
 
-			dest->lpFileName = StrDuplicate(src->lpFileName);
-			dest->lpAlternateFileName = StrDuplicate(src->lpAlternateFileName);
-		}
-		else
-		{
-			dest = items.add();
-			//если мы сюда попали - у нас похоже проблемы.
+		//ад и кромешный пиздец. отдаем обратно модулю то, что он сам и навыделял. т.е. хоть эти ArchiveItem и новые, данные в них 
+		//старые. т.е. удалять их нельзя ни при каких обстоятельствах!
 
-			string strFullName;
-
-			if ( !m_strPathInArchive.IsEmpty() )
-			{
-				strFullName = m_strPathInArchive;
-				AddEndSlash(strFullName);
-			}
-
-			strFullName += FINDDATA_GET_NAME_PTR(data);
-
-			FindDataToArchiveItem(data, dest);
-
-			StrFree((void*)dest->lpFileName);
-			dest->lpFileName = StrDuplicate(strFullName);
-
-			dest->UserData = 0;
-		}
-
-		m_OS.uTotalSize += FINDDATA_GET_SIZE_PTR(data);
-
-		if ( OptionIsOn(data->dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) )
-		{
-			string strPath = m_strPathInArchive;
-
-			if ( !m_strPathInArchive.IsEmpty() )
-				strPath += _T("\\");
-
-			strPath += FINDDATA_GET_NAME_PTR(data);
-			strPath += _T("\\");
-
-			for (unsigned int k = 0; k < m_pArchiveFiles.count(); k++)
-			{
-				ArchiveItem *src = &m_pArchiveFiles[k];
-
-				if ( IsFileInFolder (strPath, src->lpFileName) )
-				{
-					dest = items.add(*src);
-
-					dest->lpFileName = StrDuplicate(src->lpFileName);
-					dest->lpAlternateFileName = StrDuplicate(src->lpAlternateFileName);
-
-					m_OS.uTotalSize += src->nFileSize;
-				}
-			}
-		}
+		m_OS.uTotalSize += GetArchiveItemsToProcessFromNode(node, items);
 	}
 
-	m_OS.uTotalFiles = items.count();
+	m_OS.uTotalFiles = items.count(); 
 }
 
 
@@ -587,17 +455,18 @@ int ArchivePanel::pGetFiles(
 	DestPath = *(TCHAR**)DestPath;
 #endif
 
-	string strDestPath = DestPath;
+	if ( OpMode & (OPM_VIEW | OPM_EDIT | OPM_FIND | OPM_QUICKVIEW) ) //hmm...
+		m_strLastDestPath = DestPath;
 
-	if ( ((OpMode & OPM_SILENT) == OPM_SILENT) || dlgUnpackFiles(DestPath, Move, strDestPath) )
+	if ( ((OpMode & OPM_SILENT) == OPM_SILENT) || dlgUnpackFiles(DestPath, Move, m_strLastDestPath) )
 	{
-		farPrepareFileName(strDestPath);
+		farPrepareFileName(m_strLastDestPath);
 
 		ArchiveItemArray items; //100??
 
 		GetArchiveItemsToProcess(PanelItem, ItemsNumber, items);
 
-		bResult = Extract(items, strDestPath, (OpMode == OPM_VIEW) || (OpMode == OPM_EDIT));
+		bResult = Extract(items, m_strLastDestPath, (OpMode == OPM_VIEW) || (OpMode == OPM_EDIT));
 
 		if ( Move && bResult )
 			bResult = Delete(items);
@@ -639,7 +508,10 @@ void ArchivePanel::pFreeFindData(
 #ifdef UNICODE
 
 	for (int i = 0; i < nItemsNumber; i++)
+	{
 		StrFree((void*)pPanelItem[i].FindData.lpwszFileName);
+		StrFree((void*)pPanelItem[i].FindData.lpwszAlternateFileName);
+	}
 #endif
 }
 
@@ -648,70 +520,18 @@ int ArchivePanel::pSetDirectory(
 		int nOpMode
 		)
 {
-	bool bResult = FALSE;
-
-	if ( !_tcscmp (Dir, _T("..")) )
+	if ( m_pArchive->SetCurrentDirectory(Dir) )
 	{
-		if ( _tcschr (m_strPathInArchive, _T('\\')) )
-			CutToSlash(m_strPathInArchive, true);
-		else
-			m_strPathInArchive = NULL;
-
-		bResult = TRUE;
-	}
-	else
-
-	if ( !_tcscmp (Dir, _T("\\")) )
-	{
-		m_strPathInArchive = NULL;
-
-		bResult = TRUE;
-	}
-	else
-	{
-		int nCurDirLength = m_strPathInArchive.GetLength();
-		int nDirLength = StrLength(Dir);
-
-		if ( nCurDirLength )
-			nCurDirLength++;
-
-		for (unsigned int i = 0; i < m_pArchiveFiles.count(); i++)
-		{
-			ArchiveItem *item = &m_pArchiveFiles[i];
-
-			const TCHAR *lpCurName = item->lpFileName;
-
-			if ( ((int)StrLength(lpCurName) >= nCurDirLength+nDirLength) &&
-					!_tcsncmp(Dir, lpCurName+nCurDirLength, nDirLength) )
-			{
-				const TCHAR *p = lpCurName+nCurDirLength+nDirLength;
-
-				if ( (*p == _T('\\')) || (*p == _T('/')) || !*p )
-				{
-					if ( !m_strPathInArchive.IsEmpty() )
-						m_strPathInArchive += _T("\\");
-
-					m_strPathInArchive += Dir;
-
-					bResult = TRUE;
-
-					break;
-				}
-			}
-		}
+		m_strPathInArchive = m_pArchive->GetCurrentDirectory();
+		return TRUE;
 	}
 
-	m_pArchive->SetCurrentDirectory(m_strPathInArchive);
-
-	return bResult;
+	return FALSE;
 }
 
 
 void ArchivePanel::pClosePlugin()
 {
-	for (unsigned int i = 0; i < m_pArchiveFiles.count(); i++)
-		m_pArchive->FreeArchiveItem(&m_pArchiveFiles[i]);
-
 	if ( m_pArchive )
 		m_pManager->CloseArchive(m_pArchive);
 

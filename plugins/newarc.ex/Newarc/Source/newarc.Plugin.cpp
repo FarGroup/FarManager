@@ -28,7 +28,7 @@ const GUID& ArchivePlugin::GetUID() const
 
 bool ArchivePlugin::QueryCapability(DWORD dwFlags) const
 {
-	return (m_dwFlags & dwFlags) == dwFlags; 
+	return (m_dwFlags & dwFlags) == dwFlags;
 }
 
 ArchiveModule* ArchivePlugin::GetModule()

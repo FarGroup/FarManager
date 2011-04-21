@@ -43,6 +43,8 @@
 #define COMMAND_RECOVER					9
 #define COMMAND_ADD						10
 
+#define MAX_COMMANDS 11
+
 #define AIF_CRYPTED		1
 #define AIF_SOLID		2
 

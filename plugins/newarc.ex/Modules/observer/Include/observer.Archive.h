@@ -16,7 +16,7 @@ public:
 	ObserverPlugin* m_pPlugin;
 	StorageGeneralInfo m_Info;
 
-	INT_PTR* m_hArchive;
+	HANDLE m_hArchive;
 	string m_strFileName;
 
 	ARCHIVECALLBACK m_pfnCallback;
