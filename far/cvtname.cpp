@@ -190,6 +190,7 @@ void MixToFullPath(string& strPath)
 				case 0:
 				{
 					pstPath[m] = 0;
+					pstPath[m-1] = 0;
 					continue;
 				}
 				break;
