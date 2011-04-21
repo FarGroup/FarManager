@@ -3,6 +3,33 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 21.04.2011 21:21:21 +0200 - build 1984
+
+1. Mantis#0001100: AltShiftIns on .. copies path with the trailing backslash into the clipboard
+
+svs 21.04.2011 20:50:39 +0300 - build 1983
+
+1. Mantis#0001751: Menu creation in macro
+   A macrofunction is added, Menu.Show()
+     S=Menu.Show(Items[,Title[,Flags[,FindOrFilter[,X[,Y]]]]])
+   see the Encyclopedia for the description.
+
+drkns 21.04.2011 16:44:21 +0200 - build 1982
+
+1. History items selection did not work in x64, and maybe something else, because the problem was deeper.
+
+2. Histories are displayes with separation by days.
+
+3. Some more minorities.
+
+t-rex 21.04.2011 03:19:32 +0200 - build 1981
+
+1. Warnings etc.
+
+t-rex 21.04.2011 01:56:16 +0200 - build 1980
+
+1. poscache in sqlite, it will be stored along with the history, 50% completed, does not work yet.
+
 t-rex 20.04.2011 21:14:08 +0200 - build 1979
 
 1. The history is now located in %LOCALAPPDATA% by default (no configuration yet).
