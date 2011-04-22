@@ -290,18 +290,18 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, ADVANCED_CONTROL_COMMANDS Com
 		*/
 		case ACTL_WAITKEY:
 		{
-			return WaitKey(Param2?(DWORD)(DWORD_PTR)Param2:(DWORD)-1,0,false);
+			return WaitKey(Param1?Param1:-1,0,false);
 		}
 		/* $ 04.12.2000 SVS
 		  ACTL_GETCOLOR - получить определенный цвет по индекс, определенному
 		   в farcolor.hpp
-		  (int)Param - индекс.
+		  Param1 - индекс.
 		  Return - значение цвета или -1 если индекс неверен.
 		*/
 		case ACTL_GETCOLOR:
 		{
-			if ((int)(INT_PTR)Param2 < SizeArrayPalette && (int)(INT_PTR)Param2 >= 0)
-				return (int)((unsigned int)Palette[(int)(INT_PTR)Param2]);
+			if (Param1 < SizeArrayPalette && Param1 >= 0)
+				return Palette[Param1];
 
 			return -1;
 		}
@@ -403,7 +403,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, ADVANCED_CONTROL_COMMANDS Com
 				if (wi->Pos == -1)
 					f=FrameManager->GetCurrentFrame();
 				else
-					f=FrameManager->operator[](wi->Pos);
+					f=(*FrameManager)[wi->Pos];
 
 				if (!f)
 					return FALSE;
@@ -460,7 +460,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, ADVANCED_CONTROL_COMMANDS Com
 		case ACTL_SETCURRENTWINDOW:
 		{
 			// Запретим переключение фрэймов, если находимся в модальном редакторе/вьюере.
-			if (FrameManager && !FrameManager->InModalEV() && FrameManager->operator[]((int)(INT_PTR)Param2))
+			if (FrameManager && !FrameManager->InModalEV() && (*FrameManager)[Param1])
 			{
 				int TypeFrame=FrameManager->GetCurrentFrame()->GetType();
 
@@ -468,7 +468,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, ADVANCED_CONTROL_COMMANDS Com
 				if (TypeFrame != MODALTYPE_HELP && TypeFrame != MODALTYPE_DIALOG)
 				{
 					Frame* PrevFrame = FrameManager->GetCurrentFrame();
-					FrameManager->ActivateFrame((int)(INT_PTR)Param2);
+					FrameManager->ActivateFrame(Param1);
 					FrameManager->DeactivateFrame(PrevFrame, 0);
 					return TRUE;
 				}
@@ -634,7 +634,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, ADVANCED_CONTROL_COMMANDS Com
 
 		case ACTL_SETPROGRESSSTATE:
 		{
-			TBC.SetProgressState(static_cast<TBPFLAG>(reinterpret_cast<INT_PTR>(Param2)));
+			TBC.SetProgressState(static_cast<TBPFLAG>(Param1));
 			return TRUE;
 		}
 

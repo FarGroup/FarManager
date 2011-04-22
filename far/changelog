@@ -1,3 +1,7 @@
+drkns 22.04.2011 16:16:16 +0200 - build 1988
+
+1. ACTL_GETCOLOR, ACTL_SETCURRENTWINDOW, ACTL_SETPROGRESSSTATE, ACTL_WAITKEY используют Param1.
+
 drkns 22.04.2011 15:44:44 +0200 - build 1987
 
 1. Все *Control-функции теперь возвращают INT_PTR.

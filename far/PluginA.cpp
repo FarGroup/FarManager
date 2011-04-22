@@ -3350,9 +3350,9 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 		case oldfar::ACTL_WAITKEY:
 			return FarAdvControl(ModuleNumber, ACTL_WAITKEY, 0, Param);
 		case oldfar::ACTL_GETCOLOR:
-			return FarAdvControl(ModuleNumber, ACTL_GETCOLOR, 0, Param);
+			return FarAdvControl(ModuleNumber, ACTL_GETCOLOR, static_cast<int>(reinterpret_cast<INT_PTR>(Param)), nullptr);
 		case oldfar::ACTL_GETARRAYCOLOR:
-			return FarAdvControl(ModuleNumber, ACTL_GETARRAYCOLOR, 0, Param);
+			return FarAdvControl(ModuleNumber, ACTL_GETARRAYCOLOR, static_cast<int>(reinterpret_cast<INT_PTR>(Param)), nullptr);
 		case oldfar::ACTL_EJECTMEDIA:
 			return FarAdvControl(ModuleNumber, ACTL_EJECTMEDIA, 0, Param);
 		case oldfar::ACTL_KEYMACRO:
@@ -3552,7 +3552,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 		case oldfar::ACTL_GETWINDOWCOUNT:
 			return FarAdvControl(ModuleNumber, ACTL_GETWINDOWCOUNT, 0, 0);
 		case oldfar::ACTL_SETCURRENTWINDOW:
-			return FarAdvControl(ModuleNumber, ACTL_SETCURRENTWINDOW, 0, Param);
+			return FarAdvControl(ModuleNumber, ACTL_SETCURRENTWINDOW, static_cast<int>(reinterpret_cast<INT_PTR>(Param)), nullptr);
 		case oldfar::ACTL_COMMIT:
 			return FarAdvControl(ModuleNumber, ACTL_COMMIT, 0, 0);
 		case oldfar::ACTL_GETFARHWND:

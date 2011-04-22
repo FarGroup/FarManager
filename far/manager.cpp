@@ -228,7 +228,7 @@ void Manager::DeleteFrame(int Index)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::DeleteFrame(int Index)"));
 	_MANAGER(SysLog(L"Index=%i",Index));
-	DeleteFrame(this->operator[](Index));
+	DeleteFrame((*this)[Index]);
 }
 
 
