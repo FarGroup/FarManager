@@ -1,5 +1,7 @@
 #pragma once
 
+#define _M(id) (TCHAR*)Info.GetMsg(Info.ModuleNumber, id)
+
 //far
 #include "FarPluginBase.hpp"
 #include "SystemApi.hpp"
@@ -39,7 +41,7 @@ struct ArchiveItemEx {
 	const ArchiveItem *pItem;
 };
 
-
+#include "7z.Messages.h"
 #include "7z.Commands.h"
 #include "7z.Module.h"
 #include "7z.DetectArchive.h"

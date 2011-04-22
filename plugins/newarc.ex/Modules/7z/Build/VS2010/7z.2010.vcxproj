@@ -336,6 +336,23 @@
     <ClCompile Include="..\..\Source\Helpers\7z.CryptoGetTextPassword.cpp" />
     <ClCompile Include="..\..\Source\PropVariant.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\Locale\7z.feed">
+      <FileType>Document</FileType>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug Unicode|Win32'">Building 7z language files</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building 7z language files</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release Unicode|Win32'">Building 7z language files</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building 7z language files</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug Unicode|Win32'">"../../../../Tools/lng.generator.exe" -ol "$(OutDir)\" -oh "..\..\Include" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"../../../../Tools/lng.generator.exe" -ol "$(OutDir)\" -oh "..\..\Include" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release Unicode|Win32'">"../../../../Tools/lng.generator.exe" -ol "$(OutDir)\" -oh "..\..\Include" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"../../../../Tools/lng.generator.exe" -ol "$(OutDir)\" -oh "..\..\Include" "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug Unicode|Win32'">$(OutDir)\7z.Russian.lng;$(OutDir)\7z.English.lng</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)\7z.Russian.lng;$(OutDir)\7z.English.lng</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release Unicode|Win32'">$(OutDir)\7z.Russian.lng;$(OutDir)\7z.English.lng</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)\7z.Russian.lng;$(OutDir)\7z.English.lng</Outputs>
+    </CustomBuild>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -1,0 +1,14 @@
+﻿#hpp name
+7z.Messages.h
+#hpp encoding
+866
+#lang count
+2
+#id:0
+7z.Russian.lng 866 Russian "Russian (Русский)"
+#id:1
+7z.English.lng 866 English "English"
+
+MTest
+"Тест"
+"Test"

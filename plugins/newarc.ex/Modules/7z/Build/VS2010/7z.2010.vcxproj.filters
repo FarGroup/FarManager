@@ -22,6 +22,9 @@
     <Filter Include="Source Files\Helpers">
       <UniqueIdentifier>{32223930-e943-4c26-a56d-17072ff4f584}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Locale">
+      <UniqueIdentifier>{bc4d1259-66ab-47ea-92c4-6de78e5e3182}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Common\Detect\7zdetect.cpp">
@@ -150,5 +153,10 @@
     <ClCompile Include="..\..\Source\7z.Properties.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\Locale\7z.feed">
+      <Filter>Source Files\Locale</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>
