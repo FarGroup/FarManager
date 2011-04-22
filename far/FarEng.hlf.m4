@@ -181,7 +181,7 @@ will be loaded from cache;
 and from the path given at the "~Path for personal plugins~@PluginsManagerSettings@" parameter.
 
   #/m#
-  FAR will not load macros from the registry when started.
+  FAR will not load macros when started.
 
   #/ma#
   Macros with the "Run after FAR start" option set will not be run when FAR is started.
@@ -231,7 +231,7 @@ $ #Keyboard reference#
 
  ~Mouse: wheel support~@MsWheel@
 
- ~Miscellaneous~@MiscCmd@
+ ~Common controls~@MiscCmd@
 
 
 @PanelCmd
@@ -677,27 +677,41 @@ listed in the environment variable %PATHEXT%):
 
 
 @MiscCmd
-$ #Panel control commands - miscellaneous#
+$ #Common control commands#
+ #Screen grabber#
+
   Screen grabber                                             #Alt-Ins#
 
-    Screen grabber allows to select and copy to the clipboard any screen area.
+  Screen grabber allows to select and copy to the clipboard any screen area.
 
-  Use #arrow# keys or click the #left mouse button# to move the cursor. 
-  To select text use #Shift-arrow# keys or drag the mouse while holding the 
+  Use #arrow# keys or click the #left mouse button# to move the cursor.
+  To select text use #Shift-arrow# keys or drag the mouse while holding the
 #left mouse button#.
   To extend or shrink selected area use #Alt-Shift-arrow# keys.
   To move selected area use #Alt-arrow# keys.
   #Enter#, #Ctrl-Ins#, #right mouse button# or #doubleclick# copy
 selected text to the clipboard, #Ctrl-<Gray +># appends it to the clipboard
-contents, #Esc# leaves the grabbing mode. 
+contents, #Esc# leaves the grabbing mode.
   #Ctrl-A# - select whole screen.
   #Ctrl-U# - deselect block.
 
+ #Keyboard macros#
+
   Record a ~keyboard macro~@KeyMacro@                                   #Ctrl-<.>#
+
+ #Menus and dropdown lists#
+
+  Enable/disable filtering mode                           #Ctrl-Alt-F#
+  Lock/unlock filter                                      #Ctrl-Alt-L#
+
+  When in filter mode, you can filter the displayed items by entering
+text.
+
+ #Dialogs#
 
   History in dialog edit controls                 #Ctrl-Up, Ctrl-Down#
 
-    In dialog edit control history you may use #Enter# to copy the current item
+  In dialog edit control history you may use #Enter# to copy the current item
 to the edit control and #Ins# to mark or unmark an item. Marked items are not
 pushed out of history by new items, so you may mark frequently used strings so
 that you will always have them in the history.
@@ -709,36 +723,38 @@ that you will always have them in the history.
 
   Set the dialog focus to the default element                   #PgDn#
 
+  The following combinations are valid for all edit controls except the
+command line, including dialogs and the ~internal editor~@Editor@.
+
   Insert a file name under cursor to dialog              #Shift-Enter#
 
   Insert a file name from passive panel to dialog   #Ctrl-Shift-Enter#
 
-    This key combination is valid for all edit controls except the command
-line, including dialogs and the ~internal editor~@Editor@.
-
-    Pressing #Ctrl-Enter# in dialogs executes the default action (pushes the
+  Pressing #Ctrl-Enter# in dialogs executes the default action (pushes the
 default button or does another similar thing).
 
-    In dialogs, when the current control is a check box:
+  In dialogs, when the current control is a check box:
 
   - turn on (#[x]#)                                             #Gray +#
   - turn off (#[ ]#)                                            #Gray -#
   - change to undefined (#[?]#)                                 #Gray *#
     (for three-state checkboxes)
 
-    #Left clicking# outside the dialog works the same as pressing #Esc#.
+  #Left clicking# outside the dialog works the same as pressing #Esc#.
 
-    #Right clicking# outside the dialog works the same as pressing #Enter#.
+  #Right clicking# outside the dialog works the same as pressing #Enter#.
 
-    Clicking the #middle mouse button# in the ~panels~@PanelCmd@ has the same
+  You can move a dialog (window) by dragging it with mouse or by pressing
+#Ctrl-F5# and using #arrow# keys.
+
+ #Mouse#
+
+  Clicking the #middle mouse button# in the ~panels~@PanelCmd@ has the same
 effect as pressing the #Enter# key with the same modifiers (#Ctrl#, #Alt#,
 #Shift#). If the ~command line~@CmdLineCmd@ is not empty, its contents will be
 executed.
 
-    FAR Manager also supports the ~mouse wheel~@MsWheel@.
-
-    You can move a dialog (window) by dragging it with mouse or by pressing
-#Ctrl-F5# and using #arrow# keys.
+  FAR Manager also supports the ~mouse wheel~@MsWheel@.
 
 
 @MsWheel
@@ -1902,10 +1918,10 @@ sequence to execute when this item will be selected.
     When you edit or create a submenu, you should enter the hot key and the
 item title only.
 
-    Local user menus are stored in the text files #FarMenu.Ini#. The main menu,
-by default, is stored in the registry, but it is possible to store it in a
-file. If you create a local menu in the FAR folder, it will be used instead of
-the main menu saved in the registry.
+    User menus are stored in text files named #FarMenu.Ini#:
+    - Global user menu, by default, is located in the Far Manager folder.
+    - User specifc user menu is located in the user profile.
+    - Local user menu is located in the current folder.
 
     To close the menu even if submenus are open use #Shift-F10#.
 
@@ -2308,7 +2324,7 @@ $ #Settings dialog: dialogs#
                           pressed.
 
   #Mouse click outside#     #Right/left mouse click# outside a dialog
-  #a dialog closes it#      closes the dialog (see ~Miscellaneous~@MiscCmd@).
+  #a dialog closes it#      closes the dialog (see ~Common~@MiscCmd@).
                           This option allows to switch off this
                           functionality.
 
@@ -4437,7 +4453,7 @@ documentation.
 
 @KeyMacroList
 $ #Макросы: Список установленных макросов#
-    Ниже приведен список разделов, в которых можно узнать какие ~макросы~@KeyMacro@ 
+    Ниже приведен список разделов, в которых можно узнать какие ~макросы~@KeyMacro@
 действуют в текущей сессии Far Manager.
 
   ~Список переменных~@KeyMacroVarList@
@@ -4459,12 +4475,12 @@ $ #Макросы: Список установленных макросов#
   ~Меню выбора дисков~@KeyMacroDisksList@
   ~Меню пользователя~@KeyMacroUserMenuList@
   ~Прочие меню~@KeyMacroMenuList@
-  
+
   ~Программа просмотра~@KeyMacroViewerList@
   ~Редактор~@KeyMacroEditList@
-  
+
   ~Файл помощи#~@KeyMacroHelpList@
-  
+
   ~Остальные области~@KeyMacroOtherList@
 
 @KeyMacroVarList
