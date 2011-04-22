@@ -66,6 +66,24 @@ History::~History()
 {
 }
 
+void History::CompactHistory()
+{
+	HistoryCfg->BeginTransaction();
+
+	HistoryCfg->DeleteOldUnlocked(HISTORYTYPE_CMD,L"",90,1000);
+	HistoryCfg->DeleteOldUnlocked(HISTORYTYPE_FOLDER,L"",90,1000);
+	HistoryCfg->DeleteOldUnlocked(HISTORYTYPE_VIEW,L"",90,1000);
+
+	DWORD index=0;
+	string strName;
+	while (HistoryCfg->EnumLargeHistories(index++, 1000, HISTORYTYPE_DIALOG, strName))
+	{
+		HistoryCfg->DeleteOldUnlocked(HISTORYTYPE_DIALOG,strName,90,1000);
+	}
+
+	HistoryCfg->EndTransaction();
+}
+
 /*
    SaveForbid - принудительно запретить запись добавляемой строки.
                 Используется на панели плагина
@@ -106,8 +124,7 @@ void History::AddToHistory(const wchar_t *Str, int Type, const wchar_t *Prefix, 
 		{
 			if (EqualType(Type,HType))
 			{
-				if ((RemoveDups==1 && !StrCmp(strName,strHName)) ||
-				        (RemoveDups==2 && !StrCmpI(strName,strHName)))
+				if ((RemoveDups==1 && !StrCmp(strName,strHName)) || (RemoveDups==2 && !StrCmpI(strName,strHName)))
 				{
 					Lock = Lock || HLock;
 					HistoryCfg->Delete(id);
@@ -117,18 +134,7 @@ void History::AddToHistory(const wchar_t *Str, int Type, const wchar_t *Prefix, 
 		}
 	}
 
-	FILETIME Timestamp;
-	GetSystemTimeAsFileTime(&Timestamp); // in UTC
-
-	ULARGE_INTEGER i;
-	i.LowPart = Timestamp.dwLowDateTime;
-	i.HighPart = Timestamp.dwHighDateTime;
-
-	HistoryCfg->Add(TypeHistory, strHistoryName, strName, Type, Lock, i.QuadPart);
-
-	//delete entries older than 90 days
-	i.QuadPart -= 90ull * 24ull * 60ull * 60ull * 10000000ull;
-	HistoryCfg->DeleteOldUnlocked(TypeHistory,strHistoryName,i.QuadPart);
+	HistoryCfg->Add(TypeHistory, strHistoryName, strName, Type, Lock);
 
 	ResetPosition();
 
@@ -234,7 +240,11 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 					strRecord += (HType==4?L"-":L" ");
 				}
 				SYSTEMTIME SavedTime;
-				FileTimeToSystemTime(reinterpret_cast<LPFILETIME>(&Time), &SavedTime);
+				FILETIME FTTime;
+				UI64ToFileTime(Time, &FTTime);
+				FILETIME LFTTime;
+				FileTimeToLocalFileTime(&FTTime, &LFTTime);
+				FileTimeToSystemTime(&LFTTime, &SavedTime);
 				if(LastDay != SavedTime.wDay || LastMonth != SavedTime.wMonth || LastYear != SavedTime.wYear)
 				{
 					LastDay = SavedTime.wDay;
@@ -243,7 +253,7 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 					MenuItemEx Separator={};
 					Separator.Flags = LIF_SEPARATOR;
 					string strTime;
-					ConvertDate(*reinterpret_cast<FILETIME*>(&Time), Separator.strName, strTime, 5, FALSE, FALSE, TRUE, TRUE); 
+					ConvertDate(FTTime, Separator.strName, strTime, 5, FALSE, FALSE, TRUE, TRUE);
 					HistoryMenu.AddItem(&Separator);
 				}
 				strRecord += strHName;

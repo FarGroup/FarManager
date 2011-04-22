@@ -162,6 +162,8 @@ ControlObject::~ControlObject()
 	delete HiFiles;
 	delete FolderShortcuts;
 
+	History::CompactHistory();
+
 	delete FrameManager;
 	TreeList::FlushCache();
 	SIDCacheFlush();

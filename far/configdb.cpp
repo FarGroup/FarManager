@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "sqlite/sqlite.h"
 #include "config.hpp"
+#include "datetime.hpp"
 
 GeneralConfig *GeneralCfg;
 AssociationsConfig *AssocConfig;
@@ -1226,6 +1227,7 @@ class HistoryConfigDb: public HistoryConfig {
 	SQLiteStmt stmtEnumDesc;
 	SQLiteStmt stmtDel;
 	SQLiteStmt stmtDeleteOldUnlocked;
+	SQLiteStmt stmtEnumLargeHistories;
 	SQLiteStmt stmtAdd;
 	SQLiteStmt stmtGetName;
 	SQLiteStmt stmtGetNameAndType;
@@ -1266,7 +1268,10 @@ public:
 		db.InitStmt(stmtDel, L"DELETE FROM history WHERE id=?1;");
 
 		//delete old unlocked imtems statement
-		db.InitStmt(stmtDeleteOldUnlocked, L"DELETE FROM history WHERE kind=?1 AND key=?2 AND lock=0 AND time<?3;");
+		db.InitStmt(stmtDeleteOldUnlocked, L"DELETE FROM history WHERE kind=?1 AND key=?2 AND lock=0 AND time<?3 AND id NOT IN (SELECT id FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC LIMIT ?4);");
+
+		//enum histories with more than X entries statement
+		db.InitStmt(stmtEnumLargeHistories, L"SELECT key FROM (SELECT key, num FROM (SELECT key, count(id) as num FROM history WHERE kind=?1 GROUP BY key)) WHERE num > ?2;");
 
 		//add item statement
 		db.InitStmt(stmtAdd, L"INSERT INTO history VALUES (NULL,?1,?2,?3,?4,?5,?6);");
@@ -1334,14 +1339,31 @@ public:
 		return stmtDel.Bind(id).StepAndReset();
 	}
 
-	bool DeleteOldUnlocked(DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 older)
+	bool DeleteOldUnlocked(DWORD TypeHistory, const wchar_t *HistoryName, int DaysToKeep, int MinimunEntries)
 	{
-		return stmtDeleteOldUnlocked.Bind((int)TypeHistory).Bind(HistoryName).Bind(older).StepAndReset();
+		unsigned __int64 older = GetCurrentUTCTimeInUI64();
+		older -= ((unsigned __int64)DaysToKeep) * 24ull * 60ull * 60ull * 10000000ull;
+		return stmtDeleteOldUnlocked.Bind((int)TypeHistory).Bind(HistoryName).Bind(older).Bind(MinimunEntries).StepAndReset();
 	}
 
-	bool Add(DWORD TypeHistory, const wchar_t *HistoryName, string strName, int Type, bool Lock, unsigned __int64 time)
+	bool EnumLargeHistories(DWORD index, int MinimunEntries, DWORD TypeHistory, string &strHistoryName)
 	{
-		return stmtAdd.Bind((int)TypeHistory).Bind(HistoryName).Bind(Type).Bind(Lock?1:0).Bind(strName).Bind(time).StepAndReset();
+		if (index == 0)
+			stmtEnumLargeHistories.Reset().Bind((int)TypeHistory).Bind(MinimunEntries);
+
+		if (stmtEnumLargeHistories.Step())
+		{
+			strHistoryName = stmtEnumLargeHistories.GetColText(0);
+			return true;
+		}
+
+		stmtEnumLargeHistories.Reset();
+		return false;
+	}
+
+	bool Add(DWORD TypeHistory, const wchar_t *HistoryName, string strName, int Type, bool Lock)
+	{
+		return stmtAdd.Bind((int)TypeHistory).Bind(HistoryName).Bind(Type).Bind(Lock?1:0).Bind(strName).Bind(GetCurrentUTCTimeInUI64()).StepAndReset();
 	}
 
 	bool GetNewest(DWORD TypeHistory, const wchar_t *HistoryName, string &strName)

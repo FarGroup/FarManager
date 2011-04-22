@@ -38,9 +38,6 @@ int GetDateFormat();
 wchar_t GetDateSeparator();
 wchar_t GetTimeSeparator();
 
-__int64 FileTimeDifference(const FILETIME *a, const FILETIME* b);
-unsigned __int64 FileTimeToUI64(const FILETIME *ft);
-
 void GetFileDateAndTime(const wchar_t *Src,LPWORD Dst,size_t Count,int Separator);
 void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int DateFormat, int DateSeparator, int TimeSeparator, bool bRelative=false);
 void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int TimeLength, int Brief=FALSE,int TextMonth=FALSE,int FullYear=0,int DynInit=FALSE);
@@ -49,3 +46,35 @@ void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeT
 void PrepareStrFTime();
 size_t WINAPI StrFTime(string &strDest, const wchar_t *Format,const tm *t);
 size_t MkStrFTime(string &strDest, const wchar_t *Fmt=nullptr);
+
+inline __int64 FileTimeDifference(const FILETIME *a, const FILETIME* b)
+{
+	LARGE_INTEGER A={a->dwLowDateTime,a->dwHighDateTime},B={b->dwLowDateTime,b->dwHighDateTime};
+	return A.QuadPart - B.QuadPart;
+}
+
+inline unsigned __int64 FileTimeToUI64(const FILETIME *ft)
+{
+	ULARGE_INTEGER A={ft->dwLowDateTime,ft->dwHighDateTime};
+	return A.QuadPart;
+}
+
+inline void UI64ToFileTime(unsigned __int64 time, FILETIME *ft)
+{
+	ULARGE_INTEGER i;
+	i.QuadPart = time;
+	ft->dwLowDateTime = i.LowPart;
+	ft->dwHighDateTime = i.HighPart;
+}
+
+inline unsigned __int64 GetCurrentUTCTimeInUI64()
+{
+	FILETIME Timestamp;
+	GetSystemTimeAsFileTime(&Timestamp); // in UTC
+
+	ULARGE_INTEGER i;
+	i.LowPart = Timestamp.dwLowDateTime;
+	i.HighPart = Timestamp.dwHighDateTime;
+
+	return i.QuadPart;
+}

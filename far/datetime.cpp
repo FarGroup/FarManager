@@ -538,18 +538,6 @@ size_t MkStrFTime(string &strDest, const wchar_t *Fmt)
 	return StrFTime(strDest,Fmt,time_now);
 }
 
-__int64 FileTimeDifference(const FILETIME *a, const FILETIME* b)
-{
-	LARGE_INTEGER A={a->dwLowDateTime,a->dwHighDateTime},B={b->dwLowDateTime,b->dwHighDateTime};
-	return A.QuadPart - B.QuadPart;
-}
-
-unsigned __int64 FileTimeToUI64(const FILETIME *ft)
-{
-	ULARGE_INTEGER A={ft->dwLowDateTime,ft->dwHighDateTime};
-	return A.QuadPart;
-}
-
 void GetFileDateAndTime(const wchar_t *Src,LPWORD Dst,size_t Count,int Separator)
 {
 	for (size_t i=0; i<Count; i++)
@@ -793,7 +781,7 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeText)
 {
 	ULARGE_INTEGER time={ft.dwLowDateTime,ft.dwHighDateTime};
-	
+
 	UINT64 ms = (time.QuadPart/=10000)%1000;
 	UINT64 s = (time.QuadPart/=1000)%60;
 	UINT64 m = (time.QuadPart/=60)%60;
