@@ -58,6 +58,7 @@ int WaitInMainLoop=FALSE;
 clock_t StartIdleTime=0;
 
 string g_strFarModuleName;
+string g_strFarINI;
 string g_strFarPath;
 
 string strGlobalSearchString;

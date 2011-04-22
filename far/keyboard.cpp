@@ -408,12 +408,6 @@ void InitKeysArray()
 				VKeyToASCII[x]=Upper(i);
 		}
 	}
-
-	//_SVS(SysLogDump(L"KeyToKey calculate",0,KeyToKey,sizeof(KeyToKey),nullptr));
-	//unsigned char KeyToKeyMap[256];
-	//if(GetRegKey(L"System",L"KeyToKeyMap",KeyToKeyMap,KeyToKey,sizeof(KeyToKeyMap)))
-	//memcpy(KeyToKey,KeyToKeyMap,sizeof(KeyToKey));
-	//_SVS(SysLogDump("KeyToKey readed",0,KeyToKey,sizeof(KeyToKey),nullptr));
 }
 
 //Сравнивает если Key и CompareKey это одна и та же клавиша в разных раскладках

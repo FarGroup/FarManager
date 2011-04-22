@@ -7,11 +7,11 @@
 $^#File and archive manager#
 `$^#'FULLVERSIONNOBRACES`#'
 $^#Copyright © 1996-2000 Eugene Roshal#
-`$^#Copyright ©' COPYRIGHTYEARS `FAR Group#'
+`$^#Copyright ©' COPYRIGHTYEARS `Far Group#'
    ~Help file index~@Index@
    ~How to use help~@Help@
 
-   ~About FAR~@About@
+   ~About Far~@About@
    ~License~@License@
 
    ~Command line switches~@CmdLine@
@@ -69,7 +69,7 @@ $^#Copyright © 1996-2000 Eugene Roshal#
 
 
 @Help
-$ # FAR: how to use help#
+$ # Far: how to use help#
     Help screens may have reference items on them that lead to another help
 screen. Also, the main page has the "~Help Index~@Index@", which lists all the
 topics available in the help file and in some cases helps to find the needed
@@ -94,23 +94,23 @@ previous size.
 
 
 @About
-$ # FAR: about#
-    #FAR# is a text mode file and archive manager for Windows
+$ # Far: about#
+    #Far# is a text mode file and archive manager for Windows
 SUPPORTEDWINDOWSVERSIONS. It supports #long file names# and provides a wide set
 of file and folder operations.
 
-    #FAR# is #freeware# and #open source# software distributed under the
+    #Far# is #freeware# and #open source# software distributed under the
 revised BSD ~license~@License@.
 
-    #FAR# does transparent #archive# processing. Files in the archive are
-handled similarly as in a folder: when you operate with the archive, FAR
+    #Far# does transparent #archive# processing. Files in the archive are
+handled similarly as in a folder: when you operate with the archive, Far
 transforms your commands into the corresponding external archiver calls.
 
-    #FAR# offers a number of service functions as well.
+    #Far# offers a number of service functions as well.
 
 
 @License
-$ # FAR: License#
+$ # Far: License#
 
  Copyright © 1996 Eugene Roshal
  Copyright © 2000 Far Group
@@ -140,12 +140,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 @CmdLine
-$ # FAR: command line switches#
+$ # Far: command line switches#
   The following switches may be used in the command line:
 
   #/a#
   Disable display of characters with codes 0 - 31 and 255. May be useful when
-executing FAR under telnet.
+executing Far under telnet.
 
   #/ag#
   Disable display of pseudo-graphic characters.
@@ -156,23 +156,23 @@ and line position.
   For example: far /e70:2 readme.
 
   #/i#
-  Set icon for FAR console window.
+  Set icon for Far console window.
 
   #/p[<path>]#
   Search for "main" plugins in the folder given in <path>.
   Several search paths may be given separated by ';'.
 
-  Example: far /p%SystemRoot%\\Profiles\\%USERNAME%\\FAR
+  Example: far /p%SystemRoot%\\Profiles\\%USERNAME%\\Far
 
   #/co#
-  Forces FAR to load plugins from cache only. Plugins are loaded faster this way,
+  Forces Far to load plugins from cache only. Plugins are loaded faster this way,
 but new or changed plugins are not discovered. Should be used ONLY with a stable
-list of plugins. After adding, replacing or deleting a plugin FAR should be loaded
+list of plugins. After adding, replacing or deleting a plugin Far should be loaded
 without this switch. If the cache is empty, no plugins will be loaded.
 
   Remarks about switches /p and /co:
 
-  - ^<wrap>if /p is empty, then FAR will be loaded with no plugins;
+  - ^<wrap>if /p is empty, then Far will be loaded with no plugins;
   - ^<wrap>if /p is given with a <path>, then only plugins from <path> will be loaded;
   - ^<wrap>if only the /co switch is given and plugins cache is not empty, then plugins
 will be loaded from cache;
@@ -181,16 +181,20 @@ will be loaded from cache;
 and from the path given at the "~Path for personal plugins~@PluginsManagerSettings@" parameter.
 
   #/m#
-  FAR will not load macros when started.
+  Far will not load macros when started.
 
   #/ma#
-  Macros with the "Run after FAR start" option set will not be run when FAR is started.
+  Macros with the "Run after Far start" option set will not be run when Far is started.
+
+  #/s <path>#
+  Custom location for Far configuration files - overrides Far.exe.ini.
 
   #/u <username>#
-  Allows to have separate settings for different users.
+  Allows to have separate registry settings for different users.
+  Affects only 1.x Far Manager plugins
   For example: far /u guest
 
-  FAR Manager will set the ~environment variable~@FAREnv@ "FARUSER" to the value <username>.
+  Far Manager will set the ~environment variable~@FAREnv@ "FARUSER" to the value <username>.
 
   #/v <filename>#
   View the specified file. If <filename> is `#-#', data is read from the stdin.
@@ -198,8 +202,8 @@ and from the path given at the "~Path for personal plugins~@PluginsManagerSettin
   For example, "dir|far /v -" will view dir command output.
 
   If the input stream is empty when using '-' (for example, you have not specified
-the "dir" command in the provided example), FAR will wait forever for the end of data
-in the input stream. This will probably be fixed in a later version of FAR.
+the "dir" command in the provided example), Far will wait forever for the end of data
+in the input stream. This will probably be fixed in a later version of Far.
 
   #/w#
   Stretch to console window instead of console buffer.
@@ -212,12 +216,12 @@ and it is not recommended to specify it during normal operation.
   It is possible to specify at most two paths (to folders, files or archives) or
 two commands with plugin prefix in the command line. The first path applies to the
 active panel, the second path - to the passive one:
-  - ^<wrap>if a folder or archive is specified, FAR will show its contents;
-  - ^<wrap>if a file is specified, FAR will change to the folder where it
+  - ^<wrap>if a folder or archive is specified, Far will show its contents;
+  - ^<wrap>if a file is specified, Far will change to the folder where it
 resides and place the cursor on the file, if it exists;
   - ^<wrap>when profixes specified (simultaneous use with common paths allowed)
-passive command executes first (passive panel activates temporary). Односимвольные префиксы игнорируются.
-  Example: far ma:c:\\Far20.7z "macro:post MsgBox(\\"FAR Manager\\",\\"Successfully started\\")"
+passive command executes first (passive panel activates temporary). Single letter prefixes will be ignored.
+  Example: far ma:c:\\Far20.7z "macro:post MsgBox(\\"Far Manager\\",\\"Successfully started\\")"
 
 
 @KeyRef
@@ -377,7 +381,7 @@ active panel. The following sort modes are available:
   #Remarks on the numeric sort#
 
     The sorting algorithm which is used by the operating system to sort file
-lists was changed in Windows XP. A numeric, not a string sort is used. FAR also
+lists was changed in Windows XP. A numeric, not a string sort is used. Far also
 allows to use a numeric sort as in Windows XP - leading zeros in a file name
 are ignored. The following example shows how the files are sorted:
 
@@ -522,7 +526,7 @@ folder before moving, terminate the name with a backslash.
 
   Show ~menus~@Menus@ bar                                                  #F9#
 
-  Quit FAR                                                       #F10#
+  Quit Far                                                       #F10#
 
   Show ~plugin~@Plugins@ commands                                           #F11#
 
@@ -559,7 +563,7 @@ to the same data.
 
   Display ~commands history~@History@                                    #Alt-F8#
 
-  Toggles the size of the FAR console window                  #Alt-F9#
+  Toggles the size of the Far console window                  #Alt-F9#
 
     In the windowed mode, toggles between the current size and the maximum
 possible size of a console window. In the fullscreen mode, #Alt-F9# toggles the
@@ -579,7 +583,7 @@ screen height between 25 and 50 lines. See TechInfo##38 for details.
   Edit ~new file~@FileOpenCreate@                                             #Shift-F4#
 
     When a new file is opened, the same code page is used as in the last opened
-editor. If the editor is opened for the first time in the current FAR session,
+editor. If the editor is opened for the first time in the current Far session,
 the default code page is used.
 
   Copy file under cursor                                    #Shift-F5#
@@ -665,7 +669,7 @@ $ #Error: Cannot execute#
     The program you tries to execute is not recognized as an internal or
 external command, operable program or batch file.
 
-    When executing the contents of the command line, FAR searches for the
+    When executing the contents of the command line, Far searches for the
 executable in the following sequence (sequentially substituting all extensions
 listed in the environment variable %PATHEXT%):
 
@@ -754,7 +758,7 @@ effect as pressing the #Enter# key with the same modifiers (#Ctrl#, #Alt#,
 #Shift#). If the ~command line~@CmdLineCmd@ is not empty, its contents will be
 executed.
 
-  FAR Manager also supports the ~mouse wheel~@MsWheel@.
+  Far Manager also supports the ~mouse wheel~@MsWheel@.
 
 
 @MsWheel
@@ -789,12 +793,12 @@ editor and viewer (see TechInfo##33).
 
 @Plugins
 $ #Plugins support#
-    External DLL modules (plugins) may be used to implement new FAR commands
+    External DLL modules (plugins) may be used to implement new Far commands
 and emulate file systems. For example, archives support, FTP client, temporary
 panel and network browser are plugins that emulate file systems.
 
     All plugins are stored in separate folders within the 'Plugins' folder,
-which is in the same folder as FAR.EXE. When detecting a new plugin FAR saves
+which is in the same folder as FAR.EXE. When detecting a new plugin Far saves
 information about it and later loads the plugin only when necessary, so unused
 plugins do not require additional memory. But if you are sure that some plugins
 are useless for you, you may remove them to save disk space.
@@ -819,7 +823,7 @@ use it if search from the root folder does not work correctly.
     The modules have their own message and help files. You can get a list of
 available help on the modules by pressing
 
-    #Shift-F2# - anywhere in the FAR help system
+    #Shift-F2# - anywhere in the Far help system
 
     #Shift-F1# - in the list of plugins (context-dependent help).
 
@@ -878,7 +882,7 @@ $ #Plugins configuration#
 context-sensitive help on plugin configuration. If the plugin doesn't have a
 help file, the context-sensitive help will not be shown.
 
-    When the context-sensitive help is invoked, FAR will try to show the topic
+    When the context-sensitive help is invoked, Far will try to show the topic
 #Config#. If such a topic does not exist in the plugin help file, the main help
 topic for the selected plugin will be shown.
 
@@ -892,9 +896,9 @@ in filenames and in editor).
 
 @PluginsReviews
 $ #Overview of plugin capabilities#
-    The FAR manager is so tightly integrated with its plugins that it is simply
-meaningless to talk about FAR and not to mention the plugins. Plugins present
-an almost limitless expansion of the features of FAR.
+    Far Manager is so tightly integrated with its plugins that it is simply
+meaningless to talk about Far and not to mention the plugins. Plugins present
+an almost limitless expansion of the features of Far.
 
     Without going into details, some of the capabilities can be noted:
 
@@ -921,17 +925,17 @@ an almost limitless expansion of the features of FAR.
     databases.
   * RAS service control.
   * External programs executing (compilers, converters etc.) while
-    editing text in FAR editor.
+    editing text in Far editor.
   * Windows help files contents displaying (.hlp and .chm)
   * Calculators with different possibilities.
   * Several games :-)
-  * Spell checker functions while editing text in FAR editor.
+  * Spell checker functions while editing text in Far editor.
   * Removable drives catalog preparation and much more...
 
     As an information source, which can be used to search for specific plugins,
 one can recommend:
 
-  - FAR Manager official site
+  - Far Manager official site
     ~http://www.farmanager.com~@http://www.farmanager.com@
   - Online forum
     ~http://forum.farmanager.com~@http://forum.farmanager.com@
@@ -951,7 +955,7 @@ one can recommend:
 
 @Panels
 $ #Panels #
-    Normally FAR shows two panels (left and right windows), with different
+    Normally Far shows two panels (left and right windows), with different
 information. If you want to change the type of information displayed in the
 panel, use the ~panel menu~@LeftRightMenu@ or corresponding ~keyboard commands~@KeyRef@.
 
@@ -1019,13 +1023,13 @@ $ #Panels: tree panel#
 Within tree mode you may change to a folder quickly and perform folder
 operations.
 
-    FAR stores folder tree information in the file named #Tree.Far# at root
+    Far stores folder tree information in the file named #tree2.far# at root
 folder of each drive. For read-only drives this information is stored in the
-hidden folder Tree.Cache within the folder containing FAR.EXE. The Tree.FAR
+hidden folder Tree.Cache within the folder containing FAR.EXE. The tree2.far
 file doesn't exist by default. It will be automatically created after the first
-use of the #Tree Panel# or the #Find Folder# command. If that file exists, FAR
+use of the #Tree Panel# or the #Find Folder# command. If that file exists, Far
 updates it with the changes to the tree structure it is aware of. If such
-changes were made outside of FAR and Tree.far is no longer current, it can be
+changes were made outside of Far and Tree.far is no longer current, it can be
 refreshed by pressing #Ctrl-R#.
 
     You can find a folder quickly with the help of #speed search# action. Hold
@@ -1061,7 +1065,7 @@ for viewing the folder description file.
     A list of possible folder description file names may be defined using
 "Folder description files" command in the ~Options menu~@OptMenu@.
 
-    FAR will attempt to determine the type of each of the CD drives available
+    Far will attempt to determine the type of each of the CD drives available
 in the system. Known types are as follows: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM,
 DVD-RW and DVD-RAM. This function is available only for users either with
 administrative privileges or all local users, when it's stated explicitly in
@@ -1317,7 +1321,7 @@ $ #Menus: options menu#
    #Editor settings#       External and internal ~editor settings~@EditorSettings@.
 
    #Colors#                Allows to select colors for different
-                         interface items, to change the entire FAR
+                         interface items, to change the entire Far
                          colors palette to black and white or to set
                          the colors to default.
 
@@ -1357,14 +1361,14 @@ following operations:
 
     - clearing the view/edit, folder and command history lists;
 
-    - exit from FAR.
+    - exit from Far.
 
 
 @PluginsManagerSettings
 $ #Plugins manager#
 
   #Path for personal plugins#
-  Enter here the full path, where FAR will search for "personal" plugins in addition to the "main"
+  Enter here the full path, where Far will search for "personal" plugins in addition to the "main"
 plugins. Several search paths may be given separated by ';'. Environment variables can be entered in the
 search path. Personal plugins will not be loaded, if the switches /p or /co are given in the
 ~command line~@CmdLine@.
@@ -1412,7 +1416,7 @@ options are disabled and their values doesn't affect the search process.
 
     Выпадающий список #Используя кодовую страницу# позволяет выбрать конкретную
 кодовую страницу, применяемую для поиска текста. Если в выпадающем списке выбрать
-пункт #Все кодовые страницы#, то FAR будет использовать для поиска все стандартные
+пункт #Все кодовые страницы#, то Far будет использовать для поиска все стандартные
 и #Любимые# кодовые страницы (список #Любимых# кодовых страниц можно настроить в
 меню выбора кодовой страницы редактора или программы просмотра). Если перечень
 кодовых страниц, поиск по которым производится при выборе пункта #Все кодовые#
@@ -1420,9 +1424,9 @@ options are disabled and their values doesn't affect the search process.
 #Space#, выбрать из списка стандартных и #Любимых# кодовых страниц только те кодовые
 страницы, по которым вам необходимо осуществлять поиск.
 
-    If the option #Search in archives# is set, FAR also performs the search in
+    If the option #Search in archives# is set, Far also performs the search in
 archives with known formats. However, using this option significantly decreases
-the performance of the search. FAR cannot search in nested archives.
+the performance of the search. Far cannot search in nested archives.
 
     The #Search for folders# option includes in search list those folders, that
 match the wildcards. Also the counter of found files takes account of found
@@ -1446,7 +1450,7 @@ folders.
     - from the current folder;
 
     - in the current folder only or in selected folders
-      (the current version of FAR does not search in
+      (the current version of Far does not search in
       directories that are ~symbolic links~@HardSymLink@).
 
     The search parameters is saved in the configuration.
@@ -1739,7 +1743,7 @@ available:
 
   Clear the commands history                                      #Del#
 
-  Lock/unlock a history item                                      #Ins#
+  Lock/unlock the current history item                            #Ins#
 
   Delete the current history item                           #Shift-Del#
 
@@ -1752,10 +1756,10 @@ can press #Ctrl-E# or #Ctrl-X# respectively.
     For choosing a command, besides the cursor control keys and #Enter#, you can
 use the highlighted shortcut letters.
 
-    If you want to save the commands history after exiting FAR, use the
+    If you want to save the commands history after exiting Far, use the
 respective option in the ~system settings dialog~@SystemSettings@.
 
-    Locked history items will not be deleted when the history is cleared.
+    Locked items will not be deleted when clearing the history.
 
 @HistoryViews
 $ #History: file view and edit#
@@ -1771,7 +1775,7 @@ shortcuts are available:
 
   Delete the current history item                           #Shift-Del#
 
-  Установить/снять пометку блокировки пункт истории               #Ins#
+  Lock/unlock the current history item                            #Ins#
 
   Refresh list and remove non-existing entries                 #Ctrl-R#
 
@@ -1790,7 +1794,7 @@ you can use the highlighted shortcut letters.
 they are selected. You can use #Shift-Enter# to select an item without changing
 its position.
 
-    If you want to save the view and edit history after exiting FAR, use the
+    If you want to save the view and edit history after exiting Far, use the
 respective option in the ~system settings dialog~@SystemSettings@.
 
   Remarks:
@@ -1798,7 +1802,7 @@ respective option in the ~system settings dialog~@SystemSettings@.
   1. ^<wrap>List refresh operation (Ctrl-R) can take a considerable amount
 of time if a file was located on a currently unavailable remote resource.
 
-  2. ^<wrap>Заблокированные пункты не будут удаляться при очистке или обновлении истории.
+  2. ^<wrap>Locked items will not be deleted when clearing or refreshing the history.
 
 @HistoryFolders
 $ #History: folders#
@@ -1816,7 +1820,7 @@ available:
 
   Delete the current history item                           #Shift-Del#
 
-  Установить/снять пометку блокировки пункт истории               #Ins#
+  Lock/unlock the current history item                            #Ins#
 
   Refresh list and remove non-existing entries                 #Ctrl-R#
 
@@ -1830,7 +1834,7 @@ you can use the highlighted shortcut letters.
 are selected. You can use #Shift-Enter# to select an item without changing its
 position.
 
-    If you want to save the folders history after exiting FAR, use the
+    If you want to save the folders history after exiting Far, use the
 respective option in the ~system settings dialog~@SystemSettings@.
 
   Remarks:
@@ -1838,7 +1842,7 @@ respective option in the ~system settings dialog~@SystemSettings@.
   1. ^<wrap>List refresh operation (Ctrl-R) can take a considerable amount
 of time if a folder was located on a currently unavailable remote resource.
 
-  2. ^<wrap>Заблокированные пункты не будут удаляться при очистке или обновлении истории.
+  2. ^<wrap>Locked items will not be deleted when clearing or refreshing the history.
 
 @TaskList
 $ #Task list#
@@ -1920,6 +1924,7 @@ item title only.
 
     User menus are stored in text files named #FarMenu.Ini#:
     - Global user menu, by default, is located in the Far Manager folder.
+      If global user menu file exists it will override the user specific menu.
     - User specifc user menu is located in the user profile.
     - Local user menu is located in the current folder.
 
@@ -1929,7 +1934,7 @@ item title only.
 
 @FileAssoc
 $ #File associations #
-    FAR Manager supports file associations, that allow to associate various
+    Far Manager supports file associations, that allow to associate various
 actions to running, viewing and editing files with a specified
 ~mask~@FileMasks@.
 
@@ -1953,12 +1958,12 @@ desired association from the menu.
 
     If no execute command is associated with file and
 #Use Windows registered types# option in ~System settings~@SystemSettings@
-is on, FAR tries to use Windows association to execute this file type;
+is on, Far tries to use Windows association to execute this file type;
 
 
 @FileAssocModify
 $ #File associations: editing#
-    FAR allows to specify six commands associated with each file type specified
+    Far allows to specify six commands associated with each file type specified
 as a ~mask~@FileMasks@:
 
    #Execute command#               Performed if #Enter# is pressed
@@ -1992,7 +1997,7 @@ command.
 
   1. ^<wrap>If no execute command is associated with file and
 #Use Windows registered types# option in ~System settings~@SystemSettings@
-is on, FAR tries to use Windows association to execute this file type;
+is on, Far tries to use Windows association to execute this file type;
 
   2. ^<wrap>Operating system ~commands~@OSCommands@ "IF EXIST" and "IF DEFINED"
 allow to configure "smarter" associations - if you have specified several
@@ -2013,7 +2018,7 @@ $ #Special symbols#
     #!.!#      Long file name with extension
     #!-!#      Short file name with extension
     #!+!#      Similar to !-! but if a long file name was lost
-             after performing the command, FAR will restore it
+             after performing the command, Far will restore it
     #!@@!#      Name of file with selected file names list
     #!$!#      Name of file with selected short file names list
     #!&#       List of selected files
@@ -2067,7 +2072,7 @@ $ #Special symbols#
 
   Notes:
 
-    1. ^<wrap>When handling special characters, FAR substitutes only the string
+    1. ^<wrap>When handling special characters, Far substitutes only the string
 corresponding to the special character. No additional characters (for example,
 quotes) are added, and you should add them yourself if it is needed. For
 example, if a program used in the associations requires a file name to be
@@ -2139,32 +2144,32 @@ determining the total file size in the sub-folders.
   If the name of a new folder contains only lowercase letters and this option is on, the folder will be created in uppercase.
 
   #Inactivity time#
-  Terminate FAR after a specified interval without keyboard or mouse activity. This works only if FAR waits for command line
+  Terminate Far after a specified interval without keyboard or mouse activity. This works only if Far waits for command line
 input without viewer or editor screens in the background.
 
   #Save commands history#
-  Forces saving ~commands history~@History@ before exit and restoring after starting FAR.
+  Forces saving ~commands history~@History@ before exit and restoring after starting Far.
 
   #Save folders history#
-  Forces saving ~folders history~@HistoryFolders@ before exit and restoring after starting FAR.
+  Forces saving ~folders history~@HistoryFolders@ before exit and restoring after starting Far.
 Folders history list may be activated by #Alt-F12#.
 
   #Save view and edit history#
   Forces saving ~history of viewed and edited~@HistoryViews@ files before exit and restoring it after
-starting FAR. View and edit history list may be activated by #Alt-F11#.
+starting Far. View and edit history list may be activated by #Alt-F11#.
 
   #Use Windows registered types#
   When this option is on and #Enter# is pressed on a file, the type of which is known to
-Windows and absent in the list of FAR ~file associations~@FileAssoc@, the Windows program
+Windows and absent in the list of Far ~file associations~@FileAssoc@, the Windows program
 registered to process this file type will be executed.
 
   #CD drive auto mount#
-  When a CD-ROM drive is selected from the ~drive menu~@DriveDlg@, FAR will close the open
+  When a CD-ROM drive is selected from the ~drive menu~@DriveDlg@, Far will close the open
 tray of a CD drive. Turn off this option if automatic CD-ROM mounting does not work
 correctly (this can happen because of bugs in the drivers of some CD-ROM drives).
 
   #Auto save setup#
-  If checked, FAR will save setup automatically. The current folders for both panels will be also saved.
+  If checked, Far will save setup automatically. The current folders for both panels will be also saved.
 
 
 @PanelSettings
@@ -2189,7 +2194,7 @@ $ #Settings dialog: panel#
   #by extension#            to files, but also to folders.
                           When the option is turned on, sorting
                           by extension works the same as it did
-                          in FAR 1.65. If the option is turned
+                          in Far 1.65. If the option is turned
                           off, in the extension sort mode the
                           folders will be sorted by name, as
                           they are in the name sort mode.
@@ -2255,7 +2260,7 @@ This option also may be switched by #Ctrl-B#.
   #Screen saver#
   Run screen saver after the inactivity interval in minutes. When this option
 is enabled, screen saver will also activate when mouse pointer is brought
-to the upper right corner of FAR window.
+to the upper right corner of Far window.
 
   #Show total copy indicator#
   Show total progress bar, when performing a file copy operation.
@@ -2288,15 +2293,15 @@ or the drive selection menu (if the Network plugin is not available).
   #Far window title addons#
   Дополнительная информация, выводимая в заголовке окна консоли.
 Может содержать любой текст, включая следующие переменные:
-  #%Ver# - версия FAR;
-  #%Build# - номер сборки FAR;
-  #%Platform# - архитектура FAR;
-  #%Admin# - слово "Администратор", если FAR запущен от имени администратора, иначе пустая строка.
+  #%Ver# - версия Far;
+  #%Build# - номер сборки Far;
+  #%Platform# - архитектура Far;
+  #%Admin# - слово "Администратор", если Far запущен от имени администратора, иначе пустая строка.
 
 @DialogSettings
 $ #Settings dialog: dialogs#
   #History in dialog#       Keep history in edit controls of some
-  #edit controls#           FAR dialogs. The previous strings history
+  #edit controls#           Far dialogs. The previous strings history
                           list may be activated by mouse or using
                           #Ctrl-Up# and #Ctrl-Down#. If you do not wish
                           to track such history, for example due to
@@ -2351,7 +2356,7 @@ disabled, you may use the #Ctrl-Shift-End# key to autocomplete a line. The autoc
 feature is disabled while a macro is being recorded or executed.
 
   #Set command line prompt format#
-  This option allows to set the default FAR command ~line prompt~@CommandPrompt@.
+  This option allows to set the default Far command ~line prompt~@CommandPrompt@.
 
 @AutoCompleteSettings
 $ #Settings dialog: AutoComplete#
@@ -2419,7 +2424,7 @@ $ #Настройка информационной панели#
 
 @CommandPrompt
 $ #Command line prompt format#
-   FAR allows to change the command line prompt format.
+   Far allows to change the command line prompt format.
 To change it you have to enter the needed sequence of variables and
 special code words in the #Set command line prompt format# input field
 of the ~Command line settings~@CmdlineSettings@ dialog, this will allow showing
@@ -2444,7 +2449,7 @@ code words:
      $$ - the $ character
      $+ - глубина стека каталогов
 
-     $@@xx - ^<wrap>"Администратор", если FAR Manager запущен от имени администратора.
+     $@@xx - ^<wrap>"Администратор", если Far Manager запущен от имени администратора.
 Вместо 'xx' необходимо указать два символа, которые будут обрамлять слово "Администратор".
 Например, #$@@{}$s$p$g# будет представлен как "{Администратор} C:\>"
 
@@ -2497,7 +2502,7 @@ $ #Viewer: control keys#
     #F8#                 Toggle OEM/ANSI code page
     #Shift-F8#           Select code page
     #Alt-F8#             ~Change current position~@ViewerGotoPos@
-    #Alt-F9#             Toggles the size of the FAR console window
+    #Alt-F9#             Toggles the size of the Far console window
     #Alt-Shift-F9#       Call ~Viewer settings~@EditorSettings@ dialog
     #Numpad5,F3,F10,Esc# Quit
     #Ctrl-F10#           Position to the current file.
@@ -2534,13 +2539,13 @@ $ #Viewer: control keys#
        the viewer is closed, but any operations on the deleted
        file fail - this is a Windows feature.
 
-    3. The current version of FAR has a limitation on the maximum
+    3. The current version of Far has a limitation on the maximum
        number of columns in the internal viewer - the number
        cannot exceed 2048. If a file contains a line that does not
        fit in this number of columns, it will be split into several
        lines, even if the word wrap mode is turned off.
 
-    4. FAR ~searches~@ViewerSearch@ the first occurrence of the string (#F7#) from
+    4. Far ~searches~@ViewerSearch@ the first occurrence of the string (#F7#) from
        the beginning of the area currently displayed.
 
     5. For automatic scrolling of a dynamically updating file,
@@ -2688,7 +2693,7 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
    #F8#                      Toggle OEM/ANSI code page
    #Shift-F8#                Select code page
    #Alt-F8#                  ~Go to~@EditorGotoPos@ specified line and column
-   #Alt-F9#                  Toggles the size of the FAR console window
+   #Alt-F9#                  Toggles the size of the Far console window
    #Alt-Shift-F9#            Call ~Editor settings~@EditorSettings@ dialog
    #F10, F4, Esc#            Quit
    #Shift-F10#               Save and quit
@@ -2800,11 +2805,11 @@ jump to the middle of the text.
 
 @EditorReload
 $ #Editor: reloading a file#
-    FAR Manager tracks all attempts to repeatedly open for editing a file that
+    Far Manager tracks all attempts to repeatedly open for editing a file that
 is already being edited. The rules for reloading files are as follows:
 
     1. If the file was not changed and the option "Reload edited file" in the
-~confirmations~@ConfirmDlg@ dialog is not enabled, FAR switches to the open
+~confirmations~@ConfirmDlg@ dialog is not enabled, Far switches to the open
 editor instance without further prompts.
 
     2. If the file was changed or the option "Reload edited file" is enabled,
@@ -2826,7 +2831,7 @@ there are three possible options:
 @WarnEditorPath
 $ #Warning: Path to the file to edit does not exist#
     When opening a new file for ~editing~@Editor@, you have entered the name of
-a folder that does not exist. Before saving the file, FAR will create the
+a folder that does not exist. Before saving the file, Far will create the
 folder, provided that the path is correct (for example, a path starting with a
 non-existing drive letter would not be correct) and that you have enough rights
 to create the folder.
@@ -2839,7 +2844,7 @@ file name.
 @WarnEditorSavedEx
 $ #Warning: The file was changed by an external program#
     The write date and time of the file on the disk are not the same as
-those saved by FAR when the file was last accessed. This means that another
+those saved by Far when the file was last accessed. This means that another
 program, another user (or even yourself in a different editor instance) changed
 the contents of the file on the disk.
 
@@ -2926,7 +2931,7 @@ card-reader itself will be stopped.
     Ctrl-8 - display of CD parameters;
     Ctrl-9 - display of network parameters.
 
-    #Change drive# menu settings are saved in the FAR configuration.
+    #Change drive# menu settings are saved in the Far configuration.
 
     #F9# shows a dialog for configuring the display of that
 information.
@@ -2941,7 +2946,7 @@ plugins).
 
     #Ctrl-R# allows to refresh the disk selection menu.
 
-    If "#CD drive type#" mode is enabled (#Ctrl-8#), FAR will attempt to
+    If "#CD drive type#" mode is enabled (#Ctrl-8#), Far will attempt to
 determine the type of each of the CD drives available in the system. Known
 types are as follows: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW and DVD-RAM.
 This function is available only for users either with administrative privileges
@@ -2980,7 +2985,7 @@ connected network drives.
 @Highlight
 $ #Files highlighting and sort groups#
     For more convenient and obvious display of files and directories in the
-panels, FAR Manager has the possibility of color highlighting for file objects.
+panels, Far Manager has the possibility of color highlighting for file objects.
 You can group file objects by different criteria (~file masks~@FileMasks@, file
 attributes) and assign colors to those groups.
 
@@ -3213,7 +3218,7 @@ will affect only the current session.
 
 @CodePage
 $ #Auto detect code pages#
-    FAR will try to choose the correct code page for viewing/editing a file.
+    Far will try to choose the correct code page for viewing/editing a file.
 Note that correct detection is not guaranteed, especially for small or
 non-typical text files.
 
@@ -3347,7 +3352,7 @@ masks) the following commands are available:
    #Shift-Backspace#     Clear selection from all items.
 
 
-    Filters selection is stored in the FAR configuration.
+    Filters selection is stored in the Far configuration.
 
     When a filter is used in a panel, it is indicated by '*' after the sort
 mode letter in the upper left corner of the panel.
@@ -3375,18 +3380,18 @@ to describe selected files.
     Description list names may be changed using #File descriptions# dialog from
 the ~Options menu~@OptMenu@. In this dialog you can also set local descriptions
 update mode. Updating may be disabled, enabled only if panel current view mode
-displays descriptions or always enabled. By default FAR sets "Hidden" attribute
+displays descriptions or always enabled. By default Far sets "Hidden" attribute
 to created description lists, but you may disable it by switching off the
 option "Set "Hidden" attribute to new description lists" in this dialog. Also
 here you may specify the position to align new file descriptions in a
 description list.
 
-    If a description file has the "read-only" attribute set, FAR does not
+    If a description file has the "read-only" attribute set, Far does not
 attempt to update descriptions, and after moving or deleting file objects, an
 error message is shown. If the option "#Update read only description file#" is
-enabled, FAR will attempt to update the descriptions correctly.
+enabled, Far will attempt to update the descriptions correctly.
 
-    If it is enabled in the configuration, FAR updates file descriptions when
+    If it is enabled in the configuration, Far updates file descriptions when
 copying, moving and deleting files. But if a command processes files from
 subfolders, descriptions in the subfolders are not updated.
 
@@ -3513,7 +3518,7 @@ ignoring the original case.
 file names in lower case. By default this option is on, but if you wish
 to always see the real files case, switch it, "Show folders in uppercase"
 and "Show files in lowercase" options off. All these settings only change
-the method of displaying files, when processing files FAR always uses the
+the method of displaying files, when processing files Far always uses the
 real case.
 
 
@@ -3540,7 +3545,7 @@ files will be placed lower than those not included.
 
 @FileMasks
 $ #File masks#
-    File masks are frequently used in FAR commands to select single files and
+    File masks are frequently used in Far commands to select single files and
 folders or groups of them. Masks may contain common valid file name symbols,
 wildcards ('*' and '?') and special expressions:
 
@@ -3556,7 +3561,7 @@ wildcards ('*' and '?') and special expressions:
 f*.ex?, mask *co* will select both color.ini and edit.com, mask [c-f,t]*.txt
 can select config.txt, demo.txt, faq.txt and tips.txt.
 
-    In many FAR commands you may enter several file masks separated with commas
+    In many Far commands you may enter several file masks separated with commas
 or semicolons. For example, to select all the documents, you can enter
 #*.doc,*.txt,*.wri# in the "Select" command.
 
@@ -3684,7 +3689,7 @@ folders. If the "Inherit" action is selected then after copying/moving the
 inheritable access rights of the destination parent folder will be applied to
 the copied/moved files and folders.
 
-    The "Already existing files" option controls FAR behavior if a target file
+    The "Already existing files" option controls Far behavior if a target file
 of the same name already exists.
     Possible values:
     #Ask# - a ~confirmation dialog~@CopyAskOverwrite@ will be shown;
@@ -3705,14 +3710,14 @@ The system copy routine is not used when the file is encrypted and you are
 copying it outside of the current disk.
 
     The "Copy contents of symbolic links" option allows to control the
-~logic~@CopyRule@ of FAR processing of ~symbolic links~@HardSymLink@ when
+~logic~@CopyRule@ of Far processing of ~symbolic links~@HardSymLink@ when
 copying/moving.
 
     When moving files, to determine whether the operation should be performed
 as a copy with subsequent deletion or as a direct move (within one physical
-drive), FAR takes into account ~symbolic links~@HardSymLink@.
+drive), Far takes into account ~symbolic links~@HardSymLink@.
 
-    FAR handles copying to #con# in the same way as copying to #nul# or
+    Far handles copying to #con# in the same way as copying to #nul# or
 #\\\\.\\nul# - that is, the file is read from the disk but not written
 anywhere.
 
@@ -3810,7 +3815,7 @@ physically until all the hard links pointing at it will be deleted. The
 deletion order doesn't matter. When a hard link is deleted into the recycle
 bin, the number of links of a file does not change.
 
-    FAR can create hard links and can show the number of the file's hard links
+    Far can create hard links and can show the number of the file's hard links
 in a separate column (by default, it's the last column in the 9th panel mode)
 and sort the files by hard link number.
 
@@ -3893,7 +3898,7 @@ $ #Error: plugin not loaded#
 
 @ScrSwitch
 $ #Screens switching#
-    FAR allows to open several instances of the internal viewer and editor at
+    Far allows to open several instances of the internal viewer and editor at
 the same time. Use #Ctrl-Tab#, #Ctrl-Shift-Tab# or #F12# to switch between
 panels and screens with these instances. #Ctrl-Tab# switches to the next
 screen, #Ctrl-Shift-Tab# to the previous, #F12# shows a list of all available
@@ -3920,7 +3925,7 @@ start the Windows Explorer and set the cursor to the current file or directory.
 
 @OSCommands
 $ #Operating system commands#
-    FAR Manager by itself processes the following operating system commands:
+    Far Manager by itself processes the following operating system commands:
 
     #CLS#
 
@@ -3949,7 +3954,7 @@ page number.
 
     Set environment variable "variable" to the value "string". If "string" is
 not specified, the environment variable "variable" will be removed. On startup,
-FAR Manager sets several ~environment variables~@FAREnv@ by itself.
+Far Manager sets several ~environment variables~@FAREnv@ by itself.
 
     #IF [NOT] EXIST filename command#
 
@@ -3997,10 +4002,10 @@ system command processor.
 
 @FAREnv
 $ #Environment variables#
-    On startup, FAR Manager sets the following environment variables available
+    On startup, Far Manager sets the following environment variables available
 to child processes:
 
-    #FARHOME#            path to the folder from which FAR was started.
+    #FARHOME#            path to the folder from which Far was started.
 
     #FARLANG#            the name of the current interface language.
 
@@ -4008,7 +4013,7 @@ to child processes:
 
     #FARDIRSTACK#        ^<wrap>the contents of directories stack top (the stack is managed with #pushd# and #popd# commands)
 
-    #FARADMINMODE#       ^<wrap>equals "1" if FAR Manager was run by an administrator
+    #FARADMINMODE#       ^<wrap>equals "1" if Far Manager was run by an administrator
 
 
 @RegExp
@@ -4206,11 +4211,11 @@ constructions.
        pressing a single hotkey.
     2. Execution of special functions, which are represented by
        special commands in the text of the macro command.
-    3. Redefine standard hotkeys, which are used by FAR for
+    3. Redefine standard hotkeys, which are used by Far for
        execution of internal commands.
 
     The main usage of macro commands is assignment of hotkeys for calling
-external plugins and for overloading FAR actions.
+external plugins and for overloading Far actions.
 
     See also:
 
@@ -4224,7 +4229,7 @@ external plugins and for overloading FAR actions.
 
 @KeyMacroArea
 $ #Macro command: areas of execution#
-    FAR allows the creation of independent ~macro commands~@KeyMacro@ (commands with
+    Far allows the creation of independent ~macro commands~@KeyMacro@ (commands with
 identical hotkeys) for different areas of execution.
 
     Attention: The area of execution, to which the macro command will
@@ -4263,7 +4268,7 @@ $ #Macro command: hotkeys#
     1. any key;
     2. any key combination with #Ctrl#, #Alt# and #Shift# modifiers;
     3. any key combination with two modifiers.
-       FAR allows to use the following double modifiers:
+       Far allows to use the following double modifiers:
        #Ctrl-Shift-<key>#, #Ctrl-Alt-<key># and #Alt-Shift-<key>#
 
     A macro command #can't# be assigned to the following key combinations:
@@ -4310,7 +4315,7 @@ usually does as a reaction to this combination.
        All keys pressed during the recording will be saved with the
        following exceptions:
 
-       - only keys processed by FAR will be saved. Meaning that if
+       - only keys processed by Far will be saved. Meaning that if
          during the macro recording process an external program is
          run inside the current console then only the keys pressed
          before the execution and after completion of that program
@@ -4355,7 +4360,7 @@ needs to be deleted.
     Attention: after deleting a macro command, the key combination
                (hotkey) that was used for its execution will begin
                to function as it was meant to, originally. That is
-               if that key combination was somehow processed by FAR
+               if that key combination was somehow processed by Far
                or some plugin then after deleting the macro command
                the key combination would be processed by them as in
                the past.
@@ -4373,13 +4378,13 @@ desired options in the dialog:
 
    #Allow screen output while executing macro#
 
-    If this option is not set during the macro command execution FAR Manager
+    If this option is not set during the macro command execution Far Manager
 does not redraw the screen. All the updates will be displayed when the macro
 command playback is finished.
 
-   #Execute after FAR start#
+   #Execute after Far start#
 
-    Allows to execute the macro command immediately after the FAR Manager is
+    Allows to execute the macro command immediately after the Far Manager is
 started.
 
     The following execution conditions can be applied for the active and
@@ -4430,10 +4435,10 @@ to one of those key combinations, select it from the drop-down list.
 
 @KeyMacroLang
 $ #Macro command: macro language#
-    A primitive macro language is implemented in FAR Manager. It allows to
+    A primitive macro language is implemented in Far Manager. It allows to
 insert logical commands into a simple keystrokes sequence, making macros (along
 with ~plugins~@Plugins@) a powerful facility assisting in the everyday use of
-FAR Manager.
+Far Manager.
 
     Several of the available commands are listed below:
     #$Exit#         - stop macro playback

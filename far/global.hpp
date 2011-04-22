@@ -42,6 +42,7 @@ extern int WaitInMainLoop;
 extern int WaitInFastFind;
 
 extern string g_strFarModuleName;
+extern string g_strFarINI;
 extern string g_strFarPath;
 
 extern string strGlobalSearchString;

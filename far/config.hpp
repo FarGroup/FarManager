@@ -645,9 +645,6 @@ struct Options
 	DWORD ShowTimeoutDACLFiles;
 	int DelThreadPriority; // приоритет процесса удаления, по умолчанию = THREAD_PRIORITY_NORMAL
 
-	//int CPAJHefuayor; // производное от "Close Plugin And Jump:
-	// Highly experimental feature, use at your own risk"
-
 	LoadPluginsOptions LoadPlug;
 
 	DialogsOptions Dialogs;
