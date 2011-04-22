@@ -26,8 +26,8 @@ public:
 };
 
 
-typedef std::multimap<string, ArchiveTreeNode*, StringCompareNoCase> ArchiveTreeNodes;
-typedef std::multimap<string, ArchiveTreeNode*, StringCompareNoCase>::iterator ArchiveTreeNodesIterator;
+typedef std::multimap<string, ArchiveTreeNode*, StringCompareCase> ArchiveTreeNodes;
+typedef std::multimap<string, ArchiveTreeNode*, StringCompareCase>::iterator ArchiveTreeNodesIterator;
 
 
 
@@ -129,6 +129,8 @@ public:
 					pNode->strFileName = lpToken;
 
 					pPath->children.insert(std::pair<string, ArchiveTreeNode*>(lpToken, pNode));
+
+					pPath = pNode;
 				}
 			}
 
@@ -136,7 +138,19 @@ public:
 		}
 		}
 
-		ArchiveTree* pNode = new ArchiveTreeNode(pPath->level+1);
+		/////////////
+		ArchiveTreeNodesIterator iterator = pPath->children.find(lpNameOnly);
+
+		ArchiveTreeNode* pNode = nullptr;
+		bool bNew = false;
+
+		if ( iterator != pPath->children.end() )
+			pNode = iterator->second;
+		else //dummy
+		{
+			pNode = new ArchiveTreeNode(pPath->level+1);
+			bNew = true;
+		}
 
 		pNode->parent = pPath;
 		pNode->bDummy = false;
@@ -144,7 +158,8 @@ public:
 		pNode->item = pItem;
 		pNode->strFileName = lpNameOnly;
 
-		pPath->children.insert(std::pair<string, ArchiveTreeNode*>(lpNameOnly, pNode));
+		if ( bNew )
+			pPath->children.insert(std::pair<string, ArchiveTreeNode*>(lpNameOnly, pNode));
 	
 		StrFree(lpNameCopy);
 
