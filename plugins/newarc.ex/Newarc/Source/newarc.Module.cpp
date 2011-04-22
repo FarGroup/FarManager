@@ -3,7 +3,16 @@
 const TCHAR* __stdcall ArchiveModule::GetMsg(INT_PTR nModuleNumber, int nID)
 {
 	ArchiveModule *pModule = (ArchiveModule*)nModuleNumber;
-	return pModule->m_pLanguage->GetMsg(nID);
+
+	if( pModule->m_pLanguage )
+	{
+		const TCHAR* lpResult = pModule->m_pLanguage->GetMsg(nID);
+
+		if ( lpResult )
+			return lpResult;
+	}
+
+	return _T("NO LNG STRING");
 }
 
 ArchiveModule::ArchiveModule(ArchiveModuleManager* pManager)
@@ -43,6 +52,8 @@ bool ArchiveModule::Load(const TCHAR *lpModuleName, const TCHAR *lpLanguage)
 			_si.Info.ModuleNumber = (INT_PTR)this;
 			_si.Info.GetMsg = GetMsg;
 
+			ReloadLanguage(lpLanguage); //хм, а не рано ли
+
 			if ( m_pfnModuleEntry(FID_INITIALIZE, (void*)&_si) == NAERROR_SUCCESS )
 			{
 				ArchiveModuleInfo info;
@@ -50,8 +61,6 @@ bool ArchiveModule::Load(const TCHAR *lpModuleName, const TCHAR *lpLanguage)
 
 				if ( m_pfnModuleEntry(FID_GETARCHIVEMODULEINFO, (void*)&info) == NAERROR_SUCCESS )
 				{
-					ReloadLanguage(lpLanguage);
-
 					m_dwFlags = info.dwFlags;
 					m_uid = info.uid;
 
@@ -264,7 +273,7 @@ void ArchiveModule::ReloadLanguage(
 	Language* pEnglishLanguage = nullptr;
 
 	string strMask = strPath+_T("*.lng");
-
+	
 	WIN32_FIND_DATA FindData;
 	bool bResult = false;
 

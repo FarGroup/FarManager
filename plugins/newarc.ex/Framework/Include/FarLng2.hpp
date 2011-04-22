@@ -5,7 +5,7 @@ class Language {
 private:
 
 	string m_strLanguage;
-	Array<string> strings;
+	PointerArray<TCHAR*> strings;
 
 public:
 

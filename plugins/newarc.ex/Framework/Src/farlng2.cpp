@@ -70,7 +70,7 @@ static int GetCodePage(HANDLE hFile, unsigned int& dwOffset)
 
 void Language::AddString(const TCHAR* lpStr)
 {
-	strings.add(lpStr);
+	strings.add(StrDuplicate(lpStr));
 }
 
 void Language::ParseString(const TCHAR* lpStr)
@@ -108,7 +108,7 @@ void Language::ParseString(const TCHAR* lpStr)
 		if ( strTemp.At(0) == _T('\"') ) //string
 		{
 			farUnquote(strTemp);
-			strings.add(strTemp);
+			AddString(strTemp);
 		}
 	}
 }

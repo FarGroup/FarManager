@@ -443,19 +443,22 @@ public:
 		return SetData(strCopy);
 	}
 
-	StringBase& operator+(const T* lpData)
+	StringBase operator+(const T* lpData)
 	{
-		return Append(lpData);
+		string strResult = *this;
+		return strResult.Append(lpData);
 	}
 
-	StringBase& operator+(const StringBase& strAdd)
+	StringBase operator+(const StringBase& strAdd)
 	{
-		return Append(strAdd);
+		string strResult = *this;
+		return strResult.Append(strAdd);
 	}
 
-	StringBase& operator+(T Ch)
+	StringBase operator+(T Ch)
 	{
-		return Append(Ch);
+		string strResult = *this;
+		return strResult.Append(Ch);
 	}
 
 	StringBase& operator+=(const T* lpData)
@@ -531,7 +534,7 @@ public:
 	{
 		FreeData();
 	}
-
+/*
 	friend StringBase operator+(const StringBase& strStr1, const StringBase& strStr2)
 	{
 		StringBase strResult = strStr1;
@@ -543,7 +546,7 @@ public:
 		StringBase strResult = strStr1;
 		return strResult.Append(lpData);
 	}
-
+*/
 	int __cdecl Format(const T* format, ...)
 	{
 		T* buffer = NULL;

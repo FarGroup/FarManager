@@ -263,15 +263,6 @@ void __stdcall EXP_NAME(SetStartupInfo) (
 
 	pManager = new ArchiveModuleManager(strLanguage);
 
-/*	strIniFileName = Info.ModuleName;
-
-	CutToSlash (strIniFileName);
-	strIniFileName += _T("templates.ini");*/
-
-	Language lng;
-
-	lng.LoadFromFile(_T("c:\\farrus.lng"));
-
 	cfg.uArchiverOutput = ARCHIVER_OUTPUT_SHOW_ALWAYS;
 }
 

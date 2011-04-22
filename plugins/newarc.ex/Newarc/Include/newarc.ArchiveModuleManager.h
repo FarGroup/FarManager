@@ -47,7 +47,7 @@ public:
 
 	bool GetDefaultCommand(ArchiveFormat* pFormat, int nCommand, string& strCommand);
 
-	void SetCurrentLanguage(const TCHAR* lpCurrentLanguage);
+	void SetCurrentLanguage(const TCHAR* lpCurrentLanguage, bool bForce = false);
 
 	static int __stdcall LoadModules(const FAR_FIND_DATA* FData, const TCHAR* lpFullName, ArchiveModuleManager* pManager);
 

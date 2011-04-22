@@ -35,6 +35,7 @@ bool ArchiveModuleManager::LoadIfNeeded()
 		LoadCommands(strModulesPath);
 
 		m_bLoaded = true;
+
 	}
 
 	return m_bLoaded;
@@ -82,12 +83,12 @@ ArchiveFilter* ArchiveModuleManager::GetFilter()
 	return m_pFilter;
 }
 
-void ArchiveModuleManager::SetCurrentLanguage(const TCHAR* lpLanguage)
+void ArchiveModuleManager::SetCurrentLanguage(const TCHAR* lpLanguage, bool bForce)
 {
-	if ( FSF.LStricmp(lpLanguage, m_strCurrentLanguage) )
+	if ( bForce || FSF.LStricmp(lpLanguage, m_strCurrentLanguage) )
 	{
 		for (unsigned int i = 0; i < m_pModules.count(); i++)
-			m_pModules[i]->ReloadLanguage (lpLanguage);
+			m_pModules[i]->ReloadLanguage(lpLanguage);
 
 		m_strCurrentLanguage = lpLanguage;
 	}
