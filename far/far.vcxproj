@@ -537,7 +537,6 @@ if not exist bootstrap mkdir bootstrap</Command>
     <ClCompile Include="RefreshFrameManager.cpp" />
     <ClCompile Include="RegExp.cpp" />
     <ClCompile Include="registry.cpp" />
-    <ClCompile Include="savefpos.cpp" />
     <ClCompile Include="savescr.cpp" />
     <ClCompile Include="scantree.cpp" />
     <ClCompile Include="scrbuf.cpp" />
@@ -1130,7 +1129,6 @@ if not exist bootstrap mkdir bootstrap</Command>
     <ClInclude Include="RegExp.hpp" />
     <ClInclude Include="registry.hpp" />
     <ClInclude Include="res.hpp" />
-    <ClInclude Include="savefpos.hpp" />
     <ClInclude Include="savescr.hpp" />
     <ClInclude Include="scantree.hpp" />
     <ClInclude Include="scrbuf.hpp" />

@@ -43,7 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dialog.hpp"
 #include "fileedit.hpp"
 #include "plognmn.hpp"
-#include "savefpos.hpp"
 #include "ctrlobj.hpp"
 #include "manager.hpp"
 #include "constitle.hpp"

@@ -230,8 +230,6 @@ RegExp.hpp
 registry.cpp
 registry.hpp
 res.hpp
-savefpos.cpp
-savefpos.hpp
 savescr.cpp
 savescr.hpp
 scantree.cpp

@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "codepage.hpp"
 #include "lang.hpp"
 #include "vmenu.hpp"
-#include "savefpos.hpp"
 #include "keys.hpp"
 #include "language.hpp"
 #include "dialog.hpp"

@@ -209,7 +209,6 @@ LINK_OBJS = \
 	"$(INTDIR)\RefreshFrameManager.obj" \
 	"$(INTDIR)\RegExp.obj" \
 	"$(INTDIR)\registry.obj" \
-	"$(INTDIR)\savefpos.obj" \
 	"$(INTDIR)\savescr.obj" \
 	"$(INTDIR)\scantree.obj" \
 	"$(INTDIR)\scrbuf.obj" \

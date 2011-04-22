@@ -356,9 +356,6 @@
     <ClCompile Include="registry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="savefpos.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="savescr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -875,9 +872,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="res.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="savefpos.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="savescr.hpp">

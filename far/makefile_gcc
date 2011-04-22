@@ -132,7 +132,6 @@ SRCS = \
 	RefreshFrameManager.cpp \
 	RegExp.cpp \
 	registry.cpp \
-	savefpos.cpp \
 	savescr.cpp \
 	scantree.cpp \
 	scrbuf.cpp \
