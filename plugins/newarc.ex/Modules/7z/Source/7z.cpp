@@ -13,8 +13,6 @@ int OnInitialize (StartupInfo *pInfo)
 	pModule = new SevenZipModule;
 	pModule->Load();
 
-	MessageBoxW(0, Info.GetMsg(Info.ModuleNumber, 0), _T("123"), MB_OK);
-
 	return NAERROR_SUCCESS;
 }
 
