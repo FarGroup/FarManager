@@ -83,7 +83,7 @@ bool MaPlugin::Load(
 					ArchiveFormatInfo info;
 					//memset(&info, 0, sizeof(ArchiveFormatInfo));
 
-					info.dwFlags = 0;
+					info.dwFlags = AFF_SUPPORT_DEFAULT_COMMANDS;
 
 					string strName;
 

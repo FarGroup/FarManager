@@ -73,7 +73,7 @@ const FormatInfo signs[] = {
 };
 
 
-bool ConvertToFormatInfo (
+bool ConvertToFormatInfo(
 		CPropVariant& vGUID,
 		CPropVariant& vUpdate,
 		CPropVariant& vExtension,
@@ -134,7 +134,7 @@ bool ConvertToFormatInfo (
 
 	strName += _T(" archive [7z]");
 
-	memcpy (&pInfo->uid, vGUID.bstrVal, sizeof (GUID));
+	memcpy(&pInfo->uid, vGUID.bstrVal, sizeof (GUID));
 
 	pInfo->lpName = StrDuplicate(strName);
 	pInfo->lpDefaultExtention = StrDuplicate(strDefaultExtention);
@@ -146,6 +146,21 @@ bool ConvertToFormatInfo (
 		pInfo->dwFlags |= (AFF_SUPPORT_INTERNAL_DELETE|AFF_SUPPORT_INTERNAL_ADD|AFF_SUPPORT_INTERNAL_CREATE);
 
 	pInfo->dwFlags |= AFF_SUPPORT_INTERNAL_CONFIG;
+
+	if ( (pInfo->uid == CLSID_CFormat7z) || 
+		 (pInfo->uid == CLSID_CRarHandler) ||
+		 (pInfo->uid == CLSID_CZipHandler) ||
+		 (pInfo->uid == CLSID_CArjHandler) ||
+		 (pInfo->uid == CLSID_CTarHandler) ||
+		 (pInfo->uid == CLSID_CGZipHandler) ||
+		 (pInfo->uid == CLSID_CBZip2Handler) ||
+		 (pInfo->uid == CLSID_CZHandler) ||
+		 (pInfo->uid == CLSID_CCabHandler) ||
+		 (pInfo->uid == CLSID_CLzhHandler) ||
+		 (pInfo->uid == CLSID_CCpioHandler) ||
+		 (pInfo->uid == CLSID_CRpmHandler) ||
+		 (pInfo->uid == CLSID_CDebHandler) )
+		 pInfo->dwFlags |= AFF_SUPPORT_DEFAULT_COMMANDS;
 
 	return true;
 }
@@ -240,12 +255,12 @@ bool SevenZipPlugin::Load()
 				ArchiveFormatInfo format;
 				memset(&format, 0, sizeof(format));
 
-				if ( (m_pfnGetHandlerProperty (NArchive::kClassID, &vGUID) == S_OK) &&
-					 (m_pfnGetHandlerProperty (NArchive::kUpdate, &vUpdate) == S_OK) &&
-					 (m_pfnGetHandlerProperty (NArchive::kExtension, &vExtension) == S_OK) &&
-					 (m_pfnGetHandlerProperty (NArchive::kStartSignature, &vSignature) == S_OK) &&
-					 (m_pfnGetHandlerProperty (NArchive::kName, &vName) == S_OK) &&
-					 ConvertToFormatInfo (vGUID, vUpdate, vExtension, vSignature, vName, &format) )
+				if ( (m_pfnGetHandlerProperty(NArchive::kClassID, &vGUID) == S_OK) &&
+					 (m_pfnGetHandlerProperty(NArchive::kUpdate, &vUpdate) == S_OK) &&
+					 (m_pfnGetHandlerProperty(NArchive::kExtension, &vExtension) == S_OK) &&
+					 (m_pfnGetHandlerProperty(NArchive::kStartSignature, &vSignature) == S_OK) &&
+					 (m_pfnGetHandlerProperty(NArchive::kName, &vName) == S_OK) &&
+					 ConvertToFormatInfo(vGUID, vUpdate, vExtension, vSignature, vName, &format) )
 					m_pFormatInfo.add(format);
 			}
 			

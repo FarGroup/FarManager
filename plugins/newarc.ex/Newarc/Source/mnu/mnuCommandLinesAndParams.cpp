@@ -10,7 +10,7 @@ void mnuCommandLinesAndParams()
 	{
 		ArchiveFormat* pFormat = formats[i];
 
-		if ( !pFormat->QueryCapability(AFF_HAS_NO_DEFAULT_COMMANDS) )
+		if ( pFormat->QueryCapability(AFF_SUPPORT_DEFAULT_COMMANDS) )
 			menu.Add(pFormat->GetName(), 0, (void*)pFormat);
 	}
 
