@@ -19,8 +19,7 @@ private:
 	HMODULE m_hModule;
 	TCHAR *m_pCommands[11];
 
-	TCHAR **m_pLanguageStrings;
-	int m_nStringsCount;
+	Language* m_pLanguage;
 
 	ObjectArray<ArchivePlugin*> m_pPlugins;
 

@@ -11,6 +11,7 @@
 #include <FarPluginBase.hpp>
 #include <FarRegistry.hpp>
 #include <FarLNG.hpp>
+#include <FarLNG2.hpp>
 #include <array.hpp>
 #include <debug.h>
 

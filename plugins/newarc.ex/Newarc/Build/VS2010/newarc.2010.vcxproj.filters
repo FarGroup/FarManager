@@ -120,6 +120,9 @@
     <ClCompile Include="..\..\Source\mnu\mnuChooseOperation.cpp">
       <Filter>Source Files\Menus</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Framework\Src\farlng2.cpp">
+      <Filter>Source Files\Framework</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\API\module.hpp">

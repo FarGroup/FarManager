@@ -15,3 +15,5 @@ void apiCreateDirectoryEx(const TCHAR* lpDirectory);
 void apiCreateDirectoryForFile(const TCHAR* lpFileName);
 
 bool apiSetFilePointer(HANDLE hFile, __int64 nDistanceToMove, __int64* pNewFilePointer, DWORD dwMoveMethod);
+
+bool apiGetFileSize(HANDLE hFile, unsigned __int64 *pSize);

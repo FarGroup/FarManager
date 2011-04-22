@@ -150,8 +150,9 @@ bool apiGetFileSize(HANDLE hFile, unsigned __int64 *pSize)
 	if ( (dwLowPart == INVALID_FILE_SIZE) && (GetLastError() != NO_ERROR) )
 		return false;
 
-	if ( *pSize )
+	if ( pSize )
 		*pSize = ((unsigned __int64)dwHighPart << 32) + dwLowPart;
 
 	return true;
 }
+

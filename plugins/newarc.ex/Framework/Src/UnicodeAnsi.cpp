@@ -45,3 +45,19 @@ char* AnsiToUTF8(const char* lpSrc, int CodePage)
 
 	return lpResult;
 }
+
+wchar_t* UTF8ToUnicode(const char* lpSrc)
+{
+	return AnsiToUnicode(lpSrc, CP_UTF8); //aaa!!!
+}
+
+char* UTF8ToAnsi(const char* lpSrc, int CodePage)
+{
+	wchar_t* lpUnicode = AnsiToUnicode(lpSrc, CP_UTF8);
+
+	char* lpResult = UnicodeToAnsi(lpUnicode, CP_OEMCP);
+
+	free(lpUnicode);
+
+	return lpResult;
+}

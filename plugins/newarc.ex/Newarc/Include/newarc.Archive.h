@@ -1,7 +1,6 @@
 #pragma once
 #include "newarc.h"
 
-
 #define PROCESS_CANCEL 0
 #define PROCESS_SKIP 1
 #define PROCESS_OVERWRITE 2

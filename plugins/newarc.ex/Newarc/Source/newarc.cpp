@@ -268,6 +268,10 @@ void __stdcall EXP_NAME(SetStartupInfo) (
 	CutToSlash (strIniFileName);
 	strIniFileName += _T("templates.ini");*/
 
+	Language lng;
+
+	lng.LoadFromFile(_T("c:\\farrus.lng"));
+
 	cfg.uArchiverOutput = ARCHIVER_OUTPUT_SHOW_ALWAYS;
 }
 

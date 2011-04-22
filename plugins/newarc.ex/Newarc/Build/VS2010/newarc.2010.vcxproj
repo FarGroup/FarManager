@@ -294,6 +294,7 @@
     <ClCompile Include="..\..\..\Framework\Src\FarApi.cpp" />
     <ClCompile Include="..\..\..\Framework\Src\FarDialog.cpp" />
     <ClCompile Include="..\..\..\Framework\Src\FarLng.cpp" />
+    <ClCompile Include="..\..\..\Framework\Src\farlng2.cpp" />
     <ClCompile Include="..\..\..\Framework\Src\FarPagedDialog.cpp" />
     <ClCompile Include="..\..\..\Framework\Src\FarRegistry.cpp" />
     <ClCompile Include="..\..\..\Framework\Src\makeguid.cpp" />
