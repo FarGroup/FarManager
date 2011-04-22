@@ -353,11 +353,13 @@ struct AddStruct {
 
 	HANDLE hArchive;
 
-	const TCHAR *lpSourcePath;
-	const TCHAR *lpCurrentPath;
+	const TCHAR* lpSourcePath;
+	const TCHAR* lpCurrentPath;
 	
 	const ArchiveItem* pItems;
 	unsigned int uItemsNumber;
+
+	const TCHAR* pConfig;
 	
 	int nResult;
 };
