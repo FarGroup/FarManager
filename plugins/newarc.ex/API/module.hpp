@@ -401,7 +401,11 @@ struct ConfigureFormatStruct {
 	GUID uidFormat;
 	GUID uidPlugin;
 	
-	char *lpResult;
+	TCHAR* pResult;
+};
+
+struct FreeConfigResultStruct {
+	TCHAR* pResult;
 };
 
 
@@ -430,7 +434,7 @@ struct StartupInfo {
 
 #define FID_CONFIGURE			20 //param - ConfigureStruct
 #define FID_CONFIGUREFORMAT		21
-#define FID_DELETECONFIGUREDATA 22
+#define FID_FREECONFIGRESULT	22
 
 #define FID_GETARCHIVEINFO  200
 #define FID_GETARCHIVEFILEINFO 300

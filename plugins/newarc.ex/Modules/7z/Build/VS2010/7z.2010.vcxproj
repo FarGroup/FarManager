@@ -323,10 +323,12 @@
     <ClCompile Include="..\..\..\..\Framework\Src\SystemApi.cpp" />
     <ClCompile Include="..\..\..\..\Framework\Src\UnicodeAnsi.cpp" />
     <ClCompile Include="..\..\Source\7z.Archive.cpp" />
+    <ClCompile Include="..\..\Source\7z.Config.cpp" />
     <ClCompile Include="..\..\Source\7z.cpp" />
     <ClCompile Include="..\..\Source\7z.File.cpp" />
     <ClCompile Include="..\..\Source\7z.Module.cpp" />
     <ClCompile Include="..\..\Source\7z.Plugin.cpp" />
+    <ClCompile Include="..\..\Source\7z.Properties.cpp" />
     <ClCompile Include="..\..\Source\Helpers\7z.ArchiveExtractCallback.cpp" />
     <ClCompile Include="..\..\Source\Helpers\7z.ArchiveOpenCallback.cpp" />
     <ClCompile Include="..\..\Source\Helpers\7z.ArchiveOpenVolumeCallback.cpp" />

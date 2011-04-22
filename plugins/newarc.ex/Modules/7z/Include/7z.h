@@ -57,6 +57,9 @@ class CCryptoGetTextPassword;
 #include "Helpers/7z.ArchiveUpdateCallback.h"
 #include "Helpers/7z.CryptoGetTextPassword.h"
 
+
 #include "7z.Plugin.h"
 #include "7z.Archive.h"
 #include "PropVariant.h"
+#include "7z.Config.h"
+#include "7z.Properties.h"

@@ -61,5 +61,5 @@ public:
 	void CloseArchive(SevenZipArchive* pArchive);
 
 	bool CreateObject(const GUID& uidFormat, const GUID& uidInterface, void** pObject);
-	void Configure(const GUID& uid);
+//	void Configure(const GUID& uid);
 };

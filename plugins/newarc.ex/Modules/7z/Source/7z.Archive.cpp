@@ -543,7 +543,7 @@ int SevenZipArchive::Extract(
 	return nResult;
 }
 
-#include "7z.Properties.cpp"
+//#include "7z.Properties.cpp"
 
 int SevenZipArchive::AddFiles(
 		const ArchiveItem* pItems,

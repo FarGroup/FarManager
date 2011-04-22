@@ -1,4 +1,4 @@
-#include "PropVariant.h"
+#include "7z.h"
 #include "../7z.headers/Common/Defs.h"
 
 CPropVariant::CPropVariant(const PROPVARIANT& varSrc)

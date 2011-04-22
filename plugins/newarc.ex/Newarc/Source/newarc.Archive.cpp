@@ -525,7 +525,9 @@ void QuoteSpaceOnly(string& strSrc)
 bool Archive::ExecuteCommand(
 		const ArchiveItemArray& items,
 		int nCommand,
-		const TCHAR* lpCurrentDiskPath
+		const TCHAR* lpCurrentDiskPath,
+		const TCHAR* lpAdditionalCommandLine,
+		bool bHideOutput
 		)
 {
 	bool bResult = false;
@@ -568,7 +570,7 @@ bool Archive::ExecuteCommand(
 		psParam.strShortArchiveName = strFileName;
 		psParam.strPassword = m_strPassword;
 		psParam.strPathInArchive = m_strPathInArchive;
-//		psParam.strAdditionalCommandLine = m_strAdditionalCommandLine;
+		psParam.strAdditionalCommandLine = lpAdditionalCommandLine;
 		
 		string strExecuteString;
 		int nStartItemNumber = 0;

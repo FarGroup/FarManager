@@ -155,7 +155,9 @@ public:
 	bool ExecuteCommand(
 			const ArchiveItemArray& items, 
 			int nCommand, 
-			const TCHAR* lpCurrentDiskPath = NULL
+			const TCHAR* lpCurrentDiskPath = NULL,
+			const TCHAR* lpAdditionalCommandLine = NULL,
+			bool bHideOutput = false
 			);
 
 private:

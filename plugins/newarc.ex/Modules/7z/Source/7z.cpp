@@ -22,13 +22,13 @@ int OnFinalize ()
 	return NAERROR_SUCCESS;
 }
 
-int OnQueryArchive(QueryArchiveStruct *pQAS)
+int OnQueryArchive(QueryArchiveStruct* pQAS)
 {
 	bool bMoreArchives = false;
 
 	const ArchiveQueryResult* pResult = pModule->QueryArchive(pQAS, bMoreArchives);
-    
-    if ( pResult )
+
+	if ( pResult )
 	{
 		pQAS->uidFormat = pResult->uidFormat;
 		pQAS->uidPlugin = pResult->uidPlugin;
@@ -176,7 +176,7 @@ int OnDelete(DeleteStruct *pDS)
 }
 
 
-int OnConfigure(ConfigureStruct *pCF)
+int OnConfigure(ConfigureStruct* pCF)
 {
 /*
 	SevenZipPlugin* pPlugin = pModule->GetPluginFromUID(pCF->uid);
@@ -184,6 +184,47 @@ int OnConfigure(ConfigureStruct *pCF)
 	if ( pPlugin )
 		pPlugin->Configure(pCF->uid);
 	*/
+	return NAERROR_SUCCESS;
+}
+
+int OnConfigureFormat(ConfigureFormatStruct* pCFS)
+{
+	//пока считаем, что тут у нас uidFormat уникален (а так оно и есть)
+
+	const CompressionFormatInfo* pFormat = GetCompressionFormatInfo(pCFS->uidFormat);
+
+	if ( pFormat )
+	{
+		SevenZipCompressionConfig* pCfg = new SevenZipCompressionConfig;
+		memset(pCfg, 0, sizeof(SevenZipCompressionConfig));
+
+		//pCfg->FromString(pCFS->pResult);
+		pCfg->pFormat = pFormat;
+
+		if ( dlgSevenZipPluginConfigure(pCfg) )
+		{
+			string strResult;
+
+			pCfg->ToString(strResult);
+
+			MessageBoxW (0, strResult, strResult, MB_OK);
+
+			pCFS->pResult = StrDuplicate(strResult);
+
+			return NAERROR_SUCCESS;
+		}
+
+		pCFS->pResult = nullptr;
+	}
+	
+	return NAERROR_SUCCESS;
+}
+
+int OnFreeConfigResult(FreeConfigResultStruct* pFCR)
+{
+//	Config::Free
+//	StrFree(pFCR->pResult);
+
 	return NAERROR_SUCCESS;
 }
 
@@ -253,6 +294,12 @@ int __stdcall ModuleEntry (
 
 	case FID_CONFIGURE:
 		return OnConfigure((ConfigureStruct*)pParams);
+
+	case FID_CONFIGUREFORMAT:
+		return OnConfigureFormat((ConfigureFormatStruct*)pParams);
+
+	case FID_FREECONFIGRESULT:
+		return OnFreeConfigResult((FreeConfigResultStruct*)pParams);
 
 	case FID_GETARCHIVEINFO:
 		return OnGetArchiveInfo((ArchiveInfoStruct*)pParams);
