@@ -447,7 +447,7 @@ enum EDITTYPERECORD
 	ETR_BUTTON_CANCEL,
 };
 
-INT_PTR WINAPI EditTypeRecordDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI EditTypeRecordDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 {
 	switch (Msg)
 	{
@@ -461,7 +461,7 @@ INT_PTR WINAPI EditTypeRecordDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Para
 				case ETR_COMBO_ALTVIEW:
 				case ETR_COMBO_EDIT:
 				case ETR_COMBO_ALTEDIT:
-					SendDlgMessage(hDlg,DM_ENABLE,Param1+1,Param2==BSTATE_CHECKED?TRUE:FALSE);
+					SendDlgMessage(hDlg,DM_ENABLE,Param1+1,ToPtr(reinterpret_cast<INT_PTR>(Param2)==BSTATE_CHECKED?TRUE:FALSE));
 					break;
 				default:
 					break;

@@ -97,7 +97,7 @@ int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1,
 	return Message(Flags,Buttons,Title,Str,StrCount,PluginNumber);
 }
 
-INT_PTR WINAPI MsgDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI MsgDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 {
 	switch (Msg)
 	{
@@ -105,12 +105,12 @@ INT_PTR WINAPI MsgDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 		{
 			FarDialogItem di;
 
-			for (int i=0; SendDlgMessage(hDlg,DM_GETDLGITEMSHORT,i,(INT_PTR)&di); i++)
+			for (int i=0; SendDlgMessage(hDlg,DM_GETDLGITEMSHORT,i,&di); i++)
 			{
 				if (di.Type==DI_EDIT)
 				{
 					COORD pos={0,0};
-					SendDlgMessage(hDlg,DM_SETCURSORPOS,i,(INT_PTR)&pos);
+					SendDlgMessage(hDlg,DM_SETCURSORPOS,i,&pos);
 				}
 			}
 		}
@@ -118,12 +118,12 @@ INT_PTR WINAPI MsgDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 		case DN_CTLCOLORDLGITEM:
 		{
 			FarDialogItem di;
-			SendDlgMessage(hDlg,DM_GETDLGITEMSHORT,Param1,(INT_PTR)&di);
+			SendDlgMessage(hDlg,DM_GETDLGITEMSHORT,Param1,&di);
 
 			if (di.Type==DI_EDIT)
 			{
 				int Color=FarColorToReal(IsWarningStyle?COL_WARNDIALOGTEXT:COL_DIALOGTEXT)&0xFF;
-				return ((Param2&0xFF00FF00)|(Color<<16)|Color);
+				return ((reinterpret_cast<INT_PTR>(Param2)&0xFF00FF00)|(Color<<16)|Color);
 			}
 		}
 		break;

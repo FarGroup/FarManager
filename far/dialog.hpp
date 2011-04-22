@@ -191,8 +191,8 @@ class ConsoleTitle;
 class Dialog: public Frame
 {
 		friend class DlgEdit;
-		friend INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2);
-		friend INT_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2);
+		friend INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2);
+		friend INT_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2);
 
 	private:
 		bool bInitOK;               // диалог был успешно инициализирован
@@ -202,7 +202,7 @@ class Dialog: public Frame
 		int IsEnableRedraw;         // Разрешена перерисовка диалога? ( 0 - разрешена)
 		BitFlags DialogMode;        // Флаги текущего режима диалога
 
-		INT_PTR DataDialog;        // Данные, специфические для конкретного экземпляра диалога (первоначально здесь параметр, переданный в конструктор)
+		void* DataDialog;        // Данные, специфические для конкретного экземпляра диалога (первоначально здесь параметр, переданный в конструктор)
 
 		DialogItemEx **Item; // массив элементов диалога
 		DialogItemEx *pSaveItemEx; // пользовательский массив элементов диалога
@@ -229,7 +229,7 @@ class Dialog: public Frame
 		bool IdExist;
 
 	private:
-		void Init(FARWINDOWPROC DlgProc,INT_PTR InitParam);
+		void Init(FARWINDOWPROC DlgProc,void* InitParam);
 		virtual void DisplayObject();
 		void DeleteDialogObjects();
 		int  LenStrItem(int ID, const wchar_t *lpwszStr = nullptr);
@@ -285,15 +285,15 @@ class Dialog: public Frame
 		int Do_ProcessSpace();
 		void SetComboBoxPos(DialogItemEx* Item=nullptr);
 
-		INT_PTR CallDlgProc(int nMsg, int nParam1, INT_PTR nParam2);
+		INT_PTR CallDlgProc(int nMsg, int nParam1, void* Param2);
 
 		void ProcessKey(int Key, unsigned ItemPos);
 
 	public:
 		Dialog(DialogItemEx *SrcItem, size_t SrcItemCount,
-		       FARWINDOWPROC DlgProc=nullptr,INT_PTR InitParam=0);
+		       FARWINDOWPROC DlgProc=nullptr,void* InitParam=nullptr);
 		Dialog(FarDialogItem *SrcItem, size_t SrcItemCount,
-		       FARWINDOWPROC DlgProc=nullptr,INT_PTR InitParam=0);
+		       FARWINDOWPROC DlgProc=nullptr,void* InitParam=nullptr);
 		bool InitOK() {return bInitOK;}
 		virtual ~Dialog();
 
@@ -316,8 +316,8 @@ class Dialog: public Frame
 		int IsMoving() {return DialogMode.Check(DMODE_DRAGGED);}
 		void SetModeMoving(int IsMoving) { DialogMode.Change(DMODE_ISCANMOVE,IsMoving);}
 		int  GetModeMoving() {return DialogMode.Check(DMODE_ISCANMOVE);}
-		void SetDialogData(INT_PTR NewDataDialog);
-		INT_PTR GetDialogData() {return DataDialog;};
+		void SetDialogData(void* NewDataDialog);
+		void* GetDialogData() {return DataDialog;};
 
 		void InitDialog();
 		void Process();
@@ -353,7 +353,7 @@ class Dialog: public Frame
 		                  FARDIALOGITEMFLAGS CheckedSet,FARDIALOGITEMFLAGS CheckedSkip,
 		                  FARDIALOGITEMFLAGS Checked3Set=DIF_NONE,FARDIALOGITEMFLAGS Checked3Skip=DIF_NONE);
 
-		INT_PTR WINAPI DlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2);
+		INT_PTR WINAPI DlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2);
 
 		virtual void SetPosition(int X1,int Y1,int X2,int Y2);
 
@@ -365,11 +365,11 @@ class Dialog: public Frame
 		friend class History;
 };
 
-typedef INT_PTR(WINAPI *SENDDLGMESSAGE)(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2);
+typedef INT_PTR(WINAPI *SENDDLGMESSAGE)(HANDLE hDlg,int Msg,int Param1,void* Param2);
 
-INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2);
+INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2);
 
-INT_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2);
+INT_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2);
 
 bool IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos=-1);
 

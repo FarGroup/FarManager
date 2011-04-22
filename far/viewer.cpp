@@ -1986,23 +1986,23 @@ enum
  DM_SDSETVISIBILITY = DM_USER+1,
 };
 
-INT_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 {
 	switch (Msg)
 	{
 		case DN_INITDIALOG:
 		{
 			SendDlgMessage(hDlg,DM_SDSETVISIBILITY,SendDlgMessage(hDlg,DM_GETCHECK,SD_RADIO_HEX,0) == BSTATE_CHECKED,0);
-			SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,SD_EDIT_TEXT,1);
-			SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,SD_EDIT_HEX,1);
+			SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,SD_EDIT_TEXT,ToPtr(1));
+			SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,SD_EDIT_HEX,ToPtr(1));
 			return TRUE;
 		}
 		case DM_SDSETVISIBILITY:
 		{
-			SendDlgMessage(hDlg,DM_SHOWITEM,SD_EDIT_TEXT,!Param1);
-			SendDlgMessage(hDlg,DM_SHOWITEM,SD_EDIT_HEX,Param1);
-			SendDlgMessage(hDlg,DM_ENABLE,SD_CHECKBOX_CASE,!Param1);
-			SendDlgMessage(hDlg,DM_ENABLE,SD_CHECKBOX_WORDS,!Param1);
+			SendDlgMessage(hDlg,DM_SHOWITEM,SD_EDIT_TEXT,ToPtr(!Param1));
+			SendDlgMessage(hDlg,DM_SHOWITEM,SD_EDIT_HEX,ToPtr(Param1));
+			SendDlgMessage(hDlg,DM_ENABLE,SD_CHECKBOX_CASE,ToPtr(!Param1));
+			SendDlgMessage(hDlg,DM_ENABLE,SD_CHECKBOX_WORDS,ToPtr(!Param1));
 			//SendDlgMessage(hDlg,DM_ENABLE,SD_CHECKBOX_REGEXP,!Param1);
 			return TRUE;
 		}
@@ -2020,13 +2020,13 @@ INT_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2
 				string strTo;
 				viewer->SearchTextTransform(strTo, ps, Param1 == SD_RADIO_TEXT);
 
-				SendDlgMessage(hDlg, DM_SETTEXTPTR, sd_dst, (INT_PTR)strTo.CPtr());
+				SendDlgMessage(hDlg, DM_SETTEXTPTR, sd_dst, const_cast<wchar_t*>(strTo.CPtr()));
 				SendDlgMessage(hDlg, DM_SDSETVISIBILITY, Param1 == SD_RADIO_HEX, 0);
 
 				if (!strTo.IsEmpty())
 				{
-					int changed = (int)SendDlgMessage(hDlg, DM_EDITUNCHANGEDFLAG, sd_src, -1);
-					SendDlgMessage(hDlg, DM_EDITUNCHANGEDFLAG, sd_dst, changed);
+					int changed = (int)SendDlgMessage(hDlg, DM_EDITUNCHANGEDFLAG, sd_src, ToPtr(-1));
+					SendDlgMessage(hDlg, DM_EDITUNCHANGEDFLAG, sd_dst, ToPtr(changed));
 				}
 
 				SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
@@ -2263,7 +2263,7 @@ void Viewer::Search(int Next,int FirstChar)
 	else
 		SearchDlg[SD_EDIT_TEXT].strData = strSearchStr;
 
-	SearchDlg[SD_EDIT_TEXT].UserData = (DWORD_PTR)this;
+	SearchDlg[SD_EDIT_TEXT].UserData = this;
 
 	if (!Next)
 	{

@@ -385,7 +385,7 @@ namespace oldfar
 		HANDLE hDlg;
 		int Msg;
 		int Param1;
-		LONG_PTR Param2;
+		void* Param2;
 		LONG_PTR Result;
 	};
 
@@ -408,7 +408,7 @@ namespace oldfar
 	    HANDLE   hDlg,
 	    int Msg,
 	    int      Param1,
-	    LONG_PTR Param2
+	    void* Param2
 	);
 
 	typedef int (WINAPI *FARAPIDIALOG)(
@@ -434,7 +434,7 @@ namespace oldfar
 	    DWORD                 Reserved,
 	    DWORD                 Flags,
 	    FARWINDOWPROC         DlgProc,
-	    LONG_PTR              Param
+	    void*                 Param
 	);
 
 
@@ -1016,7 +1016,7 @@ namespace oldfar
 
 	typedef INT_PTR(WINAPI *FARAPIADVCONTROL)(
 	    INT_PTR ModuleNumber,
-	    int     Command,
+	    oldfar::ADVANCED_CONTROL_COMMANDS Command,
 	    void   *Param
 	);
 

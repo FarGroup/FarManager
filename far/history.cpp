@@ -311,7 +311,7 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 					ListColors.ColorCount=VMENU_COLOR_COUNT;
 					ListColors.Colors=RealColors;
 					HistoryMenu.GetColors(&ListColors);
-					if(DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,CurItem->ID,(INT_PTR)&ListColors))
+					if(DlgProc(this,DN_CTLCOLORDLGLIST,CurItem->ID,(INT_PTR)&ListColors))
 						HistoryMenu.SetColors(&ListColors);
 				}
 		*/

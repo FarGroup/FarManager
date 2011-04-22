@@ -615,7 +615,7 @@ enum
 	DM_SWITCHRO = DM_USER+2,
 };
 
-INT_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 {
 
 	CopyDlgParam *DlgParam=(CopyDlgParam *)SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
@@ -623,20 +623,20 @@ INT_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 	switch (Msg)
 	{
 		case DN_INITDIALOG:
-			SendDlgMessage(hDlg,DM_SETCOMBOBOXEVENT,ID_SC_COMBO,CBET_KEY|CBET_MOUSE);
+			SendDlgMessage(hDlg,DM_SETCOMBOBOXEVENT,ID_SC_COMBO,ToPtr(CBET_KEY|CBET_MOUSE));
 			SendDlgMessage(hDlg,DM_SETMOUSEEVENTNOTIFY,TRUE,0);
 			break;
 		case DM_SWITCHRO:
 		{
 			FarListGetItem LGI={CM_ASKRO};
-			SendDlgMessage(hDlg,DM_LISTGETITEM,ID_SC_COMBO,(INT_PTR)&LGI);
+			SendDlgMessage(hDlg,DM_LISTGETITEM,ID_SC_COMBO,&LGI);
 
 			if (LGI.Item.Flags&LIF_CHECKED)
 				LGI.Item.Flags&=~LIF_CHECKED;
 			else
 				LGI.Item.Flags|=LIF_CHECKED;
 
-			SendDlgMessage(hDlg,DM_LISTUPDATE,ID_SC_COMBO,(INT_PTR)&LGI);
+			SendDlgMessage(hDlg,DM_LISTUPDATE,ID_SC_COMBO,&LGI);
 			SendDlgMessage(hDlg,DM_REDRAW,0,0);
 			return TRUE;
 		}
@@ -644,7 +644,7 @@ INT_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 		{
 			if (Param1==ID_SC_USEFILTER) // "Use filter"
 			{
-				UseFilter=(int)Param2;
+				UseFilter=static_cast<int>(reinterpret_cast<INT_PTR>(Param2));
 				return TRUE;
 			}
 
@@ -824,7 +824,7 @@ INT_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 			nLength = (int)SendDlgMessage(hDlg, DM_GETTEXTLENGTH, ID_SC_TARGETEDIT, 0);
 			Data.PtrData = strOldFolder.GetBuffer(nLength+1);
 			Data.PtrLength = nLength;
-			SendDlgMessage(hDlg,DM_GETTEXT,ID_SC_TARGETEDIT,(INT_PTR)&Data);
+			SendDlgMessage(hDlg,DM_GETTEXT,ID_SC_TARGETEDIT,&Data);
 			strOldFolder.ReleaseBuffer();
 			string strNewFolder;
 
@@ -881,7 +881,7 @@ INT_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 						strNewFolder = strOldFolder;
 					}
 
-					SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_SC_TARGETEDIT,(INT_PTR)strNewFolder.CPtr());
+					SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_SC_TARGETEDIT,const_cast<wchar_t*>(strNewFolder.CPtr()));
 					SendDlgMessage(hDlg,DM_SETFOCUS,ID_SC_TARGETEDIT,0);
 				}
 			}
@@ -894,7 +894,7 @@ INT_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 			if (Param1==ID_SC_BTNCOPY)
 			{
 				FarListGetItem LGI={CM_ASKRO};
-				SendDlgMessage(hDlg,DM_LISTGETITEM,ID_SC_COMBO,(INT_PTR)&LGI);
+				SendDlgMessage(hDlg,DM_LISTGETITEM,ID_SC_COMBO,&LGI);
 
 				if (LGI.Item.Flags&LIF_CHECKED)
 					DlgParam->AskRO=TRUE;
@@ -1332,7 +1332,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		}
 
 		CopyDlg[ID_SC_COMBO].ListItems=&ComboList;
-		Dialog Dlg(CopyDlg,ARRAYSIZE(CopyDlg),CopyDlgProc,(INT_PTR)&CDP);
+		Dialog Dlg(CopyDlg,ARRAYSIZE(CopyDlg),CopyDlgProc,&CDP);
 		Dlg.SetHelp(Link?L"HardSymLink":L"CopyFiles");
 		Dlg.SetId(Link?HardSymLinkId:(Move?MoveFilesId:CopyFilesId));
 		Dlg.SetPosition(-1,-1,DLG_WIDTH,DLG_HEIGHT);
@@ -3579,7 +3579,7 @@ enum
  DM_OPENVIEWER = DM_USER+33,
 };
 
-INT_PTR WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 {
 	switch (Msg)
 	{
@@ -3616,7 +3616,7 @@ INT_PTR WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 			if (Param1==WDLG_FILENAME)
 			{
 				int Color=FarColorToReal(COL_WARNDIALOGTEXT)&0xFF;
-				return ((Param2&0xFF00FF00)|(Color<<16)|Color);
+				return ((reinterpret_cast<INT_PTR>(Param2)&0xFF00FF00)|(Color<<16)|Color);
 			}
 		}
 		break;
@@ -3646,7 +3646,7 @@ INT_PTR WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 								CutToSlash(*WFN[2]);
 							}
 
-							SendDlgMessage(hDlg,DM_SETCHECK,WDLG_CHECKBOX,All);
+							SendDlgMessage(hDlg,DM_SETCHECK,WDLG_CHECKBOX,ToPtr(All));
 						}
 						else
 						{
@@ -3789,7 +3789,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 				string strFullSrcName;
 				ConvertNameToFull(SrcName,strFullSrcName);
 				string *WFN[]={&strFullSrcName,&strDestName,&strRenamedFilesPath};
-				Dialog WarnDlg(WarnCopyDlg,ARRAYSIZE(WarnCopyDlg),WarnDlgProc,(INT_PTR)&WFN);
+				Dialog WarnDlg(WarnCopyDlg,ARRAYSIZE(WarnCopyDlg),WarnDlgProc,&WFN);
 				WarnDlg.SetDialogMode(DMODE_WARNINGSTYLE);
 				WarnDlg.SetPosition(-1,-1,WARN_DLG_WIDTH,WARN_DLG_HEIGHT);
 				WarnDlg.SetHelp(L"CopyAskOverwrite");
@@ -3894,7 +3894,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 					string strSrcName;
 					ConvertNameToFull(SrcData.strFileName,strSrcName);
 					LPCWSTR WFN[2]={strSrcName,DestName};
-					Dialog WarnDlg(WarnCopyDlg,ARRAYSIZE(WarnCopyDlg),WarnDlgProc,(INT_PTR)&WFN);
+					Dialog WarnDlg(WarnCopyDlg,ARRAYSIZE(WarnCopyDlg),WarnDlgProc,&WFN);
 					WarnDlg.SetDialogMode(DMODE_WARNINGSTYLE);
 					WarnDlg.SetPosition(-1,-1,WARN_DLG_WIDTH,WARN_DLG_HEIGHT);
 					WarnDlg.SetHelp(L"CopyFiles");

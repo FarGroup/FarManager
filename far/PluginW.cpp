@@ -198,16 +198,16 @@ static BOOL WINAPI farColorDialog(const GUID* PluginId, COLORDIALOGFLAGS Flags, 
 	return Result;
 }
 
-static INT_PTR WINAPI FarAdvControlW(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Command, void *Param)
+static INT_PTR WINAPI FarAdvControlW(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Command, int Param1, void* Param2)
 {
 	if (ACTL_SYNCHRO==Command) //must be first
 	{
-		PluginSynchroManager.Synchro(true, *PluginId, Param);
+		PluginSynchroManager.Synchro(true, *PluginId, Param2);
 		return 0;
 	}
 	if (ACTL_GETWINDOWTYPE==Command)
 	{
-		WindowType* info=(WindowType*)Param;
+		WindowType* info=(WindowType*)Param2;
 		if (info&&info->StructSize>=sizeof(WindowType))
 		{
 			int type=CurrentWindowType;
@@ -225,13 +225,13 @@ static INT_PTR WINAPI FarAdvControlW(const GUID* PluginId, ADVANCED_CONTROL_COMM
 		}
 		return FALSE;
 	}
-	return FarAdvControl(GetPluginNumber(PluginId),Command,Param);
+	return FarAdvControl(GetPluginNumber(PluginId), Command, Param1, Param2);
 }
 
 static HANDLE WINAPI FarDialogInitW(const GUID* PluginId, const GUID* Id, int X1, int Y1, int X2, int Y2,
                             const wchar_t *HelpTopic, struct FarDialogItem *Item,
                             unsigned int ItemsNumber, DWORD Reserved, unsigned __int64 Flags,
-                            FARWINDOWPROC Proc, INT_PTR Param)
+                            FARWINDOWPROC Proc, void* Param)
 {
 	return FarDialogInit(GetPluginNumber(PluginId),Id,X1,Y1,X2,Y2,HelpTopic,Item,ItemsNumber,Reserved,Flags,Proc,Param);
 }
@@ -451,7 +451,7 @@ void CreatePluginStartupInfo(Plugin *pPlugin, PluginStartupInfo *PSI, FarStandar
 		StartupInfo.Menu=FarMenuFnW;
 		StartupInfo.GetMsg=FarGetMsgFnW;
 		StartupInfo.Message=FarMessageFnW;
-		StartupInfo.Control=FarControl;
+		StartupInfo.PanelControl=FarPanelControl;
 		StartupInfo.SaveScreen=FarSaveScreen;
 		StartupInfo.RestoreScreen=FarRestoreScreen;
 		StartupInfo.GetDirList=FarGetDirList;

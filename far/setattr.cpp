@@ -139,7 +139,7 @@ enum
 	DM_SETATTR = DM_USER+1,
 };
 
-INT_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 {
 	SetAttrDlgParam *DlgParam=reinterpret_cast<SetAttrDlgParam*>(SendDlgMessage(hDlg,DM_GETDLGDATA,0,0));
 
@@ -151,7 +151,7 @@ INT_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 			{
 				if(Param1!=SA_CHECKBOX_SUBFOLDERS)
 				{
-					DlgParam->OriginalCBAttr[Param1-SA_ATTR_FIRST]=static_cast<int>(Param2);
+					DlgParam->OriginalCBAttr[Param1-SA_ATTR_FIRST]=static_cast<int>(reinterpret_cast<INT_PTR>(Param2));
 					DlgParam->OriginalCBAttr2[Param1-SA_ATTR_FIRST]=0;
 				}
 				int FocusPos=static_cast<int>(SendDlgMessage(hDlg,DM_GETFOCUS,0,0));
@@ -166,10 +166,10 @@ INT_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 					        (FocusPos == SA_CHECKBOX_COMPRESSED || FocusPos == SA_CHECKBOX_ENCRYPTED))
 					{
 						if (FocusPos == SA_CHECKBOX_COMPRESSED && /*CompressState &&*/ EncryptState)
-							SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_ENCRYPTED,BSTATE_UNCHECKED);
+							SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_ENCRYPTED,ToPtr(BSTATE_UNCHECKED));
 
 						if (FocusPos == SA_CHECKBOX_ENCRYPTED && /*EncryptState &&*/ CompressState)
-							SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_COMPRESSED,BSTATE_UNCHECKED);
+							SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_COMPRESSED,ToPtr(BSTATE_UNCHECKED));
 					}
 				}
 				// =1|2 Multi
@@ -183,29 +183,29 @@ INT_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 						if (FocusPos == SA_CHECKBOX_COMPRESSED && DlgParam->OCompressState != CompressState) // Состояние изменилось?
 						{
 							if (CompressState == BSTATE_CHECKED && EncryptState)
-								SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_ENCRYPTED,BSTATE_UNCHECKED);
+								SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_ENCRYPTED,ToPtr(BSTATE_UNCHECKED));
 							else if (CompressState == BSTATE_3STATE)
-								SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_ENCRYPTED,BSTATE_3STATE);
+								SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_ENCRYPTED,ToPtr(BSTATE_3STATE));
 						}
 						else if (FocusPos == SA_CHECKBOX_ENCRYPTED && DlgParam->OEncryptState != EncryptState) // Состояние изменилось?
 						{
 							if (EncryptState == BSTATE_CHECKED && CompressState)
-								SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_COMPRESSED,BSTATE_UNCHECKED);
+								SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_COMPRESSED,ToPtr(BSTATE_UNCHECKED));
 							else if (EncryptState == BSTATE_3STATE)
-								SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_COMPRESSED,BSTATE_3STATE);
+								SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_COMPRESSED,ToPtr(BSTATE_3STATE));
 						}
 
 						// еще одна проверка
-						if (Param2==BSTATE_CHECKED)
+						if (reinterpret_cast<INT_PTR>(Param2)==BSTATE_CHECKED)
 						{
 							if (FocusPos == SA_CHECKBOX_COMPRESSED && EncryptState)
 							{
-								SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_ENCRYPTED,BSTATE_UNCHECKED);
+								SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_ENCRYPTED,ToPtr(BSTATE_UNCHECKED));
 							}
 
 							if (FocusPos == SA_CHECKBOX_ENCRYPTED && CompressState)
 							{
-								SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_COMPRESSED,BSTATE_UNCHECKED);
+								SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_COMPRESSED,ToPtr(BSTATE_UNCHECKED));
 							}
 						}
 
@@ -236,15 +236,15 @@ INT_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 								{
 									for (int i=SA_ATTR_FIRST; i<=SA_ATTR_LAST; i++)
 									{
-										SendDlgMessage(hDlg,DM_SET3STATE,i,TRUE);
+										SendDlgMessage(hDlg,DM_SET3STATE,i,ToPtr(TRUE));
 										if (DlgParam->OriginalCBAttr2[i-SA_ATTR_FIRST]==-1)
 										{
-											SendDlgMessage(hDlg,DM_SETCHECK,i,BSTATE_3STATE);
+											SendDlgMessage(hDlg,DM_SETCHECK,i,ToPtr(BSTATE_3STATE));
 										}
 									}
 									if(!DlgParam->OwnerChanged)
 									{
-										SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_EDIT_OWNER,reinterpret_cast<INT_PTR>(L""));
+										SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_EDIT_OWNER,nullptr);
 									}
 								}
 								// сняли?
@@ -253,11 +253,11 @@ INT_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 									for (int i=SA_ATTR_FIRST; i<=SA_ATTR_LAST; i++)
 									{
 										SendDlgMessage(hDlg,DM_SET3STATE,i,FALSE);
-										SendDlgMessage(hDlg,DM_SETCHECK,i,DlgParam->OriginalCBAttr[i-SA_ATTR_FIRST]);
+										SendDlgMessage(hDlg,DM_SETCHECK,i,ToPtr(DlgParam->OriginalCBAttr[i-SA_ATTR_FIRST]));
 									}
 									if(!DlgParam->OwnerChanged)
 									{
-										SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_EDIT_OWNER,reinterpret_cast<INT_PTR>(DlgParam->strOwner.CPtr()));
+										SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_EDIT_OWNER,const_cast<wchar_t*>(DlgParam->strOwner.CPtr()));
 									}
 								}
 
@@ -273,7 +273,7 @@ INT_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 									{
 										if (!*ParamTimes[i])
 										{
-											SendDlgMessage(hDlg,DM_SETATTR,Items[i],SubfoldersState?0:(INT_PTR)FDTimes[i]);
+											SendDlgMessage(hDlg,DM_SETATTR,Items[i],SubfoldersState?0:FDTimes[i]);
 											*ParamTimes[i]=false;
 										}
 									}
@@ -302,13 +302,13 @@ INT_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 									{
 										if (DlgParam->OriginalCBAttr2[i-SA_ATTR_FIRST]==-1)
 										{
-											SendDlgMessage(hDlg,DM_SET3STATE,i,TRUE);
-											SendDlgMessage(hDlg,DM_SETCHECK,i,BSTATE_3STATE);
+											SendDlgMessage(hDlg,DM_SET3STATE,i,ToPtr(TRUE));
+											SendDlgMessage(hDlg,DM_SETCHECK,i,ToPtr(BSTATE_3STATE));
 										}
 									}
 									if(!DlgParam->OwnerChanged)
 									{
-										SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_EDIT_OWNER,reinterpret_cast<INT_PTR>(L""));
+										SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_EDIT_OWNER,nullptr);
 									}
 								}
 								// сняли?
@@ -316,12 +316,12 @@ INT_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 								{
 									for (int i=SA_ATTR_FIRST; i<= SA_ATTR_LAST; i++)
 									{
-										SendDlgMessage(hDlg,DM_SET3STATE,i,((DlgParam->OriginalCBFlag[i-SA_ATTR_FIRST]&DIF_3STATE)?TRUE:FALSE));
-										SendDlgMessage(hDlg,DM_SETCHECK,i,DlgParam->OriginalCBAttr[i-SA_ATTR_FIRST]);
+										SendDlgMessage(hDlg,DM_SET3STATE,i,ToPtr((DlgParam->OriginalCBFlag[i-SA_ATTR_FIRST]&DIF_3STATE)?TRUE:FALSE));
+										SendDlgMessage(hDlg,DM_SETCHECK,i,ToPtr(DlgParam->OriginalCBAttr[i-SA_ATTR_FIRST]));
 									}
 									if(!DlgParam->OwnerChanged)
 									{
-										SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_EDIT_OWNER,reinterpret_cast<INT_PTR>(DlgParam->strOwner.CPtr()));
+										SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_EDIT_OWNER,const_cast<wchar_t*>(DlgParam->strOwner.CPtr()));
 									}
 								}
 							}
@@ -340,10 +340,10 @@ INT_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 
 				if (apiGetFindDataEx(DlgParam->strSelName, FindData))
 				{
-					SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_LASTWRITE,(INT_PTR)&FindData.ftLastWriteTime);
-					SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_CREATION,(INT_PTR)&FindData.ftCreationTime);
-					SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_LASTACCESS,(INT_PTR)&FindData.ftLastAccessTime);
-					SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_CHANGE,(INT_PTR)&FindData.ftChangeTime);
+					SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_LASTWRITE,&FindData.ftLastWriteTime);
+					SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_CREATION,&FindData.ftCreationTime);
+					SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_LASTACCESS,&FindData.ftLastAccessTime);
+					SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_CHANGE,&FindData.ftChangeTime);
 					DlgParam->OLastWriteTime=DlgParam->OCreationTime=DlgParam->OLastAccessTime=DlgParam->OChangeTime=false;
 				}
 
@@ -352,12 +352,12 @@ INT_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 			}
 			else if (Param1 == SA_BUTTON_CURRENT || Param1 == SA_BUTTON_BLANK)
 			{
-				INT_PTR Value = 0;
+				void* Value = 0;
 				FILETIME CurrentTime;
 				if(Param1 == SA_BUTTON_CURRENT)
 				{
 					GetSystemTimeAsFileTime(&CurrentTime);
-					Value = reinterpret_cast<INT_PTR>(&CurrentTime);
+					Value = &CurrentTime;
 				}
 				SendDlgMessage(hDlg, DM_SETATTR, SA_TEXT_LASTWRITE, Value);
 				SendDlgMessage(hDlg, DM_SETATTR, SA_TEXT_CREATION, Value);
@@ -382,7 +382,7 @@ INT_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 					{
 						// Дадим Менеджеру диалогов "попотеть"
 						DefDlgProc(hDlg,Msg,Param1,Param2);
-						SendDlgMessage(hDlg,DM_SETATTR,Param1,-1);
+						SendDlgMessage(hDlg,DM_SETATTR,Param1,ToPtr(-1));
 					}
 
 					if (Param1 == SA_TEXT_LASTWRITE || Param1 == SA_TEXT_CREATION || Param1 == SA_TEXT_LASTACCESS || Param1 == SA_TEXT_CHANGE)
@@ -402,10 +402,10 @@ INT_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 				case SA_COMBO_HARDLINK:
 				{
 					FarListInfo li;
-					SendDlgMessage(hDlg,DM_LISTINFO,SA_COMBO_HARDLINK,(INT_PTR)&li);
+					SendDlgMessage(hDlg,DM_LISTINFO,SA_COMBO_HARDLINK,&li);
 					FormatString strTmp;
 					strTmp<<MSG(MSetAttrHardLinks)<<L" ("<<li.ItemsNumber<<L")";
-					SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_COMBO_HARDLINK,(INT_PTR)strTmp.CPtr());
+					SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_COMBO_HARDLINK,const_cast<wchar_t*>(strTmp.CPtr()));
 				}
 				break;
 				case SA_EDIT_WDATE:
@@ -440,11 +440,11 @@ INT_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 						if(reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, Param1, 0))[0] == L' ')
 						{
 							COORD Pos;
-							SendDlgMessage(hDlg, DM_GETCURSORPOS, Param1, (INT_PTR)&Pos);
+							SendDlgMessage(hDlg, DM_GETCURSORPOS, Param1, &Pos);
 							if(Pos.X ==0)
 							{
 								Pos.X=1;
-								SendDlgMessage(hDlg, DM_SETCURSORPOS, Param1, (INT_PTR)&Pos);
+								SendDlgMessage(hDlg, DM_SETCURSORPOS, Param1, &Pos);
 							}
 						}
 					}
@@ -460,7 +460,7 @@ INT_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 			{
 				FILETIME ft;
 
-				if (Param2==-1)
+				if (reinterpret_cast<INT_PTR>(Param2)==-1)
 				{
 					GetSystemTimeAsFileTime(&ft);
 				}
@@ -511,12 +511,12 @@ INT_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 
 			if (Set1!=-1)
 			{
-				SendDlgMessage(hDlg,DM_SETTEXTPTR,Set1,(INT_PTR)strDate.CPtr());
+				SendDlgMessage(hDlg,DM_SETTEXTPTR,Set1,const_cast<wchar_t*>(strDate.CPtr()));
 			}
 
 			if (Set2!=-1)
 			{
-				SendDlgMessage(hDlg,DM_SETTEXTPTR,Set2,(INT_PTR)strTime.CPtr());
+				SendDlgMessage(hDlg,DM_SETTEXTPTR,Set2,const_cast<wchar_t*>(strTime.CPtr()));
 			}
 
 			return TRUE;
@@ -1147,7 +1147,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 		DlgParam.OCompressState=static_cast<FARCHECKEDSTATE>(AttrDlg[SA_CHECKBOX_COMPRESSED].Selected);
 		DlgParam.OEncryptState=static_cast<FARCHECKEDSTATE>(AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected);
 
-		Dialog Dlg(AttrDlg,ARRAYSIZE(AttrDlgData),SetAttrDlgProc,(INT_PTR)&DlgParam);
+		Dialog Dlg(AttrDlg,ARRAYSIZE(AttrDlgData),SetAttrDlgProc,&DlgParam);
 		Dlg.SetHelp(L"FileAttrDlg");                 //  ^ - это одиночный диалог!
 		Dlg.SetId(FileAttrDlgId);
 

@@ -470,7 +470,7 @@ struct FarDialogItem
 	FARDIALOGITEMFLAGS Flags;
 	const wchar_t *Data;
 	size_t MaxLength; // terminate 0 not included (if == 0 string size is unlimited)
-	LONG_PTR UserData;
+	void* UserData;
 };
 
 struct FarDialogItemData
@@ -484,7 +484,7 @@ struct FarDialogEvent
 	HANDLE hDlg;
 	int Msg;
 	int Param1;
-	INT_PTR Param2;
+	void* Param2;
 	INT_PTR Result;
 };
 
@@ -546,21 +546,21 @@ typedef INT_PTR(WINAPI *FARWINDOWPROC)(
     HANDLE   hDlg,
     int Msg,
     int      Param1,
-    INT_PTR Param2
+    void* Param2
 );
 
 typedef INT_PTR(WINAPI *FARAPISENDDLGMESSAGE)(
     HANDLE   hDlg,
     int Msg,
     int      Param1,
-    INT_PTR Param2
+    void* Param2
 );
 
 typedef INT_PTR(WINAPI *FARAPIDEFDLGPROC)(
     HANDLE   hDlg,
     int Msg,
     int      Param1,
-    INT_PTR Param2
+    void* Param2
 );
 
 typedef HANDLE(WINAPI *FARAPIDIALOGINIT)(
@@ -576,7 +576,7 @@ typedef HANDLE(WINAPI *FARAPIDIALOGINIT)(
     DWORD                 Reserved,
     FARDIALOGFLAGS        Flags,
     FARWINDOWPROC         DlgProc,
-    INT_PTR               Param
+    void*                 Param
 );
 
 typedef int (WINAPI *FARAPIDIALOGRUN)(
@@ -1816,66 +1816,67 @@ struct FarSettingsValue
 	const wchar_t* Value;
 };
 
-typedef int (WINAPI *FARAPICONTROL)(
+typedef INT_PTR (WINAPI *FARAPIPANELCONTROL)(
     HANDLE hPanel,
     enum FILE_CONTROL_COMMANDS Command,
     int Param1,
-    INT_PTR Param2
+    void* Param2
 );
 
 typedef INT_PTR(WINAPI *FARAPIADVCONTROL)(
     const GUID* PluginId,
     enum ADVANCED_CONTROL_COMMANDS Command,
-    void *Param
+    int Param1,
+    void* Param2
 );
 
-typedef int (WINAPI *FARAPIVIEWERCONTROL)(
+typedef INT_PTR (WINAPI *FARAPIVIEWERCONTROL)(
     int ViewerID,
     enum VIEWER_CONTROL_COMMANDS Command,
     int Param1,
-    INT_PTR Param2
+    void* Param2
 );
 
-typedef int (WINAPI *FARAPIEDITORCONTROL)(
+typedef INT_PTR (WINAPI *FARAPIEDITORCONTROL)(
     int EditorID,
     enum EDITOR_CONTROL_COMMANDS Command,
     int Param1,
-    INT_PTR Param2
+    void* Param2
 );
 
-typedef int (WINAPI *FARAPIMACROCONTROL)(
+typedef INT_PTR (WINAPI *FARAPIMACROCONTROL)(
     HANDLE hHandle,
     enum FAR_MACRO_CONTROL_COMMANDS Command,
     int Param1,
-    INT_PTR Param2
+    void* Param2
 );
 
-typedef int (WINAPI *FARAPIPLUGINSCONTROL)(
+typedef INT_PTR (WINAPI *FARAPIPLUGINSCONTROL)(
     HANDLE hHandle,
     enum FAR_PLUGINS_CONTROL_COMMANDS Command,
     int Param1,
-    INT_PTR Param2
+    void* Param2
 );
 
-typedef int (WINAPI *FARAPIFILEFILTERCONTROL)(
+typedef INT_PTR (WINAPI *FARAPIFILEFILTERCONTROL)(
     HANDLE hHandle,
     enum FAR_FILE_FILTER_CONTROL_COMMANDS Command,
     int Param1,
-    INT_PTR Param2
+    void* Param2
 );
 
-typedef int (WINAPI *FARAPIREGEXPCONTROL)(
+typedef INT_PTR (WINAPI *FARAPIREGEXPCONTROL)(
     HANDLE hHandle,
     enum FAR_REGEXP_CONTROL_COMMANDS Command,
     int Param1,
-    INT_PTR Param2
+    void* Param2
 );
 
-typedef int (WINAPI *FARAPISETTINGSCONTROL)(
+typedef INT_PTR (WINAPI *FARAPISETTINGSCONTROL)(
     HANDLE hHandle,
     enum FAR_SETTINGS_CONTROL_COMMANDS Command,
     int Param1,
-    INT_PTR Param2
+    void* Param2
 );
 
 // <C&C++>
@@ -2059,7 +2060,7 @@ struct PluginStartupInfo
 	FARAPIMENU             Menu;
 	FARAPIMESSAGE          Message;
 	FARAPIGETMSG           GetMsg;
-	FARAPICONTROL          Control;
+	FARAPIPANELCONTROL     PanelControl;
 	FARAPISAVESCREEN       SaveScreen;
 	FARAPIRESTORESCREEN    RestoreScreen;
 	FARAPIGETDIRLIST       GetDirList;

@@ -370,6 +370,6 @@ class VMenu: public Modal
 		static MenuItemEx *FarList2MenuItem(const FarListItem *Item,MenuItemEx *ListItem);
 		static FarListItem *MenuItem2FarList(const MenuItemEx *ListItem,FarListItem *Item);
 
-		static INT_PTR WINAPI DefMenuProc(HANDLE hVMenu,int Msg,int Param1,INT_PTR Param2);
-		static INT_PTR WINAPI SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,INT_PTR Param2);
+		static INT_PTR WINAPI DefMenuProc(HANDLE hVMenu,int Msg,int Param1,void* Param2);
+		static INT_PTR WINAPI SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,void* Param2);
 };

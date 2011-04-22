@@ -1235,7 +1235,7 @@ int VMenu::ProcessKey(int Key)
 				}
 			}
 
-			if (ParentDialog && SendDlgMessage((HANDLE)ParentDialog,DN_LISTHOTKEY,DialogItemID,SelectPos))
+			if (ParentDialog && SendDlgMessage((HANDLE)ParentDialog,DN_LISTHOTKEY,DialogItemID,ToPtr(SelectPos)))
 			{
 				UpdateItemFlags(OldSelectPos,Item[OldSelectPos]->Flags|LIF_SELECTED);
 				ShowMenu(true);
@@ -2607,13 +2607,13 @@ BOOL VMenu::GetVMenuInfo(FarListInfo* Info)
 }
 
 // функция обработки меню (по умолчанию)
-INT_PTR WINAPI VMenu::DefMenuProc(HANDLE hVMenu, int Msg, int Param1, INT_PTR Param2)
+INT_PTR WINAPI VMenu::DefMenuProc(HANDLE hVMenu, int Msg, int Param1, void* Param2)
 {
 	return 0;
 }
 
 // функция посылки сообщений меню
-INT_PTR WINAPI VMenu::SendMenuMessage(HANDLE hVMenu, int Msg, int Param1, INT_PTR Param2)
+INT_PTR WINAPI VMenu::SendMenuMessage(HANDLE hVMenu, int Msg, int Param1, void* Param2)
 {
 	CriticalSectionLock Lock(((VMenu*)hVMenu)->CS);
 
@@ -2656,7 +2656,7 @@ void *VMenu::_GetUserData(MenuItemEx *PItem, void *Data, int Size)
 			}
 			else
 			{
-				*reinterpret_cast<PINT_PTR>(Data) = *reinterpret_cast<PINT_PTR>(&PtrData);
+				*reinterpret_cast<PINT_PTR>(Data) = reinterpret_cast<INT_PTR>(PtrData);
 			}
 		}
 		else // ... данных нет, значит лудим имя пункта!
@@ -2720,7 +2720,8 @@ int VMenu::_SetUserData(MenuItemEx *PItem,
 		else // Ок. данные помещаются в sizeof(void*)...
 		{
 			PItem->UserDataSize = 0;         // признак того, что данных либо нет, либо
-			*reinterpret_cast<PINT_PTR>(&PItem->UserData) = *reinterpret_cast<const INT_PTR*>(Data);   // они помещаются в sizeof(void*)
+			void** DataAddress = &PItem->UserData; // to supress gcc strict-aliasing warning
+			*reinterpret_cast<PINT_PTR>(DataAddress) = *reinterpret_cast<const INT_PTR*>(Data);   // они помещаются в sizeof(void*)
 		}
 	}
 

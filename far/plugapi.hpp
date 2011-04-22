@@ -82,7 +82,7 @@ const wchar_t* WINAPI FarGetMsgFn(INT_PTR PluginHandle,int MsgId);
 int WINAPI FarMessageFn(INT_PTR PluginNumber,unsigned __int64 Flags,
                         const wchar_t *HelpTopic,const wchar_t * const *Items,size_t ItemsNumber,
                         int ButtonsNumber);
-int WINAPI FarControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int Param1,INT_PTR Param2);
+INT_PTR WINAPI FarPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int Param1,void* Param2);
 HANDLE WINAPI FarSaveScreen(int X1,int Y1,int X2,int Y2);
 void WINAPI FarRestoreScreen(HANDLE hScreen);
 
@@ -96,9 +96,9 @@ int WINAPI FarEditor(const wchar_t *FileName,const wchar_t *Title,
                      int StartLine,int StartChar, UINT CodePage);
 void WINAPI FarText(int X,int Y,int Color,const wchar_t *Str);
 int WINAPI TextToCharInfo(const char *Text,WORD Attr, CHAR_INFO *CharInfo, int Length, DWORD Reserved);
-int WINAPI FarEditorControl(int EditorID, EDITOR_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2);
+INT_PTR WINAPI FarEditorControl(int EditorID, EDITOR_CONTROL_COMMANDS Command, int Param1, void* Param2);
 
-int WINAPI FarViewerControl(int ViewerID, VIEWER_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2);
+INT_PTR WINAPI FarViewerControl(int ViewerID, VIEWER_CONTROL_COMMANDS Command, int Param1, void* Param2);
 
 /* Функция вывода помощи */
 BOOL WINAPI FarShowHelp(const wchar_t *ModuleName,
@@ -112,27 +112,27 @@ int WINAPI FarInputBox(INT_PTR PluginNumber,const wchar_t *Title,const wchar_t *
                        wchar_t *DestText,int DestLength,
                        const wchar_t *HelpTopic,unsigned __int64 Flags);
 /* Функция, которая будет действовать и в редакторе, и в панелях, и... */
-INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param);
+INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, ADVANCED_CONTROL_COMMANDS Command, int Param1, void* Param2);
 //  Функция расширенного диалога
 HANDLE WINAPI FarDialogInit(INT_PTR PluginNumber, const GUID* Id, int X1, int Y1, int X2, int Y2,
                             const wchar_t *HelpTopic, struct FarDialogItem *Item,
                             unsigned int ItemsNumber, DWORD Reserved, unsigned __int64 Flags,
-                            FARWINDOWPROC Proc, INT_PTR Param);
+                            FARWINDOWPROC Proc, void* Param);
 int WINAPI FarDialogRun(HANDLE hDlg);
 void WINAPI FarDialogFree(HANDLE hDlg);
 //  Функция обработки диалога по умолчанию
-INT_PTR WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2);
+INT_PTR WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2);
 // Посылка сообщения диалогу
-INT_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1, INT_PTR Param2);
+INT_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1, void* Param2);
 
-int WINAPI farPluginsControl(HANDLE hHandle, FAR_PLUGINS_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2);
+INT_PTR WINAPI farPluginsControl(HANDLE hHandle, FAR_PLUGINS_CONTROL_COMMANDS Command, int Param1, void* Param2);
 
-int WINAPI farFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2);
+INT_PTR WINAPI farFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COMMANDS Command, int Param1, void* Param2);
 
-int WINAPI farRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2);
+INT_PTR WINAPI farRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Command, int Param1, void* Param2);
 
-int WINAPI farMacroControl(HANDLE hHandle, FAR_MACRO_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2);
+INT_PTR WINAPI farMacroControl(HANDLE hHandle, FAR_MACRO_CONTROL_COMMANDS Command, int Param1, void* Param2);
 
-int WINAPI farSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2);
+INT_PTR WINAPI farSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS Command, int Param1, void* Param2);
 
 size_t WINAPI farGetCurrentDirectory(size_t Size,wchar_t* Buffer);

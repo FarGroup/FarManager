@@ -1404,7 +1404,7 @@ FarList* CurrentList(HANDLE hDlg,int ItemNumber)
 	return Data?&Data->l[ItemNumber]:nullptr;
 }
 
-INT_PTR WINAPI CurrentDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
+INT_PTR WINAPI CurrentDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 {
 	INT_PTR Ret=0;
 	PDialogData Data=FindCurrentDialogData(hDlg);
@@ -2018,7 +2018,7 @@ public:
 	~StackHandler(){FarDialogEvent e; OriginalEvents.Pop(e);}
 };
 
-INT_PTR WINAPI DlgProcA(HANDLE hDlg, int NewMsg, int Param1, INT_PTR Param2)
+INT_PTR WINAPI DlgProcA(HANDLE hDlg, int NewMsg, int Param1, void* Param2)
 {
 	FarDialogEvent e = {hDlg, NewMsg, Param1, Param2};
 	StackHandler sh(e);
@@ -2046,7 +2046,7 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, int NewMsg, int Param1, INT_PTR Param2)
 					oldfar::FarListColors lcA={};
 					lcA.ColorCount = lc->ColorCount;
 					lcA.Colors = lc->Colors;
-					INT_PTR Result = CurrentDlgProc(hDlg, oldfar::DN_CTLCOLORDLGLIST, Param1, reinterpret_cast<INT_PTR>(&lcA));
+					INT_PTR Result = CurrentDlgProc(hDlg, oldfar::DN_CTLCOLORDLGLIST, Param1, &lcA);
 					if(Result)
 					{
 						lc->ColorCount = lcA.ColorCount;
@@ -2063,7 +2063,7 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, int NewMsg, int Param1, INT_PTR Param2)
 			Msg=oldfar::DN_DRAWDLGITEM;
 			FarDialogItem *di = (FarDialogItem *)Param2;
 			oldfar::FarDialogItem *FarDiA=UnicodeDialogItemToAnsi(*di,hDlg,Param1);
-			INT_PTR ret = CurrentDlgProc(hDlg, Msg, Param1, (INT_PTR)FarDiA);
+			INT_PTR ret = CurrentDlgProc(hDlg, Msg, Param1, FarDiA);
 			if (ret && (di->Type==DI_USERCONTROL) && (di->VBuf))
 			{
 				AnsiVBufToUnicode(FarDiA->VBuf, di->VBuf, GetAnsiVBufSize(*FarDiA),(FarDiA->Flags&oldfar::DIF_NOTCVTUSERCONTROL)==oldfar::DIF_NOTCVTUSERCONTROL);
@@ -2079,8 +2079,8 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, int NewMsg, int Param1, INT_PTR Param2)
 		case DN_HELP:
 		{
 			char* HelpTopicA = UnicodeToAnsi((const wchar_t *)Param2);
-			INT_PTR ret = CurrentDlgProc(hDlg, oldfar::DN_HELP, Param1, (INT_PTR)HelpTopicA);
-			if (ret && ret != Param2) // changed
+			INT_PTR ret = CurrentDlgProc(hDlg, oldfar::DN_HELP, Param1, HelpTopicA);
+			if (ret && ret != reinterpret_cast<INT_PTR>(Param2)) // changed
 			{
 				if (HelpTopic) xf_free(HelpTopic);
 
@@ -2093,7 +2093,7 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, int NewMsg, int Param1, INT_PTR Param2)
 		}
 		case DN_HOTKEY:
 			Msg=oldfar::DN_HOTKEY;
-			Param2=KeyToOldKey((DWORD)InputRecordToKey((const INPUT_RECORD *)Param2));
+			Param2=ToPtr(KeyToOldKey((DWORD)InputRecordToKey((const INPUT_RECORD *)Param2)));
 			break;
 		case DN_INITDIALOG:
 			Msg=oldfar::DN_INITDIALOG;
@@ -2108,29 +2108,29 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, int NewMsg, int Param1, INT_PTR Param2)
 		case DN_ACTIVATEAPP:    Msg=oldfar::DN_ACTIVATEAPP; break;
 		case DN_INPUT:
 			{
-				const INPUT_RECORD* record=(const INPUT_RECORD *)Param2;
+				INPUT_RECORD* record=(INPUT_RECORD *)Param2;
 				if (record->EventType==MOUSE_EVENT)
 				{
 					Msg=oldfar::DN_MOUSEEVENT;
 					Param1=0;
-					Param2=(INT_PTR)&record->Event.MouseEvent;
+					Param2=&record->Event.MouseEvent;
 					break;
 				}
 			}
 			return FarDefDlgProc(hDlg, NewMsg, Param1, Param2);
 		case DN_CONTROLINPUT:
 			{
-				const INPUT_RECORD* record=(const INPUT_RECORD *)Param2;
+				INPUT_RECORD* record=(INPUT_RECORD *)Param2;
 				if (record->EventType==MOUSE_EVENT)
 				{
 					Msg=oldfar::DN_MOUSECLICK;
-					Param2=(INT_PTR)&record->Event.MouseEvent;
+					Param2=&record->Event.MouseEvent;
 					break;
 				}
 				else if (record->EventType==KEY_EVENT)
 				{
 					Msg=oldfar::DN_KEY;
-					Param2=KeyToOldKey((DWORD)InputRecordToKey((const INPUT_RECORD *)Param2));
+					Param2=ToPtr(KeyToOldKey((DWORD)InputRecordToKey((const INPUT_RECORD *)Param2)));
 					break;
 				}
 			}
@@ -2142,12 +2142,12 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, int NewMsg, int Param1, INT_PTR Param2)
 	return CurrentDlgProc(hDlg, Msg, Param1, Param2);
 }
 
-LONG_PTR WINAPI FarDefDlgProcA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
+LONG_PTR WINAPI FarDefDlgProcA(HANDLE hDlg, int Msg, int Param1, void* Param2)
 {
 	return FarDefDlgProc(OriginalEvents.Peek()->hDlg, OriginalEvents.Peek()->Msg, OriginalEvents.Peek()->Param1, OriginalEvents.Peek()->Param2);
 }
 
-LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR Param2)
+LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Param2)
 {
 	int Msg = DM_FIRST;
 	if(OldMsg>oldfar::DM_USER)
@@ -2170,7 +2170,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 
 				if (di)
 				{
-					FarSendDlgMessage(hDlg, DM_GETDLGITEM, Param1, (INT_PTR)di);
+					FarSendDlgMessage(hDlg, DM_GETDLGITEM, Param1, di);
 					oldfar::FarDialogItem *FarDiA=UnicodeDialogItemToAnsi(*di,hDlg,Param1);
 					xf_free(di);
 					*reinterpret_cast<oldfar::FarDialogItem*>(Param2)=*FarDiA;
@@ -2192,7 +2192,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 			wchar_t* text = (wchar_t*) xf_malloc((didA->PtrLength+1)*sizeof(wchar_t));
 			//BUGBUG: если didA->PtrLength=0, то вернЄтс€ с учЄтом '\0', в Ёнц написано, что без, хз как правильно.
 			FarDialogItemData did = {didA->PtrLength, text};
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_GETTEXT, Param1, (INT_PTR)&did);
+			INT_PTR ret = FarSendDlgMessage(hDlg, DM_GETTEXT, Param1, &did);
 			didA->PtrLength = (unsigned)did.PtrLength;
 			UnicodeToOEM(text,didA->PtrData,didA->PtrLength+1);
 			xf_free(text);
@@ -2212,7 +2212,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 			{
 				KeyToInputRecord(OldKeyToKey(KeysA[i]),KeysW+i);
 			}
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_KEY, Param1, (INT_PTR)KeysW);
+			INT_PTR ret = FarSendDlgMessage(hDlg, DM_KEY, Param1, KeysW);
 			xf_free(KeysW);
 			return ret;
 		}
@@ -2231,7 +2231,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 			FreeUnicodeDialogItem(*di);
 			oldfar::FarDialogItem *diA = (oldfar::FarDialogItem *)Param2;
 			AnsiDialogItemToUnicode(*diA,*di,*di->ListItems);
-			return FarSendDlgMessage(hDlg, DM_SETDLGITEM, Param1, (INT_PTR)di);
+			return FarSendDlgMessage(hDlg, DM_SETDLGITEM, Param1, di);
 		}
 		case oldfar::DM_SETFOCUS: Msg = DM_SETFOCUS; break;
 		case oldfar::DM_REDRAW:   Msg = DM_REDRAW; break;
@@ -2246,7 +2246,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 			wchar_t* text = AnsiToUnicode(didA->PtrData);
 			//BUGBUG - PtrLength ни на что не вли€ет.
 			FarDialogItemData di = {didA->PtrLength,text};
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_SETTEXT, Param1, (INT_PTR)&di);
+			INT_PTR ret = FarSendDlgMessage(hDlg, DM_SETTEXT, Param1, &di);
 			xf_free(text);
 			return ret;
 		}
@@ -2262,7 +2262,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 			if (!Param2) return length;
 
 			wchar_t* text = (wchar_t *) xf_malloc((length +1)* sizeof(wchar_t));
-			length = FarSendDlgMessage(hDlg, DM_GETTEXTPTR, Param1, (INT_PTR)text);
+			length = FarSendDlgMessage(hDlg, DM_GETTEXTPTR, Param1, text);
 			UnicodeToOEM(text, (char *)Param2, length+1);
 			xf_free(text);
 			return length;
@@ -2272,7 +2272,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 			if (!Param2) return FALSE;
 
 			wchar_t* text = AnsiToUnicode((char*)Param2);
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_SETTEXTPTR, Param1, (INT_PTR)text);
+			INT_PTR ret = FarSendDlgMessage(hDlg, DM_SETTEXTPTR, Param1, text);
 			xf_free(text);
 			return ret;
 		}
@@ -2282,7 +2282,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 			if (!Param2) return FALSE;
 
 			wchar_t* history = AnsiToUnicode((char*)Param2);
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_ADDHISTORY, Param1, (INT_PTR)history);
+			INT_PTR ret = FarSendDlgMessage(hDlg, DM_ADDHISTORY, Param1, history);
 			xf_free(history);
 			return ret;
 		}
@@ -2299,14 +2299,25 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 		}
 		case oldfar::DM_SETCHECK:
 		{
-			INT_PTR state = 0;
-
-			if (Param2 == oldfar::BSTATE_UNCHECKED) state=BSTATE_UNCHECKED;
-			else if (Param2 == oldfar::BSTATE_CHECKED)   state=BSTATE_CHECKED;
-			else if (Param2 == oldfar::BSTATE_3STATE)    state=BSTATE_3STATE;
-			else if (Param2 == oldfar::BSTATE_TOGGLE)    state=BSTATE_TOGGLE;
-
-			return FarSendDlgMessage(hDlg, DM_SETCHECK, Param1, state);
+			FARCHECKEDSTATE State = BSTATE_UNCHECKED;
+			switch(static_cast<oldfar::FARCHECKEDSTATE>(reinterpret_cast<INT_PTR>(Param2)))
+			{
+			case oldfar::BSTATE_UNCHECKED:
+				State=BSTATE_UNCHECKED;
+				break;
+			case oldfar::BSTATE_CHECKED:
+				State=BSTATE_CHECKED;
+				break;
+			case oldfar::BSTATE_3STATE:
+				State=BSTATE_3STATE;
+				break;
+			case oldfar::BSTATE_TOGGLE:
+				State=BSTATE_TOGGLE;
+				break;
+			default:
+				break;
+			}
+			return FarSendDlgMessage(hDlg, DM_SETCHECK, Param1, ToPtr(State));
 		}
 		case oldfar::DM_SET3STATE: Msg = DM_SET3STATE; break;
 		case oldfar::DM_LISTSORT:  Msg = DM_LISTSORT; break;
@@ -2316,7 +2327,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 
 			oldfar::FarListGetItem* lgiA = (oldfar::FarListGetItem*)Param2;
 			FarListGetItem lgi = {lgiA->ItemIndex};
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_LISTGETITEM, Param1, (INT_PTR)&lgi);
+			INT_PTR ret = FarSendDlgMessage(hDlg, DM_LISTGETITEM, Param1, &lgi);
 			UnicodeListItemToAnsi(&lgi.Item, &lgiA->Item);
 			return ret;
 		}
@@ -2325,7 +2336,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 			if (Param2)
 			{
 				FarListPos lp;
-				INT_PTR ret=FarSendDlgMessage(hDlg, DM_LISTGETCURPOS, Param1, (INT_PTR)&lp);
+				INT_PTR ret=FarSendDlgMessage(hDlg, DM_LISTGETCURPOS, Param1, &lp);
 				oldfar::FarListPos *lpA = (oldfar::FarListPos *)Param2;
 				lpA->SelectPos=lp.SelectPos;
 				lpA->TopPos=lp.TopPos;
@@ -2339,7 +2350,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 
 			oldfar::FarListPos *lpA = (oldfar::FarListPos *)Param2;
 			FarListPos lp = {lpA->SelectPos,lpA->TopPos};
-			return FarSendDlgMessage(hDlg, DM_LISTSETCURPOS, Param1, (INT_PTR)&lp);
+			return FarSendDlgMessage(hDlg, DM_LISTSETCURPOS, Param1, &lp);
 		}
 		case oldfar::DM_LISTDELETE:
 		{
@@ -2352,7 +2363,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 				ld.StartIndex = ldA->StartIndex;
 			}
 
-			return FarSendDlgMessage(hDlg, DM_LISTDELETE, Param1, Param2?(INT_PTR)&ld:0);
+			return FarSendDlgMessage(hDlg, DM_LISTDELETE, Param1, Param2?&ld:0);
 		}
 		case oldfar::DM_LISTADD:
 		{
@@ -2375,7 +2386,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 				}
 			}
 
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_LISTADD, Param1, Param2?(INT_PTR)&newlist:0);
+			INT_PTR ret = FarSendDlgMessage(hDlg, DM_LISTADD, Param1, Param2?&newlist:0);
 
 			if (newlist.Items)
 			{
@@ -2396,7 +2407,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 				newstr = AnsiToUnicode((char*)Param2);
 			}
 
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_LISTADDSTR, Param1, (INT_PTR)newstr);
+			INT_PTR ret = FarSendDlgMessage(hDlg, DM_LISTADDSTR, Param1, newstr);
 
 			if (newstr) xf_free(newstr);
 
@@ -2413,7 +2424,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 				AnsiListItemToUnicode(&oldui->Item, &newui.Item);
 			}
 
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_LISTUPDATE, Param1, Param2?(INT_PTR)&newui:0);
+			INT_PTR ret = FarSendDlgMessage(hDlg, DM_LISTUPDATE, Param1, Param2?&newui:0);
 
 			if (newui.Item.Text) xf_free((void*)newui.Item.Text);
 
@@ -2430,7 +2441,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 				AnsiListItemToUnicode(&oldli->Item, &newli.Item);
 			}
 
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_LISTINSERT, Param1, Param2?(INT_PTR)&newli:0);
+			INT_PTR ret = FarSendDlgMessage(hDlg, DM_LISTINSERT, Param1, Param2?&newli:0);
 
 			if (newli.Item.Text) xf_free((void*)newli.Item.Text);
 
@@ -2449,7 +2460,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 				if (oldlf->Flags&oldfar::LIFIND_EXACTMATCH) newlf.Flags|=LIFIND_EXACTMATCH;
 			}
 
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_LISTFINDSTRING, Param1, Param2?(INT_PTR)&newlf:0);
+			INT_PTR ret = FarSendDlgMessage(hDlg, DM_LISTFINDSTRING, Param1, Param2?&newlf:0);
 
 			if (newlf.Pattern) xf_free((void*)newlf.Pattern);
 
@@ -2487,7 +2498,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 				newlid.Data=oldlid->Data;
 			}
 
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_LISTSETDATA, Param1, Param2?(INT_PTR)&newlid:0);
+			INT_PTR ret = FarSendDlgMessage(hDlg, DM_LISTSETDATA, Param1, Param2?&newlid:0);
 			return ret;
 		}
 		case oldfar::DM_LISTSETTITLES:
@@ -2496,7 +2507,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 
 			oldfar::FarListTitles *ltA = (oldfar::FarListTitles *)Param2;
 			FarListTitles lt = {0,ltA->Title?AnsiToUnicode(ltA->Title):nullptr,0,ltA->Bottom?AnsiToUnicode(ltA->Bottom):nullptr};
-			Param2 = (INT_PTR)&lt;
+			Param2 = &lt;
 			INT_PTR ret = FarSendDlgMessage(hDlg, DM_LISTSETTITLES, Param1, Param2);
 
 			if (lt.Bottom) xf_free((wchar_t *)lt.Bottom);
@@ -2524,7 +2535,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 					ListTitle.Bottom=(wchar_t *)xf_malloc(sizeof(wchar_t)*ListTitle.BottomLen);
 				}
 
-				INT_PTR Ret=FarSendDlgMessage(hDlg,DM_LISTGETTITLES,Param1,(INT_PTR)&ListTitle);
+				INT_PTR Ret=FarSendDlgMessage(hDlg,DM_LISTGETTITLES,Param1,&ListTitle);
 
 				if (Ret)
 				{
@@ -2556,7 +2567,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 				FarDialogItem *di=CurrentDialogItem(hDlg,Param1);
 				xf_free((void*)di->History);
 				di->History = AnsiToUnicode((const char *)Param2);
-				return FarSendDlgMessage(hDlg, DM_SETHISTORY, Param1, (INT_PTR)di->History);
+				return FarSendDlgMessage(hDlg, DM_SETHISTORY, Param1, const_cast<wchar_t*>(di->History));
 			}
 
 		case oldfar::DM_GETITEMPOSITION:     Msg = DM_GETITEMPOSITION; break;
@@ -2585,7 +2596,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 				}
 			}
 
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_LISTSET, Param1, Param2?(INT_PTR)&newlist:0);
+			INT_PTR ret = FarSendDlgMessage(hDlg, DM_LISTSET, Param1, Param2?&newlist:0);
 
 			if (newlist.Items)
 			{
@@ -2599,13 +2610,23 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 		}
 		case oldfar::DM_LISTSETMOUSEREACTION:
 		{
-			INT_PTR type=0;
-
-			if (Param2 == oldfar::LMRT_ONLYFOCUS) type=LMRT_ONLYFOCUS;
-			else if (Param2 == oldfar::LMRT_ALWAYS)    type=LMRT_ALWAYS;
-			else if (Param2 == oldfar::LMRT_NEVER)     type=LMRT_NEVER;
-
-			return FarSendDlgMessage(hDlg, DM_LISTSETMOUSEREACTION, Param1, type);
+			oldfar::FARLISTMOUSEREACTIONTYPE OldType = static_cast<oldfar::FARLISTMOUSEREACTIONTYPE>(reinterpret_cast<INT_PTR>(Param2));
+			FARLISTMOUSEREACTIONTYPE Type=LMRT_ONLYFOCUS;
+			switch (OldType)
+			{
+			case oldfar::LMRT_ONLYFOCUS:
+				Type=LMRT_ONLYFOCUS;
+				break;
+			case oldfar::LMRT_ALWAYS:
+				Type=LMRT_ALWAYS;
+				break;
+			case oldfar::LMRT_NEVER:
+				Type=LMRT_NEVER;
+				break;
+			default:
+				break;
+			}
+			return FarSendDlgMessage(hDlg, DM_LISTSETMOUSEREACTION, Param1, ToPtr(Type));
 		}
 		case oldfar::DM_GETCURSORSIZE:   Msg = DM_GETCURSORSIZE; break;
 		case oldfar::DM_SETCURSORSIZE:   Msg = DM_SETCURSORSIZE; break;
@@ -2615,7 +2636,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 			if (!Param2) return FALSE;
 
 			EditorSelect es;
-			INT_PTR ret=FarSendDlgMessage(hDlg, DM_GETSELECTION, Param1, (INT_PTR)&es);
+			INT_PTR ret=FarSendDlgMessage(hDlg, DM_GETSELECTION, Param1, &es);
 			oldfar::EditorSelect *esA = (oldfar::EditorSelect *)Param2;
 			esA->BlockType      = es.BlockType;
 			esA->BlockStartLine = es.BlockStartLine;
@@ -2635,7 +2656,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 			es.BlockStartPos  = esA->BlockStartPos;
 			es.BlockWidth     = esA->BlockWidth;
 			es.BlockHeight    = esA->BlockHeight;
-			return FarSendDlgMessage(hDlg, DM_SETSELECTION, Param1, (INT_PTR)&es);
+			return FarSendDlgMessage(hDlg, DM_SETSELECTION, Param1, &es);
 		}
 		case oldfar::DM_GETEDITPOSITION:
 			Msg=DM_GETEDITPOSITION;
@@ -2660,7 +2681,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, LONG_PTR
 	return FarSendDlgMessage(hDlg, Msg, Param1, Param2);
 }
 
-int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const char *HelpTopic,oldfar::FarDialogItem *Item,int ItemsNumber,DWORD Reserved,DWORD Flags,oldfar::FARWINDOWPROC DlgProc,LONG_PTR Param)
+int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const char *HelpTopic,oldfar::FarDialogItem *Item,int ItemsNumber,DWORD Reserved,DWORD Flags,oldfar::FARWINDOWPROC DlgProc,void* Param)
 {
 	string strHT(HelpTopic);
 
@@ -2708,7 +2729,7 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 
 			if (pdi)
 			{
-				FarSendDlgMessage(hDlg, DM_GETDLGITEM, i, (INT_PTR)pdi);
+				FarSendDlgMessage(hDlg, DM_GETDLGITEM, i, pdi);
 				UnicodeDialogItemToAnsiSafe(*pdi,Item[i]);
 				const wchar_t *res = pdi->Data;
 
@@ -2841,7 +2862,7 @@ void FreeAnsiPanelInfo(oldfar::PanelInfo* PIA)
 	memset(PIA,0,sizeof(oldfar::PanelInfo));
 }
 
-int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
+int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 {
 	static oldfar::PanelInfo PanelInfoA={0},AnotherPanelInfoA={0};
 	static int Reenter=0;
@@ -2852,7 +2873,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 	switch (Command)
 	{
 		case oldfar::FCTL_CHECKPANELSEXIST:
-			return FarControl(hPlugin,FCTL_CHECKPANELSEXIST,0,(INT_PTR)Param);
+			return FarPanelControl(hPlugin,FCTL_CHECKPANELSEXIST,0,Param);
 		case oldfar::FCTL_CLOSEPLUGIN:
 		{
 			wchar_t *ParamW = nullptr;
@@ -2860,7 +2881,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 			if (Param)
 				ParamW = AnsiToUnicode((const char *)Param);
 
-			int ret = FarControl(hPlugin,FCTL_CLOSEPANEL,0,(INT_PTR)ParamW);
+			int ret = FarPanelControl(hPlugin,FCTL_CLOSEPANEL,0,ParamW);
 
 			if (ParamW) xf_free(ParamW);
 
@@ -2889,7 +2910,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 
 			oldfar::PanelInfo* OldPI=Passive?&AnotherPanelInfoA:&PanelInfoA;
 			PanelInfo PI;
-			int ret = FarControl(hPlugin,FCTL_GETPANELINFO,0,(INT_PTR)&PI);
+			int ret = FarPanelControl(hPlugin,FCTL_GETPANELINFO,0,&PI);
 			FreeAnsiPanelInfo(OldPI);
 
 			if (ret)
@@ -2907,7 +2928,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 
 						for (int i=0; i<PI.ItemsNumber; i++)
 						{
-							int NewPPISize=FarControl(hPlugin,FCTL_GETPANELITEM,i,0);
+							int NewPPISize=FarPanelControl(hPlugin,FCTL_GETPANELITEM,i,0);
 
 							if (NewPPISize>PPISize)
 							{
@@ -2922,7 +2943,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 									break;
 							}
 
-							FarControl(hPlugin,FCTL_GETPANELITEM,i,(INT_PTR)PPI);
+							FarPanelControl(hPlugin,FCTL_GETPANELITEM,i,PPI);
 							if(PPI)
 							{
 								ConvertPanelItemToAnsi(*PPI,OldPI->PanelItems[i]);
@@ -2945,7 +2966,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 
 						for (int i=0; i<PI.SelectedItemsNumber; i++)
 						{
-							int NewPPISize=FarControl(hPlugin,FCTL_GETSELECTEDPANELITEM,i,0);
+							int NewPPISize=FarPanelControl(hPlugin,FCTL_GETSELECTEDPANELITEM,i,0);
 
 							if (NewPPISize>PPISize)
 							{
@@ -2960,7 +2981,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 									break;
 							}
 
-							FarControl(hPlugin,FCTL_GETSELECTEDPANELITEM,i,(INT_PTR)PPI);
+							FarPanelControl(hPlugin,FCTL_GETSELECTEDPANELITEM,i,PPI);
 							if(PPI)
 							{
 								ConvertPanelItemToAnsi(*PPI,OldPI->SelectedItems[i]);
@@ -2973,13 +2994,13 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 				}
 
 				wchar_t CurDir[sizeof(OldPI->CurDir)];
-				FarControl(hPlugin,FCTL_GETPANELDIR,sizeof(OldPI->CurDir),(INT_PTR)CurDir);
+				FarPanelControl(hPlugin,FCTL_GETPANELDIR,sizeof(OldPI->CurDir),CurDir);
 				UnicodeToOEM(CurDir,OldPI->CurDir,sizeof(OldPI->CurDir));
 				wchar_t ColumnTypes[sizeof(OldPI->ColumnTypes)];
-				FarControl(hPlugin,FCTL_GETCOLUMNTYPES,sizeof(OldPI->ColumnTypes),(INT_PTR)ColumnTypes);
+				FarPanelControl(hPlugin,FCTL_GETCOLUMNTYPES,sizeof(OldPI->ColumnTypes),ColumnTypes);
 				UnicodeToOEM(ColumnTypes,OldPI->ColumnTypes,sizeof(OldPI->ColumnTypes));
 				wchar_t ColumnWidths[sizeof(OldPI->ColumnWidths)];
-				FarControl(hPlugin,FCTL_GETCOLUMNWIDTHS,sizeof(OldPI->ColumnWidths),(INT_PTR)ColumnWidths);
+				FarPanelControl(hPlugin,FCTL_GETCOLUMNWIDTHS,sizeof(OldPI->ColumnWidths),ColumnWidths);
 				UnicodeToOEM(ColumnWidths,OldPI->ColumnWidths,sizeof(OldPI->ColumnWidths));
 				*(oldfar::PanelInfo*)Param=*OldPI;
 			}
@@ -3004,19 +3025,19 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 				hPlugin=PANEL_PASSIVE;
 
 			PanelInfo PI;
-			int ret = FarControl(hPlugin,FCTL_GETPANELINFO,0,(INT_PTR)&PI);
+			int ret = FarPanelControl(hPlugin,FCTL_GETPANELINFO,0,&PI);
 
 			if (ret)
 			{
 				ConvertUnicodePanelInfoToAnsi(&PI,OldPI);
 				wchar_t CurDir[sizeof(OldPI->CurDir)];
-				FarControl(hPlugin,FCTL_GETPANELDIR,sizeof(OldPI->CurDir),(INT_PTR)CurDir);
+				FarPanelControl(hPlugin,FCTL_GETPANELDIR,sizeof(OldPI->CurDir),CurDir);
 				UnicodeToOEM(CurDir,OldPI->CurDir,sizeof(OldPI->CurDir));
 				wchar_t ColumnTypes[sizeof(OldPI->ColumnTypes)];
-				FarControl(hPlugin,FCTL_GETCOLUMNTYPES,sizeof(OldPI->ColumnTypes),(INT_PTR)ColumnTypes);
+				FarPanelControl(hPlugin,FCTL_GETCOLUMNTYPES,sizeof(OldPI->ColumnTypes),ColumnTypes);
 				UnicodeToOEM(ColumnTypes,OldPI->ColumnTypes,sizeof(OldPI->ColumnTypes));
 				wchar_t ColumnWidths[sizeof(OldPI->ColumnWidths)];
-				FarControl(hPlugin,FCTL_GETCOLUMNWIDTHS,sizeof(OldPI->ColumnWidths),(INT_PTR)ColumnWidths);
+				FarPanelControl(hPlugin,FCTL_GETCOLUMNWIDTHS,sizeof(OldPI->ColumnWidths),ColumnWidths);
 				UnicodeToOEM(ColumnWidths,OldPI->ColumnWidths,sizeof(OldPI->ColumnWidths));
 			}
 
@@ -3030,14 +3051,14 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 				return FALSE;
 
 			oldfar::PanelInfo *OldPI=(oldfar::PanelInfo*)Param;
-			FarControl(hPlugin,FCTL_BEGINSELECTION,0,0);
+			FarPanelControl(hPlugin,FCTL_BEGINSELECTION,0,0);
 
 			for (int i=0; i<OldPI->ItemsNumber; i++)
 			{
-				FarControl(hPlugin,FCTL_SETSELECTION,i,OldPI->PanelItems[i].Flags & oldfar::PPIF_SELECTED);
+				FarPanelControl(hPlugin,FCTL_SETSELECTION,i,ToPtr(OldPI->PanelItems[i].Flags & oldfar::PPIF_SELECTED));
 			}
 
-			FarControl(hPlugin,FCTL_ENDSELECTION,0,0);
+			FarPanelControl(hPlugin,FCTL_ENDSELECTION,0,0);
 			return TRUE;
 		}
 		case oldfar::FCTL_REDRAWANOTHERPANEL:
@@ -3045,16 +3066,16 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 		case oldfar::FCTL_REDRAWPANEL:
 		{
 			if (!Param)
-				return FarControl(hPlugin, FCTL_REDRAWPANEL,0,0);
+				return FarPanelControl(hPlugin, FCTL_REDRAWPANEL,0,0);
 
 			oldfar::PanelRedrawInfo* priA = (oldfar::PanelRedrawInfo*)Param;
 			PanelRedrawInfo pri = {priA->CurrentItem,priA->TopPanelItem};
-			return FarControl(hPlugin, FCTL_REDRAWPANEL,0,(INT_PTR)&pri);
+			return FarPanelControl(hPlugin, FCTL_REDRAWPANEL,0,&pri);
 		}
 		case oldfar::FCTL_SETANOTHERNUMERICSORT:
 			hPlugin = PANEL_PASSIVE;
 		case oldfar::FCTL_SETNUMERICSORT:
-			return FarControl(hPlugin, FCTL_SETNUMERICSORT,(Param&&(*(int*)Param))?1:0,0);
+			return FarPanelControl(hPlugin, FCTL_SETNUMERICSORT,(Param&&(*(int*)Param))?1:0,0);
 		case oldfar::FCTL_SETANOTHERPANELDIR:
 			hPlugin = PANEL_PASSIVE;
 		case oldfar::FCTL_SETPANELDIR:
@@ -3063,7 +3084,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 				return FALSE;
 
 			wchar_t* Dir = AnsiToUnicode((char*)Param);
-			int ret = FarControl(hPlugin, FCTL_SETPANELDIR,0,(INT_PTR)Dir);
+			int ret = FarPanelControl(hPlugin, FCTL_SETPANELDIR,0,Dir);
 			xf_free(Dir);
 			return ret;
 		}
@@ -3074,19 +3095,19 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 			if (!Param)
 				return FALSE;
 
-			return FarControl(hPlugin, FCTL_SETSORTMODE,*(int*)Param,0);
+			return FarPanelControl(hPlugin, FCTL_SETSORTMODE,*(int*)Param,0);
 		case oldfar::FCTL_SETANOTHERSORTORDER:
 			hPlugin = PANEL_PASSIVE;
 		case oldfar::FCTL_SETSORTORDER:
-			return FarControl(hPlugin, FCTL_SETSORTORDER,(Param&&(*(int*)Param))?TRUE:FALSE,0);
+			return FarPanelControl(hPlugin, FCTL_SETSORTORDER,(Param&&(*(int*)Param))?TRUE:FALSE,0);
 		case oldfar::FCTL_SETANOTHERVIEWMODE:
 			hPlugin = PANEL_PASSIVE;
 		case oldfar::FCTL_SETVIEWMODE:
-			return FarControl(hPlugin, FCTL_SETVIEWMODE,(Param?*(int *)Param:0),0);
+			return FarPanelControl(hPlugin, FCTL_SETVIEWMODE,(Param?*(int *)Param:0),0);
 		case oldfar::FCTL_UPDATEANOTHERPANEL:
 			hPlugin = PANEL_PASSIVE;
 		case oldfar::FCTL_UPDATEPANEL:
-			return FarControl(hPlugin, FCTL_UPDATEPANEL,Param?1:0,0);
+			return FarPanelControl(hPlugin, FCTL_UPDATEPANEL,Param?1:0,0);
 		case oldfar::FCTL_GETCMDLINE:
 		case oldfar::FCTL_GETCMDLINESELECTEDTEXT:
 		{
@@ -3094,11 +3115,11 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 			{
 				const size_t Size = 1024;
 				wchar_t _s[Size], *s=_s;
-				FarControl(hPlugin, FCTL_GETCMDLINE, Size, reinterpret_cast<INT_PTR>(s));
+				FarPanelControl(hPlugin, FCTL_GETCMDLINE, Size, s);
 				if(Command==oldfar::FCTL_GETCMDLINESELECTEDTEXT)
 				{
 					CmdLineSelect cls;
-					FarControl(hPlugin,FCTL_GETCMDLINESELECTION, 0, reinterpret_cast<INT_PTR>(&cls));
+					FarPanelControl(hPlugin,FCTL_GETCMDLINESELECTION, 0, &cls);
 					if(cls.SelStart >=0 && cls.SelEnd > cls.SelStart)
 					{
 						s[cls.SelEnd] = 0;
@@ -3116,14 +3137,14 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 			if (!Param)
 				return FALSE;
 
-			return FarControl(hPlugin,FCTL_GETCMDLINEPOS,0,(INT_PTR)Param);
+			return FarPanelControl(hPlugin,FCTL_GETCMDLINEPOS,0,Param);
 		case oldfar::FCTL_GETCMDLINESELECTION:
 		{
 			if (!Param)
 				return FALSE;
 
 			CmdLineSelect cls;
-			int ret = FarControl(hPlugin, FCTL_GETCMDLINESELECTION,0,(INT_PTR)&cls);
+			int ret = FarPanelControl(hPlugin, FCTL_GETCMDLINESELECTION,0,&cls);
 
 			if (ret)
 			{
@@ -3140,7 +3161,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 				return FALSE;
 
 			wchar_t* s = AnsiToUnicode((const char*)Param);
-			int ret = FarControl(hPlugin, FCTL_INSERTCMDLINE,0,(INT_PTR)s);
+			int ret = FarPanelControl(hPlugin, FCTL_INSERTCMDLINE,0,s);
 			xf_free(s);
 			return ret;
 		}
@@ -3150,7 +3171,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 				return FALSE;
 
 			wchar_t* s = AnsiToUnicode((const char*)Param);
-			int ret = FarControl(hPlugin, FCTL_SETCMDLINE,0,(INT_PTR)s);
+			int ret = FarPanelControl(hPlugin, FCTL_SETCMDLINE,0,s);
 			xf_free(s);
 			return ret;
 		}
@@ -3159,7 +3180,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 			if (!Param)
 				return FALSE;
 
-			return FarControl(hPlugin, FCTL_SETCMDLINEPOS,*(int*)Param,0);
+			return FarPanelControl(hPlugin, FCTL_SETCMDLINEPOS,*(int*)Param,0);
 		case oldfar::FCTL_SETCMDLINESELECTION:
 		{
 			if (!Param)
@@ -3167,12 +3188,12 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 
 			oldfar::CmdLineSelect* clsA = (oldfar::CmdLineSelect*)Param;
 			CmdLineSelect cls = {clsA->SelStart,clsA->SelEnd};
-			return FarControl(hPlugin, FCTL_SETCMDLINESELECTION,0,(INT_PTR)&cls);
+			return FarPanelControl(hPlugin, FCTL_SETCMDLINESELECTION,0,&cls);
 		}
 		case oldfar::FCTL_GETUSERSCREEN:
-			return FarControl(hPlugin, FCTL_GETUSERSCREEN,0,0);
+			return FarPanelControl(hPlugin, FCTL_GETUSERSCREEN,0,0);
 		case oldfar::FCTL_SETUSERSCREEN:
-			return FarControl(hPlugin, FCTL_SETUSERSCREEN,0,0);
+			return FarPanelControl(hPlugin, FCTL_SETUSERSCREEN,0,0);
 	}
 
 	return FALSE;
@@ -3281,7 +3302,7 @@ void WINAPI FarFreeDirListA(const oldfar::PluginPanelItem *PanelItem)
 	xf_free(base);
 }
 
-INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
+INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMMANDS Command, void *Param)
 {
 	static char *ErrMsg1 = nullptr;
 	static char *ErrMsg2 = nullptr;
@@ -3292,7 +3313,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 		case oldfar::ACTL_GETFARVERSION:
 		{
 			VersionInfo Info;
-			FarAdvControl(ModuleNumber, ACTL_GETFARMANAGERVERSION, &Info);
+			FarAdvControl(ModuleNumber, ACTL_GETFARMANAGERVERSION, 0, &Info);
 			DWORD FarVer = Info.Major<<8|Info.Minor|Info.Build<<16;
 			int OldFarVer;
 			GeneralCfg->GetValue(L"wrapper",L"version",&OldFarVer,FarVer);
@@ -3314,12 +3335,12 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 
 		case oldfar::ACTL_GETSYSWORDDIV:
 		{
-			INT_PTR Length = FarAdvControl(ModuleNumber, ACTL_GETSYSWORDDIV, nullptr);
+			INT_PTR Length = FarAdvControl(ModuleNumber, ACTL_GETSYSWORDDIV, 0, nullptr);
 
 			if (Param)
 			{
 				wchar_t *SysWordDiv = (wchar_t*)xf_malloc((Length+1)*sizeof(wchar_t));
-				FarAdvControl(ModuleNumber, ACTL_GETSYSWORDDIV, SysWordDiv);
+				FarAdvControl(ModuleNumber, ACTL_GETSYSWORDDIV, 0, SysWordDiv);
 				UnicodeToOEM(SysWordDiv,(char*)Param,oldfar::NM);
 				xf_free(SysWordDiv);
 			}
@@ -3327,13 +3348,13 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 			return Length;
 		}
 		case oldfar::ACTL_WAITKEY:
-			return FarAdvControl(ModuleNumber, ACTL_WAITKEY, Param);
+			return FarAdvControl(ModuleNumber, ACTL_WAITKEY, 0, Param);
 		case oldfar::ACTL_GETCOLOR:
-			return FarAdvControl(ModuleNumber, ACTL_GETCOLOR, Param);
+			return FarAdvControl(ModuleNumber, ACTL_GETCOLOR, 0, Param);
 		case oldfar::ACTL_GETARRAYCOLOR:
-			return FarAdvControl(ModuleNumber, ACTL_GETARRAYCOLOR, Param);
+			return FarAdvControl(ModuleNumber, ACTL_GETARRAYCOLOR, 0, Param);
 		case oldfar::ACTL_EJECTMEDIA:
-			return FarAdvControl(ModuleNumber, ACTL_EJECTMEDIA, Param);
+			return FarAdvControl(ModuleNumber, ACTL_EJECTMEDIA, 0, Param);
 		case oldfar::ACTL_KEYMACRO:
 		{
 			if (!Param) return FALSE;
@@ -3385,7 +3406,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 
 			if (Process)
 			{
-				res = farMacroControl(0,Command,Param1,(INT_PTR)&kmW);
+				res = farMacroControl(0,Command,Param1,&kmW);
 
 				if (Command == MCTL_SENDSTRING)
 				{
@@ -3472,7 +3493,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 
 			oldfar::WindowInfo *wiA = (oldfar::WindowInfo *)Param;
 			WindowInfo wi={wiA->Pos};
-			INT_PTR ret = FarAdvControl(ModuleNumber, ACTL_GETWINDOWINFO, &wi);
+			INT_PTR ret = FarAdvControl(ModuleNumber, ACTL_GETWINDOWINFO, 0, &wi);
 
 			if (ret)
 			{
@@ -3504,7 +3525,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 
 					if (wi.TypeName && wi.Name)
 					{
-						FarAdvControl(ModuleNumber,ACTL_GETWINDOWINFO,&wi);
+						FarAdvControl(ModuleNumber,ACTL_GETWINDOWINFO, 0, &wi);
 						UnicodeToOEM(wi.TypeName,wiA->TypeName,sizeof(wiA->TypeName));
 						UnicodeToOEM(wi.Name,wiA->Name,sizeof(wiA->Name));
 					}
@@ -3529,16 +3550,16 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 			return ret;
 		}
 		case oldfar::ACTL_GETWINDOWCOUNT:
-			return FarAdvControl(ModuleNumber, ACTL_GETWINDOWCOUNT, 0);
+			return FarAdvControl(ModuleNumber, ACTL_GETWINDOWCOUNT, 0, 0);
 		case oldfar::ACTL_SETCURRENTWINDOW:
-			return FarAdvControl(ModuleNumber, ACTL_SETCURRENTWINDOW, Param);
+			return FarAdvControl(ModuleNumber, ACTL_SETCURRENTWINDOW, 0, Param);
 		case oldfar::ACTL_COMMIT:
-			return FarAdvControl(ModuleNumber, ACTL_COMMIT, 0);
+			return FarAdvControl(ModuleNumber, ACTL_COMMIT, 0, 0);
 		case oldfar::ACTL_GETFARHWND:
-			return FarAdvControl(ModuleNumber, ACTL_GETFARHWND, 0);
+			return FarAdvControl(ModuleNumber, ACTL_GETFARHWND, 0, 0);
 		case oldfar::ACTL_GETSYSTEMSETTINGS:
 		{
-			INT_PTR ss = FarAdvControl(ModuleNumber, ACTL_GETSYSTEMSETTINGS, 0);
+			INT_PTR ss = FarAdvControl(ModuleNumber, ACTL_GETSYSTEMSETTINGS, 0, 0);
 			INT_PTR ret = 0;
 
 			if (ss&FSS_CLEARROATTRIBUTE)          ret|=oldfar::FSS_CLEARROATTRIBUTE;
@@ -3567,7 +3588,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 		}
 		case oldfar::ACTL_GETPANELSETTINGS:
 		{
-			INT_PTR ps = FarAdvControl(ModuleNumber, ACTL_GETPANELSETTINGS, 0);
+			INT_PTR ps = FarAdvControl(ModuleNumber, ACTL_GETPANELSETTINGS, 0, 0);
 			INT_PTR ret = 0;
 
 			if (ps&FPS_SHOWHIDDENANDSYSTEMFILES)    ret|=oldfar::FPS_SHOWHIDDENANDSYSTEMFILES;
@@ -3598,7 +3619,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 		}
 		case oldfar::ACTL_GETINTERFACESETTINGS:
 		{
-			INT_PTR is = FarAdvControl(ModuleNumber, ACTL_GETINTERFACESETTINGS, 0);
+			INT_PTR is = FarAdvControl(ModuleNumber, ACTL_GETINTERFACESETTINGS, 0, 0);
 			INT_PTR ret = 0;
 
 			if (is&FIS_CLOCKINPANELS)                  ret|=oldfar::FIS_CLOCKINPANELS;
@@ -3621,7 +3642,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 		}
 		case oldfar::ACTL_GETCONFIRMATIONS:
 		{
-			INT_PTR cs = FarAdvControl(ModuleNumber, ACTL_GETCONFIRMATIONS, 0);
+			INT_PTR cs = FarAdvControl(ModuleNumber, ACTL_GETCONFIRMATIONS, 0, 0);
 			INT_PTR ret = 0;
 
 			if (cs&FCS_COPYOVERWRITE)          ret|=oldfar::FCS_COPYOVERWRITE;
@@ -3648,7 +3669,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 		}
 		case oldfar::ACTL_GETDESCSETTINGS:
 		{
-			INT_PTR ds = FarAdvControl(ModuleNumber, ACTL_GETDESCSETTINGS, 0);
+			INT_PTR ds = FarAdvControl(ModuleNumber, ACTL_GETDESCSETTINGS, 0, 0);
 			INT_PTR ret = 0;
 
 			if (ds&FDS_UPDATEALWAYS)      ret|=oldfar::FDS_UPDATEALWAYS;
@@ -3670,15 +3691,15 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 
 			if (scA->Flags&oldfar::FCLR_REDRAW) sc.Flags|=FSETCLR_REDRAW;
 
-			return FarAdvControl(ModuleNumber, ACTL_SETARRAYCOLOR, &sc);
+			return FarAdvControl(ModuleNumber, ACTL_SETARRAYCOLOR, 0, &sc);
 		}
 		case oldfar::ACTL_GETWCHARMODE:
 			return TRUE;
 		case oldfar::ACTL_GETPLUGINMAXREADDATA:
-			return FarAdvControl(ModuleNumber, ACTL_GETPLUGINMAXREADDATA, 0);
+			return FarAdvControl(ModuleNumber, ACTL_GETPLUGINMAXREADDATA, 0, 0);
 		case oldfar::ACTL_GETDIALOGSETTINGS:
 		{
-			INT_PTR ds = FarAdvControl(ModuleNumber, ACTL_GETDIALOGSETTINGS, 0);
+			INT_PTR ds = FarAdvControl(ModuleNumber, ACTL_GETDIALOGSETTINGS, 0, 0);
 			INT_PTR ret = 0;
 
 			if (ds&oldfar::FDIS_HISTORYINDIALOGEDITCONTROLS)    ret|=FDIS_HISTORYINDIALOGEDITCONTROLS;
@@ -3695,7 +3716,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 		case oldfar::ACTL_GETMEDIATYPE:
 			return FALSE;
 		case oldfar::ACTL_REDRAWALL:
-			return FarAdvControl(ModuleNumber, ACTL_REDRAWALL, 0);
+			return FarAdvControl(ModuleNumber, ACTL_REDRAWALL, 0, 0);
 	}
 
 	return FALSE;
@@ -3704,7 +3725,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 UINT GetEditorCodePageA()
 {
 	EditorInfo info={0};
-	FarEditorControl(-1,ECTL_GETINFO,0,(INT_PTR)&info);
+	FarEditorControl(-1,ECTL_GETINFO,0,&info);
 	UINT CodePage=info.CodePage;
 	CPINFO cpi;
 
@@ -3834,7 +3855,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 				{
 					ec.ColorItem = ecA->ColorItem;
 				}
-				int Result = FarEditorControl(-1, Command, 0, reinterpret_cast<INT_PTR>(&ec));
+				int Result = FarEditorControl(-1, Command, 0, &ec);
 				if(Result && Command == ECTL_GETCOLOR)
 				{
 					ecA->StartPos = ec.StartPos;
@@ -3854,7 +3875,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 			if (!oegs) return FALSE;
 
 			egs.StringNumber=oegs->StringNumber;
-			int ret=FarEditorControl(-1,ECTL_GETSTRING,0,(INT_PTR)&egs);
+			int ret=FarEditorControl(-1,ECTL_GETSTRING,0,&egs);
 
 			if (ret)
 			{
@@ -3884,7 +3905,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 			if (!p) return FALSE;
 
 			string strP(p);
-			return FarEditorControl(-1,ECTL_INSERTTEXT,0,(INT_PTR)strP.CPtr());
+			return FarEditorControl(-1,ECTL_INSERTTEXT,0,const_cast<wchar_t*>(strP.CPtr()));
 		}
 		case oldfar::ECTL_GETINFO:
 		{
@@ -3894,7 +3915,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 			if (!oei)
 				return FALSE;
 
-			int ret=FarEditorControl(-1,ECTL_GETINFO,0,(INT_PTR)&ei);
+			int ret=FarEditorControl(-1,ECTL_GETINFO,0,&ei);
 
 			if (ret)
 			{
@@ -3907,7 +3928,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 				if (FileNameSize)
 				{
 					LPWSTR FileName=new wchar_t[FileNameSize];
-					FarEditorControl(-1,ECTL_GETFILENAME,0,(INT_PTR)FileName);
+					FarEditorControl(-1,ECTL_GETFILENAME,0,FileName);
 					fn = UnicodeToAnsi(FileName);
 					oei->FileName=fn;
 					delete[] FileName;
@@ -3958,7 +3979,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 				newsf.FileEOL=(oldsf->FileEOL)?AnsiToUnicode(oldsf->FileEOL):nullptr;
 			}
 
-			int ret = FarEditorControl(-1,ECTL_SAVEFILE, 0, Param?(INT_PTR)&newsf:0);
+			int ret = FarEditorControl(-1,ECTL_SAVEFILE, 0, Param?&newsf:0);
 
 			if (newsf.FileName) xf_free((void*)newsf.FileName);
 
@@ -3993,15 +4014,15 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 				}
 			}
 
-			return FarEditorControl(-1,ECTL_PROCESSINPUT, 0, (INT_PTR)Param);
+			return FarEditorControl(-1,ECTL_PROCESSINPUT, 0, Param);
 		}
 		case oldfar::ECTL_PROCESSKEY:
 		{
-			return FarEditorControl(-1,ECTL_PROCESSKEY, 0, (INT_PTR)(DWORD_PTR)OldKeyToKey((DWORD)(DWORD_PTR)Param));
+			return FarEditorControl(-1,ECTL_PROCESSKEY, 0, (void*)(DWORD_PTR)OldKeyToKey((DWORD)(DWORD_PTR)Param));
 		}
 		case oldfar::ECTL_READINPUT:	//BUGBUG?
 		{
-			int ret = FarEditorControl(-1,ECTL_READINPUT, 0, (INT_PTR)Param);
+			int ret = FarEditorControl(-1,ECTL_READINPUT, 0, Param);
 
 			if (Param)
 			{
@@ -4036,12 +4057,12 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 			{
 				case 0:
 				case -1:
-					return FarEditorControl(-1,ECTL_SETKEYBAR, 0, (INT_PTR)Param);
+					return FarEditorControl(-1,ECTL_SETKEYBAR, 0, Param);
 				default:
 					oldfar::KeyBarTitles* oldkbt = (oldfar::KeyBarTitles*)Param;
 					KeyBarTitles newkbt;
 					ConvertKeyBarTitlesA(oldkbt, &newkbt);
-					int ret = FarEditorControl(-1,ECTL_SETKEYBAR, 0, (INT_PTR)&newkbt);
+					int ret = FarEditorControl(-1,ECTL_SETKEYBAR, 0, &newkbt);
 					FreeUnicodeKeyBarTitles(&newkbt);
 					return ret;
 			}
@@ -4109,7 +4130,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 					{
 						newsp.Type = ESPT_SETWORDDIV;
 						newsp.wszParam = (oldsp->cParam)?AnsiToUnicode(oldsp->cParam):nullptr;
-						int ret = FarEditorControl(-1,ECTL_SETPARAM, 0, (INT_PTR)&newsp);
+						int ret = FarEditorControl(-1,ECTL_SETPARAM, 0, &newsp);
 
 						if (newsp.wszParam) xf_free(newsp.wszParam);
 
@@ -4123,12 +4144,12 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 						newsp.Type = ESPT_GETWORDDIV;
 						newsp.wszParam = nullptr;
 						newsp.Size = 0;
-						newsp.Size = FarEditorControl(-1,ECTL_SETPARAM, 0, (INT_PTR)&newsp);
+						newsp.Size = FarEditorControl(-1,ECTL_SETPARAM, 0, &newsp);
 						newsp.wszParam = (wchar_t*)xf_malloc(newsp.Size*sizeof(wchar_t));
 
 						if (newsp.wszParam)
 						{
-							int ret = FarEditorControl(-1,ECTL_SETPARAM, 0, (INT_PTR)&newsp);
+							int ret = FarEditorControl(-1,ECTL_SETPARAM, 0, &newsp);
 							char *olddiv = UnicodeToAnsi(newsp.wszParam);
 
 							if (olddiv)
@@ -4148,7 +4169,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 				}
 			}
 
-			return FarEditorControl(-1,ECTL_SETPARAM, 0, Param?(INT_PTR)&newsp:0);
+			return FarEditorControl(-1,ECTL_SETPARAM, 0, Param?&newsp:0);
 		}
 		case oldfar::ECTL_SETSTRING:
 		{
@@ -4164,7 +4185,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 				newss.StringLength=oldss->StringLength;
 			}
 
-			int ret = FarEditorControl(-1,ECTL_SETSTRING, 0, Param?(INT_PTR)&newss:0);
+			int ret = FarEditorControl(-1,ECTL_SETSTRING, 0, Param?&newss:0);
 
 			if (newss.StringText) xf_free((void*)newss.StringText);
 
@@ -4181,7 +4202,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 				newtit=AnsiToUnicode((char*)Param);
 			}
 
-			int ret = FarEditorControl(-1,ECTL_SETTITLE, 0, (INT_PTR)newtit);
+			int ret = FarEditorControl(-1,ECTL_SETTITLE, 0, newtit);
 
 			if (newtit) xf_free(newtit);
 
@@ -4210,7 +4231,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 		default:
 			return FALSE;
 	}
-	return FarEditorControl(-1, Command, 0, reinterpret_cast<INT_PTR>(Param));
+	return FarEditorControl(-1, Command, 0, Param);
 }
 
 int WINAPI FarViewerControlA(int Command,void* Param)
@@ -4230,7 +4251,7 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 			ViewerInfo viW;
 			viW.StructSize = sizeof(ViewerInfo); //BUGBUG?
 
-			if (FarViewerControl(-1,VCTL_GETINFO, 0, (INT_PTR)&viW) == FALSE) return FALSE;
+			if (FarViewerControl(-1,VCTL_GETINFO, 0, &viW) == FALSE) return FALSE;
 
 			viA->ViewerID = viW.ViewerID;
 
@@ -4270,12 +4291,12 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 			{
 				case 0:
 				case -1:
-					return FarViewerControl(-1,VCTL_SETKEYBAR,0, (INT_PTR)Param);
+					return FarViewerControl(-1,VCTL_SETKEYBAR,0, Param);
 				default:
 					oldfar::KeyBarTitles* kbtA = (oldfar::KeyBarTitles*)Param;
 					KeyBarTitles kbt;
 					ConvertKeyBarTitlesA(kbtA, &kbt);
-					int ret=FarViewerControl(-1,VCTL_SETKEYBAR,0, (INT_PTR)&kbt);
+					int ret=FarViewerControl(-1,VCTL_SETKEYBAR,0, &kbt);
 					FreeUnicodeKeyBarTitles(&kbt);
 					return ret;
 			}
@@ -4298,7 +4319,7 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 
 			vsp.StartPos = vspA->StartPos;
 			vsp.LeftPos = vspA->LeftPos;
-			int ret = FarViewerControl(-1,VCTL_SETPOSITION,0, (INT_PTR)&vsp);
+			int ret = FarViewerControl(-1,VCTL_SETPOSITION,0, &vsp);
 			vspA->StartPos = vsp.StartPos;
 			return ret;
 		}
@@ -4308,7 +4329,7 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 
 			oldfar::ViewerSelect* vsA = (oldfar::ViewerSelect*)Param;
 			ViewerSelect vs = {vsA->BlockStartPos,vsA->BlockLen};
-			return FarViewerControl(-1,VCTL_SELECT,0, (INT_PTR)&vs);
+			return FarViewerControl(-1,VCTL_SELECT,0, &vs);
 		}
 		case oldfar::VCTL_SETMODE:
 		{
@@ -4328,7 +4349,7 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 
 			if (vsmA->Flags&oldfar::VSMFL_REDRAW) vsm.Flags|=VSMFL_REDRAW;
 
-			return FarViewerControl(-1,VCTL_SETMODE,0, (INT_PTR)&vsm);
+			return FarViewerControl(-1,VCTL_SETMODE,0, &vsm);
 		}
 	}
 
@@ -4619,7 +4640,7 @@ static void CreatePluginStartupInfoA(PluginA *pPlugin, oldfar::PluginStartupInfo
 		StartupInfo.Dialog=FarDialogFnA;
 		StartupInfo.GetMsg=FarGetMsgFnA;
 		StartupInfo.Message=FarMessageFnA;
-		StartupInfo.Control=FarControlA;
+		StartupInfo.Control=FarPanelControlA;
 		StartupInfo.SaveScreen=FarSaveScreen;
 		StartupInfo.RestoreScreen=FarRestoreScreen;
 		StartupInfo.GetDirList=FarGetDirListA;

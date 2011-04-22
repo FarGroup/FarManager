@@ -371,7 +371,7 @@ static void ConfigureChangeDriveMode()
 }
 
 
-INT_PTR WINAPI ChDiskDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI ChDiskDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 {
 	switch (Msg)
 	{
@@ -380,7 +380,7 @@ INT_PTR WINAPI ChDiskDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 			if (Param1 == 1) // BUGBUG, magic number
 			{
 				int Color=FarColorToReal(COL_WARNDIALOGTEXT);
-				return ((Param2&0xFF00FF00)|(Color<<16)|Color);
+				return ((reinterpret_cast<INT_PTR>(Param2)&0xFF00FF00)|(Color<<16)|Color);
 			}
 		}
 		break;
@@ -2040,7 +2040,7 @@ string &Panel::GetTitle(string &strTitle,int SubLen,int TruncSize)
 	return strTitle;
 }
 
-int Panel::SetPluginCommand(int Command,int Param1,INT_PTR Param2)
+int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 {
 	_ALGO(CleverSysLog clv(L"Panel::SetPluginCommand"));
 	_ALGO(SysLog(L"(Command=%s, Param1=[%d/0x%08X], Param2=[%d/0x%08X])",_FCTL_ToName(Command),(int)Param1,Param1,(int)Param2,Param2));

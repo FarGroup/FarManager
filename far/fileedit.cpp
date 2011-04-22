@@ -91,7 +91,7 @@ INT_PTR __stdcall hndOpenEditor(
     HANDLE hDlg,
     int msg,
     int param1,
-    INT_PTR param2
+    void* param2
 )
 {
 	if (msg == DN_INITDIALOG)
@@ -106,8 +106,8 @@ INT_PTR __stdcall hndOpenEditor(
 		{
 			int *param = (int*)SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
 			FarListPos pos;
-			SendDlgMessage(hDlg, DM_LISTGETCURPOS, ID_OE_CODEPAGE, (INT_PTR)&pos);
-			*param = (int)SendDlgMessage(hDlg, DM_LISTGETDATA, ID_OE_CODEPAGE, pos.SelectPos);
+			SendDlgMessage(hDlg, DM_LISTGETCURPOS, ID_OE_CODEPAGE, &pos);
+			*param = (int)SendDlgMessage(hDlg, DM_LISTGETDATA, ID_OE_CODEPAGE, ToPtr(pos.SelectPos));
 			return TRUE;
 		}
 	}
@@ -132,7 +132,7 @@ bool dlgOpenEditor(string &strFileName, UINT &codepage)
 	};
 	MakeDialogItemsEx(EditDlgData,EditDlg);
 	EditDlg[ID_OE_FILENAME].strData = strFileName;
-	Dialog Dlg(EditDlg, ARRAYSIZE(EditDlg), (FARWINDOWPROC)hndOpenEditor, (INT_PTR)&codepage);
+	Dialog Dlg(EditDlg, ARRAYSIZE(EditDlg), (FARWINDOWPROC)hndOpenEditor, &codepage);
 	Dlg.SetPosition(-1,-1,76,10);
 	Dlg.SetHelp(L"FileOpenCreate");
 	Dlg.SetId(FileOpenCreateId);
@@ -174,7 +174,7 @@ INT_PTR __stdcall hndSaveFileAs(
     HANDLE hDlg,
     int msg,
     int param1,
-    INT_PTR param2
+    void* param2
 )
 {
 	static UINT codepage=0;
@@ -188,11 +188,11 @@ INT_PTR __stdcall hndSaveFileAs(
 
 			if (IsUnicodeOrUtfCodePage(codepage))
 			{
-				SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,TRUE);
+				SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,ToPtr(TRUE));
 			}
 			else
 			{
-				SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,BSTATE_UNCHECKED);
+				SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,ToPtr(BSTATE_UNCHECKED));
 				SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,FALSE);
 			}
 
@@ -204,8 +204,8 @@ INT_PTR __stdcall hndSaveFileAs(
 			{
 				UINT *codepage = (UINT*)SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
 				FarListPos pos;
-				SendDlgMessage(hDlg, DM_LISTGETCURPOS, ID_SF_CODEPAGE, (INT_PTR)&pos);
-				*codepage = (UINT)SendDlgMessage(hDlg, DM_LISTGETDATA, ID_SF_CODEPAGE, pos.SelectPos);
+				SendDlgMessage(hDlg, DM_LISTGETCURPOS, ID_SF_CODEPAGE, &pos);
+				*codepage = (UINT)SendDlgMessage(hDlg, DM_LISTGETDATA, ID_SF_CODEPAGE, ToPtr(pos.SelectPos));
 				return TRUE;
 			}
 
@@ -216,8 +216,8 @@ INT_PTR __stdcall hndSaveFileAs(
 			if (param1==ID_SF_CODEPAGE)
 			{
 				FarListPos pos;
-				SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID_SF_CODEPAGE,(INT_PTR)&pos);
-				UINT Cp=static_cast<UINT>(SendDlgMessage(hDlg,DM_LISTGETDATA,ID_SF_CODEPAGE,pos.SelectPos));
+				SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID_SF_CODEPAGE,&pos);
+				UINT Cp=static_cast<UINT>(SendDlgMessage(hDlg,DM_LISTGETDATA,ID_SF_CODEPAGE,ToPtr(pos.SelectPos)));
 
 				if (Cp!=codepage)
 				{
@@ -225,12 +225,12 @@ INT_PTR __stdcall hndSaveFileAs(
 
 					if (IsUnicodeOrUtfCodePage(codepage))
 					{
-						SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,BSTATE_CHECKED);
-						SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,TRUE);
+						SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,ToPtr(BSTATE_CHECKED));
+						SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,ToPtr(TRUE));
 					}
 					else
 					{
-						SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,BSTATE_UNCHECKED);
+						SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,ToPtr(BSTATE_UNCHECKED));
 						SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,FALSE);
 					}
 
@@ -279,7 +279,7 @@ bool dlgSaveFileAs(string &strFileName, int &TextFormat, UINT &codepage,bool &Ad
 			EditDlg[ID_SF_FILENAME].strData.SetLength(pos);
 	}
 	EditDlg[ID_SF_DONOTCHANGE+TextFormat].Selected = TRUE;
-	Dialog Dlg(EditDlg, ARRAYSIZE(EditDlg), (FARWINDOWPROC)hndSaveFileAs, (INT_PTR)&codepage);
+	Dialog Dlg(EditDlg, ARRAYSIZE(EditDlg), (FARWINDOWPROC)hndSaveFileAs, &codepage);
 	Dlg.SetPosition(-1,-1,76,17);
 	Dlg.SetHelp(L"FileSaveAs");
 	Dlg.SetId(FileSaveAsId);

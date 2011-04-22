@@ -639,32 +639,32 @@ void FilterDlgRelativeDateItemsUpdate(HANDLE hDlg, bool bClear)
 		SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEBEFOREEDIT,0);
 		SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEAFTEREDIT,0);
 		SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_CURRENT,0);
-		SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSBEFOREEDIT,1);
-		SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSAFTEREDIT,1);
+		SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSBEFOREEDIT,ToPtr(1));
+		SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSAFTEREDIT,ToPtr(1));
 	}
 	else
 	{
 		SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSBEFOREEDIT,0);
 		SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSAFTEREDIT,0);
-		SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEBEFOREEDIT,1);
-		SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEAFTEREDIT,1);
-		SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_CURRENT,1);
+		SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEBEFOREEDIT,ToPtr(1));
+		SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEAFTEREDIT,ToPtr(1));
+		SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_CURRENT,ToPtr(1));
 	}
 
 	if (bClear)
 	{
-		SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEAFTEREDIT,(INT_PTR)L"");
-		SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DAYSAFTEREDIT,(INT_PTR)L"");
-		SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT,(INT_PTR)L"");
-		SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEBEFOREEDIT,(INT_PTR)L"");
-		SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT,(INT_PTR)L"");
-		SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DAYSBEFOREEDIT,(INT_PTR)L"");
+		SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEAFTEREDIT,nullptr);
+		SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DAYSAFTEREDIT,nullptr);
+		SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT,nullptr);
+		SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEBEFOREEDIT,nullptr);
+		SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT,nullptr);
+		SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DAYSBEFOREEDIT,nullptr);
 	}
 
 	SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
 }
 
-INT_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 {
 	switch (Msg)
 	{
@@ -695,14 +695,14 @@ INT_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Pa
 				int relative = (int)SendDlgMessage(hDlg,DM_GETCHECK,ID_FF_DATERELATIVE,0);
 				int db = relative ? ID_FF_DAYSBEFOREEDIT : ID_FF_DATEBEFOREEDIT;
 				int da = relative ? ID_FF_DAYSAFTEREDIT  : ID_FF_DATEAFTEREDIT;
-				SendDlgMessage(hDlg,DM_SETTEXTPTR,da,(INT_PTR)strDate.CPtr());
-				SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT,(INT_PTR)strTime.CPtr());
-				SendDlgMessage(hDlg,DM_SETTEXTPTR,db,(INT_PTR)strDate.CPtr());
-				SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT,(INT_PTR)strTime.CPtr());
+				SendDlgMessage(hDlg,DM_SETTEXTPTR,da,const_cast<wchar_t*>(strDate.CPtr()));
+				SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT,const_cast<wchar_t*>(strTime.CPtr()));
+				SendDlgMessage(hDlg,DM_SETTEXTPTR,db,const_cast<wchar_t*>(strDate.CPtr()));
+				SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT,const_cast<wchar_t*>(strTime.CPtr()));
 				SendDlgMessage(hDlg,DM_SETFOCUS,da,0);
 				COORD r;
 				r.X=r.Y=0;
-				SendDlgMessage(hDlg,DM_SETCURSORPOS,da,(INT_PTR)&r);
+				SendDlgMessage(hDlg,DM_SETCURSORPOS,da,&r);
 				SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
 				break;
 			}
@@ -710,26 +710,26 @@ INT_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Pa
 			{
 				SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 				INT_PTR ColorConfig = SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
-				SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_MASKEDIT,(INT_PTR)L"*");
-				SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_SIZEFROMEDIT,(INT_PTR)L"");
-				SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_SIZETOEDIT,(INT_PTR)L"");
+				SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_MASKEDIT,const_cast<wchar_t*>(L"*"));
+				SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_SIZEFROMEDIT,nullptr);
+				SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_SIZETOEDIT,nullptr);
 
 				for (int I=ID_FF_READONLY; I <= ID_FF_VIRTUAL; ++I)
 				{
-					SendDlgMessage(hDlg,DM_SETCHECK,I,BSTATE_3STATE);
+					SendDlgMessage(hDlg,DM_SETCHECK,I,ToPtr(BSTATE_3STATE));
 				}
 
 				if (!ColorConfig)
-					SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_DIRECTORY,BSTATE_UNCHECKED);
+					SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_DIRECTORY,ToPtr(BSTATE_UNCHECKED));
 
 				FarListPos LPos={0,0};
-				SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID_FF_DATETYPE,(INT_PTR)&LPos);
-				SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHMASK,BSTATE_CHECKED);
-				SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHSIZE,BSTATE_UNCHECKED);
-				SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHDATE,BSTATE_UNCHECKED);
-				SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_DATERELATIVE,BSTATE_UNCHECKED);
+				SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID_FF_DATETYPE,&LPos);
+				SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHMASK,ToPtr(BSTATE_CHECKED));
+				SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHSIZE,ToPtr(BSTATE_UNCHECKED));
+				SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHDATE,ToPtr(BSTATE_UNCHECKED));
+				SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_DATERELATIVE,ToPtr(BSTATE_UNCHECKED));
 				FilterDlgRelativeDateItemsUpdate(hDlg, true);
-				SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHATTRIBUTES,ColorConfig?BSTATE_UNCHECKED:BSTATE_CHECKED);
+				SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHATTRIBUTES,ToPtr(ColorConfig?BSTATE_UNCHECKED:BSTATE_CHECKED));
 				SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
 				break;
 			}
@@ -741,7 +741,7 @@ INT_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Pa
 					for (int j=0; j<4; j++)
 						Colors->Color[i][j]|=0xFF00;
 
-				SendDlgMessage(hDlg,DM_SETCHECK,ID_HER_MARKTRANSPARENT,BSTATE_CHECKED);
+				SendDlgMessage(hDlg,DM_SETCHECK,ID_HER_MARKTRANSPARENT,ToPtr(BSTATE_CHECKED));
 				break;
 			}
 			else if (Param1==ID_FF_DATERELATIVE)
@@ -770,13 +770,13 @@ INT_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Pa
 				GetColorDialog(Color,true,true);
 				EditData->Color[(Param1-ID_HER_NORMALFILE)&1][(Param1-ID_HER_NORMALFILE)/2]=Color;
 				FarDialogItem *ColorExample = (FarDialogItem *)xf_malloc(SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,0));
-				SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,(INT_PTR)ColorExample);
+				SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,ColorExample);
 				wchar_t MarkChar[2];
 				//MarkChar это FIXEDIT размером в 1 символ так что проверять размер строки не надо
-				SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_HER_MARKEDIT,(INT_PTR)MarkChar);
+				SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_HER_MARKEDIT,MarkChar);
 				EditData->MarkChar=*MarkChar;
 				HighlightDlgUpdateUserControl(ColorExample->VBuf,*EditData);
-				SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,(INT_PTR)ColorExample);
+				SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,ColorExample);
 				xf_free(ColorExample);
 				return TRUE;
 			}
@@ -788,13 +788,13 @@ INT_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Pa
 			{
 				HighlightDataColor *EditData = (HighlightDataColor *) SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
 				FarDialogItem *ColorExample = (FarDialogItem *)xf_malloc(SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,0));
-				SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,(INT_PTR)ColorExample);
+				SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,ColorExample);
 				wchar_t MarkChar[2];
 				//MarkChar это FIXEDIT размером в 1 символ так что проверять размер строки не надо
-				SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_HER_MARKEDIT,(INT_PTR)MarkChar);
+				SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_HER_MARKEDIT,MarkChar);
 				EditData->MarkChar=*MarkChar;
 				HighlightDlgUpdateUserControl(ColorExample->VBuf,*EditData);
-				SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,(INT_PTR)ColorExample);
+				SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,ColorExample);
 				xf_free(ColorExample);
 				return TRUE;
 			}
@@ -807,10 +807,10 @@ INT_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Pa
 				string strTemp;
 				wchar_t *temp;
 				temp = strTemp.GetBuffer(SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_FF_SIZEFROMEDIT,0)+1);
-				SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_FF_SIZEFROMEDIT,(INT_PTR)temp);
+				SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_FF_SIZEFROMEDIT,temp);
 				bool bTemp = !*temp || CheckFileSizeStringFormat(temp);
 				temp = strTemp.GetBuffer(SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_FF_SIZETOEDIT,0)+1);
-				SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_FF_SIZETOEDIT,(INT_PTR)temp);
+				SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_FF_SIZETOEDIT,temp);
 				bTemp = bTemp && (!*temp || CheckFileSizeStringFormat(temp));
 
 				if (!bTemp)
@@ -1065,7 +1065,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 			FilterDlg[i].Flags|=DIF_DISABLE;
 	}
 
-	Dialog Dlg(FilterDlg,ARRAYSIZE(FilterDlg),FileFilterConfigDlgProc,(INT_PTR)(ColorConfig?&Colors:nullptr));
+	Dialog Dlg(FilterDlg,ARRAYSIZE(FilterDlg),FileFilterConfigDlgProc,ColorConfig?&Colors:nullptr);
 	Dlg.SetHelp(ColorConfig?L"HighlightEdit":L"Filter");
 	Dlg.SetPosition(-1,-1,FilterDlg[ID_FF_TITLE].X2+4,FilterDlg[ID_FF_TITLE].Y2+2);
 	Dlg.SetAutomation(ID_FF_MATCHMASK,ID_FF_MASKEDIT,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);

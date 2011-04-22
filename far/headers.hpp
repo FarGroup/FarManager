@@ -146,6 +146,8 @@ inline const T&Max(const T &a, const T &b) { return a>b?a:b; }
 template <class T>
 inline const T Round(const T &a, const T &b) { return a/b+(a%b*2>b?1:0); }
 
+inline void* ToPtr(INT_PTR T){ return reinterpret_cast<void*>(T); }
+
 #define IsPtr(x) ((DWORD_PTR)x>(DWORD_PTR)SystemInfo.lpMinimumApplicationAddress && (DWORD_PTR)x<(DWORD_PTR)SystemInfo.lpMaximumApplicationAddress)
 
 #define SIGN_UNICODE    0xFEFF

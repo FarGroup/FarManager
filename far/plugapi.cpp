@@ -227,7 +227,7 @@ BOOL WINAPI FarShowHelp(
 /* $ 05.07.2000 IS
   Функция, которая будет действовать и в редакторе, и в панелях, и...
 */
-INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
+INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, ADVANCED_CONTROL_COMMANDS Command, int Param1, void* Param2)
 {
 	struct Opt2Flags
 	{
@@ -266,8 +266,8 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 	{
 		case ACTL_GETFARMANAGERVERSION:
 		{
-			if (Param)
-				*(VersionInfo*)Param=FAR_VERSION;
+			if (Param2)
+				*(VersionInfo*)Param2=FAR_VERSION;
 
 			return TRUE;
 		}
@@ -277,8 +277,8 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 		}
 		case ACTL_GETSYSWORDDIV:
 		{
-			if (Param)
-				wcscpy((wchar_t *)Param,Opt.strWordDiv);
+			if (Param2)
+				wcscpy((wchar_t *)Param2,Opt.strWordDiv);
 
 			return Opt.strWordDiv.GetLength()+1;
 		}
@@ -290,7 +290,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 		*/
 		case ACTL_WAITKEY:
 		{
-			return WaitKey(Param?(DWORD)(DWORD_PTR)Param:(DWORD)-1,0,false);
+			return WaitKey(Param2?(DWORD)(DWORD_PTR)Param2:(DWORD)-1,0,false);
 		}
 		/* $ 04.12.2000 SVS
 		  ACTL_GETCOLOR - получить определенный цвет по индекс, определенному
@@ -300,8 +300,8 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 		*/
 		case ACTL_GETCOLOR:
 		{
-			if ((int)(INT_PTR)Param < SizeArrayPalette && (int)(INT_PTR)Param >= 0)
-				return (int)((unsigned int)Palette[(int)(INT_PTR)Param]);
+			if ((int)(INT_PTR)Param2 < SizeArrayPalette && (int)(INT_PTR)Param2 >= 0)
+				return (int)((unsigned int)Palette[(int)(INT_PTR)Param2]);
 
 			return -1;
 		}
@@ -312,8 +312,8 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 		*/
 		case ACTL_GETARRAYCOLOR:
 		{
-			if (Param)
-				memcpy(Param,Palette,SizeArrayPalette);
+			if (Param2)
+				memcpy(Param2,Palette,SizeArrayPalette);
 
 			return SizeArrayPalette;
 		}
@@ -327,9 +327,9 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 		*/
 		case ACTL_SETARRAYCOLOR:
 		{
-			if (Param)
+			if (Param2)
 			{
-				FarSetColors *Pal=(FarSetColors*)Param;
+				FarSetColors *Pal=(FarSetColors*)Param2;
 
 				if (Pal->Colors &&
 				        Pal->StartIndex >= 0 &&
@@ -358,8 +358,8 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 		*/
 		case ACTL_EJECTMEDIA:
 		{
-			return Param?EjectVolume((wchar_t)((ActlEjectMedia*)Param)->Letter,
-			                         ((ActlEjectMedia*)Param)->Flags):FALSE;
+			return Param2?EjectVolume((wchar_t)((ActlEjectMedia*)Param2)->Letter,
+			                         ((ActlEjectMedia*)Param2)->Flags):FALSE;
 			/*
 			      if(Param)
 			      {
@@ -392,10 +392,10 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 		   новые ACTL_ для работы с фреймами */
 		case ACTL_GETWINDOWINFO:
 		{
-			if (FrameManager && Param)
+			if (FrameManager && Param2)
 			{
 				string strType, strName;
-				WindowInfo *wi=(WindowInfo*)Param;
+				WindowInfo *wi=(WindowInfo*)Param2;
 				Frame *f;
 
 				/* $ 22.12.2001 VVM
@@ -460,7 +460,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 		case ACTL_SETCURRENTWINDOW:
 		{
 			// Запретим переключение фрэймов, если находимся в модальном редакторе/вьюере.
-			if (FrameManager && !FrameManager->InModalEV() && FrameManager->operator[]((int)(INT_PTR)Param))
+			if (FrameManager && !FrameManager->InModalEV() && FrameManager->operator[]((int)(INT_PTR)Param2))
 			{
 				int TypeFrame=FrameManager->GetCurrentFrame()->GetType();
 
@@ -468,7 +468,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 				if (TypeFrame != MODALTYPE_HELP && TypeFrame != MODALTYPE_DIALOG)
 				{
 					Frame* PrevFrame = FrameManager->GetCurrentFrame();
-					FrameManager->ActivateFrame((int)(INT_PTR)Param);
+					FrameManager->ActivateFrame((int)(INT_PTR)Param2);
 					FrameManager->DeactivateFrame(PrevFrame, 0);
 					return TRUE;
 				}
@@ -634,16 +634,16 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 
 		case ACTL_SETPROGRESSSTATE:
 		{
-			TBC.SetProgressState(static_cast<TBPFLAG>(reinterpret_cast<INT_PTR>(Param)));
+			TBC.SetProgressState(static_cast<TBPFLAG>(reinterpret_cast<INT_PTR>(Param2)));
 			return TRUE;
 		}
 
 		case ACTL_SETPROGRESSVALUE:
 		{
 			BOOL Result=FALSE;
-			if(Param)
+			if(Param2)
 			{
-				ProgressValue* PV=static_cast<ProgressValue*>(Param);
+				ProgressValue* PV=static_cast<ProgressValue*>(Param2);
 				TBC.SetProgressValue(PV->Completed,PV->Total);
 				Result=TRUE;
 			}
@@ -660,9 +660,9 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 		case ACTL_GETFARRECT:
 			{
 				BOOL Result=FALSE;
-				if(Param)
+				if(Param2)
 				{
-					SMALL_RECT& Rect=*static_cast<PSMALL_RECT>(Param);
+					SMALL_RECT& Rect=*static_cast<PSMALL_RECT>(Param2);
 					if(Opt.WindowMode)
 					{
 						Result=Console.GetWorkingRect(Rect);
@@ -687,9 +687,9 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 		case ACTL_GETCURSORPOS:
 			{
 				BOOL Result=FALSE;
-				if(Param)
+				if(Param2)
 				{
-					COORD& Pos=*static_cast<PCOORD>(Param);
+					COORD& Pos=*static_cast<PCOORD>(Param2);
 					Result=Console.GetCursorPosition(Pos);
 				}
 				return Result;
@@ -699,9 +699,9 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 		case ACTL_SETCURSORPOS:
 			{
 				BOOL Result=FALSE;
-				if(Param)
+				if(Param2)
 				{
-					COORD& Pos=*static_cast<PCOORD>(Param);
+					COORD& Pos=*static_cast<PCOORD>(Param2);
 					Result=Console.SetCursorPosition(Pos);
 				}
 				return Result;
@@ -713,6 +713,8 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 			TBC.Flash();
 			return TRUE;
 		}
+		default:
+			break;
 
 	}
 
@@ -872,7 +874,7 @@ int WINAPI FarMenuFn(
 }
 
 // Функция FarDefDlgProc обработки диалога по умолчанию
-INT_PTR WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 {
 	if (hDlg) // исключаем лишний вызов для hDlg=0
 		return DefDlgProc(hDlg,Msg,Param1,Param2);
@@ -881,7 +883,7 @@ INT_PTR WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
 }
 
 // Посылка сообщения диалогу
-INT_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 {
 	if (hDlg) // исключаем лишний вызов для hDlg=0
 		return SendDlgMessage(hDlg,Msg,Param1,Param2);
@@ -928,7 +930,7 @@ static int FarDialogExSehed(Dialog *FarDialog)
 HANDLE WINAPI FarDialogInit(INT_PTR PluginNumber, const GUID* Id, int X1, int Y1, int X2, int Y2,
                             const wchar_t *HelpTopic, FarDialogItem *Item,
                             unsigned int ItemsNumber, DWORD Reserved, unsigned __int64 Flags,
-                            FARWINDOWPROC DlgProc, INT_PTR Param)
+                            FARWINDOWPROC DlgProc, void* Param)
 {
 	HANDLE hDlg=INVALID_HANDLE_VALUE;
 
@@ -1203,11 +1205,11 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,unsigned __int64 Flags,const wchar_
 	return(MsgCode);
 }
 
-int WINAPI FarControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int Param1,INT_PTR Param2)
+INT_PTR WINAPI FarPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int Param1,void* Param2)
 {
 	_FCTLLOG(CleverSysLog CSL(L"Control"));
 	_FCTLLOG(SysLog(L"(hPlugin=0x%08X, Command=%s, Param1=[%d/0x%08X], Param2=[%d/0x%08X])",hPlugin,_FCTL_ToName(Command),(int)Param1,Param1,(int)Param2,Param2));
-	_ALGO(CleverSysLog clv(L"FarControl"));
+	_ALGO(CleverSysLog clv(L"FarPanelControl"));
 	_ALGO(SysLog(L"(hPlugin=0x%08X, Command=%s, Param1=[%d/0x%08X], Param2=[%d/0x%08X])",hPlugin,_FCTL_ToName(Command),(int)Param1,Param1,(int)Param2,Param2));
 
 	if (Command == FCTL_CHECKPANELSEXIST)
@@ -2016,7 +2018,7 @@ void WINAPI FarText(int X,int Y,int Color,const wchar_t *Str)
 }
 
 
-int WINAPI FarEditorControl(int EditorID, EDITOR_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2)
+INT_PTR WINAPI FarEditorControl(int EditorID, EDITOR_CONTROL_COMMANDS Command, int Param1, void* Param2)
 {
 	if (FrameManager->ManagerIsDown())
 		return 0;
@@ -2047,7 +2049,7 @@ int WINAPI FarEditorControl(int EditorID, EDITOR_CONTROL_COMMANDS Command, int P
 	return 0;
 }
 
-int WINAPI FarViewerControl(int ViewerID, VIEWER_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2)
+INT_PTR WINAPI FarViewerControl(int ViewerID, VIEWER_CONTROL_COMMANDS Command, int Param1, void* Param2)
 {
 	if (FrameManager->ManagerIsDown())
 		return 0;
@@ -2227,7 +2229,7 @@ size_t WINAPI farGetPathRoot(const wchar_t *Path, wchar_t *Root, size_t DestSize
 	}
 }
 
-int WINAPI farMacroControl(HANDLE hHandle, FAR_MACRO_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2)
+INT_PTR WINAPI farMacroControl(HANDLE hHandle, FAR_MACRO_CONTROL_COMMANDS Command, int Param1, void* Param2)
 {
 	if (CtrlObject) // все зависит от этой бадяги.
 	{
@@ -2328,7 +2330,7 @@ int WINAPI farMacroControl(HANDLE hHandle, FAR_MACRO_CONTROL_COMMANDS Command, i
 	return 0;
 }
 
-int WINAPI farPluginsControl(HANDLE hHandle, FAR_PLUGINS_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2)
+INT_PTR WINAPI farPluginsControl(HANDLE hHandle, FAR_PLUGINS_CONTROL_COMMANDS Command, int Param1, void* Param2)
 {
 	switch (Command)
 	{
@@ -2359,7 +2361,7 @@ int WINAPI farPluginsControl(HANDLE hHandle, FAR_PLUGINS_CONTROL_COMMANDS Comman
 	return 0;
 }
 
-int WINAPI farFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2)
+INT_PTR WINAPI farFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COMMANDS Command, int Param1, void* Param2)
 {
 	FileFilter *Filter=nullptr;
 
@@ -2431,7 +2433,7 @@ int WINAPI farFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COMMANDS
 	return FALSE;
 }
 
-int WINAPI farRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2)
+INT_PTR WINAPI farRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Command, int Param1, void* Param2)
 {
 	RegExp* re=nullptr;
 
@@ -2492,7 +2494,7 @@ int WINAPI farRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Command,
 	return FALSE;
 }
 
-int WINAPI farSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS Command, int Param1, INT_PTR Param2)
+INT_PTR WINAPI farSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS Command, int Param1, void* Param2)
 {
 	PluginSettings* settings=nullptr;
 
