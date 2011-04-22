@@ -108,7 +108,7 @@ DeviceInfo *EnumHotPlugDevice(LPARAM lParam)
 			}
 
 			if (!ListItem.strName.IsEmpty())
-				HotPlugList->SetUserData((void*)(INT_PTR)I,sizeof(I),HotPlugList->AddItem(&ListItem));
+				HotPlugList->SetUserData(&I,sizeof(I),HotPlugList->AddItem(&ListItem));
 		}
 	}
 

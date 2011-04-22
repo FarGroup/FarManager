@@ -2352,7 +2352,7 @@ void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& 
 				FindItem.ArcIndex = ArcIndex;
 			}
 			itd.SetFindListItem(ItemIndex, FindItem);
-			ListBox->SetUserData((void*)(DWORD_PTR)ItemIndex,sizeof(ItemIndex),ListBox->AddItem(&ListItem));
+			ListBox->SetUserData(&ItemIndex,sizeof(ItemIndex),ListBox->AddItem(&ListItem));
 		}
 	}
 
@@ -2372,7 +2372,7 @@ void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& 
 
 	ListItem.strName = MenuText;
 	int ListPos = ListBox->AddItem(&ListItem);
-	ListBox->SetUserData((void*)(DWORD_PTR)ItemIndex,sizeof(ItemIndex), ListPos);
+	ListBox->SetUserData(&ItemIndex,sizeof(ItemIndex), ListPos);
 
 	// Выделим как положено - в списке.
 	int FC=itd.GetFileCount(), DC=itd.GetDirCount(), LF=itd.GetLastFoundNumber();

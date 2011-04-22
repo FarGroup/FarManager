@@ -176,8 +176,8 @@ void AddCodePage(const wchar_t *codePageName, UINT codePage, int position, bool 
 		// Устанавливаем данные для элемента
 		FarListItemData data;
 		data.Index = position;
-		data.Data = (void*)(DWORD_PTR)codePage;
-		data.DataSize = sizeof(UINT);
+		data.Data = &codePage;
+		data.DataSize = sizeof(codePage);
 		SendDlgMessage(dialog, DM_LISTSETDATA, control, (INT_PTR)&data);
 	}
 	else
@@ -193,8 +193,8 @@ void AddCodePage(const wchar_t *codePageName, UINT codePage, int position, bool 
 		FormatCodePageString(codePage, codePageName, name, IsCodePageNameCustom);
 		item.strName = name;
 
-		item.UserData = (char *)(UINT_PTR)codePage;
-		item.UserDataSize = sizeof(UINT);
+		item.UserData = &codePage;
+		item.UserDataSize = sizeof(codePage);
 
 		// Добавляем новый элемент в меню
 		if (position>=0)
@@ -446,8 +446,8 @@ void ProcessSelected(bool select)
 		MenuItemEx newItem;
 		newItem.Clear();
 		newItem.strName = CodePages->GetItemPtr()->strName;
-		newItem.UserData = (char *)(UINT_PTR)codePage;
-		newItem.UserDataSize = sizeof(UINT);
+		newItem.UserData = &codePage;
+		newItem.UserDataSize = sizeof(codePage);
 		// Сохраняем позицию курсора
 		int position=CodePages->GetSelectPos();
 		// Удаляем старый пункт меню
@@ -647,8 +647,8 @@ INT_PTR WINAPI EditDialogProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
 				MenuItemEx NewItem;
 				NewItem.Clear();
 				NewItem.strName = strCodePage;
-				NewItem.UserData = (char *)(UINT_PTR)CodePage;
-				NewItem.UserDataSize = sizeof(UINT);
+				NewItem.UserData = &CodePage;
+				NewItem.UserDataSize = sizeof(CodePage);
 				CodePages->AddItem(&NewItem, Position);
 				CodePages->SetSelectPos(Position, 1);
 			}

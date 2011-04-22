@@ -278,13 +278,13 @@ static size_t AddPluginItems(VMenu &ChDisk, int Pos, int DiskCount, bool SetSele
 
 				OneItem.Item.strName = strMenuText;
 				OneItem.Item.UserDataSize=sizeof(PanelMenuItem);
-				OneItem.Item.UserData=(char*)item;
+				OneItem.Item.UserData=item;
 				OneItem.HotKey=HotKey;
 				ChDiskPluginItem *pResult = MPItems.addItem(OneItem);
 
 				if (pResult)
 				{
-					pResult->Item.UserData = (char*)item; //BUGBUG, это фантастика просто. »справить!!!! св€зано с работой TArray
+					pResult->Item.UserData = item; //BUGBUG, это фантастика просто. »справить!!!! св€зано с работой TArray
 					pResult->Item.UserDataSize = sizeof(PanelMenuItem);
 				}
 
