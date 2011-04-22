@@ -46,6 +46,15 @@ void GetFullName(const wchar_t * Name, string &strFullName)
 		ConvertNameToFull(Name,strFullName);
 }
 
+void FilePositionCache::CompactHistory()
+{
+	HistoryCfg->BeginTransaction();
+
+	HistoryCfg->DeleteOldPositions(90,1000);
+
+	HistoryCfg->EndTransaction();
+}
+
 bool FilePositionCache::AddPosition(const wchar_t *Name, const EditorPosCache& poscache)
 {
 	if (!Opt.EdOpt.SavePos)

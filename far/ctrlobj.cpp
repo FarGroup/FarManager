@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dirmix.hpp"
 #include "console.hpp"
 #include "shortcuts.hpp"
+#include "poscache.hpp"
 
 ControlObject *CtrlObject;
 
@@ -163,6 +164,7 @@ ControlObject::~ControlObject()
 	delete FolderShortcuts;
 
 	History::CompactHistory();
+	FilePositionCache::CompactHistory();
 
 	delete FrameManager;
 	TreeList::FlushCache();

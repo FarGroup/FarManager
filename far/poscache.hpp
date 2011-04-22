@@ -89,4 +89,6 @@ class FilePositionCache
 
 		static bool AddPosition(const wchar_t *Name, const ViewerPosCache& poscache);
 		static bool GetPosition(const wchar_t *Name, ViewerPosCache& poscache);
+
+		static void CompactHistory();
 };

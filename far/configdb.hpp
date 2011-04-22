@@ -211,6 +211,7 @@ public:
 	virtual unsigned __int64 GetViewerPos(const wchar_t *Name, __int64 *FilePos, __int64 *LeftPos, int *Hex, UINT *CodePage) = 0;
 	virtual bool SetViewerBookmark(unsigned __int64 id, int i, __int64 FilePos, __int64 LeftPos) = 0;
 	virtual bool GetViewerBookmark(unsigned __int64 id, int i, __int64 *FilePos, __int64 *LeftPos) = 0;
+	virtual void DeleteOldPositions(int DaysToKeep, int MinimunEntries) = 0;
 };
 
 extern GeneralConfig *GeneralCfg;

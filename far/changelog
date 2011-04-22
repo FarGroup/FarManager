@@ -1,3 +1,9 @@
+t-rex 22.04.2011 19:39:06 +0200 - build 1989
+
+1. poscache в sqlite готов. очищается таким же методом как и история.
+   В общем отвязка от реестра практически закончена, осталось придумать что делать с макросами.
+   Кто возмётся?
+
 drkns 22.04.2011 16:16:16 +0200 - build 1988
 
 1. ACTL_GETCOLOR, ACTL_SETCURRENTWINDOW, ACTL_SETPROGRESSSTATE, ACTL_WAITKEY используют Param1.

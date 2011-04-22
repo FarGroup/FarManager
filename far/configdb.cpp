@@ -75,6 +75,8 @@ public:
 
 	SQLiteStmt& Bind(unsigned __int64 Value) { sqlite3_bind_int64(pStmt,param++,Value); return *this; }
 
+	SQLiteStmt& Bind(__int64 Value) { sqlite3_bind_int64(pStmt,param++,Value); return *this; }
+
 	SQLiteStmt& Bind(const wchar_t *Value, bool bStatic=true)
 	{
 		if (Value)
@@ -1239,6 +1241,21 @@ class HistoryConfigDb: public HistoryConfig {
 	SQLiteStmt stmtGetNext;
 	SQLiteStmt stmtGetPrev;
 	SQLiteStmt stmtGetNewest;
+	SQLiteStmt stmtSetEditorPos;
+	SQLiteStmt stmtSetEditorBookmark;
+	SQLiteStmt stmtGetEditorPos;
+	SQLiteStmt stmtGetEditorBookmark;
+	SQLiteStmt stmtSetViewerPos;
+	SQLiteStmt stmtSetViewerBookmark;
+	SQLiteStmt stmtGetViewerPos;
+	SQLiteStmt stmtGetViewerBookmark;
+	SQLiteStmt stmtDeleteOldEditor;
+	SQLiteStmt stmtDeleteOldViewer;
+
+	unsigned __int64 CalcDays(int Days)
+	{
+		return ((unsigned __int64)Days) * 24ull * 60ull * 60ull * 10000000ull;
+	}
 
 public:
 
@@ -1250,12 +1267,22 @@ public:
 		//schema
 		db.SetWALJournalingMode();
 		db.EnableForeignKeysConstraints();
+		//command,view,edit,folder,dialog history
 		db.Exec(
 			"CREATE TABLE IF NOT EXISTS history(id INTEGER PRIMARY KEY, kind INTEGER NOT NULL, key TEXT NOT NULL, type INTEGER NOT NULL, lock INTEGER NOT NULL, name TEXT NOT NULL, time INTEGER NOT NULL);"
 			"CREATE INDEX IF NOT EXISTS history_idx1 ON history (kind, key);"
 			"CREATE INDEX IF NOT EXISTS history_idx2 ON history (kind, key, time);"
 			"CREATE INDEX IF NOT EXISTS history_idx3 ON history (kind, key, lock DESC, time DESC);"
 			"CREATE INDEX IF NOT EXISTS history_idx4 ON history (kind, key, time DESC);"
+		);
+		//view,edit file positions and bookmarks history
+		db.Exec(
+			"CREATE TABLE IF NOT EXISTS editorposition_history(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE, time INTEGER NOT NULL, line INTEGER NOT NULL, linepos INTEGER NOT NULL, screenline INTEGER NOT NULL, leftpos INTEGER NOT NULL, codepage INTEGER NOT NULL);"
+			"CREATE TABLE IF NOT EXISTS editorbookmarks_history(pid INTEGER NOT NULL, num INTEGER NOT NULL, line INTEGER NOT NULL, linepos INTEGER NOT NULL, screenline INTEGER NOT NULL, leftpos INTEGER NOT NULL, FOREIGN KEY(pid) REFERENCES editorposition_history(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (pid, num));"
+			"CREATE INDEX IF NOT EXISTS editorposition_history_idx1 ON editorposition_history (time DESC);"
+			"CREATE TABLE IF NOT EXISTS viewerposition_history(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE, time INTEGER NOT NULL, filepos INTEGER NOT NULL, leftpos INTEGER NOT NULL, hex INTEGER NOT NULL, codepage INTEGER NOT NULL);"
+			"CREATE TABLE IF NOT EXISTS viewerbookmarks_history(pid INTEGER NOT NULL, num INTEGER NOT NULL, filepos INTEGER NOT NULL, leftpos INTEGER NOT NULL, FOREIGN KEY(pid) REFERENCES viewerposition_history(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (pid, num));"
+			"CREATE INDEX IF NOT EXISTS viewerposition_history_idx1 ON viewerposition_history (time DESC);"
 		);
 
 		//enum items order by time statement
@@ -1267,7 +1294,7 @@ public:
 		//delete item statement
 		db.InitStmt(stmtDel, L"DELETE FROM history WHERE id=?1;");
 
-		//delete old unlocked imtems statement
+		//delete old unlocked items statement
 		db.InitStmt(stmtDeleteOldUnlocked, L"DELETE FROM history WHERE kind=?1 AND key=?2 AND lock=0 AND time<?3 AND id NOT IN (SELECT id FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC LIMIT ?4);");
 
 		//enum histories with more than X entries statement
@@ -1305,6 +1332,36 @@ public:
 
 		//get newest item name statement
 		db.InitStmt(stmtGetNewest, L"SELECT id, name FROM history WHERE kind=?1 AND key=?2 ORDER BY time DESC LIMIT 1;");
+
+		//set editor position statement
+		db.InitStmt(stmtSetEditorPos, L"INSERT OR REPLACE INTO editorposition_history VALUES (NULL,?1,?2,?3,?4,?5,?6,?7);");
+
+		//set editor bookmark statement
+		db.InitStmt(stmtSetEditorBookmark, L"INSERT OR REPLACE INTO editorbookmarks_history VALUES (?1,?2,?3,?4,?5,?6);");
+
+		//get editor position statement
+		db.InitStmt(stmtGetEditorPos, L"SELECT id, line, linepos, screenline, leftpos, codepage FROM editorposition_history WHERE name=?1;");
+
+		//get editor bookmark statement
+		db.InitStmt(stmtGetEditorBookmark, L"SELECT line, linepos, screenline, leftpos FROM editorbookmarks_history WHERE pid=?1 AND num=?2;");
+
+		//set viewer position statement
+		db.InitStmt(stmtSetViewerPos, L"INSERT OR REPLACE INTO viewerposition_history VALUES (NULL,?1,?2,?3,?4,?5,?6);");
+
+		//set viewer bookmark statement
+		db.InitStmt(stmtSetViewerBookmark, L"INSERT OR REPLACE INTO viewerbookmarks_history VALUES (?1,?2,?3,?4);");
+
+		//get viewer position statement
+		db.InitStmt(stmtGetViewerPos, L"SELECT id, filepos, leftpos, hex, codepage FROM viewerposition_history WHERE name=?1;");
+
+		//get viewer bookmark statement
+		db.InitStmt(stmtGetViewerBookmark, L"SELECT filepos, leftpos FROM viewerbookmarks_history WHERE pid=?1 AND num=?2;");
+
+		//delete old editor positions statement
+		db.InitStmt(stmtDeleteOldEditor, L"DELETE FROM editorposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM editorposition_history WHERE ORDER BY time DESC LIMIT ?2);");
+
+		//delete old viewer positions statement
+		db.InitStmt(stmtDeleteOldViewer, L"DELETE FROM viewerposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM viewerposition_history WHERE ORDER BY time DESC LIMIT ?2);");
 	}
 
 	virtual ~HistoryConfigDb() {}
@@ -1342,7 +1399,7 @@ public:
 	bool DeleteOldUnlocked(DWORD TypeHistory, const wchar_t *HistoryName, int DaysToKeep, int MinimunEntries)
 	{
 		unsigned __int64 older = GetCurrentUTCTimeInUI64();
-		older -= ((unsigned __int64)DaysToKeep) * 24ull * 60ull * 60ull * 10000000ull;
+		older -= CalcDays(DaysToKeep);
 		return stmtDeleteOldUnlocked.Bind((int)TypeHistory).Bind(HistoryName).Bind(older).Bind(MinimunEntries).StepAndReset();
 	}
 
@@ -1499,43 +1556,93 @@ public:
 
 	unsigned __int64 SetEditorPos(const wchar_t *Name, int Line, int LinePos, int ScreenLine, int LeftPos, UINT CodePage)
 	{
+		if (stmtSetEditorPos.Bind(Name).Bind(GetCurrentUTCTimeInUI64()).Bind(Line).Bind(LinePos).Bind(ScreenLine).Bind(LeftPos).Bind((int)CodePage).StepAndReset())
+			return db.LastInsertRowID();
 		return 0;
 	}
 
 	unsigned __int64 GetEditorPos(const wchar_t *Name, int *Line, int *LinePos, int *ScreenLine, int *LeftPos, UINT *CodePage)
 	{
-		return 0;
+		unsigned __int64 id=0;
+		if (stmtGetEditorPos.Bind(Name).Step())
+		{
+			id = stmtGetEditorPos.GetColInt64(0);
+			*Line = stmtGetEditorPos.GetColInt(1);
+			*LinePos = stmtGetEditorPos.GetColInt(2);
+			*ScreenLine = stmtGetEditorPos.GetColInt(3);
+			*LeftPos = stmtGetEditorPos.GetColInt(4);
+			*CodePage = stmtGetEditorPos.GetColInt(5);
+		}
+		stmtGetEditorPos.Reset();
+		return id;
 	}
 
 	bool SetEditorBookmark(unsigned __int64 id, int i, int Line, int LinePos, int ScreenLine, int LeftPos)
 	{
-		return false;
+		return stmtSetEditorBookmark.Bind(id).Bind(i).Bind(Line).Bind(LinePos).Bind(ScreenLine).Bind(LeftPos).StepAndReset();
 	}
 
 	bool GetEditorBookmark(unsigned __int64 id, int i, int *Line, int *LinePos, int *ScreenLine, int *LeftPos)
 	{
-		return false;
+		bool b = stmtGetEditorBookmark.Bind(id).Bind(i).Step();
+		if (b)
+		{
+			*Line = stmtGetEditorBookmark.GetColInt(0);
+			*LinePos = stmtGetEditorBookmark.GetColInt(1);
+			*ScreenLine = stmtGetEditorBookmark.GetColInt(2);
+			*LeftPos = stmtGetEditorBookmark.GetColInt(3);
+		}
+		stmtGetEditorBookmark.Reset();
+		return b;
 	}
 
 	unsigned __int64 SetViewerPos(const wchar_t *Name, __int64 FilePos, __int64 LeftPos, int Hex, UINT CodePage)
 	{
+		if (stmtSetViewerPos.Bind(Name).Bind(GetCurrentUTCTimeInUI64()).Bind(FilePos).Bind(LeftPos).Bind(Hex).Bind((int)CodePage).StepAndReset())
+			return db.LastInsertRowID();
 		return 0;
 	}
 
 	unsigned __int64 GetViewerPos(const wchar_t *Name, __int64 *FilePos, __int64 *LeftPos, int *Hex, UINT *CodePage)
 	{
-		return 0;
+		unsigned __int64 id=0;
+		if (stmtGetViewerPos.Bind(Name).Step())
+		{
+			id = stmtGetViewerPos.GetColInt64(0);
+			*FilePos = stmtGetViewerPos.GetColInt64(1);
+			*LeftPos = stmtGetViewerPos.GetColInt64(2);
+			*Hex = stmtGetViewerPos.GetColInt(3);
+			*CodePage = stmtGetViewerPos.GetColInt(4);
+		}
+		stmtGetViewerPos.Reset();
+		return id;
 	}
 
 	bool SetViewerBookmark(unsigned __int64 id, int i, __int64 FilePos, __int64 LeftPos)
 	{
-		return false;
+		return stmtSetViewerBookmark.Bind(id).Bind(i).Bind(FilePos).Bind(LeftPos).StepAndReset();
 	}
 
 	bool GetViewerBookmark(unsigned __int64 id, int i, __int64 *FilePos, __int64 *LeftPos)
 	{
-		return false;
+		bool b = stmtGetViewerBookmark.Bind(id).Bind(i).Step();
+		if (b)
+		{
+			*FilePos = stmtGetViewerBookmark.GetColInt64(0);
+			*LeftPos = stmtGetViewerBookmark.GetColInt64(1);
+		}
+		stmtGetViewerBookmark.Reset();
+		return b;
 	}
+
+	void DeleteOldPositions(int DaysToKeep, int MinimunEntries)
+	{
+		unsigned __int64 older = GetCurrentUTCTimeInUI64();
+		older -= CalcDays(DaysToKeep);
+		stmtDeleteOldEditor.Bind(older).Bind(MinimunEntries).StepAndReset();
+		stmtDeleteOldViewer.Bind(older).Bind(MinimunEntries).StepAndReset();
+	}
+
 };
 
 HierarchicalConfig *CreatePluginsConfig()
