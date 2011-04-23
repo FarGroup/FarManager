@@ -1,3 +1,7 @@
+t-rex 23.04.2011 12:10:43 +0200 - build 1992
+
+1. На будущее, настройка "System.Exception.FarEvent.svc" переименована в "System.Exception.FarEventSvc".
+
 t-rex 23.04.2011 02:04:07 +0200 - build 1991
 
 1. Удалил не используемый код.

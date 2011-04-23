@@ -209,7 +209,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 	{
 		static string strFarEventSvc;
 
-		if (GeneralCfg->GetValue(L"System.Exception",L"FarEvent.svc",strFarEventSvc,L"") && !strFarEventSvc.IsEmpty())
+		if (GeneralCfg->GetValue(L"System.Exception",L"FarEventSvc",strFarEventSvc,L"") && !strFarEventSvc.IsEmpty())
 		{
 			HMODULE m = LoadLibrary(strFarEventSvc);
 
