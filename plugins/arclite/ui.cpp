@@ -364,11 +364,12 @@ private:
     else if (get_check(oa_append_ctrl_id)) options.overwrite = oaAppend;
     else options.overwrite = oaAsk;
     if (options.move_files != triUndef)
-    options.move_files = get_check3(move_files_ctrl_id);
+      options.move_files = get_check3(move_files_ctrl_id);
     options.password = get_text(password_ctrl_id);
     options.separate_dir = get_check3(separate_dir_ctrl_id);
     options.delete_archive = get_check(delete_archive_ctrl_id);
-    options.open_dir = get_check3(open_dir_ctrl_id);
+    if (options.open_dir != triUndef)
+      options.open_dir = get_check3(open_dir_ctrl_id);
   }
 
   INT_PTR dialog_proc(int msg, int param1, void* param2) {
@@ -384,7 +385,8 @@ private:
       g_options.extract_ignore_errors = options.ignore_errors;
       g_options.extract_overwrite = options.overwrite;
       g_options.extract_separate_dir = options.separate_dir;
-      g_options.extract_open_dir = options.open_dir;
+      if (options.open_dir != triUndef)
+        g_options.extract_open_dir = options.open_dir == triTrue;
       g_options.save();
       Far::info_dlg(Far::get_msg(MSG_EXTRACT_DLG_TITLE), Far::get_msg(MSG_EXTRACT_DLG_PARAMS_SAVED));
       set_focus(ok_ctrl_id);
