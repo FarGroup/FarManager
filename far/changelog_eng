@@ -3,6 +3,83 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 24.04.2011 13:38:27 +0200 - build 1994
+
+1. Once again, the epic about VMenu.UserData.
+
+t-rex 24.04.2011 04:06:00 +0200 - build 1993
+
+1. Forum: FAR crashes at exit with F10.
+
+2. Forum: crash at an attempt to call anything from the user menu.
+   Continuing the saga of VMenu.UserData.
+
+3. UserProfileDir default value was incorrect.
+
+t-rex 23.04.2011 12:10:43 +0200 - build 1992
+
+1. For the future, "System.Exception.FarEvent.svc" setting is renamed to "System.Exception.FarEventSvc".
+
+t-rex 23.04.2011 02:04:07 +0200 - build 1991
+
+1. Unused code is removed.
+
+t-rex 23.04.2011 00:44:55 +0200 - build 1990
+
+1. Done, FAR looks for nothing but macros in the registry now.
+   The settings have moved again, now they are here:
+   %APPDATA%\Far Manager\Profile
+   %LOCALAPPDATA%\Far Manager\Profile
+
+2. /u is not actual now - it now affects only ANSI plugins (well, also macros so far).
+
+3. /s key for manual specification of a folder containing the configuration (the folder will be created if it does not exist).
+
+4. New parameters in Far.exe.ini:
+   UseSystemProfiles=2
+   UserProfileDir
+   TemplatePluginsPath
+   DefaultLanguage
+
+5. Various fixes in help.
+
+t-rex 22.04.2011 19:39:06 +0200 - build 1989
+
+1. poscache in sqlite is done. it is cleared with the same method as the history.
+   In common, detaching from the registry is completed, what has been left is a decision what to do with macros.
+   Who will take it?
+
+drkns 22.04.2011 16:16:16 +0200 - build 1988
+
+1. ACTL_GETCOLOR, ACTL_SETCURRENTWINDOW, ACTL_SETPROGRESSSTATE, ACTL_WAITKEY используют Param1.
+
+drkns 22.04.2011 15:44:44 +0200 - build 1987
+
+1. All *Control functions now return INT_PTR.
+
+2. Param2 is now void* everywhere.
+
+3. gcc warnings.
+
+t-rex 22.04.2011 15:11:26 +0200
+
+1. Help topic about user menu is updated.
+
+2. Help topic about filters is added.
+
+drkns 22.04.2011 08:37:22 +0200 - build 1986
+
+1. Continuing 1982.1.
+
+t-rex 22.04.2011 03:24:23 +0200 - build 1985
+
+1. Old history items deletion takes part at the exit from FAR only.
+
+2. Deletion is now organized with the following method (without configuration so far):
+   everything older than 90 days is removed, but only if the number of items is more than 1000.
+
+3. Separation by days could show the same day twice.
+
 drkns 21.04.2011 21:21:21 +0200 - build 1984
 
 1. Mantis#0001100: AltShiftIns on .. copies path with the trailing backslash into the clipboard
