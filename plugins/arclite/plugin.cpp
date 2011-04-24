@@ -204,13 +204,6 @@ public:
       }
       if (!options.password.empty())
         archive->password = options.password;
-      if (options.save_params) {
-        g_options.extract_ignore_errors = options.ignore_errors;
-        g_options.extract_overwrite = options.overwrite;
-        g_options.extract_separate_dir = options.separate_dir;
-        g_options.extract_open_dir = options.open_dir;
-        g_options.save();
-      }
     }
 
     UInt32 src_dir_index = archive->find_dir(current_dir);
@@ -389,14 +382,6 @@ public:
       options.dst_dir = L".";
     if (!is_absolute_path(options.dst_dir))
       options.dst_dir = Far::get_absolute_path(options.dst_dir);
-
-    if (options.save_params) {
-      g_options.extract_ignore_errors = options.ignore_errors;
-      g_options.extract_overwrite = options.overwrite;
-      g_options.extract_separate_dir = options.separate_dir;
-      g_options.extract_open_dir = options.open_dir;
-      g_options.save();
-    }
 
     extract(arc_list, options);
   }

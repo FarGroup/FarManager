@@ -18,7 +18,8 @@ extract.dlg.password = П&ароль:
 extract.dlg.separate_dir = Распаковать архив в &отдельный каталог
 extract.dlg.delete_archive = У&далить архив после распаковки
 extract.dlg.open_dir = Пере&йти в целевой каталог после распаковки
-extract.dlg.save_params = &Запомнить текущие установки
+extract.dlg.save_params = Со&хранить настройки
+extract.dlg.params_saved = Настройки сохранены
 
 # Update dialog
 update.dlg.title = Обновление архива

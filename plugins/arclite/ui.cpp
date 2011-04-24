@@ -7,6 +7,7 @@
 #include "common.hpp"
 #include "ui.hpp"
 #include "archive.hpp"
+#include "options.hpp"
 
 wstring get_error_dlg_title() {
   return Far::get_msg(MSG_PLUGIN_NAME);
@@ -349,30 +350,44 @@ private:
   int separate_dir_ctrl_id;
   int delete_archive_ctrl_id;
   int open_dir_ctrl_id;
-  int save_params_ctrl_id;
   int ok_ctrl_id;
   int cancel_ctrl_id;
+  int save_params_ctrl_id;
+
+  void read_controls(ExtractOptions& options) {
+    options.dst_dir = unquote(strip(get_text(dst_dir_ctrl_id)));
+    options.ignore_errors = get_check(ignore_errors_ctrl_id);
+    if (get_check(oa_ask_ctrl_id)) options.overwrite = oaAsk;
+    else if (get_check(oa_overwrite_ctrl_id)) options.overwrite = oaOverwrite;
+    else if (get_check(oa_skip_ctrl_id)) options.overwrite = oaSkip;
+    else if (get_check(oa_rename_ctrl_id)) options.overwrite = oaRename;
+    else if (get_check(oa_append_ctrl_id)) options.overwrite = oaAppend;
+    else options.overwrite = oaAsk;
+    if (options.move_files != triUndef)
+    options.move_files = get_check3(move_files_ctrl_id);
+    options.password = get_text(password_ctrl_id);
+    options.separate_dir = get_check3(separate_dir_ctrl_id);
+    options.delete_archive = get_check(delete_archive_ctrl_id);
+    options.open_dir = get_check(open_dir_ctrl_id);
+  }
 
   INT_PTR dialog_proc(int msg, int param1, void* param2) {
     if ((msg == DN_CLOSE) && (param1 >= 0) && (param1 != cancel_ctrl_id)) {
-      options.dst_dir = unquote(strip(get_text(dst_dir_ctrl_id)));
-      options.ignore_errors = get_check(ignore_errors_ctrl_id);
-      if (get_check(oa_ask_ctrl_id)) options.overwrite = oaAsk;
-      else if (get_check(oa_overwrite_ctrl_id)) options.overwrite = oaOverwrite;
-      else if (get_check(oa_skip_ctrl_id)) options.overwrite = oaSkip;
-      else if (get_check(oa_rename_ctrl_id)) options.overwrite = oaRename;
-      else if (get_check(oa_append_ctrl_id)) options.overwrite = oaAppend;
-      else options.overwrite = oaAsk;
-      if (options.move_files != triUndef)
-        options.move_files = get_check3(move_files_ctrl_id);
-      options.password = get_text(password_ctrl_id);
-      options.separate_dir = get_check3(separate_dir_ctrl_id);
-      options.delete_archive = get_check(delete_archive_ctrl_id);
-      options.save_params = get_check(save_params_ctrl_id);
-      options.open_dir = get_check(open_dir_ctrl_id);
+      read_controls(options);
     }
     else if (msg == DN_BTNCLICK && param1 == delete_archive_ctrl_id) {
       enable(move_files_ctrl_id, options.move_files != triUndef && !get_check(delete_archive_ctrl_id));
+    }
+    else if (msg == DN_BTNCLICK && param1 == save_params_ctrl_id) {
+      ExtractOptions options;
+      read_controls(options);
+      g_options.extract_ignore_errors = options.ignore_errors;
+      g_options.extract_overwrite = options.overwrite;
+      g_options.extract_separate_dir = options.separate_dir;
+      g_options.extract_open_dir = options.open_dir;
+      g_options.save();
+      Far::info_dlg(Far::get_msg(MSG_EXTRACT_DLG_TITLE), Far::get_msg(MSG_EXTRACT_DLG_PARAMS_SAVED));
+      set_focus(ok_ctrl_id);
     }
     return default_dialog_proc(msg, param1, param2);
   }
@@ -422,13 +437,9 @@ public:
 
     separator();
     new_line();
-    save_params_ctrl_id = check_box(Far::get_msg(MSG_EXTRACT_DLG_SAVE_PARAMS), false);
-    new_line();
-
-    separator();
-    new_line();
     ok_ctrl_id = def_button(Far::get_msg(MSG_BUTTON_OK), DIF_CENTERGROUP);
     cancel_ctrl_id = button(Far::get_msg(MSG_BUTTON_CANCEL), DIF_CENTERGROUP);
+    save_params_ctrl_id = button(Far::get_msg(MSG_EXTRACT_DLG_SAVE_PARAMS), DIF_CENTERGROUP | DIF_BTNNOCLOSE);
     new_line();
 
     int item = Far::Dialog::show();
