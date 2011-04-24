@@ -142,9 +142,10 @@ void Archive::FreeArchiveItemsHelper(ArchiveTree* tree)
 			FreeArchiveItemsHelper(itr->second);
 
 		if ( tree->item != nullptr )
+		{
 			FreeArchiveItem(tree->item);
-
-		delete tree->item;
+			delete tree->item;
+		}
 	}
 }
 

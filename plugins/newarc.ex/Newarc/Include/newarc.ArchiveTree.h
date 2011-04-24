@@ -51,6 +51,7 @@ public:
 	ArchiveTree(int level)
 	{
 		this->level = level;
+		item = nullptr;
 	}
 
 	ArchiveTree()
@@ -59,6 +60,9 @@ public:
 		strFileName = _T("");
 
 		this->level = 0;
+
+		item = nullptr;
+
 	}
 
 
