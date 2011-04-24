@@ -12,7 +12,7 @@ ExtractOptions::ExtractOptions():
   move_files(triUndef),
   separate_dir(triFalse),
   delete_archive(false),
-  open_dir(false) {
+  open_dir(triFalse) {
 }
 
 wstring get_progress_bar_str(unsigned width, unsigned percent1, unsigned percent2) {

@@ -368,7 +368,7 @@ private:
     options.password = get_text(password_ctrl_id);
     options.separate_dir = get_check3(separate_dir_ctrl_id);
     options.delete_archive = get_check(delete_archive_ctrl_id);
-    options.open_dir = get_check(open_dir_ctrl_id);
+    options.open_dir = get_check3(open_dir_ctrl_id);
   }
 
   INT_PTR dialog_proc(int msg, int param1, void* param2) {
@@ -428,7 +428,7 @@ public:
     new_line();
     separate_dir_ctrl_id = check_box3(Far::get_msg(MSG_EXTRACT_DLG_SEPARATE_DIR), options.separate_dir);
     new_line();
-    open_dir_ctrl_id = check_box(Far::get_msg(MSG_EXTRACT_DLG_OPEN_DIR), options.open_dir);
+    open_dir_ctrl_id = check_box3(Far::get_msg(MSG_EXTRACT_DLG_OPEN_DIR), options.open_dir, options.open_dir == triUndef ? DIF_DISABLE : 0);
     new_line();
 
     label(Far::get_msg(MSG_EXTRACT_DLG_PASSWORD));

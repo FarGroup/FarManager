@@ -106,7 +106,7 @@ struct ExtractOptions {
   wstring password;
   TriState separate_dir;
   bool delete_archive;
-  bool open_dir;
+  TriState open_dir;
   ExtractOptions();
 };
 
