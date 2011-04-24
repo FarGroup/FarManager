@@ -27,6 +27,7 @@ private:
 	Array<ArchiveInfoItem> m_pArchiveInfo;
 
 	bool m_bSolid;
+	int m_nNumberOfVolumes;
 
 public:
 
@@ -42,6 +43,7 @@ public:
 	IInArchive* GetArchive();
 	CInFile* GetFile();
 
+	int GetNumberOfVolumes();
 	bool IsSolid();
 
 	const TCHAR* GetFileName();
@@ -60,8 +62,6 @@ public:
 	bool GetArchiveItem(unsigned int uIndex, ArchiveItem* pItem);
 
 	bool FreeArchiveItem(ArchiveItem* pItem);
-
-
 
 	int GetArchiveInfo(const ArchiveInfoItem** pItems);
 

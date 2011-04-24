@@ -8,6 +8,8 @@ CArchiveOpenVolumeCallback::CArchiveOpenVolumeCallback(SevenZipArchive* pArchive
 
 	m_pArchive = pArchive;
 	m_pVolumeFile = pArchive->GetFile();
+
+	m_uOpenedVolumes = 0;
 }
 
 CArchiveOpenVolumeCallback::~CArchiveOpenVolumeCallback()
@@ -90,6 +92,9 @@ HRESULT __stdcall CArchiveOpenVolumeCallback::GetProperty(PROPID propID, PROPVAR
 
 HRESULT __stdcall CArchiveOpenVolumeCallback::GetStream(const wchar_t *name, IInStream **inStream)
 {
+//	if ( m_uOpenedVolumes == m_pArchive->GetNumberOfVolumes() )
+//		return S_FALSE;
+
 	string strFullName;
 	string strFileName;
 
@@ -103,9 +108,9 @@ HRESULT __stdcall CArchiveOpenVolumeCallback::GetStream(const wchar_t *name, IIn
 	CutTo(strFullName, _T('\\'), false);
 	strFullName += strFileName;
 
-//	bool bResult = false;
+	//bool bResult = false;
 
-//	CInFile* file = nullptr;
+	//CInFile* file = nullptr;
 
 	CInFile* file = new CInFile(strFullName);
 
@@ -117,6 +122,8 @@ HRESULT __stdcall CArchiveOpenVolumeCallback::GetStream(const wchar_t *name, IIn
 
 		if ( file->Open() )
 		{
+			m_uOpenedVolumes++;
+
 			bResult = true;
 			break;
 		}
@@ -135,7 +142,7 @@ HRESULT __stdcall CArchiveOpenVolumeCallback::GetStream(const wchar_t *name, IIn
 				break;
 			}
 		}
-	}*/
+	} */
 
 	*inStream = file;
 	m_pVolumeFile = file;

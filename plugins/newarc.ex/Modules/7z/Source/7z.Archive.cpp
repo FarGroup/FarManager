@@ -25,6 +25,7 @@ SevenZipArchive::SevenZipArchive(
 	m_pFile = NULL;
 
 	m_bSolid = false;
+	m_nNumberOfVolumes = -1;
 }
 
 struct PropertyToName {
@@ -184,6 +185,11 @@ bool SevenZipArchive::Open()
 
 		if ( m_pFile->Open() )
 		{
+			//CPropVariant value;
+
+			//if ( m_pArchive->GetArchiveProperty(kpidNumVolumes, &value) == S_OK )
+			//	m_nNumberOfVolumes = (int)value.uintVal;
+
 			unsigned __int64 max = Info.AdvControl(Info.ModuleNumber, ACTL_GETPLUGINMAXREADDATA, 0);
 			//unsigned __int64 max = 1 << 16;
 
@@ -235,6 +241,11 @@ const GUID& SevenZipArchive::GetUID()
 const TCHAR* SevenZipArchive::GetFileName()
 {
 	return m_strFileName;
+}
+
+int SevenZipArchive::GetNumberOfVolumes()
+{
+	return m_nNumberOfVolumes;
 }
 
 CInFile* SevenZipArchive::GetFile()

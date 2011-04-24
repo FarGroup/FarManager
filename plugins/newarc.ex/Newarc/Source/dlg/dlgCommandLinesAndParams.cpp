@@ -8,6 +8,34 @@
 		D.Edit (33, Y++, 42, cfg.pArchiveCommands->Commands[command]); \
 	}
 
+LONG_PTR __stdcall hndCommandLinesAndParams(FarDialog* D, int nMsg, int nParam1, LONG_PTR nParam2)
+{
+	ArchiveFormat* pFormat = (ArchiveFormat*)D->GetDlgData();
+
+	if ( nMsg == DN_CLOSE )
+	{
+		if ( nParam1 == D->FirstButton()+2 )
+		{
+			unsigned int uStartIndex = 3;
+
+			for (int i = 0; i < MAX_COMMANDS; i++)
+			{
+				string strCommand;
+				bool bEnabled;
+
+				pFormat->GetDefaultCommand(i, strCommand, bEnabled);
+
+				D->SetTextPtr(uStartIndex, strCommand);
+				uStartIndex += 3;
+			}
+
+			return FALSE;
+		}
+	}
+
+	return D->DefDlgProc(nMsg, nParam1, nParam2);
+}
+
 void dlgCommandLinesAndParams(ArchiveFormat* pFormat)
 {
 	int nHeight = 19;
@@ -61,7 +89,7 @@ void dlgCommandLinesAndParams(ArchiveFormat* pFormat)
 	D.Button (-1, Y, _M(MSG_cmn_B_CANCEL));
 	D.Button (-1, Y++, _M(MReset));
 
-	if ( D.Run() == D.FirstButton() )
+	if ( D.Run(hndCommandLinesAndParams, (void*)pFormat) == D.FirstButton() )
 	{
 		unsigned int uStartIndex = 3;
 
