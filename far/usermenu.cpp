@@ -440,7 +440,7 @@ int FillUserMenu(VMenu& FarUserMenu,DList<UserMenuItem> *Menu,int MenuPos,int *F
 
 		int ItemPos=FarUserMenu.AddItem(&FarUserMenuItem);
 
-		FarUserMenu.SetUserData(MenuItem,sizeof(MenuItem),ItemPos);
+		FarUserMenu.SetUserData(&MenuItem,sizeof(MenuItem),ItemPos);
 
 		if (FuncNum>0)
 		{

@@ -218,7 +218,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 					MenuItemEx ListItem;
 					ListItem.Clear();
 					ListItem.strName=lpwszTitle;
-					ProcList->SetUserData(hwnd,sizeof(hwnd),ProcList->AddItem(&ListItem));
+					ProcList->SetUserData(&hwnd,sizeof(hwnd),ProcList->AddItem(&ListItem));
 				}
 
 				xf_free(lpwszTitle);

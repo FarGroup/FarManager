@@ -755,7 +755,7 @@ HANDLE PluginManager::OpenFilePlugin(
 				PluginHandle *handle = items.getItem(i);
 				mitem.Clear();
 				mitem.strName = PointToName(handle->pPlugin->GetModuleName());
-				menu.SetUserData(handle, sizeof(handle), menu.AddItem(&mitem));
+				menu.SetUserData(&handle, sizeof(handle), menu.AddItem(&mitem));
 			}
 
 			if (Opt.PluginConfirm.StandardAssociation && Type == OFP_NORMAL)
