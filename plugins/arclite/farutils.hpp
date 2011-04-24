@@ -130,7 +130,7 @@ private:
   void frame(const wstring& text);
   void calc_frame_size();
   unsigned new_item(const DialogItem& di);
-  static INT_PTR WINAPI internal_dialog_proc(HANDLE h_dlg, int msg, int param1, INT_PTR param2);
+  static INT_PTR WINAPI internal_dialog_proc(HANDLE h_dlg, int msg, int param1, void* param2);
   bool events_enabled;
 protected:
   class DisableEvents {
@@ -148,14 +148,14 @@ protected:
     }
   };
   unsigned get_label_len(const wstring& str);
-  INT_PTR default_dialog_proc(int msg, int param1, INT_PTR param2);
-  virtual INT_PTR dialog_proc(int msg, int param1, INT_PTR param2) {
+  INT_PTR default_dialog_proc(int msg, int param1, void* param2);
+  virtual INT_PTR dialog_proc(int msg, int param1, void* param2) {
     return default_dialog_proc(msg, param1, param2);
   }
   void set_width(unsigned width) {
     client_xs = width;
   }
-  INT_PTR send_message(int msg, int param1, const void* param2 = nullptr);
+  INT_PTR send_message(int msg, int param1, void* param2 = nullptr);
 public:
   Dialog(const wstring& title, const GUID* guid, unsigned width = 60, const wchar_t* help = nullptr);
   // create different controls
@@ -236,8 +236,8 @@ public:
 };
 
 wstring get_absolute_path(const wstring& rel_path);
-int control(HANDLE h_panel, FILE_CONTROL_COMMANDS command, int param1 = 0, void* param2 = nullptr);
-INT_PTR adv_control(ADVANCED_CONTROL_COMMANDS command, void* param = nullptr);
+INT_PTR control(HANDLE h_panel, FILE_CONTROL_COMMANDS command, int param1 = 0, void* param2 = nullptr);
+INT_PTR adv_control(ADVANCED_CONTROL_COMMANDS command, int param1 = 0, void* param2 = nullptr);
 bool match_masks(const wstring& file_name, const wstring& masks);
 unsigned char get_colors(PaletteColors color_id);
 bool panel_go_to_dir(HANDLE h_panel, const wstring& dir);
@@ -250,7 +250,7 @@ class Settings {
 private:
   HANDLE handle;
   size_t dir_id;
-  int control(FAR_SETTINGS_CONTROL_COMMANDS command, void* param = nullptr);
+  INT_PTR control(FAR_SETTINGS_CONTROL_COMMANDS command, void* param = nullptr);
   void clean();
 public:
   Settings();

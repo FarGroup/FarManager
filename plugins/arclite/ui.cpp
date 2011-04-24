@@ -177,7 +177,7 @@ private:
   int ok_ctrl_id;
   int cancel_ctrl_id;
 
-  INT_PTR dialog_proc(int msg, int param1, INT_PTR param2) {
+  INT_PTR dialog_proc(int msg, int param1, void* param2) {
     if ((msg == DN_CLOSE) && (param1 >= 0) && (param1 != cancel_ctrl_id)) {
       password = get_text(password_ctrl_id);
     }
@@ -231,7 +231,7 @@ private:
   int append_ctrl_id;
   int cancel_ctrl_id;
 
-  INT_PTR dialog_proc(int msg, int param1, INT_PTR param2) {
+  INT_PTR dialog_proc(int msg, int param1, void* param2) {
     if (msg == DN_CLOSE && param1 >= 0 && param1 != cancel_ctrl_id) {
       options.all = get_check(all_ctrl_id);
       if (param1 == overwrite_ctrl_id)
@@ -353,7 +353,7 @@ private:
   int ok_ctrl_id;
   int cancel_ctrl_id;
 
-  INT_PTR dialog_proc(int msg, int param1, INT_PTR param2) {
+  INT_PTR dialog_proc(int msg, int param1, void* param2) {
     if ((msg == DN_CLOSE) && (param1 >= 0) && (param1 != cancel_ctrl_id)) {
       options.dst_dir = unquote(strip(get_text(dst_dir_ctrl_id)));
       options.ignore_errors = get_check(ignore_errors_ctrl_id);
@@ -955,7 +955,7 @@ private:
     send_message(DM_LISTSET, profile_ctrl_id, &fl);
   }
 
-  INT_PTR dialog_proc(int msg, int param1, INT_PTR param2) {
+  INT_PTR dialog_proc(int msg, int param1, void* param2) {
     if (msg == DN_CLOSE && param1 >= 0 && param1 != cancel_ctrl_id) {
       read_controls(options);
       if (new_arc)
@@ -1299,7 +1299,7 @@ private:
   int ok_ctrl_id;
   int cancel_ctrl_id;
 
-  INT_PTR dialog_proc(int msg, int param1, INT_PTR param2) {
+  INT_PTR dialog_proc(int msg, int param1, void* param2) {
     if ((msg == DN_CLOSE) && (param1 >= 0) && (param1 != cancel_ctrl_id)) {
       settings.handle_create = get_check(handle_create_ctrl_id);
       settings.handle_commands = get_check(handle_commands_ctrl_id);
@@ -1445,7 +1445,7 @@ class AttrDialog: public Far::Dialog {
 private:
   const AttrList& attr_list;
 
-  INT_PTR dialog_proc(int msg, int param1, INT_PTR param2) {
+  INT_PTR dialog_proc(int msg, int param1, void* param2) {
     if (msg == DN_INITDIALOG) {
       FarDialogItem dlg_item;
       for (unsigned ctrl_id = 0; send_message(DM_GETDLGITEMSHORT, ctrl_id, &dlg_item); ctrl_id++) {
@@ -1459,7 +1459,7 @@ private:
       FarDialogItem dlg_item;
       if (send_message(DM_GETDLGITEMSHORT, param1, &dlg_item) && dlg_item.Type == DI_EDIT) {
         unsigned color = Far::get_colors(COL_DIALOGTEXT);
-        return (param2 & 0xFF00FF00) | (color << 16) | color;
+        return (reinterpret_cast<INT_PTR>(param2) & 0xFF00FF00) | (color << 16) | color;
       }
     }
     return default_dialog_proc(msg, param1, param2);

@@ -289,7 +289,7 @@ private:
     set_text(install_config_execute_parameters_ctrl_id, options.install_config.execute_parameters);
   }
 
-  INT_PTR dialog_proc(int msg, int param1, INT_PTR param2) {
+  INT_PTR dialog_proc(int msg, int param1, void* param2) {
     if (msg == DN_CLOSE && param1 >= 0 && param1 != cancel_ctrl_id) {
       options = read_controls();
     }
