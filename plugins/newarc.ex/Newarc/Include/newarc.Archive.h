@@ -142,6 +142,7 @@ public:
 	bool GetCommand(int nCommand, string& strCommand);
 
 	bool ExecuteCommand(
+			int nOperation,
 			const ArchiveItemArray& items, 
 			int nCommand, 
 			const TCHAR* lpCurrentDiskPath = NULL,
@@ -150,6 +151,14 @@ public:
 			);
 
 private:
+
+	bool ExecuteCommandInternal(
+			const ArchiveItemArray& items, 
+			int nCommand, 
+			const TCHAR* lpCurrentDiskPath = NULL,
+			const TCHAR* lpAdditionalCommandLine = NULL,
+			bool bHideOutput = false
+			);
 
 	bool WasUpdated();
 	void FreeArchiveItemsHelper(ArchiveTree* tree); //private

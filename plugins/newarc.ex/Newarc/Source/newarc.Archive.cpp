@@ -229,18 +229,12 @@ int Archive::Extract(
 	}
 
 	if ( bInternalFailed )
-	{
-		if ( StartOperation(OPERATION_EXTRACT, false) )
-		{
-			nResult = ExecuteCommand(
-					items, 
-					bWithoutPath?COMMAND_EXTRACT_WITHOUT_PATH:COMMAND_EXTRACT,
-					strDestDiskPath
-					)?RESULT_SUCCESS:RESULT_ERROR; //BADBAD
-
-			EndOperation(OPERATION_EXTRACT, false);
-		}
-	}
+		nResult = ExecuteCommand(
+				OPERATION_EXTRACT,
+				items, 
+				bWithoutPath?COMMAND_EXTRACT_WITHOUT_PATH:COMMAND_EXTRACT,
+				strDestDiskPath
+				)?RESULT_SUCCESS:RESULT_ERROR; //BADBAD
 
 	return nResult;
 }
@@ -263,13 +257,7 @@ int Archive::Test(const ArchiveItemArray& items)
 	}
 
 	if ( bInternalFailed )
-	{
-		if ( StartOperation(OPERATION_TEST, false) )
-		{
-			nResult = ExecuteCommand(items, COMMAND_TEST)?RESULT_SUCCESS:RESULT_ERROR;
-			EndOperation(OPERATION_TEST, false);
-		}
-	}
+		nResult = ExecuteCommand(OPERATION_TEST, items, COMMAND_TEST)?RESULT_SUCCESS:RESULT_ERROR;
 
 	return nResult;
 }
@@ -279,7 +267,7 @@ int Archive::AddFiles(
 		const TCHAR *lpSourceDiskPath
 		)
 {
-	int nResult = false;
+	int nResult = RESULT_ERROR;
 	bool bInternalFailed = true;
 
 	string strSourceDiskPath = lpSourceDiskPath;
@@ -303,18 +291,12 @@ int Archive::AddFiles(
 	}
 
 	if ( bInternalFailed )
-	{
-		if ( StartOperation(OPERATION_ADD, false) )
-		{
-			nResult = ExecuteCommand(
-					items, 
-					COMMAND_ADD, 
-					strSourceDiskPath
-					)?RESULT_SUCCESS:RESULT_ERROR;
-
-			EndOperation(OPERATION_ADD, false);
-		}
-	}
+		nResult = ExecuteCommand(
+				OPERATION_ADD,
+				items, 
+				COMMAND_ADD, 
+				strSourceDiskPath
+				)?RESULT_SUCCESS:RESULT_ERROR;
 
 	return nResult;
 }
@@ -372,7 +354,7 @@ bool Archive::MakeDirectory(const TCHAR* lpDirectory)
 
 			apiCreateDirectoryEx(strFullTempPath);
 
-			bResult = ExecuteCommand(items, COMMAND_ADD, strTempPath);
+			bResult = ExecuteCommandInternal(items, COMMAND_ADD, strTempPath);
 
 			RemoveDirectory(strTempPath);
 
@@ -407,13 +389,7 @@ int Archive::Delete(const ArchiveItemArray& items)
 	}
 
 	if ( bInternalFailed )
-	{
-		if ( StartOperation(OPERATION_DELETE, false) )
-		{
-			nResult = ExecuteCommand(items, COMMAND_DELETE)?RESULT_SUCCESS:RESULT_ERROR;
-			EndOperation(OPERATION_DELETE, false);
-		}
-	}
+		nResult = ExecuteCommand(OPERATION_DELETE, items, COMMAND_DELETE)?RESULT_SUCCESS:RESULT_ERROR;
 
 	return nResult;
 }
@@ -526,8 +502,7 @@ void QuoteSpaceOnly(string& strSrc)
 	strSrc.ReleaseBuffer();
 }
 
-
-bool Archive::ExecuteCommand(
+bool Archive::ExecuteCommandInternal(
 		const ArchiveItemArray& items,
 		int nCommand,
 		const TCHAR* lpCurrentDiskPath,
@@ -650,8 +625,36 @@ bool Archive::ExecuteCommand(
 			if ( nResult != PE_MORE_FILES )
 				break;
 		}
-
+		
 		DeleteFile (psParam.strListFileName); //WARNING!!!
+	}
+
+	return bResult;
+
+}
+
+bool Archive::ExecuteCommand(
+		int nOperation,
+		const ArchiveItemArray& items,
+		int nCommand,
+		const TCHAR* lpCurrentDiskPath,
+		const TCHAR* lpAdditionalCommandLine,
+		bool bHideOutput
+		)
+{
+	bool bResult = false;
+
+	if ( StartOperation(nOperation, false) )
+	{
+		bResult = ExecuteCommandInternal(
+			items,
+			nCommand,
+			lpCurrentDiskPath,
+			lpAdditionalCommandLine,
+			bHideOutput
+			);
+
+		EndOperation(nOperation, false);
 	}
 
 	return bResult;

@@ -647,7 +647,7 @@ int ArchivePanel::pProcessHostFile(
 		GetArchiveItemsToProcess(PanelItem, ItemsNumber, items);
 
 		m_pArchive->SetPassword(strPassword);
-		m_pArchive->ExecuteCommand(items, nCommand); 
+		m_pArchive->ExecuteCommand(0, items, nCommand); 
 
 	}
 
