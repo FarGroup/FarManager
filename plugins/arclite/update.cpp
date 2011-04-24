@@ -513,6 +513,7 @@ private:
   ErrorLog& error_log;
   OverwriteAction overwrite_action;
   Far::FileFilter* filter;
+  bool& skipped_files;
 
   const wstring* file_path;
 
@@ -581,8 +582,10 @@ private:
         }
         else
           overwrite = overwrite_action;
-        if (overwrite == oaSkip)
+        if (overwrite == oaSkip) {
+          skipped_files = true;
           return false;
+        }
       }
     }
     FileIndexInfo file_index_info;
@@ -625,7 +628,8 @@ private:
   }
 
 public:
-  PrepareUpdate(const wstring& src_dir, const vector<wstring>& file_names, UInt32 dst_dir_index, Archive* archive, FileIndexMap& file_index_map, UInt32& new_index, OverwriteAction overwrite_action, bool& ignore_errors, ErrorLog& error_log, Far::FileFilter* filter): ProgressMonitor(Far::get_msg(MSG_PROGRESS_SCAN_DIRS), false), src_dir(src_dir), archive(archive), file_index_map(file_index_map), new_index(new_index), overwrite_action(overwrite_action), ignore_errors(ignore_errors), error_log(error_log), filter(filter) {
+  PrepareUpdate(const wstring& src_dir, const vector<wstring>& file_names, UInt32 dst_dir_index, Archive* archive, FileIndexMap& file_index_map, UInt32& new_index, OverwriteAction overwrite_action, bool& ignore_errors, ErrorLog& error_log, Far::FileFilter* filter, bool& skipped_files): ProgressMonitor(Far::get_msg(MSG_PROGRESS_SCAN_DIRS), false), src_dir(src_dir), archive(archive), file_index_map(file_index_map), new_index(new_index), overwrite_action(overwrite_action), ignore_errors(ignore_errors), error_log(error_log), filter(filter), skipped_files(skipped_files) {
+    skipped_files = false;
     if (filter) filter->start();
     for (unsigned i = 0; i < file_names.size(); i++) {
       wstring full_path = add_trailing_slash(src_dir) + file_names[i];
@@ -887,9 +891,10 @@ public:
 void Archive::create(const wstring& src_dir, const vector<wstring>& file_names, const UpdateOptions& options, shared_ptr<ErrorLog> error_log) {
   shared_ptr<bool> ignore_errors(new bool(options.ignore_errors));
   UInt32 new_index = 0;
+  bool skipped_files = false;
 
   shared_ptr<FileIndexMap> file_index_map(new FileIndexMap());
-  PrepareUpdate(src_dir, file_names, c_root_index, this, *file_index_map, new_index, oaOverwrite, *ignore_errors, *error_log, options.filter.get());
+  PrepareUpdate(src_dir, file_names, c_root_index, this, *file_index_map, new_index, oaOverwrite, *ignore_errors, *error_log, options.filter.get(), skipped_files);
 
   ComObject<IOutArchive> out_arc;
   ArcAPI::create_out_archive(options.arc_type, out_arc.ref());
@@ -917,16 +922,17 @@ void Archive::create(const wstring& src_dir, const vector<wstring>& file_names, 
     throw;
   }
 
-  if (options.move_files && error_log->empty() && !options.filter)
+  if (options.move_files && error_log->empty() && !options.filter && !skipped_files)
     DeleteSrcFiles(src_dir, file_names, *ignore_errors, *error_log);
 }
 
 void Archive::update(const wstring& src_dir, const vector<wstring>& file_names, const wstring& dst_dir, const UpdateOptions& options, shared_ptr<ErrorLog> error_log) {
   shared_ptr<bool> ignore_errors(new bool(options.ignore_errors));
   UInt32 new_index = num_indices; // starting index for new files
+  bool skipped_files = false;
 
   shared_ptr<FileIndexMap> file_index_map(new FileIndexMap());
-  PrepareUpdate(src_dir, file_names, find_dir(dst_dir), this, *file_index_map, new_index, options.overwrite, *ignore_errors, *error_log, options.filter.get());
+  PrepareUpdate(src_dir, file_names, find_dir(dst_dir), this, *file_index_map, new_index, options.overwrite, *ignore_errors, *error_log, options.filter.get(), skipped_files);
 
   wstring temp_arc_name = get_temp_file_name();
   try {
@@ -951,7 +957,7 @@ void Archive::update(const wstring& src_dir, const vector<wstring>& file_names, 
 
   reopen();
 
-  if (options.move_files && error_log->empty() && !options.filter)
+  if (options.move_files && error_log->empty() && !options.filter && !skipped_files)
     DeleteSrcFiles(src_dir, file_names, *ignore_errors, *error_log);
 }
 
