@@ -382,6 +382,7 @@
     <ClCompile Include="..\..\Source\newarc.Format.cpp" />
     <ClCompile Include="..\..\Source\newarc.Module.cpp" />
     <ClCompile Include="..\..\Source\newarc.ModuleManager.cpp" />
+    <ClCompile Include="..\..\Source\newarc.OperationDialog.cpp" />
     <ClCompile Include="..\..\Source\newarc.Panel.cpp" />
     <ClCompile Include="..\..\Source\newarc.Plugin.cpp" />
   </ItemGroup>

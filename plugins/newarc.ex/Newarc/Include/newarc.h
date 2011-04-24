@@ -1,5 +1,6 @@
 #pragma once
 
+#define _HAS_EXCEPTIONS 0
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <map>
@@ -40,6 +41,7 @@ typedef Array<ArchiveFilterEntry*> ArchiveFilterArray;
 
 //self
 #include "newarc.ArchiveTree.h"
+#include "newarc.OperationDialog.h"
 #include "newarc.Archive.h"
 #include "newarc.ArchiveModule.h"
 #include "newarc.ArchiveFilter.h"
@@ -50,7 +52,6 @@ typedef Array<ArchiveFilterEntry*> ArchiveFilterArray;
 #include "itemarray.hpp"
 #include "newarc.ArchivePanel.h"
 #include "newarc.Messages.h"
-
 
 
 enum ArchiveOutputSettings {

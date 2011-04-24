@@ -11,3 +11,5 @@ void farQuoteSpaceOnly(string& strStr);
 void farTrim(string& strStr);
 
 void farPrepareFileName(string& strFileName);
+
+void farTruncPathStr(string& strFileName, int nLength);

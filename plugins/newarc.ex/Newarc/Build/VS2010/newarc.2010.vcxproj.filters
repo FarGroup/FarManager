@@ -123,6 +123,9 @@
     <ClCompile Include="..\..\..\Framework\Src\farlng2.cpp">
       <Filter>Source Files\Framework</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\newarc.OperationDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\API\module.hpp">

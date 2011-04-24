@@ -71,9 +71,11 @@ struct ArchiveItem
 
 #define AM_NEED_PASSWORD		1
 #define AM_START_OPERATION		2
-#define AM_PROCESS_FILE			3
-#define AM_PROCESS_DATA			4
-#define AM_REPORT_ERROR			5
+#define AM_ENTER_STAGE			3
+#define AM_PROCESS_FILE			4
+#define AM_PROCESS_DATA			5
+#define AM_REPORT_ERROR			6
+#define AM_NEED_VOLUME			7
 
 #define OPERATION_LIST			1
 #define OPERATION_EXTRACT		2
@@ -81,8 +83,16 @@ struct ArchiveItem
 #define OPERATION_DELETE		4
 #define OPERATION_TEST			5
 
+#define STAGE_EXTRACTING		1
+#define STAGE_ADDING			2
+#define STAGE_DELETING			3
+#define STAGE_TESTING			4
+#define STAGE_SKIPPING			5
+#define STAGE_UPDATING			6
+
 #define OS_FLAG_TOTALSIZE	1
 #define OS_FLAG_TOTALFILES	2
+#define OS_FLAG_SUPPORT_SINGLE_FILE_PROGRESS	4
 
 struct StartOperationStruct {
 	DWORD dwFlags;
@@ -97,12 +107,21 @@ struct StartOperationStruct {
 
 struct PasswordStruct {
 	DWORD dwBufferSize;
-	TCHAR *lpBuffer;
+	TCHAR* lpBuffer;
 };
 
-#define PROGRESS_PROCESSED_DIFF	1
-#define PROGRESS_PROCESSED_SIZE	2
-#define PROGRESS_PERCENTS		3
+struct VolumeStruct {
+
+	const TCHAR* lpSuggestedName;
+
+	DWORD dwBufferSize;
+	TCHAR* lpBuffer;
+};
+
+#define PROGRESS_PROCESSED_DIFF	1  //UNSUPPORTED
+#define PROGRESS_PROCESSED_SIZE	2  //UNSUPPORTED
+#define PROGRESS_PERCENTS		3  //UNSUPPORTED
+#define PROGRESS_DETAILS		4
 
 struct ProcessDataStruct {
 
@@ -114,6 +133,12 @@ struct ProcessDataStruct {
 		struct {
 			char cPercents;
 			char cTotalPercents;
+		};
+		struct {
+			unsigned __int64 uProcessedBytesFile;
+			unsigned __int64 uTotalBytesFile;
+			unsigned __int64 uProcessedBytesTotal;
+			unsigned __int64 uTotalBytes;
 		};
 	};
 };

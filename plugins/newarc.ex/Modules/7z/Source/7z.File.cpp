@@ -1,6 +1,6 @@
 #include "7z.h"
 
-bool CInFile::Open ()
+bool CInFile::Open()
 {
 	HANDLE hFile = CreateFile (
 			m_strFileName,
@@ -21,7 +21,7 @@ bool CInFile::Open ()
 	return false;
 }
 
-bool CInFile::Create ()
+bool CInFile::Create()
 {
 	HANDLE hFile = CreateFile (
 			m_strFileName,
@@ -64,14 +64,9 @@ CInFile::~CInFile()
 	Close();
 }
 
-unsigned __int64 CInFile::GetSize()
+bool CInFile::GetFindData(WIN32_FIND_DATA& fData)
 {
-	DWORD dwLoPart, dwHiPart;
-
-	dwLoPart = GetFileSize (m_hFile, &dwHiPart);
-
-	return ((unsigned __int64)dwHiPart)*0x100000000ull+(unsigned __int64)dwLoPart;
-
+	return apiGetFindData(m_strFileName, fData);
 }
 
 const TCHAR *CInFile::GetName()
@@ -240,7 +235,7 @@ ULONG __stdcall COutFile::Release ()
 }
 
 
-HRESULT __stdcall COutFile::Write (const void *data, unsigned int size, unsigned int *processedSize)
+HRESULT __stdcall COutFile::Write(const void *data, unsigned int size, unsigned int *processedSize)
 {
 	DWORD dwWritten;
 
@@ -255,7 +250,7 @@ HRESULT __stdcall COutFile::Write (const void *data, unsigned int size, unsigned
 	return E_FAIL;
 }
 
-HRESULT __stdcall COutFile::Seek (__int64 offset, unsigned int seekOrigin, unsigned __int64 *newPosition)
+HRESULT __stdcall COutFile::Seek(__int64 offset, unsigned int seekOrigin, unsigned __int64 *newPosition)
 {
 	DWORD hi, lo;
 
@@ -274,7 +269,7 @@ HRESULT __stdcall COutFile::Seek (__int64 offset, unsigned int seekOrigin, unsig
 	}
 }
 
-HRESULT __stdcall COutFile::SetSize (__int64 newSize)
+HRESULT __stdcall COutFile::SetSize(__int64 newSize)
 {
 	return S_OK;
 }
@@ -448,7 +443,7 @@ HRESULT __stdcall CVolumeOutFile::SetSize(__int64 newSize)
 	return S_OK;
 }
 
-HRESULT __stdcall CVolumeOutFile::QueryInterface (const IID &iid, void ** ppvObject)
+HRESULT __stdcall CVolumeOutFile::QueryInterface(const IID &iid, void ** ppvObject)
 {
 	*ppvObject = NULL;
 
@@ -471,12 +466,12 @@ HRESULT __stdcall CVolumeOutFile::QueryInterface (const IID &iid, void ** ppvObj
 	return E_NOINTERFACE;
 }
 
-ULONG __stdcall CVolumeOutFile::AddRef ()
+ULONG __stdcall CVolumeOutFile::AddRef()
 {
 	return ++m_nRefCount;
 }
 
-ULONG __stdcall CVolumeOutFile::Release ()
+ULONG __stdcall CVolumeOutFile::Release()
 {
 	if ( --m_nRefCount == 0 )
 	{

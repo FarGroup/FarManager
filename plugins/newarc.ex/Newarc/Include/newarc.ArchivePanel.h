@@ -87,17 +87,19 @@ private:
 private:
 
 	int OnStartOperation(int nOperation, StartOperationStruct* pSO);
+	int OnEnterStage(int nStage);
 	int OnQueryPassword(int nMode, PasswordStruct* pPS);
 	int OnProcessFile(ProcessFileStruct* pfs);
 	int OnProcessData(ProcessDataStruct* pDS);
 	int OnReportError(ReportErrorStruct* pRS);
+	int OnNeedVolume(VolumeStruct* pVS);
 
 	int OnFileAlreadyExists(OverwriteStruct* pOS);
 
 private:
 
-	int Extract(const ArchiveItemArray& items, const TCHAR *lpDestDiskPath, bool bWithoutPath);
+	int Extract(const ArchiveItemArray& items, const TCHAR* lpDestDiskPath, bool bWithoutPath);
 	int Delete(const ArchiveItemArray& items);
-	int AddFiles(const ArchiveItemArray& items, const TCHAR *lpSourceDiskPath);
+	int AddFiles(const ArchiveItemArray& items, const TCHAR* lpSourceDiskPath);
 	int Test(const ArchiveItemArray& items);
 };

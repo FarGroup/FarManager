@@ -79,6 +79,7 @@ int OnEndOperation(OperationStruct* pEOS)
 int OnCloseArchive(CloseArchiveStruct *pCAS)
 {
 	pModule->CloseArchive(pCAS->uidPlugin, (SevenZipArchive*)pCAS->hArchive);
+
 	return NAERROR_SUCCESS;
 }
 

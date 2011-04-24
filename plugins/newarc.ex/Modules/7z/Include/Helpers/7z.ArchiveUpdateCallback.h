@@ -21,12 +21,15 @@ private:
 
 	SevenZipArchive* m_pArchive;
 
-	unsigned __int64 m_uProcessedBytes;
-
 	CCryptoGetTextPassword* m_pGetTextPassword;
 
 	unsigned int m_uSuccessCount;
 	unsigned int m_uItemsNumber;
+
+	unsigned __int64 m_uProcessedBytesTotal;
+	unsigned __int64 m_uTotalBytes;
+	unsigned __int64 m_uTotalBytesFile;
+	unsigned __int64 m_uProcessedBytesFile;
 
 public:
 

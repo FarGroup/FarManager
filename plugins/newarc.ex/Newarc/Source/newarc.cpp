@@ -356,7 +356,7 @@ int __stdcall EXP_NAME(GetMinFarVersion)()
 {
 #ifdef _UNICODE
 // PCTL_FORCEDLOADPLUGIN
-	return MAKEFARVERSION(2,0,1789);
+	return MAKEFARVERSION(2,0,1807);
 #else
 	return FARMANAGERVERSION;
 #endif

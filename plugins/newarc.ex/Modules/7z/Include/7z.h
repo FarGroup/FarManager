@@ -36,11 +36,6 @@ extern "C" const GUID CLSID_CXzHandler;
 extern "C" const GUID CLSID_CTarHandler;
 extern "C" const GUID CLSID_CGZipHandler;
 
-struct ArchiveItemEx {
-	unsigned int nIndex;
-	const ArchiveItem *pItem;
-};
-
 #include "7z.Messages.h"
 #include "7z.Commands.h"
 #include "7z.Module.h"

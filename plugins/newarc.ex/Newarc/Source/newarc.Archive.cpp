@@ -141,11 +141,10 @@ void Archive::FreeArchiveItemsHelper(ArchiveTree* tree)
 		for (ArchiveTreeNodesIterator itr = tree->children.begin(); itr != tree->children.end(); ++itr)
 			FreeArchiveItemsHelper(itr->second);
 
-		if ( !tree->IsDummy() )
-		{
+		if ( tree->item != nullptr )
 			FreeArchiveItem(tree->item);
-			delete tree->item;
-		}
+
+		delete tree->item;
 	}
 }
 
@@ -191,7 +190,12 @@ bool Archive::WasUpdated()
 
 Archive::~Archive ()
 {
+	//MessageBox(0, _T("delete archive"), _T("asdf"), MB_OK);
+
 	FreeArchiveItems();
+
+	//MessageBox(0, _T("delete archive 2"), _T("asdf"), MB_OK);
+
 }
 
 int Archive::Extract(

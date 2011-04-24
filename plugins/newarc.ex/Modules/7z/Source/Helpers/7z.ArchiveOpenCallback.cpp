@@ -16,15 +16,15 @@ CArchiveOpenCallback::CArchiveOpenCallback(SevenZipArchive* pArchive)
 	m_pArchiveOpenVolumeCallback = NULL;
 }
 
-CArchiveOpenCallback::~CArchiveOpenCallback ()
+CArchiveOpenCallback::~CArchiveOpenCallback()
 {
 	if ( m_pGetTextPassword )
-		m_pGetTextPassword->Release ();
+		m_pGetTextPassword->Release();
 
 	if ( m_pArchiveOpenVolumeCallback )
-		m_pArchiveOpenVolumeCallback->Release ();
+		m_pArchiveOpenVolumeCallback->Release();
 
-	Info.RestoreScreen (m_hScreen);
+	Info.RestoreScreen(m_hScreen);
 }
 
 
@@ -52,7 +52,7 @@ HRESULT __stdcall CArchiveOpenCallback::QueryInterface(const IID &iid, void ** p
 	if ( iid == IID_IArchiveOpenCallback )
 	{
 		*ppvObject = this;
-		AddRef ();
+		AddRef();
 
 		return S_OK;
 	}
@@ -62,9 +62,9 @@ HRESULT __stdcall CArchiveOpenCallback::QueryInterface(const IID &iid, void ** p
 		if ( !m_pArchiveOpenVolumeCallback )
 			m_pArchiveOpenVolumeCallback = new CArchiveOpenVolumeCallback(m_pArchive);
 
-		m_pArchiveOpenVolumeCallback->AddRef ();
+		m_pArchiveOpenVolumeCallback->AddRef();
 
-		*ppvObject = m_pArchiveOpenVolumeCallback; 
+		*ppvObject = m_pArchiveOpenVolumeCallback;
 
 		return S_OK;
 	}
@@ -74,9 +74,9 @@ HRESULT __stdcall CArchiveOpenCallback::QueryInterface(const IID &iid, void ** p
 		if ( !m_pGetTextPassword )
 			m_pGetTextPassword = new CCryptoGetTextPassword(m_pArchive, TYPE_LISTING);
 
-		m_pGetTextPassword->AddRef ();
+		m_pGetTextPassword->AddRef();
 
-		*ppvObject = m_pGetTextPassword; 
+		*ppvObject = m_pGetTextPassword;
 
 		return S_OK;
 	}
@@ -97,7 +97,7 @@ bool CheckForEsc ()
 {
 	bool EC = false;
 
-	INPUT_RECORD rec;
+	/*INPUT_RECORD rec;
 	DWORD ReadCount;
 
 	while (true)
@@ -115,7 +115,7 @@ bool CheckForEsc ()
 				 rec.Event.KeyEvent.bKeyDown )
 				EC = true;
 		}
-	}
+	}*/
 
 	return EC;
 }

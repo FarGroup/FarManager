@@ -3,7 +3,7 @@
 bool CheckForEsc ()
 {
 	bool EC = false;
-
+/*
 	INPUT_RECORD rec;
 	DWORD ReadCount;
 
@@ -22,7 +22,7 @@ bool CheckForEsc ()
 				 rec.Event.KeyEvent.bKeyDown )
 				EC = true;
 		}
-	}
+	}*/
 
 	return EC;
 }
@@ -147,6 +147,13 @@ int ArchivePanel::pGetFindData(
 		{
 			item.FindData.dwFileAttributes = src->dwFileAttributes;
 			item.FindData.nFileSize = src->nFileSize;
+			item.FindData.nPackSize = src->nPackSize;
+
+			memcpy(&item.FindData.ftCreationTime, &src->ftCreationTime, sizeof(FILETIME));
+			memcpy(&item.FindData.ftLastAccessTime, &src->ftLastAccessTime, sizeof(FILETIME));
+			memcpy(&item.FindData.ftLastWriteTime, &src->ftLastWriteTime, sizeof(FILETIME));
+
+			item.CRC32 = src->dwCRC32;
 		}
 
 		pPanelItems.add(item);
@@ -520,9 +527,14 @@ int ArchivePanel::pSetDirectory(
 		int nOpMode
 		)
 {
+//	MessageBox(0, _T("SET DIR 1"), 0, MB_OK);
+
 	if ( m_pArchive->SetCurrentDirectory(Dir) )
 	{
 		m_strPathInArchive = m_pArchive->GetCurrentDirectory();
+
+//	MessageBox(0, _T("SET DIR 2"), 0, MB_OK);
+
 		return TRUE;
 	}
 
@@ -532,8 +544,13 @@ int ArchivePanel::pSetDirectory(
 
 void ArchivePanel::pClosePlugin()
 {
+//		MessageBox(0, _T("Close 1"), 0, MB_OK);
+
 	if ( m_pArchive )
 		m_pManager->CloseArchive(m_pArchive);
+
+//		MessageBox(0, _T("Close11"), 0, MB_OK);
+
 
 	if ( m_pArchiveInfo )
 	{
@@ -546,6 +563,9 @@ void ArchivePanel::pClosePlugin()
 #endif
 		delete m_pArchiveInfo;
 	}
+
+//		MessageBox(0, _T("Close 2"), 0, MB_OK);
+
 }
 
 #include "mnu\\mnuChooseOperation.cpp"
@@ -696,6 +716,9 @@ LONG_PTR __stdcall ArchivePanel::Callback(HANDLE hPanel, int nMsg, int nParam1, 
 		if ( nMsg == AM_START_OPERATION )
 			nResult = pPanel->OnStartOperation(nParam1, (StartOperationStruct*)nParam2);
 
+		if ( nMsg == AM_ENTER_STAGE )
+			nResult = pPanel->OnEnterStage(nParam1);
+
 		if ( nMsg == AM_PROCESS_FILE )
 			nResult = pPanel->OnProcessFile((ProcessFileStruct*)nParam2);
 
@@ -704,6 +727,9 @@ LONG_PTR __stdcall ArchivePanel::Callback(HANDLE hPanel, int nMsg, int nParam1, 
 
 		if ( nMsg == AM_REPORT_ERROR )
 			nResult = pPanel->OnReportError((ReportErrorStruct*)nParam2);
+
+		if ( nMsg == AM_NEED_VOLUME )
+			nResult = pPanel->OnNeedVolume((VolumeStruct*)nParam2);
 		//if ( nMsg == AM_FILE_ALREADY_EXISTS )
 		//	nResult = pPanel->OnFileAlreadyExists((OverwriteStruct*)nParam2);
 	}
@@ -742,6 +768,28 @@ int ArchivePanel::OnFileAlreadyExists(OverwriteStruct* pOS)
 	return PROCESS_OVERWRITE;
 }
 
+int ArchivePanel::OnNeedVolume(VolumeStruct* pVS)
+{
+	return Info.InputBox(
+			_T("Enter volume"), 
+			_T("Volume file name"),
+			nullptr,
+			pVS->lpSuggestedName,
+			pVS->lpBuffer,
+			pVS->dwBufferSize,
+			nullptr,
+			0
+			);
+}
+
+int ArchivePanel::OnEnterStage(int nStage)
+{
+	m_OS.nStage = nStage;
+	m_OS.Dlg.SetOperation(m_OS.nOperation, m_OS.nStage);
+
+	return 1;
+}
+
 int ArchivePanel::OnStartOperation(int nOperation, StartOperationStruct *pOS)
 {
 	if ( pOS )
@@ -751,11 +799,28 @@ int ArchivePanel::OnStartOperation(int nOperation, StartOperationStruct *pOS)
 
 		if ( OptionIsOn(pOS->dwFlags, OS_FLAG_TOTALFILES) )
 			m_OS.uTotalFiles = pOS->uTotalFiles;
+
+		m_OS.Dlg.SetShowSingleFileProgress(OptionIsOn(pOS->dwFlags, OS_FLAG_SUPPORT_SINGLE_FILE_PROGRESS));
 	}
 
 	m_OS.nOperation = nOperation;
+
+	if ( m_OS.nOperation == OPERATION_EXTRACT )
+		m_OS.nStage = STAGE_EXTRACTING;
+
+	if ( m_OS.nOperation == OPERATION_ADD )
+		m_OS.nStage = STAGE_ADDING;
+
+	if ( m_OS.nOperation == OPERATION_TEST )
+		m_OS.nStage = STAGE_TESTING;
+
+	if ( m_OS.nOperation == OPERATION_DELETE )
+		m_OS.nStage = STAGE_DELETING;
+
 	m_OS.bFirstFile = true;
 	m_OS.overwrite = PROCESS_UNKNOWN;
+
+	m_OS.Dlg.SetOperation(m_OS.nOperation, m_OS.nStage);
 
 	return 1;
 }
@@ -829,41 +894,17 @@ int ArchivePanel::OnProcessFile(ProcessFileStruct *pfs)
 	{
 		m_OS.pCurrentItem = pfs?pfs->pItem:NULL;
 
-		if ( m_OS.bFirstFile )
+		m_OS.Dlg.SetSrcFileName(pfs->pItem->lpFileName);
+		m_OS.Dlg.SetDestFileName(pfs->lpDestFileName);
+
+		/*if ( m_OS.bFirstFile )
 		{
-			//if ( !OptionIsOn (m_OS.nMode, OPM_SILENT) )
-			{
-				if ( m_OS.nOperation == OPERATION_EXTRACT )
-					m_OS.Dlg.Show(_M(MProcessFileExtractionTitle)/*, _M(MProcessFileExtraction)*/);
-				else
-				{
-					if ( m_OS.nOperation == OPERATION_ADD )
-						m_OS.Dlg.Show(_M(MProcessFileAdditionTitle)/*, _M(MProcessFileAddition)*/);
-					else
-					{
-						if ( m_OS.nOperation == OPERATION_DELETE )
-							m_OS.Dlg.Show(_M(MProcessFileDeletionTitle)/*, _M(MProcessFileDeletion)*/);
-						else
-							__debug(_T("BAD OPERATION"));
-					}
-				}
-
-				Info.Text(0, 0, 0, 0); //BUGBUG
-			}
-
 			m_OS.bFirstFile = false;
 			m_OS.uTotalProcessedSize = 0;
-		}
+		}*/
 
 		//if ( !OptionIsOn(m_OS.nMode, OPM_SILENT) )
-		{
-			m_OS.Dlg.SetFileName(false, m_OS.pCurrentItem->lpFileName);
-
-			if ( pfs && pfs->lpDestFileName )
-				m_OS.Dlg.SetFileName(true, pfs->lpDestFileName);
-
-			Info.Text(0, 0, 0, 0);
-		}
+			m_OS.Dlg.Show();
 
 		if ( m_OS.pCurrentItem )
 			m_OS.uFileSize = m_OS.pCurrentItem->nFileSize;
@@ -887,37 +928,42 @@ int ArchivePanel::OnReportError(ReportErrorStruct* pRE)
 
 int ArchivePanel::OnProcessData(ProcessDataStruct* pDS)
 {
-	m_OS.uTotalProcessedSize += pDS->uProcessedSize;
-	m_OS.uProcessedSize += pDS->uProcessedSize;
+	double dPercent, dTotalPercent;
 
-	double div;
-
-	if ( m_OS.uFileSize )
-		div = (double)m_OS.uProcessedSize/(double)m_OS.uFileSize;
-	else
-		div = 1;
-
-	m_OS.Dlg.SetIndicator(false, div);
-
-	if ( m_OS.uTotalSize )
-		div = (double)m_OS.uTotalProcessedSize/(double)m_OS.uTotalSize;
-	else
-		div = 1;
-
-	m_OS.Dlg.SetIndicator(true, div);
-
-	Info.Text(0, 0, 0, 0);
-
-	if ( CheckForEsc () )
+	if ( pDS->nMode == PROGRESS_PROCESSED_SIZE )
 	{
-	/*	if ( !OptionIsOn(m_OS.nMode, OPM_SILENT) )
-		{
-			Info.Text(m_OS.Dlg.Coord.X+5, m_OS.Dlg.Coord.Y+2, FarGetColor (COL_DIALOGTEXT), _M(MProcessDataOperationCanceled));
-			Info.Text(0, 0, 0, 0);
-		}
-	*/
-		return FALSE;
+		m_OS.uTotalProcessedSize += pDS->uProcessedSize;
+		m_OS.uProcessedSize += pDS->uProcessedSize;
+
+		if ( m_OS.uFileSize )
+			dPercent = (double)m_OS.uProcessedSize/(double)m_OS.uFileSize;
+		else
+			dPercent = 1;
+
+		if ( m_OS.uTotalSize )
+			dTotalPercent = (double)m_OS.uTotalProcessedSize/(double)m_OS.uTotalSize;
+		else
+			dTotalPercent = 1;
+
+		m_OS.Dlg.SetPercent(dPercent, dTotalPercent);
 	}
+
+	if ( pDS->nMode == PROGRESS_DETAILS )
+	{
+		m_OS.uTotalProcessedSize = pDS->uProcessedBytesTotal;
+		m_OS.uProcessedSize += pDS->uProcessedBytesFile;
+
+		dPercent = (double)pDS->uProcessedBytesFile/(double)pDS->uTotalBytesFile;
+		dTotalPercent = (double)pDS->uProcessedBytesTotal/(double)pDS->uTotalBytes;
+
+		m_OS.Dlg.SetPercent(dPercent, dTotalPercent);
+	}
+
+	//if ( !OptionIsOn(m_OS.nMode, OPM_SILENT) )
+		m_OS.Dlg.Show();
+
+	//if ( CheckForEsc () ) //clear screen?
+		//return FALSE;
 
 	return TRUE;
 }

@@ -61,3 +61,12 @@ void farPrepareFileName(string& strFileName)
 
 	farGetFullPathName(strFileName, strFileName);
 }
+
+void farTruncPathStr(string& strFileName, int nLength)
+{
+	TCHAR* pBuffer = strFileName.GetBuffer();
+
+	FSF.TruncPathStr(pBuffer, nLength);
+
+	strFileName.ReleaseBuffer();
+}

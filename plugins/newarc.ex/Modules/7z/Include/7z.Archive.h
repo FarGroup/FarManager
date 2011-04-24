@@ -26,6 +26,8 @@ private:
 
 	Array<ArchiveInfoItem> m_pArchiveInfo;
 
+	bool m_bSolid;
+
 public:
 
 	SevenZipArchive(
@@ -38,7 +40,10 @@ public:
 			);
 
 	IInArchive* GetArchive();
-	//IInStream* GetFile();
+	CInFile* GetFile();
+
+	bool IsSolid();
+
 	const TCHAR* GetFileName();
 
 	void SetItemsCount(unsigned int uItemsCount);
@@ -52,7 +57,11 @@ public:
 	bool EndOperation(int nOperation, bool bInternal);
 
 	int GetArchiveItem(ArchiveItem* pItem);
+	bool GetArchiveItem(unsigned int uIndex, ArchiveItem* pItem);
+
 	bool FreeArchiveItem(ArchiveItem* pItem);
+
+
 
 	int GetArchiveInfo(const ArchiveInfoItem** pItems);
 
@@ -62,8 +71,18 @@ public:
 	int AddFiles(const ArchiveItem* pItems, int nItemsNumber, const TCHAR* lpSourceDiskPath, const TCHAR* lpPathInArchive);
 
 	LONG_PTR OnStartOperation(int nOperation, unsigned __int64 uTotalSize, unsigned __int64 uTotalFiles);
+	LONG_PTR OnEnterStage(int nStage);
+
 	LONG_PTR OnProcessFile(const ArchiveItem* pItem, const TCHAR* lpDestName);
-	LONG_PTR OnProcessData(unsigned __int64 uSize);
+
+	LONG_PTR OnProcessData(
+			unsigned __int64 uProcessedBytesFile, 
+			unsigned __int64 uTotalBytesFile,
+			unsigned __int64 uProcessedBytesTotal,
+			unsigned __int64 uTotalBytes
+			);
+
+	LONG_PTR OnNeedVolume(const TCHAR* lpSuggestedName, DWORD dwBufferSize, TCHAR* lpBuffer);
 	LONG_PTR OnPasswordOperation(int nType, TCHAR* lpBuffer, DWORD dwBufferSize);
 	LONG_PTR OnReportError(const ArchiveItem* pItem, int nError);
 

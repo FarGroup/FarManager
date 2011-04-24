@@ -8,19 +8,6 @@
 #define PROCESS_SKIP_ALL 4
 #define PROCESS_UNKNOWN 100
 
-class OperationDialog {
-
-private:	
-	
-	COORD m_Coord;
-	string m_strPanelTitle;
-
-public:
-
-	void SetFileName(bool bTotal, const TCHAR* lpFileName);
-	void SetIndicator(bool bTotal, double dRatio);
-	void Show(const TCHAR* lpTitle);
-};
 
 class OperationErrorList {
 
@@ -42,6 +29,8 @@ struct OperationStructEx {
 	int nMode;
 
 	int nOperation;
+	int nStage;
+
 	bool bFirstFile;
 
 	unsigned __int64 uFileSize; 
@@ -61,6 +50,7 @@ struct OperationStructEx {
 	{
 		nMode = 0;
 		nOperation = 0;
+		nStage = 0;
 		//strOldTitle = NULL;
 		pCurrentItem = NULL;
 

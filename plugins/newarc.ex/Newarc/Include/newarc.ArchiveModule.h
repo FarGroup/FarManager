@@ -17,7 +17,7 @@ private:
 	MODULEENTRY m_pfnModuleEntry;
 
 	HMODULE m_hModule;
-	TCHAR *m_pCommands[11];
+	TCHAR* m_pCommands[11];
 
 	Language* m_pLanguage;
 

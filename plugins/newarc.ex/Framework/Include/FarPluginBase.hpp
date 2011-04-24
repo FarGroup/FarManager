@@ -13,9 +13,9 @@
 #include "../../common/unicode/farkeys.hpp"
 #include "../../common/unicode/farcolor.hpp"
 #else
-#include "../../../common/unicode/plugin.hpp"
-#include "../../../common/unicode/farkeys.hpp"
-#include "../../../common/unicode/farcolor.hpp"
+#include "../../Far/plugin.hpp"
+#include "../../Far/farkeys.hpp"
+#include "../../Far/farcolor.hpp"
 #endif
 
 
