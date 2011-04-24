@@ -2719,9 +2719,8 @@ int VMenu::_SetUserData(MenuItemEx *PItem,
 		}
 		else // Ок. данные помещаются в sizeof(void*)...
 		{
-			PItem->UserDataSize = 0;         // признак того, что данных либо нет, либо
-			void** DataAddress = &PItem->UserData; // to supress gcc strict-aliasing warning
-			*reinterpret_cast<PINT_PTR>(DataAddress) = *reinterpret_cast<const INT_PTR*>(Data);   // они помещаются в sizeof(void*)
+			PItem->UserDataSize = 0; // признак того, что данных либо нет, либо
+			PItem->UserData = (void *)Data;  // они помещаются в sizeof(void*)
 		}
 	}
 

@@ -140,7 +140,16 @@ public:
 
 	bool IsOpen() { return pDb != nullptr; }
 
-	bool InitStmt(SQLiteStmt &stmtStmt, const wchar_t *Stmt) { return sqlite3_prepare16_v2(pDb, Stmt, -1, &stmtStmt.pStmt, nullptr) == SQLITE_OK; }
+	bool InitStmt(SQLiteStmt &stmtStmt, const wchar_t *Stmt)
+	{
+#if defined(_DEBUG)
+		bool b = sqlite3_prepare16_v2(pDb, Stmt, -1, &stmtStmt.pStmt, nullptr) == SQLITE_OK;
+		assert(stmtStmt.pStmt != nullptr);
+		return b;
+#else
+		return sqlite3_prepare16_v2(pDb, Stmt, -1, &stmtStmt.pStmt, nullptr) == SQLITE_OK;
+#endif
+	}
 
 	int Changes() { return sqlite3_changes(pDb); }
 
@@ -1358,10 +1367,10 @@ public:
 		db.InitStmt(stmtGetViewerBookmark, L"SELECT filepos, leftpos FROM viewerbookmarks_history WHERE pid=?1 AND num=?2;");
 
 		//delete old editor positions statement
-		db.InitStmt(stmtDeleteOldEditor, L"DELETE FROM editorposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM editorposition_history WHERE ORDER BY time DESC LIMIT ?2);");
+		db.InitStmt(stmtDeleteOldEditor, L"DELETE FROM editorposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM editorposition_history ORDER BY time DESC LIMIT ?2);");
 
 		//delete old viewer positions statement
-		db.InitStmt(stmtDeleteOldViewer, L"DELETE FROM viewerposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM viewerposition_history WHERE ORDER BY time DESC LIMIT ?2);");
+		db.InitStmt(stmtDeleteOldViewer, L"DELETE FROM viewerposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM viewerposition_history ORDER BY time DESC LIMIT ?2);");
 	}
 
 	virtual ~HistoryConfigDb() {}

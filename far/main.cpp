@@ -335,7 +335,7 @@ void InitProfile(const string& strProfilePath)
 		else
 		{
 			string strUserProfileDir;
-			strUserProfileDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"UserProfileDir", L"%FARHOME%\UserData", strUserProfileDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, g_strFarINI));
+			strUserProfileDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"UserProfileDir", L"%FARHOME%\\UserData", strUserProfileDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, g_strFarINI));
 			apiExpandEnvironmentStrings(strUserProfileDir, Opt.ProfilePath);
 			Unquote(Opt.ProfilePath);
 			ConvertNameToFull(Opt.ProfilePath,Opt.ProfilePath);
