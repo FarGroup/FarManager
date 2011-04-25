@@ -245,6 +245,9 @@ public:
 
 
 bool Archive::get_stream(UInt32 index, IInStream** stream) {
+  UInt32 num_indices = 0;
+  if (in_arc->GetNumberOfItems(&num_indices) != S_OK)
+    return false;
   if (index >= num_indices)
     return false;
 
