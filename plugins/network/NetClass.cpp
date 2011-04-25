@@ -2,6 +2,8 @@
 #include "NetCfg.hpp"
 #include "NetFavorites.hpp"
 #include "NetClass.hpp"
+#include <PluginSettings.hpp>
+#include <DlgBuilder.hpp>
 
 NetResourceList *CommonRootResources;
 BOOL SavedCommonRootResources = FALSE;
@@ -163,8 +165,11 @@ BOOL NetResourceList::Enumerate (DWORD dwScope, DWORD dwType, DWORD dwUsage,
 
 NetBrowser::NetBrowser()
 {
-  memset(PanelMode,0,sizeof(PanelMode));
-  GetRegKey(HKEY_CURRENT_USER, L"", StrPanelMode, PanelMode, L"3", sizeof(PanelMode));
+  {
+    PluginSettings settings(MainGuid, Info.SettingsControl);
+    settings.Get(0,StrPanelMode,PanelMode,ARRAYSIZE(PanelMode),L"3");
+  }
+
   NetResourceList::InitNetResource(CurResource);
   ReenterGetFindData = 0;
 
@@ -404,10 +409,14 @@ int NetBrowser::ProcessEvent (int Event, void* /*Param*/)
 {
   if (Event == FE_CLOSE)
   {
-    struct PanelInfo PInfo;
-    Info.PanelControl(this, FCTL_GETPANELINFO,0,&PInfo);
-    PInfo.ViewMode += 0x30;
-    SetRegKey(HKEY_CURRENT_USER, L"", StrPanelMode, (wchar_t*)&PInfo.ViewMode);
+    {
+      struct PanelInfo PInfo;
+      Info.PanelControl(this, FCTL_GETPANELINFO,0,&PInfo);
+      wchar_t Mode[2] = { PInfo.ViewMode + 0x30, 0 };
+      PluginSettings settings(MainGuid, Info.SettingsControl);
+      settings.Set(0,StrPanelMode,Mode);
+    }
+
     if (PCurResource == NULL || IsMSNetResource (*PCurResource))
     {
       NetResourceList::CopyNetResource (CommonCurResource, CurResource);
@@ -538,20 +547,6 @@ BOOL NetBrowser::GetDriveToDisconnect (const wchar_t *RemoteName, wchar_t *Local
 BOOL NetBrowser::ConfirmCancelConnection (wchar_t *LocalName, wchar_t *RemoteName, int &UpdateProfile)
 {
   wchar_t MsgText[MAX_PATH];
-  struct InitDialogItem InitItems[]=
-  {
-    /* 0 */ { DI_DOUBLEBOX, 3, 1, 72, 9, 0, 0, 0,                0, (wchar_t*)MConfirmDisconnectTitle },
-    /* 1 */ { DI_TEXT,      5, 2,  0, 0, 0, 0, DIF_SHOWAMPERSAND,0,L"" },
-    /* 2 */ { DI_TEXT,      5, 3,  0, 0, 0, 0, DIF_SHOWAMPERSAND,0, MsgText },
-    /* 3 */ { DI_TEXT,      5, 4,  0, 0, 0, 0, DIF_SHOWAMPERSAND,0,L"" },
-    /* 4 */ { DI_TEXT,      0, 5,  0, 6, 0, 0, DIF_SEPARATOR,    0,L"" },
-    /* 5 */ { DI_CHECKBOX,  5, 6, 70, 5, 0, 0, 0,                0, (wchar_t*)MConfirmDisconnectReconnect },
-    /* 6 */ { DI_TEXT,      0, 7,  0, 6, 0, 0, DIF_SEPARATOR,    0,L"" },
-    /* 7 */ { DI_BUTTON,    0, 8,  0, 0, 1, 0, DIF_CENTERGROUP,  1, (wchar_t*)MYes },
-    /* 8 */ { DI_BUTTON,    0, 8,  0, 0, 0, 0, DIF_CENTERGROUP,  0, (wchar_t*)MCancel }
-  };
-  struct FarDialogItem DialogItems[ARRAYSIZE(InitItems)];
-
   BOOL IsPersistent = TRUE;
   // Check if this was a permanent connection or not.
   {
@@ -565,9 +560,8 @@ BOOL NetBrowser::ConfirmCancelConnection (wchar_t *LocalName, wchar_t *RemoteNam
       RegCloseKey(hKey);
   }
 
-  size_t Len1 = FSF.sprintf(MsgText,GetMsg(MConfirmDisconnectQuestion),LocalName);
-  InitDialogItems(InitItems,DialogItems,ARRAYSIZE(InitItems));
-
+  FSF.sprintf(MsgText,GetMsg(MConfirmDisconnectQuestion),LocalName);
+  /*
   wchar_t tmp[MAX_PATH];
   DialogItems[3].Data = tmp;
   {
@@ -577,46 +571,27 @@ BOOL NetBrowser::ConfirmCancelConnection (wchar_t *LocalName, wchar_t *RemoteNam
     if(Len1 < rc) Len1 = rc;
   }
   lstrcpy((wchar_t*)DialogItems[3].Data, FSF.TruncPathStr(RemoteName, (int)Len1));
+  */
 
-  if(!IsPersistent) {
-    DialogItems[5].Flags|=DIF_DISABLE;
-    DialogItems[5].Selected=0;
-  }
-  else
-    DialogItems[5].Selected=Opt.DisconnectMode;
+  PluginDialogBuilder Builder(Info, MainGuid, DisconnectDialogGuid, MConfirmDisconnectTitle, L"DisconnectDrive");
+  Builder.AddText(MsgText);
+  Builder.AddText(RemoteName);
+  Builder.AddSeparator();
+  Builder.AddCheckbox(MConfirmDisconnectReconnect, &Opt.DisconnectMode)->Flags |= IsPersistent ? 0 : DIF_DISABLE;
+  Builder.AddSeparator();
+  Builder.AddOKCancel(MYes, MCancel);
 
-  // adjust the dialog size
-  DialogItems[0].X2=DialogItems[0].X1+(int)Len1+3;
-
-  int ExitCode;
-  if (!NeedConfirmCancelConnection())
+  if (!NeedConfirmCancelConnection() || Builder.ShowDialog())
   {
-    ExitCode = 7;
-    UpdateProfile=DialogItems[5].Selected?0:CONNECT_UPDATE_PROFILE;
-    if(ExitCode == 7 && IsPersistent)
+    UpdateProfile=Opt.DisconnectMode?0:CONNECT_UPDATE_PROFILE;
+    if(IsPersistent)
     {
-      Opt.DisconnectMode=DialogItems[5].Selected;
-      SetRegKey(HKEY_CURRENT_USER,L"",StrDisconnectMode,Opt.DisconnectMode);
+      PluginSettings settings(MainGuid, Info.SettingsControl);
+      settings.Set(0,StrDisconnectMode,Opt.DisconnectMode);
     }
+    return TRUE;
   }
-  else
-  {
-    HANDLE hDlg=Info.DialogInit (&MainGuid,&DisconnectDialogGuid, -1, -1, DialogItems [0].X2+4, 11,
-                            L"DisconnectDrive",DialogItems, ARRAYSIZE(DialogItems),0,0,NULL,0);
-    if (hDlg==INVALID_HANDLE_VALUE)
-      return FALSE;
-
-    ExitCode = Info.DialogRun(hDlg);
-
-    UpdateProfile=GetCheck(5)?0:CONNECT_UPDATE_PROFILE;
-    if(ExitCode == 7 && IsPersistent)
-    {
-      Opt.DisconnectMode=GetCheck(5);
-      SetRegKey(HKEY_CURRENT_USER,L"",StrDisconnectMode,Opt.DisconnectMode);
-    }
-    Info.DialogFree(hDlg);
-  }
-  return ExitCode == 7;
+  return FALSE;
 }
 
 
@@ -1384,13 +1359,14 @@ BOOL NetBrowser::AskMapDrive (wchar_t *NewLocalName, BOOL &Permanent)
     int MenuItemsNumber=0;
     memset(MenuItems,0,sizeof(MenuItems));
     wchar_t umname[ARRAYSIZE(MenuItems)][4];
+    memset(umname, 0, sizeof(umname));
     for(size_t n = 0; n < ARRAYSIZE(MenuItems); n++)
       MenuItems[n].Text = umname[n];
     DWORD DriveMask=GetLogicalDrives();
     for (int I=0;I<='Z'-'A';I++)
       if ((DriveMask & (1<<I))==0)
         FSF.sprintf((wchar_t*)MenuItems[MenuItemsNumber++].Text,L"&%c:",L'A'+I);
-    MenuItems [ExitCode].Selected = TRUE;
+    MenuItems[ExitCode].Flags = MIF_SELECTED;
 
     if (!MenuItemsNumber)
       return FALSE;

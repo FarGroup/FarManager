@@ -13,20 +13,6 @@
 #include "NetLng.hpp"
 #include "guid.hpp"
 
-#define GetCheck(i) (int)Info.SendDlgMessage(hDlg,DM_GETCHECK,i,0)
-#define GetDataPtr(i) ((const wchar_t *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,i,0))
-
-struct InitDialogItem
-{
-  unsigned char Type;
-  unsigned char X1,Y1,X2,Y2;
-  unsigned char Focus;
-  DWORD_PTR Selected;
-  unsigned int Flags;
-  unsigned char DefaultButton;
-  const wchar_t *Data;
-};
-
 extern struct Options
 {
   int AddToDisksMenu;
@@ -52,17 +38,13 @@ extern BOOL IsFirstRun;
 class TSaveScreen{
   private:
     HANDLE hScreen;
-//    struct PluginStartupInfo *Info;
 
   public:
-    //TSaveScreen(struct PluginStartupInfo *Info);
     TSaveScreen();
    ~TSaveScreen();
 };
 
 const wchar_t *GetMsg(int MsgId);
-void InitDialogItems(struct InitDialogItem *Init,struct FarDialogItem *Item,
-                     int ItemsNumber);
 
 BOOL DlgCreateFolder(wchar_t* lpBuffer, int nBufferSize);
 

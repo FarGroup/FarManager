@@ -4,30 +4,26 @@
 void NetBrowser::GetHideShareNT()
 {
 #ifdef NETWORK_LOGGING
-  LogData(_T("Entering NetBrowser::GetHideShareNT()"));
+  LogData(L"Entering NetBrowser::GetHideShareNT("));
 #endif
   if(UsedNetFunctions)
   {
 #ifdef NETWORK_LOGGING
-  LogData(_T("UsedNetFunctions = TRUE"));
+  LogData(L"UsedNetFunctions = TRUE");
 #endif
-    TCHAR lpwsNetPath[MAX_PATH];
+    wchar_t lpwsNetPath[MAX_PATH];
     PSHARE_INFO_1 BufPtr, p;
     NET_API_STATUS res;
     if(PCurResource == NULL) return;
 
     LPTSTR lpszServer = PCurResource->lpRemoteName;
-    TCHAR szResPath [MAX_PATH];
+    wchar_t szResPath [MAX_PATH];
     LPTSTR pszSystem;
     NETRESOURCE pri;
     NETRESOURCE nr [256];
     DWORD er=0,tr=0,resume=0,rrsiz;
 
-#ifndef UNICODE
-    MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,lpszServer,-1,(LPWSTR)lpwsNetPath,ARRAYSIZE(lpwsNetPath));
-#else
     lstrcpyn(lpwsNetPath,lpszServer,ARRAYSIZE(lpwsNetPath));
-#endif
     do
     {
       res = FNetShareEnum((LPWSTR)lpwsNetPath, 1, (LPBYTE *) &BufPtr, MAX_PREFERRED_LENGTH, &er, &tr, &resume);
@@ -41,17 +37,13 @@ void NetBrowser::GetHideShareNT()
           pri.dwType = RESOURCETYPE_DISK;
           pri.lpLocalName = NULL;
           lstrcpy(szResPath,lpszServer);
-          lstrcat(szResPath,_T("\\"));
+          lstrcat(szResPath,L"\\");
           {
             size_t pos = lstrlen(szResPath);
-#ifndef UNICODE
-            WideCharToMultiByte(CP_ACP,0,(LPWSTR)p->shi1_netname,-1,&szResPath[pos],(int)(ARRAYSIZE(szResPath)-pos),NULL,NULL);
-#else
             lstrcpyn(&szResPath[pos], p->shi1_netname, (int)(ARRAYSIZE(szResPath)-pos));
-#endif
           }
-          if(szResPath[lstrlen(szResPath)-1] == _T('$') &&
-           lstrcmp(&szResPath[lstrlen(szResPath)-4],_T("IPC$")))
+          if(szResPath[lstrlen(szResPath)-1] == L'$' &&
+           lstrcmp(&szResPath[lstrlen(szResPath)-4],L"IPC$"))
           {
             pri.lpRemoteName = szResPath;
             pri.dwUsage = RESOURCEUSAGE_CONTAINER;
@@ -86,7 +78,7 @@ void NetBrowser::GetHideShareNT()
   }
 #ifdef NETWORK_LOGGING
   else
-    LogData(_T("UsedNetFunctions = FALSE"));
-  LogData(_T("Leaving NetBrowser::GetHideShareNT()"));
+    LogData(L"UsedNetFunctions = FALSE");
+  LogData(L"Leaving NetBrowser::GetHideShareNT("));
 #endif
 }

@@ -25,7 +25,7 @@ NEEDENTRY=1
 !include ..\makefile_vc_target_inc
 
 $(OBJDIR)\NetCfg.obj : NetCfg.cpp NetCfg.hpp NetCommon.hpp NetLng.hpp NetFavorites.hpp NetClass.hpp guid.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
-$(OBJDIR)\NetClass.obj : NetClass.cpp NetClass.hpp NetFavorites.hpp NetCommon.hpp NetLng.hpp NetCfg.hpp guid.hpp $(COMINC)\plugin.hpp
+$(OBJDIR)\NetClass.obj : NetClass.cpp NetClass.hpp NetFavorites.hpp NetCommon.hpp NetLng.hpp NetCfg.hpp guid.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
 $(OBJDIR)\NetCommon.obj : NetCommon.cpp NetCommon.hpp NetLng.hpp NetCfg.hpp NetFavorites.hpp NetClass.hpp guid.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\plugin.hpp
 $(OBJDIR)\NetFavorites.obj : NetFavorites.cpp NetFavorites.hpp NetClass.hpp NetCommon.hpp NetLng.hpp guid.hpp $(COMINC)\plugin.hpp
 $(OBJDIR)\NetMix.obj : NetMix.cpp NetCommon.hpp NetLng.hpp guid.hpp $(COMINC)\plugin.hpp
