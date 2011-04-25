@@ -129,7 +129,7 @@ extern BOOL UsedNetFunctions;
 void InitializeNetFunction(void);
 void DeinitializeNetFunctions(void);
 
-#define ShowMessage(x) Info.Message(Info.ModuleNumber, FMSG_ALLINONE|FMSG_MB_OK, L"", (const wchar_t * const *) x, 0,0)
+#define ShowMessage(x) Info.Message(&MainGuid, FMSG_ALLINONE|FMSG_MB_OK, L"", (const wchar_t * const *) x, 0,0)
 /* NO NEED THIS
 char* NextToken(char *szSource, char *szToken, int nBuff);
 */

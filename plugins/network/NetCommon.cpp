@@ -1,6 +1,7 @@
 #include "NetCommon.hpp"
 #include "NetCfg.hpp"
 #include "NetFavorites.hpp"
+#include <PluginSettings.hpp>
 
 struct Options Opt;
 
@@ -8,9 +9,6 @@ struct PluginStartupInfo Info;
 struct FarStandardFunctions FSF;
 NETRESOURCE CommonCurResource;
 NETRESOURCE *PCommonCurResource = NULL;
-
-TCHAR *PluginRootKey;
-TCHAR FarRootKey [MAX_PATH];
 
 HMODULE hMpr32=NULL;
 HMODULE hNetApi=NULL;
@@ -21,7 +19,6 @@ BOOL IsFirstRun=TRUE;
 PWNetGetResourceInformation FWNetGetResourceInformation=NULL;
 PNetApiBufferFree FNetApiBufferFree=NULL;
 PNetShareEnum FNetShareEnum=NULL;
-PNetShareEnum95 FNetShareEnum95 = NULL;
 PWNetGetResourceParent FWNetGetResourceParent=NULL;
 PNetDfsGetInfo FNetDfsGetInfo;
 BOOL UsedNetFunctions=FALSE;
@@ -31,8 +28,8 @@ void InitializeNetFunction(void)
   static BOOL Init=FALSE;
   if(Init) return;
 
-  if(!hMpr32 && 0==(hMpr32 = GetModuleHandle(_T("Mpr"))))
-    hMpr32 = LoadLibrary(_T("Mpr"));
+  if(!hMpr32 && 0==(hMpr32 = GetModuleHandle(L"Mpr")))
+    hMpr32 = LoadLibrary(L"Mpr");
 
   if(!FWNetGetResourceInformation)
     FWNetGetResourceInformation=(PWNetGetResourceInformation)GetProcAddress(hMpr32,"WNetGetResourceInformationW");
@@ -40,8 +37,8 @@ void InitializeNetFunction(void)
   if(!FWNetGetResourceParent)
     FWNetGetResourceParent=(PWNetGetResourceParent)GetProcAddress(hMpr32,"WNetGetResourceParentW");
 
-  if(!hNetApi && 0==(hNetApi = GetModuleHandle(_T("netapi32"))))
-    hNetApi = LoadLibrary(_T("netapi32"));
+  if(!hNetApi && 0==(hNetApi = GetModuleHandle(L"netapi32")))
+    hNetApi = LoadLibrary(L"netapi32");
 
   if(!FNetApiBufferFree)
     FNetApiBufferFree=(PNetApiBufferFree)GetProcAddress(hNetApi,"NetApiBufferFree");
@@ -60,24 +57,25 @@ void InitializeNetFunction(void)
   Init=TRUE;
 }
 
-void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
+void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 {
   ::Info=*Info;
 
   ::FSF=*Info->FSF;
   ::Info.FSF=&::FSF;
 
-  Opt.AddToDisksMenu=GetRegKey(HKEY_CURRENT_USER,_T(""),StrAddToDisksMenu,1);
-  Opt.AddToPluginsMenu=GetRegKey(HKEY_CURRENT_USER,_T(""),StrAddToPluginsMenu,1);
-  Opt.NTGetHideShare=GetRegKey(HKEY_CURRENT_USER,_T(""),StrNTHiddenShare,0);
-  Opt.ShowPrinters=GetRegKey(HKEY_CURRENT_USER,_T(""),StrShowPrinters,0);
-  Opt.LocalNetwork=GetRegKey (HKEY_CURRENT_USER, _T(""), StrLocalNetwork, TRUE);
-  Opt.DisconnectMode=GetRegKey (HKEY_CURRENT_USER, _T(""), StrDisconnectMode, FALSE);
-  Opt.HiddenSharesAsHidden=GetRegKey (HKEY_CURRENT_USER, _T(""), StrHiddenSharesAsHidden, TRUE);
-  Opt.FullPathShares=GetRegKey (HKEY_CURRENT_USER, _T(""), StrFullPathShares, TRUE);
-  Opt.FavoritesFlags=GetRegKey (HKEY_CURRENT_USER, _T(""), StrFavoritesFlags, FAVORITES_DEFAULTS);
-  Opt.NoRootDoublePoint=GetRegKey (HKEY_CURRENT_USER, _T(""), StrNoRootDoublePoint, FALSE);
-  Opt.NavigateToDomains=GetRegKey (HKEY_CURRENT_USER, _T(""), StrNavigateToDomains, FALSE);
+  PluginSettings settings(MainGuid, ::Info.SettingsControl);
+  Opt.AddToDisksMenu = settings.Get(0,StrAddToDisksMenu,1);
+  Opt.AddToPluginsMenu = settings.Get(0,StrAddToPluginsMenu,1);
+  Opt.LocalNetwork = settings.Get(0,StrLocalNetwork,TRUE);
+  Opt.NTGetHideShare = settings.Get(0,StrNTHiddenShare,0);
+  Opt.ShowPrinters = settings.Get(0,StrShowPrinters,0);
+  Opt.FullPathShares = settings.Get(0,StrFullPathShares,TRUE);
+  Opt.FavoritesFlags = settings.Get(0,StrFavoritesFlags,FAVORITES_DEFAULTS);
+  Opt.RootDoublePoint = settings.Get(0,StrNoRootDoublePoint,TRUE);
+  Opt.DisconnectMode = settings.Set(0,StrDisconnectMode, FALSE);
+  Opt.HiddenSharesAsHidden = settings.Set(0,StrHiddenSharesAsHidden, TRUE);
+  Opt.NavigateToDomains = settings.Set(0,StrNavigateToDomains, FALSE);
 
   CommonRootResources = new NetResourceList;
   NetResourceList::InitNetResource (CommonCurResource);
@@ -91,41 +89,17 @@ void DeinitializeNetFunctions(void)
         FreeLibrary(hNetApi);
 }
 
-int WINAPI EXP_NAME(Configure)(int ItemNumber)
+int WINAPI ConfigureW(const GUID* Guid)
 {
-  switch(ItemNumber)
-  {
-    case 0:
-      return(Config());
-  }
-  return(FALSE);
+  return Config();
 }
 
-BOOL DlgCreateFolder(TCHAR* lpBuffer, int nBufferSize)
+BOOL DlgCreateFolder(wchar_t* lpBuffer, int nBufferSize)
 {
-//  struct InitDialogItem InitItems[]=
-//  {
-//    /* 0 */ { DI_DOUBLEBOX, 3, 1, 72, 8, 0, 0,                      0,                0,_T("Create folder") },
-//    /* 1 */ { DI_TEXT,      5, 2,  0, 0, 0, 0,                      0,                0,_T("Folder Name") },
-//    /* 2 */ { DI_EDIT,      5, 3, 70, 0, 1, (DWORD)_T("NewFolder"), DIF_HISTORY ,     0,_T("") },
-//    /* 3 */ { DI_TEXT,      0, 4,  0, 6, 0, 0,                      DIF_SEPARATOR,    0,_T("") },
-//    /* 4 */ { DI_CHECKBOX,  5, 5, 70, 5, 0, 0,                      DIF_DISABLE,      0,_T("Process Multiple Names") },
-//    /* 5 */ { DI_TEXT,      0, 6,  0, 6, 0, 0,                      DIF_SEPARATOR,    0,_T("") },
-//    /* 6 */ { DI_BUTTON,    0, 7,  0, 0, 0, 0,                      DIF_CENTERGROUP,  1,(TCHAR*)MOk },
-//    /* 7 */ { DI_BUTTON,    0, 7,  0, 0, 0, 0,                      DIF_CENTERGROUP,  0,(TCHAR*)MCancel }
-//  };
-//  struct FarDialogItem DialogItems[ARRAYSIZE(InitItems)];
-//  InitDialogItems(InitItems,DialogItems,ARRAYSIZE(InitItems));
-//  BOOL res = 6 == Info.Dialog (Info.ModuleNumber, -1, -1, DialogItems [0].X2+4, 10,
-//    _T("CreateFolder"), DialogItems, ARRAYSIZE(DialogItems));
-//  if(res && lpBuffer && nBufferSize)
-//  {
-//    lstrcpyn(lpBuffer, DialogItems[2].Data, nBufferSize);
-//  }
-  BOOL res = InputBox(
-    _T("Make Folder"),
-    _T("Folder name:"),
-    _T("NewFolder"),
+  BOOL res = Info.InputBox(&MainGuid,
+    L"Make Folder",
+    L"Folder name:",
+    L"NewFolder",
     NULL,
     lpBuffer,
     nBufferSize,
@@ -136,7 +110,7 @@ BOOL DlgCreateFolder(TCHAR* lpBuffer, int nBufferSize)
 }
 
 /* NO NEED THIS
-TCHAR* NextToken(TCHAR *szSource, TCHAR *szToken, int nBuff)
+wchar_t* NextToken(wchar_t *szSource, wchar_t *szToken, int nBuff)
 {
   if(!szSource||!szToken)
     return NULL;

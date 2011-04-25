@@ -42,23 +42,23 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
     return(INVALID_HANDLE_VALUE);
   NetBrowser *Browser=(NetBrowser *)hPlugin;
 
-  if(OpenFrom==OPEN_COMMANDLINE)
+  if(OInfo->OpenFrom==OPEN_COMMANDLINE)
   {
-    TCHAR Path[MAX_PATH] = _T("\\\\");
+    wchar_t Path[MAX_PATH] = L"\\\\";
 
     int I=0;
-    TCHAR *cmd=(TCHAR *)Item;
-    TCHAR *p=_tcschr(cmd, _T(':'));
+    wchar_t *cmd=(wchar_t *)OInfo->Data;
+    wchar_t *p=wcschr(cmd, L':');
     if (!p || !*p)
     {
       delete Browser;
       return INVALID_HANDLE_VALUE;
     }
-    *p++ = _T('\0');
+    *p++ = L'\0';
     bool netg;
-    if (!lstrcmpi(cmd, _T("netg")))
+    if (!lstrcmpi(cmd, L"netg"))
       netg = true;
-    else if (!lstrcmpi(cmd, _T("net")))
+    else if (!lstrcmpi(cmd, L"net"))
       netg = false;
     else
     {
@@ -68,15 +68,15 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
     cmd = p;
     if(lstrlen(FSF.Trim(cmd)))
     {
-      if (cmd [0] == _T('/'))
-        cmd [0] = _T('\\');
-      if (cmd [1] == _T('/'))
-        cmd [1] = _T('\\');
+      if (cmd [0] == L'/')
+        cmd [0] = L'\\';
+      if (cmd [1] == L'/')
+        cmd [1] = L'\\';
       if (!netg && !Opt.NavigateToDomains)
       {
-        if(cmd[0] == _T('\\') && cmd[1] != _T('\\'))
+        if(cmd[0] == L'\\' && cmd[1] != L'\\')
           I=1;
-        else if(cmd[0] != _T('\\') && cmd[1] != _T('\\'))
+        else if(cmd[0] != L'\\' && cmd[1] != L'\\')
           I=2;
       }
       lstrcpy(Path+I, cmd);
@@ -84,7 +84,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
       FSF.Unquote(Path);
       // Expanding environment variables.
       {
-          TCHAR PathCopy[MAX_PATH];
+          wchar_t PathCopy[MAX_PATH];
           lstrcpy(PathCopy, Path);
           ExpandEnvironmentStrings(PathCopy, Path, ARRAYSIZE(Path));
       }
@@ -94,9 +94,9 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
   /* The line below is an UNDOCUMENTED and UNSUPPORTED EXPERIMENTAL
       mechanism supported ONLY in FAR 1.70 beta 3. It will NOT be supported
       in later versions. Please DON'T use it in your plugins. */
-  else if (OpenFrom == 7)
+  else if (OInfo->OpenFrom == OPEN_FILEPANEL)
   {
-    if (!Browser->SetOpenFromFilePanel ((TCHAR *) Item))
+    if (!Browser->SetOpenFromFilePanel ((wchar_t *) OInfo->Data))
     {
       // we don't support upwards browsing from NetWare shares -
       // it doesn't work correctly
@@ -110,12 +110,12 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
   }
   IsFirstRun = FALSE;
 
-  TCHAR szCurrDir[MAX_PATH];
+  wchar_t szCurrDir[MAX_PATH];
   if (GetCurrentDirectory(ARRAYSIZE(szCurrDir), szCurrDir))
   {
-    if (*szCurrDir == _T('\\') && GetSystemDirectory(szCurrDir, ARRAYSIZE(szCurrDir)))
+    if (*szCurrDir == L'\\' && GetSystemDirectory(szCurrDir, ARRAYSIZE(szCurrDir)))
     {
-      szCurrDir[2] = _T('\0');
+      szCurrDir[2] = L'\0';
       SetCurrentDirectory(szCurrDir);
     }
   }
@@ -123,7 +123,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 }
 
 //-----------------------------------------------------------------------------
-void WINAPI ClosePluginW(HANDLE hPlugin)
+void WINAPI ClosePanelW(HANDLE hPlugin)
 {
   delete (NetBrowser *)hPlugin;
 }
@@ -143,14 +143,14 @@ void WINAPI FreeFindDataW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int I
 }
 
 //-----------------------------------------------------------------------------
-void WINAPI GetOpenPluginInfoW(HANDLE hPlugin,struct OpenPluginInfo *Info)
+void WINAPI GetOpenPanelInfoW(HANDLE hPlugin,struct OpenPanelInfo *Info)
 {
   NetBrowser *Browser=(NetBrowser *)hPlugin;
-  Browser->GetOpenPluginInfo(Info);
+  Browser->GetOpenPanelInfo(Info);
 }
 
 //-----------------------------------------------------------------------------
-int WINAPI SetDirectoryW(HANDLE hPlugin,const TCHAR *Dir,int OpMode)
+int WINAPI SetDirectoryW(HANDLE hPlugin,const wchar_t *Dir,int OpMode)
 {
   NetBrowser *Browser=(NetBrowser *)hPlugin;
   return(Browser->SetDirectory(Dir,OpMode));

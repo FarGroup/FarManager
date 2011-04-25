@@ -4,20 +4,20 @@
 #include <DlgBuilder.hpp>
 #include <PluginSettings.hpp>
 
-const TCHAR *StrAddToDisksMenu=_T("AddToDisksMenu");
-const TCHAR *StrAddToPluginsMenu=_T("AddToPluginsMenu");
-const TCHAR *StrHelpNetBrowse=_T("Contents");
-const TCHAR *StrNTHiddenShare=_T("NTHiddenShare");
-const TCHAR *StrShowPrinters=_T("ShowPrinters");
-const TCHAR *StrLocalNetwork=_T("LocalNetwork");
-const TCHAR *StrDisconnectMode=_T("DisconnectMode");
-const TCHAR *StrRemoveConnection=_T("RemoveConnection");
-const TCHAR *StrHiddenSharesAsHidden=_T("HiddenSharesAsHidden");
-const TCHAR *StrFullPathShares=_T("FullPathShares");
-const TCHAR *StrFavoritesFlags=_T("FavoritesFlags");
-const TCHAR *StrNoRootDoublePoint=_T("NoRootDoublePoint");
-const TCHAR *StrNavigateToDomains=_T("NavigateToDomains");
-const TCHAR *StrPanelMode=_T("PanelMode");
+const wchar_t *StrAddToDisksMenu=L"AddToDisksMenu";
+const wchar_t *StrAddToPluginsMenu=L"AddToPluginsMenu";
+const wchar_t *StrHelpNetBrowse=L"Contents";
+const wchar_t *StrNTHiddenShare=L"NTHiddenShare";
+const wchar_t *StrShowPrinters=L"ShowPrinters";
+const wchar_t *StrLocalNetwork=L"LocalNetwork";
+const wchar_t *StrDisconnectMode=L"DisconnectMode";
+const wchar_t *StrRemoveConnection=L"RemoveConnection";
+const wchar_t *StrHiddenSharesAsHidden=L"HiddenSharesAsHidden";
+const wchar_t *StrFullPathShares=L"FullPathShares";
+const wchar_t *StrFavoritesFlags=L"FavoritesFlags";
+const wchar_t *StrNoRootDoublePoint=L"NoRootDoublePoint";
+const wchar_t *StrNavigateToDomains=L"NavigateToDomains";
+const wchar_t *StrPanelMode=L"PanelMode";
 
 int Config()
 {

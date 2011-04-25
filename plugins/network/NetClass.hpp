@@ -115,7 +115,7 @@ class NetBrowser
     ~NetBrowser();
     int GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
     void FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber);
-    void GetOpenPluginInfo(struct OpenPluginInfo *Info);
+    void GetOpenPanelInfo(struct OpenPanelInfo *Info);
     int SetDirectory(const wchar_t *Dir,int OpMode);
     int DeleteFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
     int ProcessKey(int Key,unsigned int ControlState);
