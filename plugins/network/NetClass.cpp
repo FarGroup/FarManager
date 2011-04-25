@@ -578,7 +578,6 @@ BOOL NetBrowser::ConfirmCancelConnection (wchar_t *LocalName, wchar_t *RemoteNam
   Builder.AddText(RemoteName);
   Builder.AddSeparator();
   Builder.AddCheckbox(MConfirmDisconnectReconnect, &Opt.DisconnectMode)->Flags |= IsPersistent ? 0 : DIF_DISABLE;
-  Builder.AddSeparator();
   Builder.AddOKCancel(MYes, MCancel);
 
   if (!NeedConfirmCancelConnection() || Builder.ShowDialog())
@@ -688,6 +687,7 @@ void NetBrowser::GetOpenPanelInfo(struct OpenPanelInfo *Info)
     {NULL,NULL,(wchar_t *)L"",(wchar_t *)L"",(wchar_t *)L"",(wchar_t *)L"",NULL,NULL,NULL,NULL,NULL,NULL},
     {(wchar_t *)L"",(wchar_t *)L"",(wchar_t *)L"",(wchar_t *)L"",(wchar_t *)L"",(wchar_t *)L"",(wchar_t *)L"",(wchar_t *)L"",NULL,NULL,NULL,NULL}
   };
+
   if (PCurResource && PCurResource->dwDisplayType == RESOURCEDISPLAYTYPE_SERVER)
   {
     KeyBar.Titles[4-1]=GetMsg(MF4);
@@ -1193,10 +1193,17 @@ BOOL NetBrowser::EditFavorites()
 }
 
 
-int NetBrowser::ProcessKey(int Key,unsigned int ControlState)
+int NetBrowser::ProcessKey(const INPUT_RECORD *Rec)
 {
-  if ((ControlState==0 || (ControlState&PKF_SHIFT)==PKF_SHIFT) &&
-    (Key==VK_F5 || Key==VK_F6))
+  if ((Rec->EventType&(~0x8000))!=KEY_EVENT || !Rec->Event.KeyEvent.bKeyDown)
+    return FALSE;
+
+  int Key=Rec->Event.KeyEvent.wVirtualKeyCode;
+  int Shift=Rec->Event.KeyEvent.dwControlKeyState&SHIFT_PRESSED;
+  int Ctrl=Rec->Event.KeyEvent.dwControlKeyState&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED);
+  int Alt=Rec->Event.KeyEvent.dwControlKeyState&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED);
+
+  if (!Ctrl && !Alt && (Key==VK_F5 || Key==VK_F6))
   {
     if (PCurResource && PCurResource->dwDisplayType == RESOURCEDISPLAYTYPE_SERVER)
     {
@@ -1210,7 +1217,7 @@ int NetBrowser::ProcessKey(int Key,unsigned int ControlState)
         {
           Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,I,PPI);
         }
-        if (!PPI||!MapNetworkDrive (PPI->FileName, (Key == VK_F6), ((ControlState&PKF_SHIFT)==0)))
+        if (!PPI||!MapNetworkDrive (PPI->FileName, (Key == VK_F6), (Shift==0)))
         {
           free(PPI);
           break;
@@ -1222,17 +1229,17 @@ int NetBrowser::ProcessKey(int Key,unsigned int ControlState)
     }
     return(TRUE);
   }
-  else if (Key == L'F' && (ControlState & PKF_CONTROL) == PKF_CONTROL)
+  else if (Key == L'F' && Ctrl)
   {
     PutCurrentFileName (TRUE);
     return TRUE;
   }
-  else if (Key == VK_INSERT && (ControlState & (PKF_CONTROL | PKF_ALT)) == (PKF_CONTROL | PKF_ALT))
+  else if (Key == VK_INSERT && Alt && Ctrl)
   {
     PutCurrentFileName (FALSE);
     return TRUE;
   }
-  else if(Key == VK_F4 && !ControlState)
+  else if(Key == VK_F4 && !Alt && !Ctrl && !Shift)
   {
     struct PanelInfo PInfo;
     Info.PanelControl(this,FCTL_GETPANELINFO,0,&PInfo);
@@ -1254,24 +1261,27 @@ int NetBrowser::ProcessKey(int Key,unsigned int ControlState)
     free(PPI);
     return TRUE;
   }
-  else if(Key == VK_F4 && ControlState & PKF_SHIFT)
+  else if(Key == VK_F4 && Shift)
   {
     EditFavorites();
     return TRUE;
   }
-  else if(Key == VK_F7 && !ControlState)
+  else if(Key == VK_F7 && !Alt && !Ctrl && !Shift)
   {
     CreateFavSubFolder();
     return TRUE;
   }
   // disable processing of F3 - avoid unnecessary slowdown
-  else if ((Key == VK_F3 || Key == VK_CLEAR) &&
-    (ControlState == 0 || ((ControlState & PKF_ALT) == PKF_ALT)))
+  else if ((Key == VK_F3 || Key == VK_CLEAR) && !Ctrl && !Shift)
+  {
     return TRUE;
-  else if ((Key == VK_PRIOR || Key == 0xDC) && (ControlState & PKF_CONTROL) == PKF_CONTROL
-    && !PCurResource && !Opt.RootDoublePoint)
+  }
+  else if ((Key == VK_PRIOR || Key == 0xDC) && Ctrl && !PCurResource && !Opt.RootDoublePoint)
+  {
     return TRUE;
-  return(FALSE);
+  }
+
+  return FALSE;
 }
 
 
@@ -1377,11 +1387,13 @@ BOOL NetBrowser::AskMapDrive (wchar_t *NewLocalName, BOOL &Permanent)
       MenuTitle = GetMsg (MPermanentTo);
       MenuBottom = GetMsg (MToggleTemporary);
     }
-    else {
+    else
+    {
       MenuTitle = GetMsg (MTemporaryTo);
       MenuBottom = GetMsg (MTogglePermanent);
     }
-    int BreakKeys[] = { VK_F6, 0};
+
+    FarKey BreakKeys[]={{VK_F6,0}, {0,0}};
     int BreakCode;
 
     ExitCode=Info.Menu(&MainGuid,-1,-1,0,0,
@@ -1618,50 +1630,27 @@ void NetBrowser::GetLocalName(wchar_t *RemoteName,wchar_t *LocalName)
 int NetBrowser::GetNameAndPassword(NameAndPassInfo* passInfo)
 {
   static wchar_t LastName[256],LastPassword[256];
-  struct InitDialogItem InitItems[]={
-    {DI_DOUBLEBOX,3,1,72,10,0,0,0,0,L""},
-    {DI_TEXT,5,2,0,0,0,0,0,0,(wchar_t *)MNetUserName},
-    {DI_EDIT,5,3,70,3,1,(DWORD_PTR)L"NetworkUser",DIF_HISTORY|DIF_USELASTHISTORY,0, LastName},
-    {DI_TEXT,5,4,0,0,0,0,0,0,(wchar_t *)MNetUserPassword},
-    {DI_PSWEDIT,5,5,70,3,0,0,0,0,LastPassword},
-    {DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L""},
-    {DI_CHECKBOX,5,7,0,0,0,0,(DWORD)DIF_DISABLE,0,(wchar_t *)MRememberPass},
-    {DI_TEXT,3,8,0,8,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L""},
-    {DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,1,(wchar_t *)MOk},
-    {DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,0,(wchar_t *)MCancel}
-  };
-  if(passInfo->pRemember)
-  {
-    InitItems[6].Flags &= ~DIF_DISABLE;
-    InitItems[6].Selected = *passInfo->pRemember;//*pRemember;
-  }
-  struct FarDialogItem DialogItems[ARRAYSIZE(InitItems)];
-  InitDialogItems(InitItems,DialogItems,ARRAYSIZE(InitItems));
-  int ret=FALSE;
 
-  if (passInfo->Title!=NULL)
-    DialogItems[0].PtrData = passInfo->Title;
-  DialogItems[2].MaxLen = ARRAYSIZE(LastName)-1;
-  DialogItems[4].MaxLen = ARRAYSIZE(LastPassword)-1;
-  HANDLE hDlg=Info.DialogInit(&MainGuid,-1,-1,76,12,
-                           StrHelpNetBrowse,DialogItems,ARRAYSIZE(DialogItems),0,0,NULL,0);
-  if (hDlg == INVALID_HANDLE_VALUE)
-    return ret;
-  int ExitCode=Info.DialogRun(hDlg);
-  if (ExitCode==(ARRAYSIZE(DialogItems)-2))
-  {
-    if (passInfo->pRemember)
-      *passInfo->pRemember = GetCheck(6);
-    lstrcpyn(LastName,GetDataPtr(2),sizeof(LastName));
-    lstrcpyn(LastPassword,GetDataPtr(4),sizeof(LastPassword));
+  PluginDialogBuilder Builder(Info, MainGuid, UserPassDialogGuid, passInfo->Title ? passInfo->Title : L"", StrHelpNetBrowse);
+  Builder.AddText(MNetUserName);
+  Builder.AddEditField(LastName, ARRAYSIZE(LastName), 60, L"NetworkUser", true);
+  Builder.AddText(MNetUserPassword);
+  Builder.AddPasswordField(LastPassword, ARRAYSIZE(LastPassword), 60);
+  Builder.AddSeparator();
+  int disabled = 0;
+  if (passInfo->pRemember)
+    Builder.AddCheckbox(MRememberPass, passInfo->pRemember);
+  else
+    Builder.AddCheckbox(MRememberPass, &disabled)->Flags |= DIF_DISABLE;
+  Builder.AddOKCancel(MOk, MCancel);
 
-    // Convert Name and Password to Ansi
+  if (Builder.ShowDialog())
+  {
     lstrcpy(passInfo->Name, LastName);
     lstrcpy(passInfo->Password, LastPassword);
-    ret=TRUE;
+    return TRUE;
   }
-  Info.DialogFree(hDlg);
-  return ret;
+  return FALSE;
 }
 
 

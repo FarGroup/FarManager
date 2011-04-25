@@ -118,7 +118,7 @@ class NetBrowser
     void GetOpenPanelInfo(struct OpenPanelInfo *Info);
     int SetDirectory(const wchar_t *Dir,int OpMode);
     int DeleteFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
-    int ProcessKey(int Key,unsigned int ControlState);
+    int ProcessKey(const INPUT_RECORD *Rec);
     int ProcessEvent(int Event, void *Param);
     void SetOpenFromCommandLine (wchar_t *ShareName);
     BOOL SetOpenFromFilePanel (wchar_t *ShareName);

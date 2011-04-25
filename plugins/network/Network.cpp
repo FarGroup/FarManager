@@ -165,10 +165,10 @@ int WINAPI DeleteFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,
 }
 
 //-----------------------------------------------------------------------------
-int WINAPI ProcessKeyW(HANDLE hPlugin,int Key,unsigned int ControlState)
+int WINAPI ProcessKeyW(HANDLE hPlugin,const INPUT_RECORD *Rec)
 {
   NetBrowser *Browser=(NetBrowser *)hPlugin;
-  return(Browser->ProcessKey(Key,ControlState));
+  return(Browser->ProcessKey(Rec));
 }
 
 //-----------------------------------------------------------------------------
