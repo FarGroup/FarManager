@@ -214,10 +214,9 @@ int PluginSettings::Delete(const FarSettingsValue& Value)
 	int result=FALSE;
 	if(Value.Root<m_Keys.getCount())
 	{
-		unsigned __int64 root = PluginsCfg->GetKeyID(*m_Keys.getItem(Value.Root),Value.Value);
-		if (root)
+		if (!Value.Value)
 		{
-			if (PluginsCfg->DeleteKeyTree(root))
+			if (PluginsCfg->DeleteKeyTree(*m_Keys.getItem(Value.Root)))
 				result=TRUE;
 		}
 		else
