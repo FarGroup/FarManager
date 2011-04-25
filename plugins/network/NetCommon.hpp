@@ -11,15 +11,10 @@
 #include <CRT/crt.hpp>
 #include <plugin.hpp>
 #include "NetLng.hpp"
-#include "NetMacros.hpp"
+#include "guid.hpp"
 
-#ifndef UNICODE
-#define GetCheck(i) DialogItems[i].Selected
-#define GetDataPtr(i) DialogItems[i].Data
-#else
 #define GetCheck(i) (int)Info.SendDlgMessage(hDlg,DM_GETCHECK,i,0)
-#define GetDataPtr(i) ((const TCHAR *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,i,0))
-#endif
+#define GetDataPtr(i) ((const wchar_t *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,i,0))
 
 struct InitDialogItem
 {
@@ -29,26 +24,23 @@ struct InitDialogItem
   DWORD_PTR Selected;
   unsigned int Flags;
   unsigned char DefaultButton;
-  const TCHAR *Data;
+  const wchar_t *Data;
 };
 
 extern struct Options
 {
   int AddToDisksMenu;
   int AddToPluginsMenu;
-#ifndef UNICODE
-  int DisksMenuDigit;
-#endif
   int NTGetHideShare;
-  BOOL ShowPrinters;
-  BOOL LocalNetwork;
-  BOOL DisconnectMode;
-  BOOL ConfirmRemoveConnection;
-  BOOL HiddenSharesAsHidden;
-  BOOL FullPathShares;
+  int ShowPrinters;
+  int LocalNetwork;
+  int DisconnectMode;
+  int ConfirmRemoveConnection;
+  int HiddenSharesAsHidden;
+  int FullPathShares;
   int FavoritesFlags;
-  BOOL NoRootDoublePoint;
-  BOOL NavigateToDomains;
+  int RootDoublePoint;
+  int NavigateToDomains;
 } Opt;
 
 extern struct PluginStartupInfo Info;
@@ -56,10 +48,6 @@ extern struct FarStandardFunctions FSF;
 extern NETRESOURCE CommonCurResource;
 extern LPNETRESOURCE PCommonCurResource;
 extern BOOL IsFirstRun;
-extern OSVERSIONINFO WinVer;
-
-extern TCHAR *PluginRootKey;
-extern TCHAR FarRootKey [MAX_PATH];
 
 class TSaveScreen{
   private:
@@ -72,11 +60,11 @@ class TSaveScreen{
    ~TSaveScreen();
 };
 
-TCHAR *GetMsg(int MsgId);
+const wchar_t *GetMsg(int MsgId);
 void InitDialogItems(struct InitDialogItem *Init,struct FarDialogItem *Item,
                      int ItemsNumber);
 
-BOOL DlgCreateFolder(TCHAR* lpBuffer, int nBufferSize);
+BOOL DlgCreateFolder(wchar_t* lpBuffer, int nBufferSize);
 
 typedef DWORD (APIENTRY *PWNetGetResourceInformation) (
                                                        LPNETRESOURCE lpNetResource,
@@ -100,13 +88,6 @@ typedef NET_API_STATUS (NET_API_FUNCTION *PNetShareEnum)(
                                                          LPDWORD resume_handle);
 
 typedef NET_API_STATUS (NET_API_FUNCTION *PNetApiBufferFree)(LPVOID Buffer);
-
-typedef API_RET_TYPE (APIENTRY *PNetShareEnum95)(const TCHAR *    pszServer,
-                                                 short            sLevel,
-                                                 TCHAR *          pbBuffer,
-                                                 unsigned short   cbBuffer,
-                                                 unsigned short * pcEntriesRead,
-                                                 unsigned short * pcTotalAvail );
 
 typedef NET_API_STATUS (NET_API_FUNCTION *PNetDfsGetInfo)(
     IN  LPWSTR  DfsEntryPath,       // DFS entry path for the volume
@@ -132,16 +113,15 @@ typedef struct _DFS_INFO_3 {
 } DFS_INFO_3, *PDFS_INFO_3, *LPDFS_INFO_3;
 
 struct share_info_1 {
-  TCHAR   shi1_netname[LM20_NNLEN+1];
-  TCHAR   shi1_pad1;
+  wchar_t   shi1_netname[LM20_NNLEN+1];
+  wchar_t   shi1_pad1;
   unsigned short  shi1_type;
-  TCHAR * shi1_remark;
+  wchar_t * shi1_remark;
 };  /* share_info_1 */
 
 extern PWNetGetResourceInformation FWNetGetResourceInformation;
 extern PNetApiBufferFree FNetApiBufferFree;
 extern PNetShareEnum FNetShareEnum;
-extern PNetShareEnum95 FNetShareEnum95;
 extern PWNetGetResourceParent FWNetGetResourceParent;
 extern PNetDfsGetInfo FNetDfsGetInfo;
 extern BOOL UsedNetFunctions;
@@ -149,7 +129,7 @@ extern BOOL UsedNetFunctions;
 void InitializeNetFunction(void);
 void DeinitializeNetFunctions(void);
 
-#define ShowMessage(x) Info.Message(Info.ModuleNumber, FMSG_ALLINONE|FMSG_MB_OK, _T(""), (const TCHAR * const *) x, 0,0)
+#define ShowMessage(x) Info.Message(Info.ModuleNumber, FMSG_ALLINONE|FMSG_MB_OK, L"", (const wchar_t * const *) x, 0,0)
 /* NO NEED THIS
 char* NextToken(char *szSource, char *szToken, int nBuff);
 */

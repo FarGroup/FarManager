@@ -5,8 +5,7 @@ NetClass.cpp \
 NetCommon.cpp \
 NetFavorites.cpp \
 NetMix.cpp \
-NetNT.cpp \
-NetReg.cpp
+NetNT.cpp
 DOCS = NetEng.hlf NetRus.hlf NetEng.lng NetRus.lng
 
 USERLIBS = -lmpr

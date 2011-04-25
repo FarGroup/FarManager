@@ -9,8 +9,7 @@ $(OBJDIR)\NetClass.obj \
 $(OBJDIR)\NetCommon.obj \
 $(OBJDIR)\NetFavorites.obj \
 $(OBJDIR)\NetMix.obj \
-$(OBJDIR)\NetNT.obj \
-$(OBJDIR)\NetReg.obj
+$(OBJDIR)\NetNT.obj
 DOCS = NetEng.hlf NetRus.hlf NetEng.lng NetRus.lng
 
 !if defined(DEBUG) && !defined(NO_LOG)
@@ -25,20 +24,10 @@ NEEDENTRY=1
 
 !include ..\makefile_vc_target_inc
 
-$(OBJDIR)\NetCfg.obj : NetCfg.cpp NetCfg.hpp NetCommon.hpp $(COMINC)\plugin.hpp \
-  netlng.hpp NetMacros.hpp NetFavorites.hpp NetClass.hpp NetReg.hpp
-$(OBJDIR)\NetClass.obj : NetClass.cpp NetClass.hpp $(COMINC)\plugin.hpp \
-  NetFavorites.hpp NetCommon.hpp netlng.hpp NetMacros.hpp NetReg.hpp \
-  NetCfg.hpp
-$(OBJDIR)\NetCommon.obj : NetCommon.cpp NetCommon.hpp $(COMINC)\plugin.hpp netlng.hpp \
-  NetMacros.hpp NetReg.hpp NetCfg.hpp NetFavorites.hpp NetClass.hpp
-$(OBJDIR)\NetFavorites.obj : NetFavorites.cpp NetFavorites.hpp NetClass.hpp \
-  $(COMINC)\plugin.hpp NetCommon.hpp netlng.hpp NetMacros.hpp NetReg.hpp
-$(OBJDIR)\NetMix.obj : NetMix.cpp NetCommon.hpp $(COMINC)\plugin.hpp netlng.hpp \
-  NetMacros.hpp
-$(OBJDIR)\NetNT.obj : NetNT.cpp NetClass.hpp $(COMINC)\plugin.hpp NetCommon.hpp \
-  netlng.hpp NetMacros.hpp
-$(OBJDIR)\NetReg.obj : NetReg.cpp NetReg.hpp NetCommon.hpp $(COMINC)\plugin.hpp \
-  netlng.hpp NetMacros.hpp
-$(OBJDIR)\Network.obj : Network.cpp Network.hpp NetCommon.hpp $(COMINC)\plugin.hpp \
-  netlng.hpp NetMacros.hpp NetClass.hpp
+$(OBJDIR)\NetCfg.obj : NetCfg.cpp NetCfg.hpp NetCommon.hpp NetLng.hpp NetFavorites.hpp NetClass.hpp guid.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
+$(OBJDIR)\NetClass.obj : NetClass.cpp NetClass.hpp NetFavorites.hpp NetCommon.hpp NetLng.hpp NetCfg.hpp guid.hpp $(COMINC)\plugin.hpp
+$(OBJDIR)\NetCommon.obj : NetCommon.cpp NetCommon.hpp NetLng.hpp NetCfg.hpp NetFavorites.hpp NetClass.hpp guid.hpp $(COMINC)\plugin.hpp
+$(OBJDIR)\NetFavorites.obj : NetFavorites.cpp NetFavorites.hpp NetClass.hpp NetCommon.hpp NetLng.hpp guid.hpp $(COMINC)\plugin.hpp
+$(OBJDIR)\NetMix.obj : NetMix.cpp NetCommon.hpp NetLng.hpp guid.hpp $(COMINC)\plugin.hpp
+$(OBJDIR)\NetNT.obj : NetNT.cpp NetClass.hpp NetCommon.hpp NetLng.hpp guid.hpp $(COMINC)\plugin.hpp
+$(OBJDIR)\Network.obj : Network.cpp Network.hpp NetCommon.hpp NetLng.hpp NetClass.hpp guid.hpp $(COMINC)\plugin.hpp

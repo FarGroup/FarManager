@@ -1,4 +1,6 @@
+#include <initguid.h>
 #include "Network.hpp"
+#include "version.hpp"
 
 //-----------------------------------------------------------------------------
 #if defined(__GNUC__)
@@ -19,13 +21,19 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 }
 #endif
 
-int WINAPI EXP_NAME(GetMinFarVersion)()
+void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 {
-  return FARMANAGERVERSION;
+  Info->StructSize=sizeof(GlobalInfo);
+  Info->MinFarVersion=FARMANAGERVERSION;
+  Info->Version=PLUGIN_VERSION;
+  Info->Guid=MainGuid;
+  Info->Title=PLUGIN_NAME;
+  Info->Description=PLUGIN_DESC;
+  Info->Author=PLUGIN_AUTHOR;
 }
 
 //-----------------------------------------------------------------------------
-HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
+HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 {
   InitializeNetFunction();
 
@@ -71,7 +79,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
         else if(cmd[0] != _T('\\') && cmd[1] != _T('\\'))
           I=2;
       }
-      OEMToChar (cmd, Path+I);
+      lstrcpy(Path+I, cmd);
 
       FSF.Unquote(Path);
       // Expanding environment variables.
@@ -115,41 +123,41 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 }
 
 //-----------------------------------------------------------------------------
-void WINAPI EXP_NAME(ClosePlugin)(HANDLE hPlugin)
+void WINAPI ClosePluginW(HANDLE hPlugin)
 {
   delete (NetBrowser *)hPlugin;
 }
 
 //-----------------------------------------------------------------------------
-int WINAPI EXP_NAME(GetFindData)(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode)
+int WINAPI GetFindDataW(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode)
 {
   NetBrowser *Browser=(NetBrowser *)hPlugin;
   return(Browser->GetFindData(pPanelItem,pItemsNumber,OpMode));
 }
 
 //-----------------------------------------------------------------------------
-void WINAPI EXP_NAME(FreeFindData)(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber)
+void WINAPI FreeFindDataW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber)
 {
   NetBrowser *Browser=(NetBrowser *)hPlugin;
   Browser->FreeFindData(PanelItem,ItemsNumber);
 }
 
 //-----------------------------------------------------------------------------
-void WINAPI EXP_NAME(GetOpenPluginInfo)(HANDLE hPlugin,struct OpenPluginInfo *Info)
+void WINAPI GetOpenPluginInfoW(HANDLE hPlugin,struct OpenPluginInfo *Info)
 {
   NetBrowser *Browser=(NetBrowser *)hPlugin;
   Browser->GetOpenPluginInfo(Info);
 }
 
 //-----------------------------------------------------------------------------
-int WINAPI EXP_NAME(SetDirectory)(HANDLE hPlugin,const TCHAR *Dir,int OpMode)
+int WINAPI SetDirectoryW(HANDLE hPlugin,const TCHAR *Dir,int OpMode)
 {
   NetBrowser *Browser=(NetBrowser *)hPlugin;
   return(Browser->SetDirectory(Dir,OpMode));
 }
 
 //-----------------------------------------------------------------------------
-int WINAPI EXP_NAME(DeleteFiles)(HANDLE hPlugin,struct PluginPanelItem *PanelItem,
+int WINAPI DeleteFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,
                                  int ItemsNumber,int OpMode)
 {
   NetBrowser *Browser=(NetBrowser *)hPlugin;
@@ -157,14 +165,14 @@ int WINAPI EXP_NAME(DeleteFiles)(HANDLE hPlugin,struct PluginPanelItem *PanelIte
 }
 
 //-----------------------------------------------------------------------------
-int WINAPI EXP_NAME(ProcessKey)(HANDLE hPlugin,int Key,unsigned int ControlState)
+int WINAPI ProcessKeyW(HANDLE hPlugin,int Key,unsigned int ControlState)
 {
   NetBrowser *Browser=(NetBrowser *)hPlugin;
   return(Browser->ProcessKey(Key,ControlState));
 }
 
 //-----------------------------------------------------------------------------
-int WINAPI EXP_NAME(ProcessEvent)(HANDLE hPlugin,int Event,void *Param)
+int WINAPI ProcessEventW(HANDLE hPlugin,int Event,void *Param)
 {
   NetBrowser *Browser=(NetBrowser *)hPlugin;
   return Browser->ProcessEvent (Event, Param);

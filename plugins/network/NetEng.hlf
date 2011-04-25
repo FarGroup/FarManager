@@ -35,8 +35,6 @@ command in the command line:
     You can use different credentials to open remote shares. To open resource
 specifying login information explicitly use F4 key.
 
-    This feature may not work on Windows 95/98/Me systems.
-
    ~Network browser configuration~@Config@
 
 @Config
@@ -70,7 +68,7 @@ $ #Disconnect network drive#
 list of shares of a computer.
 
   If the option #[x] Disconnect network drive# is enabled in the
-~Confirmations dialog~@:ConfirmDlg@ of the FAR configuration, a dialog
+~Confirmations dialog~@:ConfirmDlg@ of the Far configuration, a dialog
 will appear allowing you to confirm the disconnection and to choose
 whether you want to disconnect permanently or temporarily.
 

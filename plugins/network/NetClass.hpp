@@ -31,7 +31,7 @@ public:
   NetResourceList();
   ~NetResourceList();
   NetResourceList &operator= (NetResourceList &other);
-  static TCHAR *CopyText (const TCHAR *Text);
+  static wchar_t *CopyText (const wchar_t *Text);
 
   static void InitNetResource (NETRESOURCE &Res);
   static void DeleteNetResource (NETRESOURCE &Res);
@@ -53,11 +53,11 @@ public:
 
 typedef struct __NameAndPassInfo
 {
-    TCHAR* Title;
-    TCHAR* Name;
-    TCHAR* Password;
+    wchar_t* Title;
+    wchar_t* Name;
+    wchar_t* Password;
     LPBOOL pRemember;
-    TCHAR* szFavoritePath;
+    wchar_t* szFavoritePath;
 } NameAndPassInfo;
 
 class NetBrowser
@@ -65,31 +65,30 @@ class NetBrowser
   private:
     void RemoveItems();
 #ifdef NETWORK_LOGGING
-  void LogData(TCHAR* Data);
+  void LogData(wchar_t* Data);
 #endif
   static void DisconnectFromServer(NETRESOURCE *nr);
-    BOOL ChangeToDirectory (const TCHAR *Dir, int IsFind, int IsExplicit);
+    BOOL ChangeToDirectory (const wchar_t *Dir, int IsFind, int IsExplicit);
     void ManualConnect();
-    BOOL CancelConnection (const TCHAR *RemoteName);
-    BOOL GetDriveToDisconnect (const TCHAR *RemoteName, TCHAR *LocalName);
-    BOOL ConfirmCancelConnection (TCHAR *LocalName, TCHAR *RemoteName, int &UpdateProfile);
+    BOOL CancelConnection (const wchar_t *RemoteName);
+    BOOL GetDriveToDisconnect (const wchar_t *RemoteName, wchar_t *LocalName);
+    BOOL ConfirmCancelConnection (wchar_t *LocalName, wchar_t *RemoteName, int &UpdateProfile);
     BOOL NeedConfirmCancelConnection();
-    BOOL HandsOffDisconnectDrive (const TCHAR *LocalName);
-    void GetLocalName(TCHAR *RemoteName, TCHAR *LocalName);
+    BOOL HandsOffDisconnectDrive (const wchar_t *LocalName);
+    void GetLocalName(wchar_t *RemoteName, wchar_t *LocalName);
     static int GetNameAndPassword(NameAndPassInfo* passInfo);
-    void GetRemoteName(NETRESOURCE *NetRes, TCHAR *RemoteName);
+    void GetRemoteName(NETRESOURCE *NetRes, wchar_t *RemoteName);
     BOOL EnumerateNetList();
     void GetHideShareNT();
-    void GetHideShare95();
-    void GetFreeLetter(DWORD &DriveMask, TCHAR *DiskName);
-    BOOL IsReadable(const TCHAR *Remote);
-    int GotoComputer (const TCHAR *Dir);
-    void SetCursorToShare (TCHAR *Share);
-    BOOL MapNetworkDrive (const TCHAR *RemoteName, BOOL AskDrive, BOOL Permanent);
-    BOOL AskMapDrive (TCHAR *NewLocalName, BOOL &Permanent);
+    void GetFreeLetter(DWORD &DriveMask, wchar_t *DiskName);
+    BOOL IsReadable(const wchar_t *Remote);
+    int GotoComputer (const wchar_t *Dir);
+    void SetCursorToShare (wchar_t *Share);
+    BOOL MapNetworkDrive (const wchar_t *RemoteName, BOOL AskDrive, BOOL Permanent);
+    BOOL AskMapDrive (wchar_t *NewLocalName, BOOL &Permanent);
     void PutCurrentFileName (BOOL ToCommandLine);
     NetResourceList NetList;               // list of resources in the current folder
-    TCHAR NetListRemoteName [MAX_PATH];    // remote name of the resource stored in NetList
+    wchar_t NetListRemoteName [MAX_PATH];    // remote name of the resource stored in NetList
     NetResourceList ConnectedList;         // list of resources mapped to local drives
     NetResourceList RootResources;         // stack of resources above the current level
                                            // (used in non-MS Windows networks only)
@@ -99,15 +98,15 @@ class NetBrowser
     BOOL ChangeDirSuccess;
     BOOL OpenFromFilePanel;
     int ReenterGetFindData;
-    TCHAR CmdLinePath [MAX_PATH];           // path passed when invoking us from command line
-    TCHAR PanelMode[2];                     // current start panel mode
+    wchar_t CmdLinePath [MAX_PATH];           // path passed when invoking us from command line
+    wchar_t PanelMode[2];                     // current start panel mode
 
 #ifdef NETWORK_LOGGING
     static FILE *LogFile;
-  static int LogFileRef;
+    static int LogFileRef;
     static void LogNetResource (NETRESOURCE &Res);
-  static void OpenLogFile(TCHAR *lpFileName);
-  static void CloseLogfile();
+    static void OpenLogFile(wchar_t *lpFileName);
+    static void CloseLogfile();
 #endif
 
   public:
@@ -117,23 +116,23 @@ class NetBrowser
     int GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
     void FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber);
     void GetOpenPluginInfo(struct OpenPluginInfo *Info);
-    int SetDirectory(const TCHAR *Dir,int OpMode);
+    int SetDirectory(const wchar_t *Dir,int OpMode);
     int DeleteFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
     int ProcessKey(int Key,unsigned int ControlState);
     int ProcessEvent(int Event, void *Param);
-    void SetOpenFromCommandLine (TCHAR *ShareName);
-    BOOL SetOpenFromFilePanel (TCHAR *ShareName);
+    void SetOpenFromCommandLine (wchar_t *ShareName);
+    BOOL SetOpenFromFilePanel (wchar_t *ShareName);
     void GotoLocalNetwork();
 
-  BOOL GotoFavorite(TCHAR *lpPath);
-  BOOL EditFavorites();
+    BOOL GotoFavorite(wchar_t *lpPath);
+    BOOL EditFavorites();
 
-  static int AddConnection(NETRESOURCE *nr,int Remember=TRUE);
+    static int AddConnection(NETRESOURCE *nr,int Remember=TRUE);
     static int AddConnectionExplicit(NETRESOURCE *nr,int Remember=TRUE);
-  static int AddConnectionWithLogon(NETRESOURCE *nr, TCHAR *Name, TCHAR *Password, int Remember=TRUE);
-  static int AddConnectionFromFavorites(NETRESOURCE *nr,int Remember=TRUE);
+    static int AddConnectionWithLogon(NETRESOURCE *nr, wchar_t *Name, wchar_t *Password, int Remember=TRUE);
+    static int AddConnectionFromFavorites(NETRESOURCE *nr,int Remember=TRUE);
 
-  static BOOL GetResourceInfo (TCHAR *SrcName,LPNETRESOURCE DstNetResource);
+    static BOOL GetResourceInfo (wchar_t *SrcName,LPNETRESOURCE DstNetResource);
     static BOOL GetResourceParent (NETRESOURCE &SrcRes, LPNETRESOURCE DstNetResource);
     static BOOL IsMSNetResource (const NETRESOURCE &Res);
     static BOOL IsResourceReadable (NETRESOURCE &Res);

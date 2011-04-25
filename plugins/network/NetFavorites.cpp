@@ -1,6 +1,5 @@
 #include "NetFavorites.hpp"
 #include "NetCommon.hpp"
-#include "NetReg.hpp"
 
 #define SZ_FAVORITES          _T("Favorites")
 #define SZ_FAVORITES_SUBKEY   SZ_FAVORITES _T("\\%s")
@@ -56,7 +55,7 @@ BOOL GetFavorites(LPNETRESOURCE pNR, NetResourceList *pList)
           if(pNR->lpRemoteName)
             lstrcpy(szSrc, pNR->lpRemoteName);
           else
-            OEMToChar(GetMsg(MFavorites), szSrc);
+            lstrcpy(szSrc, GetMsg(MFavorites));
           lstrcat(szSrc, _T("\\"));
           lstrcat(szSrc, szSubKey);
           pList->Push(tmp);
@@ -109,9 +108,7 @@ BOOL GetResourceKey(TCHAR* lpRemoteName, const TCHAR* rootKey, TCHAR* lpResource
     while (*lpRemoteName==_T('\\')) lpRemoteName++;
     if(0 != (p = _tcschr(lpRemoteName, _T('\\'))))
       *p = 0;
-    TCHAR szFavoritesName[MAX_PATH];
-    OEMToChar(GetMsg(MFavorites), szFavoritesName);
-    if(!lstrcmpi(lpRemoteName, szFavoritesName))
+    if(!FSF.LStricmp(lpRemoteName, GetMsg(MFavorites)))
     {
       if(p) *p = _T('\\'), p++;
       if(p)
@@ -127,7 +124,9 @@ BOOL GetResourceKey(TCHAR* lpRemoteName, const TCHAR* rootKey, TCHAR* lpResource
       }
     }
     else
+    {
       if(p) *p = _T('\\');
+    }
   }
   if(!lpRemoteName)
   {
@@ -270,7 +269,7 @@ BOOL GetFavoritesParent(NETRESOURCE& SrcRes, LPNETRESOURCE lpParent)
       p = _tcschr(szResourceKey, _T('\\'));
       if(p)
       {
-        OEMToChar(GetMsg(MFavorites), res);
+        lstrcpy(res, GetMsg(MFavorites));
         lstrcat(res, p);
         p = res;
       }
@@ -318,7 +317,7 @@ BOOL GetFavoriteResource(TCHAR *SrcName, LPNETRESOURCE DstNetResource)
           nr.lpProvider = szFavProv;
           nr.dwDisplayType = RESOURCEDISPLAYTYPE_DOMAIN;
           TCHAR szOutName[MAX_PATH];
-          OEMToChar(GetMsg(MFavorites), szOutName);
+          lstrpcy(szOutName, GetMsg(MFavorites));
           lstrcat(szOutName, p);
           nr.lpRemoteName = szOutName;
           NetResourceList::CopyNetResource(*DstNetResource, nr);
