@@ -121,7 +121,7 @@ int WINAPI ConfigureW(const GUID* Guid)
 
 int ShowMenu(int Type)
 {
-  struct FarMenuItem shMenu[4]={0};
+  struct FarMenuItem shMenu[4]={};
   static const wchar_t *HelpTopic[2]={L"Find",L"Direct"};
   shMenu[0].Text = GetMsg((Type?MBForward:MBrackMath));
   shMenu[1].Text = GetMsg((Type?MBBackward:MBrackSelect));
@@ -169,7 +169,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
   int lenBrackets2=0;
 
   EditorInfo ei;
-  Info.EditorControl(-1,ECTL_GETINFO,0,(INT_PTR)&ei);
+  Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
 
   espo.CurTabPos=ei.CurTabPos;
   espo.TopScreenLine=ei.TopScreenLine;
@@ -180,7 +180,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
   espo.CurPos=CurPos=ei.CurPos;
   egs.StringNumber=-1;
 
-  Info.EditorControl(-1,ECTL_GETSTRING,0,(INT_PTR)&egs);
+  Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
 
   if (isSelect == -1)
     if ((isSelect=ShowMenu(0)) == -1)
@@ -358,8 +358,8 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
       if (esp.CurLine >= ei.TotalLines || esp.CurLine < 0)
         break;
 
-      Info.EditorControl(-1,ECTL_SETPOSITION,0,(INT_PTR)&esp);
-      Info.EditorControl(-1,ECTL_GETSTRING,0,(INT_PTR)&egs);
+      Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
+      Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
 
       if (cond_gt)
         CurPos=0;
@@ -490,7 +490,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
     }
 
     if (!isSelect || (isSelect && Opt.JumpToPair))
-      Info.EditorControl(-1,ECTL_SETPOSITION,0,(INT_PTR)&esp);
+      Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
 
     if (Opt.Beep)
        MessageBeep(0);
@@ -520,12 +520,12 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
         }
       }
 
-      Info.EditorControl(-1,ECTL_SELECT,0,(INT_PTR)&es);
+      Info.EditorControl(-1,ECTL_SELECT,0,&es);
     }
   }
   else
   {
-    Info.EditorControl(-1,ECTL_SETPOSITION,0,(INT_PTR)&espo);
+    Info.EditorControl(-1,ECTL_SETPOSITION,0,&espo);
   }
 
   return INVALID_HANDLE_VALUE;

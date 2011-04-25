@@ -92,11 +92,11 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 
 	struct EditorUndoRedo eur;
 	eur.Command=EUR_BEGIN;
-	Info.EditorControl(-1,ECTL_UNDOREDO,0,(INT_PTR)&eur);
+	Info.EditorControl(-1,ECTL_UNDOREDO,0,&eur);
 
 	while (!Done)
 	{
-		Info.EditorControl(-1,ECTL_READINPUT,0,(INT_PTR)&rec);
+		Info.EditorControl(-1,ECTL_READINPUT,0,&rec);
 
 		if ((rec.EventType&(~0x8000))!=KEY_EVENT || !rec.Event.KeyEvent.bKeyDown)
 		{
@@ -159,7 +159,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 				MousePos=rec.Event.MouseEvent.dwMousePosition;
 			}
 #endif
-			Info.EditorControl(-1,ECTL_PROCESSINPUT,0,(INT_PTR)&rec);
+			Info.EditorControl(-1,ECTL_PROCESSINPUT,0,&rec);
 			continue;
 		}
 		else
@@ -200,13 +200,13 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 					{
 						struct EditorUndoRedo eur2;
 						eur2.Command=EUR_BEGIN;
-						Info.EditorControl(-1,ECTL_UNDOREDO,0,(INT_PTR)&eur2);
+						Info.EditorControl(-1,ECTL_UNDOREDO,0,&eur2);
 
 						#if defined(DRAWLINE_MULTIEDITSTYLE)
 						if (rec.Event.KeyEvent.dwControlKeyState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED))
 						{
 							EditorInfo ei;
-							Info.EditorControl(-1,ECTL_GETINFO,0,(INT_PTR)&ei);
+							Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
 
 							for (int i=0; i < ei.TabSize; ++i)
 								ProcessShiftKey(KeyCode,LineWidth);
@@ -215,19 +215,19 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 						#endif
 							ProcessShiftKey(KeyCode,LineWidth);
 						eur2.Command=EUR_END;
-						Info.EditorControl(-1,ECTL_UNDOREDO,0,(INT_PTR)&eur2);
+						Info.EditorControl(-1,ECTL_UNDOREDO,0,&eur2);
 					}
 					else
 					{
 						Present_Direction=TDir_None;
-						Info.EditorControl(-1,ECTL_PROCESSINPUT,0,(INT_PTR)&rec);
+						Info.EditorControl(-1,ECTL_PROCESSINPUT,0,&rec);
 					}
 				}
 				else
 				{
 					Present_Direction=TDir_None;
 					if (KeyCode < VK_F3 || KeyCode > VK_F12)
-						Info.EditorControl(-1,ECTL_PROCESSINPUT,0,(INT_PTR)&rec);
+						Info.EditorControl(-1,ECTL_PROCESSINPUT,0,&rec);
 
 					continue;
 				}
@@ -240,7 +240,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	Info.EditorControl(-1,ECTL_SETKEYBAR,0,0);
 
 	eur.Command=EUR_END;
-	Info.EditorControl(-1,ECTL_UNDOREDO,0,(INT_PTR)&eur);
+	Info.EditorControl(-1,ECTL_UNDOREDO,0,&eur);
 
 	Reenter=false;
 	return INVALID_HANDLE_VALUE;
@@ -267,14 +267,14 @@ void SetTitle(int LineWidth,int IDTitle)
 	kbl[1-1].Text=kbl[1-1].LongText=GetMsg(MHelp);
 	kbl[2-1].Text=kbl[2-1].LongText=GetMsg((LineWidth==1)?MDouble:MSingle);
 	kbl[10-1].Text=kbl[10-1].LongText=GetMsg(MQuit);
-	Info.EditorControl(-1,ECTL_SETKEYBAR,0,(INT_PTR)&kbt);
-	Info.EditorControl(-1,ECTL_SETTITLE,0,(INT_PTR)GetMsg(IDTitle));
+	Info.EditorControl(-1,ECTL_SETKEYBAR,0,&kbt);
+	Info.EditorControl(-1,ECTL_SETTITLE,0,(void *)GetMsg(IDTitle));
 }
 
 void ProcessShiftKey(int KeyCode,int LineWidth)
 {
 	EditorInfo ei;
-	Info.EditorControl(-1,ECTL_GETINFO,0,(INT_PTR)&ei);
+	Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
 	struct EditorSetPosition esp;
 	esp.CurLine=ei.CurLine;
 	esp.CurPos=ei.CurTabPos;
@@ -286,16 +286,16 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
 	if (ei.CurLine>0)
 	{
 		int StringNumber=ei.CurLine-1;
-		Info.EditorControl(-1,ECTL_EXPANDTABS,0,(INT_PTR)&StringNumber);
+		Info.EditorControl(-1,ECTL_EXPANDTABS,0,&StringNumber);
 	}
 
-	Info.EditorControl(-1,ECTL_EXPANDTABS,0,(INT_PTR)&ei.CurLine);
+	Info.EditorControl(-1,ECTL_EXPANDTABS,0,&ei.CurLine);
 
 	if (ei.CurLine>=ei.TotalLines-1)
 	{
 		struct EditorGetString egs;
 		egs.StringNumber=ei.CurLine;
-		Info.EditorControl(-1,ECTL_GETSTRING,0,(INT_PTR)&egs);
+		Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
 		struct EditorSetPosition esp;
 		esp.CurLine=ei.CurLine;
 		esp.CurPos=egs.StringLength;
@@ -303,18 +303,18 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
 		esp.TopScreenLine=-1;
 		esp.LeftPos=-1;
 		esp.Overtype=-1;
-		Info.EditorControl(-1,ECTL_SETPOSITION,0,(INT_PTR)&esp);
+		Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
 		Info.EditorControl(-1,ECTL_INSERTSTRING,0,0);
 
 		esp.CurLine=ei.CurLine;
 		esp.CurPos=ei.CurTabPos;
-		Info.EditorControl(-1,ECTL_SETPOSITION,0,(INT_PTR)&esp);
+		Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
 	}
 
 	if (ei.CurLine<ei.TotalLines-1)
 	{
 		int StringNumber=ei.CurLine+1;
-		Info.EditorControl(-1,ECTL_EXPANDTABS,0,(INT_PTR)&StringNumber);
+		Info.EditorControl(-1,ECTL_EXPANDTABS,0,&StringNumber);
 	}
 
 	#if defined(DRAWLINE_MULTIEDITSTYLE)
@@ -361,15 +361,15 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
 	}
 
 	if (shiftCursor)
-		Info.EditorControl(-1,ECTL_SETPOSITION,0,(INT_PTR)&esp);
+		Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
 
 	#endif
 
-	Info.EditorControl(-1,ECTL_GETINFO,0,(INT_PTR)&ei);
+	Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
 
 	struct EditorGetString egs;
 	egs.StringNumber=ei.CurLine;
-	Info.EditorControl(-1,ECTL_GETSTRING,0,(INT_PTR)&egs);
+	Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
 	int StringLength=egs.StringLength>ei.CurPos ? egs.StringLength:ei.CurPos+1;
 	wchar_t *NewString=(wchar_t *)malloc(StringLength*sizeof(wchar_t));
 
@@ -449,8 +449,8 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
 			ess.StringText=NewString;
 			ess.StringEOL=(wchar_t*)egs.StringEOL;
 			ess.StringLength=StringLength;
-			Info.EditorControl(-1,ECTL_SETSTRING,0,(INT_PTR)&ess);
-			Info.EditorControl(-1,ECTL_SETPOSITION,0,(INT_PTR)&esp);
+			Info.EditorControl(-1,ECTL_SETSTRING,0,&ess);
+			Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
 			Info.EditorControl(-1,ECTL_REDRAW,0,0);
 			break;
 		}
@@ -478,7 +478,7 @@ void GetEnvType(wchar_t *NewString,int StringLength,struct EditorInfo *ei,
 	{
 		struct EditorGetString UpStr;
 		UpStr.StringNumber=ei->CurLine-1;
-		Info.EditorControl(-1,ECTL_GETSTRING,0,(INT_PTR)&UpStr);
+		Info.EditorControl(-1,ECTL_GETSTRING,0,&UpStr);
 
 		if (ei->CurPos<UpStr.StringLength)
 			UpChar=UpStr.StringText[ei->CurPos];
@@ -488,7 +488,7 @@ void GetEnvType(wchar_t *NewString,int StringLength,struct EditorInfo *ei,
 	{
 		struct EditorGetString DownStr;
 		DownStr.StringNumber=ei->CurLine+1;
-		Info.EditorControl(-1,ECTL_GETSTRING,0,(INT_PTR)&DownStr);
+		Info.EditorControl(-1,ECTL_GETSTRING,0,&DownStr);
 
 		if (ei->CurPos<DownStr.StringLength)
 			DownChar=DownStr.StringText[ei->CurPos];

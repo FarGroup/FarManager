@@ -79,7 +79,7 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 
   PluginSettings settings(MainGuid, ::Info.SettingsControl);
   //BUGBUG dynamic string
-  WordDivLen=(int)::Info.AdvControl(&MainGuid, ACTL_GETSYSWORDDIV, WordDiv);
+  WordDivLen=(int)::Info.AdvControl(&MainGuid, ACTL_GETSYSWORDDIV, 0, WordDiv);
   wchar_t AddWordDiv[ARRAYSIZE(WordDiv)];
   settings.Get(0,L"AddWordDiv",AddWordDiv,ARRAYSIZE(AddWordDiv),L"#");
   WordDivLen += lstrlen(AddWordDiv);
@@ -91,7 +91,7 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 {
   size_t i;
-  struct FarMenuItem MenuItems[5] = {0}, *MenuItem;
+  struct FarMenuItem MenuItems[5] = {}, *MenuItem;
   int Msgs[]={MCaseLower, MCaseTitle, MCaseUpper, MCaseToggle, MCaseCyclic};
 
   for (MenuItem=MenuItems,i=0; i < ARRAYSIZE(MenuItems); ++i, ++MenuItem)
@@ -114,7 +114,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 
     default:
       EditorInfo ei;
-      Info.EditorControl(-1,ECTL_GETINFO,0,(INT_PTR)&ei);
+      Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
 
       // Current line number
       int CurLine=ei.CurLine;
@@ -142,7 +142,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
           if (CurLine >= ei.TotalLines)
             break;
           struct EditorSetPosition esp = {CurLine++,-1,-1,-1,-1,-1};
-          Info.EditorControl(-1,ECTL_SETPOSITION,0,(INT_PTR)&esp);
+          Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
         }
 
         struct EditorGetString egs;
@@ -150,7 +150,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
         egs.StringNumber=-1;
 
         // If can't get line
-        if (!Info.EditorControl(-1,ECTL_GETSTRING,0,(INT_PTR)&egs))
+        if (!Info.EditorControl(-1,ECTL_GETSTRING,0,&egs))
           break; // Exit
 
         // If last selected line was processed or
@@ -211,7 +211,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
           ess.StringText=NewString;
           ess.StringEOL=(wchar_t*)egs.StringEOL;
           ess.StringLength=egs.StringLength;
-          Info.EditorControl(-1,ECTL_SETSTRING,0,(INT_PTR)&ess);
+          Info.EditorControl(-1,ECTL_SETSTRING,0,&ess);
         }
 
         #if 0
@@ -223,7 +223,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
           esel.BlockStartPos=egs.SelStart;
           esel.BlockWidth=egs.SelEnd-egs.SelStart;
           esel.BlockHeight=1;
-          Info.EditorControl(-1,ECTL_SELECT,0,(INT_PTR)&esel);
+          Info.EditorControl(-1,ECTL_SELECT,0,&esel);
         }
         #endif
         // Free memory
@@ -236,7 +236,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
       if (IsBlock)
       {
         struct EditorSetPosition esp = {ei.CurLine,ei.CurPos,-1,ei.TopScreenLine,ei.LeftPos,ei.Overtype};
-        Info.EditorControl(-1,ECTL_SETPOSITION,0,(INT_PTR)&esp);
+        Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
       }
   } // switch
 

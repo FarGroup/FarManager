@@ -16,7 +16,7 @@ public:
 		handle = INVALID_HANDLE_VALUE;
 
 		FarSettingsCreate settings={sizeof(FarSettingsCreate),guid,handle};
-		if (SettingsControl(INVALID_HANDLE_VALUE,SCTL_CREATE,0,(INT_PTR)&settings))
+		if (SettingsControl(INVALID_HANDLE_VALUE,SCTL_CREATE,0,&settings))
 			handle = settings.Handle;
 	}
 
@@ -28,13 +28,13 @@ public:
 	int CreateSubKey(int Root, const wchar_t *Name)
 	{
 		FarSettingsValue value={Root,Name};
-		return SettingsControl(handle,SCTL_SUBKEY,0,(INT_PTR)&value);
+		return (int)SettingsControl(handle,SCTL_SUBKEY,0,&value);
 	}
 
 	const wchar_t *Get(int Root, const wchar_t *Name, const wchar_t *Default)
 	{
 		FarSettingsItem item={Root,Name,FST_STRING};
-		if (SettingsControl(handle,SCTL_GET,0,(INT_PTR)&item))
+		if (SettingsControl(handle,SCTL_GET,0,&item))
 		{
 			return item.String;
 		}
@@ -49,7 +49,7 @@ public:
 	unsigned __int64 Get(int Root, const wchar_t *Name, unsigned __int64 Default)
 	{
 		FarSettingsItem item={Root,Name,FST_QWORD};
-		if (SettingsControl(handle,SCTL_GET,0,(INT_PTR)&item))
+		if (SettingsControl(handle,SCTL_GET,0,&item))
 		{
 			return item.Number;
 		}
@@ -66,14 +66,14 @@ public:
 	{
 		FarSettingsItem item={Root,Name,FST_STRING};
 		item.String=Value;
-		return SettingsControl(handle,SCTL_SET,0,(INT_PTR)&item)!=FALSE;
+		return SettingsControl(handle,SCTL_SET,0,&item)!=FALSE;
 	}
 
 	bool Set(int Root, const wchar_t *Name, unsigned __int64 Value)
 	{
 		FarSettingsItem item={Root,Name,FST_QWORD};
 		item.Number=Value;
-		return SettingsControl(handle,SCTL_SET,0,(INT_PTR)&item)!=FALSE;
+		return SettingsControl(handle,SCTL_SET,0,&item)!=FALSE;
 	}
 
 	bool Set(int Root, const wchar_t *Name, __int64 Value) { return Set(Root,Name,(unsigned __int64)Value); }

@@ -150,7 +150,7 @@ void CFarMenu::GetCursorXY(int* pnX, int* pnY)
   }
   else
   {
-    HWND hFarWnd=(HWND)thePlug->AdvControl(&MainGuid, ACTL_GETFARHWND, 0);
+    HWND hFarWnd=(HWND)thePlug->AdvControl(&MainGuid, ACTL_GETFARHWND, 0, NULL);
     if (!ScreenToClient(hFarWnd, &pt))
     {
       assert(0);
@@ -164,7 +164,7 @@ void CFarMenu::GetCursorXY(int* pnX, int* pnY)
         bool success=false;
         COORD console_size;
         SMALL_RECT console_rect;
-        if (thePlug->AdvControl(&MainGuid, ACTL_GETFARRECT,(void*)&console_rect))
+        if (thePlug->AdvControl(&MainGuid, ACTL_GETFARRECT, 0, &console_rect))
         {
           success=true;
           console_size.X=console_rect.Right-console_rect.Left+1;

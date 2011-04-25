@@ -60,8 +60,8 @@ protected:
   static bool IsSpace(wchar_t ch) {return L' '==ch || L'\t'==ch;}
   unsigned ParseParams(LPWSTR szParams, LPCWSTR* pFiles=NULL);
   void ReadRegValues();
-  static INT_PTR WINAPI CfgDlgProcStatic(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2);
-  void CfgDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2);
+  static INT_PTR WINAPI CfgDlgProcStatic(HANDLE hDlg, int Msg, int Param1, void *Param2);
+  void CfgDlgProc(HANDLE hDlg, int Msg, int Param1, void *Param2);
   enum EAdditionalStr {AS_NONE=0, AS_HELPTEXT=1, AS_VERB=2};
   bool GetAdditionalString(IContextMenu* pContextMenu, UINT nID, EAdditionalStr enAdditionalString, auto_sz* pstr);
 protected:

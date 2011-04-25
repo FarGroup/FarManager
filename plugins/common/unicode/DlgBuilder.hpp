@@ -725,7 +725,7 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 		GUID PluginId;
 		GUID Id;
 		FARWINDOWPROC DlgProc;
-		INT_PTR UserParam;
+		void* UserParam;
 
 		virtual void InitDialogItem(FarDialogItem *Item, const wchar_t *Text)
 		{
@@ -762,7 +762,7 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 		}
 
 public:
-		PluginDialogBuilder(const PluginStartupInfo &aInfo, const GUID &aPluginId, const GUID &aId, int TitleMessageID, const wchar_t *aHelpTopic, FARWINDOWPROC aDlgProc=nullptr, INT_PTR aUserParam=0)
+		PluginDialogBuilder(const PluginStartupInfo &aInfo, const GUID &aPluginId, const GUID &aId, int TitleMessageID, const wchar_t *aHelpTopic, FARWINDOWPROC aDlgProc=nullptr, void* aUserParam=nullptr)
 			: Info(aInfo), HelpTopic(aHelpTopic), PluginId(aPluginId), Id(aId), DlgProc(aDlgProc), UserParam(aUserParam)
 		{
 			AddBorder(GetLangString(TitleMessageID));

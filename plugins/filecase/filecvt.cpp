@@ -1,14 +1,14 @@
 int ResetButtonID;
 int WordDivEditID;
 
-INT_PTR WINAPI DlgProc(HANDLE hDlg,int Msg,int Param1,INT_PTR Param2)
+INT_PTR WINAPI DlgProc(HANDLE hDlg,int Msg,int Param1,void *Param2)
 {
   switch(Msg)
   {
     case DN_BTNCLICK:
       if (Param1==22)
       {
-        Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,21,(INT_PTR)L" _");
+        Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,21,(void *)L" _");
         return TRUE;
       }
       break;
@@ -65,23 +65,23 @@ void CaseConvertion()
       Opt.WordDivLen=lstrlen(Opt.WordDiv);
 
       struct PanelInfo PInfo;
-      Info.Control(PANEL_ACTIVE,FCTL_GETPANELINFO,0,(INT_PTR)&PInfo);
+      Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELINFO,0,&PInfo);
       HANDLE hScreen=Info.SaveScreen(0,0,-1,-1);
       const wchar_t *MsgItems[]={GetMsg(MFileCase),GetMsg(MConverting)};
       Info.Message(&MainGuid,0,NULL,MsgItems,ARRAYSIZE(MsgItems),0);
 
       wchar_t FullName[MAX_PATH];
 
-      int Size=Info.Control(PANEL_ACTIVE,FCTL_GETPANELDIR,0,0);
+      int Size=(int)Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIR,0,0);
       wchar_t* CurDir=new wchar_t[Size];
-      Info.Control(PANEL_ACTIVE,FCTL_GETPANELDIR,Size,(INT_PTR)CurDir);
+      Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIR,Size,CurDir);
 
       for (int I=0;I < PInfo.SelectedItemsNumber; I++)
       {
-        PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.Control(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,I,0));
+        PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,I,0));
         if(PPI)
         {
-          Info.Control(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,I,(INT_PTR)PPI);
+          Info.PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,I,PPI);
           GetFullName(FullName,CurDir,PPI->FileName);
           ProcessName(FullName,PPI->FileAttributes);
           free(PPI);
@@ -101,8 +101,8 @@ void CaseConvertion()
       }
 
       Info.RestoreScreen(hScreen);
-      Info.Control(PANEL_ACTIVE,FCTL_UPDATEPANEL,0,0);
-      Info.Control(PANEL_ACTIVE,FCTL_REDRAWPANEL,0,0);
+      Info.PanelControl(PANEL_ACTIVE,FCTL_UPDATEPANEL,0,0);
+      Info.PanelControl(PANEL_ACTIVE,FCTL_REDRAWPANEL,0,0);
     }
 
     if (CurRun)

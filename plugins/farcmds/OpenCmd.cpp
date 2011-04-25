@@ -70,12 +70,12 @@ static bool validForView(const wchar_t *FileName, int viewEmpty, int editNew)
 
 	if (*ptrFileName && FSF.PointToName(ptrFileName) == ptrFileName)
 	{
-		size_t Size=Info.Control(PANEL_ACTIVE,FCTL_GETPANELDIR,0,0);
+		int Size=(int)Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIR,0,0);
 
 		if (Size)
 		{
 			ptrCurDir=new WCHAR[Size+lstrlen(FileName)+8];
-			Info.Control(PANEL_ACTIVE,FCTL_GETPANELDIR,(int)Size,reinterpret_cast<LONG_PTR>(ptrCurDir));
+			Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIR,Size,ptrCurDir);
 			lstrcat(ptrCurDir,L"\\");
 			lstrcat(ptrCurDir,ptrFileName);
 			ptrFileName=(const wchar_t *)ptrCurDir;
@@ -676,7 +676,7 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 						wchar_t pCmdCopy[ARRAYSIZE(selectItem)];
 						lstrcpy(pCmdCopy,selectItem);
 						wchar_t *Path = NULL, *pFile, temp[MAX_PATH*5], *FARHOMEPath = NULL;
-						int Length=FSF.GetCurrentDirectory(ARRAYSIZE(cmd),cmd);
+						int Length=(int)FSF.GetCurrentDirectory(ARRAYSIZE(cmd),cmd);
 						int PathLength=GetEnvironmentVariable(L"PATH", Path, 0);
 						int FARHOMELength=GetEnvironmentVariable(L"FARHOME", FARHOMEPath, 0);
 						FSF.Unquote(pCmdCopy);
@@ -789,13 +789,13 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 								if (SequenceText)
 								{
 									MacroSendMacroText mcmd = {sizeof(mcmd), KMFLAGS_DISABLEOUTPUT, 0, SequenceText};
-									MacroCheckMacroText mcmd2 = {0};
+									MacroCheckMacroText mcmd2 = {};
 									mcmd2.Text = mcmd;
 
-									INT_PTR pcmd = (INT_PTR)&mcmd;
+									void *pcmd = &mcmd;
 
 									if (subcommand == MSSC_CHECK)
-										pcmd = (INT_PTR)&mcmd2;
+										pcmd = &mcmd2;
 
 									if (!Info.MacroControl(NULL, (FAR_MACRO_CONTROL_COMMANDS)command, subcommand, pcmd))
 									{
@@ -918,9 +918,9 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 						ExpandEnvironmentStrings(pCmd,temp,ARRAYSIZE(temp));
 
 						if (Load)
-							Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_LOADPLUGIN,PLT_PATH,(LONG_PTR)temp);
+							Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_LOADPLUGIN,PLT_PATH,temp);
 						else
-							Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_UNLOADPLUGIN,PLT_PATH,(LONG_PTR)temp);
+							Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_UNLOADPLUGIN,PLT_PATH,temp);
 					}
 					else
 					{
@@ -1138,7 +1138,7 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 									DWORD tlen = GetConsoleTitle(consoleTitle, 256);
 									SetConsoleTitle(cmd);
 									LPTSTR CurDir=NULL;
-									DWORD Size=FSF.GetCurrentDirectory(0,NULL);
+									size_t Size=FSF.GetCurrentDirectory(0,NULL);
 
 									if (Size)
 									{
@@ -1245,7 +1245,7 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 										fill.Char.UnicodeChar = L' ';
 										fill.Attributes = LIGHTGRAY;
 										ScrollConsoleScreenBuffer(StdOutput, &src, NULL, dest, &fill);
-										Info.Control(PANEL_ACTIVE, FCTL_SETUSERSCREEN,0,0);
+										Info.PanelControl(PANEL_ACTIVE, FCTL_SETUSERSCREEN,0,0);
 									}
 
 									Info.RestoreScreen(hScreen);

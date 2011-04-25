@@ -78,7 +78,7 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *psInfo)
 
 HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 {
-	Info.Control(PANEL_ACTIVE,FCTL_GETPANELINFO,0,(LONG_PTR)&PInfo);
+	Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELINFO,0,&PInfo);
 	fullcmd[0]=cmd[0]=selectItem[0]=L'\0';
 
 	if (OInfo->OpenFrom==OPEN_COMMANDLINE)
@@ -91,16 +91,16 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	}
 	else
 	{
-		Info.Control(PANEL_ACTIVE,FCTL_GETPANELDIR,ARRAYSIZE(selectItem),(LONG_PTR)selectItem);
+		Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIR,ARRAYSIZE(selectItem),selectItem);
 
 		if (lstrlen(selectItem))
 			FSF.AddEndSlash(selectItem);
 
-		PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.Control(PANEL_ACTIVE,FCTL_GETPANELITEM,PInfo.CurrentItem,0));
+		PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELITEM,PInfo.CurrentItem,0));
 
 		if (PPI)
 		{
-			Info.Control(PANEL_ACTIVE,FCTL_GETPANELITEM,PInfo.CurrentItem,(LONG_PTR)PPI);
+			Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELITEM,PInfo.CurrentItem,PPI);
 			lstrcat(selectItem,PPI->FileName);
 			free(PPI);
 		}
@@ -125,9 +125,9 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		FSF.Unquote(Dir);
 
 		if (*Dir)
-			Info.Control(PANEL_PASSIVE,FCTL_SETPANELDIR,0,(LONG_PTR)&Dir);
+			Info.PanelControl(PANEL_PASSIVE,FCTL_SETPANELDIR,0,&Dir);
 
-		Info.Control(PANEL_PASSIVE,FCTL_GETPANELINFO,0,(LONG_PTR)&PInfo);
+		Info.PanelControl(PANEL_PASSIVE,FCTL_GETPANELINFO,0,&PInfo);
 		PRI.CurrentItem=PInfo.CurrentItem;
 		PRI.TopPanelItem=PInfo.TopPanelItem;
 
@@ -135,11 +135,11 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		{
 			bool Equal=false;
 
-			PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.Control(PANEL_PASSIVE,FCTL_GETPANELITEM,J,0));
+			PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.PanelControl(PANEL_PASSIVE,FCTL_GETPANELITEM,J,0));
 
 			if (PPI)
 			{
-				Info.Control(PANEL_PASSIVE,FCTL_GETPANELITEM,J,(LONG_PTR)PPI);
+				Info.PanelControl(PANEL_PASSIVE,FCTL_GETPANELITEM,J,PPI);
 				Equal=!FSF.LStricmp(Name,FSF.PointToName(PPI->FileName));
 				free(PPI);
 			}
@@ -152,11 +152,11 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 			}
 		}
 
-		Info.Control(PANEL_PASSIVE,FCTL_REDRAWPANEL,0,(LONG_PTR)&PRI);
+		Info.PanelControl(PANEL_PASSIVE,FCTL_REDRAWPANEL,0,&PRI);
 	}
 	else
 	{
-		Info.Control(PANEL_PASSIVE,FCTL_REDRAWPANEL,0,0);
+		Info.PanelControl(PANEL_PASSIVE,FCTL_REDRAWPANEL,0,0);
 	}
 
 	return INVALID_HANDLE_VALUE;

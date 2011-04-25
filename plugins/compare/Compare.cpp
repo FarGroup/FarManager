@@ -9,7 +9,7 @@
 
 #define GetCheck(i) (int)Info.SendDlgMessage(hDlg,DM_GETCHECK,i,0)
 #define GetDataPtr(i) ((const wchar_t *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,i,0))
-#define CheckDisabled(i) (!((int)Info.SendDlgMessage(hDlg,DM_ENABLE,i,-1)))
+#define CheckDisabled(i) (!((int)Info.SendDlgMessage(hDlg,DM_ENABLE,i,(void *)-1)))
 
 /****************************************************************************
  * Нужны для отключения генерации startup-кода при компиляции под GCC
@@ -143,7 +143,7 @@ static void ShowMessage(const wchar_t *Name1, const wchar_t *Name2)
 /****************************************************************************
  * Обработчик диалога для ShowDialog
  ****************************************************************************/
-INT_PTR WINAPI ShowDialogProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
+INT_PTR WINAPI ShowDialogProc(HANDLE hDlg, int Msg, int Param1, void *Param2)
 {
   static int CompareContents,
              CompareContentsIgnore,
@@ -164,20 +164,20 @@ INT_PTR WINAPI ShowDialogProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
       {
         if (Param2)
         {
-          Info.SendDlgMessage(hDlg, DM_ENABLE, Param1+1, TRUE);
+          Info.SendDlgMessage(hDlg, DM_ENABLE, Param1+1, (void *)TRUE);
           if (!(Param1 == CompareContents && !Info.SendDlgMessage(hDlg, DM_GETCHECK, CompareContentsIgnore, 0)))
           {
-            Info.SendDlgMessage(hDlg, DM_ENABLE, Param1+2, TRUE);
+            Info.SendDlgMessage(hDlg, DM_ENABLE, Param1+2, (void *)TRUE);
             if (Param1 == CompareContents)
-              Info.SendDlgMessage(hDlg, DM_ENABLE, Param1+3, TRUE);
+              Info.SendDlgMessage(hDlg, DM_ENABLE, Param1+3, (void *)TRUE);
           }
         }
         else
         {
-          Info.SendDlgMessage(hDlg, DM_ENABLE, Param1+1, FALSE);
-          Info.SendDlgMessage(hDlg, DM_ENABLE, Param1+2, FALSE);
+          Info.SendDlgMessage(hDlg, DM_ENABLE, Param1+1, (void *)FALSE);
+          Info.SendDlgMessage(hDlg, DM_ENABLE, Param1+2, (void *)FALSE);
           if (Param1 == CompareContents)
-            Info.SendDlgMessage(hDlg, DM_ENABLE, Param1+3, FALSE);
+            Info.SendDlgMessage(hDlg, DM_ENABLE, Param1+3, (void *)FALSE);
         }
       }
       break;
@@ -351,7 +351,7 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
 
   HANDLE hDlg = Info.DialogInit(&MainGuid, &DialogGuid, -1, -1, 66, 22, L"Contents",
                                DialogItems, ARRAYSIZE(DialogItems), 0, 0,
-                               ShowDialogProc, DlgData);
+                               ShowDialogProc, (void *)DlgData);
   if (hDlg == INVALID_HANDLE_VALUE)
     return false;
 
@@ -383,7 +383,7 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
       Opt.ProcessSubfolders = FALSE;
       Opt.CompareContents = FALSE;
     }
-    Opt.ProcessHidden = (Info.AdvControl(&MainGuid, ACTL_GETPANELSETTINGS, NULL) & FPS_SHOWHIDDENANDSYSTEMFILES) != 0;
+    Opt.ProcessHidden = (Info.AdvControl(&MainGuid, ACTL_GETPANELSETTINGS, 0, NULL) & FPS_SHOWHIDDENANDSYSTEMFILES) != 0;
 
     Info.DialogFree(hDlg);
 
@@ -421,7 +421,7 @@ static bool CheckForEsc(void)
          rec.Event.KeyEvent.bKeyDown )
       // Опциональное подтверждение прерывания по Esc
     {
-      if ( Info.AdvControl(&MainGuid, ACTL_GETCONFIRMATIONS, NULL) & FCS_INTERRUPTOPERATION )
+      if ( Info.AdvControl(&MainGuid, ACTL_GETCONFIRMATIONS, 0, NULL) & FCS_INTERRUPTOPERATION )
       {
         const wchar_t *MsgItems[] = {
           GetMsg(MEscTitle),
@@ -503,7 +503,7 @@ static bool BuildPanelIndex(const OwnPanelInfo *pInfo, struct FileIndex *pIndex,
          lstrcmp(pInfo->PanelItems[i].FileName, L"..") &&
          lstrcmp(pInfo->PanelItems[i].FileName, L".") )
     {
-      if (!Info.FileFilterControl(Filter,FFCTL_ISFILEINFILTER,0,(LONG_PTR)&pInfo->PanelItems[i]))
+      if (!Info.FileFilterControl(Filter,FFCTL_ISFILEINFILTER,0,&pInfo->PanelItems[i]))
         continue;
       pIndex->ppi[j++] = &pInfo->PanelItems[i];
     }
@@ -1001,10 +1001,10 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 
 void GetPanelItem(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int Param1,PluginPanelItem* Param2)
 {
-  PluginPanelItem* item=(PluginPanelItem*)malloc(Info.Control(hPlugin,Command,Param1,0));
+  PluginPanelItem* item=(PluginPanelItem*)malloc(Info.PanelControl(hPlugin,Command,Param1,0));
   if(item)
   {
-    Info.Control(hPlugin,Command,Param1,(LONG_PTR)item);
+    Info.PanelControl(hPlugin,Command,Param1,item);
     *Param2=*item;
     Param2->FileName=wcsdup(item->FileName);
     Param2->AlternateFileName=wcsdup(item->AlternateFileName);
@@ -1058,17 +1058,17 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
   memset(&PInfo,0,sizeof(OwnPanelInfo));
 
   PanelInfo AI,PI;
-  Info.Control(PANEL_ACTIVE, FCTL_GETPANELINFO,0,(LONG_PTR)&AI);
-  Info.Control(PANEL_PASSIVE, FCTL_GETPANELINFO,0,(LONG_PTR)&PI);
+  Info.PanelControl(PANEL_ACTIVE, FCTL_GETPANELINFO,0,&AI);
+  Info.PanelControl(PANEL_PASSIVE, FCTL_GETPANELINFO,0,&PI);
 
   AInfo.PanelType=AI.PanelType;
   AInfo.Plugin=(AI.Flags&PFLAGS_PLUGIN) == PFLAGS_PLUGIN;
   AInfo.ItemsNumber=AI.ItemsNumber;
   AInfo.SelectedItemsNumber=AI.SelectedItemsNumber;
 
-  int Size=Info.Control(PANEL_ACTIVE, FCTL_GETPANELDIR,0,0);
+  int Size=(int)Info.PanelControl(PANEL_ACTIVE, FCTL_GETPANELDIR,0,0);
   AInfo.lpwszCurDir=new wchar_t[Size];
-  Info.Control(PANEL_ACTIVE, FCTL_GETPANELDIR,Size,(LONG_PTR)AInfo.lpwszCurDir);
+  Info.PanelControl(PANEL_ACTIVE, FCTL_GETPANELDIR,Size,AInfo.lpwszCurDir);
 
   if(AInfo.ItemsNumber)
   {
@@ -1097,9 +1097,9 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
   PInfo.ItemsNumber=PI.ItemsNumber;
   PInfo.SelectedItemsNumber=PI.SelectedItemsNumber;
 
-  Size=Info.Control(PANEL_PASSIVE, FCTL_GETPANELDIR,0,0);
+  Size=(int)Info.PanelControl(PANEL_PASSIVE, FCTL_GETPANELDIR,0,0);
   PInfo.lpwszCurDir=new wchar_t[Size];
-  Info.Control(PANEL_PASSIVE, FCTL_GETPANELDIR,Size,(LONG_PTR)PInfo.lpwszCurDir);
+  Info.PanelControl(PANEL_PASSIVE, FCTL_GETPANELDIR,Size,PInfo.lpwszCurDir);
 
   if(PInfo.ItemsNumber)
   {
@@ -1151,7 +1151,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 
   // Определим оптимальную ширину диалога сравнения...
   SMALL_RECT rcFar = {0};
-  if (Info.AdvControl(&MainGuid, ACTL_GETFARRECT, &rcFar))
+  if (Info.AdvControl(&MainGuid, ACTL_GETFARRECT, 0, &rcFar))
   {
   	SHORT X = rcFar.Right - rcFar.Left + 1;
     if ((iTruncLen = X - 20) > MAX_PATH - 2)
@@ -1189,8 +1189,8 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
   AFilter = INVALID_HANDLE_VALUE;
   PFilter = INVALID_HANDLE_VALUE;
 
-  Info.FileFilterControl(PANEL_ACTIVE,  FFCTL_CREATEFILEFILTER, FFT_PANEL, (LONG_PTR)&AFilter);
-  Info.FileFilterControl(PANEL_PASSIVE, FFCTL_CREATEFILEFILTER, FFT_PANEL, (LONG_PTR)&PFilter);
+  Info.FileFilterControl(PANEL_ACTIVE,  FFCTL_CREATEFILEFILTER, FFT_PANEL, &AFilter);
+  Info.FileFilterControl(PANEL_PASSIVE, FFCTL_CREATEFILEFILTER, FFT_PANEL, &PFilter);
 
   Info.FileFilterControl(AFilter, FFCTL_STARTINGTOFILTER, 0, 0);
   Info.FileFilterControl(PFilter, FFCTL_STARTINGTOFILTER, 0, 0);
@@ -1212,22 +1212,22 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
   // Отмечаем файлы и перерисовываем панели. Если нужно показываем сообщение...
   if (!bBrokenByEsc)
   {
-    Info.Control(PANEL_ACTIVE,FCTL_BEGINSELECTION,0,0);
+    Info.PanelControl(PANEL_ACTIVE,FCTL_BEGINSELECTION,0,0);
     for(int i=0;i<AInfo.ItemsNumber;i++)
     {
-      Info.Control(PANEL_ACTIVE, FCTL_SETSELECTION,i,AInfo.PanelItems[i].Flags&PPIF_SELECTED);
+      Info.PanelControl(PANEL_ACTIVE, FCTL_SETSELECTION,i,(void *)(AInfo.PanelItems[i].Flags&PPIF_SELECTED));
     }
-    Info.Control(PANEL_ACTIVE,FCTL_ENDSELECTION,0,0);
+    Info.PanelControl(PANEL_ACTIVE,FCTL_ENDSELECTION,0,0);
 
-    Info.Control(PANEL_PASSIVE,FCTL_BEGINSELECTION,0,0);
+    Info.PanelControl(PANEL_PASSIVE,FCTL_BEGINSELECTION,0,0);
     for(int i=0;i<PInfo.ItemsNumber;i++)
     {
-      Info.Control(PANEL_PASSIVE, FCTL_SETSELECTION,i,PInfo.PanelItems[i].Flags&PPIF_SELECTED);
+      Info.PanelControl(PANEL_PASSIVE, FCTL_SETSELECTION,i,(void *)(PInfo.PanelItems[i].Flags&PPIF_SELECTED));
     }
-    Info.Control(PANEL_PASSIVE,FCTL_ENDSELECTION,0,0);
+    Info.PanelControl(PANEL_PASSIVE,FCTL_ENDSELECTION,0,0);
 
-    Info.Control(PANEL_ACTIVE, FCTL_REDRAWPANEL,0,0);
-    Info.Control(PANEL_PASSIVE, FCTL_REDRAWPANEL,0,0);
+    Info.PanelControl(PANEL_ACTIVE, FCTL_REDRAWPANEL,0,0);
+    Info.PanelControl(PANEL_PASSIVE, FCTL_REDRAWPANEL,0,0);
 
     if(bOpenFail)
     {

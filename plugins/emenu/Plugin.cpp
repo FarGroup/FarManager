@@ -110,7 +110,7 @@ int CPlugin::Message(DWORD nFlags, LPCWSTR szHelpTopic, const LPCWSTR* pItems, i
   return PluginStartupInfo::Message(&MainGuid, nFlags, szHelpTopic, pItems, nItemsNumber, nButtonsNumber);
 }
 
-INT_PTR WINAPI CPlugin::CfgDlgProcStatic(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
+INT_PTR WINAPI CPlugin::CfgDlgProcStatic(HANDLE hDlg, int Msg, int Param1, void *Param2)
 {
   static CPlugin* pThis=NULL;
   if (DN_INITDIALOG==Msg)
@@ -121,20 +121,20 @@ INT_PTR WINAPI CPlugin::CfgDlgProcStatic(HANDLE hDlg, int Msg, int Param1, INT_P
   return thePlug->DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
-void CPlugin::CfgDlgProc(HANDLE hDlg, int Msg, int Param1, INT_PTR Param2)
+void CPlugin::CfgDlgProc(HANDLE hDlg, int Msg, int Param1, void *Param2)
 {
   if (DN_INITDIALOG==Msg)
   {
-    SendDlgMessage(hDlg, DM_ENABLE, m_nShowMessId, 0==SendDlgMessage(hDlg, DM_GETCHECK, m_nSilentId, 0));
-    SendDlgMessage(hDlg, DM_ENABLE, m_nDifferentId, 0==SendDlgMessage(hDlg, DM_GETCHECK, m_nDifferentId-3, 0));
+    SendDlgMessage(hDlg, DM_ENABLE, m_nShowMessId, (void *)(0==SendDlgMessage(hDlg, DM_GETCHECK, m_nSilentId, 0)));
+    SendDlgMessage(hDlg, DM_ENABLE, m_nDifferentId, (void *)(0==SendDlgMessage(hDlg, DM_GETCHECK, m_nDifferentId-3, 0)));
   }
   if (DN_BTNCLICK==Msg && m_nSilentId==Param1)
   {
-    SendDlgMessage(hDlg, DM_ENABLE, m_nShowMessId, 0==Param2);
+    SendDlgMessage(hDlg, DM_ENABLE, m_nShowMessId, (void *)(0==Param2));
   }
   if (DN_BTNCLICK==Msg && Param1>=m_nDifferentId-2 && Param1<m_nDifferentId)
   {
-    SendDlgMessage(hDlg, DM_ENABLE, m_nDifferentId, 0!=Param2);
+    SendDlgMessage(hDlg, DM_ENABLE, m_nDifferentId, (void *)(0!=Param2));
   }
 }
 
@@ -146,7 +146,7 @@ int CPlugin::Configure()
   else if (m_enHelptext==AS_HELPTEXT)
     enHelptext=1;
 
-  PluginDialogBuilder Builder(*this, MainGuid, DialogGuid, LNG_TITLE, g_szTopicConfig, CfgDlgProcStatic, reinterpret_cast<INT_PTR>(this));
+  PluginDialogBuilder Builder(*this, MainGuid, DialogGuid, LNG_TITLE, g_szTopicConfig, CfgDlgProcStatic, this);
 
   Builder.AddCheckbox(LNG_SHOWMESS, &m_WaitToContinue);
   m_nShowMessId=Builder.GetLastID();
@@ -237,7 +237,7 @@ HANDLE CPlugin::OpenPlugin(int nOpenFrom, INT_PTR nItem)
   }
   if (bSuccess)
   {
-    if (m_ClearSel && !Control(PANEL_ACTIVE,FCTL_UPDATEPANEL, 0, NULL))
+    if (m_ClearSel && !PanelControl(PANEL_ACTIVE,FCTL_UPDATEPANEL, 0, NULL))
     {
       assert(0);
     }
@@ -533,9 +533,9 @@ CPlugin::EDoMenu CPlugin::MenuForPanelOrCmdLine(LPWSTR szCmdLine/*=NULL*/
 
 bool CPlugin::GetFilesFromParams(LPWSTR szCmdLine, LPCWSTR** ppFiles, unsigned* pnFiles, unsigned* pnFolders, auto_sz* pstrCurDir, bool bSkipFirst)
 {
-  int Size=Control(PANEL_ACTIVE,FCTL_GETPANELDIR,0,NULL);
+  int Size=(int)PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIR,0,NULL);
   wchar_t *CurDir=new wchar_t[Size];
-  Control(PANEL_ACTIVE,FCTL_GETPANELDIR,Size,(LONG_PTR)CurDir);
+  PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIR,Size,CurDir);
   *pstrCurDir=auto_sz(CurDir,Size);
   delete[] CurDir;
   if (pstrCurDir->Len()) m_fsf.AddEndSlash(*pstrCurDir);
@@ -597,13 +597,13 @@ bool CPlugin::GetFilesFromPanel(LPCWSTR** ppFiles, unsigned* pnFiles, unsigned* 
     SelectedItemsCount=0;
   }
   PanelInfo pi;
-  if (!Control(PANEL_ACTIVE,FCTL_GETPANELINFO,0,(LONG_PTR)&pi))
+  if (!PanelControl(PANEL_ACTIVE,FCTL_GETPANELINFO,0,&pi))
   {
     return false;
   }
-  int Size=Control(PANEL_ACTIVE,FCTL_GETPANELDIR,0,NULL);
+  int Size=(int)PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIR,0,NULL);
   wchar_t *CurDir=new wchar_t[Size];
-  Control(PANEL_ACTIVE,FCTL_GETPANELDIR,Size,(LONG_PTR)CurDir);
+  PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIR,Size,CurDir);
   // preserve space for AddEndSlash
   *pstrCurDir=auto_sz(CurDir,Size);
   delete[] CurDir;
@@ -611,13 +611,13 @@ bool CPlugin::GetFilesFromPanel(LPCWSTR** ppFiles, unsigned* pnFiles, unsigned* 
   bool Root=!pi.SelectedItemsNumber;
   if(!Root)
   {
-    size_t Size=Control(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,0,NULL);
+    size_t Size=PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,0,NULL);
     if(Size)
     {
       PluginPanelItem *PPI=(PluginPanelItem*)new char[Size];
        if(PPI)
       {
-        Control(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,0,(LONG_PTR)PPI);
+        PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,0,PPI);
         Root=(pi.SelectedItemsNumber==1 && !lstrcmp(PPI->FileName,L".."));
         delete[] PPI;
       }
@@ -646,11 +646,11 @@ bool CPlugin::GetFilesFromPanel(LPCWSTR** ppFiles, unsigned* pnFiles, unsigned* 
     SelectedItems=new PluginPanelItem*[SelectedItemsCount];
     for (int i=0; i<pi.SelectedItemsNumber; i++)
     {
-      SelectedItems[i]=(PluginPanelItem*)new char[Control(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,i,NULL)];
-      Control(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,i,(LONG_PTR)SelectedItems[i]);
+      SelectedItems[i]=(PluginPanelItem*)new char[PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,i,NULL)];
+      PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,i,SelectedItems[i]);
       LPCWSTR szPath=SelectedItems[i]->FileName;
-      PluginPanelItem *PPI=(PluginPanelItem*)new char[Control(PANEL_ACTIVE,FCTL_GETPANELITEM,pi.CurrentItem,NULL)];
-      Control(PANEL_ACTIVE,FCTL_GETPANELITEM,pi.CurrentItem,(LONG_PTR)PPI);
+      PluginPanelItem *PPI=(PluginPanelItem*)new char[PanelControl(PANEL_ACTIVE,FCTL_GETPANELITEM,pi.CurrentItem,NULL)];
+      PanelControl(PANEL_ACTIVE,FCTL_GETPANELITEM,pi.CurrentItem,PPI);
       bool Equal=!lstrcmp(PPI->FileName,szPath);
       delete[] PPI;
       if(Equal)
@@ -848,7 +848,7 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* pPiids
     if (lstrcmpA(szVerb, "rename")==0)
     {
       MacroSendMacroText mcmd = {sizeof(MacroSendMacroText), 0, 0, L"F6"};
-      MacroControl(NULL, MCTL_SENDSTRING, MSSC_POST, (INT_PTR)&mcmd);
+      MacroControl(NULL, MCTL_SENDSTRING, MSSC_POST, &mcmd);
       return DOMENU_CANCELLED;
     }
     if (m_DelUsingFar && lstrcmpA(szVerb, "delete")==0)
@@ -862,7 +862,7 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* pPiids
       {
         mcmd.SequenceText=L"AltDel";
       }
-      MacroControl(NULL, MCTL_SENDSTRING, MSSC_POST, (INT_PTR)&mcmd);
+      MacroControl(NULL, MCTL_SENDSTRING, MSSC_POST, &mcmd);
       return DOMENU_CANCELLED;
     }
     else
@@ -916,7 +916,7 @@ bool CPlugin::ShowGuiMenu(HMENU hMenu, LPCONTEXTMENU pMenu1, LPCONTEXTMENU2 pMen
   {
     assert(0);
   }
-  HWND hFarWnd=(HWND)AdvControl(&MainGuid,ACTL_GETFARHWND, 0);
+  HWND hFarWnd=(HWND)AdvControl(&MainGuid,ACTL_GETFARHWND, 0, NULL);
   if (m_GuiPos==1)
   {
     RECT rc;

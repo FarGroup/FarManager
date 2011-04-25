@@ -55,7 +55,7 @@ static struct EditorSetPosition esp;
 
 BOOL CheckExtension(const wchar_t *ptrName)
 {
-	return FSF.ProcessName(L"*.hlf", (wchar_t*)ptrName, 0, PN_CMPNAME|PN_SKIPPATH);
+	return (BOOL)FSF.ProcessName(L"*.hlf", (wchar_t*)ptrName, 0, PN_CMPNAME|PN_SKIPPATH);
 }
 
 void ShowHelp(const wchar_t *fullfilename,const wchar_t *topic, bool CmdLine)
@@ -127,7 +127,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 
 			if (FSF.PointToName(ptrName) == ptrName)
 			{
-				DWORD Size=FSF.GetCurrentDirectory(0,NULL);
+				size_t Size=FSF.GetCurrentDirectory(0,NULL);
 
 				if (Size)
 				{
@@ -214,7 +214,7 @@ int WINAPI ProcessEditorInputW(const INPUT_RECORD *Rec)
 		if (Rec->EventType==KEY_EVENT && Rec->Event.KeyEvent.bKeyDown &&
 		        FSF.FarInputRecordToKey((INPUT_RECORD *)Rec)==Opt.Key)
 		{
-			Info.EditorControl(-1,ECTL_GETINFO,0,(INT_PTR)&ei);
+			Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
 			size_t FileNameSize=Info.EditorControl(-1,ECTL_GETFILENAME,0,0);
 
 			if (FileNameSize)
@@ -223,7 +223,7 @@ int WINAPI ProcessEditorInputW(const INPUT_RECORD *Rec)
 
 				if (FileName)
 				{
-					Info.EditorControl(-1,ECTL_GETFILENAME,0,(INT_PTR)FileName);
+					Info.EditorControl(-1,ECTL_GETFILENAME,0,FileName);
 				}
 			}
 
@@ -247,7 +247,7 @@ void ShowCurrentHelpTopic()
 {
 	size_t FileNameSize=Info.EditorControl(-1,ECTL_GETFILENAME,0,0);
 	LPWSTR FileName=NULL;
-	Info.EditorControl(-1,ECTL_GETINFO,0,(INT_PTR)&ei);
+	Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
 
 	if (FileNameSize)
 	{
@@ -255,7 +255,7 @@ void ShowCurrentHelpTopic()
 
 		if (FileName)
 		{
-			Info.EditorControl(-1,ECTL_GETFILENAME,0,(INT_PTR)FileName);
+			Info.EditorControl(-1,ECTL_GETFILENAME,0,FileName);
 		}
 	}
 
@@ -310,14 +310,14 @@ void ShowHelpFromTempFile()
 
 		if (Handle != INVALID_HANDLE_VALUE)
 		{
-			Info.EditorControl(-1,ECTL_GETINFO,0,(INT_PTR)&ei);
+			Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
 		#define SIGN_UNICODE    0xFEFF
 			WORD sign=SIGN_UNICODE;
 			WriteFile(Handle, &sign, 2, &Count, NULL);
 
 			for (egs.StringNumber=0; egs.StringNumber<ei.TotalLines; egs.StringNumber++)
 			{
-				Info.EditorControl(-1,ECTL_GETSTRING,0,(INT_PTR)&egs);
+				Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
 				WriteFile(Handle, egs.StringText, egs.StringLength*sizeof(wchar_t), &Count, NULL);
 				WriteFile(Handle, L"\r\n", 2*sizeof(wchar_t), &Count, NULL);
 			}
@@ -381,13 +381,13 @@ void RestorePosition(void)
 	esp.LeftPos=ei.LeftPos;
 	esp.CurTabPos=-1;
 	esp.Overtype=-1;
-	Info.EditorControl(-1,ECTL_SETPOSITION,0,(INT_PTR)&esp);
+	Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
 }
 
 BOOL IsHlf(void)
 {
 	BOOL ret=FALSE;
-	Info.EditorControl(-1,ECTL_GETINFO,0,(INT_PTR)&ei);
+	Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
 	memset(&esp,-1,sizeof(esp));
 	egs.StringNumber=-1;
 	int total=(ei.TotalLines<3)?ei.TotalLines:3;
@@ -395,8 +395,8 @@ BOOL IsHlf(void)
 	if (total>2) for (esp.CurLine=0; esp.CurLine<total; esp.CurLine++)
 	{
 		{
-			Info.EditorControl(-1,ECTL_SETPOSITION,0,(INT_PTR)&esp);
-			Info.EditorControl(-1,ECTL_GETSTRING,0,(INT_PTR)&egs);
+			Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
+			Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
 
 			if (!FSF.LStrnicmp(_T(".Language="),egs.StringText,10))
 			{
@@ -414,14 +414,14 @@ const wchar_t *FindTopic(void)
 {
 	const wchar_t *ret=NULL;
 	const wchar_t *tmp;
-	Info.EditorControl(-1,ECTL_GETINFO,0,(INT_PTR)&ei);
+	Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
 	memset(&esp,-1,sizeof(esp));
 	egs.StringNumber=-1;
 
 	for (esp.CurLine=ei.CurLine; esp.CurLine>=0; esp.CurLine--)
 	{
-		Info.EditorControl(-1,ECTL_SETPOSITION,0,(INT_PTR)&esp);
-		Info.EditorControl(-1,ECTL_GETSTRING,0,(INT_PTR)&egs);
+		Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
+		Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
 		tmp=egs.StringText;
 
 		if (lstrlen(tmp)>1 && *tmp==_T('@') && *(tmp+1)!=_T('-') && *(tmp+1)!=_T('+'))
