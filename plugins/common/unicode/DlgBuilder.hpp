@@ -234,6 +234,7 @@ class DialogBuilderBase
 			case DI_EDIT:
 			case DI_FIXEDIT:
 			case DI_COMBOBOX:
+			case DI_PSWEDIT:
 				{
 					int Width = Item.X2 - Item.X1 + 1;
 					// стрелка history занимает дополнительное место, но раньше она рисовалась поверх рамки???
@@ -400,7 +401,15 @@ class DialogBuilderBase
 		// ƒобавл€ет статический текст, расположенный на отдельной строке в диалоге.
 		T *AddText(int LabelId)
 		{
-			T *Item = AddDialogItem(DI_TEXT, GetLangString(LabelId));
+			T *Item = AddDialogItem(DI_TEXT, LabelId == -1 ? L"" : GetLangString(LabelId));
+			SetNextY(Item);
+			return Item;
+		}
+
+		// ƒобавл€ет статический текст, расположенный на отдельной строке в диалоге.
+		T *AddText(const wchar_t *Label)
+		{
+			T *Item = AddDialogItem(DI_TEXT, Label);
 			SetNextY(Item);
 			return Item;
 		}
@@ -416,7 +425,7 @@ class DialogBuilderBase
 			if (!Mask)
 				Item->Selected = *Value;
 			else
-				Item->Selected = (*Value & Mask) ;
+				Item->Selected = (*Value & Mask) ? TRUE : FALSE ;
 			SetLastItemBinding(CreateCheckBoxBinding(Value, Mask));
 			return Item;
 		}
@@ -787,7 +796,7 @@ public:
 			return Item;
 		}
 
-		FarDialogItem *AddEditField(wchar_t *Value, int MaxSize, int Width, const wchar_t *HistoryID = nullptr)
+		FarDialogItem *AddEditField(wchar_t *Value, int MaxSize, int Width, const wchar_t *HistoryID = nullptr, bool UseLastHistory = false)
 		{
 			FarDialogItem *Item = AddDialogItem(DI_EDIT, Value);
 			SetNextY(Item);
@@ -796,7 +805,19 @@ public:
 			{
 				Item->History = HistoryID;
 				Item->Flags |= DIF_HISTORY;
+				if (UseLastHistory)
+					Item->Flags |= DIF_USELASTHISTORY;
 			}
+
+			SetLastItemBinding(new PluginEditFieldBinding(Info, &DialogHandle, DialogItemsCount-1, Value, MaxSize));
+			return Item;
+		}
+
+		FarDialogItem *AddPasswordField(wchar_t *Value, int MaxSize, int Width)
+		{
+			FarDialogItem *Item = AddDialogItem(DI_PSWEDIT, Value);
+			SetNextY(Item);
+			Item->X2 = Item->X1 + Width - 1;
 
 			SetLastItemBinding(new PluginEditFieldBinding(Info, &DialogHandle, DialogItemsCount-1, Value, MaxSize));
 			return Item;
