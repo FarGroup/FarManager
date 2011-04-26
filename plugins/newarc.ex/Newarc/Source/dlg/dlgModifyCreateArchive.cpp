@@ -237,6 +237,7 @@ LONG_PTR __stdcall hndModifyCreateArchive (
 		{
 			ArchiveModule* pModule = nullptr;
 			GUID uidPlugin, uidFormat;
+			const TCHAR* lpInitialConfig = nullptr;
 
 			if ( D->GetCheck(ID_MCA_TEMPLATE) == BSTATE_CHECKED )
 			{
@@ -250,6 +251,8 @@ LONG_PTR __stdcall hndModifyCreateArchive (
 					
 					uidPlugin = pTemplate->GetPluginUID();
 					uidFormat = pTemplate->GetFormatUID();
+
+					lpInitialConfig = pTemplate->GetConfig();
 				}
 			}
 			else
@@ -267,8 +270,15 @@ LONG_PTR __stdcall hndModifyCreateArchive (
 				}
 			}
 
+			string strConfig;
+
 			if ( pModule != nullptr )
-				pModule->ConfigureFormat(uidPlugin, uidFormat);
+				pModule->ConfigureFormat(uidPlugin, uidFormat, lpInitialConfig, strConfig);
+
+
+			ArchiveTemplate *ptpl = (ArchiveTemplate*)D->GetDlgData ();
+
+			ptpl->SetConfig(strConfig);
 
 			return FALSE;
 		}
@@ -299,7 +309,8 @@ LONG_PTR __stdcall hndModifyCreateArchive (
 					ptpl->SetData(
 							pManager, 
 							pSrc->GetName(), 
-							pSrc->GetParams(), 
+							pSrc->GetParams(),
+							pSrc->GetConfig(),
 							pSrc->GetModuleUID(),
 							pSrc->GetPluginUID(),
 							pSrc->GetFormatUID()
@@ -338,6 +349,8 @@ struct CreateArchiveParams {
 	string strFileName;
 	string strPassword;
 	string strAdditionalCommandLine;
+	string strConfig;
+
 	ArchiveFormat* pFormat;
 
 	bool bExactName;
@@ -454,6 +467,7 @@ bool dlgModifyCreateArchive(
 			pParams->strPassword = D.GetResultData(17);
 
 			pParams->strAdditionalCommandLine = tpl.GetParams();
+			pParams->strConfig = tpl.GetConfig();
 			pParams->pFormat = tpl.GetFormat();
 
 			pParams->bExactName = D.GetResultCheck(22);

@@ -57,6 +57,7 @@ public:
 			const GUID& uidPlugin,
 			const GUID& uidFormat,
 			const TCHAR* lpFileName,
+			const TCHAR* lpConfig,
 			HANDLE hCallback,
 			ARCHIVECALLBACK pfnCallback,
 			bool bCreate
@@ -67,7 +68,7 @@ public:
 	void ReloadLanguage(const TCHAR *lpLanguage);
 
 	void Configure();
-	void ConfigureFormat(const GUID& uidPlugin, const GUID& uidFormat);
+	void ConfigureFormat(const GUID& uidPlugin, const GUID& uidFormat, const TCHAR* lpInitialConfig, string& strResultConfig);
 
 
 	bool GetDefaultCommand(const GUID& uidPlugin, const GUID& uidArchive, int nCommand, string& strCommand, bool& bEnabledByDefault);

@@ -60,9 +60,14 @@ enum ArchiveOutputSettings {
 	ARCHIVER_OUTPUT_SHOW_NEVER
 };
 
+struct ArchiveFormatCommand {
+	bool bEnabled;
+	string strCommand;
+};
+
 struct ArchiveFormatCommands {
 	ArchiveFormat* pFormat;
-	string Commands[MAX_COMMANDS];
+	ArchiveFormatCommand Commands[MAX_COMMANDS];
 };
 
 struct Configuration {

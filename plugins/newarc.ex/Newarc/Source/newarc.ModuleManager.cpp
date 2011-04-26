@@ -308,6 +308,7 @@ Array<ArchiveModule*>& ArchiveModuleManager::GetModules()
 Archive* ArchiveModuleManager::OpenCreateArchive(
 		ArchiveFormat* pFormat, 
 		const TCHAR* lpFileName, 
+		const TCHAR* lpConfig,
 		HANDLE hCallback, 
 		ARCHIVECALLBACK pfnCallback,
 		bool bCreate
@@ -317,6 +318,7 @@ Archive* ArchiveModuleManager::OpenCreateArchive(
 				pFormat->GetPlugin()->GetUID(), 
 				pFormat->GetUID(),
 				lpFileName,
+				lpConfig,
 				hCallback,
 				pfnCallback,
 				bCreate
@@ -364,7 +366,13 @@ bool ArchiveModuleManager::SaveCommands(const TCHAR* lpFileName)
 		WritePrivateProfileString(strName, _T("FormatUID"), GUID2STR(pFormat->GetUID()), strFileName);
 
 		for (unsigned int i = 0; i < MAX_COMMANDS; i++)
-			WritePrivateProfileString(GUID2STR(pFormat->GetUID()), pCommandNames[i], pCommands->Commands[i], strFileName);
+		{
+			string strEnabled = pCommandNames[i];
+			strEnabled += _T("_Enabled");
+			//TODO:save enabled;
+
+			WritePrivateProfileString(GUID2STR(pFormat->GetUID()), pCommandNames[i], pCommands->Commands[i].strCommand, strFileName);
+		}
 	}
 
 	return true;
@@ -420,7 +428,10 @@ bool ArchiveModuleManager::LoadCommands(const TCHAR* lpFileName)
 				GetPrivateProfileString(strName, pCommandNames[j], _T(""), pBuffer, 260, lpFileName);
 				strCommand.ReleaseBuffer();
 
-				pCommands->Commands[j] = strCommand;
+				pCommands->Commands[j].strCommand = strCommand;
+
+				//TODO:load enabled
+				pCommands->Commands[j].bEnabled = true;
 			}
 
 			cfg.pArchiveCommands.insert(std::pair<const ArchiveFormat*, ArchiveFormatCommands*>(pFormat, pCommands));
@@ -458,6 +469,12 @@ bool ArchiveModuleManager::LoadTemplates(const TCHAR* lpFileName)
 		GetPrivateProfileString(strName, _T("Params"), _T(""), pBuffer, 260, lpFileName);
 		strParams.ReleaseBuffer();
 
+		string strConfig;
+
+		pBuffer = strConfig.GetBuffer(260); //BUGBUG
+		GetPrivateProfileString(strName, _T("Config"), _T(""), pBuffer, 260, lpFileName);
+		strConfig.ReleaseBuffer();
+
 		TCHAR szGUID[64];
 		
 		GetPrivateProfileString(strName, _T("ModuleUID"), _T(""), szGUID, 64, lpFileName);
@@ -469,7 +486,7 @@ bool ArchiveModuleManager::LoadTemplates(const TCHAR* lpFileName)
 		GetPrivateProfileString(strName, _T("FormatUID"), _T(""), szGUID, 64, lpFileName);
 		GUID uidFormat = STR2GUID(szGUID);
 
-		m_pTemplates.add(new ArchiveTemplate(this, strName, strParams, uidModule, uidPlugin, uidFormat));
+		m_pTemplates.add(new ArchiveTemplate(this, strName, strParams, strConfig, uidModule, uidPlugin, uidFormat));
 	}
 
 	return true;
@@ -489,6 +506,7 @@ bool ArchiveModuleManager::SaveTemplates(const TCHAR* lpFileName)
 		ArchiveTemplate* pAT = m_pTemplates[i];
 
 		WritePrivateProfileString(pAT->GetName(), _T("Params"), pAT->GetParams(), strFileName);
+		WritePrivateProfileString(pAT->GetName(), _T("Config"), pAT->GetConfig(), strFileName);
 		WritePrivateProfileString(pAT->GetName(), _T("ModuleUID"), GUID2STR(pAT->GetModuleUID()), strFileName);
 		WritePrivateProfileString(pAT->GetName(), _T("PluginUID"), GUID2STR(pAT->GetPluginUID()), strFileName);
 		WritePrivateProfileString(pAT->GetName(), _T("FormatUID"), GUID2STR(pAT->GetFormatUID()), strFileName);

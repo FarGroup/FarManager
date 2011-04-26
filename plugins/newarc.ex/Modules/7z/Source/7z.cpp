@@ -158,7 +158,7 @@ int OnGetDefaultCommand(GetDefaultCommandStruct* pGDC)
 	if ( pPlugin )
 	{
 		pGDC->bResult = pPlugin->GetDefaultCommand(pGDC->uidFormat, pGDC->nCommand, &pGDC->lpCommand);
-		pGDC->bEnabledByDefault = true;
+		pGDC->bEnabled = true;
 	}
 	else
 		pGDC->bResult = false;
@@ -212,12 +212,12 @@ int OnConfigureFormat(ConfigureFormatStruct* pCFS)
 
 			MessageBoxW (0, strResult, strResult, MB_OK);
 
-			pCFS->pResult = StrDuplicate(strResult);
+			pCFS->lpResult = StrDuplicate(strResult);
 
 			return NAERROR_SUCCESS;
 		}
 
-		pCFS->pResult = nullptr;
+		pCFS->lpResult = nullptr;
 	}
 	
 	return NAERROR_SUCCESS;
@@ -226,7 +226,7 @@ int OnConfigureFormat(ConfigureFormatStruct* pCFS)
 int OnFreeConfigResult(FreeConfigResultStruct* pFCR)
 {
 //	Config::Free
-//	StrFree(pFCR->pResult);
+	StrFree(pFCR->lpResult);
 
 	return NAERROR_SUCCESS;
 }

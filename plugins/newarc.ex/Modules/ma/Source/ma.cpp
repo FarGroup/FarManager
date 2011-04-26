@@ -108,7 +108,7 @@ int OnGetDefaultCommand (GetDefaultCommandStruct *pGDC)
 	if ( pPlugin )
 	{
 		pGDC->bResult = pPlugin->GetDefaultCommand(pGDC->uidFormat, pGDC->nCommand, &pGDC->lpCommand);
-		pGDC->bEnabledByDefault = true; //BUGBUG
+		pGDC->bEnabled = true;
 	}
 	else
 		pGDC->bResult = false;

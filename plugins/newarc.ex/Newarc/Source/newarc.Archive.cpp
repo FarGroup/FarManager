@@ -471,11 +471,6 @@ bool Archive::GetCommand(
 		string& strCommand
 		)
 {
-	bool bEnabledByDefault = false;
-
-	if ( GetDefaultCommand(nCommand, strCommand, bEnabledByDefault) /*&& bEnabledByDefault*/)
-		return true;
-
 	//что здесь делает cfg???
 
 	std::map<const ArchiveFormat*, ArchiveFormatCommands*>::iterator itr = cfg.pArchiveCommands.find(m_pFormat);
@@ -483,10 +478,19 @@ bool Archive::GetCommand(
 	if ( itr != cfg.pArchiveCommands.end() )
 	{
 		ArchiveFormatCommands* pCommands = itr->second;
-		strCommand = pCommands->Commands[nCommand];
 
-		return true;
+		if ( pCommands->Commands[nCommand].bEnabled )
+		{
+			strCommand = pCommands->Commands[nCommand].strCommand;
+			return true;
+		}
 	}
+
+	bool bEnabled = false;
+
+	if ( GetDefaultCommand(nCommand, strCommand, bEnabled) && bEnabled )
+		return true;
+
 
 	return false;
 }
@@ -511,6 +515,10 @@ bool Archive::ExecuteCommandInternal(
 		)
 {
 	bool bResult = false;
+
+	FarPanelInfo pnInfo;
+
+	//::SetCurrentDirectory(pnInfo.GetCurrentDirectoryW());
 
 	string strCommand;
 
@@ -560,6 +568,137 @@ bool Archive::ExecuteCommandInternal(
 			int nResult = ParseString(
 					items,
 					strCommand,
+					strExecuteString,
+					&psParam,
+					nStartItemNumber
+					);
+
+			if ( (nResult == PE_SUCCESS) || (nResult == PE_MORE_FILES) )
+			{
+				PROCESS_INFORMATION pInfo;
+				STARTUPINFO sInfo;
+
+				memset(&pInfo, 0, sizeof(PROCESS_INFORMATION));
+
+				memset(&sInfo, 0, sizeof (STARTUPINFO));
+				sInfo.cb = sizeof (STARTUPINFO);
+
+				apiExpandEnvironmentStrings(strExecuteString, strExecuteString);
+
+				HANDLE hScreen = Info.SaveScreen(0, 0, -1, -1);
+
+#ifdef UNICODE
+				Info.Control(INVALID_HANDLE_VALUE, FCTL_GETUSERSCREEN, 0, 0);
+#else
+				Info.Control(INVALID_HANDLE_VALUE, FCTL_GETUSERSCREEN, 0);
+#endif
+				if ( CreateProcess (
+						NULL,
+						strExecuteString.GetBuffer(),
+						NULL,
+						NULL,
+						TRUE,
+						0,
+						NULL,
+						strPath, 
+						&sInfo,
+						&pInfo
+						) )
+				{
+					WaitForSingleObject(pInfo.hProcess, INFINITE);
+
+					DWORD dwExitCode;
+					GetExitCodeProcess(pInfo.hProcess, &dwExitCode);
+
+					CloseHandle (pInfo.hProcess);
+					CloseHandle (pInfo.hThread);
+
+					bResult = (dwExitCode == 0);
+				}
+				else
+				{
+					string strError;
+					strError.Format(_T("CreateProcess failed - %d\n%s"), GetLastError(), strExecuteString.GetString());
+					msgError(strError);
+				}
+
+#ifdef UNICODE
+				Info.Control(INVALID_HANDLE_VALUE, FCTL_SETUSERSCREEN, 0, 0);
+#else
+				Info.Control(INVALID_HANDLE_VALUE, FCTL_SETUSERSCREEN, 0);
+#endif
+
+				Info.RestoreScreen(NULL);
+				Info.RestoreScreen(hScreen);
+			}
+
+			if ( nResult != PE_MORE_FILES )
+				break;
+		}
+		
+		DeleteFile (psParam.strListFileName); //WARNING!!!
+	}
+
+	return bResult;
+
+}
+
+bool Archive::ExecuteCommandEx(
+		const ArchiveItemArray& items,
+		const TCHAR* lpCommand,
+		const TCHAR* lpCurrentDiskPath,
+		const TCHAR* lpAdditionalCommandLine,
+		bool bHideOutput
+		)
+{
+	bool bResult = false;
+
+	if ( lpCommand )
+	{
+		ParamStruct psParam;
+		FarPanelInfo info;
+		
+		TCHAR* lpTempPath = psParam.strTempPath.GetBuffer(260);
+		GetTempPath (260, lpTempPath);
+		psParam.strTempPath.ReleaseBuffer();
+
+		TCHAR* lpListFileName = psParam.strListFileName.GetBuffer(260);
+#ifdef UNICODE
+		FSF.MkTemp (lpListFileName, 260, _T("NALT"));
+#else
+		FSF.MkTemp (lpListFileName, _T("NALT"));
+#endif
+		psParam.strListFileName.ReleaseBuffer();
+
+		string strFileName = m_strFileName;
+		string strPath;
+		
+		if ( lpCurrentDiskPath )
+			strPath = lpCurrentDiskPath;
+		else
+		{
+			strPath = strFileName;
+			CutToSlash(strPath);
+		}
+
+		QuoteSpaceOnly(psParam.strTempPath);
+		QuoteSpaceOnly(psParam.strListFileName);
+		QuoteSpaceOnly(strFileName);
+		
+		psParam.strArchiveName = strFileName;
+		psParam.strShortArchiveName = strFileName;
+		psParam.strPassword = m_strPassword;
+		psParam.strPathInArchive = m_strPathInArchive;
+		psParam.strAdditionalCommandLine = lpAdditionalCommandLine;
+		
+		string strExecuteString;
+		int nStartItemNumber = 0;
+
+		while ( true )
+		{
+			int nResult = ParseString(
+					items,
+					lpCommand,
 					strExecuteString,
 					&psParam,
 					nStartItemNumber
@@ -630,7 +769,6 @@ bool Archive::ExecuteCommandInternal(
 	}
 
 	return bResult;
-
 }
 
 bool Archive::ExecuteCommand(

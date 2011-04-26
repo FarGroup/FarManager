@@ -145,7 +145,11 @@ bool ConvertToFormatInfo(
 	if ( bUpdate )
 		pInfo->dwFlags |= (AFF_SUPPORT_INTERNAL_DELETE|AFF_SUPPORT_INTERNAL_ADD|AFF_SUPPORT_INTERNAL_CREATE);
 
-	pInfo->dwFlags |= AFF_SUPPORT_INTERNAL_CONFIG;
+	if ( pInfo->uid == CLSID_CFormat7z )
+	{
+		pInfo->dwFlags |= AFF_SUPPORT_CONFIG_CREATE;
+	//	pInfo->dwFlags |= AFF_SUPPORT_INTERNAL_CONFIG;
+	}
 
 	if ( (pInfo->uid == CLSID_CFormat7z) || 
 		 (pInfo->uid == CLSID_CRarHandler) ||

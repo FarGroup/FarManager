@@ -16,7 +16,7 @@ LONG_PTR __stdcall hndCommandLinesAndParams(FarDialog* D, int nMsg, int nParam1,
 	{
 		if ( nParam1 == D->FirstButton()+2 )
 		{
-			unsigned int uStartIndex = 3;
+			unsigned int uStartIndex = 1;
 
 			for (int i = 0; i < MAX_COMMANDS; i++)
 			{
@@ -25,7 +25,10 @@ LONG_PTR __stdcall hndCommandLinesAndParams(FarDialog* D, int nMsg, int nParam1,
 
 				pFormat->GetDefaultCommand(i, strCommand, bEnabled);
 
-				D->SetTextPtr(uStartIndex, strCommand);
+
+				D->SetCheck(uStartIndex, bEnabled?BSTATE_CHECKED:BSTATE_UNCHECKED);
+				D->SetTextPtr(uStartIndex+2, strCommand);
+
 				uStartIndex += 3;
 			}
 
@@ -41,9 +44,9 @@ void dlgCommandLinesAndParams(ArchiveFormat* pFormat)
 	int nHeight = 19;
 	int Y = 2;
 
-	bool bEnabled = false;
+//	bool bEnabled = false;
 
-	string strCommand;
+//	string strCommand;
 	string strTitle;
 
 	FarDialog D(-1, -1, 79, nHeight);
@@ -60,15 +63,19 @@ void dlgCommandLinesAndParams(ArchiveFormat* pFormat)
 
 	for (int i = 0; i < MAX_COMMANDS; i++)
 	{
-		D.CheckBox(5, Y, bEnabled);
-		D.Text(9, Y, _M(MSG_dlgCLAP_S_EXTRACT+i));
-
+		bool bEnabled;
 		string strCommand;
 
 		if ( pCommands ) 
-			strCommand = pCommands->Commands[i];
+		{
+			strCommand = pCommands->Commands[i].strCommand;
+			bEnabled = pCommands->Commands[i].bEnabled;
+		}
 		else
 			pFormat->GetDefaultCommand(i, strCommand, bEnabled);
+
+		D.CheckBox(5, Y, bEnabled);
+		D.Text(9, Y, _M(MSG_dlgCLAP_S_EXTRACT+i));
 
 		D.Edit(33, Y++, 42, strCommand);
 	}
@@ -91,18 +98,22 @@ void dlgCommandLinesAndParams(ArchiveFormat* pFormat)
 
 	if ( D.Run(hndCommandLinesAndParams, (void*)pFormat) == D.FirstButton() )
 	{
-		unsigned int uStartIndex = 3;
+		unsigned int uStartIndex = 1;
 
 		for (unsigned int i = 0; i < MAX_COMMANDS; i++)
 		{
 			if ( pCommands )
-				pCommands->Commands[i] = D.GetResultData(uStartIndex);
+			{
+				pCommands->Commands[i].bEnabled = D.GetCheck(uStartIndex);
+				pCommands->Commands[i].strCommand = D.GetResultData(uStartIndex+2);
+			}
 			else
 			{
 				pCommands = new ArchiveFormatCommands;
 
 				pCommands->pFormat = pFormat;
-				pCommands->Commands[i] = D.GetResultData(uStartIndex);
+				pCommands->Commands[i].bEnabled = D.GetCheck(uStartIndex);
+				pCommands->Commands[i].strCommand = D.GetResultData(uStartIndex+2);
 
 				cfg.pArchiveCommands.insert(std::pair<const ArchiveFormat*, ArchiveFormatCommands*>(pFormat, pCommands));
 			}

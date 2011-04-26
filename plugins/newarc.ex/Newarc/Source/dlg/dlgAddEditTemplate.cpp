@@ -9,6 +9,7 @@ enum enumAddEditTemplate {
 	ID_AET_FORMATLIST,
 	ID_AET_ADDITIONALPARAMS,
 	ID_AET_ADDITIONALPARAMSEDIT,
+	ID_AET_CONFIG,
 	ID_AET_SEPARATOR2,
 	ID_AET_ADDCONFIRM,
 	ID_AET_CANCEL
@@ -71,6 +72,21 @@ LONG_PTR __stdcall hndAddEditTemplate(
 
 			D->SetTextPtr(ID_AET_NAMEEDIT, ptpl->GetName());
 			D->SetTextPtr(ID_AET_ADDITIONALPARAMSEDIT, ptpl->GetParams());
+
+			ArchiveFormat* pFormat = ptpl->GetFormat();
+
+			if ( pFormat->QueryCapability(AFF_SUPPORT_CONFIG_CREATE) )
+			{
+				D->ShowItem(ID_AET_ADDITIONALPARAMS, false);
+				D->ShowItem(ID_AET_ADDITIONALPARAMSEDIT, false);
+
+				if ( pFormat->QueryCapability(AFF_SUPPORT_INTERNAL_CREATE) )
+					D->Enable(ID_AET_CONFIG, true);
+				else
+					D->Enable(ID_AET_CONFIG, false);
+			}
+			else
+				D->ShowItem(ID_AET_CONFIG, false);
 		}
 	}
 
@@ -113,16 +129,10 @@ bool dlgAddEditTemplate(ArchiveTemplate *ptpl, bool bAdd)
 	D.ComboBox(5, 6, 15, NULL, 0); //5
 	D.SetFlags(DIF_DROPDOWNLIST);
 
-//	const ArchiveFormatInfo *info = pModule?pModule->GetArchiveFormatInfo (ptpl->uid):NULL;
+	D.Text(22, 5, _M(MAddTemplateAdditionalParams)); //6
+	D.Edit(22, 6, 27, NULL, AUTO_LENGTH, _T("adsaf")); //7
 
-//	if ( info && OptionIsOn(info->dwFlags, AFF_SUPPORT_INTERNAL_CONFIG) )
-//		D.Button (22, 5, "Internal config");
-//	else
-//	{
-		D.Text(22, 5, _M(MAddTemplateAdditionalParams)); //6
-		D.Edit(22, 6, 27, NULL, AUTO_LENGTH, _T("adsaf")); //7
-		//D.Edit(22, 6, 27); //7
-//	}
+	D.Button(22, 6, _T("Config"));
 
 	D.Separator(7); //8
 

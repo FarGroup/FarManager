@@ -89,7 +89,7 @@ int ArchivePanel::pGetFindData(
 			}
 
 			if ( nResult != -1 )
-				m_pArchive = m_pManager->OpenCreateArchive(m_pFormats[nResult], m_strFileName, this, Callback, false);
+				m_pArchive = m_pManager->OpenCreateArchive(m_pFormats[nResult], m_strFileName, nullptr, this, Callback, false);
 
 			if ( nResult == -1 )
 				return FALSE;
@@ -424,7 +424,7 @@ int ArchivePanel::pPutFiles(
 				
 				//Archive* pArchive = pManager->OpenCreateArchive(params.pFormat, strFullArchiveName, this, Callback, true);
 				//BADBAD, надо убедиться, что отсюда сразу в ClosePlugin попадаем
-				m_pArchive = pManager->OpenCreateArchive(params.pFormat, strFullArchiveName, this, Callback, true);
+				m_pArchive = pManager->OpenCreateArchive(params.pFormat, strFullArchiveName, params.strConfig, this, Callback, true);
 
 				if ( m_pArchive )
 					bResult = AddFiles(items, info.GetCurrentDirectory());

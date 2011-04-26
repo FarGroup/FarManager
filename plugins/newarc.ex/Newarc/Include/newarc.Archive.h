@@ -141,6 +141,15 @@ public:
 	bool GetDefaultCommand(int nCommand, string& strCommand, bool& bEnabledByDefault);
 	bool GetCommand(int nCommand, string& strCommand);
 
+	bool ExecuteCommandEx(
+			const ArchiveItemArray& items,
+			const TCHAR* lpCommand,
+			const TCHAR* lpCurrentDiskPath = NULL,
+			const TCHAR* lpAdditionalCommandLine = NULL,
+			bool bHideOutput = false
+			);
+
+
 	bool ExecuteCommand(
 			int nOperation,
 			const ArchiveItemArray& items, 

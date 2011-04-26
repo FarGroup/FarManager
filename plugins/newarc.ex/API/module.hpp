@@ -177,10 +177,17 @@ struct ArchiveQueryResult {
 #define AFF_SUPPORT_INTERNAL_ADD		4
 #define AFF_SUPPORT_INTERNAL_DELETE		8
 #define AFF_SUPPORT_INTERNAL_CREATE		16
-#define AFF_SUPPORT_INTERNAL_CONFIG		32
+//#define AFF_SUPPORT_INTERNAL_CONFIG		32
 
-#define AFF_SUPPORT_DEFAULT_COMMANDS	256
-#define AFF_NEED_EXTERNAL_NOTIFICATIONS 512
+#define AFF_SUPPORT_CONFIG_GENERAL		32
+#define AFF_SUPPORT_CONFIG_CREATE		64
+#define AFF_SUPPORT_CONFIG_DELETE		128
+#define AFF_SUPPORT_CONFIG_EXTRACT		256
+#define AFF_SUPPORT_CONFIG_TEST			512
+#define AFF_SUPPORT_CONFIG_ADD			1024
+
+#define AFF_SUPPORT_DEFAULT_COMMANDS	2048
+#define AFF_NEED_EXTERNAL_NOTIFICATIONS 1096
 
 struct ArchiveFormatInfo {
 	DWORD dwStructVersion;
@@ -275,7 +282,7 @@ struct GetDefaultCommandStruct {
 	int nCommand;
 
 	const TCHAR* lpCommand;
-	bool bEnabledByDefault;
+	bool bEnabled;
 
 	bool bResult;
 };
@@ -304,7 +311,8 @@ struct OpenCreateArchiveStruct {
 	HANDLE hCallback;
 	ARCHIVECALLBACK pfnCallback;
 
-	const TCHAR *lpFileName;
+	const TCHAR* lpFileName;
+	const TCHAR* lpConfig; //create only
 
 	bool bCreate;
 
@@ -427,12 +435,14 @@ struct ConfigureFormatStruct {
 
 	GUID uidFormat;
 	GUID uidPlugin;
+
+	const TCHAR* lpConfig;
 	
-	TCHAR* pResult;
+	TCHAR* lpResult;
 };
 
 struct FreeConfigResultStruct {
-	TCHAR* pResult;
+	TCHAR* lpResult;
 };
 
 

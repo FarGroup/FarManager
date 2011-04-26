@@ -10,6 +10,8 @@ private:
 	string m_strName;
 	string m_strParams;
 
+	string m_strConfig;
+
 	GUID m_uidModule;
 	GUID m_uidPlugin;
 	GUID m_uidFormat;
@@ -31,6 +33,16 @@ public:
 	const TCHAR* GetParams() const
 	{
 		return m_strParams;
+	}
+
+	const TCHAR* GetConfig() const
+	{
+		return m_strConfig;
+	}
+
+	void SetConfig(const TCHAR* lpConfig)
+	{
+		m_strConfig = lpConfig;
 	}
 
 	void SetParams(const TCHAR* lpParams)
@@ -67,6 +79,7 @@ public:
 			ArchiveModuleManager* pManager,
 			const TCHAR* lpName,
 			const TCHAR* lpParams,
+			const TCHAR* lpConfig,
 			const GUID& uidModule,
 			const GUID& uidPlugin,
 			const GUID& uidFormat
@@ -74,6 +87,7 @@ public:
 	{
 		m_strName = lpName;
 		m_strParams = lpParams;
+		m_strConfig = lpConfig;
 
 		m_uidModule = uidModule;
 		m_uidPlugin = uidPlugin;
@@ -88,12 +102,13 @@ public:
 			ArchiveModuleManager* pManager,
 			const TCHAR* lpName,
 			const TCHAR* lpParams,
+			const TCHAR* lpConfig,
 			const GUID& uidModule,
 			const GUID& uidPlugin,
 			const GUID& uidFormat
 			)
 	{
-		SetData(pManager, lpName, lpParams, uidModule, uidPlugin, uidFormat);
+		SetData(pManager, lpName, lpParams, lpConfig, uidModule, uidPlugin, uidFormat);
 	}
 
 	~ArchiveTemplate()

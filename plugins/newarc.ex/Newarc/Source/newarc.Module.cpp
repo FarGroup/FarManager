@@ -199,6 +199,7 @@ HANDLE ArchiveModule::OpenCreateArchive(
 		const GUID& uidPlugin,
 		const GUID& uidFormat,
 		const TCHAR* lpFileName,
+		const TCHAR* lpConfig,
 		HANDLE hCallback,
 		ARCHIVECALLBACK pfnCallback,
 		bool bCreate
@@ -211,6 +212,7 @@ HANDLE ArchiveModule::OpenCreateArchive(
 	OAS.uidPlugin = uidPlugin;
 	OAS.uidFormat = uidFormat;
 	OAS.lpFileName = lpFileName;
+	OAS.lpConfig = lpConfig;
 	OAS.hCallback = hCallback;
 	OAS.pfnCallback = pfnCallback;
 	OAS.bCreate = bCreate;
@@ -236,14 +238,14 @@ bool ArchiveModule::GetDefaultCommand(
 		const GUID& uidFormat, 
 		int nCommand, 
 		string& strCommand,
-		bool& bEnabledByDefault
+		bool& bEnabled
 		)
 {
 	GetDefaultCommandStruct GDC;
 
 	GDC.nCommand = nCommand;
 	GDC.lpCommand = NULL;
-	GDC.bEnabledByDefault = false;
+	GDC.bEnabled = false;
 	GDC.uidPlugin = uidPlugin;
 	GDC.uidFormat = uidFormat;
 
@@ -251,12 +253,12 @@ bool ArchiveModule::GetDefaultCommand(
 	if ( (m_pfnModuleEntry (FID_GETDEFAULTCOMMAND, (void*)&GDC) == NAERROR_SUCCESS) && GDC.bResult )
 	{
 		strCommand = GDC.lpCommand;
-		bEnabledByDefault = GDC.bEnabledByDefault;
+		bEnabled = GDC.bEnabled;
 		return true;
 	}
 
 	strCommand = NULL;
-	bEnabledByDefault = false;
+	bEnabled = false;
 
 	return false;
 }
@@ -519,14 +521,23 @@ int ArchiveModule::GetArchiveInfo(HANDLE hArchive, const ArchiveInfoItem** pItem
 	return 0;
 }
 
-void ArchiveModule::ConfigureFormat(const GUID& uidPlugin, const GUID& uidFormat)
+void ArchiveModule::ConfigureFormat(const GUID& uidPlugin, const GUID& uidFormat, const TCHAR* lpInitialConfig, string& strResultConfig)
 {
 	ConfigureFormatStruct CFS;
 
 	CFS.uidFormat = uidFormat;
 	CFS.uidPlugin = uidPlugin;
+	CFS.lpConfig = lpInitialConfig;
 
-	m_pfnModuleEntry(FID_CONFIGUREFORMAT, (void*)&CFS);
+	if ( m_pfnModuleEntry(FID_CONFIGUREFORMAT, (void*)&CFS) == NAERROR_SUCCESS )
+	{
+		strResultConfig = CFS.lpResult;
+
+		FreeConfigResultStruct FCR;
+		FCR.lpResult = CFS.lpResult;
+
+		m_pfnModuleEntry(FID_FREECONFIGRESULT, &FCR);
+	}
 }
 
 void ArchiveModule::Configure()

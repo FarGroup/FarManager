@@ -88,7 +88,7 @@ bool WcxPlugin::Load(const TCHAR* lpModuleName)
 					m_pFormatInfo->dwFlags |= AFF_SUPPORT_INTERNAL_DELETE;
 					
 				if ( (caps & PK_CAPS_OPTIONS) == PK_CAPS_OPTIONS )
-					m_pFormatInfo->dwFlags |= AFF_SUPPORT_INTERNAL_CONFIG;
+					m_pFormatInfo->dwFlags |= AFF_SUPPORT_CONFIG_GENERAL;
 			}
 
 			return true;
