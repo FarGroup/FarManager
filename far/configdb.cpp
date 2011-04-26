@@ -39,6 +39,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "sqlite/sqlite.h"
 #include "config.hpp"
 #include "datetime.hpp"
+#include "tinyxml/tinystr.cpp"
+#include "tinyxml/tinyxml.cpp"
+#include "tinyxml/tinyxmlerror.cpp"
+#include "tinyxml/tinyxmlparser.cpp"
 
 GeneralConfig *GeneralCfg;
 AssociationsConfig *AssocConfig;
@@ -89,6 +93,8 @@ public:
 	SQLiteStmt& Bind(const char *Value, int Size, bool bStatic=true) { sqlite3_bind_blob(pStmt,param++,Value,Size,bStatic?SQLITE_STATIC:SQLITE_TRANSIENT); return *this; }
 
 	const wchar_t *GetColText(int Col) { return (const wchar_t *)sqlite3_column_text16(pStmt,Col); }
+
+	const char *GetColTextUTF8(int Col) { return (const char *)sqlite3_column_text(pStmt,Col); }
 
 	int GetColBytes(int Col) { return sqlite3_column_bytes(pStmt,Col); }
 
@@ -344,6 +350,88 @@ public:
 
 		stmtEnumValues.Reset();
 		return false;
+	}
+
+	bool Export(const wchar_t *filename)
+	{
+		TiXmlDocument doc;
+		doc.LinkEndChild(new TiXmlDeclaration("1.0", "UTF-8", ""));
+		TiXmlElement * root = new TiXmlElement( "generalconfig");
+
+		SQLiteStmt stmtEnumAllValues;
+		db.InitStmt(stmtEnumAllValues, L"SELECT key, name, value FROM general_config ORDER BY key, name;");
+
+		while (stmtEnumAllValues.Step())
+		{
+			TiXmlElement *e = new TiXmlElement("setting");
+			e->SetAttribute("key", stmtEnumAllValues.GetColTextUTF8(0));
+			e->SetAttribute("name", stmtEnumAllValues.GetColTextUTF8(1));
+			switch (stmtEnumAllValues.GetColType(2))
+			{
+				case SQLITE_INTEGER:
+					e->SetAttribute("type", "qword");
+					break;
+				case SQLITE_TEXT:
+					e->SetAttribute("type", "text");
+					break;
+				default:
+					e->SetAttribute("type", "hex");
+			}
+			//BUGBUG move to switch and add correct conversions per type
+			e->SetAttribute("value", stmtEnumAllValues.GetColTextUTF8(2));
+
+			root->LinkEndChild(e);
+		}
+
+		stmtEnumAllValues.Reset();
+		doc.LinkEndChild(root);
+		//BUGBUG Convert filename to UTF8
+		//return doc.SaveFile(filename_in_utf8);
+		return true;
+	}
+
+	bool Import(const wchar_t *filename)
+	{
+		TiXmlDocument doc;
+		//BUGBUG Convert filename to UTF8
+		//if (!doc.LoadFile(filename_in_utf8))
+		if (1)
+			return false;
+
+		TiXmlHandle root(&doc);
+		for (TiXmlElement *e = root.FirstChild("generalconfig").FirstChildElement("setting").Element(); e; e=e->NextSiblingElement("setting"))
+		{
+			const char *key = e->Attribute("key");
+			const char *name = e->Attribute("name");
+			const char *type = e->Attribute("type");
+			const char *value = e->Attribute("value");
+
+			if (!key || !name || !type || !value)
+				continue;
+
+			string Key(key, CP_UTF8);
+			string Name(name, CP_UTF8);
+
+			if (!strcmp(type,"qword"))
+			{
+				//BUGBUG
+			}
+			else if (!strcmp(type,"text"))
+			{
+				string Value(value, CP_UTF8);
+				SetValue(Key, Name, Value);
+			}
+			else if (!strcmp(type,"hex"))
+			{
+				//BUGBUG
+			}
+			else
+			{
+				continue;
+			}
+		}
+
+		return true;
 	}
 };
 

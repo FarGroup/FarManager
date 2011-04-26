@@ -34,7 +34,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct VersionInfo;
 
-class GeneralConfig {
+class XmlConfig {
+
+public:
+
+	virtual ~XmlConfig() {}
+	virtual bool Export(const wchar_t *filename) = 0;
+	virtual bool Import(const wchar_t *filename) = 0;
+};
+
+class GeneralConfig: public XmlConfig {
 
 public:
 
