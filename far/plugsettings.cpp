@@ -75,19 +75,13 @@ int PluginSettings::Set(const FarSettingsItem& Item)
 		switch(Item.Type)
 		{
 			case FST_SUBKEY:
-				{
-					FarSettingsValue value={Item.Root,Item.Name};
-					int key=SubKey(value);
-					if (key)
-					{
-						result=TRUE;
-					}
-				}
 				break;
 			case FST_QWORD:
 				if (PluginsCfg->SetValue(*m_Keys.getItem(Item.Root),Item.Name,Item.Number)) result=TRUE;
 				break;
 			case FST_STRING:
+				//не даём изменить "description" корня, он выставляется в plugin title фаром
+				if (Item.Root==0 && !Item.Name) break;
 				if (PluginsCfg->SetValue(*m_Keys.getItem(Item.Root),Item.Name,Item.String)) result=TRUE;
 				break;
 			case FST_DATA:
