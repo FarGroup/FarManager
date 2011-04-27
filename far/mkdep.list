@@ -181,7 +181,8 @@ namelist.hpp
 network.cpp
 network.hpp
 noncopyable.hpp
-nsUniversalDetectorEx.h
+nsUniversalDetectorEx.cpp
+nsUniversalDetectorEx.hpp
 options.cpp
 options.hpp
 palette.cpp
@@ -246,6 +247,8 @@ setcolor.cpp
 setcolor.hpp
 shortcuts.cpp
 shortcuts.hpp
+sqlite.c
+sqlite.h
 stddlg.cpp
 stddlg.hpp
 strmix.cpp
@@ -258,6 +261,8 @@ syslog.cpp
 syslog.hpp
 TaskBar.cpp
 TaskBar.hpp
+tinyxml.cpp
+tinyxml.hpp
 TPreRedrawFunc.cpp
 TPreRedrawFunc.hpp
 tree.hpp
