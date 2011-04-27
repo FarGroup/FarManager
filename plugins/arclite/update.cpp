@@ -530,17 +530,24 @@ private:
   }
 
   bool process_file(const wstring& sub_dir, const FindData& src_find_data, UInt32 dst_dir_index, UInt32& file_index) {
-    PluginPanelItem filter_data;
-    memzero(filter_data);
-    filter_data.FileAttributes = src_find_data.dwFileAttributes;
-    filter_data.CreationTime = src_find_data.ftCreationTime;
-    filter_data.LastAccessTime = src_find_data.ftLastAccessTime;
-    filter_data.LastWriteTime = src_find_data.ftLastWriteTime;
-    filter_data.FileSize = src_find_data.size();
-    filter_data.PackSize = 0;
-    filter_data.FileName = src_find_data.cFileName;
-    if (filter && !filter->match(filter_data))
-      return false;
+    if (filter) {
+      PluginPanelItem filter_data;
+      memzero(filter_data);
+      filter_data.FileAttributes = src_find_data.dwFileAttributes;
+      filter_data.CreationTime = src_find_data.ftCreationTime;
+      filter_data.LastAccessTime = src_find_data.ftLastAccessTime;
+      filter_data.LastWriteTime = src_find_data.ftLastWriteTime;
+      filter_data.FileSize = src_find_data.size();
+      filter_data.PackSize = 0;
+      filter_data.FileName = src_find_data.cFileName;
+      if (!filter->match(filter_data))
+        return false;
+    }
+
+    FileIndexInfo file_index_info;
+    file_index_info.rel_path = sub_dir;
+    file_index_info.find_data = src_find_data;
+
     ArcFileInfo file_info;
     file_info.is_dir = src_find_data.is_dir();
     file_info.parent = dst_dir_index;
@@ -553,13 +560,14 @@ private:
     if (fi_range.first == fi_range.second) {
       // new file
       file_index = new_index;
+      file_index_map[new_index] = file_index_info;
       new_index++;
     }
     else {
       // updated file
       file_index = *fi_range.first;
       if (file_index >= archive->num_indices) { // fake index
-        file_index = new_index;
+        file_index_map[new_index] = file_index_info;
         new_index++;
       }
       else if (!file_info.is_dir) {
@@ -586,12 +594,9 @@ private:
           skipped_files = true;
           return false;
         }
+        file_index_map[file_index] = file_index_info;
       }
     }
-    FileIndexInfo file_index_info;
-    file_index_info.rel_path = sub_dir;
-    file_index_info.find_data = src_find_data;
-    file_index_map[file_index] = file_index_info;
     return true;
   }
 
