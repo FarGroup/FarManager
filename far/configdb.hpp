@@ -72,7 +72,7 @@ public:
 	virtual bool EnumValues(const wchar_t *Key, DWORD Index, string &strName, DWORD *Value) = 0;
 };
 
-class HierarchicalConfig {
+class HierarchicalConfig: public XmlConfig {
 
 public:
 

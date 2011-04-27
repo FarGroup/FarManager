@@ -425,7 +425,7 @@ public:
 
 	TiXmlElement *Export()
 	{
-		TiXmlElement * root = new TiXmlElement( "generalconfig");
+		TiXmlElement * root = new TiXmlElement("generalconfig");
 		if (!root)
 			return nullptr;
 
@@ -705,6 +705,88 @@ public:
 		stmtEnumValues.Reset();
 		return false;
 
+	}
+
+	void Export(unsigned __int64 id, TiXmlElement *key)
+	{
+		stmtEnumValues.Bind(id);
+		while (stmtEnumValues.Step())
+		{
+			TiXmlElement *e = new TiXmlElement("value");
+			if (!e)
+				break;
+
+			e->SetAttribute("name", stmtEnumValues.GetColTextUTF8(0));
+
+			switch (stmtEnumValues.GetColType(1))
+			{
+				case SQLITE_INTEGER:
+					e->SetAttribute("type", "qword");
+					e->SetAttribute("value", Int64ToHexString(stmtEnumValues.GetColInt64(1)));
+					break;
+				case SQLITE_TEXT:
+					e->SetAttribute("type", "text");
+					e->SetAttribute("value", stmtEnumValues.GetColTextUTF8(1));
+					break;
+				default:
+				{
+					char *hex = BlobToHexString(stmtEnumValues.GetColBlob(1),stmtEnumValues.GetColBytes(1));
+					e->SetAttribute("type", "hex");
+					e->SetAttribute("value", hex);
+					xf_free(hex);
+				}
+			}
+
+			key->LinkEndChild(e);
+		}
+		stmtEnumValues.Reset();
+
+		SQLiteStmt stmtEnumSubKeys;
+		db.InitStmt(stmtEnumSubKeys, L"SELECT id, name, description FROM table_keys WHERE parent_id=?1 AND id<>0;");
+
+		stmtEnumSubKeys.Bind(id);
+		while (stmtEnumSubKeys.Step())
+		{
+			TiXmlElement *e = new TiXmlElement("key");
+			if (!e)
+				break;
+
+			e->SetAttribute("name", stmtEnumSubKeys.GetColTextUTF8(1));
+			const char *description = stmtEnumSubKeys.GetColTextUTF8(2);
+			if (description)
+				e->SetAttribute("description", description);
+
+			Export(stmtEnumSubKeys.GetColInt64(0), e);
+
+			key->LinkEndChild(e);
+		}
+		stmtEnumSubKeys.Reset();
+	}
+
+	TiXmlElement *Export()
+	{
+		TiXmlElement * root = new TiXmlElement("hierarchicalconfig");
+		if (!root)
+			return nullptr;
+
+		Export(0, root);
+
+		return root;
+	}
+
+	void Import(unsigned __int64 root, const TiXmlElement *key)
+	{
+	}
+
+	bool Import(const TiXmlHandle &root)
+	{
+		db.BeginTransaction();
+		for (const TiXmlElement *e = root.FirstChild("hierarchicalconfig").FirstChildElement("key").Element(); e; e=e->NextSiblingElement("key"))
+		{
+			Import(0, e);
+		}
+		db.EndTransaction();
+		return true;
 	}
 };
 
@@ -1968,6 +2050,26 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 		doc.LinkEndChild(new TiXmlDeclaration("1.0", "UTF-8", ""));
 		doc.LinkEndChild(GeneralCfg->Export());
 		doc.LinkEndChild(AssocConfig->Export());
+		HierarchicalConfig *cfg = CreateFiltersConfig();
+		TiXmlElement *e = new TiXmlElement("filters");
+		e->LinkEndChild(cfg->Export());
+		doc.LinkEndChild(e);
+		delete cfg;
+		cfg = CreateHighlightConfig();
+		e = new TiXmlElement("highlight");
+		e->LinkEndChild(cfg->Export());
+		doc.LinkEndChild(e);
+		delete cfg;
+		cfg = CreateShortcutsConfig();
+		e = new TiXmlElement("shortcuts");
+		e->LinkEndChild(cfg->Export());
+		doc.LinkEndChild(e);
+		delete cfg;
+		cfg = CreatePluginsConfig();
+		e = new TiXmlElement("pluginsconfig");
+		e->LinkEndChild(cfg->Export());
+		doc.LinkEndChild(e);
+		delete cfg;
 		ret = doc.SaveFile(utf8XML);
 	}
 	else
