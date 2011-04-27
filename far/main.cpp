@@ -63,7 +63,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cmdline.hpp"
 #include "console.hpp"
 #include "configdb.hpp"
-#include "tinyxml.hpp"
 
 #ifdef DIRECT_RT
 int DirectRT=0;
@@ -369,33 +368,8 @@ int ExportImportMain(bool Export, const wchar_t *XML, const wchar_t *ProfilePath
 	InitProfile(strProfilePath);
 	InitDb();
 
-	int size = WideCharToMultiByte(CP_UTF8,0,XML,-1,nullptr,0,nullptr,nullptr);
-	char *utf8XML = (char *)xf_malloc(size);
-	if (!utf8XML)
-		return 1;
+	bool ret = ExportImportConfig(Export, XML);
 
-	WideCharToMultiByte(CP_UTF8,0,XML,-1,utf8XML,size,nullptr,nullptr);
-
-	bool ret = false;
-
-	if (Export)
-	{
-		TiXmlDocument doc;
-		doc.LinkEndChild(new TiXmlDeclaration("1.0", "UTF-8", ""));
-		doc.LinkEndChild(GeneralCfg->Export());
-		ret = doc.SaveFile(utf8XML);
-	}
-	else
-	{
-		TiXmlDocument doc;
-		if (doc.LoadFile(utf8XML))
-		{
-			const TiXmlHandle root(&doc);
-			ret = GeneralCfg->Import(root);
-		}
-	}
-
-	xf_free(utf8XML);
 	ReleaseDb();
 
 	return ret ? 0 : 1;

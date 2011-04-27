@@ -1863,3 +1863,35 @@ void ReleaseDb()
 	delete PlHotkeyCfg;
 	delete HistoryCfg;
 }
+
+bool ExportImportConfig(bool Export, const wchar_t *XML)
+{
+	int size = WideCharToMultiByte(CP_UTF8,0,XML,-1,nullptr,0,nullptr,nullptr);
+	char *utf8XML = (char *)xf_malloc(size);
+	if (!utf8XML)
+		return false;
+
+	WideCharToMultiByte(CP_UTF8,0,XML,-1,utf8XML,size,nullptr,nullptr);
+
+	bool ret = false;
+
+	if (Export)
+	{
+		TiXmlDocument doc;
+		doc.LinkEndChild(new TiXmlDeclaration("1.0", "UTF-8", ""));
+		doc.LinkEndChild(GeneralCfg->Export());
+		ret = doc.SaveFile(utf8XML);
+	}
+	else
+	{
+		TiXmlDocument doc;
+		if (doc.LoadFile(utf8XML))
+		{
+			const TiXmlHandle root(&doc);
+			ret = GeneralCfg->Import(root);
+		}
+	}
+
+	xf_free(utf8XML);
+	return ret;
+}

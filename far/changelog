@@ -1,3 +1,7 @@
+t-rex 27.04.2011 21:16:21 +0200 - build 2005
+
+1. Перенёс db/xml зависимый код из main.cpp в configdb.cpp.
+
 t-rex 27.04.2011 20:35:54 +0200 - build 2004
 
 1. Far.exe /export <out.xml> [Custom location for Far configuration files - overrides Far.exe.ini]

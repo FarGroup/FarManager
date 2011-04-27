@@ -233,6 +233,7 @@ extern HistoryConfig *HistoryCfg;
 
 void InitDb();
 void ReleaseDb();
+bool ExportImportConfig(bool Export, const wchar_t *XML);
 
 HierarchicalConfig *CreatePluginsConfig();
 HierarchicalConfig *CreateFiltersConfig();
