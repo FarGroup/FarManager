@@ -1,0 +1,34 @@
+#include <winresrc.h>
+1 VERSIONINFO
+FILEVERSION <(VER_MAJOR)>,<(VER_MINOR)>,<(VER_PATCH)>,0
+PRODUCTVERSION <(VER_MAJOR)>,<(VER_MINOR)>,<(VER_PATCH)>,0
+FILEOS VOS_NT_WINDOWS32
+FILETYPE VFT_DLL
+#ifdef DEBUG 
+FILEFLAGS VS_FF_DEBUG
+#endif
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "04090000"
+    BEGIN
+      VALUE "FileVersion", "<(VER_MAJOR)>.<(VER_MINOR)>.<(VER_PATCH)>\0"
+      VALUE "ProductVersion", "<(VER_MAJOR)>.<(VER_MINOR)>.<(VER_PATCH)>\0"
+#ifdef x64
+      VALUE "FileDescription", "<(NAME)> x64\0"
+#else
+      VALUE "FileDescription", "<(NAME)>\0"
+#endif
+      VALUE "OriginalFilename", "<(MODULE)>.dll\0"
+#ifdef DEBUG 
+      VALUE "SpecialBuild", "Debug build.\0"
+#endif
+      VALUE "LegalCopyright", "Copyright © 2010 Far Group\0"
+      VALUE "CompanyName", "Eugene Roshal & Far Group\0"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x0409, 0x0000
+  END
+END

@@ -1,0 +1,4 @@
+LIBRARY <(MODULE)> BASE=0x66000000
+EXPORTS
+  GetHandlerProperty
+  CreateObject
