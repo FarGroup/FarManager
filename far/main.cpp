@@ -63,6 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cmdline.hpp"
 #include "console.hpp"
 #include "configdb.hpp"
+#include "tinyxml.hpp"
 
 #ifdef DIRECT_RT
 int DirectRT=0;
@@ -357,6 +358,49 @@ void InitProfile(const string& strProfilePath)
 	}
 }
 
+int ExportImportMain(bool Export, const wchar_t *XML, const wchar_t *ProfilePath)
+{
+	g_strFarINI = g_strFarModuleName+L".ini";
+	g_strFarPath = g_strFarModuleName;
+	CutToSlash(g_strFarPath,true);
+	AddEndSlash(g_strFarPath);
+	string strProfilePath = ProfilePath;
+
+	InitProfile(strProfilePath);
+	InitDb();
+
+	int size = WideCharToMultiByte(CP_UTF8,0,XML,-1,nullptr,0,nullptr,nullptr);
+	char *utf8XML = (char *)xf_malloc(size);
+	if (!utf8XML)
+		return 1;
+
+	WideCharToMultiByte(CP_UTF8,0,XML,-1,utf8XML,size,nullptr,nullptr);
+
+	bool ret = false;
+
+	if (Export)
+	{
+		TiXmlDocument doc;
+		doc.LinkEndChild(new TiXmlDeclaration("1.0", "UTF-8", ""));
+		doc.LinkEndChild(GeneralCfg->Export());
+		ret = doc.SaveFile(utf8XML);
+	}
+	else
+	{
+		TiXmlDocument doc;
+		if (doc.LoadFile(utf8XML))
+		{
+			const TiXmlHandle root(&doc);
+			ret = GeneralCfg->Import(root);
+		}
+	}
+
+	xf_free(utf8XML);
+	ReleaseDb();
+
+	return ret ? 0 : 1;
+}
+
 int _cdecl wmain(int Argc, wchar_t *Argv[])
 {
 	apiEnableLowFragmentationHeap();
@@ -376,6 +420,17 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	if(Argc==5 && !StrCmp(Argv[1], L"/admin")) // /admin {GUID} PID UsePrivileges
 	{
 		return AdminMain(Argv[2], _wtoi(Argv[3]), *Argv[4]==L'1');
+	}
+	else if (Argc==4 || Argc==3)
+	{
+		if (!StrCmpI(Argv[1], L"/export"))
+		{
+			return ExportImportMain(true, Argv[2], Argc==4 ? Argv[3] : L"");
+		}
+		else if (!StrCmpI(Argv[1], L"/import"))
+		{
+			return ExportImportMain(false, Argv[2], Argc==4 ? Argv[3] : L"");
+		}
 	}
 
 	InitCurrentDirectory();

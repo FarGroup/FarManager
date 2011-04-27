@@ -347,15 +347,15 @@ AllDirs:
 	if not exist "$(CODDIR)\" mkdir "$(CODDIR)"
 !endif
 
-"$(OUTDIR)\Far.exe": $(DEF_FILE) $(PCH_FILE) $(LINK_OBJS) $(UCD_OBJS) $(SQLITE_OBJS) $(TINYXML_OBJS) $(RES_FILE) bootstrap\Far.exe.manifest bootstrap\far.rc bootstrap\copyright.inc bootstrap\farversion.inc
+"$(OUTDIR)\Far.exe": $(DEF_FILE) $(PCH_FILE) $(LINK_OBJS) $(RES_FILE) bootstrap\Far.exe.manifest bootstrap\far.rc bootstrap\copyright.inc bootstrap\farversion.inc
 	echo linking $@
 !ifndef LINK_ULINK
 	$(LINK) @<<
-	$(LINKFLAGS) $(LINK_OBJS) $(UCD_OBJS) $(SQLITE_OBJS) $(TINYXML_OBJS) $(RES_FILE) $(LINK_LIBS)
+	$(LINKFLAGS) $(LINK_OBJS) $(RES_FILE) $(LINK_LIBS)
 <<
 !else
 	$(ULINK) +- @+<<
-	$(ULINKFLAGS) $(LINK_OBJS) $(UCD_OBJS) $(SQLITE_OBJS) $(TINYXML_OBJS)
+	$(ULINKFLAGS) $(LINK_OBJS)
 	,"$(OUTDIR)\Far.exe","$(OUTDIR)\Far.map"
 	,$(LINK_LIBS)
 	,"$(DEF_FILE)","$(RES_FILE)"

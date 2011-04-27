@@ -1,3 +1,9 @@
+t-rex 27.04.2011 20:35:54 +0200 - build 2004
+
+1. Far.exe /export <out.xml> [Custom location for Far configuration files - overrides Far.exe.ini]
+   Far.exe /import <in.xml> [Custom location for Far configuration files - overrides Far.exe.ini]
+   Пока что работает только для generalconfig.
+
 drkns 27.04.2011 15:48:21 +0200 - build 2003
 
 1. Переделана сборка ucd, sqlite и tinyxml. 

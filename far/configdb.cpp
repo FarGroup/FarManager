@@ -39,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "sqlite.h"
 #include "config.hpp"
 #include "datetime.hpp"
-#include "tinyxml/tinyxml.h"
+#include "tinyxml.hpp"
 
 GeneralConfig *GeneralCfg;
 AssociationsConfig *AssocConfig;
@@ -52,6 +52,20 @@ int IntToHex(int h)
 	if (h >= 10)
 		return 'A' + h - 10;
 	return '0' + h;
+}
+
+int HexToInt(int h)
+{
+	if (h >= 'a' && h <= 'f')
+		return h - 'a' + 10;
+
+	if (h >= 'A' && h <= 'F')
+		return h - 'A' + 10;
+
+	if (h >= '0' && h <= '9')
+		return h - '0';
+
+	return 0;
 }
 
 char *BlobToHexString(const char *Blob, int Size)
@@ -68,12 +82,43 @@ char *BlobToHexString(const char *Blob, int Size)
 
 }
 
+char *HexStringToBlob(const char *Hex, int *Size)
+{
+	*Size=0;
+	char *Blob = (char *)xf_malloc(strlen(Hex)/2+1);
+	if (!Blob)
+		return nullptr;
+
+	while (*Hex && *(Hex+1))
+	{
+		Blob[(*Size)++] = (HexToInt(*Hex)<<4) | HexToInt(*(Hex+1));
+		Hex+=2;
+		if (!*Hex)
+			break;
+		Hex++;
+	}
+
+	return Blob;
+}
+
 const char *Int64ToHexString(unsigned __int64 X)
 {
 	static char Bin[16+1];
 	for (int i=15; i>=0; i--, X>>=4)
 		Bin[i] = IntToHex(X&0xFull);
 	return Bin;
+}
+
+unsigned __int64 HexStringToInt64(const char *Hex)
+{
+	unsigned __int64 x = 0;
+	while (*Hex)
+	{
+		x <<= 4;
+		x += HexToInt(*Hex);
+		Hex++;
+	}
+	return x;
 }
 
 void GetDatabasePath(const wchar_t *FileName, string &strOut, bool Local)
@@ -226,23 +271,6 @@ public:
 
 		//enum values statement
 		db.InitStmt(stmtEnumValues, L"SELECT name, value FROM general_config WHERE key=?1;");
-
-		/*
-		{
-			TiXmlDocument doc;
-			if (doc.LoadFile("c:\\my.xml"))
-			{
-				const TiXmlHandle root(&doc);
-				Import(root);
-			}
-		}
-		{
-			TiXmlDocument doc;
-			doc.LinkEndChild(new TiXmlDeclaration("1.0", "UTF-8", ""));
-			doc.LinkEndChild(Export());
-			doc.SaveFile("c:\\config.xml");
-		}
-		*/
 	}
 
 	virtual ~GeneralConfigDb() { }
@@ -442,6 +470,7 @@ public:
 
 	bool Import(const TiXmlHandle &root)
 	{
+		BeginTransaction();
 		for (const TiXmlElement *e = root.FirstChild("generalconfig").FirstChildElement("setting").Element(); e; e=e->NextSiblingElement("setting"))
 		{
 			const char *key = e->Attribute("key");
@@ -457,7 +486,7 @@ public:
 
 			if (!strcmp(type,"qword"))
 			{
-				//BUGBUG
+				SetValue(Key, Name, HexStringToInt64(value));
 			}
 			else if (!strcmp(type,"text"))
 			{
@@ -466,13 +495,20 @@ public:
 			}
 			else if (!strcmp(type,"hex"))
 			{
-				//BUGBUG
+				int Size = 0;
+				char *Blob = HexStringToBlob(value, &Size);
+				if (Blob)
+				{
+					SetValue(Key, Name, Blob, Size);
+					xf_free(Blob);
+				}
 			}
 			else
 			{
 				continue;
 			}
 		}
+		EndTransaction();
 
 		return true;
 	}

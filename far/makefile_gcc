@@ -201,9 +201,9 @@ dirs:
 .PHONY: build
 build: $(EXEFULLNAME) $(EXEDIR)/FarEng.hlf $(EXEDIR)/FarRus.hlf $(EXEDIR)/FarHun.hlf $(EXEDIR)/File_id.diz $(EXEDIR)/Far.exe.ini $(FARINCLUDE)/farcolor.hpp $(FARINCLUDE)/farkeys.hpp $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/PluginW.pas $(FARINCLUDE)/FarColorW.pas $(FARINCLUDE)/FarKeysW.pas
 
-$(EXEFULLNAME): bootstrap/Far.exe.manifest bootstrap/far.rc bootstrap/copyright.inc bootstrap/farversion.inc $(OBJS) $(UCD_OBJS) $(SQLITE_OBJS) $(TINYXML_OBJS) $(DEF)
+$(EXEFULLNAME): bootstrap/Far.exe.manifest bootstrap/far.rc bootstrap/copyright.inc bootstrap/farversion.inc $(OBJS) $(DEF)
 	@echo linking $@
-	@$(CXX) -o $@ $(OBJS) $(UCD_OBJS) $(SQLITE_OBJS) $(TINYXML_OBJS) $(LNKFLAGS) -Xlinker -Map -Xlinker $(MAP) -Xlinker --large-address-aware
+	@$(CXX) -o $@ $(OBJS) $(LNKFLAGS) -Xlinker -Map -Xlinker $(MAP) -Xlinker --large-address-aware
 
 $(OBJDIR)/%.o: %.c
 	@echo compiling $<
@@ -295,9 +295,6 @@ endif
 clean:
 	@echo cleaning
 	@$(RM) $(OBJS)
-	@$(RM) $(UCD_OBJS)
-	@$(RM) $(SQLITE_OBJS)
-	@$(RM) $(TINYXML_OBJS)
 	@$(RM) $(OBJDIR)/headers.gch
 	@$(RM) $(EXEFULLNAME) $(MAP)
 	@$(RM) bootstrap/*.*
