@@ -33,14 +33,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 struct VersionInfo;
+class TiXmlElement;
+class TiXmlHandle;
 
 class XmlConfig {
 
 public:
 
 	virtual ~XmlConfig() {}
-	virtual bool Export(const wchar_t *filename) = 0;
-	virtual bool Import(const wchar_t *filename) = 0;
+	virtual TiXmlElement *Export() = 0;
+	virtual bool Import(const TiXmlHandle &root) = 0;
 };
 
 class GeneralConfig: public XmlConfig {

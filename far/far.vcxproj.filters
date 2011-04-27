@@ -36,6 +36,12 @@
     <Filter Include="Source Files\sqlite">
       <UniqueIdentifier>{033665e1-e02c-4d12-9e70-e716ebd8caea}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\tinyxml">
+      <UniqueIdentifier>{d651bb89-e60a-4001-ba76-e68308107194}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\tinyxml">
+      <UniqueIdentifier>{4da3f557-bcde-4502-92d0-1556a81a9104}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="elevation.cpp">
@@ -520,6 +526,18 @@
     </ClCompile>
     <ClCompile Include="plclass.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml\tinystr.cpp">
+      <Filter>Source Files\tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml\tinyxml.cpp">
+      <Filter>Source Files\tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml\tinyxmlerror.cpp">
+      <Filter>Source Files\tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml\tinyxmlparser.cpp">
+      <Filter>Source Files\tinyxml</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1041,6 +1059,12 @@
     </ClInclude>
     <ClInclude Include="farversion.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyxml\tinystr.h">
+      <Filter>Header Files\tinyxml</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyxml\tinyxml.h">
+      <Filter>Header Files\tinyxml</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

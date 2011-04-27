@@ -188,9 +188,12 @@ UCD_SRCS= \
 
 SQLITE_SRCS = sqlite.c
 
+TINYXML_SRCS = tinystr.cpp tinyxml.cpp tinyxmlerror.cpp tinyxmlparser.cpp
+
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(SRCS))) $(OBJDIR)/far.rc.o
 UCD_OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(UCD_SRCS))) $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(UCD_SRCS)))
 SQLITE_OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SQLITE_SRCS))) $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(SQLITE_SRCS)))
+TINYXML_OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(TINYXML_SRCS))) $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(TINYXML_SRCS)))
 MAP = $(patsubst %.exe,%.map,$(EXEFULLNAME))
 
 CXX = g++
@@ -230,9 +233,9 @@ dirs:
 .PHONY: build
 build: $(EXEFULLNAME) $(EXEDIR)/FarEng.hlf $(EXEDIR)/FarRus.hlf $(EXEDIR)/FarHun.hlf $(EXEDIR)/File_id.diz $(EXEDIR)/Far.exe.ini $(FARINCLUDE)/farcolor.hpp $(FARINCLUDE)/farkeys.hpp $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/PluginW.pas $(FARINCLUDE)/FarColorW.pas $(FARINCLUDE)/FarKeysW.pas
 
-$(EXEFULLNAME): bootstrap/Far.exe.manifest bootstrap/far.rc bootstrap/copyright.inc bootstrap/farversion.inc $(OBJS) $(UCD_OBJS) $(SQLITE_OBJS) $(DEF)
+$(EXEFULLNAME): bootstrap/Far.exe.manifest bootstrap/far.rc bootstrap/copyright.inc bootstrap/farversion.inc $(OBJS) $(UCD_OBJS) $(SQLITE_OBJS) $(TINYXML_OBJS) $(DEF)
 	@echo linking $@
-	@$(CXX) -o $@ $(OBJS) $(UCD_OBJS) $(SQLITE_OBJS) $(LNKFLAGS) -Xlinker -Map -Xlinker $(MAP) -Xlinker --large-address-aware
+	@$(CXX) -o $@ $(OBJS) $(UCD_OBJS) $(SQLITE_OBJS) $(TINYXML_OBJS) $(LNKFLAGS) -Xlinker -Map -Xlinker $(MAP) -Xlinker --large-address-aware
 
 $(OBJDIR)/hook_wow64.o: hook_wow64.c
 	@echo compiling $<
@@ -259,6 +262,10 @@ $(OBJDIR)/%.o: ./UCD/%.cpp
 $(OBJDIR)/%.o: ./sqlite/%.c
 	@echo compiling $<
 	@$(CC) $(CFLAGS) -c -o $@ $<
+
+$(OBJDIR)/%.o: ./tinyxml/%.cpp
+	@echo compiling $<
+	@$(CXX) $(CCFLAGS) -c -o $@ $<
 
 $(OBJDIR)/far.rc.o: bootstrap/far.rc res.hpp Far.ico
 	@echo compiling resource file
@@ -338,6 +345,7 @@ clean:
 	@$(RM) $(OBJS)
 	@$(RM) $(UCD_OBJS)
 	@$(RM) $(SQLITE_OBJS)
+	@$(RM) $(TINYXML_OBJS)
 	@$(RM) $(OBJDIR)/headers.gch
 	@$(RM) $(EXEFULLNAME) $(MAP)
 	@$(RM) bootstrap/*.*

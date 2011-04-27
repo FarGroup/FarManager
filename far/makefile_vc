@@ -276,6 +276,8 @@ UCD_OBJS=\
 
 SQLITE_OBJS="$(INTDIR)\sqlite.obj"
 
+TINYXML_OBJS="$(INTDIR)\tinystr.obj" "$(INTDIR)\tinyxml.obj" "$(INTDIR)\tinyxmlerror.obj" "$(INTDIR)\tinyxmlparser.obj"
+
 LINK_LIBS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.lib ole32.lib psapi.lib secur32.lib setupapi.lib rpcrt4.lib
 
 DEFINES=\
@@ -374,15 +376,15 @@ AllDirs:
 	if not exist "$(CODDIR)\" mkdir "$(CODDIR)"
 !endif
 
-"$(OUTDIR)\Far.exe": $(DEF_FILE) $(PCH_FILE) $(LINK_OBJS) $(UCD_OBJS) $(SQLITE_OBJS) $(RES_FILE) bootstrap\Far.exe.manifest bootstrap\far.rc bootstrap\copyright.inc bootstrap\farversion.inc
+"$(OUTDIR)\Far.exe": $(DEF_FILE) $(PCH_FILE) $(LINK_OBJS) $(UCD_OBJS) $(SQLITE_OBJS) $(TINYXML_OBJS) $(RES_FILE) bootstrap\Far.exe.manifest bootstrap\far.rc bootstrap\copyright.inc bootstrap\farversion.inc
 	echo linking $@
 !ifndef LINK_ULINK
 	$(LINK) @<<
-	$(LINKFLAGS) $(LINK_OBJS) $(UCD_OBJS) $(SQLITE_OBJS) $(RES_FILE) $(LINK_LIBS)
+	$(LINKFLAGS) $(LINK_OBJS) $(UCD_OBJS) $(SQLITE_OBJS) $(TINYXML_OBJS) $(RES_FILE) $(LINK_LIBS)
 <<
 !else
 	$(ULINK) +- @+<<
-	$(ULINKFLAGS) $(LINK_OBJS) $(UCD_OBJS) $(SQLITE_OBJS)
+	$(ULINKFLAGS) $(LINK_OBJS) $(UCD_OBJS) $(SQLITE_OBJS) $(TINYXML_OBJS)
 	,"$(OUTDIR)\Far.exe","$(OUTDIR)\Far.map"
 	,$(LINK_LIBS)
 	,"$(DEF_FILE)","$(RES_FILE)"
@@ -417,6 +419,11 @@ $(PCH_FILE): headers.cpp headers.hpp
 <<
 
 {sqlite}.c{$(INTDIR)}.obj::
+	$(CPP) @<<
+	$(CPPFLAGS) $<
+<<
+
+{tinyxml}.cpp{$(INTDIR)}.obj::
 	$(CPP) @<<
 	$(CPPFLAGS) $<
 <<

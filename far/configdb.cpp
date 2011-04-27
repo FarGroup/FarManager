@@ -39,16 +39,42 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "sqlite/sqlite.h"
 #include "config.hpp"
 #include "datetime.hpp"
-#include "tinyxml/tinystr.cpp"
-#include "tinyxml/tinyxml.cpp"
-#include "tinyxml/tinyxmlerror.cpp"
-#include "tinyxml/tinyxmlparser.cpp"
+#include "tinyxml/tinyxml.h"
 
 GeneralConfig *GeneralCfg;
 AssociationsConfig *AssocConfig;
 PluginsCacheConfig *PlCacheCfg;
 PluginsHotkeysConfig *PlHotkeyCfg;
 HistoryConfig *HistoryCfg;
+
+int IntToHex(int h)
+{
+	if (h >= 10)
+		return 'A' + h - 10;
+	return '0' + h;
+}
+
+char *BlobToHexString(const char *Blob, int Size)
+{
+	char *Hex = (char *)xf_malloc(Size*2+Size+1);
+	for (int i=0, j=0; i<Size; i++, j+=3)
+	{
+		Hex[j] = IntToHex((Blob[i]&0xF0) >> 4);
+		Hex[j+1] = IntToHex(Blob[i]&0x0F);
+		Hex[j+2] = ',';
+	}
+	Hex[Size ? Size*2+Size-1 : 0] = 0;
+	return Hex;
+
+}
+
+const char *Int64ToHexString(unsigned __int64 X)
+{
+	static char Bin[16+1];
+	for (int i=15; i>=0; i--, X>>=4)
+		Bin[i] = IntToHex(X&0xFull);
+	return Bin;
+}
 
 void GetDatabasePath(const wchar_t *FileName, string &strOut, bool Local)
 {
@@ -200,6 +226,23 @@ public:
 
 		//enum values statement
 		db.InitStmt(stmtEnumValues, L"SELECT name, value FROM general_config WHERE key=?1;");
+
+		/*
+		{
+			TiXmlDocument doc;
+			if (doc.LoadFile("c:\\my.xml"))
+			{
+				const TiXmlHandle root(&doc);
+				Import(root);
+			}
+		}
+		{
+			TiXmlDocument doc;
+			doc.LinkEndChild(new TiXmlDeclaration("1.0", "UTF-8", ""));
+			doc.LinkEndChild(Export());
+			doc.SaveFile("c:\\config.xml");
+		}
+		*/
 	}
 
 	virtual ~GeneralConfigDb() { }
@@ -352,11 +395,11 @@ public:
 		return false;
 	}
 
-	bool Export(const wchar_t *filename)
+	TiXmlElement *Export()
 	{
-		TiXmlDocument doc;
-		doc.LinkEndChild(new TiXmlDeclaration("1.0", "UTF-8", ""));
 		TiXmlElement * root = new TiXmlElement( "generalconfig");
+		if (!root)
+			return nullptr;
 
 		SQLiteStmt stmtEnumAllValues;
 		db.InitStmt(stmtEnumAllValues, L"SELECT key, name, value FROM general_config ORDER BY key, name;");
@@ -364,42 +407,42 @@ public:
 		while (stmtEnumAllValues.Step())
 		{
 			TiXmlElement *e = new TiXmlElement("setting");
+			if (!e)
+				break;
+
 			e->SetAttribute("key", stmtEnumAllValues.GetColTextUTF8(0));
 			e->SetAttribute("name", stmtEnumAllValues.GetColTextUTF8(1));
+
 			switch (stmtEnumAllValues.GetColType(2))
 			{
 				case SQLITE_INTEGER:
 					e->SetAttribute("type", "qword");
+					e->SetAttribute("value", Int64ToHexString(stmtEnumAllValues.GetColInt64(2)));
 					break;
 				case SQLITE_TEXT:
 					e->SetAttribute("type", "text");
+					e->SetAttribute("value", stmtEnumAllValues.GetColTextUTF8(2));
 					break;
 				default:
+				{
+					char *hex = BlobToHexString(stmtEnumAllValues.GetColBlob(2),stmtEnumAllValues.GetColBytes(2));
 					e->SetAttribute("type", "hex");
+					e->SetAttribute("value", hex);
+					xf_free(hex);
+				}
 			}
-			//BUGBUG move to switch and add correct conversions per type
-			e->SetAttribute("value", stmtEnumAllValues.GetColTextUTF8(2));
 
 			root->LinkEndChild(e);
 		}
 
 		stmtEnumAllValues.Reset();
-		doc.LinkEndChild(root);
-		//BUGBUG Convert filename to UTF8
-		//return doc.SaveFile(filename_in_utf8);
-		return true;
+
+		return root;
 	}
 
-	bool Import(const wchar_t *filename)
+	bool Import(const TiXmlHandle &root)
 	{
-		TiXmlDocument doc;
-		//BUGBUG Convert filename to UTF8
-		//if (!doc.LoadFile(filename_in_utf8))
-		if (1)
-			return false;
-
-		TiXmlHandle root(&doc);
-		for (TiXmlElement *e = root.FirstChild("generalconfig").FirstChildElement("setting").Element(); e; e=e->NextSiblingElement("setting"))
+		for (const TiXmlElement *e = root.FirstChild("generalconfig").FirstChildElement("setting").Element(); e; e=e->NextSiblingElement("setting"))
 		{
 			const char *key = e->Attribute("key");
 			const char *name = e->Attribute("name");
