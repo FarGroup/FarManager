@@ -2035,12 +2035,12 @@ void ReleaseDb()
 
 bool ExportImportConfig(bool Export, const wchar_t *XML)
 {
-	int size = WideCharToMultiByte(CP_UTF8,0,XML,-1,nullptr,0,nullptr,nullptr);
-	char *utf8XML = (char *)xf_malloc(size);
-	if (!utf8XML)
+	int size = WideCharToMultiByte(CP_ACP,0,XML,-1,nullptr,0,nullptr,nullptr);
+	char *ansiXML = (char *)xf_malloc(size);
+	if (!ansiXML)
 		return false;
 
-	WideCharToMultiByte(CP_UTF8,0,XML,-1,utf8XML,size,nullptr,nullptr);
+	WideCharToMultiByte(CP_ACP,0,XML,-1,ansiXML,size,nullptr,nullptr);
 
 	bool ret = false;
 
@@ -2070,12 +2070,12 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 		e->LinkEndChild(cfg->Export());
 		doc.LinkEndChild(e);
 		delete cfg;
-		ret = doc.SaveFile(utf8XML);
+		ret = doc.SaveFile(ansiXML);
 	}
 	else
 	{
 		TiXmlDocument doc;
-		if (doc.LoadFile(utf8XML))
+		if (doc.LoadFile(ansiXML))
 		{
 			const TiXmlHandle root(&doc);
 			GeneralCfg->Import(root);
@@ -2084,6 +2084,6 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 		}
 	}
 
-	xf_free(utf8XML);
+	xf_free(ansiXML);
 	return ret;
 }
