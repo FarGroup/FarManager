@@ -515,9 +515,6 @@
     <ClCompile Include="shortcuts.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sqlite\sqlite.c">
-      <Filter>Source Files\sqlite</Filter>
-    </ClCompile>
     <ClCompile Include="configdb.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -538,6 +535,18 @@
     </ClCompile>
     <ClCompile Include="tinyxml\tinyxmlparser.cpp">
       <Filter>Source Files\tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlite\sqlite3.c">
+      <Filter>Source Files\sqlite</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlite.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="nsUniversalDetectorEx.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1051,9 +1060,6 @@
     <ClInclude Include="shortcuts.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="sqlite\sqlite.h">
-      <Filter>Header Files\sqlite</Filter>
-    </ClInclude>
     <ClInclude Include="configdb.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1065,6 +1071,18 @@
     </ClInclude>
     <ClInclude Include="tinyxml\tinyxml.h">
       <Filter>Header Files\tinyxml</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlite\sqlite3.h">
+      <Filter>Header Files\sqlite</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlite.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyxml.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nsUniversalDetectorEx.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

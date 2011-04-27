@@ -187,6 +187,7 @@ LINK_OBJS = \
 	"$(INTDIR)\modal.obj" \
 	"$(INTDIR)\namelist.obj" \
 	"$(INTDIR)\network.obj" \
+	"$(INTDIR)\nsUniversalDetectorEx.obj" \
 	"$(INTDIR)\options.obj" \
 	"$(INTDIR)\palette.obj" \
 	"$(INTDIR)\panel.obj" \
@@ -217,11 +218,13 @@ LINK_OBJS = \
 	"$(INTDIR)\setattr.obj" \
 	"$(INTDIR)\setcolor.obj" \
 	"$(INTDIR)\shortcuts.obj" \
+	"$(INTDIR)\sqlite.obj" \
 	"$(INTDIR)\stddlg.obj" \
 	"$(INTDIR)\strmix.obj" \
 	"$(INTDIR)\synchro.obj" \
 	"$(INTDIR)\macrocompiler.obj" \
 	"$(INTDIR)\syslog.obj" \
+	"$(INTDIR)\tinyxml.obj" \
 	"$(INTDIR)\TaskBar.obj" \
 	"$(INTDIR)\TPreRedrawFunc.obj" \
 	"$(INTDIR)\treelist.obj" \
@@ -245,38 +248,6 @@ LINK_OBJS = \
 !endif
 !endif
 !endif
-
-UCD_OBJS=\
-	"$(INTDIR)\prmem.obj" \
-	"$(INTDIR)\CharDistribution.obj" \
-	"$(INTDIR)\JpCntx.obj" \
-	"$(INTDIR)\LangBulgarianModel.obj" \
-	"$(INTDIR)\LangCyrillicModel.obj" \
-	"$(INTDIR)\LangGreekModel.obj" \
-	"$(INTDIR)\LangHebrewModel.obj" \
-	"$(INTDIR)\LangHungarianModel.obj" \
-	"$(INTDIR)\LangThaiModel.obj" \
-	"$(INTDIR)\nsBig5Prober.obj" \
-	"$(INTDIR)\nsCharSetProber.obj" \
-	"$(INTDIR)\nsEscCharsetProber.obj" \
-	"$(INTDIR)\nsEscSM.obj" \
-	"$(INTDIR)\nsEUCJPProber.obj" \
-	"$(INTDIR)\nsEUCKRProber.obj" \
-	"$(INTDIR)\nsEUCTWProber.obj" \
-	"$(INTDIR)\nsGB2312Prober.obj" \
-	"$(INTDIR)\nsHebrewProber.obj" \
-	"$(INTDIR)\nsLatin1Prober.obj" \
-	"$(INTDIR)\nsMBCSGroupProber.obj" \
-	"$(INTDIR)\nsMBCSSM.obj" \
-	"$(INTDIR)\nsSBCharSetProber.obj" \
-	"$(INTDIR)\nsSBCSGroupProber.obj" \
-	"$(INTDIR)\nsSJISProber.obj" \
-	"$(INTDIR)\nsUniversalDetector.obj" \
-	"$(INTDIR)\nsUTF8Prober.obj"
-
-SQLITE_OBJS="$(INTDIR)\sqlite.obj"
-
-TINYXML_OBJS="$(INTDIR)\tinystr.obj" "$(INTDIR)\tinyxml.obj" "$(INTDIR)\tinyxmlerror.obj" "$(INTDIR)\tinyxmlparser.obj"
 
 LINK_LIBS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.lib ole32.lib psapi.lib secur32.lib setupapi.lib rpcrt4.lib
 
@@ -407,26 +378,6 @@ $(PCH_FILE): headers.cpp headers.hpp
 
 .asm{$(INTDIR)}.obj:
 	ml /nologo /c /Fo$@ $<
-
-{UCD}.c{$(INTDIR)}.obj::
-	$(CPP) @<<
-	$(CPPFLAGS) $<
-<<
-
-{UCD}.cpp{$(INTDIR)}.obj::
-	$(CPP) @<<
-	$(CPPFLAGS) $<
-<<
-
-{sqlite}.c{$(INTDIR)}.obj::
-	$(CPP) @<<
-	$(CPPFLAGS) $<
-<<
-
-{tinyxml}.cpp{$(INTDIR)}.obj::
-	$(CPP) @<<
-	$(CPPFLAGS) $<
-<<
 
 $(RES_FILE): bootstrap\far.rc res.hpp Far.ico
 	echo compiling resource file

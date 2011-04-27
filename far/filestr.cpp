@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "filestr.hpp"
-#include "nsUniversalDetectorEx.h"
+#include "nsUniversalDetectorEx.hpp"
 
 #define DELTA 1024
 
