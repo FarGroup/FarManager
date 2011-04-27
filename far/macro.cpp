@@ -2453,17 +2453,18 @@ static int __cdecl CompareItems(const MenuItemEx **el1, const MenuItemEx **el2, 
 
 //S=Menu.Show(Items[,Title[,Flags[,FindOrFilter[,X[,Y]]]]])
 //Flags:
-//0x001 - возвращаемый результат - индекс или строка
-//0x002 - разрешена отметка нескольких пунктов
-//0x004 - отсортировать (с учетом регистра)
-//0x008 - убирать дублирующиеся пункты
-//0x010 - автоматически назначать хоткеи |= VMENU_AUTOHIGHLIGHT
-//0x020 - FindOrFilter - найти или отфильтровать
-//0x040 - автоматическая нумерация строк
-//0x080 - BoxType
-//0x100 - BoxType
-//0x200 - BoxType
-//0x400 -
+//0x001 - BoxType
+//0x002 - BoxType
+//0x004 - BoxType
+//0x008 - возвращаемый результат - индекс или строка
+//0x010 - разрешена отметка нескольких пунктов
+//0x020 - отсортировать (с учетом регистра)
+//0x040 - убирать дублирующиеся пункты
+//0x080 - автоматически назначать хоткеи |= VMENU_AUTOHIGHLIGHT
+//0x100 - FindOrFilter - найти или отфильтровать
+//0x200 - автоматическая нумерация строк
+//0x400 - однократное выполнение цикла меню
+//0x800 -
 static bool menushowFunc(const TMacroFunction*)
 {
 	TVar VY; VMStack.Pop(VY);
@@ -2475,11 +2476,12 @@ static bool menushowFunc(const TMacroFunction*)
 	string strBottom;
 	TVar Items; VMStack.Pop(Items);
 	string strItems = Items.toString();
-	strItems.Append(L"\r\n");
+	ReplaceStrings(strItems,L"\r\n",L"\n");
+	strItems.Append(L"\n");
 	TVar Result = -1;
 
-	int BoxType = (Flags & 0x380)?((Flags & 0x380) >> 7)-1:3;
-	bool bAutoNumbering = (Flags & 0x40)?true:false;
+	int BoxType = (Flags & 0x7)?(Flags & 0x7)-1:3;
+	bool bAutoNumbering = (Flags & 0x200)?true:false;
 	int nLeftShift=bAutoNumbering?9:0;
 	int X = -1;
 	int Y = -1;
@@ -2494,22 +2496,21 @@ static bool menushowFunc(const TMacroFunction*)
 	if (Title.isUnknown())
 		Title=L"";
 
-	bool MultiSelect = (Flags & 0x002)?true:false;
+	bool MultiSelect = (Flags & 0x010)?true:false;
 
-	if (Flags & 0x010)
+	if (Flags & 0x080)
 		MenuFlags |= VMENU_AUTOHIGHLIGHT;
 
 	int SelectedPos=0;
 	int LineCount=0;
-	size_t PosCRLF;
 	size_t CurrentPos=0;
-	bool CRLFFound=strTitle.Pos(PosCRLF, L"\n");
+	ReplaceStrings(strTitle,L"\r\n",L"\n");
+	size_t PosCRLF;
+	bool CRFound=strTitle.Pos(PosCRLF, L"\n");
 
-	if(CRLFFound)
+	if(CRFound)
 	{
 		strBottom=strTitle.SubStr(PosCRLF+1);
-		if (strTitle.IsSubStrAt(PosCRLF-1, L"\r"))
-			PosCRLF--;
 		strTitle=strTitle.SubStr(0,PosCRLF);
 	}
 	VMenu Menu(strTitle.CPtr(),nullptr,0,ScrY-4);
@@ -2518,17 +2519,11 @@ static bool menushowFunc(const TMacroFunction*)
 	Menu.SetPosition(X,Y,0,0);
 	Menu.SetBoxType(BoxType);
 
-	CRLFFound=strItems.Pos(PosCRLF, L"\n");
-	while(CRLFFound)
+	CRFound=strItems.Pos(PosCRLF, L"\n");
+	while(CRFound)
 	{
 		MenuItemEx NewItem;
 		NewItem.Clear();
- 		int	Shift=1;
-		if (strItems.IsSubStrAt(PosCRLF-1, L"\r"))
-		{
- 			PosCRLF--;
- 			Shift++;
- 		}
 
 		NewItem.strName=strItems.SubStr(CurrentPos,PosCRLF-CurrentPos);
 		wchar_t *CurrentChar=(wchar_t *)NewItem.strName.CPtr();
@@ -2570,19 +2565,19 @@ static bool menushowFunc(const TMacroFunction*)
 			NewItem.strName.Format(L"%6d - %s", LineCount, NewItem.strName.CPtr());
 		}
 		Menu.AddItem(&NewItem);
-		CurrentPos=PosCRLF+Shift;
-		CRLFFound=strItems.Pos(PosCRLF, L"\n",CurrentPos+1);
+		CurrentPos=PosCRLF+1;
+		CRFound=strItems.Pos(PosCRLF, L"\n",CurrentPos+1);
 	}
 
-	if (Flags & 0x004)
+	if (Flags & 0x020)
 		Menu.SortItems(reinterpret_cast<TMENUITEMEXCMPFUNC>(CompareItems));
 
-	if (Flags & 0x008)
+	if (Flags & 0x040)
 		Menu.Pack();
 
 	if (!VFindOrFilter.isUnknown())
 	{
-		if (Flags & 0x020)
+		if (Flags & 0x100)
 		{
 			Menu.SetFilterEnabled(true);
 			Menu.SetFilterString(VFindOrFilter.toString());
@@ -2605,11 +2600,12 @@ static bool menushowFunc(const TMacroFunction*)
 	}
 
 	Menu.Show();
-
+	int PrevSelectedPos=Menu.GetSelectPos();
+	DWORD Key=0;
 	while (!Menu.Done() && !CloseFARMenu)
 	{
 		SelectedPos=Menu.GetSelectPos();
-		DWORD Key=Menu.ReadInput();
+		Key=Menu.ReadInput();
 		switch (Key)
 		{
 			case KEY_NUMPAD0:
@@ -2636,7 +2632,17 @@ static bool menushowFunc(const TMacroFunction*)
 				Menu.ProcessInput();
 				break;
 		}
+
+		if ((Flags & 0x400) && (PrevSelectedPos!=SelectedPos))
+		{
+			SelectedPos=Menu.GetSelectPos();
+			break;
+		}
+
+		PrevSelectedPos=SelectedPos;
 	}
+
+	wchar_t temp[65];
 
 	if (Menu.Modal::GetExitCode() >= 0)
 	{
@@ -2648,22 +2654,45 @@ static bool menushowFunc(const TMacroFunction*)
 			{
 				if (Menu.GetCheck(i))
 				{
-					Result+=(*Menu.GetItemPtr(i)).strName.CPtr()+nLeftShift;
-					Result+=L"\r\n";
+					if (Flags & 0x8)
+					{
+						_i64tow(i+1,temp,10);
+						Result+=temp;
+					}
+					else
+						Result+=(*Menu.GetItemPtr(i)).strName.CPtr()+nLeftShift;
+					Result+=L"\n";
 				}
 			}
 			if(Result==L"")
 			{
-				Result=(*Menu.GetItemPtr(SelectedPos)).strName.CPtr()+nLeftShift;
+				if (Flags & 0x8)
+				{
+					_i64tow(SelectedPos+1,temp,10);
+					Result=temp;
+				}
+				else
+					Result=(*Menu.GetItemPtr(SelectedPos)).strName.CPtr()+nLeftShift;
 			}
 		}
 		else
-			if(!(Flags & 0x1))
+			if(!(Flags & 0x8))
 				Result=(*Menu.GetItemPtr(SelectedPos)).strName.CPtr()+nLeftShift;
 			else
 				Result=SelectedPos+1;
+		Menu.Hide();
 	}
-	Menu.Hide();
+	else
+	{
+		Menu.Hide();
+		Result=0;
+		if (Flags & 0x400)
+		{
+			Result=SelectedPos+1;
+			if ((Key == KEY_ESC) || (Key == KEY_F10) || (Key == KEY_BREAK))
+				Result=-Result;
+		}
+	}
 
 	VMStack.Push(Result);
 	return true;
@@ -2719,6 +2748,7 @@ static bool panelselectFunc(const TMacroFunction*)
 		{
 			string strStr=ValItems.s();
 			ReplaceStrings(strStr,L"\r\n",L";");
+			ReplaceStrings(strStr,L"\n",L";");
 			ValItems=strStr.CPtr();
 		}
 
