@@ -168,6 +168,8 @@ bool Plugin::Load()
 
 	bool bUnloaded = false;
 
+	FuncFlags.Set(PICFF_LOADED);
+
 	if (!CheckMinFarVersion(bUnloaded) || !SetStartupInfo(bUnloaded))
 	{
 		if (!bUnloaded)
@@ -181,7 +183,6 @@ bool Plugin::Load()
 		return false;
 	}
 
-	FuncFlags.Set(PICFF_LOADED);
 	SaveToCache();
 	return true;
 }
