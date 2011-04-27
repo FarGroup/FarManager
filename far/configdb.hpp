@@ -100,7 +100,7 @@ public:
 	virtual bool Flush() = 0;
 };
 
-class AssociationsConfig {
+class AssociationsConfig: public XmlConfig {
 
 public:
 

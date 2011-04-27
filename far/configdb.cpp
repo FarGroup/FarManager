@@ -881,6 +881,93 @@ public:
 	{
 		return stmtDelType.Bind(id).StepAndReset();
 	}
+
+	TiXmlElement *Export()
+	{
+		TiXmlElement * root = new TiXmlElement("associations");
+		if (!root)
+			return nullptr;
+
+		SQLiteStmt stmtEnumAllTypes;
+		db.InitStmt(stmtEnumAllTypes, L"SELECT id, mask, description FROM filetypes ORDER BY weight;");
+		SQLiteStmt stmtEnumCommandsPerFiletype;
+		db.InitStmt(stmtEnumCommandsPerFiletype, L"SELECT type, enabled, command FROM commands WHERE ft_id=?1 ORDER BY type;");
+
+		while (stmtEnumAllTypes.Step())
+		{
+			TiXmlElement *e = new TiXmlElement("filetype");
+			if (!e)
+				break;
+
+			e->SetAttribute("mask", stmtEnumAllTypes.GetColTextUTF8(1));
+			e->SetAttribute("description", stmtEnumAllTypes.GetColTextUTF8(2));
+
+			stmtEnumCommandsPerFiletype.Bind(stmtEnumAllTypes.GetColInt64(0));
+			while (stmtEnumCommandsPerFiletype.Step())
+			{
+				TiXmlElement *se = new TiXmlElement("command");
+				if (!se)
+					break;
+
+				se->SetAttribute("type", stmtEnumCommandsPerFiletype.GetColInt(0));
+				se->SetAttribute("enabled", stmtEnumCommandsPerFiletype.GetColInt(1));
+				se->SetAttribute("command", stmtEnumCommandsPerFiletype.GetColTextUTF8(2));
+				e->LinkEndChild(se);
+			}
+			stmtEnumCommandsPerFiletype.Reset();
+
+			root->LinkEndChild(e);
+		}
+
+		stmtEnumAllTypes.Reset();
+
+		return root;
+	}
+
+	bool Import(const TiXmlHandle &root)
+	{
+		const TiXmlHandle base = root.FirstChild("associations");
+		if (!base.ToElement())
+			return false;
+
+		BeginTransaction();
+		db.Exec("DELETE FROM filetypes;"); //delete all before importing
+		unsigned __int64 id = 0;
+		for (const TiXmlElement *e = base.FirstChildElement("filetype").Element(); e; e=e->NextSiblingElement("filetype"))
+		{
+			const char *mask = e->Attribute("mask");
+			const char *description = e->Attribute("description");
+
+			if (!mask)
+				continue;
+
+			string Mask(mask, CP_UTF8);
+			string Description(description, CP_UTF8);
+
+			id = AddType(id, Mask, Description);
+			if (!id)
+				continue;
+
+			for (const TiXmlElement *se = e->FirstChildElement("command"); se; se=se->NextSiblingElement("command"))
+			{
+				const char *command = se->Attribute("command");
+				int type=0;
+				const char *stype = se->Attribute("type", &type);
+				int enabled=0;
+				const char *senabled = se->Attribute("enabled", &enabled);
+
+				if (!command || !stype || !senabled)
+					continue;
+
+				string Command(command, CP_UTF8);
+				SetCommand(id, type, Command, enabled ? true : false);
+			}
+
+		}
+		EndTransaction();
+
+		return true;
+	}
 };
 
 class PluginsCacheConfigDb: public PluginsCacheConfig {
@@ -1880,6 +1967,7 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 		TiXmlDocument doc;
 		doc.LinkEndChild(new TiXmlDeclaration("1.0", "UTF-8", ""));
 		doc.LinkEndChild(GeneralCfg->Export());
+		doc.LinkEndChild(AssocConfig->Export());
 		ret = doc.SaveFile(utf8XML);
 	}
 	else
@@ -1888,7 +1976,9 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 		if (doc.LoadFile(utf8XML))
 		{
 			const TiXmlHandle root(&doc);
-			ret = GeneralCfg->Import(root);
+			GeneralCfg->Import(root);
+			AssocConfig->Import(root);
+			ret = true;
 		}
 	}
 
