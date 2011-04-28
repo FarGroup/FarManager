@@ -1608,7 +1608,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
 				if (Move) // при перемещении "тотал" так же скидывается для "того же диска"
 				{
-					if (!UseFilter && CheckDisksProps(strSrcDir,strNameTmp,CHECKEDPROPS_ISSAMEDISK))
+					if (CheckDisksProps(strSrcDir,strNameTmp,CHECKEDPROPS_ISSAMEDISK))
 						ShowTotalCopySize=false;
 					if (CDP.SelCount==1 && CDP.FolderPresent && CheckUpdateAnotherPanel(SrcPanel,strSelName))
 					{
@@ -2125,7 +2125,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 				{
 					int AttemptToMove=FALSE;
 
-					if ((Flags&FCOPY_MOVE) && (!UseFilter && SameDisk) && !(SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+					if ((Flags&FCOPY_MOVE) && SameDisk && !(SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 					{
 						AttemptToMove=TRUE;
 						int Ret=COPY_SUCCESS;
