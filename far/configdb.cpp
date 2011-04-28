@@ -1575,6 +1575,95 @@ public:
 	{
 		return stmtDelHotkey.Bind(PluginKey).Bind(MenuGuid).Bind((int)HotKeyType).StepAndReset();
 	}
+
+	TiXmlElement *Export()
+	{
+		TiXmlElement * root = new TiXmlElement("pluginhotkeys");
+		if (!root)
+			return nullptr;
+
+		SQLiteStmt stmtEnumAllPluginKeys;
+		db.InitStmt(stmtEnumAllPluginKeys, L"SELECT pluginkey FROM pluginhotkeys GROUP BY pluginkey;");
+		SQLiteStmt stmtEnumAllHotkeysPerKey;
+		db.InitStmt(stmtEnumAllHotkeysPerKey, L"SELECT menuguid, type, hotkey FROM pluginhotkeys WHERE pluginkey=$1;");
+
+		while (stmtEnumAllPluginKeys.Step())
+		{
+			TiXmlElement *p = new TiXmlElement("plugin");
+			if (!p)
+				break;
+
+			string Key = stmtEnumAllPluginKeys.GetColText(0);
+			p->SetAttribute("key", stmtEnumAllPluginKeys.GetColTextUTF8(0));
+
+			stmtEnumAllHotkeysPerKey.Bind(Key);
+			while (stmtEnumAllHotkeysPerKey.Step())
+			{
+				TiXmlElement *e = new TiXmlElement("hotkey");
+				if (!e)
+					break;
+
+				const char *type;
+				switch (stmtEnumAllHotkeysPerKey.GetColInt(1))
+				{
+					case DRIVE_MENU: type = "drive"; break;
+					case CONFIG_MENU: type = "config"; break;
+					default: type = "plugins";
+				}
+				e->SetAttribute("menu", type);
+				e->SetAttribute("guid", stmtEnumAllHotkeysPerKey.GetColTextUTF8(0));
+				const char *hotkey = stmtEnumAllHotkeysPerKey.GetColTextUTF8(2);
+				e->SetAttribute("hotkey", hotkey ? hotkey : "");
+				p->LinkEndChild(e);
+			}
+			stmtEnumAllHotkeysPerKey.Reset();
+
+			root->LinkEndChild(p);
+		}
+
+		stmtEnumAllPluginKeys.Reset();
+
+		return root;
+	}
+
+	bool Import(const TiXmlHandle &root)
+	{
+		db.BeginTransaction();
+		for (const TiXmlElement *e = root.FirstChild("pluginhotkeys").FirstChildElement("plugin").Element(); e; e=e->NextSiblingElement("plugin"))
+		{
+			const char *key = e->Attribute("key");
+
+			if (!key)
+				continue;
+
+			string Key(key, CP_UTF8);
+
+			for (const TiXmlElement *se = e->FirstChildElement("hotkey"); se; se=se->NextSiblingElement("hotkey"))
+			{
+				const char *stype = se->Attribute("menu");
+				const char *guid = se->Attribute("guid");
+				const char *hotkey = se->Attribute("hotkey");
+
+				if (!guid || !stype)
+					continue;
+
+				string Guid(guid, CP_UTF8);
+				string Hotkey(hotkey, CP_UTF8);
+				HotKeyTypeEnum type;
+				if (!strcmp(stype,"drive"))
+					type = DRIVE_MENU;
+				else if (!strcmp(stype,"config"))
+					type = CONFIG_MENU;
+				else
+					type = PLUGINS_MENU;
+				SetHotkey(Key, Guid, type, Hotkey);
+			}
+
+		}
+		db.EndTransaction();
+
+		return true;
+	}
 };
 
 class HistoryConfigDb: public HistoryConfig {
@@ -2065,6 +2154,8 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 
 		root->LinkEndChild(AssocConfig->Export());
 
+		root->LinkEndChild(PlHotkeyCfg->Export());
+
 		HierarchicalConfig *cfg = CreateFiltersConfig();
 		TiXmlElement *e = new TiXmlElement("filters");
 		e->LinkEndChild(cfg->Export());
@@ -2112,6 +2203,8 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 
 				AssocConfig->Import(root);
 
+				PlHotkeyCfg->Import(root);
+
 				HierarchicalConfig *cfg = CreateFiltersConfig();
 				cfg->Import(root.FirstChildElement("filters"));
 				delete cfg;
@@ -2139,4 +2232,11 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 
 	fclose(XmlFile);
 	return ret;
+}
+
+void ClearPluginsCache()
+{
+	PluginsCacheConfigDb *p = new PluginsCacheConfigDb();
+	p->DiscardCache();
+	delete p;
 }

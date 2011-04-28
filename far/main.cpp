@@ -306,8 +306,15 @@ int MainProcessSEH(string& strEditName,string& strViewName,string& DestName1,str
 	return Result;
 }
 
-void InitProfile(const string& strProfilePath)
+void InitProfile(string &strProfilePath)
 {
+	if (!strProfilePath.IsEmpty())
+	{
+		apiExpandEnvironmentStrings(strProfilePath, strProfilePath);
+		Unquote(strProfilePath);
+		ConvertNameToFull(strProfilePath,strProfilePath);
+	}
+
 	if (strProfilePath.IsEmpty())
 	{
 		int UseSystemProfiles = GetPrivateProfileInt(L"General", L"UseSystemProfiles", 1, g_strFarINI);
@@ -387,12 +394,18 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	g_strFarINI = g_strFarModuleName+L".ini";
 	g_strFarPath = g_strFarModuleName;
 	CutToSlash(g_strFarPath,true);
+	SetEnvironmentVariable(L"FARHOME", g_strFarPath);
 	AddEndSlash(g_strFarPath);
-
 
 	Opt.IsUserAdmin=IsUserAdmin();
 
-	if(Argc==5 && !StrCmp(Argv[1], L"/admin")) // /admin {GUID} PID UsePrivileges
+	// don't inherit from parent process in any case
+	// for OEM plugins only!
+	SetEnvironmentVariable(L"FARUSER", nullptr);
+
+	SetEnvironmentVariable(L"FARADMINMODE", Opt.IsUserAdmin?L"1":nullptr);
+
+	if (Argc==5 && !StrCmp(Argv[1], L"/admin")) // /admin {GUID} PID UsePrivileges
 	{
 		return AdminMain(Argv[2], _wtoi(Argv[3]), *Argv[4]==L'1');
 	}
@@ -406,6 +419,13 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 		{
 			return ExportImportMain(false, Argv[2], Argc==4 ? Argv[3] : L"");
 		}
+	}
+	else if ((Argc==2 || Argc==3) && !StrCmpI(Argv[1], L"/clearcache"))
+	{
+		string strProfilePath = Argc==3 ? Argv[2] : L"";
+		InitProfile(strProfilePath);
+		ClearPluginsCache();
+		return 0;
 	}
 
 	_OT(SysLog(L"[[[[[[[[New Session of FAR]]]]]]]]]"));
@@ -443,16 +463,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	Opt.LoadPlug.MainPluginDir=TRUE;
 	Opt.LoadPlug.PluginsPersonal=TRUE;
 	Opt.LoadPlug.PluginsCacheOnly=FALSE;
-
-	string strEnvPath(g_strFarPath);
-	DeleteEndSlash(strEnvPath);
-	SetEnvironmentVariable(L"FARHOME", strEnvPath);
-
-	// don't inherit from parent process in any case
-	// for OEM plugins only!
-	SetEnvironmentVariable(L"FARUSER", nullptr);
-
-	SetEnvironmentVariable(L"FARADMINMODE", Opt.IsUserAdmin?L"1":nullptr);
 
 	// макросы не дисаблим
 	Opt.Macro.DisableMacro=0;
@@ -552,9 +562,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
 					if (I+1<Argc)
 					{
-						apiExpandEnvironmentStrings(Argv[I+1], strProfilePath);
-						Unquote(strProfilePath);
-						ConvertNameToFull(strProfilePath,strProfilePath);
+						strProfilePath = Argv[I+1];
 						I++;
 					}
 					break;

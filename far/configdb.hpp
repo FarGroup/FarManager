@@ -162,7 +162,7 @@ public:
 	virtual bool IsCacheEmpty() = 0;
 };
 
-class PluginsHotkeysConfig {
+class PluginsHotkeysConfig: public XmlConfig {
 
 public:
 
@@ -225,6 +225,7 @@ extern HistoryConfig *HistoryCfg;
 void InitDb();
 void ReleaseDb();
 bool ExportImportConfig(bool Export, const wchar_t *XML);
+void ClearPluginsCache();
 
 HierarchicalConfig *CreatePluginsConfig();
 HierarchicalConfig *CreateFiltersConfig();

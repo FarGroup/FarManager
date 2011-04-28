@@ -1,3 +1,10 @@
+t-rex 29.04.2011 00:42:27 +0200 - build 2014
+
+1. Экспорт/импорт pluginhotkeys. В общем осталась тока history, но пока думаю что для неё это и не надо.
+
+2. Far.exe /clearcache [Custom location for Far configuration files - overrides Far.exe.ini]
+   Очищает кэш плагинов.
+
 t-rex 28.04.2011 21:44:56 +0200 - build 2013
 
 1. Забыл ненужный код.
