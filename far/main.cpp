@@ -359,10 +359,6 @@ void InitProfile(const string& strProfilePath)
 
 int ExportImportMain(bool Export, const wchar_t *XML, const wchar_t *ProfilePath)
 {
-	g_strFarINI = g_strFarModuleName+L".ini";
-	g_strFarPath = g_strFarModuleName;
-	CutToSlash(g_strFarPath,true);
-	AddEndSlash(g_strFarPath);
 	string strProfilePath = ProfilePath;
 
 	InitProfile(strProfilePath);
@@ -382,12 +378,17 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	apiEnableLowFragmentationHeap();
 	InitCurrentDirectory();
 
-
 	if (apiGetModuleFileName(nullptr, g_strFarModuleName))
 	{
 		ConvertNameToLong(g_strFarModuleName, g_strFarModuleName);
 		PrepareDiskPath(g_strFarModuleName);
 	}
+
+	g_strFarINI = g_strFarModuleName+L".ini";
+	g_strFarPath = g_strFarModuleName;
+	CutToSlash(g_strFarPath,true);
+	AddEndSlash(g_strFarPath);
+
 
 	Opt.IsUserAdmin=IsUserAdmin();
 
@@ -443,11 +444,9 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	Opt.LoadPlug.PluginsPersonal=TRUE;
 	Opt.LoadPlug.PluginsCacheOnly=FALSE;
 
-	g_strFarINI = g_strFarModuleName+L".ini";
-	g_strFarPath=g_strFarModuleName;
-	CutToSlash(g_strFarPath,true);
-	SetEnvironmentVariable(L"FARHOME", g_strFarPath);
-	AddEndSlash(g_strFarPath);
+	string strEnvPath(g_strFarPath);
+	DeleteEndSlash(strEnvPath);
+	SetEnvironmentVariable(L"FARHOME", strEnvPath);
 
 	// don't inherit from parent process in any case
 	// for OEM plugins only!
