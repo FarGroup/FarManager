@@ -377,11 +377,11 @@ int ExportImportMain(bool Export, const wchar_t *XML, const wchar_t *ProfilePath
 
 int _cdecl wmain(int Argc, wchar_t *Argv[])
 {
-	apiEnableLowFragmentationHeap();
-
 	std::set_new_handler(nullptr);
-
 	GetVersionEx(&WinVer);
+	apiEnableLowFragmentationHeap();
+	InitCurrentDirectory();
+
 
 	if (apiGetModuleFileName(nullptr, g_strFarModuleName))
 	{
@@ -407,7 +407,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 		}
 	}
 
-	InitCurrentDirectory();
 	_OT(SysLog(L"[[[[[[[[New Session of FAR]]]]]]]]]"));
 	string strEditName;
 	string strViewName;
