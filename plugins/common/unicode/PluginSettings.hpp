@@ -31,6 +31,18 @@ public:
 		return (int)SettingsControl(handle,SCTL_SUBKEY,0,&value);
 	}
 
+	bool DeleteSubKey(int Root)
+	{
+		FarSettingsValue value={Root,nullptr};
+		return (int)SettingsControl(handle,SCTL_DELETE,0,&value) ? true : false;
+	}
+
+	bool DeleteValue(int Root, const wchar_t *Name)
+	{
+		FarSettingsValue value={Root,Name};
+		return (int)SettingsControl(handle,SCTL_DELETE,0,&value) ? true : false;
+	}
+
 	const wchar_t *Get(int Root, const wchar_t *Name, const wchar_t *Default)
 	{
 		FarSettingsItem item={Root,Name,FST_STRING};
