@@ -212,19 +212,30 @@ void FileList::SetFilePanelModes()
 
 void FileList::ReadPanelModes()
 {
-	PanelModeConfig *PanelModeCfg = CreatePanelModeConfig();
+	HierarchicalConfig *PanelModeCfg = CreatePanelModeConfig();
 
 	for (int I=0; I<10; I++)
 	{
-		string strColumnTitles, strColumnWidths;
-		string strStatusColumnTitles, strStatusColumnWidths;
-		DWORD Flags=0;
+		FormatString strMode;
+		strMode<<I;
 
-		if (!PanelModeCfg->GetMode(I, strColumnTitles, strColumnWidths, strStatusColumnTitles, strStatusColumnWidths, &Flags))
+		unsigned __int64 id = PanelModeCfg->GetKeyID(0, strMode);
+		if (!id)
 			continue;
+
+		string strColumnTitles, strColumnWidths;
+		PanelModeCfg->GetValue(id, L"ColumnTitles", strColumnTitles);
+		PanelModeCfg->GetValue(id, L"ColumnWidths", strColumnWidths);
 
 		if (strColumnTitles.IsEmpty() || strColumnWidths.IsEmpty())
 			continue;
+
+		string strStatusColumnTitles, strStatusColumnWidths;
+		PanelModeCfg->GetValue(id, L"StatusColumnTitles", strStatusColumnTitles);
+		PanelModeCfg->GetValue(id, L"StatusColumnWidths", strStatusColumnWidths);
+
+		unsigned __int64 Flags=0;
+		PanelModeCfg->GetValue(id, L"Flags", &Flags);
 
 		PanelViewSettings NewSettings=ViewSettingsArray[VIEW_0+I];
 
@@ -236,7 +247,7 @@ void FileList::ReadPanelModes()
 			TextToViewSettings(strStatusColumnTitles,strStatusColumnWidths,NewSettings.StatusColumnType,
 			                   NewSettings.StatusColumnWidth,NewSettings.StatusColumnWidthType,NewSettings.StatusColumnCount);
 
-		NewSettings.Flags = Flags;
+		NewSettings.Flags = (DWORD)Flags;
 
 		ViewSettingsArray[VIEW_0+I] = NewSettings;
 	}
@@ -247,7 +258,7 @@ void FileList::ReadPanelModes()
 
 void FileList::SavePanelModes()
 {
-	PanelModeConfig *PanelModeCfg = CreatePanelModeConfig();
+	HierarchicalConfig *PanelModeCfg = CreatePanelModeConfig();
 
 	for (int I=0; I<10; I++)
 	{
@@ -260,7 +271,18 @@ void FileList::SavePanelModes()
 		ViewSettingsToText(NewSettings.StatusColumnType,NewSettings.StatusColumnWidth,NewSettings.StatusColumnWidthType,
 		                   NewSettings.StatusColumnCount,strStatusColumnTitles,strStatusColumnWidths);
 
-		PanelModeCfg->SetMode(I, strColumnTitles, strColumnWidths, strStatusColumnTitles, strStatusColumnWidths, NewSettings.Flags);
+		FormatString strMode;
+		strMode<<I;
+
+		unsigned __int64 id = PanelModeCfg->CreateKey(0, strMode);
+		if (!id)
+			continue;
+
+		PanelModeCfg->SetValue(id, L"ColumnTitles", strColumnTitles);
+		PanelModeCfg->SetValue(id, L"ColumnWidths", strColumnWidths);
+		PanelModeCfg->SetValue(id, L"StatusColumnTitles", strStatusColumnTitles);
+		PanelModeCfg->SetValue(id, L"StatusColumnWidths", strStatusColumnWidths);
+		PanelModeCfg->SetValue(id, L"Flags", NewSettings.Flags);
 	}
 
 	delete PanelModeCfg;

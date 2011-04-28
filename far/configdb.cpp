@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "datetime.hpp"
 #include "tinyxml.hpp"
+#include "farversion.hpp"
 
 GeneralConfig *GeneralCfg;
 AssociationsConfig *AssocConfig;
@@ -112,6 +113,26 @@ const char *Int64ToHexString(unsigned __int64 X)
 unsigned __int64 HexStringToInt64(const char *Hex)
 {
 	unsigned __int64 x = 0;
+	while (*Hex)
+	{
+		x <<= 4;
+		x += HexToInt(*Hex);
+		Hex++;
+	}
+	return x;
+}
+
+const char *IntToHexString(unsigned int X)
+{
+	static char Bin[8+1];
+	for (int i=7; i>=0; i--, X>>=4)
+		Bin[i] = IntToHex(X&0xF);
+	return Bin;
+}
+
+unsigned int HexStringToInt(const char *Hex)
+{
+	unsigned int x = 0;
 	while (*Hex)
 	{
 		x <<= 4;
@@ -776,6 +797,61 @@ public:
 
 	void Import(unsigned __int64 root, const TiXmlElement *key)
 	{
+		unsigned __int64 id;
+		{
+			const char *name = key->Attribute("name");
+			const char *description = key->Attribute("description");
+			if (!name)
+				return;
+
+			string Name(name, CP_UTF8);
+			string Description(description, CP_UTF8);
+			id = CreateKey(root, Name, description ? Description.CPtr() : nullptr);
+			if (!id)
+				return;
+		}
+
+		for (const TiXmlElement *e = key->FirstChildElement("value"); e; e=e->NextSiblingElement("value"))
+		{
+			const char *name = e->Attribute("name");
+			const char *type = e->Attribute("type");
+			const char *value = e->Attribute("value");
+
+			if (!name || !type || !value)
+				continue;
+
+			string Name(name, CP_UTF8);
+
+			if (!strcmp(type,"qword"))
+			{
+				SetValue(id, Name, HexStringToInt64(value));
+			}
+			else if (!strcmp(type,"text"))
+			{
+				string Value(value, CP_UTF8);
+				SetValue(id, Name, Value);
+			}
+			else if (!strcmp(type,"hex"))
+			{
+				int Size = 0;
+				char *Blob = HexStringToBlob(value, &Size);
+				if (Blob)
+				{
+					SetValue(id, Name, Blob, Size);
+					xf_free(Blob);
+				}
+			}
+			else
+			{
+				continue;
+			}
+		}
+
+		for (const TiXmlElement *e = key->FirstChildElement("key"); e; e=e->NextSiblingElement("key"))
+		{
+			Import(id, e);
+		}
+
 	}
 
 	bool Import(const TiXmlHandle &root)
@@ -1521,53 +1597,6 @@ public:
 	}
 };
 
-class PanelModeConfigDb: public PanelModeConfig {
-	SQLiteDb   db;
-	SQLiteStmt stmtGetMode;
-	SQLiteStmt stmtSetMode;
-
-public:
-
-	PanelModeConfigDb()
-	{
-		if (!db.Open(L"panelmodes.db"))
-			return;
-
-		//schema
-		db.Exec("CREATE TABLE IF NOT EXISTS panelmodes(mode INTEGER NOT NULL PRIMARY KEY, columntitles TEXT NOT NULL, columnwidths TEXT NOT NULL, statuscolumntitles TEXT NOT NULL, statuscolumnwidths TEXT NOT NULL, flags INTEGER NOT NULL);");
-
-		//get mode statement
-		db.InitStmt(stmtGetMode, L"SELECT columntitles, columnwidths, statuscolumntitles, statuscolumnwidths, flags FROM panelmodes WHERE mode=?1;");
-
-		//set mode statement
-		db.InitStmt(stmtSetMode, L"INSERT OR REPLACE INTO panelmodes VALUES (?1,?2,?3,?4,?5,?6);");
-
-		db.BeginTransaction();
-	}
-
-	virtual ~PanelModeConfigDb() { db.EndTransaction(); }
-
-	bool GetMode(int mode, string &strColumnTitles, string &strColumnWidths, string &strStatusColumnTitles, string &strStatusColumnWidths, DWORD *Flags)
-	{
-		bool b = stmtGetMode.Bind(mode).Step();
-		if (b)
-		{
-			strColumnTitles = stmtGetMode.GetColText(0);
-			strColumnWidths = stmtGetMode.GetColText(1);
-			strStatusColumnTitles = stmtGetMode.GetColText(2);
-			strStatusColumnWidths = stmtGetMode.GetColText(3);
-			*Flags = (DWORD)stmtGetMode.GetColInt(4);
-		}
-		stmtGetMode.Reset();
-		return b;
-	}
-
-	bool SetMode(int mode, const wchar_t *ColumnTitles, const wchar_t *ColumnWidths, const wchar_t *StatusColumnTitles, const wchar_t *StatusColumnWidths, DWORD Flags)
-	{
-		return stmtSetMode.Bind(mode).Bind(ColumnTitles).Bind(ColumnWidths).Bind(StatusColumnTitles).Bind(StatusColumnWidths).Bind((int)Flags).StepAndReset();
-	}
-};
-
 class HistoryConfigDb: public HistoryConfig {
 	SQLiteDb   db;
 	SQLiteStmt stmtEnum;
@@ -2010,9 +2039,9 @@ HierarchicalConfig *CreateShortcutsConfig()
 	return new HierarchicalConfigDb(L"shortcuts.db");
 }
 
-PanelModeConfig *CreatePanelModeConfig()
+HierarchicalConfig *CreatePanelModeConfig()
 {
-	return new PanelModeConfigDb();
+	return new HierarchicalConfigDb(L"panelmodes.db");
 }
 
 void InitDb()
@@ -2045,28 +2074,48 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 	{
 		TiXmlDocument doc;
 		doc.LinkEndChild(new TiXmlDeclaration("1.0", "UTF-8", ""));
-		doc.LinkEndChild(GeneralCfg->Export());
-		doc.LinkEndChild(AssocConfig->Export());
+
+		FormatString strVer;
+		char ver[50];
+		sprintf(ver,"%d.%d.%d",FAR_VERSION.Major,FAR_VERSION.Minor,FAR_VERSION.Build);
+		TiXmlElement *root = new TiXmlElement("farconfig");
+		root->SetAttribute("version", ver);
+
+		root->LinkEndChild(GeneralCfg->Export());
+
+		root->LinkEndChild(AssocConfig->Export());
+
 		HierarchicalConfig *cfg = CreateFiltersConfig();
 		TiXmlElement *e = new TiXmlElement("filters");
 		e->LinkEndChild(cfg->Export());
-		doc.LinkEndChild(e);
+		root->LinkEndChild(e);
 		delete cfg;
+
 		cfg = CreateHighlightConfig();
 		e = new TiXmlElement("highlight");
 		e->LinkEndChild(cfg->Export());
-		doc.LinkEndChild(e);
+		root->LinkEndChild(e);
 		delete cfg;
+
+		cfg = CreatePanelModeConfig();
+		e = new TiXmlElement("panelmodes");
+		e->LinkEndChild(cfg->Export());
+		root->LinkEndChild(e);
+		delete cfg;
+
 		cfg = CreateShortcutsConfig();
 		e = new TiXmlElement("shortcuts");
 		e->LinkEndChild(cfg->Export());
-		doc.LinkEndChild(e);
+		root->LinkEndChild(e);
 		delete cfg;
+
 		cfg = CreatePluginsConfig();
 		e = new TiXmlElement("pluginsconfig");
 		e->LinkEndChild(cfg->Export());
-		doc.LinkEndChild(e);
+		root->LinkEndChild(e);
 		delete cfg;
+
+		doc.LinkEndChild(root);
 		ret = doc.SaveFile(XmlFile);
 	}
 	else
@@ -2074,10 +2123,37 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 		TiXmlDocument doc;
 		if (doc.LoadFile(XmlFile))
 		{
-			const TiXmlHandle root(&doc);
-			GeneralCfg->Import(root);
-			AssocConfig->Import(root);
-			ret = true;
+			TiXmlElement *farconfig = doc.FirstChildElement("farconfig");
+			if (farconfig)
+			{
+				const TiXmlHandle root(farconfig);
+
+				GeneralCfg->Import(root);
+
+				AssocConfig->Import(root);
+
+				HierarchicalConfig *cfg = CreateFiltersConfig();
+				cfg->Import(root.FirstChildElement("filters"));
+				delete cfg;
+
+				cfg = CreateHighlightConfig();
+				cfg->Import(root.FirstChildElement("highlight"));
+				delete cfg;
+
+				cfg = CreatePanelModeConfig();
+				cfg->Import(root.FirstChildElement("panelmodes"));
+				delete cfg;
+
+				cfg = CreateShortcutsConfig();
+				cfg->Import(root.FirstChildElement("shortcuts"));
+				delete cfg;
+
+				cfg = CreatePluginsConfig();
+				cfg->Import(root.FirstChildElement("pluginsconfig"));
+				delete cfg;
+
+				ret = true;
+			}
 		}
 	}
 
