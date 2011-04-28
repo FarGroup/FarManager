@@ -122,26 +122,6 @@ unsigned __int64 HexStringToInt64(const char *Hex)
 	return x;
 }
 
-const char *IntToHexString(unsigned int X)
-{
-	static char Bin[8+1];
-	for (int i=7; i>=0; i--, X>>=4)
-		Bin[i] = IntToHex(X&0xF);
-	return Bin;
-}
-
-unsigned int HexStringToInt(const char *Hex)
-{
-	unsigned int x = 0;
-	while (*Hex)
-	{
-		x <<= 4;
-		x += HexToInt(*Hex);
-		Hex++;
-	}
-	return x;
-}
-
 void GetDatabasePath(const wchar_t *FileName, string &strOut, bool Local)
 {
 	strOut = Local?Opt.LocalProfilePath:Opt.ProfilePath;
