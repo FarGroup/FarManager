@@ -39,7 +39,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PluginSettings::PluginSettings(const GUID& Guid) : PluginsCfg(nullptr)
 {
-	Plugin* pPlugin=CtrlObject?CtrlObject->Plugins.FindPlugin(Guid):nullptr;
+	//хак чтоб SCTL_* могли работать при ExitFarW.
+	extern PluginManager *PluginManagerForExitFar;
+	Plugin* pPlugin=CtrlObject?CtrlObject->Plugins.FindPlugin(Guid):(PluginManagerForExitFar?PluginManagerForExitFar->FindPlugin(Guid):nullptr);
 	if (pPlugin)
 	{
 		string strGuid = GuidToStr(Guid);
@@ -223,12 +225,16 @@ int PluginSettings::Delete(const FarSettingsValue& Value)
 	return result;
 }
 
-int PluginSettings::SubKey(const FarSettingsValue& Value)
+int PluginSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
 {
 	int result=0;
 	if(Value.Root<m_Keys.getCount()&&!wcschr(Value.Value,'\\'))
 	{
-		unsigned __int64 root = PluginsCfg->CreateKey(*m_Keys.getItem(Value.Root),Value.Value);
+		unsigned __int64 root = 0;
+		if (bCreate)
+			root = PluginsCfg->CreateKey(*m_Keys.getItem(Value.Root),Value.Value);
+		else
+			root = PluginsCfg->GetKeyID(*m_Keys.getItem(Value.Root),Value.Value);
 		if (root)
 		{
 			result=static_cast<int>(m_Keys.getCount());

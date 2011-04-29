@@ -2538,8 +2538,9 @@ INT_PTR WINAPI farSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS 
 			return settings->Enum(*(FarSettingsEnum*)Param2);
 		case SCTL_DELETE:
 			return settings->Delete(*(const FarSettingsValue*)Param2);
-		case SCTL_SUBKEY:
-			return settings->SubKey(*(const FarSettingsValue*)Param2);
+		case SCTL_CREATESUBKEY:
+		case SCTL_OPENSUBKEY:
+			return settings->SubKey(*(const FarSettingsValue*)Param2, Command==SCTL_CREATESUBKEY);
 	}
 
 	return FALSE;

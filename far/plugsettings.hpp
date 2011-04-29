@@ -81,5 +81,5 @@ class PluginSettings
 		int Get(FarSettingsItem& Item);
 		int Enum(FarSettingsEnum& Enum);
 		int Delete(const FarSettingsValue& Value);
-		int SubKey(const FarSettingsValue& Value);
+		int SubKey(const FarSettingsValue& Value, bool bCreate);
 };

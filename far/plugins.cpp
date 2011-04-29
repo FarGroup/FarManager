@@ -309,19 +309,31 @@ PluginManager::PluginManager():
 	PluginsCache=new PluginTree;
 }
 
+//хак чтоб SCTL_* могли работать при ExitFarW.
+PluginManager *PluginManagerForExitFar=nullptr;
+
 PluginManager::~PluginManager()
 {
-	delete PluginsCache;
-	PluginsCache=nullptr;
 	CurPluginItem=nullptr;
 	Plugin *pPlugin;
 
+	PluginManagerForExitFar = this;
 	for (int i = 0; i < PluginsCount; i++)
 	{
 		pPlugin = PluginsData[i];
 		pPlugin->Unload(true);
+		if (PluginsCache&&!pPlugin->IsOemPlugin())
+		{
+			PluginsCache->remove((AncientPlugin**)&pPlugin);
+		}
 		delete pPlugin;
+		PluginsData[i] = nullptr;
 	}
+	PluginManagerForExitFar = nullptr;
+
+	delete PluginsCache;
+	PluginsCache=nullptr;
+
 	if(PluginsData)
 	{
 		xf_free(PluginsData);

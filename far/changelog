@@ -1,3 +1,9 @@
+t-rex 29.04.2011 21:06:02 +0200 - build 2016
+
+1. Вместо SCTL_SUBKEY теперь есть SCTL_CREATESUBKEY (открыть существующий если нет то создать) и SCTL_OPENSUBKEY (открыть существующий).
+
+2. Mantis#1757: SettingsControl(SCTL_CREATE), вызванный из ExitFARW, возвращает NULL.
+
 t-rex 29.04.2011 03:57:23 +0200 - build 2015
 
 1. Настройки каждого плагина хранятся в отдельной базе в %appdata%\Far Manager\Profile\Plugins.
