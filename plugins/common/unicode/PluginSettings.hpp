@@ -28,7 +28,13 @@ public:
 	int CreateSubKey(int Root, const wchar_t *Name)
 	{
 		FarSettingsValue value={Root,Name};
-		return (int)SettingsControl(handle,SCTL_SUBKEY,0,&value);
+		return (int)SettingsControl(handle,SCTL_CREATESUBKEY,0,&value);
+	}
+
+	int OpenSubKey(int Root, const wchar_t *Name)
+	{
+		FarSettingsValue value={Root,Name};
+		return (int)SettingsControl(handle,SCTL_OPENSUBKEY,0,&value);
 	}
 
 	bool DeleteSubKey(int Root)
