@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "tinyxml.hpp"
 #include "farversion.hpp"
+#include "regexp.hpp"
 
 GeneralConfig *GeneralCfg;
 AssociationsConfig *AssocConfig;
@@ -2088,9 +2089,12 @@ public:
 
 };
 
-HierarchicalConfig *CreatePluginsConfig()
+HierarchicalConfig *CreatePluginsConfig(const wchar_t *guid)
 {
-	return new HierarchicalConfigDb(L"pluginsconfig.db");
+	string strDbName = L"Plugins\\";
+	strDbName += guid;
+	strDbName += L".db";
+	return new HierarchicalConfigDb(strDbName);
 }
 
 HierarchicalConfig *CreateFiltersConfig()
@@ -2139,6 +2143,11 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 
 	bool ret = false;
 
+	int mc;
+	SMatch m[2];
+	RegExp re;
+	re.Compile(L"/^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$/", OP_PERLSTYLE|OP_OPTIMIZE);
+
 	if (Export)
 	{
 		TiXmlDocument doc;
@@ -2180,11 +2189,33 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 		root->LinkEndChild(e);
 		delete cfg;
 
-		cfg = CreatePluginsConfig();
-		e = new TiXmlElement("pluginsconfig");
-		e->LinkEndChild(cfg->Export());
-		root->LinkEndChild(e);
-		delete cfg;
+		{
+			string strPlugins = Opt.ProfilePath;
+			strPlugins += L"\\Plugins\\*.db";
+			FAR_FIND_DATA_EX fd;
+			FindFile ff(strPlugins);
+			e = new TiXmlElement("pluginsconfig");
+			while (ff.Get(fd))
+			{
+				fd.strFileName.SetLength(fd.strFileName.GetLength()-3);
+				fd.strFileName.Upper();
+				mc=2;
+				if (re.Match(fd.strFileName, fd.strFileName.CPtr() + fd.strFileName.GetLength(), m, mc))
+				{
+					char guid[37];
+					for (int i=0; i<ARRAYSIZE(guid); i++)
+						guid[i] = fd.strFileName[i]&0xFF;
+
+					TiXmlElement *plugin = new TiXmlElement("plugin");
+					plugin->SetAttribute("guid", guid);
+					cfg = CreatePluginsConfig(fd.strFileName);
+					plugin->LinkEndChild(cfg->Export());
+					e->LinkEndChild(plugin);
+					delete cfg;
+				}
+			}
+			root->LinkEndChild(e);
+		}
 
 		doc.LinkEndChild(root);
 		ret = doc.SaveFile(XmlFile);
@@ -2221,9 +2252,23 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 				cfg->Import(root.FirstChildElement("shortcuts"));
 				delete cfg;
 
-				cfg = CreatePluginsConfig();
-				cfg->Import(root.FirstChildElement("pluginsconfig"));
-				delete cfg;
+				for (TiXmlElement *plugin=root.FirstChild("pluginsconfig").FirstChildElement("plugin").Element(); plugin; plugin=plugin->NextSiblingElement("plugin"))
+				{
+					const char *guid = plugin->Attribute("guid");
+					if (!guid)
+						continue;
+					string Guid(guid, CP_UTF8);
+					Guid.Upper();
+
+					mc=2;
+					if (re.Match(Guid, Guid.CPtr() + Guid.GetLength(), m, mc))
+					{
+						cfg = CreatePluginsConfig(Guid);
+						const TiXmlHandle h(plugin);
+						cfg->Import(h);
+						delete cfg;
+					}
+				}
 
 				ret = true;
 			}

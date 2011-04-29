@@ -227,7 +227,7 @@ void ReleaseDb();
 bool ExportImportConfig(bool Export, const wchar_t *XML);
 void ClearPluginsCache();
 
-HierarchicalConfig *CreatePluginsConfig();
+HierarchicalConfig *CreatePluginsConfig(const wchar_t *guid);
 HierarchicalConfig *CreateFiltersConfig();
 HierarchicalConfig *CreateHighlightConfig();
 HierarchicalConfig *CreateShortcutsConfig();

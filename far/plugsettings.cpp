@@ -42,9 +42,10 @@ PluginSettings::PluginSettings(const GUID& Guid) : PluginsCfg(nullptr)
 	Plugin* pPlugin=CtrlObject?CtrlObject->Plugins.FindPlugin(Guid):nullptr;
 	if (pPlugin)
 	{
-		PluginsCfg = CreatePluginsConfig();
+		string strGuid = GuidToStr(Guid);
+		PluginsCfg = CreatePluginsConfig(strGuid);
 		unsigned __int64& root(*m_Keys.insertItem(0));
-		root=PluginsCfg->CreateKey(0,GuidToStr(Guid), pPlugin->GetTitle());
+		root=PluginsCfg->CreateKey(0, strGuid, pPlugin->GetTitle());
 	}
 }
 

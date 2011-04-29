@@ -362,6 +362,10 @@ void InitProfile(string &strProfilePath)
 		*Paths[i] += L"Profile";
 		CreatePath(*Paths[i], true);
 	}
+
+	string strPlugins = Opt.ProfilePath;
+	strPlugins += L"\\Plugins";
+	CreatePath(strPlugins, true);
 }
 
 int ExportImportMain(bool Export, const wchar_t *XML, const wchar_t *ProfilePath)
