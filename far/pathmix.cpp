@@ -51,16 +51,9 @@ void NTPath::Transform()
 		if (!HasPathPrefix(Data))
 		{
 			ReplaceSlashToBSlash(Data);
-			if (IsLocalPath(Data))
-			{
-				while(ReplaceStrings(Data,L"\\\\",L"\\"));
-				Data=string(L"\\\\?\\")+Data;
-			}
-			else
-			{
-				while(ReplaceStrings(Data,L"\\\\",L"\\"));
-				Data=string(L"\\\\?\\UNC")+Data;
-			}
+			string Prefix(IsLocalPath(Data)? L"\\\\?\\" : L"\\\\?\\UNC");
+			while(ReplaceStrings(Data,L"\\\\",L"\\"));
+			Data=Prefix+Data;
 		}
 	}
 	// \\?\C: -> \\?\c:

@@ -19645,7 +19645,7 @@ upd:"Administrator"
 upd:"Administrator"
 "Administrador"
 
-MAdminRequired
+MElevationRequired
 "Нужно обладать правами администратора"
 "You need to provide administrator permission"
 upd:"You need to provide administrator permission"
@@ -19654,7 +19654,7 @@ upd:"You need to provide administrator permission"
 upd:"You need to provide administrator permission"
 "Usted necesita permisos de administrador"
 
-MAdminRequiredPrivileges
+MElevationRequiredPrivileges
 "Требуются дополнительные привилегии"
 "Additional privileges required"
 upd:"Additional privileges required"
@@ -19663,7 +19663,7 @@ upd:"Additional privileges required"
 upd:"Additional privileges required"
 "Privilegios adicionales requeridos"
 
-MAdminRequiredProcess
+MElevationRequiredProcess
 "для обработки этого объекта:"
 "to process this object:"
 upd:"to process this object:"
@@ -19672,7 +19672,7 @@ upd:"to process this object:"
 upd:"to process this object:"
 "para procesar este objeto:"
 
-MAdminRequiredCreate
+MElevationRequiredCreate
 "для создания этого объекта:"
 "to create this object:"
 upd:"to create this object:"
@@ -19681,7 +19681,7 @@ upd:"to create this object:"
 upd:"to create this object:"
 "para crear este objeto:"
 
-MAdminRequiredDelete
+MElevationRequiredDelete
 "для удаления этого объекта:"
 "to delete this object:"
 upd:"to delete this object:"
@@ -19690,7 +19690,7 @@ upd:"to delete this object:"
 upd:"to delete this object:"
 "para eliminar este objeto:"
 
-MAdminRequiredCopy
+MElevationRequiredCopy
 "для копирования этого объекта:"
 "to copy this object:"
 upd:"to copy this object:"
@@ -19699,7 +19699,7 @@ upd:"to copy this object:"
 upd:"to copy this object:"
 "para copiar este objeto:"
 
-MAdminRequiredMove
+MElevationRequiredMove
 "для перемещения этого объекта:"
 "to move this object:"
 upd:"to move this object:"
@@ -19708,7 +19708,7 @@ upd:"to move this object:"
 upd:"to move this object:"
 "para mover este objeto:"
 
-MAdminRequiredGetAttributes
+MElevationRequiredGetAttributes
 "для получения атрибутов этого объекта:"
 "to get attributes of this object:"
 upd:"to get attributes of this object:"
@@ -19717,7 +19717,7 @@ upd:"to get attributes of this object:"
 upd:"to get attributes of this object:"
 "para obtener atributos de este objeto:"
 
-MAdminRequiredSetAttributes
+MElevationRequiredSetAttributes
 "для установки атрибутов этого объекта:"
 "to set attributes of this object:"
 upd:"to set attributes of this object:"
@@ -19726,7 +19726,7 @@ upd:"to set attributes of this object:"
 upd:"to set attributes of this object:"
 "para poner atributos a este objeto:"
 
-MAdminRequiredHardLink
+MElevationRequiredHardLink
 "для создания этой жёсткой ссылки:"
 "to create this hard link:"
 upd:"to create this hard link:"
@@ -19735,7 +19735,7 @@ upd:"to create this hard link:"
 upd:"to create this hard link:"
 "para crear este enlace rígido:"
 
-MAdminRequiredSymLink
+MElevationRequiredSymLink
 "для создания этой символической ссылки:"
 "to create this symbolic link:"
 upd:"to create this symbolic link:"
@@ -19744,7 +19744,7 @@ upd:"to create this symbolic link:"
 upd:"to create this symbolic link:"
 "para crear este enlace simbólico:"
 
-MAdminRequiredRecycle
+MElevationRequiredRecycle
 "для перемещения этого объекта в корзину:"
 "to move this object to recycle bin:"
 upd:"to move this object to recycle bin:"
@@ -19753,7 +19753,7 @@ upd:"to move this object to recycle bin:"
 upd:"to move this object to recycle bin:"
 "para mover este objeto a la papelera:"
 
-MAdminRequiredList
+MElevationRequiredList
 "для просмотра этого объекта:"
 "to list this object:"
 upd:"to list this object:"
@@ -19762,7 +19762,7 @@ upd:"to list this object:"
 upd:"to list this object:"
 "para listar este objeto:"
 
-MAdminRequiredSetOwner
+MElevationRequiredSetOwner
 "для установки владельца этого объекта:"
 "to set owner of this object:"
 upd:"to set owner of this object:"
@@ -19771,7 +19771,7 @@ upd:"to set owner of this object:"
 upd:"to set owner of this object:"
 "para poner como dueño de este objeto:"
 
-MAdminRequiredOpen
+MElevationRequiredOpen
 "для открытия этого объекта:"
 "to open this object:"
 upd:"to open this object:"
@@ -19780,7 +19780,7 @@ upd:"to open this object:"
 upd:"to open this object:"
 "para abrir este objeto:"
 
-MAdminDoForAll
+MElevationDoForAll
 "Выполнить это действие для &всех текущих объектов"
 "Do this for &all current objects"
 upd:"Do this for &all current objects"
@@ -19789,7 +19789,7 @@ upd:"Do this for &all current objects"
 upd:"Do this for &all current objects"
 "Hacer esto para todos los objetos actuales"
 
-MAdminDoNotAskAgainInTheCurrentSession
+MElevationDoNotAskAgainInTheCurrentSession
 "Больше не спрашивать в текущей сессии"
 "Do not ask again in the current session"
 upd:"Do not ask again in the current session"

@@ -346,7 +346,7 @@ static void ConfigureChangeDriveMode()
 
 	DialogItemEx *ShowSize = Builder.AddCheckbox(MChangeDriveShowSize, &ShowSizeAny);
 	DialogItemEx *ShowSizeFloat = Builder.AddCheckbox(MChangeDriveShowSizeFloat, &Opt.ChangeDriveMode, DRIVE_SHOW_SIZE_FLOAT);
-	ShowSizeFloat->Indent(3);
+	ShowSizeFloat->Indent(4);
 	Builder.LinkFlags(ShowSize, ShowSizeFloat, DIF_DISABLE);
 
 	Builder.AddCheckbox(MChangeDriveShowRemovableDrive, &Opt.ChangeDriveMode, DRIVE_SHOW_REMOVABLE);

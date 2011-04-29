@@ -232,10 +232,10 @@ static void init_hook(void)
 	} ur;
 
 	if ((ur.h = GetModuleHandleW(k32_w)) == NULL
-	        || (*(FARPROC*)&IsWow = GetProcAddress(ur.h, wow_c)) == NULL
+	        || (IsWow = GetProcAddress(ur.h, wow_c)) == NULL
 	        || !(IsWow(GetCurrentProcess(), &b) && b)
-	        || (*(FARPROC*)&rwow.disable = GetProcAddress(ur.h, dis_c)) == NULL
-	        || (*(FARPROC*)&rwow.revert = GetProcAddress(ur.h, rev_c)) == NULL
+	        || (rwow.disable = GetProcAddress(ur.h, dis_c)) == NULL
+	        || (rwow.revert = GetProcAddress(ur.h, rev_c)) == NULL
 	        || (ur.h = GetModuleHandleW(ntd_w)) == NULL
 	        || (ur.f = GetProcAddress(ur.h, ldr_c)) == NULL) return;
 

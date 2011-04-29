@@ -2154,8 +2154,9 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 		doc.LinkEndChild(new TiXmlDeclaration("1.0", "UTF-8", ""));
 
 		FormatString strVer;
+		strVer << FAR_VERSION.Major << L"." << FAR_VERSION.Minor << L"." << FAR_VERSION.Build;
 		char ver[50];
-		sprintf(ver,"%d.%d.%d",FAR_VERSION.Major,FAR_VERSION.Minor,FAR_VERSION.Build);
+		strVer.GetCharString(ver, ARRAYSIZE(ver));
 		TiXmlElement *root = new TiXmlElement("farconfig");
 		root->SetAttribute("version", ver);
 
@@ -2203,7 +2204,7 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 				if (re.Match(fd.strFileName, fd.strFileName.CPtr() + fd.strFileName.GetLength(), m, mc))
 				{
 					char guid[37];
-					for (int i=0; i<ARRAYSIZE(guid); i++)
+					for (size_t i=0; i<ARRAYSIZE(guid); i++)
 						guid[i] = fd.strFileName[i]&0xFF;
 
 					TiXmlElement *plugin = new TiXmlElement("plugin");

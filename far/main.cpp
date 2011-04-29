@@ -409,9 +409,9 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
 	SetEnvironmentVariable(L"FARADMINMODE", Opt.IsUserAdmin?L"1":nullptr);
 
-	if (Argc==5 && !StrCmp(Argv[1], L"/admin")) // /admin {GUID} PID UsePrivileges
+	if (Argc==5 && !StrCmp(Argv[1], L"/elevation")) // /elevation {GUID} PID UsePrivileges
 	{
-		return AdminMain(Argv[2], _wtoi(Argv[3]), *Argv[4]==L'1');
+		return ElevationMain(Argv[2], _wtoi(Argv[3]), *Argv[4]==L'1');
 	}
 	else if (Argc==4 || Argc==3)
 	{

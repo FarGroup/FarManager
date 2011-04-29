@@ -298,19 +298,19 @@ bool FileFilter::FilterEdit()
 
 				if (Key==KEY_F5)
 				{
-					if (SelPos2 < (int)FilterData.getCount())
+					if (SelPos2 < FilterData.getCount())
 					{
 						*NewFilter = *FilterData.getItem(SelPos2);
 						NewFilter->SetTitle(L"");
 						NewFilter->ClearAllFlags();
 					}
-					else if (SelPos2 == (int)(FilterData.getCount()+2))
+					else if (SelPos2 == FilterData.getCount()+2)
 					{
 						*NewFilter = FoldersFilter;
 						NewFilter->SetTitle(L"");
 						NewFilter->ClearAllFlags();
 					}
-					else if (SelPos2 > (int)(FilterData.getCount()+2))
+					else if (SelPos2 > FilterData.getCount()+2)
 					{
 						wchar_t Mask[MAX_PATH];
 						FilterList.GetUserData(Mask,sizeof(Mask),static_cast<int>(SelPos2-1));

@@ -104,7 +104,7 @@ bool PluginSynchro::Process(void)
 			}
 			else
 			{
-				AdminApproveDlgSync(param);
+				ElevationApproveDlgSync(param);
 				res=true;
 			}
 		}

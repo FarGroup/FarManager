@@ -247,7 +247,7 @@ bool elevation::WriteInt64(INT64 Data) const
 	return WritePipeInt64(Pipe, Data);
 }
 
-bool elevation::SendCommand(ADMIN_COMMAND Command) const
+bool elevation::SendCommand(ELEVATION_COMMAND Command) const
 {
 	return WritePipeInt(Pipe, Command);
 }
@@ -323,7 +323,7 @@ bool elevation::Initialize()
 			TaskBar TB;
 			DisconnectNamedPipe(Pipe);
 			FormatString strParam;
-			strParam << L"/admin " << strPipeID << L" " << GetCurrentProcessId() << L" " << ((Opt.ElevationMode&ELEVATION_USE_PRIVILEGES)? L"1" : L"0");
+			strParam << L"/elevation " << strPipeID << L" " << GetCurrentProcessId() << L" " << ((Opt.ElevationMode&ELEVATION_USE_PRIVILEGES)? L"1" : L"0");
 			SHELLEXECUTEINFO info=
 			{
 				sizeof(info),
@@ -373,7 +373,7 @@ bool elevation::Initialize()
 	return Result;
 }
 
-enum ADMINAPPROVEDLGITEM
+enum ELEVATIONAPPROVEDLGITEM
 {
 	AAD_DOUBLEBOX,
 	AAD_TEXT_NEEDPERMISSION,
@@ -386,7 +386,7 @@ enum ADMINAPPROVEDLGITEM
 	AAD_BUTTON_SKIP,
 };
 
-INT_PTR WINAPI AdminApproveDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
+INT_PTR WINAPI ElevationApproveDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 {
 	switch (Msg)
 	{
@@ -405,7 +405,7 @@ INT_PTR WINAPI AdminApproveDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 	return DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
-struct AAData
+struct EAData
 {
 	Event* pEvent;
 	int Why;
@@ -413,42 +413,42 @@ struct AAData
 	bool& AskApprove;
 	bool& Approve;
 	bool& DontAskAgain;
-	AAData(Event* pEvent, int Why, LPCWSTR Object, bool& AskApprove, bool& Approve, bool& DontAskAgain):
+	EAData(Event* pEvent, int Why, LPCWSTR Object, bool& AskApprove, bool& Approve, bool& DontAskAgain):
 		pEvent(pEvent), Why(Why), Object(Object), AskApprove(AskApprove), Approve(Approve), DontAskAgain(DontAskAgain){}
 };
 
-void AdminApproveDlgSync(LPVOID Param)
+void ElevationApproveDlgSync(LPVOID Param)
 {
-	AAData* Data=static_cast<AAData*>(Param);
+	EAData* Data=static_cast<EAData*>(Param);
 	enum {DlgX=64,DlgY=12};
-	FarDialogItem AdminApproveDlgData[]=
+	FarDialogItem ElevationApproveDlgData[]=
 	{
 		{DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,nullptr,nullptr,0,MSG(MErrorAccessDenied)},
-		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(Opt.IsUserAdmin?MAdminRequiredPrivileges:MAdminRequired)},
+		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(Opt.IsUserAdmin?MElevationRequiredPrivileges:MElevationRequired)},
 		{DI_TEXT,5,3,0,3,0,nullptr,nullptr,0,MSG(Data->Why)},
 		{DI_EDIT,5,4,DlgX-6,4,0,nullptr,nullptr,DIF_READONLY|DIF_SETCOLOR|FarColorToReal(COL_DIALOGTEXT),Data->Object},
-		{DI_CHECKBOX,5,6,0,6,1,nullptr,nullptr,0,MSG(MAdminDoForAll)},
-		{DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,0,MSG(MAdminDoNotAskAgainInTheCurrentSession)},
+		{DI_CHECKBOX,5,6,0,6,1,nullptr,nullptr,0,MSG(MElevationDoForAll)},
+		{DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,0,MSG(MElevationDoNotAskAgainInTheCurrentSession)},
 		{DI_TEXT,3,DlgY-4,0,DlgY-4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_SETSHIELD|DIF_CENTERGROUP,MSG(MOk)},
 		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MSkip)},
 	};
-	MakeDialogItemsEx(AdminApproveDlgData,AdminApproveDlg);
-	Dialog Dlg(AdminApproveDlg,ARRAYSIZE(AdminApproveDlg),AdminApproveDlgProc);
+	MakeDialogItemsEx(ElevationApproveDlgData,ElevationApproveDlg);
+	Dialog Dlg(ElevationApproveDlg,ARRAYSIZE(ElevationApproveDlg),ElevationApproveDlgProc);
 	Dlg.SetHelp(L"ElevationDlg");
 	Dlg.SetPosition(-1,-1,DlgX,DlgY);
 	Dlg.SetDialogMode(DMODE_FULLSHADOW|DMODE_NOPLUGINS);
 	Dlg.Process();
-	Data->AskApprove=!AdminApproveDlg[AAD_CHECKBOX_DOFORALL].Selected;
+	Data->AskApprove=!ElevationApproveDlg[AAD_CHECKBOX_DOFORALL].Selected;
 	Data->Approve=Dlg.GetExitCode()==AAD_BUTTON_OK;
-	Data->DontAskAgain=AdminApproveDlg[AAD_CHECKBOX_DONTASKAGAIN].Selected!=FALSE;
+	Data->DontAskAgain=ElevationApproveDlg[AAD_CHECKBOX_DONTASKAGAIN].Selected!=FALSE;
 	if(Data->pEvent)
 	{
 		Data->pEvent->Set();
 	}
 }
 
-bool elevation::AdminApproveDlg(int Why, LPCWSTR Object)
+bool elevation::ElevationApproveDlg(int Why, LPCWSTR Object)
 {
 	if(!(Opt.IsUserAdmin && !(Opt.ElevationMode&ELEVATION_USE_PRIVILEGES)) &&
 		AskApprove && !DontAskAgain && !Recurse &&
@@ -457,7 +457,7 @@ bool elevation::AdminApproveDlg(int Why, LPCWSTR Object)
 		Recurse = true;
 		GuardLastError error;
 		TaskBarPause TBP;
-		AAData Data(nullptr, Why, Object, AskApprove, Approve, DontAskAgain);
+		EAData Data(nullptr, Why, Object, AskApprove, Approve, DontAskAgain);
 		if(GetCurrentThreadId()!=MainThreadID)
 		{
 			Data.pEvent=new Event();
@@ -470,7 +470,7 @@ bool elevation::AdminApproveDlg(int Why, LPCWSTR Object)
 		}
 		else
 		{
-			AdminApproveDlgSync(&Data);
+			ElevationApproveDlgSync(&Data);
 		}
 		Recurse = false;
 	}
@@ -481,7 +481,7 @@ bool elevation::fCreateDirectoryEx(LPCWSTR TemplateObject, LPCWSTR Object, LPSEC
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(MAdminRequiredCreate, Object))
+	if(ElevationApproveDlg(MElevationRequiredCreate, Object))
 	{
 		if(Opt.IsUserAdmin)
 		{
@@ -520,7 +520,7 @@ bool elevation::fRemoveDirectory(LPCWSTR Object)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(MAdminRequiredDelete, Object))
+	if(ElevationApproveDlg(MElevationRequiredDelete, Object))
 	{
 		if(Opt.IsUserAdmin)
 		{
@@ -555,7 +555,7 @@ bool elevation::fDeleteFile(LPCWSTR Object)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(MAdminRequiredDelete, Object))
+	if(ElevationApproveDlg(MElevationRequiredDelete, Object))
 	{
 		if(Opt.IsUserAdmin)
 		{
@@ -631,7 +631,7 @@ bool elevation::fCopyFileEx(LPCWSTR From, LPCWSTR To, LPPROGRESS_ROUTINE Progres
 {
 	CriticalSectionLock Lock(CS);
 	bool Result = false;
-	if(AdminApproveDlg(MAdminRequiredCopy, From))
+	if(ElevationApproveDlg(MElevationRequiredCopy, From))
 	{
 		if(Opt.IsUserAdmin)
 		{
@@ -688,7 +688,7 @@ bool elevation::fMoveFileEx(LPCWSTR From, LPCWSTR To, DWORD Flags)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(MAdminRequiredMove, From))
+	if(ElevationApproveDlg(MElevationRequiredMove, From))
 	{
 		if(Opt.IsUserAdmin)
 		{
@@ -729,7 +729,7 @@ DWORD elevation::fGetFileAttributes(LPCWSTR Object)
 {
 	CriticalSectionLock Lock(CS);
 	DWORD Result = INVALID_FILE_ATTRIBUTES;
-	if(AdminApproveDlg(MAdminRequiredGetAttributes, Object))
+	if(ElevationApproveDlg(MElevationRequiredGetAttributes, Object))
 	{
 		if(Opt.IsUserAdmin)
 		{
@@ -764,7 +764,7 @@ bool elevation::fSetFileAttributes(LPCWSTR Object, DWORD FileAttributes)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(MAdminRequiredSetAttributes, Object))
+	if(ElevationApproveDlg(MElevationRequiredSetAttributes, Object))
 	{
 		if(Opt.IsUserAdmin)
 		{
@@ -802,7 +802,7 @@ bool elevation::fCreateHardLink(LPCWSTR Object, LPCWSTR Target, LPSECURITY_ATTRI
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(MAdminRequiredHardLink, Object))
+	if(ElevationApproveDlg(MElevationRequiredHardLink, Object))
 	{
 		if(Opt.IsUserAdmin)
 		{
@@ -841,7 +841,7 @@ bool elevation::fCreateSymbolicLink(LPCWSTR Object, LPCWSTR Target, DWORD Flags)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(MAdminRequiredSymLink, Object))
+	if(ElevationApproveDlg(MElevationRequiredSymLink, Object))
 	{
 		if(Opt.IsUserAdmin)
 		{
@@ -883,7 +883,7 @@ int elevation::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 {
 	CriticalSectionLock Lock(CS);
 	int Result=0;
-	if(AdminApproveDlg(MAdminRequiredRecycle, FileOpStruct.pFrom))
+	if(ElevationApproveDlg(MElevationRequiredRecycle, FileOpStruct.pFrom))
 	{
 		if(Opt.IsUserAdmin)
 		{
@@ -925,7 +925,7 @@ bool elevation::fSetOwner(LPCWSTR Object, LPCWSTR Owner)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
-	if(AdminApproveDlg(MAdminRequiredSetOwner, Object))
+	if(ElevationApproveDlg(MElevationRequiredSetOwner, Object))
 	{
 		if(Opt.IsUserAdmin)
 		{
@@ -963,7 +963,7 @@ HANDLE elevation::fCreateFile(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMo
 {
 	CriticalSectionLock Lock(CS);
 	HANDLE Result=INVALID_HANDLE_VALUE;
-	if(AdminApproveDlg(MAdminRequiredOpen, Object))
+	if(ElevationApproveDlg(MElevationRequiredOpen, Object))
 	{
 		if(Opt.IsUserAdmin)
 		{
@@ -1049,7 +1049,7 @@ HANDLE Pipe;
 
 bool Process(int Command);
 
-DWORD WINAPI AdminCopyProgressRoutine(LARGE_INTEGER TotalFileSize, LARGE_INTEGER TotalBytesTransferred, LARGE_INTEGER StreamSize, LARGE_INTEGER StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE SourceFile,HANDLE DestinationFile, LPVOID Data)
+DWORD WINAPI ElevationCopyProgressRoutine(LARGE_INTEGER TotalFileSize, LARGE_INTEGER TotalBytesTransferred, LARGE_INTEGER StreamSize, LARGE_INTEGER StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE SourceFile,HANDLE DestinationFile, LPVOID Data)
 {
 	int Result=0;
 	if (WritePipeInt(Pipe, CallbackMagic))
@@ -1159,7 +1159,7 @@ void CopyFileExHandler()
 					if(ReadPipeInt(Pipe, Flags))
 					{
 						// BUGBUG: Cancel ignored
-						int Result = CopyFileEx(From.GetStr(), To.GetStr(), UserCopyProgressRoutine.Get()?AdminCopyProgressRoutine:nullptr, Data.Get(), nullptr, Flags);
+						int Result = CopyFileEx(From.GetStr(), To.GetStr(), UserCopyProgressRoutine.Get()?ElevationCopyProgressRoutine:nullptr, Data.Get(), nullptr, Flags);
 						int LastError = GetLastError();
 						if(WritePipeInt(Pipe, Result))
 						{
@@ -1413,7 +1413,7 @@ bool Process(int Command)
 	return Exit;
 }
 
-int AdminMain(LPCWSTR guid, DWORD PID, bool UsePrivileges)
+int ElevationMain(LPCWSTR guid, DWORD PID, bool UsePrivileges)
 {
 	int Result = ERROR_SUCCESS;
 

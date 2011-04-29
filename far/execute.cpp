@@ -141,9 +141,8 @@ static bool GetImageSubsystem(const wchar_t *FileName,DWORD& ImageSubsystem)
 							AN> (1 байт по смещению 0x36). ≈сли там Windows (значени€ 2, 4) - подразумеваем
 							AN> GUI, если OS/2 и проча€ экзотика (остальные значени€) - подразумеваем консоль.
 							*/
-							BYTE ne_exetyp=reinterpret_cast<PIMAGE_OS2_HEADER>(&PEHeader)->ne_exetyp;
-
-							if (ne_exetyp==2||ne_exetyp==4)
+							PIMAGE_OS2_HEADER OS2Hdr = reinterpret_cast<PIMAGE_OS2_HEADER>(&PEHeader);
+							if (OS2Hdr->ne_exetyp==2 || OS2Hdr->ne_exetyp==4)
 							{
 								ImageSubsystem=IMAGE_SUBSYSTEM_WINDOWS_GUI;
 							}

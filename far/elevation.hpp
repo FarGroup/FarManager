@@ -41,7 +41,7 @@ enum ELEVATION_MODE
 	ELEVATION_USE_PRIVILEGES = 0xf0000000,
 };
 
-enum ADMIN_COMMAND
+enum ELEVATION_COMMAND
 {
 	C_SERVICE_EXIT,
 	C_FUNCTION_CREATEDIRECTORYEX,
@@ -110,16 +110,16 @@ private:
 	bool ReadInt64(INT64& Data) const;
 	bool WriteInt(int Data) const;
 	bool WriteInt64(INT64 Data) const;
-	bool SendCommand(ADMIN_COMMAND Command) const;
+	bool SendCommand(ELEVATION_COMMAND Command) const;
 	bool ReceiveLastError() const;
 	bool Initialize();
-	bool AdminApproveDlg(int Why, LPCWSTR Object);
+	bool ElevationApproveDlg(int Why, LPCWSTR Object);
 };
 
 extern elevation Elevation;
 
-void AdminApproveDlgSync(LPVOID Param);
+void ElevationApproveDlgSync(LPVOID Param);
 
 bool ElevationRequired(ELEVATION_MODE Mode);
 bool IsUserAdmin();
-int AdminMain(LPCWSTR guid, DWORD PID, bool UsePrivileges);
+int ElevationMain(LPCWSTR guid, DWORD PID, bool UsePrivileges);
