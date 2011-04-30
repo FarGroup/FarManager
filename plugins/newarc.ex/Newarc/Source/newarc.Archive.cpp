@@ -56,11 +56,6 @@ Archive::Archive(
 	_tree = nullptr;
 }
 
-void Archive::SetPassword(const TCHAR* lpPassword)
-{
-	m_strPassword = lpPassword;
-}
-
 bool Archive::SetCurrentDirectory(const TCHAR* lpPathInArchive)
 {
 	ArchiveTree* pResult = _current->GetNode(lpPathInArchive);

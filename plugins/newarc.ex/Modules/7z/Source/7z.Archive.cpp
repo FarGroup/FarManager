@@ -30,66 +30,66 @@ SevenZipArchive::SevenZipArchive(
 
 struct PropertyToName {
 	PROPID propId;
-	const TCHAR* lpName;
+	unsigned int uName;
 };
 
 static PropertyToName PropertyToNameTable[] =
 {
-	{ kpidName, _T("Name") },
-	{ kpidExtension, _T("Extension") },
-	{ kpidIsDir, _T("IsFolder") },
-	{ kpidSize, _T("Size") },
-	{ kpidPackSize, _T("PackSize") },
-	{ kpidAttrib, _T("Attributes") },
-	{ kpidCTime, _T("CTime") },
-	{ kpidATime, _T("ATime") },
-	{ kpidMTime, _T("MTime") },
-	{ kpidSolid, _T("Solid") },
-	{ kpidCommented, _T("Commented") },
-	{ kpidEncrypted, _T("Encrypted") },
-	{ kpidSplitBefore, _T("SplitBefore") },
-	{ kpidSplitAfter, _T("SplitAfter") },
-	{ kpidDictionarySize, _T("DictionarySize") },
-	{ kpidCRC, _T("CRC") },
-	{ kpidType, _T("Type") },
-	{ kpidIsAnti, _T("Anti") },
-	{ kpidMethod, _T("Method") },
-	{ kpidHostOS, _T("HostOS") },
-	{ kpidFileSystem, _T("FileSystem") },
-	{ kpidUser, _T("User") },
-	{ kpidGroup, _T("Group") },
-	{ kpidBlock, _T("Block") },
-	{ kpidComment, _T("Comment") },
-	{ kpidPosition, _T("Position") },
-	{ kpidNumSubDirs, _T("NumSubFolders") },
-	{ kpidNumSubFiles, _T("NumSubFiles") },
-	{ kpidUnpackVer, _T("UnpackVer") },
-	{ kpidVolume, _T("Volume") },
-	{ kpidIsVolume, _T("IsVolume") },
-	{ kpidOffset, _T("Offset") },
-	{ kpidLinks, _T("Links") },
-	{ kpidNumBlocks, _T("NumBlocks") },
-	{ kpidNumVolumes, _T("NumVolumes") },
+	{ kpidName, MArchivePropertyName },
+	{ kpidExtension, MArchivePropertyExtension },
+	{ kpidIsDir, MArchivePropertyIsFolder },
+	{ kpidSize, MArchivePropertySize },
+	{ kpidPackSize, MArchivePropertyPackSize },
+	{ kpidAttrib, MArchivePropertyAttributes },
+	{ kpidCTime, MArchivePropertyCTime },
+	{ kpidATime, MArchivePropertyATime },
+	{ kpidMTime, MArchivePropertyMTime },
+	{ kpidSolid, MArchivePropertySolid },
+	{ kpidCommented, MArchivePropertyCommented },
+	{ kpidEncrypted, MArchivePropertyEncrypted },
+	{ kpidSplitBefore, MArchivePropertySplitBefore },
+	{ kpidSplitAfter, MArchivePropertySplitAfter },
+	{ kpidDictionarySize, MArchivePropertyDictionarySize },
+	{ kpidCRC, MArchivePropertyCRC },
+	{ kpidType, MArchivePropertyType },
+	{ kpidIsAnti, MArchivePropertyAnti },
+	{ kpidMethod, MArchivePropertyMethod },
+	{ kpidHostOS, MArchivePropertyHostOS },
+	{ kpidFileSystem, MArchivePropertyFileSystem },
+	{ kpidUser, MArchivePropertyUser },
+	{ kpidGroup, MArchivePropertyGroup },
+	{ kpidBlock, MArchivePropertyBlock },
+	{ kpidComment, MArchivePropertyComment },
+	{ kpidPosition, MArchivePropertyPosition },
+	{ kpidNumSubDirs, MArchivePropertyNumSubFolders },
+	{ kpidNumSubFiles, MArchivePropertyNumSubFiles },
+	{ kpidUnpackVer, MArchivePropertyUnpackVer },
+	{ kpidVolume, MArchivePropertyVolume },
+	{ kpidIsVolume, MArchivePropertyIsVolume },
+	{ kpidOffset, MArchivePropertyOffset },
+	{ kpidLinks, MArchivePropertyLinks },
+	{ kpidNumBlocks, MArchivePropertyNumBlocks },
+	{ kpidNumVolumes, MArchivePropertyNumVolumes },
   
-	{ kpidBit64, _T("Bit64") },
-	{ kpidBigEndian, _T("BigEndian") },
-	{ kpidCpu, _T("Cpu") },
-	{ kpidPhySize, _T("PhySize") },
-	{ kpidHeadersSize, _T("HeadersSize") },
-	{ kpidChecksum, _T("Checksum") },
-	{ kpidCharacts, _T("Characts") },
-	{ kpidVa, _T("Va") },
-	{ kpidId, _T("Id") },
-	{ kpidShortName, _T("ShortName") },
-	{ kpidCreatorApp, _T("CreatorApp") },
-	{ kpidSectorSize, _T("SectorSize") },
-	{ kpidPosixAttrib, _T("PosixAttrib") },
-	{ kpidLink, _T("Link") },
+	{ kpidBit64, MArchivePropertyBit64 },
+	{ kpidBigEndian, MArchivePropertyBigEndian },
+	{ kpidCpu, MArchivePropertyCpu },
+	{ kpidPhySize, MArchivePropertyPhySize },
+	{ kpidHeadersSize, MArchivePropertyHeadersSize },
+	{ kpidChecksum, MArchivePropertyChecksum },
+	{ kpidCharacts, MArchivePropertyCharacts },
+	{ kpidVa, MArchivePropertyVa },
+	{ kpidId, MArchivePropertyId },
+	{ kpidShortName, MArchivePropertyShortName },
+	{ kpidCreatorApp, MArchivePropertyCreatorApp },
+	{ kpidSectorSize, MArchivePropertySectorSize },
+	{ kpidPosixAttrib, MArchivePropertyPosixAttrib },
+	{ kpidLink, MArchivePropertyLink },
 
-	{ kpidTotalSize, _T("TotalSize") },
-	{ kpidFreeSpace, _T("FreeSpace") },
-	{ kpidClusterSize, _T("ClusterSize") },
-	{ kpidVolumeName, _T("Label") }
+	{ kpidTotalSize, MArchivePropertyTotalSize },
+	{ kpidFreeSpace, MArchivePropertyFreeSpace },
+	{ kpidClusterSize, MArchivePropertyClusterSize },
+	{ kpidVolumeName, MArchivePropertyLabel }
 };
 
 
@@ -115,7 +115,7 @@ void SevenZipArchive::QueryArchiveInfo()
 			{
 				if ( PropertyToNameTable[j].propId == propId )
 				{
-					strName = PropertyToNameTable[j].lpName;
+					strName = _M(PropertyToNameTable[j].uName);
 					break;
 				}
 			}
@@ -145,7 +145,7 @@ void SevenZipArchive::QueryArchiveInfo()
 					else
 
 					if ( vt == VT_BOOL )
-						strValue = (value.boolVal == VARIANT_TRUE)?_T("Yes"):_T("No");
+						strValue = (value.boolVal == VARIANT_TRUE)?_M(MYes):_M(MNo);
 					else
 				
 					if ( vt == VT_FILETIME )

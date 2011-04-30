@@ -84,7 +84,6 @@ private:
 
 	string m_strFileName;
 	string m_strPathInArchive;
-	string m_strPassword;
 
 	const ArchiveItem *m_pCurrentItem;
 
@@ -131,8 +130,6 @@ public:
 
 	bool SetCurrentDirectory(const TCHAR* lpPathInArchive);
 	const TCHAR* GetCurrentDirectory();
-
-	void SetPassword(const TCHAR* lpPassword);
 
 	int Extract(const ArchiveItemArray& items, const TCHAR *lpDestDiskPath, bool bWithoutPath);
 	int Delete(const ArchiveItemArray& items);

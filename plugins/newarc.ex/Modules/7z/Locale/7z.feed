@@ -12,3 +12,225 @@
 MTest
 "Тест"
 "Test"
+
+MYes
+"Да"
+"Yes"
+
+MNo
+"Нет"
+"Да"
+
+#archive properties from 7z
+
+MArchivePropertyName
+"Имя"
+"Name"
+
+MArchivePropertyExtension
+"Расширение"
+"Exntension"
+
+MArchivePropertyIsFolder
+"Папка"
+"Folder"
+
+MArchivePropertySize
+"Размер"
+"Size"
+
+MArchivePropertyPackSize
+"Упакованный размер"
+"Packed size"
+
+MArchivePropertyAttributes
+"Атрибуты"
+"Attributes"
+
+MArchivePropertyCTime
+"Время создания"
+"Creation time"
+
+MArchivePropertyATime
+"Время последнего доступа"
+"Last access time"
+
+MArchivePropertyMTime
+"Время последнего изменения"
+"Last modify time"
+
+MArchivePropertySolid
+"Непрерывный архив"
+"Solid"
+
+MArchivePropertyCommented
+"Наличие комментария"
+"Commended"
+
+MArchivePropertyEncrypted
+"Зашифрован"
+"Encrypted"
+
+MArchivePropertySplitBefore
+"SplitBefore"
+"SplitBefore"
+
+MArchivePropertySplitAfter
+"SplitAfter"
+"SplitAfter"
+
+MArchivePropertyDictionarySize
+"Размер словаря"
+"Dictionary size"
+
+MArchivePropertyCRC
+"Контрольная сумма"
+"CRC"
+
+MArchivePropertyType
+"Тип"
+"Type"
+
+MArchivePropertyAnti
+"Anti"
+"Anti"
+
+MArchivePropertyMethod
+"Метод"
+"Method"
+
+MArchivePropertyHostOS
+"HostOS"
+"HostOS"
+
+MArchivePropertyFileSystem
+"Файловая система"
+"File system"
+
+MArchivePropertyUser
+"Пользователь"
+"User"
+
+MArchivePropertyGroup
+"Группа"
+"Group"
+
+MArchivePropertyBlock
+"Блок"
+"Block"
+
+MArchivePropertyComment
+"Комментарий"
+"Comment"
+
+MArchivePropertyPosition
+"Позиция"
+"Position"
+
+MArchivePropertyNumSubFolders
+"Кол-во вложенных каталогов"
+"Number of subfolders"
+
+MArchivePropertyNumSubFiles
+"NumSubFiles"
+"NumSubFiles"
+
+MArchivePropertyUnpackVer
+"Версия для распаковки"
+"Unpack version"
+
+MArchivePropertyVolume
+"Том"
+"Volume"
+
+MArchivePropertyIsVolume
+"Многотомный архив"
+"Multivolume"
+
+MArchivePropertyOffset
+"Отступ"
+"Offset"
+
+MArchivePropertyLinks
+"Links"
+"Links"
+
+MArchivePropertyNumBlocks
+"NumBlocks"
+"NumBlocks"
+
+MArchivePropertyNumVolumes
+"NumVolumes"
+"NumVolumes"
+
+MArchivePropertyBit64
+"Bit64"
+"Bit64"
+
+MArchivePropertyBigEndian
+"BigEndian"
+"BigEndian"
+
+MArchivePropertyCpu
+"Процессор"
+"CPU"
+
+MArchivePropertyPhySize
+"PhySize"
+"PhySize"
+
+MArchivePropertyHeadersSize
+"Размер заголовков"
+"Headers size"
+
+MArchivePropertyChecksum
+"Контрольная сумма"
+"Checksum"
+
+MArchivePropertyCharacts
+"Characts"
+"Characts"
+
+MArchivePropertyVa
+"Va"
+"Va"
+
+MArchivePropertyId
+"Id"
+"Id"
+
+MArchivePropertyShortName
+"Короткое имя"
+"Short name"
+
+MArchivePropertyCreatorApp
+"CreatorApp"
+"CreatorApp"
+
+MArchivePropertySectorSize
+"Размер сектора"
+"Sector size"
+
+MArchivePropertyPosixAttrib
+"PosixAttrib"
+"PosixAttrib"
+
+MArchivePropertyLink
+"Link"
+"Link"
+
+MArchivePropertyTotalSize
+"TotalSize"
+"TotalSize"
+
+MArchivePropertyFreeSpace
+"FreeSpace"
+"FreeSpace"
+
+MArchivePropertyClusterSize
+"ClusterSize"
+"ClusterSize"
+
+MArchivePropertyLabel
+"Label"
+"Label"

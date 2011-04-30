@@ -13,6 +13,7 @@ int OnInitialize (StartupInfo *pInfo)
 	pModule = new SevenZipModule;
 	pModule->Load();
 
+
 //	MessageBoxW(0, _M(MTest), _T("123"), MB_OK);
 
 	return NAERROR_SUCCESS;
@@ -181,6 +182,7 @@ int OnDelete(DeleteStruct *pDS)
 
 int OnConfigure(ConfigureStruct* pCF)
 {
+
 /*
 	SevenZipPlugin* pPlugin = pModule->GetPluginFromUID(pCF->uid);
 

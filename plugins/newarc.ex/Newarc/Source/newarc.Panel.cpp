@@ -645,13 +645,10 @@ int ArchivePanel::pDeleteFiles(
 		int OpMode
 		)
 {
-	ArchiveItemArray items;
-
 	if ( msgDeleteFiles () )
 	{
+		ArchiveItemArray items;
 		GetArchiveItemsToProcess(PanelItem, ItemsNumber, items);
-
-		//m_pArchive->SetOperationStruct(&os);
 
 		return Delete(items);
 	}
@@ -1005,14 +1002,12 @@ int ArchivePanel::OnQueryPassword(int nMode, PasswordStruct* pPassword)
 		m_strPassword.ReleaseBuffer();
 
 		if ( !bResult )
-			m_strPassword = NULL;
-		else
 		{
-			m_bPasswordSet = true;
-
-			if ( m_pArchive )
-				m_pArchive->SetPassword(m_strPassword);
+			m_strPassword = NULL;
+			m_bPasswordSet = false;
 		}
+		else
+			m_bPasswordSet = true;
 	}
 
 	if ( m_bPasswordSet && bResult )
