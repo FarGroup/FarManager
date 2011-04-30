@@ -282,6 +282,7 @@ int ArchivePanel::pGetFindData(
 	ConstArray<PluginPanelItem> pPanelItems(100);
 	Array<ArchiveTreeNode*> items;
 
+	m_pArchive->SetCurrentDirectory(m_strPathInArchive); //а вдруг архив перезагрузили, вернем путь
 	m_pArchive->GetArchiveTreeItems(items, false); //no recursive
 
 	for (unsigned int i = 0; i < items.count(); i++)
@@ -682,14 +683,9 @@ int ArchivePanel::pSetDirectory(
 		int nOpMode
 		)
 {
-//	MessageBox(0, _T("SET DIR 1"), 0, MB_OK);
-
 	if ( m_pArchive->SetCurrentDirectory(Dir) )
 	{
 		m_strPathInArchive = m_pArchive->GetCurrentDirectory();
-
-//	MessageBox(0, _T("SET DIR 2"), 0, MB_OK);
-
 		return TRUE;
 	}
 
@@ -699,13 +695,8 @@ int ArchivePanel::pSetDirectory(
 
 void ArchivePanel::pClosePlugin()
 {
-//		MessageBox(0, _T("Close 1"), 0, MB_OK);
-
 	if ( m_pArchive )
 		m_pManager->CloseArchive(m_pArchive);
-
-//		MessageBox(0, _T("Close11"), 0, MB_OK);
-
 
 	if ( m_pArchiveInfo )
 	{
@@ -718,9 +709,6 @@ void ArchivePanel::pClosePlugin()
 #endif
 		delete m_pArchiveInfo;
 	}
-
-//		MessageBox(0, _T("Close 2"), 0, MB_OK);
-
 }
 
 #include "mnu\\mnuChooseOperation.cpp"
@@ -824,7 +812,7 @@ int ArchivePanel::pMakeDirectory(const TCHAR* lpDirectory, int nOpMode)
 	return TRUE;
 }
 
-int ArchivePanel::pProcessKey (
+int ArchivePanel::pProcessKey(
 		int nKey,
 		DWORD dwControlState
 		)
@@ -1319,6 +1307,7 @@ int ArchivePanel::MakeDirectory(const TCHAR* lpDirectory)
 			ExecuteStruct ES(items);
 
 			ES.lpCurrentDiskPath = strTempPath;
+			ES.lpCommand = strCommand;
 
 			nResult = m_pArchive->ExecuteAsOperation(OPERATION_ADD, ExecuteCommand, &ES);
 		}
