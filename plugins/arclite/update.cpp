@@ -506,7 +506,7 @@ typedef map<UInt32, FileIndexInfo> FileIndexMap;
 class PrepareUpdate: private ProgressMonitor {
 private:
   wstring src_dir;
-  ComObject<Archive> archive;
+  Archive* archive;
   FileIndexMap& file_index_map;
   UInt32& new_index;
   bool& ignore_errors;
