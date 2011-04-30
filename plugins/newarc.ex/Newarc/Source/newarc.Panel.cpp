@@ -332,8 +332,6 @@ void ArchivePanel::pGetOpenPluginInfo(
 
 	if ( m_pArchive )
 	{
-		
-
 		ArchiveFormat *pFormat = m_pArchive->GetFormat();
 
 		m_strPanelTitle.Format(
