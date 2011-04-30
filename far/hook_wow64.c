@@ -57,10 +57,14 @@ __declspec(thread)
 #endif
 saveval;
 
+typedef BOOL (WINAPI *DISABLE)(PVOID*);
+typedef BOOL (WINAPI *REVERT)(PVOID);
+typedef BOOL (WINAPI *ISWOW)(HANDLE,PBOOL);
+
 typedef struct
 {
-	BOOL (WINAPI *disable)(PVOID*);
-	BOOL (WINAPI *revert)(PVOID);
+	DISABLE disable;
+	REVERT revert;
 } WOW;
 
 static BOOL WINAPI e_disable(PVOID* p) { (void)p; return FALSE; }
@@ -215,7 +219,7 @@ static void init_hook(void)
 	                  ldr_c[] = "LdrLoadDll";
 	WOW rwow;
 	BOOL b=FALSE;
-	BOOL (WINAPI *IsWow)(HANDLE,PBOOL);
+	ISWOW IsWow = NULL;
 #pragma pack(1)
 	struct
 	{
@@ -232,10 +236,10 @@ static void init_hook(void)
 	} ur;
 
 	if ((ur.h = GetModuleHandleW(k32_w)) == NULL
-	        || (IsWow = GetProcAddress(ur.h, wow_c)) == NULL
+	        || (IsWow = (ISWOW)GetProcAddress(ur.h, wow_c)) == NULL
 	        || !(IsWow(GetCurrentProcess(), &b) && b)
-	        || (rwow.disable = GetProcAddress(ur.h, dis_c)) == NULL
-	        || (rwow.revert = GetProcAddress(ur.h, rev_c)) == NULL
+	        || (rwow.disable = (DISABLE)GetProcAddress(ur.h, dis_c)) == NULL
+	        || (rwow.revert = (REVERT)GetProcAddress(ur.h, rev_c)) == NULL
 	        || (ur.h = GetModuleHandleW(ntd_w)) == NULL
 	        || (ur.f = GetProcAddress(ur.h, ldr_c)) == NULL) return;
 

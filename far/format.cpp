@@ -36,58 +36,66 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "format.hpp"
 #include "interf.hpp"
 
-void BaseFormat::Reset()
+BaseFormat::BaseFormat()
 {
-	_Width=0;
-	_Precision=static_cast<size_t>(-1);
-	_FillChar=L' ';
-	_Align=fmt::A_RIGHT;
-	_Radix=10;
+	Reset();
 }
 
-void BaseFormat::Put(LPCWSTR Data,size_t Length)
+BaseFormat& BaseFormat::SetPrecision(size_t Precision)
 {
-	if (_Precision==static_cast<size_t>(-1))
+	this->Precision = Precision;
+	return *this;
+}
+
+BaseFormat& BaseFormat::SetWidth(size_t Width)
+{
+	this->Width = Width;
+	return *this;
+}
+
+BaseFormat& BaseFormat::SetAlign(fmt::AlignType Align)
+{
+	this->Align = Align;
+	return *this;
+}
+BaseFormat& BaseFormat::SetFillChar(wchar_t Char)
+{
+	this->FillChar = Char;
+	return *this;
+}
+
+BaseFormat& BaseFormat::SetRadix(int Radix)
+{
+	this->Radix=Radix;
+	return *this;
+}
+
+BaseFormat& BaseFormat::Put(LPCWSTR Data, size_t Length)
+{
+	if (Precision == fmt::Precision::GetDefault())
 	{
-		_Precision=Length;
+		Precision = Length;
 	}
 
-	string OutStr(Data,Min(_Precision,Length));
+	string OutStr(Data, Min(Precision, Length));
 
-	if (_Align==fmt::A_RIGHT)
+	if (Align == fmt::A_RIGHT)
 	{
-		while (OutStr.GetLength()<_Width)
+		while (OutStr.GetLength() < Width)
 		{
-			OutStr.Insert(0,_FillChar);
+			OutStr.Insert(0, FillChar);
 		}
 	}
 	else
 	{
-		while (OutStr.GetLength()<_Width)
+		while (OutStr.GetLength() < Width)
 		{
-			OutStr.Append(_FillChar);
+			OutStr.Append(FillChar);
 		}
 	}
 
 	Commit(OutStr);
 	Reset();
-}
-
-BaseFormat& BaseFormat::operator<<(WCHAR Value)
-{
-	Put(&Value,1);
-	return *this;
-}
-
-BaseFormat& BaseFormat::ToString(INT64 Value, bool Signed)
-{
-	WCHAR Buffer[65];
-	Signed?_i64tow(Value,Buffer,_Radix):_ui64tow(Value,Buffer,_Radix);
-	if(_Radix > 10)
-	{
-		UpperBuf(Buffer, ARRAYSIZE(Buffer));
-	}
-	Put(Buffer,StrLength(Buffer));
 	return *this;
 }
 
@@ -101,55 +109,109 @@ BaseFormat& BaseFormat::operator<<(UINT64 Value)
 	return ToString(Value, false);
 }
 
+BaseFormat& BaseFormat::operator<<(short Value)
+{
+	return operator<<(static_cast<INT64>(Value));
+}
+
+BaseFormat& BaseFormat::operator<<(USHORT Value)
+{
+	return operator<<(static_cast<UINT64>(Value));
+}
+
+BaseFormat& BaseFormat::operator<<(int Value)
+{
+	return operator<<(static_cast<INT64>(Value));
+}
+
+BaseFormat& BaseFormat::operator<<(UINT Value)
+{
+	return operator<<(static_cast<UINT64>(Value));
+}
+
+BaseFormat& BaseFormat::operator<<(long Value)
+{
+	return operator<<(static_cast<INT64>(Value));
+}
+
+BaseFormat& BaseFormat::operator<<(ULONG Value)
+{
+	return operator<<(static_cast<UINT64>(Value));
+}
+
+BaseFormat& BaseFormat::operator<<(wchar_t Value)
+{
+	return Put(&Value,1);
+}
+
 BaseFormat& BaseFormat::operator<<(LPCWSTR Data)
 {
-	Data=NullToEmpty(Data);
-	Put(Data,StrLength(Data));
-	return *this;
+	Data = NullToEmpty(Data);
+	return Put(Data, StrLength(Data));
 }
 
 BaseFormat& BaseFormat::operator<<(const string& String)
 {
-	Put(String,String.GetLength());
-	return *this;
+	return Put(String,String.GetLength());
 }
 
 BaseFormat& BaseFormat::operator<<(const fmt::Width& Manipulator)
 {
-	SetWidth(Manipulator.GetValue());
-	return *this;
+	return SetWidth(Manipulator.GetValue());
 }
 
 BaseFormat& BaseFormat::operator<<(const fmt::Precision& Manipulator)
 {
-	SetPrecision(Manipulator.GetValue());
-	return *this;
+	return SetPrecision(Manipulator.GetValue());
 }
-
 
 BaseFormat& BaseFormat::operator<<(const fmt::FillChar& Manipulator)
 {
-	SetFillChar(Manipulator.GetValue());
-	return *this;
+	return SetFillChar(Manipulator.GetValue());
 }
 
 BaseFormat& BaseFormat::operator<<(const fmt::Radix& Manipulator)
 {
-	SetRadix(Manipulator.GetValue());
-	return *this;
+	return SetRadix(Manipulator.GetValue());
+}
+
+BaseFormat& BaseFormat::operator<<(const fmt::Align& Manipulator)
+{
+	return SetAlign(Manipulator.GetValue());
 }
 
 BaseFormat& BaseFormat::operator<<(const fmt::LeftAlign& Manipulator)
 {
-	SetAlign(fmt::A_LEFT);
-	return *this;
+	return SetAlign(fmt::A_LEFT);
 }
 
 BaseFormat& BaseFormat::operator<<(const fmt::RightAlign& Manipulator)
 {
-	SetAlign(fmt::A_RIGHT);
-	return *this;
+	return SetAlign(fmt::A_RIGHT);
 }
+
+void BaseFormat::Reset()
+{
+	Width = fmt::Width::GetDefault();
+	Precision = fmt::Precision::GetDefault();
+	FillChar = fmt::FillChar::GetDefault();
+	Align = fmt::Align::GetDefault();
+	Radix = fmt::Radix::GetDefault();
+}
+
+BaseFormat& BaseFormat::ToString(INT64 Value, bool Signed)
+{
+	wchar_t Buffer[65];
+	Signed?_i64tow(Value, Buffer, Radix):_ui64tow(Value, Buffer, Radix);
+	if (Radix > 10)
+	{
+		UpperBuf(Buffer, ARRAYSIZE(Buffer));
+	}
+	return Put(Buffer, StrLength(Buffer));
+}
+
+
+
 
 void FormatString::Commit(const string& Data)
 {

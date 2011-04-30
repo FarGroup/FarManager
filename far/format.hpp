@@ -33,100 +33,83 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 namespace fmt
 {
-	class Width
+	template<typename T, T Default> class ManipulatorTemplate
 	{
-			size_t Value;
-		public:
-			Width(size_t Value=0) {this->Value=Value;}
-			size_t GetValue()const {return Value;}
+	public:
+		ManipulatorTemplate(T Value=DefaultValue):Value(Value) {}
+		T GetValue() const { return Value; }
+		static T GetDefault() { return DefaultValue; }
+	private:
+		const T Value;
+		static const T DefaultValue = Default;
 	};
 
-	class Precision
-	{
-			size_t Value;
-		public:
-			Precision(size_t Value=static_cast<size_t>(-1)) {this->Value=Value;}
-			size_t GetValue()const {return Value;}
-	};
-
-	class FillChar
-	{
-			WCHAR Value;
-		public:
-			FillChar(WCHAR Value=L' ') {this->Value=Value;}
-			WCHAR GetValue()const {return Value;}
-	};
-
-	class Radix
-	{
-			int Value;
-		public:
-			Radix(int Value=10) {this->Value=Value;}
-			int GetValue()const {return Value;}
-	};
+	typedef ManipulatorTemplate<size_t, 0> Width;
+	typedef ManipulatorTemplate<size_t, static_cast<size_t>(-1)> Precision;
+	typedef ManipulatorTemplate<wchar_t, L' '> FillChar;
+	typedef ManipulatorTemplate<int, 10> Radix;
 
 	enum AlignType
 	{
 		A_LEFT,
 		A_RIGHT,
 	};
+	typedef ManipulatorTemplate<AlignType, A_RIGHT> Align;
 
-	template<AlignType T>class Align {};
-
-	typedef Align<A_LEFT> LeftAlign;
-	typedef Align<A_RIGHT> RightAlign;
+	template<AlignType T>class SimpleAlign {};
+	typedef SimpleAlign<A_LEFT> LeftAlign;
+	typedef SimpleAlign<A_RIGHT> RightAlign;
 };
 
 class BaseFormat
 {
-		size_t _Width;
-		size_t _Precision;
-		WCHAR _FillChar;
-		fmt::AlignType _Align;
-		int _Radix;
+public:
+	BaseFormat();
+	virtual ~BaseFormat() {}
 
-		void Reset();
-		void Put(LPCWSTR Data,size_t Length);
-		BaseFormat& ToString(INT64 Value, bool Signed);
+	// attributes
+	BaseFormat& SetPrecision(size_t Precision=fmt::Precision::GetDefault());
+	BaseFormat& SetWidth(size_t Width=fmt::Width::GetDefault());
+	BaseFormat& SetAlign(fmt::AlignType Align=fmt::Align::GetDefault());
+	BaseFormat& SetFillChar(wchar_t Char=fmt::FillChar::GetDefault());
+	BaseFormat& SetRadix(int Radix=fmt::Radix::GetDefault());
 
-	protected:
-		virtual void Commit(const string& Data)=0;
+	BaseFormat& Put(LPCWSTR Data, size_t Length);
 
-	public:
-		BaseFormat() {Reset();}
-		virtual ~BaseFormat() {}
+	// data
+	BaseFormat& operator<<(INT64 Value);
+	BaseFormat& operator<<(UINT64 Value);
+	BaseFormat& operator<<(short Value);
+	BaseFormat& operator<<(USHORT Value);
+	BaseFormat& operator<<(int Value);
+	BaseFormat& operator<<(UINT Value);
+	BaseFormat& operator<<(long Value);
+	BaseFormat& operator<<(ULONG Value);
+	BaseFormat& operator<<(wchar_t Value);
+	BaseFormat& operator<<(LPCWSTR Data);
+	BaseFormat& operator<<(const string& String);
 
-		// attributes
-		void SetPrecision(size_t Precision=static_cast<size_t>(-1)) {_Precision=Precision;}
-		void SetWidth(size_t Width=0) {_Width=Width;}
-		void SetAlign(fmt::AlignType Align=fmt::A_RIGHT) {_Align=Align;}
-		void SetFillChar(WCHAR Char=L' ') {_FillChar=Char;}
-		void SetRadix(int Radix=10) {_Radix=Radix;}
+	// manipulators
+	BaseFormat& operator<<(const fmt::Width& Manipulator);
+	BaseFormat& operator<<(const fmt::Precision& Manipulator);
+	BaseFormat& operator<<(const fmt::FillChar& Manipulator);
+	BaseFormat& operator<<(const fmt::Radix& Manipulator);
+	BaseFormat& operator<<(const fmt::Align& Manipulator);
+	BaseFormat& operator<<(const fmt::LeftAlign& Manipulator);
+	BaseFormat& operator<<(const fmt::RightAlign& Manipulator);
 
-		// data
-		BaseFormat& operator<<(INT64 Value);
-		BaseFormat& operator<<(UINT64 Value);
+protected:
+	virtual void Commit(const string& Data)=0;
 
-		BaseFormat& operator<<(short Value) {return operator<<(static_cast<INT64>(Value));}
-		BaseFormat& operator<<(USHORT Value) {return operator<<(static_cast<UINT64>(Value));}
+private:
+	size_t Width;
+	size_t Precision;
+	wchar_t FillChar;
+	fmt::AlignType Align;
+	int Radix;
 
-		BaseFormat& operator<<(int Value) {return operator<<(static_cast<INT64>(Value));}
-		BaseFormat& operator<<(UINT Value) {return operator<<(static_cast<UINT64>(Value));}
-
-		BaseFormat& operator<<(long Value) {return operator<<(static_cast<INT64>(Value));}
-		BaseFormat& operator<<(ULONG Value) {return operator<<(static_cast<UINT64>(Value));}
-
-		BaseFormat& operator<<(WCHAR Value);
-		BaseFormat& operator<<(LPCWSTR Data);
-		BaseFormat& operator<<(const string& String);
-
-		// manipulators
-		BaseFormat& operator<<(const fmt::Width& Manipulator);
-		BaseFormat& operator<<(const fmt::Precision& Manipulator);
-		BaseFormat& operator<<(const fmt::LeftAlign& Manipulator);
-		BaseFormat& operator<<(const fmt::RightAlign& Manipulator);
-		BaseFormat& operator<<(const fmt::FillChar& Manipulator);
-		BaseFormat& operator<<(const fmt::Radix& Manipulator);
+	void Reset();
+	BaseFormat& ToString(INT64 Value, bool Signed);
 };
 
 class FormatString:public BaseFormat, public string

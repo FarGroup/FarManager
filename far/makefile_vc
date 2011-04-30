@@ -389,23 +389,15 @@ $(RES_FILE): bootstrap\far.rc res.hpp Far.ico
 
 MSG=echo generating $@
 
-bootstrap\copyright.inc: $(@F).m4 farversion.m4 tools.m4 vbuild.m4
-	$(MSG)
-	$(M4) $(@F).m4 > $@
-
-bootstrap\farversion.inc: $(@F).m4 farversion.m4 tools.m4 vbuild.m4
-	$(MSG)
-	$(M4) $(@F).m4 > $@
-
-bootstrap\Far.exe.manifest: $(@F).m4 farversion.m4 tools.m4 vbuild.m4
+bootstrap\Far.exe.manifest \
+bootstrap\copyright.inc \
+bootstrap\farversion.inc \
+bootstrap\farlang.templ \
+$(OUTDIR)\File_id.diz: $(@F).m4 farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	$(M4) $(@F).m4 > $@
 
 bootstrap\far.rc: $(@F).m4 farversion.m4 tools.m4 vbuild.m4 bootstrap\Far.exe.manifest res.hpp
-	$(MSG)
-	$(M4) $(@F).m4 > $@
-
-bootstrap\farlang.templ: $(@F).m4 farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	$(M4) $(@F).m4 > $@
 
@@ -421,34 +413,18 @@ $(FARINCLUDE)\plugin.hpp: $(@F) farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	$(M4) -DINPUT=$(@F) headers.m4 > $@
 
-$(OUTDIR)\FarEng.hlf: $(@F).m4 farversion.m4 tools.m4 vbuild.m4
-	$(MSG)
-	$(GAWK) -f .\scripts\mkhlf.awk $(@F).m4 | $(M4) > $@
-
-$(OUTDIR)\FarRus.hlf: $(@F).m4 farversion.m4 tools.m4 vbuild.m4
-	$(MSG)
-	$(GAWK) -f .\scripts\mkhlf.awk $(@F).m4 | $(M4) > $@
-
+$(OUTDIR)\FarEng.hlf \
+$(OUTDIR)\FarRus.hlf \
 $(OUTDIR)\FarHun.hlf: $(@F).m4 farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	$(GAWK) -f .\scripts\mkhlf.awk $(@F).m4 | $(M4) > $@
-
-$(OUTDIR)\File_id.diz: $(@F).m4 farversion.m4 tools.m4 vbuild.m4
-	$(MSG)
-	$(M4) $(@F).m4 > $@
 
 $(OUTDIR)\Far.exe.ini: $(@F)
 	$(MSG)
 	copy /Y $(@F) $@ > nul
 
-$(FARINCLUDE)\PluginW.pas: $(@F) farversion.m4 tools.m4 vbuild.m4
-	$(MSG)
-	$(M4) -DINPUT=$(@F) headers.m4 > $@
-
-$(FARINCLUDE)\FarColorW.pas: $(@F) farversion.m4 tools.m4 vbuild.m4
-	$(MSG)
-	$(M4) -DINPUT=$(@F) headers.m4 > $@
-
+$(FARINCLUDE)\PluginW.pas \
+$(FARINCLUDE)\FarColorW.pas \
 $(FARINCLUDE)\FarKeysW.pas: $(@F) farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	$(M4) -DINPUT=$(@F) headers.m4 > $@
