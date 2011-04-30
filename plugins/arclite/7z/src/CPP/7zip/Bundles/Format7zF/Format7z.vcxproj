@@ -943,6 +943,7 @@
     <ClCompile Include="..\..\Archive\SplitHandler.cpp" />
     <ClCompile Include="..\..\Archive\SquashfsHandler.cpp" />
     <ClCompile Include="..\..\Archive\SwfHandler.cpp" />
+    <ClCompile Include="..\..\Archive\UefiHandler.cpp" />
     <ClCompile Include="..\..\Archive\VhdHandler.cpp" />
     <ClCompile Include="..\..\Archive\XarHandler.cpp" />
     <ClCompile Include="..\..\Archive\XzHandler.cpp" />
