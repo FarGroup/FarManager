@@ -235,7 +235,7 @@ int OnGetArchiveInfo(ArchiveInfoStruct* pAIS)
 {
 	SevenZipArchive* pArchive = (SevenZipArchive*)pAIS->hArchive;
 
-	pAIS->nInfoItems = pArchive->GetArchiveInfo(&pAIS->pInfo);
+	pAIS->nInfoItems = pArchive->GetArchiveInfo(pAIS->bMultiVolume, &pAIS->pInfo);
 	pAIS->bResult = (pAIS->nInfoItems > 0); //USELESS
 
 	return NAERROR_SUCCESS;

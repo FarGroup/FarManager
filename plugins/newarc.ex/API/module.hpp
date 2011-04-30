@@ -82,6 +82,7 @@ struct ArchiveItem
 #define OPERATION_ADD			3
 #define OPERATION_DELETE		4
 #define OPERATION_TEST			5
+#define OPERATION_OTHER			100
 
 #define STAGE_EXTRACTING		1
 #define STAGE_ADDING			2
@@ -406,6 +407,8 @@ struct ArchiveInfoStruct {
 	DWORD dwStructVersion;
 
 	HANDLE hArchive;
+
+	bool bMultiVolume; //archive has several volumes
 
 	int nInfoItems;
 	const ArchiveInfoItem* pInfo;

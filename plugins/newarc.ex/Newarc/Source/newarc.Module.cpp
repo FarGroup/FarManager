@@ -505,7 +505,7 @@ int ArchiveModule::GetArchiveItem(
 	return 1;
 }
 
-int ArchiveModule::GetArchiveInfo(HANDLE hArchive, const ArchiveInfoItem** pItems)
+int ArchiveModule::GetArchiveInfo(HANDLE hArchive, bool& bMultiVolume, const ArchiveInfoItem** pItems)
 {
 	ArchiveInfoStruct AIS;
 
@@ -515,6 +515,8 @@ int ArchiveModule::GetArchiveInfo(HANDLE hArchive, const ArchiveInfoItem** pItem
 	if ( (m_pfnModuleEntry(FID_GETARCHIVEINFO, (void*)&AIS) == NAERROR_SUCCESS) && AIS.bResult )
 	{
 		*pItems = AIS.pInfo;
+		bMultiVolume = AIS.bMultiVolume;
+
 		return AIS.nInfoItems;
 	}
 

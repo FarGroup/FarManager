@@ -69,6 +69,8 @@ struct OperationStructEx {
 };
 
 
+typedef int (*EXECUTEFUNCTION)(Archive* pArchive, void* pParam);
+
 class Archive {
 
 private:
@@ -113,6 +115,7 @@ public:
 	bool ReadArchiveItems(bool bForce = false);
 	void FreeArchiveItems();
 
+	ArchiveTreeNode* GetRoot();
 	void GetArchiveTreeItems(Array<ArchiveTreeNode*>& items, bool bRecursive);
 
 	bool OpenArchive(int nMode);
@@ -124,7 +127,7 @@ public:
 	int GetArchiveItem(ArchiveItem* pItem);
 	bool FreeArchiveItem(ArchiveItem* pItem);
 
-	int GetArchiveInfo(const ArchiveInfoItem** pItems);
+	int GetArchiveInfo(bool& bMultiVolume, const ArchiveInfoItem** pItems);
 
 	bool SetCurrentDirectory(const TCHAR* lpPathInArchive);
 	const TCHAR* GetCurrentDirectory();
@@ -136,38 +139,12 @@ public:
 	int AddFiles(const ArchiveItemArray& items, const TCHAR *lpSourceDiskPath);
 	int Test(const ArchiveItemArray& items);
 
-	bool MakeDirectory(const TCHAR* lpDirectory);
-
 	bool GetDefaultCommand(int nCommand, string& strCommand, bool& bEnabledByDefault);
-	bool GetCommand(int nCommand, string& strCommand);
+//	bool GetCommand(int nCommand, string& strCommand);
 
-	bool ExecuteCommandEx(
-			const ArchiveItemArray& items,
-			const TCHAR* lpCommand,
-			const TCHAR* lpCurrentDiskPath = NULL,
-			const TCHAR* lpAdditionalCommandLine = NULL,
-			bool bHideOutput = false
-			);
-
-
-	bool ExecuteCommand(
-			int nOperation,
-			const ArchiveItemArray& items, 
-			int nCommand, 
-			const TCHAR* lpCurrentDiskPath = NULL,
-			const TCHAR* lpAdditionalCommandLine = NULL,
-			bool bHideOutput = false
-			);
+	int ExecuteAsOperation(int nOperation, EXECUTEFUNCTION pfnExecute, void* pParam);
 
 private:
-
-	bool ExecuteCommandInternal(
-			const ArchiveItemArray& items, 
-			int nCommand, 
-			const TCHAR* lpCurrentDiskPath = NULL,
-			const TCHAR* lpAdditionalCommandLine = NULL,
-			bool bHideOutput = false
-			);
 
 	bool WasUpdated();
 	void FreeArchiveItemsHelper(ArchiveTree* tree); //private

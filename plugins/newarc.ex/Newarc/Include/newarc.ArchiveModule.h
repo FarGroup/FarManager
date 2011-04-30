@@ -75,7 +75,7 @@ public:
 
 //new
 
-	int GetArchiveInfo(HANDLE hArchive, const ArchiveInfoItem** pItems);
+	int GetArchiveInfo(HANDLE hArchive, bool& bMultiVolume, const ArchiveInfoItem** pItems);
 
 	bool StartOperation(HANDLE hArchive, int nOperation, bool bInternal);
 	bool EndOperation(HANDLE hArchive, int nOperation, bool bInternal);

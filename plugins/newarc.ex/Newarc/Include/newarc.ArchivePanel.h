@@ -10,6 +10,8 @@ private:
 	Archive* m_pArchive;
 	Array<ArchiveFormat*> m_pFormats;
 
+	bool m_bMultiVolume;
+
 	bool m_bFirstTime;
 
 	string m_strFileName;
@@ -98,8 +100,11 @@ private:
 
 private:
 
+	bool GetCommand(int nCommand, string& strCommand);
+
 	int Extract(const ArchiveItemArray& items, const TCHAR* lpDestDiskPath, bool bWithoutPath);
 	int Delete(const ArchiveItemArray& items);
 	int AddFiles(const ArchiveItemArray& items, const TCHAR* lpSourceDiskPath);
 	int Test(const ArchiveItemArray& items);
+	int MakeDirectory(const TCHAR* lpDirectory);
 };

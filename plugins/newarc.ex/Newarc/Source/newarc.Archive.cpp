@@ -159,6 +159,10 @@ void Archive::FreeArchiveItems()
 	_current = nullptr;
 }
 
+ArchiveTreeNode* Archive::GetRoot()
+{
+	return _tree;
+}
 
 void Archive::GetArchiveTreeItems(Array<ArchiveTreeNode*>& items, bool bRecursive)
 {
@@ -205,7 +209,6 @@ int Archive::Extract(
 		bool bWithoutPath
 		)
 {
-	bool bInternalFailed = true;
 	int nResult = RESULT_ERROR;
 
 	string strDestDiskPath = lpDestDiskPath;
@@ -223,18 +226,9 @@ int Archive::Extract(
 						);
 
 			EndOperation(OPERATION_EXTRACT, true);
-
-			bInternalFailed = false;
 		}
 	}
 
-	if ( bInternalFailed )
-		nResult = ExecuteCommand(
-				OPERATION_EXTRACT,
-				items, 
-				bWithoutPath?COMMAND_EXTRACT_WITHOUT_PATH:COMMAND_EXTRACT,
-				strDestDiskPath
-				)?RESULT_SUCCESS:RESULT_ERROR; //BADBAD
 
 	return nResult;
 }
@@ -242,22 +236,15 @@ int Archive::Extract(
 int Archive::Test(const ArchiveItemArray& items)
 {
 	int nResult = RESULT_ERROR;
-	bool bInternalFailed = true;
 
 	if ( QueryCapability(AFF_SUPPORT_INTERNAL_TEST) && m_hArchive )
 	{
 		if ( StartOperation(OPERATION_TEST, true) )
 		{
 			nResult = m_pModule->Test(m_hArchive, items);
-
-			EndOperation(OPERATION_TEST, false);
-
-			bInternalFailed = false;
+			EndOperation(OPERATION_TEST, true);
 		}
 	}
-
-	if ( bInternalFailed )
-		nResult = ExecuteCommand(OPERATION_TEST, items, COMMAND_TEST)?RESULT_SUCCESS:RESULT_ERROR;
 
 	return nResult;
 }
@@ -268,7 +255,6 @@ int Archive::AddFiles(
 		)
 {
 	int nResult = RESULT_ERROR;
-	bool bInternalFailed = true;
 
 	string strSourceDiskPath = lpSourceDiskPath;
 	AddEndSlash(strSourceDiskPath);
@@ -285,93 +271,16 @@ int Archive::AddFiles(
 					);
 		
 			EndOperation(OPERATION_ADD, true);
-
-			bInternalFailed = false;
 		}
 	}
-
-	if ( bInternalFailed )
-		nResult = ExecuteCommand(
-				OPERATION_ADD,
-				items, 
-				COMMAND_ADD, 
-				strSourceDiskPath
-				)?RESULT_SUCCESS:RESULT_ERROR;
 
 	return nResult;
 }
 
 
-bool Archive::MakeDirectory(const TCHAR* lpDirectory)
-{
-	bool bResult = false;
-	bool bInternalFailed = true;
-
-	ArchiveItemArray items;
-
-	ArchiveItem *item = items.add();
-
-	item->lpFileName = lpDirectory;
-	item->dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
-
-	if ( QueryCapability(AFF_SUPPORT_INTERNAL_ADD) && m_hArchive )
-	{
-		if ( StartOperation(OPERATION_ADD, true) )
-		{
-			item->lpFileName = lpDirectory;
-
-			bResult = m_pModule->AddFiles(
-					m_hArchive, 
-					items, 
-					_T(""), 
-					m_strPathInArchive
-					);
-		
-			EndOperation(OPERATION_ADD, true);
-
-			bInternalFailed = false;
-		}
-	}
-
-	if ( bInternalFailed )
-	{
-		if ( StartOperation(OPERATION_ADD, false) )
-		{
-			string strTempPath;
-
-			TCHAR* lpTempPath = strTempPath.GetBuffer(260);
-#ifdef UNICODE
-			FSF.MkTemp(lpTempPath, 260, _T("NADT"));
-#else
-			FSF.MkTemp(lpTempPath, _T("NADT"));
-#endif
-			strTempPath.ReleaseBuffer();
-			
-			string strFullTempPath = strTempPath;
-			AddEndSlash(strFullTempPath);
-
-			strFullTempPath += lpDirectory;
-
-			apiCreateDirectoryEx(strFullTempPath);
-
-			bResult = ExecuteCommandInternal(items, COMMAND_ADD, strTempPath);
-
-			RemoveDirectory(strTempPath);
-
-			EndOperation(OPERATION_ADD, false);
-		}
-	}
-
-	if ( !bResult )
-		msgError(_T("Make directory error!"));
-
-	return bResult;
-}
-
 int Archive::Delete(const ArchiveItemArray& items)
 {
 	int nResult = false;
-	bool bInternalFailed = true;
 
 	if ( QueryCapability(AFF_SUPPORT_INTERNAL_DELETE) && m_hArchive )
 	{
@@ -383,13 +292,8 @@ int Archive::Delete(const ArchiveItemArray& items)
 					);
 
 			EndOperation(OPERATION_DELETE, true);
-
-			bInternalFailed = false;
 		}
 	}
-
-	if ( bInternalFailed )
-		nResult = ExecuteCommand(OPERATION_DELETE, items, COMMAND_DELETE)?RESULT_SUCCESS:RESULT_ERROR;
 
 	return nResult;
 }
@@ -419,9 +323,9 @@ void Archive::EndOperation(int nOperation, bool bInternal)
 	}
 }
 
-int Archive::GetArchiveInfo(const ArchiveInfoItem** pItems)
+int Archive::GetArchiveInfo(bool& bMultiVolume, const ArchiveInfoItem** pItems)
 {
-	return m_pModule->GetArchiveInfo(m_hArchive, pItems);
+	return m_pModule->GetArchiveInfo(m_hArchive, bMultiVolume, pItems);
 }
 
 int Archive::GetArchiveItem(ArchiveItem* pItem)
@@ -465,336 +369,19 @@ bool Archive::GetDefaultCommand(
 	return m_pModule->GetDefaultCommand(GetPlugin()->GetUID(), m_uid, nCommand, strCommand, bEnabledByDefault);
 }
 
-
-bool Archive::GetCommand(
-		int nCommand,
-		string& strCommand
-		)
-{
-	//что здесь делает cfg???
-
-	std::map<const ArchiveFormat*, ArchiveFormatCommands*>::iterator itr = cfg.pArchiveCommands.find(m_pFormat);
-
-	if ( itr != cfg.pArchiveCommands.end() )
-	{
-		ArchiveFormatCommands* pCommands = itr->second;
-
-		if ( pCommands->Commands[nCommand].bEnabled )
-		{
-			strCommand = pCommands->Commands[nCommand].strCommand;
-			return true;
-		}
-	}
-
-	bool bEnabled = false;
-
-	if ( GetDefaultCommand(nCommand, strCommand, bEnabled) && bEnabled )
-		return true;
-
-
-	return false;
-}
-
-#include "processname.cpp"
-
-void QuoteSpaceOnly(string& strSrc)
-{
-	TCHAR* lpBuffer = strSrc.GetBuffer(strSrc.GetLength()+5);
-
-	FSF.QuoteSpaceOnly(lpBuffer);
-
-	strSrc.ReleaseBuffer();
-}
-
-bool Archive::ExecuteCommandInternal(
-		const ArchiveItemArray& items,
-		int nCommand,
-		const TCHAR* lpCurrentDiskPath,
-		const TCHAR* lpAdditionalCommandLine,
-		bool bHideOutput
-		)
-{
-	bool bResult = false;
-
-	FarPanelInfo pnInfo;
-
-	//::SetCurrentDirectory(pnInfo.GetCurrentDirectoryW());
-
-	string strCommand;
-
-	if ( GetCommand(nCommand, strCommand) && !strCommand.IsEmpty() )
-	{
-		ParamStruct psParam;
-		FarPanelInfo info;
-		
-		TCHAR* lpTempPath = psParam.strTempPath.GetBuffer(260);
-		GetTempPath (260, lpTempPath);
-		psParam.strTempPath.ReleaseBuffer();
-
-		TCHAR* lpListFileName = psParam.strListFileName.GetBuffer(260);
-#ifdef UNICODE
-		FSF.MkTemp (lpListFileName, 260, _T("NALT"));
-#else
-		FSF.MkTemp (lpListFileName, _T("NALT"));
-#endif
-		psParam.strListFileName.ReleaseBuffer();
-
-		string strFileName = m_strFileName;
-		string strPath;
-		
-		if ( lpCurrentDiskPath )
-			strPath = lpCurrentDiskPath;
-		else
-		{
-			strPath = strFileName;
-			CutToSlash(strPath);
-		}
-
-		QuoteSpaceOnly(psParam.strTempPath);
-		QuoteSpaceOnly(psParam.strListFileName);
-		QuoteSpaceOnly(strFileName);
-		
-		psParam.strArchiveName = strFileName;
-		psParam.strShortArchiveName = strFileName;
-		psParam.strPassword = m_strPassword;
-		psParam.strPathInArchive = m_strPathInArchive;
-		psParam.strAdditionalCommandLine = lpAdditionalCommandLine;
-		
-		string strExecuteString;
-		int nStartItemNumber = 0;
-
-		while ( true )
-		{
-			int nResult = ParseString(
-					items,
-					strCommand,
-					strExecuteString,
-					&psParam,
-					nStartItemNumber
-					);
-
-			if ( (nResult == PE_SUCCESS) || (nResult == PE_MORE_FILES) )
-			{
-				PROCESS_INFORMATION pInfo;
-				STARTUPINFO sInfo;
-
-				memset(&pInfo, 0, sizeof(PROCESS_INFORMATION));
-
-				memset(&sInfo, 0, sizeof (STARTUPINFO));
-				sInfo.cb = sizeof (STARTUPINFO);
-
-				apiExpandEnvironmentStrings(strExecuteString, strExecuteString);
-
-				HANDLE hScreen = Info.SaveScreen(0, 0, -1, -1);
-
-#ifdef UNICODE
-				Info.Control(INVALID_HANDLE_VALUE, FCTL_GETUSERSCREEN, 0, 0);
-#else
-				Info.Control(INVALID_HANDLE_VALUE, FCTL_GETUSERSCREEN, 0);
-#endif
-				if ( CreateProcess (
-						NULL,
-						strExecuteString.GetBuffer(),
-						NULL,
-						NULL,
-						TRUE,
-						0,
-						NULL,
-						strPath, 
-						&sInfo,
-						&pInfo
-						) )
-				{
-					WaitForSingleObject(pInfo.hProcess, INFINITE);
-
-					DWORD dwExitCode;
-					GetExitCodeProcess(pInfo.hProcess, &dwExitCode);
-
-					CloseHandle (pInfo.hProcess);
-					CloseHandle (pInfo.hThread);
-
-					bResult = (dwExitCode == 0);
-				}
-				else
-				{
-					string strError;
-					strError.Format(_T("CreateProcess failed - %d\n%s"), GetLastError(), strExecuteString.GetString());
-					msgError(strError);
-				}
-
-#ifdef UNICODE
-				Info.Control(INVALID_HANDLE_VALUE, FCTL_SETUSERSCREEN, 0, 0);
-#else
-				Info.Control(INVALID_HANDLE_VALUE, FCTL_SETUSERSCREEN, 0);
-#endif
-
-				Info.RestoreScreen(NULL);
-				Info.RestoreScreen(hScreen);
-			}
-
-			if ( nResult != PE_MORE_FILES )
-				break;
-		}
-		
-		DeleteFile (psParam.strListFileName); //WARNING!!!
-	}
-
-	return bResult;
-
-}
-
-bool Archive::ExecuteCommandEx(
-		const ArchiveItemArray& items,
-		const TCHAR* lpCommand,
-		const TCHAR* lpCurrentDiskPath,
-		const TCHAR* lpAdditionalCommandLine,
-		bool bHideOutput
-		)
-{
-	bool bResult = false;
-
-	if ( lpCommand )
-	{
-		ParamStruct psParam;
-		FarPanelInfo info;
-		
-		TCHAR* lpTempPath = psParam.strTempPath.GetBuffer(260);
-		GetTempPath (260, lpTempPath);
-		psParam.strTempPath.ReleaseBuffer();
-
-		TCHAR* lpListFileName = psParam.strListFileName.GetBuffer(260);
-#ifdef UNICODE
-		FSF.MkTemp (lpListFileName, 260, _T("NALT"));
-#else
-		FSF.MkTemp (lpListFileName, _T("NALT"));
-#endif
-		psParam.strListFileName.ReleaseBuffer();
-
-		string strFileName = m_strFileName;
-		string strPath;
-		
-		if ( lpCurrentDiskPath )
-			strPath = lpCurrentDiskPath;
-		else
-		{
-			strPath = strFileName;
-			CutToSlash(strPath);
-		}
-
-		QuoteSpaceOnly(psParam.strTempPath);
-		QuoteSpaceOnly(psParam.strListFileName);
-		QuoteSpaceOnly(strFileName);
-		
-		psParam.strArchiveName = strFileName;
-		psParam.strShortArchiveName = strFileName;
-		psParam.strPassword = m_strPassword;
-		psParam.strPathInArchive = m_strPathInArchive;
-		psParam.strAdditionalCommandLine = lpAdditionalCommandLine;
-		
-		string strExecuteString;
-		int nStartItemNumber = 0;
-
-		while ( true )
-		{
-			int nResult = ParseString(
-					items,
-					lpCommand,
-					strExecuteString,
-					&psParam,
-					nStartItemNumber
-					);
-
-			if ( (nResult == PE_SUCCESS) || (nResult == PE_MORE_FILES) )
-			{
-				PROCESS_INFORMATION pInfo;
-				STARTUPINFO sInfo;
-
-				memset (&sInfo, 0, sizeof (STARTUPINFO));
-				sInfo.cb = sizeof (STARTUPINFO);
-
-				apiExpandEnvironmentStrings(strExecuteString, strExecuteString);
-
-				HANDLE hScreen = Info.SaveScreen(0, 0, -1, -1);
-
-#ifdef UNICODE
-				Info.Control(INVALID_HANDLE_VALUE, FCTL_GETUSERSCREEN, 0, 0);
-#else
-				Info.Control(INVALID_HANDLE_VALUE, FCTL_GETUSERSCREEN, 0);
-#endif
-				if ( CreateProcess (
-						NULL,
-						strExecuteString.GetBuffer(),
-						NULL,
-						NULL,
-						TRUE,
-						0,
-						NULL,
-						strPath, 
-						&sInfo,
-						&pInfo
-						) )
-				{
-					WaitForSingleObject(pInfo.hProcess, INFINITE);
-
-					DWORD dwExitCode;
-					GetExitCodeProcess(pInfo.hProcess, &dwExitCode);
-
-					CloseHandle (pInfo.hProcess);
-					CloseHandle (pInfo.hThread);
-
-					bResult = (dwExitCode == 0);
-				}
-				else
-				{
-					string strError;
-					strError.Format(_T("CreateProcess failed - %d\n%s"), GetLastError(), strExecuteString.GetString());
-					msgError(strError);
-				}
-
-#ifdef UNICODE
-				Info.Control(INVALID_HANDLE_VALUE, FCTL_SETUSERSCREEN, 0, 0);
-#else
-				Info.Control(INVALID_HANDLE_VALUE, FCTL_SETUSERSCREEN, 0);
-#endif
-
-				Info.RestoreScreen(NULL);
-				Info.RestoreScreen(hScreen);
-			}
-
-			if ( nResult != PE_MORE_FILES )
-				break;
-		}
-		
-		DeleteFile (psParam.strListFileName); //WARNING!!!
-	}
-
-	return bResult;
-}
-
-bool Archive::ExecuteCommand(
+int Archive::ExecuteAsOperation(
 		int nOperation,
-		const ArchiveItemArray& items,
-		int nCommand,
-		const TCHAR* lpCurrentDiskPath,
-		const TCHAR* lpAdditionalCommandLine,
-		bool bHideOutput
+		EXECUTEFUNCTION pfnExecute,
+		void* pParam
 		)
 {
-	bool bResult = false;
+	int nResult = RESULT_ERROR;
 
 	if ( StartOperation(nOperation, false) )
 	{
-		bResult = ExecuteCommandInternal(
-			items,
-			nCommand,
-			lpCurrentDiskPath,
-			lpAdditionalCommandLine,
-			bHideOutput
-			);
-
+		nResult = pfnExecute(this, pParam);
 		EndOperation(nOperation, false);
 	}
 
-	return bResult;
+	return nResult;
 }
-

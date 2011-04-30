@@ -25,6 +25,7 @@ private:
 	bool m_bOpened;
 
 	Array<ArchiveInfoItem> m_pArchiveInfo;
+	bool m_bMultiVolume;
 
 	bool m_bSolid;
 	int m_nNumberOfVolumes;
@@ -63,7 +64,7 @@ public:
 
 	bool FreeArchiveItem(ArchiveItem* pItem);
 
-	int GetArchiveInfo(const ArchiveInfoItem** pItems);
+	int GetArchiveInfo(bool& bMultiVolume, const ArchiveInfoItem** pItems);
 
 	int Test(const ArchiveItem* pItems, int nItemsNumber);
 	int Delete(const ArchiveItem *pItems, int nItemsNumber);

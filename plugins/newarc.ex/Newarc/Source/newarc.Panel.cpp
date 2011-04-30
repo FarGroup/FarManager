@@ -1,5 +1,158 @@
 #include "newarc.h"
 
+#include "processname.cpp"
+
+void QuoteSpaceOnly(string& strSrc)
+{
+	TCHAR* lpBuffer = strSrc.GetBuffer(strSrc.GetLength()+5);
+
+	FSF.QuoteSpaceOnly(lpBuffer);
+
+	strSrc.ReleaseBuffer();
+}
+
+
+struct ExecuteStruct {
+	const ArchiveItemArray& items;
+	const TCHAR* lpCommand;
+	const TCHAR* lpCurrentDiskPath;
+	const TCHAR* lpAdditionalCommandLine;
+	const TCHAR* lpPassword;
+	bool bHideOutput;
+
+	ExecuteStruct(const ArchiveItemArray& items) : items(items)
+	{
+		lpCommand = nullptr;
+		lpCurrentDiskPath = nullptr;
+		lpAdditionalCommandLine = nullptr;
+		lpPassword = nullptr;
+		bHideOutput = false;
+	}
+};
+
+int ExecuteCommand(Archive* pArchive, void* pParam)
+{
+	ExecuteStruct* pES = (ExecuteStruct*)pParam;
+
+	int nResult = RESULT_ERROR;
+
+	ParamStruct psParam;
+	FarPanelInfo info;
+		
+	TCHAR* lpTempPath = psParam.strTempPath.GetBuffer(260);
+	GetTempPath (260, lpTempPath);
+	psParam.strTempPath.ReleaseBuffer();
+
+	TCHAR* lpListFileName = psParam.strListFileName.GetBuffer(260);
+#ifdef UNICODE
+	FSF.MkTemp (lpListFileName, 260, _T("NALT"));
+#else
+	FSF.MkTemp (lpListFileName, _T("NALT"));
+#endif
+	psParam.strListFileName.ReleaseBuffer();
+
+	string strFileName = pArchive->GetFileName();
+	string strPath;
+		
+	if ( pES->lpCurrentDiskPath )
+		strPath = pES->lpCurrentDiskPath;
+	else
+	{
+		strPath = strFileName;
+		CutToSlash(strPath);
+	}
+
+	QuoteSpaceOnly(psParam.strTempPath);
+	QuoteSpaceOnly(psParam.strListFileName);
+	QuoteSpaceOnly(strFileName);
+		
+	psParam.strArchiveName = strFileName;
+	psParam.strShortArchiveName = strFileName;
+	psParam.strPassword = pES->lpPassword;
+	psParam.strPathInArchive = pArchive->GetCurrentDirectory();
+	psParam.strAdditionalCommandLine = pES->lpAdditionalCommandLine;
+		
+	string strExecuteString;
+	int nStartItemNumber = 0;
+
+	while ( true )
+	{
+		int nParseResult = ParseString(
+				pES->items,
+				pES->lpCommand,
+				strExecuteString,
+				&psParam,
+				nStartItemNumber
+				);
+
+		if ( (nParseResult == PE_SUCCESS) || (nParseResult == PE_MORE_FILES) )
+		{
+			PROCESS_INFORMATION pInfo;
+			STARTUPINFO sInfo;
+
+			memset (&sInfo, 0, sizeof (STARTUPINFO));
+			sInfo.cb = sizeof (STARTUPINFO);
+
+			apiExpandEnvironmentStrings(strExecuteString, strExecuteString);
+
+			HANDLE hScreen = Info.SaveScreen(0, 0, -1, -1);
+
+#ifdef UNICODE
+			Info.Control(INVALID_HANDLE_VALUE, FCTL_GETUSERSCREEN, 0, 0);
+#else
+			Info.Control(INVALID_HANDLE_VALUE, FCTL_GETUSERSCREEN, 0);
+#endif
+			if ( CreateProcess (
+					NULL,
+					strExecuteString.GetBuffer(),
+					NULL,
+					NULL,
+					TRUE,
+					0,
+					NULL,
+					strPath, 
+					&sInfo,
+					&pInfo
+					) )
+			{
+				WaitForSingleObject(pInfo.hProcess, INFINITE);
+
+				DWORD dwExitCode;
+				GetExitCodeProcess(pInfo.hProcess, &dwExitCode);
+
+				CloseHandle (pInfo.hProcess);
+				CloseHandle (pInfo.hThread);
+
+				nResult = (dwExitCode == 0)?RESULT_SUCCESS:RESULT_ERROR;
+			}
+			else
+			{
+				string strError;
+				strError.Format(_T("CreateProcess failed - %d\n%s"), GetLastError(), strExecuteString.GetString());
+				msgError(strError);
+			}
+
+#ifdef UNICODE
+			Info.Control(INVALID_HANDLE_VALUE, FCTL_SETUSERSCREEN, 0, 0);
+#else
+			Info.Control(INVALID_HANDLE_VALUE, FCTL_SETUSERSCREEN, 0);
+#endif
+
+			Info.RestoreScreen(NULL);
+			Info.RestoreScreen(hScreen);
+		}
+
+		if ( nParseResult != PE_MORE_FILES )
+			break;
+	}
+		
+	DeleteFile (psParam.strListFileName); //WARNING!!!
+
+	return nResult;
+}
+
+
+
 bool CheckForEsc ()
 {
 	bool EC = false;
@@ -45,6 +198,8 @@ ArchivePanel::ArchivePanel(
 	m_nArchiveInfoItems = 0;
 
 	m_bPasswordSet = false;
+
+	m_bMultiVolume = false;
 }
 
 Array<ArchiveFormat*>& ArchivePanel::GetFormats()
@@ -105,7 +260,7 @@ int ArchivePanel::pGetFindData(
 
 	const ArchiveInfoItem* pInfoItems;
 
-	m_nArchiveInfoItems = m_pArchive->GetArchiveInfo(&pInfoItems);
+	m_nArchiveInfoItems = m_pArchive->GetArchiveInfo(m_bMultiVolume, &pInfoItems);
 
 	if ( m_nArchiveInfoItems )
 	{
@@ -584,74 +739,84 @@ int ArchivePanel::pProcessHostFile(
 		int OpMode
 		)
 {
-	//return FALSE;
+	int nMenuItem = -1;
 
-	int nResult = mnuChooseOperation();
+	if ( (nMenuItem = mnuChooseOperation()) == -1 )
+		return FALSE;
 
-	if ( nResult != -1 )
+	int nCommand = -1;
+
+	switch ( nMenuItem ) {
+
+	case MENU_OPERATION_TEST:
+		nCommand = COMMAND_TEST;
+		break;
+
+	case MENU_OPERATION_ADD_ARCHIVE_COMMENT:
+		nCommand = COMMAND_ARCHIVE_COMMENT;
+		break;
+
+	case MENU_OPERATION_ADD_FILE_COMMENT:
+		nCommand = COMMAND_FILE_COMMENT;
+		break;
+
+	case MENU_OPERATION_CONVERT_TO_SFX:
+		nCommand = COMMAND_CONVERT_TO_SFX;
+		break;
+
+	case MENU_OPERATION_RECOVER:
+		nCommand = COMMAND_RECOVER;
+		break;
+
+	case MENU_OPERATION_ADD_RECOVERY_RECORD:
+		nCommand = COMMAND_ADD_RECOVERY_RECORD;
+		break;
+
+	case MENU_OPERATION_LOCK:
+		nCommand = COMMAND_LOCK;
+		break;
+	};
+
+	if ( nCommand == -1 )
+		return FALSE;
+	
+	string strCommand;
+
+	bool bCommandEnabled = GetCommand(nCommand, strCommand);
+	bool bInternalTest = (nCommand == COMMAND_TEST) && m_pArchive->QueryCapability(AFF_SUPPORT_INTERNAL_TEST);
+
+	if ( bCommandEnabled || bInternalTest )
 	{
-		int nCommand = -1;
-
-		switch ( nResult ) {
-
-		case MENU_OPERATION_TEST:
-			nCommand = COMMAND_TEST;
-			break;
-
-		case MENU_OPERATION_ADD_ARCHIVE_COMMENT:
-			nCommand = COMMAND_ARCHIVE_COMMENT;
-			break;
-
-		case MENU_OPERATION_ADD_FILE_COMMENT:
-			nCommand = COMMAND_FILE_COMMENT;
-			break;
-
-		case MENU_OPERATION_CONVERT_TO_SFX:
-			nCommand = COMMAND_CONVERT_TO_SFX;
-			break;
-
-		case MENU_OPERATION_RECOVER:
-			nCommand = COMMAND_RECOVER;
-			break;
-
-		case MENU_OPERATION_ADD_RECOVERY_RECORD:
-			nCommand = COMMAND_ADD_RECOVERY_RECORD;
-			break;
-
-		case MENU_OPERATION_LOCK:
-			nCommand = COMMAND_LOCK;
-			break;
-		};
-
-		//экспериментальный бред
-		FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
-
-		if ( !m_pArchive )
-			__debug(_T("FATAL ERROR, PLEASE REPORT"));
-
-		string strCommand;
-		string strAllFilesMask;
-		bool bEnabled;
-
-		m_pArchive->GetDefaultCommand(nCommand, strCommand, bEnabled);
-		m_pArchive->GetDefaultCommand(nCommand, strAllFilesMask, bEnabled);
-
-		string strPassword;
-  
-		//здесь должен быть код, уточняющий, что текущий архив многотомный!!!
-
-		//здесь должен быть код, получающий _при надобности_ пароль!!!
-
 		ArchiveItemArray items;
 
-		GetArchiveItemsToProcess(PanelItem, ItemsNumber, items);
+		if ( OptionIsOn(OpMode, OPM_TOPLEVEL) )
+		{
+			ArchiveTreeNode* root = m_pArchive->GetRoot();
 
-		m_pArchive->SetPassword(strPassword);
-		m_pArchive->ExecuteCommand(0, items, nCommand); 
+			m_OS.uTotalSize = GetArchiveItemsToProcessFromNode(root, items);
+			m_OS.uTotalFiles = items.count();
+		}
+		else
+			GetArchiveItemsToProcess(PanelItem, ItemsNumber, items);
 
+		int nOperationResult = RESULT_ERROR;
+
+		if ( bInternalTest )
+			nOperationResult = Test(items);
+
+		if ( bCommandEnabled && (nOperationResult == RESULT_ERROR) )
+		{
+			ExecuteStruct ES(items);
+
+			ES.lpCommand = strCommand;
+
+			nOperationResult = m_pArchive->ExecuteAsOperation(bInternalTest?OPERATION_TEST:OPERATION_OTHER, ExecuteCommand, &ES); 
+		}
+
+		return nOperationResult == RESULT_SUCCESS;
 	}
 
-	return TRUE;
+	return FALSE;
 }
 
 int ArchivePanel::pMakeDirectory(const TCHAR* lpDirectory, int nOpMode)
@@ -679,7 +844,7 @@ int ArchivePanel::pProcessKey (
 				FIB_EXPANDENV|FIB_BUTTONS
 				) )
 		{
-			bool bResult = m_pArchive->MakeDirectory(szFolderPath);
+			bool bResult = MakeDirectory(szFolderPath);
 
 			if ( bResult )
 				Update();
@@ -968,15 +1133,62 @@ int ArchivePanel::OnProcessData(ProcessDataStruct* pDS)
 	return TRUE;
 }
 
+
+bool ArchivePanel::GetCommand(
+		int nCommand,
+		string& strCommand
+		)
+{
+	std::map<const ArchiveFormat*, ArchiveFormatCommands*>::iterator itr = cfg.pArchiveCommands.find(m_pArchive->GetFormat());
+
+	if ( itr != cfg.pArchiveCommands.end() )
+	{
+		ArchiveFormatCommands* pCommands = itr->second;
+
+		if ( pCommands->Commands[nCommand].bEnabled )
+		{
+			strCommand = pCommands->Commands[nCommand].strCommand;
+			return !strCommand.IsEmpty();
+		}
+	}
+
+	bool bEnabled = false;
+
+	if ( m_pArchive->GetDefaultCommand(nCommand, strCommand, bEnabled) && bEnabled )
+		return !strCommand.IsEmpty();
+
+
+	return false;
+}
+
+
 int ArchivePanel::Extract(
 		const ArchiveItemArray& items, 
-		const TCHAR *lpDestDiskPath, 
+		const TCHAR* lpDestDiskPath, 
 		bool bWithoutPath
 		)
 {
 	OnStartOperation(OPERATION_EXTRACT, nullptr);
 
-	int nResult = m_pArchive->Extract(items, lpDestDiskPath, bWithoutPath);
+	string strDestDiskPath = lpDestDiskPath;
+	AddEndSlash(strDestDiskPath);
+
+	int nResult = m_pArchive->Extract(items, strDestDiskPath, bWithoutPath);
+
+	if ( nResult == RESULT_ERROR )
+	{
+		string strCommand;
+
+		if ( GetCommand(bWithoutPath?COMMAND_EXTRACT_WITHOUT_PATH:COMMAND_EXTRACT, strCommand) )
+		{
+			ExecuteStruct ES(items);
+
+			ES.lpCommand = strCommand;
+			ES.lpCurrentDiskPath = strDestDiskPath;
+
+			nResult = m_pArchive->ExecuteAsOperation(OPERATION_EXTRACT, ExecuteCommand, &ES);
+		}
+	}
 
 	if ( nResult == RESULT_ERROR )
 		msgError(_T("Extract failed"));
@@ -996,18 +1208,121 @@ int ArchivePanel::Extract(
 int ArchivePanel::Delete(const ArchiveItemArray& items)
 {
 	OnStartOperation(OPERATION_DELETE, nullptr);
-	return m_pArchive->Delete(items);
+
+	int nResult = m_pArchive->Delete(items);
+
+	if ( nResult == RESULT_ERROR )
+	{
+		string strCommand;
+
+		if ( GetCommand(COMMAND_DELETE, strCommand) )
+		{
+			ExecuteStruct ES(items);
+
+			ES.lpCommand = strCommand;
+
+			nResult = m_pArchive->ExecuteAsOperation(OPERATION_DELETE, ExecuteCommand, &ES);
+		}
+	}
+
+	return nResult;
 }
 
 int ArchivePanel::AddFiles(const ArchiveItemArray& items, const TCHAR* lpSourceDiskPath)
 {
 	OnStartOperation(OPERATION_ADD, nullptr);
-	return m_pArchive->AddFiles(items, lpSourceDiskPath);
+
+	string strSourceDiskPath = lpSourceDiskPath;
+	AddEndSlash(strSourceDiskPath);
+
+	int nResult = m_pArchive->AddFiles(items, strSourceDiskPath);
+
+	if ( nResult == RESULT_ERROR )
+	{
+		string strCommand;
+
+		if ( GetCommand(COMMAND_ADD, strCommand) )
+		{
+			ExecuteStruct ES(items);
+
+			ES.lpCommand = strCommand;
+			ES.lpCurrentDiskPath = strSourceDiskPath;
+
+			nResult = m_pArchive->ExecuteAsOperation(OPERATION_ADD, ExecuteCommand, &ES);
+		}
+	}
+
+	return nResult;
 }
 
 int ArchivePanel::Test(const ArchiveItemArray& items)
 {
 	OnStartOperation(OPERATION_TEST, nullptr);
-	return m_pArchive->Test(items);
+
+	int nResult = m_pArchive->Test(items);
+
+	if ( nResult == RESULT_ERROR )
+	{
+		string strCommand;
+
+		if ( GetCommand(COMMAND_TEST, strCommand) )
+		{
+			ExecuteStruct ES(items);
+
+			ES.lpCommand = strCommand;
+
+			nResult = m_pArchive->ExecuteAsOperation(OPERATION_TEST, ExecuteCommand, &ES);
+		}
+	}
+
+	return nResult;
 }
 
+int ArchivePanel::MakeDirectory(const TCHAR* lpDirectory)
+{
+	OnStartOperation(OPERATION_ADD, nullptr);
+
+	int nResult = RESULT_ERROR;
+
+	ArchiveItemArray items;
+
+	ArchiveItem *item = items.add();
+
+	item->lpFileName = lpDirectory;
+	item->dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
+
+	nResult = m_pArchive->AddFiles(items, _T(""));
+
+	if ( nResult == RESULT_ERROR )
+	{
+		string strCommand;
+
+		if ( GetCommand(COMMAND_ADD, strCommand) )
+		{
+			string strTempPath;
+
+			TCHAR* lpTempPath = strTempPath.GetBuffer(260);
+#ifdef UNICODE
+			FSF.MkTemp(lpTempPath, 260, _T("NADT"));
+#else
+			FSF.MkTemp(lpTempPath, _T("NADT"));
+#endif
+			strTempPath.ReleaseBuffer();
+			
+			string strFullTempPath = strTempPath;
+			AddEndSlash(strFullTempPath);
+
+			strFullTempPath += lpDirectory;
+
+			apiCreateDirectoryEx(strFullTempPath);
+
+			ExecuteStruct ES(items);
+
+			ES.lpCurrentDiskPath = strTempPath;
+
+			nResult = m_pArchive->ExecuteAsOperation(OPERATION_ADD, ExecuteCommand, &ES);
+		}
+	}
+
+	return nResult;
+}

@@ -25,7 +25,7 @@ SevenZipArchive::SevenZipArchive(
 	m_pFile = NULL;
 
 	m_bSolid = false;
-	m_nNumberOfVolumes = -1;
+	m_bMultiVolume = false;
 }
 
 struct PropertyToName {
@@ -165,6 +165,9 @@ void SevenZipArchive::QueryArchiveInfo()
 
 					if ( propId == kpidSolid ) 
 						m_bSolid = (value.boolVal == VARIANT_TRUE);
+
+					if ( propId == kpidIsVolume )
+						m_bMultiVolume  = (value.boolVal == VARIANT_TRUE);
 				}
 			}
 
@@ -856,8 +859,10 @@ LONG_PTR SevenZipArchive::OnNeedVolume(const TCHAR* lpSuggestedName, DWORD dwBuf
 	return Callback(AM_NEED_VOLUME, 0, (LONG_PTR)&VS);
 }
 
-int SevenZipArchive::GetArchiveInfo(const ArchiveInfoItem** pItems)
+int SevenZipArchive::GetArchiveInfo(bool& bMultiVolume, const ArchiveInfoItem** pItems)
 {
+	bMultiVolume = m_bMultiVolume;
+
 	if ( m_pArchiveInfo.count() )
 	{
 		*pItems = m_pArchiveInfo.data();
