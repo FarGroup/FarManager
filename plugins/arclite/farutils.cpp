@@ -813,7 +813,7 @@ bool Settings::set_dir(const wstring& path) {
   for(list<wstring>::const_iterator dir = dir_list.cbegin(); dir != dir_list.cend(); dir++) {
     fsv.Root = dir_id;
     fsv.Value = dir->c_str();
-    dir_id = control(SCTL_SUBKEY, &fsv);
+    dir_id = control(SCTL_CREATESUBKEY, &fsv);
     if (dir_id == 0)
       return false;
   };
