@@ -3,6 +3,133 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 30.04.2011 16:28:33 +0200 - build 2018
+
+1. warnings.
+
+2. makeup in BaseFormat.
+
+drkns 29.04.2011 23:55:55 +0200 - build 2017
+
+1. GСС warnings.
+
+2. A couple of minorities.
+
+t-rex 29.04.2011 21:06:02 +0200 - build 2016
+
+1. Instead of SCTL_SUBKEY, there is SCTL_CREATESUBKEY now (open the existing one or create if none exist) and SCTL_OPENSUBKEY (open the existing one).
+
+2. Mantis#1757: SettingsControl(SCTL_CREATE) called from ExitFARW returns NULL.
+
+t-rex 29.04.2011 03:57:23 +0200 - build 2015
+
+1. Each plugin's settings are stored in a separate base in %appdata%\Far Manager\Profile\Plugins.
+   This eliminates the possibility of locking of the whole base with a buggy plugin.
+   pluginsconfig.db may be removed.
+
+2. Export/import for 1.
+
+t-rex 29.04.2011 00:42:27 +0200 - build 2014
+
+1. pluginhotkeys export/import. In common, the history is only left, but I still think that it does not need to.
+
+2. Far.exe /clearcache [Custom location for Far configuration files - overrides Far.exe.ini]
+   Plugins cache cleaning.
+
+t-rex 28.04.2011 21:44:56 +0200 - build 2013
+
+1. Useless code was forgotten.
+
+t-rex 28.04.2011 21:33:34 +0200 - build 2012 футуре
+
+1. Import from XML for HierarchicalConfig.
+
+2. panelmodes settings moved to HierarchicalConfig, old panelmodes.db is likely to be removed.
+
+3. A minor change in xml format - the main key is farconfig.
+
+drkns 28.04.2011 14:16:24 +0200 - build 2011
+
+1. A couple of minorities on paths initialization.
+
+drkns 28.04.2011 13:52:23 +0200 - build 2010
+
+1. For some reason, the copier did some magic like "if the filter is on then move files as copy + delete".
+   It must have been fixed by now. Some testing is needed, just in case.
+
+drkns 28.04.2011 08:51:32 +0200 - build 2009
+
+1. Unicode support in xml file names.
+
+t-rex 28.04.2011 02:08:28 +0200 - build 2008
+
+1. Incorrect creation of xml with non-English file name.
+
+t-rex 28.04.2011 01:57:57 +0200 - build 2007
+
+1. HierarchicalConfig bases export capability (import will be done later).
+   Т.е. pluginsconfig, filters, highlight, shortcuts.
+
+t-rex 27.04.2011 23:34:03 +0200 - build 2006
+
+1. Associations export/import capability.
+   Before the import, all current associations are deleted (if "associations" tag exists in xml).
+
+t-rex 27.04.2011 21:16:21 +0200 - build 2005
+
+1. Moved db/xml dependent code from main.cpp to configdb.cpp.
+
+t-rex 27.04.2011 20:35:54 +0200 - build 2004
+
+1. Far.exe /export <out.xml> [Custom location for Far configuration files - overrides Far.exe.ini]
+   Far.exe /import <in.xml> [Custom location for Far configuration files - overrides Far.exe.ini]
+   So far, it works for generalconfig only.
+
+drkns 27.04.2011 15:48:21 +0200 - build 2003
+
+1. ucd, sqlite and tinyxml build is redone. 
+
+t-rex 27.04.2011 14:35:14 +0200 - build 2002
+
+1. Continuing playing with xml.
+
+drkns 27.04.2011 11:36:52 +0200 - build 2001
+
+1. Plugin which exported ProcessDialogEvent and created dialogs in SetStartupInfo caused far recursion.
+
+svs 27.04.2011 10:11:51 +0300 - build 2000
+
+   Millennium! :-)
+
+1. Mantis#0001751: Menu creation in a macro
+
+t-rex 27.04.2011 01:40:51 +0200 - build 1999
+
+1. Initial stage of xml settings import/export implementation.
+   tinyxml is added to the project.
+
+t-rex 26.04.2011 22:54:14 +0200 - build 1998
+
+1. Minor changes in plugin settings API.
+   SCTL_SET больше не принимает FST_SUBKEY так как нет смысла и этим занимается SCTL_SUBKEY.
+
+2. For the documentation - SCTL_SET with FST_STRING defines a description to a key if FarSettingsItem.Name==NULL.
+   It does not work if Root==0 because the description is set by FAR in this case (it is the name of the plugin).
+
+t-rex 26.04.2011 00:40:52 +0200 - build 1997
+
+1. Minor changes in plugin settings API.
+   For SCTL_DELETE, if FarSettingsValue.Value==NULL then FarSettingsValue.Root key is deleted.
+   Otherwise, Value only is deleted (even when a key with the same name exists).
+
+t-rex 25.04.2011 22:36:30 +0200 - build 1996
+
+1. An addition in DlgBuilder.
+
+t-rex 25.04.2011 21:26:05 +0200 - build 1995
+
+1. Additions in DlgBuilder.
+
 drkns 24.04.2011 13:38:27 +0200 - build 1994
 
 1. Once again, the epic about VMenu.UserData.
