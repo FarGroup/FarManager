@@ -171,30 +171,8 @@ wstring get_panel_dir(HANDLE h_panel) {
   return wstring(buf.data(), size - 1);
 }
 
-PanelItem get_current_panel_item(HANDLE h_panel) {
-  Buffer<unsigned char> buf(0x1000);
-  unsigned size = g_far.PanelControl(h_panel, FCTL_GETCURRENTPANELITEM, static_cast<int>(buf.size()), buf.data());
-  if (size > buf.size()) {
-    buf.resize(size);
-    size = g_far.PanelControl(h_panel, FCTL_GETCURRENTPANELITEM, static_cast<int>(buf.size()), buf.data());
-  }
-  CHECK(size)
-  const PluginPanelItem* panel_item = reinterpret_cast<const PluginPanelItem*>(buf.data());
-  PanelItem pi;
-  pi.file_attributes = panel_item->FileAttributes;
-  pi.creation_time = panel_item->CreationTime;
-  pi.last_access_time = panel_item->LastAccessTime;
-  pi.last_write_time = panel_item->LastWriteTime;
-  pi.file_size = panel_item->FileSize;
-  pi.pack_size = panel_item->PackSize;
-  pi.file_name = panel_item->FileName;
-  pi.alt_file_name = panel_item->AlternateFileName;
-  pi.user_data = panel_item->UserData;
-  return pi;
-}
-
 PanelItem get_panel_item(HANDLE h_panel, FILE_CONTROL_COMMANDS command, int index) {
-  unsigned size = g_far.PanelControl(h_panel, command, index, 0);
+  unsigned size = g_far.PanelControl(h_panel, command, index, nullptr);
   Buffer<unsigned char> buf(size);
   size = g_far.PanelControl(h_panel, command, index, buf.data());
   CHECK(size)
@@ -210,6 +188,10 @@ PanelItem get_panel_item(HANDLE h_panel, FILE_CONTROL_COMMANDS command, int inde
   pi.alt_file_name = panel_item->AlternateFileName;
   pi.user_data = panel_item->UserData;
   return pi;
+}
+
+PanelItem get_current_panel_item(HANDLE h_panel) {
+  return get_panel_item(h_panel, FCTL_GETCURRENTPANELITEM, 0);
 }
 
 PanelItem get_panel_item(HANDLE h_panel, unsigned index) {
