@@ -308,10 +308,6 @@ size_t FileList::FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *g
 				gpi->Item->Owner=wcscpy((wchar_t*)data,fi->strOwner);
 			}
 		}
-		else
-		{
-			gpi->Size = size;
-		}
 	}
 	return size;
 }

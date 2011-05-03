@@ -252,10 +252,6 @@ size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 			wmemcpy(p, str.CPtr(), sz);
 			p[sz] = L'\0';
 		}
-		else
-		{
-			Item->Size = size;
-		}
 	}
 	return size;
 }
