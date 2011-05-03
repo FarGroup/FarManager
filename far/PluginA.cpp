@@ -2166,13 +2166,13 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 
 			if (item_size)
 			{
-				FarDialogItem *di = (FarDialogItem *)xf_malloc(item_size);
+				FarGetDialogItem gdi = {item_size, (FarDialogItem *)xf_malloc(item_size)};
 
-				if (di)
+				if (gdi.Item)
 				{
-					FarSendDlgMessage(hDlg, DM_GETDLGITEM, Param1, di);
-					oldfar::FarDialogItem *FarDiA=UnicodeDialogItemToAnsi(*di,hDlg,Param1);
-					xf_free(di);
+					FarSendDlgMessage(hDlg, DM_GETDLGITEM, Param1, &gdi);
+					oldfar::FarDialogItem *FarDiA=UnicodeDialogItemToAnsi(*gdi.Item,hDlg,Param1);
+					xf_free(gdi.Item);
 					*reinterpret_cast<oldfar::FarDialogItem*>(Param2)=*FarDiA;
 					return TRUE;
 				}
@@ -2725,13 +2725,13 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 
 		for (int i=0; i<ItemsNumber; i++)
 		{
-			FarDialogItem *pdi = (FarDialogItem *)xf_malloc(FarSendDlgMessage(hDlg, DM_GETDLGITEM, i, 0));
+			FarGetDialogItem gdi = {FarSendDlgMessage(hDlg, DM_GETDLGITEM, i, 0), (FarDialogItem *)xf_malloc(gdi.Size)};
 
-			if (pdi)
+			if (gdi.Item)
 			{
-				FarSendDlgMessage(hDlg, DM_GETDLGITEM, i, pdi);
-				UnicodeDialogItemToAnsiSafe(*pdi,Item[i]);
-				const wchar_t *res = pdi->Data;
+				FarSendDlgMessage(hDlg, DM_GETDLGITEM, i, &gdi);
+				UnicodeDialogItemToAnsiSafe(*gdi.Item,Item[i]);
+				const wchar_t *res = gdi.Item->Data;
 
 				if (!res) res = L"";
 
@@ -2740,18 +2740,18 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 				else
 					UnicodeToOEM(res, Item[i].Data, sizeof(Item[i].Data));
 
-				if (pdi->Type==DI_USERCONTROL)
+				if (gdi.Item->Type==DI_USERCONTROL)
 				{
-					di[i].VBuf=pdi->VBuf;
-					Item[i].VBuf=GetAnsiVBufPtr(pdi->VBuf,GetAnsiVBufSize(Item[i]));
+					di[i].VBuf=gdi.Item->VBuf;
+					Item[i].VBuf=GetAnsiVBufPtr(gdi.Item->VBuf,GetAnsiVBufSize(Item[i]));
 				}
 
-				if (pdi->Type==DI_COMBOBOX || pdi->Type==DI_LISTBOX)
+				if (gdi.Item->Type==DI_COMBOBOX || gdi.Item->Type==DI_LISTBOX)
 				{
 					Item[i].ListPos = static_cast<int>(FarSendDlgMessage(hDlg,DM_LISTGETCURPOS,i,0));
 				}
 
-				xf_free(pdi);
+				xf_free(gdi.Item);
 			}
 
 			FreeAnsiDialogItem(diA[i]);
@@ -2942,8 +2942,8 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 								else
 									break;
 							}
-
-							FarPanelControl(hPlugin,FCTL_GETPANELITEM,i,PPI);
+							FarGetPluginPanelItem gpi = {PPISize, PPI};
+							FarPanelControl(hPlugin,FCTL_GETPANELITEM, i, &gpi);
 							if(PPI)
 							{
 								ConvertPanelItemToAnsi(*PPI,OldPI->PanelItems[i]);
@@ -2980,8 +2980,8 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 								else
 									break;
 							}
-
-							FarPanelControl(hPlugin,FCTL_GETSELECTEDPANELITEM,i,PPI);
+							FarGetPluginPanelItem gpi = {PPISize, PPI};
+							FarPanelControl(hPlugin,FCTL_GETSELECTEDPANELITEM, i, &gpi);
 							if(PPI)
 							{
 								ConvertPanelItemToAnsi(*PPI,OldPI->SelectedItems[i]);

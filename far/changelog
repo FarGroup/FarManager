@@ -1,3 +1,22 @@
+drkns 03.05.2011 12:41:45 +0200 - build 2019
+
+1. Для FCTL_GETPANELITEM, FCTL_GETSELECTEDPANELITEM, FCTL_GETCURRENTPANELITEM в качестве Param2 теперь надо передавать структуру FarGetPluginPanelItem:
+
+   struct FarGetPluginPanelItem
+   {
+     size_t Size;
+     PluginPanelItem* Item;
+   };
+
+   Item - указатель на буфер, принимающий данные
+   Size - размер буфера.
+
+   Если Item == 0 или Size меньше необходимого - в Size будет помещен необходимый размер.
+   Возвращаемое значение: необходимый размер буфера.
+
+2. Для DM_GETDLGITEM в качестве Param2 надо передавать структуру FarGetDialogItem. Принцип тот же, что и в FCTL_GET*PANELITEM 
+
+
 drkns 30.04.2011 16:28:33 +0200 - build 2018
 
 1. warnings.

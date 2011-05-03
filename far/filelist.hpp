@@ -379,8 +379,8 @@ class FileList:public Panel
 		virtual void SetPluginMode(HANDLE hPlugin,const wchar_t *PluginFile,bool SendOnFocus=false);
 
 		void PluginGetPanelInfo(PanelInfo &Info);
-		size_t PluginGetPanelItem(int ItemNumber,PluginPanelItem *Item);
-		size_t PluginGetSelectedPanelItem(int ItemNumber,PluginPanelItem *Item);
+		size_t PluginGetPanelItem(int ItemNumber,FarGetPluginPanelItem *Item);
+		size_t PluginGetSelectedPanelItem(int ItemNumber,FarGetPluginPanelItem *Item);
 		void PluginGetColumnTypesAndWidths(string& strColumnTypes,string& strColumnWidths);
 
 		void PluginBeginSelection();
@@ -412,7 +412,7 @@ class FileList:public Panel
 		static int FileNameToPluginItem(const wchar_t *Name,PluginPanelItem *pi);
 		static void FileListToPluginItem(FileListItem *fi,PluginPanelItem *pi);
 		static void FreePluginPanelItem(PluginPanelItem *pi);
-		size_t FileListToPluginItem2(FileListItem *fi,PluginPanelItem *pi);
+		size_t FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *pi);
 		static void PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi);
 		static bool IsModeFullScreen(int Mode);
 		static string &AddPluginPrefix(FileList *SrcPanel,string &strPrefix);

@@ -2276,13 +2276,13 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 		case FCTL_GETPANELITEM:
 		{
-			Result=(int)((FileList*)this)->PluginGetPanelItem(Param1,(PluginPanelItem*)Param2);
+			Result=(int)((FileList*)this)->PluginGetPanelItem(Param1,(FarGetPluginPanelItem*)Param2);
 			break;
 		}
 
 		case FCTL_GETSELECTEDPANELITEM:
 		{
-			Result=(int)((FileList*)this)->PluginGetSelectedPanelItem(Param1,(PluginPanelItem*)Param2);
+			Result=(int)((FileList*)this)->PluginGetSelectedPanelItem(Param1,(FarGetPluginPanelItem*)Param2);
 			break;
 		}
 
@@ -2291,7 +2291,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			PanelInfo Info;
 			FileList *DestPanel = ((FileList*)this);
 			DestPanel->PluginGetPanelInfo(Info);
-			Result = (int)DestPanel->PluginGetPanelItem(Info.CurrentItem,(PluginPanelItem*)Param2);
+			Result = (int)DestPanel->PluginGetPanelItem(Info.CurrentItem,(FarGetPluginPanelItem*)Param2);
 			break;
 		}
 

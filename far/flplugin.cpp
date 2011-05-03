@@ -221,9 +221,9 @@ void FileList::FreePluginPanelItem(PluginPanelItem *pi)
 	}
 }
 
-size_t FileList::FileListToPluginItem2(FileListItem *fi,PluginPanelItem *pi)
+size_t FileList::FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *gpi)
 {
-	size_t size=sizeof(*pi);
+	size_t size=sizeof(PluginPanelItem);
 	size+=sizeof(wchar_t)*(fi->strName.GetLength()+1);
 	size+=sizeof(wchar_t)*(fi->strShortName.GetLength()+1);
 	size+=fi->strOwner.IsEmpty()?0:sizeof(wchar_t)*(fi->strOwner.GetLength()+1);
@@ -240,74 +240,79 @@ size_t FileList::FileListToPluginItem2(FileListItem *fi,PluginPanelItem *pi)
 		size+=*(DWORD *)fi->UserData;
 	}
 
-	if (pi)
+	if (gpi)
 	{
-		char* data=(char*)(pi+1);
-		pi->FileName=wcscpy((wchar_t*)data,fi->strName);
-		data+=sizeof(wchar_t)*(fi->strName.GetLength()+1);
-		pi->AlternateFileName=wcscpy((wchar_t*)data,fi->strShortName);
-		data+=sizeof(wchar_t)*(fi->strShortName.GetLength()+1);
-		pi->FileSize=fi->UnpSize;
-		pi->PackSize=fi->PackSize;
-		pi->FileAttributes=fi->FileAttr;
-		pi->LastWriteTime=fi->WriteTime;
-		pi->CreationTime=fi->CreationTime;
-		pi->LastAccessTime=fi->AccessTime;
-		pi->NumberOfLinks=fi->NumberOfLinks;
-		pi->Flags=fi->UserFlags;
-
-		if (fi->Selected) pi->Flags|=PPIF_SELECTED;
-
-		pi->CustomColumnNumber=fi->CustomColumnNumber;
-		pi->CustomColumnData=(wchar_t**)data;
-		data+=fi->CustomColumnNumber*sizeof(wchar_t*);
-
-		for (size_t ii=0; ii<fi->CustomColumnNumber; ii++)
+		if(gpi->Item && gpi->Size >= size)
 		{
-			if (!fi->CustomColumnData[ii])
+			char* data=(char*)(gpi->Item+1);
+			gpi->Item->FileName=wcscpy((wchar_t*)data,fi->strName);
+			data+=sizeof(wchar_t)*(fi->strName.GetLength()+1);
+			gpi->Item->AlternateFileName=wcscpy((wchar_t*)data,fi->strShortName);
+			data+=sizeof(wchar_t)*(fi->strShortName.GetLength()+1);
+			gpi->Item->FileSize=fi->UnpSize;
+			gpi->Item->PackSize=fi->PackSize;
+			gpi->Item->FileAttributes=fi->FileAttr;
+			gpi->Item->LastWriteTime=fi->WriteTime;
+			gpi->Item->CreationTime=fi->CreationTime;
+			gpi->Item->LastAccessTime=fi->AccessTime;
+			gpi->Item->NumberOfLinks=fi->NumberOfLinks;
+			gpi->Item->Flags=fi->UserFlags;
+			if (fi->Selected)
+				gpi->Item->Flags|=PPIF_SELECTED;
+			gpi->Item->CustomColumnNumber=fi->CustomColumnNumber;
+			gpi->Item->CustomColumnData=(wchar_t**)data;
+			data+=fi->CustomColumnNumber*sizeof(wchar_t*);
+
+			for (size_t ii=0; ii<fi->CustomColumnNumber; ii++)
 			{
-				((const wchar_t**)(pi->CustomColumnData))[ii]=nullptr;
+				if (!fi->CustomColumnData[ii])
+				{
+					((const wchar_t**)(gpi->Item->CustomColumnData))[ii]=nullptr;
+				}
+				else
+				{
+					((const wchar_t**)(gpi->Item->CustomColumnData))[ii]=wcscpy((wchar_t*)data,fi->CustomColumnData[ii]);
+					data+=sizeof(wchar_t)*(wcslen(fi->CustomColumnData[ii])+1);
+				}
+			}
+
+			if (!fi->DizText)
+			{
+				gpi->Item->Description=nullptr;
 			}
 			else
 			{
-				((const wchar_t**)(pi->CustomColumnData))[ii]=wcscpy((wchar_t*)data,fi->CustomColumnData[ii]);
-				data+=sizeof(wchar_t)*(wcslen(fi->CustomColumnData[ii])+1);
+				gpi->Item->Description=wcscpy((wchar_t*)data,fi->DizText);
+				data+=sizeof(wchar_t)*(wcslen(fi->DizText)+1);
+			}
+
+			if (fi->UserData&&(fi->UserFlags&PPIF_USERDATA))
+			{
+				DWORD Size=*(DWORD *)fi->UserData;
+				gpi->Item->UserData=(DWORD_PTR)data;
+				memcpy((void *)gpi->Item->UserData,(void *)fi->UserData,Size);
+				data+=Size;
+			}
+			else
+				gpi->Item->UserData=fi->UserData;
+
+			gpi->Item->CRC32=fi->CRC32;
+			gpi->Item->Reserved[0]=gpi->Item->Reserved[1]=0;
+
+			if (fi->strOwner.IsEmpty())
+			{
+				gpi->Item->Owner=nullptr;
+			}
+			else
+			{
+				gpi->Item->Owner=wcscpy((wchar_t*)data,fi->strOwner);
 			}
 		}
-
-		if (!fi->DizText)
-		{
-			pi->Description=nullptr;
-		}
 		else
 		{
-			pi->Description=wcscpy((wchar_t*)data,fi->DizText);
-			data+=sizeof(wchar_t)*(wcslen(fi->DizText)+1);
-		}
-
-		if (fi->UserData&&(fi->UserFlags&PPIF_USERDATA))
-		{
-			DWORD Size=*(DWORD *)fi->UserData;
-			pi->UserData=(DWORD_PTR)data;
-			memcpy((void *)pi->UserData,(void *)fi->UserData,Size);
-			data+=Size;
-		}
-		else
-			pi->UserData=fi->UserData;
-
-		pi->CRC32=fi->CRC32;
-		pi->Reserved[0]=pi->Reserved[1]=0;
-
-		if (fi->strOwner.IsEmpty())
-		{
-			pi->Owner=nullptr;
-		}
-		else
-		{
-			pi->Owner=wcscpy((wchar_t*)data,fi->strOwner);
+			gpi->Size = size;
 		}
 	}
-
 	return size;
 }
 
@@ -1039,7 +1044,7 @@ void FileList::PluginGetPanelInfo(PanelInfo &Info)
 	Info.SelectedItemsNumber=ListData?GetSelCount():0;
 }
 
-size_t FileList::PluginGetPanelItem(int ItemNumber,PluginPanelItem *Item)
+size_t FileList::PluginGetPanelItem(int ItemNumber,FarGetPluginPanelItem *Item)
 {
 	size_t result=0;
 
@@ -1051,7 +1056,7 @@ size_t FileList::PluginGetPanelItem(int ItemNumber,PluginPanelItem *Item)
 	return result;
 }
 
-size_t FileList::PluginGetSelectedPanelItem(int ItemNumber,PluginPanelItem *Item)
+size_t FileList::PluginGetSelectedPanelItem(int ItemNumber,FarGetPluginPanelItem *Item)
 {
 	size_t result=0;
 

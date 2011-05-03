@@ -234,23 +234,29 @@ bool ConvertItemEx(
 	return true;
 }
 
-size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarDialogItem *Item)
+size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 {
-	size_t size=sizeof(*Item);
+	size_t size=sizeof(FarDialogItem);
 	string str;
 	size_t sz = ItemStringAndSize(ItemEx,str);
 	size+=(sz+1)*sizeof(wchar_t);
 
 	if (Item)
 	{
-		ConvertItemSmall(*ItemEx, *Item);
+		if(Item->Item && Item->Size >= size)
+		{
+			ConvertItemSmall(*ItemEx, *Item->Item);
 
-		wchar_t* p=(wchar_t*)(Item+1);
-		Item->Data = p;
-		wmemcpy(p, str.CPtr(), sz);
-		p[sz] = L'\0';
+			wchar_t* p=(wchar_t*)(Item->Item+1);
+			Item->Item->Data = p;
+			wmemcpy(p, str.CPtr(), sz);
+			p[sz] = L'\0';
+		}
+		else
+		{
+			Item->Size = size;
+		}
 	}
-
 	return size;
 }
 
@@ -6019,7 +6025,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 		/*****************************************************************/
 		case DM_GETDLGITEM:
 		{
-			FarDialogItem* Item = (FarDialogItem*)Param2;
+			FarGetDialogItem* Item = (FarGetDialogItem*)Param2;
 			return (INT_PTR)ConvertItemEx2(CurItem, Item);
 		}
 		/*****************************************************************/

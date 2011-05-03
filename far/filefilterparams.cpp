@@ -769,15 +769,16 @@ INT_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,void* Para
 				WORD Color=EditData->Color[(Param1-ID_HER_NORMALFILE)&1][(Param1-ID_HER_NORMALFILE)/2];
 				GetColorDialog(Color,true,true);
 				EditData->Color[(Param1-ID_HER_NORMALFILE)&1][(Param1-ID_HER_NORMALFILE)/2]=Color;
-				FarDialogItem *ColorExample = (FarDialogItem *)xf_malloc(SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,0));
-				SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,ColorExample);
+				
+				FarGetDialogItem gdi = {SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,0), (FarDialogItem *)xf_malloc(gdi.Size)};
+				SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,&gdi);
 				wchar_t MarkChar[2];
 				//MarkChar это FIXEDIT размером в 1 символ так что проверять размер строки не надо
 				SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_HER_MARKEDIT,MarkChar);
 				EditData->MarkChar=*MarkChar;
-				HighlightDlgUpdateUserControl(ColorExample->VBuf,*EditData);
-				SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,ColorExample);
-				xf_free(ColorExample);
+				HighlightDlgUpdateUserControl(gdi.Item->VBuf,*EditData);
+				SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,gdi.Item);
+				xf_free(gdi.Item);
 				return TRUE;
 			}
 
@@ -787,15 +788,15 @@ INT_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,void* Para
 			if (Param1 == ID_HER_MARKEDIT)
 			{
 				HighlightDataColor *EditData = (HighlightDataColor *) SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
-				FarDialogItem *ColorExample = (FarDialogItem *)xf_malloc(SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,0));
-				SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,ColorExample);
+				FarGetDialogItem gdi = {SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,0), (FarDialogItem *)xf_malloc(gdi.Size)};
+				SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,&gdi);
 				wchar_t MarkChar[2];
 				//MarkChar это FIXEDIT размером в 1 символ так что проверять размер строки не надо
 				SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_HER_MARKEDIT,MarkChar);
 				EditData->MarkChar=*MarkChar;
-				HighlightDlgUpdateUserControl(ColorExample->VBuf,*EditData);
-				SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,ColorExample);
-				xf_free(ColorExample);
+				HighlightDlgUpdateUserControl(gdi.Item->VBuf,*EditData);
+				SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,gdi.Item);
+				xf_free(gdi.Item);
 				return TRUE;
 			}
 

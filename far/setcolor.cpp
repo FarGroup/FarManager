@@ -552,26 +552,25 @@ static INT_PTR WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, void* Pa
 			{
 				int NewColor;
 				int *CurColor = (int *) SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
-				FarDialogItem *DlgItem = (FarDialogItem *)xf_malloc(SendDlgMessage(hDlg, DM_GETDLGITEM, Param1, 0));
-				SendDlgMessage(hDlg, DM_GETDLGITEM, Param1, DlgItem);
+				FarDialogItem DlgItem = {};
+				SendDlgMessage(hDlg, DM_GETDLGITEMSHORT, Param1, &DlgItem);
 				NewColor=*CurColor;
 
 				if (Param1 >= 2 && Param1 <= 17) // Fore
 				{
 					NewColor&=~0x0F;
-					NewColor|=(DlgItem->Flags & B_MASK)>>4;
+					NewColor|=(DlgItem.Flags & B_MASK)>>4;
 				}
 
 				if (Param1 >= 19 && Param1 <= 34) // Back
 				{
 					NewColor&=~0xF0;
-					NewColor|=DlgItem->Flags & B_MASK;
+					NewColor|=DlgItem.Flags & B_MASK;
 				}
 
 				if (NewColor!=*CurColor)
 					*CurColor=NewColor;
 
-				xf_free(DlgItem);
 				return TRUE;
 			}
 
