@@ -101,7 +101,7 @@ struct MenuItemEx
 	string strName;
 
 	DWORD  AccelKey;
-	int    UserDataSize;           // –азмер пользовательских данных
+	size_t UserDataSize;           // –азмер пользовательских данных
 	void *UserData;                // ѕользовательские данные:
 	short AmpPos;                  // ѕозици€ автоназначенной подсветки
 	short Len[2];                  // размеры 2-х частей
@@ -248,8 +248,8 @@ class VMenu: public Modal
 		void ShowMenu(bool IsParent=false);
 		void DrawTitles();
 		int GetItemPosition(int Position);
-		static int _SetUserData(MenuItemEx *PItem,const void *Data,int Size);
-		static void* _GetUserData(MenuItemEx *PItem,void *Data,int Size);
+		static size_t _SetUserData(MenuItemEx *PItem,const void *Data,size_t Size);
+		static void* _GetUserData(MenuItemEx *PItem,void *Data,size_t Size);
 		bool CheckKeyHiOrAcc(DWORD Key,int Type,int Translate);
 		int CheckHighlights(wchar_t Chr,int StartPos=0);
 		wchar_t GetHighlights(const struct MenuItemEx *_item);
@@ -333,9 +333,9 @@ class VMenu: public Modal
 		int  GetVisualPos(int Pos);
 		int  VisualPosToReal(int VPos);
 
-		void *GetUserData(void *Data,int Size,int Position=-1);
-		int  GetUserDataSize(int Position=-1);
-		int  SetUserData(LPCVOID Data,int Size=0,int Position=-1);
+		void *GetUserData(void *Data,size_t Size,int Position=-1);
+		size_t GetUserDataSize(int Position=-1);
+		size_t  SetUserData(LPCVOID Data,size_t Size=0,int Position=-1);
 
 		int  GetSelectPos() { return SelectPos; }
 		int  GetSelectPos(struct FarListPos *ListPos);

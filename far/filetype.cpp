@@ -216,7 +216,7 @@ bool ProcessLocalFileTypes(const wchar_t *Name, const wchar_t *ShortName, int Mo
 		strMenuText += strCommandText;
 		TypesMenuItem.strName = strMenuText;
 		TypesMenuItem.SetSelect(Index==1);
-		TypesMenu.SetUserData(strCommand.CPtr(),0,TypesMenu.AddItem(&TypesMenuItem));
+		TypesMenu.SetUserData(strCommand.CPtr(), (strCommand.GetLength()+1)*sizeof(wchar_t), TypesMenu.AddItem(&TypesMenuItem));
 	}
 
 	if (!CommandCount)
@@ -236,10 +236,7 @@ bool ProcessLocalFileTypes(const wchar_t *Name, const wchar_t *ShortName, int Mo
 			return true;
 	}
 
-	int Size=TypesMenu.GetUserDataSize(ExitCode);
-	LPWSTR Command=strCommand.GetBuffer(Size/sizeof(wchar_t));
-	TypesMenu.GetUserData(Command,Size,ExitCode);
-	strCommand.ReleaseBuffer(Size);
+	strCommand = static_cast<const wchar_t*>(TypesMenu.GetUserData(nullptr, 0, ExitCode));
 	string strListName, strAnotherListName;
 	string strShortListName, strAnotherShortListName;
 	int PreserveLFN=SubstFileName(strCommand,Name,ShortName,&strListName,&strAnotherListName, &strShortListName, &strAnotherShortListName);

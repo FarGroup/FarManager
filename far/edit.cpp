@@ -3177,8 +3177,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 								{
 									if(ComplMenu.GetItemCount()>1)
 									{
-										unsigned __int64 CurrentRecord = 0;
-										ComplMenu.GetUserData(&CurrentRecord,sizeof(CurrentRecord));
+										unsigned __int64 CurrentRecord = *static_cast<unsigned __int64*>(ComplMenu.GetUserData(nullptr, 0));
 										if (pHistory->DeleteIfUnlocked(CurrentRecord))
 										{
 											ComplMenu.DeleteItem(ComplMenu.GetSelectPos());

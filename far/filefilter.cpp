@@ -187,8 +187,9 @@ bool FileFilter::FilterEdit()
 		{
 			wchar_t *CurExtPtr=ExtPtr+i*MAX_PATH;
 			MenuString(ListItem.strName,nullptr,false,h,true,CurExtPtr,MSG(MPanelFileType));
-			ListItem.SetCheck(CurExtPtr[StrLength(CurExtPtr)+1]);
-			FilterList.SetUserData(CurExtPtr,0,FilterList.AddItem(&ListItem));
+			int Length = StrLength(CurExtPtr)+1;
+			ListItem.SetCheck(CurExtPtr[Length]);
+			FilterList.SetUserData(CurExtPtr, Length*sizeof(wchar_t), FilterList.AddItem(&ListItem));
 		}
 
 		xf_free(ExtPtr);
@@ -312,9 +313,7 @@ bool FileFilter::FilterEdit()
 					}
 					else if (SelPos2 > FilterData.getCount()+2)
 					{
-						wchar_t Mask[MAX_PATH];
-						FilterList.GetUserData(Mask,sizeof(Mask),static_cast<int>(SelPos2-1));
-						NewFilter->SetMask(1,Mask);
+						NewFilter->SetMask(1,static_cast<const wchar_t*>(FilterList.GetUserData(nullptr, 0, static_cast<int>(SelPos2-1))));
 						//Авто фильтры они только для файлов, папки не должны к ним подходить
 						NewFilter->SetAttr(1,0,FILE_ATTRIBUTE_DIRECTORY);
 					}
@@ -510,16 +509,14 @@ void FileFilter::ProcessSelection(VMenu *FilterList)
 		else if (i > (int)(FilterData.getCount() + 2))
 		{
 			const wchar_t *FMask=nullptr;
-			wchar_t Mask[MAX_PATH];
-			string strMask1;
-			FilterList->GetUserData(Mask,sizeof(Mask),i);
+			string Mask(static_cast<const wchar_t*>(FilterList->GetUserData(nullptr, 0, i)));
+			string strMask1(Mask);
 			//AY: Так как в меню мы показываем только те выбранные авто фильтры
 			//которые выбраны в области данного меню и TempFilterData вполне
 			//может содержать маску которую тока что выбрали в этом меню но
 			//она уже была выбрана в другом и так как TempFilterData
 			//и авто фильтры в меню отсортированы по алфавиту то немного
 			//поколдуем чтоб не было дубликатов в памяти.
-			strMask1 = Mask;
 			Unquote(strMask1);
 
 			while ((CurFilterData=TempFilterData.getItem(j)))

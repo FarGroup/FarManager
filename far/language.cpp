@@ -171,7 +171,7 @@ int GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strParam1, strin
 	return(Found);
 }
 
-int Select(int HelpLanguage,VMenu **MenuPtr)
+bool Select(int HelpLanguage,VMenu **MenuPtr)
 {
 	const wchar_t *Title,*Mask;
 	string *strDest;
@@ -228,7 +228,7 @@ int Select(int HelpLanguage,VMenu **MenuPtr)
 				if (LangMenu->FindItem(0,LangMenuItem.strName,LIFIND_EXACTMATCH) == -1)
 				{
 					LangMenuItem.SetSelect(!StrCmpI(*strDest,strLangName));
-					LangMenu->SetUserData(strLangName.CPtr(),0,LangMenu->AddItem(&LangMenuItem));
+					LangMenu->SetUserData(strLangName.CPtr(), (strLangName.GetLength()+1)*sizeof(wchar_t), LangMenu->AddItem(&LangMenuItem));
 				}
 			}
 		}
@@ -240,12 +240,10 @@ int Select(int HelpLanguage,VMenu **MenuPtr)
 	LangMenu->Process();
 
 	if (LangMenu->Modal::GetExitCode()<0)
-		return FALSE;
+		return false;
 
-	wchar_t *lpwszDest = strDest->GetBuffer(LangMenu->GetUserDataSize()/sizeof(wchar_t)+1);
-	LangMenu->GetUserData(lpwszDest, LangMenu->GetUserDataSize());
-	strDest->ReleaseBuffer();
-	return(LangMenu->GetUserDataSize());
+	*strDest = static_cast<const wchar_t*>(LangMenu->GetUserData(nullptr, 0));
+	return true;
 }
 
 /* $ 01.09.2000 SVS

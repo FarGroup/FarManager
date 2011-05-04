@@ -5075,7 +5075,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 
 				if (ListBox)
 				{
-					int Ret=TRUE;
+					INT_PTR Ret=TRUE;
 
 					switch (Msg)
 					{
@@ -5183,10 +5183,6 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 								Ret=ListBox->SetUserData(ListItems->Data,
 								                         ListItems->DataSize,
 								                         ListItems->Index);
-
-								if (!Ret && ListBox->GetUserData(nullptr,0,ListItems->Index))
-									Ret=sizeof(DWORD);
-
 								return Ret;
 							}
 

@@ -163,7 +163,7 @@ void ShowHotplugDevice()
 				if (HotPlugList.GetItemCount() > 0)
 				{
 					int bResult;
-					int I=(int)(INT_PTR)HotPlugList.GetUserData(nullptr,0);
+					int I=*static_cast<int*>(HotPlugList.GetUserData(nullptr,0));
 
 					if ((bResult=RemoveHotplugDevice(pInfo[I].hDevInst,pInfo[I].dwDriveMask,EJECT_NOTIFY_AFTERREMOVE)) == 1)
 					{

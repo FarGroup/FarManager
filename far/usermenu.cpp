@@ -537,7 +537,7 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 					continue;
 
 
-				CurrentMenuItem = (UserMenuItem *)UserMenu.GetUserData(nullptr,sizeof(UserMenuItem *),MenuPos);
+				CurrentMenuItem = static_cast<UserMenuItem*>(UserMenu.GetUserData(nullptr, 0, MenuPos));
 
 				switch (Key)
 				{
@@ -677,7 +677,7 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 			if (ExitCode<0 || ExitCode>=NumLine || !CurrentMenuItem)
 				return EC_CLOSE_LEVEL; //  вверх на один уровень
 
-			CurrentMenuItem = (UserMenuItem *)UserMenu.GetUserData(nullptr,sizeof(UserMenuItem *),ExitCode);
+			CurrentMenuItem = static_cast<UserMenuItem*>(UserMenu.GetUserData(nullptr,0,ExitCode));
 
 			if (!CurrentMenuItem)
 				return EC_CLOSE_LEVEL; //  вверх на один уровень

@@ -422,8 +422,8 @@ struct FarListInfo
 
 struct FarListItemData
 {
-	int   Index;
-	int   DataSize;
+	int Index;
+	size_t DataSize;
 	void *Data;
 	DWORD Reserved;
 };

@@ -1732,7 +1732,7 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 					return TRUE;
 				}
 
-				size_t ItemIndex = static_cast<size_t>(ListBox->GetUserData(nullptr,0));
+				size_t ItemIndex = *static_cast<size_t*>(ListBox->GetUserData(nullptr,0));
 
 				FINDLIST FindItem;
 				itd.GetFindListItem(ItemIndex, FindItem);
@@ -1756,7 +1756,7 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 						return TRUE;
 					}
 
-					size_t ItemIndex = reinterpret_cast<size_t>(ListBox->GetUserData(nullptr,0));
+					size_t ItemIndex = *reinterpret_cast<size_t*>(ListBox->GetUserData(nullptr,0));
 					bool RemoveTemp=false;
 					// Плагины надо закрывать, если открыли.
 					bool ClosePanel=false;
@@ -2047,7 +2047,7 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 					{
 						return TRUE;
 					}
-					v->FindExitIndex = static_cast<DWORD>(reinterpret_cast<DWORD_PTR>(ListBox->GetUserData(nullptr, 0)));
+					v->FindExitIndex = static_cast<DWORD>(*reinterpret_cast<size_t*>(ListBox->GetUserData(nullptr, 0)));
 					if (v->TB)
 					{
 						delete v->TB;

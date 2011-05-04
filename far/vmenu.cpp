@@ -498,7 +498,7 @@ int VMenu::UpdateItem(const FarListUpdate *NewItem)
 		// Освободим память... от ранее занятого ;-)
 		MenuItemEx *PItem = Item[NewItem->Index];
 
-		if (PItem->UserDataSize > (int)sizeof(PItem->UserData) && PItem->UserData && (NewItem->Item.Flags&LIF_DELETEUSERDATA))
+		if (NewItem->Item.Flags&LIF_DELETEUSERDATA)
 		{
 			xf_free(PItem->UserData);
 			PItem->UserData = nullptr;
@@ -545,8 +545,7 @@ int VMenu::DeleteItem(int ID, int Count)
 	{
 		MenuItemEx *PtrItem = Item[ID+I];
 
-		if (PtrItem->UserDataSize > (int)sizeof(PtrItem->UserData) && PtrItem->UserData)
-			xf_free(PtrItem->UserData);
+		xf_free(PtrItem->UserData);
 
 		UpdateInternalCounters(PtrItem->Flags,0);
 	}
@@ -588,8 +587,7 @@ void VMenu::DeleteItems()
 	{
 		for (int I=0; I < ItemCount; ++I)
 		{
-			if (Item[I]->UserDataSize > (int)sizeof(Item[I]->UserData) && Item[I]->UserData)
-				xf_free(Item[I]->UserData);
+			xf_free(Item[I]->UserData);
 
 			delete Item[I];
 		}
@@ -2636,39 +2634,20 @@ MenuItemEx *VMenu::GetItemPtr(int Position)
 	return Item[ItemPos];
 }
 
-void *VMenu::_GetUserData(MenuItemEx *PItem, void *Data, int Size)
+void *VMenu::_GetUserData(MenuItemEx *PItem, void *Data, size_t Size)
 {
-	int DataSize = PItem->UserDataSize;
-	void *PtrData = PItem->UserData; // PtrData содержит: либо указатель на что-то либо sizeof(void*)!
-
-	if (Size > 0 && Data )
+	if (Size && Data)
 	{
-		if (PtrData) // данные есть?
+		if (PItem->UserData && Size >= PItem->UserDataSize)
 		{
-			// размерчик больше sizeof(void*)?
-			if (DataSize > (int)sizeof(PItem->UserData))
-			{
-				memmove(Data,PtrData,Min(Size,DataSize));
-			}
-			else if (DataSize > 0) // а данные то вообще есть? Т.е. если в UserData
-			{                      // есть строка из sizeof(void*) байт (UserDataSize при этом > 0)
-				memmove(Data,&PItem->UserData, Min(Size,DataSize));
-			}
-			else
-			{
-				*reinterpret_cast<PINT_PTR>(Data) = reinterpret_cast<INT_PTR>(PtrData);
-			}
-		}
-		else // ... данных нет, значит лудим имя пункта!
-		{
-			memcpy(Data,PItem->strName.CPtr(),Min(Size,static_cast<int>((PItem->strName.GetLength()+1)*sizeof(wchar_t))));
+			memcpy(Data, PItem->UserData, PItem->UserDataSize);
 		}
 	}
 
-	return PtrData;
+	return PItem->UserData;
 }
 
-int VMenu::GetUserDataSize(int Position)
+size_t VMenu::GetUserDataSize(int Position)
 {
 	CriticalSectionLock Lock(CS);
 
@@ -2680,58 +2659,34 @@ int VMenu::GetUserDataSize(int Position)
 	return Item[ItemPos]->UserDataSize;
 }
 
-int VMenu::_SetUserData(MenuItemEx *PItem,
+size_t VMenu::_SetUserData(MenuItemEx *PItem,
                         const void *Data,   // Данные
-                        int Size)           // Размер, если =0 то предполагается, что в Data-строка
+                        size_t Size)           // Размер, если =0 то предполагается, что в Data-строка
 {
-	if (PItem->UserDataSize > (int)sizeof(PItem->UserData) && PItem->UserData)
-		xf_free(PItem->UserData);
-
+	xf_free(PItem->UserData);
 	PItem->UserDataSize=0;
 	PItem->UserData=nullptr;
 
 	if (Data)
 	{
-		int SizeReal = Size;
+		PItem->UserDataSize=Size;
 
-		// Если Size=0, то подразумевается, что в Data находится ASCIIZ строка
-		if (!Size)
-			SizeReal = (int)((StrLength((const wchar_t *)Data)+1)*sizeof(wchar_t));
+		// Если Size==0, то подразумевается, что в Data находится zero-terminated wide string
+		if (!PItem->UserDataSize)
+		{
+			PItem->UserDataSize = (StrLength(static_cast<const wchar_t *>(Data))+1)*sizeof(wchar_t);
+		}
 
-		// если размер данных Size=0 или Size больше sizeof(void*)
-		if (!Size || Size > (int)sizeof(PItem->UserData))
-		{
-			// размер больше sizeof(void*)?
-			if (SizeReal > (int)sizeof(PItem->UserData))
-			{
-				// ...значит выделяем нужную память.
-				if ((PItem->UserData=(char*)xf_malloc(SizeReal)) )
-				{
-					PItem->UserDataSize=SizeReal;
-					memcpy(PItem->UserData,Data,SizeReal);
-				}
-			}
-			else // ЭТА СТРОКА ПОМЕЩАЕТСЯ В sizeof(void*)!
-			{
-				PItem->UserDataSize=SizeReal;
-				memcpy(&PItem->UserData,Data,SizeReal);
-			}
-		}
-		else // Ок. данные помещаются в sizeof(void*)...
-		{
-			// признак того, что данных либо нет, либо они помещаются в sizeof(void*)
-			PItem->UserDataSize = 0;
-			void** DataAddress = &PItem->UserData; // to supress gcc strict-aliasing warning
-			*reinterpret_cast<PINT_PTR>(DataAddress) = *reinterpret_cast<const INT_PTR*>(Data);
-		}
+		PItem->UserData = xf_malloc(PItem->UserDataSize);
+		memcpy(PItem->UserData, Data, PItem->UserDataSize);
 	}
 
 	return PItem->UserDataSize;
 }
 
 // Присовокупить к итему данные.
-int VMenu::SetUserData(LPCVOID Data,   // Данные
-                       int Size,     // Размер, если =0 то предполагается, что в Data-строка
+size_t VMenu::SetUserData(LPCVOID Data,   // Данные
+                       size_t Size,     // Размер, если =0 то предполагается, что в Data-строка
                        int Position) // номер итема
 {
 	CriticalSectionLock Lock(CS);
@@ -2745,7 +2700,7 @@ int VMenu::SetUserData(LPCVOID Data,   // Данные
 }
 
 // Получить данные
-void* VMenu::GetUserData(void *Data,int Size,int Position)
+void* VMenu::GetUserData(void *Data,size_t Size,int Position)
 {
 	CriticalSectionLock Lock(CS);
 

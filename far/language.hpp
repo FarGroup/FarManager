@@ -81,4 +81,4 @@ class VMenu;
 FILE* OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language, string &strFileName, UINT &nCodePage, BOOL StrongLang=FALSE,string *pstrLangName=nullptr);
 int GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strParam1, string *strParam2, UINT nCodePage);
 int GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strValue, UINT nCodePage);
-int Select(int HelpLanguage,VMenu **MenuPtr);
+bool Select(int HelpLanguage,VMenu **MenuPtr);

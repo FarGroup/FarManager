@@ -96,7 +96,7 @@ void ShowProcessList()
 					break;
 				}
 
-				HWND ProcWnd=(HWND)ProcList.GetUserData(nullptr,0);
+				HWND ProcWnd=*static_cast<HWND*>(ProcList.GetUserData(nullptr,0));
 
 				if (ProcWnd)
 				{
@@ -143,7 +143,7 @@ void ShowProcessList()
 
 	if (ProcList.Modal::GetExitCode()>=0)
 	{
-		HWND ProcWnd=(HWND)ProcList.GetUserData(nullptr,0);
+		HWND ProcWnd=*static_cast<HWND*>(ProcList.GetUserData(nullptr,0));
 
 		if (ProcWnd)
 		{
