@@ -537,7 +537,8 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 					continue;
 
 
-				CurrentMenuItem = static_cast<UserMenuItem*>(UserMenu.GetUserData(nullptr, 0, MenuPos));
+				void* userdata = UserMenu.GetUserData(nullptr, 0, MenuPos);
+				CurrentMenuItem = userdata? *static_cast<UserMenuItem**>(userdata):nullptr;
 
 				switch (Key)
 				{
