@@ -3,6 +3,45 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 04.05.2011 12:24:24 +0200 - build 2024
+
+1. And more.
+
+drkns 04.05.2011 12:06:23 +0200 - build 2023
+
+1. And once more.
+
+drkns 04.05.2011 11:19:21 +0200 - build 2022
+
+1. Continuation of 2021.
+
+drkns 04.05.2011 10:15:20 +0200 - build 2021
+
+1. VMenu.UserData again: DM_LISTGETDATA now always returns a pointer to data.
+
+drkns 03.05.2011 15:27:09 +0200 - build 2020
+
+1. Correction of the previous build.
+
+drkns 03.05.2011 12:41:45 +0200 - build 2019
+
+1. For FCTL_GETPANELITEM, FCTL_GETSELECTEDPANELITEM, FCTL_GETCURRENTPANELITEM, the FarGetPluginPanelItem structure must be passed as Param2:
+
+   struct FarGetPluginPanelItem
+   {
+     size_t Size;
+     PluginPanelItem* Item;
+   };
+
+   Item - a pointer to an input data buffer
+   Size - the size of the buffer.
+
+   The buffer will be written with data only if its size is big enough.
+
+   The returned value: required buffer size.
+
+2. For DM_GETDLGITEM, the FarGetDialogItem structure must be passed as Param2. The principle is the same as for FCTL_GET*PANELITEM 
+
 drkns 30.04.2011 16:28:33 +0200 - build 2018
 
 1. warnings.
