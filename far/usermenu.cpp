@@ -678,7 +678,8 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 			if (ExitCode<0 || ExitCode>=NumLine || !CurrentMenuItem)
 				return EC_CLOSE_LEVEL; //  вверх на один уровень
 
-			CurrentMenuItem = static_cast<UserMenuItem*>(UserMenu.GetUserData(nullptr,0,ExitCode));
+			void* userdata = UserMenu.GetUserData(nullptr, 0, ExitCode);
+			CurrentMenuItem = userdata? *static_cast<UserMenuItem**>(userdata):nullptr;
 
 			if (!CurrentMenuItem)
 				return EC_CLOSE_LEVEL; //  вверх на один уровень
