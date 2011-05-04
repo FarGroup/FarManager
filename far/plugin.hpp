@@ -2146,7 +2146,7 @@ static __inline BOOL CheckVersion(const struct VersionInfo* Current, const struc
 	return (Current->Major > Required->Major) || (Current->Major == Required->Major && Current->Minor > Required->Minor) || (Current->Major == Required->Major && Current->Minor == Required->Minor && Current->Revision > Required->Revision) || (Current->Major == Required->Major && Current->Minor == Required->Minor && Current->Revision == Required->Revision && Current->Build >= Required->Build);
 }
 
-static __inline struct VersionInfo MAKEFARVERSION(int Major, int Minor, int Revision, int Build)
+static __inline struct VersionInfo MAKEFARVERSION(DWORD Major, DWORD Minor, DWORD Revision, DWORD Build)
 {
 	struct VersionInfo Info = {Major,Minor,Revision,Build};
 	return Info;
