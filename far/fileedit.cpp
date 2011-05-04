@@ -96,7 +96,7 @@ INT_PTR __stdcall hndOpenEditor(
 {
 	if (msg == DN_INITDIALOG)
 	{
-		int codepage = *(int*)SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
+		int codepage = *(UINT*)param2;
 		FillCodePagesList(hDlg, ID_OE_CODEPAGE, codepage, true, false);
 	}
 
@@ -104,10 +104,10 @@ INT_PTR __stdcall hndOpenEditor(
 	{
 		if (param1 == ID_OE_OK)
 		{
-			int *param = (int*)SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
+			UINT* param = (UINT*)SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
 			FarListPos pos;
 			SendDlgMessage(hDlg, DM_LISTGETCURPOS, ID_OE_CODEPAGE, &pos);
-			*param = (int)SendDlgMessage(hDlg, DM_LISTGETDATA, ID_OE_CODEPAGE, ToPtr(pos.SelectPos));
+			*param = *(UINT*)SendDlgMessage(hDlg, DM_LISTGETDATA, ID_OE_CODEPAGE, ToPtr(pos.SelectPos));
 			return TRUE;
 		}
 	}
@@ -132,7 +132,7 @@ bool dlgOpenEditor(string &strFileName, UINT &codepage)
 	};
 	MakeDialogItemsEx(EditDlgData,EditDlg);
 	EditDlg[ID_OE_FILENAME].strData = strFileName;
-	Dialog Dlg(EditDlg, ARRAYSIZE(EditDlg), (FARWINDOWPROC)hndOpenEditor, &codepage);
+	Dialog Dlg(EditDlg, ARRAYSIZE(EditDlg), hndOpenEditor, &codepage);
 	Dlg.SetPosition(-1,-1,76,10);
 	Dlg.SetHelp(L"FileOpenCreate");
 	Dlg.SetId(FileOpenCreateId);
@@ -205,7 +205,7 @@ INT_PTR __stdcall hndSaveFileAs(
 				UINT *codepage = (UINT*)SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
 				FarListPos pos;
 				SendDlgMessage(hDlg, DM_LISTGETCURPOS, ID_SF_CODEPAGE, &pos);
-				*codepage = (UINT)SendDlgMessage(hDlg, DM_LISTGETDATA, ID_SF_CODEPAGE, ToPtr(pos.SelectPos));
+				*codepage = *(UINT*)SendDlgMessage(hDlg, DM_LISTGETDATA, ID_SF_CODEPAGE, ToPtr(pos.SelectPos));
 				return TRUE;
 			}
 
@@ -217,7 +217,7 @@ INT_PTR __stdcall hndSaveFileAs(
 			{
 				FarListPos pos;
 				SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID_SF_CODEPAGE,&pos);
-				UINT Cp=static_cast<UINT>(SendDlgMessage(hDlg,DM_LISTGETDATA,ID_SF_CODEPAGE,ToPtr(pos.SelectPos)));
+				UINT Cp=*reinterpret_cast<UINT*>(SendDlgMessage(hDlg,DM_LISTGETDATA,ID_SF_CODEPAGE,ToPtr(pos.SelectPos)));
 
 				if (Cp!=codepage)
 				{

@@ -104,12 +104,14 @@ wchar_t *FormatCodePageName(UINT CodePage, wchar_t *CodePageName, size_t Length,
 // Получаем кодовую страницу для элемента в меню
 inline UINT GetMenuItemCodePage(int Position = -1)
 {
-	return static_cast<UINT>(reinterpret_cast<UINT_PTR>(CodePages->GetUserData(nullptr, 0, Position)));
+	void* Data = CodePages->GetUserData(nullptr, 0, Position);
+	return Data? *static_cast<UINT*>(Data) : 0;
 }
 
 inline UINT GetListItemCodePage(int Position = -1)
 {
-	return static_cast<UINT>(SendDlgMessage(dialog, DM_LISTGETDATA, control, ToPtr(Position)));
+	INT_PTR Data = SendDlgMessage(dialog, DM_LISTGETDATA, control, ToPtr(Position));
+	return Data? *reinterpret_cast<UINT*>(Data) : 0;
 }
 
 // Проверяем попадает или нет позиция в диапазон стандартных кодовых страниц (правильность работы для разделителей не гарантируется)
