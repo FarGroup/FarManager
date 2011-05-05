@@ -52,6 +52,7 @@ class CCryptoGetTextPassword;
 #include "Helpers/7z.ArchiveOpenCallback.h"
 #include "Helpers/7z.ArchiveOpenVolumeCallback.h"
 #include "Helpers/7z.ArchiveUpdateCallback.h"
+#include "Helpers/7z.ArchiveDeleteCallback.h"
 #include "Helpers/7z.CryptoGetTextPassword.h"
 
 

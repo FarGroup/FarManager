@@ -1,8 +1,6 @@
 #pragma once
 #include "7z.h"
 
-
-
 class SevenZipArchive {
 
 private:

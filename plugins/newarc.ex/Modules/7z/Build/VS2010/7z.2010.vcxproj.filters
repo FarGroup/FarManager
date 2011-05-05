@@ -153,6 +153,9 @@
     <ClCompile Include="..\..\Source\7z.Properties.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Helpers\7z.ArchiveDeleteCallback.cpp">
+      <Filter>Source Files\Helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\Locale\7z.feed">

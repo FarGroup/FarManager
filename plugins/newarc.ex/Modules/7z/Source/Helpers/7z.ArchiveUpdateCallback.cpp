@@ -37,8 +37,8 @@ int CArchiveUpdateCallback::GetResult()
 	if ( m_uSuccessCount > m_uItemsNumber )
 		__debug(_T("LOGIC ERROR, PLEASE REPORT"));
 
-	if ( m_uSuccessCount == 0 )
-		return RESULT_ERROR;
+	//if ( m_uSuccessCount == 0 )
+		//return RESULT_ERROR;
 
 	if ( m_uSuccessCount < m_uItemsNumber )
 		return RESULT_PARTIAL;

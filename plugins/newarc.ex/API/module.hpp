@@ -91,9 +91,9 @@ struct ArchiveItem
 #define STAGE_SKIPPING   5
 #define STAGE_UPDATING   6
 
-#define OS_FLAG_TOTALSIZE	1
-#define OS_FLAG_TOTALFILES	2
-#define OS_FLAG_SUPPORT_SINGLE_FILE_PROGRESS	4
+#define OS_FLAG_TOTALSIZE                       1
+#define OS_FLAG_TOTALFILES                      2
+#define OS_FLAG_SUPPORT_SINGLE_FILE_PROGRESS    4
 
 struct StartOperationStruct {
 	DWORD dwFlags;

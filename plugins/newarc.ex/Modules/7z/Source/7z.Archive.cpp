@@ -471,11 +471,7 @@ int SevenZipArchive::Delete(const ArchiveItem* pItems, int nItemsNumber)
 		string strTempName;
 		CreateTempName (m_strFileName, strTempName);
 
-		TCHAR szPassword[512];
-		memset(szPassword, 0, 512);
-
-		OnPasswordOperation(PASSWORD_LIST, szPassword, 512);
-		CArchiveUpdateCallback Callback(this, szPassword, indicies, NULL, NULL);
+		CArchiveDeleteCallback Callback(this, indicies);
 
 		COutFile* pFile = new COutFile(strTempName);
 
@@ -494,9 +490,9 @@ int SevenZipArchive::Delete(const ArchiveItem* pItems, int nItemsNumber)
 			delete pFile;
 		}
 
-		outArchive->Release ();
+		outArchive->Release();
 
-		if ( (nResult == RESULT_SUCCESS) || (nResult == RESULT_PARTIAL) ) //???partial too
+		if ( nResult == RESULT_SUCCESS ) 
 		{
 			Close();
 			MoveFileEx(strTempName, m_strFileName, MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING);
@@ -780,7 +776,7 @@ LONG_PTR SevenZipArchive::OnStartOperation(
 		SO.uTotalFiles = uTotalFiles;
 	}
 
-	if ( !m_bSolid )
+	if ( !m_bSolid && !(nOperation == OPERATION_DELETE) )
 		SO.dwFlags |= OS_FLAG_SUPPORT_SINGLE_FILE_PROGRESS;
 
 	return Callback(AM_START_OPERATION, nOperation, (LONG_PTR)&SO);
