@@ -8,16 +8,15 @@ enum enumConfigure {
 	ID_CFG_CANCEL
 };
 
-void dlgConfigure (Configuration& cfg)
+void dlgConfigure(Configuration& cfg)
 {
-	FarDialog D (-1, -1, 78, 11);
+	FarDialog D (-1, -1, 78, 12);
 
-	D.DoubleBox (3, 1, 74, 9, _M(MConfigCommonTitle));
+	D.DoubleBox (3, 1, 74, 10, _M(MConfigCommonTitle));
 
 	D.RadioButton (5, 2, (cfg.uArchiverOutput == ARCHIVER_OUTPUT_SHOW_ALWAYS), _M(MConfigCommonAlwaysShowOutput));
 	D.RadioButton (5, 3, (cfg.uArchiverOutput == ARCHIVER_OUTPUT_SHOW_EDIT_VIEW), _M(MConfigCommonDontShowOutputWhenViewingEditing));
 	D.RadioButton (5, 4, (cfg.uArchiverOutput == ARCHIVER_OUTPUT_SHOW_NEVER), _M(MConfigCommonNeverShowOutput));
-
 
 	D.Separator (5);
 
@@ -36,7 +35,7 @@ void dlgConfigure (Configuration& cfg)
 		if ( D.GetResultCheck(ID_CFG_ARCHIVERSHOWALWAYS) )
 			cfg.uArchiverOutput = ARCHIVER_OUTPUT_SHOW_ALWAYS;
 
-		if ( D.GetResultCheck(ID_CFG_ARCHIVERSHOWALWAYS) )
+		if ( D.GetResultCheck(ID_CFG_ARCHIVERSHOWEDITVIEW) )
 			cfg.uArchiverOutput = ARCHIVER_OUTPUT_SHOW_EDIT_VIEW;
 
 		if ( D.GetResultCheck(ID_CFG_ARCHIVERSHOWNEVER) )

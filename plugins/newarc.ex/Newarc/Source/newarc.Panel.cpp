@@ -71,7 +71,7 @@ int ExecuteCommand(Archive* pArchive, void* pParam)
 	psParam.strPassword = pES->lpPassword;
 	psParam.strPathInArchive = pArchive->GetCurrentDirectory();
 	psParam.strAdditionalCommandLine = pES->lpAdditionalCommandLine;
-		
+
 	string strExecuteString;
 	int nStartItemNumber = 0;
 

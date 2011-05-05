@@ -217,7 +217,7 @@ HRESULT __stdcall CArchiveUpdateCallback::GetProperty(unsigned int index, PROPID
 		if ( propID == kpidIsDir )
 		{
 			value->vt = VT_BOOL;
-			value->boolVal = OptionIsOn (pitem->dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY)?VARIANT_TRUE:VARIANT_FALSE;
+			value->boolVal = OptionIsOn(pitem->dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY)?VARIANT_TRUE:VARIANT_FALSE;
 		}
 		else
 
