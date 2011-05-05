@@ -13,9 +13,9 @@
 #include "../../common/unicode/farkeys.hpp"
 #include "../../common/unicode/farcolor.hpp"
 #else
-#include "../../Far/plugin.hpp"
-#include "../../Far/farkeys.hpp"
-#include "../../Far/farcolor.hpp"
+#include "../../Far/2.x/plugin.hpp"
+#include "../../Far/2.x/farkeys.hpp"
+#include "../../Far/2.x/farcolor.hpp"
 #endif
 
 
@@ -34,9 +34,9 @@
 #undef FARMANAGERVERSION_BUILD
 
 namespace oldfar {
-#include "../../../common/ascii/plugin.hpp"
-#include "../../../common/ascii/farkeys.hpp"
-#include "../../../common/ascii/farcolor.hpp"
+#include "../../Far/1.x/plugin.hpp"
+#include "../../Far/1.x/farkeys.hpp"
+#include "../../Far/1.x/farcolor.hpp"
 };
 #endif
 
@@ -47,9 +47,9 @@ namespace oldfar {
 #include "../../common/ascii/farkeys.hpp"
 #include "../../common/ascii/farcolor.hpp"
 #else
-#include "../../../common/ascii/plugin.hpp"
-#include "../../../common/ascii/farkeys.hpp"
-#include "../../../common/ascii/farcolor.hpp"
+#include "../../Far/1.x/plugin.hpp"
+#include "../../Far/1.x/farkeys.hpp"
+#include "../../Far/1.x/farcolor.hpp"
 #endif
 
 
@@ -64,9 +64,9 @@ namespace oldfar {
 #undef FARMANAGERVERSION_BUILD
 
 namespace oldfar {
-#include "../../../common/ascii/plugin.hpp"
-#include "../../../common/ascii/farkeys.hpp"
-#include "../../../common/ascii/farcolor.hpp"
+#include "../../Far/1.x/plugin.hpp"
+#include "../../Far/1.x/farkeys.hpp"
+#include "../../Far/1.x/farcolor.hpp"
 };
 #endif
 
