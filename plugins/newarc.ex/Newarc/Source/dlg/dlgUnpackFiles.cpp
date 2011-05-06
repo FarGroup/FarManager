@@ -15,7 +15,8 @@ enum enumUnpackFiles {
 bool dlgUnpackFiles(
 		const TCHAR* lpDestPath,
 		bool bMove,
-		string& strResultDestPath 
+		string& strResultDestPath,
+		bool& bExtractWithoutPath
 		)
 {
 	bool bResult = false;
@@ -36,7 +37,7 @@ bool dlgUnpackFiles(
 
 	D.Separator(7);
 
-	D.CheckBox(5, 8, false, _M(MUnpackFilesWithoutPaths));
+	D.CheckBox(5, 8, true, _M(MUnpackFilesWithoutPaths));
 
 	D.Separator(9);
 
@@ -48,6 +49,8 @@ bool dlgUnpackFiles(
 	if ( D.Run() == D.FirstButton() )
 	{
 		strResultDestPath = D.GetResultData(ID_UP_UNPACKTOEDIT);
+		bExtractWithoutPath = D.GetResultCheck(ID_UP_UNPACKWITHOUTPATHS);
+
 		bResult = true;
 	}
 

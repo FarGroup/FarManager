@@ -10,9 +10,9 @@ enum enumConfigure {
 
 void dlgConfigure(Configuration& cfg)
 {
-	FarDialog D (-1, -1, 78, 12);
+	FarDialog D (-1, -1, 78, 9);
 
-	D.DoubleBox (3, 1, 74, 10, _M(MConfigCommonTitle));
+	D.DoubleBox (3, 1, 74, 7, _M(MConfigCommonTitle));
 
 	D.RadioButton (5, 2, (cfg.uArchiverOutput == ARCHIVER_OUTPUT_SHOW_ALWAYS), _M(MConfigCommonAlwaysShowOutput));
 	D.RadioButton (5, 3, (cfg.uArchiverOutput == ARCHIVER_OUTPUT_SHOW_EDIT_VIEW), _M(MConfigCommonDontShowOutputWhenViewingEditing));
@@ -20,15 +20,10 @@ void dlgConfigure(Configuration& cfg)
 
 	D.Separator (5);
 
-	D.Text(5, 6, _T("Archivers path:"));
-	D.Edit(5, 7, 20);
-
-	D.Separator(8);
-
-	D.Button (-1, 9, _M(MSG_cmn_B_OK));
+	D.Button (-1, 6, _M(MSG_cmn_B_OK));
 	D.DefaultButton ();
 
-	D.Button (-1, 9, _M(MSG_cmn_B_CANCEL));
+	D.Button (-1, 6, _M(MSG_cmn_B_CANCEL));
 
 	if ( D.Run() == D.FirstButton() )
 	{

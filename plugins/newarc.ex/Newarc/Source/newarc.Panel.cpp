@@ -612,6 +612,8 @@ int ArchivePanel::pGetFiles(
 {
 	int bResult = false; ///!!! error!!!
 
+	bool bExtractWithoutPath = true;
+
 #ifdef UNICODE
 	DestPath = *(TCHAR**)DestPath;
 #endif
@@ -619,7 +621,7 @@ int ArchivePanel::pGetFiles(
 	if ( OpMode & (OPM_VIEW | OPM_EDIT | OPM_FIND | OPM_QUICKVIEW) ) //hmm...
 		m_strLastDestPath = DestPath;
 
-	if ( ((OpMode & OPM_SILENT) == OPM_SILENT) || dlgUnpackFiles(DestPath, Move, m_strLastDestPath) )
+	if ( ((OpMode & OPM_SILENT) == OPM_SILENT) || dlgUnpackFiles(DestPath, Move, m_strLastDestPath, bExtractWithoutPath) )
 	{
 		farPrepareFileName(m_strLastDestPath);
 
@@ -627,7 +629,7 @@ int ArchivePanel::pGetFiles(
 
 		GetArchiveItemsToProcess(PanelItem, ItemsNumber, items);
 
-		bResult = Extract(items, m_strLastDestPath, (OpMode == OPM_VIEW) || (OpMode == OPM_EDIT));
+		bResult = Extract(items, m_strLastDestPath, bExtractWithoutPath);
 
 		if ( Move && bResult )
 			bResult = Delete(items);
