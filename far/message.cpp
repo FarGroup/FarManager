@@ -671,6 +671,11 @@ void SetMessageHelp(const wchar_t *Topic)
 */
 int AbortMessage()
 {
+	if(CloseFAR)
+	{
+		return TRUE;
+	}
+
 	TaskBarPause TBP;
 	int Res = Message(MSG_WARNING|MSG_KILLSAVESCREEN,2,MSG(MKeyESCWasPressed),
 	                  MSG((Opt.Confirm.EscTwiceToInterrupt)?MDoYouWantToStopWork2:MDoYouWantToStopWork),

@@ -1614,6 +1614,12 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 
 	switch (Msg)
 	{
+	case DN_INITDIALOG:
+		{
+			static_cast<Dialog*>(hDlg)->GetAllItem()[FD_LISTBOX]->ListPtr->SetFlags(VMENU_NOMERGEBORDER);
+		}
+		break;
+
 	case DN_DRAWDIALOGDONE:
 		{
 			DefDlgProc(hDlg,Msg,Param1,Param2);
@@ -1643,7 +1649,7 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 						PauseEvent.Reset();
 						bool LocalRes=true;
 						if (Opt.Confirm.Esc)
-							LocalRes=AbortMessage()!=0;
+							LocalRes=ConfirmAbortOp()!=0;
 						PauseEvent.Set();
 						if(LocalRes)
 						{

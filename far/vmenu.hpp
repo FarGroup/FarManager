@@ -88,6 +88,7 @@ enum VMENU_FLAGS
 	VMENU_CHANGECONSOLETITLE   =0x01000000, //
 	VMENU_MOUSEREACTION        =0x02000000, // реагировать на движение мыши? (перемещать позицию при перемещении курсора мыши?)
 	VMENU_DISABLED             =0x04000000, //
+	VMENU_NOMERGEBORDER        =0x08000000, //
 };
 
 class Dialog;

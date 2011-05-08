@@ -41,7 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "tinyxml.hpp"
 #include "farversion.hpp"
-#include "regexp.hpp"
+#include "RegExp.hpp"
 
 GeneralConfig *GeneralCfg;
 AssociationsConfig *AssocConfig;

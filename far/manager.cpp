@@ -721,7 +721,6 @@ void Manager::ExitMainLoop(int Ask)
 {
 	if (CloseFAR)
 	{
-		CloseFAR=FALSE;
 		CloseFARMenu=TRUE;
 	};
 

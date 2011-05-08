@@ -50,7 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "palette.hpp"
 #include "config.hpp"
 
-static void SetItemColors(MenuDataEx *Items,int *PaletteItems,int Size,int TypeSub, VMenu* MenuToRedraw1);
+static void SetItemColors(MenuDataEx *Items,int *PaletteItems,int Size,int TypeSub, VMenu* MenuToRedraw1, VMenu* MenuToRedraw2=nullptr);
 
 void GetColor(int PaletteIndex, VMenu* MenuToRedraw1, VMenu* MenuToRedraw2, VMenu* MenuToRedraw3)
 {
@@ -69,14 +69,20 @@ void GetColor(int PaletteIndex, VMenu* MenuToRedraw1, VMenu* MenuToRedraw2, VMen
 		if (MenuToRedraw3)
 			MenuToRedraw3->Hide();
 
-		MenuToRedraw2->Hide(); // гасим
+		if(MenuToRedraw2)
+			MenuToRedraw2->Hide(); // гасим
+
 		MenuToRedraw1->Hide();
 		FrameManager->RefreshFrame(); // рефрешим
 		FrameManager->PluginCommit(); // коммитим.
 		MenuToRedraw1->SetColors();
 		MenuToRedraw1->Show(); // кажем
-		MenuToRedraw2->SetColors();
-		MenuToRedraw2->Show();
+		
+		if(MenuToRedraw2)
+		{
+			MenuToRedraw2->SetColors();
+			MenuToRedraw2->Show();
+		}
 
 		if (MenuToRedraw3)
 		{
@@ -411,11 +417,10 @@ void SetColors()
 }
 
 
-static void SetItemColors(MenuDataEx *Items,int *PaletteItems,int Size,int TypeSub, VMenu* MenuToRedraw1)
+static void SetItemColors(MenuDataEx *Items,int *PaletteItems,int Size,int TypeSub, VMenu* MenuToRedraw1, VMenu* MenuToRedraw2)
 {
 	int ItemsCode;
 	VMenu ItemsMenu(MSG(MSetColorItemsTitle),Items,Size,0);
-	VMenu* MenuToRedraw2 = nullptr;
 	VMenu* MenuToRedraw3 = nullptr;
 	if (TypeSub == 2)
 		MenuToRedraw3=&ItemsMenu;
@@ -525,7 +530,7 @@ static void SetItemColors(MenuDataEx *Items,int *PaletteItems,int Size,int TypeS
 				},
 			};
 
-			SetItemColors(ListItems,ListPaletteItems[PaletteItems[ItemsCode]],ARRAYSIZE(ListItems),2,MenuToRedraw1);
+			SetItemColors(ListItems,ListPaletteItems[PaletteItems[ItemsCode]],ARRAYSIZE(ListItems),2,MenuToRedraw1, MenuToRedraw2);
 			MenuToRedraw3=nullptr;
 		}
 		else
