@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 08.05.2011 16:37:54 +0200 - build 2025
+
+1. Mantis#0001622: Not a very nice look of the file search results window
+
+2. Mantis#0001763: Far 3.0 gcc build error (incorrect character case in an include)
+
+3. Another couple of minorities.
+
 drkns 04.05.2011 12:24:24 +0200 - build 2024
 
 1. And more.
