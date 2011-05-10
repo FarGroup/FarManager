@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2016
+  Plugin API for Far Manager 3.0 build 2026
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2016
+#define FARMANAGERVERSION_BUILD 2026
 
 #ifndef RC_INVOKED
 
@@ -399,8 +399,8 @@ struct FarListInfo
 
 struct FarListItemData
 {
-	int   Index;
-	int   DataSize;
+	int Index;
+	size_t DataSize;
 	void *Data;
 	DWORD Reserved;
 };
@@ -475,6 +475,12 @@ struct DialogInfo
 	size_t StructSize;
 	GUID Id;
 	GUID Owner;
+};
+
+struct FarGetDialogItem
+{
+	size_t Size;
+	FarDialogItem* Item;
 };
 
 #define Dlg_RedrawDialog(Info,hDlg)            Info.SendDlgMessage(hDlg,DM_REDRAW,0,0)
@@ -638,6 +644,12 @@ struct PluginPanelItem
 	DWORD_PTR     UserData;
 	DWORD         CRC32;
 	DWORD_PTR     Reserved[2];
+};
+
+struct FarGetPluginPanelItem
+{
+	size_t Size;
+	PluginPanelItem* Item;
 };
 
 typedef unsigned __int64 PANELINFOFLAGS;
@@ -1970,7 +1982,7 @@ static __inline BOOL CheckVersion(const struct VersionInfo* Current, const struc
 	return (Current->Major > Required->Major) || (Current->Major == Required->Major && Current->Minor > Required->Minor) || (Current->Major == Required->Major && Current->Minor == Required->Minor && Current->Revision > Required->Revision) || (Current->Major == Required->Major && Current->Minor == Required->Minor && Current->Revision == Required->Revision && Current->Build >= Required->Build);
 }
 
-static __inline struct VersionInfo MAKEFARVERSION(int Major, int Minor, int Revision, int Build)
+static __inline struct VersionInfo MAKEFARVERSION(DWORD Major, DWORD Minor, DWORD Revision, DWORD Build)
 {
 	struct VersionInfo Info = {Major,Minor,Revision,Build};
 	return Info;
