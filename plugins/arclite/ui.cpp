@@ -1304,6 +1304,7 @@ private:
   int use_exclude_masks_ctrl_id;
   int exclude_masks_ctrl_id;
   int generate_masks_ctrl_id;
+  int default_masks_ctrl_id;
   int use_enabled_formats_ctrl_id;
   int enabled_formats_ctrl_id;
   int use_disabled_formats_ctrl_id;
@@ -1342,6 +1343,9 @@ private:
     else if (msg == DN_BTNCLICK && param1 == generate_masks_ctrl_id) {
       generate_masks();
     }
+    else if (msg == DN_BTNCLICK && param1 == default_masks_ctrl_id) {
+      default_masks();
+    }
     else if (msg == DN_BTNCLICK && param1 == use_enabled_formats_ctrl_id) {
       enable(enabled_formats_ctrl_id, param2 != 0);
     }
@@ -1363,6 +1367,10 @@ private:
     if (!masks.empty())
       masks.erase(masks.size() - 1);
     set_text(include_masks_ctrl_id, masks);
+  }
+
+  void default_masks() {
+    set_text(include_masks_ctrl_id, Options().include_masks);
   }
 
   wstring get_available_formats() {
@@ -1405,6 +1413,8 @@ public:
     exclude_masks_ctrl_id = edit_box(settings.exclude_masks, c_client_xs);
     new_line();
     generate_masks_ctrl_id = button(Far::get_msg(MSG_SETTINGS_DLG_GENERATE_MASKS), DIF_BTNNOCLOSE);
+    spacer(1);
+    default_masks_ctrl_id = button(Far::get_msg(MSG_SETTINGS_DLG_DEFAULT_MASKS), DIF_BTNNOCLOSE);
     new_line();
     separator();
     new_line();

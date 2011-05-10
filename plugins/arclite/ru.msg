@@ -124,6 +124,7 @@ settings.dlg.handle_commands = Обрабатывать прочие архив�
 settings.dlg.use_include_masks = Маски &включения:
 settings.dlg.use_exclude_masks = Маски &исключения:
 settings.dlg.generate_masks = &Сгенерировать маски
+settings.dlg.default_masks = С&тандартные маски
 settings.dlg.use_enabled_formats = В&ключить форматы архивов:
 settings.dlg.use_disabled_formats = &Отключить форматы архивов:
 settings.dlg.pgdn_formats = &Настройки форматов влияют на Ctrl-PgDn
