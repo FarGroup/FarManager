@@ -1333,7 +1333,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			while (IsMouseButtonPressed())
 			{
 				SbHeight=Y2-Y1-2;
-				int MsPos=(GetShowItemCount()-1)*(MouseY-Y1)/(SbHeight);
+				int MsPos=(GetShowItemCount()-1)*(IntKeyState.MouseY-Y1)/(SbHeight);
 
 				if (MsPos >= GetShowItemCount())
 				{
@@ -1387,7 +1387,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 		if (MsPos>=0 && MsPos<ItemCount && ItemCanHaveFocus(Item[MsPos]->Flags))
 		{
-			if (MouseX!=PrevMouseX || MouseY!=PrevMouseY || !MouseEvent->dwEventFlags)
+			if (IntKeyState.MouseX!=IntKeyState.PrevMouseX || IntKeyState.MouseY!=IntKeyState.PrevMouseY || !MouseEvent->dwEventFlags)
 			{
 				/* TODO:
 
@@ -1432,19 +1432,19 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 		return TRUE;
 	}
-	else if (BoxType!=NO_BOX && !(MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (PrevMouseButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && !MouseEvent->dwEventFlags && (Opt.VMenu.LBtnClick==VMENUCLICK_APPLY))
+	else if (BoxType!=NO_BOX && !(MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && !MouseEvent->dwEventFlags && (Opt.VMenu.LBtnClick==VMENUCLICK_APPLY))
 	{
 		ProcessKey(KEY_ENTER);
 
 		return TRUE;
 	}
-	else if (BoxType!=NO_BOX && !(MouseEvent->dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED) && (PrevMouseButtonState&FROM_LEFT_2ND_BUTTON_PRESSED) && !MouseEvent->dwEventFlags && (Opt.VMenu.MBtnClick==VMENUCLICK_APPLY))
+	else if (BoxType!=NO_BOX && !(MouseEvent->dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&FROM_LEFT_2ND_BUTTON_PRESSED) && !MouseEvent->dwEventFlags && (Opt.VMenu.MBtnClick==VMENUCLICK_APPLY))
 	{
 		ProcessKey(KEY_ENTER);
 
 		return TRUE;
 	}
-	else if (BoxType!=NO_BOX && bRightBtnPressed && !(MouseEvent->dwButtonState&RIGHTMOST_BUTTON_PRESSED) && (PrevMouseButtonState&RIGHTMOST_BUTTON_PRESSED) && !MouseEvent->dwEventFlags && (Opt.VMenu.RBtnClick==VMENUCLICK_APPLY))
+	else if (BoxType!=NO_BOX && bRightBtnPressed && !(MouseEvent->dwButtonState&RIGHTMOST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&RIGHTMOST_BUTTON_PRESSED) && !MouseEvent->dwEventFlags && (Opt.VMenu.RBtnClick==VMENUCLICK_APPLY))
 	{
 		ProcessKey(KEY_ENTER);
 

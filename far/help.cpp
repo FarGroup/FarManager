@@ -1549,12 +1549,12 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	MsX=MouseEvent->dwMousePosition.X;
 	MsY=MouseEvent->dwMousePosition.Y;
 
-	if ((MsX<X1 || MsY<Y1 || MsX>X2 || MsY>Y2) && MouseEventFlags != MOUSE_MOVED)
+	if ((MsX<X1 || MsY<Y1 || MsX>X2 || MsY>Y2) && IntKeyState.MouseEventFlags != MOUSE_MOVED)
 	{
 		if (Flags.Check(HELPMODE_CLICKOUTSIDE))
 		{
 			// Вываливаем если предыдущий эвент не был двойным кликом
-			if (PreMouseEventFlags != DOUBLE_CLICK)
+			if (IntKeyState.PreMouseEventFlags != DOUBLE_CLICK)
 				ProcessKey(KEY_ESC);
 		}
 
@@ -1564,12 +1564,12 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		return TRUE;
 	}
 
-	if (MouseX==X2 && (MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED))
+	if (IntKeyState.MouseX==X2 && (MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED))
 	{
 		int ScrollY=Y1+FixSize+1;
 		int Height=Y2-Y1-FixSize-1;
 
-		if (MouseY==ScrollY)
+		if (IntKeyState.MouseY==ScrollY)
 		{
 			while (IsMouseButtonPressed())
 				ProcessKey(KEY_UP);
@@ -1577,7 +1577,7 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			return TRUE;
 		}
 
-		if (MouseY==ScrollY+Height-1)
+		if (IntKeyState.MouseY==ScrollY+Height-1)
 		{
 			while (IsMouseButtonPressed())
 				ProcessKey(KEY_DOWN);
@@ -1589,7 +1589,7 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	/* $ 15.03.2002 DJ
 	   обработаем щелчок в середине скроллбара
 	*/
-	if (MouseX == X2)
+	if (IntKeyState.MouseX == X2)
 	{
 		int ScrollY=Y1+FixSize+1;
 		int Height=Y2-Y1-FixSize-1;
@@ -1598,10 +1598,10 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		{
 			while (IsMouseButtonPressed())
 			{
-				if (MouseY > ScrollY && MouseY < ScrollY+Height+1)
+				if (IntKeyState.MouseY > ScrollY && IntKeyState.MouseY < ScrollY+Height+1)
 				{
 					StackData.CurX=StackData.CurY=0;
-					StackData.TopStr=(MouseY-ScrollY-1) * (StrCount-FixCount-Height+1) / (Height-2);
+					StackData.TopStr=(IntKeyState.MouseY-ScrollY-1) * (StrCount-FixCount-Height+1) / (Height-2);
 					FastShow();
 				}
 			}
@@ -1621,7 +1621,7 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (MouseEvent->dwMousePosition.Y<Y1+1+FixSize)
 	{
-		while (IsMouseButtonPressed() && MouseY<Y1+1+FixSize)
+		while (IsMouseButtonPressed() && IntKeyState.MouseY<Y1+1+FixSize)
 			ProcessKey(KEY_UP);
 
 		return TRUE;
@@ -1629,7 +1629,7 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (MouseEvent->dwMousePosition.Y>=Y2)
 	{
-		while (IsMouseButtonPressed() && MouseY>=Y2)
+		while (IsMouseButtonPressed() && IntKeyState.MouseY>=Y2)
 			ProcessKey(KEY_DOWN);
 
 		return TRUE;
@@ -1650,7 +1650,7 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		ProcessKey(KEY_ENTER);
 	}
 
-	if(MsX != PrevMouseX || MsY != PrevMouseY)
+	if(MsX != IntKeyState.PrevMouseX || MsY != IntKeyState.PrevMouseY)
 	{
 		StackData.CurX=MsX-X1-1;
 		StackData.CurY=MsY-Y1-1-FixSize;

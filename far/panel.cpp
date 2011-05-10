@@ -1666,7 +1666,7 @@ int  Panel::PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 			SrcDragPanel=this;
 			DragX=MouseEvent->dwMousePosition.X;
 			DragY=MouseEvent->dwMousePosition.Y;
-			DragMove=ShiftPressed;
+			DragMove=IntKeyState.ShiftPressed;
 		}
 	}
 

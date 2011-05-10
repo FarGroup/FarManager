@@ -1910,7 +1910,7 @@ int Editor::ProcessKey(int Key)
 		case KEY_NUMENTER:
 		case KEY_ENTER:
 		{
-			if (Pasting || !ShiftPressed || CtrlObject->Macro.IsExecuting())
+			if (Pasting || !IntKeyState.ShiftPressed || CtrlObject->Macro.IsExecuting())
 			{
 				if (!Pasting && !EdOpt.PersistentBlocks && BlockStart)
 					DeleteBlock();
@@ -2888,7 +2888,7 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		else
 		{
 			while (IsMouseButtonPressed())
-				GoToLine((NumLastLine-1)*(MouseY-Y1)/(Y2-Y1));
+				GoToLine((NumLastLine-1)*(IntKeyState.MouseY-Y1)/(Y2-Y1));
 		}
 
 		return TRUE;
@@ -2962,7 +2962,7 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	// scroll up
 	if (MouseEvent->dwMousePosition.Y==Y1-1)
 	{
-		while (IsMouseButtonPressed() && MouseY==Y1-1)
+		while (IsMouseButtonPressed() && IntKeyState.MouseY==Y1-1)
 			ProcessKey(KEY_UP);
 
 		return TRUE;
@@ -2971,7 +2971,7 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	// scroll down
 	if (MouseEvent->dwMousePosition.Y==Y2+1)
 	{
-		while (IsMouseButtonPressed() && MouseY==Y2+1)
+		while (IsMouseButtonPressed() && IntKeyState.MouseY==Y2+1)
 			ProcessKey(KEY_DOWN);
 
 		return TRUE;

@@ -230,8 +230,8 @@ void RestoreConsoleWindowRect()
 void FlushInputBuffer()
 {
 	Console.FlushInputBuffer();
-	MouseButtonState=0;
-	MouseEventFlags=0;
+	IntKeyState.MouseButtonState=0;
+	IntKeyState.MouseEventFlags=0;
 }
 
 void SetVideoMode()

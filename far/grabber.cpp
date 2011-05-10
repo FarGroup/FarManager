@@ -276,14 +276,14 @@ int Grabber::ProcessKey(int Key)
 	{
 		if ((Key&KEY_SHIFT) && Key!=KEY_NONE && ResetArea)
 			Reset();
-		else if (Key!=KEY_IDLE && Key!=KEY_NONE && !(Key&KEY_SHIFT) && !ShiftPressed && !AltPressed)
+		else if (Key!=KEY_IDLE && Key!=KEY_NONE && !(Key&KEY_SHIFT) && !IntKeyState.ShiftPressed && !IntKeyState.AltPressed)
 			ResetArea=TRUE;
 	}
 	else
 	{
-		if ((ShiftPressed || Key!=KEY_SHIFT) && (Key&KEY_SHIFT) && Key!=KEY_NONE && Key!=KEY_CTRLA && !AltPressed && ResetArea)
+		if ((IntKeyState.ShiftPressed || Key!=KEY_SHIFT) && (Key&KEY_SHIFT) && Key!=KEY_NONE && Key!=KEY_CTRLA && !IntKeyState.AltPressed && ResetArea)
 			Reset();
-		else if (Key!=KEY_IDLE && Key!=KEY_NONE && Key!=KEY_SHIFT && Key!=KEY_CTRLA && !ShiftPressed && !AltPressed && !(Key&KEY_SHIFT))
+		else if (Key!=KEY_IDLE && Key!=KEY_NONE && Key!=KEY_SHIFT && Key!=KEY_CTRLA && !IntKeyState.ShiftPressed && !IntKeyState.AltPressed && !(Key&KEY_SHIFT))
 			ResetArea=TRUE;
 	}
 
@@ -538,11 +538,11 @@ int Grabber::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		return TRUE;
 	}
 
-	if (MouseButtonState!=FROM_LEFT_1ST_BUTTON_PRESSED)
+	if (IntKeyState.MouseButtonState!=FROM_LEFT_1ST_BUTTON_PRESSED)
 		return FALSE;
 
-	GArea.CurX=Min(Max(static_cast<SHORT>(0),MouseX),ScrX);
-	GArea.CurY=Min(Max(static_cast<SHORT>(0),MouseY),ScrY);
+	GArea.CurX=Min(Max(static_cast<SHORT>(0),IntKeyState.MouseX),ScrX);
+	GArea.CurY=Min(Max(static_cast<SHORT>(0),IntKeyState.MouseY),ScrY);
 
 	if (!MouseEvent->dwEventFlags)
 		ResetArea=TRUE;

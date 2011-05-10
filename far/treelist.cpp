@@ -1314,13 +1314,13 @@ int TreeList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	int OldFile=CurFile;
 	int RetCode;
 
-	if (Opt.ShowPanelScrollbar && MouseX==X2 &&
+	if (Opt.ShowPanelScrollbar && IntKeyState.MouseX==X2 &&
 	        (MouseEvent->dwButtonState & 1) && !IsDragging())
 	{
 		int ScrollY=Y1+1;
 		int Height=Y2-Y1-3;
 
-		if (MouseY==ScrollY)
+		if (IntKeyState.MouseY==ScrollY)
 		{
 			while (IsMouseButtonPressed())
 				ProcessKey(KEY_UP);
@@ -1331,7 +1331,7 @@ int TreeList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			return TRUE;
 		}
 
-		if (MouseY==ScrollY+Height-1)
+		if (IntKeyState.MouseY==ScrollY+Height-1)
 		{
 			while (IsMouseButtonPressed())
 				ProcessKey(KEY_DOWN);
@@ -1342,9 +1342,9 @@ int TreeList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			return TRUE;
 		}
 
-		if (MouseY>ScrollY && MouseY<ScrollY+Height-1 && Height>2)
+		if (IntKeyState.MouseY>ScrollY && IntKeyState.MouseY<ScrollY+Height-1 && Height>2)
 		{
-			CurFile=(TreeCount-1)*(MouseY-ScrollY)/(Height-2);
+			CurFile=(TreeCount-1)*(IntKeyState.MouseY-ScrollY)/(Height-2);
 			DisplayTree(TRUE);
 
 			if (!ModalMode)
@@ -1389,7 +1389,7 @@ int TreeList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		if (!TreeCount)
 			return TRUE;
 
-		while (IsMouseButtonPressed() && MouseY<=Y1+1)
+		while (IsMouseButtonPressed() && IntKeyState.MouseY<=Y1+1)
 			Up(1);
 
 		if (Opt.Tree.AutoChangeFolder && !ModalMode)
@@ -1406,7 +1406,7 @@ int TreeList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		if (!TreeCount)
 			return TRUE;
 
-		while (IsMouseButtonPressed() && MouseY>=Y2-2)
+		while (IsMouseButtonPressed() && IntKeyState.MouseY>=Y2-2)
 			Down(1);
 
 		if (Opt.Tree.AutoChangeFolder && !ModalMode)

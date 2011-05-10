@@ -856,7 +856,7 @@ int KeyMacro::ProcessKey(int Key)
 				return FALSE;
 			}
 
-			if (ReturnAltValue) // "подтасовка" фактов ;-)
+			if (IntKeyState.ReturnAltValue) // "подтасовка" фактов ;-)
 				Key|=KEY_ALTDIGIT;
 
 			if (!RecBufferSize)
@@ -5402,7 +5402,7 @@ return_func:
 	if (Work.KeyProcess && (Key&KEY_ALTDIGIT)) // "подтасовка" фактов ;-)
 	{
 		Key&=~KEY_ALTDIGIT;
-		ReturnAltValue=1;
+		IntKeyState.ReturnAltValue=1;
 	}
 
 #if 0

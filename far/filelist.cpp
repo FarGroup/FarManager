@@ -901,7 +901,7 @@ int FileList::ProcessKey(int Key)
 		}
 	}
 
-	if (!ShiftPressed && ShiftSelection!=-1)
+	if (!IntKeyState.ShiftPressed && ShiftSelection!=-1)
 	{
 		if (SelectedFirst)
 		{
@@ -2735,12 +2735,12 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		return TRUE;
 	}
 
-	if (IsVisible() && Opt.ShowPanelScrollbar && MouseX==X2 &&
+	if (IsVisible() && Opt.ShowPanelScrollbar && IntKeyState.MouseX==X2 &&
 	        (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && !(MouseEvent->dwEventFlags & MOUSE_MOVED) && !IsDragging())
 	{
 		int ScrollY=Y1+1+Opt.ShowColumnTitles;
 
-		if (MouseY==ScrollY)
+		if (IntKeyState.MouseY==ScrollY)
 		{
 			while (IsMouseButtonPressed())
 				ProcessKey(KEY_UP);
@@ -2749,7 +2749,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			return TRUE;
 		}
 
-		if (MouseY==ScrollY+Height-1)
+		if (IntKeyState.MouseY==ScrollY+Height-1)
 		{
 			while (IsMouseButtonPressed())
 				ProcessKey(KEY_DOWN);
@@ -2758,11 +2758,11 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			return TRUE;
 		}
 
-		if (MouseY>ScrollY && MouseY<ScrollY+Height-1 && Height>2)
+		if (IntKeyState.MouseY>ScrollY && IntKeyState.MouseY<ScrollY+Height-1 && Height>2)
 		{
 			while (IsMouseButtonPressed())
 			{
-				CurFile=(FileCount-1)*(MouseY-ScrollY)/(Height-2);
+				CurFile=(FileCount-1)*(IntKeyState.MouseY-ScrollY)/(Height-2);
 				ShowFileList(TRUE);
 				SetFocus();
 			}
@@ -2812,7 +2812,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			{
 				FlushInputBuffer(); // !!!
 				INPUT_RECORD rec;
-				ProcessKeyToInputRecord(VK_RETURN,ShiftPressed ? PKF_SHIFT:0,&rec);
+				ProcessKeyToInputRecord(VK_RETURN,IntKeyState.ShiftPressed ? PKF_SHIFT:0,&rec);
 				int ProcessCode=CtrlObject->Plugins.ProcessKey(hPlugin,&rec,false);
 				ProcessPluginCommand();
 
@@ -2831,7 +2831,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			*/
 			ShowFileList(TRUE);
 			FlushInputBuffer();
-			ProcessEnter(true,ShiftPressed!=0);
+			ProcessEnter(true,IntKeyState.ShiftPressed!=0);
 			return TRUE;
 		}
 		else
@@ -2862,11 +2862,11 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		if (!FileCount)
 			return TRUE;
 
-		while (IsMouseButtonPressed() && MouseY<=Y1+1)
+		while (IsMouseButtonPressed() && IntKeyState.MouseY<=Y1+1)
 		{
 			Up(1);
 
-			if (MouseButtonState==RIGHTMOST_BUTTON_PRESSED)
+			if (IntKeyState.MouseButtonState==RIGHTMOST_BUTTON_PRESSED)
 			{
 				assert(CurFile<FileCount);
 				CurPtr=ListData[CurFile];
@@ -2887,11 +2887,11 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		if (!FileCount)
 			return TRUE;
 
-		while (IsMouseButtonPressed() && MouseY>=Y2-2)
+		while (IsMouseButtonPressed() && IntKeyState.MouseY>=Y2-2)
 		{
 			Down(1);
 
-			if (MouseButtonState==RIGHTMOST_BUTTON_PRESSED)
+			if (IntKeyState.MouseButtonState==RIGHTMOST_BUTTON_PRESSED)
 			{
 				assert(CurFile<FileCount);
 				CurPtr=ListData[CurFile];

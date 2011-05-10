@@ -726,7 +726,7 @@ int Edit::ProcessKey(int Key)
 	int _Macro_IsExecuting=CtrlObject->Macro.IsExecuting();
 
 	// $ 04.07.2000 IG - добавлена проврерка на запуск макроса (00025.edit.cpp.txt)
-	if (!ShiftPressed && (!_Macro_IsExecuting || (IsNavKey(Key) && _Macro_IsExecuting)) &&
+	if (!IntKeyState.ShiftPressed && (!_Macro_IsExecuting || (IsNavKey(Key) && _Macro_IsExecuting)) &&
 	        !IsShiftKey(Key) && !Recurse &&
 	        Key!=KEY_SHIFT && Key!=KEY_CTRL && Key!=KEY_ALT &&
 	        Key!=KEY_RCTRL && Key!=KEY_RALT && Key!=KEY_NONE &&
@@ -3321,8 +3321,8 @@ int EditControl::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		while(IsMouseButtonPressed()==FROM_LEFT_1ST_BUTTON_PRESSED)
 		{
 			Flags.Clear(FEDITLINE_CLEARFLAG);
-			SetTabCurPos(MouseX - X1 + LeftPos);
-			if(MouseEventFlags&MOUSE_MOVED)
+			SetTabCurPos(IntKeyState.MouseX - X1 + LeftPos);
+			if(IntKeyState.MouseEventFlags&MOUSE_MOVED)
 			{
 				if(!Selection)
 				{

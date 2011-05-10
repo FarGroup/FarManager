@@ -1667,15 +1667,15 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	  > Если нажать в самом низу скролбара, вьюер отмотается на страницу
 	  > ниже нижней границы текста. Перед глазами будет пустой экран.
 	*/
-	if (ViOpt.ShowScrollbar && MouseX==X2+(m_bQuickView?1:0))
+	if (ViOpt.ShowScrollbar && IntKeyState.MouseX==X2+(m_bQuickView?1:0))
 	{
 		/* $ 01.09.2000 SVS
 		   Небольшая бага с тыканием в верхнюю позицию ScrollBar`а
 		*/
-		if (MouseY == Y1)
+		if (IntKeyState.MouseY == Y1)
 			while (IsMouseButtonPressed())
 				ProcessKey(KEY_UP);
-		else if (MouseY==Y2)
+		else if (IntKeyState.MouseY==Y2)
 		{
 			while (IsMouseButtonPressed())
 			{
@@ -1683,9 +1683,9 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 				ProcessKey(KEY_DOWN);
 			}
 		}
-		else if (MouseY == Y1+1)
+		else if (IntKeyState.MouseY == Y1+1)
 			ProcessKey(KEY_CTRLHOME);
-		else if (MouseY == Y2-1)
+		else if (IntKeyState.MouseY == Y2-1)
 			ProcessKey(KEY_CTRLEND);
 		else
 		{
@@ -1694,7 +1694,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 				/* $ 14.05.2001 DJ
 				   более точное позиционирование; корректная работа на больших файлах
 				*/
-				FilePos=(FileSize-1)/(Y2-Y1-1)*(MouseY-Y1);
+				FilePos=(FileSize-1)/(Y2-Y1-1)*(IntKeyState.MouseY-Y1);
 				int Perc;
 
 				if (FilePos > FileSize)
@@ -1735,7 +1735,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	/* $ 12.10.2001 SKV
 	  угу, а только если он нсть, statusline...
 	*/
-	if (MouseY == (Y1-1) && (HostFileViewer && HostFileViewer->IsTitleBarVisible()))  // Status line
+	if (IntKeyState.MouseY == (Y1-1) && (HostFileViewer && HostFileViewer->IsTitleBarVisible()))  // Status line
 	{
 		int XCodePage, XPos, NameLength;
 		NameLength=ObjWidth-40;
@@ -1751,37 +1751,37 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 		while (IsMouseButtonPressed());
 
-		if (MouseY != Y1-1)
+		if (IntKeyState.MouseY != Y1-1)
 			return TRUE;
 
 		//_D(SysLog(L"MsX=%i, XTable=%i, XPos=%i",MsX,XTable,XPos));
-		if (MouseX>=XCodePage && MouseX<=XCodePage+10)
+		if (IntKeyState.MouseX>=XCodePage && IntKeyState.MouseX<=XCodePage+10)
 		{
 			ProcessKey(KEY_SHIFTF8);
 			return (TRUE);
 		}
 
-		if (MouseX>=XPos && MouseX<=XPos+7+1+4+1+3)
+		if (IntKeyState.MouseX>=XPos && IntKeyState.MouseX<=XPos+7+1+4+1+3)
 		{
 			ProcessKey(KEY_ALTF8);
 			return (TRUE);
 		}
 	}
 
-	if (MouseX<X1 || MouseX>X2 || MouseY<Y1 || MouseY>Y2)
+	if (IntKeyState.MouseX<X1 || IntKeyState.MouseX>X2 || IntKeyState.MouseY<Y1 || IntKeyState.MouseY>Y2)
 		return FALSE;
 
-	if (MouseX<X1+7)
-		while (IsMouseButtonPressed() && MouseX<X1+7)
+	if (IntKeyState.MouseX<X1+7)
+		while (IsMouseButtonPressed() && IntKeyState.MouseX<X1+7)
 			ProcessKey(KEY_LEFT);
-	else if (MouseX>X2-7)
-		while (IsMouseButtonPressed() && MouseX>X2-7)
+	else if (IntKeyState.MouseX>X2-7)
+		while (IsMouseButtonPressed() && IntKeyState.MouseX>X2-7)
 			ProcessKey(KEY_RIGHT);
-	else if (MouseY<Y1+(Y2-Y1)/2)
-		while (IsMouseButtonPressed() && MouseY<Y1+(Y2-Y1)/2)
+	else if (IntKeyState.MouseY<Y1+(Y2-Y1)/2)
+		while (IsMouseButtonPressed() && IntKeyState.MouseY<Y1+(Y2-Y1)/2)
 			ProcessKey(KEY_UP);
 	else
-		while (IsMouseButtonPressed() && MouseY>=Y1+(Y2-Y1)/2)
+		while (IsMouseButtonPressed() && IntKeyState.MouseY>=Y1+(Y2-Y1)/2)
 			ProcessKey(KEY_DOWN);
 
 	return TRUE;

@@ -87,15 +87,15 @@ void KeyBar::DisplayObject()
 		SetColor(COL_KEYBARTEXT);
 		const wchar_t *Label=L"";
 
-		if (ShiftPressed)
+		if (IntKeyState.ShiftPressed)
 		{
-			ShiftState=ShiftPressed;
+			ShiftState=IntKeyState.ShiftPressed;
 
-			if (CtrlPressed)
+			if (IntKeyState.CtrlPressed)
 			{
-				CtrlState=CtrlPressed;
+				CtrlState=IntKeyState.CtrlPressed;
 
-				if (!AltPressed) // Ctrl-Alt-Shift - это особый случай :-)
+				if (!IntKeyState.AltPressed) // Ctrl-Alt-Shift - это особый случай :-)
 				{
 					if (i<KeyCounts [KBL_CTRLSHIFT])
 						Label=KeyTitles [KBL_CTRLSHIFT][i];
@@ -106,12 +106,12 @@ void KeyBar::DisplayObject()
 						Label=KeyTitles [KBL_CTRLALTSHIFT][i];
 				}
 			}
-			else if (AltPressed)
+			else if (IntKeyState.AltPressed)
 			{
 				if (i<KeyCounts [KBL_ALTSHIFT])
 					Label=KeyTitles [KBL_ALTSHIFT][i];
 
-				AltState=AltPressed;
+				AltState=IntKeyState.AltPressed;
 			}
 			else
 			{
@@ -119,16 +119,16 @@ void KeyBar::DisplayObject()
 					Label=KeyTitles [KBL_SHIFT][i];
 			}
 		}
-		else if (CtrlPressed)
+		else if (IntKeyState.CtrlPressed)
 		{
-			CtrlState=CtrlPressed;
+			CtrlState=IntKeyState.CtrlPressed;
 
-			if (AltPressed)
+			if (IntKeyState.AltPressed)
 			{
 				if (i<KeyCounts [KBL_CTRLALT])
 					Label=KeyTitles [KBL_CTRLALT][i];
 
-				AltState=AltPressed;
+				AltState=IntKeyState.AltPressed;
 			}
 			else
 			{
@@ -136,9 +136,9 @@ void KeyBar::DisplayObject()
 					Label=KeyTitles [KBL_CTRL][i];
 			}
 		}
-		else if (AltPressed)
+		else if (IntKeyState.AltPressed)
 		{
-			AltState=AltPressed;
+			AltState=IntKeyState.AltPressed;
 
 			if (i<KeyCounts [KBL_ALT])
 				Label=KeyTitles [KBL_ALT][i];
@@ -366,9 +366,9 @@ int KeyBar::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 void KeyBar::RedrawIfChanged()
 {
-	if (ShiftPressed!=ShiftState ||
-	        CtrlPressed!=CtrlState ||
-	        AltPressed!=AltState)
+	if (IntKeyState.ShiftPressed!=ShiftState ||
+	        IntKeyState.CtrlPressed!=CtrlState ||
+	        IntKeyState.AltPressed!=AltState)
 	{
 		//_SVS("KeyBar::RedrawIfChanged()");
 		Redraw();

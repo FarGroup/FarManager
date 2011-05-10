@@ -45,12 +45,29 @@ enum
 #define MOUSE_ANY_BUTTON_PRESSED (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED|FROM_LEFT_2ND_BUTTON_PRESSED|FROM_LEFT_3RD_BUTTON_PRESSED|FROM_LEFT_4TH_BUTTON_PRESSED)
 
 extern FarQueue<DWORD> *KeyQueue;
-extern int AltPressed,CtrlPressed,ShiftPressed;
-extern int RightAltPressed,RightCtrlPressed,RightShiftPressed;
-extern DWORD MouseButtonState,PrevMouseButtonState;
-extern SHORT PrevMouseX,PrevMouseY,MouseX,MouseY;
-extern int PreMouseEventFlags,MouseEventFlags;
-extern int ReturnAltValue;
+
+struct FarKeyboardState {
+	int AltPressed;
+	int CtrlPressed;
+	int ShiftPressed;
+	int RightAltPressed;
+	int RightCtrlPressed;
+	int RightShiftPressed;
+	DWORD MouseButtonState;
+	DWORD PrevMouseButtonState;
+	int PrevLButtonPressed;
+	int PrevRButtonPressed;
+	int PrevMButtonPressed;
+	SHORT PrevMouseX;
+	SHORT PrevMouseY;
+	SHORT MouseX;
+	SHORT MouseY;
+	int PreMouseEventFlags;
+	int MouseEventFlags;
+	int ReturnAltValue;   // только что был ввод Alt-Цифира?
+};
+
+extern FarKeyboardState IntKeyState;
 
 void InitKeysArray();
 bool KeyToKeyLayoutCompare(int Key, int CompareKey);
