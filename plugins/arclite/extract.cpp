@@ -135,7 +135,7 @@ private:
     size_t buffer_size;
   };
 
-  ComObject<Archive> archive;
+  shared_ptr<Archive> archive;
   unsigned char* buffer;
   size_t buffer_size;
   size_t commit_size;
@@ -272,7 +272,7 @@ private:
     progress->update_cache_stored(size);
   }
 public:
-  FileWriteCache(Archive* archive, shared_ptr<bool> ignore_errors, shared_ptr<ErrorLog> error_log, shared_ptr<ExtractProgress> progress): archive(archive), buffer_size(get_max_cache_size()), commit_size(0), buffer_pos(0), continue_file(false), error_state(false), ignore_errors(ignore_errors), error_log(error_log), progress(progress) {
+  FileWriteCache(shared_ptr<Archive> archive, shared_ptr<bool> ignore_errors, shared_ptr<ErrorLog> error_log, shared_ptr<ExtractProgress> progress): archive(archive), buffer_size(get_max_cache_size()), commit_size(0), buffer_pos(0), continue_file(false), error_state(false), ignore_errors(ignore_errors), error_log(error_log), progress(progress) {
     progress->set_cache_total(buffer_size);
     buffer = reinterpret_cast<unsigned char*>(VirtualAlloc(nullptr, buffer_size, MEM_RESERVE, PAGE_NOACCESS));
     CHECK_SYS(buffer);
@@ -338,7 +338,7 @@ private:
   ArcFileInfo file_info;
   UInt32 src_dir_index;
   wstring dst_dir;
-  ComObject<Archive> archive;
+  shared_ptr<Archive> archive;
   shared_ptr<OverwriteAction> overwrite_action;
   shared_ptr<bool> ignore_errors;
   shared_ptr<ErrorLog> error_log;
@@ -350,7 +350,7 @@ public:
   ArchiveExtractor(
     UInt32 src_dir_index,
     const wstring& dst_dir,
-    Archive* archive,
+    shared_ptr<Archive> archive,
     shared_ptr<OverwriteAction> overwrite_action,
     shared_ptr<bool> ignore_errors,
     shared_ptr<ErrorLog> error_log,
@@ -503,7 +503,7 @@ void Archive::prepare_dst_dir(const wstring& path) {
 
 class PrepareExtract: public ProgressMonitor {
 private:
-  ComObject<Archive> archive;
+  Archive& archive;
   list<UInt32>& indices;
   bool& ignore_errors;
   ErrorLog& error_log;
@@ -523,7 +523,7 @@ private:
 
   void prepare_extract(const FileIndexRange& index_range, const wstring& parent_dir) {
     for_each(index_range.first, index_range.second, [&] (UInt32 file_index) {
-      const ArcFileInfo& file_info = archive->file_list[file_index];
+      const ArcFileInfo& file_info = archive.file_list[file_index];
       if (file_info.is_dir) {
         wstring dir_path = add_trailing_slash(parent_dir) + file_info.name;
         update_progress(dir_path);
@@ -538,7 +538,7 @@ private:
         }
         RETRY_OR_IGNORE_END(ignore_errors, error_log, *this)
 
-        FileIndexRange dir_list = archive->get_dir_list(file_index);
+        FileIndexRange dir_list = archive.get_dir_list(file_index);
         prepare_extract(dir_list, dir_path);
       }
       else {
@@ -548,7 +548,7 @@ private:
   }
 
 public:
-  PrepareExtract(const FileIndexRange& index_range, const wstring& parent_dir, Archive* archive, list<UInt32>& indices, bool& ignore_errors, ErrorLog& error_log): ProgressMonitor(Far::get_msg(MSG_PROGRESS_CREATE_DIRS), false), archive(archive), indices(indices), ignore_errors(ignore_errors), error_log(error_log) {
+  PrepareExtract(const FileIndexRange& index_range, const wstring& parent_dir, Archive& archive, list<UInt32>& indices, bool& ignore_errors, ErrorLog& error_log): ProgressMonitor(Far::get_msg(MSG_PROGRESS_CREATE_DIRS), false), archive(archive), indices(indices), ignore_errors(ignore_errors), error_log(error_log) {
     prepare_extract(index_range, parent_dir);
   }
 };
@@ -556,7 +556,7 @@ public:
 
 class SetDirAttr: public ProgressMonitor {
 private:
-  ComObject<Archive> archive;
+  Archive& archive;
   bool& ignore_errors;
   ErrorLog& error_log;
   const wstring* file_path;
@@ -575,24 +575,24 @@ private:
 
   void set_dir_attr(const FileIndexRange& index_range, const wstring& parent_dir) {
     for_each (index_range.first, index_range.second, [&] (UInt32 file_index) {
-      const ArcFileInfo& file_info = archive->file_list[file_index];
+      const ArcFileInfo& file_info = archive.file_list[file_index];
       wstring file_path = add_trailing_slash(parent_dir) + file_info.name;
       update_progress(file_path);
       if (file_info.is_dir) {
-        FileIndexRange dir_list = archive->get_dir_list(file_index);
+        FileIndexRange dir_list = archive.get_dir_list(file_index);
         set_dir_attr(dir_list, file_path);
         RETRY_OR_IGNORE_BEGIN
         File::set_attr(file_path, FILE_ATTRIBUTE_NORMAL);
         File file(file_path, FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS);
-        File::set_attr(file_path, archive->get_attr(file_index));
-        file.set_time(archive->get_ctime(file_index), archive->get_atime(file_index), archive->get_mtime(file_index));
+        File::set_attr(file_path, archive.get_attr(file_index));
+        file.set_time(archive.get_ctime(file_index), archive.get_atime(file_index), archive.get_mtime(file_index));
         RETRY_OR_IGNORE_END(ignore_errors, error_log, *this)
       }
     });
   }
 
 public:
-  SetDirAttr(const FileIndexRange& index_range, const wstring& parent_dir, Archive* archive, bool& ignore_errors, ErrorLog& error_log): ProgressMonitor(Far::get_msg(MSG_PROGRESS_SET_ATTR), false), archive(archive), ignore_errors(ignore_errors), error_log(error_log) {
+  SetDirAttr(const FileIndexRange& index_range, const wstring& parent_dir, Archive& archive, bool& ignore_errors, ErrorLog& error_log): ProgressMonitor(Far::get_msg(MSG_PROGRESS_SET_ATTR), false), archive(archive), ignore_errors(ignore_errors), error_log(error_log) {
     set_dir_attr(index_range, parent_dir);
   }
 };
@@ -605,7 +605,7 @@ void Archive::extract(UInt32 src_dir_index, const vector<UInt32>& src_indices, c
   prepare_dst_dir(options.dst_dir);
 
   list<UInt32> file_indices;
-  PrepareExtract(FileIndexRange(src_indices.begin(), src_indices.end()), options.dst_dir, this, file_indices, *ignore_errors, *error_log);
+  PrepareExtract(FileIndexRange(src_indices.begin(), src_indices.end()), options.dst_dir, *this, file_indices, *ignore_errors, *error_log);
 
   vector<UInt32> indices;
   indices.reserve(file_indices.size());
@@ -613,16 +613,16 @@ void Archive::extract(UInt32 src_dir_index, const vector<UInt32>& src_indices, c
   sort(indices.begin(), indices.end());
 
   shared_ptr<ExtractProgress> progress(new ExtractProgress(arc_path));
-  shared_ptr<FileWriteCache> cache(new FileWriteCache(this, ignore_errors, error_log, progress));
+  shared_ptr<FileWriteCache> cache(new FileWriteCache(shared_from_this(), ignore_errors, error_log, progress));
   shared_ptr<set<UInt32>> skipped_indices;
   if (extracted_indices)
     skipped_indices.reset(new set<UInt32>());
-  ComObject<IArchiveExtractCallback> extractor(new ArchiveExtractor(src_dir_index, options.dst_dir, this, overwrite_action, ignore_errors, error_log, cache, progress, skipped_indices));
+  ComObject<IArchiveExtractCallback> extractor(new ArchiveExtractor(src_dir_index, options.dst_dir, shared_from_this(), overwrite_action, ignore_errors, error_log, cache, progress, skipped_indices));
   COM_ERROR_CHECK(in_arc->Extract(indices.data(), static_cast<UInt32>(indices.size()), 0, extractor));
   cache->finalize();
   progress->clean();
 
-  SetDirAttr(FileIndexRange(src_indices.begin(), src_indices.end()), options.dst_dir, this, *ignore_errors, *error_log);
+  SetDirAttr(FileIndexRange(src_indices.begin(), src_indices.end()), options.dst_dir, *this, *ignore_errors, *error_log);
 
   if (extracted_indices) {
     vector<UInt32> sorted_src_indices(src_indices);

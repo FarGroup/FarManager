@@ -19,7 +19,7 @@ void attach_sfx_module(const wstring& file_path, const SfxOptions& sfx_options);
 
 class Plugin {
 private:
-  ComObject<Archive> archive;
+  shared_ptr<Archive> archive;
 
   wstring current_dir;
   wstring extract_dir;
@@ -314,7 +314,7 @@ public:
         continue;
       }
 
-      ComObject<Archive> archive = archives[0];
+      shared_ptr<Archive> archive = archives[0];
       if (archive->password.empty())
         archive->password = options.password;
       archive->make_index();
@@ -428,7 +428,7 @@ public:
         continue;
       }
 
-      ComObject<Archive> archive = archives[0];
+      shared_ptr<Archive> archive = archives[0];
       archive->make_index();
 
       FileIndexRange dir_list = archive->get_dir_list(c_root_index);
@@ -645,7 +645,7 @@ public:
     g_options.save();
 
     shared_ptr<ErrorLog> error_log(new ErrorLog());
-    ComObject<Archive>(new Archive())->create(src_path, file_list, options, error_log);
+    shared_ptr<Archive>(new Archive())->create(src_path, file_list, options, error_log);
 
     if (!error_log->empty()) {
       show_error_log(*error_log);
@@ -708,7 +708,7 @@ public:
 
     shared_ptr<ErrorLog> error_log(new ErrorLog());
     if (cmd.new_arc) {
-      ComObject<Archive>(new Archive())->create(src_path, files, options, error_log);
+      shared_ptr<Archive>(new Archive())->create(src_path, files, options, error_log);
 
       if (upcase(Far::get_panel_dir(PANEL_ACTIVE)) == upcase(extract_file_path(options.arc_path)))
         Far::panel_go_to_file(PANEL_ACTIVE, options.arc_path);
@@ -725,7 +725,7 @@ public:
       if (archives.empty())
         throw Error(Far::get_msg(MSG_ERROR_NOT_ARCHIVE), options.arc_path, __FILE__, __LINE__);
 
-      ComObject<Archive> archive = archives[0];
+      shared_ptr<Archive> archive = archives[0];
       if (!archive->updatable())
         throw Error(Far::get_msg(MSG_ERROR_NOT_UPDATABLE), options.arc_path, __FILE__, __LINE__);
 

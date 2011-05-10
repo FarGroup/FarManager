@@ -129,12 +129,9 @@ public:
 };
 
 class Archive;
-typedef vector<ComObject<Archive>> Archives;
+typedef vector<shared_ptr<Archive>> Archives;
 
-class Archive: public ComBase {
-public:
-  UNKNOWN_IMPL
-
+class Archive: public enable_shared_from_this<Archive> {
   // open
 private:
   ComObject<IInArchive> in_arc;

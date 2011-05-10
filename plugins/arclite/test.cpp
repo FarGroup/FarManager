@@ -9,7 +9,7 @@
 class ArchiveTester: public IArchiveExtractCallback, public ICryptoGetTextPassword, public ComBase, public ProgressMonitor {
 private:
   UInt32 src_dir_index;
-  ComObject<Archive> archive;
+  shared_ptr<Archive> archive;
 
   wstring file_path;
   unsigned __int64 completed;
@@ -33,7 +33,7 @@ private:
   }
 
 public:
-  ArchiveTester(UInt32 src_dir_index, Archive* archive): ProgressMonitor(Far::get_msg(MSG_PROGRESS_TEST)), src_dir_index(src_dir_index), archive(archive), completed(0), total(0) {
+  ArchiveTester(UInt32 src_dir_index, shared_ptr<Archive> archive): ProgressMonitor(Far::get_msg(MSG_PROGRESS_TEST)), src_dir_index(src_dir_index), archive(archive), completed(0), total(0) {
   }
 
   UNKNOWN_IMPL_BEGIN
@@ -137,6 +137,6 @@ void Archive::test(UInt32 src_dir_index, const vector<UInt32>& src_indices) {
   copy(file_indices.begin(), file_indices.end(), back_insert_iterator<vector<UInt32>>(indices));
   sort(indices.begin(), indices.end());
 
-  ComObject<IArchiveExtractCallback> tester(new ArchiveTester(src_dir_index, this));
+  ComObject<IArchiveExtractCallback> tester(new ArchiveTester(src_dir_index, shared_from_this()));
   COM_ERROR_CHECK(in_arc->Extract(indices.data(), static_cast<UInt32>(indices.size()), 1, tester));
 }

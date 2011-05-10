@@ -506,7 +506,7 @@ typedef map<UInt32, FileIndexInfo> FileIndexMap;
 class PrepareUpdate: private ProgressMonitor {
 private:
   wstring src_dir;
-  Archive* archive;
+  Archive& archive;
   FileIndexMap& file_index_map;
   UInt32& new_index;
   bool& ignore_errors;
@@ -552,9 +552,9 @@ private:
     file_info.is_dir = src_find_data.is_dir();
     file_info.parent = dst_dir_index;
     file_info.name = src_find_data.cFileName;
-    FileIndexRange fi_range = std::equal_range(archive->file_list_index.begin(), archive->file_list_index.end(), -1, [&] (UInt32 left, UInt32 right) -> bool {
-      const ArcFileInfo& fi_left = left == -1 ? file_info : archive->file_list[left];
-      const ArcFileInfo& fi_right = right == -1 ? file_info : archive->file_list[right];
+    FileIndexRange fi_range = std::equal_range(archive.file_list_index.begin(), archive.file_list_index.end(), -1, [&] (UInt32 left, UInt32 right) -> bool {
+      const ArcFileInfo& fi_left = left == -1 ? file_info : archive.file_list[left];
+      const ArcFileInfo& fi_right = right == -1 ? file_info : archive.file_list[right];
       return fi_left < fi_right;
     });
     if (fi_range.first == fi_range.second) {
@@ -566,7 +566,7 @@ private:
     else {
       // updated file
       file_index = *fi_range.first;
-      if (file_index >= archive->num_indices) { // fake index
+      if (file_index >= archive.num_indices) { // fake index
         file_index_map[new_index] = file_index_info;
         new_index++;
       }
@@ -578,8 +578,8 @@ private:
           src_ov_info.size = src_find_data.size();
           src_ov_info.mtime = src_find_data.ftLastWriteTime;
           dst_ov_info.is_dir = file_info.is_dir;
-          dst_ov_info.size = archive->get_size(file_index);
-          dst_ov_info.mtime = archive->get_mtime(file_index);
+          dst_ov_info.size = archive.get_size(file_index);
+          dst_ov_info.mtime = archive.get_mtime(file_index);
           ProgressSuspend ps(*this);
           OverwriteOptions ov_options;
           if (!overwrite_dialog(add_trailing_slash(sub_dir) + file_info.name, src_ov_info, dst_ov_info, odkUpdate, ov_options))
@@ -633,7 +633,7 @@ private:
   }
 
 public:
-  PrepareUpdate(const wstring& src_dir, const vector<wstring>& file_names, UInt32 dst_dir_index, Archive* archive, FileIndexMap& file_index_map, UInt32& new_index, OverwriteAction overwrite_action, bool& ignore_errors, ErrorLog& error_log, Far::FileFilter* filter, bool& skipped_files): ProgressMonitor(Far::get_msg(MSG_PROGRESS_SCAN_DIRS), false), src_dir(src_dir), archive(archive), file_index_map(file_index_map), new_index(new_index), overwrite_action(overwrite_action), ignore_errors(ignore_errors), error_log(error_log), filter(filter), skipped_files(skipped_files) {
+  PrepareUpdate(const wstring& src_dir, const vector<wstring>& file_names, UInt32 dst_dir_index, Archive& archive, FileIndexMap& file_index_map, UInt32& new_index, OverwriteAction overwrite_action, bool& ignore_errors, ErrorLog& error_log, Far::FileFilter* filter, bool& skipped_files): ProgressMonitor(Far::get_msg(MSG_PROGRESS_SCAN_DIRS), false), src_dir(src_dir), archive(archive), file_index_map(file_index_map), new_index(new_index), overwrite_action(overwrite_action), ignore_errors(ignore_errors), error_log(error_log), filter(filter), skipped_files(skipped_files) {
     skipped_files = false;
     if (filter) filter->start();
     for (unsigned i = 0; i < file_names.size(); i++) {
@@ -899,7 +899,7 @@ void Archive::create(const wstring& src_dir, const vector<wstring>& file_names, 
   bool skipped_files = false;
 
   shared_ptr<FileIndexMap> file_index_map(new FileIndexMap());
-  PrepareUpdate(src_dir, file_names, c_root_index, this, *file_index_map, new_index, oaOverwrite, *ignore_errors, *error_log, options.filter.get(), skipped_files);
+  PrepareUpdate(src_dir, file_names, c_root_index, *this, *file_index_map, new_index, oaOverwrite, *ignore_errors, *error_log, options.filter.get(), skipped_files);
 
   ComObject<IOutArchive> out_arc;
   ArcAPI::create_out_archive(options.arc_type, out_arc.ref());
@@ -937,7 +937,7 @@ void Archive::update(const wstring& src_dir, const vector<wstring>& file_names, 
   bool skipped_files = false;
 
   shared_ptr<FileIndexMap> file_index_map(new FileIndexMap());
-  PrepareUpdate(src_dir, file_names, find_dir(dst_dir), this, *file_index_map, new_index, options.overwrite, *ignore_errors, *error_log, options.filter.get(), skipped_files);
+  PrepareUpdate(src_dir, file_names, find_dir(dst_dir), *this, *file_index_map, new_index, options.overwrite, *ignore_errors, *error_log, options.filter.get(), skipped_files);
 
   wstring temp_arc_name = get_temp_file_name();
   try {

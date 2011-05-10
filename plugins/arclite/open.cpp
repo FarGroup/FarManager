@@ -137,7 +137,7 @@ public:
 
 class ArchiveOpener: public IArchiveOpenCallback, public IArchiveOpenVolumeCallback, public ICryptoGetTextPassword, public ComBase, public ProgressMonitor {
 private:
-  ComObject<Archive> archive;
+  shared_ptr<Archive> archive;
   FindData volume_file_info;
 
   UInt64 total_files;
@@ -163,7 +163,7 @@ private:
   }
 
 public:
-  ArchiveOpener(Archive* archive): ProgressMonitor(Far::get_msg(MSG_PROGRESS_OPEN)), archive(archive), volume_file_info(archive->arc_info), total_files(0), total_bytes(0), completed_files(0), completed_bytes(0) {
+  ArchiveOpener(shared_ptr<Archive> archive): ProgressMonitor(Far::get_msg(MSG_PROGRESS_OPEN)), archive(archive), volume_file_info(archive->arc_info), total_files(0), total_bytes(0), completed_files(0), completed_bytes(0) {
   }
 
   UNKNOWN_IMPL_BEGIN
@@ -268,7 +268,7 @@ bool Archive::get_stream(UInt32 index, IInStream** stream) {
 bool Archive::open(IInStream* stream, const ArcType& type) {
   ArcAPI::create_in_archive(type, in_arc.ref());
   CHECK_COM(stream->Seek(0, STREAM_SEEK_SET, nullptr));
-  ComObject<IArchiveOpenCallback> opener(new ArchiveOpener(this));
+  ComObject<IArchiveOpenCallback> opener(new ArchiveOpener(shared_from_this()));
   const UInt64 max_check_start_position = max_check_size;
   HRESULT res;
   COM_ERROR_CHECK(res = in_arc->Open(stream, &max_check_start_position, opener));
@@ -366,7 +366,7 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
 
   ArcEntries arc_entries = detect(stream, extract_file_ext(arc_info.cFileName), options.arc_types);
   for (ArcEntries::const_iterator arc_entry = arc_entries.begin(); arc_entry != arc_entries.end(); arc_entry++) {
-    ComObject<Archive> archive(new Archive());
+    shared_ptr<Archive> archive(new Archive());
     archive->arc_path = options.arc_path;
     archive->arc_info = arc_info;
     archive->password = options.password;
