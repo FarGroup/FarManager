@@ -179,3 +179,17 @@ wstring upcase(const wstring& str);
 wstring create_guid();
 void enable_lfh();
 wstring search_path(const wstring& file_name);
+
+class DisableSleepMode {
+private:
+  EXECUTION_STATE saved_state;
+public:
+  DisableSleepMode() {
+    saved_state = SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED);
+  }
+  ~DisableSleepMode() {
+    if (saved_state) {
+      SetThreadExecutionState(saved_state);
+    }
+  }
+};

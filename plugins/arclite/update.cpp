@@ -894,6 +894,8 @@ public:
 
 
 void Archive::create(const wstring& src_dir, const vector<wstring>& file_names, const UpdateOptions& options, shared_ptr<ErrorLog> error_log) {
+  DisableSleepMode dsm;
+
   shared_ptr<bool> ignore_errors(new bool(options.ignore_errors));
   UInt32 new_index = 0;
   bool skipped_files = false;
@@ -932,6 +934,8 @@ void Archive::create(const wstring& src_dir, const vector<wstring>& file_names, 
 }
 
 void Archive::update(const wstring& src_dir, const vector<wstring>& file_names, const wstring& dst_dir, const UpdateOptions& options, shared_ptr<ErrorLog> error_log) {
+  DisableSleepMode dsm;
+
   shared_ptr<bool> ignore_errors(new bool(options.ignore_errors));
   UInt32 new_index = num_indices; // starting index for new files
   bool skipped_files = false;
@@ -967,6 +971,8 @@ void Archive::update(const wstring& src_dir, const vector<wstring>& file_names, 
 }
 
 void Archive::create_dir(const wstring& dir_name, const wstring& dst_dir) {
+  DisableSleepMode dsm;
+
   shared_ptr<FileIndexMap> file_index_map(new FileIndexMap());
   FileIndexInfo file_index_info;
   memzero(file_index_info.find_data);

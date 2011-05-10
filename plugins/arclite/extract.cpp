@@ -599,6 +599,8 @@ public:
 
 
 void Archive::extract(UInt32 src_dir_index, const vector<UInt32>& src_indices, const ExtractOptions& options, shared_ptr<ErrorLog> error_log, vector<UInt32>* extracted_indices) {
+  DisableSleepMode dsm;
+
   shared_ptr<bool> ignore_errors(new bool(options.ignore_errors));
   shared_ptr<OverwriteAction> overwrite_action(new OverwriteAction(options.overwrite));
 

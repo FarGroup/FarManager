@@ -127,6 +127,8 @@ void Archive::prepare_test(UInt32 file_index, list<UInt32>& indices) {
 }
 
 void Archive::test(UInt32 src_dir_index, const vector<UInt32>& src_indices) {
+  DisableSleepMode dsm;
+
   list<UInt32> file_indices;
   for (unsigned i = 0; i < src_indices.size(); i++) {
     prepare_test(src_indices[i], file_indices);
