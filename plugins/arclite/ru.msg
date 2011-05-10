@@ -126,6 +126,7 @@ settings.dlg.use_exclude_masks = Маски &исключения:
 settings.dlg.generate_masks = &Сгенерировать маски
 settings.dlg.use_enabled_formats = В&ключить форматы архивов:
 settings.dlg.use_disabled_formats = &Отключить форматы архивов:
+settings.dlg.pgdn_formats = &Настройки форматов влияют на Ctrl-PgDn
 settings.dlg.available_formats = &Доступные форматы архивов:
 settings.dlg.lib_info = Информация о библиотеке 7z
 settings.dlg.lib_not_found = Библиотека 7z не найдена

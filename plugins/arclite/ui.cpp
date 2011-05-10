@@ -1308,6 +1308,7 @@ private:
   int enabled_formats_ctrl_id;
   int use_disabled_formats_ctrl_id;
   int disabled_formats_ctrl_id;
+  int pgdn_formats_ctrl_id;
   int available_formats_ctrl_id;
   int ok_ctrl_id;
   int cancel_ctrl_id;
@@ -1324,6 +1325,7 @@ private:
       settings.enabled_formats = get_text(enabled_formats_ctrl_id);
       settings.use_disabled_formats = get_check(use_disabled_formats_ctrl_id);
       settings.disabled_formats = get_text(disabled_formats_ctrl_id);
+      settings.pgdn_formats = get_check(pgdn_formats_ctrl_id);
     }
     else if (msg == DN_INITDIALOG) {
       enable(include_masks_ctrl_id, settings.use_include_masks);
@@ -1414,6 +1416,8 @@ public:
     use_disabled_formats_ctrl_id = check_box(Far::get_msg(MSG_SETTINGS_DLG_USE_DISABLED_FORMATS), settings.use_disabled_formats);
     new_line();
     disabled_formats_ctrl_id = edit_box(settings.disabled_formats, c_client_xs);
+    new_line();
+    pgdn_formats_ctrl_id = check_box(Far::get_msg(MSG_SETTINGS_DLG_PGDN_FORMATS), settings.pgdn_formats);
     new_line();
     label(Far::get_msg(MSG_SETTINGS_DLG_AVAILABLE_FORMATS));
     new_line();

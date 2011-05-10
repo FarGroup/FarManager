@@ -37,6 +37,7 @@ struct PluginSettings {
   wstring enabled_formats;
   bool use_disabled_formats;
   wstring disabled_formats;
+  bool pgdn_formats;
 };
 
 bool settings_dialog(PluginSettings& settings);

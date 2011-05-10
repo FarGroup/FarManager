@@ -37,6 +37,7 @@ struct Options {
   wstring enabled_formats;
   bool use_disabled_formats;
   wstring disabled_formats;
+  bool pgdn_formats;
   Options();
   // profiles
   void load();

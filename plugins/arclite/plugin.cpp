@@ -871,15 +871,18 @@ int WINAPI AnalyseW(const AnalyseInfo* info) {
     OpenOptions options;
     options.arc_path = info->FileName;
     options.arc_types = ArcAPI::formats().get_arc_types();
-    if (g_detect_next_time == triUndef && (info->OpMode & OPM_PGDN) == 0) {
+    if (g_detect_next_time == triUndef) {
       options.detect = false;
       if (!g_options.handle_commands)
         FAIL(E_ABORT);
-      if (g_options.use_include_masks && !Far::match_masks(extract_file_name(info->FileName), g_options.include_masks))
-        FAIL(E_ABORT);
-      if (g_options.use_exclude_masks && Far::match_masks(extract_file_name(info->FileName), g_options.exclude_masks))
-        FAIL(E_ABORT);
-      if (g_options.use_enabled_formats || g_options.use_disabled_formats) {
+      bool pgdn = (info->OpMode & OPM_PGDN) != 0;
+      if (!pgdn) {
+        if (g_options.use_include_masks && !Far::match_masks(extract_file_name(info->FileName), g_options.include_masks))
+          FAIL(E_ABORT);
+        if (g_options.use_exclude_masks && Far::match_masks(extract_file_name(info->FileName), g_options.exclude_masks))
+          FAIL(E_ABORT);
+      }
+      if ((g_options.use_enabled_formats || g_options.use_disabled_formats) && (pgdn ? g_options.pgdn_formats : true)) {
         set<wstring> enabled_formats;
         if (g_options.use_enabled_formats) {
           list<wstring> name_list = split(upcase(g_options.enabled_formats), L',');
@@ -1122,6 +1125,7 @@ int WINAPI ConfigureW(const GUID* Guid) {
   settings.enabled_formats = g_options.enabled_formats;
   settings.use_disabled_formats = g_options.use_disabled_formats;
   settings.disabled_formats = g_options.disabled_formats;
+  settings.pgdn_formats = g_options.pgdn_formats;
   if (settings_dialog(settings)) {
     g_options.handle_create = settings.handle_create;
     g_options.handle_commands = settings.handle_commands;
@@ -1133,6 +1137,7 @@ int WINAPI ConfigureW(const GUID* Guid) {
     g_options.enabled_formats = settings.enabled_formats;
     g_options.use_disabled_formats = settings.use_disabled_formats;
     g_options.disabled_formats = settings.disabled_formats;
+    g_options.pgdn_formats = settings.pgdn_formats;
     g_options.save();
     return TRUE;
   }

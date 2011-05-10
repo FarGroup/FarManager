@@ -126,6 +126,7 @@ settings.dlg.use_exclude_masks = &Exclude files matching masks:
 settings.dlg.generate_masks = &Generate masks
 settings.dlg.use_enabled_formats = E&nable archive formats:
 settings.dlg.use_disabled_formats = &Disable archive formats:
+settings.dlg.pgdn_formats = &Format settings apply to Ctrl-PgDn
 settings.dlg.available_formats = &Available archive formats:
 settings.dlg.lib_info = 7z library info
 settings.dlg.lib_not_found = 7z library not found

@@ -101,7 +101,8 @@ Options::Options():
   use_enabled_formats(false),
   enabled_formats(),
   use_disabled_formats(false),
-  disabled_formats()
+  disabled_formats(),
+  pgdn_formats(false)
 {}
 
 void load_sfx_options(OptionsKey& key, SfxOptions& sfx_options) {
@@ -186,6 +187,7 @@ void Options::load() {
   GET_VALUE(enabled_formats, str);
   GET_VALUE(use_disabled_formats, bool);
   GET_VALUE(disabled_formats, str);
+  GET_VALUE(pgdn_formats, bool);
 #undef GET_VALUE
 };
 
@@ -223,6 +225,7 @@ void Options::save() const {
   SET_VALUE(enabled_formats, str);
   SET_VALUE(use_disabled_formats, bool);
   SET_VALUE(disabled_formats, str);
+  SET_VALUE(pgdn_formats, bool);
 #undef SET_VALUE
 }
 

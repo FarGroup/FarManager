@@ -135,6 +135,9 @@ information from 7z.dll.
 will be enabled or disabled when detecting archive format. These options are not active when using plugin menu.
 See #Available Formats# for full list of archive format names you can use.
 
+	#Format settings apply to Ctrl-PgDn# - enabled and disabled format lists will be consulted when opening archive
+with Ctrl-PgDn.
+
 	Some settings are available via registry only:
 
 	#plugin_prefix# - Plugin command line prefix (string). Default prefix is #arc#.
