@@ -72,6 +72,7 @@ bool get_panel_info(HANDLE h_panel, PanelInfo& panel_info);
 bool is_real_file_panel(const PanelInfo& panel_info);
 wstring get_panel_dir(HANDLE h_panel);
 
+void get_panel_item(HANDLE h_panel, FILE_CONTROL_COMMANDS command, int index, Buffer<unsigned char>& buf);
 struct PanelItem {
   DWORD file_attributes;
   FILETIME creation_time;

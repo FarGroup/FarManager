@@ -171,11 +171,23 @@ wstring get_panel_dir(HANDLE h_panel) {
   return wstring(buf.data(), size - 1);
 }
 
+void get_panel_item(HANDLE h_panel, FILE_CONTROL_COMMANDS command, int index, Buffer<unsigned char>& buf) {
+  FarGetPluginPanelItem gpi;
+  gpi.Size = buf.size();
+  gpi.Item = reinterpret_cast<PluginPanelItem*>(buf.data());
+  size_t size = g_far.PanelControl(h_panel, command, index, &gpi);
+  if (size > buf.size()) {
+    buf.resize(size);
+    gpi.Size = buf.size();
+    gpi.Item = reinterpret_cast<PluginPanelItem*>(buf.data());
+    size = g_far.PanelControl(h_panel, command, index, &gpi);
+    CHECK(size == buf.size());
+  }
+}
+
 PanelItem get_panel_item(HANDLE h_panel, FILE_CONTROL_COMMANDS command, int index) {
-  unsigned size = g_far.PanelControl(h_panel, command, index, nullptr);
-  Buffer<unsigned char> buf(size);
-  size = g_far.PanelControl(h_panel, command, index, buf.data());
-  CHECK(size)
+  Buffer<unsigned char> buf(0x1000);
+  get_panel_item(h_panel, command, index, buf);
   const PluginPanelItem* panel_item = reinterpret_cast<const PluginPanelItem*>(buf.data());
   PanelItem pi;
   pi.file_attributes = panel_item->FileAttributes;
@@ -591,11 +603,24 @@ void Dialog::set_list_pos(unsigned ctrl_id, unsigned pos) {
   g_far.SendDlgMessage(h_dlg, DM_LISTSETCURPOS, ctrl_id, &list_pos);
 }
 
+void get_dlg_item(HANDLE h_dlg, unsigned ctrl_id, Buffer<unsigned char>& buf) {
+  FarGetDialogItem gdi;
+  gdi.Size = buf.size();
+  gdi.Item = reinterpret_cast<FarDialogItem*>(buf.data());
+  size_t size = g_far.SendDlgMessage(h_dlg, DM_GETDLGITEM, ctrl_id, &gdi);
+  if (size > buf.size()) {
+    buf.resize(size);
+    gdi.Size = buf.size();
+    gdi.Item = reinterpret_cast<FarDialogItem*>(buf.data());
+    size = g_far.SendDlgMessage(h_dlg, DM_GETDLGITEM, ctrl_id, &gdi);
+    CHECK(size == buf.size());
+  }
+}
+
 void Dialog::set_color(unsigned ctrl_id, unsigned char color) {
-  size_t size = g_far.SendDlgMessage(h_dlg, DM_GETDLGITEM, ctrl_id, NULL);
-  Buffer<unsigned char> buf(size);
+  Buffer<unsigned char> buf(0x1000);
+  get_dlg_item(h_dlg, ctrl_id, buf);
   FarDialogItem* dlg_item = reinterpret_cast<FarDialogItem*>(buf.data());
-  g_far.SendDlgMessage(h_dlg, DM_GETDLGITEM, ctrl_id, dlg_item);
   dlg_item->Flags &= ~DIF_COLORMASK;
   dlg_item->Flags |= DIF_SETCOLOR | color;
   g_far.SendDlgMessage(h_dlg, DM_SETDLGITEM, ctrl_id, dlg_item);
@@ -725,11 +750,7 @@ bool panel_go_to_file(HANDLE h_panel, const wstring& file_path) {
   Buffer<unsigned char> buf(0x1000);
   int i;
   for (i = 0; i < panel_info.ItemsNumber; i++) {
-    unsigned size = g_far.PanelControl(h_panel, FCTL_GETPANELITEM, i, nullptr);
-    if (size > buf.size())
-      buf.resize(size);
-    size = g_far.PanelControl(h_panel, FCTL_GETPANELITEM, i, buf.data());
-    assert(size);
+    get_panel_item(h_panel, FCTL_GETPANELITEM, i, buf);
     const PluginPanelItem* panel_item = reinterpret_cast<const PluginPanelItem*>(buf.data());
     if (file_name == upcase(panel_item->FileName)) {
       panel_ri.CurrentItem = i;

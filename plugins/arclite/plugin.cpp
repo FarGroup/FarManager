@@ -276,11 +276,7 @@ public:
         CHECK(Far::get_panel_info(h_plugin, panel_info));
       }
       virtual const PluginPanelItem* get(unsigned idx) const {
-        unsigned size = Far::control(h_plugin, FCTL_GETSELECTEDPANELITEM, idx);
-        if (buf.size() < size)
-          buf.resize(size);
-        size = Far::control(h_plugin, FCTL_GETSELECTEDPANELITEM, idx, buf.data());
-        CHECK(size);
+        Far::get_panel_item(h_plugin, FCTL_GETSELECTEDPANELITEM, idx, buf);
         return reinterpret_cast<const PluginPanelItem*>(buf.data());
       }
       virtual int size() const {
