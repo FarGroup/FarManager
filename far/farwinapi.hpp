@@ -90,7 +90,7 @@ struct FAR_FIND_DATA_EX
 	}
 };
 
-class FindFile: private NonCopyable
+class FindFile:NonCopyable
 {
 public:
 	FindFile(LPCWSTR Object, bool ScanSymLink = true);
@@ -103,7 +103,7 @@ private:
 	FAR_FIND_DATA_EX Data;
 };
 
-class File: private NonCopyable
+class File:NonCopyable
 {
 public:
 	File();

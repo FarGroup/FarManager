@@ -47,7 +47,7 @@ class CriticalSection
 		void Leave() { ::LeaveCriticalSection(&_object); }
 };
 
-class CriticalSectionLock:public NonCopyable
+class CriticalSectionLock:NonCopyable
 {
 	private:
 		CriticalSection &_object;

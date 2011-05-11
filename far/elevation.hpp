@@ -60,7 +60,7 @@ enum ELEVATION_COMMAND
 
 class AutoObject;
 
-class DisableElevation : private NonCopyable
+class DisableElevation:NonCopyable
 {
 public:
 	DisableElevation();
@@ -69,7 +69,7 @@ private:
 	DWORD Value;
 };
 
-class elevation : private NonCopyable
+class elevation:NonCopyable
 {
 public:
 	elevation();

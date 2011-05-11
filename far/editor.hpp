@@ -136,7 +136,7 @@ class Editor:public ScreenObject
 		  на любом выходе если была нажата кнопка выделения,
 		  и она его "сняла" (сделала 0-й ширины), то его надо убрать.
 		*/
-		class EditorBlockGuard:public NonCopyable
+		class EditorBlockGuard:NonCopyable
 		{
 				Editor& ed;
 				void (Editor::*method)();

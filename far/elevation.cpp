@@ -56,7 +56,7 @@ const int CallbackMagic= 0xCA11BAC6;
 
 DWORD ParentPID;
 
-class AutoObject : private NonCopyable
+class AutoObject:NonCopyable
 {
 public:
 	AutoObject():

@@ -69,7 +69,7 @@ class UserDefinedListItem
 		~UserDefinedListItem();
 };
 
-class UserDefinedList : private NonCopyable
+class UserDefinedList:NonCopyable
 {
 	private:
 		TArray<UserDefinedListItem> Array;

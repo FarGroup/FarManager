@@ -11,7 +11,7 @@ else
 DIRNAME=Debug
 DEBUGFLAGS=-g -D_DEBUG
 DEBUGLINKFLAGS=
-endif                   
+endif
 
 DIRBIT = 32
 OBJDIR = ./$(DIRNAME).$(DIRBIT).gcc/obj
@@ -19,7 +19,6 @@ EXEDIR = ./$(DIRNAME).$(DIRBIT).gcc
 EXENAME = Far.exe
 EXEFULLNAME = $(EXEDIR)/$(EXENAME)
 FARINCLUDE = ./Include
-DEF = far.def
 DEPFILE = bootstrap/far.gcc.dep
 
 SRCS = \
@@ -201,7 +200,7 @@ dirs:
 .PHONY: build
 build: $(EXEFULLNAME) $(EXEDIR)/FarEng.hlf $(EXEDIR)/FarRus.hlf $(EXEDIR)/FarHun.hlf $(EXEDIR)/File_id.diz $(EXEDIR)/Far.exe.ini $(FARINCLUDE)/farcolor.hpp $(FARINCLUDE)/farkeys.hpp $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/PluginW.pas $(FARINCLUDE)/FarColorW.pas $(FARINCLUDE)/FarKeysW.pas
 
-$(EXEFULLNAME): bootstrap/Far.exe.manifest bootstrap/far.rc bootstrap/copyright.inc bootstrap/farversion.inc $(OBJS) $(DEF)
+$(EXEFULLNAME): bootstrap/Far.exe.manifest bootstrap/far.rc bootstrap/copyright.inc bootstrap/farversion.inc $(OBJS)
 	@echo linking $@
 	@$(CXX) -o $@ $(OBJS) $(LNKFLAGS) -Xlinker -Map -Xlinker $(MAP) -Xlinker --large-address-aware
 

@@ -43,7 +43,7 @@ enum FM_FLAGS
 };
 
 
-class CFileMask : private NonCopyable
+class CFileMask:NonCopyable
 {
 	private:
 		BaseFileMask *FileMask;

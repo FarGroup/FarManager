@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 template <class Object>
-class TStack : private NonCopyable
+class TStack:NonCopyable
 {
 	private:
 		struct OneItem

@@ -7,7 +7,7 @@ noncopyable.hpp
 Пример использования:
 
 #include "noncopyable.hpp"
-class YourClass : private NonCopyable
+class YourClass:NonCopyable
 {
 };
 
