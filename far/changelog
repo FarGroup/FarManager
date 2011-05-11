@@ -1,3 +1,37 @@
+svs 11.05.2011 17:44:58 +0300 - build 2027
+
+1. ProcessEditorInputW - изменен параметр: 
+    теперь это указатель на структуру
+      struct ProcessEditorInputInfo
+      {
+        size_t StructSize;
+        INPUT_RECORD Rec;
+      };
+
+2. Переименование: ProcessKeyW -> ProcessPanelInputW
+
+3. и... в ProcessPanelInputW - изменен параметр:
+    указатель на структуру
+      struct ProcessPanelInputInfo
+      {
+        size_t StructSize;
+        INPUT_RECORD Rec;
+      };
+
+4. Mantis#0001759: ProcessKeyW вызывается по два раза
+   ...теперь только для A-плагинов. Препроцессы см. Mantis#0001687
+
+5. Mantis#0001687: ProcessConsoleInput
+   "В начале..."
+   (код пока "закрыт" дефайном MANTIS_0001687)
+
+6. Mantis#0000466: Расширение макроязыка плагинами
+   "...продолжение..."
+   (код пока "закрыт" дефайном MANTIS_0000466)
+
+7. Небольшая добавка в виде DEFUSERFLAGS в файл makefile_vc
+   ...для целей, подобных пп 5 и 6.
+
 svs 10.05.2011 09:29:07 +0300 - build 2026
 
 1. Mantis#0001760: FSF.FarInputRecordToKey влияет на внутренние переменные фара

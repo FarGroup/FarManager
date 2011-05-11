@@ -49,10 +49,10 @@ class FilePanels:public Frame
 
 	public:
 		Panel *LastLeftFilePanel,
-		*LastRightFilePanel;
+			*LastRightFilePanel;
 		Panel *LeftPanel,
-		*RightPanel,
-		*ActivePanel;
+			*RightPanel,
+			*ActivePanel;
 
 		KeyBar      MainKeyBar;
 		MenuBar     TopMenuBar;

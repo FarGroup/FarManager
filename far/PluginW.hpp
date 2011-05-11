@@ -47,10 +47,10 @@ typedef int (WINAPI *PLUGINGETVIRTUALFINDDATAW)(GetVirtualFindDataInfo *Info);
 typedef int (WINAPI *PLUGINMAKEDIRECTORYW)(MakeDirectoryInfo *Info);
 typedef HANDLE(WINAPI *PLUGINOPENPANELW)(const OpenInfo *Info);
 typedef int (WINAPI *PLUGINPROCESSEDITOREVENTW)(int Event,void *Param);
-typedef int (WINAPI *PLUGINPROCESSEDITORINPUTW)(const INPUT_RECORD *Rec);
+typedef int (WINAPI *PLUGINPROCESSEDITORINPUTW)(const ProcessEditorInputInfo *Info);
 typedef int (WINAPI *PLUGINPROCESSEVENTW)(HANDLE hPlugin,int Event,void *Param);
 typedef int (WINAPI *PLUGINPROCESSHOSTFILEW)(const ProcessHostFileInfo *Info);
-typedef int (WINAPI *PLUGINPROCESSKEYW)(HANDLE hPlugin,const INPUT_RECORD *Rec);
+typedef int (WINAPI *PLUGINPROCESSPANELINPUTW)(HANDLE hPlugin,const ProcessPanelInputInfo *Info);
 typedef int (WINAPI *PLUGINPUTFILESW)(const PutFilesInfo *Info);
 typedef int (WINAPI *PLUGINSETDIRECTORYW)(const SetDirectoryInfo *Info);
 typedef int (WINAPI *PLUGINSETFINDLISTW)(const SetFindListInfo *Info);
@@ -58,8 +58,11 @@ typedef void (WINAPI *PLUGINSETSTARTUPINFOW)(const PluginStartupInfo *Info);
 typedef int (WINAPI *PLUGINPROCESSVIEWEREVENTW)(int Event,void *Param); //* $ 27.09.2000 SVS -  События во вьювере
 typedef int (WINAPI *PLUGINPROCESSDIALOGEVENTW)(int Event,void *Param);
 typedef int (WINAPI *PLUGINPROCESSSYNCHROEVENTW)(int Event,void *Param);
-#if defined(PROCPLUGINMACROFUNC)
-typedef int (WINAPI *PLUGINPROCESSMACROFUNCW)(const ProcessMacroFuncInfo *Info);
+#if defined(MANTIS_0000466)
+typedef int (WINAPI *PLUGINPROCESSMACROW)(const ProcessMacroInfo *Info);
+#endif
+#if defined(MANTIS_0001687)
+typedef int (WINAPI *PLUGINPROCESSCONSOLEINPUTW)(const ProcessConsoleInputInfo *Info);
 #endif
 typedef int (WINAPI *PLUGINANALYSEW)(const AnalyseInfo *Info);
 typedef int (WINAPI *PLUGINGETCUSTOMDATAW)(const wchar_t *FilePath, wchar_t **CustomData);
@@ -74,7 +77,7 @@ class PluginW: public Plugin
 		PLUGINOPENPANELW             pOpenPanelW;
 		PLUGINCLOSEPANELW            pClosePanelW;
 		PLUGINGETPLUGININFOW         pGetPluginInfoW;
-		PLUGINGETOPENPANELINFOW     pGetOpenPanelInfoW;
+		PLUGINGETOPENPANELINFOW      pGetOpenPanelInfoW;
 		PLUGINGETFINDDATAW           pGetFindDataW;
 		PLUGINFREEFINDDATAW          pFreeFindDataW;
 		PLUGINGETVIRTUALFINDDATAW    pGetVirtualFindDataW;
@@ -88,7 +91,7 @@ class PluginW: public Plugin
 		PLUGINSETFINDLISTW           pSetFindListW;
 		PLUGINCONFIGUREW             pConfigureW;
 		PLUGINEXITFARW               pExitFARW;
-		PLUGINPROCESSKEYW            pProcessKeyW;
+		PLUGINPROCESSPANELINPUTW     pProcessPanelInputW;
 		PLUGINPROCESSEVENTW          pProcessEventW;
 		PLUGINPROCESSEDITOREVENTW    pProcessEditorEventW;
 		PLUGINCOMPAREW               pCompareW;
@@ -96,8 +99,11 @@ class PluginW: public Plugin
 		PLUGINPROCESSVIEWEREVENTW    pProcessViewerEventW;
 		PLUGINPROCESSDIALOGEVENTW    pProcessDialogEventW;
 		PLUGINPROCESSSYNCHROEVENTW   pProcessSynchroEventW;
-#if defined(PROCPLUGINMACROFUNC)
-		PLUGINPROCESSMACROFUNCW      pProcessMacroFuncW;
+#if defined(MANTIS_0000466)
+		PLUGINPROCESSMACROW          pProcessMacroW;
+#endif
+#if defined(MANTIS_0001687)
+		PLUGINPROCESSCONSOLEINPUTW   pProcessConsoleInputW;
 #endif
 		PLUGINANALYSEW               pAnalyseW;
 		PLUGINGETCUSTOMDATAW         pGetCustomDataW;
@@ -136,7 +142,7 @@ class PluginW: public Plugin
 		bool HasSetFindList() { return pSetFindListW!=nullptr; }
 		bool HasConfigure() { return pConfigureW!=nullptr; }
 		bool HasExitFAR() { return pExitFARW!=nullptr; }
-		bool HasProcessKey() { return pProcessKeyW!=nullptr; }
+		bool HasProcessPanelInput() { return pProcessPanelInputW!=nullptr; }
 		bool HasProcessEvent() { return pProcessEventW!=nullptr; }
 		bool HasProcessEditorEvent() { return pProcessEditorEventW!=nullptr; }
 		bool HasCompare() { return pCompareW!=nullptr; }
@@ -145,8 +151,11 @@ class PluginW: public Plugin
 		bool HasProcessViewerEvent() { return pProcessViewerEventW!=nullptr; }
 		bool HasProcessDialogEvent() { return pProcessDialogEventW!=nullptr; }
 		bool HasProcessSynchroEvent() { return pProcessSynchroEventW!=nullptr; }
-#if defined(PROCPLUGINMACROFUNC)
-		bool HasProcessMacroFunc() { return pProcessMacroFuncW!=nullptr; }
+#if defined(MANTIS_0000466)
+		bool HasProcessMacro() { return pProcessMacroW!=nullptr; }
+#endif
+#if defined(MANTIS_0001687)
+		bool HasProcessConsoleInput() { return pProcessConsoleInputW!=nullptr; }
 #endif
 		bool HasAnalyse() { return pAnalyseW!=nullptr; }
 		bool HasGetCustomData()  { return pGetCustomDataW!=nullptr; }
@@ -201,10 +210,12 @@ class PluginW: public Plugin
 		int ProcessViewerEvent(int Event, PVOID Param);
 		int ProcessDialogEvent(int Event, PVOID Param);
 		int ProcessSynchroEvent(int Event, PVOID Param);
-#if defined(PROCPLUGINMACROFUNC)
-		int ProcessMacroFunc(const wchar_t *Name, const FarMacroValue *Params, int nParams, FarMacroValue **Results, int *nResults);
+#if defined(MANTIS_0000466)
+		int ProcessMacro(ProcessMacroInfo *Info);
 #endif
-
+#if defined(MANTIS_0001687)
+		int ProcessConsoleInput(ProcessConsoleInputInfo *Info);
+#endif
 		bool GetPluginInfo(PluginInfo *pi);
 		int Configure(const GUID& Guid);
 

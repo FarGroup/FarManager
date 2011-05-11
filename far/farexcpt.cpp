@@ -89,6 +89,7 @@ LPCWSTR GetFunctionName(int ExceptFunctionType)
 		case EXCEPT_CONFIGURE: return L"Configure";
 		case EXCEPT_EXITFAR: return L"ExitFAR";
 		case EXCEPT_PROCESSKEY: return L"ProcessKey";
+		case EXCEPT_PROCESSPANELINPUT: return L"ProcessPanelInput";
 		case EXCEPT_PROCESSEVENT: return L"ProcessEvent";
 		case EXCEPT_PROCESSEDITOREVENT: return L"ProcessEditorEvent";
 		case EXCEPT_COMPARE: return L"Compare";
@@ -101,8 +102,11 @@ LPCWSTR GetFunctionName(int ExceptFunctionType)
 		case EXCEPT_ANALYSE: return L"Analyse";
 		case EXCEPT_GETCUSTOMDATA: return L"GetCustomData";
 		case EXCEPT_FREECUSTOMDATA: return L"FreeCustomData";
-#if defined(PROCPLUGINMACROFUNC)
-		case EXCEPT_PROCESSMACROFUNC: return L"ProcessMacroFunc";
+#if defined(MANTIS_0000466)
+		case EXCEPT_PROCESSMACRO: return L"ProcessMacro";
+#endif
+#if defined(MANTIS_0001687)
+		case EXCEPT_PROCESSCONSOLEINPUT: return L"ProcessConsoleInput";
 #endif
 	}
 
@@ -260,7 +264,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 						PlugRec.FuncFlags|=Module->HasSetFindList()?PICFF_SETFINDLIST:0;
 						PlugRec.FuncFlags|=Module->HasConfigure()?PICFF_CONFIGURE:0;
 						PlugRec.FuncFlags|=Module->HasExitFAR()?PICFF_EXITFAR:0;
-						PlugRec.FuncFlags|=Module->HasProcessKey()?PICFF_PROCESSKEY:0;
+						PlugRec.FuncFlags|=Module->HasProcessPanelInput()?PICFF_PROCESSPANELINPUT:0;
 						PlugRec.FuncFlags|=Module->HasProcessEvent()?PICFF_PROCESSEVENT:0;
 						PlugRec.FuncFlags|=Module->HasProcessEditorEvent()?PICFF_PROCESSEDITOREVENT:0;
 						PlugRec.FuncFlags|=Module->HasCompare()?PICFF_COMPARE:0;
@@ -269,8 +273,11 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 						PlugRec.FuncFlags|=Module->HasProcessViewerEvent()?PICFF_PROCESSVIEWEREVENT:0;
 						PlugRec.FuncFlags|=Module->HasProcessDialogEvent()?PICFF_PROCESSDIALOGEVENT:0;
 						PlugRec.FuncFlags|=Module->HasProcessSynchroEvent()?PICFF_PROCESSSYNCHROEVENT:0;
-#if defined(PROCPLUGINMACROFUNC)
-						PlugRec.FuncFlags|=Module->HasProcessMacroFunc()?PICFF_PROCESSMACROFUNC:0;
+#if defined(MANTIS_0000466)
+						PlugRec.FuncFlags|=Module->HasProcessMacro()?PICFF_PROCESSMACRO:0;
+#endif
+#if defined(MANTIS_0001687)
+						PlugRec.FuncFlags|=Module->HasProcessConsoleInput()?PICFF_PROCESSCONSOLEINPUT:0;
 #endif
 					}
 

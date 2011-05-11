@@ -4303,70 +4303,87 @@ struct FarMacroValue
 	} v;
 };
 */
-#if defined(PROCPLUGINMACROFUNC)
+#if defined(MANTIS_0000466)
 	int I;
-
-	FarMacroValue *vParams=new FarMacroValue[nParam];
-	if (vParams)
+	GUID guid;
+	if (StrToGuid(thisFunc->fnGUID,guid) && CtrlObject->Plugins.FindPlugin(guid))
 	{
-		memset(vParams,0,sizeof(FarMacroValue) * nParam);
-
-		for (I=nParam-1; I >= 0; --I)
+		FarMacroValue *vParams=new FarMacroValue[nParam];
+		if (vParams)
 		{
-			VMStack.Pop(V);
-			(vParams+I)->type=(FARMACROVARTYPE)V.type();
-			switch(V.type())
-			{
-				case vtInteger:
-					(vParams+I)->i=V.i();
-					break;
-				case vtString:
-					(vParams+I)->s=xf_wcsdup(V.s());
-					break;
-				case vtDouble:
-					(vParams+I)->d=V.d();
-					break;
-				case vtUnknown:
-					break;
-			}
-		}
+			memset(vParams,0,sizeof(FarMacroValue) * nParam);
 
-		FarMacroValue *Results;
-		int nResults=0;
-		// fnGUID ???
-		if (CtrlObject->Plugins.ProcessMacroFunc(thisFunc->Name,vParams,thisFunc->nParam,&Results,&nResults))
-		{
-			if (Results)
+			for (I=nParam-1; I >= 0; --I)
 			{
-				for (I=0; I < nResults; ++I)
-				//for (I=nResults-1; I >= 0; --I)
+				VMStack.Pop(V);
+				(vParams+I)->type=(FARMACROVARTYPE)V.type();
+				switch(V.type())
 				{
-					//V.type()=(TVarType)(Results+I)->type;
-					switch((Results+I)->type)
-					{
-						case FMVT_INTEGER:
-							V=(Results+I)->i;
-							break;
-						case FMVT_STRING:
-							V=(Results+I)->s;
-							break;
-						case FMVT_DOUBLE:
-							V=(Results+I)->d;
-							break;
-					}
-					VMStack.Push(V);
+					case vtUnknown:
+					case vtInteger:
+						(vParams+I)->i=V.i();
+						break;
+					case vtString:
+						(vParams+I)->s=xf_wcsdup(V.s());
+						break;
+					case vtDouble:
+						(vParams+I)->d=V.d();
+						break;
+					//case vtUnknown:
+					//	break;
 				}
 			}
+
+			ProcessMacroInfo Info={sizeof(Info),FMIT_PROCESSFUNC};
+			Info.Func.StructSize=sizeof(ProcessMacroFuncInfo);
+			Info.Func.Name=thisFunc->Name;
+			Info.Func.Params=vParams;
+			Info.Func.nParams=thisFunc->nParam;
+
+			if (CtrlObject->Plugins.ProcessMacro(guid,&Info))
+			{
+				if (Info.Func.Results)
+				{
+					for (I=0; I < Info.Func.nResults; ++I)
+					//for (I=nResults-1; I >= 0; --I)
+					{
+						//V.type()=(TVarType)(Results+I)->type;
+						switch((Info.Func.Results+I)->type)
+						{
+							case FMVT_INTEGER:
+								V=(Info.Func.Results+I)->i;
+								break;
+							case FMVT_STRING:
+								V=(Info.Func.Results+I)->s;
+								break;
+							case FMVT_DOUBLE:
+								V=(Info.Func.Results+I)->d;
+								break;
+							case FMVT_UNKNOWN:
+								V=0;
+								break;
+						}
+						VMStack.Push(V);
+					}
+				}
+			}
+
+			for (I=0; I < nParam; ++I)
+				if((vParams+I)->type == vtString && (vParams+I)->s)
+					xf_free((void*)(vParams+I)->s);
+
+			delete[] vParams;
 		}
-
-		for (I=0; I < nParam; ++I)
-			if((vParams+I)->type == vtString && (vParams+I)->s)
-				xf_free((void*)(vParams+I)->s);
-
-		delete[] vParams;
+		else
+			VMStack.Push(0);
 	}
 	else
+	{
+		while(--nParam >= 0)
+			VMStack.Pop(V);
+
 		VMStack.Push(0);
+	}
 #else
 	/* времянка */ while(--nParam >= 0) VMStack.Pop(V);
 #endif

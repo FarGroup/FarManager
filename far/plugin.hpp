@@ -1202,9 +1202,10 @@ struct MacroCheckMacroText
 };
 
 #ifdef FAR_USE_INTERNALS
-#if defined(PROCPLUGINMACROFUNC)
+#if defined(MANTIS_0000466)
 enum FARMACROVARTYPE
 {
+	FMVT_UNKNOWN                = -1,
 	FMVT_INTEGER                = 0,
 	FMVT_STRING                 = 1,
 	FMVT_DOUBLE                 = 2,
@@ -1234,8 +1235,39 @@ struct FarMacroFunction
 	const wchar_t *Syntax;
 	const wchar_t *Description;
 };
+
+struct ProcessMacroFuncInfo
+{
+	size_t StructSize;
+	const wchar_t *Name;
+	const FarMacroValue *Params;
+	int nParams;
+	FarMacroValue *Results;
+	int nResults;
+};
+
+enum FAR_MACROINFOTYPE
+{
+	FMIT_GETFUNCINFO   = 0,
+	FMIT_PROCESSFUNC   = 1,
+};
+
+struct ProcessMacroInfo
+{
+	size_t StructSize;
+	FAR_MACROINFOTYPE Type;
+	union {
+		ProcessMacroFuncInfo Func;
+	}
+#ifndef __cplusplus
+	Value
+#endif
+	;
+};
+
 #endif
 #endif // END FAR_USE_INTERNALS
+
 
 typedef unsigned __int64 FARSETCOLORFLAGS;
 static const FARSETCOLORFLAGS
@@ -2174,7 +2206,7 @@ struct PluginInfo
 	struct PluginMenuItem PluginConfig;
 	const wchar_t *CommandPrefix;
 #ifdef FAR_USE_INTERNALS
-#if defined(PROCPLUGINMACROFUNC)
+#if defined(MANTIS_0000466)
 	int MacroFunctionNumber;
 	const FarMacroFunction *MacroFunctions;
 #endif
@@ -2439,16 +2471,25 @@ struct DeleteFilesInfo
 	OPERATION_MODES OpMode;
 };
 
-#ifdef FAR_USE_INTERNALS
-#if defined(PROCPLUGINMACROFUNC)
-struct ProcessMacroFuncInfo
+struct ProcessPanelInputInfo
 {
 	size_t StructSize;
-	const wchar_t *Name;
-	const FarMacroValue *Params;
-	int nParams;
-	FarMacroValue *Results;
-	int nResults;
+	INPUT_RECORD Rec;
+};
+
+struct ProcessEditorInputInfo
+{
+	size_t StructSize;
+	INPUT_RECORD Rec;
+};
+
+#ifdef FAR_USE_INTERNALS
+#if defined(MANTIS_0001687)
+struct ProcessConsoleInputInfo
+{
+	size_t StructSize;
+	const INPUT_RECORD *RecIn;
+	INPUT_RECORD *RecOut;
 };
 #endif
 #endif // END FAR_USE_INTERNALS
@@ -2477,14 +2518,19 @@ extern "C"
 	HANDLE WINAPI OpenW(const struct OpenInfo *Info);
 	int    WINAPI ProcessDialogEventW(int Event,void *Param);
 	int    WINAPI ProcessEditorEventW(int Event,void *Param);
-	int    WINAPI ProcessEditorInputW(const INPUT_RECORD *Rec);
+	int    WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *Info);
 	int    WINAPI ProcessEventW(HANDLE hPanel,int Event,void *Param);
 	int    WINAPI ProcessHostFileW(const struct ProcessHostFileInfo *Info);
-	int    WINAPI ProcessKeyW(HANDLE hPanel,const INPUT_RECORD *Rec);
+	int    WINAPI ProcessPanelInputW(HANDLE hPanel,const ProcessPanelInputInfo *Info);
 #ifdef FAR_USE_INTERNALS
-	#if defined(PROCPLUGINMACROFUNC)
-	int    WINAPI ProcessMacroFuncW(const ProcessMacroFuncInfo *Info);
-	#endif
+#if defined(MANTIS_0000466)
+	int    WINAPI ProcessMacroW(const ProcessMacroInfo *Info);
+#endif
+#endif // END FAR_USE_INTERNALS
+#ifdef FAR_USE_INTERNALS
+#if defined(MANTIS_0001687)
+	int    WINAPI ProcessConsoleInputW(ProcessConsoleInputInfo *Info);
+#endif
 #endif // END FAR_USE_INTERNALS
 	int    WINAPI ProcessSynchroEventW(int Event,void *Param);
 	int    WINAPI ProcessViewerEventW(int Event,void *Param);

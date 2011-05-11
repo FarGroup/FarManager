@@ -138,7 +138,7 @@ class PluginA: public Plugin
 		bool HasSetFindList() { return pSetFindList!=nullptr; }
 		bool HasConfigure() { return pConfigure!=nullptr; }
 		bool HasExitFAR() { return pExitFAR!=nullptr; }
-		bool HasProcessKey() { return pProcessKey!=nullptr; }
+		bool HasProcessPanelInput() { return pProcessKey!=nullptr; }
 		bool HasProcessEvent() { return pProcessEvent!=nullptr; }
 		bool HasProcessEditorEvent() { return pProcessEditorEvent!=nullptr; }
 		bool HasCompare() { return pCompare!=nullptr; }
@@ -147,8 +147,11 @@ class PluginA: public Plugin
 		bool HasProcessViewerEvent() { return pProcessViewerEvent!=nullptr; }
 		bool HasProcessDialogEvent() { return pProcessDialogEvent!=nullptr; }
 		bool HasProcessSynchroEvent() { return false; }
-#if defined(PROCPLUGINMACROFUNC)
-		bool HasProcessMacroFunc() { return false; }
+#if defined(MANTIS_0000466)
+		bool HasProcessMacro() { return false; }
+#endif
+#if defined(MANTIS_0001687)
+		bool HasProcessConsoleInput() { return false; }
 #endif
 		bool HasAnalyse() { return false; }
 		bool HasGetCustomData()  { return false; }
@@ -200,8 +203,11 @@ class PluginA: public Plugin
 		int ProcessViewerEvent(int Event, PVOID Param);
 		int ProcessDialogEvent(int Event, PVOID Param);
 		int ProcessSynchroEvent(int Event, PVOID Param) { return 0; }
-#if defined(PROCPLUGINMACROFUNC)
-		int ProcessMacroFunc(const wchar_t *Name, const FarMacroValue *Params, int nParams, FarMacroValue **Results, int *nResults) {return 0;}
+#if defined(MANTIS_0000466)
+		int ProcessMacro(ProcessMacroInfo *Info) {return 0;}
+#endif
+#if defined(MANTIS_0001687)
+		int ProcessConsoleInput(ProcessConsoleInputInfo *Info) {return 0;}
 #endif
 
 		int Analyse(const AnalyseInfo *Info) { return FALSE; }

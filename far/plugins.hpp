@@ -96,7 +96,7 @@ enum PLUGINITEMCALLFUNCFLAGS
 	PICFF_SETFINDLIST          = 0x00040000, //
 	PICFF_CONFIGURE            = 0x00080000, //
 	PICFF_EXITFAR              = 0x00100000, //
-	PICFF_PROCESSKEY           = 0x00200000, //
+	PICFF_PROCESSPANELINPUT    = 0x00200000, //
 	PICFF_PROCESSEVENT         = 0x00400000, //
 	PICFF_PROCESSEDITOREVENT   = 0x00800000, //
 	PICFF_COMPARE              = 0x01000000, //
@@ -105,8 +105,11 @@ enum PLUGINITEMCALLFUNCFLAGS
 	PICFF_PROCESSVIEWEREVENT   = 0x08000000, //
 	PICFF_PROCESSDIALOGEVENT   = 0x10000000, //
 	PICFF_PROCESSSYNCHROEVENT  = 0x20000000, //
-#if defined(PROCPLUGINMACROFUNC)
-	PICFF_PROCESSMACROFUNC     = 0x40000000, //
+#if defined(MANTIS_0000466)
+	PICFF_PROCESSMACRO         = 0x40000000, //
+#endif
+#if defined(MANTIS_0001687)
+	PICFF_PROCESSCONSOLEINPUT  = 0x80000000, //
 #endif
 };
 
@@ -250,8 +253,11 @@ class PluginManager
 		int ProcessEditorEvent(int Event,void *Param);
 		int ProcessViewerEvent(int Event,void *Param);
 		int ProcessDialogEvent(int Event,void *Param);
-#if defined(PROCPLUGINMACROFUNC)
-		int ProcessMacroFunc(const wchar_t *Name, const FarMacroValue *Params, int nParams, FarMacroValue **Results, int *nResults);
+#if defined(MANTIS_0000466)
+		int ProcessMacro(const GUID& guid,ProcessMacroInfo *Info);
+#endif
+#if defined(MANTIS_0001687)
+		int ProcessConsoleInput(ProcessConsoleInputInfo *Info);
 #endif
 		void GetCustomData(FileListItem *ListItem);
 

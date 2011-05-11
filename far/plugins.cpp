@@ -1000,8 +1000,35 @@ int PluginManager::ProcessDialogEvent(int Event, void *Param)
 	return FALSE;
 }
 
-#if defined(PROCPLUGINMACROFUNC)
-int PluginManager::ProcessMacroFunc(const wchar_t *Name, const FarMacroValue *Params, int nParams, FarMacroValue **Results, int *nResults)
+#if defined(MANTIS_0000466)
+int PluginManager::ProcessMacro(const GUID& guid,ProcessMacroInfo *Info)
+{
+	int nResult = 0;
+
+#if 0
+	for (int i=0; i<PluginsCount; i++)
+	{
+		Plugin *pPlugin = PluginsData[i];
+
+		if (pPlugin->HasProcessMacro())
+			if ((nResult = pPlugin->ProcessMacro(Info)) != 0)
+				break;
+	}
+#else
+	Plugin *pPlugin = FindPlugin(guid);
+
+	if (pPlugin && pPlugin->HasProcessMacro())
+	{
+		nResult = pPlugin->ProcessMacro(Info);
+	}
+#endif
+
+	return nResult;
+}
+#endif
+
+#if defined(MANTIS_0001687)
+int PluginManager::ProcessConsoleInput(ProcessConsoleInputInfo *Info)
 {
 	int nResult = 0;
 
@@ -1009,14 +1036,15 @@ int PluginManager::ProcessMacroFunc(const wchar_t *Name, const FarMacroValue *Pa
 	{
 		Plugin *pPlugin = PluginsData[i];
 
-		if (pPlugin->HasProcessMacroFunc())
-			if ((nResult = pPlugin->ProcessMacroFunc(Name,Params,nParams,Results,nResults)) != 0)
+		if (pPlugin->HasProcessConsoleInput())
+			if ((nResult = pPlugin->ProcessConsoleInput(Info)) != 0)
 				break;
 	}
 
 	return nResult;
 }
 #endif
+
 
 int PluginManager::GetFindData(
     HANDLE hPlugin,

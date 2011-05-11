@@ -74,8 +74,11 @@ static const wchar_t wszReg_ProcessEditorEvent[]=L"ProcessEditorEventW";
 static const wchar_t wszReg_ProcessViewerEvent[]=L"ProcessViewerEventW";
 static const wchar_t wszReg_ProcessDialogEvent[]=L"ProcessDialogEventW";
 static const wchar_t wszReg_ProcessSynchroEvent[]=L"ProcessSynchroEventW";
-#if defined(PROCPLUGINMACROFUNC)
-static const wchar_t wszReg_ProcessMacroFunc[]=L"ProcessMacroFuncW";
+#if defined(MANTIS_0000466)
+static const wchar_t wszReg_ProcessMacro[]=L"ProcessMacroW";
+#endif
+#if defined(MANTIS_0001687)
+static const wchar_t wszReg_ProcessConsoleInput[]=L"ProcessConsoleInputW";
 #endif
 static const wchar_t wszReg_Configure[]=L"ConfigureW";
 static const wchar_t wszReg_Analyse[] = L"AnalyseW";
@@ -89,8 +92,11 @@ static const char NFMP_ProcessEditorEvent[]="ProcessEditorEventW";
 static const char NFMP_ProcessViewerEvent[]="ProcessViewerEventW";
 static const char NFMP_ProcessDialogEvent[]="ProcessDialogEventW";
 static const char NFMP_ProcessSynchroEvent[]="ProcessSynchroEventW";
-#if defined(PROCPLUGINMACROFUNC)
-static const char NFMP_ProcessMacroFunc[]="ProcessMacroFuncW";
+#if defined(MANTIS_0000466)
+static const char NFMP_ProcessMacro[]="ProcessMacroW";
+#endif
+#if defined(MANTIS_0001687)
+static const char NFMP_ProcessConsoleInput[]="ProcessConsoleInputW";
 #endif
 static const char NFMP_SetStartupInfo[]="SetStartupInfoW";
 static const char NFMP_ClosePanel[]="ClosePanelW";
@@ -108,7 +114,7 @@ static const char NFMP_MakeDirectory[]="MakeDirectoryW";
 static const char NFMP_ProcessHostFile[]="ProcessHostFileW";
 static const char NFMP_Configure[]="ConfigureW";
 static const char NFMP_ExitFAR[]="ExitFARW";
-static const char NFMP_ProcessKey[]="ProcessKeyW";
+static const char NFMP_ProcessPanelInput[]="ProcessPanelInputW";
 static const char NFMP_ProcessEvent[]="ProcessEventW";
 static const char NFMP_Compare[]="CompareW";
 static const char NFMP_Analyse[]="AnalyseW";
@@ -278,8 +284,11 @@ void PluginW::ReadCache(unsigned __int64 id)
 	pProcessViewerEventW=(PLUGINPROCESSVIEWEREVENTW)PlCacheCfg->GetExport(id, wszReg_ProcessViewerEvent);
 	pProcessDialogEventW=(PLUGINPROCESSDIALOGEVENTW)PlCacheCfg->GetExport(id, wszReg_ProcessDialogEvent);
 	pProcessSynchroEventW=(PLUGINPROCESSSYNCHROEVENTW)PlCacheCfg->GetExport(id, wszReg_ProcessSynchroEvent);
-#if defined(PROCPLUGINMACROFUNC)
-	pProcessMacroFuncW=(PLUGINPROCESSMACROFUNCW)PlCacheCfg->GetExport(id, wszReg_ProcessMacroFunc);
+#if defined(MANTIS_0000466)
+	pProcessMacroW=(PLUGINPROCESSMACROW)PlCacheCfg->GetExport(id, wszReg_ProcessMacro);
+#endif
+#if defined(MANTIS_0001687)
+	pProcessConsoleInputW=(PLUGINPROCESSCONSOLEINPUTW)PlCacheCfg->GetExport(id, wszReg_ProcessConsoleInput);
 #endif
 	pConfigureW=(PLUGINCONFIGUREW)PlCacheCfg->GetExport(id, wszReg_Configure);
 	pAnalyseW=(PLUGINANALYSEW)PlCacheCfg->GetExport(id, wszReg_Analyse);
@@ -298,8 +307,11 @@ bool PluginW::SaveToCache()
 	        pProcessViewerEventW ||
 	        pProcessDialogEventW ||
 	        pProcessSynchroEventW ||
-#if defined(PROCPLUGINMACROFUNC)
-	        pProcessMacroFuncW ||
+#if defined(MANTIS_0000466)
+	        pProcessMacroW ||
+#endif
+#if defined(MANTIS_0001687)
+	        pProcessConsoleInputW ||
 #endif
 	        pAnalyseW ||
 	        pGetCustomDataW
@@ -370,8 +382,11 @@ bool PluginW::SaveToCache()
 		PlCacheCfg->SetExport(id, wszReg_ProcessViewerEvent, pProcessViewerEventW!=nullptr);
 		PlCacheCfg->SetExport(id, wszReg_ProcessDialogEvent, pProcessDialogEventW!=nullptr);
 		PlCacheCfg->SetExport(id, wszReg_ProcessSynchroEvent, pProcessSynchroEventW!=nullptr);
-#if defined(PROCPLUGINMACROFUNC)
-		PlCacheCfg->SetExport(id, wszReg_ProcessMacroFunc, pProcessMacroFuncW!=nullptr);
+#if defined(MANTIS_0000466)
+		PlCacheCfg->SetExport(id, wszReg_ProcessMacro, pProcessMacroW!=nullptr);
+#endif
+#if defined(MANTIS_0001687)
+		PlCacheCfg->SetExport(id, wszReg_ProcessConsoleInput, pProcessConsoleInputW!=nullptr);
 #endif
 		PlCacheCfg->SetExport(id, wszReg_Configure, pConfigureW!=nullptr);
 		PlCacheCfg->SetExport(id, wszReg_Analyse, pAnalyseW!=nullptr);
@@ -558,7 +573,7 @@ bool PluginW::IsPanelPlugin()
 	       pDeleteFilesW ||
 	       pMakeDirectoryW ||
 	       pProcessHostFileW ||
-	       pProcessKeyW ||
+	       pProcessPanelInputW ||
 	       pProcessEventW ||
 	       pCompareW ||
 	       pGetOpenPanelInfoW ||
@@ -682,7 +697,9 @@ int PluginW::ProcessEditorInput(
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSEDITORINPUT;
 		es.bDefaultResult = TRUE; //(TRUE) treat the result as a completed request on exception!
-		EXECUTE_FUNCTION_EX(pProcessEditorInputW(D), es);
+		ProcessEditorInputInfo Info={sizeof(Info)};
+		Info.Rec=*D;
+		EXECUTE_FUNCTION_EX(pProcessEditorInputW(&Info), es);
 		bResult = es.bResult;
 	}
 
@@ -756,37 +773,50 @@ int PluginW::ProcessSynchroEvent(
 	return 0; //oops, again!
 }
 
-#if defined(PROCPLUGINMACROFUNC)
-int PluginW::ProcessMacroFunc(
-    const wchar_t *Name,
-    const FarMacroValue *Params,
-    int nParams,
-    FarMacroValue **Results,
-    int *nResults
+#if defined(MANTIS_0000466)
+int PluginW::ProcessMacro(
+	ProcessMacroInfo *Info
 )
 {
 	int nResult = 0;
 
-	if (Load() && pProcessMacroFuncW && !ProcessException)
+	if (Load() && pProcessMacroW && !ProcessException)
 	{
 		ExecuteStruct es;
-		es.id = EXCEPT_PROCESSMACROFUNC;
+		es.id = EXCEPT_PROCESSMACRO;
 		es.nDefaultResult = 0;
-		ProcessMacroFuncInfo Info = {sizeof(Info)};
-		Info.Name = Name;
-		Info.Params = Params;
-		Info.nParams = nParams;
-		Info.Results = *Results;
-		Info.nResults = *nResults;
-		EXECUTE_FUNCTION_EX(pProcessMacroFuncW(&Info), es);
-		*Results = Info.Results;
-		*nResults = Info.nResults;
+
+		EXECUTE_FUNCTION_EX(pProcessMacroW(Info), es);
+
 		nResult = (int)es.nResult;
 	}
 
 	return nResult;
 }
 #endif
+
+#if defined(MANTIS_0001687)
+int PluginW::ProcessConsoleInput(
+	ProcessConsoleInputInfo *Info
+)
+{
+	int nResult = 0;
+
+	if (Load() && pProcessConsoleInputW && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_PROCESSCONSOLEINPUT;
+		es.nDefaultResult = 0;
+
+		EXECUTE_FUNCTION_EX(pProcessConsoleInputW(Info), es);
+
+		nResult = (int)es.nResult;
+	}
+
+	return nResult;
+}
+#endif
+
 
 int PluginW::GetVirtualFindData(
     HANDLE hPlugin,
@@ -1080,12 +1110,14 @@ int PluginW::ProcessKey(HANDLE hPlugin,const INPUT_RECORD *Rec, bool Pred)
 	(void)Pred;
 	BOOL bResult = FALSE;
 
-	if (pProcessKeyW && !ProcessException)
+	if (pProcessPanelInputW && !ProcessException)
 	{
 		ExecuteStruct es;
-		es.id = EXCEPT_PROCESSKEY;
+		es.id = EXCEPT_PROCESSPANELINPUT;
 		es.bDefaultResult = TRUE; // do not pass this key to far on exception
-		EXECUTE_FUNCTION_EX(pProcessKeyW(hPlugin, Rec), es);
+		struct ProcessPanelInputInfo Info={sizeof(Info)};
+		Info.Rec=*Rec;
+		EXECUTE_FUNCTION_EX(pProcessPanelInputW(hPlugin, &Info), es);
 		bResult = es.bResult;
 	}
 
@@ -1242,7 +1274,7 @@ void PluginW::InitExports()
 	pSetFindListW=(PLUGINSETFINDLISTW)GetProcAddress(m_hModule,NFMP_SetFindList);
 	pConfigureW=(PLUGINCONFIGUREW)GetProcAddress(m_hModule,NFMP_Configure);
 	pExitFARW=(PLUGINEXITFARW)GetProcAddress(m_hModule,NFMP_ExitFAR);
-	pProcessKeyW=(PLUGINPROCESSKEYW)GetProcAddress(m_hModule,NFMP_ProcessKey);
+	pProcessPanelInputW=(PLUGINPROCESSPANELINPUTW)GetProcAddress(m_hModule,NFMP_ProcessPanelInput);
 	pProcessEventW=(PLUGINPROCESSEVENTW)GetProcAddress(m_hModule,NFMP_ProcessEvent);
 	pCompareW=(PLUGINCOMPAREW)GetProcAddress(m_hModule,NFMP_Compare);
 	pProcessEditorInputW=(PLUGINPROCESSEDITORINPUTW)GetProcAddress(m_hModule,NFMP_ProcessEditorInput);
@@ -1250,8 +1282,11 @@ void PluginW::InitExports()
 	pProcessViewerEventW=(PLUGINPROCESSVIEWEREVENTW)GetProcAddress(m_hModule,NFMP_ProcessViewerEvent);
 	pProcessDialogEventW=(PLUGINPROCESSDIALOGEVENTW)GetProcAddress(m_hModule,NFMP_ProcessDialogEvent);
 	pProcessSynchroEventW=(PLUGINPROCESSSYNCHROEVENTW)GetProcAddress(m_hModule,NFMP_ProcessSynchroEvent);
-#if defined(PROCPLUGINMACROFUNC)
-	pProcessMacroFuncW=(PLUGINPROCESSMACROFUNCW)GetProcAddress(m_hModule,NFMP_ProcessMacroFunc);
+#if defined(MANTIS_0000466)
+	pProcessMacroW=(PLUGINPROCESSMACROW)GetProcAddress(m_hModule,NFMP_ProcessMacro);
+#endif
+#if defined(MANTIS_0001687)
+	pProcessConsoleInputW=(PLUGINPROCESSCONSOLEINPUTW)GetProcAddress(m_hModule,NFMP_ProcessConsoleInput);
 #endif
 	pAnalyseW=(PLUGINANALYSEW)GetProcAddress(m_hModule, NFMP_Analyse);
 	pGetCustomDataW=(PLUGINGETCUSTOMDATAW)GetProcAddress(m_hModule, NFMP_GetCustomData);
@@ -1279,7 +1314,7 @@ void PluginW::ClearExports()
 	pSetFindListW=0;
 	pConfigureW=0;
 	pExitFARW=0;
-	pProcessKeyW=0;
+	pProcessPanelInputW=0;
 	pProcessEventW=0;
 	pCompareW=0;
 	pProcessEditorInputW=0;
@@ -1287,8 +1322,11 @@ void PluginW::ClearExports()
 	pProcessViewerEventW=0;
 	pProcessDialogEventW=0;
 	pProcessSynchroEventW=0;
-#if defined(PROCPLUGINMACROFUNC)
-	pProcessMacroFuncW=0;
+#if defined(MANTIS_0000466)
+	pProcessMacroW=0;
+#endif
+#if defined(MANTIS_0001687)
+	pProcessConsoleInputW=0;
 #endif
 	pAnalyseW = 0;
 	pGetCustomDataW = 0;

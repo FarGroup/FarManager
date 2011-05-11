@@ -794,11 +794,16 @@ int Manager::ProcessKey(DWORD Key)
 					_ALGO(CleverSysLog clv(L"Manager::ProcessKey()"));
 					_ALGO(SysLog(L"Key=%s",_FARKEY_ToName(Key)));
 
-					if (CtrlObject->Cp()->ActivePanel->SendKeyToPlugin(Key,TRUE))
-						return TRUE;
-
+					if (CtrlObject->Cp()->ActivePanel->GetMode() == PLUGIN_PANEL)
+					{
+						PluginHandle *ph=(PluginHandle*)CtrlObject->Cp()->ActivePanel->GetPluginHandle();
+						if (ph && ph != INVALID_HANDLE_VALUE && ph->pPlugin->IsOemPlugin())
+							if (CtrlObject->Cp()->ActivePanel->SendKeyToPlugin(Key,TRUE))
+								return TRUE;
+					}
 					break;
 				}
+			#if 0
 				case MODALTYPE_VIEWER:
 					//if(((FileViewer*)CurrentFrame)->ProcessViewerInput(FrameManager->GetLastInputRecord()))
 					//  return TRUE;
@@ -817,6 +822,7 @@ int Manager::ProcessKey(DWORD Key)
 				case MODALTYPE_FINDFOLDER:
 				default:
 					break;
+			#endif
 			}
 		}
 

@@ -159,7 +159,7 @@ protected:
 		virtual bool HasSetFindList() = 0;
 		virtual bool HasConfigure() = 0;
 		virtual bool HasExitFAR() = 0;
-		virtual bool HasProcessKey() = 0;
+		virtual bool HasProcessPanelInput() = 0;
 		virtual bool HasProcessEvent() = 0;
 		virtual bool HasProcessEditorEvent() = 0;
 		virtual bool HasCompare() = 0;
@@ -171,8 +171,11 @@ protected:
 		virtual bool HasAnalyse() = 0;
 		virtual bool HasGetCustomData() = 0;
 		virtual bool HasFreeCustomData() = 0;
-#if defined(PROCPLUGINMACROFUNC)
-		virtual bool HasProcessMacroFunc() = 0;
+#if defined(MANTIS_0000466)
+		virtual bool HasProcessMacro() = 0;
+#endif
+#if defined(MANTIS_0001687)
+		virtual bool HasProcessConsoleInput() = 0;
 #endif
 
 		virtual const string &GetModuleName() = 0;
@@ -219,8 +222,11 @@ protected:
 		virtual int ProcessViewerEvent(int Event, PVOID Param) = 0;
 		virtual int ProcessDialogEvent(int Event, PVOID Param) = 0;
 		virtual int ProcessSynchroEvent(int Event, PVOID Param) = 0;
-#if defined(PROCPLUGINMACROFUNC)
-		virtual int ProcessMacroFunc(const wchar_t *Name, const FarMacroValue *Params, int nParams, FarMacroValue **Results, int *nResults) = 0;
+#if defined(MANTIS_0000466)
+		virtual int ProcessMacro(ProcessMacroInfo *Info) = 0;
+#endif
+#if defined(MANTIS_0001687)
+		virtual int ProcessConsoleInput(ProcessConsoleInputInfo *Info) = 0;
 #endif
 
 		virtual int Analyse(const AnalyseInfo *Info) = 0;
