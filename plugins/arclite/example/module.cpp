@@ -3,17 +3,18 @@
 // simple format name like '7z', 'zip', etc.
 const wchar_t* c_name = L"example";
 // unique format id
-const GUID c_guid = { 0x75397649, 0x718b, 0x4a02, { 0x9d, 0x35, 0x64, 0xf7, 0x1d, 0x11, 0x99, 0x65 } };
-// space separated list of supported file extensions (just a hint)
+const GUID c_format_id = { 0x75397649, 0x718b, 0x4a02, { 0x9d, 0x35, 0x64, 0xf7, 0x1d, 0x11, 0x99, 0x65 } };
+// space separated list of supported file extensions (hint to optimize format detection; default file extension)
 const wchar_t* c_ext = L"example";
 
 /* simple archive format:
    1. signature
-   2. 32-bit unsigned integer - size of file path in characters
-   3. file path (array of UTF-16 characters)
-   4. 64-bit unsigned integer - size of file data in bytes
-   5. file data (array of bytes)
-   6. next file...
+   2. 32-bit unsigned integer - compression level (just an illustration of ISetProperties, files are not really compressed)
+   3. 32-bit unsigned integer - size of file path in characters
+   4. file path (array of UTF-16 characters)
+   5. 64-bit unsigned integer - size of file data in bytes
+   6. file data (array of bytes)
+   7. next file...
 */
 const unsigned c_sig_size = 7;
 const char c_sig[] = "EXAMPLE";
@@ -27,7 +28,7 @@ UInt32 WINAPI GetHandlerProperty(PROPID prop_id, PROPVARIANT* value) {
     prop = c_name;
     break;
   case NArchive::kClassID: // unique format id
-    prop.set_binary(&c_guid, sizeof(c_guid));
+    prop.set_binary(&c_format_id, sizeof(c_format_id));
     break;
   case NArchive::kExtension: // list of extensions
     prop = c_ext;
@@ -56,16 +57,17 @@ const STATPROPSTG c_props[] = {
 };
 
 enum {
-  kpidSample = kpidUserDefined
+  kpidCompLevel = kpidUserDefined
 };
 
 const STATPROPSTG c_arc_props[] = {
-  { L"sample prop", kpidSample, VT_BSTR },
+  { L"Compression level", kpidCompLevel, VT_UI4 },
 };
 
 // implement IInArchive to support archive extraction
 // implement IOutArchive to support archive modification
-class Archive: public IInArchive, public IOutArchive, public ComBase {
+// implement ISetProperties to support compression settings (compression level, etc.)
+class Archive: public IInArchive, public IOutArchive, public ISetProperties, private ComBase {
 private:
   struct FileInfo {
     wstring path;
@@ -74,11 +76,16 @@ private:
   };
   vector<FileInfo> files;
   ComObject<IInStream> in_stream;
+  UInt32 comp_level;
 
 public:
+  Archive(): comp_level(0) {
+  }
+
   UNKNOWN_IMPL_BEGIN
   UNKNOWN_IMPL_ITF(IInArchive)
   UNKNOWN_IMPL_ITF(IOutArchive)
+  UNKNOWN_IMPL_ITF(ISetProperties)
   UNKNOWN_IMPL_END
 
   // read archive contents from IInStream
@@ -99,6 +106,10 @@ public:
     if (size_read != c_sig_size)
       return S_FALSE;
     if (memcmp(c_sig, sig_buf, c_sig_size) != 0)
+      return S_FALSE;
+
+    CHECK_COM(in_stream->Read(&comp_level, sizeof(comp_level), &size_read));
+    if (size_read != sizeof(comp_level))
       return S_FALSE;
 
     UInt64 file_count = 0;
@@ -265,8 +276,8 @@ public:
     COM_ERROR_HANDLER_BEGIN
     PropVariant prop;
     switch (prop_id) {
-    case kpidSample:
-      prop = L"sample value";
+    case kpidCompLevel:
+      prop = comp_level;
       break;
     }
     prop.detach(value);
@@ -312,7 +323,7 @@ public:
           if (prop.get_bool())
             continue;
           CHECK_COM(update_callback->GetProperty(i, kpidSize, prop.ref()));
-          file_info.size = prop.get_uint();
+          file_info.size = prop.get_uint64();
         }
         else {
           // file exists in archive, need update data
@@ -333,7 +344,7 @@ public:
           CHECK_COM(update_callback->GetProperty(i, kpidIsDir, prop.ref()));
           CHECK(!prop.get_bool());
           CHECK_COM(update_callback->GetProperty(i, kpidSize, prop.ref()));
-          CHECK(prop.get_uint() == file_info.size);
+          CHECK(prop.get_uint64() == file_info.size);
         }
       }
       new_files[i] = file_info;
@@ -344,6 +355,9 @@ public:
     UInt32 size_written;
     CHECK_COM(out_stream->Write(c_sig, c_sig_size, &size_written));
     CHECK(size_written == c_sig_size);
+
+    CHECK_COM(out_stream->Write(&comp_level, sizeof(comp_level), &size_written));
+    CHECK(size_written == sizeof(comp_level));
 
     total_size = 0;
     for (auto iter = new_files.begin(); iter != new_files.end(); iter++) {
@@ -411,12 +425,33 @@ public:
     return S_OK;
     COM_ERROR_HANDLER_END
   }
+
+  // set compression properties
+  STDMETHODIMP SetProperties(const wchar_t** names, const PROPVARIANT* values, Int32 num_properties) {
+    COM_ERROR_HANDLER_BEGIN
+    for (Int32 i = 0; i < num_properties; i++) {
+      PropVariant prop = values[i];
+
+      size_t buf_size = wcslen(names[i]) + 1;
+      unique_ptr<wchar_t[]> buf(new wchar_t[buf_size]);
+      wcscpy(buf.get(), names[i]);
+      _wcsupr_s(buf.get(), buf_size);
+      wstring name(buf.get(), buf_size - 1);
+
+      if (name == L"X") { // typical name for compression level property
+        if (prop.is_uint())
+          comp_level = prop.get_uint();
+      }
+    }
+    return S_OK;
+    COM_ERROR_HANDLER_END
+  }
 };
 
 // create implementation of required interface (interface_id) for given archive format (class_id)
 UInt32 WINAPI CreateObject(const GUID* class_id, const GUID* interface_id, void** out_object) {
   COM_ERROR_HANDLER_BEGIN
-  if (*class_id != c_guid)
+  if (*class_id != c_format_id)
     return CLASS_E_CLASSNOTAVAILABLE;
   if (*interface_id == IID_IInArchive)
     ComObject<IInArchive>(new Archive()).detach(reinterpret_cast<IInArchive**>(out_object));

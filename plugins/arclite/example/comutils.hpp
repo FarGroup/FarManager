@@ -122,6 +122,9 @@ public:
   PropVariant(const PropVariant& var) {
     CHECK_COM(PropVariantCopy(this, &var));
   }
+  PropVariant(const PROPVARIANT& var) {
+    CHECK_COM(PropVariantCopy(this, &var));
+  }
   PropVariant(const wstring& val) {
     vt = VT_BSTR;
     bstrVal = SysAllocStringLen(val.data(), static_cast<UINT>(val.size()));
@@ -142,6 +145,14 @@ public:
     vt = VT_BOOL;
     boolVal = val ? VARIANT_TRUE : VARIANT_FALSE;
   }
+  PropVariant(Int32 val) {
+    vt = VT_I4;
+    lVal = val;
+  }
+  PropVariant(Int64 val) {
+    vt = VT_I8;
+    hVal.QuadPart = val;
+  }
   PropVariant(UInt32 val) {
     vt = VT_UI4;
     ulVal = val;
@@ -156,6 +167,11 @@ public:
   }
 
   PropVariant& operator=(const PropVariant& var) {
+    clear();
+    CHECK_COM(PropVariantCopy(this, &var));
+    return *this;
+  }
+  PropVariant& operator=(const PROPVARIANT& var) {
     clear();
     CHECK_COM(PropVariantCopy(this, &var));
     return *this;
@@ -186,6 +202,22 @@ public:
       vt = VT_BOOL;
     }
     boolVal = val ? VARIANT_TRUE : VARIANT_FALSE;
+    return *this;
+  }
+  PropVariant& operator=(Int32 val) {
+    if (vt != VT_I4) {
+      clear();
+      vt = VT_I4;
+    }
+    lVal = val;
+    return *this;
+  }
+  PropVariant& operator=(Int64 val) {
+    if (vt != VT_I8) {
+      clear();
+      vt = VT_I8;
+    }
+    hVal.QuadPart = val;
     return *this;
   }
   PropVariant& operator=(UInt32 val) {
@@ -224,10 +256,16 @@ public:
   }
 
   bool is_int() const {
-    return vt == VT_I1 || vt == VT_I2 || vt == VT_I4 || vt == VT_INT || vt == VT_I8;
+    return vt == VT_I1 || vt == VT_I2 || vt == VT_I4 || vt == VT_INT;
   }
   bool is_uint() const {
-    return vt == VT_UI1 || vt == VT_UI2 || vt == VT_UI4 || vt == VT_UINT || vt == VT_UI8;
+    return vt == VT_UI1 || vt == VT_UI2 || vt == VT_UI4 || vt == VT_UINT;
+  }
+  bool is_int64() const {
+    return is_int() || vt == VT_I8;
+  }
+  bool is_uint64() const {
+    return is_uint() || vt == VT_UI8;
   }
   bool is_str() const {
     return vt == VT_BSTR || vt == VT_LPWSTR;
@@ -239,7 +277,7 @@ public:
     return vt == VT_FILETIME;
   }
 
-  __int64 get_int() const {
+  Int32 get_int() const {
     switch (vt) {
     case VT_I1:
       return cVal;
@@ -249,13 +287,17 @@ public:
       return lVal;
     case VT_INT:
       return intVal;
-    case VT_I8:
-      return hVal.QuadPart;
     default:
       FAIL(E_INVALIDARG);
     }
   }
-  unsigned __int64 get_uint() const {
+  Int64 get_int64() const {
+    if (vt == VT_I8)
+      return hVal.QuadPart;
+    else
+      return get_int();
+  }
+  UInt32 get_uint() const {
     switch (vt) {
     case VT_UI1:
       return bVal;
@@ -265,11 +307,15 @@ public:
       return ulVal;
     case VT_UINT:
       return uintVal;
-    case VT_UI8:
-      return uhVal.QuadPart;
     default:
       FAIL(E_INVALIDARG);
     }
+  }
+  UInt64 get_uint64() const {
+    if (vt == VT_UI8)
+      return uhVal.QuadPart;
+    else
+      return get_uint();
   }
   unsigned get_int_size() const {
     switch (vt) {
