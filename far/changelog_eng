@@ -3,6 +3,48 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 11.05.2011 20:49:34 +0200 - build 2028
+
+1. Some minor changes.
+
+svs 11.05.2011 17:44:58 +0300 - build 2027
+
+1. ProcessEditorInputW - the parameter is changed: 
+    now this is a pointer to the structure
+      struct ProcessEditorInputInfo
+      {
+        size_t StructSize;
+        INPUT_RECORD Rec;
+      };
+
+2. Renaming: ProcessKeyW -> ProcessPanelInputW
+
+3. and... the parameter is changed in ProcessPanelInputW:
+    a pointer to the structure
+      struct ProcessPanelInputInfo
+      {
+        size_t StructSize;
+        INPUT_RECORD Rec;
+      };
+
+4. Mantis#0001759: ProcessKeyW is called twice
+   ...since now, for A-plugins only. Preprocessing, see Mantis#0001687
+
+5. Mantis#0001687: ProcessConsoleInput
+   "At the beginning..."
+   (the code is still "sealed" with MANTIS_0001687 #define)
+
+6. Mantis#0000466: Macro language extension with plugins
+   "...continuation..."
+   (the code is still "sealed" with MANTIS_0000466 #define)
+
+7. A minor addition in the form of DEFUSERFLAGS in makefile_vc file
+   ...for purposes similar to 5 and 6.
+
+svs 10.05.2011 09:29:07 +0300 - build 2026
+
+1. Mantis#0001760: FSF.FarInputRecordToKey modifies inner FAR variables
+
 drkns 08.05.2011 16:37:54 +0200 - build 2025
 
 1. Mantis#0001622: Not a very nice look of the file search results window
