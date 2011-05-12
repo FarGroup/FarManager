@@ -668,6 +668,7 @@ private:
   int delete_profile_ctrl_id;
   int arc_path_ctrl_id;
   int arc_path_eval_ctrl_id;
+  int append_ext_ctrl_id;
   int main_formats_ctrl_id;
   int other_formats_ctrl_id;
   int level_ctrl_id;
@@ -697,18 +698,23 @@ private:
   wstring old_ext;
   ArcType arc_type;
 
-  bool change_extension() {
-    assert(new_arc);
-
-    wstring new_ext;
+  wstring get_default_ext() const {
+    wstring ext;
     bool create_sfx = get_check(create_sfx_ctrl_id);
     bool enable_volumes = get_check(enable_volumes_ctrl_id);
     if (ArcAPI::formats().count(arc_type))
-      new_ext = ArcAPI::formats().at(arc_type).default_extension();
+      ext = ArcAPI::formats().at(arc_type).default_extension();
     if (create_sfx && arc_type == c_7z)
-      new_ext += c_sfx_ext;
+      ext += c_sfx_ext;
     else if (enable_volumes)
-      new_ext += c_volume_ext;
+      ext += c_volume_ext;
+    return ext;
+  }
+
+  bool change_extension() {
+    assert(new_arc);
+
+    wstring new_ext = get_default_ext();
 
     if (old_ext.empty() || new_ext.empty())
       return false;
@@ -782,11 +788,18 @@ private:
     wstring arc_path = expand_macros(unquote(strip(get_text(arc_path_ctrl_id))));
     if (arc_path.empty() || arc_path.back() == L'\\')
       arc_path += default_arc_name;
+    if (get_check(append_ext_ctrl_id)) {
+      wstring ext = get_default_ext();
+      if (ext.size() > arc_path.size() || upcase(arc_path.substr(arc_path.size() - ext.size())) != upcase(ext))
+        arc_path += ext;
+    }
     return Far::get_absolute_path(arc_path);
   }
 
   void read_controls(UpdateOptions& options) {
     if (new_arc) {
+      options.append_ext = get_check(append_ext_ctrl_id);
+
       for (unsigned i = 0; i < main_formats.size(); i++) {
         if (get_check(main_formats_ctrl_id + i)) {
           options.arc_type = c_archive_types[i].value;
@@ -1135,6 +1148,8 @@ public:
       label(Far::get_msg(MSG_UPDATE_DLG_ARC_PATH));
       spacer(1);
       arc_path_eval_ctrl_id = button(Far::get_msg(MSG_UPDATE_DLG_ARC_PATH_EVAL), DIF_BTNNOCLOSE);
+      spacer(1);
+      append_ext_ctrl_id = check_box(Far::get_msg(MSG_UPDATE_DLG_APPEND_EXT), options.append_ext);
       new_line();
       arc_path_ctrl_id = history_edit_box(options.arc_path, L"arclite.arc_path", c_client_xs, DIF_EDITPATH);
       new_line();

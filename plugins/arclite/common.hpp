@@ -164,6 +164,7 @@ struct UpdateOptions: public ProfileOptions {
   bool open_shared;
   OverwriteAction overwrite;
   shared_ptr<Far::FileFilter> filter;
+  bool append_ext;
   UpdateOptions();
 };
 

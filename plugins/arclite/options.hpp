@@ -23,6 +23,7 @@ struct Options {
   wstring update_volume_size;
   bool update_ignore_errors;
   OverwriteAction update_overwrite;
+  bool update_append_ext;
   // panel mode
   unsigned panel_view_mode;
   OPENPANELINFO_SORTMODES panel_sort_mode;

@@ -490,6 +490,7 @@ public:
       options.encrypt = false;
       options.encrypt_header = g_options.update_encrypt_header;
       options.volume_size = g_options.update_volume_size;
+      options.append_ext = g_options.update_append_ext;
     }
     else {
       options.arc_type = archive->arc_chain.back().type; // required to set update properties
@@ -531,6 +532,7 @@ public:
       g_options.update_method = options.method;
       g_options.update_solid = options.solid;
       g_options.update_encrypt_header = options.encrypt_header;
+      g_options.update_append_ext = options.append_ext;
     }
     else {
       archive->level = options.level;
@@ -615,6 +617,7 @@ public:
     options.move_files = false;
     options.open_shared = (Far::adv_control(ACTL_GETSYSTEMSETTINGS) & FSS_COPYFILESOPENEDFORWRITING) != 0;
     options.ignore_errors = g_options.update_ignore_errors;
+    options.append_ext = g_options.update_append_ext;
 
     bool res = update_dialog(true, options, g_profiles);
     g_profiles.save();
@@ -638,6 +641,7 @@ public:
     g_options.update_encrypt_header = options.encrypt_header;
     g_options.update_show_password = options.show_password;
     g_options.update_ignore_errors = options.ignore_errors;
+    g_options.update_append_ext = options.append_ext;
     g_options.save();
 
     shared_ptr<ErrorLog> error_log(new ErrorLog());
