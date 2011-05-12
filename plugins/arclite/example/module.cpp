@@ -67,7 +67,8 @@ const STATPROPSTG c_arc_props[] = {
 // implement IInArchive to support archive extraction
 // implement IOutArchive to support archive modification
 // implement ISetProperties to support compression settings (compression level, etc.)
-class Archive: public IInArchive, public IOutArchive, public ISetProperties, private ComBase {
+// implement IInArchiveGetStream to support individual file streams (ability to access archive items without the need to extract them first)
+class Archive: public IInArchive, public IOutArchive, public ISetProperties, public IInArchiveGetStream, private ComBase {
 private:
   struct FileInfo {
     wstring path;
@@ -82,11 +83,16 @@ public:
   Archive(): comp_level(0) {
   }
 
+  // *** IUnknown ***
+
   UNKNOWN_IMPL_BEGIN
   UNKNOWN_IMPL_ITF(IInArchive)
   UNKNOWN_IMPL_ITF(IOutArchive)
   UNKNOWN_IMPL_ITF(ISetProperties)
+  UNKNOWN_IMPL_ITF(IInArchiveGetStream)
   UNKNOWN_IMPL_END
+
+  // *** IInArchive ***
 
   // read archive contents from IInStream
   // return S_FALSE if format is not recognized
@@ -303,6 +309,8 @@ public:
     COM_ERROR_HANDLER_END
   }
 
+  // *** IOutArchive ***
+
   STDMETHODIMP UpdateItems(ISequentialOutStream* out_stream, UInt32 num_items, IArchiveUpdateCallback* update_callback) {
     COM_ERROR_HANDLER_BEGIN
     PropVariant prop;
@@ -426,6 +434,8 @@ public:
     COM_ERROR_HANDLER_END
   }
 
+  // *** ISetProperties ***
+
   // set compression properties
   STDMETHODIMP SetProperties(const wchar_t** names, const PROPVARIANT* values, Int32 num_properties) {
     COM_ERROR_HANDLER_BEGIN
@@ -443,6 +453,73 @@ public:
           comp_level = prop.get_uint();
       }
     }
+    return S_OK;
+    COM_ERROR_HANDLER_END
+  }
+
+  // *** IInArchiveGetStream ***
+
+  // support for IInArchiveGetStream allows client to open nested archives
+  // without the need to extract them into temporary directory first
+  // if possible always implement IInStream in addition to ISequentialInStream
+  class FileStream: public IInStream, private ComBase {
+  private:
+    FileInfo file_info;
+    ComObject<IInStream> in_stream;
+    UInt64 pos;
+  public:
+    FileStream(IInStream* in_stream, const FileInfo& file_info): in_stream(in_stream), file_info(file_info), pos(0) {
+    }
+
+    UNKNOWN_IMPL_BEGIN
+    UNKNOWN_IMPL_ITF(ISequentialInStream)
+    UNKNOWN_IMPL_ITF(IInStream)
+    UNKNOWN_IMPL_END
+
+    STDMETHODIMP Read(void* data, UInt32 size, UInt32* processed_size) {
+      COM_ERROR_HANDLER_BEGIN
+      if (pos > file_info.size)
+        size = 0;
+      else if (pos + size > file_info.size)
+        size = static_cast<UInt32>(file_info.size - pos);
+      CHECK_COM(in_stream->Seek(file_info.offset + pos, STREAM_SEEK_SET, nullptr));
+      UInt32 size_read;
+      CHECK_COM(in_stream->Read(data, size, &size_read));
+      pos += size_read;
+      if (processed_size)
+        *processed_size = size_read;
+      return S_OK;
+      COM_ERROR_HANDLER_END
+    }
+
+    STDMETHODIMP Seek(Int64 offset, UInt32 seek_origin, UInt64* new_position) {
+      COM_ERROR_HANDLER_BEGIN
+      switch (seek_origin) {
+      case STREAM_SEEK_SET:
+        pos = offset;
+        break;
+      case STREAM_SEEK_CUR:
+        pos += offset;
+        break;
+      case STREAM_SEEK_END:
+        pos = file_info.size + offset;
+        break;
+      default:
+        return E_INVALIDARG;
+      }
+      if (new_position)
+        *new_position = pos;
+      return S_OK;
+      COM_ERROR_HANDLER_END
+    }
+  };
+
+  // client will request IInStream via QueryInterface if needed
+  STDMETHODIMP GetStream(UInt32 index, ISequentialInStream** stream) {
+    COM_ERROR_HANDLER_BEGIN
+    if (index >= files.size())
+      return E_INVALIDARG;
+    ComObject<ISequentialInStream>(new FileStream(in_stream, files[index])).detach(stream);
     return S_OK;
     COM_ERROR_HANDLER_END
   }
