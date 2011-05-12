@@ -1095,10 +1095,10 @@ int WINAPI ProcessHostFileW(const ProcessHostFileInfo* info) {
   FAR_ERROR_HANDLER_END(return FALSE, return FALSE, (info->OpMode & OPM_SILENT) != 0);
 }
 
-int WINAPI ProcessKeyW(HANDLE h_panel, const INPUT_RECORD *Rec) {
+int WINAPI ProcessPanelInputW(HANDLE h_panel, const ProcessPanelInputInfo* info) {
   FAR_ERROR_HANDLER_BEGIN;
-  if (Rec->EventType == KEY_EVENT) {
-    const KEY_EVENT_RECORD& key_event = Rec->Event.KeyEvent;
+  if (info->Rec.EventType == KEY_EVENT) {
+    const KEY_EVENT_RECORD& key_event = info->Rec.Event.KeyEvent;
     if ((key_event.dwControlKeyState & (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED)) != 0 && key_event.wVirtualKeyCode == 'A') {
       reinterpret_cast<Plugin*>(h_panel)->show_attr();
       return TRUE;

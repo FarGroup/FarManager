@@ -15,6 +15,6 @@ EXPORTS
   DeleteFilesW
   MakeDirectoryW
   ProcessHostFileW
-  ProcessKeyW
+  ProcessPanelInputW
   ConfigureW
   ExitFARW
