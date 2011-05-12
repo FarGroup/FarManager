@@ -107,7 +107,7 @@ public:
     unique_ptr<wchar_t[]> path_buf(new wchar_t[path_buf_size]);
     while (true) {
       FileInfo file_info;
-      unsigned path_size;
+      UInt32 path_size;
       CHECK_COM(in_stream->Read(&path_size, sizeof(path_size), &size_read));
       if (size_read == 0)
         break;
@@ -187,7 +187,7 @@ public:
   // report number of file properties supported by this format
   STDMETHODIMP GetNumberOfProperties(UInt32* num_properties) {
     COM_ERROR_HANDLER_BEGIN
-    *num_properties = 3;
+    *num_properties = ARRAYSIZE(c_props);
     return S_OK;
     COM_ERROR_HANDLER_END
   }
@@ -199,10 +199,7 @@ public:
       return E_INVALIDARG;
     // name of custom property
     // null if standard property (see PropID.h)
-    if (c_props[index].lpwstrName)
-      BStr(c_props[index].lpwstrName).detach(name);
-    else
-      *name = nullptr;
+    BStr(c_props[index].lpwstrName).detach(name);
     // property id (kpidUserDefined is the base for custom properties)
     *prop_id = c_props[index].propid;
     // property type (VT_BSTR, VT_UI8, etc.)
@@ -279,7 +276,7 @@ public:
 
   STDMETHODIMP GetNumberOfArchiveProperties(UInt32* num_properties) {
     COM_ERROR_HANDLER_BEGIN
-    *num_properties = 1;
+    *num_properties = ARRAYSIZE(c_arc_props);
     return S_OK;
     COM_ERROR_HANDLER_END
   }
@@ -288,10 +285,7 @@ public:
     COM_ERROR_HANDLER_BEGIN
     if (index >= ARRAYSIZE(c_arc_props))
       return E_INVALIDARG;
-    if (c_arc_props[index].lpwstrName)
-      BStr(c_arc_props[index].lpwstrName).detach(name);
-    else
-      *name = nullptr;
+    BStr(c_arc_props[index].lpwstrName).detach(name);
     *prop_id = c_arc_props[index].propid;
     *var_type = c_arc_props[index].vt;
     return S_OK;
@@ -361,7 +355,7 @@ public:
           continue;
       }
        
-      unsigned path_size = file_info.path.size();
+      UInt32 path_size = file_info.path.size();
       CHECK_COM(out_stream->Write(&path_size, sizeof(path_size), &size_written));
       CHECK(size_written == sizeof(path_size));
       CHECK_COM(out_stream->Write(file_info.path.data(), file_info.path.size() * sizeof(wchar_t), &size_written));
@@ -420,9 +414,9 @@ public:
 };
 
 // create implementation of required interface (interface_id) for given archive format (class_id)
-UInt32 WINAPI CreateObject(const GUID* class_is, const GUID* interface_id, void** out_object) {
+UInt32 WINAPI CreateObject(const GUID* class_id, const GUID* interface_id, void** out_object) {
   COM_ERROR_HANDLER_BEGIN
-  if (*class_is != c_guid)
+  if (*class_id != c_guid)
     return CLASS_E_CLASSNOTAVAILABLE;
   if (*interface_id == IID_IInArchive)
     ComObject<IInArchive>(new Archive()).detach(reinterpret_cast<IInArchive**>(out_object));

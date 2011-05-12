@@ -341,6 +341,36 @@ private:
       bstr = nullptr;
     }
   }
+
+  void alloc(const BStr& str) {
+    bstr = SysAllocStringLen(str.bstr, SysStringLen(str.bstr));
+    if (bstr == nullptr)
+      FAIL(E_OUTOFMEMORY);
+  }
+  void alloc(const wstring& str) {
+    bstr = SysAllocStringLen(str.data(), static_cast<UINT>(str.size()));
+    if (bstr == nullptr)
+      FAIL(E_OUTOFMEMORY);
+  }
+  void alloc(const wchar_t* str) {
+    bstr = SysAllocString(str);
+    if (bstr == nullptr)
+      FAIL(E_OUTOFMEMORY);
+  }
+
+  void realloc(const BStr& str) {
+    if (!SysReAllocStringLen(&bstr, str.bstr, SysStringLen(str.bstr)))
+      FAIL(E_OUTOFMEMORY);
+  }
+  void realloc(const wstring& str) {
+    if (!SysReAllocStringLen(&bstr, str.data(), static_cast<UINT>(str.size())))
+      FAIL(E_OUTOFMEMORY);
+  }
+  void realloc(const wchar_t* str) {
+    if (!SysReAllocString(&bstr, str))
+      FAIL(E_OUTOFMEMORY);
+  }
+
 public:
   BStr(): bstr(nullptr) {
   }
@@ -363,34 +393,39 @@ public:
   }
 
   BStr(const BStr& str) {
-    bstr = SysAllocStringLen(str.bstr, SysStringLen(str.bstr));
-    if (bstr == nullptr)
-      FAIL(E_OUTOFMEMORY);
+    alloc(str);
   }
   BStr(const wstring& str) {
-    bstr = SysAllocStringLen(str.data(), static_cast<UINT>(str.size()));
-    if (bstr == nullptr)
-      FAIL(E_OUTOFMEMORY);
+    alloc(str);
   }
   BStr(const wchar_t* str) {
-    bstr = SysAllocString(str);
-    if (bstr == nullptr)
-      FAIL(E_OUTOFMEMORY);
+    if (str)
+      alloc(str);
+    else
+      bstr = nullptr;
   }
 
   BStr& operator=(const BStr& str) {
-    if (!SysReAllocStringLen(&bstr, str.bstr, SysStringLen(str.bstr)))
-      FAIL(E_OUTOFMEMORY);
+    if (bstr)
+      realloc(str);
+    else
+      alloc(str);
     return *this;
   }
   BStr& operator=(const wstring& str) {
-    if (!SysReAllocStringLen(&bstr, str.data(), static_cast<UINT>(str.size())))
-      FAIL(E_OUTOFMEMORY);
+    if (bstr)
+      realloc(str);
+    else
+      alloc(str);
     return *this;
   }
   BStr& operator=(const wchar_t* str) {
-    if (!SysReAllocString(&bstr, str))
-      FAIL(E_OUTOFMEMORY);
+    if (str == nullptr)
+      clear();
+    else if (bstr)
+      realloc(str);
+    else
+      alloc(str);
     return *this;
   }
 };
