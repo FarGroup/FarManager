@@ -35,10 +35,10 @@ LONG_PTR __stdcall hndArchiveFilter(FarDialog* D, int nMsg, int nParam1, LONG_PT
 
 			strTitle.Format(
 					_T("%c%c | %-20.20s | %-5.5s | %-10.10s"), 
-					pFE->bExcludeFilter?_T('-'):_T(' '),
+					pFE->IsExclude()?_T('-'):_T(' '),
 					_T(' '),
-					pFE->strName.GetString(), 
-					pFE->strMask.GetString(), 
+					pFE->GetName(), 
+					pFE->GetMask(), 
 					_T("")//pFE->bAllModules?_T("All"):FSF.PointToName(pFE->pModule->GetModuleName())
 					);
 
@@ -87,7 +87,7 @@ LONG_PTR __stdcall hndArchiveFilter(FarDialog* D, int nMsg, int nParam1, LONG_PT
 		{
 			ArchiveFilterEntry* pFE = new ArchiveFilterEntry;
 
-			pFE->bEnabled = true;
+			pFE->SetEnabled(true);
 
 			if ( dlgFilterOneFormat(pFE) )
 			{
@@ -95,10 +95,10 @@ LONG_PTR __stdcall hndArchiveFilter(FarDialog* D, int nMsg, int nParam1, LONG_PT
 
 				strTitle.Format(
 						_T("%c%c | %-20.20s | %-5.5s | %-10.10s"), 
-						pFE->bExcludeFilter?_T('-'):_T(' '),
+						pFE->IsExclude()?_T('-'):_T(' '),
 						_T(' '),
-						pFE->strName.GetString(), 
-						pFE->strMask.GetString(),
+						pFE->GetName(), 
+						pFE->GetMask(),
 						_T("")//pFE->bAllModules?_T("All"):FSF.PointToName(pFE->pModule->GetModuleName())
 						);
 
@@ -142,10 +142,10 @@ LONG_PTR __stdcall hndArchiveFilter(FarDialog* D, int nMsg, int nParam1, LONG_PT
 				
 						strTitle.Format(
 								_T("%c%c | %-20.20s | %-5.5s | %-10.10s"), 
-								pFE->bExcludeFilter?_T('-'):_T(' '),
+								pFE->IsExclude()?_T('-'):_T(' '),
 								_T(' '),
-								pFE->strName.GetString(), 
-								pFE->strMask.GetString(), 
+								pFE->GetName(), 
+								pFE->GetMask(), 
 								_T("")//pFE->bAllModules?_T("All"):FSF.PointToName(pFE->pModule->GetModuleName())
 								);
 
@@ -170,7 +170,7 @@ LONG_PTR __stdcall hndArchiveFilter(FarDialog* D, int nMsg, int nParam1, LONG_PT
 }
 
 
-bool dlgArchiveFilter(ArchiveFilter* pFilter)
+bool dlgArchiveFilter(ArchiveManagerConfig* pCfg, ArchiveFilter* pFilter)
 {
 	if ( !pFilter )
 	{

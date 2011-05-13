@@ -8,9 +8,9 @@ enum enumConfigure {
 	ID_CFG_CANCEL
 };
 
-void dlgConfigure(Configuration& cfg)
+void dlgConfigure(ArchiveManagerConfig* pCfg)
 {
-	FarDialog D (-1, -1, 78, 9);
+	/*FarDialog D (-1, -1, 78, 9);
 
 	D.DoubleBox (3, 1, 74, 7, _M(MConfigCommonTitle));
 
@@ -35,5 +35,5 @@ void dlgConfigure(Configuration& cfg)
 
 		if ( D.GetResultCheck(ID_CFG_ARCHIVERSHOWNEVER) )
 			cfg.uArchiverOutput = ARCHIVER_OUTPUT_SHOW_NEVER;
-	}
+	}*/
 }

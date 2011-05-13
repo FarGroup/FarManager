@@ -37,6 +37,9 @@ char* UnicodeToUTF8(const wchar_t* lpSrc)
 
 char* AnsiToUTF8(const char* lpSrc, int CodePage)
 {
+	if ( !lpSrc )
+		return nullptr;
+
 	wchar_t* lpUnicode = AnsiToUnicode(lpSrc, CodePage);
 
 	char* lpResult = UnicodeToUTF8(lpUnicode);
@@ -53,6 +56,9 @@ wchar_t* UTF8ToUnicode(const char* lpSrc)
 
 char* UTF8ToAnsi(const char* lpSrc, int CodePage)
 {
+	if ( !lpSrc  )
+		return nullptr;
+
 	wchar_t* lpUnicode = AnsiToUnicode(lpSrc, CP_UTF8);
 
 	char* lpResult = UnicodeToAnsi(lpUnicode, CP_OEMCP);

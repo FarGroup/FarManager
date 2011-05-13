@@ -54,21 +54,21 @@ int ArchiveFilter::QueryFilters(const TCHAR* lpFileName, ArchiveFilterArray& fil
 	{
 		ArchiveFilterEntry* pFE = m_pFilters[i];
 
-		if ( !pFE->bEnabled || pFE->bInvalid )
+		if ( !pFE->IsEnabled() || !pFE->IsValid() )
 			continue;
 
 #ifdef UNICODE
-		if ( FSF.ProcessName(pFE->strMask, (TCHAR*)lpFileName, 0, PN_CMPNAME|PN_SKIPPATH) )
+		if ( FSF.ProcessName(pFE->GetMask(), (TCHAR*)lpFileName, 0, PN_CMPNAME|PN_SKIPPATH) )
 #else
-		if ( FSF.ProcessName(pFE->strMask, (TCHAR*)lpFileName, PN_CMPNAME|PN_SKIPPATH) )
+		if ( FSF.ProcessName(pFE->GetMask(), (TCHAR*)lpFileName, PN_CMPNAME|PN_SKIPPATH) )
 #endif
 		{
-			if ( !pFE->bExcludeFilter )
+			if ( !pFE->IsExclude() )
 				filters.add(pFE);
 			else
 				m_pStopFilters.add(pFE);
 
-			if ( !pFE->bContinue )
+			if ( !pFE->IsContinueProcessing() )
 			{
 				bStopped = true;
 				break;
@@ -86,12 +86,12 @@ bool ArchiveFilter::Filtered(const GUID* puidModule, const GUID* puidPlugin, con
 	{
 		ArchiveFilterEntry* pFE = m_pStopFilters[i];
 
-		if ( !pFE->bEnabled || pFE->bInvalid )
+		if ( !pFE->IsEnabled() || !pFE->IsValid() )
 			continue;
 
-		bool bFormatFiltered = (pFE->bAllFormats || (puidFormat && (pFE->uidFormat == *puidFormat)));
-		bool bPluginFiltered = bFormatFiltered && (pFE->bAllPlugins || (puidPlugin && (pFE->uidPlugin == *puidPlugin)));
-		bool bModuleFiltered = bPluginFiltered && (pFE->bAllModules || (puidModule && (pFE->uidModule == *puidModule)));
+		bool bFormatFiltered = (pFE->IsAllFormats() || (puidFormat && (pFE->GetFormat()->GetUID() == *puidFormat)));
+		bool bPluginFiltered = bFormatFiltered && (pFE->IsAllPlugins() || (puidPlugin && (pFE->GetPlugin()->GetUID() == *puidPlugin)));
+		bool bModuleFiltered = bPluginFiltered && (pFE->IsAllModules() || (puidModule && (pFE->GetModule()->GetUID() == *puidModule)));
 
 		if ( bModuleFiltered )
 			return true;
@@ -100,90 +100,30 @@ bool ArchiveFilter::Filtered(const GUID* puidModule, const GUID* puidPlugin, con
 	return false;
 }
 
+
 bool ArchiveFilter::Load(const TCHAR* lpFileName)
 {
-	TCHAR szNames[4096]; //бля, пора, пора уходить в XML!!!
+	m_pFilters.reset();
 
-	if ( !GetPrivateProfileSectionNames(szNames, 4096, lpFileName) )
-		return false;
+	TiXmlDocument doc;
 
-	Array<const TCHAR*> names;
+	doc.LoadFile((FakeUtf8String)lpFileName);
 
-	Clear();
+	TiXmlHandle handle(&doc);
 
-	const TCHAR *lpName = szNames;
+	TiXmlNode* pNode = handle.FirstChild("filters").ToNode();
 
-	while ( *lpName )
+	if ( pNode )
 	{
-		names.add(lpName);			
-		lpName += _tcslen (lpName)+1;
-	}
+		TiXmlNode* pChild = pNode->FirstChild("filter");
 
-	for (unsigned int i = 0; i < names.count(); i++)
-	{
-		ArchiveFilterEntry *pFE = new ArchiveFilterEntry;
-
-		pFE->bAllModules = true;
-		pFE->bAllPlugins = true;
-		pFE->bAllFormats = true;
-
-		pFE->strName = names[i];
-
-		TCHAR* pBuffer = pFE->strMask.GetBuffer(260); //херня
-
-		GetPrivateProfileString (pFE->strName, _T("Mask"), _T(""), pBuffer, 260, lpFileName);
-
-		pFE->strMask.ReleaseBuffer();
-
-		pFE->bExcludeFilter = GetPrivateProfileInt(pFE->strName, _T("ExcludeFilter"), 0, lpFileName);
-		pFE->bEnabled = GetPrivateProfileInt(pFE->strName, _T("Enabled"), 0, lpFileName);
-		pFE->bAllModules = GetPrivateProfileInt(pFE->strName, _T("AllModules"), 0, lpFileName);
-		pFE->bContinue = GetPrivateProfileInt(pFE->strName, _T("Continue"), 0, lpFileName);
-
-		if ( !pFE->bAllModules )
+		while ( pChild )
 		{
-			TCHAR szGUID[64];
+			ArchiveFilterEntry* pAE = ArchiveFilterEntry::FromXml(m_pManager, *pChild);
+			m_pFilters.add(pAE);
 
-			GetPrivateProfileString (pFE->strName, _T("ModuleUID"), _T(""), szGUID, 64, lpFileName);
-
-			pFE->uidModule = STR2GUID(szGUID);
-			pFE->pModule = m_pManager->GetModule(pFE->uidModule);
-
-			if ( !pFE->pModule )
-				pFE->bInvalid = true;
-			
-			pFE->bAllPlugins = GetPrivateProfileInt(pFE->strName, _T("AllPlugins"), 0, lpFileName);
-
-			if ( !pFE->bAllPlugins )
-			{
-				GetPrivateProfileString(pFE->strName, _T("PluginUID"), _T(""), szGUID, 64, lpFileName);
-
-				pFE->uidPlugin = STR2GUID(szGUID);
-			
-			    if ( !pFE->bInvalid )
-					pFE->pPlugin = pFE->pModule->GetPlugin(pFE->uidPlugin);
-
-				if ( !pFE->pPlugin )
-					pFE->bInvalid = true;
-					
-				pFE->bAllFormats = GetPrivateProfileInt(pFE->strName, _T("AllFormats"), 0, lpFileName);
-		
-				if ( !pFE->bAllFormats )
-				{
-					GetPrivateProfileString(pFE->strName, _T("FormatUID"), _T(""), szGUID, 64, lpFileName);
-
-					pFE->uidFormat = STR2GUID(szGUID);
-
-					if ( !pFE->bInvalid )
-						pFE->pFormat = pFE->pPlugin->GetFormat(pFE->uidFormat);
-
-					if ( !pFE->pFormat )
-						pFE->bInvalid = true;
-				}
-			}
+			pChild = pChild->NextSibling("filter");
 		}
-
-		m_pFilters.add(pFE);
 	}
 
 	return true;
@@ -193,53 +133,24 @@ bool ArchiveFilter::Save(const TCHAR* lpFileName)
 {
 	DeleteFile(lpFileName);
 
+	TiXmlDocument doc;
+
+	TiXmlElement* root = new TiXmlElement("filters");
+
 	for (unsigned int i = 0; i < m_pFilters.count(); i++)
 	{
-		TCHAR sz[32];
-		ArchiveFilterEntry* pFE = m_pFilters[i];
+		ArchiveFilterEntry* pAE = m_pFilters[i];
+		TiXmlElement* tpl = new TiXmlElement("filter");
 
-		WritePrivateProfileString(pFE->strName, _T("Mask"), pFE->strMask, lpFileName);
+		pAE->ToXml(*tpl);
 
-		_itot(pFE->bEnabled, sz, 10);
-		WritePrivateProfileString(pFE->strName, _T("Enabled"), sz, lpFileName);
-
-		_itot(pFE->bExcludeFilter, sz, 10);
-		WritePrivateProfileString(pFE->strName, _T("ExcludeFilter"), sz, lpFileName);
-
-		_itot(pFE->bContinue, sz, 10);
-		WritePrivateProfileString(pFE->strName, _T("Continue"), sz, lpFileName);
-
-		if ( pFE->bAllModules )
-		{
-			_itot(pFE->bAllModules, sz, 10);
-			WritePrivateProfileString(pFE->strName, _T("AllModules"), sz, lpFileName);
-		}
-		else
-		{
-			WritePrivateProfileString(pFE->strName, _T("ModuleUID"), GUID2STR(pFE->uidModule), lpFileName);
-		
-			if ( pFE->bAllPlugins )
-			{
-				_itot(pFE->bAllPlugins, sz, 10);
-				WritePrivateProfileString(pFE->strName, _T("AllPlugins"), sz, lpFileName);
-			}
-			else
-			{
-				WritePrivateProfileString(pFE->strName, _T("PluginUID"), GUID2STR(pFE->uidPlugin), lpFileName);
-				
-				if ( pFE->bAllFormats )
-				{
-					_itot(pFE->bAllFormats, sz, 10);
-					WritePrivateProfileString(pFE->strName, _T("AllFormats"), sz, lpFileName);
-				}
-				else
-					WritePrivateProfileString(pFE->strName, _T("FormatUID"), GUID2STR(pFE->uidFormat), lpFileName);
-			}
-		}
+		root->LinkEndChild(tpl);
 	}
 
-	return true;
+	doc.LinkEndChild(root);
+	doc.SaveFile((FakeUtf8String)lpFileName);
 
+	return true;
 }
 
 void ArchiveFilter::AddStopFilter(ArchiveFilterEntry* pFE)

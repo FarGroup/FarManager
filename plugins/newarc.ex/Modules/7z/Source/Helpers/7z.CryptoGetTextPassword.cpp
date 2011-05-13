@@ -34,26 +34,26 @@ HRESULT __stdcall CCryptoGetTextPassword::QueryInterface(const IID &iid, void **
 {
 	*ppvObject = NULL;
 
-	if ( iid == IID_ICryptoGetTextPassword )
+	/*if ( iid == IID_ICryptoGetTextPassword )
 	{
 		*ppvObject = this;
 		AddRef ();
 
 		return S_OK;
-	}
+	}*/
 
 	return E_NOINTERFACE;
 }
 
 HRESULT __stdcall CCryptoGetTextPassword::CryptoGetTextPassword(BSTR *password)
 {
-	TCHAR szPassword[512];
+	/*TCHAR szPassword[512];
 
 	if ( m_pArchive->OnPasswordOperation(PASSWORD_FILE, szPassword, 512) ) //not that good
 	{
 		string strPassword = szPassword;
 		*password = strPassword.ToBSTR();
-	}
+	}*/
 
 	return S_OK;
 }

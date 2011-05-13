@@ -29,7 +29,9 @@ public:
 
 	bool QueryCapability(DWORD dwFlags) const;
 
-	bool GetDefaultCommand(int nCommand, string& strCommand, bool& bEnabledByDefault);
+	//CHECK USAGE!!! do not use outside manager & config
+	bool GetDefaultCommand(int nCommand, string& strCommand, bool& bEnabled);
+	void Configure(const TCHAR* lpInitialConfig, string& strResultConfig);
 };
 
 

@@ -404,6 +404,19 @@ void ArchivePanel::GetArchiveItemsToProcess(
 }
 
 
+void FindDataToArchiveItem(const FAR_FIND_DATA *src, ArchiveItem *dest)
+{
+	dest->nFileSize = FINDDATA_GET_SIZE_PTR(src);
+	dest->dwFileAttributes = src->dwFileAttributes;
+			
+	memcpy(&dest->ftCreationTime, &src->ftCreationTime, sizeof(FILETIME));
+	memcpy(&dest->ftLastWriteTime, &src->ftLastWriteTime, sizeof(FILETIME));
+	memcpy(&dest->ftLastAccessTime, &src->ftLastAccessTime, sizeof(FILETIME));
+
+	dest->lpFileName = StrDuplicate(FINDDATA_GET_NAME_PTR(src));
+	dest->lpAlternateFileName = NULL;
+}
+
 
 struct ScanStruct {
 	OperationStructEx* pOS;
@@ -1116,34 +1129,13 @@ int ArchivePanel::OnProcessData(ProcessDataStruct* pDS)
 	return TRUE;
 }
 
-
-bool ArchivePanel::GetCommand(
-		int nCommand,
-		string& strCommand
-		)
+bool ArchivePanel::GetCommand(int nCommand, string& strCommand)
 {
-	std::map<const ArchiveFormat*, ArchiveFormatCommands*>::iterator itr = cfg.pArchiveCommands.find(m_pArchive->GetFormat());
+	if ( !m_pArchive )
+		return false;
 
-	if ( itr != cfg.pArchiveCommands.end() )
-	{
-		ArchiveFormatCommands* pCommands = itr->second;
-
-		if ( pCommands->Commands[nCommand].bEnabled )
-		{
-			strCommand = pCommands->Commands[nCommand].strCommand;
-			return !strCommand.IsEmpty();
-		}
-	}
-
-	bool bEnabled = false;
-
-	if ( m_pArchive->GetDefaultCommand(nCommand, strCommand, bEnabled) && bEnabled )
-		return !strCommand.IsEmpty();
-
-
-	return false;
+	return m_pManager->GetCommand(m_pArchive->GetFormat(), nCommand, strCommand);
 }
-
 
 int ArchivePanel::Extract(
 		const ArchiveItemArray& items, 

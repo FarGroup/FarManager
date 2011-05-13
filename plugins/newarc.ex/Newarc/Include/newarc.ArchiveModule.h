@@ -71,7 +71,7 @@ public:
 	void ConfigureFormat(const GUID& uidPlugin, const GUID& uidFormat, const TCHAR* lpInitialConfig, string& strResultConfig);
 
 
-	bool GetDefaultCommand(const GUID& uidPlugin, const GUID& uidArchive, int nCommand, string& strCommand, bool& bEnabledByDefault);
+	bool GetDefaultCommand(const GUID& uidPlugin, const GUID& uidFormat, int nCommand, string& strCommand, bool& bEnabled);
 
 //new
 

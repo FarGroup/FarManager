@@ -28,6 +28,9 @@
     <Filter Include="Source Files\Menus">
       <UniqueIdentifier>{0c0e5f67-80a3-40d8-aa6a-764a6b96963a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\TinyXml">
+      <UniqueIdentifier>{fa42a24b-2142-4a5c-b2e1-a7f4670e0e60}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Framework\Src\debug.cpp">
@@ -124,6 +127,30 @@
       <Filter>Source Files\Framework</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\newarc.OperationDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\tiny\tinystr.cpp">
+      <Filter>Source Files\TinyXml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\tiny\tinyxml.cpp">
+      <Filter>Source Files\TinyXml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\tiny\tinyxmlerror.cpp">
+      <Filter>Source Files\TinyXml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\tiny\tinyxmlparser.cpp">
+      <Filter>Source Files\TinyXml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\newarc.FilterEntry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\newarc.FormatConfig.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\newarc.ManagerConfig.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\newarc.Template.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

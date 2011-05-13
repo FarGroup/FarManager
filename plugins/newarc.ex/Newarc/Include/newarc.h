@@ -1,5 +1,6 @@
 #pragma once
 
+
 #define _HAS_EXCEPTIONS 0
 #define _CRT_SECURE_NO_WARNINGS
 
@@ -16,6 +17,9 @@
 #include <array.hpp>
 #include <debug.h>
 
+#include "tinyxml.h"
+
+typedef int XML_BOOL; //to use in config
 
 //newarc
 #include "../../API/module.hpp"
@@ -30,7 +34,9 @@ class ArchiveFilter;
 class ArchivePlugin;
 class ArchiveFormat;
 class ArchiveTemplate;
-struct ArchiveFilterEntry;
+class ArchiveFilterEntry;
+class ArchiveManagerConfig;
+class ArchiveFormatConfig;
 
 typedef Array<const ArchiveFormatInfo*> ArchiveFormatInfoArray;
 typedef Array<const ArchivePluginInfo*> PluginFormatInfoArray;
@@ -44,7 +50,10 @@ typedef Array<ArchiveFilterEntry*> ArchiveFilterArray;
 #include "newarc.OperationDialog.h"
 #include "newarc.Archive.h"
 #include "newarc.ArchiveModule.h"
+#include "newarc.ArchiveFormatConfig.h"
+#include "newarc.ArchiveFilterEntry.h"
 #include "newarc.ArchiveFilter.h"
+#include "newarc.ArchiveManagerConfig.h"
 #include "newarc.ArchivePlugin.h"
 #include "newarc.ArchiveFormat.h"
 #include "newarc.ArchiveModuleManager.h"
@@ -60,22 +69,6 @@ enum ArchiveOutputSettings {
 	ARCHIVER_OUTPUT_SHOW_NEVER
 };
 
-struct ArchiveFormatCommand {
-	bool bEnabled;
-	string strCommand;
-};
-
-struct ArchiveFormatCommands {
-	ArchiveFormat* pFormat;
-	ArchiveFormatCommand Commands[MAX_COMMANDS];
-};
-
-struct Configuration {
-	ArchiveOutputSettings uArchiverOutput;
-	std::map<const ArchiveFormat*, ArchiveFormatCommands*> pArchiveCommands;
-};
-
-extern Configuration cfg;
 
 #define _M(id) (TCHAR*)Info.GetMsg (Info.ModuleNumber, id)
 

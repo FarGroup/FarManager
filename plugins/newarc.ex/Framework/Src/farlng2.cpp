@@ -91,14 +91,14 @@ void Language::ParseString(const TCHAR* lpStr)
 				string strName;
 				string strValue = lpEqual+1;
 
-				strName.SetData(lpTemp, lpEqual-lpTemp, CP_OEMCP);
+				strName.SetData(lpTemp, lpEqual-lpTemp);
 
 				if ( strName == _T(".Language") ) //ignore case??
 				{
 					const TCHAR* lpComma = _tcschr(lpEqual+1, _T(','));
 
 					if ( lpComma != nullptr )
-						m_strLanguage.SetData(lpEqual+1, lpComma-lpEqual-1, CP_OEMCP); //mad
+						m_strLanguage.SetData(lpEqual+1, lpComma-lpEqual-1); //mad
 					else
 						m_strLanguage = strValue;
 				}

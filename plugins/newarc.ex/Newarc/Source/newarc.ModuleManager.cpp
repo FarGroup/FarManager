@@ -3,8 +3,17 @@
 ArchiveModuleManager::ArchiveModuleManager(const TCHAR* lpCurrentLanguage)
 {
 	m_bLoaded = false;
-	m_pFilter = new ArchiveFilter(this, true);
 	m_strCurrentLanguage = lpCurrentLanguage;
+
+	if ( m_strCurrentLanguage.IsEmpty() )
+		m_strCurrentLanguage = _T("English");
+
+	m_pConfig = new ArchiveManagerConfig(this);
+}
+
+ArchiveManagerConfig* ArchiveModuleManager::GetConfig()
+{
+	return m_pConfig;
 }
 
 bool ArchiveModuleManager::LoadIfNeeded()
@@ -18,24 +27,9 @@ bool ArchiveModuleManager::LoadIfNeeded()
 
 		FSF.FarRecursiveSearch(strModulesPath, _T("*.module"), (FRSUSERFUNC)LoadModules, FRS_RECUR, this);
 
-		CutToSlash(strModulesPath);
-		strModulesPath += _T("filters.ini");
-
-		m_pFilter->Load(strModulesPath);
-
-		CutToSlash(strModulesPath);
-		strModulesPath += _T("templates.ini");
-		
-		LoadTemplates(strModulesPath);
-
-
-		CutToSlash(strModulesPath);
-		strModulesPath += _T("commands.ini");
-		
-		LoadCommands(strModulesPath);
+		m_pConfig->Load();
 
 		m_bLoaded = true;
-
 	}
 
 	return m_bLoaded;
@@ -69,19 +63,9 @@ int __stdcall ArchiveModuleManager::LoadModules(
 
 ArchiveModuleManager::~ArchiveModuleManager()
 {
-	//раз в менеджере грузим опции, в нем и убьем
-	//завести отдельный класс!!!
-
-	for (std::map<const ArchiveFormat*, ArchiveFormatCommands*>::iterator itr = cfg.pArchiveCommands.begin(); itr != cfg.pArchiveCommands.end(); ++itr)
-		delete itr->second;
-
-	delete m_pFilter;
+	delete m_pConfig;
 }
 
-ArchiveFilter* ArchiveModuleManager::GetFilter()
-{
-	return m_pFilter;
-}
 
 void ArchiveModuleManager::SetCurrentLanguage(const TCHAR* lpLanguage, bool bForce)
 {
@@ -112,22 +96,24 @@ int ArchiveModuleManager::QueryArchives(
 		return 0;
 	};
 
+	ArchiveFilter* pFilter = m_pConfig->GetFilter();
+
 	Array<ArchiveFilterEntry*> filters;
 
-	m_pFilter->Reset();
-	m_pFilter->QueryFilters(lpFileName, filters, bStopped);
+	pFilter->Reset();
+	pFilter->QueryFilters(lpFileName, filters, bStopped);
 
 	for (unsigned int i = 0; i < filters.count(); i++)
 	{
 		ArchiveFilterEntry* pFE = filters[i];
-		ArchiveModule* pModule = pFE->pModule;
+		ArchiveModule* pModule = pFE->GetModule();
 
 		bool bNoPluginsFiltered = true;
 		bool bNoFormatsFiltered = true;
 
-		if ( !m_pFilter->Filtered(&pModule->GetUID(), NULL, NULL) )
+		if ( !pFilter->Filtered(&pModule->GetUID(), NULL, NULL) )
 		{
-			if ( pFE->bAllPlugins )
+			if ( pFE->IsAllPlugins() )
 			{
 				Array<ArchivePlugin*>& plugins = pModule->GetPlugins();
 
@@ -135,7 +121,7 @@ int ArchiveModuleManager::QueryArchives(
 				{
 					ArchivePlugin* pPlugin = plugins[i];
 
-					if ( !m_pFilter->Filtered(&pModule->GetUID(), &pPlugin->GetUID(), NULL) )
+					if ( !pFilter->Filtered(&pModule->GetUID(), &pPlugin->GetUID(), NULL) )
 					{
 						if ( pModule->QueryCapability(AMF_SUPPORT_SINGLE_PLUGIN_QUERY) )
 						{
@@ -145,7 +131,7 @@ int ArchiveModuleManager::QueryArchives(
 							{
 								ArchiveFormat* pFormat = formats[i];
 
-								if ( !m_pFilter->Filtered(&pModule->GetUID(), &pPlugin->GetUID(), &pFormat->GetUID()) )
+								if ( !pFilter->Filtered(&pModule->GetUID(), &pPlugin->GetUID(), &pFormat->GetUID()) )
 								{
 									if ( pPlugin->QueryCapability(APF_SUPPORT_SINGLE_FORMAT_QUERY) )
 										pModule->QueryArchives(&pPlugin->GetUID(), &pFormat->GetUID(), lpFileName, pBuffer, dwBufferSize, result);
@@ -167,11 +153,11 @@ int ArchiveModuleManager::QueryArchives(
 			}
 			else
 			{
-				if ( pFE->bAllFormats )
+				if ( pFE->IsAllFormats() )
 				{
-					ArchivePlugin* pPlugin = pFE->pPlugin;
+					ArchivePlugin* pPlugin = pFE->GetPlugin();
 				
-					if ( !m_pFilter->Filtered(&pModule->GetUID(), &pPlugin->GetUID(), NULL) )
+					if ( !pFilter->Filtered(&pModule->GetUID(), &pPlugin->GetUID(), NULL) )
 					{
 						Array<ArchiveFormat*>& formats = pPlugin->GetFormats();
 
@@ -179,7 +165,7 @@ int ArchiveModuleManager::QueryArchives(
 						{
 							ArchiveFormat* pFormat = formats[i];
 
-							if ( !m_pFilter->Filtered(&pModule->GetUID(), &pPlugin->GetUID(), &pFormat->GetUID()) )
+							if ( !pFilter->Filtered(&pModule->GetUID(), &pPlugin->GetUID(), &pFormat->GetUID()) )
 							{
 								if ( pPlugin->QueryCapability(APF_SUPPORT_SINGLE_FORMAT_QUERY) )
 									pModule->QueryArchives(&pPlugin->GetUID(), &pFormat->GetUID(), lpFileName, pBuffer, dwBufferSize, result);
@@ -195,10 +181,10 @@ int ArchiveModuleManager::QueryArchives(
 				}
 				else
 				{
-					ArchiveFormat* pFormat = pFE->pFormat;
-					ArchivePlugin* pPlugin = pFE->pPlugin;
+					ArchiveFormat* pFormat = pFE->GetFormat();
+					ArchivePlugin* pPlugin = pFE->GetPlugin();
 
-					if ( !m_pFilter->Filtered(&pModule->GetUID(), &pPlugin->GetUID(), &pFormat->GetUID()) )
+					if ( !pFilter->Filtered(&pModule->GetUID(), &pPlugin->GetUID(), &pFormat->GetUID()) )
 					{
 						if ( pPlugin->QueryCapability(APF_SUPPORT_SINGLE_FORMAT_QUERY) )
 							pModule->QueryArchives(&pPlugin->GetUID(), &pFormat->GetUID(), lpFileName, pBuffer, dwBufferSize, result);
@@ -207,10 +193,10 @@ int ArchiveModuleManager::QueryArchives(
 			}
 		}
 
-		m_pFilter->AddStopFilter(filters[i]);
+		pFilter->AddStopFilter(filters[i]);
 	}
 
-	if ( !bStopped && m_pFilter->UseRemaining() )
+	if ( !bStopped && pFilter->UseRemaining() )
 	{
 		for (unsigned int i = 0; i < m_pModules.count(); i++)
 		{
@@ -219,7 +205,7 @@ int ArchiveModuleManager::QueryArchives(
 
 			ArchiveModule* pModule = m_pModules[i]; 
 
-			if ( !m_pFilter->Filtered(&pModule->GetUID(), NULL, NULL) )
+			if ( !pFilter->Filtered(&pModule->GetUID(), NULL, NULL) )
 			{
 				Array<ArchivePlugin*>& plugins = pModule->GetPlugins();
 
@@ -227,7 +213,7 @@ int ArchiveModuleManager::QueryArchives(
 				{
 					ArchivePlugin* pPlugin = plugins[j];
 
-					if ( !m_pFilter->Filtered(&pModule->GetUID(), &pPlugin->GetUID(), NULL) )
+					if ( !pFilter->Filtered(&pModule->GetUID(), &pPlugin->GetUID(), NULL) )
 					{
 						Array<ArchiveFormat*>& formats = pPlugin->GetFormats();
 
@@ -235,7 +221,7 @@ int ArchiveModuleManager::QueryArchives(
 						{
 							ArchiveFormat* pFormat = formats[k];
 
-							if ( !m_pFilter->Filtered(&pModule->GetUID(), &pPlugin->GetUID(), &pFormat->GetUID()) )
+							if ( !pFilter->Filtered(&pModule->GetUID(), &pPlugin->GetUID(), &pFormat->GetUID()) )
 							{
 								if ( pPlugin->QueryCapability(APF_SUPPORT_SINGLE_FORMAT_QUERY) )
 									pModule->QueryArchives(&pPlugin->GetUID(), &pFormat->GetUID(), lpFileName, pBuffer, dwBufferSize, result);
@@ -273,13 +259,32 @@ ArchiveModule* ArchiveModuleManager::GetModule(const GUID &uid)
 	return NULL;
 }
 
-int ArchiveModuleManager::GetPlugins(Array<ArchivePlugin*>& plugins)
+unsigned int ArchiveModuleManager::GetModules(Array<ArchiveModule*>& modules)
+{
+	for (unsigned int i = 0; i < m_pModules.count(); i++)
+		modules.add(m_pModules[i]);
+
+	return 0;
+}
+
+unsigned int ArchiveModuleManager::GetPlugins(Array<ArchivePlugin*>& plugins)
 {
 	for (unsigned int i = 0; i < m_pModules.count(); i++)
 		m_pModules[i]->GetPlugins(plugins);
 
 	return 0;
 }
+
+ArchivePlugin* ArchiveModuleManager::GetPlugin(const GUID& uidModule, const GUID& uidPlugin)
+{
+	ArchiveModule* pModule = GetModule(uidModule);
+
+	if ( pModule )
+		return pModule->GetPlugin(uidPlugin);
+
+	return NULL;
+}
+
 
 ArchiveFormat* ArchiveModuleManager::GetFormat(const GUID& uidModule, const GUID& uidPlugin, const GUID& uidFormat)
 {
@@ -292,7 +297,7 @@ ArchiveFormat* ArchiveModuleManager::GetFormat(const GUID& uidModule, const GUID
 }
 	
 
-int ArchiveModuleManager::GetFormats(Array<ArchiveFormat*>& formats)
+unsigned int ArchiveModuleManager::GetFormats(Array<ArchiveFormat*>& formats)
 {
 	for (unsigned int i = 0; i < m_pModules.count(); i++)
 		m_pModules[i]->GetFormats(formats);
@@ -300,10 +305,12 @@ int ArchiveModuleManager::GetFormats(Array<ArchiveFormat*>& formats)
 	return 0;
 }
 
+/*
 Array<ArchiveModule*>& ArchiveModuleManager::GetModules()
 {
 	return m_pModules;
 }
+*/
 
 Archive* ArchiveModuleManager::OpenCreateArchive(
 		ArchiveFormat* pFormat, 
@@ -342,9 +349,33 @@ void ArchiveModuleManager::CloseArchive(Archive* pArchive)
 	delete pArchive;
 }
 
-extern const TCHAR* pCommandNames[MAX_COMMANDS];
 
-bool ArchiveModuleManager::SaveCommands(const TCHAR* lpFileName)
+bool ArchiveModuleManager::GetCommand(
+		ArchiveFormat* pFormat,
+		int nCommand,
+		string& strCommand
+		)
+{
+	if ( !pFormat )
+		return false;
+
+	if ( m_pConfig->GetCommand(pFormat, nCommand, strCommand) )
+		return true;
+
+	bool bEnabled;
+
+	if ( pFormat->GetDefaultCommand(
+			nCommand, 
+			strCommand, 
+			bEnabled
+			) && bEnabled && !strCommand.IsEmpty() )
+		return true;
+	
+	return false;
+}
+
+/*
+bool ArchiveModuleManager::SaveConfigs(const TCHAR* lpFileName)
 {
 	DeleteFile(lpFileName);
 
@@ -353,88 +384,50 @@ bool ArchiveModuleManager::SaveCommands(const TCHAR* lpFileName)
 	CutToSlash(strFileName);
 	strFileName += lpFileName;
 
-	for (std::map<const ArchiveFormat*, ArchiveFormatCommands*>::iterator itr = cfg.pArchiveCommands.begin(); itr != cfg.pArchiveCommands.end(); ++itr)
+	TiXmlDocument doc;
+
+	TiXmlElement* root = new TiXmlElement("configs");
+
+	for (unsigned int i = 0; i < m_pConfigs.count(); i++)
 	{
-		ArchiveFormatCommands* pCommands = itr->second;
-		ArchiveFormat* pFormat = pCommands->pFormat;
+		ArchiveFormat* pAC = m_pConfigs[i];
+		TiXmlElement* tpl = new TiXmlElement("config");
 
-		string strName = GUID2STR(pFormat->GetUID());
+		pAC->ToXml(*tpl);
 
-		WritePrivateProfileString(strName, _T("Name"), pFormat->GetName(), strFileName);
-		WritePrivateProfileString(strName, _T("ModuleUID"), GUID2STR(pFormat->GetModule()->GetUID()), strFileName);
-		WritePrivateProfileString(strName, _T("PluginUID"), GUID2STR(pFormat->GetPlugin()->GetUID()), strFileName);
-		WritePrivateProfileString(strName, _T("FormatUID"), GUID2STR(pFormat->GetUID()), strFileName);
-
-		for (unsigned int i = 0; i < MAX_COMMANDS; i++)
-		{
-			string strEnabled = pCommandNames[i];
-			strEnabled += _T("_Enabled");
-			//TODO:save enabled;
-
-			WritePrivateProfileString(GUID2STR(pFormat->GetUID()), pCommandNames[i], pCommands->Commands[i].strCommand, strFileName);
-		}
+		root->LinkEndChild(tpl);
 	}
+
+	doc.LinkEndChild(root);
+	doc.SaveFile((FakeUtf8String)lpFileName);
 
 	return true;
 }
 
 
 
-bool ArchiveModuleManager::LoadCommands(const TCHAR* lpFileName)
+bool ArchiveModuleManager::LoadConfigs(const TCHAR* lpFileName)
 {
-	TCHAR szNames[4096];
+	m_pConfigs.reset();
 
-	if ( !GetPrivateProfileSectionNames(szNames, 4096, lpFileName) )
-		return false;
+	TiXmlDocument doc;
 
-	Array<const TCHAR*> names;
+	doc.LoadFile((FakeUtf8String)lpFileName);
 
-	const TCHAR *lpName = szNames;
+	TiXmlHandle handle(&doc);
 
-	while ( *lpName )
+	TiXmlNode* pNode = handle.FirstChild("configs").ToNode();
+
+	if ( pNode )
 	{
-		names.add(lpName);
-		lpName += _tcslen (lpName)+1;
-	}
+		TiXmlNode* pChild = pNode->FirstChild("config");
 
-	for (unsigned int i = 0; i < names.count(); i++)
-	{
-		string strName = names[i];
-
-		TCHAR szGUID[64];
-		
-		GetPrivateProfileString(strName, _T("ModuleUID"), _T(""), szGUID, 64, lpFileName);
-		GUID uidModule = STR2GUID(szGUID);
-		
-		GetPrivateProfileString(strName, _T("PluginUID"), _T(""), szGUID, 64, lpFileName);
-		GUID uidPlugin = STR2GUID(szGUID);
-		
-		GetPrivateProfileString(strName, _T("FormatUID"), _T(""), szGUID, 64, lpFileName);
-		GUID uidFormat = STR2GUID(szGUID);
-
-		ArchiveFormat* pFormat = GetFormat(uidModule, uidPlugin, uidFormat);
-
-		if ( pFormat )
+		while ( pChild )
 		{
-			string strCommand;
+			ArchiveFormatConfig* pAC = ArchiveFormanConfig::FromXml(this, pChild);
+			m_pConfigs.add(pAC);
 
-			ArchiveFormatCommands* pCommands = new ArchiveFormatCommands;
-
-			pCommands->pFormat = pFormat;
-
-			for (unsigned int j = 0; j < MAX_COMMANDS; j++)
-			{
-				TCHAR* pBuffer = strCommand.GetBuffer(260); //BUGBUG
-				GetPrivateProfileString(strName, pCommandNames[j], _T(""), pBuffer, 260, lpFileName);
-				strCommand.ReleaseBuffer();
-
-				pCommands->Commands[j].strCommand = strCommand;
-
-				//TODO:load enabled
-				pCommands->Commands[j].bEnabled = true;
-			}
-
-			cfg.pArchiveCommands.insert(std::pair<const ArchiveFormat*, ArchiveFormatCommands*>(pFormat, pCommands));
+			pChild = pChild->NextSibling("config");
 		}
 	}
 
@@ -444,49 +437,27 @@ bool ArchiveModuleManager::LoadCommands(const TCHAR* lpFileName)
 
 bool ArchiveModuleManager::LoadTemplates(const TCHAR* lpFileName)
 {
-	TCHAR szNames[4096];
-
-	if ( !GetPrivateProfileSectionNames(szNames, 4096, lpFileName) )
-		return false;
-
 	m_pTemplates.reset();
-	Array<const TCHAR*> names;
 
-	const TCHAR *lpName = szNames;
+	TiXmlDocument doc;
 
-	while ( *lpName )
+	doc.LoadFile((FakeUtf8String)lpFileName);
+
+	TiXmlHandle handle(&doc);
+
+	TiXmlNode* pNode = handle.FirstChild("templates").ToNode();
+
+	if ( pNode )
 	{
-		names.add(lpName);
-		lpName += _tcslen (lpName)+1;
-	}
+		TiXmlNode* pChild = pNode->FirstChild("template");
 
-	for (unsigned int i = 0; i < names.count(); i++)
-	{
-		string strName = names[i];
-		string strParams;
+		while ( pChild )
+		{
+			ArchiveTemplate* pAT = ArchiveTemplate::LoadFromXml(this, pChild);
+			m_pTemplates.add(pAT);
 
-		TCHAR* pBuffer = strParams.GetBuffer(260); //BUGBUG
-		GetPrivateProfileString(strName, _T("Params"), _T(""), pBuffer, 260, lpFileName);
-		strParams.ReleaseBuffer();
-
-		string strConfig;
-
-		pBuffer = strConfig.GetBuffer(260); //BUGBUG
-		GetPrivateProfileString(strName, _T("Config"), _T(""), pBuffer, 260, lpFileName);
-		strConfig.ReleaseBuffer();
-
-		TCHAR szGUID[64];
-		
-		GetPrivateProfileString(strName, _T("ModuleUID"), _T(""), szGUID, 64, lpFileName);
-		GUID uidModule = STR2GUID(szGUID);
-		
-		GetPrivateProfileString(strName, _T("PluginUID"), _T(""), szGUID, 64, lpFileName);
-		GUID uidPlugin = STR2GUID(szGUID);
-		
-		GetPrivateProfileString(strName, _T("FormatUID"), _T(""), szGUID, 64, lpFileName);
-		GUID uidFormat = STR2GUID(szGUID);
-
-		m_pTemplates.add(new ArchiveTemplate(this, strName, strParams, strConfig, uidModule, uidPlugin, uidFormat));
+			pChild = pChild->NextSibling("template");
+		}
 	}
 
 	return true;
@@ -501,21 +472,24 @@ bool ArchiveModuleManager::SaveTemplates(const TCHAR* lpFileName)
 	CutToSlash(strFileName);
 	strFileName += lpFileName;
 
+	TiXmlDocument doc;
+
+	TiXmlElement* root = new TiXmlElement("templates");
+
 	for (unsigned int i = 0; i < m_pTemplates.count(); i++)
 	{
 		ArchiveTemplate* pAT = m_pTemplates[i];
+		TiXmlElement* tpl = new TiXmlElement("template");
 
-		WritePrivateProfileString(pAT->GetName(), _T("Params"), pAT->GetParams(), strFileName);
-		WritePrivateProfileString(pAT->GetName(), _T("Config"), pAT->GetConfig(), strFileName);
-		WritePrivateProfileString(pAT->GetName(), _T("ModuleUID"), GUID2STR(pAT->GetModuleUID()), strFileName);
-		WritePrivateProfileString(pAT->GetName(), _T("PluginUID"), GUID2STR(pAT->GetPluginUID()), strFileName);
-		WritePrivateProfileString(pAT->GetName(), _T("FormatUID"), GUID2STR(pAT->GetFormatUID()), strFileName);
+		pAT->ToXml(*tpl);
+
+		root->LinkEndChild(tpl);
 	}
+
+	doc.LinkEndChild(root);
+	doc.SaveFile((FakeUtf8String)lpFileName);
 
 	return true;
 }
 
-Array<ArchiveTemplate*>& ArchiveModuleManager::GetTemplates()
-{
-	return m_pTemplates;	
-}
+*/

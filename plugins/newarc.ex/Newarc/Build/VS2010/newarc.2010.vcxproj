@@ -379,12 +379,20 @@
     <ClCompile Include="..\..\Source\newarc.Archive.cpp" />
     <ClCompile Include="..\..\Source\newarc.cpp" />
     <ClCompile Include="..\..\Source\newarc.Filter.cpp" />
+    <ClCompile Include="..\..\Source\newarc.FilterEntry.cpp" />
     <ClCompile Include="..\..\Source\newarc.Format.cpp" />
+    <ClCompile Include="..\..\Source\newarc.FormatConfig.cpp" />
+    <ClCompile Include="..\..\Source\newarc.ManagerConfig.cpp" />
     <ClCompile Include="..\..\Source\newarc.Module.cpp" />
     <ClCompile Include="..\..\Source\newarc.ModuleManager.cpp" />
     <ClCompile Include="..\..\Source\newarc.OperationDialog.cpp" />
     <ClCompile Include="..\..\Source\newarc.Panel.cpp" />
     <ClCompile Include="..\..\Source\newarc.Plugin.cpp" />
+    <ClCompile Include="..\..\Source\newarc.Template.cpp" />
+    <ClCompile Include="..\..\Source\tiny\tinystr.cpp" />
+    <ClCompile Include="..\..\Source\tiny\tinyxml.cpp" />
+    <ClCompile Include="..\..\Source\tiny\tinyxmlerror.cpp" />
+    <ClCompile Include="..\..\Source\tiny\tinyxmlparser.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\API\module.hpp" />

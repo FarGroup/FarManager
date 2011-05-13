@@ -4,12 +4,8 @@ FARSTANDARDFUNCTIONS FSF;
 PluginStartupInfo Info;
 
 ArchiveModuleManager* pManager;
-Configuration cfg;
 
-//string strIniFileName;
-
-
-const TCHAR *pCommandNames[11] = {
+const TCHAR* pCommandNames[MAX_COMMANDS] = {
 		_T("Extract"),
 		_T("ExtractWithoutPath"),
 		_T("Test"),
@@ -23,18 +19,6 @@ const TCHAR *pCommandNames[11] = {
 		_T("Add")
 		};
 
-void FindDataToArchiveItem(const FAR_FIND_DATA *src, ArchiveItem *dest)
-{
-	dest->nFileSize = FINDDATA_GET_SIZE_PTR(src);
-	dest->dwFileAttributes = src->dwFileAttributes;
-			
-	memcpy(&dest->ftCreationTime, &src->ftCreationTime, sizeof(FILETIME));
-	memcpy(&dest->ftLastWriteTime, &src->ftLastWriteTime, sizeof(FILETIME));
-	memcpy(&dest->ftLastAccessTime, &src->ftLastAccessTime, sizeof(FILETIME));
-
-	dest->lpFileName = StrDuplicate(FINDDATA_GET_NAME_PTR(src));
-	dest->lpAlternateFileName = NULL;
-}
 
 
 const TCHAR *GUID2STR (const GUID &uid)
@@ -263,7 +247,7 @@ void __stdcall EXP_NAME(SetStartupInfo) (
 
 	pManager = new ArchiveModuleManager(strLanguage);
 
-	cfg.uArchiverOutput = ARCHIVER_OUTPUT_SHOW_ALWAYS;
+	//cfg.uArchiverOutput = ARCHIVER_OUTPUT_SHOW_ALWAYS;
 }
 
 int __stdcall EXP_NAME(ProcessHostFile) (
@@ -280,25 +264,25 @@ int __stdcall EXP_NAME(ProcessHostFile) (
 			);
 }
 
-int __stdcall EXP_NAME(SetDirectory) (
+int __stdcall EXP_NAME(SetDirectory)(
 		ArchivePanel *pPanel,
 		const TCHAR *Dir,
 		int nOpMode
 		)
 {
-	return pPanel->pSetDirectory (
+	return pPanel->pSetDirectory(
 			Dir,
 			nOpMode
 			);
 }
 
-int __stdcall EXP_NAME(ProcessKey) (
+int __stdcall EXP_NAME(ProcessKey)(
 		ArchivePanel *pPanel,
 		int nKey,
 		DWORD dwControlState
 		)
 {
-	return pPanel->pProcessKey (
+	return pPanel->pProcessKey(
 			nKey,
 			dwControlState
 			);
@@ -331,11 +315,11 @@ void __stdcall EXP_NAME(GetPluginInfo) (
 	pi->PluginConfigStringsNumber = 1;
 
 	string strLanguage;
-	apiGetEnvironmentVariable (_T("FARLANG"), strLanguage);
+	apiGetEnvironmentVariable(_T("FARLANG"), strLanguage);
 
 	pManager->SetCurrentLanguage(strLanguage);
 
-	pi->StructSize = sizeof (PluginInfo);
+	pi->StructSize = sizeof(PluginInfo);
 }
 
 #include "dlg/dlgConfigure.cpp"
@@ -348,7 +332,7 @@ int __stdcall EXP_NAME(Configure)(
 		)
 {
 	pManager->LoadIfNeeded();
-	mnuConfigSelect();
+	mnuConfigSelect(pManager->GetConfig());
 	return FALSE;
 }
 

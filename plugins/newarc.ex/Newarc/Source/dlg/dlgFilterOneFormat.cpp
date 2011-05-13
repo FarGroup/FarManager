@@ -51,7 +51,7 @@ void UpdateFormats(FarDialog* D, ArchivePlugin* pPlugin, ArchiveFilterEntry* pFE
 				index = D->ListAddStr(ID_FOF_FORMATLIST, pFormat->GetName());
 				D->ListSetDataEx(ID_FOF_FORMATLIST, index, (void*)pFormat, sizeof(void*));
 
-				if ( pFE && !pFE->bAllFormats && (pFE->uidFormat == pFormat->GetUID()) )
+				if ( pFE && !pFE->IsAllFormats() && pFE->GetFormat() && (pFE->GetFormat()->GetUID() == pFormat->GetUID()) )
 					pos.SelectPos = index;
 			}
 		}
@@ -88,7 +88,7 @@ void UpdatePlugins(FarDialog* D, ArchiveModule* pModule, ArchiveFilterEntry* pFE
 				index = D->ListAddStr(ID_FOF_PLUGINLIST, FSF.PointToName(pPlugin->GetModuleName()));
 				D->ListSetDataEx(ID_FOF_PLUGINLIST, index, (void*)pPlugin, sizeof(void*));
 
-				if ( pFE && !pFE->bAllPlugins && (pFE->uidPlugin == pPlugin->GetUID()) )
+				if ( pFE && !pFE->IsAllPlugins() && pFE->GetPlugin() && (pFE->GetPlugin()->GetUID() == pPlugin->GetUID()) )
 					pos.SelectPos = index;
 			}
 		}
@@ -200,14 +200,16 @@ LONG_PTR __stdcall hndFilterOneFormat(FarDialog* D, int nMsg, int nParam1, LONG_
 		D->ListAddStr(ID_FOF_ACTIONLIST, _T("Process"));
 		D->ListAddStr(ID_FOF_ACTIONLIST, _T("Block"));
 
-		pos.SelectPos = pFE->bExcludeFilter?1:0;
+		pos.SelectPos = pFE->IsExclude()?1:0;
 
 		D->ListSetCurrentPos(ID_FOF_ACTIONLIST, &pos);
 		
 		pos.SelectPos = 0;
 		pos.TopPos = -1;
 
-		Array<ArchiveModule*>& modules = pManager->GetModules();
+		Array<ArchiveModule*> modules;
+		
+		pManager->GetModules(modules);
 
 		for (unsigned int i = 0; i < modules.count(); i++)
 		{
@@ -216,7 +218,7 @@ LONG_PTR __stdcall hndFilterOneFormat(FarDialog* D, int nMsg, int nParam1, LONG_
 			int index = D->ListAddStr(ID_FOF_MODULELIST, FSF.PointToName(pModule->GetModuleName()));
 			D->ListSetDataEx(ID_FOF_MODULELIST, index, (void*)pModule, sizeof(void*));
 
-			if ( pFE && !pFE->bAllModules && (pFE->uidModule == pModule->GetUID()) )
+			if ( pFE && !pFE->IsAllModules() && pFE->GetModule() && (pFE->GetModule()->GetUID() == pModule->GetUID()) )
 				pos.SelectPos = index;
 		}
 
@@ -247,53 +249,37 @@ LONG_PTR __stdcall hndFilterOneFormat(FarDialog* D, int nMsg, int nParam1, LONG_
 			return FALSE;
 		}
 
-		
-
 		FarListPos pos;
 
 		D->ListGetCurrentPos(ID_FOF_ACTIONLIST, &pos);
 
-		pFE->bExcludeFilter = (pos.SelectPos == 1);
+		pFE->SetExclude(pos.SelectPos == 1);
+		pFE->SetName(strName);
+		pFE->SetMask(strMask);
+
+		pFE->SetAllFormats(true);
+		pFE->SetAllModules(true);
+		pFE->SetAllPlugins(true);
 
 		D->ListGetCurrentPos(ID_FOF_MODULELIST, &pos);
-
 		ArchiveModule* pModule = (ArchiveModule*)D->ListGetData(ID_FOF_MODULELIST, pos.SelectPos);
-
-		pFE->strName = strName;
-		pFE->strMask = strMask;
-
-		pFE->bAllFormats = true;
-		pFE->bAllModules = true;
-		pFE->bAllPlugins = true;
-
-		pFE->pModule = NULL;
-		pFE->pPlugin = NULL;
-		pFE->pFormat = NULL;
 
 		if ( pModule )
 		{
+			pFE->SetModule(pModule);
+
 			D->ListGetCurrentPos(ID_FOF_PLUGINLIST, &pos);
 			ArchivePlugin* pPlugin = (ArchivePlugin*)D->ListGetData(ID_FOF_PLUGINLIST, pos.SelectPos);
 
-			pFE->pModule = pModule;
-			pFE->uidModule = pModule->GetUID();
-			pFE->bAllModules = false;
-
 			if ( pPlugin )
 			{
+				pFE->SetPlugin(pPlugin);
+
 				D->ListGetCurrentPos(ID_FOF_FORMATLIST, &pos);
 				ArchiveFormat* pFormat = (ArchiveFormat*)D->ListGetData(ID_FOF_FORMATLIST, pos.SelectPos);
 
-				pFE->pPlugin = pPlugin;
-				pFE->uidPlugin = pPlugin->GetUID();
-				pFE->bAllPlugins = false;
-
 				if ( pFormat )
-				{
-					pFE->bAllFormats = false;
-					pFE->uidFormat = pFormat->GetUID();
-					pFE->pFormat = pFormat;
-				}
+					pFE->SetFormat(pFormat);
 			}
 		}
 
@@ -322,10 +308,10 @@ bool dlgFilterOneFormat(ArchiveFilterEntry* pFE)
 	D.Separator(Y++); //3
 
 	D.Text(5, Y, _T("Name:")); //4
-	D.Edit(15, Y++, 20, pFE->strName); //5
+	D.Edit(15, Y++, 20, pFE->GetName()); //5
 
 	D.Text(5, Y, _T("Mask:")); //6
-	D.Edit(15, Y++, 20, pFE->strMask);  //7
+	D.Edit(15, Y++, 20, pFE->GetMask());  //7
 
 	D.Separator(Y++); //8
 
@@ -343,8 +329,8 @@ bool dlgFilterOneFormat(ArchiveFilterEntry* pFE)
 
 	D.Separator(Y++); //15
 
-	D.CheckBox(5, Y++, pFE->bEnabled, _T("Enabled")); //16
-	D.CheckBox(5, Y++, pFE->bContinue, _T("Continue processing")); //17
+	D.CheckBox(5, Y++, pFE->IsEnabled(), _T("Enabled")); //16
+	D.CheckBox(5, Y++, pFE->IsContinueProcessing(), _T("Continue processing")); //17
 	D.Separator(Y++); //18
 
 	D.Button (-1, Y, _T("Add")); //19
@@ -354,8 +340,8 @@ bool dlgFilterOneFormat(ArchiveFilterEntry* pFE)
 
 	if ( D.Run(hndFilterOneFormat, (void*)pFE) == D.FirstButton() )
 	{
-		pFE->bEnabled = D.GetResultCheck(ID_FOF_ENABLED);
-		pFE->bContinue = D.GetResultCheck(ID_FOF_CONTINUEPROCESSING);
+		pFE->SetEnabled(D.GetResultCheck(ID_FOF_ENABLED));
+		pFE->SetContinueProcessing(D.GetResultCheck(ID_FOF_CONTINUEPROCESSING));
 
 		bResult = true;
 	}

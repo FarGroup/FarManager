@@ -25,7 +25,7 @@ LONG_PTR __stdcall hndAddEditTemplate(
 {
 	ArchiveTemplate *ptpl = (ArchiveTemplate*)D->GetDlgData();
 
-	bool bAdd = StrLength(ptpl->GetName()) == 0; //BUGBUG
+	bool bAdd = StrLength(ptpl->GetName()) == 0;
 
 	if ( nMsg == DN_INITDIALOG )
 	{
@@ -41,17 +41,16 @@ LONG_PTR __stdcall hndAddEditTemplate(
 			ArchiveFormat* pFormat = formats[i];
 
 			string strCommand;
-			bool bEnabled;
 
-			pFormat->GetDefaultCommand(COMMAND_ADD, strCommand, bEnabled);
+			bool bHasAddCommand = pManager->GetCommand(pFormat, COMMAND_ADD, strCommand);
 
-			if ( pFormat->QueryCapability(AFF_SUPPORT_INTERNAL_CREATE) || !strCommand.IsEmpty() )
+			if ( pFormat->QueryCapability(AFF_SUPPORT_INTERNAL_CREATE) || bHasAddCommand )
 			{
 				int index = D->ListAddStr(ID_AET_FORMATLIST, pFormat->GetName());
 
 				D->ListSetDataEx(ID_AET_FORMATLIST, index, (void*)pFormat, sizeof(void*));
 		
-				if ( !bAdd && (ptpl->HasFormat(pFormat)) ) 
+				if ( !bAdd && (ptpl->GetFormat() == pFormat) ) 
 					curpos = pos;
 
 				pos++;

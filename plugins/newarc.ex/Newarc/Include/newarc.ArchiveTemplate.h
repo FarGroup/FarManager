@@ -5,8 +5,6 @@ class ArchiveTemplate {
 
 private:
 
-	bool m_bInvalid;
-
 	string m_strName;
 	string m_strParams;
 
@@ -20,122 +18,25 @@ private:
 
 public:
 
-	const TCHAR* GetName() const
-	{
-		return m_strName;
-	}
+	ArchiveTemplate();
 
-	void SetName(const TCHAR* lpName)
-	{
-		m_strName = lpName;
-	}
+	void Clear();
 
-	const TCHAR* GetParams() const
-	{
-		return m_strParams;
-	}
+	const TCHAR* GetName() const;
+	void SetName(const TCHAR* lpName);
 
-	const TCHAR* GetConfig() const
-	{
-		return m_strConfig;
-	}
+	const TCHAR* GetParams() const;
+	void SetParams(const TCHAR* lpParams);
 
-	void SetConfig(const TCHAR* lpConfig)
-	{
-		m_strConfig = lpConfig;
-	}
+	const TCHAR* GetConfig() const;
+	void SetConfig(const TCHAR* lpConfig);
 
-	void SetParams(const TCHAR* lpParams)
-	{
-		m_strParams = lpParams;
-	}
+	ArchiveFormat* GetFormat();
+	void SetFormat(ArchiveFormat* pFormat);
 
-	const GUID& GetModuleUID() const
-	{
-		return m_uidModule;
-	}
-	
-	const GUID& GetPluginUID() const
-	{
-		return m_uidPlugin;
-	}
+	bool IsValid() const;
 
-	const GUID& GetFormatUID() const
-	{
-		return m_uidFormat;
-	}
-
-	bool IsValid() const
-	{
-		return !m_bInvalid;
-	}
-
-	ArchiveTemplate()
-	{
-		m_bInvalid = true;
-	}
-
-	void SetData(
-			ArchiveModuleManager* pManager,
-			const TCHAR* lpName,
-			const TCHAR* lpParams,
-			const TCHAR* lpConfig,
-			const GUID& uidModule,
-			const GUID& uidPlugin,
-			const GUID& uidFormat
-			)
-	{
-		m_strName = lpName;
-		m_strParams = lpParams;
-		m_strConfig = lpConfig;
-
-		m_uidModule = uidModule;
-		m_uidPlugin = uidPlugin;
-		m_uidFormat = uidFormat;
-
-		m_pFormat = pManager->GetFormat(uidModule, uidPlugin, uidFormat);
-
-		m_bInvalid = (m_pFormat == NULL);
-	}
-
-	ArchiveTemplate(
-			ArchiveModuleManager* pManager,
-			const TCHAR* lpName,
-			const TCHAR* lpParams,
-			const TCHAR* lpConfig,
-			const GUID& uidModule,
-			const GUID& uidPlugin,
-			const GUID& uidFormat
-			)
-	{
-		SetData(pManager, lpName, lpParams, lpConfig, uidModule, uidPlugin, uidFormat);
-	}
-
-	~ArchiveTemplate()
-	{
-	}
-
-	void SetFormat(ArchiveFormat* pFormat)
-	{
-		m_bInvalid = false;
-
-		m_pFormat = pFormat;
-
-		m_uidFormat = pFormat->GetUID();
-		m_uidPlugin = pFormat->GetPlugin()->GetUID();
-		m_uidModule = pFormat->GetModule()->GetUID();
-	}
-
-	ArchiveFormat* GetFormat() const
-	{
-		return m_pFormat;
-	}
-
-	bool HasFormat(ArchiveFormat* pFormat)
-	{
-		return ((m_uidFormat == pFormat->GetUID()) &&
-				(m_uidPlugin == pFormat->GetPlugin()->GetUID()) &&
-				(m_uidModule == pFormat->GetModule()->GetUID()));
-	}
+	static ArchiveTemplate* FromXml(ArchiveModuleManager* pManager, TiXmlNode& node); //pNode == <template name="">
+	void ToXml(TiXmlNode& node);
 
 };

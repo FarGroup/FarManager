@@ -1,12 +1,3 @@
-//pFormat->GetDefaultCommand(command, strCommand, bEnabled); \
-
-
-#define DECLARE_COMMAND(str, command) \
-	{\
-		D.CheckBox(5, Y, bEnabled); \
-		D.Text (9, Y, str); \
-		D.Edit (33, Y++, 42, cfg.pArchiveCommands->Commands[command]); \
-	}
 
 LONG_PTR __stdcall hndCommandLinesAndParams(FarDialog* D, int nMsg, int nParam1, LONG_PTR nParam2)
 {
@@ -25,7 +16,6 @@ LONG_PTR __stdcall hndCommandLinesAndParams(FarDialog* D, int nMsg, int nParam1,
 
 				pFormat->GetDefaultCommand(i, strCommand, bEnabled);
 
-
 				D->SetCheck(uStartIndex, bEnabled?BSTATE_CHECKED:BSTATE_UNCHECKED);
 				D->SetTextPtr(uStartIndex+2, strCommand);
 
@@ -39,14 +29,11 @@ LONG_PTR __stdcall hndCommandLinesAndParams(FarDialog* D, int nMsg, int nParam1,
 	return D->DefDlgProc(nMsg, nParam1, nParam2);
 }
 
-void dlgCommandLinesAndParams(ArchiveFormat* pFormat)
+void dlgCommandLinesAndParams(ArchiveManagerConfig* pCfg, ArchiveFormat* pFormat)
 {
 	int nHeight = 19;
 	int Y = 2;
 
-//	bool bEnabled = false;
-
-//	string strCommand;
 	string strTitle;
 
 	FarDialog D(-1, -1, 79, nHeight);
@@ -54,23 +41,16 @@ void dlgCommandLinesAndParams(ArchiveFormat* pFormat)
 	strTitle.Format(_M(MCommandLinesAndParamsTitleDialog), pFormat->GetName());
 
 	D.DoubleBox (3, 1, 75, nHeight-2, strTitle); //0
-
-	ArchiveFormatCommands* pCommands = nullptr;
-	std::map<const ArchiveFormat*, ArchiveFormatCommands*>::iterator itr = cfg.pArchiveCommands.find(pFormat);
-
-	if ( itr != cfg.pArchiveCommands.end() )
-		pCommands = itr->second;
+	
+	ArchiveFormatConfig* pCurrentCfg = pCfg->GetFormatConfig(pFormat);
 
 	for (int i = 0; i < MAX_COMMANDS; i++)
 	{
 		bool bEnabled;
 		string strCommand;
 
-		if ( pCommands ) 
-		{
-			strCommand = pCommands->Commands[i].strCommand;
-			bEnabled = pCommands->Commands[i].bEnabled;
-		}
+		if ( pCurrentCfg ) 
+			pCurrentCfg->GetCommand(i, strCommand, bEnabled);
 		else
 			pFormat->GetDefaultCommand(i, strCommand, bEnabled);
 
@@ -98,29 +78,21 @@ void dlgCommandLinesAndParams(ArchiveFormat* pFormat)
 
 	if ( D.Run(hndCommandLinesAndParams, (void*)pFormat) == D.FirstButton() )
 	{
+		ArchiveFormatConfig* pNewCfg = pCurrentCfg?pCurrentCfg:(new ArchiveFormatConfig);
+
+		pNewCfg->SetFormat(pFormat);
+
 		unsigned int uStartIndex = 1;
 
 		for (unsigned int i = 0; i < MAX_COMMANDS; i++)
 		{
-			if ( pCommands )
-			{
-				pCommands->Commands[i].bEnabled = D.GetCheck(uStartIndex);
-				pCommands->Commands[i].strCommand = D.GetResultData(uStartIndex+2);
-			}
-			else
-			{
-				pCommands = new ArchiveFormatCommands;
-
-				pCommands->pFormat = pFormat;
-				pCommands->Commands[i].bEnabled = D.GetCheck(uStartIndex);
-				pCommands->Commands[i].strCommand = D.GetResultData(uStartIndex+2);
-
-				cfg.pArchiveCommands.insert(std::pair<const ArchiveFormat*, ArchiveFormatCommands*>(pFormat, pCommands));
-			}
-
+			pNewCfg->SetCommand(i, D.GetResultData(uStartIndex+2), D.GetCheck(uStartIndex));
 			uStartIndex += 3;
 		}
 
-		pManager->SaveCommands(_T("commands.ini")); //не место этому тут
+		if ( !pCurrentCfg )
+			pCfg->AddFormatConfig(pNewCfg);
+
+		pCfg->Save(SAVE_CONFIGS);
 	}
 }

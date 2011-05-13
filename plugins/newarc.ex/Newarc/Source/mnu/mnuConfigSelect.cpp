@@ -1,6 +1,6 @@
 #include "../dlg/dlgArchiveFilter.cpp"
 
-void mnuConfigSelect()
+void mnuConfigSelect(ArchiveManagerConfig* pCfg)
 {
 	FarMenu menu(_M(MPluginTitle));
 
@@ -13,24 +13,17 @@ void mnuConfigSelect()
 		int nResult = menu.Run();
 
 		if ( nResult == 0 )
-			dlgConfigure(cfg);
+			dlgConfigure(pCfg);
 		else
 		
 		if ( nResult == 1 )
-			mnuCommandLinesAndParams();
+			mnuCommandLinesAndParams(pCfg);
 		else
 
 		if ( nResult == 2 )
 		{
-			if ( dlgArchiveFilter(pManager->GetFilter()) )
-			{
-				string strFilters = Info.ModuleName;
-				CutToSlash(strFilters);
-
-				strFilters += _T("filters.ini");
-
-				pManager->GetFilter()->Save(strFilters);
-			}
+			if ( dlgArchiveFilter(pCfg, pCfg->GetFilter()) )
+				pCfg->Save(SAVE_FILTER);
 		}
 		else
 			break;

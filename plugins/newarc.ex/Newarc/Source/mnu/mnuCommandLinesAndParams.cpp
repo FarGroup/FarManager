@@ -1,5 +1,5 @@
 
-void mnuCommandLinesAndParams()
+void mnuCommandLinesAndParams(ArchiveManagerConfig* pCfg)
 {
 	Array<ArchiveFormat*> formats;
 	pManager->GetFormats(formats);
@@ -21,7 +21,7 @@ void mnuCommandLinesAndParams()
 		if ( nResult != -1 )
 		{
 			ArchiveFormat* pFormat = (ArchiveFormat*)menu.GetData(nResult);
-			dlgCommandLinesAndParams(pFormat);
+			dlgCommandLinesAndParams(pCfg, pFormat);
 		}
 		else
 			break;

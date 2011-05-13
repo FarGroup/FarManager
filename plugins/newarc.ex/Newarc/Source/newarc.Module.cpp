@@ -250,7 +250,7 @@ bool ArchiveModule::GetDefaultCommand(
 	GDC.uidFormat = uidFormat;
 
 
-	if ( (m_pfnModuleEntry (FID_GETDEFAULTCOMMAND, (void*)&GDC) == NAERROR_SUCCESS) && GDC.bResult )
+	if ( (m_pfnModuleEntry(FID_GETDEFAULTCOMMAND, (void*)&GDC) == NAERROR_SUCCESS) && GDC.bResult )
 	{
 		strCommand = GDC.lpCommand;
 		bEnabled = GDC.bEnabled;

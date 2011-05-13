@@ -47,7 +47,10 @@ void SetFormatTitle(FarDialog *D)
 
 void SetTemplate(FarDialog *D, ArchiveTemplate *ptpl = NULL)
 {
-	Array<ArchiveTemplate*>& templates = pManager->GetTemplates();
+	ArchiveManagerConfig* pCfg = pManager->GetConfig();
+
+	Array<ArchiveTemplate*> templates;
+	pCfg->GetTemplates(templates);
 
 	static bool bInit = false;
 
@@ -109,14 +112,17 @@ void SetTemplate(FarDialog *D, ArchiveTemplate *ptpl = NULL)
 
 
 
-LONG_PTR __stdcall hndModifyCreateArchive (
+LONG_PTR __stdcall hndModifyCreateArchive(
 		FarDialog *D,
 		int nMsg,
 		int nParam1,
 		LONG_PTR nParam2
 		)
 {
-	Array<ArchiveTemplate*>& templates = pManager->GetTemplates();
+	ArchiveManagerConfig* pCfg = pManager->GetConfig();
+
+	Array<ArchiveTemplate*> templates;
+	pCfg->GetTemplates(templates);
 
 	if ( nMsg == DN_INITDIALOG )
 	{
@@ -129,11 +135,9 @@ LONG_PTR __stdcall hndModifyCreateArchive (
 			ArchiveFormat* pFormat = formats[i];
 
 			string strCommand;
-			bool bEnabled;
+			bool bHasAddCommand = pManager->GetCommand(pFormat, COMMAND_ADD, strCommand);
 
-			pFormat->GetDefaultCommand(COMMAND_ADD, strCommand, bEnabled);
-
-			if ( pFormat->QueryCapability(AFF_SUPPORT_INTERNAL_CREATE) || !strCommand.IsEmpty() )
+			if ( pFormat->QueryCapability(AFF_SUPPORT_INTERNAL_CREATE) || bHasAddCommand )
 			{
 				int index = D->ListAddStr(ID_MCA_FORMATLIST, pFormat->GetName());
 				D->ListSetDataEx(ID_MCA_FORMATLIST, index, (void*)pFormat, sizeof(void*));
@@ -157,11 +161,10 @@ LONG_PTR __stdcall hndModifyCreateArchive (
 
 			if ( dlgAddEditTemplate(ptpl, true) )
 			{
-				templates.add(ptpl);
-
 				SetTemplate(D, ptpl);
 
-				pManager->SaveTemplates(_T("templates.ini"));
+				pCfg->AddTemplate(ptpl);
+				pCfg->Save(SAVE_TEMPLATES);
 			}
 			else
 				delete ptpl;
@@ -171,10 +174,10 @@ LONG_PTR __stdcall hndModifyCreateArchive (
 		{
 			int iPos = D->ListGetCurrentPos(ID_MCA_TEMPLATELIST, NULL);
 
-			templates.remove(iPos);
-
 			SetTemplate(D);
-			pManager->SaveTemplates(_T("templates.ini"));
+
+			pCfg->RemoveTemplate(templates[iPos]);
+			pCfg->Save(SAVE_TEMPLATES);
 		}
 
 		if ( (nParam1 == ID_MCA_EDIT) && templates.count() )
@@ -184,7 +187,8 @@ LONG_PTR __stdcall hndModifyCreateArchive (
 			if ( dlgAddEditTemplate(templates[iPos], false) )
 			{
 				SetTemplate(D);
-				pManager->SaveTemplates(_T("templates.ini"));
+
+				pCfg->Save(SAVE_TEMPLATES);
 			}
 		}
 	}
@@ -235,8 +239,7 @@ LONG_PTR __stdcall hndModifyCreateArchive (
 	{
 		if ( nParam1 == ID_MCA_CANCEL+1 ) //BUGBUG, да вы прикалываетесь
 		{
-			ArchiveModule* pModule = nullptr;
-			GUID uidPlugin, uidFormat;
+			ArchiveFormat* pFormat = nullptr;
 			const TCHAR* lpInitialConfig = nullptr;
 
 			if ( D->GetCheck(ID_MCA_TEMPLATE) == BSTATE_CHECKED )
@@ -247,11 +250,7 @@ LONG_PTR __stdcall hndModifyCreateArchive (
 				{
 					ArchiveTemplate *pTemplate = templates[pos];
 
-					pModule = pManager->GetModule(pTemplate->GetModuleUID());
-					
-					uidPlugin = pTemplate->GetPluginUID();
-					uidFormat = pTemplate->GetFormatUID();
-
+					pFormat = pTemplate->GetFormat();
 					lpInitialConfig = pTemplate->GetConfig();
 				}
 			}
@@ -260,23 +259,15 @@ LONG_PTR __stdcall hndModifyCreateArchive (
 				int pos = D->ListGetCurrentPos(ID_MCA_FORMATLIST, NULL);
 
 				if ( pos != -1 )
-				{
-					ArchiveFormat* pFormat = (ArchiveFormat*)D->ListGetData(ID_MCA_FORMATLIST, pos);
-
-					pModule = pFormat->GetModule();
-
-					uidFormat = pFormat->GetUID();
-					uidPlugin = pFormat->GetPlugin()->GetUID();
-				}
+					 pFormat = (ArchiveFormat*)D->ListGetData(ID_MCA_FORMATLIST, pos);
 			}
 
 			string strConfig;
 
-			if ( pModule != nullptr )
-				pModule->ConfigureFormat(uidPlugin, uidFormat, lpInitialConfig, strConfig);
+			if ( pFormat != nullptr )
+				pFormat->Configure(lpInitialConfig, strConfig);
 
-
-			ArchiveTemplate *ptpl = (ArchiveTemplate*)D->GetDlgData ();
+			ArchiveTemplate *ptpl = (ArchiveTemplate*)D->GetDlgData();
 
 			ptpl->SetConfig(strConfig);
 
@@ -306,15 +297,10 @@ LONG_PTR __stdcall hndModifyCreateArchive (
 				{
 					ArchiveTemplate *pSrc = templates[pos];
 
-					ptpl->SetData(
-							pManager, 
-							pSrc->GetName(), 
-							pSrc->GetParams(),
-							pSrc->GetConfig(),
-							pSrc->GetModuleUID(),
-							pSrc->GetPluginUID(),
-							pSrc->GetFormatUID()
-							);
+					ptpl->SetName(pSrc->GetName());
+					ptpl->SetParams(pSrc->GetParams());
+					ptpl->SetConfig(pSrc->GetConfig());
+					ptpl->SetFormat(pSrc->GetFormat());
 				}
 			}
 			else

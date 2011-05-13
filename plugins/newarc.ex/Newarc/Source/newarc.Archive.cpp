@@ -358,10 +358,10 @@ ArchivePlugin* Archive::GetPlugin()
 bool Archive::GetDefaultCommand(
 		int nCommand,
 		string& strCommand,
-		bool& bEnabledByDefault
+		bool& bEnabled
 		)
 {
-	return m_pModule->GetDefaultCommand(GetPlugin()->GetUID(), m_uid, nCommand, strCommand, bEnabledByDefault);
+	return m_pModule->GetDefaultCommand(GetPlugin()->GetUID(), m_uid, nCommand, strCommand, bEnabled);
 }
 
 int Archive::ExecuteAsOperation(

@@ -105,3 +105,4 @@ char* AnsiToUTF8(const char* lpSrc, int CodePage = CP_OEMCP);
 
 wchar_t* UTF8ToUnicode(const char* lpSrc);
 char* UTF8ToAnsi(const char* lpSrc, int CodePage = CP_OEMCP);
+
