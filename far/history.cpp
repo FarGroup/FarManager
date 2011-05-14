@@ -334,7 +334,8 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 			}
 
 			HistoryMenu.GetSelectPos(&Pos);
-			unsigned __int64 CurrentRecord = *static_cast<unsigned __int64*>(HistoryMenu.GetUserData(nullptr, 0,Pos.SelectPos));
+			void* Data = HistoryMenu.GetUserData(nullptr, 0,Pos.SelectPos);
+			unsigned __int64 CurrentRecord = Data? *static_cast<unsigned __int64*>(Data) : 0;
 
 			switch (Key)
 			{
