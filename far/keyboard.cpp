@@ -620,7 +620,32 @@ void ReloadEnvironment()
 	Opt.strRegRoot=strOptRegRoot;
 }
 
+#if defined(MANTIS_0001687)
+DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool AllowSynchro);
+
 DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool AllowSynchro)
+{
+	DWORD Key = __GetInputRecord(rec,ExcludeMacro,ProcessMouse,AllowSynchro);
+
+	if (Key)
+	{
+		if (CtrlObject)
+		{
+			ProcessConsoleInputInfo Info={sizeof(Info),PCIF_NONE,rec};
+			//Info.hPanel
+			if (WaitInMainLoop)
+				Info.Flags|=PCIF_FROMMAIN;
+			if (CtrlObject->Plugins.ProcessConsoleInput(&Info))
+				Key=KEY_NONE;
+		}
+	}
+	return Key;
+}
+
+static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool AllowSynchro)
+#else
+static DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool AllowSynchro)
+#endif
 {
 	_KEYMACRO(CleverSysLog Clev(L"GetInputRecord()"));
 	static int LastEventIdle=FALSE;

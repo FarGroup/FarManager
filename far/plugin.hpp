@@ -2485,11 +2485,17 @@ struct ProcessEditorInputInfo
 
 #ifdef FAR_USE_INTERNALS
 #if defined(MANTIS_0001687)
+typedef unsigned __int64 PROCESSCONSOLEINPUT_FLAGS;
+static const PROCESSCONSOLEINPUT_FLAGS
+	PCIF_NONE            =0,
+	PCIF_FROMMAIN        =0x0000000000000001ULL;
+
 struct ProcessConsoleInputInfo
 {
 	size_t StructSize;
-	const INPUT_RECORD *RecIn;
-	INPUT_RECORD *RecOut;
+	PROCESSCONSOLEINPUT_FLAGS Flags;
+	const INPUT_RECORD *Rec;
+	HANDLE hPanel;
 };
 #endif
 #endif // END FAR_USE_INTERNALS
@@ -2521,15 +2527,15 @@ extern "C"
 	int    WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *Info);
 	int    WINAPI ProcessEventW(HANDLE hPanel,int Event,void *Param);
 	int    WINAPI ProcessHostFileW(const struct ProcessHostFileInfo *Info);
-	int    WINAPI ProcessPanelInputW(HANDLE hPanel,const ProcessPanelInputInfo *Info);
+	int    WINAPI ProcessPanelInputW(HANDLE hPanel,const struct ProcessPanelInputInfo *Info);
 #ifdef FAR_USE_INTERNALS
 #if defined(MANTIS_0000466)
-	int    WINAPI ProcessMacroW(const ProcessMacroInfo *Info);
+	int    WINAPI ProcessMacroW(const struct ProcessMacroInfo *Info);
 #endif
 #endif // END FAR_USE_INTERNALS
 #ifdef FAR_USE_INTERNALS
 #if defined(MANTIS_0001687)
-	int    WINAPI ProcessConsoleInputW(ProcessConsoleInputInfo *Info);
+	int    WINAPI ProcessConsoleInputW(struct ProcessConsoleInputInfo *Info);
 #endif
 #endif // END FAR_USE_INTERNALS
 	int    WINAPI ProcessSynchroEventW(int Event,void *Param);

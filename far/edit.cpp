@@ -632,15 +632,15 @@ __int64 Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 					{
 						case 0:  // selection start
 						{
-							MSelStart=GetCurPos();
+							MSelStart=GetTabCurPos();
 							return 1;
 						}
 						case 1:  // selection finish
 						{
 							if (MSelStart != -1)
 							{
-								if (MSelStart != GetCurPos())
-									Select(MSelStart,GetCurPos());
+								if (MSelStart != GetTabCurPos())
+									Select(MSelStart,GetTabCurPos());
 								else
 									Select(-1,0);
 
