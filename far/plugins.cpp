@@ -802,10 +802,19 @@ HANDLE PluginManager::OpenFilePlugin(
 		{
 			HANDLE h = pResult->pPlugin->Open(OPEN_ANALYSE, FarGuid, 0);
 
-			if (h != INVALID_HANDLE_VALUE)
-				pResult->hPlugin = h;
-			else
+			if (h == (HANDLE)-2)
+			{
+				hResult = (HANDLE)-2;
 				pResult = nullptr;
+			}
+			else if (h != INVALID_HANDLE_VALUE)
+			{
+				pResult->hPlugin = h;
+			}
+			else
+			{
+				pResult = nullptr;
+			}
 		}
 	}
 
