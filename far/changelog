@@ -1,3 +1,9 @@
+drkns 16.05.2011 20:41:14 +0200 - build 2032
+
+1. Handle leak при отсоединении виртуальных дисков.
+
+2. Mantis#0001769: Ошибка в DM_EDITUNCHANGEDFLAG(id,-1)
+
 t-rex 15.05.2011 20:10:24 +0200 - build 2031
 
 1. В OpenW(OPEN_ANALYSE) можно вернуть -2 как и раньше в OpenFilePluginW.

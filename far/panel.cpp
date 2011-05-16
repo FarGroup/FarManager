@@ -1242,14 +1242,9 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
 				HANDLE Handle;
 				if(ifn.pfnOpenVirtualDisk(&vst, strVhdPath, VIRTUAL_DISK_ACCESS_DETACH, OPEN_VIRTUAL_DISK_FLAG_NONE, &ovdp, &Handle) == ERROR_SUCCESS)
 				{
-					if(ifn.pfnDetachVirtualDisk(Handle, DETACH_VIRTUAL_DISK_FLAG_NONE, 0) == ERROR_SUCCESS)
-					{
-						return DRIVE_DEL_SUCCESS;
-					}
-					else
-					{
-						return DRIVE_DEL_FAIL;
-					}
+					int Result = ifn.pfnDetachVirtualDisk(Handle, DETACH_VIRTUAL_DISK_FLAG_NONE, 0) == ERROR_SUCCESS? DRIVE_DEL_SUCCESS : DRIVE_DEL_FAIL;
+					CloseHandle(Handle);
+					return Result;
 				}
 			}
 		}

@@ -6199,7 +6199,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 				DlgEdit *EditLine=(DlgEdit *)(CurItem->ObjPtr);
 				int ClearFlag=EditLine->GetClearFlag();
 
-				if (Param2 >= 0)
+				if (reinterpret_cast<INT_PTR>(Param2) >= 0)
 				{
 					EditLine->SetClearFlag(static_cast<int>(reinterpret_cast<INT_PTR>(Param2)));
 					EditLine->Select(-1,0); // снимаем выделение
