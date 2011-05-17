@@ -252,7 +252,7 @@ void CopyProgress::Flush()
 
 		if (Total || (TotalFilesToProcess==1))
 		{
-			CopyTitle.Set(L"{%d%%} %s",Total?ToPercent64(TotalCopiedSize>>8,TotalCopySize>>8):Percents,Move?MSG(MCopyMovingTitle):MSG(MCopyCopyingTitle));
+			CopyTitle << L"{" << (Total?ToPercent64(TotalCopiedSize>>8,TotalCopySize>>8):Percents) << L"%} " << MSG(Move? MCopyMovingTitle : MCopyCopyingTitle);
 		}
 	}
 }

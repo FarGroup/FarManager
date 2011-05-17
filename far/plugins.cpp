@@ -704,7 +704,7 @@ HANDLE PluginManager::OpenFilePlugin(
 		if (pPlugin->HasOpenFilePlugin())
 		{
 			if (Opt.ShowCheckingFile)
-				ct.Set(L"%s - [%s]...",MSG(MCheckingFileInPlugin),PointToName(pPlugin->GetModuleName()));
+				ct << MSG(MCheckingFileInPlugin) << L" - [" << PointToName(pPlugin->GetModuleName()) << L"]...";
 
 			if (Type == OFP_ALTERNATIVE)
 			{
@@ -791,7 +791,7 @@ HANDLE PluginManager::OpenFilePlugin(
 			if (menu.GetExitCode() == -1)
 				hResult = (HANDLE)-2;
 			else
-				pResult = (PluginHandle*)menu.GetUserData(nullptr, 0);
+				pResult = *static_cast<PluginHandle**>(menu.GetUserData(nullptr, 0));
 		}
 		else
 		{

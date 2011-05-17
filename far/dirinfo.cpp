@@ -170,7 +170,7 @@ int GetDirInfo(const wchar_t *Title,
 		{
 			StartTime=CurTime;
 			MsgWaitTime=500;
-			OldTitle.Set(L"%s %s",MSG(MScanningFolder), ShowDirName); // покажем заголовок консоли
+			OldTitle << MSG(MScanningFolder) << L" " << ShowDirName; // покажем заголовок консоли
 			SetCursorType(FALSE,0);
 			DrawGetDirInfoMsg(Title,ShowDirName,&FileSize);
 		}

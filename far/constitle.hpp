@@ -33,21 +33,19 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class ConsoleTitle
+class ConsoleTitle:NonCopyable, public BaseFormat
 {
-	private:
-		string strOldTitle;
-		static bool TitleModified;
-		static DWORD ShowTime;
+public:
+	ConsoleTitle(const wchar_t *title=nullptr);
+	~ConsoleTitle();
 
-	public:
-		ConsoleTitle(const wchar_t *title=nullptr);
-		~ConsoleTitle();
+	static void SetFarTitle(const wchar_t *Title, bool Force=false);
+	static bool WasTitleModified() { return TitleModified; }
 
-	public:
-		void Set(const wchar_t *fmt,...);
+private:
+	virtual void Commit(const string& Data);
 
-	public:
-		static void SetFarTitle(const wchar_t *Title, bool Force=false);
-		static bool WasTitleModified() { return TitleModified; }
+	string strOldTitle;
+	static bool TitleModified;
+	static DWORD ShowTime;
 };

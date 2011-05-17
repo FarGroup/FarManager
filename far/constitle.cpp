@@ -97,7 +97,7 @@ ConsoleTitle::ConsoleTitle(const wchar_t *title)
 	Console.GetTitle(strOldTitle);
 
 	if (title)
-		ConsoleTitle::SetFarTitle(title, true);
+		SetFarTitle(title, true);
 }
 
 ConsoleTitle::~ConsoleTitle()
@@ -113,18 +113,12 @@ ConsoleTitle::~ConsoleTitle()
 			strOldTitle.SetLength(OldLen-AddonsLen);
 	}
 
-	ConsoleTitle::SetFarTitle(strOldTitle, true);
+	SetFarTitle(strOldTitle, true);
 }
 
-void ConsoleTitle::Set(const wchar_t *fmt, ...)
+void ConsoleTitle::Commit(const string& Data)
 {
-	CriticalSectionLock Lock(TitleCS);
-	wchar_t msg[2048];
-	va_list argptr;
-	va_start(argptr, fmt);
-	_vsnwprintf(msg, ARRAYSIZE(msg)-1, fmt, argptr);
-	va_end(argptr);
-	SetFarTitle(msg);
+	SetFarTitle(Data);
 }
 
 void ConsoleTitle::SetFarTitle(const wchar_t *Title, bool Force)
