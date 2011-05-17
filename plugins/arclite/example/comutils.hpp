@@ -475,3 +475,35 @@ public:
     return *this;
   }
 };
+
+// stream reader/writer (read comments in IStream.h for explanation)
+
+const UInt32 c_max_chunk_size = 1024 * 1024; // max. number of bytes to read/write at a time 
+
+inline UInt32 read_stream(ISequentialInStream* stream, void* data, UInt32 size) {
+  UInt32 pos = 0;
+  while (pos < size) {
+    UInt32 chunk_size = size - pos;
+    if (chunk_size > c_max_chunk_size)
+      chunk_size = c_max_chunk_size;
+    UInt32 size_read;
+    CHECK_COM(stream->Read(static_cast<Byte*>(data) + pos, chunk_size, &size_read));
+    if (size_read == 0) // end of stream
+      break;
+    pos += size_read;
+  }
+  return pos;
+}
+
+inline void write_stream(ISequentialOutStream* stream, const void* data, UInt32 size) {
+  UInt32 pos = 0;
+  while (pos < size) {
+    UInt32 chunk_size = size - pos;
+    if (chunk_size > c_max_chunk_size)
+      chunk_size = c_max_chunk_size;
+    UInt32 size_written;
+    CHECK_COM(stream->Write(static_cast<const Byte*>(data) + pos, chunk_size, &size_written));
+    CHECK(size_written);
+    pos += size_written;
+  }
+}

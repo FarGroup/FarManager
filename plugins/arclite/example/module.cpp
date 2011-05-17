@@ -107,15 +107,12 @@ public:
     open_archive_callback->SetTotal(nullptr, &file_size);
 
     char sig_buf[c_sig_size];
-    UInt32 size_read;
-    CHECK_COM(in_stream->Read(sig_buf, c_sig_size, &size_read));
-    if (size_read != c_sig_size)
+    if (read_stream(in_stream, sig_buf, c_sig_size) != c_sig_size)
       return S_FALSE;
     if (memcmp(c_sig, sig_buf, c_sig_size) != 0)
       return S_FALSE;
 
-    CHECK_COM(in_stream->Read(&comp_level, sizeof(comp_level), &size_read));
-    if (size_read != sizeof(comp_level))
+    if (read_stream(in_stream, &comp_level, sizeof(comp_level)) != sizeof(comp_level))
       return S_FALSE;
 
     UInt64 file_count = 0;
@@ -125,7 +122,7 @@ public:
     while (true) {
       FileInfo file_info;
       UInt32 path_size;
-      CHECK_COM(in_stream->Read(&path_size, sizeof(path_size), &size_read));
+      UInt32 size_read = read_stream(in_stream, &path_size, sizeof(path_size));
       if (size_read == 0)
         break;
       if (size_read != sizeof(path_size))
@@ -136,13 +133,11 @@ public:
         path_buf_size = path_size;
         path_buf.reset(new wchar_t[path_buf_size]);
       }
-      CHECK_COM(in_stream->Read(path_buf.get(), path_size * sizeof(wchar_t), &size_read));
-      if (size_read != path_size * sizeof(wchar_t))
+      if (read_stream(in_stream, path_buf.get(), path_size * sizeof(wchar_t)) != path_size * sizeof(wchar_t))
         return S_FALSE;
       file_info.path.assign(path_buf.get(), path_size);
 
-      CHECK_COM(in_stream->Read(&file_info.size, sizeof(file_info.size), &size_read));
-      if (size_read != sizeof(file_info.size))
+      if (read_stream(in_stream, &file_info.size, sizeof(file_info.size)) != sizeof(file_info.size))
         return S_FALSE;
       CHECK_COM(in_stream->Seek(0, STREAM_SEEK_CUR, &file_info.offset));
       UInt64 file_pos;
@@ -225,9 +220,9 @@ public:
     COM_ERROR_HANDLER_END
   }
 
-  STDMETHODIMP Extract(const UInt32* indices, UInt32 num_items, Int32 testMode, IArchiveExtractCallback* extract_callback) {
+  STDMETHODIMP Extract(const UInt32* indices, UInt32 num_items, Int32 test_mode, IArchiveExtractCallback* extract_callback) {
     COM_ERROR_HANDLER_BEGIN
-    Int32 ask_extract_mode = testMode ? NArchive::NExtract::NAskMode::kTest : NArchive::NExtract::NAskMode::kExtract;
+    Int32 ask_extract_mode = test_mode ? NArchive::NExtract::NAskMode::kTest : NArchive::NExtract::NAskMode::kExtract;
     // num_items == -1 means extract all items
     UInt32 total_items = num_items != -1 ? num_items : files.size();
     UInt64 total_size = 0;
@@ -245,14 +240,13 @@ public:
       ComObject<ISequentialOutStream> file_stream;
       CHECK_COM(extract_callback->GetStream(file_index, file_stream.ref(), ask_extract_mode));
       // client may decide to skip file
-      if (!file_stream && !testMode)
+      if (!file_stream && !test_mode)
         continue;
 
       CHECK_COM(extract_callback->PrepareOperation(ask_extract_mode)); //???
       const FileInfo& file_info = files[file_index];
       const UInt32 c_buffer_size = 1024 * 1024;
       unique_ptr<unsigned char[]> buffer(new unsigned char[c_buffer_size]);
-      UInt32 size_read, size_written;
       UInt64 total_size_read = 0;
       CHECK_COM(in_stream->Seek(file_info.offset, STREAM_SEEK_SET, nullptr));
       while (true) {
@@ -261,12 +255,11 @@ public:
           size = static_cast<UInt32>(file_info.size - total_size_read);
         if (size == 0)
           break;
-        CHECK_COM(in_stream->Read(buffer.get(), size, &size_read));
+        UInt32 size_read = read_stream(in_stream, buffer.get(), size);
         CHECK(size_read == size);
         total_size_read += size_read;
-        if (!testMode) {
-          CHECK_COM(file_stream->Write(buffer.get(), size_read, &size_written));
-          CHECK(size_written == size_read);
+        if (!test_mode) {
+          write_stream(file_stream, buffer.get(), size_read);
         }
         total_size += size_read;
         extract_callback->SetCompleted(&total_size); // progress reporting
@@ -360,12 +353,9 @@ public:
     }
     update_callback->SetTotal(total_size);
 
-    UInt32 size_written;
-    CHECK_COM(out_stream->Write(c_sig, c_sig_size, &size_written));
-    CHECK(size_written == c_sig_size);
+    write_stream(out_stream, c_sig, c_sig_size);
 
-    CHECK_COM(out_stream->Write(&comp_level, sizeof(comp_level), &size_written));
-    CHECK(size_written == sizeof(comp_level));
+    write_stream(out_stream, &comp_level, sizeof(comp_level));
 
     total_size = 0;
     for (auto iter = new_files.begin(); iter != new_files.end(); iter++) {
@@ -378,27 +368,22 @@ public:
       }
        
       UInt32 path_size = file_info.path.size();
-      CHECK_COM(out_stream->Write(&path_size, sizeof(path_size), &size_written));
-      CHECK(size_written == sizeof(path_size));
-      CHECK_COM(out_stream->Write(file_info.path.data(), file_info.path.size() * sizeof(wchar_t), &size_written));
-      CHECK(size_written == file_info.path.size() * sizeof(wchar_t));
+      write_stream(out_stream, &path_size, sizeof(path_size));
+      write_stream(out_stream, file_info.path.data(), file_info.path.size() * sizeof(wchar_t));
 
       const UInt32 c_buffer_size = 1024 * 1024;
       unique_ptr<unsigned char[]> buffer(new unsigned char[c_buffer_size]);
-      UInt32 size_read;
       UInt64 total_size_read = 0;
-      CHECK_COM(out_stream->Write(&file_info.size, sizeof(file_info.size), &size_written));
-      CHECK(size_written == sizeof(file_info.size));
+      write_stream(out_stream, &file_info.size, sizeof(file_info.size));
       if (file_info.offset == 0) {
         while (true) {
-          CHECK_COM(file_stream->Read(buffer.get(), c_buffer_size, &size_read));
+          UInt32 size_read = read_stream(file_stream, buffer.get(), c_buffer_size);
           if (size_read == 0)
             break;
           total_size_read += size_read;
           CHECK(total_size_read <= file_info.size);
-          CHECK_COM(out_stream->Write(buffer.get(), size_read, &size_written));
-          CHECK(size_written == size_read);
-          total_size += size_written;
+          write_stream(out_stream, buffer.get(), size_read);
+          total_size += size_read;
           update_callback->SetCompleted(&total_size);
         }
         CHECK(total_size_read == file_info.size);
@@ -411,12 +396,11 @@ public:
             size = static_cast<UInt32>(file_info.size - total_size_read);
           if (size == 0)
             break;
-          CHECK_COM(in_stream->Read(buffer.get(), size, &size_read));
+          UInt32 size_read = read_stream(in_stream, buffer.get(), size);
           CHECK(size_read == size);
           total_size_read += size_read;
-          CHECK_COM(out_stream->Write(buffer.get(), size_read, &size_written));
-          CHECK(size_written == size_read);
-          total_size += size_written;
+          write_stream(out_stream, buffer.get(), size_read);
+          total_size += size_read;
           update_callback->SetCompleted(&total_size);
         }
       }
@@ -451,6 +435,8 @@ public:
       if (name == L"X") { // typical name for compression level property
         if (prop.is_uint())
           comp_level = prop.get_uint();
+        else if (prop.is_str()) // property can be passed as a string even if it is numeric
+          comp_level = _wtoi(prop.get_str().c_str());
       }
     }
     return S_OK;
