@@ -48,7 +48,7 @@ bool ArchiveFormat::GetDefaultCommand(int nCommand, string& strCommand, bool& bE
 	return GetModule()->GetDefaultCommand(GetPlugin()->GetUID(), GetUID(), nCommand, strCommand, bEnabled);
 }
 
-void ArchiveFormat::Configure(const TCHAR* lpInitialConfig, string& strResultConfig)
+bool ArchiveFormat::Configure(const TCHAR* lpInitialConfig, string& strResultConfig)
 {
 	return GetModule()->ConfigureFormat(GetPlugin()->GetUID(), GetUID(), lpInitialConfig, strResultConfig);
 }

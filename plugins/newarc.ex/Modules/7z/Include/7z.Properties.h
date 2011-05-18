@@ -59,7 +59,7 @@ public:
 
 extern void CompressionConfigToProperties(
 		bool bIs7z,
-		const SevenZipCompressionConfig* pCfg,
+		SevenZipCompressionConfig* pCfg,
 		Array<SevenZipProperty*>& properties
 		);
 

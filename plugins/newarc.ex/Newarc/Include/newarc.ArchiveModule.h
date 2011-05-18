@@ -57,7 +57,6 @@ public:
 			const GUID& uidPlugin,
 			const GUID& uidFormat,
 			const TCHAR* lpFileName,
-			const TCHAR* lpConfig,
 			HANDLE hCallback,
 			ARCHIVECALLBACK pfnCallback,
 			bool bCreate
@@ -68,7 +67,7 @@ public:
 	void ReloadLanguage(const TCHAR *lpLanguage);
 
 	void Configure();
-	void ConfigureFormat(const GUID& uidPlugin, const GUID& uidFormat, const TCHAR* lpInitialConfig, string& strResultConfig);
+	bool ConfigureFormat(const GUID& uidPlugin, const GUID& uidFormat, const TCHAR* lpInitialConfig, string& strResultConfig);
 
 
 	bool GetDefaultCommand(const GUID& uidPlugin, const GUID& uidFormat, int nCommand, string& strCommand, bool& bEnabled);
@@ -84,7 +83,7 @@ public:
 	bool FreeArchiveItem(HANDLE hArchive, ArchiveItem* pItem);
 
 	int Extract(HANDLE hArchive, const ArchiveItemArray& items, const TCHAR* lpDestDiskPath, const TCHAR* lpFolderInArchive);
-	int AddFiles(HANDLE hArchive, const ArchiveItemArray& items, const TCHAR* lpSourceDiskPath, const TCHAR* lpFolderInArchive);
+	int AddFiles(HANDLE hArchive, const ArchiveItemArray& items, const TCHAR* lpSourceDiskPath, const TCHAR* lpFolderInArchive, const TCHAR* lpConfig);
 	int Delete(HANDLE hArchive, const ArchiveItemArray& items);
 	int Test(HANDLE hArchive, const ArchiveItemArray& items);
 

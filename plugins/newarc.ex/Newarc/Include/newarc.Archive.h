@@ -133,7 +133,7 @@ public:
 
 	int Extract(const ArchiveItemArray& items, const TCHAR *lpDestDiskPath, bool bWithoutPath);
 	int Delete(const ArchiveItemArray& items);
-	int AddFiles(const ArchiveItemArray& items, const TCHAR *lpSourceDiskPath);
+	int AddFiles(const ArchiveItemArray& items, const TCHAR *lpSourceDiskPath, const TCHAR* lpConfig);
 	int Test(const ArchiveItemArray& items);
 
 	bool GetDefaultCommand(int nCommand, string& strCommand, bool& bEnabledByDefault);

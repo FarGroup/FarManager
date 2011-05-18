@@ -315,7 +315,6 @@ Array<ArchiveModule*>& ArchiveModuleManager::GetModules()
 Archive* ArchiveModuleManager::OpenCreateArchive(
 		ArchiveFormat* pFormat, 
 		const TCHAR* lpFileName, 
-		const TCHAR* lpConfig,
 		HANDLE hCallback, 
 		ARCHIVECALLBACK pfnCallback,
 		bool bCreate
@@ -325,7 +324,6 @@ Archive* ArchiveModuleManager::OpenCreateArchive(
 				pFormat->GetPlugin()->GetUID(), 
 				pFormat->GetUID(),
 				lpFileName,
-				lpConfig,
 				hCallback,
 				pfnCallback,
 				bCreate

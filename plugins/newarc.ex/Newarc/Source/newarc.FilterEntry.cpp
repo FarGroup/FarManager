@@ -237,6 +237,11 @@ ArchiveFilterEntry* ArchiveFilterEntry::FromXml(ArchiveModuleManager* pManager, 
 	if ( strName.IsEmpty() )
 		return nullptr;
 
+	string strMask = (FakeUtf8String)node.ToElement()->Attribute("mask");
+
+	if ( strMask.IsEmpty() )
+		return nullptr;
+
 	ArchiveFilterEntry* pResult = new ArchiveFilterEntry();
 
 	TiXmlHandle handle(&node);
@@ -261,6 +266,7 @@ ArchiveFilterEntry* ArchiveFilterEntry::FromXml(ArchiveModuleManager* pManager, 
 	}
 
 	pResult->m_strName = strName;
+	pResult->m_strMask = strMask;
 
 	node.ToElement()->Attribute("exclude", &pResult->m_bExclude);
 	node.ToElement()->Attribute("enabled", &pResult->m_bEnabled);

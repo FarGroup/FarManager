@@ -199,7 +199,6 @@ HANDLE ArchiveModule::OpenCreateArchive(
 		const GUID& uidPlugin,
 		const GUID& uidFormat,
 		const TCHAR* lpFileName,
-		const TCHAR* lpConfig,
 		HANDLE hCallback,
 		ARCHIVECALLBACK pfnCallback,
 		bool bCreate
@@ -212,7 +211,6 @@ HANDLE ArchiveModule::OpenCreateArchive(
 	OAS.uidPlugin = uidPlugin;
 	OAS.uidFormat = uidFormat;
 	OAS.lpFileName = lpFileName;
-	OAS.lpConfig = lpConfig;
 	OAS.hCallback = hCallback;
 	OAS.pfnCallback = pfnCallback;
 	OAS.bCreate = bCreate;
@@ -366,7 +364,8 @@ int ArchiveModule::AddFiles(
 		HANDLE hArchive,
 		const ArchiveItemArray& items,
 		const TCHAR* lpSourceDiskPath,
-		const TCHAR* lpPathInArchive
+		const TCHAR* lpPathInArchive,
+		const TCHAR* lpConfig
 		)
 {
 	AddStruct AS;
@@ -376,6 +375,7 @@ int ArchiveModule::AddFiles(
 	AS.lpCurrentPath = lpPathInArchive;
 	AS.pItems = items.data();
 	AS.uItemsNumber = items.count();
+	AS.pConfig = lpConfig;
 
 	if ( m_pfnModuleEntry (FID_ADD, (void*)&AS) == NAERROR_SUCCESS )
 		return AS.nResult;
@@ -523,7 +523,7 @@ int ArchiveModule::GetArchiveInfo(HANDLE hArchive, bool& bMultiVolume, const Arc
 	return 0;
 }
 
-void ArchiveModule::ConfigureFormat(const GUID& uidPlugin, const GUID& uidFormat, const TCHAR* lpInitialConfig, string& strResultConfig)
+bool ArchiveModule::ConfigureFormat(const GUID& uidPlugin, const GUID& uidFormat, const TCHAR* lpInitialConfig, string& strResultConfig)
 {
 	ConfigureFormatStruct CFS;
 
@@ -539,7 +539,11 @@ void ArchiveModule::ConfigureFormat(const GUID& uidPlugin, const GUID& uidFormat
 		FCR.lpResult = CFS.lpResult;
 
 		m_pfnModuleEntry(FID_FREECONFIGRESULT, &FCR);
+
+		return CFS.bResult;
 	}
+
+	return false;
 }
 
 void ArchiveModule::Configure()

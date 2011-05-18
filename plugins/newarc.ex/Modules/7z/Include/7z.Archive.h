@@ -67,7 +67,7 @@ public:
 	int Test(const ArchiveItem* pItems, int nItemsNumber);
 	int Delete(const ArchiveItem *pItems, int nItemsNumber);
 	int Extract(const ArchiveItem *pItems, int nItemsNumber, const TCHAR* lpDestDiskPath, const TCHAR* lpPathInArchive);
-	int AddFiles(const ArchiveItem* pItems, int nItemsNumber, const TCHAR* lpSourceDiskPath, const TCHAR* lpPathInArchive);
+	int AddFiles(const ArchiveItem* pItems, int nItemsNumber, const TCHAR* lpSourceDiskPath, const TCHAR* lpPathInArchive, const TCHAR* lpConfig);
 
 	LONG_PTR OnStartOperation(int nOperation, unsigned __int64 uTotalSize, unsigned __int64 uTotalFiles);
 	LONG_PTR OnEnterStage(int nStage);

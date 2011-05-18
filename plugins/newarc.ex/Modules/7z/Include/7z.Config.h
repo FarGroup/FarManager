@@ -1,5 +1,7 @@
 #include "7z.h"
 
+#define PROPERTY_BOOL bool
+
 #define countof(x) (sizeof(x)/sizeof(x[0]))
 
 enum CompressionLevel
@@ -186,32 +188,78 @@ static CompressionMapEntry CompressionMap[] =
 
 class SevenZipCompressionConfig {
 
+private:
+
+	const CompressionFormatInfo* m_pFormat;
+
+	PROPERTY_BOOL m_bOverride;
+
+	unsigned int m_uLevel;
+	unsigned int m_uMethod;
+	unsigned int m_uDictionarySize;
+
+	PROPERTY_BOOL m_bFilter;
+	PROPERTY_BOOL m_bSolid;
+	PROPERTY_BOOL m_bMultithread;
+	PROPERTY_BOOL m_bSFX;
+	PROPERTY_BOOL m_bEncrypt;
+	PROPERTY_BOOL m_bEncryptFileNames;
+
+	PROPERTY_BOOL m_bCompressHeaders;
+	PROPERTY_BOOL m_bCompressHeadersFull;
+
+	PROPERTY_BOOL m_bVolumeMode;
+
 public:
-	const CompressionFormatInfo* pFormat;
 
-	int nLevel;
+	SevenZipCompressionConfig(const CompressionFormatInfo* pFormat);
 
-	bool bOverride;
+	void Clear();
 
-	int nMethod;
-	unsigned int uDictionarySize;
+	const CompressionFormatInfo* GetFormat();
+	void SetFormat(CompressionFormatInfo* pFormat);
 
-	bool bFilter;
-	bool bSolid;
-	bool bMultithread;
-	bool bSFX;
-	bool bEncrypt;
-	bool bEncryptFileNames;
+	unsigned int GetLevel() const;
+	void SetLevel(unsigned int uLevel);
 
-	bool bCompressHeaders;
-	bool bCompressHeadersFull;
+	unsigned int GetMethod() const;
+	void SetMethod(unsigned int uMethod);
+	
+	unsigned int GetDictionarySize() const;
+	void SetDictionarySize(unsigned int uDictionarySize);
 
-	bool bVolumeMode;
+	bool IsOverride() const;
+	void SetOverride(bool bOverride);
 
-public:
+	bool IsFilter() const;
+	void SetFilter(bool bFilter);
+
+	bool IsSolid() const;
+	void SetSolid(bool bSolid);
+
+	bool IsMultithread() const;
+	void SetMultithread(bool bMultithread);
+
+	bool IsSFX() const;
+	void SetSFX(bool bSFX);
+
+	bool IsEncrypt() const;
+	void SetEncrypt(bool bEncrypt);
+
+	bool IsEncryptFileNames() const;
+	void SetEncryptFileNames(bool bEncryptFileNames);
+
+	bool IsCompressHeaders() const;
+	void SetCompressHeaders(bool bCompressHeaders);
+
+	bool IsCompressHeadersFull() const;
+	void SetCompressHeadersFull(bool bCompressHeadersFull);
+
+	bool IsVolumeMode() const;
+	void SetVolumeMode(bool bVolumeMode);
 
 	void ToString(string& strResult);
-	void FromString(string strResult);
+	static SevenZipCompressionConfig* FromString(const CompressionFormatInfo* pFormat, const TCHAR* lpConfig);
 };
 
 extern const CompressionFormatInfo* GetCompressionFormatInfo(const GUID& uid);

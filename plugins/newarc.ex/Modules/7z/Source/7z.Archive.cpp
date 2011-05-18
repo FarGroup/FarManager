@@ -566,7 +566,8 @@ int SevenZipArchive::AddFiles(
 		const ArchiveItem* pItems,
 		int nItemsNumber,
 		const TCHAR* lpSourceDiskPath,
-		const TCHAR* lpPathInArchive
+		const TCHAR* lpPathInArchive,
+		const TCHAR* lpConfig
 		)
 {
 	IOutArchive *outArchive;
@@ -654,7 +655,7 @@ int SevenZipArchive::AddFiles(
 
 		ISetProperties *setProperties;
 
-		if ( outArchive->QueryInterface (
+		if ( outArchive->QueryInterface(
 				IID_ISetProperties,
 				(void**)&setProperties
 				) == S_OK )
@@ -663,10 +664,7 @@ int SevenZipArchive::AddFiles(
 
 			if ( pFormat )
 			{
-				SevenZipCompressionConfig* pCfg = new SevenZipCompressionConfig;
-				memset(pCfg, 0, sizeof(SevenZipCompressionConfig));
-
-				pCfg->pFormat = pFormat;
+				SevenZipCompressionConfig* pCfg = SevenZipCompressionConfig::FromString(pFormat, lpConfig);
 
 				ObjectArray<SevenZipProperty*> properties;
 
@@ -696,7 +694,7 @@ int SevenZipArchive::AddFiles(
 
 				delete pCfg;
 			}
-					
+
 			setProperties->Release ();  //oops
 		}
 

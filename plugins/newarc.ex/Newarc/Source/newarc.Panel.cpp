@@ -244,7 +244,7 @@ int ArchivePanel::pGetFindData(
 			}
 
 			if ( nResult != -1 )
-				m_pArchive = m_pManager->OpenCreateArchive(m_pFormats[nResult], m_strFileName, nullptr, this, Callback, false);
+				m_pArchive = m_pManager->OpenCreateArchive(m_pFormats[nResult], m_strFileName, this, Callback, false);
 
 			if ( nResult == -1 )
 				return FALSE;
@@ -591,10 +591,10 @@ int ArchivePanel::pPutFiles(
 				
 				//Archive* pArchive = pManager->OpenCreateArchive(params.pFormat, strFullArchiveName, this, Callback, true);
 				//BADBAD, надо убедиться, что отсюда сразу в ClosePlugin попадаем
-				m_pArchive = pManager->OpenCreateArchive(params.pFormat, strFullArchiveName, params.strConfig, this, Callback, true);
+				m_pArchive = pManager->OpenCreateArchive(params.pFormat, strFullArchiveName, this, Callback, true);
 
 				if ( m_pArchive )
-					bResult = AddFiles(items, info.GetCurrentDirectory());
+					bResult = AddFiles(items, info.GetCurrentDirectory(), params.strConfig);
 			}
 		}
 	}
@@ -603,9 +603,9 @@ int ArchivePanel::pPutFiles(
 		GetPanelItemsToProcess(PanelItem, ItemsNumber, items);
 
 #ifdef UNICODE
-		bResult = AddFiles(items, SrcPath ? SrcPath : info.GetCurrentDirectory());
+		bResult = AddFiles(items, SrcPath ? SrcPath : info.GetCurrentDirectory(), nullptr);
 #else
-		bResult = AddFiles(items, info.GetCurrentDirectory());
+		bResult = AddFiles(items, info.GetCurrentDirectory(), nullptr);
 #endif
 	}
 
@@ -1203,14 +1203,14 @@ int ArchivePanel::Delete(const ArchiveItemArray& items)
 	return nResult;
 }
 
-int ArchivePanel::AddFiles(const ArchiveItemArray& items, const TCHAR* lpSourceDiskPath)
+int ArchivePanel::AddFiles(const ArchiveItemArray& items, const TCHAR* lpSourceDiskPath, const TCHAR* lpConfig)
 {
 	OnStartOperation(OPERATION_ADD, nullptr);
 
 	string strSourceDiskPath = lpSourceDiskPath;
 	AddEndSlash(strSourceDiskPath);
 
-	int nResult = m_pArchive->AddFiles(items, strSourceDiskPath);
+	int nResult = m_pArchive->AddFiles(items, strSourceDiskPath, lpConfig);
 
 	if ( nResult == RESULT_ERROR )
 	{
@@ -1266,7 +1266,7 @@ int ArchivePanel::MakeDirectory(const TCHAR* lpDirectory)
 	item->lpFileName = lpDirectory;
 	item->dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
 
-	nResult = m_pArchive->AddFiles(items, _T(""));
+	nResult = m_pArchive->AddFiles(items, _T(""), nullptr);
 
 	if ( nResult == RESULT_ERROR )
 	{

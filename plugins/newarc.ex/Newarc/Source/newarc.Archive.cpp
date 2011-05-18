@@ -246,7 +246,8 @@ int Archive::Test(const ArchiveItemArray& items)
 
 int Archive::AddFiles(
 		const ArchiveItemArray& items,
-		const TCHAR *lpSourceDiskPath
+		const TCHAR* lpSourceDiskPath,
+		const TCHAR* lpConfig
 		)
 {
 	int nResult = RESULT_ERROR;
@@ -262,7 +263,8 @@ int Archive::AddFiles(
 					m_hArchive, 
 					items, 
 					strSourceDiskPath, 
-					m_strPathInArchive
+					m_strPathInArchive,
+					lpConfig
 					);
 		
 			EndOperation(OPERATION_ADD, true);

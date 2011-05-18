@@ -35,7 +35,6 @@ public:
 	Archive* OpenCreateArchive(
 			ArchiveFormat* pFormat, 
 			const TCHAR* lpFileName, 
-			const TCHAR* lpConfig,
 			HANDLE hCallback, 
 			ARCHIVECALLBACK pfnCallback,
 			bool bCreate

@@ -145,7 +145,8 @@ int OnAdd(AddStruct* pAS)
 			pAS->pItems,
 			pAS->uItemsNumber,
 			pAS->lpSourcePath,
-			pAS->lpCurrentPath
+			pAS->lpCurrentPath,
+			pAS->pConfig
 			);
 
 	return NAERROR_SUCCESS;
@@ -200,11 +201,7 @@ int OnConfigureFormat(ConfigureFormatStruct* pCFS)
 
 	if ( pFormat )
 	{
-		SevenZipCompressionConfig* pCfg = new SevenZipCompressionConfig;
-		memset(pCfg, 0, sizeof(SevenZipCompressionConfig));
-
-		//pCfg->FromString(pCFS->pResult);
-		pCfg->pFormat = pFormat;
+		SevenZipCompressionConfig* pCfg = SevenZipCompressionConfig::FromString(pFormat, pCFS->lpConfig);
 
 		if ( dlgSevenZipPluginConfigure(pCfg) )
 		{
@@ -215,10 +212,12 @@ int OnConfigureFormat(ConfigureFormatStruct* pCFS)
 			MessageBoxW (0, strResult, strResult, MB_OK);
 
 			pCFS->lpResult = StrDuplicate(strResult);
+			pCFS->bResult = true;
 
 			return NAERROR_SUCCESS;
 		}
 
+		pCFS->bResult = false;
 		pCFS->lpResult = nullptr;
 	}
 	

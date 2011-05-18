@@ -87,7 +87,13 @@ bool MaPlugin::Load(
 
 					string strName;
 
-					strName.SetData(Name); //oops, unicode & ansi
+#ifdef UNICODE
+					strName.SetData(Name, CP_OEMCP);
+#else
+					strName = Name;
+#endif
+					//oops, unicode & ansi
+					
 					strName += _T(" [fmt]");
 
 

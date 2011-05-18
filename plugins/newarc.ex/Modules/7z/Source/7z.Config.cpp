@@ -1,13 +1,41 @@
 #include "7z.h"
 
+SevenZipCompressionConfig::SevenZipCompressionConfig(const CompressionFormatInfo* pFormat)
+{
+	Clear();
+	m_pFormat = pFormat;
+}
+
+void SevenZipCompressionConfig::Clear()
+{
+	m_bOverride = false;
+
+	m_uLevel = 0;
+	m_uMethod = 0;
+	m_uDictionarySize = 0;
+
+	m_bFilter = false;
+	m_bSolid = false;
+	m_bMultithread = false;
+	m_bSFX = false;
+	m_bEncrypt = false;
+	m_bEncryptFileNames = false;
+
+	m_bCompressHeaders = false;
+	m_bCompressHeadersFull = false;
+
+	m_bVolumeMode = false;
+}
+
+
 void SevenZipCompressionConfig::ToString(string& strResult)
 {
 	strResult.Format(
 			_T("CompressionFormat:%s|") \
-			_T("Level:%d|") \
+			_T("Level:%u|") \
 			_T("Override:%d|") \
-			_T("Method:%d|") \
-			_T("DictionarySize:%d|") \
+			_T("Method:%u|") \
+			_T("DictionarySize:%u|") \
 			_T("Filter:%d|") \
 			_T("Solid:%d|") \
 			_T("Multithread:%d|") \
@@ -18,26 +46,263 @@ void SevenZipCompressionConfig::ToString(string& strResult)
 			_T("CompressHeadersFull:%d|") \
 			_T("Volumes:%d")
 			, 
-			pFormat->lpName, 
-			nLevel, 
-			(int)bOverride, 
-			nMethod,
-			uDictionarySize, 
-			(int)bFilter, 
-			(int)bSolid, 
-			(int)bMultithread, 
-			(int)bSFX, 
-			(int)bEncrypt, 
-			(int)bEncryptFileNames, 
-			(int)bCompressHeaders, 
-			(int)bCompressHeadersFull, 
-			(int)bVolumeMode
+			m_pFormat->lpName, 
+			m_uLevel, 
+			m_bOverride, 
+			m_uMethod,
+			m_uDictionarySize, 
+			m_bFilter, 
+			m_bSolid, 
+			m_bMultithread, 
+			m_bSFX, 
+			m_bEncrypt, 
+			m_bEncryptFileNames, 
+			m_bCompressHeaders, 
+			m_bCompressHeadersFull, 
+			m_bVolumeMode
 			);
 }
 
-void SevenZipCompressionConfig::FromString(string strResult)
+int StrToInt(const TCHAR* lpParam)
 {
+	return _tstoi(lpParam);
 }
+
+SevenZipCompressionConfig* SevenZipCompressionConfig::FromString(const CompressionFormatInfo* pFormat, const TCHAR* lpConfig)
+{
+	SevenZipCompressionConfig* pResult = new SevenZipCompressionConfig(pFormat);
+
+	if ( lpConfig )
+	{
+		PointerArray<TCHAR*> Categories;
+
+		TCHAR* lpParamsCopy = StrDuplicate(lpConfig);
+	
+		TCHAR* lpCategory = _tcstok(lpParamsCopy, _T("|"));
+
+		while ( lpCategory )
+		{
+			Categories.add(StrDuplicate(lpCategory));
+			lpCategory = _tcstok(nullptr, _T("|"));
+		}
+
+		StrFree(lpParamsCopy);
+
+		for (unsigned int i = 0; i < Categories.count(); i++)
+		{
+			TCHAR* lpCategory = Categories[i];
+
+			TCHAR* lpParam = _tcstok(lpCategory, _T(":"));
+
+			string strName;
+			string strValue;
+
+			int nIndex = 0;
+
+			while ( lpParam )
+			{
+				if ( nIndex == 0 )
+					strName = lpParam;
+
+				if ( nIndex == 1 )
+					strValue = lpParam;
+
+				if ( nIndex > 1 )
+					break;
+
+				nIndex++;
+
+				lpParam = _tcstok(nullptr, _T(":"));
+			}
+
+			if ( strName == _T("CompressionFormat") ); //
+
+			if ( strName == _T("Level") )
+				pResult->m_uLevel = StrToInt(strValue);
+
+			if ( strName == _T("Override") )
+				pResult->m_bOverride = StrToInt(strValue);
+
+			if ( strName == _T("Method") )
+				pResult->m_uMethod = StrToInt(strValue);
+
+			if ( strName == _T("DictionarySize") )
+				pResult->m_uDictionarySize = StrToInt(strValue);
+
+			if ( strName == _T("Filter") )
+				pResult->m_bFilter = StrToInt(strValue);
+
+			if ( strName == _T("Solid") )
+				pResult->m_bSolid = StrToInt(strValue);
+
+			if ( strName == _T("Multithread") )
+				pResult->m_bMultithread = StrToInt(strValue);
+
+			if ( strName == _T("SFX") )
+				pResult->m_bSFX = StrToInt(strValue);
+
+			if ( strName == _T("Encrypt") )
+				pResult->m_bEncrypt = StrToInt(strValue);
+
+			if ( strName == _T("EncryptFileNames") )
+				pResult->m_bEncryptFileNames = StrToInt(strValue);
+
+			if ( strName == _T("CompressHeaders") )
+				pResult->m_bCompressHeaders = StrToInt(strValue);
+
+			if ( strName == _T("CompressHeadersFull") )
+				pResult->m_bCompressHeadersFull = StrToInt(strValue);
+
+			if ( strName == _T("Volumes") )
+				pResult->m_bVolumeMode = StrToInt(strValue);
+
+		}
+	}
+
+	return pResult;
+}
+
+
+const CompressionFormatInfo* SevenZipCompressionConfig::GetFormat()
+{
+	return m_pFormat;
+}
+
+void SevenZipCompressionConfig::SetFormat(CompressionFormatInfo* pFormat)
+{
+	m_pFormat = pFormat;
+}
+
+unsigned int SevenZipCompressionConfig::GetLevel() const
+{
+	return m_uLevel;
+}
+
+void SevenZipCompressionConfig::SetLevel(unsigned int uLevel)
+{
+	m_uLevel = uLevel;
+}
+
+unsigned int SevenZipCompressionConfig::GetMethod() const
+{
+	return m_uMethod;
+}
+
+void SevenZipCompressionConfig::SetMethod(unsigned int uMethod)
+{
+	m_uMethod = uMethod;
+}
+
+unsigned int SevenZipCompressionConfig::GetDictionarySize() const
+{
+	return m_uDictionarySize;
+}
+
+void SevenZipCompressionConfig::SetDictionarySize(unsigned int uDictionarySize)
+{
+	m_uDictionarySize = uDictionarySize;
+}
+
+bool SevenZipCompressionConfig::IsOverride() const
+{
+	return m_bOverride;
+}
+
+void SevenZipCompressionConfig::SetOverride(bool bOverride)
+{
+	m_bOverride = bOverride;
+}
+
+bool SevenZipCompressionConfig::IsFilter() const
+{
+	return m_bFilter;
+}
+
+void SevenZipCompressionConfig::SetFilter(bool bFilter)
+{
+	m_bFilter = bFilter;
+}
+
+bool SevenZipCompressionConfig::IsSolid() const
+{
+	return m_bSolid;
+}
+
+void SevenZipCompressionConfig::SetSolid(bool bSolid)
+{
+	m_bSolid = bSolid;
+}
+
+bool SevenZipCompressionConfig::IsMultithread() const
+{
+	return m_bMultithread;
+}
+
+void SevenZipCompressionConfig::SetMultithread(bool bMultithread)
+{
+	m_bMultithread = bMultithread;
+}
+
+bool SevenZipCompressionConfig::IsSFX() const
+{
+	return m_bSFX;
+}
+
+void SevenZipCompressionConfig::SetSFX(bool bSFX)
+{
+	m_bSFX = bSFX;
+}
+
+bool SevenZipCompressionConfig::IsEncrypt() const
+{
+	return m_bEncrypt;
+}
+
+void SevenZipCompressionConfig::SetEncrypt(bool bEncrypt)
+{
+	m_bEncrypt = bEncrypt;
+}
+
+bool SevenZipCompressionConfig::IsEncryptFileNames() const
+{
+	return m_bEncryptFileNames;
+}
+
+void SevenZipCompressionConfig::SetEncryptFileNames(bool bEncryptFileNames)
+{
+	m_bEncryptFileNames = bEncryptFileNames;
+}
+
+bool SevenZipCompressionConfig::IsCompressHeaders() const
+{
+	return m_bCompressHeaders;
+}
+
+void SevenZipCompressionConfig::SetCompressHeaders(bool bCompressHeaders)
+{
+	m_bCompressHeaders = bCompressHeaders;
+}
+
+bool SevenZipCompressionConfig::IsCompressHeadersFull() const
+{
+	return m_bCompressHeadersFull;
+}
+
+void SevenZipCompressionConfig::SetCompressHeadersFull(bool bCompressHeadersFull)
+{
+	m_bCompressHeadersFull = bCompressHeadersFull;
+}
+
+bool SevenZipCompressionConfig::IsVolumeMode() const
+{
+	return m_bVolumeMode;
+}
+
+void SevenZipCompressionConfig::SetVolumeMode(bool bVolumeMode)
+{
+	m_bVolumeMode = bVolumeMode;
+}
+
 
 const CompressionFormatInfo* GetCompressionFormatInfo(const GUID& uid)
 {
@@ -255,13 +520,13 @@ LONG_PTR __stdcall hndConfigureFormat(FarDialog* D, int nMsg, int Param1, LONG_P
 			FarListPos pos;
 
 			D->ListGetCurrentPos(2, &pos);
-			pCfg->nLevel = (int)D->ListGetData(2, pos.SelectPos);
+			pCfg->SetLevel((unsigned int)D->ListGetData(2, pos.SelectPos));
 
 			D->ListGetCurrentPos(6, &pos);
-			pCfg->nMethod = (int)D->ListGetData(6, pos.SelectPos);
+			pCfg->SetMethod((unsigned int)D->ListGetData(6, pos.SelectPos));
 
 			D->ListGetCurrentPos(8, &pos);
-			pCfg->uDictionarySize = (unsigned int)D->ListGetData(8, pos.SelectPos);
+			pCfg->SetDictionarySize((unsigned int)D->ListGetData(8, pos.SelectPos));
 
 			return TRUE;
 		}
@@ -269,10 +534,12 @@ LONG_PTR __stdcall hndConfigureFormat(FarDialog* D, int nMsg, int Param1, LONG_P
 
 	if ( nMsg == DN_INITDIALOG )
 	{
-		for (int i = 0; i < pCfg->pFormat->nNumMethods; i++)
+		const CompressionFormatInfo* pFormat = pCfg->GetFormat();
+
+		for (int i = 0; i < pFormat->nNumMethods; i++)
 		{
-			int index = D->ListAddStr(6, MethodNames[pCfg->pFormat->pMethodIDs[i]]); //check for 7z SFX!!!
-			D->ListSetDataEx(6, index, (void*)pCfg->pFormat->pMethodIDs[i], sizeof(void*));
+			int index = D->ListAddStr(6, MethodNames[pFormat->pMethodIDs[i]]); //check for 7z SFX!!!
+			D->ListSetDataEx(6, index, (void*)pFormat->pMethodIDs[i], sizeof(void*));
 		}
 
 		FarListPos pos;
@@ -280,16 +547,16 @@ LONG_PTR __stdcall hndConfigureFormat(FarDialog* D, int nMsg, int Param1, LONG_P
 		pos.TopPos = -1;
 		pos.SelectPos = 0;
 
-		for (int nLevel = 0; nLevel < 32; nLevel++)
+		for (unsigned int uLevel = 0; uLevel < 32; uLevel++)
 		{
-		    DWORD dwMask = 1 << nLevel;
+			DWORD dwMask = 1 << uLevel;
 			
-			if ( (pCfg->pFormat->dwLevelMask & dwMask) == dwMask )
+			if ( (pFormat->dwLevelMask & dwMask) == dwMask )
 			{
-				int index = D->ListAddStr(2, LevelNames[nLevel]);
-				D->ListSetDataEx(2, index, (void*)nLevel, sizeof(void*));
+				int index = D->ListAddStr(2, LevelNames[uLevel]);
+				D->ListSetDataEx(2, index, (void*)uLevel, sizeof(void*));
 
-				if ( nLevel == 5 ) //normal
+				if ( uLevel == 5 ) //normal
 					pos.SelectPos = index;
 			}
 		}
@@ -307,7 +574,7 @@ bool dlgSevenZipPluginConfigure(SevenZipCompressionConfig* pCfg)
 {
 	bool bResult = false;
 
-	const CompressionFormatInfo* pFormat = pCfg->pFormat;
+	const CompressionFormatInfo* pFormat = pCfg->GetFormat();
 
 	{
 		FarDialog D;//(-1, -1, 60, 20);
@@ -321,7 +588,7 @@ bool dlgSevenZipPluginConfigure(SevenZipCompressionConfig* pCfg)
 
 		D.Separator(Y++); //3
 
-		D.CheckBox(5, Y++, false, _T("Override params")); //4
+		D.CheckBox(5, Y++, pCfg->IsOverride(), _T("Override params")); //4
 
 		D.Text(8, Y, _T("Method:")); //5
 		D.ComboBox (25, Y++, 20, NULL); //6
@@ -340,25 +607,25 @@ bool dlgSevenZipPluginConfigure(SevenZipCompressionConfig* pCfg)
 		*/
 
 		if ( pFormat->SupportSolid )
-			D.CheckBox(5, Y++, false, _T("Solid"));
+			D.CheckBox(5, Y++, pCfg->IsSolid(), _T("Solid"));
 		
 		if ( pFormat->SupportMultiThread )
-			D.CheckBox(5, Y++, false, _T("MultiThread"));
+			D.CheckBox(5, Y++, pCfg->IsMultithread(), _T("MultiThread"));
 		
 		if ( pFormat->SupportSFX )
-			D.CheckBox(5, Y++, false, _T("SFX"));
+			D.CheckBox(5, Y++, pCfg->IsSFX(), _T("SFX"));
 
 		if ( pFormat->SupportEncrypt )
-			D.CheckBox(5, Y++, false, _T("Encrypt"));
+			D.CheckBox(5, Y++, pCfg->IsEncrypt(), _T("Encrypt"));
 		
 		if ( pFormat->SupportEncryptFileNames )
-			D.CheckBox(5, Y++, false, _T("Encrypt file names"));
+			D.CheckBox(5, Y++, pCfg->IsEncryptFileNames(), _T("Encrypt file names"));
 
 		if ( pFormat->SupportVolumes )
-			D.CheckBox(5, Y++, false, _T("Volumes"));
+			D.CheckBox(5, Y++, pCfg->IsVolumeMode(), _T("Volumes"));
 
-		D.CheckBox(5, Y++, false, _T("Compress headers"));
-		D.CheckBox(5, Y++, false, _T("Compress headers full"));
+		D.CheckBox(5, Y++, pCfg->IsCompressHeaders(), _T("Compress headers"));
+		D.CheckBox(5, Y++, pCfg->IsCompressHeadersFull(), _T("Compress headers full"));
 
 		D.Separator(Y++);
 
@@ -368,12 +635,13 @@ bool dlgSevenZipPluginConfigure(SevenZipCompressionConfig* pCfg)
 		D.Button (-1, Y, _T("Cancel"));
 
 		D.SetPosition(-1, -1, 60, Y+3);
+
 		D[0].X2 = 56;
 		D[0].Y2 = Y+1;
 
 		if ( D.Run(hndConfigureFormat, (void*)pCfg) == D.FirstButton() )
 		{
-			pCfg->bOverride = D.GetResultCheck(4);
+			pCfg->SetOverride(D.GetResultCheck(4));
 
 			int id = 10;
 
@@ -383,25 +651,25 @@ bool dlgSevenZipPluginConfigure(SevenZipCompressionConfig* pCfg)
 			*/
 
 			if ( pFormat->SupportSolid )
-				pCfg->bSolid = D.GetResultCheck(id++);
+				pCfg->SetSolid(D.GetResultCheck(id++));
 
 			if ( pFormat->SupportMultiThread )
-				pCfg->bSolid = D.GetResultCheck(id++);
+				pCfg->SetMultithread(D.GetResultCheck(id++));
 
 			if ( pFormat->SupportSFX )
-				pCfg->bSFX = D.GetResultCheck(id++);
+				pCfg->SetSFX(D.GetResultCheck(id++));
 
 			if ( pFormat->SupportEncrypt )
-				pCfg->bEncrypt = D.GetResultCheck(id++);
+				pCfg->SetEncrypt(D.GetResultCheck(id++));
 
 			if ( pFormat->SupportEncryptFileNames )
-				pCfg->bEncryptFileNames = D.GetResultCheck(id++);
+				pCfg->SetEncryptFileNames(D.GetResultCheck(id++));
 
 			if ( pFormat->SupportVolumes )
-				pCfg->bVolumeMode = D.GetResultCheck(id++);
+				pCfg->SetVolumeMode(D.GetResultCheck(id++));
 
-			pCfg->bCompressHeaders = D.GetResultCheck(id++);
-			pCfg->bCompressHeadersFull = D.GetResultCheck(id++);
+			pCfg->SetCompressHeaders(D.GetResultCheck(id++));
+			pCfg->SetCompressHeadersFull(D.GetResultCheck(id++));
 
 			bResult = true;
 		}

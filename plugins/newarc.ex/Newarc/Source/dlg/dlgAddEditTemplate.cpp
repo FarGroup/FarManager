@@ -7,14 +7,24 @@ enum enumAddEditTemplate {
 	ID_AET_SEPARATOR1,
 	ID_AET_FORMAT,
 	ID_AET_FORMATLIST,
-	ID_AET_ADDITIONALPARAMS,
-	ID_AET_ADDITIONALPARAMSEDIT,
 	ID_AET_CONFIG,
 	ID_AET_SEPARATOR2,
+	ID_AET_ADDITIONALPARAMS,
+	ID_AET_ADDITIONALPARAMSEDIT,
+	ID_AET_SEPARATOR3,
 	ID_AET_ADDCONFIRM,
 	ID_AET_CANCEL
 };
 
+
+void SetVisibility(FarDialog* D, ArchiveFormat* pFormat)
+{
+	if ( pFormat->QueryCapability(AFF_SUPPORT_CONFIG_CREATE) && 
+		 pFormat->QueryCapability(AFF_SUPPORT_INTERNAL_CREATE) )
+		D->Enable(ID_AET_CONFIG, true);
+	else
+		D->Enable(ID_AET_CONFIG, false);
+}
 
 LONG_PTR __stdcall hndAddEditTemplate(
 		FarDialog *D,
@@ -27,6 +37,18 @@ LONG_PTR __stdcall hndAddEditTemplate(
 
 	bool bAdd = StrLength(ptpl->GetName()) == 0;
 
+	if ( (nMsg == DN_LISTCHANGE) && (nParam1 == ID_AET_FORMATLIST) )
+	{
+		FarListPos pos;
+
+		D->ListGetCurrentPos (ID_AET_FORMATLIST, &pos);
+
+		if ( pos.SelectPos != -1 )
+			SetVisibility(D, (ArchiveFormat*)D->ListGetData(ID_AET_FORMATLIST, pos.SelectPos));
+
+		return TRUE;
+	}
+
 	if ( nMsg == DN_INITDIALOG )
 	{
 		int curpos = -1;
@@ -36,21 +58,23 @@ LONG_PTR __stdcall hndAddEditTemplate(
 		
 		pManager->GetFormats(formats);
 
+		ArchiveFormat* pDefaultFormat = nullptr;
+
 		for (unsigned int i = 0; i < formats.count(); i++)
 		{
-			ArchiveFormat* pFormat = formats[i];
+			pDefaultFormat = formats[i];
 
 			string strCommand;
 
-			bool bHasAddCommand = pManager->GetCommand(pFormat, COMMAND_ADD, strCommand);
+			bool bHasAddCommand = pManager->GetCommand(pDefaultFormat, COMMAND_ADD, strCommand);
 
-			if ( pFormat->QueryCapability(AFF_SUPPORT_INTERNAL_CREATE) || bHasAddCommand )
+			if ( pDefaultFormat->QueryCapability(AFF_SUPPORT_INTERNAL_CREATE) || bHasAddCommand )
 			{
-				int index = D->ListAddStr(ID_AET_FORMATLIST, pFormat->GetName());
+				int index = D->ListAddStr(ID_AET_FORMATLIST, pDefaultFormat->GetName());
 
-				D->ListSetDataEx(ID_AET_FORMATLIST, index, (void*)pFormat, sizeof(void*));
+				D->ListSetDataEx(ID_AET_FORMATLIST, index, (void*)pDefaultFormat, sizeof(void*));
 		
-				if ( !bAdd && (ptpl->GetFormat() == pFormat) ) 
+				if ( !bAdd && (ptpl->GetFormat() == pDefaultFormat) ) 
 					curpos = pos;
 
 				pos++;
@@ -72,22 +96,13 @@ LONG_PTR __stdcall hndAddEditTemplate(
 			D->SetTextPtr(ID_AET_NAMEEDIT, ptpl->GetName());
 			D->SetTextPtr(ID_AET_ADDITIONALPARAMSEDIT, ptpl->GetParams());
 
-			ArchiveFormat* pFormat = ptpl->GetFormat();
-
-			if ( pFormat->QueryCapability(AFF_SUPPORT_CONFIG_CREATE) )
-			{
-				D->ShowItem(ID_AET_ADDITIONALPARAMS, false);
-				D->ShowItem(ID_AET_ADDITIONALPARAMSEDIT, false);
-
-				if ( pFormat->QueryCapability(AFF_SUPPORT_INTERNAL_CREATE) )
-					D->Enable(ID_AET_CONFIG, true);
-				else
-					D->Enable(ID_AET_CONFIG, false);
-			}
-			else
-				D->ShowItem(ID_AET_CONFIG, false);
+			SetVisibility(D, ptpl->GetFormat());
 		}
+		else
+			SetVisibility(D, pDefaultFormat);
 	}
+
+
 
 	if ( nMsg == DN_CLOSE )
 	{
@@ -102,6 +117,27 @@ LONG_PTR __stdcall hndAddEditTemplate(
 
 			if ( pos.SelectPos != -1 )
 				ptpl->SetFormat((ArchiveFormat*)D->ListGetData(ID_AET_FORMATLIST, pos.SelectPos));
+
+			return TRUE;
+		}
+
+		if ( nParam1 == ID_AET_CONFIG )
+		{
+			FarListPos pos;
+
+			D->ListGetCurrentPos (ID_AET_FORMATLIST, &pos);
+
+			if ( pos.SelectPos != -1 )
+			{
+				ArchiveFormat* pFormat = (ArchiveFormat*)D->ListGetData(ID_AET_FORMATLIST, pos.SelectPos);
+
+				string strResult;
+
+				if ( pFormat->Configure(ptpl->GetConfig(), strResult) )
+					ptpl->SetConfig(strResult);
+			}
+
+			return FALSE;
 		}
 	}
 
@@ -112,34 +148,35 @@ LONG_PTR __stdcall hndAddEditTemplate(
 
 bool dlgAddEditTemplate(ArchiveTemplate *ptpl, bool bAdd)
 {
-	if ( !ptpl->IsValid() )
-		msgError(_T("this is an invalid template, reset!"));
+	if ( !bAdd && !ptpl->IsValid() )
+		msgError(_T("this is an invalid template!"));
 
-	FarDialog D(-1, -1, 55, 11);
+	FarDialog D(-1, -1, 55, 14);
 
-	D.DoubleBox(3, 1, 51, 9, ( bAdd ) ? _M(MAddTemplateTitle) : _M(MModifyTemplateTitle)); //0
+	D.DoubleBox(3, 1, 51, 12, ( bAdd ) ? _M(MAddTemplateTitle) : _M(MModifyTemplateTitle)); 
 
-	D.Text(5, 2, _M(MAddTemplateName)); //1
-	D.Edit(5, 3, 45); //2
+	D.Text(5, 2, _M(MAddTemplateName)); 
+	D.Edit(5, 3, 45, NULL, AUTO_LENGTH, _T("adsaf")); 
 
-	D.Separator(4); //3
+	D.Separator(4); 
 
-	D.Text(5, 5, _M(MAddTemplateFormat)); //4
-	D.ComboBox(5, 6, 15, NULL, 0); //5
+	D.Text(5, 5, _M(MAddTemplateFormat));
+	D.ComboBox(5, 6, 20, NULL, 0);
 	D.SetFlags(DIF_DROPDOWNLIST);
 
-	D.Text(22, 5, _M(MAddTemplateAdditionalParams)); //6
-	D.Edit(22, 6, 27, NULL, AUTO_LENGTH, _T("adsaf")); //7
+	D.Button(27, 6, _T("Config"));
 
-	D.Button(22, 6, _T("Config"));
+	D.Separator(7);
 
-	D.Separator(7); //8
+	D.Text(5, 8, _M(MAddTemplateAdditionalParams));
+	D.Edit(5, 9, 45, NULL, AUTO_LENGTH, _T("adsaf"));
 
-	D.Button(-1, 8, ( bAdd ) ? _M(MAddTemplateAdd) : _M(MAddTemplateConfirm)); //9
+	D.Separator(10);
+
+	D.Button(-1, 11, ( bAdd ) ? _M(MAddTemplateAdd) : _M(MAddTemplateConfirm));
 	D.DefaultButton ();
 
-	D.Button(-1, 8, _M(MAddTemplateCancel)); //10
-
+	D.Button(-1, 11, _M(MAddTemplateCancel)); //10
 
 	if ( D.Run(hndAddEditTemplate, ptpl) == ID_AET_ADDCONFIRM )
 		return true;

@@ -308,7 +308,6 @@ struct OpenCreateArchiveStruct {
 	ARCHIVECALLBACK pfnCallback;
 
 	const TCHAR* lpFileName;
-	const TCHAR* lpConfig; //create only
 
 	bool bCreate;
 
@@ -437,6 +436,8 @@ struct ConfigureFormatStruct {
 	const TCHAR* lpConfig;
 	
 	TCHAR* lpResult;
+
+	bool bResult;
 };
 
 struct FreeConfigResultStruct {
