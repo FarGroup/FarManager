@@ -1299,9 +1299,23 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			{
 				if (!IsUnicodeCodePage(m_codepage))
 				{
-					int codepage = SelectCodePage(m_codepage, false, true);
+					UINT codepage = SelectCodePage(m_codepage, false, true, false, true);
+					if ( codepage == (CP_AUTODETECT & 0xffff) )
+					{
+						File edit_file;
+						bool detect = false, sig_found = false;
 
-					if (codepage != -1)
+						if (edit_file.Open(strFileName, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
+						{
+							detect = GetFileFormat(edit_file,codepage,&sig_found,true) && IsCodePageSupported(codepage);
+							edit_file.Close();
+						}
+
+						if (!detect)
+							codepage = Opt.EdOpt.AnsiCodePageAsDefault ? GetACP() : GetOEMCP();
+					}
+
+					if (codepage != static_cast<UINT>(-1))
 					{
 						SetCodePage(codepage);
 						Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);

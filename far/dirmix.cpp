@@ -137,8 +137,11 @@ int TestFolder(const wchar_t *Path)
 	{
 		GuardLastError lstError;
 
-		if (lstError.Get() == ERROR_FILE_NOT_FOUND)
+		if (lstError.Get() == ERROR_FILE_NOT_FOUND || lstError.Get() == ERROR_NO_MORE_FILES)
 			return TSTFLD_EMPTY;
+
+		if (lstError.Get() == ERROR_PATH_NOT_FOUND)
+			return TSTFLD_NOTFOUND;
 
 		// собственно... не факт, что диск не читаем, т.к. на чистом диске в корне нету даже "."
 		// поэтому посмотрим на Root
