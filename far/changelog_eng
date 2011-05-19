@@ -3,6 +3,70 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 19.05.2011 18:11:44 +0300 - build 2036
+
+1. Mantis#0001768: testfolder(): incorrect return code for an empty directory
+
+   ACHTUNG!!!
+
+   testfolder() function return codes have been changed:
+
+       2 the folder is not empty
+       1 the folder is empty
+       0 the folder does not exist
+      -1 access denied
+      -2 an error (incorrect parameter or inner problems with memory allocation)
+
+      If > 0 - it exists and is accessible
+      If = 0 - it doesn't exist, but one can try to create it
+      If < 0 - the function doesn't report anything encouraging
+
+2. Mantis#0001773: giving an opportunity of enabling AutoDetect menu item on Shift-F8
+   addition to the editor
+   (from 2useven10)
+
+svs 19.05.2011 14:25:38 +0300 - build 2035
+
+1. Mantis#0001772: Minor makeup in CacheRead code and its use in the viewer
+   minor code cleanup
+   (from 2useven10)
+
+svs 19.05.2011 14:07:17 +0300 - build 2034
+
+1. Mantis#0001773: giving an opportunity of enabling AutoDetect menu item on Shift-F8
+   Just a parameter is added to make this usable (so far, this is available in the viewer only)
+   (from 2useven10)
+
+drkns 17.05.2011 23:00:00 +0200 - build 2033
+
+1. VMenu.UserData still recalls itself.
+
+2. ConsoleTitle refactoring.
+
+drkns 16.05.2011 20:41:14 +0200 - build 2032
+
+1. Handle leak at virtual volumes detach.
+
+2. Mantis#0001769: Error in DM_EDITUNCHANGEDFLAG(id,-1)
+
+t-rex 15.05.2011 20:10:24 +0200 - build 2031
+
+1. OpenW(OPEN_ANALYSE) may return -2 as before in OpenFilePluginW.
+
+drkns 14.05.2011 18:06:52 +0200 - build 2030
+
+1. Crash at processing a filter in the history.
+
+2. GCC.
+
+svs 14.05.2011 14:53:18 +0300 - build 2029
+
+1. Mantis#0001687: ProcessConsoleInput
+   The next correction
+
+2. Macro: A bug in Editor.Sel() - TAB characters were not taken into account...
+   (the report is from fardev@googlegroups.com newsgroup)
+
 drkns 11.05.2011 20:49:34 +0200 - build 2028
 
 1. Some minor changes.
@@ -129,7 +193,7 @@ t-rex 28.04.2011 21:44:56 +0200 - build 2013
 
 1. Useless code was forgotten.
 
-t-rex 28.04.2011 21:33:34 +0200 - build 2012 футуре
+t-rex 28.04.2011 21:33:34 +0200 - build 2012 future
 
 1. Import from XML for HierarchicalConfig.
 
@@ -157,7 +221,7 @@ t-rex 28.04.2011 02:08:28 +0200 - build 2008
 t-rex 28.04.2011 01:57:57 +0200 - build 2007
 
 1. HierarchicalConfig bases export capability (import will be done later).
-   “.е. pluginsconfig, filters, highlight, shortcuts.
+   I.e. pluginsconfig, filters, highlight, shortcuts.
 
 t-rex 27.04.2011 23:34:03 +0200 - build 2006
 
@@ -200,7 +264,7 @@ t-rex 27.04.2011 01:40:51 +0200 - build 1999
 t-rex 26.04.2011 22:54:14 +0200 - build 1998
 
 1. Minor changes in plugin settings API.
-   SCTL_SET больше не принимает FST_SUBKEY так как нет смысла и этим занимаетс€ SCTL_SUBKEY.
+   SCTL_SET doesn't accept FST_SUBKEY any more because this is meaningless and it is done by SCTL_SUBKEY.
 
 2. For the documentation - SCTL_SET with FST_STRING defines a description to a key if FarSettingsItem.Name==NULL.
    It does not work if Root==0 because the description is set by FAR in this case (it is the name of the plugin).
@@ -267,7 +331,7 @@ t-rex 22.04.2011 19:39:06 +0200 - build 1989
 
 drkns 22.04.2011 16:16:16 +0200 - build 1988
 
-1. ACTL_GETCOLOR, ACTL_SETCURRENTWINDOW, ACTL_SETPROGRESSSTATE, ACTL_WAITKEY используют Param1.
+1. ACTL_GETCOLOR, ACTL_SETCURRENTWINDOW, ACTL_SETPROGRESSSTATE, ACTL_WAITKEY use Param1.
 
 drkns 22.04.2011 15:44:44 +0200 - build 1987
 
@@ -366,7 +430,7 @@ t-rex 19.04.2011 03:40:18 +0200 - build 1973
 
 t-rex 19.04.2011 01:09:36 +0200 - build 1972 - Hag Sameach!
 
-1. filters и highligh in sqlite (pluginsconfig.db must be removed again).
+1. filters and highligh in sqlite (pluginsconfig.db must be removed again).
 
 t-rex 18.04.2011 21:19:35 +0200 - build 1971
 
@@ -542,7 +606,7 @@ svs 06.04.2011 13:43:53 +0300 - build 1946
    Relative paths - within current FS's bounds
    Absolute paths (C:\ \\Server\share) close plugin panel (if that was the plugin panel)
 
-4. Macro: CmpName (из Mantis#0001742) renamed to FMatch
+4. Macro: CmpName (from Mantis#0001742) renamed to FMatch
    From: DAtaMan
      
      N=FMatch(S, Mask)
