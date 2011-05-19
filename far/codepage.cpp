@@ -527,7 +527,7 @@ void ProcessSelected(bool select)
 }
 
 // Заполняем меню выбора таблиц символов
-void FillCodePagesVMenu(bool bShowUnicode, bool bShowUTF, bool bShowUTF7)
+void FillCodePagesVMenu(bool bShowUnicode, bool bShowUTF, bool bShowUTF7, bool bShowAutoDetect=false)
 {
 	UINT codePage = currentCodePage;
 
@@ -545,7 +545,12 @@ void FillCodePagesVMenu(bool bShowUnicode, bool bShowUTF, bool bShowUTF7)
 
 	// Добавляем таблицы символов
 	// BUBUG: Когда добавится поддержка UTF7 параметр bShowUTF7 нужно убрать отовсюду
-	AddCodePages(::OEM | ::ANSI | (bShowUTF ? ::UTF8 : 0) | (bShowUTF7 ? ::UTF7 : 0) | (bShowUnicode ? (::UTF16BE | ::UTF16LE) : 0));
+	AddCodePages(::OEM | ::ANSI
+		| (bShowUTF ? ::UTF8 : 0)
+		| (bShowUTF7 ? ::UTF7 : 0)
+		| (bShowUnicode ? (::UTF16BE | ::UTF16LE) : 0)
+		| (bShowAutoDetect ? ::Auto : 0)
+	);
 	// Восстанавливаем оригинальню таблицу символов
 	currentCodePage = codePage;
 	// Позиционируем меню
@@ -685,7 +690,7 @@ void EditCodePageName()
 	Dlg.Process();
 }
 
-UINT SelectCodePage(UINT nCurrent, bool bShowUnicode, bool bShowUTF, bool bShowUTF7)
+UINT SelectCodePage(UINT nCurrent, bool bShowUnicode, bool bShowUTF, bool bShowUTF7, bool bShowAutoDetect)
 {
 	CallbackCallSource = CodePageSelect;
 	currentCodePage = nCurrent;
@@ -695,7 +700,7 @@ UINT SelectCodePage(UINT nCurrent, bool bShowUnicode, bool bShowUTF, bool bShowU
 	CodePages->SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
 	CodePages->SetHelp(L"CodePagesMenu");
 	// Добавляем таблицы символов
-	FillCodePagesVMenu(bShowUnicode, bShowUTF, bShowUTF7);
+	FillCodePagesVMenu(bShowUnicode, bShowUTF, bShowUTF7, bShowAutoDetect);
 	// Показываем меню
 	CodePages->Show();
 
@@ -731,7 +736,7 @@ UINT SelectCodePage(UINT nCurrent, bool bShowUnicode, bool bShowUTF, bool bShowU
 	}
 
 	// Получаем выбранную таблицу символов
-	UINT codePage = CodePages->Modal::GetExitCode() >= 0 ? GetMenuItemCodePage() : (UINT)-1;
+	UINT codePage = CodePages->Modal::GetExitCode() >= 0 ? static_cast<WORD>(GetMenuItemCodePage()) : (UINT)-1;
 	delete CodePages;
 	CodePages = nullptr;
 	return codePage;

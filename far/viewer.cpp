@@ -1304,10 +1304,18 @@ int Viewer::ProcessKey(int Key)
 		case KEY_SHIFTF8:
 		{
 			LastPage = 0;
-			UINT nCodePage = SelectCodePage(VM.CodePage, true, true);
+			UINT nCodePage = SelectCodePage(VM.CodePage, true, true, false, true);
 
 			if (nCodePage!=(UINT)-1)
 			{
+				if (nCodePage == (WORD)(CP_AUTODETECT & 0xffff))
+				{
+					__int64 fpos = vtell();
+					bool detect = GetFileFormat(ViewFile,nCodePage,&Signature,true) && IsCodePageSupported(nCodePage);
+					vseek(fpos, SEEK_SET);
+					if (!detect)
+						nCodePage = Opt.ViOpt.AnsiCodePageAsDefault ? GetACP() : GetOEMCP();
+				}
 				CodePageChangedByUser=TRUE;
 
 				if (IsUnicodeCodePage(VM.CodePage) && !IsUnicodeCodePage(nCodePage))
