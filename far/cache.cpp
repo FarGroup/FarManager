@@ -35,18 +35,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "cache.hpp"
 
-CachedRead::CachedRead(File& file, DWORD buffer_size, int alignment):
-	Buffer(nullptr),
+CachedRead::CachedRead(File& file):
+	Buffer(static_cast<LPBYTE>(xf_malloc(DefaultBufferSize))),
 	file(file),
 	ReadSize(0),
 	BytesLeft(0),
 	LastPtr(0),
-	BufferSize(buffer_size),
-	Alignment(alignment)
-{
-	if (buffer_size)
-		Buffer = static_cast<LPBYTE>(xf_malloc(buffer_size));
-}
+	BufferSize(DefaultBufferSize),
+	Alignment(512)
+{}
 
 CachedRead::~CachedRead()
 {
@@ -56,30 +53,29 @@ CachedRead::~CachedRead()
 	}
 }
 
-bool CachedRead::Init()
+bool CachedRead::AdjustAlignment()
 {
 	if (!file.Opened())
 		return false;
 
-	DWORD ret, buff_size = DefaultBufferSize;
-	Alignment = 4 * 1024;
+	DWORD ret, buff_size = BufferSize;
 	DISK_GEOMETRY g;
 
-	if (file.IoControl(IOCTL_DISK_GET_DRIVE_GEOMETRY, nullptr, 0, &g, (DWORD)sizeof(g), &ret, nullptr))
+	if (file.IoControl(IOCTL_DISK_GET_DRIVE_GEOMETRY, nullptr,0, &g,(DWORD)sizeof(g), &ret,nullptr))
 	{
-		if (g.BytesPerSector > 4*1024 && g.BytesPerSector <= 256*1024)
+		if (g.BytesPerSector > 512 && g.BytesPerSector <= 256*1024)
 		{
 			Alignment = (int)g.BytesPerSector;
 			buff_size = 16 * g.BytesPerSector;
 		}
-		file.IoControl(FSCTL_ALLOW_EXTENDED_DASD_IO, nullptr, 0, nullptr, 0, &ret, nullptr);
+		file.IoControl(FSCTL_ALLOW_EXTENDED_DASD_IO, nullptr,0, nullptr,0, &ret,nullptr);
 	}
 
-	if (buff_size != BufferSize)
+	if (buff_size > BufferSize)
 	{
 		if (Buffer)
 			xf_free(Buffer);
-		Buffer = reinterpret_cast<LPBYTE>(xf_malloc(BufferSize = buff_size));
+		Buffer = static_cast<LPBYTE>(xf_malloc(BufferSize = buff_size));
 	}
 
 	Clear();

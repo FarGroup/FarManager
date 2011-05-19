@@ -80,7 +80,7 @@ static int utf8_to_WideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int 
 
 Viewer::Viewer(bool bQuickView, UINT aCodePage):
 	ViOpt(Opt.ViOpt),
-	Reader(ViewFile, 0, 0),
+	Reader(ViewFile),
 	m_bQuickView(bQuickView)
 {
 	_OT(SysLog(L"[%p] Viewer::Viewer()", this));
@@ -278,7 +278,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 		OpenFailed=true;
 		return FALSE;
 	}
-	Reader.Init();
+	Reader.AdjustAlignment();
 
 	CodePageChangedByUser=FALSE;
 
