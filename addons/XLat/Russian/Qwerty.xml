@@ -1,13 +1,107 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<farconfig version="3.0.2033">
+<farconfig>
     <generalconfig>
+
+        <!--
+        Russian:
+        0x00000001 = Автоматическое переключение раскладки клавиатуры после перекодирования :-)
+                     Переключение происходит по кругу: RU->EN->RU->... - это вполне достаточно.
+        0x00000002 = При переключении раскладки выдать звуковой сигнал.
+        0x00000004 = Использовать предопределенные именованные правила для "двойных" клавиш.
+                     Параметр в реестре c именем раскладки, например:
+                     "HKCU\Software\Far2\XLat/00000409:REG_SZ" BUGBUG
+                        обозначает "набирали по-русски в английской раскладке"
+                     "HKCU\Software\Far2\XLat/00000419:REG_SZ" BUGBUG
+                        обозначает "набирали по-английски в русской раскладке"
+                     и т.п.
+                     Так же, если задано автоматическое переключение (0x1), то переключение
+                     раскладок происходит только по списку значений, перечисленных в Layouts,
+                     независимо от количества установленных в системе раскладок.
+        0x00010000 = Конвертировать всю командную строку при отсутствии выделенного блока.
+
+        English:
+        0x00000001 = Automatic keyboard layout switching after the transliteration.
+                     The switching is cyclic: RU->EN->RU... - it's quite enough.
+        -->
         <setting key="XLat" name="Flags" type="qword" value="0000000000010001" />
+
+        <!--
+        Russian:
+        Номера раскладок клавиатуры (через ';'), которые будут переключаться,
+        независимо от количества установленных в системе раскладок (должно быть больше или равно двум)
+        Например, "Layouts"="04090409;04190419" (или "Layouts"="0409;0419")
+        Если указано меньше двух, то механизм "отключается" и раскладки переключаются по кругу, все.
+        Far для "Layouts" считывает первые 10 значений, остальные, если есть, игнорируются.
+
+        English:
+        -->
         <setting key="XLat" name="Layouts" type="text" value='0409;0419' />
+
+        <!--
+        Russian:
+        Пара перекодировочных таблиц (см. свою клавиатуру)
+
+        English:
+        Two transliteration tables (see your keyboard)
+
+        Table1=№АВГДЕЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЯавгдезийклмнопрстуфхцчшщъыьэяёЁБЮ
+        Table2=#FDULTPBQRKVYJGHCNEA{WXIO}SMZfdultpbqrkvyjghcnea[wxio]sm'z`~<>
+        -->
+        <setting key="XLat" name="Table1" type="text" value="№АВГДЕЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЯавгдезийклмнопрстуфхцчшщъыьэяёЁБЮ" /> <!-- Non-english symbols -->
+        <setting key="XLat" name="Table2" type="text" value="#FDULTPBQRKVYJGHCNEA{WXIO}SMZfdultpbqrkvyjghcnea[wxio]sm&apos;z`~&lt;&gt;" /> <!-- English symbols -->
+
+        <!--
+        Russian:
+        40 Правил для случая "если предыдущий символ русский".
+        Первый символ - что меняем, второй - на что меняем.
+        (по 2 символа!)
+
+        English:
+        40 Rules for a case "if the preceding symbol is russian".
+        First symbol - what to change, second symbol - to change into what.
+        (two symbols for each rule!)
+
+        "Rules1"=",??&./б,ю.:^Ж:ж;;$\"@Э\""
+        -->
         <setting key="XLat" name="Rules1" type="text" value=',??&amp;./б,ю.:^Ж:ж;;$;&quot;@Э&quot;' />
+
+        <!--
+        Russian:
+        40 Правил для случая "если предыдущий символ латинский".
+        Первый символ - что меняем, второй - на что меняем.
+        (по 2 символа!)
+
+        English:
+        40 Rules for a case "if the preceding symbol is english".
+        First symbol - what to change, second symbol - to change into what.
+        (two symbols for each rule!)
+
+        "Rules2"="?,&?/.,б.ю^::Ж;ж$;@\"\"Э"
+        -->
         <setting key="XLat" name="Rules2" type="text" value='?,&amp;?/.,б.ю^::Ж;ж$;@&quot;&quot;Э' />
+
+        <!--
+        Russian:
+        40 Правил для случая "если предыдущий символ не рус/lat".
+        Первый символ - что меняем, второй - на что меняем - крутим по кругу.
+        (по 2 символа!)
+
+        English:
+        40 Rules for a case "if the preceding symbol is non-russian and non-english".
+        First symbol - what to change, second symbol - to change into what
+        (cyclic).
+        (two symbols for each rule!)
+
+        '^' -> ':' -> 'Ж' -> '^'
+        '$' -> ';' -> 'ж' -> '$'
+        '@' -> '"' -> 'Э' -> '@'
+        '&' -> '?' -> ',' -> 'б' -> '&'
+        '/' -> '.' -> 'ю' -> '/'
+
+        "Rules3"="^::ЖЖ^$;;жж$@\"\"ЭЭ@&??,,бб&/..юю/"
+        -->
         <setting key="XLat" name="Rules3" type="text" value='^::ЖЖ^$;;жж$@&quot;&quot;ЭЭ@&amp;??,,бб&amp;/..юю/' />
-        <setting key="XLat" name="Table1" type="text" value="№АВГДЕЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЯавгдезийклмнопрстуфхцчшщъыьэяёЁБЮ" />
-        <setting key="XLat" name="Table2" type="text" value="#FDULTPBQRKVYJGHCNEA{WXIO}SMZfdultpbqrkvyjghcnea[wxio]sm&apos;z`~&lt;&gt;" />
+
         <setting key="XLat" name="WordDivForXlat" type="text" value=" &#x09;!#$%^&amp;*()+|=\/@?" />
     </generalconfig>
 </farconfig>
