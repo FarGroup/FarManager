@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig version="3.0.2033">
+    <generalconfig>
+        <setting key="XLat" name="Flags" type="qword" value="0000000000010001" />
+        <setting key="XLat" name="Layouts" type="text" value='0409;0419' />
+        <setting key="XLat" name="Rules1" type="text" value=',??&amp;./б,ю.:^Ж:ж;;$;&quot;@Э&quot;' />
+        <setting key="XLat" name="Rules2" type="text" value='?,&amp;?/.,б.ю^::Ж;ж$;@&quot;&quot;Э' />
+        <setting key="XLat" name="Rules3" type="text" value='^::ЖЖ^$;;жж$@&quot;&quot;ЭЭ@&amp;??,,бб&amp;/..юю/' />
+        <setting key="XLat" name="Table1" type="text" value="№АВГДЕЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЯавгдезийклмнопрстуфхцчшщъыьэяёЁБЮ" />
+        <setting key="XLat" name="Table2" type="text" value="#FDULTPBQRKVYJGHCNEA{WXIO}SMZfdultpbqrkvyjghcnea[wxio]sm&apos;z`~&lt;&gt;" />
+        <setting key="XLat" name="WordDivForXlat" type="text" value=" &#x09;!#$%^&amp;*()+|=\/@?" />
+    </generalconfig>
+</farconfig>
