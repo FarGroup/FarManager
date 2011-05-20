@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+    <generalconfig>
+    	<!-- Default options (FAR 1.65) -->
+        <setting key="Screen" name="ScreenSaver" type="qword" value="0000000000000001" />
+        <setting key="System" name="SaveHistory" type="qword" value="0000000000000000" />
+        <setting key="System" name="SaveFoldersHistory" type="qword" value="0000000000000000" />
+        <setting key="System" name="SaveViewHistory" type="qword" value="0000000000000000" />
+        <setting key="Editor" name="SaveEditorPos" type="qword" value="0000000000000000" />
+        <setting key="Viewer" name="SaveViewerPos" type="qword" value="0000000000000000" />
+    </generalconfig>
+</farconfig>
