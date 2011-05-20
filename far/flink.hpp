@@ -52,7 +52,7 @@ BOOL  WINAPI FarMkLink(const wchar_t *Src,const wchar_t *Dest, LINK_TYPE Type, M
 int   WINAPI GetNumberOfLinks(const wchar_t *Name);
 bool WINAPI CreateVolumeMountPoint(const wchar_t *TargetVolume, const wchar_t *Object);
 
-bool  WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,DWORD Type=RP_JUNCTION);
+bool  WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,ReparsePointTypes Type=RP_JUNCTION);
 bool  WINAPI DeleteReparsePoint(const wchar_t *Object);
 bool ModifyReparsePoint(const wchar_t *Object,const wchar_t *NewData);
 

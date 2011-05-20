@@ -10254,13 +10254,58 @@ l:
 "Crear directorio"
 
 MCreateFolder
-"Создать п&апку"
-"Create the &folder"
-"Vytvořit &adresář"
+"Создать п&апку:"
+"Create the &folder:"
+"Vytvořit &adresář:"
 "Diesen &Ordner erstellen:"
 "Mappa &neve:"
-"Nazwa katalogu"
-"Nombre del directorio"
+"Nazwa katalogu:"
+"Nombre del directorio:"
+
+MMakeFolderLinkType
+"Тип ссылки:"
+"Link type:"
+"Typ linku:"
+"Linktyp:"
+"Link típusa:"
+"Typ linku:"
+"Tipo de enlace"
+
+MMakeFolderLinkNone
+"Нет"
+"None"
+upd:"None"
+upd:"None"
+upd:"None"
+upd:"None"
+upd:"None"
+
+MMakeFolderLinkJunction
+"связь каталогов"
+"directory junction"
+"křížení adresářů"
+"Ordnerknotenpunkt"
+"Mappa csomópont"
+"directory junction"
+"unión de directorio"
+
+MMakeFolderLinkSymlink
+"символическая ссылка"
+"symbolic link"
+"symbolický link"
+"Symbolischer Link"
+"Szimbolikus link"
+"link symboliczny"
+"enlace simbólico"
+
+MMakeFolderLinkTarget
+"Цель:"
+"Target:"
+upd:"Target:"
+upd:"Target:"
+upd:"Target:"
+upd:"Target:"
+upd:"Target:"
 
 MMultiMakeDir
 "Обрабатыват&ь несколько имён папок"

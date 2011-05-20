@@ -152,7 +152,7 @@ bool SetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
 	return Result;
 }
 
-bool WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,DWORD Type)
+bool WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,ReparsePointTypes Type)
 {
 	bool Result=false;
 
@@ -160,72 +160,83 @@ bool WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,DWOR
 	{
 		switch (Type)
 		{
+			case RP_HARDLINK:
+				break;
 			case RP_EXACTCOPY:
 				Result=DuplicateReparsePoint(Target,Object);
 				break;
 			case RP_SYMLINK:
 			case RP_SYMLINKFILE:
 			case RP_SYMLINKDIR:
-				if(Type == RP_SYMLINK)
 				{
-					DWORD Attr = apiGetFileAttributes(Target);
-					Type = ((Attr != INVALID_FILE_ATTRIBUTES) && (Attr&FILE_ATTRIBUTE_DIRECTORY)? RP_SYMLINKDIR : RP_SYMLINKFILE);
-				}
-				if (ifn.pfnCreateSymbolicLink)
-				{
-					Result=apiCreateSymbolicLink(Object,Target,Type==RP_SYMLINKDIR?SYMBOLIC_LINK_FLAG_DIRECTORY:0);
-				}
-				else
-				{
-					bool ObjectCreated=false;
-
-					if (Type==RP_SYMLINKDIR)
+					DWORD ObjectAttributes = apiGetFileAttributes(Object);
+					bool ObjectExist = ObjectAttributes!=INVALID_FILE_ATTRIBUTES;
+					if(Type == RP_SYMLINK)
 					{
-						ObjectCreated=apiCreateDirectory(Object,nullptr)!=FALSE;
+						DWORD Attr = apiGetFileAttributes(Target);
+						Type = ((Attr != INVALID_FILE_ATTRIBUTES) && (Attr&FILE_ATTRIBUTE_DIRECTORY)? RP_SYMLINKDIR : RP_SYMLINKFILE);
+					}
+					if (ifn.pfnCreateSymbolicLink && !ObjectExist)
+					{
+						Result=apiCreateSymbolicLink(Object,Target,Type==RP_SYMLINKDIR?SYMBOLIC_LINK_FLAG_DIRECTORY:0);
 					}
 					else
 					{
-						File file;
-						if(file.Open(Object,0,0,nullptr,CREATE_NEW))
+						bool ObjectCreated=false;
+						if (Type==RP_SYMLINKDIR)
 						{
-							ObjectCreated=true;
-							file.Close();
+							ObjectCreated= (ObjectExist && (ObjectAttributes&FILE_ATTRIBUTE_DIRECTORY)) || apiCreateDirectory(Object,nullptr)!=FALSE;
 						}
-					}
-
-					if (ObjectCreated)
-					{
-						LPBYTE szBuff=new BYTE[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
-						if(szBuff)
+						else
 						{
-							PREPARSE_DATA_BUFFER rdb=reinterpret_cast<PREPARSE_DATA_BUFFER>(szBuff);
-							rdb->ReparseTag=IO_REPARSE_TAG_SYMLINK;
-							string strPrintName=Target,strSubstituteName=Target;
-
-							if (IsAbsolutePath(Target))
+							if(ObjectExist)
 							{
-								strSubstituteName=L"\\??\\";
-								strSubstituteName+=(strPrintName.CPtr()+(HasPathPrefix(strPrintName)?4:0));
-								rdb->SymbolicLinkReparseBuffer.Flags=0;
+								ObjectCreated = !(ObjectAttributes&FILE_ATTRIBUTE_DIRECTORY);
 							}
 							else
 							{
-								rdb->SymbolicLinkReparseBuffer.Flags=SYMLINK_FLAG_RELATIVE;
+								File file;
+								if(file.Open(Object,0,0,nullptr,CREATE_NEW))
+								{
+									ObjectCreated=true;
+									file.Close();
+								}
 							}
+						}
 
-							if (FillREPARSE_DATA_BUFFER(rdb,strPrintName,strPrintName.GetLength(),strSubstituteName,strSubstituteName.GetLength()))
+						if (ObjectCreated)
+						{
+							LPBYTE szBuff=new BYTE[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
+							if(szBuff)
 							{
-								Result=SetREPARSE_DATA_BUFFER(Object,rdb);
+								PREPARSE_DATA_BUFFER rdb=reinterpret_cast<PREPARSE_DATA_BUFFER>(szBuff);
+								rdb->ReparseTag=IO_REPARSE_TAG_SYMLINK;
+								string strPrintName=Target,strSubstituteName=Target;
+
+								if (IsAbsolutePath(Target))
+								{
+									strSubstituteName=L"\\??\\";
+									strSubstituteName+=(strPrintName.CPtr()+(HasPathPrefix(strPrintName)?4:0));
+									rdb->SymbolicLinkReparseBuffer.Flags=0;
 							}
-							else
-							{
-								SetLastError(ERROR_INSUFFICIENT_BUFFER);
+								else
+								{
+									rdb->SymbolicLinkReparseBuffer.Flags=SYMLINK_FLAG_RELATIVE;
+								}
+
+								if (FillREPARSE_DATA_BUFFER(rdb,strPrintName,strPrintName.GetLength(),strSubstituteName,strSubstituteName.GetLength()))
+								{
+									Result=SetREPARSE_DATA_BUFFER(Object,rdb);
+								}
+								else
+								{
+									SetLastError(ERROR_INSUFFICIENT_BUFFER);
+								}
+								delete[] szBuff;
 							}
-							delete[] szBuff;
 						}
 					}
 				}
-
 				break;
 			case RP_JUNCTION:
 			case RP_VOLMOUNT:

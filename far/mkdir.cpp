@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "dirmix.hpp"
 #include "DlgGuid.hpp"
+#include "flink.hpp"
 
 enum
 {
@@ -55,6 +56,10 @@ enum
 	MKDIR_TEXT,
 	MKDIR_EDIT,
 	MKDIR_SEPARATOR0,
+	MKDIR_TEXT_LINKTYPE,
+	MKDIR_COMBOBOX_LINKTYPE,
+	MKDIR_TEXT_LINKPATH,
+	MKDIR_EDIT_LINKPATH,
 	MKDIR_CHECKBOX,
 	MKDIR_SEPARATOR2,
 	MKDIR_OK,
@@ -65,6 +70,14 @@ INT_PTR WINAPI MkDirDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 {
 	switch (Msg)
 	{
+		case DN_LISTCHANGE:
+			{
+				if (Param1 == MKDIR_COMBOBOX_LINKTYPE)
+				{
+					SendDlgMessage(hDlg, DM_ENABLE, MKDIR_EDIT_LINKPATH, ToPtr(Param2 != 0));
+				}
+			}
+			break;
 		case DN_CLOSE:
 		{
 			if (Param1==MKDIR_OK)
@@ -108,31 +121,43 @@ INT_PTR WINAPI MkDirDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 
 void ShellMakeDir(Panel *SrcPanel)
 {
-	string strDirName;
-	string strOriginalDirName;
-	wchar_t *lpwszDirName;
-	UserDefinedList DirList(0,0,ULF_UNIQUE);
+	FarList ComboList;
+	FarListItem LinkTypeItems[3]={};
+	ComboList.ItemsNumber=ARRAYSIZE(LinkTypeItems);
+	ComboList.Items=LinkTypeItems;
+	ComboList.Items[0].Text=MSG(MMakeFolderLinkNone);
+	ComboList.Items[1].Text=MSG(MMakeFolderLinkJunction);
+	ComboList.Items[2].Text=MSG(MMakeFolderLinkSymlink);
+	ComboList.Items[0].Flags|=LIF_SELECTED;
+
 	FarDialogItem MkDirDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,72,8,0,nullptr,nullptr,0,MSG(MMakeFolderTitle)},
+		{DI_DOUBLEBOX,3,1,72,10,0,nullptr,nullptr,0,MSG(MMakeFolderTitle)},
 		{DI_TEXT,     5,2, 0,2,0,nullptr,nullptr,0,MSG(MCreateFolder)},
 		{DI_EDIT,     5,3,70,3,0,L"NewFolder",nullptr,DIF_FOCUS|DIF_EDITEXPAND|DIF_HISTORY|DIF_USELASTHISTORY|DIF_EDITPATH,L""},
 		{DI_TEXT,     0,4, 0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_CHECKBOX, 5,5, 0,5,Opt.MultiMakeDir,nullptr,nullptr,0,MSG(MMultiMakeDir)},
-		{DI_TEXT,     0,6, 0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
-		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
+		{DI_TEXT,     5,5, 0,5,0,nullptr,nullptr,0,MSG(MMakeFolderLinkType)},
+		{DI_COMBOBOX,20,5,70,5,0,nullptr,nullptr,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND|DIF_LISTWRAPMODE,L""},
+		{DI_TEXT,     5,6, 0,6,0,nullptr,nullptr,0,MSG(MMakeFolderLinkTarget)},
+		{DI_EDIT,    20,6,70,6,0,L"NewFolderLinkTarget",nullptr,DIF_DISABLE|DIF_EDITEXPAND|DIF_HISTORY|DIF_USELASTHISTORY|DIF_EDITPATH,L""},
+		{DI_CHECKBOX, 5,7, 0,7,Opt.MultiMakeDir,nullptr,nullptr,0,MSG(MMultiMakeDir)},
+		{DI_TEXT,     0,8, 0,8,0,nullptr,nullptr,DIF_SEPARATOR,L""},
+		{DI_BUTTON,   0,9, 0,9,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
+		{DI_BUTTON,   0,9, 0,9,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
 	};
 	MakeDialogItemsEx(MkDirDlgData,MkDirDlg);
+	MkDirDlg[MKDIR_COMBOBOX_LINKTYPE].ListItems=&ComboList;
+	UserDefinedList DirList(0,0,ULF_UNIQUE);
 	Dialog Dlg(MkDirDlg,ARRAYSIZE(MkDirDlg),MkDirDlgProc,&DirList);
-	Dlg.SetPosition(-1,-1,76,10);
+	Dlg.SetPosition(-1,-1,76,12);
 	Dlg.SetHelp(L"MakeFolder");
 	Dlg.SetId(MakeFolderId);
 	Dlg.Process();
 
 	if (Dlg.GetExitCode()==MKDIR_OK)
 	{
-		strDirName=MkDirDlg[MKDIR_EDIT].strData;
+		string strDirName=MkDirDlg[MKDIR_EDIT].strData;
+		string strOriginalDirName;
 		const wchar_t *OneDir;
 		DirList.Reset();
 
@@ -146,7 +171,7 @@ void ShellMakeDir(Panel *SrcPanel)
 				strDirName.Upper();
 
 			DeleteEndSlash(strDirName,true);
-			lpwszDirName = strDirName.GetBuffer();
+			wchar_t* lpwszDirName = strDirName.GetBuffer();
 			bool bSuccess = false;
 
 			if(HasPathPrefix(lpwszDirName))
@@ -220,7 +245,19 @@ void ShellMakeDir(Panel *SrcPanel)
 			}
 
 			if (bSuccess2)
+			{
+				if(MkDirDlg[MKDIR_COMBOBOX_LINKTYPE].ListPos)
+				{
+					string strTarget=MkDirDlg[MKDIR_EDIT_LINKPATH].strData;
+					Unquote(strTarget);
+					if(!CreateReparsePoint(strTarget, strDirName, MkDirDlg[MKDIR_COMBOBOX_LINKTYPE].ListPos==1?RP_JUNCTION:RP_SYMLINKDIR))
+					{
+						Message(FMSG_WARNING|FMSG_ERRORTYPE, 1, MSG(MError), MSG(MCopyCannotCreateLink), strDirName, MSG(MHOk));
+					}
+				}
+				
 				TreeList::AddTreeName(strDirName);
+			}
 			else if (!bSkip)
 				break;
 		}

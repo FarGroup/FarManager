@@ -1172,7 +1172,9 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 				//reparse point editor
 				if (StrCmpI(AttrDlg[SA_EDIT_SYMLINK].strData,strLinkName))
 				{
-					if(!ModifyReparsePoint(strSelName,AttrDlg[SA_EDIT_SYMLINK].strData))
+					string strTarget = AttrDlg[SA_EDIT_SYMLINK].strData;
+					Unquote(strTarget);
+					if(!ModifyReparsePoint(strSelName, strTarget))
 					{
 						Message(FMSG_WARNING|FMSG_ERRORTYPE,1,MSG(MError),MSG(MCopyCannotCreateLink),strSelName,MSG(MHOk));
 					}

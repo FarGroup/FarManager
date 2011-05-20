@@ -88,6 +88,10 @@ UnicodeString& UnicodeString::Replace(size_t Pos, size_t Len, const wchar_t* Dat
 	if (!Len && !DataLen)
 		return *this;
 
+	if (DataLen == static_cast<size_t>(-1))
+	{
+		DataLen = StrLength(Data);
+	}
 	size_t NewLength = m_pData->GetLength() + DataLen - Len;
 
 	if (m_pData->GetRef() == 1 && NewLength + 1 <= m_pData->GetSize())
