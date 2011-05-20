@@ -225,7 +225,10 @@ int Plugin::Unload(bool bExitFAR)
 	int nResult = TRUE;
 
 	if (bExitFAR)
-		ExitFAR();
+	{
+		const ExitInfo Info={sizeof(Info)};
+		ExitFAR(&Info);
+	}
 
 	if (!WorkFlags.Check(PIWF_CACHED))
 	{

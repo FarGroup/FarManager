@@ -2500,6 +2500,11 @@ struct ProcessConsoleInputInfo
 #endif
 #endif // END FAR_USE_INTERNALS
 
+struct ExitInfo
+{
+	size_t StructSize;
+};
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -2511,7 +2516,7 @@ extern "C"
 	int    WINAPI CompareW(const struct CompareInfo *Info);
 	int    WINAPI ConfigureW(const GUID* Guid);
 	int    WINAPI DeleteFilesW(const struct DeleteFilesInfo *Info);
-	void   WINAPI ExitFARW(void);
+	void   WINAPI ExitFARW(const struct ExitInfo *Info);
 	void   WINAPI FreeFindDataW(const struct FreeFindDataInfo *Info);
 	void   WINAPI FreeVirtualFindDataW(const struct FreeFindDataInfo *Info);
 	int    WINAPI GetFilesW(struct GetFilesInfo *Info);

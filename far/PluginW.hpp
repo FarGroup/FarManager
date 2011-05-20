@@ -35,7 +35,7 @@ typedef void (WINAPI *PLUGINCLOSEPANELW)(HANDLE hPlugin);
 typedef int (WINAPI *PLUGINCOMPAREW)(const CompareInfo *Info);
 typedef int (WINAPI *PLUGINCONFIGUREW)(const GUID* Guid);
 typedef int (WINAPI *PLUGINDELETEFILESW)(const DeleteFilesInfo *Info);
-typedef void (WINAPI *PLUGINEXITFARW)();
+typedef void (WINAPI *PLUGINEXITFARW)(const ExitInfo *Info);
 typedef void (WINAPI *PLUGINFREEFINDDATAW)(const FreeFindDataInfo *Info);
 typedef void (WINAPI *PLUGINFREEVIRTUALFINDDATAW)(const FreeFindDataInfo *Info);
 typedef int (WINAPI *PLUGINGETFILESW)(GetFilesInfo *Info);
@@ -219,7 +219,7 @@ class PluginW: public Plugin
 		bool GetPluginInfo(PluginInfo *pi);
 		int Configure(const GUID& Guid);
 
-		void ExitFAR();
+		void ExitFAR(const ExitInfo *Info);
 		const wchar_t* GetTitle(void) { return strTitle.CPtr(); }
 
 	private:

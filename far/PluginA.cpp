@@ -5608,12 +5608,13 @@ bool PluginA::GetPluginInfo(PluginInfo *pi)
 	return false;
 }
 
-void PluginA::ExitFAR()
+void PluginA::ExitFAR(const ExitInfo *Info)
 {
 	if (pExitFAR && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_EXITFAR;
+		// ExitInfo ignored for ansi plugins
 		EXECUTE_FUNCTION(pExitFAR(), es);
 	}
 }

@@ -215,7 +215,7 @@ class PluginA: public Plugin
 		bool GetPluginInfo(PluginInfo *pi);
 		int Configure(const GUID& Guid);
 
-		void ExitFAR();
+		void ExitFAR(const ExitInfo *Info);
 		const wchar_t* GetTitle(void) { return nullptr; }
 
 	private:

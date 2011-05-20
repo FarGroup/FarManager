@@ -1243,13 +1243,13 @@ void PluginW::FreeCustomData(wchar_t *CustomData)
 	}
 }
 
-void PluginW::ExitFAR()
+void PluginW::ExitFAR(const ExitInfo *Info)
 {
 	if (pExitFARW && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_EXITFAR;
-		EXECUTE_FUNCTION(pExitFARW(), es);
+		EXECUTE_FUNCTION(pExitFARW(Info), es);
 	}
 }
 
