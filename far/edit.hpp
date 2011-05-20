@@ -62,6 +62,8 @@ enum FLAGS_CLASS_EDITLINE
 
 struct ColorItem
 {
+	GUID Owner;
+	unsigned Priority;
 	int StartPos;
 	int EndPos;
 	int Color;
@@ -285,7 +287,7 @@ class Edit:public ScreenObject
 		void  InsertTab();
 
 		void  AddColor(ColorItem *col);
-		int   DeleteColor(int ColorPos);
+		int   DeleteColor(int ColorPos,const GUID& Owner);
 		int   GetColor(ColorItem *col,int Item);
 
 		void Xlat(bool All=false);

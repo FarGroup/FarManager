@@ -1505,6 +1505,7 @@ enum EDITOR_CONTROL_COMMANDS
 	ECTL_GETSTACKBOOKMARKS,
 	ECTL_UNDOREDO,
 	ECTL_GETFILENAME,
+	ECTL_DELCOLOR,
 #ifdef FAR_USE_INTERNALS
 	ECTL_SERVICEREGION,
 #endif // END FAR_USE_INTERNALS
@@ -1703,7 +1704,19 @@ struct EditorColor
 	int EndPos;
 	EDITORCOLORFLAGS Flags;
 	struct FarColor Color;
+	GUID Owner;
+	unsigned Priority;
 };
+
+struct EditorDeleteColor
+{
+	size_t StructSize;
+	GUID Owner;
+	int StringNumber;
+	int StartPos;
+};
+
+#define EDITOR_COLOR_ANSI_PRIORITY 0x80000000U
 
 struct EditorSaveFile
 {

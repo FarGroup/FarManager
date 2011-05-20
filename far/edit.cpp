@@ -2564,6 +2564,11 @@ void Edit::DeleteBlock()
 	Changed(true);
 }
 
+static int _cdecl SortColors(const void *el1,const void *el2)
+{
+	ColorItem *item1=(ColorItem *)el1,*item2=(ColorItem *)el2;
+	return item1->Priority-item2->Priority;
+}
 
 void Edit::AddColor(ColorItem *col)
 {
@@ -2571,10 +2576,10 @@ void Edit::AddColor(ColorItem *col)
 		ColorList=(ColorItem *)xf_realloc(ColorList,(ColorCount+16)*sizeof(*ColorList));
 
 	ColorList[ColorCount++]=*col;
+	far_qsort(ColorList,ColorCount,sizeof(*ColorList),SortColors);
 }
 
-
-int Edit::DeleteColor(int ColorPos)
+int Edit::DeleteColor(int ColorPos,const GUID& Owner)
 {
 	int Src;
 
@@ -2584,7 +2589,7 @@ int Edit::DeleteColor(int ColorPos)
 	int Dest=0;
 
 	for (Src=0; Src<ColorCount; Src++)
-		if (ColorPos!=-1 && ColorList[Src].StartPos!=ColorPos)
+		if ((ColorPos!=-1 && ColorList[Src].StartPos!=ColorPos) || (!IsEqualGUID(Owner,ColorList[Src].Owner)))
 		{
 			if (Dest!=Src)
 				ColorList[Dest]=ColorList[Src];

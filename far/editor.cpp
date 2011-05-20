@@ -5755,6 +5755,8 @@ int Editor::EditorControl(int Command,void *Param)
 				newcol.EndPos=col->EndPos+X1;
 				newcol.Color=Colors::FarColorToColor(col->Color);
 				newcol.Flags=col->Flags;
+				newcol.Owner=col->Owner;
+				newcol.Priority=col->Priority;
 				Edit *CurPtr=GetStringByNumber(col->StringNumber);
 
 				if (!CurPtr)
@@ -5762,9 +5764,6 @@ int Editor::EditorControl(int Command,void *Param)
 					_ECTLLOG(SysLog(L"GetStringByNumber(%d) return nullptr",col->StringNumber));
 					return FALSE;
 				}
-
-				if (!Colors::FarColorToColor(col->Color))
-					return(CurPtr->DeleteColor(newcol.StartPos));
 
 				CurPtr->AddColor(&newcol);
 				return TRUE;
@@ -5798,6 +5797,8 @@ int Editor::EditorControl(int Command,void *Param)
 				col->EndPos=curcol.EndPos-X1;
 				Colors::ColorToFarColor(curcol.Color,col->Color);
 				col->Flags=curcol.Flags;
+				col->Owner=curcol.Owner;
+				col->Priority=curcol.Priority;
 				_ECTLLOG(SysLog(L"EditorColor{"));
 				_ECTLLOG(SysLog(L"  StringNumber=%d",col->StringNumber));
 				_ECTLLOG(SysLog(L"  ColorItem   =%d (0x%08X)",col->ColorItem,col->ColorItem));
@@ -5806,6 +5807,24 @@ int Editor::EditorControl(int Command,void *Param)
 				_ECTLLOG(SysLog(L"  Color       =%d (0x%08X)",Colors::FarColorToColor(col->Color),Colors::FarColorToColor(col->Color)));
 				_ECTLLOG(SysLog(L"}"));
 				return TRUE;
+			}
+
+			break;
+		}
+		case ECTL_DELCOLOR:
+		{
+			if (Param)
+			{
+				EditorDeleteColor *col=(EditorDeleteColor *)Param;
+				Edit *CurPtr=GetStringByNumber(col->StringNumber);
+
+				if (!CurPtr)
+				{
+					_ECTLLOG(SysLog(L"GetStringByNumber(%d) return nullptr",col->StringNumber));
+					return FALSE;
+				}
+
+				return(CurPtr->DeleteColor(col->StartPos,col->Owner));
 			}
 
 			break;

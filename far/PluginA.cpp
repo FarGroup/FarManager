@@ -3837,26 +3837,35 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 	switch (OldCommand)
 	{
 		case oldfar::ECTL_ADDCOLOR:
+			if(Param)
+			{
+				oldfar::EditorColor* ecA = static_cast<oldfar::EditorColor*>(Param);
+				EditorColor ec={};
+				ec.StructSize = sizeof(ec);
+				ec.StringNumber = ecA->StringNumber;
+				ec.StartPos = ecA->StartPos;
+				ec.EndPos = ecA->EndPos;
+				Colors::ColorToFarColor(ecA->Color,ec.Color);
+				if(ecA->Color&oldfar::ECF_TAB1) ec.Color.Flags|=ECF_TAB1;
+				ec.Priority=EDITOR_COLOR_ANSI_PRIORITY;
+				ec.Owner=FarGuid;
+				EditorDeleteColor edc={};
+				edc.StructSize=sizeof(edc);
+				edc.Owner=FarGuid;
+				edc.StringNumber = ecA->StringNumber;
+				edc.StartPos = ecA->StartPos;
+				return ecA->Color?FarEditorControl(-1, ECTL_ADDCOLOR, 0, &ec):FarEditorControl(-1, ECTL_DELCOLOR, 0, &edc);
+			}
+			return FALSE;
 		case oldfar::ECTL_GETCOLOR:
 			if(Param)
 			{
-				Command = OldCommand==oldfar::ECTL_ADDCOLOR?ECTL_ADDCOLOR:ECTL_GETCOLOR;
 				oldfar::EditorColor* ecA = static_cast<oldfar::EditorColor*>(Param);
 				EditorColor ec={};
 				ec.StringNumber = ecA->StringNumber;
-				if(Command == ECTL_ADDCOLOR)
-				{
-					ec.StartPos = ecA->StartPos;
-					ec.EndPos = ecA->EndPos;
-					Colors::ColorToFarColor(ecA->Color,ec.Color);
-					if(ecA->Color&oldfar::ECF_TAB1) ec.Color.Flags|=ECF_TAB1;
-				}
-				else
-				{
-					ec.ColorItem = ecA->ColorItem;
-				}
-				int Result = FarEditorControl(-1, Command, 0, &ec);
-				if(Result && Command == ECTL_GETCOLOR)
+				ec.ColorItem = ecA->ColorItem;
+				int Result = FarEditorControl(-1, ECTL_GETCOLOR, 0, &ec);
+				if(Result)
 				{
 					ecA->StartPos = ec.StartPos;
 					ecA->EndPos = ec.EndPos;
