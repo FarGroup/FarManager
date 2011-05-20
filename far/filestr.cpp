@@ -37,6 +37,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filestr.hpp"
 #include "nsUniversalDetectorEx.hpp"
 
+#include "config.hpp"
+#include "configdb.hpp"
+#include "codepage.hpp"
+
 #define DELTA 1024
 
 enum EolType
@@ -987,6 +991,41 @@ bool GetFileFormat(File& file, UINT& nCodePage, bool* pSignatureFound, bool bUse
 				ns->HandleData(static_cast<LPCSTR>(Buffer), ReadSize);
 				ns->DataEnd();
 				int cp = ns->getCodePage();
+				if ( cp >= 0 )
+				{
+					const wchar_t *deprecated = Opt.strNoAutoDetectCP.CPtr();
+
+					if ( 0 == wcscmp(deprecated, L"-1") )
+					{
+						if ( Opt.CPMenuMode )
+						{
+							if ( static_cast<UINT>(cp) != GetACP() && static_cast<UINT>(cp) != GetOEMCP() )
+							{
+								int selectType = 0;
+								wchar_t szcp[16];
+								_snwprintf(szcp, ARRAYSIZE(szcp), L"%d", cp);
+								GeneralCfg->GetValue(FavoriteCodePagesKey, szcp, &selectType, 0);
+								if (0 == (selectType & CPST_FAVORITE))
+									cp = -1;
+							}
+						}
+					}
+					else
+					{
+						while (*deprecated)
+						{
+							while (*deprecated && (*deprecated < L'0' || *deprecated > L'9'))
+								++deprecated;
+
+							int dp = (int)wcstol(deprecated, (wchar_t **)&deprecated, 0);
+							if (cp == dp)
+							{
+								cp = -1;
+								break;
+							}
+						}
+					}
+				}
 
 				if (cp != -1)
 				{

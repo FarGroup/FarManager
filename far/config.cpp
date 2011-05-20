@@ -830,6 +830,7 @@ static struct FARConfig
 	{0, GeneralConfig::TYPE_INTEGER, NKeySystem,L"ExcludeCmdHistory",&Opt.ExcludeCmdHistory,0, 0}, //AN
 
 	{1, GeneralConfig::TYPE_INTEGER, NKeyCodePages,L"CPMenuMode",&Opt.CPMenuMode,0,0},
+	{1, GeneralConfig::TYPE_TEXT,    NKeyCodePages,L"NoAutoDetectCP",&Opt.strNoAutoDetectCP,0,L""},
 
 	{1, GeneralConfig::TYPE_TEXT,    NKeySystem,L"FolderInfo",&Opt.InfoPanel.strFolderInfoFiles, 0, L"DirInfo,File_Id.diz,Descript.ion,ReadMe.*,Read.Me"},
 	{1, GeneralConfig::TYPE_INTEGER, NKeyPanelInfo,L"InfoComputerNameFormat",&Opt.InfoPanel.ComputerNameFormat, ComputerNamePhysicalNetBIOS, 0},

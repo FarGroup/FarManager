@@ -79,6 +79,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "CFileMask.hpp"
 #include "vmenu.hpp"
+#include "elevation.hpp"
 
 // для диалога назначения клавиши
 struct DlgParam
@@ -4271,6 +4272,7 @@ static bool testfolderFunc(const TMacroFunction*)
 
 	if (tmpVar.isString())
 	{
+		DisableElevation de;
 		Ret=(__int64)TestFolder(tmpVar.s());
 	}
 

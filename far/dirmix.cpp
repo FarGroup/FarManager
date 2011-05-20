@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "interf.hpp"
+#include "elevation.hpp"
 
 BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
 {
@@ -167,11 +168,14 @@ int TestFolder(const wchar_t *Path)
 				return TSTFLD_NOTFOUND;
 		}
 
-		DWORD Attr=apiGetFileAttributes(strFindPath);
+		{
+			DisableElevation de;
 
-		if (Attr!=INVALID_FILE_ATTRIBUTES && !(Attr&FILE_ATTRIBUTE_DIRECTORY))
-			return TSTFLD_ERROR;
+			DWORD Attr=apiGetFileAttributes(strFindPath);
 
+			if (Attr!=INVALID_FILE_ATTRIBUTES && !(Attr&FILE_ATTRIBUTE_DIRECTORY))
+				return TSTFLD_ERROR;
+		}
 		return TSTFLD_NOTACCESS;
 	}
 
