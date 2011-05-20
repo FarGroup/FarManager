@@ -5,6 +5,7 @@ m4_define(BUILDTYPE,`')m4_dnl
 m4_define(MAJOR,3)m4_dnl
 m4_define(MINOR,0)m4_dnl
 m4_define(REVISION,0)m4_dnl
+m4_define(STAGE,VS_RELEASE)m4_dnl
 m4_define(DATE,m4_esyscmd(CMDAWK -f CMDDATE))m4_dnl
 m4_define(BLD_YEAR,m4_substr(DATE,6,4))m4_dnl
 m4_define(BLD_MONTH,m4_substr(DATE,3,2))m4_dnl

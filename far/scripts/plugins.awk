@@ -60,6 +60,8 @@ BEGIN {
           printf "#define FARMANAGERVERSION_REVISION %d\n",p3
         else if (index($0,"BUILD") > 0)
           printf "#define FARMANAGERVERSION_BUILD %d\n",p4
+        else if (index($0,"STAGE") > 0)
+          printf "#define FARMANAGERVERSION_STAGE %s\n",p5
       }
       else
         print $0
