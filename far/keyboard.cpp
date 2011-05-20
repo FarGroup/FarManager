@@ -479,14 +479,7 @@ int WINAPI InputRecordToKey(const INPUT_RECORD *r)
 		INPUT_RECORD Rec=*r; // НАДО!, т.к. внутри CalcKeyCode
 		//   структура INPUT_RECORD модифицируется!
 
-		FarKeyboardState _IntKeyState=IntKeyState; // нада! ибо CalcKeyCode "портит"... (Mantis#0001760)
-		memset(&IntKeyState,0,sizeof(IntKeyState));
-
-		int Result=(int)CalcKeyCode(&Rec,FALSE,nullptr,true);
-
-		IntKeyState=_IntKeyState;
-
-		return Result;
+		return (int)ShieldCalcKeyCode(&Rec,FALSE,nullptr,true);
 	}
 
 	return KEY_NONE;
@@ -621,7 +614,7 @@ void ReloadEnvironment()
 }
 
 #if defined(MANTIS_0001687)
-DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool AllowSynchro);
+static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool AllowSynchro);
 
 DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool AllowSynchro)
 {
@@ -1400,6 +1393,9 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 			           (CtrlState&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)?KEY_CTRL:0)|
 			           (CtrlState&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)?KEY_ALT:0);
 			memset(rec,0,sizeof(*rec));
+			rec->Event.KeyEvent.wVirtualKeyCode=VK_F24+(CalcKey==KEY_MSWHEEL_UP?2:1);
+			rec->Event.KeyEvent.dwControlKeyState=CtrlState;
+			rec->Event.KeyEvent.bKeyDown=TRUE;
 			rec->EventType = KEY_EVENT;
 		}
 
@@ -1412,6 +1408,9 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 			           (CtrlState&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)?KEY_CTRL:0)|
 			           (CtrlState&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)?KEY_ALT:0);
 			memset(rec,0,sizeof(*rec));
+			rec->Event.KeyEvent.wVirtualKeyCode=VK_F24+(CalcKey==KEY_MSWHEEL_RIGHT?4:3);
+			rec->Event.KeyEvent.dwControlKeyState=CtrlState;
+			rec->Event.KeyEvent.bKeyDown=TRUE;
 			rec->EventType = KEY_EVENT;
 		}
 
@@ -1516,7 +1515,7 @@ DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 	if (!ReadCount)
 		return 0;
 
-	return(CalcKeyCode(rec,TRUE));
+	return(CalcKeyCode(rec,TRUE)); // ShieldCalcKeyCode?
 }
 
 /* $ 24.08.2000 SVS
@@ -2091,6 +2090,14 @@ int IsShiftKey(DWORD Key)
 	return FALSE;
 }
 
+DWORD ShieldCalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlCode)
+{
+	FarKeyboardState _IntKeyState=IntKeyState; // нада! ибо CalcKeyCode "портит"... (Mantis#0001760)
+	memset(&IntKeyState,0,sizeof(IntKeyState));
+	DWORD Ret=CalcKeyCode(rec,RealKey,NotMacros,ProcessCtrlCode);
+	IntKeyState=_IntKeyState;
+	return Ret;
+}
 
 // GetAsyncKeyState(VK_RSHIFT)
 DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlCode)
@@ -2383,6 +2390,15 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 	/* ------------------------------------------------------------- */
 	switch (KeyCode)
 	{
+		case VK_F24+1:
+			return Modif|KEY_MSWHEEL_DOWN;
+		case VK_F24+2:
+			return Modif|KEY_MSWHEEL_UP;
+		case VK_F24+3:
+			return Modif|KEY_MSWHEEL_LEFT;
+		case VK_F24+4:
+			return Modif|KEY_MSWHEEL_RIGHT;
+
 		case VK_INSERT:
 		case VK_NUMPAD0:
 

@@ -2697,7 +2697,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 					}
 
 #endif
-					int Key=CalcKeyCode(rec,FALSE);
+					int Key=ShieldCalcKeyCode(rec,FALSE);
 					ReProcessKey(Key);
 				}
 

@@ -1153,6 +1153,7 @@ int Viewer::ProcessKey(int Key)
 					else
 					{
 						__int64 PrevLastPage=LastPage;
+						LastPage = 0;
 						Show();
 
 						if (PrevLastPage && !LastPage)

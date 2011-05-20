@@ -107,9 +107,9 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
 /*
   Функция TestFolder возвращает одно состояний тестируемого каталога:
 
-    TSTFLD_NOTFOUND   (2) - нет такого
-    TSTFLD_NOTEMPTY   (1) - не пусто
-    TSTFLD_EMPTY      (0) - пусто
+    TSTFLD_NOTEMPTY   (2) - не пусто
+    TSTFLD_EMPTY      (1) - пусто
+    TSTFLD_NOTFOUND   (0) - нет такого
     TSTFLD_NOTACCESS (-1) - нет доступа
     TSTFLD_ERROR     (-2) - ошибка (кривые параметры или нехватило памяти для выделения промежуточных буферов)
 */
@@ -166,6 +166,11 @@ int TestFolder(const wchar_t *Path)
 			if (StrCmp(Path,strFindPath))
 				return TSTFLD_NOTFOUND;
 		}
+
+		DWORD Attr=apiGetFileAttributes(strFindPath);
+
+		if (Attr!=INVALID_FILE_ATTRIBUTES && !(Attr&FILE_ATTRIBUTE_DIRECTORY))
+			return TSTFLD_ERROR;
 
 		return TSTFLD_NOTACCESS;
 	}

@@ -83,6 +83,7 @@ int WINAPI KeyToInputRecord(int Key, INPUT_RECORD *Rec);
 void ProcessKeyToInputRecord(int Key, unsigned int dwControlState, INPUT_RECORD *Rec);
 DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro=false,bool ProcessMouse=false,bool AllowSynchro=true);
 DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro=true);
+DWORD ShieldCalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros=nullptr, bool ProcessCtrlCode=false);
 DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros=nullptr, bool ProcessCtrlCode=false);
 DWORD WaitKey(DWORD KeyWait=(DWORD)-1,DWORD delayMS=0,bool ExcludeMacro=true);
 int SetFLockState(UINT vkKey, int State);

@@ -4672,7 +4672,7 @@ done:
 				if (!inRec->EventType)
 					inRec->EventType = KEY_EVENT;
 				if(inRec->EventType == KEY_EVENT || inRec->EventType == FARMACRO_KEY_EVENT)
-					aKey=CalcKeyCode(inRec,TRUE,nullptr);
+					aKey=ShieldCalcKeyCode(inRec,FALSE,nullptr);
 			}
 			else
 				aKey=MR->Key;
@@ -4694,7 +4694,7 @@ done:
 					if (!inRec->EventType)
 						inRec->EventType = KEY_EVENT;
 					if(inRec->EventType == KEY_EVENT || inRec->EventType == FARMACRO_KEY_EVENT)
-						aKey=CalcKeyCode(inRec,TRUE,nullptr);
+						aKey=ShieldCalcKeyCode(inRec,FALSE,nullptr);
 				}
 				else if (!aKey)
 					aKey=KEY_NONE;
