@@ -617,7 +617,8 @@ bool CPlugin::GetFilesFromPanel(LPCWSTR** ppFiles, unsigned* pnFiles, unsigned* 
       PluginPanelItem *PPI=(PluginPanelItem*)new char[Size];
        if(PPI)
       {
-        PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,0,PPI);
+        FarGetPluginPanelItem gpi={Size, PPI};
+        PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,0,&gpi);
         Root=(pi.SelectedItemsNumber==1 && !lstrcmp(PPI->FileName,L".."));
         delete[] PPI;
       }
@@ -646,11 +647,15 @@ bool CPlugin::GetFilesFromPanel(LPCWSTR** ppFiles, unsigned* pnFiles, unsigned* 
     SelectedItems=new PluginPanelItem*[SelectedItemsCount];
     for (int i=0; i<pi.SelectedItemsNumber; i++)
     {
-      SelectedItems[i]=(PluginPanelItem*)new char[PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,i,NULL)];
-      PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,i,SelectedItems[i]);
+      size_t SelSize = PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,i,NULL);
+      SelectedItems[i]=(PluginPanelItem*)new char[SelSize];
+      FarGetPluginPanelItem sgpi={SelSize, SelectedItems[i]};
+      PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,i,&sgpi);
       LPCWSTR szPath=SelectedItems[i]->FileName;
-      PluginPanelItem *PPI=(PluginPanelItem*)new char[PanelControl(PANEL_ACTIVE,FCTL_GETPANELITEM,pi.CurrentItem,NULL)];
-      PanelControl(PANEL_ACTIVE,FCTL_GETPANELITEM,pi.CurrentItem,PPI);
+      size_t Size = PanelControl(PANEL_ACTIVE,FCTL_GETPANELITEM,pi.CurrentItem,NULL);
+      PluginPanelItem *PPI=(PluginPanelItem*)new char[Size];
+      FarGetPluginPanelItem gpi={Size, PPI};
+      PanelControl(PANEL_ACTIVE,FCTL_GETPANELITEM,pi.CurrentItem,&gpi);
       bool Equal=!lstrcmp(PPI->FileName,szPath);
       delete[] PPI;
       if(Equal)
