@@ -1001,10 +1001,12 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 
 void GetPanelItem(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int Param1,PluginPanelItem* Param2)
 {
-  PluginPanelItem* item=(PluginPanelItem*)malloc(Info.PanelControl(hPlugin,Command,Param1,0));
+  size_t Size = Info.PanelControl(hPlugin,Command,Param1,0);
+  PluginPanelItem* item=(PluginPanelItem*)malloc(Size);
   if(item)
   {
-    Info.PanelControl(hPlugin,Command,Param1,item);
+    FarGetPluginPanelItem gpi = {Size, item};
+    Info.PanelControl(hPlugin,Command,Param1,&gpi);
     *Param2=*item;
     Param2->FileName=wcsdup(item->FileName);
     Param2->AlternateFileName=wcsdup(item->AlternateFileName);
