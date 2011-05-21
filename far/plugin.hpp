@@ -1716,7 +1716,7 @@ struct EditorDeleteColor
 	int StartPos;
 };
 
-#define EDITOR_COLOR_ANSI_PRIORITY 0x80000000U
+#define EDITOR_COLOR_NORMAL_PRIORITY 0x80000000U
 
 struct EditorSaveFile
 {

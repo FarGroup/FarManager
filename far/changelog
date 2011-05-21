@@ -1,3 +1,13 @@
+t-rex 21.05.2011 13:06:02 +0200 - build 2043
+
+1. EDITOR_COLOR_ANSI_PRIORITY -> EDITOR_COLOR_NORMAL_PRIORITY
+
+2. “ак как Priority unsigned то SortColors() должен быть другой.
+
+3. sqlite 3.7.6.3
+
+4. tinyxml 2.6.2
+
 drkns 21.05.2011 13:00:29 +0200 - build 2042
 
 1. Mantis#0001771: некорректно провер€етс€ размер структуры в DM_GETDIALOGINFO

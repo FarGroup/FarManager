@@ -2567,7 +2567,11 @@ void Edit::DeleteBlock()
 static int _cdecl SortColors(const void *el1,const void *el2)
 {
 	ColorItem *item1=(ColorItem *)el1,*item2=(ColorItem *)el2;
-	return item1->Priority-item2->Priority;
+	if (item1->Priority > item2->Priority)
+		return 1;
+	if (item1->Priority < item2->Priority)
+		return -1;
+	return 0;
 }
 
 void Edit::AddColor(ColorItem *col)

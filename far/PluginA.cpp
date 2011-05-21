@@ -3847,7 +3847,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 				ec.EndPos = ecA->EndPos;
 				Colors::ColorToFarColor(ecA->Color,ec.Color);
 				if(ecA->Color&oldfar::ECF_TAB1) ec.Color.Flags|=ECF_TAB1;
-				ec.Priority=EDITOR_COLOR_ANSI_PRIORITY;
+				ec.Priority=EDITOR_COLOR_NORMAL_PRIORITY;
 				ec.Owner=FarGuid;
 				EditorDeleteColor edc={};
 				edc.StructSize=sizeof(edc);
