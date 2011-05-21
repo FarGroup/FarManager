@@ -4,7 +4,7 @@
 /*
   farkeys.hpp
 
-  Inside KeyName for Far Manager 3.0 build 2042
+  Inside KeyName for Far Manager 3.0 build 2043
 */
 
 /*
