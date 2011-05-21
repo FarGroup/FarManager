@@ -64,6 +64,7 @@ struct ColorItem
 {
 	GUID Owner;
 	unsigned Priority;
+	int SubPriority;
 	int StartPos;
 	int EndPos;
 	int Color;

@@ -2571,7 +2571,7 @@ static int _cdecl SortColors(const void *el1,const void *el2)
 		return 1;
 	if (item1->Priority < item2->Priority)
 		return -1;
-	return 0;
+	return item1->SubPriority - item2->SubPriority;
 }
 
 void Edit::AddColor(ColorItem *col)
@@ -2580,6 +2580,7 @@ void Edit::AddColor(ColorItem *col)
 		ColorList=(ColorItem *)xf_realloc(ColorList,(ColorCount+16)*sizeof(*ColorList));
 
 	ColorList[ColorCount++]=*col;
+	for(int ii=0;ii<ColorCount;++ii) ColorList[ii].SubPriority=ii;
 	far_qsort(ColorList,ColorCount,sizeof(*ColorList),SortColors);
 }
 

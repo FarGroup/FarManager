@@ -33,6 +33,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #pragma warning(push, 1)
+#ifdef __GNUC__
+#pragma GCC diagnostic ignored "-Wstrict-overflow"
+#pragma GCC diagnostic ignored "-Wuninitialized"
+#endif // __GNUC__
 
 //to enable DESC indexes
 #define SQLITE_DEFAULT_FILE_FORMAT 4
