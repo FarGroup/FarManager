@@ -766,7 +766,10 @@ HANDLE PluginManager::OpenFilePlugin(
 			{
 				PluginHandle *handle = items.getItem(i);
 				mitem.Clear();
-				mitem.strName = PointToName(handle->pPlugin->GetModuleName());
+				if (handle->pPlugin->GetTitle())
+					mitem.strName = handle->pPlugin->GetTitle();
+				if (mitem.strName.IsEmpty())
+					mitem.strName = PointToName(handle->pPlugin->GetModuleName());
 				menu.SetUserData(&handle, sizeof(handle), menu.AddItem(&mitem));
 			}
 
@@ -881,7 +884,10 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, int I
 			{
 				PluginHandle *handle = items.getItem(i);
 				mitem.Clear();
-				mitem.strName=PointToName(handle->pPlugin->GetModuleName());
+				if (handle->pPlugin->GetTitle())
+					mitem.strName = handle->pPlugin->GetTitle();
+				if (mitem.strName.IsEmpty())
+					mitem.strName = PointToName(handle->pPlugin->GetModuleName());
 				menu.AddItem(&mitem);
 			}
 
