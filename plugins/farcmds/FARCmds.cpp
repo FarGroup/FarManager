@@ -96,11 +96,13 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		if (lstrlen(selectItem))
 			FSF.AddEndSlash(selectItem);
 
-		PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELITEM,PInfo.CurrentItem,0));
+		size_t Size = Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELITEM,PInfo.CurrentItem,0);
+		PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
 
 		if (PPI)
 		{
-			Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELITEM,PInfo.CurrentItem,PPI);
+			FarGetPluginPanelItem gpi={Size, PPI};
+			Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELITEM,PInfo.CurrentItem,&gpi);
 			lstrcat(selectItem,PPI->FileName);
 			free(PPI);
 		}
@@ -134,12 +136,13 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		for (int J=0; J < PInfo.ItemsNumber; J++)
 		{
 			bool Equal=false;
-
-			PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.PanelControl(PANEL_PASSIVE,FCTL_GETPANELITEM,J,0));
+			size_t Size = Info.PanelControl(PANEL_PASSIVE,FCTL_GETPANELITEM,J,0);
+			PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
 
 			if (PPI)
 			{
-				Info.PanelControl(PANEL_PASSIVE,FCTL_GETPANELITEM,J,PPI);
+				FarGetPluginPanelItem gpi={Size, PPI};
+				Info.PanelControl(PANEL_PASSIVE,FCTL_GETPANELITEM,J,&gpi);
 				Equal=!FSF.LStricmp(Name,FSF.PointToName(PPI->FileName));
 				free(PPI);
 			}
