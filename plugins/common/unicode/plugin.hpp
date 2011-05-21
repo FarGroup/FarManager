@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2028
+  Plugin API for Far Manager 3.0 build 2042
 */
 
 /*
@@ -43,7 +43,8 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2028
+#define FARMANAGERVERSION_BUILD 2042
+#define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
 
@@ -1327,6 +1328,7 @@ enum EDITOR_CONTROL_COMMANDS
 	ECTL_GETSTACKBOOKMARKS,
 	ECTL_UNDOREDO,
 	ECTL_GETFILENAME,
+	ECTL_DELCOLOR,
 };
 
 enum EDITOR_SETPARAMETER_TYPES
@@ -1510,7 +1512,19 @@ struct EditorColor
 	int EndPos;
 	EDITORCOLORFLAGS Flags;
 	struct FarColor Color;
+	GUID Owner;
+	unsigned Priority;
 };
+
+struct EditorDeleteColor
+{
+	size_t StructSize;
+	GUID Owner;
+	int StringNumber;
+	int StartPos;
+};
+
+#define EDITOR_COLOR_ANSI_PRIORITY 0x80000000U
 
 struct EditorSaveFile
 {
@@ -1983,13 +1997,13 @@ static __inline BOOL CheckVersion(const struct VersionInfo* Current, const struc
 	return (Current->Major > Required->Major) || (Current->Major == Required->Major && Current->Minor > Required->Minor) || (Current->Major == Required->Major && Current->Minor == Required->Minor && Current->Revision > Required->Revision) || (Current->Major == Required->Major && Current->Minor == Required->Minor && Current->Revision == Required->Revision && Current->Build >= Required->Build);
 }
 
-static __inline struct VersionInfo MAKEFARVERSION(DWORD Major, DWORD Minor, DWORD Revision, DWORD Build)
+static __inline struct VersionInfo MAKEFARVERSION(DWORD Major, DWORD Minor, DWORD Revision, DWORD Build, enum VERSION_STAGE Stage)
 {
-	struct VersionInfo Info = {Major,Minor,Revision,Build};
+	struct VersionInfo Info = {Major, Minor, Revision, Build, Stage};
 	return Info;
 }
 
-#define FARMANAGERVERSION MAKEFARVERSION(FARMANAGERVERSION_MAJOR,FARMANAGERVERSION_MINOR, FARMANAGERVERSION_REVISION, FARMANAGERVERSION_BUILD)
+#define FARMANAGERVERSION MAKEFARVERSION(FARMANAGERVERSION_MAJOR,FARMANAGERVERSION_MINOR, FARMANAGERVERSION_REVISION, FARMANAGERVERSION_BUILD, FARMANAGERVERSION_STAGE)
 
 struct GlobalInfo
 {
@@ -2274,6 +2288,11 @@ struct ProcessEditorInputInfo
 };
 
 
+struct ExitInfo
+{
+	size_t StructSize;
+};
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -2285,7 +2304,7 @@ extern "C"
 	int    WINAPI CompareW(const struct CompareInfo *Info);
 	int    WINAPI ConfigureW(const GUID* Guid);
 	int    WINAPI DeleteFilesW(const struct DeleteFilesInfo *Info);
-	void   WINAPI ExitFARW(void);
+	void   WINAPI ExitFARW(const struct ExitInfo *Info);
 	void   WINAPI FreeFindDataW(const struct FreeFindDataInfo *Info);
 	void   WINAPI FreeVirtualFindDataW(const struct FreeFindDataInfo *Info);
 	int    WINAPI GetFilesW(struct GetFilesInfo *Info);
@@ -2301,7 +2320,7 @@ extern "C"
 	int    WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *Info);
 	int    WINAPI ProcessEventW(HANDLE hPanel,int Event,void *Param);
 	int    WINAPI ProcessHostFileW(const struct ProcessHostFileInfo *Info);
-	int    WINAPI ProcessPanelInputW(HANDLE hPanel,const ProcessPanelInputInfo *Info);
+	int    WINAPI ProcessPanelInputW(HANDLE hPanel,const struct ProcessPanelInputInfo *Info);
 	int    WINAPI ProcessSynchroEventW(int Event,void *Param);
 	int    WINAPI ProcessViewerEventW(int Event,void *Param);
 	int    WINAPI PutFilesW(const struct PutFilesInfo *Info);
