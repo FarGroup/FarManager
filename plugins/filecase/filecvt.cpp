@@ -78,10 +78,12 @@ void CaseConvertion()
 
       for (int I=0;I < PInfo.SelectedItemsNumber; I++)
       {
-        PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,I,0));
+        size_t Size = Info.PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,I,0);
+        PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
         if(PPI)
         {
-          Info.PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,I,PPI);
+          FarGetPluginPanelItem gpi={Size, PPI};
+          Info.PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,I,&gpi);
           GetFullName(FullName,CurDir,PPI->FileName);
           ProcessName(FullName,PPI->FileAttributes);
           free(PPI);
