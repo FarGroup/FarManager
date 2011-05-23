@@ -1910,7 +1910,7 @@ void NetBrowser::SetCursorToShare (wchar_t *Share)
 }
 
 
-void WINAPI ExitFARW()
+void WINAPI ExitFARW(ExitInfo* Info)
 {
   delete CommonRootResources;
   NetResourceList::DeleteNetResource (CommonCurResource);
