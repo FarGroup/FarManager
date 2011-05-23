@@ -1891,6 +1891,7 @@ int WINAPI FarEditor(
 	int CreateNew = (Flags & EF_CREATENEW)?TRUE:FALSE;
 	int Locked=(Flags & EF_LOCKED)?TRUE:FALSE;
 	int DisableHistory=(Flags & EF_DISABLEHISTORY)?TRUE:FALSE;
+	int DisableSavePos=(Flags & EF_DISABLESAVEPOS)?TRUE:FALSE;
 	/* $ 14.06.2002 IS
 	   Обработка EF_DELETEONLYFILEONCLOSE - этот флаг имеет более низкий
 	   приоритет по сравнению с EF_DELETEONCLOSE
@@ -1922,7 +1923,11 @@ int WINAPI FarEditor(
 	if (Flags & EF_NONMODAL)
 	{
 		/* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-		FileEditor *Editor=new FileEditor(FileName,CodePage,(CreateNew?FFILEEDIT_CANNEWFILE:0)|FFILEEDIT_ENABLEF6|(DisableHistory?FFILEEDIT_DISABLEHISTORY:0)|(Locked?FFILEEDIT_LOCKED:0),
+		FileEditor *Editor=new FileEditor(FileName,CodePage,
+		                                  (CreateNew?FFILEEDIT_CANNEWFILE:0)|FFILEEDIT_ENABLEF6|
+		                                   (DisableHistory?FFILEEDIT_DISABLEHISTORY:0)|
+		                                   (Locked?FFILEEDIT_LOCKED:0)|
+		                                   (DisableSavePos?FFILEEDIT_DISABLESAVEPOS:0),
 		                                  StartLine,StartChar,Title,
 		                                  X1,Y1,X2,Y2,
 		                                  DeleteOnClose,OpMode);
@@ -1961,7 +1966,11 @@ int WINAPI FarEditor(
 	else
 	{
 		/* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-		FileEditor Editor(FileName,CodePage,(CreateNew?FFILEEDIT_CANNEWFILE:0)|(DisableHistory?FFILEEDIT_DISABLEHISTORY:0)|(Locked?FFILEEDIT_LOCKED:0),
+		FileEditor Editor(FileName,CodePage,
+		                  (CreateNew?FFILEEDIT_CANNEWFILE:0)|
+		                    (DisableHistory?FFILEEDIT_DISABLEHISTORY:0)|
+		                    (Locked?FFILEEDIT_LOCKED:0)|
+		                    (DisableSavePos?FFILEEDIT_DISABLESAVEPOS:0),
 		                  StartLine,StartChar,Title,
 		                  X1,Y1,X2,Y2,
 		                  DeleteOnClose,OpMode);

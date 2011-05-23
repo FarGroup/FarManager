@@ -72,6 +72,7 @@ enum FFILEEDIT_FLAGS
 	FFILEEDIT_OPENFAILED            = 0x01000000,  // файл открыть не удалось
 	FFILEEDIT_DELETEONCLOSE         = 0x02000000,  // удалить в деструкторе файл вместе с каталогом (если тот пуст)
 	FFILEEDIT_DELETEONLYFILEONCLOSE = 0x04000000,  // удалить в деструкторе только файл
+	FFILEEDIT_DISABLESAVEPOS        = 0x08000000,  // не сохранять позицию для файла
 	FFILEEDIT_CANNEWFILE            = 0x10000000,  // допускается новый файл?
 	FFILEEDIT_SERVICEREGION         = 0x20000000,  // используется сервисная область
 	FFILEEDIT_CODEPAGECHANGEDBYUSER = 0x40000000,

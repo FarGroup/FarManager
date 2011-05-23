@@ -379,7 +379,7 @@ FileEditor::~FileEditor()
 	//AY: флаг оповещающий закрытие редактора.
 	m_bClosing = true;
 
-	if (m_editor->EdOpt.SavePos && CtrlObject)
+	if (!Flags.Check(FFILEEDIT_DISABLESAVEPOS) && m_editor->EdOpt.SavePos && CtrlObject)
 		SaveToCache();
 
 	BitFlags FEditFlags=m_editor->Flags;
@@ -536,9 +536,14 @@ void FileEditor::Init(
 						SwitchTo=FALSE;
 						break;
 					case 2:         // Reload
+					{
 						FrameManager->DeleteFrame(FramePos);
+						Frame *deleted_frame = (*FrameManager)[FramePos];
+						if ( deleted_frame )
+							deleted_frame->SetFlags(FFILEEDIT_DISABLESAVEPOS);
 						SetExitCode(-2);
 						break;
+					}
 					case -100:
 						//FrameManager->DeleteFrame(this);  //???
 						SetExitCode(XC_EXISTS);

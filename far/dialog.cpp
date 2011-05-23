@@ -3610,20 +3610,22 @@ unsigned Dialog::ProcessRadioButton(unsigned CurRB)
 
 	Item[CurRB]->Selected=1;
 
+	unsigned ret = CurRB, focus = FocusPos;
+
 	/* $ 28.07.2000 SVS
 	  ѕри изменении состо€ни€ каждого элемента посылаем сообщение
 	  посредством функции SendDlgMessage - в ней делаетс€ все!
 	*/
 	if (!SendDlgMessage(this,DN_BTNCLICK,PrevRB,0) ||
-	        !SendDlgMessage(this,DN_BTNCLICK,CurRB,ToPtr(1)))
+		!SendDlgMessage(this,DN_BTNCLICK,CurRB,ToPtr(1)))
 	{
 		// вернем назад, если пользователь не захотел...
 		Item[CurRB]->Selected=0;
 		Item[PrevRB]->Selected=1;
-		return PrevRB;
+		ret = PrevRB;
 	}
 
-	return CurRB;
+	return (focus == FocusPos ? ret : FocusPos); // если фокус изменили - значит так надо!
 }
 
 

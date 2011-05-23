@@ -115,13 +115,15 @@ class Frame: public ScreenObject
 //    int ModalCount() {return ModalStackCount;}
 		void DestroyAllModal();
 		void SetDynamicallyBorn(int Born) {DynamicallyBorn=Born;}
-		int GetDynamicallyBorn() {return DynamicallyBorn;};
+		int GetDynamicallyBorn() {return DynamicallyBorn;}
 		virtual int FastHide();
 //    int IndexOf(Frame *aFrame);
 		bool RemoveModal(Frame *aFrame);
 		virtual void ResizeConsole();
 		bool HasSaveScreen();
 //    bool ifFullConsole();
-		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0) { return Title; };
-		virtual bool ProcessEvents() {return true;};
+		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0) { return Title; }
+		virtual bool ProcessEvents() {return true;}
+
+		void SetFlags( DWORD flags ) { Flags.Set(flags); }
 };
