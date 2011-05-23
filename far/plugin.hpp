@@ -63,6 +63,7 @@ other possible license with no implications from the above license on them.
 #define CP_UNICODE 1200
 #define CP_REVERSEBOM 1201
 #define CP_AUTODETECT ((UINT)-1)
+#define CP_REDETECT   ((UINT)-2)
 
 typedef unsigned __int64 FARCOLORFLAGS;
 static const FARCOLORFLAGS

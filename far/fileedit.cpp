@@ -97,7 +97,7 @@ INT_PTR __stdcall hndOpenEditor(
 	if (msg == DN_INITDIALOG)
 	{
 		int codepage = *(UINT*)param2;
-		FillCodePagesList(hDlg, ID_OE_CODEPAGE, codepage, true, false);
+		FillCodePagesList(hDlg, ID_OE_CODEPAGE, codepage, true, false, true);
 	}
 
 	if (msg == DN_CLOSE)
@@ -1506,6 +1506,10 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	UINT dwCP=0;
 	bool Detect=false;
 
+	bool ignore_cached_cp;
+	if ( ignore_cached_cp = (m_codepage == CP_REDETECT) )
+		m_codepage = CP_AUTODETECT;
+
 	if (m_codepage == CP_AUTODETECT || IsUnicodeOrUtfCodePage(m_codepage))
 	{
 		Detect=GetFileFormat(EditFile,dwCP,&m_bAddSignature,Opt.EdOpt.AutoDetectCodePage!=0);
@@ -1522,7 +1526,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 			m_codepage=dwCP;
 		}
 
-		if (bCached)
+		if (!ignore_cached_cp && bCached)
 		{
 			if (pc.CodePage)
 			{

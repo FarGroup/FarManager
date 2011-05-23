@@ -4376,6 +4376,15 @@ upd:"Automatic detection"
 "&Wykryj automatycznie"
 "Deteccion &automática"
 
+MDefaultCP
+"По умолчанию"
+"Default"
+upd:"Default"
+upd:"Default"
+upd:"Default"
+upd:"Default"
+"Por defecto"
+
 MEditGoToLine
 l:
 "Перейти"

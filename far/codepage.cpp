@@ -60,7 +60,8 @@ enum StandardCodePages
 	UTF8 = 32,
 	UTF16LE = 64,
 	UTF16BE = 128,
-	AllStandard = OEM | ANSI | UTF7 | UTF8 | UTF16BE | UTF16LE
+	AllStandard = OEM | ANSI | UTF7 | UTF8 | UTF16BE | UTF16LE,
+	DefaultCP = 256
 };
 
 // Источник вызова каллбака прохода по кодовым страницам
@@ -136,7 +137,7 @@ inline bool IsPositionNormal(UINT position)
 // Формируем строку для визуального представления таблицы символов
 void FormatCodePageString(UINT CodePage, const wchar_t *CodePageName, FormatString &CodePageNameString, bool IsCodePageNameCustom)
 {
-	if (CodePage!=CP_AUTODETECT)
+	if (static_cast<int>(CodePage) >= 0)  // CodePage != CP_AUTODETECT
 	{
 		CodePageNameString<<fmt::Width(5)<<CodePage<<BoxSymbols[BS_V1]<<(!IsCodePageNameCustom||CallbackCallSource==CodePagesFill?L' ':L'*');
 	}
@@ -404,7 +405,14 @@ BOOL __stdcall EnumCodePagesProc(const wchar_t *lpwszCodePage)
 void AddCodePages(DWORD codePages)
 {
 	// Добавляем стандартные таблицы символов
-	AddStandardCodePage((codePages & ::SearchAll) ? MSG(MFindFileAllCodePages) : MSG(MEditOpenAutoDetect), CP_AUTODETECT, -1, (codePages & ::SearchAll) || (codePages & ::Auto));
+
+	UINT cp_auto = CP_AUTODETECT;
+	if ( 0 != (codePages & ::DefaultCP) )
+	{
+		AddStandardCodePage(MSG(MDefaultCP), CP_AUTODETECT, -1, true);
+		cp_auto = CP_REDETECT;
+	}
+	AddStandardCodePage((codePages & ::SearchAll) ? MSG(MFindFileAllCodePages) : MSG(MEditOpenAutoDetect), cp_auto, -1, (codePages & ::SearchAll) || (codePages & ::Auto));
 	AddSeparator(MSG(MGetCodePageSystem));
 	AddStandardCodePage(L"OEM", GetOEMCP(), -1, (codePages & ::OEM)?1:0);
 	AddStandardCodePage(L"ANSI", GetACP(), -1, (codePages & ::ANSI)?1:0);
@@ -743,7 +751,7 @@ UINT SelectCodePage(UINT nCurrent, bool bShowUnicode, bool bShowUTF, bool bShowU
 }
 
 // Заполняем список таблицами символов
-UINT FillCodePagesList(HANDLE dialogHandle, UINT controlId, UINT codePage, bool allowAuto, bool allowAll)
+UINT FillCodePagesList(HANDLE dialogHandle, UINT controlId, UINT codePage, bool allowAuto, bool allowAll, bool allowDefault)
 {
 	CallbackCallSource = CodePagesFill;
 	// Устанавливаем переменные для доступа из каллбака
@@ -753,7 +761,7 @@ UINT FillCodePagesList(HANDLE dialogHandle, UINT controlId, UINT codePage, bool 
 	favoriteCodePages = normalCodePages = 0;
 	selectedCodePages = !allowAuto && allowAll;
 	// Добавляем стндартные элементы в список
-	AddCodePages((allowAuto ? ::Auto : 0) | (allowAll ? ::SearchAll : 0) | ::AllStandard);
+	AddCodePages((allowDefault ? ::DefaultCP : 0) | (allowAuto ? ::Auto : 0) | (allowAll ? ::SearchAll : 0) | ::AllStandard);
 
 	if (CallbackCallSource == CodePagesFill)
 	{
