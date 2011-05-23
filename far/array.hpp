@@ -106,7 +106,7 @@ void TArray<Object>::Free()
 {
 	if (items)
 	{
-		for (unsigned i=0; i<Count; ++i)
+		for (size_t i=0; i<Count; ++i)
 			delete items[i];
 
 		xf_free(items);
