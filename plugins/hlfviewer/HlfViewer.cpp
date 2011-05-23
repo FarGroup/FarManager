@@ -204,15 +204,15 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 	Info->CommandPrefix=L"HLF";
 }
 
-int WINAPI ProcessEditorInputW(const INPUT_RECORD *Rec)
+int WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
+
 {
 	LPWSTR FileName=NULL;
 	BOOL Result=FALSE;
 
 	if (Opt.ProcessEditorInput)
 	{
-		if (Rec->EventType==KEY_EVENT && Rec->Event.KeyEvent.bKeyDown &&
-		        FSF.FarInputRecordToKey((INPUT_RECORD *)Rec)==Opt.Key)
+		if (InputInfo->Rec.EventType==KEY_EVENT && InputInfo->Rec.Event.KeyEvent.bKeyDown && FSF.FarInputRecordToKey(&InputInfo->Rec)==Opt.Key)
 		{
 			Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
 			size_t FileNameSize=Info.EditorControl(-1,ECTL_GETFILENAME,0,0);
