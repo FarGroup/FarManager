@@ -102,14 +102,14 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 }
 
 
-int WINAPI ProcessEditorInputW(const INPUT_RECORD *Rec)
+int WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
 {
   if (!Opt.Wrap)
     return FALSE;
 
   static int Reenter=FALSE;
 
-  if (Reenter || Rec->EventType!=KEY_EVENT || !Rec->Event.KeyEvent.bKeyDown || Rec->Event.KeyEvent.wVirtualKeyCode==VK_F1)
+  if (Reenter || InputInfo->Rec.EventType!=KEY_EVENT || !InputInfo->Rec.Event.KeyEvent.bKeyDown || InputInfo->Rec.Event.KeyEvent.wVirtualKeyCode==VK_F1)
     return FALSE;
 
   struct EditorInfo startei;
@@ -120,7 +120,7 @@ int WINAPI ProcessEditorInputW(const INPUT_RECORD *Rec)
   Info.EditorControl(-1,ECTL_GETSTRING,0,&prevegs);
 
   Reenter=TRUE;
-  Info.EditorControl(-1,ECTL_PROCESSINPUT,0,(void *)Rec);
+  Info.EditorControl(-1,ECTL_PROCESSINPUT,0,const_cast<INPUT_RECORD*>(&InputInfo->Rec));
   Reenter=FALSE;
 
   for (int Pass=1;;Pass++)
