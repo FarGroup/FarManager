@@ -121,7 +121,6 @@ SRCS = \
 	plugapi.cpp \
 	PluginA.cpp \
 	plugins.cpp \
-	PluginW.cpp \
 	plugsettings.cpp \
 	poscache.cpp \
 	print.cpp \

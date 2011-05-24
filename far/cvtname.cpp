@@ -162,7 +162,7 @@ void MixToFullPath(string& strPath)
 	pstPath+=PathOffset;
 
 	//Process "." and ".." if exists
-	for (int m = 0; pstPath[m];)
+	for (size_t m = 0; pstPath[m];)
 	{
 		//fragment "."
 		if (IsDot(pstPath[m]) && (!m || IsSlash(pstPath[m - 1])))
@@ -202,7 +202,7 @@ void MixToFullPath(string& strPath)
 						int n;
 
 						//Calculate subdir name offset
-						for (n = m - 2; (n >= 0) && (!IsSlash(pstPath[n])); n--);
+						for (n = static_cast<int>(m - 2); (n >= 0) && (!IsSlash(pstPath[n])); n--);
 
 						n = (n < 0) ? 0 : n + 1;
 

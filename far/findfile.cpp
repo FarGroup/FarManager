@@ -1294,10 +1294,11 @@ int LookForString(const wchar_t *Name)
 					CONTINUE(WholeWords && cpi->WordFound)
 
 					// Выходим, если прочитали меньше размера строки поиска и нет поиска по словам
-					if (readBlockSize < findStringCount && !(WholeWords && cpi->WordFound))
-						CONTINUE(FALSE)
-						// Количество символов в выходном буфере
-						unsigned int bufferCount;
+				if (readBlockSize < findStringCount && !(WholeWords && cpi->WordFound))
+					CONTINUE(FALSE)
+
+				// Количество символов в выходном буфере
+				size_t bufferCount;
 
 				// Буфер для поиска
 				wchar_t *buffer;

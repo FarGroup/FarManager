@@ -398,7 +398,7 @@ bool PluginManager::LoadPlugin(
 
 	switch (IsModulePlugin(lpwszModuleName))
 	{
-		case UNICODE_PLUGIN: pPlugin = new PluginW(this, lpwszModuleName); break;
+		case UNICODE_PLUGIN: pPlugin = new Plugin(this, lpwszModuleName); break;
 		case OEM_PLUGIN: pPlugin = new PluginA(this, lpwszModuleName); break;
 		default: return false;
 	}
@@ -766,10 +766,7 @@ HANDLE PluginManager::OpenFilePlugin(
 			{
 				PluginHandle *handle = items.getItem(i);
 				mitem.Clear();
-				if (handle->pPlugin->GetTitle())
-					mitem.strName = handle->pPlugin->GetTitle();
-				if (mitem.strName.IsEmpty())
-					mitem.strName = PointToName(handle->pPlugin->GetModuleName());
+				mitem.strName = handle->pPlugin->GetTitle();
 				menu.SetUserData(&handle, sizeof(handle), menu.AddItem(&mitem));
 			}
 
@@ -884,10 +881,7 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, int I
 			{
 				PluginHandle *handle = items.getItem(i);
 				mitem.Clear();
-				if (handle->pPlugin->GetTitle())
-					mitem.strName = handle->pPlugin->GetTitle();
-				if (mitem.strName.IsEmpty())
-					mitem.strName = PointToName(handle->pPlugin->GetModuleName());
+				mitem.strName = handle->pPlugin->GetTitle();
 				menu.AddItem(&mitem);
 			}
 

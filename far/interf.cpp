@@ -804,7 +804,7 @@ void ScrollScreen(int Count)
 }
 
 
-void GetText(int X1,int Y1,int X2,int Y2,void *Dest,int DestSize)
+void GetText(int X1,int Y1,int X2,int Y2,void *Dest,size_t DestSize)
 {
 	ScrBuf.Read(X1,Y1,X2,Y2,(CHAR_INFO *)Dest,DestSize);
 }

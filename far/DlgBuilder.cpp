@@ -159,7 +159,7 @@ DialogItemEx *DialogBuilder::AddIntEditField(int *Value, int Width)
 }
 
 DialogItemEx *DialogBuilder::AddComboBox(int *Value, int Width,
-										 DialogBuilderListItem *Items, int ItemCount,
+										 DialogBuilderListItem *Items, size_t ItemCount,
 										 FARDIALOGITEMFLAGS Flags)
 {
 	DialogItemEx *Item = AddDialogItem(DI_COMBOBOX, L"");
@@ -168,7 +168,7 @@ DialogItemEx *DialogBuilder::AddComboBox(int *Value, int Width,
 	Item->Flags |= Flags;
 
 	FarListItem *ListItems = new FarListItem[ItemCount];
-	for(int i=0; i<ItemCount; i++)
+	for(size_t i=0; i<ItemCount; i++)
 	{
 		ListItems [i].Text = MSG(Items [i].MessageId);
 		ListItems [i].Flags = (*Value == Items [i].ItemValue) ? LIF_SELECTED : 0;

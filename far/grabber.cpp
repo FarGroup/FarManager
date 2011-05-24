@@ -243,7 +243,7 @@ void Grabber::DisplayObject()
 					else
 						NewColor=B_LIGHTGRAY|F_BLACK;
 
-					int Pos=(X-X1)+(Y-Y1)*(X2-X1+1);
+					size_t Pos=(X-X1)+(Y-Y1)*(X2-X1+1);
 					CharBuf[Pos].Attributes=(CharBuf[Pos].Attributes & ~0xff) | NewColor;
 				}
 

@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 #include "plclass.hpp"
 #include "PluginA.hpp"
-#include "PluginW.hpp"
 #include "tree.hpp"
 #include "configdb.hpp"
 

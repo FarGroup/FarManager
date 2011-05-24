@@ -73,7 +73,7 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 		virtual DialogItemEx *AddIntEditField(int *Value, int Width);
 
 		// Добавляет выпадающий список с указанными значениями.
-		DialogItemEx *AddComboBox(int *Value, int Width, DialogBuilderListItem *Items, int ItemCount, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+		DialogItemEx *AddComboBox(int *Value, int Width, DialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags = DIF_NONE);
 
 		// Связывает состояние элементов Parent и Target. Когда Parent->Selected равно
 		// false, устанавливает флаги Flags у элемента Target; когда равно true -

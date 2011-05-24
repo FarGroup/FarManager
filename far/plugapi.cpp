@@ -1038,7 +1038,7 @@ const wchar_t* WINAPI FarGetMsgFn(INT_PTR PluginHandle,int MsgId)
 {
 	if (PluginHandle!=-1)
 	{
-		PluginW *pPlugin = (PluginW*)PluginHandle;
+		Plugin *pPlugin = (Plugin*)PluginHandle;
 		if (pPlugin)
 		{
 			string strPath = pPlugin->GetModuleName();

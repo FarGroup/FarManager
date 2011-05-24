@@ -160,7 +160,7 @@ void ScreenBuf::Write(int X,int Y,const CHAR_INFO *Text,int TextLength)
 
 /* Читать блок из виртуального буфера.
 */
-void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text,int MaxTextLength)
+void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text,size_t MaxTextLength)
 {
 	CriticalSectionLock Lock(CS);
 	int Width=X2-X1+1;
@@ -168,7 +168,7 @@ void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text,int MaxTextLeng
 	int I, Idx;
 
 	for (Idx=I=0; I < Height; I++, Idx+=Width)
-		memcpy(Text+Idx,Buf+(Y1+I)*BufX+X1,Min((int)sizeof(CHAR_INFO)*Width,(int)MaxTextLength));
+		memcpy(Text+Idx,Buf+(Y1+I)*BufX+X1,Min(sizeof(CHAR_INFO)*Width,MaxTextLength));
 }
 
 /* Изменить значение цветовых атрибутов в соответствии с маской

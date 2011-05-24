@@ -527,7 +527,6 @@ if not exist bootstrap mkdir bootstrap</Command>
     <ClCompile Include="plugapi.cpp" />
     <ClCompile Include="PluginA.cpp" />
     <ClCompile Include="plugins.cpp" />
-    <ClCompile Include="PluginW.cpp" />
     <ClCompile Include="plugsettings.cpp" />
     <ClCompile Include="poscache.cpp" />
     <ClCompile Include="print.cpp" />
@@ -1004,7 +1003,6 @@ if not exist bootstrap mkdir bootstrap</Command>
     <ClInclude Include="PluginA.hpp" />
     <ClInclude Include="pluginold.hpp" />
     <ClInclude Include="plugins.hpp" />
-    <ClInclude Include="PluginW.hpp" />
     <ClInclude Include="plugsettings.hpp" />
     <ClInclude Include="poscache.hpp" />
     <ClInclude Include="print.hpp" />

@@ -195,7 +195,6 @@ LINK_OBJS = \
 	"$(INTDIR)\plugapi.obj" \
 	"$(INTDIR)\PluginA.obj" \
 	"$(INTDIR)\plugins.obj" \
-	"$(INTDIR)\PluginW.obj" \
 	"$(INTDIR)\plugsettings.obj" \
 	"$(INTDIR)\poscache.obj" \
 	"$(INTDIR)\print.obj" \

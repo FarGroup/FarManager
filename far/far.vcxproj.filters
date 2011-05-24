@@ -329,9 +329,6 @@
     <ClCompile Include="plugins.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PluginW.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="plugsettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -863,9 +860,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="plugins.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PluginW.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="plugsettings.hpp">

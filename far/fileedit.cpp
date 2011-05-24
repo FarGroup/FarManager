@@ -1511,8 +1511,8 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	UINT dwCP=0;
 	bool Detect=false;
 
-	bool ignore_cached_cp;
-	if ( ignore_cached_cp = (m_codepage == CP_REDETECT) )
+	bool ignore_cached_cp = (m_codepage == CP_REDETECT);
+	if (ignore_cached_cp)
 		m_codepage = CP_AUTODETECT;
 
 	if (m_codepage == CP_AUTODETECT || IsUnicodeOrUtfCodePage(m_codepage))

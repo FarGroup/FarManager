@@ -64,42 +64,161 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "colormix.hpp"
 
-static const wchar_t wszReg_Open[]=L"OpenPlugin"; // !OpenPlugin!
-static const wchar_t wszReg_OpenFilePlugin[]=L"OpenFilePlugin";
-static const wchar_t wszReg_SetFindList[]=L"SetFindList";
-static const wchar_t wszReg_ProcessEditorInput[]=L"ProcessEditorInput";
-static const wchar_t wszReg_ProcessEditorEvent[]=L"ProcessEditorEvent";
-static const wchar_t wszReg_ProcessViewerEvent[]=L"ProcessViewerEvent";
-static const wchar_t wszReg_ProcessDialogEvent[]=L"ProcessDialogEvent";
-static const wchar_t wszReg_Configure[]=L"Configure";
+#define EXP_GETGLOBALINFO       ""
+#define EXP_SETSTARTUPINFO      "SetStartupInfo"
+#define EXP_OPEN                "OpenPlugin"
+#define EXP_CLOSEPANEL          "ClosePlugin"
+#define EXP_GETPLUGININFO       "GetPluginInfo"
+#define EXP_GETOPENPANELINFO    "GetOpenPluginInfo"
+#define EXP_GETFINDDATA         "GetFindData"
+#define EXP_FREEFINDDATA        "FreeFindData"
+#define EXP_GETVIRTUALFINDDATA  "GetVirtualFindData"
+#define EXP_FREEVIRTUALFINDDATA "FreeVirtualFindData"
+#define EXP_SETDIRECTORY        "SetDirectory"
+#define EXP_GETFILES            "GetFiles"
+#define EXP_PUTFILES            "PutFiles"
+#define EXP_DELETEFILES         "DeleteFiles"
+#define EXP_MAKEDIRECTORY       "MakeDirectory"
+#define EXP_PROCESSHOSTFILE     "ProcessHostFile"
+#define EXP_SETFINDLIST         "SetFindList"
+#define EXP_CONFIGURE           "Configure"
+#define EXP_EXITFAR             "ExitFAR"
+#define EXP_PROCESSPANELINPUT   "ProcessKey"
+#define EXP_PROCESSEVENT        "ProcessEvent"
+#define EXP_PROCESSEDITOREVENT  "ProcessEditorEvent"
+#define EXP_COMPARE             "Compare"
+#define EXP_PROCESSEDITORINPUT  "ProcessEditorInput"
+#define EXP_PROCESSVIEWEREVENT  "ProcessViewerEvent"
+#define EXP_PROCESSDIALOGEVENT  "ProcessDialogEvent"
+#define EXP_PROCESSSYNCHROEVENT ""
+#if defined(MANTIS_0000466)
+#define EXP_PROCESSMACRO        ""
+#endif
+#if defined(MANTIS_0001687)
+#define EXP_PROCESSCONSOLEINPUT ""
+#endif
+#define EXP_ANALYSE             ""
+#define EXP_GETCUSTOMDATA       ""
+#define EXP_FREECUSTOMDATA      ""
 
-static const char NFMP_Open[]="OpenPlugin"; // !OpenPlugin!
-static const char NFMP_OpenFilePlugin[]="OpenFilePlugin";
-static const char NFMP_SetFindList[]="SetFindList";
-static const char NFMP_ProcessEditorInput[]="ProcessEditorInput";
-static const char NFMP_ProcessEditorEvent[]="ProcessEditorEvent";
-static const char NFMP_ProcessViewerEvent[]="ProcessViewerEvent";
-static const char NFMP_ProcessDialogEvent[]="ProcessDialogEvent";
-static const char NFMP_SetStartupInfo[]="SetStartupInfo";
-static const char NFMP_ClosePanel[]="ClosePlugin"; // !ClosePlugin!
-static const char NFMP_GetPluginInfo[]="GetPluginInfo";
-static const char NFMP_GetOpenPanelInfo[]="GetOpenPluginInfo";
-static const char NFMP_GetFindData[]="GetFindData";
-static const char NFMP_FreeFindData[]="FreeFindData";
-static const char NFMP_GetVirtualFindData[]="GetVirtualFindData";
-static const char NFMP_FreeVirtualFindData[]="FreeVirtualFindData";
-static const char NFMP_SetDirectory[]="SetDirectory";
-static const char NFMP_GetFiles[]="GetFiles";
-static const char NFMP_PutFiles[]="PutFiles";
-static const char NFMP_DeleteFiles[]="DeleteFiles";
-static const char NFMP_MakeDirectory[]="MakeDirectory";
-static const char NFMP_ProcessHostFile[]="ProcessHostFile";
-static const char NFMP_Configure[]="Configure";
-static const char NFMP_ExitFAR[]="ExitFAR";
-static const char NFMP_ProcessKey[]="ProcessKey";
-static const char NFMP_ProcessEvent[]="ProcessEvent";
-static const char NFMP_Compare[]="Compare";
-static const char NFMP_GetMinFarVersion[]="GetMinFarVersion";
+#define EXP_OPENFILEPLUGIN      "OpenFilePlugin"
+#define EXP_GETMINFARVERSION    "GetMinFarVersion"
+
+
+static const char* _ExportsNamesA[i_LAST] =
+{
+	EXP_GETGLOBALINFO,
+	EXP_SETSTARTUPINFO,
+	EXP_OPEN,
+	EXP_CLOSEPANEL,
+	EXP_GETPLUGININFO,
+	EXP_GETOPENPANELINFO,
+	EXP_GETFINDDATA,
+	EXP_FREEFINDDATA,
+	EXP_GETVIRTUALFINDDATA,
+	EXP_FREEVIRTUALFINDDATA,
+	EXP_SETDIRECTORY,
+	EXP_GETFILES,
+	EXP_PUTFILES,
+	EXP_DELETEFILES,
+	EXP_MAKEDIRECTORY,
+	EXP_PROCESSHOSTFILE,
+	EXP_SETFINDLIST,
+	EXP_CONFIGURE,
+	EXP_EXITFAR,
+	EXP_PROCESSPANELINPUT,
+	EXP_PROCESSEVENT,
+	EXP_PROCESSEDITOREVENT,
+	EXP_COMPARE,
+	EXP_PROCESSEDITORINPUT,
+	EXP_PROCESSVIEWEREVENT,
+	EXP_PROCESSDIALOGEVENT,
+	EXP_PROCESSSYNCHROEVENT,
+#if defined(MANTIS_0000466)
+	EXP_PROCESSMACRO,
+#endif
+#if defined(MANTIS_0001687)
+	EXP_PROCESSCONSOLEINPUT,
+#endif
+	EXP_ANALYSE,
+	EXP_GETCUSTOMDATA,
+	EXP_FREECUSTOMDATA,
+
+	EXP_OPENFILEPLUGIN,
+	EXP_GETMINFARVERSION,
+};
+
+
+static const wchar_t* _ExportsNamesW[i_LAST] =
+{
+	W(EXP_GETGLOBALINFO),
+	W(EXP_SETSTARTUPINFO),
+	W(EXP_OPEN),
+	W(EXP_CLOSEPANEL),
+	W(EXP_GETPLUGININFO),
+	W(EXP_GETOPENPANELINFO),
+	W(EXP_GETFINDDATA),
+	W(EXP_FREEFINDDATA),
+	W(EXP_GETVIRTUALFINDDATA),
+	W(EXP_FREEVIRTUALFINDDATA),
+	W(EXP_SETDIRECTORY),
+	W(EXP_GETFILES),
+	W(EXP_PUTFILES),
+	W(EXP_DELETEFILES),
+	W(EXP_MAKEDIRECTORY),
+	W(EXP_PROCESSHOSTFILE),
+	W(EXP_SETFINDLIST),
+	W(EXP_CONFIGURE),
+	W(EXP_EXITFAR),
+	W(EXP_PROCESSPANELINPUT),
+	W(EXP_PROCESSEVENT),
+	W(EXP_PROCESSEDITOREVENT),
+	W(EXP_COMPARE),
+	W(EXP_PROCESSEDITORINPUT),
+	W(EXP_PROCESSVIEWEREVENT),
+	W(EXP_PROCESSDIALOGEVENT),
+	W(EXP_PROCESSSYNCHROEVENT),
+#if defined(MANTIS_0000466)
+	W(EXP_PROCESSMACRO),
+#endif
+#if defined(MANTIS_0001687)
+	W(EXP_PROCESSCONSOLEINPUT),
+#endif
+	W(EXP_ANALYSE),
+	W(EXP_GETCUSTOMDATA),
+	W(EXP_FREECUSTOMDATA),
+
+	W(EXP_OPENFILEPLUGIN),
+	W(EXP_GETMINFARVERSION),
+};
+
+typedef void   (WINAPI *iClosePanelPrototype)          (HANDLE hPlugin);
+typedef int    (WINAPI *iComparePrototype)             (HANDLE hPlugin,const oldfar::PluginPanelItem *Item1,const oldfar::PluginPanelItem *Item2,unsigned int Mode);
+typedef int    (WINAPI *iConfigurePrototype)           (int ItemNumber);
+typedef int    (WINAPI *iDeleteFilesPrototype)         (HANDLE hPlugin,oldfar::PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
+typedef void   (WINAPI *iExitFARPrototype)             ();
+typedef void   (WINAPI *iFreeFindDataPrototype)        (HANDLE hPlugin,oldfar::PluginPanelItem *PanelItem,int ItemsNumber);
+typedef void   (WINAPI *iFreeVirtualFindDataPrototype) (HANDLE hPlugin,oldfar::PluginPanelItem *PanelItem,int ItemsNumber);
+typedef int    (WINAPI *iGetFilesPrototype)            (HANDLE hPlugin,oldfar::PluginPanelItem *PanelItem,int ItemsNumber,int Move,char *DestPath,int OpMode);
+typedef int    (WINAPI *iGetFindDataPrototype)         (HANDLE hPlugin,oldfar::PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
+typedef int    (WINAPI *iGetMinFarVersionPrototype)    ();
+typedef void   (WINAPI *iGetOpenPanelInfoPrototype)    (HANDLE hPlugin,oldfar::OpenPanelInfo *Info);
+typedef void   (WINAPI *iGetPluginInfoPrototype)       (oldfar::PluginInfo *Info);
+typedef int    (WINAPI *iGetVirtualFindDataPrototype)  (HANDLE hPlugin,oldfar::PluginPanelItem **pPanelItem,int *pItemsNumber,const char *Path);
+typedef int    (WINAPI *iMakeDirectoryPrototype)       (HANDLE hPlugin,char *Name,int OpMode);
+typedef HANDLE (WINAPI *iOpenFilePluginPrototype)      (char *Name,const unsigned char *Data,int DataSize);
+typedef HANDLE (WINAPI *iOpenPrototype)                (int OpenFrom,INT_PTR Item);
+typedef int    (WINAPI *iProcessEditorEventPrototype)  (int Event,void *Param);
+typedef int    (WINAPI *iProcessEditorInputPrototype)  (const INPUT_RECORD *Rec);
+typedef int    (WINAPI *iProcessEventPrototype)        (HANDLE hPlugin,int Event,void *Param);
+typedef int    (WINAPI *iProcessHostFilePrototype)     (HANDLE hPlugin,oldfar::PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
+typedef int    (WINAPI *iProcessPanelInputPrototype)   (HANDLE hPlugin,int Key,unsigned int ControlState);
+typedef int    (WINAPI *iPutFilesPrototype)            (HANDLE hPlugin,oldfar::PluginPanelItem *PanelItem,int ItemsNumber,int Move,int OpMode);
+typedef int    (WINAPI *iSetDirectoryPrototype)        (HANDLE hPlugin,const char *Dir,int OpMode);
+typedef int    (WINAPI *iSetFindListPrototype)         (HANDLE hPlugin,const oldfar::PluginPanelItem *PanelItem,int ItemsNumber);
+typedef void   (WINAPI *iSetStartupInfoPrototype)      (const oldfar::PluginStartupInfo *Info);
+typedef int    (WINAPI *iProcessViewerEventPrototype)  (int Event,void *Param);
+typedef int    (WINAPI *iProcessDialogEventPrototype)  (int Event,void *Param);
 
 #define UnicodeToOEM(src,dst,lendst)    WideCharToMultiByte(CP_OEMCP,0,(src),-1,(dst),(int)(lendst),nullptr,nullptr)
 #define OEMToUnicode(src,dst,lendst)    MultiByteToWideChar(CP_OEMCP,0,(src),-1,(dst),(int)(lendst))
@@ -221,7 +340,7 @@ char *UnicodeToAnsi(const wchar_t *lpwszUnicodeString, UINT CodePage=CP_OEMCP)
 	return UnicodeToAnsiBin(lpwszUnicodeString,StrLength(lpwszUnicodeString)+1,CodePage);
 }
 
-wchar_t **ArrayAnsiToUnicode(char ** lpaszAnsiString, int iCount)
+wchar_t **ArrayAnsiToUnicode(char ** lpaszAnsiString, size_t iCount)
 {
 	wchar_t** lpaResult = nullptr;
 
@@ -231,7 +350,7 @@ wchar_t **ArrayAnsiToUnicode(char ** lpaszAnsiString, int iCount)
 
 		if (lpaResult)
 		{
-			for (int i=0; i<iCount; i++)
+			for (size_t i=0; i<iCount; i++)
 			{
 				lpaResult[i]=(lpaszAnsiString[i])?AnsiToUnicode(lpaszAnsiString[i]):nullptr;
 			}
@@ -309,7 +428,7 @@ DWORD KeyToOldKey(DWORD dKey)
 }
 
 
-void ConvertInfoPanelLinesA(const oldfar::InfoPanelLine *iplA, InfoPanelLine **piplW, int iCount)
+void ConvertInfoPanelLinesA(const oldfar::InfoPanelLine *iplA, InfoPanelLine **piplW, size_t iCount)
 {
 	if (iplA && piplW && (iCount>0))
 	{
@@ -317,7 +436,7 @@ void ConvertInfoPanelLinesA(const oldfar::InfoPanelLine *iplA, InfoPanelLine **p
 
 		if (iplW)
 		{
-			for (int i=0; i<iCount; i++)
+			for (size_t i=0; i<iCount; i++)
 			{
 				iplW[i].Text=AnsiToUnicodeBin(iplA[i].Text,80); //BUGBUG
 				iplW[i].Data=AnsiToUnicodeBin(iplA[i].Data,80); //BUGBUG
@@ -344,16 +463,16 @@ void FreeUnicodeInfoPanelLines(InfoPanelLine *iplW,size_t InfoLinesNumber)
 		xf_free((void*)iplW);
 }
 
-void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW, int iCount)
+void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW, size_t iCount)
 {
 	if (pnmA && ppnmW && (iCount>0))
 	{
 		PanelMode *pnmW = new PanelMode[iCount]();
 		if (pnmW)
 		{
-			for (int i=0; i<iCount; i++)
+			for (size_t i=0; i<iCount; i++)
 			{
-				int iColumnCount = 0;
+				size_t iColumnCount = 0;
 
 				if (pnmA[i].ColumnTypes)
 				{
@@ -2507,8 +2626,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 
 			oldfar::FarListTitles *ltA = (oldfar::FarListTitles *)Param2;
 			FarListTitles lt = {0,ltA->Title?AnsiToUnicode(ltA->Title):nullptr,0,ltA->Bottom?AnsiToUnicode(ltA->Bottom):nullptr};
-			Param2 = &lt;
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_LISTSETTITLES, Param1, Param2);
+			INT_PTR ret = FarSendDlgMessage(hDlg, DM_LISTSETTITLES, Param1, &lt);
 
 			if (lt.Bottom) xf_free((wchar_t *)lt.Bottom);
 
@@ -2873,7 +2991,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 	switch (Command)
 	{
 		case oldfar::FCTL_CHECKPANELSEXIST:
-			return FarPanelControl(hPlugin,FCTL_CHECKPANELSEXIST,0,Param);
+			return static_cast<int>(FarPanelControl(hPlugin,FCTL_CHECKPANELSEXIST,0,Param));
 		case oldfar::FCTL_CLOSEPLUGIN:
 		{
 			wchar_t *ParamW = nullptr;
@@ -2910,7 +3028,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 
 			oldfar::PanelInfo* OldPI=Passive?&AnotherPanelInfoA:&PanelInfoA;
 			PanelInfo PI;
-			int ret = FarPanelControl(hPlugin,FCTL_GETPANELINFO,0,&PI);
+			int ret = static_cast<int>(FarPanelControl(hPlugin,FCTL_GETPANELINFO,0,&PI));
 			FreeAnsiPanelInfo(OldPI);
 
 			if (ret)
@@ -2928,7 +3046,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 
 						for (int i=0; i<PI.ItemsNumber; i++)
 						{
-							int NewPPISize=FarPanelControl(hPlugin,FCTL_GETPANELITEM,i,0);
+							int NewPPISize=static_cast<int>(FarPanelControl(hPlugin,FCTL_GETPANELITEM,i,0));
 
 							if (NewPPISize>PPISize)
 							{
@@ -3025,7 +3143,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 				hPlugin=PANEL_PASSIVE;
 
 			PanelInfo PI;
-			int ret = FarPanelControl(hPlugin,FCTL_GETPANELINFO,0,&PI);
+			int ret = static_cast<int>(FarPanelControl(hPlugin,FCTL_GETPANELINFO,0,&PI));
 
 			if (ret)
 			{
@@ -3070,7 +3188,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 
 			oldfar::PanelRedrawInfo* priA = (oldfar::PanelRedrawInfo*)Param;
 			PanelRedrawInfo pri = {priA->CurrentItem,priA->TopPanelItem};
-			return FarPanelControl(hPlugin, FCTL_REDRAWPANEL,0,&pri);
+			return static_cast<int>(FarPanelControl(hPlugin, FCTL_REDRAWPANEL,0,&pri));
 		}
 		case oldfar::FCTL_SETANOTHERNUMERICSORT:
 			hPlugin = PANEL_PASSIVE;
@@ -3171,7 +3289,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 				return FALSE;
 
 			wchar_t* s = AnsiToUnicode((const char*)Param);
-			int ret = FarPanelControl(hPlugin, FCTL_SETCMDLINE,0,s);
+			int ret = static_cast<int>(FarPanelControl(hPlugin, FCTL_SETCMDLINE,0,s));
 			xf_free(s);
 			return ret;
 		}
@@ -3188,12 +3306,12 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 
 			oldfar::CmdLineSelect* clsA = (oldfar::CmdLineSelect*)Param;
 			CmdLineSelect cls = {clsA->SelStart,clsA->SelEnd};
-			return FarPanelControl(hPlugin, FCTL_SETCMDLINESELECTION,0,&cls);
+			return static_cast<int>(FarPanelControl(hPlugin, FCTL_SETCMDLINESELECTION,0,&cls));
 		}
 		case oldfar::FCTL_GETUSERSCREEN:
-			return FarPanelControl(hPlugin, FCTL_GETUSERSCREEN,0,0);
+			return static_cast<int>(FarPanelControl(hPlugin, FCTL_GETUSERSCREEN,0,0));
 		case oldfar::FCTL_SETUSERSCREEN:
-			return FarPanelControl(hPlugin, FCTL_SETUSERSCREEN,0,0);
+			return static_cast<int>(FarPanelControl(hPlugin, FCTL_SETUSERSCREEN,0,0));
 	}
 
 	return FALSE;
@@ -3864,7 +3982,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 				EditorColor ec={};
 				ec.StringNumber = ecA->StringNumber;
 				ec.ColorItem = ecA->ColorItem;
-				int Result = FarEditorControl(-1, ECTL_GETCOLOR, 0, &ec);
+				int Result = static_cast<int>(FarEditorControl(-1, ECTL_GETCOLOR, 0, &ec));
 				if(Result)
 				{
 					ecA->StartPos = ec.StartPos;
@@ -4023,7 +4141,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 				}
 			}
 
-			return FarEditorControl(-1,ECTL_PROCESSINPUT, 0, Param);
+			return static_cast<int>(FarEditorControl(-1,ECTL_PROCESSINPUT, 0, Param));
 		}
 		case oldfar::ECTL_PROCESSKEY:
 		{
@@ -4153,7 +4271,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 						newsp.Type = ESPT_GETWORDDIV;
 						newsp.wszParam = nullptr;
 						newsp.Size = 0;
-						newsp.Size = FarEditorControl(-1,ECTL_SETPARAM, 0, &newsp);
+						newsp.Size = static_cast<int>(FarEditorControl(-1,ECTL_SETPARAM, 0, &newsp));
 						newsp.wszParam = (wchar_t*)xf_malloc(newsp.Size*sizeof(wchar_t));
 
 						if (newsp.wszParam)
@@ -4240,7 +4358,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 		default:
 			return FALSE;
 	}
-	return FarEditorControl(-1, Command, 0, Param);
+	return static_cast<int>(FarEditorControl(-1, Command, 0, Param));
 }
 
 int WINAPI FarViewerControlA(int Command,void* Param)
@@ -4291,21 +4409,21 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 			break;
 		}
 		case oldfar::VCTL_QUIT:
-			return FarViewerControl(-1,VCTL_QUIT,0, 0);
+			return static_cast<int>(FarViewerControl(-1,VCTL_QUIT,0, 0));
 		case oldfar::VCTL_REDRAW:
-			return FarViewerControl(-1,VCTL_REDRAW,0, 0);
+			return static_cast<int>(FarViewerControl(-1,VCTL_REDRAW,0, 0));
 		case oldfar::VCTL_SETKEYBAR:
 		{
 			switch ((INT_PTR)Param)
 			{
 				case 0:
 				case -1:
-					return FarViewerControl(-1,VCTL_SETKEYBAR,0, Param);
+					return static_cast<int>(FarViewerControl(-1,VCTL_SETKEYBAR,0, Param));
 				default:
 					oldfar::KeyBarTitles* kbtA = (oldfar::KeyBarTitles*)Param;
 					KeyBarTitles kbt;
 					ConvertKeyBarTitlesA(kbtA, &kbt);
-					int ret=FarViewerControl(-1,VCTL_SETKEYBAR,0, &kbt);
+					int ret=static_cast<int>(FarViewerControl(-1,VCTL_SETKEYBAR,0, &kbt));
 					FreeUnicodeKeyBarTitles(&kbt);
 					return ret;
 			}
@@ -4328,17 +4446,17 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 
 			vsp.StartPos = vspA->StartPos;
 			vsp.LeftPos = vspA->LeftPos;
-			int ret = FarViewerControl(-1,VCTL_SETPOSITION,0, &vsp);
+			int ret = static_cast<int>(FarViewerControl(-1,VCTL_SETPOSITION,0, &vsp));
 			vspA->StartPos = vsp.StartPos;
 			return ret;
 		}
 		case oldfar::VCTL_SELECT:
 		{
-			if (!Param) return FarViewerControl(-1,VCTL_SELECT,0, 0);
+			if (!Param) return static_cast<int>(FarViewerControl(-1,VCTL_SELECT,0, 0));
 
 			oldfar::ViewerSelect* vsA = (oldfar::ViewerSelect*)Param;
 			ViewerSelect vs = {vsA->BlockStartPos,vsA->BlockLen};
-			return FarViewerControl(-1,VCTL_SELECT,0, &vs);
+			return static_cast<int>(FarViewerControl(-1,VCTL_SELECT,0, &vs));
 		}
 		case oldfar::VCTL_SETMODE:
 		{
@@ -4473,7 +4591,8 @@ PluginA::PluginA(PluginManager *owner, const wchar_t *lpwszModuleName):
 	RootKey(nullptr),
 	OEMApiCnt(0)
 {
-	ClearExports();
+	ExportsNamesW = _ExportsNamesW;
+	ExportsNamesA = _ExportsNamesA;
 	memset(&PI,0,sizeof(PI));
 	memset(&OPI,0,sizeof(OPI));
 }
@@ -4484,103 +4603,6 @@ PluginA::~PluginA()
 
 	FreePluginInfo();
 	FreeOpenPanelInfo();
-}
-
-
-void PluginA::ReadCache(unsigned __int64 id)
-{
-	pOpenPanel=(PLUGINOPENPANEL)PlCacheCfg->GetExport(id,wszReg_Open);
-	pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)PlCacheCfg->GetExport(id,wszReg_OpenFilePlugin);
-	pSetFindList=(PLUGINSETFINDLIST)PlCacheCfg->GetExport(id,wszReg_SetFindList);
-	pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)PlCacheCfg->GetExport(id,wszReg_ProcessEditorInput);
-	pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)PlCacheCfg->GetExport(id,wszReg_ProcessEditorEvent);
-	pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)PlCacheCfg->GetExport(id,wszReg_ProcessViewerEvent);
-	pProcessDialogEvent=(PLUGINPROCESSDIALOGEVENT)PlCacheCfg->GetExport(id,wszReg_ProcessDialogEvent);
-	pConfigure=(PLUGINCONFIGURE)PlCacheCfg->GetExport(id,wszReg_Configure);
-	WorkFlags.Set(PIWF_CACHED); //too much "cached" flags
-}
-
-bool PluginA::SaveToCache()
-{
-	if (pGetPluginInfo ||
-	        pOpenPanel ||
-	        pOpenFilePlugin ||
-	        pSetFindList ||
-	        pProcessEditorInput ||
-	        pProcessEditorEvent ||
-	        pProcessViewerEvent ||
-	        pProcessDialogEvent)
-	{
-		PluginInfo Info;
-		GetPluginInfo(&Info);
-
-		PlCacheCfg->BeginTransaction();
-
-		PlCacheCfg->DeleteCache(m_strCacheName);
-		unsigned __int64 id = PlCacheCfg->CreateCache(m_strCacheName);
-
-		{
-			bool bPreload = (Info.Flags & PF_PRELOAD);
-			PlCacheCfg->SetPreload(id, bPreload);
-			WorkFlags.Change(PIWF_PRELOADED, bPreload);
-
-			if (bPreload)
-			{
-				PlCacheCfg->EndTransaction();
-				return true;
-			}
-		}
-
-		{
-			string strCurPluginID;
-			FAR_FIND_DATA_EX fdata;
-			apiGetFindDataEx(m_strModuleName, fdata);
-			strCurPluginID.Format(
-			    L"%I64x%x%x",
-			    fdata.nFileSize,
-			    fdata.ftCreationTime.dwLowDateTime,
-			    fdata.ftLastWriteTime.dwLowDateTime
-			);
-			PlCacheCfg->SetSignature(id, strCurPluginID);
-		}
-
-		GUID guid = {0,0,0,{0,0,0,0,0,0,0,0}};
-		for (int i = 0; i < Info.DiskMenu.Count; i++)
-		{
-			guid.Data1 = i;
-			PlCacheCfg->SetDiskMenuItem(id, i, Info.DiskMenu.Strings[i], GuidToStr(guid));
-		}
-
-		for (int i = 0; i < Info.PluginMenu.Count; i++)
-		{
-			guid.Data1 = i;
-			PlCacheCfg->SetPluginsMenuItem(id, i, Info.PluginMenu.Strings[i], GuidToStr(guid));
-		}
-
-		for (int i = 0; i < Info.PluginConfig.Count; i++)
-		{
-			guid.Data1 = i;
-			PlCacheCfg->SetPluginsConfigMenuItem(id, i, Info.PluginConfig.Strings[i], GuidToStr(guid));
-		}
-
-		PlCacheCfg->SetCommandPrefix(id, NullToEmpty(Info.CommandPrefix));
-		PlCacheCfg->SetFlags(id, Info.Flags);
-
-		PlCacheCfg->SetExport(id, wszReg_Open, pOpenPanel!=nullptr);
-		PlCacheCfg->SetExport(id, wszReg_OpenFilePlugin, pOpenFilePlugin!=nullptr);
-		PlCacheCfg->SetExport(id, wszReg_SetFindList, pSetFindList!=nullptr);
-		PlCacheCfg->SetExport(id, wszReg_ProcessEditorInput, pProcessEditorInput!=nullptr);
-		PlCacheCfg->SetExport(id, wszReg_ProcessEditorEvent, pProcessEditorEvent!=nullptr);
-		PlCacheCfg->SetExport(id, wszReg_ProcessViewerEvent, pProcessViewerEvent!=nullptr);
-		PlCacheCfg->SetExport(id, wszReg_ProcessDialogEvent, pProcessDialogEvent!=nullptr);
-		PlCacheCfg->SetExport(id, wszReg_Configure, pConfigure!=nullptr);
-
-		PlCacheCfg->EndTransaction();
-
-		return true;
-	}
-
-	return false;
 }
 
 static void CreatePluginStartupInfoA(PluginA *pPlugin, oldfar::PluginStartupInfo *PSI, oldfar::FarStandardFunctions *FSF)
@@ -4678,9 +4700,18 @@ static void CreatePluginStartupInfoA(PluginA *pPlugin, oldfar::PluginStartupInfo
 	PSI->RootKey=nullptr;
 }
 
+bool PluginA::GetGlobalInfo(GlobalInfo* Info)
+{
+	Info->StructSize = sizeof(GlobalInfo);
+	Info->Title = PointToName(GetModuleName());
+	Info->Description = L"Far 1.x plugin";
+	Info->Author = L"unknown";
+	return true;
+}
+
 bool PluginA::SetStartupInfo(bool &bUnloaded)
 {
-	if (pSetStartupInfo && !ProcessException)
+	if (Exports[iSetStartupInfo] && !ProcessException)
 	{
 		oldfar::PluginStartupInfo _info;
 		oldfar::FarStandardFunctions _fsf;
@@ -4692,7 +4723,7 @@ bool PluginA::SetStartupInfo(bool &bUnloaded)
 		_info.RootKey = RootKey;
 		ExecuteStruct es;
 		es.id = EXCEPT_SETSTARTUPINFO;
-		EXECUTE_FUNCTION(pSetStartupInfo(&_info), es);
+		EXECUTE_FUNCTION(FUNCTION(iSetStartupInfo)(&_info), es);
 
 		if (es.bUnloaded)
 		{
@@ -4706,12 +4737,12 @@ bool PluginA::SetStartupInfo(bool &bUnloaded)
 
 bool PluginA::CheckMinFarVersion(bool &bUnloaded)
 {
-	if (pMinFarVersion && !ProcessException)
+	if (Exports[iGetMinFarVersion] && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_MINFARVERSION;
 		es.nDefaultResult = 0;
-		EXECUTE_FUNCTION_EX(pMinFarVersion(), es);
+		EXECUTE_FUNCTION_EX(FUNCTION(iGetMinFarVersion)(), es);
 
 		if (es.bUnloaded)
 		{
@@ -4721,26 +4752,6 @@ bool PluginA::CheckMinFarVersion(bool &bUnloaded)
 	}
 
 	return true;
-}
-
-bool PluginA::IsPanelPlugin()
-{
-	return pSetFindList ||
-	       pGetFindData ||
-	       pGetVirtualFindData ||
-	       pSetDirectory ||
-	       pGetFiles ||
-	       pPutFiles ||
-	       pDeleteFiles ||
-	       pMakeDirectory ||
-	       pProcessHostFile ||
-	       pProcessKey ||
-	       pProcessEvent ||
-	       pCompare ||
-	       pGetOpenPanelInfo ||
-	       pFreeFindData ||
-	       pFreeVirtualFindData ||
-	       pClosePanel;
 }
 
 HANDLE PluginA::Open(int OpenFrom, const GUID& Guid, INT_PTR Item)
@@ -4758,7 +4769,7 @@ HANDLE PluginA::Open(int OpenFrom, const GUID& Guid, INT_PTR Item)
 
 	HANDLE hResult = INVALID_HANDLE_VALUE;
 
-	if (Load() && pOpenPanel && !ProcessException)
+	if (Load() && Exports[iOpen] && !ProcessException)
 	{
 		//CurPluginItem=this; //BUGBUG
 		ExecuteStruct es;
@@ -4781,7 +4792,7 @@ HANDLE PluginA::Open(int OpenFrom, const GUID& Guid, INT_PTR Item)
 			OpenFrom = OPEN_LEFTDISKMENU;
 		}
 
-		EXECUTE_FUNCTION_EX(pOpenPanel(OpenFrom,Item), es);
+		EXECUTE_FUNCTION_EX(FUNCTION(iOpen)(OpenFrom,Item), es);
 
 		if (ItemA) xf_free(ItemA);
 
@@ -4833,7 +4844,7 @@ HANDLE PluginA::OpenFilePlugin(
 {
 	HANDLE hResult = INVALID_HANDLE_VALUE;
 
-	if (Load() && pOpenFilePlugin && !ProcessException)
+	if (Load() && Exports[iOpenFilePlugin] && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_OPENFILEPLUGIN;
@@ -4843,7 +4854,7 @@ HANDLE PluginA::OpenFilePlugin(
 		if (Name)
 			NameA = UnicodeToAnsi(Name);
 
-		EXECUTE_FUNCTION_EX(pOpenFilePlugin(NameA, Data, DataSize), es);
+		EXECUTE_FUNCTION_EX(FUNCTION(iOpenFilePlugin)(NameA, Data, DataSize), es);
 
 		if (NameA) xf_free(NameA);
 
@@ -4862,14 +4873,14 @@ int PluginA::SetFindList(
 {
 	BOOL bResult = FALSE;
 
-	if (pSetFindList && !ProcessException)
+	if (Exports[iSetFindList] && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_SETFINDLIST;
 		es.bDefaultResult = FALSE;
 		oldfar::PluginPanelItem *PanelItemA = nullptr;
 		ConvertPanelItemsArrayToAnsi(PanelItem,PanelItemA,ItemsNumber);
-		EXECUTE_FUNCTION_EX(pSetFindList(hPlugin, PanelItemA, ItemsNumber), es);
+		EXECUTE_FUNCTION_EX(FUNCTION(iSetFindList)(hPlugin, PanelItemA, ItemsNumber), es);
 		FreePanelItemA(PanelItemA,ItemsNumber);
 		bResult = es.bResult;
 	}
@@ -4883,7 +4894,7 @@ int PluginA::ProcessEditorInput(
 {
 	BOOL bResult = FALSE;
 
-	if (Load() && pProcessEditorInput && !ProcessException)
+	if (Load() && Exports[iProcessEditorInput] && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSEDITORINPUT;
@@ -4898,7 +4909,7 @@ int PluginA::ProcessEditorInput(
 			Ptr=&OemRecord;
 		}
 
-		EXECUTE_FUNCTION_EX(pProcessEditorInput(Ptr), es);
+		EXECUTE_FUNCTION_EX(FUNCTION(iProcessEditorInput)(Ptr), es);
 		bResult = es.bResult;
 	}
 
@@ -4910,12 +4921,12 @@ int PluginA::ProcessEditorEvent(
     PVOID Param
 )
 {
-	if (Load() && pProcessEditorEvent && !ProcessException)
+	if (Load() && Exports[iProcessEditorEvent] && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSEDITOREVENT;
 		es.nDefaultResult = 0;
-		EXECUTE_FUNCTION_EX(pProcessEditorEvent(Event, Param), es);
+		EXECUTE_FUNCTION_EX(FUNCTION(iProcessEditorEvent)(Event, Param), es);
 	}
 
 	return 0; //oops!
@@ -4926,12 +4937,12 @@ int PluginA::ProcessViewerEvent(
     void *Param
 )
 {
-	if (Load() && pProcessViewerEvent && !ProcessException)
+	if (Load() && Exports[iProcessViewerEvent] && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSVIEWEREVENT;
 		es.nDefaultResult = 0;
-		EXECUTE_FUNCTION_EX(pProcessViewerEvent(Event, Param), es);
+		EXECUTE_FUNCTION_EX(FUNCTION(iProcessViewerEvent)(Event, Param), es);
 	}
 
 	return 0; //oops, again!
@@ -4944,12 +4955,12 @@ int PluginA::ProcessDialogEvent(
 {
 	BOOL bResult = FALSE;
 
-	if (Load() && pProcessDialogEvent && !ProcessException)
+	if (Load() && Exports[iProcessDialogEvent] && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSDIALOGEVENT;
 		es.bDefaultResult = FALSE;
-		EXECUTE_FUNCTION_EX(pProcessDialogEvent(Event, Param), es);
+		EXECUTE_FUNCTION_EX(FUNCTION(iProcessDialogEvent)(Event, Param), es);
 		bResult = es.bResult;
 	}
 
@@ -4965,7 +4976,7 @@ int PluginA::GetVirtualFindData(
 {
 	BOOL bResult = FALSE;
 
-	if (pGetVirtualFindData && !ProcessException)
+	if (Exports[iGetVirtualFindData] && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_GETVIRTUALFINDDATA;
@@ -4974,7 +4985,7 @@ int PluginA::GetVirtualFindData(
 		size_t Size=StrLength(Path)+1;
 		LPSTR PathA=new char[Size];
 		UnicodeToOEM(Path,PathA,Size);
-		EXECUTE_FUNCTION_EX(pGetVirtualFindData(hPlugin, &pVFDPanelItemA, pItemsNumber, PathA), es);
+		EXECUTE_FUNCTION_EX(FUNCTION(iGetVirtualFindData)(hPlugin, &pVFDPanelItemA, pItemsNumber, PathA), es);
 		bResult = es.bResult;
 		delete[] PathA;
 
@@ -4996,11 +5007,11 @@ void PluginA::FreeVirtualFindData(
 {
 	FreeUnicodePanelItem(PanelItem, ItemsNumber);
 
-	if (pFreeVirtualFindData && !ProcessException && pVFDPanelItemA)
+	if (Exports[iFreeVirtualFindData] && !ProcessException && pVFDPanelItemA)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_FREEVIRTUALFINDDATA;
-		EXECUTE_FUNCTION(pFreeVirtualFindData(hPlugin, pVFDPanelItemA, ItemsNumber), es);
+		EXECUTE_FUNCTION(FUNCTION(iFreeVirtualFindData)(hPlugin, pVFDPanelItemA, ItemsNumber), es);
 		pVFDPanelItemA = nullptr;
 	}
 }
@@ -5018,7 +5029,7 @@ int PluginA::GetFiles(
 {
 	int nResult = -1;
 
-	if (pGetFiles && !ProcessException)
+	if (Exports[iGetFiles] && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_GETFILES;
@@ -5027,7 +5038,7 @@ int PluginA::GetFiles(
 		ConvertPanelItemsArrayToAnsi(PanelItem,PanelItemA,ItemsNumber);
 		char DestA[oldfar::NM];
 		UnicodeToOEM(*DestPath,DestA,sizeof(DestA));
-		EXECUTE_FUNCTION_EX(pGetFiles(hPlugin, PanelItemA, ItemsNumber, Move, DestA, OpMode), es);
+		EXECUTE_FUNCTION_EX(FUNCTION(iGetFiles)(hPlugin, PanelItemA, ItemsNumber, Move, DestA, OpMode), es);
 		static wchar_t DestW[oldfar::NM];
 		OEMToUnicode(DestA,DestW,ARRAYSIZE(DestW));
 		*DestPath=DestW;
@@ -5049,14 +5060,14 @@ int PluginA::PutFiles(
 {
 	int nResult = -1;
 
-	if (pPutFiles && !ProcessException)
+	if (Exports[iPutFiles] && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_PUTFILES;
 		es.nDefaultResult = -1;
 		oldfar::PluginPanelItem *PanelItemA = nullptr;
 		ConvertPanelItemsArrayToAnsi(PanelItem,PanelItemA,ItemsNumber);
-		EXECUTE_FUNCTION_EX(pPutFiles(hPlugin, PanelItemA, ItemsNumber, Move, OpMode), es);
+		EXECUTE_FUNCTION_EX(FUNCTION(iPutFiles)(hPlugin, PanelItemA, ItemsNumber, Move, OpMode), es);
 		FreePanelItemA(PanelItemA,ItemsNumber);
 		nResult = (int)es.nResult;
 	}
@@ -5073,14 +5084,14 @@ int PluginA::DeleteFiles(
 {
 	BOOL bResult = FALSE;
 
-	if (pDeleteFiles && !ProcessException)
+	if (Exports[iDeleteFiles] && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_DELETEFILES;
 		es.bDefaultResult = FALSE;
 		oldfar::PluginPanelItem *PanelItemA = nullptr;
 		ConvertPanelItemsArrayToAnsi(PanelItem,PanelItemA,ItemsNumber);
-		EXECUTE_FUNCTION_EX(pDeleteFiles(hPlugin, PanelItemA, ItemsNumber, OpMode), es);
+		EXECUTE_FUNCTION_EX(FUNCTION(iDeleteFiles)(hPlugin, PanelItemA, ItemsNumber, OpMode), es);
 		FreePanelItemA(PanelItemA,ItemsNumber);
 		bResult = (int)es.bResult;
 	}
@@ -5097,14 +5108,14 @@ int PluginA::MakeDirectory(
 {
 	int nResult = -1;
 
-	if (pMakeDirectory && !ProcessException)
+	if (Exports[iMakeDirectory] && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_MAKEDIRECTORY;
 		es.nDefaultResult = -1;
 		char NameA[oldfar::NM];
 		UnicodeToOEM(*Name,NameA,sizeof(NameA));
-		EXECUTE_FUNCTION_EX(pMakeDirectory(hPlugin, NameA, OpMode), es);
+		EXECUTE_FUNCTION_EX(FUNCTION(iMakeDirectory)(hPlugin, NameA, OpMode), es);
 		static wchar_t NameW[oldfar::NM];
 		OEMToUnicode(NameA,NameW,ARRAYSIZE(NameW));
 		*Name=NameW;
@@ -5124,14 +5135,14 @@ int PluginA::ProcessHostFile(
 {
 	BOOL bResult = FALSE;
 
-	if (pProcessHostFile && !ProcessException)
+	if (Exports[iProcessHostFile] && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSHOSTFILE;
 		es.bDefaultResult = FALSE;
 		oldfar::PluginPanelItem *PanelItemA = nullptr;
 		ConvertPanelItemsArrayToAnsi(PanelItem,PanelItemA,ItemsNumber);
-		EXECUTE_FUNCTION_EX(pProcessHostFile(hPlugin, PanelItemA, ItemsNumber, OpMode), es);
+		EXECUTE_FUNCTION_EX(FUNCTION(iProcessHostFile)(hPlugin, PanelItemA, ItemsNumber, OpMode), es);
 		FreePanelItemA(PanelItemA,ItemsNumber);
 		bResult = es.bResult;
 	}
@@ -5148,7 +5159,7 @@ int PluginA::ProcessEvent(
 {
 	BOOL bResult = FALSE;
 
-	if (pProcessEvent && !ProcessException)
+	if (Exports[iProcessEvent] && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSEVENT;
@@ -5158,7 +5169,7 @@ int PluginA::ProcessEvent(
 		if (Param && (Event == FE_COMMAND || Event == FE_CHANGEVIEWMODE))
 			ParamA = (PVOID)UnicodeToAnsi((const wchar_t *)Param);
 
-		EXECUTE_FUNCTION_EX(pProcessEvent(hPlugin, Event, ParamA), es);
+		EXECUTE_FUNCTION_EX(FUNCTION(iProcessEvent)(hPlugin, Event, ParamA), es);
 
 		if (ParamA && (Event == FE_COMMAND || Event == FE_CHANGEVIEWMODE))
 			xf_free(ParamA);
@@ -5179,7 +5190,7 @@ int PluginA::Compare(
 {
 	int nResult = -2;
 
-	if (pCompare && !ProcessException)
+	if (Exports[iCompare] && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_COMPARE;
@@ -5188,7 +5199,7 @@ int PluginA::Compare(
 		oldfar::PluginPanelItem *Item2A = nullptr;
 		ConvertPanelItemsArrayToAnsi(Item1,Item1A,1);
 		ConvertPanelItemsArrayToAnsi(Item2,Item2A,1);
-		EXECUTE_FUNCTION_EX(pCompare(hPlugin, Item1A, Item2A, Mode), es);
+		EXECUTE_FUNCTION_EX(FUNCTION(iCompare)(hPlugin, Item1A, Item2A, Mode), es);
 		FreePanelItemA(Item1A,1);
 		FreePanelItemA(Item2A,1);
 		nResult = (int)es.nResult;
@@ -5207,13 +5218,13 @@ int PluginA::GetFindData(
 {
 	BOOL bResult = FALSE;
 
-	if (pGetFindData && !ProcessException)
+	if (Exports[iGetFindData] && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_GETFINDDATA;
 		es.bDefaultResult = FALSE;
 		pFDPanelItemA = nullptr;
-		EXECUTE_FUNCTION_EX(pGetFindData(hPlugin, &pFDPanelItemA, pItemsNumber, OpMode), es);
+		EXECUTE_FUNCTION_EX(FUNCTION(iGetFindData)(hPlugin, &pFDPanelItemA, pItemsNumber, OpMode), es);
 		bResult = es.bResult;
 
 		if (bResult && *pItemsNumber)
@@ -5234,11 +5245,11 @@ void PluginA::FreeFindData(
 {
 	FreeUnicodePanelItem(PanelItem, ItemsNumber);
 
-	if (pFreeFindData && !ProcessException && pFDPanelItemA)
+	if (Exports[iFreeFindData] && !ProcessException && pFDPanelItemA)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_FREEFINDDATA;
-		EXECUTE_FUNCTION(pFreeFindData(hPlugin, pFDPanelItemA, ItemsNumber), es);
+		EXECUTE_FUNCTION(FUNCTION(iFreeFindData)(hPlugin, pFDPanelItemA, ItemsNumber), es);
 		pFDPanelItemA = nullptr;
 	}
 }
@@ -5246,17 +5257,17 @@ void PluginA::FreeFindData(
 int PluginA::ProcessKey(HANDLE hPlugin,const INPUT_RECORD *Rec, bool Pred)
 {
 	BOOL bResult = FALSE;
-    int VirtKey;
-    int dwControlState;
+	int VirtKey;
+	int dwControlState;
 
-    //BUGBUG: здесь можно проще.
-    TranslateKeyToVK(InputRecordToKey(Rec),VirtKey,dwControlState);
-	if (pProcessKey && !ProcessException)
+	//BUGBUG: здесь можно проще.
+	TranslateKeyToVK(InputRecordToKey(Rec),VirtKey,dwControlState);
+	if (Exports[iProcessPanelInput] && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSKEY;
 		es.bDefaultResult = TRUE; // do not pass this key to far on exception
-		EXECUTE_FUNCTION_EX(pProcessKey(hPlugin, VirtKey|(Pred?PKF_PREPROCESS:0), dwControlState), es);
+		EXECUTE_FUNCTION_EX(FUNCTION(iProcessPanelInput)(hPlugin, VirtKey|(Pred?PKF_PREPROCESS:0), dwControlState), es);
 		bResult = es.bResult;
 	}
 
@@ -5268,11 +5279,11 @@ void PluginA::ClosePanel(
     HANDLE hPlugin
 )
 {
-	if (pClosePanel && !ProcessException)
+	if (Exports[iClosePanel] && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_CLOSEPANEL;
-		EXECUTE_FUNCTION(pClosePanel(hPlugin), es);
+		EXECUTE_FUNCTION(FUNCTION(iClosePanel)(hPlugin), es);
 	}
 
 	FreeOpenPanelInfo();
@@ -5288,13 +5299,13 @@ int PluginA::SetDirectory(
 {
 	BOOL bResult = FALSE;
 
-	if (pSetDirectory && !ProcessException)
+	if (Exports[iSetDirectory] && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_SETDIRECTORY;
 		es.bDefaultResult = FALSE;
 		char *DirA = UnicodeToAnsi(Dir);
-		EXECUTE_FUNCTION_EX(pSetDirectory(hPlugin, DirA, OpMode), es);
+		EXECUTE_FUNCTION_EX(FUNCTION(iSetDirectory)(hPlugin, DirA, OpMode), es);
 
 		if (DirA) xf_free(DirA);
 
@@ -5459,12 +5470,12 @@ void PluginA::GetOpenPanelInfo(
 //	m_pManager->m_pCurrentPlugin = this;
 	pInfo->StructSize = sizeof(OpenPanelInfo);
 
-	if (pGetOpenPanelInfo && !ProcessException)
+	if (Exports[iGetOpenPanelInfo] && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_GETOPENPANELINFO;
 		oldfar::OpenPanelInfo InfoA={0};
-		EXECUTE_FUNCTION(pGetOpenPanelInfo(hPlugin, &InfoA), es);
+		EXECUTE_FUNCTION(FUNCTION(iGetOpenPanelInfo)(hPlugin, &InfoA), es);
 		ConvertOpenPanelInfo(InfoA,pInfo);
 	}
 }
@@ -5474,12 +5485,12 @@ int PluginA::Configure(const GUID& Guid)
 {
 	BOOL bResult = FALSE;
 
-	if (Load() && pConfigure && !ProcessException)
+	if (Load() && Exports[iConfigure] && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_CONFIGURE;
 		es.bDefaultResult = FALSE;
-		EXECUTE_FUNCTION_EX(pConfigure(Guid.Data1), es);
+		EXECUTE_FUNCTION_EX(FUNCTION(iConfigure)(Guid.Data1), es);
 		bResult = es.bResult;
 	}
 
@@ -5600,12 +5611,12 @@ bool PluginA::GetPluginInfo(PluginInfo *pi)
 {
 	memset(pi, 0, sizeof(PluginInfo));
 
-	if (pGetPluginInfo && !ProcessException)
+	if (Exports[iGetPluginInfo] && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_GETPLUGININFO;
 		oldfar::PluginInfo InfoA={0};
-		EXECUTE_FUNCTION(pGetPluginInfo(&InfoA), es);
+		EXECUTE_FUNCTION(FUNCTION(iGetPluginInfo)(&InfoA), es);
 
 		if (!es.bUnloaded)
 		{
@@ -5619,73 +5630,11 @@ bool PluginA::GetPluginInfo(PluginInfo *pi)
 
 void PluginA::ExitFAR(const ExitInfo *Info)
 {
-	if (pExitFAR && !ProcessException)
+	if (Exports[iExitFAR] && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_EXITFAR;
 		// ExitInfo ignored for ansi plugins
-		EXECUTE_FUNCTION(pExitFAR(), es);
+		EXECUTE_FUNCTION(FUNCTION(iExitFAR)(), es);
 	}
-}
-
-void PluginA::InitExports()
-{
-	pSetStartupInfo=(PLUGINSETSTARTUPINFO)GetProcAddress(m_hModule,NFMP_SetStartupInfo);
-	pOpenPanel=(PLUGINOPENPANEL)GetProcAddress(m_hModule,NFMP_Open);
-	pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)GetProcAddress(m_hModule,NFMP_OpenFilePlugin);
-	pClosePanel=(PLUGINCLOSEPANEL)GetProcAddress(m_hModule,NFMP_ClosePanel);
-	pGetPluginInfo=(PLUGINGETPLUGININFO)GetProcAddress(m_hModule,NFMP_GetPluginInfo);
-	pGetOpenPanelInfo=(PLUGINGETOPENPANELINFO)GetProcAddress(m_hModule,NFMP_GetOpenPanelInfo);
-	pGetFindData=(PLUGINGETFINDDATA)GetProcAddress(m_hModule,NFMP_GetFindData);
-	pFreeFindData=(PLUGINFREEFINDDATA)GetProcAddress(m_hModule,NFMP_FreeFindData);
-	pGetVirtualFindData=(PLUGINGETVIRTUALFINDDATA)GetProcAddress(m_hModule,NFMP_GetVirtualFindData);
-	pFreeVirtualFindData=(PLUGINFREEVIRTUALFINDDATA)GetProcAddress(m_hModule,NFMP_FreeVirtualFindData);
-	pSetDirectory=(PLUGINSETDIRECTORY)GetProcAddress(m_hModule,NFMP_SetDirectory);
-	pGetFiles=(PLUGINGETFILES)GetProcAddress(m_hModule,NFMP_GetFiles);
-	pPutFiles=(PLUGINPUTFILES)GetProcAddress(m_hModule,NFMP_PutFiles);
-	pDeleteFiles=(PLUGINDELETEFILES)GetProcAddress(m_hModule,NFMP_DeleteFiles);
-	pMakeDirectory=(PLUGINMAKEDIRECTORY)GetProcAddress(m_hModule,NFMP_MakeDirectory);
-	pProcessHostFile=(PLUGINPROCESSHOSTFILE)GetProcAddress(m_hModule,NFMP_ProcessHostFile);
-	pSetFindList=(PLUGINSETFINDLIST)GetProcAddress(m_hModule,NFMP_SetFindList);
-	pConfigure=(PLUGINCONFIGURE)GetProcAddress(m_hModule,NFMP_Configure);
-	pExitFAR=(PLUGINEXITFAR)GetProcAddress(m_hModule,NFMP_ExitFAR);
-	pProcessKey=(PLUGINPROCESSKEY)GetProcAddress(m_hModule,NFMP_ProcessKey);
-	pProcessEvent=(PLUGINPROCESSEVENT)GetProcAddress(m_hModule,NFMP_ProcessEvent);
-	pCompare=(PLUGINCOMPARE)GetProcAddress(m_hModule,NFMP_Compare);
-	pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)GetProcAddress(m_hModule,NFMP_ProcessEditorInput);
-	pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)GetProcAddress(m_hModule,NFMP_ProcessEditorEvent);
-	pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)GetProcAddress(m_hModule,NFMP_ProcessViewerEvent);
-	pProcessDialogEvent=(PLUGINPROCESSDIALOGEVENT)GetProcAddress(m_hModule,NFMP_ProcessDialogEvent);
-	pMinFarVersion=(PLUGINMINFARVERSION)GetProcAddress(m_hModule,NFMP_GetMinFarVersion);
-}
-
-void PluginA::ClearExports()
-{
-	pSetStartupInfo=0;
-	pOpenPanel=0;
-	pOpenFilePlugin=0;
-	pClosePanel=0;
-	pGetPluginInfo=0;
-	pGetOpenPanelInfo=0;
-	pGetFindData=0;
-	pFreeFindData=0;
-	pGetVirtualFindData=0;
-	pFreeVirtualFindData=0;
-	pSetDirectory=0;
-	pGetFiles=0;
-	pPutFiles=0;
-	pDeleteFiles=0;
-	pMakeDirectory=0;
-	pProcessHostFile=0;
-	pSetFindList=0;
-	pConfigure=0;
-	pExitFAR=0;
-	pProcessKey=0;
-	pProcessEvent=0;
-	pCompare=0;
-	pProcessEditorInput=0;
-	pProcessEditorEvent=0;
-	pProcessViewerEvent=0;
-	pProcessDialogEvent=0;
-	pMinFarVersion=0;
 }

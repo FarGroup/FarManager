@@ -32,199 +32,75 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pluginold.hpp"
 #include "FarGuid.hpp"
 
-typedef void (WINAPI *PLUGINCLOSEPANEL)(HANDLE hPlugin);
-typedef int (WINAPI *PLUGINCOMPARE)(HANDLE hPlugin,const oldfar::PluginPanelItem *Item1,const oldfar::PluginPanelItem *Item2,unsigned int Mode);
-typedef int (WINAPI *PLUGINCONFIGURE)(int ItemNumber);
-typedef int (WINAPI *PLUGINDELETEFILES)(HANDLE hPlugin,oldfar::PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
-typedef void (WINAPI *PLUGINEXITFAR)();
-typedef void (WINAPI *PLUGINFREEFINDDATA)(HANDLE hPlugin,oldfar::PluginPanelItem *PanelItem,int ItemsNumber);
-typedef void (WINAPI *PLUGINFREEVIRTUALFINDDATA)(HANDLE hPlugin,oldfar::PluginPanelItem *PanelItem,int ItemsNumber);
-typedef int (WINAPI *PLUGINGETFILES)(HANDLE hPlugin,oldfar::PluginPanelItem *PanelItem,int ItemsNumber,int Move,char *DestPath,int OpMode);
-typedef int (WINAPI *PLUGINGETFINDDATA)(HANDLE hPlugin,oldfar::PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
-typedef int (WINAPI *PLUGINMINFARVERSION)();
-typedef void (WINAPI *PLUGINGETOPENPANELINFO)(HANDLE hPlugin,oldfar::OpenPanelInfo *Info);
-typedef void (WINAPI *PLUGINGETPLUGININFO)(oldfar::PluginInfo *Info);
-typedef int (WINAPI *PLUGINGETVIRTUALFINDDATA)(HANDLE hPlugin,oldfar::PluginPanelItem **pPanelItem,int *pItemsNumber,const char *Path);
-typedef int (WINAPI *PLUGINMAKEDIRECTORY)(HANDLE hPlugin,char *Name,int OpMode);
-typedef HANDLE(WINAPI *PLUGINOPENFILEPLUGIN)(char *Name,const unsigned char *Data,int DataSize);
-typedef HANDLE(WINAPI *PLUGINOPENPANEL)(int OpenFrom,INT_PTR Item);
-typedef int (WINAPI *PLUGINPROCESSEDITOREVENT)(int Event,void *Param);
-typedef int (WINAPI *PLUGINPROCESSEDITORINPUT)(const INPUT_RECORD *Rec);
-typedef int (WINAPI *PLUGINPROCESSEVENT)(HANDLE hPlugin,int Event,void *Param);
-typedef int (WINAPI *PLUGINPROCESSHOSTFILE)(HANDLE hPlugin,oldfar::PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
-typedef int (WINAPI *PLUGINPROCESSKEY)(HANDLE hPlugin,int Key,unsigned int ControlState);
-typedef int (WINAPI *PLUGINPUTFILES)(HANDLE hPlugin,oldfar::PluginPanelItem *PanelItem,int ItemsNumber,int Move,int OpMode);
-typedef int (WINAPI *PLUGINSETDIRECTORY)(HANDLE hPlugin,const char *Dir,int OpMode);
-typedef int (WINAPI *PLUGINSETFINDLIST)(HANDLE hPlugin,const oldfar::PluginPanelItem *PanelItem,int ItemsNumber);
-typedef void (WINAPI *PLUGINSETSTARTUPINFO)(const oldfar::PluginStartupInfo *Info);
-typedef int (WINAPI *PLUGINPROCESSVIEWEREVENT)(int Event,void *Param);
-typedef int (WINAPI *PLUGINPROCESSDIALOGEVENT)(int Event,void *Param);
-
 
 class PluginA: public Plugin
 {
-	private:
+public:
 
-		string strRootKey;
-		char *RootKey;
+	PluginA(PluginManager *owner, const wchar_t *lpwzModuleName);
+	~PluginA();
 
-		PluginInfo PI;
-		OpenPanelInfo OPI;
-
-		oldfar::PluginPanelItem  *pFDPanelItemA;
-		oldfar::PluginPanelItem  *pVFDPanelItemA;
-
-		PLUGINSETSTARTUPINFO        pSetStartupInfo;
-		PLUGINOPENPANEL             pOpenPanel;
-		PLUGINOPENFILEPLUGIN        pOpenFilePlugin;
-		PLUGINCLOSEPANEL            pClosePanel;
-		PLUGINGETPLUGININFO         pGetPluginInfo;
-		PLUGINGETOPENPANELINFO      pGetOpenPanelInfo;
-		PLUGINGETFINDDATA           pGetFindData;
-		PLUGINFREEFINDDATA          pFreeFindData;
-		PLUGINGETVIRTUALFINDDATA    pGetVirtualFindData;
-		PLUGINFREEVIRTUALFINDDATA   pFreeVirtualFindData;
-		PLUGINSETDIRECTORY          pSetDirectory;
-		PLUGINGETFILES              pGetFiles;
-		PLUGINPUTFILES              pPutFiles;
-		PLUGINDELETEFILES           pDeleteFiles;
-		PLUGINMAKEDIRECTORY         pMakeDirectory;
-		PLUGINPROCESSHOSTFILE       pProcessHostFile;
-		PLUGINSETFINDLIST           pSetFindList;
-		PLUGINCONFIGURE             pConfigure;
-		PLUGINEXITFAR               pExitFAR;
-		PLUGINPROCESSKEY            pProcessKey;
-		PLUGINPROCESSEVENT          pProcessEvent;
-		PLUGINPROCESSEDITOREVENT    pProcessEditorEvent;
-		PLUGINCOMPARE               pCompare;
-		PLUGINPROCESSEDITORINPUT    pProcessEditorInput;
-		PLUGINMINFARVERSION         pMinFarVersion;
-		PLUGINPROCESSVIEWEREVENT    pProcessViewerEvent;
-		PLUGINPROCESSDIALOGEVENT    pProcessDialogEvent;
-
-		UINT64 OEMApiCnt;
-		void __Prolog() { SetFileApisToOEM(); OEMApiCnt++; }
-		void __Epilog() { OEMApiCnt--; if(!OEMApiCnt) SetFileApisToANSI(); }
-		void ReadCache(unsigned __int64 id);
-
-	public:
-
-		PluginA(PluginManager *owner, const wchar_t *lpwzModuleName);
-		~PluginA();
-
-		bool IsOemPlugin() {return true;}
-
-		bool SaveToCache();
-
-		bool IsPanelPlugin();
-
-		bool HasGetGlobalInfo() { return false; }
-		bool HasOpenPanel() { return pOpenPanel!=nullptr; }
-		bool HasMakeDirectory() { return pMakeDirectory!=nullptr; }
-		bool HasDeleteFiles() { return pDeleteFiles!=nullptr; }
-		bool HasPutFiles() { return pPutFiles!=nullptr; }
-		bool HasGetFiles() { return pGetFiles!=nullptr; }
-		bool HasSetStartupInfo() { return pSetStartupInfo!=nullptr; }
-		bool HasOpenFilePlugin() { return pOpenFilePlugin!=nullptr; }
-		bool HasClosePanel() { return pClosePanel!=nullptr; }
-		bool HasGetPluginInfo() { return pGetPluginInfo!=nullptr; }
-		bool HasGetOpenPanelInfo() { return pGetOpenPanelInfo!=nullptr; }
-		bool HasGetFindData() { return pGetFindData!=nullptr; }
-		bool HasFreeFindData() { return pFreeFindData!=nullptr; }
-		bool HasGetVirtualFindData() { return pGetVirtualFindData!=nullptr; }
-		bool HasFreeVirtualFindData() { return pFreeVirtualFindData!=nullptr; }
-		bool HasSetDirectory() { return pSetDirectory!=nullptr; }
-		bool HasProcessHostFile() { return pProcessHostFile!=nullptr; }
-		bool HasSetFindList() { return pSetFindList!=nullptr; }
-		bool HasConfigure() { return pConfigure!=nullptr; }
-		bool HasExitFAR() { return pExitFAR!=nullptr; }
-		bool HasProcessPanelInput() { return pProcessKey!=nullptr; }
-		bool HasProcessEvent() { return pProcessEvent!=nullptr; }
-		bool HasProcessEditorEvent() { return pProcessEditorEvent!=nullptr; }
-		bool HasCompare() { return pCompare!=nullptr; }
-		bool HasProcessEditorInput() { return pProcessEditorInput!=nullptr; }
-		bool HasMinFarVersion() { return pMinFarVersion!=nullptr; }
-		bool HasProcessViewerEvent() { return pProcessViewerEvent!=nullptr; }
-		bool HasProcessDialogEvent() { return pProcessDialogEvent!=nullptr; }
-		bool HasProcessSynchroEvent() { return false; }
+	virtual bool GetGlobalInfo(GlobalInfo *Info);
+	virtual bool SetStartupInfo(bool &bUnloaded);
+	virtual bool CheckMinFarVersion(bool &bUnloaded);
+	virtual HANDLE Open(int OpenFrom, const GUID& Guid, INT_PTR Item);
+	virtual HANDLE OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, int DataSize, int OpMode);
+	virtual int SetFindList(HANDLE hPlugin, const PluginPanelItem *PanelItem, int ItemsNumber);
+	virtual int GetFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, int *pItemsNumber, int OpMode);
+	virtual int GetVirtualFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, int *pItemsNumber, const wchar_t *Path);
+	virtual int SetDirectory(HANDLE hPlugin, const wchar_t *Dir, int OpMode);
+	virtual int GetFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber, int Move, const wchar_t **DestPath, int OpMode);
+	virtual int PutFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber, int Move, int OpMode);
+	virtual int DeleteFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber, int OpMode);
+	virtual int MakeDirectory(HANDLE hPlugin, const wchar_t **Name, int OpMode);
+	virtual int ProcessHostFile(HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber, int OpMode);
+	virtual int ProcessKey(HANDLE hPlugin, const INPUT_RECORD *Rec, bool Pred);
+	virtual int ProcessEvent(HANDLE hPlugin, int Event, PVOID Param);
+	virtual int Compare(HANDLE hPlugin, const PluginPanelItem *Item1, const PluginPanelItem *Item2, unsigned long Mode);
+	virtual int GetCustomData(const wchar_t *FilePath, wchar_t **CustomData) { return 0; }
+	virtual void FreeCustomData(wchar_t *CustomData) {}
+	virtual void GetOpenPanelInfo(HANDLE hPlugin, OpenPanelInfo *Info);
+	virtual void FreeFindData(HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber);
+	virtual void FreeVirtualFindData(HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber);
+	virtual void ClosePanel(HANDLE hPlugin);
+	virtual int ProcessEditorInput(const INPUT_RECORD *D);
+	virtual int ProcessEditorEvent(int Event, PVOID Param);
+	virtual int ProcessViewerEvent(int Event, PVOID Param);
+	virtual int ProcessDialogEvent(int Event, PVOID Param);
+	virtual int ProcessSynchroEvent(int Event, PVOID Param) { return 0; }
 #if defined(MANTIS_0000466)
-		bool HasProcessMacro() { return false; }
+	virtual int ProcessMacro(ProcessMacroInfo *Info) {return 0;}
 #endif
 #if defined(MANTIS_0001687)
-		bool HasProcessConsoleInput() { return false; }
+	virtual int ProcessConsoleInput(ProcessConsoleInputInfo *Info) {return 0;}
 #endif
-		bool HasAnalyse() { return false; }
-		bool HasGetCustomData()  { return false; }
-		bool HasFreeCustomData() { return false; }
+	virtual int Analyse(const AnalyseInfo *Info) { return FALSE; }
+	virtual bool GetPluginInfo(PluginInfo *pi);
+	virtual int Configure(const GUID& Guid);
+	virtual void ExitFAR(const ExitInfo *Info);
 
-		const string &GetModuleName() { return m_strModuleName; }
-		const wchar_t *GetCacheName() { return m_strCacheName; }
-		const wchar_t *GetHotkeyName() { return GetCacheName(); }
-		const GUID& GetGUID(void) { return FarGuid; }
-		bool CheckWorkFlags(DWORD flags) { return WorkFlags.Check(flags)==TRUE; }
-		DWORD GetWorkFlags() { return WorkFlags.Flags; }
-		DWORD GetFuncFlags() { return FuncFlags.Flags; }
+	virtual bool IsOemPlugin() { return true; }
+	virtual const wchar_t *GetHotkeyName() { return GetCacheName(); }
 
-		bool InitLang(const wchar_t *Path) { return PluginLang.Init(Path,false); }
-		void CloseLang() { PluginLang.Close(); }
-		const char *GetMsgA(int nID) { return PluginLang.GetMsgA(nID); }
+	const char *GetMsgA(int nID) { return PluginLang.GetMsgA(nID); }
 
-	public:
-		bool GetGlobalInfo(GlobalInfo *Info) { return false; }
-		bool SetStartupInfo(bool &bUnloaded);
-		bool CheckMinFarVersion(bool &bUnloaded);
+private:
+	virtual void __Prolog() { SetFileApisToOEM(); OEMApiCnt++; }
+	virtual void __Epilog() { OEMApiCnt--; if(!OEMApiCnt) SetFileApisToANSI(); }
 
-		HANDLE Open(int OpenFrom, const GUID& Guid, INT_PTR Item);
-		HANDLE OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, int DataSize, int OpMode);
+	void FreePluginInfo();
+	void ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest);
+	void FreeOpenPanelInfo();
+	void ConvertOpenPanelInfo(oldfar::OpenPanelInfo &Src, OpenPanelInfo *Dest);
 
-		int SetFindList(HANDLE hPlugin, const PluginPanelItem *PanelItem, int ItemsNumber);
-		int GetFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, int *pItemsNumber, int OpMode);
-		int GetVirtualFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, int *pItemsNumber, const wchar_t *Path);
-		int SetDirectory(HANDLE hPlugin, const wchar_t *Dir, int OpMode);
-		int GetFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber, int Move, const wchar_t **DestPath, int OpMode);
-		int PutFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber, int Move, int OpMode);
-		int DeleteFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber, int OpMode);
-		int MakeDirectory(HANDLE hPlugin, const wchar_t **Name, int OpMode);
-		int ProcessHostFile(HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber, int OpMode);
-		int ProcessKey(HANDLE hPlugin, const INPUT_RECORD *Rec, bool Pred);
-		int ProcessEvent(HANDLE hPlugin, int Event, PVOID Param);
-		int Compare(HANDLE hPlugin, const PluginPanelItem *Item1, const PluginPanelItem *Item2, unsigned long Mode);
+	string strRootKey;
+	char *RootKey;
 
-		int GetCustomData(const wchar_t *FilePath, wchar_t **CustomData) { return 0; }
-		void FreeCustomData(wchar_t *CustomData) {}
+	PluginInfo PI;
+	OpenPanelInfo OPI;
 
-		void GetOpenPanelInfo(HANDLE hPlugin, OpenPanelInfo *Info);
-		void FreeFindData(HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber);
-		void FreeVirtualFindData(HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber);
-		void ClosePanel(HANDLE hPlugin);
+	oldfar::PluginPanelItem  *pFDPanelItemA;
+	oldfar::PluginPanelItem  *pVFDPanelItemA;
 
-		int ProcessEditorInput(const INPUT_RECORD *D);
-		int ProcessEditorEvent(int Event, PVOID Param);
-		int ProcessViewerEvent(int Event, PVOID Param);
-		int ProcessDialogEvent(int Event, PVOID Param);
-		int ProcessSynchroEvent(int Event, PVOID Param) { return 0; }
-#if defined(MANTIS_0000466)
-		int ProcessMacro(ProcessMacroInfo *Info) {return 0;}
-#endif
-#if defined(MANTIS_0001687)
-		int ProcessConsoleInput(ProcessConsoleInputInfo *Info) {return 0;}
-#endif
-
-		int Analyse(const AnalyseInfo *Info) { return FALSE; }
-
-		bool GetPluginInfo(PluginInfo *pi);
-		int Configure(const GUID& Guid);
-
-		void ExitFAR(const ExitInfo *Info);
-		const wchar_t* GetTitle(void) { return nullptr; }
-
-	private:
-
-		void InitExports();
-		void ClearExports();
-
-		void FreePluginInfo();
-		void ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest);
-		void FreeOpenPanelInfo();
-		void ConvertOpenPanelInfo(oldfar::OpenPanelInfo &Src, OpenPanelInfo *Dest);
+	UINT64 OEMApiCnt;
 };

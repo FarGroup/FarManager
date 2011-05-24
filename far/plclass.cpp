@@ -41,7 +41,329 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "lasterror.hpp"
 #include "config.hpp"
+#include "farexcpt.hpp"
+#include "chgprior.hpp"
+#include "scrbuf.hpp"
+#include "ctrlobj.hpp"
+#include "farversion.hpp"
+#include "plugapi.hpp"
+#include "flink.hpp"
+#include "xlat.hpp"
+#include "stddlg.hpp"
+#include "clipboard.hpp"
+#include "plugins.hpp"
+#include "message.hpp"
+#include "dirmix.hpp"
+#include "strmix.hpp"
+#include "processname.hpp"
+#include "vmenu.hpp"
+#include "dialog.hpp"
+#include "colormix.hpp"
+#include "keyboard.hpp"
+#include "synchro.hpp"
+#include "setcolor.hpp"
+#include "mix.hpp"
 
+
+typedef void   (WINAPI *iClosePanelPrototype)          (HANDLE hPlugin);
+typedef int    (WINAPI *iComparePrototype)             (const CompareInfo *Info);
+typedef int    (WINAPI *iConfigurePrototype)           (const GUID* Guid);
+typedef int    (WINAPI *iDeleteFilesPrototype)         (const DeleteFilesInfo *Info);
+typedef void   (WINAPI *iExitFARPrototype)             (const ExitInfo *Info);
+typedef void   (WINAPI *iFreeFindDataPrototype)        (const FreeFindDataInfo *Info);
+typedef void   (WINAPI *iFreeVirtualFindDataPrototype) (const FreeFindDataInfo *Info);
+typedef int    (WINAPI *iGetFilesPrototype)            (GetFilesInfo *Info);
+typedef int    (WINAPI *iGetFindDataPrototype)         (GetFindDataInfo *Info);
+typedef void   (WINAPI *iGetGlobalInfoPrototype)       (GlobalInfo *Info);
+typedef void   (WINAPI *iGetOpenPanelInfoPrototype)    (OpenPanelInfo *Info);
+typedef void   (WINAPI *iGetPluginInfoPrototype)       (PluginInfo *Info);
+typedef int    (WINAPI *iGetVirtualFindDataPrototype)  (GetVirtualFindDataInfo *Info);
+typedef int    (WINAPI *iMakeDirectoryPrototype)       (MakeDirectoryInfo *Info);
+typedef HANDLE (WINAPI *iOpenPrototype)                (const OpenInfo *Info);
+typedef int    (WINAPI *iProcessEditorEventPrototype)  (int Event,void *Param);
+typedef int    (WINAPI *iProcessEditorInputPrototype)  (const ProcessEditorInputInfo *Info);
+typedef int    (WINAPI *iProcessEventPrototype)        (HANDLE hPlugin,int Event,void *Param);
+typedef int    (WINAPI *iProcessHostFilePrototype)     (const ProcessHostFileInfo *Info);
+typedef int    (WINAPI *iProcessPanelInputPrototype)   (HANDLE hPlugin,const ProcessPanelInputInfo *Info);
+typedef int    (WINAPI *iPutFilesPrototype)            (const PutFilesInfo *Info);
+typedef int    (WINAPI *iSetDirectoryPrototype)        (const SetDirectoryInfo *Info);
+typedef int    (WINAPI *iSetFindListPrototype)         (const SetFindListInfo *Info);
+typedef void   (WINAPI *iSetStartupInfoPrototype)      (const PluginStartupInfo *Info);
+typedef int    (WINAPI *iProcessViewerEventPrototype)  (int Event,void *Param);
+typedef int    (WINAPI *iProcessDialogEventPrototype)  (int Event,void *Param);
+typedef int    (WINAPI *iProcessSynchroEventPrototype) (int Event,void *Param);
+#if defined(MANTIS_0000466)
+typedef int    (WINAPI *iProcessMacroPrototype)        (const ProcessMacroInfo *Info);
+#endif
+#if defined(MANTIS_0001687)
+typedef int    (WINAPI *iProcessConsoleInputPrototype) (const ProcessConsoleInputInfo *Info);
+#endif
+typedef int    (WINAPI *iAnalysePrototype)             (const AnalyseInfo *Info);
+typedef int    (WINAPI *iGetCustomDataPrototype)       (const wchar_t *FilePath, wchar_t **CustomData);
+typedef void   (WINAPI *iFreeCustomDataPrototype)      (wchar_t *CustomData);
+
+
+#define EXP_GETGLOBALINFO       "GetGlobalInfoW"
+#define EXP_SETSTARTUPINFO      "SetStartupInfoW"
+#define EXP_OPEN                "OpenW"
+#define EXP_CLOSEPANEL          "ClosePanelW"
+#define EXP_GETPLUGININFO       "GetPluginInfoW"
+#define EXP_GETOPENPANELINFO    "GetOpenPanelInfoW"
+#define EXP_GETFINDDATA         "GetFindDataW"
+#define EXP_FREEFINDDATA        "FreeFindDataW"
+#define EXP_GETVIRTUALFINDDATA  "GetVirtualFindDataW"
+#define EXP_FREEVIRTUALFINDDATA "FreeVirtualFindDataW"
+#define EXP_SETDIRECTORY        "SetDirectoryW"
+#define EXP_GETFILES            "GetFilesW"
+#define EXP_PUTFILES            "PutFilesW"
+#define EXP_DELETEFILES         "DeleteFilesW"
+#define EXP_MAKEDIRECTORY       "MakeDirectoryW"
+#define EXP_PROCESSHOSTFILE     "ProcessHostFileW"
+#define EXP_SETFINDLIST         "SetFindListW"
+#define EXP_CONFIGURE           "ConfigureW"
+#define EXP_EXITFAR             "ExitFARW"
+#define EXP_PROCESSPANELINPUT   "ProcessPanelInputW"
+#define EXP_PROCESSEVENT        "ProcessEventW"
+#define EXP_PROCESSEDITOREVENT  "ProcessEditorEventW"
+#define EXP_COMPARE             "CompareW"
+#define EXP_PROCESSEDITORINPUT  "ProcessEditorInputW"
+#define EXP_PROCESSVIEWEREVENT  "ProcessViewerEventW"
+#define EXP_PROCESSDIALOGEVENT  "ProcessDialogEventW"
+#define EXP_PROCESSSYNCHROEVENT "ProcessSynchroEventW"
+#if defined(MANTIS_0000466)
+#define EXP_PROCESSMACRO        "ProcessMacroW"
+#endif
+#if defined(MANTIS_0001687)
+#define EXP_PROCESSCONSOLEINPUT "ProcessConsoleInputW"
+#endif
+#define EXP_ANALYSE             "AnalyseW"
+#define EXP_GETCUSTOMDATA       "GetCustomDataW"
+#define EXP_FREECUSTOMDATA      "FreeCustomDataW"
+
+#define EXP_OPENFILEPLUGIN      ""
+#define EXP_GETMINFARVERSION    ""
+
+
+static const char* _ExportsNamesA[i_LAST] =
+{
+	EXP_GETGLOBALINFO,
+	EXP_SETSTARTUPINFO,
+	EXP_OPEN,
+	EXP_CLOSEPANEL,
+	EXP_GETPLUGININFO,
+	EXP_GETOPENPANELINFO,
+	EXP_GETFINDDATA,
+	EXP_FREEFINDDATA,
+	EXP_GETVIRTUALFINDDATA,
+	EXP_FREEVIRTUALFINDDATA,
+	EXP_SETDIRECTORY,
+	EXP_GETFILES,
+	EXP_PUTFILES,
+	EXP_DELETEFILES,
+	EXP_MAKEDIRECTORY,
+	EXP_PROCESSHOSTFILE,
+	EXP_SETFINDLIST,
+	EXP_CONFIGURE,
+	EXP_EXITFAR,
+	EXP_PROCESSPANELINPUT,
+	EXP_PROCESSEVENT,
+	EXP_PROCESSEDITOREVENT,
+	EXP_COMPARE,
+	EXP_PROCESSEDITORINPUT,
+	EXP_PROCESSVIEWEREVENT,
+	EXP_PROCESSDIALOGEVENT,
+	EXP_PROCESSSYNCHROEVENT,
+#if defined(MANTIS_0000466)
+	EXP_PROCESSMACRO,
+#endif
+#if defined(MANTIS_0001687)
+	EXP_PROCESSCONSOLEINPUT,
+#endif
+	EXP_ANALYSE,
+	EXP_GETCUSTOMDATA,
+	EXP_FREECUSTOMDATA,
+
+	EXP_OPENFILEPLUGIN,
+	EXP_GETMINFARVERSION,
+};
+
+
+static const wchar_t* _ExportsNamesW[i_LAST] =
+{
+	W(EXP_GETGLOBALINFO),
+	W(EXP_SETSTARTUPINFO),
+	W(EXP_OPEN),
+	W(EXP_CLOSEPANEL),
+	W(EXP_GETPLUGININFO),
+	W(EXP_GETOPENPANELINFO),
+	W(EXP_GETFINDDATA),
+	W(EXP_FREEFINDDATA),
+	W(EXP_GETVIRTUALFINDDATA),
+	W(EXP_FREEVIRTUALFINDDATA),
+	W(EXP_SETDIRECTORY),
+	W(EXP_GETFILES),
+	W(EXP_PUTFILES),
+	W(EXP_DELETEFILES),
+	W(EXP_MAKEDIRECTORY),
+	W(EXP_PROCESSHOSTFILE),
+	W(EXP_SETFINDLIST),
+	W(EXP_CONFIGURE),
+	W(EXP_EXITFAR),
+	W(EXP_PROCESSPANELINPUT),
+	W(EXP_PROCESSEVENT),
+	W(EXP_PROCESSEDITOREVENT),
+	W(EXP_COMPARE),
+	W(EXP_PROCESSEDITORINPUT),
+	W(EXP_PROCESSVIEWEREVENT),
+	W(EXP_PROCESSDIALOGEVENT),
+	W(EXP_PROCESSSYNCHROEVENT),
+#if defined(MANTIS_0000466)
+	W(EXP_PROCESSMACRO),
+#endif
+#if defined(MANTIS_0001687)
+	W(EXP_PROCESSCONSOLEINPUT),
+#endif
+	W(EXP_ANALYSE),
+	W(EXP_GETCUSTOMDATA),
+	W(EXP_FREECUSTOMDATA),
+
+	W(EXP_OPENFILEPLUGIN),
+	W(EXP_GETMINFARVERSION),
+};
+
+static const wchar_t wszReg_Open[]=L"OpenW";
+static const wchar_t wszReg_SetFindList[]=L"SetFindListW";
+static const wchar_t wszReg_ProcessEditorInput[]=L"ProcessEditorInputW";
+static const wchar_t wszReg_ProcessEditorEvent[]=L"ProcessEditorEventW";
+static const wchar_t wszReg_ProcessViewerEvent[]=L"ProcessViewerEventW";
+static const wchar_t wszReg_ProcessDialogEvent[]=L"ProcessDialogEventW";
+static const wchar_t wszReg_ProcessSynchroEvent[]=L"ProcessSynchroEventW";
+#if defined(MANTIS_0000466)
+static const wchar_t wszReg_ProcessMacro[]=L"ProcessMacroW";
+#endif
+#if defined(MANTIS_0001687)
+static const wchar_t wszReg_ProcessConsoleInput[]=L"ProcessConsoleInputW";
+#endif
+static const wchar_t wszReg_Configure[]=L"ConfigureW";
+static const wchar_t wszReg_Analyse[] = L"AnalyseW";
+static const wchar_t wszReg_GetCustomData[] = L"GetCustomDataW";
+
+static size_t WINAPI FarKeyToName(int Key,wchar_t *KeyText,size_t Size)
+{
+	string strKT;
+
+	if (!KeyToText(Key,strKT))
+		return 0;
+
+	size_t len = strKT.GetLength();
+
+	if (Size && KeyText)
+	{
+		if (Size <= len) len = Size-1;
+
+		wmemcpy(KeyText, strKT.CPtr(), len);
+		KeyText[len] = 0;
+	}
+	else if (KeyText) *KeyText = 0;
+
+	return (len+1);
+}
+
+int WINAPI KeyNameToKeyW(const wchar_t *Name)
+{
+	string strN(Name);
+	return KeyNameToKey(strN);
+}
+
+#define GetPluginNumber(Id) (CtrlObject?CtrlObject->Plugins.PluginGuidToPluginNumber(*Id):-1)
+
+static int WINAPI FarGetPluginDirListW(const GUID* PluginId,HANDLE hPlugin,
+                               const wchar_t *Dir,struct PluginPanelItem **pPanelItem,
+                               int *pItemsNumber)
+{
+	return FarGetPluginDirList(GetPluginNumber(PluginId),hPlugin,Dir,pPanelItem,pItemsNumber);
+}
+
+static int WINAPI FarMenuFnW(const GUID* PluginId,int X,int Y,int MaxHeight,
+                     unsigned __int64 Flags,const wchar_t *Title,const wchar_t *Bottom,
+                     const wchar_t *HelpTopic,const FarKey *BreakKeys,int *BreakCode,
+                     const struct FarMenuItem *Item, size_t ItemsNumber)
+{
+	return FarMenuFn(GetPluginNumber(PluginId),X,Y,MaxHeight,Flags,Title,Bottom,HelpTopic,BreakKeys,BreakCode,Item,ItemsNumber);
+}
+
+static int WINAPI FarMessageFnW(const GUID* PluginId,unsigned __int64 Flags,
+                        const wchar_t *HelpTopic,const wchar_t * const *Items,size_t ItemsNumber,
+                        int ButtonsNumber)
+{
+  return FarMessageFn(GetPluginNumber(PluginId),Flags,HelpTopic,Items,ItemsNumber,ButtonsNumber);
+}
+
+static int WINAPI FarInputBoxW(const GUID* PluginId,const wchar_t *Title,const wchar_t *Prompt,
+                       const wchar_t *HistoryName,const wchar_t *SrcText,
+                       wchar_t *DestText,int DestLength,
+                       const wchar_t *HelpTopic,unsigned __int64 Flags)
+{
+	return FarInputBox(GetPluginNumber(PluginId),Title,Prompt,HistoryName,SrcText,DestText,DestLength,HelpTopic,Flags);
+}
+
+static BOOL WINAPI farColorDialog(const GUID* PluginId, COLORDIALOGFLAGS Flags, struct FarColor *Color)
+{
+	BOOL Result = FALSE;
+	if (!FrameManager->ManagerIsDown())
+	{
+		WORD Clr = Colors::FarColorToColor(*Color);
+		if(GetColorDialog(Clr, true, false))
+		{
+			Colors::ColorToFarColor(Clr, *Color);
+			Result = TRUE;
+		}
+	}
+	return Result;
+}
+
+static INT_PTR WINAPI FarAdvControlW(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Command, int Param1, void* Param2)
+{
+	if (ACTL_SYNCHRO==Command) //must be first
+	{
+		PluginSynchroManager.Synchro(true, *PluginId, Param2);
+		return 0;
+	}
+	if (ACTL_GETWINDOWTYPE==Command)
+	{
+		WindowType* info=(WindowType*)Param2;
+		if (info&&info->StructSize>=sizeof(WindowType))
+		{
+			int type=CurrentWindowType;
+			switch(type)
+			{
+				case WTYPE_PANELS:
+				case WTYPE_VIEWER:
+				case WTYPE_EDITOR:
+				case WTYPE_DIALOG:
+				case WTYPE_VMENU:
+				case WTYPE_HELP:
+					info->Type=type;
+					return TRUE;
+			}
+		}
+		return FALSE;
+	}
+	return FarAdvControl(GetPluginNumber(PluginId), Command, Param1, Param2);
+}
+
+static HANDLE WINAPI FarDialogInitW(const GUID* PluginId, const GUID* Id, int X1, int Y1, int X2, int Y2,
+                            const wchar_t *HelpTopic, struct FarDialogItem *Item,
+                            unsigned int ItemsNumber, DWORD Reserved, unsigned __int64 Flags,
+                            FARWINDOWPROC Proc, void* Param)
+{
+	return FarDialogInit(GetPluginNumber(PluginId),Id,X1,Y1,X2,Y2,HelpTopic,Item,ItemsNumber,Reserved,Flags,Proc,Param);
+}
+
+static const wchar_t* WINAPI FarGetMsgFnW(const GUID* PluginId,int MsgId)
+{
+	return FarGetMsgFn(GetPluginNumber(PluginId),MsgId);
+}
 
 static BOOL PrepareModulePath(const wchar_t *ModuleName)
 {
@@ -51,9 +373,289 @@ static BOOL PrepareModulePath(const wchar_t *ModuleName)
 	return FarChDir(strModulePath);
 }
 
-Plugin::Plugin(PluginManager *owner, const wchar_t *lpwszModuleName)
+static void CheckScreenLock()
 {
-	m_owner = owner;
+	if (ScrBuf.GetLockCount() > 0 && !CtrlObject->Macro.PeekKey())
+	{
+		ScrBuf.SetLockCount(0);
+		ScrBuf.Flush();
+	}
+}
+
+void CreatePluginStartupInfo(Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF)
+{
+	static PluginStartupInfo StartupInfo={0};
+	static FarStandardFunctions StandardFunctions={0};
+
+	// заполняем структуру StandardFunctions один раз!!!
+	if (!StandardFunctions.StructSize)
+	{
+		StandardFunctions.StructSize=sizeof(StandardFunctions);
+		StandardFunctions.sprintf=swprintf;
+		StandardFunctions.snprintf=_snwprintf;
+		StandardFunctions.sscanf=swscanf;
+		StandardFunctions.qsort=FarQsort;
+		StandardFunctions.qsortex=FarQsortEx;
+		StandardFunctions.atoi=FarAtoi;
+		StandardFunctions.atoi64=FarAtoi64;
+		StandardFunctions.itoa=FarItoa;
+		StandardFunctions.itoa64=FarItoa64;
+		StandardFunctions.bsearch=FarBsearch;
+		StandardFunctions.LIsLower = farIsLower;
+		StandardFunctions.LIsUpper = farIsUpper;
+		StandardFunctions.LIsAlpha = farIsAlpha;
+		StandardFunctions.LIsAlphanum = farIsAlphaNum;
+		StandardFunctions.LUpper = farUpper;
+		StandardFunctions.LUpperBuf = farUpperBuf;
+		StandardFunctions.LLowerBuf = farLowerBuf;
+		StandardFunctions.LLower = farLower;
+		StandardFunctions.LStrupr = farStrUpper;
+		StandardFunctions.LStrlwr = farStrLower;
+		StandardFunctions.LStricmp = farStrCmpI;
+		StandardFunctions.LStrnicmp = farStrCmpNI;
+		StandardFunctions.Unquote=Unquote;
+		StandardFunctions.LTrim=RemoveLeadingSpaces;
+		StandardFunctions.RTrim=RemoveTrailingSpaces;
+		StandardFunctions.Trim=RemoveExternalSpaces;
+		StandardFunctions.TruncStr=TruncStr;
+		StandardFunctions.TruncPathStr=TruncPathStr;
+		StandardFunctions.QuoteSpaceOnly=QuoteSpaceOnly;
+		StandardFunctions.PointToName=PointToName;
+		StandardFunctions.GetPathRoot=farGetPathRoot;
+		StandardFunctions.AddEndSlash=AddEndSlash;
+		StandardFunctions.CopyToClipboard=CopyToClipboard;
+		StandardFunctions.PasteFromClipboard=PasteFromClipboard;
+		StandardFunctions.FarKeyToName=FarKeyToName;
+		StandardFunctions.FarNameToKey=KeyNameToKeyW;
+		StandardFunctions.FarInputRecordToKey=InputRecordToKey;
+		StandardFunctions.FarKeyToInputRecord=KeyToInputRecord;
+		StandardFunctions.XLat=Xlat;
+		StandardFunctions.GetFileOwner=farGetFileOwner;
+		StandardFunctions.GetNumberOfLinks=GetNumberOfLinks;
+		StandardFunctions.FarRecursiveSearch=FarRecursiveSearch;
+		StandardFunctions.MkTemp=FarMkTemp;
+		StandardFunctions.DeleteBuffer=DeleteBuffer;
+		StandardFunctions.ProcessName=ProcessName;
+		StandardFunctions.MkLink=FarMkLink;
+		StandardFunctions.ConvertPath=farConvertPath;
+		StandardFunctions.GetReparsePointInfo=farGetReparsePointInfo;
+		StandardFunctions.GetCurrentDirectory=farGetCurrentDirectory;
+	}
+
+	if (!StartupInfo.StructSize)
+	{
+		StartupInfo.StructSize=sizeof(StartupInfo);
+		StartupInfo.Menu=FarMenuFnW;
+		StartupInfo.GetMsg=FarGetMsgFnW;
+		StartupInfo.Message=FarMessageFnW;
+		StartupInfo.PanelControl=FarPanelControl;
+		StartupInfo.SaveScreen=FarSaveScreen;
+		StartupInfo.RestoreScreen=FarRestoreScreen;
+		StartupInfo.GetDirList=FarGetDirList;
+		StartupInfo.GetPluginDirList=FarGetPluginDirListW;
+		StartupInfo.FreeDirList=FarFreeDirList;
+		StartupInfo.FreePluginDirList=FarFreePluginDirList;
+		StartupInfo.Viewer=FarViewer;
+		StartupInfo.Editor=FarEditor;
+		StartupInfo.Text=FarText;
+		StartupInfo.EditorControl=FarEditorControl;
+		StartupInfo.ViewerControl=FarViewerControl;
+		StartupInfo.ShowHelp=FarShowHelp;
+		StartupInfo.AdvControl=FarAdvControlW;
+		StartupInfo.DialogInit=FarDialogInitW;
+		StartupInfo.DialogRun=FarDialogRun;
+		StartupInfo.DialogFree=FarDialogFree;
+		StartupInfo.SendDlgMessage=FarSendDlgMessage;
+		StartupInfo.DefDlgProc=FarDefDlgProc;
+		StartupInfo.InputBox=FarInputBoxW;
+		StartupInfo.ColorDialog = farColorDialog;
+		StartupInfo.PluginsControl=farPluginsControl;
+		StartupInfo.FileFilterControl=farFileFilterControl;
+		StartupInfo.RegExpControl=farRegExpControl;
+		StartupInfo.MacroControl=farMacroControl;
+		StartupInfo.SettingsControl=farSettingsControl;
+	}
+
+	*PSI=StartupInfo;
+	*FSF=StandardFunctions;
+	PSI->FSF=FSF;
+
+	if (pPlugin)
+	{
+		PSI->ModuleName = pPlugin->GetModuleName().CPtr();
+	}
+}
+
+static void ShowMessageAboutIllegalPluginVersion(const wchar_t* plg,const VersionInfo& required)
+{
+	string strMsg1, strMsg2;
+	string strPlgName;
+	strMsg1.Format(MSG(MPlgRequired),
+	               required.Major,required.Minor,required.Revision,required.Build);
+	strMsg2.Format(MSG(MPlgRequired2),
+	               FAR_VERSION.Major,FAR_VERSION.Minor,FAR_VERSION.Revision,FAR_VERSION.Build);
+	Message(MSG_WARNING|MSG_NOPLUGINS,1,MSG(MError),MSG(MPlgBadVers),plg,strMsg1,strMsg2,MSG(MOk));
+}
+
+bool Plugin::SaveToCache()
+{
+	if (Exports[iGetGlobalInfo] ||
+		Exports[iGetPluginInfo] ||
+		Exports[iOpen] ||
+		Exports[iSetFindList] ||
+		Exports[iProcessEditorInput] ||
+		Exports[iProcessEditorEvent] ||
+		Exports[iProcessViewerEvent] ||
+		Exports[iProcessDialogEvent] ||
+		Exports[iProcessSynchroEvent] ||
+#if defined(MANTIS_0000466)
+		Exports[iProcessMacro] ||
+#endif
+#if defined(MANTIS_0001687)
+		Exports[iProcessConsoleInput] ||
+#endif
+		Exports[iAnalyse] ||
+		Exports[iGetCustomData]
+	)
+	{
+		PluginInfo Info;
+		GetPluginInfo(&Info);
+
+		PlCacheCfg->BeginTransaction();
+
+		PlCacheCfg->DeleteCache(m_strCacheName);
+		unsigned __int64 id = PlCacheCfg->CreateCache(m_strCacheName);
+
+		{
+			bool bPreload = (Info.Flags & PF_PRELOAD);
+			PlCacheCfg->SetPreload(id, bPreload);
+			WorkFlags.Change(PIWF_PRELOADED, bPreload);
+
+			if (bPreload)
+			{
+				PlCacheCfg->EndTransaction();
+				return true;
+			}
+		}
+
+		{
+			string strCurPluginID;
+			FAR_FIND_DATA_EX fdata;
+			apiGetFindDataEx(m_strModuleName, fdata);
+			strCurPluginID.Format(
+				L"%I64x%x%x",
+				fdata.nFileSize,
+				fdata.ftCreationTime.dwLowDateTime,
+				fdata.ftLastWriteTime.dwLowDateTime
+				);
+			PlCacheCfg->SetSignature(id, strCurPluginID);
+		}
+
+		for (int i = 0; i < Info.DiskMenu.Count; i++)
+		{
+			PlCacheCfg->SetDiskMenuItem(id, i, Info.DiskMenu.Strings[i], GuidToStr(Info.DiskMenu.Guids[i]));
+		}
+
+		for (int i = 0; i < Info.PluginMenu.Count; i++)
+		{
+			PlCacheCfg->SetPluginsMenuItem(id, i, Info.PluginMenu.Strings[i], GuidToStr(Info.PluginMenu.Guids[i]));
+		}
+
+		for (int i = 0; i < Info.PluginConfig.Count; i++)
+		{
+			PlCacheCfg->SetPluginsConfigMenuItem(id, i, Info.PluginConfig.Strings[i], GuidToStr(Info.PluginConfig.Guids[i]));
+		}
+
+		PlCacheCfg->SetCommandPrefix(id, NullToEmpty(Info.CommandPrefix));
+		PlCacheCfg->SetFlags(id, Info.Flags);
+
+		PlCacheCfg->SetMinFarVersion(id, &MinFarVersion);
+		PlCacheCfg->SetGuid(id, m_strGuid);
+		PlCacheCfg->SetVersion(id, &PluginVersion);
+		PlCacheCfg->SetTitle(id, strTitle);
+		PlCacheCfg->SetDescription(id, strDescription);
+		PlCacheCfg->SetAuthor(id, strAuthor);
+
+#define OPT_SETEXPORT(i) if (*ExportsNamesW[i]) PlCacheCfg->SetExport(id, ExportsNamesW[i], Exports[i]!=nullptr)
+
+		OPT_SETEXPORT(iOpen);
+		OPT_SETEXPORT(iOpenFilePlugin);
+		OPT_SETEXPORT(iSetFindList);
+		OPT_SETEXPORT(iProcessEditorInput);
+		OPT_SETEXPORT(iProcessEditorEvent);
+		OPT_SETEXPORT(iProcessViewerEvent);
+		OPT_SETEXPORT(iProcessDialogEvent);
+		OPT_SETEXPORT(iProcessSynchroEvent);
+#if defined(MANTIS_0000466)
+		OPT_SETEXPORT(iProcessMacro);
+#endif
+#if defined(MANTIS_0001687)
+		OPT_SETEXPORT(iProcessConsoleInput);
+#endif
+		OPT_SETEXPORT(iConfigure);
+		OPT_SETEXPORT(iAnalyse);
+		OPT_SETEXPORT(iGetCustomData);
+
+		PlCacheCfg->EndTransaction();
+
+		return true;
+	}
+
+	return false;
+}
+
+void Plugin::InitExports()
+{
+#define OPT_GetProcAddress(id) Exports[id] = *ExportsNamesA[id]? reinterpret_cast<void*>(GetProcAddress(m_hModule, ExportsNamesA[id])): nullptr;
+
+	OPT_GetProcAddress(iGetGlobalInfo);
+	OPT_GetProcAddress(iSetStartupInfo);
+	OPT_GetProcAddress(iOpen);
+	OPT_GetProcAddress(iClosePanel);
+	OPT_GetProcAddress(iGetPluginInfo);
+	OPT_GetProcAddress(iGetOpenPanelInfo);
+	OPT_GetProcAddress(iGetFindData);
+	OPT_GetProcAddress(iFreeFindData);
+	OPT_GetProcAddress(iGetVirtualFindData);
+	OPT_GetProcAddress(iFreeVirtualFindData);
+	OPT_GetProcAddress(iSetDirectory);
+	OPT_GetProcAddress(iGetFiles);
+	OPT_GetProcAddress(iPutFiles);
+	OPT_GetProcAddress(iDeleteFiles);
+	OPT_GetProcAddress(iMakeDirectory);
+	OPT_GetProcAddress(iProcessHostFile);
+	OPT_GetProcAddress(iSetFindList);
+	OPT_GetProcAddress(iConfigure);
+	OPT_GetProcAddress(iExitFAR);
+	OPT_GetProcAddress(iProcessPanelInput);
+	OPT_GetProcAddress(iProcessEvent);
+	OPT_GetProcAddress(iCompare);
+	OPT_GetProcAddress(iProcessEditorInput);
+	OPT_GetProcAddress(iProcessEditorEvent);
+	OPT_GetProcAddress(iProcessViewerEvent);
+	OPT_GetProcAddress(iProcessDialogEvent);
+	OPT_GetProcAddress(iProcessSynchroEvent);
+#if defined(MANTIS_0000466)
+	OPT_GetProcAddress(iProcessMacro);
+#endif
+#if defined(MANTIS_0001687)
+	OPT_GetProcAddress(iProcessConsoleInput);
+#endif
+	OPT_GetProcAddress(iAnalyse);
+	OPT_GetProcAddress(iGetCustomData);
+	OPT_GetProcAddress(iFreeCustomData);
+
+	OPT_GetProcAddress(iOpenFilePlugin);
+	OPT_GetProcAddress(iGetMinFarVersion);
+
+#undef OPT_GetProcAddress
+}
+
+Plugin::Plugin(PluginManager *owner, const wchar_t *lpwszModuleName):
+	ExportsNamesW(_ExportsNamesW),
+	ExportsNamesA(_ExportsNamesA),
+	m_owner(owner)
+{
 	m_strModuleName = lpwszModuleName;
 	m_strCacheName = lpwszModuleName;
 	m_hModule = nullptr;
@@ -65,8 +667,9 @@ Plugin::Plugin(PluginManager *owner, const wchar_t *lpwszModuleName)
 
 		p++;
 	}
-
 	m_strCacheName.ReleaseBuffer();
+	ClearExports();
+	SetGuid(FarGuid);
 }
 
 Plugin::~Plugin()
@@ -131,13 +734,13 @@ bool Plugin::LoadData()
 
 	InitExports();
 
-	GlobalInfo Info={};
+	GlobalInfo Info={sizeof(Info)};
 
-	if(IsOemPlugin() || (GetGlobalInfo(&Info) &&
+	if(GetGlobalInfo(&Info) &&
 		Info.StructSize &&
 		Info.Title && *Info.Title &&
 		Info.Description && *Info.Description &&
-		Info.Author && *Info.Author))
+		Info.Author && *Info.Author)
 	{
 		MinFarVersion = Info.MinFarVersion;
 		PluginVersion = Info.Version;
@@ -213,7 +816,42 @@ bool Plugin::LoadFromCache(const FAR_FIND_DATA_EX &FindData)
 			if (StrCmp(strPluginID, strCurPluginID))   //одинаковые ли бинарники?
 				return false;
 		}
-		ReadCache(id);
+
+		if (!PlCacheCfg->GetMinFarVersion(id, &MinFarVersion))
+		{
+			MinFarVersion = FAR_VERSION;
+		}
+
+		if (!PlCacheCfg->GetVersion(id, &PluginVersion))
+		{
+			memset(&PluginVersion, 0, sizeof(PluginVersion));
+		}
+
+		m_strGuid = PlCacheCfg->GetGuid(id);
+		SetGuid(StrToGuid(m_strGuid,m_Guid)?m_Guid:FarGuid);
+		strTitle = PlCacheCfg->GetTitle(id);
+		strDescription = PlCacheCfg->GetDescription(id);
+		strAuthor = PlCacheCfg->GetAuthor(id);
+
+#define OPT_GETEXPORT(i) Exports[i] = *ExportsNamesW[i]? PlCacheCfg->GetExport(id, ExportsNamesW[i]) : nullptr
+
+		OPT_GETEXPORT(iOpen);
+		OPT_GETEXPORT(iOpenFilePlugin);
+		OPT_GETEXPORT(iSetFindList);
+		OPT_GETEXPORT(iProcessEditorInput);
+		OPT_GETEXPORT(iProcessEditorEvent);
+		OPT_GETEXPORT(iProcessViewerEvent);
+		OPT_GETEXPORT(iProcessDialogEvent);
+		OPT_GETEXPORT(iProcessSynchroEvent);
+#if defined(MANTIS_0000466)
+		OPT_GETEXPORT(iProcessMacro);
+#endif
+#if defined(MANTIS_0001687)
+		OPT_GETEXPORT(iProcessConsoleInput);
+#endif
+		OPT_GETEXPORT(iConfigure);
+		OPT_GETEXPORT(iAnalyse);
+		OPT_GETEXPORT(iGetCustomData);
 		WorkFlags.Set(PIWF_CACHED); //too much "cached" flags
 		return true;
 	}
@@ -239,4 +877,756 @@ int Plugin::Unload(bool bExitFAR)
 	m_hModule = nullptr;
 	FuncFlags.Clear(PICFF_LOADED); //??
 	return nResult;
+}
+
+void Plugin::ClearExports()
+{
+	memset(Exports, 0, sizeof(Exports));
+}
+
+bool Plugin::IsPanelPlugin()
+{
+	return Exports[iSetFindList] ||
+	       Exports[iGetFindData] ||
+	       Exports[iGetVirtualFindData] ||
+	       Exports[iSetDirectory] ||
+	       Exports[iGetFiles] ||
+	       Exports[iPutFiles] ||
+	       Exports[iDeleteFiles] ||
+	       Exports[iMakeDirectory] ||
+	       Exports[iProcessHostFile] ||
+	       Exports[iProcessPanelInput] ||
+	       Exports[iProcessEvent] ||
+	       Exports[iCompare] ||
+	       Exports[iGetOpenPanelInfo] ||
+	       Exports[iFreeFindData] ||
+	       Exports[iFreeVirtualFindData] ||
+	       Exports[iClosePanel];
+}
+
+bool Plugin::SetStartupInfo(bool &bUnloaded)
+{
+	if (Exports[iSetStartupInfo] && !ProcessException)
+	{
+		PluginStartupInfo _info;
+		FarStandardFunctions _fsf;
+		CreatePluginStartupInfo(this, &_info, &_fsf);
+		// скорректирем адреса и плагино-зависимые поля
+		ExecuteStruct es;
+		es.id = EXCEPT_SETSTARTUPINFO;
+		EXECUTE_FUNCTION(FUNCTION(iSetStartupInfo)(&_info), es);
+
+		if (es.bUnloaded)
+		{
+			bUnloaded = true;
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool Plugin::GetGlobalInfo(GlobalInfo *gi)
+{
+	if (Exports[iGetGlobalInfo])
+	{
+		memset(gi, 0, sizeof(GlobalInfo));
+		ExecuteStruct es;
+		es.id = EXCEPT_GETGLOBALINFO;
+		EXECUTE_FUNCTION(FUNCTION(iGetGlobalInfo)(gi), es);
+		return !es.bUnloaded;
+	}
+	return false;
+}
+
+bool Plugin::CheckMinFarVersion(bool &bUnloaded)
+{
+	if (!CheckVersion(&FAR_VERSION, &MinFarVersion))
+	{
+		ShowMessageAboutIllegalPluginVersion(m_strModuleName,MinFarVersion);
+		return false;
+	}
+
+	return true;
+}
+
+HANDLE Plugin::OpenFilePlugin(
+    const wchar_t *Name,
+    const unsigned char *Data,
+    int DataSize,
+    int OpMode
+)
+{
+	return INVALID_HANDLE_VALUE;
+}
+
+int Plugin::Analyse(const AnalyseInfo *Info)
+{
+	if (Load() && Exports[iAnalyse] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_ANALYSE;
+		es.bDefaultResult = FALSE;
+		es.bResult = FALSE;
+		EXECUTE_FUNCTION_EX(FUNCTION(iAnalyse)(Info), es);
+		return es.bResult;
+	}
+
+	return FALSE;
+}
+
+HANDLE Plugin::Open(int OpenFrom, const GUID& Guid, INT_PTR Item)
+{
+	ChangePriority *ChPriority = new ChangePriority(THREAD_PRIORITY_NORMAL);
+
+	CheckScreenLock(); //??
+
+	{
+//		string strCurDir;
+//		CtrlObject->CmdLine->GetCurDir(strCurDir);
+//		FarChDir(strCurDir);
+		g_strDirToSet.Clear();
+	}
+
+	HANDLE hResult = INVALID_HANDLE_VALUE;
+
+	if (Load() && Exports[iOpen] && !ProcessException)
+	{
+		//CurPluginItem=this; //BUGBUG
+		ExecuteStruct es;
+		es.id = EXCEPT_OPEN;
+		es.hDefaultResult = INVALID_HANDLE_VALUE;
+		es.hResult = INVALID_HANDLE_VALUE;
+		OpenInfo Info = {sizeof(Info)};
+		Info.OpenFrom = static_cast<OPENFROM>(OpenFrom);
+		Info.Guid = &Guid;
+		Info.Data = Item;
+		EXECUTE_FUNCTION_EX(FUNCTION(iOpen)(&Info), es);
+		hResult = es.hResult;
+		//CurPluginItem=nullptr; //BUGBUG
+		/*    CtrlObject->Macro.SetRedrawEditor(TRUE); //BUGBUG
+
+		    if ( !es.bUnloaded )
+		    {
+
+		      if(OpenFrom == OPEN_EDITOR &&
+		         !CtrlObject->Macro.IsExecuting() &&
+		         CtrlObject->Plugins.CurEditor &&
+		         CtrlObject->Plugins.CurEditor->IsVisible() )
+		      {
+		        CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE);
+		        CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
+		        CtrlObject->Plugins.CurEditor->Show();
+		      }
+		      if (hInternal!=INVALID_HANDLE_VALUE)
+		      {
+		        PluginHandle *hPlugin=new PluginHandle;
+		        hPlugin->InternalHandle=es.hResult;
+		        hPlugin->PluginNumber=(INT_PTR)this;
+		        return((HANDLE)hPlugin);
+		      }
+		      else
+		        if ( !g_strDirToSet.IsEmpty() )
+		        {
+							CtrlObject->Cp()->ActivePanel->SetCurDir(g_strDirToSet,TRUE);
+		          CtrlObject->Cp()->ActivePanel->Redraw();
+		        }
+		    } */
+	}
+
+	delete ChPriority;
+
+	return hResult;
+}
+
+//////////////////////////////////
+int Plugin::SetFindList(
+    HANDLE hPlugin,
+    const PluginPanelItem *PanelItem,
+    int ItemsNumber
+)
+{
+	BOOL bResult = FALSE;
+
+	if (Exports[iSetFindList] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_SETFINDLIST;
+		es.bDefaultResult = FALSE;
+		SetFindListInfo Info = {sizeof(Info)};
+		Info.hPanel = hPlugin;
+		Info.PanelItem = PanelItem;
+		Info.ItemsNumber = ItemsNumber;
+		EXECUTE_FUNCTION_EX(FUNCTION(iSetFindList)(&Info), es);
+		bResult = es.bResult;
+	}
+
+	return bResult;
+}
+
+int Plugin::ProcessEditorInput(
+    const INPUT_RECORD *D
+)
+{
+	BOOL bResult = FALSE;
+
+	if (Load() && Exports[iProcessEditorInput] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_PROCESSEDITORINPUT;
+		es.bDefaultResult = TRUE; //(TRUE) treat the result as a completed request on exception!
+		ProcessEditorInputInfo Info={sizeof(Info)};
+		Info.Rec=*D;
+		EXECUTE_FUNCTION_EX(FUNCTION(iProcessEditorInput)(&Info), es);
+		bResult = es.bResult;
+	}
+
+	return bResult;
+}
+
+int Plugin::ProcessEditorEvent(
+    int Event,
+    PVOID Param
+)
+{
+	if (Load() && Exports[iProcessEditorEvent] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_PROCESSEDITOREVENT;
+		es.nDefaultResult = 0;
+		EXECUTE_FUNCTION_EX(FUNCTION(iProcessEditorEvent)(Event, Param), es);
+	}
+
+	return 0; //oops!
+}
+
+int Plugin::ProcessViewerEvent(
+    int Event,
+    void *Param
+)
+{
+	if (Load() && Exports[iProcessViewerEvent] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_PROCESSVIEWEREVENT;
+		es.nDefaultResult = 0;
+		EXECUTE_FUNCTION_EX(FUNCTION(iProcessViewerEvent)(Event, Param), es);
+	}
+
+	return 0; //oops, again!
+}
+
+int Plugin::ProcessDialogEvent(
+    int Event,
+    void *Param
+)
+{
+	BOOL bResult = FALSE;
+
+	if (Load() && Exports[iProcessDialogEvent] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_PROCESSDIALOGEVENT;
+		es.bDefaultResult = FALSE;
+		EXECUTE_FUNCTION_EX(FUNCTION(iProcessDialogEvent)(Event, Param), es);
+		bResult = es.bResult;
+	}
+
+	return bResult;
+}
+
+int Plugin::ProcessSynchroEvent(
+    int Event,
+    void *Param
+)
+{
+	if (Load() && Exports[iProcessSynchroEvent] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_PROCESSSYNCHROEVENT;
+		es.nDefaultResult = 0;
+		EXECUTE_FUNCTION_EX(FUNCTION(iProcessSynchroEvent)(Event, Param), es);
+	}
+
+	return 0; //oops, again!
+}
+
+#if defined(MANTIS_0000466)
+int Plugin::ProcessMacro(
+	ProcessMacroInfo *Info
+)
+{
+	int nResult = 0;
+
+	if (Load() && Exports[iProcessMacro] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_PROCESSMACRO;
+		es.nDefaultResult = 0;
+
+		EXECUTE_FUNCTION_EX(FUNCTION(iProcessMacro)(Info), es);
+
+		nResult = (int)es.nResult;
+	}
+
+	return nResult;
+}
+#endif
+
+#if defined(MANTIS_0001687)
+int Plugin::ProcessConsoleInput(
+	ProcessConsoleInputInfo *Info
+)
+{
+	int nResult = 0;
+
+	if (Load() && Exports[iProcessConsoleInput] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_PROCESSCONSOLEINPUT;
+		es.nDefaultResult = 0;
+
+		EXECUTE_FUNCTION_EX(FUNCTION(iProcessConsoleInput)(Info), es);
+
+		nResult = (int)es.nResult;
+	}
+
+	return nResult;
+}
+#endif
+
+
+int Plugin::GetVirtualFindData(
+    HANDLE hPlugin,
+    PluginPanelItem **pPanelItem,
+    int *pItemsNumber,
+    const wchar_t *Path
+)
+{
+	BOOL bResult = FALSE;
+
+	if (Exports[iGetVirtualFindData] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_GETVIRTUALFINDDATA;
+		es.bDefaultResult = FALSE;
+		GetVirtualFindDataInfo Info = {sizeof(Info)};
+		Info.hPanel = hPlugin;
+		Info.PanelItem = *pPanelItem;
+		Info.ItemsNumber = *pItemsNumber;
+		Info.Path = Path;
+		EXECUTE_FUNCTION_EX(FUNCTION(iGetVirtualFindData)(&Info), es);
+		*pPanelItem = Info.PanelItem;
+		*pItemsNumber = Info.ItemsNumber;
+		bResult = es.bResult;
+	}
+
+	return bResult;
+}
+
+
+void Plugin::FreeVirtualFindData(
+    HANDLE hPlugin,
+    PluginPanelItem *PanelItem,
+    int ItemsNumber
+)
+{
+	if (Exports[iFreeVirtualFindData] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_FREEVIRTUALFINDDATA;
+		FreeFindDataInfo Info = {sizeof(Info)};
+		Info.hPanel = hPlugin;
+		Info.PanelItem = PanelItem;
+		Info.ItemsNumber = ItemsNumber;
+		EXECUTE_FUNCTION(FUNCTION(iFreeVirtualFindData)(&Info), es);
+	}
+}
+
+
+
+int Plugin::GetFiles(
+    HANDLE hPlugin,
+    PluginPanelItem *PanelItem,
+    int ItemsNumber,
+    int Move,
+    const wchar_t **DestPath,
+    int OpMode
+)
+{
+	int nResult = -1;
+
+	if (Exports[iGetFiles] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_GETFILES;
+		es.nDefaultResult = -1;
+		GetFilesInfo Info = {sizeof(Info)};
+		Info.hPanel = hPlugin;
+		Info.PanelItem = PanelItem;
+		Info.ItemsNumber = ItemsNumber;
+		Info.Move = Move;
+		Info.DestPath = *DestPath;
+		Info.OpMode = OpMode;
+		EXECUTE_FUNCTION_EX(FUNCTION(iGetFiles)(&Info), es);
+		*DestPath = Info.DestPath;
+		nResult = (int)es.nResult;
+	}
+
+	return nResult;
+}
+
+
+int Plugin::PutFiles(
+    HANDLE hPlugin,
+    PluginPanelItem *PanelItem,
+    int ItemsNumber,
+    int Move,
+    int OpMode
+)
+{
+	int nResult = -1;
+
+	if (Exports[iPutFiles] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_PUTFILES;
+		es.nDefaultResult = -1;
+		static string strCurrentDirectory;
+		apiGetCurrentDirectory(strCurrentDirectory);
+		PutFilesInfo Info = {sizeof(Info)};
+		Info.hPanel = hPlugin;
+		Info.PanelItem = PanelItem;
+		Info.ItemsNumber = ItemsNumber;
+		Info.Move = Move;
+		Info.SrcPath = strCurrentDirectory;
+		Info.OpMode = OpMode;
+		EXECUTE_FUNCTION_EX(FUNCTION(iPutFiles)(&Info), es);
+		nResult = (int)es.nResult;
+	}
+
+	return nResult;
+}
+
+int Plugin::DeleteFiles(
+    HANDLE hPlugin,
+    PluginPanelItem *PanelItem,
+    int ItemsNumber,
+    int OpMode
+)
+{
+	BOOL bResult = FALSE;
+
+	if (Exports[iDeleteFiles] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_DELETEFILES;
+		es.bDefaultResult = FALSE;
+		DeleteFilesInfo Info = {sizeof(Info)};
+		Info.hPanel = hPlugin;
+		Info.PanelItem = PanelItem;
+		Info.ItemsNumber = ItemsNumber;
+		Info.OpMode = OpMode;
+		EXECUTE_FUNCTION_EX(FUNCTION(iDeleteFiles)(&Info), es);
+		bResult = (int)es.bResult;
+	}
+
+	return bResult;
+}
+
+
+int Plugin::MakeDirectory(
+    HANDLE hPlugin,
+    const wchar_t **Name,
+    int OpMode
+)
+{
+	int nResult = -1;
+
+	if (Exports[iMakeDirectory] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_MAKEDIRECTORY;
+		es.nDefaultResult = -1;
+		MakeDirectoryInfo Info = {sizeof(Info)};
+		Info.hPanel = hPlugin;
+		Info.Name = *Name;
+		Info.OpMode = OpMode;
+		EXECUTE_FUNCTION_EX(FUNCTION(iMakeDirectory)(&Info), es);
+		*Name = Info.Name;
+		nResult = (int)es.nResult;
+	}
+
+	return nResult;
+}
+
+
+int Plugin::ProcessHostFile(
+    HANDLE hPlugin,
+    PluginPanelItem *PanelItem,
+    int ItemsNumber,
+    int OpMode
+)
+{
+	BOOL bResult = FALSE;
+
+	if (Exports[iProcessHostFile] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_PROCESSHOSTFILE;
+		es.bDefaultResult = FALSE;
+		ProcessHostFileInfo Info = {sizeof(Info)};
+		Info.hPanel = hPlugin;
+		Info.PanelItem = PanelItem;
+		Info.ItemsNumber = ItemsNumber;
+		Info.OpMode = OpMode;
+		EXECUTE_FUNCTION_EX(FUNCTION(iProcessHostFile)(&Info), es);
+		bResult = es.bResult;
+	}
+
+	return bResult;
+}
+
+
+int Plugin::ProcessEvent(
+    HANDLE hPlugin,
+    int Event,
+    PVOID Param
+)
+{
+	BOOL bResult = FALSE;
+
+	if (Exports[iProcessEvent] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_PROCESSEVENT;
+		es.bDefaultResult = FALSE;
+		EXECUTE_FUNCTION_EX(FUNCTION(iProcessEvent)(hPlugin, Event, Param), es);
+		bResult = es.bResult;
+	}
+
+	return bResult;
+}
+
+
+int Plugin::Compare(
+    HANDLE hPlugin,
+    const PluginPanelItem *Item1,
+    const PluginPanelItem *Item2,
+    DWORD Mode
+)
+{
+	int nResult = -2;
+
+	if (Exports[iCompare] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_COMPARE;
+		es.nDefaultResult = -2;
+		CompareInfo Info = {sizeof(Info)};
+		Info.hPanel = hPlugin;
+		Info.Item1 = Item1;
+		Info.Item2 = Item2;
+		Info.Mode = static_cast<OPENPANELINFO_SORTMODES>(Mode);
+		EXECUTE_FUNCTION_EX(FUNCTION(iCompare)(&Info), es);
+		nResult = (int)es.nResult;
+	}
+
+	return nResult;
+}
+
+
+int Plugin::GetFindData(
+    HANDLE hPlugin,
+    PluginPanelItem **pPanelItem,
+    int *pItemsNumber,
+    int OpMode
+)
+{
+	BOOL bResult = FALSE;
+
+	if (Exports[iGetFindData] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_GETFINDDATA;
+		es.bDefaultResult = FALSE;
+		GetFindDataInfo Info = {sizeof(Info)};
+		Info.hPanel = hPlugin;
+		Info.PanelItem = *pPanelItem;
+		Info.ItemsNumber = *pItemsNumber;
+		Info.OpMode = OpMode;
+		EXECUTE_FUNCTION_EX(FUNCTION(iGetFindData)(&Info), es);
+		*pPanelItem = Info.PanelItem;
+		*pItemsNumber = Info.ItemsNumber;
+		bResult = es.bResult;
+	}
+
+	return bResult;
+}
+
+
+void Plugin::FreeFindData(
+    HANDLE hPlugin,
+    PluginPanelItem *PanelItem,
+    int ItemsNumber
+)
+{
+	if (Exports[iFreeFindData] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_FREEFINDDATA;
+		FreeFindDataInfo Info = {sizeof(Info)};
+		Info.hPanel = hPlugin;
+		Info.PanelItem = PanelItem;
+		Info.ItemsNumber = ItemsNumber;
+		EXECUTE_FUNCTION(FUNCTION(iFreeFindData)(&Info), es);
+	}
+}
+
+int Plugin::ProcessKey(HANDLE hPlugin,const INPUT_RECORD *Rec, bool Pred)
+{
+	(void)Pred;
+	BOOL bResult = FALSE;
+
+	if (Exports[iProcessPanelInput] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_PROCESSPANELINPUT;
+		es.bDefaultResult = TRUE; // do not pass this key to far on exception
+		struct ProcessPanelInputInfo Info={sizeof(Info)};
+		Info.Rec=*Rec;
+		EXECUTE_FUNCTION_EX(FUNCTION(iProcessPanelInput)(hPlugin, &Info), es);
+		bResult = es.bResult;
+	}
+
+	return bResult;
+}
+
+
+void Plugin::ClosePanel(
+    HANDLE hPlugin
+)
+{
+	if (Exports[iClosePanel] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_CLOSEPANEL;
+		EXECUTE_FUNCTION(FUNCTION(iClosePanel)(hPlugin), es);
+	}
+
+//	m_pManager->m_pCurrentPlugin = (Plugin*)-1;
+}
+
+
+int Plugin::SetDirectory(
+    HANDLE hPlugin,
+    const wchar_t *Dir,
+    int OpMode
+)
+{
+	BOOL bResult = FALSE;
+
+	if (Exports[iSetDirectory] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_SETDIRECTORY;
+		es.bDefaultResult = FALSE;
+		SetDirectoryInfo Info = {sizeof(Info)};
+		Info.hPanel = hPlugin;
+		Info.Dir = Dir;
+		Info.OpMode = OpMode;
+		Info.UserData = 0; //Reserved
+		EXECUTE_FUNCTION_EX(FUNCTION(iSetDirectory)(&Info), es);
+		bResult = es.bResult;
+	}
+
+	return bResult;
+}
+
+
+void Plugin::GetOpenPanelInfo(
+    HANDLE hPlugin,
+    OpenPanelInfo *pInfo
+)
+{
+//	m_pManager->m_pCurrentPlugin = this;
+	pInfo->StructSize = sizeof(OpenPanelInfo);
+
+	if (Exports[iGetOpenPanelInfo] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_GETOPENPANELINFO;
+		pInfo->hPanel = hPlugin;
+		EXECUTE_FUNCTION(FUNCTION(iGetOpenPanelInfo)(pInfo), es);
+	}
+}
+
+
+int Plugin::Configure(const GUID& Guid)
+{
+	BOOL bResult = FALSE;
+
+	if (Load() && Exports[iConfigure] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_CONFIGURE;
+		es.bDefaultResult = FALSE;
+		EXECUTE_FUNCTION_EX(FUNCTION(iConfigure)(&Guid), es);
+		bResult = es.bResult;
+	}
+
+	return bResult;
+}
+
+
+bool Plugin::GetPluginInfo(PluginInfo *pi)
+{
+	memset(pi, 0, sizeof(PluginInfo));
+
+	if (Exports[iGetPluginInfo] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_GETPLUGININFO;
+		EXECUTE_FUNCTION(FUNCTION(iGetPluginInfo)(pi), es);
+
+		if (!es.bUnloaded)
+			return true;
+	}
+
+	return false;
+}
+
+int Plugin::GetCustomData(const wchar_t *FilePath, wchar_t **CustomData)
+{
+	if (Load() && Exports[iGetCustomData] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_GETCUSTOMDATA;
+		es.bDefaultResult = 0;
+		es.bResult = 0;
+		EXECUTE_FUNCTION_EX(FUNCTION(iGetCustomData)(FilePath, CustomData), es);
+		return es.bResult;
+	}
+
+	return 0;
+}
+
+void Plugin::FreeCustomData(wchar_t *CustomData)
+{
+	if (Load() && Exports[iFreeCustomData] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_FREECUSTOMDATA;
+		EXECUTE_FUNCTION(FUNCTION(iFreeCustomData)(CustomData), es);
+	}
+}
+
+void Plugin::ExitFAR(const ExitInfo *Info)
+{
+	if (Exports[iExitFAR] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_EXITFAR;
+		EXECUTE_FUNCTION(FUNCTION(iExitFAR)(Info), es);
+	}
 }
