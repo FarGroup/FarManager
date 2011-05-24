@@ -3,6 +3,34 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 24.05.2011 23:49:08 +0200 - build 2048
+
+1. Continuation of 1978.
+   - wrapper partial abstraction: PluginW is simply Plugin now, PluginA is inherited from it.
+   - some more copy&paste is eliminated.
+
+2. Warnings.
+
+drkns 23.05.2011 21:31:52 +0200 - build 2047
+
+1. Wrong dialogs centering in some cases.
+
+svs 23.05.2011 16:38:21 +0300 - build 2046
+
+1. Mantis#0001755: Cannot change the focus in RadioButton click handler
+   (from 2useven10)
+
+2. EF_DISABLESAVEPOS flag is added to API: do not save the position.
+   also, EF_LOCKED flag is restored: lock editing on file open.
+
+3. Mantis#0001183: On Reload, codepage memorizing must take place before read
+   (from 2useven10)
+
+svs 23.05.2011 12:13:01 +0300 - build 2045
+
+1. Mantis#0001775: Shift-F4: Possibility of repeated automatic codepage detection at file open
+   (from 2useven10)
+
 zg 21.05.2011 20:32:05 +0200 - build 2044
 
 1. Storing of z-positions of color regions with equal priorities. but it is better to use the different ones.
