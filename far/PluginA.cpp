@@ -31,30 +31,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "plugins.hpp"
 #include "codepage.hpp"
-#include "scantree.hpp"
 #include "chgprior.hpp"
-#include "constitle.hpp"
 #include "cmdline.hpp"
-#include "filepanels.hpp"
-#include "panel.hpp"
-#include "dialog.hpp"
-#include "rdrwdsk.hpp"
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
-#include "udlist.hpp"
 #include "farexcpt.hpp"
-#include "fileedit.hpp"
-#include "RefreshFrameManager.hpp"
+#include "DList.hpp"
+#include "config.hpp"
 #include "plclass.hpp"
 #include "PluginA.hpp"
 #include "localOEM.hpp"
-#include "plugapi.hpp"
 #include "keyboard.hpp"
 #include "interf.hpp"
-#include "fileowner.hpp"
 #include "pathmix.hpp"
-#include "dirmix.hpp"
-#include "processname.hpp"
 #include "mix.hpp"
 #include "colormix.hpp"
 
@@ -1085,7 +1074,7 @@ int WINAPI ProcessNameA(const char *Param1,char *Param2,DWORD Flags)
 		newFlags|=PN_GENERATENAME|(Flags&0xFF);
 	}
 
-	int ret = static_cast<int>(ProcessName(strP1,p,size,newFlags));
+	int ret = static_cast<int>(NativeFSF.ProcessName(strP1,p,size,newFlags));
 
 	if (newFlags&PN_GENERATENAME)
 		UnicodeToOEM(p,Param2,size);
@@ -1097,30 +1086,30 @@ int WINAPI ProcessNameA(const char *Param1,char *Param2,DWORD Flags)
 int WINAPI KeyNameToKeyA(const char *Name)
 {
 	string strN(Name);
-	return KeyToOldKey(KeyNameToKey(strN));
+	return KeyToOldKey(NativeFSF.FarNameToKey(strN));
 }
 
 BOOL WINAPI FarKeyToNameA(int Key,char *KeyText,int Size)
 {
-	string strKT;
-	int ret=KeyToText(OldKeyToKey(Key),strKT);
+	wchar_t Name[MAX_PATH];
+	size_t ret = NativeFSF.FarKeyToName(OldKeyToKey(Key),Name,ARRAYSIZE(Name));
 
 	if (ret)
-		strKT.GetCharString(KeyText,Size>0?Size+1:32);
+		UnicodeToOEM(Name, KeyText,Size>0?Size+1:32);
 
-	return ret;
+	return ret!=0;
 }
 
 int WINAPI InputRecordToKeyA(const INPUT_RECORD *r)
 {
-	return KeyToOldKey(InputRecordToKey(r));
+	return KeyToOldKey(NativeFSF.FarInputRecordToKey(r));
 }
 
 char* WINAPI FarMkTempA(char *Dest, const char *Prefix)
 {
 	string strP(Prefix);
 	wchar_t D[oldfar::NM] = {0};
-	FarMkTemp(D,ARRAYSIZE(D),strP);
+	NativeFSF.MkTemp(D,ARRAYSIZE(D),strP);
 	UnicodeToOEM(D,Dest,sizeof(D));
 	return Dest;
 }
@@ -1230,7 +1219,7 @@ void WINAPI FarRecursiveSearchA(const char *InitDir,const char *Mask,oldfar::FRS
 
 	if (Flags&oldfar::FRS_SCANSYMLINK) newFlags|=FRS_SCANSYMLINK;
 
-	FarRecursiveSearch(static_cast<const wchar_t *>(strInitDir),static_cast<const wchar_t *>(strMask),FarRecursiveSearchA_Callback,newFlags,static_cast<void *>(&CallbackParam));
+	NativeFSF.FarRecursiveSearch(static_cast<const wchar_t *>(strInitDir),static_cast<const wchar_t *>(strMask),FarRecursiveSearchA_Callback,newFlags,static_cast<void *>(&CallbackParam));
 }
 
 DWORD WINAPI ExpandEnvironmentStrA(const char *src, char *dest, size_t size)
@@ -1245,13 +1234,13 @@ DWORD WINAPI ExpandEnvironmentStrA(const char *src, char *dest, size_t size)
 int WINAPI FarViewerA(const char *FileName,const char *Title,int X1,int Y1,int X2,int Y2,DWORD Flags)
 {
 	string strFN(FileName), strT(Title);
-	return FarViewer(strFN,strT,X1,Y1,X2,Y2,Flags,CP_AUTODETECT);
+	return NativeInfo.Viewer(strFN,strT,X1,Y1,X2,Y2,Flags,CP_AUTODETECT);
 }
 
 int WINAPI FarEditorA(const char *FileName,const char *Title,int X1,int Y1,int X2,int Y2,DWORD Flags,int StartLine,int StartChar)
 {
 	string strFN(FileName), strT(Title);
-	return FarEditor(strFN,strT,X1,Y1,X2,Y2,Flags,StartLine,StartChar,CP_AUTODETECT);
+	return NativeInfo.Editor(strFN,strT,X1,Y1,X2,Y2,Flags,StartLine,StartChar,CP_AUTODETECT);
 }
 
 int WINAPI FarCmpNameA(const char *pattern,const char *str,int skippath)
@@ -1261,16 +1250,16 @@ int WINAPI FarCmpNameA(const char *pattern,const char *str,int skippath)
 
 void WINAPI FarTextA(int X,int Y,int Color,const char *Str)
 {
-	if (!Str) return FarText(X,Y,Color,nullptr);
+	if (!Str) return NativeInfo.Text(X,Y,Color,nullptr);
 
 	string strS(Str);
-	return FarText(X,Y,Color,strS);
+	return NativeInfo.Text(X,Y,Color,strS);
 }
 
 BOOL WINAPI FarShowHelpA(const char *ModuleName,const char *HelpTopic,DWORD Flags)
 {
 	string strMN(ModuleName), strHT(HelpTopic);
-	return FarShowHelp(strMN,(HelpTopic?strHT.CPtr():nullptr),Flags);
+	return NativeInfo.ShowHelp(strMN,(HelpTopic?strHT.CPtr():nullptr),Flags);
 }
 
 int WINAPI FarInputBoxA(const char *Title,const char *Prompt,const char *HistoryName,const char *SrcText,char *DestText,int DestLength,const char *HelpTopic,DWORD Flags)
@@ -1292,7 +1281,7 @@ int WINAPI FarInputBoxA(const char *Title,const char *Prompt,const char *History
 	if (Flags&oldfar::FIB_NOAMPERSAND)
 		NewFlags|=FIB_NOAMPERSAND;
 
-	int ret = FarInputBox(-1,(Title?strT.CPtr():nullptr),(Prompt?strP.CPtr():nullptr),(HistoryName?strHN.CPtr():nullptr),(SrcText?strST.CPtr():nullptr),D,DestLength,(HelpTopic?strHT.CPtr():nullptr),NewFlags);
+	int ret = NativeInfo.InputBox(&FarGuid,(Title?strT.CPtr():nullptr),(Prompt?strP.CPtr():nullptr),(HistoryName?strHN.CPtr():nullptr),(SrcText?strST.CPtr():nullptr),D,DestLength,(HelpTopic?strHT.CPtr():nullptr),NewFlags);
 	strD.ReleaseBuffer();
 
 	if (ret && DestText)
@@ -1301,6 +1290,7 @@ int WINAPI FarInputBoxA(const char *Title,const char *Prompt,const char *History
 	return ret;
 }
 
+#define GetPluginGuid(n) &reinterpret_cast<Plugin*>(n)->GetGUID()
 int WINAPI FarMessageFnA(INT_PTR PluginNumber,DWORD Flags,const char *HelpTopic,const char * const *Items,int ItemsNumber,int ButtonsNumber)
 {
 	string strHT(HelpTopic);
@@ -1346,7 +1336,7 @@ int WINAPI FarMessageFnA(INT_PTR PluginNumber,DWORD Flags,const char *HelpTopic,
 	if (Flags&oldfar::FMSG_MB_RETRYCANCEL)
 		NewFlags|=FMSG_MB_RETRYCANCEL;
 
-	int ret = FarMessageFn(PluginNumber,NewFlags,(HelpTopic?strHT.CPtr():nullptr),p,ItemsNumber,ButtonsNumber);
+	int ret = NativeInfo.Message(GetPluginGuid(PluginNumber),NewFlags,(HelpTopic?strHT.CPtr():nullptr),p,ItemsNumber,ButtonsNumber);
 
 	for (int i=0; i<c; i++)
 		xf_free(p[i]);
@@ -1470,7 +1460,7 @@ int WINAPI FarMenuFnA(INT_PTR PluginNumber,int X,int Y,int MaxHeight,DWORD Flags
 		}
 	}
 
-	int ret = FarMenuFn(PluginNumber,X,Y,MaxHeight,NewFlags,wszT,wszB,wszHT,NewBreakKeys,BreakCode,mi,ItemsNumber);
+	int ret = NativeInfo.Menu(GetPluginGuid(PluginNumber),X,Y,MaxHeight,NewFlags,wszT,wszB,wszHT,NewBreakKeys,BreakCode,mi,ItemsNumber);
 
 	for (int i=0; i<ItemsNumber; i++)
 		if (mi[i].Text) xf_free((wchar_t *)mi[i].Text);
@@ -2112,7 +2102,7 @@ oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di,HANDLE hDlg,int
 		break;
 		case oldfar::DI_COMBOBOX:
 		case oldfar::DI_LISTBOX:
-			diA->ListPos=static_cast<int>(FarSendDlgMessage(hDlg,DM_LISTGETCURPOS,ItemNumber,0));
+			diA->ListPos=static_cast<int>(NativeInfo.SendDlgMessage(hDlg,DM_LISTGETCURPOS,ItemNumber,0));
 			break;
 	}
 
@@ -2196,7 +2186,7 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, int NewMsg, int Param1, void* Param2)
 		}
 		case DN_EDITCHANGE:
 			Msg=oldfar::DN_EDITCHANGE;
-			return Param2?FarDefDlgProc(hDlg, NewMsg, Param1, Param2):FALSE;
+			return Param2?NativeInfo.DefDlgProc(hDlg, NewMsg, Param1, Param2):FALSE;
 		case DN_ENTERIDLE: Msg=oldfar::DN_ENTERIDLE; break;
 		case DN_GOTFOCUS:  Msg=oldfar::DN_GOTFOCUS; break;
 		case DN_HELP:
@@ -2216,7 +2206,7 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, int NewMsg, int Param1, void* Param2)
 		}
 		case DN_HOTKEY:
 			Msg=oldfar::DN_HOTKEY;
-			Param2=ToPtr(KeyToOldKey((DWORD)InputRecordToKey((const INPUT_RECORD *)Param2)));
+			Param2=ToPtr(KeyToOldKey((DWORD)NativeFSF.FarInputRecordToKey((const INPUT_RECORD *)Param2)));
 			break;
 		case DN_INITDIALOG:
 			Msg=oldfar::DN_INITDIALOG;
@@ -2240,7 +2230,7 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, int NewMsg, int Param1, void* Param2)
 					break;
 				}
 			}
-			return FarDefDlgProc(hDlg, NewMsg, Param1, Param2);
+			return NativeInfo.DefDlgProc(hDlg, NewMsg, Param1, Param2);
 		case DN_CONTROLINPUT:
 			{
 				INPUT_RECORD* record=(INPUT_RECORD *)Param2;
@@ -2253,11 +2243,11 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, int NewMsg, int Param1, void* Param2)
 				else if (record->EventType==KEY_EVENT)
 				{
 					Msg=oldfar::DN_KEY;
-					Param2=ToPtr(KeyToOldKey((DWORD)InputRecordToKey((const INPUT_RECORD *)Param2)));
+					Param2=ToPtr(KeyToOldKey((DWORD)NativeFSF.FarInputRecordToKey((const INPUT_RECORD *)Param2)));
 					break;
 				}
 			}
-			return FarDefDlgProc(hDlg, NewMsg, Param1, Param2);
+			return NativeInfo.DefDlgProc(hDlg, NewMsg, Param1, Param2);
 		default:
 			break;
 	}
@@ -2267,7 +2257,7 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, int NewMsg, int Param1, void* Param2)
 
 LONG_PTR WINAPI FarDefDlgProcA(HANDLE hDlg, int Msg, int Param1, void* Param2)
 {
-	return FarDefDlgProc(OriginalEvents.Peek()->hDlg, OriginalEvents.Peek()->Msg, OriginalEvents.Peek()->Param1, OriginalEvents.Peek()->Param2);
+	return NativeInfo.DefDlgProc(OriginalEvents.Peek()->hDlg, OriginalEvents.Peek()->Msg, OriginalEvents.Peek()->Param1, OriginalEvents.Peek()->Param2);
 }
 
 LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Param2)
@@ -2285,7 +2275,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 		case oldfar::DM_GETDLGDATA:   Msg = DM_GETDLGDATA; break;
 		case oldfar::DM_GETDLGITEM:
 		{
-			size_t item_size=FarSendDlgMessage(hDlg, DM_GETDLGITEM, Param1, 0);
+			size_t item_size=NativeInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, Param1, 0);
 
 			if (item_size)
 			{
@@ -2293,7 +2283,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 
 				if (gdi.Item)
 				{
-					FarSendDlgMessage(hDlg, DM_GETDLGITEM, Param1, &gdi);
+					NativeInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, Param1, &gdi);
 					oldfar::FarDialogItem *FarDiA=UnicodeDialogItemToAnsi(*gdi.Item,hDlg,Param1);
 					xf_free(gdi.Item);
 					*reinterpret_cast<oldfar::FarDialogItem*>(Param2)=*FarDiA;
@@ -2307,15 +2297,15 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 		case oldfar::DM_GETTEXT:
 		{
 			if (!Param2)
-				return FarSendDlgMessage(hDlg, DM_GETTEXT, Param1, 0);
+				return NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, 0);
 
 			oldfar::FarDialogItemData* didA = (oldfar::FarDialogItemData*)Param2;
 			if (!didA->PtrLength) //вот такой хреновый API!!!
-				didA->PtrLength = static_cast<int>(FarSendDlgMessage(hDlg, DM_GETTEXT, Param1, 0));
+				didA->PtrLength = static_cast<int>(NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, 0));
 			wchar_t* text = (wchar_t*) xf_malloc((didA->PtrLength+1)*sizeof(wchar_t));
 			//BUGBUG: если didA->PtrLength=0, то вернЄтс€ с учЄтом '\0', в Ёнц написано, что без, хз как правильно.
 			FarDialogItemData did = {didA->PtrLength, text};
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_GETTEXT, Param1, &did);
+			INT_PTR ret = NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, &did);
 			didA->PtrLength = (unsigned)did.PtrLength;
 			UnicodeToOEM(text,didA->PtrData,didA->PtrLength+1);
 			xf_free(text);
@@ -2333,9 +2323,9 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 
 			for (int i=0; i<Count; i++)
 			{
-				KeyToInputRecord(OldKeyToKey(KeysA[i]),KeysW+i);
+				NativeFSF.FarKeyToInputRecord(OldKeyToKey(KeysA[i]),KeysW+i);
 			}
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_KEY, Param1, KeysW);
+			INT_PTR ret = NativeInfo.SendDlgMessage(hDlg, DM_KEY, Param1, KeysW);
 			xf_free(KeysW);
 			return ret;
 		}
@@ -2354,7 +2344,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			FreeUnicodeDialogItem(*di);
 			oldfar::FarDialogItem *diA = (oldfar::FarDialogItem *)Param2;
 			AnsiDialogItemToUnicode(*diA,*di,*di->ListItems);
-			return FarSendDlgMessage(hDlg, DM_SETDLGITEM, Param1, di);
+			return NativeInfo.SendDlgMessage(hDlg, DM_SETDLGITEM, Param1, di);
 		}
 		case oldfar::DM_SETFOCUS: Msg = DM_SETFOCUS; break;
 		case oldfar::DM_REDRAW:   Msg = DM_REDRAW; break;
@@ -2369,7 +2359,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			wchar_t* text = AnsiToUnicode(didA->PtrData);
 			//BUGBUG - PtrLength ни на что не вли€ет.
 			FarDialogItemData di = {didA->PtrLength,text};
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_SETTEXT, Param1, &di);
+			INT_PTR ret = NativeInfo.SendDlgMessage(hDlg, DM_SETTEXT, Param1, &di);
 			xf_free(text);
 			return ret;
 		}
@@ -2380,12 +2370,12 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 		case oldfar::DM_SETCURSORPOS:     Msg = DM_SETCURSORPOS; break;
 		case oldfar::DM_GETTEXTPTR:
 		{
-			INT_PTR length = FarSendDlgMessage(hDlg, DM_GETTEXTPTR, Param1, 0);
+			INT_PTR length = NativeInfo.SendDlgMessage(hDlg, DM_GETTEXTPTR, Param1, 0);
 
 			if (!Param2) return length;
 
 			wchar_t* text = (wchar_t *) xf_malloc((length +1)* sizeof(wchar_t));
-			length = FarSendDlgMessage(hDlg, DM_GETTEXTPTR, Param1, text);
+			length = NativeInfo.SendDlgMessage(hDlg, DM_GETTEXTPTR, Param1, text);
 			UnicodeToOEM(text, (char *)Param2, length+1);
 			xf_free(text);
 			return length;
@@ -2395,7 +2385,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			if (!Param2) return FALSE;
 
 			wchar_t* text = AnsiToUnicode((char*)Param2);
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_SETTEXTPTR, Param1, text);
+			INT_PTR ret = NativeInfo.SendDlgMessage(hDlg, DM_SETTEXTPTR, Param1, text);
 			xf_free(text);
 			return ret;
 		}
@@ -2405,13 +2395,13 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			if (!Param2) return FALSE;
 
 			wchar_t* history = AnsiToUnicode((char*)Param2);
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_ADDHISTORY, Param1, history);
+			INT_PTR ret = NativeInfo.SendDlgMessage(hDlg, DM_ADDHISTORY, Param1, history);
 			xf_free(history);
 			return ret;
 		}
 		case oldfar::DM_GETCHECK:
 		{
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_GETCHECK, Param1, 0);
+			INT_PTR ret = NativeInfo.SendDlgMessage(hDlg, DM_GETCHECK, Param1, 0);
 			INT_PTR state = 0;
 
 			if (ret == oldfar::BSTATE_UNCHECKED) state=BSTATE_UNCHECKED;
@@ -2440,7 +2430,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			default:
 				break;
 			}
-			return FarSendDlgMessage(hDlg, DM_SETCHECK, Param1, ToPtr(State));
+			return NativeInfo.SendDlgMessage(hDlg, DM_SETCHECK, Param1, ToPtr(State));
 		}
 		case oldfar::DM_SET3STATE: Msg = DM_SET3STATE; break;
 		case oldfar::DM_LISTSORT:  Msg = DM_LISTSORT; break;
@@ -2450,7 +2440,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 
 			oldfar::FarListGetItem* lgiA = (oldfar::FarListGetItem*)Param2;
 			FarListGetItem lgi = {lgiA->ItemIndex};
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_LISTGETITEM, Param1, &lgi);
+			INT_PTR ret = NativeInfo.SendDlgMessage(hDlg, DM_LISTGETITEM, Param1, &lgi);
 			UnicodeListItemToAnsi(&lgi.Item, &lgiA->Item);
 			return ret;
 		}
@@ -2459,13 +2449,13 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			if (Param2)
 			{
 				FarListPos lp;
-				INT_PTR ret=FarSendDlgMessage(hDlg, DM_LISTGETCURPOS, Param1, &lp);
+				INT_PTR ret=NativeInfo.SendDlgMessage(hDlg, DM_LISTGETCURPOS, Param1, &lp);
 				oldfar::FarListPos *lpA = (oldfar::FarListPos *)Param2;
 				lpA->SelectPos=lp.SelectPos;
 				lpA->TopPos=lp.TopPos;
 				return ret;
 			}
-			else return FarSendDlgMessage(hDlg, DM_LISTGETCURPOS, Param1, 0);
+			else return NativeInfo.SendDlgMessage(hDlg, DM_LISTGETCURPOS, Param1, 0);
 
 		case oldfar::DM_LISTSETCURPOS:
 		{
@@ -2473,7 +2463,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 
 			oldfar::FarListPos *lpA = (oldfar::FarListPos *)Param2;
 			FarListPos lp = {lpA->SelectPos,lpA->TopPos};
-			return FarSendDlgMessage(hDlg, DM_LISTSETCURPOS, Param1, &lp);
+			return NativeInfo.SendDlgMessage(hDlg, DM_LISTSETCURPOS, Param1, &lp);
 		}
 		case oldfar::DM_LISTDELETE:
 		{
@@ -2486,7 +2476,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 				ld.StartIndex = ldA->StartIndex;
 			}
 
-			return FarSendDlgMessage(hDlg, DM_LISTDELETE, Param1, Param2?&ld:0);
+			return NativeInfo.SendDlgMessage(hDlg, DM_LISTDELETE, Param1, Param2?&ld:0);
 		}
 		case oldfar::DM_LISTADD:
 		{
@@ -2509,7 +2499,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 				}
 			}
 
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_LISTADD, Param1, Param2?&newlist:0);
+			INT_PTR ret = NativeInfo.SendDlgMessage(hDlg, DM_LISTADD, Param1, Param2?&newlist:0);
 
 			if (newlist.Items)
 			{
@@ -2530,7 +2520,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 				newstr = AnsiToUnicode((char*)Param2);
 			}
 
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_LISTADDSTR, Param1, newstr);
+			INT_PTR ret = NativeInfo.SendDlgMessage(hDlg, DM_LISTADDSTR, Param1, newstr);
 
 			if (newstr) xf_free(newstr);
 
@@ -2547,7 +2537,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 				AnsiListItemToUnicode(&oldui->Item, &newui.Item);
 			}
 
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_LISTUPDATE, Param1, Param2?&newui:0);
+			INT_PTR ret = NativeInfo.SendDlgMessage(hDlg, DM_LISTUPDATE, Param1, Param2?&newui:0);
 
 			if (newui.Item.Text) xf_free((void*)newui.Item.Text);
 
@@ -2564,7 +2554,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 				AnsiListItemToUnicode(&oldli->Item, &newli.Item);
 			}
 
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_LISTINSERT, Param1, Param2?&newli:0);
+			INT_PTR ret = NativeInfo.SendDlgMessage(hDlg, DM_LISTINSERT, Param1, Param2?&newli:0);
 
 			if (newli.Item.Text) xf_free((void*)newli.Item.Text);
 
@@ -2583,7 +2573,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 				if (oldlf->Flags&oldfar::LIFIND_EXACTMATCH) newlf.Flags|=LIFIND_EXACTMATCH;
 			}
 
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_LISTFINDSTRING, Param1, Param2?&newlf:0);
+			INT_PTR ret = NativeInfo.SendDlgMessage(hDlg, DM_LISTFINDSTRING, Param1, Param2?&newlf:0);
 
 			if (newlf.Pattern) xf_free((void*)newlf.Pattern);
 
@@ -2606,7 +2596,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 
 			if (liA ->Flags&oldfar::LINFO_SHOWAMPERSAND) li.Flags|=LINFO_SHOWAMPERSAND;
 
-			return FarSendDlgMessage(hDlg, DM_LISTINFO, Param1, Param2);
+			return NativeInfo.SendDlgMessage(hDlg, DM_LISTINFO, Param1, Param2);
 		}
 		case oldfar::DM_LISTGETDATA:	Msg = DM_LISTGETDATA; break;
 		case oldfar::DM_LISTSETDATA:
@@ -2621,7 +2611,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 				newlid.Data=oldlid->Data;
 			}
 
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_LISTSETDATA, Param1, Param2?&newlid:0);
+			INT_PTR ret = NativeInfo.SendDlgMessage(hDlg, DM_LISTSETDATA, Param1, Param2?&newlid:0);
 			return ret;
 		}
 		case oldfar::DM_LISTSETTITLES:
@@ -2630,7 +2620,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 
 			oldfar::FarListTitles *ltA = (oldfar::FarListTitles *)Param2;
 			FarListTitles lt = {0,ltA->Title?AnsiToUnicode(ltA->Title):nullptr,0,ltA->Bottom?AnsiToUnicode(ltA->Bottom):nullptr};
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_LISTSETTITLES, Param1, &lt);
+			INT_PTR ret = NativeInfo.SendDlgMessage(hDlg, DM_LISTSETTITLES, Param1, &lt);
 
 			if (lt.Bottom) xf_free((wchar_t *)lt.Bottom);
 
@@ -2657,7 +2647,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 					ListTitle.Bottom=(wchar_t *)xf_malloc(sizeof(wchar_t)*ListTitle.BottomLen);
 				}
 
-				INT_PTR Ret=FarSendDlgMessage(hDlg,DM_LISTGETTITLES,Param1,&ListTitle);
+				INT_PTR Ret=NativeInfo.SendDlgMessage(hDlg,DM_LISTGETTITLES,Param1,&ListTitle);
 
 				if (Ret)
 				{
@@ -2683,13 +2673,13 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 		case oldfar::DM_SETHISTORY:
 
 			if (!Param2)
-				return FarSendDlgMessage(hDlg, DM_SETHISTORY, Param1, 0);
+				return NativeInfo.SendDlgMessage(hDlg, DM_SETHISTORY, Param1, 0);
 			else
 			{
 				FarDialogItem *di=CurrentDialogItem(hDlg,Param1);
 				xf_free((void*)di->History);
 				di->History = AnsiToUnicode((const char *)Param2);
-				return FarSendDlgMessage(hDlg, DM_SETHISTORY, Param1, const_cast<wchar_t*>(di->History));
+				return NativeInfo.SendDlgMessage(hDlg, DM_SETHISTORY, Param1, const_cast<wchar_t*>(di->History));
 			}
 
 		case oldfar::DM_GETITEMPOSITION:     Msg = DM_GETITEMPOSITION; break;
@@ -2718,7 +2708,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 				}
 			}
 
-			INT_PTR ret = FarSendDlgMessage(hDlg, DM_LISTSET, Param1, Param2?&newlist:0);
+			INT_PTR ret = NativeInfo.SendDlgMessage(hDlg, DM_LISTSET, Param1, Param2?&newlist:0);
 
 			if (newlist.Items)
 			{
@@ -2748,7 +2738,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			default:
 				break;
 			}
-			return FarSendDlgMessage(hDlg, DM_LISTSETMOUSEREACTION, Param1, ToPtr(Type));
+			return NativeInfo.SendDlgMessage(hDlg, DM_LISTSETMOUSEREACTION, Param1, ToPtr(Type));
 		}
 		case oldfar::DM_GETCURSORSIZE:   Msg = DM_GETCURSORSIZE; break;
 		case oldfar::DM_SETCURSORSIZE:   Msg = DM_SETCURSORSIZE; break;
@@ -2758,7 +2748,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			if (!Param2) return FALSE;
 
 			EditorSelect es;
-			INT_PTR ret=FarSendDlgMessage(hDlg, DM_GETSELECTION, Param1, &es);
+			INT_PTR ret=NativeInfo.SendDlgMessage(hDlg, DM_GETSELECTION, Param1, &es);
 			oldfar::EditorSelect *esA = (oldfar::EditorSelect *)Param2;
 			esA->BlockType      = es.BlockType;
 			esA->BlockStartLine = es.BlockStartLine;
@@ -2778,7 +2768,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			es.BlockStartPos  = esA->BlockStartPos;
 			es.BlockWidth     = esA->BlockWidth;
 			es.BlockHeight    = esA->BlockHeight;
-			return FarSendDlgMessage(hDlg, DM_SETSELECTION, Param1, &es);
+			return NativeInfo.SendDlgMessage(hDlg, DM_SETSELECTION, Param1, &es);
 		}
 		case oldfar::DM_GETEDITPOSITION:
 			Msg=DM_GETEDITPOSITION;
@@ -2800,7 +2790,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			break;
 	}
 
-	return FarSendDlgMessage(hDlg, Msg, Param1, Param2);
+	return NativeInfo.SendDlgMessage(hDlg, Msg, Param1, Param2);
 }
 
 int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const char *HelpTopic,oldfar::FarDialogItem *Item,int ItemsNumber,DWORD Reserved,DWORD Flags,oldfar::FARWINDOWPROC DlgProc,void* Param)
@@ -2832,7 +2822,7 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 	if (Flags&oldfar::FDLG_NONMODAL)     DlgFlags|=FDLG_NONMODAL;
 
 	int ret = -1;
-	HANDLE hDlg = FarDialogInit(PluginNumber, &FarGuid, X1, Y1, X2, Y2, (HelpTopic?strHT.CPtr():nullptr), (FarDialogItem *)di, ItemsNumber, 0, DlgFlags, DlgProc?DlgProcA:0, Param);
+	HANDLE hDlg = NativeInfo.DialogInit(GetPluginGuid(PluginNumber), &FarGuid, X1, Y1, X2, Y2, (HelpTopic?strHT.CPtr():nullptr), (FarDialogItem *)di, ItemsNumber, 0, DlgFlags, DlgProc?DlgProcA:0, Param);
 	PDialogData NewDialogData=new DialogData;
 	NewDialogData->DlgProc=DlgProc;
 	NewDialogData->hDlg=hDlg;
@@ -2847,11 +2837,11 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 
 		for (int i=0; i<ItemsNumber; i++)
 		{
-			FarGetDialogItem gdi = {FarSendDlgMessage(hDlg, DM_GETDLGITEM, i, 0), (FarDialogItem *)xf_malloc(gdi.Size)};
+			FarGetDialogItem gdi = {NativeInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, i, 0), (FarDialogItem *)xf_malloc(gdi.Size)};
 
 			if (gdi.Item)
 			{
-				FarSendDlgMessage(hDlg, DM_GETDLGITEM, i, &gdi);
+				NativeInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, i, &gdi);
 				UnicodeDialogItemToAnsiSafe(*gdi.Item,Item[i]);
 				const wchar_t *res = gdi.Item->Data;
 
@@ -2870,7 +2860,7 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 
 				if (gdi.Item->Type==DI_COMBOBOX || gdi.Item->Type==DI_LISTBOX)
 				{
-					Item[i].ListPos = static_cast<int>(FarSendDlgMessage(hDlg,DM_LISTGETCURPOS,i,0));
+					Item[i].ListPos = static_cast<int>(NativeInfo.SendDlgMessage(hDlg,DM_LISTGETCURPOS,i,0));
 				}
 
 				xf_free(gdi.Item);
@@ -3333,7 +3323,7 @@ int WINAPI FarGetDirListA(const char *Dir,oldfar::PluginPanelItem **pPanelItem,i
 
 	PluginPanelItem *pItems;
 	int ItemsNumber;
-	int ret=FarGetDirList(strDir, &pItems, &ItemsNumber);
+	int ret=NativeInfo.GetDirList(strDir, &pItems, &ItemsNumber);
 
 	size_t PathOffset = ExtractFilePath(strDir).GetLength() + 1;
 
@@ -3366,7 +3356,7 @@ int WINAPI FarGetDirListA(const char *Dir,oldfar::PluginPanelItem **pPanelItem,i
 			ret = FALSE;
 		}
 
-		FarFreeDirList(pItems,ItemsNumber);
+		NativeInfo.FreeDirList(pItems,ItemsNumber);
 	}
 
 	return ret;
@@ -3383,7 +3373,7 @@ int WINAPI FarGetPluginDirListA(INT_PTR PluginNumber,HANDLE hPlugin,const char *
 
 	PluginPanelItem *pPanelItemW;
 	int ItemsNumber;
-	int ret=FarGetPluginDirList(PluginNumber, hPlugin, strDir, &pPanelItemW, &ItemsNumber);
+	int ret=NativeInfo.GetPluginDirList(GetPluginGuid(PluginNumber), hPlugin, strDir, &pPanelItemW, &ItemsNumber);
 
 	if (ret && ItemsNumber)
 	{
@@ -3407,7 +3397,7 @@ int WINAPI FarGetPluginDirListA(INT_PTR PluginNumber,HANDLE hPlugin,const char *
 			ret = FALSE;
 		}
 
-		FarFreePluginDirList(pPanelItemW, ItemsNumber);
+		NativeInfo.FreePluginDirList(pPanelItemW, ItemsNumber);
 	}
 
 	return ret;
@@ -3435,7 +3425,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 		case oldfar::ACTL_GETFARVERSION:
 		{
 			VersionInfo Info;
-			FarAdvControl(ModuleNumber, ACTL_GETFARMANAGERVERSION, 0, &Info);
+			NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETFARMANAGERVERSION, 0, &Info);
 			DWORD FarVer = Info.Major<<8|Info.Minor|Info.Build<<16;
 			int OldFarVer;
 			GeneralCfg->GetValue(L"wrapper",L"version",&OldFarVer,FarVer);
@@ -3457,12 +3447,12 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 
 		case oldfar::ACTL_GETSYSWORDDIV:
 		{
-			INT_PTR Length = FarAdvControl(ModuleNumber, ACTL_GETSYSWORDDIV, 0, nullptr);
+			INT_PTR Length = NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETSYSWORDDIV, 0, nullptr);
 
 			if (Param)
 			{
 				wchar_t *SysWordDiv = (wchar_t*)xf_malloc((Length+1)*sizeof(wchar_t));
-				FarAdvControl(ModuleNumber, ACTL_GETSYSWORDDIV, 0, SysWordDiv);
+				NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETSYSWORDDIV, 0, SysWordDiv);
 				UnicodeToOEM(SysWordDiv,(char*)Param,oldfar::NM);
 				xf_free(SysWordDiv);
 			}
@@ -3470,13 +3460,13 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 			return Length;
 		}
 		case oldfar::ACTL_WAITKEY:
-			return FarAdvControl(ModuleNumber, ACTL_WAITKEY, 0, Param);
+			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_WAITKEY, 0, Param);
 		case oldfar::ACTL_GETCOLOR:
-			return FarAdvControl(ModuleNumber, ACTL_GETCOLOR, static_cast<int>(reinterpret_cast<INT_PTR>(Param)), nullptr);
+			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETCOLOR, static_cast<int>(reinterpret_cast<INT_PTR>(Param)), nullptr);
 		case oldfar::ACTL_GETARRAYCOLOR:
-			return FarAdvControl(ModuleNumber, ACTL_GETARRAYCOLOR, static_cast<int>(reinterpret_cast<INT_PTR>(Param)), nullptr);
+			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETARRAYCOLOR, static_cast<int>(reinterpret_cast<INT_PTR>(Param)), nullptr);
 		case oldfar::ACTL_EJECTMEDIA:
-			return FarAdvControl(ModuleNumber, ACTL_EJECTMEDIA, 0, Param);
+			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_EJECTMEDIA, 0, Param);
 		case oldfar::ACTL_KEYMACRO:
 		{
 			if (!Param) return FALSE;
@@ -3528,7 +3518,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 
 			if (Process)
 			{
-				res = farMacroControl(0,Command,Param1,&kmW);
+				res = NativeInfo.MacroControl(0,Command,Param1,&kmW);
 
 				if (Command == MCTL_SENDSTRING)
 				{
@@ -3615,7 +3605,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 
 			oldfar::WindowInfo *wiA = (oldfar::WindowInfo *)Param;
 			WindowInfo wi={wiA->Pos};
-			INT_PTR ret = FarAdvControl(ModuleNumber, ACTL_GETWINDOWINFO, 0, &wi);
+			INT_PTR ret = NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETWINDOWINFO, 0, &wi);
 
 			if (ret)
 			{
@@ -3647,7 +3637,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 
 					if (wi.TypeName && wi.Name)
 					{
-						FarAdvControl(ModuleNumber,ACTL_GETWINDOWINFO, 0, &wi);
+						NativeInfo.AdvControl(GetPluginGuid(ModuleNumber),ACTL_GETWINDOWINFO, 0, &wi);
 						UnicodeToOEM(wi.TypeName,wiA->TypeName,sizeof(wiA->TypeName));
 						UnicodeToOEM(wi.Name,wiA->Name,sizeof(wiA->Name));
 					}
@@ -3672,16 +3662,16 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 			return ret;
 		}
 		case oldfar::ACTL_GETWINDOWCOUNT:
-			return FarAdvControl(ModuleNumber, ACTL_GETWINDOWCOUNT, 0, 0);
+			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETWINDOWCOUNT, 0, 0);
 		case oldfar::ACTL_SETCURRENTWINDOW:
-			return FarAdvControl(ModuleNumber, ACTL_SETCURRENTWINDOW, static_cast<int>(reinterpret_cast<INT_PTR>(Param)), nullptr);
+			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_SETCURRENTWINDOW, static_cast<int>(reinterpret_cast<INT_PTR>(Param)), nullptr);
 		case oldfar::ACTL_COMMIT:
-			return FarAdvControl(ModuleNumber, ACTL_COMMIT, 0, 0);
+			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_COMMIT, 0, 0);
 		case oldfar::ACTL_GETFARHWND:
-			return FarAdvControl(ModuleNumber, ACTL_GETFARHWND, 0, 0);
+			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETFARHWND, 0, 0);
 		case oldfar::ACTL_GETSYSTEMSETTINGS:
 		{
-			INT_PTR ss = FarAdvControl(ModuleNumber, ACTL_GETSYSTEMSETTINGS, 0, 0);
+			INT_PTR ss = NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETSYSTEMSETTINGS, 0, 0);
 			INT_PTR ret = 0;
 
 			if (ss&FSS_CLEARROATTRIBUTE)          ret|=oldfar::FSS_CLEARROATTRIBUTE;
@@ -3710,7 +3700,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 		}
 		case oldfar::ACTL_GETPANELSETTINGS:
 		{
-			INT_PTR ps = FarAdvControl(ModuleNumber, ACTL_GETPANELSETTINGS, 0, 0);
+			INT_PTR ps = NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETPANELSETTINGS, 0, 0);
 			INT_PTR ret = 0;
 
 			if (ps&FPS_SHOWHIDDENANDSYSTEMFILES)    ret|=oldfar::FPS_SHOWHIDDENANDSYSTEMFILES;
@@ -3741,7 +3731,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 		}
 		case oldfar::ACTL_GETINTERFACESETTINGS:
 		{
-			INT_PTR is = FarAdvControl(ModuleNumber, ACTL_GETINTERFACESETTINGS, 0, 0);
+			INT_PTR is = NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETINTERFACESETTINGS, 0, 0);
 			INT_PTR ret = 0;
 
 			if (is&FIS_CLOCKINPANELS)                  ret|=oldfar::FIS_CLOCKINPANELS;
@@ -3764,7 +3754,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 		}
 		case oldfar::ACTL_GETCONFIRMATIONS:
 		{
-			INT_PTR cs = FarAdvControl(ModuleNumber, ACTL_GETCONFIRMATIONS, 0, 0);
+			INT_PTR cs = NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETCONFIRMATIONS, 0, 0);
 			INT_PTR ret = 0;
 
 			if (cs&FCS_COPYOVERWRITE)          ret|=oldfar::FCS_COPYOVERWRITE;
@@ -3791,7 +3781,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 		}
 		case oldfar::ACTL_GETDESCSETTINGS:
 		{
-			INT_PTR ds = FarAdvControl(ModuleNumber, ACTL_GETDESCSETTINGS, 0, 0);
+			INT_PTR ds = NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETDESCSETTINGS, 0, 0);
 			INT_PTR ret = 0;
 
 			if (ds&FDS_UPDATEALWAYS)      ret|=oldfar::FDS_UPDATEALWAYS;
@@ -3813,15 +3803,15 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 
 			if (scA->Flags&oldfar::FCLR_REDRAW) sc.Flags|=FSETCLR_REDRAW;
 
-			return FarAdvControl(ModuleNumber, ACTL_SETARRAYCOLOR, 0, &sc);
+			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_SETARRAYCOLOR, 0, &sc);
 		}
 		case oldfar::ACTL_GETWCHARMODE:
 			return TRUE;
 		case oldfar::ACTL_GETPLUGINMAXREADDATA:
-			return FarAdvControl(ModuleNumber, ACTL_GETPLUGINMAXREADDATA, 0, 0);
+			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETPLUGINMAXREADDATA, 0, 0);
 		case oldfar::ACTL_GETDIALOGSETTINGS:
 		{
-			INT_PTR ds = FarAdvControl(ModuleNumber, ACTL_GETDIALOGSETTINGS, 0, 0);
+			INT_PTR ds = NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETDIALOGSETTINGS, 0, 0);
 			INT_PTR ret = 0;
 
 			if (ds&oldfar::FDIS_HISTORYINDIALOGEDITCONTROLS)    ret|=FDIS_HISTORYINDIALOGEDITCONTROLS;
@@ -3838,7 +3828,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 		case oldfar::ACTL_GETMEDIATYPE:
 			return FALSE;
 		case oldfar::ACTL_REDRAWALL:
-			return FarAdvControl(ModuleNumber, ACTL_REDRAWALL, 0, 0);
+			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_REDRAWALL, 0, 0);
 	}
 
 	return FALSE;
@@ -4573,9 +4563,13 @@ char* WINAPI XlatA(
 
 int WINAPI GetFileOwnerA(const char *Computer,const char *Name, char *Owner)
 {
-	string strComputer(Computer), strName(Name), strOwner;
-	int Ret=GetFileOwner(strComputer,strName,strOwner);
-	strOwner.GetCharString(Owner,oldfar::NM);
+	string strComputer(Computer), strName(Name);
+	wchar_t wOwner[MAX_PATH];
+	int Ret=static_cast<int>(NativeFSF.GetFileOwner(strComputer,strName, wOwner, ARRAYSIZE(wOwner)));
+	if (Ret)
+	{
+		UnicodeToOEM(wOwner, Owner, oldfar::NM);
+	}
 	return Ret;
 }
 
@@ -4618,9 +4612,9 @@ oldfar::FarStandardFunctions StandardFunctions =
 	FarItoa64A,
 	sprintf,
 	sscanf,
-	FarQsort,
-	FarBsearch,
-	FarQsortEx,
+	nullptr, // copy from NativeFSF
+	nullptr, // copy from NativeFSF
+	nullptr, // copy from NativeFSF
 	_snprintf,
 	{0},
 	LocalIslower,
@@ -4674,8 +4668,8 @@ oldfar::PluginStartupInfo StartupInfo =
 	FarMessageFnA,
 	FarGetMsgFnA,
 	FarPanelControlA,
-	FarSaveScreen,
-	FarRestoreScreen,
+	nullptr, // copy from NativeInfo
+	nullptr, // copy from NativeInfo
 	FarGetDirListA,
 	FarGetPluginDirListA,
 	FarFreeDirListA,
@@ -4698,6 +4692,12 @@ oldfar::PluginStartupInfo StartupInfo =
 
 static void CreatePluginStartupInfoA(PluginA *pPlugin, oldfar::PluginStartupInfo *PSI, oldfar::FarStandardFunctions *FSF)
 {
+	StartupInfo.SaveScreen = NativeInfo.SaveScreen;
+	StartupInfo.RestoreScreen = NativeInfo.RestoreScreen;
+	StandardFunctions.qsort = NativeFSF.qsort;
+	StandardFunctions.qsortex = NativeFSF.qsortex;
+	StandardFunctions.bsearch = NativeFSF.bsearch;
+
 	*PSI=StartupInfo;
 	*FSF=StandardFunctions;
 	PSI->ModuleNumber=(INT_PTR)pPlugin;
@@ -4711,6 +4711,7 @@ bool PluginA::GetGlobalInfo(GlobalInfo* Info)
 	Info->Title = PointToName(GetModuleName());
 	Info->Description = L"Far 1.x plugin";
 	Info->Author = L"unknown";
+	UuidCreate(&Info->Guid);
 	return true;
 }
 
@@ -5266,7 +5267,7 @@ int PluginA::ProcessKey(HANDLE hPlugin,const INPUT_RECORD *Rec, bool Pred)
 	int dwControlState;
 
 	//BUGBUG: здесь можно проще.
-	TranslateKeyToVK(InputRecordToKey(Rec),VirtKey,dwControlState);
+	TranslateKeyToVK(NativeFSF.FarInputRecordToKey(Rec),VirtKey,dwControlState);
 	if (Exports[iProcessPanelInput] && !ProcessException)
 	{
 		ExecuteStruct es;

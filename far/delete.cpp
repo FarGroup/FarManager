@@ -635,7 +635,7 @@ void ShellDeleteMsg(const wchar_t *Name,int Wipe,int Percent)
 			FormatString strTmp;
 			strTmp<<L" "<<fmt::Width(3)<<Percent<<L"%";
 			strProgress+=strTmp;
-			*DeleteTitle << L"{" << Percent << L"%} " << MSG(Wipe?MDeleteWipeTitle:MDeleteTitle);
+			*DeleteTitle << L"{" << Percent << L"%} " << MSG(Wipe?MDeleteWipeTitle:MDeleteTitle) << ctitle::eol();
 		}
 
 		TBC.SetProgressValue(Percent,100);

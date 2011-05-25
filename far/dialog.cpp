@@ -2338,6 +2338,17 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			strId = GuidToStr(Id);
 			return reinterpret_cast<INT_PTR>(strId.CPtr());
 		}
+		case MCODE_V_DLGINFOOWNER:        // Dlg.Info.Owner
+		{
+			static string strOwner;
+			GUID Owner = FarGuid;
+			if (PluginNumber && PluginNumber!=-1)
+			{
+				Owner = reinterpret_cast<Plugin*>(PluginNumber)->GetGUID();
+			}
+			strOwner = GuidToStr(Owner);
+			return reinterpret_cast<INT_PTR>(strOwner.CPtr());
+		}
 		case MCODE_V_ITEMCOUNT:
 		case MCODE_V_CURPOS:
 		{
@@ -4624,10 +4635,9 @@ INT_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 						di->Id=Dlg->Id;
 						di->Owner=FarGuid;
 						Result=true;
-						Plugin *pPlugin=(Plugin*)Dlg->PluginNumber;
-						if (Dlg->PluginNumber!=-1&&pPlugin)
+						if (Dlg->PluginNumber && Dlg->PluginNumber!=-1)
 						{
-							di->Owner=pPlugin->GetGUID();
+							di->Owner = reinterpret_cast<Plugin*>(Dlg->PluginNumber)->GetGUID();
 						}
 					}
 				}

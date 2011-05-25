@@ -322,7 +322,7 @@ PluginManager::~PluginManager()
 	{
 		pPlugin = PluginsData[i];
 		pPlugin->Unload(true);
-		if (PluginsCache&&!pPlugin->IsOemPlugin())
+		if (PluginsCache)
 		{
 			PluginsCache->remove((AncientPlugin**)&pPlugin);
 		}
@@ -342,7 +342,7 @@ PluginManager::~PluginManager()
 
 bool PluginManager::AddPlugin(Plugin *pPlugin)
 {
-	if (PluginsCache&&!pPlugin->IsOemPlugin())
+	if (PluginsCache)
 	{
 		AncientPlugin** item=new AncientPlugin*(pPlugin);
 		item=PluginsCache->insert(item);
@@ -365,7 +365,7 @@ bool PluginManager::AddPlugin(Plugin *pPlugin)
 
 bool PluginManager::RemovePlugin(Plugin *pPlugin)
 {
-	if (PluginsCache&&!pPlugin->IsOemPlugin())
+	if (PluginsCache)
 	{
 		PluginsCache->remove((AncientPlugin**)&pPlugin);
 	}
@@ -704,7 +704,7 @@ HANDLE PluginManager::OpenFilePlugin(
 		if (pPlugin->HasOpenFilePlugin())
 		{
 			if (Opt.ShowCheckingFile)
-				ct << MSG(MCheckingFileInPlugin) << L" - [" << PointToName(pPlugin->GetModuleName()) << L"]...";
+				ct << MSG(MCheckingFileInPlugin) << L" - [" << PointToName(pPlugin->GetModuleName()) << L"]..." << ctitle::eol();
 
 			if (Type == OFP_ALTERNATIVE)
 			{

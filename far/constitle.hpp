@@ -33,7 +33,12 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class ConsoleTitle:NonCopyable, public BaseFormat
+namespace ctitle
+{
+	class eol{};
+};
+
+class ConsoleTitle:NonCopyable, public FormatString
 {
 public:
 	ConsoleTitle(const wchar_t *title=nullptr);
@@ -43,9 +48,9 @@ public:
 	static bool WasTitleModified() { return TitleModified; }
 
 private:
-	virtual void Commit(const string& Data);
-
 	string strOldTitle;
 	static bool TitleModified;
 	static DWORD ShowTime;
 };
+
+BaseFormat& operator<<(BaseFormat& ct, const ctitle::eol& Manipulator);

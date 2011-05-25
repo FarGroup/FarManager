@@ -337,6 +337,7 @@ enum MACRO_OP_CODE
 	MCODE_V_DLGITEMCOUNT,             // Dlg.ItemCount
 	MCODE_V_DLGCURPOS,                // Dlg.CurPos
 	MCODE_V_DLGINFOID,                // Dlg.Info.Id
+	MCODE_V_DLGINFOOWNER,             // Dlg.Info.Owner
 
 	MCODE_V_VIEWERFILENAME,           // Viewer.FileName - имя просматриваемого файла
 	MCODE_V_VIEWERSTATE,              // Viewer.State
