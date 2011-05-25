@@ -79,10 +79,10 @@ public:
 	virtual int Configure(const GUID& Guid);
 	virtual void ExitFAR(const ExitInfo *Info);
 
-	virtual bool IsOemPlugin() { return true; }
-	virtual const wchar_t *GetHotkeyName() { return GetCacheName(); }
+	virtual bool IsOemPlugin() const { return true; }
+	virtual const wchar_t *GetHotkeyName() const { return GetCacheName(); }
 
-	const char *GetMsgA(int nID) { return PluginLang.GetMsgA(nID); }
+	const char *GetMsgA(int nID) const { return PluginLang.GetMsgA(nID); }
 
 private:
 	virtual void __Prolog() { SetFileApisToOEM(); OEMApiCnt++; }

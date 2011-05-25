@@ -2153,7 +2153,7 @@ int __stdcall farIsAlphaNum(wchar_t Ch)
 size_t WINAPI farGetFileOwner(const wchar_t *Computer,const wchar_t *Name, wchar_t *Owner,size_t Size)
 {
 	string strOwner;
-	/*int Ret=*/GetFileOwner(Computer,Name,strOwner);
+	GetFileOwner(Computer,Name,strOwner);
 
 	if (Owner && Size)
 		xwcsncpy(Owner,strOwner,Size);

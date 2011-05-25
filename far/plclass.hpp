@@ -36,7 +36,7 @@ class AncientPlugin
 {
 	public:
 		virtual ~AncientPlugin() {}
-		virtual const GUID& GetGUID(void) = 0;
+		virtual const GUID& GetGUID(void) const = 0;
 };
 
 class PluginManager;
@@ -183,58 +183,58 @@ public:
 	virtual int Configure(const GUID& Guid);
 	virtual void ExitFAR(const ExitInfo *Info);
 
-	virtual bool IsOemPlugin() { return false; }
-	virtual const wchar_t *GetHotkeyName() { return m_strGuid; }
+	virtual bool IsOemPlugin() const { return false; }
+	virtual const wchar_t *GetHotkeyName() const { return m_strGuid; }
 
-	bool HasGetGlobalInfo()       { return Exports[iGetGlobalInfo]!=nullptr; }
-	bool HasOpenPanel()           { return Exports[iOpen]!=nullptr; }
-	bool HasMakeDirectory()       { return Exports[iMakeDirectory]!=nullptr; }
-	bool HasDeleteFiles()         { return Exports[iDeleteFiles]!=nullptr; }
-	bool HasPutFiles()            { return Exports[iPutFiles]!=nullptr; }
-	bool HasGetFiles()            { return Exports[iGetFiles]!=nullptr; }
-	bool HasSetStartupInfo()      { return Exports[iSetStartupInfo]!=nullptr; }
-	bool HasClosePanel()          { return Exports[iClosePanel]!=nullptr; }
-	bool HasGetPluginInfo()       { return Exports[iGetPluginInfo]!=nullptr; }
-	bool HasGetOpenPanelInfo()    { return Exports[iGetOpenPanelInfo]!=nullptr; }
-	bool HasGetFindData()         { return Exports[iGetFindData]!=nullptr; }
-	bool HasFreeFindData()        { return Exports[iFreeFindData]!=nullptr; }
-	bool HasGetVirtualFindData()  { return Exports[iGetVirtualFindData]!=nullptr; }
-	bool HasFreeVirtualFindData() { return Exports[iFreeVirtualFindData]!=nullptr; }
-	bool HasSetDirectory()        { return Exports[iSetDirectory]!=nullptr; }
-	bool HasProcessHostFile()     { return Exports[iProcessHostFile]!=nullptr; }
-	bool HasSetFindList()         { return Exports[iSetFindList]!=nullptr; }
-	bool HasConfigure()           { return Exports[iConfigure]!=nullptr; }
-	bool HasExitFAR()             { return Exports[iExitFAR]!=nullptr; }
-	bool HasProcessPanelInput()   { return Exports[iProcessPanelInput]!=nullptr; }
-	bool HasProcessEvent()        { return Exports[iProcessEvent]!=nullptr; }
-	bool HasProcessEditorEvent()  { return Exports[iProcessEditorEvent]!=nullptr; }
-	bool HasCompare()             { return Exports[iCompare]!=nullptr; }
-	bool HasProcessEditorInput()  { return Exports[iProcessEditorInput]!=nullptr; }
-	bool HasProcessViewerEvent()  { return Exports[iProcessViewerEvent]!=nullptr; }
-	bool HasProcessDialogEvent()  { return Exports[iProcessDialogEvent]!=nullptr; }
-	bool HasProcessSynchroEvent() { return Exports[iProcessSynchroEvent]!=nullptr; }
+	bool HasGetGlobalInfo()       const { return Exports[iGetGlobalInfo]!=nullptr; }
+	bool HasOpenPanel()           const { return Exports[iOpen]!=nullptr; }
+	bool HasMakeDirectory()       const { return Exports[iMakeDirectory]!=nullptr; }
+	bool HasDeleteFiles()         const { return Exports[iDeleteFiles]!=nullptr; }
+	bool HasPutFiles()            const { return Exports[iPutFiles]!=nullptr; }
+	bool HasGetFiles()            const { return Exports[iGetFiles]!=nullptr; }
+	bool HasSetStartupInfo()      const { return Exports[iSetStartupInfo]!=nullptr; }
+	bool HasClosePanel()          const { return Exports[iClosePanel]!=nullptr; }
+	bool HasGetPluginInfo()       const { return Exports[iGetPluginInfo]!=nullptr; }
+	bool HasGetOpenPanelInfo()    const { return Exports[iGetOpenPanelInfo]!=nullptr; }
+	bool HasGetFindData()         const { return Exports[iGetFindData]!=nullptr; }
+	bool HasFreeFindData()        const { return Exports[iFreeFindData]!=nullptr; }
+	bool HasGetVirtualFindData()  const { return Exports[iGetVirtualFindData]!=nullptr; }
+	bool HasFreeVirtualFindData() const { return Exports[iFreeVirtualFindData]!=nullptr; }
+	bool HasSetDirectory()        const { return Exports[iSetDirectory]!=nullptr; }
+	bool HasProcessHostFile()     const { return Exports[iProcessHostFile]!=nullptr; }
+	bool HasSetFindList()         const { return Exports[iSetFindList]!=nullptr; }
+	bool HasConfigure()           const { return Exports[iConfigure]!=nullptr; }
+	bool HasExitFAR()             const { return Exports[iExitFAR]!=nullptr; }
+	bool HasProcessPanelInput()   const { return Exports[iProcessPanelInput]!=nullptr; }
+	bool HasProcessEvent()        const { return Exports[iProcessEvent]!=nullptr; }
+	bool HasProcessEditorEvent()  const { return Exports[iProcessEditorEvent]!=nullptr; }
+	bool HasCompare()             const { return Exports[iCompare]!=nullptr; }
+	bool HasProcessEditorInput()  const { return Exports[iProcessEditorInput]!=nullptr; }
+	bool HasProcessViewerEvent()  const { return Exports[iProcessViewerEvent]!=nullptr; }
+	bool HasProcessDialogEvent()  const { return Exports[iProcessDialogEvent]!=nullptr; }
+	bool HasProcessSynchroEvent() const { return Exports[iProcessSynchroEvent]!=nullptr; }
 #if defined(MANTIS_0000466)
-	bool HasProcessMacro()        { return Exports[iProcessMacro]!=nullptr; }
+	bool HasProcessMacro()        const { return Exports[iProcessMacro]!=nullptr; }
 #endif
 #if defined(MANTIS_0001687)
-	bool HasProcessConsoleInput() { return Exports[iProcessConsoleInput]!=nullptr; }
+	bool HasProcessConsoleInput() const { return Exports[iProcessConsoleInput]!=nullptr; }
 #endif
-	bool HasAnalyse()             { return Exports[iAnalyse]!=nullptr; }
-	bool HasGetCustomData()       { return Exports[iGetCustomData]!=nullptr; }
-	bool HasFreeCustomData()      { return Exports[iFreeCustomData]!=nullptr; }
+	bool HasAnalyse()             const { return Exports[iAnalyse]!=nullptr; }
+	bool HasGetCustomData()       const { return Exports[iGetCustomData]!=nullptr; }
+	bool HasFreeCustomData()      const { return Exports[iFreeCustomData]!=nullptr; }
 
-	bool HasOpenFilePlugin()      { return Exports[iOpenFilePlugin]!=nullptr; }
-	bool HasMinFarVersion()       { return Exports[iGetMinFarVersion]!=nullptr; }
+	bool HasOpenFilePlugin()      const { return Exports[iOpenFilePlugin]!=nullptr; }
+	bool HasMinFarVersion()       const { return Exports[iGetMinFarVersion]!=nullptr; }
 
-	const string &GetModuleName() { return m_strModuleName; }
-	const wchar_t *GetCacheName() { return m_strCacheName; }
-	const wchar_t* GetTitle(void) { return strTitle.CPtr(); }
-	const GUID& GetGUID(void) { return m_Guid; }
-	const wchar_t *GetMsg(int nID) { return PluginLang.GetMsg(nID); }
+	const string &GetModuleName() const { return m_strModuleName; }
+	const wchar_t *GetCacheName() const  { return m_strCacheName; }
+	const wchar_t* GetTitle(void) const { return strTitle.CPtr(); }
+	const GUID& GetGUID(void) const { return m_Guid; }
+	const wchar_t *GetMsg(int nID) const { return PluginLang.GetMsg(nID); }
 
-	bool CheckWorkFlags(DWORD flags) { return WorkFlags.Check(flags)==TRUE; }
-	DWORD GetWorkFlags() { return WorkFlags.Flags; }
-	DWORD GetFuncFlags() { return FuncFlags.Flags; }
+	bool CheckWorkFlags(DWORD flags) const { return WorkFlags.Check(flags)==TRUE; }
+	DWORD GetWorkFlags() const { return WorkFlags.Flags; }
+	DWORD GetFuncFlags() const { return FuncFlags.Flags; }
 
 	bool InitLang(const wchar_t *Path) { return PluginLang.Init(Path,!IsOemPlugin()); }
 	void CloseLang() { PluginLang.Close(); }
@@ -280,3 +280,6 @@ private:
 	GUID m_Guid;
 	string m_strGuid;
 };
+
+extern PluginStartupInfo NativeInfo;
+extern FarStandardFunctions NativeFSF;

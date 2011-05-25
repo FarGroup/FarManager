@@ -273,7 +273,7 @@ class PluginSearch: public AncientPlugin
 	public:
 		PluginSearch(const GUID& Id): m_Guid(Id) {}
 		~PluginSearch() {}
-		const GUID& GetGUID(void) { return m_Guid; }
+		const GUID& GetGUID(void) const { return m_Guid; }
 };
 
 PluginTree::PluginTree(): Tree<AncientPlugin*>()

@@ -124,7 +124,7 @@ static Plugin *Module=nullptr;     // модуль, приведший к исключению.
 static DWORD Flags=0;                  // дополнительные флаги - пока только один
 //        0x1 - спрашивать про выгрузку?
 
-extern void CreatePluginStartupInfo(Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF);
+extern void CreatePluginStartupInfo(const Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
 INT_PTR WINAPI ExcDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 {

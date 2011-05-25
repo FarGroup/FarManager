@@ -231,23 +231,6 @@ static const wchar_t* _ExportsNamesW[i_LAST] =
 	W(EXP_GETMINFARVERSION),
 };
 
-static const wchar_t wszReg_Open[]=L"OpenW";
-static const wchar_t wszReg_SetFindList[]=L"SetFindListW";
-static const wchar_t wszReg_ProcessEditorInput[]=L"ProcessEditorInputW";
-static const wchar_t wszReg_ProcessEditorEvent[]=L"ProcessEditorEventW";
-static const wchar_t wszReg_ProcessViewerEvent[]=L"ProcessViewerEventW";
-static const wchar_t wszReg_ProcessDialogEvent[]=L"ProcessDialogEventW";
-static const wchar_t wszReg_ProcessSynchroEvent[]=L"ProcessSynchroEventW";
-#if defined(MANTIS_0000466)
-static const wchar_t wszReg_ProcessMacro[]=L"ProcessMacroW";
-#endif
-#if defined(MANTIS_0001687)
-static const wchar_t wszReg_ProcessConsoleInput[]=L"ProcessConsoleInputW";
-#endif
-static const wchar_t wszReg_Configure[]=L"ConfigureW";
-static const wchar_t wszReg_Analyse[] = L"AnalyseW";
-static const wchar_t wszReg_GetCustomData[] = L"GetCustomDataW";
-
 static size_t WINAPI FarKeyToName(int Key,wchar_t *KeyText,size_t Size)
 {
 	string strKT;
@@ -382,102 +365,102 @@ static void CheckScreenLock()
 	}
 }
 
-void CreatePluginStartupInfo(Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF)
+FarStandardFunctions NativeFSF =
 {
-	static PluginStartupInfo StartupInfo={0};
-	static FarStandardFunctions StandardFunctions={0};
+	sizeof(NativeFSF),
+	FarAtoi,
+	FarAtoi64,
+	FarItoa,
+	FarItoa64,
+	swprintf,
+	swscanf,
+	FarQsort,
+	FarBsearch,
+	FarQsortEx,
+	_snwprintf,
+	{0},
+	farIsLower,
+	farIsUpper,
+	farIsAlpha,
+	farIsAlphaNum,
+	farUpper,
+	farLower,
+	farUpperBuf,
+	farLowerBuf,
+	farStrUpper,
+	farStrLower,
+	farStrCmpI,
+	farStrCmpNI,
+	Unquote,
+	RemoveLeadingSpaces,
+	RemoveTrailingSpaces,
+	RemoveExternalSpaces,
+	TruncStr,
+	TruncPathStr,
+	QuoteSpaceOnly,
+	PointToName,
+	farGetPathRoot,
+	AddEndSlash,
+	CopyToClipboard,
+	PasteFromClipboard,
+	FarKeyToName,
+	KeyNameToKeyW,
+	InputRecordToKey,
+	KeyToInputRecord,
+	Xlat,
+	farGetFileOwner,
+	GetNumberOfLinks,
+	FarRecursiveSearch,
+	FarMkTemp,
+	DeleteBuffer,
+	ProcessName,
+	FarMkLink,
+	farConvertPath,
+	farGetReparsePointInfo,
+	farGetCurrentDirectory,
+};
 
-	// заполняем структуру StandardFunctions один раз!!!
-	if (!StandardFunctions.StructSize)
-	{
-		StandardFunctions.StructSize=sizeof(StandardFunctions);
-		StandardFunctions.sprintf=swprintf;
-		StandardFunctions.snprintf=_snwprintf;
-		StandardFunctions.sscanf=swscanf;
-		StandardFunctions.qsort=FarQsort;
-		StandardFunctions.qsortex=FarQsortEx;
-		StandardFunctions.atoi=FarAtoi;
-		StandardFunctions.atoi64=FarAtoi64;
-		StandardFunctions.itoa=FarItoa;
-		StandardFunctions.itoa64=FarItoa64;
-		StandardFunctions.bsearch=FarBsearch;
-		StandardFunctions.LIsLower = farIsLower;
-		StandardFunctions.LIsUpper = farIsUpper;
-		StandardFunctions.LIsAlpha = farIsAlpha;
-		StandardFunctions.LIsAlphanum = farIsAlphaNum;
-		StandardFunctions.LUpper = farUpper;
-		StandardFunctions.LUpperBuf = farUpperBuf;
-		StandardFunctions.LLowerBuf = farLowerBuf;
-		StandardFunctions.LLower = farLower;
-		StandardFunctions.LStrupr = farStrUpper;
-		StandardFunctions.LStrlwr = farStrLower;
-		StandardFunctions.LStricmp = farStrCmpI;
-		StandardFunctions.LStrnicmp = farStrCmpNI;
-		StandardFunctions.Unquote=Unquote;
-		StandardFunctions.LTrim=RemoveLeadingSpaces;
-		StandardFunctions.RTrim=RemoveTrailingSpaces;
-		StandardFunctions.Trim=RemoveExternalSpaces;
-		StandardFunctions.TruncStr=TruncStr;
-		StandardFunctions.TruncPathStr=TruncPathStr;
-		StandardFunctions.QuoteSpaceOnly=QuoteSpaceOnly;
-		StandardFunctions.PointToName=PointToName;
-		StandardFunctions.GetPathRoot=farGetPathRoot;
-		StandardFunctions.AddEndSlash=AddEndSlash;
-		StandardFunctions.CopyToClipboard=CopyToClipboard;
-		StandardFunctions.PasteFromClipboard=PasteFromClipboard;
-		StandardFunctions.FarKeyToName=FarKeyToName;
-		StandardFunctions.FarNameToKey=KeyNameToKeyW;
-		StandardFunctions.FarInputRecordToKey=InputRecordToKey;
-		StandardFunctions.FarKeyToInputRecord=KeyToInputRecord;
-		StandardFunctions.XLat=Xlat;
-		StandardFunctions.GetFileOwner=farGetFileOwner;
-		StandardFunctions.GetNumberOfLinks=GetNumberOfLinks;
-		StandardFunctions.FarRecursiveSearch=FarRecursiveSearch;
-		StandardFunctions.MkTemp=FarMkTemp;
-		StandardFunctions.DeleteBuffer=DeleteBuffer;
-		StandardFunctions.ProcessName=ProcessName;
-		StandardFunctions.MkLink=FarMkLink;
-		StandardFunctions.ConvertPath=farConvertPath;
-		StandardFunctions.GetReparsePointInfo=farGetReparsePointInfo;
-		StandardFunctions.GetCurrentDirectory=farGetCurrentDirectory;
-	}
+PluginStartupInfo NativeInfo =
+{
+	sizeof(NativeInfo),
+	nullptr, //ModuleName, dynamic
+	FarMenuFnW,
+	FarMessageFnW,
+	FarGetMsgFnW,
+	FarPanelControl,
+	FarSaveScreen,
+	FarRestoreScreen,
+	FarGetDirList,
+	FarGetPluginDirListW,
+	FarFreeDirList,
+	FarFreePluginDirList,
+	FarViewer,
+	FarEditor,
+	FarText,
+	FarEditorControl,
+	nullptr, //FSF, dynamic
+	FarShowHelp,
+	FarAdvControlW,
+	FarInputBoxW,
+	farColorDialog,
+	FarDialogInitW,
+	FarDialogRun,
+	FarDialogFree,
+	FarSendDlgMessage,
+	FarDefDlgProc,
+	0,
+	FarViewerControl,
+	farPluginsControl,
+	farFileFilterControl,
+	farRegExpControl,
+	farMacroControl,
+	farSettingsControl,
+};
 
-	if (!StartupInfo.StructSize)
-	{
-		StartupInfo.StructSize=sizeof(StartupInfo);
-		StartupInfo.Menu=FarMenuFnW;
-		StartupInfo.GetMsg=FarGetMsgFnW;
-		StartupInfo.Message=FarMessageFnW;
-		StartupInfo.PanelControl=FarPanelControl;
-		StartupInfo.SaveScreen=FarSaveScreen;
-		StartupInfo.RestoreScreen=FarRestoreScreen;
-		StartupInfo.GetDirList=FarGetDirList;
-		StartupInfo.GetPluginDirList=FarGetPluginDirListW;
-		StartupInfo.FreeDirList=FarFreeDirList;
-		StartupInfo.FreePluginDirList=FarFreePluginDirList;
-		StartupInfo.Viewer=FarViewer;
-		StartupInfo.Editor=FarEditor;
-		StartupInfo.Text=FarText;
-		StartupInfo.EditorControl=FarEditorControl;
-		StartupInfo.ViewerControl=FarViewerControl;
-		StartupInfo.ShowHelp=FarShowHelp;
-		StartupInfo.AdvControl=FarAdvControlW;
-		StartupInfo.DialogInit=FarDialogInitW;
-		StartupInfo.DialogRun=FarDialogRun;
-		StartupInfo.DialogFree=FarDialogFree;
-		StartupInfo.SendDlgMessage=FarSendDlgMessage;
-		StartupInfo.DefDlgProc=FarDefDlgProc;
-		StartupInfo.InputBox=FarInputBoxW;
-		StartupInfo.ColorDialog = farColorDialog;
-		StartupInfo.PluginsControl=farPluginsControl;
-		StartupInfo.FileFilterControl=farFileFilterControl;
-		StartupInfo.RegExpControl=farRegExpControl;
-		StartupInfo.MacroControl=farMacroControl;
-		StartupInfo.SettingsControl=farSettingsControl;
-	}
-
-	*PSI=StartupInfo;
-	*FSF=StandardFunctions;
+void CreatePluginStartupInfo(const Plugin* pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF)
+{
+	*PSI=NativeInfo;
+	*FSF=NativeFSF;
 	PSI->FSF=FSF;
 
 	if (pPlugin)
