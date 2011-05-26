@@ -314,6 +314,8 @@ struct ViewerOptions
 	int AnsiCodePageAsDefault;
 	int ShowTitleBar;
 	int SearchRegexp;
+	int MaxLineSize; // 80..16384, default=2048
+	int SearchEditFocus; // auto-focus on edit text/hex window
 };
 
 // "Полиция"

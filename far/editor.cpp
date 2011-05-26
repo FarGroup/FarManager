@@ -690,8 +690,18 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 							if (iLine > -1 && iPos > -1)
 							{
+								int _NumLine=NumLine;
+								int _CurPos=CurLine->GetTabCurPos();
+
 								GoToLine(iLine);
 								CurLine->SetCurPos(CurLine->TabPosToReal(iPos));
+
+								if (!EdOpt.CursorBeyondEOL && CurLine->GetCurPos() >= CurLine->GetLength())
+								{
+									GoToLine(_NumLine);
+									CurLine->SetCurPos(CurLine->TabPosToReal(_CurPos));
+									return 0;
+								}
 								return 1;
 							}
 

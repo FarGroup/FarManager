@@ -40,21 +40,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "cache.hpp"
 
-/* $ 10.07.2000 tran
-   ! modified MAXSCRY from 120 to 300
-   on win200, with Console height FAR work, but trap on viewer... */
-#define  MAXSCRY     300
+#define MAXSCRY       512                    // 300   // 120
 
-/* $ 12.07.2000 SVS
-  - из-за увеличения длины строки до 0x800 вылетал FAR
-    по Alt-F7. Сократим MAX_VIEWLINE до 1024 (0x400)
-*/
-#define MAX_VIEWLINE  0x800 // 0x400
-#define MAX_VIEWLINEB 0x80f // 0x40f
+#define MAX_VIEWLINE  (ViOpt.MaxLineSize+ 0) // 0x800 // 0x400
+#define MAX_VIEWLINEB (ViOpt.MaxLineSize+15) // 0x80f // 0x40f
 
 #define VIEWER_UNDO_COUNT   64
-
-enum {VIEW_UNWRAP=0,VIEW_WRAP=1, VIEW_WORDWRAP=2};
 
 class FileViewer;
 class KeyBar;
@@ -65,7 +56,7 @@ struct ViewerString
 	__int64 nFilePos;
 	__int64 nSelStart;
 	__int64 nSelEnd;
-	int  nbytes;
+	int  linesize;
 	bool bSelection;
 	bool have_eol;
 };
@@ -74,12 +65,6 @@ struct ViewerUndoData
 {
 	__int64 UndoAddr;
 	__int64 UndoLeft;
-};
-
-enum SEARCH_FLAGS
-{
-	SEARCH_MODE2   = 0x00000001,
-	REVERSE_SEARCH = 0x00000002
 };
 
 enum SHOW_MODES
@@ -95,9 +80,6 @@ class Viewer:public ScreenObject
 		friend class FileViewer;
 
 	private:
-
-		BitFlags SearchFlags;
-
 		struct ViewerOptions ViOpt;
 
 		bool Signature;
@@ -105,7 +87,7 @@ class Viewer:public ScreenObject
 		NamesList ViewNamesList;
 		KeyBar *ViewKeyBar;
 
-		ViewerString *Strings[MAXSCRY+1];
+		ViewerString **Strings;
 
 		string strFileName;
 		string strFullFileName;
@@ -121,6 +103,8 @@ class Viewer:public ScreenObject
 
 		string strLastSearchStr;
 		int LastSearchCase,LastSearchWholeWords,LastSearchReverse,LastSearchHex,LastSearchRegexp;
+		int LastSearchDirection;
+		__int64 StartSearchPos;
 
 		struct ViewerMode VM;
 
@@ -128,13 +112,12 @@ class Viewer:public ScreenObject
 		__int64 SecondPos;
 		__int64 LastScrPos;
 		__int64 FileSize;
-		__int64 LastSelPos;
+		__int64 LastSelectPos, LastSelectSize;
 
 		__int64 LeftPos;
 		__int64 LastPage;
 		__int64 SelectPos,SelectSize;
 		DWORD SelectFlags;
-		__int64 SelectPosOffSet; // Используется для коррекции позиции выделения в юникодных файлах
 		int ShowStatusLine,HideCursor;
 
 		string strTitle;
@@ -165,8 +148,19 @@ class Viewer:public ScreenObject
 		char *vread_buffer;
 		int vread_buffer_size;
 
-		wchar_t *Up_buffer;
-		int Up_buffer_size;
+		__int64  lcache_first;
+		__int64  lcache_last;
+		__int64 *lcache_lines;
+		int      lcache_size;
+		int      lcache_count;
+		int      lcache_base;
+	   bool     lcache_ready;
+		int      lcache_wrap;
+		int      lcache_wwrap;
+		int      lcache_width;
+
+		wchar_t *Search_buffer;
+		int Search_buffer_size;
 
 		ViewerString vString;
 
@@ -181,8 +175,9 @@ class Viewer:public ScreenObject
 
 		void ShowPage(int nMode);
 
-		void Up();
-		int WrappedLength(wchar_t *str, int line_size);
+		void Up(int n);
+		void CacheLine(__int64 start, int length, bool have_eol);
+		int CacheFindUp(__int64 start);
 
 		void ShowHex();
 		void ShowStatus();
@@ -195,17 +190,31 @@ class Viewer:public ScreenObject
 		void AdjustWidth();
 		void AdjustFilePos();
 
-		void ReadString(ViewerString *pString, int MaxSize);
-		int CalcStrSize(const wchar_t *Str,int Length);
+		void ReadString(ViewerString *pString, int MaxSize, bool update_cache=true);
+		__int64 EndOfScreen( int line );
+		__int64 BegOfScreen();
+
 		void ChangeViewKeyBar();
+
 		void Search(int Next,int FirstChar);
-		void ConvertToHex(char *SearchStr,int &SearchLength);
+		//
+		struct search_data;
+		//
+		int search_hex_forward( search_data* sd );
+		int search_hex_backward( search_data* sd );
+		int search_text_forward( search_data* sd );
+		int search_text_backward( search_data* sd );
+		int search_regex_forward( search_data* sd );
+		int search_regex_backward( search_data* sd );
+
+		int read_line(wchar_t *buf, wchar_t *tbuf, INT64 cpos, int adjust, INT64 &lpos, int &lsize);
 
 		int vread(wchar_t *Buf, int Count, wchar_t *Buf2 = nullptr);
 		bool vseek(__int64 Offset, int Whence);
 		__int64 vtell();
 		bool vgetc(wchar_t *ch);
 		bool veof();
+		wchar_t vgetc_prev();
 
 		void SetFileSize();
 		int GetStrBytesNum(const wchar_t *Str, int Length);
@@ -283,5 +292,5 @@ class Viewer:public ScreenObject
 		int ProcessWrapMode(int newMode, bool isRedraw=TRUE);
 		int ProcessTypeWrapMode(int newMode, bool isRedraw=TRUE);
 
-		void SearchTextTransform(UnicodeString &to, const wchar_t *from, bool hex2text);
+		void SearchTextTransform(UnicodeString &to, const wchar_t *from, bool hex2text, int &pos);
 };

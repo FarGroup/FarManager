@@ -595,6 +595,9 @@ static struct FARConfig
 	{1, GeneralConfig::TYPE_INTEGER, NKeyViewer,L"PersistentBlocks",&Opt.ViOpt.PersistentBlocks,0, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeyViewer,L"AnsiCodePageAsDefault",&Opt.ViOpt.AnsiCodePageAsDefault,1, 0},
 
+	{0, GeneralConfig::TYPE_INTEGER, NKeyViewer,L"MaxLineSize",&Opt.ViOpt.MaxLineSize,2048, 0},
+	{0, GeneralConfig::TYPE_INTEGER, NKeyViewer,L"SearchEditFocus",&Opt.ViOpt.SearchEditFocus,0, 0},
+
 	{1, GeneralConfig::TYPE_INTEGER, NKeyDialog, L"EditHistory",&Opt.Dialogs.EditHistory,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeyDialog, L"EditBlock",&Opt.Dialogs.EditBlock,0, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeyDialog, L"AutoComplete",&Opt.Dialogs.AutoComplete,1, 0},
@@ -920,8 +923,15 @@ void ReadConfig()
 		}
 	}
 
-	Opt.ViOpt.ViewerIsWrap&=1;
-	Opt.ViOpt.ViewerWrap&=1;
+	Opt.ViOpt.ViewerIsWrap &= 1;
+	Opt.ViOpt.ViewerWrap &= 1;
+	if (!Opt.ViOpt.MaxLineSize)
+		Opt.ViOpt.MaxLineSize = 2048;
+	else if (Opt.ViOpt.MaxLineSize < 80)
+		Opt.ViOpt.MaxLineSize = 80;
+	else if (Opt.ViOpt.MaxLineSize > 16*1024)
+		Opt.ViOpt.MaxLineSize = 16*1024;
+	Opt.ViOpt.SearchEditFocus &= 1;
 
 	// Исключаем случайное стирание разделителей ;-)
 	if (Opt.strWordDiv.IsEmpty())
