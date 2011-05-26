@@ -59,6 +59,8 @@ namespace fmt
 	template<AlignType T>class SimpleAlign {};
 	typedef SimpleAlign<A_LEFT> LeftAlign;
 	typedef SimpleAlign<A_RIGHT> RightAlign;
+
+	class Flush {};
 };
 
 class BaseFormat
@@ -66,6 +68,8 @@ class BaseFormat
 public:
 	BaseFormat();
 	virtual ~BaseFormat() {}
+
+	virtual BaseFormat& Flush() { return *this; }
 
 	// attributes
 	BaseFormat& SetPrecision(size_t Precision=fmt::Precision::GetDefault());
@@ -97,6 +101,7 @@ public:
 	BaseFormat& operator<<(const fmt::Align& Manipulator);
 	BaseFormat& operator<<(const fmt::LeftAlign& Manipulator);
 	BaseFormat& operator<<(const fmt::RightAlign& Manipulator);
+	BaseFormat& operator<<(const fmt::Flush& Manipulator);
 
 protected:
 	virtual void Commit(const string& Data)=0;

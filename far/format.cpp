@@ -190,6 +190,11 @@ BaseFormat& BaseFormat::operator<<(const fmt::RightAlign& Manipulator)
 	return SetAlign(fmt::A_RIGHT);
 }
 
+BaseFormat& BaseFormat::operator<<(const fmt::Flush& Manipulator)
+{
+	return Flush();
+}
+
 void BaseFormat::Reset()
 {
 	Width = fmt::Width::GetDefault();

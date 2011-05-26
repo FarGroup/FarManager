@@ -116,6 +116,13 @@ ConsoleTitle::~ConsoleTitle()
 	SetFarTitle(strOldTitle, true);
 }
 
+BaseFormat& ConsoleTitle::Flush()
+{
+	SetFarTitle(*this);
+	Clear();
+	return *this;
+}
+
 void ConsoleTitle::SetFarTitle(const wchar_t *Title, bool Force)
 {
 	CriticalSectionLock Lock(TitleCS);
@@ -154,13 +161,4 @@ void ConsoleTitle::SetFarTitle(const wchar_t *Title, bool Force)
 		TitleModified=false;
 		//_SVS(SysLog(L"  (nullptr)FarTitle='%s'",FarTitle));
 	}
-}
-
-BaseFormat& operator<<(BaseFormat& ct, const ctitle::eol& Manipulator)
-{
-	// todo: dynamic_cast
-	FormatString& s = static_cast<FormatString&>(ct);
-	static_cast<ConsoleTitle&>(ct).SetFarTitle(s);
-	s.Clear();
-	return ct;
 }

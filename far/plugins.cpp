@@ -704,7 +704,7 @@ HANDLE PluginManager::OpenFilePlugin(
 		if (pPlugin->HasOpenFilePlugin())
 		{
 			if (Opt.ShowCheckingFile)
-				ct << MSG(MCheckingFileInPlugin) << L" - [" << PointToName(pPlugin->GetModuleName()) << L"]..." << ctitle::eol();
+				ct << MSG(MCheckingFileInPlugin) << L" - [" << PointToName(pPlugin->GetModuleName()) << L"]..." << fmt::Flush();
 
 			if (Type == OFP_ALTERNATIVE)
 			{

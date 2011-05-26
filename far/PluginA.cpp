@@ -471,12 +471,12 @@ void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW, size_t
 					xf_free(lpTypes);
 				}
 
-				pnmW[i].StructSize      = sizeof(PanelMode);
-				pnmW[i].ColumnTypes		=	(pnmA[i].ColumnTypes)?AnsiToUnicode(pnmA[i].ColumnTypes):nullptr;
-				pnmW[i].ColumnWidths	=	(pnmA[i].ColumnWidths)?AnsiToUnicode(pnmA[i].ColumnWidths):nullptr;
-				pnmW[i].ColumnTitles	= (pnmA[i].ColumnTitles && (iColumnCount>0))?ArrayAnsiToUnicode(pnmA[i].ColumnTitles,iColumnCount):nullptr;
-				pnmW[i].StatusColumnTypes		=	(pnmA[i].StatusColumnTypes)?AnsiToUnicode(pnmA[i].StatusColumnTypes):nullptr;
-				pnmW[i].StatusColumnWidths	=	(pnmA[i].StatusColumnWidths)?AnsiToUnicode(pnmA[i].StatusColumnWidths):nullptr;
+				pnmW[i].StructSize = sizeof(PanelMode);
+				pnmW[i].ColumnTypes = (pnmA[i].ColumnTypes)?AnsiToUnicode(pnmA[i].ColumnTypes):nullptr;
+				pnmW[i].ColumnWidths = (pnmA[i].ColumnWidths)?AnsiToUnicode(pnmA[i].ColumnWidths):nullptr;
+				pnmW[i].ColumnTitles = (pnmA[i].ColumnTitles && (iColumnCount>0))?ArrayAnsiToUnicode(pnmA[i].ColumnTitles,iColumnCount):nullptr;
+				pnmW[i].StatusColumnTypes = (pnmA[i].StatusColumnTypes)?AnsiToUnicode(pnmA[i].StatusColumnTypes):nullptr;
+				pnmW[i].StatusColumnWidths = (pnmA[i].StatusColumnWidths)?AnsiToUnicode(pnmA[i].StatusColumnWidths):nullptr;
 				pnmW[i].Flags = 0;
 				if (pnmA[i].FullScreen) pnmW[i].Flags |= PMFLAGS_FULLSCREEN;
 				if (pnmA[i].DetailedStatus) pnmW[i].Flags |= PMFLAGS_DETAILEDSTATUS;
