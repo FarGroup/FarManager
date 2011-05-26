@@ -201,3 +201,26 @@ wstring unquote(const wstring& str) {
   else
     return str;
 }
+
+wstring search_and_replace(const wstring& str, const wstring& search_str, const wstring& replace_str) {
+  assert(!search_str.empty());
+  if (search_str.empty())
+    return str;
+  wstring result;
+  result.reserve(str.size());
+  size_t pos1 = 0;
+  while (true) {
+    size_t pos2 = str.find(search_str, pos1);
+    if (pos2 != wstring::npos) {
+      result.append(str, pos1, pos2 - pos1);
+      result.append(replace_str);
+      pos1 = pos2 + search_str.size();
+    }
+    else {
+      result.append(str, pos1, str.size() - pos1);
+      break;
+    }
+  }
+  result.shrink_to_fit();
+  return result;
+}

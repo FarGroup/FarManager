@@ -27,6 +27,7 @@ wstring combine(const list<wstring>& lst, wchar_t sep);
 wstring format_data_size(unsigned __int64 value, const wchar_t* suffixes[5]);
 bool is_slash(wchar_t c);
 wstring unquote(const wstring& str);
+wstring search_and_replace(const wstring& str, const wstring& search_str, const wstring& replace_str);
 
 wstring long_path(const wstring& path);
 

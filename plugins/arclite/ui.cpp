@@ -785,7 +785,7 @@ private:
   }
 
   wstring eval_arc_path() {
-    wstring arc_path = expand_macros(unquote(strip(get_text(arc_path_ctrl_id))));
+    wstring arc_path = expand_macros(search_and_replace(strip(get_text(arc_path_ctrl_id)), L"\"", wstring()));
     if (arc_path.empty() || arc_path.back() == L'\\')
       arc_path += default_arc_name;
     if (get_check(append_ext_ctrl_id)) {
