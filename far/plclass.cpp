@@ -730,7 +730,13 @@ bool Plugin::LoadData()
 		strTitle = Info.Title;
 		strDescription = Info.Description;
 		strAuthor = Info.Author;
-		SetGuid(Info.Guid);
+
+		if(m_Guid != Info.Guid)
+		{
+			m_owner->RemovePlugin(this);
+			SetGuid(Info.Guid);
+			m_owner->AddPlugin(this);
+		}
 
 		WorkFlags.Set(PIWF_DATALOADED);
 		return true;
