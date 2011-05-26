@@ -4711,7 +4711,16 @@ bool PluginA::GetGlobalInfo(GlobalInfo* Info)
 	Info->Title = PointToName(GetModuleName());
 	Info->Description = L"Far 1.x plugin";
 	Info->Author = L"unknown";
-	UuidCreate(&Info->Guid);
+	if(GetGUID()==FarGuid)
+	{
+		// first load
+		UuidCreate(&Info->Guid);
+	}
+	else
+	{
+		// use cached
+		Info->Guid = GetGUID();
+	}
 	return true;
 }
 
