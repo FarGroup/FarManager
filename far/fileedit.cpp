@@ -665,7 +665,7 @@ void FileEditor::Init(
 			return;
 		}
 
-		if (m_codepage==CP_AUTODETECT)
+		if (m_codepage==CP_AUTODETECT || m_codepage == CP_REDETECT)
 			m_codepage=Opt.EdOpt.AnsiCodePageForNewFile?GetACP():GetOEMCP();
 
 		m_editor->SetCodePage(m_codepage);
