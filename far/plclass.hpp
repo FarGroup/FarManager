@@ -279,6 +279,8 @@ private:
 
 	GUID m_Guid;
 	string m_strGuid;
+
+	friend class PluginManager;
 };
 
 extern PluginStartupInfo NativeInfo;
