@@ -730,18 +730,22 @@ bool Plugin::LoadData()
 		strTitle = Info.Title;
 		strDescription = Info.Description;
 		strAuthor = Info.Author;
-		
+
+		bool ok=true;
 		if(m_Guid != FarGuid && m_Guid != Info.Guid)
 		{
-			m_owner->UpdateId(this, Info.Guid);
+			ok = m_owner->UpdateId(this, Info.Guid);
 		}
 		else
 		{
 			SetGuid(Info.Guid);
 		}
 
-		WorkFlags.Set(PIWF_DATALOADED);
-		return true;
+		if (ok)
+		{
+			WorkFlags.Set(PIWF_DATALOADED);
+			return true;
+		}
 	}
 	Unload();
 	//чтоб не пытаться загрузить опять а то ошибка будет постоянно показываться.

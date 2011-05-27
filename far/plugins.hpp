@@ -180,7 +180,7 @@ class PluginManager
 		bool AddPlugin(Plugin *pPlugin);
 		bool RemovePlugin(Plugin *pPlugin);
 
-		void UpdateId(Plugin *pPlugin, const GUID& Id);
+		bool UpdateId(Plugin *pPlugin, const GUID& Id);
 
 		void LoadPluginsFromCache();
 

@@ -363,14 +363,17 @@ bool PluginManager::AddPlugin(Plugin *pPlugin)
 	return true;
 }
 
-void PluginManager::UpdateId(Plugin *pPlugin, const GUID& Id)
+bool PluginManager::UpdateId(Plugin *pPlugin, const GUID& Id)
 {
 	if (PluginsCache)
 	{
 		PluginsCache->remove((AncientPlugin**)&pPlugin);
 		pPlugin->SetGuid(Id);
-		PluginsCache->insert((AncientPlugin**)&pPlugin);
+		AncientPlugin** item=new AncientPlugin*(pPlugin);
+		item=PluginsCache->insert(item);
+		if(*item!=pPlugin) return false;
 	}
+	return true;
 }
 
 bool PluginManager::RemovePlugin(Plugin *pPlugin)
