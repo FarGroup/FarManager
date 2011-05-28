@@ -719,7 +719,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 						case 0:  // selection start
 						{
 							MBlockStart=CurLine;
-							MBlockStartX=CurLine->GetTabCurPos();
+							MBlockStartX=CurLine->GetCurPos();
 							return 1;
 						}
 						case 1:  // selection finish
@@ -731,7 +731,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 								EditorSelect eSel;
 								eSel.BlockType=(Action == 2)?BTYPE_STREAM:BTYPE_COLUMN;
 								eSel.BlockStartPos=MBlockStartX;
-								eSel.BlockWidth=CurLine->GetTabCurPos()-MBlockStartX;
+								eSel.BlockWidth=CurLine->GetCurPos()-MBlockStartX;
 
 								if (eSel.BlockWidth || (Action == 2 && MBlockStart != CurLine))
 								{
@@ -752,7 +752,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 									if (bl > el || (bl == el && eSel.BlockWidth<0))
 									{
 										eSel.BlockWidth*=-1;
-										eSel.BlockStartPos=CurLine->GetTabCurPos();
+										eSel.BlockStartPos=CurLine->GetCurPos();
 									}
 
 									Ret=EditorControl(ECTL_SELECT,&eSel);
