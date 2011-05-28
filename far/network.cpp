@@ -115,7 +115,7 @@ void ConnectToNetworkDrive(const wchar_t *NewDir)
 	netResource.lpLocalName = (wchar_t *)NewDir;
 	netResource.lpRemoteName = (wchar_t *)strRemoteName.CPtr();
 	netResource.lpProvider = 0;
-	DWORD res = WNetAddConnection2(&netResource, 0, strUserName, 0);
+	DWORD res = strUserName.IsEmpty() ? ERROR_SESSION_CREDENTIAL_CONFLICT : WNetAddConnection2(&netResource, 0, strUserName, 0);
 
 	if (res == ERROR_SESSION_CREDENTIAL_CONFLICT)
 		res = WNetAddConnection2(&netResource, 0, 0, 0);
