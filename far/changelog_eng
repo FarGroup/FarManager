@@ -3,6 +3,76 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 28.05.2011 15:19:55 +0300 - build 2059
+
+1. Mantis#0001786: Problems with network drives connection
+   (from Maximus)
+
+svs 28.05.2011 10:56:14 +0300 - build 2058
+
+1. Mantis#0001782: Selection error when TABs are present
+
+t-rex 28.05.2011 02:22:22 +0200 - build 2057
+
+1. Mantis#0001784: Plugin cache bugs (continued).
+
+drkns 27.05.2011 09:34:24 +0200 - build 2056
+
+1. On new file creation, the codepage was set incorrectly.
+
+drkns 27.05.2011 09:15:37 +0200 - build 2055
+
+1. Mantis#0001784: Plugin cache bugs
+
+svs 26.05.2011 16:17:09 +0300 - build 2054
+
+1. In explanation of comments to Mantis#0001782.
+   Macro: Prohibit block selection (Editor.Sel()) beyond the line if "[ ] Cursor beyond end of line" 
+   (attempt No.1)
+
+2. Mantis#0001766: Viewer new version
+   (from 2useven10)
+   About 30% of code is rewritten... 
+
+   Guts:
+    - search is completely redone
+    - caching of carriage returns is added
+    - Unicode files are now as other ones (say no to size in characters!)
+    - HexView is redone
+    - search dialog is revised
+
+   Functions:
+    - regular expressions search is added (line-by-line both directions)
+    - next search is always looped up to search start or direction change
+    - possibility of variable maximal line length is added ("Viewer.MaxLineSize:TYPE_INTEGER" parameter)
+       the minimal value is    80
+       the default value is  2048
+       the maximal value is 16384
+    - an option is added ("Viewer.SearchEditFocus:TYPE_INTEGER"), allowing input field automatic focusing
+      after search parameters change. By default it is switched off (=0)
+
+drkns 26.05.2011 14:35:27 +0200 - build 2053
+
+1. Just in case, situation "UID obtained from cache does not match the one received from the plugin" is taken into account.
+
+drkns 26.05.2011 14:11:16 +0200 - build 2052
+
+1. Correction of 2050.
+
+drkns 26.05.2011 08:52:56 +0200 - build 2051
+
+1. More correct solution for M#1783.
+
+drkns 25.05.2011 16:40:51 +0200 - build 2050
+
+1. Continuing the wrapper abstraction.
+
+2. Mantis#0001783: Garbage in console caption when copying files
+
+drkns 25.05.2011 12:15:20 +0200 - build 2049
+
+1. Continuing the wrapper abstraction.
+
 drkns 24.05.2011 23:49:08 +0200 - build 2048
 
 1. Continuation of 1978.
