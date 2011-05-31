@@ -3604,7 +3604,8 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 				return FALSE;
 
 			oldfar::WindowInfo *wiA = (oldfar::WindowInfo *)Param;
-			WindowInfo wi={wiA->Pos};
+			WindowInfo wi={sizeof(wi)};
+			wi.Pos = wiA->Pos;
 			INT_PTR ret = NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETWINDOWINFO, 0, &wi);
 
 			if (ret)
