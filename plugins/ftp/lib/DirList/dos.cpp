@@ -91,6 +91,7 @@ BOOL net_parse_dos_date_time(LPCSTR datestr, Time_t& decoded)
  *  09-09-2008  03:50AM                 1506 naxp11e.zip
  *  04-06-1995  02:03
  *  07-13-1995  11:39
+ *  05-27-11  09:31       <DIR>          3
 
  *  The date time directory indicator and FindData.cFileName
  *  are always in a fixed position.  The file
@@ -106,7 +107,7 @@ BOOL WINAPI idPRParceDos(const FTPServerInfo* Server, FTPFileInfo* p, char *entr
 	if(entry[10] == ' ')
 		offset = 2;
 
-	CHECK((entry_len < 39+offset || entry[17+offset]!=' '), FALSE)
+	CHECK((entry_len < 38+offset || entry[17+offset]!=' '), FALSE)
 	CHECK((!net_parse_dos_date_time(entry, entry_info.date)), FALSE)
 	// <DIR> | digits
 	e = SkipSpace(SkipNSpace(entry+15));

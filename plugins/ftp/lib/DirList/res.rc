@@ -1,7 +1,7 @@
 #include "version.hpp"
 
-#define PLUGIN_MAJOR 1
-#define PLUGIN_MINOR 9
+#define PLUGIN_MAJOR 2
+#define PLUGIN_MINOR 0
 #define PLUGIN_DESC "Directory listing parcer FTP plugin"
 #define PLUGIN_NAME "ftpDirList"
 #define PLUGIN_FILENAME "ftpDirList.fll"
