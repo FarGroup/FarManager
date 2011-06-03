@@ -595,7 +595,7 @@ static struct FARConfig
 	{1, GeneralConfig::TYPE_INTEGER, NKeyViewer,L"PersistentBlocks",&Opt.ViOpt.PersistentBlocks,0, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeyViewer,L"AnsiCodePageAsDefault",&Opt.ViOpt.AnsiCodePageAsDefault,1, 0},
 
-	{0, GeneralConfig::TYPE_INTEGER, NKeyViewer,L"MaxLineSize",&Opt.ViOpt.MaxLineSize,2048, 0},
+	{0, GeneralConfig::TYPE_INTEGER, NKeyViewer,L"MaxLineSize",&Opt.ViOpt.MaxLineSize,ViewerOptions::eDefLineSize, 0},
 	{0, GeneralConfig::TYPE_INTEGER, NKeyViewer,L"SearchEditFocus",&Opt.ViOpt.SearchEditFocus,0, 0},
 
 	{1, GeneralConfig::TYPE_INTEGER, NKeyDialog, L"EditHistory",&Opt.Dialogs.EditHistory,1, 0},
@@ -926,11 +926,11 @@ void ReadConfig()
 	Opt.ViOpt.ViewerIsWrap &= 1;
 	Opt.ViOpt.ViewerWrap &= 1;
 	if (!Opt.ViOpt.MaxLineSize)
-		Opt.ViOpt.MaxLineSize = 2048;
-	else if (Opt.ViOpt.MaxLineSize < 80)
-		Opt.ViOpt.MaxLineSize = 80;
-	else if (Opt.ViOpt.MaxLineSize > 16*1024)
-		Opt.ViOpt.MaxLineSize = 16*1024;
+		Opt.ViOpt.MaxLineSize = ViewerOptions::eDefLineSize;
+	else if (Opt.ViOpt.MaxLineSize < ViewerOptions::eMinLineSize)
+		Opt.ViOpt.MaxLineSize = ViewerOptions::eMinLineSize;
+	else if (Opt.ViOpt.MaxLineSize > ViewerOptions::eMaxLineSize)
+		Opt.ViOpt.MaxLineSize = ViewerOptions::eMaxLineSize;
 	Opt.ViOpt.SearchEditFocus &= 1;
 
 	// Исключаем случайное стирание разделителей ;-)
@@ -976,6 +976,30 @@ void ReadConfig()
 
 	if (Opt.strExecuteBatchType.IsEmpty()) // предохраняемся
 		Opt.strExecuteBatchType=constBatchExt;
+
+	// Инициализация XLat для русской раскладки qwerty<->йцукен
+	if (Opt.XLat.Table[0].IsEmpty())
+	{
+		bool RussianExists=false;
+		HKL Layouts[32];
+		UINT Count=GetKeyboardLayoutList(ARRAYSIZE(Layouts), Layouts);
+		for (UINT I=0; !RussianExists && I<Count; I++)
+		{
+			if (((DWORD_PTR)(Layouts[I]) & 0xFFFF) == 0x0419)
+			{
+				RussianExists = true;
+			}
+		}
+		if (RussianExists)
+		{
+			Opt.XLat.Flags = 0x00010001;
+			Opt.XLat.Table[0].Clear(); Opt.XLat.Table[0].Append("№АВГДЕЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЯавгдезийклмнопрстуфхцчшщъыьэяёЁБЮ", 1251);
+			Opt.XLat.Table[1].Clear(); Opt.XLat.Table[1].Append("#FDULTPBQRKVYJGHCNEA{WXIO}SMZfdultpbqrkvyjghcnea[wxio]sm'z`~<>", 1251);
+			Opt.XLat.Rules[0].Clear(); Opt.XLat.Rules[0].Append(",??&./б,ю.:^Ж:ж;;$\"@Э\"", 1251);
+			Opt.XLat.Rules[1].Clear(); Opt.XLat.Rules[1].Append("?,&?/.,б.ю^::Ж;ж$;@\"\"Э", 1251);
+			Opt.XLat.Rules[2].Clear(); Opt.XLat.Rules[2].Append("^::ЖЖ^$;;жж$@\"\"ЭЭ@&??,,бб&/..юю/", 1251);
+		}
+	}
 
 	{
 		Opt.XLat.CurrentLayout=0;

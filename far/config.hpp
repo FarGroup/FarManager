@@ -300,6 +300,13 @@ struct EditorOptions
 */
 struct ViewerOptions
 {
+	enum EViewerLineSize
+	{
+		eMinLineSize = 100,
+		eDefLineSize = 10*1000,
+		eMaxLineSize = 100*1000
+	};
+
 	int TabSize;
 	int AutoDetectCodePage;
 	int ShowScrollbar;     // $ 18.07.2000 tran пара настроек для viewer
@@ -314,7 +321,7 @@ struct ViewerOptions
 	int AnsiCodePageAsDefault;
 	int ShowTitleBar;
 	int SearchRegexp;
-	int MaxLineSize; // 80..16384, default=2048
+	int MaxLineSize; // 100..100000, default=10000
 	int SearchEditFocus; // auto-focus on edit text/hex window
 };
 

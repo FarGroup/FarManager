@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class CachedRead
 {
 public:
-	CachedRead(File& file);
+	CachedRead(File& file, DWORD buffer_size=0);
 	~CachedRead();
 	bool AdjustAlignment(); // file have to be opened already
 	bool Read(LPVOID Data, DWORD DataSize, LPDWORD BytesRead);

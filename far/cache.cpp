@@ -35,22 +35,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "cache.hpp"
 
-CachedRead::CachedRead(File& file):
-	Buffer(static_cast<LPBYTE>(xf_malloc(DefaultBufferSize))),
+CachedRead::CachedRead(File& file, DWORD buffer_size):
 	file(file),
 	ReadSize(0),
 	BytesLeft(0),
 	LastPtr(0),
 	BufferSize(DefaultBufferSize),
 	Alignment(512)
-{}
+{
+	BufferSize = (buffer_size ? (buffer_size+Alignment-1) & ~(Alignment-1) : DefaultBufferSize);
+	Buffer = static_cast<LPBYTE>(xf_malloc(BufferSize));
+}
 
 CachedRead::~CachedRead()
 {
-	if (Buffer)
-	{
-		xf_free(Buffer);
-	}
+	xf_free(Buffer);
 }
 
 bool CachedRead::AdjustAlignment()

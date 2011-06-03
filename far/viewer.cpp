@@ -82,7 +82,7 @@ static int utf8_to_WideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int 
 
 Viewer::Viewer(bool bQuickView, UINT aCodePage):
 	ViOpt(Opt.ViOpt),
-	Reader(ViewFile),
+	Reader(ViewFile, (Opt.ViOpt.MaxLineSize*2*64 > 64*1024 ? Opt.ViOpt.MaxLineSize*2*64 : 64*1024)),
 	m_bQuickView(bQuickView)
 {
 	_OT(SysLog(L"[%p] Viewer::Viewer()", this));
@@ -135,14 +135,22 @@ Viewer::Viewer(bool bQuickView, UINT aCodePage):
 	vgetc_cb = vgetc_ib = 0;
 	vgetc_composite = L'\0';
 
-	vread_buffer = new char[vread_buffer_size = 8192];
+	vread_buffer_size = (MAX_VIEWLINEB < 8192 ? 8192 : MAX_VIEWLINEB);
+	vread_buffer = new char[vread_buffer_size];
 
 	lcache_first = lcache_last = -1;
-	lcache_lines = new INT64[lcache_size = 8*1000];
+	lcache_lines = new INT64[lcache_size = 16*1000];
 	lcache_count = 0;
 	lcache_base = 0;
 	lcache_ready = false;
 	lcache_wrap = lcache_wwrap = lcache_width = -1;
+
+	int cached_buffer_size = (Opt.ViOpt.MaxLineSize*2*64 > 64*1024 ? Opt.ViOpt.MaxLineSize*2*64 : 64*1024);
+	max_backward_size = ViewerOptions::eMaxLineSize*3;
+	if ( max_backward_size > cached_buffer_size/2 )
+		max_backward_size = cached_buffer_size / 2;
+	llengths_size = max_backward_size / 40;
+	llengths = new int[llengths_size];
 
 	Search_buffer_size = 3 * (MAX_VIEWLINEB < 8000 ? 8000 : MAX_VIEWLINEB);
 	Search_buffer = new wchar_t[Search_buffer_size];
@@ -183,6 +191,7 @@ Viewer::~Viewer()
 
 	delete[] vString.lpData;
 	delete[] Search_buffer;
+	delete[] llengths;
 	delete[] lcache_lines;
 	delete[] vread_buffer;
 
@@ -2003,8 +2012,7 @@ void Viewer::Up( int nlines )
 		}
 	}
 
-	static const int portion_size = 256;
-	static const int max_backward = 32*1024;
+	const int portion_size = 256;
 
 	union {
 		char c1[portion_size];
@@ -2012,7 +2020,6 @@ void Viewer::Up( int nlines )
 	} buff;
 
 	int j, buff_size, nr, ch_size = getCharSize(VM.CodePage);
-	int len[max_backward/40]; // suppose minimum line with is 80 chars...
 
 	while ( nlines > 0 )
 	{
@@ -2026,7 +2033,7 @@ void Viewer::Up( int nlines )
 
 		// backward CR-LF search
 		//
-		for ( j = 0; j < max_backward/portion_size; ++j )
+		for ( j = 0; j < max_backward_size/portion_size; ++j )
 		{
 			buff_size = (fpos > (__int64)portion_size ? portion_size : (int)fpos);
 			fpos -= buff_size;
@@ -2096,23 +2103,23 @@ void Viewer::Up( int nlines )
 		// split read portion
 		//
 		vseek(vString.nFilePos = fpos, SEEK_SET);
-		for (i = 0; i < (int)ARRAYSIZE(len); ++i)
+		for (i = 0; i < llengths_size; ++i)
 		{
 			ReadString(&vString, -1, false);
-			len[i] = (vString.have_eol ? -1 : +1) * vString.linesize;
+			llengths[i] = (vString.have_eol ? -1 : +1) * vString.linesize;
 			if ((vString.nFilePos += vString.linesize) >= fpos1)
 			{
 				fpos1 = vString.nFilePos;
 				break;
 			}
 		}
-		assert(i < (int)ARRAYSIZE(len));
-		if (i >= (int)ARRAYSIZE(len))
+		assert(i < llengths_size);
+		if (i >= llengths_size)
 			--i;
 
 		while ( i >= 0 )
 		{
-			int l = len[i--];
+			int l = llengths[i--];
 			bool eol = false;
 			if (l < 0)
 			{
@@ -3889,7 +3896,7 @@ void Viewer::SelectText(const __int64 &match_pos,const __int64 &search_len, cons
 		{
 			vseek(vString.nFilePos = FilePos, SEEK_SET);
 			vString.lpData[0] = L'\0';
-			ReadString(&vString, (int)(SelectPos-FilePos));
+			ReadString(&vString, (int)(SelectPos-FilePos), false);
 
 			wchar_t first_found_char = L'\0';
 			vgetc(&first_found_char);

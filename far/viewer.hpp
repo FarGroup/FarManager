@@ -159,6 +159,10 @@ class Viewer:public ScreenObject
 		int      lcache_wwrap;
 		int      lcache_width;
 
+		int      max_backward_size;
+		int      llengths_size;
+		int     *llengths;
+
 		wchar_t *Search_buffer;
 		int Search_buffer_size;
 
