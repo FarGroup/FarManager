@@ -1676,7 +1676,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 			if (TmpRec)
 			{
 				DWORD ReadCount3;
-				Console.PeekInput(*TmpRec, ReadCount2, ReadCount3);
+				Console.PeekInput(TmpRec, ReadCount2, ReadCount3);
 
 				for (DWORD I=0; I < ReadCount2; ++I)
 				{

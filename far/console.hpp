@@ -68,11 +68,11 @@ public:
 	bool GetMode(HANDLE ConsoleHandle, DWORD& Mode) const;
 	bool SetMode(HANDLE ConsoleHandle, DWORD Mode) const;
 
-	bool PeekInput(INPUT_RECORD& Buffer, DWORD Length, DWORD& NumberOfEventsRead) const;
-	bool ReadInput(INPUT_RECORD& Buffer, DWORD Length, DWORD& NumberOfEventsRead) const;
-	bool WriteInput(INPUT_RECORD& Buffer, DWORD Length, DWORD& NumberOfEventsWritten) const;
-	bool ReadOutput(CHAR_INFO& Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& ReadRegion) const ;
-	bool WriteOutput(const CHAR_INFO& Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& WriteRegion) const;
+	bool PeekInput(INPUT_RECORD* Buffer, DWORD Length, DWORD& NumberOfEventsRead) const;
+	bool ReadInput(INPUT_RECORD* Buffer, DWORD Length, DWORD& NumberOfEventsRead) const;
+	bool WriteInput(INPUT_RECORD* Buffer, DWORD Length, DWORD& NumberOfEventsWritten) const;
+	bool ReadOutput(CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& ReadRegion) const ;
+	bool WriteOutput(const CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& WriteRegion) const;
 	bool Write(LPCWSTR Buffer, DWORD NumberOfCharsToWrite) const;
 
 	bool GetTextAttributes(WORD& Attributes) const;

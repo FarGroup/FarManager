@@ -1079,7 +1079,7 @@ int Execute(const wchar_t *CmdStr, // Ком.строка для исполнения
 					//Тут нельзя делать WaitForMultipleObjects из за бага в Win7 при работе в телнет
 					while (WaitForSingleObject(hProcess, 100) != WAIT_OBJECT_0)
 					{
-						if (WaitForSingleObject(hInput, 100)==WAIT_OBJECT_0 && Console.PeekInput(*ir, 256, rd) && rd)
+						if (WaitForSingleObject(hInput, 100)==WAIT_OBJECT_0 && Console.PeekInput(ir, 256, rd) && rd)
 						{
 							int stop=0;
 
@@ -1108,7 +1108,7 @@ int Execute(const wchar_t *CmdStr, // Ком.строка для исполнения
 											hLargeIcon = CopyIcon((HICON)SendMessage(hWnd,WM_SETICON,1,(LPARAM)0));
 										}
 
-										Console.ReadInput(*ir, 256, rd);
+										Console.ReadInput(ir, 256, rd);
 										/*
 										  Не будем вызыват CloseConsole, потому, что она поменяет
 										  ConsoleMode на тот, что был до запуска Far'а,
@@ -1168,7 +1168,7 @@ int Execute(const wchar_t *CmdStr, // Ком.строка для исполнения
 						PCHAR_INFO Buffer = new CHAR_INFO[BufferSize.X * BufferSize.Y];
 						COORD BufferCoord = {};
 						SMALL_RECT ReadRegion = {0, Size.Y - BufferSize.Y, Size.X, Size.Y};
-						if(Console.ReadOutput(*Buffer, BufferSize, BufferCoord, ReadRegion))
+						if(Console.ReadOutput(Buffer, BufferSize, BufferCoord, ReadRegion))
 						{
 							WORD Attributes = Buffer[BufferSize.X*BufferSize.Y-1].Attributes;
 							SkipScroll = true;

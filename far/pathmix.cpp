@@ -56,11 +56,18 @@ void NTPath::Transform()
 			Data=Prefix+Data;
 		}
 	}
-	// \\?\C: -> \\?\c:
-	// Some file operations fails on Win2k if a drive letter is in upper case
 	if(Data.At(5) == L':')
 	{
+		// "\\?\C:" -> "\\?\c:"
+		// Some file operations fails on Win2k if a drive letter is in upper case
 		Lower(4,1);
+
+		if(Data.GetLength() == 6)
+		{
+			// "\\?\c:" -> "\\?\c:\"
+			// Root path must end with slash
+			AddEndSlash(Data);
+		}
 	}
 }
 

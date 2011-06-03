@@ -110,7 +110,7 @@ void ScreenBuf::FillBuf()
 	CriticalSectionLock Lock(CS);
 	COORD BufferSize={BufX, BufY}, BufferCoord={0, 0};
 	SMALL_RECT ReadRegion={0, 0, BufX-1, BufY-1};
-	Console.ReadOutput(*Buf, BufferSize, BufferCoord, ReadRegion);
+	Console.ReadOutput(Buf, BufferSize, BufferCoord, ReadRegion);
 	memcpy(Shadow,Buf,BufX*BufY*sizeof(CHAR_INFO));
 	SBFlags.Set(SBFLAGS_USESHADOW);
 	COORD CursorPosition;
@@ -456,7 +456,7 @@ void ScreenBuf::Flush()
 				{
 					COORD BufferSize={BufX, BufY}, BufferCoord={PtrRect->Left,PtrRect->Top};
 					SMALL_RECT WriteRegion=*PtrRect;
-					Console.WriteOutput(*Buf, BufferSize, BufferCoord, WriteRegion);
+					Console.WriteOutput(Buf, BufferSize, BufferCoord, WriteRegion);
 				}
 				memcpy(Shadow,Buf,BufX*BufY*sizeof(CHAR_INFO));
 			}

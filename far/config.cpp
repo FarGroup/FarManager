@@ -73,7 +73,6 @@ static const wchar_t *WordDivForXlat0=L" \t!#$%^&*()+|=\\/@?";
 const wchar_t *constBatchExt=L".BAT;.CMD;";
 
 string strKeyNameConsoleDetachKey;
-static const wchar_t szCtrlShiftX[]=L"CtrlShiftX";
 static const wchar_t szCtrlDot[]=L"Ctrl.";
 static const wchar_t szCtrlShiftDot[]=L"CtrlShift.";
 
@@ -639,13 +638,13 @@ static struct FARConfig
 	{1, GeneralConfig::TYPE_INTEGER, NKeyEditor,L"SearchPickUpWord",&Opt.EdOpt.SearchPickUpWord,0, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeyEditor,L"ShowWhiteSpace",&Opt.EdOpt.ShowWhiteSpace,0, 0},
 
-	{0, GeneralConfig::TYPE_INTEGER, NKeyXLat,L"Flags",&Opt.XLat.Flags,(DWORD)XLAT_SWITCHKEYBLAYOUT|XLAT_CONVERTALLCMDLINE, 0},
-	{0, GeneralConfig::TYPE_TEXT,    NKeyXLat,L"Table1",&Opt.XLat.Table[0],0,L""},
-	{0, GeneralConfig::TYPE_TEXT,    NKeyXLat,L"Table2",&Opt.XLat.Table[1],0,L""},
-	{0, GeneralConfig::TYPE_TEXT,    NKeyXLat,L"Rules1",&Opt.XLat.Rules[0],0,L""},
-	{0, GeneralConfig::TYPE_TEXT,    NKeyXLat,L"Rules2",&Opt.XLat.Rules[1],0,L""},
-	{0, GeneralConfig::TYPE_TEXT,    NKeyXLat,L"Rules3",&Opt.XLat.Rules[2],0,L""},
-	{0, GeneralConfig::TYPE_TEXT,    NKeyXLat,L"WordDivForXlat",&Opt.XLat.strWordDivForXlat, 0,WordDivForXlat0},
+	{1, GeneralConfig::TYPE_INTEGER, NKeyXLat,L"Flags",&Opt.XLat.Flags,(DWORD)XLAT_SWITCHKEYBLAYOUT|XLAT_CONVERTALLCMDLINE, 0},
+	{1, GeneralConfig::TYPE_TEXT,    NKeyXLat,L"Table1",&Opt.XLat.Table[0],0,L""},
+	{1, GeneralConfig::TYPE_TEXT,    NKeyXLat,L"Table2",&Opt.XLat.Table[1],0,L""},
+	{1, GeneralConfig::TYPE_TEXT,    NKeyXLat,L"Rules1",&Opt.XLat.Rules[0],0,L""},
+	{1, GeneralConfig::TYPE_TEXT,    NKeyXLat,L"Rules2",&Opt.XLat.Rules[1],0,L""},
+	{1, GeneralConfig::TYPE_TEXT,    NKeyXLat,L"Rules3",&Opt.XLat.Rules[2],0,L""},
+	{1, GeneralConfig::TYPE_TEXT,    NKeyXLat,L"WordDivForXlat",&Opt.XLat.strWordDivForXlat, 0,WordDivForXlat0},
 
 	{0, GeneralConfig::TYPE_INTEGER, NKeyCommandHistory, NParamHistoryCount,&Opt.HistoryCount,512, 0}, //BUGBUG
 	{0, GeneralConfig::TYPE_INTEGER, NKeyFolderHistory, NParamHistoryCount,&Opt.FoldersHistoryCount,512, 0}, //BUGBUG
@@ -983,21 +982,23 @@ void ReadConfig()
 		bool RussianExists=false;
 		HKL Layouts[32];
 		UINT Count=GetKeyboardLayoutList(ARRAYSIZE(Layouts), Layouts);
-		for (UINT I=0; !RussianExists && I<Count; I++)
+		WORD RussianLanguageId=MAKELANGID(LANG_RUSSIAN, SUBLANG_RUSSIAN_RUSSIA);
+		for (UINT I=0; I<Count; I++)
 		{
-			if (((DWORD_PTR)(Layouts[I]) & 0xFFFF) == 0x0419)
+			if (LOWORD(Layouts[I]) == RussianLanguageId)
 			{
 				RussianExists = true;
+				break;
 			}
 		}
+
 		if (RussianExists)
 		{
-			Opt.XLat.Flags = 0x00010001;
-			Opt.XLat.Table[0].Clear(); Opt.XLat.Table[0].Append("¹ÀÂÃÄÅÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜßàâãäåçèéêëìíîïðñòóôõö÷øùúûüýÿ¸¨ÁÞ", 1251);
-			Opt.XLat.Table[1].Clear(); Opt.XLat.Table[1].Append("#FDULTPBQRKVYJGHCNEA{WXIO}SMZfdultpbqrkvyjghcnea[wxio]sm'z`~<>", 1251);
-			Opt.XLat.Rules[0].Clear(); Opt.XLat.Rules[0].Append(",??&./á,þ.:^Æ:æ;;$\"@Ý\"", 1251);
-			Opt.XLat.Rules[1].Clear(); Opt.XLat.Rules[1].Append("?,&?/.,á.þ^::Æ;æ$;@\"\"Ý", 1251);
-			Opt.XLat.Rules[2].Clear(); Opt.XLat.Rules[2].Append("^::ÆÆ^$;;ææ$@\"\"ÝÝ@&??,,áá&/..þþ/", 1251);
+			Opt.XLat.Table[0] = L"\x2116\x0410\x0412\x0413\x0414\x0415\x0417\x0418\x0419\x041a\x041b\x041c\x041d\x041e\x041f\x0420\x0421\x0422\x0423\x0424\x0425\x0426\x0427\x0428\x0429\x042a\x042b\x042c\x042f\x0430\x0432\x0433\x0434\x0435\x0437\x0438\x0439\x043a\x043b\x043c\x043d\x043e\x043f\x0440\x0441\x0442\x0443\x0444\x0445\x0446\x0447\x0448\x0449\x044a\x044b\x044c\x044d\x044f\x0451\x0401\x0411\x042e";
+			Opt.XLat.Table[1] = L"#FDULTPBQRKVYJGHCNEA{WXIO}SMZfdultpbqrkvyjghcnea[wxio]sm'z`~<>";
+			Opt.XLat.Rules[0] = L",??&./\x0431,\x044e.:^\x0416:\x0436;;$\"@\x042d\"";
+			Opt.XLat.Rules[1] = L"?,&?/.,\x0431.\x044e^::\x0416;\x0436$;@\"\"\x042d";
+			Opt.XLat.Rules[2] = L"^::\x0416\x0416^$;;\x0436\x0436$@\"\"\x042d\x042d@&??,,\x0431\x0431&/..\x044e\x044e/";
 		}
 	}
 

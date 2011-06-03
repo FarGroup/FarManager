@@ -326,7 +326,7 @@ void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx, int Sy)
 	Rec.Event.WindowBufferSizeEvent.dwSize.X=Sx==-1?Size.X:Sx;
 	Rec.Event.WindowBufferSizeEvent.dwSize.Y=Sy==-1?Size.Y:Sy;
 	DWORD Writes;
-	Console.WriteInput(Rec,1,Writes);
+	Console.WriteInput(&Rec,1,Writes);
 }
 
 void GetVideoMode(COORD& Size)

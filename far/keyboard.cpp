@@ -771,7 +771,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 			ReloadEnvironment();
 		}
 
-		Console.PeekInput(*rec, 1, ReadCount);
+		Console.PeekInput(rec, 1, ReadCount);
 
 		/* $ 26.04.2001 VVM
 		   ! Убрал подмену колесика */
@@ -782,7 +782,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 			{
 				INPUT_RECORD pinp;
 				DWORD nread;
-				Console.ReadInput(pinp, 1, nread);
+				Console.ReadInput(&pinp, 1, nread);
 				continue;
 			}
 
@@ -953,7 +953,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 		IntKeyState.MouseButtonState=0;
 		ShiftState=FALSE;
 		PressedLastTime=0;
-		Console.ReadInput(*rec, 1, ReadCount);
+		Console.ReadInput(rec, 1, ReadCount);
 		CalcKey=rec->Event.FocusEvent.bSetFocus?KEY_GOTFOCUS:KEY_KILLFOCUS;
 		memset(rec,0,sizeof(*rec));
 		rec->EventType=KEY_EVENT;
@@ -1023,7 +1023,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 					INPUT_RECORD pinp;
 					DWORD nread;
 					// Удалим из очереди...
-					Console.ReadInput(pinp, 1, nread);
+					Console.ReadInput(&pinp, 1, nread);
 					return KEY_NONE;
 				}
 			}
@@ -1085,7 +1085,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 		return(CalcKey);
 	}
 
-	Console.ReadInput(*rec, 1, ReadCount);
+	Console.ReadInput(rec, 1, ReadCount);
 
 	if (EnableShowTime)
 		ShowTime(1);
@@ -1509,7 +1509,7 @@ DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 	}
 	else
 	{
-		Console.PeekInput(*rec, 1, ReadCount);
+		Console.PeekInput(rec, 1, ReadCount);
 	}
 
 	if (!ReadCount)
@@ -1596,7 +1596,7 @@ int WriteInput(int Key,DWORD Flags)
 			Rec.Event.KeyEvent.dwControlKeyState=0;
 		}
 
-		return Console.WriteInput(Rec, 1, WriteCount);
+		return Console.WriteInput(&Rec, 1, WriteCount);
 	}
 	else if (KeyQueue)
 	{
@@ -2162,7 +2162,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 			//FlushInputBuffer();//???
 			INPUT_RECORD TempRec;
 			DWORD ReadCount;
-			Console.ReadInput(TempRec, 1, ReadCount);
+			Console.ReadInput(&TempRec, 1, ReadCount);
 			IntKeyState.ReturnAltValue=TRUE;
 			//_SVS(SysLog(L"0 AltNumPad -> AltValue=0x%0X CtrlState=%X",AltValue,CtrlState));
 			AltValue&=0xFFFF;

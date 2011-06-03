@@ -232,45 +232,45 @@ bool console::SetMode(HANDLE ConsoleHandle, DWORD Mode) const
 	return SetConsoleMode(ConsoleHandle, Mode)!=FALSE;
 }
 
-bool console::PeekInput(INPUT_RECORD& Buffer, DWORD Length, DWORD& NumberOfEventsRead) const
+bool console::PeekInput(INPUT_RECORD* Buffer, DWORD Length, DWORD& NumberOfEventsRead) const
 {
-	bool Result=PeekConsoleInput(GetInputHandle(), &Buffer, Length, &NumberOfEventsRead)!=FALSE;
-	if(Opt.WindowMode && Buffer.EventType==MOUSE_EVENT)
+	bool Result=PeekConsoleInput(GetInputHandle(), Buffer, Length, &NumberOfEventsRead)!=FALSE;
+	if(Opt.WindowMode && Buffer->EventType==MOUSE_EVENT)
 	{
-		Buffer.Event.MouseEvent.dwMousePosition.Y=Max(0, Buffer.Event.MouseEvent.dwMousePosition.Y-GetDelta());
+		Buffer->Event.MouseEvent.dwMousePosition.Y=Max(0, Buffer->Event.MouseEvent.dwMousePosition.Y-GetDelta());
 		COORD Size={};
 		GetSize(Size);
-		Buffer.Event.MouseEvent.dwMousePosition.X=Min(Buffer.Event.MouseEvent.dwMousePosition.X, static_cast<SHORT>(Size.X-1));
+		Buffer->Event.MouseEvent.dwMousePosition.X=Min(Buffer->Event.MouseEvent.dwMousePosition.X, static_cast<SHORT>(Size.X-1));
 	}
 	return Result;
 }
 
-bool console::ReadInput(INPUT_RECORD& Buffer, DWORD Length, DWORD& NumberOfEventsRead) const
+bool console::ReadInput(INPUT_RECORD* Buffer, DWORD Length, DWORD& NumberOfEventsRead) const
 {
-	bool Result=ReadConsoleInput(GetInputHandle(), &Buffer, Length, &NumberOfEventsRead)!=FALSE;
-	if(Opt.WindowMode && Buffer.EventType==MOUSE_EVENT)
+	bool Result=ReadConsoleInput(GetInputHandle(), Buffer, Length, &NumberOfEventsRead)!=FALSE;
+	if(Opt.WindowMode && Buffer->EventType==MOUSE_EVENT)
 	{
-		Buffer.Event.MouseEvent.dwMousePosition.Y=Max(0, Buffer.Event.MouseEvent.dwMousePosition.Y-GetDelta());
+		Buffer->Event.MouseEvent.dwMousePosition.Y=Max(0, Buffer->Event.MouseEvent.dwMousePosition.Y-GetDelta());
 		COORD Size={};
 		GetSize(Size);
-		Buffer.Event.MouseEvent.dwMousePosition.X=Min(Buffer.Event.MouseEvent.dwMousePosition.X, static_cast<SHORT>(Size.X-1));
+		Buffer->Event.MouseEvent.dwMousePosition.X=Min(Buffer->Event.MouseEvent.dwMousePosition.X, static_cast<SHORT>(Size.X-1));
 	}
 	return Result;
 }
 
-bool console::WriteInput(INPUT_RECORD& Buffer, DWORD Length, DWORD& NumberOfEventsWritten) const
+bool console::WriteInput(INPUT_RECORD* Buffer, DWORD Length, DWORD& NumberOfEventsWritten) const
 {
-	if(Opt.WindowMode && Buffer.EventType==MOUSE_EVENT)
+	if(Opt.WindowMode && Buffer->EventType==MOUSE_EVENT)
 	{
-		Buffer.Event.MouseEvent.dwMousePosition.Y+=GetDelta();
+		Buffer->Event.MouseEvent.dwMousePosition.Y+=GetDelta();
 	}
-	return WriteConsoleInput(GetInputHandle(), &Buffer, Length, &NumberOfEventsWritten)!=FALSE;
+	return WriteConsoleInput(GetInputHandle(), Buffer, Length, &NumberOfEventsWritten)!=FALSE;
 }
 
 // пишем/читаем порциями по 32 K, иначе проблемы.
 const unsigned int MAXSIZE=0x8000;
 
-bool console::ReadOutput(CHAR_INFO& Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& ReadRegion) const
+bool console::ReadOutput(CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& ReadRegion) const
 {
 	bool Result=false;
 	int Delta=Opt.WindowMode?GetDelta():0;
@@ -278,7 +278,7 @@ bool console::ReadOutput(CHAR_INFO& Buffer, COORD BufferSize, COORD BufferCoord,
 	ReadRegion.Bottom+=Delta;
 
 	// skip unused region
-	PCHAR_INFO BufferStart=&Buffer+BufferCoord.Y*BufferSize.X;
+	PCHAR_INFO BufferStart=Buffer+BufferCoord.Y*BufferSize.X;
 	BufferSize.Y-=BufferCoord.Y;
 	BufferCoord.Y=0;
 
@@ -310,7 +310,7 @@ bool console::ReadOutput(CHAR_INFO& Buffer, COORD BufferSize, COORD BufferCoord,
 	return Result;
 }
 
-bool console::WriteOutput(const CHAR_INFO& Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& WriteRegion) const
+bool console::WriteOutput(const CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& WriteRegion) const
 {
 	bool Result=false;
 	int Delta=Opt.WindowMode?GetDelta():0;
@@ -318,7 +318,7 @@ bool console::WriteOutput(const CHAR_INFO& Buffer, COORD BufferSize, COORD Buffe
 	WriteRegion.Bottom+=Delta;
 
 	// skip unused region
-	const CHAR_INFO* BufferStart=&Buffer+BufferCoord.Y*BufferSize.X;
+	const CHAR_INFO* BufferStart=Buffer+BufferCoord.Y*BufferSize.X;
 	BufferSize.Y-=BufferCoord.Y;
 	BufferCoord.Y=0;
 
