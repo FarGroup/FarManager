@@ -1676,6 +1676,7 @@ void VMenu::DisplayObject()
 	{
 		if (BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX)
 		{
+			SetScreen(X1,Y1,X2,Y2,L' ',Colors[VMenuColorBody]);
 			Box(X1,Y1,X2,Y2,Colors[VMenuColorBox],BoxType);
 
 			if (!CheckFlags(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR))
