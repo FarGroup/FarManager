@@ -280,6 +280,9 @@ class KeyMacro
 
 		void DropProcess();
 
+		// послать сигнал на прерывание макроса
+		void SendDropProcess();
+
 		void RunStartMacro();
 
 		// Поместить временное строковое представление макроса

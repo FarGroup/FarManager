@@ -2447,6 +2447,8 @@ static bool msgBoxFunc(const TMacroFunction*)
 	TempBuf += L"\n";
 	TempBuf += text;
 	int Result=FarMessageFn(-1,Flags,nullptr,(const wchar_t * const *)TempBuf.CPtr(),0,0)+1;
+	if (Result <= -1) // Break?
+		CtrlObject->Macro.SendDropProcess();
 	VMStack.Push((__int64)Result);
 	return true;
 }
@@ -2638,6 +2640,11 @@ static bool menushowFunc(const TMacroFunction*)
 					}
 					Menu.Show();
 				}
+
+			case KEY_BREAK:
+				CtrlObject->Macro.SendDropProcess();
+				Menu.SetExitCode(-1);
+				break;
 
 			default:
 				Menu.ProcessInput();
@@ -7532,6 +7539,13 @@ int KeyMacro::IsExecutingLastKey()
 	}
 
 	return FALSE;
+}
+
+
+void KeyMacro::SendDropProcess()
+{
+	if (Work.Executing)
+		WriteInput(VK_CANCEL,SKEY_VK_KEYS);
 }
 
 void KeyMacro::DropProcess()

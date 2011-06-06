@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "farexcpt.hpp"
 #include "strmix.hpp"
+#include "macro.hpp"
 
 int WINAPI GetSearchReplaceString(
     int IsReplaceMode,
@@ -570,6 +571,9 @@ int WINAPI GetString(
 		}
 
 		ExitCode=Dlg.GetExitCode();
+
+		if (ExitCode == -2 && CtrlObject->Macro.IsExecuting() != MACROMODE_NOMACRO)
+			CtrlObject->Macro.SendDropProcess();
 	}
 
 	if (ExitCode == 2 || ExitCode == 4 || (addCheckBox && ExitCode == 6))
@@ -601,7 +605,7 @@ int WINAPI GetString(
 int WINAPI GetNameAndPassword(const wchar_t *Title, string &strUserName, string &strPassword,const wchar_t *HelpTopic,DWORD Flags)
 {
 	static string strLastName, strLastPassword;
-	const wchar_t *HistoryName=L"NetworkUser";	
+	const wchar_t *HistoryName=L"NetworkUser";
 	int ExitCode;
 	/*
 	  0         1         2         3         4         5         6         7
