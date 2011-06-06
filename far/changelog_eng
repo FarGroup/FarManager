@@ -3,6 +3,32 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 06.06.2011 18:08:55 +0300 - build 2064
+
+1. Mantis#0001793: Enable macro interrupting with CtrlBreak during "visual" functions
+   While MsgBox, Prompt or Menu.Show are being shown, the macro cannot be interrupted with CtrlBreak.
+
+t-rex 05.06.2011 21:47:13 +0200 - build 2063
+
+1. From Maximus: Mantis#1794: If CtrlAltF filtering removes all items from a list, then it is not redrawn.
+
+drkns 03.06.2011 15:38:45 +0200 - build 2062
+
+1. Start of Windows Explorer with "." + ShiftEnter did not work at the root of a volume.
+
+2. Xlat settings are saved at exit to avoid detection of Russian keyboard layout at every run.
+
+3. Other makeup.
+
+svs 03.06.2011 09:15:08 +0300 - build 2061
+
+1. Mantis#0001766: New viewer version
+   (from 2useven10)
+   long lines fix (fixed errors + MaxLineSize: Min=100, Def=10000, Max=100000) 
+
+2. Mantis#0001790: Switch XLat on by default if Russian keyboard layout is installed in the system
+   (from Maximus)
+
 drkns 31.05.2011 18:23:46 +0200 - build 2060
 
 1. Mantis#0001787: ANSI wrapper error (ACTL_GETWINDOWINFO).
