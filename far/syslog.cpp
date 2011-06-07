@@ -1315,6 +1315,8 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(F_WINDOW_SCROLL),               // N=Window.Scroll(Lines[,Axis])
 		DEF_MCODE_(F_KEYBAR_SHOW),              // N=KeyBar.Show([N])
 		DEF_MCODE_(F_HISTIORY_ENABLE),           // N=History.Enable([State])
+		DEF_MCODE_(F_PLUGIN_LOAD),              // N=Plugin.Load(DllPath[,ForceLoad])
+		DEF_MCODE_(F_PLUGIN_UNLOAD),            // N=Plugin.UnLoad(DllPath)
 
 	};
 	string Name;

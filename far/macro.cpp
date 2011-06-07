@@ -352,6 +352,8 @@ static bool usersFunc(const TMacroFunction*);
 static bool waitkeyFunc(const TMacroFunction*);
 static bool windowscrollFunc(const TMacroFunction*);
 static bool xlatFunc(const TMacroFunction*);
+static bool pluginloadFunc(const TMacroFunction*);
+static bool pluginunloadFunc(const TMacroFunction*);
 
 static bool __CheckCondForSkip(DWORD Op);
 
@@ -422,6 +424,8 @@ static TMacroFunction intMacroFunction[]=
 	{L"PANEL.SETPOS",     2, 0,   MCODE_F_PANEL_SETPOS,     nullptr, 0,nullptr,L"N=panel.SetPos(panelType,fileName)",IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT,panelsetposFunc},
 	{L"PANEL.SETPOSIDX",  3, 1,   MCODE_F_PANEL_SETPOSIDX,  nullptr, 0,nullptr,L"N=Panel.SetPosIdx(panelType,Idx[,InSelection])",IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT,panelsetposidxFunc},
 	{L"PANELITEM",        3, 0,   MCODE_F_PANELITEM,        nullptr, 0,nullptr,L"V=PanelItem(Panel,Index,TypeInfo)",0,panelitemFunc},
+	{L"PLUGIN.LOAD",      2, 1,   MCODE_F_PLUGIN_LOAD,      nullptr, 0,nullptr,L"N=Plugin.Load(DllPath[,ForceLoad])",0,pluginloadFunc},
+	{L"PLUGIN.UNLOAD",    1, 0,   MCODE_F_PLUGIN_UNLOAD,    nullptr, 0,nullptr,L"N=Plugin.UnLoad(DllPath)",0,pluginunloadFunc},
 	{L"PRINT",            1, 0,   MCODE_F_PRINT,            nullptr, 0,nullptr,L"N=Print(Str)",0,usersFunc},
 	{L"PROMPT",           5, 4,   MCODE_F_PROMPT,           nullptr, 0,nullptr,L"S=Prompt(Title[,Prompt[,flags[,Src[,History]]]])",IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT,promptFunc},
 	{L"REPLACE",          5, 2,   MCODE_F_REPLACE,          nullptr, 0,nullptr,L"S=Replace(Str,Find,Replace[,Cnt[,Mode]])",0,replaceFunc},
@@ -4129,6 +4133,30 @@ static bool editorsettitleFunc(const TMacroFunction*)
 	VMStack.Push(Ret);
 	return Ret.i()!=0;
 }
+
+// N=Plugin.Load(DllPath[,ForceLoad])
+static bool pluginloadFunc(const TMacroFunction*)
+{
+	TVar Ret(0ll);
+	TVar ForceLoad; VMStack.Pop(ForceLoad);
+	TVar DllPath; VMStack.Pop(DllPath);
+	if (DllPath.s())
+		Ret=(__int64)farPluginsControl(INVALID_HANDLE_VALUE, !ForceLoad.i()?PCTL_LOADPLUGIN:PCTL_FORCEDLOADPLUGIN, 0, (void*)DllPath.s());
+	VMStack.Push(Ret);
+	return Ret.i()!=0;
+}
+
+// N=Plugin.UnLoad(DllPath)
+static bool pluginunloadFunc(const TMacroFunction*)
+{
+	TVar Ret(0ll);
+	TVar DllPath; VMStack.Pop(DllPath);
+	if (DllPath.s())
+		Ret=(__int64)farPluginsControl(INVALID_HANDLE_VALUE, PCTL_UNLOADPLUGIN, 0, (void*)DllPath.s());
+	VMStack.Push(Ret);
+	return Ret.i()!=0;
+}
+
 
 // V=callplugin(SysID[,param])
 #if 0

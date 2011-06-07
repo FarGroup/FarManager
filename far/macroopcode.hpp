@@ -222,6 +222,8 @@ enum MACRO_OP_CODE
 	MCODE_F_KEYBAR_SHOW,              // N=KeyBar.Show([N])
 	MCODE_F_HISTIORY_ENABLE,          // N=History.Enable([State])
 	MCODE_F_FMATCH,                   // N=FMatch(S,Mask)
+	MCODE_F_PLUGIN_LOAD,              // N=Plugin.Load(DllPath[,ForceLoad])
+	MCODE_F_PLUGIN_UNLOAD,            // N=Plugin.UnLoad(DllPath)
 
 	/* ************************************************************************* */
 	// булевые переменные - различные состояния
