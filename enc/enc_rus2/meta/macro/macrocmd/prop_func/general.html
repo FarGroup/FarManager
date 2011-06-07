@@ -1366,6 +1366,20 @@ $end</code></pre>
     </td>
   </tr>
 
+  <tr>
+    <td>N=<dfn><a name="plugin.load">plugin.load</a></dfn>(DllPath[,ForceLoad])</td>
+    <td><p>Загрузить плагин с именем dll-модуля <var>DllPath</var>. Если указан <var>ForceLoad</var>, отличный от 0, то плагин загружается сразу в память.</p>
+       <p>Функция возвращает 1 - плаги загружен или 0 - в случае ошибки.</p>
+    </td>
+  </tr>
+
+  <tr>
+    <td>N=<dfn><a name="plugin.unload">plugin.unload</a></dfn>(DllPath)</td>
+    <td><p>Выгрузить плагин с именем dll-модуля <var>DllPath</var>.</p>
+       <p>Функция возвращает 1 - плаги выгружен или 0 - в случае ошибки.</p>
+    </td>
+  </tr>
+
 </table>
 
 <h3>Замечания</h3>
