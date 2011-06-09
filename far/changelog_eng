@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 07.06.2011 14:04:54 +0300 - build 2065
+
+1. Mantis#0001795: Add Plugin.Load, Plugin.Unload functions
+   2 new macro functions:
+      N=Plugin.Load(DllPath[,ForceLoad])   - load a plugin
+      N=Plugin.Unload(DllPath)             - unload a plugin
+      they return 1 if successful, 0 otherwise
+
 svs 06.06.2011 18:08:55 +0300 - build 2064
 
 1. Mantis#0001793: Enable macro interrupting with CtrlBreak during "visual" functions
