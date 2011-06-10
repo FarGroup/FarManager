@@ -140,6 +140,56 @@
     </td>
   </tr>
   <tr>
+    <td>N=<dfn><a name="menu.filter">menu.filter</a></dfn>([Action[,Mode]])</td>
+    <td><p>Выполняет операции фильтрации (CtrlAltF).</p>
+       <table class="cont2 params lite tiny">
+        <col class="value">
+        <col>
+        <tr><th><var>Action</var></th><th>Описание</th></tr>
+        <tr><td>0</td><td>включение фильтра
+           <table class="cont2 params lite tiny">
+            <col class="value">
+            <col>
+            <tr><th><var>Mode</var></th><th>Описание</th></tr>
+            <tr><td>-1</td><td>(по умолчанию) вернуть 1 если фильтр уже включен, 0 - фильтр выключен</td></tr>
+            <tr><td>&nbsp;0</td><td>включить фильтр, если фильтр уже включен - ничего не делает</td></tr>
+            <tr><td>&nbsp;1</td><td>выключить фильтр</td></tr>
+           </table>
+        </td></tr>
+        <tr><td>1</td><td>фиксация текста фильтра (CtrlAltL)
+           <table class="cont2 params lite tiny">
+            <col class="value">
+            <col>
+            <tr><th><var>Mode</var></th><th>Описание</th></tr>
+            <tr><td>-1</td><td>(по умолчанию) вернуть 1 если текст фильтра зафиксирован, 0 - фильтр можно менять с клавиатуры</td></tr>
+            <tr><td>&nbsp;0</td><td>отменить фиксацию фильтра</td></tr>
+            <tr><td>&nbsp;1</td><td>зафиксировать фильтр</td></tr>
+           </table>
+        </td></tr>
+        <tr><td>2</td><td>вернуть 1 если фильтр включен и строка фильтра не пуста</td></tr>
+        <tr><td>3</td><td>вернуть количество отфильтрованных (невидимых) строк</td></tr>
+        <tr><td>3</td><td>(по умолчанию) подправить высоту списка под количество элементов</td></tr>
+       </table>
+       <p>Если фильтрация недоступна (не меню; не список) возвращает -1.</p>
+       <p>Если код возврата специально не оговорен, в случае успеха возвращает 1, в случае ошибки 0.</p>
+    </td>
+  </tr>
+  <tr>
+    <td>S=<dfn><a name="menu.filterstr">menu.filterstr</a></dfn>([Action[,S]])</td>
+    <td><p>Выполняет операции со строкой фильтра (CtrlAltF).</p>
+       <table class="cont2 params lite tiny">
+        <col class="value">
+        <col>
+        <tr><th><var>Action</var></th><th>Описание</th></tr>
+        <tr><td>0</td><td>(по умолчанию) вернуть текущую строку, если фильтр включен</td></tr>
+        <tr><td>1</td><td><p>установить (заменить) в фильтре строку <var>S</var></p>
+          <p>Если фильтр не был включен - включает его, режим фиксации не трогается, но игнорируется.</p>
+          <p>Возвращает предыдущее значение строки фильтра</p>
+        </td></tr>
+       </table>
+    </td>
+  </tr>
+  <tr>
     <td>S=<dfn><a name="menu.getvalue">menu.getvalue</a></dfn>([Pos])</td>
     <td><p>Возвращает текст пункта меню с номером <var>Pos</var>.</p>
       <p>Если текущий "объект" не меню или позиция <var>Pos</var> не валидна (меньше 0 или больше количества пунктов в меню), то возвращается пустая строка.</p>
