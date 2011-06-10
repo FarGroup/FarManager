@@ -224,6 +224,8 @@ enum MACRO_OP_CODE
 	MCODE_F_FMATCH,                   // N=FMatch(S,Mask)
 	MCODE_F_PLUGIN_LOAD,              // N=Plugin.Load(DllPath[,ForceLoad])
 	MCODE_F_PLUGIN_UNLOAD,            // N=Plugin.UnLoad(DllPath)
+	MCODE_F_MENU_FILTER,              // N=Menu.Filter(Action[,Mode])
+	MCODE_F_MENU_FILTERSTR,           // S=Menu.FilterStr([Action[,S]])
 
 	/* ************************************************************************* */
 	// булевые переменные - различные состояния

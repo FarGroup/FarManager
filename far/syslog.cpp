@@ -1317,6 +1317,8 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(F_HISTIORY_ENABLE),           // N=History.Enable([State])
 		DEF_MCODE_(F_PLUGIN_LOAD),              // N=Plugin.Load(DllPath[,ForceLoad])
 		DEF_MCODE_(F_PLUGIN_UNLOAD),            // N=Plugin.UnLoad(DllPath)
+		DEF_MCODE_(F_MENU_FILTER),              // N=Menu.Filter(Action[,Mode])
+		DEF_MCODE_(F_MENU_FILTERSTR),           // S=Menu.FilterStr([Action[,S]])
 
 	};
 	string Name;

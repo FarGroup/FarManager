@@ -214,6 +214,8 @@ class KeyMacro
 		struct MacroState PCStack[STACKLEVEL];
 		int CurPCStack;
 
+		bool StopMacro;
+
 		// сюда "могут" писать только при чтении макросов (занесение нового),
 		// а исполнять через MacroWORK
 		int MacroLIBCount;

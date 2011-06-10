@@ -69,6 +69,7 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
 	strTitle(Title),
 	SelectPos(-1),
 	TopPos(0),
+	WasAutoHeight(false),
 	MaxLength(0),
 	BoxType(DOUBLE_BOX),
 	ParentDialog(ParentDialog),
@@ -446,7 +447,7 @@ int VMenu::AddItem(const MenuItemEx *NewItem,int PosAdd)
 	if (PosAdd < 0)
 		PosAdd = 0;
 
-	SetFlags(VMENU_UPDATEREQUIRED);
+	SetFlags(VMENU_UPDATEREQUIRED|(bFilterEnabled?VMENU_REFILTERREQUIRED:0));
 
 	if (!(ItemCount & 255))
 	{
@@ -512,7 +513,7 @@ int VMenu::UpdateItem(const FarListUpdate *NewItem)
 
 		UpdateItemFlags(NewItem->Index, MItem.Flags);
 
-		SetFlags(VMENU_UPDATEREQUIRED);
+		SetFlags(VMENU_UPDATEREQUIRED|(bFilterEnabled?VMENU_REFILTERREQUIRED:0));
 
 		return TRUE;
 	}
@@ -649,28 +650,91 @@ void VMenu::RestoreFilteredItems()
 
 	ItemHiddenCount=0;
 
-	if (SelectPos < 0)
-		SetSelectPos(0,1);
+	FilterUpdateHeight();
+
+	// Подровнять, а то в нижней части списка может оставаться куча пустых строк
+	FarListPos pos={SelectPos < 0 ? 0 : SelectPos,-1};
+	SetSelectPos(&pos);
 }
 
 void VMenu::FilterStringUpdated(bool bLonger)
 {
+	int PrevSeparator = -1, PrevGroup = -1;
+	int UpperVisible = -1, LowerVisible = -2;
+	bool bBottomMode = false;
+
+	if (SelectPos > 0)
+	{
+		// Определить, в верхней или нижней части расположен курсор
+		int TopVisible = GetVisualPos(TopPos);
+		int SelectedVisible = GetVisualPos(SelectPos);
+		int BottomVisible = (TopVisible+MaxHeight > GetShowItemCount()) ? (TopVisible+MaxHeight-1) : (GetShowItemCount()-1);
+		if (SelectedVisible >= ((TopVisible+BottomVisible)>>1))
+			bBottomMode = true;
+	}
 
 	if (bLonger)
 	{
 		//строка фильтра увеличилась
 		for (int i=0; i < ItemCount; i++)
 		{
-			if (ItemIsVisible(Item[i]->Flags) && !StrStrI(Item[i]->strName, strFilter))
+			// Нет смысла накладывать фильтр на разделители
+			if (ItemIsVisible(Item[i]->Flags))
 			{
-				Item[i]->Flags |= LIF_HIDDEN;
-				ItemHiddenCount++;
-				if (SelectPos == i)
+				if (Item[i]->Flags & LIF_SEPARATOR)
 				{
-					Item[i]->Flags &= ~LIF_SELECTED;
-					SelectPos = -1;
+					// В предыдущей группе все элементы скрыты, разделитель перед группой - не нужен
+					if (PrevSeparator != -1)
+					{
+						Item[PrevSeparator]->Flags |= LIF_HIDDEN;
+						ItemHiddenCount++;
+					}
+					if (Item[i]->strName.IsEmpty() && PrevGroup == -1)
+					{
+						Item[i]->Flags |= LIF_HIDDEN;
+						ItemHiddenCount++;
+						PrevSeparator = -1;
+					}
+					else
+					{
+						PrevSeparator = i;
+					}
+				}
+				else if (!StrStrI(Item[i]->strName, strFilter))
+				{
+					Item[i]->Flags |= LIF_HIDDEN;
+					ItemHiddenCount++;
+					if (SelectPos == i)
+					{
+						Item[i]->Flags &= ~LIF_SELECTED;
+						SelectPos = -1;
+						LowerVisible = -1;
+					}
+				}
+				else
+				{
+					PrevGroup = i;
+					if (LowerVisible == -2)
+					{
+						if (ItemCanHaveFocus(Item[i]->Flags))
+							UpperVisible = i;
+					}
+					else if (LowerVisible == -1)
+					{
+						if (ItemCanHaveFocus(Item[i]->Flags))
+							LowerVisible = i;
+					}
+					// Этот разделитель - оставить видимым
+					if (PrevSeparator != -1)
+						PrevSeparator = -1;
 				}
 			}
+		}
+		// В предыдущей группе все элементы скрыты, разделитель перед группой - не нужен
+		if (PrevSeparator != -1)
+		{
+			Item[PrevSeparator]->Flags |= LIF_HIDDEN;
+			ItemHiddenCount++;
 		}
 	}
 	else
@@ -678,16 +742,77 @@ void VMenu::FilterStringUpdated(bool bLonger)
 		//строка фильтра сократилась
 		for (int i=0; i < ItemCount; i++)
 		{
-			if (!ItemIsVisible(Item[i]->Flags) && StrStrI(Item[i]->strName, strFilter))
+			if (!ItemIsVisible(Item[i]->Flags))
 			{
-				Item[i]->Flags &= ~LIF_HIDDEN;
-				ItemHiddenCount--;
+				if (Item[i]->Flags & LIF_SEPARATOR)
+				{
+					PrevSeparator = i;
+				}
+				else if (StrStrI(Item[i]->strName, strFilter))
+				{
+					Item[i]->Flags &= ~LIF_HIDDEN;
+					ItemHiddenCount--;
+				}
+			}
+
+			if (ItemIsVisible(Item[i]->Flags))
+			{
+				if (Item[i]->Flags & LIF_SEPARATOR)
+				{
+					PrevGroup = -1;
+					if ((PrevSeparator != -1))
+						PrevSeparator = -1;
+				}
+				else
+				{
+					if (PrevSeparator != -1)
+					{
+						if (!Item[PrevSeparator]->strName.IsEmpty() || PrevGroup != -1)
+						{
+							// Разделитель перед ранее скрытой группой был скрыт
+							Item[PrevSeparator]->Flags &= ~LIF_HIDDEN;
+							ItemHiddenCount--;
+						}
+						PrevSeparator = -1;
+					}
+					PrevGroup = i;
+				}
 			}
 		}
+
+		FilterUpdateHeight();
 	}
 
-	if (SelectPos<0)
-		SetSelectPos(0,1);
+	if (GetShowItemCount()>0)
+	{
+		// Подровнять, а то в нижней части списка может оставаться куча пустых строк
+		FarListPos pos={SelectPos,-1};
+		if (SelectPos<0)
+		{
+			pos.SelectPos = bBottomMode ? ((LowerVisible>0) ? LowerVisible : UpperVisible) : UpperVisible;
+			if (pos.SelectPos == -1)
+				pos.SelectPos = bBottomMode ? VisualPosToReal(GetShowItemCount()-1) : 0;
+		}
+		SetSelectPos(&pos);
+	}
+}
+
+void VMenu::FilterUpdateHeight(bool bShrink)
+{
+	if (WasAutoHeight)
+	{
+		int NewY2;
+		if (MaxHeight && MaxHeight<GetShowItemCount())
+			NewY2 = Y1 + MaxHeight + 1;
+		else
+			NewY2 = Y1 + GetShowItemCount() + 1;
+		if (NewY2 > ScrY)
+			NewY2 = ScrY;
+		if (NewY2 > Y2 || (bShrink && NewY2 < Y2))
+		{
+			SetPosition(X1,Y1,X2,NewY2);
+		}
+	}
 }
 
 bool VMenu::IsFilterEditKey(int Key)
@@ -902,6 +1027,118 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			return 0;
 		}
 
+		case MCODE_F_MENU_FILTER:
+		{
+			__int64 RetValue = 0;
+			/*
+			Action
+			  0 - фильтр
+			    Mode
+			      -1 - (по умолчанию) вернуть 1 если фильтр уже включен, 0 - фильтр выключен
+				   1 - включить фильтр, если фильтр уже включен - ничего не делает
+				   0 - выключить фильтр
+			  1 - фиксация текста фильтра
+			    Mode
+			      -1 - (по умолчанию) вернуть 1 если текст фильтра зафиксирован, 0 - фильтр можно менять с клавиатуры
+				   1 - зафиксировать фильтр
+				   0 - отменить фиксацию фильтра
+			  2 - вернуть 1 если фильтр включен и строка фильтра не пуста
+			  3 - вернуть количество отфильтрованных (невидимых) строк\
+			  4 - (по умолчанию) подправить высоту списка под количество элементов
+			*/
+			switch (iParam)
+			{
+				case 0:
+					switch ((INT_PTR)vParam)
+					{
+						case 0:
+						case 1:
+							if (bFilterEnabled != ((INT_PTR)vParam == 1))
+							{
+								bFilterEnabled=((INT_PTR)vParam == 1);
+								bFilterLocked=false;
+								strFilter.Clear();
+								if (!vParam)
+									RestoreFilteredItems();
+								DisplayObject();
+							}
+							RetValue = 1;
+							break;
+						case -1:
+							RetValue = bFilterEnabled ? 1 : 0;
+							break;
+					}
+					break;
+
+				case 1:
+					switch ((INT_PTR)vParam)
+					{
+						case 0:
+						case 1:
+							bFilterLocked=((INT_PTR)vParam == 1);
+							DisplayObject();
+							RetValue = 1;
+							break;
+						case -1:
+							RetValue = bFilterLocked ? 1 : 0;
+							break;
+					}
+					break;
+
+				case 2:
+					RetValue = (bFilterEnabled && !strFilter.IsEmpty()) ? 1 : 0;
+					break;
+
+				case 3:
+					RetValue = ItemHiddenCount;
+					break;
+
+				case 4:
+					FilterUpdateHeight(true);
+					DisplayObject();
+					RetValue = 1;
+					break;
+			}
+			return RetValue;
+		}
+		case MCODE_F_MENU_FILTERSTR:
+		{
+			/*
+			Action
+			  0 - (по умолчанию) вернуть текущую строку, если фильтр включен
+			  1 - установить в фильтре строку S.
+			      Если фильтр не был включен - включает его, режим фиксации не трогается, но игнорируется.
+				  Возвращает предыдущее значение строки фильтра.
+			*/
+			switch (iParam)
+			{
+				case 0:
+					if (bFilterEnabled)
+					{
+						*(string *)vParam = strFilter;
+						return 1;
+					}
+					break;
+				case 1:
+					if (!bFilterEnabled)
+						bFilterEnabled=true;
+					bool prevLocked = bFilterLocked;
+					bFilterLocked = false;
+					RestoreFilteredItems();
+					string oldFilter = strFilter;
+					strFilter.Clear();
+					if (vParam!=nullptr)
+						AddToFilter(((string *)vParam)->CPtr());
+					FilterStringUpdated(true);
+					bFilterLocked = prevLocked;
+					DisplayObject();
+					*(string *)vParam = oldFilter;
+					return 1;
+			}
+
+			return 0;
+		}
+
 	}
 
 	return 0;
@@ -1027,7 +1264,8 @@ int VMenu::ProcessKey(int Key)
 		case KEY_CTRLHOME:     case KEY_CTRLNUMPAD7:
 		case KEY_CTRLPGUP:     case KEY_CTRLNUMPAD9:
 		{
-			SetSelectPos(0,1);
+			FarListPos pos={0,-1};
+			SetSelectPos(&pos);
 			ShowMenu(true);
 			break;
 		}
@@ -1601,8 +1839,10 @@ void VMenu::Show()
 			}
 		}
 
+		WasAutoHeight = false;
 		if (Y2 <= 0)
 		{
+			WasAutoHeight = true;
 			if (MaxHeight && MaxHeight<GetShowItemCount())
 				Y2 = Y1 + MaxHeight + 1;
 			else
@@ -1661,6 +1901,17 @@ void VMenu::DisplayObject()
 
 	ClearFlags(VMENU_UPDATEREQUIRED);
 	Modal::ExitCode = -1;
+
+	if (CheckFlags(VMENU_REFILTERREQUIRED)!=0)
+	{
+		if (bFilterEnabled)
+		{
+			RestoreFilteredItems();
+			if (!strFilter.IsEmpty())
+				FilterStringUpdated(true);
+		}
+		ClearFlags(VMENU_REFILTERREQUIRED);
+	}
 
 	SetCursorType(0,10);
 

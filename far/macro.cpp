@@ -406,6 +406,8 @@ static TMacroFunction intMacroFunction[]=
 	{L"LCASE",            1, 0,   MCODE_F_LCASE,            nullptr, 0,nullptr,L"S=LCase(S1)",0,lcaseFunc},
 	{L"LEN",              1, 0,   MCODE_F_LEN,              nullptr, 0,nullptr,L"N=Len(S)",0,lenFunc},
 	{L"MAX",              2, 0,   MCODE_F_MAX,              nullptr, 0,nullptr,L"N=Max(N1,N2)",0,maxFunc},
+	{L"MENU.FILTER",      2, 2,   MCODE_F_MENU_FILTER,      nullptr, 0,nullptr,L"N=Menu.Filter([Action[,Mode]])",0,usersFunc},
+	{L"MENU.FILTERSTR",   2, 2,   MCODE_F_MENU_FILTERSTR,   nullptr, 0,nullptr,L"N=Menu.FilterStr([Action[,S]])",0,usersFunc},
 	{L"MENU.GETVALUE",    1, 1,   MCODE_F_MENU_GETVALUE,    nullptr, 0,nullptr,L"S=Menu.GetValue([N])",0,usersFunc},
 	{L"MENU.ITEMSTATUS",  1, 1,   MCODE_F_MENU_ITEMSTATUS,  nullptr, 0,nullptr,L"N=Menu.ItemStatus([N])",0,usersFunc},
 	{L"MENU.SELECT",      3, 2,   MCODE_F_MENU_SELECT,      nullptr, 0,nullptr,L"N=Menu.Select(S[,N[,Dir]])",0,usersFunc},
@@ -545,7 +547,8 @@ KeyMacro::KeyMacro():
 	RecBufferSize(0),
 	RecBuffer(nullptr),
 	RecSrc(nullptr),
-	LockScr(nullptr)
+	LockScr(nullptr),
+	StopMacro(false)
 {
 	Work.Init(nullptr);
 	memset(&IndexMode,0,sizeof(IndexMode));
@@ -912,6 +915,8 @@ int KeyMacro::ProcessKey(int Key)
 			//_KEYMACRO(CleverSysLog Clev(L"MACRO find..."));
 			//_KEYMACRO(SysLog(L"Param Key=%s",_FARKEY_ToName(Key)));
 			UINT64 CurFlags;
+
+			StopMacro=false;
 
 			if ((Key&(~KEY_CTRLMASK)) > 0x01 && (Key&(~KEY_CTRLMASK)) < KEY_FKEY_BEGIN) // 0xFFFF ??
 			{
@@ -2451,8 +2456,10 @@ static bool msgBoxFunc(const TMacroFunction*)
 	TempBuf += L"\n";
 	TempBuf += text;
 	int Result=FarMessageFn(-1,Flags,nullptr,(const wchar_t * const *)TempBuf.CPtr(),0,0)+1;
+	/*
 	if (Result <= -1) // Break?
 		CtrlObject->Macro.SendDropProcess();
+	*/
 	VMStack.Push((__int64)Result);
 	return true;
 }
@@ -2644,6 +2651,7 @@ static bool menushowFunc(const TMacroFunction*)
 					}
 					Menu.Show();
 				}
+
 
 			case KEY_BREAK:
 				CtrlObject->Macro.SendDropProcess();
@@ -4629,6 +4637,8 @@ done:
 		ScrBuf.RestoreMacroChar();
 		Work.HistroyEnable=0;
 
+		StopMacro=false;
+
 		return KEY_NONE; // Здесь ВСЕГДА!
 	}
 
@@ -4639,7 +4649,8 @@ done:
 	{
 		INPUT_RECORD rec;
 
-		if (PeekInputRecord(&rec) && rec.EventType==KEY_EVENT && rec.Event.KeyEvent.wVirtualKeyCode == VK_CANCEL)
+		//if (PeekInputRecord(&rec) && rec.EventType==KEY_EVENT && rec.Event.KeyEvent.wVirtualKeyCode == VK_CANCEL)
+		if (StopMacro)
 		{
 			GetInputRecord(&rec,true);  // удаляем из очереди эту "клавишу"...
 			Work.KeyProcess=0;
@@ -5350,6 +5361,7 @@ done:
 			VMStack.Push(tmpVar);
 			goto begin;
 		}
+
 		case MCODE_F_MENU_SELECT:      // N=Menu.Select(S[,N[,Dir]])
 		case MCODE_F_MENU_CHECKHOTKEY: // N=checkhotkey(S[,N])
 		{
@@ -5394,6 +5406,69 @@ done:
 			}
 
 			VMStack.Push(Result);
+			goto begin;
+		}
+
+		case MCODE_F_MENU_FILTER:      // N=Menu.Filter([Action[,Mode]])
+		case MCODE_F_MENU_FILTERSTR:   // S=Menu.FilterStr([Action[,S]])
+		{
+			_KEYMACRO(CleverSysLog Clev(Key == MCODE_F_MENU_FILTER? L"MCODE_F_MENU_FILTER":L"MCODE_F_MENU_FILTERSTR"));
+			bool succees=false;
+			TVar tmpAction;
+
+			VMStack.Pop(tmpVar);
+			VMStack.Pop(tmpAction);
+			if (tmpAction.isUnknown())
+				tmpAction=Key == MCODE_F_MENU_FILTER ? 4 : 0;
+
+			int CurMMode=CtrlObject->Macro.GetMode();
+
+			if (IsMenuArea(CurMMode) || CurMMode == MACRO_DIALOG)
+			{
+				Frame *f=FrameManager->GetCurrentFrame(), *fo=nullptr;
+
+				//f=f->GetTopModal();
+				while (f)
+				{
+					fo=f;
+					f=f->GetTopModal();
+				}
+
+				if (!f)
+					f=fo;
+
+				if (f)
+				{
+					if (Key == MCODE_F_MENU_FILTER)
+					{
+						if (tmpVar.isUnknown())
+							tmpVar = -1;
+						tmpVar=f->VMProcess(Key,(void*)static_cast<INT_PTR>(tmpVar.toInteger()),tmpAction.toInteger());
+						succees=true;
+					}
+					else
+					{
+						string NewStr;
+						if (tmpVar.isString())
+							NewStr = tmpVar.toString();
+						if (f->VMProcess(Key,(void*)&NewStr,tmpAction.toInteger()))
+						{
+							tmpVar=NewStr.CPtr();
+							succees=true;
+						}
+					}
+				}
+			}
+
+			if (!succees)
+			{
+				if (Key == MCODE_F_MENU_FILTER)
+					tmpVar = -1;
+				else
+					tmpVar = L"";
+			}
+
+			VMStack.Push(tmpVar);
 			goto begin;
 		}
 
@@ -7573,7 +7648,7 @@ int KeyMacro::IsExecutingLastKey()
 void KeyMacro::SendDropProcess()
 {
 	if (Work.Executing)
-		WriteInput(VK_CANCEL,SKEY_VK_KEYS);
+		StopMacro=true;
 }
 
 void KeyMacro::DropProcess()

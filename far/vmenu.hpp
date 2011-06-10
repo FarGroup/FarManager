@@ -89,6 +89,7 @@ enum VMENU_FLAGS
 	VMENU_MOUSEREACTION        =0x02000000, // реагировать на движение мыши? (перемещать позицию при перемещении курсора мыши?)
 	VMENU_DISABLED             =0x04000000, //
 	VMENU_NOMERGEBORDER        =0x08000000, //
+	VMENU_REFILTERREQUIRED     =0x10000000, // перед отрисовкой необходимо обновить фильтр
 };
 
 class Dialog;
@@ -210,6 +211,7 @@ class VMenu: public Modal
 		int SelectPos;
 		int TopPos;
 		int MaxHeight;
+		bool WasAutoHeight;
 		int MaxLength;
 		int BoxType;
 		bool PrevCursorVisible;
@@ -324,6 +326,7 @@ class VMenu: public Modal
 		int  FindItem(int StartIndex,const wchar_t *Pattern,UINT64 Flags=0);
 		void RestoreFilteredItems();
 		void FilterStringUpdated(bool bLonger);
+		void FilterUpdateHeight(bool bShrink=false);
 		void SetFilterEnabled(bool bEnabled) { bFilterEnabled=bEnabled; };
 		void SetFilterLocked(bool bLocked) { bFilterEnabled=bLocked; };
  		bool AddToFilter(const wchar_t *str);
