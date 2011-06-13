@@ -3,6 +3,19 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 10.06.2011 13:33:43 +0300 - build 2066
+
+1. Mantis#0001793: Enable interrupting of a macro with CtrlBreak during "visual" functions
+   Another correction...
+
+2. Mantis#0001789: A function to control fast filtering in lists (CtrlAltF)
+   (from Maximus)
+   Macro functions are added:
+     1) Perform filtering operations (CtrlAltF)
+        N=Menu.Filter([Action[,Mode])
+     2) Perform filter string operations (CtrlAltF)
+        S=Menu.FilterStr([Action[,S]])
+
 svs 07.06.2011 14:04:54 +0300 - build 2065
 
 1. Mantis#0001795: Add Plugin.Load, Plugin.Unload functions
