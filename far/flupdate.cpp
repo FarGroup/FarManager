@@ -274,7 +274,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 		{
 			if (FileCount>=AllocatedCount)
 			{
-				AllocatedCount=AllocatedCount+256+AllocatedCount/4;
+				AllocatedCount+=4096;
 				FileListItem **pTemp;
 
 				if (!(pTemp=(FileListItem **)xf_realloc(ListData,AllocatedCount*sizeof(*ListData))))
@@ -345,9 +345,6 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 			if (ReadCustomData)
 				CtrlObject->Plugins.GetCustomData(NewPtr);
-
-			if (NeedHighlight)
-				CtrlObject->HiFiles->GetHiColor(&NewPtr,1);
 
 			if (!(fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 				TotalFileCount++;
@@ -440,15 +437,17 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 			AddParentPoint(ListData[FileCount],FileCount,TwoDotsTimes,TwoDotsOwner);
 
-			if (NeedHighlight)
-				CtrlObject->HiFiles->GetHiColor(&ListData[FileCount],1);
-
 			FileCount++;
 		}
 	}
 
 	if (IsColumnDisplayed(DIZ_COLUMN))
 		ReadDiz();
+
+	if (NeedHighlight)
+	{
+		CtrlObject->HiFiles->GetHiColor(ListData, FileCount);
+	}
 
 	if (AnotherPanel->GetMode()==PLUGIN_PANEL)
 	{

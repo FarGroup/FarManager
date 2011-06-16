@@ -4399,6 +4399,7 @@ INT_PTR Dialog::CloseDialog()
 		{
 			DialogMode.Clear(DMODE_BEGINLOOP);
 			FrameManager->DeleteFrame(this);
+			FrameManager->PluginCommit();
 		}
 
 		_DIALOG(CleverSysLog CL(L"Close Dialog"));

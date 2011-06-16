@@ -37,14 +37,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 int Colors::FarColorToColor(const FarColor& Color)
 {
-	const FARCOLORFLAGS consoleColors=FMSG_FG_4BIT|FMSG_BG_4BIT;
+	const FARCOLORFLAGS consoleColors=FCF_FG_4BIT|FCF_BG_4BIT;
 	if((Color.Flags&consoleColors)==consoleColors) return ((Color.ForegroundColor&ConsoleMask)<<ConsoleFgShift)|((Color.BackgroundColor&ConsoleMask)<<ConsoleBgShift);
 	return DefaultColor;
 }
 
 void Colors::ColorToFarColor(int Color,FarColor& NewColor)
 {
-	NewColor.Flags=FMSG_FG_4BIT|FMSG_BG_4BIT;
+	NewColor.Flags=FCF_FG_4BIT|FCF_BG_4BIT;
 	NewColor.ForegroundColor=(Color>>ConsoleFgShift)&ConsoleMask;
 	NewColor.BackgroundColor=(Color>>ConsoleBgShift)&ConsoleMask;
 	NewColor.Reserved=nullptr;
