@@ -295,10 +295,10 @@ static BOOL WINAPI farColorDialog(const GUID* PluginId, COLORDIALOGFLAGS Flags, 
 	BOOL Result = FALSE;
 	if (!FrameManager->ManagerIsDown())
 	{
-		WORD Clr = Colors::FarColorToColor(*Color);
+		WORD Clr = Colors::FarColorToConsoleColor(*Color);
 		if(GetColorDialog(Clr, true, false))
 		{
-			Colors::ColorToFarColor(Clr, *Color);
+			Colors::ConsoleColorToFarColor(Clr, *Color);
 			Result = TRUE;
 		}
 	}

@@ -838,7 +838,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 		}
 
 		ScrBuf.Flush();
-		Sleep(1);
 
 		// Позволяет избежать ситуации блокирования мыши
 		if (Opt.Mouse) // А нужно ли это условие???

@@ -35,14 +35,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "colormix.hpp"
 
-int Colors::FarColorToColor(const FarColor& Color)
+int Colors::FarColorToConsoleColor(const FarColor& Color)
 {
 	const FARCOLORFLAGS consoleColors=FCF_FG_4BIT|FCF_BG_4BIT;
 	if((Color.Flags&consoleColors)==consoleColors) return ((Color.ForegroundColor&ConsoleMask)<<ConsoleFgShift)|((Color.BackgroundColor&ConsoleMask)<<ConsoleBgShift);
 	return DefaultColor;
 }
 
-void Colors::ColorToFarColor(int Color,FarColor& NewColor)
+void Colors::ConsoleColorToFarColor(int Color,FarColor& NewColor)
 {
 	NewColor.Flags=FCF_FG_4BIT|FCF_BG_4BIT;
 	NewColor.ForegroundColor=(Color>>ConsoleFgShift)&ConsoleMask;

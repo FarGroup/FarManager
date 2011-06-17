@@ -3958,7 +3958,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 				ec.StringNumber = ecA->StringNumber;
 				ec.StartPos = ecA->StartPos;
 				ec.EndPos = ecA->EndPos;
-				Colors::ColorToFarColor(ecA->Color,ec.Color);
+				Colors::ConsoleColorToFarColor(ecA->Color,ec.Color);
 				if(ecA->Color&oldfar::ECF_TAB1) ec.Color.Flags|=ECF_TAB1;
 				ec.Priority=EDITOR_COLOR_NORMAL_PRIORITY;
 				ec.Owner=FarGuid;
@@ -3982,7 +3982,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 				{
 					ecA->StartPos = ec.StartPos;
 					ecA->EndPos = ec.EndPos;
-					ecA->Color = Colors::FarColorToColor(ec.Color);
+					ecA->Color = Colors::FarColorToConsoleColor(ec.Color);
 					if(ec.Color.Flags&ECF_TAB1) ecA->Color|=oldfar::ECF_TAB1;
 				}
 				return Result;

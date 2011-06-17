@@ -67,7 +67,7 @@ struct ColorItem
 	int SubPriority;
 	int StartPos;
 	int EndPos;
-	int Color;
+	FarColor Color;
 	unsigned __int64 Flags;
 };
 

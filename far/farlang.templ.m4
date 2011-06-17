@@ -19852,6 +19852,25 @@ upd:"Do not ask again in the current session"
 upd:"Do not ask again in the current session"
 "No preguntar nuevamente en la sesión actual"
 
+MCompletionHistoryTitle
+"История"
+"History"
+upd:"History"
+upd:"History"
+upd:"History"
+upd:"History"
+upd:"History"
+
+MCompletionFilesTitle
+"Файлы"
+"Files"
+upd:"Files"
+upd:"Files"
+upd:"Files"
+upd:"Files"
+upd:"Files"
+
+
 #Must be the last
 MNewFileName
 l:

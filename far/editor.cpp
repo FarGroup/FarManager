@@ -5758,12 +5758,12 @@ int Editor::EditorControl(int Command,void *Param)
 				_ECTLLOG(SysLog(L"  ColorItem   =%d (0x%08X)",col->ColorItem,col->ColorItem));
 				_ECTLLOG(SysLog(L"  StartPos    =%d",col->StartPos));
 				_ECTLLOG(SysLog(L"  EndPos      =%d",col->EndPos));
-				_ECTLLOG(SysLog(L"  Color       =%d (0x%08X)",Colors::FarColorToColor(col->Color),Colors::FarColorToColor(col->Color)));
+				_ECTLLOG(SysLog(L"  Color       =%d/%d (0x%08X/0x%08X)",col->Color.ForegroundColor,col->Color.BackgroundColor,col->Color.ForegroundColor,col->Color.BackgroundColor));
 				_ECTLLOG(SysLog(L"}"));
 				ColorItem newcol;
 				newcol.StartPos=col->StartPos+(col->StartPos!=-1?X1:0);
 				newcol.EndPos=col->EndPos+X1;
-				newcol.Color=Colors::FarColorToColor(col->Color);
+				newcol.Color=col->Color;
 				newcol.Flags=col->Flags;
 				newcol.Owner=col->Owner;
 				newcol.Priority=col->Priority;
@@ -5805,7 +5805,7 @@ int Editor::EditorControl(int Command,void *Param)
 
 				col->StartPos=curcol.StartPos-X1;
 				col->EndPos=curcol.EndPos-X1;
-				Colors::ColorToFarColor(curcol.Color,col->Color);
+				col->Color=curcol.Color;
 				col->Flags=curcol.Flags;
 				col->Owner=curcol.Owner;
 				col->Priority=curcol.Priority;
@@ -5814,7 +5814,7 @@ int Editor::EditorControl(int Command,void *Param)
 				_ECTLLOG(SysLog(L"  ColorItem   =%d (0x%08X)",col->ColorItem,col->ColorItem));
 				_ECTLLOG(SysLog(L"  StartPos    =%d",col->StartPos));
 				_ECTLLOG(SysLog(L"  EndPos      =%d",col->EndPos));
-				_ECTLLOG(SysLog(L"  Color       =%d (0x%08X)",Colors::FarColorToColor(col->Color),Colors::FarColorToColor(col->Color)));
+				_ECTLLOG(SysLog(L"  Color       =%d/%d (0x%08X/0x%08X)",col->Color.ForegroundColor,col->Color.BackgroundColor,col->Color.ForegroundColor,col->Color.BackgroundColor));
 				_ECTLLOG(SysLog(L"}"));
 				return TRUE;
 			}

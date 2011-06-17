@@ -545,7 +545,7 @@ void Viewer::ShowPage(int nMode)
 					if (LeftPos > Strings[I]->nSelEnd)
 						Length = 0;
 
-					FS<<fmt::Precision(static_cast<int>(Length))<<&Strings[I]->lpData[static_cast<size_t>(SelX1+LeftPos)];
+					FS<<fmt::Precision(static_cast<size_t>(Length))<<&Strings[I]->lpData[static_cast<size_t>(SelX1+LeftPos)];
 				}
 			}
 

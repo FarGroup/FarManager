@@ -57,6 +57,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "history.hpp"
 #include "vmenu.hpp"
 #include "chgmmode.hpp"
+#include "colormix.hpp"
+#include "lang.hpp"
 
 static int Recurse=0;
 
@@ -2643,7 +2645,7 @@ void Edit::ApplyColor()
 		if (CurItem->StartPos-LeftPos > X2 && CurItem->EndPos-LeftPos < X1)
 			continue;
 
-		int Attr = CurItem->Color;
+		int Attr = Colors::FarColorToConsoleColor(CurItem->Color);
 		int Length = CurItem->EndPos-CurItem->StartPos+1;
 
 		if (CurItem->StartPos+Length >= StrSize)
@@ -3015,6 +3017,99 @@ void EditControl::SetMenuPos(VMenu& menu)
 	}
 }
 
+void EnumFiles(VMenu& Menu, const wchar_t* Str)
+{
+	if(Str && *Str)
+	{
+		string strStr(Str);
+
+		bool OddQuote = false;
+		for(size_t i=0; i<strStr.GetLength(); i++)
+		{
+			if(strStr.At(i) == L'"')
+			{
+				OddQuote = !OddQuote;
+			}
+		}
+
+		size_t Pos = 0;
+		if(OddQuote)
+		{
+			strStr.RPos(Pos, L'"');
+		}
+		else
+		{
+			for(Pos=strStr.GetLength()-1; Pos!=static_cast<size_t>(-1); Pos--)
+			{
+				if(strStr.At(Pos)==L'"')
+				{
+					Pos--;
+					while(strStr.At(Pos)!=L'"' && Pos!=static_cast<size_t>(-1))
+					{
+						Pos--;
+					}
+				}
+				else if(strStr.At(Pos)==L' ')
+				{
+					Pos++;
+					break;
+				}
+			}
+		}
+		if(Pos==static_cast<size_t>(-1))
+		{
+			Pos=0;
+		}
+		bool StartQuote=false;
+		if(strStr.At(Pos)==L'"')
+		{
+			Pos++;
+			StartQuote=true;
+		}
+		string strStart(strStr,Pos);
+		strStr.LShift(Pos);
+		Unquote(strStr);
+		if(!strStr.IsEmpty())
+		{
+			FAR_FIND_DATA_EX d;
+			string strExp;
+			apiExpandEnvironmentStrings(strStr,strExp);
+			FindFile Find(strExp+L"*");
+			bool Separator=false;
+			while(Find.Get(d))
+			{
+				const wchar_t* FileName=PointToName(strStr);
+				bool NameMatch=!StrCmpNI(FileName,d.strFileName,StrLength(FileName)),AltNameMatch=NameMatch?false:!StrCmpNI(FileName,d.strAlternateFileName,StrLength(FileName));
+				if(NameMatch || AltNameMatch)
+				{
+					strStr.SetLength(FileName-strStr);
+					string strTmp(strStart+strStr);
+					strTmp+=NameMatch?d.strFileName:d.strAlternateFileName;
+					if(!Separator)
+					{
+						if(Menu.GetItemCount())
+						{
+							MenuItemEx Item={0};
+							Item.strName = MSG(MCompletionFilesTitle);
+							Item.Flags=LIF_SEPARATOR;
+							Menu.AddItem(&Item);
+						}
+						else
+						{
+							Menu.SetTitle(MSG(MCompletionFilesTitle));
+						}
+						Separator=true;
+					}
+					if(StartQuote)
+					{
+						strTmp+=L'"';
+					}
+					Menu.AddItem(strTmp);
+				}
+			}
+		}
+	}
+}
 
 int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 {
@@ -3042,12 +3137,14 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 				}
 			}
 		}
-
+		if (ComplMenu.GetItemCount())
+		{
+			ComplMenu.SetTitle(MSG(MCompletionHistoryTitle));
+		}
 		if(ECFlags.Check(EC_ENABLEFNCOMPLETE))
 		{
 			EnumFiles(ComplMenu,strTemp);
 		}
-
 		if(ComplMenu.GetItemCount()>1 || (ComplMenu.GetItemCount()==1 && StrCmpI(strTemp,ComplMenu.GetItemPtr(0)->strName)))
 		{
 			ComplMenu.SetFlags(VMENU_WRAPMODE|VMENU_NOTCENTER|VMENU_SHOWAMPERSAND);
@@ -3133,6 +3230,10 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 											}
 										}
 									}
+								}
+								if (ComplMenu.GetItemCount())
+								{
+									ComplMenu.SetTitle(MSG(MCompletionHistoryTitle));
 								}
 								if(ECFlags.Check(EC_ENABLEFNCOMPLETE))
 								{
