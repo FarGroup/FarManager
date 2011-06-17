@@ -3,6 +3,20 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 17.06.2011 08:17:00 +0200 - build 2068
+
+1. Completion list separators have got captions now.
+
+2. Inner changes in color processing.
+
+drkns 16.06.2011 19:44:44 +0200 - build 2067
+
+1. Dialog invocation after DM_CLOSE caused FAR crash.
+
+2. Directory read optimization.
+
+3. Corrections in plugin.hpp.
+
 svs 10.06.2011 13:33:43 +0300 - build 2066
 
 1. Mantis#0001793: Enable interrupting of a macro with CtrlBreak during "visual" functions
