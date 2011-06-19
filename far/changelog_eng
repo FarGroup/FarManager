@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 18.06.2011 20:39:57 +0200 - build 2069
+
+1. Mantis#0001800: CPU idle load.
+
 drkns 17.06.2011 08:17:00 +0200 - build 2068
 
 1. Completion list separators have got captions now.
