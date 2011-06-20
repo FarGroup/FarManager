@@ -364,7 +364,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 					{
 						if (!DrawMessage)
 						{
-							Text(X1+1,Y1,COL_PANELBOX,Title);
+							Text(X1+1,Y1,ColorIndexToColor(COL_PANELBOX),Title);
 							IsShowTitle=TRUE;
 							SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
 						}

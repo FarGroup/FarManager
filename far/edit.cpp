@@ -110,9 +110,7 @@ Edit::Edit(ScreenObject *pOwner, Callback* aCallback, bool bAllocateData):
 		*Str=0;
 
 	Flags.Set(FEDITLINE_EDITBEYONDEND);
-	Color=F_LIGHTGRAY|B_BLACK;
-	SelColor=F_WHITE|B_BLACK;
-	ColorUnChanged=COL_DIALOGEDITUNCHANGED;
+	SetObjectColor(COL_COMMANDLINE, COL_COMMANDLINESELECTED, COL_DIALOGEDITUNCHANGED);
 	EndType=EOL_NONE;
 	ColorList=nullptr;
 	ColorCount=0;
@@ -1656,13 +1654,19 @@ int Edit::InsertKey(int Key)
 	return TRUE;
 }
 
-void Edit::SetObjectColor(int Color,int SelColor,int ColorUnChanged)
+void Edit::SetObjectColor(PaletteColors Color,PaletteColors SelColor,PaletteColors ColorUnChanged)
+{
+	this->Color=ColorIndexToColor(Color);
+	this->SelColor=ColorIndexToColor(SelColor);
+	this->ColorUnChanged=ColorIndexToColor(ColorUnChanged);
+}
+
+void Edit::SetObjectColor(const FarColor& Color,const FarColor& SelColor, const FarColor& ColorUnChanged)
 {
 	this->Color=Color;
 	this->SelColor=SelColor;
 	this->ColorUnChanged=ColorUnChanged;
 }
-
 
 void Edit::GetString(wchar_t *Str,int MaxSize)
 {
@@ -2645,7 +2649,6 @@ void Edit::ApplyColor()
 		if (CurItem->StartPos-LeftPos > X2 && CurItem->EndPos-LeftPos < X1)
 			continue;
 
-		int Attr = Colors::FarColorToConsoleColor(CurItem->Color);
 		int Length = CurItem->EndPos-CurItem->StartPos+1;
 
 		if (CurItem->StartPos+Length >= StrSize)
@@ -2765,9 +2768,9 @@ void Edit::ApplyColor()
 			    Y1,
 			    Start+Length-1,
 			    Y1,
-			    Attr,
+			    CurItem->Color,
 			    // Не раскрашиваем выделение
-			    SelColor >= COL_FIRSTPALETTECOLOR ? Palette[SelColor-COL_FIRSTPALETTECOLOR] : SelColor
+			    SelColor
 			);
 		}
 	}

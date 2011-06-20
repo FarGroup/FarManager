@@ -1,3 +1,15 @@
+drkns 20.06.2011 23:22:12 +0200 - build 2070
+
+1. Здравствуй, радуга: везде внутри используем FarColor.
+   Изменения в api:
+   - В DN_CTLCOLORDIALOG в Param2 приходит FarColor*, менять надо сразу его.
+   - В DN_CTLCOLORDLGITEM в Param2 приходит FarDialogItemColors*, менять надо FarDialogItemColors.Colors по принципу: Colors[0] == lwlb, Colors[1] == lwhb, Colors[2] == hwlb, Colors[3] == hwhb.
+   - В DN_CTLCOLORDLGLIST в Param2 приходит FarDialogItemColors*, в остальном - как было.
+   - ACTL_GETCOLOR, ACTL_GETARRAYCOLOR, ACTL_SETARRAYCOLOR работают с FarColor.
+   - DIF_SETCOLOR больше нет, цвет надо задавать в обработчике.
+
+   Формат хранения цвета изменён, generalconfig.db и highlight.db надо удалить.
+
 drkns 18.06.2011 20:39:57 +0200 - build 2069
 
 1. Mantis#0001800: Загрузка процессора в простое

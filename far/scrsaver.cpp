@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "scrsaver.hpp"
 #include "console.hpp"
+#include "palette.hpp"
 
 
 #define randomize() srand(67898)
@@ -172,7 +173,9 @@ int ScreenSaver(int EnableExit)
 		SaveScreen SaveScr;
 		SetCursorType(0,10);
 		randomize();
-		SetScreen(0,0,ScrX,ScrY,L' ',F_LIGHTGRAY|B_BLACK);
+		FarColor Color;
+		Colors::ConsoleColorToFarColor(F_LIGHTGRAY|B_BLACK, Color);
+		SetScreen(0,0,ScrX,ScrY,L' ', Color);
 
 		for (size_t I=0; I<ARRAYSIZE(Star); I++)
 		{

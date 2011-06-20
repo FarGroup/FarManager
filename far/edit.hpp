@@ -149,9 +149,9 @@ class Edit:public ScreenObject
 		ColorItem *ColorList;
 		int    ColorCount;
 
-		int    Color;
-		int    SelColor;
-		int    ColorUnChanged;   // 28.07.2000 SVS - для диалога
+		FarColor Color;
+		FarColor SelColor;
+		FarColor ColorUnChanged;   // 28.07.2000 SVS - для диалога
 
 		int    LeftPos;
 		int    CurPos;
@@ -210,10 +210,9 @@ class Edit:public ScreenObject
 		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
 
 		//   ! Функция установки текущих Color,SelColor и ColorUnChanged!
-		void  SetObjectColor(int Color,int SelColor=0xf,int ColorUnChanged=COL_DIALOGEDITUNCHANGED);
-		//   + Функция получения текущих Color,SelColor
-		long  GetObjectColor() {return MAKELONG(Color,SelColor);}
-		int   GetObjectColorUnChanged() {return ColorUnChanged;}
+		void  SetObjectColor(PaletteColors Color,PaletteColors SelColor = COL_COMMANDLINESELECTED,PaletteColors ColorUnChanged=COL_DIALOGEDITUNCHANGED);
+		void  SetObjectColor(const FarColor& Color,const FarColor& SelColor, const FarColor& ColorUnChanged);
+		void  GetObjectColor(FarColor& Color, FarColor& SelColor, FarColor& ColorUnChanged) {Color = this->Color; SelColor = this->SelColor; ColorUnChanged = this->ColorUnChanged;}
 
 		void SetTabSize(int NewSize) { TabSize=NewSize; }
 		int  GetTabSize() {return TabSize; }

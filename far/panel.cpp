@@ -379,8 +379,10 @@ INT_PTR WINAPI ChDiskDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 		{
 			if (Param1 == 1) // BUGBUG, magic number
 			{
-				int Color=FarColorToReal(COL_WARNDIALOGTEXT);
-				return ((reinterpret_cast<INT_PTR>(Param2)&0xFF00FF00)|(Color<<16)|Color);
+				FarColor Color = ColorIndexToColor(COL_WARNDIALOGTEXT);
+				FarDialogItemColors* Colors = static_cast<FarDialogItemColors*>(Param2);
+				Colors->Colors[0] = Color;
+				Colors->Colors[2] = Color;
 			}
 		}
 		break;
@@ -1524,7 +1526,7 @@ void Panel::FastFindShow(int FindX,int FindY)
 	Text(L" ");
 	GotoXY(FindX+20,FindY+1);
 	Text(L" ");
-	Box(FindX,FindY,FindX+21,FindY+2,COL_DIALOGBOX,DOUBLE_BOX);
+	Box(FindX,FindY,FindX+21,FindY+2,ColorIndexToColor(COL_DIALOGBOX),DOUBLE_BOX);
 	GotoXY(FindX+7,FindY);
 	SetColor(COL_DIALOGBOXTITLE);
 	Text(MSearchFileTitle);

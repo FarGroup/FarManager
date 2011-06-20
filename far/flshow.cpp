@@ -123,8 +123,8 @@ void FileList::ShowFileList(int Fast)
 		CtrlObject->Cp()->GetAnotherPanel(this)->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 	}
 
-	SetScreen(X1+1,Y1+1,X2-1,Y2-1,L' ',COL_PANELTEXT);
-	Box(X1,Y1,X2,Y2,COL_PANELBOX,DOUBLE_BOX);
+	SetScreen(X1+1,Y1+1,X2-1,Y2-1,L' ',ColorIndexToColor(COL_PANELTEXT));
+	Box(X1,Y1,X2,Y2,ColorIndexToColor(COL_PANELBOX),DOUBLE_BOX);
 
 	if (Opt.ShowColumnTitles)
 	{
@@ -367,7 +367,7 @@ void FileList::ShowFileList(int Fast)
 
 	if (!FileCount)
 	{
-		SetScreen(X1+1,Y2-1,X2-1,Y2-1,L' ',COL_PANELTEXT);
+		SetScreen(X1+1,Y2-1,X2-1,Y2-1,L' ',ColorIndexToColor(COL_PANELTEXT));
 		SetColor(COL_PANELTEXT); //???
 		//GotoXY(X1+1,Y2-1);
 		//FS<<fmt::Width(X2-X1-1)<<L"";
@@ -438,10 +438,10 @@ void FileList::ShowFileList(int Fast)
 }
 
 
-int FileList::GetShowColor(int Position, int ColorType)
+const FarColor FileList::GetShowColor(int Position, int ColorType)
 {
-	DWORD ColorAttr=COL_PANELTEXT;
-	const DWORD FarColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
+	FarColor ColorAttr=ColorIndexToColor(COL_PANELTEXT);
+	const PaletteColors PalColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
 
 	if (ListData && Position < FileCount)
 	{
@@ -456,8 +456,8 @@ int FileList::GetShowColor(int Position, int ColorType)
 
 		ColorAttr=ListData[Position]->Colors.Color[ColorType][Pos];
 
-		if (!ColorAttr || !Opt.Highlight)
-			ColorAttr=FarColor[Pos];
+		if (!Opt.Highlight)
+			ColorAttr=ColorIndexToColor(PalColor[Pos]);
 	}
 
 	return ColorAttr;
@@ -986,7 +986,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							{
 								Width--;
 								OutCharacter[0]=(wchar_t)ListData[ListPos]->Colors.MarkChar;
-								int OldColor=GetColor();
+								FarColor OldColor=GetColor();
 
 								if (!ShowStatus)
 									SetShowColor(ListPos,HIGHLIGHTCOLORTYPE_MARKCHAR);
@@ -1302,7 +1302,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 	if (!ShowStatus && !StatusShown && Opt.ShowPanelStatus)
 	{
-		SetScreen(X1+1,Y2-1,X2-1,Y2-1,L' ',COL_PANELTEXT);
+		SetScreen(X1+1,Y2-1,X2-1,Y2-1,L' ',ColorIndexToColor(COL_PANELTEXT));
 		SetColor(COL_PANELTEXT); //???
 		//GotoXY(X1+1,Y2-1);
 		//FS<<fmt::Width(X2-X1-1)<<L"";

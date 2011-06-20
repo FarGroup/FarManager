@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "bitflags.hpp"
 #include "CriticalSections.hpp"
+#include "plugin.hpp"
 
 class ScreenBuf
 {
@@ -81,9 +82,9 @@ class ScreenBuf
 		void RestoreElevationChar();
 
 		void ApplyColorMask(int X1,int Y1,int X2,int Y2,WORD ColorMask);
-		void ApplyColor(int X1,int Y1,int X2,int Y2,WORD Color);
-		void ApplyColor(int X1,int Y1,int X2,int Y2,int Color,WORD ExceptColor);
-		void FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,WORD Color);
+		void ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color);
+		void ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color,const FarColor& ExceptColor);
+		void FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,const FarColor& Color);
 
 		void Scroll(int);
 		void Flush();

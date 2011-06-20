@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "palette.hpp"
 #include "colors.hpp"
+#include "colormix.hpp"
 #include "interf.hpp"
 
 console Console;
@@ -523,7 +524,7 @@ bool console::ScrollScreenBuffer(int Lines) const
 	GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
 	SMALL_RECT ScrollRectangle={0, 0, csbi.dwSize.X-1, csbi.dwSize.Y-1};
 	COORD DestinationOrigin={0,-Lines};
-	CHAR_INFO Fill={L' ', FarColorToReal(COL_COMMANDLINEUSERSCREEN)};
+	CHAR_INFO Fill={L' ', Colors::FarColorToConsoleColor(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN))};
 	return ScrollConsoleScreenBuffer(GetOutputHandle(), &ScrollRectangle, nullptr, DestinationOrigin, &Fill)!=FALSE;
 }
 

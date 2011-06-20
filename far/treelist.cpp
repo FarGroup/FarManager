@@ -74,6 +74,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cache.hpp"
 #include "filestr.hpp"
 #include "wakeful.hpp"
+#include "palette.hpp"
 
 static int _cdecl SortList(const void *el1,const void *el2);
 static int _cdecl SortCacheList(const void *el1,const void *el2);
@@ -275,7 +276,7 @@ void TreeList::DisplayTree(int Fast)
 //    xstrncpy(CurDir,ListData[CurFile].Name,sizeof(CurDir));
 	if (!Fast)
 	{
-		Box(X1,Y1,X2,Y2,COL_PANELBOX,DOUBLE_BOX);
+		Box(X1,Y1,X2,Y2,ColorIndexToColor(COL_PANELBOX),DOUBLE_BOX);
 		DrawSeparator(Y2-2-(ModalMode));
 		GetTitle(strTitle);
 
@@ -334,7 +335,7 @@ void TreeList::DisplayTree(int Fast)
 	}
 
 	SetColor(COL_PANELTEXT);
-	SetScreen(X1+1,Y2-(ModalMode?2:1),X2-1,Y2-1,L' ',COL_PANELTEXT);
+	SetScreen(X1+1,Y2-(ModalMode?2:1),X2-1,Y2-1,L' ',ColorIndexToColor(COL_PANELTEXT));
 
 	if (TreeCount>0)
 	{

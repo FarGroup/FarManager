@@ -118,9 +118,9 @@ class DlgEdit: public ScreenObject
 		void  SetDelRemovesBlocks(int NewMode);
 		int   GetDelRemovesBlocks();
 
-		void  SetObjectColor(int Color,int SelColor=0xf,int ColorUnChanged=COL_DIALOGEDITUNCHANGED);
-		long  GetObjectColor();
-		int   GetObjectColorUnChanged();
+		void  SetObjectColor(PaletteColors Color,PaletteColors SelColor=COL_COMMANDLINESELECTED,PaletteColors ColorUnChanged=COL_DIALOGEDITUNCHANGED);
+		void  SetObjectColor(const FarColor& Color,const FarColor& SelColor,const FarColor& ColorUnChanged);
+		void  GetObjectColor(FarColor& Color, FarColor& SelColor, FarColor& ColorUnChanged);
 
 		void  FastShow();
 		int   GetLeftPos();

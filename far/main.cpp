@@ -63,6 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cmdline.hpp"
 #include "console.hpp"
 #include "configdb.hpp"
+#include "palette.hpp"
 
 #ifdef DIRECT_RT
 int DirectRT=0;
@@ -122,7 +123,7 @@ static int MainProcess(
 		ControlObject CtrlObj;
 		WORD InitAttributes=0;
 		Console.GetTextAttributes(InitAttributes);
-		SetRealColor(COL_COMMANDLINEUSERSCREEN);
+		SetRealColor(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
 		GetSystemInfo(&SystemInfo);
 
 		if (*lpwszEditName || *lpwszViewName)
@@ -282,7 +283,7 @@ static int MainProcess(
 		}
 
 		// очистим за собой!
-		SetScreen(0,0,ScrX,ScrY,L' ',COL_COMMANDLINEUSERSCREEN);
+		SetScreen(0,0,ScrX,ScrY,L' ',ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
 		Console.SetTextAttributes(InitAttributes);
 		ScrBuf.ResetShadow();
 		ScrBuf.Flush();

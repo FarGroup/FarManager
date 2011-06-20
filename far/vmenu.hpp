@@ -241,7 +241,7 @@ class VMenu: public Modal
 		int ItemHiddenCount;
 		int ItemSubMenusCount;
 
-		BYTE Colors[VMENU_COLOR_COUNT];
+		FarColor Colors[VMENU_COLOR_COUNT];
 
 		int MaxLineWidth;
 		bool bRightBtnPressed;
@@ -304,9 +304,9 @@ class VMenu: public Modal
 
 		void AssignHighlights(int Reverse);
 
-		void SetColors(struct FarListColors *ColorsIn=nullptr);
-		void GetColors(struct FarListColors *ColorsOut);
-		void SetOneColor(int Index, short Color);
+		void SetColors(struct FarDialogItemColors *ColorsIn=nullptr);
+		void GetColors(struct FarDialogItemColors *ColorsOut);
+		void SetOneColor(int Index, PaletteColors Color);
 
 		virtual int ProcessKey(int Key);
 		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);

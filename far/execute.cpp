@@ -1613,7 +1613,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine, bool SeparateWindow, 
 		if (CheckCmdLineForHelp(strCmdLine.CPtr()+3))
 			return FALSE; // מעהאהטלסÿ COMSPEC`ף
 
-		ClearScreen(COL_COMMANDLINEUSERSCREEN);
+		ClearScreen(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
 		SaveBackground();
 		PrintCommand=false;
 		return TRUE;

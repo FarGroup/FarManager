@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "constitle.hpp"
 #include "syslog.hpp"
+#include "palette.hpp"
 
 static int LastWrapMode = -1;
 static int LastWrapType = -1;
@@ -101,8 +102,8 @@ void QuickView::DisplayObject()
 	if (QView)
 		QView->SetPosition(X1+1,Y1+1,X2-1,Y2-3);
 
-	Box(X1,Y1,X2,Y2,COL_PANELBOX,DOUBLE_BOX);
-	SetScreen(X1+1,Y1+1,X2-1,Y2-1,L' ',COL_PANELTEXT);
+	Box(X1,Y1,X2,Y2,ColorIndexToColor(COL_PANELBOX),DOUBLE_BOX);
+	SetScreen(X1+1,Y1+1,X2-1,Y2-1,L' ',ColorIndexToColor(COL_PANELTEXT));
 	SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
 	GetTitle(strTitle);
 

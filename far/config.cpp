@@ -62,7 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "configdb.hpp"
 
-Options Opt={0};
+Options Opt={};
 
 // —тандартный набор разделителей
 static const wchar_t *WordDiv0 = L"~!%^&*()+|{}:\"<>?`-=\\[];',./";
@@ -540,7 +540,7 @@ static struct FARConfig
 	const wchar_t *DefStr;   // строка/данные по умолчанию
 } CFG[]=
 {
-	{1, GeneralConfig::TYPE_BLOB,    NKeyColors, L"CurrentPalette",(char*)Palette,SizeArrayPalette,(wchar_t*)DefaultPalette},
+	{1, GeneralConfig::TYPE_BLOB,    NKeyColors, L"CurrentPalette",(char*)Opt.Palette.CurrentPalette,static_cast<DWORD>(Opt.Palette.SizeArrayPalette*sizeof(FarColor)),(const wchar_t*)Opt.Palette.DefaultPalette},
 
 	{1, GeneralConfig::TYPE_INTEGER, NKeyScreen, L"Clock", &Opt.Clock, 1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeyScreen, L"ViewerEditorClock",&Opt.ViewerEditorClock,0, 0},
@@ -902,25 +902,6 @@ void ReadConfig()
 	}
 
 	Opt.HelpTabSize=8; // пока жестко пропишем...
-	//   ”точн€ем алгоритм "вз€ти€" палитры.
-	for (size_t I=COL_PRIVATEPOSITION_FOR_DIF165ABOVE-COL_FIRSTPALETTECOLOR+1;
-	        I < (COL_LASTPALETTECOLOR-COL_FIRSTPALETTECOLOR);
-	        ++I)
-	{
-		if (!Palette[I])
-		{
-			if (!Palette[COL_PRIVATEPOSITION_FOR_DIF165ABOVE-COL_FIRSTPALETTECOLOR])
-				Palette[I]=DefaultPalette[I];
-			else if (Palette[COL_PRIVATEPOSITION_FOR_DIF165ABOVE-COL_FIRSTPALETTECOLOR] == 1)
-				Palette[I]=BlackPalette[I];
-
-			/*
-			else
-			  в других случа€х нифига ничего не делаем, т.к.
-			  есть другие палитры...
-			*/
-		}
-	}
 
 	Opt.ViOpt.ViewerIsWrap &= 1;
 	Opt.ViOpt.ViewerWrap &= 1;

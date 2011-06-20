@@ -300,10 +300,12 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, ADVANCED_CONTROL_COMMANDS Com
 		*/
 		case ACTL_GETCOLOR:
 		{
-			if (Param1 < SizeArrayPalette && Param1 >= 0)
-				return Palette[Param1];
-
-			return -1;
+			if (static_cast<UINT>(Param1) < Opt.Palette.SizeArrayPalette)
+			{
+				*static_cast<FarColor*>(Param2) = Opt.Palette.CurrentPalette[static_cast<size_t>(Param1)];
+				return TRUE;
+			}
+			return FALSE;
 		}
 		/* $ 04.12.2000 SVS
 		  ACTL_GETARRAYCOLOR - получить весь массив цветов
@@ -313,9 +315,9 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, ADVANCED_CONTROL_COMMANDS Com
 		case ACTL_GETARRAYCOLOR:
 		{
 			if (Param2)
-				memcpy(Param2,Palette,SizeArrayPalette);
+				memcpy(Param2,Opt.Palette.CurrentPalette, Opt.Palette.SizeArrayPalette);
 
-			return SizeArrayPalette;
+			return Opt.Palette.SizeArrayPalette;
 		}
 		/*
 		  Param=FARColor{
@@ -331,11 +333,9 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, ADVANCED_CONTROL_COMMANDS Com
 			{
 				FarSetColors *Pal=(FarSetColors*)Param2;
 
-				if (Pal->Colors &&
-				        Pal->StartIndex >= 0 &&
-				        Pal->StartIndex+Pal->ColorCount <= SizeArrayPalette)
+				if (Pal->Colors && Pal->StartIndex+Pal->ColorsCount <= Opt.Palette.SizeArrayPalette)
 				{
-					memmove(Palette+Pal->StartIndex,Pal->Colors,Pal->ColorCount);
+					memmove(Opt.Palette.DefaultPalette+Pal->StartIndex,Pal->Colors,Pal->ColorsCount);
 
 					if (Pal->Flags&FSETCLR_REDRAW)
 					{
@@ -2008,7 +2008,7 @@ int WINAPI FarEditor(
 	return ExitCode;
 }
 
-void WINAPI FarText(int X,int Y,int Color,const wchar_t *Str)
+void WINAPI FarText(int X,int Y,const FarColor* Color,const wchar_t *Str)
 {
 	if (DisablePluginsOutput || FrameManager->ManagerIsDown())
 		return;
@@ -2022,7 +2022,7 @@ void WINAPI FarText(int X,int Y,int Color,const wchar_t *Str)
 	}
 	else
 	{
-		Text(X,Y,Color,Str);
+		Text(X,Y,*Color,Str);
 	}
 }
 

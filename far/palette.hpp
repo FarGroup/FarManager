@@ -33,10 +33,19 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-extern unsigned char DefaultPalette[];
-extern unsigned char Palette[];
-extern unsigned char BlackPalette[];
-extern int SizeArrayPalette;
+#include "plugin.hpp"
 
-BYTE FarColorToReal(int FarColor);
+class palette
+{
+public:
+	palette();
+	void ResetToDefault();
+	void ResetToBlack();
+	const size_t SizeArrayPalette;
+	FarColor* CurrentPalette;
+	FarColor* DefaultPalette;
+	FarColor* BlackPalette;
+};
+
+const FarColor ColorIndexToColor(PaletteColors ColorIndex);
 void ConvertCurrentPalette();

@@ -1248,12 +1248,14 @@ int WINAPI FarCmpNameA(const char *pattern,const char *str,int skippath)
 	return ProcessNameA(pattern, const_cast<char*>(str), oldfar::PN_CMPNAME|(skippath?oldfar::PN_SKIPPATH:0));
 }
 
-void WINAPI FarTextA(int X,int Y,int Color,const char *Str)
+void WINAPI FarTextA(int X,int Y,int ConColor,const char *Str)
 {
-	if (!Str) return NativeInfo.Text(X,Y,Color,nullptr);
+	FarColor Color;
+	Colors::ConsoleColorToFarColor(ConColor, Color);
+	if (!Str) return NativeInfo.Text(X,Y,&Color,nullptr);
 
 	string strS(Str);
-	return NativeInfo.Text(X,Y,Color,strS);
+	return NativeInfo.Text(X,Y,&Color,strS);
 }
 
 BOOL WINAPI FarShowHelpA(const char *ModuleName,const char *HelpTopic,DWORD Flags)
@@ -1693,9 +1695,6 @@ void AnsiDialogItemToUnicodeSafe(oldfar::FarDialogItem &diA, FarDialogItem &di)
 
 	if (diA.Flags)
 	{
-		if (diA.Flags&oldfar::DIF_SETCOLOR)
-			di.Flags|=DIF_SETCOLOR|(diA.Flags&oldfar::DIF_COLORMASK);
-
 		if (diA.Flags&oldfar::DIF_BOXCOLOR)
 			di.Flags|=DIF_BOXCOLOR;
 
@@ -1897,16 +1896,17 @@ void FreeUnicodeDialogItem(FarDialogItem &di)
 
 void FreeAnsiDialogItem(oldfar::FarDialogItem &diA)
 {
-	if ((diA.Type==oldfar::DI_EDIT || diA.Type==oldfar::DI_FIXEDIT) &&
-	        (diA.Flags&oldfar::DIF_HISTORY ||diA.Flags&oldfar::DIF_MASKEDIT) &&
-	        diA.History)
+	if ((diA.Type==oldfar::DI_EDIT || diA.Type==oldfar::DI_FIXEDIT) && (diA.Flags&oldfar::DIF_HISTORY ||diA.Flags&oldfar::DIF_MASKEDIT) && diA.History)
+	{
 		xf_free((void*)diA.History);
+		diA.History = nullptr;
+	}
 
-	if ((diA.Type==oldfar::DI_EDIT || diA.Type==oldfar::DI_COMBOBOX) &&
-	        diA.Flags&oldfar::DIF_VAREDIT && diA.Ptr.PtrData)
+	if ((diA.Type==oldfar::DI_EDIT || diA.Type==oldfar::DI_COMBOBOX) && diA.Flags&oldfar::DIF_VAREDIT && diA.Ptr.PtrData)
+	{
 		xf_free(diA.Ptr.PtrData);
-
-	memset(&diA,0,sizeof(oldfar::FarDialogItem));
+		diA.Ptr.PtrData = nullptr;
+	}
 }
 
 void UnicodeDialogItemToAnsiSafe(FarDialogItem &di,oldfar::FarDialogItem &diA)
@@ -1965,13 +1965,18 @@ void UnicodeDialogItemToAnsiSafe(FarDialogItem &di,oldfar::FarDialogItem &diA)
 	diA.X2=di.X2;
 	diA.Y2=di.Y2;
 	diA.Focus=(di.Flags&DIF_FOCUS)?true:false;
-	diA.Flags=0;
+
+	if (diA.Flags&oldfar::DIF_SETCOLOR)
+	{
+		diA.Flags=oldfar::DIF_SETCOLOR|(diA.Flags&oldfar::DIF_COLORMASK);
+	}
+	else
+	{
+		diA.Flags=0;
+	}
 
 	if (di.Flags)
 	{
-		if (di.Flags&DIF_SETCOLOR)
-			diA.Flags|=oldfar::DIF_SETCOLOR|(di.Flags&DIF_COLORMASK);
-
 		if (di.Flags&DIF_BOXCOLOR)
 			diA.Flags|=oldfar::DIF_BOXCOLOR;
 
@@ -2147,27 +2152,66 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, int NewMsg, int Param1, void* Param2)
 		case DN_CLOSE:           Msg=oldfar::DN_CLOSE; break;
 		case DN_LISTHOTKEY:      Msg=oldfar::DN_LISTHOTKEY; break;
 		case DN_BTNCLICK:        Msg=oldfar::DN_BTNCLICK; break;
-		case DN_CTLCOLORDIALOG:  Msg=oldfar::DN_CTLCOLORDIALOG; break;
-		case DN_CTLCOLORDLGITEM: Msg=oldfar::DN_CTLCOLORDLGITEM; break;
-		case DN_DRAWDIALOG:      Msg=oldfar::DN_DRAWDIALOG; break;
+
+		case DN_CTLCOLORDIALOG:
+			{
+				FarColor* Color = static_cast<FarColor*>(Param2);
+				Colors::ConsoleColorToFarColor(static_cast<int>(CurrentDlgProc(hDlg, oldfar::DN_CTLCOLORDIALOG, Param1, ToPtr(Colors::FarColorToConsoleColor(*Color)))),*Color);
+			}
+			break;
+
+		case DN_DRAWDIALOG:
+			Msg=oldfar::DN_DRAWDIALOG;
+			break;
+
+		case DN_CTLCOLORDLGITEM:
+			{
+				FarDialogItemColors* lc = reinterpret_cast<FarDialogItemColors*>(Param2);
+
+				oldfar::FarDialogItem* diA = CurrentDialogItemA(hDlg, Param1);
+
+				// first, emulate DIF_SETCOLOR
+				if(diA->Flags&oldfar::DIF_SETCOLOR)
+				{
+					BYTE Colors = diA->Flags&oldfar::DIF_COLORMASK;
+					Colors::ConsoleColorToFarColor(Colors, lc->Colors[0]);
+				}
+
+				DWORD Result = static_cast<DWORD>(CurrentDlgProc(hDlg, oldfar::DN_CTLCOLORDLGITEM, Param1, ToPtr(MAKELONG(
+					MAKEWORD(Colors::FarColorToConsoleColor(lc->Colors[0]), Colors::FarColorToConsoleColor(lc->Colors[1])),
+					MAKEWORD(Colors::FarColorToConsoleColor(lc->Colors[2]), Colors::FarColorToConsoleColor(lc->Colors[3]))))));
+				if(lc->ColorsCount > 0)
+					Colors::ConsoleColorToFarColor(LOBYTE(LOWORD(Result)),lc->Colors[0]);
+				if(lc->ColorsCount > 1)
+					Colors::ConsoleColorToFarColor(HIBYTE(LOWORD(Result)),lc->Colors[1]);
+				if(lc->ColorsCount > 2)
+					Colors::ConsoleColorToFarColor(LOBYTE(HIWORD(Result)),lc->Colors[2]);
+				if(lc->ColorsCount > 3)
+					Colors::ConsoleColorToFarColor(HIBYTE(HIWORD(Result)),lc->Colors[3]);
+			}
+			break;
 
 		case DN_CTLCOLORDLGLIST:
 			{
-				if(Param2)
+				FarDialogItemColors* lc = reinterpret_cast<FarDialogItemColors*>(Param2);
+				oldfar::FarListColors lcA={};
+				lcA.ColorCount = static_cast<int>(lc->ColorsCount);
+				lcA.Colors = new BYTE[lcA.ColorCount];
+				for(size_t i = 0; i < lc->ColorsCount; ++i)
 				{
-					FarListColors* lc = reinterpret_cast<FarListColors*>(Param2);
-					oldfar::FarListColors lcA={};
-					lcA.ColorCount = lc->ColorCount;
-					lcA.Colors = lc->Colors;
-					INT_PTR Result = CurrentDlgProc(hDlg, oldfar::DN_CTLCOLORDLGLIST, Param1, &lcA);
-					if(Result)
+					lcA.Colors[i] = static_cast<BYTE>(Colors::FarColorToConsoleColor(lc->Colors[i]));
+				}
+				INT_PTR Result = CurrentDlgProc(hDlg, oldfar::DN_CTLCOLORDLGLIST, Param1, &lcA);
+				if(Result)
+				{
+					lc->ColorsCount = lcA.ColorCount;
+					for(size_t i = 0; i < lc->ColorsCount; ++i)
 					{
-						lc->ColorCount = lcA.ColorCount;
-						lc->Colors = lcA.Colors;
-						return TRUE;
+						Colors::ConsoleColorToFarColor(lcA.Colors[i], lc->Colors[i]);
 					}
 				}
-				return FALSE;
+				delete[] lcA.Colors;
+				return Result != 0;
 			}
 			break;
 
@@ -2257,7 +2301,15 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, int NewMsg, int Param1, void* Param2)
 
 LONG_PTR WINAPI FarDefDlgProcA(HANDLE hDlg, int Msg, int Param1, void* Param2)
 {
-	return NativeInfo.DefDlgProc(OriginalEvents.Peek()->hDlg, OriginalEvents.Peek()->Msg, OriginalEvents.Peek()->Param1, OriginalEvents.Peek()->Param2);
+	LONG_PTR Result = NativeInfo.DefDlgProc(OriginalEvents.Peek()->hDlg, OriginalEvents.Peek()->Msg, OriginalEvents.Peek()->Param1, OriginalEvents.Peek()->Param2);
+	switch(Msg)
+	{
+	case DN_CTLCOLORDIALOG:
+	case DN_CTLCOLORDLGITEM:
+		Result = reinterpret_cast<LONG_PTR>(Param2);
+		break;
+	}
+	return Result;
 }
 
 LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Param2)
@@ -2344,6 +2396,14 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			FreeUnicodeDialogItem(*di);
 			oldfar::FarDialogItem *diA = (oldfar::FarDialogItem *)Param2;
 			AnsiDialogItemToUnicode(*diA,*di,*di->ListItems);
+
+			// save color info
+			if(diA->Flags&oldfar::DIF_SETCOLOR)
+			{
+				oldfar::FarDialogItem *diA_Copy=CurrentDialogItemA(hDlg,Param1);
+				diA_Copy->Flags = diA->Flags;
+			}
+
 			return NativeInfo.SendDlgMessage(hDlg, DM_SETDLGITEM, Param1, di);
 		}
 		case oldfar::DM_SETFOCUS: Msg = DM_SETFOCUS; break;
@@ -2801,6 +2861,13 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 		return -1;
 
 	oldfar::FarDialogItem* diA=new oldfar::FarDialogItem[ItemsNumber]();
+
+	// to save DIF_SETCOLOR state
+	for(int i = 0; i < ItemsNumber; ++i)
+	{
+		diA[i].Flags = Item[i].Flags;
+	}
+
 	FarDialogItem* di = new FarDialogItem[ItemsNumber]();
 	FarList* l = new FarList[ItemsNumber]();
 
@@ -3462,9 +3529,25 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 		case oldfar::ACTL_WAITKEY:
 			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_WAITKEY, 0, Param);
 		case oldfar::ACTL_GETCOLOR:
-			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETCOLOR, static_cast<int>(reinterpret_cast<INT_PTR>(Param)), nullptr);
+			FarColor Color;
+			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETCOLOR, static_cast<int>(reinterpret_cast<INT_PTR>(Param)), &Color)? Colors::FarColorToConsoleColor(Color) :-1;
 		case oldfar::ACTL_GETARRAYCOLOR:
-			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETARRAYCOLOR, static_cast<int>(reinterpret_cast<INT_PTR>(Param)), nullptr);
+			{
+				size_t PaletteSize = NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETARRAYCOLOR, 0, nullptr);
+				if(Param)
+				{
+					FarColor* Color = new FarColor[PaletteSize];
+					NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETARRAYCOLOR, 0, Color);
+					LPBYTE OldColors = static_cast<LPBYTE>(Param);
+					for(size_t i = 0; i < PaletteSize; ++i)
+					{
+						OldColors[i] = static_cast<BYTE>(Colors::FarColorToConsoleColor(Color[i]));
+					}
+					delete[] Color;
+				}
+				return PaletteSize;
+			}
+			break;
 		case oldfar::ACTL_EJECTMEDIA:
 			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_EJECTMEDIA, 0, Param);
 		case oldfar::ACTL_KEYMACRO:
@@ -3800,11 +3883,16 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 			if (!Param) return FALSE;
 
 			oldfar::FarSetColors *scA = (oldfar::FarSetColors *)Param;
-			FarSetColors sc = {0, scA->StartIndex, scA->ColorCount, scA->Colors};
+			FarSetColors sc = {0, scA->StartIndex, scA->ColorCount, new FarColor[scA->ColorCount]};
+			for(size_t i = 0; i < sc.ColorsCount; ++i)
+			{
+				Colors::ConsoleColorToFarColor(scA->Colors[i], sc.Colors[i]);
+			}
 
 			if (scA->Flags&oldfar::FCLR_REDRAW) sc.Flags|=FSETCLR_REDRAW;
-
-			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_SETARRAYCOLOR, 0, &sc);
+			INT_PTR Result = NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_SETARRAYCOLOR, 0, &sc);
+			delete[] sc.Colors;
+			return Result;
 		}
 		case oldfar::ACTL_GETWCHARMODE:
 			return TRUE;

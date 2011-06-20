@@ -381,6 +381,6 @@ class Editor:public ScreenObject
 		void SetCurPos(int NewCol, int NewRow=-1);
 		void SetCursorType(bool Visible, DWORD Size);
 		void GetCursorType(bool& Visible, DWORD& Size);
-		void SetObjectColor(int Color,int SelColor,int ColorUnChanged);
+		void SetObjectColor(PaletteColors Color,PaletteColors SelColor,PaletteColors ColorUnChanged);
 		void DrawScrollbar();
 };

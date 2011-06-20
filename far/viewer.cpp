@@ -66,6 +66,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "wakeful.hpp"
 #include "RegExp.hpp"
+#include "palette.hpp"
 
 static void PR_ViewerSearchMsg();
 static void ViewerSearchMsg(const wchar_t *name, int percent, int search_hex);
@@ -433,7 +434,7 @@ void Viewer::ShowPage(int nMode)
 	{
 		if (!strFileName.IsEmpty() && ((nMode == SHOW_RELOAD) || (nMode == SHOW_HEX)))
 		{
-			SetScreen(X1,Y1,X2,Y2,L' ',COL_VIEWERTEXT);
+			SetScreen(X1,Y1,X2,Y2,L' ',ColorIndexToColor(COL_VIEWERTEXT));
 			GotoXY(X1,Y1);
 			SetColor(COL_WARNDIALOGTEXT);
 			FS<<fmt::Precision(XX2-X1+1)<<MSG(MViewerCannotOpenFile);

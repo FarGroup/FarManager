@@ -157,8 +157,6 @@ static __inline BOOL IsEdit(enum FARDIALOGITEMTYPES Type)
 typedef unsigned __int64 FARDIALOGITEMFLAGS;
 static const FARDIALOGITEMFLAGS
 	DIF_NONE                  = 0,
-	DIF_COLORMASK             = 0x00000000000000ffULL,
-	DIF_SETCOLOR              = 0x0000000000000100ULL,
 	DIF_BOXCOLOR              = 0x0000000000000200ULL,
 	DIF_GROUP                 = 0x0000000000000400ULL,
 	DIF_LEFTTEXT              = 0x0000000000000800ULL,
@@ -444,12 +442,12 @@ struct FarListTitles
 	const wchar_t *Bottom;
 };
 
-struct FarListColors
+struct FarDialogItemColors
 {
 	unsigned __int64 Flags;
-	DWORD  Reserved;
-	int    ColorCount;
-	LPBYTE Colors;
+	size_t ColorsCount;
+	struct FarColor* Colors;
+	void* Reserved;
 };
 
 struct FarDialogItem
@@ -813,7 +811,7 @@ enum FILE_CONTROL_COMMANDS
 typedef void (WINAPI *FARAPITEXT)(
     int X,
     int Y,
-    int Color,
+    const FarColor* Color,
     const wchar_t *Str
 );
 
@@ -1280,9 +1278,9 @@ static const FARSETCOLORFLAGS
 struct FarSetColors
 {
 	FARSETCOLORFLAGS Flags;
-	int StartIndex;
-	int ColorCount;
-	LPBYTE Colors;
+	size_t StartIndex;
+	size_t ColorsCount;
+	FarColor* Colors;
 };
 
 enum WINDOWINFO_TYPE

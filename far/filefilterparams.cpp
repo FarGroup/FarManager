@@ -596,15 +596,15 @@ enum enumFileFilterConfig
 void HighlightDlgUpdateUserControl(CHAR_INFO *VBufColorExample,HighlightDataColor &Colors)
 {
 	const wchar_t *ptr;
-	DWORD Color;
-	const DWORD FarColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
+	FarColor Color;
+	const PaletteColors PalColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
 
-	for (int j=0; j<4; j++)
+	for (size_t i = 0; i < ARRAYSIZE(PalColor); ++i)
 	{
-		Color=(DWORD)(Colors.Color[HIGHLIGHTCOLORTYPE_FILE][j]&0x00FF);
+		Color=Colors.Color[HIGHLIGHTCOLORTYPE_FILE][i];
 
-		if (!Color)
-			Color=FarColorToReal(FarColor[j]);
+		if (!Color.BackgroundColor && !Color.ForegroundColor)
+			Color=ColorIndexToColor(PalColor[i]);
 
 		if (Colors.MarkChar&0x0000FFFF)
 			ptr=MSG(MHighlightExample2);
@@ -613,20 +613,19 @@ void HighlightDlgUpdateUserControl(CHAR_INFO *VBufColorExample,HighlightDataColo
 
 		for (int k=0; k<15; k++)
 		{
-			VBufColorExample[15*j+k].Char.UnicodeChar=ptr[k];
-			VBufColorExample[15*j+k].Attributes=(WORD)Color;
+			VBufColorExample[15*i+k].Char.UnicodeChar=ptr[k];
+			VBufColorExample[15*i+k].Attributes=Colors::FarColorToConsoleColor(Color);
 		}
 
-		if (Colors.MarkChar&0x0000FFFF)
+		if (LOWORD(Colors.MarkChar))
 		{
-			VBufColorExample[15*j+1].Char.UnicodeChar=(WCHAR)Colors.MarkChar&0x0000FFFF;
-
-			if (Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][j]&0x00FF)
-				VBufColorExample[15*j+1].Attributes=Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][j]&0x00FF;
+			VBufColorExample[15*i+1].Char.UnicodeChar=LOWORD(Colors.MarkChar);
+			if ((Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].ForegroundColor&0x00FFFFFF) && (Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].BackgroundColor&0x00FFFFFF))
+			VBufColorExample[15*i+1].Attributes=Colors::FarColorToConsoleColor(Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i]);
 		}
 
-		VBufColorExample[15*j].Attributes=FarColorToReal(COL_PANELBOX);
-		VBufColorExample[15*j+14].Attributes=FarColorToReal(COL_PANELBOX);
+		VBufColorExample[15*i].Attributes=Colors::FarColorToConsoleColor(ColorIndexToColor(COL_PANELBOX));
+		VBufColorExample[15*i+14].Attributes=Colors::FarColorToConsoleColor(ColorIndexToColor(COL_PANELBOX));
 	}
 }
 
@@ -739,7 +738,10 @@ INT_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,void* Para
 
 				for (int i=0; i<2; i++)
 					for (int j=0; j<4; j++)
-						Colors->Color[i][j]|=0xFF00;
+					{
+						Colors->Color[i][j].ForegroundColor|=0xff000000;
+						Colors->Color[i][j].BackgroundColor|=0xff000000;
+					}
 
 				SendDlgMessage(hDlg,DM_SETCHECK,ID_HER_MARKTRANSPARENT,ToPtr(BSTATE_CHECKED));
 				break;
@@ -766,7 +768,7 @@ INT_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,void* Para
 				}
 
 				//Color[0=file, 1=mark][0=normal,1=selected,2=undercursor,3=selectedundercursor]
-				WORD Color=EditData->Color[(Param1-ID_HER_NORMALFILE)&1][(Param1-ID_HER_NORMALFILE)/2];
+				FarColor Color=EditData->Color[(Param1-ID_HER_NORMALFILE)&1][(Param1-ID_HER_NORMALFILE)/2];
 				GetColorDialog(Color,true,true);
 				EditData->Color[(Param1-ID_HER_NORMALFILE)&1][(Param1-ID_HER_NORMALFILE)/2]=Color;
 				

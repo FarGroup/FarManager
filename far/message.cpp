@@ -122,8 +122,10 @@ INT_PTR WINAPI MsgDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 
 			if (di.Type==DI_EDIT)
 			{
-				int Color=FarColorToReal(IsWarningStyle?COL_WARNDIALOGTEXT:COL_DIALOGTEXT)&0xFF;
-				return ((reinterpret_cast<INT_PTR>(Param2)&0xFF00FF00)|(Color<<16)|Color);
+				FarColor Color=ColorIndexToColor(IsWarningStyle?COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
+				FarDialogItemColors* Colors = static_cast<FarDialogItemColors*>(Param2);
+				Colors->Colors[0] = Color;
+				Colors->Colors[2] = Color;
 			}
 		}
 		break;
@@ -454,10 +456,10 @@ int Message(
 
 	if (!(Flags & MSG_KEEPBACKGROUND))
 	{
-		SetScreen(X1,Y1,X2,Y2,L' ',(Flags & MSG_WARNING)?COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
+		SetScreen(X1,Y1,X2,Y2,L' ',ColorIndexToColor((Flags & MSG_WARNING)?COL_WARNDIALOGTEXT:COL_DIALOGTEXT));
 		MakeShadow(X1+2,Y2+1,X2+2,Y2+1);
 		MakeShadow(X2+1,Y1+1,X2+2,Y2+1);
-		Box(X1+3,Y1+1,X2-3,Y2-1,(Flags & MSG_WARNING)?COL_WARNDIALOGBOX:COL_DIALOGBOX,DOUBLE_BOX);
+		Box(X1+3,Y1+1,X2-3,Y2-1,ColorIndexToColor((Flags & MSG_WARNING)?COL_WARNDIALOGBOX:COL_DIALOGBOX),DOUBLE_BOX);
 	}
 
 	SetColor((Flags & MSG_WARNING)?COL_WARNDIALOGTEXT:COL_DIALOGTEXT);

@@ -451,6 +451,7 @@ struct MacroOptions
 
 struct Options
 {
+	palette Palette;
 	int Clock;
 	int Mouse;
 	int ShowKeyBar;

@@ -394,8 +394,10 @@ INT_PTR WINAPI ElevationApproveDlgProc(HANDLE hDlg,int Msg,int Param1,void* Para
 		{
 			if(Param1==AAD_EDIT_OBJECT)
 			{
-				int Color=FarColorToReal(COL_DIALOGTEXT);
-				return ((reinterpret_cast<INT_PTR>(Param2)&0xFF00FF00)|(Color<<16)|Color);
+				FarColor Color=ColorIndexToColor(COL_DIALOGTEXT);
+				FarDialogItemColors* Colors = static_cast<FarDialogItemColors*>(Param2);
+				Colors->Colors[0] = Color;
+				Colors->Colors[2] = Color;
 			}
 		}
 		break;
@@ -426,7 +428,7 @@ void ElevationApproveDlgSync(LPVOID Param)
 		{DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,nullptr,nullptr,0,MSG(MErrorAccessDenied)},
 		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(Opt.IsUserAdmin?MElevationRequiredPrivileges:MElevationRequired)},
 		{DI_TEXT,5,3,0,3,0,nullptr,nullptr,0,MSG(Data->Why)},
-		{DI_EDIT,5,4,DlgX-6,4,0,nullptr,nullptr,DIF_READONLY|DIF_SETCOLOR|FarColorToReal(COL_DIALOGTEXT),Data->Object},
+		{DI_EDIT,5,4,DlgX-6,4,0,nullptr,nullptr,DIF_READONLY/*|DIF_SETCOLOR|ColorIndexToColor(COL_DIALOGTEXT)*/,Data->Object},
 		{DI_CHECKBOX,5,6,0,6,1,nullptr,nullptr,0,MSG(MElevationDoForAll)},
 		{DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,0,MSG(MElevationDoNotAskAgainInTheCurrentSession)},
 		{DI_TEXT,3,DlgY-4,0,DlgY-4,0,nullptr,nullptr,DIF_SEPARATOR,L""},

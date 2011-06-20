@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lockscrn.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
+#include "palette.hpp"
 
 HMenu::HMenu(HMenuData *Item,int ItemCount):
 	SubMenu(nullptr),
@@ -62,7 +63,7 @@ HMenu::HMenu(HMenuData *Item,int ItemCount):
 
 void HMenu::DisplayObject()
 {
-	SetScreen(X1,Y1,X2,Y2,L' ',COL_HMENUTEXT);
+	SetScreen(X1,Y1,X2,Y2,L' ',ColorIndexToColor(COL_HMENUTEXT));
 	SetCursorType(0,10);
 	ShowMenu();
 }
@@ -85,7 +86,7 @@ void HMenu::ShowMenu()
 		strTmpStr=L"  ";
 		strTmpStr+=Item[i].Name;
 		strTmpStr+=L"  ";
-		HiText(strTmpStr,Item[i].Selected ? COL_HMENUSELECTEDHIGHLIGHT:COL_HMENUHIGHLIGHT);
+		HiText(strTmpStr,ColorIndexToColor(Item[i].Selected ? COL_HMENUSELECTEDHIGHLIGHT:COL_HMENUHIGHLIGHT));
 	}
 
 	ItemX[ItemCount]=WhereX();

@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DList.hpp"
 #include "elevation.hpp"
 #include "console.hpp"
+#include "colormix.hpp"
 
 enum
 {
@@ -204,7 +205,7 @@ void ScreenBuf::ApplyColorMask(int X1,int Y1,int X2,int Y2,WORD ColorMask)
 
 /* Непосредственное изменение цветовых атрибутов
 */
-void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,WORD Color)
+void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color)
 {
 	CriticalSectionLock Lock(CS);
 	if(X1<=ScrX && Y1<=ScrY && X2>=0 && Y2>=0)
@@ -223,7 +224,7 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,WORD Color)
 			CHAR_INFO *PtrBuf=Buf+(Y1+I)*BufX+X1;
 
 			for (J=0; J < Width; J++, ++PtrBuf)
-				PtrBuf->Attributes=Color;
+				PtrBuf->Attributes=Colors::FarColorToConsoleColor(Color);
 
 			//Buf[K+J].Attributes=Color;
 		}
@@ -241,7 +242,7 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,WORD Color)
 
 /* Непосредственное изменение цветовых атрибутов с заданым цетом исключением
 */
-void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,int Color,WORD ExceptColor)
+void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color,const FarColor& ExceptColor)
 {
 	CriticalSectionLock Lock(CS);
 	if(X1<=ScrX && Y1<=ScrY && X2>=0 && Y2>=0)
@@ -256,8 +257,8 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,int Color,WORD ExceptColo
 			CHAR_INFO *PtrBuf = Buf+(Y1+I)*BufX+X1;
 
 			for (int J = 0; J < X2-X1+1; J++, ++PtrBuf)
-				if (PtrBuf->Attributes != ExceptColor)
-					PtrBuf->Attributes = Color;
+				if (PtrBuf->Attributes != Colors::FarColorToConsoleColor(ExceptColor))
+					PtrBuf->Attributes = Colors::FarColorToConsoleColor(Color);
 		}
 
 #ifdef DIRECT_SCREEN_OUT
@@ -273,14 +274,14 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,int Color,WORD ExceptColo
 
 /* Закрасить прямоугольник символом Ch и цветом Color
 */
-void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,WORD Color)
+void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,const FarColor& Color)
 {
 	CriticalSectionLock Lock(CS);
 	int Width=X2-X1+1;
 	int Height=Y2-Y1+1;
 	int I, J;
 	CHAR_INFO CI,*PtrBuf;
-	CI.Attributes=Color;
+	CI.Attributes=Colors::FarColorToConsoleColor(Color);
 	SetVidChar(CI,Ch);
 
 	for (I=0; I < Height; I++)

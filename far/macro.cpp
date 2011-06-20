@@ -543,12 +543,12 @@ KeyMacro::KeyMacro():
 	Recording(MACROMODE_NOMACRO),
 	Mode(MACRO_SHELL),
 	CurPCStack(-1),
+	StopMacro(false),
 	MacroLIB(nullptr),
 	RecBufferSize(0),
 	RecBuffer(nullptr),
 	RecSrc(nullptr),
-	LockScr(nullptr),
-	StopMacro(false)
+	LockScr(nullptr)
 {
 	Work.Init(nullptr);
 	memset(&IndexMode,0,sizeof(IndexMode));

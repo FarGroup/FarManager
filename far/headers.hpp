@@ -167,6 +167,11 @@ inline void* ToPtr(INT_PTR T){ return reinterpret_cast<void*>(T); }
 #include "farwinapi.hpp"
 #include "cvtname.hpp"
 
+#include "colors.hpp"
+#include "palette.hpp"
+#include "colormix.hpp"
+
+
 #ifdef _DEBUG
 #define SELF_TEST(code) \
 	namespace { \

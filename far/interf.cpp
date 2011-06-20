@@ -49,11 +49,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "console.hpp"
 #include "configdb.hpp"
+#include "colormix.hpp"
 
 BOOL __stdcall CtrlHandler(DWORD CtrlType);
 
 static int CurX,CurY;
-static int CurColor;
+static FarColor CurColor;
 
 CONSOLE_CURSOR_INFO InitialCursorInfo;
 
@@ -136,7 +137,7 @@ void InitConsole(int FirstInit)
 	  для consoledetach не нужно, что бы инитилась палитра.
 	*/
 	if (FirstInit)
-		memcpy(Palette,DefaultPalette,SizeArrayPalette);
+		Opt.Palette.ResetToDefault();
 
 	HWND hWnd = Console.GetWindow();
 	if (hWnd && Opt.SmallIcon)
@@ -573,9 +574,9 @@ void InitRecodeOutTable()
 }
 
 
-void Text(int X, int Y, int Color, const WCHAR *Str)
+void Text(int X, int Y, const FarColor& Color, const WCHAR *Str)
 {
-	CurColor=FarColorToReal(Color);
+	CurColor=Color;
 	CurX=X;
 	CurY=Y;
 	Text(Str);
@@ -601,7 +602,7 @@ void Text(const WCHAR *Str)
 	for (size_t i=0; i < Length; i++)
 	{
 		BufPtr[i].Char.UnicodeChar=Str[i];
-		BufPtr[i].Attributes=CurColor;
+		BufPtr[i].Attributes=Colors::FarColorToConsoleColor(CurColor);
 	}
 
 	ScrBuf.Write(CurX, CurY, BufPtr, static_cast<int>(Length));
@@ -638,10 +639,10 @@ void VText(const WCHAR *Str)
 	}
 }
 
-void HiText(const wchar_t *Str,int HiColor,int isVertText)
+void HiText(const wchar_t *Str,const FarColor& HiColor,int isVertText)
 {
 	string strTextStr;
-	int SaveColor;
+	FarColor SaveColor;
 	size_t pos;
 	strTextStr = Str;
 
@@ -716,7 +717,7 @@ void HiText(const wchar_t *Str,int HiColor,int isVertText)
 
 
 
-void SetScreen(int X1,int Y1,int X2,int Y2,wchar_t Ch,int Color)
+void SetScreen(int X1,int Y1,int X2,int Y2,wchar_t Ch,const FarColor& Color)
 {
 	if (X1<0) X1=0;
 
@@ -726,7 +727,7 @@ void SetScreen(int X1,int Y1,int X2,int Y2,wchar_t Ch,int Color)
 
 	if (Y2>ScrY) Y2=ScrY;
 
-	ScrBuf.FillRect(X1,Y1,X2,Y2,Ch,FarColorToReal(Color));
+	ScrBuf.FillRect(X1, Y1, X2, Y2, Ch, Color);
 }
 
 
@@ -743,7 +744,7 @@ void MakeShadow(int X1,int Y1,int X2,int Y2)
 	ScrBuf.ApplyColorMask(X1,Y1,X2,Y2,0xF8);
 }
 
-void ChangeBlockColor(int X1,int Y1,int X2,int Y2,int Color)
+void ChangeBlockColor(int X1,int Y1,int X2,int Y2,const FarColor& Color)
 {
 	if (X1<0) X1=0;
 
@@ -753,7 +754,7 @@ void ChangeBlockColor(int X1,int Y1,int X2,int Y2,int Color)
 
 	if (Y2>ScrY) Y2=ScrY;
 
-	ScrBuf.ApplyColor(X1,Y1,X2,Y2,FarColorToReal(Color));
+	ScrBuf.ApplyColor(X1, Y1, X2, Y2, Color);
 }
 
 void vmprintf(const WCHAR *fmt,...)
@@ -766,32 +767,39 @@ void vmprintf(const WCHAR *fmt,...)
 	va_end(argptr);
 }
 
-
 void SetColor(int Color)
 {
-	CurColor=FarColorToReal(Color);
+	CurColor=ColorIndexToColor((PaletteColors)Color);
 }
 
-void SetRealColor(int Color)
+void SetColor(PaletteColors Color)
 {
-	CurColor=FarColorToReal(Color);
-	Console.SetTextAttributes(CurColor);
+	CurColor=ColorIndexToColor(Color);
 }
 
-void ClearScreen(int Color)
+void SetColor(const FarColor& Color)
 {
-	Color=FarColorToReal(Color);
+	CurColor=Color;
+}
+
+void SetRealColor(const FarColor& Color)
+{
+	Console.SetTextAttributes(Colors::FarColorToConsoleColor(Color));
+}
+
+void ClearScreen(const FarColor& Color)
+{
 	ScrBuf.FillRect(0,0,ScrX,ScrY,L' ',Color);
 	if(Opt.WindowMode)
 	{
-		Console.ClearExtraRegions(Color);
+		Console.ClearExtraRegions(Colors::FarColorToConsoleColor(Color));
 	}
 	ScrBuf.ResetShadow();
 	ScrBuf.Flush();
-	Console.SetTextAttributes(Color);
+	Console.SetTextAttributes(Colors::FarColorToConsoleColor(Color));
 }
 
-int GetColor()
+const FarColor& GetColor()
 {
 	return(CurColor);
 }
@@ -800,7 +808,7 @@ int GetColor()
 void ScrollScreen(int Count)
 {
 	ScrBuf.Scroll(Count);
-	ScrBuf.FillRect(0,ScrY+1-Count,ScrX,ScrY,L' ',FarColorToReal(COL_COMMANDLINEUSERSCREEN));
+	ScrBuf.FillRect(0,ScrY+1-Count,ScrX,ScrY,L' ',ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
 }
 
 
@@ -838,7 +846,7 @@ void BoxText(const wchar_t *Str,int IsVert)
 /*
    Отрисовка прямоугольника.
 */
-void Box(int x1,int y1,int x2,int y2,int Color,int Type)
+void Box(int x1,int y1,int x2,int y2,const FarColor& Color,int Type)
 {
 	if (x1>=x2 || y1>=y2)
 		return;

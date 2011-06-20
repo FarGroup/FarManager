@@ -455,7 +455,17 @@ int  DlgEdit::GetDelRemovesBlocks()
 		return lineEdit->GetDelRemovesBlocks();
 }
 
-void DlgEdit::SetObjectColor(int Color,int SelColor,int ColorUnChanged)
+void DlgEdit::SetObjectColor(PaletteColors Color,PaletteColors SelColor,PaletteColors ColorUnChanged)
+{
+#if defined(PROJECT_DI_MEMOEDIT)
+
+	if (Type == DLGEDIT_MULTILINE)
+		multiEdit->SetObjectColor(Color,SelColor,ColorUnChanged);
+	else
+#endif
+		lineEdit->SetObjectColor(Color,SelColor,ColorUnChanged);
+}
+void DlgEdit::SetObjectColor(const FarColor& Color,const FarColor& SelColor,const FarColor& ColorUnChanged)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -466,26 +476,15 @@ void DlgEdit::SetObjectColor(int Color,int SelColor,int ColorUnChanged)
 		lineEdit->SetObjectColor(Color,SelColor,ColorUnChanged);
 }
 
-long DlgEdit::GetObjectColor()
+void DlgEdit::GetObjectColor(FarColor& Color, FarColor& SelColor, FarColor& ColorUnChanged)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
 	if (Type == DLGEDIT_MULTILINE)
-		return 0;// multiEdit->GetObjectColor();
+		return 0;// multiEdit->GetObjectColor(Color, SelColor, ColorUnChanged);
 	else
 #endif
-		return lineEdit->GetObjectColor();
-}
-
-int DlgEdit::GetObjectColorUnChanged()
-{
-#if defined(PROJECT_DI_MEMOEDIT)
-
-	if (Type == DLGEDIT_MULTILINE)
-		return 0; // multiEdit->GetObjectColorUnChanged();
-	else
-#endif
-		return lineEdit->GetObjectColorUnChanged();
+		return lineEdit->GetObjectColor(Color, SelColor, ColorUnChanged);
 }
 
 void DlgEdit::FastShow()

@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "palette.hpp"
 #include "console.hpp"
+#include "colormix.hpp"
 
 SaveScreen::SaveScreen()
 {
@@ -296,7 +297,7 @@ void SaveScreen::CharCopy(PCHAR_INFO ToBuffer,PCHAR_INFO FromBuffer,int Count)
 
 void SaveScreen::CleanupBuffer(PCHAR_INFO Buffer, size_t BufSize)
 {
-	WORD Attr=FarColorToReal(COL_COMMANDLINEUSERSCREEN);
+	WORD Attr=Colors::FarColorToConsoleColor(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
 
 	for (size_t i=0; i<BufSize; i++)
 	{

@@ -398,7 +398,7 @@ void Editor::ShowEditor(int CurLineOnly)
 			}
 			else
 			{
-				SetScreen(X1,Y,XX2,Y,L' ',COL_EDITORTEXT); //Пустые строки после конца текста
+				SetScreen(X1,Y,XX2,Y,L' ',ColorIndexToColor(COL_EDITORTEXT)); //Пустые строки после конца текста
 			}
 	}
 
@@ -426,7 +426,7 @@ void Editor::ShowEditor(int CurLineOnly)
 						BlockX2=XX2;
 
 					if (BlockX1<=XX2 && BlockX2>=X1)
-						ChangeBlockColor(BlockX1,Y,BlockX2,Y,COL_EDITORSELECTEDTEXT);
+						ChangeBlockColor(BlockX1,Y,BlockX2,Y,ColorIndexToColor(COL_EDITORSELECTEDTEXT));
 				}
 
 				CurPtr=CurPtr->m_next;
@@ -3705,7 +3705,7 @@ BOOL Editor::Search(int Next)
 						Show();
 						SHORT CurX,CurY;
 						GetCursorPos(CurX,CurY);
-						ScrBuf.ApplyColor(CurX,CurY,CurPtr->RealPosToTab(CurPtr->TabPosToReal(CurX)+SearchLength)-1,CurY,FarColorToReal(COL_EDITORSELECTEDTEXT));
+						ScrBuf.ApplyColor(CurX,CurY,CurPtr->RealPosToTab(CurPtr->TabPosToReal(CurX)+SearchLength)-1,CurY,ColorIndexToColor(COL_EDITORSELECTEDTEXT));
 						string strQSearchStr(CurPtr->GetStringAddr()+CurPtr->GetCurPos(),SearchLength), strQReplaceStr=strReplaceStrCurrent;
 						InsertQuote(strQSearchStr);
 						InsertQuote(strQReplaceStr);
@@ -6995,7 +6995,7 @@ void Editor::GetCursorType(bool& Visible,DWORD& Size)
 	CurLine->GetCursorType(Visible,Size); //???
 }
 
-void Editor::SetObjectColor(int Color,int SelColor,int ColorUnChanged)
+void Editor::SetObjectColor(PaletteColors Color,PaletteColors SelColor,PaletteColors ColorUnChanged)
 {
 	for (Edit *CurPtr=TopList; CurPtr; CurPtr=CurPtr->m_next) //???
 		CurPtr->SetObjectColor(Color,SelColor,ColorUnChanged);

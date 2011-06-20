@@ -137,8 +137,10 @@ INT_PTR WINAPI ExcDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 
 			if (di.Type==DI_EDIT)
 			{
-				int Color=FarColorToReal(COL_WARNDIALOGTEXT);
-				return ((reinterpret_cast<INT_PTR>(Param2)&0xFF00FF00)|(Color<<16)|Color);
+				FarColor Color=ColorIndexToColor(COL_WARNDIALOGTEXT);
+				FarDialogItemColors* Colors = static_cast<FarDialogItemColors*>(Param2);
+				Colors->Colors[0] = Color;
+				Colors->Colors[2] = Color;
 			}
 		}
 		break;

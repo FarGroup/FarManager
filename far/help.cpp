@@ -54,6 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "exitcode.hpp"
 #include "filestr.hpp"
+#include "palette.hpp"
 
 // Стек возврата
 class CallBackStack
@@ -807,8 +808,8 @@ void Help::FastShow()
 
 void Help::DrawWindowFrame()
 {
-	SetScreen(X1,Y1,X2,Y2,L' ',COL_HELPTEXT);
-	Box(X1,Y1,X2,Y2,COL_HELPBOX,DOUBLE_BOX);
+	SetScreen(X1,Y1,X2,Y2,L' ',ColorIndexToColor(COL_HELPTEXT));
+	Box(X1,Y1,X2,Y2,ColorIndexToColor(COL_HELPBOX),DOUBLE_BOX);
 	SetColor(COL_HELPBOXTITLE);
 	string strHelpTitleBuf;
 	strHelpTitleBuf = MSG(MHelpTitle);

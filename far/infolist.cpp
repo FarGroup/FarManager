@@ -56,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "mix.hpp"
+#include "palette.hpp"
 
 static int LastDizWrapMode = -1;
 static int LastDizWrapType = -1;
@@ -109,8 +110,8 @@ void InfoList::DisplayObject()
 	FormatString strDiskNumber;
 	CloseFile();
 
-	Box(X1,Y1,X2,Y2,COL_PANELBOX,DOUBLE_BOX);
-	SetScreen(X1+1,Y1+1,X2-1,Y2-1,L' ',COL_PANELTEXT);
+	Box(X1,Y1,X2,Y2,ColorIndexToColor(COL_PANELBOX),DOUBLE_BOX);
+	SetScreen(X1+1,Y1+1,X2-1,Y2-1,L' ',ColorIndexToColor(COL_PANELTEXT));
 	SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
 	GetTitle(strTitle);
 
@@ -537,7 +538,8 @@ void InfoList::PrintInfo(const wchar_t *str)
 	if (WhereY()>Y2-1)
 		return;
 
-	int SaveColor=GetColor(),MaxLength=X2-WhereX()-2;
+	FarColor SaveColor=GetColor();
+	int MaxLength=X2-WhereX()-2;
 
 	if (MaxLength<0)
 		MaxLength=0;

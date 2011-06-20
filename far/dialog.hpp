@@ -236,7 +236,7 @@ class Dialog: public Frame
 
 		void ShowDialog(unsigned ID=(unsigned)-1);  //    ID=-1 - отрисовать весь диалог
 
-		INT_PTR CtlColorDlgItem(int ItemPos,int Type,int Focus,int Default,FARDIALOGITEMFLAGS Flags);
+		INT_PTR CtlColorDlgItem(FarColor Color[4], int ItemPos,int Type,int Focus,int Default,FARDIALOGITEMFLAGS Flags);
 		/* $ 28.07.2000 SVS
 		   + Изменяет фокус ввода между двумя элементами.
 		     Вынесен отдельно для того, чтобы обработать DMSG_KILLFOCUS & DMSG_SETFOCUS

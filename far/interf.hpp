@@ -136,26 +136,28 @@ void MoveRealCursor(int X,int Y);
 void GetRealCursorPos(SHORT& X,SHORT& Y);
 void ScrollScreen(int Count);
 
-void Text(int X, int Y, int Color, const WCHAR *Str);
+void Text(int X, int Y, const FarColor& Color, const WCHAR *Str);
 void Text(const WCHAR *Str);
 void Text(int MsgId);
 void VText(const WCHAR *Str);
-void HiText(const WCHAR *Str,int HiColor,int isVertText=0);
+void HiText(const WCHAR *Str,const FarColor& HiColor,int isVertText=0);
 void vmprintf(const WCHAR *fmt,...);
 void PutText(int X1,int Y1,int X2,int Y2,const void *Src);
 void GetText(int X1,int Y1,int X2,int Y2,void *Dest,size_t DestSize);
 void BoxText(wchar_t Chr);
 void BoxText(const wchar_t *Str,int IsVert=0);
 
-void SetScreen(int X1,int Y1,int X2,int Y2,wchar_t Ch,int Color);
+void SetScreen(int X1,int Y1,int X2,int Y2,wchar_t Ch,const FarColor& Color);
 void MakeShadow(int X1,int Y1,int X2,int Y2);
-void ChangeBlockColor(int X1,int Y1,int X2,int Y2,int Color);
+void ChangeBlockColor(int X1,int Y1,int X2,int Y2,const FarColor& Color);
 void SetColor(int Color);
-void SetRealColor(int Color);
-void ClearScreen(int Color);
-int GetColor();
+void SetColor(PaletteColors Color);
+void SetColor(const FarColor& Color);
+void SetRealColor(const FarColor& Color);
+void ClearScreen(const FarColor& Color);
+const FarColor& GetColor();
 
-void Box(int x1,int y1,int x2,int y2,int Color,int Type);
+void Box(int x1,int y1,int x2,int y2,const FarColor& Color,int Type);
 void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total);
 bool ScrollBarRequired(UINT Length, UINT64 ItemsCount);
 bool ScrollBarEx(UINT X1,UINT Y1,UINT Length,UINT64 TopItem,UINT64 ItemsCount);

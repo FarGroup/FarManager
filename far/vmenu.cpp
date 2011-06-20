@@ -2287,7 +2287,7 @@ void VMenu::ShowMenu(bool IsParent)
 					strMenuLine.ReleaseBuffer(strMenuLine.GetLength());
 				}
 
-				int Col;
+				FarColor Col;
 
 				if (!(Item[I]->Flags & LIF_DISABLE))
 				{
@@ -2682,7 +2682,7 @@ void VMenu::SetBoxType(int BoxType)
 	VMenu::BoxType=BoxType;
 }
 
-void VMenu::SetColors(FarListColors *ColorsIn)
+void VMenu::SetColors(FarDialogItemColors *ColorsIn)
 {
 	CriticalSectionLock Lock(CS);
 
@@ -2692,7 +2692,7 @@ void VMenu::SetColors(FarListColors *ColorsIn)
 	}
 	else
 	{
-		static short StdColor[2][3][VMENU_COLOR_COUNT]=
+		static PaletteColors StdColor[2][3][VMENU_COLOR_COUNT]=
 		{
 			// Not VMENU_WARNDIALOG
 			{
@@ -2809,7 +2809,7 @@ void VMenu::SetColors(FarListColors *ColorsIn)
 
 		if (CheckFlags(VMENU_DISABLED))
 		{
-			Colors[0] = FarColorToReal(StyleMenu?COL_WARNDIALOGDISABLED:COL_DIALOGDISABLED);
+			Colors[0] = ColorIndexToColor(StyleMenu?COL_WARNDIALOGDISABLED:COL_DIALOGDISABLED);
 
 			for (int I=1; I < VMENU_COLOR_COUNT; ++I)
 				Colors[I] = Colors[0];
@@ -2817,24 +2817,24 @@ void VMenu::SetColors(FarListColors *ColorsIn)
 		else
 		{
 			for (int I=0; I < VMENU_COLOR_COUNT; ++I)
-				Colors[I] = FarColorToReal(StdColor[StyleMenu][TypeMenu][I]);
+				Colors[I] = ColorIndexToColor(StdColor[StyleMenu][TypeMenu][I]);
 		}
 	}
 }
 
-void VMenu::GetColors(FarListColors *ColorsOut)
+void VMenu::GetColors(FarDialogItemColors *ColorsOut)
 {
 	CriticalSectionLock Lock(CS);
 
-	memmove(ColorsOut->Colors, Colors, Min(sizeof(Colors), ColorsOut->ColorCount*sizeof(Colors[0])));
+	memmove(ColorsOut->Colors, Colors, Min(sizeof(Colors), ColorsOut->ColorsCount*sizeof(Colors[0])));
 }
 
-void VMenu::SetOneColor(int Index, short Color)
+void VMenu::SetOneColor(int Index, PaletteColors Color)
 {
 	CriticalSectionLock Lock(CS);
 
 	if (Index < (int)ARRAYSIZE(Colors))
-		Colors[Index] = FarColorToReal(Color);
+		Colors[Index] = ColorIndexToColor(Color);
 }
 
 BOOL VMenu::GetVMenuInfo(FarListInfo* Info)

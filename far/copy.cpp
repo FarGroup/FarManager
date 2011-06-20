@@ -193,7 +193,7 @@ class CopyProgress
 		bool Move,Total,Time;
 		bool BgInit,ScanBgInit;
 		bool IsCancelled;
-		int Color;
+		FarColor Color;
 		int Percents;
 		DWORD LastWriteTime;
 		string strSrc,strDst,strFiles,strTime;
@@ -265,7 +265,7 @@ CopyProgress::CopyProgress(bool Move,bool Total,bool Time):
 	BgInit(false),
 	ScanBgInit(false),
 	IsCancelled(false),
-	Color(FarColorToReal(COL_DIALOGTEXT)),
+	Color(ColorIndexToColor(COL_DIALOGTEXT)),
 	Percents(0),
 	LastWriteTime(0)
 {
@@ -3533,8 +3533,10 @@ INT_PTR WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 		{
 			if (Param1==WDLG_FILENAME)
 			{
-				int Color=FarColorToReal(COL_WARNDIALOGTEXT)&0xFF;
-				return ((reinterpret_cast<INT_PTR>(Param2)&0xFF00FF00)|(Color<<16)|Color);
+				FarColor Color=ColorIndexToColor(COL_WARNDIALOGTEXT);
+				FarDialogItemColors* Colors = static_cast<FarDialogItemColors*>(Param2);
+				Colors->Colors[0] = Color;
+				Colors->Colors[2] = Color;
 			}
 		}
 		break;

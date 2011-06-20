@@ -36,8 +36,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "palette.hpp"
 #include "colors.hpp"
+#include "colormix.hpp"
+#include "config.hpp"
 
-unsigned char DefaultPalette[]=
+int DefaultPaletteIndex[]=
 {
 	F_WHITE|B_CYAN,                         // COL_MENUTEXT,
 	F_WHITE|B_BLACK,                        // COL_MENUSELECTEDTEXT,
@@ -122,8 +124,6 @@ unsigned char DefaultPalette[]=
 	F_WHITE|B_BLACK,                        // COL_DIALOGEDITSELECTED,
 	F_BLACK|B_CYAN,                         // COL_COMMANDLINESELECTED,
 	F_YELLOW|B_BLUE,                        // COL_VIEWERARROWS,
-
-	0,                                      // COL_RESERVED0                   // Служебная позиция: 1 - это есть default color
 
 	F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGLISTSCROLLBAR,
 	F_WHITE|B_CYAN,                         // COL_MENUSCROLLBAR,
@@ -216,7 +216,7 @@ unsigned char DefaultPalette[]=
 };
 
 
-unsigned char BlackPalette[]=
+int BlackPaletteIndex[]=
 {
 	F_BLACK|B_LIGHTGRAY,                    // COL_MENUTEXT,
 	F_LIGHTGRAY|B_BLACK,                    // COL_MENUSELECTEDTEXT,
@@ -301,8 +301,6 @@ unsigned char BlackPalette[]=
 	F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGEDITSELECTED,
 	F_BLACK|B_LIGHTGRAY,                    // COL_COMMANDLINESELECTED,
 	F_WHITE|B_BLACK,                        // COL_VIEWERARROWS,
-
-	1,                                      // COL_RESERVED0                   // Служебная позиция: 1 - это есть default color
 
 	F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGLISTSCROLLBAR,
 	F_BLACK|B_LIGHTGRAY,                    // COL_MENUSCROLLBAR,
@@ -394,13 +392,47 @@ unsigned char BlackPalette[]=
 	F_WHITE|B_BLACK,                        // COL_WARNDIALOGHIGHLIGHTSELECTEDDEFAULTBUTTON,
 };
 
+FarColor CurrentPaletteData[ARRAYSIZE(DefaultPaletteIndex)];
+FarColor DefaultPaletteData[ARRAYSIZE(DefaultPaletteIndex)];
+FarColor BlackPaletteData[ARRAYSIZE(DefaultPaletteIndex)];
 
-int SizeArrayPalette=ARRAYSIZE(DefaultPalette);
-unsigned char Palette[ARRAYSIZE(DefaultPalette)];
-
-BYTE FarColorToReal(int FarColor)
+palette::palette():
+	SizeArrayPalette(ARRAYSIZE(DefaultPaletteIndex)),
+	CurrentPalette(CurrentPaletteData),
+	DefaultPalette(DefaultPaletteData),
+	BlackPalette(BlackPaletteData)
 {
-	return (FarColor<COL_FIRSTPALETTECOLOR)?FarColor:Palette[(FarColor-COL_FIRSTPALETTECOLOR)%SizeArrayPalette];
+	for(size_t i = 0; i < SizeArrayPalette; ++i)
+	{
+		Colors::ConsoleColorToFarColor(DefaultPaletteIndex[i], DefaultPalette[i]);
+		Colors::ConsoleColorToFarColor(BlackPaletteIndex[i], BlackPalette[i]);
+		DefaultPalette[COL_PANELTEXT].BackgroundColor|=0xFF000000;
+		DefaultPalette[COL_PANELSELECTEDTEXT].BackgroundColor|=0xFF000000;
+	}
+}
+
+void palette::ResetToDefault()
+{
+	memcpy(CurrentPalette, DefaultPalette, SizeArrayPalette*sizeof(FarColor));
+}
+
+void palette::ResetToBlack()
+{
+	memcpy(CurrentPalette, BlackPalette, SizeArrayPalette*sizeof(FarColor));
+}
+
+const FarColor ColorIndexToColor(PaletteColors ColorIndex)
+{
+	FarColor Result = {};
+	if(ColorIndex<COL_FIRSTPALETTECOLOR)
+	{
+		Colors::ConsoleColorToFarColor(ColorIndex, Result);
+	}
+	else
+	{
+		Result = Opt.Palette.CurrentPalette[(ColorIndex-COL_FIRSTPALETTECOLOR)%Opt.Palette.SizeArrayPalette];
+	}
+	return Result;
 }
 
 /*
