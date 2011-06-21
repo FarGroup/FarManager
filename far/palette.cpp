@@ -406,9 +406,9 @@ palette::palette():
 	{
 		Colors::ConsoleColorToFarColor(DefaultPaletteIndex[i], DefaultPalette[i]);
 		Colors::ConsoleColorToFarColor(BlackPaletteIndex[i], BlackPalette[i]);
-		DefaultPalette[COL_PANELTEXT].BackgroundColor|=0xFF000000;
-		DefaultPalette[COL_PANELSELECTEDTEXT].BackgroundColor|=0xFF000000;
 	}
+	DefaultPalette[COL_PANELTEXT-COL_FIRSTPALETTECOLOR].BackgroundColor|=0xFF000000;
+	DefaultPalette[COL_PANELSELECTEDTEXT-COL_FIRSTPALETTECOLOR].BackgroundColor|=0xFF000000;
 }
 
 void palette::ResetToDefault()
