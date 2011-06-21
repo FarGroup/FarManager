@@ -115,7 +115,7 @@ int WINAPI FarInputBox(INT_PTR PluginNumber,const wchar_t *Title,const wchar_t *
 INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, ADVANCED_CONTROL_COMMANDS Command, int Param1, void* Param2);
 //  Функция расширенного диалога
 HANDLE WINAPI FarDialogInit(INT_PTR PluginNumber, const GUID* Id, int X1, int Y1, int X2, int Y2,
-                            const wchar_t *HelpTopic, struct FarDialogItem *Item,
+                            const wchar_t *HelpTopic, const struct FarDialogItem *Item,
                             unsigned int ItemsNumber, DWORD Reserved, unsigned __int64 Flags,
                             FARWINDOWPROC Proc, void* Param);
 int WINAPI FarDialogRun(HANDLE hDlg);

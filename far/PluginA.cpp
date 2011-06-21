@@ -2203,7 +2203,8 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, int NewMsg, int Param1, void* Param2)
 				FarDialogItemColors* lc = reinterpret_cast<FarDialogItemColors*>(Param2);
 				oldfar::FarListColors lcA={};
 				lcA.ColorCount = static_cast<int>(lc->ColorsCount);
-				lcA.Colors = new BYTE[lcA.ColorCount];
+				LPBYTE Colors = new BYTE[lcA.ColorCount];
+				lcA.Colors = Colors;
 				for(size_t i = 0; i < lc->ColorsCount; ++i)
 				{
 					lcA.Colors[i] = static_cast<BYTE>(Colors::FarColorToConsoleColor(lc->Colors[i]));
@@ -2217,7 +2218,7 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, int NewMsg, int Param1, void* Param2)
 						Colors::ConsoleColorToFarColor(lcA.Colors[i], lc->Colors[i]);
 					}
 				}
-				delete[] lcA.Colors;
+				delete[] Colors;
 				return Result != 0;
 			}
 			break;
@@ -3513,7 +3514,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 			if (Param)
 			{
 				wchar_t *SysWordDiv = (wchar_t*)xf_malloc((Length+1)*sizeof(wchar_t));
-				NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETSYSWORDDIV, 0, SysWordDiv);
+				NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETSYSWORDDIV, Length, SysWordDiv);
 				UnicodeToOEM(SysWordDiv,(char*)Param,oldfar::NM);
 				xf_free(SysWordDiv);
 			}
@@ -3522,9 +3523,21 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 		}
 		case oldfar::ACTL_WAITKEY:
 			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_WAITKEY, 0, Param);
+
 		case oldfar::ACTL_GETCOLOR:
-			FarColor Color;
-			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETCOLOR, static_cast<int>(reinterpret_cast<INT_PTR>(Param)), &Color)? Colors::FarColorToConsoleColor(Color) :-1;
+			{
+				FarColor Color;
+				int ColorIndex = static_cast<int>(reinterpret_cast<INT_PTR>(Param));
+
+				// there was a reserved position after COL_VIEWERARROWS in Far 1.x.
+				if(ColorIndex > COL_VIEWERARROWS-COL_FIRSTPALETTECOLOR)
+				{
+					ColorIndex--;
+				}
+				return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETCOLOR, ColorIndex, &Color)? Colors::FarColorToConsoleColor(Color) :-1;
+			}
+			break;
+
 		case oldfar::ACTL_GETARRAYCOLOR:
 			{
 				size_t PaletteSize = NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETARRAYCOLOR, 0, nullptr);

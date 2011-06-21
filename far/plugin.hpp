@@ -453,7 +453,7 @@ struct FarDialogItemColors
 struct FAR_CHAR_INFO
 {
 	WCHAR Char;
-	FarColor Attributes;
+	struct FarColor Attributes;
 };
 
 struct FarDialogItem
@@ -465,7 +465,7 @@ struct FarDialogItem
 		DWORD_PTR Reserved;
 		int Selected;
 		struct FarList *ListItems;
-		FAR_CHAR_INFO *VBuf;
+		struct FAR_CHAR_INFO *VBuf;
 	}
 #ifndef __cplusplus
 	Param
@@ -583,7 +583,7 @@ typedef HANDLE(WINAPI *FARAPIDIALOGINIT)(
     int                   X2,
     int                   Y2,
     const wchar_t        *HelpTopic,
-    struct FarDialogItem *Item,
+    const struct FarDialogItem *Item,
     unsigned int          ItemsNumber,
     DWORD                 Reserved,
     FARDIALOGFLAGS        Flags,

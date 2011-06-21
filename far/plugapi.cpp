@@ -277,8 +277,8 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, ADVANCED_CONTROL_COMMANDS Com
 		}
 		case ACTL_GETSYSWORDDIV:
 		{
-			if (Param2)
-				wcscpy((wchar_t *)Param2,Opt.strWordDiv);
+			if (Param1 && Param2)
+				xwcsncpy((wchar_t *)Param2, Opt.strWordDiv, Param1);
 
 			return Opt.strWordDiv.GetLength()+1;
 		}
@@ -928,7 +928,7 @@ static int FarDialogExSehed(Dialog *FarDialog)
 }
 
 HANDLE WINAPI FarDialogInit(INT_PTR PluginNumber, const GUID* Id, int X1, int Y1, int X2, int Y2,
-                            const wchar_t *HelpTopic, FarDialogItem *Item,
+                            const wchar_t *HelpTopic, const FarDialogItem *Item,
                             unsigned int ItemsNumber, DWORD Reserved, unsigned __int64 Flags,
                             FARWINDOWPROC DlgProc, void* Param)
 {

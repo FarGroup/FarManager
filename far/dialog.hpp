@@ -205,7 +205,7 @@ class Dialog: public Frame
 		void* DataDialog;        // Данные, специфические для конкретного экземпляра диалога (первоначально здесь параметр, переданный в конструктор)
 
 		DialogItemEx **Item; // массив элементов диалога
-		DialogItemEx *pSaveItemEx; // пользовательский массив элементов диалога
+		DialogItemEx * pSaveItemEx; // пользовательский массив элементов диалога
 
 		unsigned ItemCount;         // количество элементов диалога
 
@@ -292,7 +292,7 @@ class Dialog: public Frame
 	public:
 		Dialog(DialogItemEx *SrcItem, size_t SrcItemCount,
 		       FARWINDOWPROC DlgProc=nullptr,void* InitParam=nullptr);
-		Dialog(FarDialogItem *SrcItem, size_t SrcItemCount,
+		Dialog(const FarDialogItem *SrcItem, size_t SrcItemCount,
 		       FARWINDOWPROC DlgProc=nullptr,void* InitParam=nullptr);
 		bool InitOK() {return bInitOK;}
 		virtual ~Dialog();

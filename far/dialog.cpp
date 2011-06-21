@@ -304,7 +304,7 @@ Dialog::Dialog(DialogItemEx *SrcItem,    // Набор элементов диалога
 	Init(DlgProc, InitParam);
 }
 
-Dialog::Dialog(FarDialogItem *SrcItem,    // Набор элементов диалога
+Dialog::Dialog(const FarDialogItem *SrcItem,    // Набор элементов диалога
                size_t SrcItemCount,              // Количество элементов
                FARWINDOWPROC DlgProc,      // Диалоговая процедура
                void* InitParam)             // Ассоцированные с диалогом данные
@@ -317,7 +317,7 @@ Dialog::Dialog(FarDialogItem *SrcItem,    // Набор элементов диалога
 		Item[i] = new DialogItemEx;
 		Item[i]->Clear();
 		//BUGBUG add error check
-		ConvertItemEx(CVTITEM_FROMPLUGIN,&SrcItem[i],Item[i],1);
+		ConvertItemEx(CVTITEM_FROMPLUGIN,const_cast<FarDialogItem *>(&SrcItem[i]),Item[i],1);
 	}
 
 	ItemCount = static_cast<unsigned>(SrcItemCount);
