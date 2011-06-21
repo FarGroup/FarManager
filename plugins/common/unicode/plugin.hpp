@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2043
+  Plugin API for Far Manager 3.0 build 2073
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2043
+#define FARMANAGERVERSION_BUILD 2073
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -57,11 +57,12 @@ other possible license with no implications from the above license on them.
 #define CP_UNICODE 1200
 #define CP_REVERSEBOM 1201
 #define CP_AUTODETECT ((UINT)-1)
+#define CP_REDETECT   ((UINT)-2)
 
 typedef unsigned __int64 FARCOLORFLAGS;
 static const FARCOLORFLAGS
-	FMSG_FG_4BIT  = 0x0000000000000001ULL,
-	FMSG_BG_4BIT  = 0x0000000000000002ULL;
+	FCF_FG_4BIT  = 0x0000000000000001ULL,
+	FCF_BG_4BIT  = 0x0000000000000002ULL;
 
 struct FarColor
 {
@@ -144,8 +145,6 @@ static __inline BOOL IsEdit(enum FARDIALOGITEMTYPES Type)
 typedef unsigned __int64 FARDIALOGITEMFLAGS;
 static const FARDIALOGITEMFLAGS
 	DIF_NONE                  = 0,
-	DIF_COLORMASK             = 0x00000000000000ffULL,
-	DIF_SETCOLOR              = 0x0000000000000100ULL,
 	DIF_BOXCOLOR              = 0x0000000000000200ULL,
 	DIF_GROUP                 = 0x0000000000000400ULL,
 	DIF_LEFTTEXT              = 0x0000000000000800ULL,
@@ -420,12 +419,18 @@ struct FarListTitles
 	const wchar_t *Bottom;
 };
 
-struct FarListColors
+struct FarDialogItemColors
 {
 	unsigned __int64 Flags;
-	DWORD  Reserved;
-	int    ColorCount;
-	LPBYTE Colors;
+	size_t ColorsCount;
+	struct FarColor* Colors;
+	void* Reserved;
+};
+
+struct FAR_CHAR_INFO
+{
+	WCHAR Char;
+	FarColor Attributes;
 };
 
 struct FarDialogItem
@@ -437,7 +442,7 @@ struct FarDialogItem
 		DWORD_PTR Reserved;
 		int Selected;
 		struct FarList *ListItems;
-		CHAR_INFO *VBuf;
+		FAR_CHAR_INFO *VBuf;
 	}
 #ifndef __cplusplus
 	Param
@@ -775,7 +780,7 @@ enum FILE_CONTROL_COMMANDS
 typedef void (WINAPI *FARAPITEXT)(
     int X,
     int Y,
-    int Color,
+    const FarColor* Color,
     const wchar_t *Str
 );
 
@@ -831,6 +836,8 @@ static const EDITOR_FLAGS
 	EF_DELETEONCLOSE         = 0x0000000000000010ULL,
 	EF_IMMEDIATERETURN       = 0x0000000000000100ULL,
 	EF_DELETEONLYFILEONCLOSE = 0x0000000000000200ULL,
+	EF_LOCKED                = 0x0000000000000400ULL,
+	EF_DISABLESAVEPOS        = 0x0000000000000800ULL,
 	EN_NONE                  = 0;
 
 enum EDITOR_EXITCODE
@@ -1113,9 +1120,9 @@ static const FARSETCOLORFLAGS
 struct FarSetColors
 {
 	FARSETCOLORFLAGS Flags;
-	int StartIndex;
-	int ColorCount;
-	LPBYTE Colors;
+	size_t StartIndex;
+	size_t ColorsCount;
+	FarColor* Colors;
 };
 
 enum WINDOWINFO_TYPE
@@ -2317,7 +2324,7 @@ extern "C"
 	HANDLE WINAPI OpenW(const struct OpenInfo *Info);
 	int    WINAPI ProcessDialogEventW(int Event,void *Param);
 	int    WINAPI ProcessEditorEventW(int Event,void *Param);
-	int    WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *Info);
+	int    WINAPI ProcessEditorInputW(const struct ProcessEditorInputInfo *Info);
 	int    WINAPI ProcessEventW(HANDLE hPanel,int Event,void *Param);
 	int    WINAPI ProcessHostFileW(const struct ProcessHostFileInfo *Info);
 	int    WINAPI ProcessPanelInputW(HANDLE hPanel,const struct ProcessPanelInputInfo *Info);
