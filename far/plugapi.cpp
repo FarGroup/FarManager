@@ -335,7 +335,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, ADVANCED_CONTROL_COMMANDS Com
 
 				if (Pal->Colors && Pal->StartIndex+Pal->ColorsCount <= Opt.Palette.SizeArrayPalette)
 				{
-					memmove(Opt.Palette.DefaultPalette+Pal->StartIndex,Pal->Colors,Pal->ColorsCount);
+					memmove(Opt.Palette.CurrentPalette+Pal->StartIndex,Pal->Colors,Pal->ColorsCount*sizeof(FarColor));
 
 					if (Pal->Flags&FSETCLR_REDRAW)
 					{
