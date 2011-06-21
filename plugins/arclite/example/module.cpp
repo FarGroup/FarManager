@@ -104,7 +104,7 @@ public:
     CHECK_COM(in_stream->Seek(0, STREAM_SEEK_END, &file_size));
     CHECK_COM(in_stream->Seek(0, STREAM_SEEK_SET, nullptr));
 
-    open_archive_callback->SetTotal(nullptr, &file_size);
+    CHECK_COM(open_archive_callback->SetTotal(nullptr, &file_size));
 
     char sig_buf[c_sig_size];
     if (read_stream(in_stream, sig_buf, c_sig_size) != c_sig_size)
@@ -147,7 +147,7 @@ public:
       file_list.push_back(file_info);
 
       file_count++;
-      open_archive_callback->SetCompleted(&file_count, &file_pos);
+      CHECK_COM(open_archive_callback->SetCompleted(&file_count, &file_pos));
     }
 
     files.reserve(file_list.size());
@@ -231,7 +231,7 @@ public:
       CHECK(file_index < files.size());
       total_size += files[file_index].size;
     }
-    extract_callback->SetTotal(total_size); // progress reporting
+    CHECK_COM(extract_callback->SetTotal(total_size)); // progress reporting
 
     total_size = 0;
     for (UInt32 i = 0; i < total_items; i++) {
@@ -262,7 +262,7 @@ public:
           write_stream(file_stream, buffer.get(), size_read);
         }
         total_size += size_read;
-        extract_callback->SetCompleted(&total_size); // progress reporting
+        CHECK_COM(extract_callback->SetCompleted(&total_size)); // progress reporting
       }
       // report that file is extracted successfully
       CHECK_COM(extract_callback->SetOperationResult(NArchive::NExtract::NOperationResult::kOK));
@@ -351,7 +351,7 @@ public:
       new_files[i] = file_info;
       total_size += file_info.size;
     }
-    update_callback->SetTotal(total_size);
+    CHECK_COM(update_callback->SetTotal(total_size));
 
     write_stream(out_stream, c_sig, c_sig_size);
 
@@ -384,7 +384,7 @@ public:
           CHECK(total_size_read <= file_info.size);
           write_stream(out_stream, buffer.get(), size_read);
           total_size += size_read;
-          update_callback->SetCompleted(&total_size);
+          CHECK_COM(update_callback->SetCompleted(&total_size));
         }
         CHECK(total_size_read == file_info.size);
       }
@@ -401,11 +401,11 @@ public:
           total_size_read += size_read;
           write_stream(out_stream, buffer.get(), size_read);
           total_size += size_read;
-          update_callback->SetCompleted(&total_size);
+          CHECK_COM(update_callback->SetCompleted(&total_size));
         }
       }
       // report that file is added successfully
-      update_callback->SetOperationResult(NArchive::NUpdate::NOperationResult::kOK);
+      CHECK_COM(update_callback->SetOperationResult(NArchive::NUpdate::NOperationResult::kOK));
     }
     return S_OK;
     COM_ERROR_HANDLER_END
