@@ -98,7 +98,7 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
 	Y2=Max(GArea.Y1,GArea.Y2);
 	int GWidth=X2-X1+1,GHeight=Y2-Y1+1;
 	int BufSize=(GWidth+3)*GHeight;
-	CHAR_INFO *CharBuf=new CHAR_INFO[BufSize], *PtrCharBuf;
+	FAR_CHAR_INFO* CharBuf=new FAR_CHAR_INFO[BufSize], *PtrCharBuf;
 	wchar_t *CopyBuf=(wchar_t *)xf_malloc(BufSize*sizeof(wchar_t)), *PtrCopyBuf;
 	WORD Chr;
 	GetText(X1,Y1,X2,Y2,CharBuf,BufSize*sizeof(CHAR_INFO));
@@ -117,8 +117,8 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
 
 		for (int J=0; J<GWidth; J++, ++PtrCharBuf)
 		{
-			WORD Chr2 = PtrCharBuf->Char.UnicodeChar;
-			Chr=PtrCharBuf->Char.UnicodeChar;
+			WORD Chr2 = PtrCharBuf->Char;
+			Chr=PtrCharBuf->Char;
 
 			if (Opt.CleanAscii)
 			{
@@ -229,22 +229,22 @@ void Grabber::DisplayObject()
 
 		if (GArea.X1!=-1)
 		{
-			CHAR_INFO *CharBuf=new CHAR_INFO[(X2-X1+1)*(Y2-Y1+1)];
-			CHAR_INFO *PrevBuf=SaveScr->GetBufferAddress();
-			GetText(X1,Y1,X2,Y2,CharBuf,sizeof(CHAR_INFO)*(X2-X1+1)*(Y2-Y1+1));
+			FAR_CHAR_INFO *CharBuf=new FAR_CHAR_INFO[(X2-X1+1)*(Y2-Y1+1)];
+			FAR_CHAR_INFO *PrevBuf=SaveScr->GetBufferAddress();
+			GetText(X1,Y1,X2,Y2,CharBuf,sizeof(FAR_CHAR_INFO)*(X2-X1+1)*(Y2-Y1+1));
 
 			for (int X=X1; X<=X2; X++)
 				for (int Y=Y1; Y<=Y2; Y++)
 				{
-					int NewColor;
+					FarColor NewColor;
 
-					if ((PrevBuf[X+Y*(ScrX+1)].Attributes & B_LIGHTGRAY)==B_LIGHTGRAY)
-						NewColor=B_BLACK|F_LIGHTGRAY;
+					if ((Colors::FarColorToConsoleColor(PrevBuf[X+Y*(ScrX+1)].Attributes)&B_LIGHTGRAY)==B_LIGHTGRAY)
+						Colors::ConsoleColorToFarColor(B_BLACK|F_LIGHTGRAY, NewColor);
 					else
-						NewColor=B_LIGHTGRAY|F_BLACK;
+						Colors::ConsoleColorToFarColor(B_LIGHTGRAY|F_BLACK, NewColor);
 
 					size_t Pos=(X-X1)+(Y-Y1)*(X2-X1+1);
-					CharBuf[Pos].Attributes=(CharBuf[Pos].Attributes & ~0xff) | NewColor;
+					CharBuf[Pos].Attributes=NewColor;
 				}
 
 			PutText(X1,Y1,X2,Y2,CharBuf);

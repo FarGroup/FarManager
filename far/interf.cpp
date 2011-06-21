@@ -406,7 +406,7 @@ void ShowTime(int ShowAlways)
 	static SYSTEMTIME lasttm={0,0,0,0,0,0,0,0};
 	SYSTEMTIME tm;
 	GetLocalTime(&tm);
-	CHAR_INFO ScreenClockText[5];
+	FAR_CHAR_INFO ScreenClockText[5];
 	GetText(ScrX-4,0,ScrX,0,ScreenClockText,sizeof(ScreenClockText));
 
 	if (ShowAlways==2)
@@ -416,7 +416,7 @@ void ShowTime(int ShowAlways)
 	}
 
 	if ((!ShowAlways && lasttm.wMinute==tm.wMinute && lasttm.wHour==tm.wHour &&
-	        ScreenClockText[2].Char.UnicodeChar==L':') || ScreenSaverActive)
+	        ScreenClockText[2].Char==L':') || ScreenSaverActive)
 		return;
 
 	ProcessShowClock++;
@@ -589,20 +589,20 @@ void Text(const WCHAR *Str)
 	if (Length<=0)
 		return;
 
-	CHAR_INFO StackBuffer[StackBufferSize/sizeof(CHAR_INFO)];
-	PCHAR_INFO HeapBuffer=nullptr;
-	PCHAR_INFO BufPtr=StackBuffer;
+	FAR_CHAR_INFO StackBuffer[StackBufferSize/sizeof(FAR_CHAR_INFO)];
+	FAR_CHAR_INFO* HeapBuffer=nullptr;
+	FAR_CHAR_INFO* BufPtr=StackBuffer;
 
-	if (Length >= StackBufferSize/sizeof(CHAR_INFO))
+	if (Length >= StackBufferSize/sizeof(FAR_CHAR_INFO))
 	{
-		HeapBuffer=new CHAR_INFO[Length+1];
+		HeapBuffer=new FAR_CHAR_INFO[Length+1];
 		BufPtr=HeapBuffer;
 	}
 
 	for (size_t i=0; i < Length; i++)
 	{
-		BufPtr[i].Char.UnicodeChar=Str[i];
-		BufPtr[i].Attributes=Colors::FarColorToConsoleColor(CurColor);
+		BufPtr[i].Char=Str[i];
+		BufPtr[i].Attributes=CurColor;
 	}
 
 	ScrBuf.Write(CurX, CurY, BufPtr, static_cast<int>(Length));
@@ -740,8 +740,9 @@ void MakeShadow(int X1,int Y1,int X2,int Y2)
 	if (X2>ScrX) X2=ScrX;
 
 	if (Y2>ScrY) Y2=ScrY;
-
-	ScrBuf.ApplyColorMask(X1,Y1,X2,Y2,0xF8);
+	FarColor Mask;
+	Colors::ConsoleColorToFarColor(0xf8, Mask);
+	ScrBuf.ApplyColorMask(X1,Y1,X2,Y2,Mask);
 }
 
 void ChangeBlockColor(int X1,int Y1,int X2,int Y2,const FarColor& Color)
@@ -812,16 +813,16 @@ void ScrollScreen(int Count)
 }
 
 
-void GetText(int X1,int Y1,int X2,int Y2,void *Dest,size_t DestSize)
+void GetText(int X1,int Y1,int X2,int Y2,FAR_CHAR_INFO* Dest,size_t DestSize)
 {
-	ScrBuf.Read(X1,Y1,X2,Y2,(CHAR_INFO *)Dest,DestSize);
+	ScrBuf.Read(X1,Y1,X2,Y2,Dest,DestSize);
 }
 
 void PutText(int X1,int Y1,int X2,int Y2,const void *Src)
 {
 	int Width=X2-X1+1;
 	int Y;
-	CHAR_INFO *SrcPtr=(CHAR_INFO*)Src;
+	FAR_CHAR_INFO *SrcPtr=(FAR_CHAR_INFO*)Src;
 
 	for (Y=Y1; Y<=Y2; ++Y,SrcPtr+=Width)
 		ScrBuf.Write(X1,Y,SrcPtr,Width);

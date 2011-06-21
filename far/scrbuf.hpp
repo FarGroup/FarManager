@@ -42,11 +42,11 @@ class ScreenBuf
 	private:
 		BitFlags SBFlags;
 
-		CHAR_INFO *Buf;
-		CHAR_INFO *Shadow;
-		CHAR_INFO MacroChar;
+		FAR_CHAR_INFO *Buf;
+		FAR_CHAR_INFO *Shadow;
+		FAR_CHAR_INFO MacroChar;
 		bool MacroCharUsed;
-		CHAR_INFO ElevationChar;
+		FAR_CHAR_INFO ElevationChar;
 		bool ElevationCharUsed;
 
 		SHORT BufX,BufY;
@@ -76,12 +76,12 @@ class ScreenBuf
 
 	public:
 		void FillBuf();
-		void Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text,size_t MaxTextLength);
-		void Write(int X,int Y,const CHAR_INFO *Text,int TextLength);
+		void Read(int X1,int Y1,int X2,int Y2,FAR_CHAR_INFO *Text,size_t MaxTextLength);
+		void Write(int X,int Y,const FAR_CHAR_INFO *Text,int TextLength);
 		void RestoreMacroChar();
 		void RestoreElevationChar();
 
-		void ApplyColorMask(int X1,int Y1,int X2,int Y2,WORD ColorMask);
+		void ApplyColorMask(int X1,int Y1,int X2,int Y2,const FarColor& ColorMask);
 		void ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color);
 		void ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color,const FarColor& ExceptColor);
 		void FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,const FarColor& Color);

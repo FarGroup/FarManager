@@ -593,7 +593,7 @@ enum enumFileFilterConfig
 	ID_FF_MAKETRANSPARENT,
 };
 
-void HighlightDlgUpdateUserControl(CHAR_INFO *VBufColorExample,HighlightDataColor &Colors)
+void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample,HighlightDataColor &Colors)
 {
 	const wchar_t *ptr;
 	FarColor Color;
@@ -613,19 +613,19 @@ void HighlightDlgUpdateUserControl(CHAR_INFO *VBufColorExample,HighlightDataColo
 
 		for (int k=0; k<15; k++)
 		{
-			VBufColorExample[15*i+k].Char.UnicodeChar=ptr[k];
-			VBufColorExample[15*i+k].Attributes=Colors::FarColorToConsoleColor(Color);
+			VBufColorExample[15*i+k].Char=ptr[k];
+			VBufColorExample[15*i+k].Attributes=Color;
 		}
 
 		if (LOWORD(Colors.MarkChar))
 		{
-			VBufColorExample[15*i+1].Char.UnicodeChar=LOWORD(Colors.MarkChar);
+			VBufColorExample[15*i+1].Char=LOWORD(Colors.MarkChar);
 			if ((Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].ForegroundColor&0x00FFFFFF) && (Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].BackgroundColor&0x00FFFFFF))
-			VBufColorExample[15*i+1].Attributes=Colors::FarColorToConsoleColor(Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i]);
+			VBufColorExample[15*i+1].Attributes=Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i];
 		}
 
-		VBufColorExample[15*i].Attributes=Colors::FarColorToConsoleColor(ColorIndexToColor(COL_PANELBOX));
-		VBufColorExample[15*i+14].Attributes=Colors::FarColorToConsoleColor(ColorIndexToColor(COL_PANELBOX));
+		VBufColorExample[15*i].Attributes=ColorIndexToColor(COL_PANELBOX);
+		VBufColorExample[15*i+14].Attributes=ColorIndexToColor(COL_PANELBOX);
 	}
 }
 
@@ -987,7 +987,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	for (int i=ID_HER_NORMALMARKING; i<=ID_HER_SELECTEDCURSORMARKING; i+=2)
 		FilterDlg[i].X1=FilterDlg[ID_HER_NORMALFILE].X1+(int)FilterDlg[ID_HER_NORMALFILE].strData.GetLength()-(FilterDlg[ID_HER_NORMALFILE].strData.Contains(L'&')?1:0)+1;
 
-	CHAR_INFO VBufColorExample[15*4]={0};
+	FAR_CHAR_INFO VBufColorExample[15*4]={0};
 	HighlightDataColor Colors;
 	FF->GetColors(&Colors);
 	HighlightDlgUpdateUserControl(VBufColorExample,Colors);

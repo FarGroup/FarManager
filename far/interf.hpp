@@ -143,7 +143,7 @@ void VText(const WCHAR *Str);
 void HiText(const WCHAR *Str,const FarColor& HiColor,int isVertText=0);
 void vmprintf(const WCHAR *fmt,...);
 void PutText(int X1,int Y1,int X2,int Y2,const void *Src);
-void GetText(int X1,int Y1,int X2,int Y2,void *Dest,size_t DestSize);
+void GetText(int X1,int Y1,int X2,int Y2,FAR_CHAR_INFO* Dest,size_t DestSize);
 void BoxText(wchar_t Chr);
 void BoxText(const wchar_t *Str,int IsVert=0);
 
@@ -170,9 +170,9 @@ void InitRecodeOutTable();
 
 int WINAPI TextToCharInfo(const char *Text,WORD Attr, CHAR_INFO *CharInfo, int Length, DWORD Reserved);
 
-inline void SetVidChar(CHAR_INFO& CI,wchar_t Chr)
+inline void SetVidChar(FAR_CHAR_INFO& CI,wchar_t Chr)
 {
-	CI.Char.UnicodeChar = (Chr<L'\x20'||Chr==L'\x7f')?Oem2Unicode[Chr]:Chr;
+	CI.Char = (Chr<L'\x20'||Chr==L'\x7f')?Oem2Unicode[Chr]:Chr;
 }
 
 int HiStrlen(const wchar_t *Str);

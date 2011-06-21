@@ -1555,7 +1555,7 @@ size_t GetAnsiVBufSize(oldfar::FarDialogItem &diA)
 	return (diA.X2-diA.X1+1)*(diA.Y2-diA.Y1+1);
 }
 
-PCHAR_INFO GetAnsiVBufPtr(PCHAR_INFO VBuf, size_t Size)
+PCHAR_INFO GetAnsiVBufPtr(FAR_CHAR_INFO* VBuf, size_t Size)
 {
 	PCHAR_INFO VBufA=nullptr;
 	if (VBuf)
@@ -1565,7 +1565,7 @@ PCHAR_INFO GetAnsiVBufPtr(PCHAR_INFO VBuf, size_t Size)
 	return VBufA;
 }
 
-void SetAnsiVBufPtr(PCHAR_INFO VBuf, PCHAR_INFO VBufA, size_t Size)
+void SetAnsiVBufPtr(FAR_CHAR_INFO* VBuf, PCHAR_INFO VBufA, size_t Size)
 {
 	if (VBuf)
 	{
@@ -1573,7 +1573,7 @@ void SetAnsiVBufPtr(PCHAR_INFO VBuf, PCHAR_INFO VBufA, size_t Size)
 	}
 }
 
-void AnsiVBufToUnicode(PCHAR_INFO VBufA, PCHAR_INFO VBuf, size_t Size,bool NoCvt)
+void AnsiVBufToUnicode(PCHAR_INFO VBufA, FAR_CHAR_INFO* VBuf, size_t Size,bool NoCvt)
 {
 	if (VBuf && VBufA)
 	{
@@ -1581,27 +1581,26 @@ void AnsiVBufToUnicode(PCHAR_INFO VBufA, PCHAR_INFO VBuf, size_t Size,bool NoCvt
 		{
 			if (NoCvt)
 			{
-				VBuf[i].Char.UnicodeChar=VBufA[i].Char.UnicodeChar;
+				VBuf[i].Char=VBufA[i].Char.UnicodeChar;
 			}
 			else
 			{
-				AnsiToUnicodeBin(&VBufA[i].Char.AsciiChar,&VBuf[i].Char.UnicodeChar,1);
+				AnsiToUnicodeBin(&VBufA[i].Char.AsciiChar,&VBuf[i].Char,1);
 			}
-
-			VBuf[i].Attributes = VBufA[i].Attributes;
+			Colors::ConsoleColorToFarColor(VBufA[i].Attributes, VBuf[i].Attributes);
 		}
 	}
 }
 
-PCHAR_INFO AnsiVBufToUnicode(oldfar::FarDialogItem &diA)
+FAR_CHAR_INFO* AnsiVBufToUnicode(oldfar::FarDialogItem &diA)
 {
-	PCHAR_INFO VBuf = nullptr;
+	FAR_CHAR_INFO* VBuf = nullptr;
 
 	if (diA.VBuf)
 	{
 		size_t Size = GetAnsiVBufSize(diA);
 		// +sizeof(PCHAR_INFO) потому что там храним поинтер на анси vbuf.
-		VBuf = static_cast<PCHAR_INFO>(xf_malloc(Size*sizeof(CHAR_INFO)+sizeof(PCHAR_INFO)));
+		VBuf = static_cast<FAR_CHAR_INFO*>(xf_malloc(Size*sizeof(FAR_CHAR_INFO)+sizeof(PCHAR_INFO)));
 
 		if (VBuf)
 		{

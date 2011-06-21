@@ -450,6 +450,12 @@ struct FarDialogItemColors
 	void* Reserved;
 };
 
+struct FAR_CHAR_INFO
+{
+	WCHAR Char;
+	FarColor Attributes;
+};
+
 struct FarDialogItem
 {
 	enum FARDIALOGITEMTYPES Type;
@@ -459,7 +465,7 @@ struct FarDialogItem
 		DWORD_PTR Reserved;
 		int Selected;
 		struct FarList *ListItems;
-		CHAR_INFO *VBuf;
+		FAR_CHAR_INFO *VBuf;
 	}
 #ifndef __cplusplus
 	Param

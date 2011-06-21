@@ -103,12 +103,12 @@ void SaveScreen::SaveArea(int X1,int Y1,int X2,int Y2)
 	SaveScreen::Y1=Y1;
 	SaveScreen::X2=X2;
 	SaveScreen::Y2=Y2;
-	ScreenBuf=new CHAR_INFO[ScreenBufCharCount()];
+	ScreenBuf=new FAR_CHAR_INFO[ScreenBufCharCount()];
 
 	if (!ScreenBuf)
 		return;
 
-	GetText(X1,Y1,X2,Y2,ScreenBuf,ScreenBufCharCount()*sizeof(CHAR_INFO));
+	GetText(X1,Y1,X2,Y2,ScreenBuf,ScreenBufCharCount()*sizeof(FAR_CHAR_INFO));
 	GetCursorPos(CurPosX,CurPosY);
 	GetCursorType(CurVisible,CurSize);
 }
@@ -118,7 +118,7 @@ void SaveScreen::SaveArea()
 	if (!ScreenBuf)
 		return;
 
-	GetText(X1,Y1,X2,Y2,ScreenBuf,ScreenBufCharCount()*sizeof(CHAR_INFO));
+	GetText(X1,Y1,X2,Y2,ScreenBuf,ScreenBufCharCount()*sizeof(FAR_CHAR_INFO));
 	GetCursorPos(CurPosX,CurPosY);
 	GetCursorType(CurVisible,CurSize);
 }
@@ -136,7 +136,7 @@ void SaveScreen::CorrectRealScreenCoord()
 
 void SaveScreen::AppendArea(SaveScreen *NewArea)
 {
-	CHAR_INFO *Buf=ScreenBuf,*NewBuf=NewArea->ScreenBuf;
+	FAR_CHAR_INFO *Buf=ScreenBuf,*NewBuf=NewArea->ScreenBuf;
 
 	if (!Buf || !NewBuf)
 		return;
@@ -163,7 +163,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 
 	int NX1,NX2,NY1,NY2;
 	NX1=NX2=NY1=NY2=0;
-	PCHAR_INFO NewBuf = new CHAR_INFO[NewX*NewY];
+	FAR_CHAR_INFO* NewBuf = new FAR_CHAR_INFO[NewX*NewY];
 	CleanupBuffer(NewBuf,NewX*NewY);
 	int NewWidth=Min(OWi,NewX);
 	int NewHeight=Min(OHe,NewY);
@@ -230,7 +230,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 		{
 			COORD Size={Max(NewX,OWi), abs(OHe-NewY)};
 			COORD Coord={0, 0};
-			PCHAR_INFO Tmp=new CHAR_INFO[Size.X*Size.Y];
+			FAR_CHAR_INFO* Tmp=new FAR_CHAR_INFO[Size.X*Size.Y];
 			if(NewY>OHe)
 			{
 				SMALL_RECT ReadRegion={0, 0, NewX-1, NewY-OHe-1};
@@ -256,7 +256,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 		{
 			COORD Size={abs(NewX-OWi), Max(NewY,OHe)};
 			COORD Coord={0, 0};
-			PCHAR_INFO Tmp=new CHAR_INFO[Size.X*Size.Y];
+			FAR_CHAR_INFO* Tmp=new FAR_CHAR_INFO[Size.X*Size.Y];
 			if(NewX>OWi)
 			{
 				SMALL_RECT ReadRegion={OWi, 0, NewX-1, NewY-1};
@@ -290,19 +290,19 @@ int SaveScreen::ScreenBufCharCount()
 	return (X2-X1+1)*(Y2-Y1+1);
 }
 
-void SaveScreen::CharCopy(PCHAR_INFO ToBuffer,PCHAR_INFO FromBuffer,int Count)
+void SaveScreen::CharCopy(FAR_CHAR_INFO* ToBuffer,FAR_CHAR_INFO* FromBuffer,int Count)
 {
 	memcpy(ToBuffer,FromBuffer,Count*sizeof(CHAR_INFO));
 }
 
-void SaveScreen::CleanupBuffer(PCHAR_INFO Buffer, size_t BufSize)
+void SaveScreen::CleanupBuffer(FAR_CHAR_INFO* Buffer, size_t BufSize)
 {
-	WORD Attr=Colors::FarColorToConsoleColor(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
+	FarColor Color=ColorIndexToColor(COL_COMMANDLINEUSERSCREEN);
 
 	for (size_t i=0; i<BufSize; i++)
 	{
-		Buffer[i].Attributes=Attr;
-		Buffer[i].Char.UnicodeChar=L' ';
+		Buffer[i].Attributes=Color;
+		Buffer[i].Char=L' ';
 	}
 }
 

@@ -77,7 +77,7 @@ void GetOpenPanelInfo_Dump(const wchar_t *Title,const struct OpenPanelInfo *Info
 void INPUT_RECORD_DumpBuffer(FILE *fp=nullptr);
 void PanelViewSettings_Dump(const wchar_t *Title,const struct PanelViewSettings &ViewSettings,FILE *fp=nullptr);
 void PluginsStackItem_Dump(const wchar_t *Title,const struct PluginsStackItem *StackItems,int ItemNumber,FILE *fp=nullptr);
-void SaveScreenDumpBuffer(const wchar_t *Title,const CHAR_INFO *Buffer,int X1,int Y1,int X2,int Y2,FILE *fp=nullptr);
+void SaveScreenDumpBuffer(const wchar_t *Title,const FAR_CHAR_INFO *Buffer,int X1,int Y1,int X2,int Y2,FILE *fp=nullptr);
 class Manager;
 void ManagerClass_Dump(const wchar_t *Title,const Manager *m=nullptr,FILE *fp=nullptr);
 void GetVolumeInformation_Dump(const wchar_t *Title,LPCWSTR lpRootPathName,LPCWSTR lpVolumeNameBuffer,DWORD nVolumeNameSize,
