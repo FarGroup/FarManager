@@ -1519,15 +1519,32 @@ FarList* CurrentList(HANDLE hDlg,int ItemNumber)
 	return Data?&Data->l[ItemNumber]:nullptr;
 }
 
+TStack<FarDialogEvent>OriginalEvents;
+
+class StackHandler
+{
+public:
+	StackHandler(FarDialogEvent& e){OriginalEvents.Push(e);}
+	~StackHandler(){FarDialogEvent e; OriginalEvents.Pop(e);}
+};
+
+LONG_PTR WINAPI FarDefDlgProcA(HANDLE hDlg, int Msg, int Param1, void* Param2)
+{
+	LONG_PTR Result = NativeInfo.DefDlgProc(OriginalEvents.Peek()->hDlg, OriginalEvents.Peek()->Msg, OriginalEvents.Peek()->Param1, OriginalEvents.Peek()->Param2);
+	switch(Msg)
+	{
+	case DN_CTLCOLORDIALOG:
+	case DN_CTLCOLORDLGITEM:
+		Result = reinterpret_cast<LONG_PTR>(Param2);
+		break;
+	}
+	return Result;
+}
+
 INT_PTR WINAPI CurrentDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 {
-	INT_PTR Ret=0;
 	PDialogData Data=FindCurrentDialogData(hDlg);
-
-	if (Data && Data->DlgProc)
-		Ret=Data->DlgProc(Data->hDlg,Msg,Param1,Param2);
-
-	return Ret;
+	return (Data && Data->DlgProc)? Data->DlgProc(Data->hDlg,Msg,Param1,Param2) : FarDefDlgProcA(hDlg, Msg, Param1, Param2);
 }
 
 void UnicodeListItemToAnsi(FarListItem* li, oldfar::FarListItem* liA)
@@ -2126,15 +2143,6 @@ oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di,HANDLE hDlg,int
 	return diA;
 }
 
-TStack<FarDialogEvent>OriginalEvents;
-
-class StackHandler
-{
-public:
-	StackHandler(FarDialogEvent& e){OriginalEvents.Push(e);}
-	~StackHandler(){FarDialogEvent e; OriginalEvents.Pop(e);}
-};
-
 INT_PTR WINAPI DlgProcA(HANDLE hDlg, int NewMsg, int Param1, void* Param2)
 {
 	FarDialogEvent e = {hDlg, NewMsg, Param1, Param2};
@@ -2296,19 +2304,6 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, int NewMsg, int Param1, void* Param2)
 	}
 
 	return CurrentDlgProc(hDlg, Msg, Param1, Param2);
-}
-
-LONG_PTR WINAPI FarDefDlgProcA(HANDLE hDlg, int Msg, int Param1, void* Param2)
-{
-	LONG_PTR Result = NativeInfo.DefDlgProc(OriginalEvents.Peek()->hDlg, OriginalEvents.Peek()->Msg, OriginalEvents.Peek()->Param1, OriginalEvents.Peek()->Param2);
-	switch(Msg)
-	{
-	case DN_CTLCOLORDIALOG:
-	case DN_CTLCOLORDLGITEM:
-		Result = reinterpret_cast<LONG_PTR>(Param2);
-		break;
-	}
-	return Result;
 }
 
 LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Param2)
@@ -2888,7 +2883,7 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 	if (Flags&oldfar::FDLG_NONMODAL)     DlgFlags|=FDLG_NONMODAL;
 
 	int ret = -1;
-	HANDLE hDlg = NativeInfo.DialogInit(GetPluginGuid(PluginNumber), &FarGuid, X1, Y1, X2, Y2, (HelpTopic?strHT.CPtr():nullptr), (FarDialogItem *)di, ItemsNumber, 0, DlgFlags, DlgProc?DlgProcA:0, Param);
+	HANDLE hDlg = NativeInfo.DialogInit(GetPluginGuid(PluginNumber), &FarGuid, X1, Y1, X2, Y2, (HelpTopic?strHT.CPtr():nullptr), (FarDialogItem *)di, ItemsNumber, 0, DlgFlags, DlgProcA, Param);
 	PDialogData NewDialogData=new DialogData;
 	NewDialogData->DlgProc=DlgProc;
 	NewDialogData->hDlg=hDlg;
