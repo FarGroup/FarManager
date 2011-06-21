@@ -199,7 +199,6 @@ public:
   void set_check3(unsigned ctrl_id, TriState check);
   unsigned get_list_pos(unsigned ctrl_id) const;
   void set_list_pos(unsigned ctrl_id, unsigned pos);
-  void set_color(unsigned ctrl_id, unsigned char color);
   void set_focus(unsigned ctrl_id);
   void enable(unsigned ctrl_id, bool enable);
   void set_visible(unsigned ctrl_id, bool visible);
@@ -240,7 +239,7 @@ wstring get_absolute_path(const wstring& rel_path);
 INT_PTR control(HANDLE h_panel, FILE_CONTROL_COMMANDS command, int param1 = 0, void* param2 = nullptr);
 INT_PTR adv_control(ADVANCED_CONTROL_COMMANDS command, int param1 = 0, void* param2 = nullptr);
 bool match_masks(const wstring& file_name, const wstring& masks);
-unsigned char get_colors(PaletteColors color_id);
+bool get_color(PaletteColors color_id, FarColor& color);
 bool panel_go_to_dir(HANDLE h_panel, const wstring& dir);
 bool panel_go_to_file(HANDLE h_panel, const wstring& file_path);
 DWORD get_lang_id();

@@ -617,15 +617,6 @@ void get_dlg_item(HANDLE h_dlg, unsigned ctrl_id, Buffer<unsigned char>& buf) {
   }
 }
 
-void Dialog::set_color(unsigned ctrl_id, unsigned char color) {
-  Buffer<unsigned char> buf(0x1000);
-  get_dlg_item(h_dlg, ctrl_id, buf);
-  FarDialogItem* dlg_item = reinterpret_cast<FarDialogItem*>(buf.data());
-  dlg_item->Flags &= ~DIF_COLORMASK;
-  dlg_item->Flags |= DIF_SETCOLOR | color;
-  g_far.SendDlgMessage(h_dlg, DM_SETDLGITEM, ctrl_id, dlg_item);
-}
-
 void Dialog::set_focus(unsigned ctrl_id) {
   g_far.SendDlgMessage(h_dlg, DM_SETFOCUS, ctrl_id, 0);
 }
@@ -729,8 +720,8 @@ bool match_masks(const wstring& file_name, const wstring& masks) {
   return g_fsf.ProcessName(masks.c_str(), const_cast<wchar_t*>(file_name.c_str()), 0, PN_CMPNAMELIST) != 0;
 }
 
-unsigned char get_colors(PaletteColors color_id) {
-  return static_cast<unsigned char>(g_far.AdvControl(&c_plugin_guid, ACTL_GETCOLOR, color_id, nullptr));
+bool get_color(PaletteColors color_id, FarColor& color) {
+  return g_far.AdvControl(&c_plugin_guid, ACTL_GETCOLOR, color_id, &color) != 0;
 }
 
 bool panel_go_to_dir(HANDLE h_panel, const wstring& dir) {

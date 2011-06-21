@@ -1500,8 +1500,13 @@ private:
     else if (msg == DN_CTLCOLORDLGITEM) {
       FarDialogItem dlg_item;
       if (send_message(DM_GETDLGITEMSHORT, param1, &dlg_item) && dlg_item.Type == DI_EDIT) {
-        unsigned color = Far::get_colors(COL_DIALOGTEXT);
-        return (reinterpret_cast<INT_PTR>(param2) & 0xFF00FF00) | (color << 16) | color;
+        FarColor color;
+        if (Far::get_color(COL_DIALOGTEXT, color)) {
+          FarDialogItemColors* item_colors = static_cast<FarDialogItemColors*>(param2);
+          CHECK(item_colors->ColorsCount == 4);
+          item_colors->Colors[0] = color;
+          item_colors->Colors[2] = color;
+        }
       }
     }
     return default_dialog_proc(msg, param1, param2);
