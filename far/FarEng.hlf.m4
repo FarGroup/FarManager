@@ -219,7 +219,7 @@ active panel, the second path - to the passive one:
   - ^<wrap>if a folder or archive is specified, Far will show its contents;
   - ^<wrap>if a file is specified, Far will change to the folder where it
 resides and place the cursor on the file, if it exists;
-  - ^<wrap>when profixes specified (simultaneous use with common paths allowed)
+  - ^<wrap>when prefixes specified (simultaneous use with common paths allowed)
 passive command executes first (passive panel activates temporary). Single letter prefixes will be ignored.
   Example: far ma:c:\\Far20.7z "macro:post MsgBox(\\"Far Manager\\",\\"Successfully started\\")"
 
@@ -1341,7 +1341,7 @@ following operations:
 
     - overwrite destination files when performing file moving;
 
-    - overwrite and delete files with "read only" arrtibute;
+    - overwrite and delete files with "read only" atrtibute;
 
     - ~drag and drop~@DragAndDrop@ files;
 
@@ -4099,14 +4099,14 @@ happens, which is rather expensive).
 "AZXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", #.*# captures the whole string, and then
 rolls back symbol by symbol until it finds Z. On the opposite, if the expression
 is "A.*?Z" then Z is found at once. Not greedy quantifier is also known as
-#mininizing#, it captures minimal possible quantity of symbols, and only if
+#minimizing#, it captures minimal possible quantity of symbols, and only if
 further match fails it captures more.
 
     #Special symbols#
 
    Non-letter and non-digit symbol can be prepended by '#\#' in most cases,
 but in case of letters and digits this must be done with care because this is
-the way thew special symbols are written:
+the way the special symbols are written:
 
     #.#    - ^<wrap>any symbol except carriage return. If there is “s” among
 the options then this can be any symbol.

@@ -2351,7 +2351,7 @@ int Editor::ProcessKey(int Key)
 			if (!Flags.Check(FEDITOR_MARKINGVBLOCK))
 				BeginVBlockMarking();
 
-			if (!EdOpt.CursorBeyondEOL && VBlockX>=CurLine->m_next->GetLength())
+			if (!EdOpt.CursorBeyondEOL && VBlockX>=CurLine->m_next->RealPosToTab(CurLine->m_next->GetLength()))
 				return TRUE;
 
 			Pasting++;
@@ -2440,9 +2440,12 @@ int Editor::ProcessKey(int Key)
 			Lock();
 			Pasting++;
 
+			Edit* PrevLine = CurLine;
 			while (CurLine!=TopList)
 			{
 				ProcessKey(KEY_ALTUP);
+				if (PrevLine == CurLine)
+					break;
 			}
 
 			Pasting--;
@@ -2455,10 +2458,12 @@ int Editor::ProcessKey(int Key)
 		{
 			Lock();
 			Pasting++;
-
+			Edit* PrevLine = CurLine;
 			while (CurLine!=EndList)
 			{
 				ProcessKey(KEY_ALTDOWN);
+				if (PrevLine == CurLine)
+					break;
 			}
 
 			Pasting--;

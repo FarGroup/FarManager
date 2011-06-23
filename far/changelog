@@ -1,3 +1,13 @@
+drkns 23.06.2011 16:46:50 +0200 - build 2076
+
+1. Mantis#0001801: в фильтре обрабатывать полное содержание PluginPanelItem.FileName
+
+2. Mantis#0001805: Опечатки в английском файле помощи
+
+3. Mantis#0001806: Не выделяются вертикальные блоки при отключенном CursorBeyondEOL
+
+4. Mantis#0001807: Зависание при нажатии в CtrlAltPgUp/CtrlAltPgDn
+
 drkns 21.06.2011 21:51:58 +0200 - build 2075
 
 1. ACTL_GETSYSWORDDIV ожидает размер буфера в Param1.
