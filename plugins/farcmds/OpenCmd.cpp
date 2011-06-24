@@ -1061,8 +1061,12 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 										wchar_t Blank[1024];
 										wmemset(Blank, L' ', csbi.dwSize.X);
 
+										FarColor Color={};
+										Color.Flags = FCF_FG_4BIT|FCF_BG_4BIT;
+										Color.ForegroundColor = LIGHTGRAY;
+										Color.BackgroundColor = 0;
 										for (int Y = 0 ; Y < csbi.dwSize.Y ; Y++)
-											Info.Text(0, Y, LIGHTGRAY, Blank);
+											Info.Text(0, Y, &Color, Blank);
 
 										Info.Text(0, 0, 0, NULL);
 										COORD C;
