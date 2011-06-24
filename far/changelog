@@ -1,3 +1,7 @@
+drkns 24.06.2011 21:31:25 +0200 - build 2077
+
+1. Mantis#0001807: Зависание при нажатии в CtrlAltPgUp/CtrlAltPgDn
+
 drkns 23.06.2011 16:46:50 +0200 - build 2076
 
 1. Mantis#0001801: в фильтре обрабатывать полное содержание PluginPanelItem.FileName

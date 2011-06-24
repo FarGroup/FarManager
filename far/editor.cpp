@@ -2440,12 +2440,11 @@ int Editor::ProcessKey(int Key)
 			Lock();
 			Pasting++;
 
-			Edit* PrevLine = CurLine;
-			while (CurLine!=TopList)
+			Edit* PrevLine = nullptr;
+			while (CurLine!=TopList && PrevLine!=CurLine)
 			{
+				PrevLine = CurLine;
 				ProcessKey(KEY_ALTUP);
-				if (PrevLine == CurLine)
-					break;
 			}
 
 			Pasting--;
@@ -2458,12 +2457,12 @@ int Editor::ProcessKey(int Key)
 		{
 			Lock();
 			Pasting++;
-			Edit* PrevLine = CurLine;
-			while (CurLine!=EndList)
+
+			Edit* PrevLine = nullptr;
+			while (CurLine!=EndList && PrevLine!=CurLine)
 			{
+				PrevLine = CurLine;
 				ProcessKey(KEY_ALTDOWN);
-				if (PrevLine == CurLine)
-					break;
 			}
 
 			Pasting--;
