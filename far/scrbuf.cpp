@@ -262,8 +262,12 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color,con
 			FAR_CHAR_INFO *PtrBuf = Buf+(Y1+I)*BufX+X1;
 
 			for (int J = 0; J < X2-X1+1; J++, ++PtrBuf)
-				if (PtrBuf->Attributes.ForegroundColor != ExceptColor.ForegroundColor && PtrBuf->Attributes.BackgroundColor != ExceptColor.BackgroundColor)
+			{
+				if (PtrBuf->Attributes.ForegroundColor != ExceptColor.ForegroundColor || PtrBuf->Attributes.BackgroundColor != ExceptColor.BackgroundColor)
+				{
 					PtrBuf->Attributes = Color;
+				}
+			}
 		}
 
 #ifdef DIRECT_SCREEN_OUT
