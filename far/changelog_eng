@@ -3,6 +3,59 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 25.06.2011 18:20:20 +0200 - build 2078
+
+1. Mantis#0001812: Editor highlighting is broken
+
+drkns 24.06.2011 21:31:25 +0200 - build 2077
+
+1. Mantis#0001807: Freeze after CtrlAltPgUp/CtrlAltPgDn key press
+
+drkns 23.06.2011 16:46:50 +0200 - build 2076
+
+1. Mantis#0001801: process full PluginPanelItem.FileName content in filter
+
+2. Mantis#0001805: Mistypes in English help file
+
+3. Mantis#0001806: Vertical blocks cannot be selected with CursorBeyondEOL switched off
+
+4. Mantis#0001807: Freeze after CtrlAltPgUp/CtrlAltPgDn key press
+
+drkns 21.06.2011 21:51:58 +0200 - build 2075
+
+1. ACTL_GETSYSWORDDIV expects the buffer size in Param1.
+
+2. More changes on 2070.
+
+drkns 21.06.2011 20:14:06 +0200 - build 2074
+
+1. And more.
+
+drkns 21.06.2011 19:06:45 +0200 - build 2073
+
+1. And once more.
+
+drkns 21.06.2011 14:17:17 +0200 - build 2072
+
+1. Correction of 2070.
+
+drkns 21.06.2011 10:53:36 +0200 - build 2071
+
+1. Continuation of 2070.
+   API uses FAR_CHAR_INFO instead of CHAR_INFO.
+
+drkns 20.06.2011 23:22:12 +0200 - build 2070
+
+1. Hello rainbow: using FarColor everywhere inside.
+   Changes in API:
+   - FarColor* is passed as Param2 in DN_CTLCOLORDIALOG, it must be changed at once.
+   - FarDialogItemColors* is passed as Param2 in DN_CTLCOLORDLGITEM, FarDialogItemColors.Colors must be changed as follows: Colors[0] == lwlb, Colors[1] == lwhb, Colors[2] == hwlb, Colors[3] == hwhb.
+   - FarDialogItemColors* is passed as Param2 in DN_CTLCOLORDLGLIST, the rest is unchanged.
+   - ACTL_GETCOLOR, ACTL_GETARRAYCOLOR, ACTL_SETARRAYCOLOR work with FarColor.
+   - DIF_SETCOLOR no longer exists, the color must be given in the handler.
+
+   Color storage format is changed, generalconfig.db and highlight.db must be deleted.
+
 drkns 18.06.2011 20:39:57 +0200 - build 2069
 
 1. Mantis#0001800: CPU idle load.
