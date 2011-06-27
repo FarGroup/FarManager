@@ -85,8 +85,7 @@ void InitConsole(int FirstInit)
 	Console.GetTitle(strInitTitle);
 	Console.GetWindowRect(InitWindowRect);
 	Console.GetSize(InitialSize);
-	CONSOLE_CURSOR_INFO InitCursorInfo;
-	Console.GetCursorInfo(InitCursorInfo);
+	Console.GetCursorInfo(InitialCursorInfo);
 
 	GeneralCfg->GetValue(L"Interface",L"Mouse",&Opt.Mouse,1);
 
@@ -161,7 +160,15 @@ void CloseConsole()
 
 	Console.SetTitle(strInitTitle);
 	Console.SetSize(InitialSize);
-	Console.SetWindowRect(InitWindowRect);
+	COORD CursorPos = {};
+	Console.GetCursorPosition(CursorPos);
+	SHORT Height = InitWindowRect.Bottom-InitWindowRect.Top, Width = InitWindowRect.Right-InitWindowRect.Left;
+	if (CursorPos.Y > InitWindowRect.Bottom || CursorPos.Y < InitWindowRect.Top)
+		InitWindowRect.Top = Max(0, CursorPos.Y-Height);
+	if (CursorPos.X > InitWindowRect.Right || CursorPos.X < InitWindowRect.Left)
+		InitWindowRect.Left = Max(0, CursorPos.X-Width);
+	InitWindowRect.Bottom = InitWindowRect.Top + Height;
+	InitWindowRect.Right = InitWindowRect.Left + Width;	Console.SetWindowRect(InitWindowRect);
 	Console.SetSize(InitialSize);
 
 	delete KeyQueue;

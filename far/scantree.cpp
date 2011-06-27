@@ -73,7 +73,9 @@ bool ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
 	{
 		if (!ScanItems.lastItem()->Find)
 		{
-			ScanItems.lastItem()->Find = new FindFile(strFindPath);
+			// Using \\?\ prefix to explicitly disable any future path transformations in FindFile class.
+			// On FAT volumes path may contain ".." and "." dirs, which leads to an infinite loop.
+			ScanItems.lastItem()->Find = new FindFile(string(L"\\\\?\\")+strFindPath);
 		}
 		Done=!ScanItems.lastItem()->Find->Get(*fdata);
 
