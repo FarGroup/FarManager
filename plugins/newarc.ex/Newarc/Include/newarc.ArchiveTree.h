@@ -97,8 +97,8 @@ public:
 
 		CutToSlash(lpPath);
 
-		if ( _tcschr(lpName, _T('\\')) ||
-			 _tcschr(lpName, _T('/')) )
+		if ( _tcschr(lpPath, _T('\\')) ||
+			 _tcschr(lpPath, _T('/')) )
 		{
 		
 
@@ -148,9 +148,9 @@ public:
 		ArchiveTreeNode* pNode = nullptr;
 		bool bNew = false;
 
-		if ( iterator != pPath->children.end() )
+		if ( (iterator != pPath->children.end()) && iterator->second->bDummy )
 			pNode = iterator->second;
-		else //dummy
+		else
 		{
 			pNode = new ArchiveTreeNode(pPath->level+1);
 			bNew = true;

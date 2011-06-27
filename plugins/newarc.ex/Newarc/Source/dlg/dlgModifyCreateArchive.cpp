@@ -3,27 +3,27 @@ enum enumModifyCreateArchive {
 	ID_MCA_NAME,
 	ID_MCA_NAMEEDIT,
 	ID_MCA_SEPARATOR1,
-	ID_MCA_ARCHIVER,
 	ID_MCA_TEMPLATE,
-	ID_MCA_DIRECTSETTINGS,
 	ID_MCA_TEMPLATELIST,
 	ID_MCA_ADD,
 	ID_MCA_REMOVE,
 	ID_MCA_EDIT,
+	ID_MCA_SEPARATOR2,
 	ID_MCA_FORMAT,
 	ID_MCA_FORMATLIST,
+	ID_MCA_CONFIGURE,
 	ID_MCA_PARAMS,
 	ID_MCA_PARAMSEDIT,
-	ID_MCA_SEPARATOR2,
+	ID_MCA_SEPARATOR3,
 	ID_MCA_PASSWORD,
 	ID_MCA_PASSWORDEDIT,
 	ID_MCA_CONFIRM,
 	ID_MCA_CONFIRMEDIT,
-	ID_MCA_SEPARATOR3,
+	ID_MCA_SEPARATOR4,
 	ID_MCA_PASSWORDMATCH,
 	ID_MCA_EXACTFILENAME,
 	ID_MCA_EACHFILEINSEPARATEARCHIVE,
-	ID_MCA_SEPARATOR4,
+	ID_MCA_SEPARATOR5,
 	ID_MCA_ADDCONFIRM,
 	ID_MCA_CANCEL
 };
@@ -98,19 +98,25 @@ void SetTemplate(FarDialog *D, ArchiveTemplate *ptpl = NULL)
 	bool bEnable = (templates.count() > 0);
 	int nFocus = D->GetFocus ();
 
-	D->Enable(ID_MCA_TEMPLATE, bEnable);
 	D->Enable(ID_MCA_TEMPLATELIST, bEnable);
 	D->Enable(ID_MCA_REMOVE, bEnable);
 	D->Enable(ID_MCA_EDIT, bEnable);
-
-	if ( !bEnable && ((nFocus == ID_MCA_REMOVE) || (nFocus == ID_MCA_EDIT)) )
-		D->SetFocus(ID_MCA_ADD);
-
-	if ( !bEnable )
-		D->SetCheck(ID_MCA_DIRECTSETTINGS, BSTATE_CHECKED);
 }
 
 
+void EnableControls(FarDialog* D)
+{
+	bool bChecked = D->GetCheck(ID_MCA_TEMPLATE);
+
+	if ( bChecked )
+		SetTemplate(D);
+
+	D->Enable(ID_MCA_FORMAT, !bChecked);
+	D->Enable(ID_MCA_FORMATLIST, !bChecked);
+	D->Enable(ID_MCA_CONFIGURE, !bChecked);
+	D->Enable(ID_MCA_PARAMS, !bChecked);
+	D->Enable(ID_MCA_PARAMSEDIT, !bChecked);
+}
 
 LONG_PTR __stdcall hndModifyCreateArchive(
 		FarDialog *D,
@@ -144,16 +150,13 @@ LONG_PTR __stdcall hndModifyCreateArchive(
 			}
 		}
 
-		for (unsigned int i = 0; i < templates.count(); i++)
-			D->ListAddStr(ID_MCA_TEMPLATELIST, templates[i]->GetName());
-
-		SetTemplate(D);
+		EnableControls(D);
 	}
 
 	if ( nMsg == DN_BTNCLICK )
 	{
-		if ( (nParam1 == ID_MCA_TEMPLATE) && (nParam2 != 0) )
-			SetTemplate(D);
+		if ( nParam1 == ID_MCA_TEMPLATE )
+			EnableControls(D);
 
 		if ( nParam1 == ID_MCA_ADD )
 		{
@@ -161,23 +164,27 @@ LONG_PTR __stdcall hndModifyCreateArchive(
 
 			if ( dlgAddEditTemplate(ptpl, true) )
 			{
-				SetTemplate(D, ptpl);
-
 				pCfg->AddTemplate(ptpl);
 				pCfg->Save(SAVE_TEMPLATES);
+
+				SetTemplate(D, ptpl);
 			}
 			else
 				delete ptpl;
+
+			return TRUE;
 		}
 
 		if ( (nParam1 == ID_MCA_REMOVE) && templates.count() )
 		{
 			int iPos = D->ListGetCurrentPos(ID_MCA_TEMPLATELIST, NULL);
 
-			SetTemplate(D);
-
 			pCfg->RemoveTemplate(templates[iPos]);
 			pCfg->Save(SAVE_TEMPLATES);
+
+			SetTemplate(D);
+
+			return TRUE;
 		}
 
 		if ( (nParam1 == ID_MCA_EDIT) && templates.count() )
@@ -186,30 +193,38 @@ LONG_PTR __stdcall hndModifyCreateArchive(
 
 			if ( dlgAddEditTemplate(templates[iPos], false) )
 			{
-				SetTemplate(D);
-
 				pCfg->Save(SAVE_TEMPLATES);
+				SetTemplate(D);
 			}
-		}
-	}
 
-	if ( nMsg == DN_GOTFOCUS )
-	{
-		if ( nParam1 == ID_MCA_TEMPLATELIST )
-		{
-			D->SetCheck(ID_MCA_TEMPLATE, BSTATE_CHECKED);
-			return 0;
+			return TRUE;
 		}
 
-		if ( (nParam1 == ID_MCA_FORMATLIST) || (nParam1 == ID_MCA_PARAMSEDIT) )
+		if ( nParam1 == ID_MCA_CONFIGURE )
 		{
-			D->SetCheck (ID_MCA_DIRECTSETTINGS, BSTATE_CHECKED);
-			return 0;
+			ArchiveFormat* pFormat = nullptr;
+			const TCHAR* lpInitialConfig = nullptr;
+
+			int pos = D->ListGetCurrentPos(ID_MCA_FORMATLIST, NULL);
+
+			if ( pos != -1 )
+				 pFormat = (ArchiveFormat*)D->ListGetData(ID_MCA_FORMATLIST, pos);
+
+			string strConfig;
+
+			if ( pFormat != nullptr )
+				pFormat->Configure(lpInitialConfig, strConfig);
+
+			ArchiveTemplate *ptpl = (ArchiveTemplate*)D->GetDlgData();
+
+			ptpl->SetConfig(strConfig);
+
+			return TRUE;
 		}
 	}
 
 	if ( nMsg == DN_DRAWDIALOG )
-		SetFormatTitle (D);
+		SetFormatTitle(D);
 
 	if ( nMsg == DN_EDITCHANGE )
 	{
@@ -232,48 +247,11 @@ LONG_PTR __stdcall hndModifyCreateArchive(
 		}
 
 		if (nParam1 == ID_MCA_TEMPLATELIST )
-			SetTemplate (D);
+			SetTemplate(D);
 	}
 
 	if ( nMsg == DN_CLOSE )
 	{
-		if ( nParam1 == ID_MCA_CANCEL+1 ) //BUGBUG, да вы прикалываетесь
-		{
-			ArchiveFormat* pFormat = nullptr;
-			const TCHAR* lpInitialConfig = nullptr;
-
-			if ( D->GetCheck(ID_MCA_TEMPLATE) == BSTATE_CHECKED )
-			{
-				int pos = D->ListGetCurrentPos(ID_MCA_TEMPLATELIST, NULL);
-
-				if ( pos != -1 )
-				{
-					ArchiveTemplate *pTemplate = templates[pos];
-
-					pFormat = pTemplate->GetFormat();
-					lpInitialConfig = pTemplate->GetConfig();
-				}
-			}
-			else
-			{
-				int pos = D->ListGetCurrentPos(ID_MCA_FORMATLIST, NULL);
-
-				if ( pos != -1 )
-					 pFormat = (ArchiveFormat*)D->ListGetData(ID_MCA_FORMATLIST, pos);
-			}
-
-			string strConfig;
-
-			if ( pFormat != nullptr )
-				pFormat->Configure(lpInitialConfig, strConfig);
-
-			ArchiveTemplate *ptpl = (ArchiveTemplate*)D->GetDlgData();
-
-			ptpl->SetConfig(strConfig);
-
-			return FALSE;
-		}
-
 		if ( nParam1 == ID_MCA_ADDCONFIRM )
 		{
 			string strPassword1, strPassword2;
@@ -289,7 +267,7 @@ LONG_PTR __stdcall hndModifyCreateArchive(
 
 			ArchiveTemplate *ptpl = (ArchiveTemplate*)D->GetDlgData ();
 
-			if ( D->GetCheck(ID_MCA_TEMPLATE) == BSTATE_CHECKED )
+			if ( D->GetCheck(ID_MCA_TEMPLATE) )
 			{
 				int pos = D->ListGetCurrentPos (ID_MCA_TEMPLATELIST, NULL);
 
@@ -318,11 +296,11 @@ LONG_PTR __stdcall hndModifyCreateArchive(
 				}
 			}
 
-			if ( !ptpl->IsValid() )
+			/*if ( !ptpl->IsValid() )
 			{
 				msgError(_T("may not use an invalid template!"));
 				return FALSE;
-			}
+			}*/
 
 			return TRUE;
 		}
@@ -332,6 +310,9 @@ LONG_PTR __stdcall hndModifyCreateArchive(
 }
 
 struct CreateArchiveParams {
+
+	bool bUseTemplate; //HMM
+
 	string strFileName;
 	string strPassword;
 	string strAdditionalCommandLine;
@@ -376,92 +357,75 @@ bool dlgModifyCreateArchive(
 		info.FreePanelItem(&item);
 	}
 
-	FarDialog D (-1, -1, 75, 20);
+	FarDialog D(-1, -1, 75, 21);
 
-	D.DoubleBox (3, 1, 71, 18, NULL); //0
+	D.DoubleBox(3, 1, 71, 19, NULL); //0
 
 	D.Text(5, 2, _M(MCreateArchiveAddToArchive));//1
 	D.Edit(5, 3, 65, strArchiveName, AUTO_LENGTH, _T("")); //2
 
-
-
 	D.Separator (4); //3
 
-	D.Text (5, 5, _M(MCreateArchiveArchiverSettings)); //4
+	unsigned int uCaptionLength = StrLength(_T("Template"))+4;
+	unsigned int uComboStart = 5+uCaptionLength+1;
+	unsigned int uComboWidth = 71-uCaptionLength-7-13;
 
-	D.RadioButton (6, 6, true, _M(MCreateArchiveTemplate)); //5
-	D.RadioButton (6, 8, false, _M(MCreateArchiveDirectSettings)); //6
+	D.CheckBox(5, 5, pParams->bUseTemplate, _T("Template"));
+	D.ComboBox(uComboStart, 5, uComboWidth, nullptr);
+	D.SetFlags(DIF_DROPDOWNLIST);
 
-	D.ComboBox (9, 7, 48, NULL, 0); //7
-	D.SetFlags (DIF_DROPDOWNLIST);
+	D.Button(uComboStart+uComboWidth+2, 5, _T("[+]"));
+	D.Button(uComboStart+uComboWidth+2+4, 5, _T("[-]"));
+	D.Button(uComboStart+uComboWidth+2+8, 5, _T("[*]"));
 
-	D.Button (59, 7, _T("[+]")); //8
-	D.SetFlags(DIF_BTNNOCLOSE);
+	D.Separator(6);
 
-	D.Button (63, 7, _T("[-]")); //9
-	D.SetFlags(DIF_BTNNOCLOSE);
+	D.Text(5, 7, _T("Format"));
+	D.ComboBox(5, 8, 30, nullptr);
+	D.SetFlags(DIF_DROPDOWNLIST);
 
-	D.Button (67, 7, _T("[*]")); //10
-	D.SetFlags(DIF_BTNNOCLOSE);
+	D.Button(36, 8, _T("Config"));
 
-	D.Text (8, 9, _M(MCreateArchiveArchiver));//11
-	D.ComboBox (18, 9, 18, NULL/*, 0, _T("123")*/);//12
-//	D.Text (9, 9, _M(MCreateArchiveArchiver));//11
-//	D.ComboBox (19, 9, 15, NULL/*, 0, _T("123")*/);//12
-///	D->ListBox (50, 5, 65, 10, NULL);
-	D.SetFlags (DIF_DROPDOWNLIST);
+	D.Text(5, 9, _T("Additional params"));
+	D.Edit(5, 10, 50);
 
-	D.Text (38, 9, _M(MCreateArchiveAdditionalParams));//13
-	D.Edit (53, 9, 17, NULL, AUTO_LENGTH, _T("adsaf"));//14
+	D.Separator(11);
 
-//	D.Text (37, 9, _M(MCreateArchiveAdditionalParams));//13
-//	D.Edit (52, 9, 18, NULL, AUTO_LENGTH, _T("adsaf"));//14
+	D.Text(5, 12, _M(MCreateArchivePassword)); //16
+	D.PswEdit(5, 13, 32); //17
 
-	D.Separator (10); //15
+	D.Text(38, 12, _M(MCreateArchiveConfirmPassword)); //18
+	D.PswEdit(38, 13, 32); //19
 
-	D.Text (5, 11, _M(MCreateArchivePassword)); //16
-	D.PswEdit (5, 12, 32); //17
+	D.Separator(14);
+	D.Text(48, 14); //match
 
-	D.Text (38, 11, _M(MCreateArchiveConfirmPassword)); //18
-	D.PswEdit (38, 12, 32); //19
+	D.CheckBox(5, 15, false, _M(MCreateArchiveExactFilename)); 
+	D.CheckBox(5, 16, false, _M(MCreateArchiveEachFileInSeparateArchive)); 
 
-	D.Separator (13); //20
-	D.Text (48, 13); //21
+	D.Separator(17);
 
-	D.CheckBox (5, 14, false, _M(MCreateArchiveExactFilename)); //22
-	D.CheckBox (5, 15, false, _M(MCreateArchiveEachFileInSeparateArchive)); //23
-
-	D.Separator (16); //24
-
-	D.Button (-1, 17, _M(MCreateArchiveAdd)); //25
-	D.DefaultButton ();
-
-	D.Button (-1, 17, _M(MCreateArchiveCancel)); //26
-
-	D.Button (-1, 17, _T("[?]")); //27
+	D.Button(-1, 18, _T("Ok"));
+	D.Button(-1, 18, _T("Cancel"));
 
 	ArchiveTemplate tpl;
 
-	if ( D.Run(
-			hndModifyCreateArchive,
-			&tpl
-			) == 25 )
+	if ( D.Run(hndModifyCreateArchive, &tpl) == ID_MCA_ADDCONFIRM )
 	{
-		if ( tpl.IsValid() )
+		//if ( tpl.IsValid() )
 		{
-			pParams->strFileName = D.GetResultData(2);
-			pParams->strPassword = D.GetResultData(17);
+			pParams->strFileName = D.GetResultData(ID_MCA_NAMEEDIT);
+			pParams->strPassword = D.GetResultData(ID_MCA_PASSWORDEDIT);
 
 			pParams->strAdditionalCommandLine = tpl.GetParams();
 			pParams->strConfig = tpl.GetConfig();
 			pParams->pFormat = tpl.GetFormat();
 
-			pParams->bExactName = D.GetResultCheck(22);
-			pParams->bSeparateArchives = D.GetResultCheck(23);
+			pParams->bExactName = D.GetResultCheck(ID_MCA_EXACTFILENAME);
+			pParams->bSeparateArchives = D.GetResultCheck(ID_MCA_EACHFILEINSEPARATEARCHIVE);
 
 			return true;
 		}
-
 	}
 
 	return false;

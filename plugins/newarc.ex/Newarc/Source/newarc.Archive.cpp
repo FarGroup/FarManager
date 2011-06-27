@@ -56,9 +56,10 @@ Archive::Archive(
 	_tree = nullptr;
 }
 
-bool Archive::SetCurrentDirectory(const TCHAR* lpPathInArchive)
+bool Archive::SetCurrentDirectory(const TCHAR* lpPathInArchive, bool bRelative)
 {
-	ArchiveTree* pResult = _current->GetNode(lpPathInArchive);
+	ArchiveTreeNode* pRoot = bRelative?_current:_tree;
+	ArchiveTreeNode* pResult = pRoot->GetNode(lpPathInArchive);
 
 	if ( pResult )
 	{
@@ -255,6 +256,9 @@ int Archive::AddFiles(
 	string strSourceDiskPath = lpSourceDiskPath;
 	AddEndSlash(strSourceDiskPath);
 
+	string strPathInArchive = m_strPathInArchive;
+	AddEndSlash(strPathInArchive);
+
 	if ( QueryCapability(AFF_SUPPORT_INTERNAL_ADD) && m_hArchive )
 	{
 		if ( StartOperation(OPERATION_ADD, true) )
@@ -263,7 +267,7 @@ int Archive::AddFiles(
 					m_hArchive, 
 					items, 
 					strSourceDiskPath, 
-					m_strPathInArchive,
+					strPathInArchive,
 					lpConfig
 					);
 		

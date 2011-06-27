@@ -140,7 +140,7 @@
     <IntDir>..\..\Bin\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Unicode|X64'">
-    <OutDir>C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\7z.all\</OutDir>
+    <OutDir>..\..\..\..\Bin\$(Configuration)\Modules\7z\</OutDir>
     <TargetExt>.module</TargetExt>
     <IntDir>..\..\Bin\$(Configuration)\</IntDir>
   </PropertyGroup>
@@ -201,7 +201,7 @@
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <AdditionalIncludeDirectories>../../Include;../../../../Framework/Include</AdditionalIncludeDirectories>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>8Bytes</StructMemberAlignment>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

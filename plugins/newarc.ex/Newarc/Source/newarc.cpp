@@ -247,6 +247,9 @@ void __stdcall EXP_NAME(SetStartupInfo) (
 
 	pManager = new ArchiveModuleManager(strLanguage);
 
+#ifdef UNICODE
+	pManager->LoadIfNeeded(); //теперь вроде можно так
+#endif
 	//cfg.uArchiverOutput = ARCHIVER_OUTPUT_SHOW_ALWAYS;
 }
 

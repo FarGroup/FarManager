@@ -128,7 +128,7 @@ public:
 
 	int GetArchiveInfo(bool& bMultiVolume, const ArchiveInfoItem** pItems);
 
-	bool SetCurrentDirectory(const TCHAR* lpPathInArchive);
+	bool SetCurrentDirectory(const TCHAR* lpPathInArchive, bool bRelative = true);
 	const TCHAR* GetCurrentDirectory();
 
 	int Extract(const ArchiveItemArray& items, const TCHAR *lpDestDiskPath, bool bWithoutPath);

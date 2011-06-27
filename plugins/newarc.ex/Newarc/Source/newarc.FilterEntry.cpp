@@ -201,6 +201,7 @@ void ArchiveFilterEntry::ToXml(TiXmlNode& node)
 	node.ToElement()->SetAttribute("mask", (FakeUtf8String)m_strMask);
 	node.ToElement()->SetAttribute("enabled", m_bEnabled);
 	node.ToElement()->SetAttribute("exclude", m_bExclude);
+	node.ToElement()->SetAttribute("continue", m_bContinue);
 	node.ToElement()->SetAttribute("allf", m_bAllFormats);
 	node.ToElement()->SetAttribute("allp", m_bAllPlugins);
 	node.ToElement()->SetAttribute("allm", m_bAllModules);

@@ -27,8 +27,8 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{773579B6-BF0B-44B7-B5C7-7333B40B9A78}.Debug Unicode|Win32.ActiveCfg = Debug Unicode|Win32
 		{773579B6-BF0B-44B7-B5C7-7333B40B9A78}.Debug Unicode|Win32.Build.0 = Debug Unicode|Win32
-		{773579B6-BF0B-44B7-B5C7-7333B40B9A78}.Debug Unicode|X64.ActiveCfg = Debug Unicode|Win32
-		{773579B6-BF0B-44B7-B5C7-7333B40B9A78}.Debug Unicode|X64.Build.0 = Debug Unicode|Win32
+		{773579B6-BF0B-44B7-B5C7-7333B40B9A78}.Debug Unicode|X64.ActiveCfg = Debug Unicode|X64
+		{773579B6-BF0B-44B7-B5C7-7333B40B9A78}.Debug Unicode|X64.Build.0 = Debug Unicode|X64
 		{773579B6-BF0B-44B7-B5C7-7333B40B9A78}.Debug|Win32.ActiveCfg = Debug|Win32
 		{773579B6-BF0B-44B7-B5C7-7333B40B9A78}.Debug|Win32.Build.0 = Debug|Win32
 		{773579B6-BF0B-44B7-B5C7-7333B40B9A78}.Debug|X64.ActiveCfg = Debug|X64
@@ -43,8 +43,8 @@ Global
 		{773579B6-BF0B-44B7-B5C7-7333B40B9A78}.Release|X64.Build.0 = Release|X64
 		{96D613D4-AB4E-41A0-BA0D-D66AA1BD9C26}.Debug Unicode|Win32.ActiveCfg = Debug Unicode|Win32
 		{96D613D4-AB4E-41A0-BA0D-D66AA1BD9C26}.Debug Unicode|Win32.Build.0 = Debug Unicode|Win32
-		{96D613D4-AB4E-41A0-BA0D-D66AA1BD9C26}.Debug Unicode|X64.ActiveCfg = Debug Unicode|Win32
-		{96D613D4-AB4E-41A0-BA0D-D66AA1BD9C26}.Debug Unicode|X64.Build.0 = Debug Unicode|Win32
+		{96D613D4-AB4E-41A0-BA0D-D66AA1BD9C26}.Debug Unicode|X64.ActiveCfg = Debug Unicode|X64
+		{96D613D4-AB4E-41A0-BA0D-D66AA1BD9C26}.Debug Unicode|X64.Build.0 = Debug Unicode|X64
 		{96D613D4-AB4E-41A0-BA0D-D66AA1BD9C26}.Debug|Win32.ActiveCfg = Debug|Win32
 		{96D613D4-AB4E-41A0-BA0D-D66AA1BD9C26}.Debug|Win32.Build.0 = Debug|Win32
 		{96D613D4-AB4E-41A0-BA0D-D66AA1BD9C26}.Debug|X64.ActiveCfg = Debug|X64

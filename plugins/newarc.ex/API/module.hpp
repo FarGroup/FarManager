@@ -15,15 +15,9 @@
 #define RESULT_PARTIAL 2
 #define RESULT_CANCEL  3
 
-#define NAERROR_SUCCESS			0
-#define NAERROR_NOT_SUPPORTED	2
-#define NAERROR_NOTIMPLEMENTED NAERROR_NOT_SUPPORTED //to remove
-#define NAERROR_NO_MORE_DATA	3
-#define NAERROR_BAD_DATA		4
-#define NAERROR_READ_ERROR		5
-#define NAERROR_WRITE_ERROR		6
-#define NAERROR_BAD_CRC			7
-#define NAERROR_START_FAILED	8
+//ModuleEntry result
+#define NAERROR_SUCCESS         0
+#define NAERROR_NOTIMPLEMENTED  1
 
 #define E_SUCCESS			0
 #define E_EOF				1
@@ -430,11 +424,12 @@ struct ConfigureStruct { //to change
 struct ConfigureFormatStruct {
 	DWORD dwStructVersion;
 
+	int nOperation;
+
 	GUID uidFormat;
 	GUID uidPlugin;
 
 	const TCHAR* lpConfig;
-	
 	TCHAR* lpResult;
 
 	bool bResult;

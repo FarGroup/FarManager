@@ -173,7 +173,9 @@ bool ArchiveManagerConfig::LoadConfigs(const TCHAR* lpFileName)
 		while ( pChild )
 		{
 			ArchiveFormatConfig* pAC = ArchiveFormatConfig::FromXml(m_pManager, *pChild);
-			m_pConfigs.add(pAC);
+
+			if ( pAC )
+				m_pConfigs.add(pAC);
 
 			pChild = pChild->NextSibling("config");
 		}
@@ -202,7 +204,9 @@ bool ArchiveManagerConfig::LoadTemplates(const TCHAR* lpFileName)
 		while ( pChild )
 		{
 			ArchiveTemplate* pAT = ArchiveTemplate::FromXml(m_pManager, *pChild);
-			m_pTemplates.add(pAT);
+
+			if ( pAT )
+				m_pTemplates.add(pAT);
 
 			pChild = pChild->NextSibling("template");
 		}

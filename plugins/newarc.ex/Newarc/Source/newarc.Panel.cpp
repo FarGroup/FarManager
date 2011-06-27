@@ -282,7 +282,7 @@ int ArchivePanel::pGetFindData(
 	ConstArray<PluginPanelItem> pPanelItems(100);
 	Array<ArchiveTreeNode*> items;
 
-	m_pArchive->SetCurrentDirectory(m_strPathInArchive); //а вдруг архив перезагрузили, вернем путь
+	m_pArchive->SetCurrentDirectory(m_strPathInArchive, false); //а вдруг архив перезагрузили, вернем путь (с рута)
 	m_pArchive->GetArchiveTreeItems(items, false); //no recursive
 
 	for (unsigned int i = 0; i < items.count(); i++)

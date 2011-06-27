@@ -59,6 +59,13 @@ ArchiveFormat* ArchiveTemplate::GetFormat()
 void ArchiveTemplate::SetFormat(ArchiveFormat* pFormat)
 {
 	m_pFormat = pFormat;
+
+	if ( m_pFormat )
+	{
+		m_uidFormat = pFormat->GetUID();
+		m_uidPlugin = pFormat->GetPlugin()->GetUID();
+		m_uidModule = pFormat->GetModule()->GetUID();
+	}
 }
 
 bool ArchiveTemplate::IsValid() const

@@ -126,7 +126,7 @@
     <CodeAnalysisIgnoreGeneratedCode>false</CodeAnalysisIgnoreGeneratedCode>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Unicode|X64'">
-    <OutDir>C:\System Independent Files\Manager\Far\Plugins\newarc\</OutDir>
+    <OutDir>..\..\..\Bin\$(Configuration)\</OutDir>
     <IntDir>..\..\Bin\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Unicode|Win32'">
@@ -198,7 +198,7 @@
       <Optimization>Disabled</Optimization>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>8Bytes</StructMemberAlignment>
       <AdditionalIncludeDirectories>../../Include;../../../Framework/Include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -283,7 +283,7 @@
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <StringPooling>true</StringPooling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>8Bytes</StructMemberAlignment>
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>../../newarcW.def</ModuleDefinitionFile>
@@ -416,6 +416,9 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"../../../Tools/lng.generator.exe" -ol "$(OutDir)\" -oh "..\..\Include" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building language files</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)\newarc.Russian.lng;$(OutDir)\newarc.English.lng</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug Unicode|X64'">"../../../Tools/lng.generator.exe" -ol "$(OutDir)\" -oh "..\..\Include" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug Unicode|X64'">Building language files</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug Unicode|X64'">$(OutDir)\newarc.Russian.lng;$(OutDir)\newarc.English.lng</Outputs>
     </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

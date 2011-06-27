@@ -17,4 +17,8 @@
     <LocalDebuggerCommand>C:\System Independent Files\Manager\Far\Far.exe</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Unicode|X64'">
+    <LocalDebuggerCommand>C:\Program Files\Far2\Far.exe</LocalDebuggerCommand>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
 </Project>
