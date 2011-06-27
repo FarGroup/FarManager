@@ -185,6 +185,7 @@ elevation Elevation;
 elevation::elevation():
 	Pipe(INVALID_HANDLE_VALUE),
 	Process(nullptr),
+	Job(nullptr),
 	PID(0),
 	MainThreadID(GetCurrentThreadId()),
 	Elevation(false),
@@ -201,6 +202,7 @@ elevation::~elevation()
 	DisconnectNamedPipe(Pipe);
 	PID=0;
 	CloseHandle(Pipe);
+	CloseHandle(Job);
 }
 
 void elevation::ResetApprove()
@@ -322,6 +324,21 @@ bool elevation::Initialize()
 		{
 			TaskBar TB;
 			DisconnectNamedPipe(Pipe);
+
+			if(!Job)
+			{
+				Job = CreateJobObject(nullptr, nullptr);
+				if(Job)
+				{
+					JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli={};
+					jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_SILENT_BREAKAWAY_OK;
+					if(SetInformationJobObject(Job, JobObjectExtendedLimitInformation, &jeli, sizeof(jeli)))
+					{
+						AssignProcessToJobObject(Job, GetCurrentProcess());
+					}
+				}
+			}
+
 			FormatString strParam;
 			strParam << L"/elevation " << strPipeID << L" " << GetCurrentProcessId() << L" " << ((Opt.ElevationMode&ELEVATION_USE_PRIVILEGES)? L"1" : L"0");
 			SHELLEXECUTEINFO info=
@@ -337,6 +354,7 @@ bool elevation::Initialize()
 			if(ShellExecuteEx(&info))
 			{
 				Process = info.hProcess;
+				AssignProcessToJobObject(Job, Process);
 				OVERLAPPED Overlapped;
 				Event AEvent;
 				Overlapped.hEvent = AEvent.Handle();
@@ -359,6 +377,8 @@ bool elevation::Initialize()
 						TerminateProcess(Process, 0);
 						CloseHandle(Process);
 						Process = nullptr;
+						CloseHandle(Job);
+						Job = nullptr;
 					}
 					SetLastError(ERROR_PROCESS_ABORTED);
 				}

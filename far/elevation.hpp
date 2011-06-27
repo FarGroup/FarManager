@@ -94,6 +94,7 @@ public:
 private:
 	HANDLE Pipe;
 	HANDLE Process;
+	HANDLE Job;
 	int PID;
 	DWORD MainThreadID;
 	bool Elevation;
