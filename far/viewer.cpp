@@ -254,6 +254,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 
 	ViewFile.Close();
 	Reader.Clear();
+	vgetc_ready = lcache_ready = false;
 
 	SelectSize = -1; // Сбросим выделение
 	strFileName = Name;
@@ -3965,12 +3966,7 @@ int Viewer::ViewerControl(int Command,void *Param)
 				if ((LeftPos=vsp->LeftPos) < 0)
 					LeftPos=0;
 
-				/* $ 20.01.2003 IS
-				     Если кодировка - юникод, то оперируем числами, уменьшенными в
-				     2 раза. Поэтому увеличим StartPos в 2 раза, т.к. функция
-				     GoTo принимает смещения в _байтах_.
-				*/
-				GoTo(FALSE, vsp->StartPos*(IsUnicodeCodePage(VM.CodePage)?2:1), vsp->Flags);
+				GoTo(FALSE, vsp->StartPos, vsp->Flags);
 
 				if (isReShow && !(vsp->Flags&VSP_NOREDRAW))
 					ScrBuf.Flush();

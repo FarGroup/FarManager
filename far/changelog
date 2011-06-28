@@ -1,3 +1,9 @@
+drkns 28.06.2011 22:09:23 +0200 - build 2083
+
+1. Правильный guid Network-плагина.
+
+2. Mantis#0001766: Новая версия вьювера.
+
 drkns 28.06.2011 17:43:08 +0200 - build 2082
 
 1. Изменены параметры ClosePanelW, ConfigureW, ProcessDialogEventW, ProcessEditorEventW, ProcessPanelEventW, ProcessPanelInputW, ProcessSynchroEventW, ProcessViewerEventW.
