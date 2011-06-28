@@ -293,10 +293,10 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, ADVANCED_CONTROL_COMMANDS Com
 			return WaitKey(Param1?Param1:-1,0,false);
 		}
 		/* $ 04.12.2000 SVS
-		  ACTL_GETCOLOR - получить определенный цвет по индекс, определенному
+		  ACTL_GETCOLOR - получить определенный цвет по индексу, определенному
 		   в farcolor.hpp
-		  Param1 - индекс.
-		  Return - значение цвета или -1 если индекс неверен.
+		  Param2 - [OUT] значение цвета
+		  Return - TRUE если OK или FALSE если индекс неверен.
 		*/
 		case ACTL_GETCOLOR:
 		{
@@ -309,14 +309,16 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, ADVANCED_CONTROL_COMMANDS Com
 		}
 		/* $ 04.12.2000 SVS
 		  ACTL_GETARRAYCOLOR - получить весь массив цветов
-		  Param - указатель на массив или nullptr - чтобы получить размер буфера
+		  Param1 - размер буфера (в элементах FarColor)
+		  Param2 - указатель на буфер или nullptr, чтобы получить необходимый размер
 		  Return - размер массива.
 		*/
 		case ACTL_GETARRAYCOLOR:
 		{
-			if (Param2)
-				memcpy(Param2,Opt.Palette.CurrentPalette, Opt.Palette.SizeArrayPalette);
-
+			if (Param2 && static_cast<size_t>(Param1) >= Opt.Palette.SizeArrayPalette)
+			{
+				memcpy(Param2, Opt.Palette.CurrentPalette, Opt.Palette.SizeArrayPalette*sizeof(FarColor));
+			}
 			return Opt.Palette.SizeArrayPalette;
 		}
 		/*
