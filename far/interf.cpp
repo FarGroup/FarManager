@@ -168,7 +168,8 @@ void CloseConsole()
 	if (CursorPos.X > InitWindowRect.Right || CursorPos.X < InitWindowRect.Left)
 		InitWindowRect.Left = Max(0, CursorPos.X-Width);
 	InitWindowRect.Bottom = InitWindowRect.Top + Height;
-	InitWindowRect.Right = InitWindowRect.Left + Width;	Console.SetWindowRect(InitWindowRect);
+	InitWindowRect.Right = InitWindowRect.Left + Width;
+	Console.SetWindowRect(InitWindowRect);
 	Console.SetSize(InitialSize);
 
 	delete KeyQueue;
