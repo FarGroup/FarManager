@@ -27,7 +27,7 @@ $(DLLFULLNAME) : $(LINK_OBJS) $(RES) $(LINK_DEP)
 !endif
 
 $(RES): $(RC_NAME).rc $(COMINC)\farversion.hpp $(COMINC)\plugin.hpp
-	@$(RC) /I"$(COMINC)" $(ENV_INC_OPT) $(RC_WIDE) /fo"$(RES)" $(RC_NAME).rc
+	@$(RC) /nologo /I"$(COMINC)" $(ENV_INC_OPT) $(RC_WIDE) /fo"$(RES)" $(RC_NAME).rc
 
 .PHONY: dirs
 dirs:
