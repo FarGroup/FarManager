@@ -1323,11 +1323,13 @@ BOOL NetBrowser::EditFavorites()
 	Info.PanelControl(this, FCTL_GETPANELDIR,ARRAYSIZE(szPath),szPath);
 	wchar_t *p = szPath + lstrlen(szPath);
 	*p++ = L'\\';
-	PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,0));
+	size_t Size = Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,0);
+	PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
 
 	if (PPI)
 	{
-		Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,PPI);
+		FarGetPluginPanelItem gpi={Size, PPI};
+		Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,&gpi);
 		lstrcpy(p,PPI->FileName);
 		free(PPI);
 	}
@@ -1392,11 +1394,13 @@ int NetBrowser::ProcessKey(const INPUT_RECORD *Rec)
 
 			for (int I=0; I<PInfo.SelectedItemsNumber; I++)
 			{
-				PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,I,0));
+				size_t Size = Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,I,0);
+				PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
 
 				if (PPI)
 				{
-					Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,I,PPI);
+					FarGetPluginPanelItem gpi={Size, PPI};
+					Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,I,&gpi);
 				}
 
 				if (!PPI||!MapNetworkDrive(PPI->FileName, (Key == VK_F6), (Shift==0)))
@@ -1428,11 +1432,13 @@ int NetBrowser::ProcessKey(const INPUT_RECORD *Rec)
 	{
 		struct PanelInfo PInfo;
 		Info.PanelControl(this,FCTL_GETPANELINFO,0,&PInfo);
-		PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,0,0));
+		size_t Size = Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,0,0);
+		PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
 
 		if (PPI)
 		{
-			Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,0,PPI);
+			FarGetPluginPanelItem gpi={Size, PPI};
+			Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,0,&gpi);
 		}
 
 		if (PPI&&lstrcmp(PPI->FileName,L".."))
@@ -1887,11 +1893,13 @@ void NetBrowser::PutCurrentFileName(BOOL ToCommandLine)
 	if (PInfo.ItemsNumber > 0)
 	{
 		wchar_t CurFile [MAX_PATH];
-		PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,0));
+		size_t Size = Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,0);
+		PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
 
 		if (PPI)
 		{
-			Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,PPI);
+			FarGetPluginPanelItem gpi={Size, PPI};
+			Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,&gpi);
 			lstrcpy(CurFile,PPI->FileName);
 			free(PPI);
 		}
@@ -1926,11 +1934,13 @@ void NetBrowser::ManualConnect()
 
 	if (PInfo.ItemsNumber)
 	{
-		PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,0));
+		size_t Size = Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,0);
+		PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
 
 		if (PPI)
 		{
-			Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,PPI);
+			FarGetPluginPanelItem gpi={Size, PPI};
+			Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,&gpi);
 			ChangeToDirectory(PPI->FileName, FALSE, TRUE);
 			free(PPI);
 		}
@@ -2133,11 +2143,13 @@ void NetBrowser::SetCursorToShare(wchar_t *Share)
 		for (int i=0; i<PInfo.ItemsNumber; i++)
 		{
 			wchar_t szAnsiName[MAX_PATH];
-			PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.PanelControl(this,FCTL_GETPANELITEM,i,0));
+			size_t Size = Info.PanelControl(this,FCTL_GETPANELITEM,i,0);
+			PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
 
 			if (PPI)
 			{
-				Info.PanelControl(this,FCTL_GETPANELITEM,i,PPI);
+				FarGetPluginPanelItem gpi={Size, PPI};
+				Info.PanelControl(this,FCTL_GETPANELITEM,i,&gpi);
 				lstrcpy(szAnsiName,PPI->FileName);
 				free(PPI);
 			}
@@ -2179,11 +2191,13 @@ void NetBrowser::RemoveItems()
 
 	if (PInfo.SelectedItemsNumber == 1)
 	{
-		PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,0,0));
+		size_t Size = Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,0,0);
+		PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
 
 		if (PPI)
 		{
-			Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,0,PPI);
+			FarGetPluginPanelItem gpi={Size, PPI};
+			Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,0,&gpi);
 			FSF.sprintf(szConfirmation, GetMsg(MRemoveFavItem), PPI->FileName);
 			free(PPI);
 		}
@@ -2212,11 +2226,13 @@ void NetBrowser::RemoveItems()
 
 	for (int i = 0; i < PInfo.SelectedItemsNumber; i++)
 	{
-		PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,i,0));
+		size_t Size = Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,i,0);
+		PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
 
 		if (PPI)
 		{
-			Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,i,PPI);
+			FarGetPluginPanelItem gpi={Size, PPI};
+			Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,i,&gpi);
 			lstrcpy(p,PPI->FileName);
 			free(PPI);
 		}
