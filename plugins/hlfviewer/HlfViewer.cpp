@@ -335,7 +335,7 @@ void ShowHelpFromTempFile()
 	}
 }
 
-int WINAPI ConfigureW(const ConfigureInfo* Info)
+int WINAPI ConfigureW(const ConfigureInfo* CfgInfo)
 {
 	GetPluginConfig();
 
