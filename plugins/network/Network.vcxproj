@@ -394,7 +394,6 @@
     <ClCompile Include="NetFavorites.cpp" />
     <ClCompile Include="NetMix.cpp" />
     <ClCompile Include="NetNT.cpp" />
-    <ClCompile Include="NetReg.cpp" />
     <ClCompile Include="Network.cpp" />
   </ItemGroup>
   <ItemGroup>

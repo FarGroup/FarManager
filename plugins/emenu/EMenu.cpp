@@ -67,7 +67,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
   return thePlug->OpenPlugin(OInfo->OpenFrom, OInfo->Data);
 }
 
-int WINAPI ConfigureW(const GUID* Guid)
+int WINAPI ConfigureW(const ConfigureInfo* Info)
 {
   return thePlug->Configure();
 }

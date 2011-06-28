@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2073
+  Plugin API for Far Manager 3.0 build 2081
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2073
+#define FARMANAGERVERSION_BUILD 2081
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -430,7 +430,7 @@ struct FarDialogItemColors
 struct FAR_CHAR_INFO
 {
 	WCHAR Char;
-	FarColor Attributes;
+	struct FarColor Attributes;
 };
 
 struct FarDialogItem
@@ -442,7 +442,7 @@ struct FarDialogItem
 		DWORD_PTR Reserved;
 		int Selected;
 		struct FarList *ListItems;
-		FAR_CHAR_INFO *VBuf;
+		struct FAR_CHAR_INFO *VBuf;
 	}
 #ifndef __cplusplus
 	Param
@@ -557,7 +557,7 @@ typedef HANDLE(WINAPI *FARAPIDIALOGINIT)(
     int                   X2,
     int                   Y2,
     const wchar_t        *HelpTopic,
-    struct FarDialogItem *Item,
+    const struct FarDialogItem *Item,
     unsigned int          ItemsNumber,
     DWORD                 Reserved,
     FARDIALOGFLAGS        Flags,
@@ -2285,6 +2285,7 @@ struct DeleteFilesInfo
 struct ProcessPanelInputInfo
 {
 	size_t StructSize;
+	HANDLE hPanel;
 	INPUT_RECORD Rec;
 };
 
@@ -2300,6 +2301,54 @@ struct ExitInfo
 	size_t StructSize;
 };
 
+struct ProcessPanelEventInfo
+{
+	size_t StructSize;
+	HANDLE hPanel;
+	int Event;
+	void* Param;
+};
+
+struct ProcessEditorEventInfo
+{
+	size_t StructSize;
+	int Event;
+	void* Param;
+};
+
+struct ProcessDialogEventInfo
+{
+	size_t StructSize;
+	int Event;
+	FarDialogEvent* Param;
+};
+
+struct ProcessSynchroEventInfo
+{
+	size_t StructSize;
+	int Event;
+	void* Param;
+};
+
+struct ProcessViewerEventInfo
+{
+	size_t StructSize;
+	int Event;
+	void* Param;
+};
+
+struct ClosePanelInfo
+{
+	size_t StructSize;
+	HANDLE hPanel;
+};
+
+struct ConfigureInfo
+{
+	size_t StructSize;
+	const GUID* Guid;
+};
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -2307,9 +2356,9 @@ extern "C"
 // Exported Functions
 
 	int    WINAPI AnalyseW(const struct AnalyseInfo *Info);
-	void   WINAPI ClosePanelW(HANDLE hPanel);
+	void   WINAPI ClosePanelW(const struct ClosePanelInfo *Info);
 	int    WINAPI CompareW(const struct CompareInfo *Info);
-	int    WINAPI ConfigureW(const GUID* Guid);
+	int    WINAPI ConfigureW(const struct ConfigureInfo *Info);
 	int    WINAPI DeleteFilesW(const struct DeleteFilesInfo *Info);
 	void   WINAPI ExitFARW(const struct ExitInfo *Info);
 	void   WINAPI FreeFindDataW(const struct FreeFindDataInfo *Info);
@@ -2322,14 +2371,14 @@ extern "C"
 	int    WINAPI GetVirtualFindDataW(struct GetVirtualFindDataInfo *Info);
 	int    WINAPI MakeDirectoryW(struct MakeDirectoryInfo *Info);
 	HANDLE WINAPI OpenW(const struct OpenInfo *Info);
-	int    WINAPI ProcessDialogEventW(int Event,void *Param);
-	int    WINAPI ProcessEditorEventW(int Event,void *Param);
+	int    WINAPI ProcessDialogEventW(const struct DialogEventInfo *Info);
+	int    WINAPI ProcessEditorEventW(const struct EditorEventInfo *Info);
 	int    WINAPI ProcessEditorInputW(const struct ProcessEditorInputInfo *Info);
-	int    WINAPI ProcessEventW(HANDLE hPanel,int Event,void *Param);
+	int    WINAPI ProcessPanelEventW(const struct ProcessPanelEventInfo *Info);
 	int    WINAPI ProcessHostFileW(const struct ProcessHostFileInfo *Info);
-	int    WINAPI ProcessPanelInputW(HANDLE hPanel,const struct ProcessPanelInputInfo *Info);
-	int    WINAPI ProcessSynchroEventW(int Event,void *Param);
-	int    WINAPI ProcessViewerEventW(int Event,void *Param);
+	int    WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo *Info);
+	int    WINAPI ProcessSynchroEventW(const struct SynchroEventInfo *Info);
+	int    WINAPI ProcessViewerEventW(const struct ViewerEventInfo *Info);
 	int    WINAPI PutFilesW(const struct PutFilesInfo *Info);
 	int    WINAPI SetDirectoryW(const struct SetDirectoryInfo *Info);
 	int    WINAPI SetFindListW(const struct SetFindListInfo *Info);

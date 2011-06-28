@@ -4,7 +4,7 @@
 void NetBrowser::GetHideShareNT()
 {
 #ifdef NETWORK_LOGGING
-  LogData(L"Entering NetBrowser::GetHideShareNT("));
+  LogData(L"Entering NetBrowser::GetHideShareNT()");
 #endif
   if(UsedNetFunctions)
   {
@@ -79,6 +79,6 @@ void NetBrowser::GetHideShareNT()
 #ifdef NETWORK_LOGGING
   else
     LogData(L"UsedNetFunctions = FALSE");
-  LogData(L"Leaving NetBrowser::GetHideShareNT("));
+  LogData(L"Leaving NetBrowser::GetHideShareNT()");
 #endif
 }

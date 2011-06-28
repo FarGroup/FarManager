@@ -33,6 +33,7 @@ BOOL GetFavorites(LPNETRESOURCE pNR, NetResourceList *pList)
       FSF.sprintf(szKey, SZ_FAVORITES_SUBKEY, p);
     }else
       lstrcpy(szKey, SZ_FAVORITES);
+#if 0
     HKEY hKey = OpenRegKey(HKEY_CURRENT_USER, szKey, KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS);
     if(hKey)
     {
@@ -84,6 +85,7 @@ BOOL GetFavorites(LPNETRESOURCE pNR, NetResourceList *pList)
 
       RegCloseKey(hKey);
     }
+#endif
     return TRUE;
   }
   return FALSE;
@@ -94,6 +96,7 @@ BOOL CheckFavoriteItem(const LPNETRESOURCE pNR)
   return pNR && !lstrcmp(pNR->lpProvider, szFavProv);
 }
 
+#if 0
 BOOL GetResourceKey(wchar_t* lpRemoteName, const wchar_t* rootKey, wchar_t* lpResourceKey, size_t *cSize)
 {
   // We should be sure that "Favorites" is a folder
@@ -196,18 +199,22 @@ BOOL GetResourceKey(wchar_t* lpRemoteName, const wchar_t* rootKey, wchar_t* lpRe
   delete(buff);
   return res;
 }
+#endif
 
 void WriteFavoriteItem(LPFAVORITEITEM lpFavItem, wchar_t* /*szFolder*/)
 {
+#if 0
   wchar_t szResourceKey[MAX_PATH];
   size_t cSize = ARRAYSIZE(szResourceKey);
   GetResourceKey(lpFavItem->lpRemoteName, SZ_FAVORITES, szResourceKey, &cSize);
   SetRegKey(HKEY_CURRENT_USER, szResourceKey, SZ_USERNAME, lpFavItem->lpUserName);
   SetRegKey(HKEY_CURRENT_USER, szResourceKey, SZ_USERPASS, lpFavItem->lpPassword);
+#endif
 }
 
 BOOL ReadFavoriteItem(LPFAVORITEITEM lpFavItem)
 {
+#if 0
   wchar_t resKey[MAX_PATH];
   size_t cData = ARRAYSIZE(resKey);
   if(lpFavItem && GetResourceKey(lpFavItem->lpRemoteName, SZ_FAVORITES, resKey, &cData))
@@ -218,11 +225,13 @@ BOOL ReadFavoriteItem(LPFAVORITEITEM lpFavItem)
       L"", lpFavItem->ccPassword);
     return TRUE;
   }
+#endif
   return FALSE;
 }
 
 BOOL GetFavoritesParent(NETRESOURCE& SrcRes, LPNETRESOURCE lpParent)
 {
+#if 0
   wchar_t* p;
   NETRESOURCE nr = {0};
   nr.lpProvider = szFavProv;
@@ -278,15 +287,18 @@ BOOL GetFavoritesParent(NETRESOURCE& SrcRes, LPNETRESOURCE lpParent)
     }
     return TRUE;
   }
-
+#endif
   return FALSE;
 }
 
+#if 0
 STDAPI
 EliminateSubKey( HKEY hkey, LPTSTR strSubKey );
+#endif
 
 BOOL GetFavoriteResource(wchar_t *SrcName, LPNETRESOURCE DstNetResource)
 {
+#if 0
   NETRESOURCE nr = {0};
   wchar_t *p1, *p = SrcName;
   while(*p == L'\\') ++p;
@@ -361,11 +373,14 @@ BOOL GetFavoriteResource(wchar_t *SrcName, LPNETRESOURCE DstNetResource)
       }
     }
   }
+#endif
   return FALSE;
 }
 
 BOOL RemoveFromFavorites(wchar_t *SrcName, LPREMOVEFROMFAVCB /*pUserCallBack*/, LPVOID /*pUserData*/)
 {
+	return FALSE;
+#if 0
   wchar_t *p = wcschr(SrcName, L'\\');
   if(p)
     while(*++p == L'\\');
@@ -385,6 +400,7 @@ BOOL RemoveFromFavorites(wchar_t *SrcName, LPREMOVEFROMFAVCB /*pUserCallBack*/, 
 
     RegCloseKey(hKey);
     return res;
+#endif
 }
 
 //---------------------------------------------------------------------------
@@ -396,7 +412,7 @@ BOOL RemoveFromFavorites(wchar_t *SrcName, LPREMOVEFROMFAVCB /*pUserCallBack*/, 
 // Otherwise just delete it.
 //
 //---------------------------------------------------------------------------
-
+#if 0
 STDAPI
 EliminateSubKey( HKEY hkey, LPTSTR strSubKey )
 {
@@ -472,6 +488,7 @@ BOOL RecursiveSetValue (HKEY hKey, wchar_t* lpSubKey)
   }
   return ERROR_SUCCESS == RegSetValue(hKey, lpSubKey, REG_SZ, L"1", 2);
 }
+#endif
 
 const wchar_t *g_szInvalidChars=L"\\/";
 
@@ -486,6 +503,7 @@ BOOL ValidatePath(const wchar_t *szPath)
   return TRUE;
 }
 
+#if 0
 class Unknown
 {
 private:
@@ -655,9 +673,12 @@ bool GetFavoriteRoot(RegParser** favoritesRoot)
   *favoritesRoot = root;
   return true;
 }
+#endif
 
 BOOL CreateSubFolder(wchar_t *szRoot, wchar_t *szSubFolder)
 {
+	return FALSE;
+#if 0
   wchar_t szFavorites[] = SZ_FAVORITES;
 
   if (szRoot && !FSF.LStrnicmp(szRoot, szFavorites, lstrlen(szFavorites)))
@@ -690,4 +711,5 @@ BOOL CreateSubFolder(wchar_t *szRoot, wchar_t *szSubFolder)
   currFolder->Release();
 
   return res?TRUE:FALSE;
+#endif
 }

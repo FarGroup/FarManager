@@ -1,15 +1,15 @@
 EXPORTS
-   ClosePluginW
+   ClosePanelW
    ConfigureW
    GetFindDataW
-   GetOpenPluginInfoW
+   GetOpenPanelInfoW
    GetPluginInfoW
-   OpenPluginW
-   ProcessKeyW
+   OpenW
+   ProcessPanelInputW
    SetStartupInfoW
    FreeFindDataW
    DeleteFilesW
-   ProcessEventW
+   ProcessPanelEventW
    SetDirectoryW
    ExitFARW
-   GetMinFarVersionW
+   GetGlobalInfoW

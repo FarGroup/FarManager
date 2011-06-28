@@ -15,7 +15,10 @@ int NetBrowser::LogFileRef = 0;
 
 void NetBrowser::OpenLogFile(wchar_t *lpFileName)
 {
-	if (!LogFileRef)LogFile = wfopen(lpFileName, L"a+t"), _ftprintf(LogFile, L"Opening plugin\n");
+	if (!LogFileRef)
+		LogFile = _wfopen(lpFileName, L"a+t");
+	if(LogFile)
+		_ftprintf(LogFile, L"Opening plugin\n");
 
 	LogFileRef++;
 }
@@ -24,15 +27,18 @@ void NetBrowser::CloseLogfile()
 {
 	LogFileRef--;
 
-	if (!LogFileRef)fclose(LogFile),LogFile = NULL;
+	if (!LogFileRef && LogFile)fclose(LogFile),LogFile = NULL;
 }
 
 void NetBrowser::LogData(wchar_t * Data)
 {
-	_ftprintf(LogFile,L"%s\n", Data);
-	wchar_t buffer[MAX_PATH];
-	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), 0, buffer, ARRAYSIZE(buffer), NULL);
-	_ftprintf(LogFile,L"GetLastError returns: %s\n", buffer);
+	if(LogFile)
+	{
+		_ftprintf(LogFile,L"%s\n", Data);
+		wchar_t buffer[MAX_PATH];
+		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), 0, buffer, ARRAYSIZE(buffer), NULL);
+		_ftprintf(LogFile,L"GetLastError returns: %s\n", buffer);
+	}
 }
 #endif
 
@@ -221,10 +227,11 @@ NetBrowser::~NetBrowser()
 
 void NetBrowser::LogNetResource(NETRESOURCE &Res)
 {
-	_ftprintf(LogFile, L"dwScope = %d\ndwType = %d\ndwDisplayType = %d\ndwUsage = %d\n",
-	          Res.dwScope, Res.dwType, Res.dwDisplayType, Res.dwUsage);
-	_ftprintf(LogFile, L"lpLocalName = %s\nlpRemoteName = %s\nlpComment = %s\nlpProvider = %s\n\n",
-	          Res.lpLocalName, Res.lpRemoteName, Res.lpComment, Res.lpProvider);
+	if(LogFile)
+	{
+		_ftprintf(LogFile, L"dwScope = %d\ndwType = %d\ndwDisplayType = %d\ndwUsage = %d\n", Res.dwScope, Res.dwType, Res.dwDisplayType, Res.dwUsage);
+		_ftprintf(LogFile, L"lpLocalName = %s\nlpRemoteName = %s\nlpComment = %s\nlpProvider = %s\n\n", Res.lpLocalName, Res.lpRemoteName, Res.lpComment, Res.lpProvider);
+	}
 }
 
 #endif
@@ -813,11 +820,11 @@ void NetBrowser::GetOpenPanelInfo(struct OpenPanelInfo *Info)
 			kbl[j].Key.VirtualKeyCode = FKeys[i];
 			kbl[j].Key.ControlKeyState = FKeys[i+1];
 
-			if (FKeys[i+2])
+			if (FKeys[i+2] != (WORD)-1)
 			{
 				kbl[j].Text = kbl[j].LongText = GetMsg(FKeys[i+2]);
 			}
-			else if (FKeys[i+2] == (WORD)-1)
+			else if (FKeys[i+2])
 			{
 				if (FKeys[i] == VK_F4)
 				{
@@ -1188,7 +1195,8 @@ BOOL NetBrowser::GetResourceInfo(wchar_t *SrcName,LPNETRESOURCE DstNetResource)
 		return FALSE;
 
 #ifdef NETWORK_LOGGING
-	_ftprintf(LogFile, L"GetResourceInfo %s\n", SrcName);
+	if(LogFile)
+		_ftprintf(LogFile, L"GetResourceInfo %s\n", SrcName);
 #endif
 	NETRESOURCE nrOut [32];   // provide buffer space
 	NETRESOURCE *lpnrOut = &nrOut [0];
@@ -1215,7 +1223,8 @@ BOOL NetBrowser::GetResourceInfo(wchar_t *SrcName,LPNETRESOURCE DstNetResource)
 			NetResourceList::CopyNetResource(*DstNetResource, *lpnrOut);
 
 #ifdef NETWORK_LOGGING
-		_ftprintf(LogFile, L"Result:\n");
+		if(LogFile)
+			_ftprintf(LogFile, L"Result:\n");
 		LogNetResource(*DstNetResource);
 #endif
 
@@ -1227,7 +1236,10 @@ BOOL NetBrowser::GetResourceInfo(wchar_t *SrcName,LPNETRESOURCE DstNetResource)
 
 #ifdef NETWORK_LOGGING
 	else
-		_ftprintf(LogFile, L"error %d\n", GetLastError());
+	{
+		if(LogFile)
+			_ftprintf(LogFile, L"error %d\n", GetLastError());
+	}
 
 #endif
 	return FALSE;
@@ -1247,7 +1259,8 @@ BOOL NetBrowser::GetResourceParent(NETRESOURCE &SrcRes, LPNETRESOURCE DstNetReso
 		return FALSE;
 
 #ifdef NETWORK_LOGGING
-	_ftprintf(LogFile, L"GetResourceParent( for:\n"));
+	if(LogFile)
+		_ftprintf(LogFile, L"GetResourceParent( for:\n");
 	LogNetResource(SrcRes);
 #endif
 	TSaveScreen ss;
@@ -1273,7 +1286,8 @@ BOOL NetBrowser::GetResourceParent(NETRESOURCE &SrcRes, LPNETRESOURCE DstNetReso
 	if (dwError == NO_ERROR)
 {
 #ifdef NETWORK_LOGGING
-	_ftprintf(LogFile, L"WNetGetResourceInformation() returned:\n");
+		if(LogFile)
+			_ftprintf(LogFile, L"WNetGetResourceInformation() returned:\n");
 		LogNetResource(*lpnrOut);
 #endif
 		nrSrc.lpProvider=lpnrOut->lpProvider;
@@ -1284,7 +1298,8 @@ BOOL NetBrowser::GetResourceParent(NETRESOURCE &SrcRes, LPNETRESOURCE DstNetReso
 				NetResourceList::CopyNetResource(*DstNetResource, *lpnrOut);
 
 #ifdef NETWORK_LOGGING
-			_ftprintf(LogFile, L"Result:\n");
+			if(LogFile)
+				_ftprintf(LogFile, L"Result:\n");
 			LogNetResource(*DstNetResource);
 #endif
 			Ret=TRUE;
@@ -2141,7 +2156,7 @@ void NetBrowser::SetCursorToShare(wchar_t *Share)
 }
 
 
-void WINAPI ExitFARW(ExitInfo* Info)
+void WINAPI ExitFARW(const ExitInfo *Info)
 {
 	delete CommonRootResources;
 	NetResourceList::DeleteNetResource(CommonCurResource);

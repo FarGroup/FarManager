@@ -114,7 +114,7 @@ int Config()
   return FALSE;
 }
 
-int WINAPI ConfigureW(const GUID* Guid)
+int WINAPI ConfigureW(const ConfigureInfo* Info)
 {
 	return Config();
 }

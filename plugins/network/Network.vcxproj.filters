@@ -39,9 +39,6 @@
     <ClCompile Include="NetNT.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NetReg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Network.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

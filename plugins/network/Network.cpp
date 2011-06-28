@@ -21,7 +21,7 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 }
 #endif
 
-void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
+void WINAPI GetGlobalInfoW(GlobalInfo *Info)
 {
   Info->StructSize=sizeof(GlobalInfo);
   Info->MinFarVersion=FARMANAGERVERSION;
@@ -33,7 +33,7 @@ void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 }
 
 //-----------------------------------------------------------------------------
-HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
+HANDLE WINAPI OpenW(const OpenInfo *OInfo)
 {
   InitializeNetFunction();
 
@@ -123,59 +123,58 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 }
 
 //-----------------------------------------------------------------------------
-void WINAPI ClosePanelW(HANDLE hPlugin)
+void WINAPI ClosePanelW(const ClosePanelInfo* Info)
 {
-  delete (NetBrowser *)hPlugin;
+  delete (NetBrowser *)Info->hPanel;
 }
 
 //-----------------------------------------------------------------------------
-int WINAPI GetFindDataW(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode)
+int WINAPI GetFindDataW(GetFindDataInfo *Info)
 {
-  NetBrowser *Browser=(NetBrowser *)hPlugin;
-  return(Browser->GetFindData(pPanelItem,pItemsNumber,OpMode));
+  NetBrowser *Browser=(NetBrowser *)Info->hPanel;
+  return(Browser->GetFindData(&Info->PanelItem,&Info->ItemsNumber,Info->OpMode));
 }
 
 //-----------------------------------------------------------------------------
-void WINAPI FreeFindDataW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber)
+void WINAPI FreeFindDataW(const FreeFindDataInfo *Info)
 {
-  NetBrowser *Browser=(NetBrowser *)hPlugin;
-  Browser->FreeFindData(PanelItem,ItemsNumber);
+  NetBrowser *Browser=(NetBrowser *)Info->hPanel;
+  Browser->FreeFindData(Info->PanelItem,Info->ItemsNumber);
 }
 
 //-----------------------------------------------------------------------------
-void WINAPI GetOpenPanelInfoW(HANDLE hPlugin,struct OpenPanelInfo *Info)
+void WINAPI GetOpenPanelInfoW(OpenPanelInfo *Info)
 {
-  NetBrowser *Browser=(NetBrowser *)hPlugin;
+  NetBrowser *Browser=(NetBrowser *)Info->hPanel;
   Browser->GetOpenPanelInfo(Info);
 }
 
 //-----------------------------------------------------------------------------
-int WINAPI SetDirectoryW(HANDLE hPlugin,const wchar_t *Dir,int OpMode)
+int WINAPI SetDirectoryW(const struct SetDirectoryInfo *Info)
 {
-  NetBrowser *Browser=(NetBrowser *)hPlugin;
-  return(Browser->SetDirectory(Dir,OpMode));
+  NetBrowser *Browser=(NetBrowser *)Info->hPanel;
+  return(Browser->SetDirectory(Info->Dir,Info->OpMode));
 }
 
 //-----------------------------------------------------------------------------
-int WINAPI DeleteFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,
-                                 int ItemsNumber,int OpMode)
+int WINAPI DeleteFilesW(const struct DeleteFilesInfo *Info)
 {
-  NetBrowser *Browser=(NetBrowser *)hPlugin;
-  return(Browser->DeleteFiles(PanelItem,ItemsNumber,OpMode));
+  NetBrowser *Browser=(NetBrowser *)Info->hPanel;
+  return(Browser->DeleteFiles(Info->PanelItem,Info->ItemsNumber,Info->OpMode));
 }
 
 //-----------------------------------------------------------------------------
-int WINAPI ProcessKeyW(HANDLE hPlugin,const INPUT_RECORD *Rec)
+int WINAPI ProcessPanelInputW(const ProcessPanelInputInfo *Info)
 {
-  NetBrowser *Browser=(NetBrowser *)hPlugin;
-  return(Browser->ProcessKey(Rec));
+  NetBrowser *Browser=(NetBrowser *)Info->hPanel;
+  return(Browser->ProcessKey(&Info->Rec));
 }
 
 //-----------------------------------------------------------------------------
-int WINAPI ProcessEventW(HANDLE hPlugin,int Event,void *Param)
+int WINAPI ProcessPanelEventW(const ProcessPanelEventInfo *Info)
 {
-  NetBrowser *Browser=(NetBrowser *)hPlugin;
-  return Browser->ProcessEvent (Event, Param);
+  NetBrowser *Browser=(NetBrowser *)Info->hPanel;
+  return Browser->ProcessEvent (Info->Event, Info->Param);
 }
 
 //-----------------------------------------------------------------------------

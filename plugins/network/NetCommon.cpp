@@ -71,7 +71,7 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
   Opt.NTGetHideShare = settings.Get(0,StrNTHiddenShare,0);
   Opt.ShowPrinters = settings.Get(0,StrShowPrinters,0);
   Opt.FullPathShares = settings.Get(0,StrFullPathShares,TRUE);
-  Opt.FavoritesFlags = settings.Get(0,StrFavoritesFlags,FAVORITES_DEFAULTS);
+  Opt.FavoritesFlags = settings.Get(0,StrFavoritesFlags,int(FAVORITES_DEFAULTS));
   Opt.RootDoublePoint = settings.Get(0,StrNoRootDoublePoint,TRUE);
   Opt.DisconnectMode = settings.Set(0,StrDisconnectMode, FALSE);
   Opt.HiddenSharesAsHidden = settings.Set(0,StrHiddenSharesAsHidden, TRUE);
@@ -89,7 +89,7 @@ void DeinitializeNetFunctions(void)
         FreeLibrary(hNetApi);
 }
 
-int WINAPI ConfigureW(const GUID* Guid)
+int WINAPI ConfigureW(const ConfigureInfo* Info)
 {
   return Config();
 }
