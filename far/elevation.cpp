@@ -325,16 +325,21 @@ bool elevation::Initialize()
 			TaskBar TB;
 			DisconnectNamedPipe(Pipe);
 
+			BOOL InJob = FALSE;
 			if(!Job)
 			{
-				Job = CreateJobObject(nullptr, nullptr);
-				if(Job)
+				IsProcessInJob(GetCurrentProcess(), nullptr, &InJob);
+				if (!InJob)
 				{
-					JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli={};
-					jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_SILENT_BREAKAWAY_OK;
-					if(SetInformationJobObject(Job, JobObjectExtendedLimitInformation, &jeli, sizeof(jeli)))
+					Job = CreateJobObject(nullptr, nullptr);
+					if(Job)
 					{
-						AssignProcessToJobObject(Job, GetCurrentProcess());
+						JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli={};
+						jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_SILENT_BREAKAWAY_OK;
+						if(SetInformationJobObject(Job, JobObjectExtendedLimitInformation, &jeli, sizeof(jeli)))
+						{
+							AssignProcessToJobObject(Job, GetCurrentProcess());
+						}
 					}
 				}
 			}
@@ -354,7 +359,10 @@ bool elevation::Initialize()
 			if(ShellExecuteEx(&info))
 			{
 				Process = info.hProcess;
-				AssignProcessToJobObject(Job, Process);
+				if(!InJob)
+				{
+					AssignProcessToJobObject(Job, Process);
+				}
 				OVERLAPPED Overlapped;
 				Event AEvent;
 				Overlapped.hEvent = AEvent.Handle();
