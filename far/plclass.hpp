@@ -116,7 +116,7 @@ enum EXPORTS_ENUM
 	iConfigure,
 	iExitFAR,
 	iProcessPanelInput,
-	iProcessEvent,
+	iProcessPanelEvent,
 	iProcessEditorEvent,
 	iCompare,
 	iProcessEditorInput,
@@ -159,7 +159,7 @@ public:
 	virtual int MakeDirectory(HANDLE hPlugin, const wchar_t **Name, int OpMode);
 	virtual int ProcessHostFile(HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber, int OpMode);
 	virtual int ProcessKey(HANDLE hPlugin, const INPUT_RECORD *Rec, bool Pred);
-	virtual int ProcessEvent(HANDLE hPlugin, int Event, PVOID Param);
+	virtual int ProcessPanelEvent(HANDLE hPlugin, int Event, PVOID Param);
 	virtual int Compare(HANDLE hPlugin, const PluginPanelItem *Item1, const PluginPanelItem *Item2, unsigned long Mode);
 	virtual int GetCustomData(const wchar_t *FilePath, wchar_t **CustomData);
 	virtual void FreeCustomData(wchar_t *CustomData);
@@ -170,7 +170,7 @@ public:
 	virtual int ProcessEditorInput(const INPUT_RECORD *D);
 	virtual int ProcessEditorEvent(int Event, PVOID Param);
 	virtual int ProcessViewerEvent(int Event, PVOID Param);
-	virtual int ProcessDialogEvent(int Event, PVOID Param);
+	virtual int ProcessDialogEvent(int Event, FarDialogEvent *Param);
 	virtual int ProcessSynchroEvent(int Event, PVOID Param);
 #if defined(MANTIS_0000466)
 	virtual int ProcessMacro(ProcessMacroInfo *Info);
@@ -206,7 +206,7 @@ public:
 	bool HasConfigure()           const { return Exports[iConfigure]!=nullptr; }
 	bool HasExitFAR()             const { return Exports[iExitFAR]!=nullptr; }
 	bool HasProcessPanelInput()   const { return Exports[iProcessPanelInput]!=nullptr; }
-	bool HasProcessEvent()        const { return Exports[iProcessEvent]!=nullptr; }
+	bool HasProcessPanelEvent()   const { return Exports[iProcessPanelEvent]!=nullptr; }
 	bool HasProcessEditorEvent()  const { return Exports[iProcessEditorEvent]!=nullptr; }
 	bool HasCompare()             const { return Exports[iCompare]!=nullptr; }
 	bool HasProcessEditorInput()  const { return Exports[iProcessEditorInput]!=nullptr; }

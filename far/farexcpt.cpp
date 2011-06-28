@@ -88,9 +88,8 @@ LPCWSTR GetFunctionName(int ExceptFunctionType)
 		case EXCEPT_SETFINDLIST: return L"SetFindList";
 		case EXCEPT_CONFIGURE: return L"Configure";
 		case EXCEPT_EXITFAR: return L"ExitFAR";
-		case EXCEPT_PROCESSKEY: return L"ProcessKey";
 		case EXCEPT_PROCESSPANELINPUT: return L"ProcessPanelInput";
-		case EXCEPT_PROCESSEVENT: return L"ProcessEvent";
+		case EXCEPT_PROCESSPANELEVENT: return L"ProcessPanelEvent";
 		case EXCEPT_PROCESSEDITOREVENT: return L"ProcessEditorEvent";
 		case EXCEPT_COMPARE: return L"Compare";
 		case EXCEPT_PROCESSEDITORINPUT: return L"ProcessEditorInput";
@@ -267,7 +266,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 						PlugRec.FuncFlags|=Module->HasConfigure()?PICFF_CONFIGURE:0;
 						PlugRec.FuncFlags|=Module->HasExitFAR()?PICFF_EXITFAR:0;
 						PlugRec.FuncFlags|=Module->HasProcessPanelInput()?PICFF_PROCESSPANELINPUT:0;
-						PlugRec.FuncFlags|=Module->HasProcessEvent()?PICFF_PROCESSEVENT:0;
+						PlugRec.FuncFlags|=Module->HasProcessPanelEvent()?PICFF_PROCESSPANELEVENT:0;
 						PlugRec.FuncFlags|=Module->HasProcessEditorEvent()?PICFF_PROCESSEDITOREVENT:0;
 						PlugRec.FuncFlags|=Module->HasCompare()?PICFF_COMPARE:0;
 						PlugRec.FuncFlags|=Module->HasProcessEditorInput()?PICFF_PROCESSEDITORINPUT:0;

@@ -1,3 +1,7 @@
+drkns 28.06.2011 17:43:08 +0200 - build 2082
+
+1. Изменены параметры ClosePanelW, ConfigureW, ProcessDialogEventW, ProcessEditorEventW, ProcessPanelEventW, ProcessPanelInputW, ProcessSynchroEventW, ProcessViewerEventW.
+
 drkns 28.06.2011 11:21:36 +0200 - build 2081
 
 1. Mantis#0001815: Ошибка в ACTL_GETARRAYCOLOR

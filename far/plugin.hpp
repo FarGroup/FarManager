@@ -2493,6 +2493,7 @@ struct DeleteFilesInfo
 struct ProcessPanelInputInfo
 {
 	size_t StructSize;
+	HANDLE hPanel;
 	INPUT_RECORD Rec;
 };
 
@@ -2524,6 +2525,54 @@ struct ExitInfo
 	size_t StructSize;
 };
 
+struct ProcessPanelEventInfo
+{
+	size_t StructSize;
+	HANDLE hPanel;
+	int Event;
+	void* Param;
+};
+
+struct ProcessEditorEventInfo
+{
+	size_t StructSize;
+	int Event;
+	void* Param;
+};
+
+struct ProcessDialogEventInfo
+{
+	size_t StructSize;
+	int Event;
+	FarDialogEvent* Param;
+};
+
+struct ProcessSynchroEventInfo
+{
+	size_t StructSize;
+	int Event;
+	void* Param;
+};
+
+struct ProcessViewerEventInfo
+{
+	size_t StructSize;
+	int Event;
+	void* Param;
+};
+
+struct ClosePanelInfo
+{
+	size_t StructSize;
+	HANDLE hPanel;
+};
+
+struct ConfigureInfo
+{
+	size_t StructSize;
+	const GUID* Guid;
+};
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -2531,9 +2580,9 @@ extern "C"
 // Exported Functions
 
 	int    WINAPI AnalyseW(const struct AnalyseInfo *Info);
-	void   WINAPI ClosePanelW(HANDLE hPanel);
+	void   WINAPI ClosePanelW(const struct ClosePanelInfo *Info);
 	int    WINAPI CompareW(const struct CompareInfo *Info);
-	int    WINAPI ConfigureW(const GUID* Guid);
+	int    WINAPI ConfigureW(const struct ConfigureInfo *Info);
 	int    WINAPI DeleteFilesW(const struct DeleteFilesInfo *Info);
 	void   WINAPI ExitFARW(const struct ExitInfo *Info);
 	void   WINAPI FreeFindDataW(const struct FreeFindDataInfo *Info);
@@ -2546,12 +2595,12 @@ extern "C"
 	int    WINAPI GetVirtualFindDataW(struct GetVirtualFindDataInfo *Info);
 	int    WINAPI MakeDirectoryW(struct MakeDirectoryInfo *Info);
 	HANDLE WINAPI OpenW(const struct OpenInfo *Info);
-	int    WINAPI ProcessDialogEventW(int Event,void *Param);
-	int    WINAPI ProcessEditorEventW(int Event,void *Param);
+	int    WINAPI ProcessDialogEventW(const struct DialogEventInfo *Info);
+	int    WINAPI ProcessEditorEventW(const struct EditorEventInfo *Info);
 	int    WINAPI ProcessEditorInputW(const struct ProcessEditorInputInfo *Info);
-	int    WINAPI ProcessEventW(HANDLE hPanel,int Event,void *Param);
+	int    WINAPI ProcessPanelEventW(const struct ProcessPanelEventInfo *Info);
 	int    WINAPI ProcessHostFileW(const struct ProcessHostFileInfo *Info);
-	int    WINAPI ProcessPanelInputW(HANDLE hPanel,const struct ProcessPanelInputInfo *Info);
+	int    WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo *Info);
 #ifdef FAR_USE_INTERNALS
 #if defined(MANTIS_0000466)
 	int    WINAPI ProcessMacroW(const struct ProcessMacroInfo *Info);
@@ -2562,8 +2611,8 @@ extern "C"
 	int    WINAPI ProcessConsoleInputW(struct ProcessConsoleInputInfo *Info);
 #endif
 #endif // END FAR_USE_INTERNALS
-	int    WINAPI ProcessSynchroEventW(int Event,void *Param);
-	int    WINAPI ProcessViewerEventW(int Event,void *Param);
+	int    WINAPI ProcessSynchroEventW(const struct SynchroEventInfo *Info);
+	int    WINAPI ProcessViewerEventW(const struct ViewerEventInfo *Info);
 	int    WINAPI PutFilesW(const struct PutFilesInfo *Info);
 	int    WINAPI SetDirectoryW(const struct SetDirectoryInfo *Info);
 	int    WINAPI SetFindListW(const struct SetFindListInfo *Info);

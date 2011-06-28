@@ -96,7 +96,7 @@ enum PLUGINITEMCALLFUNCFLAGS
 	PICFF_CONFIGURE            = 0x00080000, //
 	PICFF_EXITFAR              = 0x00100000, //
 	PICFF_PROCESSPANELINPUT    = 0x00200000, //
-	PICFF_PROCESSEVENT         = 0x00400000, //
+	PICFF_PROCESSPANELEVENT    = 0x00400000, //
 	PICFF_PROCESSEDITOREVENT   = 0x00800000, //
 	PICFF_COMPARE              = 0x01000000, //
 	PICFF_PROCESSEDITORINPUT   = 0x02000000, //
@@ -253,7 +253,7 @@ class PluginManager
 		int ProcessEditorInput(INPUT_RECORD *Rec);
 		int ProcessEditorEvent(int Event,void *Param);
 		int ProcessViewerEvent(int Event,void *Param);
-		int ProcessDialogEvent(int Event,void *Param);
+		int ProcessDialogEvent(int Event,FarDialogEvent *Param);
 #if defined(MANTIS_0000466)
 		int ProcessMacro(const GUID& guid,ProcessMacroInfo *Info);
 #endif

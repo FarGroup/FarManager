@@ -66,7 +66,7 @@ public:
 	virtual int ProcessEditorInput(const INPUT_RECORD *D);
 	virtual int ProcessEditorEvent(int Event, PVOID Param);
 	virtual int ProcessViewerEvent(int Event, PVOID Param);
-	virtual int ProcessDialogEvent(int Event, PVOID Param);
+	virtual int ProcessDialogEvent(int Event, FarDialogEvent *Param);
 	virtual int ProcessSynchroEvent(int Event, PVOID Param) { return 0; }
 #if defined(MANTIS_0000466)
 	virtual int ProcessMacro(ProcessMacroInfo *Info) {return 0;}

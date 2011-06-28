@@ -1009,7 +1009,7 @@ int PluginManager::ProcessViewerEvent(int Event, void *Param)
 	return nResult;
 }
 
-int PluginManager::ProcessDialogEvent(int Event, void *Param)
+int PluginManager::ProcessDialogEvent(int Event, FarDialogEvent *Param)
 {
 	for (int i=0; i<PluginsCount; i++)
 	{
@@ -1314,7 +1314,7 @@ int PluginManager::ProcessEvent(
 )
 {
 	PluginHandle *ph = (PluginHandle*)hPlugin;
-	return ph->pPlugin->ProcessEvent(ph->hPlugin, Event, Param);
+	return ph->pPlugin->ProcessPanelEvent(ph->hPlugin, Event, Param);
 }
 
 

@@ -193,7 +193,7 @@ typedef HANDLE (WINAPI *iOpenFilePluginPrototype)      (char *Name,const unsigne
 typedef HANDLE (WINAPI *iOpenPrototype)                (int OpenFrom,INT_PTR Item);
 typedef int    (WINAPI *iProcessEditorEventPrototype)  (int Event,void *Param);
 typedef int    (WINAPI *iProcessEditorInputPrototype)  (const INPUT_RECORD *Rec);
-typedef int    (WINAPI *iProcessEventPrototype)        (HANDLE hPlugin,int Event,void *Param);
+typedef int    (WINAPI *iProcessPanelEventPrototype)   (HANDLE hPlugin,int Event,void *Param);
 typedef int    (WINAPI *iProcessHostFilePrototype)     (HANDLE hPlugin,oldfar::PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
 typedef int    (WINAPI *iProcessPanelInputPrototype)   (HANDLE hPlugin,int Key,unsigned int ControlState);
 typedef int    (WINAPI *iPutFilesPrototype)            (HANDLE hPlugin,oldfar::PluginPanelItem *PanelItem,int ItemsNumber,int Move,int OpMode);
@@ -5061,7 +5061,7 @@ int PluginA::ProcessViewerEvent(
 
 int PluginA::ProcessDialogEvent(
     int Event,
-    void *Param
+    FarDialogEvent *Param
 )
 {
 	BOOL bResult = FALSE;
@@ -5270,17 +5270,17 @@ int PluginA::ProcessEvent(
 {
 	BOOL bResult = FALSE;
 
-	if (Exports[iProcessEvent] && !ProcessException)
+	if (Exports[iProcessPanelEvent] && !ProcessException)
 	{
 		ExecuteStruct es;
-		es.id = EXCEPT_PROCESSEVENT;
+		es.id = EXCEPT_PROCESSPANELEVENT;
 		es.bDefaultResult = FALSE;
 		PVOID ParamA = Param;
 
 		if (Param && (Event == FE_COMMAND || Event == FE_CHANGEVIEWMODE))
 			ParamA = (PVOID)UnicodeToAnsi((const wchar_t *)Param);
 
-		EXECUTE_FUNCTION_EX(FUNCTION(iProcessEvent)(hPlugin, Event, ParamA), es);
+		EXECUTE_FUNCTION_EX(FUNCTION(iProcessPanelEvent)(hPlugin, Event, ParamA), es);
 
 		if (ParamA && (Event == FE_COMMAND || Event == FE_CHANGEVIEWMODE))
 			xf_free(ParamA);
@@ -5376,7 +5376,7 @@ int PluginA::ProcessKey(HANDLE hPlugin,const INPUT_RECORD *Rec, bool Pred)
 	if (Exports[iProcessPanelInput] && !ProcessException)
 	{
 		ExecuteStruct es;
-		es.id = EXCEPT_PROCESSKEY;
+		es.id = EXCEPT_PROCESSPANELINPUT;
 		es.bDefaultResult = TRUE; // do not pass this key to far on exception
 		EXECUTE_FUNCTION_EX(FUNCTION(iProcessPanelInput)(hPlugin, VirtKey|(Pred?PKF_PREPROCESS:0), dwControlState), es);
 		bResult = es.bResult;
