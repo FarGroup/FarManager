@@ -3,10 +3,10 @@ ALL: dirs $(INSTALL) $(DLLFULLNAME)
 $(DLLFULLNAME) : $(LINK_OBJS) $(RES) $(LINK_DEP)
 !ifndef __MAKE__
 	@$(LNK) @<<
-	$(LINK_FLAGS) $(LINK_DEBUG) $(LIBS) $(LINK_OBJS) $(RES)
+	$(LINK_FLAGS) $(LIBS) $(LINK_OBJS) $(RES)
 <<
 !else
-	@$(LNK) $(LINK_FLAGS) $(LINK_DEBUG) $(LIBS) $(LINK_OBJS) $(RES)
+	@$(LNK) $(LINK_FLAGS) $(LIBS) $(LINK_OBJS) $(RES)
 !endif
 !ifdef DOCS
 !ifndef __MAKE__
@@ -19,11 +19,11 @@ $(DLLFULLNAME) : $(LINK_OBJS) $(RES) $(LINK_DEP)
 !ifndef __MAKE__
 .cpp{$(OBJDIR)}.obj::
 	@$(CC) @<<
-	$(CFLAGS) $<
+	$(CPPFLAGS) $<
 <<
 !else
 .cpp{$(OBJDIR)}.obj:
-	@$(CC) $(CFLAGS) { $< } 
+	@$(CC) $(CPPFLAGS) { $< } 
 !endif
 
 $(RES): $(RC_NAME).rc $(COMINC)\farversion.hpp $(COMINC)\plugin.hpp
