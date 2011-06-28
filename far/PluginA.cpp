@@ -2237,8 +2237,8 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, int NewMsg, int Param1, void* Param2)
 			return ret;
 		}
 		case DN_EDITCHANGE:
-			Msg=oldfar::DN_EDITCHANGE;
-			return Param2?NativeInfo.DefDlgProc(hDlg, NewMsg, Param1, Param2):FALSE;
+			return CurrentDlgProc(hDlg, oldfar::DN_EDITCHANGE, Param1, UnicodeDialogItemToAnsi(*static_cast<FarDialogItem*>(Param2), hDlg, Param1));
+
 		case DN_ENTERIDLE: Msg=oldfar::DN_ENTERIDLE; break;
 		case DN_GOTFOCUS:  Msg=oldfar::DN_GOTFOCUS; break;
 		case DN_HELP:
