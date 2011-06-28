@@ -2595,8 +2595,8 @@ extern "C"
 	int    WINAPI GetVirtualFindDataW(struct GetVirtualFindDataInfo *Info);
 	int    WINAPI MakeDirectoryW(struct MakeDirectoryInfo *Info);
 	HANDLE WINAPI OpenW(const struct OpenInfo *Info);
-	int    WINAPI ProcessDialogEventW(const struct DialogEventInfo *Info);
-	int    WINAPI ProcessEditorEventW(const struct EditorEventInfo *Info);
+	int    WINAPI ProcessDialogEventW(const struct ProcessDialogEventInfo *Info);
+	int    WINAPI ProcessEditorEventW(const struct ProcessEditorEventInfo *Info);
 	int    WINAPI ProcessEditorInputW(const struct ProcessEditorInputInfo *Info);
 	int    WINAPI ProcessPanelEventW(const struct ProcessPanelEventInfo *Info);
 	int    WINAPI ProcessHostFileW(const struct ProcessHostFileInfo *Info);
@@ -2611,8 +2611,8 @@ extern "C"
 	int    WINAPI ProcessConsoleInputW(struct ProcessConsoleInputInfo *Info);
 #endif
 #endif // END FAR_USE_INTERNALS
-	int    WINAPI ProcessSynchroEventW(const struct SynchroEventInfo *Info);
-	int    WINAPI ProcessViewerEventW(const struct ViewerEventInfo *Info);
+	int    WINAPI ProcessSynchroEventW(const struct ProcessSynchroEventInfo *Info);
+	int    WINAPI ProcessViewerEventW(const struct ProcessViewerEventInfo *Info);
 	int    WINAPI PutFilesW(const struct PutFilesInfo *Info);
 	int    WINAPI SetDirectoryW(const struct SetDirectoryInfo *Info);
 	int    WINAPI SetFindListW(const struct SetFindListInfo *Info);
