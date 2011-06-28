@@ -326,7 +326,7 @@ BOOL NetBrowser::GotoFavorite(wchar_t *lpPath)
 	return FALSE;
 }
 
-int NetBrowser::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode)
+int NetBrowser::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,OPERATION_MODES OpMode)
 {
 #ifdef NETWORK_LOGGING
 	LogData(L"Entering NetBrowser::GetFindData");
@@ -469,8 +469,7 @@ int NetBrowser::ProcessEvent(int Event, void* /*Param*/)
 }
 
 
-int NetBrowser::DeleteFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
-                            int /*OpMode*/)
+int NetBrowser::DeleteFiles(struct PluginPanelItem *PanelItem,int ItemsNumber, OPERATION_MODES /*OpMode*/)
 {
 	if (CheckFavoriteItem(PCurResource))
 	{
@@ -846,7 +845,7 @@ void NetBrowser::GetOpenPanelInfo(struct OpenPanelInfo *Info)
 }
 
 
-int NetBrowser::SetDirectory(const wchar_t *Dir,int OpMode)
+int NetBrowser::SetDirectory(const wchar_t *Dir,OPERATION_MODES OpMode)
 {
 	if (OpMode & OPM_FIND)
 		return TRUE;

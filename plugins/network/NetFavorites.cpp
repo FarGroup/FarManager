@@ -96,9 +96,10 @@ BOOL CheckFavoriteItem(const LPNETRESOURCE pNR)
   return pNR && !lstrcmp(pNR->lpProvider, szFavProv);
 }
 
-#if 0
 BOOL GetResourceKey(wchar_t* lpRemoteName, const wchar_t* rootKey, wchar_t* lpResourceKey, size_t *cSize)
 {
+	return FALSE;
+#if 0
   // We should be sure that "Favorites" is a folder
   SetRegKey(HKEY_CURRENT_USER, SZ_FAVORITES, NULL, L"1");
   if(!lpResourceKey || !cSize || !*cSize)
@@ -198,8 +199,8 @@ BOOL GetResourceKey(wchar_t* lpRemoteName, const wchar_t* rootKey, wchar_t* lpRe
 
   delete(buff);
   return res;
-}
 #endif
+}
 
 void WriteFavoriteItem(LPFAVORITEITEM lpFavItem, wchar_t* /*szFolder*/)
 {
@@ -231,7 +232,6 @@ BOOL ReadFavoriteItem(LPFAVORITEITEM lpFavItem)
 
 BOOL GetFavoritesParent(NETRESOURCE& SrcRes, LPNETRESOURCE lpParent)
 {
-#if 0
   wchar_t* p;
   NETRESOURCE nr = {0};
   nr.lpProvider = szFavProv;
@@ -287,7 +287,6 @@ BOOL GetFavoritesParent(NETRESOURCE& SrcRes, LPNETRESOURCE lpParent)
     }
     return TRUE;
   }
-#endif
   return FALSE;
 }
 

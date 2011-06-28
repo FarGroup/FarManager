@@ -113,11 +113,11 @@ class NetBrowser
     void CreateFavSubFolder();
     NetBrowser();
     ~NetBrowser();
-    int GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
+    int GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,OPERATION_MODES OpMode);
     void FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber);
     void GetOpenPanelInfo(struct OpenPanelInfo *Info);
-    int SetDirectory(const wchar_t *Dir,int OpMode);
-    int DeleteFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
+    int SetDirectory(const wchar_t *Dir,OPERATION_MODES OpMode);
+    int DeleteFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,OPERATION_MODES OpMode);
     int ProcessKey(const INPUT_RECORD *Rec);
     int ProcessEvent(int Event, void *Param);
     void SetOpenFromCommandLine (wchar_t *ShareName);
