@@ -8,7 +8,7 @@ DLLFULLNAME = $(OBJDIR)/$(DLLNAME)
 
 SRCS = fstd_Arg.cpp fstd_asrt.cpp fstd_ClpS.cpp fstd_Con.cpp \
        fstd_crc32.cpp fstd_Dialog.cpp fstd_err.cpp fstd_exit.cpp \
-       fstd_exSCAT.cpp fstd_exSCHC.cpp fstd_exSCMP.cpp fstd_exSCPY.cpp fstd_exSNCH.cpp fstd_exSPCH.cpp \
+       fstd_exSCAT.cpp fstd_exSCMP.cpp fstd_exSCPY.cpp fstd_exSPCH.cpp \
        fstd_exSPS.cpp fstd_FMsg.cpp fstd_FUtils.cpp fstd_ilist.cpp fstd_INProc.cpp fstd_log.cpp \
        fstd_menu.cpp fstd_mesg.cpp fstd_mklog.cpp fstd_Msg.cpp \
        fstd_OEM.cpp fstd_Patt.cpp fstd_per.cpp fstd_plg.cpp fstd_Reg.cpp \

@@ -15,13 +15,13 @@ all: $(DLLFULLNAME)
 $(OBJDIR)/%.d: ./libpcre/%.c
 	@echo making depends for $<
 	@$(MKDIR) -p $(@D)
-	@$(SHELL) -ec '$(CC) -c -MM $(CCFLAGS) $< \
+	@$(SHELL) -ec '$(CC) -c -MM $(CPPFLAGS) $< \
                 | sed '\''s/\($*\)\.o[ :]*/$(REOBJDIR)\1.o $(REOBJDIR)\1.d: /g'\'' > $@; [ -s $@ ] || $(RM) $@'
 
 $(OBJDIR)/%.o: ./libpcre/%.c
 	@echo compiling $<
 	@$(MKDIR) -p $(@D)
-	@$(CC) $(CCFLAGS) -c -o $@ $<
+	@$(CC) $(CPPFLAGS) -c -o $@ $<
 
 $(DLLFULLNAME): $(OBJS)
 	@echo linking $@

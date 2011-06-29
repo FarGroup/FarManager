@@ -11,7 +11,6 @@ NEEDENTRY=1
 EXCLUDECRT=1
 
 FSTDLIB=$(OBJDIR)\FsdLib.lib
-OBJLIB=$(OBJDIR)\LibObj
 LIBSRC=FStdLib\FARStdLib
 
 LINK_DEP=$(FSTDLIB)
@@ -21,7 +20,7 @@ FLLLIST = DirList Progress
 FLLLIST = $(FLLLIST) Notify
 !endif
 
-All: dirs libdir
+All: dirs
 
 !include ..\makefile_vc_def_inc
 
@@ -72,50 +71,48 @@ $(OBJDIR)\Url.obj
 ##########
 !if "$(VC)"=="10" && !defined(CPU)
 !ifndef ULINK
-VC10_OBJ=$(OBJLIB)\vc10.obj
+VC10_OBJ=$(OBJDIR)\vc10.obj
 !else
-VC10_OBJ=$(OBJLIB)\vc10u.obj
+VC10_OBJ=$(OBJDIR)\vc10u.obj
 ULN_DEF=_u
 ULN_DELAY=-d*kernel32
 !endif
 !endif
 
 LIB_OBJS = \
-$(OBJLIB)\fstd_Arg.obj \
-$(OBJLIB)\fstd_asrt.obj \
-$(OBJLIB)\fstd_ClpS.obj \
-$(OBJLIB)\fstd_crc32.obj \
-$(OBJLIB)\fstd_Dialog.obj \
-$(OBJLIB)\fstd_err.obj \
-$(OBJLIB)\fstd_exSCAT.obj \
-$(OBJLIB)\fstd_exSCHC.obj \
-$(OBJLIB)\fstd_exSCMP.obj \
-$(OBJLIB)\fstd_exSCPY.obj \
-$(OBJLIB)\fstd_exSNCH.obj \
-$(OBJLIB)\fstd_exSPCH.obj \
-$(OBJLIB)\fstd_exSPS.obj \
-$(OBJLIB)\fstd_ilist.obj \
-$(OBJLIB)\fstd_INProc.obj \
-$(OBJLIB)\fstd_log.obj \
-$(OBJLIB)\fstd_menu.obj \
-$(OBJLIB)\fstd_mesg.obj \
-$(OBJLIB)\fstd_mklog.obj \
-$(OBJLIB)\fstd_Msg.obj \
-$(OBJLIB)\fstd_Patt.obj \
-$(OBJLIB)\fstd_per.obj \
-$(OBJLIB)\fstd_plg.obj \
-$(OBJLIB)\fstd_Reg.obj \
-$(OBJLIB)\fstd_SCol.obj \
-$(OBJLIB)\fstd_scr.obj \
-$(OBJLIB)\fstd_String.obj \
-$(OBJLIB)\fstd_stdlibCS.obj \
-$(OBJLIB)\fstd_SText.obj \
-$(OBJLIB)\fstd_exit.obj \
-$(OBJLIB)\fstd_Con.obj \
-$(OBJLIB)\fstd_FMsg.obj \
-$(OBJLIB)\fstd_OEM.obj \
-$(OBJLIB)\fstd_Utils.obj \
-$(OBJLIB)\fstd_FUtils.obj \
+$(OBJDIR)\fstd_Arg.obj \
+$(OBJDIR)\fstd_asrt.obj \
+$(OBJDIR)\fstd_ClpS.obj \
+$(OBJDIR)\fstd_crc32.obj \
+$(OBJDIR)\fstd_Dialog.obj \
+$(OBJDIR)\fstd_err.obj \
+$(OBJDIR)\fstd_exSCAT.obj \
+$(OBJDIR)\fstd_exSCMP.obj \
+$(OBJDIR)\fstd_exSCPY.obj \
+$(OBJDIR)\fstd_exSPCH.obj \
+$(OBJDIR)\fstd_exSPS.obj \
+$(OBJDIR)\fstd_ilist.obj \
+$(OBJDIR)\fstd_INProc.obj \
+$(OBJDIR)\fstd_log.obj \
+$(OBJDIR)\fstd_menu.obj \
+$(OBJDIR)\fstd_mesg.obj \
+$(OBJDIR)\fstd_mklog.obj \
+$(OBJDIR)\fstd_Msg.obj \
+$(OBJDIR)\fstd_Patt.obj \
+$(OBJDIR)\fstd_per.obj \
+$(OBJDIR)\fstd_plg.obj \
+$(OBJDIR)\fstd_Reg.obj \
+$(OBJDIR)\fstd_SCol.obj \
+$(OBJDIR)\fstd_scr.obj \
+$(OBJDIR)\fstd_String.obj \
+$(OBJDIR)\fstd_stdlibCS.obj \
+$(OBJDIR)\fstd_SText.obj \
+$(OBJDIR)\fstd_exit.obj \
+$(OBJDIR)\fstd_Con.obj \
+$(OBJDIR)\fstd_FMsg.obj \
+$(OBJDIR)\fstd_OEM.obj \
+$(OBJDIR)\fstd_Utils.obj \
+$(OBJDIR)\fstd_FUtils.obj \
 $(VC10_OBJ)
 
 DEP_HDR=int.h FStdLib\fstdlib.h lib/Plugin.h Plugins.h Cfg.h \
@@ -139,34 +136,29 @@ fstdlib: $(FSTDLIB)
 
 $(LINK_OBJS) : $(DEP_HDR)
 
-##########
-.PHONY: libdir
-libdir:
-	@if not exist "$(OBJLIB)\$(NULL)" mkdir "$(OBJLIB)"
-
 $(FSTDLIB): $(LIB_OBJS)
 !ifndef __MAKE__
-	@$(LIBR) /OUT:$@ @<<
+	@$(LIBR) /nologo /OUT:$@ @<<
 $(LIB_OBJS)
 <<
 !else
-	@$(LIBR) /OUT:$@ @&&<
+	@$(LIBR) /nologo /OUT:$@ @&&<
 $(LIB_OBJS)
 <
 !endif
 
 !ifndef __MAKE__
-{$(LIBSRC)}.cpp{$(OBJLIB)}.obj::
-	$(CC) @<<
-	$(CFLAGS_NO) /Fo$(OBJLIB)\ $<
+{$(LIBSRC)}.cpp{$(OBJDIR)}.obj::
+	@$(CC) @<<
+	$(CPPFLAGS) /Fo$(OBJDIR)\ $<
 <<
 !else
-{$(LIBSRC)}.cpp{$(OBJLIB)}.obj:
-	@$(CC) $(CFLAGS_NO) /Fo$(OBJLIB)\ { $< } 
+{$(LIBSRC)}.cpp{$(OBJDIR)}.obj:
+	@$(CC) $(CPPFLAGS) /Fo$(OBJDIR)\ { $< } 
 !endif
 
-{$(LIBSRC)}.asm{$(OBJLIB)}.obj:
-	ml /nologo /c /Fo$@ $<
+{$(LIBSRC)}.asm{$(OBJDIR)}.obj:
+	@ml /nologo /c /Fo$@ $<
 
 $(RES): version.hpp
 

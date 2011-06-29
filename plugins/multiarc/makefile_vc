@@ -47,12 +47,12 @@ fmts: $(FMTLIST)
 !include ../makefile_vc_getmode
 
 libpcre: $(FICTIVE)
-	$(MAKE) $(_MKHIDE) /f makefile_vc_libpcre $(_MDEFS) 
+	@$(MAKE) $(_MKHIDE) /f makefile_vc_libpcre $(_MDEFS) 
 
 $(FMTLIST): $(FICTIVE)
 !ifndef INSTALL
-	$(MAKE) $(_MKHIDE) /f makefile_vc_fmt $(_MKDO_)FMT=$@ $(_MDEFS)
+	@$(MAKE) $(_MKHIDE) /f makefile_vc_fmt $(_MKDO_)FMT=$@ $(_MDEFS)
 !else
-	$(MAKE) $(_MKHIDE) /f makefile_vc_fmt $(_MKDO_)FMT=$@ $(_MDEFS) INSTALL=$(INSTALL)
+	@$(MAKE) $(_MKHIDE) /f makefile_vc_fmt $(_MKDO_)FMT=$@ $(_MDEFS) INSTALL=$(INSTALL)
 !endif
 

@@ -15,11 +15,11 @@ all: $(OUTPUTS)
 !ifndef __MAKE__
 {libpcre}.c{$(OBJDIR)}.obj::
 	$(CC) @<<
-	$(CFLAGS) $<
+	$(CPPFLAGS) $<
 <<
 !else
 {libpcre}.c{$(OBJDIR)}.obj:
-	$(CC) $(CFLAGS) { $< }
+	$(CC) $(CPPFLAGS) { $< }
 !endif
 	
 $(OUTPUTS): $(OBJS)

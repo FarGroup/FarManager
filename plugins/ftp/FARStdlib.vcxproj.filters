@@ -42,16 +42,10 @@
     <ClCompile Include="FStdLib\FARStdlib\fstd_exSCAT.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FStdLib\FARStdlib\fstd_exSCHC.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FStdLib\FARStdlib\fstd_exSCMP.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FStdLib\FARStdlib\fstd_exSCPY.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FStdLib\FARStdlib\fstd_exSNCH.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FStdLib\FARStdlib\fstd_exSPCH.cpp">

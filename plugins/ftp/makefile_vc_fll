@@ -46,11 +46,11 @@ $(RES): version.hpp
 
 !ifndef __MAKE__
 {lib/$(FLL)}.cpp{$(OBJDIR)}.obj::
-	$(CC) @<<
-	$(CFLAGS) $<
+	@$(CC) @<<
+	$(CPPFLAGS) $<
 <<
 {lib}.cpp{$(OBJDIR)}.obj::
-	$(CC) @<<
-	$(CFLAGS) $<
+	@$(CC) @<<
+	$(CPPFLAGS) $<
 <<
 !endif

@@ -155,8 +155,6 @@ inline int              StrNCmpI(LPCSTR str,LPCSTR str1,int maxlen)      { retur
 
 extern char   *WINAPI StrCpy(char *dest,LPCSTR src,int dest_sz);
 extern char   *WINAPI StrCat(char *dest,LPCSTR src,int dest_sz);
-extern int     WINAPI StrNChr(LPCSTR str,char ch,int maxlen = -1);
-extern int     WINAPI strchrCount(LPCSTR str,char ch,int maxlen = -1);
 extern int     WINAPI StrPosChr(LPCSTR str,char ch,int pos = 0);
 extern int     WINAPI StrPosStr(LPCSTR str,LPCSTR s,int pos = 0);
 
