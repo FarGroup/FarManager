@@ -333,7 +333,6 @@ bool elevation::Initialize()
 
 				JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli={};
 				InJob = QueryInformationJobObject(nullptr, JobObjectExtendedLimitInformation, &jeli, sizeof(jeli), nullptr);
-				MessageBox(0,0,InJob?L"IN JOB!":L"NOT IN JOB!",0);
 				if (!InJob)
 				{
 					Job = CreateJobObject(nullptr, nullptr);
