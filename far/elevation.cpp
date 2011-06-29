@@ -328,13 +328,17 @@ bool elevation::Initialize()
 			BOOL InJob = FALSE;
 			if(!Job)
 			{
-				IsProcessInJob(GetCurrentProcess(), nullptr, &InJob);
+				// IsProcessInJob not exist in win2k. use QueryInformationJobObject(nullptr, ...) instead.
+				// IsProcessInJob(GetCurrentProcess(), nullptr, &InJob);
+
+				JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli={};
+				InJob = QueryInformationJobObject(nullptr, JobObjectExtendedLimitInformation, &jeli, sizeof(jeli), nullptr);
+				MessageBox(0,0,InJob?L"IN JOB!":L"NOT IN JOB!",0);
 				if (!InJob)
 				{
 					Job = CreateJobObject(nullptr, nullptr);
 					if(Job)
 					{
-						JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli={};
 						jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_SILENT_BREAKAWAY_OK;
 						if(SetInformationJobObject(Job, JobObjectExtendedLimitInformation, &jeli, sizeof(jeli)))
 						{
