@@ -1465,7 +1465,7 @@ exit:
 
 bool IsFileIncluded(PluginPanelItem* FileItem, const wchar_t *FullName, DWORD FileAttr)
 {
-	bool FileFound=FileMaskForFindFile.Compare(FullName);
+	bool FileFound=FileMaskForFindFile.Compare(PointToName(FullName));
 	size_t ArcIndex=itd.GetFindFileArcIndex();
 	HANDLE hPlugin=INVALID_HANDLE_VALUE;
 	if(ArcIndex!=LIST_INDEX_NONE)
