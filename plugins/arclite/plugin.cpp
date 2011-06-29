@@ -1026,9 +1026,9 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
   FAR_ERROR_HANDLER_END(return INVALID_HANDLE_VALUE, return INVALID_HANDLE_VALUE, false);
 }
 
-void WINAPI ClosePanelW(HANDLE h_panel) {
+void WINAPI ClosePanelW(const struct ClosePanelInfo* info) {
   FAR_ERROR_HANDLER_BEGIN;
-  Plugin* plugin = reinterpret_cast<Plugin*>(h_panel);
+  Plugin* plugin = reinterpret_cast<Plugin*>(info->hPanel);
   IGNORE_ERRORS(plugin->close());
   delete plugin;
   FAR_ERROR_HANDLER_END(return, return, true);
@@ -1099,16 +1099,16 @@ int WINAPI ProcessHostFileW(const ProcessHostFileInfo* info) {
   FAR_ERROR_HANDLER_END(return FALSE, return FALSE, (info->OpMode & OPM_SILENT) != 0);
 }
 
-int WINAPI ProcessPanelInputW(HANDLE h_panel, const ProcessPanelInputInfo* info) {
+int WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo* info) {
   FAR_ERROR_HANDLER_BEGIN;
   if (info->Rec.EventType == KEY_EVENT) {
     const KEY_EVENT_RECORD& key_event = info->Rec.Event.KeyEvent;
     if ((key_event.dwControlKeyState & (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED)) != 0 && key_event.wVirtualKeyCode == 'A') {
-      reinterpret_cast<Plugin*>(h_panel)->show_attr();
+      reinterpret_cast<Plugin*>(info->hPanel)->show_attr();
       return TRUE;
     }
     else if ((key_event.dwControlKeyState & (LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED)) != 0 && key_event.wVirtualKeyCode == VK_F6) {
-      reinterpret_cast<Plugin*>(h_panel)->extract();
+      reinterpret_cast<Plugin*>(info->hPanel)->extract();
       return TRUE;
     }
   }
@@ -1116,7 +1116,7 @@ int WINAPI ProcessPanelInputW(HANDLE h_panel, const ProcessPanelInputInfo* info)
   FAR_ERROR_HANDLER_END(return FALSE, return FALSE, false);
 }
 
-int WINAPI ConfigureW(const GUID* Guid) {
+int WINAPI ConfigureW(const struct ConfigureInfo* info) {
   FAR_ERROR_HANDLER_BEGIN;
   PluginSettings settings;
   settings.handle_create = g_options.handle_create;
