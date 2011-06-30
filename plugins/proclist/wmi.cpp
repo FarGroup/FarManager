@@ -10,26 +10,9 @@ class BStr
 
 	public:
 		BStr(LPCWSTR str) { bstr = str ? SysAllocString(str) : 0; }
-#ifndef UNICODE
-		BStr(LPCSTR str);
-#endif
 		~BStr() { if (bstr) SysFreeString(bstr); }
 		operator BSTR() { return bstr; }
 };
-#ifndef UNICODE
-BStr::BStr(LPCSTR str)
-{
-	if (!str)
-	{
-		bstr = 0;
-		return;
-	}
-
-	int nConvertedLen = lstrlen(str);
-	bstr = ::SysAllocStringLen(NULL, nConvertedLen);
-	MultiByteToWideChar(CP_OEMCP, 0, str, -1, bstr, nConvertedLen);
-}
-#endif
 
 class ProcessPath
 {
@@ -57,7 +40,7 @@ WMIConnection::~WMIConnection()
 	Disconnect();
 }
 
-void WMIConnection::GetProcessExecutablePath(DWORD dwPID, TCHAR* pPath)
+void WMIConnection::GetProcessExecutablePath(DWORD dwPID, wchar_t* pPath)
 {
 	hrLast = WBEM_S_NO_ERROR;
 	IWbemClassObject* pIWbemClassObject=NULL;
@@ -71,12 +54,7 @@ void WMIConnection::GetProcessExecutablePath(DWORD dwPID, TCHAR* pPath)
 
 	if (hrLast==WBEM_S_NO_ERROR && pVal.vt!=VT_NULL)
 	{
-#ifndef UNICODE
-		WideCharToMultiByte(CP_OEMCP, 0, pVal.bstrVal, -1,
-		                    pPath, MAX_PATH, NULL, NULL);
-#else
 		lstrcpynW(pPath, pVal.bstrVal, MAX_PATH);
-#endif
 		VariantClear(&pVal);
 	}
 
@@ -107,7 +85,7 @@ DWORD WMIConnection::GetProcessPriority(DWORD dwPID)
 	return rc;
 }
 
-void WMIConnection::GetProcessOwner(DWORD dwPID, TCHAR* pUser, TCHAR* pDomain)
+void WMIConnection::GetProcessOwner(DWORD dwPID, wchar_t* pUser, wchar_t* pDomain)
 {
 	hrLast = WBEM_S_NO_ERROR;
 	IWbemClassObject* pOutParams=0;
@@ -123,30 +101,20 @@ void WMIConnection::GetProcessOwner(DWORD dwPID, TCHAR* pUser, TCHAR* pDomain)
 
 	if ((hrLast=pOutParams->Get(L"User", 0, &pVal, 0, 0))==WBEM_S_NO_ERROR && pVal.vt!=VT_NULL)
 	{
-#ifndef UNICODE
-		WideCharToMultiByte(CP_OEMCP, 0, pVal.bstrVal, -1,
-		                    pUser, MAX_PATH, NULL, NULL);
-#else
 		lstrcpynW(pUser, pVal.bstrVal, MAX_PATH);
-#endif
 		VariantClear(&pVal);
 	}
 
 	if (pDomain && (hrLast=pOutParams->Get(L"Domain", 0, &pVal, 0, 0))==WBEM_S_NO_ERROR && pVal.vt!=VT_NULL)
 	{
-#ifndef UNICODE
-		WideCharToMultiByte(CP_OEMCP, 0, pVal.bstrVal, -1,
-		                    pDomain, MAX_PATH, NULL, NULL);
-#else
 		lstrcpynW(pDomain, pVal.bstrVal, MAX_PATH);
-#endif
 		VariantClear(&pVal);
 	}
 
 	pOutParams->Release();
 }
 
-void WMIConnection::GetProcessUserSid(DWORD dwPID, TCHAR* pUserSid)
+void WMIConnection::GetProcessUserSid(DWORD dwPID, wchar_t* pUserSid)
 {
 	hrLast = WBEM_S_NO_ERROR;
 	IWbemClassObject* pOutParams=0;
@@ -161,12 +129,7 @@ void WMIConnection::GetProcessUserSid(DWORD dwPID, TCHAR* pUserSid)
 	if ((hrLast=pOutParams->Get(L"Sid", 0, &pVal, 0, 0))==WBEM_S_NO_ERROR
 	        && pVal.vt!=VT_NULL)
 	{
-#ifndef UNICODE
-		WideCharToMultiByte(CP_OEMCP, 0, pVal.bstrVal, -1,
-		                    pUserSid, MAX_PATH, NULL, NULL);
-#else
 		lstrcpynW(pUserSid, pVal.bstrVal, MAX_PATH);
-#endif
 		VariantClear(&pVal);
 	}
 
@@ -291,18 +254,9 @@ bool WMIConnection::Connect(LPCTSTR pMachineName, LPCTSTR pUser, LPCTSTR pPasswo
 			pMachineName = _T(".");
 
 		if (NORM_M_PREFIX(pMachineName) || REV_M_PREFIX(pMachineName))
-#ifndef UNICODE
-			pMachineName += 2*sizeof(TCHAR);
-
-#else
 			pMachineName += 2;
-#endif
 		wchar_t Namespace[128];
-#ifndef UNICODE
-		wsprintfW(Namespace, L"\\\\%S\\root\\cimv2", pMachineName);
-#else
 		wsprintfW(Namespace, L"\\\\%s\\root\\cimv2", pMachineName);
-#endif
 
 		if ((hrLast=pIWbemLocator->ConnectServer(Namespace, BStr(pUser), BStr(pPassword),0,0,0,0,
 		            &pIWbemServices)) == S_OK)

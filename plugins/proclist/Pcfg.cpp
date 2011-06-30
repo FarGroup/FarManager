@@ -1,165 +1,68 @@
 #include "Proclist.hpp"
 #include "Proclng.hpp"
 #include <stdlib.h>
-
-InitDialogItem ViewItems[NVIEWITEMS]=
-{
-	/* 0 */{DI_TEXT,5,0,0,0,0,0,0,0,(TCHAR *)MIncludeAdditionalInfo},
-	/* 1 */{DI_CHECKBOX,5,1,0,0,0,0,0,0,(TCHAR *)MInclEnvironment},
-	/* 2 */{DI_CHECKBOX,5,2,0,0,0,0,0,0,(TCHAR *)MInclModuleInfo},
-	/* 3 */{DI_CHECKBOX,5,3,0,0,0,0,0,0,(TCHAR *)MInclModuleVersion},
-	/* 4 */{DI_CHECKBOX,5,4,0,0,0,0,0,0,(TCHAR *)MInclPerformance},
-	/* 5 */{DI_CHECKBOX,5,5,0,0,0,0,0,0,(TCHAR *)MInclHandles},
-	/* 6 */{DI_CHECKBOX,35,5,0,0,0,0,DIF_HIDDEN,0,(TCHAR *)MInclHandlesUnnamed},
-};
-
-void MakeViewOptions(FarDialogItem* Items, _Opt& Opt, int offset)
-{
-	InitDialogItems(ViewItems,Items,NVIEWITEMS);
-
-	for (int i=0; i<NVIEWITEMS; i++)
-		Items[i].Y1 += offset;
-
-	if (!NT)
-	{
-		Items[1].Flags |= DIF_DISABLE;
-		Items[5].Flags |= DIF_DISABLE;
-		Items[6].Flags |= DIF_DISABLE;
-	}
-
-	Items[1].Selected = Opt.ExportEnvironment;
-	Items[2].Selected = Opt.ExportModuleInfo;
-	Items[3].Selected = Opt.ExportModuleVersion;
-	Items[4].Selected = Opt.ExportPerformance;
-	Items[5].Selected = Opt.ExportHandles&1;
-	Items[6].Selected = (Opt.ExportHandles&2)!=0;
-
-	if (!NT)
-		Items[1].Selected = 0;
-}
-
-void GetViewOptions(REF_TYPE Ref, int base, _Opt& Opt)
-{
-	Opt.ExportEnvironment = GetCheck(Ref,base+1);
-	Opt.ExportModuleInfo = GetCheck(Ref,base+2);
-	Opt.ExportModuleVersion = GetCheck(Ref,base+3);
-	Opt.ExportPerformance = GetCheck(Ref,base+4);
-	Opt.ExportHandles = GetCheck(Ref,base+5) | (GetCheck(Ref,base+6)<<1);
-}
+#include <PluginSettings.hpp>
+#include <DlgBuilder.hpp>
 
 int Config()
 {
-	InitDialogItem InitItems[]=
-	{
-		/*  0 */{DI_DOUBLEBOX,3,1,72,14,0,0,0,0,(TCHAR *)MConfigPlistPanel},
-		/*  1 */{DI_CHECKBOX,5,2,0,0,0,0,0,0,(TCHAR *)MConfigAddToDisksMenu},
-		/*  2 */{DI_FIXEDIT,7,3,7,3,1,0,0
-#ifdef UNICODE
-		         |DIF_HIDDEN
-#endif
-		         ,0,_T("")},
-		/*  3 */{DI_TEXT,9,3,0,0,0,0,0
-#ifdef UNICODE
-		         |DIF_HIDDEN
-#endif
-		         ,0,(TCHAR *)MConfigDisksMenuDigit},
-		/*  4 */{DI_CHECKBOX,5,4,0,0,0,0,0,0,(TCHAR *)MConfigAddToPluginMenu},
-		/*  5 */{DI_TEXT,5,5,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,_T("")},
-		{DI_TEXT,5,12,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,_T("")},
-		{DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,1,(TCHAR *)MOk},
-		{DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,0,(TCHAR *)MCancel},
-	};
+	PluginDialogBuilder Builder(Info, MainGuid, ConfigDialogGuid, MConfigTitle, L"Config");
 
-	/*  if(!NT) {
-	        InitItems[ 7].Flags |= DIF_DISABLE;
-	        InitItems[11].Flags |= DIF_DISABLE;
-	  }
-	*/
+	Builder.AddCheckbox(MConfigAddToDisksMenu, &Opt.AddToDisksMenu);
+	Builder.AddCheckbox(MConfigAddToPluginMenu, &Opt.AddToPluginsMenu);
+	Builder.AddSeparator();
+
+	Builder.AddText(MIncludeAdditionalInfo);
+	Builder.AddCheckbox(MInclEnvironment, &Opt.ExportEnvironment);
+	Builder.AddCheckbox(MInclModuleInfo, &Opt.ExportModuleInfo);
+	Builder.AddCheckbox(MInclModuleVersion, &Opt.ExportModuleVersion);
+	Builder.AddCheckbox(MInclPerformance, &Opt.ExportPerformance);
+	Builder.AddCheckbox(MInclHandles, &Opt.ExportHandles);
+	//Builder.AddCheckbox(MInclHandlesUnnamed, &Opt.ExportHandlesUnnamed); // ???
+
+	Builder.AddOKCancel(MOk, MCancel);
+
 	if (!Plist::PanelModesInitialized())
 		Plist::InitializePanelModes();
 
-#define NITEMS (ARRAYSIZE(InitItems) + NVIEWITEMS)
-	FarDialogItem DialogItems[NITEMS];
-	InitDialogItems(InitItems,DialogItems,ARRAYSIZE(InitItems));
-	memcpy(DialogItems+NITEMS-2, DialogItems+NITEMS-NVIEWITEMS-2, sizeof(*DialogItems) * 2);
-	MakeViewOptions(DialogItems+NITEMS-NVIEWITEMS-2, ::Opt, NITEMS-NVIEWITEMS-3);
-	DialogItems[1].Selected = Opt.AddToDisksMenu;
-	DialogItems[4].Selected = Opt.AddToPluginsMenu;
-#ifndef UNICODE
-
-	if (Opt.DisksMenuDigit)
-		FSF.itoa(Opt.DisksMenuDigit,DialogItems[2].Data,10);
-
-#endif
-	int bRet = FALSE;
-#ifndef UNICODE
-	int ExitCode = Info.Dialog(Info.ModuleNumber,-1,-1,76,16,_T("Config"),
-	                           DialogItems,ARRAYSIZE(DialogItems));
-#define _REF  DialogItems
-#else
-	int ExitCode;
-	HANDLE hDlg = Info.DialogInit(Info.ModuleNumber,-1,-1,76,16,_T("Config"),
-	                              DialogItems,ARRAYSIZE(DialogItems),0,0,NULL,0);
-
-	if (hDlg == INVALID_HANDLE_VALUE)
-		goto done;
-
-	ExitCode = Info.DialogRun(hDlg);
-#define _REF  hDlg
-#endif
-
-	if (ExitCode == ARRAYSIZE(DialogItems) - 2)
+	if (Builder.ShowDialog())
 	{
-		Opt.AddToDisksMenu = GetCheck(_REF, 1);
-#ifndef UNICODE
-		Opt.DisksMenuDigit = FSF.atoi(GetPtr(_REF, 2));
-#endif
-#undef Data
-		Opt.AddToPluginsMenu = GetCheck(_REF, 4);
-		GetViewOptions(_REF, NITEMS-NVIEWITEMS-2, ::Opt);
-#undef _REF
 		Opt.Write();
 		Plist::SavePanelModes();
 		Plist::bInit = false;
-		bRet = TRUE;
+
+		return TRUE;
 	}
 
-#ifdef UNICODE
-	Info.DialogFree(hDlg);
-done:
-#endif
-	return bRet;
+	return FALSE;
 }
 
-#define SETKEY(_opt) SetRegKey(0, _T( #_opt ), Opt._opt);
 void _Opt::Write()
 {
-	SETKEY(AddToDisksMenu)
-#ifndef UNICODE
-	SETKEY(DisksMenuDigit)
-#endif
-	SETKEY(AddToPluginsMenu)
-	SETKEY(ExportEnvironment)
-	SETKEY(ExportModuleInfo)
-	SETKEY(ExportModuleVersion)
-	SETKEY(ExportPerformance)
-	SETKEY(ExportHandles)
-//  SETKEY(EnableWMI)
-}
+	PluginSettings settings(MainGuid, Info.SettingsControl);
 
-#define GETKEY(_opt, _dflt) Opt._opt = GetRegKey(0, _T( #_opt ), _dflt);
+	settings.Set(0,L"AddToDisksMenu",Opt.AddToDisksMenu);
+	settings.Set(0,L"AddToPluginsMenu",Opt.AddToPluginsMenu);
+	settings.Set(0,L"ExportEnvironment",Opt.ExportEnvironment);
+	settings.Set(0,L"ExportModuleInfo",Opt.ExportModuleInfo);
+	settings.Set(0,L"ExportModuleVersion",Opt.ExportModuleVersion);
+	settings.Set(0,L"ExportPerformance",Opt.ExportPerformance);
+	settings.Set(0,L"ExportHandles",Opt.ExportHandles);
+	settings.Set(0,L"ExportHandlesUnnamed",Opt.ExportHandlesUnnamed);
+	//settings.Set(0,L"EnableWMI",Opt.EnableWMI,);
+}
 
 void _Opt::Read()
 {
-	GETKEY(AddToDisksMenu, 1)
-	GETKEY(AddToPluginsMenu, 1)
-#ifndef UNICODE
-	GETKEY(DisksMenuDigit, 0)
-#endif
-	GETKEY(ExportEnvironment, 1)
-	GETKEY(ExportModuleInfo, 1)
-	GETKEY(ExportModuleVersion, 0)
-	GETKEY(ExportPerformance, 1)
-	GETKEY(ExportHandles, 0)
-	GETKEY(EnableWMI, 1)
+	PluginSettings settings(MainGuid, Info.SettingsControl);
+
+	Opt.AddToDisksMenu=settings.Get(0,L"AddToDisksMenu", 1);
+	Opt.AddToPluginsMenu=settings.Get(0,L"AddToPluginsMenu", 1);
+	Opt.ExportEnvironment=settings.Get(0,L"ExportEnvironment", 1);
+	Opt.ExportModuleInfo=settings.Get(0,L"ExportModuleInfo", 1);
+	Opt.ExportModuleVersion=settings.Get(0,L"ExportModuleVersion", 0);
+	Opt.ExportPerformance=settings.Get(0,L"ExportPerformance", 1);
+	Opt.ExportHandles=settings.Get(0,L"ExportHandles", 0);
+	Opt.ExportHandlesUnnamed=settings.Set(0,L"ExportHandlesUnnamed",0);
+	Opt.EnableWMI=settings.Get(0,L"EnableWMI", 1);
 }

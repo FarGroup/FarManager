@@ -1,12 +1,12 @@
 #include "Proclist.hpp"
 
-TCHAR FPRINTFbuffer[FPRINTFbufferLen];
+wchar_t FPRINTFbuffer[FPRINTFbufferLen];
 
 int fputc(int c, HANDLE stream)
 {
 	HANDLE hFile = (HANDLE)stream;
 	DWORD tmp;
-	TCHAR b = (TCHAR)c;
+	wchar_t b = (wchar_t)c;
 	WriteFile(hFile,&b,sizeof(b),&tmp,NULL);
 	return c;
 }

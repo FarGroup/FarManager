@@ -82,7 +82,7 @@ enum
 	MTitleHandleInfo,
 	MHandleInfoHdr,
 
-	MConfigPlistPanel,
+	MConfigTitle,
 	MConfigAddToDisksMenu,
 	MConfigDisksMenuDigit,
 	MConfigAddToPluginMenu,

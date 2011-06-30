@@ -186,7 +186,7 @@ static bool PrintFileName(HANDLE handle, HANDLE file)
 			if (pNtQueryObject(handle, 1, lpBuffer, size, 0) == 0 &&
 			        ((UNICODE_STRING*)lpBuffer)->Length)
 			{
-				fprintf(file, _T("%ls"), ((UNICODE_STRING*)lpBuffer)->Buffer);
+				fprintf(file, L"%ls", ((UNICODE_STRING*)lpBuffer)->Buffer);
 			}
 			else
 			{
@@ -201,7 +201,7 @@ static bool PrintFileName(HANDLE handle, HANDLE file)
 	return ret;
 }
 
-static bool GetTypeToken(HANDLE handle, TCHAR* str, DWORD dwSize)
+static bool GetTypeToken(HANDLE handle, wchar_t* str, DWORD dwSize)
 {
 	ULONG size = 0x2000;
 	bool ret = false;
@@ -214,12 +214,7 @@ static bool GetTypeToken(HANDLE handle, TCHAR* str, DWORD dwSize)
 		// Query the info size ( type )
 		if (pNtQueryObject(handle, 2, lpBuffer, size, NULL) == 0)
 		{
-#ifndef UNICODE
-			WideCharToMultiByte(CP_ACP, 0, (LPCWSTR)(lpBuffer+0x60), -1,
-			                    str, dwSize, NULL, NULL);
-#else
 			lstrcpynW(str,(LPCWSTR)(lpBuffer+0x60) , dwSize);
-#endif
 			ret = true;
 		}
 
@@ -229,16 +224,16 @@ static bool GetTypeToken(HANDLE handle, TCHAR* str, DWORD dwSize)
 	return ret;
 }
 
-static TCHAR const * const constStrTypes[] =
+static wchar_t const * const constStrTypes[] =
 {
-	_T(""),             _T(""),           _T("Directory"),    _T("SymbolicLink"),
-	_T("Token"),        _T("Process"),    _T("Thread"),       /*_T("_T(Unk7)",*/
-	_T("Event"),        _T("EventPair"),  _T("Mutant"),       /*_T("_T(Unk11)", */
-	_T("Semaphore"),    _T("Timer"),      _T("Profile"),      _T("WindowStation"),
-	_T("Desktop"),      _T("Section"),    _T("Key"),          _T("Port"),
-	_T("WaitablePort"), /*_T("Unk21"),*/  /*_T("Unk22"),*/    /*_T("Unk23"),*/
-	/*_T("Unk24",*/     _T("Job"),        _T("IoCompletion"), _T("File"),
-	/*_T("Unk27",*/     _T("WmiGuid"),
+	L"",             L"",           L"Directory",    L"SymbolicLink",
+	L"Token",        L"Process",    L"Thread",       /*L"Unk7",*/
+	L"Event",        L"EventPair",  L"Mutant",       /*L"Unk11", */
+	L"Semaphore",    L"Timer",      L"Profile",      L"WindowStation",
+	L"Desktop",      L"Section",    L"Key",          L"Port",
+	L"WaitablePort", /*L"Unk21",*/  /*L"Unk22",*/    /*L"Unk23",*/
+	/*L"Unk24",*/     L"Job",        L"IoCompletion", L"File",
+	/*L"Unk27",*/     L"WmiGuid",
 };
 
 static WORD GetTypeFromTypeToken(LPCTSTR typeToken)
@@ -252,7 +247,7 @@ static WORD GetTypeFromTypeToken(LPCTSTR typeToken)
 
 static WORD GetType(HANDLE h)
 {
-	TCHAR strType[256];
+	wchar_t strType[256];
 	return GetTypeToken(h, strType, ARRAYSIZE(strType)) ? GetTypeFromTypeToken(strType) : OB_TYPE_UNKNOWN;
 }
 
@@ -270,15 +265,15 @@ static bool PrintNameByType(HANDLE handle, WORD type, HANDLE file, PerfThread* p
 			{
 				Lock l(pThread);
 				ProcessPerfData* pd = pThread ? pThread->GetProcessData(dwId, 0) : 0;
-				const TCHAR* pName = pd ? pd->ProcessName : _T("<unknown>");
-				fprintf(file, _T("%s (%d)"), pName, dwId);
+				const wchar_t* pName = pd ? pd->ProcessName : L"<unknown>";
+				fprintf(file, L"%s (%d)", pName, dwId);
 			}
 
 			return true;
 		case OB_TYPE_THREAD:
 
 			if (GetThreadId(handle, dwId))
-				fprintf(file, _T("TID: %d"), dwId);
+				fprintf(file, L"TID: %d", dwId);
 
 			return true;
 		case OB_TYPE_FILE:
@@ -310,7 +305,7 @@ static bool PrintNameByType(HANDLE handle, WORD type, HANDLE file, PerfThread* p
 				if (type==OB_TYPE_KEY && !_memicmp(ws, REGISTRY, sizeof(REGISTRY)-2))
 				{
 					wchar_t *ws1 = ws + ARRAYSIZE(REGISTRY) - 1;
-					const TCHAR *s0 = 0;
+					const wchar_t *s0 = 0;
 
 					if (!_memicmp(ws1, USER, sizeof(USER)-2))
 					{
@@ -319,29 +314,29 @@ static bool PrintNameByType(HANDLE handle, WORD type, HANDLE file, PerfThread* p
 
 						if (l>0 && !_memicmp(ws1,pUserAccountID,l*2))
 						{
-							s0 = _T("HKCU");
+							s0 = L"HKCU";
 							ws1 += l;
 
 							if (!_memicmp(ws1,_CLASSES,sizeof(_CLASSES)-2))
 							{
-								s0 = _T("HKCU\\Classes");
+								s0 = L"HKCU\\Classes";
 								ws1 += ARRAYSIZE(_CLASSES) - 1;
 							}
 						}
 						else
-							s0 = _T("HKU");
+							s0 = L"HKU";
 					}
-					else if (!_memicmp(ws1, CLASSES, sizeof(CLASSES)-2)) { s0 = _T("HKCR"); ws1+=ARRAYSIZE(CLASSES) - 1;}
-					else if (!_memicmp(ws1, MACHINE, sizeof(MACHINE)-2)) { s0 = _T("HKLM"); ws1+=ARRAYSIZE(MACHINE) - 1;}
+					else if (!_memicmp(ws1, CLASSES, sizeof(CLASSES)-2)) { s0 = L"HKCR"; ws1+=ARRAYSIZE(CLASSES) - 1;}
+					else if (!_memicmp(ws1, MACHINE, sizeof(MACHINE)-2)) { s0 = L"HKLM"; ws1+=ARRAYSIZE(MACHINE) - 1;}
 
 					if (s0)
 					{
-						fprintf(file, _T("%s"), s0);
+						fprintf(file, L"%s", s0);
 						ws = ws1;
 					}
 				}
 
-				fprintf(file, _T("%ls"), ws);
+				fprintf(file, L"%ls", ws);
 				ret = true;
 			}
 		}
@@ -374,7 +369,7 @@ static bool PrintNameAndType(HANDLE h, DWORD dwPID, HANDLE file, PerfThread* pTh
 	WORD type = GetType(handle);
 
 	if (type < ARRAYSIZE(constStrTypes))
-		fprintf(file, _T("%-13s "), constStrTypes[type]);
+		fprintf(file, L"%-13s ", constStrTypes[type]);
 
 	bool ret = type!=OB_TYPE_UNKNOWN &&
 	           PrintNameByType(handle, type, file, pThread);
@@ -439,7 +434,7 @@ bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread*
 		goto cleanup;
 	}
 
-	fprintf(file, _T("%s\n%s\n"), GetMsg(MTitleHandleInfo), GetMsg(MHandleInfoHdr));
+	fprintf(file, L"%s\n%s\n", GetMsg(MTitleHandleInfo), GetMsg(MHandleInfoHdr));
 
 	if (!pUserAccountID)
 		pUserAccountID = GetUserAccountID(); // init once
@@ -454,18 +449,18 @@ bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread*
 		if (pSysHandleInformation->Handles[i].UniqueProcessId==dwPID || dwPID==(DWORD)-1)
 		{
 			pSysHandleInformation->Handles[i].HandleAttributes = (UCHAR)(pSysHandleInformation->Handles[i].HandleAttributes & 0xff);
-			fprintf(file, _T("%5X  %08X "),
+			fprintf(file, L"%5X  %08X ",
 			        pSysHandleInformation->Handles[i].HandleValue,
 			        /*dwType< ARRAYSIZE(constStrTypes) ?
-			            constStrTypes[dwType] : _T("(Unknown)"),*/
+			            constStrTypes[dwType] : _L"(Unknown)",*/
 //              pSysHandleInformation->Handles[i].KernelAddress,
 			        pSysHandleInformation->Handles[i].GrantedAccess);
 			PrintNameAndType((HANDLE)(SIZE_T)(UINT)pSysHandleInformation->Handles[i].HandleValue, dwPID, file, pThread);
-			fputc(_T('\n'), file);
+			fputc(L'\n', file);
 		}
 	}
 
-	fputc(_T('\n'), file);
+	fputc(L'\n', file);
 cleanup:
 
 	if (pSysHandleInformation != NULL)
@@ -506,7 +501,7 @@ static BOOL ConvertSid(PSID pSid, LPWSTR pszSidText, LPDWORD dwBufferLen)
 	// compute buffer length
 	// S-SID_REVISION- + identifierauthority- + subauthorities- + NULL
 	//
-	dwSidSize=(15 + 12 + (12 * dwSubAuthorities) + 1) * sizeof(TCHAR);
+	dwSidSize=(15 + 12 + (12 * dwSubAuthorities) + 1) * sizeof(wchar_t);
 
 	// check provided buffer length.
 	// If not large enough, indicate proper size and setlasterror
@@ -545,7 +540,7 @@ static BOOL ConvertSid(PSID pSid, LPWSTR pszSidText, LPDWORD dwBufferLen)
 
 static const wchar_t *GetUserAccountID()
 {
-	static TCHAR UserAccountID[256];
+	static wchar_t UserAccountID[256];
 	DWORD size = ARRAYSIZE(UserAccountID);
 	SID_NAME_USE eUse;
 	DWORD cbSid=0,cbDomainName=0;
@@ -557,7 +552,7 @@ static const wchar_t *GetUserAccountID()
 	}
 
 	PSID pSid = (PSID)new char[cbSid];
-	TCHAR* pDomainName = new TCHAR[cbDomainName+1];
+	wchar_t* pDomainName = new wchar_t[cbDomainName+1];
 	pLookupAccountName(0,UserAccountID,pSid,&cbSid, pDomainName,&cbDomainName, &eUse);
 	size = ARRAYSIZE(UserAccountID);
 

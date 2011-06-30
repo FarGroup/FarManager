@@ -13,16 +13,16 @@ extern "C"
 /*
 struct ModuleData {
     void* p1,*p2;
-    TCHAR* pNext;
+    wchar_t* pNext;
     void* p3;
     DWORD dw1,dw2;
     HMODULE hModule;
     DWORD dwEntryPoint; //28
     DWORD dwSizeOfImage; //32
     DWORD dw3; //36
-    TCHAR* lpModuleFileName; //40
-    TCHAR* lpModuleFileName1;
-    TCHAR* lpModuleBaseName; //48
+    wchar_t* lpModuleFileName; //40
+    wchar_t* lpModuleFileName1;
+    wchar_t* lpModuleBaseName; //48
     DWORD unknown[5];
 };
 */
@@ -290,13 +290,8 @@ bool GetPDataNT(ProcessDataNT& DATA, ProcessPerfData& pd)
 	DATA.dwPrBase = pd.dwProcessPriority;
 	DATA.dwParentPID = pd.dwCreatingPID;
 	DATA.dwElapsedTime = pd.dwElapsedTime;
-	TCHAR* pFullPath = pd.FullPath;
-#ifndef UNICODE
-
-	if (*(DWORD*)pFullPath==0x5C3F3F5C) // "\??\"
-#else
+	wchar_t* pFullPath = pd.FullPath;
 	if (*(DWORD*)pFullPath==0x3F005C && ((DWORD*)pFullPath)[1]==0x5C003F) // "\??\"
-#endif
 		pFullPath += 4;
 
 	lstrcpyn(DATA.FullPath, pFullPath, ARRAYSIZE(DATA.FullPath));
@@ -326,67 +321,46 @@ BOOL GetListNT(PluginPanelItem* &pPanelItem,int &ItemsNumber,PerfThread& Thread)
 		PluginPanelItem& CurItem = pPanelItem[i];
 		ProcessPerfData& pd = pData[i];
 		CurItem.Flags|=PPIF_USERDATA;
-#ifndef UNICODE
-		lstrcpyn(CurItem.FindData.cFileName,pd.ProcessName,ARRAYSIZE(CurItem.FindData.cFileName));
-#else
-		delete CurItem.FindData.lpwszFileName;  // ???
-		CurItem.FindData.lpwszFileName = wcsdup(pd.ProcessName);
-#endif
+		delete CurItem.FileName;  // ???
+		CurItem.FileName = wcsdup(pd.ProcessName);
 
 		if (*pd.Owner)
 		{
-			CurItem.Owner = new TCHAR[lstrlen(pd.Owner)+1];
-			lstrcpy((TCHAR*)CurItem.Owner, pd.Owner);
+			CurItem.Owner = new wchar_t[lstrlen(pd.Owner)+1];
+			lstrcpy((wchar_t*)CurItem.Owner, pd.Owner);
 		}
 
-#ifndef UNICODE
-
-		if (Thread.IsLocal())
-			CharToOem(CurItem.FindData.cFileName, CurItem.FindData.cFileName);
-
-#endif
 		CurItem.UserData = (DWORD_PTR) new ProcessDataNT;
 		memset((void*)CurItem.UserData, 0, sizeof(ProcessDataNT));
 
 		if (!pd.ftCreation.dwHighDateTime && pd.dwElapsedTime)
 			*(ULONGLONG*)&pd.ftCreation = *(ULONGLONG*)&ftSystemTime - (ULONGLONG)pd.dwElapsedTime * 10000000;
 
-		CurItem.FindData.ftCreationTime = CurItem.FindData.ftLastWriteTime = CurItem.FindData.ftLastAccessTime = pd.ftCreation;
+		CurItem.CreationTime = CurItem.LastWriteTime = CurItem.LastAccessTime = pd.ftCreation;
 		ULONGLONG ullSize = pd.qwCounters[IDX_WORKINGSET] + pd.qwCounters[IDX_PAGEFILE];
-#ifndef UNICODE
-		CurItem.FindData.nFileSizeLow  = ((DWORD*)&ullSize)[0];
-		CurItem.FindData.nFileSizeHigh = ((DWORD*)&ullSize)[1];
-		CurItem.PackSize     = ((DWORD*)&pd.qwResults[IDX_PAGEFILE])[0];
-		CurItem.PackSizeHigh = ((DWORD*)&pd.qwResults[IDX_PAGEFILE])[1];
-#else
-		CurItem.FindData.nFileSize = ullSize;
-		CurItem.FindData.nPackSize = pd.qwResults[IDX_PAGEFILE];
-#endif
+		CurItem.FileSize = ullSize;
+		CurItem.PackSize = pd.qwResults[IDX_PAGEFILE];
 //yjh:???      CurItem.PackSize = pd.dwProcessId;
-#ifdef UNICODE
-#define cAlternateFileName  lpwszAlternateFileName
-#endif
 
 		if (pd.dwProcessId)
-			FSF.itoa(pd.dwProcessId, (TCHAR*)CurItem.FindData.cAlternateFileName, 10);
+			FSF.itoa(pd.dwProcessId, (wchar_t*)CurItem.AlternateFileName, 10);
 
-#undef cAlternateFileName
 		CurItem.NumberOfLinks = pd.dwThreads;
 		GetPDataNT(*(ProcessDataNT*)CurItem.UserData, pd);
 
 		if (pd.dwProcessId==0 && pd.dwThreads >5) //_Total
-			CurItem.FindData.dwFileAttributes |= FILE_ATTRIBUTE_HIDDEN;
+			CurItem.FileAttributes |= FILE_ATTRIBUTE_HIDDEN;
 
 		if (pd.bProcessIsWow64)
-			CurItem.FindData.dwFileAttributes |= FILE_ATTRIBUTE_READONLY;
+			CurItem.FileAttributes |= FILE_ATTRIBUTE_READONLY;
 	}//for
 
 	return TRUE;
 }
 
-void GetOpenProcessDataNT(HANDLE hProcess, TCHAR* pProcessName, DWORD cbProcessName,
-                          TCHAR* pFullPath, DWORD cbFullPath, TCHAR* pCommandLine, DWORD cbCommandLine,
-                          TCHAR** ppEnvStrings, CURDIR_STR_TYPE** psCurDir)
+void GetOpenProcessDataNT(HANDLE hProcess, wchar_t* pProcessName, DWORD cbProcessName,
+                          wchar_t* pFullPath, DWORD cbFullPath, wchar_t* pCommandLine, DWORD cbCommandLine,
+                          wchar_t** ppEnvStrings, CURDIR_STR_TYPE** psCurDir)
 {
 	ModuleData Data={0};
 	char *pEnd;
@@ -402,13 +376,7 @@ void GetOpenProcessDataNT(HANDLE hProcess, TCHAR* pProcessName, DWORD cbProcessN
 			SIZE_T sz = sizeof(szProcessName);//min(sizeof(szProcessName), Data.BaseDllName.MaximumLength*2);
 
 			if (ReadProcessMemory(hProcess, Data.BaseDllName.Buffer, szProcessName, sz,0))
-#ifndef UNICODE
-				WideCharToMultiByte(CP_ACP, 0, szProcessName, -1,
-				                    pProcessName, cbProcessName, NULL, NULL);
-
-#else
 				lstrcpyn(pProcessName, szProcessName, cbProcessName);
-#endif
 			else
 				*pProcessName = 0;
 		}
@@ -418,13 +386,7 @@ void GetOpenProcessDataNT(HANDLE hProcess, TCHAR* pProcessName, DWORD cbProcessN
 			SIZE_T sz = sizeof(szProcessName);//min(sizeof(szProcessName), Data.FullDllName.MaximumLength*2);
 
 			if (ReadProcessMemory(hProcess, Data.FullDllName.Buffer, szProcessName, sz,0))
-#ifndef UNICODE
-				WideCharToMultiByte(CP_ACP, 0, szProcessName, -1,
-				                    pFullPath, cbFullPath, NULL, NULL);
-
-#else
 				lstrcpyn(pFullPath, szProcessName, cbFullPath);
-#endif
 			else
 				*pFullPath = 0;
 		}
@@ -442,19 +404,14 @@ void GetOpenProcessDataNT(HANDLE hProcess, TCHAR* pProcessName, DWORD cbProcessN
 				if (ReadProcessMemory(hProcess, pCmd.Buffer, sCommandLine, (sz-1)*sizeof(WCHAR),0))
 				{
 					sCommandLine[sz-1] = 0;
-#ifndef UNICODE
-					WideCharToMultiByte(CP_ACP, 0, sCommandLine, -1,
-					                    pCommandLine, cbCommandLine, NULL, NULL);
-#else
 					lstrcpyn(pCommandLine, sCommandLine, cbCommandLine);
-#endif
 				}
 			}
 		}
 
 		if (ppEnvStrings)
 		{
-			TCHAR *pEnv;
+			wchar_t *pEnv;
 			*ppEnvStrings = 0;
 
 			if (ReadProcessMemory(hProcess, &pProcessParams->EnvironmentBlock, &pEnv, sizeof(pEnv), 0))
@@ -481,25 +438,10 @@ void GetOpenProcessDataNT(HANDLE hProcess, TCHAR* pProcessName, DWORD cbProcessN
 
 				if (pwEnvStrings)
 				{
-#ifndef UNICODE
-					dwSize = (DWORD)(mwcslen(pwEnvStrings) + 1);
-					dwSize = WideCharToMultiByte(CP_ACP, 0, pwEnvStrings, dwSize, 0,0,0,0);
-
-					if (dwSize)
-					{
-						*ppEnvStrings = new char[dwSize];
-						WideCharToMultiByte(CP_ACP, 0, pwEnvStrings, dwSize, *ppEnvStrings,dwSize,0,0);
-						delete pwEnvStrings;
-					}
-
-#else
-
 					if (pwEnvStrings && *pwEnvStrings)
 						*ppEnvStrings = pwEnvStrings;
 					else
 						delete pwEnvStrings;
-
-#endif
 				}
 			}
 		}
@@ -516,12 +458,7 @@ void GetOpenProcessDataNT(HANDLE hProcess, TCHAR* pProcessName, DWORD cbProcessN
 				if (ReadProcessMemory(hProcess, CurDir.Buffer, wsCurDir, CurDir.Length,0))
 				{
 					wsCurDir[(CurDir.Length+1)/2] = 0;
-#ifndef UNICODE
-					*psCurDir = new OemString(wsCurDir);
-					delete wsCurDir;
-#else
 					*psCurDir = wsCurDir;
-#endif
 				}
 			}
 		}
@@ -652,7 +589,7 @@ BOOL KillProcessNT(DWORD pid,HWND hwnd)
 	// If access denied, try to assign debug privileges
 	if (hProcess==NULL && GetLastError()==ERROR_ACCESS_DENIED)
 	{
-		const TCHAR *MsgItems[]=
+		const wchar_t *MsgItems[]=
 		{
 			GetMsg(MDeleteTitle),
 			GetMsg(MCannotDeleteProc),
@@ -680,38 +617,38 @@ BOOL KillProcessNT(DWORD pid,HWND hwnd)
 	return bRet;
 }
 
-TCHAR* PrintTime(ULONG s, bool bDays=true)
+wchar_t* PrintTime(ULONG s, bool bDays=true)
 {
 	ULONG m = s/60;
 	s %= 60;
 	ULONG h = m / 60;
 	m %= 60;
-	static TCHAR buf[32];
+	static wchar_t buf[32];
 
 	if (!bDays || h<24)
-		FSF.sprintf(buf, _T("%02d:%02d:%02d"), h, m, s);
+		FSF.sprintf(buf, L"%02d:%02d:%02d", h, m, s);
 	else
-		FSF.sprintf(buf, _T("%d %02d:%02d:%02d"), h/24, h%24, m, s);
+		FSF.sprintf(buf, L"%d %02d:%02d:%02d", h/24, h%24, m, s);
 
 	return buf;
 }
 
-TCHAR* PrintTime(ULONGLONG ul100ns, bool bDays)
+wchar_t* PrintTime(ULONGLONG ul100ns, bool bDays)
 {
-	TCHAR* buf = PrintTime((ULONG)(ul100ns/10000000), bDays);
-	FSF.sprintf(buf+lstrlen(buf), _T(".%03d"), (ul100ns/10000)%1000);
+	wchar_t* buf = PrintTime((ULONG)(ul100ns/10000000), bDays);
+	FSF.sprintf(buf+lstrlen(buf), L".%03d", (ul100ns/10000)%1000);
 	return buf;
 }
 
-TCHAR* PrintNTUptime(void*p)
+wchar_t* PrintNTUptime(void*p)
 {
 	return PrintTime((ULONG)((ProcessDataNT*)p)->dwElapsedTime);
 }
 
 void DumpNTCounters(HANDLE InfoFile, PerfThread& Thread, DWORD dwPid, DWORD dwThreads)
 {
-	TCHAR tmp[100];
-	fputc(_T('\n'),InfoFile);
+	wchar_t tmp[100];
+	fputc(L'\n',InfoFile);
 	Lock l(&Thread);
 	ProcessPerfData* pdata = Thread.GetProcessData(dwPid, dwThreads);
 
@@ -725,50 +662,50 @@ void DumpNTCounters(HANDLE InfoFile, PerfThread& Thread, DWORD dwPid, DWORD dwTh
 		if (!pf->dwCounterTitles[i]) // counter is absent
 			continue;
 
-		TCHAR buf[28];
+		wchar_t buf[28];
 		lstrcpyn(buf,GetMsg(Counters[i].idName),ARRAYSIZE(buf)-2);
-		lstrcat(buf,_T(":"));
-		fprintf(InfoFile, _T("%-24s "), buf);
+		lstrcat(buf,L":");
+		fprintf(InfoFile, L"%-24s ", buf);
 
 		switch (pf->CounterTypes[i])
 		{
 			case PERF_COUNTER_RAWCOUNT:
 			{
 				// Display as is.  No Display Suffix.
-				FSF.sprintf(tmp, _T("%10d\n"), *(DWORD*)&pdata->qwResults[i]);
-				fprintf(InfoFile, _T("%s"), tmp);
+				FSF.sprintf(tmp, L"%10d\n", *(DWORD*)&pdata->qwResults[i]);
+				fprintf(InfoFile, L"%s", tmp);
 			}
 			break;
 			case PERF_COUNTER_LARGE_RAWCOUNT: //  same, large int
 			{
-				FSF.sprintf(tmp, _T("%10.0f\n"), (FLOAT)pdata->qwResults[i]);
-				fprintf(InfoFile, _T("%s"), tmp);
+				FSF.sprintf(tmp, L"%10.0f\n", (FLOAT)pdata->qwResults[i]);
+				fprintf(InfoFile, L"%s", tmp);
 			}
 			break;
 			case PERF_100NSEC_TIMER:
 			{
 				// 64-bit Timer in 100 nsec units. Display delta divided by
 				// delta time.  Display suffix: "%"
-				//fprintf(InfoFile, _T("%10.0f%%\n"), (FLOAT)pdata->qwResults[i]);
-				FSF.sprintf(tmp, _T("%s %7.0f%%\n"), PrintTime((ULONGLONG)pdata->qwCounters[i]), (FLOAT)pdata->qwResults[i]);
-				fprintf(InfoFile, _T("%s"), tmp);
+				//fprintf(InfoFile, L"%10.0f%%\n", (FLOAT)pdata->qwResults[i]);
+				FSF.sprintf(tmp, L"%s %7.0f%%\n", PrintTime((ULONGLONG)pdata->qwCounters[i]), (FLOAT)pdata->qwResults[i]);
+				fprintf(InfoFile, L"%s", tmp);
 			}
 			break;
 			case PERF_COUNTER_COUNTER:
 			{
 				// 32-bit Counter.  Divide delta by delta time.  Display suffix: "/sec"
-				fprintf(InfoFile, _T("%10d  %5d%s\n"), *(DWORD*)&pdata->qwCounters[i], *(DWORD*)&pdata->qwResults[i], GetMsg(MperSec));
+				fprintf(InfoFile, L"%10d  %5d%s\n", *(DWORD*)&pdata->qwCounters[i], *(DWORD*)&pdata->qwResults[i], GetMsg(MperSec));
 			}
 			break;
 			case PERF_COUNTER_BULK_COUNT: //PERF_COUNTER_BULK_COUNT
 			{
 				// 64-bit Counter.  Divide delta by delta time. Display Suffix: "/sec"
-				FSF.sprintf(tmp, _T("%10.0f  %5.0f%s\n"), (FLOAT)pdata->qwCounters[i], (FLOAT)pdata->qwResults[i], GetMsg(MperSec));
-				fprintf(InfoFile, _T("%s"), tmp);
+				FSF.sprintf(tmp, L"%10.0f  %5.0f%s\n", (FLOAT)pdata->qwCounters[i], (FLOAT)pdata->qwResults[i], GetMsg(MperSec));
+				fprintf(InfoFile, L"%s", tmp);
 			}
 			break;
 			default:
-				fputc(_T('\n'),InfoFile);
+				fputc(L'\n',InfoFile);
 		}
 	}
 }
@@ -776,59 +713,52 @@ void DumpNTCounters(HANDLE InfoFile, PerfThread& Thread, DWORD dwPid, DWORD dwTh
 void PrintNTCurDirAndEnv(HANDLE InfoFile, HANDLE hProcess, BOOL bExportEnvironment)
 {
 	CURDIR_STR_TYPE* sCurDir=0;
-	TCHAR *pEnvStrings = 0;
+	wchar_t *pEnvStrings = 0;
 	GetOpenProcessDataNT(hProcess, 0,0,0,0,0,0, bExportEnvironment ? &pEnvStrings : 0, &sCurDir);
-	fputc(_T('\n'),InfoFile);
+	fputc(L'\n',InfoFile);
 
 	if (sCurDir)
 	{
-		fprintf(InfoFile,_T("%s %s\n\n"),Plist::PrintTitle(MCurDir),OUT_CVT(sCurDir));
+		fprintf(InfoFile,L"%s %s\n\n",Plist::PrintTitle(MCurDir),OUT_CVT(sCurDir));
 		delete sCurDir;
 	}
 
 	if (bExportEnvironment && pEnvStrings)
 	{
-		fprintf(InfoFile, _T("%s\n\n"), GetMsg(MEnvironment));
+		fprintf(InfoFile, L"%s\n\n", GetMsg(MEnvironment));
 
-		for (TCHAR* p = pEnvStrings; *p; p+=lstrlen(p)+1)
+		for (wchar_t* p = pEnvStrings; *p; p+=lstrlen(p)+1)
 		{
-#ifndef UNICODE
-			CharToOem(p,p);
-#endif
-			fprintf(InfoFile, _T("%s\n"), p);
+			fprintf(InfoFile, L"%s\n", p);
 		}
 
 		delete pEnvStrings;
 	}
 }
 
-void PrintModuleVersion(HANDLE InfoFile, TCHAR* pVersion, TCHAR* pDesc, int len)
+void PrintModuleVersion(HANDLE InfoFile, wchar_t* pVersion, wchar_t* pDesc, int len)
 {
 	//Changes pVersion and pDesc contents!
-#ifndef UNICODE
-	CharToOem(pVersion,pVersion);
-	CharToOem(pDesc,pDesc);
-#endif
 
 	do
 	{
-		fputc(_T('\t'), InfoFile);
+		fputc(L'\t', InfoFile);
 	}
 	while ((len=(len|7)+1) < 56);
 
 	int len2=0;
-	fprintf2(len2, InfoFile, _T("%s"), pVersion?pVersion:_T(""));
+	fprintf2(len2, InfoFile, L"%s", pVersion?pVersion:L"");
 	len += len2;
 
 	if (pDesc)
 	{
 		do
 		{
-			fputc(_T(' '), InfoFile);
+			fputc(L' ', InfoFile);
 		}
 		while (len++ < 72);
 
-		fprintf(InfoFile, _T("%s"), pDesc);
+		fprintf(InfoFile, L"%s", pDesc);
 	}
 }
 
@@ -847,32 +777,32 @@ void PrintModulesNT(HANDLE InfoFile, DWORD dwPID, _Opt& Opt)
 		do
 		{
 			int len = 0;
-			fprintf2(len, InfoFile, _T("  %p  %6X"), Data.BaseAddress, Data.SizeOfImage);
+			fprintf2(len, InfoFile, L"  %p  %6X", Data.BaseAddress, Data.SizeOfImage);
 			WCHAR wszModuleName[MAX_PATH];
 			SIZE_T sz = sizeof(wszModuleName);//min(sizeof(wszModuleName), Data.BaseDllName.MaximumLength*2);
 
 			if (ReadProcessMemory(hProcess, Data.FullDllName.Buffer, wszModuleName, sz,0))
 			{
 				int len2=0;
-				fprintf2(len2, InfoFile, _T(" %s"), OUT_STRING(wszModuleName));
+				fprintf2(len2, InfoFile, L" %s", OUT_STRING(wszModuleName));
 				len += len2;
-				TCHAR   *pVersion, *pDesc;
+				wchar_t   *pVersion, *pDesc;
 				LPBYTE  pBuf;
 
-				if (Opt.ExportModuleVersion && Plist::GetVersionInfo((TCHAR*)wszModuleName, pBuf, pVersion, pDesc))
+				if (Opt.ExportModuleVersion && Plist::GetVersionInfo((wchar_t*)wszModuleName, pBuf, pVersion, pDesc))
 				{
 					PrintModuleVersion(InfoFile, pVersion, pDesc, len);
 					delete pBuf;
 				}
 			}
 
-			fputc(_T('\n'), InfoFile);
+			fputc(L'\n', InfoFile);
 			p4 = (char *)Data.InMemoryOrderModuleList.Flink;
 		}
 		while (p4 && p4!=pEnd && ReadProcessMemory(hProcess, p4-sizeof(PVOID)*2, &Data, sizeof(Data), 0));
 	}
 
-	fputc(_T('\n'), InfoFile);
+	fputc(L'\n', InfoFile);
 
 	if (hProcess)
 		CloseHandle(hProcess);

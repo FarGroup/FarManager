@@ -1,8 +1,4 @@
-#include "farversion.hpp"
-
-#define PLUGIN_BUILD 165
-#define PLUGIN_DESC "Process List for FAR Manager"
-#define PLUGIN_NAME "ProcList"
-#define PLUGIN_FILENAME "ProcList.dll"
+#include "version.hpp"
 
 genericpluginrc(PLUGIN_BUILD, PLUGIN_DESC, PLUGIN_NAME, PLUGIN_FILENAME)
+

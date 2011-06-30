@@ -33,7 +33,7 @@ template <class T> class Array
 
 extern struct _Counters
 {
-	const TCHAR* Name; DWORD idName; DWORD idCol;
+	const wchar_t* Name; DWORD idName; DWORD idCol;
 } Counters[NCOUNTERS];
 
 struct ProcessPerfData
@@ -46,10 +46,10 @@ struct ProcessPerfData
 	LONGLONG    qwCounters[NCOUNTERS];
 	LONGLONG    qwResults[NCOUNTERS];
 
-	TCHAR       ProcessName[MAX_PATH];
-	TCHAR       FullPath[MAX_PATH];
-	TCHAR       Owner[MAX_USERNAME_LENGTH];
-	TCHAR       CommandLine[MAX_CMDLINE];
+	wchar_t       ProcessName[MAX_PATH];
+	wchar_t       FullPath[MAX_PATH];
+	wchar_t       Owner[MAX_USERNAME_LENGTH];
+	wchar_t       CommandLine[MAX_CMDLINE];
 	FILETIME    ftCreation;
 	DWORD       dwGDIObjects, dwUSERObjects;
 	BOOL        bProcessIsWow64;
@@ -57,7 +57,7 @@ struct ProcessPerfData
 
 struct PerfLib
 {
-	TCHAR szSubKey[1024];
+	wchar_t szSubKey[1024];
 	DWORD dwProcessIdTitle;
 	DWORD dwPriorityTitle;
 	DWORD dwThreadTitle;
@@ -88,10 +88,10 @@ class WMIConnection
 		DWORD GetProcessPriority(DWORD dwPID);
 		int SetProcessPriority(DWORD dwPID, DWORD dwPri);
 		int TerminateProcess(DWORD dwPID);
-		void GetProcessOwner(DWORD dwPID, TCHAR* pUser, TCHAR* pDomain=0);
-		void GetProcessUserSid(DWORD dwPID, TCHAR* pUserSid);
+		void GetProcessOwner(DWORD dwPID, wchar_t* pUser, wchar_t* pDomain=0);
+		void GetProcessUserSid(DWORD dwPID, wchar_t* pUserSid);
 		int GetProcessSessionId(DWORD dwPID);
-		void GetProcessExecutablePath(DWORD dwPID, TCHAR* pPath);
+		void GetProcessExecutablePath(DWORD dwPID, wchar_t* pPath);
 		int AttachDebuggerToProcess(DWORD dwPID) { return ExecMethod(dwPID, L"AttachDebugger"); }
 		HRESULT GetLastHResult() { return hrLast; }
 };
@@ -112,7 +112,7 @@ class PerfThread
 		bool bOK;
 		HKEY hHKLM, hPerf;
 		DWORD dwRefreshMsec, dwLastRefreshTicks;
-		TCHAR HostName[64];
+		wchar_t HostName[64];
 		HANDLE hMutex;
 		WMIConnection WMI;
 
@@ -143,12 +143,9 @@ class PerfThread
 		LPCTSTR GetHostName() const { return HostName; }
 		bool Updated() { bool bRet=bUpdated; bUpdated=false; return bRet; }
 		bool IsWMIConnected() { return WMI; }
-		static void GetProcessOwnerInfo(DWORD dwPid, TCHAR* pUser, TCHAR* UserSid, TCHAR* pDomain, int& nSession);
-#ifndef UNICODE
-		bool IsLocal() { return HostName[0] == '\0'; }
-#endif
-		TCHAR UserName[64];
-		TCHAR Password[64];
+		static void GetProcessOwnerInfo(DWORD dwPid, wchar_t* pUser, wchar_t* UserSid, wchar_t* pDomain, int& nSession);
+		wchar_t UserName[64];
+		wchar_t Password[64];
 };
 class Lock
 {

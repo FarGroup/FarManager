@@ -11,7 +11,6 @@ $(OBJDIR)\perfthread.obj \
 $(OBJDIR)\PLIST95.OBJ \
 $(OBJDIR)\Plistnt.obj \
 $(OBJDIR)\Pmix.obj \
-$(OBJDIR)\preg.obj \
 $(OBJDIR)\WMI.obj \
 $(OBJDIR)\Proclist.obj
 DOCS = ProcEng.hlf ProcRus.hlf ProcEng.lng ProcRus.lng
@@ -23,3 +22,15 @@ NEEDENTRY = 1
 !include ..\makefile_vc_def_inc
 
 !include ..\makefile_vc_target_inc
+
+$(OBJDIR)\fileio.obj : fileio.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
+$(OBJDIR)\handles.obj : handles.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
+$(OBJDIR)\PCFG.obj : PCFG.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
+$(OBJDIR)\Pclass.obj : Pclass.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
+$(OBJDIR)\perfthread.obj : perfthread.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
+$(OBJDIR)\PLIST95.obj : PLIST95.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
+$(OBJDIR)\Plistnt.obj : Plistnt.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
+$(OBJDIR)\Pmix.obj : Pmix.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
+$(OBJDIR)\Proclist.obj : Proclist.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
+$(OBJDIR)\WMI.obj : WMI.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\plugin.hpp
+

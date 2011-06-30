@@ -8,7 +8,6 @@ perfthread.cpp \
 Plist95.cpp \
 PlistNT.cpp \
 Pmix.cpp \
-Preg.cpp \
 wmi.cpp
 DOCS = ProcEng.hlf ProcRus.hlf ProcEng.lng ProcRus.lng
 
