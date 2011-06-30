@@ -3128,9 +3128,12 @@ bool VMenu::Pack()
 		int LastIndex=ItemCount-1;
 		while (LastIndex>FirstIndex)
 		{
-			if (StrCmp(Item[FirstIndex]->strName,Item[LastIndex]->strName)==0)
+			if (!(Item[FirstIndex]->Flags & LIF_SEPARATOR) && !(Item[LastIndex]->Flags & LIF_SEPARATOR))
 			{
-				DeleteItem(LastIndex);
+				if (StrCmp(Item[FirstIndex]->strName,Item[LastIndex]->strName)==0)
+				{
+					DeleteItem(LastIndex);
+				}
 			}
 			LastIndex--;
 		}
