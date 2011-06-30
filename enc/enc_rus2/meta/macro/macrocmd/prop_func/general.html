@@ -1380,6 +1380,93 @@ $end</code></pre>
     </td>
   </tr>
 
+  <tr>
+    <td>V=<dfn><a name="Menu.Show">Menu.Show</a></dfn>(Items<br>[,TitleAndFooter<br>[,Flags<br>[,SelectOrFilter<br>[,X<br>[,Y]]]]])</td>
+    <td><p>Создаёт и отображает на экране меню.</p>
+      <p>Параметр <var>Items</var>: пункты меню, разделённые <code>Lf</code> ("\n") или <code>CrLf</code> ("\r\n")</p>
+      <p>Могут начинаться (возможны некоторые комбинации) со специальных символов:</p>
+                                                <table class="cont2 params lite tiny">
+                                                <col class="widevalue">
+                                                  <tr><th>Символ+пробел</th><th>Описание</th></tr>
+                                                  <tr><td><code>\1</code></td><td>сепаратор; не участвует в автонумерации/сортировке/удалении дубликатов.</td></tr>
+                                                  <tr><td><code>\2</code></td><td>пункт отмечен (возможна комбинация с \3 и \4)</td></tr>
+                                                  <tr><td><code>\3</code></td><td>пункт недоступен для навигации и выбора</td></tr>
+                                                  <tr><td><code>\4</code></td><td>серый, недоступен для выбора</td></tr>
+                                                </table>
+      <p>Необязательный параметр <var>TitleAndFooter</var>: заголовок и футер меню, разделённые <code>Lf</code> ("\n") или <code>CrLf</code> ("\r\n"). Один или оба могут отсутствовать.</p>
+      <p>Необязательный параметр <var>Flags</var> - набор битов, управляющих поведением и отображением меню:</p>
+                            <table class="cont2 params lite tiny">
+                            <col class="widevalue">
+                            <tr><th>Бит<br>установлен(ы)</th></col><th>Описание</th></tr>
+                                            <tr><td><code>0-2</code></td><td>Тип рамки меню: (по умолчанию == 100)
+                                                                <table class="cont2 params lite tiny">
+                                                                <col class="widevalue">
+                                                                  <tr><th>Value</th><th>Описание</th></tr>
+                                                                  <tr><td><code>001 (0x1)</code></td><td>без рамки</td></tr>
+                                                                  <tr><td><code>010 (0x2)</code></td><td>одинарная, с окружающими пробелами</td></tr>
+                                                                  <tr><td><code>011 (0x3)</code></td><td>одинарная, без окружающих пробелов</td></tr>
+                                                                  <tr><td><code>100 (0x4)</code></td><td>двойная, с окружающими пробелами</td></tr>
+                                                                  <tr><td><code>101 (0x5)</code></td><td>двойная, без окружающих пробелов</td></tr>
+                                                                </table>
+                                            </td></tr>
+        <tr><td><code>3 (0x8)</code></td><td>возвращаемый результат - индекс выбранного пункта меню</td></tr>
+        <tr><td><code>4 (0x10)</code></td><td>разрешена отметка нескольких пунктов и её снятие<br>(клавишами <code>Ins</code>, <code>CtrlAdd</code>, <code>CtrlSubtract</code>)</td></tr>
+        <tr><td><code>5 (0x20)</code></td><td>отсортировать (производится регистронезависимая числовая сортировка)</td></tr>
+        <tr><td><code>6 (0x40)</code></td><td>убрать дублирующиеся пункты меню (с учетом регистра)</td></tr>
+        <tr><td><code>7 (0x80)</code></td><td>автоматически назначить "горячие" клавиши</td></tr>
+        <tr><td><code>8 (0x100)</code></td><td>как трактовать <var>SelectOrFilter</var>: (по умолчанию == 0)
+                                            <table class="cont2 params lite tiny">
+                                            <col class="value">
+                                              <tr><th>Value</th><th>Описание</th></tr>
+                                              <tr><td>0</td><td>позиционировать (если <var>SelectOrFilter</var> - число), <br>либо найти  (если <var>SelectOrFilter</var> - строка) пункт меню</td></tr>
+                                              <tr><td>1</td><td>установить фильтр меню</td></tr>
+                                            </table></td></tr>
+        <tr><td><code>9 (0x200)</code></td><td>автоматически пронумеровать пункты меню</td></tr>
+        <tr><td><code>10 (0x400)</code></td><td>выйти из меню при изменении выбранного пункта</td></tr>
+       </table>
+      <p>Необязательный параметр <var>SelectOrFilter</var> - на какой пункт меню позиционировать курсор, либо фильтрация пунктов. <br>Может быть:</p>
+                                            <table class="cont2 params lite tiny">
+                                            <col class="value">
+                                              <tr><th>Value</th><th>Описание</th></tr>
+                                              <tr><td>числом</td><td>если бит 8 == 0, то позиционировать на указанный пункт меню.
+                                                                  <br>Если число отрицательное, то отсчёт ведётся с конца меню</td></tr>
+                                              <tr><td>строкой</td><td>если бит 8 == 0, то найти пункт меню.
+                                              <br>Поиск регистронезависим, возможны маски</td></tr>
+                                              <tr><td>строкой</td><td>если бит 8 == 1, то установить фильтр меню</td></tr>
+                                            </table>
+      <p>Необязательные параметры <var>X</var> и <var>Y</var> - координаты левого верхнего угла меню. Если одна (или обе) равны -1 (по умолчанию), то производится центрирование меню по этой координате.</p>
+      <p>Возвращаемый результат функции:</p>
+                                       <table class="cont2 params lite tiny">
+                                       <col class="widevalue">
+                                       <tr><th>Тип</th><th>Описание</th></tr>
+                                       <tr><td>число == 0</td><td>выход из меню по <code>Esc</code>, <code>F10</code> или при клике вне меню</td></tr>
+                                       <tr><td>число > 0</td><td>индекс выбранного пункта</td></tr>
+                                       <tr><td>число < 0</td><td>если установлен бит 10, то индекс выбранного пункта со знаком минус</td></tr>
+                                       <tr><td>строка</td><td>выбранный пункт меню.<br>Если установлен бит 4, то список отмеченных пунктов меню, разделённых \n.<br>Если установлены и бит 3 и бит 4, то список индексов отмеченных пунктов меню, разделённых \n</td></tr>
+                                       </table>
+             Пример использования - навигация по установленным закладкам редактора:
+             <pre class="codesample"><code>%I = 1;
+%S = "";
+$While (%I &lt;= Bm.Stat(0))
+  Bm.Goto(%I);
+  %S = %S + Editor.Value + "\n";
+  %I = %I + 1;
+$End
+
+%I = 1;
+$While (%I!=0)
+  %I=Menu.Show(%S, "Стековые закладки\nНавигация - Up/Down, Выход - Esc, F10", 0x600, abs(%I),80,FAR.Height-Bm.Stat(0)-5);
+  $If (%I &gt; 0)
+    Bm.Goto(%I);
+    $SelWord;
+  $Else
+    %I=0;
+  $End
+$End</code></pre>
+
+    </td>
+  </tr>
+
 </table>
 
 <h3>Замечания</h3>

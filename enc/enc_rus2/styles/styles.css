@@ -454,6 +454,7 @@ table.tiny {width: auto}
 /* ширина колонок в таблицах */
 table.funcs   col.descr {width: 80%}
 table.params  col.value {width: 5%}
+table.params  col.widevalue {width: 25%}
 
 /*
 http://riddle.pl/emcalc/
