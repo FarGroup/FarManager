@@ -177,8 +177,9 @@ without this switch. If the cache is empty, no plugins will be loaded.
   - ^<wrap>if only the /co switch is given and plugins cache is not empty, then plugins
 will be loaded from cache;
   - ^<wrap>/co is ignored, if /p is given;
-  - ^<wrap>if /p and /co are not given, then plugins will be loaded from the main folder,
-and from the path given at the "~Path for personal plugins~@PluginsManagerSettings@" parameter.
+  - ^<wrap>if /p and /co are not given, then plugins will be loaded from the 'Plugins'
+folder, which is in the same folder as Far.exe, and the 'Plugins' folder, which is in the
+user profile folder ('%APPDATA%\Far Manager\Profile' by default).
 
   #/m#
   Far will not load macros when started.
@@ -798,10 +799,12 @@ and emulate file systems. For example, archives support, FTP client, temporary
 panel and network browser are plugins that emulate file systems.
 
     All plugins are stored in separate folders within the 'Plugins' folder,
-which is in the same folder as FAR.EXE. When detecting a new plugin Far saves
-information about it and later loads the plugin only when necessary, so unused
-plugins do not require additional memory. But if you are sure that some plugins
-are useless for you, you may remove them to save disk space.
+which is in the same folder as Far.exe, and the 'Plugins' folder, which is in the
+user profile folder ('%APPDATA%\Far Manager\Profile' by default).
+When detecting a new plugin Far saves information about it and later loads the
+plugin only when necessary, so unused plugins do not require additional memory.
+But if you are sure that some plugins are useless for you, you may remove them
+to save disk space.
 
     Plugins may be called either from ~Change drive menu~@DriveDlg@ or from
 #Plugin commands# menu, activated by #F11# or by corresponding item of
@@ -1025,7 +1028,7 @@ operations.
 
     Far stores folder tree information in the file named #tree2.far# at root
 folder of each drive. For read-only drives this information is stored in the
-hidden folder Tree.Cache within the folder containing FAR.EXE. The tree2.far
+hidden folder Tree.Cache within the folder containing Far.exe. The tree2.far
 file doesn't exist by default. It will be automatically created after the first
 use of the #Tree Panel# or the #Find Folder# command. If that file exists, Far
 updates it with the changes to the tree structure it is aware of. If such
@@ -1366,12 +1369,6 @@ following operations:
 
 @PluginsManagerSettings
 $ #Plugins manager#
-
-  #Path for personal plugins#
-  Enter here the full path, where Far will search for "personal" plugins in addition to the "main"
-plugins. Several search paths may be given separated by ';'. Environment variables can be entered in the
-search path. Personal plugins will not be loaded, if the switches /p or /co are given in the
-~command line~@CmdLine@.
 
 @ChoosePluginMenu
 $ #Plugin selection menu#
@@ -2039,7 +2036,7 @@ $ #Special symbols#
              Several such symbols are allowed in the same line,
              for example:
 
-             grep !?Search for:?! !?In:?*.*!|c:\\far\\far.exe -v -
+             grep !?Search for:?! !?In:?*.*!|c:\\far\\Far.exe -v -
 
              A history name for the <init> string can be supplied
              in the <title>. In such case the command has the
@@ -2049,12 +2046,12 @@ $ #Special symbols#
 
              for example:
 
-             grep !?#$GrepHist$#Search for:?! !?In:?*.*!|far.exe -v -
+             grep !?#$GrepHist$#Search for:?! !?In:?*.*!|Far.exe -v -
 
              In <title> and <init> the usage of other meta-symbols is
              allowed by enclosing them in brackets.
 
-             (e.g. grep !?Find in (!.!):?! |far.exe -v -)
+             (e.g. grep !?Find in (!.!):?! |Far.exe -v -)
 
     #!###       "!##" modifier specified before a file association
              symbol forces it (and all the following characters)
