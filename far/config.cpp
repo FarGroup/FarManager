@@ -374,9 +374,6 @@ void PluginsManagerSettings()
 
 	Builder.AddCheckbox(MPluginsManagerOEMPluginsSupport, &Opt.LoadPlug.OEMPluginsSupport);
 	Builder.AddCheckbox(MPluginsManagerScanSymlinks, &Opt.LoadPlug.ScanSymlinks);
-	Builder.AddText(MPluginsManagerPersonalPath);
-	Builder.AddEditField(&Opt.LoadPlug.strPersonalPluginsPath, 45, L"PersPath", DIF_EDITPATH);
-
 	Builder.AddSeparator(MPluginConfirmationTitle);
 	DialogItemEx *ConfirmOFP = Builder.AddCheckbox(MPluginsManagerOFP, &Opt.PluginConfirm.OpenFilePlugin);
 	ConfirmOFP->Flags|=DIF_3STATE;
@@ -846,16 +843,11 @@ static struct FARConfig
 void ReadConfig()
 {
 	/* <ПРЕПРОЦЕССЫ> *************************************************** */
-	// "Вспомним" путь для дополнительного поиска плагинов
 	string strGlobalUserMenuDir;
 	strGlobalUserMenuDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"GlobalUserMenuDir", g_strFarPath, strGlobalUserMenuDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, g_strFarINI));
 	apiExpandEnvironmentStrings(strGlobalUserMenuDir, Opt.GlobalUserMenuDir);
 	ConvertNameToFull(Opt.GlobalUserMenuDir,Opt.GlobalUserMenuDir);
 	AddEndSlash(Opt.GlobalUserMenuDir);
-
-	string strPersonalPluginsPath;
-	strPersonalPluginsPath.ReleaseBuffer(GetPrivateProfileString(L"General", L"TemplatePluginsPath", L"", strPersonalPluginsPath.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, g_strFarINI));
-	GeneralCfg->GetValue(NKeySystem,L"PersonalPluginsPath",Opt.LoadPlug.strPersonalPluginsPath, strPersonalPluginsPath);
 
 	/* BUGBUG??
 	SetRegRootKey(HKEY_LOCAL_MACHINE);
@@ -1087,7 +1079,6 @@ void SaveConfig(int Ask)
 
 	GeneralCfg->BeginTransaction();
 
-	GeneralCfg->SetValue(NKeySystem,L"PersonalPluginsPath",Opt.LoadPlug.strPersonalPluginsPath);
 	GeneralCfg->SetValue(NKeyLanguage,L"Main",Opt.strLanguage);
 	GeneralCfg->SetValue(NKeyLanguage, L"Help", Opt.strHelpLanguage);
 

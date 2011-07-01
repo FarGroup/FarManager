@@ -321,7 +321,7 @@ void InitProfile(string &strProfilePath)
 		int UseSystemProfiles = GetPrivateProfileInt(L"General", L"UseSystemProfiles", 1, g_strFarINI);
 		if (UseSystemProfiles)
 		{
-			// roaming profiles default path: %APPDATA%\Far Manager\Profile
+			// roaming data default path: %APPDATA%\Far Manager\Profile
 			SHGetFolderPath(nullptr, CSIDL_APPDATA|CSIDL_FLAG_CREATE, nullptr, 0, Opt.ProfilePath.GetBuffer(MAX_PATH));
 			Opt.ProfilePath.ReleaseBuffer();
 			AddEndSlash(Opt.ProfilePath);
@@ -333,17 +333,25 @@ void InitProfile(string &strProfilePath)
 			}
 			else
 			{
-				// local profiles default path: %LOCALAPPDATA%\Far Manager\Profile
+				// local data default path: %LOCALAPPDATA%\Far Manager\Profile
 				SHGetFolderPath(nullptr, CSIDL_LOCAL_APPDATA|CSIDL_FLAG_CREATE, nullptr, 0, Opt.LocalProfilePath.GetBuffer(MAX_PATH));
 				Opt.LocalProfilePath.ReleaseBuffer();
 				AddEndSlash(Opt.LocalProfilePath);
 				Opt.LocalProfilePath += L"Far Manager";
 			}
+
+			string* Paths[]={&Opt.ProfilePath,&Opt.LocalProfilePath};
+			for (size_t i = 0; i< ARRAYSIZE(Paths); ++i)
+			{
+				AddEndSlash(*Paths[i]);
+				*Paths[i] += L"Profile";
+				CreatePath(*Paths[i], true);
+			}
 		}
 		else
 		{
 			string strUserProfileDir;
-			strUserProfileDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"UserProfileDir", L"%FARHOME%\\UserData", strUserProfileDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, g_strFarINI));
+			strUserProfileDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"UserProfileDir", L"%FARHOME%\\Profile", strUserProfileDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, g_strFarINI));
 			apiExpandEnvironmentStrings(strUserProfileDir, Opt.ProfilePath);
 			Unquote(Opt.ProfilePath);
 			ConvertNameToFull(Opt.ProfilePath,Opt.ProfilePath);
@@ -356,17 +364,11 @@ void InitProfile(string &strProfilePath)
 		Opt.LocalProfilePath = strProfilePath;
 	}
 
-	string* Paths[] = {&Opt.ProfilePath, &Opt.LocalProfilePath};
-	for (size_t i = 0; i< ARRAYSIZE(Paths); ++i)
-	{
-		AddEndSlash(*Paths[i]);
-		*Paths[i] += L"Profile";
-		CreatePath(*Paths[i], true);
-	}
+	string strPluginsData = Opt.ProfilePath;
+	strPluginsData += L"\\PluginsData";
+	CreatePath(strPluginsData, true);
 
-	string strPlugins = Opt.ProfilePath;
-	strPlugins += L"\\Plugins";
-	CreatePath(strPlugins, true);
+	Opt.LoadPlug.strPersonalPluginsPath = Opt.ProfilePath+L"\\Plugins";
 }
 
 int ExportImportMain(bool Export, const wchar_t *XML, const wchar_t *ProfilePath)

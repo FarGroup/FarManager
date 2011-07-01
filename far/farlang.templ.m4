@@ -13639,15 +13639,6 @@ MPluginsManagerScanSymlinks
 "Skanuj linki s&ymboliczne"
 "Explorar enlaces simbólicos"
 
-MPluginsManagerPersonalPath
-"Путь к персональным п&лагинам:"
-"&Path for personal plugins:"
-"&Cesta k vlastním pluginům:"
-"&Pfad für eigene Plugins:"
-"Saját plu&ginek útvonala:"
-"Ś&cieżka do własnych pluginów:"
-"Ruta para pl&ugins personales:
-
 MPluginsManagerOFP
 "Обработка &файла"
 "&File processing"

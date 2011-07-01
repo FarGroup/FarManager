@@ -2091,7 +2091,7 @@ public:
 
 HierarchicalConfig *CreatePluginsConfig(const wchar_t *guid)
 {
-	string strDbName = L"Plugins\\";
+	string strDbName = L"PluginsData\\";
 	strDbName += guid;
 	strDbName += L".db";
 	return new HierarchicalConfigDb(strDbName);

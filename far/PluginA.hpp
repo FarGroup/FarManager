@@ -55,7 +55,7 @@ public:
 	virtual int MakeDirectory(HANDLE hPlugin, const wchar_t **Name, int OpMode);
 	virtual int ProcessHostFile(HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber, int OpMode);
 	virtual int ProcessKey(HANDLE hPlugin, const INPUT_RECORD *Rec, bool Pred);
-	virtual int ProcessEvent(HANDLE hPlugin, int Event, PVOID Param);
+	virtual int ProcessPanelEvent(HANDLE hPlugin, int Event, PVOID Param);
 	virtual int Compare(HANDLE hPlugin, const PluginPanelItem *Item1, const PluginPanelItem *Item2, unsigned long Mode);
 	virtual int GetCustomData(const wchar_t *FilePath, wchar_t **CustomData) { return 0; }
 	virtual void FreeCustomData(wchar_t *CustomData) {}

@@ -41,7 +41,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "codepage.hpp"
 
-#define DELTA 1024
+const size_t DELTA = 1024;
+const size_t ReadBufCount = 0x2000;
 
 enum EolType
 {
@@ -62,8 +63,8 @@ OldGetFileString::OldGetFileString(FILE *SrcFile):
 	SrcFile(SrcFile),
 	ReadPos(0),
 	ReadSize(0),
-	ReadBuf(new char[0x2000]),
-	wReadBuf(new wchar_t[0x2000]),
+	ReadBuf(new char[ReadBufCount]),
+	wReadBuf(new wchar_t[ReadBufCount]),
 	m_nStrLength(DELTA),
 	Str(static_cast<char*>(xf_malloc(m_nStrLength))),
 	m_nwStrLength(DELTA),
@@ -178,7 +179,7 @@ int OldGetFileString::GetAnsiString(char **DestStr, int &Length)
 		{
 			if (ReadPos >= ReadSize)
 			{
-				if (!(ReadSize = (int)fread(ReadBuf, 1, sizeof(ReadBuf), SrcFile)))
+				if (!(ReadSize = (int)fread(ReadBuf, 1, ReadBufCount, SrcFile)))
 				{
 					if (!CurLength)
 						ExitCode=0;
@@ -275,7 +276,7 @@ int OldGetFileString::GetUnicodeString(wchar_t **DestStr, int &Length, bool bBig
 		{
 			if (ReadPos >= ReadSize)
 			{
-				if (!(ReadSize = (int)fread(wReadBuf, 1, sizeof(wReadBuf), SrcFile)))
+				if (!(ReadSize = (int)fread(wReadBuf, sizeof(wchar_t), ReadBufCount, SrcFile)))
 				{
 					if (!CurLength)
 						ExitCode=0;
@@ -284,7 +285,7 @@ int OldGetFileString::GetUnicodeString(wchar_t **DestStr, int &Length, bool bBig
 				}
 
 				if (bBigEndian)
-					_swab((char*)&wReadBuf, (char*)&wReadBuf, ReadSize);
+					_swab(reinterpret_cast<char*>(wReadBuf), reinterpret_cast<char*>(wReadBuf), ReadSize);
 
 				ReadPos = 0;
 				ReadBufPtr = wReadBuf;
@@ -569,8 +570,8 @@ GetFileString::GetFileString(File& SrcFile):
 	LastLength(0),
 	LastString(nullptr),
 	LastResult(0),
-	ReadBuf(new char[0x2000]),
-	wReadBuf(new wchar_t[0x2000]),
+	ReadBuf(new char[ReadBufCount]),
+	wReadBuf(new wchar_t[ReadBufCount]),
 	m_nStrLength(DELTA),
 	Str(static_cast<LPSTR>(xf_malloc(m_nStrLength))),
 	m_nwStrLength(DELTA),
@@ -704,7 +705,7 @@ int GetFileString::GetAnsiString(LPSTR* DestStr, int& Length)
 		{
 			if (ReadPos >= ReadSize)
 			{
-				if (!(SrcFile.Read(ReadBuf, sizeof(ReadBuf), ReadSize) && ReadSize))
+				if (!(SrcFile.Read(ReadBuf, ReadBufCount, ReadSize) && ReadSize))
 				{
 					if (!CurLength)
 					{
@@ -813,7 +814,7 @@ int GetFileString::GetUnicodeString(LPWSTR* DestStr, int& Length, bool bBigEndia
 		{
 			if (ReadPos >= ReadSize)
 			{
-				if (!(SrcFile.Read(wReadBuf, sizeof(wReadBuf), ReadSize) && ReadSize))
+				if (!(SrcFile.Read(wReadBuf, ReadBufCount*sizeof(wchar_t), ReadSize) && ReadSize))
 				{
 					if (!CurLength)
 					{
@@ -824,7 +825,7 @@ int GetFileString::GetUnicodeString(LPWSTR* DestStr, int& Length, bool bBigEndia
 
 				if (bBigEndian)
 				{
-					_swab(reinterpret_cast<LPSTR>(wReadBuf), reinterpret_cast<LPSTR>(wReadBuf), ReadSize);
+					_swab(reinterpret_cast<char*>(wReadBuf), reinterpret_cast<char*>(wReadBuf), ReadSize);
 				}
 				ReadPos = 0;
 				ReadBufPtr = wReadBuf;

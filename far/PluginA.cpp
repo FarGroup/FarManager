@@ -67,7 +67,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define EXP_CONFIGURE           "Configure"
 #define EXP_EXITFAR             "ExitFAR"
 #define EXP_PROCESSPANELINPUT   "ProcessKey"
-#define EXP_PROCESSEVENT        "ProcessEvent"
+#define EXP_PROCESSPANELEVENT   "ProcessEvent"
 #define EXP_PROCESSEDITOREVENT  "ProcessEditorEvent"
 #define EXP_COMPARE             "Compare"
 #define EXP_PROCESSEDITORINPUT  "ProcessEditorInput"
@@ -110,7 +110,7 @@ static const char* _ExportsNamesA[i_LAST] =
 	EXP_CONFIGURE,
 	EXP_EXITFAR,
 	EXP_PROCESSPANELINPUT,
-	EXP_PROCESSEVENT,
+	EXP_PROCESSPANELEVENT,
 	EXP_PROCESSEDITOREVENT,
 	EXP_COMPARE,
 	EXP_PROCESSEDITORINPUT,
@@ -154,7 +154,7 @@ static const wchar_t* _ExportsNamesW[i_LAST] =
 	W(EXP_CONFIGURE),
 	W(EXP_EXITFAR),
 	W(EXP_PROCESSPANELINPUT),
-	W(EXP_PROCESSEVENT),
+	W(EXP_PROCESSPANELEVENT),
 	W(EXP_PROCESSEDITOREVENT),
 	W(EXP_COMPARE),
 	W(EXP_PROCESSEDITORINPUT),
@@ -5262,7 +5262,7 @@ int PluginA::ProcessHostFile(
 }
 
 
-int PluginA::ProcessEvent(
+int PluginA::ProcessPanelEvent(
     HANDLE hPlugin,
     int Event,
     PVOID Param
