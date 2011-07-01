@@ -456,7 +456,7 @@ const FarColor FileList::GetShowColor(int Position, int ColorType)
 
 		ColorAttr=ListData[Position]->Colors.Color[ColorType][Pos];
 
-		if (!Opt.Highlight)
+		if (!(ColorAttr.ForegroundColor || ColorAttr.BackgroundColor) || !Opt.Highlight)
 			ColorAttr=ColorIndexToColor(PalColor[Pos]);
 	}
 

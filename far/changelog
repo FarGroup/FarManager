@@ -1,3 +1,7 @@
+drkns 01.07.2011 22:03:37 +0200 - build 2092
+
+1. Mantis#0001820: Ошибка отрисовки панели при OPIF_DISABLEHIGHLIGHTING
+
 drkns 01.07.2011 13:08:33 +0200 - build 2091
 
 1. %FARPROFILE%, %FARLOCALPROFILE%.
