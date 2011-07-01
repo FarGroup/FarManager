@@ -396,7 +396,7 @@ MF10
 "Salir"
 
 MF11
-"Модули"
+"Плагины"
 "Plugin"
 "Plugin"
 "Plugin"
@@ -4561,7 +4561,7 @@ MEditF10
 "Salir"
 
 MEditF11
-"Модули"
+"Плагины"
 "Plugin"
 "Plugin"
 "Plugin"
@@ -5452,7 +5452,7 @@ MSingleEditF10
 "Salir"
 
 MSingleEditF11
-"Модули"
+"Плагины"
 "Plugin"
 "Plugin"
 "Plugin"
@@ -7055,7 +7055,7 @@ MViewF10
 "Quitar"
 
 MViewF11
-"Модули"
+"Плагины"
 "Plugins"
 "Plugin"
 "Plugin"
@@ -7964,7 +7964,7 @@ MSingleViewF10
 "Quitar"
 
 MSingleViewF11
-"Модули"
+"Плагины"
 "Plugins"
 "Plugin"
 "Plugins"
@@ -10853,7 +10853,7 @@ MMenuLanguages
 "&Idiomas"
 
 MMenuPluginsConfig
-"Параметры &внешних модулей"
+"Параметры плагино&в"
 "Pl&ugins configuration"
 "Nastavení Plu&ginů"
 "Konfiguration von Pl&ugins"
@@ -10862,7 +10862,7 @@ MMenuPluginsConfig
 "Configuración de pl&ugins"
 
 MMenuPluginsManagerSettings
-"Параметры менеджера внешних модулей"
+"Параметры менеджера плагинов"
 "Plugins manager settings"
 upd:"Plugins manager settings"
 upd:"Plugins manager settings"
@@ -13613,7 +13613,7 @@ MSetConfirmExit
 
 MPluginsManagerSettingsTitle
 l:
-"Параметры менеджера внешних модулей"
+"Параметры менеджера плагинов"
 "Plugins manager settings"
 upd:"Plugins manager settings"
 upd:"Plugins manager settings"
@@ -14681,7 +14681,7 @@ MAskApplyCommand
 
 MPluginConfigTitle
 l:
-"Конфигурация модулей"
+"Конфигурация плагинов"
 "Plugins configuration"
 "Nastavení Pluginů"
 "Konfiguration von Plugins"
@@ -14690,7 +14690,7 @@ l:
 "Configuración de plugins"
 
 MPluginCommandsMenuTitle
-"Команды внешних модулей"
+"Команды плагинов"
 "Plugin commands"
 "Příkazy pluginů"
 "Pluginbefehle"
@@ -15563,8 +15563,8 @@ l:
 
 MPlgBadVers
 l:
-"Этот модуль требует FAR более высокой версии"
-"This plugin requires higher FAR version"
+"Для работы этого плагина требуется более новая версия Far"
+"This plugin requires more recent version of Far"
 "Tento plugin vyžaduje vyšší verzi FARu"
 "Das Plugin benötigt eine aktuellere Version von FAR"
 "A pluginhez újabb FAR verzió kell"
@@ -15572,31 +15572,31 @@ l:
 "Este plugin requiere versión más actual de FAR"
 
 MPlgRequired
-"Требуется версия FAR - %d.%d.%d.%d."
-"Required FAR version is %d.%d.%d.%d."
-"Požadovaná verze FARu je %d.%d.%d.%d."
-"Benötigte FAR-Version ist %d.%d.%d.%d."
-"A szükséges FAR verzió: %d.%d.%d.%d."
-"Wymagana wersja FAR-a to %d.%d.%d.%d."
-"Requiere la versión FAR %d.%d.%d.%d."
+"Требуемая версия Far - %d.%d.%d.%d."
+"Required Far version is %d.%d.%d.%d."
+"Požadovaná verze Faru je %d.%d.%d.%d."
+"Benötigte Far-Version ist %d.%d.%d.%d."
+"A szükséges Far verzió: %d.%d.%d.%d."
+"Wymagana wersja Far-a to %d.%d.%d.%d."
+"Requiere la versión Far %d.%d.%d.%d."
 
 MPlgRequired2
-"Текущая версия FAR - %d.%d.%d.%d."
-"Current FAR version is %d.%d.%d.%d."
+"Текущая версия Far - %d.%d.%d.%d."
+"Current Far version is %d.%d.%d.%d."
 "Nynější verze FARu je %d.%d.%d.%d."
-"Aktuelle FAR-Version ist %d.%d.%d.%d."
-"A jelenlegi FAR verzió: %d.%d.%d.%d."
-"Bieżąca wersja FAR-a: %d.%d.%d.%d."
-"Versión actual de FAR es %d.%d.%d.%d"
+"Aktuelle Far-Version ist %d.%d.%d.%d."
+"A jelenlegi Far verzió: %d.%d.%d.%d."
+"Bieżąca wersja Far-a: %d.%d.%d.%d."
+"Versión actual de Far es %d.%d.%d.%d"
 
 MPlgLoadPluginError
 "Ошибка при загрузке плагина"
-"Error loading plugin module"
-"Chyba při nahrávání zásuvného modulu"
-"Fehler beim Laden des Pluginmoduls"
-"Plugin betöltési hiba"
-"Błąd ładowania modułu plugina"
-"Error cargando módulo plugin"
+"Error loading plugin"
+upd:"Chyba při nahrávání zásuvného modulu"
+upd:"Fehler beim Laden des Pluginmoduls"
+upd:"Plugin betöltési hiba"
+upd:"Błąd ładowania modułu plugina"
+upd:"Error cargando módulo plugin"
 
 MCheckBox2State
 l:
@@ -15665,7 +15665,7 @@ MHelpTopicNotFound
 
 MPluginsHelpTitle
 l:
-"Внешние модули"
+"Плагины"
 "Plugins help"
 "Nápověda Pluginů"
 "Pluginhilfe"
@@ -16683,7 +16683,7 @@ MInfoF10
 "Quitar"
 
 MInfoF11
-"Модули"
+"Плагины"
 "Plugin"
 "Plugin"
 "Plugin"
@@ -17563,7 +17563,7 @@ MQViewF10
 "Quitar"
 
 MQViewF11
-"Модули"
+"Плагины"
 "Plugin"
 "Plugin"
 "Plugin"
@@ -18443,7 +18443,7 @@ MKBTreeF10
 "Quitar"
 
 MKBTreeF11
-"Модули"
+"Плагины"
 "Plugin"
 "Plugin"
 "Plugin"

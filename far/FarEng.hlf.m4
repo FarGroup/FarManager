@@ -570,7 +570,7 @@ to the same data.
 possible size of a console window. In the fullscreen mode, #Alt-F9# toggles the
 screen height between 25 and 50 lines. See TechInfo##38 for details.
 
-  Configure ~plugin~@Plugins@ modules.                             #Alt-Shift-F9#
+  Configure ~plugins~@Plugins@.                                    #Alt-Shift-F9#
 
   Perform ~find folder~@FindFolder@ command                                #Alt-F10#
 
@@ -794,9 +794,9 @@ editor and viewer (see TechInfo##33).
 
 @Plugins
 $ #Plugins support#
-    External DLL modules (plugins) may be used to implement new Far commands
-and emulate file systems. For example, archives support, FTP client, temporary
-panel and network browser are plugins that emulate file systems.
+    Plugins may be used to implement new Far commands and emulate file systems.
+For example, archives support, FTP client, temporary panel and network browser
+are plugins that emulate file systems.
 
     All plugins are stored in separate folders within the 'Plugins' folder,
 which is in the same folder as Far.exe, and the 'Plugins' folder, which is in the
@@ -823,8 +823,8 @@ necessary functionality. Search from the current folder in the "Find file"
 command requires less functionality than search from the root folder, so try to
 use it if search from the root folder does not work correctly.
 
-    The modules have their own message and help files. You can get a list of
-available help on the modules by pressing
+    Plugins have their own message and help files. You can get a list of
+available help on the plugins by pressing
 
     #Shift-F2# - anywhere in the Far help system
 
@@ -877,7 +877,7 @@ in filenames and in editor).
 
 @PluginsConfig
 $ #Plugins configuration#
-    You can configure the installed ~plugin modules~@Plugins@ using the command
+    You can configure the installed ~plugins~@Plugins@ using the command
 #"Plugins configuration"# from the ~Options menu~@OptMenu@ or by pressing
 #Alt-Shift-F9# in the ~drive selection menu~@DriveDlg@ or plugins menu.
 
@@ -1305,7 +1305,7 @@ $ #Menus: options menu#
    #Languages#             Select main and help language.
                          Use "Save setup" to save selected languages.
 
-   #Plugins#               Configure ~plugin~@Plugins@ modules.
+   #Plugins#               Configure ~plugins~@Plugins@.
    #configuration#
 
    #Confirmation#          Switch on or off ~confirmations~@ConfirmDlg@ for
@@ -3666,7 +3666,7 @@ account). If the option "Process multiple destinations" is enabled, the dialog
 selected in the tree is appended to the edit line.
 
     The possibility of copying, moving and renaming files for plugins depends
-upon the plugin module functionality.
+upon the plugin functionality.
 
     If a destination file already exists, it can be overwritten, skipped or
 appended with the file being copied.
@@ -3885,12 +3885,12 @@ $ #Error: plugin not loaded#
    This error message can appear in the following cases:
 
    1. A dynamic link library not present on your system is required
-      for correct operation of the plugin module.
+      for correct operation of the plugin.
 
-   2. For some reason, the module returned an error code
+   2. For some reason, the plugin returned an error code
       telling the system to abort plugin loading.
 
-   3. The DLL file of the plugin is corrupt.
+   3. The Dll file of the plugin is corrupt.
 
 
 @ScrSwitch
