@@ -369,6 +369,9 @@ void InitProfile(string &strProfilePath)
 	CreatePath(strPluginsData, true);
 
 	Opt.LoadPlug.strPersonalPluginsPath = Opt.ProfilePath+L"\\Plugins";
+
+	SetEnvironmentVariable(L"FARPROFILE", Opt.ProfilePath);
+	SetEnvironmentVariable(L"FARLOCALPROFILE", Opt.LocalProfilePath);
 }
 
 int ExportImportMain(bool Export, const wchar_t *XML, const wchar_t *ProfilePath)

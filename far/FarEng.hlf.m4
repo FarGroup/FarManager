@@ -4002,9 +4002,13 @@ $ #Environment variables#
     On startup, Far Manager sets the following environment variables available
 to child processes:
 
-    #FARHOME#            path to the folder from which Far was started.
+    #FARHOME#            ^<wrap>path to the folder containing main Far executable module.
 
-    #FARLANG#            the name of the current interface language.
+    #FARPROFILE#         ^<wrap>path to the folder containing roaming user data (Far & plugins settings, additional plugins etc.)
+
+    #FARLOCALPROFILE#    ^<wrap>path to the folder containing local user data (histories, plugin cache etc.)
+
+    #FARLANG#            ^<wrap>the name of the current interface language.
 
     #FARUSER#            ^<wrap>the name of the current user given by the /u ~command line~@CmdLine@ option.
 
