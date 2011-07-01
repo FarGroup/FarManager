@@ -1,8 +1,10 @@
-#include "Proclist.hpp"
-#include "Proclng.hpp"
 #include <stdlib.h>
+#include <CRT/crt.hpp>
 #include <PluginSettings.hpp>
 #include <DlgBuilder.hpp>
+#include "Proclist.hpp"
+#include "Proclng.hpp"
+#include "guid.hpp"
 
 int Config()
 {

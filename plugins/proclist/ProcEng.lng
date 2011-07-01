@@ -41,7 +41,7 @@
 
 "Cannot kill the process"
 "Retry with debug privileges?"
-"It may be dangerous!"
+"It may be dangerous."
 "&Yes"
 "&No"
 
@@ -90,7 +90,7 @@
 "Include in the additional information:"
 "&Environment (local only)"
 "&Module info"
-"Module &versions and descriptions (slow!)"
+"Module &versions and descriptions"
 "Pe&rformance data"
 "&Handles (local only)"
 "Include unnamed handles"

@@ -1,8 +1,8 @@
+#include <stddef.h>
+#include <stdlib.h>
 #include "Proclist.hpp"
 #include "Proclng.hpp"
 #include "perfthread.hpp"
-#include <stddef.h>
-#include <stdlib.h>
 
 #define INITIAL_SIZE        51200
 #define INITIAL_SIZE        51200
@@ -152,7 +152,7 @@ PerfThread::PerfThread(Plist& plist, LPCTSTR hostname, LPCTSTR pUser, LPCTSTR pP
 					pf.dwCounterTitles[i] = getcounter(p);
 	}
 
-	delete buf;
+	delete[] buf;
 	hEvtBreak = CreateEvent(0, 0, 0, 0);
 	hEvtRefresh = CreateEvent(0, 0, 0, 0);
 	hEvtRefreshDone = CreateEvent(0, 0, 0, 0);
@@ -356,7 +356,7 @@ void PerfThread::Refresh()
 
 			if (hProcess)
 			{
-				GetOpenProcessDataNT(hProcess, Task.ProcessName, ARRAYSIZE(Task.ProcessName),
+				GetOpenProcessData(hProcess, Task.ProcessName, ARRAYSIZE(Task.ProcessName),
 				                     Task.FullPath, ARRAYSIZE(Task.FullPath), Task.CommandLine, ARRAYSIZE(Task.CommandLine));
 				FILETIME ftExit,ftKernel,ftUser;
 				GetProcessTimes(hProcess,&Task.ftCreation,&ftExit,&ftKernel,&ftUser);

@@ -1,11 +1,6 @@
-#define STRICT
-
-#include <windows.h>
-#include <CRT/crt.hpp>
 #include <stdio.h>
 #include <plugin.hpp>
-#include <initguid.h>
-#include "guid.hpp"
+#include <CRT/crt.hpp>
 
 #define WCONST const
 #define WTYPE wchar_t**
@@ -60,10 +55,7 @@ extern struct _Opt
 } Opt;
 
 
-inline int Message(unsigned Flags, wchar_t *HelpTopic, LPCTSTR*Items, int nItems, int nButtons=1)
-{
-	return Info.Message(&MainGuid, Flags, HelpTopic, Items, nItems, nButtons);
-}
+int Message(unsigned Flags, wchar_t *HelpTopic, LPCTSTR*Items, int nItems, int nButtons=1);
 
 extern class ui64Table
 {
@@ -91,10 +83,7 @@ class Plist
 		DWORD dwPluginThread;
 
 		void GeneratePanelModes();
-		int Menu(unsigned int Flags, const wchar_t *Title, const wchar_t *Bottom, wchar_t *HelpTopic, const struct FarKey *BreakKeys, FarMenuItem *Item, int ItemsNumber)
-		{
-			return (*Info.Menu)(&MainGuid, -1, -1, 0, Flags, Title, Bottom, HelpTopic, BreakKeys, 0, Item, ItemsNumber);
-		}
+		int Menu(unsigned int Flags, const wchar_t *Title, const wchar_t *Bottom, wchar_t *HelpTopic, const struct FarKey *BreakKeys, FarMenuItem *Item, int ItemsNumber);
 		static bool TranslateMode(LPCTSTR src, LPTSTR dest);
 		void PrintOwnerInfo(HANDLE InfoFile, DWORD dwPid);
 
@@ -159,16 +148,13 @@ struct ProcessDataNT : ProcessData
 	wchar_t CommandLine[MAX_CMDLINE];
 };
 
-extern int NT, W2K;
-
 extern wchar_t *PluginRootKey;
 
 class PerfThread;
 
 BOOL GetList95(PluginPanelItem **pPanelItem,int *pItemsNumber);
-BOOL GetListNT(PluginPanelItem **pPanelItem,int *pItemsNumber,PerfThread& PThread);
-BOOL KillProcess(DWORD pid);
-BOOL KillProcessNT(DWORD pid,HWND hwnd);
+BOOL GetList(PluginPanelItem **pPanelItem,int *pItemsNumber,PerfThread& PThread);
+BOOL KillProcess(DWORD pid,HWND hwnd);
 
 const wchar_t *GetMsg(int MsgId);
 //void InitDialogItems(InitDialogItem *Init,FarDialogItem *Item, int ItemsNumber);
@@ -214,7 +200,7 @@ static inline const wchar_t *__chk_wca(const wchar_t *arg) { return arg; }
 #define CURDIR_STR_TYPE wchar_t
 #define OUT_CVT(pp)   __chk_wca(pp)
 
-void GetOpenProcessDataNT(HANDLE hProcess, wchar_t* pProcessName=0, DWORD cbProcessName=0,
+void GetOpenProcessData(HANDLE hProcess, wchar_t* pProcessName=0, DWORD cbProcessName=0,
                           wchar_t* pFullPath=0, DWORD cbFullPath=0, wchar_t* pCommandLine=0, DWORD cbCommandLine=0,
                           wchar_t** ppEnvStrings=0, CURDIR_STR_TYPE** pCurDir=0);
 
@@ -224,15 +210,13 @@ enum { SM_CUSTOM=64, SM_PID, SM_PARENTPID, SM_PRIOR, SM_PERFCOUNTER,  SM_PERSEC=
 
 extern wchar_t CustomColumns[10][10];
 
-BOOL GetListNT(PluginPanelItem* &pPanelItem,int &ItemsNumber,PerfThread& PThread);
-BOOL GetList95(PluginPanelItem*& pPanelItem,int &ItemsNumber);
+BOOL GetList(PluginPanelItem* &pPanelItem,int &ItemsNumber,PerfThread& PThread);
 DWORD GetHeapSize(DWORD dwPID);
 wchar_t* PrintNTUptime(void*p);
 wchar_t* PrintTime(ULONGLONG ul100ns, bool bDays=true);
 void DumpNTCounters(HANDLE InfoFile, PerfThread& PThread, DWORD dwPid, DWORD dwThreads);
 void PrintNTCurDirAndEnv(HANDLE InfoFile, HANDLE hProcess, BOOL bExportEnvironment);
-void PrintModules95(HANDLE InfoFile, DWORD dwPID, _Opt& opt);
-void PrintModulesNT(HANDLE InfoFile, DWORD dwPID, _Opt& opt);
+void PrintModules(HANDLE InfoFile, DWORD dwPID, _Opt& opt);
 bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread* pThread=0);
 extern bool GetPData95(ProcessData& pdata);
 struct ProcessPerfData;
@@ -315,5 +299,4 @@ extern wchar_t FPRINTFbuffer[];
 int fputc(int c, HANDLE stream);
 
 //-------
-#define NORM_M_PREFIX(m)  (*(LPDWORD)m==0x5c005c)
-#define REV_M_PREFIX(m)   (*(LPDWORD)m==0x2f002f)
+#define NORM_M_PREFIX(m) (m[0] == L'\\' && m[1] == L'\\')

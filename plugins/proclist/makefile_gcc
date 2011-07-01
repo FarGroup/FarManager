@@ -5,8 +5,7 @@ handles.cpp \
 Pcfg.cpp \
 Pclass.cpp \
 perfthread.cpp \
-Plist95.cpp \
-PlistNT.cpp \
+Plist.cpp \
 Pmix.cpp \
 wmi.cpp
 DOCS = ProcEng.hlf ProcRus.hlf ProcEng.lng ProcRus.lng

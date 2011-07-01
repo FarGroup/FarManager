@@ -1,9 +1,9 @@
-#include "Proclist.hpp"
-#include "Proclng.hpp"
-
-#include <tlhelp32.h>
 #include <stdio.h>
 #include <time.h>
+#include <initguid.h>
+#include "guid.hpp"
+#include "Proclist.hpp"
+#include "Proclng.hpp"
 #include "version.hpp"
 
 _Opt Opt;
@@ -11,7 +11,6 @@ ui64Table *_ui64Table;
 
 PluginStartupInfo Info;
 FarStandardFunctions FSF;
-int NT, W2K;
 wchar_t *PluginRootKey;
 
 #if defined(__GNUC__)
@@ -173,6 +172,11 @@ static void dynamic_bind(void)
 	}
 }
 
+int Message(unsigned Flags, wchar_t *HelpTopic, LPCTSTR*Items, int nItems, int nButtons)
+{
+	return Info.Message(&MainGuid, Flags, HelpTopic, Items, nItems, nButtons);
+}
+
 //-----------------------------------------------------------------------------
 void WINAPI GetGlobalInfoW(GlobalInfo *Info)
 {
@@ -189,20 +193,12 @@ void WINAPI GetGlobalInfoW(GlobalInfo *Info)
 void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 {
 	dynamic_bind();
-	OSVERSIONINFO WinVer;
-	WinVer.dwOSVersionInfoSize=sizeof(WinVer);
-	GetVersionEx(&WinVer);
-	NT = (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT);
-	W2K = NT && (WinVer.dwMajorVersion > 4);
 	::Info = *Info;
 	FSF = *Info->FSF;
 	::Info.FSF = &FSF;
-
 	_ui64Table = new ui64Table;
 	Opt.Read();
-
-	if (NT)
-		DebugToken::CreateToken();
+	DebugToken::CreateToken();
 }
 
 
@@ -218,7 +214,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	Opt.Read();
 	Plist* hPlugin = new Plist();
 
-	if (OInfo->OpenFrom == OPEN_COMMANDLINE && (NORM_M_PREFIX(OInfo->Data) || REV_M_PREFIX(OInfo->Data)))
+	if (OInfo->OpenFrom == OPEN_COMMANDLINE && (NORM_M_PREFIX(reinterpret_cast<LPCWSTR>(OInfo->Data))))
 	{
 		if (!hPlugin->Connect((wchar_t*)OInfo->Data))
 		{

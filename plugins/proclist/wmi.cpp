@@ -1,6 +1,6 @@
-#include "Proclist.hpp"
 #include <objbase.h>
 #include <wbemidl.h>
+#include "Proclist.hpp"
 #include "perfthread.hpp"
 
 class BStr
@@ -253,7 +253,7 @@ bool WMIConnection::Connect(LPCTSTR pMachineName, LPCTSTR pUser, LPCTSTR pPasswo
 		if (!pMachineName || !*pMachineName)
 			pMachineName = _T(".");
 
-		if (NORM_M_PREFIX(pMachineName) || REV_M_PREFIX(pMachineName))
+		if (NORM_M_PREFIX(pMachineName))
 			pMachineName += 2;
 		wchar_t Namespace[128];
 		wsprintfW(Namespace, L"\\\\%s\\root\\cimv2", pMachineName);

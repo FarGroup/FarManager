@@ -1,7 +1,8 @@
 #include "Proclist.hpp"
-#include <farkeys.hpp>
 #include "perfthread.hpp"
 #include "Proclng.hpp"
+#include "guid.hpp"
+#include <farkeys.hpp>
 #include <DlgBuilder.hpp>
 #include <PluginSettings.hpp>
 
@@ -15,10 +16,10 @@ class StrTok
 	public:
 		StrTok(LPCTSTR str, LPCTSTR token) : tok(token)
 		{
-			buf = _tcsdup(str);
-			ptr = _tcstok(buf, token);
+			buf = wcsdup(str);
+			ptr = wcstok(buf, token);
 		}
-		~StrTok() { delete buf; }
+		~StrTok() { free(buf); }
 
 	public:
 		operator wchar_t*() { return ptr; }
@@ -86,15 +87,18 @@ Plist::Plist()
 	StartPanelMode = settings.Get(0,L"StartPanelMode", 1)+L'0';
 	InitializePanelModes();
 
-	if (NT)
-		pPerfThread = new PerfThread(*this);
+	pPerfThread = new PerfThread(*this);
 }
+
+	int Plist::Menu(unsigned int Flags, const wchar_t *Title, const wchar_t *Bottom, wchar_t *HelpTopic, const struct FarKey *BreakKeys, FarMenuItem *Item, int ItemsNumber)
+	{
+		return (*Info.Menu)(&MainGuid, -1, -1, 0, Flags, Title, Bottom, HelpTopic, BreakKeys, 0, Item, ItemsNumber);
+	}
 
 void Plist::InitializePanelModes()
 {
 	static const wchar_t
-		StatusWidth9x[] = L"0,8,0,5",
-		StatusWidthNT[] = L"0,8,0,5",
+		StatusWidth[] = L"0,8,0,5",
 		StatusCols[]    = L"N,S,D,T";
 
 	// Default panel modes. Overridable from registry.
@@ -104,7 +108,7 @@ void Plist::InitializePanelModes()
 		const wchar_t *Cols;
 		const wchar_t *Width;
 	}
-	DefaultModesNT[NPANELMODES] =
+	DefaultModes[NPANELMODES] =
 	{
 		/*0*/ {L"N,X15T,X16T,X17T,X18S", L"12,0,0,0,4"}, // I/O
 		/*1*/ {L"N,XI,XP,X0S,X6", L"0,4,2,3,9"}, // General info
@@ -117,20 +121,8 @@ void Plist::InitializePanelModes()
 		/*8*/ {L"N,XI,O",L"0,5,15"}, // Owners (not implemented)
 		/*9*/ {L"N,XI,XT,X3,XG,XU",L"0,4,3,4,4,4"} // Resources
 	},
-	DefaultModes9x[NPANELMODES] =
-	{
-		/*0*/ {L"N,N",L"0,0"},// Names only
-		/*1*/ {L"N,XP,XB,XI",L"0,2,2,8"},// General info
-		/*2*/ {L"N,N",L"0,0"},// Names only
-		/*3*/ {L"N,XP,XI,XC,XT",L"0,2,8,8,3"},
-		/*4*/ {L"N,S",L"0,8"},
-		/*5*/ {L"N,N",L"0,0"},// Names only
-		/*6*/ {L"N,ZP",L"12,0"},
-		/*7*/ {L"N,ZD",L"12,0"},
-		/*8*/ {L"N,ZW",L"12,0"},
-		/*9*/ {L"N,XI,XT",L"0,8,3"}
-	},
-	DefaultModesRemoteNT[NPANELMODES] =
+
+	DefaultModesRemote[NPANELMODES] =
 	{
 		/*0*/ {L"N,X15T,X16T,X17T,X18S", L"12,0,0,0,4"}, // I/O
 		/*1*/ {L"N,XI,XP,X0S,X6", L"0,4,2,3,9"}, // General info
@@ -166,27 +158,27 @@ void Plist::InitializePanelModes()
 		int Root=settings.OpenSubKey(0,name);
 
 		int FullScreen;
-		FullScreen=settings.Get(Root, L"FullScreenLocal", iMode==5 && NT ? 1 : 0);
+		FullScreen=settings.Get(Root, L"FullScreenLocal", iMode==5 ? 1 : 0);
 		if (FullScreen)
 			PanelModesLocal[iMode].Flags |= PMFLAGS_FULLSCREEN;
 		else
 			PanelModesLocal[iMode].Flags &= ~PMFLAGS_FULLSCREEN;
 
-		FullScreen=settings.Get(Root, L"FullScreenRemote", iMode==5 && NT ? 1 : 0);
+		FullScreen=settings.Get(Root, L"FullScreenRemote", iMode==5 ? 1 : 0);
 		if (FullScreen)
 			PanelModesRemote[iMode].Flags |= PMFLAGS_FULLSCREEN;
 		else
 			PanelModesRemote[iMode].Flags &= ~PMFLAGS_FULLSCREEN;
 
-		settings.Get(Root, L"ColumnsLocal", ProcPanelModesLocal[iMode], ARRAYSIZE(ProcPanelModesLocal[iMode]), NT ? DefaultModesNT[iMode].Cols : DefaultModes9x[iMode].Cols);
-		settings.Get(Root, L"ColumnsRemote", ProcPanelModesRemote[iMode], ARRAYSIZE(ProcPanelModesRemote[iMode]), DefaultModesRemoteNT[iMode].Cols);
-		settings.Get(Root, L"WidthsLocal", (LPTSTR)PanelModesLocal[iMode].ColumnWidths, MAX_MODE_STR-1, NT ? DefaultModesNT[iMode].Width : DefaultModes9x[iMode].Width);
-		settings.Get(Root, L"WidthsRemote", (LPTSTR)PanelModesRemote[iMode].ColumnWidths, MAX_MODE_STR-1, DefaultModesRemoteNT[iMode].Width);
+		settings.Get(Root, L"ColumnsLocal", ProcPanelModesLocal[iMode], ARRAYSIZE(ProcPanelModesLocal[iMode]), DefaultModes[iMode].Cols);
+		settings.Get(Root, L"ColumnsRemote", ProcPanelModesRemote[iMode], ARRAYSIZE(ProcPanelModesRemote[iMode]), DefaultModesRemote[iMode].Cols);
+		settings.Get(Root, L"WidthsLocal", (LPTSTR)PanelModesLocal[iMode].ColumnWidths, MAX_MODE_STR-1, DefaultModes[iMode].Width);
+		settings.Get(Root, L"WidthsRemote", (LPTSTR)PanelModesRemote[iMode].ColumnWidths, MAX_MODE_STR-1, DefaultModesRemote[iMode].Width);
 		//Status line is the same for all modes currently and cannot be changed.
 		TranslateMode(StatusCols, (LPTSTR)PanelModesLocal[iMode].StatusColumnTypes);
 		TranslateMode(StatusCols, (LPTSTR)PanelModesRemote[iMode].StatusColumnTypes);
-		lstrcpy((wchar_t*)PanelModesLocal[iMode].StatusColumnWidths, NT ? StatusWidthNT : StatusWidth9x);
-		lstrcpy((wchar_t*)PanelModesRemote[iMode].StatusColumnWidths, StatusWidthNT);
+		lstrcpy((wchar_t*)PanelModesLocal[iMode].StatusColumnWidths, StatusWidth);
+		lstrcpy((wchar_t*)PanelModesRemote[iMode].StatusColumnWidths, StatusWidth);
 
 	}
 }
@@ -446,9 +438,8 @@ void Plist::GetOpenPanelInfo(OpenPanelInfo *Info)
 
 	static struct KeyBarLabel kbl[ARRAYSIZE(FKeys)/3];
 	static struct KeyBarTitles kbt = {ARRAYSIZE(kbl), kbl};
-	int i,j;
 
-	for (j=i=0; i < ARRAYSIZE(FKeys); i+=3, ++j)
+	for (size_t j=0,i=0; i < ARRAYSIZE(FKeys); i+=3, ++j)
 	{
 		kbl[j].Key.VirtualKeyCode = FKeys[i];
 		kbl[j].Key.ControlKeyState = FKeys[i+1];
@@ -490,7 +481,7 @@ BOOL CALLBACK EnumWndProc(HWND hWnd,LPARAM lParam)
 int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,OPERATION_MODES OpMode)
 {
 	Lock l(pPerfThread);
-	int RetCode = pPerfThread ? GetListNT(pPanelItem,ItemsNumber,*pPerfThread) : GetList95(pPanelItem,ItemsNumber);
+	int RetCode = GetList(pPanelItem,ItemsNumber,*pPerfThread);
 
 	if (!RetCode) return FALSE;
 
@@ -549,9 +540,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,OPERATION_M
 					break;
 				case L'c':
 				case L'C':
-
-					if (NT)
-						pDesc = ((ProcessDataNT *)CurItem.UserData)->CommandLine;
+					pDesc = ((ProcessDataNT *)CurItem.UserData)->CommandLine;
 
 					break;
 				default:
@@ -564,7 +553,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,OPERATION_M
 				lstrcpy((wchar_t*)CurItem.Description, pDesc);
 			}
 
-			delete pBuf;
+			delete[] pBuf;
 		}
 
 		ProcessPerfData* pd = 0;
@@ -577,9 +566,9 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,OPERATION_M
 		memset(Widths, 0, sizeof(Widths));
 		unsigned uCustomColSize = 0;
 		int nCols=0;
-		int Size=Info.PanelControl(this,FCTL_GETCOLUMNWIDTHS,0,NULL);
+		size_t Size=Info.PanelControl(this,FCTL_GETCOLUMNWIDTHS,0,NULL);
 		wchar_t *ColumnWidths=new wchar_t[Size];
-		Info.PanelControl(this,FCTL_GETCOLUMNWIDTHS,Size,(void*)ColumnWidths);
+		Info.PanelControl(this,FCTL_GETCOLUMNWIDTHS,static_cast<int>(Size),(void*)ColumnWidths);
 
 		for (StrTok tokn(ColumnWidths, L", "); (bool)tokn && nCols<MAX_CUSTOM_COLS; ++tokn)
 		{
@@ -672,7 +661,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,OPERATION_M
 
 					if (nVisibleDigits > nColWidth) nVisibleDigits = nColWidth;
 
-					memset(pData, L' ', nColWidth-nVisibleDigits);
+					wmemset(pData, L' ', nColWidth-nVisibleDigits);
 					pData += nColWidth-nVisibleDigits;
 					lstrcpyn(pData,buf,nVisibleDigits+1);
 					pData += nVisibleDigits+1;
@@ -695,12 +684,12 @@ void Plist::FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber)
 	for (int i=0; i<ItemsNumber; i++)
 	{
 		PluginPanelItem& item = PanelItem[i];
-		delete item.Description;
-		delete item.Owner;
-		delete item.CustomColumnData;
+		delete[] item.Description;
+		delete[] item.Owner;
+		delete[] item.CustomColumnData;
 		delete(ProcessData *)item.UserData;
-		delete item.FileName;
-		delete item.AlternateFileName;
+		delete[] item.FileName;
+		delete[] item.AlternateFileName;
 	}
 
 	delete PanelItem;
@@ -721,22 +710,11 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
 
 		if (!pdata)
 		{
-			if (!pPerfThread)
-			{
-				memset(&PData, 0, sizeof(PData));
-				PData.dwPID = _tcstoul(CurItem.AlternateFileName, 0, 16);
+			PData.dwPID = FSF.atoi(CurItem.AlternateFileName);
+			ProcessPerfData* ppd = pPerfThread->GetProcessData(PData.dwPID, CurItem.NumberOfLinks);
 
-				if (GetPData95(PData))
-					pdata = &PData;
-			}
-			else
-			{
-				PData.dwPID = FSF.atoi(CurItem.AlternateFileName);
-				ProcessPerfData* ppd = pPerfThread->GetProcessData(PData.dwPID, CurItem.NumberOfLinks);
-
-				if (ppd && GetPDataNT(PData, *ppd))
-					pdata = &PData;
-			}
+			if (ppd && GetPDataNT(PData, *ppd))
+				pdata = &PData;
 
 			if (!pdata)
 				return 0;
@@ -802,13 +780,7 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
 		fprintf(InfoFile,L"%s %d\n",PrintTitle(MTitlePriority),pdata->dwPrBase);
 		fprintf(InfoFile,L"%s %u\n",PrintTitle(MTitleThreads),CurItem.NumberOfLinks);
 
-		if (!pPerfThread)
-		{
-			fprintf(InfoFile,L"%s %8u\n",PrintTitle(MTitleModuleSize),(DWORD)CurItem.PackSize);
-			fprintf(InfoFile,L"%s %8u\n",PrintTitle(MTitleHeapSize),GetHeapSize(pdata->dwPID));
-		}
-		else
-			PrintOwnerInfo(InfoFile, pdata->dwPID);
+		PrintOwnerInfo(InfoFile, pdata->dwPID);
 
 		// Time information
 
@@ -839,7 +811,7 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
 
 		HANDLE hProcess = 0;
 
-		if (NT && !*HostName) // local only
+		if (!*HostName) // local only
 		{
 			if (*((ProcessDataNT*)pdata)->CommandLine)
 			{
@@ -955,13 +927,10 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
 			fprintf(InfoFile,L"\n%s\n%s%s\n",  GetMsg(MTitleModules), GetMsg(MColBaseSize),
 			        Opt.ExportModuleVersion ? GetMsg(MColPathVerDesc) : GetMsg(MColPathVerDescNotShown));
 
-			if (!NT)
-				PrintModules95(InfoFile, pdata->dwPID, Opt);
-			else
-				PrintModulesNT(InfoFile, pdata->dwPID, Opt);
+			PrintModules(InfoFile, pdata->dwPID, Opt);
 		}
 
-		if (NT && !*HostName && (Opt.ExportHandles|Opt.ExportHandlesUnnamed) && pdata->dwPID /*&& pdata->dwPID!=8*/)
+		if (!*HostName && (Opt.ExportHandles|Opt.ExportHandlesUnnamed) && pdata->dwPID /*&& pdata->dwPID!=8*/)
 			PrintHandleInfo(pdata->dwPID, InfoFile, Opt.ExportHandlesUnnamed?true:false, pPerfThread);
 
 		CloseHandle(InfoFile);
@@ -1041,10 +1010,11 @@ int Plist::DeleteFiles(PluginPanelItem *PanelItem,int ItemsNumber,OPERATION_MODE
 				default: MsgId = MTUnknownFailure; break;
 			}
 		}
-		else if (NT)
-			Success = KillProcessNT(pdata->dwPID,pdata->hwnd);
 		else
-			Success = KillProcess(pdata->dwPID);
+		{
+			Success = KillProcess(pdata->dwPID,pdata->hwnd);
+		}
+
 
 		if (!Success)
 		{
@@ -1127,7 +1097,7 @@ void Plist::PutToCmdLine(wchar_t* tmp)
 
 	Info.PanelControl(this,FCTL_INSERTCMDLINE,0,(void*)tmp);
 	Info.PanelControl(this,FCTL_INSERTCMDLINE,0,(void*)L" ");
-	delete tmp1;
+	delete[] tmp1;
 }
 
 bool Plist::Connect(LPCTSTR pMachine, LPCTSTR pUser, LPCTSTR pPasw)
@@ -1138,11 +1108,9 @@ bool Plist::Connect(LPCTSTR pMachine, LPCTSTR pUser, LPCTSTR pPasw)
 	// Add "\\" if missing
 	if (!NORM_M_PREFIX(Machine))
 	{
-		//Convert "//" to "\\"
-		if (!REV_M_PREFIX(Machine))
-			memmove(Machine+2, Machine, (lstrlen(Machine)+1)*sizeof(wchar_t));
-
-		*(LPDWORD)Machine= 0x5c005c;
+		memmove(Machine+2, Machine, (lstrlen(Machine)+1)*sizeof(wchar_t));
+		Machine[0] = L'\\';
+		Machine[1] = L'\\';
 	}
 
 	//Try to connect...
@@ -1222,7 +1190,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 		if (PInfo.CurrentItem < PInfo.ItemsNumber)
 		{
 			size_t Size=Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,0);
-			PluginPanelItem* CurItem=(PluginPanelItem*)new char[Size];
+			PluginPanelItem* CurItem=static_cast<PluginPanelItem*>(malloc(Size));
 			if (CurItem)
 			{
 				FarGetPluginPanelItem gpi={Size, CurItem};
@@ -1230,7 +1198,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 
 				if (!CurItem->UserData)
 				{
-					delete [](char*)CurItem;
+					free(CurItem);
 					return FALSE;
 				}
 			}
@@ -1238,7 +1206,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 				return FALSE;
 
 			HWND hWnd = ((ProcessData *)CurItem->UserData)->hwnd;
-			delete [](char*)CurItem;
+			free(CurItem);
 
 
 			if (hWnd!=NULL && (IsWindowVisible(hWnd) || (IsIconic(hWnd) && (GetWindowLong(hWnd,GWL_STYLE) & WS_DISABLED)==0)) )
@@ -1276,13 +1244,13 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 		Info.PanelControl(this,FCTL_GETPANELINFO,0,(void*)&pi);
 
 		size_t Size=Info.PanelControl(this,FCTL_GETPANELITEM,pi.CurrentItem,0);
-		PluginPanelItem* PPI=(PluginPanelItem*)new char[Size];
+		PluginPanelItem* PPI=static_cast<PluginPanelItem*>(malloc(Size));
 		if (PPI)
 		{
 			FarGetPluginPanelItem gpi={Size, PPI};
 			Info.PanelControl(this,FCTL_GETPANELITEM,pi.CurrentItem,&gpi);
 			bool Exit=pi.CurrentItem >= pi.ItemsNumber || !lstrcmp(PPI->FileName,L"..");
-			delete [](char*)PPI;
+			free(PPI);
 
 			if (Exit)
 				return TRUE;
@@ -1321,7 +1289,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 				//TODO: viewer crashed on exit!
 				Info.Viewer(FileName,PPI->FileName, 0,0,-1,-1, VF_NONMODAL|VF_DELETEONCLOSE,CP_AUTODETECT);
 			}
-			delete [](char*)PPI;
+			free(PPI);
 		}
 		else
 			return FALSE; //???
@@ -1361,7 +1329,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 						//go to local computer
 						delete pPerfThread;
 						DisconnectWMI();
-						pPerfThread = NT ? new PerfThread(*this/*, GetPtr(_REF,7), GetPtr(_REF,8)*/) : 0;
+						pPerfThread = new PerfThread(*this/*, GetPtr(_REF,7), GetPtr(_REF,8)*/);
 						*HostName = 0;
 						stop = true;
 					}
@@ -1384,7 +1352,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 		// go to local host
 		delete pPerfThread;
 		DisconnectWMI();
-		pPerfThread = NT ? new PerfThread(*this) : 0;
+		pPerfThread = new PerfThread(*this);
 		*HostName = 0;
 		Reread();
 		return TRUE;
@@ -1455,22 +1423,17 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 			return TRUE;
 		}
 
-		bool bNewPri = W2K || *HostName;
 		static const USHORT PrClasses[] =
-		    { IDLE_PRIORITY_CLASS, NORMAL_PRIORITY_CLASS,
-		      HIGH_PRIORITY_CLASS, REALTIME_PRIORITY_CLASS
-		    };
-		static const USHORT PrClasses2k[] =
 		    { IDLE_PRIORITY_CLASS, BELOW_NORMAL_PRIORITY_CLASS,
 		      NORMAL_PRIORITY_CLASS, ABOVE_NORMAL_PRIORITY_CLASS,
 		      HIGH_PRIORITY_CLASS, REALTIME_PRIORITY_CLASS
 		    };
-		const int N = bNewPri ? ARRAYSIZE(PrClasses2k) : ARRAYSIZE(PrClasses);
+		const int N = ARRAYSIZE(PrClasses);
 		DebugToken token;
 
 		for (int i=0; i<PInfo.SelectedItemsNumber; i++)
 		{
-			PluginPanelItem* _Item=(PluginPanelItem*)new char[Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,i,0)];
+			PluginPanelItem* _Item=reinterpret_cast<PluginPanelItem*>(Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,i,0));
 			PluginPanelItem& Item=*_Item;
 			Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,i,(void*)&Item);
 			SetLastError(0);
@@ -1490,8 +1453,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 						else
 						{
 							for (int i=0; i<N; i++)
-								if ((bNewPri && dwPriorityClass==PrClasses2k[i]) ||
-								        (!bNewPri && dwPriorityClass==PrClasses[i]))
+								if (dwPriorityClass==PrClasses[i])
 								{
 									bool bChange = false;
 
@@ -1504,8 +1466,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 										i++; bChange = true;
 									}
 
-									if (bChange && !SetPriorityClass(hProcess,
-									                                 bNewPri ? PrClasses2k[i] : PrClasses[i]))
+									if (bChange && !SetPriorityClass(hProcess, PrClasses[i]))
 										WinError();
 
 									//                  else
@@ -1529,10 +1490,10 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 						continue;
 					}
 
-					static const BYTE Pr2K[ARRAYSIZE(PrClasses2k)] = {4,6,8,10,13,24};
+					static const BYTE Pr[ARRAYSIZE(PrClasses)] = {4,6,8,10,13,24};
 
 					for (int i=0; i<N; i++)
-						if (dwPriorityClass==Pr2K[i])
+						if (dwPriorityClass==Pr[i])
 						{
 							bool bChange = false;
 
@@ -1546,7 +1507,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 							}
 
 							if (bChange && pWMI->SetProcessPriority(((ProcessData*)Item.UserData)->dwPID,
-							                                        PrClasses2k[i])!=0)
+							                                        PrClasses[i])!=0)
 								WmiError();
 
 							break;
@@ -1554,7 +1515,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 				}
 			} // if dwPID
 
-			delete [](char*)_Item;
+			free(_Item);
 		}
 
 		token.Revert();
@@ -1585,7 +1546,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 		if (pi.CurrentItem < pi.ItemsNumber)
 		{
 			size_t Size=Info.PanelControl(this,FCTL_GETPANELITEM,pi.CurrentItem,0);
-			PluginPanelItem* PPI=(PluginPanelItem*)new char[Size];
+			PluginPanelItem* PPI=static_cast<PluginPanelItem*>(malloc(Size));
 			if (PPI)
 			{
 				FarGetPluginPanelItem gpi={Size, PPI};
@@ -1595,7 +1556,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 				if (pData)
 					PutToCmdLine(pData->FullPath);
 
-				delete [](char*)PPI;
+				free(PPI);
 			}
 			else
 				return FALSE;
@@ -1800,24 +1761,19 @@ bool Plist::GetVersionInfo(wchar_t* pFullPath, LPBYTE &pBuffer, wchar_t* &pVersi
 	//Find StringFileInfo
 	DWORD ofs;
 
-	for (ofs = NT ? 92 : 70; ofs < size; ofs += *(WORD*)(pBuffer+ofs))
+	for (ofs = 92; ofs < size; ofs += *(WORD*)(pBuffer+ofs))
 		if ( !lstrcmpiW((wchar_t*)(pBuffer+ofs+6), WSFI) )
 			break;
 
 	if (ofs >= size)
 	{
-		delete pBuffer;
+		delete[] pBuffer;
 		return false;
 	}
 
 	wchar_t *langcode;
 
-	if (NT)
-	{
-		langcode = (wchar_t*)(pBuffer + ofs + 42);
-	}
-	else
-		langcode = (wchar_t*)(pBuffer + ofs + 26);
+	langcode = (wchar_t*)(pBuffer + ofs + 42);
 
 	wchar_t blockname[48];
 	unsigned dsize;
@@ -1852,7 +1808,7 @@ void Plist::PrintVersionInfo(HANDLE InfoFile, wchar_t* pFullPath)
 		fprintf(InfoFile,L"%s %s\n",PrintTitle(MTitleFileDesc), pDesc);
 	}
 
-	delete pBuf;
+	delete[] pBuf;
 }
 
 bool Plist::ConnectWMI()

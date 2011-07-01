@@ -394,10 +394,8 @@
     <ClCompile Include="Pcfg.cpp" />
     <ClCompile Include="Pclass.cpp" />
     <ClCompile Include="perfthread.cpp" />
-    <ClCompile Include="Plist95.cpp" />
-    <ClCompile Include="PlistNT.cpp" />
+    <ClCompile Include="Plist.cpp" />
     <ClCompile Include="Pmix.cpp" />
-    <ClCompile Include="Preg.cpp" />
     <ClCompile Include="Proclist.cpp" />
     <ClCompile Include="wmi.cpp" />
   </ItemGroup>

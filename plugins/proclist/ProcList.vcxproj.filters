@@ -39,22 +39,16 @@
     <ClCompile Include="perfthread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Plist95.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PlistNT.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Pmix.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Preg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Proclist.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="wmi.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Plist.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

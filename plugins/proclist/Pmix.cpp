@@ -1,5 +1,6 @@
 #include "Proclist.hpp"
 #include "Proclng.hpp"
+#include "guid.hpp"
 
 const wchar_t *GetMsg(int MsgId)
 {

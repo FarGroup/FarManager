@@ -1,9 +1,9 @@
 // Based on Zoltan Csizmadia's TaskManagerEx source, zoltan_csizmadia@yahoo.com
 
+#include <stdio.h>
 #include "Proclist.hpp"
 #include "perfthread.hpp" // fot GetProcessData
 #include "Proclng.hpp"
-#include <stdio.h>
 
 /*
 struct SYSTEM_HANDLE {
@@ -193,7 +193,7 @@ static bool PrintFileName(HANDLE handle, HANDLE file)
 				ret = true;
 			}
 
-			delete lpBuffer;
+			delete[] lpBuffer;
 		}
 	}
 
@@ -218,7 +218,7 @@ static bool GetTypeToken(HANDLE handle, wchar_t* str, DWORD dwSize)
 			ret = true;
 		}
 
-		delete lpBuffer;
+		delete[] lpBuffer;
 	}
 
 	return ret;
@@ -384,21 +384,6 @@ static bool PrintNameAndType(HANDLE h, DWORD dwPID, HANDLE file, PerfThread* pTh
 	return ret;
 }
 
-inline bool IsSupportedHandle(SYSTEM_HANDLE_TABLE_ENTRY_INFO& handle)
-{
-	//Here you can filter the handles you don't want in the Handle list
-	// Windows 2000 supports everything :)
-	extern int W2K;
-
-	if (W2K)
-		return true;
-
-	//NT4 System process doesn't like if we bother his internal security :)
-	if (handle.UniqueProcessId == 2 && handle.HandleAttributes == 16)
-		return false;
-
-	return true;
-}
 bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread* pThread)
 {
 	bool ret = true;
@@ -442,9 +427,6 @@ bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread*
 	// Iterating through the objects
 	for (i = 0; i < pSysHandleInformation->NumberOfHandles; i++)
 	{
-		if (!IsSupportedHandle(pSysHandleInformation->Handles[i]))
-			continue;
-
 		// ProcessId filtering check
 		if (pSysHandleInformation->Handles[i].UniqueProcessId==dwPID || dwPID==(DWORD)-1)
 		{
@@ -551,14 +533,14 @@ static const wchar_t *GetUserAccountID()
 		return L"";
 	}
 
-	PSID pSid = (PSID)new char[cbSid];
+	PSID pSid = static_cast<PSID>(malloc(cbSid));
 	wchar_t* pDomainName = new wchar_t[cbDomainName+1];
 	pLookupAccountName(0,UserAccountID,pSid,&cbSid, pDomainName,&cbDomainName, &eUse);
 	size = ARRAYSIZE(UserAccountID);
 
 	if (!ConvertSid(pSid, (wchar_t*)UserAccountID, &size)) *UserAccountID = 0;
 
-	delete(char *)pSid;
-	delete pDomainName;
+	free(pSid);
+	delete[] pDomainName;
 	return (const wchar_t *)UserAccountID;
 }
