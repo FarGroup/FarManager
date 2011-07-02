@@ -1,3 +1,7 @@
+drkns 02.07.2011 13:47:03 +0200 - build 2093
+
+1. ¬ключаем low-fragmentation heap только там, где это актуально.
+
 drkns 01.07.2011 22:03:37 +0200 - build 2092
 
 1. Mantis#0001820: ќшибка отрисовки панели при OPIF_DISABLEHIGHLIGHTING
