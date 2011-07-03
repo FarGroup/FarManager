@@ -3043,7 +3043,7 @@ static bool dlggetvalueFunc(const TMacroFunction*)
 						const char *Item->Mask;
 						FarList *Item->ListItems;
 						int  Item->ListPos;
-						CHAR_INFO *Item->VBuf;
+						FAR_CHAR_INFO *Item->VBuf;
 						*/
 					}
 

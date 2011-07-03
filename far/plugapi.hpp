@@ -95,7 +95,7 @@ int WINAPI FarEditor(const wchar_t *FileName,const wchar_t *Title,
                      int X1,int Y1,int X2, int Y2,unsigned __int64 Flags,
                      int StartLine,int StartChar, UINT CodePage);
 void WINAPI FarText(int X,int Y,const FarColor* Color,const wchar_t *Str);
-int WINAPI TextToCharInfo(const char *Text,WORD Attr, CHAR_INFO *CharInfo, int Length, DWORD Reserved);
+
 INT_PTR WINAPI FarEditorControl(int EditorID, EDITOR_CONTROL_COMMANDS Command, int Param1, void* Param2);
 
 INT_PTR WINAPI FarViewerControl(int ViewerID, VIEWER_CONTROL_COMMANDS Command, int Param1, void* Param2);

@@ -292,7 +292,7 @@ int SaveScreen::ScreenBufCharCount()
 
 void SaveScreen::CharCopy(FAR_CHAR_INFO* ToBuffer,FAR_CHAR_INFO* FromBuffer,int Count)
 {
-	memcpy(ToBuffer,FromBuffer,Count*sizeof(CHAR_INFO));
+	memcpy(ToBuffer,FromBuffer,Count*sizeof(FAR_CHAR_INFO));
 }
 
 void SaveScreen::CleanupBuffer(FAR_CHAR_INFO* Buffer, size_t BufSize)

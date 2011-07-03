@@ -438,7 +438,7 @@ void SaveScreenDumpBuffer(const wchar_t *Title,const FAR_CHAR_INFO *Buffer,int X
 		if (fp)
 		{
 			wchar_t timebuf[64];
-			fwprintf(fp,L"%s %s(CHAR_INFO DumpBuffer: '%s')\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),NullToEmpty(Title));
+			fwprintf(fp,L"%s %s(FAR_CHAR_INFO DumpBuffer: '%s')\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),NullToEmpty(Title));
 		}
 	}
 

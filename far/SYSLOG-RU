@@ -161,7 +161,7 @@
      void PluginsStackItem_Dump(const wchar_t *Title,const struct PluginsStackItem *StackItems,int ItemNumber,FILE *fp=NULL)
 
     Дамп экрана 
-     void SaveScreenDumpBuffer(const wchar_t *Title,const CHAR_INFO *Buffer,int X1,int Y1,int X2,int Y2,int RealScreen,FILE *fp=NULL)
+     void SaveScreenDumpBuffer(const wchar_t *Title,const FAR_CHAR_INFO *Buffer,int X1,int Y1,int X2,int Y2,int RealScreen,FILE *fp=NULL)
  
     Дамп класса Manager 
      void ManagerClass_Dump(const wchar_t *Title,const Manager *m=NULL,FILE *fp=NULL)

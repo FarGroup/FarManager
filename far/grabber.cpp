@@ -101,7 +101,7 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
 	FAR_CHAR_INFO* CharBuf=new FAR_CHAR_INFO[BufSize], *PtrCharBuf;
 	wchar_t *CopyBuf=(wchar_t *)xf_malloc(BufSize*sizeof(wchar_t)), *PtrCopyBuf;
 	WORD Chr;
-	GetText(X1,Y1,X2,Y2,CharBuf,BufSize*sizeof(CHAR_INFO));
+	GetText(X1,Y1,X2,Y2,CharBuf,BufSize*sizeof(FAR_CHAR_INFO));
 	*CopyBuf=0;
 	PtrCharBuf=CharBuf;
 	PtrCopyBuf=CopyBuf;

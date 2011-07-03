@@ -168,8 +168,6 @@ WCHAR* MakeSeparator(int Length,WCHAR *DestStr,int Type=1, const wchar_t* UserSe
 
 void InitRecodeOutTable();
 
-int WINAPI TextToCharInfo(const char *Text,WORD Attr, CHAR_INFO *CharInfo, int Length, DWORD Reserved);
-
 inline void SetVidChar(FAR_CHAR_INFO& CI,wchar_t Chr)
 {
 	CI.Char = (Chr<L'\x20'||Chr==L'\x7f')?Oem2Unicode[Chr]:Chr;
