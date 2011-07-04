@@ -585,11 +585,13 @@ bool TmpPanel::IsCurrentFileCorrect(wchar_t **pCurFileName)
 		*pCurFileName = NULL;
 
 	Info.PanelControl(this,FCTL_GETPANELINFO,0,&PInfo);
-	PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,0));
+	size_t Size=Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,0);
+	PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
 
 	if (PPI)
 	{
-		Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,PPI);
+		FarGetPluginPanelItem gpi={Size, PPI};
+		Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,&gpi);
 		CurFileName = PPI->FileName;
 	}
 	else
@@ -638,12 +640,14 @@ int TmpPanel::ProcessKey(const INPUT_RECORD *Rec)
 
 			if (lstrcmp(CurFileName,L"..")!=0)
 			{
-				PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,0));
+				size_t Size=Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,0);
+				PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
 				DWORD attributes=0;
 
 				if (PPI)
 				{
-					Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,PPI);
+					FarGetPluginPanelItem gpi={Size, PPI};
+					Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,&gpi);
 					attributes=PPI->FileAttributes;
 					free(PPI);
 				}
@@ -740,11 +744,13 @@ void TmpPanel::ProcessRemoveKey()
 	for (int i=0; i<PInfo.SelectedItemsNumber; i++)
 	{
 		struct PluginPanelItem *RemovedItem=NULL;
-		PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,i,0));
+		size_t Size=Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,i,0);
+		PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
 
 		if (PPI)
 		{
-			Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,i,PPI);
+			FarGetPluginPanelItem gpi={Size, PPI};
+			Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,i,&gpi);
 			RemovedItem = TmpPanelItem + PPI->UserData;
 		}
 
