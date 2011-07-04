@@ -1,8 +1,3 @@
-#include "farversion.hpp"
-
-#define PLUGIN_BUILD 79
-#define PLUGIN_DESC "Temp Panel for Far Manager"
-#define PLUGIN_NAME "TmpPanel"
-#define PLUGIN_FILENAME "TmpPanel.dll"
+#include "version.hpp"
 
 genericpluginrc(PLUGIN_BUILD, PLUGIN_DESC, PLUGIN_NAME, PLUGIN_FILENAME)

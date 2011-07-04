@@ -7,325 +7,246 @@ Temporary panel miscellaneous utility functions
 
 #include "TmpPanel.hpp"
 
-const TCHAR *GetMsg(int MsgId)
+const wchar_t *GetMsg(int MsgId)
 {
-  return(Info.GetMsg(Info.ModuleNumber,MsgId));
-}
-
-void InitDialogItems(const MyInitDialogItem *Init,struct FarDialogItem *Item,
-                    int ItemsNumber)
-{
-  int i;
-  struct FarDialogItem *PItem=Item;
-  const MyInitDialogItem *PInit=Init;
-  for (i=0;i<ItemsNumber;i++,PItem++,PInit++)
-  {
-    PItem->Type=PInit->Type;
-    PItem->X1=PInit->X1;
-    PItem->Y1=PInit->Y1;
-    PItem->X2=PInit->X2;
-    PItem->Y2=PInit->Y2;
-    PItem->Flags=PInit->Flags;
-    PItem->Focus=0;
-    PItem->History=0;
-    PItem->DefaultButton=0;
-#ifdef UNICODE
-    PItem->MaxLen=0;
-#endif
-#ifndef UNICODE
-    lstrcpy(PItem->Data,PInit->Data!=-1 ? GetMsg(PInit->Data) : "");
-#else
-    PItem->PtrData = PInit->Data!=-1 ? GetMsg(PInit->Data) : L"";
-#endif
-  }
+	return(Info.GetMsg(&MainGuid,MsgId));
 }
 
 void FreePanelItems(PluginPanelItem *Items, DWORD Total)
 {
-  if(Items){
-    for (DWORD I=0;I<Total;I++) {
-      if (Items[I].Owner)
-        free ((void*)Items[I].Owner);
-#ifdef UNICODE
-      if (Items[I].FindData.lpwszFileName)
-        free((void*)Items[I].FindData.lpwszFileName);
-#endif
-    }
-    free (Items);
-  }
+	if (Items)
+	{
+		for (DWORD I=0; I<Total; I++)
+		{
+			if (Items[I].Owner)
+				free((void*)Items[I].Owner);
+
+			if (Items[I].FileName)
+				free((void*)Items[I].FileName);
+		}
+
+		free(Items);
+	}
 }
 
-TCHAR *ParseParam(TCHAR *& str)
+wchar_t *ParseParam(wchar_t *& str)
 {
-  TCHAR* p=str;
-  TCHAR* parm=NULL;
-  if(*p==_T('|')){
-    parm=++p;
-    p=_tcschr(p,_T('|'));
-    if(p){
-      *p=_T('\0');
-      str=p+1;
-      FSF.LTrim(str);
-      return parm;
-    }
-  }
-  return NULL;
+	wchar_t* p=str;
+	wchar_t* parm=NULL;
+
+	if (*p==L'|')
+	{
+		parm=++p;
+		p=_tcschr(p,L'|');
+
+		if (p)
+		{
+			*p=L'\0';
+			str=p+1;
+			FSF.LTrim(str);
+			return parm;
+		}
+	}
+
+	return NULL;
 }
 
-void GoToFile(const TCHAR *Target, BOOL AnotherPanel)
+void GoToFile(const wchar_t *Target, BOOL AnotherPanel)
 {
-#ifndef UNICODE
-  int FCTL_SetPanelDir = AnotherPanel?FCTL_SETANOTHERPANELDIR:FCTL_SETPANELDIR;
-  int FCTL_GetPanelInfo = AnotherPanel?FCTL_GETANOTHERPANELINFO:FCTL_GETPANELINFO;
-  int FCTL_RedrawPanel = AnotherPanel?FCTL_REDRAWANOTHERPANEL:FCTL_REDRAWPANEL;
-#define _PANEL_HANDLE  INVALID_HANDLE_VALUE
-#else
-#define FCTL_SetPanelDir  FCTL_SETPANELDIR
-#define FCTL_GetPanelInfo FCTL_GETPANELINFO
-#define FCTL_RedrawPanel  FCTL_REDRAWPANEL
-  HANDLE  _PANEL_HANDLE = AnotherPanel?PANEL_PASSIVE:PANEL_ACTIVE;
-#endif
+	HANDLE  _PANEL_HANDLE = AnotherPanel?PANEL_PASSIVE:PANEL_ACTIVE;
+	PanelRedrawInfo PRI;
+	PanelInfo PInfo;
+	int pathlen;
+	const wchar_t *p = FSF.PointToName(const_cast<wchar_t*>(Target));
+	StrBuf Name(lstrlen(p)+1);
+	lstrcpy(Name,p);
+	pathlen=(int)(p-Target);
+	StrBuf Dir(pathlen+1);
 
-  PanelRedrawInfo PRI;
-  PanelInfo PInfo;
-  int pathlen;
+	if (pathlen)
+		memcpy(Dir.Ptr(),Target,pathlen*sizeof(wchar_t));
 
-  const TCHAR *p = FSF.PointToName(const_cast<TCHAR*>(Target));
-  StrBuf Name(lstrlen(p)+1);
-  lstrcpy(Name,p);
-  pathlen=(int)(p-Target);
-  StrBuf Dir(pathlen+1);
-  if (pathlen)
-    memcpy(Dir.Ptr(),Target,pathlen*sizeof(TCHAR));
-  Dir[pathlen]=_T('\0');
+	Dir[pathlen]=L'\0';
+	FSF.Trim(Name);
+	FSF.Trim(Dir);
+	FSF.Unquote(Name);
+	FSF.Unquote(Dir);
 
-  FSF.Trim(Name);
-  FSF.Trim(Dir);
-  FSF.Unquote(Name);
-  FSF.Unquote(Dir);
+	if (*Dir.Ptr())
+	{
+		Info.PanelControl(_PANEL_HANDLE,FCTL_SETPANELDIR,0,Dir.Ptr());
+	}
 
-  if (*Dir.Ptr())
-  {
-#ifndef UNICODE
-    Info.Control(_PANEL_HANDLE,FCTL_SetPanelDir,Dir.Ptr());
-#else
-    Info.Control(_PANEL_HANDLE,FCTL_SetPanelDir,0,(LONG_PTR)Dir.Ptr());
-#endif
-  }
+	Info.PanelControl(_PANEL_HANDLE,FCTL_GETPANELINFO,0,&PInfo);
+	PRI.CurrentItem=PInfo.CurrentItem;
+	PRI.TopPanelItem=PInfo.TopPanelItem;
 
-#ifndef UNICODE
-  Info.Control(_PANEL_HANDLE,FCTL_GetPanelInfo,&PInfo);
-#else
-  Info.Control(_PANEL_HANDLE,FCTL_GetPanelInfo,0,(LONG_PTR)&PInfo);
-#endif
+	for (int J=0; J < PInfo.ItemsNumber; J++)
+	{
+		size_t Size=Info.PanelControl(_PANEL_HANDLE,FCTL_GETPANELITEM,J,0);
+		PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
 
-  PRI.CurrentItem=PInfo.CurrentItem;
-  PRI.TopPanelItem=PInfo.TopPanelItem;
+		if (PPI)
+		{
+			FarGetPluginPanelItem gpi={Size, PPI};
+			Info.PanelControl(_PANEL_HANDLE,FCTL_GETPANELITEM,J,&gpi);
+		}
 
-  for(int J=0; J < PInfo.ItemsNumber; J++)
-  {
 
-#ifndef UNICODE
-#define FileName PInfo.PanelItems[J].FindData.cFileName
-#else
-#define FileName (PPI?PPI->FindData.lpwszFileName:NULL)
-    PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.Control(_PANEL_HANDLE,FCTL_GETPANELITEM,J,0));
-    if(PPI)
-    {
-      Info.Control(_PANEL_HANDLE,FCTL_GETPANELITEM,J,(LONG_PTR)PPI);
-    }
-#endif
+		if (!FSF.LStricmp(Name,FSF.PointToName((PPI?PPI->FileName:NULL))))
+		{
+			PRI.CurrentItem=J;
+			PRI.TopPanelItem=J;
+			free(PPI);
+			break;
+		}
+		free(PPI);
+	}
 
-    if(!FSF.LStricmp(Name,FSF.PointToName(FileName)))
-#undef FileName
-    {
-      PRI.CurrentItem=J;
-      PRI.TopPanelItem=J;
-#ifdef UNICODE
-      free(PPI);
-#endif
-      break;
-    }
-#ifdef UNICODE
-    free(PPI);
-#endif
-  }
-#ifndef UNICODE
-  Info.Control(_PANEL_HANDLE,FCTL_RedrawPanel,&PRI);
-#else
-  Info.Control(_PANEL_HANDLE,FCTL_RedrawPanel,0,(LONG_PTR)&PRI);
-#endif
-#undef _PANEL_HANDLE
-#undef FCTL_SetPanelDir
-#undef FCTL_GetPanelInfo
-#undef FCTL_RedrawPanel
+	Info.PanelControl(_PANEL_HANDLE,FCTL_REDRAWPANEL,0,&PRI);
 }
 
-void WFD2FFD(WIN32_FIND_DATA &wfd, FAR_FIND_DATA &ffd)
+void WFD2FFD(WIN32_FIND_DATA &wfd, PluginPanelItem &ffd)
 {
-  ffd.dwFileAttributes=wfd.dwFileAttributes;
-  ffd.ftCreationTime=wfd.ftCreationTime;
-  ffd.ftLastAccessTime=wfd.ftLastAccessTime;
-  ffd.ftLastWriteTime=wfd.ftLastWriteTime;
-#ifndef UNICODE
-  ffd.nFileSizeHigh=wfd.nFileSizeHigh;
-  ffd.nFileSizeLow=wfd.nFileSizeLow;
-#else
-  ffd.nFileSize = wfd.nFileSizeHigh;
-  ffd.nFileSize <<= 32;
-  ffd.nFileSize |= wfd.nFileSizeLow;
-#endif
-#ifndef UNICODE
-  ffd.dwReserved0=wfd.dwReserved0;
-  ffd.dwReserved1=wfd.dwReserved1;
-#else
-  ffd.nPackSize = 0;
-#endif
-#ifndef UNICODE
-  lstrcpy(ffd.cFileName,wfd.cFileName);
-  *ffd.cAlternateFileName = 0;
-#else
-  ffd.lpwszFileName = wcsdup(wfd.cFileName);
-  ffd.lpwszAlternateFileName = NULL;
-#endif
+	ffd.FileAttributes=wfd.dwFileAttributes;
+	ffd.CreationTime=wfd.ftCreationTime;
+	ffd.LastAccessTime=wfd.ftLastAccessTime;
+	ffd.LastWriteTime=wfd.ftLastWriteTime;
+	ffd.FileSize = wfd.nFileSizeHigh;
+	ffd.FileSize <<= 32;
+	ffd.FileSize |= wfd.nFileSizeLow;
+	ffd.PackSize = 0;
+	ffd.FileName = wcsdup(wfd.cFileName);
+	ffd.AlternateFileName = NULL;
 }
 
-#ifdef UNICODE
-wchar_t* FormNtPath(const wchar_t* path, StrBuf& buf) {
-  int l = lstrlen(path);
-  if (l > 4 && path[0] == L'\\' && path[1] == L'\\')
-  {
-    if ((path[2] == L'?' || path[2] == L'.') && path[3] == L'\\')
-    {
-      buf.Grow(l + 1);
-      lstrcpy(buf, path);
-    }
-    else
-    {
-      buf.Grow(6 + l + 1);
-      lstrcpy(buf, L"\\\\?\\UNC\\");
-      lstrcat(buf, path + 2);
-    }
-  }
-  else
-  {
-    buf.Grow(4 + l + 1);
-    lstrcpy(buf, L"\\\\?\\");
-    lstrcat(buf, path);
-  }
-  // slash -> backslash
-  for (wchar_t* ch = buf; *ch; ch++)
-    if (*ch == L'/')
-      *ch = L'\\';
-  return buf;
-}
-#endif
-
-TCHAR* ExpandEnvStrs(const TCHAR* input, StrBuf& output) {
-#ifdef UNICODE
-  output.Grow(NT_MAX_PATH);
-  int size = ExpandEnvironmentStrings(input, output, output.Size());
-  if (size > output.Size())
-  {
-    output.Grow(size);
-    size = ExpandEnvironmentStrings(input, output, output.Size());
-  }
-  if ((size == 0) || (size > output.Size()))
-  {
-    output.Grow(lstrlen(input) + 1);
-    lstrcpy(output, input);
-  }
-#else
-  output.Grow(MAX_PATH);
-  FSF.ExpandEnvironmentStr(input, output, output.Size());
-#endif
-  return output;
-}
-
-bool FindListFile(const TCHAR *FileName, StrBuf &output)
+wchar_t* FormNtPath(const wchar_t* path, StrBuf& buf)
 {
-  StrBuf Path;
-  DWORD dwSize;
+	int l = lstrlen(path);
 
-#ifdef UNICODE
-  StrBuf FullPath;
-  GetFullPath(FileName, FullPath);
-  StrBuf NtPath;
-  FormNtPath(FullPath, NtPath);
-#else
-  const char* FullPath = FileName;
-  const char* NtPath = FileName;
-#endif
+	if (l > 4 && path[0] == L'\\' && path[1] == L'\\')
+	{
+		if ((path[2] == L'?' || path[2] == L'.') && path[3] == L'\\')
+		{
+			buf.Grow(l + 1);
+			lstrcpy(buf, path);
+		}
+		else
+		{
+			buf.Grow(6 + l + 1);
+			lstrcpy(buf, L"\\\\?\\UNC\\");
+			lstrcat(buf, path + 2);
+		}
+	}
+	else
+	{
+		buf.Grow(4 + l + 1);
+		lstrcpy(buf, L"\\\\?\\");
+		lstrcat(buf, path);
+	}
 
-  const TCHAR *final=NULL;
-  if (GetFileAttributes(NtPath) != INVALID_FILE_ATTRIBUTES)
-  {
-#ifdef UNICODE
-    output.Grow(FullPath.Size());
-#else
-    output.Grow(lstrlen(FullPath)+1);
-#endif
-    lstrcpy(output, FullPath);
-    return true;
-  }
+	// slash -> backslash
+	for (wchar_t* ch = buf; *ch; ch++)
+		if (*ch == L'/')
+			*ch = L'\\';
 
-  {
-    const TCHAR *tmp = FSF.PointToName(Info.ModuleName);
-    Path.Grow((int)(tmp-Info.ModuleName+1));
-    lstrcpyn(Path,Info.ModuleName,(int)(tmp-Info.ModuleName+1));
-    dwSize=SearchPath(Path,FileName,NULL,0,NULL,NULL);
-    if (dwSize)
-    {
-      final = Path;
-      goto success;
-    }
-  }
+	return buf;
+}
 
-  ExpandEnvStrs(_T("%FARHOME%;%PATH%"),Path);
-  for (TCHAR *str=Path, *p=_tcschr(Path,_T(';')); *str; p=_tcschr(str,_T(';')))
-  {
-    if (p)
-      *p = 0;
+wchar_t* ExpandEnvStrs(const wchar_t* input, StrBuf& output)
+{
+	output.Grow(NT_MAX_PATH);
+	int size = ExpandEnvironmentStrings(input, output, output.Size());
 
-    FSF.Unquote(str);
-    FSF.Trim(str);
+	if (size > output.Size())
+	{
+		output.Grow(size);
+		size = ExpandEnvironmentStrings(input, output, output.Size());
+	}
 
-    if (*str)
-    {
-      dwSize=SearchPath(str,FileName,NULL,0,NULL,NULL);
-      if (dwSize)
-      {
-        final = str;
-        goto success;
-      }
-    }
+	if ((size == 0) || (size > output.Size()))
+	{
+		output.Grow(lstrlen(input) + 1);
+		lstrcpy(output, input);
+	}
 
-    if (p)
-      str = p+1;
-    else
-      break;
-  }
+	return output;
+}
 
-  return false;
+bool FindListFile(const wchar_t *FileName, StrBuf &output)
+{
+	StrBuf Path;
+	DWORD dwSize;
+	StrBuf FullPath;
+	GetFullPath(FileName, FullPath);
+	StrBuf NtPath;
+	FormNtPath(FullPath, NtPath);
+	const wchar_t *final=NULL;
 
+	if (GetFileAttributes(NtPath) != INVALID_FILE_ATTRIBUTES)
+	{
+		output.Grow(FullPath.Size());
+		lstrcpy(output, FullPath);
+		return true;
+	}
+
+	{
+		const wchar_t *tmp = FSF.PointToName(Info.ModuleName);
+		Path.Grow((int)(tmp-Info.ModuleName+1));
+		lstrcpyn(Path,Info.ModuleName,(int)(tmp-Info.ModuleName+1));
+		dwSize=SearchPath(Path,FileName,NULL,0,NULL,NULL);
+
+		if (dwSize)
+		{
+			final = Path;
+			goto success;
+		}
+	}
+
+	ExpandEnvStrs(L"%FARHOME%;%PATH%",Path);
+
+	for (wchar_t *str=Path, *p=_tcschr(Path,L';'); *str; p=_tcschr(str,L';'))
+	{
+		if (p)
+			*p = 0;
+
+		FSF.Unquote(str);
+		FSF.Trim(str);
+
+		if (*str)
+		{
+			dwSize=SearchPath(str,FileName,NULL,0,NULL,NULL);
+
+			if (dwSize)
+			{
+				final = str;
+				goto success;
+			}
+		}
+
+		if (p)
+			str = p+1;
+		else
+			break;
+	}
+
+	return false;
 success:
-
-  output.Grow(dwSize);
-  SearchPath(final,FileName,NULL,dwSize,output,NULL);
-
-  return true;
+	output.Grow(dwSize);
+	SearchPath(final,FileName,NULL,dwSize,output,NULL);
+	return true;
 }
 
-#ifdef UNICODE
 wchar_t* GetFullPath(const wchar_t* input, StrBuf& output)
 {
-  output.Grow(MAX_PATH);
-  int size = FSF.ConvertPath(CPM_FULL, input, output, output.Size());
-  if (size > output.Size())
-  {
-    output.Grow(size);
-    FSF.ConvertPath(CPM_FULL, input, output, output.Size());
-  }
-  return output;
+	output.Grow(MAX_PATH);
+	int size = FSF.ConvertPath(CPM_FULL, input, output, output.Size());
+
+	if (size > output.Size())
+	{
+		output.Grow(size);
+		FSF.ConvertPath(CPM_FULL, input, output, output.Size());
+	}
+
+	return output;
 }
-#endif

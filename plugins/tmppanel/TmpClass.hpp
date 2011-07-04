@@ -12,47 +12,53 @@ Temporary panel plugin class header file
 
 class TmpPanel
 {
-  private:
-    void RemoveDups();
-    void RemoveEmptyItems();
-    void UpdateItems(int ShowOwners,int ShowLinks);
-    int IsOwnersDisplayed(LPCTSTR ColumnTypes);
-    int IsLinksDisplayed(LPCTSTR ColumnTypes);
-    void ProcessRemoveKey();
-    void ProcessSaveListKey();
-    void ProcessPanelSwitchMenu();
-    void SwitchToPanel (int NewPanelIndex);
-    void FindSearchResultsPanel();
-    void SaveListFile (const TCHAR *Path);
-    bool IsCurrentFileCorrect (TCHAR **pCurFileName);
+	private:
+		PluginPanelItem *TmpPanelItem;
+		int TmpItemsNumber;
+		int LastOwnersRead;
+		int LastLinksRead;
+		int UpdateNotNeeded;
 
-    PluginPanelItem *TmpPanelItem;
-    int TmpItemsNumber;
-    int LastOwnersRead;
-    int LastLinksRead;
-    int UpdateNotNeeded;
-  public:
-    TmpPanel();
-    ~TmpPanel();
-    int PanelIndex;
-//    int OpenFrom;
-    int GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
-    void GetOpenPluginInfo(struct OpenPluginInfo *Info);
-    int SetDirectory(const TCHAR *Dir,int OpMode);
+	private:
+		void RemoveDups();
+		void RemoveEmptyItems();
+		void UpdateItems(int ShowOwners,int ShowLinks);
+		int IsOwnersDisplayed(LPCTSTR ColumnTypes);
+		int IsLinksDisplayed(LPCTSTR ColumnTypes);
+		void ProcessRemoveKey();
+		void ProcessSaveListKey();
+		void ProcessPanelSwitchMenu();
+		void SwitchToPanel(int NewPanelIndex);
+		void FindSearchResultsPanel();
+		void SaveListFile(const wchar_t *Path);
+		bool IsCurrentFileCorrect(wchar_t **pCurFileName);
 
-    int PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,const TCHAR *SrcPath,int OpMode);
-    HANDLE BeginPutFiles();
-    void CommitPutFiles(HANDLE hRestoreScreen, int Success);
-    int PutDirectoryContents(const TCHAR* Path);
-    int PutOneFile(const TCHAR* SrcPath, PluginPanelItem &PanelItem);
-    int PutOneFile(const TCHAR* FilePath);
+	public:
+		TmpPanel();
+		~TmpPanel();
 
-    int SetFindList(const struct PluginPanelItem *PanelItem,int ItemsNumber);
-    int ProcessEvent(int Event,void *Param);
-    int ProcessKey(int Key,unsigned int ControlState);
-    static bool GetFileInfoAndValidate(const TCHAR *FilePath, FAR_FIND_DATA* FindData, int Any);
-    void IfOptCommonPanel(void);
+	public:
+		int PanelIndex;
+		//int OpenFrom;
 
+	public:
+		int GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,const OPERATION_MODES OpMode);
+		void GetOpenPanelInfo(struct OpenPanelInfo *Info);
+		int SetDirectory(const wchar_t *Dir,const OPERATION_MODES OpMode);
+
+		int PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t *SrcPath,const OPERATION_MODES OpMode);
+		HANDLE BeginPutFiles();
+		void CommitPutFiles(HANDLE hRestoreScreen, int Success);
+		int PutDirectoryContents(const wchar_t* Path);
+		int PutOneFile(const wchar_t* SrcPath, PluginPanelItem &PanelItem);
+		int PutOneFile(const wchar_t* FilePath);
+
+		int SetFindList(const struct PluginPanelItem *PanelItem,int ItemsNumber);
+		int ProcessEvent(int Event,void *Param);
+		int ProcessKey(const INPUT_RECORD *Rec);
+		void IfOptCommonPanel(void);
+
+		static bool GetFileInfoAndValidate(const wchar_t *FilePath, PluginPanelItem* FindData, int Any);
 };
 
 #endif /* __TMPCLASS_HPP__ */

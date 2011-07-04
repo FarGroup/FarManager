@@ -11,26 +11,30 @@ Temporary panel header file
 #include "plugin.hpp"
 #include "CRT/crt.hpp"
 #include <shellapi.h>
+#include <initguid.h>
 
 #include "TmpLng.hpp"
 #include "TmpClass.hpp"
 #include "TmpCfg.hpp"
+#include "version.hpp"
+#include "guid.hpp"
+
 
 #define COMMONPANELSNUMBER 10
 
 typedef struct _MyInitDialogItem
 {
-  unsigned char Type;
-  unsigned char X1,Y1,X2,Y2;
-  DWORD Flags;
-  signed char Data;
+	unsigned char Type;
+	unsigned char X1,Y1,X2,Y2;
+	DWORD Flags;
+	signed char Data;
 } MyInitDialogItem;
 
 typedef struct _PluginPanels
 {
-  PluginPanelItem *Items;
-  unsigned int ItemsNumber;
-  unsigned int OpenFrom;
+	PluginPanelItem *Items;
+	unsigned int ItemsNumber;
+	unsigned int OpenFrom;
 } PluginPanels;
 
 extern PluginPanels CommonPanels[COMMONPANELSNUMBER];
@@ -41,70 +45,71 @@ extern struct PluginStartupInfo Info;
 extern struct FarStandardFunctions FSF;
 
 extern int StartupOptFullScreenPanel,StartupOptCommonPanel,StartupOpenFrom;
-extern TCHAR *PluginRootKey;
+extern wchar_t *PluginRootKey;
 
-const TCHAR *GetMsg(int MsgId);
-void InitDialogItems(const MyInitDialogItem *Init,struct FarDialogItem *Item,int ItemsNumber);
+const wchar_t *GetMsg(int MsgId);
 
 int Config();
-void GoToFile(const TCHAR *Target, BOOL AnotherPanel);
+void GoToFile(const wchar_t *Target, BOOL AnotherPanel);
 void FreePanelItems(PluginPanelItem *Items, DWORD Total);
 
-TCHAR *ParseParam(TCHAR *& str);
+wchar_t *ParseParam(wchar_t *& str);
 void GetOptions(void);
-void WFD2FFD(WIN32_FIND_DATA &wfd, FAR_FIND_DATA &ffd);
+void WFD2FFD(WIN32_FIND_DATA &wfd, PluginPanelItem &ffd);
 
-#ifdef UNICODE
 #define BOM_UCS2     0xFEFF
 #define BOM_UCS2_BE  0xFFFE
 #define BOM_UTF8     0xBFBBEF
-#endif
 
 #define NT_MAX_PATH 32768
 
 class StrBuf
 {
-  TCHAR *ptr;
-  int len;
+	private:
+		wchar_t *ptr;
+		int len;
 
-private:
-  StrBuf(const StrBuf &);
-  StrBuf & operator=(const StrBuf &);
+	private:
+		StrBuf(const StrBuf &);
+		StrBuf & operator=(const StrBuf &);
 
-public:
-  StrBuf() { ptr = NULL; len = 0; }
-  StrBuf(int len) { ptr = NULL; Reset(len); }
-  void Reset(int len) { if (ptr) free(ptr); ptr = (TCHAR *) malloc(len * sizeof(TCHAR)); *ptr = 0; this->len = len; }
-  void Grow(int len) { if (len > this->len) Reset(len); }
-  operator TCHAR*() { return ptr; }
-  TCHAR *Ptr() { return ptr; }
-  int Size() const { return len; }
-  ~StrBuf() { free(ptr); }
+	public:
+		StrBuf() { ptr = NULL; len = 0; }
+		StrBuf(int len) { ptr = NULL; Reset(len); }
+		~StrBuf() { free(ptr); }
+
+	public:
+		void Reset(int len) { if (ptr) free(ptr); ptr = (wchar_t *) malloc(len * sizeof(wchar_t)); *ptr = 0; this->len = len; }
+		void Grow(int len) { if (len > this->len) Reset(len); }
+		operator wchar_t*() { return ptr; }
+		wchar_t *Ptr() { return ptr; }
+		int Size() const { return len; }
 };
 
 class PtrGuard
 {
-  TCHAR *ptr;
+	private:
+		wchar_t *ptr;
 
-private:
-  PtrGuard(const PtrGuard &);
-  PtrGuard & operator=(const PtrGuard &);
+	private:
+		PtrGuard(const PtrGuard &);
+		PtrGuard & operator=(const PtrGuard &);
 
-public:
-  PtrGuard() { ptr = NULL; }
-  PtrGuard(TCHAR *ptr) { this->ptr = ptr; }
-  PtrGuard & operator=(TCHAR *ptr) { free(this->ptr); this->ptr = ptr; return *this; }
-  operator TCHAR*() { return ptr; }
-  TCHAR *Ptr() { return ptr; }
-  TCHAR **PtrPtr() { return &ptr; }
-  ~PtrGuard() { free(ptr); }
+	public:
+		PtrGuard() { ptr = NULL; }
+		PtrGuard(wchar_t *ptr) { this->ptr = ptr; }
+		PtrGuard & operator=(wchar_t *ptr) { free(this->ptr); this->ptr = ptr; return *this; }
+		~PtrGuard() { free(ptr); }
+
+	public:
+		operator wchar_t*() { return ptr; }
+		wchar_t *Ptr() { return ptr; }
+		wchar_t **PtrPtr() { return &ptr; }
 };
 
-#ifdef UNICODE
 wchar_t* FormNtPath(const wchar_t* path, StrBuf& buf);
 wchar_t* GetFullPath(const wchar_t* input, StrBuf& output);
-#endif
-TCHAR* ExpandEnvStrs(const TCHAR* input, StrBuf& output);
-bool FindListFile(const TCHAR *FileName, StrBuf &output);
+wchar_t* ExpandEnvStrs(const wchar_t* input, StrBuf& output);
+bool FindListFile(const wchar_t *FileName, StrBuf &output);
 
 #endif /* __TMPPANEL_HPP__ */

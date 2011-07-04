@@ -3,55 +3,54 @@
 
 enum
 {
-  MOk,
-  MCancel,
-  MError,
-  MWarning,
+	MOk,
+	MCancel,
+	MError,
+	MWarning,
 
-  MTempPanel,
-  MTempPanelTitleNum,
+	MTempPanel,
+	MTempPanelTitleNum,
 
-  MDiskMenuString,
+	MDiskMenuString,
 
-  MF7,
-  MAltShiftF12,
-  MAltShiftF2,
-  MAltShiftF3,
+	MF7,
+	MAltShiftF12,
+	MAltShiftF2,
+	MAltShiftF3,
 
-  MTempUpdate,
-  MTempSendFiles,
+	MTempUpdate,
+	MTempSendFiles,
 
-  MSwitchMenuTxt,
-  MSwitchMenuTitle,
+	MSwitchMenuTxt,
+	MSwitchMenuTitle,
 
-  MConfigTitle,
-  MConfigAddToDisksMenu,
-  MConfigDisksMenuDigit,
-  MConfigAddToPluginsMenu,
+	MConfigTitle,
+	MConfigAddToDisksMenu,
+	MConfigAddToPluginsMenu,
 
-  MConfigCommonPanel,
-  MSafeModePanel,
-  MAnyInPanel,
+	MConfigCommonPanel,
+	MSafeModePanel,
+	MAnyInPanel,
 
-  MReplaceInFilelist,
-  MMenuForFilelist,
-  MCopyContens,
+	MReplaceInFilelist,
+	MMenuForFilelist,
+	MCopyContens,
 
-  MFullScreenPanel,
+	MFullScreenPanel,
 
-  MColumnTypes,
-  MColumnWidths,
-  MStatusColumnTypes,
-  MStatusColumnWidths,
+	MColumnTypes,
+	MColumnWidths,
+	MStatusColumnTypes,
+	MStatusColumnWidths,
 
-  MMask,
-  MPrefix,
+	MMask,
+	MPrefix,
 
-  MConfigNewOption,
-  MNewPanelForSearchResults,
-  MListFilePath,
+	MConfigNewOption,
+	MNewPanelForSearchResults,
+	MListFilePath,
 
-  MCopyContensMsg
+	MCopyContensMsg
 };
 
 #endif /* __TMPLNG_HPP__ */
