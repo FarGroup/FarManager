@@ -1312,7 +1312,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 			Builder.AddEditField(Username, ARRAYSIZE(Username), 18, L"ProcessList.Username");
 			Builder.ColumnBreak();
 			Builder.AddText(MPaswd);
-			Builder.AddEditField(Password, ARRAYSIZE(Password), 18);
+			Builder.AddPasswordField(Password, ARRAYSIZE(Password), 18);
 			Builder.EndColumns();
 			Builder.AddText(MEmptyForLocal);
 			Builder.AddOKCancel(MOk, MCancel);
